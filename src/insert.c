@@ -121,13 +121,16 @@ static void *
 InsertPointIntoLine (LayerTypePtr Layer, LineTypePtr Line)
 {
   LineTypePtr line;
+  Location X, Y;
 
   if (((Line->Point1.X == InsertX) && (Line->Point1.Y == InsertY)) ||
       ((Line->Point2.X == InsertX) && (Line->Point2.Y == InsertY)))
     return (NULL);
+  X = Line->Point2.X;
+  Y = Line->Point2.Y;
   AddObjectToMoveUndoList (LINEPOINT_TYPE, Layer, Line, &Line->Point2,
-			   InsertX - Line->Point2.X,
-			   InsertY - Line->Point2.Y);
+			   InsertX - X,
+			   InsertY - Y);
   EraseLine (Line);
   r_delete_entry(Layer->line_tree, (BoxTypePtr)Line);
   Line->Point2.X = InsertX;
@@ -139,7 +142,7 @@ InsertPointIntoLine (LayerTypePtr Layer, LineTypePtr Line)
     * invalidate the line pointer
     */
   if ((line = CreateDrawnLineOnLayer (Layer, InsertX, InsertY,
-				      Line->Point2.X, Line->Point2.Y,
+				      X, Y,
 				      Line->Thickness, Line->Clearance,
 				      Line->Flags)))
     {

@@ -384,12 +384,15 @@ frontE_callback (const BoxType * b, void *cl)
     {
       DrawElementPackage (element, 0);
     }
-  /* Draw mark holes */
-  if (PCB->PinOn)
-    {
-      DrawEMark (element->MarkX, element->MarkY, !FRONT (element));
-    }
   return 1;
+}
+
+static int
+EMark_callback (const BoxType * b, void *cl)
+{
+  ElementTypePtr element = (ElementTypePtr) b;
+
+  DrawEMark (element->MarkX, element->MarkY, !FRONT (element));
 }
 
 static int
@@ -483,6 +486,9 @@ DrawEverything (BoxTypePtr drawn_area)
   /* Draw via holes */
   if (PCB->ViaOn)
     r_search (PCB->Data->via_tree, drawn_area, NULL, hole_callback, NULL);
+  /* Draw element Marks */
+  if (PCB->PinOn)
+    r_search (PCB->Data->element_tree, drawn_area, NULL, EMark_callback, NULL);
   /* Draw rat lines on top */
   if (PCB->RatOn)
     r_search (PCB->Data->rat_tree, drawn_area, NULL, rat_callback, NULL);

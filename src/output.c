@@ -103,6 +103,7 @@ GetSizeOfDrawingArea (void)
 		 "Drawing will flicker as a result\n");
       ScaleOutput (width, height);
       UpdateAll ();
+      SetStatusLine ();
     }
 }
 

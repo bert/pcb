@@ -356,6 +356,7 @@ MoveLinePoint (LayerTypePtr Layer, LineTypePtr Line, PointTypePtr Point)
 	{
 	  EraseLine (Line);
 	  MOVE (Point->X, Point->Y, DeltaX, DeltaY) DrawLine (Layer, Line, 0);
+	  DrawLine (Layer, Line, 0);
 	  Draw ();
 	}
       else
@@ -370,8 +371,8 @@ MoveLinePoint (LayerTypePtr Layer, LineTypePtr Line, PointTypePtr Point)
       if (PCB->RatOn)
 	{
 	  EraseRat ((RatTypePtr) Line);
-	  MOVE (Point->X, Point->Y, DeltaX, DeltaY)
-	    DrawRat ((RatTypePtr) Line, 0);
+	  MOVE (Point->X, Point->Y, DeltaX, DeltaY);
+	  DrawRat ((RatTypePtr) Line, 0);
 	  Draw ();
 	}
       else
