@@ -157,7 +157,7 @@ ReportDialog (void)
 		   "Name = \"%s\""
                    "%s", via->ID, via->Flags, via->X,
 		   via->Y, via->Thickness, via->DrillingHole,
-		   via->Clearance, via->Thickness + via->Mask,
+		   via->Clearance, via->Mask,
 		   EMPTY (via->Name), TEST_FLAG(LOCKFLAG, via) ?
                    "It is LOCKED\n" : "");
 	break;
@@ -191,7 +191,7 @@ ReportDialog (void)
                    "%s",
 		   Pin->ID, Pin->Flags, Pin->X, Pin->Y, Pin->Thickness,
 		   Pin->DrillingHole, Pin->Clearance,
-		   Pin->Thickness + Pin->Mask, EMPTY (Pin->Name),
+		   Pin->Mask, EMPTY (Pin->Name),
 		   EMPTY (element->Name[1].TextString), EMPTY (Pin->Number),
                    TEST_FLAG(LOCKFLAG, Pin) ? "It is LOCKED\n" : "");
 	break;
