@@ -1102,7 +1102,7 @@ InitStatusLine (Widget Parent, Widget Top, Widget Left)
 					       XtNresize, True,
 					       XtNfromVert, Top,
 					       XtNfromHoriz, Left,
-					       LAYOUT_TOP, NULL);
+					       LAYOUT_BOTTOM, NULL);
 }
 
 /* ---------------------------------------------------------------------------
