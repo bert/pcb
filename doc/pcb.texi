@@ -233,10 +233,13 @@ For a complete description of how to use @code{Pcb}, refer to
 The layout is generated on-screen on a grid that can have its origin
 at any desired location.
 The X coordinate increases to the right, Y increases down to the bottom.
-All distances and sizes in @code{Pcb} are measured in mils (0.001 inch).
-One unit on the coordinate display is one mil in distance on the board.
+All distances and sizes in @code{Pcb} are measured in mils
+(0.001 inch).  One unit on the coordinate display is one mil in
+distance on the board. 
 The grid may be set on a metric pitch, but is only correct to within
-the nearest +/- 1 mil.
+the nearest +/- 0.01 mil because @code{Pcb} stores all dimensions as
+integer multiples of 1/100 of a mil or 0.00001 inch.
+
 The sections in this chapter are sorted by the
 order of appearance of the objects within a layout file.
 
