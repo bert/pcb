@@ -780,7 +780,7 @@ CBPOPUP_Display (Widget W, XtPointer ClientData, XtPointer CallData)
     CheckEntry (&DisplayMenu, "showMask");
   if (Settings.ShowSolderSide)
     CheckEntry (&DisplayMenu, "solderSide");
-  zoom = (int)(PCB->Zoom + 0.5);
+  zoom = (int)(PCB->Zoom + SGN(PCB->Zoom) * 0.5);
   if (abs(PCB->Zoom - zoom) > 0.1)
     zoom = -8; /* not close enough to integer value */
   switch (zoom)
