@@ -86,18 +86,37 @@ invoke_action (Widget w, char *rstr)
     }
 
   sp = str = MyStrdup(rstr, "invoke_action");
+
+  /* eat leading spaces and tabs */
   while (*sp && (*sp == ' ' || *sp == '\t'))
     sp ++;
+
   aname = sp;
+
+  /* search for the leading ( */
   while (*sp && *sp != '(')
     sp++;
+
+  /*
+   * we didn't find a leading ( so invoke the action
+   * with no parameters or event.
+   */
   if (! *sp)
     {
       XtCallActionProc(w, aname, 0, 0, 0);
       return;
     }
+
+  /* 
+   * we found a leading ( so see if we have parameters to pass to the
+   * action 
+   */
   *sp++ = 0;
   while (1) {
+    /* 
+     * maybe_empty == 0 means that the last char examined was not a
+     * "," 
+     */
     if (*sp == ')' && !maybe_empty)
       {
 	int i;
@@ -110,7 +129,11 @@ invoke_action (Widget w, char *rstr)
     else
       {
 	maybe_empty = 0;
-	if (num <= max)
+	/* 
+	 * if we have more parameters than memory in our array of
+	 * pointers, then either allocate some or grow the array
+	 */
+	if (num >= max)
 	  {
 	    max += 10;
 	    if (list)
@@ -119,6 +142,8 @@ invoke_action (Widget w, char *rstr)
 	      list = (char **)malloc(max * sizeof(char *));
 	  }
 	list[num++] = sp;
+
+	/* search for a "," or a ")" */
 	while (*sp && *sp != ',' && *sp != ')')
 	  sp++;
 	if (*sp == ',')
