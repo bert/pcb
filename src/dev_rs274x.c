@@ -57,7 +57,6 @@ static char *rcsid = "$Id$";
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
-#include <varargs.h>
 
 #include "global.h"
 
