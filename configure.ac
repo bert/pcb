@@ -42,6 +42,7 @@ AC_CHECK_LIB(SM, main, , , $X_LIBS)
 AC_CHECK_LIB(Xext, main, , , $X_LIBS)
 AC_CHECK_LIB(Xt, XtOpenDisplay, , , $X_LIBS)
 AC_CHECK_LIB(Xmu, main, , , $X_LIBS)
+AC_CHECK_LIB(Xpm, main, , , $X_LIBS)
 
 AC_ARG_WITH([xaw],
 [  --with-xaw=Xaw         Use the specified Athena Widgets type.
