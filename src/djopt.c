@@ -547,7 +547,7 @@ new_line (corner_s * s, corner_s * e, int layer, LineType * example)
 #endif
     {
       LineType *nl;
-      dprintf ("New line %d,%d to %d,%d from l%d t%d c%d f%d\n",
+      dprintf ("New line \033[35m%d,%d to %d,%d from l%d t%d c%d f%d\033[0m\n",
 	       s->x, s->y, e->x, e->y, layer,
 	       example->Thickness, example->Clearance, example->Flags);
       nl = create_pcb_line (layer, s->x, s->y, e->x, e->y,
@@ -2358,15 +2358,57 @@ nudge_corner (corner_s * c, int dx, int dy, corner_s * prev_corner)
     }
 }
 
+static line_s *
+choose_example_line (corner_s * c1, corner_s * c2)
+{
+  int ci, li;
+  line_s *ex;
+  corner_s *c[2];
+  c[0] = c1;
+  c[1] = c2;
+  dprintf ("choose_example_line\n");
+  for (ci=0; ci<2; ci++)
+    for (li=0; li<c[ci]->n_lines; li++)
+      {
+	dprintf ("  try[%d,%d] \033[36m<%d,%d-%d,%d t%d c%d f%d>\033[0m\n",
+		 ci, li,
+		 c[ci]->lines[li]->s->x, c[ci]->lines[li]->s->y,
+		 c[ci]->lines[li]->e->x, c[ci]->lines[li]->e->y,
+		 c[ci]->lines[li]->line->Thickness,
+		 c[ci]->lines[li]->line->Clearance,
+		 c[ci]->lines[li]->line->Flags
+		 );
+	/* Pads are disqualified, as we want to mimic a trace line. */
+	if (c[ci]->lines[li]->line == c[ci]->pad)
+	  {
+	    dprintf ("  bad, pad\n");
+	    continue;
+	  }
+	/* Lines on layers that don't connect to the other pad are bad too.  */
+	if (! intersecting_layers (c[ci]->lines[li]->layer, c[1-ci]->layer))
+	  {
+	    dprintf ("  bad, layers\n");
+	    continue;
+	  }
+	dprintf ("  good\n");
+	return c[ci]->lines[li];
+      }
+  dprintf ("choose_example_line: none found!\n");
+  return 0;
+}
+
 static int
 connect_corners (corner_s * c1, corner_s * c2)
 {
   int layer;
-  LineType *example = c1->n_lines ? c1->lines[0]->line : c2->n_lines ? c2->lines[0]->line : NULL;
+  line_s *ex = choose_example_line (c1, c2);
+  LineType *example = ex->line;
 
-  layer = (c1->layer == -1) ? c2->layer : c1->layer;
-  if (layer == -1)
-    layer = component_layer;
+  dprintf ("connect_corners \033[32m%d,%d to %d,%d, example line %d,%d to %d,%d l%d\033[0m\n",
+	   c1->x, c1->y, c2->x, c2->y,
+	   ex->s->x, ex->s->y, ex->e->x, ex->e->y, ex->layer);
+
+  layer = ex->layer;
 
   /* Assume c1 is the moveable one.  */
   if (!(c1->pin || c1->pad || c1->via) && c1->n_lines == 1)
@@ -2393,10 +2435,7 @@ connect_corners (corner_s * c1, corner_s * c2)
     {
       corner_s *nc = find_corner (c1->x, c2->y, layer);
       new_line (c1, nc, layer, example);
-      if (c1->n_lines > 0)
-         new_line (nc, c2, layer, c1->lines[0]->line);
-      else
-         new_line (nc, c2, layer, example);
+      new_line (nc, c2, layer, example);
       return 0;
     }
 }
