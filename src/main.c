@@ -1316,7 +1316,6 @@ main (int argc, char *argv[])
 {
   Cardinal i;
   XRectangle Big;
-  char *script_file = NULL;
 
   /* init application:
    * - make program name available for error handlers
