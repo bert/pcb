@@ -62,6 +62,7 @@
 
 #include "autoroute.h"
 #include "box.h"
+#include "clip.h"
 #include "create.h"
 #include "draw.h"
 #include "error.h"
@@ -85,16 +86,20 @@
 /*
 #define ROUTE_DEBUG
 #define DEBUG_SHOW_ROUTE_BOXES
-   #define DEBUG_SHOW_EXPANSION_BOXES
-   #define DEBUG_SHOW_VIA_BOXES
+#define DEBUG_SHOW_VIA_BOXES
 */
 
 /* round up "half" thicknesses */
 #define HALF_THICK(x) (((x)+1)/2)
 /* a styles maximum bloat is its keepaway plus the larger of its via radius
  * or line half-thickness. */
+#if 0
 #define BLOAT(style)\
 	((style)->Keepaway + HALF_THICK(MAX((style)->Thick,(style)->Diameter)))
+#else
+#define BLOAT(style)\
+	((style)->Keepaway + HALF_THICK((style)->Thick))
+#endif
 /* conflict penalty is less for traces laid down during previous pass than
  * it is for traces already laid down in this pass. */
 #define CONFLICT_LEVEL(rb)\
@@ -108,27 +113,33 @@
 
 #define ABS(x) (((x)<0)?-(x):(x))
 
-#define LIST_LOOP(init, which, x, command) do {\
-   x = (init);\
-   do {\
-     /* save next one first in case the command modifies or frees it */\
-     routebox_t *__next_one__ = x->which.next;\
-     command;\
+#define LIST_LOOP(init, which, x) do {\
+     routebox_t *__next_one__ = (init);\
+   x = NULL;\
+   while (!x  || __next_one__ != (init)) {\
      x = __next_one__;\
-   } while (x != (init));\
-} while (0)
+     /* save next one first in case the command modifies or frees it */\
+     __next_one__ = x->which.next
 
-#define FOREACH_SUBNET(net, p, command) do {\
+#define FOREACH_SUBNET(net, p) do {\
   routebox_t *_pp_;\
   /* fail-fast: check subnet_processed flags */\
-  LIST_LOOP(net, same_net, p, assert(!p->flags.subnet_processed));\
+  LIST_LOOP(net, same_net, p); \
+  assert(!p->flags.subnet_processed);\
+  END_LOOP;\
   /* iterate through *distinct* subnets */\
-  LIST_LOOP(net, same_net, p, if (!p->flags.subnet_processed) {\
-    LIST_LOOP(p, same_subnet, _pp_, _pp_->flags.subnet_processed=1);\
-    command;\
-  });\
+  LIST_LOOP(net, same_net, p); \
+  if (!p->flags.subnet_processed) {\
+    LIST_LOOP(p, same_subnet, _pp_);\
+    _pp_->flags.subnet_processed=1;\
+    END_LOOP
+#define END_FOREACH(net, p) \
+  }; \
+  END_LOOP;\
   /* reset subnet_processed flags */\
-  LIST_LOOP(net, same_net, p, p->flags.subnet_processed=0);\
+  LIST_LOOP(net, same_net, p); \
+  p->flags.subnet_processed=0;\
+  END_LOOP;\
 } while (0)
 
 /* notes:
@@ -676,19 +687,18 @@ __found_one (const BoxType * box, void *cl)
     return 0;
 }
 static routebox_t *
-FindRouteBox (routedata_t * rd, Location X, Location Y, void *matches)
+FindRouteBox (routedata_t * rd, Location X, Location Y, void *matches,
+	      int group)
 {
   struct find_closure fc;
   BoxType region;
-  int i;
 
-  fc.match =  NULL;
-  fc.key   = matches;
+  fc.match = NULL;
+  fc.key = matches;
   region.X1 = region.X2 = X;
   region.Y1 = region.Y2 = Y;
-  for (i = 0; i < MAX_LAYER; i++)
-    if (r_search (rd->layergrouptree[i], &region, NULL, __found_one, &fc))
-      return fc.match;
+  if (r_search (rd->layergrouptree[group], &region, NULL, __found_one, &fc))
+    return fc.match;
   return NULL;			/* no match found */
 }
 
@@ -708,7 +718,7 @@ FindRouteBoxOnLayerGroup (routedata_t * rd,
   region.X1 = region.X2 = X;
   region.Y1 = region.Y2 = Y;
   if (r_search (rd->layergrouptree[layergroup], &region, NULL,
-		 __found_one_on_lg, &rb))
+		__found_one_on_lg, &rb))
     return rb;
   return NULL;			/* no match found */
 }
@@ -728,6 +738,8 @@ DumpRouteBox (routebox_t * rb)
       printf ("PIN[%s %s] ", rb->parent.pin->Name, rb->parent.pin->Number);
       break;
     case VIA:
+      if (!rb->parent.via)
+	break;
       printf ("VIA[%s %s] ", rb->parent.via->Name, rb->parent.via->Number);
       break;
     case LINE:
@@ -798,65 +810,65 @@ CreateRouteData ()
 
   /* add pins and pads of elements */
   ALLPIN_LOOP (PCB->Data);
-    {
-      AddPin (layergroupboxes, pin, False);
-    }
+  {
+    AddPin (layergroupboxes, pin, False);
+  }
   ENDALL_LOOP;
   ALLPAD_LOOP (PCB->Data);
-    {
-      AddPad (layergroupboxes, element, pad);
-    }
+  {
+    AddPad (layergroupboxes, element, pad);
+  }
   ENDALL_LOOP;
   /* add all vias */
   VIA_LOOP (PCB->Data);
-    {
-      AddPin (layergroupboxes, via, True);
-    }
+  {
+    AddPin (layergroupboxes, via, True);
+  }
   END_LOOP;
 
   for (i = 0; i < MAX_LAYER; i++)
     {
       /* add all (non-rat) lines */
-      LINE_LOOP (LAYER_PTR(i));
-        {
-	  AddLine (layergroupboxes, i, line);
-	}
+      LINE_LOOP (LAYER_PTR (i));
+      {
+	AddLine (layergroupboxes, i, line);
+      }
       END_LOOP;
       /* add all "should-avoid" polygons */
-      POLYGON_LOOP (LAYER_PTR(i));
-        {
-		    AddPolygon (layergroupboxes, i, polygon);
-	}
+      POLYGON_LOOP (LAYER_PTR (i));
+      {
+	AddPolygon (layergroupboxes, i, polygon);
+      }
       END_LOOP;
       /* add all copper text */
-      TEXT_LOOP (LAYER_PTR(i));
-        {
-	  AddText (layergroupboxes, i, text);
-	}
+      TEXT_LOOP (LAYER_PTR (i));
+      {
+	AddText (layergroupboxes, i, text);
+      }
       END_LOOP;
       /* add all arcs */
-      ARC_LOOP (LAYER_PTR(i));
-        {
-	  AddArc (layergroupboxes, i, arc);
-	}
+      ARC_LOOP (LAYER_PTR (i));
+      {
+	AddArc (layergroupboxes, i, arc);
+      }
       END_LOOP;
     }
 
-  /* create k-d trees from pointer lists */
+  /* create r-trees from pointer lists */
   for (i = 0; i < MAX_LAYER; i++)
     {
       /* initialize style (we'll fill in a "real" style later, when we add
        * the connectivity information) */
       POINTER_LOOP (&layergroupboxes[i]);
-        {
-		    /* we're initializing this to the "default" style */
-		    ((routebox_t *) * ptr)->augStyle = &rd->augStyles[NUM_STYLES];
-	}
+      {
+	/* we're initializing this to the "default" style */
+	((routebox_t *) * ptr)->augStyle = &rd->augStyles[NUM_STYLES];
+      }
       END_LOOP;
       /* create the r-tree */
       rd->layergrouptree[i] =
 	r_create_tree ((const BoxType **) layergroupboxes[i].Ptr,
-			layergroupboxes[i].PtrN, 1);
+		       layergroupboxes[i].PtrN, 1);
     }
 
   /* now add connectivity/style information */
@@ -864,64 +876,51 @@ CreateRouteData ()
   {
     routebox_t *last_net = NULL;
     NETLIST_LOOP (&Nets);
+    {
+      routebox_t *last_in_net = NULL;
+      NET_LOOP (netlist);
       {
-	  routebox_t * last_in_net = NULL;
-	  NET_LOOP (netlist);
-			    {
-			    routebox_t *
-			    last_in_subnet = NULL;
-			    CONNECTION_LOOP (net);
-								    {
-								    routebox_t
-								    * rb =
-								    FindRouteBox
-								    (rd,
-								     connection->
-								     X,
-								     connection->
-								     Y,
-								     connection->ptr2);
-								    assert
-								    (rb);
-								    /* traces are listed twice, at start point and at end point */
-								    if (rb ==
-									last_in_subnet)
-								    continue;
-								    /* update circular connectivity lists */
-								    if
-								    (last_in_subnet)
-								    MergeNets
-								    (last_in_subnet,
-								     rb,
-								     ORIGINAL);
-								    if
-								    (last_in_net)
-								    MergeNets
-								    (last_in_net,
-								     rb, NET);
-								    last_in_subnet
-								    =
-								    last_in_net
-								    = rb;
-								    /* XXX: set rb->augStyle! */
-								    rb->
-								    augStyle->Used
-								    = True;
-								    rd->
-								    max_bloat
-								    =
-								    MAX
-								    (rd->max_bloat,
-								     BLOAT
-								     (rb->augStyle->style));
-								     }
-		END_LOOP;
+	routebox_t *last_in_subnet = NULL;
+	CONNECTION_LOOP (net);
+	{
+	  routebox_t *rb;
+	  int j;
+	  for (j = 0; j < MAX_LAYER; j++)
+	    {
+	      rb =
+		FindRouteBox (rd, connection->X, connection->Y,
+			      connection->ptr2, j);
+	      if (!rb)
+		continue;
+	      /* XXX: set rb->augStyle! */
+	      for (i = 0; i < NUM_STYLES; i++)
+		if (net->Style == rd->augStyles[i].style)
+		  {
+		    rb->augStyle = &rd->augStyles[i];
+		    break;
+		  }
+	      rb->augStyle->Used = True;
+	      /* traces are listed twice, at start point and at end point */
+	      if (rb != last_in_subnet)
+		{
+		  /* update circular connectivity lists */
+		  if (last_in_subnet)
+		    MergeNets (last_in_subnet, rb, ORIGINAL);
+		  if (last_in_net)
+		    MergeNets (last_in_net, rb, NET);
+		  last_in_subnet = last_in_net = rb;
+		  rd->max_bloat =
+		    MAX (rd->max_bloat, BLOAT (rb->augStyle->style));
 		}
-		END_LOOP;
-		  if (last_net
-		      && last_in_net) MergeNets (last_net, last_in_net,
-						 DIFFERENT_NET);
-		  last_net = last_in_net;}
+	    }
+	}
+	END_LOOP;
+      }
+      END_LOOP;
+      if (last_net && last_in_net)
+	MergeNets (last_net, last_in_net, DIFFERENT_NET);
+      last_net = last_in_net;
+    }
     END_LOOP;
     rd->first_net = last_net;
   }
@@ -930,7 +929,9 @@ CreateRouteData ()
   /* reset all nets to "original" connectivity (which we just set) */
   {
     routebox_t *net;
-    LIST_LOOP (rd->first_net, different_net, net, ResetSubnet (net));
+    LIST_LOOP (rd->first_net, different_net, net);
+    ResetSubnet (net);
+    END_LOOP;
   }
 
   /* create "empty-space" structures for via placement (now that we know
@@ -942,13 +943,14 @@ CreateRouteData ()
 	  if (rd->augStyles[j].Used)
 	    {
 	      POINTER_LOOP (&layergroupboxes[i]);
-			    {
-			    routebox_t * rb = (routebox_t *) * ptr;
-			    if (!rb->flags.clear_poly)
-			    mtspace_add (rd->augStyles[j].mtspace,
-					 &rb->box, FIXED,
-					 rb->augStyle->style->Keepaway);}
-	END_LOOP;
+	      {
+		routebox_t *rb = (routebox_t *) * ptr;
+		if (!rb->flags.clear_poly)
+		  mtspace_add (rd->augStyles[j].mtspace,
+			       &rb->box, FIXED,
+			       rb->augStyle->style->Keepaway);
+	      }
+	      END_LOOP;
 	    }
 	}
     }
@@ -1010,7 +1012,9 @@ ResetSubnet (routebox_t * net)
 {
   routebox_t *rb;
   /* reset connectivity of everything on this net */
-  LIST_LOOP (net, same_net, rb, rb->same_subnet = rb->original_subnet);
+  LIST_LOOP (net, same_net, rb);
+  rb->same_subnet = rb->original_subnet;
+  END_LOOP;
 }
 
 static cost_t
@@ -1081,13 +1085,19 @@ bloat_routebox (routebox_t * rb)
 #ifdef ROUTE_DEBUG		/* only for debugging expansion areas */
 /* makes a line on the solder layer silk surrounding the box */
 static void
-showbox (BoxType b, BDimension thickness)
+showbox (BoxType b, Dimension thickness, int group)
 {
-  LayerTypePtr SLayer = &(PCB->Data->Layer[MAX_LAYER + SOLDER_LAYER]);
-  CreateNewLineOnLayer (SLayer, b.X1, b.Y1, b.X2, b.Y1, thickness, 1, 0);
-  CreateNewLineOnLayer (SLayer, b.X1, b.Y2, b.X2, b.Y2, thickness, 1, 0);
-  CreateNewLineOnLayer (SLayer, b.X1, b.Y1, b.X1, b.Y2, thickness, 1, 0);
-  CreateNewLineOnLayer (SLayer, b.X2, b.Y1, b.X2, b.Y2, thickness, 1, 0);
+  LayerTypePtr SLayer = LAYER_PTR (group);
+
+  XSetLineAttributes (Dpy, Output.fgGC, thickness, LineSolid, CapRound,
+		      JoinRound);
+  XSetForeground (Dpy, Output.fgGC, SLayer->Color);
+  XDrawCLine (Dpy, Output.OutputWindow, Output.fgGC, b.X1, b.Y1, b.X2, b.Y1);
+  XDrawCLine (Dpy, Output.OutputWindow, Output.fgGC, b.X1, b.Y2, b.X2, b.Y2);
+  XDrawCLine (Dpy, Output.OutputWindow, Output.fgGC, b.X1, b.Y1, b.X1, b.Y2);
+  XDrawCLine (Dpy, Output.OutputWindow, Output.fgGC, b.X2, b.Y1, b.X2, b.Y2);
+  if (XtAppPending (Context))
+    XtAppProcessEvent (Context, XtIMAll);
 }
 #endif
 
@@ -1095,7 +1105,8 @@ showbox (BoxType b, BDimension thickness)
 static void
 showroutebox (routebox_t * rb)
 {
-  showbox (rb->box, rb->flags.is_via ? 2 : 1);
+  showbox (rb->box, rb->flags.is_via ? 2 : 1,
+	   rb->flags.is_via ? MAX_LAYER + COMPONENT_LAYER : rb->group);
 }
 #endif
 
@@ -1283,9 +1294,8 @@ CreateViaEdge (const BoxType * area, Cardinal group,
 		    &previous_edge->cost_point, previous_edge->rb->group)) +
     (scale[through_site_conflict] *
      cost_to_point (&costpoint, group, &costpoint, previous_edge->rb->group));
-  ne = CreateEdge (rb, costpoint.X, costpoint.Y,
-		   previous_edge->cost_to_point + d,
-		   previous_edge->mincost_target, NORTH	/*arbitrary */
+  ne = CreateEdge (rb, costpoint.X, costpoint.Y, previous_edge->cost_to_point + d,
+                   previous_edge->mincost_target, NORTH	/*arbitrary */
 		   , targets);
   ne->flags.expand_all_sides = ne->flags.is_via = 1;
   ne->flags.via_conflict_level = to_site_conflict;
@@ -1319,9 +1329,7 @@ CreateEdgeWithConflicts (const BoxType * interior_edge,
   d = cost_to_point (&costpoint, previous_edge->rb->group,
 		     &previous_edge->cost_point, previous_edge->rb->group);
   d *= cost_penalty_to_box;
-  ne = CreateEdge (rb, costpoint.X, costpoint.Y,
-		   previous_edge->cost_to_point + d,
-		   previous_edge->mincost_target, NORTH	/*arbitrary */
+  ne = CreateEdge (rb, costpoint.X, costpoint.Y, previous_edge->cost_to_point + d, previous_edge->mincost_target, NORTH	/*arbitrary */
 		   , targets);
   ne->flags.expand_all_sides = ne->flags.is_interior = 1;
   assert (__edge_is_good (ne));
@@ -1562,13 +1570,13 @@ __FindBlocker_rect_in_reg (const BoxType * box, void *cl)
   BoxType rbox;
   rbox = bloat_routebox ((routebox_t *) box);
   ROTATEBOX_TO_NORTH (rbox, fbi->expansion_edge->expand_dir);
-  if (rbox.X2 <= fbi->north_box.X1 || rbox.X1 >= fbi->north_box.X2 || rbox.Y1 > fbi->north_box.Y1)
+  if (rbox.X2 <= fbi->north_box.X1 || rbox.X1 >= fbi->north_box.X2
+      || rbox.Y1 > fbi->north_box.Y1)
     return 0;
   if (fbi->blocker != NULL && rbox.Y2 < fbi->north_box.Y1 - fbi->min_dist)
     return 0;
   /* this is a box; it has to jump through a few more hoops */
-  if ((routebox_t *) box ==
-      nonorphan_parent (fbi->expansion_edge->rb))
+  if ((routebox_t *) box == nonorphan_parent (fbi->expansion_edge->rb))
     return 0;			/* this is the parent */
   if (rbox.Y2 > fbi->north_box.Y1)
     {				/* extends below edge */
@@ -1576,7 +1584,8 @@ __FindBlocker_rect_in_reg (const BoxType * box, void *cl)
       /* XXX: what to do here? */
     }
   /* okay, this is the closest we've found. */
-  assert (fbi->blocker == NULL || (fbi->north_box.Y1 - rbox.Y2) <= fbi->min_dist);
+  assert (fbi->blocker == NULL
+	  || (fbi->north_box.Y1 - rbox.Y2) <= fbi->min_dist);
   fbi->blocker = (routebox_t *) box;
   fbi->min_dist = fbi->north_box.Y1 - rbox.Y2;
   assert (fbi->min_dist >= 0);
@@ -1596,42 +1605,42 @@ __FindBlocker_reg_in_sea (const BoxType * region, void *cl)
   if (fbi->blocker != NULL && rbox.Y2 < fbi->north_box.Y1 - fbi->min_dist)
     return 0;
 #else
-  switch(fbi->expansion_edge->expand_dir)
+  switch (fbi->expansion_edge->expand_dir)
     {
-      case WEST:
-	if (-rbox.Y2 > fbi->north_box.X2 ||
-            -rbox.Y1 < fbi->north_box.X1 ||
-	    rbox.X1 > fbi->north_box.Y1 ||
-	    (fbi->blocker != NULL &&
-	     rbox.X2 < fbi->north_box.Y1 - fbi->min_dist))
-	  return 0;
-	return 1;
-      case SOUTH:
-        if (-rbox.X2 > fbi->north_box.X2 ||
-	    -rbox.X1 < fbi->north_box.X1 ||
-	    -rbox.Y2 > fbi->north_box.Y1 ||
-	    (fbi->blocker != NULL &&
-	     -rbox.Y1 < fbi->north_box.Y1 - fbi->min_dist))
-	  return 0;
-	return 1;
-      case EAST:
-        if (rbox.Y1 > fbi->north_box.X2 ||
-	    rbox.Y2 < fbi->north_box.X1 ||
-	    -rbox.X2 > fbi->north_box.Y1 ||
-	    (fbi->blocker != NULL &&
-	     -rbox.X1 < fbi->north_box.Y1 - fbi->min_dist))
-	  return 0;
-	return 1;
-      case NORTH:
-        if (rbox.X1 > fbi->north_box.X2 ||
-	    rbox.X2 < fbi->north_box.X1 ||
-	    rbox.Y1 > fbi->north_box.Y1 ||
-	    (fbi->blocker != NULL &&
-	     rbox.Y2 < fbi->north_box.Y1 - fbi->min_dist))
-	  return 0;
-	return 1;
-      default:
-        assert(0);
+    case WEST:
+      if (-rbox.Y2 > fbi->north_box.X2 ||
+	  -rbox.Y1 < fbi->north_box.X1 ||
+	  rbox.X1 > fbi->north_box.Y1 ||
+	  (fbi->blocker != NULL &&
+	   rbox.X2 < fbi->north_box.Y1 - fbi->min_dist))
+	return 0;
+      return 1;
+    case SOUTH:
+      if (-rbox.X2 > fbi->north_box.X2 ||
+	  -rbox.X1 < fbi->north_box.X1 ||
+	  -rbox.Y2 > fbi->north_box.Y1 ||
+	  (fbi->blocker != NULL &&
+	   -rbox.Y1 < fbi->north_box.Y1 - fbi->min_dist))
+	return 0;
+      return 1;
+    case EAST:
+      if (rbox.Y1 > fbi->north_box.X2 ||
+	  rbox.Y2 < fbi->north_box.X1 ||
+	  -rbox.X2 > fbi->north_box.Y1 ||
+	  (fbi->blocker != NULL &&
+	   -rbox.X1 < fbi->north_box.Y1 - fbi->min_dist))
+	return 0;
+      return 1;
+    case NORTH:
+      if (rbox.X1 > fbi->north_box.X2 ||
+	  rbox.X2 < fbi->north_box.X1 ||
+	  rbox.Y1 > fbi->north_box.Y1 ||
+	  (fbi->blocker != NULL &&
+	   rbox.Y2 < fbi->north_box.Y1 - fbi->min_dist))
+	return 0;
+      return 1;
+    default:
+      assert (0);
     }
 #endif
   return 1;
@@ -1656,24 +1665,24 @@ FindBlocker (rtree_t * rtree, edge_t * e, BDimension maxbloat)
   sbox = bloat_box (&e->rb->box, maxbloat);
   switch (e->expand_dir)
     {
-      case NORTH:
-        sbox.Y1 = -MAX_COORD;
-        break;
-      case EAST:
-        sbox.X2 = MAX_COORD;
-        break;
-      case SOUTH:
-        sbox.Y2 = MAX_COORD;
-	break;
-      case WEST:
-        sbox.X1 = -MAX_COORD;
-        break;
-      default:
-        assert(0);
+    case NORTH:
+      sbox.Y1 = -MAX_COORD;
+      break;
+    case EAST:
+      sbox.X2 = MAX_COORD;
+      break;
+    case SOUTH:
+      sbox.Y2 = MAX_COORD;
+      break;
+    case WEST:
+      sbox.X1 = -MAX_COORD;
+      break;
+    default:
+      assert (0);
     }
   ROTATEBOX_TO_NORTH (fbi.north_box, e->expand_dir);
   r_search (rtree, &sbox,
-	     __FindBlocker_reg_in_sea, __FindBlocker_rect_in_reg, &fbi);
+	    __FindBlocker_reg_in_sea, __FindBlocker_rect_in_reg, &fbi);
   return fbi.blocker;
 }
 
@@ -1690,7 +1699,7 @@ struct fio_info
 static int
 fio_rect_in_reg (const BoxType * box, void *cl)
 {
-  struct fio_info *fio =(struct fio_info *) cl;
+  struct fio_info *fio = (struct fio_info *) cl;
   routebox_t *rb;
   BoxType rbox;
   rbox = bloat_routebox ((routebox_t *) box);
@@ -1714,35 +1723,31 @@ fio_rect_in_reg (const BoxType * box, void *cl)
 static int
 fio_reg_in_sea (const BoxType * region, void *cl)
 {
-  struct fio_info *fio =(struct fio_info *) cl;
+  struct fio_info *fio = (struct fio_info *) cl;
   BoxType rbox;
   rbox = bloat_box (region, fio->maxbloat);
-  switch(fio->edge->expand_dir)
+  switch (fio->edge->expand_dir)
     {
-      case WEST:
-	if (-rbox.Y2 >= fio->north_box.X2 ||
-            -rbox.Y1 <= fio->north_box.X1)
-	    return 0;
-	return 1;
-      case SOUTH:
-        if (-rbox.X2 >= fio->north_box.X2 ||
-	    -rbox.X1 <= fio->north_box.X1)
-	    return 0;
-	return 1;
-      case EAST:
-        if (rbox.Y1 >= fio->north_box.X2 ||
-	    rbox.Y2 <= fio->north_box.X1)
-	    return 0;
-	return 1;
-      case NORTH:
-        if (rbox.X1 >= fio->north_box.X2 ||
-	    rbox.X2 <= fio->north_box.X1)
-	    return 0;
-	return 1;
-      default:
-        assert(0);
+    case WEST:
+      if (-rbox.Y2 >= fio->north_box.X2 || -rbox.Y1 <= fio->north_box.X1)
+	return 0;
+      return 1;
+    case SOUTH:
+      if (-rbox.X2 >= fio->north_box.X2 || -rbox.X1 <= fio->north_box.X1)
+	return 0;
+      return 1;
+    case EAST:
+      if (rbox.Y1 >= fio->north_box.X2 || rbox.Y2 <= fio->north_box.X1)
+	return 0;
+      return 1;
+    case NORTH:
+      if (rbox.X1 >= fio->north_box.X2 || rbox.X2 <= fio->north_box.X1)
+	return 0;
+      return 1;
+    default:
+      assert (0);
     }
-    return 0;
+  return 0;
 }
 
 static routebox_t *
@@ -2131,12 +2136,12 @@ TracePath (routedata_t * rd, routebox_t * path, routebox_t * target,
   routebox_t *lastpath;
   BoxType b;
 
-  assert (subnet->augStyle == AutoRouteParameters.augStyle);
+  // assert (subnet->augStyle == AutoRouteParameters.augStyle);
 
   /* start from *edge* of target box */
   /*XXX: because we round up odd thicknesses, there's the possibility that
-   * a connecting line end-point might be 1/2 mil off the "real" edge.
-   * don't worry about this because line *thicknesses* are always >= 1 mil. */
+   * a connecting line end-point might be 0.005 mil off the "real" edge.
+   * don't worry about this because line *thicknesses* are always >= 0.01 mil. */
   nextpoint.X = (path->box.X1 + path->box.X2) / 2;
   nextpoint.Y = (path->box.Y1 + path->box.Y2) / 2;
   nextpoint = closest_point_in_box (&nextpoint,
@@ -2155,16 +2160,16 @@ TracePath (routedata_t * rd, routebox_t * path, routebox_t * target,
     }
   else if (target->type == PAD)
     {
-    if (abs(target->parent.pad->Point1.X - nextpoint.X) <
-        abs(target->parent.pad->Point2.X - nextpoint.X))
-           nextpoint.X = target->parent.pad->Point1.X;
-    else
-	   nextpoint.X = target->parent.pad->Point2.X;
-    if (abs(target->parent.pad->Point1.Y - nextpoint.Y) <
-        abs(target->parent.pad->Point2.Y - nextpoint.Y))
-	   nextpoint.Y = target->parent.pad->Point1.Y;
-	else
-	   nextpoint.Y = target->parent.pad->Point2.Y;
+      if (abs (target->parent.pad->Point1.X - nextpoint.X) <
+	  abs (target->parent.pad->Point2.X - nextpoint.X))
+	nextpoint.X = target->parent.pad->Point1.X;
+      else
+	nextpoint.X = target->parent.pad->Point2.X;
+      if (abs (target->parent.pad->Point1.Y - nextpoint.Y) <
+	  abs (target->parent.pad->Point2.Y - nextpoint.Y))
+	nextpoint.Y = target->parent.pad->Point1.Y;
+      else
+	nextpoint.Y = target->parent.pad->Point2.Y;
     }
 
 #if defined(ROUTE_DEBUG) && defined(DEBUG_SHOW_ROUTE_BOXES)
@@ -2183,7 +2188,7 @@ TracePath (routedata_t * rd, routebox_t * path, routebox_t * target,
 
       b = path->box;
       /* XXX: if this is a smoothing pass, try to use a larger trace
-	 size? */
+         size? */
       assert (b.X1 != b.X2 && b.Y1 != b.Y2);	/* need someplace to put line! */
       /* find point on path perimeter closest to last point */
       nextpoint = closest_point_in_box (&lastpoint, &b);
@@ -2193,9 +2198,11 @@ TracePath (routedata_t * rd, routebox_t * path, routebox_t * target,
 #if defined(ROUTE_DEBUG)
       printf ("TRACEPATH: ");
       DumpRouteBox (path);
-      printf ("TRACEPATH: shrink (%d, %d)-(%d, %d) point (%d, %d)\n",
-	      b.X1, b.Y1, b.X2, b.Y2, nextpoint.X, nextpoint.Y);
+      printf ("TRACEPATH: point (%d, %d) to point (%d, %d) layer %d\n",
+	      lastpoint.X, lastpoint.Y, nextpoint.X, nextpoint.Y,
+	      path->group);
 #endif
+
       /* draw orthogonal lines from lastpoint to nextpoint */
       /* knee is placed in lastpath box */
       /* should never cause line to leave union of lastpath/path boxes */
@@ -2225,10 +2232,13 @@ TracePath (routedata_t * rd, routebox_t * path, routebox_t * target,
 	  lastpoint = nextpoint;
 	  nextpoint = closest_point_in_box (&lastpoint, &bb);
 	  RD_DrawManhattanLine (rd, &path->box, lastpoint, nextpoint,
-				halfwidth, lastpath->group, subnet, is_bad);
+				halfwidth, path->group, subnet, is_bad);
 	}
       if (path->flags.is_via)
 	{			/* if via, then add via */
+#ifdef ROUTE_VERBOSE
+	  printf (" (vias)");
+#endif
 	  assert (point_in_box (&path->box, nextpoint.X, nextpoint.Y));
 	  RD_DrawVia (rd, nextpoint.X, nextpoint.Y, radius, subnet, is_bad);
 	}
@@ -2258,16 +2268,16 @@ TracePath (routedata_t * rd, routebox_t * path, routebox_t * target,
     }
   else if (path->type == PAD)
     {
-    if (abs(path->parent.pad->Point1.X - nextpoint.X) <
-        abs(path->parent.pad->Point2.X - nextpoint.X))
-           nextpoint.X = path->parent.pad->Point1.X;
-    else
-	   nextpoint.X = path->parent.pad->Point2.X;
-    if (abs(path->parent.pad->Point1.Y - nextpoint.Y) <
-        abs(path->parent.pad->Point2.Y - nextpoint.Y))
-	   nextpoint.Y = path->parent.pad->Point1.Y;
-	else
-	   nextpoint.Y = path->parent.pad->Point2.Y;
+      if (abs (path->parent.pad->Point1.X - nextpoint.X) <
+	  abs (path->parent.pad->Point2.X - nextpoint.X))
+	nextpoint.X = path->parent.pad->Point1.X;
+      else
+	nextpoint.X = path->parent.pad->Point2.X;
+      if (abs (path->parent.pad->Point1.Y - nextpoint.Y) <
+	  abs (path->parent.pad->Point2.Y - nextpoint.Y))
+	nextpoint.Y = path->parent.pad->Point1.Y;
+      else
+	nextpoint.Y = path->parent.pad->Point2.Y;
     }
 #if 0
   printf ("TRACEPATH end (%d, %d)\n", nextpoint.X, nextpoint.Y);
@@ -2405,9 +2415,13 @@ RouteOne (routedata_t * rd, routebox_t * from, routebox_t * to)
 
   assert (rd && from);
   /* no targets on to/from net need keepaway areas */
-  LIST_LOOP (from, same_net, p, p->flags.nobloat = 1);
+  LIST_LOOP (from, same_net, p);
+  p->flags.nobloat = 1;
+  END_LOOP;
   /* set 'source' flags */
-  LIST_LOOP (from, same_subnet, p, p->flags.source = 1);
+  LIST_LOOP (from, same_subnet, p);
+  p->flags.source = 1;
+  END_LOOP;
   assert (from->flags.source);
 
   if (to)
@@ -2416,34 +2430,49 @@ RouteOne (routedata_t * rd, routebox_t * from, routebox_t * to)
 	{			/* not already connected */
 	  /* check that 'to' and 'from' are on the same net */
 	  seen = 0;
-	  LIST_LOOP (from, same_net, p, if (p == to) seen = 1);
+#ifndef NDEBUG
+	  LIST_LOOP (from, same_net, p);
+	  if (p == to)
+	    seen = 1;
+	  END_LOOP;
+#endif
 	  assert (seen);	/* otherwise from and to are on different nets! */
 	  /* set target flags only on 'to's subnet */
-	  LIST_LOOP (to, same_subnet, p, p->flags.target = 1);
+	  LIST_LOOP (to, same_subnet, p);
+	  p->flags.target = 1;
+	  END_LOOP;
 	  assert (to->flags.target);
 	}
     }
   else
     {				/* all nodes on the net but not connected to from are targets */
-      LIST_LOOP (from, same_net, p, if (!p->flags.source) p->flags.target =
-		 1);
+      LIST_LOOP (from, same_net, p);
+      if (!p->flags.source)
+	p->flags.target = 1;
+      END_LOOP;
     }
 
   /* remove source/target flags from non-straight obstacles, because they
    * don't fill their bounding boxes and so connecting to them
    * after we've routed is problematic.  Better solution? */
-  LIST_LOOP (from, same_net, p,
-	     if (p->flags.nonstraight) p->flags.source = p->flags.target = 0);
+  LIST_LOOP (from, same_net, p);
+  if (p->flags.nonstraight)
+    p->flags.source = p->flags.target = 0;
+  END_LOOP;
 
   /* count up the targets */
   num_targets = 0;
-  LIST_LOOP (from, same_net, p, if (p->flags.target) num_targets++);
+  LIST_LOOP (from, same_net, p);
+  if (p->flags.target)
+    num_targets++;
+  END_LOOP;
 
   /* if no targets, then net is done!  reset flags and return. */
   if (num_targets == 0)
     {
-      LIST_LOOP (from, same_net, p,
-		 p->flags.source = p->flags.target = p->flags.nobloat = 0);
+      LIST_LOOP (from, same_net, p);
+      p->flags.source = p->flags.target = p->flags.nobloat = 0;
+      END_LOOP;
       result.found_route = False;
       result.net_completely_routed = True;
       return result;
@@ -2456,34 +2485,37 @@ RouteOne (routedata_t * rd, routebox_t * from, routebox_t * to)
   /* create list of target pointers and from that a r-tree of targets */
   target_list = malloc (num_targets * sizeof (*target_list));
   i = 0;
-  LIST_LOOP (from, same_net, p, if (p->flags.target)
-	     {
-	     target_list[i++] = &p->box;}
-  );
+  LIST_LOOP (from, same_net, p);
+  if (p->flags.target)
+    {
+      target_list[i++] = &p->box;
+    }
+  END_LOOP;
   targets = r_create_tree (target_list, i, 0);
   assert (i <= num_targets);
   free (target_list);
 
   /* add all sources to a vector */
   source_vec = vector_create ();
-  LIST_LOOP (from, same_subnet, p, if (p->flags.source &&
-				       is_layer_group_active (p->group))
-	     {
-	     /* we need the test for 'source' because this box may be nonstraight */
-	     /* may expand in all directions from source; arbitrary cost point. */
-	     vector_append (source_vec,
-	                    CreateEdge (p, p->box.X1, p->box.Y1, 0, NULL,
-			                NORTH, targets));
-	     vector_append (source_vec,
-			    CreateEdge (p, p->box.X2, p->box.Y1, 0, NULL,
-					EAST, targets));
-	     vector_append (source_vec,
-			    CreateEdge (p, p->box.X2, p->box.Y2, 0, NULL,
-					SOUTH, targets));
-	     vector_append (source_vec,
-			    CreateEdge (p, p->box.X1, p->box.Y2, 0, NULL,
-					WEST, targets));}
-  );
+  LIST_LOOP (from, same_subnet, p);
+  if (p->flags.source && is_layer_group_active (p->group))
+    {
+      /* we need the test for 'source' because this box may be nonstraight */
+      /* may expand in all directions from source; arbitrary cost point. */
+      vector_append (source_vec,
+		     CreateEdge (p, p->box.X1, p->box.Y1, 0, NULL,
+				 NORTH, targets));
+      vector_append (source_vec,
+		     CreateEdge (p, p->box.X2, p->box.Y1, 0, NULL,
+				 EAST, targets));
+      vector_append (source_vec,
+		     CreateEdge (p, p->box.X2, p->box.Y2, 0, NULL,
+				 SOUTH, targets));
+      vector_append (source_vec,
+		     CreateEdge (p, p->box.X1, p->box.Y2, 0, NULL,
+				 WEST, targets));
+    }
+  END_LOOP;
   /* break source edges; some edges may be too near obstacles to be able
    * to exit from. */
   BreakEdges (rd, source_vec, targets);
@@ -2565,7 +2597,7 @@ RouteOne (routedata_t * rd, routebox_t * from, routebox_t * to)
 	       * an expansion area */
 	      assert (e->rb->type == EXPANSION_AREA && e->rb->flags.is_via);
 	      assert (r_region_is_empty (rd->layergrouptree[e->rb->group],
-					  &e->rb->box));
+					 &e->rb->box));
 	      r_insert_entry (rd->layergrouptree[e->rb->group], &e->rb->box,
 			      1);
 	      e->rb->flags.orphan = 0;	/* not an orphan any more */
@@ -2644,9 +2676,9 @@ RouteOne (routedata_t * rd, routebox_t * from, routebox_t * to)
 			  /* if this is not the intersecting piece, create a new
 			   * (hopefully unobstructed) via edge and add it back to the
 			   * workheap. */
-			  ne = CreateViaEdge (&b, e->rb->group,
-					      e->rb->parent.expansion_area, e,
-					      e->flags.via_conflict_level, NO_CONFLICT	/* value here doesn't matter */
+			  ne = CreateViaEdge (&b, e->rb->group, e->rb->parent.expansion_area,
+			                      e, e->flags.via_conflict_level, NO_CONFLICT
+					      /* value here doesn't matter */
 					      , targets);
 			  add_or_destroy_edge (&s, ne);
 			}
@@ -2820,15 +2852,6 @@ RouteOne (routedata_t * rd, routebox_t * from, routebox_t * to)
 #endif
 	    break;
 	  }
-#ifdef ROUTE_VERBOSE
-      for (rb = s.best_path; !rb->flags.source;
-	   rb = rb->parent.expansion_area)
-	if (rb->flags.is_via)
-	  {
-	    printf (" (vias)");
-	    break;
-	  }
-#endif
       /* back-trace the path and add lines/vias to r-tree */
       TracePath (rd, s.best_path, s.best_target, from,
 		 result.route_had_conflicts);
@@ -2846,8 +2869,9 @@ RouteOne (routedata_t * rd, routebox_t * from, routebox_t * to)
       result.found_route = False;
     }
   /* clean up; remove all 'source', 'target', and 'nobloat' flags */
-  LIST_LOOP (from, same_net, p,
-	     p->flags.source = p->flags.target = p->flags.nobloat = 0);
+  LIST_LOOP (from, same_net, p);
+  p->flags.source = p->flags.target = p->flags.nobloat = 0;
+  END_LOOP;
   /* now remove all expansion areas from the r-tree. */
   while (!vector_is_empty (area_vec))
     {
@@ -2881,9 +2905,10 @@ InitAutoRouteParameters (int pass,
   AutoRouteParameters.augStyle = augStyle;
   /* costs */
   AutoRouteParameters.ViaCost = 25000;
-  AutoRouteParameters.LastConflictPenalty = 100. * exp(LN_2_OVER_2*MIN (30, pass * 4));
-  AutoRouteParameters.ConflictPenalty = 4 *
-    AutoRouteParameters.LastConflictPenalty;
+  AutoRouteParameters.LastConflictPenalty =
+    100. * exp (LN_2_OVER_2 * MIN (30, pass * 4));
+  AutoRouteParameters.ConflictPenalty =
+    4 * AutoRouteParameters.LastConflictPenalty;
   AutoRouteParameters.JogPenalty = 1000;
   AutoRouteParameters.DirectionPenalty = 2;
   /* other */
@@ -2916,8 +2941,9 @@ RouteAll (routedata_t * rd)
    * don't know any better. */
   this_pass = heap_create ();
   next_pass = heap_create ();
-  LIST_LOOP (rd->first_net, different_net, net,
-	     heap_insert (this_pass, 0, net));
+  LIST_LOOP (rd->first_net, different_net, net);
+  heap_insert (this_pass, 0, net);
+  END_LOOP;
 
   /* refinement/finishing passes */
   for (i = 0; i <= limit; i++)
@@ -2935,309 +2961,344 @@ RouteAll (routedata_t * rd)
 	  if (i > 0)
 	    {
 	      /* rip up all unfixed traces in this net */
-	      LIST_LOOP (net, same_net, p, if (!p->flags.fixed)
-			 {
-			 assert (!p->flags.orphan);
-			 RemoveFromNet (p, NET);
-			 RemoveFromNet (p, SUBNET);
-			 if (AutoRouteParameters.use_vias)
-			 for (j = 0; j < NUM_STYLES + 1; j++)
-			 if (rd->augStyles[j].Used)
-			 mtspace_remove (rd->augStyles[j].mtspace, &p->box,
-					 p->flags.is_odd ? ODD : EVEN,
-					 p->augStyle->style->Keepaway);
-			 r_delete_entry (rd->layergrouptree[p->group],
-					 &p->box);}
-	      );
+	      LIST_LOOP (net, same_net, p);
+	      if (!p->flags.fixed)
+		{
+		  assert (!p->flags.orphan);
+		  RemoveFromNet (p, NET);
+		  RemoveFromNet (p, SUBNET);
+		  if (AutoRouteParameters.use_vias)
+		    for (j = 0; j < NUM_STYLES + 1; j++)
+		      if (rd->augStyles[j].Used)
+			mtspace_remove (rd->augStyles[j].mtspace, &p->box,
+					p->flags.is_odd ? ODD : EVEN,
+					p->augStyle->style->Keepaway);
+		  r_delete_entry (rd->layergrouptree[p->group], &p->box);
+		}
+	      END_LOOP;
 	      /* reset to original connectivity */
 	      ResetSubnet (net);
 	    }
 	  /* count number of subnets */
-	  FOREACH_SUBNET (net, p, ras.total_subnets++);
+	  FOREACH_SUBNET (net, p);
+	  ras.total_subnets++;
+	  END_FOREACH (net, p);
 	  /* the first subnet doesn't require routing. */
 	  ras.total_subnets--;
 	  /* and re-route! */
 	  total_net_cost = 0;
 	  /* the LIST_LOOP here ensures that we get to all subnets even if
 	   * some of them are unreachable from the first subnet */
-	  LIST_LOOP (net, same_net, p, if (p->flags.fixed &&
-					   !p->flags.subnet_processed)
-		     {
-		     do
-		     {
-		     ros = RouteOne (rd, p, NULL); if (ros.found_route)
-		     {
-		     total_net_cost += ros.best_route_cost;
-		     if (ros.route_had_conflicts) ras.conflict_subnets++;
-		     else
-		     ras.routed_subnets++;}
-		     else
-		     {
-		     /* don't bother trying any other source in this subnet */
-		     LIST_LOOP (p, same_subnet, pp,
-				pp->flags.subnet_processed = 1);}
-		     /* note that we can infer nothing about ras.total_subnets based
-		      * on the number of calls to RouteOne, because we may be unable
-		      * to route a net from a particular starting point, but perfectly
-		      * able to route it from some other. */
-		     }
-		     while (ros.found_route && !ros.net_completely_routed);}
-	    );
-	    heap_insert (next_pass, -total_net_cost, net);
-	    /* reset subnet_processed flags */
-	    LIST_LOOP (net, same_net, p, p->flags.subnet_processed = 0);
-	  }
-	  /* swap this_pass and next_pass and do it all over again! */
-	  assert (heap_is_empty (this_pass));
-	  tmp = this_pass;
-	  this_pass = next_pass;
-	  next_pass = tmp;
-	  /* XXX: here we should update a status bar */
-#ifdef ROUTE_VERBOSE
-	  printf ("END OF PASS %d: %d/%d subnets routed without conflicts\n",
-		  i, ras.routed_subnets, ras.total_subnets);
-#endif
-	  /* if no conflicts found, skip directly to smoothing pass! */
-	  if (ras.conflict_subnets == 0 && i < limit)
-	    i = limit - 1;
+	  LIST_LOOP (net, same_net, p);
+	  if (p->flags.fixed && !p->flags.subnet_processed)
+	    {
+	      do
+		{
+		  ros = RouteOne (rd, p, NULL);
+		  if (ros.found_route)
+		    {
+		      total_net_cost += ros.best_route_cost;
+		      if (ros.route_had_conflicts)
+			ras.conflict_subnets++;
+		      else
+			ras.routed_subnets++;
+		    }
+		  else
+		    {
+		      /* don't bother trying any other source in this subnet */
+		      LIST_LOOP (p, same_subnet, pp);
+		      pp->flags.subnet_processed = 1;
+		      END_LOOP;
+		    }
+		  /* note that we can infer nothing about ras.total_subnets based
+		   * on the number of calls to RouteOne, because we may be unable
+		   * to route a net from a particular starting point, but perfectly
+		   * able to route it from some other. */
+		}
+	      while (ros.found_route && !ros.net_completely_routed);
+	    }
+	  END_LOOP;
+	  heap_insert (next_pass, -total_net_cost, net);
+	  /* reset subnet_processed flags */
+	  LIST_LOOP (net, same_net, p);
+	  p->flags.subnet_processed = 0;
+	  END_LOOP;
 	}
-
-      heap_destroy (&this_pass);
-      heap_destroy (&next_pass);
-
-      /* no conflicts should be left at the end of the process. */
-      assert (ras.conflict_subnets == 0);
-
-      return ras;
+      /* swap this_pass and next_pass and do it all over again! */
+      assert (heap_is_empty (this_pass));
+      tmp = this_pass;
+      this_pass = next_pass;
+      next_pass = tmp;
+      /* XXX: here we should update a status bar */
+#ifdef ROUTE_VERBOSE
+      printf ("END OF PASS %d: %d/%d subnets routed without conflicts\n",
+	      i, ras.routed_subnets, ras.total_subnets);
+#endif
+      /* if no conflicts found, skip directly to smoothing pass! */
+      if (ras.conflict_subnets == 0 && i < limit)
+	i = limit - 1;
     }
+
+  heap_destroy (&this_pass);
+  heap_destroy (&next_pass);
+
+  /* no conflicts should be left at the end of the process. */
+  assert (ras.conflict_subnets == 0);
+
+  return ras;
+}
 
 /* paths go on first 'on' layer in group */
 /* returns 'True' if any paths were added. */
-  Boolean IronDownAllUnfixedPaths (routedata_t * rd)
-  {
-    Boolean changed = False;
-    LayerTypePtr layer;
-    routebox_t *net, *p;
-    int i;
-      LIST_LOOP (rd->first_net, different_net, net,
-		 LIST_LOOP (net, same_net, p, if (!p->flags.fixed)
-			    {
-			    /* find first on layer in this group */
-			    assert (PCB->LayerGroups.Number[p->group] > 0);
-			    assert (is_layer_group_active (p->group));
-			    for (i = 0, layer = NULL;
-				 i < PCB->LayerGroups.Number[p->group]; i++)
-			    {
-			    layer = LAYER_PTR(PCB->LayerGroups.Entries[p->group][i]);
-			    if (layer->On) break;}
-			    assert (layer && layer->On);	/*at least one layer must be on in this group! */
-			    assert (p->type != EXPANSION_AREA);
-			    if (p->type == LINE)
-			    {
-			    BDimension halfwidth =
-			    HALF_THICK (p->augStyle->style->Thick); BoxType b;
-			    assert (p->parent.line == NULL);
-			    /* orthogonal; thickness is 2*halfwidth */
-			    /* hace
-			    assert (p->flags.nonstraight ||
-				    p->box.X1 + halfwidth ==
-				    p->box.X2 - halfwidth
-				    || p->box.Y1 + halfwidth ==
-				    p->box.Y2 - halfwidth);
-				    */
-			    /* flip coordinates, if bl_to_ur */
-			    b = shrink_box (&p->box, halfwidth);
-			    if (p->flags.bl_to_ur)
-			    {
-			    BDimension t; t = b.X1; b.X1 = b.X2; b.X2 = t;}
-			    p->parent.line = CreateDrawnLineOnLayer
-			    (layer, b.X1, b.Y1, b.X2, b.Y2,
-			     p->augStyle->style->Thick,
-			     p->augStyle->style->Keepaway, AUTOFLAG);
-			    assert (p->parent.line); if (p->parent.line)
-			    {
-			    AddObjectToCreateUndoList (LINE_TYPE, layer,
-						       p->parent.line,
-						       p->parent.line);
-			    changed = True;}
-			    }
-			    else
-			    if (p->type == VIA || p->type == VIA_SHADOW)
-			    {
-			    routebox_t * pp =
-			    (p->type ==
-			     VIA_SHADOW) ? p->parent.via_shadow : p;
-			    BDimension radius =
-			    HALF_THICK (pp->augStyle->style->Diameter);
-			    assert (pp->type == VIA);
-			    if (pp->parent.via == NULL)
-			    {
-			    assert (pp->box.X1 + radius ==
-				    pp->box.X2 - radius);
-			    assert (pp->box.Y1 + radius ==
-				    pp->box.Y2 - radius);
-			    pp->parent.via =
-			    CreateNewVia (PCB->Data, pp->box.X1 + radius,
-					  pp->box.Y1 + radius,
-					  pp->augStyle->style->Diameter,
-					  2*pp->augStyle->style->Keepaway,
-					  0, pp->augStyle->style->Hole, NULL,
-					  VIAFLAG | AUTOFLAG);
-			    assert (pp->parent.via); if (pp->parent.via)
-			    {
-			    UpdatePIPFlags (pp->parent.via,
-					    (ElementTypePtr) pp->parent.via,
-					    NULL, NULL, False);
-			    AddObjectToCreateUndoList (VIA_TYPE,
-						       pp->parent.via,
-						       pp->parent.via,
-						       pp->parent.via);
-			    changed = True;}
-			    }
-			    assert (pp->parent.via);
-			    if (p->type == VIA_SHADOW)
-			    {
-			    p->type = VIA; p->parent.via = pp->parent.via;}
-			    }
-			    else
-			    assert (0);} /* this assert can happen? */
-		 ));
-    return changed;
-  }
+Boolean
+IronDownAllUnfixedPaths (routedata_t * rd)
+{
+  Boolean changed = False;
+  LayerTypePtr layer;
+  routebox_t *net, *p;
+  int i;
+  LIST_LOOP (rd->first_net, different_net, net);
+  LIST_LOOP (net, same_net, p);
+  if (!p->flags.fixed)
+    {
+      /* find first on layer in this group */
+      assert (PCB->LayerGroups.Number[p->group] > 0);
+      assert (is_layer_group_active (p->group));
+      for (i = 0, layer = NULL; i < PCB->LayerGroups.Number[p->group]; i++)
+	{
+	  layer = LAYER_PTR (PCB->LayerGroups.Entries[p->group][i]);
+	  if (layer->On)
+	    break;
+	}
+      assert (layer && layer->On);	/*at least one layer must be on in this group! */
+      assert (p->type != EXPANSION_AREA);
+      if (p->type == LINE)
+	{
+	  BDimension halfwidth = HALF_THICK (p->augStyle->style->Thick);
+	  BoxType b;
+	  assert (p->parent.line == NULL);
+	  /* orthogonal; thickness is 2*halfwidth */
+	  /* hace
+	     assert (p->flags.nonstraight ||
+	     p->box.X1 + halfwidth ==
+	     p->box.X2 - halfwidth
+	     || p->box.Y1 + halfwidth ==
+	     p->box.Y2 - halfwidth);
+	   */
+	  /* flip coordinates, if bl_to_ur */
+	  b = shrink_box (&p->box, halfwidth);
+	  if (p->flags.bl_to_ur)
+	    {
+	      BDimension t;
+	      t = b.X1;
+	      b.X1 = b.X2;
+	      b.X2 = t;
+	    }
+	   /* using CreateDrawn instead of CreateNew concatenates sequential lines */
+	  p->parent.line = CreateDrawnLineOnLayer
+	    (layer, b.X1, b.Y1, b.X2, b.Y2,
+	     p->augStyle->style->Thick,
+	     p->augStyle->style->Keepaway, AUTOFLAG);
+	  if (p->parent.line)
+	    {
+	      AddObjectToCreateUndoList (LINE_TYPE, layer,
+					 p->parent.line, p->parent.line);
+	      changed = True;
+	    }
+	}
+      else if (p->type == VIA || p->type == VIA_SHADOW)
+	{
+	  routebox_t *pp = (p->type == VIA_SHADOW) ? p->parent.via_shadow : p;
+	  BDimension radius = HALF_THICK (pp->augStyle->style->Diameter);
+	  assert (pp->type == VIA);
+	  if (pp->parent.via == NULL)
+	    {
+	      assert (pp->box.X1 + radius == pp->box.X2 - radius);
+	      assert (pp->box.Y1 + radius == pp->box.Y2 - radius);
+	      pp->parent.via =
+		CreateNewVia (PCB->Data, pp->box.X1 + radius,
+			      pp->box.Y1 + radius,
+			      pp->augStyle->style->Diameter,
+			      2 * pp->augStyle->style->Keepaway,
+			      0, pp->augStyle->style->Hole, NULL,
+			      VIAFLAG | AUTOFLAG);
+	      assert (pp->parent.via);
+	      if (pp->parent.via)
+		{
+		  UpdatePIPFlags (pp->parent.via,
+				  (ElementTypePtr) pp->parent.via,
+				  NULL, NULL, False);
+		  AddObjectToCreateUndoList (VIA_TYPE,
+					     pp->parent.via,
+					     pp->parent.via, pp->parent.via);
+		  changed = True;
+		}
+	    }
+	  assert (pp->parent.via);
+	  if (p->type == VIA_SHADOW)
+	    {
+	      p->type = VIA;
+	      p->parent.via = pp->parent.via;
+	    }
+	}
+      else
+       assert(0);
+    }
+  END_LOOP;
+  END_LOOP;
+  return changed;
+}
 
-  Boolean AutoRoute (Boolean selected)
-  {
-    Boolean changed = False;
-    routedata_t *rd;
-    int i;
+Boolean
+AutoRoute (Boolean selected)
+{
+  Boolean changed = False;
+  routedata_t *rd;
+  int i;
 
-    for (i = 0; i < NUM_STYLES; i++)
+  for (i = 0; i < NUM_STYLES; i++)
+    {
+      if (PCB->RouteStyle[i].Thick == 0 ||
+	  PCB->RouteStyle[1].Diameter == 0 ||
+	  PCB->RouteStyle[1].Hole == 0 || PCB->RouteStyle[i].Keepaway == 0)
+	{
+	  Message ("You must define proper routing styles\n"
+		   "before auto-routing.\n");
+	  return (False);
+	}
+    }
+  if (PCB->Data->RatN == 0)
+    return (False);
+  rd = CreateRouteData ();
+
+  if (1)
+    {
+      routebox_t *net, *rb, *last;
+      int i = 0;
+      /* count numberof rats selected */
+      RAT_LOOP (PCB->Data);
       {
-	if (PCB->RouteStyle[i].Thick == 0 ||
-	    PCB->RouteStyle[1].Diameter == 0 ||
-	    PCB->RouteStyle[1].Hole == 0 || PCB->RouteStyle[i].Keepaway == 0)
-	  {
-	    Message ("You must define proper routing styles\n"
-		     "before auto-routing.\n");
-	    return (False);
-	  }
+	if (!selected || TEST_FLAG (SELECTEDFLAG, line))
+	  i++;
       }
-    if (PCB->Data->RatN == 0)
-       return (False);
-    rd = CreateRouteData ();
-
-    if (selected)
-      {
-	routebox_t *net, *rb, *last;
-	int i = 0;
-	/* count numberof rats selected */
-	RAT_LOOP (PCB->Data);
-	  {
-	    if (TEST_FLAG (SELECTEDFLAG, line))
-	      i++;
-	  }
-	END_LOOP;
+      END_LOOP;
 #ifdef ROUTE_VERBOSE
-	printf ("%d nets!\n", i);
+      printf ("%d nets!\n", i);
 #endif
-	if (i == 0)
-	  goto donerouting;	/* nothing to do here */
-	/* if only one rat selected, do things the quick way. =) */
-	if (i == 1)
-	  {
-	    RAT_LOOP (PCB->Data);
-	      if (TEST_FLAG (SELECTEDFLAG, line))
-		      {
-		      /* look up the end points of this rat line */
-		      routebox_t * a; routebox_t * b;
-		      a =
-		      FindRouteBoxOnLayerGroup (rd, line->Point1.X,
-						line->Point1.Y, line->group1);
-		      b =
-		      FindRouteBoxOnLayerGroup (rd, line->Point2.X,
-						line->Point2.Y, line->group2);
-		      assert (a != NULL && b != NULL); assert (a->augStyle == b->augStyle);
-		      /* route exactly one net, without allowing conflicts */
-		      InitAutoRouteParameters (0, a->augStyle, False, True);
-		      changed = RouteOne (rd, a, b).found_route || changed;
-		      goto donerouting;}
-	    END_LOOP;
-	  }
-	/* otherwise, munge the netlists so that only the selected rats
-	 * get connected. */
-	/* first, separate all sub nets into separate nets */
-	/* note that this code works because LIST_LOOP is clever enough not to
-	 * be fooled when the list is changing out from under it. */
-	last = NULL;
-	LIST_LOOP (rd->first_net, different_net, net,
-		   {
-		   FOREACH_SUBNET (net, rb,
-				   {
-				   if (last)
-				   {
-				   last->different_net.next = rb;
-				   rb->different_net.prev = last;}
-				   last = rb;}
-		   );
-		   LIST_LOOP (net, same_net, rb, rb->same_net =
-			      rb->same_subnet);});
-	if (last)
-	  {
-	    last->different_net.next = rd->first_net;
-	    rd->first_net->different_net.prev = last;
-	  }
-
-	/* now merge only those subnets connected by a rat line */
-	RAT_LOOP (PCB->Data); if (TEST_FLAG (SELECTEDFLAG, line))
-		  {
-		  /* look up the end points of this rat line */
-		  routebox_t * a; routebox_t * b;
-		  a =
-		  FindRouteBoxOnLayerGroup (rd, line->Point1.X,
-					    line->Point1.Y, line->group1);
-		  b =
-		  FindRouteBoxOnLayerGroup (rd, line->Point2.X,
-					    line->Point2.Y, line->group2);
-		  assert (a != NULL && b != NULL);
-		  /* merge subnets into a net! */
-		  MergeNets (a, b, NET);}
-	END_LOOP;
-	/* now 'different_net' may point to too many different nets.  Reset. */
-	LIST_LOOP (rd->first_net, different_net, net,
-		   {
-		   if (!net->flags.touched)
-		   LIST_LOOP (net, same_net, rb, rb->flags.touched = 1);
-		   else		/* this is not a "different net"! */
-		   RemoveFromNet (net, DIFFERENT_NET);}
-	);
-	/* reset "touched" flag */
-	LIST_LOOP (rd->first_net, different_net, net,
-		   LIST_LOOP (net, same_net, rb,
-			      {
-			      assert (rb->flags.touched);
-			      rb->flags.touched = 0;}
-		   ));
-	/* okay, rd's idea of netlist now corresponds to what we want routed */
-      }
-    /* auto-route all nets */
-    changed = (RouteAll (rd).routed_subnets > 0) || changed;
-  donerouting:
-    if (changed)
-      changed = IronDownAllUnfixedPaths (rd);
-    DestroyRouteData (&rd);
-    if (changed)
+      if (i == 0)
+	goto donerouting;	/* nothing to do here */
+      /* if only one rat selected, do things the quick way. =) */
+      if (i == 1)
+	{
+	  RAT_LOOP (PCB->Data);
+	  if (!selected || TEST_FLAG (SELECTEDFLAG, line))
+	    {
+	      /* look up the end points of this rat line */
+	      routebox_t *a;
+	      routebox_t *b;
+	      a =
+		FindRouteBoxOnLayerGroup (rd, line->Point1.X,
+					  line->Point1.Y, line->group1);
+	      b =
+		FindRouteBoxOnLayerGroup (rd, line->Point2.X,
+					  line->Point2.Y, line->group2);
+	      assert (a != NULL && b != NULL);
+	      assert (a->augStyle == b->augStyle);
+	      /* route exactly one net, without allowing conflicts */
+	      InitAutoRouteParameters (0, a->augStyle, False, True);
+	      changed = RouteOne (rd, a, b).found_route || changed;
+	      goto donerouting;
+	    }
+	  END_LOOP;
+	}
+      /* otherwise, munge the netlists so that only the selected rats
+       * get connected. */
+      /* first, separate all sub nets into separate nets */
+      /* note that this code works because LIST_LOOP is clever enough not to
+       * be fooled when the list is changing out from under it. */
+      last = NULL;
+      LIST_LOOP (rd->first_net, different_net, net);
       {
-	SaveUndoSerialNumber ();
-
-	/* optimize rats, we've changed connectivity a lot. */
-	DeleteRats (False /*all rats */ );
-	RestoreUndoSerialNumber ();
-	AddAllRats (False /*all rats */ , NULL);
-	RestoreUndoSerialNumber ();
-
-	IncrementUndoSerialNumber ();
-
-	ClearAndRedrawOutput ();
+	FOREACH_SUBNET (net, rb);
+	{
+	  if (last)
+	    {
+	      last->different_net.next = rb;
+	      rb->different_net.prev = last;
+	    }
+	  last = rb;
+	}
+	END_FOREACH (net, rb);
+	LIST_LOOP (net, same_net, rb);
+	rb->same_net = rb->same_subnet;
+	END_LOOP;
       }
-    return (changed);
-  }
+      END_LOOP;
+      if (last)
+	{
+	  last->different_net.next = rd->first_net;
+	  rd->first_net->different_net.prev = last;
+	}
+
+      /* now merge only those subnets connected by a rat line */
+      RAT_LOOP (PCB->Data);
+      if (!selected || TEST_FLAG (SELECTEDFLAG, line))
+	{
+	  /* look up the end points of this rat line */
+	  routebox_t *a;
+	  routebox_t *b;
+	  a =
+	    FindRouteBoxOnLayerGroup (rd, line->Point1.X,
+				      line->Point1.Y, line->group1);
+	  b =
+	    FindRouteBoxOnLayerGroup (rd, line->Point2.X,
+				      line->Point2.Y, line->group2);
+	  assert (a != NULL && b != NULL);
+	  /* merge subnets into a net! */
+	  MergeNets (a, b, NET);
+	}
+      END_LOOP;
+      /* now 'different_net' may point to too many different nets.  Reset. */
+      LIST_LOOP (rd->first_net, different_net, net);
+      {
+	if (!net->flags.touched)
+	  LIST_LOOP (net, same_net, rb);
+	rb->flags.touched = 1;
+	END_LOOP;
+	else			/* this is not a "different net"! */
+	RemoveFromNet (net, DIFFERENT_NET);
+      }
+      END_LOOP;
+      /* reset "touched" flag */
+      LIST_LOOP (rd->first_net, different_net, net);
+      LIST_LOOP (net, same_net, rb);
+      {
+	assert (rb->flags.touched);
+	rb->flags.touched = 0;
+      }
+      END_LOOP;
+      END_LOOP;
+    }
+  /* okay, rd's idea of netlist now corresponds to what we want routed */
+  /* auto-route all nets */
+  changed = (RouteAll (rd).routed_subnets > 0) || changed;
+donerouting:
+  if (changed)
+    changed = IronDownAllUnfixedPaths (rd);
+  DestroyRouteData (&rd);
+  if (changed)
+    {
+      SaveUndoSerialNumber ();
+
+      /* optimize rats, we've changed connectivity a lot. */
+      DeleteRats (False /*all rats */ );
+      RestoreUndoSerialNumber ();
+      AddAllRats (False /*all rats */ , NULL);
+      RestoreUndoSerialNumber ();
+
+      IncrementUndoSerialNumber ();
+
+      ClearAndRedrawOutput ();
+    }
+  return (changed);
+}
