@@ -94,7 +94,6 @@ Message (char *Format, ...)
   static int line = 1;
   va_list args;
   char s[1024];
-  XEvent event;
   sprintf(s,"%d: ",line++);
   va_start (args, Format);
   vsprintf (s + strlen(s), Format, args);
@@ -103,13 +102,16 @@ Message (char *Format, ...)
   if (Settings.UseLogWindow)
     {
       /* fputs may return an error if the pipe isn't read for
-       * a longer time
+       * a long time
        */
+      if (XtAppPending (Context))
+       {
+         XtAppProcessEvent (Context, XtIMAll);
+       }
       while (fputs (s, stderr) == EOF && errno == EAGAIN && LogWindow)
 	while (XtAppPending (Context))
 	  {
-	    XtAppNextEvent (Context, &event);
-	    XtDispatchEvent (&event);
+	    XtAppProcessEvent (Context, XtIMAll);
 	  }
       fflush (stderr);
     }
