@@ -51,15 +51,20 @@ void		SetFontInfo(FontTypePtr);
 void		UpdateSettingsOnScreen(void);
 int		ParseGroupString(char *, LayerGroupTypePtr);
 int		ParseRouteString(char *, RouteStyleTypePtr, int);
+gchar	*build_route_string(RouteStyleType *);
 void		QuitApplication(void);
 char		*EvaluateFilename(char *, char *, char *, char *);
 char		*ExpandFilename(char *, char *);
 void		SetTextBoundingBox(FontTypePtr, TextTypePtr);
-void		ReleaseOffscreenPixmap(void);
+
 void		SaveOutputWindow(void);
 int		GetLayerNumber(DataTypePtr, LayerTypePtr);
 int		GetLayerGroupNumberByPointer(LayerTypePtr);
 int		GetLayerGroupNumberByNumber(Cardinal);
+int		GetGroupOfLayer (int);
+int		ChangeGroupVisibility (int, Boolean, Boolean);
+
+
 BoxTypePtr	GetObjectBoundingBox(int, void *, void *, void *);
 void		ResetStackAndVisibility(void);
 void		SaveStackAndVisibility(void);
@@ -70,7 +75,7 @@ int		GetGridFactor(void);
 BoxTypePtr	GetArcEnds(ArcTypePtr);
 char		*UniqueElementName(DataTypePtr, char *);
 void		AttachForCopy(LocationType, LocationType);
-float		GetValue(String *, Boolean *, Cardinal);
+float		GetValue(char *, char *, Boolean *);
 int		FileExists(const char *);
 char *		Concat (const char *, ...); /* end with NULL */
 

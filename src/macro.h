@@ -172,10 +172,10 @@
  */
 #define	SET_FLAG(f,p)		((p)->Flags |= (f))
 #define	CLEAR_FLAG(f,p)		((p)->Flags &= (~(f)))
-#define	TEST_FLAG(f,p)		((p)->Flags & (f) ? True : False)
+#define	TEST_FLAG(f,p)		((p)->Flags & (f) ? TRUE : FALSE)
 #define	TOGGLE_FLAG(f,p)	((p)->Flags ^= (f))
 #define	ASSIGN_FLAG(f,v,p)	((p)->Flags = ((p)->Flags & (~(f))) | ((v) ? (f) : 0))
-#define TEST_FLAGS(f,p)         (((p)->Flags & (f)) == (f) ? True : False)
+#define TEST_FLAGS(f,p)         (((p)->Flags & (f)) == (f) ? TRUE : FALSE)
 
 /* ---------------------------------------------------------------------------
  * access macros for elements name structure

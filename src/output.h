@@ -30,14 +30,12 @@
 
 #include "global.h"
 
-void PortholeEvent(Widget, XtPointer, XEvent *, Boolean *);
-Boolean Pan(LocationType, LocationType, Boolean, Boolean);
-Boolean CoalignScreen(Position, Position, LocationType, LocationType);
-void OutputEvent(Widget, XtPointer, XEvent *, Boolean *);
-void GetSizeOfDrawingArea(void);
-void ScaleOutput(Dimension, Dimension);
-Widget InitOutputPanner(Widget, Widget, Widget);
-void SetOutputLabel(Widget, char *);
-void UpdateExposed(XEvent *);
-void CB_StopScroll (Widget, XtPointer, XEvent *, Boolean *);
+
+gboolean Pan(LocationType, LocationType, gboolean, gboolean);
+gboolean CoalignScreen(Position,
+				Position, LocationType, LocationType);
+
+void	DrawClipped(GdkRegion *myRegion);
+gboolean ActiveDrag (void);
+
 #endif

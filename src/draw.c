@@ -39,9 +39,8 @@
 #include "config.h"
 #endif
 
-#include <ctype.h>
-#include <math.h>
 #include "global.h"
+
 #include "clip.h"
 #include "compat.h"
 #include "crosshair.h"
@@ -56,61 +55,66 @@
 #include "search.h"
 #include "select.h"
 
-#ifdef HAVE_LIBDMALLOC
-#include <dmalloc.h>
-#endif
+#include "gui.h"
+
 
 RCSID("$Id$");
+
+#define	SMALL_SMALL_TEXT_SIZE	0
+#define	SMALL_TEXT_SIZE			1
+#define	NORMAL_TEXT_SIZE		2
+#define	LARGE_TEXT_SIZE			3
+#define	N_TEXT_SIZES			4
+
 
 /* ---------------------------------------------------------------------------
  * some local types
  */
 typedef struct
 {
-  float X, Y;
+  gfloat X, Y;
 }
 FloatPolyType, *FloatPolyTypePtr;
 
 /* ---------------------------------------------------------------------------
  * some local identifiers
  */
-static int ZoomValue;		/* zoom for pin fonts */
-static Window DrawingWindow;	/* flag common to all */
-static BoxType Block;
-static Boolean Gathering = True;
-static int Erasing = False;
+static GdkDrawable	*DrawingWindow;	/* flag common to all */
+static BoxType		Block;
+static gboolean		Gathering = True;
+static gint			Erasing = False;
 
 
 /* ---------------------------------------------------------------------------
  * some local prototypes
  */
-static void Redraw (Boolean, BoxTypePtr);
+static void Redraw (gboolean, BoxTypePtr);
 static void DrawEverything (BoxTypePtr);
 static void DrawTop (BoxType *);
 static void DrawLayer (LayerTypePtr, BoxType *);
-static void DrawSpecialPolygon (Drawable, GC, LocationType, LocationType, BDimension);
-static void DrawPinOrViaLowLevel (PinTypePtr, Boolean);
-static void ClearOnlyPin (PinTypePtr, Boolean);
+static void DrawSpecialPolygon (GdkDrawable *, GdkGC *, LocationType, LocationType, BDimension);
+static void DrawPinOrViaLowLevel (PinTypePtr, gboolean);
+static void ClearOnlyPin (PinTypePtr, gboolean);
 static void ThermPin (LayerTypePtr, PinTypePtr);
-static void DrawPlainPin (PinTypePtr, Boolean);
-static void DrawPlainVia (PinTypePtr, Boolean);
+static void DrawPlainPin (PinTypePtr, gboolean);
+static void DrawPlainVia (PinTypePtr, gboolean);
 static void DrawPinOrViaNameLowLevel (PinTypePtr);
 static void DrawPadLowLevel (PadTypePtr);
 static void DrawPadNameLowLevel (PadTypePtr);
-static void DrawLineLowLevel (LineTypePtr, Boolean);
+static void DrawLineLowLevel (LineTypePtr, gboolean);
 static void DrawTextLowLevel (TextTypePtr);
 static void DrawRegularText (LayerTypePtr, TextTypePtr, int);
 static void DrawPolygonLowLevel (PolygonTypePtr);
 static void DrawArcLowLevel (ArcTypePtr);
 static void DrawElementPackageLowLevel (ElementTypePtr Element, int);
 static void DrawPlainPolygon (LayerTypePtr Layer, PolygonTypePtr Polygon);
-static void AddPart (void *, Boolean);
+static void AddPart (void *, gboolean);
 static void SetPVColor (PinTypePtr, int);
 static void DrawGrid (void);
-static void DrawEMark (LocationType, LocationType, Boolean);
+static void DrawEMark (LocationType, LocationType, gboolean);
 static void ClearLine (LineTypePtr);
 static void ClearArc (ArcTypePtr);
-static void ClearPad (PadTypePtr, Boolean);
+static void ClearPad (PadTypePtr, gboolean);
 static void DrawHole (PinTypePtr);
 static void DrawMask (BoxType *);
 
@@ -125,28 +129,28 @@ SetPVColor (PinTypePtr Pin, int Type)
       if (TEST_FLAG (WARNFLAG | SELECTEDFLAG | FOUNDFLAG, Pin))
 	{
 	  if (TEST_FLAG (WARNFLAG, Pin))
-	    XSetForeground (Dpy, Output.fgGC, PCB->WarnColor);
+	    gdk_gc_set_foreground(Output.fgGC, PCB->WarnColor);
 	  else if (TEST_FLAG (SELECTEDFLAG, Pin))
-	    XSetForeground (Dpy, Output.fgGC, PCB->ViaSelectedColor);
+	    gdk_gc_set_foreground(Output.fgGC, PCB->ViaSelectedColor);
 	  else
-	    XSetForeground (Dpy, Output.fgGC, PCB->ConnectedColor);
+	    gdk_gc_set_foreground(Output.fgGC, PCB->ConnectedColor);
 	}
       else
-	XSetForeground (Dpy, Output.fgGC, PCB->ViaColor);
+	gdk_gc_set_foreground(Output.fgGC, PCB->ViaColor);
     }
   else
     {
       if (TEST_FLAG (WARNFLAG | SELECTEDFLAG | FOUNDFLAG, Pin))
 	{
 	  if (TEST_FLAG (WARNFLAG, Pin))
-	    XSetForeground (Dpy, Output.fgGC, PCB->WarnColor);
+	    gdk_gc_set_foreground(Output.fgGC, PCB->WarnColor);
 	  else if (TEST_FLAG (SELECTEDFLAG, Pin))
-	    XSetForeground (Dpy, Output.fgGC, PCB->PinSelectedColor);
+	    gdk_gc_set_foreground(Output.fgGC, PCB->PinSelectedColor);
 	  else
-	    XSetForeground (Dpy, Output.fgGC, PCB->ConnectedColor);
+	    gdk_gc_set_foreground(Output.fgGC, PCB->ConnectedColor);
 	}
       else
-	XSetForeground (Dpy, Output.fgGC, PCB->PinColor);
+	gdk_gc_set_foreground(Output.fgGC, PCB->PinColor);
     }
 }
 
@@ -154,7 +158,7 @@ SetPVColor (PinTypePtr Pin, int Type)
  *  Adds the update rect to the update region
  */
 static void
-AddPart (void *b, Boolean screen_coord)
+AddPart (void *b, gboolean screen_coord)
 {
   BoxType *box = (BoxType *) b;
 
@@ -196,40 +200,39 @@ UpdateAll (void)
  */
 void
 Draw (void)
-{
-  static XExposeEvent erased;
+	{
+	OutputType		*out = &Output;
+	GdkRectangle	erased;
 
-  render = True;
-  if (VALID_PIXMAP (Offscreen))
-    {
-      /* create an update event */
-      erased.type = Expose;
-      erased.display = Dpy;
-      erased.window = Output.OutputWindow;
-      erased.x = SATURATE (Block.X1 - 1);
-      erased.y = SATURATE (Block.Y1 - 1);
-      erased.width = SATURATE (Block.X2 - Block.X1 + 2);
-      erased.height = SATURATE (Block.Y2 - Block.Y1 + 2);
-      erased.count = 0;
-      XFillRectangle (Dpy, Offscreen, Output.bgGC, erased.x,
-		      erased.y, erased.width, erased.height);
-      XSendEvent (Dpy, Output.OutputWindow, False, ExposureMask,
-		  (XEvent *) & erased);
-    }
-  else
-    {
-      HideCrosshair (True);
-      /* clear and create event if not drawing to a pixmap */
-      XClearArea (Dpy, Output.OutputWindow, SATURATE (Block.X1 - 1),
-		  SATURATE (Block.Y1 - 1), SATURATE (Block.X2 - Block.X1 + 2),
-		  SATURATE (Block.Y2 - Block.Y1 + 2), True);
-      RestoreCrosshair (True);
-    }
-  /* shrink the update block */
-  Block.X1 = MAX_COORD / 100;
-  Block.Y1 = MAX_COORD / 100;
-  Block.X2 = Block.Y2 = 0;
-}
+	render = True;
+	if (out->pixmap)
+		{
+		erased.x = SATURATE (Block.X1 - 1);
+		erased.y = SATURATE (Block.Y1 - 1);
+		erased.width = SATURATE (Block.X2 - Block.X1 + 2);
+		erased.height = SATURATE (Block.Y2 - Block.Y1 + 2);
+		gdk_draw_rectangle(out->pixmap, Output.bgGC, TRUE,
+				erased.x, erased.y, erased.width, erased.height);
+		gdk_window_invalidate_rect(out->drawing_area->window, &erased, FALSE);
+		}
+	else
+		{
+		HideCrosshair (True);
+
+		/* clear and create event if not drawing to a pixmap
+		*/
+		gdk_window_clear_area_e(Output.drawing_area->window,
+				SATURATE (Block.X1 - 1),
+				SATURATE (Block.Y1 - 1), SATURATE (Block.X2 - Block.X1 + 2),
+				SATURATE (Block.Y2 - Block.Y1 + 2));
+		RestoreCrosshair (True);
+		}
+
+	/* shrink the update block */
+	Block.X1 = MAX_COORD / 100;
+	Block.Y1 = MAX_COORD / 100;
+	Block.X2 = Block.Y2 = 0;
+	}
 
 /* ---------------------------------------------------------------------------
  * redraws the output area without clearing it
@@ -254,10 +257,12 @@ ClearAndRedrawOutput (void)
 /* ---------------------------------------------------------------------- 
  * redraws the background image
  */
+#if XXX
+/* Not ported to Gtk yet.*/
 
 static int bg_w, bg_h, bgi_w, bgi_h;
-static Pixel **bg = 0;
-static XImage *bgi = 0;
+static GdkPixel **bg = 0;
+static GdkImage *bgi = 0;
 static enum {
   PT_unknown,
   PT_RGB565
@@ -303,7 +308,7 @@ LoadBackgroundFile (FILE *f, char *filename)
   maxval = p[2];
 
   setbuf(stdout, 0);
-  bg = (Pixel **) malloc (rows * sizeof (Pixel *));
+  bg = (Pixel **) g_malloc (rows * sizeof (Pixel *));
   if (!bg)
     {
       printf("Out of memory loading %s\n", filename);
@@ -311,13 +316,13 @@ LoadBackgroundFile (FILE *f, char *filename)
     }
   for (i=0; i<rows; i++)
     {
-      bg[i] = (Pixel *) malloc (cols * sizeof (Pixel));
+      bg[i] = (Pixel *) g_malloc (cols * sizeof (Pixel));
       if (!bg[i])
 	{
 	  printf("Out of memory loading %s\n", filename);
 	  while (--i >= 0)
-	    free (bg[i]);
-	  free (bg);
+	    g_free (bg[i]);
+	  g_free (bg);
 	  bg = 0;
 	  return;
 	}
@@ -431,6 +436,70 @@ DrawBackgroundImage ()
 	    bgi,
 	    0, 0, 0, 0, w, h);
 }
+#endif
+
+static gchar *
+markup_sized_string(gchar *str)
+	{
+	gchar	*markup, *fmt;
+	gint	size;
+
+	size = Output.font_size;
+	if (size == SMALL_SMALL_TEXT_SIZE)
+		fmt = "<small><small>%s</small></small>";
+	else if (size == SMALL_TEXT_SIZE)
+		fmt = "<small>%s</small>";
+	else if (size == LARGE_TEXT_SIZE)
+		fmt = "<big>%s</big>";
+	else
+		fmt = "%s";
+	markup = g_strdup_printf(fmt, str);
+
+	return markup;
+	}
+
+GdkDrawable *
+draw_get_current_drawable(void)
+	{
+	return DrawingWindow;
+	}
+
+/* ----------------------------------------------------------------------
+ * setup of zoom and output window for the next drawing operations
+ */
+gboolean
+SwitchDrawingWindow (gfloat Zoom, GdkDrawable *OutputWindow, gboolean Swap,
+		     gboolean Gather)
+{
+  gboolean oldGather = Gathering;
+
+  Gathering = Gather;
+  Local_Zoom = 0.01 / expf (Zoom * LN_2_OVER_2);
+
+  Output.font_size = N_TEXT_SIZES - (gint) Zoom + 1;
+  if (Output.font_size < SMALL_SMALL_TEXT_SIZE)
+    Output.font_size = SMALL_SMALL_TEXT_SIZE;
+  else if (Output.font_size > LARGE_TEXT_SIZE)
+    Output.font_size = LARGE_TEXT_SIZE;
+
+  DrawingWindow = OutputWindow;
+  if (   OutputWindow == Output.pixmap
+	  || OutputWindow == Output.drawing_area->window
+	 )
+    {
+      dxo = Xorig;
+      dyo = Yorig;
+    }
+  else
+    {
+      dxo = 0;
+      dyo = 0;
+    }
+  SwapOutput = Swap;
+
+  return (oldGather);
+}
+
 
 /* ---------------------------------------------------------------------- 
  * redraws all the data
@@ -438,14 +507,14 @@ DrawBackgroundImage ()
  * by the event handlers
  */
 static void
-Redraw (Boolean ClearWindow, BoxTypePtr screen_area)
+Redraw (gboolean ClearWindow, BoxTypePtr screen_area)
 {
   BoxType draw_area;
   Dimension pcbwidth, pcbheight;
 
   /* make sure window exists */
-  if (Output.OutputWindow
-      && (render || ClearWindow || !VALID_PIXMAP (Offscreen)))
+  if (Output.drawing_area->window
+      && (render || ClearWindow || !Output.pixmap))
     {
       /* shrink the update block */
       Block.X1 = MAX_COORD / 100;
@@ -456,11 +525,11 @@ Redraw (Boolean ClearWindow, BoxTypePtr screen_area)
        * set up drawing window and redraw
        * everything with Gather = False
        */
-      if (!VALID_PIXMAP (Offscreen))
+      if (!Output.pixmap)
 	HideCrosshair (True);
       SwitchDrawingWindow (PCB->Zoom,
-			   VALID_PIXMAP (Offscreen) ? Offscreen :
-			   Output.OutputWindow, Settings.ShowSolderSide,
+			   Output.pixmap ? Output.pixmap :
+			   Output.drawing_area->window, Settings.ShowSolderSide,
 			   False);
       draw_area.X1 = TO_PCB_X (screen_area->X1);
       draw_area.X2 = TO_PCB_X (screen_area->X2);
@@ -474,60 +543,27 @@ Redraw (Boolean ClearWindow, BoxTypePtr screen_area)
        */
       pcbwidth = TO_DRAWABS_X (PCB->MaxWidth);
       pcbheight = TO_DRAWABS_Y (PCB->MaxHeight);
-      XFillRectangle (Dpy, DrawingWindow, Output.bgGC, 0, 0,
+      gdk_draw_rectangle(DrawingWindow, Output.bgGC, TRUE, 0, 0,
 		      MIN (pcbwidth, Output.Width),
 		      MIN (pcbheight, Output.Height));
-      XSetForeground (Dpy, Output.fgGC, Settings.OffLimitColor);
+      gdk_gc_set_foreground(Output.fgGC, &Settings.OffLimitColor);
       if (pcbwidth < Output.Width)
-	XFillRectangle (Dpy, DrawingWindow, Output.fgGC,
+	gdk_draw_rectangle(DrawingWindow, Output.fgGC, TRUE,
 			pcbwidth, 0, Output.Width - pcbwidth, Output.Height);
       if (pcbheight < Output.Height)
-	XFillRectangle (Dpy, DrawingWindow, Output.fgGC, 0,
-			pcbheight, Output.Width, Output.Height - pcbheight);
-      if (ClearWindow && !VALID_PIXMAP (Offscreen))
+	gdk_draw_rectangle(DrawingWindow, Output.fgGC, TRUE,
+			0, pcbheight, Output.Width, Output.Height - pcbheight);
+      if (ClearWindow && !Output.pixmap)
 	Crosshair.On = False;
 
-      DrawBackgroundImage ();
+//      DrawBackgroundImage ();
       DrawEverything (&draw_area);
 
-      if (!VALID_PIXMAP (Offscreen))
+      if (!Output.pixmap)
 	RestoreCrosshair (True);
     }
   Gathering = True;
   render = False;
-}
-
-/* ----------------------------------------------------------------------
- * setup of zoom and output window for the next drawing operations
- */
-Boolean
-SwitchDrawingWindow (float Zoom, Window OutputWindow, Boolean Swap,
-		     Boolean Gather)
-{
-  Boolean oldGather = Gathering;
-
-  Gathering = Gather;
-  Local_Zoom = 0.01 / expf (Zoom * LN_2_OVER_2);
-  if (Zoom < 0)
-    Zoom = 0;
-  if (Zoom > 4)
-    Zoom = 4;
-  ZoomValue = (int) Zoom;
-  DrawingWindow = OutputWindow;
-  if (OutputWindow == Offscreen || OutputWindow == Output.OutputWindow)
-    {
-      dxo = Xorig;
-      dyo = Yorig;
-    }
-  else
-    {
-      dxo = 0;
-      dyo = 0;
-    }
-  SwapOutput = Swap;
-  XSetFont (Dpy, Output.fgGC, Settings.PinoutFont[ZoomValue]->fid);
-  XSetFont (Dpy, Output.bgGC, Settings.PinoutFont[ZoomValue]->fid);
-  return (oldGather);
 }
 
 static int
@@ -686,20 +722,21 @@ DrawEverything (BoxTypePtr drawn_area)
 }
 
 static void
-DrawEMark (LocationType X, LocationType Y, Boolean invisible)
+DrawEMark (LocationType X, LocationType Y, gboolean invisible)
 {
   if (!PCB->InvisibleObjectsOn && invisible)
     return;
-  XSetForeground (Dpy, Output.fgGC,
+  gdk_gc_set_foreground(Output.fgGC,
 		  invisible ? PCB->InvisibleMarkColor : PCB->ElementColor);
-  XSetLineAttributes (Dpy, Output.fgGC, 1, LineSolid, CapRound, JoinRound);
-  XDrawCLine (Dpy, DrawingWindow, Output.fgGC, X - EMARK_SIZE,
+  gdk_gc_set_line_attributes(Output.fgGC, 1,
+			GDK_LINE_SOLID, GDK_CAP_ROUND, GDK_JOIN_ROUND);
+  XDrawCLine (DrawingWindow, Output.fgGC, X - EMARK_SIZE,
 	      Y, X, Y - EMARK_SIZE);
-  XDrawCLine (Dpy, DrawingWindow, Output.fgGC, X + EMARK_SIZE,
+  XDrawCLine (DrawingWindow, Output.fgGC, X + EMARK_SIZE,
 	      Y, X, Y - EMARK_SIZE);
-  XDrawCLine (Dpy, DrawingWindow, Output.fgGC, X - EMARK_SIZE,
+  XDrawCLine (DrawingWindow, Output.fgGC, X - EMARK_SIZE,
 	      Y, X, Y + EMARK_SIZE);
-  XDrawCLine (Dpy, DrawingWindow, Output.fgGC, X + EMARK_SIZE,
+  XDrawCLine (DrawingWindow, Output.fgGC, X + EMARK_SIZE,
 	      Y, X, Y + EMARK_SIZE);
 }
 
@@ -748,7 +785,7 @@ DrawTop (BoxType * screen)
 
 struct pin_info
 {
-  Boolean arg;
+  gboolean arg;
   int PIPFlag;
   LayerTypePtr Layer;
 };
@@ -779,30 +816,37 @@ clearPad_callback (const BoxType * b, void *cl)
  */
 static void
 DrawMask (BoxType * screen)
-{
-  struct pin_info info;
+	{
+	struct pin_info	info;
+	OutputType		*out = &Output;
 
-  info.arg = True;
-  XSetFunction (Dpy, Output.pmGC, GXcopy);
-  /* fill whole map first */
-  XSetForeground (Dpy, Output.pmGC, AllPlanes);
-  XFillRectangle (Dpy, Offmask, Output.pmGC, 0, 0, Output.Width,
-		  Output.Height);
-  XSetFillStyle (Dpy, Output.pmGC, FillSolid);
-  /* make clearances in mask */
-  XSetFunction (Dpy, Output.pmGC, GXclear);
-  r_search (PCB->Data->pin_tree, screen, NULL, clearPin_callback, &info);
-  r_search (PCB->Data->via_tree, screen, NULL, clearPin_callback, &info);
-  r_search (PCB->Data->pad_tree, screen, NULL, clearPad_callback, &info);
-  XSetClipMask (Dpy, Output.fgGC, Offmask);
-  /* now draw the mask */
-  XSetForeground (Dpy, Output.fgGC, PCB->MaskColor);
-  XFillRectangle (Dpy, DrawingWindow, Output.fgGC, 0, 0,
-		  TO_DRAWABS_X (PCB->MaxWidth),
-		  TO_DRAWABS_Y (PCB->MaxHeight));
-  /* restore the clip region */
-  XCopyGC (Dpy, Output.bgGC, GCClipMask, Output.fgGC);
-}
+	info.arg = True;
+	gdk_gc_set_function(out->pmGC, GDK_COPY);
+
+	/* fill whole map first */
+	/* pmGC is depth 1, so just need a color with color.pixel = 1
+	*/
+	gdk_gc_set_foreground(Output.pmGC, &Settings.WhiteColor);
+	gdk_gc_set_fill(out->pmGC, GDK_SOLID);
+	gdk_draw_rectangle(out->mask, out->pmGC, TRUE, 0, 0, out->Width,
+				out->Height);
+
+	/* make clearances in mask */
+	gdk_gc_set_function(out->pmGC, GDK_CLEAR);
+	r_search (PCB->Data->pin_tree, screen, NULL, clearPin_callback, &info);
+	r_search (PCB->Data->via_tree, screen, NULL, clearPin_callback, &info);
+	r_search (PCB->Data->pad_tree, screen, NULL, clearPad_callback, &info);
+ 
+	gdk_gc_set_clip_mask(out->fgGC, out->mask);
+
+	/* now draw the mask */
+	gdk_gc_set_foreground(out->fgGC, PCB->MaskColor);
+	gdk_draw_rectangle(DrawingWindow, out->fgGC, TRUE, 0, 0,
+			TO_DRAWABS_X (PCB->MaxWidth), TO_DRAWABS_Y (PCB->MaxHeight));
+
+	/* restore the clip region */
+	gdk_gc_set_clip_mask(out->fgGC, NULL);
+	}
 
 static int
 clear_callback (int type, void *ptr1, void *ptr2, void *ptr3,
@@ -873,75 +917,84 @@ therm_callback (const BoxType * b, void *cl)
  */
 static void
 DrawLayer (LayerTypePtr Layer, BoxType * screen)
-{
-  int layernum = GetLayerNumber (PCB->Data, Layer);
-  Cardinal group = GetLayerGroupNumberByNumber (layernum);
-  struct pin_info info;
+	{
+	gint			layernum = GetLayerNumber (PCB->Data, Layer);
+	gint			group = GetLayerGroupNumberByNumber (layernum);
+	struct pin_info	info;
+	OutputType		*out = &Output;
+	gint			PIPFlag = L0PIPFLAG << layernum;
 
-  int PIPFlag = L0PIPFLAG << layernum;
-  info.PIPFlag = PIPFlag;
-  info.arg = False;
-  info.Layer = Layer;
-/* in order to render polygons with line cut-outs:
- * draw a solid (or stippled) 1-bit pixmap, then erase
- * the clearance areas.  Use that as the mask when
- * drawing the actual polygons
- */
-  if (layernum < MAX_LAYER && Layer->PolygonN)
-    {
-      XSetFunction (Dpy, Output.pmGC, GXcopy);
-      if (Settings.StipplePolygons)
-	{
-	  XSetBackground (Dpy, Output.pmGC, 0);
-	  XSetStipple (Dpy, Output.pmGC, Stipples[layernum]);
-	  XSetFillStyle (Dpy, Output.pmGC, FillOpaqueStippled);
+	info.PIPFlag = PIPFlag;
+	info.arg = False;
+	info.Layer = Layer;
+
+	/* in order to render polygons with line cut-outs, draw a solid
+	|  (or stippled) 1-bit pixmap, then erase the clearance areas.
+	|  Use that as the mask when drawing the actual polygons
+	*/
+	if (layernum < MAX_LAYER && Layer->PolygonN)
+		{
+		gdk_gc_set_function(Output.pmGC, GDK_COPY);
+		if (Settings.StipplePolygons)
+			{
+			gdk_gc_set_background(out->pmGC, &Settings.BlackColor);
+			gdk_gc_set_stipple(out->pmGC, Stipples[layernum]);
+			gdk_gc_set_fill(out->pmGC, GDK_OPAQUE_STIPPLED);
+			}
+		/* fill whole map first
+		*/
+		gdk_draw_rectangle(out->mask, out->pmGC, TRUE, 0, 0, out->Width,
+					out->Height);
+		if (Settings.StipplePolygons)
+			gdk_gc_set_fill(out->pmGC, GDK_SOLID);
+
+		/* Make clearances around lines, arcs, pins and vias
+		*/
+		gdk_gc_set_function(out->pmGC, GDK_CLEAR);
+		PolygonPlows (group, screen, clear_callback);
+		gdk_gc_set_clip_mask(out->fgGC, out->mask);
+		}
+	if (Layer->PolygonN)
+		{
+		/* print the clearing polys */
+		POLYGON_LOOP (Layer);
+			{
+			if (VPOLY (polygon) && TEST_FLAG (CLEARPOLYFLAG, polygon))
+				DrawPlainPolygon (Layer, polygon);
+			}
+		END_LOOP;
+
+		/* restore the clip region */
+		gdk_gc_set_clip_mask(out->fgGC, NULL);
+
+		/* print the non-clearing polys */
+		POLYGON_LOOP (Layer);
+			{
+			if (VPOLY (polygon) && !TEST_FLAG (CLEARPOLYFLAG, polygon))
+				DrawPlainPolygon (Layer, polygon);
+			}
+		END_LOOP;
+
+		if (layernum < MAX_LAYER)
+			{
+			PIPFlag = (L0THERMFLAG | L0PIPFLAG) << layernum;
+			info.PIPFlag = PIPFlag;
+			r_search(PCB->Data->pin_tree, screen, NULL, therm_callback, &info);
+			r_search(PCB->Data->via_tree, screen, NULL, therm_callback, &info);
+			}
+		}
+	if (TEST_FLAG (CHECKPLANESFLAG, PCB))
+		return;
+
+	/* draw all visible lines this layer */
+	r_search (Layer->line_tree, screen, NULL, line_callback, Layer);
+
+	/* draw the layer arcs on screen */
+	r_search (Layer->arc_tree, screen, NULL, arc_callback, Layer);
+
+	/* draw the layer text on screen */
+	r_search (Layer->text_tree, screen, NULL, text_callback, Layer);
 	}
-      /* fill whole map first */
-      XSetForeground (Dpy, Output.pmGC, AllPlanes);
-      XFillRectangle (Dpy, Offmask, Output.pmGC, 0, 0, Output.Width,
-		      Output.Height);
-      if (Settings.StipplePolygons)
-	XSetFillStyle (Dpy, Output.pmGC, FillSolid);
-      /* make clearances around lines, arcs, pins and vias */
-      XSetFunction (Dpy, Output.pmGC, GXclear);
-      PolygonPlows (group, screen, clear_callback);
-      XSetClipMask (Dpy, Output.fgGC, Offmask);
-    }
-  if (Layer->PolygonN)
-    {
-      /* print the clearing polys */
-      POLYGON_LOOP (Layer);
-      {
-	if (VPOLY (polygon) && TEST_FLAG (CLEARPOLYFLAG, polygon))
-	  DrawPlainPolygon (Layer, polygon);
-      }
-      END_LOOP;
-      /* restore the clip region */
-      XCopyGC (Dpy, Output.bgGC, GCClipMask, Output.fgGC);
-      /* print the non-clearing polys */
-      POLYGON_LOOP (Layer);
-      {
-	if (VPOLY (polygon) && !TEST_FLAG (CLEARPOLYFLAG, polygon))
-	  DrawPlainPolygon (Layer, polygon);
-      }
-      END_LOOP;
-      if (layernum < MAX_LAYER)
-	{
-	  PIPFlag = (L0THERMFLAG | L0PIPFLAG) << layernum;
-	  info.PIPFlag = PIPFlag;
-	  r_search (PCB->Data->pin_tree, screen, NULL, therm_callback, &info);
-	  r_search (PCB->Data->via_tree, screen, NULL, therm_callback, &info);
-	}
-    }
-  if (TEST_FLAG (CHECKPLANESFLAG, PCB))
-    return;
-  /* draw all visible lines this layer */
-  r_search (Layer->line_tree, screen, NULL, line_callback, Layer);
-  /* draw the layer arcs on screen */
-  r_search (Layer->arc_tree, screen, NULL, arc_callback, Layer);
-  /* draw the layer text on screen */
-  r_search (Layer->text_tree, screen, NULL, text_callback, Layer);
-}
 
 /* ---------------------------------------------------------------------------
  * draws one polygon
@@ -955,11 +1008,10 @@ DrawLayer (LayerTypePtr Layer, BoxType * screen)
  *        3         0
  *         \       /
  *          2 --- 1
- *
- */
+  */
 static void
-DrawSpecialPolygon (Drawable d, GC DrawGC,
-		    LocationType X, LocationType Y, BDimension Thickness)
+DrawSpecialPolygon (GdkDrawable *d, GdkGC *DrawGC,
+		    LocationType X, LocationType Y, gint Thickness)
 {
   static FloatPolyType p[8] = { {0.5, -TAN_22_5_DEGREE_2},
   {TAN_22_5_DEGREE_2, -0.5},
@@ -971,8 +1023,8 @@ DrawSpecialPolygon (Drawable d, GC DrawGC,
   {0.5, TAN_22_5_DEGREE_2}
   };
   static Dimension special_size = 0;
-  static XPoint scaled[8];
-  XPoint polygon[9];
+  static GdkPoint scaled[8];
+  GdkPoint polygon[9];
   int i;
 
 
@@ -993,21 +1045,21 @@ DrawSpecialPolygon (Drawable d, GC DrawGC,
     }
   if (TEST_FLAG (THINDRAWFLAG, PCB))
     {
-      XSetLineAttributes (Dpy, Output.fgGC, 1,
-			  LineSolid, CapRound, JoinRound);
+      gdk_gc_set_line_attributes(Output.fgGC, 1,
+			  GDK_LINE_SOLID, GDK_CAP_ROUND, GDK_JOIN_ROUND);
       polygon[8].x = X + scaled[0].x;
       polygon[8].y = Y + scaled[0].y;
-      XDrawLines (Dpy, d, DrawGC, polygon, 9, CoordModeOrigin);
+      gdk_draw_lines(d, DrawGC, polygon, 9);
     }
   else
-    XFillPolygon (Dpy, d, DrawGC, polygon, 8, Convex, CoordModeOrigin);
+    gdk_draw_polygon(d, DrawGC, TRUE, polygon, 8);
 }
 
 /* ---------------------------------------------------------------------------
  * lowlevel drawing routine for pins and vias
  */
 static void
-DrawPinOrViaLowLevel (PinTypePtr Ptr, Boolean drawHole)
+DrawPinOrViaLowLevel (PinTypePtr Ptr, gboolean drawHole)
 {
   if (Gathering)
     {
@@ -1019,13 +1071,13 @@ DrawPinOrViaLowLevel (PinTypePtr Ptr, Boolean drawHole)
     {
       if (drawHole)
 	{
-	  XSetLineAttributes (Dpy, Output.bgGC, TO_SCREEN (Ptr->Thickness),
-			      LineSolid, CapRound, JoinRound);
-	  XDrawCLine (Dpy, DrawingWindow, Output.bgGC, Ptr->X, Ptr->Y,
+	  gdk_gc_set_line_attributes(Output.bgGC, TO_SCREEN (Ptr->Thickness),
+			      GDK_LINE_SOLID, GDK_CAP_ROUND, GDK_JOIN_ROUND);
+	  XDrawCLine (DrawingWindow, Output.bgGC, Ptr->X, Ptr->Y,
 		      Ptr->X, Ptr->Y);
-	  XSetLineAttributes (Dpy, Output.fgGC, 1, LineSolid, CapRound,
-			      JoinRound);
-	  XDrawCArc (Dpy, DrawingWindow, Output.fgGC, Ptr->X, Ptr->Y,
+	  gdk_gc_set_line_attributes(Output.fgGC, 1, GDK_LINE_SOLID, GDK_CAP_ROUND,
+			      GDK_JOIN_ROUND);
+	  XDrawCArc (DrawingWindow, Output.fgGC, Ptr->X, Ptr->Y,
 		     Ptr->Thickness, Ptr->Thickness, 0, 23040);
 	}
       return;
@@ -1034,30 +1086,28 @@ DrawPinOrViaLowLevel (PinTypePtr Ptr, Boolean drawHole)
     {
       if (TEST_FLAG (THINDRAWFLAG, PCB))
 	{
-	  XSetLineAttributes (Dpy, Output.fgGC, 1,
-			      LineSolid, CapRound, JoinRound);
-	  XDrawRectangle (Dpy, DrawingWindow, Output.fgGC,
+	  gdk_gc_set_line_attributes(Output.fgGC, 1,
+			      GDK_LINE_SOLID, GDK_CAP_ROUND, GDK_JOIN_ROUND);
+	  gdk_draw_rectangle(DrawingWindow, Output.fgGC, FALSE,
 			  TO_DRAW_X (Ptr->X - Ptr->Thickness / 2),
-			  TO_DRAW_Y (Ptr->Y -
-				     TO_SCREEN_SIGN_Y (Ptr->Thickness / 2)),
+			  TO_DRAW_Y (Ptr->Y - TO_SCREEN_SIGN_Y (Ptr->Thickness / 2)),
 			  TO_SCREEN (Ptr->Thickness),
 			  TO_SCREEN (Ptr->Thickness));
 	}
       else
 	{
-	  XFillRectangle (Dpy, DrawingWindow, Output.fgGC,
+	  gdk_draw_rectangle(DrawingWindow, Output.fgGC, TRUE,
 			  TO_DRAW_X (Ptr->X - Ptr->Thickness / 2),
-			  TO_DRAW_Y (Ptr->Y -
-				     TO_SCREEN_SIGN_Y (Ptr->Thickness / 2)),
+			  TO_DRAW_Y (Ptr->Y - TO_SCREEN_SIGN_Y (Ptr->Thickness / 2)),
 			  TO_SCREEN (Ptr->Thickness),
 			  TO_SCREEN (Ptr->Thickness));
 	}
     }
   else if (TEST_FLAG (OCTAGONFLAG, Ptr))
     {
-      XSetLineAttributes (Dpy, Output.fgGC,
+      gdk_gc_set_line_attributes(Output.fgGC,
 			  TO_SCREEN ((Ptr->Thickness - Ptr->DrillingHole) /
-				     2), LineSolid, CapRound, JoinRound);
+				     2), GDK_LINE_SOLID, GDK_CAP_ROUND, GDK_JOIN_ROUND);
 
       /* transform X11 specific coord system */
       DrawSpecialPolygon (DrawingWindow, Output.fgGC,
@@ -1068,16 +1118,16 @@ DrawPinOrViaLowLevel (PinTypePtr Ptr, Boolean drawHole)
     {				/* draw a round pin or via */
       if (TEST_FLAG (THINDRAWFLAG, PCB))
 	{
-	  XSetLineAttributes (Dpy, Output.fgGC, 1,
-			      LineSolid, CapRound, JoinRound);
-	  XDrawCArc (Dpy, DrawingWindow, Output.fgGC, Ptr->X, Ptr->Y,
+	  gdk_gc_set_line_attributes(Output.fgGC, 1,
+			      GDK_LINE_SOLID, GDK_CAP_ROUND, GDK_JOIN_ROUND);
+	  XDrawCArc (DrawingWindow, Output.fgGC, Ptr->X, Ptr->Y,
 		     Ptr->Thickness, Ptr->Thickness, 0, 360 * 64);
 	}
       else
 	{
-	  XSetLineAttributes (Dpy, Output.fgGC, TO_SCREEN (Ptr->Thickness),
-			      LineSolid, CapRound, JoinRound);
-	  XDrawCLine (Dpy, DrawingWindow, Output.fgGC, Ptr->X, Ptr->Y,
+	  gdk_gc_set_line_attributes(Output.fgGC, TO_SCREEN (Ptr->Thickness),
+			      GDK_LINE_SOLID, GDK_CAP_ROUND, GDK_JOIN_ROUND);
+	  XDrawCLine (DrawingWindow, Output.fgGC, Ptr->X, Ptr->Y,
 		      Ptr->X, Ptr->Y);
 	}
     }
@@ -1087,17 +1137,17 @@ DrawPinOrViaLowLevel (PinTypePtr Ptr, Boolean drawHole)
     {
       if (TEST_FLAG (THINDRAWFLAG, PCB))
 	{
-	  XSetLineAttributes (Dpy, Output.fgGC, 1,
-			      LineSolid, CapRound, JoinRound);
-	  XDrawCArc (Dpy, DrawingWindow, Output.fgGC,
+	  gdk_gc_set_line_attributes(Output.fgGC, 1,
+			      GDK_LINE_SOLID, GDK_CAP_ROUND, GDK_JOIN_ROUND);
+	  XDrawCArc (DrawingWindow, Output.fgGC,
 		     Ptr->X, Ptr->Y, Ptr->DrillingHole,
 		     Ptr->DrillingHole, 0, 360 * 64);
 	}
       else
 	{
-	  XSetLineAttributes (Dpy, Output.bgGC, TO_SCREEN (Ptr->DrillingHole),
-			      LineSolid, CapRound, JoinRound);
-	  XDrawCLine (Dpy, DrawingWindow, Output.bgGC, Ptr->X, Ptr->Y,
+	  gdk_gc_set_line_attributes(Output.bgGC, TO_SCREEN (Ptr->DrillingHole),
+			      GDK_LINE_SOLID, GDK_CAP_ROUND, GDK_JOIN_ROUND);
+	  XDrawCLine (DrawingWindow, Output.bgGC, Ptr->X, Ptr->Y,
 		      Ptr->X, Ptr->Y);
 	}
     }
@@ -1113,31 +1163,31 @@ DrawHole (PinTypePtr Ptr)
     {
       if (!TEST_FLAG (HOLEFLAG, Ptr))
 	{
-	  XSetLineAttributes (Dpy, Output.fgGC, 1,
-			      LineSolid, CapRound, JoinRound);
-	  XDrawCArc (Dpy, DrawingWindow, Output.fgGC, Ptr->X, Ptr->Y,
+	  gdk_gc_set_line_attributes(Output.fgGC, 1,
+			      GDK_LINE_SOLID, GDK_CAP_ROUND, GDK_JOIN_ROUND);
+	  XDrawCArc (DrawingWindow, Output.fgGC, Ptr->X, Ptr->Y,
 		     Ptr->DrillingHole, Ptr->DrillingHole, 0, 360 * 64);
 	}
     }
   else
     {
-      XSetLineAttributes (Dpy, Output.bgGC, TO_SCREEN (Ptr->DrillingHole),
-			  LineSolid, CapRound, JoinRound);
-      XDrawCLine (Dpy, DrawingWindow, Output.bgGC, Ptr->X,
+      gdk_gc_set_line_attributes(Output.bgGC, TO_SCREEN (Ptr->DrillingHole),
+			  GDK_LINE_SOLID, GDK_CAP_ROUND, GDK_JOIN_ROUND);
+      XDrawCLine (DrawingWindow, Output.bgGC, Ptr->X,
 		  Ptr->Y, Ptr->X, Ptr->Y);
     }
   if (TEST_FLAG (HOLEFLAG, Ptr))
     {
       if (TEST_FLAG (WARNFLAG, Ptr))
-	XSetForeground (Dpy, Output.fgGC, PCB->WarnColor);
+	gdk_gc_set_foreground(Output.fgGC, PCB->WarnColor);
       else if (TEST_FLAG (SELECTEDFLAG, Ptr))
-	XSetForeground (Dpy, Output.fgGC, PCB->ViaSelectedColor);
+	gdk_gc_set_foreground(Output.fgGC, PCB->ViaSelectedColor);
       else
-	XSetForeground (Dpy, Output.fgGC,
-			BlackPixelOfScreen (XtScreen (Output.Output)));
-      XSetLineAttributes (Dpy, Output.fgGC, 1, LineSolid, CapRound,
-			  JoinRound);
-      XDrawCArc (Dpy, DrawingWindow, Output.fgGC, Ptr->X, Ptr->Y,
+	gdk_gc_set_foreground(Output.fgGC, &Settings.BlackColor);
+
+      gdk_gc_set_line_attributes(Output.fgGC, 1, GDK_LINE_SOLID, GDK_CAP_ROUND,
+			  GDK_JOIN_ROUND);
+      XDrawCArc (DrawingWindow, Output.fgGC, Ptr->X, Ptr->Y,
 		 Ptr->DrillingHole, Ptr->DrillingHole, 0, 23040);
     }
 }
@@ -1146,7 +1196,7 @@ DrawHole (PinTypePtr Ptr)
  * draw clearance in pixmask arround pins and vias that pierce polygons
  */
 static void
-ClearOnlyPin (PinTypePtr Pin, Boolean mask)
+ClearOnlyPin (PinTypePtr Pin, gboolean mask)
 {
   BDimension half =
     (mask ? Pin->Mask / 2 : (Pin->Thickness + Pin->Clearance) / 2);
@@ -1157,7 +1207,7 @@ ClearOnlyPin (PinTypePtr Pin, Boolean mask)
   /* Clear the area around the pin */
   if (TEST_FLAG (SQUAREFLAG, Pin))
     {
-      XFillRectangle (Dpy, Offmask, Output.pmGC,
+      gdk_draw_rectangle(Output.mask, Output.pmGC, TRUE,
 		      TO_DRAW_X (Pin->X - TO_SCREEN_SIGN_X (half)),
 		      TO_DRAW_Y (Pin->Y - TO_SCREEN_SIGN_Y (half)),
 		      TO_SCREEN (mask ? Pin->Mask : Pin->Thickness +
@@ -1167,23 +1217,23 @@ ClearOnlyPin (PinTypePtr Pin, Boolean mask)
     }
   else if (TEST_FLAG (OCTAGONFLAG, Pin))
     {
-      XSetLineAttributes (Dpy, Output.pmGC,
+      gdk_gc_set_line_attributes(Output.pmGC,
 			  TO_SCREEN ((Pin->Thickness + Pin->Clearance -
-				      Pin->DrillingHole) / 2), LineSolid,
-			  CapRound, JoinRound);
+				      Pin->DrillingHole) / 2), GDK_LINE_SOLID,
+			  GDK_CAP_ROUND, GDK_JOIN_ROUND);
 
       /* transform X11 specific coord system */
-      DrawSpecialPolygon (Offmask, Output.pmGC,
+      DrawSpecialPolygon (Output.mask, Output.pmGC,
 			  TO_DRAW_X (Pin->X), TO_DRAW_Y (Pin->Y),
 			  mask ? Pin->Mask : Pin->Thickness + Pin->Clearance);
     }
   else
     {
-      XSetLineAttributes (Dpy, Output.pmGC,
+      gdk_gc_set_line_attributes(Output.pmGC,
 			  TO_SCREEN (mask ? Pin->Mask : Pin->Thickness +
-				     Pin->Clearance), LineSolid, CapRound,
-			  JoinRound);
-      XDrawCLine (Dpy, Offmask, Output.pmGC, Pin->X, Pin->Y, Pin->X, Pin->Y);
+				     Pin->Clearance), GDK_LINE_SOLID, GDK_CAP_ROUND,
+			  GDK_JOIN_ROUND);
+      XDrawCLine (Output.mask, Output.pmGC, Pin->X, Pin->Y, Pin->X, Pin->Y);
     }
 }
 
@@ -1199,33 +1249,33 @@ ThermPin (LayerTypePtr layer, PinTypePtr Pin)
   if (TEST_FLAG (SELECTEDFLAG | FOUNDFLAG, Pin))
     {
       if (TEST_FLAG (SELECTEDFLAG, Pin))
-	XSetForeground (Dpy, Output.fgGC, layer->SelectedColor);
+	gdk_gc_set_foreground(Output.fgGC, layer->SelectedColor);
       else
-	XSetForeground (Dpy, Output.fgGC, PCB->ConnectedColor);
+	gdk_gc_set_foreground(Output.fgGC, PCB->ConnectedColor);
     }
   else
-    XSetForeground (Dpy, Output.fgGC, layer->Color);
+    gdk_gc_set_foreground(Output.fgGC, layer->Color);
 
   finger = (Pin->Thickness - Pin->DrillingHole) * PCB->ThermScale;
-  XSetLineAttributes (Dpy, Output.fgGC,
+  gdk_gc_set_line_attributes(Output.fgGC,
 		      TEST_FLAG (THINDRAWFLAG, PCB) ? 1 : TO_SCREEN (finger),
-		      LineSolid, CapRound, JoinRound);
+		      GDK_LINE_SOLID, GDK_CAP_ROUND, GDK_JOIN_ROUND);
   if (TEST_FLAG (SQUAREFLAG, Pin))
     {
 
-      XDrawCLine (Dpy, DrawingWindow, Output.fgGC,
+      XDrawCLine (DrawingWindow, Output.fgGC,
 		  Pin->X - half, Pin->Y - half, Pin->X + half, Pin->Y + half);
-      XDrawCLine (Dpy, DrawingWindow, Output.fgGC,
+      XDrawCLine (DrawingWindow, Output.fgGC,
 		  Pin->X - half, Pin->Y + half, Pin->X + half, Pin->Y - half);
     }
   else
     {
       BDimension halfs = (half * M_SQRT1_2 + 1);
 
-      XDrawCLine (Dpy, DrawingWindow, Output.fgGC,
+      XDrawCLine (DrawingWindow, Output.fgGC,
 		  Pin->X - halfs, Pin->Y - halfs, Pin->X + halfs,
 		  Pin->Y + halfs);
-      XDrawCLine (Dpy, DrawingWindow, Output.fgGC, Pin->X - halfs,
+      XDrawCLine (DrawingWindow, Output.fgGC, Pin->X - halfs,
 		  Pin->Y + halfs, Pin->X + halfs, Pin->Y - halfs);
     }
 }
@@ -1249,7 +1299,7 @@ ClearPin (PinTypePtr Pin, int Type, int unused)
   /* Clear the area around the pin */
   if (TEST_FLAG (SQUAREFLAG, Pin))
     {
-      XFillRectangle (Dpy, DrawingWindow, Output.bgGC,
+      gdk_draw_rectangle(DrawingWindow, Output.bgGC, TRUE,
 		      TO_DRAW_X (Pin->X - TO_SCREEN_SIGN_X (half)),
 		      TO_DRAW_Y (Pin->Y - TO_SCREEN_SIGN_Y (half)),
 		      TO_SCREEN (Pin->Thickness + Pin->Clearance),
@@ -1257,10 +1307,10 @@ ClearPin (PinTypePtr Pin, int Type, int unused)
     }
   else if (TEST_FLAG (OCTAGONFLAG, Pin))
     {
-      XSetLineAttributes (Dpy, Output.bgGC,
+      gdk_gc_set_line_attributes(Output.bgGC,
 			  TO_SCREEN ((Pin->Thickness + Pin->Clearance -
-				      Pin->DrillingHole) / 2), LineSolid,
-			  CapRound, JoinRound);
+				      Pin->DrillingHole) / 2), GDK_LINE_SOLID,
+			  GDK_CAP_ROUND, GDK_JOIN_ROUND);
 
       /* transform X11 specific coord system */
       DrawSpecialPolygon (DrawingWindow, Output.bgGC,
@@ -1269,10 +1319,10 @@ ClearPin (PinTypePtr Pin, int Type, int unused)
     }
   else
     {
-      XSetLineAttributes (Dpy, Output.bgGC,
+      gdk_gc_set_line_attributes(Output.bgGC,
 			  TO_SCREEN (Pin->Thickness + Pin->Clearance),
-			  LineSolid, CapRound, JoinRound);
-      XDrawCLine (Dpy, DrawingWindow, Output.bgGC, Pin->X,
+			  GDK_LINE_SOLID, GDK_CAP_ROUND, GDK_JOIN_ROUND);
+      XDrawCLine (DrawingWindow, Output.bgGC, Pin->X,
 		  Pin->Y, Pin->X, Pin->Y);
     }
   /* draw all the thermal(s) */
@@ -1290,37 +1340,37 @@ ClearPin (PinTypePtr Pin, int Type, int unused)
 	      if (TEST_FLAG (SELECTEDFLAG | FOUNDFLAG, Pin))
 		{
 		  if (TEST_FLAG (SELECTEDFLAG, Pin))
-		    XSetForeground (Dpy, Output.fgGC, layer->SelectedColor);
+		    gdk_gc_set_foreground(Output.fgGC, layer->SelectedColor);
 		  else
-		    XSetForeground (Dpy, Output.fgGC, PCB->ConnectedColor);
+		    gdk_gc_set_foreground(Output.fgGC, PCB->ConnectedColor);
 		}
 	      else
-		XSetForeground (Dpy, Output.fgGC, layer->Color);
+		gdk_gc_set_foreground(Output.fgGC, layer->Color);
 	    }
 	  if (TEST_FLAG (SQUAREFLAG, Pin))
 	    {
-	      XSetLineAttributes (Dpy, Output.fgGC,
+	      gdk_gc_set_line_attributes(Output.fgGC,
 				  TEST_FLAG (THINDRAWFLAG,
 					     PCB) ? 1 : TO_SCREEN (Pin->
 								   Clearance /
 								   2),
-				  LineSolid, CapRound, JoinRound);
+				  GDK_LINE_SOLID, GDK_CAP_ROUND, GDK_JOIN_ROUND);
 
-	      XDrawCLine (Dpy, DrawingWindow, Output.fgGC, Pin->X - half,
+	      XDrawCLine (DrawingWindow, Output.fgGC, Pin->X - half,
 			  Pin->Y - half, Pin->X + half, Pin->Y + half);
-	      XDrawCLine (Dpy, DrawingWindow, Output.fgGC, Pin->X - half,
+	      XDrawCLine (DrawingWindow, Output.fgGC, Pin->X - half,
 			  Pin->Y + half, Pin->X + half, Pin->Y - half);
 	    }
 	  else
 	    {
 	      BDimension halfs = (half * M_SQRT1_2 + 1);
 
-	      XSetLineAttributes (Dpy, Output.fgGC,
-				  TO_SCREEN (Pin->Clearance / 2), LineSolid,
-				  CapRound, JoinRound);
-	      XDrawCLine (Dpy, DrawingWindow, Output.fgGC, Pin->X - halfs,
+	      gdk_gc_set_line_attributes(Output.fgGC,
+				  TO_SCREEN (Pin->Clearance / 2), GDK_LINE_SOLID,
+				  GDK_CAP_ROUND, GDK_JOIN_ROUND);
+	      XDrawCLine (DrawingWindow, Output.fgGC, Pin->X - halfs,
 			  Pin->Y - halfs, Pin->X + halfs, Pin->Y + halfs);
-	      XDrawCLine (Dpy, DrawingWindow, Output.fgGC, Pin->X - halfs,
+	      XDrawCLine (DrawingWindow, Output.fgGC, Pin->X - halfs,
 			  Pin->Y + halfs, Pin->X + halfs, Pin->Y - halfs);
 	    }
 	}
@@ -1342,41 +1392,45 @@ ClearPin (PinTypePtr Pin, int Type, int unused)
     }
 }
 
-/* virtical text handling provided by Martin Devera with fixes by harry eaton */
+
+/* vertical text handling provided by Martin Devera with fixes by harry eaton */
 
 /* draw vertical text; xywh is bounding, de is text's descend used for
    positioning */
 static void
-DrawVText (int x, int y, int w, int h, int de, char *str)
-{
-  Pixmap pm;
-  GC gc;
-  XImage *im;
-  int i, j;
+DrawVText (int x, int y, int w, int h, char *str)
+	{
+	GdkPixmap	*pm;
+	GdkImage	*im;
+	GdkGCValues	values;
+	guint32		pixel;
+	gint		i, j;
 
-  if (strlen (str) == 0)
-    return;
+	if (!str || !*str)
+		return;
 
-  pm = XCreatePixmap (Dpy, DrawingWindow, w, h, 1);
-  gc = XCreateGC (Dpy, pm, 0, 0);
+	pm = gdk_pixmap_new(DrawingWindow, w, h, -1);
 
-  /* draw into pixmap */
-  XFillRectangle (Dpy, pm, gc, 0, 0, w, h);
-  XSetForeground (Dpy, gc, 1);
-  XSetFont (Dpy, gc, Settings.PinoutFont[ZoomValue]->fid);
-  XDrawString (Dpy, pm, gc, 0, h - de, str,
-	       MIN (Settings.PinoutNameLength, strlen (str)));
+	/* draw into pixmap */
+	gdk_draw_rectangle(pm, Output.bgGC, TRUE, 0, 0, w, h);
 
-  im = XGetImage (Dpy, pm, 0, 0, w, h, 1, XYPixmap);
+	gui_draw_string_markup(DrawingWindow, Output.font_desc, Output.fgGC,
+			0, 0, str);
 
-  /* draw Transpose(im) but only dark pixels; TODO: find a faster way */
-  for (i = 0; i < w; i++)
-    for (j = 0; j < h; j++)
-      if (XGetPixel (im, i, j))
-	XDrawPoint (Dpy, DrawingWindow, Output.fgGC, x + j, y + w - i - 1);
-  XFreeGC (Dpy, gc);
-  XFreePixmap (Dpy, pm);
-}
+	im = gdk_drawable_get_image(pm, 0, 0, w, h);
+	gdk_gc_get_values(Output.fgGC, &values);
+
+	/* draw Transpose(im).  TODO: Pango should be doing vertical text soon */
+	for (i = 0; i < w; i++)
+		for (j = 0; j < h; j++)
+			{
+			pixel = gdk_image_get_pixel(im, i, j);
+			if (pixel == values.foreground.pixel)
+				gdk_draw_point(DrawingWindow, Output.fgGC,
+						x + j, y + w - i - 1);
+			}
+	g_object_unref(G_OBJECT(pm));
+	}
 
 
 /* ---------------------------------------------------------------------------
@@ -1385,53 +1439,59 @@ DrawVText (int x, int y, int w, int h, int de, char *str)
 static void
 DrawPinOrViaNameLowLevel (PinTypePtr Ptr)
 {
-  int direction, ascent, descent;
-  XCharStruct overall;
-  char *name;
-  BoxType box;
+  gint		width, height;
+  gchar		*name;
+  BoxType	box;
+  gboolean	vert;
 
   name = EMPTY (TEST_FLAG (SHOWNUMBERFLAG, PCB) ? Ptr->Number : Ptr->Name);
-  XTextExtents (Settings.PinoutFont[ZoomValue],
-		name, MIN (Settings.PinoutNameLength, strlen (name)),
-		&direction, &ascent, &descent, &overall);
-  if (TEST_FLAG (EDGE2FLAG, Ptr))
+  name = markup_sized_string(name);
+
+  gui_string_markup_extents(Output.font_desc, name, &width, &height);
+
+#if VERTICAL_TEXT
+  vert = TEST_FLAG (EDGE2FLAG, Ptr);
+#else
+  vert = FALSE;
+#endif
+
+  if (vert)
     {
-      box.X1 = TO_DRAW_X (Ptr->X) - ascent + descent;
+      box.X1 = TO_DRAW_X (Ptr->X) - height;
       box.Y1 =
-	TO_DRAW_Y (Ptr->Y + Ptr->Thickness / 2 + Settings.PinoutTextOffsetY)
-	+ overall.lbearing;
+	TO_DRAW_Y (Ptr->Y + Ptr->Thickness / 2 + Settings.PinoutTextOffsetY);
     }
   else
     {
       box.X1 =
 	TO_DRAW_X (Ptr->X + Ptr->Thickness / 2 + Settings.PinoutTextOffsetX);
-      box.Y1 = TO_DRAW_Y (Ptr->Y) + overall.ascent / 2;
+      box.Y1 = TO_DRAW_Y (Ptr->Y) - height / 2;
     }
   if (Gathering)
     {
-      if (!TEST_FLAG (EDGE2FLAG, Ptr))
+      if (vert)
 	{
-	  box.X1 += overall.lbearing;
-	  box.Y1 -= overall.ascent;
-	  box.X2 = box.X1 + overall.width;
-	  box.Y2 = box.Y1 + ascent + descent;
+	  box.X2 = box.X1 + height;
+	  box.Y2 = box.Y1 + width;
 	}
       else
 	{
-	  box.X2 = box.X1 + ascent + descent;;
-	  box.Y2 = box.Y1 + overall.width;
+	  box.X2 = box.X1 + width;
+	  box.Y2 = box.Y1 + height;
 	}
+//printf("AddPart: x1=%d y1=%d x2=%d y2=%d\n", box.X1, box.Y1, box.X2, box.Y2);
       AddPart (&box, True);
       return;
     }
-  if (TEST_FLAG (EDGE2FLAG, Ptr))
-    DrawVText (box.X1, box.Y1, overall.width,
-	       ascent + descent, descent, name);
-  else
-    XDrawString (Dpy, DrawingWindow, Output.fgGC,
-		 box.X1, box.Y1,
-		 name, MIN (Settings.PinoutNameLength, strlen (name)));
+//printf("DrawPin(%d,%d): x=%d y=%d w=%d h=%d\n",
+//TO_DRAW_X(Ptr->X), TO_DRAW_Y(Ptr->Y), box.X1, box.Y1, width, height);
 
+  if (vert)
+    DrawVText (box.X1, box.Y1, width, height, name);
+  else
+    gui_draw_string_markup(DrawingWindow, Output.font_desc, Output.fgGC,
+		 box.X1, box.Y1, name);
+  g_free(name);
 }
 
 /* ---------------------------------------------------------------------------
@@ -1465,51 +1525,50 @@ DrawPadLowLevel (PadTypePtr Pad)
 	  y2 ^= y1;
 	  y1 ^= y2;
 	}
-      XSetLineAttributes (Dpy, Output.fgGC,
-			  1, LineSolid, CapRound, JoinRound);
+      gdk_gc_set_line_attributes(Output.fgGC,
+			  1, GDK_LINE_SOLID, GDK_CAP_ROUND, GDK_JOIN_ROUND);
       if (TEST_FLAG (SQUAREFLAG, Pad))
 	{
 	  x1 -= t;
 	  y1 -= t;
 	  x2 += t2;
 	  y2 += t2;
-	  XDrawCLine (Dpy, DrawingWindow, Output.fgGC, x1, y1, x1, y2);
-	  XDrawCLine (Dpy, DrawingWindow, Output.fgGC, x1, y2, x2, y2);
-	  XDrawCLine (Dpy, DrawingWindow, Output.fgGC, x2, y2, x2, y1);
-	  XDrawCLine (Dpy, DrawingWindow, Output.fgGC, x2, y1, x1, y1);
+	  XDrawCLine (DrawingWindow, Output.fgGC, x1, y1, x1, y2);
+	  XDrawCLine (DrawingWindow, Output.fgGC, x1, y2, x2, y2);
+	  XDrawCLine (DrawingWindow, Output.fgGC, x2, y2, x2, y1);
+	  XDrawCLine (DrawingWindow, Output.fgGC, x2, y1, x1, y1);
 	}
       else if (x1 == x2)
 	{
-	  XDrawCLine (Dpy, DrawingWindow, Output.fgGC, x1 - t, y1, x2 - t,
+	  XDrawCLine (DrawingWindow, Output.fgGC, x1 - t, y1, x2 - t,
 		      y2);
-	  XDrawCLine (Dpy, DrawingWindow, Output.fgGC, x1 + t2, y1, x2 + t2,
+	  XDrawCLine (DrawingWindow, Output.fgGC, x1 + t2, y1, x2 + t2,
 		      y2);
-	  XDrawCArc (Dpy, DrawingWindow, Output.fgGC, x1, y1, Pad->Thickness,
+	  XDrawCArc (DrawingWindow, Output.fgGC, x1, y1, Pad->Thickness,
 		     Pad->Thickness, 0, 180 * 64);
-	  XDrawCArc (Dpy, DrawingWindow, Output.fgGC, x2, y2, Pad->Thickness,
+	  XDrawCArc (DrawingWindow, Output.fgGC, x2, y2, Pad->Thickness,
 		     Pad->Thickness, 180 * 64, 180 * 64);
 	}
       else
 	{
-	  XDrawCLine (Dpy, DrawingWindow, Output.fgGC, x1, y1 - t, x2,
+	  XDrawCLine (DrawingWindow, Output.fgGC, x1, y1 - t, x2,
 		      y2 - t);
-	  XDrawCLine (Dpy, DrawingWindow, Output.fgGC, x1, y1 + t2, x2,
+	  XDrawCLine (DrawingWindow, Output.fgGC, x1, y1 + t2, x2,
 		      y2 + t2);
-	  XDrawCArc (Dpy, DrawingWindow, Output.fgGC, x1, y1, Pad->Thickness,
+	  XDrawCArc (DrawingWindow, Output.fgGC, x1, y1, Pad->Thickness,
 		     Pad->Thickness, 90 * 64, 180 * 64);
-	  XDrawCArc (Dpy, DrawingWindow, Output.fgGC, x2, y2, Pad->Thickness,
+	  XDrawCArc (DrawingWindow, Output.fgGC, x2, y2, Pad->Thickness,
 		     Pad->Thickness, 270 * 64, 180 * 64);
 	}
     }
   else
     {
 
-      XSetLineAttributes (Dpy, Output.fgGC,
-			  TO_SCREEN (Pad->Thickness), LineSolid,
-			  TEST_FLAG (SQUAREFLAG,
-				     Pad) ? CapProjecting : CapRound,
-			  JoinRound);
-      XDrawCLine (Dpy, DrawingWindow, Output.fgGC, Pad->Point1.X,
+      gdk_gc_set_line_attributes(Output.fgGC,
+			  TO_SCREEN (Pad->Thickness), GDK_LINE_SOLID,
+			  TEST_FLAG (SQUAREFLAG, Pad) ? GDK_CAP_PROJECTING : GDK_CAP_ROUND,
+			  GDK_JOIN_ROUND);
+      XDrawCLine (DrawingWindow, Output.fgGC, Pad->Point1.X,
 		  Pad->Point1.Y, Pad->Point2.X, Pad->Point2.Y);
     }
 }
@@ -1521,21 +1580,26 @@ DrawPadLowLevel (PadTypePtr Pad)
 static void
 DrawPadNameLowLevel (PadTypePtr Pad)
 {
-  int direction, ascent, descent, vert;
-  XCharStruct overall;
-  char *name;
-  BoxType box;
+  BoxType	box;
+  gchar		*name;
+  gint		width, height;
+  gboolean	vert;
 
   name = EMPTY (TEST_FLAG (SHOWNUMBERFLAG, PCB) ? Pad->Number : Pad->Name);
+  name = markup_sized_string(name);
 
-  XTextExtents (Settings.PinoutFont[ZoomValue], name,
-		MIN (Settings.PinoutNameLength, strlen (name)),
-		&direction, &ascent, &descent, &overall);
+  gui_string_markup_extents(Output.font_desc, name, &width, &height);
+
   /* should text be vertical ? */
+#if VERTICAL_TEXT
   vert = (Pad->Point1.X == Pad->Point2.X);
+#else
+  vert = FALSE;
+#endif
+
   if (vert)
     {
-      box.X1 = TO_DRAW_X (Pad->Point1.X) - ascent + descent;
+      box.X1 = TO_DRAW_X (Pad->Point1.X) - height;
       box.Y1 =
 	TO_DRAW_Y (MAX (Pad->Point1.Y, Pad->Point2.Y) + Pad->Thickness / 2);
     }
@@ -1543,11 +1607,11 @@ DrawPadNameLowLevel (PadTypePtr Pad)
     {
       box.X1 =
 	TO_DRAW_X (MAX (Pad->Point1.X, Pad->Point2.X) + Pad->Thickness / 2);
-      box.Y1 = TO_DRAW_Y (Pad->Point1.Y) + overall.ascent / 2;
+      box.Y1 = TO_DRAW_Y (Pad->Point1.Y) -  height / 2;
     }
 
   if (vert)
-    box.Y1 += overall.lbearing + TO_SCREEN (Settings.PinoutTextOffsetY);
+    box.Y1 +=  TO_SCREEN (Settings.PinoutTextOffsetY);
   else
     box.X1 += TO_SCREEN (Settings.PinoutTextOffsetX);
 
@@ -1555,41 +1619,40 @@ DrawPadNameLowLevel (PadTypePtr Pad)
     {
       if (vert)
 	{
-	  box.X2 = box.X1 + ascent + descent;
-	  box.Y2 = box.Y1 + overall.width;
+	  box.X2 = box.X1 + height;
+	  box.Y2 = box.Y1 + width;
 	}
       else
 	{
-	  box.X1 += overall.lbearing;
-	  box.Y1 -= ascent;
-	  box.X2 = box.X1 + overall.width;
-	  box.Y2 = box.Y1 + ascent + descent;
+	  box.X2 = box.X1 + width;
+	  box.Y2 = box.Y1 + height;
 	}
       AddPart (&box, True);
       return;
     }
 
+#if VERTICAL_TEXT
   if (vert)
-    DrawVText (box.X1, box.Y1, overall.width,
-	       ascent + descent, descent, name);
+   DrawVText (box.X1, box.Y1, width, height, name);
   else
-    XDrawString (Dpy, DrawingWindow, Output.fgGC,
-		 box.X1, box.Y1,
-		 name, MIN (Settings.PinoutNameLength, strlen (name)));
+#endif
+    gui_draw_string_markup(DrawingWindow, Output.font_desc, Output.fgGC,
+		 box.X1, box.Y1, name);
+  g_free(name);
 }
 
 /* ---------------------------------------------------------------------------
  * clearance for pads
  */
 static void
-ClearPad (PadTypePtr Pad, Boolean mask)
+ClearPad (PadTypePtr Pad, gboolean mask)
 {
-  XSetLineAttributes (Dpy, Output.pmGC,
+  gdk_gc_set_line_attributes(Output.pmGC,
 		      TO_SCREEN (mask ? Pad->Mask : Pad->Thickness +
-				 Pad->Clearance), LineSolid,
-		      TEST_FLAG (SQUAREFLAG, Pad) ? CapProjecting : CapRound,
-		      JoinRound);
-  XDrawCLine (Dpy, Offmask, Output.pmGC, Pad->Point1.X, Pad->Point1.Y,
+				 Pad->Clearance), GDK_LINE_SOLID,
+		      TEST_FLAG (SQUAREFLAG, Pad) ? GDK_CAP_PROJECTING : GDK_CAP_ROUND,
+		      GDK_JOIN_ROUND);
+  XDrawCLine (Output.mask, Output.pmGC, Pad->Point1.X, Pad->Point1.Y,
 	      Pad->Point2.X, Pad->Point2.Y);
 }
 
@@ -1599,10 +1662,10 @@ ClearPad (PadTypePtr Pad, Boolean mask)
 static void
 ClearLine (LineTypePtr Line)
 {
-  XSetLineAttributes (Dpy, Output.pmGC,
+  gdk_gc_set_line_attributes(Output.pmGC,
 		      TO_SCREEN (Line->Clearance + Line->Thickness),
-		      LineSolid, CapRound, JoinRound);
-  XDrawCLine (Dpy, Offmask, Output.pmGC, Line->Point1.X, Line->Point1.Y,
+		      GDK_LINE_SOLID, GDK_CAP_ROUND, GDK_JOIN_ROUND);
+  XDrawCLine (Output.mask, Output.pmGC, Line->Point1.X, Line->Point1.Y,
 	      Line->Point2.X, Line->Point2.Y);
 }
 
@@ -1612,10 +1675,10 @@ ClearLine (LineTypePtr Line)
 static void
 ClearArc (ArcTypePtr Arc)
 {
-  XSetLineAttributes (Dpy, Output.pmGC,
+  gdk_gc_set_line_attributes(Output.pmGC,
 		      TO_SCREEN (Arc->Thickness + Arc->Clearance),
-		      LineSolid, CapRound, JoinRound);
-  XDrawCArc (Dpy, Offmask, Output.pmGC, Arc->X, Arc->Y,
+		      GDK_LINE_SOLID, GDK_CAP_ROUND, GDK_JOIN_ROUND);
+  XDrawCArc (Output.mask, Output.pmGC, Arc->X, Arc->Y,
 	     2 * Arc->Width, 2 * Arc->Height,
 	     (Arc->StartAngle - 180) * 64, Arc->Delta * 64);
 }
@@ -1624,7 +1687,7 @@ ClearArc (ArcTypePtr Arc)
  * lowlevel drawing routine for lines
  */
 static void
-DrawLineLowLevel (LineTypePtr Line, Boolean HaveGathered)
+DrawLineLowLevel (LineTypePtr Line, gboolean HaveGathered)
 {
   if (Gathering && !HaveGathered)
     {
@@ -1633,23 +1696,23 @@ DrawLineLowLevel (LineTypePtr Line, Boolean HaveGathered)
     }
 
   if (TEST_FLAG (THINDRAWFLAG, PCB))
-    XSetLineAttributes (Dpy, Output.fgGC, 1, LineSolid, CapRound, JoinRound);
+    gdk_gc_set_line_attributes(Output.fgGC, 1, GDK_LINE_SOLID, GDK_CAP_ROUND, GDK_JOIN_ROUND);
   else
-    XSetLineAttributes (Dpy, Output.fgGC,
-			TO_SCREEN (Line->Thickness), LineSolid, CapRound,
-			JoinRound);
+    gdk_gc_set_line_attributes(Output.fgGC,
+			TO_SCREEN (Line->Thickness), GDK_LINE_SOLID, GDK_CAP_ROUND,
+			GDK_JOIN_ROUND);
 
   if (TEST_FLAG (RATFLAG, Line))
     {
-      XSetStipple (Dpy, Output.fgGC, Stipples[0]);
-      XSetFillStyle (Dpy, Output.fgGC, FillStippled);
-      XDrawCLine (Dpy, DrawingWindow, Output.fgGC,
+      gdk_gc_set_stipple(Output.fgGC, Stipples[0]);
+      gdk_gc_set_fill(Output.fgGC, GDK_STIPPLED);
+      XDrawCLine (DrawingWindow, Output.fgGC,
 		  Line->Point1.X, Line->Point1.Y,
 		  Line->Point2.X, Line->Point2.Y);
-      XSetFillStyle (Dpy, Output.fgGC, FillSolid);
+      gdk_gc_set_fill(Output.fgGC, GDK_SOLID);
     }
   else
-    XDrawCLine (Dpy, DrawingWindow, Output.fgGC,
+    XDrawCLine (DrawingWindow, Output.fgGC,
 		Line->Point1.X, Line->Point1.Y,
 		Line->Point2.X, Line->Point2.Y);
 }
@@ -1739,14 +1802,11 @@ DrawTextLowLevel (TextTypePtr Text)
 	  defaultsymbol.Y1 += Text->Y;
 	  defaultsymbol.X2 += Text->X;
 	  defaultsymbol.Y2 += Text->Y;
-	  XFillRectangle (Dpy, DrawingWindow, Output.fgGC,
+	  gdk_draw_rectangle(DrawingWindow, Output.fgGC, TRUE,
 			  TO_DRAW_X (defaultsymbol.X1),
-			  TO_DRAW_Y (SWAP_IDENT ? defaultsymbol.Y2 :
-				     defaultsymbol.Y1),
-			  TO_SCREEN (abs
-				     (defaultsymbol.X2 - defaultsymbol.X1)),
-			  TO_SCREEN (abs
-				     (defaultsymbol.Y2 - defaultsymbol.Y1)));
+			  TO_DRAW_Y (SWAP_IDENT ? defaultsymbol.Y2 : defaultsymbol.Y1),
+			  TO_SCREEN (abs(defaultsymbol.X2 - defaultsymbol.X1)),
+			  TO_SCREEN (abs(defaultsymbol.Y2 - defaultsymbol.Y1)));
 
 	  /* move on to next cursor position */
 	  x += size;
@@ -1782,13 +1842,13 @@ DrawArcLowLevel (ArcTypePtr Arc)
     }
   /* angles have to be converted to X11 notation */
   if (TEST_FLAG (THINDRAWFLAG, PCB))
-    XSetLineAttributes (Dpy, Output.fgGC, 1, LineSolid, CapRound, JoinRound);
+    gdk_gc_set_line_attributes(Output.fgGC, 1, GDK_LINE_SOLID, GDK_CAP_ROUND, GDK_JOIN_ROUND);
   else
-    XSetLineAttributes (Dpy, Output.fgGC,
-			TO_SCREEN (Arc->Thickness), LineSolid, CapRound,
-			JoinRound);
+    gdk_gc_set_line_attributes(Output.fgGC,
+			TO_SCREEN (Arc->Thickness), GDK_LINE_SOLID, GDK_CAP_ROUND,
+			GDK_JOIN_ROUND);
 
-  XDrawCArc (Dpy, DrawingWindow, Output.fgGC, Arc->X, Arc->Y, 2 * Arc->Width,
+  XDrawCArc (DrawingWindow, Output.fgGC, Arc->X, Arc->Y, 2 * Arc->Width,
 	     2 * Arc->Height, (Arc->StartAngle - 180) * 64, Arc->Delta * 64);
 }
 
@@ -1831,7 +1891,7 @@ DrawVia (PinTypePtr Via, int unused)
  * draw a via without dealing with polygon clearance 
  */
 static void
-DrawPlainVia (PinTypePtr Via, Boolean holeToo)
+DrawPlainVia (PinTypePtr Via, gboolean holeToo)
 {
   if (!Gathering)
     SetPVColor (Via, VIA_TYPE);
@@ -1849,9 +1909,9 @@ DrawViaName (PinTypePtr Via, int unused)
   if (!Gathering)
     {
       if (TEST_FLAG (SELECTEDFLAG, Via))
-	XSetForeground (Dpy, Output.fgGC, PCB->ViaSelectedColor);
+	gdk_gc_set_foreground(Output.fgGC, PCB->ViaSelectedColor);
       else
-	XSetForeground (Dpy, Output.fgGC, PCB->ViaColor);
+	gdk_gc_set_foreground(Output.fgGC, PCB->ViaColor);
     }
   DrawPinOrViaNameLowLevel (Via);
 }
@@ -1878,7 +1938,7 @@ DrawPin (PinTypePtr Pin, int unused)
  * draw a pin without clearing around polygons 
  */
 static void
-DrawPlainPin (PinTypePtr Pin, Boolean holeToo)
+DrawPlainPin (PinTypePtr Pin, gboolean holeToo)
 {
   if (!Gathering)
     SetPVColor (Pin, PIN_TYPE);
@@ -1896,9 +1956,9 @@ DrawPinName (PinTypePtr Pin, int unused)
   if (!Gathering)
     {
       if (TEST_FLAG (SELECTEDFLAG, Pin))
-	XSetForeground (Dpy, Output.fgGC, PCB->PinSelectedColor);
+	gdk_gc_set_foreground(Output.fgGC, PCB->PinSelectedColor);
       else
-	XSetForeground (Dpy, Output.fgGC, PCB->PinColor);
+	gdk_gc_set_foreground(Output.fgGC, PCB->PinColor);
     }
   DrawPinOrViaNameLowLevel (Pin);
 }
@@ -1914,16 +1974,16 @@ DrawPad (PadTypePtr Pad, int unused)
       if (TEST_FLAG (WARNFLAG | SELECTEDFLAG | FOUNDFLAG, Pad))
 	{
 	  if (TEST_FLAG (WARNFLAG, Pad))
-	    XSetForeground (Dpy, Output.fgGC, PCB->WarnColor);
+	    gdk_gc_set_foreground(Output.fgGC, PCB->WarnColor);
 	  else if (TEST_FLAG (SELECTEDFLAG, Pad))
-	    XSetForeground (Dpy, Output.fgGC, PCB->PinSelectedColor);
+	    gdk_gc_set_foreground(Output.fgGC, PCB->PinSelectedColor);
 	  else
-	    XSetForeground (Dpy, Output.fgGC, PCB->ConnectedColor);
+	    gdk_gc_set_foreground(Output.fgGC, PCB->ConnectedColor);
 	}
       else if (FRONT (Pad))
-	XSetForeground (Dpy, Output.fgGC, PCB->PinColor);
+	gdk_gc_set_foreground(Output.fgGC, PCB->PinColor);
       else
-	XSetForeground (Dpy, Output.fgGC, PCB->InvisibleObjectsColor);
+	gdk_gc_set_foreground(Output.fgGC, PCB->InvisibleObjectsColor);
     }
   DrawPadLowLevel (Pad);
   if (TEST_FLAG (DISPLAYNAMEFLAG, Pad))
@@ -1939,11 +1999,11 @@ DrawPadName (PadTypePtr Pad, int unused)
   if (!Gathering)
     {
       if (TEST_FLAG (SELECTEDFLAG, Pad))
-	XSetForeground (Dpy, Output.fgGC, PCB->PinSelectedColor);
+	gdk_gc_set_foreground(Output.fgGC, PCB->PinSelectedColor);
       else if (FRONT (Pad))
-	XSetForeground (Dpy, Output.fgGC, PCB->PinColor);
+	gdk_gc_set_foreground(Output.fgGC, PCB->PinColor);
       else
-	XSetForeground (Dpy, Output.fgGC, PCB->InvisibleObjectsColor);
+	gdk_gc_set_foreground(Output.fgGC, PCB->InvisibleObjectsColor);
     }
   DrawPadNameLowLevel (Pad);
 }
@@ -1959,12 +2019,12 @@ DrawLine (LayerTypePtr Layer, LineTypePtr Line, int unused)
       if (TEST_FLAG (SELECTEDFLAG | FOUNDFLAG, Line))
 	{
 	  if (TEST_FLAG (SELECTEDFLAG, Line))
-	    XSetForeground (Dpy, Output.fgGC, Layer->SelectedColor);
+	    gdk_gc_set_foreground(Output.fgGC, Layer->SelectedColor);
 	  else
-	    XSetForeground (Dpy, Output.fgGC, PCB->ConnectedColor);
+	    gdk_gc_set_foreground(Output.fgGC, PCB->ConnectedColor);
 	}
       else
-	XSetForeground (Dpy, Output.fgGC, Layer->Color);
+	gdk_gc_set_foreground(Output.fgGC, Layer->Color);
     }
   DrawLineLowLevel (Line, False);
 }
@@ -1980,12 +2040,12 @@ DrawRat (RatTypePtr Line, int unused)
       if (TEST_FLAG (SELECTEDFLAG | FOUNDFLAG, Line))
 	{
 	  if (TEST_FLAG (SELECTEDFLAG, Line))
-	    XSetForeground (Dpy, Output.fgGC, PCB->RatSelectedColor);
+	    gdk_gc_set_foreground(Output.fgGC, PCB->RatSelectedColor);
 	  else
-	    XSetForeground (Dpy, Output.fgGC, PCB->ConnectedColor);
+	    gdk_gc_set_foreground(Output.fgGC, PCB->ConnectedColor);
 	}
       else
-	XSetForeground (Dpy, Output.fgGC, PCB->RatColor);
+	gdk_gc_set_foreground(Output.fgGC, PCB->RatColor);
     }
   DrawLineLowLevel ((LineTypePtr) Line, False);
 }
@@ -2001,12 +2061,12 @@ DrawArc (LayerTypePtr Layer, ArcTypePtr Arc, int unused)
       if (TEST_FLAG (SELECTEDFLAG | FOUNDFLAG, Arc))
 	{
 	  if (TEST_FLAG (SELECTEDFLAG, Arc))
-	    XSetForeground (Dpy, Output.fgGC, Layer->SelectedColor);
+	    gdk_gc_set_foreground(Output.fgGC, Layer->SelectedColor);
 	  else
-	    XSetForeground (Dpy, Output.fgGC, PCB->ConnectedColor);
+	    gdk_gc_set_foreground(Output.fgGC, PCB->ConnectedColor);
 	}
       else
-	XSetForeground (Dpy, Output.fgGC, Layer->Color);
+	gdk_gc_set_foreground(Output.fgGC, Layer->Color);
     }
   DrawArcLowLevel (Arc);
 }
@@ -2020,9 +2080,9 @@ DrawText (LayerTypePtr Layer, TextTypePtr Text, int unused)
   if (!Layer->On)
     return;
   if (TEST_FLAG (SELECTEDFLAG, Text))
-    XSetForeground (Dpy, Output.fgGC, Layer->SelectedColor);
+    gdk_gc_set_foreground(Output.fgGC, Layer->SelectedColor);
   else
-    XSetForeground (Dpy, Output.fgGC, Layer->Color);
+    gdk_gc_set_foreground(Output.fgGC, Layer->Color);
   DrawTextLowLevel (Text);
 }
 
@@ -2033,9 +2093,9 @@ static void
 DrawRegularText (LayerTypePtr Layer, TextTypePtr Text, int unused)
 {
   if (TEST_FLAG (SELECTEDFLAG, Text))
-    XSetForeground (Dpy, Output.fgGC, Layer->SelectedColor);
+    gdk_gc_set_foreground(Output.fgGC, Layer->SelectedColor);
   else
-    XSetForeground (Dpy, Output.fgGC, Layer->Color);
+    gdk_gc_set_foreground(Output.fgGC, Layer->Color);
   DrawTextLowLevel (Text);
 }
 
@@ -2057,21 +2117,21 @@ DrawPolygon (LayerTypePtr Layer, PolygonTypePtr Polygon, int unused)
   if (TEST_FLAG (SELECTEDFLAG | FOUNDFLAG, Polygon))
     {
       if (TEST_FLAG (SELECTEDFLAG, Polygon))
-	XSetForeground (Dpy, Output.fgGC, Layer->SelectedColor);
+	gdk_gc_set_foreground(Output.fgGC, Layer->SelectedColor);
       else
-	XSetForeground (Dpy, Output.fgGC, PCB->ConnectedColor);
+	gdk_gc_set_foreground(Output.fgGC, PCB->ConnectedColor);
     }
   else
-    XSetForeground (Dpy, Output.fgGC, Layer->Color);
+    gdk_gc_set_foreground(Output.fgGC, Layer->Color);
   layernum = GetLayerNumber (PCB->Data, Layer);
   if (Settings.StipplePolygons)
     {
-      XSetStipple (Dpy, Output.fgGC, Stipples[layernum]);
-      XSetFillStyle (Dpy, Output.fgGC, FillStippled);
+      gdk_gc_set_stipple(Output.fgGC, Stipples[layernum]);
+      gdk_gc_set_fill(Output.fgGC, GDK_STIPPLED);
     }
   DrawPolygonLowLevel (Polygon);
   if (Settings.StipplePolygons)
-    XSetFillStyle (Dpy, Output.fgGC, FillSolid);
+    gdk_gc_set_fill(Output.fgGC, GDK_SOLID);
   if (TEST_FLAG (CLEARPOLYFLAG, Polygon))
     {
       r_search (PCB->Data->pin_tree, &Polygon->BoundingBox, NULL,
@@ -2090,12 +2150,12 @@ DrawPlainPolygon (LayerTypePtr Layer, PolygonTypePtr Polygon)
   if (TEST_FLAG (SELECTEDFLAG | FOUNDFLAG, Polygon))
     {
       if (TEST_FLAG (SELECTEDFLAG, Polygon))
-	XSetForeground (Dpy, Output.fgGC, Layer->SelectedColor);
+	gdk_gc_set_foreground(Output.fgGC, Layer->SelectedColor);
       else
-	XSetForeground (Dpy, Output.fgGC, PCB->ConnectedColor);
+	gdk_gc_set_foreground(Output.fgGC, PCB->ConnectedColor);
     }
   else
-    XSetForeground (Dpy, Output.fgGC, Layer->Color);
+    gdk_gc_set_foreground(Output.fgGC, Layer->Color);
   DrawPolygonLowLevel (Polygon);
 }
 
@@ -2119,11 +2179,11 @@ DrawElementName (ElementTypePtr Element, int unused)
   if (TEST_FLAG (HIDENAMEFLAG, Element))
     return;
   if (TEST_FLAG (SELECTEDFLAG, &ELEMENT_TEXT (PCB, Element)))
-    XSetForeground (Dpy, Output.fgGC, PCB->ElementSelectedColor);
+    gdk_gc_set_foreground(Output.fgGC, PCB->ElementSelectedColor);
   else if (FRONT (Element))
-    XSetForeground (Dpy, Output.fgGC, PCB->ElementColor);
+    gdk_gc_set_foreground(Output.fgGC, PCB->ElementColor);
   else
-    XSetForeground (Dpy, Output.fgGC, PCB->InvisibleObjectsColor);
+    gdk_gc_set_foreground(Output.fgGC, PCB->InvisibleObjectsColor);
   DrawTextLowLevel (&ELEMENT_TEXT (PCB, Element));
 }
 
@@ -2135,11 +2195,11 @@ DrawElementPackage (ElementTypePtr Element, int unused)
 {
   /* set color and draw lines, arcs, text and pins */
   if (TEST_FLAG (SELECTEDFLAG, Element))
-    XSetForeground (Dpy, Output.fgGC, PCB->ElementSelectedColor);
+    gdk_gc_set_foreground(Output.fgGC, PCB->ElementSelectedColor);
   else if (FRONT (Element))
-    XSetForeground (Dpy, Output.fgGC, PCB->ElementColor);
+    gdk_gc_set_foreground(Output.fgGC, PCB->ElementColor);
   else
-    XSetForeground (Dpy, Output.fgGC, PCB->InvisibleObjectsColor);
+    gdk_gc_set_foreground(Output.fgGC, PCB->InvisibleObjectsColor);
   DrawElementPackageLowLevel (Element, unused);
 }
 
@@ -2171,7 +2231,7 @@ EraseVia (PinTypePtr Via)
   Erasing++;
   if (TEST_FLAG (ALLPIPFLAGS, Via))
     ClearPin (Via, NO_TYPE, 0);
-  XSetForeground (Dpy, Output.fgGC, Settings.bgColor);
+  gdk_gc_set_foreground(Output.fgGC, &Settings.BackgroundColor);
   DrawPinOrViaLowLevel (Via, False);
   if (TEST_FLAG (DISPLAYNAMEFLAG, Via))
     DrawPinOrViaNameLowLevel (Via);
@@ -2185,7 +2245,7 @@ void
 EraseRat (RatTypePtr Rat)
 {
   Erasing++;
-  XSetForeground (Dpy, Output.fgGC, Settings.bgColor);
+  gdk_gc_set_foreground(Output.fgGC, &Settings.BackgroundColor);
   DrawLineLowLevel ((LineTypePtr) Rat, False);
   Erasing--;
 }
@@ -2198,7 +2258,7 @@ void
 EraseViaName (PinTypePtr Via)
 {
   Erasing++;
-  XSetForeground (Dpy, Output.fgGC, Settings.bgColor);
+  gdk_gc_set_foreground(Output.fgGC, &Settings.BackgroundColor);
   DrawPinOrViaNameLowLevel (Via);
   Erasing--;
 }
@@ -2210,7 +2270,7 @@ void
 ErasePad (PadTypePtr Pad)
 {
   Erasing++;
-  XSetForeground (Dpy, Output.fgGC, Settings.bgColor);
+  gdk_gc_set_foreground(Output.fgGC, &Settings.BackgroundColor);
   DrawPadLowLevel (Pad);
   if (TEST_FLAG (DISPLAYNAMEFLAG, Pad))
     DrawPadNameLowLevel (Pad);
@@ -2224,7 +2284,7 @@ void
 ErasePadName (PadTypePtr Pad)
 {
   Erasing++;
-  XSetForeground (Dpy, Output.fgGC, Settings.bgColor);
+  gdk_gc_set_foreground(Output.fgGC, &Settings.BackgroundColor);
   DrawPadNameLowLevel (Pad);
   Erasing--;
 }
@@ -2238,7 +2298,7 @@ ErasePin (PinTypePtr Pin)
   Erasing++;
   if (TEST_FLAG (ALLPIPFLAGS, Pin))
     ClearPin (Pin, NO_TYPE, 0);
-  XSetForeground (Dpy, Output.fgGC, Settings.bgColor);
+  gdk_gc_set_foreground(Output.fgGC, &Settings.BackgroundColor);
   DrawPinOrViaLowLevel (Pin, False);
   if (TEST_FLAG (DISPLAYNAMEFLAG, Pin))
     DrawPinOrViaNameLowLevel (Pin);
@@ -2252,7 +2312,7 @@ void
 ErasePinName (PinTypePtr Pin)
 {
   Erasing++;
-  XSetForeground (Dpy, Output.fgGC, Settings.bgColor);
+  gdk_gc_set_foreground(Output.fgGC, &Settings.BackgroundColor);
   DrawPinOrViaNameLowLevel (Pin);
   Erasing--;
 }
@@ -2264,7 +2324,7 @@ void
 EraseLine (LineTypePtr Line)
 {
   Erasing++;
-  XSetForeground (Dpy, Output.fgGC, Settings.bgColor);
+  gdk_gc_set_foreground(Output.fgGC, &Settings.BackgroundColor);
   DrawLineLowLevel (Line, False);
   Erasing--;
 }
@@ -2276,7 +2336,7 @@ void
 EraseArc (ArcTypePtr Arc)
 {
   Erasing++;
-  XSetForeground (Dpy, Output.fgGC, Settings.bgColor);
+  gdk_gc_set_foreground(Output.fgGC, &Settings.BackgroundColor);
   DrawArcLowLevel (Arc);
   Erasing--;
 }
@@ -2288,7 +2348,7 @@ void
 EraseText (TextTypePtr Text)
 {
   Erasing++;
-  XSetForeground (Dpy, Output.fgGC, Settings.bgColor);
+  gdk_gc_set_foreground(Output.fgGC, &Settings.BackgroundColor);
   DrawTextLowLevel (Text);
   Erasing--;
 }
@@ -2300,7 +2360,7 @@ void
 ErasePolygon (PolygonTypePtr Polygon)
 {
   Erasing++;
-  XSetForeground (Dpy, Output.fgGC, Settings.bgColor);
+  gdk_gc_set_foreground(Output.fgGC, &Settings.BackgroundColor);
   DrawPolygonLowLevel (Polygon);
   Erasing--;
 }
@@ -2313,7 +2373,7 @@ EraseElement (ElementTypePtr Element)
 {
   Erasing++;
   /* set color and draw lines, arcs, text and pins */
-  XSetForeground (Dpy, Output.fgGC, Settings.bgColor);
+  gdk_gc_set_foreground(Output.fgGC, &Settings.BackgroundColor);
   ELEMENTLINE_LOOP (Element);
   {
     DrawLineLowLevel (line, False);
@@ -2337,13 +2397,13 @@ void
 EraseElementPinsAndPads (ElementTypePtr Element)
 {
   Erasing++;
-  XSetForeground (Dpy, Output.fgGC, Settings.bgColor);
+  gdk_gc_set_foreground(Output.fgGC, &Settings.BackgroundColor);
   PIN_LOOP (Element);
   {
     if (TEST_FLAG (ALLPIPFLAGS, pin))
       {
 	ClearPin (pin, NO_TYPE, 0);
-	XSetForeground (Dpy, Output.fgGC, Settings.bgColor);
+	gdk_gc_set_foreground(Output.fgGC, &Settings.BackgroundColor);
       }
     DrawPinOrViaLowLevel (pin, False);
     if (TEST_FLAG (DISPLAYNAMEFLAG, pin))
@@ -2369,7 +2429,7 @@ EraseElementName (ElementTypePtr Element)
   if (TEST_FLAG (HIDENAMEFLAG, Element))
     return;
   Erasing++;
-  XSetForeground (Dpy, Output.fgGC, Settings.bgColor);
+  gdk_gc_set_foreground(Output.fgGC, &Settings.BackgroundColor);
   DrawTextLowLevel (&ELEMENT_TEXT (PCB, Element));
   Erasing--;
 }
@@ -2381,7 +2441,7 @@ static void
 DrawGrid ()
 {
   LocationType minx, miny, maxx, maxy, temp;
-  float x, y, delta;
+  gfloat x, y, delta;
 
   delta = GetGridFactor () * PCB->Grid;
   if (TO_SCREEN ((int) delta) >= MIN_GRID_DISTANCE)
@@ -2411,7 +2471,7 @@ DrawGrid ()
       minx = MAX (0, minx);
       for (y = miny; y <= maxy; y += delta)
 	for (x = minx; x <= maxx; x += delta)
-	  XDrawPoint (Dpy, DrawingWindow,
+	  gdk_draw_point(DrawingWindow,
 		      Output.GridGC, TO_DRAW_X (GRIDFIT_X (x, delta)),
 		      TO_DRAW_Y (GRIDFIT_Y (y, delta)));
     }

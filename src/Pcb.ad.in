@@ -90,8 +90,8 @@ Pcb.pinoutFont2:            -*-courier-bold-r-*-*-8-*-*-*-*-*-*-*
 Pcb.pinoutFont3:            -*-courier-bold-r-*-*-4-*-*-*-*-*-*-*
 Pcb.pinoutFont4:            -*-courier-bold-r-*-*-2-*-*-*-*-*-*-*
 Pcb.pinoutNameLength:       8
-Pcb.pinoutOffsetX:          10000
-Pcb.pinoutOffsetY:          10000
+Pcb.pinoutOffsetX:          100
+Pcb.pinoutOffsetY:          100
 Pcb.pinoutTextOffsetX:      8
 Pcb.pinoutTextOffsetY:      8
 Pcb.pinoutZoom:             2
@@ -133,7 +133,7 @@ Pcb.masterForm*background:	gray90
 Pcb*Command.highlightThickness:        1
 Pcb*defaultButton.borderWidth:         2
 Pcb*defaultButton.highlightThickness:  2
-!Pcb*font:                              -*-courier-bold-r-*-*-14-*-*-*-*-*-*-*
+!pcb*font:                              -*-courier-bold-r-*-*-14-*-*-*-*-*-*-*
 Pcb*Label.borderWidth:                 0
 Pcb*Label.justify:                     center
 Pcb*MenuButton.resizable:              off
@@ -337,12 +337,11 @@ Pcb*SimpleMenu.baseTranslations: #override \
 ! resources used by statuslines and input field
 !
 Pcb.masterForm*cursorPosition.justify:   left
-Pcb.masterForm*cursorPosition.width:     700
+Pcb.masterForm*cursorPosition.width:     400
 Pcb.masterForm*inputField*borderWidth:   0
 Pcb.masterForm*messageText.foreground:   red
 Pcb.masterForm*messageText.justify:      left
 Pcb.masterForm*statusLine.justify:       left
-Pcb.masterForm*statusLine.height:        40
 
 !---------------------------------------------------------------------------
 ! resources used by the output area

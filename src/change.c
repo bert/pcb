@@ -40,10 +40,8 @@
 #include "global.h"
 
 #include "change.h"
-#include "control.h"
 #include "crosshair.h"
 #include "data.h"
-#include "dialog.h"
 #include "draw.h"
 #include "error.h"
 #include "mymem.h"
@@ -58,9 +56,8 @@
 #include "set.h"
 #include "undo.h"
 
-#ifdef HAVE_LIBDMALLOC
-#include <dmalloc.h>
-#endif
+#include "gui.h"
+
 
 RCSID ("$Id$");
 
@@ -554,7 +551,7 @@ ChangeViaClearSize (PinTypePtr Via)
 
   if (TEST_FLAG (LOCKFLAG, Via))
     return (NULL);
-  value = MIN (MAX_LINESIZE, MAX (value, Settings.Bloat * 2));
+  value = MIN (MAX_LINESIZE, MAX (value, PCB->Bloat * 2));
   AddObjectToClearSizeUndoList (VIA_TYPE, Via, Via, Via);
   EraseVia (Via);
   r_delete_entry (PCB->Data->via_tree, (BoxType *) Via);
@@ -608,7 +605,7 @@ ChangePinClearSize (ElementTypePtr Element, PinTypePtr Pin)
 
   if (TEST_FLAG (LOCKFLAG, Pin))
     return (NULL);
-  value = MIN (MAX_LINESIZE, MAX (value, Settings.Bloat * 2));
+  value = MIN (MAX_LINESIZE, MAX (value, PCB->Bloat * 2));
   AddObjectToClearSizeUndoList (PIN_TYPE, Element, Pin, Pin);
   ErasePin (Pin);
   r_delete_entry (PCB->Data->pin_tree, &Pin->BoundingBox);
@@ -657,7 +654,7 @@ ChangePadClearSize (ElementTypePtr Element, PadTypePtr Pad)
 
   if (TEST_FLAG (LOCKFLAG, Pad))
     return (NULL);
-  value = MIN (MAX_LINESIZE, MAX (value, Settings.Bloat * 2));
+  value = MIN (MAX_LINESIZE, MAX (value, PCB->Bloat * 2));
   if (value <= MAX_PADSIZE && value >= MIN_PADSIZE && value != Pad->Clearance)
     {
       AddObjectToClearSizeUndoList (PAD_TYPE, Element, Pad, Pad);
@@ -781,7 +778,7 @@ ChangeLineClearSize (LayerTypePtr Layer, LineTypePtr Line)
 
   if (TEST_FLAG (LOCKFLAG, Line) || !TEST_FLAG (CLEARLINEFLAG, Line))
     return (NULL);
-  value = MIN (MAX_LINESIZE, MAX (value, Settings.Bloat * 2));
+  value = MIN (MAX_LINESIZE, MAX (value, PCB->Bloat * 2));
   if (value != Line->Clearance)
     {
       AddObjectToClearSizeUndoList (LINE_TYPE, Layer, Line, Line);
@@ -838,7 +835,7 @@ ChangeArcClearSize (LayerTypePtr Layer, ArcTypePtr Arc)
 
   if (TEST_FLAG (LOCKFLAG, Arc) || !TEST_FLAG (CLEARLINEFLAG, Arc))
     return (NULL);
-  value = MIN (MAX_LINESIZE, MAX (value, Settings.Bloat * 2));
+  value = MIN (MAX_LINESIZE, MAX (value, PCB->Bloat * 2));
   if (value != Arc->Clearance)
     {
       AddObjectToClearSizeUndoList (ARC_TYPE, Layer, Arc, Arc);
@@ -1049,7 +1046,7 @@ ChangeElementName (ElementTypePtr Element)
       if (TEST_FLAG (UNIQUENAMEFLAG, PCB) &&
 	  UniqueElementName (PCB->Data, NewName) != NewName)
 	{
-	  Message ("Error: The name \"%s\" is not unique!!!\n", NewName);
+	  Message (_("Error: The name \"%s\" is not unique!\n"), NewName);
 	  return ((char *) -1);
 	}
     }
@@ -1093,7 +1090,7 @@ Boolean
 ChangeLayoutName (char *Name)
 {
   PCB->Name = Name;
-  SetStatusLine ();
+  gui_output_set_name_label(Name);
   return (True);
 }
 
@@ -1120,7 +1117,7 @@ Boolean
 ChangeLayerName (LayerTypePtr Layer, char *Name)
 {
   CURRENT->Name = Name;
-  UpdateControlPanel ();
+  gui_layer_buttons_update();
   return (True);
 }
 
@@ -2095,35 +2092,38 @@ QueryInputAndChangeObjectName (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
   switch (Type)
     {
     case LINE_TYPE:
-      name = GetUserInput ("Linename:", EMPTY (((LineTypePtr) Ptr2)->Number));
+      name = gui_dialog_input(_("Linename:"),
+					EMPTY(((LineTypePtr) Ptr2)->Number));
       break;
 
     case VIA_TYPE:
-      name = GetUserInput ("Vianame:", EMPTY (((PinTypePtr) Ptr2)->Name));
+      name = gui_dialog_input(_("Vianame:"),
+					EMPTY (((PinTypePtr) Ptr2)->Name));
       break;
 
     case PIN_TYPE:
-      sprintf (msg, "%s Pin Name:", EMPTY (((PinTypePtr) Ptr2)->Number));
-      name = GetUserInput (msg, EMPTY (((PinTypePtr) Ptr2)->Name));
+      sprintf (msg, _("%s Pin Name:"), EMPTY (((PinTypePtr) Ptr2)->Number));
+      name = gui_dialog_input(msg, EMPTY (((PinTypePtr) Ptr2)->Name));
       break;
 
     case PAD_TYPE:
-      sprintf (msg, "%s Pad Name:", EMPTY (((PadTypePtr) Ptr2)->Number));
-      name = GetUserInput (msg, EMPTY (((PadTypePtr) Ptr2)->Name));
+      sprintf (msg, _("%s Pad Name:"), EMPTY (((PadTypePtr) Ptr2)->Number));
+      name = gui_dialog_input(msg, EMPTY (((PadTypePtr) Ptr2)->Name));
       break;
 
     case TEXT_TYPE:
-      name = GetUserInput ("Enter text:",
+      name = gui_dialog_input(_("Enter text:"),
 			   EMPTY (((TextTypePtr) Ptr2)->TextString));
       break;
 
     case ELEMENT_TYPE:
-      name = GetUserInput ("Elementname:",
+      name = gui_dialog_input(_("Elementname:"),
 			   EMPTY (ELEMENT_NAME (PCB, (ElementTypePtr) Ptr2)));
       break;
     }
   if (name)
     {
+	  /* XXX Memory leak!! */
       char *old = ChangeObjectName (Type, Ptr1, Ptr2, Ptr3, name);
       if (old != (char *) -1)
 	{
@@ -2164,7 +2164,7 @@ ChangePCBSize (BDimension Width, BDimension Height)
 							     Y)));
   else
     SetCrosshairRange (0, 0, (LocationType) Width, (LocationType) Height);
-  ScaleOutput (Output.Width, Output.Height);
+  gui_output_positioners_scale();
   UpdateAll ();
 }
 

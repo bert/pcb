@@ -1,5 +1,4 @@
 # Note - pcb-menu.res is used to build pcb-menu.h
-# -*- perl-mode -*-
 
 # This is the main menu bar
 MainMenu = {
@@ -15,7 +14,7 @@ MainMenu = {
         {"Print layout..." Print() ActiveWhen(DataNonEmpty)}
         -
         {"Save connection data of..." foreground=red sensitive=false}
-        {" a single element" "GetXY(press a button at the element's location)" Save(ElementConnections)}
+        {" a single element" GetXY(press a button at the element's location) Save(ElementConnections)}
         {" all elements" Save(AllConnections)}
         {" unused pins" Save(AllUnusedPins)}
         -
@@ -134,8 +133,7 @@ MainMenu = {
         {"Vias" Select(ViaByName) ActiveWhen(have_regex)}
         -
         {"Auto-place selected elements" AutoPlaceSelected() a={"Ctrl-P" "Ctrl<Key>p"}}
-        {"Disperse all elements" DisperseElements(All)}
-        {"Disperse selected elements" DisperseElements(Selected)}
+        {"Disperse all elements" DisperseElements()}
         {"Move selected elements to other side" Flip(SelectedElements) a={"Shift-B" "Shift<Key>b"}}
         {"Delete selected objects" RemoveSelected()}
         {"Convert selection to element" Select(Convert)}
@@ -235,41 +233,3 @@ MainMenu = {
         {"Netlist" DoWindows(4) ActiveWhen(netlist)}
         }
     }
-
-PopupMenu = {
-    {"Operations on Selections" foreground=red sensitive=false}
-    {"Unselect All" Unselect(All)}
-    {"Remove Selected" RemoveSelected()}
-    {"Copy Selection to Buffer" PasteBuffer(Clear) PasteBuffer(AddSelected) Mode(PasteBuffer)}
-    {"Cut Selection to Buffer"
-	 PasteBuffer(Clear) PasteBuffer(AddSelected) RemoveSelected() Mode(PasteBuffer)}
-    {"Convert Selection to Element" Select(Convert)}
-    {"break element to pieces" RipUp(Element)}
-    {"Auto-place Selected" AutoPlaceSelected()}
-    {"Auto-route Selected Rats" AutoRoute(SelectedRats)}
-    {"Rip-up selected auto-routed tracks" RipUp(Selected)}
-
-    {"Operations on This Location" foreground=red sensitive=false}
-    {"Toggle Name Visibility" ToggleHideName(Selected)}
-    {"Edit Name" ChangeName(Object)}
-    {"Object Report" Report(Object)}
-    {"Rotate Object CCW" Mode(Save) Mode(Rotate) Mode(Notify) Mode(Restore)}
-    {"Rotate Object CW"
-	 Mode(Save) Atomic(Save) Mode(Rotate) Mode(Notify)
-	 Atomic(Restore) Mode(Notify) Atomic(Restore)
-	 Mode(Notify) Atomic(Block) Mode(Restore)}
-    {"Send To Other Side" Flip(Object)}
-    {"Toggle Thermal"
-	 Mode(Save) Mode(Thermal) Mode(Notify) Mode(Restore)}
-    {"Lookup Connections" Connection(Find)}
-    -
-    {"Undo Last Operation" Undo()}
-    {"Redo Last Undone Operation" Redo()}
-    -
-    {"Line Tool" Mode(Line)}
-    {"Via Tool" Mode(Via)}
-    {"Rectangle Tool" Mode(Rectangle)}
-    {"Selection Tool" Mode(Arrow)}
-    {"Text Tool" Mode(Text)}
-    {"Panner Tool" Mode(None)}
-}

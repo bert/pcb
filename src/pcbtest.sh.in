@@ -34,19 +34,16 @@
 # If the first argument is "-gdb" then run PCB inside the gdb
 # debugger.  
 
-XAPPLRESDIR=`pwd`/.test/
-export XAPPLRESDIR
 unset XUSERFILESEARCHPATH
 
 if [ "X$1" = "X-gdb" ]; then
 	shift
 	tmpf=/tmp/pcbtest.gdb.$$
 	echo set args "$@"  > $tmpf
-	echo "set env XAPPLRESDIR = $XAPPLRESDIR" >> $tmpf
 	echo "unset env XUSERFILESEARCHPATH" >> $tmpf
 	exec gdb -x $tmpf ./pcb-bin
 	rm -f $tmpf
 else
-	exec ./pcb-bin "$@"
+	exec ./pcb-bin --libpath ../lib --libtree ../newlib "$@"
 fi
 

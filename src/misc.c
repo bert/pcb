@@ -55,10 +55,8 @@
 #include "crosshair.h"
 #include "create.h"
 #include "data.h"
-#include "dialog.h"
 #include "draw.h"
 #include "file.h"
-#include "gui.h"
 #include "error.h"
 #include "mymem.h"
 #include "misc.h"
@@ -72,9 +70,8 @@
 #include "set.h"
 #include "action.h"
 
-#ifdef HAVE_LIBDMALLOC
-#include <dmalloc.h>
-#endif
+#include "gui.h"
+
 
 RCSID ("$Id$");
 
@@ -135,23 +132,11 @@ Copyright (void)
 void
 Usage (void)
 {
-  /*
-   * since we're going to exit, we want to make sure this message goes
-   * to the original stderr 
-   */
-  RestoreStderr ();
-
   fprintf (stderr,
-	   "\nUSAGE: %s [standard X options] [standard options] [layout]\n"
-	   "or   : %s [standard X options] <exactly one special option>\n\n"
+	   "\nUSAGE: %s [standard Gtk options] [standard options] [layout]\n"
+	   "or   : %s [standard Gtk options] <exactly one special option>\n\n"
 	   "standard options are:\n"
-	   "  -alldirections:           enable 'all-direction' lines\n"
-	   "  +alldirections:           force 45 degree lines\n"
-	   "  +rubberband:              enable rubberband move and rotate\n"
-	   "  -rubberband:              turn off rubberband move and rotate\n"
 	   "  -background <file>:       PPM file to display as board background\n"
-	   "  -backup <seconds>:        time between two backups\n"
-	   "  -c <number>:              characters per output-line\n"
 	   "  -fontfile <file>:         read default font from this file\n"
 	   "  -lelement <command>:      command to copy element files to stdout,\n"
 	   "                            %%f is set to the filename\n"
@@ -165,6 +150,7 @@ Usage (void)
 	   "  -lg <layergroups>:        set layergroups of new layouts to this\n"
 	   "  -libname <file>:          the name of the library\n"
 	   "  -libpath <path>:          the library search-path\n"
+	   "  -libtree <path>:          full pathname of the newlib library\n"
 	   "  -llib <command>:          command to copy elements from library to stdout,\n"
 	   "                            %%a is set to 'template value package'\n"
 	   "                            %%f is set to the filename\n"
@@ -172,27 +158,15 @@ Usage (void)
 	   "  -llibcont <command>:      command to list library contents,\n"
 	   "                            %%f is set to the filename\n"
 	   "                            %%p is set to the searchpath\n"
-	   "  -loggeometry <geometry>:  set the geometry of the logging window\n"
-	   "  -log:                     don't use the log window\n"
-	   "  -pnl <value>:             maximum display length of pin names\n"
-	   "  -pz <value>:              zoom factor for pinout windows\n"
-	   "  -reset:                   reset connections after each element\n"
-	   "  +reset:                   negation of '-reset'\n"
-	   "  -ring:                    ring bell when connection lookup is done\n"
-	   "  +ring:                    negation of '-r'\n"
-	   "  -s:                       save the last command entered by user\n"
-	   "  +s:                       negation of '-s'\n"
-	   "  -save:                    always save data before it is lost\n"
-	   "  +save:                    override data if required by command\n"
 	   "  -script <file>:           the name of a PCB actions script to\n"
 	   "                            execute on startup\n"
 	   "  -sfile <command>:         command to copy stdin to layout file,\n"
 	   "                            %%f is set to the filename\n"
 	   "  -size <width>x<height>    size of a layout\n"
-	   "  -v <value>:               sets the volume of the X speaker\n"
 	   "special options are:\n"
 	   "  -copyright:               prints copyright information\n"
 	   "  --copyright:              prints copyright information\n"
+	   "  -h:                       prints this message\n"
 	   "  -help:                    prints this message\n"
 	   "  --help:                   prints this message\n"
 	   "  -version:                 prints the current version number\n"
@@ -205,30 +179,31 @@ Usage (void)
  * Boolean variable absolute to False if it leads with a +/- character
  */
 float
-GetValue (String * Params, Boolean * absolute, Cardinal Num)
+GetValue (char *val, char *units, Boolean *absolute)
 {
   float value;
+
   /* if the first character is a sign we have to add the
    * value to the current one
    */
-  if (**Params == '=')
+  if (*val == '=')
     {
-      *absolute = 1;
-      value = atof (*Params + 1);
+      *absolute = TRUE;
+      value = atof (val + 1);
     }
   else
     {
-      if (isdigit (**Params))
+      if (isdigit (*val))
 	*absolute = True;
       else
 	*absolute = False;
-      value = atof (*Params);
+      value = atof (val);
     }
-  if (Num == 3)
+  if (units && *units)
     {
-      if (strncasecmp (*(Params + 1), "mm", 2) == 0)
+      if (strncasecmp (units, "mm", 2) == 0)
 	value *= MM_TO_COOR;
-      else if (strncasecmp (*(Params + 1), "mil", 3) == 0)
+      else if (strncasecmp (units, "mil", 3) == 0)
 	value *= 100;
     }
   return value;
@@ -744,6 +719,25 @@ GetNum (char **s, BDimension * num)
 }
 
 
+gchar *
+build_route_string(RouteStyleType *rs)
+	{
+	gchar	*str, *s, *t, *colon;
+	gint	i;
+
+	str = g_strdup("");
+	for (i = 0; i < NUM_STYLES; ++i, ++rs)
+		{
+		s = g_strdup_printf("%s,%d,%d,%d,%d", rs->Name,
+				rs->Thick, rs->Diameter, rs->Hole, rs->Keepaway);
+		colon = (i == NUM_STYLES - 1) ? NULL : ":";
+		t = str;
+		str = g_strconcat(str, s, colon, NULL);
+		g_free(t);
+		}
+	return str;
+	}
+
 /* ----------------------------------------------------------------------
  * parses the routes definition string which is a colon seperated list of
  * comma seperated Name, Dimension, Dimension, Dimension, Dimension
@@ -764,6 +758,7 @@ ParseRouteString (char *s, RouteStyleTypePtr routeStyle, int scale)
 	Name[i] = *s++;
       Name[i] = '\0';
       routeStyle->Name = MyStrdup (Name, "ParseRouteString()");
+      gui_route_style_set_button_label(Name, style);
       if (!isdigit (*++s))
 	goto error;
       GetNum (&s, &routeStyle->Thick);
@@ -811,7 +806,7 @@ ParseRouteString (char *s, RouteStyleTypePtr routeStyle, int scale)
 	  if (*s++ != ':')
 	    goto error;
 	}
-    }
+	}
   return (0);
 error:
   memset (routeStyle, 0, NUM_STYLES * sizeof (RouteStyleType));
@@ -906,7 +901,7 @@ QuitApplication (void)
   /* save data if necessary */
   if (PCB->Changed && Settings.SaveInTMP)
     EmergencySave ();
-  exit (0);
+  gtk_main_quit();
 }
 
 /* ---------------------------------------------------------------------------
@@ -921,7 +916,8 @@ EvaluateFilename (char *Template, char *Path, char *Filename, char *Parameter)
   char *p;
 
   DSClearString (&command);
-  for (p = Template; *p; p++)
+	
+  for (p = Template; p && *p; p++)
     {
       /* copy character or add string to command */
       if (*p == '%'
@@ -993,19 +989,6 @@ ExpandFilename (char *Dirname, char *Filename)
   return (NULL);
 }
 
-/* ----------------------------------------------------------------------
- * releases pixmap used to draw output data
- */
-void
-ReleaseOffscreenPixmap (void)
-{
-  render = True;
-  if (VALID_PIXMAP (Offscreen))
-    XFreePixmap (Dpy, Offscreen);
-
-  /* mark pixmap unusable */
-  Offscreen = BadAlloc;
-}
 
 /* ---------------------------------------------------------------------------
  * returns the layer number for the passed pointer
@@ -1020,6 +1003,119 @@ GetLayerNumber (DataTypePtr Data, LayerTypePtr Layer)
       break;
   return (i);
 }
+
+/* ---------------------------------------------------------------------------
+ * move layer (number is passed in) to top of layerstack
+ */
+static void
+PushOnTopOfLayerStack (int NewTop)
+{
+  int i;
+
+  /* ignore COMPONENT_LAYER and SOLDER_LAYER */
+  if (NewTop < MAX_LAYER)
+    {
+      /* first find position of passed one */
+      for (i = 0; i < MAX_LAYER; i++)
+	if (LayerStack[i] == NewTop)
+	  break;
+
+      /* bring this element to the top of the stack */
+      for (; i; i--)
+	LayerStack[i] = LayerStack[i - 1];
+      LayerStack[0] = NewTop;
+    }
+}
+
+
+/* ----------------------------------------------------------------------
+ * changes the visibility of all layers in a group
+ * returns the number of changed layers
+ */
+int
+ChangeGroupVisibility (int Layer, Boolean On, Boolean ChangeStackOrder)
+{
+  int group, i, changed = 1;	/* at least the current layer changes */
+
+  /* Warning: these special case values must agree with what gui-top-window.c
+  |  thinks the are.
+  */
+
+	if (Settings.debug)
+		printf("ChangeGroupVisibility(Layer=%d, On=%d, ChangeStackOrder=%d)\n",
+				Layer, On, ChangeStackOrder);
+
+  /* special case of rat (netlist layer) */
+  if (Layer == GUI_RATS_LAYER)
+    {
+      PCB->RatOn = On;
+      PCB->RatDraw = On && ChangeStackOrder;
+      if (PCB->RatDraw)
+	SetMode (NO_MODE);
+      gui_layer_buttons_update();
+      return (0);
+    }
+  else
+    PCB->RatDraw = (On && ChangeStackOrder) ? False : PCB->RatDraw;
+
+  /* special case of silk layer */
+  if (Layer == GUI_SILK_LAYER)
+    {
+      PCB->ElementOn = On;
+      PCB->SilkActive = On && ChangeStackOrder;
+      PCB->Data->SILKLAYER.On = On;
+      PCB->Data->BACKSILKLAYER.On = (On && PCB->InvisibleObjectsOn);
+      gui_layer_buttons_update();
+      return (0);
+    }
+  PCB->SilkActive = (On && ChangeStackOrder) ? False : PCB->SilkActive;
+
+  /* decrement 'i' to keep stack in order of layergroup */
+  if ((group = GetGroupOfLayer (Layer)) < MAX_LAYER)
+    for (i = PCB->LayerGroups.Number[group]; i;)
+      {
+	int layer = PCB->LayerGroups.Entries[group][--i];
+
+	/* dont count the passed member of the group */
+	if (layer != Layer && layer < MAX_LAYER)
+	  {
+	    PCB->Data->Layer[layer].On = On;
+
+	    /* push layer on top of stack if switched on */
+	    if (On && ChangeStackOrder)
+	      PushOnTopOfLayerStack (layer);
+	    changed++;
+	  }
+      }
+
+  /* change at least the passed layer */
+  PCB->Data->Layer[Layer].On = On;
+  if (On && ChangeStackOrder)
+    PushOnTopOfLayerStack (Layer);
+
+  /* update control panel and exit */
+  gui_layer_buttons_update();
+  return (changed);
+}
+
+/* ----------------------------------------------------------------------
+ * lookup the group to which a layer belongs to
+ * returns MAX_LAYER if no group is found
+ */
+int
+GetGroupOfLayer (int Layer)
+{
+  int group, i;
+
+  if (Layer == MAX_LAYER)
+    return (Layer);
+  for (group = 0; group < MAX_LAYER; group++)
+    for (i = 0; i < PCB->LayerGroups.Number[group]; i++)
+      if (PCB->LayerGroups.Entries[group][i] == Layer)
+	return (group);
+  return (MAX_LAYER);
+}
+
 
 /* ---------------------------------------------------------------------------
  * returns the layergroup number for the passed pointer
@@ -1407,13 +1503,13 @@ GetGridFactor (void)
 	  if (Settings.GridFactor != factor[i])
 	    {
 	      Settings.GridFactor = factor[i];
-	      SetStatusLine ();
+	      set_status_line_label();
 	    }
 	  return (factor[i]);
 	}
     }
   Settings.GridFactor = 0;
-  SetStatusLine ();
+  set_status_line_label();
   return (0);
 }
 
@@ -1623,7 +1719,7 @@ Concat (const char *first, ...)
   va_list a;
 
   len = strlen (first);
-  rv = (char *) malloc (len + 1);
+  rv = (char *) g_malloc (len + 1);
   strcpy (rv, first);
 
   va_start (a, first);
@@ -1633,7 +1729,7 @@ Concat (const char *first, ...)
       if (!s)
 	break;
       len += strlen (s);
-      rv = (char *) realloc (rv, len + 1);
+      rv = (char *) g_realloc (rv, len + 1);
       strcat (rv, s);
     }
   va_end (a);

@@ -71,8 +71,12 @@
 #define	MIN_PINORVIAHOLE	400	/* size of a pins or vias drilling hole */
 #define	MAX_PINORVIASIZE	40000
 #define	MIN_PINORVIACOPPER	400	/* min difference outer-inner diameter */
-#define	MIN_PADSIZE		500	/* size of a pad */
-#define	MAX_PADSIZE		25000
+#define	MIN_PADSIZE			500	/* size of a pad */
+#define	MAX_PADSIZE			25000
+#define	MIN_DRC_VALUE		10
+#define	MAX_DRC_VALUE		50000
+#define	MIN_DRC_SILK		100
+#define	MAX_DRC_SILK		3000
 #define	MIN_GRID		1	/* grid in 1/100000'' */
 #define	MAX_GRID		20000
 #define	CHUNK			100	/* step size for size sliders */

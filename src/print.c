@@ -35,12 +35,12 @@
 
 /* printing routines
  */
-#include <stdarg.h>
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
 
-#include <math.h>
+#include "global.h"
+
 #include <time.h>
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
@@ -48,7 +48,6 @@
 #include <pwd.h>
 #include <setjmp.h>
 
-#include "global.h"
 
 #include "data.h"
 #include "dev_ps.h"
@@ -56,7 +55,6 @@
 #include "drill.h"
 #include "file.h"
 #include "find.h"
-#include "gui.h"
 #include "error.h"
 #include "misc.h"
 #include "print.h"
@@ -64,9 +62,8 @@
 #include "rtree.h"
 #include "search.h"
 
-#ifdef HAVE_LIBDMALLOC
-#include <dmalloc.h>
-#endif
+#include "gui.h"
+
 
 RCSID("$Id$");
 
@@ -111,7 +108,7 @@ typedef struct _BomList
 /* ---------------------------------------------------------------------------
  * some local prototypes
  */
-static void SetPrintColor (Pixel);
+static void SetPrintColor (GdkColor *);
 static FILE *OpenPrintFile (char *, int);
 static int SetupPrintFile (char *, char *, int);
 static int ClosePrintFile (void);
@@ -144,25 +141,13 @@ DoPolarity (void)
  * black is default on errors
  */
 static void
-SetPrintColor (Pixel X11Color)
+SetPrintColor (GdkColor *color)
 {
-  XColor rgb;
-  int result;
-
   /* do nothing if no colors are requested */
   if (!GlobalColorFlag)
     return;
 
-  /* query best matching color from X server */
-  rgb.pixel = X11Color;
-  result = XQueryColor (Dpy,
-			DefaultColormapOfScreen (XtScreen (Output.Toplevel)),
-			&rgb);
-
-  /* default color is black */
-  if (result == BadValue || result == BadColor)
-    rgb.red = rgb.green = rgb.blue = 0;
-  Device->SetColor (rgb);
+  Device->SetColor (color);
 }
 
 /* ---------------------------------------------------------------------------
@@ -174,6 +159,7 @@ OpenPrintFile (char *FileExtention, int file_type)
   char *filename, *completeFilename;
   size_t length;
   FILE *fp;
+  Boolean was_cancel;
 
   /* evaluate add extention and suffix to filename */
   if ((filename = ExpandFilename (NULL, GlobalCommand)) == NULL)
@@ -211,10 +197,14 @@ OpenPrintFile (char *FileExtention, int file_type)
    * 'ReplaceOK' is set to 'True' no more confirmation is
    * requested for the sequence
    */
-  fp = CheckAndOpenFile (completeFilename, !ReplaceOK, True, &ReplaceOK);
+  was_cancel = False;
+
+  fp = CheckAndOpenFile (completeFilename, !ReplaceOK, True,
+       &ReplaceOK, &was_cancel);
   if (fp == NULL)
-    {
-      OpenErrorMessage (completeFilename);
+    {   /* get rid of annoying error message when hitting cancel */
+      if (!was_cancel)
+        OpenErrorMessage (completeFilename);
       SaveFree (completeFilename);
       return (NULL);
     }
@@ -605,8 +595,8 @@ PrintLayergroups (void)
 
   if (PCB->Data->RatN)
     {
-      Message ("WARNING!!  Rat lines in layout during printing!\n"
-	       "You're not DONE with the layout!!!!\n");
+      Message (_("Warning!  Rat lines in layout during printing!\n"
+	       "You are not DONE with the layout!\n"));
     };
 
   for (group = 0; group < MAX_LAYER; group++)
@@ -998,7 +988,7 @@ PrintAssembly (void)
 {
   static char *extention = "assembly", *DOSextention = "assem", *description =
     "assembly drawing";
-  XColor rgb;
+  GdkColor rgb;
   LocationType y2;
   Cardinal layer;
   LayerTypePtr layptr;
@@ -1016,7 +1006,7 @@ PrintAssembly (void)
     return (1);
   /* start with 10% intensity */
   rgb.red = rgb.blue = rgb.green = 52428;
-  Device->SetColor (rgb);
+  Device->SetColor (&rgb);
   layer = GetLayerGroupNumberByNumber (MAX_LAYER + COMPONENT_LAYER);
   if (PrintOneGroup (layer, False))
     return 1;
@@ -1024,20 +1014,20 @@ PrintAssembly (void)
   DeviceFlags.BoundingBox.Y2 += y2;
   DeviceFlags.MirrorFlag = !DeviceFlags.MirrorFlag;
   Device->Preamble (&DeviceFlags, "");
-  Device->SetColor (rgb);
+  Device->SetColor (&rgb);
   layer = GetLayerGroupNumberByNumber (MAX_LAYER + SOLDER_LAYER);
   if (PrintOneGroup (layer, False))
     return 1;
   /* switch to black */
   rgb.red = rgb.blue = rgb.green = 0;
-  Device->SetColor (rgb);
+  Device->SetColor (&rgb);
   layptr = LAYER_PTR (MAX_LAYER + SOLDER_LAYER);
   DoSilkPrint (1, layptr, False);
   DeviceFlags.MirrorFlag = !DeviceFlags.MirrorFlag;
   DeviceFlags.BoundingBox.Y1 -= y2;
   DeviceFlags.BoundingBox.Y2 -= y2;
   Device->Preamble (&DeviceFlags, "");
-  Device->SetColor (rgb);
+  Device->SetColor (&rgb);
   layptr = LAYER_PTR (MAX_LAYER + COMPONENT_LAYER);
   DoSilkPrint (0, layptr, False);
   ClosePrintFile ();
@@ -1384,7 +1374,6 @@ PrintFab (void)
   int i, n, yoff, total_drills = 0, ds = 0;
   time_t currenttime;
   char utcTime[64];
-
   if (SetupPrintFile ("fab", "Fabrication Drawing", FILE_LAYER))
     return (1);
   Device->Polarity (0);
@@ -1525,10 +1514,10 @@ static int
 PrintBOM (void)
 {
   char utcTime[64];
-  double x, y, theta;
+  double x, y, theta = 0.0;
   double sumx, sumy;
-  double pin1x, pin1y, pin1angle;
-  double pin2x, pin2y, pin2angle;
+  double pin1x = 0.0, pin1y = 0.0, pin1angle = 0.0;
+  double pin2x = 0.0, pin2y = 0.0, pin2angle;
   int found_pin1;
   int found_pin2;
   int pin_cnt;
@@ -1724,15 +1713,15 @@ PrintBOM (void)
       while (bom->refdes != NULL)
 	{
 	  fprintf (fp,"%s ", bom->refdes->str);
-	  free (bom->refdes->str);
+	  g_free (bom->refdes->str);
 	  lasts = bom->refdes;
 	  bom->refdes = bom->refdes->next;
-	  free (lasts);
+	  g_free (lasts);
 	}
       fprintf (fp, "\n");
       lastb = bom;
       bom = bom->next;
-      free (lastb);
+      g_free (lastb);
     }
 
   fclose (fp);
@@ -1746,8 +1735,8 @@ static char *CleanBOMString (char *in)
   char *out;
   int i;
 
-  if ( (out = malloc( (strlen(in) + 1)*sizeof(char) ) ) == NULL ) {
-    fprintf(stderr, "Error:  CleanBOMString() malloc() failed\n");
+  if ( (out = g_malloc( (strlen(in) + 1)*sizeof(char) ) ) == NULL ) {
+    fprintf(stderr, "Error:  CleanBOMString() g_malloc() failed\n");
     exit (1);
   }
 
@@ -1797,20 +1786,20 @@ static double xyToAngle(double x, double y)
 
 BomList *bom_insert (char *refdes, char *descr, char *value, BomList *bom)
 {
-  BomList *new, *cur, *prev;
+  BomList *new, *cur, *prev = NULL;
 
   if (bom == NULL)
     {
       /* this is the first element so automatically create an entry */
-      if ( (new = (BomList *) malloc (sizeof (BomList) ) ) == NULL )
+      if ( (new = (BomList *) g_malloc (sizeof (BomList) ) ) == NULL )
 	{
-	  fprintf(stderr, "malloc() failed in bom_insert()\n");
+	  fprintf(stderr, "g_malloc() failed in bom_insert()\n");
 	  exit (1);
 	}
 
       new->next = NULL;
-      new->descr = strdup(descr);
-      new->value = strdup(value);
+      new->descr = g_strdup(descr);
+      new->value = g_strdup(value);
       new->num = 1;
       new->refdes = string_insert(refdes, NULL);
       return (new);
@@ -1834,17 +1823,17 @@ BomList *bom_insert (char *refdes, char *descr, char *value, BomList *bom)
   
   if (cur == NULL)
     {
-      if ( (new = (BomList *) malloc (sizeof (BomList) ) ) == NULL )
+      if ( (new = (BomList *) g_malloc (sizeof (BomList) ) ) == NULL )
 	{
-	  fprintf(stderr, "malloc() failed in bom_insert()\n");
+	  fprintf(stderr, "g_malloc() failed in bom_insert()\n");
 	  exit (1);
 	}
       
       prev->next = new;
       
       new->next = NULL;
-      new->descr = strdup(descr);
-      new->value = strdup(value);
+      new->descr = g_strdup(descr);
+      new->value = g_strdup(value);
       new->num = 1;
       new->refdes = string_insert(refdes, NULL);
     }
@@ -1857,14 +1846,14 @@ static StringList *string_insert(char *str, StringList *list)
 {
   StringList *new, *cur;
 
-  if ( (new = (StringList *) malloc (sizeof (StringList) ) ) == NULL )
+  if ( (new = (StringList *) g_malloc (sizeof (StringList) ) ) == NULL )
     {
-	  fprintf(stderr, "malloc() failed in string_insert()\n");
+	  fprintf(stderr, "g_malloc() failed in string_insert()\n");
 	  exit (1);
     }
   
   new->next = NULL;
-  new->str = strdup(str);
+  new->str = g_strdup(str);
   
   if (list == NULL)
     return (new);
@@ -1946,14 +1935,17 @@ Print (char *Command, float Scale,
       DeviceFlags.BoundingBox.Y2 =
 	PCB->MaxHeight + 2 * Settings.AlignmentDistance;
     }
-  watchCursor ();
+  gui_watch_cursor ();
   Device->init (&DeviceFlags);
   /* OK, call all necessary subroutines */
   if (PrintLayergroups () || PrintSilkscreen () ||
       PrintDrill () || PrintMask () || PrintPaste () || 
       PrintFab () || PrintBOM () || PrintAssembly () )
+    {
+    gui_restore_cursor ();
     return (1);
+	}
   Device->Exit ();
-  restoreCursor ();
+  gui_restore_cursor ();
   return (0);
 }

@@ -42,7 +42,6 @@
 
 #include "create.h"
 #include "data.h"
-#include "dialog.h"
 #include "draw.h"
 #include "error.h"
 #include "mymem.h"
@@ -53,6 +52,8 @@
 #include "set.h"
 #include "undo.h"
 #include "vendor.h"
+
+#include "gui.h"
 
 #ifdef HAVE_LIBDMALLOC
 #include <dmalloc.h>
@@ -97,34 +98,34 @@ CreateNewPCB (Boolean SetDefaultNames)
   ptr->Data = CreateNewBuffer ();
 
   /* copy default settings */
-  ptr->ConnectedColor = Settings.ConnectedColor;
-  ptr->ElementColor = Settings.ElementColor;
-  ptr->RatColor = Settings.RatColor;
-  ptr->InvisibleObjectsColor = Settings.InvisibleObjectsColor;
-  ptr->InvisibleMarkColor = Settings.InvisibleMarkColor;
-  ptr->ElementSelectedColor = Settings.ElementSelectedColor;
-  ptr->RatSelectedColor = Settings.RatSelectedColor;
-  ptr->PinColor = Settings.PinColor;
-  ptr->PinSelectedColor = Settings.PinSelectedColor;
-  ptr->ViaColor = Settings.ViaColor;
-  ptr->ViaSelectedColor = Settings.ViaSelectedColor;
-  ptr->WarnColor = Settings.WarnColor;
-  ptr->MaskColor = Settings.MaskColor;
+  ptr->ConnectedColor = &Settings.ConnectedColor;
+  ptr->ElementColor = &Settings.ElementColor;
+  ptr->RatColor = &Settings.RatColor;
+  ptr->InvisibleObjectsColor = &Settings.InvisibleObjectsColor;
+  ptr->InvisibleMarkColor = &Settings.InvisibleMarkColor;
+  ptr->ElementSelectedColor = &Settings.ElementSelectedColor;
+  ptr->RatSelectedColor = &Settings.RatSelectedColor;
+  ptr->PinColor = &Settings.PinColor;
+  ptr->PinSelectedColor = &Settings.PinSelectedColor;
+  ptr->ViaColor = &Settings.ViaColor;
+  ptr->ViaSelectedColor = &Settings.ViaSelectedColor;
+  ptr->WarnColor = &Settings.WarnColor;
+  ptr->MaskColor = &Settings.MaskColor;
   for (i = 0; i < MAX_LAYER; i++)
     {
-      ptr->Data->Layer[i].Color = Settings.LayerColor[i];
-      ptr->Data->Layer[i].SelectedColor = Settings.LayerSelectedColor[i];
+      ptr->Data->Layer[i].Color = &Settings.LayerColor[i];
+      ptr->Data->Layer[i].SelectedColor = &Settings.LayerSelectedColor[i];
     }
   ptr->Data->Layer[MAX_LAYER + COMPONENT_LAYER].Color =
-    Settings.ShowSolderSide ? Settings.
-    InvisibleObjectsColor : Settings.ElementColor;
+    Settings.ShowSolderSide ?
+    &Settings.InvisibleObjectsColor : &Settings.ElementColor;
   ptr->Data->Layer[MAX_LAYER + COMPONENT_LAYER].SelectedColor =
-    Settings.ElementSelectedColor;
+    &Settings.ElementSelectedColor;
   ptr->Data->Layer[MAX_LAYER + SOLDER_LAYER].Color =
-    Settings.ShowSolderSide ? Settings.
-    ElementColor : Settings.InvisibleObjectsColor;
+    Settings.ShowSolderSide ?
+    &Settings.ElementColor : &Settings.InvisibleObjectsColor;
   ptr->Data->Layer[MAX_LAYER + SOLDER_LAYER].SelectedColor =
-    Settings.ElementSelectedColor;
+    &Settings.ElementSelectedColor;
 
   if (SetDefaultNames)
     for (i = 0; i < MAX_LAYER; i++)
@@ -138,7 +139,8 @@ CreateNewPCB (Boolean SetDefaultNames)
   ptr->SilkActive = False;
   ptr->RatDraw = False;
   SET_FLAG (NAMEONPCBFLAG, ptr);
-  SET_FLAG (SHOWNUMBERFLAG, ptr);
+  if (Settings.ShowNumber)
+    SET_FLAG (SHOWNUMBERFLAG, ptr);
   if (Settings.AllDirectionLines)
     SET_FLAG (ALLDIRECTIONFLAG, ptr);
   ptr->Clipping = 1;		/* this is the most useful starting point for now */
@@ -152,11 +154,21 @@ CreateNewPCB (Boolean SetDefaultNames)
     SET_FLAG (SNAPPINFLAG, ptr);
   if (Settings.ClearLine)
     SET_FLAG (CLEARNEWFLAG, ptr);
+  if (Settings.OrthogonalMoves)
+    SET_FLAG (ORTHOMOVEFLAG, ptr);
+  if (Settings.liveRouting)
+    SET_FLAG (LIVEROUTEFLAG, ptr);
+  if (Settings.ShowDRC)
+    SET_FLAG (SHOWDRCFLAG, ptr);
+  if (Settings.AutoDRC)
+    SET_FLAG (AUTODRCFLAG, ptr);
   ptr->Grid = Settings.Grid;
   ptr->LayerGroups = Settings.LayerGroups;
   STYLE_LOOP (ptr);
   {
     *style = Settings.RouteStyle[n];
+    style->index = n;
+    gui_route_style_set_button_label(style->Name, n);
   }
   END_LOOP;
   ptr->Zoom = Settings.Zoom;
@@ -164,6 +176,12 @@ CreateNewPCB (Boolean SetDefaultNames)
   ptr->MaxHeight = Settings.MaxHeight;
   ptr->ID = ID++;
   ptr->ThermScale = 0.5;
+
+  ptr->Bloat = Settings.Bloat;
+  ptr->Shrink = Settings.Shrink;
+  ptr->minWid = Settings.minWid;
+  ptr->minSlk = Settings.minSlk;
+
   return (ptr);
 }
 
@@ -199,7 +217,8 @@ CreateNewVia (DataTypePtr Data,
   Via->DrillingHole = vendorDrillMap(DrillingHole);
   if (Via->DrillingHole != DrillingHole)
     {
-      Message ("Mapped via drill hole to %.2f mils from %.2f mils per vendor table\n",
+      Message (
+	_("Mapped via drill hole to %.2f mils from %.2f mils per vendor table\n"),
 	       0.01*Via->DrillingHole, 0.01*DrillingHole);
     }
 
@@ -215,10 +234,10 @@ CreateNewVia (DataTypePtr Data,
        (Via->Thickness < Via->DrillingHole + MIN_PINORVIACOPPER) )
     {
       Via->Thickness = Via->DrillingHole + MIN_PINORVIACOPPER;
-      Message ("Increased via thickness to %.2f mils to allow enough copper"
-	       " at (%.2f,%.2f).\n",
-	       0.01*Via->Thickness, 0.01*Via->X, 0.01*Via->Y);
-    }
+      Message (_("Increased via thickness to %.2f mils to allow enough copper"
+			          " at (%.2f,%.2f).\n"),
+			          0.01*Via->Thickness, 0.01*Via->X, 0.01*Via->Y);
+	}
 
   SetPinBoundingBox (Via);
   if (!Data->via_tree)
@@ -696,19 +715,20 @@ CreateNewPin (ElementTypePtr Element,
     {
       if (pin->DrillingHole < MIN_PINORVIASIZE)
 	{
-	  Message("Did not map pin #%s (%s) drill hole because %6.2f mil is below the minimum allowed size\n",
+	  Message(
+_("Did not map pin #%s (%s) drill hole because %6.2f mil is below the minimum allowed size\n"),
 		  UNKNOWN (Number), UNKNOWN (Name), 0.01*pin->DrillingHole);
 	  pin->DrillingHole = DrillingHole;
 	}
       else if (pin->DrillingHole > MAX_PINORVIASIZE)
 	{
-	  Message("Did not map pin #%s (%s) drill hole because %6.2f mil is above the maximum allowed size\n",
+	  Message(_("Did not map pin #%s (%s) drill hole because %6.2f mil is above the maximum allowed size\n"),
 		  UNKNOWN (Number), UNKNOWN (Name), 0.01*pin->DrillingHole);
 	  pin->DrillingHole = DrillingHole;
 	}
       else if (!TEST_FLAG (HOLEFLAG, pin) && (pin->DrillingHole > pin->Thickness - MIN_PINORVIACOPPER) )
 	{
-	  Message("Did not map pin #%s (%s) drill hole because %6.2f mil does not leave enough copper\n",
+	  Message(_("Did not map pin #%s (%s) drill hole because %6.2f mil does not leave enough copper\n"),
 		  UNKNOWN (Number), UNKNOWN (Name), 0.01*pin->DrillingHole);
 	  pin->DrillingHole = DrillingHole;
 	}
@@ -720,7 +740,7 @@ CreateNewPin (ElementTypePtr Element,
 
   if (pin->DrillingHole != DrillingHole)
     {
-      Message ("Mapped pin drill hole to %.2f mils from %.2f mils per vendor table\n",
+      Message (_("Mapped pin drill hole to %.2f mils from %.2f mils per vendor table\n"),
 	       0.01*pin->DrillingHole, 0.01*DrillingHole);
     }
 
@@ -741,7 +761,7 @@ CreateNewPad (ElementTypePtr Element,
   /* copy values */
   if (X1 != X2 && Y1 != Y2)
    {
-     Message ("Diagonal pads are forbidden!\n");
+     Message (_("Diagonal pads are forbidden!\n"));
      return NULL;
    }
   pad->Point1.X = MIN (X1, X2);	/* works since either X1 == X2 or Y1 == Y2 */
@@ -821,7 +841,7 @@ void
 CreateDefaultFont (void)
 {
   if (ParseFont (&PCB->Font, Settings.FontFile))
-    Message ("can't find font-symbol-file '%s'\n", Settings.FontFile);
+    Message (_("Can't find font-symbol-file '%s'\n"), Settings.FontFile);
 }
 
 /* ---------------------------------------------------------------------------

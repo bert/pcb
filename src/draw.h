@@ -33,10 +33,11 @@
 
 #include "global.h"
 
+gboolean	SwitchDrawingWindow(gfloat, GdkDrawable *, gboolean, gboolean);
+
 void	Draw(void);
 void	RedrawOutput(BoxTypePtr area);
 void	ClearAndRedrawOutput(void);
-Boolean	SwitchDrawingWindow(float, Window, Boolean, Boolean);
 void	ClearPin(PinTypePtr, int, int);
 void	DrawVia(PinTypePtr, int);
 void	DrawRat(RatTypePtr, int);
@@ -71,5 +72,7 @@ void	EraseElementName(ElementTypePtr);
 void	EraseObject(int, void *);
 void	LoadBackgroundImage (char *);
 void	UpdateAll(void);
+
+GdkDrawable *draw_get_current_drawable(void);
 
 #endif

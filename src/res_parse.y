@@ -22,16 +22,11 @@
 #include "resource.h"
 #include "res_parse.h"
 
-#ifdef HAVE_LIBDMALLOC
-#include <dmalloc.h>
-#endif
 
 RCSID("$Id$");
 
 static Resource *parsed_res;
 static Resource *current_res;
-
-static void resource_do_include(Resource *parent, char *);
 
 int reserror(char *);
 
@@ -70,7 +65,6 @@ res_item
  | STRING '=' STRING	{ resource_add_val(current_res, $1, $3, 0); f(FLAG_NV); }
  | res			{ resource_add_val(current_res, 0, 0, $1); f(FLAG_S); }
  | STRING '=' res	{ resource_add_val(current_res, $1, 0, $3); f(FLAG_NS); }
- | INCLUDE		{ resource_do_include(current_res, $1); }
  | error
  ;
 
@@ -146,18 +140,18 @@ resource_parse(char *filename, const char **strings)
 Resource *
 resource_create(Resource *parent)
 {
-  Resource *rv = (Resource *)malloc(sizeof(Resource));
+  Resource *rv = (Resource *)g_malloc(sizeof(Resource));
   rv->parent = parent;
   rv->flags = 0;
   rv->c = 0;
-  rv->v = (ResourceVal *)malloc(sizeof(ResourceVal));
+  rv->v = (ResourceVal *)g_malloc(sizeof(ResourceVal));
   return rv;
 }
 
 void
 resource_add_val(Resource *n, char *name, char *value, Resource *subres)
 {
-  n->v = (ResourceVal *)realloc(n->v, sizeof(ResourceVal)*(n->c+1));
+  n->v = (ResourceVal *)g_realloc(n->v, sizeof(ResourceVal)*(n->c+1));
   n->v[n->c].name = name;
   n->v[n->c].value = value;
   n->v[n->c].subres = subres;
@@ -222,18 +216,3 @@ resource_dump (Resource *r)
   dump_res (r, 0);
 }
 
-extern struct {
-  char *name;
-  int (*func)(Resource *);
-} MenuFuncList[];
-extern int MenuFuncListSize;
-
-void
-resource_do_include(Resource *r, char *str)
-{
-  int i;
-
-  for (i=0; i<MenuFuncListSize; i++)
-    if (NSTRCMP (MenuFuncList[i].name, str) == 0)
-      MenuFuncList[i].func(r);
-}

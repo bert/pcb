@@ -1,0 +1,2381 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2005-03-10 21:36-0600\n"
+"PO-Revision-Date: 2005-02-27 HO:MI+ZONE\n"
+"Last-Translator: Iznogood <iznogood@iznogood-factory.org>\n"
+"Language-Team: fr_FR <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: src/action.c:866
+msgid ""
+"You must turn via visibility on before\n"
+"you can place vias\n"
+msgstr ""
+"Vous devez valider la visibilité avant\n"
+"de placer des vias\n"
+
+#: src/action.c:1218 src/change.c:2115
+msgid "Enter text:"
+msgstr "Entrer le texte"
+
+#: src/action.c:1294 src/action.c:1350 src/action.c:1404 src/action.c:2969
+#: src/action.c:4700 src/move.c:475 src/move.c:559 src/move.c:652
+#: src/move.c:697 src/rotate.c:420
+msgid "Sorry, the object is locked\n"
+msgstr "Désolé, l'objet est verrouillé\n"
+
+#: src/action.c:1536
+#, c-format
+msgid ""
+"Rules are minspace %d.%02d, minoverlap %d.%d minwidth %d.%02d, minsilk %d.%"
+"02d\n"
+msgstr ""
+
+#: src/action.c:1546
+msgid "No DRC problems found.\n"
+msgstr "Pas de problème de DRC\n"
+
+#: src/action.c:1548
+#, c-format
+msgid "Found %d design rule errors\n"
+msgstr "%d erreurs de règle de dessin\n"
+
+#: src/action.c:1870
+msgid "Don't combine metric/English grids like that!\n"
+msgstr "Ne mélangez pas les grilles métriques/anglaises de cette manière!\n"
+
+#: src/action.c:1952 src/command.c:230 src/command.c:316
+msgid "OK to lose data ?"
+msgstr "D'accord pour perdre les données ?"
+
+#: src/action.c:2867
+msgid ""
+"Auto-placement can NOT be undone.\n"
+"Do you want to continue anyway?\n"
+msgstr ""
+"L'autoplacement ne peut pas être défait.\n"
+"Voulez-vous tout de même continuer?\n"
+
+#: src/action.c:3188 src/action.c:4030
+#, fuzzy
+msgid "Enter the layout name:"
+msgstr "Entrer le nom de schéma:"
+
+#: src/action.c:3195
+msgid "Enter the layer name:"
+msgstr "Entrer le nom de couche:"
+
+#: src/action.c:3682
+msgid "Enter pattern:"
+msgstr "Entrer le motif:"
+
+#: src/action.c:3861
+#, fuzzy
+msgid "Save layout as:"
+msgstr "Sauvegarder le schéma comme:"
+
+#: src/action.c:3871 src/action.c:4164
+msgid "File exists!  Ok to overwrite?"
+msgstr "Fichier existant! D'accord pour écraser ?"
+
+#: src/action.c:3958 src/command.c:249
+#, fuzzy
+msgid "Load element to buffer"
+msgstr "Charger l'élément dans le tampon"
+
+#: src/action.c:3967 src/command.c:283
+#, fuzzy
+msgid "Load layout file to buffer"
+msgstr "Charger le schéma dans le tampon"
+
+#: src/action.c:3976 src/command.c:373
+#, fuzzy
+msgid "Load layout file"
+msgstr "Charger le schéma"
+
+#: src/action.c:3980
+msgid "OK to override layout data?"
+msgstr "D'accord pour écraser les données du schéma ?"
+
+#: src/action.c:3985 src/command.c:408 src/gui-top-window.c:1124
+msgid "Load netlist file"
+msgstr "Charger le fichier de netlist"
+
+#: src/action.c:4015
+#, fuzzy
+msgid "Can't print empty layout"
+msgstr "Impossible d'imprimer un schéma vide"
+
+#: src/action.c:4028
+msgid "OK to clear layout data?"
+msgstr "D'accord pour effacer les données du schéma ?"
+
+#: src/action.c:4150
+#, fuzzy
+msgid "Buffer has no elements!\n"
+msgstr "Tampon vide d'éléments!\n"
+
+#: src/action.c:4153
+#, fuzzy
+msgid "Save buffer elements as"
+msgstr "Sauvegarder les éléments du tampon comme"
+
+#: src/action.c:4485
+msgid "Nothing found under crosshair\n"
+msgstr "Rien trouvé sous le curseur\n"
+
+#: src/action.c:4649
+#, c-format
+msgid "ChangeFlag():  Value %d is not valid\n"
+msgstr "ChangeFlag():  La valeur %d n'est pas valide\n"
+
+#: src/action.c:4684
+#, c-format
+msgid "%s():  Flag \"%s\" is not valid\n"
+msgstr "%s():  Flag \"%s\" n'est pas valide\n"
+
+#: src/autoplace.c:769 src/rats.c:660 src/rats.c:745
+msgid "Can't add rat lines because no netlist is loaded.\n"
+msgstr "Impossible d'ajouter des liaisons faute de netlist\n"
+
+#: src/autoplace.c:776
+msgid "No elements selected to autoplace.\n"
+msgstr "Pas d'éléments sélectionné pour l'autoplacement.\n"
+
+#: src/buffer.c:588
+msgid "Error!  Buffer doesn't contain a single element\n"
+msgstr "Erreur! Pas d'élément isolé dans le tampon\n"
+
+#: src/buffer.c:735
+msgid ""
+"Warning: All of the pads are on the opposite\n"
+"side from the component - that's probably not what\n"
+"you wanted\n"
+msgstr ""
+"Attention: toutes les pastilles sont du côté opposé\n"
+"à celui du composant - ce n'est probablement pas\n"
+"ce que vous voulez\n"
+
+#: src/buffer.c:766
+msgid ""
+"There was nothing to convert!\n"
+"Elements must have some pads or pins.\n"
+msgstr ""
+"Il n'y avait rien à convertir!\n"
+"Les éléments doivent avoir des pastilles ou des broches.\n"
+
+#: src/buffer.c:897
+msgid "You can't mirror a buffer that has elements!\n"
+msgstr "Miroir impossible avec un tampon possédant des éléments!\n"
+
+#: src/buffer.c:905
+msgid "You can't mirror a buffer that has text!\n"
+msgstr "Miroir impossible d'un tampon avec texte!\n"
+
+#: src/change.c:1049
+#, c-format
+msgid "Error: The name \"%s\" is not unique!\n"
+msgstr "Erreur: le nom \"%s\" n'est pas unique!\n"
+
+#: src/change.c:2095
+#, fuzzy
+msgid "Linename:"
+msgstr "Nom de ligne"
+
+#: src/change.c:2100
+msgid "Vianame:"
+msgstr "Nom de via:"
+
+#: src/change.c:2105
+#, c-format
+msgid "%s Pin Name:"
+msgstr "Nom de broche %s:"
+
+#: src/change.c:2110
+#, c-format
+msgid "%s Pad Name:"
+msgstr "Nom de Pastille %s:"
+
+#: src/change.c:2120
+#, fuzzy
+msgid "Elementname:"
+msgstr "Nom d'élément:"
+
+#: src/command.c:191
+#, c-format
+msgid "Warning: action proc '%s' not found.\n"
+msgstr "Attention: l'action proc '%s' introuvable\n"
+
+#: src/command.c:223
+msgid ""
+"Usage: q\n"
+"  quits the application\n"
+"       q!\n"
+"quits without saving or warning for its need\n"
+msgstr ""
+"Usage: q\n"
+"  quitte l'application\n"
+"       q!\n"
+
+#: src/command.c:338 src/gui-top-window.c:1114
+msgid "Save layout as"
+msgstr "Sauvegarder le schéma comme"
+
+#: src/create.c:221
+#, c-format
+msgid "Mapped via drill hole to %.2f mils from %.2f mils per vendor table\n"
+msgstr ""
+"Trou de perçage de via de %.2f mils en %.2f mils par table de fabricant\n"
+
+#: src/create.c:237
+#, c-format
+msgid ""
+"Increased via thickness to %.2f mils to allow enough copper at (%.2f,%.2f).\n"
+msgstr ""
+"Épaisseur de via augmentée de %.2f mils pour avoir suffisament de cuivre à "
+"(%.2f,%.2f).\n"
+
+#: src/create.c:719
+#, c-format
+msgid ""
+"Did not map pin #%s (%s) drill hole because %6.2f mil is below the minimum "
+"allowed size\n"
+msgstr ""
+"Trou de perçage de la broche #%s (%s) non cartographiée car %6.2f mil "
+"estsous la taille minimum permise\n"
+
+#: src/create.c:725
+#, c-format
+msgid ""
+"Did not map pin #%s (%s) drill hole because %6.2f mil is above the maximum "
+"allowed size\n"
+msgstr ""
+"Trou de perçage de la broche #%s (%s) non cartographiée car %6.2f mil estau-"
+"dessus de la taille maximum permise\n"
+
+#: src/create.c:731
+#, c-format
+msgid ""
+"Did not map pin #%s (%s) drill hole because %6.2f mil does not leave enough "
+"copper\n"
+msgstr ""
+"Trou de perçage de la broche #%s (%s) non cartographiée car %6.2f mil "
+"nelaisse pas assez de cuivre\n"
+
+#: src/create.c:743
+#, c-format
+msgid "Mapped pin drill hole to %.2f mils from %.2f mils per vendor table\n"
+msgstr ""
+"Trou de perçage de la broche  de %.2f mils en %.2f mils par table de "
+"fournisseur\n"
+
+#: src/create.c:764
+msgid "Diagonal pads are forbidden!\n"
+msgstr "Les pastilles diagonales sont interdites!\n"
+
+#: src/create.c:844
+#, c-format
+msgid "Can't find font-symbol-file '%s'\n"
+msgstr "Impossible de trouver le fichier font-symbol '%s'\n"
+
+#: src/dev_rs274x.c:288
+msgid "Error, too many apertures needed for Gerber file.\n"
+msgstr "Erreur; trop d'ouvertures nécessaires pour le fichier Gerber.\n"
+
+#: src/dev_rs274x.c:609
+msgid ""
+"An error occurred.\n"
+"The Gerber output file(s) aren't correct.\n"
+msgstr ""
+"Une erreur s'est produite.\n"
+"Le(s) fichier(s) de sortie Gerber sont mauvais.\n"
+
+#: src/dev_rs274x.c:977
+msgid "Bad mode to GBX_PrintPad\n"
+msgstr "Mauvais mode de GBX_PrintPad\n"
+
+#: src/dev_rs274x.c:1049
+msgid "Bad mode to GBX_PrintPinOrVia\n"
+msgstr "Mauvais mode de GBX_PrintPinOrVia\n"
+
+#: src/error.c:119 src/error.c:123
+#, c-format
+msgid ""
+"Can't open file\n"
+"   '%s'\n"
+"fopen() returned: '%s'\n"
+msgstr ""
+"Impossible d'ouvrir le fichier\n"
+"    '%s'\n"
+"fopen() a retourné: '%s'\n"
+
+#: src/error.c:139 src/error.c:143
+#, c-format
+msgid ""
+"Can't execute command\n"
+"   '%s'\n"
+"popen() returned: '%s'\n"
+msgstr ""
+"Impossible d'exécuter la commande\n"
+"   '%s'\n"
+"popen() a retourné: '%s'\n"
+
+#: src/error.c:159 src/error.c:163
+#, c-format
+msgid ""
+"Can't scan directory\n"
+"   '%s'\n"
+"opendir() returned: '%s'\n"
+msgstr ""
+"Impossible de voir le répertoire\n"
+"   '%s'\n"
+"opendir() a retourné: '%s'\n"
+
+#: src/error.c:179 src/error.c:183
+#, c-format
+msgid ""
+"Can't change working directory to\n"
+"   '%s'\n"
+"chdir() returned: '%s'\n"
+msgstr ""
+"Impossible de changer de répertoire de travail vers\n"
+"   '%s'\n"
+"chdir() a retourné: '%s'\n"
+
+#: src/file.c:117
+#, c-format
+msgid "File '%s' exists, use anyway?"
+msgstr "Le fichier '%s' existe, l'utiliser ?"
+
+#: src/file.c:156
+msgid "Enter filename for connection data"
+msgstr "Entrer le nom de fichier pour les données de connexions"
+
+#: src/file.c:236
+#, c-format
+msgid "File '%s' has no font information, using default font\n"
+msgstr ""
+"Le fichier '%s' n'a pas d'information de police, utilisation de la police "
+"par défaut\n"
+
+#: src/file.c:717
+#, c-format
+msgid "Trying to save your layout in '%s'\n"
+msgstr "Tentative de sauvegarde de votre schéma dans '%s'\n"
+
+#: src/file.c:1019
+#, c-format
+msgid ""
+"Line length (%i) exceeded in netlist file.\n"
+"additional characters will be ignored.\n"
+msgstr ""
+"Longueur de ligne (%i) excessif dans le fichier netlist.\n"
+"les caractères additionels seront ignorés.\n"
+
+#: src/file.c:1072
+#, fuzzy
+msgid "Empty netlist file!\n"
+msgstr "Fichier netlist vide!\n"
+
+#: src/find.c:155
+msgid "Stop here? (Cancel to continue checking)"
+msgstr "Arrêter ici ? (Annuler pour continuer le contrôle)"
+
+#: src/find.c:850
+msgid "WARNING: Hole too close to pin.\n"
+msgstr "ATTENTION: trou trop près d'une broche\n"
+
+#: src/find.c:852
+msgid "WARNING: Hole too close to via.\n"
+msgstr "ATTENTION: trou trop près d'un via\n"
+
+#: src/find.c:915
+#, fuzzy
+msgid "WARNING: Hole too close to line.\n"
+msgstr "ATTENTION: trou trop près d'une ligne\n"
+
+#: src/find.c:935
+msgid "WARNING: Hole too close to pad.\n"
+msgstr "ATTENTION: trou trop près d'une pastille\n"
+
+#: src/find.c:955
+msgid "WARNING: Hole touches arc.\n"
+msgstr "ATTENTION: trou touche un arc.\n"
+
+#: src/find.c:3445
+msgid "WARNING!!  Design Rule Error - potential for broken trace!\n"
+msgstr ""
+"ATTENTION: Erreur de règle de dessin - risque potentiel de piste cassée!\n"
+
+#: src/find.c:3485
+msgid "WARNING!  Design Rule error - copper areas too close!\n"
+msgstr "ATTENTION: Erreur de règle de dessin - zones de cuivre trop proches!\n"
+
+#: src/find.c:3573
+msgid "Line with insuficient clearance inside polygon\n"
+msgstr "Ligne avec dégagement insuffisant dans un  polygone\n"
+
+#: src/find.c:3582
+msgid "Arc with insuficient clearance inside polygon\n"
+msgstr "Arc avec dégagement insuffisant dans un  polygone\n"
+
+#: src/find.c:3591
+msgid "Pad with insuficient clearance inside polygon\n"
+msgstr "Pastille avec dégagement insuffisant dans un  polygone\n"
+
+#: src/find.c:3600
+msgid "Pin with insuficient clearance inside polygon\n"
+msgstr "Broche avec dégagement insuffisant dans un  polygone\n"
+
+#: src/find.c:3609
+msgid "Via with insuficient clearance inside polygon\n"
+msgstr "Via avec dégagement insuffisant dans un  polygone\n"
+
+#: src/find.c:3722
+msgid "Line is too thin\n"
+msgstr "Ligne trop épaisse\n"
+
+#: src/find.c:3746
+msgid "Arc is too thin\n"
+msgstr "Arc trop épais\n"
+
+#: src/find.c:3771
+msgid "Pin annular ring is too small\n"
+msgstr "Anneau de broche trop petit\n"
+
+#: src/find.c:3795
+msgid "Pad is too thin\n"
+msgstr "Pastille trop épaisse\n"
+
+#: src/find.c:3820
+msgid "Via annular ring is too small\n"
+msgstr "Anneau de via trop petit\n"
+
+#: src/find.c:3852
+msgid "Silk line is too thin\n"
+msgstr "Ligne sur couche d'impression trop épaisse\n"
+
+#: src/find.c:3884
+#, c-format
+msgid "Element %s has %d silk lines which are too thin\n"
+msgstr "L'élément %s possède %d lignes d'impression trop épaisses\n"
+
+#: src/find.c:3969
+#, c-format
+msgid "near location (%d.%02d,%d.%02d)\n"
+msgstr "à côté de la zone (%d.%02d,%d.%02d)\n"
+
+#: src/gui-command-window.c:70
+msgid ""
+"Common commands easily accessible via the gui may not be included here.\n"
+msgstr ""
+"Les commandes habitulles facilement accessibles par l'interface peuventne "
+"pas être onclues ici.\n"
+
+#: src/gui-command-window.c:72
+msgid ""
+"In user commands below, 'size' values may be absolute or relative\n"
+"if preceded by a '+' or '-'.  Where 'units' are indicated, use \n"
+"'mil' or 'mm' otherwise PCB internal units will be used.\n"
+msgstr ""
+"Dans les commandes utilisateur ci-dessous, les valeurs de 'taille' peuvent\n"
+"être absolues ou relatives si elles sont précédées par un '+' ou '-'. Où "
+"les\n"
+"'unités' sont indiquéesn utilisez 'mil' ou 'mm' sinon les unités internes de "
+"PCB\n"
+"seront utilisées.\n"
+
+#: src/gui-command-window.c:86
+msgid "\tChanges the clearance of objects.\n"
+msgstr "\tChangement du dégagement des objets.\n"
+
+#: src/gui-command-window.c:91
+msgid "\tChanges values.  Omit 'units' for 'grid' and 'zoom'.\n"
+msgstr "\tChangement de valeurs. Oubli des 'units' pour 'grid' et 'zoom'.\n"
+
+#: src/gui-command-window.c:95
+msgid "\tChanges the join (clearance through polygons) of objects.\n"
+msgstr ""
+
+#: src/gui-command-window.c:101
+msgid "\tToggles, sets, or clears the square flag of objects.\n"
+msgstr ""
+
+#: src/gui-command-window.c:107
+msgid "\tToggles, sets, or clears the octagon flag of objects.\n"
+msgstr ""
+
+#: src/gui-command-window.c:111
+msgid "\tChanges the hole flag of objects.\n"
+msgstr ""
+
+#: src/gui-command-window.c:115
+msgid "\tFlip elements to the opposite side of the board.\n"
+msgstr ""
+
+#: src/gui-command-window.c:121
+msgid ""
+"\tToggle, set or clear a thermal (on the current layer) to pins or vias.\n"
+msgstr ""
+
+#: src/gui-command-window.c:125
+msgid ""
+"\tLoad a vendor file.  If 'filename' omitted, pop up file select dialog.\n"
+msgstr ""
+
+#: src/gui-command-window.c:306
+#, fuzzy
+msgid "PCB Command Entry"
+msgstr "Entrée de commande PCB"
+
+#: src/gui-config.c:173 src/gui-config.c:1308 src/set.c:129 src/set.c:156
+#, fuzzy
+msgid "component"
+msgstr "composant"
+
+#: src/gui-config.c:174 src/gui-config.c:1298 src/set.c:129 src/set.c:156
+#, fuzzy
+msgid "solder"
+msgstr "soudure"
+
+#: src/gui-config.c:175
+msgid "GND"
+msgstr "GND"
+
+#: src/gui-config.c:176
+msgid "power"
+msgstr "alimentation"
+
+#: src/gui-config.c:177 src/gui-config.c:1318
+msgid "signal1"
+msgstr "signal1"
+
+#: src/gui-config.c:178 src/gui-config.c:1322
+msgid "signal2"
+msgstr "signal2"
+
+#: src/gui-config.c:179 src/gui-config.c:180
+#, fuzzy
+msgid "unused"
+msgstr "inutilisé"
+
+#: src/gui-config.c:240 src/gui-config.c:1300
+msgid "GND-solder"
+msgstr "GND-soudure"
+
+#: src/gui-config.c:241 src/gui-config.c:1310
+#, fuzzy
+msgid "GND-component"
+msgstr "GND-composant"
+
+#: src/gui-config.c:242 src/gui-config.c:1302
+msgid "Vcc-solder"
+msgstr "Vcc-soudure"
+
+#: src/gui-config.c:243 src/gui-config.c:1312
+#, fuzzy
+msgid "Vcc-component"
+msgstr "Vcc-composant"
+
+#: src/gui-config.c:244
+msgid "Signal"
+msgstr "Signal"
+
+#: src/gui-config.c:245
+msgid "Power"
+msgstr "Alimentation"
+
+#: src/gui-config.c:246
+msgid "Fat"
+msgstr ""
+
+#: src/gui-config.c:247
+msgid "Skinny"
+msgstr ""
+
+#: src/gui-config.c:248
+msgid "(unknown)"
+msgstr "(inconnu)"
+
+#: src/gui-config.c:781
+msgid "Enables"
+msgstr "Validés"
+
+#: src/gui-config.c:786
+msgid "Send messages to the log window instead of a popup"
+msgstr "Envoi des messages dans la fenêtre journal au lieu du popup"
+
+#: src/gui-config.c:791
+msgid "Use separate window for command entry"
+msgstr "Utilisation de fenêtre séparée pour les entrées de commande"
+
+#: src/gui-config.c:796
+msgid "Compact horizontal top window for narrow screens"
+msgstr ""
+
+#: src/gui-config.c:806
+msgid "Backups"
+msgstr "Sauvegardes"
+
+#: src/gui-config.c:811
+#, c-format
+msgid "If layout is modified at exit, save into /tmp/PCB.%i.save"
+msgstr ""
+"Si le schéma est modifié en quittant, sauvegarder comme /tmp/PCB.%i.save"
+
+#: src/gui-config.c:815
+#, c-format
+msgid ""
+"Seconds between auto backups to /tmp/PCB.%i.save\n"
+"(set to zero to disable auto backups)"
+msgstr ""
+"Secondes entre les sauvegardes auto dans /tmp/PCB.%i.save\n"
+"(mettre à zéro pour désactiver les sauvegardes auto)"
+
+#: src/gui-config.c:818
+msgid "Misc"
+msgstr "Divers"
+
+#: src/gui-config.c:823
+msgid "Number of commands to remember in the history list"
+msgstr "Nomnre de commandes à se rappeler dans l'historique"
+
+#: src/gui-config.c:943 src/gui-dialog-size.c:152
+#, c-format
+msgid "<b>%s</b> grid units are selected"
+msgstr "<b>%s</b> unités de grille sont sélectionnés"
+
+#: src/gui-config.c:954
+msgid "Board Size"
+msgstr "Taille de la carte"
+
+#: src/gui-config.c:970
+msgid "Width"
+msgstr "Épaisseur"
+
+#: src/gui-config.c:977
+msgid "Height"
+msgstr "Hauteur"
+
+#: src/gui-config.c:980
+msgid "Use this board size as the default for new layouts"
+msgstr "Utiliser cette taille de carte par défaut pour les nouvelles cartes"
+
+#: src/gui-config.c:983
+msgid "Text Scale"
+msgstr "Echelle du texte"
+
+#: src/gui-config.c:1001
+msgid "Design Rule Checking"
+msgstr "Contrôle des règles de dessin (DRC)"
+
+#: src/gui-config.c:1015
+msgid "Minimum copper spacing"
+msgstr "Espacement mini du cuivre"
+
+#: src/gui-config.c:1022
+msgid "Minimum copper width"
+msgstr "Épaisseur mini du cuivre"
+
+#: src/gui-config.c:1029
+msgid "Minimum touching copper overlap"
+msgstr "Chevauchement de cuivre minimum"
+
+#: src/gui-config.c:1036
+msgid "Minimum silk width"
+msgstr "Épaisseur minimim sur couche d'impression"
+
+#: src/gui-config.c:1040
+msgid "Use DRC values as the default for new layouts"
+msgstr "Utilise ces valeurs DRC par défaut pour les nouvelles cartes"
+
+#: src/gui-config.c:1088
+#, c-format
+msgid "Increment/Decrement values to use in <b>%s</b> units mode.\n"
+msgstr ""
+"Incrément/Décrément des valeurs à utiliser dans le mode unités <b>%s</b>.\n"
+
+#: src/gui-config.c:1100
+msgid "Grid Increment/Decrement"
+msgstr "Incrément/Décrément de la grille"
+
+#: src/gui-config.c:1114
+msgid "For 'g' and '<shift>g' grid change actions"
+msgstr ""
+
+#: src/gui-config.c:1119
+msgid "Size Increment/Decrement"
+msgstr "Incrément/Décrément de la taille"
+
+#: src/gui-config.c:1133
+msgid ""
+"For 's' and '<shift>s' size change actions\n"
+"on lines, pads, pins, text and drill hole\n"
+"(with '<control>s' and '<shift><control>s'"
+msgstr ""
+
+#: src/gui-config.c:1139
+msgid "Line Increment/Decrement"
+msgstr "Incrément/Décrément de la ligne"
+
+#: src/gui-config.c:1155
+msgid "For 'l' and '<shift>l' routing line width change actions"
+msgstr ""
+
+#: src/gui-config.c:1159
+msgid "Clear Increment/Decrement"
+msgstr "Effacer l'incrément/décrément"
+
+#: src/gui-config.c:1175
+msgid ""
+"For 'k' and '<shift>k' line clearance inside polygon size\n"
+"change actions"
+msgstr ""
+
+#: src/gui-config.c:1208
+msgid "Element Directories"
+msgstr "Répertoires des éléments"
+
+#: src/gui-config.c:1214
+msgid ""
+"<small>Enter a colon separated list of custom top level\n"
+"element directories.  For example:\n"
+"\t<b>~/gaf/pcb-elements:packages:/usr/local/pcb-elements</b>\n"
+"Elements should be organized into subdirectories below each\n"
+"top level directory.  Restart program for changes to take effect.</small>"
+msgstr ""
+"<small>Entrez une liste de répertoires personnels séparés par des\n"
+"deux-points. Par exzmple:\n"
+"\t<b>~/gaf/pcb-elements:packages:/usr/local/pcb-elements</b>\n"
+"Les éléments doivent être organisés en des sous-répertoires sous\n"
+"chaque répertoire principal. Redémarrez le programme pour que\n"
+"les changements prennent effet.</small>"
+
+#: src/gui-config.c:1227
+msgid "Advanced"
+msgstr "Avancé"
+
+#: src/gui-config.c:1235
+msgid ""
+"<small><b>Warning:</b> See PCB documentation before changing these!</small>"
+msgstr ""
+"<small><b>Attention:</b> Voyez la documentation de PCB avant de les changer!"
+"</small>"
+
+#: src/gui-config.c:1240
+msgid "Library Command"
+msgstr "Commande de bibliothèque"
+
+#: src/gui-config.c:1248
+msgid "Library Contents Command"
+msgstr "Commande de contenu de bibliothèque"
+
+#: src/gui-config.c:1274
+msgid "<h>Layer Names\n"
+msgstr "<h>Noms de Couches\n"
+
+#: src/gui-config.c:1275
+msgid ""
+"You may enter layer names for the layers drawn on the screen.\n"
+"The special 'component side' and 'solder side' are layers which\n"
+"will be printed out, so they must have in their group at least one\n"
+"of the other layers that are drawn on the screen.\n"
+msgstr ""
+"Vous pouvez entrer les noms des couches dessinées sur l'écran.\n"
+"Les 'côté composant' et 'côté soudure' spéciaux sont des couches qui\n"
+"seront imprimées, ils doivent avoir dans leur groupe au moins l'un\n"
+"des autres couches qui sont dessinées sur l'écran.\n"
+
+#: src/gui-config.c:1280
+#, fuzzy
+msgid "<h>Layer Groups\n"
+msgstr "Groupes de Couches\n"
+
+#: src/gui-config.c:1281
+msgid ""
+"Each layer on the screen may be in its own group which allows the\n"
+"maximum number of board layers.  However, for boards with fewer\n"
+"layers, you may group layers together which will then print as a\n"
+"single layer on a printout.  This allows a visual color distinction\n"
+"to be displayed on the screen for signal groups which will print as\n"
+"a single layer\n"
+msgstr ""
+"Chaque couche sur l'écran peut être dans son propre groupe qui permet\n"
+"le nombre maximum de couches du circuit. Néanmoins, pour les cartes\n"
+"avec moins de couches, vous pouvez grouper les couches ensemble qui\n"
+"seront imprimées comme une seule couche. Ceci permet une distinction\n"
+"visuelle de couleur à l'affichage sur l'écran pour les groupes de signaux\n"
+"qui s'affichent comme une seule couche\n"
+
+#: src/gui-config.c:1288
+msgid ""
+"For example, for a 4 layer board a useful layer group arrangement\n"
+"can be to have 3 screen displayed layers grouped into the same group\n"
+"as the 'component side' and 'solder side' printout layers.  Then\n"
+"groups such as signals, ground, and supply traces can be color\n"
+"coded on the screen while printing as a single layer.  For this\n"
+"you would select buttons and enter names on the Setup page to\n"
+"structure four layer groups similar to this:\n"
+msgstr ""
+"Par exemple, pour une carte à 4 couches, un arrangement de groupe\n"
+"de couches utile peut avoir 3 couches affichées sur l'écran groupées\n"
+"comme les couches d'impression 'côté composant' et 'côté soudure'.\n"
+"Alors les groupes tels que pistes signal, masse et alimentation peuvent\n"
+"être codées en couleur sur l'écran alors quelles seront impremiée sur la\n"
+"même couche. Pour ce faire, vous devez sélectionner les boutons et\n"
+"entrer les noms sur la page de Configuration pour la structure de groupe\n"
+"à 4 couches similaire à ceci:\n"
+
+#: src/gui-config.c:1296
+msgid "<b>Group 1:"
+msgstr "<b>Groupe 1:"
+
+#: src/gui-config.c:1304 src/gui-config.c:1520
+msgid "solder side"
+msgstr "côté soudure"
+
+#: src/gui-config.c:1306
+msgid "<b>Group 2:"
+msgstr "<b>Groupe 2:"
+
+#: src/gui-config.c:1314 src/gui-config.c:1518
+msgid "component side"
+msgstr "côté composant"
+
+#: src/gui-config.c:1316
+msgid "<b>Group 3:"
+msgstr "<b>Groupe 3:"
+
+#: src/gui-config.c:1320
+msgid "<b>Group 4:"
+msgstr "<b>Group 4:"
+
+#: src/gui-config.c:1433
+msgid ""
+"Both 'solder side' or 'component side' layers must have at least\n"
+"\tone other layer in their group.\n"
+msgstr ""
+
+#: src/gui-config.c:1440
+msgid ""
+"The 'solder side' and 'component side' layers are not allowed\n"
+"\tto be in the same layer group #\n"
+msgstr ""
+
+#: src/gui-config.c:1491
+msgid "Setup"
+msgstr "Configuration"
+
+#: src/gui-config.c:1501
+#, fuzzy
+msgid "Group #"
+msgstr "Groupe #"
+
+#: src/gui-config.c:1564
+#, fuzzy
+msgid "Use these layer settings as the default for new layouts"
+msgstr "Utiliser cette taille de carte par défaut pour les nouvelles cartes"
+
+#: src/gui-config.c:1568 src/gui-top-window.c:1343
+msgid "Info"
+msgstr "Info"
+
+#: src/gui-config.c:1681
+msgid "Load Color File"
+msgstr "Chargement du fichier de couleurs"
+
+#: src/gui-config.c:1710
+msgid "Save Color File"
+msgstr "Sauvegarde du fichier de couleurs"
+
+#: src/gui-config.c:1716
+msgid "Sorry, not overwriting the default color file!"
+msgstr ""
+
+#: src/gui-config.c:1766
+#, c-format
+msgid "PCB %s Color"
+msgstr ""
+
+#: src/gui-config.c:1796
+msgid "Main colors"
+msgstr "Couleurs principales"
+
+#: src/gui-config.c:1809
+msgid "Layer colors"
+msgstr "Couleurs de couches"
+
+#: src/gui-config.c:1825
+msgid "Selected colors"
+msgstr "Couleurs sélectionnées"
+
+#: src/gui-config.c:1850
+msgid "<b>Warning:</b> unsaved color changes will be lost at program exit."
+msgstr ""
+
+#: src/gui-config.c:1865
+msgid "Load"
+msgstr "Chargement"
+
+#: src/gui-config.c:1868
+msgid "Save"
+msgstr "Sauvegarde"
+
+#: src/gui-config.c:2027
+msgid "General"
+msgstr "Général"
+
+#: src/gui-config.c:2034 src/gui-dialog-size.c:169 src/gui-top-window.c:1193
+msgid "Sizes"
+msgstr "Tailles"
+
+#: src/gui-config.c:2040
+msgid "Increments"
+msgstr "Incréments"
+
+#: src/gui-config.c:2046 src/gui-top-window.c:1354
+msgid "Library"
+msgstr "Bibliothèques"
+
+#: src/gui-config.c:2052 src/gui-top-window.c:2458
+msgid "Layers"
+msgstr "Couches"
+
+#: src/gui-config.c:2059
+msgid "Colors"
+msgstr "Couleurs"
+
+#: src/gui-dialog-print.c:238
+#, fuzzy
+msgid "PCB Print Layout"
+msgstr "Schéma d'impression PCB"
+
+#: src/gui-dialog-print.c:253
+#, fuzzy
+msgid "Select Print Driver"
+msgstr "Sélectionner le pilote d'impression"
+
+#: src/gui-dialog-print.c:268
+msgid "Print Options"
+msgstr "Imprimer les options"
+
+#: src/gui-dialog-print.c:271
+#, fuzzy
+msgid "Rotate 90 degrees"
+msgstr "Pivoter le tampon de 90°"
+
+#: src/gui-dialog-print.c:274
+msgid "Mirror view"
+msgstr "Vue en miroir"
+
+#: src/gui-dialog-print.c:277
+msgid "Invert positive/negative"
+msgstr "Inversion positif/négatif"
+
+#: src/gui-dialog-print.c:280
+#, fuzzy
+msgid "Print layer colors"
+msgstr "Couleurs de couches"
+
+#: src/gui-dialog-print.c:283
+msgid "Add to Printout"
+msgstr "Ajouter à l'impression"
+
+#: src/gui-dialog-print.c:287
+#, fuzzy
+msgid "Layout outline"
+msgstr "Contour du schéma"
+
+#: src/gui-dialog-print.c:290
+msgid "Alignment marks"
+msgstr "Marques d'alignement"
+
+#: src/gui-dialog-print.c:293
+msgid "Drill helpers"
+msgstr "Aide au perçage"
+
+#: src/gui-dialog-print.c:305
+msgid "Set Printout Scale"
+msgstr ""
+
+#: src/gui-dialog-print.c:315
+#, fuzzy
+msgid "Select Media"
+msgstr "Sélection support"
+
+#: src/gui-dialog-print.c:333
+msgid "Enter Filename"
+msgstr "Entrer le nom de fichier"
+
+#: src/gui-dialog-size.c:138
+#, fuzzy, c-format
+msgid "%s Sizes"
+msgstr "Tailles %s"
+
+#: src/gui-dialog-size.c:153
+msgid "mm"
+msgstr "mm"
+
+#: src/gui-dialog-size.c:153
+msgid "mil"
+msgstr "mil"
+
+#: src/gui-dialog-size.c:162
+msgid "Route style name"
+msgstr "Nom de style de route"
+
+#: src/gui-dialog-size.c:181
+msgid "Line width"
+msgstr "Épaisseur de la ligne"
+
+#: src/gui-dialog-size.c:189
+msgid "Via hole"
+msgstr "Trou de via"
+
+#: src/gui-dialog-size.c:197
+msgid "Via size"
+msgstr "Taille du via"
+
+#: src/gui-dialog-size.c:205
+msgid "Clearance"
+msgstr "Dégagement"
+
+#: src/gui-dialog-size.c:210
+msgid "Temporary Styles"
+msgstr "Styles temporaires"
+
+#: src/gui-dialog-size.c:214
+#, c-format
+msgid ""
+"<small>Use values in a temporary route style instead of <b>%s</b>.</small>"
+msgstr ""
+
+#: src/gui-dialog-size.c:224
+msgid "Temp1"
+msgstr "Temp1"
+
+#: src/gui-dialog-size.c:227
+msgid "Temp2"
+msgstr "Temp2"
+
+#: src/gui-dialog-size.c:229
+msgid "Default Style"
+msgstr "Style par défaut"
+
+#: src/gui-dialog-size.c:233
+msgid "<small>Use values as the default route style for new layouts.</small>"
+msgstr ""
+
+#: src/gui-dialog-size.c:241
+msgid "Set as default"
+msgstr "Pris comme défaut"
+
+#: src/gui-keyref-window.c:39
+msgid "Keyboard\n"
+msgstr ""
+
+#: src/gui-keyref-window.c:40
+msgid "Keyboard shortcuts and actions available in PCB.\n"
+msgstr "Racourcis clavier et actions disponibles dans PCB\n"
+
+#: src/gui-keyref-window.c:41
+msgid "In below key actions, <s> is <shift>, <c> is <ctrl>\n"
+msgstr ""
+
+#: src/gui-keyref-window.c:42
+msgid "and <a> is <alt> or <mod>\n"
+msgstr ""
+
+#: src/gui-keyref-window.c:46
+msgid "Set layer and size from line or arc\n"
+msgstr ""
+
+#: src/gui-keyref-window.c:50
+msgid "Unselect all objects\n"
+msgstr "Désélectionner tous les objets\n"
+
+#: src/gui-keyref-window.c:54
+msgid "Flip element to opposite side of the board\n"
+msgstr "Basculer les éléments vers le côté oppposé de la carte\n"
+
+#: src/gui-keyref-window.c:58
+msgid "Center display at cursor location\n"
+msgstr "Centrer l'affichage sur le curseur\n"
+
+#: src/gui-keyref-window.c:60
+#, fuzzy
+msgid "Copy selected to buffer and unselect\n"
+msgstr "Copier la sélection dans le tampon et désélectionner\n"
+
+#: src/gui-keyref-window.c:64
+msgid "Display pin or pad names\n"
+msgstr "Afficher les noms de broches ou de pastilles\n"
+
+#: src/gui-keyref-window.c:66
+msgid "Open pinout window for element under cursor\n"
+msgstr ""
+
+#: src/gui-keyref-window.c:70
+msgid "Delete all rats\n"
+msgstr "Effacer toutes les liaisons\n"
+
+#: src/gui-keyref-window.c:72
+msgid "Delete selected rats\n"
+msgstr "Effacer les liaisons sélectionnées\n"
+
+#: src/gui-keyref-window.c:76
+msgid "Highlight connections to object\n"
+msgstr "Montrer les connexions à un objet\n"
+
+#: src/gui-keyref-window.c:78
+msgid "Reset highlighted connections\n"
+msgstr "RAZ des connexions montrées\n"
+
+#: src/gui-keyref-window.c:80
+msgid "Cumulative highlight connections to object\n"
+msgstr ""
+
+#: src/gui-keyref-window.c:84
+msgid "Increment grid by configured grid increment\n"
+msgstr "Incrément de la grille par le pas d'incrément configuré\n"
+
+#: src/gui-keyref-window.c:87
+msgid "Decrement grid by configured grid increment\n"
+msgstr "Décrément de la grille par le pas de décrément configuré\n"
+
+#: src/gui-keyref-window.c:91
+msgid "Toggle visibility of element name under cursor\n"
+msgstr "Commute la visibilité du nom d'élément sous le curseur\n"
+
+#: src/gui-keyref-window.c:94
+msgid "Toggle visibility of selected element names\n"
+msgstr "Commute la visibilité des noms d'éléments sélectionnés\n"
+
+#: src/gui-keyref-window.c:97
+msgid "Toggle the hole flag of object under cursor\n"
+msgstr ""
+
+#: src/gui-keyref-window.c:101
+msgid "Toggle line/arc should clear polygons flag of object under cursor\n"
+msgstr ""
+
+#: src/gui-keyref-window.c:104
+msgid "Toggle line/arc should clear polygons flag of selected\n"
+msgstr ""
+
+#: src/gui-keyref-window.c:108
+msgid "Increase clearance of object by configured clearance\n"
+msgstr ""
+
+#: src/gui-keyref-window.c:111
+msgid "Decrease clearance of object by configured clearance\n"
+msgstr ""
+
+#: src/gui-keyref-window.c:114
+msgid "Increase clearance of selected objects by configured clearance\n"
+msgstr ""
+
+#: src/gui-keyref-window.c:117
+msgid "Decrease clearance of selected objects by configured clearance\n"
+msgstr ""
+
+#: src/gui-keyref-window.c:121
+msgid "Increment current route style line size by configured line increment\n"
+msgstr ""
+
+#: src/gui-keyref-window.c:124
+msgid "Decrement current route style line size by configured line increment\n"
+msgstr ""
+
+#: src/gui-keyref-window.c:128
+msgid "Move object to current layer\n"
+msgstr "Déplacer l'objet sur la couche courante\n"
+
+#: src/gui-keyref-window.c:131
+msgid "Move selected objects to current layer\n"
+msgstr "Déplacer les objets sélectionnés sur la couche courante\n"
+
+#: src/gui-keyref-window.c:134
+msgid "Mark at cursor location for showing relative offsets\n"
+msgstr ""
+
+#: src/gui-keyref-window.c:138
+msgid "Select the shortest unselected rat on the board\n"
+msgstr ""
+
+#: src/gui-keyref-window.c:142
+msgid "Optimize and draw all rats\n"
+msgstr "Optimiser et dessiner toutes les liaisons\n"
+
+#: src/gui-keyref-window.c:145
+msgid "Optimize and draw selected rats\n"
+msgstr "Optimiser et dessiner les liaisons sélectionnées\n"
+
+#: src/gui-keyref-window.c:149
+msgid "Change octagon flag of object\n"
+msgstr ""
+
+#: src/gui-keyref-window.c:153
+msgid "Backup polygon drawing to previous point\n"
+msgstr ""
+
+#: src/gui-keyref-window.c:156
+msgid "Close polygon\n"
+msgstr "Fermer le polygone\n"
+
+#: src/gui-keyref-window.c:160
+msgid "Toggle the square flag of an object\n"
+msgstr ""
+
+#: src/gui-keyref-window.c:164
+msgid "Clear and redraw display\n"
+msgstr "Effacer et redessiner l'affichage\n"
+
+#: src/gui-keyref-window.c:168
+msgid "Redo last undone operation\n"
+msgstr "Refaire la dernière opération défaite\n"
+
+#: src/gui-keyref-window.c:172
+msgid "Increment size of an object by configured size increment\n"
+msgstr ""
+
+#: src/gui-keyref-window.c:174
+msgid "Decrement size of an object by configured size increment\n"
+msgstr ""
+
+#: src/gui-keyref-window.c:176
+msgid "Increment drill size of a pin or via\n"
+msgstr "Incrémenter la taille de perçage d'une broche ou d'un via\n"
+
+#: src/gui-keyref-window.c:178
+msgid "Decrement drill size of a pin or via\n"
+msgstr "Décrémenter la taille de perçage d'une broche ou d'un via\n"
+
+#: src/gui-keyref-window.c:182
+msgid ""
+"Adjust text scale so new text increases by the configured size increment\n"
+msgstr ""
+
+#: src/gui-keyref-window.c:184
+msgid ""
+"Adjust text scale so new text decreases by the configured size increment\n"
+msgstr ""
+
+#: src/gui-keyref-window.c:188
+msgid "Undo last operation\n"
+msgstr "Défaire la dernière opération\n"
+
+#: src/gui-keyref-window.c:192
+msgid "Zoom to board extents\n"
+msgstr "Agrandir aux bornes de la carte\n"
+
+#: src/gui-keyref-window.c:194
+msgid "Increment current route style via size\n"
+msgstr ""
+
+#: src/gui-keyref-window.c:196
+msgid "Decrement current route style via size\n"
+msgstr ""
+
+#: src/gui-keyref-window.c:198
+msgid "Increment current route style via hole size\n"
+msgstr ""
+
+#: src/gui-keyref-window.c:200
+msgid "Decrement current route style via hole size\n"
+msgstr ""
+
+#: src/gui-keyref-window.c:204
+#, fuzzy
+msgid "Copy selection to buffer and enter pastebuffer mode\n"
+msgstr "Copier la sélection dans le tampon et entrer en mode copie de tampon\n"
+
+#: src/gui-keyref-window.c:206
+#, fuzzy
+msgid "Cut selection to buffer and enter pastebuffer mode\n"
+msgstr "Couper la sélection dans le tampon et entrer en mode copie de tampon\n"
+
+#: src/gui-keyref-window.c:210
+msgid "Zoom in\n"
+msgstr "Agrandir\n"
+
+#: src/gui-keyref-window.c:212
+msgid "Zoom out\n"
+msgstr "Rétrécir\n"
+
+#: src/gui-keyref-window.c:216
+msgid "Toggle thin draw mode\n"
+msgstr ""
+
+#: src/gui-keyref-window.c:220
+msgid "Switch view to other side\n"
+msgstr "Basculer la vue vers l'autre côté\n"
+
+#: src/gui-keyref-window.c:224
+msgid "Switch to select mode\n"
+msgstr "Basculer vers le mode sélection\n"
+
+#: src/gui-keyref-window.c:228
+msgid "Enter user command or pop up command window\n"
+msgstr "Entrer la commande utilisateur ou affiche une fenêtre de commande\n"
+
+#: src/gui-keyref-window.c:232
+msgid "Delete object\n"
+msgstr "Effacer l'objet\n"
+
+#: src/gui-keyref-window.c:236
+msgid "Select drawing layers\n"
+msgstr "Sélectionner les couches de dessin\n"
+
+#: src/gui-keyref-window.c:240
+#, fuzzy
+msgid "Select current buffer\n"
+msgstr "Sélectionner le tampon courant\n"
+
+#: src/gui-keyref-window.c:244
+msgid "Mouse\n"
+msgstr ""
+
+#: src/gui-keyref-window.c:245
+msgid ""
+"Modifier key use can be combined with mouse button presses\n"
+"to modify mouse button actions.\n"
+msgstr ""
+
+#: src/gui-keyref-window.c:248
+msgid "<b>Left button\n"
+msgstr ""
+
+#: src/gui-keyref-window.c:249
+msgid "\tPerform or initiate action determined by current mode.\n"
+msgstr ""
+
+#: src/gui-keyref-window.c:252 src/gui-keyref-window.c:258
+#: src/gui-keyref-window.c:276
+msgid "<b><shift>"
+msgstr ""
+
+#: src/gui-keyref-window.c:253
+msgid " - change rotation direction for rotation tool actions.\n"
+msgstr ""
+
+#: src/gui-keyref-window.c:255
+msgid ""
+"\tAfter a draw operation has been left mouse button initiated,\n"
+"\tmodifier key effects:\n"
+msgstr ""
+
+#: src/gui-keyref-window.c:259
+msgid " - change line 45 degree direction and arc angle direction,\n"
+msgstr ""
+
+#: src/gui-keyref-window.c:261
+msgid "<b><ctrl>"
+msgstr ""
+
+#: src/gui-keyref-window.c:262
+msgid ""
+" - while pressed, stop drawing current line, arc, rectangle or\n"
+"\t\tpoly draws and restart the draw at the current cursor position\n"
+"\t\twith another left mouse button click.\n"
+msgstr ""
+
+#: src/gui-keyref-window.c:266
+msgid "<b>Middle button\n"
+msgstr ""
+
+#: src/gui-keyref-window.c:267
+msgid "\tA click select objects if a draw operation has not been initiated.\n"
+msgstr ""
+
+#: src/gui-keyref-window.c:268
+msgid "\tA press and drag moves objects.\n"
+msgstr ""
+
+#: src/gui-keyref-window.c:269
+msgid ""
+"\tOr, if a line, arc, rectangle, or polygon draw operation has been\n"
+"\tinitiated, a click stops the draw operation.\n"
+msgstr ""
+
+#: src/gui-keyref-window.c:272
+msgid "<b>Right button\n"
+msgstr ""
+
+#: src/gui-keyref-window.c:273
+msgid ""
+"\tRestart line, arc, rectangle, or polygon draws.  Otherwise pop\n"
+"\tup a menu.\n"
+msgstr ""
+
+#: src/gui-keyref-window.c:277
+msgid " - zoom view to layout extents.\n"
+msgstr ""
+
+#: src/gui-keyref-window.c:279
+msgid "<b>Scroll wheel\n"
+msgstr ""
+
+#: src/gui-keyref-window.c:280
+msgid "\tPan layout vertically.  <shift> scroll pans horizontally.\n"
+msgstr ""
+
+#: src/gui-keyref-window.c:330
+#, fuzzy
+msgid "PCB Key Reference"
+msgstr "Référence clé PCB"
+
+#: src/gui-library-window.c:254
+#, fuzzy
+msgid "PCB Library"
+msgstr "Bibliothèques PCB"
+
+#: src/gui-library-window.c:280
+msgid "Library Group"
+msgstr "Groupe de bibliothèques"
+
+#: src/gui-library-window.c:301 src/gui-top-window.c:1215
+#: src/gui-top-window.c:1256
+msgid "Elements"
+msgstr "Éléments"
+
+#: src/gui-log-window.c:79
+msgid "PCB Log"
+msgstr "Journal PCB"
+
+#: src/gui-netlist-window.c:507
+#, fuzzy
+msgid "PCB Netlist"
+msgstr "Netlist PCB"
+
+#: src/gui-netlist-window.c:534
+msgid " "
+msgstr ""
+
+#: src/gui-netlist-window.c:539
+msgid "Net Name"
+msgstr "Nom de liaison"
+
+#: src/gui-netlist-window.c:568
+msgid "Nodes"
+msgstr "Noeuds"
+
+#: src/gui-netlist-window.c:580
+#, fuzzy
+msgid "Operations on selected 'Net Name':"
+msgstr "Opérations sur la sélection 'Nom de liaison':"
+
+#: src/gui-netlist-window.c:586
+msgid "Select on Layout"
+msgstr "Sélectionner sur le schéma"
+
+#: src/gui-netlist-window.c:590
+#, fuzzy
+msgid "Unselect on Layout"
+msgstr "Désélectionner sur schéma"
+
+#: src/gui-netlist-window.c:597
+msgid "Disable all nets for adding rats"
+msgstr ""
+
+#: src/gui-top-window.c:261
+msgid "Press a button at the element's location"
+msgstr "Presser un bouton à la position de l'élément"
+
+#: src/gui-top-window.c:359
+msgid "Press a button at a grid point"
+msgstr "Presser un bouton au point de la grille"
+
+#: src/gui-top-window.c:380
+msgid "Press a button at the desired point"
+msgstr "Presser un bouton au point souhaité"
+
+#: src/gui-top-window.c:807
+msgid "Press a button on a reference point for your selection"
+msgstr "Presser un bouton au point de référence pour votre sélection"
+
+#: src/gui-top-window.c:916 src/gui-top-window.c:1029
+msgid "Select the object"
+msgstr "Sélectionnez l'objet"
+
+#: src/gui-top-window.c:1108
+msgid "File"
+msgstr "Fichier"
+
+#: src/gui-top-window.c:1109
+msgid "Save connection data of"
+msgstr "Sauvegarde les données de connection"
+
+#: src/gui-top-window.c:1112
+msgid "Save layout"
+msgstr "Sauvegarder le schéma"
+
+#: src/gui-top-window.c:1116
+msgid "Load layout"
+msgstr "Charger le schéma"
+
+#: src/gui-top-window.c:1118
+msgid "Load element data to paste-buffer"
+msgstr "Charger les données d'élément dans le tampon coller"
+
+#: src/gui-top-window.c:1121
+msgid "Load layout data to paste-buffer"
+msgstr "Charger les données de schéma dans le tampon coller"
+
+#: src/gui-top-window.c:1126 src/vendor.c:182
+msgid "Load vendor resource file"
+msgstr "Charge le fichier de ressource du fabricant"
+
+#: src/gui-top-window.c:1128
+msgid "Print layout"
+msgstr "Imprimer le schéma"
+
+#: src/gui-top-window.c:1130
+msgid "a single element"
+msgstr "un élément simple"
+
+#: src/gui-top-window.c:1132
+msgid "all elements"
+msgstr "tous les éléments"
+
+#: src/gui-top-window.c:1134
+msgid "unused pins"
+msgstr "broches inutilisées"
+
+#: src/gui-top-window.c:1136
+msgid "Start new layout"
+msgstr "Débuter un nouveau schéma"
+
+#: src/gui-top-window.c:1138
+msgid "Preferences"
+msgstr "Préférences"
+
+#: src/gui-top-window.c:1140
+msgid "Quit Program"
+msgstr "Quitter le programme"
+
+#: src/gui-top-window.c:1144
+msgid "Edit"
+msgstr "Édition"
+
+#: src/gui-top-window.c:1145
+msgid "Undo last operation"
+msgstr "Annuler la dernière opération"
+
+#: src/gui-top-window.c:1148
+msgid "Redo last undone operation"
+msgstr "Refaire la dernière opération annulée"
+
+#: src/gui-top-window.c:1151
+msgid "Clear undo-buffer"
+msgstr "Effacer le tampon défaire"
+
+#: src/gui-top-window.c:1159
+msgid "Edit name of"
+msgstr "Édition du nom de"
+
+#: src/gui-top-window.c:1162
+msgid "layout"
+msgstr "couche"
+
+#: src/gui-top-window.c:1164
+msgid "active layer"
+msgstr "couche active"
+
+#: src/gui-top-window.c:1168
+msgid "Screen"
+msgstr "Écran"
+
+#: src/gui-top-window.c:1169
+msgid "Redraw layout"
+msgstr "Redessiner le schéma"
+
+#: src/gui-top-window.c:1172
+msgid "Center layout"
+msgstr "Centrer le schéma"
+
+#: src/gui-top-window.c:1175
+msgid "Realign grid"
+msgstr "Réaligner la grille"
+
+#: src/gui-top-window.c:1177
+msgid "Grid setting"
+msgstr "Valeur de la grille"
+
+#: src/gui-top-window.c:1179
+msgid "Adjust grid"
+msgstr "Ajustement de la grille"
+
+#: src/gui-top-window.c:1183
+msgid "Zoom out"
+msgstr "Réduire"
+
+#: src/gui-top-window.c:1186
+msgid "Displayed element name"
+msgstr "Nom d'élément affiché"
+
+#: src/gui-top-window.c:1188
+msgid "Open pinout menu"
+msgstr ""
+
+#: src/gui-top-window.c:1196
+msgid "Settings"
+msgstr "Configuration"
+
+#: src/gui-top-window.c:1199
+msgid "Select"
+msgstr "Sélection"
+
+#: src/gui-top-window.c:1200
+msgid "Select all objects"
+msgstr "Sélectionner tous les objets"
+
+#: src/gui-top-window.c:1203
+msgid "Select all connected objects"
+msgstr "Sélectionner tous les objets connectés"
+
+#: src/gui-top-window.c:1206
+msgid "Unselect all objects"
+msgstr "Désélectionner tous les objets"
+
+#: src/gui-top-window.c:1209
+msgid "Unselect all connected objects"
+msgstr "Désélectionner tous les objets connectés"
+
+#: src/gui-top-window.c:1212
+msgid "Select by name"
+msgstr "Sélectionner par nom"
+
+#: src/gui-top-window.c:1213
+msgid "All objects"
+msgstr "Tous les objets"
+
+#: src/gui-top-window.c:1217
+msgid "Pads"
+msgstr "Pastilles"
+
+#: src/gui-top-window.c:1219 src/gui-top-window.c:1258
+msgid "Pins"
+msgstr "Broches"
+
+#: src/gui-top-window.c:1221 src/gui-top-window.c:1485
+msgid "Text"
+msgstr "Texte"
+
+#: src/gui-top-window.c:1223
+msgid "Vias"
+msgstr "Vias"
+
+#: src/gui-top-window.c:1225
+msgid "Auto place selected elements"
+msgstr "Placement automatique des éléments sélectionnés"
+
+#: src/gui-top-window.c:1228
+msgid "Disperse all elements"
+msgstr "Disperser tous les éléments"
+
+#: src/gui-top-window.c:1230
+msgid "Disperse selected elements"
+msgstr "Disperser les éléments sélectionnés"
+
+#: src/gui-top-window.c:1233
+msgid "Move selected elements to other side"
+msgstr "Déplacer les éléments sélectionnés de l'autre côté"
+
+#: src/gui-top-window.c:1236
+msgid "Remove selected objects"
+msgstr "Supprimer les objets sélectionnés"
+
+#: src/gui-top-window.c:1238
+msgid "Convert selection to element"
+msgstr "Convertir la sélection en élément"
+
+#: src/gui-top-window.c:1241
+msgid "Optimize selected rats"
+msgstr "Optimiser les liaisons sélectionnées"
+
+#: src/gui-top-window.c:1243 src/gui-top-window.c:1313
+msgid "Auto route selected rats"
+msgstr "Routage des liaisons sélectionnées"
+
+#: src/gui-top-window.c:1246
+msgid "Rip up selected auto routed tracks"
+msgstr ""
+
+#: src/gui-top-window.c:1249
+msgid "Change size of selected objects"
+msgstr "Changer la taille des objets sélectionnés"
+
+#: src/gui-top-window.c:1252
+msgid "Change drill hole of selected objects"
+msgstr "Changer la taille de perçage des objets sélectionnés"
+
+#: src/gui-top-window.c:1255
+msgid "Change square flag of selected objects"
+msgstr ""
+
+#: src/gui-top-window.c:1263
+msgid "Copy selection to buffer"
+msgstr "Copier la sélection dans le tampon"
+
+#: src/gui-top-window.c:1266
+msgid "Cut selection to buffer"
+msgstr "Couper la sélection dans le tampon"
+
+#: src/gui-top-window.c:1269
+msgid "Paste buffer to layout"
+msgstr "Coller le tampon sur la carte"
+
+#: src/gui-top-window.c:1272
+msgid "Rotate buffer 90 deg CCW"
+msgstr "Pivoter le tampon de -90°"
+
+#: src/gui-top-window.c:1274
+msgid "Rotate buffer 90 deg CW"
+msgstr "Pivoter le tampon de 90°"
+
+#: src/gui-top-window.c:1276
+msgid "Mirror buffer (up/down)"
+msgstr "Miroir sur tampon (haut/bas)"
+
+#: src/gui-top-window.c:1278
+msgid "Mirror buffer (left/right)"
+msgstr "Miroir sur tampon (gauche/droite)"
+
+#: src/gui-top-window.c:1281
+msgid "Clear buffer"
+msgstr "Effacer le tampon"
+
+#: src/gui-top-window.c:1283
+msgid "Convert buffer to element"
+msgstr "Convertir tampon en élément"
+
+#: src/gui-top-window.c:1286
+msgid "Break buffer elements to pieces"
+msgstr "Séparer les éléments de tampon en pièces"
+
+#: src/gui-top-window.c:1289
+msgid "Save buffer elements to file"
+msgstr "Sauvegarder les éléments du tampon dans fichier"
+
+#: src/gui-top-window.c:1292
+msgid "Select current buffer"
+msgstr "Sélectionner le tampon courant"
+
+#: src/gui-top-window.c:1297
+msgid "Lookup connection to object"
+msgstr "Chercher la connexion à un objet"
+
+#: src/gui-top-window.c:1300
+msgid "Reset scanned pads/pins/vias"
+msgstr ""
+
+#: src/gui-top-window.c:1302
+msgid "Reset scanned lines/polygons"
+msgstr ""
+
+#: src/gui-top-window.c:1304
+msgid "Reset all connections"
+msgstr "Reset de toutes les connections"
+
+#: src/gui-top-window.c:1307
+msgid "Optimize rats nest"
+msgstr "Optimiser les liaisons"
+
+#: src/gui-top-window.c:1310
+msgid "Erase rats nest"
+msgstr "Effacer les liaisons"
+
+#: src/gui-top-window.c:1315
+msgid "Auto route all rats"
+msgstr "Router toutes les liaisons"
+
+#: src/gui-top-window.c:1317
+msgid "Rip up all auto routed tracks"
+msgstr ""
+
+#: src/gui-top-window.c:1319
+msgid "Optimize routed tracks"
+msgstr "Optimiser toutes les pistes routées"
+
+#: src/gui-top-window.c:1320
+msgid "Auto optimize"
+msgstr "Optimisation auto"
+
+#: src/gui-top-window.c:1323
+msgid "Debumpify"
+msgstr ""
+
+#: src/gui-top-window.c:1325
+msgid "Unjaggy"
+msgstr ""
+
+#: src/gui-top-window.c:1327
+msgid "Via nudge"
+msgstr ""
+
+#: src/gui-top-window.c:1329
+msgid "Via trim"
+msgstr ""
+
+#: src/gui-top-window.c:1331
+msgid "Ortho pull"
+msgstr ""
+
+#: src/gui-top-window.c:1333
+msgid "Simple optimizations"
+msgstr "Optimisations simples"
+
+#: src/gui-top-window.c:1335
+msgid "Miter"
+msgstr ""
+
+#: src/gui-top-window.c:1337
+msgid "Design Rule Checker"
+msgstr "Contrôle des règles de dessin (DRC)"
+
+#: src/gui-top-window.c:1339
+msgid "Apply vendor drill mapping"
+msgstr "Appliquer la carte de perçage du fabricant"
+
+#: src/gui-top-window.c:1344
+msgid "Generate object report"
+msgstr "Générer le rapport objet"
+
+#: src/gui-top-window.c:1347
+msgid "Generate drill summary"
+msgstr "Générer le résumé de perçage"
+
+#: src/gui-top-window.c:1349
+msgid "Report found pins/pads"
+msgstr "Rapport des broches/pastilles trouvées"
+
+#: src/gui-top-window.c:1353
+msgid "Window"
+msgstr "Fenêtre"
+
+#: src/gui-top-window.c:1356
+msgid "Message Log"
+msgstr "Journal des messages"
+
+#: src/gui-top-window.c:1358
+msgid "Netlist"
+msgstr "Netlist"
+
+#: src/gui-top-window.c:1360
+msgid "Command Entry"
+msgstr "Entrée de commande"
+
+#: src/gui-top-window.c:1362
+msgid "Key Reference"
+msgstr "Référence clé"
+
+#: src/gui-top-window.c:1364
+msgid "About"
+msgstr ""
+
+#: src/gui-top-window.c:1368
+msgid "Operations on selections"
+msgstr "Opérations sur les sélections"
+
+#: src/gui-top-window.c:1369
+msgid "Operations on this location"
+msgstr "Opération sur cette zone"
+
+#: src/gui-top-window.c:1370
+msgid "Select tool"
+msgstr "Outil de sélection"
+
+#: src/gui-top-window.c:1455
+msgid "Description"
+msgstr "Description"
+
+#: src/gui-top-window.c:1456
+msgid "Reference designator"
+msgstr "Désignation de référence"
+
+#: src/gui-top-window.c:1458
+msgid "Value"
+msgstr "Valeur"
+
+#: src/gui-top-window.c:1481
+msgid "Line"
+msgstr "Ligne"
+
+#: src/gui-top-window.c:1482
+msgid "Via"
+msgstr "Via"
+
+#: src/gui-top-window.c:1483
+msgid "Rectangle"
+msgstr "Rectangle"
+
+#: src/gui-top-window.c:1484
+msgid "Selection"
+msgstr "Sélection"
+
+#: src/gui-top-window.c:1486
+msgid "Panner"
+msgstr "Centreur"
+
+#: src/gui-top-window.c:1498
+msgid "Enable visible grid"
+msgstr "Valide la grille visible"
+
+#: src/gui-top-window.c:1500
+msgid "Enable millimeter grid units"
+msgstr "Valide les unités de grille en mm"
+
+#: src/gui-top-window.c:1502
+msgid "Enable view solder side"
+msgstr "Valide la vue côté soudure"
+
+#: src/gui-top-window.c:1505
+msgid "Enable view soldermask"
+msgstr "Valide la vue du masque de soudure"
+
+#: src/gui-top-window.c:1507
+msgid "Enable pinout shows number"
+msgstr "Valide l'afficher des numéros des broches "
+
+#: src/gui-top-window.c:1512
+msgid "Enable all direction lines"
+msgstr "Valide les lignes dans toutes les directions"
+
+#: src/gui-top-window.c:1514
+msgid "Enable auto swap line start angle"
+msgstr "Valide l'angle auto de démarrage"
+
+#: src/gui-top-window.c:1517
+msgid "Enable orthogonal moves"
+msgstr "Permet les déplacements orthogonaux"
+
+#: src/gui-top-window.c:1519
+msgid "Enable crosshair snaps to pins and pads"
+msgstr "Permet au curseur d'accrocher les broches et les pastilles"
+
+#: src/gui-top-window.c:1522
+msgid "Enable crosshair shows DRC clearance"
+msgstr "Permet au curseur de montrer les dégagements DRC"
+
+#: src/gui-top-window.c:1525
+msgid "Enable auto enforce DRC clearance"
+msgstr "Valide le respect automatique de dégagement"
+
+#: src/gui-top-window.c:1528
+msgid "Enable rubber band mode"
+msgstr "Valide le mode rubber band"
+
+#: src/gui-top-window.c:1530
+msgid "Enable require unique element names"
+msgstr "Valide les noms d'éléments uniques"
+
+#: src/gui-top-window.c:1533
+msgid "Enable auto zero delta measurements"
+msgstr "Valide les mesures auto avec delta zéro"
+
+#: src/gui-top-window.c:1536
+msgid "Enable new lines, arcs clear polygons"
+msgstr "Valide nouvelle ligne, arc efface polygones"
+
+#: src/gui-top-window.c:1539
+msgid "Enable show autorouter trials"
+msgstr "Valide l'affichage des essais de routage auto"
+
+#: src/gui-top-window.c:1541
+msgid "Enable thin line draw"
+msgstr "Valide le dessin de ligne épaisse"
+
+#: src/gui-top-window.c:1544
+msgid "Enable check polygons"
+msgstr "Valide le contrôle de polygone"
+
+#: src/gui-top-window.c:1546
+msgid "Enable vendor drill mapping"
+msgstr ""
+
+#: src/gui-top-window.c:1551
+msgid "Enable only autorouted nets"
+msgstr "Valide seulement les liaisons routées"
+
+#: src/gui-top-window.c:1872
+#, c-format
+msgid "Decrement lines by %s"
+msgstr "Décrémente les lignes de %s"
+
+#: src/gui-top-window.c:1875
+#, c-format
+msgid "Increment lines by %s"
+msgstr "Incrémente les lignes de %s"
+
+#: src/gui-top-window.c:1878
+#, c-format
+msgid "Decrement pads by %s"
+msgstr "Décrémente les pastilles de %s"
+
+#: src/gui-top-window.c:1881
+#, c-format
+msgid "Increment pads by %s"
+msgstr "Incrémente les pastilles de %s"
+
+#: src/gui-top-window.c:1884 src/gui-top-window.c:1909
+#, c-format
+msgid "Decrement pins by %s"
+msgstr "Décrémente les broches de %s"
+
+#: src/gui-top-window.c:1887 src/gui-top-window.c:1912
+#, c-format
+msgid "Increment pins by %s"
+msgstr "Incrémente les broches de %s"
+
+#: src/gui-top-window.c:1890
+#, c-format
+msgid "Decrement text by %s"
+msgstr "Décrémente le texte de %s"
+
+#: src/gui-top-window.c:1893
+#, c-format
+msgid "Increment text by %s"
+msgstr "Incrémente le texte de %s"
+
+#: src/gui-top-window.c:1896 src/gui-top-window.c:1903
+#, c-format
+msgid "Decrement vias by %s"
+msgstr "Décrémente les vias de %s"
+
+#: src/gui-top-window.c:1899 src/gui-top-window.c:1906
+#, c-format
+msgid "Increment vias by %s"
+msgstr "Incrémente les vias de %s"
+
+#: src/gui-top-window.c:2485
+msgid "silk"
+msgstr "impression"
+
+#: src/gui-top-window.c:2490
+msgid "rat lines"
+msgstr "liaisons"
+
+#: src/gui-top-window.c:2495
+msgid "pins/pads"
+msgstr "broches/pastilles"
+
+#: src/gui-top-window.c:2500
+msgid "vias"
+msgstr "vias"
+
+#: src/gui-top-window.c:2505
+msgid "far side"
+msgstr "côté éloigné"
+
+#: src/gui-top-window.c:2767
+msgid "Route Style"
+msgstr "Style de routage"
+
+#: src/gui-top-window.c:2786
+#, c-format
+msgid "Temp%d"
+msgstr "Temp%d"
+
+#: src/gui-top-window.c:3078
+msgid "Zoom"
+msgstr "Zoom"
+
+#: src/main.c:323
+#, c-format
+msgid "Executing startup script file %s\n"
+msgstr "Exécution du fichier %s de script au démarrage\n"
+
+#: src/main.c:331
+#, c-format
+msgid "Executing startup action %s\n"
+msgstr "Executer l'action %s au démarrage\n"
+
+#: src/polygon.c:209
+msgid "Cannot close polygon because 45 degree lines are requested.\n"
+msgstr ""
+
+#: src/polygon.c:217
+msgid "A polygon has to have at least 3 points\n"
+msgstr "Un polygone doit avoir au moins 3 points\n"
+
+#: src/polygon.c:333
+msgid "Warning! Unplated hole piercing or too close to polygon\n"
+msgstr ""
+
+#: src/print.c:598
+msgid ""
+"Warning!  Rat lines in layout during printing!\n"
+"You are not DONE with the layout!\n"
+msgstr ""
+
+#: src/rats.c:114
+#, c-format
+msgid "Bad net-list format encountered near: \"%s\"\n"
+msgstr "Mauvais format de netlist rencontré à côté de: \"%s\"\n"
+
+#: src/rats.c:195
+#, c-format
+msgid ""
+"Error! Netlist file is missing pin!\n"
+"white space after \"%s-\"\n"
+msgstr ""
+
+#: src/rats.c:212
+#, c-format
+msgid "Can't find %s pin %s called for in netlist.\n"
+msgstr ""
+
+#: src/rats.c:283
+#, c-format
+msgid "Error! Element %s pin %s appears multiple times in the netlist file.\n"
+msgstr ""
+"Erreur! L'élément %s broche %s apparaît plusieurs fois dans le fichier "
+"netlist.\n"
+
+#: src/rats.c:382
+#, c-format
+msgid "Warning! Net \"%s\" is shorted to %s pin %s\n"
+msgstr "Attention! La liaison \"%s\" touche à la broche \"%s\"\n"
+
+#: src/rats.c:402
+#, c-format
+msgid "Warning! net \"%s\" is shorted to net \"%s\"\n"
+msgstr "Attention! La liaison \"%s\" touche à la liaison \"%s\"\n"
+
+#: src/rats.c:417
+#, c-format
+msgid "Warning! Net \"%s\" is shorted  to %s pad %s\n"
+msgstr "Attention! La liaison \"%s\" touche à la pastille \"%s\"\n"
+
+#: src/rats.c:437
+#, c-format
+msgid "Warning! Net \"%s\" is shorted to net \"%s\"\n"
+msgstr "Attention! La liaison \"%s\" touche à la liaison \"%s\"\n"
+
+#: src/rats.c:716
+msgid ""
+"Congratulations!!\n"
+"The layout is complete and has no shorted nets.\n"
+msgstr ""
+"Félicitations!!\n"
+"Le schéma est complet et ne possède pas de liaisons non résolues.\n"
+
+#: src/rats.c:719
+msgid ""
+"Nothing more to add, but there are\n"
+"either rat-lines in the layout, disabled nets\n"
+"in the net-list, or missing components\n"
+msgstr ""
+
+#: src/rats.c:813 src/rats.c:833
+msgid "No pad/pin under rat line\n"
+msgstr "Aucune broche/pastille sous la liaison\n"
+
+#: src/rats.c:819
+msgid "You must name the starting element first\n"
+msgstr "Vous devez d'abord nommer l'élément de départ\n"
+
+#: src/rats.c:839
+msgid "You must name the ending element first\n"
+msgstr "Vous devez d'abord nommer l'élément de fin\n"
+
+#: src/rats.c:851
+msgid "Both connections already in netlist - cannot merge nets\n"
+msgstr ""
+
+#: src/report.c:94
+msgid "Drill Report"
+msgstr "Rapport de perçage"
+
+#: src/report.c:422
+msgid "Nothing found to report on\n"
+msgstr "Rien de trouvé à rapporter\n"
+
+#: src/report.c:427 src/report.c:470
+msgid "Report"
+msgstr "Rapport"
+
+#: src/select.c:843
+#, c-format
+msgid "regexp error: %s\n"
+msgstr "erreur regexp: %s\n"
+
+#: src/select.c:855
+#, c-format
+msgid "re_comp error: %s\n"
+msgstr "erreur re_comp: %s\n"
+
+#: src/set.c:119
+#, c-format
+msgid ""
+"<b>%c  view</b>=%s  <b>grid</b>=%.1f:%i  %s%s  <b>line</b>=%.1f  <b>via</b>="
+"%.1f(%.1f)  %s<b>clearance</b>=%.1f  <b>text</b>=%i%%  <b>buffer</b>=#%i"
+msgstr ""
+
+#: src/set.c:146
+#, c-format
+msgid ""
+"<b>%c  view</b>=%s  <b>grid</b>=%5.3f:%i  %s%s  <b>line</b>=%5.3f  <b>via</"
+"b>=%5.3f(%5.3f)  %s<b>clearance</b>=%5.3f  <b>text</b>=%i%%  <b>buffer</b>=#%"
+"i"
+msgstr ""
+
+#: src/set.c:437
+msgid "That mode is NOT allowed when drawing ratlines!\n"
+msgstr "Ce mode n'est PAS permis lors du tracé de liaisons!\n"
+
+#: src/undo.c:203
+#, c-format
+msgid "Size of 'undo-list' exceeds %li kb\n"
+msgstr ""
+
+#: src/undo.c:709
+msgid "Nothing to undo - buffer is empty\n"
+msgstr "Rien à défaire - le tampon est vide\n"
+
+#: src/undo.c:721
+#, c-format
+msgid "Undo bad serial number %d expecting %d\n"
+msgstr ""
+
+#: src/undo.c:834
+msgid "Nothing to redo. Perhaps changes have been made since last undo\n"
+msgstr ""
+"Rien à refaire. Des changements ont peut être été fait depuis le dernier "
+"défaire\n"
+
+#: src/undo.c:902
+msgid "OK to clear 'undo' buffer?"
+msgstr "D'accord pour effacer le tampon 'défaire'?"
+
+#: src/vendor.c:216
+#, c-format
+msgid "Could not load vendor resource file \"%s\"\n"
+msgstr "Impossible de charger le fichier ressource fabricant \"%s\"\n"
+
+#: src/vendor.c:259
+msgid "No drillmap resource found\n"
+msgstr ""
+
+#: src/vendor.c:277
+#, c-format
+msgid "\"%s\" is not a valid rounding type.  Defaulting to up\n"
+msgstr ""
+
+#: src/vendor.c:307 src/vendor.c:323
+#, fuzzy, c-format
+msgid "Set DRC minimum copper spacing to %.2f mils\n"
+msgstr "Mettre le contrôle de l'espacement mini du cuivre à %.2fmils\n"
+
+#: src/vendor.c:315
+#, c-format
+msgid "Set DRC minimum copper overlap to %.2f mils\n"
+msgstr ""
+
+#: src/vendor.c:331
+#, c-format
+msgid "Set DRC minimum silk width to %.2f mils\n"
+msgstr ""
+
+#: src/vendor.c:335
+#, c-format
+msgid "Loaded %d vendor drills from %s\n"
+msgstr ""
+
+#: src/vendor.c:336
+#, c-format
+msgid "Loaded %d RefDes skips, %d Value skips, %d Descr skips\n"
+msgstr ""
+
+#: src/vendor.c:378
+#, c-format
+msgid ""
+"Via at %.2f, %.2f not changed.  Possible reasons:\n"
+"\t- pad size too small\n"
+"\t- new size would be too large or too small\n"
+msgstr ""
+
+#: src/vendor.c:386
+#, c-format
+msgid "Locked via at %.2f, %.2f not changed.\n"
+msgstr ""
+
+#: src/vendor.c:417
+#, c-format
+msgid ""
+"Pin %s (%s) at %.2f, %.2f (element %s, %s, %s) not changed.\n"
+"\tPossible reasons:\n"
+"\t- pad size too small\n"
+"\t- new size would be too large or too small\n"
+msgstr ""
+
+#: src/vendor.c:430
+#, c-format
+msgid "Locked pin at %-6.2f, %-6.2f not changed.\n"
+msgstr ""
+
+#: src/vendor.c:440
+#, c-format
+msgid "Updated %d drill sizes out of %d total\n"
+msgstr ""
+
+#: src/vendor.c:447
+#, c-format
+msgid "Adjusted active via hole size to be %6.2f mils\n"
+msgstr ""
+
+#: src/vendor.c:459
+#, c-format
+msgid "Adjusted %s routing style via hole size to be %6.2f mils\n"
+msgstr ""
+
+#: src/vendor.c:465
+#, c-format
+msgid "Increased %s routing style via diameter to %6.2f mils\n"
+msgstr ""
+
+#: src/vendor.c:503
+#, c-format
+msgid ""
+"Vendor drill list does not contain a drill >= %6.2f mil\n"
+"Using %6.2f mil instead.\n"
+msgstr ""
+
+#: src/vendor.c:647
+#, c-format
+msgid "Ignored resource type = %d in skips= section\n"
+msgstr ""
+
+#: src/vendor.c:667
+#, c-format
+msgid "Vendor mapping skipped because refdes = %s matches %s\n"
+msgstr ""
+
+#: src/vendor.c:679
+#, c-format
+msgid "Vendor mapping skipped because value = %s matches %s\n"
+msgstr ""
+
+#: src/vendor.c:691
+#, c-format
+msgid "Vendor mapping skipped because descr = %s matches %s\n"
+msgstr ""
+
+#: src/vendor.c:700
+#, c-format
+msgid "Vendor mapping skipped because element %s is locked\n"
+msgstr ""
+
+#~ msgid "Library Path"
+#~ msgstr "Chemin des bibliothèques"

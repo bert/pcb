@@ -1,0 +1,35 @@
+#  $Id$
+#
+
+This PCB Gtk port is a work in progress.  It can be compiled and
+used, but one should be on the lookout for bugs.  pcb-gtk is
+a description and should not be considered a naming of the port.
+
+After untarring,
+	cd pcb-<version>
+	./configure
+	make
+
+or, if you want an install somewhere other than /usr/local,
+make the configure step, for example:
+
+    ./configure --prefix=/usr
+
+to test run it:
+    cd src
+    ./pcbtest.sh
+
+You can then do:
+    make install
+
+This will install the gtk pcb as "pcb" just as the Xt pcb install
+would.  If you have an existing Xt install and don't want to lose
+it, then don't don a "make install" here, but instead you can
+copy the src/pcb-bin binary to some bin directory as pcb-test or
+gpcb (as I will now call it), or whatever.  This should work provided
+the "prefix" the configure step uses is the same as was used for your
+existing Xt install.  The gpcb binary will run regardless, it just
+needs the right prefix to find the installed libraries.
+
+When gpcb runs, it uses a ~/.pcb directory for saving the preferences
+file and color schemes.

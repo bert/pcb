@@ -26,6 +26,7 @@
  *
  */
 
+
 /* crosshair stuff
  */
 
@@ -43,26 +44,25 @@
 #include "draw.h"
 #include "error.h"
 #include "line.h"
-#include "gui.h"
 #include "misc.h"
 #include "mymem.h"
 #include "search.h"
 
-#ifdef HAVE_LIBDMALLOC
-#include <dmalloc.h>
-#endif
+#include "gui.h"
 
 RCSID ("$Id$");
 
+#if !defined(ABS)
 #define ABS(x) (((x)<0)?-(x):(x))
+#endif
 
 /* ---------------------------------------------------------------------------
  * some local identifiers
  */
-static Boolean CrosshairStack[MAX_CROSSHAIRSTACK_DEPTH];
-static int CrosshairStackLocation = 0;
-static XPoint *Points = NULL;	/* data of tmp polygon */
-static Cardinal MaxPoints = 0;	/* number of points */
+static gboolean	CrosshairStack[MAX_CROSSHAIRSTACK_DEPTH];
+static int		CrosshairStackLocation = 0;
+static GdkPoint	*Points = NULL;	/* data of tmp polygon */
+static Cardinal	MaxPoints = 0;	/* number of points */
 
 /* ---------------------------------------------------------------------------
  * some local prototypes
@@ -89,8 +89,8 @@ CreateTMPPolygon (PolygonTypePtr Polygon, LocationType DX, LocationType DY)
     {
       /* allocate memory for one additional point */
       MaxPoints = Polygon->PointN + 1;
-      Points = (XPoint *) MyRealloc (Points,
-				     MaxPoints * sizeof (XPoint),
+      Points = (GdkPoint *) MyRealloc (Points,
+				     MaxPoints * sizeof (GdkPoint),
 				     "CreateTMPPolygon()");
     }
 
@@ -115,15 +115,15 @@ CreateTMPPolygon (PolygonTypePtr Polygon, LocationType DX, LocationType DY)
 static void
 DrawCrosshair (void)
 {
-  XSetForeground (Dpy, Crosshair.GC, Settings.CrossColor);
-  XDrawLine (Dpy, Output.OutputWindow, Crosshair.GC,
+  gdk_gc_set_foreground(Crosshair.GC, &Settings.CrossColor);
+  gdk_draw_line(Output.drawing_area->window, Crosshair.GC,
 	     TO_SCREEN_X (Crosshair.X), 0,
 	     TO_SCREEN_X (Crosshair.X), MAX_COORD / 100);
 
-  XDrawLine (Dpy, Output.OutputWindow, Crosshair.GC,
+  gdk_draw_line(Output.drawing_area->window, Crosshair.GC,
 	     0, TO_SCREEN_Y (Crosshair.Y), MAX_COORD / 100,
 	     TO_SCREEN_Y (Crosshair.Y));
-  XSetForeground (Dpy, Crosshair.GC, Settings.CrosshairColor);
+  gdk_gc_set_foreground(Crosshair.GC, &Settings.CrosshairColor);
 }
 
 /*-----------------------------------------------------------
@@ -176,24 +176,24 @@ XORDrawAttachedArc (BDimension thick)
   arc.Y -= TO_SCREEN_SIGN_Y (wy);
   sa = (sa - 180) * 64;
   dir *= 64;
-  XDrawArc (Dpy, Output.OutputWindow, Crosshair.GC,
+  gdk_draw_arc(Output.drawing_area->window, Crosshair.GC, FALSE,
 	    TO_SCREEN_X (arc.X - wid),
 	    TO_SCREEN_Y (arc.Y - TO_SCREEN_SIGN_Y (wid)),
 	    TO_SCREEN (2 * wy + thick), TO_SCREEN (2 * wy + thick),
 	    TO_SCREEN_ANGLE (sa), TO_SCREEN_DELTA (dir));
   if (TO_SCREEN (wid) && (2 * wy - thick) > 0 && TO_SCREEN (2 * wy - thick))
     {
-      XDrawArc (Dpy, Output.OutputWindow, Crosshair.GC,
+      gdk_draw_arc(Output.drawing_area->window, Crosshair.GC, FALSE,
 		TO_SCREEN_X (arc.X + wid),
 		TO_SCREEN_Y (arc.Y + TO_SCREEN_SIGN_Y (wid)),
 		TO_SCREEN (2 * wy - thick), TO_SCREEN (2 * wy - thick),
 		TO_SCREEN_ANGLE (sa), TO_SCREEN_DELTA (dir));
-      XDrawArc (Dpy, Output.OutputWindow, Crosshair.GC,
+      gdk_draw_arc(Output.drawing_area->window, Crosshair.GC, FALSE,
 		TO_SCREEN_X (bx->X1 - wid),
 		TO_SCREEN_Y (bx->Y1 - TO_SCREEN_SIGN_Y (wid)),
 		TO_SCREEN (thick), TO_SCREEN (thick), TO_SCREEN_ANGLE (sa),
 		TO_SCREEN_DELTA (-11520 * SGN (dir)));
-      XDrawArc (Dpy, Output.OutputWindow, Crosshair.GC,
+      gdk_draw_arc(Output.drawing_area->window, Crosshair.GC, FALSE,
 		TO_SCREEN_X (bx->X2 - wid),
 		TO_SCREEN_Y (bx->Y2 - TO_SCREEN_SIGN_Y (wid)),
 		TO_SCREEN (thick), TO_SCREEN (thick),
@@ -221,21 +221,21 @@ XORDrawAttachedLine (LocationType x1, LocationType y1, LocationType x2,
     h = 0.0;
   ox = dy * h + 0.5 * SGN (dy);
   oy = -(dx * h + 0.5 * SGN (dx));
-  XDrawLine (Dpy, Output.OutputWindow, Crosshair.GC,
+  gdk_draw_line(Output.drawing_area->window, Crosshair.GC,
 	     TO_SCREEN_X (x1 + ox), TO_SCREEN_Y (y1 + oy),
 	     TO_SCREEN_X (x2 + ox), TO_SCREEN_Y (y2 + oy));
   if (TO_SCREEN (abs (ox)) || TO_SCREEN (abs (oy)))
     {
       LocationType angle =
 	TO_SCREEN_ANGLE (atan2 ((float) dx, (float) dy) * 3666.9298888);
-      XDrawLine (Dpy, Output.OutputWindow, Crosshair.GC,
+      gdk_draw_line(Output.drawing_area->window, Crosshair.GC,
 		 TO_SCREEN_X (x1 - ox), TO_SCREEN_Y (y1 - oy),
 		 TO_SCREEN_X (x2 - ox), TO_SCREEN_Y (y2 - oy));
-      XDrawArc (Dpy, Output.OutputWindow, Crosshair.GC,
+      gdk_draw_arc(Output.drawing_area->window, Crosshair.GC, FALSE,
 		TO_SCREEN_X (x1 - wid),
 		TO_SCREEN_Y (y1 - TO_SCREEN_SIGN_Y (wid)), TO_SCREEN (thick),
 		TO_SCREEN (thick), angle, TO_SCREEN_DELTA (11520));
-      XDrawArc (Dpy, Output.OutputWindow, Crosshair.GC,
+      gdk_draw_arc(Output.drawing_area->window, Crosshair.GC, FALSE,
 		TO_SCREEN_X (x2 - wid),
 		TO_SCREEN_Y (y2 - TO_SCREEN_SIGN_Y (wid)), TO_SCREEN (thick),
 		TO_SCREEN (thick), angle, TO_SCREEN_DELTA (-11520));
@@ -251,22 +251,22 @@ XORDrawElement (ElementTypePtr Element, LocationType DX, LocationType DY)
   /* if no silkscreen, draw the bounding box */
   if (Element->ArcN == 0 && Element->LineN == 0)
     {
-      XDrawLine (Dpy, Output.OutputWindow, Crosshair.GC,
+      gdk_draw_line(Output.drawing_area->window, Crosshair.GC,
 		 TO_SCREEN_X (DX + Element->BoundingBox.X1),
 		 TO_SCREEN_Y (DY + Element->BoundingBox.Y1),
 		 TO_SCREEN_X (DX + Element->BoundingBox.X1),
 		 TO_SCREEN_Y (DY + Element->BoundingBox.Y2));
-      XDrawLine (Dpy, Output.OutputWindow, Crosshair.GC,
+      gdk_draw_line(Output.drawing_area->window, Crosshair.GC,
 		 TO_SCREEN_X (DX + Element->BoundingBox.X1),
 		 TO_SCREEN_Y (DY + Element->BoundingBox.Y2),
 		 TO_SCREEN_X (DX + Element->BoundingBox.X2),
 		 TO_SCREEN_Y (DY + Element->BoundingBox.Y2));
-      XDrawLine (Dpy, Output.OutputWindow, Crosshair.GC,
+      gdk_draw_line(Output.drawing_area->window, Crosshair.GC,
 		 TO_SCREEN_X (DX + Element->BoundingBox.X2),
 		 TO_SCREEN_Y (DY + Element->BoundingBox.Y2),
 		 TO_SCREEN_X (DX + Element->BoundingBox.X2),
 		 TO_SCREEN_Y (DY + Element->BoundingBox.Y1));
-      XDrawLine (Dpy, Output.OutputWindow, Crosshair.GC,
+      gdk_draw_line(Output.drawing_area->window, Crosshair.GC,
 		 TO_SCREEN_X (DX + Element->BoundingBox.X2),
 		 TO_SCREEN_Y (DY + Element->BoundingBox.Y1),
 		 TO_SCREEN_X (DX + Element->BoundingBox.X1),
@@ -276,7 +276,7 @@ XORDrawElement (ElementTypePtr Element, LocationType DX, LocationType DY)
     {
       ELEMENTLINE_LOOP (Element);
       {
-	XDrawLine (Dpy, Output.OutputWindow, Crosshair.GC,
+	gdk_draw_line(Output.drawing_area->window, Crosshair.GC,
 		   TO_SCREEN_X (DX + line->Point1.X),
 		   TO_SCREEN_Y (DY + line->Point1.Y),
 		   TO_SCREEN_X (DX + line->Point2.X),
@@ -287,7 +287,7 @@ XORDrawElement (ElementTypePtr Element, LocationType DX, LocationType DY)
       /* arc coordinates and angles have to be converted to X11 notation */
       ARC_LOOP (Element);
       {
-	XDrawArc (Dpy, Output.OutputWindow, Crosshair.GC,
+	gdk_draw_arc(Output.drawing_area->window, Crosshair.GC, FALSE,
 		  TO_SCREEN_X (DX + arc->X) - TO_SCREEN (arc->Width),
 		  TO_SCREEN_Y (DY + arc->Y) - TO_SCREEN (arc->Height),
 		  TO_SCREEN (2 * arc->Width),
@@ -300,7 +300,7 @@ XORDrawElement (ElementTypePtr Element, LocationType DX, LocationType DY)
   /* pin coordinates and angles have to be converted to X11 notation */
   PIN_LOOP (Element);
   {
-    XDrawArc (Dpy, Output.OutputWindow, Crosshair.GC,
+    gdk_draw_arc(Output.drawing_area->window, Crosshair.GC, FALSE,
 	      TO_SCREEN_X (DX + pin->X) -
 	      TO_SCREEN (pin->Thickness / 2),
 	      TO_SCREEN_Y (DY + pin->Y) -
@@ -315,37 +315,30 @@ XORDrawElement (ElementTypePtr Element, LocationType DX, LocationType DY)
   {
     if ((TEST_FLAG (ONSOLDERFLAG, pad) != 0) ==
 	Settings.ShowSolderSide || PCB->InvisibleObjectsOn)
-      XDrawLine (Dpy,
-		 Output.OutputWindow,
-		 Crosshair.GC,
-		 TO_SCREEN_X (DX +
-			      pad->Point1.
-			      X),
-		 TO_SCREEN_Y (DY +
-			      pad->Point1.
-			      Y),
-		 TO_SCREEN_X (DX +
-			      pad->Point2.
-			      X), TO_SCREEN_Y (DY + pad->Point2.Y));
+      gdk_draw_line(Output.drawing_area->window, Crosshair.GC,
+		 TO_SCREEN_X (DX + pad->Point1.X),
+		 TO_SCREEN_Y (DY + pad->Point1.Y),
+		 TO_SCREEN_X (DX + pad->Point2.X),
+		TO_SCREEN_Y (DY + pad->Point2.Y));
   }
   END_LOOP;
   /* mark */
-  XDrawLine (Dpy, Output.OutputWindow, Crosshair.GC,
+  gdk_draw_line(Output.drawing_area->window, Crosshair.GC,
 	     TO_SCREEN_X (Element->MarkX + DX - EMARK_SIZE),
 	     TO_SCREEN_Y (Element->MarkY + DY),
 	     TO_SCREEN_X (Element->MarkX + DX),
 	     TO_SCREEN_Y (Element->MarkY + DY - EMARK_SIZE));
-  XDrawLine (Dpy, Output.OutputWindow, Crosshair.GC,
+  gdk_draw_line(Output.drawing_area->window, Crosshair.GC,
 	     TO_SCREEN_X (Element->MarkX + DX + EMARK_SIZE),
 	     TO_SCREEN_Y (Element->MarkY + DY),
 	     TO_SCREEN_X (Element->MarkX + DX),
 	     TO_SCREEN_Y (Element->MarkY + DY - EMARK_SIZE));
-  XDrawLine (Dpy, Output.OutputWindow, Crosshair.GC,
+  gdk_draw_line(Output.drawing_area->window, Crosshair.GC,
 	     TO_SCREEN_X (Element->MarkX + DX - EMARK_SIZE),
 	     TO_SCREEN_Y (Element->MarkY + DY),
 	     TO_SCREEN_X (Element->MarkX + DX),
 	     TO_SCREEN_Y (Element->MarkY + DY + EMARK_SIZE));
-  XDrawLine (Dpy, Output.OutputWindow, Crosshair.GC,
+  gdk_draw_line(Output.drawing_area->window, Crosshair.GC,
 	     TO_SCREEN_X (Element->MarkX + DX + EMARK_SIZE),
 	     TO_SCREEN_Y (Element->MarkY + DY),
 	     TO_SCREEN_X (Element->MarkX + DX),
@@ -378,7 +371,7 @@ XORDrawBuffer (BufferTypePtr Buffer)
 					y +line->Point1.Y, x +line->Point2.X,
 					y +line->Point2.Y, line->Thickness);
 */
-	  XDrawLine (Dpy, Output.OutputWindow, Crosshair.GC,
+	  gdk_draw_line(Output.drawing_area->window, Crosshair.GC,
 		     TO_SCREEN_X (x + line->Point1.X),
 		     TO_SCREEN_Y (y + line->Point1.Y),
 		     TO_SCREEN_X (x + line->Point2.X),
@@ -387,7 +380,7 @@ XORDrawBuffer (BufferTypePtr Buffer)
 	END_LOOP;
 	ARC_LOOP (layer);
 	{
-	  XDrawArc (Dpy, Output.OutputWindow, Crosshair.GC,
+	  gdk_draw_arc(Output.drawing_area->window, Crosshair.GC, FALSE,
 		    TO_SCREEN_X (x + arc->X) - TO_SCREEN (arc->Width),
 		    TO_SCREEN_Y (y + arc->Y) -
 		    TO_SCREEN (arc->Height),
@@ -402,7 +395,7 @@ XORDrawBuffer (BufferTypePtr Buffer)
 	  BoxTypePtr box = &text->BoundingBox;
 	  LocationType y0;
 	  y0 = Settings.ShowSolderSide ? box->Y2 : box->Y1;
-	  XDrawRectangle (Dpy, Output.OutputWindow, Crosshair.GC,
+	  gdk_draw_rectangle(Output.drawing_area->window, Crosshair.GC, FALSE,
 			  TO_SCREEN_X (x + box->X1),
 			  TO_SCREEN_Y (y + y0),
 			  TO_SCREEN (box->X2 - box->X1),
@@ -415,8 +408,8 @@ XORDrawBuffer (BufferTypePtr Buffer)
 	POLYGON_LOOP (layer);
 	{
 	  CreateTMPPolygon (polygon, x, y);
-	  XDrawLines (Dpy, Output.OutputWindow, Crosshair.GC,
-		      Points, polygon->PointN + 1, CoordModeOrigin);
+	  gdk_draw_lines(Output.drawing_area->window, Crosshair.GC,
+		      Points, polygon->PointN + 1);
 	}
 	END_LOOP;
       }
@@ -434,7 +427,7 @@ XORDrawBuffer (BufferTypePtr Buffer)
   if (PCB->ViaOn)
     VIA_LOOP (Buffer->Data);
   {
-    XDrawArc (Dpy, Output.OutputWindow, Crosshair.GC,
+    gdk_draw_arc(Output.drawing_area->window, Crosshair.GC, FALSE,
 	      TO_SCREEN_X (x + via->X - via->Thickness / 2),
 	      TO_SCREEN_Y (y + via->Y -
 			   TO_SCREEN_SIGN_Y (via->Thickness / 2)),
@@ -455,10 +448,10 @@ XORDrawInsertPointObject (void)
 
   if (Crosshair.AttachedObject.Type != NO_TYPE)
     {
-      XDrawLine (Dpy, Output.OutputWindow, Crosshair.GC,
+      gdk_draw_line(Output.drawing_area->window, Crosshair.GC,
 		 TO_SCREEN_X (point->X), TO_SCREEN_Y (point->Y),
 		 TO_SCREEN_X (line->Point1.X), TO_SCREEN_Y (line->Point1.Y));
-      XDrawLine (Dpy, Output.OutputWindow, Crosshair.GC,
+      gdk_draw_line(Output.drawing_area->window, Crosshair.GC,
 		 TO_SCREEN_X (point->X), TO_SCREEN_Y (point->Y),
 		 TO_SCREEN_X (line->Point2.X), TO_SCREEN_Y (line->Point2.Y));
     }
@@ -482,7 +475,7 @@ XORDrawMoveOrCopyObject (void)
       {
 	PinTypePtr via = (PinTypePtr) Crosshair.AttachedObject.Ptr1;
 
-	XDrawArc (Dpy, Output.OutputWindow, Crosshair.GC,
+	gdk_draw_arc(Output.drawing_area->window, Crosshair.GC, FALSE,
 		  TO_SCREEN_X (via->X + dx - via->Thickness / 2),
 		  TO_SCREEN_Y (via->Y + dy) - TO_SCREEN (via->Thickness / 2),
 		  TO_SCREEN (via->Thickness),
@@ -504,7 +497,7 @@ XORDrawMoveOrCopyObject (void)
       {
 	ArcTypePtr Arc = (ArcTypePtr) Crosshair.AttachedObject.Ptr2;
 
-	XDrawArc (Dpy, Output.OutputWindow, Crosshair.GC,
+	gdk_draw_arc(Output.drawing_area->window, Crosshair.GC, FALSE,
 		  TO_SCREEN_X (Arc->X + dx) - TO_SCREEN (Arc->Width),
 		  TO_SCREEN_Y (Arc->Y + dy) - TO_SCREEN (Arc->Height),
 		  TO_SCREEN (2 * Arc->Width),
@@ -523,8 +516,8 @@ XORDrawMoveOrCopyObject (void)
 	 * and the last one are set to the same coordinates
 	 */
 	CreateTMPPolygon (polygon, dx, dy);
-	XDrawLines (Dpy, Output.OutputWindow, Crosshair.GC,
-		    Points, polygon->PointN + 1, CoordModeOrigin);
+	gdk_draw_lines(Output.drawing_area->window, Crosshair.GC,
+		    Points, polygon->PointN + 1);
 	break;
       }
 
@@ -572,11 +565,11 @@ XORDrawMoveOrCopyObject (void)
 	  }
 
 	/* draw the two segments */
-	XDrawLine (Dpy, Output.OutputWindow, Crosshair.GC,
+	gdk_draw_line(Output.drawing_area->window, Crosshair.GC,
 		   TO_SCREEN_X (previous->X),
 		   TO_SCREEN_Y (previous->Y),
 		   TO_SCREEN_X (point->X + dx), TO_SCREEN_Y (point->Y + dy));
-	XDrawLine (Dpy, Output.OutputWindow, Crosshair.GC,
+	gdk_draw_line(Output.drawing_area->window, Crosshair.GC,
 		   TO_SCREEN_X (point->X + dx),
 		   TO_SCREEN_Y (point->Y + dy),
 		   TO_SCREEN_X (following->X), TO_SCREEN_Y (following->Y));
@@ -589,7 +582,7 @@ XORDrawMoveOrCopyObject (void)
 	ElementTypePtr element =
 	  (ElementTypePtr) Crosshair.AttachedObject.Ptr1;
 
-	XDrawLine (Dpy, Output.OutputWindow, Crosshair.GC,
+	gdk_draw_line(Output.drawing_area->window, Crosshair.GC,
 		   TO_SCREEN_X (element->MarkX),
 		   TO_SCREEN_Y (element->MarkY),
 		   TO_SCREEN_X (Crosshair.X), TO_SCREEN_Y (Crosshair.Y));
@@ -603,7 +596,7 @@ XORDrawMoveOrCopyObject (void)
 
 	x0 = box->X1;
 	y0 = Settings.ShowSolderSide ? box->Y2 : box->Y1;
-	XDrawRectangle (Dpy, Output.OutputWindow, Crosshair.GC,
+	gdk_draw_rectangle(Output.drawing_area->window, Crosshair.GC, FALSE,
 			TO_SCREEN_X (x0 + dx),
 			TO_SCREEN_Y (y0 + dy),
 			TO_SCREEN (box->X2 - box->X1),
@@ -665,7 +658,7 @@ DrawAttached (Boolean BlockToo)
   switch (Settings.Mode)
     {
     case VIA_MODE:
-      XDrawArc (Dpy, Output.OutputWindow, Crosshair.GC,
+      gdk_draw_arc(Output.drawing_area->window, Crosshair.GC, FALSE,
 		TO_SCREEN_X (Crosshair.X - Settings.ViaThickness / 2),
 		TO_SCREEN_Y (Crosshair.Y) -
 		TO_SCREEN (Settings.ViaThickness / 2),
@@ -673,14 +666,14 @@ DrawAttached (Boolean BlockToo)
 		TO_SCREEN (Settings.ViaThickness), 0, 360 * 64);
       if (TEST_FLAG (SHOWDRCFLAG, PCB))
 	{
-	  s = Settings.ViaThickness + 2 * (Settings.Bloat + 1);
-	  XSetForeground (Dpy, Crosshair.GC, Settings.CrossColor);
-	  XDrawArc (Dpy, Output.OutputWindow, Crosshair.GC,
+	  s = Settings.ViaThickness + 2 * (PCB->Bloat + 1);
+	  gdk_gc_set_foreground(Crosshair.GC, &Settings.CrossColor);
+	  gdk_draw_arc(Output.drawing_area->window, Crosshair.GC, FALSE,
 		    TO_SCREEN_X (Crosshair.X - s / 2),
 		    TO_SCREEN_Y (Crosshair.Y) -
 		    TO_SCREEN (s / 2),
 		    TO_SCREEN (s), TO_SCREEN (s), 0, 360 * 64);
-	  XSetForeground (Dpy, Crosshair.GC, Settings.CrosshairColor);
+	  gdk_gc_set_foreground(Crosshair.GC, &Settings.CrosshairColor);
 	}
       break;
 
@@ -688,7 +681,7 @@ DrawAttached (Boolean BlockToo)
     case POLYGON_MODE:
       /* draw only if starting point is set */
       if (Crosshair.AttachedLine.State != STATE_FIRST)
-	XDrawLine (Dpy, Output.OutputWindow, Crosshair.GC,
+	gdk_draw_line(Output.drawing_area->window, Crosshair.GC,
 		   TO_SCREEN_X (Crosshair.AttachedLine.Point1.X),
 		   TO_SCREEN_Y (Crosshair.AttachedLine.Point1.Y),
 		   TO_SCREEN_X (Crosshair.AttachedLine.Point2.X),
@@ -698,9 +691,8 @@ DrawAttached (Boolean BlockToo)
       if (Crosshair.AttachedPolygon.PointN > 1)
 	{
 	  CreateTMPPolygon (&Crosshair.AttachedPolygon, 0, 0);
-	  XDrawLines (Dpy, Output.OutputWindow, Crosshair.GC,
-		      Points, Crosshair.AttachedPolygon.PointN,
-		      CoordModeOrigin);
+	  gdk_draw_lines(Output.drawing_area->window, Crosshair.GC,
+		      Points, Crosshair.AttachedPolygon.PointN);
 	}
       break;
 
@@ -710,10 +702,10 @@ DrawAttached (Boolean BlockToo)
 	  XORDrawAttachedArc (Settings.LineThickness);
 	  if (TEST_FLAG (SHOWDRCFLAG, PCB))
 	    {
-	      XSetForeground (Dpy, Crosshair.GC, Settings.CrossColor);
+	      gdk_gc_set_foreground(Crosshair.GC, &Settings.CrossColor);
 	      XORDrawAttachedArc (Settings.LineThickness +
-				  2 * (Settings.Bloat + 1));
-	      XSetForeground (Dpy, Crosshair.GC, Settings.CrosshairColor);
+				  2 * (PCB->Bloat + 1));
+	      gdk_gc_set_foreground(Crosshair.GC, &Settings.CrosshairColor);
 	    }
 
 	}
@@ -737,21 +729,21 @@ DrawAttached (Boolean BlockToo)
 				 PCB->RatDraw ? 10 : Settings.LineThickness);
 	  if (TEST_FLAG (SHOWDRCFLAG, PCB))
 	    {
-	      XSetForeground (Dpy, Crosshair.GC, Settings.CrossColor);
+	      gdk_gc_set_foreground(Crosshair.GC, &Settings.CrossColor);
 	      XORDrawAttachedLine (Crosshair.AttachedLine.Point1.X,
 				   Crosshair.AttachedLine.Point1.Y,
 				   Crosshair.AttachedLine.Point2.X,
 				   Crosshair.AttachedLine.Point2.Y,
 				   PCB->RatDraw ? 10 : Settings.LineThickness
-				   + 2 * (Settings.Bloat + 1));
+				   + 2 * (PCB->Bloat + 1));
 	      if (PCB->Clipping)
 		XORDrawAttachedLine (Crosshair.AttachedLine.Point2.X,
 				     Crosshair.AttachedLine.Point2.Y,
 				     Crosshair.X, Crosshair.Y,
 				     PCB->RatDraw ? 10 : Settings.
-				     LineThickness + 2 * (Settings.Bloat +
+				     LineThickness + 2 * (PCB->Bloat +
 							  1));
-	      XSetForeground (Dpy, Crosshair.GC, Settings.CrosshairColor);
+	      gdk_gc_set_foreground(Crosshair.GC, &Settings.CrosshairColor);
 	    }
 	}
       break;
@@ -785,7 +777,7 @@ DrawAttached (Boolean BlockToo)
       y2 =
 	MAX (Crosshair.AttachedBox.Point1.Y, Crosshair.AttachedBox.Point2.Y);
       y0 = Settings.ShowSolderSide ? y2 : y1;
-      XDrawRectangle (Dpy, Output.OutputWindow, Crosshair.GC,
+      gdk_draw_rectangle(Output.drawing_area->window, Crosshair.GC, FALSE,
 		      TO_SCREEN_X (x1),
 		      TO_SCREEN_Y (y0),
 		      TO_SCREEN (x2 - x1), TO_SCREEN (y2 - y1));
@@ -797,30 +789,30 @@ DrawAttached (Boolean BlockToo)
  */
 void
 CrosshairOn (Boolean BlockToo)
-{
-  if (!Crosshair.On)
-    {
-      Crosshair.On = True;
-      XSync (Dpy, False);
-      DrawAttached (BlockToo);
-      DrawMark (True);
-    }
-}
+	{
+	if (!Crosshair.On)
+		{
+		Crosshair.On = True;
+		gdk_display_sync(gdk_drawable_get_display(Output.drawing_area->window));
+		DrawAttached (BlockToo);
+		DrawMark (True);
+		}
+	}
 
 /* ---------------------------------------------------------------------------
  * switches crosshair off
  */
 void
 CrosshairOff (Boolean BlockToo)
-{
-  if (Crosshair.On)
-    {
-      Crosshair.On = False;
-      XSync (Dpy, False);
-      DrawAttached (BlockToo);
-      DrawMark (True);
-    }
-}
+	{
+	if (Crosshair.On)
+		{
+		Crosshair.On = False;
+		gdk_display_sync(gdk_drawable_get_display(Output.drawing_area->window));
+		DrawAttached (BlockToo);
+		DrawMark (True);
+		}
+	}
 
 /* ---------------------------------------------------------------------------
  * saves crosshair state (on/off) and hides him
@@ -1062,23 +1054,24 @@ SetCrosshairRange (LocationType MinX, LocationType MinY, LocationType MaxX, Loca
  * if argument is True, draw only if it is visible, otherwise draw it regardless
  */
 void
-DrawMark (Boolean ifvis)
-{
-  XSync (Dpy, False);
-  if (Marked.status || !ifvis)
-    {
-      XDrawLine (Dpy, Output.OutputWindow, Crosshair.GC,
-		 TO_SCREEN_X (Marked.X - MARK_SIZE),
-		 TO_SCREEN_Y (Marked.Y - MARK_SIZE),
-		 TO_SCREEN_X (Marked.X + MARK_SIZE),
-		 TO_SCREEN_Y (Marked.Y + MARK_SIZE));
-      XDrawLine (Dpy, Output.OutputWindow, Crosshair.GC,
-		 TO_SCREEN_X (Marked.X + MARK_SIZE),
-		 TO_SCREEN_Y (Marked.Y - MARK_SIZE),
-		 TO_SCREEN_X (Marked.X - MARK_SIZE),
-		 TO_SCREEN_Y (Marked.Y + MARK_SIZE));
-    }
-}
+DrawMark (gboolean ifvis)
+	{
+	gdk_display_sync(gdk_drawable_get_display(Output.drawing_area->window));
+
+	if (Marked.status || !ifvis)
+		{
+		gdk_draw_line(Output.drawing_area->window, Crosshair.GC,
+				TO_SCREEN_X (Marked.X - MARK_SIZE),
+				TO_SCREEN_Y (Marked.Y - MARK_SIZE),
+				TO_SCREEN_X (Marked.X + MARK_SIZE),
+				TO_SCREEN_Y (Marked.Y + MARK_SIZE));
+		gdk_draw_line(Output.drawing_area->window, Crosshair.GC,
+				TO_SCREEN_X (Marked.X + MARK_SIZE),
+				TO_SCREEN_Y (Marked.Y - MARK_SIZE),
+				TO_SCREEN_X (Marked.X - MARK_SIZE),
+				TO_SCREEN_Y (Marked.Y + MARK_SIZE));
+		}
+	}
 
 /* ---------------------------------------------------------------------------
  * initializes crosshair stuff
@@ -1087,38 +1080,42 @@ DrawMark (Boolean ifvis)
  */
 void
 InitCrosshair (void)
-{
-  /* clear struct */
-  memset (&Crosshair, 0, sizeof (CrosshairType));
+	{
+	GdkGC	*xGC;
 
-  Crosshair.GC = XCreateGC (Dpy, Output.OutputWindow, 0, NULL);
-  if (!VALID_GC ((long int) Crosshair.GC))
-    MyFatal ("can't create default crosshair GC\n");
-  XSetState (Dpy, Crosshair.GC, Settings.CrosshairColor, Settings.bgColor,
-	     GXxor, AllPlanes);
-  XSetLineAttributes (Dpy, Crosshair.GC, 1, LineSolid, CapButt, JoinMiter);
+	xGC = Crosshair.GC = gdk_gc_new(Output.drawing_area->window);
+	gdk_gc_copy(xGC, Output.drawing_area->style->white_gc );
 
-  /* fake an crosshair off entry on stack */
-  CrosshairStackLocation = 0;
-  CrosshairStack[CrosshairStackLocation++] = True;
-  Crosshair.On = False;
+	if (!xGC)
+		MyFatal ("can't create default crosshair GC\n");
 
-  /* set default limits */
-  Crosshair.MinX = Crosshair.MinY = 0;
-  Crosshair.MaxX = PCB->MaxWidth;
-  Crosshair.MaxY = PCB->MaxHeight;
+	gdk_gc_set_foreground(xGC, &Settings.CrosshairColor);
+	gdk_gc_set_background(xGC, &Settings.BackgroundColor);
+	gdk_gc_set_function(xGC, GDK_XOR);
+	gdk_gc_set_line_attributes(xGC, 1,
+				GDK_LINE_SOLID, GDK_CAP_BUTT, GDK_JOIN_MITER);
 
-  /* clear the mark */
-  Marked.status = False;
-}
+	/* fake a crosshair off entry on stack */
+	CrosshairStackLocation = 0;
+	CrosshairStack[CrosshairStackLocation++] = True;
+	Crosshair.On = False;
+
+	/* set default limits */
+	Crosshair.MinX = Crosshair.MinY = 0;
+	Crosshair.MaxX = PCB->MaxWidth;
+	Crosshair.MaxY = PCB->MaxHeight;
+
+	/* clear the mark */
+	Marked.status = False;
+	}
 
 /* ---------------------------------------------------------------------------
  * exits crosshair routines, release GCs
  */
 void
 DestroyCrosshair (void)
-{
-  CrosshairOff (True);
-  FreePolygonMemory (&Crosshair.AttachedPolygon);
-  XFreeGC (Dpy, Crosshair.GC);
-}
+	{
+	CrosshairOff (True);
+	FreePolygonMemory (&Crosshair.AttachedPolygon);
+	gdk_gc_unref(Crosshair.GC);
+	}

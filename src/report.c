@@ -37,50 +37,17 @@
 #include "report.h"
 #include "crosshair.h"
 #include "data.h"
-#include "dialog.h"
 #include "drill.h"
 #include "error.h"
-#include "gui.h"
 #include "search.h"
 #include "misc.h"
 #include "mymem.h"
 
-
-#include <X11/Shell.h>
-#include <X11/Xaw/AsciiText.h>
-#include <X11/Xaw/Command.h>
-#include <X11/Xaw/Dialog.h>
-#include <X11/Xaw/Form.h>
-#include <X11/Xaw/Label.h>
-#include <X11/Xaw/Toggle.h>
-
-#ifdef HAVE_LIBDMALLOC
-#include <dmalloc.h>
-#endif
+#include "gui.h"
 
 RCSID("$Id$");
 
 
-static long int ReturnCode;	/* filled in by dialog */
-
-/*
- * some local prototypes
- */
-static void CB_OK (Widget, XtPointer, XtPointer);
-
-static DialogButtonType button =
-  { "defaultButton", "  OK  ", CB_OK, (XtPointer) OK_BUTTON, NULL };
-
-/* ---------------------------------------------------------------------------
- * callback for standard dialog
- * just copies the button-code which is passed as ClientData to a
- * public identifier
- */
-static void
-CB_OK (Widget W, XtPointer ClientData, XtPointer CallData)
-{
-  ReturnCode = (long int) ClientData;
-}
 
 void
 ReportDrills (void)
@@ -88,7 +55,6 @@ ReportDrills (void)
   DrillInfoTypePtr AllDrills;
   Cardinal n;
   char *stringlist, *thestring;
-  Widget popup;
   int total_drills = 0;
 
   AllDrills = GetDrillInfo (PCB->Data);
@@ -100,10 +66,14 @@ ReportDrills (void)
       total_drills += AllDrills->Drill[n].UnplatedCount;
     }
 
-  stringlist = malloc (512L + AllDrills->DrillN * 64L);
+  stringlist = g_malloc (512L + AllDrills->DrillN * 64L);
+
+    /* Use tabs for formatting since can't count on a fixed font anymore.
+    |  And even that probably isn't going to work in all cases.
+    */
   sprintf (stringlist,
 	   "There are %d different drill sizes used in this layout, %d holes total\n\n"
-	   "Drill Diam. (mils)      # of Pins     # of Vias    # of Elements    # Unplated\n",
+	   "Drill Diam. (mils)\t# of Pins\t# of Vias\t# of Elements\t# Unplated\n",
 	   AllDrills->DrillN, total_drills);
   thestring = stringlist;
   while (*thestring != '\0')
@@ -111,7 +81,7 @@ ReportDrills (void)
   for (n = 0; n < AllDrills->DrillN; n++)
     {
       sprintf (thestring,
-	       "  %5d                 %5d          %5d            %5d           %5d\n",
+	       "\t%d\t\t\t%d\t\t%d\t\t%td\t\t\t%d\n",
 	       AllDrills->Drill[n].DrillSize / 100,
 	       AllDrills->Drill[n].PinCount, AllDrills->Drill[n].ViaCount,
 	       AllDrills->Drill[n].ElementN,
@@ -121,12 +91,8 @@ ReportDrills (void)
     }
   FreeDrillInfo (AllDrills);
   /* create dialog box */
-  popup = CreateDialogBox (stringlist, &button, 1, "Drill Report");
-  StartDialog (popup);
+  gui_dialog_report(_("Drill Report"), stringlist);
 
-  /* wait for dialog to complete */
-  DialogEventLoop (&ReturnCode);
-  EndDialog (popup);
   SaveFree (stringlist);
 }
 
@@ -136,7 +102,6 @@ ReportDialog (void)
   void *ptr1, *ptr2, *ptr3;
   int type;
   char report[2048];
-  Widget popup;
 
   switch (type = SearchScreen (Crosshair.X, Crosshair.Y,
 			       REPORT_TYPES, &ptr1, &ptr2, &ptr3))
@@ -144,7 +109,7 @@ ReportDialog (void)
     case VIA_TYPE:
       {
 #ifndef NDEBUG
-	if (ShiftPressed ())
+	if (gui_shift_is_pressed())
 	  {
 	    __r_dump_tree (PCB->Data->via_tree->root, 0);
 	    return;
@@ -176,7 +141,7 @@ ReportDialog (void)
     case PIN_TYPE:
       {
 #ifndef NDEBUG
-	if (ShiftPressed ())
+	if (gui_shift_is_pressed())
 	  {
 	    __r_dump_tree (PCB->Data->pin_tree->root, 0);
 	    return;
@@ -218,7 +183,7 @@ ReportDialog (void)
     case LINE_TYPE:
       {
 #ifndef NDEBUG
-	if (ShiftPressed ())
+	if (gui_shift_is_pressed())
 	  {
 	    LayerTypePtr layer = (LayerTypePtr) ptr1;
 	    __r_dump_tree (layer->line_tree->root, 0);
@@ -247,7 +212,7 @@ ReportDialog (void)
     case RATLINE_TYPE:
       {
 #ifndef NDEBUG
-	if (ShiftPressed ())
+	if (gui_shift_is_pressed())
 	  {
 	    __r_dump_tree (PCB->Data->rat_tree->root, 0);
 	    return;
@@ -269,7 +234,7 @@ ReportDialog (void)
     case ARC_TYPE:
       {
 #ifndef NDEBUG
-	if (ShiftPressed ())
+	if (gui_shift_is_pressed())
 	  {
 	    LayerTypePtr layer = (LayerTypePtr) ptr1;
 	    __r_dump_tree (layer->arc_tree->root, 0);
@@ -303,7 +268,7 @@ ReportDialog (void)
 	PolygonTypePtr Polygon = (PolygonTypePtr) ptr2;
 
 	sprintf (&report[0], "POLYGON ID# %ld   Flags:0x%08lx\n"
-		 "It's bounding box is (%d,%d) (%d,%d)\n"
+		 "Its bounding box is (%d,%d) (%d,%d)\n"
 		 "It has %d points and could store %d more\n"
 		 "without using more memory.\n"
 		 "It resides on layer %d\n"
@@ -319,7 +284,7 @@ ReportDialog (void)
     case PAD_TYPE:
       {
 #ifndef NDEBUG
-	if (ShiftPressed ())
+	if (gui_shift_is_pressed())
 	  {
 	    __r_dump_tree (PCB->Data->pad_tree->root, 0);
 	    return;
@@ -359,7 +324,7 @@ ReportDialog (void)
     case ELEMENT_TYPE:
       {
 #ifndef NDEBUG
-	if (ShiftPressed ())
+	if (gui_shift_is_pressed())
 	  {
 	    __r_dump_tree (PCB->Data->element_tree->root, 0);
 	    return;
@@ -371,7 +336,7 @@ ReportDialog (void)
 		 "Descriptive Name \"%s\"\n"
 		 "Name on board \"%s\"\n"
 		 "Part number name \"%s\"\n"
-		 "It's name is %0.2f mils tall and is located at (X,Y) = (%d,%d)\n"
+		 "It is %0.2f mils tall and is located at (X,Y) = (%d,%d)\n"
 		 "%s"
 		 "Mark located at point (X,Y) = (%d,%d)\n"
 		 "It is on the %s side of the board.\n"
@@ -393,7 +358,7 @@ ReportDialog (void)
       }
     case TEXT_TYPE:
 #ifndef NDEBUG
-      if (ShiftPressed ())
+      if (gui_shift_is_pressed())
 	{
 	  LayerTypePtr layer = (LayerTypePtr) ptr1;
 	  __r_dump_tree (layer->text_tree->root, 0);
@@ -403,7 +368,7 @@ ReportDialog (void)
     case ELEMENTNAME_TYPE:
       {
 #ifndef NDEBUG
-	if (ShiftPressed ())
+	if (gui_shift_is_pressed())
 	  {
 	    __r_dump_tree (PCB->Data->name_tree[NAME_INDEX (PCB)]->root, 0);
 	    return;
@@ -454,18 +419,14 @@ ReportDialog (void)
 
   if (report[0] == '\0')
     {
-      Message ("Nothing found to report on\n");
+      Message (_("Nothing found to report on\n"));
       return;
     }
   HideCrosshair (False);
   /* create dialog box */
-  popup = CreateDialogBox (&report[0], &button, 1, "Report");
-  StartDialog (popup);
+  gui_dialog_report(_("Report"), &report[0]);
 
-  /* wait for dialog to complete */
-  DialogEventLoop (&ReturnCode);
   RestoreCrosshair (False);
-  EndDialog (popup);
 }
 
 void
@@ -474,7 +435,6 @@ ReportFoundPins (void)
   static DynamicStringType list;
   char temp[64];
   int col = 0;
-  Widget popup;
 
   DSClearString (&list);
   DSAddString (&list, "The following pins/pads are FOUND:\n");
@@ -505,13 +465,8 @@ ReportFoundPins (void)
     END_LOOP;
   }
   END_LOOP;
-  HideCrosshair (False);
-  /* create dialog box */
-  popup = CreateDialogBox (list.Data, &button, 1, "Report");
-  StartDialog (popup);
 
-  /* wait for dialog to complete */
-  DialogEventLoop (&ReturnCode);
+  HideCrosshair (False);
+  gui_dialog_report(_("Report"), list.Data);
   RestoreCrosshair (False);
-  EndDialog (popup);
 }

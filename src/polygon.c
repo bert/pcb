@@ -55,6 +55,8 @@
 #include "set.h"
 #include "undo.h"
 
+#include "gui.h"
+
 #ifdef HAVE_LIBDMALLOC
 #include <dmalloc.h>
 #endif
@@ -204,7 +206,7 @@ ClosePolygon (void)
 	  if (!(dx == 0 || dy == 0 || dx == dy))
 	    {
 	      Message
-		("Cannot close polygon because 45 degree lines are requested.\n");
+		(_("Cannot close polygon because 45 degree lines are requested.\n"));
 	      return;
 	    }
 	}
@@ -212,7 +214,7 @@ ClosePolygon (void)
       Draw ();
     }
   else
-    Message ("a polygon has to have at least 3 points\n");
+    Message (_("A polygon has to have at least 3 points\n"));
 }
 
 /* ---------------------------------------------------------------------------
@@ -328,7 +330,7 @@ DoPIPFlags (PinTypePtr Pin, ElementTypePtr Element,
       if (TEST_FLAG (HOLEFLAG, Pin) && !TEST_FLAG (WARNFLAG, Pin))
 	{
 	  Message
-	    ("WARNING Unplated hole piercing or too close to polygon\n");
+	    (_("Warning! Unplated hole piercing or too close to polygon\n"));
 	  SET_FLAG (WARNFLAG, Pin);
 	}
       if (!TEST_FLAG (CLEARPOLYFLAG, Polygon))

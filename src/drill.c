@@ -121,7 +121,7 @@ DrillInfoTypePtr
 GetDrillInfo (DataTypePtr top)
 {
   DrillInfoTypePtr AllDrills;
-  DrillTypePtr Drill;
+  DrillTypePtr Drill = NULL;
   DrillType savedrill, swapdrill;
   Boolean DrillFound = False;
   Boolean NewDrill;

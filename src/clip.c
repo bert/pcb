@@ -155,7 +155,7 @@ do_Y:
 }
 
 /* clip a line to the displayed area */
-void XDrawCLine (Display *dpy, Drawable d, GC gc, int x1,
+void XDrawCLine (GdkDrawable *d, GdkGC *gc, int x1,
                  int y1, int x2, int y2)
 {
   PointType pts[2];
@@ -166,12 +166,12 @@ void XDrawCLine (Display *dpy, Drawable d, GC gc, int x1,
   pts[1].Y = y2;
 
   if (ClipLine (pts))
-    XDrawLine (dpy, d, gc, TO_DRAW_X (pts[0].X), TO_DRAW_Y (pts[0].Y),
+    gdk_draw_line(d, gc, TO_DRAW_X (pts[0].X), TO_DRAW_Y (pts[0].Y),
                TO_DRAW_X (pts[1].X), TO_DRAW_Y (pts[1].Y));
 }
 
 /* clip an arc to the displayed area and draw it */
-void XDrawCArc (Display *dpy, Drawable d, GC gc, int x, int y,
+void XDrawCArc (GdkDrawable *d, GdkGC *gc, int x, int y,
                 unsigned int width, unsigned int height, int angle,
 		int delta)
 {
@@ -247,19 +247,19 @@ void XDrawCArc (Display *dpy, Drawable d, GC gc, int x, int y,
       if (theta > start && theta < end)
 	end = theta;
     }
-  XDrawArc (dpy, d, gc, TO_DRAW_X(x) - TO_SCREEN(width)/2,
+  gdk_draw_arc(d, gc, FALSE, TO_DRAW_X(x) - TO_SCREEN(width)/2,
             TO_DRAW_Y(y) - TO_SCREEN(height)/2,
             TO_SCREEN(width), TO_SCREEN(height), TO_SCREEN_ANGLE(start),
 	    TO_SCREEN_DELTA(end - start));
 }
 
 /* clip a polygon to the visible region and draw it */
-void DrawCPolygon (Drawable Window, PolygonTypePtr Polygon)
+void DrawCPolygon (GdkDrawable *Window, PolygonTypePtr Polygon)
 {
-  static int max = 0;
-  static PointType *pts;
-  static XPoint *data;
-  Cardinal i, j = 0;
+  static gint		max = 0;
+  static PointType	*pts;
+  static GdkPoint	*data;
+  gint				i, j = 0;
 
   /* allocate memory for data with screen coordinates */
   if (2*Polygon->PointN > max)
@@ -267,7 +267,7 @@ void DrawCPolygon (Drawable Window, PolygonTypePtr Polygon)
       max = 2*Polygon->PointN + 20;
       pts = (PointType *) MyRealloc (pts, (max + 1) * sizeof (PointType),
 				   "DrawPolygonLowLevel()");
-      data = (XPoint *) MyRealloc (data, (max + 1) * sizeof (XPoint),
+      data = (GdkPoint *) MyRealloc (data, (max + 1) * sizeof (GdkPoint),
 				   "DrawPolygonLowLevel()");
     }
 
@@ -302,10 +302,10 @@ void DrawCPolygon (Drawable Window, PolygonTypePtr Polygon)
   if (TEST_FLAG (THINDRAWFLAG, PCB))
     {
       data[Polygon->PointN] = data[0];
-      XDrawLines (Dpy, Window, Output.fgGC,
-    	         data, j + 1, CoordModeOrigin);
+      gdk_draw_lines(Window, Output.fgGC,
+    	         data, j + 1);
     }
   else
-    XFillPolygon (Dpy, Window, Output.fgGC,
-                 data, j, Complex, CoordModeOrigin);
+    gdk_draw_polygon(Window, Output.fgGC, TRUE,
+                 data, j);
 }

@@ -283,9 +283,9 @@ pcbdrc1
                 :
 		| T_DRC '[' NUMBER NUMBER NUMBER ']'
 		        {
-				Settings.Bloat = $3;
-				Settings.Shrink = $4;
-				Settings.minWid = $5;
+				yyPCB->Bloat = $3;
+				yyPCB->Shrink = $4;
+				yyPCB->minWid = $5;
 			}
 		;
 
@@ -293,10 +293,10 @@ pcbdrc2
                 :
 		| T_DRC '[' NUMBER NUMBER NUMBER NUMBER ']'
 		        {
-				Settings.Bloat = $3;
-				Settings.Shrink = $4;
-				Settings.minWid = $5;
-				Settings.minSlk = $6;
+				yyPCB->Bloat = $3;
+				yyPCB->Shrink = $4;
+				yyPCB->minWid = $5;
+				yyPCB->minSlk = $6;
 			}
 		;
 

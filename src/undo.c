@@ -54,7 +54,6 @@
 #include "change.h"
 #include "create.h"
 #include "data.h"
-#include "dialog.h"
 #include "draw.h"
 #include "error.h"
 #include "insert.h"
@@ -67,6 +66,8 @@
 #include "search.h"
 #include "set.h"
 #include "undo.h"
+
+#include "gui.h"
 
 #ifdef HAVE_LIBDMALLOC
 #include <dmalloc.h>
@@ -199,7 +200,7 @@ GetUndoSlot (int CommandType, int ID, int Kind)
       if (size > limit)
 	{
 	  limit = (size / UNDO_WARNING_SIZE + 1) * UNDO_WARNING_SIZE;
-	  Message ("size of 'undo-list' exceeds %li kb\n",
+	  Message (_("Size of 'undo-list' exceeds %li kb\n"),
 		   (long) (size >> 10));
 	}
     }
@@ -705,7 +706,7 @@ Undo (Boolean draw)
       if (!UndoN)
 	{
 	  if (!Serial)
-	    Message ("Nothing to undo - buffer is empty\n");
+	    Message (_("Nothing to undo - buffer is empty\n"));
 	  else
 	    Serial--;
 	  return (False);
@@ -717,7 +718,7 @@ Undo (Boolean draw)
       ptr = &UndoList[UndoN - 1];
       if (ptr->Serial != Serial - 1)
 	{
-	  Message ("hace undo bad serial number %d expecting %d\n",
+	  Message (_("Undo bad serial number %d expecting %d\n"),
 		   ptr->Serial, Serial - 1);
 	  Serial = ptr->Serial + 1;
 	  return (False);
@@ -830,7 +831,7 @@ Redo (Boolean draw)
       if (!RedoN)
 	{
 	  Message
-	    ("Nothing to redo. Perhaps changes have been made since last undo\n");
+	  (_("Nothing to redo. Perhaps changes have been made since last undo\n"));
 	  return (False);
 	}
 
@@ -898,7 +899,7 @@ ClearUndoList (Boolean Force)
 {
   UndoListTypePtr undo;
 
-  if (UndoN && (Force || ConfirmDialog ("OK to clear 'undo' buffer ?")))
+  if (UndoN && (Force || gui_dialog_confirm(_("OK to clear 'undo' buffer?"))))
     {
       /* release memory allocated by objects in undo list */
       for (undo = UndoList; UndoN; undo++, UndoN--)

@@ -30,27 +30,19 @@
 #include "config.h"
 #endif
 
-#include <stdlib.h>
-#include <stdarg.h>
-#include <string.h>
-#include <signal.h>
-#include <memory.h>
-#include <limits.h>
-#include <math.h>
-
 #include "global.h"
 
+#include <memory.h>
+#include <limits.h>
+
+
 #include "data.h"
-#include "dialog.h"
 #include "create.h"
 #include "remove.h"
 #include "move.h"
 #include "draw.h"
 #include "undo.h"
 
-#ifdef HAVE_LIBDMALLOC
-#include <dmalloc.h>
-#endif
      
 RCSID("$Id$");
 
@@ -60,7 +52,7 @@ RCSID("$Id$");
 
 #define dprintf if(0)printf
 
-#define SB (Settings.Bloat+1)
+#define SB (PCB->Bloat+1)
 
 /* must be 2^N-1 */
 #define INC 7
@@ -119,7 +111,7 @@ static int autorouted_only = 1;
 
 /* ACTION(OptAutoOnly,djopt_set_auto_only) */
 void
-djopt_set_auto_only (Widget w, XEvent * e, String * argv, Cardinal * argc)
+djopt_set_auto_only (void)
 {
   autorouted_only = autorouted_only ? 0 : 1;
 }
@@ -415,6 +407,8 @@ line_orient (line_s * l, corner_s * c)
   return DIAGONAL;
 }
 
+#if 0
+/* Not used */
 static corner_s *
 common_corner (line_s * l1, line_s * l2)
 {
@@ -425,6 +419,7 @@ common_corner (line_s * l1, line_s * l2)
   dj_abort ("common_corner: no common corner found\n");
   return NULL;
 }
+#endif
 
 static corner_s *
 other_corner (line_s * l, corner_s * c)
@@ -468,7 +463,7 @@ find_corner (int x, int y, int l)
 	continue;
       return c;
     }
-  c = (corner_s *) malloc (sizeof (corner_s));
+  c = (corner_s *) g_malloc (sizeof (corner_s));
   c->next = corners;
   corners = c;
   c->x = x;
@@ -479,7 +474,7 @@ find_corner (int x, int y, int l)
   c->pin = 0;
   c->layer = l;
   c->n_lines = 0;
-  c->lines = (line_s **) malloc (INC * sizeof (line_s *));
+  c->lines = (line_s **) g_malloc (INC * sizeof (line_s *));
   return c;
 }
 
@@ -488,7 +483,7 @@ add_line_to_corner (line_s * l, corner_s * c)
 {
   int n;
   n = (c->n_lines + 1 + INC) & ~INC;
-  c->lines = (line_s **) realloc (c->lines, n * sizeof (line_s *));
+  c->lines = (line_s **) g_realloc (c->lines, n * sizeof (line_s *));
   c->lines[c->n_lines] = l;
   c->n_lines++;
   dprintf ("add_line_to_corner %d %d\n", c->x, c->y);
@@ -537,7 +532,7 @@ new_line (corner_s * s, corner_s * e, int layer, LineType * example)
   if (s->x == e->x && s->y == e->y)
     return;
 
-  ls = (line_s *) malloc (sizeof (line_s));
+  ls = (line_s *) g_malloc (sizeof (line_s));
   ls->next = lines;
   lines = ls;
   ls->s = s;
@@ -572,6 +567,8 @@ new_line (corner_s * s, corner_s * e, int layer, LineType * example)
   check (e, ls);
 }
 
+#if 0
+/* Not used */
 static int
 c_orth_to (corner_s * c, line_s * l, int o)
 {
@@ -588,6 +585,7 @@ c_orth_to (corner_s * c, line_s * l, int o)
     }
   return rv;
 }
+#endif
 
 static line_s *
 other_line (corner_s * c, line_s * l)
@@ -687,6 +685,8 @@ corner_radius (corner_s * c)
   return diam;
 }
 
+#if 0
+/* Not used */
 static int
 corner_layer (corner_s * c)
 {
@@ -696,6 +696,7 @@ corner_layer (corner_s * c)
     return -1;
   return c->lines[0]->layer;
 }
+#endif
 
 static void
 add_corner_to_rect_if (rect_s * rect, corner_s * c, rect_s * e)
@@ -822,7 +823,7 @@ remove_corner (corner_s * c2)
     }
   if (next_corner == c2)
     next_corner = c2->next;
-  free (c2->lines);
+  g_free (c2->lines);
   c2->lines = 0;
   DELETE (c2);
 }
@@ -917,7 +918,7 @@ move_corner (corner_s * c, int x, int y)
 	    break;
 	  }
       }
-  XFlush (Dpy);
+  gdk_display_sync(gdk_drawable_get_display(Output.drawing_area->window));
   check (c, 0);
 }
 
@@ -983,7 +984,7 @@ split_line (line_s * l, corner_s * c)
 
   dprintf ("split line from %d,%d to %d,%d at %d,%d\n",
 	   l->s->x, l->s->y, l->e->x, l->e->y, c->x, c->y);
-  ls = (line_s *) malloc (sizeof (line_s));
+  ls = (line_s *) g_malloc (sizeof (line_s));
 
   ls->next = lines;
   lines = ls;
@@ -1160,17 +1161,17 @@ orthopull_1 (corner_s * c, int fdir, int rdir, int any_sel)
   int i, li, ln, cn, snap;
   line_s *l = 0;
   corner_s *c2, *cb;
-  int adir, sdir, pull;
+  int adir = 0, sdir = 0, pull;
   int saw_sel = 0, saw_auto = 0;
-  int max, len, r1 = 0, r2;
+  int max, len = 0, r1 = 0, r2;
   rect_s rr;
-  int edir, done;
+  int edir = 0, done;
 
   if (cs == 0)
     {
-      cs = (corner_s **) malloc (10 * sizeof (corner_s));
+      cs = (corner_s **) g_malloc (10 * sizeof (corner_s));
       cm = 10;
-      ls = (line_s **) malloc (10 * sizeof (line_s));
+      ls = (line_s **) g_malloc (10 * sizeof (line_s));
       lm = 10;
     }
 
@@ -1206,7 +1207,7 @@ orthopull_1 (corner_s * c, int fdir, int rdir, int any_sel)
       if (cn >= cm)
 	{
 	  cm = cn + 10;
-	  cs = (corner_s **) realloc (cs, cm * sizeof (corner_s));
+	  cs = (corner_s **) g_realloc (cs, cm * sizeof (corner_s));
 	}
       cs[cn++] = c2;
       r2 = corner_radius (c2);
@@ -1240,7 +1241,7 @@ orthopull_1 (corner_s * c, int fdir, int rdir, int any_sel)
       if (ln >= lm)
 	{
 	  lm = ln + 10;
-	  ls = (line_s **) realloc (ls, lm * sizeof (line_s));
+	  ls = (line_s **) g_realloc (ls, lm * sizeof (line_s));
 	}
       ls[ln++] = l;
       c2 = other_corner (l, c2);
@@ -1438,7 +1439,7 @@ orthopull_1 (corner_s * c, int fdir, int rdir, int any_sel)
       for (i = 0; i < cn; i++)
 	{
 	  int r = l->line->Thickness + SB + corner_radius (cs[i]) + 1;
-	  int len;
+	  int len = 0;
 	  if ((fdir == RIGHT && (x2 < cs[i]->x || x1 > cs[i]->x))
 	      || (fdir == DOWN && (y2 < cs[i]->y || y1 > cs[i]->y)))
 	    continue;
@@ -1871,7 +1872,7 @@ vianudge ()
   for (c = corners; c; c = c->next)
     {
       int o, i, vr, cr, oboth;
-      int len, saved = 0;
+      int len = 0, saved = 0;
 
       if (DELETED (c))
 	continue;
@@ -2324,6 +2325,8 @@ classify_nets ()
     }
 }
 
+#if 0
+/* Not used */
 static void
 dump_all ()
 {
@@ -2344,6 +2347,7 @@ dump_all ()
 	      (void *) l, (void *) (l->s), (void *) (l->e), l->layer);
     }
 }
+#endif
 
 static void
 nudge_corner (corner_s * c, int dx, int dy, corner_s * prev_corner)
@@ -2454,12 +2458,12 @@ pinsnap ()
   int best_dist[MAX_LAYER + 1];
   corner_s *best_c[MAX_LAYER + 1];
   int l, got_one;
-  int left, right, top, bottom;
+  int left = 0, right = 0, top = 0, bottom = 0;
   PinType *pin;
   int again = 1;
 
   corner_s *prev_c;
-  int close;
+  int close = 0;
   corner_s *c2;
 
   /* Look for pins that have no connections.  See if there's a corner
@@ -2771,14 +2775,14 @@ grok_layer_groups ()
 }
 
 void
-ActionDJopt (Widget w, XEvent * e, String * argv, Cardinal * argc)
+ActionDJopt (gchar *arg)
 {
   int layn, saved = 0;
   corner_s *c;
 
-  printf ("djopt: %s\n", argv[0]);
+  printf ("djopt: %s\n", arg);
 
-  SwitchDrawingWindow (PCB->Zoom, Output.OutputWindow,
+  SwitchDrawingWindow (PCB->Zoom, Output.drawing_area->window,
 		       Settings.ShowSolderSide, False);
 
   lines = 0;
@@ -2797,7 +2801,7 @@ ActionDJopt (Widget w, XEvent * e, String * argv, Cardinal * argc)
   {
     int layern =
       pad->Flags & ONSOLDERFLAG ? solder_layer : component_layer;
-    line_s *ls = (line_s *) malloc (sizeof (line_s));
+    line_s *ls = (line_s *) g_malloc (sizeof (line_s));
     ls->next = lines;
     lines = ls;
     ls->s = find_corner (pad->Point1.X, pad->Point1.Y, layern);
@@ -2846,7 +2850,7 @@ ActionDJopt (Widget w, XEvent * e, String * argv, Cardinal * argc)
 	      continue;
 	    }
 
-	  ls = (line_s *) malloc (sizeof (line_s));
+	  ls = (line_s *) g_malloc (sizeof (line_s));
 	  ls->next = lines;
 	  lines = ls;
 	  ls->s = find_corner (l->Point1.X, l->Point1.Y, layn);
@@ -2866,25 +2870,25 @@ ActionDJopt (Widget w, XEvent * e, String * argv, Cardinal * argc)
   /*dump_all(); */
   check (0, 0);
 
-  if (NSTRCMP (argv[0], "debumpify") == 0)
+  if (NSTRCMP (arg, "debumpify") == 0)
     saved += debumpify ();
-  else if (NSTRCMP (argv[0], "unjaggy") == 0)
+  else if (NSTRCMP (arg, "unjaggy") == 0)
     saved += unjaggy ();
-  else if (NSTRCMP (argv[0], "simple") == 0)
+  else if (NSTRCMP (arg, "simple") == 0)
     saved += simple_optimizations ();
-  else if (NSTRCMP (argv[0], "vianudge") == 0)
+  else if (NSTRCMP (arg, "vianudge") == 0)
     saved += vianudge ();
-  else if (NSTRCMP (argv[0], "viatrim") == 0)
+  else if (NSTRCMP (arg, "viatrim") == 0)
     saved += viatrim ();
-  else if (NSTRCMP (argv[0], "orthopull") == 0)
+  else if (NSTRCMP (arg, "orthopull") == 0)
     saved += orthopull ();
-  else if (NSTRCMP (argv[0], "auto") == 0)
+  else if (NSTRCMP (arg, "auto") == 0)
     saved += automagic ();
-  else if (NSTRCMP (argv[0], "miter") == 0)
+  else if (NSTRCMP (arg, "miter") == 0)
     saved += miter ();
   else
     {
-      printf ("unknown command: %s\n", argv[0]);
+      printf ("unknown command: %s\n", arg);
       return;
     }
 

@@ -52,6 +52,8 @@
 #include "set.h"
 #include "undo.h"
 
+#include "gui.h"
+
 #ifdef HAVE_LIBDMALLOC
 #include <dmalloc.h>
 #endif
@@ -415,7 +417,7 @@ RotateScreenObject (LocationType X, LocationType Y, BYTE Steps)
     {
       if (TEST_FLAG (LOCKFLAG, (ArcTypePtr) ptr2))
 	{
-	  Message ("Sorry that object is locked\n");
+	  Message (_("Sorry, the object is locked\n"));
 	  return;
 	}
       Crosshair.AttachedObject.RubberbandN = 0;

@@ -33,6 +33,7 @@
 
 #include "global.h"
 
+#ifdef notdef
 /* ---------------------------------------------------------------------------
  * some menu types
  */
@@ -72,6 +73,7 @@ typedef struct
 	Widget			W;
 } CommandButtonType, *CommandButtonTypePtr;
 
+
 /* ---------------------------------------------------------------------------
  * some prototypes
  */
@@ -80,6 +82,7 @@ void	InitMenu(Widget, Widget, Widget);
 void	DumpMenu();
 void	RemoveCheckFromMenu(PopupMenuTypePtr);
 void	CheckEntry(PopupMenuTypePtr, String);
+#endif
 
 
 #endif

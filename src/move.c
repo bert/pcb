@@ -53,6 +53,8 @@
 #include "select.h"
 #include "undo.h"
 
+#include "gui.h"
+
 #ifdef HAVE_LIBDMALLOC
 #include <dmalloc.h>
 #endif
@@ -470,7 +472,7 @@ MoveArcToLayer (LayerTypePtr Layer, ArcTypePtr Arc)
 
   if (TEST_FLAG (LOCKFLAG, Arc))
     {
-      Message ("Sorry that's locked\n");
+      Message (_("Sorry, the object is locked\n"));
       return NULL;
     }
   if (Dest == Layer && Layer->On)
@@ -554,7 +556,7 @@ MoveLineToLayer (LayerTypePtr Layer, LineTypePtr Line)
 
   if (TEST_FLAG (LOCKFLAG, Line))
     {
-      Message ("Sorry that's locked\n");
+      Message (_("Sorry, the object is locked\n"));
       return NULL;
     }
   if (Dest == Layer && Layer->On)
@@ -647,7 +649,7 @@ MoveTextToLayer (LayerTypePtr Layer, TextTypePtr Text)
 
   if (TEST_FLAG (LOCKFLAG, Text))
     {
-      Message ("Sorry that's locked\n");
+      Message (_("Sorry, the object is locked\n"));
       return NULL;
     }
   if (Dest != Layer)
@@ -692,7 +694,7 @@ MovePolygonToLayer (LayerTypePtr Layer, PolygonTypePtr Polygon)
 
   if (TEST_FLAG (LOCKFLAG, Polygon))
     {
-      Message ("Sorry that's locked\n");
+      Message (_("Sorry, the object is locked\n"));
       return NULL;
     }
   if (((long int) Dest == -1) || (Layer == Dest))

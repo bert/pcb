@@ -53,15 +53,10 @@
 
 #include "data.h"
 #include "error.h"
-#include "dialog.h"
 #include "file.h"
 #include "gui.h"
-#include "log.h"
-#include "misc.h"
 
-#ifdef HAVE_LIBDMALLOC
-#include <dmalloc.h>
-#endif
+#include "misc.h"
 
 RCSID("$Id$");
 
@@ -85,48 +80,31 @@ extern char *sys_errlist[];	/* array of error messages */
 #endif
 #endif
 
-/* ---------------------------------------------------------------------------
- * some local identifiers
- */
-static int OriginalStderr = -1;	/* copy of the original stderr */
-static Window LogWindow;	/* the logging window */
 
 /* ---------------------------------------------------------------------------
  * output of message in a dialog window or log window
  */
 void
 Message (char *Format, ...)
-{
-  static int line = 1;
-  va_list args;
-  char s[1024];
-  sprintf(s,"%d: ",line++);
-  va_start (args, Format);
-  vsprintf (s + strlen(s), Format, args);
-  va_end (args);
+	{
+	static int line = 1;
+	va_list args;
+	char s[1024];
 
-  if (Settings.UseLogWindow)
-    {
-      /* fputs may return an error if the pipe isn't read for
-       * a long time
-       */
-      if (XtAppPending (Context))
-       {
-         XtAppProcessEvent (Context, XtIMAll);
-       }
-      while (fputs (s, stderr) == EOF && errno == EAGAIN && LogWindow)
-	while (XtAppPending (Context))
-	  {
-	    XtAppProcessEvent (Context, XtIMAll);
-	  }
-      fflush (stderr);
-    }
-  else
-    {
-      Beep (Settings.Volume);
-      MessageDialog (s);
-    }
-}
+	sprintf(s,"%d: ",line++);
+	va_start (args, Format);
+	vsprintf (s + strlen(s), Format, args);
+	va_end (args);
+
+	if (Settings.UseLogWindow)
+		gui_log_append_string(s);
+	else
+		{
+		gui_beep(Settings.Volume);
+		gui_dialog_message(s);
+		}
+	}
+
 
 /* ---------------------------------------------------------------------------
  * print standard 'open error'
@@ -134,14 +112,18 @@ Message (char *Format, ...)
 void
 OpenErrorMessage (char *Filename)
 {
+gchar	*utf8	= NULL;
+
+utf8_dup_string(&utf8, Filename);
 #ifdef USE_SYS_ERRLIST
-  Message ("can't open file\n"
-	   "   '%s'\nfopen() returned: '%s'\n",
-	   Filename, errno <= sys_nerr ? sys_errlist[errno] : "???");
+  Message (_("Can't open file\n"
+	   "   '%s'\nfopen() returned: '%s'\n"),
+	   utf8, errno <= sys_nerr ? sys_errlist[errno] : "???");
 #else
-  Message ("can't open file\n"
-	   "   '%s'\nfopen() returned: '%s'\n", Filename, strerror (errno));
+  Message (_("Can't open file\n"
+	   "   '%s'\nfopen() returned: '%s'\n"), utf8, strerror (errno));
 #endif
+g_free(utf8);
 }
 
 /* ---------------------------------------------------------------------------
@@ -150,14 +132,18 @@ OpenErrorMessage (char *Filename)
 void
 PopenErrorMessage (char *Filename)
 {
+gchar	*utf8	= NULL;
+
+utf8_dup_string(&utf8, Filename);
 #ifdef USE_SYS_ERRLIST
-  Message ("can't execute command\n"
-	   "   '%s'\npopen() returned: '%s'\n",
-	   Filename, errno <= sys_nerr ? sys_errlist[errno] : "???");
+  Message (_("Can't execute command\n"
+	   "   '%s'\npopen() returned: '%s'\n"),
+	   utf8, errno <= sys_nerr ? sys_errlist[errno] : "???");
 #else
-  Message ("can't execute command\n"
-	   "   '%s'\npopen() returned: '%s'\n", Filename, strerror (errno));
+  Message (_("Can't execute command\n"
+	   "   '%s'\npopen() returned: '%s'\n"), utf8, strerror (errno));
 #endif
+g_free(utf8);
 }
 
 /* ---------------------------------------------------------------------------
@@ -166,14 +152,18 @@ PopenErrorMessage (char *Filename)
 void
 OpendirErrorMessage (char *DirName)
 {
+gchar	*utf8	= NULL;
+
+utf8_dup_string(&utf8, DirName);
 #ifdef USE_SYS_ERRLIST
-  Message ("can't scan directory\n"
-	   "   '%s'\nopendir() returned: '%s'\n",
-	   DirName, errno <= sys_nerr ? sys_errlist[errno] : "???");
+  Message (_("Can't scan directory\n"
+	   "   '%s'\nopendir() returned: '%s'\n"),
+	   utf8, errno <= sys_nerr ? sys_errlist[errno] : "???");
 #else
-  Message ("can't scan directory\n"
-	   "   '%s'\nopendir() returned: '%s'\n", DirName, strerror (errno));
+  Message (_("Can't scan directory\n"
+	   "   '%s'\nopendir() returned: '%s'\n"), utf8, strerror (errno));
 #endif
+g_free(utf8);
 }
 
 /* ---------------------------------------------------------------------------
@@ -182,28 +172,18 @@ OpendirErrorMessage (char *DirName)
 void
 ChdirErrorMessage (char *DirName)
 {
-#ifdef USE_SYS_ERRLIST
-  Message ("can't change working directory to\n"
-	   "   '%s'\nchdir() returned: '%s'\n",
-	   DirName, errno <= sys_nerr ? sys_errlist[errno] : "???");
-#else
-  Message ("can't change working directory to\n"
-	   "   '%s'\nchdir() returned: '%s'\n", DirName, strerror (errno));
-#endif
-}
+gchar	*utf8	= NULL;
 
-/* ---------------------------------------------------------------------------
- * restores the original stderr
- */
-void
-RestoreStderr (void)
-{
-  if (OriginalStderr != -1)
-    {
-      close (2);
-      dup (OriginalStderr);
-      OriginalStderr = -1;
-    }
+utf8_dup_string(&utf8, DirName);
+#ifdef USE_SYS_ERRLIST
+  Message (_("Can't change working directory to\n"
+	   "   '%s'\nchdir() returned: '%s'\n"),
+	   utf8, errno <= sys_nerr ? sys_errlist[errno] : "???");
+#else
+  Message (_("Can't change working directory to\n"
+	   "   '%s'\nchdir() returned: '%s'\n"), utf8, strerror (errno));
+#endif
+g_free(utf8);
 }
 
 /* ---------------------------------------------------------------------------
@@ -215,8 +195,8 @@ MyFatal (char *Format, ...)
   va_list args;
 
   va_start (args, Format);
+
   /* try to save the layout and do some cleanup */
-  RestoreStderr ();
   EmergencySave ();
   fprintf (stderr, "%s (%i): fatal, ", Progname, (int) getpid ());
   vfprintf (stderr, Format, args);
@@ -260,43 +240,3 @@ CatchSignal (int Signal)
   MyFatal ("aborted by %s signal\n", s);
 }
 
-/* ---------------------------------------------------------------------------
- * default error handler for X11 errors
- */
-void
-X11ErrorHandler (String Msg)
-{
-  MyFatal ("X11 fatal error: %s\n", Msg);
-}
-
-/* ----------------------------------------------------------------------
- * initializes error log if required by resources
- */
-void
-InitErrorLog (void)
-{
-  int fildes[2];
-
-  if (Settings.UseLogWindow)
-    {
-      /* create a pipe with read end at log window and write end
-       * to stderr (desc. 2)
-       * make a copy of the original stderr descriptor for fatal errors 
-       */
-      if (pipe (fildes) == -1)
-	Message ("can't create pipe to log window\n");
-      else
-	{
-	  OriginalStderr = dup (2);
-
-	  /* close original stderr and create new one */
-	  close (2);
-	  if (dup (fildes[1]) == -1)
-	    MyFatal ("can't dup pipe to stderr\n");
-
-	  /* select non-blocking IO for stderr */
-	  fcntl (2, F_SETFL, O_NONBLOCK);
-	  LogWindow = XtWindow (InitLogWindow (Output.Toplevel, fildes[0]));
-	}
-    }
-}

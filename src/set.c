@@ -48,21 +48,18 @@
 #include "buffer.h"
 #include "compat.h"
 #include "crosshair.h"
-#include "control.h"
 #include "data.h"
 #include "draw.h"
 #include "error.h"
 #include "find.h"
-#include "gui.h"
 #include "menu.h"
 #include "misc.h"
 #include "output.h"
 #include "set.h"
 #include "undo.h"
 
-#ifdef HAVE_LIBDMALLOC
-#include <dmalloc.h>
-#endif
+#include "gui.h"
+
 
 RCSID("$Id$");
 
@@ -76,79 +73,103 @@ static int mode_stack[MAX_MODESTACK_DEPTH];
  * output of cursor position
  */
 void
-SetCursorStatusLine (void)
-{
-  char text[64];
+set_cursor_position_labels(void)
+	{
+	char text[64];
 
-  if (Marked.status)
-    sprintf (text,
-	     "%-i.%02d, %-i.%02d <%-li.%02d, %-li.%02d> (%-.3fmm, %-.3fmm)",
-	     Crosshair.X / 100, abs(Crosshair.X % 100), Crosshair.Y / 100,
-	     abs(Crosshair.Y % 100), (Crosshair.X - Marked.X) / 100,
-	     abs(Crosshair.X - Marked.X) % 100, (Crosshair.Y - Marked.Y) / 100,
-	     abs(Crosshair.Y - Marked.Y) % 100,
-	     COOR_TO_MM * (Crosshair.X - Marked.X),
-	     COOR_TO_MM * (Crosshair.Y - Marked.Y));
-  else
-    sprintf (text, "%-i.%02d,%-i.%02d (%-.3fmm, %-.3fmm)",
-	     Crosshair.X / 100, abs(Crosshair.X % 100),
-	     Crosshair.Y / 100, abs(Crosshair.Y % 100),
-	     COOR_TO_MM*Crosshair.X,
-	     COOR_TO_MM*Crosshair.Y);
-  SetOutputLabel (Output.CursorPosition, text);
-}
+	if (Marked.status)
+		{
+		if (Settings.grid_units_mm)
+			snprintf(text, sizeof(text), " %-.3f  %-.3f ",
+					COOR_TO_MM * (Crosshair.X - Marked.X),
+					COOR_TO_MM * (Crosshair.Y - Marked.Y));
+				
+		else
+			snprintf(text, sizeof(text), " %-li.%02d  %-li.%02d ",
+				(Crosshair.X - Marked.X) / 100,
+						abs(Crosshair.X - Marked.X) % 100,
+				(Crosshair.Y - Marked.Y) / 100,
+						abs(Crosshair.Y - Marked.Y) % 100);
+		gui_cursor_position_relative_label_set_text(text);
+		}
+	else
+		gui_cursor_position_relative_label_set_text(" __.__  __.__ ");
+
+	if (Settings.grid_units_mm)
+		snprintf(text, sizeof(text), " %-.3f  %-.3f ",
+				COOR_TO_MM * Crosshair.X, COOR_TO_MM * Crosshair.Y);
+	else
+		snprintf(text, sizeof(text), " %-i.%02d  %-i.%02d ",
+				Crosshair.X / 100, abs(Crosshair.X % 100),
+				Crosshair.Y / 100, abs(Crosshair.Y % 100));
+
+	gui_cursor_position_label_set_text(text);
+	}
 
 /* ---------------------------------------------------------------------------
  * output of status line
  */
 void
-SetStatusLine (void)
-{
-  char text[140];
-  int length;
+set_status_line_label(void)
+	{
+	char text[512];
 
-  if (PCB->Grid == (int) PCB->Grid)
-    sprintf (text,
-	     "%c %s, grid=%i.%02i:%i,%s%sline=%i.%02i, via=%i.%02i(%i.%02i),\n"
-	     " clearance=%i.%02i, text=%i%%, buffer=#%li, name: ",
-	     PCB->Changed ? '*' : ' ',
-	     Settings.ShowSolderSide ? "solder" : "component",
-	     (int) PCB->Grid / 100, (int) (PCB->Grid) % 100,
-	     (int) Settings.GridFactor,
-	     TEST_FLAG (ALLDIRECTIONFLAG,
-			PCB) ? "all" : (PCB->Clipping ==
-					0 ? "45" : (PCB->Clipping ==
-						    1 ? "45_/" : "45\\_")),
-	     TEST_FLAG (RUBBERBANDFLAG, PCB) ? ",R, " : ", ",
-	     Settings.LineThickness / 100, Settings.LineThickness % 100,
-	     Settings.ViaThickness / 100, Settings.ViaThickness % 100,
-	     Settings.ViaDrillingHole / 100, Settings.ViaDrillingHole % 100,
-	     Settings.Keepaway / 100, Settings.Keepaway % 100,
-	     Settings.TextScale, Settings.BufferNumber + 1);
-  else
-    sprintf (text,
-	     "%c %s, grid=%5.3fmm:%i,%s%sline=%i.%02i, via=%i.%02i(%i.%02i),\n"
-	     " clearance=%i.%02i, text=%i%%, buffer=#%li, name: ",
-	     PCB->Changed ? '*' : ' ',
-	     Settings.ShowSolderSide ? "solder" : "component",
-	     PCB->Grid * COOR_TO_MM, (int) Settings.GridFactor,
-	     TEST_FLAG (ALLDIRECTIONFLAG,
-			PCB) ? "all" : (PCB->Clipping ==
-					0 ? "45" : (PCB->Clipping ==
-						    1 ? "45_/" : "45\\_")),
-	     TEST_FLAG (RUBBERBANDFLAG, PCB) ? ",R, " : ", ",
-	     Settings.LineThickness / 100, Settings.LineThickness % 100,
-	     Settings.ViaThickness / 100, Settings.ViaThickness % 100,
-	     Settings.ViaDrillingHole / 100, Settings.ViaDrillingHole % 100,
-	     Settings.Keepaway / 100, Settings.Keepaway % 100,
-	     Settings.TextScale, Settings.BufferNumber + 1);
+	if (!Settings.grid_units_mm)
+		snprintf (text, sizeof(text),
+			_("<b>%c  view</b>=%s  "
+			"<b>grid</b>=%.1f:%i  "
+			"%s%s  "
+			"<b>line</b>=%.1f  "
+			"<b>via</b>=%.1f(%.1f)  %s"
+	     	"<b>clearance</b>=%.1f  "
+			"<b>text</b>=%i%%  "
+			"<b>buffer</b>=#%i"),
 
-  /* append the name of the layout */
-  length = sizeof (text) - 1 - strlen (text);
-  strncat (text, UNKNOWN (PCB->Name), length);
-  text[sizeof (text) - 1] = '\0';
-  SetOutputLabel (Output.StatusLine, text);
-}
+			PCB->Changed ? '*' : ' ',
+			Settings.ShowSolderSide ? _("solder") : _("component"),
+			PCB->Grid / 100.0,
+			(int) Settings.GridFactor,
+			TEST_FLAG (ALLDIRECTIONFLAG, PCB) ? "all" :
+				(PCB->Clipping == 0 ? "45" :
+					(PCB->Clipping == 1 ? "45_/" : "45\\_")),
+			TEST_FLAG (RUBBERBANDFLAG, PCB) ? ",R  " : "  ",
+			Settings.LineThickness / 100.0,
+			Settings.ViaThickness / 100.0,
+			Settings.ViaDrillingHole / 100.0,
+
+			Settings.gui_compact_horizontal ? "\n" : "",
+
+			Settings.Keepaway / 100.0,
+			Settings.TextScale, Settings.BufferNumber + 1);
+	else
+		snprintf (text, sizeof(text),
+			_("<b>%c  view</b>=%s  "
+			"<b>grid</b>=%5.3f:%i  "
+			"%s%s  "
+			"<b>line</b>=%5.3f  "
+			"<b>via</b>=%5.3f(%5.3f)  %s"
+			"<b>clearance</b>=%5.3f  "
+			"<b>text</b>=%i%%  "
+			"<b>buffer</b>=#%i"),
+
+			PCB->Changed ? '*' : ' ',
+			Settings.ShowSolderSide ? _("solder") : _("component"),
+			PCB->Grid * COOR_TO_MM, (int) Settings.GridFactor,
+			TEST_FLAG (ALLDIRECTIONFLAG, PCB) ? "all" :
+				(PCB->Clipping == 0 ? "45" :
+					(PCB->Clipping == 1 ? "45_/" : "45\\_")),
+			TEST_FLAG (RUBBERBANDFLAG, PCB) ? ",R  " : "  ",
+			Settings.LineThickness * COOR_TO_MM,
+			Settings.ViaThickness  * COOR_TO_MM,
+			Settings.ViaDrillingHole * COOR_TO_MM,
+
+			Settings.gui_compact_horizontal ? "\n" : "",
+
+			Settings.Keepaway * COOR_TO_MM,
+			Settings.TextScale, Settings.BufferNumber + 1);
+
+	gui_status_line_set_text(text);
+	}
 
 /* ---------------------------------------------------------------------------
  * sets cursor grid with respect to grid offset values
@@ -168,7 +189,7 @@ SetGrid (float Grid, Boolean align)
       PCB->Grid = Grid;
       if (Settings.DrawGrid)
 	UpdateAll ();
-      SetStatusLine ();
+      set_status_line_label();
     }
 }
 
@@ -210,19 +231,20 @@ SetZoom (float Zoom)
     {
       PCB->Zoom = Zoom;
       RedrawZoom (old_x, old_y);
+      gui_zoom_display_update();
     }
 }
 
 void
 RedrawZoom (Position old_x, Position old_y)
 {
-  ScaleOutput (Output.Width, Output.Height);
+  gui_output_positioners_scale();
   if (CoalignScreen (old_x, old_y, Crosshair.X, Crosshair.Y))
     warpNoWhere ();
 
   UpdateAll ();
   /* always redraw status line (used for init sequence) */
-  SetStatusLine ();
+  set_status_line_label();
 }
 
 /* ---------------------------------------------------------------------------
@@ -236,7 +258,7 @@ SetLineSize (BDimension Size)
       Settings.LineThickness = Size;
       if (TEST_FLAG (AUTODRCFLAG, PCB))
         FitCrosshairIntoGrid (Crosshair.X, Crosshair.Y);
-      SetStatusLine ();
+        set_status_line_label();
     }
 }
 
@@ -251,7 +273,7 @@ SetViaSize (BDimension Size, Boolean Force)
 		Size >= Settings.ViaDrillingHole + MIN_PINORVIACOPPER))
     {
       Settings.ViaThickness = Size;
-      SetStatusLine ();
+      set_status_line_label();
     }
 }
 
@@ -266,9 +288,19 @@ SetViaDrillingHole (BDimension Size, Boolean Force)
 		Size <= Settings.ViaThickness - MIN_PINORVIACOPPER))
     {
       Settings.ViaDrillingHole = Size;
-      SetStatusLine ();
+      set_status_line_label();
     }
 }
+
+void
+pcb_use_route_style(RouteStyleType *rst)
+	{
+	Settings.LineThickness = rst->Thick;
+	Settings.ViaThickness = rst->Diameter;
+	Settings.ViaDrillingHole = rst->Hole;
+	Settings.Keepaway = rst->Keepaway;
+	set_status_line_label();
+	}
 
 /* ---------------------------------------------------------------------------
  * sets a keepaway width
@@ -279,7 +311,7 @@ SetKeepawayWidth (BDimension Width)
   if (Width <= MAX_LINESIZE && Width >= MIN_LINESIZE)
     {
       Settings.Keepaway = Width;
-      SetStatusLine ();
+      set_status_line_label ();
     }
 }
 
@@ -292,7 +324,8 @@ SetTextScale (Dimension Scale)
   if (Scale <= MAX_TEXTSCALE && Scale >= MIN_TEXTSCALE)
     {
       Settings.TextScale = Scale;
-      SetStatusLine ();
+      set_status_line_label ();
+      gui_config_text_scale_update();
     }
 }
 
@@ -305,8 +338,9 @@ SetChangedFlag (Boolean New)
   if (PCB->Changed != New)
     {
       PCB->Changed = New;
-      SetStatusLine ();
+
     }
+  set_status_line_label ();
 }
 
 /* ---------------------------------------------------------------------------
@@ -339,7 +373,7 @@ SetBufferNumber (int Number)
 
       /* do an update on the crosshair range */
       SetCrosshairRangeToBuffer ();
-      SetStatusLine ();
+      set_status_line_label();
     }
 }
 
@@ -349,9 +383,9 @@ SetBufferNumber (int Number)
 void
 UpdateSettingsOnScreen (void)
 {
-  SetStatusLine ();
-  SetCursorStatusLine ();
-  UpdateControlPanel ();
+  set_status_line_label();
+  set_cursor_position_labels();
+  gui_layer_buttons_update();
 }
 
 void
@@ -400,7 +434,7 @@ SetMode (int Mode)
 	  Mode == TEXT_MODE || Mode == INSERTPOINT_MODE ||
 	  Mode == THERMAL_MODE)
 	{
-	  Message ("That mode is NOT allowed when drawing " "ratlines!\n");
+	  Message (_("That mode is NOT allowed when drawing ratlines!\n"));
 	  Mode = NO_MODE;
 	}
     }
@@ -444,14 +478,15 @@ SetMode (int Mode)
     }
 
   Settings.Mode = Mode;
-  modeCursor (Mode);
+  gui_mode_cursor (Mode);
   if (Mode == PASTEBUFFER_MODE)
     /* do an update on the crosshair range */
     SetCrosshairRangeToBuffer ();
   else
     SetCrosshairRange (0, 0, PCB->MaxWidth, PCB->MaxHeight);
 
-  UpdateModeSelection ();
+  gui_mode_buttons_update();
+
   recursing = False;
 
   /* force a crosshair grid update because the valid range
@@ -464,15 +499,14 @@ SetMode (int Mode)
 void
 SetRouteStyle (char *name)
 {
-  char *arg, num[10];
+  char num[10];
 
   STYLE_LOOP (PCB);
     {
       if (name && NSTRCMP (name, style->Name) == 0)
 	{
-	  arg = &num[0];
 	  sprintf (num, "%d", n + 1);
-	  CallActionProc (Output.Output, "RouteStyle", NULL, &arg, 1);
+	  ActionRouteStyle(num);
 	  break;
 	}
     }

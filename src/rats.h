@@ -35,6 +35,9 @@
 
 #include "global.h"
 
+RatTypePtr AddNet(void);
+char *ConnectionName (int, void *, void *);
+
 Boolean AddAllRats(Boolean, void (*)());
 Boolean SeekPad(LibraryEntryTypePtr, ConnectionTypePtr, Boolean);
 

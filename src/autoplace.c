@@ -62,9 +62,7 @@
 #include "remove.h"
 #include "rotate.h"
 
-#ifdef HAVE_LIBDMALLOC
-#include <dmalloc.h>		/* see http://dmalloc.com */
-#endif
+#include "gui.h"
 
 RCSID("$Id$");
 
@@ -530,7 +528,7 @@ ComputeCost (NetListTypePtr Nets, double T0, double T)
 	boxpp = (struct ebox **)
 	  GetPointerMemory (TEST_FLAG (ONSOLDERFLAG, element) ?
 			    &seboxes : &ceboxes);
-	*boxpp = malloc (sizeof (**boxpp));
+	*boxpp = g_malloc (sizeof (**boxpp));
 	(*boxpp)->box = element->VBox;
 	(*boxpp)->element = element;
       }
@@ -768,14 +766,14 @@ AutoPlaceSelected (void)
   Nets = ProcNetlist (&PCB->NetlistLib);
   if (!Nets)
     {
-      Message ("Can't add rat lines because no netlist is loaded.\n");
+      Message (_("Can't add rat lines because no netlist is loaded.\n"));
       goto done;
     }
 
   Selected = collectSelectedElements ();
   if (Selected.PtrN == 0)
     {
-      Message ("No elements selected to autoplace.\n");
+      Message (_("No elements selected to autoplace.\n"));
       goto done;
     }
 

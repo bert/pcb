@@ -32,38 +32,50 @@
 #define	__DATA_INCLUDED__
 
 #include "global.h"
-#include <X11/Intrinsic.h>
+
+extern	GdkPixmap		**Stipples;
+extern	GdkPixmap		*XC_hand_source, *XC_hand_mask;
+extern	GdkPixmap		*XC_lock_source, *XC_lock_mask;
+extern	GdkPixmap		*XC_clock_source, *XC_clock_mask;
+
+extern	GdkRegion		*FullRegion;
 
 /* ---------------------------------------------------------------------------
  * some shared identifiers
  */
-extern	XtAppContext	Context;
-extern	Display		*Dpy;
+
+
 extern	CrosshairType	Crosshair;
+
 extern  MarkType	Marked;
+
 extern	OutputType	Output;
+
 extern	PCBTypePtr	PCB;
-extern	Pixmap		Offscreen, Offmask;
-extern	char		*Progname;
+
 extern	SettingType	Settings;
-extern	Boolean		RedrawOnEnter;
-extern	int		LayerStack[MAX_LAYER];
-extern	String		InputTranslations;
-extern	Atom		WMDeleteWindowAtom;
+
 extern	BufferType	Buffers[MAX_BUFFER];
+
 extern	LibraryType	Library;
+
 extern	DeviceInfoType	PrintingDevice[];
-extern	Pixmap		*Stipples, XC_clock_source, XC_clock_mask;
-extern  Pixmap          XC_hand_source, XC_hand_mask;
-extern  Pixmap          XC_lock_source, XC_lock_mask;
-extern	int		addedLines;
-extern  Region		UpRegion;
-extern	Region		FullRegion;
-extern	Boolean		Bumped;
-extern	Window		LogWindID;
-extern	LocationType	Xorig, Yorig;
-extern	Boolean		render;
-extern	LocationType	vxl, vxh, vyl, vyh;
-extern  BoxType         theScreen, clipBox;
-extern	float		Zoom_Multiplier;
+
+extern	LocationType Xorig, Yorig;
+extern	LocationType vxl, vxh, vyl, vyh;
+
+extern  BoxType		theScreen, clipBox;
+
+extern	gfloat		Zoom_Multiplier;
+
+extern	gchar		*Progname;
+extern	gchar		*InputTranslations;
+
+extern	gint		addedLines;
+extern	gint		LayerStack[MAX_LAYER];
+
+extern	gboolean	RedrawOnEnter;
+extern	gboolean	render;
+extern	gboolean	Bumped;
+
 #endif

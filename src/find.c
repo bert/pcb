@@ -77,22 +77,21 @@
 
 #include "global.h"
 
-#include "control.h"
 #include "crosshair.h"
 #include "data.h"
-#include "dialog.h"
 #include "draw.h"
 #include "error.h"
 #include "find.h"
-#include "gui.h"
 #include "mymem.h"
 #include "misc.h"
-#include "netlist.h"
 #include "rtree.h"
 #include "polygon.h"
 #include "search.h"
 #include "set.h"
 #include "undo.h"
+#include "rats.h"
+
+#include "gui.h"
 
 #ifdef HAVE_LIBDMALLOC
 #include <dmalloc.h>
@@ -153,7 +152,7 @@ RCSID("$Id$");
  * message when asked about continuing DRC checks after first 
  * violation is found.
  */
-#define DRC_CONTINUE "Stop here? (Cancel to continue checking)"
+#define DRC_CONTINUE _("Stop here? (Cancel to continue checking)")
 
 /* ---------------------------------------------------------------------------
  * some local types
@@ -848,9 +847,9 @@ pv_pv_callback (const BoxType * b, void *cl)
 	  SET_FLAG (WARNFLAG, pin);
 	  Settings.RatWarn = True;
 	  if (pin->Element)
-	    Message ("WARNING: Hole too close to pin.\n");
+	    Message (_("WARNING: Hole too close to pin.\n"));
 	  else
-	    Message ("WARNING: Hole too close to via.\n");
+	    Message (_("WARNING: Hole too close to via.\n"));
 	}
       if (ADD_PV_TO_LIST (pin))
 	longjmp (i->env, 1);
@@ -913,7 +912,7 @@ pv_line_callback (const BoxType * b, void *cl)
 	{
 	  SET_FLAG (WARNFLAG, pv);
 	  Settings.RatWarn = True;
-	  Message ("WARNING: Hole too clost to line.\n");
+	  Message (_("WARNING: Hole too close to line.\n"));
 	}
       if (ADD_PV_TO_LIST (pv))
 	longjmp (i->env, 1);
@@ -933,7 +932,7 @@ pv_pad_callback (const BoxType * b, void *cl)
 	{
 	  SET_FLAG (WARNFLAG, pv);
 	  Settings.RatWarn = True;
-	  Message ("WARNING: Hole too close to pad.\n");
+	  Message (_("WARNING: Hole too close to pad.\n"));
 	}
       if (ADD_PV_TO_LIST (pv))
 	longjmp (i->env, 1);
@@ -953,7 +952,7 @@ pv_arc_callback (const BoxType * b, void *cl)
 	{
 	  SET_FLAG (WARNFLAG, pv);
 	  Settings.RatWarn = True;
-	  Message ("WARNING: Hole touches arc.\n");
+	  Message (_("WARNING: Hole touches arc.\n"));
 	}
       if (ADD_PV_TO_LIST (pv))
 	longjmp (i->env, 1);
@@ -2857,7 +2856,7 @@ PrepareNextLoop (FILE * FP)
   PVList.Number = PVList.Location = 0;
 
   /* check if abort buttons has been pressed */
-  if (CheckAbort ())
+  if (gui_check_abort())
     {
       if (FP)
 	fputs ("\n\nABORTED...\n", FP);
@@ -3011,15 +3010,15 @@ void
 LookupElementConnections (ElementTypePtr Element, FILE * FP)
 {
   /* reset all currently marked connections */
-  CreateAbortDialog ("Press button to abort connection scan");
+  gui_create_abort_dialog("Press button to abort connection scan");
   User = True;
   ResetConnections (True);
   InitConnectionLookup ();
   PrintElementConnections (Element, FP, True);
   SetChangedFlag (True);
-  EndAbort ();
+  gui_end_abort();
   if (Settings.RingBellWhenFinished)
-    Beep (Settings.Volume);
+    gui_beep(Settings.Volume);
   FreeConnectionLookupMemory ();
   IncrementUndoSerialNumber ();
   User = False;
@@ -3034,7 +3033,7 @@ LookupConnectionsToAllElements (FILE * FP)
 {
   /* reset all currently marked connections */
   User = False;
-  CreateAbortDialog ("Press button to abort connection scan");
+  gui_create_abort_dialog("Press button to abort connection scan");
   ResetConnections (False);
   InitConnectionLookup ();
 
@@ -3048,9 +3047,9 @@ LookupConnectionsToAllElements (FILE * FP)
       ResetConnections (False);
   }
   END_LOOP;
-  EndAbort ();
+  gui_end_abort();
   if (Settings.RingBellWhenFinished)
-    Beep (Settings.Volume);
+    gui_beep(Settings.Volume);
   ResetConnections (False);
   FreeConnectionLookupMemory ();
   ClearAndRedrawOutput ();
@@ -3134,6 +3133,7 @@ void
 LookupConnection (LocationType X, LocationType Y, Boolean AndDraw, BDimension Range)
 {
   void *ptr1, *ptr2, *ptr3;
+  char *name;
   int type;
 
   /* check if there are any pins or pads at that position */
@@ -3160,7 +3160,11 @@ LookupConnection (LocationType X, LocationType Y, Boolean AndDraw, BDimension Ra
 	}
     }
   else
-    SetNetlist (type, ptr1, ptr2, True);
+    {
+    name = ConnectionName(type, ptr1, ptr2);
+    gui_netlist_highlight_node(name, True);
+	}
+
   TheFlag = FOUNDFLAG;
   User = AndDraw;
   InitConnectionLookup ();
@@ -3178,7 +3182,7 @@ LookupConnection (LocationType X, LocationType Y, Boolean AndDraw, BDimension Ra
   if (AndDraw)
     Draw ();
   if (AndDraw && Settings.RingBellWhenFinished)
-    Beep (Settings.Volume);
+    gui_beep(Settings.Volume);
   FreeConnectionLookupMemory ();
 }
 
@@ -3207,7 +3211,7 @@ LookupUnusedPins (FILE * FP)
   /* reset all currently marked connections */
   User = True;
   SaveUndoSerialNumber ();
-  CreateAbortDialog ("Press button to abort unused pin scan");
+  gui_create_abort_dialog("Press button to abort unused pin scan");
   ResetConnections (True);
   RestoreUndoSerialNumber ();
   InitConnectionLookup ();
@@ -3221,10 +3225,10 @@ LookupUnusedPins (FILE * FP)
       break;
   }
   END_LOOP;
-  EndAbort ();
+  gui_end_abort();
 
   if (Settings.RingBellWhenFinished)
-    Beep (Settings.Volume);
+    gui_beep(Settings.Volume);
   FreeConnectionLookupMemory ();
   IncrementUndoSerialNumber ();
   User = False;
@@ -3422,8 +3426,8 @@ DumpList (void)
 static Boolean
 DRCFind (int What, void *ptr1, void *ptr2, void *ptr3)
 {
-  Bloat = -Settings.Shrink;
-  fBloat = (float) -Settings.Shrink;
+  Bloat = -PCB->Shrink;
+  fBloat = (float) -PCB->Shrink;
   TheFlag = DRCFLAG | SELECTEDFLAG;
   ListStart (What, ptr1, ptr2, ptr3);
   DoIt (True, False);
@@ -3438,14 +3442,14 @@ DRCFind (int What, void *ptr1, void *ptr2, void *ptr3)
     {
       DumpList ();
       Message
-	("WARNING!!  Design Rule Error - potential for broken trace!\n");
+	(_("WARNING!!  Design Rule Error - potential for broken trace!\n"));
       /* make the flag changes undoable */
       TheFlag = FOUNDFLAG | SELECTEDFLAG;
       ResetConnections (False);
       User = True;
       drc = False;
-      Bloat = -Settings.Shrink;
-      fBloat = (float) -Settings.Shrink;
+      Bloat = -PCB->Shrink;
+      fBloat = (float) -PCB->Shrink;
       TheFlag = SELECTEDFLAG;
       RestoreUndoSerialNumber ();
       ListStart (What, ptr1, ptr2, ptr3);
@@ -3462,7 +3466,7 @@ DRCFind (int What, void *ptr1, void *ptr2, void *ptr3)
       drc = False;
       drcerr_count++;
       GotoError ();
-      if (ConfirmDialog (DRC_CONTINUE))
+      if (gui_dialog_confirm(DRC_CONTINUE))
 	return (True);
       IncrementUndoSerialNumber ();
       Undo (True);
@@ -3472,13 +3476,13 @@ DRCFind (int What, void *ptr1, void *ptr2, void *ptr3)
   drc = False;
   ResetConnections (False);
   ListStart (What, ptr1, ptr2, ptr3);
-  Bloat = Settings.Bloat;
-  fBloat = (float) Settings.Bloat;
+  Bloat = PCB->Bloat;
+  fBloat = (float) PCB->Bloat;
   drc = True;
   while (DoIt (True, False))
     {
       DumpList ();
-      Message ("WARNING!!!  Design Rule error - copper areas too close!\n");
+      Message (_("WARNING!  Design Rule error - copper areas too close!\n"));
       /* make the flag changes undoable */
       TheFlag = FOUNDFLAG | SELECTEDFLAG;
       ResetConnections (False);
@@ -3493,8 +3497,8 @@ DRCFind (int What, void *ptr1, void *ptr2, void *ptr3)
       DumpList ();
       TheFlag = FOUNDFLAG;
       ListStart (What, ptr1, ptr2, ptr3);
-      Bloat = Settings.Bloat;
-      fBloat = (float) Settings.Bloat;
+      Bloat = PCB->Bloat;
+      fBloat = (float) PCB->Bloat;
       drc = True;
       DoIt (True, True);
       DumpList ();
@@ -3502,7 +3506,7 @@ DRCFind (int What, void *ptr1, void *ptr2, void *ptr3)
       GotoError ();
       User = False;
       drc = False;
-      if (ConfirmDialog (DRC_CONTINUE))
+      if (gui_dialog_confirm(DRC_CONTINUE))
 	return (True);
       IncrementUndoSerialNumber ();
       Undo (True);
@@ -3514,8 +3518,8 @@ DRCFind (int What, void *ptr1, void *ptr2, void *ptr3)
       DoIt (True, True);
       DumpList ();
       drc = True;
-      Bloat = Settings.Bloat;
-      fBloat = (float) Settings.Bloat;
+      Bloat = PCB->Bloat;
+      fBloat = (float) PCB->Bloat;
       ListStart (What, ptr1, ptr2, ptr3);
     }
   drc = False;
@@ -3562,47 +3566,47 @@ drc_callback (int type, void *ptr1, void *ptr2, void *ptr3,
   switch (type)
     {
     case LINE_TYPE:
-      if (line->Clearance <= 2 * Settings.Bloat)
+      if (line->Clearance <= 2 * PCB->Bloat)
 	{
 	  AddObjectToFlagUndoList (type, ptr1, ptr2, ptr3);
 	  SET_FLAG (TheFlag, line);
-	  Message ("Line with insuficient clearance inside polygon\n");
+	  Message (_("Line with insuficient clearance inside polygon\n"));
 	  goto doIsBad;
 	}
       break;
     case ARC_TYPE:
-      if (arc->Clearance <= 2 * Settings.Bloat)
+      if (arc->Clearance <= 2 * PCB->Bloat)
 	{
 	  AddObjectToFlagUndoList (type, ptr1, ptr2, ptr3);
 	  SET_FLAG (TheFlag, arc);
-	  Message ("arc with insuficient clearance inside polygon\n");
+	  Message (_("Arc with insuficient clearance inside polygon\n"));
 	  goto doIsBad;
 	}
       break;
     case PAD_TYPE:
-      if (pad->Clearance <= 2 * Settings.Bloat)
+      if (pad->Clearance <= 2 * PCB->Bloat)
 	{
 	  AddObjectToFlagUndoList (type, ptr1, ptr2, ptr3);
 	  SET_FLAG (TheFlag, pad);
-	  Message ("pad with insuficient clearance inside polygon\n");
+	  Message (_("Pad with insuficient clearance inside polygon\n"));
 	  goto doIsBad;
 	}
       break;
     case PIN_TYPE:
-      if (pin->Clearance <= 2 * Settings.Bloat)
+      if (pin->Clearance <= 2 * PCB->Bloat)
 	{
 	  AddObjectToFlagUndoList (type, ptr1, ptr2, ptr3);
 	  SET_FLAG (TheFlag, pin);
-	  Message ("Pin with insuficient clearance inside polygon\n");
+	  Message (_("Pin with insuficient clearance inside polygon\n"));
 	  goto doIsBad;
 	}
       break;
     case VIA_TYPE:
-      if (pin->Clearance <= 2 * Settings.Bloat)
+      if (pin->Clearance <= 2 * PCB->Bloat)
 	{
 	  AddObjectToFlagUndoList (type, ptr1, ptr2, ptr3);
 	  SET_FLAG (TheFlag, pin);
-	  Message ("Via with insuficient clearance inside polygon\n");
+	  Message (_("Via with insuficient clearance inside polygon\n"));
 	  goto doIsBad;
 	}
       break;
@@ -3618,7 +3622,7 @@ doIsBad:
   DrawObject (type, ptr1, ptr2, 0);
   drcerr_count++;
   GotoError ();
-  if (ConfirmDialog (DRC_CONTINUE))
+  if (gui_dialog_confirm(DRC_CONTINUE))
     {
       IsBad = True;
       return 1;
@@ -3641,7 +3645,7 @@ DRCAll (void)
   drcerr_count = 0;
   SaveStackAndVisibility ();
   ResetStackAndVisibility ();
-  UpdateControlPanel ();
+  gui_layer_buttons_update();
   InitConnectionLookup ();
 
   TheFlag = FOUNDFLAG | DRCFLAG | SELECTEDFLAG;
@@ -3711,16 +3715,16 @@ DRCAll (void)
     {
       COPPERLINE_LOOP (PCB->Data);
       {
-	if (line->Thickness < Settings.minWid)
+	if (line->Thickness < PCB->minWid)
 	  {
 	    AddObjectToFlagUndoList (LINE_TYPE, layer, line, line);
 	    SET_FLAG (TheFlag, line);
-	    Message ("Line is too thin\n");
+	    Message (_("Line is too thin\n"));
 	    DrawLine (layer, line, 0);
 	    drcerr_count++;
 	    SetThing (LINE_TYPE, layer, line, line);
 	    GotoError ();
-	    if (ConfirmDialog (DRC_CONTINUE))
+	    if (gui_dialog_confirm(DRC_CONTINUE))
 	      {
 		IsBad = True;
 		break;
@@ -3735,16 +3739,16 @@ DRCAll (void)
     {
       COPPERARC_LOOP (PCB->Data);
       {
-	if (arc->Thickness < Settings.minWid)
+	if (arc->Thickness < PCB->minWid)
 	  {
 	    AddObjectToFlagUndoList (ARC_TYPE, layer, arc, arc);
 	    SET_FLAG (TheFlag, arc);
-	    Message ("Arc is too thin\n");
+	    Message (_("Arc is too thin\n"));
 	    DrawArc (layer, arc, 0);
 	    drcerr_count++;
 	    SetThing (ARC_TYPE, layer, arc, arc);
 	    GotoError ();
-	    if (ConfirmDialog (DRC_CONTINUE))
+	    if (gui_dialog_confirm(DRC_CONTINUE))
 	      {
 		IsBad = True;
 		break;
@@ -3760,16 +3764,16 @@ DRCAll (void)
       ALLPIN_LOOP (PCB->Data);
       {
 	if (!TEST_FLAG (HOLEFLAG, pin) &&
-	    pin->Thickness - pin->DrillingHole < 2 * Settings.minWid)
+	    pin->Thickness - pin->DrillingHole < 2 * PCB->minWid)
 	  {
 	    AddObjectToFlagUndoList (PIN_TYPE, element, pin, pin);
 	    SET_FLAG (TheFlag, pin);
-	    Message ("Pin annular ring is too small\n");
+	    Message (_("Pin annular ring is too small\n"));
 	    DrawPin (pin, 0);
 	    drcerr_count++;
 	    SetThing (PIN_TYPE, element, pin, pin);
 	    GotoError ();
-	    if (ConfirmDialog (DRC_CONTINUE))
+	    if (gui_dialog_confirm(DRC_CONTINUE))
 	      {
 		IsBad = True;
 		break;
@@ -3784,16 +3788,16 @@ DRCAll (void)
     {
       ALLPAD_LOOP (PCB->Data);
       {
-	if (pad->Thickness < Settings.minWid)
+	if (pad->Thickness < PCB->minWid)
 	  {
 	    AddObjectToFlagUndoList (PAD_TYPE, element, pad, pad);
 	    SET_FLAG (TheFlag, pad);
-	    Message ("Pad is too thin\n");
+	    Message (_("Pad is too thin\n"));
 	    DrawPad (pad, 0);
 	    drcerr_count++;
 	    SetThing (PAD_TYPE, element, pad, pad);
 	    GotoError ();
-	    if (ConfirmDialog (DRC_CONTINUE))
+	    if (gui_dialog_confirm(DRC_CONTINUE))
 	      {
 		IsBad = True;
 		break;
@@ -3809,16 +3813,16 @@ DRCAll (void)
       VIA_LOOP (PCB->Data);
       {
 	if (!TEST_FLAG (HOLEFLAG, via) &&
-	    via->Thickness - via->DrillingHole < 2 * Settings.minWid)
+	    via->Thickness - via->DrillingHole < 2 * PCB->minWid)
 	  {
 	    AddObjectToFlagUndoList (VIA_TYPE, via, via, via);
 	    SET_FLAG (TheFlag, via);
-	    Message ("Via annular ring is too small\n");
+	    Message (_("Via annular ring is too small\n"));
 	    DrawVia (via, 0);
 	    drcerr_count++;
 	    SetThing (VIA_TYPE, via, via, via);
 	    GotoError ();
-	    if (ConfirmDialog (DRC_CONTINUE))
+	    if (gui_dialog_confirm(DRC_CONTINUE))
 	      {
 		IsBad = True;
 		break;
@@ -3842,15 +3846,15 @@ DRCAll (void)
     {
       SILKLINE_LOOP(PCB->Data);
       {
-	if (line->Thickness < Settings.minSlk)
+	if (line->Thickness < PCB->minSlk)
 	  {
 	    SET_FLAG(TheFlag, line);
-	    Message("Silk line is too thin\n");
+	    Message(_("Silk line is too thin\n"));
 	    DrawLine(layer, line, 0);
 	    drcerr_count++;
 	    SetThing(LINE_TYPE, layer, line, line);
 	    GotoError();
-	    if (ConfirmDialog (DRC_CONTINUE))
+	    if (gui_dialog_confirm(DRC_CONTINUE))
 	      {
 		IsBad = True;
 		break;
@@ -3870,20 +3874,20 @@ DRCAll (void)
 	tmpcnt = 0;
 	ELEMENTLINE_LOOP (element);
 	{
-          if (line->Thickness < Settings.minSlk)
+          if (line->Thickness < PCB->minSlk)
 	    tmpcnt++;
 	}
 	END_LOOP;
 	if (tmpcnt > 0)
 	  {
 	    SET_FLAG(TheFlag, element);
-	    Message("Element %s has %d silk lines which are too thin\n", 
+	    Message(_("Element %s has %d silk lines which are too thin\n"), 
 		    UNKNOWN (NAMEONPCB_NAME(element) ), tmpcnt);
 	    DrawElement(element, 0);
 	    drcerr_count++;
 	    SetThing(ELEMENT_TYPE, element, element, element);
 	    GotoError();
-	    if (ConfirmDialog (DRC_CONTINUE))
+	    if (gui_dialog_confirm(DRC_CONTINUE))
 	      {
 		IsBad = True;
 		break;
@@ -3901,7 +3905,7 @@ DRCAll (void)
 
 
   RestoreStackAndVisibility ();
-  UpdateControlPanel ();
+  gui_layer_buttons_update();
 
   return (drcerr_count);
 }
@@ -3962,16 +3966,14 @@ GotoError (void)
     default:
       return;
     }
-  Message ("near location (%d.%02d,%d.%02d)\n", X / 100, X % 100, Y / 100,
+  Message (_("near location (%d.%02d,%d.%02d)\n"), X / 100, X % 100, Y / 100,
 	   Y % 100);
   switch (thing_type)
     {
     case LINE_TYPE:
     case ARC_TYPE:
     case POLYGON_TYPE:
-      ChangeGroupVisibility (GetLayerNumber
-			     (PCB->Data, (LayerTypePtr) thing_ptr1), True,
-			     True);
+      g_message("GotoError: ChangeGroupVisibility (GetLayerNumber");
     }
   CenterDisplay (X, Y, False);
 }

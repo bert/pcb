@@ -38,6 +38,8 @@
 #include "config.h"
 #endif
 
+#include <glib.h>
+
 #include <assert.h>
 #include <stdlib.h>
 #ifdef HAVE_STRING_H
@@ -47,9 +49,6 @@
 #include "global.h"
 #include "vector.h"
 
-#ifdef HAVE_LIBDMALLOC
-#include <dmalloc.h>
-#endif
 
 RCSID("$Id$");
 
@@ -91,7 +90,7 @@ vector_create ()
 {
   vector_t *vector;
   /* okay, create empty vector */
-  vector = calloc (1, sizeof (*vector));
+  vector = g_malloc0(sizeof (*vector));
   assert (vector);
   assert (__vector_is_good (vector));
   return vector;
@@ -104,8 +103,8 @@ vector_destroy (vector_t ** vector)
   assert (vector && *vector);
   assert (__vector_is_good (*vector));
   if ((*vector)->element)
-    free ((*vector)->element);
-  free (*vector);
+    g_free ((*vector)->element);
+  g_free (*vector);
   *vector = NULL;
 }
 
@@ -189,7 +188,7 @@ vector_insert_many (vector_t * vector, int N,
   if (vector->size + count > vector->max)
     {
       vector->max = MAX (32, MAX (vector->size + count, vector->max * 2));
-      vector->element = realloc (vector->element,
+      vector->element = g_realloc (vector->element,
 				 vector->max * sizeof (*vector->element));
     }
   memmove (vector->element + N + count, vector->element + N,

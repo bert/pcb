@@ -1,8 +1,8 @@
 dnl $Id$
 dnl Process this file with autoconf to produce a configure script.
 
-AC_INIT(src/pinout.c)
-AM_INIT_AUTOMAKE(pcb, 1.99p)
+AC_INIT(src/draw.c)
+AM_INIT_AUTOMAKE(pcb, 1.99q)
 AM_CONFIG_HEADER(config.h)
 
 AM_MAINTAINER_MODE
@@ -40,22 +40,22 @@ AC_CHECK_FUNCS(regcomp re_comp)
 AC_CHECK_FUNCS(logf expf rint)
 
 AC_MSG_CHECKING([if X/Xaw should be configured])
-gui_xaw=yes
+gui_xaw=no
 AC_ARG_ENABLE([xaw],
-[  --disable-xaw           Disable configure detection of Xaw, not complete yet. [[default: enabled]]],
+[  --enable-xaw            Enable configure detection of Xaw, not complete yet. [[default: disabled]]],
 [
 if test "X$enable_xaw" = "Xno" ; then
-	AC_MSG_RESULT([no])
-	gui_xaw="no *** THIS IS NOT YET SUPPORTED AND PROBABLY WILL NOT COMPILE ***"
-else
 	AC_MSG_RESULT([yes])
+	gui_xaw="yes *** THIS IS NOT YET SUPPORTED AND PROBABLY WILL NOT COMPILE ***"
+else
+	AC_MSG_RESULT([no])
 fi
 ],
 [
-	AC_MSG_RESULT([yes])
+	AC_MSG_RESULT([no])
 ])
 
-if test "X$gui_xaw" = "Xyes" ; then
+if test "X$gui_xaw" != "Xno" ; then
 
 AC_PATH_XTRA
 AC_ARG_WITH([libstroke],
@@ -156,19 +156,26 @@ fi
 # Check for gtk+
 # 
 
-gui_gtk=no
+gui_gtk=yes
 AC_MSG_CHECKING([if gtk should be configured])
 AC_ARG_ENABLE([gtk],
-[  --enable-gtk            Enable configure detection of gtk, gtk port not complete yet. [[default: disabled]]],
+[  --disable-gtk           Disable configure detection of gtk.  Not complete yet. [[default: enabled]]],
 [
 if test "X$enable_gtk" = "Xno" ; then
 	AC_MSG_RESULT([no])
+	gui_gtk=no
 else
 	AC_MSG_RESULT([yes])
-	if test "X$gui_xaw" = "Xyes" ; then
+fi
+],
+[
+	AC_MSG_RESULT([yes])
+])
+
+if test "X$gui_gtk" = "Xyes" ; then
+	if test "X$gui_xaw" != "Xno" ; then
 		AC_MSG_ERROR([To use --enable-gtk, you must also use --disable-xaw])
 	fi
-	gui_gtk="yes *** THIS IS NOT YET SUPPORTED AND PROBABLY WILL NOT COMPILE***"
 
 	# Check for pkg-config
 	AC_PATH_PROG(PKG_CONFIG, pkg-config, no)
@@ -187,18 +194,18 @@ else
 	)
 	GLIB_VERSION=`$PKG_CONFIG glib-2.0 --modversion`
 fi
-],
-[
-	AC_MSG_RESULT([no])
-])
 
-if test "X$gui_gtk" = "Xno" -a "X$gui_xaw" != "Xyes" ; then
-	AC_MSG_ERROR([You must enable some gui toolkit (gtk+ or Xaw)])
-fi
 
 # 
 # end of check for gtk+
 ############################################################################
+
+#
+# make sure we didn't try to configure multiple gui's
+#
+if test "X$gui_gtk" = "Xno" -a "X$gui_xaw" != "Xyes" ; then
+	AC_MSG_ERROR([You must enable some gui toolkit (gtk+ or Xaw)])
+fi
 
 dnl Checks for header files.
 AC_HEADER_STDC

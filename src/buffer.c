@@ -44,7 +44,6 @@
 #include "crosshair.h"
 #include "data.h"
 #include "error.h"
-#include "gui.h"
 #include "mymem.h"
 #include "mirror.h"
 #include "misc.h"
@@ -57,9 +56,7 @@
 #include "select.h"
 #include "set.h"
 
-#ifdef HAVE_LIBDMALLOC
-#include <dmalloc.h>
-#endif
+#include "gui.h"
 
 RCSID("$Id$");
 
@@ -524,7 +521,7 @@ LoadElementToBuffer (BufferTypePtr Buffer, char *Name, Boolean FromFile)
 {
   ElementTypePtr element;
 
-  watchCursor ();
+  gui_watch_cursor ();
   ClearBuffer (Buffer);
   if (FromFile)
     {
@@ -544,7 +541,7 @@ LoadElementToBuffer (BufferTypePtr Buffer, char *Name, Boolean FromFile)
 	      Buffer->X = 0;
 	      Buffer->Y = 0;
 	    }
-	  restoreCursor ();
+	  gui_restore_cursor ();
 	  return (True);
 	}
     }
@@ -564,13 +561,13 @@ LoadElementToBuffer (BufferTypePtr Buffer, char *Name, Boolean FromFile)
 	  Buffer->X = element->MarkX;
 	  Buffer->Y = element->MarkY;
 	  SetBufferBoundingBox (Buffer);
-	  restoreCursor ();
+	  gui_restore_cursor ();
 	  return (True);
 	}
     }
   /* release memory which might have been aquired */
   ClearBuffer (Buffer);
-  restoreCursor ();
+  gui_restore_cursor ();
   return (False);
 }
 
@@ -588,7 +585,7 @@ SmashBufferElement (BufferTypePtr Buffer)
 
   if (Buffer->Data->ElementN != 1)
     {
-      Message ("ERROR!  Buffer doesn't contain a single element\n");
+      Message (_("Error!  Buffer doesn't contain a single element\n"));
       return (False);
     }
   element = &Buffer->Data->Element[0];
@@ -735,9 +732,9 @@ ConvertBufferToElement (BufferTypePtr Buffer)
 	    {
 	      warned = True;
 	      Message
-		("Warning: All of the pads are on the opposite\n"
+		(_("Warning: All of the pads are on the opposite\n"
 		 "side from the component - that's probably not what\n"
-		 "you wanted\n");
+		 "you wanted\n"));
 	    }
 	  hasParts = True;
 	}
@@ -766,8 +763,8 @@ ConvertBufferToElement (BufferTypePtr Buffer)
   if (!hasParts)
     {
       DestroyObject (PCB->Data, ELEMENT_TYPE, Element, Element, Element);
-      Message ("There was nothing to convert!\n"
-	       "Elements must have some pads or pins.\n");
+      Message (_("There was nothing to convert!\n"
+	       "Elements must have some pads or pins.\n"));
       return (False);
     }
   Element->MarkX = Buffer->X;
@@ -897,7 +894,7 @@ MirrorBuffer (BufferTypePtr Buffer)
 
   if (Buffer->Data->ElementN)
     {
-      Message ("You can't mirror a buffer that has element(s)!\n");
+      Message (_("You can't mirror a buffer that has elements!\n"));
       return;
     }
   for (i = 0; i < MAX_LAYER + 2; i++)
@@ -905,7 +902,7 @@ MirrorBuffer (BufferTypePtr Buffer)
       LayerTypePtr layer = LAYER_PTR (i);
       if (layer->TextN)
 	{
-	  Message ("You can't mirror a buffer that has text(s)!\n");
+	  Message (_("You can't mirror a buffer that has text!\n"));
 	  return;
 	}
     }

@@ -53,27 +53,29 @@ am__installdirs = "$(DESTDIR)$(bindir)" "$(DESTDIR)$(pcblibdir)" \
 	"$(DESTDIR)$(pkgdatadir)"
 binPROGRAMS_INSTALL = $(INSTALL_PROGRAM)
 PROGRAMS = $(bin_PROGRAMS)
-am_pcb_bin_OBJECTS = action.$(OBJEXT) actionlist.$(OBJEXT) \
-	autoplace.$(OBJEXT) autoroute.$(OBJEXT) buffer.$(OBJEXT) \
-	change.$(OBJEXT) clip.$(OBJEXT) command.$(OBJEXT) \
-	compat.$(OBJEXT) control.$(OBJEXT) copy.$(OBJEXT) \
-	create.$(OBJEXT) crosshair.$(OBJEXT) data.$(OBJEXT) \
-	dev_ps.$(OBJEXT) dev_rs274x.$(OBJEXT) dialog.$(OBJEXT) \
+am_pcb_bin_OBJECTS = action.$(OBJEXT) autoplace.$(OBJEXT) \
+	autoroute.$(OBJEXT) buffer.$(OBJEXT) change.$(OBJEXT) \
+	clip.$(OBJEXT) command.$(OBJEXT) compat.$(OBJEXT) \
+	copy.$(OBJEXT) create.$(OBJEXT) crosshair.$(OBJEXT) \
+	data.$(OBJEXT) dev_ps.$(OBJEXT) dev_rs274x.$(OBJEXT) \
 	djopt.$(OBJEXT) draw.$(OBJEXT) drill.$(OBJEXT) error.$(OBJEXT) \
-	file.$(OBJEXT) fileselect.$(OBJEXT) find.$(OBJEXT) \
-	gui.$(OBJEXT) heap.$(OBJEXT) insert.$(OBJEXT) \
-	intersect.$(OBJEXT) rtree.$(OBJEXT) lgdialog.$(OBJEXT) \
-	library.$(OBJEXT) line.$(OBJEXT) log.$(OBJEXT) main.$(OBJEXT) \
-	menu.$(OBJEXT) mirror.$(OBJEXT) misc.$(OBJEXT) move.$(OBJEXT) \
-	mtspace.$(OBJEXT) mymem.$(OBJEXT) netlist.$(OBJEXT) \
-	output.$(OBJEXT) parse_l.$(OBJEXT) parse_y.$(OBJEXT) \
-	pinout.$(OBJEXT) polygon.$(OBJEXT) print.$(OBJEXT) \
-	printdialog.$(OBJEXT) printpanner.$(OBJEXT) rats.$(OBJEXT) \
-	remove.$(OBJEXT) report.$(OBJEXT) res_parse.$(OBJEXT) \
-	res_lex.$(OBJEXT) resmenu.$(OBJEXT) rotate.$(OBJEXT) \
-	rubberband.$(OBJEXT) search.$(OBJEXT) select.$(OBJEXT) \
-	selector.$(OBJEXT) set.$(OBJEXT) sizedialog.$(OBJEXT) \
-	undo.$(OBJEXT) vector.$(OBJEXT) vendor.$(OBJEXT)
+	file.$(OBJEXT) find.$(OBJEXT) gui-command-window.$(OBJEXT) \
+	gui-config.$(OBJEXT) gui-dialog-print.$(OBJEXT) \
+	gui-dialog-size.$(OBJEXT) gui-dialog.$(OBJEXT) \
+	gui-keyref-window.$(OBJEXT) gui-library-window.$(OBJEXT) \
+	gui-log-window.$(OBJEXT) gui-misc.$(OBJEXT) \
+	gui-netlist-window.$(OBJEXT) gui-output-events.$(OBJEXT) \
+	gui-pinout-window.$(OBJEXT) gui-top-window.$(OBJEXT) \
+	gui-utils.$(OBJEXT) heap.$(OBJEXT) insert.$(OBJEXT) \
+	intersect.$(OBJEXT) line.$(OBJEXT) main.$(OBJEXT) \
+	mirror.$(OBJEXT) misc.$(OBJEXT) move.$(OBJEXT) \
+	mtspace.$(OBJEXT) mymem.$(OBJEXT) output.$(OBJEXT) \
+	parse_l.$(OBJEXT) parse_y.$(OBJEXT) polygon.$(OBJEXT) \
+	print.$(OBJEXT) rats.$(OBJEXT) remove.$(OBJEXT) \
+	report.$(OBJEXT) res_parse.$(OBJEXT) res_lex.$(OBJEXT) \
+	rotate.$(OBJEXT) rtree.$(OBJEXT) rubberband.$(OBJEXT) \
+	search.$(OBJEXT) select.$(OBJEXT) set.$(OBJEXT) undo.$(OBJEXT) \
+	vector.$(OBJEXT) vendor.$(OBJEXT)
 pcb_bin_OBJECTS = $(am_pcb_bin_OBJECTS)
 pcb_bin_LDADD = $(LDADD)
 DEFAULT_INCLUDES = -I. -I$(srcdir) -I$(top_builddir)
@@ -223,7 +225,6 @@ AM_CFLAGS = -DNDEBUG
 pcb_bin_SOURCES = \
 	action.c \
 	action.h \
-	actionlist.c \
 	autoplace.c \
 	autoplace.h \
 	autoroute.c \
@@ -239,10 +240,7 @@ pcb_bin_SOURCES = \
 	command.h \
 	compat.c \
 	compat.h \
-	compat.h \
 	const.h \
-	control.c \
-	control.h \
 	copy.c \
 	copy.h \
 	create.c \
@@ -255,8 +253,6 @@ pcb_bin_SOURCES = \
 	dev_ps.h \
 	dev_rs274x.c \
 	dev_rs274x.h \
-	dialog.c \
-	dialog.h \
 	djopt.c \
 	djopt.h \
 	draw.c \
@@ -267,12 +263,23 @@ pcb_bin_SOURCES = \
 	error.h \
 	file.c \
 	file.h \
-	fileselect.c \
-	fileselect.h \
 	find.c \
 	find.h \
 	global.h \
-	gui.c \
+	gui-command-window.c \
+	gui-config.c \
+	gui-dialog-print.c \
+	gui-dialog-size.c \
+	gui-dialog.c \
+	gui-keyref-window.c \
+	gui-library-window.c \
+	gui-log-window.c \
+	gui-misc.c \
+	gui-netlist-window.c \
+	gui-output-events.c \
+	gui-pinout-window.c \
+	gui-top-window.c \
+	gui-utils.c \
 	gui.h \
 	heap.c \
 	heap.h \
@@ -280,20 +287,10 @@ pcb_bin_SOURCES = \
 	insert.h \
 	intersect.c \
 	intersect.h \
-	rtree.c \
-	rtree.h \
-	lgdialog.c \
-	lgdialog.h \
-	library.c \
-	library.h \
 	line.c \
 	line.h \
-	log.c \
-	log.h \
 	macro.h \
 	main.c \
-	menu.c \
-	menu.h \
 	mirror.c \
 	mirror.h \
 	misc.c \
@@ -304,25 +301,16 @@ pcb_bin_SOURCES = \
 	mtspace.h \
 	mymem.c \
 	mymem.h \
-	netlist.c \
-	netlist.h \
 	output.c \
 	output.h \
 	parse_l.h \
 	parse_l.l \
 	parse_y.h \
 	parse_y.y \
-	pinout.c \
-	pinout.h \
-	pcb-menu.res \
 	polygon.c \
 	polygon.h \
 	print.c \
 	print.h \
-	printdialog.c \
-	printdialog.h \
-	printpanner.c \
-	printpanner.h \
 	rats.c \
 	rats.h \
 	remove.c \
@@ -331,23 +319,19 @@ pcb_bin_SOURCES = \
 	report.h \
 	res_parse.y \
 	res_lex.l \
-	resmenu.c \
-	resmenu.h \
 	resource.h \
 	rotate.c \
 	rotate.h \
+	rtree.c \
+	rtree.h \
 	rubberband.c \
 	rubberband.h \
 	search.c \
 	search.h \
 	select.c \
 	select.h \
-	selector.c \
-	selector.h \
 	set.c \
 	set.h \
-	sizedialog.c \
-	sizedialog.h \
 	undo.c \
 	undo.h \
 	vector.c \
@@ -358,13 +342,12 @@ pcb_bin_SOURCES = \
 
 # for globalconst.h
 INCLUDES = -I$(top_srcdir) -I$(srcdir)/icons
-BUILT_SOURCES = parse_y.h pcb-menu.h res_parse.h actionlist.c
+BUILT_SOURCES = parse_y.h pcb-menu.h res_parse.h
 EXTRA_DIST = \
 	check_icon.data \
 	default_font \
-	gather-actions \
-	icon.data \
-	mode_icon.data \
+	gui-icons-misc.data \
+	gui-icons-mode-buttons.data \
 	Pcb.ad.in  \
 	pcb-menu.res \
 	pcbtest.sh.in
@@ -449,7 +432,6 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/action.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/actionlist.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/autoplace.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/autoroute.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/buffer.Po@am__quote@
@@ -457,59 +439,58 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/clip.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/command.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/compat.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/control.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/copy.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/create.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/crosshair.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/data.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dev_ps.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dev_rs274x.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dialog.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/djopt.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/draw.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/drill.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/error.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/file.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fileselect.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/find.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/gui.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/gui-command-window.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/gui-config.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/gui-dialog-print.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/gui-dialog-size.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/gui-dialog.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/gui-keyref-window.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/gui-library-window.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/gui-log-window.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/gui-misc.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/gui-netlist-window.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/gui-output-events.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/gui-pinout-window.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/gui-top-window.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/gui-utils.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/heap.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/insert.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/intersect.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/lgdialog.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/library.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/line.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/log.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/main.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/menu.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mirror.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/misc.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/move.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mtspace.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mymem.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/netlist.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/output.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/parse_l.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/parse_y.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pinout.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/polygon.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/print.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/printdialog.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/printpanner.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/rats.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/remove.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/report.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/res_lex.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/res_parse.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/resmenu.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/rotate.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/rtree.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/rubberband.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/search.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/select.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/selector.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/set.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sizedialog.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/undo.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vector.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vendor.Po@am__quote@
@@ -844,9 +825,6 @@ uninstall-info: uninstall-info-recursive
 
 all-local: pcbtest.sh .test/Pcb
 
-@MAINTAINER_MODE_TRUE@actionlist.c : ${pcb_bin_SOURCES} ${srcdir}/gather-actions
-@MAINTAINER_MODE_TRUE@	perl ${srcdir}/gather-actions ${pcb_bin_SOURCES}
-
 pcb-menu.h : pcb-menu.res
 	echo '/* AUTOMATICALLY GENERATED FROM pcb-menu.res DO NOT EDIT */' > pcb-menu.h
 	echo 'const char *pcb_menu_default[] = {' >> pcb-menu.h
@@ -882,7 +860,6 @@ Pcb:	$(srcdir)/Pcb.ad.in Makefile
 		-e "s;^\(Pcb.libraryPath\).*$$;\1: .:`pwd`/../lib;" \
 		-e 's;^\(Pcb.libraryTree\).*$$;\1: $(top_srcdir)/newlib;' \
 		-e 's;^\(Pcb.libraryFilename\).*$$;\1: ${LIBRARYFILENAME};' \
-		-e 's;^\(Pcb.menuFile\).*$$;\1: $(srcdir)/pcb-menu.res;' \
 			Pcb > $@
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

@@ -39,19 +39,16 @@
 #include "config.h"
 #endif
 
+#include "global.h"
+
 #include <assert.h>
 #include <setjmp.h>
-#include <stdlib.h>
 
 #include "box.h"
-#include "global.h"
 #include "rtree.h"
 #include "mtspace.h"
 #include "vector.h"
 
-#ifdef HAVE_LIBDMALLOC
-#include <dmalloc.h>
-#endif
 
 RCSID("$Id$");
 
@@ -110,7 +107,7 @@ mtspace_create_box (const BoxType * box, int fixed, int even, int odd)
 {
   mtspacebox_t *mtsb;
   assert (__box_is_good (box));
-  mtsb = calloc (1, sizeof (*mtsb));
+  mtsb = g_malloc0(sizeof (*mtsb));
   *((BoxTypePtr) & mtsb->box) = *box;
   mtsb->fixed_count = fixed;
   mtsb->even_count = even;
@@ -127,6 +124,7 @@ mtspace_create (const BoxType * bounds, BDimension keepaway)
   BoxType smaller_bounds;
   mtspacebox_t *mtsb;
   mtspace_t *mtspace;
+
   assert (bounds);
   assert (__box_is_good (bounds));
   /* create initial "empty region" */
@@ -134,7 +132,7 @@ mtspace_create (const BoxType * bounds, BDimension keepaway)
   mtsb = mtspace_create_box (&smaller_bounds, 0, 0, 0);
   mtsb->keepaway = keepaway;
   /* create mtspace data structure */
-  mtspace = calloc (1, sizeof (*mtspace));
+  mtspace = g_malloc0(sizeof (*mtspace));
   mtspace->rtree = r_create_tree ((const BoxType **) &mtsb, 1, 1);
   mtspace->bounds = smaller_bounds;
   /* done! */
@@ -148,7 +146,7 @@ mtspace_destroy (mtspace_t ** mtspacep)
 {
   assert (mtspacep && __mtspace_is_good (*mtspacep));
   r_destroy_tree (&(*mtspacep)->rtree);
-  free (*mtspacep);
+  g_free (*mtspacep);
   *mtspacep = NULL;
 }
 
@@ -162,6 +160,8 @@ struct coalesce_closure
   jmp_buf env;
 };
 
+#if 0
+/* not used */
 static int
 boxtype (mtspacebox_t * mtsb)
 {
@@ -170,6 +170,7 @@ boxtype (mtspacebox_t * mtsb)
     ((mtsb->fixed_count > 0) ? 1 : 0) |
     ((mtsb->even_count > 0) ? 2 : 0) | ((mtsb->odd_count > 0) ? 4 : 0);
 }
+#endif
 
 /* look at last element in add_vec to see if it can be coalesced with
  * adjacent rectangles.  If it can, add the adjacent rectangle to the
@@ -303,7 +304,7 @@ mtspace_coalesce (mtspace_t * mtspace, struct coalesce_closure *cc)
 	{
 	  /* ----- found something to coalesce and added it to add_vec ---- */
 	  /* free old mtsb */
-	  free (cc->mtsb);
+	  g_free (cc->mtsb);
 	}
     }
   while (!vector_is_empty (cc->add_vec));
@@ -427,7 +428,7 @@ mtspace_mutate (mtspace_t * mtspace,
   assert (boxtype (cc.mtsb) != 0);
   /* take a chunk out of anything which intersects our clipped bloated box */
   mtspace_remove_chunk (mtspace, &cc);
-  free (cc.mtsb);
+  g_free (cc.mtsb);
   /* coalesce adjacent chunks */
   mtspace_coalesce (mtspace, &cc);
   /* clean up coalesce_closure */
@@ -477,13 +478,13 @@ query_one (const BoxType * box, void *cl)
   if (qc->keepaway > mtsb->keepaway)
     shrink = qc->keepaway - mtsb->keepaway;
   shrink += qc->radius;
-  shrunk = (BoxType *) calloc (1, sizeof(*shrunk));
+  shrunk = (BoxType *) g_malloc0(sizeof(*shrunk));
   *shrunk = shrink_box (box, shrink);
   if (shrunk->X2 <= shrunk->X1
       || shrunk->Y2 <= shrunk->Y1 ||
   !box_intersect (qc->region, shrunk))
     {
-      free (shrunk);
+      g_free (shrunk);
       return 0;
     }
   else if ((qc->is_odd ? mtsb->odd_count : mtsb->even_count) > 0)

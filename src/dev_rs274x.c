@@ -69,6 +69,8 @@
 #include "mymem.h"
 #include "rotate.h"
 
+#include "gui.h"
+
 #ifdef HAVE_LIBDMALLOC
 #include <dmalloc.h>
 #endif
@@ -283,7 +285,7 @@ findApertureCode (Apertures * apertures, int width, int gap, int finger,
   else
     {
       GBX_ErrorOccurred = True;
-      Message ("Error, too many apertures needed for Gerber file.\n");
+      Message (_("Error, too many apertures needed for Gerber file.\n"));
       return (10);
     }
 }
@@ -604,8 +606,8 @@ GBX_Postamble (void)
       fprintf (GBX_Flags.FP, "M02*\015\012");
     }
   if (GBX_ErrorOccurred != False)
-    Message ("An error occurred.\n"
-	     "The Gerber output file(s) aren't correct.\n");
+    Message (_("An error occurred.\n"
+	     "The Gerber output file(s) aren't correct.\n"));
 }
 
 /* ----------------------------------------------------------------------
@@ -972,7 +974,7 @@ GBX_PrintPad (PadTypePtr Pad, int mode)
       break;
     default:
       size = 0;
-      Message ("Bad mode to GBX_PrintPad\n");
+      Message (_("Bad mode to GBX_PrintPad\n"));
     }
   if (size == 0)
     return;
@@ -1044,7 +1046,7 @@ GBX_PrintPinOrVia (PinTypePtr Ptr, int mode)
       break;
     default:
       size = 0;
-      Message ("Bad mode to GBX_PrintPinOrVia\n");
+      Message (_("Bad mode to GBX_PrintPinOrVia\n"));
     }
 
   if (size == 0)

@@ -56,6 +56,8 @@
 #include "set.h"
 #include "undo.h"
 
+#include "gui.h"
+
 #ifdef HAVE_LIBDMALLOC
 #include <dmalloc.h>
 #endif
@@ -109,7 +111,8 @@ ParseConnection (char *InString, char *ElementName, char *PinNum)
   else
     {
       ElementName[j] = '\0';
-      Message ("Bad net-list format encountered near: \"%s\"\n", ElementName);
+      Message (_("Bad net-list format encountered near: \"%s\"\n"),
+				ElementName);
       return (True);
     }
 }
@@ -189,8 +192,8 @@ SeekPad (LibraryEntryType * entry, ConnectionType * conn, Boolean Same)
   for (j = 0; PinNum[j] != '\0'; j++);
   if (j == 0)
     {
-      Message ("ERROR! Netlist file is missing pin!\n"
-	       "white space after \"%s-\"\n", ElementName);
+      Message (_("Error! Netlist file is missing pin!\n"
+	       "white space after \"%s-\"\n"), ElementName);
       badnet = True;
     }
   else
@@ -206,7 +209,7 @@ SeekPad (LibraryEntryType * entry, ConnectionType * conn, Boolean Same)
 		   "Probably a bad netlist file format\n", PinNum[j - 1]);
 	}
     }
-  Message ("Can't find %s pin %s called for in netlist.\n",
+  Message (_("Can't find %s pin %s called for in netlist.\n"),
 	   ElementName, PinNum);
   return (False);
 }
@@ -226,7 +229,8 @@ ProcNetlist (LibraryTypePtr net_menu)
   if (!net_menu->MenuN)
     return (NULL);
   FreeNetListMemory (Wantlist);
-  MyFree ((char **) &Wantlist);
+  SaveFree(Wantlist);
+/*  MyFree ((char **) &Wantlist); */ /* awkward */
   badnet = False;
 
   /* find layer groups of the component side and solder side */
@@ -275,9 +279,8 @@ ProcNetlist (LibraryTypePtr net_menu)
 	  if (SeekPad (entry, &LastPoint, False))
 	    {
 	      if (TEST_FLAG (DRCFLAG, (PinTypePtr) LastPoint.ptr2))
-		Message
-		  ("Argh - element %s pin %s appears multiple times\n"
-		   "in the netlist file.   That's a problem.\n",
+		Message(
+_("Error! Element %s pin %s appears multiple times in the netlist file.\n"),
 		   NAMEONPCB_NAME ((ElementTypePtr)
 				   LastPoint.ptr1),
 		   (LastPoint.type ==
@@ -376,8 +379,8 @@ CheckShorts (LibraryMenuTypePtr theNet)
 	warn = True;
 	if (!pin->Spare)
 	  {
-	    Message ("WARNING!! net \"%s\" is shorted"
-		     " to %s pin %s\n", &theNet->Name[2],
+	    Message (_("Warning! Net \"%s\" is shorted to %s pin %s\n"),
+			&theNet->Name[2],
 		     UNKNOWN(NAMEONPCB_NAME (element)), UNKNOWN(pin->Number));
 	    SET_FLAG (WARNFLAG, pin);
 	    continue;
@@ -396,8 +399,7 @@ CheckShorts (LibraryMenuTypePtr theNet)
 	  {
 	    menu = GetPointerMemory (generic);
 	    *menu = pin->Spare;
-	    Message ("WARNING!! net \"%s\" is shorted"
-		     " to net \"%s\"\n",
+	    Message (_("Warning! net \"%s\" is shorted to net \"%s\"\n"),
 		     &theNet->Name[2],
 		     &((LibraryMenuTypePtr) (pin->Spare))->Name[2]);
 	    SET_FLAG (WARNFLAG, pin);
@@ -412,8 +414,8 @@ CheckShorts (LibraryMenuTypePtr theNet)
 	warn = True;
 	if (!pad->Spare)
 	  {
-	    Message ("WARNING!! net \"%s\" is shorted"
-		     " to %s pad %s\n", &theNet->Name[2],
+	    Message (_("Warning! Net \"%s\" is shorted  to %s pad %s\n"),
+			&theNet->Name[2],
 		     UNKNOWN(NAMEONPCB_NAME (element)), UNKNOWN(pad->Number));
 	    SET_FLAG (WARNFLAG, pad);
 	    continue;
@@ -432,8 +434,8 @@ CheckShorts (LibraryMenuTypePtr theNet)
 	  {
 	    menu = GetPointerMemory (generic);
 	    *menu = pad->Spare;
-	    Message ("WARNING!! net \"%s\" is shorted"
-		     " to net \"%s\"\n", &theNet->Name[2],
+	    Message (_("Warning! Net \"%s\" is shorted to net \"%s\"\n"),
+			&theNet->Name[2],
 		     &((LibraryMenuTypePtr) (pad->Spare))->Name[2]);
 	    SET_FLAG (WARNFLAG, pad);
 	  }
@@ -572,7 +574,7 @@ DrawShortestRats (NetListTypePtr Netl, void (*funcp) ())
   register ConnectionTypePtr conn1, conn2, firstpoint, secondpoint;
   Boolean changed = False;
   Cardinal n, m, j;
-  NetTypePtr next, subnet, theSubnet;
+  NetTypePtr next, subnet, theSubnet = NULL;
 
   firstpoint = secondpoint = NULL;
   while (Netl->NetN > 1)
@@ -655,7 +657,7 @@ AddAllRats (Boolean SelectedOnly, void (*funcp) ())
   Wantlist = ProcNetlist (&PCB->NetlistLib);
   if (!Wantlist)
     {
-      Message ("Can't add rat lines because no netlist is loaded.\n");
+      Message (_("Can't add rat lines because no netlist is loaded.\n"));
       return (False);
     }
   changed = False;
@@ -711,12 +713,12 @@ AddAllRats (Boolean SelectedOnly, void (*funcp) ())
   if (!SelectedOnly && !Warned)
     {
       if (!PCB->Data->RatN && !badnet)
-	Message ("Congratulations!!\n"
-		 "The layout is complete!\n" "And has no shorted nets.\n");
+	Message (_("Congratulations!!\n"
+		 "The layout is complete and has no shorted nets.\n"));
       else
-	Message ("Nothing more to add, but there are\n"
+	Message (_("Nothing more to add, but there are\n"
 		 "either rat-lines in the layout, disabled nets\n"
-		 "in the net-list, or missing components\n");
+		 "in the net-list, or missing components\n"));
     }
   return (False);
 }
@@ -740,7 +742,7 @@ CollectSubnets (Boolean SelectedOnly)
   Wantlist = ProcNetlist (&PCB->NetlistLib);
   if (!Wantlist)
     {
-      Message ("Can't add rat lines because no netlist is loaded.\n");
+      Message (_("Can't add rat lines because no netlist is loaded.\n"));
       return result;
     }
   /* initialize finding engine */
@@ -781,3 +783,128 @@ CollectSubnets (Boolean SelectedOnly)
   RestoreFindFlag ();
   return result;
 }
+
+
+
+  /* These next two functions moved from the original netlist.c as part of the
+  |  gui code separation for the Gtk port.
+  */
+RatTypePtr
+AddNet (void)
+{
+  static int ratDrawn = 0;
+  char name1[256], *name2;
+  Cardinal group1, group2;
+  char ratname[20];
+  int found;
+  void *ptr1, *ptr2, *ptr3;
+  LibraryMenuTypePtr menu;
+  LibraryEntryTypePtr entry;
+
+  if (Crosshair.AttachedLine.Point1.X == Crosshair.AttachedLine.Point2.X
+      && Crosshair.AttachedLine.Point1.Y == Crosshair.AttachedLine.Point2.Y)
+    return (NULL);
+
+  found = SearchObjectByLocation (PAD_TYPE | PIN_TYPE, &ptr1, &ptr2, &ptr3,
+				  Crosshair.AttachedLine.Point1.X,
+				  Crosshair.AttachedLine.Point1.Y, 5);
+  if (found == NO_TYPE)
+    {
+      Message (_("No pad/pin under rat line\n"));
+      return (NULL);
+    }
+  if (NAMEONPCB_NAME ((ElementTypePtr) ptr1) == NULL
+      || *NAMEONPCB_NAME ((ElementTypePtr) ptr1) == 0)
+    {
+      Message (_("You must name the starting element first\n"));
+      return (NULL);
+    }
+
+  /* will work for pins to since the FLAG is common */
+  group1 = (TEST_FLAG (ONSOLDERFLAG, (PadTypePtr) ptr2) ?
+	    GetLayerGroupNumberByNumber (MAX_LAYER + SOLDER_LAYER) :
+	    GetLayerGroupNumberByNumber (MAX_LAYER + COMPONENT_LAYER));
+  strcpy (name1, ConnectionName (found, ptr1, ptr2));
+  found = SearchObjectByLocation (PAD_TYPE | PIN_TYPE, &ptr1, &ptr2, &ptr3,
+				  Crosshair.AttachedLine.Point2.X,
+				  Crosshair.AttachedLine.Point2.Y, 5);
+  if (found == NO_TYPE)
+    {
+      Message (_("No pad/pin under rat line\n"));
+      return (NULL);
+    }
+  if (NAMEONPCB_NAME ((ElementTypePtr) ptr1) == NULL
+      || *NAMEONPCB_NAME ((ElementTypePtr) ptr1) == 0)
+    {
+      Message (_("You must name the ending element first\n"));
+      return (NULL);
+    }
+  group2 = (TEST_FLAG (ONSOLDERFLAG, (PadTypePtr) ptr2) ?
+	    GetLayerGroupNumberByNumber (MAX_LAYER + SOLDER_LAYER) :
+	    GetLayerGroupNumberByNumber (MAX_LAYER + COMPONENT_LAYER));
+  name2 = ConnectionName (found, ptr1, ptr2);
+  menu = gui_get_net_from_node_name(name1, False);
+  if (menu)
+    {
+      if (gui_get_net_from_node_name(name2, False))
+	{
+	  Message (_("Both connections already in netlist - cannot merge nets\n"));
+	  return (NULL);
+	}
+      entry = GetLibraryEntryMemory (menu);
+      entry->ListEntry = MyStrdup (name2, "AddNet");
+      gui_get_net_from_node_name(name2, True);
+      goto ratIt;
+    }
+  /* ok, the first name did not belong to a net */
+  menu = gui_get_net_from_node_name(name2, False);
+  if (menu)
+    {
+      entry = GetLibraryEntryMemory (menu);
+      entry->ListEntry = MyStrdup (name1, "AddNet");
+      gui_get_net_from_node_name(name1, True);
+      goto ratIt;
+    }
+  /* neither belong to a net, so create a new one */
+  menu = GetLibraryMenuMemory (&PCB->NetlistLib);
+  sprintf (ratname, "  ratDrawn%i", ++ratDrawn);
+  menu->Name = MyStrdup (ratname, "AddNet");
+  entry = GetLibraryEntryMemory (menu);
+  entry->ListEntry = MyStrdup (name1, "AddNet");
+  entry = GetLibraryEntryMemory (menu);
+  entry->ListEntry = MyStrdup (name2, "AddNet");
+  gui_netlist_window_update(FALSE);
+  gui_get_net_from_node_name(name2, True);
+ratIt:
+  gui_netlist_nodes_update(menu);
+  return (CreateNewRat (PCB->Data, Crosshair.AttachedLine.Point1.X,
+			Crosshair.AttachedLine.Point1.Y,
+			Crosshair.AttachedLine.Point2.X,
+			Crosshair.AttachedLine.Point2.Y,
+			group1, group2, Settings.RatThickness, NOFLAG));
+}
+
+
+char *
+ConnectionName (int type, void *ptr1, void *ptr2)
+{
+  static char name[256];
+  char *num;
+
+  switch (type)
+    {
+    case PIN_TYPE:
+      num = ((PinTypePtr) ptr2)->Number;
+      break;
+    case PAD_TYPE:
+      num = ((PadTypePtr) ptr2)->Number;
+      break;
+    default:
+      return (NULL);
+    }
+  strcpy (name, UNKNOWN (NAMEONPCB_NAME ((ElementTypePtr) ptr1)));
+  strcat (name, "-");
+  strcat (name, UNKNOWN (num));
+  return (name);
+}
+

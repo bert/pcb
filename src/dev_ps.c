@@ -81,7 +81,7 @@ static void PS_Postamble (void);
 static void PS_EPS_Exit (Boolean);
 static void PS_Init (PrintInitTypePtr);
 static void EPS_Init (PrintInitTypePtr);
-static void PS_SetColor (XColor);
+static void PS_SetColor (GdkColor *);
 static void PS_Invert (int);
 static void PS_PrintLine (LineTypePtr, Boolean);
 static void PS_PrintArc (ArcTypePtr, Boolean);
@@ -1012,13 +1012,13 @@ PS_DrillHelper (PinTypePtr Ptr, int unused)
 }
 
 /* ----------------------------------------------------------------------
- * Convert X color to postscript
+ * Convert GdkColor to postscript
  */
 static void
-PS_SetColor (XColor RGB)
+PS_SetColor (GdkColor *RGB)
 {
   fprintf (PS_Flags.FP,
 	   "/Color {%.3f %.3f %.3f mysetrgbcolor} def Color\n",
-	   (float) RGB.red / 65535.0,
-	   (float) RGB.green / 65535.0, (float) RGB.blue / 65535.0);
+	   (float) RGB->red / 65535.0,
+	   (float) RGB->green / 65535.0, (float) RGB->blue / 65535.0);
 }

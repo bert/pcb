@@ -19,7 +19,6 @@ AM_CFLAGS = -DNDEBUG
 pcb_bin_SOURCES = \
 	action.c \
 	action.h \
-	actionlist.c \
 	autoplace.c \
 	autoplace.h \
 	autoroute.c \
@@ -35,10 +34,7 @@ pcb_bin_SOURCES = \
 	command.h \
 	compat.c \
 	compat.h \
-	compat.h \
 	const.h \
-	control.c \
-	control.h \
 	copy.c \
 	copy.h \
 	create.c \
@@ -51,8 +47,6 @@ pcb_bin_SOURCES = \
 	dev_ps.h \
 	dev_rs274x.c \
 	dev_rs274x.h \
-	dialog.c \
-	dialog.h \
 	djopt.c \
 	djopt.h \
 	draw.c \
@@ -63,12 +57,23 @@ pcb_bin_SOURCES = \
 	error.h \
 	file.c \
 	file.h \
-	fileselect.c \
-	fileselect.h \
 	find.c \
 	find.h \
 	global.h \
-	gui.c \
+	gui-command-window.c \
+	gui-config.c \
+	gui-dialog-print.c \
+	gui-dialog-size.c \
+	gui-dialog.c \
+	gui-keyref-window.c \
+	gui-library-window.c \
+	gui-log-window.c \
+	gui-misc.c \
+	gui-netlist-window.c \
+	gui-output-events.c \
+	gui-pinout-window.c \
+	gui-top-window.c \
+	gui-utils.c \
 	gui.h \
 	heap.c \
 	heap.h \
@@ -76,20 +81,10 @@ pcb_bin_SOURCES = \
 	insert.h \
 	intersect.c \
 	intersect.h \
-	rtree.c \
-	rtree.h \
-	lgdialog.c \
-	lgdialog.h \
-	library.c \
-	library.h \
 	line.c \
 	line.h \
-	log.c \
-	log.h \
 	macro.h \
 	main.c \
-	menu.c \
-	menu.h \
 	mirror.c \
 	mirror.h \
 	misc.c \
@@ -100,25 +95,16 @@ pcb_bin_SOURCES = \
 	mtspace.h \
 	mymem.c \
 	mymem.h \
-	netlist.c \
-	netlist.h \
 	output.c \
 	output.h \
 	parse_l.h \
 	parse_l.l \
 	parse_y.h \
 	parse_y.y \
-	pinout.c \
-	pinout.h \
-	pcb-menu.res \
 	polygon.c \
 	polygon.h \
 	print.c \
 	print.h \
-	printdialog.c \
-	printdialog.h \
-	printpanner.c \
-	printpanner.h \
 	rats.c \
 	rats.h \
 	remove.c \
@@ -127,23 +113,19 @@ pcb_bin_SOURCES = \
 	report.h \
 	res_parse.y \
 	res_lex.l \
-	resmenu.c \
-	resmenu.h \
 	resource.h \
 	rotate.c \
 	rotate.h \
+	rtree.c \
+	rtree.h \
 	rubberband.c \
 	rubberband.h \
 	search.c \
 	search.h \
 	select.c \
 	select.h \
-	selector.c \
-	selector.h \
 	set.c \
 	set.h \
-	sizedialog.c \
-	sizedialog.h \
 	undo.c \
 	undo.h \
 	vector.c \
@@ -154,14 +136,13 @@ pcb_bin_SOURCES = \
 # for globalconst.h
 INCLUDES=	-I$(top_srcdir) -I$(srcdir)/icons
 
-BUILT_SOURCES=	parse_y.h pcb-menu.h res_parse.h actionlist.c
+BUILT_SOURCES=	parse_y.h pcb-menu.h res_parse.h
 
 EXTRA_DIST= \
 	check_icon.data \
 	default_font \
-	gather-actions \
-	icon.data \
-	mode_icon.data \
+	gui-icons-misc.data \
+	gui-icons-mode-buttons.data \
 	Pcb.ad.in  \
 	pcb-menu.res \
 	pcbtest.sh.in
@@ -169,9 +150,6 @@ EXTRA_DIST= \
 AM_YFLAGS=	-d
 
 all-local: pcbtest.sh .test/Pcb
-
-@MAINTAINER_MODE_TRUE@actionlist.c : ${pcb_bin_SOURCES} ${srcdir}/gather-actions
-@MAINTAINER_MODE_TRUE@	perl ${srcdir}/gather-actions ${pcb_bin_SOURCES}
 
 pcb-menu.h : pcb-menu.res
 	echo '/* AUTOMATICALLY GENERATED FROM pcb-menu.res DO NOT EDIT */' > pcb-menu.h
@@ -218,7 +196,6 @@ Pcb:	$(srcdir)/Pcb.ad.in Makefile
 		-e "s;^\(Pcb.libraryPath\).*$$;\1: .:`pwd`/../lib;" \
 		-e 's;^\(Pcb.libraryTree\).*$$;\1: $(top_srcdir)/newlib;' \
 		-e 's;^\(Pcb.libraryFilename\).*$$;\1: ${LIBRARYFILENAME};' \
-		-e 's;^\(Pcb.menuFile\).*$$;\1: $(srcdir)/pcb-menu.res;' \
 			Pcb > $@
 
 

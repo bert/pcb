@@ -193,28 +193,4 @@
 
 #define	ALL_TYPES		-1	/* all bits set */
 
-/* ---------------------------------------------------------------------------
- * define some standard layouts for childs of a form widget
- */
-#define	LAYOUT_TOP		XtNleft, XtChainLeft,	\
-				XtNright, XtChainLeft,	\
-				XtNtop, XtChainTop,	\
-				XtNbottom, XtChainTop
-#define	LAYOUT_BOTTOM		XtNleft, XtChainLeft,	\
-				XtNright, XtChainLeft,	\
-				XtNtop, XtChainBottom,	\
-				XtNbottom, XtChainBottom
-#define	LAYOUT_BOTTOM_RIGHT	XtNleft, XtChainLeft,	\
-				XtNright, XtChainRight,	\
-				XtNtop, XtChainBottom,	\
-				XtNbottom, XtChainBottom
-#define	LAYOUT_LEFT		XtNleft, XtChainLeft,	\
-				XtNright, XtChainLeft,	\
-				XtNtop, XtChainTop,	\
-				XtNbottom, XtChainBottom
-#define	LAYOUT_NORMAL		XtNleft, XtChainLeft,	\
-				XtNright, XtChainRight,	\
-				XtNtop, XtChainTop,	\
-				XtNbottom, XtChainBottom
-
 #endif

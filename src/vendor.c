@@ -50,16 +50,13 @@
 #include "data.h"
 #include "draw.h"
 #include "error.h"
-#include "fileselect.h"
 #include "global.h"
 #include "resource.h"
 #include "set.h"
 #include "undo.h"
 #include "vendor.h"
 
-#ifdef HAVE_LIBDMALLOC
-#include <dmalloc.h>
-#endif
+#include "gui.h"
 
 static void add_to_drills(char *);
 static void apply_vendor_map(void);
@@ -93,7 +90,7 @@ static Boolean vendorMapEnable = False;
 #define ROUND_UP 0
 static int rounding_method = ROUND_UP;
 
-#define FREE(x) if((x) != NULL) { free (x) ; (x) = NULL; }
+#define FREE(x) if((x) != NULL) { g_free (x) ; (x) = NULL; }
 
 /* FLAG(VendorMapOn,vendor_get_enabled) */
 int
@@ -107,7 +104,7 @@ vendor_get_enabled(void)
 /* ACTION(ApplyVendor,ActionApplyVendor) */
 
 void
-ActionApplyVendor(Widget W, XEvent *Event, String *Params, Cardinal *num)
+ActionApplyVendor(void)
 {
 
   apply_vendor_map();
@@ -118,7 +115,7 @@ ActionApplyVendor(Widget W, XEvent *Event, String *Params, Cardinal *num)
 /* ACTION(ToggleVendor,ActionToggleVendor) */
 
 void
-ActionToggleVendor(Widget W, XEvent *Event, String *Params, Cardinal *num)
+ActionToggleVendor(void)
 {
 
   if (vendorMapEnable)
@@ -132,7 +129,7 @@ ActionToggleVendor(Widget W, XEvent *Event, String *Params, Cardinal *num)
 /* ACTION(EnableVendor,ActionEnableVendor) */
 
 void
-ActionEnableVendor(Widget W, XEvent *Event, String *Params, Cardinal *num)
+ActionEnableVendor(void)
 {
   vendorMapEnable = True;
 }
@@ -142,7 +139,7 @@ ActionEnableVendor(Widget W, XEvent *Event, String *Params, Cardinal *num)
 /* ACTION(DisableVendor,ActionDisableVendor) */
 
 void
-ActionDisableVendor(Widget W, XEvent *Event, String *Params, Cardinal *num)
+ActionDisableVendor(void)
 {
   vendorMapEnable = False;
 }
@@ -152,7 +149,7 @@ ActionDisableVendor(Widget W, XEvent *Event, String *Params, Cardinal *num)
 /* ACTION(UnloadVendor,ActionUnloadVendor) */
 
 void
-ActionUnloadVendor(Widget W, XEvent *Event, String *Params, Cardinal *num)
+ActionUnloadVendor(void)
 {
 
   /* Unload any vendor table we may have had */
@@ -172,21 +169,23 @@ ActionUnloadVendor(Widget W, XEvent *Event, String *Params, Cardinal *num)
 /* ACTION(LoadVendor,ActionLoadVendor) */
 
 void
-ActionLoadVendor(Widget W, XEvent *Event, String *Params, Cardinal *num)
+ActionLoadVendor(gchar *filename)
 {
   int i;
-  char *fname = NULL;
+  char *fname = NULL, *name = NULL;
   char *sval;
   Resource *res, *drcres, *drlres;
   int type;
 
-  if (*num == 0)
+  if (!filename || !*filename)
   {
-    fname = FileSelectBox ("load vendor resource:", NULL, Settings.FilePath);
-  } else if ( *num == 1)
+    fname = gui_dialog_file_select_open(_("Load vendor resource file"),
+                        NULL, Settings.FilePath);
+    name = fname;
+  } else if ( filename && *filename)
   {
     /* resource file name */
-    fname = Params[0];
+    fname = filename;
   } else
   {
     Message ("Usage:  LoadVendor([filename])\n");
@@ -214,7 +213,7 @@ ActionLoadVendor(Widget W, XEvent *Event, String *Params, Cardinal *num)
   res = resource_parse(fname, NULL);
   if (res == NULL)
     {
-      Message ("Could not load vendor resource file \"%s\"\n", fname);
+      Message (_("Could not load vendor resource file \"%s\"\n"), fname);
       return;
     }
 
@@ -257,7 +256,7 @@ ActionLoadVendor(Widget W, XEvent *Event, String *Params, Cardinal *num)
   drlres = resource_subres(res, "drillmap");
   if ( drlres == NULL ) 
     {
-      Message ("No drillmap resource found\n");
+      Message (_("No drillmap resource found\n"));
     }
   else 
     {
@@ -274,8 +273,8 @@ ActionLoadVendor(Widget W, XEvent *Event, String *Params, Cardinal *num)
 	    }
 	  else 
 	    {
-	      Message ("\"%s\" is not a valid rounding type.  "
-		       "Defaulting to up\n", sval);
+	      Message (
+		_("\"%s\" is not a valid rounding type.  Defaulting to up\n"), sval);
 	      rounding_method = ROUND_UP;
 	    }
 	}
@@ -304,41 +303,42 @@ ActionLoadVendor(Widget W, XEvent *Event, String *Params, Cardinal *num)
   sval = resource_value(drcres, "copper_space");
   if (sval != NULL)
     {
-      Settings.Bloat = floor (sf * atof(sval) + 0.5);
-      Message ("Set DRC minimum copper spacing to %.2f mils\n", 
-	       0.01*Settings.Bloat);
+      PCB->Bloat = floor (sf * atof(sval) + 0.5);
+      Message (_("Set DRC minimum copper spacing to %.2f mils\n"), 
+	       0.01*PCB->Bloat);
     }
 
   sval = resource_value(drcres, "copper_overlap");
   if (sval != NULL)
     {
-      Settings.Shrink = floor (sf * atof(sval) + 0.5);
-      Message ("Set DRC minimum copper overlap to %.2f mils\n", 
-	       0.01*Settings.Shrink);
+      PCB->Shrink = floor (sf * atof(sval) + 0.5);
+      Message (_("Set DRC minimum copper overlap to %.2f mils\n"), 
+	       0.01*PCB->Shrink);
     }
 
   sval = resource_value(drcres, "copper_width");
   if (sval != NULL)
     {
-      Settings.minWid = floor (sf * atof(sval) + 0.5);
-      Message ("Set DRC minimum copper spacing to %.2f mils\n", 
-	       0.01*Settings.minWid);
+      PCB->minWid = floor (sf * atof(sval) + 0.5);
+      Message (_("Set DRC minimum copper spacing to %.2f mils\n"), 
+	       0.01*PCB->minWid);
     }
 
   sval = resource_value(drcres, "silk_width");
   if (sval != NULL)
     {
-      Settings.minSlk = floor (sf * atof(sval) + 0.5);
-      Message ("Set DRC minimum silk width to %.2f mils\n", 
-	       0.01*Settings.minSlk);
+      PCB->minSlk = floor (sf * atof(sval) + 0.5);
+      Message (_("Set DRC minimum silk width to %.2f mils\n"), 
+	       0.01*PCB->minSlk);
     }
 
-  Message ("Loaded %d vendor drills from %s\n", n_vendor_drills, fname);
-  Message ("Loaded %d RefDes skips, %d Value skips, %d Descr skips\n",
+  Message (_("Loaded %d vendor drills from %s\n"), n_vendor_drills, fname);
+  Message (_("Loaded %d RefDes skips, %d Value skips, %d Descr skips\n"),
 	   n_refdes, n_value, n_descr);
 
   vendorMapEnable = True;
   apply_vendor_map();
+  g_free(name);
 }
 
 static void apply_vendor_map(void)
@@ -375,15 +375,15 @@ static void apply_vendor_map(void)
 		  changed++;
 		else 
 		  {
-		    Message ("Via at %.2f, %.2f not changed.  Possible reasons:\n"
+		    Message (_("Via at %.2f, %.2f not changed.  Possible reasons:\n"
 			     "\t- pad size too small\n"
-			     "\t- new size would be too large or too small\n",
+			     "\t- new size would be too large or too small\n"),
 			     0.01*via->X, 0.01*via->Y);
 		  }
 	      } 
 	    else 
 	      {
-		Message ("Locked via at %.2f, %.2f not changed.\n",
+		Message (_("Locked via at %.2f, %.2f not changed.\n"),
 			 0.01*via->X, 0.01*via->Y);
 	      }
 	  }			
@@ -413,9 +413,11 @@ static void apply_vendor_map(void)
 			changed++;
 		      else 
 			{
-			  Message ("Pin %s (%s) at %.2f, %.2f (element %s, %s, %s) not changed.  Possible reasons:\n"
+			  Message (
+			_("Pin %s (%s) at %.2f, %.2f (element %s, %s, %s) not changed.\n"
+					"\tPossible reasons:\n"
 				   "\t- pad size too small\n"
-				   "\t- new size would be too large or too small\n",
+				   "\t- new size would be too large or too small\n"),
 				   UNKNOWN (pin->Number), UNKNOWN (pin->Name),
 				   0.01*pin->X, 0.01*pin->Y,
 				   UNKNOWN (NAMEONPCB_NAME (element)),
@@ -425,7 +427,7 @@ static void apply_vendor_map(void)
 		    } 
 		  else 
 		    {
-		      Message ("Locked pin at %-6.2f, %-6.2f not changed.\n",
+		      Message (_("Locked pin at %-6.2f, %-6.2f not changed.\n"),
 			       0.01*pin->X, 0.01*pin->Y);
 		    }
 		}
@@ -435,14 +437,14 @@ static void apply_vendor_map(void)
       }
       END_LOOP;
       
-      Message ("Updated %d drill sizes out of %d total\n", changed, tot);
+      Message (_("Updated %d drill sizes out of %d total\n"), changed, tot);
 
       /* Update the current Via */
       if (Settings.ViaDrillingHole != vendorDrillMap (Settings.ViaDrillingHole))
 	{
 	  changed++;
 	  Settings.ViaDrillingHole = vendorDrillMap (Settings.ViaDrillingHole);
-	  Message ("Adjusted active via hole size to be %6.2f mils\n",
+	  Message (_("Adjusted active via hole size to be %6.2f mils\n"),
 		   0.01*Settings.ViaDrillingHole);
 	}
 
@@ -453,12 +455,14 @@ static void apply_vendor_map(void)
 	    {
 	      changed++;
 	      PCB->RouteStyle[i].Hole = vendorDrillMap (PCB->RouteStyle[i].Hole);
-	      Message ("Adjusted %s routing style via hole size to be %6.2f mils\n",
+	      Message (
+			_("Adjusted %s routing style via hole size to be %6.2f mils\n"),
 		       PCB->RouteStyle[i].Name, 0.01*PCB->RouteStyle[i].Hole);
 	      if (PCB->RouteStyle[i].Diameter < PCB->RouteStyle[i].Hole + MIN_PINORVIACOPPER)
 		{
 		  PCB->RouteStyle[i].Diameter = PCB->RouteStyle[i].Hole + MIN_PINORVIACOPPER;
-		  Message ("Increased %s routing style via diameter to %6.2f mils\n",
+		  Message (
+				_("Increased %s routing style via diameter to %6.2f mils\n"),
 			   PCB->RouteStyle[i].Name, 0.01*PCB->RouteStyle[i].Diameter);
 		}
 	    }
@@ -496,8 +500,8 @@ int vendorDrillMap(int in)
   /* are we larger than the largest drill? */
   if (in > vendor_drills[n_vendor_drills-1])
     {
-      Message ("Vendor drill list does not contain a drill >= %6.2f mil\n"
-	       "Using %6.2f mil instead.\n", 
+      Message (_("Vendor drill list does not contain a drill >= %6.2f mil\n"
+	       "Using %6.2f mil instead.\n"), 
 	       0.01*in, 0.01*vendor_drills[n_vendor_drills-1]);
       return vendor_drills[n_vendor_drills-1];
     }
@@ -533,10 +537,10 @@ static void add_to_drills(char *sval)
 
   /* increment the count and make sure we have memory */
   n_vendor_drills++;
-  if ( (vendor_drills = realloc (vendor_drills, 
+  if ( (vendor_drills = g_realloc (vendor_drills, 
 				 n_vendor_drills*sizeof(int))) == NULL )
     {
-      fprintf (stderr, "realloc() failed to allocate %ld bytes\n", 
+      fprintf (stderr, "g_realloc() failed to allocate %ld bytes\n", 
 	       (unsigned long) n_vendor_drills*sizeof(int));
       return ; 
     }
@@ -628,19 +632,19 @@ static void process_skips(Resource *res)
 		    {
 		      sval = res->v[i].subres->v[k].value;
 		      (*cnt)++;
-		      if( (*lst = (char **) realloc(*lst, (*cnt)*sizeof(char *))) == NULL )
+		      if( (*lst = (char **) g_realloc(*lst, (*cnt)*sizeof(char *))) == NULL )
 			{
-			  fprintf(stderr, "realloc() failed\n");
+			  fprintf(stderr, "g_realloc() failed\n");
 			  exit(-1);
 			}
-		      (*lst)[*cnt - 1] = strdup(sval);
+		      (*lst)[*cnt - 1] = g_strdup(sval);
 		    }
 		}
 	    }
 	  break;
 	  
 	default:
-	  Message ("Ignored resource type = %d in skips= section\n", type);
+	  Message (_("Ignored resource type = %d in skips= section\n"), type);
 	}
     }
   
@@ -660,7 +664,7 @@ Boolean vendorIsElementMappable(ElementTypePtr element)
       if ( (NSTRCMP (UNKNOWN (NAMEONPCB_NAME(element) ), ignore_refdes[i]) == 0) ||
 	   rematch ( ignore_refdes[i], UNKNOWN (NAMEONPCB_NAME(element) )) )
 	{
-	  Message ("Vendor mapping skipped because refdes = %s matches %s\n", 
+	  Message (_("Vendor mapping skipped because refdes = %s matches %s\n"), 
 		   UNKNOWN (NAMEONPCB_NAME(element) ),
 		   ignore_refdes[i]);
 	  noskip = 0;
@@ -672,7 +676,7 @@ Boolean vendorIsElementMappable(ElementTypePtr element)
 	if ( (NSTRCMP (UNKNOWN (VALUE_NAME(element) ), ignore_value[i]) == 0) ||
 	     rematch ( ignore_value[i], UNKNOWN (VALUE_NAME(element) )) )
 	  {
-	    Message ("Vendor mapping skipped because value = %s matches %s\n", 
+	    Message (_("Vendor mapping skipped because value = %s matches %s\n"), 
 		     UNKNOWN (VALUE_NAME(element)),
 		     ignore_value[i]);
 	    noskip = 0;
@@ -684,7 +688,7 @@ Boolean vendorIsElementMappable(ElementTypePtr element)
       if ( (NSTRCMP (UNKNOWN (DESCRIPTION_NAME(element) ), ignore_descr[i]) == 0) ||
 	   rematch ( ignore_descr[i], UNKNOWN (DESCRIPTION_NAME(element) )) )
 	{
-	  Message ("Vendor mapping skipped because descr = %s matches %s\n", 
+	  Message (_("Vendor mapping skipped because descr = %s matches %s\n"), 
 		   UNKNOWN (DESCRIPTION_NAME(element) ),
 		   ignore_descr[i]);
 	  noskip = 0;
@@ -693,7 +697,8 @@ Boolean vendorIsElementMappable(ElementTypePtr element)
   
   if ( noskip && TEST_FLAG (LOCKFLAG, element) ) 
     {
-      Message ("Vendor mapping skipped because element %s is locked\n", UNKNOWN (NAMEONPCB_NAME(element) ));
+      Message (_("Vendor mapping skipped because element %s is locked\n"),
+	UNKNOWN (NAMEONPCB_NAME(element) ));
       noskip = 0;
     }
 

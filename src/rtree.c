@@ -40,22 +40,21 @@
 #include "config.h"
 #endif
 
+#include "global.h"
+
 #include <assert.h>
 #include <setjmp.h>
-#include <stdlib.h>
+
 #define DRAWBOX
+
 #ifdef DRAWBOX
 #include "clip.h"
 #include "data.h"
 #endif
-#include "global.h"
 #include "mymem.h"
 
 #include "rtree.h"
 
-#ifdef HAVE_LIBDMALLOC
-#include <dmalloc.h>
-#endif
 
 RCSID("$Id$");
 
@@ -242,35 +241,36 @@ __r_dump_tree (struct rtree_node *node, int depth)
       printf ("p=0x%p node X(%d, %d) Y(%d, %d)\n", (void *) node,
 	      node->box.X1, node->box.X2, node->box.Y1, node->box.Y2);
 #ifdef DRAWBOX
-      XSetLineAttributes (Dpy, Output.fgGC, 4, LineSolid, CapRound,
-			  JoinRound);
+      gdk_gc_set_line_attributes(Output.fgGC, 4,
+				GDK_LINE_SOLID, GDK_CAP_ROUND, GDK_JOIN_ROUND);
+
       if (depth < MAX_LAYER + 1)
-	XSetForeground (Dpy, Output.fgGC, LAYER_PTR (depth)->Color);
+	gdk_gc_set_foreground(Output.fgGC, (LAYER_PTR (depth)->Color));
       else
-	XSetForeground (Dpy, Output.fgGC, PCB->WarnColor);
-      XDrawCLine (Dpy, Output.OutputWindow, Output.fgGC,
+	gdk_gc_set_foreground(Output.fgGC, PCB->WarnColor);
+      XDrawCLine (Output.top_window->window, Output.fgGC,
 		  node->box.X1, node->box.Y1, node->box.X2, node->box.Y1);
-      XDrawCLine (Dpy, Output.OutputWindow, Output.fgGC,
+      XDrawCLine (Output.top_window->window, Output.fgGC,
 		  node->box.X2, node->box.Y1, node->box.X2, node->box.Y2);
-      XDrawCLine (Dpy, Output.OutputWindow, Output.fgGC,
+      XDrawCLine (Output.top_window->window, Output.fgGC,
 		  node->box.X2, node->box.Y2, node->box.X1, node->box.Y2);
-      XDrawCLine (Dpy, Output.OutputWindow, Output.fgGC,
+      XDrawCLine (Output.top_window->window, Output.fgGC,
 		  node->box.X1, node->box.Y2, node->box.X1, node->box.Y1);
 #endif
     }
   else
     {
 #ifdef DRAWBOX
-      XSetLineAttributes (Dpy, Output.fgGC, 2, LineSolid, CapRound,
-			  JoinRound);
-      XSetForeground (Dpy, Output.fgGC, PCB->MaskColor);
-      XDrawCLine (Dpy, Output.OutputWindow, Output.fgGC,
+      gdk_gc_set_line_attributes(Output.fgGC, 2,
+				GDK_LINE_SOLID, GDK_CAP_ROUND, GDK_JOIN_ROUND);
+	  gdk_gc_set_foreground(Output.fgGC, PCB->MaskColor);
+      XDrawCLine (Output.top_window->window, Output.fgGC,
 		  node->box.X1, node->box.Y1, node->box.X2, node->box.Y1);
-      XDrawCLine (Dpy, Output.OutputWindow, Output.fgGC,
+      XDrawCLine (Output.top_window->window, Output.fgGC,
 		  node->box.X2, node->box.Y1, node->box.X2, node->box.Y2);
-      XDrawCLine (Dpy, Output.OutputWindow, Output.fgGC,
+      XDrawCLine (Output.top_window->window, Output.fgGC,
 		  node->box.X2, node->box.Y2, node->box.X1, node->box.Y2);
-      XDrawCLine (Dpy, Output.OutputWindow, Output.fgGC,
+      XDrawCLine (Output.top_window->window, Output.fgGC,
 		  node->box.X1, node->box.Y2, node->box.X1, node->box.Y1);
 #endif
       printf ("p=0x%p leaf manage(%02x) X(%d, %d) Y(%d, %d)\n", (void *) node,
@@ -287,19 +287,19 @@ __r_dump_tree (struct rtree_node *node, int depth)
 		      node->u.rects[j].bounds.Y1);
 	  count++;
 #ifdef DRAWBOX
-	  XSetLineAttributes (Dpy, Output.fgGC, 1, LineSolid, CapRound,
-			      JoinRound);
-	  XSetForeground (Dpy, Output.fgGC, PCB->ViaSelectedColor);
-	  XDrawCLine (Dpy, Output.OutputWindow, Output.fgGC,
+      gdk_gc_set_line_attributes(Output.fgGC, 1,
+				GDK_LINE_SOLID, GDK_CAP_ROUND, GDK_JOIN_ROUND);
+	  gdk_gc_set_foreground(Output.fgGC, PCB->ViaSelectedColor);
+	  XDrawCLine (Output.top_window->window, Output.fgGC,
 		      node->u.rects[j].bounds.X1, node->u.rects[j].bounds.Y1,
 		      node->u.rects[j].bounds.X2, node->u.rects[j].bounds.Y1);
-	  XDrawCLine (Dpy, Output.OutputWindow, Output.fgGC,
+	  XDrawCLine (Output.top_window->window, Output.fgGC,
 		      node->u.rects[j].bounds.X2, node->u.rects[j].bounds.Y1,
 		      node->u.rects[j].bounds.X2, node->u.rects[j].bounds.Y2);
-	  XDrawCLine (Dpy, Output.OutputWindow, Output.fgGC,
+	  XDrawCLine (Output.top_window->window, Output.fgGC,
 		      node->u.rects[j].bounds.X2, node->u.rects[j].bounds.Y2,
 		      node->u.rects[j].bounds.X1, node->u.rects[j].bounds.Y2);
-	  XDrawCLine (Dpy, Output.OutputWindow, Output.fgGC,
+	  XDrawCLine (Output.top_window->window, Output.fgGC,
 		      node->u.rects[j].bounds.X1, node->u.rects[j].bounds.Y2,
 		      node->u.rects[j].bounds.X1, node->u.rects[j].bounds.Y1);
 #endif
@@ -465,9 +465,9 @@ r_create_tree (const BoxType * boxlist[], int N, int manage)
   int i;
 
   assert (N >= 0);
-  rtree = calloc (1, sizeof (*rtree));
+  rtree = g_malloc0(sizeof (*rtree));
   /* start with a single empty leaf node */
-  node = calloc (1, sizeof (*node));
+  node = g_malloc0(sizeof (*node));
   node->flags.is_leaf = 1;
   node->parent = NULL;
   rtree->root = node;
@@ -494,7 +494,7 @@ __r_destroy_tree (struct rtree_node *node)
 	if (!node->u.rects[i].bptr)
 	  break;
 	if (node->flags.manage & flag)
-	  free ((void *) node->u.rects[i].bptr);
+	  g_free ((void *) node->u.rects[i].bptr);
 	flag = flag << 1;
       }
   else
@@ -504,7 +504,7 @@ __r_destroy_tree (struct rtree_node *node)
 	  break;
 	__r_destroy_tree (node->u.kids[i]);
       }
-  free (node);
+  g_free (node);
 }
 
 /* free the memory associated with an rtree. */
@@ -513,7 +513,7 @@ r_destroy_tree (rtree_t ** rtree)
 {
 
   __r_destroy_tree ((*rtree)->root);
-  free (*rtree);
+  g_free (*rtree);
   *rtree = NULL;
 }
 
@@ -719,7 +719,7 @@ find_clusters (struct rtree_node *node)
 	break;
     }
   /* Now 'belong' has the partition map */
-  new_node = calloc (1, sizeof (*new_node));
+  new_node = g_malloc0(sizeof (*new_node));
   new_node->parent = node->parent;
   new_node->flags.is_leaf = node->flags.is_leaf;
   clust_a = clust_b = 0;
@@ -792,7 +792,7 @@ split_node (struct rtree_node *node)
     {
       struct rtree_node *second;
 
-      second = calloc (1, sizeof (*second));
+      second = g_malloc0(sizeof (*second));
       *second = *node;
       if (!second->flags.is_leaf)
 	for (i = 0; i < M_SIZE; i++)
@@ -946,7 +946,7 @@ __r_insert_node (struct rtree_node * node, const BoxType * query, int manage,
       if (node->u.kids[0]->flags.is_leaf && i < M_SIZE)
 	{
 	      struct rtree_node *new_node;
-	      new_node = calloc (1, sizeof (*new_node));
+	      new_node = g_malloc0(sizeof (*new_node));
 	      new_node->parent = node;
 	      new_node->flags.is_leaf = True;
 	      node->u.kids[i] = new_node;
@@ -1000,7 +1000,7 @@ __r_delete (rtree_t * seed, struct rtree_node *node, const BoxType * query)
 	  /* if this is us being removed, free and copy over */
 	  if (node->u.kids[i] == (struct rtree_node *) query)
 	    {
-	      free ((void *) query);
+	      g_free ((void *) query);
 	      for (; i < M_SIZE; i++)
 		{
 		  node->u.kids[i] = node->u.kids[i + 1];
@@ -1061,7 +1061,7 @@ __r_delete (rtree_t * seed, struct rtree_node *node, const BoxType * query)
     return False;		/* not at this leaf */
   if (node->flags.manage & a)
     {
-      free ((void *) node->u.rects[i].bptr);
+      g_free ((void *) node->u.rects[i].bptr);
       node->u.rects[i].bptr = NULL;
     }
   /* squeeze the manage flags together */

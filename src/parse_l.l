@@ -224,7 +224,7 @@ static int Parse(char *Executable, char *Path, char *Filename, char *Parameter)
 		 * It's not necessary if the system supports the call of functions
 		 * on termination.
 		 */
-	watchCursor();
+	gui_watch_cursor();
 
 #if !defined(HAS_ATEXIT) && !defined(HAS_ON_EXIT)
 	SaveTMPData();
@@ -236,7 +236,7 @@ static int Parse(char *Executable, char *Path, char *Filename, char *Parameter)
 	/* clean up parse buffer */
 	yy_delete_buffer(YY_CURRENT_BUFFER);
 
-	restoreCursor();
+	gui_restore_cursor();
 	return(pclose(yyin) ? 1 : returncode);
 }
 

@@ -25,6 +25,13 @@
 #ifndef __VENDOR_H__
 #define __VENDOR_H__
 
+void	ActionLoadVendor(gchar *);
+void	ActionUnloadVendor(void);
+void	ActionApplyVendor(void);
+void	ActionEnableVendor(void);
+void	ActionDisableVendor(void);
+void	ActionToggleVendor(void);
+
 int vendorDrillMap(int);
 Boolean vendorIsElementMappable(ElementTypePtr);
 

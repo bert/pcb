@@ -271,7 +271,7 @@ PACKAGE_VERSION=
 PACKAGE_STRING=
 PACKAGE_BUGREPORT=
 
-ac_unique_file="src/pinout.c"
+ac_unique_file="src/draw.c"
 # Factoring default headers for most tests.
 ac_includes_default="\
 #include <stdio.h>
@@ -853,9 +853,9 @@ Optional Features:
 			  (and sometimes confusing) to the casual installer
   --disable-dependency-tracking  speeds up one-time build
   --enable-dependency-tracking   do not reject slow dependency extractors
-  --disable-xaw           Disable configure detection of Xaw, not complete yet. [default: enabled]
+  --enable-xaw            Enable configure detection of Xaw, not complete yet. [default: disabled]
   --disable-rpath         Disable hardcoding the X11 runtime library path default=enabled
-  --enable-gtk            Enable configure detection of gtk, gtk port not complete yet. [default: disabled]
+  --disable-gtk           Disable configure detection of gtk.  Not complete yet. [default: enabled]
   --enable-dmalloc        Compile and link with dmalloc for malloc debugging default=no
   --enable-efence         Link with ElectricFence for malloc debugging default=no
 
@@ -1624,7 +1624,7 @@ fi
 
 # Define the identity of the package.
  PACKAGE=pcb
- VERSION=1.99p
+ VERSION=1.99q
 
 
 cat >>confdefs.h <<_ACEOF
@@ -4321,28 +4321,28 @@ done
 
 echo "$as_me:$LINENO: checking if X/Xaw should be configured" >&5
 echo $ECHO_N "checking if X/Xaw should be configured... $ECHO_C" >&6
-gui_xaw=yes
+gui_xaw=no
 # Check whether --enable-xaw or --disable-xaw was given.
 if test "${enable_xaw+set}" = set; then
   enableval="$enable_xaw"
 
 if test "X$enable_xaw" = "Xno" ; then
-	echo "$as_me:$LINENO: result: no" >&5
-echo "${ECHO_T}no" >&6
-	gui_xaw="no *** THIS IS NOT YET SUPPORTED AND PROBABLY WILL NOT COMPILE ***"
-else
 	echo "$as_me:$LINENO: result: yes" >&5
 echo "${ECHO_T}yes" >&6
+	gui_xaw="yes *** THIS IS NOT YET SUPPORTED AND PROBABLY WILL NOT COMPILE ***"
+else
+	echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6
 fi
 
 else
 
-	echo "$as_me:$LINENO: result: yes" >&5
-echo "${ECHO_T}yes" >&6
+	echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6
 
 fi;
 
-if test "X$gui_xaw" = "Xyes" ; then
+if test "X$gui_xaw" != "Xno" ; then
 
 
 echo "$as_me:$LINENO: checking for X" >&5
@@ -6833,7 +6833,7 @@ fi
 # Check for gtk+
 #
 
-gui_gtk=no
+gui_gtk=yes
 echo "$as_me:$LINENO: checking if gtk should be configured" >&5
 echo $ECHO_N "checking if gtk should be configured... $ECHO_C" >&6
 # Check whether --enable-gtk or --disable-gtk was given.
@@ -6843,15 +6843,25 @@ if test "${enable_gtk+set}" = set; then
 if test "X$enable_gtk" = "Xno" ; then
 	echo "$as_me:$LINENO: result: no" >&5
 echo "${ECHO_T}no" >&6
+	gui_gtk=no
 else
 	echo "$as_me:$LINENO: result: yes" >&5
 echo "${ECHO_T}yes" >&6
-	if test "X$gui_xaw" = "Xyes" ; then
+fi
+
+else
+
+	echo "$as_me:$LINENO: result: yes" >&5
+echo "${ECHO_T}yes" >&6
+
+fi;
+
+if test "X$gui_gtk" = "Xyes" ; then
+	if test "X$gui_xaw" != "Xno" ; then
 		{ { echo "$as_me:$LINENO: error: To use --enable-gtk, you must also use --disable-xaw" >&5
 echo "$as_me: error: To use --enable-gtk, you must also use --disable-xaw" >&2;}
    { (exit 1); exit 1; }; }
 	fi
-	gui_gtk="yes *** THIS IS NOT YET SUPPORTED AND PROBABLY WILL NOT COMPILE***"
 
 	# Check for pkg-config
 	# Extract the first word of "pkg-config", so it can be a program name with args.
@@ -7104,22 +7114,19 @@ echo "$as_me: error: Cannot find glib >= 2.2.0, install it and rerun ./configure
 	GLIB_VERSION=`$PKG_CONFIG glib-2.0 --modversion`
 fi
 
-else
 
-	echo "$as_me:$LINENO: result: no" >&5
-echo "${ECHO_T}no" >&6
+#
+# end of check for gtk+
+############################################################################
 
-fi;
-
+#
+# make sure we didn't try to configure multiple gui's
+#
 if test "X$gui_gtk" = "Xno" -a "X$gui_xaw" != "Xyes" ; then
 	{ { echo "$as_me:$LINENO: error: You must enable some gui toolkit (gtk+ or Xaw)" >&5
 echo "$as_me: error: You must enable some gui toolkit (gtk+ or Xaw)" >&2;}
    { (exit 1); exit 1; }; }
 fi
-
-#
-# end of check for gtk+
-############################################################################
 
 echo "$as_me:$LINENO: checking for egrep" >&5
 echo $ECHO_N "checking for egrep... $ECHO_C" >&6

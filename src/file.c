@@ -35,16 +35,17 @@
 #include "config.h"
 #endif
 
-#include <stdlib.h>
+#include "global.h"
+
 #include <dirent.h>
 #include <pwd.h>
 #include <time.h>
-#include <ctype.h>
-#include <sys/types.h>
+
 #include <sys/socket.h>
 #include <sys/stat.h>
 #include <netinet/in.h>
 #include <netdb.h>
+
 #ifdef HAVE_STRING_H
 #include <string.h>
 #endif
@@ -52,28 +53,24 @@
 #include <unistd.h>
 #endif
 
-#include "global.h"
 
 #include "buffer.h"
 #include "change.h"
 #include "create.h"
 #include "crosshair.h"
 #include "data.h"
-#include "dialog.h"
 #include "error.h"
 #include "file.h"
 #include "mymem.h"
 #include "misc.h"
-#include "netlist.h"
 #include "parse_l.h"
 #include "polygon.h"
 #include "rats.h"
 #include "remove.h"
 #include "set.h"
 
-#ifdef HAVE_LIBDMALLOC
-#include <dmalloc.h>
-#endif
+#include "gui.h"
+
 
 RCSID("$Id$");
 
@@ -105,25 +102,39 @@ static void ParseLibraryTree (void);
  * opens a file and check if it exists
  */
 FILE *
-CheckAndOpenFile (char *Filename,
-		  Boolean Confirm, Boolean AllButton, Boolean * WasAllButton)
+CheckAndOpenFile (char *Filename, Boolean Confirm, Boolean AllButton,
+			Boolean *WasAllButton, Boolean *WasCancelButton)
 {
   FILE *fp = NULL;
   struct stat buffer;
   char message[MAXPATHLEN + 80];
+  gint response;
 
   if (Filename && *Filename)
     {
       if (!stat (Filename, &buffer) && Confirm)
 	{
-	  sprintf (message, "file '%s' exists, use anyway?", Filename);
-	  *WasAllButton = False;
-	  switch (ConfirmReplaceFileDialog (message, AllButton))
+	  sprintf (message, _("File '%s' exists, use anyway?"), Filename);
+	  if (WasAllButton)
+	    *WasAllButton = False;
+	  if (WasCancelButton)
+	    *WasCancelButton = False;
+	  if (AllButton)
+	     response = gui_dialog_confirm_all(message);
+	  else
+		 response = gui_dialog_confirm(message)
+	            ? GTK_RESPONSE_OK : GTK_RESPONSE_CANCEL;
+
+	  switch (response)
 	    {
-	    case ALL_BUTTON:
-	      *WasAllButton = True;
+	    case GUI_DIALOG_RESPONSE_ALL:
+	      if (WasAllButton)
+	        *WasAllButton = True;
 	      break;
-	    case CANCEL_BUTTON:
+	    case GTK_RESPONSE_CANCEL:
+	      if (WasCancelButton)
+	        *WasCancelButton = True;
+	    case GTK_RESPONSE_NONE:
 	      return (NULL);
 	    }
 	}
@@ -142,8 +153,9 @@ OpenConnectionDataFile (void)
   char *filename;
   Boolean result;		/* not used */
 
-  filename = GetUserInput ("enter filename to save connection data:", "");
-  return (CheckAndOpenFile (filename, True, False, &result));
+  filename = gui_dialog_input(_("Enter filename for connection data"), "");
+  /* XXX Memory leak */
+  return (CheckAndOpenFile (filename, True, False, &result, NULL));
 }
 
 /* ---------------------------------------------------------------------------
@@ -200,7 +212,9 @@ LoadPCB (char *Filename)
     {
       RemovePCB (PCB);
       PCB = newPCB;
-      InitNetlistWindow (Output.Toplevel);
+      gui_output_set_name_label(PCB->Name);
+
+      gui_netlist_window_show(&Output);
       ResetStackAndVisibility ();
       /* set the zoom first before the Xorig, Yorig */
       SetZoom (PCB->Zoom);
@@ -219,8 +233,8 @@ LoadPCB (char *Filename)
       /* create default font if necessary */
       if (!PCB->Font.Valid)
 	{
-	  Message ("file '%s' has no font information\n"
-		   "  default font will be used\n", Filename);
+	  Message (_("File '%s' has no font information, using default font\n"),
+				Filename);
 	  CreateDefaultFont ();
 	}
 
@@ -230,8 +244,16 @@ LoadPCB (char *Filename)
       /* just in case a bad file saved file is loaded */
       UpdatePIPFlags (NULL, NULL, NULL, False);
       UpdateSettingsOnScreen ();
+
+      if (PCB->Grid != (gint) PCB->Grid)
+		Settings.grid_units_mm = TRUE;
+
+      gui_sync_with_new_layout();
+	
       return (0);
     }
+
+  gui_sync_with_new_layout();
 
   /* release unused memory */
   RemovePCB (newPCB);
@@ -295,8 +317,8 @@ WritePCBDataHeader (FILE * FP)
   fprintf (FP, "Cursor[%i %i %f]\n", (int) TO_PCB_X (Output.Width / 2),
 	   (int) TO_PCB_Y (Output.Height / 2), PCB->Zoom);
   fprintf (FP, "Thermal[%f]\n", PCB->ThermScale);
-  fprintf (FP, "DRC[%i %i %i %i]\n", Settings.Bloat, Settings.Shrink,
-	   Settings.minWid, Settings.minSlk);
+  fprintf (FP, "DRC[%i %i %i %i]\n", PCB->Bloat, PCB->Shrink,
+	   PCB->minWid, PCB->minSlk);
   fprintf (FP, "Flags(0x%016x)\n", (int) PCB->Flags);
   fputs ("Groups(\"", FP);
   for (group = 0; group < MAX_LAYER; group++)
@@ -678,18 +700,6 @@ WritePipe (char *Filename, Boolean thePcb)
   return (pclose (fp) ? STATUS_ERROR : result);
 }
 
-#if defined(HAS_ON_EXIT)
-/* ---------------------------------------------------------------------------
- * just a glue function for systems with on_exit()
- */
-void
-GlueEmergencySave (int status, caddr_t arg)
-{
-  if (status)
-    EmergencySave ();
-}
-#endif
-
 /* ---------------------------------------------------------------------------
  * saves the layout in a temporary file
  * this is used for fatal errors and does not call the program specified
@@ -704,7 +714,7 @@ SaveInTMP (void)
   if (PCB && PCB->Changed)
     {
       sprintf (filename, EMERGENCY_NAME, (int) getpid ());
-      Message ("trying to save your layout in '%s'\n", filename);
+      Message (_("Trying to save your layout in '%s'\n"), filename);
       WritePCBFile (filename);
     }
 }
@@ -720,10 +730,6 @@ EmergencySave (void)
 
   if (!already_called)
     {
-      /* in case of an emergency it's necessary to use the original
-       * error descriptor
-       */
-      RestoreStderr ();
       SaveInTMP ();
       already_called = True;
     }
@@ -827,6 +833,7 @@ ParseLibraryTree (void)
 	      /* add directory name into menu */
 	      menu = GetLibraryMenuMemory (&Library);
 	      menu->Name = MyStrdup (direntry->d_name, "ParseLibraryTree()");
+	      menu->directory = g_path_get_basename(path);
 	      subdir = opendir (direntry->d_name);
 	      chdir (direntry->d_name);
 	      while (subdir && (e2 = readdir (subdir)))
@@ -864,7 +871,7 @@ ParseLibraryTree (void)
 	}
       closedir (dir);
     }
-  free (libpaths);
+  g_free (libpaths);
 
   /* restore the original working directory */
   chdir (working);
@@ -876,21 +883,23 @@ ParseLibraryTree (void)
  */
 int
 ReadLibraryContents (void)
-{
-  static char *command = NULL;
-  char inputline[MAX_LIBRARY_LINE_LENGTH + 1];
-  FILE *resultFP;
-  LibraryMenuTypePtr menu = NULL;
-  LibraryEntryTypePtr entry;
+	{
+	static gchar		*command = NULL;
+	char				inputline[MAX_LIBRARY_LINE_LENGTH + 1];
+	FILE				*resultFP = NULL;
+	LibraryMenuTypePtr	menu = NULL;
+	LibraryEntryTypePtr	entry;
 
-  /* release old command string */
   MyFree (&command);
   command = EvaluateFilename (Settings.LibraryContentsCommand,
 			      Settings.LibraryPath, Settings.LibraryFilename,
 			      NULL);
 
+  if (Settings.debug)
+    printf("ReadLibraryContents: %s\n", command);
+
   /* open a pipe to the output of the command */
-  if ((resultFP = popen (command, "r")) == NULL)
+  if (command && *command && (resultFP = popen (command, "r")) == NULL)
     {
       PopenErrorMessage (command);
       return (1);
@@ -899,7 +908,7 @@ ReadLibraryContents (void)
   /* the library contents are seperated by colons;
    * template : package : name : description
    */
-  while (fgets (inputline, MAX_LIBRARY_LINE_LENGTH, resultFP))
+  while (resultFP && fgets (inputline, MAX_LIBRARY_LINE_LENGTH, resultFP))
     {
       size_t len = strlen (inputline);
 
@@ -920,7 +929,8 @@ ReadLibraryContents (void)
 	{
 	  menu = GetLibraryMenuMemory (&Library);
 	  menu->Name = MyStrdup (UNKNOWN (&inputline[5]),
-				 "ReadLibraryDescription()");
+			"ReadLibraryDescription()");
+	  menu->directory = g_strdup(Settings.LibraryFilename);
 	}
       else
 	{
@@ -930,6 +940,7 @@ ReadLibraryContents (void)
 	      menu = GetLibraryMenuMemory (&Library);
 	      menu->Name = MyStrdup (UNKNOWN ((char *) NULL),
 				     "ReadLibraryDescription()");
+	      menu->directory = g_strdup(Settings.LibraryFilename);
 	    }
 	  entry = GetLibraryEntryMemory (menu);
 	  entry->AllocatedMemory = MyStrdup (inputline,
@@ -953,7 +964,12 @@ ReadLibraryContents (void)
 	}
     }
   ParseLibraryTree ();
-  return (pclose (resultFP));
+  if (resultFP)
+		{
+		pclose(resultFP);
+		return 0;
+		}
+  return (1);
 }
 
 #define BLANK(x) ((x) == ' ' || (x) == '\t' || (x) == '\n' \
@@ -1000,8 +1016,8 @@ ReadNetlist (char *filename)
       if (len)
 	{
 	  if (inputline[--len] != '\n')
-	    Message ("line length (%i) exceeded in netlist file.\n"
-		     "additional characters will be ignored.\n",
+	    Message (_("Line length (%i) exceeded in netlist file.\n"
+		     "additional characters will be ignored.\n"),
 		     MAX_NETLIST_LINE_LENGTH);
 	  else
 	    inputline[len] = '\0';
@@ -1053,7 +1069,7 @@ ReadNetlist (char *filename)
     }
   if (!lines)
     {
-      Message ("Empty netlist file!\n");
+      Message (_("Empty netlist file!\n"));
       pclose (fp);
       return (1);
     }
