@@ -209,18 +209,34 @@ PrintLayergroups (void)
 {
   char extention[12], description[18];
   Cardinal group, entry, component, solder;
-  Boolean noData, Somepolys;
+  Boolean noData, negative_plane;
+  int Somepolys, use_mode;
   int PIPflag, Tflag;
 
+ /* check for a special case where we can make a negative gnd/power plane */
+ /* this can be helpful for lame-brained manufacturers that can't handle */
+ /* composite layers. If there is no complex stuff on a layer, a simple */
+ /* negative is possible. We require:
+  * (1) No Lines, Text or Arcs
+  * (2) Exactly one polygon
+  * (3) No Pads
+  * (4) All Pins and Vias pierce the polygon
+  */
   if (PCB->Data->RatN)
-    {
+  {
       Message ("WARNING!!  Rat lines in layout during printing!\n"
 	       "You're not DONE with the layout!!!!\n");
-    };
+  };
 
   for (group = 0; group < MAX_LAYER; group++)
     if (PCB->LayerGroups.Number[group])
-      {
+    {
+        Somepolys = 0;
+        /* see if we can make the special negative plane */
+        if (strcmp(Device->Name,"Gerber/RS-274X")==0)
+          negative_plane = True;
+        else
+          negative_plane = False;
 
 	/* always include solder/component layers */
 	component = GetLayerGroupNumberByNumber (MAX_LAYER + COMPONENT_LAYER);
@@ -229,8 +245,23 @@ PrintLayergroups (void)
 	  noData = False;
 	else
 	  noData = True;
+
+	if (group == component)
+        {
+          noData = False;
+	  ALLPAD_LOOP (PCB->Data,
+	     if (!TEST_FLAG (ONSOLDERFLAG, pad))
+		     negative_plane = False;);
+        }
+	else if (group == solder)
+        {
+          noData = False;
+	  ALLPAD_LOOP (PCB->Data,
+	      if (TEST_FLAG (ONSOLDERFLAG, pad))
+		     negative_plane = False;);
+        }
 	for (entry = 0; entry < PCB->LayerGroups.Number[group]; entry++)
-	  {
+        {
 	    LayerTypePtr layer;
 	    Cardinal number;
 
@@ -238,13 +269,34 @@ PrintLayergroups (void)
 		MAX_LAYER)
 	      continue;
 	    layer = &PCB->Data->Layer[number];
-	    if (layer->LineN || layer->TextN || layer->ArcN ||
-		layer->PolygonN)
+	    if (layer->LineN || layer->TextN || layer->ArcN)
+            {
 	      noData = False;
-	  }
+              negative_plane = False;
+            }
+            if (layer->PolygonN)
+            {
+              noData = False;
+              Somepolys += layer->PolygonN;
+	      PIPflag = L0PIPFLAG << number;
+	      Tflag = L0THERMFLAG << number;
+            }
+        }
 	/* skip empty layers */
 	if (noData)
 	  continue;
+        /* complete the special plane check: All pins/vias must pierce one polygon */
+        if (Somepolys != 1)
+          negative_plane = False;
+        if (negative_plane)
+        {
+	    ALLPIN_LOOP (PCB->Data,
+			 if (!TEST_FLAG (PIPflag, pin))
+			    negative_plane = False;);
+	    VIA_LOOP (PCB->Data,
+		      if (!TEST_FLAG (PIPflag, via))
+			    negative_plane = False;);
+        }
 
 	/* setup extention and open new file */
 	sprintf (extention, "%s%i", GlobalDOSFlag ? "" : "group", group + 1);
@@ -255,6 +307,10 @@ PrintLayergroups (void)
 	/* comment on what layers in group */
 	if (Device->GroupID)
 	  Device->GroupID (group);
+        
+        /* now if negative plane is possible, do it here */
+        if (!negative_plane)
+        {
 	/* indicate positive polarity */
 	Device->Polarity (0);
 	/* loop and check each layer
@@ -264,7 +320,6 @@ PrintLayergroups (void)
 	  FPrintAlignment ();
 
 	/* print all polygons */
-	Somepolys = False;
 	for (entry = 0; entry < PCB->LayerGroups.Number[group]; entry++)
 	  {
 	    LayerTypePtr layer;
@@ -277,7 +332,6 @@ PrintLayergroups (void)
 	    layer = &PCB->Data->Layer[number];
 	    if (layer->PolygonN)
 	      {
-		Somepolys = True;
 		SetPrintColor (layer->Color);
 		POLYGON_LOOP (layer, Device->Poly (polygon));
 	      }
@@ -383,6 +437,14 @@ PrintLayergroups (void)
 	    ARC_LOOP (layer, Device->Arc (arc, False));
 	    TEXT_LOOP (layer, Device->Text (text));
 	  }
+          use_mode = 0;
+        }
+        else
+        {
+           /* special negative plane */
+           Device->Polarity(1);
+           use_mode = 3;
+        }
 	SetPrintColor (PCB->PinColor);
 	ALLPIN_LOOP (PCB->Data, if (!TEST_FLAG (HOLEFLAG, pin))
 		     {
@@ -390,7 +452,16 @@ PrintLayergroups (void)
 		     SET_FLAG (USETHERMALFLAG, pin);
 		     else
 		     CLEAR_FLAG (USETHERMALFLAG, pin);
-		     Device->PinOrVia (pin, 0);}
+		     Device->PinOrVia (pin, use_mode);}
+	);
+	SetPrintColor (PCB->ViaColor);
+	VIA_LOOP (PCB->Data, if (!TEST_FLAG (HOLEFLAG, via))
+		  {
+		  if (TEST_FLAG (Tflag, via))
+                    SET_FLAG (USETHERMALFLAG, via);
+		  else
+		    CLEAR_FLAG (USETHERMALFLAG, via);
+                  Device->PinOrVia (via, use_mode);}
 	);
 	if (group == component)
 	  {
@@ -408,13 +479,6 @@ PrintLayergroups (void)
 			 if (TEST_FLAG (ONSOLDERFLAG, pad))
 			 Device->Pad (pad, 0););
 	  }
-	SetPrintColor (PCB->ViaColor);
-	VIA_LOOP (PCB->Data, if (!TEST_FLAG (HOLEFLAG, via))
-		  {
-		  if (TEST_FLAG (Tflag, via)) SET_FLAG (USETHERMALFLAG, via);
-		  else
-		  CLEAR_FLAG (USETHERMALFLAG, via); Device->PinOrVia (via, 0);}
-	);
 
 	/* print drill-helper if requested */
 	if (GlobalDrillHelperFlag && Device->DrillHelper)
