@@ -324,7 +324,7 @@ DoPIPFlags (PinTypePtr Pin, ElementTypePtr Element,
   float wide;
 
   if (TEST_FLAG (SQUAREFLAG, Pin))
-    wide = (Pin->Thickness + Pin->Clearance) * SQRT2OVER2;
+    wide = (Pin->Thickness + Pin->Clearance) * M_SQRT1_2;
   else
     wide = (Pin->Thickness + Pin->Clearance) * 0.5;
   if (IsPointInPolygon (Pin->X, Pin->Y, wide, Polygon))

@@ -1003,7 +1003,7 @@ ThermPin (LayerTypePtr layer, PinTypePtr Pin)
     }
   else
     {
-      BDimension halfs = (half * SQRT2OVER2 + 1);
+      BDimension halfs = (half * M_SQRT1_2 + 1);
 
       XDrawCLine (Dpy, DrawingWindow, Output.fgGC,
 		  Pin->X - halfs, Pin->Y - halfs, Pin->X + halfs,
@@ -1096,7 +1096,7 @@ ClearPin (PinTypePtr Pin, int Type, int unused)
 	    }
 	  else
 	    {
-	      BDimension halfs = (half * SQRT2OVER2 + 1);
+	      BDimension halfs = (half * M_SQRT1_2 + 1);
 
 	      XSetLineAttributes (Dpy, Output.fgGC,
 				  TO_SCREEN (Pin->Clearance / 2), LineSolid,

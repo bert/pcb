@@ -55,13 +55,15 @@
 #ifndef	M_PI
 #define	M_PI			3.14159265358979323846
 #endif
+#ifndef M_SQRT1_2
+#define M_SQRT1_2 		0.707106781	/* 1/sqrt(2) */
+#endif
 #define	M180			(M_PI/180.0)
 #define RAD_TO_DEG		(180.0/M_PI)
 #define	TAN_22_5_DEGREE_2	0.207106781	/* 0.5*tan(22.5) */
 #define COS_22_5_DEGREE		0.923879533	/* cos(22.5) */
 #define	TAN_30_DEGREE		0.577350269	/* tan(30) */
 #define	TAN_60_DEGREE		1.732050808	/* tan(60) */
-#define SQRT2OVER2		0.707106781	/* 1/sqrt(2) */
 #define MIL_TO_MM               0.025400000
 #define MM_TO_MIL               39.37007874
 #define COOR_TO_MM		0.000254000
