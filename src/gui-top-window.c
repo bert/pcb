@@ -2593,7 +2593,7 @@ gui_layer_enable_buttons_update(void)
 			layer_enable_button_set_label(lb->label, _(s));
 			gui_config_layer_name_update(_(s), i);
 			}
-		if (Settings.debug)
+		if (Settings.verbose)
 			{
 			gboolean	active, new;
 
@@ -2662,7 +2662,7 @@ gui_layer_buttons_update(void)
 	else if (layer == GUI_RATS_LAYER)
 		active = PCB->RatOn;
 
-	if (Settings.debug)
+	if (Settings.verbose)
 		{
 		printf("gui_layer_buttons_update cur_index=%d update_index=%d\n",
 				layer_select_button_index, layer);

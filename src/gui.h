@@ -365,6 +365,9 @@ void	gui_log_append_string(gchar *string);
 void	gui_pinout_window_show(OutputType *out, ElementTypePtr Element);
 
 
+void	gui_settings_add_to_newlib_list(gchar *);	/* In main.c */
+
+
 #endif			/* __GUI_GTK_INCLUDED__  */
 
 

@@ -71,9 +71,7 @@ typedef struct
 	}
 	ConfigSettingsColors;
 
-static gchar	*library_command,
-				*library_contents_command,
-				*library_newlib;
+static gchar	*library_newlib;
 
 static ConfigSettingsReals	config_settings_reals[] =
 	{
@@ -144,6 +142,8 @@ static ConfigSettingsValues	config_settings_values[] =
 
 static ConfigSettingsStrings	config_settings_strings[] =
 	{
+	/* These two can be overriden via rc file or command line args.
+	*/
 	{"groups",				&Settings.Groups,
 				"1:2:3:4:5:6:7:8"},
 	{"route-styles",		&Settings.Routes,
@@ -151,20 +151,7 @@ static ConfigSettingsStrings	config_settings_strings[] =
 				":Fat,4000,6000,3500,1000:Skinny,600,2402,1181,600" },
 
 	{"fab-author",			&Settings.FabAuthor,			"" },
-	{"element-command",		&Settings.ElementCommand,
-				"M4PATH='%p';export M4PATH;echo 'include(%f)' | " GNUM4},
-	{"element-path",		&Settings.ElementPath,
-				PCBTREEDIR },
-	{"file-command",		&Settings.FileCommand,
-				"cat '%f'"},
-	{"file-path",			&Settings.FilePath,
-				""},
-	{"font-command",		&Settings.FontCommand,
-				"M4PATH='%p';export M4PATH;echo 'include(%f)' | " GNUM4},
-	{"font-file",			&Settings.FontFile,
-				"default_font"},
-	{"font-path",			&Settings.FontPath,
-				".:" PCBLIBDIR},
+
 	{"pinout-font",			&Settings.PinoutFont,			"Sans 10"},
 
 	{"layer-groups",		&Settings.Groups,		"1,s:2,c:3:4:5:6:7:8"},
@@ -178,15 +165,8 @@ static ConfigSettingsStrings	config_settings_strings[] =
 	{"layer-name-7",		&Settings.DefaultLayerName[6],	N_("unused")},
 	{"layer-name-8",		&Settings.DefaultLayerName[7],	N_("unused")},
 
-	{"library_command",		&library_command,
-				"QueryLibrary.sh '%p' '%f' %a"},
-	{"library-contents_command", &library_contents_command,
-				"ListLibraryContents.sh '%p' '%f'"},
 	{"library-newlib",		&library_newlib,				""},
 
-	{"print-file",			&Settings.PrintFile,			"%f.output"},
-	{"rat-command",			&Settings.RatCommand,			"cat %f"},
-	{"save-command",		&Settings.SaveCommand,			"cat - > '%f'"},
 	{"size",				&Settings.Size,					"6000x5000"},
 	{"color-file",			&Settings.color_file,			"" },
 	};
@@ -564,7 +544,6 @@ config_settings_load(void)
 	ConfigSettingsReals 	*cr;
 	ConfigSettingsStrings	*cs;
 	ConfigSettingsColors	*cc;
-	gchar					*s, *dir;
 	gint					i;
 
 	/* Initialize all config settings to default values
@@ -616,63 +595,6 @@ config_settings_load(void)
 				DEFAULT_DRILLINGHOLE * Settings.ViaThickness / 100;
 
 
-	/* The library path defaults to PCBLIBDIR unless given on command line.
-	|  From that build (unless command line given) the LibraryCommand and
-	|  the LibraryContentsCommand.
-	*/
-	if (!Settings.LibraryPath)
-		Settings.LibraryPath = g_strdup(PCBLIBDIR);
-
-	if (!Settings.LibraryCommand)
-		{
-		if (*library_command == '/')	/* User configed full path */
-			Settings.LibraryCommand = g_strdup(library_command);
-		else
-			Settings.LibraryCommand = g_build_filename(Settings.LibraryPath,
-						library_command, NULL);
-		}
-
-	if (!Settings.LibraryContentsCommand)
-		{
-		if (*library_contents_command == '/')	/* User configed full path */
-			Settings.LibraryContentsCommand =
-						g_strdup(library_contents_command);
-		else
-			Settings.LibraryContentsCommand = g_build_filename(
-						Settings.LibraryPath, library_contents_command, NULL);
-		}
-
-	if (!Settings.LibraryFilename)
-		Settings.LibraryFilename = g_strdup(LIBRARYFILENAME);
-
-	if (Settings.debug)
-		printf(	"LibraryPath:  %s\n"
-				"LibraryCommand:  %s\n"
-				"LibraryContentsCommand:  %s\n"
-				"LibraryFilename:  %s\n",
-				Settings.LibraryPath, Settings.LibraryCommand,
-				Settings.LibraryContentsCommand, Settings.LibraryFilename);
-
-	/* Add the library_newlib colon separated list of user's element
-	|  directories to the default installed newlib location PCBTREEDIR
-	|  (or use command line supplied location instead of PCBTREEDIR)
-	*/
-	if (!Settings.LibraryTree)
-		Settings.LibraryTree = g_strdup(PCBTREEDIR);
-	if (library_newlib && *library_newlib)
-		{
-		if (*library_newlib == '~')
-			dir = g_build_filename(g_get_home_dir(), library_newlib + 1, NULL);
-		else
-			dir = g_strdup(library_newlib);
-		s = Settings.LibraryTree;
-		Settings.LibraryTree = g_strconcat(s, ":", dir, NULL);
-		g_free(s);
-		g_free(dir);
-		}
-	if (Settings.debug)
-		printf("LibraryTree:  %s\n", Settings.LibraryTree);
-
 
 	Settings.MaxWidth = MIN(MAX_COORD, MAX(Settings.MaxWidth, MIN_SIZE));
 	Settings.MaxHeight = MIN(MAX_COORD, MAX(Settings.MaxHeight, MIN_SIZE));
@@ -689,6 +611,9 @@ config_settings_load(void)
 	/* Make sure this is off.  When on it nearly kills the X server.
 	*/
 	Settings.StipplePolygons = FALSE;
+
+	if (library_newlib && *library_newlib)
+		gui_settings_add_to_newlib_list(library_newlib);	/* In main.c */
 	}
 
 
@@ -1180,28 +1105,19 @@ config_increments_tab_create(GtkWidget *tab_vbox)
 
   /* -------------- The Library config page ----------------
   */
-static GtkWidget	*library_newlib_entry,
-					*library_command_entry,
-					*library_contents_entry;
-
+static GtkWidget	*library_newlib_entry;
 
 static void
 config_library_apply(void)
 	{
-	if (   dup_string(&library_newlib,
-					gui_entry_get_text(library_newlib_entry))
-	    || dup_string(&library_command,
-					gui_entry_get_text(library_command_entry))
-	    || dup_string(&library_contents_command,
-					gui_entry_get_text(library_contents_entry))
-	   )
+	if (dup_string(&library_newlib, gui_entry_get_text(library_newlib_entry)))
 		Settings.config_modified = TRUE;
 	}
 
 static void
 config_library_tab_create(GtkWidget *tab_vbox)
 	{
-	GtkWidget	*vbox, *vbox1, *label, *entry, *expander;
+	GtkWidget	*vbox, *label, *entry;
 
 	gtk_container_set_border_width(GTK_CONTAINER(tab_vbox), 6);
 	vbox = gui_category_vbox(tab_vbox, _("Element Directories"),
@@ -1222,35 +1138,6 @@ config_library_tab_create(GtkWidget *tab_vbox)
 	library_newlib_entry = entry;
 	gtk_entry_set_text(GTK_ENTRY(entry), library_newlib);
 	gtk_box_pack_start(GTK_BOX(vbox), entry, FALSE, FALSE, 4);
-
-	expander = gtk_expander_new(_("Advanced"));
-	gtk_box_pack_start(GTK_BOX(tab_vbox), expander, FALSE, FALSE, 2);
-	vbox = gtk_vbox_new(FALSE, 0);
-	gtk_container_add(GTK_CONTAINER(expander), vbox);
-
-	label = gtk_label_new("");
-	gtk_label_set_use_markup(GTK_LABEL(label), TRUE);
-	gtk_label_set_markup(GTK_LABEL(label),
-			_("<small><b>Warning:</b> See PCB documentation before"
-			  " changing these!</small>"));
-	gtk_box_pack_start(GTK_BOX(vbox), label, FALSE, FALSE, 6);
-
-	/* -- config the LibraryCommand -- */
-	vbox1 = gui_category_vbox(vbox, _("Library Command"),
-				4, 2, TRUE, TRUE);
-	entry = gtk_entry_new();
-	library_command_entry = entry;
-	gtk_entry_set_text(GTK_ENTRY(entry), library_command);
-	gtk_box_pack_start(GTK_BOX(vbox1), entry, FALSE, FALSE, 4);
-
-	/* -- config the LibraryContentsCommand -- */
-	vbox1 = gui_category_vbox(vbox, _("Library Contents Command"),
-				4, 2, TRUE, TRUE);
-	entry = gtk_entry_new();
-	library_contents_entry = entry;
-	gtk_entry_set_text(GTK_ENTRY(entry), library_contents_command);
-	gtk_box_pack_start(GTK_BOX(vbox1), entry, FALSE, FALSE, 4);
-
 	}
 
 

@@ -511,7 +511,7 @@ typedef struct			/* some resources... */
 				small_layer_enable_label_markup,
 				gui_compact_horizontal,
 				use_command_window,
-				debug;
+				verbose;
 
 	GdkColor	BlackColor,
 				WhiteColor,

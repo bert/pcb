@@ -34,6 +34,9 @@
 # If the first argument is "-gdb" then run PCB inside the gdb
 # debugger.  
 
+TEST_PATHS="--lib-path ../lib --lib-newlib ../newlib --element-path ../lib"
+TEST_CMDS="--lib-command-dir ../lib"
+
 unset XUSERFILESEARCHPATH
 
 if [ "X$1" = "X-gdb" ]; then
@@ -44,6 +47,6 @@ if [ "X$1" = "X-gdb" ]; then
 	exec gdb -x $tmpf ./pcb-bin
 	rm -f $tmpf
 else
-	exec ./pcb-bin --libpath ../lib --libtree ../newlib "$@"
+	exec ./pcb-bin $TEST_PATHS $TEST_CMDS "$@"
 fi
 

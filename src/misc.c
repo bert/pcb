@@ -100,81 +100,6 @@ static struct
   int cnt;
 } SavedStack;
 
-/* ---------------------------------------------------------------------------
- * prints copyright information
- */
-void
-Copyright (void)
-{
-  printf ("\n"
-	  "                COPYRIGHT for %s version %s\n\n"
-	  "    PCB, interactive printed circuit board design\n"
-	  "    Copyright (C) 1994,1995,1996,1997 Thomas Nau\n"
-	  "    Copyright (C) 1998, 1999, 2000 Harry Eaton\n\n"
-	  "    This program is free software; you can redistribute it and/or modify\n"
-	  "    it under the terms of the GNU General Public License as published by\n"
-	  "    the Free Software Foundation; either version 2 of the License, or\n"
-	  "    (at your option) any later version.\n\n"
-	  "    This program is distributed in the hope that it will be useful,\n"
-	  "    but WITHOUT ANY WARRANTY; without even the implied warranty of\n"
-	  "    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n"
-	  "    GNU General Public License for more details.\n\n"
-	  "    You should have received a copy of the GNU General Public License\n"
-	  "    along with this program; if not, write to the Free Software\n"
-	  "    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.\n\n",
-	  Progname, VERSION);
-  exit (0);
-}
-
-/* ---------------------------------------------------------------------------
- * prints usage message
- */
-void
-Usage (void)
-{
-  fprintf (stderr,
-	   "\nUSAGE: %s [standard Gtk options] [standard options] [layout]\n"
-	   "or   : %s [standard Gtk options] <exactly one special option>\n\n"
-	   "standard options are:\n"
-	   "  -background <file>:       PPM file to display as board background\n"
-	   "  -fontfile <file>:         read default font from this file\n"
-	   "  -lelement <command>:      command to copy element files to stdout,\n"
-	   "                            %%f is set to the filename\n"
-	   "                            %%p is set to the seachpath\n"
-	   "  -lfile <command>:         command to copy layout files to stdout,\n"
-	   "                            %%f is set to the filename\n"
-	   "                            %%p is set to the seachpath\n"
-	   "  -lfont <command>:         command to copy font files to stdout,\n"
-	   "                            %%f is set to the filename\n"
-	   "                            %%p is set to the seachpath\n"
-	   "  -lg <layergroups>:        set layergroups of new layouts to this\n"
-	   "  -libname <file>:          the name of the library\n"
-	   "  -libpath <path>:          the library search-path\n"
-	   "  -libtree <path>:          full pathname of the newlib library\n"
-	   "  -llib <command>:          command to copy elements from library to stdout,\n"
-	   "                            %%a is set to 'template value package'\n"
-	   "                            %%f is set to the filename\n"
-	   "                            %%p is set to the searchpath\n"
-	   "  -llibcont <command>:      command to list library contents,\n"
-	   "                            %%f is set to the filename\n"
-	   "                            %%p is set to the searchpath\n"
-	   "  -script <file>:           the name of a PCB actions script to\n"
-	   "                            execute on startup\n"
-	   "  -sfile <command>:         command to copy stdin to layout file,\n"
-	   "                            %%f is set to the filename\n"
-	   "  -size <width>x<height>    size of a layout\n"
-	   "special options are:\n"
-	   "  -copyright:               prints copyright information\n"
-	   "  --copyright:              prints copyright information\n"
-	   "  -h:                       prints this message\n"
-	   "  -help:                    prints this message\n"
-	   "  --help:                   prints this message\n"
-	   "  -version:                 prints the current version number\n"
-	   "  --version:                prints the current version number\n",
-	   Progname, Progname);
-  exit (1);
-}
-
 /* Get Value returns a numeric value passed from the string and sets the
  * Boolean variable absolute to False if it leads with a +/- character
  */
@@ -938,6 +863,9 @@ EvaluateFilename (char *Template, char *Path, char *Filename, char *Parameter)
 	DSAddCharacter (&command, *p);
     }
   DSAddCharacter (&command, '\0');
+  if (Settings.verbose)
+    printf("EvaluateFilename: %s\n", command.Data);
+
   return (MyStrdup (command.Data, "EvaluateFilename()"));
 }
 
@@ -1041,7 +969,7 @@ ChangeGroupVisibility (int Layer, Boolean On, Boolean ChangeStackOrder)
   |  thinks the are.
   */
 
-	if (Settings.debug)
+	if (Settings.verbose)
 		printf("ChangeGroupVisibility(Layer=%d, On=%d, ChangeStackOrder=%d)\n",
 				Layer, On, ChangeStackOrder);
 

@@ -1,0 +1,125 @@
+# ---- Sample pcbrc file
+#
+# A pcbrc file provides various configuration options for customizing
+# a pcb library environment beyond the installed defaults.  These pcbrc
+# files are loaded in this order if they exist:
+#
+# /etc/pcbrc
+# /usr/local/etc/pcbrc
+# ${prefix}/share/pcb/pcbrc
+# ~/.pcb/pcbrc
+# ./pcbrc
+#
+# Which allows for system wide, pcb install specific, user specific, and
+# project specific customization.  All of these options may also be
+# specified on the command line which will override any pcbrc settings
+# unless it is an append or prepend option.
+# If an append or prepend path is given on the command line, there must
+# be no spaces after the += or =+.  Eg:  pcb --element-path +=path
+# Final library paths and commands can be seen when running pcb in
+# verbose mode:  pcb -v
+
+# Uncomment and edit any desired customization options below.  For the
+# defaults given, a ${prefix} is the install prefix.  It defaults to
+# /usr/local and is set to other values via the --prefix configure arg.
+
+
+
+# Execute an initial action at startup.  This has no default.
+#
+#action-string	some actions
+
+# Execute the actions in a script file at startup.  This has no default.
+#
+#action-script  script-filename
+
+
+# ------------ library options -----------------
+# Set the directory to search for the library command and library contents
+# command.  This defaults to:  ${prefix}/share/pcb/
+#
+# lib-command-dir  directory
+
+# Set the library command for copying elements from the library.
+# This defaults to:  QueryLibrary.sh '%p' '%f' %a
+#
+#lib-command command
+
+# Set the library contents command for listing the library contents.
+# This defaults to:  ListLibraryContents.sh '%p' '%f'
+#
+#lib-contents-command command
+
+# Set or add to the library search path.  One of the three forms below
+# may used to respectively set, append to or prepend to the search path.
+# This defaults to:  ${prefix}/share/pcb
+#
+#lib-path  path
+#lib-path += path
+#lib-path =+ path
+
+# Set or add to the newlib library path.  The set, append to or prepend to
+# forms may be used here as well.  Components to this path are also
+# per user configurable via the gui Preferences->Library and paths entered
+# there are prepended to the final path after all rc files have been
+# processed.  This defaults to:  ${prefix}/share/pcb/newlib
+#
+#lib-newlib path
+#lib-newlib += path
+#lib-newlib =+ path
+
+
+# ------------- layout font -----------------
+# Set the font command for processing the layout font file.
+# This defaults to:  M4PATH='%p';export M4PATH;echo 'include(%f)' | m4
+# where 'm4' may be the GNU 'gm4' as detected when configure was run.
+#
+#font-command  command
+
+# Set the font path to search for the layout font file.
+# This defaults to:  .:${prefix}/share/pcb
+#
+#font-path path
+#font-path += path
+#font-path =+ path
+
+# Set the layout font file name, defaults to:  default_font
+#
+#font-file  filename
+
+
+# --------------- elements -------------------
+# Set the command to load element files.
+# This defaults to:  M4PATH='%p';export M4PATH;echo 'include(%f)' | m4
+# where, again, m4 may be gm4
+#
+#element-command  command
+
+# Set the element paths to search for elements.
+# This defaults to:  ${prefix}/share/pcb
+#
+#element-path  path
+#element-path += path
+#element-path =+ path
+
+
+# ---------------- misc ------------------
+# Set the defualt file name sequence to be used for printouts.
+#
+#print-file  %f.output
+
+# These options are shown with their default value and are
+# unlikely to need customization.
+#
+#file-command  cat '%f
+#save-command  cat - > '%f'
+
+# These options will set values used as the default for new layouts
+# and they are also user settable via the Preferences gui.  If these
+# options are given in a pcbrc file, they *will* override the users
+# Preference settings.
+#
+#groups layer-group-string
+#routes route-styles-string
+#board-size <width>x<height>
+

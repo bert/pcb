@@ -35,8 +35,6 @@
 #include "global.h"
 #include "mymem.h"
 
-void		Copyright(void);
-void		Usage(void);
 void		SetLineBoundingBox(LineTypePtr);
 void		SetArcBoundingBox(ArcTypePtr);
 void		SetPointBoundingBox(PointTypePtr);

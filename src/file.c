@@ -895,9 +895,6 @@ ReadLibraryContents (void)
 			      Settings.LibraryPath, Settings.LibraryFilename,
 			      NULL);
 
-  if (Settings.debug)
-    printf("ReadLibraryContents: %s\n", command);
-
   /* open a pipe to the output of the command */
   if (command && *command && (resultFP = popen (command, "r")) == NULL)
     {
