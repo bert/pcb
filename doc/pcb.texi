@@ -66,6 +66,7 @@ board layout system for @code{X11}.
 @menu
 * Copying::                @code{Pcb} is freely redistributable!
 * History::                How it all began.
+* Overview::               An overview of @code{Pcb}.
 * Intro::                  A short description of the basic objects.
 * Getting Started::        Introduction to @code{Pcb}.
 * User Commands::          User commands of @code{Pcb}.
@@ -98,12 +99,13 @@ MERCHANT-ABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 
 
 @c --------------------------- chapter 0 -------------------------------
-@node History, Intro ,Copying, Top
+@node History, Overview ,Copying, Top
 @unnumbered History
 @cindex Atari version
 @code{Pcb} is a handy tool for laying out printed circuit
 boards.
-It was first written by Thomas Nau for an Atari ST in 1990 and
+
+@code{Pcb} was first written by Thomas Nau for an Atari ST in 1990 and
 ported to @code{UNIX} and @code{X11} in 1994.
 It was not intended as a professional layout system,
 but as a tool which supports people who do some 
@@ -194,10 +196,34 @@ files.  Thanks to all of them. If you feel left out of this list, I
 appologize; please send me an e-mail and I'll try to correct the omission.
 
 
+@c --------------------------- overview chapter -------------------------------
+@node Overview, Intro, History, Top
+@cindex PCB, an overview
+@chapter Overview
+
+Pcb is a printed circuit board editor for the X11 window system.
+Pcb includes many professional features such as:
+@itemize @bullet
+@item Up to 8 copper layer designs
+@item RS-274-X (Gerber) output
+@item NC Drill output
+@item Centroid (X-Y) data output
+@item Postscript and Encapsulated Postscript output
+@item Autorouter
+@item Trace optimizer
+@item Rats nest
+@item Design Rule Checker (DRC)
+@item Connectivity verification 
+@item Pcb is Free Software
+@item Can interoperate with free schematic capture tools such as gEDA and
+  xcircuit
+@end itemize
+
 @c --------------------------- chapter 1 -------------------------------
-@node Intro, Getting Started, History, Top
+@node Intro, Getting Started, Overview, Top
 @cindex layout objects, an overview
 @chapter Introduction
+
 Each layout consists of several, mostly independent, objects. This chapter
 gives an overview of the object types and their relationship to each other.
 For a complete description of how to use @code{Pcb}, refer to
@@ -223,7 +249,6 @@ order of appearance of the objects within a layout file.
 * Text Objects::           Objects to add symbols to your board.
 * Net Objects::            Describes the desired connections on the board.
 @end menu
-
 
 @node Symbol Objects, Via Objects, , Intro
 @cindex symbols, an overview
@@ -1719,9 +1744,14 @@ with the @code{DEFAULT_MEDIASIZE} variable in @file{globalconfig.h}.
 @section Printing
 @code{Pcb} now has support for device drivers, 
 @code{PostScript}, @emph{encapsulated PostScript},
-and @emph{Gerber X} drivers are
-available so far.  The @emph{Gerber X}
-driver generates a NC drill file for automated drilling.
+and @emph{Gerber RS-274-X} drivers are
+available so far.  The @emph{Gerber RS-274-X}
+driver additionally generates a numerical control (NC) drill file for
+automated drilling,
+a bill of materials file to assist in materials procurement and
+inventory control, and a centroid (X-Y) file which includes the
+centroid data needed 
+by automatic assembly (pick and place) machines.
  I recommend the use of @code{GhostScript} if you
 don't have a @code{PostScript} printer for handling the PostScript
 output. Printing always generates
