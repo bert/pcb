@@ -76,7 +76,7 @@
 #include <dmalloc.h>
 #endif
 
-RCSID("$Id$");
+RCSID ("$Id$");
 
 
 
@@ -95,7 +95,8 @@ static void GetGridLockCoordinates (int, void *, void *, void *, Location *,
  * RestoreStackAndVisibility()
  */
 
-static struct {
+static struct
+{
   Boolean ElementOn, InvisibleObjectsOn, PinOn, ViaOn, RatOn;
   int LayerStack[MAX_LAYER];
   Boolean LayerOn[MAX_LAYER];
@@ -549,9 +550,9 @@ IsDataEmpty (DataTypePtr Data)
 }
 
 int
-FlagIsDataEmpty(int parm)
+FlagIsDataEmpty (int parm)
 {
-  int i = IsDataEmpty(PCB->Data);
+  int i = IsDataEmpty (PCB->Data);
   return parm ? !i : i;
 }
 
@@ -1171,22 +1172,92 @@ GetObjectBoundingBox (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
 void
 SetArcBoundingBox (ArcTypePtr Arc)
 {
-  BoxTypePtr box;
-  register Location temp, width;
+  register double ca1, ca2, sa1, sa2;
+  register Location ang1, ang2;
+  register Location width;
 
-  box = GetArcEnds (Arc);
-  temp = box->X1;
-  box->X1 = MIN (box->X1, box->X2);
-  box->X2 = MAX (box->X2, temp);
-  temp = box->Y1;
-  box->Y1 = MIN (box->Y1, box->Y2);
-  box->Y2 = MAX (box->Y2, temp);
+  /* first put angles into standard form */
+  if (Arc->Delta > 360)
+    Arc->Delta = 360;
+  ang1 = Arc->StartAngle;
+  ang2 = Arc->StartAngle + Arc->Delta;
+  if (Arc->Delta < 0)
+    {
+      Location temp;
+      temp = ang1;
+      ang1 = ang2;
+      ang2 = temp;
+    }
+  if (ang1 < 0)
+    {
+      ang1 += 360;
+      ang2 += 360;
+    }
+  /* calculate sines, cosines */
+  switch (ang1)
+    {
+    case 0:
+      ca1 = 1.0;
+      sa1 = 0;
+      break;
+    case 90:
+      ca1 = 0;
+      sa1 = 1.0;
+      break;
+    case 180:
+      ca1 = -1.0;
+      sa1 = 0;
+      break;
+    case 270:
+      ca1 = 0;
+      sa1 = -1.0;
+      break;
+    default:
+      ca1 = M180 * (double) ang1;
+      sa1 = sin (ca1);
+      ca1 = cos (ca1);
+    }
+  switch (ang2)
+    {
+    case 0:
+      ca2 = 1.0;
+      sa2 = 0;
+      break;
+    case 90:
+      ca2 = 0;
+      sa2 = 1.0;
+      break;
+    case 180:
+      ca2 = -1.0;
+      sa2 = 0;
+      break;
+    case 270:
+      ca2 = 0;
+      sa2 = -1.0;
+      break;
+    default:
+      ca2 = M180 * (double) ang2;
+      sa2 = sin (ca2);
+      ca2 = cos (ca2);
+    }
+
+  Arc->BoundingBox.X2 = Arc->X - Arc->Width *
+    ((ang1 < 180 && ang2 > 180) ? -1 : MIN (ca1, ca2));
+
+  Arc->BoundingBox.X1 = Arc->X - Arc->Width *
+    ((ang1 < 360 && ang2 > 360) ? 1 : MAX (ca1, ca2));
+
+  Arc->BoundingBox.Y2 = Arc->Y + Arc->Height *
+    ((ang1 < 90 && ang2 > 90) ? 1 : MAX (sa1, sa2));
+
+  Arc->BoundingBox.Y1 = Arc->Y + Arc->Height *
+    ((ang1 < 270 && ang2 > 270) ? -1 : MIN (sa1, sa2));
+
   width = (Arc->Thickness + Arc->Clearance) / 2;
-  box->X1 -= width;
-  box->X2 += width;
-  box->Y1 -= width;
-  box->Y2 += width;
-  Arc->BoundingBox = *box;
+  Arc->BoundingBox.X1 -= width;
+  Arc->BoundingBox.X2 += width;
+  Arc->BoundingBox.Y1 -= width;
+  Arc->BoundingBox.Y2 += width;
 }
 
 /* ---------------------------------------------------------------------------
@@ -1219,16 +1290,17 @@ SaveStackAndVisibility (void)
   Cardinal i;
   static Boolean run = False;
 
-  if ( run == False )
+  if (run == False)
     {
       SavedStack.cnt = 0;
       run = True;
     }
 
-  if( SavedStack.cnt != 0 )
+  if (SavedStack.cnt != 0)
     {
-      fprintf(stderr, "SaveStackAndVisibility()  layerstack was already saved and not"
-	      "yet restored.  cnt = %d\n", SavedStack.cnt);
+      fprintf (stderr,
+	       "SaveStackAndVisibility()  layerstack was already saved and not"
+	       "yet restored.  cnt = %d\n", SavedStack.cnt);
     }
 
   for (i = 0; i < MAX_LAYER + 2; i++)
@@ -1252,24 +1324,24 @@ void
 RestoreStackAndVisibility (void)
 {
   Cardinal i;
-  
+
   if (SavedStack.cnt == 0)
     {
-      fprintf(stderr, "RestoreStackAndVisibility()  layerstack has not"
-	      " been saved.  cnt = %d\n", SavedStack.cnt);
-      return ;
+      fprintf (stderr, "RestoreStackAndVisibility()  layerstack has not"
+	       " been saved.  cnt = %d\n", SavedStack.cnt);
+      return;
     }
   else if (SavedStack.cnt != 1)
     {
-      fprintf(stderr, "RestoreStackAndVisibility()  layerstack save count is"
-	      " wrong.  cnt = %d\n", SavedStack.cnt);
+      fprintf (stderr, "RestoreStackAndVisibility()  layerstack save count is"
+	       " wrong.  cnt = %d\n", SavedStack.cnt);
     }
 
   for (i = 0; i < MAX_LAYER + 2; i++)
     {
       if (i < MAX_LAYER)
 	LayerStack[i] = SavedStack.LayerStack[i];
-       PCB->Data->Layer[i].On = SavedStack.LayerOn[i];
+      PCB->Data->Layer[i].On = SavedStack.LayerOn[i];
     }
   PCB->ElementOn = SavedStack.ElementOn;
   PCB->InvisibleObjectsOn = SavedStack.InvisibleObjectsOn;
@@ -1534,10 +1606,10 @@ int
 FileExists (const char *name)
 {
   FILE *f;
-  f = fopen(name, "r");
+  f = fopen (name, "r");
   if (f)
     {
-      fclose(f);
+      fclose (f);
       return 1;
     }
   return 0;
@@ -1550,7 +1622,7 @@ Concat (const char *first, ...)
   int len;
   va_list a;
 
-  len = strlen(first);
+  len = strlen (first);
   rv = (char *) malloc (len + 1);
   strcpy (rv, first);
 
@@ -1561,7 +1633,7 @@ Concat (const char *first, ...)
       if (!s)
 	break;
       len += strlen (s);
-      rv = (char *) realloc (rv, len+1);
+      rv = (char *) realloc (rv, len + 1);
       strcat (rv, s);
     }
   va_end (a);
