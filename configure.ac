@@ -93,6 +93,7 @@ dnl Checks for typedefs, structures, and compiler characteristics.
 dnl Checks for data types
 
 dnl Checks for library functions.
+AC_CHECK_FUNCS(strerror)
 
 # ------------- dmalloc -------------------
 dnl dmalloc checks
