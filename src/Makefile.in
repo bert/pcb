@@ -300,15 +300,16 @@ PROGRAMS = $(bin_PROGRAMS)
 
 am_pcb_bin_OBJECTS = action.$(OBJEXT) autoplace.$(OBJEXT) \
 	autoroute.$(OBJEXT) buffer.$(OBJEXT) change.$(OBJEXT) \
-	clip.$(OBJEXT) command.$(OBJEXT) compat.$(OBJEXT) control.$(OBJEXT) \
-	copy.$(OBJEXT) create.$(OBJEXT) crosshair.$(OBJEXT) \
-	data.$(OBJEXT) dev_ps.$(OBJEXT) dev_rs274x.$(OBJEXT) \
-	dialog.$(OBJEXT) djopt.$(OBJEXT) draw.$(OBJEXT) drill.$(OBJEXT) \
-	error.$(OBJEXT) file.$(OBJEXT) fileselect.$(OBJEXT) \
-	find.$(OBJEXT) gui.$(OBJEXT) heap.$(OBJEXT) insert.$(OBJEXT) \
-	intersect.$(OBJEXT) rtree.$(OBJEXT) lgdialog.$(OBJEXT) \
-	library.$(OBJEXT) line.$(OBJEXT) log.$(OBJEXT) main.$(OBJEXT) \
-	menu.$(OBJEXT) mirror.$(OBJEXT) misc.$(OBJEXT) move.$(OBJEXT) \
+	clip.$(OBJEXT) command.$(OBJEXT) compat.$(OBJEXT) \
+	control.$(OBJEXT) copy.$(OBJEXT) create.$(OBJEXT) \
+	crosshair.$(OBJEXT) data.$(OBJEXT) dev_ps.$(OBJEXT) \
+	dev_rs274x.$(OBJEXT) dialog.$(OBJEXT) djopt.$(OBJEXT) \
+	draw.$(OBJEXT) drill.$(OBJEXT) error.$(OBJEXT) file.$(OBJEXT) \
+	fileselect.$(OBJEXT) find.$(OBJEXT) gui.$(OBJEXT) \
+	heap.$(OBJEXT) insert.$(OBJEXT) intersect.$(OBJEXT) \
+	rtree.$(OBJEXT) lgdialog.$(OBJEXT) library.$(OBJEXT) \
+	line.$(OBJEXT) log.$(OBJEXT) main.$(OBJEXT) menu.$(OBJEXT) \
+	mirror.$(OBJEXT) misc.$(OBJEXT) move.$(OBJEXT) \
 	mtspace.$(OBJEXT) mymem.$(OBJEXT) netlist.$(OBJEXT) \
 	output.$(OBJEXT) parse_l.$(OBJEXT) parse_y.$(OBJEXT) \
 	pinout.$(OBJEXT) polygon.$(OBJEXT) print.$(OBJEXT) \
@@ -327,18 +328,19 @@ depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
 @AMDEP_TRUE@DEP_FILES = ./$(DEPDIR)/action.Po ./$(DEPDIR)/autoplace.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/autoroute.Po ./$(DEPDIR)/buffer.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/change.Po ./$(DEPDIR)/command.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/compat.Po ./$(DEPDIR)/control.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/copy.Po ./$(DEPDIR)/create.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/crosshair.Po ./$(DEPDIR)/data.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/dev_ps.Po ./$(DEPDIR)/dev_rs274x.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/dialog.Po ./$(DEPDIR)/djopt.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/draw.Po ./$(DEPDIR)/drill.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/error.Po ./$(DEPDIR)/file.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/fileselect.Po ./$(DEPDIR)/find.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/gui.Po ./$(DEPDIR)/heap.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/insert.Po ./$(DEPDIR)/intersect.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/lgdialog.Po ./$(DEPDIR)/library.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/change.Po ./$(DEPDIR)/clip.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/command.Po ./$(DEPDIR)/compat.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/control.Po ./$(DEPDIR)/copy.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/create.Po ./$(DEPDIR)/crosshair.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/data.Po ./$(DEPDIR)/dev_ps.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/dev_rs274x.Po ./$(DEPDIR)/dialog.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/djopt.Po ./$(DEPDIR)/draw.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/drill.Po ./$(DEPDIR)/error.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/file.Po ./$(DEPDIR)/fileselect.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/find.Po ./$(DEPDIR)/gui.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/heap.Po ./$(DEPDIR)/insert.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/intersect.Po ./$(DEPDIR)/lgdialog.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/library.Po ./$(DEPDIR)/line.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/log.Po ./$(DEPDIR)/main.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/menu.Po ./$(DEPDIR)/mirror.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/misc.Po ./$(DEPDIR)/move.Po \
@@ -428,6 +430,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/autoroute.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/buffer.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/change.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/clip.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/command.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/compat.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/control.Po@am__quote@
@@ -451,6 +454,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/intersect.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/lgdialog.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/library.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/line.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/log.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/main.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/menu.Po@am__quote@
@@ -768,10 +772,10 @@ distclean-generic:
 maintainer-clean-generic:
 	@echo "This command is intended for maintainers to use"
 	@echo "it deletes files that may require special tools to rebuild."
-	-rm -f parse_y.h
+	-rm -f parse_l.c
 	-test -z "$(BUILT_SOURCES)" || rm -f $(BUILT_SOURCES)
 	-rm -f parse_y.c
-	-rm -f parse_l.c
+	-rm -f parse_y.h
 clean: clean-recursive
 
 clean-am: clean-binPROGRAMS clean-generic mostlyclean-am
