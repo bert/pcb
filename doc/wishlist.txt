@@ -80,6 +80,15 @@ order.
   devices are on top of each other.
 
 -----------------------------------------------------------------------------
+
+- versioned elements.  
+
+-----------------------------------------------------------------------------
+
+- a database of which elements (and which version of that element) have been
+  verified through fabrication.
+
+-----------------------------------------------------------------------------
 - Port to GTK for a more modern look and feel along with providing an easy
   path to a native windows port.
 -----------------------------------------------------------------------------
