@@ -118,8 +118,9 @@ Pcb.viaThickness:           6000
 Pcb.viaDrillingHole:        2800
 Pcb.volume:                 100
 Pcb.zoom:                   3
-Pcb.Bloat:		    700
-Pcb.Shrink:		    500
+Pcb.Bloat:		    699
+Pcb.minWid:		    800
+Pcb.Shrink:		    400
 
 !---------------------------------------------------------------------------
 ! resources that are common to all 'subwindows'

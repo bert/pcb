@@ -79,8 +79,11 @@ static char *rcsid =
 #define	VIASIZE_SLIDER		2
 #define KEEPAWAY_SLIDER		3
 #define	TEXTSCALE_SLIDER	4
-#define	WIDTH_SLIDER		5
-#define	HEIGHT_SLIDER		6
+#define	BLOAT_SLIDER		5
+#define	DRCWID_SLIDER		6
+#define	SHRINK_SLIDER		7
+#define	WIDTH_SLIDER		8
+#define	HEIGHT_SLIDER		9
 
 /* ---------------------------------------------------------------------------
  * some local types
@@ -104,8 +107,11 @@ static SliderType Sliders[] = {
   {"linewidth", MIN_LINESIZE, MAX_LINESIZE, CHUNK, 0, NULL, NULL},
   {"via hole", MIN_PINORVIAHOLE, 0, CHUNK, 0, NULL, NULL},
   {"via size", 0, MAX_PINORVIASIZE, CHUNK, 0, NULL, NULL},
-  {"keepaway", MIN_LINESIZE, MAX_LINESIZE, CHUNK, 0, NULL, NULL},
+  {"clearance", MIN_LINESIZE, MAX_LINESIZE, CHUNK, 0, NULL, NULL},
   {"text size", MIN_TEXTSCALE, MAX_TEXTSCALE, 10, 0, NULL, NULL},
+  {"DRC minimum space", 10, 50000, CHUNK/10, 0, NULL, NULL},
+  {"DRC minimum width", 10, 50000, CHUNK/10, 0, NULL, NULL},
+  {"DRC minimum overlap", 10, 50000, CHUNK/10, 0, NULL, NULL},
   {"PCB width", MIN_SIZE, MAX_COORD, 100, 0, NULL, NULL},
   {"PCB height", MIN_SIZE, MAX_COORD, 100, 0, NULL, NULL}
 };
@@ -128,7 +134,7 @@ UpdateSlider (SliderTypePtr Slider)
 {
   char s[10];
 
-  sprintf (s, "%i", Slider->Value);
+  sprintf (s, "%i.%02i", Slider->Value/100, Slider->Value % 100);
   XtVaSetValues (Slider->Size, XtNlabel, s, NULL);
 }
 
@@ -258,6 +264,9 @@ SizeDialog (void)
   Sliders[VIASIZE_SLIDER].Min = Settings.ViaDrillingHole + MIN_PINORVIACOPPER;
   Sliders[KEEPAWAY_SLIDER].Value = Settings.Keepaway;
   Sliders[TEXTSCALE_SLIDER].Value = Settings.TextScale;
+  Sliders[BLOAT_SLIDER].Value = Settings.Bloat + 1;
+  Sliders[DRCWID_SLIDER].Value = Settings.minWid;
+  Sliders[SHRINK_SLIDER].Value = Settings.Shrink;
   Sliders[WIDTH_SLIDER].Value = PCB->MaxWidth;
   Sliders[HEIGHT_SLIDER].Value = PCB->MaxHeight;
 
@@ -341,7 +350,9 @@ SizeDialog (void)
       SetViaDrillingHole (Sliders[VIADRILL_SLIDER].Value, True);
       SetKeepawayWidth (Sliders[KEEPAWAY_SLIDER].Value);
       SetTextScale (Sliders[TEXTSCALE_SLIDER].Value);
-
+      Settings.Bloat = Sliders[BLOAT_SLIDER].Value -1;
+      Settings.minWid = Sliders[DRCWID_SLIDER].Value;
+      Settings.Shrink = Sliders[SHRINK_SLIDER].Value;
       /* set new maximum size and update scrollbars */
       if (PCB->MaxWidth != Sliders[WIDTH_SLIDER].Value ||
 	  PCB->MaxHeight != Sliders[HEIGHT_SLIDER].Value)
@@ -379,6 +390,9 @@ StyleSizeDialog (int index)
   Sliders[VIASIZE_SLIDER].Min =
     PCB->RouteStyle[index].Hole + MIN_PINORVIACOPPER;
   Sliders[KEEPAWAY_SLIDER].Value = PCB->RouteStyle[index].Keepaway;
+  Sliders[BLOAT_SLIDER].Value = Settings.Bloat +1;
+  Sliders[DRCWID_SLIDER].Value = Settings.minWid;
+  Sliders[SHRINK_SLIDER].Value = Settings.Shrink;
 
   sprintf (styleName, "'%s' Sizes", PCB->RouteStyle[index].Name);
   /* create a popup shell */

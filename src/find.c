@@ -95,6 +95,7 @@ static char *rcsid = "$Id$";
 #include "mymem.h"
 #include "misc.h"
 #include "netlist.h"
+#include "polygon.h"
 #include "search.h"
 #include "set.h"
 #include "undo.h"
@@ -278,6 +279,7 @@ static void *thing_ptr1, *thing_ptr2, *thing_ptr3;
 static int thing_type;
 static Boolean User = False;	/* user action causing this */
 static Boolean drc = False;	/* whether to stop if finding something not found */
+static Boolean IsBad = False;
 static Cardinal drcerr_count;    /* count of drc errors */
 static LineTypePtr *LineSortedByLowX[MAX_LAYER],	/* sorted array of */
  *LineSortedByHighX[MAX_LAYER];	/* line pointers */
@@ -3994,6 +3996,91 @@ RestoreFindFlag (void)
   TheFlag = OldFlag;
 }
 
+/* DRC clearance callback */
+
+static int 
+drc_callback (int type, void *ptr1, void *ptr2, void *ptr3)
+{
+  LineTypePtr line = (LineTypePtr)ptr2;
+  ArcTypePtr arc = (ArcTypePtr)ptr2;
+  PinTypePtr pin = (PinTypePtr)ptr2;
+  PadTypePtr pad = (PadTypePtr)ptr2;
+
+  thing_type = type;
+  thing_ptr1 = ptr1;
+  thing_ptr2 = ptr2;
+  thing_ptr3 = ptr3;
+  switch (type)
+   {
+     case LINE_TYPE:
+       if (line->Clearance <= 2*Settings.Bloat)
+         {
+           AddObjectToFlagUndoList (type, ptr1, ptr2, ptr3);
+           SET_FLAG(TheFlag, line);
+           Message("Line with insuficient clearance inside polygon\n");
+           DrawObject(type, ptr1, ptr2, 0);
+           drcerr_count++;
+           IsBad = True;
+         }
+       break;
+    case ARC_TYPE:
+      if (arc->Clearance <= 2*Settings.Bloat)
+        {
+          AddObjectToFlagUndoList (type, ptr1, ptr2, ptr3);
+          SET_FLAG(TheFlag, arc);
+          Message("arc with insuficient clearance inside polygon\n");
+          DrawObject(type, ptr1, ptr2, 0);
+          drcerr_count++;
+          IsBad = True;
+        }
+      break;
+    case PAD_TYPE:
+      if (pad->Clearance <= 2*Settings.Bloat)
+        {
+          AddObjectToFlagUndoList (type, ptr1, ptr2, ptr3);
+          SET_FLAG(TheFlag, pad);
+          Message("pad with insuficient clearance inside polygon\n");
+          DrawObject(type, ptr1, ptr2, 0);
+          drcerr_count++;
+          IsBad = True;
+        }
+      break;
+   case PIN_TYPE:
+     if (pin->Clearance <= 2*Settings.Bloat)
+       {
+         AddObjectToFlagUndoList (type, ptr1, ptr2, ptr3);
+         SET_FLAG(TheFlag, pin);
+         Message("Via with insuficient clearance inside polygon\n");
+         DrawObject(type, ptr1, ptr2, 0);
+         drcerr_count++;
+         IsBad = True;
+       }
+     break;
+   case VIA_TYPE:
+     if (pin->Clearance <= 2*Settings.Bloat)
+       {
+         AddObjectToFlagUndoList (type, ptr1, ptr2, ptr3);
+         SET_FLAG(TheFlag, pin);
+         Message("Via with insuficient clearance inside polygon\n");
+         DrawObject(type, ptr1, ptr2, 0);
+         drcerr_count++;
+         IsBad = True;
+       }
+     break;
+   default:
+     Message("hace: Bad Plow object in callback\n");
+   }
+
+   if (IsBad)
+    {
+      GotoError();
+      if (ConfirmDialog ("Stop here? (Cancel to continue checking)"))
+        return 1;
+      IsBad = False;
+    }
+    return 0;
+}
+
 /*-----------------------------------------------------------------------------
  * Check for DRC violations
  * see if the connectivity changes when everything is bloated, or shrunk
@@ -4001,10 +4088,8 @@ RestoreFindFlag (void)
 Cardinal
 DRCAll (void)
 {
-  Boolean IsBad = False;
-
+  IsBad = False;
   drcerr_count = 0;
-
   InitConnectionLookup ();
 
   TheFlag = FOUNDFLAG | DRCFLAG | SELECTEDFLAG;
@@ -4054,8 +4139,110 @@ DRCAll (void)
 	}
     }
   );
+
   TheFlag = (IsBad) ? DRCFLAG : (FOUNDFLAG | DRCFLAG | SELECTEDFLAG);
   ResetConnections (False);
+  TheFlag = SELECTEDFLAG;
+   /* check polygon clearances */
+  if (!IsBad)
+    {
+      Cardinal group;
+
+      for (group = 0; group < MAX_LAYER; group++)
+        PolygonPlows(group, drc_callback);
+    }
+  /* check minimum widths */
+  if (!IsBad)
+    {
+      COPPERLINE_LOOP(PCB->Data,
+        {
+          if (line->Thickness < Settings.minWid)
+            {
+               AddObjectToFlagUndoList(LINE_TYPE, layer, line, line);
+               SET_FLAG(TheFlag, line);
+               Message("Line is too thin\n");
+               DrawLine(layer, line, 0);
+               drcerr_count++;
+               SetThing(LINE_TYPE, layer, line, line);
+               GotoError();
+               if (ConfirmDialog ("Stop here? (Cancel to continue checking)"))
+                 {
+                   IsBad = True;
+                   break;
+                 }
+            }
+         }
+      );
+    }
+  if (!IsBad)
+    {
+      COPPERARC_LOOP(PCB->Data,
+        {
+          if (arc->Thickness < Settings.minWid)
+            {
+               AddObjectToFlagUndoList(ARC_TYPE, layer, arc, arc);
+               SET_FLAG(TheFlag, arc);
+               Message("Arc is too thin\n");
+               DrawArc(layer, arc, 0);
+	       drcerr_count++;
+               SetThing(ARC_TYPE, layer, arc, arc);
+               GotoError();
+               if (ConfirmDialog ("Stop here? (Cancel to continue checking)"))
+                 {
+                   IsBad = True;
+                   break;
+                 }
+            }
+        }
+      );
+    }
+  if (!IsBad)
+    { 
+      ALLPIN_LOOP(PCB->Data,
+        {
+          if (!TEST_FLAG(HOLEFLAG, pin) &&
+              pin->Thickness - pin->DrillingHole < 2*Settings.minWid)
+            {
+               AddObjectToFlagUndoList(PIN_TYPE, element, pin, pin);
+               SET_FLAG(TheFlag, pin);
+               Message("Pin annular ring is too small\n");
+               DrawPin(pin, 0);
+	       drcerr_count++;
+               SetThing(PIN_TYPE, element, pin, pin);
+               GotoError();
+               if (ConfirmDialog ("Stop here? (Cancel to continue checking)"))
+                 {
+                   IsBad = True;
+                   break;
+                 }
+            }
+        }
+      );
+    }
+  if (!IsBad)
+    {
+      VIA_LOOP(PCB->Data,
+        {
+          if (!TEST_FLAG(HOLEFLAG, via) &&
+              via->Thickness - via->DrillingHole < 2*Settings.minWid)
+            {
+               AddObjectToFlagUndoList(VIA_TYPE, via, via, via);
+               SET_FLAG(TheFlag, via);
+               Message("Via annular ring is too small\n");
+               DrawVia(via, 0);
+	       drcerr_count++;
+               SetThing(VIA_TYPE, via, via, via);
+               GotoError();
+               if (ConfirmDialog ("Stop here? (Cancel to continue checking)"))
+                 {
+                   IsBad = True;
+                   break;
+                 }
+            }
+        }
+      );
+   }
+ 
   FreeConnectionLookupMemory ();
   TheFlag = FOUNDFLAG;
   Bloat = 0;
@@ -4064,6 +4251,7 @@ DRCAll (void)
     {
       IncrementUndoSerialNumber ();
     }
+    
   return (drcerr_count);
 }
 

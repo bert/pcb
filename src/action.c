@@ -1194,7 +1194,7 @@ NotifyMode (void)
 							      dir,
 							      Settings.
 							      LineThickness,
-							      Settings.
+							      2*Settings.
 							      Keepaway,
 							      TEST_FLAG
 							      (CLEARNEWFLAG,
@@ -1353,7 +1353,7 @@ NotifyMode (void)
 					  Crosshair.AttachedLine.Point2.X,
 					  Crosshair.AttachedLine.Point2.Y,
 					  Settings.LineThickness,
-					  Settings.Keepaway,
+					  2*Settings.Keepaway,
 					  (TEST_FLAG (CLEARNEWFLAG, PCB) ?
 					   CLEARLINEFLAG : 0))) != NULL)
 	    {
@@ -1403,7 +1403,7 @@ NotifyMode (void)
 					  Crosshair.AttachedLine.Point2.Y,
 					  Note.X, Note.Y,
 					  Settings.LineThickness,
-					  Settings.Keepaway,
+					  2*Settings.Keepaway,
 					  (TEST_FLAG (CLEARNEWFLAG, PCB) ?
 					   CLEARLINEFLAG : 0))) != NULL)
 	    {
@@ -1799,8 +1799,9 @@ ActionDRCheck (Widget W, XEvent * Event, String * Params, Cardinal * Num)
 
   if (*Num == 0)
     {
-      Message ("Rules are bloat %d, shrink %d\n", Settings.Bloat,
-	       Settings.Shrink);
+      Message ("Rules are minspace %d.%02d, minoverlap %d.%d\n",
+              (Settings.Bloat+1)/100, (Settings.Bloat+1) % 100,
+	      Settings.Shrink/100, Settings.Shrink % 100);
       HideCrosshair (True);
       watchCursor ();
       count = DRCAll ();
@@ -4301,7 +4302,7 @@ ActionSetSame (Widget W, XEvent * Event, String * Params, Cardinal * Num)
     case LINE_TYPE:
       HideCrosshair(True);
       Settings.LineThickness = ((LineTypePtr) ptr2)->Thickness;
-      Settings.Keepaway = ((LineTypePtr) ptr2)->Clearance;
+      Settings.Keepaway = ((LineTypePtr) ptr2)->Clearance/2;
       layer = (LayerTypePtr) ptr1;
       if (Settings.Mode != LINE_MODE)
         SetMode(LINE_MODE);
@@ -4310,7 +4311,7 @@ ActionSetSame (Widget W, XEvent * Event, String * Params, Cardinal * Num)
     case ARC_TYPE:
       HideCrosshair(True);
       Settings.LineThickness = ((ArcTypePtr) ptr2)->Thickness;
-      Settings.Keepaway = ((ArcTypePtr) ptr2)->Clearance;
+      Settings.Keepaway = ((ArcTypePtr) ptr2)->Clearance/2;
       layer = (LayerTypePtr) ptr1;
       if (Settings.Mode != ARC_MODE)
         SetMode(ARC_MODE);
@@ -4323,6 +4324,7 @@ ActionSetSame (Widget W, XEvent * Event, String * Params, Cardinal * Num)
       HideCrosshair(True);
       Settings.ViaThickness = ((PinTypePtr) ptr2)->Thickness;
       Settings.ViaDrillingHole = ((PinTypePtr) ptr2)->DrillingHole;
+      Settings.Keepaway = ((PinTypePtr) ptr2)->Clearance/2;
       if (Settings.Mode != VIA_MODE)
         SetMode(VIA_MODE);
       RestoreCrosshair(True);

@@ -497,7 +497,8 @@ typedef struct			/* some resources... */
 			TextScale,		/* text scaling in % */
 			AlignmentDistance,
 			Bloat,			/* drc sizes */
-			Shrink;
+			Shrink,
+                        minWid;
 	float		Grid,			/* grid 0.001'' */
 			Zoom,			/* number of shift operations for zooming */
 			PinoutZoom;		/* same for pinout windows */

@@ -178,7 +178,7 @@ static String Fallback[] = {
   "Pcb.libraryContentsCommand: /usr/lib/X11/pcb/ListLibraryContents.sh '%p' '%f'",
   "Pcb.libraryFilename:        pcblib",
   "Pcb.libraryPath:            .:/usr/lib/X11/pcb",
-  "Pcb.lineThickness:          10",
+  "Pcb.lineThickness:          1000",
   "Pcb.media:                  a4",
   "Pcb.offLimitColor:          gray80",
   "Pcb.pinColor:               gray30",
@@ -189,19 +189,20 @@ static String Fallback[] = {
   "Pcb.pinoutFont3:            -*-courier-bold-r-*-*-4-*-*-*-*-*-*-*",
   "Pcb.pinoutFont4:            -*-courier-bold-r-*-*-2-*-*-*-*-*-*-*",
   "Pcb.pinoutNameLength:       8",
-  "Pcb.pinoutOffsetX:          100",
-  "Pcb.pinoutOffsetY:          100",
-  "Pcb.pinoutTextOffsetX:      50",
+  "Pcb.pinoutOffsetX:          10000",
+  "Pcb.pinoutOffsetY:          10000",
+  "Pcb.pinoutTextOffsetX:      5000",
   "Pcb.pinoutTextOffsetY:      0",
   "Pcb.pinoutZoom:             2",
   "Pcb.printFile:             %f.output",
   "Pcb.raiseLogWindow:         On",
   "Pcb.ratColor:               DarkGoldenrod",
   "Pcb.ratSelectedColor:       cyan",
-  "Pcb.ratThickness:           10",
+  "Pcb.ratThickness:           1000",
   "Pcb.resetAfterElement:      On",
   "Pcb.ringBellWhenFinished:   Off",
-  "Pcb.routeStyles:	    Signal,10,40,20,10:Power,25,60,35,10:Fat,40,60,35,15:Skinny,8,36,20,8",
+  "Pcb.routeStyles:	    Signal,1000,4000,2000,1000:Power,2500,6000,3500"
+  ",1000:Fat,4000,6000,3500,1500:Skinny,800,3600,2000,800",
   "Pcb.saveCommand:            cat - > '%f'",
   "Pcb.saveInTMP:              Off",
   "Pcb.saveLastCommand:        Off",
@@ -213,12 +214,13 @@ static String Fallback[] = {
   "Pcb.snapPin:                On",
   "Pcb.viaColor:               gray50",
   "Pcb.viaSelectedColor:       cyan",
-  "Pcb.viaThickness:           60",
-  "Pcb.viaDrillingHole:        28",
+  "Pcb.viaThickness:           6000",
+  "Pcb.viaDrillingHole:        2800",
   "Pcb.volume:                 100",
   "Pcb.zoom:                   3",
-  "Pcb.Bloat:		    7",
-  "Pcb.Shrink:		    5",
+  "Pcb.Bloat:		    699",
+  "Pcb.Shrink:		    500",
+  "Pcb.minWid:		    800",
   "Pcb*beNiceToColormap:			false",
   "Pcb*background:			gray90",
   "Pcb.masterForm*background:	gray90",
@@ -539,20 +541,22 @@ static String Fallback[] = {
 
 /* ---------------------------------------------------------------------------
  * resources to query
- * the number of layers has to be adapted here and in 'global.h'
- * and elsewhere (Think of the bit flags ...)
  */
 static XtResource ToplevelResources[] = {
   {"alignmentDistance", "AlignmentDistance", XtRInt, sizeof (int),
-   XtOffsetOf (SettingType, AlignmentDistance), XtRString, "200"}
+   XtOffsetOf (SettingType, AlignmentDistance), XtRString, "20000"}
   ,
   {"allDirectionLines", "AllDirectionLines", XtRBoolean, sizeof (Boolean),
    XtOffsetOf (SettingType, AllDirectionLines), XtRString, "True"}
   ,
   {"backupInterval", "BackupInterval", XtRInt, sizeof (long),
-   XtOffsetOf (SettingType, BackupInterval), XtRString, "300"},
+   XtOffsetOf (SettingType, BackupInterval), XtRString, "300"}
+  ,
   {"bloat", "Bloat", XtRInt, sizeof (int),
-   XtOffsetOf (SettingType, Bloat), XtRString, "7"}
+   XtOffsetOf (SettingType, Bloat), XtRString, "699"}
+  ,
+  {"minWid", "minWid", XtRInt, sizeof (int),
+   XtOffsetOf (SettingType, minWid), XtRString, "800"}
   ,
   {"charactersPerLine", "CharactersPerLine", XtRInt, sizeof (int),
    XtOffsetOf (SettingType, CharPerLine), XtRString, "80"},
@@ -595,7 +599,7 @@ static XtResource ToplevelResources[] = {
    XtOffsetOf (SettingType, FontPath), XtRString, PCBLIBDIR}
   ,
   {"grid", "Grid", XtRFloat, sizeof (float),
-   XtOffsetOf (SettingType, Grid), XtRString, "50"},
+   XtOffsetOf (SettingType, Grid), XtRString, "5000"},
   {"gridColor", XtCColor, XtRPixel, sizeof (Pixel),
    XtOffsetOf (SettingType, GridColor), XtRString, XtDefaultForeground}
   ,
@@ -748,10 +752,10 @@ static XtResource ToplevelResources[] = {
   {"pinoutNameLength", "PinoutNameLength", XtRInt, sizeof (int),
    XtOffsetOf (SettingType, PinoutNameLength), XtRString, "8"},
   {"pinoutOffsetX", "PinoutOffsetX", XtRPosition, sizeof (Position),
-   XtOffsetOf (SettingType, PinoutOffsetX), XtRString, "100"}
+   XtOffsetOf (SettingType, PinoutOffsetX), XtRString, "10000"}
   ,
   {"pinoutOffsetY", "PinoutOffsetY", XtRPosition, sizeof (Position),
-   XtOffsetOf (SettingType, PinoutOffsetY), XtRString, "100"}
+   XtOffsetOf (SettingType, PinoutOffsetY), XtRString, "10000"}
   ,
   {"pinoutTextOffsetX", "PinoutTextOffsetX", XtRPosition, sizeof (Position),
    XtOffsetOf (SettingType, PinoutTextOffsetX), XtRString, "0"}
@@ -781,7 +785,7 @@ static XtResource ToplevelResources[] = {
    XtOffsetOf (SettingType, RatPath), XtRString, "."}
   ,
   {"ratThickness", XtCThickness, XtRInt, sizeof (int),
-   XtOffsetOf (SettingType, RatThickness), XtRString, "5"}
+   XtOffsetOf (SettingType, RatThickness), XtRString, "500"}
   ,
   {"resetAfterElement", "ResetAfterElement", XtRBoolean, sizeof (Boolean),
    XtOffsetOf (SettingType, ResetAfterElement), XtRString, "False"}
@@ -792,7 +796,7 @@ static XtResource ToplevelResources[] = {
   ,
   {"routeStyles", "RouteStyles", XtRString, sizeof (String),
    XtOffsetOf (SettingType, Routes), XtRString,
-   "50,80,40:20,60,28:10,50,28:30,65,35"}
+   "5000,8000,4000:2000,6000,2800:1000,5000,2800:3000,6500,3500"}
   ,
   {"rubberBandMode", "RubberBandMode", XtRBoolean, sizeof (Boolean),
    XtOffsetOf (SettingType, RubberBandMode), XtRString, "True"}
@@ -807,7 +811,7 @@ static XtResource ToplevelResources[] = {
    XtOffsetOf (SettingType, SaveLastCommand), XtRString, "False"}
   ,
   {"shrink", "Shrink", XtRInt, sizeof (int),
-   XtOffsetOf (SettingType, Shrink), XtRString, "5"}
+   XtOffsetOf (SettingType, Shrink), XtRString, "500"}
   ,
   {"size", "Size", XtRString, sizeof (String),
    XtOffsetOf (SettingType, Size), XtRString, DEFAULT_SIZE}
@@ -845,10 +849,10 @@ static XtResource ToplevelResources[] = {
    * calculate the value from the 'viaThickness' resource
    */
   {"viaDrillingHole", "DrillingHole", XtRInt, sizeof (int),
-   XtOffsetOf (SettingType, ViaDrillingHole), XtRString, "20"}
+   XtOffsetOf (SettingType, ViaDrillingHole), XtRString, "2000"}
   ,
   {"viaThickness", XtCThickness, XtRInt, sizeof (int),
-   XtOffsetOf (SettingType, ViaThickness), XtRString, "40"}
+   XtOffsetOf (SettingType, ViaThickness), XtRString, "4000"}
   ,
   {"volume", "Volume", XtRInt, sizeof (int),
    XtOffsetOf (SettingType, Volume), XtRString, "100"}

@@ -58,6 +58,7 @@ static char *rcsid = "$Id$";
 #include "error.h"
 #include "misc.h"
 #include "print.h"
+#include "polygon.h"
 #include "search.h"
 
 #ifdef HAVE_LIBDMALLOC
@@ -73,6 +74,7 @@ static Boolean GlobalOutlineFlag,	/* copy of local ident. */
   GlobalAlignmentFlag, GlobalDrillHelperFlag, GlobalColorFlag, GlobalDOSFlag, ReplaceOK;	/* ok two overriode all */
 /* print output files */
 static char *GlobalCommand;
+static Boolean polarity_called = False;
 
 /* ---------------------------------------------------------------------------
  * some local prototypes
@@ -214,6 +216,38 @@ FPrintAlignment (void)
 }
 
 /* ---------------------------------------------------------------------------
+ * callback functions for polygon clearances
+ */
+static int 
+any_callback(int type, void *ptr1, void *ptr2, void *ptr3)
+{
+  if (!polarity_called)
+    {
+      polarity_called = True;
+      Device->Polarity (2);
+    }
+  switch (type)
+   {
+     case LINE_TYPE:
+       Device->Line ((LineTypePtr) ptr2, True);
+       break;
+     case ARC_TYPE:
+       Device->Arc ((ArcTypePtr) ptr2, True);
+       break;
+     case PIN_TYPE:
+     case VIA_TYPE:
+       Device->PinOrVia ((PinTypePtr) ptr2, 1);
+       break;
+     case PAD_TYPE:
+       Device->Pad ((PadTypePtr) ptr2, 1);
+       break;
+     default:
+       Message("hace bad plow callback\n");
+   }
+   return 0;
+}
+
+/* ---------------------------------------------------------------------------
  * prints all layergroups
  * returns != zero on error
  */
@@ -349,7 +383,7 @@ PrintLayergroups (void)
 	if (Device->GroupID)
 	  Device->GroupID (group);
 
-	/* now if negative plane is possible, do it here */
+	/* if negative plane is not possible draw and erase */
 	if (!negative_plane)
 	  {
 	    /* indicate positive polarity */
@@ -381,167 +415,11 @@ PrintLayergroups (void)
 	    /* clear the intersecting lines, arcs, pins and vias */
 	    if (Somepolys)
 	      {
-	        Boolean polarity_called = False;
-		for (entry = 0; entry < PCB->LayerGroups.Number[group];
-		     entry++)
-		  {
-		    LayerTypePtr layer;
-		    Cardinal number;
-
-		 /* this is a time-consuming connection search done
-		  * over and over, but presumably printing isn't done
-		  * often so its ok to take a little time
-		  *
-		  * eventually we should use the rtree to pre-condition
-		  * candidates
-		  */
-		    number = PCB->LayerGroups.Entries[group][entry];
-		    if (number >= MAX_LAYER)
-		      continue;
-
-		    layer = LAYER_PTR (number);
-		    LINE_LOOP (layer, 
-		      {
-			if (TEST_FLAG (CLEARLINEFLAG, line))
-			  {
-			    CLEAR_FLAG (CLEARLINEFLAG, line);
-			    line->Thickness += line->Clearance;
-			    /* now see if it would touch any polygon */
-			    POLYGON_LOOP (layer, 
-			      {
-			        if (IsLineInPolygon(line, polygon))
-				  {
-		                    if (!polarity_called)
-				      {
-				        polarity_called = True;
-					Device->Polarity (2);
-			              }
-			            line->Thickness -= line->Clearance;
-				    Device->Line (line, True);
-			            line->Thickness += line->Clearance;
-				    break;
-				  }
-			      }
-			    );
-			    line->Thickness -= line->Clearance;
-			    SET_FLAG (CLEARLINEFLAG, line);
-			  }
-		      }
-		    ); /* end of LINE_LOOP */
-		    ARC_LOOP (layer, 
-		      {
-			if (TEST_FLAG (CLEARLINEFLAG, arc))
-			  {
-			    CLEAR_FLAG (CLEARLINEFLAG, arc);
-			    arc->Thickness += arc->Clearance;
-			    POLYGON_LOOP(layer,
-			      {
-			        if (IsArcInPolygon(arc, polygon))
-				  {
-		                    if (!polarity_called)
-				      {
-				        polarity_called = True;
-					Device->Polarity (2);
-			              }
-			            arc->Thickness -= arc->Clearance;
-				    Device->Arc (arc, True);
-			            arc->Thickness += arc->Clearance;
-				    break;
-				  }
-			      }
-		           );
-		           arc->Thickness -= arc->Clearance; 
-		           SET_FLAG (CLEARLINEFLAG, arc);
-		         }
-		      }
-		    ); /* end of ARC_LOOP */
-		  }  /* end of entry loop */
-		ALLPIN_LOOP (PCB->Data, 
-		  {
-		    if (!TEST_FLAG(HOLEFLAG, pin) && TEST_FLAG (PIPflag, pin))
-		      {
-		        if (!polarity_called)
-			  {
-			    polarity_called = True;
-			    Device->Polarity (2);
-		          }
-		        Device->PinOrVia (pin, 1);
-		      }
-		  }
-		);
-		VIA_LOOP (PCB->Data, 
-		  {
-		    if (!TEST_FLAG(HOLEFLAG, via) && TEST_FLAG (PIPflag, via))
-		      {
-		        if (!polarity_called)
-			  {
-			    polarity_called = True;
-			    Device->Polarity (2);
-		          }
-		        Device->PinOrVia (via, 1);
-		      }
-		  }
-		);
-		/* pads are a bitch */
-		if (group == component || group == solder)
-		  {
-		  PadTypePtr pad;
-		    ALLPAD_LOOP (PCB->Data,
-		      {
-			if ((TEST_FLAG (ONSOLDERFLAG, pad)) == (group == solder ? True : False))
-		          {
-		             CLEAR_FLAG(CLEARLINEFLAG, pad);
-		             pad->Thickness += pad->Clearance;
-	                     for (entry = 0; entry < PCB->LayerGroups.Number[group]; entry++)
-	                       {
-		                  LayerTypePtr layer;
-		                  Cardinal number;
-				  /* commas aren't good inside the LOOP macro */
-		                  Location x1;
-				  Location x2;
-				  Location y1;
-				  Location y2;
-				  BDimension wid = pad->Thickness/2;
-		                  number = PCB->LayerGroups.Entries[group][entry];
-		                  if (number >= MAX_LAYER)
-		                    continue;
-				  layer = LAYER_PTR(number);
-				  POLYGON_LOOP(layer,
-				    {
-			              if (TEST_FLAG(SQUAREFLAG, pad))
-			                {
-				          x1 = MIN(pad->Point1.X, pad->Point2.X) - wid;
-				          y1 = MIN(pad->Point1.Y, pad->Point2.Y) - wid;
-				          x2 = MAX(pad->Point1.X, pad->Point2.X) + wid;
-				          y2 = MAX(pad->Point1.Y, pad->Point2.Y) + wid;
-					}
-			              if ((TEST_FLAG(SQUAREFLAG, pad) && 
-				           IsRectangleInPolygon (x1, y1, x2, y2, polygon)) ||
-					  (!TEST_FLAG(SQUAREFLAG, pad) &&
-			                   IsLineInPolygon ((LineTypePtr)pad, polygon)))
-				        {
-			                  if (!polarity_called)
-			                    {
-			                       polarity_called = True;
-			                       Device->Polarity (2);
-		                            }
-					  pad->Thickness -= pad->Clearance;
-			                  Device->Pad (pad, 1);
-					  pad->Thickness += pad->Clearance;
-					  goto twice_break;
-	                                }
-				    }
-				 ); // end of POLYGON_LOOP 
-			       } // end of entry loop
-twice_break:
-                             pad->Thickness -= pad->Clearance;
-	                  } // end of solderside test
-		       }
-		    ); // end of ALLPAD_LOOP
-		  } /* end of group test */
-		if (polarity_called)
-		  Device->Polarity (3);
-	      } /* end of somepolys test */
+                polarity_called = False;
+                PolygonPlows(group, any_callback);
+                if (polarity_called)
+                  Device->Polarity (3);
+	      } 
 	    /* ok clearances are done, now print
 	     * the lines/arcs/pins/pads/vias inside
 	     */

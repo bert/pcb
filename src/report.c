@@ -157,7 +157,7 @@ ReportDialog (void)
 		   "Name = \"%s\""
 		   "%s", via->ID, via->Flags, via->X,
 		   via->Y, via->Thickness / 100., via->DrillingHole / 100.,
-		   via->Clearance / 100., via->Mask / 100.,
+		   via->Clearance / 200., via->Mask / 100.,
 		   EMPTY (via->Name), TEST_FLAG (LOCKFLAG, via) ?
 		   "It is LOCKED\n" : "");
 	break;
@@ -191,7 +191,7 @@ ReportDialog (void)
 		   "It is owned by element %s\n" "As pin number %s\n"
 		   "%s",
 		   Pin->ID, Pin->Flags, Pin->X, Pin->Y, Pin->Thickness / 100.,
-		   Pin->DrillingHole / 100., Pin->Clearance / 100.,
+		   Pin->DrillingHole / 100., Pin->Clearance / 200.,
 		   Pin->Mask / 100., EMPTY (Pin->Name),
 		   EMPTY (element->Name[1].TextString), EMPTY (Pin->Number),
 		   TEST_FLAG (LOCKFLAG, Pin) ? "It is LOCKED\n" : "");
@@ -211,7 +211,7 @@ ReportDialog (void)
 		 line->Point1.X, line->Point1.Y,
 		 line->Point1.ID, line->Point2.X, line->Point2.Y,
 		 line->Point2.ID, line->Thickness / 100.,
-		 line->Clearance / 100., GetLayerNumber (PCB->Data,
+		 line->Clearance / 200., GetLayerNumber (PCB->Data,
 							 (LayerTypePtr) ptr1),
 		 UNKNOWN (line->Number), TEST_FLAG (LOCKFLAG,
 						    line) ? "It is LOCKED\n" :
@@ -247,7 +247,7 @@ ReportDialog (void)
 		 "It is on layer %d\n"
 		 "%s", Arc->ID, Arc->Flags,
 		 Arc->X, Arc->Y, Arc->Width / 100., Arc->Thickness / 100.,
-		 Arc->Clearance / 100., Arc->StartAngle, Arc->Delta, box->X1,
+		 Arc->Clearance / 200., Arc->StartAngle, Arc->Delta, box->X1,
 		 box->Y1, box->X2, box->Y2, GetLayerNumber (PCB->Data,
 							    (LayerTypePtr)
 							    ptr1),
@@ -294,7 +294,7 @@ ReportDialog (void)
 		 "%s", Pad->ID,
 		 Pad->Flags, Pad->Point1.X,
 		 Pad->Point1.Y, Pad->Point1.ID, Pad->Point2.X, Pad->Point2.Y,
-		 Pad->Point2.ID, Pad->Thickness / 100., Pad->Clearance / 100.,
+		 Pad->Point2.ID, Pad->Thickness / 100., Pad->Clearance / 200.,
 		 Pad->Mask / 100., EMPTY (Pad->Name),
 		 EMPTY (element->Name[1].TextString), EMPTY (Pad->Number),
 		 TEST_FLAG (ONSOLDERFLAG,

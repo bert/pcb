@@ -340,3 +340,151 @@ DoPIPFlags (PinTypePtr Pin, ElementTypePtr Element,
     }
   return False;
 }
+
+/* find everything clearing an actual polygon and call the callback function for it */
+
+int PolygonPlows (int group, int (*any_call)(int type, void *ptr1, void *ptr2, void *ptr3))
+{
+  int entry, PIPflag = 0;
+  int r;
+
+  for (entry = 0; entry < PCB->LayerGroups.Number[group]; entry++)
+    {
+      LayerTypePtr layer;
+      Cardinal number;
+
+      number = PCB->LayerGroups.Entries[group][entry];
+      if (number >= MAX_LAYER)
+        continue;
+
+      layer = LAYER_PTR (number);
+      if (!layer->PolygonN)
+        continue;
+      PIPflag |= L0PIPFLAG << number;
+
+      LINE_LOOP (layer, 
+      {
+	if (TEST_FLAG (CLEARLINEFLAG, line))
+	  {
+	    CLEAR_FLAG (CLEARLINEFLAG, line);
+	    line->Thickness += line->Clearance;
+	    /* now see if it would touch any polygon */
+	    POLYGON_LOOP (layer, 
+	      {
+	        if (IsLineInPolygon(line, polygon))
+		  {
+	            line->Thickness -= line->Clearance;
+                    r = any_call (LINE_TYPE, layer, line, line);
+	            line->Thickness += line->Clearance;
+		    break;
+		  }
+	      }
+	    );
+	    line->Thickness -= line->Clearance;
+	    SET_FLAG (CLEARLINEFLAG, line);
+            if (r)
+             return r;
+	  }
+      }
+    ); /* end of LINE_LOOP */
+    ARC_LOOP (layer, 
+      {
+	if (TEST_FLAG (CLEARLINEFLAG, arc))
+	  {
+	    CLEAR_FLAG (CLEARLINEFLAG, arc);
+	    arc->Thickness += arc->Clearance;
+	    POLYGON_LOOP(layer,
+	      {
+	        if (IsArcInPolygon(arc, polygon))
+		  {
+	            arc->Thickness -= arc->Clearance;
+		    r = any_call (ARC_TYPE, layer, arc, arc);
+	            arc->Thickness += arc->Clearance;
+		    break;
+		  }
+	      }
+            );
+            arc->Thickness -= arc->Clearance; 
+            SET_FLAG (CLEARLINEFLAG, arc);
+            if (r)
+              return r;
+          }
+       }
+     ); /* end of ARC_LOOP */
+    }  /* end of entry loop */
+  ALLPIN_LOOP (PCB->Data, 
+    {
+      if (!TEST_FLAG(HOLEFLAG, pin) && TEST_FLAG (PIPflag, pin))
+        {
+          r = any_call (PIN_TYPE, element, pin, pin);
+        } 
+      if (r)
+       return r;
+    }
+  );
+  VIA_LOOP (PCB->Data, 
+    {
+      if (!TEST_FLAG(HOLEFLAG, via) && TEST_FLAG (PIPflag, via))
+        {
+          r = any_call (VIA_TYPE, via, via, via);
+        }
+      if (r)
+        return r;
+    }
+  );
+  /* pads are a bitch */
+      Cardinal component = GetLayerGroupNumberByNumber (MAX_LAYER + COMPONENT_LAYER);
+      Cardinal solder = GetLayerGroupNumberByNumber (MAX_LAYER + SOLDER_LAYER);
+      if (group == component || group == solder)
+        {
+          ALLPAD_LOOP (PCB->Data,
+            {
+	      if ((TEST_FLAG (ONSOLDERFLAG, pad)) == (group == solder ? True : False))
+                {
+                   CLEAR_FLAG(CLEARLINEFLAG, pad);
+                   pad->Thickness += pad->Clearance;
+                   for (entry = 0; entry < PCB->LayerGroups.Number[group]; entry++)
+                     {
+                        LayerTypePtr layer;
+                        Cardinal number;
+		        /* commas aren't good inside the LOOP macro */
+                        Location x1;
+		        Location x2;
+		        Location y1;
+		        Location y2;
+		        BDimension wid = pad->Thickness/2;
+                        number = PCB->LayerGroups.Entries[group][entry];
+                        if (number >= MAX_LAYER)
+                          continue;
+		        layer = LAYER_PTR(number);
+		        POLYGON_LOOP(layer,
+		          {
+	                    if (TEST_FLAG(SQUAREFLAG, pad))
+	                      {
+		                x1 = MIN(pad->Point1.X, pad->Point2.X) - wid;
+		                y1 = MIN(pad->Point1.Y, pad->Point2.Y) - wid;
+		                x2 = MAX(pad->Point1.X, pad->Point2.X) + wid;
+		                y2 = MAX(pad->Point1.Y, pad->Point2.Y) + wid;
+			      }
+	                    if ((TEST_FLAG(SQUAREFLAG, pad) && 
+		                 IsRectangleInPolygon (x1, y1, x2, y2, polygon)) ||
+			        (!TEST_FLAG(SQUAREFLAG, pad) &&
+	                         IsLineInPolygon ((LineTypePtr)pad, polygon)))
+		              {
+			        pad->Thickness -= pad->Clearance;
+	                        r = any_call (PAD_TYPE, element, pad, pad);
+			        pad->Thickness += pad->Clearance;
+			        goto twice_break;
+                              }
+		          }
+		        ); // end of POLYGON_LOOP 
+	             } // end of entry loop
+twice_break:
+                   pad->Thickness -= pad->Clearance;
+                   if (r)
+                     return r;
+                 } // end of solderside test
+             }
+          ); // end of ALLPAD_LOOP
+        } /* end of group test */
+}
