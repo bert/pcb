@@ -1413,7 +1413,7 @@ SearchElementByName (DataTypePtr Base, char *Name)
   ELEMENT_LOOP (Base);
   {
     if (element->Name[1].TextString &&
-	strcmp (element->Name[1].TextString, Name) == 0)
+	NSTRCMP (element->Name[1].TextString, Name) == 0)
       {
 	result = element;
 	return (result);

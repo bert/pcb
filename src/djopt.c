@@ -2866,21 +2866,21 @@ ActionDJopt (Widget w, XEvent * e, String * argv, Cardinal * argc)
   /*dump_all(); */
   check (0, 0);
 
-  if (strcmp (argv[0], "debumpify") == 0)
+  if (NSTRCMP (argv[0], "debumpify") == 0)
     saved += debumpify ();
-  else if (strcmp (argv[0], "unjaggy") == 0)
+  else if (NSTRCMP (argv[0], "unjaggy") == 0)
     saved += unjaggy ();
-  else if (strcmp (argv[0], "simple") == 0)
+  else if (NSTRCMP (argv[0], "simple") == 0)
     saved += simple_optimizations ();
-  else if (strcmp (argv[0], "vianudge") == 0)
+  else if (NSTRCMP (argv[0], "vianudge") == 0)
     saved += vianudge ();
-  else if (strcmp (argv[0], "viatrim") == 0)
+  else if (NSTRCMP (argv[0], "viatrim") == 0)
     saved += viatrim ();
-  else if (strcmp (argv[0], "orthopull") == 0)
+  else if (NSTRCMP (argv[0], "orthopull") == 0)
     saved += orthopull ();
-  else if (strcmp (argv[0], "auto") == 0)
+  else if (NSTRCMP (argv[0], "auto") == 0)
     saved += automagic ();
-  else if (strcmp (argv[0], "miter") == 0)
+  else if (NSTRCMP (argv[0], "miter") == 0)
     saved += miter ();
   else
     {

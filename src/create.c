@@ -846,7 +846,7 @@ CreateNewNet (LibraryTypePtr lib, char *name, char *style)
   sprintf (temp, "  %s", name);
   menu = GetLibraryMenuMemory (lib);
   menu->Name = MyStrdup (temp, "CreateNewNet()");
-  if (strcmp ("(unknown)", style) == 0)
+  if (NSTRCMP ("(unknown)", style) == 0)
     menu->Style = NULL;
   else
     menu->Style = MyStrdup (style, "CreateNewNet()");

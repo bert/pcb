@@ -5,62 +5,44 @@
 
 extern void AboutDialog(Widget,XEvent *,String *, Cardinal *);
 extern void ActionActiveWhen(Widget,XEvent *,String *, Cardinal *);
-extern void ActionApplyVendor(Widget,XEvent *,String *, Cardinal *);
 extern void ActionCheckWhen(Widget,XEvent *,String *, Cardinal *);
 extern void ActionCommandHistory(Widget,XEvent *,String *, Cardinal *);
-extern void ActionDisableVendor(Widget,XEvent *,String *, Cardinal *);
 extern void ActionDoWindows(Widget,XEvent *,String *, Cardinal *);
-extern void ActionEnableVendor(Widget,XEvent *,String *, Cardinal *);
 extern void ActionExecuteAction(Widget,XEvent *,String *, Cardinal *);
 extern void ActionExecuteFile(Widget,XEvent *,String *, Cardinal *);
 extern void ActionGetLocation(Widget,XEvent *,String *, Cardinal *);
-extern void ActionLoadVendor(Widget,XEvent *,String *, Cardinal *);
 extern void ActionSizesLabel(Widget,XEvent *,String *, Cardinal *);
-extern void ActionToggleVendor(Widget,XEvent *,String *, Cardinal *);
-extern void ActionUnloadVendor(Widget,XEvent *,String *, Cardinal *);
 extern void djopt_set_auto_only(Widget,XEvent *,String *, Cardinal *);
 
 XtActionsRec ActionList[] = {
   {"About", AboutDialog},
   {"ActiveWhen", ActionActiveWhen},
-  {"ApplyVendor", ActionApplyVendor},
   {"CheckWhen", ActionCheckWhen},
   {"CommandHistory", ActionCommandHistory},
-  {"DisableVendor", ActionDisableVendor},
   {"DoWindows", ActionDoWindows},
-  {"EnableVendor", ActionEnableVendor},
   {"ExecuteAction", ActionExecuteAction},
   {"ExecuteFile", ActionExecuteFile},
   {"GetXY", ActionGetLocation},
-  {"LoadVendor", ActionLoadVendor},
   {"OptAutoOnly", djopt_set_auto_only},
   {"SizesLabel", ActionSizesLabel},
-  {"ToggleVendor", ActionToggleVendor},
-  {"UnloadVendor", ActionUnloadVendor},
   {0,0}
 };
 
 struct { char *name; int type; } ActionTypeList[] = {
   {"About", 0},
   {"ActiveWhen", 'p'},
-  {"ApplyVendor", 0},
   {"CheckWhen", 'p'},
   {"CommandHistory", 0},
-  {"DisableVendor", 0},
   {"DoWindows", 0},
-  {"EnableVendor", 0},
   {"ExecuteAction", 0},
   {"ExecuteFile", 0},
   {"GetXY", 0},
-  {"LoadVendor", 0},
   {"OptAutoOnly", 0},
   {"SizesLabel", 'p'},
-  {"ToggleVendor", 0},
-  {"UnloadVendor", 0},
   {0,0}
 };
 
-int ActionListSize = 16;
+int ActionListSize = 10;
 extern int FlagCurrentStyle(int);
 extern int FlagElementName(int);
 extern int FlagGrid(int);
@@ -105,7 +87,6 @@ extern int FlagTESTFLAG(int);
 extern int FlagTESTFLAG(int);
 extern int FlagZoom(int);
 extern int djopt_get_auto_only(int);
-extern int vendor_get_enabled(int);
 
 struct {
   char *name;
@@ -115,7 +96,6 @@ struct {
   {"DataEmpty", FlagIsDataEmpty, 0 },
   {"DataNonEmpty", FlagIsDataEmpty, 1 },
   {"OptAutoOnly", djopt_get_auto_only, 0 },
-  {"VendorMapOn", vendor_get_enabled, 0 },
   {"alldirection", FlagTESTFLAG, ALLDIRECTIONFLAG },
   {"alldirectionlines", FlagSETTINGS, XtOffsetOf(SettingType,AllDirectionLines) },
   {"autodrc", FlagTESTFLAG, AUTODRCFLAG },
@@ -160,7 +140,7 @@ struct {
   {0,0,0}
 };
 
-int FlagFuncListSize = 45;
+int FlagFuncListSize = 44;
 struct Resource;
 extern void SizesMenuInclude(struct Resource *);
 

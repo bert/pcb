@@ -94,6 +94,7 @@
 
 #define	ENTRIES(x)		(sizeof((x))/sizeof((x)[0]))
 #define	UNKNOWN(a)		((a) && *(a) ? (a) : "(unknown)")
+#define NSTRCMP(a, b)		((a) ? ((b) ? strcmp((a),(b)) : 1) : -1)
 #define	EMPTY(a)		((a) ? (a) : "")
 #define XOR(a,b)		(((a) && !(b)) || (!(a) && (b)))
 #define SQUARE(x)		((float) (x) * (float) (x))

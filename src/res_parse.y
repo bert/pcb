@@ -172,7 +172,7 @@ resource_value(Resource *res, char *name)
     return 0;
   for (i=0; i<res->c; i++)
     if (res->v[i].name && res->v[i].value
-	&& strcmp(res->v[i].name, name) == 0)
+	&& NSTRCMP(res->v[i].name, name) == 0)
       return res->v[i].value;
   return 0;
 }
@@ -185,7 +185,7 @@ resource_subres(Resource *res, char *name)
     return 0;
   for (i=0; i<res->c; i++)
     if (res->v[i].name && res->v[i].subres
-	&& strcmp(res->v[i].name, name) == 0)
+	&& NSTRCMP(res->v[i].name, name) == 0)
       return res->v[i].subres;
   return 0;
 }
@@ -234,6 +234,6 @@ resource_do_include(Resource *r, char *str)
   int i;
 
   for (i=0; i<MenuFuncListSize; i++)
-    if (strcmp (MenuFuncList[i].name, str) == 0)
+    if (NSTRCMP (MenuFuncList[i].name, str) == 0)
       MenuFuncList[i].func(r);
 }

@@ -1483,7 +1483,7 @@ UniqueElementName (DataTypePtr Data, char *Name)
       ELEMENT_LOOP (Data);
       {
 	if (NAMEONPCB_NAME (element) &&
-	    strcmp (NAMEONPCB_NAME (element), Name) == 0)
+	    NSTRCMP (NAMEONPCB_NAME (element), Name) == 0)
 	  {
 	    Name = BumpName (Name);
 	    unique = False;

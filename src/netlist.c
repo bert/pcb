@@ -313,7 +313,7 @@ CB_Connection (Widget W, XtPointer ClientData, XtPointer CallData)
 
   if (CallData)
     {
-      if (PCB->RatDraw && strcmp (*(char **) CallData, "Kill") == 0)
+      if (PCB->RatDraw && NSTRCMP (*(char **) CallData, "Kill") == 0)
 	/* delete the selected connection */
 	if (selected->list_index != XAW_LIST_NONE)
 	  {
@@ -378,7 +378,7 @@ SetNetlist (int type, void *ptr1, void *ptr2, Boolean change_style)
   UpdateConnectionSelector (netmenu);
   /* find connection to highlight it */
   for (i = 0; i < ConnectionSelector.Number; i++)
-    if (strcmp (name, ConnectionSelector.StringList[i]) == 0)
+    if (NSTRCMP (name, ConnectionSelector.StringList[i]) == 0)
       break;
   XawListHighlight (ConnectionSelector.ListW, i);
 }
@@ -504,7 +504,7 @@ ConnectionName (int type, void *ptr1, void *ptr2)
     }
   strcpy (name, UNKNOWN (NAMEONPCB_NAME ((ElementTypePtr) ptr1)));
   strcat (name, "-");
-  strcat (name, num);
+  strcat (name, UNKNOWN (num));
   return (name);
 }
 
@@ -524,7 +524,7 @@ GetMenuFromName (char *name, Boolean EnabledOnly)
       if (EnabledOnly && netmenu->Name[0] == '*')
 	continue;
       for (j = netmenu->EntryN, entry = netmenu->Entry; j; j--, entry++)
-	if (strcmp (name, entry->ListEntry) == 0)
+	if (NSTRCMP (name, entry->ListEntry) == 0)
 	  {
 	    net = i;
 	    break;

@@ -326,7 +326,7 @@ FillListsFromDirectory (char *DirName)
 	  if (S_ISDIR (buffer.st_mode))
 	    {
 	      /* ignore '.' entry */
-	      if (strcmp (direntry->d_name, "."))
+	      if (NSTRCMP (direntry->d_name, "."))
 		{
 		  char name[MAXPATHLEN + 2];
 
@@ -442,13 +442,13 @@ FileSelectBox (char *MessageText, char *DefaultFile, char *Path)
       for (file2 = tempPath; DefaultFile != file; DefaultFile++, file2++)
 	*file2 = *DefaultFile;
       *file2 = '\0';
-      if (strcmp (tempPath, currentdir) != 0)
+      if (NSTRCMP (tempPath, currentdir) != 0)
 	{
 	  *file2++ = ':';
 	  for (file = currentdir; file && *file; file++)
 	    *file2++ = *file;
 	}
-      if (strcmp (Path, "."))
+      if (NSTRCMP (Path, "."))
 	for (file = Path; file && *file; file++)
 	  {
 	    if (file == Path)

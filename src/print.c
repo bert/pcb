@@ -179,7 +179,7 @@ OpenPrintFile (char *FileExtention, int file_type)
   if ((filename = ExpandFilename (NULL, GlobalCommand)) == NULL)
     filename = GlobalCommand;
 
-  if ( (file_type == FILE_DRILL) && strcmp (Device->Suffix, "gbr") == 0)
+  if ( (file_type == FILE_DRILL) && NSTRCMP (Device->Suffix, "gbr") == 0)
     {
       length = strlen (EMPTY (GlobalCommand)) + 1 +
 	strlen (FileExtention) + 5;
@@ -327,7 +327,7 @@ PrintOneGroup (Cardinal group, Boolean manageFile)
   PIPflag = Tflag = 0;
 
   /* see if we can make the special negative plane */
-  if (strcmp (Device->Name, "Gerber/RS-274X") == 0)
+  if (NSTRCMP (Device->Name, "Gerber/RS-274X") == 0)
     negative_plane = True;
   else
     negative_plane = False;
@@ -1004,7 +1004,7 @@ PrintAssembly (void)
   LayerTypePtr layptr;
 
   /* no assembly concept in gerber */
-  if (strcmp (Device->Name, "Gerber/RS-274X") == 0)
+  if (NSTRCMP (Device->Name, "Gerber/RS-274X") == 0)
     return 0;
 
   y2 = DeviceFlags.BoundingBox.Y2 - DeviceFlags.BoundingBox.Y1;
@@ -1512,7 +1512,7 @@ PrintBOM (void)
   StringList *lasts;
 
   /* Only print the BOM when we do gerber output */
-  if ( strcmp (Device->Suffix, "gbr") != 0 )
+  if ( NSTRCMP (Device->Suffix, "gbr") != 0 )
     return 0;
 
   if ( (fp = OpenPrintFile ("xy", FILE_BOM)) == NULL)
@@ -1565,14 +1565,14 @@ PrintBOM (void)
 
       if (pin->Number == 0)
 	/* Skip unnumbered pins */ ;
-      else if (strcmp(pin->Number, "1") == 0)
+      else if (NSTRCMP(pin->Number, "1") == 0)
 	{
 	  pin1x = (double) pin->X;
 	  pin1y = (double) pin->Y;
 	  pin1angle = 0.0;
 	  found_pin1 = 1;
 	}
-      else if (strcmp(pin->Number, "2") == 0)
+      else if (NSTRCMP(pin->Number, "2") == 0)
 	{
 	  pin2x = (double) pin->X;
 	  pin2y = (double) pin->Y;
@@ -1588,7 +1588,7 @@ PrintBOM (void)
       sumy +=  (pad->Point1.Y + pad->Point2.Y)/2.0;
       pin_cnt++;
 
-      if (strcmp(pad->Number, "1") == 0)
+      if (NSTRCMP(pad->Number, "1") == 0)
 	{
 	  pin1x = (double) (pad->Point1.X + pad->Point2.X)/2.0;
 	  pin1y = (double) (pad->Point1.Y + pad->Point2.Y)/2.0;
@@ -1600,7 +1600,7 @@ PrintBOM (void)
 					     pad->Point2.X - pad->Point1.X );
 	  found_pin1 = 1;
 	}
-      else if (strcmp(pad->Number, "2") == 0)
+      else if (NSTRCMP(pad->Number, "2") == 0)
 	{
 	  pin2x = (double) (pad->Point1.X + pad->Point2.X)/2.0;
 	  pin2y = (double) (pad->Point1.Y + pad->Point2.Y)/2.0;
@@ -1796,8 +1796,8 @@ BomList *bom_insert (char *refdes, char *descr, char *value, BomList *bom)
   cur = bom;
   while (cur != NULL)
     {
-      if ( (strcmp(descr, cur->descr) == 0) &&
-	   (strcmp(value, cur->value) == 0) )
+      if ( (NSTRCMP(descr, cur->descr) == 0) &&
+	   (NSTRCMP(value, cur->value) == 0) )
 	{
 	  cur->num++;
 	  cur->refdes = string_insert(refdes, cur->refdes);

@@ -465,7 +465,7 @@ SetRouteStyle (char *name)
 
   STYLE_LOOP (PCB);
     {
-      if (name && strcmp (name, style->Name) == 0)
+      if (name && NSTRCMP (name, style->Name) == 0)
 	{
 	  arg = &num[0];
 	  sprintf (num, "%d", n + 1);

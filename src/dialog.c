@@ -391,7 +391,7 @@ history_put(char *str, int temp)
   /* Avoid storing duplicates.  */
   if (temp
       || !history_buffer[history_last].buffer
-      || strcmp (str, history_buffer[history_last].buffer) != 0)
+      || NSTRCMP (str, history_buffer[history_last].buffer) != 0)
     {
       history_last = (history_last + 1) % history_size;
       if (history_buffer[history_last].buffer)
@@ -496,9 +496,9 @@ ActionCommandHistory (Widget W, XEvent *Event, String *Params, Cardinal *num)
       XBell(Dpy, 100);
       return;
     }
-  if (strcmp (Params[0], "prev") == 0)
+  if (NSTRCMP (Params[0], "prev") == 0)
     offs = -1;
-  else if (strcmp (Params[0], "next") == 0)
+  else if (NSTRCMP (Params[0], "next") == 0)
     offs = +1;
   else
     {

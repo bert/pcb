@@ -822,7 +822,7 @@ ParseLibraryTree (void)
 	   */
 	  if (!stat (direntry->d_name, &buffer)
 	      && S_ISDIR (buffer.st_mode) && direntry->d_name[0] != '.'
-	      && strcmp (direntry->d_name, "CVS") != 0)
+	      && NSTRCMP (direntry->d_name, "CVS") != 0)
 	    {
 	      /* add directory name into menu */
 	      menu = GetLibraryMenuMemory (&Library);
@@ -833,15 +833,15 @@ ParseLibraryTree (void)
 		{
 		  if (!stat (e2->d_name, &buffer) && S_ISREG (buffer.st_mode)
 		      && e2->d_name[0] != '.'
-		      && strcmp (e2->d_name, "CVS") != 0
-		      && strcmp (e2->d_name, "Makefile") != 0
-		      && strcmp (e2->d_name, "Makefile.am") != 0
-		      && strcmp (e2->d_name, "Makefile.in") != 0 )
+		      && NSTRCMP (e2->d_name, "CVS") != 0
+		      && NSTRCMP (e2->d_name, "Makefile") != 0
+		      && NSTRCMP (e2->d_name, "Makefile.am") != 0
+		      && NSTRCMP (e2->d_name, "Makefile.in") != 0 )
 		{
 		      long len = strlen (path) + strlen (e2->d_name) +
 			strlen (direntry->d_name) + 3;
 #if 0
-		      if (strcmp
+		      if (NSTRCMP
 			  (e2->d_name + strlen (e2->d_name) - 4, ".lel") != 0)
 			break;
 #endif

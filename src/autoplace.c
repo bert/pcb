@@ -553,7 +553,7 @@ ComputeCost (NetListTypePtr Nets, double T0, double T)
 	factor = 1;
 	if (element->Name[0].TextString &&
 	    boxp->element->Name[0].TextString &&
-	    0 == strcmp (element->Name[0].TextString,
+	    0 == NSTRCMP (element->Name[0].TextString,
 			 boxp->element->Name[0].TextString))
 	  {
 	    delta4 += CostParameter.matching_neighbor_bonus;

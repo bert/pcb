@@ -76,7 +76,7 @@ CompareFunction (const void *P1, const void *P2)
   SelectorEntryTypePtr p1 = (SelectorEntryTypePtr) P1,
     p2 = (SelectorEntryTypePtr) P2;
 
-  return (strcmp (p1->Text, p2->Text));
+  return (NSTRCMP (p1->Text, p2->Text));
 }
 
 /* ---------------------------------------------------------------------------

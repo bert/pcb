@@ -472,7 +472,7 @@ GBX_Preamble (PrintInitTypePtr Flags, char *Description)
   /* save passed-in data */
   GBX_Flags = *Flags;
 
-  if (strcmp (Description, "drill information") == 0)
+  if (NSTRCMP (Description, "drill information") == 0)
     {
       DrillInfoTypePtr usedDrills;
       int index = 1;

@@ -227,15 +227,15 @@ ActionLoadVendor(Widget W, XEvent *Event, String *Params, Cardinal *num)
     {
       sf = 100;
     } 
-  else if ( (strcmp (sval, "mil") == 0) || (strcmp (sval, "mils") == 0) ) 
+  else if ( (NSTRCMP (sval, "mil") == 0) || (NSTRCMP (sval, "mils") == 0) ) 
     {
       sf = 100;
     }
-  else if ( (strcmp (sval, "inch") == 0)  || (strcmp (sval, "inches") == 0) ) 
+  else if ( (NSTRCMP (sval, "inch") == 0)  || (NSTRCMP (sval, "inches") == 0) ) 
     {
       sf = 100000;
     }
-  else if (strcmp (sval, "mm") == 0)
+  else if (NSTRCMP (sval, "mm") == 0)
     {
       /* 
        * divide by .0254 to convert mm to mils.  Then multiply by 100
@@ -264,11 +264,11 @@ ActionLoadVendor(Widget W, XEvent *Event, String *Params, Cardinal *num)
       sval = resource_value(drlres, "round");
       if (sval != NULL)
 	{
-	  if ( strcmp (sval, "up") == 0 )
+	  if ( NSTRCMP (sval, "up") == 0 )
 	    {
 	      rounding_method = ROUND_UP;
 	    }
-	  else if (strcmp (sval, "nearest") == 0) 
+	  else if (NSTRCMP (sval, "nearest") == 0) 
 	    {
 	      rounding_method = CLOSEST;
 	    }
@@ -601,17 +601,17 @@ static void process_skips(Resource *res)
 	    }
 	  else
 	    {
-	      if (strcmp(sval, "refdes") == 0)
+	      if (NSTRCMP(sval, "refdes") == 0)
 		{
 		  cnt = &n_refdes;
 		  lst = &ignore_refdes;
 		}
-	      else if (strcmp(sval, "value") == 0)
+	      else if (NSTRCMP(sval, "value") == 0)
 		{
 		  cnt = &n_value;
 		  lst = &ignore_value;
 		}
-	      else if (strcmp(sval, "descr") == 0)
+	      else if (NSTRCMP(sval, "descr") == 0)
 		{
 		  cnt = &n_descr;
 		  lst = &ignore_descr;
@@ -657,7 +657,7 @@ Boolean vendorIsElementMappable(ElementTypePtr element)
   noskip = 1;
   for (i=0 ; i<n_refdes ; i++) 
     {
-      if ( (strcmp (UNKNOWN (NAMEONPCB_NAME(element) ), ignore_refdes[i]) == 0) ||
+      if ( (NSTRCMP (UNKNOWN (NAMEONPCB_NAME(element) ), ignore_refdes[i]) == 0) ||
 	   rematch ( ignore_refdes[i], UNKNOWN (NAMEONPCB_NAME(element) )) )
 	{
 	  Message ("Vendor mapping skipped because refdes = %s matches %s\n", 
@@ -669,7 +669,7 @@ Boolean vendorIsElementMappable(ElementTypePtr element)
   if ( noskip )
     for (i=0 ; i<n_value ; i++) 
       {
-	if ( (strcmp (UNKNOWN (VALUE_NAME(element) ), ignore_value[i]) == 0) ||
+	if ( (NSTRCMP (UNKNOWN (VALUE_NAME(element) ), ignore_value[i]) == 0) ||
 	     rematch ( ignore_value[i], UNKNOWN (VALUE_NAME(element) )) )
 	  {
 	    Message ("Vendor mapping skipped because value = %s matches %s\n", 
@@ -681,7 +681,7 @@ Boolean vendorIsElementMappable(ElementTypePtr element)
   
   if ( noskip )
     for (i=0 ; i<n_descr ; i++) {
-      if ( (strcmp (UNKNOWN (DESCRIPTION_NAME(element) ), ignore_descr[i]) == 0) ||
+      if ( (NSTRCMP (UNKNOWN (DESCRIPTION_NAME(element) ), ignore_descr[i]) == 0) ||
 	   rematch ( ignore_descr[i], UNKNOWN (DESCRIPTION_NAME(element) )) )
 	{
 	  Message ("Vendor mapping skipped because descr = %s matches %s\n", 
