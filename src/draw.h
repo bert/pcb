@@ -34,7 +34,7 @@
 #include "global.h"
 
 void	Draw(void);
-void	RedrawOutput(void);
+void	RedrawOutput(BoxTypePtr area);
 void	ClearAndRedrawOutput(void);
 Boolean	SwitchDrawingWindow(float, Window, Boolean, Boolean);
 void	ClearPin(PinTypePtr, int, int);

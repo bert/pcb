@@ -196,17 +196,17 @@ Draw (void)
   render = True;
   if (VALID_PIXMAP (Offscreen))
     {
-      XFillRectangle (Dpy, Offscreen, Output.bgGC, Block.X1 - 1,
-		      Block.Y1 - 1, Block.X2 - Block.X1 + 2,
-		      Block.Y2 - Block.Y1 + 2);
+      XFillRectangle (Dpy, Offscreen, Output.bgGC, SATURATE (Block.X1 - 1),
+		      SATURATE (Block.Y1 - 1), SATURATE (Block.X2 - Block.X1 + 2),
+		      SATURATE (Block.Y2 - Block.Y1 + 2));
       /* create an update event */
       erased.type = Expose;
       erased.display = Dpy;
       erased.window = Output.OutputWindow;
-      erased.x = Block.X1 - 1;
-      erased.y = Block.Y1 - 1;
-      erased.width = Block.X2 - Block.X1 + 2;
-      erased.height = Block.Y2 - Block.Y1 + 2;
+      erased.x = SATURATE (Block.X1 - 1);
+      erased.y = SATURATE (Block.Y1 - 1);
+      erased.width = SATURATE (Block.X2 - Block.X1 + 2);
+      erased.height = SATURATE (Block.Y2 - Block.Y1 + 2);
       erased.count = 0;
       XSendEvent (Dpy, Output.OutputWindow, False, ExposureMask,
 		  (XEvent *) & erased);
@@ -215,10 +215,15 @@ Draw (void)
     {
       HideCrosshair (True);
       /* clear and create event if not drawing to a pixmap */
-      XClearArea (Dpy, Output.OutputWindow, Block.X1 - 1, Block.Y1 - 1,
-		  Block.X2 - Block.X1 + 2, Block.Y2 - Block.Y1 + 2, True);
+      XClearArea (Dpy, Output.OutputWindow, SATURATE (Block.X1 - 1),
+      		  SATURATE (Block.Y1 - 1), SATURATE (Block.X2 - Block.X1 + 2),
+		  SATURATE (Block.Y2 - Block.Y1 + 2), True);
       RestoreCrosshair (True);
     }
+  /* shrink the update block */
+  Block.X1 = MAX_COORD/100;
+  Block.Y1 = MAX_COORD/100;
+  Block.X2 = Block.Y2 = 0;
 }
 
 /* ---------------------------------------------------------------------------
@@ -255,8 +260,8 @@ Redraw (Boolean ClearWindow, BoxTypePtr screen_area)
       && (render || ClearWindow || !VALID_PIXMAP (Offscreen)))
     {
       /* shrink the update block */
-      Block.X1 = TO_SCREEN (PCB->MaxWidth);
-      Block.Y1 = TO_SCREEN (PCB->MaxHeight);
+      Block.X1 = MAX_COORD/100;
+      Block.Y1 = MAX_COORD/100;
       Block.X2 = Block.Y2 = 0;
 
       /* switch off crosshair if needed,
