@@ -535,8 +535,13 @@ If you draw a line inside a polygon, it will either plow through the
 polygon creating a clearance, or touch the polygon. This behavior is
 selectable in the @b{Settings} menu for new lines. To change the
 behavior of an existing line, hit the @emph{J} key with the cross hair
-over the line. You can increase the size of the clearance with the
-@emph{K} key. @emph{Shift-K} will decrease the clearance.
+over the line. You can increase the size of the clearance by 2 mils on
+each edge with the with the
+@emph{K} key. @emph{Shift-K} will decrease the clearance by 2 mils.
+The increment may be changed from 2 mils through the application
+resource file.
+The clearance can be also increased, decreased and set
+by the @emph{ChangeClearSize} action.
 
 Lines do not need to intersect the center of a pin, pad, via, or other
 line for @code{Pcb} to understand that they make electrical connection.
@@ -2229,7 +2234,7 @@ drc = @{
 @}
 @end example
 
-The vendor resource is loaded using the @code{LoadVendor} action.
+The vendor resource is loaded using the @emph{LoadVendor} action.
 This is invoked by entering:
 @example
 :LoadVendor(vendorfile)
@@ -3331,20 +3336,39 @@ when you want to use undo in a group of actions.
 Rings the bell of your display. If no value is passed the setting
 of the resource @emph{volume} will be used.
 
+@findex ChangeClearSize()
+@cindex change sizes
+@cindex sizes, changing of objects
+@cindex clearance, changing of objects
+@item ChangeClearSize(Object, value[, unit])
+@itemx ChangeClearSize(SelectedPins|SelectedVias, value[, unit])
+The effect of this action depends on if the soldermask display is presently
+turned on or off. If soldermask is displayed, then the soldermask
+relief size will be changed.  If soldermask display is turned off,
+then the clearance to polygons will be changed.
+@emph{unit} is "mil" or "mm".  If not specified the units will default
+to the internal unit of 0.01 mil.
+@example
+!Mod1<Key>k:      ChangeClearSize(Object, +2, mil)
+!Mod1 Shift<Key>k: ChangeClearSize(Object, -2, mil)
+@end example
+
 @findex ChangeDrillSize()
 @cindex change sizes
 @cindex sizes, changing of objects
 @cindex drilling hole, changing of objects
-@item ChangeDrillSize(Object, value)
-@itemx ChangeDrillSize(SelectedPins|SelectedVias, value)
+@item ChangeDrillSize(Object, value[, unit])
+@itemx ChangeDrillSize(SelectedPins|SelectedVias, value[, unit])
 This action routine changes the drilling hole of pins and vias.
 If @emph{value} starts with + or -, then it adds (or subtracts)
 @emph{value} from the current hole diameter, otherwise it sets the
 diameter to the value.
+@emph{unit} is "mil" or "mm".  If not specified the units will default
+to the internal unit of 0.01 mil.
 Default:
 @example
-!Mod1<Key>s:       Change2ndSize(Object, +5)
-!Mod1 Shift<Key>s: Change2ndSize(Object, -5)
+!Mod1<Key>s:       Change2ndSize(Object, +5, mil)
+!Mod1 Shift<Key>s: Change2ndSize(Object, -5, mil)
 @end example
 
 @findex ChangeFlag()
@@ -3405,10 +3429,10 @@ Default:
 @cindex change sizes
 @cindex sizes, changing of objects
 @cindex thickness, changing of objects
-@item ChangeSize(Object, value)
-@itemx ChangeSize(SelectedLines|SelectedPins|SelectedVias, value)
-@itemx ChangeSize(SelectedPads|SelectedTexts|SelectedNames, value)
-@itemx ChangeSize(SelectedElements, value)
+@item ChangeSize(Object, value[, unit])
+@itemx ChangeSize(SelectedLines|SelectedPins|SelectedVias, value[, unit])
+@itemx ChangeSize(SelectedPads|SelectedTexts|SelectedNames, value[, unit])
+@itemx ChangeSize(SelectedElements, value[, unit])
 To change the size of an object you have to bind these action to some
 @code{X} event (or use :ChangeSize(...)).  If @emph{value} begins with
 a + or - then the value will be added (or subtracted) from the current
@@ -3419,6 +3443,8 @@ changed. If any of the @emph{Selected} arguments are passed then all selected
 and visible objects of that type are changed. If the type being modified is
 an element, then the thickness of the silkscreen lines defining the element
 is changed.
+@emph{unit} is "mil" or "mm".  If not specified the units will default
+to the internal unit of 0.01 mil.
 Default:
 @example
 None<Key>s:   ChangeSize(Object, +5)
