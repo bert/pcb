@@ -101,6 +101,22 @@ static char layer_type[MAX_LAYER];
 #define LT_COMPONENT 1
 #define LT_SOLDER 2
 
+static int autorouted_only = 1;
+
+/* ACTION(OptAutoOnly,djopt_set_auto_only) */
+void
+djopt_set_auto_only (Widget w, XEvent * e, String * argv, Cardinal * argc)
+{
+  autorouted_only = autorouted_only ? 0 : 1;
+}
+
+/* FLAG(OptAutoOnly,djopt_get_auto_only) */
+int
+djopt_get_auto_only()
+{
+  return autorouted_only;
+}
+
 #define line_is_pad(l) ((l)->line == (LineType *)(l)->s->pad)
 
 static char *
@@ -1111,7 +1127,7 @@ orthopull_1 (corner_s * c, int fdir, int rdir, int any_sel)
   line_s *l = 0;
   corner_s *c2, *cb;
   int adir, sdir, pull;
-  int saw_sel = 0;
+  int saw_sel = 0, saw_auto = 0;
   int max, len, r1 = 0, r2;
   rect_s rr;
   int edir, done;
@@ -1185,6 +1201,8 @@ orthopull_1 (corner_s * c, int fdir, int rdir, int any_sel)
 	break;
       if (l->line->Flags & SELECTEDFLAG)
 	saw_sel = 1;
+      if (l->line->Flags & AUTOFLAG)
+	saw_auto = 1;
       if (ln >= lm)
 	{
 	  lm = ln + 10;
@@ -1196,6 +1214,8 @@ orthopull_1 (corner_s * c, int fdir, int rdir, int any_sel)
   if (cn < 2 || pull == 0)
     return 0;
   if (any_sel && !saw_sel)
+    return 0;
+  if (!any_sel && autorouted_only && !saw_auto)
     return 0;
 
   /* Ok, now look for other blockages. */
@@ -1545,6 +1565,8 @@ debumpify ()
 	continue;
       if (any_selected && !(l->line->Flags & SELECTEDFLAG))
 	continue;
+      if (!any_selected && autorouted_only && !(l->line->Flags & AUTOFLAG))
+	continue;
       if (l->s->pin || l->s->pad || l->e->pin || l->e->pad)
 	continue;
       o = line_orient (l, 0);
@@ -1704,6 +1726,10 @@ unjaggy_once ()
 	continue;
       if (sel && !(c->lines[0]->line->Flags & SELECTEDFLAG
 		   || c->lines[1]->line->Flags & SELECTEDFLAG))
+	continue;
+      if (!sel && autorouted_only
+	  && !(c->lines[0]->line->Flags & AUTOFLAG
+	       || c->lines[1]->line->Flags & AUTOFLAG))
 	continue;
       dprintf ("simple at %d,%d\n", c->x, c->y);
 
@@ -1925,84 +1951,91 @@ viatrim ()
 
   for (l = lines; l; l = l->next)
     {
+      rect_s r;
+      int my_layer, other_layer;
+
       if (DELETED (l))
 	continue;
-      if (l->s->via && l->e->via
-	  && (!any_sel || l->line->Flags & SELECTEDFLAG))
-	{
-	  rect_s r;
-	  int my_layer = l->layer;
-	  int other_layer = -1;
-	  dprintf ("line %x on layer %d from %d,%d to %d,%d\n", l, l->layer,
-		   l->s->x, l->s->y, l->e->x, l->e->y);
-	  for (i = 0; i < l->s->n_lines; i++)
-	    if (l->s->lines[i] != l)
+      if (!l->s->via)
+	continue;
+      if (!l->e->via)
+	continue;
+      if (any_sel && !(l->line->Flags & SELECTEDFLAG))
+	continue;
+      if (!any_sel && autorouted_only && !(l->line->Flags & AUTOFLAG))
+	continue;
+
+      my_layer = l->layer;
+      other_layer = -1;
+      dprintf ("line %x on layer %d from %d,%d to %d,%d\n", l, l->layer,
+	       l->s->x, l->s->y, l->e->x, l->e->y);
+      for (i = 0; i < l->s->n_lines; i++)
+	if (l->s->lines[i] != l)
+	  {
+	    if (other_layer == -1)
 	      {
-		if (other_layer == -1)
-		  {
-		    other_layer = l->s->lines[i]->layer;
-		    dprintf ("noting other line %x on layer %d\n",
-			     l->s->lines[i], my_layer);
-		  }
-		else if (l->s->lines[i]->layer != other_layer)
-		  {
-		    dprintf ("saw other line %x on layer %d (not %d)\n",
-			     l->s->lines[i], l->s->lines[i]->layer, my_layer);
-		    other_layer = -1;
-		    goto viatrim_other_corner;
-		  }
+		other_layer = l->s->lines[i]->layer;
+		dprintf ("noting other line %x on layer %d\n",
+			 l->s->lines[i], my_layer);
 	      }
-	viatrim_other_corner:
-	  if (other_layer == -1)
-	    for (i = 0; i < l->e->n_lines; i++)
-	      if (l->e->lines[i] != l)
-		{
-		  if (other_layer == -1)
-		    {
-		      other_layer = l->s->lines[i]->layer;
-		      dprintf ("noting other line %x on layer %d\n",
-			       l->s->lines[i], my_layer);
-		    }
-		  else if (l->e->lines[i]->layer != other_layer)
-		    {
-		      dprintf ("saw end line on layer %d (not %d)\n",
-			       l->e->lines[i]->layer, other_layer);
-		      goto viatrim_continue;
-		    }
-		}
-
-	  /* Now see if any other line intersects us.  We don't need to
-	     check corners, because they'd either be pins/vias and
-	     already conflict, or pads, which we'll check here anyway.  */
-	  empty_rect (&r);
-	  add_point_to_rect (&r, l->s->x, l->s->y, l->line->Thickness);
-	  add_point_to_rect (&r, l->e->x, l->e->y, l->line->Thickness);
-
-	  for (l2 = lines; l2; l2 = l2->next)
+	    else if (l->s->lines[i]->layer != other_layer)
+	      {
+		dprintf ("saw other line %x on layer %d (not %d)\n",
+			 l->s->lines[i], l->s->lines[i]->layer, my_layer);
+		other_layer = -1;
+		goto viatrim_other_corner;
+	      }
+	  }
+    viatrim_other_corner:
+      if (other_layer == -1)
+	for (i = 0; i < l->e->n_lines; i++)
+	  if (l->e->lines[i] != l)
 	    {
-	      if (DELETED (l2))
-		continue;
-	      if (l2->s->net != l->s->net && l2->layer == other_layer)
+	      if (other_layer == -1)
 		{
-		  dprintf ("checking other line %d,%d to %d,%d\n", l2->s->x,
-			   l2->s->y, l2->e->x, l2->e->y);
-		  if (line_in_rect (&r, l2))
-		    {
-		      dprintf ("line from %d,%d to %d,%d in the way\n",
-			       l2->s->x, l2->s->y, l2->e->x, l2->e->y);
-		      goto viatrim_continue;
-		    }
+		  other_layer = l->s->lines[i]->layer;
+		  dprintf ("noting other line %x on layer %d\n",
+			   l->s->lines[i], my_layer);
+		}
+	      else if (l->e->lines[i]->layer != other_layer)
+		{
+		  dprintf ("saw end line on layer %d (not %d)\n",
+			   l->e->lines[i]->layer, other_layer);
+		  goto viatrim_continue;
 		}
 	    }
 
-	  if (l->layer == other_layer)
-	    continue;
-	  move_line_to_layer (l, other_layer);
-	  rv++;
+      /* Now see if any other line intersects us.  We don't need to
+	 check corners, because they'd either be pins/vias and
+	 already conflict, or pads, which we'll check here anyway.  */
+      empty_rect (&r);
+      add_point_to_rect (&r, l->s->x, l->s->y, l->line->Thickness);
+      add_point_to_rect (&r, l->e->x, l->e->y, l->line->Thickness);
 
-	viatrim_continue:
-	  continue;
+      for (l2 = lines; l2; l2 = l2->next)
+	{
+	  if (DELETED (l2))
+	    continue;
+	  if (l2->s->net != l->s->net && l2->layer == other_layer)
+	    {
+	      dprintf ("checking other line %d,%d to %d,%d\n", l2->s->x,
+		       l2->s->y, l2->e->x, l2->e->y);
+	      if (line_in_rect (&r, l2))
+		{
+		  dprintf ("line from %d,%d to %d,%d in the way\n",
+			   l2->s->x, l2->s->y, l2->e->x, l2->e->y);
+		  goto viatrim_continue;
+		}
+	    }
 	}
+
+      if (l->layer == other_layer)
+	continue;
+      move_line_to_layer (l, other_layer);
+      rv++;
+
+    viatrim_continue:
+      continue;
     }
   vrm = simple_optimizations ();
   if (rv > 0)
@@ -2088,8 +2121,11 @@ miter ()
 		oc2 = 0;
 #endif
 
-	      if (sel && !(c->lines[0]->line->Flags & SELECTEDFLAG
-			   || c->lines[1]->line->Flags & SELECTEDFLAG))
+	      if ((sel && !(c->lines[0]->line->Flags & SELECTEDFLAG
+			    || c->lines[1]->line->Flags & SELECTEDFLAG))
+		  || (!sel && autorouted_only
+		      && !(c->lines[0]->line->Flags & AUTOFLAG
+			   || c->lines[1]->line->Flags & AUTOFLAG)))
 		{
 		  c->miter = 0;
 		  progress = 1;
@@ -2299,7 +2335,7 @@ static int
 connect_corners (corner_s * c1, corner_s * c2)
 {
   int layer;
-  LineType *example = c1->lines[0]->line;
+  LineType *example = c1->n_lines ? c1->lines[0]->line : c2->n_lines ? c2->lines[0]->line : 0;
 
   layer = (c1->layer == -1) ? c2->layer : c1->layer;
   if (layer == -1)
