@@ -3011,7 +3011,7 @@ RouteAll (routedata_t * rd)
 		      b =
 		      FindRouteBoxOnLayerGroup (rd, line->Point2.X,
 						line->Point2.Y, line->group2);
-		      assert (a && b); assert (a->augStyle == b->augStyle);
+		      assert (a != NULL && b != NULL); assert (a->augStyle == b->augStyle);
 		      /* route exactly one net, without allowing conflicts */
 		      InitAutoRouteParameters (0, a->augStyle, False, True);
 		      changed = RouteOne (rd, a, b).found_route || changed;
@@ -3053,7 +3053,7 @@ RouteAll (routedata_t * rd)
 		  b =
 		  FindRouteBoxOnLayerGroup (rd, line->Point2.X,
 					    line->Point2.Y, line->group2);
-		  assert (a && b);
+		  assert (a != NULL && b != NULL);
 		  /* merge subnets into a net! */
 		  MergeNets (a, b, NET);}
 	);
