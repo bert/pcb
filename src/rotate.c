@@ -257,11 +257,22 @@ static void *
 RotateLinePoint (LayerTypePtr Layer, LineTypePtr Line, PointTypePtr Point)
 {
   EraseLine (Line);
-  r_delete_entry (Layer->line_tree, (BoxTypePtr) Line);
+  if (Layer)
+    r_delete_entry (Layer->line_tree, (BoxTypePtr) Line);
+  else
+    r_delete_entry (PCB->Data->rat_tree, (BoxTypePtr) Line);
   RotatePointLowLevel (Point, CenterX, CenterY, Number);
   SetLineBoundingBox (Line);
-  r_insert_entry (Layer->line_tree, (BoxTypePtr) Line, 0);
-  DrawLine (Layer, Line, 0);
+  if (Layer)
+    {
+      r_insert_entry (Layer->line_tree, (BoxTypePtr) Line, 0);
+      DrawLine (Layer, Line, 0);
+    }
+  else
+    {
+      r_insert_entry (PCB->Data->rat_tree, (BoxTypePtr) Line, 0);
+      DrawRat ((RatTypePtr)Line, 0);
+    }
   Draw ();
   return (Line);
 }
@@ -353,11 +364,22 @@ RotateObject (int Type, void *Ptr1, void *Ptr2, void *Ptr3,
       AddObjectToRotateUndoList (LINEPOINT_TYPE, ptr->Layer, ptr->Line,
 				 ptr->MovedPoint, CenterX, CenterY, Steps);
       EraseLine (ptr->Line);
-      r_delete_entry (ptr->Layer->line_tree, (BoxType *) ptr->Line);
+      if (ptr->Layer)
+	r_delete_entry (ptr->Layer->line_tree, (BoxType *) ptr->Line);
+      else
+	r_delete_entry (PCB->Data->rat_tree, (BoxType *) ptr->Line);
       RotatePointLowLevel (ptr->MovedPoint, CenterX, CenterY, Steps);
       SetLineBoundingBox (ptr->Line);
-      r_insert_entry (ptr->Layer->line_tree, (BoxType *) ptr->Line, 0);
-      DrawLine (ptr->Layer, ptr->Line, 0);
+      if (ptr->Layer)
+	{
+	  r_insert_entry (ptr->Layer->line_tree, (BoxType *) ptr->Line, 0);
+	  DrawLine (ptr->Layer, ptr->Line, 0);
+	}
+      else
+	{
+	  r_insert_entry (PCB->Data->rat_tree, (BoxType *) ptr->Line, 0);
+	  DrawRat ((RatTypePtr) ptr->Line, 0);
+	}
       Crosshair.AttachedObject.RubberbandN--;
       ptr++;
     }
