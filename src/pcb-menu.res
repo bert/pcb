@@ -133,7 +133,8 @@ MainMenu = {
         {"Vias" Select(ViaByName) ActiveWhen(have_regex)}
         -
         {"Auto-place selected elements" AutoPlaceSelected() a={"Ctrl-P" "Ctrl<Key>p"}}
-        {"Disperse all elements" DisperseElements()}
+        {"Disperse all elements" DisperseElements(All)}
+        {"Disperse selected elements" DisperseElements(Selected)}
         {"Move selected elements to other side" Flip(SelectedElements) a={"Shift-B" "Shift<Key>b"}}
         {"Delete selected objects" RemoveSelected()}
         {"Convert selection to element" Select(Convert)}

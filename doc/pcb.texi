@@ -3542,12 +3542,13 @@ DisableVendor()
 @cindex distributing elements
 @cindex elements, dispersing
 @cindex elements, distributing
-@item DisperseElements()
-Disperses all elements in the layout.  This action should be used at the
+@item DisperseElements(All|Selected)
+Disperses either all elements or only the selected elements in the
+layout.  This action should be used at the
 start of a design to spread out all footprints before any placement or
-routing is done.
+routing is done.  
 @example
-DisperseElements()
+DisperseElements(All)
 @end example
 
 
