@@ -87,11 +87,23 @@ define(`PKG_US16',    `PKG_US( `$1', `$2', `$3', 16)');
 ##  Small outline package, narrow (150mil)
 #   aka SOP8, aka S8
 #
-define(`PKG_SO8',     `PKG_SO( `$1', `$2', `$3',  8, 244, 5000)');
-define(`PKG_SO14',    `PKG_SO( `$1', `$2', `$3', 14, 244, 5000)');
-define(`PKG_SO16',    `PKG_SO( `$1', `$2', `$3', 16, 244, 5000)');
-define(`PKG_SO18N',   `PKG_SO( `$1', `$2', `$3', 18, 244, 5000)');
-define(`PKG_SO20N',   `PKG_SO( `$1', `$2', `$3', 20, 244, 5000)');
+# COMMON_SMT_DIL_{MIL,MM}
+# $4: number of pins
+# $5: pad width  (1/1000 mil or 1/100 mm)
+# $6: pad length (1/1000 mil or 1/100 mm)
+# $7: pad pitch (1/1000 mil 1/100 mm)
+# $8: pad seperation for pads on opposite sides of
+#     the package (1/1000 mil or 1/100 mm)
+# $9: define to make the pins get numbered starting with the highest pin
+#     instead of pin 1.  Needed for certain brain damaged packages like
+#     the Mini-Circuits KK81
+
+# dimensions from http://landpatterns.ipc.org/
+define(`PKG_SO8',   `COMMON_SMT_DIL_MIL(`$1',`$2',`$3',  8, 20000, 85000, 50000, 120000)')
+define(`PKG_SO14',  `COMMON_SMT_DIL_MIL(`$1',`$2',`$3', 14, 20000, 85000, 50000, 120000)')
+define(`PKG_SO16',  `COMMON_SMT_DIL_MIL(`$1',`$2',`$3', 16, 20000, 85000, 50000, 120000)')
+define(`PKG_SO18N', `COMMON_SMT_DIL_MIL(`$1',`$2',`$3', 18, 20000, 85000, 50000, 120000)')
+define(`PKG_SO20N', `COMMON_SMT_DIL_MIL(`$1',`$2',`$3', 20, 20000, 85000, 50000, 120000)')
 
 ##  Small outline package, medium (200mil)
 #   aka 8S2
@@ -102,14 +114,15 @@ define(`PKG_SO22M',   `PKG_SO( `$1', `$2', `$3', 22, 330, 5000)');
 define(`PKG_SO24M',   `PKG_SO( `$1', `$2', `$3', 24, 330, 5000)');
 
 ##  Small outline package, wide (300mil)
-define(`PKG_SO8W',    `PKG_SO( `$1', `$2', `$3',  8, 419, 5000)');
-define(`PKG_SO14W',   `PKG_SO( `$1', `$2', `$3', 14, 419, 5000)');
-define(`PKG_SO16W',   `PKG_SO( `$1', `$2', `$3', 16, 419, 5000)');
-define(`PKG_SO18W',   `PKG_SO( `$1', `$2', `$3', 18, 419, 5000)');
-define(`PKG_SO20W',   `PKG_SO( `$1', `$2', `$3', 20, 419, 5000)');
-define(`PKG_SO24W',   `PKG_SO( `$1', `$2', `$3', 24, 419, 5000)');
-define(`PKG_SO28',    `PKG_SO( `$1', `$2', `$3', 28, 419, 5000)');
-define(`PKG_SO32',    `PKG_SO( `$1', `$2', `$3', 32, 419, 5000)');
+# dimensions from http://landpatterns.ipc.org/
+define(`PKG_SO8W',   `COMMON_SMT_DIL_MIL(`$1',`$2',`$3',  8, 20000, 80000, 50000, 280000)')
+define(`PKG_SO14W',  `COMMON_SMT_DIL_MIL(`$1',`$2',`$3', 14, 20000, 80000, 50000, 280000)')
+define(`PKG_SO16W',  `COMMON_SMT_DIL_MIL(`$1',`$2',`$3', 16, 20000, 80000, 50000, 280000)')
+define(`PKG_SO18W',  `COMMON_SMT_DIL_MIL(`$1',`$2',`$3', 18, 20000, 80000, 50000, 280000)')
+define(`PKG_SO20W',  `COMMON_SMT_DIL_MIL(`$1',`$2',`$3', 20, 20000, 80000, 50000, 280000)')
+define(`PKG_SO24W',  `COMMON_SMT_DIL_MIL(`$1',`$2',`$3', 24, 20000, 80000, 50000, 280000)')
+define(`PKG_SO28',   `COMMON_SMT_DIL_MIL(`$1',`$2',`$3', 28, 20000, 80000, 50000, 280000)')
+define(`PKG_SO32',   `COMMON_SMT_DIL_MIL(`$1',`$2',`$3', 32, 20000, 80000, 50000, 280000)')
 
 ##  Small outline package, wider (325mil)
 define(`PKG_SO28W',   `PKG_SO( `$1', `$2', `$3', 28, 474, 5000)');
