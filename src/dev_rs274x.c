@@ -249,32 +249,32 @@ findApertureCode (Apertures * apertures, int width, int gap, int finger,
 	{
 	case ROUND:
 	  sprintf (appMacro, "%%ADD%dC,%.3f*%%\015\012", ap->dCode,
-		   width / 1000.0);
+		   width / 100000.0);
 	  break;
 	case SQUARE:
 	  sprintf (appMacro, "%%ADD%dR,%.3fX%.3f*%%\015\012",
-		   ap->dCode, width / 1000.0, width / 1000.0);
+		   ap->dCode, width / 100000.0, width / 100000.0);
 	  break;
 	case OCTAGON:
 	  sprintf (appMacro, "%%AMOCT%d*5,0,8,0,0,%.3f,22.5*%%\015\012"
 		   "%%ADD%dOCT%d*%%\015\012", lastTherm,
-		   width / (1000.0 * COS_22_5_DEGREE), ap->dCode, lastTherm);
+		   width / (100000.0 * COS_22_5_DEGREE), ap->dCode, lastTherm);
 	  lastTherm++;
 	  break;
 	case THERMAL:
 	  sprintf (appMacro, "%%AMTHERM%d*7,0,0,%.3f,%.3f,%.3f,45*%%\015\012"
-		   "%%ADD%dTHERM%d*%%\015\012", lastTherm, gap / 1000.0,
-		   width / 1000.0, finger / 1000.0, ap->dCode, lastTherm);
+		   "%%ADD%dTHERM%d*%%\015\012", lastTherm, gap / 100000.0,
+		   width / 100000.0, finger / 100000.0, ap->dCode, lastTherm);
 	  lastTherm++;
 	  break;
 	case ROUNDCLEAR:
 	  sprintf (appMacro, "%%ADD%dC,%.3fX%.3f*%%\015\012",
-		   ap->dCode, gap / 1000.0, width / 1000.0);
+		   ap->dCode, gap / 100000.0, width / 100000.0);
 	  break;
 	case SQUARECLEAR:
 	  sprintf (appMacro, "%%ADD%dR,%.3fX%.3fX%.3fX%.3f*%%\015\012",
-		   ap->dCode, gap / 1000.0, gap / 1000.0, width / 1000.0,
-		   width / 1000.0);
+		   ap->dCode, gap / 100000.0, gap / 100000.0, width / 100000.0,
+		   width / 100000.0);
 	  break;
 	}
 
@@ -475,7 +475,7 @@ GBX_Preamble (PrintInitTypePtr Flags, char *Description)
       DRILL_LOOP (usedDrills, 
 	{
 	  fprintf (GBX_Flags.FP, "T%02dC%.3f\015\012",
-		   index++, drill->DrillSize / 1000.0);
+		   index++, drill->DrillSize / 100000.0);
 	}
       );
       FreeDrillInfo (usedDrills);
