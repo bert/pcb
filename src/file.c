@@ -201,6 +201,8 @@ LoadPCB (char *Filename)
       PCB = newPCB;
       InitNetlistWindow (Output.Toplevel);
       ResetStackAndVisibility ();
+	/* set the zoom first before the Xorig, Yorig */
+      SetZoom (PCB->Zoom);
 
       /* update cursor location */
       Crosshair.X = MAX (0, MIN (PCB->CursorX, (Location) PCB->MaxWidth));
@@ -208,7 +210,6 @@ LoadPCB (char *Filename)
 
       Xorig = Crosshair.X - TO_PCB (Output.Width / 2);
       Yorig = Crosshair.Y - TO_PCB (Output.Height / 2);
-      SetZoom (PCB->Zoom);
       RedrawZoom (Output.Width / 2, Output.Height / 2);
 
       /* update cursor confinement and output area (scrollbars) */
