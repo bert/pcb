@@ -295,10 +295,13 @@ ChangeViaSize (PinTypePtr Via)
       value >= Via->DrillingHole + MIN_PINORVIACOPPER &&
       value != Via->Thickness)
     {
-      AddObjectToMaskSizeUndoList (VIA_TYPE, Via, Via, Via);
       AddObjectToSizeUndoList (VIA_TYPE, Via, Via, Via);
       EraseVia (Via);
-      Via->Mask += value - Via->Thickness;
+      if (Via->Mask)
+        {
+          AddObjectToMaskSizeUndoList (VIA_TYPE, Via, Via, Via);
+          Via->Mask += value - Via->Thickness;
+	}
       Via->Thickness = value;
       DrawVia (Via, 0);
       return (Via);
