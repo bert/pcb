@@ -171,6 +171,8 @@ pcb_bin_SOURCES = \
 	dev_rs274x.h \
 	dialog.c \
 	dialog.h \
+	djopt.c \
+	djopt.h \
 	draw.c \
 	draw.h \
 	drill.c \
@@ -288,19 +290,20 @@ am_pcb_bin_OBJECTS = action.$(OBJEXT) autoplace.$(OBJEXT) \
 	command.$(OBJEXT) control.$(OBJEXT) copy.$(OBJEXT) \
 	create.$(OBJEXT) crosshair.$(OBJEXT) data.$(OBJEXT) \
 	dev_ps.$(OBJEXT) dev_rs274x.$(OBJEXT) dialog.$(OBJEXT) \
-	draw.$(OBJEXT) drill.$(OBJEXT) error.$(OBJEXT) file.$(OBJEXT) \
-	fileselect.$(OBJEXT) find.$(OBJEXT) gui.$(OBJEXT) \
-	heap.$(OBJEXT) insert.$(OBJEXT) intersect.$(OBJEXT) \
-	kdtree.$(OBJEXT) lgdialog.$(OBJEXT) library.$(OBJEXT) \
-	log.$(OBJEXT) main.$(OBJEXT) menu.$(OBJEXT) mirror.$(OBJEXT) \
-	misc.$(OBJEXT) move.$(OBJEXT) mtspace.$(OBJEXT) mymem.$(OBJEXT) \
-	netlist.$(OBJEXT) output.$(OBJEXT) parse_l.$(OBJEXT) \
-	parse_y.$(OBJEXT) pinout.$(OBJEXT) polygon.$(OBJEXT) \
-	print.$(OBJEXT) printdialog.$(OBJEXT) printpanner.$(OBJEXT) \
-	rats.$(OBJEXT) remove.$(OBJEXT) report.$(OBJEXT) \
-	rotate.$(OBJEXT) rubberband.$(OBJEXT) search.$(OBJEXT) \
-	select.$(OBJEXT) selector.$(OBJEXT) set.$(OBJEXT) \
-	sizedialog.$(OBJEXT) undo.$(OBJEXT) vector.$(OBJEXT)
+	djopt.$(OBJEXT) draw.$(OBJEXT) drill.$(OBJEXT) error.$(OBJEXT) \
+	file.$(OBJEXT) fileselect.$(OBJEXT) find.$(OBJEXT) \
+	gui.$(OBJEXT) heap.$(OBJEXT) insert.$(OBJEXT) \
+	intersect.$(OBJEXT) kdtree.$(OBJEXT) lgdialog.$(OBJEXT) \
+	library.$(OBJEXT) log.$(OBJEXT) main.$(OBJEXT) menu.$(OBJEXT) \
+	mirror.$(OBJEXT) misc.$(OBJEXT) move.$(OBJEXT) \
+	mtspace.$(OBJEXT) mymem.$(OBJEXT) netlist.$(OBJEXT) \
+	output.$(OBJEXT) parse_l.$(OBJEXT) parse_y.$(OBJEXT) \
+	pinout.$(OBJEXT) polygon.$(OBJEXT) print.$(OBJEXT) \
+	printdialog.$(OBJEXT) printpanner.$(OBJEXT) rats.$(OBJEXT) \
+	remove.$(OBJEXT) report.$(OBJEXT) rotate.$(OBJEXT) \
+	rubberband.$(OBJEXT) search.$(OBJEXT) select.$(OBJEXT) \
+	selector.$(OBJEXT) set.$(OBJEXT) sizedialog.$(OBJEXT) \
+	undo.$(OBJEXT) vector.$(OBJEXT)
 pcb_bin_OBJECTS = $(am_pcb_bin_OBJECTS)
 pcb_bin_LDADD = $(LDADD)
 pcb_bin_DEPENDENCIES =
@@ -318,21 +321,21 @@ am__depfiles_maybe = depfiles
 @AMDEP_TRUE@	./$(DEPDIR)/create.Po ./$(DEPDIR)/crosshair.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/data.Po ./$(DEPDIR)/dev_ps.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/dev_rs274x.Po ./$(DEPDIR)/dialog.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/draw.Po ./$(DEPDIR)/drill.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/error.Po ./$(DEPDIR)/file.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/fileselect.Po ./$(DEPDIR)/find.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/gui.Po ./$(DEPDIR)/heap.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/insert.Po ./$(DEPDIR)/intersect.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/kdtree.Po ./$(DEPDIR)/lgdialog.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/library.Po ./$(DEPDIR)/log.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/main.Po ./$(DEPDIR)/menu.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/mirror.Po ./$(DEPDIR)/misc.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/move.Po ./$(DEPDIR)/mtspace.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/mymem.Po ./$(DEPDIR)/netlist.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/output.Po ./$(DEPDIR)/parse_l.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/parse_y.Po ./$(DEPDIR)/pinout.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/polygon.Po ./$(DEPDIR)/print.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/printdialog.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/djopt.Po ./$(DEPDIR)/draw.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/drill.Po ./$(DEPDIR)/error.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/file.Po ./$(DEPDIR)/fileselect.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/find.Po ./$(DEPDIR)/gui.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/heap.Po ./$(DEPDIR)/insert.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/intersect.Po ./$(DEPDIR)/kdtree.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/lgdialog.Po ./$(DEPDIR)/library.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/log.Po ./$(DEPDIR)/main.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/menu.Po ./$(DEPDIR)/mirror.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/misc.Po ./$(DEPDIR)/move.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/mtspace.Po ./$(DEPDIR)/mymem.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/netlist.Po ./$(DEPDIR)/output.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/parse_l.Po ./$(DEPDIR)/parse_y.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/pinout.Po ./$(DEPDIR)/polygon.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/print.Po ./$(DEPDIR)/printdialog.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/printpanner.Po ./$(DEPDIR)/rats.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/remove.Po ./$(DEPDIR)/report.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/rotate.Po ./$(DEPDIR)/rubberband.Po \
@@ -442,6 +445,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dev_ps.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dev_rs274x.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dialog.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/djopt.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/draw.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/drill.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/error.Po@am__quote@
@@ -767,10 +771,10 @@ distclean-generic:
 maintainer-clean-generic:
 	@echo "This command is intended for maintainers to use"
 	@echo "it deletes files that may require special tools to rebuild."
-	-rm -f parse_y.h
+	-rm -f parse_l.c
 	-test -z "$(BUILT_SOURCES)" || rm -f $(BUILT_SOURCES)
 	-rm -f parse_y.c
-	-rm -f parse_l.c
+	-rm -f parse_y.h
 clean: clean-recursive
 
 clean-am: clean-binPROGRAMS clean-generic mostlyclean-am
