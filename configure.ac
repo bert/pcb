@@ -62,7 +62,8 @@ fi
 with_xaw=Xaw
 ])
 
-AC_CHECK_LIB($with_xaw, XawInitializeWidgetSet, , , $X_LIBS)
+AC_CHECK_LIB($with_xaw, XawInitializeWidgetSet, , 
+	AC_ERROR([You must have some version of Xaw installed on your system]), $X_LIBS)
 LIBXAW=$with_xaw
 XAWINC=$with_xaw
 
