@@ -553,7 +553,7 @@ RatTypePtr AddNet (void)
     }
   if (NAMEONPCB_NAME((ElementTypePtr)ptr1) == NULL || *NAMEONPCB_NAME((ElementTypePtr)ptr1) == 0)
     {
-      Message ("You must name the element first\n");
+      Message ("You must name the starting element first\n");
       return (NULL);
     }
     
@@ -568,6 +568,11 @@ RatTypePtr AddNet (void)
   if (found == NO_TYPE)
     {
       Message ("No pad/pin under rat line\n");
+      return (NULL);
+    }
+  if (NAMEONPCB_NAME((ElementTypePtr)ptr1) == NULL || *NAMEONPCB_NAME((ElementTypePtr)ptr1) == 0)
+    {
+      Message ("You must name the ending element first\n");
       return (NULL);
     }
   group2 = (TEST_FLAG (ONSOLDERFLAG, (PadTypePtr) ptr2) ?
