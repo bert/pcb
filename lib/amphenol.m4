@@ -23,7 +23,7 @@ divert(-1)
 # Amphenol Connectors
 
 # SMA
-define(`Description_AMPHENOL_ARFX1229', `Amphenol ARFX1229 SMA Connector')
-define(`PinList_AMPHENOL_ARFX1229', ``SIG',`GND',`GND',`GND',`GND'')
+define(`Description_amphenol_ARFX1229', `Amphenol ARFX1229 SMA Connector')
+define(`PinList_amphenol_ARFX1229', ``SIG',`GND',`GND',`GND',`GND'')
 
 divert(0)dnl
