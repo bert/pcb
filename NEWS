@@ -1,5 +1,43 @@
 
 ========================================================================
+Release Notes for PCB snapshot 20040903
+========================================================================
+
+- enable -Wall when compiling with gcc.  Many compiler warnings have
+  been fixed.
+
+- add a short man page which refers the user to the real documentation
+
+- Added ExecuteFile(file) action which allows the execution of several
+  actions contained in a text file.
+
+- Added -script <file> flag which specifies a file containing actions
+  to be executed upon startup.
+
+- Various documentation improvements
+
+- Protect some gcc extensions with tests for gcc.  This allows
+  compilation with the IRIX c compiler.
+
+- Updated the ~geda library 150 and 300 mil width SOIC packages
+  to remove silk on pads and to more closely follow the IPC
+  recommendations
+
+- Added support for menu accelerators.
+
+- segfault when breaking apart an element with no element selected
+  bug fixed.
+
+- autorouter improvements
+
+- added more 400mil DIP packages to ~geda library
+
+- fix a trace optimizer bug which produced a segfault
+
+- other various bug fixes
+
+
+========================================================================
 Release Notes for PCB snapshot 20040530
 ========================================================================
 This has been an exciting 3 months for PCB.  Many improvements have
