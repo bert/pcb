@@ -687,18 +687,19 @@ __found_one (const BoxType * box, void *cl)
     return 0;
 }
 static routebox_t *
-FindRouteBox (routedata_t * rd, Location X, Location Y, void *matches,
-	      int group)
+FindRouteBox (routedata_t * rd, Location X, Location Y, void *matches)
 {
   struct find_closure fc;
   BoxType region;
+  int group;
 
   fc.match = NULL;
   fc.key = matches;
   region.X1 = region.X2 = X;
   region.Y1 = region.Y2 = Y;
-  if (r_search (rd->layergrouptree[group], &region, NULL, __found_one, &fc))
-    return fc.match;
+  for (group = 0; group < MAX_LAYER; group++)
+    if (r_search (rd->layergrouptree[group], &region, NULL, __found_one, &fc))
+      return fc.match;
   return NULL;			/* no match found */
 }
 
@@ -883,36 +884,36 @@ CreateRouteData ()
 	routebox_t *last_in_subnet = NULL;
 	CONNECTION_LOOP (net);
 	{
-	  routebox_t *rb;
+	  routebox_t *rb, *tmp;
 	  int j;
-	  for (j = 0; j < MAX_LAYER; j++)
+
+	  for (j = 0; j < NUM_STYLES; j++)
+	    if (net->Style == rd->augStyles[j].style)
+	      break;
+	  rb =
+	    FindRouteBox (rd, connection->X, connection->Y, connection->ptr2);
+	  if (!rb)
+	    continue;
+	  /* XXX: set rb->augStyle! */
+	  rb->augStyle = &rd->augStyles[j];
+	  rb->augStyle->Used = True;
+	  /* traces are listed twice, at start point and at end point */
+	  if (rb != last_in_subnet)
 	    {
-	      rb =
-		FindRouteBox (rd, connection->X, connection->Y,
-			      connection->ptr2, j);
-	      if (!rb)
-		continue;
-	      /* XXX: set rb->augStyle! */
-	      for (i = 0; i < NUM_STYLES; i++)
-		if (net->Style == rd->augStyles[i].style)
-		  {
-		    rb->augStyle = &rd->augStyles[i];
-		    break;
-		  }
-	      rb->augStyle->Used = True;
-	      /* traces are listed twice, at start point and at end point */
-	      if (rb != last_in_subnet)
-		{
-		  /* update circular connectivity lists */
-		  if (last_in_subnet)
-		    MergeNets (last_in_subnet, rb, ORIGINAL);
-		  if (last_in_net)
-		    MergeNets (last_in_net, rb, NET);
-		  last_in_subnet = last_in_net = rb;
-		  rd->max_bloat =
-		    MAX (rd->max_bloat, BLOAT (rb->augStyle->style));
-		}
+	      /* update circular connectivity lists */
+	      if (last_in_subnet)
+		MergeNets (last_in_subnet, rb, ORIGINAL);
+	      if (last_in_net)
+		MergeNets (last_in_net, rb, NET);
+	      last_in_subnet = last_in_net = rb;
+	      rd->max_bloat =
+		MAX (rd->max_bloat, BLOAT (rb->augStyle->style));
 	    }
+	  LIST_LOOP (rb, same_net, tmp);
+	  {
+	    tmp->augStyle = &rd->augStyles[j];
+	  }
+	  END_LOOP;
 	}
 	END_LOOP;
       }
@@ -1294,8 +1295,7 @@ CreateViaEdge (const BoxType * area, Cardinal group,
 		    &previous_edge->cost_point, previous_edge->rb->group)) +
     (scale[through_site_conflict] *
      cost_to_point (&costpoint, group, &costpoint, previous_edge->rb->group));
-  ne = CreateEdge (rb, costpoint.X, costpoint.Y, previous_edge->cost_to_point + d,
-                   previous_edge->mincost_target, NORTH	/*arbitrary */
+  ne = CreateEdge (rb, costpoint.X, costpoint.Y, previous_edge->cost_to_point + d, previous_edge->mincost_target, NORTH	/*arbitrary */
 		   , targets);
   ne->flags.expand_all_sides = ne->flags.is_via = 1;
   ne->flags.via_conflict_level = to_site_conflict;
@@ -2136,7 +2136,7 @@ TracePath (routedata_t * rd, routebox_t * path, routebox_t * target,
   routebox_t *lastpath;
   BoxType b;
 
-  // assert (subnet->augStyle == AutoRouteParameters.augStyle);
+  assert (subnet->augStyle == AutoRouteParameters.augStyle);
 
   /* start from *edge* of target box */
   /*XXX: because we round up odd thicknesses, there's the possibility that
@@ -2676,10 +2676,13 @@ RouteOne (routedata_t * rd, routebox_t * from, routebox_t * to)
 			  /* if this is not the intersecting piece, create a new
 			   * (hopefully unobstructed) via edge and add it back to the
 			   * workheap. */
-			  ne = CreateViaEdge (&b, e->rb->group, e->rb->parent.expansion_area,
-			                      e, e->flags.via_conflict_level, NO_CONFLICT
-					      /* value here doesn't matter */
-					      , targets);
+			  ne =
+			    CreateViaEdge (&b, e->rb->group,
+					   e->rb->parent.expansion_area, e,
+					   e->flags.via_conflict_level,
+					   NO_CONFLICT
+					   /* value here doesn't matter */
+					   , targets);
 			  add_or_destroy_edge (&s, ne);
 			}
 		    }
@@ -2766,22 +2769,6 @@ RouteOne (routedata_t * rd, routebox_t * from, routebox_t * to)
 	   * an expansion area.  If the thing we hit is a target, then
 	   * celebrate! */
 	  bb = break_box_edge (&expand_region, e->expand_dir, next);
-	  if (bb.is_valid_left)
-	    {			/* left edge valid? */
-	      nrb =
-		CreateExpansionArea (&bb.left, e->rb->group, top_parent,
-				     False);
-	      ne = CreateEdge2 (nrb, e->expand_dir, e, targets);
-	      add_or_destroy_edge (&s, ne);
-	    }
-	  if (bb.is_valid_right)
-	    {			/* right edge valid? */
-	      nrb =
-		CreateExpansionArea (&bb.right, e->rb->group, top_parent,
-				     False);
-	      ne = CreateEdge2 (nrb, e->expand_dir, e, targets);
-	      add_or_destroy_edge (&s, ne);
-	    }
 	  /* now deal with blocker... */
 	  /* maybe we've found a target? */
 	  if (next->flags.target)
@@ -2801,12 +2788,29 @@ RouteOne (routedata_t * rd, routebox_t * from, routebox_t * to)
 	      best_path_candidate (&s, ne, next);	/* new best path? */
 	      DestroyEdge (&ne);
 	    }
+	  if (bb.is_valid_left)
+	    {			/* left edge valid? */
+	      nrb =
+		CreateExpansionArea (&bb.left, e->rb->group, top_parent,
+				     False);
+	      ne = CreateEdge2 (nrb, e->expand_dir, e, targets);
+	      add_or_destroy_edge (&s, ne);
+	    }
+	  if (bb.is_valid_right)
+	    {			/* right edge valid? */
+	      nrb =
+		CreateExpansionArea (&bb.right, e->rb->group, top_parent,
+				     False);
+	      ne = CreateEdge2 (nrb, e->expand_dir, e, targets);
+	      add_or_destroy_edge (&s, ne);
+	    }
 	  else if (next->type == EXPANSION_AREA)
 	    {
 	      /* don't expand this edge */
 	      /* XXX: maybe update parent, if this route is cheaper? */
 	    }
-	  else if (AutoRouteParameters.with_conflicts)
+	  else if (!next->flags.target && !next->flags.fixed
+		   && AutoRouteParameters.with_conflicts)
 	    {
 	      edge_t *ne2;
 	      /* is center valid for expansion? (with conflicts) */
@@ -3058,93 +3062,100 @@ IronDownAllUnfixedPaths (routedata_t * rd)
   routebox_t *net, *p;
   int i;
   LIST_LOOP (rd->first_net, different_net, net);
-  LIST_LOOP (net, same_net, p);
-  if (!p->flags.fixed)
+  {
+    LIST_LOOP (net, same_net, p);
     {
-      /* find first on layer in this group */
-      assert (PCB->LayerGroups.Number[p->group] > 0);
-      assert (is_layer_group_active (p->group));
-      for (i = 0, layer = NULL; i < PCB->LayerGroups.Number[p->group]; i++)
+      if (!p->flags.fixed)
 	{
-	  layer = LAYER_PTR (PCB->LayerGroups.Entries[p->group][i]);
-	  if (layer->On)
-	    break;
-	}
-      assert (layer && layer->On);	/*at least one layer must be on in this group! */
-      assert (p->type != EXPANSION_AREA);
-      if (p->type == LINE)
-	{
-	  BDimension halfwidth = HALF_THICK (p->augStyle->style->Thick);
-	  BoxType b;
-	  assert (p->parent.line == NULL);
-	  /* orthogonal; thickness is 2*halfwidth */
-	  /* hace
-	     assert (p->flags.nonstraight ||
-	     p->box.X1 + halfwidth ==
-	     p->box.X2 - halfwidth
-	     || p->box.Y1 + halfwidth ==
-	     p->box.Y2 - halfwidth);
-	   */
-	  /* flip coordinates, if bl_to_ur */
-	  b = shrink_box (&p->box, halfwidth);
-	  if (p->flags.bl_to_ur)
+	  /* find first on layer in this group */
+	  assert (PCB->LayerGroups.Number[p->group] > 0);
+	  assert (is_layer_group_active (p->group));
+	  for (i = 0, layer = NULL; i < PCB->LayerGroups.Number[p->group];
+	       i++)
 	    {
-	      BDimension t;
-	      t = b.X1;
-	      b.X1 = b.X2;
-	      b.X2 = t;
+	      layer = LAYER_PTR (PCB->LayerGroups.Entries[p->group][i]);
+	      if (layer->On)
+		break;
 	    }
-	   /* using CreateDrawn instead of CreateNew concatenates sequential lines */
-	  p->parent.line = CreateDrawnLineOnLayer
-	    (layer, b.X1, b.Y1, b.X2, b.Y2,
-	     p->augStyle->style->Thick,
-	     p->augStyle->style->Keepaway, AUTOFLAG);
-	  if (p->parent.line)
+	  assert (layer && layer->On);	/*at least one layer must be on in this group! */
+	  assert (p->type != EXPANSION_AREA);
+	  if (p->type == LINE)
 	    {
-	      AddObjectToCreateUndoList (LINE_TYPE, layer,
-					 p->parent.line, p->parent.line);
-	      changed = True;
-	    }
-	}
-      else if (p->type == VIA || p->type == VIA_SHADOW)
-	{
-	  routebox_t *pp = (p->type == VIA_SHADOW) ? p->parent.via_shadow : p;
-	  BDimension radius = HALF_THICK (pp->augStyle->style->Diameter);
-	  assert (pp->type == VIA);
-	  if (pp->parent.via == NULL)
-	    {
-	      assert (pp->box.X1 + radius == pp->box.X2 - radius);
-	      assert (pp->box.Y1 + radius == pp->box.Y2 - radius);
-	      pp->parent.via =
-		CreateNewVia (PCB->Data, pp->box.X1 + radius,
-			      pp->box.Y1 + radius,
-			      pp->augStyle->style->Diameter,
-			      2 * pp->augStyle->style->Keepaway,
-			      0, pp->augStyle->style->Hole, NULL,
-			      VIAFLAG | AUTOFLAG);
-	      assert (pp->parent.via);
-	      if (pp->parent.via)
+	      BDimension halfwidth = HALF_THICK (p->augStyle->style->Thick);
+	      BoxType b;
+	      assert (p->parent.line == NULL);
+	      /* orthogonal; thickness is 2*halfwidth */
+	      /* hace
+	         assert (p->flags.nonstraight ||
+	         p->box.X1 + halfwidth ==
+	         p->box.X2 - halfwidth
+	         || p->box.Y1 + halfwidth ==
+	         p->box.Y2 - halfwidth);
+	       */
+	      /* flip coordinates, if bl_to_ur */
+	      b = shrink_box (&p->box, halfwidth);
+	      if (p->flags.bl_to_ur)
 		{
-		  UpdatePIPFlags (pp->parent.via,
-				  (ElementTypePtr) pp->parent.via,
-				  NULL, NULL, False);
-		  AddObjectToCreateUndoList (VIA_TYPE,
-					     pp->parent.via,
-					     pp->parent.via, pp->parent.via);
+		  BDimension t;
+		  t = b.X1;
+		  b.X1 = b.X2;
+		  b.X2 = t;
+		}
+	      /* using CreateDrawn instead of CreateNew concatenates sequential lines */
+	      p->parent.line = CreateDrawnLineOnLayer
+		(layer, b.X1, b.Y1, b.X2, b.Y2,
+		 p->augStyle->style->Thick,
+		 p->augStyle->style->Keepaway, AUTOFLAG);
+	      if (p->parent.line)
+		{
+		  AddObjectToCreateUndoList (LINE_TYPE, layer,
+					     p->parent.line, p->parent.line);
 		  changed = True;
 		}
 	    }
-	  assert (pp->parent.via);
-	  if (p->type == VIA_SHADOW)
+	  else if (p->type == VIA || p->type == VIA_SHADOW)
 	    {
-	      p->type = VIA;
-	      p->parent.via = pp->parent.via;
+	      routebox_t *pp =
+		(p->type == VIA_SHADOW) ? p->parent.via_shadow : p;
+	      BDimension radius = HALF_THICK (pp->augStyle->style->Diameter);
+	      assert (pp->type == VIA);
+	      if (pp->parent.via == NULL)
+		{
+		  assert (pp->box.X1 + radius == pp->box.X2 - radius);
+		  assert (pp->box.Y1 + radius == pp->box.Y2 - radius);
+		  pp->parent.via =
+		    CreateNewVia (PCB->Data, pp->box.X1 + radius,
+				  pp->box.Y1 + radius,
+				  pp->augStyle->style->Diameter,
+				  2 * pp->augStyle->style->Keepaway,
+				  0, pp->augStyle->style->Hole, NULL,
+				  VIAFLAG | AUTOFLAG);
+		  assert (pp->parent.via);
+		  if (pp->parent.via)
+		    {
+		      UpdatePIPFlags (pp->parent.via,
+				      (ElementTypePtr) pp->parent.via,
+				      NULL, NULL, False);
+		      AddObjectToCreateUndoList (VIA_TYPE,
+						 pp->parent.via,
+						 pp->parent.via,
+						 pp->parent.via);
+		      changed = True;
+		    }
+		}
+	      assert (pp->parent.via);
+	      if (p->type == VIA_SHADOW)
+		{
+		  p->type = VIA;
+		  p->parent.via = pp->parent.via;
+		}
 	    }
+	  else
+	    assert (0);
 	}
-      else
-       assert(0);
     }
-  END_LOOP;
+    END_LOOP;
+  }
   END_LOOP;
   return changed;
 }
@@ -3230,7 +3241,9 @@ AutoRoute (Boolean selected)
 	}
 	END_FOREACH (net, rb);
 	LIST_LOOP (net, same_net, rb);
-	rb->same_net = rb->same_subnet;
+	{
+	  rb->same_net = rb->same_subnet;
+	}
 	END_LOOP;
       }
       END_LOOP;
@@ -3262,21 +3275,25 @@ AutoRoute (Boolean selected)
       LIST_LOOP (rd->first_net, different_net, net);
       {
 	if (!net->flags.touched)
-	  LIST_LOOP (net, same_net, rb);
-	rb->flags.touched = 1;
-	END_LOOP;
+	  {
+	    LIST_LOOP (net, same_net, rb);
+	    rb->flags.touched = 1;
+	    END_LOOP;
+	  }
 	else			/* this is not a "different net"! */
-	RemoveFromNet (net, DIFFERENT_NET);
+	  RemoveFromNet (net, DIFFERENT_NET);
       }
       END_LOOP;
       /* reset "touched" flag */
       LIST_LOOP (rd->first_net, different_net, net);
-      LIST_LOOP (net, same_net, rb);
       {
-	assert (rb->flags.touched);
-	rb->flags.touched = 0;
+	LIST_LOOP (net, same_net, rb);
+	{
+	  assert (rb->flags.touched);
+	  rb->flags.touched = 0;
+	}
+	END_LOOP;
       }
-      END_LOOP;
       END_LOOP;
     }
   /* okay, rd's idea of netlist now corresponds to what we want routed */
