@@ -90,6 +90,10 @@ typedef struct rect_s {
 static corner_s *corners, *next_corner=0;
 static line_s *lines;
 
+static char layer_type[MAX_LAYER];
+#define LT_COMPONENT 1
+#define LT_SOLDER 2
+
 #define line_is_pad(l) ((l)->line == (LineType *)(l)->s->pad)
 
 static char *element_name_for (corner_s *c)
@@ -171,6 +175,8 @@ check2(int srcline, corner_s *c, line_s *l)
 
   for (cc=corners; cc; cc=cc->next)
     {
+      if (DELETED(cc))
+	continue;
       if (cc == c)
 	saw_c = 1;
       for (i=0; i<cc->n_lines; i++)
@@ -186,6 +192,8 @@ check2(int srcline, corner_s *c, line_s *l)
     dj_abort("check:%d: corner not in corners list\n", srcline);
   for (ll=lines; ll; ll=ll->next)
     {
+      if (DELETED(ll))
+	continue;
       if (ll == l)
 	saw_l = 1;
       for (i=0; i<ll->s->n_lines; i++)
@@ -644,6 +652,9 @@ remove_line(line_s *l)
   line_s *l2;
   LineType *from=0, *to=0;
   LayerType *layer = &(PCB->Data->Layer[l->layer]);
+
+  check(0,0);
+
   if (l->line)
     {
       /* compenstate for having line pointers rearranged */
@@ -2443,13 +2454,22 @@ pad_orient (PadType *p)
 static void
 padcleaner()
 {
-  line_s *l;
+  line_s *l, *nextl;
   int left, right, top, bottom, close;
   rect_s r;
   int ei, pi;
 
-  for (l=lines; l; l=l->next)
+  dprintf("\ndj: padcleaner\n");
+  for (l=lines; l; l=nextl)
     {
+      nextl = l->next;
+
+      if (DELETED(l))
+	continue;
+
+      dprintf("dj: line %08x\n", l);
+      check(0, l);
+
       if (l->s->pad && l->s->pad == l->e->pad)
 	continue;
 
@@ -2459,9 +2479,9 @@ padcleaner()
 	  for (pi=0; pi<e->PadN; pi++)
 	    {
 	      PadType *p = e->Pad + pi;
-	      int layer = e->Flags & ONSOLDERFLAG ? solder_layer : component_layer;
+	      int layerflag = e->Flags & ONSOLDERFLAG ? LT_SOLDER : LT_COMPONENT;
 
-	      if (layer != l->layer)
+	      if (layer_type[l->layer] != layerflag)
 		continue;
 
 	      empty_rect (&r);
@@ -2476,7 +2496,42 @@ padcleaner()
 			 p->Point1.X, p->Point1.Y, p->Point2.X, p->Point2.Y, p->Thickness,
 			 l->s->x, l->s->y, l->e->x, l->e->y, l->line->Thickness);
 		  remove_line(l);
+		  goto next_line;
 		}
+	    }
+	}
+    next_line: ;
+    }
+}
+
+static void
+grok_layer_groups()
+{
+  int i, j, f;
+  LayerGroupType *l = &(PCB->LayerGroups);
+
+  solder_layer = component_layer = -1;
+  for (i=0; i<MAX_LAYER; i++)
+    layer_type[i] = 0;
+  for (i=0; i<MAX_LAYER; i++)
+    {
+      f = 0;
+      for (j=0; j<l->Number[i]; j++)
+	{
+	  if (l->Entries[i][j] == MAX_LAYER + SOLDER_LAYER)
+	    f |= LT_SOLDER;
+	  if (l->Entries[i][j] == MAX_LAYER + COMPONENT_LAYER)
+	    f |= LT_COMPONENT;
+	}
+      for (j=0; j<l->Number[i]; j++)
+	{
+	  if (l->Entries[i][j] >= 0 && l->Entries[i][j] < MAX_LAYER)
+	    {
+	      layer_type[l->Entries[i][j]] |= f;
+	      if (solder_layer == -1 && f == LT_SOLDER)
+		solder_layer = l->Entries[i][j];
+	      if (component_layer == -1 && f == LT_COMPONENT)
+		component_layer = l->Entries[i][j];
 	    }
 	}
     }
@@ -2496,13 +2551,7 @@ ActionDJopt(Widget w, XEvent *e, String *argv, Cardinal *argc)
   lines = 0;
   corners = 0;
 
-  for (layn=0; layn<MAX_LAYER; layn++)
-    {
-      if (strcmp(PCB->Data->Layer[layn].Name, "solder") == 0)
-	solder_layer = layn;
-      if (strcmp(PCB->Data->Layer[layn].Name, "component") == 0)
-	component_layer = layn;
-    }
+  grok_layer_groups();
 
   ELEMENT_LOOP(PCB->Data,
     PIN_LOOP(element,
