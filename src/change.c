@@ -1439,6 +1439,7 @@ void *
 QueryInputAndChangeObjectName (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
 {
   char *name = NULL;
+  char msg[513];
 
   switch (Type)
     {
@@ -1451,11 +1452,13 @@ QueryInputAndChangeObjectName (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
       break;
 
     case PIN_TYPE:
-      name = GetUserInput ("Pinname:", EMPTY (((PinTypePtr) Ptr2)->Name));
+      sprintf(msg,"%s Pin Name:", EMPTY (((PinTypePtr) Ptr2)->Number));
+      name = GetUserInput (msg, EMPTY (((PinTypePtr) Ptr2)->Name));
       break;
 
     case PAD_TYPE:
-      name = GetUserInput ("Padname:", EMPTY (((PadTypePtr) Ptr2)->Name));
+      sprintf(msg,"%s Pad Name:", EMPTY (((PadTypePtr) Ptr2)->Number));
+      name = GetUserInput (msg, EMPTY (((PadTypePtr) Ptr2)->Name));
       break;
 
     case TEXT_TYPE:
