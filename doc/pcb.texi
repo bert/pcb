@@ -5572,7 +5572,8 @@ Matches 0 or 1 instances of preceding character.
 Matches any single character other than the newline character.
 @end table
 
-@example
+The following examples illustrate how regular expressions are used to
+specify element names (reference designators) to search for.
 @table @samp
 @item Search for "C1":
 Enter "C1".
@@ -5590,7 +5591,6 @@ Enter "R128+".
 @item Search for all terminal blocks having a two digit designator such as TB21 or TB15:
 "TB..", that is "TB-dot-dot".
 @end table
-@end example
 
 
 @c ---------------------------------------------------------------------
