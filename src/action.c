@@ -676,6 +676,7 @@ AdjustAttachedBox (void)
 void
 AdjustAttachedObjects (void)
 {
+  PointTypePtr pnt;
   switch (Settings.Mode)
     {
       /* update at least an attached block (selection) */
@@ -707,9 +708,10 @@ AdjustAttachedObjects (void)
       break;
       /* point insertion mode */
     case INSERTPOINT_MODE:
-      InsertedPoint = *AdjustInsertPoint ();
+      pnt = AdjustInsertPoint ();
+      if (pnt)
+        InsertedPoint = *pnt;
       break;
-
     case ROTATE_MODE:
       modeCursor (ROTATE_MODE);
       break;
@@ -1427,7 +1429,7 @@ NotifyMode (void)
 
 		    }
 		  Crosshair.AttachedObject.State = STATE_SECOND;
-		  AdjustInsertPoint ();
+		  InsertedPoint = *AdjustInsertPoint ();
 		}
 	    }
 	  break;
