@@ -25,6 +25,13 @@ define(`PKG_DIP24N', `PKG_N(`$1', `$2', `$3',  24,  300)');
 define(`PKG_DIP28N', `PKG_N(`$1', `$2', `$3',  28,  300)');
 ##  Dual in-line package, medium wide (400 mil)
 define(`PKG_DIP8M',  `PKG_N(`$1', `$2', `$3',   8,  400)');
+define(`PKG_DIP14M', `PKG_N(`$1', `$2', `$3',  14,  400)');
+define(`PKG_DIP16M', `PKG_N(`$1', `$2', `$3',  16,  400)');
+define(`PKG_DIP18M', `PKG_N(`$1', `$2', `$3',  18,  400)');
+define(`PKG_DIP20M', `PKG_N(`$1', `$2', `$3',  20,  400)');
+define(`PKG_DIP22M', `PKG_N(`$1', `$2', `$3',  22,  400)');
+define(`PKG_DIP24M', `PKG_N(`$1', `$2', `$3',  24,  400)');
+define(`PKG_DIP28M', `PKG_N(`$1', `$2', `$3',  28,  400)');
 ##  Dual in-line package, wide (600 mil)
 define(`PKG_DIP24',  `PKG_N(`$1', `$2', `$3',  24,  600)');
 define(`PKG_DIP28',  `PKG_N(`$1', `$2', `$3',  28,  600)');
