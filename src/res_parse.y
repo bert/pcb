@@ -196,12 +196,12 @@ dump_res(Resource *n, int l)
     {
       if (n->v[i].subres)
 	{
-	  printf("%*cn[%s] = {\n", l, ' ', n->v[i].name?:"");
+	  printf("%*cn[%s] = {\n", l, ' ', n->v[i].name? n->v[i].name :"");
 	  dump_res(n->v[i].subres, l+3);
 	  printf("%*c}\n", l, ' ');
 	}
       else
-	printf("%*cn[%s] = v[%s]\n", l, ' ', n->v[i].name?:"", n->v[i].value?:"");
+	printf("%*cn[%s] = v[%s]\n", l, ' ', n->v[i].name? n->v[i].name :"", n->v[i].value? n->v[i].value :"");
     }
 }
 
