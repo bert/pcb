@@ -2965,7 +2965,7 @@ ActionChange2ndSize (Widget W, XEvent * Event,
 	    if ((type =
 		 SearchScreen (Crosshair.X, Crosshair.Y, CHANGE2NDSIZE_TYPES,
 			       &ptr1, &ptr2, &ptr3)) != NO_TYPE)
-	      if (ChangeObject2ndSize (type, ptr1, ptr2, ptr3, value, r))
+	      if (ChangeObject2ndSize (type, ptr1, ptr2, ptr3, value, r, True))
 		SetChangedFlag (True);
 	    break;
 	  }

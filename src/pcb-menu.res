@@ -112,6 +112,8 @@ MainMenu = {
 	{"Show autorouter trials" CheckWhen(liveroute) Display(ToggleLiveRoute)}
         {"Thin draw" CheckWhen(thindraw) Display(ToggleThindraw) a={"|" "<Key>|"}}
         {"Check polygons" CheckWhen(checkplanes) Display(ToggleCheckPlanes)}
+        -
+	{"Enable vendor drill mapping" ToggleVendor() CheckWhen(VendorMapOn)}
         }
     
     {Select
@@ -212,6 +214,8 @@ MainMenu = {
         {"Only autorouted nets" OptAutoOnly() CheckWhen(OptAutoOnly)}
         -
         {"Design Rule Checker" DRC()}
+        -
+	{"Apply vendor drill mapping" ApplyVendor()}
         }
     
     {Info

@@ -89,7 +89,7 @@ Boolean	ChangeObjectThermal(int, void *, void *, void *);
 Boolean	SetObjectThermal(int, void *, void *, void *);
 Boolean	ClrObjectThermal(int, void *, void *, void *);
 Boolean	ChangeObjectClearSize(int, void *, void *, void *, Location, Boolean);
-Boolean	ChangeObject2ndSize(int, void *, void *, void *, Location, Boolean);
+Boolean	ChangeObject2ndSize(int, void *, void *, void *, Location, Boolean, Boolean);
 Boolean	ChangeObjectMaskSize(int, void *, void *, void *, Location, Boolean);
 Boolean	ChangeObjectJoin(int, void *, void *, void *);
 Boolean	ChangeObjectSquare(int, void *, void *, void *);

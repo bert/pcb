@@ -1897,7 +1897,7 @@ ClrObjectThermal (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
  */
 Boolean
 ChangeObject2ndSize (int Type, void *Ptr1, void *Ptr2, void *Ptr3,
-		     Location Difference, Boolean fixIt)
+		     Location Difference, Boolean fixIt, Boolean incundo)
 {
   Boolean change;
 
@@ -1910,7 +1910,8 @@ ChangeObject2ndSize (int Type, void *Ptr1, void *Ptr2, void *Ptr3,
   if (change)
     {
       Draw ();
-      IncrementUndoSerialNumber ();
+      if (incundo)
+	IncrementUndoSerialNumber ();
     }
   return (change);
 }

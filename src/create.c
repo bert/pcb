@@ -52,6 +52,7 @@
 #include "search.h"
 #include "set.h"
 #include "undo.h"
+#include "vendor.h"
 
 #ifdef HAVE_LIBDMALLOC
 #include <dmalloc.h>
@@ -195,7 +196,18 @@ CreateNewVia (DataTypePtr Data,
   Via->Thickness = Thickness;
   Via->Clearance = Clearance;
   Via->Mask = Mask;
-  Via->DrillingHole = DrillingHole;
+  Via->DrillingHole = vendorDrillMap(DrillingHole);
+  if (Via->DrillingHole != DrillingHole)
+    {
+      Message ("Mapped via drill hole to %.2f mils from %.2f mils per vendor table\n",
+	       0.01*Via->DrillingHole, 0.01*DrillingHole);
+    }
+  if (Via->Thickness < Via->DrillingHole + MIN_PINORVIACOPPER)
+    {
+      Via->Thickness = Via->DrillingHole + MIN_PINORVIACOPPER;
+      Message ("Increased via thickness to %.2f mils to allow enough copper.\n",
+	       0.01*Via->Thickness);
+    }
   Via->Name = MyStrdup (Name, "CreateNewVia()");
   Via->Flags = Flags & ~WARNFLAG;
   Via->ID = ID++;
@@ -658,12 +670,51 @@ CreateNewPin (ElementTypePtr Element,
   pin->Thickness = Thickness;
   pin->Clearance = Clearance;
   pin->Mask = Mask;
-  pin->DrillingHole = DrillingHole;
   pin->Name = MyStrdup (Name, "CreateNewPin()");
   pin->Number = MyStrdup (Number, "CreateNewPin()");
   pin->Flags = Flags & ~WARNFLAG;
   pin->ID = ID++;
   pin->Element = Element;
+
+  /* 
+   * If there is no vendor drill map installed, this will simply
+   * return DrillingHole.
+   */
+  pin->DrillingHole = vendorDrillMap(DrillingHole);
+
+  /* Unless we should not map drills on this element, map them! */
+  if ( vendorIsElementMappable(Element) ) 
+    {
+      if (pin->DrillingHole < MIN_PINORVIASIZE)
+	{
+	  Message("Did not map pin #%s (%s) drill hole because %6.2f mil is below the minimum allowed size\n",
+		  UNKNOWN (Number), UNKNOWN (Name), 0.01*pin->DrillingHole);
+	  pin->DrillingHole = DrillingHole;
+	}
+      else if (pin->DrillingHole > MAX_PINORVIASIZE)
+	{
+	  Message("Did not map pin #%s (%s) drill hole because %6.2f mil is above the maximum allowed size\n",
+		  UNKNOWN (Number), UNKNOWN (Name), 0.01*pin->DrillingHole);
+	  pin->DrillingHole = DrillingHole;
+	}
+      else if (!TEST_FLAG (HOLEFLAG, pin) && (pin->DrillingHole > pin->Thickness - MIN_PINORVIACOPPER) )
+	{
+	  Message("Did not map pin #%s (%s) drill hole because %6.2f mil does not leave enough copper\n",
+		  UNKNOWN (Number), UNKNOWN (Name), 0.01*pin->DrillingHole);
+	  pin->DrillingHole = DrillingHole;
+	}
+    }
+  else
+    {
+      pin->DrillingHole = DrillingHole;
+    }
+
+  if (pin->DrillingHole != DrillingHole)
+    {
+      Message ("Mapped pin drill hole to %.2f mils from %.2f mils per vendor table\n",
+	       0.01*pin->DrillingHole, 0.01*DrillingHole);
+    }
+
   return (pin);
 }
 
