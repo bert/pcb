@@ -619,8 +619,8 @@ PrintMask (void)
 			  description[i]))
 	return (1);
 
-      /* solder masks are negative */
-      Device->Polarity (1);
+      /* solder reliefs are positive, use invert if you need to */
+      Device->Polarity (0);
       SetPrintColor (PCB->PinColor);
       if (GlobalAlignmentFlag)
 	FPrintAlignment ();
