@@ -71,6 +71,8 @@ define(`PKG_GENERIC_JOHNSTECH7248_QFN',
 	# pad size and drill size (mil/100) for the mounting holes
 	define(`MOUNTPAD', 7700)
 	define(`MOUNTDRILL', 2000)
+	# soldermask relief size for mounting holes (mil/100) 
+	define(`MOUNTMASK', `eval(MOUNTPAD + 1000)')
 
 	# silkscreen width (mils/100)
 	define(`SILKW', 1000)
@@ -173,14 +175,13 @@ define(`CURPIN', incr(CURPIN))
 
 # Pin(x, y, thickness, clearance, mask, drilling hole, name,
 #     number, flags 
-
-Pin[ MOUNTX MOUNTY MOUNTPAD 1000 1000 MOUNTDRILL "Mount1" "CURPIN" 0x0]
+Pin[ MOUNTX MOUNTY MOUNTPAD 1000 MOUNTMASK MOUNTDRILL "Mount1" "CURPIN" 0x0]
 define(`CURPIN', incr(CURPIN))
-Pin[ -MOUNTX MOUNTY MOUNTPAD 1000 1000 MOUNTDRILL "Mount2" "CURPIN" 0x0]
+Pin[ -MOUNTX MOUNTY MOUNTPAD 1000 MOUNTMASK MOUNTDRILL "Mount2" "CURPIN" 0x0]
 define(`CURPIN', incr(CURPIN))
-Pin[ -MOUNTX -MOUNTY MOUNTPAD 1000 1000 MOUNTDRILL "Mount3" "CURPIN" 0x0]
+Pin[ -MOUNTX -MOUNTY MOUNTPAD 1000 MOUNTMASK MOUNTDRILL "Mount3" "CURPIN" 0x0]
 define(`CURPIN', incr(CURPIN))
-Pin[ MOUNTX -MOUNTY MOUNTPAD 1000 1000 MOUNTDRILL "Mount4" "CURPIN" 0x0]
+Pin[ MOUNTX -MOUNTY MOUNTPAD 1000 MOUNTMASK MOUNTDRILL "Mount4" "CURPIN" 0x0]
 
 # Silk screen around package
 ElementLine[ SILKX  SILKY  SILKX -SILKY SILKW]
