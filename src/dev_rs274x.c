@@ -435,9 +435,9 @@ GBX_Init (PrintInitTypePtr Flags)
 
   /* make sure the outline/alignment aperture exists should it be used */
   /* polygons use this aperture also  */
-  findApertureCode (&GBX_Apertures, 10, 0, 0, ROUND);
+  findApertureCode (&GBX_Apertures, 1000, 0, 0, ROUND);
   /* fab drawing uses this one */
-  findApertureCode (&GBX_Apertures, 8, 0, 0, ROUND);
+  findApertureCode (&GBX_Apertures, 800, 0, 0, ROUND);
 }
 
 static void
@@ -865,8 +865,8 @@ GBX_PrintText (TextTypePtr Text)
 	      newline.Point2.X = (newline.Point2.X + x) * Text->Scale / 100;
 	      newline.Point2.Y = newline.Point2.Y * Text->Scale / 100;
 	      newline.Thickness = newline.Thickness * Text->Scale / 200;
-	      if (newline.Thickness < 8)
-		newline.Thickness = 8;
+	      if (newline.Thickness < 800)
+		newline.Thickness = 800;
 
 	      RotateLineLowLevel (&newline, 0, 0, Text->Direction);
 
@@ -1128,7 +1128,7 @@ GBX_PrintOutline (Location X1, Location Y1, Location X2, Location Y2)
   gx2 = gerberX (PCB, (int) (int) X2);
   gy2 = gerberX (PCB, Y2);
 
-  setAperture (&GBX_Apertures, 10, 0, 0, ROUND),
+  setAperture (&GBX_Apertures, 1000, 0, 0, ROUND),
     fprintf (GBX_Flags.FP,
 	     "X%dY%dD02*X%dY%dD01*\015\012", gx1, gy1, gx2, gy1);
 
