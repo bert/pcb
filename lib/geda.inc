@@ -27,7 +27,7 @@ define(`PKG_DIP28N', `PKG_N(`$1', `$2', `$3',  28,  300)');
 define(`PKG_DIP8M',  `PKG_N(`$1', `$2', `$3',   8,  400)');
 ##  Dual in-line package, wide (600 mil)
 define(`PKG_DIP24',  `PKG_N(`$1', `$2', `$3',  24,  600)');
-define(`PKG_DIP28"', `PKG_N(`$1', `$2', `$3',  28,  600)');
+define(`PKG_DIP28',  `PKG_N(`$1', `$2', `$3',  28,  600)');
 define(`PKG_DIP32',  `PKG_N(`$1', `$2', `$3',  32,  600)');
 define(`PKG_DIP36',  `PKG_N(`$1', `$2', `$3',  36,  600)');
 define(`PKG_DIP40',  `PKG_N(`$1', `$2', `$3',  40,  600)');
@@ -201,34 +201,56 @@ define(`PKG_PLCC68X',  `PKG_PLCC_SOCKET(`$1', `$2', `$3', 68, 150)');
 define(`PKG_PLCC84X',  `PKG_PLCC_SOCKET(`$1', `$2', `$3', 84, 150)');
 
 #
-##  Quad-side flat pack
-#   QFP44, QFP132
-#
-#   BUG: sizes in xQFP
-#   NOTE: since QFP is now pretty generic, we can support many QFPs
+##  Square Quad-side flat pack
 #   QFP 32,44,56,64,80,100,128,160,208,240,272,304
 #   LQFP 144,176,208
 #   TQFP 44,48,64,80,120
-#
-define(`PKG_QFP32',  `PKG_QFP(`$1', `$2', `$3',  32, 150)');
-define(`PKG_QFP44',  `PKG_QFP(`$1', `$2', `$3',  44, 150)');
-define(`PKG_QFP68',  `PKG_QFP(`$1', `$2', `$3',  68, 150)');
-define(`PKG_QFP108',  `PKG_QFP(`$1', `$2', `$3',  108, 150)');
-define(`PKG_QFP128',  `PKG_QFP(`$1', `$2', `$3',  128, 150)');
-define(`PKG_LQFP_208',
-	`define(`PITCH', 5000)
-	define(`PAD_LENGTH', 60)
-	define(`PAD_WIDTH', 10)
-	define(`XPADS', 52)
-	define(`YPADS', 52)
-	define(`X_LENGTH', 1220)
-	define(`Y_LENGTH', 1220)
-	define(`ISTART', 1)
-	PKG_GEN_QFP($1, $2, $3)'
-)
-# as is PKG_QFP132
 
+define(`PKG_LQFP24_4',   `PKG_LQFP_50(`$1',`$2',`$3', `24', `4')');
+define(`PKG_LQFP32_5',   `PKG_LQFP_50(`$1',`$2',`$3', `32', `5')');
+define(`PKG_LQFP32_7',   `PKG_LQFP_80(`$1',`$2',`$3', `32', `7')');
+define(`PKG_LQFP44_10',  `PKG_LQFP_80(`$1',`$2',`$3', `44',`10')');
+define(`PKG_LQFP48_7',   `PKG_LQFP_50(`$1',`$2',`$3', `48', `7')');
+define(`PKG_LQFP48_12',  `PKG_LQFP_80(`$1',`$2',`$3', `48',`12')');
+define(`PKG_LQFP52_10',  `PKG_LQFP_65(`$1',`$2',`$3', `52',`10')');
+define(`PKG_LQFP64_7',   `PKG_LQFP_40(`$1',`$2',`$3', `64', `7')');
+define(`PKG_LQFP64_10',  `PKG_LQFP_50(`$1',`$2',`$3', `64',`10')');
+define(`PKG_LQFP64_14',  `PKG_LQFP_80(`$1',`$2',`$3', `64',`14')');
+define(`PKG_LQFP72_10',  `PKG_LQFP_50(`$1',`$2',`$3', `72',`10')');
+define(`PKG_LQFP80_12',  `PKG_LQFP_50(`$1',`$2',`$3', `80',`12')');
+define(`PKG_LQFP80_14',  `PKG_LQFP_65(`$1',`$2',`$3', `80',`14')');
+define(`PKG_LQFP100_10', `PKG_LQFP_40(`$1',`$2',`$3', `72',`10')');
+define(`PKG_LQFP100_14', `PKG_LQFP_50(`$1',`$2',`$3',`100',`14')');
+define(`PKG_LQFP112_20', `PKG_LQFP_65(`$1',`$2',`$3',`112',`20')');
+define(`PKG_LQFP120_16', `PKG_LQFP_50(`$1',`$2',`$3',`120',`16')');
+define(`PKG_LQFP128_14', `PKG_LQFP_40(`$1',`$2',`$3',`128',`14')');
+define(`PKG_LQFP144_20', `PKG_LQFP_50(`$1',`$2',`$3',`144',`20')');
+define(`PKG_LQFP160_24', `PKG_LQFP_50(`$1',`$2',`$3',`160',`24')');
+define(`PKG_LQFP176_24', `PKG_LQFP_50(`$1',`$2',`$3',`176',`24')');
+
+define(`PKG_QFP32_7',   `PKG_QFP_80(`$1',`$2',`$3', `32', `7')');
+define(`PKG_QFP44_10',  `PKG_QFP_80(`$1',`$2',`$3', `44',`10')');
+define(`PKG_QFP52_10',  `PKG_QFP_65(`$1',`$2',`$3', `52',`10')');
+define(`PKG_QFP64_14',  `PKG_QFP_80(`$1',`$2',`$3', `64',`14')');
+define(`PKG_QFP80_14',  `PKG_QFP_65(`$1',`$2',`$3', `80',`14')');
+define(`PKG_QFP100_14', `PKG_QFP_50(`$1',`$2',`$3',`100',`14')');
+define(`PKG_QFP120_28', `PKG_QFP_80(`$1',`$2',`$3',`120',`28')');
+define(`PKG_QFP128_28', `PKG_QFP_80(`$1',`$2',`$3',`128',`28')');
+define(`PKG_QFP144_28', `PKG_QFP_65(`$1',`$2',`$3',`144',`28')');
+define(`PKG_QFP160_28', `PKG_QFP_65(`$1',`$2',`$3',`160',`28')');
+define(`PKG_QFP208_28', `PKG_QFP_50(`$1',`$2',`$3',`208',`28')');
+define(`PKG_QFP160_28', `PKG_QFP_65(`$1',`$2',`$3',`160',`28')');
+define(`PKG_QFP240_32', `PKG_QFP_50(`$1',`$2',`$3',`240',`32')');
+define(`PKG_QFP304_40', `PKG_QFP_50(`$1',`$2',`$3',`304',`40')');
 #
+##  Square Quad-side flat pack
+
+define(`PKG_QFP64_R',   `PKG_QFP_100(`$1',`$2',`$3', `64',`0')');
+define(`PKG_QFP80_R',   `PKG_QFP_80L(`$1',`$2',`$3', `80',`0')');
+define(`PKG_QFP100_R',  `PKG_QFP_65L(`$1',`$2',`$3',`100',`0')');
+define(`PKG_QFP128_R',  `PKG_QFP_50L(`$1',`$2',`$3',`128',`0')');
+define(`PKG_LQFP128_R', `PKG_LQFP_50(`$1',`$2',`$3',`128',`0')');
+
 ##  Zig-zag in-line package
 #   ZIP20 .. ZIP40
 #
