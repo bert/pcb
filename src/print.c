@@ -1380,6 +1380,16 @@ PrintFab (void)
 	ds++;
     }
 
+  /*
+   * When we only have a few drill sizes we need to make sure the
+   * drill table header doesn't fall on top of the board info
+   * section.
+   */
+  if (AllDrills->DrillN < 4 ) 
+    {
+      yoff -= (4 - AllDrills->DrillN) * TEXT_LINE;
+    }
+
   for (n = AllDrills->DrillN - 1; n >= 0; n--)
     {
       int plated_sym = -1, unplated_sym = -1;
