@@ -372,7 +372,7 @@ CheckShorts (LibraryMenuTypePtr theNet)
 	  {
 	    Message ("WARNING!! net \"%s\" is shorted"
 		     " to %s pin %s\n", &theNet->Name[2],
-		     NAMEONPCB_NAME (element), pin->Number);
+		     UNKNOWN(NAMEONPCB_NAME (element)), UNKNOWN(pin->Number));
 	    SET_FLAG (WARNFLAG, pin);
 	    continue;
 	  }
@@ -408,7 +408,7 @@ CheckShorts (LibraryMenuTypePtr theNet)
 	  {
 	    Message ("WARNING!! net \"%s\" is shorted"
 		     " to %s pad %s\n", &theNet->Name[2],
-		     NAMEONPCB_NAME (element), pad->Number);
+		     UNKNOWN(NAMEONPCB_NAME (element)), UNKNOWN(pad->Number));
 	    SET_FLAG (WARNFLAG, pad);
 	    continue;
 	  }
