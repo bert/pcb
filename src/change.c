@@ -554,6 +554,10 @@ ChangeLineClearSize (LayerTypePtr Layer, LineTypePtr Line)
       AddObjectToClearSizeUndoList (LINE_TYPE, Layer, Line, Line);
       EraseLine (Line);
       Line->Clearance = value;
+      if (Line->Clearance > 0)
+	SET_FLAG(CLEARLINEFLAG, Line);
+      else
+	CLEAR_FLAG(CLEARLINEFLAG, Line);
       DrawLine (Layer, Line, 0);
       return (Line);
     }
@@ -600,6 +604,10 @@ ChangeArcClearSize (LayerTypePtr Layer, ArcTypePtr Arc)
       AddObjectToClearSizeUndoList (ARC_TYPE, Layer, Arc, Arc);
       EraseArc (Arc);
       Arc->Clearance = value;
+      if (Arc->Clearance > 0)
+	SET_FLAG(CLEARLINEFLAG, Arc);
+      else
+	CLEAR_FLAG(CLEARLINEFLAG, Arc);
       DrawArc (Layer, Arc, 0);
       return (Arc);
     }

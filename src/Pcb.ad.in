@@ -436,7 +436,10 @@ Pcb.masterForm*output.baseTranslations:   #override \
   Ctrl<Key>h:         ChangeHole(ToggleObject) \n\
   <Key>h:          ToggleHideName(Object) \n\
   <Key>j:		ChangeJoin(Object) \n\
+  Shift<Key>j:		ChangeJoin(SelectedObjects) \n\
   Shift<Key>k:		ChangeClearSize(Object, -2) \n\
+  Ctrl<Key>k:		ChangeClearSize(SelectedObjects, +2) \n\
+  Shift Ctrl<Key>k:	ChangeClearSize(SelectedObjects, -2) \n\
   <Key>k:		ChangeClearSize(Object, +2) \n\
   Shift<Key>l:        SetValue(LineSize, -5) \n\
   <Key>l:          SetValue(LineSize, +5) \n\
