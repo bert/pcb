@@ -194,8 +194,8 @@ pcb_bin_SOURCES = \
 	insert.h \
 	intersect.c \
 	intersect.h \
-	kdtree.c \
-	kdtree.h \
+	rtree.c \
+	rtree.h \
 	lgdialog.c \
 	lgdialog.h \
 	library.c \
@@ -293,7 +293,7 @@ am_pcb_bin_OBJECTS = action.$(OBJEXT) autoplace.$(OBJEXT) \
 	djopt.$(OBJEXT) draw.$(OBJEXT) drill.$(OBJEXT) error.$(OBJEXT) \
 	file.$(OBJEXT) fileselect.$(OBJEXT) find.$(OBJEXT) \
 	gui.$(OBJEXT) heap.$(OBJEXT) insert.$(OBJEXT) \
-	intersect.$(OBJEXT) kdtree.$(OBJEXT) lgdialog.$(OBJEXT) \
+	intersect.$(OBJEXT) rtree.$(OBJEXT) lgdialog.$(OBJEXT) \
 	library.$(OBJEXT) log.$(OBJEXT) main.$(OBJEXT) menu.$(OBJEXT) \
 	mirror.$(OBJEXT) misc.$(OBJEXT) move.$(OBJEXT) \
 	mtspace.$(OBJEXT) mymem.$(OBJEXT) netlist.$(OBJEXT) \
@@ -324,7 +324,7 @@ am__depfiles_maybe = depfiles
 @AMDEP_TRUE@	./$(DEPDIR)/file.Po ./$(DEPDIR)/fileselect.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/find.Po ./$(DEPDIR)/gui.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/heap.Po ./$(DEPDIR)/insert.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/intersect.Po ./$(DEPDIR)/kdtree.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/intersect.Po ./$(DEPDIR)/rtree.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/lgdialog.Po ./$(DEPDIR)/library.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/log.Po ./$(DEPDIR)/main.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/menu.Po ./$(DEPDIR)/mirror.Po \
@@ -434,7 +434,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/heap.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/insert.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/intersect.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/kdtree.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/rtree.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/lgdialog.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/library.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/log.Po@am__quote@

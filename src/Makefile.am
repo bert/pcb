@@ -67,8 +67,8 @@ pcb_bin_SOURCES = \
 	insert.h \
 	intersect.c \
 	intersect.h \
-	kdtree.c \
-	kdtree.h \
+	rtree.c \
+	rtree.h \
 	lgdialog.c \
 	lgdialog.h \
 	library.c \

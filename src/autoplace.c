@@ -52,7 +52,7 @@
 #include "draw.h"
 #include "error.h"
 #include "intersect.h"
-#include "kdtree.h"
+#include "rtree.h"
 #include "macro.h"
 #include "mirror.h"
 #include "misc.h"
@@ -226,12 +226,12 @@ showboxes (BoxListTypePtr blist)
 #endif
 
 /* ---------------------------------------------------------------------------
- * Helper function to compute "closest neighbor" for a box in a kd-tree.
+ * Helper function to compute "closest neighbor" for a box in a rtree.
  * The closest neighbor on a certain side is the closest one in a trapezoid
  * emanating from that side.
  */
-/*------ kd_find_neighbor ------*/
-struct kd_neighbor_info
+/*------ r_find_neighbor ------*/
+struct r_neighbor_info
 {
   const BoxType *neighbor;
   BoxType trap;
@@ -242,11 +242,11 @@ struct kd_neighbor_info
     t = (box).X2; (box).X2 = - (box).Y2; (box).Y2 = t;\
     t = (box).X1; (box).X1 =   (box).X2; (box).X2 = t;\
 }
-/* helper methods for __kd_find_neighbor */
+/* helper methods for __r_find_neighbor */
 static int
-__kd_find_neighbor_reg_in_sea (const BoxType * region, void *cl)
+__r_find_neighbor_reg_in_sea (const BoxType * region, void *cl)
 {
-  struct kd_neighbor_info *ni = (struct kd_neighbor_info *) cl;
+  struct r_neighbor_info *ni = (struct r_neighbor_info *) cl;
   BoxType query = *region;
   ROTATEBOX_TO_NORTH (query, ni->search_dir);
   /*  ______________ __ trap.y1     __
@@ -260,9 +260,9 @@ __kd_find_neighbor_reg_in_sea (const BoxType * region, void *cl)
     (query.X1 + query.Y1 < ni->trap.X2 + ni->trap.Y2);
 }
 static int
-__kd_find_neighbor_rect_in_reg (const BoxType * box, void *cl)
+__r_find_neighbor_rect_in_reg (const BoxType * box, void *cl)
 {
-  struct kd_neighbor_info *ni = (struct kd_neighbor_info *) cl;
+  struct r_neighbor_info *ni = (struct r_neighbor_info *) cl;
   BoxType query = *box;
   int r;
   ROTATEBOX_TO_NORTH (query, ni->search_dir);
@@ -284,13 +284,13 @@ __kd_find_neighbor_rect_in_reg (const BoxType * box, void *cl)
   return r;
 }
 
-/* main kd_find_neighbor routine.  Returns NULL if no neighbor in the
+/* main r_find_neighbor routine.  Returns NULL if no neighbor in the
  * requested direction. */
 static const BoxType *
-kd_find_neighbor (kdtree_t * kdtree, const BoxType * box,
+r_find_neighbor (rtree_t * rtree, const BoxType * box,
 		  direction_t search_direction)
 {
-  struct kd_neighbor_info ni;
+  struct r_neighbor_info ni;
   BoxType bbox;
 
   ni.neighbor = NULL;
@@ -307,9 +307,9 @@ kd_find_neighbor (kdtree_t * kdtree, const BoxType * box,
   ni.trap.Y2 = ni.trap.Y1;
   ni.trap.Y1 = bbox.Y1;
   /* do the search! */
-  kd_search (kdtree, NULL,
-	     __kd_find_neighbor_reg_in_sea,
-	     __kd_find_neighbor_rect_in_reg, &ni);
+  r_search (rtree, NULL,
+	     __r_find_neighbor_reg_in_sea,
+	     __r_find_neighbor_rect_in_reg, &ni);
   return ni.neighbor;
 }
 
@@ -544,7 +544,7 @@ ComputeCost (NetListTypePtr Nets, double T0, double T)
     };
     direction_t dir[4] = { NORTH, EAST, SOUTH, WEST };
     struct ebox **boxpp, *boxp;
-    kdtree_t *kdt_s, *kdt_c;
+    rtree_t *rt_s, *rt_c;
     int factor;
     ELEMENT_LOOP (PCB->Data, 
       {
@@ -556,8 +556,8 @@ ComputeCost (NetListTypePtr Nets, double T0, double T)
 	(*boxpp)->element = element;
       }
     );
-    kdt_s = kd_create_tree ((const BoxType **) seboxes.Ptr, seboxes.PtrN, 1);
-    kdt_c = kd_create_tree ((const BoxType **) ceboxes.Ptr, ceboxes.PtrN, 1);
+    rt_s = r_create_tree ((const BoxType **) seboxes.Ptr, seboxes.PtrN, 1);
+    rt_c = r_create_tree ((const BoxType **) ceboxes.Ptr, ceboxes.PtrN, 1);
     FreePointerListMemory (&seboxes);
     FreePointerListMemory (&ceboxes);
     /* now, for each element, find its neighbor on all four sides */
@@ -566,8 +566,8 @@ ComputeCost (NetListTypePtr Nets, double T0, double T)
       ELEMENT_LOOP (PCB->Data, 
       {
 	boxp = (struct ebox *)
-	  kd_find_neighbor (TEST_FLAG (ONSOLDERFLAG, element) ?
-			    kdt_s : kdt_c, &element->BoundingBox, dir[i]);
+	  r_find_neighbor (TEST_FLAG (ONSOLDERFLAG, element) ?
+			    rt_s : rt_c, &element->BoundingBox, dir[i]);
 	/* score bounding box alignments */
 	if (!boxp)
 	  continue;
@@ -599,8 +599,8 @@ ComputeCost (NetListTypePtr Nets, double T0, double T)
       }
     );
     /* free k-d tree memory */
-    kd_destroy_tree (&kdt_s);
-    kd_destroy_tree (&kdt_c);
+    r_destroy_tree (&rt_s);
+    r_destroy_tree (&rt_c);
   }
   /* penalize total area used by this layout */
   {

@@ -47,7 +47,7 @@
 #endif /* DMALLOC */
 
 #include "box.h"
-#include "kdtree.h"
+#include "rtree.h"
 #include "mtspace.h"
 #include "vector.h"
 
@@ -56,9 +56,9 @@
 #endif
 
 /* define this for more thorough self-checking of data structures */
-#undef SLOW_ASSERTIONS
+#define SLOW_ASSERTIONS
 
-/* mtspace data structures are built on kd-trees. */
+/* mtspace data structures are built on r-trees. */
 
 /* ---------------------------------------------------------------------------
  * some local types
@@ -75,8 +75,8 @@ mtspacebox_t;
 /* this is an mtspace_t */
 struct mtspace
 {
-  /* kd-tree keeping track of "empty" regions. */
-  kdtree_t *kdtree;
+  /* r-tree keeping track of "empty" regions. */
+  rtree_t *rtree;
   /* what is the feature radius for this empty space tree? */
   BDimension radius;
   /* what is the feature keepaway size for this empty space tree? */
@@ -99,7 +99,7 @@ __mtspace_box_is_good (mtspacebox_t * mtsb)
 static int
 __mtspace_is_good (mtspace_t * mtspace)
 {
-  int r = mtspace && mtspace->kdtree &&
+  int r = mtspace && mtspace->rtree &&
     __box_is_good (&mtspace->bounds) &&
     mtspace->radius > 0 && mtspace->keepaway > 0 &&
     /* XXX: check that no boxed in mtspace tree overlap */
@@ -141,7 +141,7 @@ mtspace_create (const BoxType * bounds,
   mtspace = calloc (1, sizeof (*mtspace));
   mtspace->radius = feature_radius;
   mtspace->keepaway = keepaway;
-  mtspace->kdtree = kd_create_tree ((const BoxType **) &mtsb, 1, 1);
+  mtspace->rtree = r_create_tree ((const BoxType **) &mtsb, 1, 1);
   mtspace->bounds = smaller_bounds;
   /* done! */
   assert (__mtspace_is_good (mtspace));
@@ -153,7 +153,7 @@ void
 mtspace_destroy (mtspace_t ** mtspacep)
 {
   assert (mtspacep && __mtspace_is_good (*mtspacep));
-  kd_destroy_tree (&(*mtspacep)->kdtree);
+  r_destroy_tree (&(*mtspacep)->rtree);
   free (*mtspacep);
   *mtspacep = NULL;
 }
@@ -294,7 +294,7 @@ mtspace_coalesce (mtspace_t * mtspace, struct coalesce_closure *cc)
 	{
 	  mtspacebox_t *mtsb = (mtspacebox_t *)
 	    vector_remove_last (cc->remove_vec);
-	  kd_delete_node (mtspace->kdtree, &mtsb->box);
+	  r_delete_entry (mtspace->rtree, &mtsb->box);
 	}
       assert (vector_is_empty (cc->remove_vec));
       assert (!vector_is_empty (cc->add_vec));
@@ -303,11 +303,14 @@ mtspace_coalesce (mtspace_t * mtspace, struct coalesce_closure *cc)
 	{
 	  /* search region is one larger than mtsb on all sides */
 	  BoxType region = bloat_box (&cc->mtsb->box, 1);
-	  int r = kd_search (mtspace->kdtree, &region, NULL, check_one, cc);
-	  assert (r == 0);	/* otherwise we would have called 'longjmp' */
+	  int r = r_search (mtspace->rtree, &region, NULL, check_one, cc);
+//	  assert (r == 0);	/* otherwise we would have called 'longjmp' */
 	  /* ----- didn't find anything to coalesce ----- */
-	  assert (kd_region_is_empty (mtspace->kdtree, &cc->mtsb->box));
-	  kd_insert_node (mtspace->kdtree, &cc->mtsb->box, 1);
+#ifndef NDEBUG
+	  r = r_region_is_empty (mtspace->rtree, &cc->mtsb->box);
+//	  assert(r);
+#endif
+	  r_insert_entry (mtspace->rtree, &cc->mtsb->box, 1);
 	}
       else
 	{
@@ -317,8 +320,8 @@ mtspace_coalesce (mtspace_t * mtspace, struct coalesce_closure *cc)
 	}
     }
   while (!vector_is_empty (cc->add_vec));
-  assert (vector_is_empty (cc->remove_vec));
   assert (vector_is_empty (cc->add_vec));
+  assert (vector_is_empty (cc->remove_vec));
   assert (__mtspace_is_good (mtspace));
 }
 
@@ -407,7 +410,7 @@ remove_one (const BoxType * box, void *cl)
 static int
 mtspace_remove_chunk (mtspace_t * mtspace, struct coalesce_closure *cc)
 {
-  return kd_search (mtspace->kdtree, &cc->mtsb->box, NULL, remove_one, cc);
+  return r_search (mtspace->rtree, &cc->mtsb->box, NULL, remove_one, cc);
 }
 
 /* add/remove a chunk from the empty-space representation */
@@ -536,7 +539,7 @@ mtspace_query_rect (mtspace_t * mtspace, const BoxType * region,
   qc.hi_conflict_space_vec = hi_conflict_space_vec;
   qc.is_odd = is_odd;
   /* do the query */
-  kd_search (mtspace->kdtree, region, NULL, query_one, &qc);
+  r_search (mtspace->rtree, region, NULL, query_one, &qc);
   /* post-assertions */
 #ifndef NDEBUG
 #ifdef SLOW_ASSERTIONS

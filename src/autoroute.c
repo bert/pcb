@@ -67,7 +67,7 @@
 #include "draw.h"
 #include "error.h"
 #include "heap.h"
-#include "kdtree.h"
+#include "rtree.h"
 #include "misc.h"
 #include "mtspace.h"
 #include "mymem.h"
@@ -83,8 +83,9 @@
 
 /* #defines to enable some debugging output */
 #define ROUTE_VERBOSE
-/* #define ROUTE_DEBUG
-   #define DEBUG_SHOW_ROUTE_BOXES
+/*
+#define ROUTE_DEBUG
+#define DEBUG_SHOW_ROUTE_BOXES
    #define DEBUG_SHOW_EXPANSION_BOXES
    #define DEBUG_SHOW_VIA_BOXES
 */
@@ -181,7 +182,7 @@ typedef struct routebox
     PadTypePtr pad;
     PinTypePtr pin;
     PinTypePtr via;
-    struct routebox *via_shadow;	/* points to the via in kd-tree which
+    struct routebox *via_shadow;	/* points to the via in r-tree which
 					 * points to the PinType in the PCB. */
     LineTypePtr line;
     void *generic;		/* 'other' is polygon, arc, text */
@@ -200,7 +201,7 @@ typedef struct routebox
     /* mark circular pins, so that we be sure to connect them up properly */
     unsigned circular:1;
     /* we sometimes create routeboxen that don't actually belong to a
-     * kd-tree yet -- make sure refcount of orphans is set properly */
+     * r-tree yet -- make sure refcount of orphans is set properly */
     unsigned orphan:1;
     /* was this nonfixed obstacle generated on an odd or even pass? */
     unsigned is_odd:1;
@@ -244,8 +245,8 @@ routebox_t;
 
 typedef struct routedata
 {
-  /* one kdtree per layer *group */
-  kdtree_t *layergrouptree[MAX_LAYER];	/* no silkscreen layers here =) */
+  /* one rtree per layer *group */
+  rtree_t *layergrouptree[MAX_LAYER];	/* no silkscreen layers here =) */
   /* root pointer into connectivity information */
   routebox_t *first_net;
   /* default routing style */
@@ -688,7 +689,7 @@ FindRouteBox (routedata_t * rd, Location X, Location Y, void *matches)
   region.X1 = region.X2 = X;
   region.Y1 = region.Y2 = Y;
   for (i = 0; i < MAX_LAYER; i++)
-    if (kd_search (rd->layergrouptree[i], &region, NULL, __found_one, &fc))
+    if (r_search (rd->layergrouptree[i], &region, NULL, __found_one, &fc))
       return fc.match;
   return NULL;			/* no match found */
 }
@@ -708,7 +709,7 @@ FindRouteBoxOnLayerGroup (routedata_t * rd,
   BoxType region;
   region.X1 = region.X2 = X;
   region.Y1 = region.Y2 = Y;
-  if (kd_search (rd->layergrouptree[layergroup], &region, NULL,
+  if (r_search (rd->layergrouptree[layergroup], &region, NULL,
 		 __found_one_on_lg, &rb))
     return rb;
   return NULL;			/* no match found */
@@ -823,9 +824,9 @@ CreateRouteData ()
       POINTER_LOOP (&layergroupboxes[i],
 		    /* we're initializing this to the "default" style */
 		    ((routebox_t *) * ptr)->augStyle = &rd->augStyles[NUM_STYLES]);
-      /* create the kd-tree */
+      /* create the r-tree */
       rd->layergrouptree[i] =
-	kd_create_tree ((const BoxType **) layergroupboxes[i].Ptr,
+	r_create_tree ((const BoxType **) layergroupboxes[i].Ptr,
 			layergroupboxes[i].PtrN, 1);
     }
 
@@ -928,7 +929,7 @@ DestroyRouteData (routedata_t ** rd)
 {
   int i;
   for (i = 0; i < MAX_LAYER; i++)
-    kd_destroy_tree (&(*rd)->layergrouptree[i]);
+    r_destroy_tree (&(*rd)->layergrouptree[i]);
   for (i = 0; i < NUM_STYLES + 1; i++)
     mtspace_destroy (&(*rd)->augStyles[i].mtspace);
   free (*rd);
@@ -1078,9 +1079,9 @@ route_parent (routebox_t * rb)
   return rb;
 }
 
-/* return a "parent" of this edge which resides in a kd-tree somewhere */
+/* return a "parent" of this edge which resides in a r-tree somewhere */
 /* -- actually, this "parent" *may* be a via box, which doesn't live in
- * a kd-tree. -- */
+ * a r-tree. -- */
 static routebox_t *
 nonorphan_parent (routebox_t * rb)
 {
@@ -1136,7 +1137,7 @@ __found_new_guess (const BoxType * box, void *cl)
 static routebox_t *
 mincost_target_to_point (const PointType * CostPoint,
 			 Cardinal CostPointLayer,
-			 kdtree_t * targets, routebox_t * target_guess)
+			 rtree_t * targets, routebox_t * target_guess)
 {
   struct mincost_target_closure mtc;
   assert (target_guess == NULL || target_guess->flags.target);	/* this is a target, right? */
@@ -1146,7 +1147,7 @@ mincost_target_to_point (const PointType * CostPoint,
   if (mtc.nearest)
     mtc.nearest_cost =
       cost_to_routebox (mtc.CostPoint, mtc.CostPointLayer, mtc.nearest);
-  kd_search (targets, NULL, __region_within_guess, __found_new_guess, &mtc);
+  r_search (targets, NULL, __region_within_guess, __found_new_guess, &mtc);
   assert (mtc.nearest != NULL && mtc.nearest_cost >= 0);
   assert (mtc.nearest->flags.target);	/* this is a target, right? */
   return mtc.nearest;
@@ -1159,7 +1160,7 @@ CreateEdge (routebox_t * rb,
 	    Location CostPointX, Location CostPointY,
 	    cost_t cost_to_point,
 	    routebox_t * mincost_target_guess,
-	    direction_t expand_dir, kdtree_t * targets)
+	    direction_t expand_dir, rtree_t * targets)
 {
   edge_t *e;
   assert (__routebox_is_good (rb));
@@ -1194,7 +1195,7 @@ CreateEdge (routebox_t * rb,
 /* most of the work here is in determining a new cost point */
 static edge_t *
 CreateEdge2 (routebox_t * rb, direction_t expand_dir,
-	     edge_t * previous_edge, kdtree_t * targets)
+	     edge_t * previous_edge, rtree_t * targets)
 {
   BoxType thisbox;
   PointType thiscost, prevcost;
@@ -1221,7 +1222,7 @@ static edge_t *
 CreateViaEdge (const BoxType * area, Cardinal group,
 	       routebox_t * parent, edge_t * previous_edge,
 	       conflict_t to_site_conflict,
-	       conflict_t through_site_conflict, kdtree_t * targets)
+	       conflict_t through_site_conflict, rtree_t * targets)
 {
   routebox_t *rb;
   PointType costpoint;
@@ -1264,7 +1265,7 @@ static edge_t *
 CreateEdgeWithConflicts (const BoxType * interior_edge,
 			 routebox_t * container,
 			 edge_t * previous_edge,
-			 cost_t cost_penalty_to_box, kdtree_t * targets)
+			 cost_t cost_penalty_to_box, rtree_t * targets)
 {
   routebox_t *rb;
   BoxType b;
@@ -1586,7 +1587,7 @@ __FindBlocker_rect_in_reg (const BoxType * box, void *cl)
  *  - region is closed on all edges -
  */
 routebox_t *
-FindBlocker (kdtree_t * kdtree, edge_t * e, BDimension maxbloat)
+FindBlocker (rtree_t * rtree, edge_t * e, BDimension maxbloat)
 {
   struct FindBlocker_info fbi;
 
@@ -1595,7 +1596,7 @@ FindBlocker (kdtree_t * kdtree, edge_t * e, BDimension maxbloat)
   fbi.blocker = NULL;
   fbi.min_dist = 0;
 
-  kd_search (kdtree, NULL,
+  r_search (rtree, NULL,
 	     __FindBlocker_reg_in_sea, __FindBlocker_rect_in_reg, &fbi);
   return fbi.blocker;
 }
@@ -1652,7 +1653,7 @@ fio_rect_in_reg (const BoxType * box, void *cl)
   return fio_check (box, (struct fio_info *) cl, False);
 }
 static routebox_t *
-FindIntersectingObstacle (kdtree_t * kdtree, edge_t * e, BDimension maxbloat)
+FindIntersectingObstacle (rtree_t * rtree, edge_t * e, BDimension maxbloat)
 {
   struct fio_info fio;
 
@@ -1661,7 +1662,7 @@ FindIntersectingObstacle (kdtree_t * kdtree, edge_t * e, BDimension maxbloat)
   fio.intersect = NULL;
 
   if (setjmp (fio.env) == 0)
-    kd_search (kdtree, NULL, fio_reg_in_sea, fio_rect_in_reg, &fio);
+    r_search (rtree, NULL, fio_reg_in_sea, fio_rect_in_reg, &fio);
   return fio.intersect;
 }
 
@@ -1702,7 +1703,7 @@ foib_rect_in_reg (const BoxType * box, void *cl)
   return foib_check (box, (struct foib_info *) cl, False);
 }
 static routebox_t *
-FindOneInBox (kdtree_t * kdtree, const BoxType * box, BDimension maxbloat)
+FindOneInBox (rtree_t * rtree, const BoxType * box, BDimension maxbloat)
 {
   struct foib_info foib;
 
@@ -1711,7 +1712,7 @@ FindOneInBox (kdtree_t * kdtree, const BoxType * box, BDimension maxbloat)
   foib.intersect = NULL;
 
   if (setjmp (foib.env) == 0)
-    kd_search (kdtree, NULL, foib_reg_in_sea, foib_rect_in_reg, &foib);
+    r_search (rtree, NULL, foib_reg_in_sea, foib_rect_in_reg, &foib);
   return foib.intersect;
 }
 
@@ -1719,7 +1720,7 @@ FindOneInBox (kdtree_t * kdtree, const BoxType * box, BDimension maxbloat)
  * put the result edges in result_vec. */
 void
 ExpandAllEdges (edge_t * e, vector_t * result_vec,
-		cost_t cost_penalty_in_box, kdtree_t * targets)
+		cost_t cost_penalty_in_box, rtree_t * targets)
 {
   PointType costpoint;
   cost_t cost;
@@ -1764,7 +1765,7 @@ ExpandAllEdges (edge_t * e, vector_t * result_vec,
 /* find edges which intersect obstacles, and break them into
  * intersecting and non-intersecting edges. */
 void
-BreakEdges (routedata_t * rd, vector_t * edge_vec, kdtree_t * targets)
+BreakEdges (routedata_t * rd, vector_t * edge_vec, rtree_t * targets)
 {
   BoxType edgebox, bbox = shrunk_pcb_bounds ();
   vector_t *broken_vec = vector_create ();
@@ -1922,8 +1923,8 @@ RD_DrawVia (routedata_t * rd, Location X, Location Y,
       MergeNets (rb, subnet, NET);
       MergeNets (rb, subnet, SUBNET);
       assert (__routebox_is_good (rb));
-      /* and add it to the kd-tree! */
-      kd_insert_node (rd->layergrouptree[rb->group], &rb->box, 1);
+      /* and add it to the r-tree! */
+      r_insert_entry (rd->layergrouptree[rb->group], &rb->box, 1);
       /* and to the via space structures */
       if (AutoRouteParameters.use_vias)
 	for (j = 0; j < NUM_STYLES + 1; j++)
@@ -1966,8 +1967,8 @@ RD_DrawLine (routedata_t * rd,
   MergeNets (rb, subnet, NET);
   MergeNets (rb, subnet, SUBNET);
   assert (__routebox_is_good (rb));
-  /* and add it to the kd-tree! */
-  kd_insert_node (rd->layergrouptree[rb->group], &rb->box, 1);
+  /* and add it to the r-tree! */
+  r_insert_entry (rd->layergrouptree[rb->group], &rb->box, 1);
   /* and to the via space structures */
   if (AutoRouteParameters.use_vias)
     for (i = 0; i < NUM_STYLES + 1; i++)
@@ -2232,7 +2233,7 @@ add_via_sites (struct routeone_state *s,
 	       struct routeone_via_site_state *vss,
 	       mtspace_t * mtspace, routebox_t * within,
 	       conflict_t within_conflict_level,
-	       edge_t * parent_edge, kdtree_t * targets)
+	       edge_t * parent_edge, rtree_t * targets)
 {
   int i, j;
   assert (AutoRouteParameters.use_vias);
@@ -2292,10 +2293,10 @@ RouteOne (routedata_t * rd, routebox_t * from, routebox_t * to)
   int seen, i;
   const BoxType **target_list;
   int num_targets;
-  kdtree_t *targets;
+  rtree_t *targets;
   /* vector of source edges for filtering */
   vector_t *source_vec;
-  /* vector of expansion areas to be eventually removed from kd-tree */
+  /* vector of expansion areas to be eventually removed from r-tree */
   vector_t *area_vec;
   /* vector of "touched" fixed regions to be reset upon completion */
   vector_t *touched_vec;
@@ -2355,14 +2356,14 @@ RouteOne (routedata_t * rd, routebox_t * from, routebox_t * to)
   /* okay, there's stuff to route */
   assert (!from->flags.target);
   assert (num_targets > 0);
-  /* create list of target pointers and from that a kd-tree of targets */
+  /* create list of target pointers and from that a r-tree of targets */
   target_list = malloc (num_targets * sizeof (*target_list));
   i = 0;
   LIST_LOOP (from, same_net, p, if (p->flags.target)
 	     {
 	     target_list[i++] = &p->box;}
   );
-  targets = kd_create_tree (target_list, i, 0);
+  targets = r_create_tree (target_list, i, 0);
   assert (i <= num_targets);
   free (target_list);
 
@@ -2463,15 +2464,15 @@ RouteOne (routedata_t * rd, routebox_t * from, routebox_t * to)
 				       &e->rb->box, rd->max_bloat);
 	  if (intersecting == NULL)
 	    {
-	      /* this via candidate is in an open area; add it to kd-tree as
+	      /* this via candidate is in an open area; add it to r-tree as
 	       * an expansion area */
 	      assert (e->rb->type == EXPANSION_AREA && e->rb->flags.is_via);
-	      assert (kd_region_is_empty (rd->layergrouptree[e->rb->group],
+	      assert (r_region_is_empty (rd->layergrouptree[e->rb->group],
 					  &e->rb->box));
-	      kd_insert_node (rd->layergrouptree[e->rb->group], &e->rb->box,
+	      r_insert_entry (rd->layergrouptree[e->rb->group], &e->rb->box,
 			      1);
 	      e->rb->flags.orphan = 0;	/* not an orphan any more */
-	      /* add to vector of all expansion areas in kd-tree */
+	      /* add to vector of all expansion areas in r-tree */
 	      vector_append (area_vec, e->rb);
 	      /* mark reset refcount to 0, since this is not an orphan any more. */
 	      e->rb->refcount = 0;
@@ -2592,7 +2593,7 @@ RouteOne (routedata_t * rd, routebox_t * from, routebox_t * to)
 	  if (edge_length (&expand_region, (e->expand_dir + 1) % 4) > 0)
 	    {
 	      assert (edge_length (&expand_region, e->expand_dir) > 0);
-	      /* ooh, a non-zero area expansion region!  add it to the kd-tree! */
+	      /* ooh, a non-zero area expansion region!  add it to the r-tree! */
 #if 0
 	      printf ("Creating expansion area (%d,%d)-(%d,%d) "
 		      "from (%d,%d)-(%d,%d) l%d dir %d\n",
@@ -2606,11 +2607,11 @@ RouteOne (routedata_t * rd, routebox_t * from, routebox_t * to)
 	      nrb =
 		CreateExpansionArea (&expand_region, e->rb->group, e->rb,
 				     False);
-	      assert (kd_region_is_empty
+	      assert (r_region_is_empty
 		      (rd->layergrouptree[nrb->group], &nrb->box));
-	      kd_insert_node (rd->layergrouptree[nrb->group], &nrb->box, 1);
+	      r_insert_entry (rd->layergrouptree[nrb->group], &nrb->box, 1);
 	      nrb->flags.orphan = 0;	/* not an orphan any more */
-	      /* add to vector of all expansion areas in kd-tree */
+	      /* add to vector of all expansion areas in r-tree */
 	      vector_append (area_vec, nrb);
 	      /* parent of orphan expansion edges on top should be this */
 	      top_parent = nrb;
@@ -2696,7 +2697,7 @@ RouteOne (routedata_t * rd, routebox_t * from, routebox_t * to)
       DestroyEdge (&e);
     }
   heap_destroy (&s.workheap);
-  kd_destroy_tree (&targets);
+  r_destroy_tree (&targets);
   assert (vector_is_empty (edge_vec));
   vector_destroy (&edge_vec);
 
@@ -2731,7 +2732,7 @@ RouteOne (routedata_t * rd, routebox_t * from, routebox_t * to)
 	    break;
 	  }
 #endif
-      /* back-trace the path and add lines/vias to kd-tree */
+      /* back-trace the path and add lines/vias to r-tree */
       TracePath (rd, s.best_path, s.best_target, from,
 		 result.route_had_conflicts);
       MergeNets (from, s.best_target, SUBNET);
@@ -2750,12 +2751,12 @@ RouteOne (routedata_t * rd, routebox_t * from, routebox_t * to)
   /* clean up; remove all 'source', 'target', and 'nobloat' flags */
   LIST_LOOP (from, same_net, p,
 	     p->flags.source = p->flags.target = p->flags.nobloat = 0);
-  /* now remove all expansion areas from the kd-tree. */
+  /* now remove all expansion areas from the r-tree. */
   while (!vector_is_empty (area_vec))
     {
       routebox_t *rb = vector_remove_last (area_vec);
       assert (!rb->flags.orphan);
-      kd_delete_node (rd->layergrouptree[rb->group], &rb->box);
+      r_delete_entry (rd->layergrouptree[rb->group], &rb->box);
     }
   vector_destroy (&area_vec);
   /* reset flags on touched fixed rects */
@@ -2849,7 +2850,7 @@ RouteAll (routedata_t * rd)
 			 mtspace_remove (rd->augStyles[j].mtspace, &p->box,
 					 p->flags.is_odd ? ODD : EVEN,
 					 p->augStyle->style->Keepaway);
-			 kd_delete_node (rd->layergrouptree[p->group],
+			 r_delete_entry (rd->layergrouptree[p->group],
 					 &p->box);}
 	      );
 	      /* reset to original connectivity */
