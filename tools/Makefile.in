@@ -131,6 +131,11 @@ tools_DATA = ${TOOLS}
 
 EXTRA_DIST = ${TOOLS}
 
+bin_SCRIPTS = \
+	MergePCBPS \
+	Merge_dimPCBPS 
+
+
 TOOLS = \
 	apctools.zip \
 	gerbertotk.c \
@@ -145,6 +150,8 @@ ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_HEADER = $(top_builddir)/config.h
 CONFIG_CLEAN_FILES =
+SCRIPTS = $(bin_SCRIPTS)
+
 DIST_SOURCES =
 DATA = $(tools_DATA)
 
@@ -157,6 +164,26 @@ $(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ Makefile.am  $(top_srcdir)/configu
 	  $(AUTOMAKE) --foreign  tools/Makefile
 Makefile: @MAINTAINER_MODE_TRUE@ $(srcdir)/Makefile.in  $(top_builddir)/config.status
 	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@ $(am__depfiles_maybe)
+binSCRIPT_INSTALL = $(INSTALL_SCRIPT)
+install-binSCRIPTS: $(bin_SCRIPTS)
+	@$(NORMAL_INSTALL)
+	$(mkinstalldirs) $(DESTDIR)$(bindir)
+	@list='$(bin_SCRIPTS)'; for p in $$list; do \
+	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
+	  if test -f $$d$$p; then \
+	    f=`echo "$$p" | sed 's|^.*/||;$(transform)'`; \
+	    echo " $(binSCRIPT_INSTALL) $$d$$p $(DESTDIR)$(bindir)/$$f"; \
+	    $(binSCRIPT_INSTALL) $$d$$p $(DESTDIR)$(bindir)/$$f; \
+	  else :; fi; \
+	done
+
+uninstall-binSCRIPTS:
+	@$(NORMAL_UNINSTALL)
+	@list='$(bin_SCRIPTS)'; for p in $$list; do \
+	  f=`echo "$$p" | sed 's|^.*/||;$(transform)'`; \
+	  echo " rm -f $(DESTDIR)$(bindir)/$$f"; \
+	  rm -f $(DESTDIR)$(bindir)/$$f; \
+	done
 uninstall-info-am:
 toolsDATA_INSTALL = $(INSTALL_DATA)
 install-toolsDATA: $(tools_DATA)
@@ -216,10 +243,10 @@ distdir: $(DISTFILES)
 	done
 check-am: all-am
 check: check-am
-all-am: Makefile $(DATA)
+all-am: Makefile $(SCRIPTS) $(DATA)
 
 installdirs:
-	$(mkinstalldirs) $(DESTDIR)$(toolsdir)
+	$(mkinstalldirs) $(DESTDIR)$(bindir) $(DESTDIR)$(toolsdir)
 install: install-am
 install-exec: install-exec-am
 install-data: install-data-am
@@ -262,7 +289,7 @@ info-am:
 
 install-data-am: install-toolsDATA
 
-install-exec-am:
+install-exec-am: install-binSCRIPTS
 
 install-info: install-info-am
 
@@ -286,16 +313,17 @@ ps: ps-am
 
 ps-am:
 
-uninstall-am: uninstall-info-am uninstall-toolsDATA
+uninstall-am: uninstall-binSCRIPTS uninstall-info-am uninstall-toolsDATA
 
 .PHONY: all all-am check check-am clean clean-generic distclean \
 	distclean-generic distdir dvi dvi-am info info-am install \
-	install-am install-data install-data-am install-exec \
-	install-exec-am install-info install-info-am install-man \
-	install-strip install-toolsDATA installcheck installcheck-am \
-	installdirs maintainer-clean maintainer-clean-generic \
-	mostlyclean mostlyclean-generic pdf pdf-am ps ps-am uninstall \
-	uninstall-am uninstall-info-am uninstall-toolsDATA
+	install-am install-binSCRIPTS install-data install-data-am \
+	install-exec install-exec-am install-info install-info-am \
+	install-man install-strip install-toolsDATA installcheck \
+	installcheck-am installdirs maintainer-clean \
+	maintainer-clean-generic mostlyclean mostlyclean-generic pdf \
+	pdf-am ps ps-am uninstall uninstall-am uninstall-binSCRIPTS \
+	uninstall-info-am uninstall-toolsDATA
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

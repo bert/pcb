@@ -9,6 +9,10 @@ tools_DATA=	${TOOLS}
 
 EXTRA_DIST= ${TOOLS}
 
+bin_SCRIPTS= \
+	MergePCBPS \
+	Merge_dimPCBPS 
+	
 TOOLS= \
 	apctools.zip \
 	gerbertotk.c \
