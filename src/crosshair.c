@@ -75,7 +75,6 @@ static void XORDrawAttachedLine (Location, Location, Location, Location,
 				 BDimension);
 static void XORDrawAttachedArc (BDimension);
 static void DrawAttached (Boolean);
-static void FitCrosshairIntoGrid (Location, Location);
 
 /* ---------------------------------------------------------------------------
  * creates a tmp polygon with coordinates converted to screen system
@@ -850,7 +849,7 @@ RestoreCrosshair (Boolean BlockToo)
 /* ---------------------------------------------------------------------------
  * recalculates the passed coordinates to fit the current grid setting
  */
-static void
+void
 FitCrosshairIntoGrid (Location X, Location Y)
 {
   Location x2, y2, x0, y0;
