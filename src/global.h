@@ -166,9 +166,6 @@ typedef struct
 {
   struct rtree_node *root;
   int size;			/* number of entries in tree */
-  const BoxType **managed;	/* a list of managed boxes for disposal */
-  size_t m_size;		/* the size of the manage memory */
-  unsigned m_count;		/* how many managed pointers */
 } rtree_t;
 
 typedef struct			/* holds information about one layer */

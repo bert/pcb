@@ -410,23 +410,6 @@ sort_node (struct rtree_node *node)
 #define sort_node(x)
 #endif
 
-
-/* save managed box pointers when deleted from the tree
- * so we can free them when it is destroyed
- */
-static void
-move_to_manage (rtree_t * seed, const BoxType * b)
-{
-  if (sizeof (b) * (1 + seed->m_count) > seed->m_size)
-    {
-      seed->managed = realloc (seed->managed,
-			       seed->m_size + 1024 * sizeof (b));
-      seed->m_size += 1024 * sizeof (b);
-    }
-  seed->managed[seed->m_count++] = b;
-}
-
-
 /* set the node bounds large enough to encompass all
  * of the children's rectangles
  */
@@ -528,9 +511,6 @@ r_destroy_tree (rtree_t ** rtree)
   const BoxType **b;
 
   __r_destroy_tree ((*rtree)->root);
-  b = (*rtree)->managed;
-  for (i = 0; i < (*rtree)->m_count; i++)
-    free ((void *) *b++);
   free (*rtree);
   *rtree = NULL;
 }
@@ -1077,12 +1057,15 @@ __r_delete (rtree_t * seed, struct rtree_node *node, const BoxType * query)
     }
   if (!node->u.rects[i].bptr)
     return False;		/* not at this leaf */
-  /* we have to 'manage' this pointer even after it's deleted! */
   if (node->flags.manage & a)
-    move_to_manage (seed, node->u.rects[i].bptr);
+    {
+      free ((void *) node->u.rects[i].bptr);
+      node->u.rects[i].bptr = NULL;
+    }
   /* squeeze the manage flags together */
   flag = node->flags.manage & mask;
-  node->flags.manage = flag | ((node->flags.manage & (~mask)) >> (i + 1));
+  mask = (~mask) << 1;
+  node->flags.manage = flag | ((node->flags.manage & mask) >> 1);
   /* remove the entry */
   for (; i < M_SIZE; i++)
     {
