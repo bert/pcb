@@ -136,6 +136,9 @@ old imake based build system.
 (21) A program for quickly generating QFP elements. Its invoked
 from the old library (~generic/qfp menu, generic)
 
+(22) Increased resolution.  The internal unit is now 0.01 mil
+as opposed to 1.0 mil which was the previous unit.
+
   Quick and dirty explanation of some as-yet undocumented features:
   
 Quick and dirty explanation of some as-yet undocumented features:
