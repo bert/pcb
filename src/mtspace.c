@@ -200,6 +200,7 @@ check_one (const BoxType * box, void *cl)
   BoxType a, b, c;
   Location x1, x2;
   int i;
+  float new_area, area_a, area_b;
   assert (__mtspace_box_is_good (cc->mtsb));
   assert (__mtspace_box_is_good (adj));
   /* nothing should intersect mtsb */
@@ -233,8 +234,10 @@ check_one (const BoxType * box, void *cl)
   assert (x1 <= x2);		/* overlap */
   /* area of new coalesced box is (b.Y2-a.Y1)*(x2-x1).  this must be
    * larger than area of either box a or box b for this to be a win */
-  if (((b.Y2 - a.Y1) * (x2 - x1) <= (a.Y2 - a.Y1) * (a.X2 - a.X1)) ||
-      ((b.Y2 - a.Y1) * (x2 - x1) <= (b.Y2 - b.Y1) * (b.X2 - b.X1)))
+  new_area = (float)(b.Y2 - a.Y1) * (float)(x2 - x1);
+  area_a = (float)(a.Y2 - a.Y1) * (float)(a.X2 - a.X1);
+  area_b = (float)(b.Y2 - b.Y1) * (float)(b.X2 - b.X1);
+  if ((new_area <= area_a) || (new_area <= area_b))
     return 0;
   /* okay! coalesce these boxes! */
   /* add the adjacent rectangle to remove_vec... */
@@ -300,9 +303,7 @@ mtspace_coalesce (mtspace_t * mtspace, struct coalesce_closure *cc)
 	{
 	  /* search region is one larger than mtsb on all sides */
 	  BoxType region = bloat_box (&cc->mtsb->box, 1);
-#ifndef NDEBUG
 	  int r = kd_search (mtspace->kdtree, &region, NULL, check_one, cc);
-#endif
 	  assert (r == 0);	/* otherwise we would have called 'longjmp' */
 	  /* ----- didn't find anything to coalesce ----- */
 	  assert (kd_region_is_empty (mtspace->kdtree, &cc->mtsb->box));

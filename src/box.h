@@ -140,10 +140,10 @@ BoxType bloat_box(const BoxType *box, Location amount) {
  * inside a box.  The box is half-closed!  That is, the top-left corner
  * is considered in the box, but the bottom-right corner is not. */
 static __inline__
-long dist2_to_box(const PointType * p, const BoxType * b) {
+float dist2_to_box(const PointType * p, const BoxType * b) {
   PointType r = closest_point_in_box(p, b);
-  long x_dist = (r.X - p->X);
-  long y_dist = (r.Y - p->Y);
+  float x_dist = (r.X - p->X);
+  float y_dist = (r.Y - p->Y);
   return (x_dist * x_dist) + (y_dist * y_dist);
 }
 
