@@ -86,6 +86,7 @@ rubber_callback (const BoxType * b, void *cl)
   struct rubber_info *i = (struct rubber_info *) cl;
   float x, y;
   BDimension t;
+  int touches = 0;
 
   t = line->Thickness / 2;
 
@@ -93,21 +94,84 @@ rubber_callback (const BoxType * b, void *cl)
     return 0;
   if (line == i->line)
     return 0;
-  if (i->radius == 0)		/* rectangular search region */
+  /* 
+   * Check to see if the line touches a rectangular region.
+   * To do this we need to look for the intersection of a circular
+   * region and a rectangular region.
+   */
+  if (i->radius == 0)
     {
       if (line->Point1.X + t >= i->box.X1 && line->Point1.X - t <= i->box.X2
 	  && line->Point1.Y + t >= i->box.Y1
 	  && line->Point1.Y - t <= i->box.Y2)
 	{
-	  CreateNewRubberbandEntry (i->layer, line, &line->Point1);
-	  return 1;
+	  if ( ((i->box.X1 <= line->Point1.X) && 
+	       (line->Point1.X <= i->box.X2)) ||
+	      ((i->box.Y1 <= line->Point1.Y) && 
+	       (line->Point1.Y <= i->box.Y2)) )
+	    {
+	      /* 
+	       * The circle is positioned such that the closest point
+	       * on the rectangular region boundary is not at a corner
+	       * of the rectangle.  i.e. the shortest line from circle
+	       * center to rectangle intersects the rectangle at 90
+	       * degrees.  In this case our first test is sufficient
+	       */
+	      touches = 1;
+	    }
+	  else
+	    {
+	      /* 
+	       * Now we must check the distance from the center of the
+	       * circle to the corners of the rectangle since the
+	       * closest part of the rectangular region is the corner.
+	       */
+	      x = MIN (abs(i->box.X1 - line->Point1.X),
+		       abs(i->box.X2 - line->Point1.X) );
+	      x *= x;
+	      y = MIN (abs(i->box.Y1 - line->Point1.Y),
+		       abs(i->box.Y2 - line->Point1.Y));
+	      y *= y;
+	      x = x + y - (t * t);
+
+	      if ( x <= 0 )
+		touches = 1;
+	    }
+	  if (touches)
+	    {
+	      CreateNewRubberbandEntry (i->layer, line, &line->Point1);
+	      return 1;
+	    }
 	}
       if (line->Point2.X + t >= i->box.X1 && line->Point2.X - t <= i->box.X2
 	  && line->Point2.Y + t >= i->box.Y1
 	  && line->Point2.Y - t <= i->box.Y2)
 	{
-	  CreateNewRubberbandEntry (i->layer, line, &line->Point2);
-	  return 1;
+	  if ( ((i->box.X1 <= line->Point2.X) && 
+	       (line->Point2.X <= i->box.X2)) ||
+	      ((i->box.Y1 <= line->Point2.Y) && 
+	       (line->Point2.Y <= i->box.Y2)) )
+	    {
+	      touches = 1;
+	    }
+	  else
+	    {
+	      x = MIN (abs(i->box.X1 - line->Point2.X),
+		       abs(i->box.X2 - line->Point2.X) );
+	      x *= x;
+	      y = MIN (abs(i->box.Y1 - line->Point2.Y),
+		       abs(i->box.Y2 - line->Point2.Y));
+	      y *= y;
+	      x = x + y - (t * t);
+
+	      if ( x <= 0 )
+		touches = 1;
+	    }
+	  if (touches)
+	    {
+	      CreateNewRubberbandEntry (i->layer, line, &line->Point2);
+	      return 1;
+	    }
 	}
       return 0;
     }
