@@ -48,7 +48,7 @@ void		SetBufferNumber(int);
 void		SetMode(int);
 void		SetCrosshairRangeToBuffer(void);
 void		SetRouteStyle(char *);
-void		SetLocalRef(Location, Location, Boolean);
+void		SetLocalRef(LocationType, LocationType, Boolean);
 void		RedrawZoom(Position, Position);
 void		SaveMode(void);
 void		RestoreMode(void);

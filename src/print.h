@@ -37,6 +37,6 @@
 
 int	Print(char *, float, Boolean, Boolean, Boolean,
 		Boolean, Boolean, Boolean, Boolean, Boolean,
-		PrintDeviceTypePtr, MediaTypePtr, Location, Location, Boolean);
+		PrintDeviceTypePtr, MediaTypePtr, LocationType, LocationType, Boolean);
 
 #endif

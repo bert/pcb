@@ -64,7 +64,7 @@ RCSID("$Id$");
  */
 void
 MirrorElementCoordinates (DataTypePtr Data, ElementTypePtr Element,
-			  Location yoff)
+			  LocationType yoff)
 {
   ELEMENTLINE_LOOP (Element);
   {

@@ -65,13 +65,13 @@ Region UpRegion;		/* the region of updated drawing */
 Region FullRegion;		/* the full screen clip region */
 Boolean Bumped = False;		/* whether the undo serial number has changed */
 Window LogWindID;
-Location Xorig, Yorig;		/* origin offset for drawing directly in pixmap */
+LocationType Xorig, Yorig;		/* origin offset for drawing directly in pixmap */
 Boolean render;			/* wether or not to re-render the pixmap */
 Pixmap *Stipples, XC_clock_source, XC_clock_mask;
 Pixmap XC_hand_source, XC_hand_mask;
 Pixmap XC_lock_source, XC_lock_mask;
 int addedLines;
-Location vxl, vxh, vyl, vyh;	/* visible pcb coordinates */
+LocationType vxl, vxh, vyl, vyh;	/* visible pcb coordinates */
 BoxType theScreen;		/* box of screen in pcb coordinates */
 BoxType clipBox;		/* box for clipping of drawing */
 

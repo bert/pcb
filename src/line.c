@@ -95,7 +95,7 @@ AdjustAttachedLine (void)
 void
 FortyFiveLine (AttachedLineTypePtr Line)
 {
-  Location dx, dy, min;
+  LocationType dx, dy, min;
   BYTE direction = 0;
   float m;
 
@@ -170,7 +170,7 @@ FortyFiveLine (AttachedLineTypePtr Line)
 void
 AdjustTwoLine (int way)
 {
-  Location dx, dy;
+  LocationType dx, dy;
   AttachedLineTypePtr line = &Crosshair.AttachedLine;
 
   if (Crosshair.AttachedLine.State == STATE_FIRST)
@@ -288,8 +288,8 @@ static float
 drc_lines (PointTypePtr end, Boolean way)
 {
   float f, s, f2, s2, len, best;
-  Location dx, dy, temp, last, length;
-  Location temp2, last2, length2;
+  LocationType dx, dy, temp, last, length;
+  LocationType temp2, last2, length2;
   LineType line1, line2;
   Cardinal group, comp;
   struct drc_info info;

@@ -999,7 +999,7 @@ PrintAssembly (void)
   static char *extention = "assembly", *DOSextention = "assem", *description =
     "assembly drawing";
   XColor rgb;
-  Location y2;
+  LocationType y2;
   Cardinal layer;
   LayerTypePtr layptr;
 
@@ -1877,7 +1877,7 @@ Print (char *Command, float Scale,
        Boolean OutlineFlag, Boolean AlignmentFlag,
        Boolean DrillHelperFlag, Boolean DOSFlag,
        PrintDeviceTypePtr PrintDevice, MediaTypePtr Media,
-       Location OffsetX, Location OffsetY, Boolean SilkscreenTextFlag)
+       LocationType OffsetX, LocationType OffsetY, Boolean SilkscreenTextFlag)
 {
   /* it's not OK to override all files -> user interaction
    * is required if a file exists

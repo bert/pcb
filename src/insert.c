@@ -72,7 +72,7 @@ static void *InsertPointIntoRat (RatTypePtr);
 /* ---------------------------------------------------------------------------
  * some local identifiers
  */
-static Location InsertX,	/* used by local routines as offset */
+static LocationType InsertX,	/* used by local routines as offset */
   InsertY;
 static Cardinal InsertAt;
 static Boolean Forcible;
@@ -127,7 +127,7 @@ static void *
 InsertPointIntoLine (LayerTypePtr Layer, LineTypePtr Line)
 {
   LineTypePtr line;
-  Location X, Y;
+  LocationType X, Y;
 
   if (((Line->Point1.X == InsertX) && (Line->Point1.Y == InsertY)) ||
       ((Line->Point2.X == InsertX) && (Line->Point2.Y == InsertY)))
@@ -210,7 +210,7 @@ InsertPointIntoPolygon (LayerTypePtr Layer, PolygonTypePtr Polygon)
  */
 void *
 InsertPointIntoObject (int Type, void *Ptr1, void *Ptr2, Cardinal * Ptr3,
-		       Location DX, Location DY, Boolean Force)
+		       LocationType DX, LocationType DY, Boolean Force)
 {
   void *ptr;
 
@@ -235,7 +235,7 @@ AdjustInsertPoint (void)
 {
   static PointType InsertedPoint;
   float m;
-  Location x, y, dx, dy, m1, m2;
+  LocationType x, y, dx, dy, m1, m2;
   LineTypePtr line = (LineTypePtr) Crosshair.AttachedObject.Ptr2;
 
   if (Crosshair.AttachedObject.State == STATE_FIRST)

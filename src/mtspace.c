@@ -183,7 +183,7 @@ check_one (const BoxType * box, void *cl)
   mtspacebox_t *adj = (mtspacebox_t *) box, *nb;
   direction_t d;
   BoxType a, b, c;
-  Location x1, x2;
+  LocationType x1, x2;
   int i;
   float new_area, area_a, area_b;
   assert (__mtspace_box_is_good (cc->mtsb));

@@ -134,11 +134,11 @@ static void GBX_PrintPad (PadTypePtr, int);
 static void GBX_PrintPinOrVia (PinTypePtr, int);
 static void GBX_PrintElementPackage (ElementTypePtr);
 static void GBX_Drill (PinTypePtr, Cardinal);
-static void GBX_PrintOutline (Location, Location, Location, Location);
-static void GBX_PrintAlignment (Location, Location, Location, Location);
+static void GBX_PrintOutline (LocationType, LocationType, LocationType, LocationType);
+static void GBX_PrintAlignment (LocationType, LocationType, LocationType, LocationType);
 static void GBX_GroupID (int);
 static void findTextApertures (TextTypePtr);
-static void GBX_PrintFilledRectangle (Location, Location, Location, Location);
+static void GBX_PrintFilledRectangle (LocationType, LocationType, LocationType, LocationType);
 static void setAperture (Apertures *, int, int, int, ApertureShape);
 static int findApertureCode (Apertures *, int, int, int, ApertureShape);
 
@@ -744,7 +744,7 @@ GBX_PrintPolygon (PolygonTypePtr Ptr)
 {
   Boolean m = False;
   int firstTime = 1;
-  Location startX = 0, startY = 0;
+  LocationType startX = 0, startY = 0;
 
   /* All polygon fills need to have a defined aperture.  */
   setAperture (&GBX_Apertures, 1000, 0, 0, ROUND);
@@ -835,7 +835,7 @@ findTextApertures (TextTypePtr Text)
 static void
 GBX_PrintText (TextTypePtr Text)
 {
-  Location x = 0, width;
+  LocationType x = 0, width;
   unsigned char *string = (unsigned char *) Text->TextString;
   Cardinal n;
   FontTypePtr font = &PCB->Font;
@@ -895,7 +895,7 @@ GBX_PrintText (TextTypePtr Text)
 	{
 	  /* the default symbol is a filled box */
 	  BoxType defaultsymbol = PCB->Font.DefaultSymbol;
-	  Location size = (defaultsymbol.X2 - defaultsymbol.X1) * 6 / 5;
+	  LocationType size = (defaultsymbol.X2 - defaultsymbol.X1) * 6 / 5;
 
 	  defaultsymbol.X1 = (defaultsymbol.X1 + x) * Text->Scale / 100;
 	  defaultsymbol.Y1 = defaultsymbol.Y1 * Text->Scale / 100;
@@ -1090,7 +1090,7 @@ GBX_PrintPinOrVia (PinTypePtr Ptr, int mode)
  * this is used by the text routine
  */
 static void
-GBX_PrintFilledRectangle (Location X1, Location Y1, Location X2, Location Y2)
+GBX_PrintFilledRectangle (LocationType X1, LocationType Y1, LocationType X2, LocationType Y2)
 {
   int j;
   long int X, Y;
@@ -1117,7 +1117,7 @@ GBX_PrintFilledRectangle (Location X1, Location Y1, Location X2, Location Y2)
  *  This routine contributed by Andre M Hedrick
  */
 static void
-GBX_PrintOutline (Location X1, Location Y1, Location X2, Location Y2)
+GBX_PrintOutline (LocationType X1, LocationType Y1, LocationType X2, LocationType Y2)
 {
   int gx1, gy1, gx2, gy2;
 
@@ -1147,7 +1147,7 @@ GBX_PrintOutline (Location X1, Location Y1, Location X2, Location Y2)
  *  This routine contributed by Andre M Hedrick
  */
 static void
-GBX_PrintAlignment (Location X1, Location Y1, Location X2, Location Y2)
+GBX_PrintAlignment (LocationType X1, LocationType Y1, LocationType X2, LocationType Y2)
 {
   int gx1, gy1, gx2, gy2;
 

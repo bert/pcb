@@ -84,8 +84,8 @@ RCSID ("$Id$");
 /*	forward declarations	*/
 static char *BumpName (char *);
 static void RightAngles (int, float *, float *);
-static void GetGridLockCoordinates (int, void *, void *, void *, Location *,
-				    Location *);
+static void GetGridLockCoordinates (int, void *, void *, void *, LocationType *,
+				    LocationType *);
 
 
 /* Local variables */
@@ -473,7 +473,7 @@ SetTextBoundingBox (FontTypePtr FontPtr, TextTypePtr Text)
 {
   SymbolTypePtr symbol = FontPtr->Symbol;
   unsigned char *s = (unsigned char *) Text->TextString;
-  Location width = 0, height = 0;
+  LocationType width = 0, height = 0;
   BDimension maxThick = 0;
   int i;
 
@@ -486,7 +486,7 @@ SetTextBoundingBox (FontTypePtr FontPtr, TextTypePtr Text)
 	  if (line->Thickness > maxThick)
 	    maxThick = line->Thickness;
 	width += symbol[*s].Width + symbol[*s].Delta;
-	height = MAX (height, (Location) symbol[*s].Height);
+	height = MAX (height, (LocationType) symbol[*s].Height);
       }
     else
       {
@@ -642,9 +642,9 @@ GetDataBoundingBox (DataTypePtr Data)
  * coordinates
  */
 void
-CenterDisplay (Location X, Location Y, Boolean Delta)
+CenterDisplay (LocationType X, LocationType Y, Boolean Delta)
 {
-  Location x, y;
+  LocationType x, y;
 
 #ifdef DEBUGDISP
   Message ("CenterDisplay(%d, %d, %s)\n", X, Y, Delta ? "True" : "False");
@@ -676,7 +676,7 @@ SetFontInfo (FontTypePtr Ptr)
   Cardinal i, j;
   SymbolTypePtr symbol;
   LineTypePtr line;
-  Location totalminy = MAX_COORD;
+  LocationType totalminy = MAX_COORD;
 
   /* calculate cell with and height (is at least DEFAULT_CELLSIZE)
    * maximum cell width and height
@@ -686,7 +686,7 @@ SetFontInfo (FontTypePtr Ptr)
   Ptr->MaxHeight = DEFAULT_CELLSIZE;
   for (i = 0, symbol = Ptr->Symbol; i <= MAX_FONTPOSITION; i++, symbol++)
     {
-      Location minx, miny, maxx, maxy;
+      LocationType minx, miny, maxx, maxy;
 
       /* next one if the index isn't used or symbol is empty (SPACE) */
       if (!symbol->Valid || !symbol->LineN)
@@ -1173,8 +1173,8 @@ void
 SetArcBoundingBox (ArcTypePtr Arc)
 {
   register double ca1, ca2, sa1, sa2;
-  register Location ang1, ang2;
-  register Location width;
+  register LocationType ang1, ang2;
+  register LocationType width;
 
   /* first put angles into standard form */
   if (Arc->Delta > 360)
@@ -1183,7 +1183,7 @@ SetArcBoundingBox (ArcTypePtr Arc)
   ang2 = Arc->StartAngle + Arc->Delta;
   if (Arc->Delta < 0)
     {
-      Location temp;
+      LocationType temp;
       temp = ang1;
       ang1 = ang2;
       ang2 = temp;
@@ -1499,7 +1499,7 @@ UniqueElementName (DataTypePtr Data, char *Name)
 
 static void
 GetGridLockCoordinates (int type, void *ptr1,
-			void *ptr2, void *ptr3, Location * x, Location * y)
+			void *ptr2, void *ptr3, LocationType * x, LocationType * y)
 {
   switch (type)
     {
@@ -1543,10 +1543,10 @@ GetGridLockCoordinates (int type, void *ptr1,
 }
 
 void
-AttachForCopy (Location PlaceX, Location PlaceY)
+AttachForCopy (LocationType PlaceX, LocationType PlaceY)
 {
   BoxTypePtr box;
-  Location mx, my;
+  LocationType mx, my;
 
   Crosshair.AttachedObject.RubberbandN = 0;
   if (TEST_FLAG (SNAPPINFLAG, PCB))

@@ -38,7 +38,7 @@
  */
 void	SetBufferBoundingBox(BufferTypePtr);
 void	ClearBuffer(BufferTypePtr);
-void	AddSelectedToBuffer(BufferTypePtr, Location, Location, Boolean);
+void	AddSelectedToBuffer(BufferTypePtr, LocationType, LocationType, Boolean);
 Boolean	LoadElementToBuffer(BufferTypePtr, char *, Boolean);
 Boolean	ConvertBufferToElement(BufferTypePtr);
 Boolean	SmashBufferElement(BufferTypePtr);

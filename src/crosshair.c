@@ -67,13 +67,13 @@ static Cardinal MaxPoints = 0;	/* number of points */
 /* ---------------------------------------------------------------------------
  * some local prototypes
  */
-static void CreateTMPPolygon (PolygonTypePtr, Location, Location);
+static void CreateTMPPolygon (PolygonTypePtr, LocationType, LocationType);
 static void DrawCrosshair (void);
-static void XORDrawElement (ElementTypePtr, Location, Location);
+static void XORDrawElement (ElementTypePtr, LocationType, LocationType);
 static void XORDrawBuffer (BufferTypePtr);
 static void XORDrawInsertPointObject (void);
 static void XORDrawMoveOrCopyObject (void);
-static void XORDrawAttachedLine (Location, Location, Location, Location,
+static void XORDrawAttachedLine (LocationType, LocationType, LocationType, LocationType,
 				 BDimension);
 static void XORDrawAttachedArc (BDimension);
 static void DrawAttached (Boolean);
@@ -82,7 +82,7 @@ static void DrawAttached (Boolean);
  * creates a tmp polygon with coordinates converted to screen system
  */
 static void
-CreateTMPPolygon (PolygonTypePtr Polygon, Location DX, Location DY)
+CreateTMPPolygon (PolygonTypePtr Polygon, LocationType DX, LocationType DY)
 {
   /* allocate memory for data with screen coordinates */
   if (Polygon->PointN >= MaxPoints)
@@ -134,7 +134,7 @@ XORDrawAttachedArc (BDimension thick)
 {
   ArcType arc;
   BoxTypePtr bx;
-  Location wx, wy;
+  LocationType wx, wy;
   int sa, dir;
   BDimension wid = thick / 2;
 
@@ -206,10 +206,10 @@ XORDrawAttachedArc (BDimension thick)
  * Draws the outline of a line
  */
 static void
-XORDrawAttachedLine (Location x1, Location y1, Location x2,
-		     Location y2, BDimension thick)
+XORDrawAttachedLine (LocationType x1, LocationType y1, LocationType x2,
+		     LocationType y2, BDimension thick)
 {
-  Location dx, dy, ox, oy;
+  LocationType dx, dy, ox, oy;
   float h;
   BDimension wid = thick / 2;
 
@@ -226,7 +226,7 @@ XORDrawAttachedLine (Location x1, Location y1, Location x2,
 	     TO_SCREEN_X (x2 + ox), TO_SCREEN_Y (y2 + oy));
   if (TO_SCREEN (abs (ox)) || TO_SCREEN (abs (oy)))
     {
-      Location angle =
+      LocationType angle =
 	TO_SCREEN_ANGLE (atan2 ((float) dx, (float) dy) * 3666.9298888);
       XDrawLine (Dpy, Output.OutputWindow, Crosshair.GC,
 		 TO_SCREEN_X (x1 - ox), TO_SCREEN_Y (y1 - oy),
@@ -246,7 +246,7 @@ XORDrawAttachedLine (Location x1, Location y1, Location x2,
  * draws the elements of a loaded circuit which is to be merged in
  */
 static void
-XORDrawElement (ElementTypePtr Element, Location DX, Location DY)
+XORDrawElement (ElementTypePtr Element, LocationType DX, LocationType DY)
 {
   /* if no silkscreen, draw the bounding box */
   if (Element->ArcN == 0 && Element->LineN == 0)
@@ -359,7 +359,7 @@ static void
 XORDrawBuffer (BufferTypePtr Buffer)
 {
   Cardinal i;
-  Location x, y;
+  LocationType x, y;
 
   /* set offset */
   x = Crosshair.X - Buffer->X;
@@ -400,7 +400,7 @@ XORDrawBuffer (BufferTypePtr Buffer)
 	TEXT_LOOP (layer);
 	{
 	  BoxTypePtr box = &text->BoundingBox;
-	  Location y0;
+	  LocationType y0;
 	  y0 = Settings.ShowSolderSide ? box->Y2 : box->Y1;
 	  XDrawRectangle (Dpy, Output.OutputWindow, Crosshair.GC,
 			  TO_SCREEN_X (x + box->X1),
@@ -473,7 +473,7 @@ XORDrawMoveOrCopyObject (void)
 {
   RubberbandTypePtr ptr;
   Cardinal i;
-  Location dx = Crosshair.X - Crosshair.AttachedObject.X,
+  LocationType dx = Crosshair.X - Crosshair.AttachedObject.X,
     dy = Crosshair.Y - Crosshair.AttachedObject.Y;
 
   switch (Crosshair.AttachedObject.Type)
@@ -774,7 +774,7 @@ DrawAttached (Boolean BlockToo)
   if (Crosshair.AttachedBox.State == STATE_SECOND ||
       (BlockToo && Crosshair.AttachedBox.State == STATE_THIRD))
     {
-      Location x1, y1, x2, y2, y0;
+      LocationType x1, y1, x2, y2, y0;
 
       x1 =
 	MIN (Crosshair.AttachedBox.Point1.X, Crosshair.AttachedBox.Point2.X);
@@ -853,9 +853,9 @@ RestoreCrosshair (Boolean BlockToo)
  * recalculates the passed coordinates to fit the current grid setting
  */
 void
-FitCrosshairIntoGrid (Location X, Location Y)
+FitCrosshairIntoGrid (LocationType X, LocationType Y)
 {
-  Location x2, y2, x0, y0;
+  LocationType x2, y2, x0, y0;
   void *ptr1, *ptr2, *ptr3;
   int ans;
 
@@ -951,7 +951,7 @@ FitCrosshairIntoGrid (Location X, Location Y)
   if (ans & PAD_TYPE)
     {
       PadTypePtr pad = (PadTypePtr) ptr2;
-      Location px, py;
+      LocationType px, py;
       px = (pad->Point1.X + pad->Point2.X) / 2;
       py = (pad->Point1.Y + pad->Point2.Y) / 2;
       if (SQUARE (x0 - Crosshair.X) + SQUARE (y0 - Crosshair.Y) >
@@ -1009,7 +1009,7 @@ FitCrosshairIntoGrid (Location X, Location Y)
  * move crosshair relative (has to be switched off)
  */
 void
-MoveCrosshairRelative (Location DeltaX, Location DeltaY)
+MoveCrosshairRelative (LocationType DeltaX, LocationType DeltaY)
 {
   FitCrosshairIntoGrid (Crosshair.X + DeltaX, Crosshair.Y + DeltaY);
 }
@@ -1019,9 +1019,9 @@ MoveCrosshairRelative (Location DeltaX, Location DeltaY)
  * return True if it switched off
  */
 Boolean
-MoveCrosshairAbsolute (Location X, Location Y)
+MoveCrosshairAbsolute (LocationType X, LocationType Y)
 {
-  Location x, y, z;
+  LocationType x, y, z;
   x = Crosshair.X;
   y = Crosshair.Y;
   FitCrosshairIntoGrid (X, Y);
@@ -1046,12 +1046,12 @@ MoveCrosshairAbsolute (Location X, Location Y)
  * sets the valid range for the crosshair cursor
  */
 void
-SetCrosshairRange (Location MinX, Location MinY, Location MaxX, Location MaxY)
+SetCrosshairRange (LocationType MinX, LocationType MinY, LocationType MaxX, LocationType MaxY)
 {
   Crosshair.MinX = MAX (0, MinX);
   Crosshair.MinY = MAX (0, MinY);
-  Crosshair.MaxX = MIN ((Location) PCB->MaxWidth, MaxX);
-  Crosshair.MaxY = MIN ((Location) PCB->MaxHeight, MaxY);
+  Crosshair.MaxX = MIN ((LocationType) PCB->MaxWidth, MaxX);
+  Crosshair.MaxY = MIN ((LocationType) PCB->MaxHeight, MaxY);
 
   /* force update of position */
   MoveCrosshairRelative (0, 0);

@@ -76,7 +76,7 @@ static int rubber_callback (const BoxType * b, void *cl);
 struct rubber_info
 {
   int radius;
-  Location X, Y;
+  LocationType X, Y;
   LineTypePtr line;
   BoxType box;
   LayerTypePtr layer;

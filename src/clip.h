@@ -41,7 +41,7 @@ void XDrawCLine (Display *, Drawable, GC, int, int, int, int);
 void XDrawCArc (Display *, Drawable, GC, int, int, unsigned int, unsigned int,
                 int, int);
 void DrawCPolygon (Drawable, PolygonTypePtr);
-extern Location dxo, dyo;
+extern LocationType dxo, dyo;
 extern Boolean SwapOutput;
 extern float Local_Zoom;
 #endif

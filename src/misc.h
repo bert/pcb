@@ -46,7 +46,7 @@ void		SetPolygonBoundingBox(PolygonTypePtr);
 void		SetElementBoundingBox(DataTypePtr, ElementTypePtr, FontTypePtr);
 Boolean		IsDataEmpty(DataTypePtr);
 BoxTypePtr	GetDataBoundingBox(DataTypePtr);
-void		CenterDisplay(Location, Location, Boolean);
+void		CenterDisplay(LocationType, LocationType, Boolean);
 void		SetFontInfo(FontTypePtr);
 void		UpdateSettingsOnScreen(void);
 int		ParseGroupString(char *, LayerGroupTypePtr);
@@ -69,7 +69,7 @@ void		CreateQuotedString(DynamicStringTypePtr, char *);
 int		GetGridFactor(void);
 BoxTypePtr	GetArcEnds(ArcTypePtr);
 char		*UniqueElementName(DataTypePtr, char *);
-void		AttachForCopy(Location, Location);
+void		AttachForCopy(LocationType, LocationType);
 float		GetValue(String *, Boolean *, Cardinal);
 int		FileExists(const char *);
 char *		Concat (const char *, ...); /* end with NULL */

@@ -89,12 +89,12 @@
 /* ---------------------------------------------------------------------------
  * prototypes
  */
-void	MovePolygonLowLevel(PolygonTypePtr, Location, Location);
-void	MoveElementLowLevel(DataTypePtr, ElementTypePtr, Location, Location);
-void	*MoveObject(int, void *, void *, void *, Location, Location);
+void	MovePolygonLowLevel(PolygonTypePtr, LocationType, LocationType);
+void	MoveElementLowLevel(DataTypePtr, ElementTypePtr, LocationType, LocationType);
+void	*MoveObject(int, void *, void *, void *, LocationType, LocationType);
 void	*MoveObjectToLayer(int, void *, void *, void *, LayerTypePtr, Boolean);
 void	*MoveObjectAndRubberband(int, void *, void *, void *,
-			Location, Location);
+			LocationType, LocationType);
 void	*MoveLineToLayerLowLevel(LayerTypePtr, LineTypePtr, LayerTypePtr);
 void	*MoveTextToLayerLowLevel(LayerTypePtr, TextTypePtr, LayerTypePtr);
 void	*MovePolygonToLayerLowLevel(LayerTypePtr, PolygonTypePtr, LayerTypePtr);

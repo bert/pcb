@@ -173,7 +173,7 @@ ListType, *ListTypePtr;
  * some local identifiers
  */
 static float fBloat = 0.0;
-static Location Bloat = 0;
+static LocationType Bloat = 0;
 static int TheFlag = FOUNDFLAG;
 static int OldFlag = FOUNDFLAG;
 static void *thing_ptr1, *thing_ptr2, *thing_ptr3;
@@ -694,10 +694,10 @@ LookupLOConnectionsToPVList (Boolean AndRats)
 		    return True;
 		  if (TEST_FLAG (SQUAREFLAG, pv))
 		    {
-		      Location x1 = pv->X - (pv->Thickness + 1) / 2;
-		      Location x2 = pv->X + (pv->Thickness + 1) / 2;
-		      Location y1 = pv->Y - (pv->Thickness + 1) / 2;
-		      Location y2 = pv->Y + (pv->Thickness + 1) / 2;
+		      LocationType x1 = pv->X - (pv->Thickness + 1) / 2;
+		      LocationType x2 = pv->X + (pv->Thickness + 1) / 2;
+		      LocationType y1 = pv->Y - (pv->Thickness + 1) / 2;
+		      LocationType y2 = pv->Y + (pv->Thickness + 1) / 2;
 		      if (IsRectangleInPolygon (x1, y1, x2, y2, polygon) &&
 			  ADD_POLYGON_TO_LIST (layer, polygon))
 			return True;
@@ -974,7 +974,7 @@ pv_poly_callback (const BoxType * b, void *cl)
     {
       if (TEST_FLAG (SQUAREFLAG, pv))
 	{
-	  Location x1, x2, y1, y2;
+	  LocationType x1, x2, y1, y2;
 	  x1 = pv->X - (pv->Thickness + 1) / 2;
 	  x2 = pv->X + (pv->Thickness + 1) / 2;
 	  y1 = pv->Y - (pv->Thickness + 1) / 2;
@@ -1197,7 +1197,7 @@ static Boolean
 ArcArcIntersect (ArcTypePtr Arc1, ArcTypePtr Arc2)
 {
   register float x, y, dx, dy, r1, r2, a, d, l, t, t2;
-  register Location pdx, pdy;
+  register LocationType pdx, pdy;
   BoxTypePtr box;
   BoxType box1, box2;
 
@@ -1703,7 +1703,7 @@ static Boolean
 LookupLOConnectionsToArc (ArcTypePtr Arc, Cardinal LayerGroup)
 {
   Cardinal entry;
-  Location xlow, xhigh;
+  LocationType xlow, xhigh;
   struct lo_info info;
 
   /* the maximum possible distance */
@@ -1939,7 +1939,7 @@ static Boolean
 LOTouchesLine (LineTypePtr Line, Cardinal LayerGroup)
 {
   Cardinal entry;
-  Location xlow, xhigh;
+  LocationType xlow, xhigh;
   Cardinal i;
   struct lo_info info;
 
@@ -2437,7 +2437,7 @@ IsArcInPolygon (ArcTypePtr Arc, PolygonTypePtr Polygon)
 Boolean
 IsLineInPolygon (LineTypePtr Line, PolygonTypePtr Polygon)
 {
-  Location minx, maxx, miny, maxy;
+  LocationType minx, maxx, miny, maxy;
 
   /* lines with clearance never touch polygons */
   if (TEST_FLAG (CLEARPOLYFLAG, Polygon) && TEST_FLAG (CLEARLINEFLAG, Line))
@@ -2495,7 +2495,7 @@ IsPadInPolygon (PadTypePtr pad, PolygonTypePtr polygon)
   if (TEST_FLAG (SQUAREFLAG, pad))
     {
       BDimension wid = pad->Thickness / 2;
-      Location x1, x2, y1, y2;
+      LocationType x1, x2, y1, y2;
 
       x1 = MIN (pad->Point1.X, pad->Point2.X) - wid;
       y1 = MIN (pad->Point1.Y, pad->Point2.Y) - wid;
@@ -3131,7 +3131,7 @@ ListStart (int type, void *ptr1, void *ptr2, void *ptr3)
  * also the action is marked as undoable if AndDraw is true
  */
 void
-LookupConnection (Location X, Location Y, Boolean AndDraw, BDimension Range)
+LookupConnection (LocationType X, LocationType Y, Boolean AndDraw, BDimension Range)
 {
   void *ptr1, *ptr2, *ptr3;
   int type;
@@ -3912,7 +3912,7 @@ DRCAll (void)
 static void
 GotoError (void)
 {
-  Location X, Y;
+  LocationType X, Y;
 
   switch (thing_type)
     {

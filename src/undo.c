@@ -85,14 +85,14 @@ ChangeNameType, *ChangeNameTypePtr;
 
 typedef struct			/* information about a move command */
 {
-  Location DX,			/* movement vector */
+  LocationType DX,			/* movement vector */
     DY;
 }
 MoveType, *MoveTypePtr;
 
 typedef struct			/* information about removed polygon points */
 {
-  Location X, Y;		/* data */
+  LocationType X, Y;		/* data */
   int ID;
   Cardinal Index;		/* index in a polygons array of points */
 }
@@ -100,7 +100,7 @@ RemovedPointType, *RemovedPointTypePtr;
 
 typedef struct			/* informstion about rotation */
 {
-  Location CenterX,		/* center of rotation */
+  LocationType CenterX,		/* center of rotation */
     CenterY;
   BYTE Steps;			/* number of steps */
 }
@@ -922,7 +922,7 @@ ClearUndoList (Boolean Force)
  */
 void
 AddObjectToMirrorUndoList (int Type, void *Ptr1, void *Ptr2, void *Ptr3,
-			   Location yoff)
+			   LocationType yoff)
 {
   UndoListTypePtr undo;
 
@@ -938,7 +938,7 @@ AddObjectToMirrorUndoList (int Type, void *Ptr1, void *Ptr2, void *Ptr3,
  */
 void
 AddObjectToRotateUndoList (int Type, void *Ptr1, void *Ptr2, void *Ptr3,
-			   Location CenterX, Location CenterY, BYTE Steps)
+			   LocationType CenterX, LocationType CenterY, BYTE Steps)
 {
   UndoListTypePtr undo;
 
@@ -1019,7 +1019,7 @@ AddObjectToInsertPointUndoList (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
  */
 void
 AddObjectToMoveUndoList (int Type, void *Ptr1, void *Ptr2, void *Ptr3,
-			 Location DX, Location DY)
+			 LocationType DX, LocationType DY)
 {
   UndoListTypePtr undo;
 

@@ -43,11 +43,11 @@ typedef enum { NORTH=0, EAST=1, SOUTH=2, WEST=3 } direction_t;
 
 /* rotates box 90-degrees cw */
 /* that's a strange rotation! */
-#define ROTATEBOX_CW(box) { Location t;\
+#define ROTATEBOX_CW(box) { LocationType t;\
     t = (box).X1; (box).X1 = -(box).Y2; (box).Y2 = (box).X2;\
     (box).X2 = -(box).Y1; (box).Y1 = t;\
 }
-#define ROTATEBOX_TO_NORTH(box, dir) do { Location t;\
+#define ROTATEBOX_TO_NORTH(box, dir) do { LocationType t;\
   switch(dir) {\
   case EAST: \
    t = (box).X1; (box).X1 = (box).Y1; (box).Y1 = -(box).X2;\
@@ -62,7 +62,7 @@ typedef enum { NORTH=0, EAST=1, SOUTH=2, WEST=3 } direction_t;
   default: assert(0);\
   }\
   } while (0)
-#define ROTATEBOX_FROM_NORTH(box, dir) do { Location t;\
+#define ROTATEBOX_FROM_NORTH(box, dir) do { LocationType t;\
   switch(dir) {\
   case WEST: \
    t = (box).X1; (box).X1 = (box).Y1; (box).Y1 = -(box).X2;\
@@ -87,7 +87,7 @@ typedef enum { NORTH=0, EAST=1, SOUTH=2, WEST=3 } direction_t;
 
 typedef struct cheap_point
 {
-  Location X, Y;
+  LocationType X, Y;
 } CheapPointType;
 
 
@@ -95,7 +95,7 @@ typedef struct cheap_point
 /* this means that top-left corner is in box, *but bottom-right corner is
  * not*.  */
 static __inline__
-Boolean point_in_box(const BoxType *box, Location X, Location Y) {
+Boolean point_in_box(const BoxType *box, LocationType X, LocationType Y) {
   return (X>=box->X1) && (Y>=box->Y1) && (X<box->X2) && (Y<box->Y2);
 }
 
@@ -143,14 +143,14 @@ BoxType clip_box(const BoxType *box, const BoxType *clipbox) {
 }
 
 static __inline__
-BoxType shrink_box(const BoxType *box, Location amount) {
+BoxType shrink_box(const BoxType *box, LocationType amount) {
   BoxType r = *box;
   r.X1 += amount; r.Y1 += amount; r.X2 -= amount; r.Y2 -= amount;
   return r;
 }
 
 static __inline__
-BoxType bloat_box(const BoxType *box, Location amount) {
+BoxType bloat_box(const BoxType *box, LocationType amount) {
   return shrink_box(box, -amount);
 }
 

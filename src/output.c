@@ -69,7 +69,7 @@ static void DrawClipped (Region);
 static void StopAutoScroll (void);
 
 static XtIntervalId SxID = 0, SyID = 0;
-static Location LastX, LastY;
+static LocationType LastX, LastY;
 
 /* ----------------------------------------------------------------------
  * sets the size of the drawing area
@@ -116,8 +116,8 @@ GetSizeOfDrawingArea (void)
 void
 ScaleOutput (Dimension width, Dimension height)
 {
-  Location xmore, ymore;
-  Location maxw = TO_SCREEN (PCB->MaxWidth),
+  LocationType xmore, ymore;
+  LocationType maxw = TO_SCREEN (PCB->MaxWidth),
     maxh = TO_SCREEN (PCB->MaxHeight);
 
 #ifdef DEBUGDISP
@@ -195,9 +195,9 @@ CB_ScrollY (XtPointer unused, XtIntervalId * time)
  * Returns True if that is not possible, False otherwise.
  */
 Boolean
-CoalignScreen (Position xs, Position ys, Location xp, Location yp)
+CoalignScreen (Position xs, Position ys, LocationType xp, LocationType yp)
 {
-  Location x, y;
+  LocationType x, y;
 
 #ifdef DEBUGDISP
   Message ("CoalignScreen(%d %d %d %d)\n", xs, ys, xp, yp);
@@ -220,7 +220,7 @@ CoalignScreen (Position xs, Position ys, Location xp, Location yp)
  * is redrawn.
  */
 Boolean
-Pan (Location X, Location Y, Boolean Scroll, Boolean Update)
+Pan (LocationType X, LocationType Y, Boolean Scroll, Boolean Update)
 {
   Boolean clip = False;
   static Position x, y;

@@ -614,7 +614,7 @@ IsPointOnPin (float X, float Y, float Radius, PinTypePtr pin)
  * checks if a rat-line end is on a PV
  */
 Boolean
-IsPointOnLineEnd (Location X, Location Y, RatTypePtr Line)
+IsPointOnLineEnd (LocationType X, LocationType Y, RatTypePtr Line)
 {
   if (((X == Line->Point1.X) && (Y == Line->Point1.Y)) ||
       ((X == Line->Point2.X) && (Y == Line->Point2.Y)))
@@ -693,8 +693,8 @@ IsPointOnLine (float X, float Y, float Radius, LineTypePtr Line)
  * checks if a line crosses a rectangle
  */
 Boolean
-IsLineInRectangle (Location X1, Location Y1,
-		   Location X2, Location Y2, LineTypePtr Line)
+IsLineInRectangle (LocationType X1, LocationType Y1,
+		   LocationType X2, LocationType Y2, LineTypePtr Line)
 {
   LineType line;
 
@@ -742,8 +742,8 @@ IsLineInRectangle (Location X1, Location Y1,
  * checks if an arc crosses a square
  */
 Boolean
-IsArcInRectangle (Location X1, Location Y1,
-		  Location X2, Location Y2, ArcTypePtr Arc)
+IsArcInRectangle (LocationType X1, LocationType Y1,
+		  LocationType X2, LocationType Y2, ArcTypePtr Arc)
 {
   LineType line;
 
@@ -787,7 +787,7 @@ IsArcInRectangle (Location X1, Location Y1,
  * fixed 10/30/98 - radius can't expand both edges of a square box
  */
 Boolean
-IsPointInSquarePad (Location X, Location Y, Cardinal Radius, PadTypePtr Pad)
+IsPointInSquarePad (LocationType X, LocationType Y, Cardinal Radius, PadTypePtr Pad)
 {
   register BDimension t2 = Pad->Thickness / 2;
   BoxType padbox;
@@ -800,7 +800,7 @@ IsPointInSquarePad (Location X, Location Y, Cardinal Radius, PadTypePtr Pad)
 }
 
 Boolean
-IsPointInBox (Location X, Location Y, BoxTypePtr box, Cardinal Radius)
+IsPointInBox (LocationType X, LocationType Y, BoxTypePtr box, Cardinal Radius)
 {
   LineType line;
 
@@ -847,10 +847,10 @@ IsPointInPolygon (float X, float Y, float Radius, PolygonTypePtr Polygon)
   BoxType boundingbox = Polygon->BoundingBox;
 
   /* increment the size of the bounding box by the radius */
-  boundingbox.X1 -= (Location) Radius;
-  boundingbox.Y1 -= (Location) Radius;
-  boundingbox.X2 += (Location) Radius;
-  boundingbox.Y2 += (Location) Radius;
+  boundingbox.X1 -= (LocationType) Radius;
+  boundingbox.Y1 -= (LocationType) Radius;
+  boundingbox.X2 += (LocationType) Radius;
+  boundingbox.Y2 += (LocationType) Radius;
 
   /* quick check if the point may lay inside */
   if (POINT_IN_BOX (X, Y, &boundingbox))
@@ -901,8 +901,8 @@ IsPointInPolygon (float X, float Y, float Radius, PolygonTypePtr Polygon)
  * checks if a polygon intersects with a square
  */
 Boolean
-IsRectangleInPolygon (Location X1, Location Y1,
-		      Location X2, Location Y2, PolygonTypePtr Polygon)
+IsRectangleInPolygon (LocationType X1, LocationType Y1,
+		      LocationType X2, LocationType Y2, PolygonTypePtr Polygon)
 {
   PolygonType polygon;
   PointType points[4];
@@ -1009,7 +1009,7 @@ IsPointOnArc (float X, float Y, float Radius, ArcTypePtr Arc)
 int
 SearchObjectByLocation (int Type,
 			void **Result1, void **Result2, void **Result3,
-			Location X, Location Y, BDimension Radius)
+			LocationType X, LocationType Y, BDimension Radius)
 {
   void *r1, *r2, *r3;
   int i;
@@ -1427,7 +1427,7 @@ SearchElementByName (DataTypePtr Base, char *Name)
  * searches the cursor position for the type 
  */
 int
-SearchScreen (Location X, Location Y, int Type, void **Result1,
+SearchScreen (LocationType X, LocationType Y, int Type, void **Result1,
 	      void **Result2, void **Result3)
 {
   int ans;

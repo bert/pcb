@@ -443,8 +443,8 @@ FinishStroke (void)
 	case 12589:
 	case 14589:
 	  {
-	    Location x = (StrokeBox.X1 + StrokeBox.X2) / 2;
-	    Location y = (StrokeBox.Y1 + StrokeBox.Y2) / 2;
+	    LocationType x = (StrokeBox.X1 + StrokeBox.X2) / 2;
+	    LocationType y = (StrokeBox.Y1 + StrokeBox.Y2) / 2;
 	    int z;
 	    z =
 	      1 +
@@ -909,7 +909,7 @@ NotifyMode (void)
 	  case STATE_THIRD:
 	    {
 	      ArcTypePtr arc;
-	      Location wx, wy;
+	      LocationType wx, wy;
 	      int sa, dir;
 
 	      wx = Note.X - Crosshair.AttachedBox.Point1.X;
@@ -1767,15 +1767,15 @@ ActionClearThermal (Widget W, XEvent * Event, String * Params, Cardinal * Num)
 void
 ActionMovePointer (Widget W, XEvent * Event, String * Params, Cardinal * Num)
 {
-  Location x, y, dx, dy;
+  LocationType x, y, dx, dy;
 
   if (*Num == 2)
     {
       /* save old crosshair position */
       x = Crosshair.X;
       y = Crosshair.Y;
-      dx = (Location) (atoi (*Params) * PCB->Grid);
-      dy = (Location) (atoi (*(Params + 1)) * PCB->Grid);
+      dx = (LocationType) (atoi (*Params) * PCB->Grid);
+      dy = (LocationType) (atoi (*(Params + 1)) * PCB->Grid);
       MoveCrosshairRelative (TO_SCREEN_SIGN_X (dx), TO_SCREEN_SIGN_Y (dy));
       FitCrosshairIntoGrid (Crosshair.X, Crosshair.Y);
       /* adjust pointer before erasing anything */
@@ -1828,7 +1828,7 @@ EventMoveCrosshair (XMotionEvent * Event)
 	{
 	  if (Settings.Mode == NO_MODE && Event->state & Button1Mask)
 	    {
-	      Location x, y;
+	      LocationType x, y;
 	      HideCrosshair (False);
 	      x = TO_SCREEN_X (Crosshair.X) - Event->x;
 	      y = TO_SCREEN_Y (Crosshair.Y) - Event->y;
@@ -3974,7 +3974,7 @@ ActionNew (Widget W, XEvent * Event, String * Params, Cardinal * Num)
 void
 ActionSwapSides (Widget W, XEvent * Event, String * Params, Cardinal * Num)
 {
-  Location x, y;
+  LocationType x, y;
 
   x = TO_SCREEN_X (Crosshair.X);
   y = TO_SCREEN_Y (Crosshair.Y);
@@ -4407,7 +4407,7 @@ ActionEditLayerGroups (Widget W, XEvent * Event,
 void
 ActionMoveObject (Widget W, XEvent * Event, String * Params, Cardinal * Num)
 {
-  Location x, y;
+  LocationType x, y;
   Boolean r1, r2;
   void *ptr1, *ptr2, *ptr3;
   int type;

@@ -47,7 +47,7 @@
 #include <X11/Intrinsic.h>
 #include <X11/StringDefs.h>
 #include <X11/keysym.h>
-typedef int Location;
+typedef int LocationType;
 typedef int BDimension;		/* big dimension */
 
 /* ---------------------------------------------------------------------------
@@ -103,7 +103,7 @@ typedef struct
 
 typedef struct			/* a bounding box */
 {
-  Location X1, Y1,		/* upper left */
+  LocationType X1, Y1,		/* upper left */
     X2, Y2;			/* and lower right corner */
 } BoxType, *BoxTypePtr;
 
@@ -118,7 +118,7 @@ typedef struct			/* all objects start with a Bounding box and ID */
 
 typedef struct			/* a line/polygon point */
 {
-  Location X, Y, X2, Y2;	/* so Point type can be cast as BoxType */
+  LocationType X, Y, X2, Y2;	/* so Point type can be cast as BoxType */
   long int ID;
 } PointType, *PointTypePtr;
 
@@ -133,7 +133,7 @@ typedef struct
   BoxType BoundingBox;
   long int ID, Flags;
   BDimension Scale;		/* text scaling in percent */
-  Location X,			/* origin */
+  LocationType X,			/* origin */
     Y;
   BYTE Direction;
   char *TextString;		/* string */
@@ -155,7 +155,7 @@ typedef struct			/* holds information about arcs */
   long int ID,			/* these fields are unused when contained in elements */
     Flags;
   BDimension Thickness, Clearance;
-  Location Width,		/* length of axis */
+  LocationType Width,		/* length of axis */
     Height, X,			/* center coordinates */
     Y;
   long int StartAngle,		/* the two limiting angles in degrees */
@@ -207,7 +207,7 @@ typedef struct
   BoxType BoundingBox;
   long int ID, Flags;
   BDimension Thickness, Clearance, Mask, DrillingHole;
-  Location X,			/* center and diameter */
+  LocationType X,			/* center and diameter */
     Y;
   char *Name, *Number;
   void *Element;
@@ -223,7 +223,7 @@ typedef struct
   /* name on PCB second, */
   /* value third */
   /* see macro.h */
-  Location MarkX,		/* position mark */
+  LocationType MarkX,		/* position mark */
     MarkY;
   Cardinal PinN,		/* number of pins, lines and arcs */
     PinMax, PadN, PadMax, LineN, LineMax, ArcN, ArcMax;
@@ -249,7 +249,7 @@ typedef struct			/* a single symbol */
 
 typedef struct			/* complete set of symbols */
 {
-  Location MaxHeight,		/* maximum cell width and height */
+  LocationType MaxHeight,		/* maximum cell width and height */
     MaxWidth;
   BoxType DefaultSymbol;	/* the default symbol is a filled box */
   SymbolType Symbol[MAX_FONTPOSITION + 1];
@@ -376,7 +376,7 @@ typedef struct			/* holds information about board layout */
 
 typedef struct			/* information about the paste buffer */
 {
-  Location X,			/* offset */
+  LocationType X,			/* offset */
     Y;
   BoxType BoundingBox;
   DataTypePtr Data;		/* data; not all members of PCBType */
@@ -412,7 +412,7 @@ typedef struct			/* currently marked block */
 
 typedef struct			/* currently attached object */
 {
-  Location X,			/* saved position when MOVE_MODE */
+  LocationType X,			/* saved position when MOVE_MODE */
     Y;				/* was entered */
   BoxType BoundingBox;
   long int Type,		/* object type */
@@ -429,7 +429,7 @@ typedef struct			/* holds cursor information */
 {
   GC GC,			/* GC for cursor drawing */
     AttachGC;			/* and for displaying buffer contents */
-  Location X,			/* position in PCB coordinates */
+  LocationType X,			/* position in PCB coordinates */
     Y, MinX,			/* lowest and highest coordinates */
     MinY, MaxX, MaxY;
   Boolean On;			/* flag for 'is visible' */
@@ -497,7 +497,7 @@ typedef struct			/* some resources... */
     ScriptFilename,             /* PCB Actions script to execute on startup */
     ActionString;               /* PCB Actions string to execute on startup */
   Boolean DumpMenuFile;		/* dump internal menu definitions */
-  Location PinoutOffsetX,	/* offset of origin */
+  LocationType PinoutOffsetX,	/* offset of origin */
     PinoutOffsetY;
   Position PinoutTextOffsetX,	/* offset of text from pin center */
     PinoutTextOffsetY;
@@ -552,7 +552,7 @@ typedef struct			/* media description */
 {
   String Name;			/* name and size (in mil*100) */
   BDimension Width, Height;
-  Location MarginX, MarginY;
+  LocationType MarginX, MarginY;
 } MediaType, *MediaTypePtr;
 
 typedef struct			/* needs and abilities of a driver */
@@ -585,8 +585,8 @@ typedef struct			/* functions of a print driver */
   void (*PinOrVia) (PinTypePtr, int);	/* pin diam=0 clear=1 mask=2 */
   void (*ElementPackage) (ElementTypePtr);
   void (*Drill) (PinTypePtr, Cardinal);	/* drilling information */
-  void (*Outline) (Location, Location, Location, Location);
-  void (*Alignment) (Location, Location, Location, Location);
+  void (*Outline) (LocationType, LocationType, LocationType, LocationType);
+  void (*Alignment) (LocationType, LocationType, LocationType, LocationType);
   void (*DrillHelper) (PinTypePtr, int);
   void (*GroupID) (int);	/* comments group info */
   Boolean HandlesColor,		/* colored output */
@@ -605,7 +605,7 @@ typedef struct
 
 typedef struct			/* holds a connection */
 {
-  Location X, Y;		/* coordinate of connection */
+  LocationType X, Y;		/* coordinate of connection */
   long int type;		/* type of object in ptr1 - 3 */
   void *ptr1, *ptr2;		/* the object of the connection */
   Cardinal group;		/* the layer group of the connection */

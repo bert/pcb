@@ -524,5 +524,5 @@ PrintDialog (void)
     Print (PCB->PrintFilename, Scale,
 	   mirrorflag, RotateFlag, colorflag, invertflag,
 	   OutlineFlag, AlignmentFlag, drillhelperflag, DOSFilenames,
-	   DeviceSelection, media, (Location)offsetx * 100, (Location)offsety * 100, silkscreentextflag);
+	   DeviceSelection, media, (LocationType)offsetx * 100, (LocationType)offsety * 100, silkscreentextflag);
 }

@@ -73,7 +73,7 @@ static void *RotateLinePoint (LayerTypePtr, LineTypePtr, PointTypePtr);
 /* ----------------------------------------------------------------------
  * some local identifiers
  */
-static Location CenterX,	/* center of rotation */
+static LocationType CenterX,	/* center of rotation */
   CenterY;
 static BYTE Number;		/* number of rotations */
 static ObjectFunctionType RotateFunctions = {
@@ -95,7 +95,7 @@ static ObjectFunctionType RotateFunctions = {
  * rotates a point in 90 degree steps
  */
 void
-RotatePointLowLevel (PointTypePtr Point, Location X, Location Y, BYTE Number)
+RotatePointLowLevel (PointTypePtr Point, LocationType X, LocationType Y, BYTE Number)
 {
   ROTATE (Point->X, Point->Y, X, Y, Number);
 }
@@ -104,7 +104,7 @@ RotatePointLowLevel (PointTypePtr Point, Location X, Location Y, BYTE Number)
  * rotates a line in 90 degree steps
  */
 void
-RotateLineLowLevel (LineTypePtr Line, Location X, Location Y, BYTE Number)
+RotateLineLowLevel (LineTypePtr Line, LocationType X, LocationType Y, BYTE Number)
 {
   ROTATE (Line->Point1.X, Line->Point1.Y, X, Y, Number);
   ROTATE (Line->Point2.X, Line->Point2.Y, X, Y, Number);
@@ -113,7 +113,7 @@ RotateLineLowLevel (LineTypePtr Line, Location X, Location Y, BYTE Number)
     {
       if (Line->Point1.Y > Line->Point2.Y)
 	{
-	  Location t;
+	  LocationType t;
 	  t = Line->Point1.Y;
 	  Line->Point1.Y = Line->Point2.Y;
 	  Line->Point2.Y = t;
@@ -123,7 +123,7 @@ RotateLineLowLevel (LineTypePtr Line, Location X, Location Y, BYTE Number)
     {
       if (Line->Point1.X > Line->Point2.X)
 	{
-	  Location t;
+	  LocationType t;
 	  t = Line->Point1.X;
 	  Line->Point1.X = Line->Point2.X;
 	  Line->Point2.X = t;
@@ -139,7 +139,7 @@ RotateLineLowLevel (LineTypePtr Line, Location X, Location Y, BYTE Number)
  * is done by the drawing routines
  */
 void
-RotateTextLowLevel (TextTypePtr Text, Location X, Location Y, BYTE Number)
+RotateTextLowLevel (TextTypePtr Text, LocationType X, LocationType Y, BYTE Number)
 {
   BYTE number;
 
@@ -159,7 +159,7 @@ RotateTextLowLevel (TextTypePtr Text, Location X, Location Y, BYTE Number)
  */
 void
 RotatePolygonLowLevel (PolygonTypePtr Polygon,
-		       Location X, Location Y, BYTE Number)
+		       LocationType X, LocationType Y, BYTE Number)
 {
   POLYGONPOINT_LOOP (Polygon);
     {
@@ -188,7 +188,7 @@ RotateText (LayerTypePtr Layer, TextTypePtr Text)
  * rotates an arc
  */
 void
-RotateArcLowLevel (ArcTypePtr Arc, Location X, Location Y, BYTE Number)
+RotateArcLowLevel (ArcTypePtr Arc, LocationType X, LocationType Y, BYTE Number)
 {
   BDimension save;
 
@@ -211,7 +211,7 @@ RotateArcLowLevel (ArcTypePtr Arc, Location X, Location Y, BYTE Number)
  */
 void
 RotateElementLowLevel (DataTypePtr Data, ElementTypePtr Element,
-		       Location X, Location Y, BYTE Number)
+		       LocationType X, LocationType Y, BYTE Number)
 {
   /* solder side objects need a different orientation */
 
@@ -336,9 +336,9 @@ RotateElementName (ElementTypePtr Element)
  * rotates a box in 90 degree steps 
  */
 void
-RotateBoxLowLevel (BoxTypePtr Box, Location X, Location Y, BYTE Number)
+RotateBoxLowLevel (BoxTypePtr Box, LocationType X, LocationType Y, BYTE Number)
 {
-  Location x1 = Box->X1, y1 = Box->Y1, x2 = Box->X2, y2 = Box->Y2;
+  LocationType x1 = Box->X1, y1 = Box->Y1, x2 = Box->X2, y2 = Box->Y2;
 
   ROTATE (x1, y1, X, Y, Number);
   ROTATE (x2, y2, X, Y, Number);
@@ -354,7 +354,7 @@ RotateBoxLowLevel (BoxTypePtr Box, Location X, Location Y, BYTE Number)
  */
 void *
 RotateObject (int Type, void *Ptr1, void *Ptr2, void *Ptr3,
-	      Location X, Location Y, BYTE Steps)
+	      LocationType X, LocationType Y, BYTE Steps)
 {
   RubberbandTypePtr ptr;
   void *ptr2;
@@ -406,7 +406,7 @@ RotateObject (int Type, void *Ptr1, void *Ptr2, void *Ptr3,
 }
 
 void
-RotateScreenObject (Location X, Location Y, BYTE Steps)
+RotateScreenObject (LocationType X, LocationType Y, BYTE Steps)
 {
   int type;
   void *ptr1, *ptr2, *ptr3;

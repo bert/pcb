@@ -480,7 +480,7 @@ SetRouteStyle (char *name)
 }
 
 void
-SetLocalRef (Location X, Location Y, Boolean Showing)
+SetLocalRef (LocationType X, LocationType Y, Boolean Showing)
 {
   static MarkType old;
   static int count = 0;

@@ -455,7 +455,7 @@ RemoveFromNet (routebox_t * a, enum boxlist which)
 
 static void
 init_const_box (routebox_t * rb,
-		Location X1, Location Y1, Location X2, Location Y2)
+		LocationType X1, LocationType Y1, LocationType X2, LocationType Y2)
 {
   BoxType *bp = (BoxType *) & rb->box;	/* note discarding const! */
   assert (!rb->flags.inited);
@@ -600,8 +600,8 @@ AddLine (PointerListType layergroupboxes[], int layer, LineTypePtr line)
 }
 static routebox_t *
 AddIrregularObstacle (PointerListType layergroupboxes[],
-		      Location X1, Location Y1,
-		      Location X2, Location Y2, Cardinal layer, void *parent)
+		      LocationType X1, LocationType Y1,
+		      LocationType X2, LocationType Y2, Cardinal layer, void *parent)
 {
   routebox_t **rbpp;
   int layergroup;
@@ -691,7 +691,7 @@ __found_one (const BoxType * box, void *cl)
     return 0;
 }
 static routebox_t *
-FindRouteBox (routedata_t * rd, Location X, Location Y, void *matches)
+FindRouteBox (routedata_t * rd, LocationType X, LocationType Y, void *matches)
 {
   struct find_closure fc;
   BoxType region;
@@ -716,7 +716,7 @@ __found_one_on_lg (const BoxType * box, void *cl)
 }
 static routebox_t *
 FindRouteBoxOnLayerGroup (routedata_t * rd,
-			  Location X, Location Y, Cardinal layergroup)
+			  LocationType X, LocationType Y, Cardinal layergroup)
 {
   routebox_t *rb;
   BoxType region;
@@ -1202,7 +1202,7 @@ showroutebox (routebox_t * rb)
 static void
 EraseRouteBox (routebox_t * rb)
 {
-  Location X1, Y1, X2, Y2;
+  LocationType X1, Y1, X2, Y2;
   BDimension thick;
 
   if (rb->box.X2 - rb->box.X1 < rb->box.Y2 - rb->box.Y1)
@@ -1316,7 +1316,7 @@ mincost_target_to_point (const CheapPointType * CostPoint,
 /* mincost_target_guess can be NULL */
 static edge_t *
 CreateEdge (routebox_t * rb,
-	    Location CostPointX, Location CostPointY,
+	    LocationType CostPointX, LocationType CostPointY,
 	    cost_t cost_to_point,
 	    routebox_t * mincost_target_guess,
 	    direction_t expand_dir, rtree_t * targets)
@@ -1507,7 +1507,7 @@ edge_cost (const edge_t * e)
     cost_to_routebox (&e->cost_point, e->rb->group, e->mincost_target);
 }
 
-static Location
+static LocationType
 edge_length (const BoxType * cb, direction_t expand_dir)
 {
   BoxType b = *cb;
@@ -1719,7 +1719,7 @@ struct FindBlocker_info
   edge_t *expansion_edge;
   BDimension maxbloat;
   routebox_t *blocker;
-  Location min_dist;
+  LocationType min_dist;
   BoxType north_box;
 };
 
@@ -2178,7 +2178,7 @@ BreakEdges (routedata_t * rd, vector_t * edge_vec, rtree_t * targets)
  * a line through them to actually create the connection.
  */
 static void
-RD_DrawThermal (routedata_t * rd, Location X, Location Y,
+RD_DrawThermal (routedata_t * rd, LocationType X, LocationType Y,
 		Cardinal group, Cardinal layer, routebox_t * subnet,
 		Boolean is_bad)
 {
@@ -2203,7 +2203,7 @@ RD_DrawThermal (routedata_t * rd, Location X, Location Y,
 }
 
 static void
-RD_DrawVia (routedata_t * rd, Location X, Location Y,
+RD_DrawVia (routedata_t * rd, LocationType X, LocationType Y,
 	    BDimension radius, routebox_t * subnet, Boolean is_bad)
 {
   routebox_t *rb, *first_via = NULL;
@@ -2256,7 +2256,7 @@ RD_DrawVia (routedata_t * rd, Location X, Location Y,
 }
 static void
 RD_DrawLine (routedata_t * rd,
-	     Location X1, Location Y1, Location X2, Location Y2,
+	     LocationType X1, LocationType Y1, LocationType X2, LocationType Y2,
 	     BDimension halfthick, Cardinal group,
 	     routebox_t * subnet, Boolean is_bad, Boolean is_45)
 {
@@ -3563,7 +3563,7 @@ RouteAll (routedata_t * rd)
 struct fpin_info
 {
   PinTypePtr pin;
-  Location X, Y;
+  LocationType X, Y;
   jmp_buf env;
 };
 

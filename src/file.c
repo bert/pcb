@@ -206,8 +206,8 @@ LoadPCB (char *Filename)
       SetZoom (PCB->Zoom);
 
       /* update cursor location */
-      Crosshair.X = MAX (0, MIN (PCB->CursorX, (Location) PCB->MaxWidth));
-      Crosshair.Y = MAX (0, MIN (PCB->CursorY, (Location) PCB->MaxHeight));
+      Crosshair.X = MAX (0, MIN (PCB->CursorX, (LocationType) PCB->MaxWidth));
+      Crosshair.Y = MAX (0, MIN (PCB->CursorY, (LocationType) PCB->MaxHeight));
 
       Xorig = Crosshair.X - TO_PCB (Output.Width / 2);
       Yorig = Crosshair.Y - TO_PCB (Output.Height / 2);

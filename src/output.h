@@ -31,8 +31,8 @@
 #include "global.h"
 
 void PortholeEvent(Widget, XtPointer, XEvent *, Boolean *);
-Boolean Pan(Location, Location, Boolean, Boolean);
-Boolean CoalignScreen(Position, Position, Location, Location);
+Boolean Pan(LocationType, LocationType, Boolean, Boolean);
+Boolean CoalignScreen(Position, Position, LocationType, LocationType);
 void OutputEvent(Widget, XtPointer, XEvent *, Boolean *);
 void GetSizeOfDrawingArea(void);
 void ScaleOutput(Dimension, Dimension);

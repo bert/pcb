@@ -74,17 +74,17 @@
 Boolean	IsPointOnLine(float, float, float, LineTypePtr);
 Boolean	IsPointOnPin(float, float, float, PinTypePtr);
 Boolean IsPointOnArc(float, float, float, ArcTypePtr);
-Boolean	IsPointOnLineEnd(Location, Location, RatTypePtr);
-Boolean	IsLineInRectangle(Location, Location, Location, Location, LineTypePtr);
-Boolean IsArcInRectangle(Location, Location, Location, Location, ArcTypePtr);
+Boolean	IsPointOnLineEnd(LocationType, LocationType, RatTypePtr);
+Boolean	IsLineInRectangle(LocationType, LocationType, LocationType, LocationType, LineTypePtr);
+Boolean IsArcInRectangle(LocationType, LocationType, LocationType, LocationType, ArcTypePtr);
 Boolean	IsPointInPolygon(float, float, float, PolygonTypePtr);
-Boolean IsPointInSquarePad(Location, Location, Cardinal, PadTypePtr);
-Boolean IsPointInBox(Location, Location, BoxTypePtr, Cardinal);
-Boolean	IsRectangleInPolygon(Location, Location, Location, Location,
+Boolean IsPointInSquarePad(LocationType, LocationType, Cardinal, PadTypePtr);
+Boolean IsPointInBox(LocationType, LocationType, BoxTypePtr, Cardinal);
+Boolean	IsRectangleInPolygon(LocationType, LocationType, LocationType, LocationType,
 			PolygonTypePtr);
 int		SearchObjectByLocation(int, void **, void **, void **,
-			Location, Location, BDimension);
-int		SearchScreen(Location, Location, int, void **, void **, void **);
+			LocationType, LocationType, BDimension);
+int		SearchScreen(LocationType, LocationType, int, void **, void **, void **);
 int		SearchObjectByID(DataTypePtr, void **, void **, void **, int, int);
 ElementTypePtr SearchElementByName(DataTypePtr, char *);
 

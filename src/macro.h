@@ -72,7 +72,7 @@
 #define	TO_SCREEN_SIGN_Y(y)	(SWAP_IDENT ? SWAP_SIGN_Y(y) : (y))
 
 #ifndef	TO_PCB
-#define	TO_PCB(x)		((Location)((x)/Zoom_Multiplier))
+#define	TO_PCB(x)		((LocationType)((x)/Zoom_Multiplier))
 #endif
 #define	TO_PCB_X(x)		TO_PCB(x) + Xorig
 #define	TO_PCB_Y(y)		(SWAP_IDENT ? \

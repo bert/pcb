@@ -61,9 +61,9 @@ extern  Region		UpRegion;
 extern	Region		FullRegion;
 extern	Boolean		Bumped;
 extern	Window		LogWindID;
-extern	Location	Xorig, Yorig;
+extern	LocationType	Xorig, Yorig;
 extern	Boolean		render;
-extern	Location	vxl, vxh, vyl, vyh;
+extern	LocationType	vxl, vxh, vyl, vyh;
 extern  BoxType         theScreen, clipBox;
 extern	float		Zoom_Multiplier;
 #endif

@@ -115,7 +115,7 @@ RemoveExcessPolygonPoints (LayerTypePtr Layer, PolygonTypePtr Polygon)
  * coordinates
  */
 Cardinal
-GetLowestDistancePolygonPoint (PolygonTypePtr Polygon, Location X, Location Y)
+GetLowestDistancePolygonPoint (PolygonTypePtr Polygon, LocationType X, LocationType Y)
 {
   float mindistance = MAX_COORD, length, distance, temp;
   PointTypePtr ptr1 = &Polygon->Points[Polygon->PointN - 1],

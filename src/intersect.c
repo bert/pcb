@@ -67,7 +67,7 @@ static int nextpwrof2 (int i);
  */
 typedef struct
 {
-  Location left, right;
+  LocationType left, right;
   int covered;
   int area;
 }
@@ -82,7 +82,7 @@ SegmentTree;
 
 typedef struct
 {
-  Location *p;
+  LocationType *p;
   int size;
 }
 LocationList;
@@ -94,7 +94,7 @@ static LocationList
 createSortedYList (BoxListTypePtr boxlist)
 {
   LocationList yCoords;
-  Location last;
+  LocationType last;
   int i, n;
   /* create sorted list of Y coordinates */
   yCoords.size = 2 * boxlist->BoxN;
@@ -119,7 +119,7 @@ createSortedYList (BoxListTypePtr boxlist)
  * Create an empty segment tree from the given sorted list of uniq y coords.
  */
 static SegmentTree
-createSegmentTree (Location * yCoords, int N)
+createSegmentTree (LocationType * yCoords, int N)
 {
   SegmentTree st;
   int i;
@@ -146,9 +146,9 @@ createSegmentTree (Location * yCoords, int N)
 }
 
 void
-insertSegment (SegmentTree * st, int n, Location Y1, Location Y2)
+insertSegment (SegmentTree * st, int n, LocationType Y1, LocationType Y2)
 {
-  Location discriminant;
+  LocationType discriminant;
   if (st->nodes[n].left >= Y1 && st->nodes[n].right <= Y2)
     {
       st->nodes[n].covered++;
@@ -170,9 +170,9 @@ insertSegment (SegmentTree * st, int n, Location Y1, Location Y2)
 }
 
 void
-deleteSegment (SegmentTree * st, int n, Location Y1, Location Y2)
+deleteSegment (SegmentTree * st, int n, LocationType Y1, LocationType Y2)
 {
-  Location discriminant;
+  LocationType discriminant;
   if (st->nodes[n].left >= Y1 && st->nodes[n].right <= Y2)
     {
       assert (st->nodes[n].covered);
@@ -225,7 +225,7 @@ ComputeUnionArea (BoxListTypePtr boxlist)
   Cardinal i, j;
   LocationList yCoords;
   SegmentTree segtree;
-  Location lastX;
+  LocationType lastX;
   double area = 0.0;
   /* create sorted list of Y coordinates */
   yCoords = createSortedYList (boxlist);
@@ -301,7 +301,7 @@ compareright (const void *ptr1, const void *ptr2)
 static int
 comparepos (const void *ptr1, const void *ptr2)
 {
-  return *((Location *) ptr1) - *((Location *) ptr2);
+  return *((LocationType *) ptr1) - *((LocationType *) ptr2);
 }
 static int
 nextpwrof2 (int n)

@@ -1102,7 +1102,7 @@ ChangeLayoutName (char *Name)
  * returns TRUE if done
  */
 Boolean
-ChangeElementSide (ElementTypePtr Element, Location yoff)
+ChangeElementSide (ElementTypePtr Element, LocationType yoff)
 {
   if (TEST_FLAG (LOCKFLAG, Element))
     return (False);
@@ -1568,7 +1568,7 @@ ClrSelectedThermals (int types)
  * returns True if anything has changed
  */
 Boolean
-ChangeSelectedSize (int types, Location Difference, Boolean fixIt)
+ChangeSelectedSize (int types, LocationType Difference, Boolean fixIt)
 {
   Boolean change = False;
 
@@ -1590,7 +1590,7 @@ ChangeSelectedSize (int types, Location Difference, Boolean fixIt)
  * returns True if anything has changed
  */
 Boolean
-ChangeSelectedClearSize (int types, Location Difference, Boolean fixIt)
+ChangeSelectedClearSize (int types, LocationType Difference, Boolean fixIt)
 {
   Boolean change = False;
 
@@ -1614,7 +1614,7 @@ ChangeSelectedClearSize (int types, Location Difference, Boolean fixIt)
  * returns True if anything has changed
  */
 Boolean
-ChangeSelected2ndSize (int types, Location Difference, Boolean fixIt)
+ChangeSelected2ndSize (int types, LocationType Difference, Boolean fixIt)
 {
   Boolean change = False;
 
@@ -1787,7 +1787,7 @@ ChangeSelectedHole (void)
  */
 Boolean
 ChangeObjectSize (int Type, void *Ptr1, void *Ptr2, void *Ptr3,
-		  Location Difference, Boolean fixIt)
+		  LocationType Difference, Boolean fixIt)
 {
   Boolean change;
 
@@ -1810,7 +1810,7 @@ ChangeObjectSize (int Type, void *Ptr1, void *Ptr2, void *Ptr3,
  */
 Boolean
 ChangeObjectClearSize (int Type, void *Ptr1, void *Ptr2, void *Ptr3,
-		       Location Difference, Boolean fixIt)
+		       LocationType Difference, Boolean fixIt)
 {
   Boolean change;
 
@@ -1897,7 +1897,7 @@ ClrObjectThermal (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
  */
 Boolean
 ChangeObject2ndSize (int Type, void *Ptr1, void *Ptr2, void *Ptr3,
-		     Location Difference, Boolean fixIt, Boolean incundo)
+		     LocationType Difference, Boolean fixIt, Boolean incundo)
 {
   Boolean change;
 
@@ -1922,7 +1922,7 @@ ChangeObject2ndSize (int Type, void *Ptr1, void *Ptr2, void *Ptr3,
  */
 Boolean
 ChangeObjectMaskSize (int Type, void *Ptr1, void *Ptr2, void *Ptr3,
-		      Location Difference, Boolean fixIt)
+		      LocationType Difference, Boolean fixIt)
 {
   Boolean change;
 
@@ -2163,7 +2163,7 @@ ChangePCBSize (BDimension Width, BDimension Height)
 							     PASTEBUFFER->
 							     Y)));
   else
-    SetCrosshairRange (0, 0, (Location) Width, (Location) Height);
+    SetCrosshairRange (0, 0, (LocationType) Width, (LocationType) Height);
   ScaleOutput (Output.Width, Output.Height);
   UpdateAll ();
 }
