@@ -193,6 +193,7 @@ LIST_DIST_FILES = \
 
 INC_FILES = \
 	bga.inc \
+	amp.inc \
 	amphenol.inc \
 	bourns.inc \
 	connector.inc \
@@ -220,8 +221,8 @@ DAT_FILES = \
 	qfp.dat
 
 
-M4_FILES = ${M4_DIST_FILES} bourns.m4 geda.m4 johnstech.m4 minicircuits.m4 panasonic.m4
-LIST_FILES = ${LIST_DIST_FILES} bourns.list geda.list johnstech.list minicircuits.list panasonic.list
+M4_FILES = ${M4_DIST_FILES} amp.m4 bourns.m4 geda.m4 johnstech.m4 minicircuits.m4 panasonic.m4
+LIST_FILES = ${LIST_DIST_FILES} amp.list bourns.list geda.list johnstech.list minicircuits.list panasonic.list
 
 LIB_FILES = ${COMMON_FILE} ${M4_FILES} ${LIST_FILES} ${INC_FILES} 
 
@@ -230,7 +231,7 @@ EXTRA_DIST = ListLibraryContents.sh ${COMMON_FILE} ${M4_DIST_FILES} ${LIST_DIST_
 		${DAT_FILES} gen_list.awk gen_m4.awk gen_geda_m4.awk gen_geda_list.awk
 
 
-DISTCLEANFILES = ${LIBRARYFILENAME} ${LIBRARYFILENAME}.contents bourns.m4 bourns.list \
+DISTCLEANFILES = ${LIBRARYFILENAME} ${LIBRARYFILENAME}.contents amp.m4 amp.list bourns.m4 bourns.list \
 	geda.m4 geda.list johnstech.m4 johnstech.list minicircuits.m4 minicircuits.list \
 	panasonic.m4 panasonic.list
 
@@ -460,6 +461,12 @@ ${LIBRARYFILENAME}: ${COMMON_FILE} ${INC_FILES} ${DAT_FILES} ${M4_FILES} CreateL
 
 ${LIBRARYFILENAME}.contents: ${COMMON_FILE} ${INC_FILES} ${DAT_FILES} ${LIST_FILES} CreateLibraryContents.sh
 	${SHELL} ./CreateLibraryContents.sh -I $(srcdir) $(srcdir)/${COMMON_FILE} ${LIST_FILES} > $@
+
+amp.list: amp.inc gen_list.awk
+	${AWK} -f $(srcdir)/gen_list.awk name=amp $(srcdir)/amp.inc > $@
+
+amp.m4: amp.inc gen_m4.awk
+	${AWK} -f $(srcdir)/gen_m4.awk name=amp $(srcdir)/amp.inc > $@
 
 bourns.list: bourns.inc gen_list.awk
 	${AWK} -f $(srcdir)/gen_list.awk name=bourns $(srcdir)/bourns.inc > $@
