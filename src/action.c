@@ -722,12 +722,13 @@ AdjustAttachedObjects (void)
 static void
 NotifyLine (void)
 {
+  int type = NO_TYPE;
+  void *ptr1, *ptr2, *ptr3;
+
   if (!Marked.status || TEST_FLAG (LOCALREFFLAG, PCB))
     SetLocalRef(Crosshair.X, Crosshair.Y, True);
   switch (Crosshair.AttachedLine.State)
     {
-      void *ptr1;
-
     case STATE_FIRST:		/* first point */
       if (PCB->RatDraw && SearchScreen (Crosshair.X, Crosshair.Y,
 					PAD_TYPE | PIN_TYPE, &ptr1, &ptr1,
@@ -736,14 +737,46 @@ NotifyLine (void)
 	  Beep (Settings.Volume);
 	  break;
 	}
-      Crosshair.AttachedLine.State = STATE_SECOND;
-      Crosshair.AttachedLine.Point1.X =
-	Crosshair.AttachedLine.Point2.X = Crosshair.X;
-      Crosshair.AttachedLine.Point1.Y =
-	Crosshair.AttachedLine.Point2.Y = Crosshair.Y;
       if (TEST_FLAG (AUTODRCFLAG, PCB) && Settings.Mode == LINE_MODE)
-	LookupConnection (Crosshair.AttachedLine.Point1.X,
-	                  Crosshair.AttachedLine.Point1.Y, True, TO_PCB(1));
+        {
+	  type = SearchScreen (Crosshair.X, Crosshair.Y,
+	          PIN_TYPE | PAD_TYPE | VIA_TYPE, &ptr1, &ptr2, &ptr3);
+	  LookupConnection (Crosshair.X, Crosshair.Y, True, TO_PCB(1));
+	}
+      if (type == PIN_TYPE || type == VIA_TYPE)
+        {
+          Crosshair.AttachedLine.Point1.X =
+	    Crosshair.AttachedLine.Point2.X = ((PinTypePtr)ptr2)->X;
+          Crosshair.AttachedLine.Point1.Y =
+	    Crosshair.AttachedLine.Point2.Y = ((PinTypePtr)ptr2)->Y;
+	}
+      else if (type == PAD_TYPE)
+        {
+	  PadTypePtr pad = (PadTypePtr) ptr2;
+	  float d1, d2;
+	  d1 = Crosshair.X - pad->Point1.X;
+	  d1 = d1*d1 + (float)(Crosshair.Y - pad->Point1.Y)*(Crosshair.Y - pad->Point1.Y);
+	  d2 = Crosshair.X - pad->Point2.X;
+	  d2 = d2*d2 + (float)(Crosshair.Y - pad->Point2.Y)*(Crosshair.Y - pad->Point2.Y);
+	  if (d2 < d1)
+	    {
+              Crosshair.AttachedLine.Point1 =
+                Crosshair.AttachedLine.Point2 = pad->Point2;
+	    }
+	  else
+	    {
+              Crosshair.AttachedLine.Point1 = 
+                Crosshair.AttachedLine.Point2 = pad->Point1;
+	    }
+        }
+      else
+        {
+          Crosshair.AttachedLine.Point1.X =
+	    Crosshair.AttachedLine.Point2.X = Crosshair.X;
+          Crosshair.AttachedLine.Point1.Y =
+	    Crosshair.AttachedLine.Point2.Y = Crosshair.Y;
+	}
+      Crosshair.AttachedLine.State = STATE_SECOND;
       break;
 
     case STATE_SECOND:
@@ -1432,7 +1465,8 @@ WarpPointer (Boolean ignore)
    /* don't warp with the auto drc - that creates auto-scroll chaos */
   if (TEST_FLAG (AUTODRCFLAG, PCB) && Settings.Mode == LINE_MODE
       && Crosshair.AttachedLine.State != STATE_FIRST)
-   return; 
+    return;
+
   XWarpPointer (Dpy, Output.OutputWindow, Output.OutputWindow,
 		0, 0, 0, 0,
 		(int) (TO_SCREEN_X (Crosshair.X)),
@@ -1615,6 +1649,7 @@ ActionMovePointer (Widget W, XEvent * Event, String * Params, Cardinal * Num)
       dx = (Location) (atoi (*Params) * PCB->Grid);
       dy = (Location) (atoi (*(Params + 1)) * PCB->Grid);
       MoveCrosshairRelative (TO_SCREEN_SIGN_X (dx), TO_SCREEN_SIGN_Y (dy));
+           FitCrosshairIntoGrid (Crosshair.X, Crosshair.Y);
       /* adjust pointer before erasing anything */
       /* in case there is no hardware cursor */
       WarpPointer (True);
@@ -2033,8 +2068,8 @@ ActionDisplay (Widget W, XEvent * Event, String * Params, Cardinal * Num)
 	       RestoreUndoSerialNumber ();
 	       ResetFoundLinesAndPolygons (True);
 	       if (Crosshair.AttachedLine.State != STATE_FIRST)
-	          LookupConnection (Crosshair.AttachedLine.Point1.X,
-		                    Crosshair.AttachedLine.Point1.Y, True, 1);
+	         LookupConnection (Crosshair.AttachedLine.Point1.X,
+		                   Crosshair.AttachedLine.Point1.Y, True, 1);
 	     }
 	  break;
 
@@ -3476,15 +3511,10 @@ ActionNew (Widget W, XEvent * Event, String * Params, Cardinal * Num)
 	  ResetStackAndVisibility ();
 	  CreateDefaultFont ();
 	  SetCrosshairRange (0, 0, PCB->MaxWidth, PCB->MaxHeight);
-	  Xorig = 0;
-	  Yorig = 0;
 	  UpdateSettingsOnScreen ();
-
-	  /* reset layout size to resource value */
-	  XtVaSetValues (Output.Output,
-			 XtNwidth, TO_SCREEN (PCB->MaxWidth),
-			 XtNheight, TO_SCREEN (PCB->MaxHeight), NULL);
-
+	  ScaleOutput (Output.Width, Output.Height);
+	  SetZoom (2);
+	  CenterDisplay (PCB->MaxWidth/2, PCB->MaxHeight/2, False);
 	  ClearAndRedrawOutput ();
 	}
       RestoreCrosshair (True);
@@ -3699,6 +3729,7 @@ ActionUndo (Widget W, XEvent * Event, String * Params, Cardinal * Num)
 		  Crosshair.AttachedLine.Point1.Y =
 		    Crosshair.AttachedLine.Point2.Y = ptr2->Point2.Y;
 		}
+	      FitCrosshairIntoGrid (Crosshair.X, Crosshair.Y);
 	      AdjustAttachedObjects ();
 	      if (--addedLines == 0)
 		{

@@ -67,10 +67,10 @@
 #define	MAX_LINESIZE		25000
 #define	MIN_TEXTSCALE		20	/* scaling of text objects in percent */
 #define	MAX_TEXTSCALE		1000
-#define	MIN_PINORVIASIZE	3000	/* size of a pin or via in mils */
-#define	MIN_PINORVIAHOLE	500	/* size of a pins or vias drilling hole */
+#define	MIN_PINORVIASIZE	2000	/* size of a pin or via in mils */
+#define	MIN_PINORVIAHOLE	400	/* size of a pins or vias drilling hole */
 #define	MAX_PINORVIASIZE	40000
-#define	MIN_PINORVIACOPPER	500	/* min difference outer-inner diameter */
+#define	MIN_PINORVIACOPPER	400	/* min difference outer-inner diameter */
 #define	MIN_PADSIZE		500	/* size of a pad */
 #define	MAX_PADSIZE		25000
 #define	MIN_GRID		1	/* grid in 1/100000'' */

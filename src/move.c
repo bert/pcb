@@ -113,6 +113,7 @@ MoveElementLowLevel (DataTypePtr Data, ElementTypePtr Element, Location DX, Loca
   ELEMENTLINE_LOOP (Element, 
     {
       MOVE_LINE_LOWLEVEL (line, DX, DY);
+      MOVE_BOX_LOWLEVEL ((BoxTypePtr)line, DX, DY);
     }
   );
   PIN_LOOP (Element, 

@@ -306,6 +306,7 @@ SetElementBoundingBox (DataTypePtr Data, ElementTypePtr Element, FontTypePtr Fon
   box->X2 = box->Y2 = 0;
   ELEMENTLINE_LOOP (Element, 
     {
+      SetLineBoundingBox (line);
       MAKEMIN (box->X1, line->Point1.X - (line->Thickness + 1) / 2);
       MAKEMIN (box->Y1, line->Point1.Y - (line->Thickness + 1) / 2);
       MAKEMIN (box->X1, line->Point2.X - (line->Thickness + 1) / 2);
