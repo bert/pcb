@@ -296,22 +296,25 @@ static PopupEntryType SettingsMenuEntries[] = {
   {"line", NULL, NULL, NULL, NULL},
   {"toggleAllDirections", "'all-direction' lines", CB_Action,
    "Display,Toggle45Degree", NULL},
-  {"toggleRubberBandMode", "rubber band mode", CB_Action,
-   "Display,ToggleRubberBandMode", NULL},
   {"toggleSwapStartDirection", "auto swap line start angle", CB_Action,
    "Display,ToggleStartDirection", NULL},
-  {"toggleUniqueName", "require unique element names", CB_Action,
-   "Display,ToggleUniqueNames", NULL},
+  {"toggleOrthoMove", "orthogonal moves", CB_Action,
+   "Display,ToggleOrthoMove", NULL},
   {"toggleSnapPin", "crosshair snaps to pins and pads", CB_Action,
    "Display,ToggleSnapPin", NULL},
+  {"toggleShowDRC", "crosshair shows DRC clearance", CB_Action,
+   "Display,ToggleShowDRC", NULL},
+  {"line", NULL, NULL, NULL, NULL},
+  {"toggleRubberBandMode", "rubber band mode", CB_Action,
+   "Display,ToggleRubberBandMode", NULL},
+  {"toggleUniqueName", "require unique element names", CB_Action,
+   "Display,ToggleUniqueNames", NULL},
   {"toggleLocalRef", "auto-zero delta measurements", CB_Action,
    "Display,ToggleLocalRef", NULL},
   {"toggleClearLine", "new lines, arcs clear polygons", CB_Action,
    "Display,ToggleClearLine", NULL},
   {"toggleThindraw", "thin draw", CB_Action,
    "Display,ToggleThindraw", NULL},
-  {"toggleOrthoMove", "orthogonal moves", CB_Action,
-   "Display,ToggleOrthoMove", NULL},
   {"toggleCheckPlanes", "check polygons", CB_Action,
    "Display,ToggleCheckPlanes", NULL},
   {NULL, NULL, NULL, NULL, NULL}
@@ -838,6 +841,8 @@ CBPOPUP_Settings (Widget W, XtPointer ClientData, XtPointer CallData)
     CheckEntry (&SettingsMenu, "toggleCheckPlanes");
   if (TEST_FLAG (ORTHOMOVEFLAG, PCB))
     CheckEntry (&SettingsMenu, "toggleOrthoMove");
+  if (TEST_FLAG (SHOWDRCFLAG, PCB))
+    CheckEntry (&SettingsMenu, "toggleShowDRC");
 }
 
 

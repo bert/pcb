@@ -659,6 +659,7 @@ XORDrawMoveOrCopyObject (void)
 static void
 DrawAttached (Boolean BlockToo)
 {
+  BDimension s;
   DrawCrosshair ();
   switch (Settings.Mode)
     {
@@ -669,6 +670,18 @@ DrawAttached (Boolean BlockToo)
 		TO_SCREEN (Settings.ViaThickness / 2),
 		TO_SCREEN (Settings.ViaThickness),
 		TO_SCREEN (Settings.ViaThickness), 0, 360 * 64);
+      if (TEST_FLAG (SHOWDRCFLAG, PCB))
+        {
+          s = Settings.ViaThickness + 2*(Settings.Bloat+1);
+          XSetForeground (Dpy, Crosshair.GC, Settings.CrossColor);
+          XDrawArc (Dpy, Output.OutputWindow, Crosshair.GC,
+		    TO_SCREEN_X (Crosshair.X - s / 2),
+		    TO_SCREEN_Y (Crosshair.Y) -
+		    TO_SCREEN (s / 2),
+		    TO_SCREEN (s),
+		    TO_SCREEN (s), 0, 360 * 64);
+          XSetForeground (Dpy, Crosshair.GC, Settings.CrosshairColor);
+        }
       break;
 
       /* the attached line is used by both LINEMODE and POLYGON_MODE */
@@ -693,7 +706,16 @@ DrawAttached (Boolean BlockToo)
 
     case ARC_MODE:
       if (Crosshair.AttachedBox.State != STATE_FIRST)
-	XORDrawAttachedArc (Settings.LineThickness);
+        {
+	  XORDrawAttachedArc (Settings.LineThickness);
+          if (TEST_FLAG (SHOWDRCFLAG, PCB))
+	    {
+              XSetForeground (Dpy, Crosshair.GC, Settings.CrossColor);
+	      XORDrawAttachedArc (Settings.LineThickness + 2*(Settings.Bloat+1));
+              XSetForeground (Dpy, Crosshair.GC, Settings.CrosshairColor);
+	    }
+
+	}
       break;
 
     case LINE_MODE:
@@ -712,6 +734,23 @@ DrawAttached (Boolean BlockToo)
 				 Crosshair.AttachedLine.Point2.Y,
 				 Crosshair.X, Crosshair.Y,
 				 PCB->RatDraw ? 10 : Settings.LineThickness);
+          if (TEST_FLAG (SHOWDRCFLAG, PCB))
+	    {
+              XSetForeground (Dpy, Crosshair.GC, Settings.CrossColor);
+	      XORDrawAttachedLine (Crosshair.AttachedLine.Point1.X,
+			           Crosshair.AttachedLine.Point1.Y,
+			           Crosshair.AttachedLine.Point2.X,
+			           Crosshair.AttachedLine.Point2.Y,
+			           PCB->RatDraw ? 10 : Settings.LineThickness
+				   + 2*(Settings.Bloat+1));
+	      if (PCB->Clipping)
+	        XORDrawAttachedLine (Crosshair.AttachedLine.Point2.X,
+				     Crosshair.AttachedLine.Point2.Y,
+				     Crosshair.X, Crosshair.Y,
+				     PCB->RatDraw ? 10 : Settings.LineThickness +
+				     2*(Settings.Bloat+1));
+              XSetForeground (Dpy, Crosshair.GC, Settings.CrosshairColor);
+	    }
 	}
       break;
 
@@ -821,15 +860,23 @@ FitCrosshairIntoGrid (Location X, Location Y)
   /* get PCB coordinates from visible display size.
    * If the bottom view mode is active, y2 might be less then y1
    */
+  y0 = TO_PCB_Y (0);
+  y2 = TO_PCB_Y (Output.Height - 1);
+  if (y2 < y0)
+    {
+      x0 = y0;
+      y0 = y2;
+      y2 = x0;
+    }
+  x0 = TO_PCB_X (0);
   x2 = TO_PCB_X (Output.Width - 1);
-  y2 = MAX (TO_PCB_Y (0), TO_PCB_Y (Output.Height - 1));
 
   /* check position agains window size and against valid
    * coordinates determined by the size of an attached
    * object or buffer
    */
-  Crosshair.X = MIN (x2, MAX (0, X));
-  Crosshair.Y = MIN (y2, MAX (0, Y));
+  Crosshair.X = MIN (x2, MAX (x0, X));
+  Crosshair.Y = MIN (y2, MAX (y0, Y));
   Crosshair.X = MIN (Crosshair.MaxX, MAX (Crosshair.MinX, Crosshair.X));
   Crosshair.Y = MIN (Crosshair.MaxY, MAX (Crosshair.MinY, Crosshair.Y));
 
@@ -837,9 +884,9 @@ FitCrosshairIntoGrid (Location X, Location Y)
     {
       ans =
 	SearchScreen (Crosshair.X, Crosshair.Y,
-		      VIA_TYPE | PAD_TYPE | PIN_TYPE, &ptr1, &ptr2, &ptr3);
-      if (ans == NO_TYPE)
-	ans = SearchScreen (Crosshair.X, Crosshair.Y, LINEPOINT_TYPE,
+		      PAD_TYPE | PIN_TYPE, &ptr1, &ptr2, &ptr3);
+      if (ans == NO_TYPE && !PCB->RatDraw)
+	ans = SearchScreen (Crosshair.X, Crosshair.Y, VIA_TYPE | LINEPOINT_TYPE,
 			    &ptr1, &ptr2, &ptr3);
     }
   else
@@ -852,46 +899,12 @@ FitCrosshairIntoGrid (Location X, Location Y)
     }
   else
     {
-      static int last_x = -1, last_y = -1, last_vert = -1;
-
-#define HIST 40
-      if (Marked.status && TEST_FLAG (ORTHOMOVEFLAG, PCB))
-	{
-	  int dx = Crosshair.X - Marked.X;
-	  int dy = Crosshair.Y - Marked.Y;
-	  if (last_x != Marked.X || last_y != Marked.Y)
-	    last_vert = -1;
-	  last_x = Marked.X;
-	  last_y = Marked.Y;
-	  if (ABS (dx) < HIST && ABS (dy) < HIST)
-	    ;
-	  else if (ABS (dx) > ABS (dy))
-	    last_vert = 0;
-	  else
-	    last_vert = 1;
-	  switch (last_vert)
-	    {
-	    case -1:
-	      if (ABS (dx) > ABS (dy))
-		Crosshair.Y = Marked.Y;
-	      else
-		Crosshair.X = Marked.X;
-	      break;
-	    case 0:
-	      Crosshair.Y = Marked.Y;
-	      break;
-	    case 1:
-	      Crosshair.X = Marked.X;
-	      break;
-	    }
-	}
-
       /* check if new position is inside the output window
        * This might not be true after the window has been resized.
        * In this case we just set it to the center of the window or
        * with respect to the grid (if possible)
        */
-      if (Crosshair.X < 0 || Crosshair.X > x2)
+      if (Crosshair.X < x0 || Crosshair.X > x2)
 	{
 	  if (x2 + 1 >= PCB->Grid)
 	    /* there must be a point that matches the grid 
@@ -907,7 +920,7 @@ FitCrosshairIntoGrid (Location X, Location Y)
 	x0 = GRIDFIT_X (Crosshair.X, PCB->Grid);
 
       /* do the same for the second coordinate */
-      if (Crosshair.Y < 0 || Crosshair.Y > y2)
+      if (Crosshair.Y < y0 || Crosshair.Y > y2)
 	{
 	  if (y2 + 1 >= PCB->Grid)
 	    y0 = GRIDFIT_Y (PCB->Grid, PCB->Grid);
@@ -916,6 +929,17 @@ FitCrosshairIntoGrid (Location X, Location Y)
 	}
       else
 	y0 = GRIDFIT_Y (Crosshair.Y, PCB->Grid);
+
+      if (Marked.status && TEST_FLAG (ORTHOMOVEFLAG, PCB))
+	{
+	  int dx = Crosshair.X - Marked.X;
+	  int dy = Crosshair.Y - Marked.Y;
+	  if (ABS (dx) > ABS (dy))
+	    y0 = Marked.Y;
+	  else
+	    x0 = Marked.X;
+	}
+
     }
   if (ans & PAD_TYPE)
     {

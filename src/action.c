@@ -176,6 +176,7 @@ typedef enum
   F_ToggleMask,
   F_ToggleName,
   F_ToggleObject,
+  F_ToggleShowDRC,
   F_ToggleRubberBandMode,
   F_ToggleStartDirection,
   F_ToggleSnapPin,
@@ -328,6 +329,7 @@ static FunctionType Functions[] = {
   {"ToggleCheckPlanes", F_ToggleCheckPlanes},
   {"ToggleLocalRef", F_ToggleLocalRef},
   {"ToggleOrthoMove", F_ToggleOrthoMove},
+  {"ToggleShowDRC", F_ToggleShowDRC},
   {"ToggleUniqueNames", F_ToggleUniqueNames},
   {"Value", F_Value},
   {"Via", F_Via},
@@ -2154,7 +2156,7 @@ warpNoWhere (void)
  *         Display(ToggleGrid|ToggleRubberBandMode|ToggleUniqueNames)
  *         Display(ToggleMask|ToggleName|ToggleClearLine|ToggleSnapPin)
  *         Display(ToggleThindraw|ToggleOrthoMove|ToggleLocalRef)
- *         Display(ToggleCheckPlanes)
+ *         Display(ToggleCheckPlanes|ToggleShowDRC)
  *         Display(Pinout|PinOrPadName)
  *	   Display(Save|Restore)
  *	   Display(Scroll, Direction)
@@ -2270,6 +2272,10 @@ ActionDisplay (Widget W, XEvent * Event, String * Params, Cardinal * Num)
 	case F_ToggleThindraw:
 	  TOGGLE_FLAG (THINDRAWFLAG, PCB);
 	  ClearAndRedrawOutput ();
+	  break;
+
+	case F_ToggleShowDRC:
+	  TOGGLE_FLAG (SHOWDRCFLAG, PCB);
 	  break;
 
 	case F_ToggleCheckPlanes:
