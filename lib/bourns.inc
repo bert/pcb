@@ -136,4 +136,5 @@ define(`PKG_BOURNS_3224W',  `PKG_BOURNS_GENERIC_POT(`$1',`$2',`$3',
 define(`PKG_BOURNS_3224X',  `PKG_BOURNS_GENERIC_POT(`$1',`$2',`$3',
 	`132', `190', `200', `190', `510', `254', `480')')
 
-# EXTRACT_BEGIN
+# EXTRACT_END
+

@@ -4,7 +4,7 @@
 #                            COPYRIGHT
 #
 #   PCB, interactive printed circuit board design
-#   Copyright (C) 2003 Dan McMahill
+#   Copyright (C) 2003, 2004 Dan McMahill
 #
 #   This program is free software; you can redistribute it and/or modify
 #   it under the terms of the GNU General Public License as published by
@@ -52,4 +52,5 @@ define(`PKG_PANASONIC_EXB38V',  `COMMON_SMT_DIL_MM(`$1',`$2',`$3',8,45,80,80,80)
 define(`PKG_PANASONIC_EXBS8V',  `COMMON_SMT_DIL_MM(`$1',`$2',`$3',8,63,120,127,110)')
 define(`PKG_PANASONIC_EXB2HV',  `COMMON_SMT_DIL_MM(`$1',`$2',`$3',16,25,50,50,100)')
 
-# EXTRACT_BEGIN
+# EXTRACT_END
+
