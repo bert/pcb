@@ -42,6 +42,7 @@
 #include "data.h"
 #include "draw.h"
 #include "error.h"
+#include "fileselect.h"
 #include "global.h"
 #include "resource.h"
 #include "set.h"
@@ -165,13 +166,27 @@ void
 ActionLoadVendor(Widget W, XEvent *Event, String *Params, Cardinal *num)
 {
   int i;
-  char *fname;
+  char *fname = NULL;
   char *sval;
   Resource *res, *drcres, *drlres;
   int type;
 
-  if (*num != 1) {
-    Message("Usage:  LoadVendor(filename)\n");
+  if (*num == 0)
+  {
+    fname = FileSelectBox ("load vendor resource:", NULL, Settings.FilePath);
+  } else if ( *num == 1)
+  {
+    /* resource file name */
+    fname = Params[0];
+  } else
+  {
+    Message ("Usage:  LoadVendor([filename])\n");
+    return ;
+  }
+
+  if (fname == NULL) 
+  {
+    Message ("LoadVendor():  No vendor resource file specified\n");
     return ;
   }
 
@@ -185,8 +200,6 @@ ActionLoadVendor(Widget W, XEvent *Event, String *Params, Cardinal *num)
   FREE (ignore_value);
   FREE (ignore_descr);
 
-  /* resource file name */
-  fname = Params[0];
 
   /* load the resource file */
   res = resource_parse(fname, NULL);

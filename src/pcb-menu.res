@@ -10,6 +10,7 @@ MainMenu = {
         {"Load element data to paste-buffer" PasteBuffer(Clear) Load(ElementTobuffer)}
         {"Load layout data to paste-buffer" PasteBuffer(Clear) Load(LayoutTobuffer)}
         {"Load netlist file" Load(Netlist)}
+        {"Load vendor resource file" LoadVendor()}
         {"Print layout..." Print() ActiveWhen(DataNonEmpty)}
         -
         {"Save connection data of..." foreground=red sensitive=false}
