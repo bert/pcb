@@ -15,5 +15,6 @@ TOOLS= \
 	pcb2ncap.tgz \
 	tgo2pcb.tcl \
 	MergePCBPS \
+	Merge_dimPCBPS \
 	PCB2HPGL 
 
