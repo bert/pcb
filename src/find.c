@@ -614,7 +614,6 @@ LookupLOConnectionsToPVList (Boolean AndRats)
   PinTypePtr pv;
   Cardinal layer;
   struct pv_info info;
-  float wide;
 
   /* loop over all PVs currently on list */
   while (PVList.Location < PVList.Number)
@@ -622,11 +621,6 @@ LookupLOConnectionsToPVList (Boolean AndRats)
       /* get pointer to data */
       pv = PVLIST_ENTRY (PVList.Location);
 
-      if (TEST_FLAG (SQUAREFLAG, pv))
-        wide = pv->Thickness * SQRT2OVER2 + fBloat;
-      else
-        wide = 0.5 * pv->Thickness + fBloat;
-      wide = MIN (wide, 0);
       info.pv = pv;
       /* check pads */
       if (setjmp (info.env) == 0)
@@ -658,12 +652,26 @@ LookupLOConnectionsToPVList (Boolean AndRats)
 	  /* check all polygons */
 	  for (i = 0; i < PCB->Data->Layer[layer].PolygonN; i++, polygon++)
 	    {
+              float wide = 0.5 * pv->Thickness + fBloat;
+              wide = MAX (wide, 0);
 	      Myflag = (L0THERMFLAG | L0PIPFLAG) << layer;
 	      if ((TEST_FLAGS (Myflag, pv) || !TEST_FLAG (CLEARPOLYFLAG, polygon))
-		 && !TEST_FLAG (TheFlag, polygon) &&
-		 IsPointInPolygon (pv->X, pv->Y, wide, polygon)
-		 && ADD_POLYGON_TO_LIST (layer, polygon))
-		return True;
+		 && !TEST_FLAG (TheFlag, polygon))
+		{
+		  if (!TEST_FLAG (SQUAREFLAG, pv) && IsPointInPolygon (pv->X, pv->Y, wide, polygon)
+		      && ADD_POLYGON_TO_LIST (layer, polygon))
+		    return True;
+		  if (TEST_FLAG (SQUAREFLAG, pv))
+		    {
+		      Location x1 = pv->X - (pv->Thickness + 1)/2;
+		      Location x2 = pv->X + (pv->Thickness + 1)/2;
+		      Location y1 = pv->Y - (pv->Thickness + 1)/2;
+		      Location y2 = pv->Y + (pv->Thickness + 1)/2;
+		      if (IsRectangleInPolygon (x1, y1, x2, y2, polygon) &&
+		          ADD_POLYGON_TO_LIST (layer, polygon))
+			return True;
+		    }
+		 }
 	    }
 	}
       /* Check for rat-lines that may intersect the PV */
@@ -936,10 +944,10 @@ pv_poly_callback (const BoxType *b, void *cl)
       if (TEST_FLAG (SQUAREFLAG, pv))
         {
 	  Location x1,x2,y1,y2;
-	  x1 = pv->X - (pv->Thickness+1)/2 - Bloat;
-	  x2 = pv->X + (pv->Thickness+1)/2 + Bloat;
-	  y1 = pv->Y - (pv->Thickness+1)/2 - Bloat;
-	  y2 = pv->Y + (pv->Thickness+1)/2 + Bloat;
+	  x1 = pv->X - (pv->Thickness+1)/2;
+	  x2 = pv->X + (pv->Thickness+1)/2;
+	  y1 = pv->Y - (pv->Thickness+1)/2;
+	  y2 = pv->Y + (pv->Thickness+1)/2;
           if (IsRectangleInPolygon (x1, y1, x2, y2, i->polygon) && ADD_PV_TO_LIST (pv))
             longjmp (i->env, 1);
 	}
@@ -2142,6 +2150,7 @@ LookupLOConnectionsToPad (PadTypePtr Pad, Cardinal LayerGroup)
       /* handle normal layers */
       if (layer < MAX_LAYER)
 	{
+	  PolygonTypePtr polygon;
           info.layer = layer;
            /* add lines */
 	  if (setjmp(info.env) == 0)
@@ -2156,7 +2165,7 @@ LookupLOConnectionsToPad (PadTypePtr Pad, Cardinal LayerGroup)
           else
 	    return True;
            /* add polygons */
-	  POLYGON_LOOP (LAYER_PTR(layer),
+	   for (polygon = LAYER_PTR(layer)->Polygon; polygon && polygon->ID; polygon++)
 	    {
 	      if (TEST_FLAG(TheFlag | CLEARPOLYFLAG, polygon))
 	        continue;
@@ -2173,19 +2182,18 @@ LookupLOConnectionsToPad (PadTypePtr Pad, Cardinal LayerGroup)
 		  Location y1;
 		  Location y2;
 		  x1 = MIN (Pad->Point1.X, Pad->Point2.X)
-		       - (Pad->Thickness + 1)/2 - Bloat;
+		       - (Pad->Thickness + 1)/2;
 		  x2 = MAX (Pad->Point1.X, Pad->Point2.X)
-		       + (Pad->Thickness + 1)/2 + Bloat;
+		       + (Pad->Thickness + 1)/2;
 		  y1 = MIN (Pad->Point1.Y, Pad->Point2.Y)
-		       - (Pad->Thickness + 1)/2 - Bloat;
+		       - (Pad->Thickness + 1)/2;
 		  y2 = MAX (Pad->Point1.Y, Pad->Point2.Y)
-		       + (Pad->Thickness + 1)/2 + Bloat;
+		       + (Pad->Thickness + 1)/2;
 		  if (IsRectangleInPolygon (x1, y1, x2, y2, polygon) &&
 		     ADD_POLYGON_TO_LIST (layer, polygon))
 		    return True;
 		}
 	     }
-	   );
 	}
       else
 	{
@@ -2435,10 +2443,10 @@ Boolean
 IsPolygonInPolygon (PolygonTypePtr P1, PolygonTypePtr P2)
 {
   /* first check if both bounding boxes intersect */
-  if (P1->BoundingBox.X1 <= P2->BoundingBox.X2 &&
-      P1->BoundingBox.X2 >= P2->BoundingBox.X1 &&
-      P1->BoundingBox.Y1 <= P2->BoundingBox.Y2 &&
-      P1->BoundingBox.Y2 >= P2->BoundingBox.Y1)
+  if (P1->BoundingBox.X1 - Bloat <= P2->BoundingBox.X2 &&
+      P1->BoundingBox.X2 + Bloat >= P2->BoundingBox.X1 &&
+      P1->BoundingBox.Y1 - Bloat <= P2->BoundingBox.Y2 &&
+      P1->BoundingBox.Y2 + Bloat >= P2->BoundingBox.Y1)
     {
       LineType line;
 
@@ -3806,6 +3814,14 @@ GotoError (void)
     }
   Message ("near location (%d.%02d,%d.%02d)\n", X / 100, X % 100, Y / 100,
 	   Y % 100);
+  switch (thing_type)
+    {
+      case LINE_TYPE:
+      case ARC_TYPE:
+      case POLYGON_TYPE:
+	  ChangeGroupVisibility (GetLayerNumber (PCB->Data, (LayerTypePtr) thing_ptr1),
+	                          True, True);
+    }
   CenterDisplay (X, Y, False);
 }
 
