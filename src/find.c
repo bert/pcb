@@ -1769,12 +1769,6 @@ LineLineIntersect (LineTypePtr Line1, LineTypePtr Line2)
 {
   register float dx, dy, dx1, dy1, s, r;
 
-  if (MAX (Line1->Point1.Y, Line1->Point2.Y) + Line1->Thickness +
-      Line2->Thickness < MIN (Line2->Point1.Y, Line2->Point2.Y)
-      || MIN (Line1->Point1.Y,
-	      Line1->Point2.Y) - Line1->Thickness - Line2->Thickness >
-      MAX (Line2->Point1.Y, Line2->Point2.Y))
-    return False;
   /* setup some constants */
   dx = (float) (Line1->Point2.X - Line1->Point1.X);
   dy = (float) (Line1->Point2.Y - Line1->Point1.Y);

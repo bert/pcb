@@ -124,13 +124,14 @@ SearchViaByLocation (PinTypePtr * Via, PinTypePtr * Dummy1,
   info.ptr2 = (void **)Dummy1;
   info.ptr3 = (void **)Dummy2;
   /* search only if via-layer is visible */
-  if (PCB->ViaOn)
-    if (setjmp (info.env) == 0)
-      {
-        r_search(PCB->Data->via_tree, &SearchBox, NULL, via_callback, &info);
-        return False;
-      }
-    return (True);
+  if (!PCB->ViaOn)
+    return False;
+  if (setjmp (info.env) == 0)
+    {
+      r_search(PCB->Data->via_tree, &SearchBox, NULL, via_callback, &info);
+      return False;
+    }
+  return True;
 }
 
 
@@ -685,16 +686,7 @@ IsLineInRectangle (Location X1, Location Y1,
 		   Location X2, Location Y2, LineTypePtr Line)
 {
   LineType line;
-  BDimension thick = Line->Thickness / 2 + 1;
-  Location minx = MIN (Line->Point1.X, Line->Point2.X) - thick,
-    miny = MIN (Line->Point1.Y, Line->Point2.Y) - thick,
-    maxx = MAX (Line->Point1.X, Line->Point2.X) + thick,
-    maxy = MAX (Line->Point1.Y, Line->Point2.Y) + thick;
 
-  if (miny > MAX (Y1, Y2) || maxy < MIN (Y1, Y2))
-    return (False);
-  if (minx > MAX (X1, X2) || maxx < MIN (X1, X2))
-    return (False);
   /* first, see if point 1 is inside the rectangle */
   /* in case the whole line is inside the rectangle */
   if (X1 < Line->Point1.X && X2 > Line->Point1.X &&
@@ -705,44 +697,32 @@ IsLineInRectangle (Location X1, Location Y1,
   line.Flags = NOFLAG;
 
   /* upper-left to upper-right corner */
-  if (miny <= Y1 && maxy >= Y1)
-    {
-      line.Point1.Y = line.Point2.Y = Y1;
-      line.Point1.X = X1;
-      line.Point2.X = X2;
-      if (LineLineIntersect (&line, Line))
-	return (True);
-    }
+  line.Point1.Y = line.Point2.Y = Y1;
+  line.Point1.X = X1;
+  line.Point2.X = X2;
+  if (LineLineIntersect (&line, Line))
+    return (True);
 
   /* upper-right to lower-right corner */
-  if (minx <= X2 && maxx >= X2)
-    {
-      line.Point1.X = line.Point2.X = X2;
-      line.Point1.Y = Y1;
-      line.Point2.Y = Y2;
-      if (LineLineIntersect (&line, Line))
-	return (True);
-    }
+  line.Point1.X = X2;
+  line.Point1.Y = Y1;
+  line.Point2.Y = Y2;
+  if (LineLineIntersect (&line, Line))
+    return (True);
 
   /* lower-right to lower-left corner */
-  if (miny <= Y2 && maxy >= Y2)
-    {
-      line.Point1.Y = line.Point2.Y = Y2;
-      line.Point1.X = X1;
-      line.Point2.X = X2;
-      if (LineLineIntersect (&line, Line))
-	return (True);
-    }
+  line.Point1.Y = Y2;
+  line.Point1.X = X1;
+  line.Point2.X = X2;
+  if (LineLineIntersect (&line, Line))
+    return (True);
 
   /* lower-left to upper-left corner */
-  if (minx <= X1 && maxx >= X1)
-    {
-      line.Point1.X = line.Point2.X = X1;
-      line.Point1.Y = Y1;
-      line.Point2.Y = Y2;
-      if (LineLineIntersect (&line, Line))
-	return (True);
-    }
+  line.Point2.X = X1;
+  line.Point1.Y = Y1;
+  line.Point2.Y = Y2;
+  if (LineLineIntersect (&line, Line))
+    return (True);
 
   return (False);
 }
@@ -1043,6 +1023,12 @@ SearchObjectByLocation (int Type,
         return NO_TYPE;
     }
 
+  if (Type & RATLINE_TYPE && PCB->RatOn &&
+      SearchRatLineByLocation ((RatTypePtr *) Result1,
+			       (RatTypePtr *) Result2,
+			       (RatTypePtr *) Result3))
+    return (RATLINE_TYPE);
+
   if (Type & VIA_TYPE &&
       SearchViaByLocation ((PinTypePtr *) Result1,
 			   (PinTypePtr *) Result2, (PinTypePtr *) Result3))
@@ -1078,12 +1064,6 @@ SearchObjectByLocation (int Type,
       HigherAvail = ELEMENT_TYPE;
     }
 
-  if (Type & RATLINE_TYPE && PCB->RatOn &&
-      SearchRatLineByLocation ((RatTypePtr *) Result1,
-			       (RatTypePtr *) Result2,
-			       (RatTypePtr *) Result3))
-    return (RATLINE_TYPE);
-
   for (i = -1; i < MAX_LAYER + 1; i++)
     {
       if (i < 0)
@@ -1094,13 +1074,15 @@ SearchObjectByLocation (int Type,
 	SearchLayer = &PCB->Data->BACKSILKLAYER;
       if (SearchLayer->On)
 	{
-	  if (Type & POLYGONPOINT_TYPE &&
+	  if ((HigherAvail & (PIN_TYPE | PAD_TYPE)) == 0 &&
+              Type & POLYGONPOINT_TYPE &&
 	      SearchPointByLocation ((LayerTypePtr *) Result1,
 				     (PolygonTypePtr *) Result2,
 				     (PointTypePtr *) Result3))
 	    return (POLYGONPOINT_TYPE);
 
-	  if (Type & LINEPOINT_TYPE &&
+	  if ((HigherAvail & (PIN_TYPE | PAD_TYPE)) == 0 &&
+	      Type & LINEPOINT_TYPE &&
 	      SearchLinePointByLocation ((LayerTypePtr *) Result1,
 					 (LineTypePtr *) Result2,
 					 (PointTypePtr *) Result3))
