@@ -1,0 +1,100 @@
+/*
+ *                            COPYRIGHT
+ *
+ *  PCB, interactive printed circuit board design
+ *  Copyright (C) 1994,1995,1996 Thomas Nau
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ *  Contact addresses for paper mail and Email:
+ *  Thomas Nau, Schlehenweg 15, 88471 Baustetten, Germany
+ *  Thomas.Nau@rz.uni-ulm.de
+ *
+ *  RCS: $Id$
+ */
+
+#include "../config.h"
+
+/* ------------------- don't change anything here --------------------------
+ * apply changes to ../config.h
+ */
+
+all:: pcb.man pcb.ps pcb.html pcb.info refcard.ps
+
+InstallManPage(pcb,$(MANDIR))
+InstallMultipleDestFlags(install.info,pcb.info,$(INFODIR),$(INSTLIBFLAGS))
+
+pcb.man: pcb.man.raw sed.script
+	@echo "creating manual from raw file"
+	@sed -f sed.script  < pcb.man.raw > $@
+
+pcb.texi: pcb.texi.raw sed.script
+	@echo "creating pcb.texi from raw file"
+	@sed -f sed.script  < pcb.texi.raw > $@
+
+pcb.info: pcb.texi
+	@echo "creating pcb.info file"
+	@makeinfo --no-split --no-validate pcb.texi
+
+pcb.dvi: pcb.texi
+	@echo "creating pcb.dvi file"
+	@tex pcb.texi; texindex pcb.fn pcb.vr pcb.cp; tex pcb.texi; tex pcb.texi
+
+pcb.ps: pcb.dvi
+	@echo "creating $@ file"
+	@dvips -D 300 -o $@ pcb.dvi
+
+pcb.html: pcb.texi
+	@echo "creating $@ file"
+	@texi2html -glossary -menu pcb.texi
+	@mv pcb_toc.html index.html
+
+refcard.tex: refcard.tex.raw sed.script
+	@echo "creating refcard.tex from raw file"
+	@sed -f sed.script  < refcard.tex.raw > $@
+
+refcard.dvi: refcard.tex
+	@echo "creating refcard.dvi file"
+	@latex refcard.tex
+
+refcard.ps: refcard.dvi
+	@echo "creating $@ file"
+	@dvips -D 300 -o $@ refcard.dvi
+
+clean::
+	$(RM) sed.script
+	$(RM) pcb.info pcb.dvi pcb.texi pcb.ps pcb.html index.html \
+		refcard.ps refcard.dvi refcard.tex \
+		pcb.man;
+	for f in refcard pcb; do \
+		$(RM) $$f.log $$f.aux $$f.toc $$f.cps $$f.fns $$f.vrs \
+		      $$f.cp $$f.fn $$f.ky $$f.pg $$f.tp $$f.vr; \
+	done;
+
+sed.script: ../config.h
+	@cd ../src; $(MAKE) $(MFLAGS) sed.script
+	ln -s ../src/sed.script .
+
+install.info::
+
+dist:: refcard.ps pcb.ps
+	rm -f ../doc.ps/refcard.ps.$(SUFFIX) ../doc.ps/pcb.ps.$(SUFFIX)
+	$(COMPRESS) < refcard.ps > ../doc.ps/refcard.ps.$(SUFFIX)
+	$(COMPRESS) < pcb.ps > ../doc.ps/pcb.ps.$(SUFFIX)
+	chmod 444 ../doc.ps/refcard.ps.$(SUFFIX) ../doc.ps/pcb.ps.$(SUFFIX)
+
+includes::
+
+depend::

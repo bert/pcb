@@ -1,0 +1,582 @@
+!
+!                            COPYRIGHT
+!
+!  PCB, interactive printed circuit board design
+!  Copyright (C) 1994,1995,1996 Thomas Nau
+!
+!  This program is free software; you can redistribute it and/or modify
+!  it under the terms of the GNU General Public License as published by
+!  the Free Software Foundation; either version 2 of the License, or
+!  (at your option) any later version.
+!
+!  This program is distributed in the hope that it will be useful,
+!  but WITHOUT ANY WARRANTY; without even the implied warranty of
+!  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+!  GNU General Public License for more details.
+!
+!  You should have received a copy of the GNU General Public License
+!  along with this program; if not, write to the Free Software
+!  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+!
+!  Contact addresses for paper mail and Email:
+!  Thomas Nau, Schlehenweg 15, 88471 Baustetten, Germany
+!  Thomas.Nau@rz.uni-ulm.de
+!
+!  RCS: $Id$
+!
+
+!---------------------------------------------------------------------------
+! resources as defined by pcb
+!
+pcb.absoluteGrid:           On
+pcb.alignmentDistance:      200
+pcb.allDirectionLines:      Off
+pcb.backupInterval:         60
+pcb.charactersPerLine:      78
+pcb.connectedColor:         green
+pcb.crosshairColor:         yellow
+pcb.crossColor:             red
+pcb.elementColor:           black
+pcb.elementSelectedColor:   cyan
+pcb.elementCommand:         M4PATH='%p';export M4PATH;echo 'include(%f)' | GNUM4
+pcb.elementPath:            .:packages:circuits:PCBLIBDIR:PCBLIBDIR/circuits:PCBLIBDIR/packages
+pcb.fileCommand:            cat '%f'
+pcb.filePath:               .
+pcb.fontCommand:            M4PATH='%p';export M4PATH;echo 'include(%f)' | GNUM4
+pcb.fontFile:               FONTFILENAME
+pcb.fontPath:               .:PCBLIBDIR
+pcb.grid:                   10
+pcb.gridColor:		    white
+pcb.warnColor:              hot pink
+pcb.invertedFrameWidth:     500
+pcb.invisibleObjectsColor:  gray80
+pcb.invisibleMarkColor:     gray70
+pcb.layerColor1:            RoyalBlue3
+pcb.layerColor2:            brown4
+pcb.layerColor3:            DodgerBlue4
+pcb.layerColor4:            OrangeRed3
+pcb.layerColor5:            PaleGreen4
+pcb.layerColor6:            burlywood4
+pcb.layerColor7:            turquoise4
+pcb.layerColor8:            forest green
+pcb.layerGroups:            1,s:2,c:3:4:5:6:7:8
+pcb.layerName1:             solder
+pcb.layerName2:             component
+pcb.layerName3:             GND
+pcb.layerName4:             power
+pcb.layerName5:             signal1
+pcb.layerName6:             signal2
+pcb.layerName7:             unused
+pcb.layerName8:             unused
+pcb.layerSelectedColor1:    cyan
+pcb.layerSelectedColor2:    cyan
+pcb.layerSelectedColor3:    cyan
+pcb.layerSelectedColor4:    cyan
+pcb.layerSelectedColor5:    cyan
+pcb.layerSelectedColor6:    cyan
+pcb.layerSelectedColor7:    cyan
+pcb.layerSelectedColor8:    cyan
+pcb.libraryCommand:         PCBLIBDIR/QueryLibrary.sh '%p' '%f' %a
+pcb.libraryContentsCommand: PCBLIBDIR/ListLibraryContents.sh '%p' '%f'
+pcb.libraryFilename:        LIBRARYFILENAME
+pcb.libraryPath:            .:PCBLIBDIR
+pcb.lineThickness:          10
+pcb.media:                  a4
+pcb.offLimitColor:          gray80
+pcb.pinColor:               gray30
+pcb.pinSelectedColor:       cyan
+pcb.pinoutFont0:            -*-courier-bold-r-*-*-24-*-*-*-*-*-*-*
+pcb.pinoutFont1:            -*-courier-bold-r-*-*-12-*-*-*-*-*-*-*
+pcb.pinoutFont2:            -*-courier-bold-r-*-*-8-*-*-*-*-*-*-*
+pcb.pinoutFont3:            -*-courier-bold-r-*-*-4-*-*-*-*-*-*-*
+pcb.pinoutFont4:            -*-courier-bold-r-*-*-2-*-*-*-*-*-*-*
+pcb.pinoutNameLength:       8
+pcb.pinoutOffsetX:          100
+pcb.pinoutOffsetY:          100
+pcb.pinoutTextOffsetX:      50
+pcb.pinoutTextOffsetY:      0
+pcb.pinoutZoom:             2
+pcb.printFile:             %f.output
+pcb.raiseLogWindow:         On
+pcb.ratColor:               DarkGoldenrod
+pcb.ratSelectedColor:       cyan
+pcb.ratThickness:           10
+pcb.resetAfterElement:      On
+pcb.ringBellWhenFinished:   Off
+pcb.routeStyles:	    Signal,10,40,20:Power,25,60,35:Fat,40,60,35:Skinny,8,36,20
+pcb.saveCommand:            cat - > '%f'
+pcb.saveInTMP:              Off
+pcb.saveLastCommand:        Off
+pcb.size:                   6000x5000
+pcb.stipplePolygons:        Off
+pcb.textScale:              100
+pcb.useLogWindow:           On
+pcb.viaColor:               gray50
+pcb.viaSelectedColor:       cyan
+pcb.viaThickness:           60
+pcb.viaDrillingHole:        28
+pcb.volume:                 100
+pcb.zoom:                   3
+pcb.Bloat:		    7
+pcb.Shrink:		    5
+
+!---------------------------------------------------------------------------
+! resources that are common to all 'subwindows'
+!
+pcb*beNiceToColormap:			false
+pcb*background:			gray90
+pcb.masterForm*background	gray90
+pcb*Command.highlightThickness:        1
+pcb*defaultButton.borderWidth:         2
+pcb*defaultButton.highlightThickness:  2
+!pcb*font:                              -*-courier-bold-r-*-*-14-*-*-*-*-*-*-*
+pcb*Label.borderWidth:                 0
+pcb*Label.justify:                     center
+pcb*MenuButton.resizable:              off
+pcb*Toggle.borderWidth:                1
+pcb*selector*List.verticalList:        On
+pcb*selector.height:                   240
+pcb*selector.width:                    180
+pcb*horizDistance:                     2
+pcb*defaultButton.accelerators:  #override \
+  <Key>Return:            set() notify() unset() \n
+pcb*cancelButton.accelerators:  #override \
+  <Key>Escape:            set() notify() unset() \n
+
+!---------------------------------------------------------------------------
+! toplevel shell resources
+!
+pcb*baseTranslations: #override \
+  !BTNMOD<Key>q:	Quit() \n\
+  <Message>WM_PROTOCOLS:   Quit() \n
+
+!---------------------------------------------------------------------------
+! resources used by control panel
+! on/off are Toggles, active layer is MenuButton
+! Note the panner must have a 4:3 aspect ratio to work properly
+!
+pcb*controlMasterForm*font:             -*-courier-bold-r-*-*-10-*-*-*-*-*-*-*
+pcb*controlMasterForm*SimpleMenu.resizeable: True
+pcb*controlMasterForm*shadowWidth:	0
+pcb*controlMasterForm*borderWidth:      0
+pcb*controlMasterForm*SimpleMenu.borderWidth: 1
+pcb*controlMasterForm*horizDistance:	1
+pcb*controlMasterForm*vertDistance: 2
+pcb*controlMasterForm*panner.width: 56
+pcb*controlMasterForm*panner.height: 42
+pcb*controlMasterForm*panner.rubberBand: False
+pcb*controlMasterForm*panner.borderWidth: 2
+pcb*controlMasterForm*panner.shadowWidth: 2
+pcb*controlMasterForm*MenuButton.width: 56
+pcb*controlMasterForm*Toggle.width: 56
+pcb*controlMasterForm*Label.height:    8
+pcb*controlMasterForm*Label.width:    56
+pcb*controlMasterForm*MenuButton.background:	white
+pcb*controlMasterForm*MenuButton.height:      12
+pcb*controlMasterForm*MenuButton.borderWidth: 1  
+pcb*controlMasterForm*Toggle.background:	white
+pcb*controlMasterForm*Toggle.height:          12
+pcb*controlMasterForm*Toggle.borderWidth:     1
+
+!---------------------------------------------------------------------------
+! resources used by the mode-selection area
+!
+pcb.masterForm.Toggle.foreground:	black
+pcb.masterForm.Toggle.internalHeight:   1 
+pcb.masterForm.Toggle.internalWidth:	1
+pcb.masterForm.Toggle.horizDistance:       2 
+pcb.masterForm.Toggle.vertDistance:        2
+
+!---------------------------------------------------------------------------
+! resources used by the file select box
+!
+pcb*fileselectMasterForm*current.vertDistance: 20
+pcb*fileselectMasterForm*input.width:          366
+pcb*fileselectMasterForm*input*background:     gray90
+
+pcb*fileselectMasterForm.defaultButton.accelerators:  #override \
+  <Key>Return:   set() notify() unset() \n\
+  <Btn1Up>(2):   set() notify() unset() \n
+
+!---------------------------------------------------------------------------
+! resources used by the size select box
+!
+pcb*sizeMasterForm*Label.vertDistance:    10
+
+!---------------------------------------------------------------------------
+! resources of the library window
+!
+pcb*library.iconic:		true
+pcb.library.geometry:         750x250
+pcb.library*type*foreground:  red
+pcb.library.baseTranslations: #override \
+  <Message>WM_PROTOCOLS:  Bell() \n
+
+pcb*libraryMasterForm*List.baseTranslations: #replace \
+  <Btn1Down>,<Btn1Up>:    Set() \n\
+  <Btn1Up>(2):            Set() Notify() Unset() \n
+
+!---------------------------------------------------------------------------
+! resources of the netlist window
+!
+pcb*netlist.iconic:	false
+pcb.netlist.geometry:         400x200
+pcb.netlist*net*foreground:	red
+pcb.netlist.baseTranslations: #override \
+  <Message>WM_PROTOCOLS:  Bell() \n
+
+pcb*netlistMasterForm*List.baseTranslations: #replace \
+  <Btn1Down>,<Btn1Up>:    Set() Notify() \n\
+  <Btn1Up>(2):            ListAct() Set() \n\
+  None<Key>u:		Undo() \n
+
+
+!---------------------------------------------------------------------------
+! resources of the logging window
+!
+pcb*log.iconic:           true
+pcb.log.geometry:         600x200
+pcb.log.baseTranslations: #override \
+  <Message>WM_PROTOCOLS:   Bell() \n
+
+!---------------------------------------------------------------------------
+! resources of the print selection window
+!
+pcb*printMasterForm*Command.width:        100
+pcb*printMasterForm*comment.vertDistance: 20
+pcb*printMasterForm*input.width:          150
+pcb*printMasterForm*Panner.background:    gray90
+pcb*printMasterForm*Toggle.width:         150
+
+!---------------------------------------------------------------------------
+! resources of the layer-group edit window
+!
+pcb*layerGroupMasterForm*comment.width:             150
+pcb*layerGroupMasterForm*comment.justify:           left
+pcb*layerGroupMasterForm*groupNumber.horizDistance: 6
+pcb*layerGroupMasterForm*groupNumber.width:         20
+pcb*layerGroupMasterForm*layerGroup.width:          150
+pcb*layerGroupMasterForm*layerName.justify:         left
+pcb*layerGroupMasterForm*layerName.width:           150
+pcb*layerGroupMasterForm*Toggle.width:              20
+
+!---------------------------------------------------------------------------
+! resources of the pinout window
+!
+pcb*pinoutMasterForm*viewport.height:  240
+pcb*pinoutMasterForm*viewport.width:   320
+
+pcb*pinoutMasterForm.dismiss.accelerators: #override \
+  <Message>WM_PROTOCOLS:  set() notify() unset() \n
+
+pcb*pinoutMasterForm.viewport.horizontal.accelerators: #override \
+  !BTNMOD Ctrl<Key>Left:    StartScroll(Backward) \
+                            NotifyScroll(FullLength) \
+                            EndScroll() \n\
+  !BTNMOD Ctrl<Key>Right:   StartScroll(Forward) \
+                            NotifyScroll(FullLength) \
+                            EndScroll() \n
+
+pcb*pinoutMasterForm.viewport.vertical.accelerators: #override \
+  !BTNMOD Ctrl<Key>Up:      StartScroll(Backward) \
+                            NotifyScroll(FullLength) \
+                            EndScroll() \n\
+  !BTNMOD Ctrl<Key>Down:    StartScroll(Forward) \
+                            NotifyScroll(FullLength) \
+                            EndScroll() \n
+
+!---------------------------------------------------------------------------
+! resources used by the menu buttons
+! Note that these overrides plus those of the menus below make the menus
+! behave as "sticky" menus.
+! The next two lines elliminate the menu button borders
+! but there is no convenient way to underline the first characters.
+pcb.masterForm*MenuButton.shadowWidth:	0
+pcb.masterForm*MenuButton.BorderWidth: 0
+pcb*MenuButton.baseTranslations: #override \
+  <BtnDown>:  set() \n\
+  <BtnUp>:    reset() PopupMenu() \n
+
+!---------------------------------------------------------------------------
+! resources used by the menus
+!
+pcb*header.foreground:    red
+pcb*SimpleMenu*justify:   left
+pcb*SimpleMenu.baseTranslations: #override \
+   <Motion>: highlight() \n\
+   <BtnDown>,<BtnUp>:	MenuPopdown() notify() unhighlight() \n\
+   <BtnUp>: \n
+
+!---------------------------------------------------------------------------
+! resources used by statuslines and input field
+!
+pcb.masterForm*cursorPosition.justify:   left
+pcb.masterForm*cursorPosition.width:     300
+pcb.masterForm*inputField*borderWidth:   0
+pcb.masterForm*messageText.foreground:   red
+pcb.masterForm*messageText.justify:      left
+pcb.masterForm*statusLine.justify:       left
+
+!---------------------------------------------------------------------------
+! resources used by the output area
+! the porthole width and height determine the initial window size
+pcb.masterForm*output*background:        gray95
+pcb.masterForm.porthole.height:          500
+pcb.masterForm.porthole.width:           680
+
+pcb.masterForm.viewport.horizontal.foreground: gray40
+pcb.masterForm.viewport.horizontal.accelerators: #override \
+  !BTNMOD Ctrl<Key>Left:    StartScroll(Backward) \
+                            NotifyScroll(FullLength) \
+                            EndScroll() \n\
+  None<Key>KP_4:	    StartScroll(Backward) \
+			    NotifyScroll(FullLength) \
+			    EndScroll() \n\
+  !BTNMOD Ctrl<Key>Right:   StartScroll(Forward) \
+                            NotifyScroll(FullLength) \
+                            EndScroll() \n\
+  None<Key>KP_6:	    StartScroll(Forward) \
+			    NotifyScroll(FullLength) \
+			    EndScroll() \n
+
+pcb.masterForm.viewport.horizontal.baseTranslations: #override \
+  <Btn2Down>:               StartScroll(Continuos) MoveThumb() \n\
+  <Btn2Motion>:             MoveThumb() \n\
+  <Btn2Up>:                 NotifyThumb() \n
+
+pcb.masterForm.viewport.vertical.accelerators: #override \
+  !BTNMOD Ctrl<Key>Up:      StartScroll(Backward) \
+                            NotifyScroll(FullLength) \
+                            EndScroll() \n\
+  None<Key>KP_8:	    StartScroll(Backward) \
+			    NotifyScroll(FullLength) \
+			    EndScroll() \n\
+  !BTNMOD Ctrl<Key>Down:    StartScroll(Forward) \
+                            NotifyScroll(FullLength) \
+                            EndScroll() \n\
+  None<Key>KP_2:	    StartScroll(Forward) \
+			    NotifyScroll(FullLength) \
+			    EndScroll() \n
+
+pcb.masterForm.viewport.vertical.baseTranslations: #override \
+  <Btn2Down>:             StartScroll(Continuos) \
+                          MoveThumb() \n\
+  <Btn2Motion>:           MoveThumb() \n\
+  <Btn2Up>:               NotifyThumb() \n
+!---------------------------------------------------------------------------
+! translations of the output area
+!
+pcb.masterForm*output.baseTranslations:   #override \
+  <Key>Escape:          Mode(None) \n\
+  <Key>space:           Mode(Notify) \n\
+  <Key>colon:           Command() \n\
+  Shift<Key>BackSpace: Atomic(Save) \
+			Connection(Reset) \
+			Atomic(Restore) \
+                        Unselect(All) \
+			Atomic(Restore) \
+                        Connection(Find) \
+			Atomic(Restore) \
+                        Select(Connection) \
+			Atomic(Restore) \
+                        RemoveSelected() \
+			Atomic(Restore) \
+			Connection(Reset) \
+			Atomic(Restore) \
+			Unselect(All) \
+			Atomic(Block) \n\
+  Shift<Key>Delete:	Atomic(Save) \
+			Connection(Reset) \
+			Atomic(Restore) \
+                        Unselect(All) \
+			Atomic(Restore) \
+                        Connection(Find) \
+			Atomic(Restore) \
+                        Select(Connection) \
+			Atomic(Restore) \
+                        RemoveSelected() \
+			Atomic(Restore) \
+			Connection(Reset) \
+			Atomic(Restore) \
+			Unselect(All) \
+			Atomic(Block) \n\
+  <Key>BackSpace:   Mode(Save) \
+                        Mode(Remove) \
+                        Mode(Notify) \
+                        Mode(Restore) \n\
+  <Key>Delete:	Mode(Save) \
+			Mode(Remove) \
+			Mode(Notify) \
+			Mode(Restore) \n\
+  <Key>Insert:      Mode(InsertPoint) \n\
+  <Key>Tab:         SwapSides() \n\
+  \
+  Ctrl<Key>1: RouteStyle(1) \n\
+  Ctrl<Key>2: RouteStyle(2) \n\
+  Ctrl<Key>3: RouteStyle(3) \n\
+  Ctrl<Key>4: RouteStyle(4) \n\
+  \
+  Shift<Key>1: PasteBuffer(1) \n\
+  Shift<Key>2: PasteBuffer(2) \n\
+  Shift<Key>3: PasteBuffer(3) \n\
+  Shift<Key>4: PasteBuffer(4) \n\
+  Shift<Key>5: PasteBuffer(5) \n\
+  \
+  <Key>1: SwitchDrawingLayer(1) \n\
+  <Key>2: SwitchDrawingLayer(2) \n\
+  <Key>3: SwitchDrawingLayer(3) \n\
+  <Key>4: SwitchDrawingLayer(4) \n\
+  <Key>5: SwitchDrawingLayer(5) \n\
+  <Key>6: SwitchDrawingLayer(6) \n\
+  <Key>7: SwitchDrawingLayer(7) \n\
+  <Key>8: SwitchDrawingLayer(8) \n\
+  <Key>9: SwitchDrawingLayer(9) \n\
+  \
+  Shift BTNMOD<Key>a:	Unselect(All) \n\
+  BTNMOD<Key>a:	Select(All) \n\
+  Shift<Key>b:		Flip(Selected) \n\
+  <Key>b:		Flip(Object) \n\
+  BTNMOD<Key>c:       PasteBuffer(Clear) \
+                       PasteBuffer(AddSelected) \
+                       Unselect(All) \n\
+  <Key>c:          Display(Center) \n\
+  Shift<Key>d:        Display(Pinout) \n\
+  <Key>d:          Display(PinOrPadName) \n\
+  Shift<Key>e:        DeleteRats(SelectedRats) \n\
+  <Key>e:          DeleteRats(AllRats) \n\
+  Ctrl<Key>f:	   Connection(Find) \n\
+  Shift<Key>f:        Connection(Reset) \n\
+  <Key>f:          Connection(Reset) \
+		   Connection(Find) \n\
+  Shift<Key>g:        SetValue(Grid, -5) \n\
+  <Key>g:          SetValue(Grid, +5) \n\
+  Shift<Key>h:        ToggleHideName(SelectedElements) \n\
+  Ctrl<Key>h:         ChangeHole(ToggleObject) \n\
+  <Key>h:          ToggleHideName(Object) \n\
+  <Key>j:		ChangeJoin(Object) \n\
+  Shift<Key>k:		ChangeClearSize(Object, -2) \n\
+  <Key>k:		ChangeClearSize(Object, +2) \n\
+  Shift<Key>l:        SetValue(LineSize, -5) \n\
+  <Key>l:          SetValue(LineSize, +5) \n\
+  Shift<Key>m:        MoveToCurrentLayer(SelectedObjects) \n\
+  Ctrl<Key>m:         MarkCrosshair() \n\
+  <Key>m:          MoveToCurrentLayer(Object) \n\
+  <Key>n:          ChangeName(Object) \n\
+  Shift<Key>o:        Atomic(Save) \
+		       DeleteRats(AllRats) \
+		       Atomic(Restore) \
+                       AddRats(SelectedRats) \
+		       Atomic(Block) \n\
+  Ctrl<Key>o:         ChangeOctagon(Object) \n\
+  <Key>o:          Atomic(Save) \
+		       DeleteRats(AllRats) \
+		       Atomic(Restore) \
+                       AddRats(AllRats) \
+		       Atomic(Block) \n\
+  Shift<Key>p:        Polygon(Close) \n\
+  <Key>p:          Polygon(PreviousPoint) \n\
+  BTNMOD<Key>q:	Quit() \n\
+  <Key>q:          ChangeSquare(ToggleObject) \n\
+  Shift<Key>r:        Redo() \n\
+  Ctrl<Key>r:         Report(Object) \n\
+  <Key>r:          Display(ClearAndRedraw) \n\
+  BTNMOD Shift<Key>s: ChangeDrillSize(Object, -5) \n\
+  Shift<Key>s:        ChangeSize(Object, -5) \n\
+  BTNMOD<Key>s:       ChangeDrillSize(Object, +5) \n\
+  <Key>s:          ChangeSize(Object, +5) \n\
+  Shift Ctrl<Key>u:   Undo(ClearList) \n\
+  <Key>u:          Undo() \n\
+  BTNMOD Shift<Key>v: SetValue(ViaDrillingHole, -5) \n\
+  Shift<Key>v:        SetValue(ViaSize, -5) \n\
+  BTNMOD<Key>v:       SetValue(ViaDrillingHole, +5) \n\
+  <Key>v:          SetValue(ViaSize, +5) \n\
+  Shift<Key>w:        AddRats(SelectedRats) \n\
+  <Key>w:          AddRats(AllRats) \n\
+  Shift Ctrl<Key>x:   PasteBuffer(Clear) \
+                       PasteBuffer(AddSelected) \
+                       RemoveSelected() \
+                       Mode(PasteBuffer) \n\
+  Ctrl<Key>x:         PasteBuffer(Clear) \
+                       PasteBuffer(AddSelected) \
+                       Mode(PasteBuffer) \n\
+  BTNMOD<Key>x:       PasteBuffer(Clear) \
+                       PasteBuffer(AddSelected) \
+                       RemoveSelected() \n\
+  Shift<Key>z:        SetValue(Zoom, +1) \n\
+  BTNMOD<Key>z:       Undo() \n\
+  <Key>z:          SetValue(Zoom, -1) \n\
+  <Key>.:          Display(Toggle45Degree) \n\
+  <Key>/:          Display(CycleClip) \n\
+  \
+  Shift<Key>Up:    MovePointer(0, -10) \n\
+  <Key>Up:      MovePointer(0, -1) \n\
+  Shift<Key>Down:  MovePointer(0, 10) \n\
+  <Key>Down:    MovePointer(0, 1) \n\
+  Shift<Key>Right: MovePointer(10, 0) \n\
+  <Key>Right:   MovePointer(1, 0) \n\
+  Shift<Key>Left:  MovePointer(-10, 0) \n\
+  <Key>Left:    MovePointer(-1, 0) \n\
+  \
+  <Key>F1:   Mode(Via) \n\
+  <Key>F2:   Mode(Line) \n\
+  Shift<Key>F3: PasteBuffer(Rotate, 1) \n\
+  <Key>F3:   Mode(PasteBuffer) \n\
+  <Key>F4:   Mode(Rectangle) \n\
+  <Key>F5:   Mode(Text) \n\
+  <Key>F6:   Mode(Polygon) \n\
+  <Key>F7:   Mode(Thermal) \n\
+  <Key>F8:   Mode(Arc) \n\
+  <Key>F9:	Mode(Rotate) \n\
+  <Key>F10:  Mode(Arrow) \n\
+  \
+  <Key>[:	Mode(Save) \
+		Mode(Move) \
+		Mode(Notify) \n\
+  <Key>]:	Mode(Notify) \
+		Mode(Restore) \n\
+  \
+  Shift Ctrl<Btn1Down>: Mode(Save) \
+                         Mode(Remove) \
+                         Mode(Notify) \
+                         Mode(Restore) \n\
+  Ctrl<Btn1Down>:       Mode(Save) \
+			 Mode(None) \
+		         Mode(Restore) \
+		         Mode(Notify) \n\
+  <Btn1Down>:        Mode(Notify) \n\
+  <Btn1Up>:		 Mode(Release) \n\
+  \
+  Shift BTNMOD<Btn2Down>: Display(ToggleRubberbandMode) \
+			   Mode(Save) \
+                           Mode(Move) \
+                           Mode(Notify) \n\
+  BTNMOD<Btn2Down>:       Mode(Save) \
+                           Mode(Copy) \
+                           Mode(Notify) \n\
+  <Btn2Down>:          Mode(Save) \
+                           Mode(Arrow) \
+                           Mode(Notify) \n\
+  Shift BTNMOD<Btn2Up>:   Mode(Notify) \
+                           Mode(Restore) \
+			   Display(ToggleRubberbandMode) \n\
+  BTNMOD<Btn2Up>:            Mode(Notify) \
+                           Mode(Restore) \n\
+  <Btn2Up>:            Mode(Release) \
+                           Mode(Restore) \n\
+  \
+  None<Btn3Down>:          XawPositionSimpleMenu(pmenu) \
+			   XtMenuPopup(pmenu) \n\
+  Shift <Btn3Down>:	   Mode(Save) \
+                           Mode(None) \
+                           Unselect(Block) \n\
+  Shift<Btn3Up>:	   Unselect(Block) \
+                           Mode(Restore) \n\
+  BTNMOD<Btn3Down>:	Mode(Save) \
+			Mode(None) \
+			Select(Block) \n\
+  BTNMOD<Btn3Up>:	Select(Block) \
+			Mode(Restore) \n
+!-------------------------------------------------------------------- 
+! The "None" is necessary for the MenuPopup,
+! otherwise the menu won't get a grab 
+!

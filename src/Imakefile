@@ -1,0 +1,100 @@
+/*
+ *                            COPYRIGHT
+ *
+ *  PCB, interactive printed circuit board design
+ *  Copyright (C) 1994,1995,1996 Thomas Nau
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ *  Contact addresses for paper mail and Email:
+ *  Thomas Nau, Schlehenweg 15, 88471 Baustetten, Germany
+ *  Thomas.Nau@rz.uni-ulm.de
+ *
+ *  RCS: $Id$
+ */
+
+#include "../config.h"
+
+/* ------------------- don't change anything here --------------------------
+ * apply changes to ../config.h
+ */
+
+PROGRAMS = pcb
+
+SRCS = parse_y.c parse_l.c \
+ autoplace.c autoroute.c kdtree.c heap.c intersect.c vector.c mtspace.c \
+ action.c buffer.c change.c command.c control.c copy.c create.c crosshair.c \
+ data.c dev_ps.c dev_rs274x.c dialog.c draw.c drill.c \
+ error.c file.c fileselect.c find.c gui.c insert.c \
+ lgdialog.c library.c log.c main.c mymem.c menu.c mirror.c misc.c move.c \
+ netlist.c output.c pinout.c polygon.c print.c printdialog.c printpanner.c \
+ rats.c report.c remove.c rotate.c rubberband.c search.c select.c selector.c \
+ set.c sizedialog.c undo.c
+
+OBJS = parse_y.o parse_l.o \
+ autoplace.o autoroute.o kdtree.o heap.o intersect.o vector.o mtspace.o \
+ action.o buffer.o change.o command.o control.o copy.o create.o crosshair.o \
+ data.o dev_ps.o dev_rs274x.o dialog.o draw.o drill.o \
+ error.o file.o fileselect.o find.o gui.o insert.o \
+ lgdialog.o library.o log.o main.o mymem.o menu.o mirror.o misc.o move.o \
+ netlist.o output.o pinout.o polygon.o print.o printdialog.o printpanner.o \
+ rats.o report.o remove.o rotate.o rubberband.o search.o select.o selector.o \
+ set.o sizedialog.o undo.o
+
+ADDITIONALDIR =   circuits packages README_FILES doc example
+
+DEPLIBS =         $(DEPXAWLIB) $(DEPXTOOLLIB) $(DEPEXTENSIONLIB) $(DEPXLIB) 
+LOCAL_LIBRARIES = $(XAWLIB) $(XMULIB) $(XTOOLLIB) $(XLIB) 
+
+/*
+ * add the rules
+ *   all::
+ *   depend::
+ * to make sure that the parser files have been generated before
+ * the dependencies are checked
+ */
+all:: pcb Pcb.ad
+
+depend:: parse_l.c parse_y.c
+
+ComplexProgramTarget(pcb)
+InstallAppDefaults(Pcb)
+InstallMultipleFlags($(DEFAULTFONT),$(PCBLIBDIR),$(INSTLIBFLAGS))
+
+sed.script: Imakefile CreateSedScript.sh const.h ../config.h ../globalconst.h
+	@echo "creating sed-script from defines"
+	@./CreateSedScript.sh $(DEFINES) Imakefile > $@
+
+Pcb.ad: Pcb.ad.raw sed.script
+	@echo "creating application default resource from raw file"
+	@sed -f sed.script  < Pcb.ad.raw > $@
+
+parse_y.h parse_y.c: parse_y.y global.h
+	$(YACC) -d parse_y.y
+	$(MV) y.tab.c parse_y.c
+	$(MV) y.tab.h parse_y.h
+
+parse_l.c: parse_l.l parse_y.h global.h
+	$(LEX) parse_l.l
+	$(MV) lex.yy.c parse_l.c
+
+clean::
+	$(RM) parse_y.h parse_y.c parse_l.c sed.script Pcb.ad Pcb
+
+install.info::
+
+includes::
+
+dist::

@@ -1,0 +1,399 @@
+#!@WISH@ -f
+
+# $Id$
+#
+# User Interface that generates custom QFP and SOIC packages for pcb-1.6.3
+# Invoked from a line like
+#   esyscmd(qfp-ui $1 $2 $3)
+# within an m4 macro triggered by pcb-1.6.3
+# depends on having the Right [TM] m4 macro PKG_QFP in qfp.inc
+# Copyright 1999 Larry Doolittle  <LRDoolittle@lbl.gov>
+#
+# SOIC support added Jan 2000 Larry Doolittle
+# Use nX==0 for that mode.
+# 
+# Parts library added Feb 2000 Larry Doolittle
+# That feature is still rough, but it is useful, and you get the idea
+#
+# Refinement of library file usage Mar 2000 Larry Doolittle
+# Peeks at the X resource Pcb.libraryPath, uses that for a search path
+# for qfp.dat.  Appends .:$HOME to that path, and writes any updates
+# (via the "Save" button) to $HOME/qfp.dat only.
+#
+# Wish list:
+#   have someone else test it enough to know what needs fixing
+#   proper support for changing pin 1 location
+#   more choices of outline (at least inboard vs. outboard)
+#   more packages in default qfp.dat, double checked and tested
+
+global description boardname partnum
+set description [ lindex $argv 0 ]
+set boardname   [ lindex $argv 1 ]
+set partnum     [ lindex $argv 2 ]
+
+# scaling and centering for canvas;
+# I use max_pix=380 for big screens, and trim it down to 266 for
+# use on my 640x480 laptop.
+# I've never seen any QFP exceed 36 mm, so max_mm=38 should be safe.
+set max_mm 38
+set max_pix 266
+global s c
+set s [ expr $max_pix/$max_mm*.0254 ]
+set c [ expr 0.5*$max_pix ]
+
+# fixme ... maybe put in a search path?  Get from environment?
+set libwritedir "$env(HOME)"
+global libpath
+set libpath ".:$libwritedir"
+global libwritefile
+set libwritefile "$libwritedir/qfp.dat"
+
+# default values of the actual parameters that describe the QFP
+global istart nX nY pitch pwidth plength lX lY
+set istart  1
+set nX      32
+set nY      32
+set pitch   8000
+set pwidth  10
+set plength 50
+set lX      1290
+set lY      1290
+
+# Define the native units for each dimension
+# dm is "decimicrons" :-) allows exact conversion from microns or mils
+foreach v {pwidth plength lX lY} {
+	global ${v}_native
+	set ${v}_native mil
+}
+global pitch_native
+set pitch_native dm
+
+set factor(inch)  254000
+set factor(mm)    10000
+set factor(mil)   254
+set factor(dm)    1
+
+proc m4define { name val } {
+	puts "define(`$name', $val)"
+}
+
+proc spit_output { } {
+	global description boardname partnum
+	global pkgname istart nX nY pitch pwidth plength lX lY
+	m4define PITCH      $pitch
+	m4define PAD_LENGTH $plength
+	m4define PAD_WIDTH  $pwidth
+	m4define ISTART     $istart
+	m4define XPADS      $nX
+	m4define YPADS      $nY
+	m4define X_LENGTH   $lX
+	m4define Y_LENGTH   $lY
+	puts "PKG_GEN_QFP($description, $boardname, $partnum)"
+	exit
+}
+
+proc state_encode { } {
+	global description boardname partnum
+	global pkgname istart nX nY pitch pwidth plength lX lY
+	return "$pitch $plength $pwidth $istart $nX $nY $lX $lY $partnum $description"
+}
+
+proc state_decode { s } {
+	global description boardname partnum
+	global pkgname istart nX nY pitch pwidth plength lX lY
+        regexp {([0-9]+) ([0-9]+) ([0-9]+) ([0-9]+) ([0-9]+) ([0-9]+) ([0-9]+) ([0-9]+) ([^ ]+) (.*)} $s dummy\
+		pitch plength pwidth istart nX nY lX lY partnum description
+}
+
+proc woohoo { x y } {
+	global library
+	catch { .p.txt tag delete mine }
+	set loc [ .p.txt index "@$x,$y" ]
+	regexp {([0-9]*)\.} $loc dummy l
+	# puts "woo-hoo $x $y $loc $l"
+	regexp {([^ ]+)} [ .p.txt get $l.0 "$l.0 lineend" ] dummy k
+	if { [ catch { state_decode $library($k) } ] } return
+	.p.txt tag add mine $l.0 "$l.0 lineend"
+	.p.txt tag configure mine -background red
+	push_state_to_screen
+	draw_outline
+}
+
+proc libfiles_read { } {
+	global libpath home
+	if { [ catch { set fd [ open "| appres Pcb" ] } ] } return
+	while { [ gets $fd line ] != -1 } {
+		regexp {([a-zA-Z.]+):[ 	] *([^ 	]*)} $line dummy res_name res_value
+		if { $res_name == "Pcb.libraryPath" } {
+			set libpath "$res_value:$libpath"
+		}
+	}
+	close $fd
+	foreach f [ split $libpath ":" ] { libfile_read "$f/qfp.dat" }
+}
+
+proc libfile_read { filename } {
+	global library
+	if { [ catch { set fd [ open $filename ] } ] } return
+	while { [ gets $fd line ] != -1 } {
+		regexp {[0-9]+ [0-9]+ [0-9]+ [0-9]+ [0-9]+ [0-9]+ [0-9]+ [0-9]+ ([^ ]+) .*} $line dummy pn
+		set library($pn) $line
+	}
+	close $fd
+}
+
+proc load_library { } {
+	global library libline
+	if { [ catch { toplevel .p } ] } return
+	wm title .p "qfp-ui-library"
+	frame .p.b
+	button .p.b.dismiss -text "Dismiss" -command "destroy .p"
+	pack .p.b.dismiss -side left
+	pack .p.b -side bottom
+	text .p.txt -width 40 -height 15 -font fixed \
+	            -yscrollcommand ".p.sbar set"
+	scrollbar .p.sbar -command ".p.txt yview"
+	pack .p.txt  -side left  -fill both -expand 1
+	pack .p.sbar -side right -fill y
+	catch { unset libline }
+	libfiles_read
+	set keys [ lsort [ array names library ] ]
+	foreach d $keys {
+		regexp {[0-9]+ [0-9]+ [0-9]+ [0-9]+ [0-9]+ [0-9]+ [0-9]+ [0-9]+ ([^ ]+) (.*)} $library($d) dummy pn desc
+		paint_lib_entry $pn $desc
+	}
+	.p.txt configure -state disabled
+	bind .p.txt <Button> "woohoo %x %y"
+}
+
+proc save_library { } {
+	global library partnum description libwritefile
+	catch {
+		.p.txt configure -state normal
+		paint_lib_entry $partnum $description
+		.p.txt configure -state disabled
+	}
+	set library($partnum) [ state_encode ]
+	catch {
+		set fd [ open $libwritefile "a+" ]
+		puts $fd [ state_encode ]
+		close $fd
+	}
+}
+
+proc paint_lib_entry { p desc } {
+	global libline
+	if { [ catch { set l $libline($p) } ] } {
+		set loc [ .p.txt index "end -1 lines" ]
+		regexp {([0-9]*)\.} $loc dummy libline($p)
+		.p.txt insert end "$p $desc\n"
+	} else {
+		.p.txt delete $l.0 "$l.0 lineend"
+		.p.txt insert $l.0 "$p $desc"
+	}
+}
+
+proc uconvert { v in out } {
+	# puts "$v $in converted to $out"
+	global factor
+	set answer [ expr ($v*$factor($in))/$factor($out) ]
+	# puts "   = $answer"
+	return $answer
+}
+
+proc qupdate { v unit } {
+	global $v ${v}_inch ${v}_mm ${v}_native
+	set screen "${v}_${unit}"
+	set newuser [ expr \$$screen ]
+	# compute the exact result in mils
+	set native [ expr \$${v}_native ]
+	# puts "$v $unit $newuser $native"
+	if { ! [catch { set new [ uconvert $newuser $unit $native ] } ] } {
+		line_update $v $new
+		draw_outline
+	}
+}
+
+proc line_update { v new } {
+	global $v ${v}_inch ${v}_mm ${v}_native
+	set native [ expr \$${v}_native ]
+	# puts "$v $new $native"
+	set new [ expr round($new) ]
+	set $v $new
+	set inch [ uconvert $new.0 $native inch ]
+	set mm   [ uconvert $new.0 $native mm   ]
+	set ${v}_inch [ format "%.3f" $inch]
+	set ${v}_mm   [ format "%.2f" $mm]
+}
+
+proc nupdate { v } {
+	global $v
+
+	if { ! [ catch { set new [ expr round(\$$v) ] } ] } {
+		set $v $new
+		draw_outline
+		part_update
+	}
+}
+
+proc push_state_to_screen { } {
+	global pitch pwidth plength lX lY
+	foreach v {pitch pwidth plength lX lY} {
+		line_update $v [ expr \$$v ]
+	}
+}
+
+# Trickery with the part number, make it follow the live pin count,
+# until and unless the user makes the name not include QFP-xxx.
+# The magic value "menu" matches the third column of our entry in generic.list
+proc part_update { } {
+	global partnum nX nY
+	set pincount [ expr 2*($nX+$nY) ]
+	set newstring "QFP-$pincount"
+	if { $partnum == "menu" } {
+		set partnum $newstring
+	} else {
+		regsub -all {QFP-[0-9]+} $partnum $newstring partnum
+	}
+}
+
+proc adjustment { w number title varname } {
+	set f "$w.$varname"
+	frame $f
+	if {$number == ""} {
+		frame $f.number
+	} else {
+		entry $f.number -textvariable $number -width 4
+		bind $f.number <FocusOut> "nupdate $varname"
+		bind $f.number <Return>   "nupdate $varname"
+	}
+	label $f.label -text $title
+	global ${varname}_mm ${varname}_inch
+	entry $f.mm   -textvariable "${varname}_mm"   -width 8
+	entry $f.inch -textvariable "${varname}_inch" -width 8
+	pack  $f.inch $f.mm $f.label $f.number -side right
+	pack $f -side top -anchor e
+	bind $f.inch <FocusOut> "qupdate $varname inch"
+	bind $f.inch <Return>   "qupdate $varname inch"
+	bind $f.mm   <FocusOut> "qupdate $varname mm"
+	bind $f.mm   <Return>   "qupdate $varname mm"
+}
+
+proc draw_pad { x y wx wy } {
+	global s c
+	set x1 [ expr round($c+$s*($x-0.5*$wx)) ]
+	set y1 [ expr round($c+$s*($y-0.5*$wy)) ]
+	set x2 [ expr round($x1+$s*$wx) ]
+	set y2 [ expr round($y1+$s*$wy) ]
+	# puts "rectangle $x1 $x2 $y1 $y2"
+	.c create rectangle $x1 $y1 $x2 $y2 \
+		-fill black -outline ""
+}
+
+proc draw_line { x1 y1 x2 y2 } {
+	global s c
+	.c create line [ expr $c+$s*$x1 ] [ expr $c+$s*$y1 ] \
+	               [ expr $c+$s*$x2 ] [ expr $c+$s*$y2 ] \
+			-fill white -width 2.0
+}
+
+proc draw_dot { x y } {
+	global s c
+	set r 5
+	.c create oval [ expr $c+$s*$x-$r ] [ expr $c+$s*$y-$r ] \
+	               [ expr $c+$s*$x+$r ] [ expr $c+$s*$y+$r ] \
+		-fill white  -outline ""
+}
+
+proc draw_pad_line { n x y dx dy wx wy } {
+	# puts "$n $x $y $dx $dy $wx $wy"
+	for { set i 0} {$i<$n} {incr i} {
+		draw_pad [ expr $x+$i*$dx ]  [ expr $y+$i*$dy ] $wx $wy
+	}
+}
+
+proc draw_outline { } {
+	.c delete all
+	# use floating point mils for these calculations
+	global pitch nX nY lX lY plength pwidth
+	set p [expr $pitch.0/254 ]
+	set xmin [expr -0.5*($lX-$plength) ]
+	set xmax [expr  0.5*($lX-$plength) ]
+	set ymin [expr -0.5*($lY-$plength) ]
+	set ymax [expr  0.5*($lY-$plength) ]
+	set xstart [ expr -0.5*$p*($nX-1) ]
+	set ystart [ expr -0.5*$p*($nY-1) ]
+	draw_pad_line $nX $xstart $ymin $p 0 $pwidth $plength
+	draw_pad_line $nY $xmin $ystart 0 $p $plength $pwidth
+	draw_pad_line $nX $xstart $ymax $p 0 $pwidth $plength
+	draw_pad_line $nY $xmax $ystart 0 $p $plength $pwidth
+
+	# crude pin 1 marker
+	draw_dot [ expr $xmin+1.5*$plength ] $ystart
+
+	# package outline: handle SOIC cases, too
+	set adj [ expr (($nY>0)-.5)*$plength+15 ]
+	set xmin [expr $xmin+$adj ]
+	set xmax [expr $xmax-$adj ]
+
+	set adj [ expr (($nX>0)-.5)*$plength+15 ]
+	set ymin [expr $ymin+$adj ]
+	set ymax [expr $ymax-$adj ]
+
+	draw_line $xmin $ymin $xmin $ymax
+	draw_line $xmax $ymin $xmax $ymax
+	draw_line $xmin $ymin $xmax $ymin
+	draw_line $xmin $ymax $xmax $ymax
+}
+
+push_state_to_screen
+
+proc infoline { w text var } {
+	set win $w.$var
+	global $var
+	frame $win
+	entry $win.var -textvariable $var
+	label $win.id  -text $text
+	pack $win.var $win.id -side right
+	pack $win -side top -anchor e
+}
+        
+
+# label .debug1 -text "$argv"
+# label .debug2 -text "$env(PATH)"
+# pack .debug1 .debug2
+
+frame .a
+frame .a.header
+label .a.header.inch -text "inch"  -width 8
+label .a.header.mm   -text "mm"    -width 8
+pack  .a.header.inch .a.header.mm -side right
+pack  .a.header -side top -anchor e
+adjustment .a ""   "Pitch"       pitch
+adjustment .a ""   "Pad Width"   pwidth
+adjustment .a ""   "Pad Length"  plength
+adjustment .a nX   "X length"    lX
+adjustment .a nY   "Y length"    lY
+pack .a -pady 5
+
+infoline "" "Description: "   description
+infoline "" "Name on board: " boardname
+infoline "" "Part Number: "   partnum
+
+frame .b
+button .b.done   -text "Done"     -command spit_output
+button .b.load   -text "Library"  -command load_library
+button .b.save   -text "Save"     -command save_library
+# pcb-1.6.3 gronks with no input from library, so we can't
+# give the user this option.
+# button .b.cancel -text "Cancel" -command exit
+pack .b.done .b.load .b.save -side right
+pack .b -pady 5
+
+canvas .c -width $max_pix -height $max_pix
+pack .c
+label .whoami1 -text "Experimental QFP UI for pcb-1.6.3"
+label .whoami2 -text "by Larry Doolittle <LRDoolittle@lbl.gov>"
+pack .whoami1 .whoami2
+draw_outline
+part_update

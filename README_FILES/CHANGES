@@ -1,0 +1,92 @@
+/*
+ *  This package is PCB 2.0 release by harry eaton.
+ *  
+ *  This file is totally out of date.
+ *
+ *  I'm too lazy to document all of the changed files
+ *    (there are a lot! run diff to see em all)
+ *
+ *  below is some of the history of PCB's changes. It is necessarily
+ *  out-of-date.
+ */
+
+- Changes to add the gerber driver:
+	+ dev_gerber.h		Clone from dev_ps.h.
+	+ dev_gerber.c		Clone from dev_ps.c.
+				Added support for the Outline & Alignment
+					device operation.
+	+ dev_gerberX.h		Clone from dev_gerber.h
+	+ dev_gerberX.c		Clone from dev_gerber.c
+				Added support for the Outline & Alignment
+					device operation.
+	+ default_aperture	Changes for new pads and changed formats
+					with leading D & X for the two
+					different gerber standards.
+	+ data.h		Up size of PrintingDevice.
+	+ data.c		Include "dev_gerber.h" & "dev_gerberX.h"
+	+ print.h		Added support for the "Render Text on
+					Silkscreen" option.
+	+ print.c		Include "dev_gerber.h" & "dev_gerberX.h" *A*
+				Disable silkscreening of pads and pins; these
+					surfaces must be soldered and
+					should not be silkscreened.
+				Added support for the Text() device operation.
+				Added support for the "Render Text on
+					Silkscreen" option.
+	+ printdialog.c		Include "dev_gerber.h" & "dev_gerberX.h" *A*
+				Added support for the "Render Text on
+					Silkscreen" option.
+        + const.h		Up limit on maximum number of print/output
+				files.
+	+ Imakefile		Include support for dev_gerber.[co].
+					& dev_gerberX.[co]
+	+ pcbtogbr.gcf		Created default gerber control file (gcf).
+				This belongs in the layout file, also.
+	+ pcbtogbr.pcb		Created test data file.
+	+ *.gbr			Generated Gerber files from pcbtogbr.pcb
+	+ *.gbx			"ditto" ^^^^ for Gerber Extented
+	+ gerbertotk.c		Converts Gerber files to tcl/tk programs.
+	+ gbrtest		Exports test gerber conversion data to a
+					MS-DOG subdirectory for testing
+					via a Gerber interpreter.
+	+ ../config.h		Amended the RELEASE definition to protect the
+					innocent.
+	+ global.h		Added support for the Text() device operation.
+	+ dev_ps.c		Added support for the Text() device operation.
+	+ ../lib/*.*		Added Radial & Axial Caps, Axial Resistors,
+					14-pin can oscillators, one generic
+					matched pair of transistors
+					2N3904 NPN & 2N3906 PNP,
+					ovenized oscillator, etc...
+
+	ALPHA.06
+
+	+ dev_gerberX.c		Deleted RS-274X calls to read default_aperture
+					file.  gerberX now generates internal
+					aperture information specific to each
+					layer.  ApertureFunctions deleted,
+					since the G0(1|2|3) deterrmine the
+					action to be taken.
+
+				Tested with OrCAD GerberTool Demo 6.2b1,
+					it works but some the silkscreens for
+					arcs are wacky.  Most items have a
+					normal appearance with GO3 CCW draw
+					command.
+	+ Device->(function)	Any file that has this type of call got
+					assaulted and had an "int unused"
+					added.
+
+	+ dev_gerber.c		Working on having a file called
+					"default.map" or "default.app"
+					to dynamically generate an aperture
+					table that is dependent on the
+					gerber RS-274D file generation.
+--- PCB 1.4.5.ALPHA.02a
+
+	+ dev_gerber.c		gerber RS-274D now does dynamic aperture
+					table generation
+- Note: *A*
+	+ It might not be needed to include dev_*.h within this source
+		files.  Investigate.
+

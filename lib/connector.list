@@ -1,0 +1,103 @@
+#
+#                             COPYRIGHT
+# 
+#   PCB, interactive printed circuit board design
+#   Copyright (C) 1994,1995,1996 Thomas Nau
+# 
+#   This program is free software; you can redistribute it and/or modify
+#   it under the terms of the GNU General Public License as published by
+#   the Free Software Foundation; either version 2 of the License, or
+#   (at your option) any later version.
+# 
+#   This program is distributed in the hope that it will be useful,
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#   GNU General Public License for more details.
+# 
+#   You should have received a copy of the GNU General Public License
+#   along with this program; if not, write to the Free Software
+#   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+# 
+#   Contact addresses for paper mail and Email:
+#   Thomas Nau, Schlehenweg 15, 88471 Baustetten, Germany
+#   Thomas.Nau@rz.uni-ulm.de
+# 
+#   RCS: $Id$
+#
+# mask package values...
+#
+connector2:CONNECTOR:2
+connector4:CONNECTOR:4
+connector6:CONNECTOR:6
+connector8:CONNECTOR:8
+connector10:CONNECTOR:10
+connector12:CONNECTOR:12
+connector14:CONNECTOR:14
+connector15:CONNECTOR:15
+connector16:CONNECTOR:16
+connector18:CONNECTOR:18
+connector20:CONNECTOR:20
+connector50:CONNECTOR:50
+DIN41_612_abc48female_s:DIN41_612FEMALE_SMALL:abc48f
+DIN41_612_abc48male_s:DIN41_612MALE_SMALL:abc48m
+DIN41_612_ab64female:DIN41_612FEMALE:ab64f
+DIN41_612_ab64male:DIN41_612MALE:ab64m
+DIN41_612_ac64female:DIN41_612FEMALE:ac64f
+DIN41_612_ac64male:DIN41_612MALE:ac64m
+DIN41_612_abc96female:DIN41_612FEMALE:abc96f
+DIN41_612_abc96male:DIN41_612MALE:abc96m
+DIN41_651_10lay:DIN41_651LAY:10l
+DIN41_651_10stand:DIN41_651STAND:10s
+DIN41_651_14lay:DIN41_651LAY:14l
+DIN41_651_14stand:DIN41_651STAND:14s
+DIN41_651_16lay:DIN41_651LAY:16l
+DIN41_651_16stand:DIN41_651STAND:16s
+DIN41_651_18lay:DIN41_651LAY:18l
+DIN41_651_18stand:DIN41_651STAND:18s
+DIN41_651_20lay:DIN41_651LAY:20l
+DIN41_651_20stand:DIN41_651STAND:20s
+DIN41_651_22lay:DIN41_651LAY:22l
+DIN41_651_22stand:DIN41_651STAND:22s
+DIN41_651_24lay:DIN41_651LAY:24l
+DIN41_651_24stand:DIN41_651STAND:24s
+DIN41_651_26lay:DIN41_651LAY:26l
+DIN41_651_26stand:DIN41_651STAND:26s
+DIN41_651_34lay:DIN41_651LAY:34l
+DIN41_651_34stand:DIN41_651STAND:34s
+DIN41_651_40lay:DIN41_651LAY:40l
+DIN41_651_40stand:DIN41_651STAND:40s
+DIN41_651_50lay:DIN41_651LAY:50l
+DIN41_651_50stand:DIN41_651STAND:50s
+DIN41_651_64lay:DIN41_651LAY:64l
+DIN41_651_64stand:DIN41_651STAND:64s
+PC_Centronics:SUBD_FEMALE_LAY:PC-centronics
+PC_V24_9P:SUBD_MALE_LAY:PC-RS232
+PC_V24_25P:SUBD_MALE_LAY:PC-RS232
+SCSI_SE:CONNECTOR:single-ended SCSI
+SUBD_9F:SUBD_FEMALE_LAY:9f
+SUBD_9M:SUBD_MALE_LAY:9m
+SUBD_15F:SUBD_FEMALE_LAY:15f
+SUBD_15M:SUBD_MALE_LAY:15m
+SUBD_25F:SUBD_FEMALE_LAY:25f
+SUBD_25M:SUBD_MALE_LAY:25m
+BNC_rightangle:BNC_LAY:1
+MTA_156_2:MTA_156:2
+SMA_vertical:SMA_VERT:1
+MOLEX_025_20:MOLEX_025:20
+MOLEX_025_30:MOLEX_025:30
+MOLEX_025_40:MOLEX_025:40
+MOLEX_025_50:MOLEX_025:50
+MOLEX_025_60:MOLEX_025:60
+MOLEX_025_68:MOLEX_025:68
+MOLEX_025_70:MOLEX_025:70
+MOLEX_025_80:MOLEX_025:80
+MOLEX_025_90:MOLEX_025:90
+MOLEX_025_100:MOLEX_025:100
+MOLEX_025_120:MOLEX_025:120
+MOLEX_025_140:MOLEX_025:140
+MOLEX_025_160:MOLEX_025:160
+MOLEX_025_180:MOLEX_025:180
+MOLEX_025_200:MOLEX_025:200
+MOLEX_025_240:MOLEX_025:240
+NANOENGINE:NANOENGINE:160
+

@@ -1,0 +1,147 @@
+#!/usr/bin/perl
+#
+#	
+#	Der der Autor ist kein geringerer wie <smilebef@web.de> der Smilie
+#	Also Fragen zu Hpgl oder Plotter,
+#	möglicherweise kann ich ja helfen
+#
+#	Also ganz einfach die Layer.Dateien mit diesen Program erzeugen
+#	mit "Program pcb-Datei"
+#	das ganze in einem Verzeichnis wo ihr auch schreibrechte habt
+#	und dann ganz einfach den gewünchten Layer auf den Plotter kopieren
+#	zBsp. so "cat Layer.1.jenachdem.hpgl > /dev/lp0
+#	den Stift müßt ihr dem Plotter in die Hand geben
+#	und den Stiftrevolver entnehmen daß es eine Kollision giebt.
+
+if( $ARGV[0] )
+{
+}
+else{print "use ".$0." [pcb-file] to convert to hpgl\n";
+exit;};
+
+sub abschnitt
+
+{
+close(DATEI);
+if(/Layer.(\d)\s.(\w+)../)
+{
+$da="Layer.$1.$2.hpgl";
+}
+open(DATEI , ">$da");
+}
+
+
+
+sub via
+
+{
+
+open(DATE,">>Layer.Via.hpgl");
+if(/Via.(\S+)\s(\S+)\s(\S+)\s(\S+)/)
+{
+print(DATE "PA".($1).",".($2).";CI".($4).";");
+}
+close(DATE);
+}
+sub pin
+
+{
+open(DATE,">>Layer.Pin.hpgl");
+if(/\tPin.(\S+)\s(\S+)\s(\S+)\s(\S+)/)
+{
+print(DATE "PA".($1).",".($2).";CI".($4).";");
+}
+close(DATE);
+
+}
+
+
+
+sub text
+
+{
+open(DATE,">>Layer.Text.hpgl");
+if(/\tText.(\S+)\s(\S+)\s(\S+)\s(\S+)\s"(\S+)"/)
+{
+if($3==0){$di=";DI0,1;";};
+if($3==1){$di=";DI1,0;";};
+print(DATE "PA".$1.",".$2.$di."SI".($4/450).",".($4/675).";LB".$5."\e;");
+}
+close(DATE);
+
+}
+
+
+
+sub linie
+
+{
+if(/\tLine.(\S+)\s(\S+)\s(\S+)\s(\S+)/)
+{
+print (DATEI "PU".($1).",".($2).";PD".($3).",".($4).";PU;");
+}
+}
+
+
+
+sub arc
+
+{
+if(/\tArc.(\S+)\s(\S+)\s(\S+)\s(\S+)\s(\S+)\s(\S+)\s(\S+)/)
+{
+if($6==90){$sin=1;$cos=0;}
+if($6==-90){$sin=-1;$cos=0;}
+if($6==0){$sin=0;$cos=1;}
+if($6==180){$sin=0;$cos=-1;}
+if($6==-180){$sin=0;$cos=-1;}
+if($6==270){$sin=-1;$cos=0;}
+if($6==-270){$sin=1;$cos=0;}
+print (DATEI "PA".($1-($3*$cos)).",".($2+($3*$sin)).";PD;AA".($1).",".($2).",".($7*(-1)).";PU;");
+}
+}
+
+
+
+sub polygon
+
+{
+if(/\t\t.(\S+)\s(\S+).\s.(\S+)\s(\S+).\s.(\S+)\s(\S+).\s.(\S+)\s(\S)./)
+{
+print (DATEI "PA".$1.",".$2.";RA".$5.",".$6.";");
+}
+}
+
+# ist noch nicht eingebunden.
+#sub polygon
+
+#{
+#s/\t\t./PU/;
+#s/\s/,/;
+#while(/\)\s\(/)
+#{s/\)\s\(/\;PD/;}
+#while(/\S\s\S/)
+#{s/\s/,/;}
+#s/\)/\;PU\;/;
+#print (DATEI $_);
+#}
+
+
+open(DATE,">Layer.Via.hpgl");
+close(DATE);
+open(DATE,">Layer.Text.hpgl");
+print(DATE "DT\e;");
+close(DATE);
+open(DATE,">Layer.Pin.hpgl");
+close(DATE);
+while(<>)
+{
+if(/\tPin/){&pin}
+if(/Layer/){&abschnitt;}
+if(/Via/){&via;}
+if(/\tArc/){&arc;}
+if(/\tLine/){ &linie;}
+if(/\t\t/){&polygon;}
+if(/\tText\(/){&text;}
+}
+close(DATEI);
+

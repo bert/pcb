@@ -1,0 +1,74 @@
+#
+#                             COPYRIGHT
+# 
+#   PCB, interactive printed circuit board design
+#   Copyright (C) 1994,1995,1996 Thomas Nau
+# 
+#   This program is free software; you can redistribute it and/or modify
+#   it under the terms of the GNU General Public License as published by
+#   the Free Software Foundation; either version 2 of the License, or
+#   (at your option) any later version.
+# 
+#   This program is distributed in the hope that it will be useful,
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#   GNU General Public License for more details.
+# 
+#   You should have received a copy of the GNU General Public License
+#   along with this program; if not, write to the Free Software
+#   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+# 
+#   Contact addresses for paper mail and Email:
+#   Thomas Nau, Schlehenweg 15, 88471 Baustetten, Germany
+#   Thomas.Nau@rz.uni-ulm.de
+# 
+#   RCS: $Id$
+#
+# mask package values...
+#
+6551_dil:N:6551
+6801_dil:N:6801
+81C17_dil:N:81C17
+AT90S1200_dil:N:AT90S1200
+AT90S1300_dil:N:AT90S1300
+AT90S2313_dil:N:AT90S2313
+BT484_plcc:PLCC:BT484
+BT484_plcc:PLCC_SOCKET:BT484 socket
+I82077_plcc:PLCC:I82077
+I82077_plcc:PLCC_SOCKET:I82077 socket
+MAB8031AH_dil:N:MAB8031AH
+MC68000_dil:N:MC68000
+MC68008_plcc:PLCC:MC68008
+MC68008_plcc:PLCC_SOCKET:MC68008 socket
+MC68030_pga:MC68030_pga:MC68030
+MC68332_qfp:QFP132:MC68332
+MC68681_dil:N:MC68681 DIL
+MC68681_plcc:PLCC:MC68681 PLCC
+MC68681_plcc:PLCC_SOCKET:MC68681 PLCC socket
+PEB2086N_plcc:PLCC:PEB2086N PLCC
+PEB2086N_plcc:PLCC_SOCKET:PEB2086N PLCC socket
+MC68881_pga:MC68881_pga:MC68881
+MC68881_pga:MC68881_pga:MC68882
+MC68HC11_plcc:PLCC:MC68HC11
+MC68HC11_plcc:PLCC_SOCKET:MC68HC11 socket
+PIC16C54_dil:N:PIC16C54:PIC16C55:PIC16C58
+PIC16C55_dil:N:PIC16C55:PIC16C57
+PIC16C61_dil:N:PIC16C61
+PIC16C64_dil:N:PIC16C64
+PIC16C71_dil:N:PIC16C71
+PIC16C74_dil:N:PIC16C74
+PIC16C84_dil:N:PIC16C84
+PIC17C42_dil:N:PIC17C42
+RTC62421_dil:N:RTC62421
+TI34010_plcc:PLCC:TI34010
+TI34010_plcc:PLCC_SOCKET:TI34010 socket
+WD33C93A_dil:N:WD33C93A
+Z8536_dil:N:Z8536
+AT90S8535_plcc:PLCC:AT90S8535 PLCC
+AT90S8535_plcc:PLCC_SOCKET:AT90S8535 PLCC socket
+AT90S8535_dil:N:AT90S8535 dil
+AT90S8535_plcc:PLCC:AT90S4434 PLCC
+AT90S8535_plcc:PLCC_SOCKET:AT90S4434 PLCC socket
+AT90S8535_dil:N:AT90S4434 dil
+
+

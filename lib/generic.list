@@ -1,0 +1,153 @@
+#
+#                             COPYRIGHT
+# 
+#   PCB, interactive printed circuit board design
+#   Copyright (C) 1994,1995,1996 Thomas Nau
+# 
+#   This program is free software; you can redistribute it and/or modify
+#   it under the terms of the GNU General Public License as published by
+#   the Free Software Foundation; either version 2 of the License, or
+#   (at your option) any later version.
+# 
+#   This program is distributed in the hope that it will be useful,
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#   GNU General Public License for more details.
+# 
+#   You should have received a copy of the GNU General Public License
+#   along with this program; if not, write to the Free Software
+#   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+# 
+#   Contact addresses for paper mail and Email:
+#   Thomas Nau, Schlehenweg 15, 88471 Baustetten, Germany
+#   Thomas.Nau@rz.uni-ulm.de
+# 
+#   RCS: $Id$
+#
+# mask package values...
+#
+generic8_dil:N:DIL 8
+generic8smd_dil:D:SMD 8
+generic14_dil:N:DIL 14
+generic14smd_dil:D:SMD 14
+generic16_dil:N:DIL 16
+generic16smd_dil:D:SMD 16
+generic18_dil:N:DIL 18
+generic18smd_dil:D:SMD 18
+generic20_dil:N:DIL 20
+generic20smd_dil:D:SMD 20
+generic24_dil:N:DIL 24
+generic24smd_dil:D:SMD 24
+generic24w_dil:N:W-DIL 24
+generic24smdw_dil:DW:SMD-W 24
+generic28_dil:N:DIL 28
+generic28smd_dil:D:SMD 28
+generic28w_dil:N:W-DIL 28
+generic28smdw_dil:DW:SMD-W 28
+generic32_dil:N:DIL 32
+generic40_dil:N:DIL 40
+generic64_dil:N:DIL 64
+generic44_plcc:PLCC:PLCC 44
+generic44_plcc:PLCC_SOCKET:PLCC 44 socket
+generic52_plcc:PLCC:PLCC 52
+generic52_plcc:PLCC_SOCKET:PLCC 52 socket
+generic68_plcc:PLCC:PLCC 68
+generic68_plcc:PLCC_SOCKET:PLCC 68 socket
+generic84_plcc:PLCC:PLCC 84
+generic84_plcc:PLCC_SOCKET:PLCC 84 socket
+
+generic44_qfp:QFP:QFP 44
+generic44_qfp:OLD_QFP:QFP 44 OLD
+generic 208_lqfp:208_LQFP:QFP 208
+menu_qfp:MENU_QFP:QFP menu
+generic80_qfp:QFP2:QFP 80
+generic16_zif:ZIF:ZIF 16
+generic20_zif:ZIF:ZIF 20
+
+generic20_zip:SD:ZIP 20
+generic24_zip:SD:ZIP 24
+generic28_zip:SD:ZIP 28
+generic40_zip:SD:ZIP 40
+
+generic_diode_300:DIODE_LAY:300
+generic_diode_400:DIODE_LAY:400
+generic_diode_500:DIODE_LAY:500
+generic_diode_600:DIODE_LAY:600
+generic_diode_800:DIODE_LAY:800
+
+r_025:R025:resistor 0.25W
+
+r_025_csil_4:CSIL:4xR-array-common 0.25W
+r_025_csil_6:CSIL:6xR-array-common 0.25W
+r_025_csil_7:CSIL:7xR-array-common 0.25W
+r_025_csil_8:CSIL:8xR-array-common 0.25W
+r_025_sil_4:SIL:2xR-array 0.25W
+r_025_sil_6:SIL:3xR-array 0.25W
+r_025_sil_8:SIL:4xR-array 0.25W
+#
+crystal_300:CRYSTAL:crystal
+#
+oscillator_1:OSC:1 MHz OSC
+oscillator_2:OSC:2 MHz OSC
+oscillator_4:OSC:4 MHz OSC
+oscillator_5:OSC:5 MHz OSC
+oscillator_8:OSC:8 MHz OSC
+oscillator_10:OSC:10 MHz OSC
+oscillator_12:OSC:12 MHz OSC
+oscillator_16:OSC:16 MHz OSC
+oscillator_20:OSC:20 MHz OSC
+oscillator_24:OSC:24 MHz OSC
+oscillator_32:OSC:32 MHz OSC
+
+ovenized_oscillator_5:OVEN_OSC:5 MHz OSC
+
+generic_resistor_axial_300:AXIAL_LAY:300
+generic_resistor_axial_400:AXIAL_LAY:400
+generic_resistor_axial_500:AXIAL_LAY:500
+generic_resistor_axial_600:AXIAL_LAY:600
+generic_resistor_axial_800:AXIAL_LAY:800
+
+generic_capacitor_axial_300:AXIAL_LAY:300
+generic_capacitor_axial_400:AXIAL_LAY:400
+generic_capacitor_axial_500:AXIAL_LAY:500
+generic_capacitor_axial_600:AXIAL_LAY:600
+generic_capacitor_axial_800:AXIAL_LAY:800
+
+generic_capacitor_radial_200:RADIAL_CAN:200
+generic_capacitor_radial_300:RADIAL_CAN:300
+generic_capacitor_radial_400:RADIAL_CAN:400
+generic_capacitor_radial_500:RADIAL_CAN:500
+generic_capacitor_radial_600:RADIAL_CAN:600
+
+generic_smd_chip_402:SMD_CHIP:Resistor:Capacitor
+generic_smd_chip_603:SMD_CHIP:Resistor:Capacitor
+generic_smd_chip_805:SMD_CHIP:Resistor:Capacitor
+generic_smd_chip_1206:SMD_CHIP:Resistor:Capacitor
+generic_smd_chip_1210:SMD_CHIP:Resistor:Capacitor
+
+smd_resistor_603:SMD_SIMPLE:603
+smd_resistor_805:SMD_SIMPLE:805
+smd_resistor_1206:SMD_SIMPLE:1206
+
+smd_capacitor_603:SMD_SIMPLE:603
+smd_capacitor_805:SMD_SIMPLE:805
+smd_capacitor_1206:SMD_SIMPLE:1206
+
+smd_capacitor_polarized_603:SMD_POLAR:603
+smd_capacitor_polarized_805:SMD_POLAR:805
+smd_capacitor_polarized_1206:SMD_POLAR:1206
+
+smd_EIA_A_capacitor:SMD_POLAR:EIA A
+smd_EIA_B_capacitor:SMD_POLAR:EIA B
+smd_EIA_C_capacitor:SMD_POLAR:EIA C
+smd_EIA_D_capacitor:SMD_POLAR:EIA D
+
+smd_diode_603:SMD_DIODE:603
+smd_diode_805:SMD_DIODE:805
+smd_diode_1206:SMD_DIODE:1206
+
+isa_eight_bit:ISA8:XT8BIT
+
+sot_23:SOT23:SOT-23
+sot_323:SOT323:SOT-323
+sot_nec19:NEC19:SOT-NE19

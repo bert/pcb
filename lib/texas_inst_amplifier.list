@@ -1,0 +1,53 @@
+#
+#                             COPYRIGHT
+# 
+#   PCB, interactive printed circuit board design
+#   Copyright (C) 1994,1995,1996 Thomas Nau
+# 
+#   This program is free software; you can redistribute it and/or modify
+#   it under the terms of the GNU General Public License as published by
+#   the Free Software Foundation; either version 2 of the License, or
+#   (at your option) any later version.
+# 
+#   This program is distributed in the hope that it will be useful,
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#   GNU General Public License for more details.
+# 
+#   You should have received a copy of the GNU General Public License
+#   along with this program; if not, write to the Free Software
+#   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+# 
+#   Contact addresses for paper mail and Email:
+#   Thomas Nau, Schlehenweg 15, 88471 Baustetten, Germany
+#   Thomas.Nau@rz.uni-ulm.de
+# 
+#   RCS: $Id$
+#
+# mask package values...
+#
+TL070_dil:N:TL070:TL070A
+TL071_dil:N:TL071:TL071A:TL071B
+TL072_dil:N:TL072:TL072A:TL072B
+TL074_dil:N:TL074:TL074A:TL074B
+TL075_dil:N:TL075
+#
+#
+TL080_dil:N:TL080:TL080A
+TL081_dil:N:TL081:TL081A:TL081B
+TL082_dil:N:TL082:TL082A:TL082B
+TL083_dil:N:TL083:TL083A
+TL084_dil:N:TL084:TL084A:TL084B
+TL085_dil:N:TL085
+#
+TLC271_dil:N:TLC271:TLC271A:TLC271B
+TLC272_dil:N:TLC272:TLC272A:TLC272B:TLC277
+TLC274_dil:N:TLC274:TLC274A:TLC274B:TLC279
+#
+uA709C_dil:N:uA709C
+uA741C_dil:N:uA741C
+uA747C_dil:N:uA747C
+uA748C_dil:N:uA748C
+#
+LM324_dil:N:LM124:LM224:LM224A:LM324:LM324A:LM2902
+#

@@ -1,0 +1,51 @@
+#
+#                             COPYRIGHT
+# 
+#   PCB, interactive printed circuit board design
+#   Copyright (C) 1994,1995,1996 Thomas Nau
+# 
+#   This program is free software; you can redistribute it and/or modify
+#   it under the terms of the GNU General Public License as published by
+#   the Free Software Foundation; either version 2 of the License, or
+#   (at your option) any later version.
+# 
+#   This program is distributed in the hope that it will be useful,
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#   GNU General Public License for more details.
+# 
+#   You should have received a copy of the GNU General Public License
+#   along with this program; if not, write to the Free Software
+#   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+# 
+#   Contact addresses for paper mail and Email:
+#   Thomas Nau, Schlehenweg 15, 88471 Baustetten, Germany
+#   Thomas.Nau@rz.uni-ulm.de
+# 
+#   RCS: $Id$
+
+#  Arcade machine parts needed by Scott "Jerry" Lawrence
+#   jsl@absynth.com
+
+# this should be in the lsi file perhaps.
+z80_dil:N:Z80
+
+# these should be in the memory file.
+
+# RAM
+4016_dil:N:4016
+2114_dil:N:2114
+6116_dil:N:6116
+
+# NVSRAM 
+DS1220_dil:N:DS1220
+DS1225_dil:N:DS1225
+DS1230_dil:N:DS1230
+
+# EPROM
+2532_dil:N:2532
+2716_dil:N:2716
+2732_dil:N:2732
+2764_dil:N:2764
+27128_dil:N:27128
+27256_dil:N:27256

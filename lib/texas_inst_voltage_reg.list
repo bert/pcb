@@ -1,0 +1,112 @@
+#
+#                             COPYRIGHT
+#
+#   PCB, interactive printed circuit board design
+#   Copyright (C) 1994,1995,1996 Thomas Nau
+#
+#   This program is free software; you can redistribute it and/or modify
+#   it under the terms of the GNU General Public License as published by
+#   the Free Software Foundation; either version 2 of the License, or
+#   (at your option) any later version.
+#
+#   This program is distributed in the hope that it will be useful,
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#   GNU General Public License for more details.
+#
+#   You should have received a copy of the GNU General Public License
+#   along with this program; if not, write to the Free Software
+#   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+#
+#   Contact addresses for paper mail and Email:
+#   Thomas Nau, Schlehenweg 15, 88471 Baustetten, Germany
+#   Thomas.Nau@rz.uni-ulm.de
+#
+#   RCS: $Id$
+#
+# mask package values...
+#
+uA7905C:TO220LAY:uA7905C-laying
+uA7905C:TO220STAND:uA7905C-standing
+uA7952C:TO220LAY:uA7952C-laying
+uA7952C:TO220STAND:uA7952C-standing
+uA7906C:TO220LAY:uA7906C-laying
+uA7906C:TO220STAND:uA7906C-standing
+uA7908C:TO220LAY:uA7908C-laying
+uA7908C:TO220STAND:uA7908C-standing
+uA7910C:TO220LAY:uA7910C-laying
+uA7910C:TO220STAND:uA7910C-standing
+uA7912C:TO220LAY:uA7912C-laying
+uA7912C:TO220STAND:uA7912C-standing
+uA7815C:TO220LAY:uA7815C-laying
+uA7915C:TO220STAND:uA7915C-standing
+uA7918C:TO220LAY:uA7918C-laying
+uA7918C:TO220STAND:uA7918C-standing
+uA7924C:TO220LAY:uA7924C-laying
+uA7924C:TO220STAND:uA7924C-standing
+uA79M05C:TO220LAY:uA79M05C-laying
+uA79M05C:TO220STAND:uA79M05C-standing
+uA79M06C:TO220LAY:uA79M06C-laying
+uA79M06C:TO220STAND:uA79M06C-standing
+uA79M08C:TO220LAY:uA79M08C-laying
+uA79M08C:TO220STAND:uA79M08C-standing
+uA79M12C:TO220LAY:uA79M12C-laying
+uA79M12C:TO220STAND:uA79M12C-standing
+uA79M15C:TO220LAY:uA79M15C-laying
+uA79M15C:TO220STAND:uA79M15C-standing
+uA79M20C:TO220LAY:uA79M20C-laying
+uA79M20C:TO220STAND:uA79M20C-standing
+uA79M24C:TO220LAY:uA79M24C-laying
+uA79M24C:TO220STAND:uA79M24C-standing
+uA7805C:TO220LAY:uA7805C-laying
+uA7805C:TO220STAND:uA7805C-standing
+uA7806C:TO220LAY:uA7806C-laying
+uA7806C:TO220STAND:uA7806C-standing
+uA7808C:TO220LAY:uA7808C-laying
+uA7808C:TO220STAND:uA7808C-standing
+uA7885C:TO220LAY:uA7885C-laying
+uA7885C:TO220STAND:uA7885C-standing
+uA7810C:TO220LAY:uA7810C-laying
+uA7810C:TO220STAND:uA7810C-standing
+uA7812C:TO220LAY:uA7812C-laying
+uA7812C:TO220STAND:uA7812C-standing
+uA7815C:TO220LAY:uA7815C-laying
+uA7815C:TO220STAND:uA7815C-standing
+uA7818C:TO220LAY:uA7818C-laying
+uA7818C:TO220STAND:uA7818C-standing
+uA7824C:TO220LAY:uA7824C-laying
+uA7824C:TO220STAND:uA7824C-standing
+uA78M05C:TO220LAY:uA78M05C-laying
+uA78M05C:TO220STAND:uA78M05C-standing
+uA78M06C:TO220LAY:uA78M06C-laying
+uA78M06C:TO220STAND:uA78M06C-standing
+uA78M08C:TO220LAY:uA78M08C-laying
+uA78M08C:TO220STAND:uA78M08C-standing
+uA78M09C:TO220LAY:uA78M09C-laying
+uA78M09C:TO220STAND:uA78M09C-standing
+uA78M10C:TO220LAY:uA78M10C-laying
+uA78M10C:TO220STAND:uA78M10C-standing
+uA78M12C:TO220LAY:uA78M12C-laying
+uA78M12C:TO220STAND:uA78M12C-standing
+uA78M15C:TO220LAY:uA78M15C-laying
+uA78M15C:TO220STAND:uA78M15C-standing
+uA78M20C:TO220LAY:uA78M20C-laying
+uA78M20C:TO220STAND:uA78M20C-standing
+uA78M24C:TO220LAY:uA78M24C-laying
+uA78M24C:TO220STAND:uA78M24C-standing
+uA78L02C:TO92:uA78L02C
+uA78L05C:TO92:uA78L05C
+uA78L06C:TO92:uA78L06C
+uA78L08C:TO92:uA78L08C
+uA78L09C:TO92:uA78L09C
+uA78L10C:TO92:uA78L10C
+uA78L12C:TO92:uA78L12C
+uA78L15C:TO92:uA78L15C
+uA79L05C:TO92:uA79L05C
+uA79L12C:TO92:uA79L12C
+uA79L15C:TO92:uA79L15C
+LM317:TO220LAY:LM317-laying
+LM317:TO220STAND:LM317-standing
+LM337:TO220LAY:LM337-laying
+LM337:TO220STAND:LM337-standing
+TL431C:TO92:TL431C

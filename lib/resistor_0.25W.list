@@ -1,0 +1,35 @@
+#
+#                             COPYRIGHT
+# 
+#   PCB, interactive printed circuit board design
+#   Copyright (C) 1994,1995,1996 Thomas Nau
+# 
+#   This program is free software; you can redistribute it and/or modify
+#   it under the terms of the GNU General Public License as published by
+#   the Free Software Foundation; either version 2 of the License, or
+#   (at your option) any later version.
+# 
+#   This program is distributed in the hope that it will be useful,
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#   GNU General Public License for more details.
+# 
+#   You should have received a copy of the GNU General Public License
+#   along with this program; if not, write to the Free Software
+#   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+# 
+#   Contact addresses for paper mail and Email:
+#   Thomas Nau, Schlehenweg 15, 88471 Baustetten, Germany
+#   Thomas.Nau@rz.uni-ulm.de
+# 
+#   RCS: $Id$
+#
+# mask package values...
+#
+r_025:R025:10:12:15:18:22:27:33:39:47:56:68:82
+r_025:R025:100:120:150:180:220:270:330:390:470:560:680:820
+r_025:R025:1k:1.2k:1.5k:1.8k:2.2k:2.7k:3.3k:3.9k:4.7k:5.6k:6.8k:8.2k
+r_025:R025:10k:12k:15k:18k:22k:27k:33k:39k:47k:56k:68k:82k
+r_025:R025:100k:120k:150k:180k:220k:270k:330k:390k:470k:560k:680k:820k
+r_025:R025:1m:1.2m:1.5m:1.8m:2.2m:2.7m:3.3m:3.9m:4.7m:5.6m:6.8m:8.2m
+r_025:R025:10m

@@ -1,0 +1,210 @@
+%                            COPYRIGHT
+%
+%  PCB, interactive printed circuit board design
+%  Copyright (C) 1994, 1995 Thomas Nau
+%  Copyright (C) 1998, 1999, 2000, 2001 harry eaton
+%
+%  This program is free software; you can redistribute it and/or modify
+%  it under the terms of the GNU General Public License as published by
+%  the Free Software Foundation; either version 2 of the License, or
+%  (at your option) any later version.
+%
+%  This program is distributed in the hope that it will be useful,
+%  but WITHOUT ANY WARRANTY; without even the implied warranty of
+%  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+%  GNU General Public License for more details.
+%
+%  You should have received a copy of the GNU General Public License
+%  along with this program; if not, write to the Free Software
+%  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+%
+%  Contact addresses for paper mail and Email:
+%  Thomas Nau, Schlehenweg 15, 88471 Baustetten, Germany
+%  Thomas.Nau@rz.uni-ulm.de
+
+
+\documentstyle[11pt]{article}
+
+%------------------------------------------------------------------
+% redefine page size to be A4 landscape, no margins
+%
+\special{papersize=297mm,210mm}
+
+\textwidth 27.16cm   \hsize\textwidth
+\textheight 18.46cm  \vsize\textheight
+\voffset -0.2in
+\hoffset -0.5in
+
+\topmargin 0cm
+\headheight 0cm
+\headsep 0cm
+\topskip 0cm
+\footskip 0cm
+\footheight 1cm
+\oddsidemargin 0cm
+\evensidemargin 0cm
+\marginparwidth 0cm
+
+%------------------------------------------------------------------
+% size of a single box
+%
+\def\BoxWidth{8.7cm}
+\def\BoxHeight{15cm}
+\def\BoxRaise{-\BoxHeight}
+
+%------------------------------------------------------------------
+% some new commands to define the modifier keys
+%
+\newcommand{\Shift}{{\it [S]}}
+\newcommand{\Ctrl}{{\it [C]}}
+\newcommand{\Mod}{{\it [M]}}
+\newcommand{\Btn}{{\it Btn}}
+\newcommand{\Fun}{{\it F}}
+
+\thispagestyle{empty}
+
+\begin{document}
+
+\centerline{\Huge\bf PCB-@VERSION@ command reference
+{\scriptsize \copyright 1998, 1999, 2000, 2001 harry eaton}}
+\bigskip
+\small
+
+\hfill
+\begin{minipage}[t]{\BoxWidth}
+\renewcommand{\thefootnote}{\arabic{footnote}}
+\fbox{\rule[\BoxRaise]{0cm}{\BoxHeight} \begin{tabular}[t]{ll}
+\multicolumn{2}{c}{\bf misc operations} \\
+backspace & remove object \\
+\Shift\Ctrl\Btn1 & remove object \\
+escape & pan (Gumby) mode \\
+\Btn1 & create object or part \\
+u & undo operation \\
+\Shift r & redo operation \\
+\Shift\Ctrl u & clear undo-list \\
+tab & switch viewing side \\
+cursor key & move crosshair 1 grid\\
+\Shift cursor key & move crosshair 10 grid\\
+ & \\
+\multicolumn{2}{c}{\bf connections} \\
+\Shift f & reset found connections \\
+f & find connections \\
+\Shift backspace & remove connections \\
+ & \\
+\multicolumn{2}{c}{\bf user (:) commands} \\
+:DRC() & check layout for rule violations \\
+:l [file] & load data file \\
+:le [file] & load element to buffer \\
+:m [file] & load layout to buffer \\
+:q & quit application \\
+:rn [file] & load netlist \\
+:s [file] & save data as file \\
+ & \\
+\multicolumn{2}{c}{\bf display} \\
+c & center display \\
+g & increase grid spacing \\
+\Shift g & decrease grid spacing \\
+\Ctrl m & mark location \\
+r & clear and redraw output \\
+z & zoom in \\
+\Shift z & zoom out \\
+v & zoom extents \\
+\end{tabular}}
+\end{minipage}
+%
+%
+%
+\hfill
+\begin{minipage}[t]{\BoxWidth}
+\fbox{\rule[\BoxRaise]{0cm}{\BoxHeight} \begin{tabular}[t]{ll}
+\multicolumn{2}{c}{\bf selection} \\
+\Btn2 & select/deselect object \\
+\Shift\Btn2 & add object to selection \\
+drag \Btn2 & select only objects in box \\
+drag \Shift\Btn2 & add box to selection \\
+\Shift m & move selected to current layer \\
+ & \\
+\multicolumn{2}{c}{\bf copy and move} \\
+drag \Btn2 & move object or selection\\
+drag \Mod\Btn2 & copy object \\
+drag \Shift\Mod\Btn2 & override rubberband \& move \\
+m & move to current layer \\
+ & \\
+\multicolumn{2}{c}{\bf pastebuffer} \\
+\Fun3 & enter pastebuffer-mode \\
+\Shift \Fun3 & rotate 90 degree cc \\
+\Btn1 & copy to layout \\
+\Shift 1$\cdots$5 & select buffer \# 1$\cdots$5 \\
+x & copy selected objects to buffer \\
+\Shift x & cut selected objects to buffer \\
+ & \\
+\multicolumn{2}{c}{\bf sizing} \\
+s & increase size of TLAPV \footnote{TLAPV: text, line, arc, pin or via}\\
+\Shift s & decrease size of TLAPV\\
+\Mod s & increase drill size of PV \\
+\Shift\Mod s & decrease drill size of PV \\
+k & increase clearance of LAPV\\
+\Shift\ k & decrease clearance of LAPV\\
+& \\
+\multicolumn{2}{c}{\bf element} \\
+d & display pinout \\
+\Shift d & open pinout window \\
+h & hide/show element name \\
+n & change element name \\
+ & \\
+\multicolumn{2}{c}{\bf pin/pad} \\
+n & change name \\
+q & toggle square flag \\
+\end{tabular}}
+\end{minipage}
+%
+%
+%
+\hfill
+\begin{minipage}[t]{\BoxWidth}
+\fbox{\rule[\BoxRaise]{0cm}{\BoxHeight} \begin{tabular}[t]{ll}
+\multicolumn{2}{c}{\bf via} \\
+\Fun1 & enter via-mode \\
+\Ctrl v & increase initial size \\
+\Shift v & decrease initial size \\
+\Mod v & inc. initial drilling hole \\
+\Shift\Mod v & dec. initial drilling hole \\
+\Ctrl h & convert via to mounting hole \\
+ & \\
+\multicolumn{2}{c}{\bf lines/arcs} \\
+\Fun2 & enter line mode \\
+\Fun8 & enter arc mode \\
+l & increase initial line size \\
+\Shift l & decrease initial line size \\
+period & toggle 45 degree enforcement \\
+/ & cycle multiline mode \\
+\Shift & override multiline mode \\
+ & \\
+\multicolumn{2}{c}{\bf polygon} \\
+\Fun4 & enter rectangle-mode \\
+\Fun6 & enter polygon-mode \\
+\Shift p & close path \\
+insert & enter insert point mode \\
+ & \\
+\multicolumn{2}{c}{\bf text} \\
+\Fun5 & enter text-mode \\
+n & edit string \\
+t & increase initial text size \\
+\Shift t & decrease initial text size \\
+ & \\
+\multicolumn{2}{c}{\bf rats nest} \\
+w & add all rats \\
+\Shift w & add rats to selected pins/pads \\
+e & delete all rats \\
+\Shift e & delete selected rats \\
+o & optimize all rats \\
+\Shift o & optimize selected rats \\
+\end{tabular}}
+\end{minipage}
+\hfill
+
+\medskip
+Obviously \Shift, \Ctrl, \Mod, \Fun \space and \Btn \space mean the shift,
+control, modifier1 (BTNMOD for buttons), function key and mouse button.
+
+\end{document}

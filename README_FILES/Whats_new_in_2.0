@@ -1,0 +1,191 @@
+New Features for 2.0
+
+(1) New library system. A directory tree is parsed and added to the library 
+selector window. This directory is specified in the config.h file as 
+PCBTREEDIR and should point to a directory where any pcb user that needs to 
+create library elements has write privileges. The "-libtree X" switch will 
+cause pcb to use directory X instead of the installed default for the new 
+library directory. You should continue to be wary of the old library 
+elements, many of them are not quite right. (Just check them carefully before 
+fabing to be sure there are no surprises). My intent is to create a 
+repository for new elements THAT PEOPLE HAVE FABRICATED SUCCESSFULLY in order 
+to grow a reliable library.
+
+(2) Element files can now contain layers (line, arcs, polygons), vias and 
+elements. The new library system reads from element files (no need to learn 
+M4). The expanded capability of element files allows you to put useful 
+sub-circuits into the library. For example, a QFP package with a break-out 
+via pattern can be stored as a library element. Be careful with this as the 
+layers are saved simply by their layer number and lose any association with a 
+group (e.g. whether it is the component, or solder-side layer).
+
+(3) Improved fascilities for creating elements from drawn objects. Now you 
+can put an element in the buffer, and break it into it's consitutent parts. 
+Paste this to the layout, make changes, then put it back in the buffer to 
+convert to an element. You can also save a buffer's contents to an element 
+file (i.e. add it to the library). Of course element files are still just 
+text files so you can edit them at will. Draw the element outline on the silk 
+layer (lines and arcs, no polygons), use Vias to make pins or holes, and lines 
+on the component and/or solder layers for SMD pads. Number the pins and pads 
+with the name ("n" key) entry, then cut it all to the buffer and select 
+"convert buffer to element". Saved elements always appear in the file in a 
+component-side orientation (even if you save while viewing the solder side).
+
+(4) Support for elements with surface-mount pads on both sides of the board. 
+e.g. edge connectors. This also allows creation of elements with multiple
+pins/pads having the same "number" string. This can be used, for example,
+to create a DIP footprint that has a pad on top and bottom coincident
+with each pin. This effectively makes the pins have elongated copper pads
+on the top and bottom - something several home-made board makers have
+requested.  If you do create an element with multiple pins having the
+same number, and that number appears in the netlist, they MUST be connected
+before the board is considered routed. See the "14DIP_oval_pad" example
+in the "test" section of the library for an example.
+
+(5) Support for the strokes library. Compiling with strokes enabled (see 
+config.h) binds the middle button to recognize strokes for the user 
+interface. Zoom in, Zoom out, choose the line, arrow, or via tools, rotate an 
+object, etc. can be done with simple strokes. Check the source code 
+(FinishStroke() in action.c) to see what the strokes are.
+
+(6) Better fascilites for panning at high zoom: Shift-button3 down shows the 
+whole layout - move the crosshair to where you want the display centered, 
+then release the mouse button - the previous zoom level is restored, centered 
+at the new location. You can do this while in the middle of drawing, moving, 
+etc. You can also place the cursor in the panner area, and use the arrow keys 
+on the keyboard to scroll half a window view per keypress. Of course you can 
+still drag the screen with button1 with the panner tool (previously known
+as no tool).
+Auto-scrolling is also improved. If you want to use menus, buttons,
+the panner, placing the pointer over them stops auto-scroll. If you
+want to go to another window and not auto-scroll, pass the pointer
+over one of those things before heading to the other window.
+
+(7) Auto-router. The auto-router routes with the active line size, via size, 
+and keep-away. It is a grid-less router, and will automatically avoid any 
+existing traces, etc. that you've placed on the board. It uses all layers 
+that are visible when invoked, so turn off any layers you don't want it to 
+use. You can auto-route all rat lines, or selected rat lines. This was
+written by C. Scott Ananian
+
+(8) Fascilities to rip-up tracks and vias that were placed by the 
+auto-router. You can rip-up all auto-routed tracks, or just those that are 
+selected (and were auto-routed).
+
+(9) Auto-placement code. It's broken. Don't use it.
+
+(10) Many functions added to the menus that were previously accessible only 
+through keys or typed commands. e.g. SetValue(Grid,1), DRC().
+
+(11) You can turn on/off the requirement for unique element names. When 
+unique names are required, they may be automatically generated when pasting. 
+Turn on uniqueness for a single layout, turn off if placing several boards in 
+a panel (or if you just want duplicate names). It's in the settings menu.
+
+(12) Support for metric grids. Coordinates are still always integer mils,
+but you can have the grid fall on a regular metric spacing to within
++/- 1 mil. Selectable in the "Screen" menu and also with the "SetValue(Grid, x)"
+command; the value x is still in mils, but it's floating point now. Also
+the concept of "absolute" grid has been eliminated - just align it where
+you want.
+
+(13) Support for viewing the soldermask. The Screen menu has a selection for
+turning on/off the display of the solder mask. You can also change the
+size of mask holes when the mask is displayed by using the
+"ChangeClearSize(what, change)" function (k key). If the mask is not
+displayed, this function changes polygon clearances as before. For example
+you could elliminate all via soldermask holes by selecting everything
+(make sure vias are turned on), then typing the command:
+":ChangeClearSize(SelectedVias, 0)" There is a special case for
+vias to change the mask diameter equal to the via diameter, by using
++0 as the size change.
+ 
+(14) Support for creation/addition of netlist by drawing rat lines.
+Select "netlist" from the drawing layer, and use the line tool to
+add nets. Undo removes the rat, but not the created net. To delete
+a netlist entry, select the connection in the netlist window and
+hit the backspace key. The "netlist" layer must be the active layer
+to delete connections like this. This is NOT the recommended way
+to create a netlist, but a lot of people asked for it.
+
+(15) Support for snapping the crosshair to pins/pads even when they're not on
+grid. Selectable in the "Settings" menu. Thanks to Borges for this
+great idea.
+
+(16) Doesn't draw negative lines and arcs in print output unless
+necessary. It still does this for all pads though. Doesn't technically
+matter, but there are a lot of bogus gerber viewers out there and
+people that are easily confused by gerber files that completely meet
+the specification.
+
+(17) Added a "Lock" feature that lets you lock an object so it
+can't be selected, moved, or modified. Very handy for making a
+board-outline element (e.g. pc104 card) invisible to the Arrow
+tool.
+
+(18) lots of bug fixes (plus, no doubt, lots of newly introduced ones).
+
+(19) a tool (in the tools folder) for converting to/from ncap files
+for auto-routing with MUCS-PCB. I have not tried this myself. Written
+By Luis Claudio G. Lopes
+
+(20) A program for quickly generating QFP elements. Its invoked
+from the old library (~generic/qfp menu, generic)
+
+(21) The old imake based build system has been replaced by a GNU
+autoconf/automake build system.  This should simplify the installation
+and provide greater portability.
+  
+  Quick and dirty explanation of some as-yet undocumented features:
+  
+Quick and dirty explanation of some as-yet undocumented features:
+
+Netlist window: double-click on a net-name to enable/disable it. A "*" 
+appears next to the name when it is disabled. Disabled means rats nests will 
+ignore the net. Click on a connection to select it (and center it) in the 
+layout window. "Finding" a connection starting from a pin or pad will
+select it in the netlist window.
+
+The "j" key controls whether a line (arc) clears (plow through) polygons or 
+touches them. Newly created lines and arcs follow the setting in the 
+"settings" menu. Put the cursor over the line or arc you want to change, then 
+hit the "j" (j for join) key.
+
+The "k" key controls the width of clearance around a line (arc) when it 
+plows. "k" key increases clearance by 2, Shift-K decreases it by 2, also 
+works for pins and vias piercing polygons. The initial value for new objects 
+(but not element pins/pads which is in the element definition)
+is controlled by the "keepaway" setting, changeable in the "sizes" menu.
+
+When drawing lines, you can start a new anchor point without drawing from 
+the previous point by either clicking button3, or Ctrl-button1. DON'T
+USE BUTTON2 - that would be wrong, even if it sort of works.
+
+The Arrow tool is for selecting/deselecting objects, and moving them. 
+Shift-click to add to the existing selection. You can click-drag to draw 
+boxes for box selection. If you click-drag on an already selected item, you 
+will move the selection. If you click-drag on an un-selected item, you will 
+move that item without selecting it. This last technique is the only way to 
+move a point (e.g. end point of a line), and is also the only way to perform 
+moves with rubber-banding (i.e. rubber-banding doesn't work with selections). 
+Moving a selection actually cuts it to a special paste buffer, then pastes it 
+at the new location. Always start a box selection by clicking in an empty 
+region of the board. It may be desireable to turn off some visibility in 
+order to simplify the box selection operation.  You can also lock
+an object to make it invisible to the Arrow tool (so box selections can
+begin over the object). If you don't configure for
+strokes, the middle button is bound to the arrow tool.
+
+To move an element or silk text to the opposite side of the board, use the 
+"b" key (b for backside) to send it to the opposite side. You can also cut an 
+object to a buffer, switch viewing sides (tab), then paste it. The buffer can 
+be used this way to flip layout traces to the other side too, although if 
+layer groups are used, the precise layer they appear on may not have the 
+color you want, but the connectivity should not change.
+
+
+Installation tip: BE SURE TO INSTALL THE NEW X11 RESOURCE FILE - run
+make install to do this. If you just want to test without installing,
+run the pcbtest.sh script in the src directory.
+
+

@@ -1,0 +1,261 @@
+.\"
+.\"                            COPYRIGHT
+.\"
+.\"  PCB, interactive printed circuit board design
+.\"  Copyright (C) 1994,1995,1996 Thomas Nau
+.\"  Copyright (C) 1997,1998,1999,2000,2001,2002 harry eaton
+.\"
+.\"  This program is free software; you can redistribute it and/or modify
+.\"  it under the terms of the GNU General Public License as published by
+.\"  the Free Software Foundation; either version 2 of the License, or
+.\"  (at your option) any later version.
+.\"
+.\"  This program is distributed in the hope that it will be useful,
+.\"  but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\"  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\"  GNU General Public License for more details.
+.\"
+.\"  You should have received a copy of the GNU General Public License
+.\"  along with this program; if not, write to the Free Software
+.\"  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+.\"
+.\"  Contact addresses for paper mail and Email:
+.\"  Thomas Nau, Schlehenweg 15, 88471 Baustetten, Germany
+.\"  Thomas.Nau@rz.uni-ulm.de
+.\"
+.\"  RCS: $Id$
+.\"
+.TH PCB 1 \" -*- nroff -*-
+
+.SH NAME
+Pcb \- X11 interactive printed circuit board layout system
+
+.SH VERSION
+
+.P
+The current release is: @VERSION@
+
+.SH SYNOPSIS
+.B pcb
+[\-option ...] [\-toolkit_option ...] [description file]
+
+or
+
+.B pcb
+\-specialoption
+
+.SH DESCRIPTION
+
+.P 
+\fIPcb\fP is a handy tool for the \fIX Window System\fP build to design
+printed circuit boards. All coordinate units are 1/1000 inch.
+It implements the most needed features like:
+
+.IP
+* A layout consists of lines, arcs, polygons, elements (pins, pads and silkscreen),
+vias and text information seperated into several layers. Each of them
+is identified by a unique name and color.  SMD circuits are also supported.
+.IP
+* @MAX_LAYER@ layers are supported in addition to a silkscreen layer.
+Visibility of layers, pins and SMD pads and vias is controllable.
+.IP
+* All files are 7 bit ASCII and can be preprocessed with any UNIX command
+that writes it's results to \fIstdout\fP (\fIGNU m4\fP is required).
+.IP
+* The layout grid is anywhere in the range from 1/1000 inch up to 250/1000
+inch. The maximum is defined at compilation time.
+.IP
+* Zooming is supported.
+.IP
+* A copy of the current data is saved temporarily in /tmp to
+ensure that nothing is lost during critical sections of the program.
+.IP
+* An unlimited (depending on memory) undo operations
+is supported. Also redo is available in case you change your mind.
+
+.P
+Pcb is intended to be a flexible tool that can be used many ways.It
+now has an autorouter. Most of the settings can be specified by resources, passed
+in the command-line or changed at runtime. Layout related settings are saved
+together with the data.
+
+.SH OPTIONS
+
+.P
+Beside the toolkit options, Pcb recognizes some command-line options
+with following syntax:
+\-option switches it on, +option switches it off
+
+.TP
+.BI \-alldirections,+alldirections
+Enables or disables lines in any direction. Overrides the resource
+\fIallDirectionLines\fP.
+.TP
+.BI \-backup " <value>"
+Time in seconds between two backups. Overrides the resource
+\fIbackupInterval\fP.
+.TP
+.BI \-c " <value>"
+Number of characters per output-line. Overrides the resource
+\fIcharactersPerLine\fP.
+.TP
+.BI \-fontfile " <filename>"
+The default font is read from this file. The file is, together with a path,
+passed to an external program. The path is defined by the resource
+\fIfontPath\fP wheras the command uses \fIfontCommand\fP.
+Overwrittes the resource \fIfontFile\fP.
+.TP
+.BI \-lelement " <\fIUNIX\fP command>"
+Sets the command to be executed when an element is loaded.
+The command may contain %f which is replaced by the filename and %p
+which is replaced by the element search-path. The command must write it's
+results to \fIstdout\fP. The resource \fIelementCommand\fP is overwritten.
+.TP
+.BI \-lfile " <\fIUNIX\fP command>"
+Sets the command to be executed when an layout file is loaded.
+The command may contain %f which is replaced by the filename and %p which is
+replaced by the search-path. The command must write it's results to
+\fIstdout\fP. The resource \fIfileCommand\fP is overwritten.
+.TP
+.BI \-lfont " <\fIUNIX\fP command>"
+Sets the command to be executed when an fontfile is loaded.
+The command may contain %f which is replaced by the filename and %p which
+is replaced by the font search-path. The command must write it's results to
+\fIstdout\fP. The resource \fIfontCommand\fP is overwritten.
+.TP
+.BI \-lg " <layergroups>"
+This option overwrites the resource \fIlayerGroups\fP. See its description
+for more information.
+.TP
+.BI \-libname " <filename>"
+The default filename for the library. Overwrites the resource
+\fIlibraryFilename\fP.
+.TP
+.BI \-libtree " <filename>"
+The default directory for the element-file libraries. Overwrides the resource
+\fIlibraryTree\fP.
+.TP
+.BI \-libpath " <path>"
+The default search path for the the library. Overwrites the resource
+\fIlibraryPath\fP.
+.TP
+.BI \-llib " <\fIUNIX\fP command>"
+Sets the command to be executed when an element is loaded from the library.
+The command may contain %f and %p to pass the requested filename
+and the searchpath to the command. %a is replaces by the three arguments
+\fItemplate\fP, \fIvalue\fP and \fIpackage\fP. The command must write
+the data to its standard output. The related resource is \fIlibraryCommand\fP.
+.TP
+.BI \-llibcont " <\fIUNIX\fP command>"
+The command lists the contents of the library.
+The command may contain %f and %p to pass the library filename
+and the searchpath to the command.
+The related resource is \fIlibraryContentsCommand\fP.
+.TP
+.BI \-loggeometry " <geometry>"
+Determines the geometry of the logging window.
+.TP
+.BI \-pnl " <positiv integer value>"
+Defines the maximum length of a pin name to be displayed in a pinout
+window. Overwrittes the resource \fPpinoutNameLength\fI.
+.TP
+.BI \-pz " <positiv integer value>"
+Sets the zoom factor for pinout window according to the
+formula: scale = 1:(2^value). The resource \fPpinoutZoom\fI is
+overwritten.
+.TP
+.BI \-reset/+reset
+If enabled, all found connections are reset after an element has been scanned.
+This setting is only used while scanning connections to all elements.
+Overrides the resource \fIresetAfterElement\fP.
+.TP
+.BI \-ring/+ring
+Overrides the resource \fIringBellWhenFinished\fP. If enabled, the bell
+on the keyboard is rang when connection searching has finished.
+.TP
+.BI \-s/+s
+Enables/Disables the saving of the previous commandline. Overrides the
+\fIsaveLastCommand\fP resource.
+.TP
+.BI \-save/+save
+Overrides the resource \fIsaveInTMP\fP. If enabled all data is saved
+in a temporary file in the directory \fI/tmp\fP instead of being lost.
+.TP
+.BI \-sfile " <\fIUNIX\fP command>"
+Sets the command to be executed when an layout file is saved.
+The command may contain %f which is replaced by the filename. The command
+must read it's data from \fIstdin\fP. The resource \fIsaveCommand\fP is
+overwritten.
+.TP
+.BI \-size " <width>x<height>"
+Overrides the resource \fIsize\fP which determines the maximum size
+of a layout.
+.TP .BI \-v " <\-100..100>"
+Sets the volume of the X-speaker. Overrides the resource \fIvolume\fP.
+
+
+.P
+In addition to these 'normal-work-options' you will find additional
+special options, \fI\-copyright\fP, \fI-help\fP and \fI\-version\fP,
+which print out the GNU COPYLEFT notice, a usage message and the current
+version.
+
+
+.SH X11 Interface
+
+.P
+There are several resources, actions and menus available.
+For a detailed description see the GNU info file or the printed manual.
+
+
+.SH SEE ALSO
+
+X(1), Xlib Resource Manager documentation, Xt resource documentation,
+Athena Widget Set
+
+PCB manual.
+
+
+.SH COPYRIGHT
+
+PCB, interactive printed circuit board design,
+Copyright (C) 1994, 1995, 1996 Thomas Nau
+Copyright (C) 1997, 1998, 1999, 2000, 2001, 2002 harry eaton
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+
+.SH AUTHOR
+
+harry eaton, haceaton@aplcomm.jhuapl.edu
+
+6697 Buttonhole Court, Columbia, MD 21044 USA
+
+
+.SH ACKNOWLEDGEMENT
+
+C. Scott Ananian wrote all of the auto-router and auto-placement
+code.
+
+Bernhard (Bernhard.Daeubler@physik.uni-ulm.de) and Harald Daeubler
+(Harald.Daeubler@physik.uni-ulm.de) for helpful hints, testing and
+a neverending stream of new options and ideas.
+
+Roland Merk (merk@faw.uni-ulm.de) for his help during the hard days of
+learning X11 programming.
+
+Erland Unruh (Erland.Unruh@malmo.trab.se) for alpha and beta testing of
+the early releases.
+
+Many, many others who donated some of their time for developing new
+circuit-files, did testing and came up with several bug-fixes and
+improvements. Thanks to all of them.
+

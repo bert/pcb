@@ -1,0 +1,4 @@
+#define check_icon_width 8
+#define check_icon_height 8
+static unsigned char check_icon_bits[] = {
+   0x80, 0xc0, 0x61, 0x31, 0x1b, 0x0f, 0x06, 0x00};

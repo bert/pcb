@@ -1,0 +1,9 @@
+There is a script for converting pcb files directly into
+HPGL for printing.  It does not support all of pcb's features.
+There is a tcl script that converts Tango netlist format
+into a pcb compatible netlist format.  It was written by Ingo Cyliax.
+There's a tool to merge several PCB generated PostScript files
+into a single one. Check the code for details.
+There is a gzipped tar file containing a program to help you
+use the MUCS PCB auto router if you want to.
+

@@ -1,0 +1,41 @@
+# $Id$
+#
+
+This file describes how to build from CVS sources.  If you are building from a
+released version or snapshot, please refer to the 'INSTALL' document instead.
+
+
+-------------
+Prerequisites
+-------------
+
+You will need the following tools to obtain and build a CVS version of pcb:
+
+To download and track sources you will need:
+
+cvs
+ssh
+
+To bootstrap and build you will need recent versions of:
+
+autoconf  -- ftp://ftp.gnu.org/pub/gnu/autoconf/
+automake  -- ftp://ftp.gnu.org/pub/gnu/automake/
+texinfo   -- ftp://ftp.gnu.org/pub/gnu/texinfo/
+
+In addition you will need a C compiler, a lex (or flex) and a yacc (or bison)
+implementation.  If you do not have lex or yacc, try installing:
+
+bison     -- ftp://ftp.gnu.org/pub/gnu/bison/
+flex      -- ftp://ftp.gnu.org/pub/non-gnu/flex/
+
+---------
+Check out
+---------
+
+----------------------------------
+Bootstrapping with the auto* tools
+----------------------------------
+from the pcb directory, run:
+
+./autogen.sh
+

@@ -1,0 +1,60 @@
+#
+#                             COPYRIGHT
+# 
+#   PCB, interactive printed circuit board design
+#   Copyright (C) 1994,1995,1996 Thomas Nau
+# 
+#   This program is free software; you can redistribute it and/or modify
+#   it under the terms of the GNU General Public License as published by
+#   the Free Software Foundation; either version 2 of the License, or
+#   (at your option) any later version.
+# 
+#   This program is distributed in the hope that it will be useful,
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#   GNU General Public License for more details.
+# 
+#   You should have received a copy of the GNU General Public License
+#   along with this program; if not, write to the Free Software
+#   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+# 
+#   Contact addresses for paper mail and Email:
+#   Thomas Nau, Schlehenweg 15, 88471 Baustetten, Germany
+#   Thomas.Nau@rz.uni-ulm.de
+# 
+#   RCS: $Id$
+#
+# mask package values...
+#
+2N3055:TO3_45:2N3055-45deg
+2N3055:TO3_90:2N3055-90deg
+2N3904:TO92:2N3904
+2N3906:TO92:2N3906
+BC140:TO5:BC140
+BC160:TO5:BC160
+BC237:TO92:BC237A:BC237B:BC237C
+BC307:TO92:BC307A:BC307B:BC307C
+BC327:TO92:BC327-16:BC327-25:BC327-40
+BC337:TO92:BC337-16:BC337-25:BC337-40
+BC516:TO92:BC516
+BC517:TO92:BC517
+BC546:TO92:BC546A:BC546B:BC546C
+BC547:TO92:BC547A:BC547B:BC547C
+BC548:TO92:BC548A:BC548B:BC548C
+BC550:TO92:BC550A:BC550B:BC550C
+BC556:TO92:BC556A:BC556B:BC556C
+BC557:TO92:BC557A:BC557B:BC557C
+BC558:TO92:BC558A:BC558B:BC558C
+BC560:TO92:BC560A:BC560B:BC560C
+BC635:TO92:BC635
+BC636:TO92:BC636
+BS170:TO92:BS170
+BS240:TO92:BS240
+BUK453:TO220LAY:BUK453-50A-laying
+BUK453:TO220STAND:BUK453-50A-standing
+IRF830:TO220LAY:IRF830-50A-laying
+IRF830:TO220STAND:IRF830-50A-standing
+MJE340:TO126LAY:MJE340-laying
+MJE340:TO126STAND:MJE340-standing
+MJE350:TO126LAY:MJE350-laying
+MJE350:TO126STAND:MJE350-standing
