@@ -239,7 +239,7 @@ static String Fallback[] = {
   "Pcb*Command.highlightThickness:        1",
   "Pcb*defaultButton.borderWidth:         2",
   "Pcb*defaultButton.highlightThickness:  2",
-  "!pcb*font:                              -*-courier-bold-r-*-*-14-*-*-*-*-*-*-*",
+  "!Pcb*font:                              -*-courier-bold-r-*-*-14-*-*-*-*-*-*-*",
   "Pcb*Label.borderWidth:                 0",
   "Pcb*Label.justify:                     center",
   "Pcb*MenuButton.resizable:              off",
