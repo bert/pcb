@@ -45,6 +45,7 @@ static char *rcsid = "$Id$";
 
 #include "action.h"
 #include "buffer.h"
+#include "compat.h"
 #include "crosshair.h"
 #include "control.h"
 #include "data.h"

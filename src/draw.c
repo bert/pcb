@@ -44,6 +44,7 @@ static char *rcsid = "$Id$";
 #include <math.h>
 #include "global.h"
 
+#include "compat.h"
 #include "crosshair.h"
 #include "data.h"
 #include "draw.h"

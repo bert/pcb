@@ -29,6 +29,9 @@ pcb_bin_SOURCES = \
 	change.h \
 	command.c \
 	command.h \
+	compat.c \
+	compat.h \
+	compat.h \
 	const.h \
 	control.c \
 	control.h \
