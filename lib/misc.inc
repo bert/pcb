@@ -230,11 +230,27 @@ define(`PKG_LED',
 	define(`RADIUS2', `eval(`$4' /2 +20)')
 Element(0x00 "$1" "$2" "$3" 100 70 0 100 0x00)
 (
-	PIN(150, 150, 60, 20, 1)
-	PIN(150, 250, 60, 20, 2)
-	ElementArc(150 200 RADIUS1 RADIUS1 0 360 15)
-	ElementArc(150 200 RADIUS2 RADIUS2 0 360 10)
-	Mark(150 150)
+# typical LED is 0.5 mm or 0.020" square pin.  See for example
+# http://www.lumex.com and part number SSL-LX3054LGD.
+# 0.020" square is 0.0288" diagonal.  A number 57 drill is 
+# 0.043" which should be enough.  a 65 mil pad gives 11 mils
+# of annular ring.
+
+	PIN(-50, 0, 65, 43, 1)
+	PIN(50, 0, 65, 43, 2)
+   ifelse( eval(RADIUS1 - 10 > 85), 1, 
+	ElementArc(0 0 RADIUS1 RADIUS1     0 360 10)
+,
+	ElementArc(0 0 RADIUS1 RADIUS1    45  90 10)
+	ElementArc(0 0 RADIUS1 RADIUS1   225  90 10)
+)
+   ifelse( eval(RADIUS2 - 10 > 85), 1, 
+	ElementArc(0 0 RADIUS2 RADIUS2     0 360 10)
+,
+	ElementArc(0 0 RADIUS2 RADIUS2    45  90 10)
+	ElementArc(0 0 RADIUS2 RADIUS2   225  90 10)
+)
+	Mark(0 0)
 )')
 
 # -------------------------------------------------------------------

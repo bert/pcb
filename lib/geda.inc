@@ -533,8 +533,8 @@ define(`PKG_OSC14',  `PKG_OSC(`$1', `$2', `$3')');
 ##  LED, size in mm (pin 1 is +, 2 is -)
 #   LED3, LED5
 #
-define(`PKG_LED3',  `PKG_LEDX(`$1', `$2', `$3', 60)');
-define(`PKG_LED5',  `PKG_LEDX(`$1', `$2', `$3', 100)');
+define(`PKG_LED3',  `PKG_LED(`$1', `$2', `$3', 118)');
+define(`PKG_LED5',  `PKG_LED(`$1', `$2', `$3', 236)');
 
 #
 ## Transistor
