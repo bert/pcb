@@ -153,9 +153,10 @@ MainMenu = {
         }
     
     {Buffer
-        {"Copy selection to buffer" PasteBuffer(Clear) PasteBuffer(AddSelected) Mode(PasteBuffer)}
-        {"Cut selection to buffer" PasteBuffer(Clear) PasteBuffer(AddSelected)
-            RemoveSelected() Mode(PasteBuffer)}
+        {"Copy selection to buffer" GetXY(Press a button at the element's location)
+            PasteBuffer(Clear) PasteBuffer(AddSelected) Mode(PasteBuffer)}
+        {"Cut selection to buffer" GetXY(Press a button at the element's location)
+            PasteBuffer(Clear) PasteBuffer(AddSelected) RemoveSelected() Mode(PasteBuffer)}
         {"Paste buffer to layout" Mode(PasteBuffer)}
         -
         {"Rotate buffer 90 deg CCW" Mode(PasteBuffer) PasteBuffer(Rotate,1)}
