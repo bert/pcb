@@ -557,7 +557,9 @@ ConvertBufferToElement (BufferTypePtr Buffer)
 
   Element = CreateNewElement (PCB->Data, NULL, &PCB->Font, NOFLAG,
 			      NULL, NULL, NULL, PASTEBUFFER->X,
-			      PASTEBUFFER->Y, 0, 100, NOFLAG, False);
+			      PASTEBUFFER->Y, 0, 100,
+			      SWAP_IDENT ? ONSOLDERFLAG : NOFLAG,
+			      False);
   if (!Element)
     return (False);
   VIA_LOOP (Buffer->Data, 
