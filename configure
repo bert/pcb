@@ -7388,16 +7388,23 @@ echo "$as_me:$LINENO: result: $ac_cv_header_dmalloc_h" >&5
 echo "${ECHO_T}$ac_cv_header_dmalloc_h" >&6
 
 fi
+if test $ac_cv_header_dmalloc_h = yes; then
+  :
+else
+  { { echo "$as_me:$LINENO: error: You have requested dmalloc debugging but dmalloc.h could not be found" >&5
+echo "$as_me: error: You have requested dmalloc debugging but dmalloc.h could not be found" >&2;}
+   { (exit 1); exit 1; }; }
+fi
 
 
 
-echo "$as_me:$LINENO: checking for  in -ldmalloc" >&5
-echo $ECHO_N "checking for  in -ldmalloc... $ECHO_C" >&6
-if test "${ac_cv_lib_dmalloc_+set}" = set; then
+echo "$as_me:$LINENO: checking for main in -ldmalloc" >&5
+echo $ECHO_N "checking for main in -ldmalloc... $ECHO_C" >&6
+if test "${ac_cv_lib_dmalloc_main+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
 else
   ac_check_lib_save_LIBS=$LIBS
-LIBS="-ldmalloc  $LIBS"
+LIBS="-ldmalloc $X_LIBS $LIBS"
 cat >conftest.$ac_ext <<_ACEOF
 /* confdefs.h.  */
 _ACEOF
@@ -7405,17 +7412,11 @@ cat confdefs.h >>conftest.$ac_ext
 cat >>conftest.$ac_ext <<_ACEOF
 /* end confdefs.h.  */
 
-/* Override any gcc2 internal prototype to avoid an error.  */
-#ifdef __cplusplus
-extern "C"
-#endif
-/* We use char because int might match the return type of a gcc2
-   builtin and then its argument prototype would still apply.  */
-char  ();
+
 int
 main ()
 {
- ();
+main ();
   ;
   return 0;
 }
@@ -7442,26 +7443,30 @@ if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
   ac_status=$?
   echo "$as_me:$LINENO: \$? = $ac_status" >&5
   (exit $ac_status); }; }; then
-  ac_cv_lib_dmalloc_=yes
+  ac_cv_lib_dmalloc_main=yes
 else
   echo "$as_me: failed program was:" >&5
 sed 's/^/| /' conftest.$ac_ext >&5
 
-ac_cv_lib_dmalloc_=no
+ac_cv_lib_dmalloc_main=no
 fi
 rm -f conftest.err conftest.$ac_objext \
       conftest$ac_exeext conftest.$ac_ext
 LIBS=$ac_check_lib_save_LIBS
 fi
-echo "$as_me:$LINENO: result: $ac_cv_lib_dmalloc_" >&5
-echo "${ECHO_T}$ac_cv_lib_dmalloc_" >&6
-if test $ac_cv_lib_dmalloc_ = yes; then
+echo "$as_me:$LINENO: result: $ac_cv_lib_dmalloc_main" >&5
+echo "${ECHO_T}$ac_cv_lib_dmalloc_main" >&6
+if test $ac_cv_lib_dmalloc_main = yes; then
   cat >>confdefs.h <<_ACEOF
 #define HAVE_LIBDMALLOC 1
 _ACEOF
 
   LIBS="-ldmalloc $LIBS"
 
+else
+  { { echo "$as_me:$LINENO: error: You have requested dmalloc debugging but -ldmalloc could not be found" >&5
+echo "$as_me: error: You have requested dmalloc debugging but -ldmalloc could not be found" >&2;}
+   { (exit 1); exit 1; }; }
 fi
 
 	DMALLOC_LIBS="-ldmalloc"
