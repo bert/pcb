@@ -42,7 +42,21 @@ AC_CHECK_LIB(SM, main, , , $X_LIBS)
 AC_CHECK_LIB(Xext, main, , , $X_LIBS)
 AC_CHECK_LIB(Xt, XtOpenDisplay, , , $X_LIBS)
 AC_CHECK_LIB(Xmu, main, , , $X_LIBS)
-AC_CHECK_LIB(Xaw, XawInitializeWidgetSet, , , $X_LIBS)
+
+AC_ARG_WITH([xaw],
+[  --with-xaw=Xaw         Use the specified Athena Widgets type.
+                          For example, Xaw, or Xaw3d.
+                          [default = Xaw]],
+[
+if test "X$with_xaw" = "Xno" ; then
+	AC_ERROR([--without-xaw is not allowed])
+fi
+],
+[
+with_xaw=Xaw
+])
+
+AC_CHECK_LIB($with_xaw, XawInitializeWidgetSet, , , $X_LIBS)
 
 dnl Determine the Xfuncproto control definitions:
 FC_CHECK_X_PROTO_DEFINE(FUNCPROTO)
