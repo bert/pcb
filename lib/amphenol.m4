@@ -23,7 +23,16 @@ divert(-1)
 # Amphenol Connectors
 
 # SMA
-define(`Description_amphenol_ARFX1229', `Amphenol ARFX1229 SMA Connector')
+define(`Description_amphenol_ARFX1229', `Amphenol ARFX1229 Vertical SMA Connector (M)')
 define(`PinList_amphenol_ARFX1229', ``SIG',`GND',`GND',`GND',`GND'')
+
+define(`Description_amphenol_ARFX1230', `Amphenol ARFX1230 Right Angle SMA Connector (M)')
+define(`PinList_amphenol_ARFX1230', ``SIG',`GND',`GND',`GND',`GND'')
+
+define(`Description_amphenol_ARFX1231', `Amphenol ARFX1231 Vertical SMA Connector (F)')
+define(`PinList_amphenol_ARFX1231', ``SIG',`GND',`GND',`GND',`GND'')
+
+define(`Description_amphenol_ARFX1232', `Amphenol ARFX1232 Right Angle SMA Connector (F)')
+define(`PinList_amphenol_ARFX1232', ``SIG',`GND',`GND',`GND',`GND'')
 
 divert(0)dnl
