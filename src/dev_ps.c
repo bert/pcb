@@ -766,7 +766,9 @@ PS_PrintTextLowLevel (TextTypePtr Text)
 	      newline.Point1.Y = newline.Point1.Y * Text->Scale / 100;
 	      newline.Point2.X = (newline.Point2.X + x) * Text->Scale / 100;
 	      newline.Point2.Y = newline.Point2.Y * Text->Scale / 100;
-	      newline.Thickness = newline.Thickness * Text->Scale / 100;
+	      newline.Thickness = newline.Thickness * Text->Scale / 200;
+	      if (newline.Thickness < 8)
+		newline.Thickness = 8;
 
 	      RotateLineLowLevel (&newline, 0, 0, Text->Direction);
 

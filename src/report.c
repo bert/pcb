@@ -76,14 +76,6 @@ CB_OK (Widget W, XtPointer ClientData, XtPointer CallData)
   ReturnCode = (long int) ClientData;
 }
 
-static int
-DrillQSort(const void *va, const void *vb)
-{
-  DrillType *a = (DrillType *)va;
-  DrillType *b = (DrillType *)vb;
-  return a->DrillSize - b->DrillSize;
-}
-
 void
 ReportDrills (void)
 {
@@ -102,7 +94,6 @@ ReportDrills (void)
       total_drills += AllDrills->Drill[n].UnplatedCount;
     }
 
-  qsort (AllDrills->Drill, AllDrills->DrillN, sizeof (DrillType), DrillQSort);
   stringlist = malloc (512L + AllDrills->DrillN * 64L);
   sprintf (stringlist,
 	   "There are %d different drill sizes used in this layout, %d holes total\n\n"

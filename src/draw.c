@@ -2,7 +2,7 @@
  *                            COPYRIGHT
  *
  *  PCB, interactive printed circuit board design
- *  Copyright (C) 1994,1995,1996 Thomas Nau
+ *  Copyright (C) 1994,1995,1996, 2003 Thomas Nau
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -1305,7 +1305,9 @@ DrawTextLowLevel (TextTypePtr Text)
 	      newline.Point1.Y = newline.Point1.Y * Text->Scale / 100;
 	      newline.Point2.X = (newline.Point2.X + x) * Text->Scale / 100;
 	      newline.Point2.Y = newline.Point2.Y * Text->Scale / 100;
-	      newline.Thickness = newline.Thickness * Text->Scale / 100;
+	      newline.Thickness = newline.Thickness * Text->Scale / 200;
+	      if (newline.Thickness < 8)
+		newline.Thickness = 8;
 	      if (newline.Thickness > maxthick)
 		maxthick = newline.Thickness;
 

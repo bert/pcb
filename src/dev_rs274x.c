@@ -351,6 +351,8 @@ GBX_Init (PrintInitTypePtr Flags)
   /* make sure the outline/alignment aperture exists should it be used */
   /* polygons use this aperture also  */
   findApertureCode (&GBX_Apertures, 10, ROUND);
+  /* fab drawing uses this one */
+  findApertureCode (&GBX_Apertures, 8, ROUND);
 }
 
 static void
@@ -710,9 +712,12 @@ findTextApertures (TextTypePtr Text)
 	  LineTypePtr line = font->Symbol[*string].Line;
 
 	  for (n = font->Symbol[*string].LineN; n; n--, line++)
-	    findApertureCode (&GBX_Apertures,
-			      line->Thickness * Text->Scale / 100, ROUND);
-
+	  {
+	    int tw = line->Thickness * Text->Scale / 200;
+	    if (tw < 8)
+	      tw = 8;
+	    findApertureCode (&GBX_Apertures, tw, ROUND);
+	  }
 	}
       else
 	{
@@ -760,7 +765,9 @@ GBX_PrintText (TextTypePtr Text)
 	      newline.Point1.Y = newline.Point1.Y * Text->Scale / 100;
 	      newline.Point2.X = (newline.Point2.X + x) * Text->Scale / 100;
 	      newline.Point2.Y = newline.Point2.Y * Text->Scale / 100;
-	      newline.Thickness = newline.Thickness * Text->Scale / 100;
+	      newline.Thickness = newline.Thickness * Text->Scale / 200;
+	      if (newline.Thickness < 8)
+		newline.Thickness = 8;
 
 	      RotateLineLowLevel (&newline, 0, 0, Text->Direction);
 

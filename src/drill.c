@@ -103,6 +103,14 @@ InitializeDrill (DrillTypePtr drill, PinTypePtr pin, ElementTypePtr element)
     drill->UnplatedCount = 1;
 }
 
+static int
+DrillQSort(const void *va, const void *vb)
+{
+  DrillType *a = (DrillType *)va;
+  DrillType *b = (DrillType *)vb;
+  return a->DrillSize - b->DrillSize;
+}
+
 DrillInfoTypePtr GetDrillInfo (DataTypePtr top)
 {
   DrillInfoTypePtr AllDrills;
@@ -178,6 +186,7 @@ DrillInfoTypePtr GetDrillInfo (DataTypePtr top)
 	    FillDrill (Drill, NULL, via);}
 	    }
   );
+  qsort (AllDrills->Drill, AllDrills->DrillN, sizeof (DrillType), DrillQSort);
   return (AllDrills);
 }
 

@@ -2,7 +2,7 @@
  *                            COPYRIGHT
  *
  *  PCB, interactive printed circuit board design
- *  Copyright (C) 1994,1995,1996 Thomas Nau
+ *  Copyright (C) 1994,1995,1996, 2003 Thomas Nau
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -34,6 +34,7 @@ static char *rcsid = "$Id$";
 
 /* printing routines
  */
+#include <stdarg.h>
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -43,6 +44,7 @@ static char *rcsid = "$Id$";
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
+#include <pwd.h>
 
 #include "global.h"
 
@@ -635,6 +637,238 @@ PrintMask (void)
   return (0);
 }
 
+/* ---------------------------------------------------------------------------
+ * prints a FAB drawing.
+ */
+
+#define TEXT_SIZE	150
+#define TEXT_LINE	150
+
+static void
+fab_line (int x1, int y1, int x2, int y2, int t)
+{
+  LineType l;
+  l.Flags = 0;
+  l.Point1.X = x1;
+  l.Point1.Y = y1;
+  l.Point2.X = x2;
+  l.Point2.Y = y2;
+  l.Thickness = t;
+  Device->Line(&l, 0);
+}
+
+static void
+fab_circle (int x, int y, int r, int t)
+{
+  ArcType a;
+  a.Flags = 0;
+  a.X = x;
+  a.Y = y;
+  a.Width = r;
+  a.Height = r;
+  a.StartAngle = 0;
+  a.Delta = 180;
+  a.Thickness = t;
+  Device->Arc(&a, 0);
+  a.StartAngle = 180;
+  Device->Arc(&a, 0);
+}
+
+/* align is 0=left, 1=center, 2=right, add 8 for underline */
+static void
+text_at (int x, int y, int align, char *fmt, ...)
+{
+  char tmp[512];
+  int w = 0, i;
+  TextType t;
+  va_list a;
+  FontTypePtr font = &PCB->Font;
+
+  va_start(a, fmt);
+  vsprintf(tmp, fmt, a);
+  va_end(a);
+
+  t.Direction = 0;
+  t.TextString = tmp;
+  t.Scale = TEXT_SIZE;
+  t.Flags = 0;
+  t.X = x;
+  t.Y = y;
+  for (i=0; tmp[i]; i++)
+    w += (font->Symbol[tmp[i]].Width + font->Symbol[tmp[i]].Delta);
+  w = w * TEXT_SIZE / 100;
+  t.X -= w * (align & 3) / 2;
+  if (t.X < 0)
+    t.X = 0;
+
+  Device->Text(&t);
+  if (align & 8)
+    fab_line (t.X, t.Y + font->MaxHeight * TEXT_SIZE/100 + 10,
+	      t.X + w, t.Y + font->MaxHeight * TEXT_SIZE/100 + 10,
+	      8);
+}
+
+/* Y, X, circle, square */
+static void
+drill_sym (int idx, int x, int y)
+{
+  int type = idx % 5;
+  int size = idx / 5;
+  int s2 = (size+1)*16;
+  int i;
+
+  switch (type)
+    {
+    case 0: /* Y */;
+      fab_line (x, y, x, y+s2, 8);
+      fab_line (x, y, x+s2*13/15, y-s2/2, 8);
+      fab_line (x, y, x-s2*13/15, y-s2/2, 8);
+      for (i=1; i<=size; i++)
+	fab_circle (x, y, i*16, 8);
+      break;
+    case 1: /* + */;
+      fab_line (x, y-s2, x, y+s2, 8);
+      fab_line (x-s2, y, x+s2, y, 8);
+      for (i=1; i<=size; i++)
+	{
+	  fab_line (x-i*16, y-i*16, x+i*16, y-i*16, 8);
+	  fab_line (x-i*16, y-i*16, x-i*16, y+i*16, 8);
+	  fab_line (x-i*16, y+i*16, x+i*16, y+i*16, 8);
+	  fab_line (x+i*16, y-i*16, x+i*16, y+i*16, 8);
+	}
+      break;
+    case 2: /* X */;
+      fab_line (x-s2*3/4, y-s2*3/4, x+s2*3/4, y+s2*3/4, 8);
+      fab_line (x-s2*3/4, y+s2*3/4, x+s2*3/4, y-s2*3/4, 8);
+      for (i=1; i<=size; i++)
+	{
+	  fab_line (x-i*16, y-i*16, x+i*16, y-i*16, 8);
+	  fab_line (x-i*16, y-i*16, x-i*16, y+i*16, 8);
+	  fab_line (x-i*16, y+i*16, x+i*16, y+i*16, 8);
+	  fab_line (x+i*16, y-i*16, x+i*16, y+i*16, 8);
+	}
+      break;
+    case 3: /* circle */;
+      for (i=0; i<=size; i++)
+	fab_circle (x, y, (i+1)*16-8, 8);
+      break;
+    case 4: /* square */
+      for (i=1; i<=size+1; i++)
+	{
+	  fab_line (x-i*16, y-i*16, x+i*16, y-i*16, 8);
+	  fab_line (x-i*16, y-i*16, x-i*16, y+i*16, 8);
+	  fab_line (x-i*16, y+i*16, x+i*16, y+i*16, 8);
+	  fab_line (x+i*16, y-i*16, x+i*16, y+i*16, 8);
+	}
+      break;
+    }
+}
+
+static int
+PrintFab (void)
+{
+  PinType tmp_pin;
+  DrillInfoTypePtr AllDrills;
+  DrillTypePtr dp;
+  Cardinal index;
+  int i, n, yoff, total_drills = 0, ds=0;
+  char buf[100];
+  time_t currenttime;
+  char utcTime[64];
+  struct passwd *pwentry;
+
+  if (SetupPrintFile ("fab", "Fabrication Drawing"))
+    return (1);
+
+  Device->Polarity (0);
+  FPrintOutline ();
+
+  tmp_pin.Flags = 0;
+  AllDrills = GetDrillInfo (PCB->Data);
+  yoff = -TEXT_LINE;
+
+  for (n=AllDrills->DrillN-1; n >=0; n--)
+    {
+      DrillTypePtr drill = &(AllDrills->Drill[n]);
+
+      if (drill->PinCount + drill->ViaCount > drill->UnplatedCount)
+	ds++;
+      if (drill->UnplatedCount)
+	ds++;
+    }
+
+  for (n=AllDrills->DrillN-1; n >=0; n--)
+    {
+      int plated_sym=-1, unplated_sym=-1;
+      DrillTypePtr drill = &(AllDrills->Drill[n]);
+
+      if (drill->PinCount + drill->ViaCount > drill->UnplatedCount)
+	plated_sym = --ds;
+      if (drill->UnplatedCount)
+	unplated_sym = --ds;
+
+      SetPrintColor (PCB->PinColor);
+      for (i = 0; i < drill->PinN; i++)
+	drill_sym (TEST_FLAG (HOLEFLAG, drill->Pin[i]) ? unplated_sym : plated_sym,
+		   drill->Pin[i]->X, drill->Pin[i]->Y);
+
+      if (plated_sym != -1)
+	drill_sym (plated_sym, TEXT_SIZE/4, yoff + TEXT_SIZE/4);
+      if (unplated_sym != -1)
+	drill_sym (unplated_sym, 1700 + TEXT_SIZE/4, yoff + TEXT_SIZE/4);
+      SetPrintColor (PCB->ElementColor);
+      text_at ( 300, yoff, 2, "%d", drill->DrillSize);
+      text_at ( 600, yoff, 2, "%d", drill->PinCount);
+      text_at ( 900, yoff, 2, "%d", drill->ViaCount);
+      text_at (1250, yoff, 2, "%d", drill->ElementN);
+      text_at (1700, yoff, 2, "%d", drill->UnplatedCount);
+      yoff -= TEXT_LINE;
+
+      total_drills += drill->PinCount;
+      total_drills += drill->ViaCount;
+    }
+
+  SetPrintColor (PCB->ElementColor);
+  text_at ( 250, yoff, 9, "Diam.");
+  text_at ( 550, yoff, 9, "Pins");
+  text_at ( 850, yoff, 9, "Vias");
+  text_at (1200, yoff, 9, "Elements");
+  text_at (1650, yoff, 9, "Unplated");
+  yoff -= TEXT_LINE;
+  text_at (0, yoff, 0,
+	   "There are %d different drill sizes used in this layout, %d holes total",
+	   AllDrills->DrillN, total_drills);
+
+  /* ID the user. */
+  pwentry = getpwuid (getuid ());
+  /* Create a portable timestamp. */
+  currenttime = time (NULL);
+  strftime (utcTime, sizeof utcTime, "%c UTC", gmtime (&currenttime));
+
+  yoff = -TEXT_LINE;
+  text_at (2000, yoff, 0, "Dimensions: %d mils wide, %d mils high",
+	   PCB->MaxWidth, PCB->MaxHeight);
+  yoff -= TEXT_LINE;
+  text_at (2000, yoff, 0, "Date: %s", utcTime);
+  yoff -= TEXT_LINE;
+  text_at (2000, yoff, 0, "Author: %s", pwentry->pw_gecos);
+  yoff -= TEXT_LINE;
+  text_at (2000, yoff, 0, "Title: %s - Fabrication Drawing",
+	   UNKNOWN (PCB->Name));
+
+  text_at (PCB->MaxWidth/2, PCB->MaxHeight+20, 1,
+	   "Board outline is the centerline of this 10 mil rectangle - 0,0 to %d,%d mils",
+	   PCB->MaxWidth, PCB->MaxHeight);
+
+#if 0
+  ELEMENT_LOOP (PCB->Data,
+		Device->ElementPackage (element););
+#endif
+
+  ClosePrintFile ();
+  return (0);
+}
+
 /* ----------------------------------------------------------------------
  * generates printout
  * mirroring, rotating, scaling and the request for outlines and/or
@@ -711,7 +945,7 @@ Print (char *Command, float Scale,
   Device->init (&DeviceFlags);
   /* OK, call all necessary subroutines */
   if (PrintLayergroups () || PrintSilkscreen () ||
-      PrintDrill () || PrintMask () || PrintPaste ())
+      PrintDrill () || PrintMask () || PrintPaste () || PrintFab ())
     return (1);
   Device->Exit ();
   restoreCursor();
