@@ -192,7 +192,7 @@ InsertPointIntoPolygon (LayerTypePtr Layer, PolygonTypePtr Polygon)
   if (Forcible || !RemoveExcessPolygonPoints (Layer, Polygon))
     {
       SetPolygonBoundingBox (Polygon);
-      UpdatePIPFlags (NULL, NULL, Layer, Polygon, True);
+      UpdatePIPFlags (NULL, NULL, Layer, True);
       DrawPolygon (Layer, Polygon, 0);
       Draw ();
     }

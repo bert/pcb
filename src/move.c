@@ -213,7 +213,7 @@ MoveElement (ElementTypePtr Element)
 	EraseElementPinsAndPads (Element);
       MoveElementLowLevel (PCB->Data, Element, DeltaX, DeltaY);
     }
-  UpdatePIPFlags (NULL, Element, NULL, NULL, True);
+  UpdatePIPFlags (NULL, Element, NULL, True);
   if (PCB->PinOn)
     {
       DrawElementPinsAndPads (Element, 0);
@@ -238,7 +238,7 @@ MoveVia (PinTypePtr Via)
     }
   else
     MOVE_VIA_LOWLEVEL (Via, DeltaX, DeltaY);
-  UpdatePIPFlags (Via, (ElementTypePtr) Via, NULL, NULL, True);
+  UpdatePIPFlags (Via, (ElementTypePtr) Via, NULL, True);
   r_insert_entry (PCB->Data->via_tree, (BoxTypePtr) Via, 0);
   if (PCB->ViaOn)
     {
@@ -339,7 +339,7 @@ MovePolygon (LayerTypePtr Layer, PolygonTypePtr Polygon)
     }
   else
     MovePolygonLowLevel (Polygon, DeltaX, DeltaY);
-  UpdatePIPFlags (NULL, NULL, Layer, Polygon, True);
+  UpdatePIPFlags (NULL, NULL, Layer, True);
   return (Polygon);
 }
 
@@ -405,7 +405,7 @@ MovePolygonPoint (LayerTypePtr Layer, PolygonTypePtr Polygon,
       if (!RemoveExcessPolygonPoints (Layer, Polygon))
 	SetPolygonBoundingBox (Polygon);
     }
-  UpdatePIPFlags (NULL, NULL, Layer, Polygon, True);
+  UpdatePIPFlags (NULL, NULL, Layer, True);
   return (Point);
 }
 
@@ -531,7 +531,7 @@ moveline_callback (const BoxType * b, void *cl)
 		     NOFLAG, Settings.ViaDrillingHole, NULL,
 		     VIAFLAG)) != NULL)
     {
-      UpdatePIPFlags (via, (ElementTypePtr) via, NULL, NULL, False);
+      UpdatePIPFlags (via, (ElementTypePtr) via, NULL, False);
       AddObjectToCreateUndoList (VIA_TYPE, via, via, via);
       DrawVia (via, 0);
     }
@@ -720,8 +720,8 @@ MovePolygonToLayer (LayerTypePtr Layer, PolygonTypePtr Polygon)
   }
   END_LOOP;
   new = MovePolygonToLayerLowLevel (Layer, Polygon, Dest);
-  UpdatePIPFlags (NULL, NULL, Layer, NULL, True);
-  UpdatePIPFlags (NULL, NULL, Dest, new, True);
+  UpdatePIPFlags (NULL, NULL, Layer, True);
+  UpdatePIPFlags (NULL, NULL, Dest, True);
   if (Dest->On)
     {
       DrawPolygon (Dest, new, 0);

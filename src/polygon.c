@@ -229,7 +229,7 @@ CopyAttachedPolygonToLayer (void)
   SET_FLAG (CLEARPOLYFLAG, polygon);
   memset (&Crosshair.AttachedPolygon, 0, sizeof (PolygonType));
   SetPolygonBoundingBox (polygon);
-  UpdatePIPFlags (NULL, NULL, CURRENT, polygon, True);
+  UpdatePIPFlags (NULL, NULL, CURRENT, True);
   DrawPolygon (CURRENT, polygon, 0);
   SetChangedFlag (True);
 
@@ -251,19 +251,19 @@ CopyAttachedPolygonToLayer (void)
  */
 void
 UpdatePIPFlags (PinTypePtr Pin, ElementTypePtr Element,
-		LayerTypePtr Layer, PolygonTypePtr Polygon, Boolean AddUndo)
+		LayerTypePtr Layer, Boolean AddUndo)
 {
 
   if (Element == NULL)
     {
       ALLPIN_LOOP (PCB->Data);
       {
-	UpdatePIPFlags (pin, element, Layer, Polygon, AddUndo);
+	UpdatePIPFlags (pin, element, Layer, AddUndo);
       }
       ENDALL_LOOP;
       VIA_LOOP (PCB->Data);
       {
-	UpdatePIPFlags (via, (ElementTypePtr) via, Layer, Polygon, AddUndo);
+	UpdatePIPFlags (via, (ElementTypePtr) via, Layer, AddUndo);
       }
       END_LOOP;
     }
@@ -271,7 +271,7 @@ UpdatePIPFlags (PinTypePtr Pin, ElementTypePtr Element,
     {
       PIN_LOOP (Element);
       {
-	UpdatePIPFlags (pin, Element, Layer, Polygon, AddUndo);
+	UpdatePIPFlags (pin, Element, Layer, AddUndo);
       }
       END_LOOP;
     }
@@ -279,7 +279,7 @@ UpdatePIPFlags (PinTypePtr Pin, ElementTypePtr Element,
     {
       Cardinal l;
       for (l = 0; l < MAX_LAYER; l++)
-	UpdatePIPFlags (Pin, Element, LAYER_PTR (l), NULL, AddUndo);
+	UpdatePIPFlags (Pin, Element, LAYER_PTR (l), AddUndo);
     }
   else
     {
@@ -287,20 +287,13 @@ UpdatePIPFlags (PinTypePtr Pin, ElementTypePtr Element,
       mask = L0PIPFLAG << GetLayerNumber (PCB->Data, Layer);
       /* assume no pierce on this layer */
       Pin->Flags &= ~(mask | WARNFLAG);
-      if (Polygon == NULL || !TEST_FLAG (CLEARPOLYFLAG, Polygon))
-	{
-	  POLYGON_LOOP (Layer);
-	  {
-	    if (TEST_FLAG (CLEARPOLYFLAG, polygon))
-	      if (DoPIPFlags (Pin, Element, Layer, polygon, mask))
-		break;
-	  }
-	  END_LOOP;
-	}
-      else
-	{
-	  DoPIPFlags (Pin, Element, Layer, Polygon, mask);
-	}
+      POLYGON_LOOP (Layer);
+      {
+	if (TEST_FLAG (CLEARPOLYFLAG, polygon) &&
+	    DoPIPFlags (Pin, Element, Layer, polygon, mask))
+	  break;
+      }
+      END_LOOP;
       new_flags = Pin->Flags;
       if (new_flags != old_flags)
 	{

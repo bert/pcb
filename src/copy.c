@@ -181,7 +181,7 @@ CopyVia (PinTypePtr Via)
 		      Via->Flags & (~(FOUNDFLAG)));
   if (!via)
     return (via);
-  UpdatePIPFlags (via, (ElementTypePtr) via, NULL, NULL, False);
+  UpdatePIPFlags (via, (ElementTypePtr) via, NULL, False);
   DrawVia (via, 0);
   Draw ();
   AddObjectToCreateUndoList (VIA_TYPE, via, via, via);
@@ -263,7 +263,7 @@ CopyPolygon (LayerTypePtr Layer, PolygonTypePtr Polygon)
   MovePolygonLowLevel (polygon, DeltaX, DeltaY);
   DrawPolygon (Layer, polygon, 0);
   Draw ();
-  UpdatePIPFlags (NULL, NULL, Layer, polygon, True);
+  UpdatePIPFlags (NULL, NULL, Layer, True);
   AddObjectToCreateUndoList (POLYGON_TYPE, Layer, polygon, polygon);
   return (polygon);
 }
@@ -287,7 +287,7 @@ CopyElement (ElementTypePtr Element)
       DrawElementPackage (element, 0);
       didDraw = True;
     }
-  UpdatePIPFlags (NULL, element, NULL, NULL, False);
+  UpdatePIPFlags (NULL, element, NULL, False);
   AddObjectToCreateUndoList (ELEMENT_TYPE, element, element, element);
   if (PCB->PinOn)
     {

@@ -231,7 +231,7 @@ RotateElementLowLevel (DataTypePtr Data, ElementTypePtr Element,
 	r_delete_entry (PCB->Data->pin_tree, (BoxType *) pin);
       ROTATE_PIN_LOWLEVEL (pin, X, Y, Number);
       if (PCB->Data == Data)
-	UpdatePIPFlags (pin, Element, NULL, NULL, True);
+	UpdatePIPFlags (pin, Element, NULL, True);
     }
   END_LOOP;
   PAD_LOOP (Element);

@@ -226,7 +226,7 @@ LoadPCB (char *Filename)
       SetChangedFlag (False);
       PCB->Filename = MyStrdup (Filename, "LoadPCB()");
       /* just in case a bad file saved file is loaded */
-      UpdatePIPFlags (NULL, NULL, NULL, NULL, False);
+      UpdatePIPFlags (NULL, NULL, NULL, False);
       UpdateSettingsOnScreen ();
       return (0);
     }

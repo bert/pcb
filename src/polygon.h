@@ -40,7 +40,7 @@ void			GoToPreviousPoint(void);
 void			ClosePolygon(void);
 void			CopyAttachedPolygonToLayer(void);
 void			UpdatePIPFlags(PinTypePtr, ElementTypePtr,
-				       LayerTypePtr, PolygonTypePtr, Boolean);
+				       LayerTypePtr, Boolean);
 int PolygonPlows (int group, BoxType *range,
                   int (*callback)(int, void *, void *, void *,
                   LayerTypePtr, PolygonTypePtr));
