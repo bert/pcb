@@ -13,6 +13,8 @@ pkgdata_DATA=	Pcb
 
 bin_PROGRAMS=	pcb-bin
 
+AM_CFLAGS = -DNDEBUG
+
 pcb_bin_SOURCES = \
 	action.c \
 	action.h \

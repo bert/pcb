@@ -5,6 +5,8 @@ AC_INIT(src/pinout.c)
 AM_INIT_AUTOMAKE(pcb, 1.99p)
 AM_CONFIG_HEADER(config.h)
 
+AM_MAINTAINER_MODE
+
 dnl Checks for programs.
 AC_PROG_CC
 AC_PROG_CC_STDC
@@ -25,12 +27,14 @@ AC_SUBST(GNUM4)
 AC_DEFINE_UNQUOTED(GNUM4,"$M4",[m4 program used by pcb])
 AC_CHECK_PROGS(LATEX, latex)
 AC_CHECK_PROGS(DVIPS, dvips)
+AC_CHECK_PROGS(TGIF, tgif, true)
 
 dnl Checks for libraries.
 AC_CHECK_LIB(m, sqrt)
 AC_CHECK_LIB(xnet, gethostbyname)
 AC_CHECK_LIB(fl, yywrap)
 AC_CHECK_FUNCS(strerror)
+AC_CHECK_FUNCS(regcomp re_comp)
 AC_PATH_XTRA
 AC_ARG_WITH([libstroke],
 [  --without-libstroke     disable libstroke support (default: enabled)],
@@ -105,7 +109,8 @@ LIBS=$pcb_save_LIBS
 
 dnl Checks for header files.
 AC_HEADER_STDC
-AC_CHECK_HEADER(string.h)
+AC_CHECK_HEADERS(string.h)
+AC_CHECK_HEADERS(regex.h)
 
 dnl Checks for typedefs, structures, and compiler characteristics.
 

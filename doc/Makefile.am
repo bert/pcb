@@ -56,14 +56,14 @@ BUILT_SOURCES=	\
 	pad.eps \
 	pad.png
 
-TGIF=		XENVIRONMENT=$(srcdir)/Xdefaults.tgif tgif
+TGIF_X=		XENVIRONMENT=$(srcdir)/Xdefaults.tgif ${TGIF}
 TGIF_FLAGS=	-print -color
 
 .obj.eps:
-	${TGIF} ${TGIF_FLAGS} -eps $<
+	${TGIF_X} ${TGIF_FLAGS} -eps $<
 
 .obj.png:
-	${TGIF} ${TGIF_FLAGS} -png $<
+	${TGIF_X} ${TGIF_FLAGS} -png $<
 
 .ps.pdf:
 	ps2pdf $<
