@@ -35,7 +35,7 @@ AC_CHECK_LIB(xnet, gethostbyname)
 AC_CHECK_LIB(fl, yywrap)
 AC_CHECK_FUNCS(strerror)
 AC_CHECK_FUNCS(regcomp re_comp)
-AC_CHECK_FUNCS(logf expf)
+AC_CHECK_FUNCS(logf expf rint)
 AC_PATH_XTRA
 AC_ARG_WITH([libstroke],
 [  --without-libstroke     disable libstroke support (default: enabled)],
