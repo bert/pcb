@@ -408,14 +408,14 @@ AboutDialog (void)
 			   "version " VERSION "\n\n"
 			   "by harry eaton\n\n"
 			   "Copyright (C) Thomas Nau 1994, 1995, 1996, 1997\n"
-			   "Copyright (C) harry eaton 1998, 1999, 2000, 2001\n"
+			   "Copyright (C) harry eaton 1998-2004\n"
 			   "Copyright (C) C. Scott Ananian 2001\n\n"
 			   "It is licensed under the terms of the GNU\n"
 			   "General Public License version 2\n"
 			   "See the LICENSE file for more information\n\n"
 			   "If you have problems, hints or\n"
 			   "suggestions, send mail to:\n"
-			   "haceaton@aplcomm.jhuapl.edu\n\n",
+			   "bumpelo at comcast dot net\n\n",
 			   &button, 1, "About PCB");
   if ((dialog = XtNameToWidget (popup, "dialog")) != NULL)
     {
