@@ -5,7 +5,9 @@
 #endif
 
 #include <stdlib.h>
+#ifdef HAVE_STRING_H
 #include <string.h>
+#endif
 #include <X11/Intrinsic.h>
 
 #include "global.h"
