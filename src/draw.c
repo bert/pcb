@@ -627,6 +627,8 @@ DrawLayer (LayerTypePtr Layer, int unused)
 	  );
 	}
     }
+  if (TEST_FLAG(CHECKPLANESFLAG, PCB))
+    return;
   LINE_LOOP (Layer, 
     {
       if (VLINE (line))
