@@ -57,6 +57,8 @@ with_xaw=Xaw
 ])
 
 AC_CHECK_LIB($with_xaw, XawInitializeWidgetSet, , , $X_LIBS)
+LIBXAW=$with_xaw
+XAWINC=$with_xaw
 
 dnl Determine the Xfuncproto control definitions:
 FC_CHECK_X_PROTO_DEFINE(FUNCPROTO)
