@@ -65,10 +65,10 @@ static char *rcsid = "$Id$";
 /* ----------------------------------------------------------------------
  * some external identifiers
  */
-extern int errno,		/* system error code */
-  sys_nerr;			/* number of messages available from array */
+extern int errno;		/* system error code */
 
 #if !defined(HAVE_STRERROR)
+extern int  sys_nerr;		/* number of messages available from array */
 #define USE_SYS_ERRLIST
 #endif
 
