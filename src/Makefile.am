@@ -168,8 +168,8 @@ AM_YFLAGS=	-d
 
 all-local: pcbtest.sh .test/Pcb
 
-actionlist.c : ${pcb_bin_SOURCES} ${srcdir}/gather-actions
-	perl ${srcdir}/gather-actions ${pcb_bin_SOURCES}
+@MAINTAINER_MODE_TRUE@actionlist.c : ${pcb_bin_SOURCES} ${srcdir}/gather-actions
+@MAINTAINER_MODE_TRUE@	perl ${srcdir}/gather-actions ${pcb_bin_SOURCES}
 
 pcb-menu.h : pcb-menu.res
 	echo '/* AUTOMATICALLY GENERATED FROM pcb-menu.res DO NOT EDIT */' > pcb-menu.h
