@@ -1118,7 +1118,7 @@ DrawVText (int x, int y, int w, int h, int de, char *str)
 
   im = XGetImage (Dpy, pm, 0, 0, w, h, 1, XYPixmap);
 
-  /* im2 <= Transpose(im); TODO: find faster way */
+  /* draw Transpose(im) but only dark pixels; TODO: find a faster way */
   for (i = 0; i < w; i++)
     for (j = 0; j < h; j++)
       if (XGetPixel (im, i, j))
@@ -1144,16 +1144,16 @@ DrawPinOrViaNameLowLevel (PinTypePtr Ptr)
 		&direction, &ascent, &descent, &overall);
   if (TEST_FLAG (EDGE2FLAG, Ptr))
     {
-      UpdateRect.x = TO_DRAW_X (Ptr->X - overall.ascent / 2);
+      UpdateRect.x = TO_DRAW_X (Ptr->X) - ascent + descent;
       UpdateRect.y =
-	TO_DRAW_Y (Ptr->Y + Ptr->Thickness / 2 + overall.lbearing +
-		   Settings.PinoutTextOffsetY);
+	TO_DRAW_Y (Ptr->Y + Ptr->Thickness / 2 + Settings.PinoutTextOffsetY)
+	           + overall.lbearing;
     }
   else
     {
       UpdateRect.x =
 	TO_DRAW_X (Ptr->X + Ptr->Thickness / 2 + Settings.PinoutTextOffsetX);
-      UpdateRect.y = TO_DRAW_Y (Ptr->Y + overall.ascent / 2);
+      UpdateRect.y = TO_DRAW_Y (Ptr->Y) + overall.ascent / 2;
     }
   if (Gathering)
     {
@@ -1295,7 +1295,7 @@ DrawPadNameLowLevel (PadTypePtr Pad)
   vert = (Pad->Point1.X == Pad->Point2.X);
   if (vert)
     {
-      UpdateRect.x = TO_DRAW_X (Pad->Point1.X - overall.ascent / 2);
+      UpdateRect.x = TO_DRAW_X (Pad->Point1.X) - ascent + descent;
       UpdateRect.y =
 	TO_DRAW_Y (MAX (Pad->Point1.Y, Pad->Point2.Y) + Pad->Thickness / 2);
     }
@@ -1303,7 +1303,7 @@ DrawPadNameLowLevel (PadTypePtr Pad)
     {
       UpdateRect.x =
 	TO_DRAW_X (MAX (Pad->Point1.X, Pad->Point2.X) + Pad->Thickness / 2);
-      UpdateRect.y = TO_DRAW_Y (Pad->Point1.Y + overall.ascent / 2);
+      UpdateRect.y = TO_DRAW_Y (Pad->Point1.Y) + overall.ascent / 2;
     }
 
   if (vert)
