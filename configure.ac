@@ -174,6 +174,12 @@ AC_SUBST(PCBTREEDIR)
 #AC_DEFINE_UNQUOTED(PCBTREEDIR,"$PCBLIB",[top directory for new style pcb library])
 CPPFLAGS="$CPPFLAGS -DPCBTREEDIR=\\\"$PCBTREEDIR\\\""
 
+# if we have gcc then add -Wall
+if test "x$GCC" = "xyes"; then
+	if test -z "`echo "$CFLAGS" | grep "\-Wall" 2> /dev/null`" ; then
+		CFLAGS="$CFLAGS -Wall"
+	fi
+fi
 
 CFLAGS="$CFLAGS $X_CFLAGS"
 LIBS="$LIBS $X_LIBS $DMALLOC_LIBS"
