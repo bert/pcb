@@ -1,3 +1,521 @@
+2005-01-26 21:36  danmc
+
+	* Makefile.in, aclocal.m4, README_FILES/Makefile.in,
+	  doc/Makefile.in, example/Makefile.in,
+	  example/libraries/Makefile.in, lib/Makefile.in,
+	  newlib/Makefile.in, newlib/2_pin_thru-hole_packages/Makefile.in,
+	  newlib/analog-devices/Makefile.in, newlib/burr-brown/Makefile.in,
+	  newlib/connectors/Makefile.in, newlib/crystal/Makefile.in,
+	  newlib/cypress/Makefile.in, newlib/electro-optics/Makefile.in,
+	  newlib/generic_SMD_packages/Makefile.in,
+	  newlib/headers/Makefile.in, newlib/msp430/Makefile.in,
+	  newlib/not_vetted_ingo/Makefile.in, newlib/sockets/Makefile.in,
+	  newlib/tests/Makefile.in, newlib/toko/Makefile.in,
+	  src/Makefile.in, src/icons/Makefile.in, src/script/Makefile.in,
+	  tools/Makefile.in, tutorial/Makefile.in: update to latest
+	  automake
+
+2005-01-26 20:49  danmc
+
+	* src/: Pcb.ad.in, main.c: change pcb to Pcb in a commented out
+	  resource
+
+2005-01-26 20:45  danmc
+
+	* lib/: geda.inc, misc.inc: fix the LED3 and LED5 footprints for
+	  T-1 and T-1 3/4 (3mm and 5mm) standard LED's.  The old footprint
+	  had drill holes which were too small and also there was silk on
+	  the pad.
+
+2005-01-25 20:35  danmc
+
+	* lib/plcc.inc: increase the padsize and drill size for
+	  through-hole PLCC sockets
+
+2005-01-25 13:20  djdelorie
+
+	* src/pcb-menu.res: Oops, take out test entry
+
+2005-01-25 13:07  djdelorie
+
+	* src/: menu.c, pcb-menu.res, resmenu.c, resmenu.h: Move
+	  right-click popup menu to pcb-menu.res also.
+
+2005-01-21 18:19  danmc
+
+	* doc/version.texi: bump date
+
+2005-01-21 17:46  danmc
+
+	* src/create.c: do not complain about MIN_PINORVIACOPPER on a
+	  mounting hole
+
+2005-01-21 17:25  danmc
+
+	* src/: Pcb.ad.in, main.c, set.c: - break the status line into 2
+	  lines as it was getting rather long - put the cursor position
+	  line below the menu as it is also getting   rather long with the
+	  metric display.
+
+	  Besides keeping the 2 lines from being cutoff on smaller
+	  displays, it seems to avoid some of the strange Xaw issues seen
+	  in bug #1099862 and patch #1042731 where the porthole for the
+	  main drawing area is not properly sized and where the status line
+	  is sometimes covered by the porthole.
+
+2005-01-21 17:21  danmc
+
+	* src/Makefile.in: regen
+
+2005-01-21 17:18  danmc
+
+	* src/Makefile.am: for the .test/Pcb apps-default file (the one
+	  used when running before installation), use the pcb-menu.res file
+	  in the source directory.
+
+2005-01-21 17:15  danmc
+
+	* src/action.c, src/pcb-menu.res, doc/pcb.texi: Add "Selected" and
+	  "All" arguments to DisperseElements so you have the option to not
+	  disperse all of them.  Add corresponding menu choices.
+
+2005-01-18 18:13  danmc
+
+	* src/print.c: avoid having text overlaying text in the fab drawing
+	  when a very small number of drill sizes are used.  Problem
+	  reported in bug #1100163.  Patch provided by Mick.
+
+2005-01-17 23:40  danmc
+
+	* configure: regen
+
+2005-01-17 23:38  danmc
+
+	* configure.ac: add a --disable-rpath flag to disable hardcoding of
+	  the X11 library path.  Default behaviour is unchanged.
+
+2005-01-16 23:08  danmc
+
+	* src/main.c: use LAYOUT_BOTTOM to always put the status line at
+	  the bottom of the main window.  Gets rid of some annoying bugs on
+	  solaris and some other systems where the status line would
+	  sometimes get covered up when the window was resized.
+
+2005-01-16 22:54  danmc
+
+	* src/create.c: in the message log produced when a via size has to
+	  be increased to meet the minimum copper, add a location to make
+	  it easier to locate the via.
+
+2005-01-16 22:46  danmc
+
+	* src/: Pcb.ad.in, main.c: Increase
+	  Pcb.masterForm*cursorPosition.width to make room for metric
+	  display.  Provided by Mark Whitis in patch #1042731
+
+2005-01-16 20:05  danmc
+
+	* doc/pcb.texi: add docs for ChangeClearSize() action.	Also apply
+	  some other fixes provided in patch #1068842
+
+2005-01-13 19:31  danmc
+
+	* lib/misc.inc: increase quoting of $2 in PKG_CRYSTAL to avoid the
+	  refdes from being expanded by m4.  Lets you use "X1" as the
+	  refdes in gschem and gsch2pcb
+
+2005-01-13 17:30  danmc
+
+	* README_FILES/Makefile.in: regen
+
+2005-01-13 17:29  danmc
+
+	* doc/version.texi: udate data
+
+2005-01-13 17:15  danmc
+
+	* src/pcb-menu.res: add DisperseElements() to menu
+
+2005-01-13 17:13  danmc
+
+	* src/: control.c, main.c, resmenu.c: remove some more compiler
+	  warnings
+
+2005-01-13 17:08  danmc
+
+	* doc/pcb.texi, src/action.c, src/action.h, src/main.c: add a
+	  DisperseElements() action which will disperse all elemnents in a
+	  layout.  The purpose is to spread out elements which are all on
+	  top of each other at the very beginning of a design.
+
+2005-01-06 18:27  danmc
+
+	* README, README_FILES/LICENSE, README_FILES/MAILING,
+	  README_FILES/Makefile.am, README_FILES/README: remove duplicated
+	  files and fix some out of date info
+
+2005-01-05 22:46  danmc
+
+	* src/: djopt.c, rtree.c: cast some pointers to (void *) when
+	  printing debug output.  reduces the # of compiler warnings
+
+2005-01-03 07:56  danmc
+
+	* src/: action.c, autoplace.c, autoroute.c, box.h, buffer.c,
+	  buffer.h, change.c, change.h, clip.c, clip.h, copy.c, copy.h,
+	  create.c, create.h, crosshair.c, crosshair.h, data.c, data.h,
+	  dev_ps.c, dev_rs274x.c, draw.c, file.c, find.c, find.h, global.h,
+	  insert.c, insert.h, intersect.c, line.c, macro.h, mirror.c,
+	  mirror.h, misc.c, misc.h, move.c, move.h, mtspace.c, output.c,
+	  output.h, pinout.c, polygon.c, polygon.h, print.c, print.h,
+	  printdialog.c, rotate.c, rotate.h, rubberband.c, search.c,
+	  search.h, set.c, set.h, undo.c, undo.h: change "Location" to
+	  "LocationType".  Avoids some confusion with some compilers
+	  (SunPRO in particular) when "Location" is also used as part of a
+	  struct.
+
+2004-12-31 00:11  danmc
+
+	* src/vendor.c: move the regfree() call _before_ the return from
+	  the function that calls it so that it actually happens.
+
+2004-12-11 19:12  danmc
+
+	* src/vendor.c: remove a compiler warning
+
+2004-11-20 17:25  danmc
+
+	* src/set.c: add metric output to the location display.  Based on
+	  patches provided in patch #1042731 by Mark Whitis
+
+2004-11-20 17:20  danmc
+
+	* src/main.c: adjust Pcb.masterForm*cursorPosition.width to match
+	  the app-defaults file value
+
+2004-11-20 09:30  danmc
+
+	* src/actionlist.c: revert previous.  Seems to have snuck in by
+	  mistake in the strcmp() cleanup.
+
+2004-11-20 09:15  danmc
+
+	* src/pcb-menu.res: add <Key>. as the hotkey for toggling 45 degree
+	  line mode.  addressed bug #1069665 filed by Mark Whitis.
+
+2004-11-18 23:12  haceaton
+
+	* src/crosshair.c: Snap to pads go to pad centers and allow
+	  snapping to element mark too.
+	  ----------------------------------------------------------------------
+
+2004-11-18 22:08  haceaton
+
+	* src/: action.c, actionlist.c, autoplace.c, create.c,
+	  dev_rs274x.c, dialog.c, djopt.c, draw.c, file.c, fileselect.c,
+	  macro.h, main.c, misc.c, netlist.c, print.c, rats.c, res_parse.y,
+	  search.c, selector.c, set.c, vendor.c: Replace all strcmp with a
+	  macro that tests for NULL pointers
+	  ----------------------------------------------------------------------
+
+2004-11-08 00:36  danmc
+
+	* src/control.c: Restore translation table for the mode buttons.
+	  This seems to fix the "mode buttons are not responsive" bug
+	  reported in bug #716517 Patch provided by Daniel Nilsson in patch
+	  #1023078.
+
+2004-11-07 09:46  haceaton
+
+	* src/: change.c, change.h: Allow element names to be edited over
+	  the name itself
+	  ----------------------------------------------------------------------
+
+2004-11-01 22:38  danmc
+
+	* src/Pcb.ad.in: Fix the <Key>. binding to toggle 45 degree mode.
+	  Addresses bug #1022800
+
+2004-11-01 06:58  danmc
+
+	* config.h.in, configure: regen [add support for ElectricFence
+	  debugging.  --enable-efence]
+
+2004-11-01 06:57  danmc
+
+	* configure.ac: add support for ElectricFence debugging.
+	  --enable-efence
+
+2004-11-01 06:52  danmc
+
+	* doc/: pcb.texi, version.texi: clarify the units used by PCB a bit
+
+2004-10-31 01:50  danmc
+
+	* doc/pcb.texi, src/vendor.c: Allow the use of regular expressions
+	  in the resources which specify elements which should not have
+	  their drill holes mapped to the vendor table.
+
+2004-10-30 02:56  danmc
+
+	* src/: pcb-menu.res, vendor.c: Modify the LoadVendor() action so
+	  if the file name is not give, the user is presented with a file
+	  selection dialog box to choose a file.  Also add a menu choice
+	  for this.
+
+2004-10-30 02:30  danmc
+
+	* src/script/pcb.in: Quote "$@" to keep args whole
+
+2004-10-29 09:05  danmc
+
+	* src/: Makefile.am, Makefile.in: add missing vendor.h
+
+2004-10-29 02:08  danmc
+
+	* doc/pcb.texi: document vendor drill mapping
+
+2004-10-29 02:07  danmc
+
+	* src/: Makefile.in, actionlist.c: regen after adding vendor
+	  resource/mapping code
+
+2004-10-29 02:07  danmc
+
+	* src/: Makefile.am, action.c, change.c, change.h, create.c,
+	  pcb-menu.res, vendor.c, vendor.h: Add support for a loadable
+	  vendor resource.  The primary purpose is to import a list of
+	  vendor supported or prefered drill sizes.  The design is then
+	  modified to change drills to sizes in the drill list.
+	  Additionally, the vendor resource file may include DRC settings.
+
+2004-10-27 10:36  djdelorie
+
+	* src/resmenu.c: Support multiple actions per line for -action and
+	  -script
+
+2004-10-27 10:28  djdelorie
+
+	* src/pcbtest.sh.in: Quote "$@" to keep args whole
+
+2004-10-27 10:23  djdelorie
+
+	* src/: actionlist.c, global.h, main.c, resmenu.c: Add -action
+	  command line, to execute one action string at startup
+
+2004-10-27 10:11  djdelorie
+
+	* src/: pcb-menu.res, res_lex.l: Add support for comments.
+	  Comments begin with '#' and extend to the end of the line.
+
+2004-10-27 10:10  djdelorie
+
+	* doc/: pcb.texi, version.texi: Document resource file comments
+
+2004-10-25 21:38  danmc
+
+	* src/dialog.c: remove unused variable, make sure return returns a
+	  value on a non-void fn
+
+2004-10-25 06:55  danmc
+
+	* src/dialog.c: Add date and compile time to the About dialog.
+	  Patch provided as patch #1053444 by Bob Paddock.
+
+2004-10-24 22:10  danmc
+
+	* src/buffer.c: Fix one more (last one maybe?) hires bug where when
+	  converting a selection or buffer to element, the soldermask
+	  relief is 100x smaller than the default.  Address bug report
+	  #1049033.
+
+2004-10-24 22:00  danmc
+
+	* Makefile.in, README_FILES/Makefile.in, example/Makefile.in,
+	  example/libraries/Makefile.in, lib/Makefile.in,
+	  newlib/Makefile.in, newlib/2_pin_thru-hole_packages/Makefile.in,
+	  newlib/analog-devices/Makefile.in, newlib/burr-brown/Makefile.in,
+	  newlib/connectors/Makefile.in, newlib/crystal/Makefile.in,
+	  newlib/cypress/Makefile.in, newlib/electro-optics/Makefile.in,
+	  newlib/generic_SMD_packages/Makefile.in,
+	  newlib/headers/Makefile.in, newlib/msp430/Makefile.in,
+	  newlib/not_vetted_ingo/Makefile.in, newlib/sockets/Makefile.in,
+	  newlib/tests/Makefile.in, newlib/toko/Makefile.in,
+	  src/Makefile.in, src/icons/Makefile.in, src/script/Makefile.in,
+	  tools/Makefile.in, tutorial/Makefile.in: regen so that all
+	  Makefile.in files came from the same version of automake
+
+2004-10-24 21:59  danmc
+
+	* doc/version.texi: update date on manual since there have been
+	  additions
+
+2004-10-22 23:39  danmc
+
+	* doc/pcb.texi: minor fixups to make this happy again with the new
+	  texinfo.tex
+
+2004-10-22 23:38  danmc
+
+	* doc/texinfo.tex: update to texinfoversion 2004-09-06.16
+
+2004-10-21 18:49  haceaton
+
+	* src/change.c: Fix borking of name_tree when changing an element
+	  name
+	  ----------------------------------------------------------------------
+
+2004-10-21 18:16  danmc
+
+	* doc/Makefile.in: regen
+
+2004-10-21 18:14  danmc
+
+	* doc/Makefile.am: - override the mostlyclean-aminfo target to
+	  avoid deleting the .dvi, .html, .pdf, and .ps versions of the
+	  manual with 'make clean'.  Since these files already go in the
+	  distfile, we don't want a 'make clean' to remove them as that
+	  would force a dependency on TeX.  This issue was noted by Stuart
+	  Brorson.
+
+	  - while here let automake handle the html and pdf conversions
+	  automatically.  This ends up defaulting to texi2pdf for PDF which
+	  seems to do a better job than ps2pdf anyway.
+
+2004-10-21 18:11  danmc
+
+	* aclocal.m4, configure: regen
+
+2004-10-21 18:04  danmc
+
+	* configure.ac: check for ps2pdf which is used for building the
+	  refcard
+
+2004-10-21 18:02  danmc
+
+	* acinclude.m4: improve the quoting so that aclocal-1.9.2 is
+	  happier
+
+2004-10-20 08:21  danmc
+
+	* doc/pcb.texi: minor fixup in the newlib element creation guide.
+
+2004-10-19 21:02  danmc
+
+	* doc/pcb.texi: Apply several improvements from Bob Paddock
+	  including:
+
+	  - spell check - improved section on modifying newlib footprints -
+	  add section on searching for elements - add section on
+	  measurements - add appendix on regular expressions
+
+	  Some texinfo fixes from me.
+
+2004-10-17 01:40  djdelorie
+
+	* src/resmenu.c: Sort actions by modifier so that both Ctrl<Key>x
+	  and <Key>x work.
+
+2004-10-17 01:40  djdelorie
+
+	* src/actionlist.c: Regenerated
+
+2004-10-17 01:16  djdelorie
+
+	* src/action.c: Add FlagHaveRegex (have_regex) so that the
+	  SelectByName menu entries work.
+
+2004-10-12 09:16  djdelorie
+
+	* src/global.h: Oops, overzealous patching ;-)
+
+2004-10-12 09:13  djdelorie
+
+	* src/global.h: add non-gcc definition of ATTRIBUTE_UNUSED
+
+2004-10-12 08:09  danmc
+
+	* src/global.h: add missing #else clause in defining
+	  ATTRIBUTE_UNUSED on non-gcc or older gcc version.  Problem noted
+	  by Dave McGuire.
+
+2004-10-08 12:56  djdelorie
+
+	* src/rats.c: Check for numberless pins.
+
+2004-10-07 22:30  djdelorie
+
+	* src/print.c: Print plated and unplated hole counts on separate
+	  lines.
+
+2004-10-06 16:04  djdelorie
+
+	* src/print.c: Avoid checking pin numbers for unnumbered pins.
+
+2004-09-23 22:55  djdelorie
+
+	* src/: actionlist.c, data.c, dialog.c, global.h, main.c: Add
+	  command history to : widget.
+
+2004-09-23 22:02  danmc
+
+	* README.snapshots: minor tweaks to instructions
+
+2004-09-21 00:37  haceaton
+
+	* src/: draw.c, move.c, pinout.c: Fixes for pinout window crash.
+	  Still need to fix pinout scroll range at high zoom
+
+2004-09-20 23:51  haceaton
+
+	* src/misc.c: Fix error on non-quarter circle arc bounding box
+	  calculations
+
+2004-09-20 22:31  haceaton
+
+	* src/menu.c: Don't ask for X,Y coordinates in third-button pop-up
+	  menu; the coordinate is where the cursor was when the menu was
+	  popped up.
+
+2004-09-20 22:16  haceaton
+
+	* src/draw.c: Fixed return value of Emark_callback. (Didn't really
+	  matter, we weren't count number of marks drawn).
+
+2004-09-20 21:48  haceaton
+
+	* src/action.c: Allow Ctrl-drag to copy objects in arrow mode.
+
+2004-09-20 21:46  haceaton
+
+	* src/polygon.c: Fix bug with polygon clearances from other layers
+	  in the group.
+
+2004-09-08 00:05  danmc
+
+	* src/set.c: add an extra digit to the display of metric
+	  measurements.  Patch from Gabriel Paubert.
+
+2004-09-03 20:35  danmc
+
+	* NEWS: mention the background image in 20040903
+
+2004-09-03 18:12  danmc
+
+	* NEWS: update with pcb-20040903 news items
+
+2004-09-03 07:43  danmc
+
+	* aclocal.m4, configure, doc/version.texi: regen for pcb-20040903
+
+2004-09-03 00:28  danmc
+
+	* configure.ac: set version for snapshot
+
+2004-09-03 00:04  danmc
+
+	* ChangeLog: update to get ready for next snapshot
+
 2004-09-03 00:02  danmc
 
 	* README.snapshots: add more detailed snapshot instructions
