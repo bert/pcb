@@ -3083,7 +3083,7 @@ Refer also to @ref{Command-Line Options}.
 All user accessible commands may be bound to almost any @code{X} event. Almost
 no default binding for commands is done in the binaries, so it is vital for the
 application that at least a system-wide application resource file exists.
-This file normally resides in the @file{X11/lib/app-defaults} directory and
+This file normally resides in the @file{share/pcb} directory and
 is called @file{Pcb}. The bindings to which the manual refers to are the
 ones as defined by the shipped resource file. Besides binding an action to
 an X11 event, you can also execute any action command using a ":" command
