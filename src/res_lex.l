@@ -23,6 +23,7 @@ RCSID("$Id$");
 #define YY_INPUT(buf,result,max_size) { result = res_parse_getchars(buf, max_size); }
 
 extern int res_lineno;
+extern int res_parse_getchars(char *buf, int max_size);
 
 %}
 
