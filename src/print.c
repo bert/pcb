@@ -1398,6 +1398,9 @@ PrintFab (void)
 	  drill_sym (plated_sym, 100 * TEXT_SIZE, yoff + 100 * TEXT_SIZE / 4);
 	  text_at (135000, yoff, 200, "YES");
 	  text_at (98000, yoff, 200, "%d", drill->PinCount + drill->ViaCount);
+
+	  if (unplated_sym != -1)
+	    yoff -= TEXT_LINE;
 	}
       if (unplated_sym != -1)
 	{
@@ -1409,6 +1412,9 @@ PrintFab (void)
       SetPrintColor (PCB->ElementColor);
       text_at (45000, yoff, 200, "%0.3f",
 	       drill->DrillSize / 100000. + 0.0004);
+      if (plated_sym != -1 && unplated_sym != -1)
+	text_at (45000, yoff + TEXT_LINE, 200, "%0.3f",
+		 drill->DrillSize / 100000. + 0.0004);
       yoff -= TEXT_LINE;
       total_drills += drill->PinCount;
       total_drills += drill->ViaCount;
