@@ -485,7 +485,7 @@ InitComponentLookup (void)
       /* allocate memory for working list */
       PadList[i].Data =
 	(void **) MyCalloc (NumberOfPads[i], sizeof (PadTypePtr),
-			    "InitConnectionLookup()");
+			    "InitComponentLookup()");
     }
 
   /* clear some struct members */
@@ -513,13 +513,13 @@ InitLayoutLookup (void)
 	  /* allocate memory for line pointer lists */
 	  LineList[i].Data =
 	    (void **) MyCalloc (layer->LineN, sizeof (LineTypePtr),
-				"InitConnectionLookup()");
+				"InitLayoutLookup()");
 	}
       if (layer->ArcN)
 	{
 	  ArcList[i].Data =
 	    (void **) MyCalloc (layer->ArcN, sizeof (ArcTypePtr),
-				"InitConnectionLookup()");
+				"InitLayoutLookup()");
 	}
 
 
@@ -527,7 +527,7 @@ InitLayoutLookup (void)
       if (layer->PolygonN)
 	PolygonList[i].Data = (void **) MyCalloc (layer->PolygonN,
 						  sizeof (PolygonTypePtr),
-						  "InitConnectionLookup()");
+						  "InitLayoutLookup()");
 
       /* clear some struct members */
       LineList[i].Location = 0;
@@ -551,13 +551,13 @@ InitLayoutLookup (void)
     TotalV = 0;
   /* allocate memory for 'new PV to check' list and clear struct */
   PVList.Data = (void **) MyCalloc (TotalP + TotalV, sizeof (PinTypePtr),
-				    "InitConnectionLookup()");
+				    "InitLayoutLookup()");
   PVList.Location = 0;
   PVList.DrawLocation = 0;
   PVList.Number = 0;
   /* Initialize ratline data */
   RatList.Data = (void **) MyCalloc (PCB->Data->RatN, sizeof (RatTypePtr),
-				     "InitConnectionLookup()");
+				     "InitLayoutLookup()");
   RatList.Location = 0;
   RatList.DrawLocation = 0;
   RatList.Number = 0;
