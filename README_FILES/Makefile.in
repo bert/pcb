@@ -34,8 +34,7 @@ NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
 subdir = README_FILES
-DIST_COMMON = README $(srcdir)/Makefile.am $(srcdir)/Makefile.in \
-	INSTALL
+DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in INSTALL
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/acinclude.m4 \
 	$(top_srcdir)/configure.ac
@@ -144,9 +143,6 @@ target_alias = @target_alias@
 EXTRA_DIST = \
 	CHANGES \
 	INSTALL \
-	LICENSE \
-	MAILING \
-	README \
 	Tools \
 	Whats_new_in_2.0 
 
