@@ -42,7 +42,7 @@
 #include <assert.h>
 #include <setjmp.h>
 #include <stdlib.h>
-
+#define DRAWBOX
 #ifdef DRAWBOX
 #include "clip.h"
 #include "data.h"
@@ -240,7 +240,10 @@ __r_dump_tree (struct rtree_node *node, int depth)
 #ifdef DRAWBOX
       XSetLineAttributes (Dpy, Output.fgGC, 4, LineSolid, CapRound,
 			  JoinRound);
-      XSetForeground (Dpy, Output.fgGC, PCB->WarnColor);
+      if (depth < MAX_LAYER + 1)
+	XSetForeground (Dpy, Output.fgGC, LAYER_PTR (depth)->Color);
+      else
+	XSetForeground (Dpy, Output.fgGC, PCB->WarnColor);
       XDrawCLine (Dpy, Output.OutputWindow, Output.fgGC,
 		  node->box.X1, node->box.Y1, node->box.X2, node->box.Y1);
       XDrawCLine (Dpy, Output.OutputWindow, Output.fgGC,
@@ -957,21 +960,21 @@ __r_insert_node (struct rtree_node * node, const BoxType * query, int manage,
 	      best_node = node->u.kids[i];
 	    }
 	}
-      /* see if there is room for a new leaf */
+      /* see if there is room for a new leaf node */
       if (node->u.kids[0]->flags.is_leaf && i < M_SIZE)
 	{
-	  struct rtree_node *new_node;
-	  new_node = calloc (1, sizeof (*new_node));
-	  new_node->parent = node;
-	  new_node->flags.is_leaf = True;
-	  node->u.kids[i] = new_node;
-	  new_node->u.rects[0].bptr = query;
-	  new_node->u.rects[0].bounds = *query;
-	  new_node->box = *query;
-	  if (manage)
-	    new_node->flags.manage = 1;
-	  sort_node (node);
-	  return 0;
+	      struct rtree_node *new_node;
+	      new_node = calloc (1, sizeof (*new_node));
+	      new_node->parent = node;
+	      new_node->flags.is_leaf = True;
+	      node->u.kids[i] = new_node;
+	      new_node->u.rects[0].bptr = query;
+	      new_node->u.rects[0].bounds = *query;
+	      new_node->box = *query;
+	      if (manage)
+		new_node->flags.manage = 1;
+	      sort_node (node);
+	      return 0;
 	}
 
       /* didn't find an enclosure, so use the best one */

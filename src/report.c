@@ -1,3 +1,4 @@
+#include "rtree.h"
 /*
  *                            COPYRIGHT
  *
@@ -39,6 +40,7 @@ static char *rcsid =
 #include "dialog.h"
 #include "drill.h"
 #include "error.h"
+#include "gui.h"
 #include "search.h"
 #include "misc.h"
 #include "mymem.h"
@@ -138,6 +140,13 @@ ReportDialog (void)
     {
     case VIA_TYPE:
       {
+#ifndef NDEBUG
+	if (ShiftPressed ())
+	  {
+	    __r_dump_tree (PCB->Data->via_tree->root, 0);
+	    return;
+	  }
+#endif
 	PinTypePtr via = (PinTypePtr) ptr2;
 	if (TEST_FLAG (HOLEFLAG, via))
 	  sprintf (&report[0], "VIA ID# %ld  Flags:0x%08lx\n"
@@ -163,6 +172,13 @@ ReportDialog (void)
       }
     case PIN_TYPE:
       {
+#ifndef NDEBUG
+	if (ShiftPressed ())
+	  {
+	    __r_dump_tree (PCB->Data->pin_tree->root, 0);
+	    return;
+	  }
+#endif
 	PinTypePtr Pin = (PinTypePtr) ptr2;
 	ElementTypePtr element = (ElementTypePtr) ptr1;
 
@@ -198,6 +214,14 @@ ReportDialog (void)
       }
     case LINE_TYPE:
       {
+#ifndef NDEBUG
+	if (ShiftPressed ())
+	  {
+	    LayerTypePtr layer = (LayerTypePtr) ptr1;
+	    __r_dump_tree (layer->line_tree->root, 0);
+	    return;
+	  }
+#endif
 	LineTypePtr line = (LineTypePtr) ptr2;
 	sprintf (&report[0], "LINE ID# %ld   Flags:0x%08lx\n"
 		 "FirstPoint(X,Y) = (%d, %d)  ID = %ld\n"
@@ -219,6 +243,13 @@ ReportDialog (void)
       }
     case RATLINE_TYPE:
       {
+#ifndef NDEBUG
+	if (ShiftPressed ())
+	  {
+	    __r_dump_tree (PCB->Data->rat_tree->root, 0);
+	    return;
+	  }
+#endif
 	RatTypePtr line = (RatTypePtr) ptr2;
 	sprintf (&report[0], "RAT-LINE ID# %ld   Flags:0x%08lx\n"
 		 "FirstPoint(X,Y) = (%d, %d) ID = %ld "
@@ -234,6 +265,14 @@ ReportDialog (void)
       }
     case ARC_TYPE:
       {
+#ifndef NDEBUG
+	if (ShiftPressed ())
+	  {
+	    LayerTypePtr layer = (LayerTypePtr) ptr1;
+	    __r_dump_tree (layer->arc_tree->root, 0);
+	    return;
+	  }
+#endif
 	ArcTypePtr Arc = (ArcTypePtr) ptr2;
 	BoxTypePtr box = GetArcEnds (Arc);
 
@@ -276,6 +315,13 @@ ReportDialog (void)
       }
     case PAD_TYPE:
       {
+#ifndef NDEBUG
+	if (ShiftPressed ())
+	  {
+	    __r_dump_tree (PCB->Data->pad_tree->root, 0);
+	    return;
+	  }
+#endif
 	PadTypePtr Pad = (PadTypePtr) ptr2;
 	ElementTypePtr element = (ElementTypePtr) ptr1;
 
@@ -309,12 +355,21 @@ ReportDialog (void)
       }
     case ELEMENT_TYPE:
       {
+#ifndef NDEBUG
+	if (ShiftPressed ())
+	  {
+	    __r_dump_tree (PCB->Data->element_tree->root, 0);
+	    return;
+	  }
+#endif
 	ElementTypePtr element = (ElementTypePtr) ptr2;
 	sprintf (&report[0], "ELEMENT ID# %ld   Flags:0x%08lx\n"
 		 "BoundingBox (%d,%d) (%d,%d)\n"
 		 "Descriptive Name \"%s\"\n"
 		 "Name on board \"%s\"\n"
 		 "Part number name \"%s\"\n"
+		 "It's name is %0.2f mils tall and is located at (X,Y) = (%d,%d)\n"
+		 "%s"
 		 "Mark located at point (X,Y) = (%d,%d)\n"
 		 "It is on the %s side of the board.\n"
 		 "%s",
@@ -323,7 +378,10 @@ ReportDialog (void)
 		 element->BoundingBox.X2, element->BoundingBox.Y2,
 		 EMPTY (element->Name[0].TextString),
 		 EMPTY (element->Name[1].TextString),
-		 EMPTY (element->Name[2].TextString), element->MarkX,
+		 EMPTY (element->Name[2].TextString),
+		 0.45 * element->Name[1].Scale, element->Name[1].X,
+		 element->Name[1].Y, TEST_FLAG (HIDENAMEFLAG, element) ?
+		 "But it's hidden\n" : "", element->MarkX,
 		 element->MarkY, TEST_FLAG (ONSOLDERFLAG,
 					    element) ? "solder (bottom)" :
 		 "component", TEST_FLAG (LOCKFLAG, element) ?
@@ -331,8 +389,23 @@ ReportDialog (void)
 	break;
       }
     case TEXT_TYPE:
+#ifndef NDEBUG
+      if (ShiftPressed ())
+	{
+	  LayerTypePtr layer = (LayerTypePtr) ptr1;
+	  __r_dump_tree (layer->text_tree->root, 0);
+	  return;
+	}
+#endif
     case ELEMENTNAME_TYPE:
       {
+#ifndef NDEBUG
+	if (ShiftPressed ())
+	  {
+	    __r_dump_tree (PCB->Data->name_tree[NAME_INDEX (PCB)]->root, 0);
+	    return;
+	  }
+#endif
 	char laynum[32];
 	TextTypePtr text = (TextTypePtr) ptr2;
 
