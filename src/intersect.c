@@ -205,10 +205,10 @@ ComputeIntersectionArea (BoxListTypePtr boxlist)
   double area = 0.0;
   /* first get the aggregate area. */
   for (i = 0; i < boxlist->BoxN; i++)
-    area += (boxlist->Box[i].X2 - boxlist->Box[i].X1) *
-      (boxlist->Box[i].Y2 - boxlist->Box[i].Y1);
+    area += (double)(boxlist->Box[i].X2 - boxlist->Box[i].X1) *
+      (double) (boxlist->Box[i].Y2 - boxlist->Box[i].Y1);
   /* intersection area is aggregate - union. */
-  return area - ComputeUnionArea (boxlist);
+  return area * 0.0001 - ComputeUnionArea (boxlist);
 }
 
 /* ---------------------------------------------------------------------------
@@ -244,7 +244,7 @@ ComputeUnionArea (BoxListTypePtr boxlist)
   qsort (rectRight, boxlist->BoxN, sizeof (*rectRight), compareright);
   /* sweep through x segments from left to right */
   i = j = 0;
-  lastX = -PCB->MaxWidth;
+  lastX = rectLeft[0]->X1;
   while (j < boxlist->BoxN)
     {
       assert (i <= boxlist->BoxN);
@@ -257,7 +257,7 @@ ComputeUnionArea (BoxListTypePtr boxlist)
 	  if (b->X2 != lastX)
 	    {
 	      assert (lastX < b->X2);
-	      area += (b->X2 - lastX) * segtree.nodes[1].area;
+	      area += (double)(b->X2 - lastX) * segtree.nodes[1].area;
 	      lastX = b->X2;
 	    }
 	  /* remove a segment from the segment tree. */
@@ -271,7 +271,7 @@ ComputeUnionArea (BoxListTypePtr boxlist)
 	  if (b->X1 != lastX)
 	    {
 	      assert (lastX < b->X1);
-	      area += (b->X1 - lastX) * segtree.nodes[1].area;
+	      area += (double)(b->X1 - lastX) * segtree.nodes[1].area;
 	      lastX = b->X1;
 	    }
 	  /* add a segment from the segment tree. */
@@ -281,7 +281,7 @@ ComputeUnionArea (BoxListTypePtr boxlist)
   free (rectLeft);
   free (rectRight);
   free (segtree.nodes);
-  return area;
+  return area * 0.0001;
 }
 static int
 compareleft (const void *ptr1, const void *ptr2)

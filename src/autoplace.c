@@ -102,17 +102,18 @@ const struct
   int large_grid_size;		/*snap perturbations to this grid when T is high */
   int small_grid_size;		/* snap to this grid when T is small. */
 }
+/* wire cost is manhattan distance (in mils), thus 1 inch = 1000 */
 CostParameter =
 {
   3e3,				/* via cost */
-    2e-4,			/* congestion penalty */
-    1e-0,			/* initial overlap penalty */
-    1e5,			/* final overlap penalty */
-    1e6,			/* out of bounds penalty */
+    2e-2,			/* congestion penalty */
+    1e-2,			/* initial overlap penalty */
+    1e2,			/* final overlap penalty */
+    1e3,			/* out of bounds penalty */
     1e0,			/* penalty for total area used */
-    1e3,			/* subtract 1000 from cost for every same-type neighbor */
-    1e3,			/* subtract 1000 from cost for every aligned neighbor */
-    1e3,			/* subtract 1000 from cost for every same-rotation neighbor */
+    1e0,			/* subtract 1000 from cost for every same-type neighbor */
+    1e0,			/* subtract 1000 from cost for every aligned neighbor */
+    1e0,			/* subtract 1000 from cost for every same-rotation neighbor */
     20,				/* move on when each module has been profitably moved 20 times */
     0.75,			/* annealing schedule constant: 0.85 */
     40,				/* halt when there are 60 times as many moves as good moves */
@@ -338,8 +339,6 @@ ComputeCost (NetListTypePtr Nets, double T0, double T)
   BoxListType bounds = { 0, 0, NULL };	/* save bounding rectangles here */
   BoxListType solderside = { 0, 0, NULL };	/* solder side component bounds */
   BoxListType componentside = { 0, 0, NULL };	/* component side bounds */
-  BoxListType thepins = { 0, 0, NULL };	/*pin list for alignment scoring */
-  BoxListType thepads = { 0, 0, NULL };	/*pad list for alignment scoring */
   /* make sure the NetList have the proper updated X and Y coords */
   UpdateXY (Nets);
   /* wire length term.  approximated by half-perimeter of minimum
@@ -359,10 +358,10 @@ ComputeCost (NetListTypePtr Nets, double T0, double T)
       for (j = 1; j < n->ConnectionN; j++)
 	{
 	  ConnectionTypePtr c = &(n->Connection[j]);
-	  minx = MIN (minx, c->X);
-	  maxx = MAX (maxx, c->X);
-	  miny = MIN (miny, c->Y);
-	  maxy = MAX (maxy, c->Y);
+	  MAKEMIN (minx, c->X);
+	  MAKEMAX (maxx, c->X);
+	  MAKEMIN (miny, c->Y);
+	  MAKEMAX (maxy, c->Y);
 	  if (c->type != PAD_TYPE)
 	    allpads = False;
 	  if (c->group != thegroup)
@@ -377,14 +376,14 @@ ComputeCost (NetListTypePtr Nets, double T0, double T)
 	box->Y2 = maxy;
       }
       /* okay, add half-perimeter to cost! */
-      W += (maxx - minx) + (maxy - miny) +
+      W += (maxx - minx)/100 + (maxy - miny)/100 +
 	((allpads && !allsameside) ? CostParameter.via_cost : 0);
     }
   /* now compute penalty function Wc which is proportional to
    * amount of overlap and congestion. */
   /* delta1 is congestion penalty function */
   delta1 = CostParameter.congestion_penalty *
-    ComputeIntersectionArea (&bounds);
+    sqrt (fabs (ComputeIntersectionArea (&bounds)));
 #if 0
   printf ("Wire Congestion Area: %f\n", ComputeIntersectionArea (&bounds));
 #endif
@@ -392,9 +391,9 @@ ComputeCost (NetListTypePtr Nets, double T0, double T)
   FreeBoxListMemory (&bounds);
   /* now collect module areas (bounding rect of pins/pads) */
   /* two lists for solder side / component side. */
-  ELEMENT_LOOP (PCB->Data, 
+
+   ELEMENT_LOOP (PCB->Data, 
     {
-      {
 	BoxListTypePtr thisside;
 	BoxListTypePtr otherside;
 	BoxTypePtr box;
@@ -417,40 +416,37 @@ ComputeCost (NetListTypePtr Nets, double T0, double T)
 	  continue;
 	/* initialize box so that it will take the dimensions of
 	 * the first pin/pad */
-	box->X1 = PCB->MaxWidth;
-	box->Y1 = PCB->MaxHeight;
-	box->X2 = 0;
-	box->Y2 = 0;
+	box->X1 = MAX_COORD;
+	box->Y1 = MAX_COORD;
+	box->X2 = -MAX_COORD;
+	box->Y2 = -MAX_COORD;
 	PIN_LOOP (element, 
 	  {
-	    thickness = pin->Thickness;
-	    clearance = pin->Clearance;
+	    thickness = pin->Thickness / 2;
+	    clearance = pin->Clearance * 2;
 	  EXPANDRECTXY (box,
-			  pin->X - (thickness / 2 +
-				      2 * clearance),
-			  pin->Y - (thickness / 2 +
-				      2 * clearance),
-			  pin->X + (thickness / 2 +
-				      2 * clearance),
-			  pin->Y + (thickness / 2 + 2 * clearance))}
+			  pin->X - (thickness + clearance),
+			  pin->Y - (thickness + clearance),
+			  pin->X + (thickness + clearance),
+			  pin->Y + (thickness + clearance))}
 	);
 	PAD_LOOP (element, 
 	  {
-	    thickness = pad->Thickness;
-	    clearance = pad->Clearance;
+	    thickness = pad->Thickness / 2;
+	    clearance = pad->Clearance * 2;
 	  EXPANDRECTXY (box,
 			  MIN (pad->Point1.X,
-				 pad->Point2.X) - (thickness / 2 +
-						     2 * clearance),
+				 pad->Point2.X) - (thickness +
+						     clearance),
 			  MIN (pad->Point1.Y,
-				 pad->Point2.Y) - (thickness / 2 +
-						     2 * clearance),
+				 pad->Point2.Y) - (thickness +
+						     clearance),
 			  MAX (pad->Point1.X,
-				 pad->Point2.X) + (thickness / 2 +
-						     2 * clearance),
+				 pad->Point2.X) + (thickness +
+						     clearance),
 			  MAX (pad->Point1.Y,
-				 pad->Point2.Y) + (thickness / 2 +
-						     2 * clearance))}
+				 pad->Point2.Y) + (thickness +
+						     clearance))}
 	);
 	/* add a box for each pin to the "opposite side":
 	 * surface mount components can't sit on top of pins */
@@ -458,21 +454,21 @@ ComputeCost (NetListTypePtr Nets, double T0, double T)
 	  PIN_LOOP (element, 
 	  {
 	    box = GetBoxMemory (otherside);
-	    thickness = pin->Thickness;
-	    clearance = pin->Clearance;
+	    thickness = pin->Thickness / 2;
+	    clearance = pin->Clearance * 2;
 	    /* we ignore clearance here */
 	    /* (otherwise pins don't fit next to each other) */
-	    box->X1 = pin->X - (thickness / 2);
-	    box->Y1 = pin->Y - (thickness / 2);
-	    box->X2 = pin->X + (thickness / 2);
-	    box->Y2 = pin->Y + (thickness / 2);
+	    box->X1 = pin->X - thickness;
+	    box->Y1 = pin->Y - thickness;
+	    box->X2 = pin->X + thickness;
+	    box->Y2 = pin->Y + thickness;
 	    /* speed hack! coalesce with last box if we can */
 	    if (lastbox != NULL &&
 		((lastbox->X1 == box->X1 &&
 		  lastbox->X2 == box->X2 &&
 		  MIN (abs (lastbox->Y1 - box->Y2),
 		       abs (box->Y1 - lastbox->Y2)) <
-		  2 * clearance) || (lastbox->Y1 == box->Y1
+		  clearance) || (lastbox->Y1 == box->Y1
 				     && lastbox->Y2 == box->Y2
 				     &&
 				     MIN (abs
@@ -480,7 +476,7 @@ ComputeCost (NetListTypePtr Nets, double T0, double T)
 					   box->X2),
 					  abs (box->X1 -
 					       lastbox->X2)) <
-				     2 * clearance)))
+				     clearance)))
 	      {
 		EXPANDRECT (lastbox, box);
 		otherside->BoxN--;
@@ -490,33 +486,16 @@ ComputeCost (NetListTypePtr Nets, double T0, double T)
 	  }
 	);
 	/* assess out of bounds penalty */
-	if (element->BoundingBox.X1 < 0 ||
-	    element->BoundingBox.Y1 < 0 ||
-	    element->BoundingBox.X2 >= PCB->MaxWidth ||
-	    element->BoundingBox.Y2 >= PCB->MaxHeight)
+	if (element->VBox.X1 < 0 ||
+	    element->VBox.Y1 < 0 ||
+	    element->VBox.X2 > PCB->MaxWidth ||
+	    element->VBox.Y2 > PCB->MaxHeight)
 	  delta3 += CostParameter.out_of_bounds_penalty;
-	/* heck, make our pin/pad lists while we're at it too */
-	/* (this is for alignment scoring) */
-	PIN_LOOP (element, 
-	  {
-	    box = GetBoxMemory (&thepins);
-	    box->X1 = box->X2 = pin->X;
-	    box->Y1 = box->Y2 = pin->Y;
-	  }
-	);
-	PAD_LOOP (element, 
-	  {
-	    box = GetBoxMemory (&thepads);
-	    box->X1 = box->X2 = pad->Point1.X;
-	    box->Y1 = box->Y2 = pad->Point1.Y;
-	  }
-	);
-      }
     }
   );
   /* compute intersection area of module areas box list */
-  delta2 = (ComputeIntersectionArea (&solderside) +
-	    ComputeIntersectionArea (&componentside)) *
+  delta2 = sqrt (fabs (ComputeIntersectionArea (&solderside) +
+	    ComputeIntersectionArea (&componentside))) *
     (CostParameter.overlap_penalty_min +
      (1 - (T / T0)) * CostParameter.overlap_penalty_max);
 #if 0
@@ -532,11 +511,8 @@ ComputeCost (NetListTypePtr Nets, double T0, double T)
   /* XXX: subkey should be *distance* from thing aligned with, so that
    * aligning to something far away isn't profitable */
   {
-    /* create k-d tree */
-    PointerListType seboxes = { 0, 0, NULL }
-    , ceboxes =
-    {
-    0, 0, NULL};
+    /* create r tree */
+    PointerListType seboxes = { 0, 0, NULL } , ceboxes = { 0, 0, NULL};
     struct ebox
     {
       BoxType box;
@@ -552,7 +528,7 @@ ComputeCost (NetListTypePtr Nets, double T0, double T)
 	  GetPointerMemory (TEST_FLAG (ONSOLDERFLAG, element) ?
 			    &seboxes : &ceboxes);
 	*boxpp = malloc (sizeof (**boxpp));
-	(*boxpp)->box = element->BoundingBox;
+	(*boxpp)->box = element->VBox;
 	(*boxpp)->element = element;
       }
     );
@@ -567,12 +543,14 @@ ComputeCost (NetListTypePtr Nets, double T0, double T)
       {
 	boxp = (struct ebox *)
 	  r_find_neighbor (TEST_FLAG (ONSOLDERFLAG, element) ?
-			    rt_s : rt_c, &element->BoundingBox, dir[i]);
+			    rt_s : rt_c, &element->VBox, dir[i]);
 	/* score bounding box alignments */
 	if (!boxp)
 	  continue;
 	factor = 1;
-	if (0 == strcmp (element->Name[0].TextString,
+	if (element->Name[0].TextString &&
+	    boxp->element->Name[0].TextString &&
+	    0 == strcmp (element->Name[0].TextString,
 			 boxp->element->Name[0].TextString))
 	  {
 	    delta4 += CostParameter.matching_neighbor_bonus;
@@ -580,21 +558,21 @@ ComputeCost (NetListTypePtr Nets, double T0, double T)
 	  }
 	if (element->Name[0].Direction == boxp->element->Name[0].Direction)
 	  delta4 += factor * CostParameter.oriented_neighbor_bonus;
-	if (element->BoundingBox.X1 ==
-	    boxp->element->BoundingBox.X1 ||
-	    element->BoundingBox.X1 ==
-	    boxp->element->BoundingBox.X2 ||
-	    element->BoundingBox.X2 ==
-	    boxp->element->BoundingBox.X1 ||
-	    element->BoundingBox.X2 ==
-	    boxp->element->BoundingBox.X2 ||
-	    element->BoundingBox.Y1 ==
-	    boxp->element->BoundingBox.Y1 ||
-	    element->BoundingBox.Y1 ==
-	    boxp->element->BoundingBox.Y2 ||
-	    element->BoundingBox.Y2 ==
-	    boxp->element->BoundingBox.Y1 ||
-	    element->BoundingBox.Y2 == boxp->element->BoundingBox.Y2)
+	if (element->VBox.X1 ==
+	    boxp->element->VBox.X1 ||
+	    element->VBox.X1 ==
+	    boxp->element->VBox.X2 ||
+	    element->VBox.X2 ==
+	    boxp->element->VBox.X1 ||
+	    element->VBox.X2 ==
+	    boxp->element->VBox.X2 ||
+	    element->VBox.Y1 ==
+	    boxp->element->VBox.Y1 ||
+	    element->VBox.Y1 ==
+	    boxp->element->VBox.Y2 ||
+	    element->VBox.Y2 ==
+	    boxp->element->VBox.Y1 ||
+	    element->VBox.Y2 == boxp->element->VBox.Y2)
 	  delta4 += factor * CostParameter.aligned_neighbor_bonus;
       }
     );
@@ -604,20 +582,26 @@ ComputeCost (NetListTypePtr Nets, double T0, double T)
   }
   /* penalize total area used by this layout */
   {
-    Location minX = PCB->MaxWidth, minY = PCB->MaxHeight;
-    Location maxX = 0, maxY = 0;
+    Location minX = MAX_COORD, minY = MAX_COORD;
+    Location maxX = -MAX_COORD, maxY = -MAX_COORD;
     ELEMENT_LOOP (PCB->Data, 
       {
-	minX = MIN (minX, element->BoundingBox.X1);
-	minY = MIN (minY, element->BoundingBox.Y1);
-	maxX = MAX (maxX, element->BoundingBox.X2);
-	maxY = MAX (maxY, element->BoundingBox.Y2);
+	MAKEMIN (minX, element->VBox.X1);
+	MAKEMIN (minY, element->VBox.Y1);
+	MAKEMAX (maxX, element->VBox.X2);
+	MAKEMAX (maxY, element->VBox.Y2);
       }
     );
     if (minX < maxX && minY < maxY)
       delta5 = CostParameter.overall_area_penalty *
-	(maxX - minX) * (maxY - minY);
+	sqrt((double)(maxX - minX) * (maxY - minY) * 0.0001);
   }
+  if (T==5)
+    {
+      T = W + delta1 + delta2 + delta3 - delta4 + delta5;
+    printf("cost components are %.3f %.3f %.3f %.3f %.3f %.3f\n",
+    	W/T, delta1/T, delta2/T, delta3/T, -delta4/T, delta5/T);
+	}
   /* done! */
   return W + (delta1 + delta2 + delta3 - delta4 + delta5);
 }
@@ -654,10 +638,10 @@ createPerturbation (PointerListTypePtr selected, double T)
 	pt.DX = ((pt.DX / grid) + SGN (pt.DX)) * grid;
 	pt.DY = ((pt.DY / grid) + SGN (pt.DY)) * grid;
 	/* limit DX/DY so we don't fall off board */
-	pt.DX = MAX (pt.DX, -pt.element->BoundingBox.X1);
-	pt.DX = MIN (pt.DX, PCB->MaxWidth - pt.element->BoundingBox.X2);
-	pt.DY = MAX (pt.DY, -pt.element->BoundingBox.Y1);
-	pt.DY = MIN (pt.DY, PCB->MaxHeight - pt.element->BoundingBox.Y2);
+	pt.DX = MAX (pt.DX, -pt.element->VBox.X1);
+	pt.DX = MIN (pt.DX, PCB->MaxWidth - pt.element->VBox.X2);
+	pt.DY = MAX (pt.DY, -pt.element->VBox.Y1);
+	pt.DY = MIN (pt.DY, PCB->MaxHeight - pt.element->VBox.Y2);
 	/* all done but the movin' */
 	break;
       }
@@ -697,8 +681,8 @@ doPerturb (PerturbationType * pt, Boolean undo)
 {
   Location bbcx, bbcy;
   /* compute center of element bounding box */
-  bbcx = (pt->element->BoundingBox.X1 + pt->element->BoundingBox.X2) / 2;
-  bbcy = (pt->element->BoundingBox.Y1 + pt->element->BoundingBox.Y2) / 2;
+  bbcx = (pt->element->VBox.X1 + pt->element->VBox.X2) / 2;
+  bbcy = (pt->element->VBox.Y1 + pt->element->VBox.Y2) / 2;
   /* do exchange, shift or flip/rotate */
   switch (pt->which)
     {
@@ -723,19 +707,19 @@ doPerturb (PerturbationType * pt, Boolean undo)
 	  RotateElementLowLevel (PCB->Data, pt->element, bbcx, bbcy, b);
 	else
 	  {
-	    Location y = pt->element->BoundingBox.Y1;
+	    Location y = pt->element->VBox.Y1;
 	    MirrorElementCoordinates (PCB->Data, pt->element, 0);
 	    /* mirroring moves the element.  move it back. */
 	    MoveElementLowLevel (PCB->Data, pt->element, 0,
-				 y - pt->element->BoundingBox.Y1);
+				 y - pt->element->VBox.Y1);
 	  }
 	return;
       }
     case EXCHANGE:
       {
 	/* first exchange positions */
-	Location x1 = pt->element->BoundingBox.X1;
-	Location y1 = pt->element->BoundingBox.Y1;
+	Location x1 = pt->element->VBox.X1;
+	Location y1 = pt->element->VBox.Y1;
 	Location x2 = pt->other->BoundingBox.X1;
 	Location y2 = pt->other->BoundingBox.Y1;
 	MoveElementLowLevel (PCB->Data, pt->element, x2 - x1, y2 - y1);
@@ -767,7 +751,7 @@ Boolean
 AutoPlaceSelected (void)
 {
   NetListTypePtr Nets;
-  PointerListType Selected;
+  PointerListType Selected = {0, 0, NULL};
   PerturbationType pt;
   double C0, T0;
   Boolean changed = False;
@@ -816,6 +800,7 @@ AutoPlaceSelected (void)
     int good_moves = 0, moves = 0;
     const int good_move_cutoff = CostParameter.m * Selected.PtrN;
     const int move_cutoff = 2 * good_move_cutoff;
+    printf ("Starting cost is %.0f\n",ComputeCost (Nets, T0, 5));
     C0 = ComputeCost (Nets, T0, T);
     while (1)
       {
@@ -829,7 +814,7 @@ AutoPlaceSelected (void)
 	    good_moves++;
 	    steps++;
 	  }
-	else if ((random () / (double) RAND_MAX) < exp ((C0 - Cprime) / T))
+	else if ((random () / (double) RAND_MAX) < exp (MIN (MAX (-20, (C0 - Cprime) / T), 20)))
 	  {
 	    /* not good but keep it anyway */
 	    C0 = Cprime;
