@@ -425,7 +425,7 @@ SetMode (int Mode)
         SetLocalRef(0, 0, False);
       Crosshair.AttachedBox.State = STATE_FIRST;
       Crosshair.AttachedLine.State = STATE_FIRST;
-      if (TEST_FLAG (AUTODRCFLAG, PCB))
+      if (Mode == LINE_MODE && TEST_FLAG (AUTODRCFLAG, PCB))
         {
 	  SaveUndoSerialNumber ();
 	  ResetFoundPinsViasAndPads (True);
