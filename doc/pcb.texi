@@ -1,10 +1,10 @@
 \input texinfo    @c -*-texinfo-*-
 @comment RCS: $Id$
-@comment %**start of header 
+@comment %**start of header
 @setfilename pcb.info
 @settitle Pcb
 @setcontentsaftertitlepage
-@comment %**end of header 
+@comment %**end of header
 
 @include version.texi
 
@@ -22,7 +22,7 @@ END-INFO-DIR-ENTRY
 @end iftex
 
 @ifinfo
-This file documents how to use Pcb, 
+This file documents how to use Pcb,
 the interactive printed circuit board layout system for @code{X11}.
 
 Copyright (C) 1994,1995,1996, 2004 Thomas Nau
@@ -78,6 +78,7 @@ board layout system for @code{X11}.
 * Schematic Frontends::    Schematic capture programs that work with PCB.
 * Installation::           Compiling, installing and troubleshooting.
 * Custom Menus::           Customizing the menu bar.
+* Regular Expressions::    Searching for elements with regular expressions
 * Index::                  The Index.
 @end menu
 
@@ -109,11 +110,11 @@ boards.
 @code{Pcb} was first written by Thomas Nau for an Atari ST in 1990 and
 ported to @code{UNIX} and @code{X11} in 1994.
 It was not intended as a professional layout system,
-but as a tool which supports people who do some 
+but as a tool which supports people who do some
 home-developing of hardware.
 
 The second release 1.2 included menus for the first time. This made
-@code{PCB} easier to use and thus a more important tool.
+@code{Pcb} easier to use and thus a more important tool.
 
 Release 1.3 introduced undo for highly-destructive commands,
 more straightforward action handling and scalable fonts. Layer-groups
@@ -126,18 +127,18 @@ was also improved in 1.4.1. Support for additional devices like
 GERBER plotters started in 1.4.4. The undo feature was expanded
 and the redo-feature added in 1.4.5.
 
-harry eaton took over pcb development begining with Release 1.5,
+harry eaton took over pcb development beginning with Release 1.5,
 although he contributed some code beginning with Release 1.4.3
 
 Release 1.5 provides support for rats-nest generation from simple net
 lists.  It also allows for automatic clearances around pins that pierce
-a polygon.  A variety of other enhancments including a Gerber RS274X
+a polygon.  A variety of other enhancements including a Gerber RS-274-X
 driver and NC drill file generation have also been added.
 
 Release 1.6 provides automatic screen updates of changed regions.
-This should elliminate most of the need for the redraw ((@emph{R} key).
+This should eliminate most of the need for the redraw ((@emph{R} key).
 Also some changes to what order items under the cursor are selected
-were made for better consistancy - it is no longer possible to
+were made for better consistency - it is no longer possible to
 accidentally move a line or line point that is completely obscured
 by a polygon laying over top of it.  Larger objects on the upper
 most layers can be selected ahead of smaller objects on lower layers.
@@ -170,7 +171,7 @@ support for graphically creating (and editing) elements, viewable solder-mask
 layers (and editing), snap to pins and pads, netlist entry by drawing rats, element
 files (and libraries) that can contain whole sub-layouts, metric grids, improved
 user interface, a GNU autoconf/automake based build system, and a host
-of other improvements. 
+of other improvements.
 
 Special thanks goes to:
 @display
@@ -188,13 +189,13 @@ Boerge Strand (borges@@ifi.uio.no)
 Andre M. Hedrick (hedrick@@Astro.Dyer.Vanderbilt.Edu)
 @end display
 
-@exdent who provided all sorts of help including porting @code{PCB} to
+@exdent who provided all sorts of help including porting @code{Pcb} to
 several operating systems and platforms, bug fixes, library enhancement,
 user interface suggestions and more. In addition to these people,
 many others donated time for bug-fixing and
 other important work. Some of them can be identified in the source code
 files.  Thanks to all of them. If you feel left out of this list, I
-appologize; please send me an e-mail and I'll try to correct the omission.
+apologize; please send me an e-mail and I'll try to correct the omission.
 
 
 @c --------------------------- overview chapter -------------------------------
@@ -214,7 +215,7 @@ Pcb includes many professional features such as:
 @item Trace optimizer
 @item Rats nest
 @item Design Rule Checker (DRC)
-@item Connectivity verification 
+@item Connectivity verification
 @item Pcb is Free Software
 @item Can interoperate with free schematic capture tools such as gEDA and
   xcircuit
@@ -255,7 +256,7 @@ order of appearance of the objects within a layout file.
 @cindex symbols, an overview
 @cindex font, an overview
 @section Symbols
-The top object is the layout itself. It uses a set of symbols 
+The top object is the layout itself. It uses a set of symbols
 that resides at the first logical level. Each symbol is uniquely identified
 by a seven bit @code{ASCII} code. All layout objects share the same set of
 symbols. These symbols are used to form text objects on the silkscreen
@@ -320,7 +321,7 @@ It is not possible to delete a single pin or move
 only part of an element on the layout.
 You can resize separate pieces of an element,
 but doing so is usually a bad idea. You can move/rotate
-the element name independtly of the element it belongs
+the element name independently of the element it belongs
 to. When you move an element name, a line is draw from
 the cursor to the element mark so it is easy to tell
 which element the name belongs to.
@@ -330,9 +331,9 @@ Each pin and pad has two string identifiers, one is the
 "name" which is a functional description of the pin
 (@emph{e.g.} "clock in") and the other is the "number" of the
 pin which is used to identify it in a netlist. The "number"
-is usually an interger, but it can be any string. You
+is usually an integer, but it can be any string. You
 can edit the "name" of each pin of an element, but the
-"number" is imbedded in the element definition and is
+"number" is embedded in the element definition and is
 determined when the new element is first created.
 Pads are similar to lines on a layer but they must be oriented
 either vertically or horizontally.
@@ -388,7 +389,7 @@ to see what @code{Pcb} thinks a pin's number is)
 All of the old
 library names begin with a ~, so you can easily identify them.
 The old libraries also @emph{may} contain other sorts of errors,
-including incorrect pin spacing, silkscreen overlaping solder areas, etc.
+including incorrect pin spacing, silkscreen overlapping solder areas, etc.
 @b{Check carefully any element in the old library before using it!}
 As the new library grows, the old library will be paired down to
 at least remove all of the elements with errors, but this will
@@ -402,7 +403,7 @@ and lines and arcs on the silkscreen layer for the silkscreen
 outline. You should @emph{name} (@emph{N} key) each via and copper line with the pin @emph{number}.
 Once you are happy with the geometry, select everything that is to become part of
 the element, then choose @samp{convert selection to element} from the @b{Select} menu.
-Afterwards you can make pin (or pad) one
+Afterwords you can make pin (or pad) one
 square if you like, and give the element its various names. You can also give
 the pins and pads their functional names. Note that the
 element mark corresponds to the position you click after choosing the
@@ -450,7 +451,7 @@ Each layer group
 represents a physical layer on the printed circuit board.  If you want to make
 a four layer board, you'll need to have at least four layer groups.
 Connections between layer groups are established only through element pins and vias.
-The relationship between a specific layer and the board itself is configureable from
+The relationship between a specific layer and the board itself is configurable from
 the @samp{Edit layer groups} option in the @b{Settings} menu.
 The layer groups corresponding to the physical layers: @emph{component-side}
 and @emph{solder-side} are always defined and you must map at least one
@@ -482,7 +483,7 @@ do this because a separate schematic package should be used to create the
 netlist. @code{Pcb} can automatically draw all of the rats from
 the netlist. In some cases you may want to make a small change without
 going to the trouble of modifying the schematic, which is why this
-fascility is provided.
+facility is provided.
 
 
 @node Line Objects, Arc Objects, Layer Objects, Intro
@@ -493,7 +494,7 @@ When in the line mode, each @emph{Btn1}
 press establishes one end of a line.
 Once the second point is defined, the line is drawn
 and a new line started where the first one ended.
-You can abondon the new starting point in favor
+You can abandon the new starting point in favor
 of another by pressing @emph{Ctrl-Btn1}, or
 @emph{Btn3}, but don't use @emph{Btn2}.
 The undo function (@emph{U} key or @samp{undo last operation}
@@ -506,8 +507,8 @@ To stop auto-scroll, simply pass the pointer over the panner control.
 @cindex two line mode
 New lines can be restricted to 45 degree angles if desired. You can toggle this
 restriction on and off while creating lines by pressing the @emph{period} key.
-If the 45 degree restriction is turned on, then the @emph{/} (forward slash) key 
-can be used to cylce through three different modes of 45 degree line creation.
+If the 45 degree restriction is turned on, then the @emph{/} (forward slash) key
+can be used to cycle through three different modes of 45 degree line creation.
 One mode just creates a single line forced to the nearest 45 degree vector.  The next
 mode creates two lines from the start to end points such that the first line leaves the
 start point at a 90 degree vector, and the second line enters the end point on a 45
@@ -548,13 +549,13 @@ create an arc with the Arc tool, it will
 be a quarter circle (this means they always bend a right angle).  Arcs are very similar
 to lines otherwise.  They are created on the active layer and have the same thickness
 that new lines will have.  The various clicks for creating lines work pretty much the
-same way for creating arcs. 
+same way for creating arcs.
 In order to make the arc curve in the desired direction, drag the mouse along
 the tangent line from the starting position towards the end position. If the grid is
 too coarse, it may not be possible to distinguish whether you've moved over then up,
 or up then over, so if you can't seem to make the arc go in the direction you want, try pressing
 the @emph{Shift} key while drawing the arc. Decreasing the grid spacing may also help.
-Alternatively you can draw the wrong arc, then 
+Alternatively you can draw the wrong arc, then
 rotate and move it where you want. Like the Line tool, after an arc is drawn a new
 starting point is established at the end point.
 
@@ -576,7 +577,7 @@ with a mouse click (@emph{Btn1}). When the last point is clicked
 exactly on top of the starting point, the polygon is finished.
 Since this can be hard to do, the @emph{Shift-P} key will enter the
 final point for you, closing the polygon.
-If the 45 degree angle restriction is turned on 
+If the 45 degree angle restriction is turned on
 and you try to close the polygon when it is not possible, you'll get a
 warning instead. If you haven't finished entering a polygon, but want to
 undo one (or more) of the points that you've already defined, use the
@@ -603,7 +604,7 @@ principle. It is always ok to have two (or more) polygons touch or overlap
 each other, but not for points within the same polygon to do so.
 
 The great advantage to this new polygon behavior is that simple or complex ground
-and/or power planes can be easily made with polygons and seen on the screen. 
+and/or power planes can be easily made with polygons and seen on the screen.
 If you don't want this auto-clearance behavior, or you load a layout created by
 an early version of @code{Pcb}, the old behavior
 (shorts to all piercing pins and vias) is available.  A @samp{ChangeSize}
@@ -634,7 +635,7 @@ CONNECTIONS OR TESTED FOR CREATING SHORTS VS. THE NETLIST. NEITHER ARE TEXT OBJE
 @cindex netlist
 @section Nets
 Layout files also contain the netlist that describes how the elements
-are supposed to be interconnected. This list of connetions can be
+are supposed to be interconnected. This list of connections can be
 loaded from a netlist file (see @ref{Netlist File}), or
 entered by drawing rat-lines as described
 previously. Each net has a name and routing style associated with it.
@@ -653,7 +654,7 @@ necessarily show the shortest paths until you optimize them again.
 @cindex how to start
 @chapter Getting Started
 The goal of this chapter is to give you enough information to learn how
-@code{Pcb} works and how to develop your layouts to make the best use of @code{Pcb}'s 
+@code{Pcb} works and how to develop your layouts to make the best use of @code{Pcb}'s
 features. All event translations (@emph{i.e.} the buttons and keys you
 press) refer to the default application resource file shipped with @code{Pcb}.
 There is probably no need to change this unless your window
@@ -672,7 +673,7 @@ If you get the error message:
     can't find default font-symbol-file 'default_font'
 @end display
 @exdent then the font searchpath or filename in the application resource
-file is wrong. Be sure that your @code{m4} program supports searchpaths.
+file is wrong. Be sure that your @code{m4} program supports search paths.
 If not, get @code{GNU m4}.
 For other messages, see @ref{problems}.
 Another quick-start is provided by @code{pcbtest.sh} in the @file{src}
@@ -692,6 +693,8 @@ if that works, then @code{Pcb} hasn't been installed properly.
 * Rats Nest::		   Helps you place and route tracks against a netlist.
 * Design Rule Checking::   Check for manufactureability
 * Trace Optimizer::        Optimization of layouts
+* Searching for elements:: Searching for elements
+* Measuring distances::    Measuring distances
 * Connection Lists::       How to get a list of all or some connections.
 @end menu
 
@@ -721,7 +724,7 @@ The menus are located at the top of the Layout area. Most, but not all,
 of their functions are also available from the keyboard. Similarly, some
 functions are only achievable through the keyboard or command entry.
 Some menu entries such as @samp{center layout} in the @b{Screen} menu require a certain cross hair position.
-In this case a promt message will popup at the bottom of the screen
+In this case a prompt message will popup at the bottom of the screen
 with wording similar to the following:
 @example
 move pointer to the appropriate screen position and press a button
@@ -750,7 +753,7 @@ Selecting
 A selection of several device drivers is available from the printer control
 dialog. Presently @emph{PostScript}, @emph{encapsulated PostScript},
 and @emph{GerberX} are supported. The @emph{GerberX} driver produces
-all of the files necessary to have the board professionaly manufactured.
+all of the files necessary to have the board professionally manufactured.
 The connection saving features in the @b{File} menu produce outputs in an
 arcane format that is not too useful. They do @emph{not} produce netlist
 files.
@@ -786,7 +789,7 @@ points appear exactly where you want them.
 
 @cindex solder mask, viewing and editing
 The @b{Screen} menu also allows you to turn on and off the
-visiblity of the solder-mask layer. When the solder-mask layer
+visibility of the solder-mask layer. When the solder-mask layer
 is made visible it obscures most of the layout, so only turn
 this on when you really want to know what the solder-mask will
 look like. The solder-mask that you see belongs to the
@@ -798,7 +801,7 @@ When the solder-mask is displayed, the pin and pad clearance adjustments
 @cindex Sizes, popup menu
 @item Sizes
 The @b{Sizes} menu allows you to select a group of line thickness, via diameter, via drill
-size, and clearance (keepaway) (collectively called a "routing style") to be coppied to the "active" sizes.
+size, and clearance (keepaway) (collectively called a "routing style") to be copied to the "active" sizes.
 You can also change the names given to the routing styles and adjust their values from
 this menu.  The "active" sizes are also adjustable from this menu.
 The "active" sizes are shown in the status-line and control the initial size of new vias,
@@ -815,7 +818,7 @@ The @b{Settings} menu controls several operating configuration
 parameters. The @samp{edit layer groups} entry brings up a dialog
 that allows you to change the way layers are grouped. Layer grouping
 is described in @ref{Layer Objects}. The @samp{all-direction lines}
-entry controls 
+entry controls
 the clipping of lines to 45-degree angles. You can also control
 whether moving individual objects causes the attached lines to
 "rubber band" with the move or not from the @b{Settings} menu. Another
@@ -836,7 +839,7 @@ arcs touch or clear intersecting polygons from this menu.
 @item Select
 This menu covers most of the operations that work with selected objects.
 You may either (un)select all visible objects on a layout or only the ones
-which have been found by the last connection scan see 
+which have been found by the last connection scan see
 @c DRM: not sure where this was suppose to xfef to.
 @c @ref{find connections}
 .
@@ -845,13 +848,13 @@ Other entries in the @b{Select} menu change the sizes of selected objects.
 Note that a select action only affects those objects that are
 selected @emph{and} have their visibility turned on in the Layer Control
 panel. The @b{Select} menu also provides a means for selecting objects
-by name using unix regular expressions.
+by name using unix @ref{Regular Expressions}.
 
 @cindex Buffer, popup menu
 @cindex pastebuffer, popup menu
 @cindex element, editing
 @item Buffer
-TFrom the @b{Buffer} menu you may select one out of five
+From the @b{Buffer} menu you may select one out of five
 buffers to use, rotate or clear its contents or save the buffer contents
 to a file. You can also use the @samp{break buffer element to pieces} entry
 to de-compose an element into pieces for editing.
@@ -866,7 +869,7 @@ be cleared first.
 @cindex auto-router
 @cindex design rule checker, invoking
 @item Connects
-The entries available through the @b{Connects} menu allow you to find 
+The entries available through the @b{Connects} menu allow you to find
 connections from objects and to manipulate these.
 You can also optimize or erase rat's nests from this menu. Finally,
 the @samp{auto-route all rats} entry allows you to auto-route
@@ -882,7 +885,7 @@ without fear of changing tracks that you have manually routed
 with the @samp{rip-up all auto-routed tracks} entry in the @b{Connects}
 menu.  The @samp{design rule checker} entry runs a check for copper
 areas that are too close together, or connections that touch too
-tenously for reliable production. The DRC stops when the first
+tenuously for reliable production. The DRC stops when the first
 problem is encountered so after fixing a problem be sure to
 run it again until no problems are found.
 @display
@@ -897,7 +900,7 @@ run it again until no problems are found.
 The @samp{generate object report} entry from the @b{Info} menu
 provides a way to get detailed information
 about an object, such as its coordinates, dimensions, etc.
-You can also get a report summerizing all of the drills
+You can also get a report summarizing all of the drills
 used on the board with @samp{generate drill summary}. Lastly,
 you can get a list of all pins, pads and vias that were
 found during a connection search.
@@ -933,7 +936,7 @@ When a text input is required, the status-line is replaced by the
 Input-field which has a prompt for typing the input.
 
 The status-line shows, from left to right, the side of the board that you
-are viewing (@emph{Tab} key changes this), the current grid values, 
+are viewing (@emph{Tab} key changes this), the current grid values,
 if new lines are restricted to 45 degrees,
 which type of 45 degree line mode is active, whether rubberband move and
 rotate mode is on (R), and the zoom factor.
@@ -974,7 +977,7 @@ between it and the marker. The numbers enclosed in < > are the X and Y distances
 between the cross hair and the mark, while the numbers enclosed in parenthesis
 are the distance and angle from the mark to the cross hair. The values displayed
 are always in units of 0.001 inch (1 mil).
-Pressing @emph{Ctrl-M} again turns the marker off. 
+Pressing @emph{Ctrl-M} again turns the marker off.
 
 @node Panner Control, Layer Controls, Status-line and Input-field, Application Window
 @cindex Panner control
@@ -1062,7 +1065,7 @@ make the solder layer the active layer then press @emph{tab} until the status
 line says "solder" on the right, then turn off the visibility of all layers
 except solder, pins/pads, vias, and silk. Now turn them all back on.
 
-The lowest button, named @emph{active}, is used to change the active 
+The lowest button, named @emph{active}, is used to change the active
 drawing layer. Pressing @emph{<Btn1>} on it pops up a menu to select which
 layer should be active.
 Each entry is labeled with the layer's name and drawn in its color.
@@ -1149,7 +1152,7 @@ the via could safely be placed there. Neither does it interfere with
 your desire to place lines haphazardly. It is up to you to place
 things properly when doing manual routing with the Line tool.
 
-The Arc tool is explained in detail in @ref{Arc Objects}. Its 
+The Arc tool is explained in detail in @ref{Arc Objects}. Its
 use is very similar to the Line tool.
 
 The Rectangle tool, Polygon tool and Thermal tool are explained in detail in
@@ -1201,7 +1204,7 @@ Go read it now.
 The Lock tool allows you to lock objects on the layout. When an object
 is locked, it can't be selected, moved, rotated, or resized. This is
 useful for very large objects like ground planes, or board-outlines that
-are definied as an element. With such large objects, nearly anywhere you
+are defined as an element. With such large objects, nearly anywhere you
 click with the Arrow tool will be on the large object, so it could be
 hard to draw box selections. If you lock an object, the Arrow tool will
 behave as if it didn't exist.  You cannot unlock an object with undo.
@@ -1225,7 +1228,7 @@ The new value is updated in the status line.
 A different way to change the grid is
 @emph{Shift<Key>g} to decrease or @emph{<Key>g} to increase
 it, but this only works for English (integer mil) grids.
-The grid setting is saved along with the data when you save a pcb layout. 
+The grid setting is saved along with the data when you save a pcb layout.
 For homemade layouts a value around 50 is a good setting.
 The cursor can also be moved in the layout area with the cursor (arrow) keys or, for larger
 distances, by pressing the @emph{Shift} modifier together with a cursor key.
@@ -1320,16 +1323,16 @@ left corner or by one of the function keys listed earlier in this chapter.
 Each @emph{<Btn1>} press with the tool tells the application to create
 or change the appropriate object or at least take
 the first step to do so. Each tools causes the cursor to take
-on a unique shape and also causes the cooresponding
+on a unique shape and also causes the corresponding
 tool selector button to be highlighted. You can use either cue
 to see which tool is active.
 
 Insert mode provides the capability of inserting new points into existing
 polygons or lines. The 45 degree line clipping is now enforced when selected.
-Press and hold the shift key while positioning the new point to only clip 
+Press and hold the shift key while positioning the new point to only clip
 the line segment to the nearer of the two existing points to 45 degrees.
 You can also toggle the 45-degree clipping in the middle of a point
-insertion by pressing the @emph{<Key>.} 
+insertion by pressing the @emph{<Key>.}
 If the shift key is not depressed and the 45 degree line clipping mode
 is on, both new line segments must be on 45 degree angles - greatly
 restricting where the new point may be placed. In some cases this can cause
@@ -1358,7 +1361,7 @@ that are visible when the command is executed.
 @cindex object, removing an
 @cindex thickness of objects
 @cindex object, changing the size of an
-There are several keystrokes and button events refering to an @emph{object}
+There are several keystrokes and button events referring to an @emph{object}
 without identifying its type. Here's a list of them:
 
 @emph{<Btn1>} creates (or deletes)  an object depending on the
@@ -1375,7 +1378,7 @@ Only one object is removed for each keystroke. If two or more
 of the same type match, the newest one is removed.
 
 Use @emph{<Key>s} and @emph{Shift<Key>s} to change the size (width)
-of lines, arcs, text objects, pins, pads and vias, or to toggle the style 
+of lines, arcs, text objects, pins, pads and vias, or to toggle the style
 of polygons (whether pins and vias automatically have clearances).
 
 @emph{<Key>n} changes the name of pins, pads, vias, the
@@ -1460,7 +1463,7 @@ and the final segment cannot match this condition.
 I suggest you create simple convex polygons in order to avoid a strong
 negative impact on the performance of the connection scanning routines.
 The @emph{rectangle-mode} is just an easy way to generate rectangular polygons.
-@emph{Polygon-mode} also is selected by @emph{<Key>F6} whereas 
+@emph{Polygon-mode} also is selected by @emph{<Key>F6} whereas
 @emph{rectangle-mode} uses @emph{<Key>F4}.
 Pressing a @emph{<Btn1>} at two locations creates a rectangle by
 defining two of its corners.
@@ -1529,9 +1532,9 @@ the middle of two polygons on different layers, it will short the layers.
 Theoretically you could arrange for such a hole not to be plated, but a
 metal screw inserted in the hole would still risk shorting the layers.
 A good rule is to realize that holes in the board really are vias between
-the layers and so place them where they won't interfere with connectivity. 
+the layers and so place them where they won't interfere with connectivity.
 You can convert a hole back into a normal via with the same keystroke used
-to convery it in the first place.
+to convert it in the first place.
 
 @node Elements, Pastebuffer, Vias, Drawing and Removing
 @cindex element, an example
@@ -1555,8 +1558,8 @@ buffer, so we use number one.
 
 @cindex example files
 @cindex m4, preprocessing example files
-Select @emph{lsi} from the menu in the library window press 
-@emph{<Btn1>} twice at the appropriate text-line to get 
+Select @emph{lsi} from the menu in the library window press
+@emph{<Btn1>} twice at the appropriate text-line to get
 the MC68030 CPU.
 The data is loaded and the mode is switched to @emph{pastebuffer-mode}.
 Each notify event now creates one of these beasts. Leave the mode
@@ -1570,7 +1573,7 @@ are valid until new data is loaded into it either by a cut-to-buffer
 operation, copy-to-buffer operation or by loading a new data file.
 There are 5 buffers
 available  (possibly more or less if changed at compile time
-with the @code{MAX_BUFFER} variable in @file{globalconfig.h}). 
+with the @code{MAX_BUFFER} variable in @file{globalconfig.h}).
 Switching between them is done by selecting a menu entry or
 by @emph{Shift<Key>1..MAX_BUFFER}.
 Each of the two board sides has its own buffers.
@@ -1609,7 +1612,7 @@ Please refer to @ref{Moving and Copying}.
 @cindex buffer, convert contents to element
 The fourth way to create a new element is to convert a buffer's contents
 into an element.  Here's how it's done: Select the Via-tool from the
-@emph{Tool pallette}.  Set the grid spacing to something appropriate for
+@emph{Tool pallet}.  Set the grid spacing to something appropriate for
 the element pin spacing.  Now create a series of vias where the pins
 go.  Create them in pin number order. It is often handy to place a reference
 point (@emph{!Ctrl<Key>m}) in the center of the first pin in order to measure
@@ -1627,7 +1630,7 @@ the other aspects of a layout, but it isn't necessary.
 
 To display the pinout of a circuit move to it and press @emph{Shift<Key>d}
 or select @emph{show pinout} from the @emph{Objects} menu. A new window
-pops up and displays the complete pinout of the element. This display can 
+pops up and displays the complete pinout of the element. This display can
 be difficult to read if the component has been rotated 90 degrees :-(
 therefore, the new window will show an un-rotated view so the pin names
 are readable.
@@ -1656,14 +1659,14 @@ For information on element connections refer to @ref{Connection Lists}.
 @cindex buffer, an example
 @cindex example of buffer handling
 @subsection Pastebuffer
-The linestack and element-buffer of former releases have been replaced
+The line-stack and element-buffer of former releases have been replaced
 by 5 (possibly more or less if changed at compile time
 with the @code{MAX_BUFFER} variable in @file{globalconfig.h})
 multi-purpose buffers that are selected by
 @emph{Shift<Key>1..MAX_BUFFER}. The status line shows which buffer is
 the active one.
 You may load data from a file or layout into them.
-Cut-and-paste works too. 
+Cut-and-paste works too.
 If you followed the instructions earlier in this chapter you should
 now have several objects on the screen. Move the cross hair to one of them
 and press @emph{<Btn3Down>} to toggle its selection flag. (If you drag the
@@ -1688,16 +1691,16 @@ the @emph{File} menu or as user commands.
 
 @node Moving and Copying, Loading and Saving, Drawing and Removing, Getting Started
 @section Moving and Copying
-@cindex moving, an example 
-@cindex copying, an example 
+@cindex moving, an example
+@cindex copying, an example
 @cindex example of moving
 @cindex example of copying
-All objects can be moved including element-names, by 
-@emph{<Btn2Down>}, draging the pointer while holding the button down
+All objects can be moved including element-names, by
+@emph{<Btn2Down>}, dragging the pointer while holding the button down
 and releasing it at the new location of the object. If you use
 @emph{Mod1<Btn2Down>} instead, the object is copied. Copying does not work for
-element-names of course. You can move all selected objects with 
-@emph{Shift <Btn1>}.  This uses the Pastebuffer, so 
+element-names of course. You can move all selected objects with
+@emph{Shift <Btn1>}.  This uses the Pastebuffer, so
 it will remove whatever was previously in the Pastebuffer.
 Please refer to @ref{Pastebuffer}.
 If you want to give a small nudge to an object, but you don't think
@@ -1721,9 +1724,9 @@ Saving also is available from the @emph{File} menu, either with or
 without supplying a filename. @code{Pcb} reuses the last
 filename if you do not pass a new one to the save routine.
 
-To load an existing layout either select @emph{load layout data} from the 
+To load an existing layout either select @emph{load layout data} from the
 @emph{File} menu or use @kbd{:l filename}. A file select box pops up if you
-don't specify a filename. Merging existing layouts into the new one is 
+don't specify a filename. Merging existing layouts into the new one is
 supported either by the @emph{File} menu or by @kbd{:m filename}.
 
 @cindex backup
@@ -1735,7 +1738,7 @@ supported either by the @emph{File} menu or by @kbd{:m filename}.
 @code{Pcb} saves a backup of the current layout depending on the resource
 @emph{backup}. The file is named @file{/tmp/PCB.%i.backup} by default
 (this may have been changed at compilation time via the
-@code{BACKUP_NAME} 
+@code{BACKUP_NAME}
 variable in @file{globalconfig.h}).  During critical
 sections of the program or when data would be lost it is saved as
 @file{/tmp/PCB.%i.save}.  This file name may be changed at compile time
@@ -1749,7 +1752,7 @@ with the @code{DEFAULT_MEDIASIZE} variable in @file{globalconfig.h}.
 @cindex printing, an example
 @cindex example of printing
 @section Printing
-@code{Pcb} now has support for device drivers, 
+@code{Pcb} now has support for device drivers,
 @code{PostScript}, @emph{encapsulated PostScript},
 and @emph{Gerber RS-274-X} drivers are
 available so far.  The @emph{Gerber RS-274-X}
@@ -1757,15 +1760,15 @@ driver additionally generates a numerical control (NC) drill file for
 automated drilling,
 a bill of materials file to assist in materials procurement and
 inventory control, and a centroid (X-Y) file which includes the
-centroid data needed 
+centroid data needed
 by automatic assembly (pick and place) machines.
  I recommend the use of @code{GhostScript} if you
 don't have a @code{PostScript} printer for handling the PostScript
 output. Printing always generates
 a complete set of files for a specified driver.
 See the page about
-the @emph{Print()} action for addtional information about the filenames.
-The control panel offers a number of options. Most of them are not avilable
+the @emph{Print()} action for additional information about the filenames.
+The control panel offers a number of options. Most of them are not available
 for Gerber output because it wouldn't make sense, for example,  to scale the gerber output
 (you'd get an incorrectly made board!)  The options are:
 
@@ -1792,7 +1795,7 @@ is inactive.
 @cindex outline printout
 @item outline
 Add a board outline to the output file. The size is determined by the
-maximum boardsize changeable from the @emph{sizes} menu. The outline appears
+maximum board size changeable from the @emph{sizes} menu. The outline appears
 on the top and bottom sides of the board, but not on the internal layers.
 An outline can be useful for determining where to shear the board from the
 panel, but be aware that it creates a copper line.  Thus it has the potential
@@ -1802,7 +1805,7 @@ if you want to know what it looks like.
 
 @cindex alignment targets
 @item alignment
-Additional alignement targets are added to the output. The distances between
+Additional alignment targets are added to the output. The distances between
 the board outline is set by the resource @emph{alignmentDistance}.  Alignment
 targets should only be used if you know for certain that YOU WILL BE USING
 THEM YOURSELF.  It is extremely unlikely that you will want to have alignment
@@ -1885,7 +1888,7 @@ Note, the normal @code{PostScript} units are 1/72 inch.
 After completing parts of your layout you may want to check if all drawn
 connections match the ones you have in mind. This is probably best done
 in conjunction with a net-list file: see @ref{Rats Nest}.
-The following examples give more rudimentary ways to examine 
+The following examples give more rudimentary ways to examine
 the connections.
 @example
     1) create at least two elements and name them
@@ -1961,7 +1964,7 @@ The entries of the @emph{Selection} menu are hopefully self-explanatory.
 Many of the @emph{Action Commands} can take various key words that make
 them function on all or some of the selected items.
 
-@node Rats Nest, Design Rule Checking , Arrow Tool, Getting Started 
+@node Rats Nest, Design Rule Checking , Arrow Tool, Getting Started
 @cindex rats nest
 @cindex netlist
 @cindex rat-line
@@ -1987,18 +1990,18 @@ Used in connection with moves and rotates of the elements, they are extremely us
 deciding where to place elements on the board. The rat-lines will always automatically
 rubberband to the elements whether or not the rubberband mode is on. The only way for
 you to move them is by moving the parts they connect to.
-This is because it is never desireable to have the rat-lines disconnected from
+This is because it is never desirable to have the rat-lines disconnected from
 their element pins.  Rat-lines will normally criss-cross
 all over which gives rise to the name "rats nest" describing a layout connected with
 them.  If a SMD pad is unreachable on the active layer, a warning will be issued
 about it and the rat-line to that pad will not be generated.
 
-A common way to use rats nests is to place some 
+A common way to use rats nests is to place some
 elements on the board, add the rat-lines, and then use a series of moves/rotates of the
 elements until the rats nest appears to have minimum tangling.  You may want to iterate this step
 several times. Don't worry if the layout looks messy - as long as you can get a sense for whether
 the criss-crossing is better or worse as you move things, you're fine.
-After moving some elements arround, you may want to optimize the rats nest @emph{<Key>o}
+After moving some elements around, you may want to optimize the rats nest @emph{<Key>o}
 so that the lines are drawn between the closest points (this can change once you've moved components).
 Adding rat-lines only to selected pads/pins (@emph{Shift<Key>w})
 is often useful to layout a circuit a little bit at a time.
@@ -2007,16 +2010,16 @@ selected rat-lines (@emph{Shift<Key>e}) in order to reduce confusion.
 With a little practice you'll be able to achieve a near optimal component placement with
 the use of a rats nest.
 
-Rat-lines are not only used for assisting your element placement, they can also help 
+Rat-lines are not only used for assisting your element placement, they can also help
 you to route traces on the board.
 Use the @emph{<Key>m} to convert a rat-line under the cursor into
 a normal line on the active layer.
-Inserting a point into a rat-line will also cause the two new lines to be normal lines 
+Inserting a point into a rat-line will also cause the two new lines to be normal lines
 on the board.
-Another way that you can use rat-lines is to 
+Another way that you can use rat-lines is to
 use the @emph{<Key>f} with the cursor over a pad or pin.  All of the pins and
 pads and rat-lines belonging to that net will be highlighted. This is a helpful way to
-distinguish one net from the rest of the rats nest.  You can then route those tracks, 
+distinguish one net from the rest of the rats nest.  You can then route those tracks,
 turn off the highlighting (@emph{Shift<Key>f}) and repeat the process. This will work even
 if the layer that the rat-lines reside on is made invisible - so only the pins and pads
 are highlighted.
@@ -2044,12 +2047,12 @@ out a sub-section of the board before going further. This is easy to accomplish 
 new rat-lines are never added where routed connectivity already makes the necessary
 connections.
 
-@node Design Rule Checking, Trace Optimizer, Rats Nest, Getting Started 
-@cindex design rule checking 
+@node Design Rule Checking, Trace Optimizer, Rats Nest, Getting Started
+@cindex design rule checking
 @cindex drc
 @cindex spacing, minimum
 @cindex overlap, minimum
-@section Design Rule Checking 
+@section Design Rule Checking
 After you've finished laying out a board, you may want to check
 to be certain that none of your interconnections are too closely
 spaced or too tenuously touching to be reliably fabricated. The design
@@ -2075,7 +2078,7 @@ copper text, so always be very careful when adding copper text to a layout.
 The rules for the DRC are specified in the application resource file.  The minimum
 spacing value (in mils) is given by the @emph{Settings.Bloat} value. The default
 is 7 mils. The minimum touching overlap (in mils) is given by the
-@emph{Settings.Shrink} value. This value defaults to 5 mils. Check with your 
+@emph{Settings.Shrink} value. This value defaults to 5 mils. Check with your
 fabrication process people to determine the values that are right for you.
 
 If you want to turn off the highlighting produced by the DRC, perform an
@@ -2083,7 +2086,7 @@ undo (assuming no other changes have been made).  To restore the highlighting,
 use redo.  The redo will restore the highlighting quickly without re-running
 the DRC checker.
 
-@node Trace Optimizer, , Design Rule Checking, Getting Started 
+@node Trace Optimizer, Searching for elements, Design Rule Checking , Getting Started
 @cindex trace optimizer
 @cindex optimizer
 @section Trace Optimizer
@@ -2113,12 +2116,12 @@ different layer eliminates one or both vias.
 
 @item Orthopull
 Looks for chains of traces all going in one direction, with more traces
-orthagonal on one side than on the other. Moves the chain in that
+orthogonal on one side than on the other. Moves the chain in that
 direction, causing a net reduction in trace length, possibly eliminating
 traces and/or corners.
 
 @item SimpleOpts
-Removing uneeded vias, replacing two or more trace segments in a row
+Removing unneeded vias, replacing two or more trace segments in a row
 with a single segment. This is usually performed automatically after
 other optimizations.
 
@@ -2127,6 +2130,30 @@ Replaces 90 degree corners with a pair of 45 degree corners, to reduce
 RF losses and trace length.
 
 @end table
+
+@node Searching for elements , Measuring distances, Trace Optimizer, Getting Started
+@cindex Searching for elements
+@vindex Searching for elements
+@section Searching for elements
+To locate text or a specific element or grouping of similar elements
+choose @samp{Select by name} from the @b{Select} menu, then choose the
+appropriate subsection.  At the bottom of the screen the prompt
+@emph{pattern:} appears.  Enter the text or @ref{Regular Expressions}
+of the text to be found.  Found text will be highlighted.
+
+@node Measuring distances, , Searching for elements, Getting Started
+@cindex Measuring distances
+@vindex Measuring distances
+@section Measuring distances
+To measure distances, for example the pin-to-pin pitch of a part to
+validate a footprint, place the cursor at the starting
+measurement point, then press @emph{!Ctrl<Key>m}.  This marks the
+current  location with a @emph{X}. The @emph{X} mark is now the zero point
+origin for the relative cursor position display.  The cursor display
+shows both absolute position and position relative to the mark as
+the mouse is moved away from the mark.  If a mark is already present,
+the mark is removed and the cursor display stops displaying relative
+cursor coordinates.
 
 
 @c --------------------------- chapter 3 -------------------------------
@@ -2137,13 +2164,13 @@ RF losses and trace length.
 The entering of user-commands is initiated by the action routine
 @emph{Command()} (the @code{(":")} character) and finished by either
 @emph{<Key>Return}
-or @emph{<Key>Escape} to confirm or to abort. These two keybindings
+or @emph{<Key>Escape} to confirm or to abort. These two key-bindings
 cannot be changed from the resource file.
 The triggering event, normally a key press, is ignored.
 The input area will replace the bottom statusline. It pops
 up when @emph{Command()} is called. The arguments of the user-commands
 are passed to the external commands without modification.
-See also, the resource @emph{saveInTMP}. 
+See also, the resource @emph{saveInTMP}.
 
 There are simple @emph{usage} dialogs for each command and one for the
 complete set of commands.
@@ -2226,7 +2253,7 @@ action with whatever arguments you enter.  This makes it possible to do things
 that otherwise would be extremely tedious.  For example, to change the drilling
 hole diameter of all vias in the layout to 32 mils, you could select everything using the
 selection menu, then type "@emph{:ChangeDrillSize(SelectedVias, 32)}".  (This will
-only work provided the via's diameter is sufficiently large to accomodate a 32 mil hole).
+only work provided the via's diameter is sufficiently large to accommodate a 32 mil hole).
 Another example might be to set the grid to 1 mil by typing "@emph{:SetValue(Grid, 1)}".
 Note that some actions use the current cursor location, so be sure to place the cursor
 where you want before entering the command.  This is one of my favorite new
@@ -2315,7 +2342,7 @@ a directory component. The @emph{fontFile} resource is changed.
 @item -lelement command-line
 Sets the command to be executed when an element is loaded from a file to the
 paste buffer. The command may contain %f and %p to pass the requested filename
-and the searchpath to the command. It must write the data to its 
+and the searchpath to the command. It must write the data to its
 standard output. The related resource is @emph{elementCommand}.
 
 @vindex fileCommand
@@ -2328,7 +2355,7 @@ standard output. The related resource is @emph{elementCommand}.
 @item -lfile command-line
 Sets the command to be executed when a new layout is loaded from a file.
 The command may contain %f and %p to pass the requested filename
-and the searchpath to the command. It must write the data to its 
+and the searchpath to the command. It must write the data to its
 standard output. The related resource is @emph{fileCommand}.
 
 @vindex fontCommand
@@ -2342,7 +2369,7 @@ standard output. The related resource is @emph{fileCommand}.
 @item -lfont command-line
 Sets the command to be executed when a font is loaded from a file.
 The command may contain %f and %p to pass the requested filename
-and the searchpath to the command. It must write the data to its 
+and the searchpath to the command. It must write the data to its
 standard output. The related resource is @emph{fontCommand}.
 
 @vindex layerGroups
@@ -2437,7 +2464,7 @@ sounds when connection searching has finished.
 @findex -rs
 @cindex routing style
 @item -rs string
-Overrides the resource @emph{routeStyle}. The string defines a colon 
+Overrides the resource @emph{routeStyle}. The string defines a colon
 separated list of route styles. The route styles consist of a
 comma separated list of name, line thickness, via diameter, and via drill size.
 e.g. "Fat,50,100,40:Skinny,8,35,20:75Ohm,110,110,20"
@@ -2480,7 +2507,7 @@ The resource @emph{saveCommand} is overwritten.
 @findex -script
 @cindex startup actions script
 @item -script filename
-Specifies a script file containg PCB actions to be executed
+Specifies a script file containing PCB actions to be executed
 upon startup.  Overwrites the resource
 @emph{scriptFilename}.
 
@@ -2583,7 +2610,7 @@ the entire board, as it will be scaled to fit the board dimensions
 exactly.  Note that it may be scaled unevenly if the image doesn't
 have the same aspect ratio of your board.  You must ensure that the
 image does not use more colors than are available on your system
-(mostly this is for pseudocolor displays, like old 8-bit displays).
+(mostly this is for pseudo-color displays, like old 8-bit displays).
 For best results, I suggest the following procedure using The Gimp:
 Load your image (any type).  Image->Scale if needed.
 Image->Colors->Curves and for each of Red, Green, and Blue channel
@@ -2600,7 +2627,7 @@ use @file{.ppm} as the extension.  Select Raw formatting.
 every n seconds. The default is @emph{300} seconds. A value of zero disables
 the feature. The backup file is named @file{/tmp/PCB.%i.backup} by
 default (this may have been changed at compilation time via the
-@code{BACKUP_NAME} 
+@code{BACKUP_NAME}
 variable in @file{globalconfig.h}).
 @emph{%i} is replaced by the process ID.
 See also, the command-line option @emph{-backup}.
@@ -2623,7 +2650,7 @@ See also, the command-line option @emph{-c}.
 @vindex connectedColor
 @cindex colors
 @cindex connections, colors
-@item connectedColor (color) 
+@item connectedColor (color)
 All pins, vias, lines and rectangles which are selected during a connection
 search are drawn with this color. The default value is determined by
 @emph{XtDefaultForeground}.
@@ -2674,7 +2701,7 @@ See also, the command-line option @emph{-lelement}.
 @item elementPath (string)
 A colon separated list of directories or commands (starts with '|').
 The path is passed to the program specified in @emph{elementCommand} together
-with the selected elementname. A specified command will be executed in order
+with the selected element name. A specified command will be executed in order
 to create entries for the fileselect box. It must write its results to
 @emph{stdout} one entry per line.
 See also, the user-command @emph{le[!]}.
@@ -2769,7 +2796,7 @@ create its own colormap. The default setting is @emph{XtDefaultForeground}.
 @cindex colors
 @cindex element, color
 @item elementColor (color)
-Elements localted on the opposite side of the board are drawn in this color.
+Elements located on the opposite side of the board are drawn in this color.
 The default is @emph{XtDefaultForeground}.
 
 @vindex layerColor
@@ -2786,9 +2813,9 @@ normal and selected state. All values are preset to @emph{XtDefaultForeground}.
 @cindex groups
 @item layerGroups (string)
 The argument to this resource is a colon separated list of comma separated
-layernumbers (1..MAX_LAYER). All layers within one group are switched on/off 
+layer numbers (1..MAX_LAYER). All layers within one group are switched on/off
 together. The default setting is @emph{1:2:3:...:MAX_LAYER} which means
-all layers are handled separatly. Grouping layers one to three looks like
+all layers are handled separately. Grouping layers one to three looks like
 @emph{1,2,3:4:...:MAX_LAYER}
 See also, the command-line option @emph{-lg}.
 
@@ -2802,7 +2829,7 @@ resources. The defaults are empty strings.
 @cindex library command
 @cindex loading elements
 @cindex unix command
-@item libraryCommand (string) 
+@item libraryCommand (string)
 @code{Pcb} uses a command to read element data from libraries.
 The resources is used to set the command which is executed by the users
 default shell.  Three escape sequences are defined to pass the selected
@@ -2817,7 +2844,7 @@ It must write the element data to its standard output. The default value is
 @cindex library contents command
 @cindex listing library contents
 @cindex unix command
-@item libraryContentsCommand (string) 
+@item libraryContentsCommand (string)
 Similar to @emph{libraryCommand}, @code{Pcb} uses the command specified
 by this resource to list the contents of a library.
 @example
@@ -2848,7 +2875,7 @@ specified by @emph{elementCommand} and @emph{elementContentsCommand}.
 @item lineThickness (dimension)
 The value, in the range [1..250] (the range may be changed at compile
 time with the @code{MIN_LINESIZE} and @code{MAX_LINESIZE} variables in
-@file{globalconfig.h}), defines the 
+@file{globalconfig.h}), defines the
 initial thickness of new lines. The value is preset to @emph{ten mil}.
 
 @vindex media
@@ -2858,7 +2885,7 @@ initial thickness of new lines. The value is preset to @emph{ten mil}.
 @item media (<predefined> | <width>x<height>+-<left_margin>+-<top_margin>)
 The default (user defined) media of the @code{PostScript} device. Predefined
 values are @emph{a3}, @emph{a4}, @emph{a5}, @emph{letter}, @emph{tabloit},
-@emph{ledger}, @emph{legal}, and @emph{executive}. 
+@emph{ledger}, @emph{legal}, and @emph{executive}.
 The second way is to specify the medias width, height and margins in mil.
 The resource defaults to @emph{a4} size unless changed at compile time
 with the @code{DEFAULT_MEDIASIZE} variable in @file{globalconfig.h}.
@@ -2866,7 +2893,7 @@ with the @code{DEFAULT_MEDIASIZE} variable in @file{globalconfig.h}.
 @vindex offLimitColor
 @cindex colors
 @cindex off limit color
-@item offLimitColor (color) 
+@item offLimitColor (color)
 The area outside the current maximum settings for width and height is drawn
 with this color. The default value is determined by @emph{XtDefaultBackground}.
 
@@ -2934,7 +2961,7 @@ There is no default file or command.
 @cindex log window
 @cindex messages
 @item raiseLogWindow (boolean)
-The log window will be raised when new messages arrive if this resource 
+The log window will be raised when new messages arrive if this resource
 is set @emph{true}, the default.
 
 @vindex ratCommand
@@ -2954,7 +2981,7 @@ Default path to look for netlist files. It's default value is "."
 @cindex connections, reseting after element
 @cindex reseting found connections
 @item resetAfterElement (boolean)
-If set to @emph{true}, all found connections will be reset before a new 
+If set to @emph{true}, all found connections will be reset before a new
 element is scanned. This will produce long lists when scanning the whole
 layout for connections. The resource is set to @emph{false} by default.
 The feature is only used while looking up connections of all elements.
@@ -2963,7 +2990,7 @@ See also, the command-line option @emph{-reset, +reset}.
 @vindex ringBellWhenFinished
 @cindex keyboard bell
 @item ringBellWhenFinished (boolean)
-Whether to ring the bell (the default) when a possibly lengthy operation 
+Whether to ring the bell (the default) when a possibly lengthy operation
 has finished or not.
 See also, the command-line option @emph{-ring, +ring}.
 
@@ -3009,10 +3036,10 @@ See also, the command-line option @emph{-sfile}.
 @cindex directory /tmp
 @item saveInTMP (boolean)
 Enabling this resource will save all data which would otherwise be lost
-in a temporary file @file{/tmp/PCB.%i.save}.  The file name may 
+in a temporary file @file{/tmp/PCB.%i.save}.  The file name may
 be changed at compile time
 with the @code{EMERGENCY_NAME} variable in @file{globalconfig.h}.
-. 
+.
 @emph{%i} is replaced by the process ID.
 As an example, loading a new layout when the old one hasn't been saved would
 use this resource.
@@ -3026,9 +3053,9 @@ Enables the saving of the last entered user command. The option is
 @emph{disabled} by default.
 See also, the command-line option @emph{-s, +s}.
 
-@vindex shrink 
+@vindex shrink
 @cindex shrink
-@cindex drc 
+@cindex drc
 @item Shrink (dimension)
 Specifies the minimum overlap (touching) design rule in mils.
 
@@ -3036,7 +3063,7 @@ Specifies the minimum overlap (touching) design rule in mils.
 @cindex default layout size
 @cindex layout, default size of
 @item size (<width>x<height>)
-Defines the width and height of a new layout. The default is 
+Defines the width and height of a new layout. The default is
 @emph{7000x5000} unless changed at compile time
 with the @code{DEFAULT_SIZE} variable in @file{globalconfig.h}.
 
@@ -3046,7 +3073,7 @@ with the @code{DEFAULT_SIZE} variable in @file{globalconfig.h}.
 @cindex display
 @item stipllePolygons (boolean)
 Determines whether to display polygons on the screen with a stippled
-pattern.  Stippling can create some amount of transperency so that
+pattern.  Stippling can create some amount of transparency so that
 you can still (to some extent) see layers beneath polygons.
 It defaults to False.
 
@@ -3087,7 +3114,7 @@ The initial thickness and drilling hole of new vias. The values must be in the
 range [30..400] (the range may be changed at compile
 time with the @code{MIN_PINORVIASIZE} and @code{MAX_PINEORVIASIZE} variables in
 @file{globalconfig.h}), with at least 20
-mil of copper. 
+mil of copper.
 The default thickness is @emph{40 mil} and the default drilling hole is
 @emph{20 mil}.
 
@@ -3391,7 +3418,7 @@ None<Key>e:   DeleteRats(AllRats)
 @itemx Display(Center|ClearAndRedraw|Redraw)
 @itemx Display(Pinout|PinOrPadName)
 This action routines handles some output related settings. It is
-used to center the display around the cursor location and to redraw the 
+used to center the display around the cursor location and to redraw the
 output area optionally after clearing the window.
 Centering is done with respect to the @emph{grid} setting. Displaying the
 grid itself may be switched on and off by @emph{Grid} but only if
@@ -3499,19 +3526,19 @@ a look at the application resource file for examples.
 @emph{Copy} and @emph{Move} modes are used to change an object's location and,
 optionally, to create a new one. The first call of @emph{Mode(Notify)} attaches
 the object at the pointer location to the cross hair whereas the second
-one drops it to the layout. The @emph{rubberband} version of move performs the 
+one drops it to the layout. The @emph{rubberband} version of move performs the
 move while overriding the current rubberband mode.
 Passing @emph{PasteBuffer} attaches the contents of the currently selected
 buffer to the cross hair. Each call to @emph{Mode(Notify)} pastes this contents
 to the layout. @emph{Mode(Cycle)} cycles through the modes available in the
-mode-button pallete.
+mode-button pallet.
 @emph{Mode(None)} switches all modes off.
 Default:
 @example
 <Key>Escape:             Mode(None)
 <Key>space:              Mode(Cycle)
-None<Key>BackSpace:      Mode(Save) Mode(Remove) Mode(Notify) Mode(Restore) 
-None<Key>Delete:         Mode(Save) Mode(Remove) Mode(Notify) Mode(Restore) 
+None<Key>BackSpace:      Mode(Save) Mode(Remove) Mode(Notify) Mode(Restore)
+None<Key>Delete:         Mode(Save) Mode(Remove) Mode(Notify) Mode(Restore)
 None<Key>F1:             Mode(Via)
 None<Key>F2:             Mode(Line)
 None<Key>F3:             Mode(PasteBuffer)
@@ -3557,7 +3584,7 @@ None<Key>Left:    MovePointer(-1, 0)
 @cindex moving objects to current layer
 @item MoveToCurrentLayer(Object|SelectedObjects)
 The function moves a single object at the cross hair location or all selected
-objects to the current layer. Elements are not moveable by this function.
+objects to the current layer. Elements are not movable by this function.
 They have to be deleted and replaced on the other side.
 If a line segment is moved and the movement would result in a loss of
 connectivity to another segment then via(s) are automatically added to
@@ -3598,9 +3625,9 @@ for examples.
 Default:
 @example
 !Ctrl<Key>x:       PasteBuffer(Clear) PasteBuffer(AddSelected)
-                   Mode(PasteBuffer)
+		   Mode(PasteBuffer)
 !Shift Ctrl<Key>x: PasteBuffer(Clear) PasteBuffer(AddSelected)
-                   RemoveSelected() Mode(PasteBuffer)
+		   RemoveSelected() Mode(PasteBuffer)
 !Mod1<Key>c:       PasteBuffer(Clear) PasteBuffer(AddSelected)
 !Mod1<key>x:       PasteBuffer(Clear) PasteBuffer(AddSelected)
 		   RemoveSelected()
@@ -3617,8 +3644,8 @@ None<Key>F3:       Mode(PasteBuffer)
 @cindex polygon point, go back to previous
 @cindex closing a polygon
 @item Polygon((Close|PreviousPoint)
-Polygons need a special action routine to make life easier. Calling 
-@emph{Polygon(PreviousPoint)} resets the newly entered corner to the 
+Polygons need a special action routine to make life easier. Calling
+@emph{Polygon(PreviousPoint)} resets the newly entered corner to the
 previous one. The Undo action will call Polygon(PreviousPoint)
 when appropriate to do so.  @emph{Close} creates the final
 segment of the polygon.  This may fail if clipping to 45 degree
@@ -3634,12 +3661,12 @@ None<Key>p:             Polygon(Close)
 @cindex printing a layout
 @item Print()
 Pops up a print control box that lets you select the output
-device, scaling and many more options. Each run creates all 
+device, scaling and many more options. Each run creates all
 files that are supported by the selected device. These are
-mask files as well as drilling files, silk screens and so on. The table 
+mask files as well as drilling files, silk screens and so on. The table
 shows the filenames for all possible files:
 @example
-        POSIX (extention)             8.3 filename
+	POSIX (extension)             8.3 filename
 		---------------------------------------------
 		*_componentmask.*             cmsk.*
 		*_componentsilk.*             cslk.*
@@ -3649,7 +3676,7 @@ shows the filenames for all possible files:
 		*_groundplane.*               gpl.*
 		*_group[1..8].*     [..8].*
 @end example
-The output may be sent to a postprocessor by starting the filename with the
+The output may be sent to a post-processor by starting the filename with the
 @emph{pipe} @code{("|")} character. Any @code{"%f"} in a command is replaced
 with the current filename. The function is available from the @emph{file} menu.
 There are no defaults.
@@ -3706,7 +3733,7 @@ There are no defaults.
 @cindex size of lines and vias
 @item RouteStyle(1|2|3|4)
 This routine copies the sizes corresponding to the numbered route style
-into the active line thicknes, via diameter, and via drill size.
+into the active line thickens, via diameter, and via drill size.
 Defaults:
 @example
 !Ctrl<Key>1: RouteStyle(1)
@@ -3738,7 +3765,7 @@ There are no defaults.
 Toggles either the selection flag of the object at the cross hair position
 (@emph{ToggleObject}) or selects all visible objects, all inside a
 rectangle or all objects which have been found during the last connection
-scan. The @emph{ByName} functions use a regular expression search,
+scan. The @emph{ByName} functions use a @ref{Regular Expressions} search,
 always case insensitive, to select the objects.
 Default:
 @example
@@ -3805,7 +3832,7 @@ None<Key>Tab:      SwapSides()
 @cindex change drawing layer
 @cindex layer, change active
 @item SwitchDrawingLayer(value)
-Makes layer numer 1..MAX_LAYER the current one.
+Makes layer number 1..MAX_LAYER the current one.
 Default:
 @example
 None<Key>1:        SwitchDrawingLayer(1)
@@ -3827,7 +3854,7 @@ None<Key>h:	ToggleHideName(Object)
 @end example
 
 @findex ToggleVisibility()
-@cindex toggle layer visilibility
+@cindex toggle layer visibility
 @cindex layer visibility, toggling
 @item ToggleVisibility(Layer)
 Toggles the visibility of the layer.
@@ -4053,7 +4080,7 @@ Styles		= "Styles(" StyleString ")"
 Font            = @{FontData@}...
 FontData        = @{Symbol@}...
 Symbol          = "Symbol(" SymbolID Spacing ")"
-                      "(" @{SymbolData@}... ")"
+		      "(" @{SymbolData@}... ")"
 SymbolData      = @{SymbolLine@}...
 SymbolLine      = "SymbolLine(" X1 Y1 X2 Y2 Thickness ")"
 PCBData         = @{Via | Layer | Element@}...
@@ -4061,23 +4088,23 @@ PCBData         = @{Via | Layer | Element@}...
 Via             = "Via(" X Y Thickness DrillingHole Name Flags ")"
 
 Element         = "Element(" Flags Description LayoutName Value \
-                      TextX TextY direction scale TextFlags")"
-                      "(" @{ElementData@}... [Mark] ")"
+		      TextX TextY direction scale TextFlags")"
+		      "(" @{ElementData@}... [Mark] ")"
 ElementData     = @{ElementLine | Pad | Pin | ElementArc @}...
 ElementArc      = "ElementArc(" X Y Width Height
-                      StartAngle DeltaAngle Thickness ")"
+		      StartAngle DeltaAngle Thickness ")"
 ElementLine     = "ElementLine(" X1 Y1 X2 Y2 Thickness ")"
 Mark            = "Mark(" X Y ")"
 Pad             = "Pad(" X1 Y1 X2 Y2 Thickness Name PinNumber Flags")"
 Pin             = "Pin(" X Y Thickness DrillingHole Name PinNumber Flags ")"
 
 Layer           = "Layer(" LayerNumber Name ")"
-                      "(" @{LayerData@}... ")"
+		      "(" @{LayerData@}... ")"
 LayerData       = @{Line | Polygon | Text@}...
 Line            = "Line(" X1 Y1 X2 Y2 Thickness Flags")"
 Arc		= "Arc(" X Y Width Height StartAngle DeltaAngle Thickness Flags")"
 Polygon         = "Polygon(" Flags ")" \
-                      "(" @{Points@}... ")"
+		      "(" @{Points@}... ")"
 Points          = "(" X Y ")"
 Text            = "Text(" X Y direction scale TextData Flags")"
 @end example
@@ -4110,7 +4137,7 @@ displayed.
 @item Groups
 Layergroups are saved by using this optional parameter. The only way of
 changing them is to use an editor and alter the appropriate line. The
-characters @emph{c,s} idenify the component- and solder-side for SMD
+characters @emph{c,s} identify the component- and solder-side for SMD
 objects.
 
 @item Symbol
@@ -4163,7 +4190,7 @@ corners. The flags are:
 @item Text
 You may use text objects to add information to your board. An example would
 be naming a connector or marking pin one of it. The position marks the
-lower left corner of the string which is also a fixpoint for rotations.
+lower left corner of the string which is also a fix-point for rotations.
 Text directions are independent to those of lines. They are counted from
 zero to three with a meaning of zero to 270 degree rotations counter-clockwise.
 The scaling value is a positive integer which determines a zoom factor in
@@ -4180,7 +4207,7 @@ percent.
 
 
 @node Element File, Font File, Layout File, File Formats
-@cindex element, fileformat
+@cindex element, file format
 @cindex format of element files
 @cindex file format, element data
 @section Element File Format
@@ -4190,23 +4217,23 @@ file into two parts, one for the pinout and one for the package description.
 Using @code{m4} allows you to define pin names as macros in one file and
 include a package description file which evaluates the macros. See
 the resource @emph{elementCommand} for more information. The pins (and pads)
-must appear in squential order in the element file (new in 1.5) so that
+must appear in sequential order in the element file (new in 1.5) so that
 pin 1 must be the first PIN(...) in the file.
 
 Doing things this way makes it possible to use one package file for several
 different circuits. See the sample files @file{dil*}.
 
-The lowest x and y coordinates of all subobjects of an element are used
+The lowest x and y coordinates of all sub-objects of an element are used
 as an attachment point for the cross hair cursor of the main window.
 
 @example
 File            = @{Element@}...
 Element         = "Element(" Flags Description LayoutName Value \
-                      TextX TextY direction scale TextFlags")"
-                      "(" @{ElementData@}... [Mark] ")"
+		      TextX TextY direction scale TextFlags")"
+		      "(" @{ElementData@}... [Mark] ")"
 ElementData     = @{ElementLine | Pad | Pin | ElementArc @}...
 ElementArc      = "ElementArc(" X Y Width Height
-                      StartAngle DeltaAngle Thickness ")"
+		      StartAngle DeltaAngle Thickness ")"
 ElementLine     = "ElementLine(" X1 Y1 X2 Y2 Thickness ")"
 Mark            = "Mark(" X Y ")"
 Pad             = "Pad(" X1 Y1 X2 Y2 Thickness Name PinNumber Flags ")"
@@ -4241,7 +4268,7 @@ See the description of text object earlier in this chapter.
 A line is defined by its start and end points and by its size, or width.
 
 @item ElementArc
-Defines an arc by its center, width, height, startangle, its length in
+Defines an arc by its center, width, height, start angle, its length in
 degrees and its size. Remember the y axis on the screen grows downwards.
 
 @item Mark
@@ -4294,7 +4321,7 @@ File            = Font
 Font            = @{FontData@}...
 FontData        = @{Symbol@}...
 Symbol          = "Symbol(" SymbolID FontPosition ")"
-                      "(" @{SymbolData@}... ")"
+		      "(" @{SymbolData@}... ")"
 SymbolData      = @{SymbolLine@}...
 @end example
 
@@ -4314,7 +4341,7 @@ of type @emph{SymbolLine}.
 
 @end table
 
-@node Netlist File, Library Contents File, Font File, File Formats 
+@node Netlist File, Library Contents File, Font File, File Formats
 @cindex netlist, file format
 @cindex netlist, reading
 @section Netlist File Format
@@ -4355,7 +4382,7 @@ agrees with the netlist.
 @cindex file format, library contents
 @section Library Contents File Format
 There is nothing like a special library format. The ones that have been
-introduced in 1.4.1 just use some nice (and time consuming) fetures of GNU
+introduced in 1.4.1 just use some nice (and time consuming) features of GNU
 @code{m4}. The only predefined format is the one of the contents file
 which is read during startup. It is made up of two basic line types:
 
@@ -4370,11 +4397,11 @@ description     = String
 String          = <anything except ":", "\n" and "\r">
 @end example
 
-No leading whitespaces or comments are allowed in this file. If you need
+No leading white spaces or comments are allowed in this file. If you need
 either one, define a command that removes them before loading. Have a look
 to the @emph{libraryContentsCommand} resource.
 
-The menu entry will appear in the selection menu at the top and of the 
+The menu entry will appear in the selection menu at the top and of the
 library window.
 
 @node Library File, , Library Contents File, File Formats
@@ -4410,7 +4437,7 @@ of a package.
 It is very important to select a unique identifier for each macro. In
 the example this would be @emph{43256_dil} which is also the templates name.
 It is required by some low-level macros that
-@emph{Description_, Param1_, Param2_} and @emph{PinList_} are prepended.
+@emph{Description_, Param1_, Param2_} and @emph{PinList_} are perpended.
 
 The list file uses a syntax:
 @example
@@ -4418,7 +4445,7 @@ template:package:value[:more values]
 @end example
 
 This means that the shown example will create two element entries with the
-sam package and pinout but with different names.
+same package and pinout but with different names.
 
 A number of packages are defined in @file{common.m4}. Included are:
 
@@ -4477,7 +4504,7 @@ converting a group of pads to a component.  This library method has the
 advantage of being quick to learn and it is easily to build single
 footprints quickly.  If you are building a family of parts, however, the
 additional effort in creating each one individually makes this approach
-undesireable.  In addition, creating a part with a large pin count
+undesirable.  In addition, creating a part with a large pin count
 can be quite tedious when done by hand.
 
 
@@ -4498,7 +4525,7 @@ to is the following.  One of the predefined footprints in the library
 which comes with PCB is the @code{PKG_SO8} macro.  Note that all the
 footprint macros begin with @code{PKG_}.  For this particular example,
 @code{PKG_SO8} is a macro for an 8-pin small outline surface mount
-packge.  All of the footprint macros take 3 arguments.  The first is the
+package.  All of the footprint macros take 3 arguments.  The first is the
 canonical name of the footprint on the board.  In this case "SO8" is an
 appropriate name.  The second argument is the reference designator on
 the board such as "U1" or "U23".  The third and final argument is the
@@ -4511,21 +4538,21 @@ macro expands to
 @example
 Element(0x00 "SO8" "U1" "MAX4107" 146 50 3 100 0x00)
 (
-        Pad(10 25 38 25 20 "1" 0x00)
-        Pad(10 75 38 75 20 "2" 0x100)
-        Pad(10 125 38 125 20 "3" 0x100)
-        Pad(10 175 38 175 20 "4" 0x100)
-        Pad(214 175 242 175 20 "5" 0x100)
-        Pad(214 125 242 125 20 "6" 0x100)
-        Pad(214 75 242 75 20 "7" 0x100)
-        Pad(214 25 242 25 20 "8" 0x100)
-        ElementLine(0 0 151 0 10)
-        ElementArc(126 0 25 25 0 180 10)
-        ElementLine(101 0 252 0 10)
-        ElementLine(252 0 252 200 10)
-        ElementLine(252 200 0 200 10)
-        ElementLine(0 200 0 0 10)
-        Mark(29 25)
+	Pad(10 25 38 25 20 "1" 0x00)
+	Pad(10 75 38 75 20 "2" 0x100)
+	Pad(10 125 38 125 20 "3" 0x100)
+	Pad(10 175 38 175 20 "4" 0x100)
+	Pad(214 175 242 175 20 "5" 0x100)
+	Pad(214 125 242 125 20 "6" 0x100)
+	Pad(214 75 242 75 20 "7" 0x100)
+	Pad(214 25 242 25 20 "8" 0x100)
+	ElementLine(0 0 151 0 10)
+	ElementArc(126 0 25 25 0 180 10)
+	ElementLine(101 0 252 0 10)
+	ElementLine(252 0 252 200 10)
+	ElementLine(252 200 0 200 10)
+	ElementLine(0 200 0 0 10)
+	Mark(29 25)
 )
 @end example
 which is the actual definition of the footprint that the PCB program
@@ -4562,15 +4589,15 @@ connector.m4 crystal.m4 generic.m4 genericsmt.m4 gtag.m4
 jerry.m4 linear.m4 logic.m4 lsi.m4 memory.m4 optical.m4 pci.m4
 resistor_0.25W.m4 resistor_adjust.m4 resistor_array.m4
 texas_inst_amplifier.m4 texas_inst_voltage_reg.m4
-transistor.m4 geda.m4  
+transistor.m4 geda.m4
 @end example
 The @samp{-I .} says to search in the current directory for the
 @file{.m4} files.  The output frozen file is @file{pcblib}.  The main
 @file{common.m4} file is listed as well as all of the @file{*.m4} files
-which define the components in the library. 
+which define the components in the library.
 
 In addition, a library contents file is created during the build with
-the @code{CreateLibraryContents.sh} script.  
+the @code{CreateLibraryContents.sh} script.
 A typical call to @code{CreateLibrary.sh} used during the compilation of
 PCB is:
 @example
@@ -4623,28 +4650,28 @@ layout.  For example, when the ACY300 component is selected from the
 @example
 /tmp/pcb-20030903/src/../lib/QueryLibrary.sh
 .:/tmp/pcb-20030903/src/../lib pcblib geda_ACY300 ACY300
-ACY300 
+ACY300
 @end example
 If you were to run this command by hand you would see the PCB code for
 the element:
 @example
 Element(0x00 "Axial non-polar component," "" "ACY300" 245 70 0 100 0x00)
 (
-        Pin(0 25 50 20 "1" 0x101)
-        Pin(300 25 50 20 "2" 0x01)
+	Pin(0 25 50 20 "1" 0x101)
+	Pin(300 25 50 20 "2" 0x01)
 
-        ElementLine(0 25 75 25 10)
-        ElementLine(225 25 300 25 10)
+	ElementLine(0 25 75 25 10)
+	ElementLine(225 25 300 25 10)
 
-        ElementLine(75 0 225 0 10)
-        ElementLine(225 0 225 50 10)
-        ElementLine(225 50 75 50 10)
-        ElementLine(75 50 75 0 10)
+	ElementLine(75 0 225 0 10)
+	ElementLine(225 0 225 50 10)
+	ElementLine(225 50 75 50 10)
+	ElementLine(75 50 75 0 10)
 
 #       ElementArc(X1 Y 50 50 270 180 10)
 #       ElementArc(X2 Y 50 50 90 180 10)
 
-        Mark(75 25)
+	Mark(75 25)
 )
 @end example
 
@@ -4663,14 +4690,14 @@ be called with different parameters to fill out the family of parts.
 The arguments to the @code{COMMON_PKG_RCSMT} are:
 @example
 # -------------------------------------------------------------------
-# the definition for suface mount resistors and capacitors
+# the definition for surface mount resistors and capacitors
 # $1: canonical name
 # $2: name on PCB
 # $3: value
 # $4: pad width   (in direction perpendicular to part)
 # $5: pad length  (in direction parallel with part)
 # $6: pad spacing (center to center)
-# $7: distance from edge of pad to silk (in direction 
+# $7: distance from edge of pad to silk (in direction
 #     perpendicular to part)
 # $8: distance from edge of pad to silk (in direction parallel
 #     with part)
@@ -4679,26 +4706,26 @@ The arguments to the @code{COMMON_PKG_RCSMT} are:
 
 @example
 define(`COMMON_PKG_RCSMT',
-	`define(`XMIN', `eval( -1*`$6'/2 - `$5'/2 - `$8')')	
+	`define(`XMIN', `eval( -1*`$6'/2 - `$5'/2 - `$8')')
 	define(`XMAX', `eval(  `$6'/2 + `$5'/2 + `$8')')
-	define(`YMIN', `eval(-1*`$4'/2 - `$7')')	
+	define(`YMIN', `eval(-1*`$4'/2 - `$7')')
 	define(`YMAX', `eval(   `$4'/2 + `$7')')
 Element(0x00 "$1" "$2" "$3" eval(XMIN+20) eval(YMAX+20) 0 100 0x00)
 (
 	ifelse(0, eval($4>$5),
 	# Pads which have the perpendicular pad dimension less
-	# than or equal to the parallel pad dimension 	
-	Pad(eval(-1*(   $6 + $5 - $4)/2) 0 
-            eval((-1*$6 + $5 - $4)/2) 0 eval($4) "1" 0x100)
-	Pad(eval(-1*(-1*$6 + $5 - $4)/2) 0 
-            eval((   $6 + $5 - $4)/2) 0 eval($4) "2" 0x100)
-        ,
+	# than or equal to the parallel pad dimension
+	Pad(eval(-1*(   $6 + $5 - $4)/2) 0
+	    eval((-1*$6 + $5 - $4)/2) 0 eval($4) "1" 0x100)
+	Pad(eval(-1*(-1*$6 + $5 - $4)/2) 0
+	    eval((   $6 + $5 - $4)/2) 0 eval($4) "2" 0x100)
+	,
 	# Pads which have the perpendicular pad dimension greater
-	# than or equal to the parallel pad dimension 
- 	Pad(eval(-1*$6/2) eval(-1*($4 - $5)/2) 
-            eval(-1*$6/2)  eval(($4 - $5)/2) eval($5) "1" 0x100)
- 	Pad(eval(   $6/2) eval(-1*($4 - $5)/2) 
-            eval(   $6/2)  eval(($4 - $5)/2) eval($5) "2" 0x100)
+	# than or equal to the parallel pad dimension
+	Pad(eval(-1*$6/2) eval(-1*($4 - $5)/2)
+	    eval(-1*$6/2)  eval(($4 - $5)/2) eval($5) "1" 0x100)
+	Pad(eval(   $6/2) eval(-1*($4 - $5)/2)
+	    eval(   $6/2)  eval(($4 - $5)/2) eval($5) "2" 0x100)
 	)
 
 	# silk screen
@@ -4718,32 +4745,32 @@ ifelse($9,"no",
 Note that the part has been defined with the mark located at
 @code{(0,0)} and that the pads have been placed with the mark at the
 common centroid of the footprint.  While not a requirement, this is
-highly desireable when developing a library that will need to interface
+highly desirable when developing a library that will need to interface
 with a pick and place machine used for factory assembly of a board.
 
 The final part of @file{example.inc} defines particular versions of the
 generic footprint we have created.  These particular versions correspond
-to various industry standard package sizes.  
+to various industry standard package sizes.
 @example
 # 0402 package
 #
-# 30x30 mil pad, 15 mil metal-metal spacing=> 
+# 30x30 mil pad, 15 mil metal-metal spacing=>
 # 15 + 15 + 15 = 45 center-to-center
-define(`PKG_RC0402', 
+define(`PKG_RC0402',
   `COMMON_PKG_RCSMT(`$1', `$2', `$3', 30, 30, 45, 0, 10, "no")')
 
 # 0603 package
 #
 # 40x40 mil pad, 30 mil metal-metal spacing=>
 #  30 + 20 + 20 = 70 center-to-center
-define(`PKG_RC0603', 
+define(`PKG_RC0603',
   `COMMON_PKG_RCSMT(`$1', `$2', `$3', 40, 40, 70, 10, 10)')
 
 # 1206 package
 #
-# 40x60 mil pad, 90 mil metal-metal spacing=> 
+# 40x60 mil pad, 90 mil metal-metal spacing=>
 #  90 + 20 + 20 = 130 center-to-center
-define(`PKG_RC1206', 
+define(`PKG_RC1206',
   `COMMON_PKG_RCSMT(`$1', `$2', `$3', 60, 40, 130, 10, 10)')
 @end example
 
@@ -4753,11 +4780,11 @@ footprints into PCB we need to create the @file{example.m4} and
 @file{example.list} files.  The @file{example.m4} file defines
 descriptions for the new footprints.
 @example
-define(`Description_my_RC0402', 
+define(`Description_my_RC0402',
   ``Standard SMT resistor/capacitor (0402)'')
-define(`Description_my_RC0603', 
+define(`Description_my_RC0603',
   ``Standard SMT resistor/capacitor (0603)'')
-define(`Description_my_RC1206', 
+define(`Description_my_RC1206',
   ``Standard SMT resistor/capacitor (1206)'')
 @end example
 Finally we need to create the @file{example.list} file.
@@ -4810,21 +4837,21 @@ For this particular example, the output is:
 @example
 Element(0x00 "SO8" "U1" "MAX4107" 146 50 3 100 0x00)
 (
-        Pad(10 25 38 25 20 "1" 0x00)
-        Pad(10 75 38 75 20 "2" 0x100)
-        Pad(10 125 38 125 20 "3" 0x100)
-        Pad(10 175 38 175 20 "4" 0x100)
-        Pad(214 175 242 175 20 "5" 0x100)
-        Pad(214 125 242 125 20 "6" 0x100)
-        Pad(214 75 242 75 20 "7" 0x100)
-        Pad(214 25 242 25 20 "8" 0x100)
-        ElementLine(0 0 151 0 10)
-        ElementArc(126 0 25 25 0 180 10)
-        ElementLine(101 0 252 0 10)
-        ElementLine(252 0 252 200 10)
-        ElementLine(252 200 0 200 10)
-        ElementLine(0 200 0 0 10)
-        Mark(29 25)
+	Pad(10 25 38 25 20 "1" 0x00)
+	Pad(10 75 38 75 20 "2" 0x100)
+	Pad(10 125 38 125 20 "3" 0x100)
+	Pad(10 175 38 175 20 "4" 0x100)
+	Pad(214 175 242 175 20 "5" 0x100)
+	Pad(214 125 242 125 20 "6" 0x100)
+	Pad(214 75 242 75 20 "7" 0x100)
+	Pad(214 25 242 25 20 "8" 0x100)
+	ElementLine(0 0 151 0 10)
+	ElementArc(126 0 25 25 0 180 10)
+	ElementLine(101 0 252 0 10)
+	ElementLine(252 0 252 200 10)
+	ElementLine(252 200 0 200 10)
+	ElementLine(0 200 0 0 10)
+	Mark(29 25)
 )
 @end example
 
@@ -4833,7 +4860,7 @@ Footprints for the new style library are created graphically using the
 PCB program.  A single footprint is saved in each file.
 
 @subsection Creating Newlib Footprints
-To create 
+To create
 @enumerate
 @item Start PCB with an empty layout.
 @item Make the component layer active.
@@ -4848,27 +4875,29 @@ the pin number and press enter.  Alternatively, you can use the "n"
 hotkey to activate the rename command.
 @item Make the silk layer active.
 @item Using the line and arc tools, draw a silk screen outline for the
-part. 
+part.
 @item Using the selection tool, select all of the pins and silk screen
 for the part.
 @item Place the pointer above the reference point for the part.  This is
 typically the common centroid.  Keeping the pointer there, right-click
-to bring up the pop-up menu and choose "convert 
-selection to element". 
+to bring up the popup menu and choose "convert
+selection to element".
+@item Still keeping the pointer above the selected element, right-click
+to bring up the popup menu back up and choose ``Copy Selection to Buffer''.
 @item Under the buffer menu, choose "save buffer elements to file" to
-save the new footprint to a file. 
+save the new footprint to a file.
 @end enumerate
 
 @subsection Modifying Newlib Footprints
 @enumerate
-@item In the PCB program, instantiate the footprint you wish to modify.
+@item In the @code{Pcb} program, instantiate the footprint you wish to modify.
 @item Using the selection tool, select the footprint.
-@item Under the buffer menu, choose "copy selection to buffer".  Now
-left-click on the layout area of the PCB window and then press the ESC
-key.  This copies the selected items to the buffer.
+@item Now left-click on the selected element, this brings up a popup menu, choose
+"Cut Selection to Buffer" from the popup menu.
 @item Under the buffer menu, choose "break buffer element to pieces",
-"past buffer to layout", and then left-click to place the broken apart
-footprint to an open area of the layout.
+and then left-click to place the broken apart footprint to an open area of
+the layout.  Note that you must use the items under the buffer menu, the
+items with the same names in the popup menu do not work.
 @item Make your desired modifications to the footprint and then convert
 the pieces back to an element using the same procedure as when starting
 from scratch on a new footprint.
@@ -4881,7 +4910,7 @@ from scratch on a new footprint.
 @cindex schematic frontend
 @chapter Schematic Capture for PCB
 When designing a circuit board of any complexity, a schematic capture
-frontend for the design is highly desired.  Any schematic capture
+front-end for the design is highly desired.  Any schematic capture
 program which is able to generate a netlist in a user defined format as
 well as a bill of materials can be made to work with PCB.  Currently, we
 are aware of two freely available schematic capture programs which can
@@ -4898,7 +4927,7 @@ and PCB for layout.
 @cindex gschem, how to interface with
 @cindex gEDA, how to interface with
 @section gEDA
-This section shows how to use gEDA as the schematic capture frontend for
+This section shows how to use gEDA as the schematic capture front-end for
 a PCB design.  This section is not intended to be complete documentation
 on gEDA and it is assumed that the user has at least some familiarity
 with the gEDA suite of programs.
@@ -4920,7 +4949,7 @@ board vendor
 
 @subsection Set Up Project Directories
 Although not required, a typical project directory will contain the
-schematics and board layout at the top level.  
+schematics and board layout at the top level.
 Schematic symbols and circuit board footprints which are unique to this
 project are stored in subdirectories.  For this example, @file{sym}
 contains the project specific schematic symbols and @file{pkg} contains
@@ -4968,12 +4997,12 @@ PCB library locations, and output file names.  Create a project file
 called @file{project} using the following as an example:
 @example
 
-# List all the schematics to be netlisted 
+# List all the schematics to be netlisted
 # and laid out on the pc board.
 schematics      first.sch second.sch third.sch
 
-# For an output-name of foo, gsch2pcb generates files 
-# foo.net, foo.pcb, and foo.new.pcb.  If there is no 
+# For an output-name of foo, gsch2pcb generates files
+# foo.net, foo.pcb, and foo.new.pcb.  If there is no
 # output-name specified, the file names are derived from
 # the first listed schematic, i.e. first.net, etc.
 output-name  preamp
@@ -4988,7 +5017,7 @@ schematics, be sure to observe the following rules:
 @itemize
 @item Make sure that each component in the schematic has a
 @code{footprint} attribute that corresponds to a footprint in the PCB
-library or a footprint you plan on creating.  
+library or a footprint you plan on creating.
 @item Make sure all reference designators are unique.  One way to ensure
 this is to run the @code{refdes_renum} script (part of gEDA) after the
 schematics are created.
@@ -5005,7 +5034,7 @@ subdirectory and for newlib footprints, store them in the
 The @code{gsch2pcb} program connects the schematic and layout.  It basic
 operation is to call @code{gnetlist} to generate the connectivity
 netlist that PCB used to verify connectivity and to instantiate all
-elements found in the schematic to a new layout. 
+elements found in the schematic to a new layout.
 The default, as of @code{gsch2pcb} version 0.9,  is to use any found  m4
 style parts first and then search for newlib style if no old style part
 was found.  By using the @code{--use-files} or @code{-f} flag to @code{gsch2pcb}
@@ -5055,7 +5084,7 @@ output file @file{1.gbr} if DOS file names are used, or
 sufficient, but this form is still a useful reference.
 
 Choose "print layout..." from the "File" menu.  In the print dialog box,
-select "Gerber/RS-274X" for the device 
+select "Gerber/RS-274X" for the device
 driver.  Select the "outline", "alignment", and "drillhelper" options.
 To get DOS compatible file names, select the "DOS (8.3) names" option,
 otherwise enter "preamp" for the filename.  Press "OK".
@@ -5097,7 +5126,7 @@ Centroid (X-Y) data for driving automated assembly equipment.
 If anyone cares to contribute this section, it will get added.  Please
 submit changes to the bug tracking system at the sourceforge project
 page for PCB which can be found from the PCB homepage at
-@url{http://pcb.sourceforge.net}. 
+@url{http://pcb.sourceforge.net}.
 
 @c --------------------------- Appendix A -------------------------------
 
@@ -5125,12 +5154,12 @@ This section covers the steps which are necessary to compile the package.
 * running configure::          Customizing Pcb with Configure
 @end menu
 
-@node quickstart , running configure, , compiling
+@node quickstart, running configure, , compiling
 @cindex GNU build system
 @subsection Quick Start
 Starting with version 2.0, @code{Pcb} has switched to a GNU
 autoconf/automake build system.  Installation of @code{Pcb} consists of
-three steps:  configuration, building, and installing. 
+three steps:  configuration, building, and installing.
 In a typical installation, these steps are as simple as
 @example
 ./configure
@@ -5138,7 +5167,7 @@ make
 make install
 @end example
 
-@node running configure, ,quickstart , compiling
+@node running configure, , quickstart, compiling
 @cindex GNU configure script
 @cindex configure
 @subsection Running the configure Script
@@ -5191,7 +5220,7 @@ the installation directory.
 @cindex problems
 @cindex troubleshooting
 @section Troubleshooting
-There are some known problems. Most of them are related to 
+There are some known problems. Most of them are related to
 missing parts of a standard @code{X11} distribution. Some others are caused by
 third party applications such as @code{X} servers. To make this list more
 complete please mail your problems and, if available, solutions to the author.
@@ -5301,15 +5330,15 @@ system here are no known problems.
 @cindex PC UNIX
 @subsection FreeBSD and NetBSD
 @code{Pcb} has been tested on NetBSD and works without any problems.
-You may also be able to find a NetBSD package at 
-@url{ftp://ftp.netbsd.org/pub/NetBSD/packages/cad/pcb/README.html} or a 
+You may also be able to find a NetBSD package at
+@url{ftp://ftp.netbsd.org/pub/NetBSD/packages/cad/pcb/README.html} or a
 FreeBSD port at
 @url{http://www.freebsd.org/cgi/url.cgi?ports/cad/pcb/pkg-descr}.
 
 @node X11, TeX and Manuals, BSD, problems
 @cindex X11, problems
 @subsection Problems related to X11
-There are a some problems related to @code{X11R4} or systems derived from 
+There are a some problems related to @code{X11R4} or systems derived from
 @code{X11} such as @code{OpenWindows}. @xref{Sun}. You at least have to change
 all occurances of @emph{baseTranslations} in the resource files to
 @emph{translations} if you are using a @code{X11R4} server. Look at the
@@ -5341,7 +5370,7 @@ FTP sites.
 
 @c --------------------------- Appendix B -------------------------------
 
-@node Custom Menus, Index, Installation, Top
+@node Custom Menus, Regular Expressions, Installation, Top
 @appendix Customizing the Menus
 
 The menu system is driven off a data file that contains
@@ -5412,7 +5441,7 @@ MainMenu = @{
 
 Additionally, the menu parser allows for ``hooks'' whereby portions of
 the menu system can be programmatically created at runtime by the
-application.  These hooks are invoked by a single word preceeded by an
+application.  These hooks are invoked by a single word proceeded by an
 at sign, such as this example where most of the Sizes menu is created
 automatically:
 
@@ -5431,7 +5460,7 @@ To best understand this section, you should find the
 examples (@pxref{Menu Files and Defaults}).
 
 A resource defines a menu when it meets certain semantic requirements.
-The menu heirarchy is reflected as a heirarchy of unnamed
+The menu hierarchy is reflected as a hierarchy of unnamed
 subresources, with the first string of each subresource defining the
 label used for the menu button.  A subresource that itself contains
 subresources becomes a submenu, a subresource that does not becomes a
@@ -5507,8 +5536,57 @@ You can view the internal menu definition (the default) by running
 pcb -dumpmenu
 @end example
 
+@c --------------------------- Appendix C -------------------------------
+@node Regular Expressions, Index, Custom Menus, Top
+@cindex Element Search
+@cindex Regular Expressions
+@vindex Element Search
+@vindex Regular Expressions
+@appendix Element Search/Regular Expressions
+@section Element Search/Regular Expressions
+@code{Pcb}'s search is based on POSIX 1003.2 Regular Expressions.  Full POSIX
+Regular Expressions are supported by @code{Pcb} if the regex library was
+available when @code{Pcb} was built.
+It is easier to show by example how to search than explain POSIX 1003.2.  The following table shows the most common
+Regular Expression characters used to find elements in @code{Pcb}:
+
+@table @samp
+@item \
+Indicates next character should not be interpreted literally if it
+normally is, and should be interpreted literally if it normally isn't.
+@item *
+Matches 0 or more instances of preceding character.
+@item +
+Matches 1 or more instances of preceding character.
+@item ?
+Matches 0 or 1 instances of preceding character.
+@item .
+Matches any single character other than the newline character.
+@end table
+
+@example
+@table @samp
+@item Search for "C1":
+Enter "C1".
+@item Search for all elements that start with "C", such as capacitors:
+Enter "C.*", that is "C-dot-star".
+@item Search for all elements that start with "C" and end with "1",
+such as "C1", or "C51":
+Enter "C.*1", that is "C-dot-star-1".
+@item Search for only R1 or R10, will not match R100:
+Enter "R10?".
+@item Search for all parts starting with "R12" and ending with the number eight, or eighty-eight etc:
+Enter "R128+".
+@item Search for all terminal blocks having a one digit designator such as TB1 or TB2:
+"TB.", that is "TB-dot".
+@item Search for all terminal blocks having a two digit designator such as TB21 or TB15:
+"TB..", that is "TB-dot-dot".
+@end table
+@end example
+
+
 @c ---------------------------------------------------------------------
-@node Index, , Custom Menus, Top
+@node Index, , Regular Expressions, Top
 @unnumbered Index of Resources
 @printindex vr
 
@@ -5520,4 +5598,3 @@ pcb -dumpmenu
 
 @contents
 @bye
-
