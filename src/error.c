@@ -91,11 +91,13 @@ static Window LogWindow;	/* the logging window */
 void
 Message (char *Format, ...)
 {
+  static int line = 1;
   va_list args;
   char s[1024];
   XEvent event;
+  sprintf(s,"%d: ",line++);
   va_start (args, Format);
-  vsprintf (s, Format, args);
+  vsprintf (s + strlen(s), Format, args);
   va_end (args);
 
   if (Settings.UseLogWindow)
