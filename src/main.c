@@ -341,6 +341,7 @@ static String Fallback[] = {
   "Pcb.masterForm*messageText.foreground:   red",
   "Pcb.masterForm*messageText.justify:      left",
   "Pcb.masterForm*statusLine.justify:       left",
+  "Pcb.masterForm*statusLine.height:        40",
   "Pcb.masterForm*output*background:        gray95",
   "Pcb.masterForm.porthole.height:          600",
   "Pcb.masterForm.porthole.width:           800",
@@ -1269,8 +1270,8 @@ InitWidgets (void)
   /* init all other widgets as childs of the masterform */
   InitMenu (Output.MasterForm, NULL, NULL);
   InitControlPanel (Output.MasterForm, Output.Menu, NULL);
-  InitCursorPosition (Output.MasterForm, NULL, Output.Menu);
-  InitPorthole (Output.MasterForm, Output.Menu, Output.Control);
+  InitCursorPosition (Output.MasterForm, Output.Menu, Output.Control);
+  InitPorthole (Output.MasterForm, Output.CursorPosition, Output.Control);
   InitStatusLine (Output.MasterForm, Output.Porthole, Output.Control);
 
   /* set actions and install translations;

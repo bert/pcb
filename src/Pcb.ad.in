@@ -342,6 +342,7 @@ Pcb.masterForm*inputField*borderWidth:   0
 Pcb.masterForm*messageText.foreground:   red
 Pcb.masterForm*messageText.justify:      left
 Pcb.masterForm*statusLine.justify:       left
+Pcb.masterForm*statusLine.height:        40
 
 !---------------------------------------------------------------------------
 ! resources used by the output area

@@ -109,7 +109,7 @@ SetStatusLine (void)
 
   if (PCB->Grid == (int) PCB->Grid)
     sprintf (text,
-	     "%c %s, grid=%i.%02i:%i,%s%sline=%i.%02i, via=%i.%02i(%i.%02i),"
+	     "%c %s, grid=%i.%02i:%i,%s%sline=%i.%02i, via=%i.%02i(%i.%02i),\n"
 	     " clearance=%i.%02i, text=%i%%, buffer=#%li, name: ",
 	     PCB->Changed ? '*' : ' ',
 	     Settings.ShowSolderSide ? "solder" : "component",
@@ -127,7 +127,7 @@ SetStatusLine (void)
 	     Settings.TextScale, Settings.BufferNumber + 1);
   else
     sprintf (text,
-	     "%c %s, grid=%5.3fmm:%i,%s%sline=%i.%02i, via=%i.%02i(%i.%02i),"
+	     "%c %s, grid=%5.3fmm:%i,%s%sline=%i.%02i, via=%i.%02i(%i.%02i),\n"
 	     " clearance=%i.%02i, text=%i%%, buffer=#%li, name: ",
 	     PCB->Changed ? '*' : ' ',
 	     Settings.ShowSolderSide ? "solder" : "component",
