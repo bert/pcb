@@ -327,6 +327,14 @@ GBX_Init (PrintInitTypePtr Flags)
 			  line->Thickness + line->Clearance, 0, 0, ROUND);
     }
   ENDALL_LOOP;
+  ALLARC_LOOP (PCB->Data);
+    {
+      findApertureCode (&GBX_Apertures, arc->Thickness, 0, 0, ROUND);
+      if (TEST_FLAG (CLEARLINEFLAG, arc))
+	findApertureCode (&GBX_Apertures,
+			  arc->Thickness + arc->Clearance, 0, 0, ROUND);
+    }
+  ENDALL_LOOP;
   ELEMENT_LOOP (PCB->Data);
     {
       PIN_LOOP (element);
