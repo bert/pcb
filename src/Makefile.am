@@ -126,6 +126,7 @@ pcb_bin_SOURCES = \
 	select.h \
 	set.c \
 	set.h \
+	strflags.c \
 	undo.c \
 	undo.h \
 	vector.c \

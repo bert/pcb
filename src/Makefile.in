@@ -74,8 +74,9 @@ am_pcb_bin_OBJECTS = action.$(OBJEXT) autoplace.$(OBJEXT) \
 	print.$(OBJEXT) rats.$(OBJEXT) remove.$(OBJEXT) \
 	report.$(OBJEXT) res_parse.$(OBJEXT) res_lex.$(OBJEXT) \
 	rotate.$(OBJEXT) rtree.$(OBJEXT) rubberband.$(OBJEXT) \
-	search.$(OBJEXT) select.$(OBJEXT) set.$(OBJEXT) undo.$(OBJEXT) \
-	vector.$(OBJEXT) vendor.$(OBJEXT)
+	search.$(OBJEXT) select.$(OBJEXT) set.$(OBJEXT) \
+	strflags.$(OBJEXT) undo.$(OBJEXT) vector.$(OBJEXT) \
+	vendor.$(OBJEXT)
 pcb_bin_OBJECTS = $(am_pcb_bin_OBJECTS)
 pcb_bin_LDADD = $(LDADD)
 DEFAULT_INCLUDES = -I. -I$(srcdir) -I$(top_builddir)
@@ -332,6 +333,7 @@ pcb_bin_SOURCES = \
 	select.h \
 	set.c \
 	set.h \
+	strflags.c \
 	undo.c \
 	undo.h \
 	vector.c \
@@ -491,6 +493,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/search.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/select.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/set.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/strflags.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/undo.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vector.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vendor.Po@am__quote@

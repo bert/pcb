@@ -68,6 +68,7 @@
 #include "rats.h"
 #include "remove.h"
 #include "set.h"
+#include "strflags.h"
 
 #include "gui.h"
 
@@ -404,7 +405,7 @@ WriteViaData (FILE * FP, DataTypePtr Data)
 	       via->X, via->Y,
 	       via->Thickness, via->Clearance, via->Mask, via->DrillingHole);
       PrintQuotedString (FP, EMPTY (via->Name));
-      fprintf (FP, " 0x%08x]\n", (int) via->Flags);
+      fprintf (FP, " %s]\n", flags_to_string (via->Flags, VIA_TYPE));
     }
 }
 
@@ -423,7 +424,7 @@ WritePCBRatData (FILE * FP)
 	       (int) line->Point1.X, (int) line->Point1.Y,
 	       (int) line->group1, (int) line->Point2.X,
 	       (int) line->Point2.Y, (int) line->group2);
-      fprintf (FP, " 0x%08x]\n", (int) line->Flags);
+      fprintf (FP, " %s]\n", flags_to_string (line->Flags, RATLINE_TYPE));
     }
 }
 
@@ -472,13 +473,13 @@ WriteElementData (FILE * FP, DataTypePtr Data)
       /* the coordinates and text-flags are the same for
        * both names of an element
        */
-      fprintf (FP, "\nElement[0x%08x ", (int) element->Flags);
+      fprintf (FP, "\nElement[%s ", flags_to_string(element->Flags, ELEMENT_TYPE));
       PrintQuotedString (FP, EMPTY (DESCRIPTION_NAME (element)));
       fputc (' ', FP);
       PrintQuotedString (FP, EMPTY (NAMEONPCB_NAME (element)));
       fputc (' ', FP);
       PrintQuotedString (FP, EMPTY (VALUE_NAME (element)));
-      fprintf (FP, " %i %i %i %i %i %i 0x%08x]\n(\n",
+      fprintf (FP, " %i %i %i %i %i %i %s]\n(\n",
 	       (int) element->MarkX, (int) element->MarkY,
 	       (int) (DESCRIPTION_TEXT (element).X -
 		      element->MarkX),
@@ -486,7 +487,7 @@ WriteElementData (FILE * FP, DataTypePtr Data)
 		      element->MarkY),
 	       (int) DESCRIPTION_TEXT (element).Direction,
 	       (int) DESCRIPTION_TEXT (element).Scale,
-	       (int) DESCRIPTION_TEXT (element).Flags);
+	       flags_to_string (DESCRIPTION_TEXT (element).Flags, ELEMENTNAME_TYPE));
       for (p = 0; p < element->PinN; p++)
 	{
 	  PinTypePtr pin = &element->Pin[p];
@@ -498,7 +499,7 @@ WriteElementData (FILE * FP, DataTypePtr Data)
 	  PrintQuotedString (FP, EMPTY (pin->Name));
 	  fprintf (FP, " ");
 	  PrintQuotedString (FP, EMPTY (pin->Number));
-	  fprintf (FP, " 0x%08x]\n", (int) pin->Flags);
+	  fprintf (FP, " %s]\n", flags_to_string (pin->Flags, PIN_TYPE));
 	}
       for (p = 0; p < element->PadN; p++)
 	{
@@ -513,7 +514,7 @@ WriteElementData (FILE * FP, DataTypePtr Data)
 	  PrintQuotedString (FP, EMPTY (pad->Name));
 	  fprintf (FP, " ");
 	  PrintQuotedString (FP, EMPTY (pad->Number));
-	  fprintf (FP, " 0x%08x]\n", (int) pad->Flags);
+	  fprintf (FP, " %s]\n", flags_to_string (pad->Flags, PAD_TYPE));
 	}
       for (p = 0; p < element->LineN; p++)
       {
@@ -562,20 +563,20 @@ WriteLayerData (FILE * FP, Cardinal Number, LayerTypePtr layer)
       for (n = 0; n < layer->LineN; n++)
 	{
 	  LineTypePtr line = &layer->Line[n];
-	  fprintf (FP, "\tLine[%i %i %i %i %i %i 0x%08x]\n",
+	  fprintf (FP, "\tLine[%i %i %i %i %i %i %s]\n",
 		   (int) line->Point1.X, (int) line->Point1.Y,
 		   (int) line->Point2.X, (int) line->Point2.Y,
 		   (int) line->Thickness, (int) line->Clearance,
-		   (int) line->Flags);
+		   flags_to_string (line->Flags, LINE_TYPE));
 	}
       for (n = 0; n < layer->ArcN; n++)
 	{
 	  ArcTypePtr arc = &layer->Arc[n];
-	  fprintf (FP, "\tArc[%i %i %i %i %i %i %i %i 0x%08x]\n",
+	  fprintf (FP, "\tArc[%i %i %i %i %i %i %i %i %s]\n",
 		   (int) arc->X, (int) arc->Y, (int) arc->Width,
 		   (int) arc->Height, (int) arc->Thickness,
 		   (int) arc->Clearance, (int) arc->StartAngle,
-		   (int) arc->Delta, (int) arc->Flags);
+		   (int) arc->Delta, flags_to_string (arc->Flags, ARC_TYPE));
 	}
       for (n = 0; n < layer->TextN; n++)
 	{
@@ -584,13 +585,13 @@ WriteLayerData (FILE * FP, Cardinal Number, LayerTypePtr layer)
 		   (int) text->X, (int) text->Y,
 		   (int) text->Direction, (int) text->Scale);
 	  PrintQuotedString (FP, EMPTY (text->TextString));
-	  fprintf (FP, " 0x%08x]\n", (int) text->Flags);
+	  fprintf (FP, " %s]\n", flags_to_string (text->Flags, TEXT_TYPE));
 	}
       for (n = 0; n < layer->PolygonN; n++)
 	{
 	  PolygonTypePtr polygon = &layer->Polygon[n];
 	  int p, i = 0;
-	  fprintf (FP, "\tPolygon(0x%08x)\n\t(", (int) polygon->Flags);
+	  fprintf (FP, "\tPolygon(%s)\n\t(", flags_to_string (polygon->Flags, POLYGON_TYPE));
 	  for (p = 0; p < polygon->PointN; p++)
 	    {
 	      PointTypePtr point = &polygon->Points[p];

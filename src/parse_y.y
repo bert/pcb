@@ -43,6 +43,7 @@
 #include "misc.h"
 #include "parse_l.h"
 #include "remove.h"
+#include "strflags.h"
 
 #ifdef HAVE_LIBDMALLOC
 # include <dmalloc.h> /* see http://dmalloc.com */
@@ -85,7 +86,7 @@ int yyerror(char *s);
 %token	T_ELEMENTARC T_MARK T_GROUPS T_STYLES T_POLYGON T_NETLIST T_NET T_CONN
 %token	T_THERMAL T_DRC
 
-%type	<number>	symbolid
+%type	<number>	symbolid flags
 
 %%
 
@@ -337,7 +338,6 @@ pcbstyles
 				}
 			}
 		|
-		|
 		;
 
 pcbdata
@@ -375,7 +375,7 @@ via
 
 via_hi_format
 			/* x, y, thickness, clearance, mask, drilling-hole, name, flags */
-		: T_VIA '[' NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER STRING NUMBER ']'
+		: T_VIA '[' NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER STRING flags ']'
 			{
 				CreateNewVia(yyData, $3, $4, $5, $6, $7, $8, $9,
 					($10 & OBJ_FLAGS) | VIAFLAG);
@@ -432,15 +432,15 @@ via_oldformat
 		;
 
 rats
-		: T_RAT '[' NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER ']'
+		: T_RAT '[' NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER flags ']'
 			{
 				CreateNewRat(yyData, $3, $4, $6, $7, $5, $8,
-					Settings.RatThickness, ($9 & OBJ_FLAGS));
+					Settings.RatThickness, ($9 & OBJ_FLAGS) | RATFLAG);
 			}
 		| T_RAT '(' NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER ')'
 			{
 				CreateNewRat(yyData, $3*100, $4*100, $6*100, $7*100, $5, $8,
-					Settings.RatThickness, ($9 & OBJ_FLAGS));
+					Settings.RatThickness, ($9 & OBJ_FLAGS) | RATFLAG);
 			}
 		;
 
@@ -494,7 +494,7 @@ layerdefinition
 		| text_newformat
 		| text_oldformat
 			/* flags are passed in */
-		| T_POLYGON '(' NUMBER ')' '('
+		| T_POLYGON '(' flags ')' '('
 			{
 				Polygon = CreateNewPolygon(Layer, $3 & OBJ_FLAGS);
 			}
@@ -516,7 +516,7 @@ layerdefinition
 
 line_hi_format
 			/* x1, y1, x2, y2, thickness, clearance, flags */
-		: T_LINE '[' NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER ']'
+		: T_LINE '[' NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER flags ']'
 			{
 				CreateNewLineOnLayer(Layer, $3, $4, $5, $6, $7, $8, $9 & OBJ_FLAGS);
 			}
@@ -543,7 +543,7 @@ line_oldformat
 
 arc_hi_format
 			/* x, y, width, height, thickness, clearance, startangle, delta, flags */
-		: T_ARC '[' NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER ']'
+		: T_ARC '[' NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER flags ']'
 			{
 				CreateNewArcOnLayer(Layer, $3, $4, $5, $9, $10, $7, $8, $11 & OBJ_FLAGS);
 			}
@@ -594,7 +594,7 @@ text_newformat
 		;
 text_hi_format
 			/* x, y, direction, scale, text, flags */
-		: T_TEXT '[' NUMBER NUMBER NUMBER NUMBER STRING NUMBER ']'
+		: T_TEXT '[' NUMBER NUMBER NUMBER NUMBER STRING flags ']'
 			{
 				if ($8 & ONSILKFLAG)
 				{
@@ -715,8 +715,8 @@ element_hi_format
 			/* element_flags, description, pcb-name, value, mark_x, mark_y,
 			 * text_x, text_y, text_direction, text_scale, text_flags
 			 */
-		: T_ELEMENT '[' NUMBER STRING STRING STRING NUMBER NUMBER
-			NUMBER NUMBER NUMBER NUMBER NUMBER ']' '('
+		: T_ELEMENT '[' flags STRING STRING STRING NUMBER NUMBER
+			NUMBER NUMBER NUMBER NUMBER flags ']' '('
 			{
 				yyElement = CreateNewElement(yyData, yyElement, yyFont, $3,
 					$4, $5, $6, ($7+$9), ($8+$10), $11, $12, $13, False);
@@ -748,7 +748,7 @@ elementdefinition
 			{
 				CreateNewLineInElement(yyElement, $3, $4, $5, $6, $7);
 			}
-			/* x, y, width, height, startangle, anglediff, thickness */
+			/* x1, y1, x2, y2, thickness */
 		| T_ELEMENTLINE '(' NUMBER NUMBER NUMBER NUMBER NUMBER ')'
 			{
 				CreateNewLineInElement(yyElement, $3*100, $4*100, $5*100, $6*100, $7*100);
@@ -758,6 +758,7 @@ elementdefinition
 			{
 				CreateNewArcInElement(yyElement, $3, $4, $5, $6, $7, $8, $9);
 			}
+			/* x, y, width, height, startangle, anglediff, thickness */
 		| T_ELEMENTARC '(' NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER ')'
 			{
 				CreateNewArcInElement(yyElement, $3*100, $4*100, $5*100, $6*100, $7, $8, $9*100);
@@ -814,7 +815,7 @@ relementdef
 pin_hi_format
 			/* x, y, thickness, clearance, mask, drilling hole, name,
 			   number, flags */
-		: T_PIN '[' NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER STRING STRING NUMBER ']'
+		: T_PIN '[' NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER STRING STRING flags ']'
 			{
 				CreateNewPin(yyElement, $3 + yyElement->MarkX,
 					$4 + yyElement->MarkY, $5, $6, $7, $8, $9,
@@ -886,7 +887,7 @@ pin_oldformat
 
 pad_hi_format
 			/* x1, y1, x2, y2, thickness, clearance, mask, name , pad number, flags */
-		: T_PAD '[' NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER STRING STRING NUMBER ']'
+		: T_PAD '[' NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER STRING STRING flags ']'
 			{
 				CreateNewPad(yyElement, $3 + yyElement->MarkX,
 					$4 + yyElement->MarkY,
@@ -934,6 +935,10 @@ pad
 					($9 & OBJ_FLAGS));
 				SaveFree($8);
 			}
+		;
+
+flags		: NUMBER	{ $$ = $1; }
+		| STRING	{ $$ = string_to_flags ($1, yyerror); }
 		;
 
 symbols
