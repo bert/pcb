@@ -1106,6 +1106,9 @@ DrawVText (int x, int y, int w, int h, int de, char *str)
   char *mem;
   int i, j;
 
+  if (strlen(str) == 0)
+    return;
+
   pm = XCreatePixmap (Dpy, DrawingWindow, w, h, 1);
   gc = XCreateGC (Dpy, pm, 0, 0);
 
