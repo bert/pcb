@@ -286,7 +286,7 @@ ChangePinThermal (ElementTypePtr element, PinTypePtr Pin)
 static void *
 ChangeViaSize (PinTypePtr Via)
 {
-  Dimension value = Absolute ? Absolute : Via->Thickness + Delta;
+  BDimension value = Absolute ? Absolute : Via->Thickness + Delta;
 
   if (TEST_FLAG (LOCKFLAG, Via))
     return (NULL);
@@ -311,7 +311,7 @@ ChangeViaSize (PinTypePtr Via)
 static void *
 ChangeVia2ndSize (PinTypePtr Via)
 {
-  Dimension value = (Absolute) ? Absolute : Via->DrillingHole + Delta;
+  BDimension value = (Absolute) ? Absolute : Via->DrillingHole + Delta;
 
   if (TEST_FLAG (LOCKFLAG, Via))
     return (NULL);
@@ -342,7 +342,7 @@ ChangeVia2ndSize (PinTypePtr Via)
 static void *
 ChangeViaClearSize (PinTypePtr Via)
 {
-  Dimension value = (Absolute) ? Absolute : Via->Clearance + Delta;
+  BDimension value = (Absolute) ? Absolute : Via->Clearance + Delta;
 
   if (TEST_FLAG (LOCKFLAG, Via))
     return (NULL);
@@ -362,7 +362,7 @@ ChangeViaClearSize (PinTypePtr Via)
 static void *
 ChangePinSize (ElementTypePtr Element, PinTypePtr Pin)
 {
-  Dimension value = (Absolute) ? Absolute : Pin->Thickness + Delta;
+  BDimension value = (Absolute) ? Absolute : Pin->Thickness + Delta;
 
   if (TEST_FLAG (LOCKFLAG, Pin))
     return (NULL);
@@ -388,7 +388,7 @@ ChangePinSize (ElementTypePtr Element, PinTypePtr Pin)
 static void *
 ChangePinClearSize (ElementTypePtr Element, PinTypePtr Pin)
 {
-  Dimension value = (Absolute) ? Absolute : Pin->Clearance + Delta;
+  BDimension value = (Absolute) ? Absolute : Pin->Clearance + Delta;
 
   if (TEST_FLAG (LOCKFLAG, Pin))
     return (NULL);
@@ -408,7 +408,7 @@ ChangePinClearSize (ElementTypePtr Element, PinTypePtr Pin)
 static void *
 ChangePadSize (ElementTypePtr Element, PadTypePtr Pad)
 {
-  Dimension value = (Absolute) ? Absolute : Pad->Thickness + Delta;
+  BDimension value = (Absolute) ? Absolute : Pad->Thickness + Delta;
 
   if (TEST_FLAG (LOCKFLAG, Pad))
     return (NULL);
@@ -430,7 +430,7 @@ ChangePadSize (ElementTypePtr Element, PadTypePtr Pad)
 static void *
 ChangePadClearSize (ElementTypePtr Element, PadTypePtr Pad)
 {
-  Dimension value = (Absolute) ? Absolute : Pad->Clearance + Delta;
+  BDimension value = (Absolute) ? Absolute : Pad->Clearance + Delta;
 
   if (TEST_FLAG (LOCKFLAG, Pad))
     return (NULL);
@@ -454,7 +454,7 @@ static void *
 ChangeElement2ndSize (ElementTypePtr Element)
 {
   Boolean changed = False;
-  Dimension value;
+  BDimension value;
 
   if (TEST_FLAG (LOCKFLAG, Element))
     return (NULL);
@@ -494,7 +494,7 @@ ChangeElement2ndSize (ElementTypePtr Element)
 static void *
 ChangePin2ndSize (ElementTypePtr Element, PinTypePtr Pin)
 {
-  Dimension value = (Absolute) ? Absolute : Pin->DrillingHole + Delta;
+  BDimension value = (Absolute) ? Absolute : Pin->DrillingHole + Delta;
 
   if (TEST_FLAG (LOCKFLAG, Pin))
     return (NULL);
@@ -525,7 +525,7 @@ ChangePin2ndSize (ElementTypePtr Element, PinTypePtr Pin)
 static void *
 ChangeLineSize (LayerTypePtr Layer, LineTypePtr Line)
 {
-  Dimension value = (Absolute) ? Absolute : Line->Thickness + Delta;
+  BDimension value = (Absolute) ? Absolute : Line->Thickness + Delta;
 
   if (TEST_FLAG (LOCKFLAG, Line))
     return (NULL);
@@ -548,7 +548,7 @@ ChangeLineSize (LayerTypePtr Layer, LineTypePtr Line)
 static void *
 ChangeLineClearSize (LayerTypePtr Layer, LineTypePtr Line)
 {
-  Dimension value = (Absolute) ? Absolute : Line->Clearance + Delta;
+  BDimension value = (Absolute) ? Absolute : Line->Clearance + Delta;
 
   if (TEST_FLAG (LOCKFLAG, Line))
     return (NULL);
@@ -575,7 +575,7 @@ ChangeLineClearSize (LayerTypePtr Layer, LineTypePtr Line)
 static void *
 ChangeArcSize (LayerTypePtr Layer, ArcTypePtr Arc)
 {
-  Dimension value = (Absolute) ? Absolute : Arc->Thickness + Delta;
+  BDimension value = (Absolute) ? Absolute : Arc->Thickness + Delta;
 
   if (TEST_FLAG (LOCKFLAG, Arc))
     return (NULL);
@@ -598,7 +598,7 @@ ChangeArcSize (LayerTypePtr Layer, ArcTypePtr Arc)
 static void *
 ChangeArcClearSize (LayerTypePtr Layer, ArcTypePtr Arc)
 {
-  Dimension value = (Absolute) ? Absolute : Arc->Clearance + Delta;
+  BDimension value = (Absolute) ? Absolute : Arc->Clearance + Delta;
 
   if (TEST_FLAG (LOCKFLAG, Arc))
     return (NULL);
@@ -625,7 +625,7 @@ ChangeArcClearSize (LayerTypePtr Layer, ArcTypePtr Arc)
 static void *
 ChangeTextSize (LayerTypePtr Layer, TextTypePtr Text)
 {
-  Dimension value = (Absolute) ? Absolute : Text->Scale + Delta;
+  BDimension value = (Absolute) ? Absolute : Text->Scale + Delta;
 
   if (TEST_FLAG (LOCKFLAG, Text))
     return (NULL);
@@ -649,7 +649,7 @@ ChangeTextSize (LayerTypePtr Layer, TextTypePtr Text)
 static void *
 ChangeElementSize (ElementTypePtr Element)
 {
-  Dimension value;
+  BDimension value;
   Boolean changed = False;
 
   if (TEST_FLAG (LOCKFLAG, Element))
@@ -696,7 +696,7 @@ ChangeElementSize (ElementTypePtr Element)
 static void *
 ChangeElementNameSize (ElementTypePtr Element)
 {
-  Dimension value =
+  BDimension value =
     (Absolute) ? Absolute : DESCRIPTION_TEXT (Element).Scale + Delta;
 
   if (TEST_FLAG (LOCKFLAG, &Element->Name[0]))
@@ -853,7 +853,7 @@ ChangeLayoutName (char *Name)
  * returns TRUE if done
  */
 Boolean
-ChangeElementSide (ElementTypePtr Element, Position yoff)
+ChangeElementSide (ElementTypePtr Element, Location yoff)
 {
   if (TEST_FLAG (LOCKFLAG, Element))
     return (False);
@@ -1099,7 +1099,7 @@ ChangeSelectedThermals (int types)
  * returns True if anything has changed
  */
 Boolean
-ChangeSelectedSize (int types, Position Difference, Boolean fixIt)
+ChangeSelectedSize (int types, Location Difference, Boolean fixIt)
 {
   Boolean change = False;
 
@@ -1121,7 +1121,7 @@ ChangeSelectedSize (int types, Position Difference, Boolean fixIt)
  * returns True if anything has changed
  */
 Boolean
-ChangeSelectedClearSize (int types, Position Difference, Boolean fixIt)
+ChangeSelectedClearSize (int types, Location Difference, Boolean fixIt)
 {
   Boolean change = False;
 
@@ -1145,7 +1145,7 @@ ChangeSelectedClearSize (int types, Position Difference, Boolean fixIt)
  * returns True if anything has changed
  */
 Boolean
-ChangeSelected2ndSize (int types, Position Difference, Boolean fixIt)
+ChangeSelected2ndSize (int types, Location Difference, Boolean fixIt)
 {
   Boolean change = False;
 
@@ -1246,7 +1246,7 @@ ChangeSelectedHole (void)
  */
 Boolean
 ChangeObjectSize (int Type, void *Ptr1, void *Ptr2, void *Ptr3,
-		  Position Difference, Boolean fixIt)
+		  Location Difference, Boolean fixIt)
 {
   Boolean change;
 
@@ -1269,7 +1269,7 @@ ChangeObjectSize (int Type, void *Ptr1, void *Ptr2, void *Ptr3,
  */
 Boolean
 ChangeObjectClearSize (int Type, void *Ptr1, void *Ptr2, void *Ptr3,
-		       Position Difference, Boolean fixIt)
+		       Location Difference, Boolean fixIt)
 {
   Boolean change;
 
@@ -1318,7 +1318,7 @@ ChangeObjectThermal (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
  */
 Boolean
 ChangeObject2ndSize (int Type, void *Ptr1, void *Ptr2, void *Ptr3,
-		     Position Difference, Boolean fixIt)
+		     Location Difference, Boolean fixIt)
 {
   Boolean change;
 
@@ -1342,7 +1342,7 @@ ChangeObject2ndSize (int Type, void *Ptr1, void *Ptr2, void *Ptr3,
  */
 Boolean
 ChangeObjectMaskSize (int Type, void *Ptr1, void *Ptr2, void *Ptr3,
-		      Position Difference, Boolean fixIt)
+		      Location Difference, Boolean fixIt)
 {
   Boolean change;
 
@@ -1452,12 +1452,12 @@ QueryInputAndChangeObjectName (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
       break;
 
     case PIN_TYPE:
-      sprintf(msg,"%s Pin Name:", EMPTY (((PinTypePtr) Ptr2)->Number));
+      sprintf (msg, "%s Pin Name:", EMPTY (((PinTypePtr) Ptr2)->Number));
       name = GetUserInput (msg, EMPTY (((PinTypePtr) Ptr2)->Name));
       break;
 
     case PAD_TYPE:
-      sprintf(msg,"%s Pad Name:", EMPTY (((PadTypePtr) Ptr2)->Number));
+      sprintf (msg, "%s Pad Name:", EMPTY (((PadTypePtr) Ptr2)->Number));
       name = GetUserInput (msg, EMPTY (((PadTypePtr) Ptr2)->Name));
       break;
 
@@ -1492,7 +1492,7 @@ QueryInputAndChangeObjectName (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
  * and adjusts the cursor confinement box
  */
 void
-ChangePCBSize (Dimension Width, Dimension Height)
+ChangePCBSize (BDimension Width, BDimension Height)
 {
   PCB->MaxWidth = Width;
   PCB->MaxHeight = Height;
@@ -1512,7 +1512,7 @@ ChangePCBSize (Dimension Width, Dimension Height)
 							     PASTEBUFFER->
 							     Y)));
   else
-    SetCrosshairRange (0, 0, (Position) Width, (Position) Height);
+    SetCrosshairRange (0, 0, (Location) Width, (Location) Height);
   ScaleOutput (Output.Width, Output.Height);
   UpdateAll ();
 }
@@ -1524,7 +1524,7 @@ ChangePCBSize (Dimension Width, Dimension Height)
 static void *
 ChangePadMaskSize (ElementTypePtr Element, PadTypePtr Pad)
 {
-  Dimension value = (Absolute) ? Absolute : Pad->Mask + Delta;
+  BDimension value = (Absolute) ? Absolute : Pad->Mask + Delta;
 
   value = MAX (value, Pad->Thickness);
   if (value != Pad->Mask)
@@ -1545,7 +1545,7 @@ ChangePadMaskSize (ElementTypePtr Element, PadTypePtr Pad)
 static void *
 ChangePinMaskSize (ElementTypePtr Element, PinTypePtr Pin)
 {
-  Dimension value = (Absolute) ? Absolute : Pin->Mask + Delta;
+  BDimension value = (Absolute) ? Absolute : Pin->Mask + Delta;
 
   value = MAX (value, Pin->Thickness);
   if (value != Pin->Mask)
@@ -1566,7 +1566,7 @@ ChangePinMaskSize (ElementTypePtr Element, PinTypePtr Pin)
 static void *
 ChangeViaMaskSize (PinTypePtr Via)
 {
-  Dimension value;
+  BDimension value;
 
   if (Absolute)
     value = Absolute;

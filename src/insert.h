@@ -38,6 +38,6 @@
 /* ---------------------------------------------------------------------------
  * prototypes
  */
-void	*InsertPointIntoObject(int, void *, void *, Cardinal *, Position, Position, Boolean);
+void	*InsertPointIntoObject(int, void *, void *, Cardinal *, Location, Location, Boolean);
 
 #endif

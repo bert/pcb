@@ -114,10 +114,10 @@ Apertures;
 /* Utility routines                                                           */
 /*----------------------------------------------------------------------------*/
 
-#define gerberX(pcb, x) ((long) ((x)*10))
-#define gerberY(pcb, y) ((long) (((pcb)->MaxHeight - (y)))*10)
-#define gerberXOffset(pcb, x) ((long) ((x) *10))
-#define gerberYOffset(pcb, y) ((long) (-(y) *10))
+#define gerberX(pcb, x) ((long) ((x)/10))
+#define gerberY(pcb, y) ((long) (((pcb)->MaxHeight - (y)))/10)
+#define gerberXOffset(pcb, x) ((long) ((x) /10))
+#define gerberYOffset(pcb, y) ((long) (-(y) /10))
 
 
 /* ---------------------------------------------------------------------------
@@ -136,11 +136,11 @@ static void GBX_PrintPad (PadTypePtr, int);
 static void GBX_PrintPinOrVia (PinTypePtr, int);
 static void GBX_PrintElementPackage (ElementTypePtr);
 static void GBX_Drill (PinTypePtr, Cardinal);
-static void GBX_PrintOutline (Position, Position, Position, Position);
-static void GBX_PrintAlignment (Position, Position, Position, Position);
+static void GBX_PrintOutline (Location, Location, Location, Location);
+static void GBX_PrintAlignment (Location, Location, Location, Location);
 static void GBX_GroupID (int);
 static void findTextApertures (TextTypePtr);
-static void GBX_PrintFilledRectangle (Position, Position, Position, Position);
+static void GBX_PrintFilledRectangle (Location, Location, Location, Location);
 static void setAperture (Apertures *, int, int, int, ApertureShape);
 static int findApertureCode (Apertures *, int, int, int, ApertureShape);
 
@@ -273,7 +273,8 @@ findApertureCode (Apertures * apertures, int width, int gap, int finger,
 	  break;
 	case SQUARECLEAR:
 	  sprintf (appMacro, "%%ADD%dR,%.3fX%.3fX%.3fX%.3f*%%\015\012",
-		   ap->dCode, gap / 1000.0, width / 1000.0, width / 1000.0);
+		   ap->dCode, gap / 1000.0, gap / 1000.0, width / 1000.0,
+		   width / 1000.0);
 	  break;
 	}
 
@@ -743,7 +744,7 @@ GBX_PrintPolygon (PolygonTypePtr Ptr)
 {
   Boolean m = False;
   int firstTime = 1;
-  Position startX = 0, startY = 0;
+  Location startX = 0, startY = 0;
 
   /* All polygon fills need to have a defined aperture.  */
   setAperture (&GBX_Apertures, 10, 0, 0, ROUND);
@@ -834,7 +835,7 @@ findTextApertures (TextTypePtr Text)
 static void
 GBX_PrintText (TextTypePtr Text)
 {
-  Position x = 0, width;
+  Location x = 0, width;
   unsigned char *string = (unsigned char *) Text->TextString;
   Cardinal n;
   FontTypePtr font = &PCB->Font;
@@ -894,7 +895,7 @@ GBX_PrintText (TextTypePtr Text)
 	{
 	  /* the default symbol is a filled box */
 	  BoxType defaultsymbol = PCB->Font.DefaultSymbol;
-	  Position size = (defaultsymbol.X2 - defaultsymbol.X1) * 6 / 5;
+	  Location size = (defaultsymbol.X2 - defaultsymbol.X1) * 6 / 5;
 
 	  defaultsymbol.X1 = (defaultsymbol.X1 + x) * Text->Scale / 100;
 	  defaultsymbol.Y1 = defaultsymbol.Y1 * Text->Scale / 100;
@@ -1089,7 +1090,7 @@ GBX_PrintPinOrVia (PinTypePtr Ptr, int mode)
  * this is used by the text routine
  */
 static void
-GBX_PrintFilledRectangle (Position X1, Position Y1, Position X2, Position Y2)
+GBX_PrintFilledRectangle (Location X1, Location Y1, Location X2, Location Y2)
 {
   int j;
   int X, Y;
@@ -1116,7 +1117,7 @@ GBX_PrintFilledRectangle (Position X1, Position Y1, Position X2, Position Y2)
  *  This routine contributed by Andre M Hedrick
  */
 static void
-GBX_PrintOutline (Position X1, Position Y1, Position X2, Position Y2)
+GBX_PrintOutline (Location X1, Location Y1, Location X2, Location Y2)
 {
   int gx1, gy1, gx2, gy2;
 
@@ -1146,7 +1147,7 @@ GBX_PrintOutline (Position X1, Position Y1, Position X2, Position Y2)
  *  This routine contributed by Andre M Hedrick
  */
 static void
-GBX_PrintAlignment (Position X1, Position Y1, Position X2, Position Y2)
+GBX_PrintAlignment (Location X1, Location Y1, Location X2, Location Y2)
 {
   int gx1, gy1, gx2, gy2;
 

@@ -371,7 +371,7 @@ ClearBuffer (BufferTypePtr Buffer)
  * returns True if any objects have been removed
  */
 void
-AddSelectedToBuffer (BufferTypePtr Buffer, Position X, Position Y,
+AddSelectedToBuffer (BufferTypePtr Buffer, Location X, Location Y,
 		     Boolean LeaveSelected)
 {
   /* switch crosshair off because adding objects to the pastebuffer

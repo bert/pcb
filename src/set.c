@@ -69,12 +69,17 @@ SetCursorStatusLine (void)
   char text[64];
 
   if (Marked.status)
-    sprintf (text, "%-i,%-i <%-i,%-i> (%-.2fmm,%-.2fmm)", Crosshair.X,
-	     Crosshair.Y, Crosshair.X - Marked.X, Crosshair.Y - Marked.Y,
-	     MIL_TO_MM * (Crosshair.X - Marked.X),
-	     MIL_TO_MM * (Crosshair.Y - Marked.Y));
+    sprintf (text,
+	     "%-i.%02d, %-i.%02d <%-i.%02d, %-i.%0d> (%-.2fmm, %-.2fmm)",
+	     Crosshair.X / 100, Crosshair.X % 100, Crosshair.Y / 100,
+	     Crosshair.Y % 100, (Crosshair.X - Marked.X) / 100,
+	     (Crosshair.X - Marked.X) % 100, (Crosshair.Y - Marked.Y) / 100,
+	     (Crosshair.Y - Marked.Y) % 100,
+	     COOR_TO_MM * (Crosshair.X - Marked.X),
+	     COOR_TO_MM * (Crosshair.Y - Marked.Y));
   else
-    sprintf (text, "%-i,%-i", Crosshair.X, Crosshair.Y);
+    sprintf (text, "%-i.%02d,%-i.%02d", Crosshair.X / 100, Crosshair.X % 100,
+	     Crosshair.Y / 100, Crosshair.Y % 100);
   SetOutputLabel (Output.CursorPosition, text);
 }
 
@@ -89,39 +94,39 @@ SetStatusLine (void)
 
   if (PCB->Grid == (int) PCB->Grid)
     sprintf (text,
-	     "%c %s, grid=%i:%i,%s%szoom=%-i:%-i, line=%-i, via=%-i(%-i),"
-	     "keepaway=%-i, text=%i%%, buffer=#%-i, name: ",
+	     "%c %s, grid=%i.%02i:%i,%s%sline=%i.%02i, via=%i.%02i(%i.%02i),"
+	     "keepaway=%i.%i, text=%i%%, buffer=#%-i, name: ",
 	     PCB->Changed ? '*' : ' ',
 	     Settings.ShowSolderSide ? "solder" : "component",
-	     (int) PCB->Grid,
+	     (int) PCB->Grid / 100, (int) (PCB->Grid) % 100,
 	     (int) Settings.GridFactor,
 	     TEST_FLAG (ALLDIRECTIONFLAG,
 			PCB) ? "all" : (PCB->Clipping ==
 					0 ? "45" : (PCB->Clipping ==
 						    1 ? "45_/" : "45\\_")),
 	     TEST_FLAG (RUBBERBANDFLAG, PCB) ? ",R, " : ", ",
-	     (int) (TO_SCREEN (1) ? TO_SCREEN (1) : 1),
-	     (int) (TO_PCB (1) ? TO_PCB (1) : 1),
-	     (int) Settings.LineThickness, (int) Settings.ViaThickness,
-	     (int) Settings.ViaDrillingHole, (int) Settings.Keepaway,
-	     (int) Settings.TextScale, Settings.BufferNumber + 1);
+	     Settings.LineThickness / 100, Settings.LineThickness % 100,
+	     Settings.ViaThickness / 100, Settings.ViaThickness % 100,
+	     Settings.ViaDrillingHole / 100, Settings.ViaDrillingHole % 100,
+	     Settings.Keepaway / 100, Settings.Keepaway % 100,
+	     Settings.TextScale, Settings.BufferNumber + 1);
   else
     sprintf (text,
-	     "%c %s, grid=%4.2fmm:%i,%s%szoom=%-i:%-i, line=%-i, via=%-i(%-i),"
-	     "keepaway=%-i, text=%i%%, buffer=#%-i, name: ",
+	     "%c %s, grid=%4.2fmm:%i,%s%sline=%i.%02i, via=%i.%02i(%i.%02i),"
+	     "keepaway=%i.%02i, text=%i%%, buffer=#%-i, name: ",
 	     PCB->Changed ? '*' : ' ',
 	     Settings.ShowSolderSide ? "solder" : "component",
-	     PCB->Grid * MIL_TO_MM, (int) Settings.GridFactor,
+	     PCB->Grid * COOR_TO_MM, (int) Settings.GridFactor,
 	     TEST_FLAG (ALLDIRECTIONFLAG,
 			PCB) ? "all" : (PCB->Clipping ==
 					0 ? "45" : (PCB->Clipping ==
 						    1 ? "45_/" : "45\\_")),
 	     TEST_FLAG (RUBBERBANDFLAG, PCB) ? ",R, " : ", ",
-	     (int) (TO_SCREEN (1) ? TO_SCREEN (1) : 1),
-	     (int) (TO_PCB (1) ? TO_PCB (1) : 1),
-	     (int) Settings.LineThickness, (int) Settings.ViaThickness,
-	     (int) Settings.ViaDrillingHole, (int) Settings.Keepaway,
-	     (int) Settings.TextScale, Settings.BufferNumber + 1);
+	     Settings.LineThickness / 100, Settings.LineThickness % 100,
+	     Settings.ViaThickness / 100, Settings.ViaThickness % 100,
+	     Settings.ViaDrillingHole / 100, Settings.ViaDrillingHole % 100,
+	     Settings.Keepaway / 100, Settings.Keepaway % 100,
+	     Settings.TextScale, Settings.BufferNumber + 1);
 
   /* append the name of the layout */
   length = sizeof (text) - 1 - strlen (text);
@@ -158,7 +163,7 @@ SetGrid (float Grid, Boolean align)
 void
 SetZoom (int Zoom)
 {
-  int localMin, old_x, old_y;
+  int old_x, old_y;
 
   /* special argument of 1000 zooms to extents */
   if (Zoom == 1000)
@@ -166,10 +171,13 @@ SetZoom (int Zoom)
       BoxTypePtr box = GetDataBoundingBox (PCB->Data);
       if (!box)
 	return;
-      Zoom = 1 + log ((float) (box->X2 - box->X1) / Output.Width) / log (2);
+      Zoom =
+	1 + log (0.01 * (float) (box->X2 - box->X1) / Output.Width) / log (2);
       Zoom =
 	MAX (Zoom,
-	     1 + log ((float) (box->Y2 - box->Y1) / Output.Height) / log (2));
+	     1 +
+	     log (0.01 * (float) (box->Y2 - box->Y1) / Output.Height) /
+	     log (2));
       Crosshair.X = (box->X1 + box->X2) / 2;
       Crosshair.Y = (box->Y1 + box->Y2) / 2;
       old_x = Output.Width / 2;
@@ -177,29 +185,28 @@ SetZoom (int Zoom)
     }
   else
     {
-      if (MAX (PCB->MaxWidth, PCB->MaxHeight) > (1 << 14))
-	localMin = MIN_ZOOM;
-      else if (MAX (PCB->MaxWidth, PCB->MaxHeight) > (1 << 13))
-	localMin = MIN_ZOOM - 1;
-      else
-	localMin = MIN_ZOOM - 2;
-      Zoom = MAX (localMin, Zoom);
-      Zoom = MIN (MAX_ZOOM, Zoom);
       old_x = TO_SCREEN_X (Crosshair.X);
       old_y = TO_SCREEN_Y (Crosshair.Y);
     }
+  Zoom = MAX (MIN_ZOOM, Zoom);
+  Zoom = MIN (MAX_ZOOM, Zoom);
 
   /* redraw only if something changed */
-  if (PCB->Zoom != Zoom || old_x != TO_SCREEN_X (Crosshair.X)
-      || old_y != TO_SCREEN_Y (Crosshair.Y))
+  if (PCB->Zoom != Zoom)
     {
       PCB->Zoom = Zoom;
-      ScaleOutput (Output.Width, Output.Height);
-      if (CoalignScreen (old_x, old_y, Crosshair.X, Crosshair.Y))
-	warpNoWhere ();
-
-      UpdateAll ();
+      RedrawZoom (old_x, old_y);
     }
+}
+
+void
+RedrawZoom (Position old_x, Position old_y)
+{
+  ScaleOutput (Output.Width, Output.Height);
+  if (CoalignScreen (old_x, old_y, Crosshair.X, Crosshair.Y))
+    warpNoWhere ();
+
+  UpdateAll ();
   /* always redraw status line (used for init sequence) */
   SetStatusLine ();
 }
@@ -208,7 +215,7 @@ SetZoom (int Zoom)
  * sets a new line thickness
  */
 void
-SetLineSize (Dimension Size)
+SetLineSize (BDimension Size)
 {
   if (Size >= MIN_LINESIZE && Size <= MAX_LINESIZE)
     {
@@ -221,7 +228,7 @@ SetLineSize (Dimension Size)
  * sets a new via thickness
  */
 void
-SetViaSize (Dimension Size, Boolean Force)
+SetViaSize (BDimension Size, Boolean Force)
 {
   if (Force || (Size <= MAX_PINORVIASIZE &&
 		Size >= MIN_PINORVIASIZE &&
@@ -236,7 +243,7 @@ SetViaSize (Dimension Size, Boolean Force)
  * sets a new via drilling hole
  */
 void
-SetViaDrillingHole (Dimension Size, Boolean Force)
+SetViaDrillingHole (BDimension Size, Boolean Force)
 {
   if (Force || (Size <= MAX_PINORVIASIZE &&
 		Size >= MIN_PINORVIAHOLE &&
@@ -251,7 +258,7 @@ SetViaDrillingHole (Dimension Size, Boolean Force)
  * sets a keepaway width
  */
 void
-SetKeepawayWidth (Dimension Width)
+SetKeepawayWidth (BDimension Width)
 {
   if (Width <= MAX_LINESIZE && Width >= MIN_LINESIZE)
     {
@@ -428,7 +435,7 @@ SetRouteStyle (char *name)
 }
 
 void
-SetLocalRef (Position X, Position Y, Boolean Showing)
+SetLocalRef (Location X, Location Y, Boolean Showing)
 {
   static MarkType old;
 

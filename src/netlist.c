@@ -175,8 +175,7 @@ SelectPin (LibraryEntryTypePtr entry, Boolean toggle)
 	    if (toggle)
 	      {
 		TOGGLE_FLAG (SELECTEDFLAG, pin);
-		CenterDisplay (TO_SCREEN_X (pin->X),
-			       TO_SCREEN_Y (pin->Y), False);
+		CenterDisplay (pin->X, pin->Y, False);
 	      }
 	    else
 	      SET_FLAG (SELECTEDFLAG, pin);
@@ -192,8 +191,7 @@ SelectPin (LibraryEntryTypePtr entry, Boolean toggle)
 	    if (toggle)
 	      {
 		TOGGLE_FLAG (SELECTEDFLAG, pad);
-		CenterDisplay (TO_SCREEN_X (pad->Point1.X),
-			       TO_SCREEN_Y (pad->Point1.Y), False);
+		CenterDisplay (pad->Point1.X, pad->Point1.Y, False);
 	      }
 	    else
 	      SET_FLAG (SELECTEDFLAG, pad);
@@ -559,7 +557,7 @@ AddNet (void)
       && Crosshair.AttachedLine.Point1.Y == Crosshair.AttachedLine.Point2.Y)
     return (NULL);
 
-  found = SearchObjectByPosition (PAD_TYPE | PIN_TYPE, &ptr1, &ptr2, &ptr3,
+  found = SearchObjectByLocation (PAD_TYPE | PIN_TYPE, &ptr1, &ptr2, &ptr3,
 				  Crosshair.AttachedLine.Point1.X,
 				  Crosshair.AttachedLine.Point1.Y, 5);
   if (found == NO_TYPE)
@@ -579,7 +577,7 @@ AddNet (void)
 	    GetLayerGroupNumberByNumber (MAX_LAYER + SOLDER_LAYER) :
 	    GetLayerGroupNumberByNumber (MAX_LAYER + COMPONENT_LAYER));
   strcpy (name1, ConnectionName (found, ptr1, ptr2));
-  found = SearchObjectByPosition (PAD_TYPE | PIN_TYPE, &ptr1, &ptr2, &ptr3,
+  found = SearchObjectByLocation (PAD_TYPE | PIN_TYPE, &ptr1, &ptr2, &ptr3,
 				  Crosshair.AttachedLine.Point2.X,
 				  Crosshair.AttachedLine.Point2.Y, 5);
   if (found == NO_TYPE)

@@ -543,7 +543,7 @@ static String Fallback[] = {
  * and elsewhere (Think of the bit flags ...)
  */
 static XtResource ToplevelResources[] = {
-  {"alignmentDistance", "AlignmentDistance", XtRDimension, sizeof (Dimension),
+  {"alignmentDistance", "AlignmentDistance", XtRInt, sizeof (int),
    XtOffsetOf (SettingType, AlignmentDistance), XtRString, "200"}
   ,
   {"allDirectionLines", "AllDirectionLines", XtRBoolean, sizeof (Boolean),
@@ -551,7 +551,7 @@ static XtResource ToplevelResources[] = {
   ,
   {"backupInterval", "BackupInterval", XtRInt, sizeof (long),
    XtOffsetOf (SettingType, BackupInterval), XtRString, "300"},
-  {"bloat", "Bloat", XtRDimension, sizeof (Dimension),
+  {"bloat", "Bloat", XtRInt, sizeof (int),
    XtOffsetOf (SettingType, Bloat), XtRString, "7"}
   ,
   {"charactersPerLine", "CharactersPerLine", XtRInt, sizeof (int),
@@ -607,8 +607,8 @@ static XtResource ToplevelResources[] = {
    XtOffsetOf (SettingType, InvisibleMarkColor),
    XtRString, XtDefaultForeground}
   ,
-  {"keepawayWidth", XtCThickness, XtRDimension, sizeof (Dimension),
-   XtOffsetOf (SettingType, Keepaway), XtRString, "10"}
+  {"keepawayWidth", XtCThickness, XtRInt, sizeof (int),
+   XtOffsetOf (SettingType, Keepaway), XtRString, "1000"}
   ,
   {"layerColor1", XtCColor, XtRPixel, sizeof (Pixel),
    XtOffsetOf (SettingType, LayerColor[0]), XtRString, XtDefaultForeground}
@@ -712,7 +712,7 @@ static XtResource ToplevelResources[] = {
   {"libraryTree", "LibraryTree", XtRString, sizeof (String),
    XtOffsetOf (SettingType, LibraryTree), XtRString, PCBTREEDIR}
   ,
-  {"lineThickness", XtCThickness, XtRDimension, sizeof (Dimension),
+  {"lineThickness", XtCThickness, XtRInt, sizeof (int),
    XtOffsetOf (SettingType, LineThickness), XtRString, "10"}
   ,
   {"media", "Media", XtRString, sizeof (String),
@@ -780,7 +780,7 @@ static XtResource ToplevelResources[] = {
   {"ratPath", "RatPath", XtRString, sizeof (String),
    XtOffsetOf (SettingType, RatPath), XtRString, "."}
   ,
-  {"ratThickness", XtCThickness, XtRDimension, sizeof (Dimension),
+  {"ratThickness", XtCThickness, XtRInt, sizeof (int),
    XtOffsetOf (SettingType, RatThickness), XtRString, "5"}
   ,
   {"resetAfterElement", "ResetAfterElement", XtRBoolean, sizeof (Boolean),
@@ -806,7 +806,7 @@ static XtResource ToplevelResources[] = {
   {"saveLastCommand", "SaveLastCommand", XtRBoolean, sizeof (Boolean),
    XtOffsetOf (SettingType, SaveLastCommand), XtRString, "False"}
   ,
-  {"shrink", "Shrink", XtRDimension, sizeof (Dimension),
+  {"shrink", "Shrink", XtRInt, sizeof (int),
    XtOffsetOf (SettingType, Shrink), XtRString, "5"}
   ,
   {"size", "Size", XtRString, sizeof (String),
@@ -844,10 +844,10 @@ static XtResource ToplevelResources[] = {
   /* a default value of '0' will cause InitShell() to
    * calculate the value from the 'viaThickness' resource
    */
-  {"viaDrillingHole", "DrillingHole", XtRDimension, sizeof (Dimension),
+  {"viaDrillingHole", "DrillingHole", XtRInt, sizeof (int),
    XtOffsetOf (SettingType, ViaDrillingHole), XtRString, "20"}
   ,
-  {"viaThickness", XtCThickness, XtRDimension, sizeof (Dimension),
+  {"viaThickness", XtCThickness, XtRInt, sizeof (int),
    XtOffsetOf (SettingType, ViaThickness), XtRString, "40"}
   ,
   {"volume", "Volume", XtRInt, sizeof (int),
@@ -1016,11 +1016,13 @@ InitShell (int *Argc, char **Argv)
       /* failed; use default setting */
       XParseGeometry (DEFAULT_SIZE, &x, &y, &width, &height);
     }
-  Settings.MaxWidth = MIN (MAX_COORD, MAX ((Dimension) width, MIN_SIZE));
-  Settings.MaxHeight = MIN (MAX_COORD, MAX ((Dimension) height, MIN_SIZE));
+  Settings.MaxWidth =
+    MIN (MAX_COORD, MAX ((BDimension) width * 100, MIN_SIZE));
+  Settings.MaxHeight =
+    MIN (MAX_COORD, MAX ((BDimension) height * 100, MIN_SIZE));
   Settings.Volume = MIN (100, MAX (-100, Settings.Volume));
   ParseGroupString (Settings.Groups, &Settings.LayerGroups);
-  ParseRouteString (Settings.Routes, &Settings.RouteStyle[0]);
+  ParseRouteString (Settings.Routes, &Settings.RouteStyle[0], 1);
   InitGui ();
 }
 

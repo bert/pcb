@@ -41,7 +41,7 @@
 #define	MIRROR_TYPES	(TEXT_TYPE | ELEMENTNAME_TYPE)
 
 
-void	MirrorElementCoordinates(ElementTypePtr, Position);
+void	MirrorElementCoordinates(ElementTypePtr, Location);
 
 #endif
 

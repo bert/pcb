@@ -48,12 +48,12 @@ void	MoveObjectToRemoveUndoList(int, void *, void *, void *);
 void	AddObjectToRemovePointUndoList(int, void *, void *, Cardinal);
 void	AddObjectToInsertPointUndoList(int, void *, void *, void *);
 void	AddObjectToMoveUndoList(int, void *, void *, void *,
-			Position, Position);
+			Location, Location);
 void	AddObjectToChangeNameUndoList(int, void *,void *, void *, char *);
 void	AddObjectToRotateUndoList(int, void *, void *,void *,
-			Position, Position, BYTE);
+			Location, Location, BYTE);
 void	AddObjectToCreateUndoList(int, void *, void *,void *);
-void	AddObjectToMirrorUndoList(int, void *, void *,void *, Position);
+void	AddObjectToMirrorUndoList(int, void *, void *,void *, Location);
 void	AddObjectToMoveToLayerUndoList(int, void *, void *, void *);
 void	AddObjectToFlagUndoList(int, void *, void *, void *);
 void	AddObjectToSizeUndoList(int, void *, void *, void *);

@@ -66,29 +66,29 @@
 
 Boolean	ChangeLayoutName(char *);
 Boolean	ChangeLayerName(LayerTypePtr, char *);
-Boolean	ChangeSelectedSize(int, Position, Boolean);
-Boolean	ChangeSelectedClearSize(int, Position, Boolean);
-Boolean	ChangeSelected2ndSize(int, Position, Boolean);
-Boolean	ChangeSelectedMaskSize(int, Position, Boolean);
+Boolean	ChangeSelectedSize(int, Location, Boolean);
+Boolean	ChangeSelectedClearSize(int, Location, Boolean);
+Boolean	ChangeSelected2ndSize(int, Location, Boolean);
+Boolean	ChangeSelectedMaskSize(int, Location, Boolean);
 Boolean	ChangeSelectedJoin(int); 
 Boolean	ChangeSelectedSquare(int); 
 Boolean	ChangeSelectedThermals(int); 
 Boolean ChangeSelectedHole(void);
 Boolean ChangeSelectedOctagon(int);
 Boolean ChangeSelectedElementSide(void);
-Boolean ChangeElementSide(ElementTypePtr, Position);
+Boolean ChangeElementSide(ElementTypePtr, Location);
 Boolean ChangeHole(PinTypePtr);
-Boolean	ChangeObjectSize(int, void *, void *, void *, Position, Boolean);
+Boolean	ChangeObjectSize(int, void *, void *, void *, Location, Boolean);
 Boolean	ChangeObjectThermal(int, void *, void *, void *);
-Boolean	ChangeObjectClearSize(int, void *, void *, void *, Position, Boolean);
-Boolean	ChangeObject2ndSize(int, void *, void *, void *, Position, Boolean);
-Boolean	ChangeObjectMaskSize(int, void *, void *, void *, Position, Boolean);
+Boolean	ChangeObjectClearSize(int, void *, void *, void *, Location, Boolean);
+Boolean	ChangeObject2ndSize(int, void *, void *, void *, Location, Boolean);
+Boolean	ChangeObjectMaskSize(int, void *, void *, void *, Location, Boolean);
 Boolean	ChangeObjectJoin(int, void *, void *, void *);
 Boolean	ChangeObjectSquare(int, void *, void *, void *);
 Boolean	ChangeObjectOctagon(int, void *, void *, void *);
 void	*ChangeObjectName(int, void *, void *, void *, char *);
 void	*QueryInputAndChangeObjectName(int, void *, void *, void *);
-void	ChangePCBSize(Dimension, Dimension);
+void	ChangePCBSize(BDimension, BDimension);
 
 #endif
 

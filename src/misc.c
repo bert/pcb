@@ -75,8 +75,8 @@ static char *rcsid = "$Id$";
 /*	forward declarations	*/
 static char *BumpName (char *);
 static void RightAngles (int, float *, float *);
-static void GetGridLockCoordinates (int, void *, void *, void *, Position *,
-				    Position *);
+static void GetGridLockCoordinates (int, void *, void *, void *, Location *,
+				    Location *);
 
 /* ---------------------------------------------------------------------------
  * prints copyright information
@@ -164,13 +164,40 @@ Usage (void)
   exit (1);
 }
 
+float
+GetValue (String * Params, Boolean * r, Cardinal Num)
+{
+  float value;
+  /* if the first character is a sign we have to add the
+   * value to the current one
+   */
+  if (**Params == '=')
+    {
+      *r = 0;
+      value = atof (*Params);
+    }
+  else
+    {
+      *r = !isdigit (**Params);
+      value = atof (*Params);
+    }
+  if (Num == 3)
+    {
+      if (strncmp (*(Params + 1), "mm", 2) == 0)
+	value *= MM_TO_COOR;
+      else if (strncmp (*(Params + 1), "mil", 3) == 0)
+	value *= 100;
+    }
+  return value;
+}
+
 /* ---------------------------------------------------------------------------
  * sets the bounding box of a polygons
  */
 void
 SetPolygonBoundingBox (PolygonTypePtr Polygon)
 {
-  Position minx, miny, maxx, maxy;
+  Location minx, miny, maxx, maxy;
 
   minx = miny = MAX_COORD;
   maxx = maxy = 0;
@@ -194,7 +221,7 @@ SetPolygonBoundingBox (PolygonTypePtr Polygon)
 void
 SetElementBoundingBox (ElementTypePtr Element, FontTypePtr Font)
 {
-  Position minx, miny, maxx, maxy;
+  Location minx, miny, maxx, maxy;
   float fminx, fminy, fmaxx, fmaxy;
   int angle1, angle2, angle;
 
@@ -334,14 +361,14 @@ SetTextBoundingBox (FontTypePtr FontPtr, TextTypePtr Text)
 {
   SymbolTypePtr symbol = FontPtr->Symbol;
   unsigned char *s = (unsigned char *) Text->TextString;
-  Position width = 0, height = 0;
+  Location width = 0, height = 0;
 
   /* calculate size of the bounding box */
   for (; s && *s; s++)
     if (*s <= MAX_FONTPOSITION && symbol[*s].Valid)
       {
 	width += symbol[*s].Width + symbol[*s].Delta;
-	height = MAX (height, (Position) symbol[*s].Height);
+	height = MAX (height, (Location) symbol[*s].Height);
       }
     else
       {
@@ -472,25 +499,30 @@ GetDataBoundingBox (DataTypePtr Data)
 }
 
 /* ---------------------------------------------------------------------------
- * centers the displayed PCB around the specified point
- * (X,Y) in screen coordinates.
- * if Delta is true, simply move the center by X, Y
+ * centers the displayed PCB around the specified point (X,Y)
+ * if Delta is false, X,Y are in absolute PCB coordinates
+ * if Delta is true, simply move the center by an amount X, Y in screen
+ * coordinates
  */
 void
-CenterDisplay (Position X, Position Y, Boolean Delta)
+CenterDisplay (Location X, Location Y, Boolean Delta)
 {
+  Location x, y;
+
 #ifdef DEBUGDISP
   Message ("CenterDisplay(%d, %d, %s)\n", X, Y, Delta ? "True" : "False");
 #endif
-  X -= Xorig;
-  Y -= Yorig;
-  /* move origin half a screen width/height to get display centered */
   if (!Delta)
-    X -= Output.Width / 2;
-
-  if (!Delta)
-    Y -= Output.Height / 2;
-  Pan (-X, -Y, True, True);
+    {
+      x = X - TO_PCB (Output.Width / 2);
+      y = Y - TO_PCB (Output.Height / 2);
+    }
+  else
+    {
+      x = TO_PCB_X (X);
+      y = TO_PCB_Y (Y);
+    }
+  Pan (x, y, True, True);
 }
 
 /* ---------------------------------------------------------------------------
@@ -504,7 +536,7 @@ SetFontInfo (FontTypePtr Ptr)
   Cardinal i, j;
   SymbolTypePtr symbol;
   LineTypePtr line;
-  Position totalminy = MAX_COORD;
+  Location totalminy = MAX_COORD;
 
   /* calculate cell with and height (is at least DEFAULT_CELLSIZE)
    * maximum cell width and height
@@ -514,7 +546,7 @@ SetFontInfo (FontTypePtr Ptr)
   Ptr->MaxHeight = DEFAULT_CELLSIZE;
   for (i = 0, symbol = Ptr->Symbol; i <= MAX_FONTPOSITION; i++, symbol++)
     {
-      Position minx, miny, maxx, maxy;
+      Location minx, miny, maxx, maxy;
 
       /* next one if the index isn't used or symbol is empty (SPACE) */
       if (!symbol->Valid || !symbol->LineN)
@@ -564,7 +596,7 @@ SetFontInfo (FontTypePtr Ptr)
 }
 
 static void
-GetNum (char **s, Dimension * num)
+GetNum (char **s, BDimension * num)
 {
   *num = atoi (*s);
   while (isdigit (**s))
@@ -578,7 +610,7 @@ GetNum (char **s, Dimension * num)
  * e.g. Signal,20,40,20,10:Power,40,60,28,10:...
  */
 int
-ParseRouteString (char *s, RouteStyleTypePtr routeStyle)
+ParseRouteString (char *s, RouteStyleTypePtr routeStyle, int scale)
 {
   int i, style;
   char Name[256];
@@ -595,6 +627,7 @@ ParseRouteString (char *s, RouteStyleTypePtr routeStyle)
       if (!isdigit (*++s))
 	goto error;
       GetNum (&s, &routeStyle->Thick);
+      routeStyle->Thick *= scale;
       while (*s && isspace (*s))
 	s++;
       if (*s++ != ',')
@@ -604,6 +637,7 @@ ParseRouteString (char *s, RouteStyleTypePtr routeStyle)
       if (!isdigit (*s))
 	goto error;
       GetNum (&s, &routeStyle->Diameter);
+      routeStyle->Diameter *= scale;
       while (*s && isspace (*s))
 	s++;
       if (*s++ != ',')
@@ -613,10 +647,11 @@ ParseRouteString (char *s, RouteStyleTypePtr routeStyle)
       if (!isdigit (*s))
 	goto error;
       GetNum (&s, &routeStyle->Hole);
+      routeStyle->Hole *= scale;
       /* for backwards-compatibilty, we use a 10-mil default
        * for styles which omit the keepaway specification. */
       if (*s != ',')
-	routeStyle->Keepaway = 10;
+	routeStyle->Keepaway = 1000;
       else
 	{
 	  s++;
@@ -625,6 +660,7 @@ ParseRouteString (char *s, RouteStyleTypePtr routeStyle)
 	  if (!isdigit (*s))
 	    goto error;
 	  GetNum (&s, &routeStyle->Keepaway);
+	  routeStyle->Keepaway *= scale;
 	  while (*s && isspace (*s))
 	    s++;
 	}
@@ -997,7 +1033,7 @@ void
 SetArcBoundingBox (ArcTypePtr Arc)
 {
   BoxTypePtr box;
-  register Position temp, width;
+  register Location temp, width;
 
   box = GetArcEnds (Arc);
   temp = box->X1;
@@ -1182,7 +1218,7 @@ UniqueElementName (DataTypePtr Data, char *Name)
 
 static void
 GetGridLockCoordinates (int type, void *ptr1,
-			void *ptr2, void *ptr3, Position * x, Position * y)
+			void *ptr2, void *ptr3, Location * x, Location * y)
 {
   switch (type)
     {
@@ -1226,10 +1262,10 @@ GetGridLockCoordinates (int type, void *ptr1,
 }
 
 void
-AttachForCopy (Position PlaceX, Position PlaceY)
+AttachForCopy (Location PlaceX, Location PlaceY)
 {
   BoxTypePtr box;
-  Position mx, my;
+  Location mx, my;
 
   Crosshair.AttachedObject.RubberbandN = 0;
   /* dither the grab point so that the mark, center, etc

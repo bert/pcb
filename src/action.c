@@ -381,7 +381,7 @@ FinishStroke (void)
 	case 987412:
 	case 8741236:
 	case 874123:
-	  if ((type = SearchObjectByPosition (ROTATE_TYPES,
+	  if ((type = SearchObjectByLocation (ROTATE_TYPES,
 					      &ptr1, &ptr2, &ptr3,
 					      StrokeBox.X1, StrokeBox.Y1,
 					      SLOP)) != NO_TYPE)
@@ -400,7 +400,7 @@ FinishStroke (void)
 	case 786321:
 	case 789632:
 	case 896321:
-	  if ((type = SearchObjectByPosition (ROTATE_TYPES,
+	  if ((type = SearchObjectByLocation (ROTATE_TYPES,
 					      &ptr1, &ptr2, &ptr3,
 					      StrokeBox.X1, StrokeBox.Y1,
 					      SLOP)) != NO_TYPE)
@@ -456,8 +456,8 @@ FinishStroke (void)
 	case 12589:
 	case 14589:
 	  {
-	    Position x = (StrokeBox.X1 + StrokeBox.X2) / 2;
-	    Position y = (StrokeBox.Y1 + StrokeBox.Y2) / 2;
+	    Location x = (StrokeBox.X1 + StrokeBox.X2) / 2;
+	    Location y = (StrokeBox.Y1 + StrokeBox.Y2) / 2;
 	    int z;
 	    z =
 	      1 +
@@ -470,8 +470,6 @@ FinishStroke (void)
 		   log (2.0));
 	    SetZoom (z);
 
-	    x = TO_SCREEN_X (x);
-	    y = TO_SCREEN_Y (y);
 	    CenterDisplay (x, y, False);
 	    break;
 	  }
@@ -694,7 +692,7 @@ AdjustAttachedLine (void)
 static void
 ClipLine (AttachedLineTypePtr Line)
 {
-  Position dx, dy, min;
+  Location dx, dy, min;
   BYTE direction = 0;
   float m;
 
@@ -769,7 +767,7 @@ ClipLine (AttachedLineTypePtr Line)
 static void
 AdjustTwoLine (int way)
 {
-  Position dx, dy;
+  Location dx, dy;
   AttachedLineTypePtr line = &Crosshair.AttachedLine;
 
   if (Crosshair.AttachedLine.State == STATE_FIRST)
@@ -830,7 +828,7 @@ static void
 AdjustInsertPoint (void)
 {
   float m;
-  Position x, y, dx, dy, m1, m2;
+  Location x, y, dx, dy, m1, m2;
   LineTypePtr line = (LineTypePtr) Crosshair.AttachedObject.Ptr2;
 
   if (Crosshair.AttachedObject.State == STATE_FIRST)
@@ -1341,7 +1339,7 @@ NotifyMode (void)
 	         isn't a pin already here */
 	      if (PCB->ViaOn && GetLayerGroupNumberByPointer (CURRENT) !=
 		  GetLayerGroupNumberByPointer (lastLayer) &&
-		  SearchObjectByPosition (PIN_TYPES, &ptr1, &ptr2, &ptr3,
+		  SearchObjectByLocation (PIN_TYPES, &ptr1, &ptr2, &ptr3,
 					  Crosshair.AttachedLine.Point1.X,
 					  Crosshair.AttachedLine.Point1.Y,
 					  Settings.ViaThickness / 2) ==
@@ -1867,15 +1865,15 @@ ActionToggleThermal (Widget W, XEvent * Event, String * Params,
 void
 ActionMovePointer (Widget W, XEvent * Event, String * Params, Cardinal * Num)
 {
-  Position x, y, dx, dy;
+  Location x, y, dx, dy;
 
   if (*Num == 2)
     {
       /* save old crosshair position */
       x = Crosshair.X;
       y = Crosshair.Y;
-      dx = (Position) (atoi (*Params) * PCB->Grid);
-      dy = (Position) (atoi (*(Params + 1)) * PCB->Grid);
+      dx = (Location) (atoi (*Params) * PCB->Grid);
+      dy = (Location) (atoi (*(Params + 1)) * PCB->Grid);
       MoveCrosshairRelative (TO_SCREEN_SIGN_X (dx), TO_SCREEN_SIGN_Y (dy));
       /* adjust pointer before erasing anything */
       /* in case there is no hardware cursor */
@@ -1924,7 +1922,7 @@ EventMoveCrosshair (XMotionEvent * Event)
 	{
 	  if (Settings.Mode == NO_MODE && Event->state & Button1Mask)
 	    {
-	      Position x, y;
+	      Location x, y;
 	      HideCrosshair (False);
 	      x = TO_SCREEN_X (Crosshair.X) - Event->x;
 	      y = TO_SCREEN_Y (Crosshair.Y) - Event->y;
@@ -1960,23 +1958,10 @@ ActionSetValue (Widget W, XEvent * Event, String * Params, Cardinal * Num)
   Boolean r;			/* flag for 'relative' value */
   float value;
 
-  if (*Num == 2)
+  if (*Num == 2 || *Num == 3)
     {
       HideCrosshair (True);
-
-      /* if the first character is a sign we have to add the
-       * value to the current one
-       */
-      if (**(Params + 1) == '=')
-	{
-	  r = 0;
-	  value = atof (*(Params + 1) + 1);
-	}
-      else
-	{
-	  r = !isdigit (**(Params + 1));
-	  value = atof (*(Params + 1));
-	}
+      value = GetValue (Params + 1, &r, *Num);
       switch (GetFunctionID (*Params))
 	{
 	case F_ViaDrillingHole:
@@ -2002,13 +1987,16 @@ ActionSetValue (Widget W, XEvent * Event, String * Params, Cardinal * Num)
 	  break;
 
 	case F_LineSize:
+	case F_Line:
 	  SetLineSize (r ? value + Settings.LineThickness : value);
 	  break;
 
+	case F_Via:
 	case F_ViaSize:
 	  SetViaSize (r ? value + Settings.ViaThickness : value, False);
 	  break;
 
+	case F_Text:
 	case F_TextScale:
 	  SetTextScale (r ? value + Settings.TextScale : value);
 	  break;
@@ -2202,8 +2190,7 @@ ActionDisplay (Widget W, XEvent * Event, String * Params, Cardinal * Num)
 
 	  /* center cursor and move X pointer too */
 	case F_Center:
-	  CenterDisplay (TO_SCREEN_X (Crosshair.X),
-			 TO_SCREEN_Y (Crosshair.Y), False);
+	  CenterDisplay (Crosshair.X, Crosshair.Y, False);
 	  warpNoWhere ();
 	  break;
 
@@ -2811,9 +2798,11 @@ void
 ActionChangeSize (Widget W, XEvent * Event, String * Params, Cardinal * Num)
 {
   Boolean r;			/* indicates if absolute size is given */
-  if (*Num == 2)
+  float value;
+
+  if (*Num == 2 || *Num == 3)
     {
-      r = isdigit (**(Params + 1));
+      value = GetValue (Params + 1, &r, *Num);
       HideCrosshair (True);
       switch (GetFunctionID (*Params))
 	{
@@ -2834,43 +2823,43 @@ ActionChangeSize (Widget W, XEvent * Event, String * Params, Cardinal * Num)
 	  }
 
 	case F_SelectedVias:
-	  if (ChangeSelectedSize (VIA_TYPE, atoi (*(Params + 1)), r))
+	  if (ChangeSelectedSize (VIA_TYPE, value, r))
 	    SetChangedFlag (True);
 	  break;
 
 	case F_SelectedPins:
-	  if (ChangeSelectedSize (PIN_TYPE, atoi (*(Params + 1)), r))
+	  if (ChangeSelectedSize (PIN_TYPE, value, r))
 	    SetChangedFlag (True);
 	  break;
 
 	case F_SelectedPads:
-	  if (ChangeSelectedSize (PAD_TYPE, atoi (*(Params + 1)), r))
+	  if (ChangeSelectedSize (PAD_TYPE, value, r))
 	    SetChangedFlag (True);
 	  break;
 
 	case F_SelectedLines:
-	  if (ChangeSelectedSize (LINE_TYPE, atoi (*(Params + 1)), r))
+	  if (ChangeSelectedSize (LINE_TYPE, value, r))
 	    SetChangedFlag (True);
 	  break;
 
 	case F_SelectedTexts:
-	  if (ChangeSelectedSize (TEXT_TYPE, atoi (*(Params + 1)), r))
+	  if (ChangeSelectedSize (TEXT_TYPE, value, r))
 	    SetChangedFlag (True);
 	  break;
 
 	case F_SelectedNames:
-	  if (ChangeSelectedSize (ELEMENTNAME_TYPE, atoi (*(Params + 1)), r))
+	  if (ChangeSelectedSize (ELEMENTNAME_TYPE, value, r))
 	    SetChangedFlag (True);
 	  break;
 
 	case F_SelectedElements:
-	  if (ChangeSelectedSize (ELEMENT_TYPE, atoi (*(Params + 1)), r))
+	  if (ChangeSelectedSize (ELEMENT_TYPE, value, r))
 	    SetChangedFlag (True);
 	  break;
 
 	case F_Selected:
 	case F_SelectedObjects:
-	  if (ChangeSelectedSize (CHANGESIZE_TYPES, atoi (*(Params + 1)), r))
+	  if (ChangeSelectedSize (CHANGESIZE_TYPES, value, r))
 	    SetChangedFlag (True);
 	  break;
 	}
@@ -2888,10 +2877,11 @@ ActionChange2ndSize (Widget W, XEvent * Event,
 		     String * Params, Cardinal * Num)
 {
   Boolean r;
+  float value;
 
-  if (*Num == 2)
+  if (*Num == 2 || *Num == 3)
     {
-      r = isdigit (**(Params + 1));
+      value = GetValue (Params + 1, &r, *Num);
       HideCrosshair (True);
       switch (GetFunctionID (*Params))
 	{
@@ -2903,24 +2893,23 @@ ActionChange2ndSize (Widget W, XEvent * Event,
 	    if ((type =
 		 SearchScreen (Crosshair.X, Crosshair.Y, CHANGE2NDSIZE_TYPES,
 			       &ptr1, &ptr2, &ptr3)) != NO_TYPE)
-	      if (ChangeObject2ndSize
-		  (type, ptr1, ptr2, ptr3, atoi (*(Params + 1)), r))
+	      if (ChangeObject2ndSize (type, ptr1, ptr2, ptr3, value, r))
 		SetChangedFlag (True);
 	    break;
 	  }
 
 	case F_SelectedVias:
-	  if (ChangeSelected2ndSize (VIA_TYPE, atoi (*(Params + 1)), r))
+	  if (ChangeSelected2ndSize (VIA_TYPE, value, r))
 	    SetChangedFlag (True);
 	  break;
 
 	case F_SelectedPins:
-	  if (ChangeSelected2ndSize (PIN_TYPE, atoi (*(Params + 1)), r))
+	  if (ChangeSelected2ndSize (PIN_TYPE, value, r))
 	    SetChangedFlag (True);
 	  break;
 	case F_Selected:
 	case F_SelectedObjects:
-	  if (ChangeSelected2ndSize (PIN_TYPES, atoi (*(Params + 1)), r))
+	  if (ChangeSelected2ndSize (PIN_TYPES, value, r))
 	    SetChangedFlag (True);
 	  break;
 	}
@@ -2940,10 +2929,11 @@ ActionChangeClearSize (Widget W, XEvent * Event,
 		       String * Params, Cardinal * Num)
 {
   Boolean r;
+  float value;
 
-  if (*Num == 2)
+  if (*Num == 2 || *Num == 3)
     {
-      r = isdigit (**(Params + 1));
+      value = GetValue (Params + 1, &r, *Num);
       HideCrosshair (True);
       switch (GetFunctionID (*Params))
 	{
@@ -2956,35 +2946,33 @@ ActionChangeClearSize (Widget W, XEvent * Event,
 		 SearchScreen (Crosshair.X, Crosshair.Y,
 			       CHANGECLEARSIZE_TYPES, &ptr1, &ptr2,
 			       &ptr3)) != NO_TYPE)
-	      if (ChangeObjectClearSize
-		  (type, ptr1, ptr2, ptr3, atoi (*(Params + 1)), r))
+	      if (ChangeObjectClearSize (type, ptr1, ptr2, ptr3, value, r))
 		SetChangedFlag (True);
 	    break;
 	  }
 	case F_SelectedVias:
-	  if (ChangeSelectedClearSize (VIA_TYPE, atoi (*(Params + 1)), r))
+	  if (ChangeSelectedClearSize (VIA_TYPE, value, r))
 	    SetChangedFlag (True);
 	  break;
 	case F_SelectedPads:
-	  if (ChangeSelectedClearSize (PAD_TYPE, atoi (*(Params + 1)), r))
+	  if (ChangeSelectedClearSize (PAD_TYPE, value, r))
 	    SetChangedFlag (True);
 	  break;
 	case F_SelectedPins:
-	  if (ChangeSelectedClearSize (PIN_TYPE, atoi (*(Params + 1)), r))
+	  if (ChangeSelectedClearSize (PIN_TYPE, value, r))
 	    SetChangedFlag (True);
 	  break;
 	case F_SelectedLines:
-	  if (ChangeSelectedClearSize (LINE_TYPE, atoi (*(Params + 1)), r))
+	  if (ChangeSelectedClearSize (LINE_TYPE, value, r))
 	    SetChangedFlag (True);
 	  break;
 	case F_SelectedArcs:
-	  if (ChangeSelectedClearSize (ARC_TYPE, atoi (*(Params + 1)), r))
+	  if (ChangeSelectedClearSize (ARC_TYPE, value, r))
 	    SetChangedFlag (True);
 	  break;
 	case F_Selected:
 	case F_SelectedObjects:
-	  if (ChangeSelectedClearSize (CHANGECLEARSIZE_TYPES,
-				       atoi (*(Params + 1)), r))
+	  if (ChangeSelectedClearSize (CHANGECLEARSIZE_TYPES, value, r))
 	    SetChangedFlag (True);
 	  break;
 	}
@@ -3714,7 +3702,7 @@ ActionNew (Widget W, XEvent * Event, String * Params, Cardinal * Num)
 void
 ActionSwapSides (Widget W, XEvent * Event, String * Params, Cardinal * Num)
 {
-  Position x, y;
+  Location x, y;
 
   x = TO_SCREEN_X (Crosshair.X);
   y = TO_SCREEN_Y (Crosshair.Y);
@@ -3874,7 +3862,7 @@ ActionUndo (Widget W, XEvent * Event, String * Params, Cardinal * Num)
 	      void *ptr1, *ptr3;
 	      LineTypePtr ptr2;
 	      /* this search is guranteed to succeed */
-	      SearchObjectByPosition (LINE_TYPE, &ptr1, (void **) &ptr2,
+	      SearchObjectByLocation (LINE_TYPE, &ptr1, (void **) &ptr2,
 				      &ptr3, Crosshair.AttachedLine.Point1.X,
 				      Crosshair.AttachedLine.Point1.Y, 0);
 	      /* save both ends of line */
@@ -3902,7 +3890,7 @@ ActionUndo (Widget W, XEvent * Event, String * Params, Cardinal * Num)
 	      if (type & UNDO_REMOVE)
 		{
 		  /* this search should find the restored line */
-		  SearchObjectByPosition (LINE_TYPE, &ptr1, (void **) &ptr2,
+		  SearchObjectByLocation (LINE_TYPE, &ptr1, (void **) &ptr2,
 					  &ptr3,
 					  Crosshair.AttachedLine.Point2.X,
 					  Crosshair.AttachedLine.Point2.Y, 0);
@@ -3920,7 +3908,7 @@ ActionUndo (Widget W, XEvent * Event, String * Params, Cardinal * Num)
 	      else
 		{
 		  /* this search is guranteed to succeed too */
-		  SearchObjectByPosition (LINE_TYPE, &ptr1, (void **) &ptr2,
+		  SearchObjectByLocation (LINE_TYPE, &ptr1, (void **) &ptr2,
 					  &ptr3,
 					  Crosshair.AttachedLine.Point1.X,
 					  Crosshair.AttachedLine.Point1.Y, 0);
@@ -3943,7 +3931,7 @@ ActionUndo (Widget W, XEvent * Event, String * Params, Cardinal * Num)
 	      void *ptr1, *ptr2, *ptr3;
 	      BoxTypePtr bx;
 	      /* guranteed to succeed */
-	      SearchObjectByPosition (ARC_TYPE, &ptr1, &ptr2, &ptr3,
+	      SearchObjectByLocation (ARC_TYPE, &ptr1, &ptr2, &ptr3,
 				      Crosshair.AttachedBox.Point1.X,
 				      Crosshair.AttachedBox.Point1.Y, 0);
 	      bx = GetArcEnds ((ArcTypePtr) ptr2);
@@ -4181,15 +4169,38 @@ ActionSetSame (Widget W, XEvent * Event, String * Params, Cardinal * Num)
 {
   void *ptr1, *ptr2, *ptr3;
   int type;
+  LayerTypePtr layer = CURRENT;
 
   type =
-    SearchScreen (Crosshair.X, Crosshair.Y, LINE_TYPE | ARC_TYPE, &ptr1,
-		  &ptr2, &ptr3);
+    SearchScreen (Crosshair.X, Crosshair.Y, CLONE_TYPES, &ptr1, &ptr2, &ptr3);
+/* set layer current and size from line or arc */
   switch (type)
     {
     case LINE_TYPE:
-/* set layer current and size from line or arc */
-/* hace this needs work */
-      ;
+      Settings.LineThickness = ((LineTypePtr) ptr2)->Thickness;
+      Settings.Keepaway = ((LineTypePtr) ptr2)->Clearance;
+      layer = (LayerTypePtr) ptr1;
+      break;
+    case ARC_TYPE:
+      Settings.LineThickness = ((ArcTypePtr) ptr2)->Thickness;
+      Settings.Keepaway = ((ArcTypePtr) ptr2)->Clearance;
+      layer = (LayerTypePtr) ptr1;
+      break;
+    case POLYGON_TYPE:
+      layer = (LayerTypePtr) ptr1;
+      break;
+    case VIA_TYPE:
+      Settings.ViaThickness = ((PinTypePtr) ptr2)->Thickness;
+      Settings.ViaDrillingHole = ((PinTypePtr) ptr2)->DrillingHole;
+      break;
+    default:
+      return;
     }
+  if (layer != CURRENT)
+    {
+      ChangeGroupVisibility (GetLayerNumber (PCB->Data, layer), True, True);
+      UpdateControlPanel ();
+      ClearAndRedrawOutput ();
+    }
+  SetStatusLine ();
 }

@@ -63,13 +63,16 @@ Region UpRegion;		/* the region of updated drawing */
 Region FullRegion;		/* the full screen clip region */
 Boolean Bumped = False;		/* whether the undo serial number has changed */
 Window LogWindID;
-Position Xorig, Yorig;		/* origin offset for drawing directly in pixmap */
+Location Xorig, Yorig;		/* origin offset for drawing directly in pixmap */
 Boolean render;			/* wether or not to re-render the pixmap */
 Pixmap *Stipples, XC_clock_source, XC_clock_mask;
 Pixmap XC_hand_source, XC_hand_mask;
 Pixmap XC_lock_source, XC_lock_mask;
 int addedLines;
-Position vxl, vxh, vyl, vyh;	/* approximate visible pcb coordinates */
+Location vxl, vxh, vyl, vyh;	/* approximate visible pcb coordinates */
+
+float Zoom_divisor[13] =
+  { 1.5625, 3.125, 6.25, 12.5, 25, 50, 100, 200, 400, 800, 1600, 3200, 6400 };
 
 /* ---------------------------------------------------------------------------
  * set all keys which generate a new line not 'no operation'.

@@ -34,7 +34,7 @@
 #include "global.h"
 
 Cardinal	GetLowestDistancePolygonPoint(PolygonTypePtr,
-					Position, Position);
+					Location, Location);
 Boolean		RemoveExcessPolygonPoints(LayerTypePtr, PolygonTypePtr);
 void			GoToPreviousPoint(void);
 void			ClosePolygon(void);

@@ -112,7 +112,7 @@ CtrlPressed (void)
  * cursor key events are handled
  */
 Boolean
-GetPosition (char *MessageText)
+GetLocation (char *MessageText)
 {
   XEvent event;
   XAnyEvent *any = (XAnyEvent *) & event;

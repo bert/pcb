@@ -49,7 +49,7 @@ Boolean LineArcIntersect(LineTypePtr, ArcTypePtr);
 Boolean	IsPolygonInPolygon(PolygonTypePtr, PolygonTypePtr);
 void	LookupElementConnections(ElementTypePtr, FILE *);
 void	LookupConnectionsToAllElements(FILE *);
-void	LookupConnection(Position, Position, Boolean, Dimension);
+void	LookupConnection(Location, Location, Boolean, BDimension);
 void	LookupUnusedPins(FILE *);
 void	ResetFoundLinesAndPolygons(Boolean);
 void	ResetFoundPinsViasAndPads(Boolean);

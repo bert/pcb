@@ -1082,7 +1082,7 @@ Print (char *Command, float Scale,
        Boolean OutlineFlag, Boolean AlignmentFlag,
        Boolean DrillHelperFlag, Boolean DOSFlag,
        PrintDeviceTypePtr PrintDevice, MediaTypePtr Media,
-       Position OffsetX, Position OffsetY, Boolean SilkscreenTextFlag)
+       Location OffsetX, Location OffsetY, Boolean SilkscreenTextFlag)
 {
   /* it's not OK to override all files -> user interaction
    * is required if a file exists

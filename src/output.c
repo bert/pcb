@@ -31,7 +31,7 @@
 #include "config.h"
 #endif
 
-#define VERY_SMALL 10
+#define VERY_SMALL 20
 #include "global.h"
 
 #include "action.h"
@@ -108,8 +108,8 @@ GetSizeOfDrawingArea (void)
 void
 ScaleOutput (Dimension width, Dimension height)
 {
-  Position xmore, ymore;
-  Position maxw = TO_SCREEN (PCB->MaxWidth),
+  Location xmore, ymore;
+  Location maxw = TO_SCREEN (PCB->MaxWidth),
     maxh = TO_SCREEN (PCB->MaxHeight);
 
 #ifdef DEBUGDISP
@@ -187,26 +187,29 @@ CB_ScrollY (XtPointer unused, XtIntervalId * time)
  * Returns True if that is not possible, False otherwise.
  */
 Boolean
-CoalignScreen (Position xs, Position ys, Position xp, Position yp)
+CoalignScreen (Position xs, Position ys, Location xp, Location yp)
 {
-  Position x, y;
+  Location x, y;
 
-  x = Xorig + xs - TO_SCREEN_X (xp);
-  y = Yorig + ys - TO_SCREEN_Y (yp);
+#ifdef DEBUGDISP
+  Message ("CoalignScreen(%d %d %d %d)\n", xs, ys, xp, yp);
+#endif
+  x = xp - TO_PCB (xs);
+  y = yp - TO_PCB (ys);
   return Pan (x, y, False, True);
 }
 
 
-/* Pan shifts the origin of the output window to X,Y if possible
- * if X,Y is out of range, it goes as far as possible and returns
- * True.  Otherwise it goest to X,Y and returns false.
+/* Pan shifts the origin of the output window to PCB coordinates X,Y if
+ * possible. if X,Y is out of range, it goes as far as possible and
+ * returns True. Otherwise it goest to X,Y and returns false.
  * If Scroll is True and there is no offscreen pixmap, the display
  * is scrolled and only the newly visible part gets updated.
  * If Update is True, an update event is generated so the display
  * is redrawn.
  */
 Boolean
-Pan (Position X, Position Y, Boolean Scroll, Boolean Update)
+Pan (Location X, Location Y, Boolean Scroll, Boolean Update)
 {
   Boolean clip = False;
   static Position x, y;
@@ -218,25 +221,25 @@ Pan (Position X, Position Y, Boolean Scroll, Boolean Update)
   Message ("Pan(%d, %d, %s, %s)\n", X, Y, Scroll ? "True" : "False",
 	   Update ? "True" : "False");
 #endif
-  if (X > 0)
+  if (X < 0)
     {
       clip = True;
       X = 0;
     }
-  else if (X < Output.Width - Output.cw)
+  else if (X > PCB->MaxWidth - TO_PCB (Output.Width))
     {
       clip = True;
-      X = Output.Width - Output.cw;
+      X = MAX (0, PCB->MaxWidth - TO_PCB (Output.Width));
     }
-  if (Y > 0)
+  if (Y < 0)
     {
       clip = True;
       Y = 0;
     }
-  else if (Y < Output.Height - Output.ch)
+  else if (Y > PCB->MaxHeight - TO_PCB (Output.Height))
     {
       clip = True;
-      Y = Output.Height - Output.ch;
+      Y = MAX (0, PCB->MaxHeight - TO_PCB (Output.Height));
     }
 
 #ifdef DEBUGDISP
@@ -246,13 +249,10 @@ Pan (Position X, Position Y, Boolean Scroll, Boolean Update)
   Yorig = Y;
   render = True;
   /* calculate the visbile bounds in pcb coordinates */
-  vxl = TO_PCB_X (0) - MAX_PINORVIASIZE;
-  vxh = TO_PCB_X (Output.Width) + MAX_PINORVIASIZE;
-  vyl =
-    MAX (0, MIN (TO_PCB_Y (0), TO_PCB_Y (Output.Height))) - MAX_PINORVIASIZE;
-  vyh =
-    MIN (PCB->MaxHeight,
-	 MAX (TO_PCB_Y (0), TO_PCB_Y (Output.Height))) + MAX_PINORVIASIZE;
+  vxl = TO_PCB_X (0);
+  vxh = TO_PCB_X (Output.Width);
+  vyl = MAX (0, MIN (TO_PCB_Y (0), TO_PCB_Y (Output.Height)));
+  vyh = MIN (PCB->MaxHeight, MAX (TO_PCB_Y (0), TO_PCB_Y (Output.Height)));
 
   /* ignore the no - change case 
    * BUG: if zoom or viewed side
@@ -268,26 +268,28 @@ Pan (Position X, Position Y, Boolean Scroll, Boolean Update)
     {
       XCopyArea (Dpy, Output.OutputWindow, Output.OutputWindow,
 		 Output.bgGC, 0, 0, Output.Width,
-		 Output.Height, Xorig - x, Yorig - y);
+		 Output.Height, TO_SCREEN (Xorig - x), TO_SCREEN (Yorig - y));
       /* do same for Offmask ? */
       if (VALID_PIXMAP (Offmask))
 	XCopyArea (Dpy, Offmask, Offmask, Output.pmGC, 0, 0,
-		   Output.Width, Output.Height, Xorig - x, Yorig - y);
+		   Output.Width, Output.Height, TO_SCREEN (Xorig - x),
+		   TO_SCREEN (Yorig - y));
       if (y != Yorig)
 	{
 	  rect.x = 0;
-	  rect.y = (Yorig - y > 0) ? 0 : Output.Height + Yorig - y;
+	  rect.y =
+	    (Yorig - y > 0) ? 0 : Output.Height + TO_SCREEN (Yorig - y);
 	  rect.width = Output.Width;
-	  rect.height = abs (y - Yorig);
+	  rect.height = abs (TO_SCREEN (y - Yorig));
 	  XUnionRectWithRegion (&rect, myRegion, myRegion);
 	  XFillRectangle (Dpy, Output.OutputWindow, Output.bgGC,
 			  rect.x, rect.y, rect.width, rect.height);
 	}
       if (x != Xorig)
 	{
-	  rect.x = (Xorig - x > 0) ? 0 : Output.Width + Xorig - x;
+	  rect.x = (Xorig - x > 0) ? 0 : Output.Width + TO_SCREEN (Xorig - x);
 	  rect.y = 0;
-	  rect.width = abs (x - Xorig);
+	  rect.width = abs (TO_SCREEN (x - Xorig));
 	  rect.height = Output.Height;
 	  XUnionRectWithRegion (&rect, myRegion, myRegion);
 	  XFillRectangle (Dpy, Output.OutputWindow, Output.bgGC,
@@ -306,8 +308,8 @@ Pan (Position X, Position Y, Boolean Scroll, Boolean Update)
 
   if (Update)
     {
-      XtVaSetValues (Output.panner, XtNsliderX, -Xorig,
-		     XtNsliderY, -Yorig, NULL);
+      XtVaSetValues (Output.panner, XtNsliderX, TO_SCREEN (Xorig),
+		     XtNsliderY, TO_SCREEN (Yorig), NULL);
       DrawClipped (myRegion);
     }
   x = Xorig;
@@ -561,7 +563,7 @@ CB_Panner (Widget W, XtPointer ClientData, XtPointer CallData)
 #ifdef DEBUGDISP
   Message ("CB_Panner()\n");
 #endif
-  Pan (-report->slider_x, -report->slider_y, True, True);
+  Pan (TO_PCB (report->slider_x), TO_PCB (report->slider_y), True, True);
 }
 
 void

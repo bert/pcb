@@ -42,7 +42,7 @@
 typedef enum { NORTH=0, EAST=1, SOUTH=2, WEST=3 } direction_t;
 
 /* rotates box 90-degrees cw */
-#define ROTATEBOX_CW(box) { Position t;\
+#define ROTATEBOX_CW(box) { Location t;\
     t = (box).X1; (box).X1 = - (box).Y1; (box).Y1 = t;\
     t = (box).X2; (box).X2 = - (box).Y2; (box).Y2 = t;\
     t = (box).X1; (box).X1 =   (box).X2; (box).X2 = t;\
@@ -77,7 +77,7 @@ typedef enum { NORTH=0, EAST=1, SOUTH=2, WEST=3 } direction_t;
 /* this means that top-left corner is in box, *but bottom-right corner is
  * not*.  */
 static __inline__
-Boolean point_in_box(const BoxType *box, Position X, Position Y) {
+Boolean point_in_box(const BoxType *box, Location X, Location Y) {
   return (X>=box->X1) && (Y>=box->Y1) && (X<box->X2) && (Y<box->Y2);
 }
 
@@ -125,14 +125,14 @@ BoxType clip_box(const BoxType *box, const BoxType *clipbox) {
 }
 
 static __inline__
-BoxType shrink_box(const BoxType *box, Position amount) {
+BoxType shrink_box(const BoxType *box, Location amount) {
   BoxType r = *box;
   r.X1 += amount; r.Y1 += amount; r.X2 -= amount; r.Y2 -= amount;
   return r;
 }
 
 static __inline__
-BoxType bloat_box(const BoxType *box, Position amount) {
+BoxType bloat_box(const BoxType *box, Location amount) {
   return shrink_box(box, -amount);
 }
 

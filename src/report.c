@@ -143,21 +143,21 @@ ReportDialog (void)
 	if (TEST_FLAG (HOLEFLAG, via))
 	  sprintf (&report[0], "VIA ID# %d  Flags:0x%08x\n"
 		   "(X,Y) = (%d, %d)\n"
-		   "It is a pure hole of diameter %d mils\n"
+		   "It is a pure hole of diameter %0.2f mils\n"
 		   "Name = \"%s\""
 		   "%s", via->ID, via->Flags, via->X,
-		   via->Y, via->DrillingHole, EMPTY (via->Name),
+		   via->Y, via->DrillingHole / 100.0, EMPTY (via->Name),
 		   TEST_FLAG (LOCKFLAG, via) ? "It is LOCKED\n" : "");
 	else
 	  sprintf (&report[0], "VIA ID# %d   Flags:0x%08x\n"
 		   "(X,Y) = (%d, %d)\n"
-		   "Copper width = %d mils  Drill width = %d mils\n"
-		   "Clearance width in polygons = %d mils\n"
-		   "Solder mask hole = %d mils\n"
+		   "Copper width = %0.2f mils  Drill width = %0.2f mils\n"
+		   "Clearance width in polygons = %0.2f mils\n"
+		   "Solder mask hole = %0.2f mils\n"
 		   "Name = \"%s\""
 		   "%s", via->ID, via->Flags, via->X,
-		   via->Y, via->Thickness, via->DrillingHole,
-		   via->Clearance, via->Mask,
+		   via->Y, via->Thickness / 100., via->DrillingHole / 100.,
+		   via->Clearance / 100., via->Mask / 100.,
 		   EMPTY (via->Name), TEST_FLAG (LOCKFLAG, via) ?
 		   "It is LOCKED\n" : "");
 	break;
@@ -176,23 +176,23 @@ ReportDialog (void)
 	if (TEST_FLAG (HOLEFLAG, Pin))
 	  sprintf (&report[0], "PIN ID# %d  Flags:0x%08x\n"
 		   "(X,Y) = (%d, %d)\n"
-		   "It is a mounting hole, Drill width = %d mils\n"
+		   "It is a mounting hole, Drill width = %0.2f mils\n"
 		   "It is owned by element %s\n"
 		   "%s", Pin->ID, Pin->Flags,
-		   Pin->X, Pin->Y, Pin->DrillingHole,
+		   Pin->X, Pin->Y, Pin->DrillingHole / 100.,
 		   EMPTY (element->Name[1].TextString),
 		   TEST_FLAG (LOCKFLAG, Pin) ? "It is LOCKED\n" : "");
 	else
 	  sprintf (&report[0],
 		   "PIN ID# %d   Flags:0x%08x\n" "(X,Y) = (%d, %d)\n"
-		   "Copper width = %d mils  Drill width = %d mils\n"
-		   "Clearance width to Polygon = %d mils\n"
-		   "Solder mask hole = %d mils\n" "Name = \"%s\"\n"
+		   "Copper width = %0.2f mils  Drill width = %0.2f mils\n"
+		   "Clearance width to Polygon = %0.2f mils\n"
+		   "Solder mask hole = %0.2f mils\n" "Name = \"%s\"\n"
 		   "It is owned by element %s\n" "As pin number %s\n"
 		   "%s",
-		   Pin->ID, Pin->Flags, Pin->X, Pin->Y, Pin->Thickness,
-		   Pin->DrillingHole, Pin->Clearance,
-		   Pin->Mask, EMPTY (Pin->Name),
+		   Pin->ID, Pin->Flags, Pin->X, Pin->Y, Pin->Thickness / 100.,
+		   Pin->DrillingHole / 100., Pin->Clearance / 100.,
+		   Pin->Mask / 100., EMPTY (Pin->Name),
 		   EMPTY (element->Name[1].TextString), EMPTY (Pin->Number),
 		   TEST_FLAG (LOCKFLAG, Pin) ? "It is LOCKED\n" : "");
 	break;
@@ -203,17 +203,19 @@ ReportDialog (void)
 	sprintf (&report[0], "LINE ID# %d   Flags:0x%08x\n"
 		 "FirstPoint(X,Y) = (%d, %d)  ID = %d\n"
 		 "SecondPoint(X,Y) = (%d, %d)  ID = %d\n"
-		 "Width = %d mils. Clearance width in polygons = %d mils.\n"
+		 "Width = %0.2f mils. Clearance width in polygons = %0.2f mils.\n"
 		 "It is on layer %d\n"
 		 "and has name %s\n"
 		 "%s",
 		 line->ID, line->Flags,
 		 line->Point1.X, line->Point1.Y,
 		 line->Point1.ID, line->Point2.X, line->Point2.Y,
-		 line->Point2.ID, line->Thickness, line->Clearance,
-		 GetLayerNumber (PCB->Data, (LayerTypePtr) ptr1),
-		 UNKNOWN (line->Number), TEST_FLAG (LOCKFLAG, line) ?
-		 "It is LOCKED\n" : "");
+		 line->Point2.ID, line->Thickness / 100.,
+		 line->Clearance / 100., GetLayerNumber (PCB->Data,
+							 (LayerTypePtr) ptr1),
+		 UNKNOWN (line->Number), TEST_FLAG (LOCKFLAG,
+						    line) ? "It is LOCKED\n" :
+		 "");
 	break;
       }
     case RATLINE_TYPE:
@@ -238,16 +240,17 @@ ReportDialog (void)
 
 	sprintf (&report[0], "ARC ID# %d   Flags:0x%08x\n"
 		 "CenterPoint(X,Y) = (%d, %d)\n"
-		 "Radius = %d mils, Thickness = %d mils\n"
-		 "Clearance width in polygons = %d mils\n"
+		 "Radius = %0.2f mils, Thickness = %0.2f mils\n"
+		 "Clearance width in polygons = %0.2f mils\n"
 		 "StartAngle = %d degrees, DeltaAngle = %d degrees\n"
 		 "That makes the end points at (%d,%d) and (%d,%d)\n"
 		 "It is on layer %d\n"
 		 "%s", Arc->ID, Arc->Flags,
-		 Arc->X, Arc->Y, Arc->Width, Arc->Thickness, Arc->Clearance,
-		 Arc->StartAngle, Arc->Delta, box->X1, box->Y1,
-		 box->X2, box->Y2, GetLayerNumber (PCB->Data,
-						   (LayerTypePtr) ptr1),
+		 Arc->X, Arc->Y, Arc->Width / 100., Arc->Thickness / 100.,
+		 Arc->Clearance / 100., Arc->StartAngle, Arc->Delta, box->X1,
+		 box->Y1, box->X2, box->Y2, GetLayerNumber (PCB->Data,
+							    (LayerTypePtr)
+							    ptr1),
 		 TEST_FLAG (LOCKFLAG, Arc) ? "It is LOCKED\n" : "");
 	break;
       }
@@ -282,8 +285,8 @@ ReportDialog (void)
 	sprintf (&report[0], "PAD ID# %d   Flags:0x%08x\n"
 		 "FirstPoint(X,Y) = (%d, %d)  ID = %d\n"
 		 "SecondPoint(X,Y) = (%d, %d)  ID = %d\n"
-		 "Width = %d mils. Clearance width in polygons = %d mils.\n"
-		 "Solder mask width = %d mils\n"
+		 "Width = %0.2f mils. Clearance width in polygons = %0.2f mils.\n"
+		 "Solder mask width = %0.2f mils\n"
 		 "Name = \"%s\"\n"
 		 "It is owned by SMD element %s\n"
 		 "As pin number %s and is on the %s\n"
@@ -291,8 +294,8 @@ ReportDialog (void)
 		 "%s", Pad->ID,
 		 Pad->Flags, Pad->Point1.X,
 		 Pad->Point1.Y, Pad->Point1.ID, Pad->Point2.X, Pad->Point2.Y,
-		 Pad->Point2.ID, Pad->Thickness, Pad->Clearance, Pad->Mask,
-		 EMPTY (Pad->Name),
+		 Pad->Point2.ID, Pad->Thickness / 100., Pad->Clearance / 100.,
+		 Pad->Mask / 100., EMPTY (Pad->Name),
 		 EMPTY (element->Name[1].TextString), EMPTY (Pad->Number),
 		 TEST_FLAG (ONSOLDERFLAG,
 			    Pad) ? "solder (bottom)" : "component",
@@ -330,13 +333,13 @@ ReportDialog (void)
 		   GetLayerNumber (PCB->Data, (LayerTypePtr) ptr1));
 	sprintf (&report[0], "TEXT ID# %d   Flags:0x%08x\n"
 		 "Located at (X,Y) = (%d,%d)\n"
-		 "Characters are %d mils tall\n"
+		 "Characters are %0.2f mils tall\n"
 		 "Value is \"%s\"\n"
 		 "Direction is %d\n"
 		 "The bounding box is (%d,%d) (%d, %d)\n"
 		 "It %s\n"
 		 "%s", text->ID, text->Flags,
-		 text->X, text->Y, text->Scale,
+		 text->X, text->Y, text->Scale / 100.,
 		 text->TextString, text->Direction,
 		 text->BoundingBox.X1, text->BoundingBox.Y1,
 		 text->BoundingBox.X2, text->BoundingBox.Y2,

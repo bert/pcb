@@ -64,7 +64,7 @@ static int ID = 1;		/* current object ID; incremented after */
  * some local prototypes
  */
 static void AddTextToElement (TextTypePtr, FontTypePtr,
-			      Position, Position, BYTE, char *, int, int);
+			      Location, Location, BYTE, char *, int, int);
 
 /* ---------------------------------------------------------------------------
  * creates a new paste buffer
@@ -163,9 +163,9 @@ CreateNewPCB (Boolean SetDefaultNames)
  */
 PinTypePtr
 CreateNewVia (DataTypePtr Data,
-	      Position X, Position Y,
-	      Dimension Thickness, Dimension Clearance, Dimension Mask,
-	      Dimension DrillingHole, char *Name, int Flags)
+	      Location X, Location Y,
+	      BDimension Thickness, BDimension Clearance, BDimension Mask,
+	      BDimension DrillingHole, char *Name, int Flags)
 {
   PinTypePtr Via;
 
@@ -201,9 +201,9 @@ CreateNewVia (DataTypePtr Data,
  */
 LineTypePtr
 CreateDrawnLineOnLayer (LayerTypePtr Layer,
-			Position X1, Position Y1,
-			Position X2, Position Y2,
-			Dimension Thickness, Dimension Clearance, int Flags)
+			Location X1, Location Y1,
+			Location X2, Location Y2,
+			BDimension Thickness, BDimension Clearance, int Flags)
 {
   LineTypePtr project = NULL;
   LineType test;
@@ -294,9 +294,9 @@ CreateDrawnLineOnLayer (LayerTypePtr Layer,
 
 LineTypePtr
 CreateNewLineOnLayer (LayerTypePtr Layer,
-		      Position X1, Position Y1,
-		      Position X2, Position Y2,
-		      Dimension Thickness, Dimension Clearance, int Flags)
+		      Location X1, Location Y1,
+		      Location X2, Location Y2,
+		      BDimension Thickness, BDimension Clearance, int Flags)
 {
   LineTypePtr Line;
 
@@ -320,9 +320,9 @@ CreateNewLineOnLayer (LayerTypePtr Layer,
  * creates a new rat-line
  */
 RatTypePtr
-CreateNewRat (DataTypePtr Data, Position X1, Position Y1,
-	      Position X2, Position Y2, Cardinal group1,
-	      Cardinal group2, Dimension Thickness, int Flags)
+CreateNewRat (DataTypePtr Data, Location X1, Location Y1,
+	      Location X2, Location Y2, Cardinal group1,
+	      Cardinal group2, BDimension Thickness, int Flags)
 {
   RatTypePtr Line = GetRatMemory (Data);
 
@@ -348,10 +348,10 @@ CreateNewRat (DataTypePtr Data, Position X1, Position Y1,
  */
 ArcTypePtr
 CreateNewArcOnLayer (LayerTypePtr Layer,
-		     Position X1, Position Y1,
-		     Dimension width, int sa,
-		     int dir, Dimension Thickness,
-		     Dimension Clearance, int Flags)
+		     Location X1, Location Y1,
+		     BDimension width, int sa,
+		     int dir, BDimension Thickness,
+		     BDimension Clearance, int Flags)
 {
   ArcTypePtr Arc;
 
@@ -386,8 +386,8 @@ CreateNewArcOnLayer (LayerTypePtr Layer,
  */
 PolygonTypePtr
 CreateNewPolygonFromRectangle (LayerTypePtr Layer,
-			       Position X1, Position Y1,
-			       Position X2, Position Y2, int Flags)
+			       Location X1, Location Y1,
+			       Location X2, Location Y2, int Flags)
 {
   PolygonTypePtr polygon = CreateNewPolygon (Layer, Flags);
   if (!polygon)
@@ -406,7 +406,7 @@ CreateNewPolygonFromRectangle (LayerTypePtr Layer,
  */
 TextTypePtr
 CreateNewText (LayerTypePtr Layer, FontTypePtr PCBFont,
-	       Position X, Position Y,
+	       Location X, Location Y,
 	       BYTE Direction, int Scale, char *TextString, int Flags)
 {
   TextTypePtr text = GetTextMemory (Layer);
@@ -447,7 +447,7 @@ CreateNewPolygon (LayerTypePtr Layer, int Flags)
  * creates a new point in a polygon
  */
 PointTypePtr
-CreateNewPointInPolygon (PolygonTypePtr Polygon, Position X, Position Y)
+CreateNewPointInPolygon (PolygonTypePtr Polygon, Location X, Location Y)
 {
   PointTypePtr point = GetPointMemoryInPolygon (Polygon);
 
@@ -467,7 +467,7 @@ CreateNewElement (DataTypePtr Data, ElementTypePtr Element,
 		  FontTypePtr PCBFont,
 		  int Flags,
 		  char *Description, char *NameOnPCB, char *Value,
-		  Position TextX, Position TextY, BYTE Direction,
+		  Location TextX, Location TextY, BYTE Direction,
 		  int TextScale, int TextFlags, Boolean uniqueName)
 {
   if (!Element)
@@ -492,9 +492,9 @@ CreateNewElement (DataTypePtr Data, ElementTypePtr Element,
  */
 ArcTypePtr
 CreateNewArcInElement (ElementTypePtr Element,
-		       Position X, Position Y,
-		       Dimension Width, Dimension Height,
-		       int Angle, int Delta, Dimension Thickness)
+		       Location X, Location Y,
+		       BDimension Width, BDimension Height,
+		       int Angle, int Delta, BDimension Thickness)
 {
   ArcTypePtr arc = Element->Arc;
 
@@ -537,8 +537,8 @@ CreateNewArcInElement (ElementTypePtr Element,
  */
 LineTypePtr
 CreateNewLineInElement (ElementTypePtr Element,
-			Position X1, Position Y1,
-			Position X2, Position Y2, Dimension Thickness)
+			Location X1, Location Y1,
+			Location X2, Location Y2, BDimension Thickness)
 {
   LineTypePtr line = Element->Line;
 
@@ -570,9 +570,9 @@ CreateNewLineInElement (ElementTypePtr Element,
  */
 PinTypePtr
 CreateNewPin (ElementTypePtr Element,
-	      Position X, Position Y,
-	      Dimension Thickness, Dimension Clearance, Dimension Mask,
-	      Dimension DrillingHole, char *Name, char *Number, int Flags)
+	      Location X, Location Y,
+	      BDimension Thickness, BDimension Clearance, BDimension Mask,
+	      BDimension DrillingHole, char *Name, char *Number, int Flags)
 {
   PinTypePtr pin = GetPinMemory (Element);
 
@@ -595,8 +595,8 @@ CreateNewPin (ElementTypePtr Element,
  */
 PadTypePtr
 CreateNewPad (ElementTypePtr Element,
-	      Position X1, Position Y1, Position X2, Position Y2,
-	      Dimension Thickness, Dimension Clearance, Dimension Mask,
+	      Location X1, Location Y1, Location X2, Location Y2,
+	      BDimension Thickness, BDimension Clearance, BDimension Mask,
 	      char *Name, char *Number, int Flags)
 {
   PadTypePtr pad = GetPadMemory (Element);
@@ -622,7 +622,7 @@ CreateNewPad (ElementTypePtr Element,
  */
 static void
 AddTextToElement (TextTypePtr Text, FontTypePtr PCBFont,
-		  Position X, Position Y,
+		  Location X, Location Y,
 		  BYTE Direction, char *TextString, int Scale, int Flags)
 {
   MyFree (&Text->TextString);
@@ -644,8 +644,8 @@ AddTextToElement (TextTypePtr Text, FontTypePtr PCBFont,
  */
 LineTypePtr
 CreateNewLineInSymbol (SymbolTypePtr Symbol,
-		       Position X1, Position Y1,
-		       Position X2, Position Y2, Dimension Thickness)
+		       Location X1, Location Y1,
+		       Location X2, Location Y2, BDimension Thickness)
 {
   LineTypePtr line = Symbol->Line;
 

@@ -51,7 +51,9 @@
 #include "config.h"
 #endif
 
-#include <assert.h>
+/* #include <assert.h>
+*/
+#define assert(x) 
 #include <stdlib.h>
 #include <setjmp.h>
 
@@ -252,7 +254,7 @@ typedef struct routedata
   AugmentedRouteStyleType augStyles[NUM_STYLES + 1];
   /* what is the maximum bloat (keepaway+line half-width or
    * keepaway+via_radius) for any style we've seen? */
-  Dimension max_bloat;
+  BDimension max_bloat;
 }
 routedata_t;
 
@@ -454,7 +456,7 @@ RemoveFromNet (routebox_t * a, enum boxlist which)
 
 static void
 init_const_box (routebox_t * rb,
-		Position X1, Position Y1, Position X2, Position Y2)
+		Location X1, Location Y1, Location X2, Location Y2)
 {
   BoxType *bp = (BoxType *) & rb->box;	/* note discarding const! */
   assert (!rb->flags.inited);
@@ -529,7 +531,7 @@ static void
 AddPad (PointerListType layergroupboxes[],
 	ElementTypePtr element, PadTypePtr pad)
 {
-  Dimension halfthick;
+  BDimension halfthick;
   routebox_t **rbpp;
   int layer = TEST_FLAG (ONSOLDERFLAG, element) ?
     (MAX_LAYER + SOLDER_LAYER) : (MAX_LAYER + COMPONENT_LAYER);
@@ -601,8 +603,8 @@ AddLine (PointerListType layergroupboxes[], int layer, LineTypePtr line)
 }
 static routebox_t *
 AddIrregularObstacle (PointerListType layergroupboxes[],
-		      Position X1, Position Y1,
-		      Position X2, Position Y2, Cardinal layer, void *parent)
+		      Location X1, Location Y1,
+		      Location X2, Location Y2, Cardinal layer, void *parent)
 {
   routebox_t **rbpp;
   int layergroup;
@@ -675,7 +677,7 @@ __found_one (const BoxType * box, void *cl)
     return 0;
 }
 static routebox_t *
-FindRouteBox (routedata_t * rd, Position X, Position Y, void *matches)
+FindRouteBox (routedata_t * rd, Location X, Location Y, void *matches)
 {
   struct find_closure fc;
   BoxType region;
@@ -700,7 +702,7 @@ __found_one_on_lg (const BoxType * box, void *cl)
 }
 static routebox_t *
 FindRouteBoxOnLayerGroup (routedata_t * rd,
-			  Position X, Position Y, Cardinal layergroup)
+			  Location X, Location Y, Cardinal layergroup)
 {
   routebox_t *rb;
   BoxType region;
@@ -1024,7 +1026,7 @@ static BoxType
 bloat_routebox (routebox_t * rb)
 {
   BoxType r;
-  Dimension keepaway;
+  BDimension keepaway;
   assert (__routebox_is_good (rb));
   if (rb->type == EXPANSION_AREA || rb->flags.nobloat)
     return rb->box;		/* no bloat */
@@ -1045,7 +1047,7 @@ bloat_routebox (routebox_t * rb)
 #ifdef ROUTE_DEBUG		/* only for debugging expansion areas */
 /* makes a line on the solder layer silk surrounding the box */
 static void
-showbox (BoxType b, Dimension thickness)
+showbox (BoxType b, BDimension thickness)
 {
   LayerTypePtr SLayer = &(PCB->Data->Layer[MAX_LAYER + SOLDER_LAYER]);
   CreateNewLineOnLayer (SLayer, b.X1, b.Y1, b.X2, b.Y1, thickness, 1, 0);
@@ -1154,7 +1156,7 @@ mincost_target_to_point (const PointType * CostPoint,
 /* mincost_target_guess can be NULL */
 static edge_t *
 CreateEdge (routebox_t * rb,
-	    Position CostPointX, Position CostPointY,
+	    Location CostPointX, Location CostPointY,
 	    cost_t cost_to_point,
 	    routebox_t * mincost_target_guess,
 	    direction_t expand_dir, kdtree_t * targets)
@@ -1311,7 +1313,7 @@ edge_cost (const edge_t * e)
     cost_to_routebox (&e->cost_point, e->rb->group, e->mincost_target);
 }
 
-static Position
+static Location
 edge_length (const BoxType * cb, direction_t expand_dir)
 {
   BoxType b = *cb;
@@ -1513,9 +1515,9 @@ CreateExpansionArea (const BoxType * area, Cardinal group,
 struct FindBlocker_info
 {
   edge_t *expansion_edge;
-  Dimension maxbloat;
+  BDimension maxbloat;
   routebox_t *blocker;
-  Position min_dist;
+  Location min_dist;
 };
 /* helper methods for __FindBlocker */
 static int
@@ -1584,7 +1586,7 @@ __FindBlocker_rect_in_reg (const BoxType * box, void *cl)
  *  - region is closed on all edges -
  */
 routebox_t *
-FindBlocker (kdtree_t * kdtree, edge_t * e, Dimension maxbloat)
+FindBlocker (kdtree_t * kdtree, edge_t * e, BDimension maxbloat)
 {
   struct FindBlocker_info fbi;
 
@@ -1603,7 +1605,7 @@ FindBlocker (kdtree_t * kdtree, edge_t * e, Dimension maxbloat)
 struct fio_info
 {
   edge_t *edge;
-  Dimension maxbloat;
+  BDimension maxbloat;
   routebox_t *intersect;
   jmp_buf env;
 };
@@ -1650,7 +1652,7 @@ fio_rect_in_reg (const BoxType * box, void *cl)
   return fio_check (box, (struct fio_info *) cl, False);
 }
 static routebox_t *
-FindIntersectingObstacle (kdtree_t * kdtree, edge_t * e, Dimension maxbloat)
+FindIntersectingObstacle (kdtree_t * kdtree, edge_t * e, BDimension maxbloat)
 {
   struct fio_info fio;
 
@@ -1668,7 +1670,7 @@ FindIntersectingObstacle (kdtree_t * kdtree, edge_t * e, Dimension maxbloat)
 struct foib_info
 {
   const BoxType *box;
-  Dimension maxbloat;
+  BDimension maxbloat;
   routebox_t *intersect;
   jmp_buf env;
 };
@@ -1700,7 +1702,7 @@ foib_rect_in_reg (const BoxType * box, void *cl)
   return foib_check (box, (struct foib_info *) cl, False);
 }
 static routebox_t *
-FindOneInBox (kdtree_t * kdtree, const BoxType * box, Dimension maxbloat)
+FindOneInBox (kdtree_t * kdtree, const BoxType * box, BDimension maxbloat)
 {
   struct foib_info foib;
 
@@ -1884,8 +1886,8 @@ BreakEdges (routedata_t * rd, vector_t * edge_vec, kdtree_t * targets)
  */
 
 static void
-RD_DrawVia (routedata_t * rd, Position X, Position Y,
-	    Dimension radius, routebox_t * subnet, Boolean is_bad)
+RD_DrawVia (routedata_t * rd, Location X, Location Y,
+	    BDimension radius, routebox_t * subnet, Boolean is_bad)
 {
   routebox_t *rb, *first_via = NULL;
   int i, j;
@@ -1933,8 +1935,8 @@ RD_DrawVia (routedata_t * rd, Position X, Position Y,
 }
 static void
 RD_DrawLine (routedata_t * rd,
-	     Position X1, Position Y1, Position X2, Position Y2,
-	     Dimension halfthick, Cardinal group,
+	     Location X1, Location Y1, Location X2, Location Y2,
+	     BDimension halfthick, Cardinal group,
 	     routebox_t * subnet, Boolean is_bad, Boolean is_45)
 {
   routebox_t *rb;
@@ -1978,7 +1980,7 @@ static void
 RD_DrawManhattanLine (routedata_t * rd,
 		      const BoxType * bbox,
 		      PointType start, PointType end,
-		      Dimension halfthick, Cardinal group,
+		      BDimension halfthick, Cardinal group,
 		      routebox_t * subnet, Boolean is_bad)
 {
   PointType knee = start;
@@ -2000,7 +2002,7 @@ RD_DrawManhattanLine (routedata_t * rd,
   else
     {
       /* draw 45-degree path across knee */
-      Dimension len45 = MIN (ABS (start.X - end.X), ABS (start.Y - end.Y));
+      BDimension len45 = MIN (ABS (start.X - end.X), ABS (start.Y - end.Y));
       PointType kneestart = knee, kneeend = knee;
       if (kneestart.X == start.X)
 	kneestart.Y += (kneestart.Y > start.Y) ? -len45 : len45;
@@ -2022,10 +2024,10 @@ static void
 TracePath (routedata_t * rd, routebox_t * path, routebox_t * target,
 	   routebox_t * subnet, Boolean is_bad)
 {
-  Dimension keepaway = AutoRouteParameters.augStyle->style->Keepaway;
-  Dimension halfwidth =
+  BDimension keepaway = AutoRouteParameters.augStyle->style->Keepaway;
+  BDimension halfwidth =
     HALF_THICK (AutoRouteParameters.augStyle->style->Thick);
-  Dimension radius =
+  BDimension radius =
     HALF_THICK (AutoRouteParameters.augStyle->style->Diameter);
   PointType lastpoint, nextpoint;
   routebox_t *lastpath;
@@ -2047,6 +2049,26 @@ TracePath (routedata_t * rd, routebox_t * path, routebox_t * target,
   if (target->flags.circular)
     b = shrink_box (&b, MIN (b.X2 - b.X1, b.Y2 - b.Y1) / 5);
   nextpoint = closest_point_in_box (&nextpoint, &b);
+  /* hace route to actual pins/pads */
+  if (target->type == PIN)
+    {
+      nextpoint.X = target->parent.pin->X;
+      nextpoint.Y = target->parent.pin->Y;
+    }
+  else if (target->type == PAD)
+    {
+    if (abs(target->parent.pad->Point1.X - nextpoint.X) <
+        abs(target->parent.pad->Point2.X - nextpoint.X))
+           nextpoint.X = target->parent.pad->Point1.X;
+    else
+	   nextpoint.X = target->parent.pad->Point2.X;
+    if (abs(target->parent.pad->Point1.Y - nextpoint.Y) <
+        abs(target->parent.pad->Point2.Y - nextpoint.Y))
+	   nextpoint.Y = target->parent.pad->Point1.Y;
+	else
+	   nextpoint.Y = target->parent.pad->Point2.Y;
+    }
+
 #if defined(ROUTE_DEBUG) && defined(DEBUG_SHOW_ROUTE_BOXES)
   showroutebox (path);
 #endif /* ROUTE_DEBUG && DEBUG_SHOW_ROUTE_BOXES */
@@ -2130,6 +2152,25 @@ TracePath (routedata_t * rd, routebox_t * path, routebox_t * target,
   if (path->flags.circular)
     b = shrink_box (&b, MIN (b.X2 - b.X1, b.Y2 - b.Y1) / 5);
   nextpoint = closest_point_in_box (&lastpoint, &b);
+  /* hace route to actual pins/pads */
+  if (path->type == PIN)
+    {
+      nextpoint.X = path->parent.pin->X;
+      nextpoint.Y = path->parent.pin->Y;
+    }
+  else if (path->type == PAD)
+    {
+    if (abs(path->parent.pad->Point1.X - nextpoint.X) <
+        abs(path->parent.pad->Point2.X - nextpoint.X))
+           nextpoint.X = path->parent.pad->Point1.X;
+    else
+	   nextpoint.X = path->parent.pad->Point2.X;
+    if (abs(path->parent.pad->Point1.Y - nextpoint.Y) <
+        abs(path->parent.pad->Point2.Y - nextpoint.Y))
+	   nextpoint.Y = path->parent.pad->Point1.Y;
+	else
+	   nextpoint.Y = path->parent.pad->Point2.Y;
+    }
 #if 0
   printf ("TRACEPATH end (%d, %d)\n", nextpoint.X, nextpoint.Y);
 #endif
@@ -2896,20 +2937,22 @@ RouteAll (routedata_t * rd)
 			    assert (p->type != EXPANSION_AREA);
 			    if (p->type == LINE)
 			    {
-			    Dimension halfwidth =
+			    BDimension halfwidth =
 			    HALF_THICK (p->augStyle->style->Thick); BoxType b;
 			    assert (p->parent.line == NULL);
 			    /* orthogonal; thickness is 2*halfwidth */
+			    /* hace
 			    assert (p->flags.nonstraight ||
 				    p->box.X1 + halfwidth ==
 				    p->box.X2 - halfwidth
 				    || p->box.Y1 + halfwidth ==
 				    p->box.Y2 - halfwidth);
+				    */
 			    /* flip coordinates, if bl_to_ur */
 			    b = shrink_box (&p->box, halfwidth);
 			    if (p->flags.bl_to_ur)
 			    {
-			    Dimension t; t = b.X1; b.X1 = b.X2; b.X2 = t;}
+			    BDimension t; t = b.X1; b.X1 = b.X2; b.X2 = t;}
 			    p->parent.line = CreateDrawnLineOnLayer
 			    (layer, b.X1, b.Y1, b.X2, b.Y2,
 			     p->augStyle->style->Thick,
@@ -2927,7 +2970,7 @@ RouteAll (routedata_t * rd)
 			    routebox_t * pp =
 			    (p->type ==
 			     VIA_SHADOW) ? p->parent.via_shadow : p;
-			    Dimension radius =
+			    BDimension radius =
 			    HALF_THICK (pp->augStyle->style->Diameter);
 			    assert (pp->type == VIA);
 			    if (pp->parent.via == NULL)

@@ -109,7 +109,7 @@ RemoveExcessPolygonPoints (LayerTypePtr Layer, PolygonTypePtr Polygon)
  * coordinates
  */
 Cardinal
-GetLowestDistancePolygonPoint (PolygonTypePtr Polygon, Position X, Position Y)
+GetLowestDistancePolygonPoint (PolygonTypePtr Polygon, Location X, Location Y)
 {
   float mindistance = MAX_COORD, length, distance;
   PointTypePtr ptr1 = &Polygon->Points[Polygon->PointN - 1],
@@ -189,7 +189,7 @@ ClosePolygon (void)
        */
       if (!TEST_FLAG (ALLDIRECTIONFLAG, PCB))
 	{
-	  Dimension dx, dy;
+	  BDimension dx, dy;
 
 	  dx = abs (Crosshair.AttachedPolygon.Points[n - 1].X -
 		    Crosshair.AttachedPolygon.Points[0].X);

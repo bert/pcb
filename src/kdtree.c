@@ -76,7 +76,7 @@ struct kdtree
 struct kdtree_node
 {
   const BoxType *box;		/* rectangle stored at this node */
-  Position lo_min_bound, hi_max_bound, other_bound;
+  Location lo_min_bound, hi_max_bound, other_bound;
   struct kdtree_node *parent, *lo_kid, *hi_kid;
   struct
   {
@@ -90,8 +90,8 @@ struct kdtree_node
 #endif				/* AUTO_OPTIMIZE */
 };
 
-/* select numbered Position from box */
-static Position
+/* select numbered Location from box */
+static Location
 key (const BoxType * box, int which)
 {
   switch (which)
@@ -238,7 +238,7 @@ static void
 __select_box (const BoxType * boxlist[],
 	      Cardinal start, Cardinal end, Cardinal k, int d)
 {
-  Position v;
+  Location v;
   int i, j, l, r;
 #define SWAP(x,y) do { \
  const BoxType * t;\
@@ -288,7 +288,7 @@ __partition (const BoxType * boxlist[],
 {
   BoxType minbox, maxbox;
   int i, median;
-  Position k, ob;
+  Location k, ob;
   int d;
   /* find bounding box of boxlist */
   minbox = maxbox = *boxlist[start];
@@ -729,7 +729,7 @@ __kd_find_node (kdtree_t * kdtree,
     {
       struct kdtree_node *n = *fi.nodepp;
       int d = n->flags.discrim;
-      Position v = key (which, d), k = key (n->box, d);
+      Location v = key (which, d), k = key (n->box, d);
       assert (__kd_node_is_good (n));
       /* did we find an inactive node or find a node matching box? */
       if (n->flags.inactive ? (is_insert && v == k) :

@@ -74,7 +74,7 @@ static void *MovePolygonToLayer (LayerTypePtr, PolygonTypePtr);
 /* ---------------------------------------------------------------------------
  * some local identifiers
  */
-static Position DeltaX,		/* used by local routines as offset */
+static Location DeltaX,		/* used by local routines as offset */
   DeltaY;
 static LayerTypePtr Dest;
 static Boolean MoreToCome;
@@ -103,7 +103,7 @@ MoveLineToLayer,
  * moves a element by +-X and +-Y
  */
 void
-MoveElementLowLevel (ElementTypePtr Element, Position DX, Position DY)
+MoveElementLowLevel (ElementTypePtr Element, Location DX, Location DY)
 {
   ELEMENTLINE_LOOP (Element, 
     {
@@ -279,7 +279,7 @@ MoveText (LayerTypePtr Layer, TextTypePtr Text)
  * low level routine to move a polygon
  */
 void
-MovePolygonLowLevel (PolygonTypePtr Polygon, Position DeltaX, Position DeltaY)
+MovePolygonLowLevel (PolygonTypePtr Polygon, Location DeltaX, Location DeltaY)
 {
   POLYGONPOINT_LOOP (Polygon, 
     {
@@ -479,7 +479,7 @@ MoveLineToLayer (LayerTypePtr Layer, LineTypePtr Line)
       GetLayerGroupNumberByPointer (Layer) ==
       GetLayerGroupNumberByPointer (Dest))
     return (new);
-  if ((SearchObjectByPosition (PIN_TYPES, &ptr1, &ptr2, &ptr3,
+  if ((SearchObjectByLocation (PIN_TYPES, &ptr1, &ptr2, &ptr3,
 			       new->Point1.X, new->Point1.Y, 0) == NO_TYPE))
     LINE_LOOP (Layer, 
     {
@@ -502,7 +502,7 @@ MoveLineToLayer (LayerTypePtr Layer, LineTypePtr Line)
 	}
     }
   );
-  if ((SearchObjectByPosition (PIN_TYPES, &ptr1, &ptr2, &ptr3,
+  if ((SearchObjectByLocation (PIN_TYPES, &ptr1, &ptr2, &ptr3,
 			       new->Point2.X, new->Point2.Y, 0) == NO_TYPE))
     LINE_LOOP (Layer, 
     {
@@ -647,7 +647,7 @@ MovePolygonToLayer (LayerTypePtr Layer, PolygonTypePtr Polygon)
  */
 void *
 MoveObject (int Type, void *Ptr1, void *Ptr2, void *Ptr3,
-	    Position DX, Position DY)
+	    Location DX, Location DY)
 {
   void *result;
   /* setup offset */
@@ -664,7 +664,7 @@ MoveObject (int Type, void *Ptr1, void *Ptr2, void *Ptr3,
  */
 void *
 MoveObjectAndRubberband (int Type, void *Ptr1, void *Ptr2, void *Ptr3,
-			 Position DX, Position DY)
+			 Location DX, Location DY)
 {
   RubberbandTypePtr ptr;
   void *ptr2;

@@ -69,7 +69,7 @@ static void *CopyElement (ElementTypePtr);
 /* ---------------------------------------------------------------------------
  * some local identifiers
  */
-static Position DeltaX, DeltaY;	/* movement vector */
+static Location DeltaX, DeltaY;	/* movement vector */
 static ObjectFunctionType CopyFunctions = {
   CopyLine,
   CopyText,
@@ -304,7 +304,7 @@ CopyElement (ElementTypePtr Element)
  * are handled by the routine.
  */
 Boolean
-CopyPastebufferToLayout (Position X, Position Y)
+CopyPastebufferToLayout (Location X, Location Y)
 {
   Cardinal i;
   Boolean changed = False;
@@ -386,7 +386,7 @@ CopyPastebufferToLayout (Position X, Position Y)
  */
 void *
 CopyObject (int Type, void *Ptr1, void *Ptr2, void *Ptr3,
-	    Position DX, Position DY)
+	    Location DX, Location DY)
 {
   void *ptr;
 

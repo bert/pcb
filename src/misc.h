@@ -41,11 +41,11 @@ void		SetPolygonBoundingBox(PolygonTypePtr);
 void		SetElementBoundingBox(ElementTypePtr, FontTypePtr);
 Boolean		IsDataEmpty(DataTypePtr);
 BoxTypePtr	GetDataBoundingBox(DataTypePtr);
-void		CenterDisplay(Position, Position, Boolean);
+void		CenterDisplay(Location, Location, Boolean);
 void		SetFontInfo(FontTypePtr);
 void		UpdateSettingsOnScreen(void);
 int		ParseGroupString(char *, LayerGroupTypePtr);
-int		ParseRouteString(char *, RouteStyleTypePtr);
+int		ParseRouteString(char *, RouteStyleTypePtr, int);
 void		QuitApplication(void);
 char		*EvaluateFilename(char *, char *, char *, char *);
 char		*ExpandFilename(char *, char *);
@@ -63,6 +63,7 @@ int		GetGridFactor(void);
 void		SetArcBoundingBox(ArcTypePtr);
 BoxTypePtr	GetArcEnds(ArcTypePtr);
 char		*UniqueElementName(DataTypePtr, char *);
-void		AttachForCopy(Position, Position);
+void		AttachForCopy(Location, Location);
+float		GetValue(String *, Boolean *, Cardinal);
 
 #endif

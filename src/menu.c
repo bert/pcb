@@ -237,20 +237,20 @@ static PopupEntryType DisplayMenuEntries[] = {
   {"showMask", "show soldermask", CB_Action, "Display,ToggleMask", NULL},
   {"line", NULL, NULL, NULL, NULL},
   {"header", "grid setting", NULL, NULL, NULL},
-  {"grid01", " 1 mil", CB_Action, "SetValue,Grid,1", NULL},
-  {"grid.1mm", "0.1 mm", CB_Action, "SetValue,Grid,3.937007874", NULL},
-  {"grid10", "10 mil", CB_Action, "SetValue,Grid,10", NULL},
-  {"grid1mm", "1.0 mm", CB_Action, "SetValue,Grid,39.37007874", NULL},
-  {"grid25", "25 mil", CB_Action, "SetValue,Grid,25", NULL},
-  {"grid50", "50 mil", CB_Action, "SetValue,Grid,50", NULL},
-  {"grid100", "100 mil", CB_Action, "SetValue,Grid,100", NULL},
-  {"gridInc", "increment by 5 mil", CB_Action, "SetValue,Grid,+5", NULL},
-  {"gridDec", "decrement by 5 mil", CB_Action, "SetValue,Grid,-5", NULL},
+  {"grid01", " 1 mil", CB_Action, "SetValue,Grid,100", NULL},
+  {"grid.1mm", "0.1 mm", CB_Action, "SetValue,Grid,393.7007874", NULL},
+  {"grid10", "10 mil", CB_Action, "SetValue,Grid,1000", NULL},
+  {"grid1mm", "1.0 mm", CB_Action, "SetValue,Grid,3937.007874", NULL},
+  {"grid25", "25 mil", CB_Action, "SetValue,Grid,2500", NULL},
+  {"grid50", "50 mil", CB_Action, "SetValue,Grid,5000", NULL},
+  {"grid100", "100 mil", CB_Action, "SetValue,Grid,10000", NULL},
+  {"gridInc", "increment by 5 mil", CB_Action, "SetValue,Grid,+500", NULL},
+  {"gridDec", "decrement by 5 mil", CB_Action, "SetValue,Grid,-500", NULL},
 
   {"gridIncmm", "increment by 0.1 mm", CB_Action,
-   "SetValue,Grid,+3.937007874", NULL},
+   "SetValue,Grid,+393.7007874", NULL},
   {"gridDecmm", "decrement by 0.1 mm", CB_Action,
-   "SetValue,Grid,-3.937007874", NULL},
+   "SetValue,Grid,-393.7007874", NULL},
   {"line", NULL, NULL, NULL, NULL},
   {"header", "zoom setting", NULL, NULL, NULL},
   {"zoom25", "4 : 1 ", CB_Position, "SetValue,Zoom,=-2", NULL},
@@ -680,7 +680,7 @@ CB_Action (Widget W, XtPointer ClientData, XtPointer CallData)
 static void
 CB_Position (Widget W, XtPointer ClientData, XtPointer CallData)
 {
-  if (GetPosition
+  if (GetLocation
       ("Move the pointer to the appropriate screen position and press a button."))
     CB_Action (W, ClientData, CallData);
 }
@@ -692,7 +692,7 @@ CB_Position (Widget W, XtPointer ClientData, XtPointer CallData)
 static void
 CB_ElementPosition (Widget W, XtPointer ClientData, XtPointer CallData)
 {
-  if (GetPosition ("press a button at the element's location"))
+  if (GetLocation ("press a button at the element's location"))
     CB_Action (W, ClientData, CallData);
 }
 
@@ -703,7 +703,7 @@ CB_ElementPosition (Widget W, XtPointer ClientData, XtPointer CallData)
 static void
 CB_TextPosition (Widget W, XtPointer ClientData, XtPointer CallData)
 {
-  if (GetPosition ("press a button at the text location"))
+  if (GetLocation ("press a button at the text location"))
     CB_Action (W, ClientData, CallData);
 }
 
@@ -714,7 +714,7 @@ CB_TextPosition (Widget W, XtPointer ClientData, XtPointer CallData)
 static void
 CB_ObjectPosition (Widget W, XtPointer ClientData, XtPointer CallData)
 {
-  if (GetPosition ("press a button at a 'connecting-objects' location"))
+  if (GetLocation ("press a button at a 'connecting-objects' location"))
     CB_Action (W, ClientData, CallData);
 }
 

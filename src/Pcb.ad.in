@@ -25,7 +25,7 @@
 !---------------------------------------------------------------------------
 ! resources as defined by pcb
 !
-Pcb.alignmentDistance:      200
+Pcb.alignmentDistance:      20000
 Pcb.allDirectionLines:      Off
 Pcb.backupInterval:         60
 Pcb.charactersPerLine:      78
@@ -41,7 +41,7 @@ Pcb.filePath:               .
 Pcb.fontCommand:            M4PATH='%p';export M4PATH;echo 'include(%f)' | @gnum4@
 Pcb.fontFile:               @fontfilename@
 Pcb.fontPath:               .:@pcblibdir@
-Pcb.grid:                   20
+Pcb.grid:                   2000
 Pcb.gridColor:		    red
 Pcb.warnColor:              hot pink
 Pcb.maskColor:              red
@@ -78,7 +78,7 @@ Pcb.libraryContentsCommand: @pcblibdir@/ListLibraryContents.sh '%p' '%f'
 Pcb.libraryFilename:        @libraryfilename@
 Pcb.libraryPath:            .:@pcblibdir@
 Pcb.libraryTree:            @pcbtreedir@
-Pcb.lineThickness:          10
+Pcb.lineThickness:          1000
 Pcb.media:                  a4
 Pcb.offLimitColor:          gray80
 Pcb.pinColor:               gray30
@@ -91,17 +91,17 @@ Pcb.pinoutFont4:            -*-courier-bold-r-*-*-2-*-*-*-*-*-*-*
 Pcb.pinoutNameLength:       8
 Pcb.pinoutOffsetX:          100
 Pcb.pinoutOffsetY:          100
-Pcb.pinoutTextOffsetX:      20
-Pcb.pinoutTextOffsetY:      20
+Pcb.pinoutTextOffsetX:      8
+Pcb.pinoutTextOffsetY:      8
 Pcb.pinoutZoom:             2
 Pcb.printFile:             %f.output
 Pcb.raiseLogWindow:         On
 Pcb.ratColor:               DarkGoldenrod
 Pcb.ratSelectedColor:       cyan
-Pcb.ratThickness:           10
+Pcb.ratThickness:           1000
 Pcb.resetAfterElement:      On
 Pcb.ringBellWhenFinished:   Off
-Pcb.routeStyles:	    Signal,10,55,28,10:Power,25,60,35,10:Fat,40,60,35,10:Skinny,8,36,20,7
+Pcb.routeStyles:	    Signal,1000,3600,2000,1000:Power,2500,6000,3500,1000:Fat,4000,6000,3500,1000:Skinny,600,2402,1181,600
 Pcb.saveCommand:            cat - > '%f'
 Pcb.saveInTMP:              Off
 Pcb.saveLastCommand:        Off
@@ -114,12 +114,12 @@ Pcb.snapPin:                On
 Pcb.clearLines:	            On
 Pcb.viaColor:               gray50
 Pcb.viaSelectedColor:       cyan
-Pcb.viaThickness:           60
-Pcb.viaDrillingHole:        28
+Pcb.viaThickness:           6000
+Pcb.viaDrillingHole:        2800
 Pcb.volume:                 100
 Pcb.zoom:                   3
-Pcb.Bloat:		    7
-Pcb.Shrink:		    5
+Pcb.Bloat:		    700
+Pcb.Shrink:		    500
 
 !---------------------------------------------------------------------------
 ! resources that are common to all 'subwindows'
@@ -206,8 +206,8 @@ Pcb*controlMasterForm*panner.baseTranslations:   #override \
 Pcb.masterForm.Toggle.foreground:	black
 !pcb.masterForm.Toggle.internalHeight:   1 
 !pcb.masterForm.Toggle.internalWidth:	1
-Pcb*toolMasterForm.Toggle.horizDistance:       3 
-Pcb*toolMasterForm.Toggle.vertDistance:        3
+Pcb*MasterForm.Toggle.horizDistance:       3 
+Pcb*MasterForm.Toggle.vertDistance:        3
 
 !---------------------------------------------------------------------------
 ! resources used by the file select box
@@ -318,9 +318,8 @@ Pcb*pinoutMasterForm.viewport.vertical.accelerators: #override \
 Pcb.masterForm*MenuButton.shadowWidth:	0
 Pcb.masterForm*MenuButton.BorderWidth: 0
 Pcb*MenuButton.baseTranslations: #override \
-  <BtnDown>:  set() \n\
-  <BtnUp>:    reset() PopupMenu() \n
-
+   <BtnDown>: set() \n\
+   <BtnUp>: reset() PopupMenu() \n
 !---------------------------------------------------------------------------
 ! resources used by the menus
 !
@@ -335,7 +334,7 @@ Pcb*SimpleMenu.baseTranslations: #override \
 ! resources used by statuslines and input field
 !
 Pcb.masterForm*cursorPosition.justify:   left
-Pcb.masterForm*cursorPosition.width:     300
+Pcb.masterForm*cursorPosition.width:     400
 Pcb.masterForm*inputField*borderWidth:   0
 Pcb.masterForm*messageText.foreground:   red
 Pcb.masterForm*messageText.justify:      left
@@ -416,6 +415,7 @@ Pcb.masterForm*output.baseTranslations:   #override \
   \
   Shift @btnmod@<Key>a:	Unselect(All) \n\
   @btnmod@<Key>a:	Select(All) \n\
+  <Key>a:		SetSame() \n\
   Shift<Key>b:		Flip(Selected) \n\
   <Key>b:		Flip(Object) \n\
   @btnmod@<Key>c:       PasteBuffer(Clear) \
@@ -430,19 +430,19 @@ Pcb.masterForm*output.baseTranslations:   #override \
   Shift<Key>f:        Connection(Reset) \n\
   <Key>f:          Connection(Reset) \
 		   Connection(Find) \n\
-  Shift<Key>g:        SetValue(Grid, -5) \n\
-  <Key>g:          SetValue(Grid, +5) \n\
+  Shift<Key>g:        SetValue(Grid, -5, mil) \n\
+  <Key>g:          SetValue(Grid, +5, mil) \n\
   Shift<Key>h:        ToggleHideName(SelectedElements) \n\
   Ctrl<Key>h:         ChangeHole(ToggleObject) \n\
   <Key>h:          ToggleHideName(Object) \n\
   <Key>j:		ChangeJoin(Object) \n\
   Shift<Key>j:		ChangeJoin(SelectedObjects) \n\
-  Shift<Key>k:		ChangeClearSize(Object, -2) \n\
-  Ctrl<Key>k:		ChangeClearSize(SelectedObjects, +2) \n\
-  Shift Ctrl<Key>k:	ChangeClearSize(SelectedObjects, -2) \n\
-  <Key>k:		ChangeClearSize(Object, +2) \n\
-  Shift<Key>l:        SetValue(LineSize, -5) \n\
-  <Key>l:          SetValue(LineSize, +5) \n\
+  Shift<Key>k:		ChangeClearSize(Object, -2, mil) \n\
+  Ctrl<Key>k:		ChangeClearSize(SelectedObjects, +2, mil) \n\
+  Shift Ctrl<Key>k:	ChangeClearSize(SelectedObjects, -2, mil) \n\
+  <Key>k:		ChangeClearSize(Object, +2, mil) \n\
+  Shift<Key>l:        SetValue(LineSize, -5, mil) \n\
+  <Key>l:          SetValue(LineSize, +5, mil) \n\
   Shift<Key>m:        MoveToCurrentLayer(SelectedObjects) \n\
   Ctrl<Key>m:         MarkCrosshair() \n\
   <Key>m:          MoveToCurrentLayer(Object) \n\
@@ -467,18 +467,18 @@ Pcb.masterForm*output.baseTranslations:   #override \
   Shift<Key>r:        Redo() \n\
   Ctrl<Key>r:         Report(Object) \n\
   <Key>r:          Display(ClearAndRedraw) \n\
-  @btnmod@ Shift<Key>s: ChangeDrillSize(Object, -5) \n\
-  Shift<Key>s:        ChangeSize(Object, -5) \n\
-  @btnmod@<Key>s:       ChangeDrillSize(Object, +5) \n\
+  @btnmod@ Shift<Key>s: ChangeDrillSize(Object, -5, mil) \n\
+  Shift<Key>s:        ChangeSize(Object, -5, mil) \n\
+  @btnmod@<Key>s:       ChangeDrillSize(Object, +5, mil) \n\
   <Key>s:          ChangeSize(Object, +5) \n\
   Shift<Key>t:          SetValue(TextScale, -5) \n\
   <Key>t:               SetValue(TextScale, +5) \n\
   Shift Ctrl<Key>u:   Undo(ClearList) \n\
   <Key>u:          Undo() \n\
-  @btnmod@ Shift<Key>v: SetValue(ViaDrillingHole, -5) \n\
-  Shift Ctrl<Key>v:        SetValue(ViaSize, -5) \n\
-  @btnmod@<Key>v:       SetValue(ViaDrillingHole, +5) \n\
-  Ctrl<Key>v:	      SetValue(ViaSize, +5) \n\
+  @btnmod@ Shift<Key>v: SetValue(ViaDrillingHole, -5, mil) \n\
+  Shift Ctrl<Key>v:        SetValue(ViaSize, -5, mil) \n\
+  @btnmod@<Key>v:       SetValue(ViaDrillingHole, +5, mil) \n\
+  Ctrl<Key>v:	      SetValue(ViaSize, +5, mil) \n\
   <Key>v:          SetValue(Zoom, 1000) \n\
   Shift<Key>w:        AddRats(SelectedRats) \n\
   <Key>w:          AddRats(AllRats) \n\
@@ -508,12 +508,16 @@ Pcb.masterForm*output.baseTranslations:   #override \
   @btnmod@<Key>Left:    Display(Scroll, 4) \
 		    Display(Scroll, 0) \n\
   \
+  Ctrl<Key>Up:      Display(Scroll, 8) \n\
   Shift<Key>Up:    MovePointer(0, -10) \n\
   <Key>Up:      MovePointer(0, -1) \n\
+  Ctrl<Key>Down:    Display(Scroll, 2) \n\
   Shift<Key>Down:  MovePointer(0, 10) \n\
   <Key>Down:    MovePointer(0, 1) \n\
+  Ctrl<Key>Right:   Display(Scroll, 6) \n\
   Shift<Key>Right: MovePointer(10, 0) \n\
   <Key>Right:   MovePointer(1, 0) \n\
+  Ctrl<Key>Left:    Display(Scroll, 4) \n
   Shift<Key>Left:  MovePointer(-10, 0) \n\
   <Key>Left:    MovePointer(-1, 0) \n\
   \

@@ -33,6 +33,8 @@
 
 #include "global.h"
 
+#define CLONE_TYPES LINE_TYPE | ARC_TYPE | VIA_TYPE | POLYGON_TYPE
+
 void	ActionMovePointer(Widget, XEvent *, String *, Cardinal *);
 void	ActionAtomic(Widget, XEvent *, String *, Cardinal *);
 void	ActionAdjustStyle(Widget, XEvent *, String *, Cardinal *);

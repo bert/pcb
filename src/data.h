@@ -61,7 +61,8 @@ extern  Region		UpRegion;
 extern	Region		FullRegion;
 extern	Boolean		Bumped;
 extern	Window		LogWindID;
-extern	Position	Xorig, Yorig;
+extern	Location	Xorig, Yorig;
 extern	Boolean		render;
-extern	Position	vxl, vxh, vyl, vyh;
+extern	Location	vxl, vxh, vyl, vyh;
+extern	float		Zoom_divisor[13];
 #endif

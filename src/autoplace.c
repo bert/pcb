@@ -134,7 +134,7 @@ typedef struct
   enum
   { SHIFT, ROTATE, EXCHANGE }
   which;
-  Position DX, DY;		/* for shift */
+  Location DX, DY;		/* for shift */
   BYTE rotate;			/* for rotate/flip */
   ElementTypePtr other;		/* for exchange */
 }
@@ -237,7 +237,7 @@ struct kd_neighbor_info
   BoxType trap;
   direction_t search_dir;
 };
-#define ROTATEBOX(box) { Position t;\
+#define ROTATEBOX(box) { Location t;\
     t = (box).X1; (box).X1 = - (box).Y1; (box).Y1 = t;\
     t = (box).X2; (box).X2 = - (box).Y2; (box).Y2 = t;\
     t = (box).X1; (box).X1 =   (box).X2; (box).X2 = t;\
@@ -332,7 +332,7 @@ ComputeCost (NetListTypePtr Nets, double T0, double T)
   double delta4 = 0;		/* alignment bonus */
   double delta5 = 0;		/* total area penalty */
   Cardinal i, j;
-  Position minx, maxx, miny, maxy;
+  Location minx, maxx, miny, maxy;
   Boolean allpads, allsameside;
   Cardinal thegroup;
   BoxListType bounds = { 0, 0, NULL };	/* save bounding rectangles here */
@@ -399,8 +399,8 @@ ComputeCost (NetListTypePtr Nets, double T0, double T)
 	BoxListTypePtr otherside;
 	BoxTypePtr box;
 	BoxTypePtr lastbox = NULL;
-	Dimension thickness;
-	Dimension clearance;
+	BDimension thickness;
+	BDimension clearance;
 	if (TEST_FLAG (ONSOLDERFLAG, element))
 	  {
 	    thisside = &solderside;
@@ -604,8 +604,8 @@ ComputeCost (NetListTypePtr Nets, double T0, double T)
   }
   /* penalize total area used by this layout */
   {
-    Position minX = PCB->MaxWidth, minY = PCB->MaxHeight;
-    Position maxX = 0, maxY = 0;
+    Location minX = PCB->MaxWidth, minY = PCB->MaxHeight;
+    Location maxX = 0, maxY = 0;
     ELEMENT_LOOP (PCB->Data, 
       {
 	minX = MIN (minX, element->BoundingBox.X1);
@@ -695,7 +695,7 @@ createPerturbation (PointerListTypePtr selected, double T)
 void
 doPerturb (PerturbationType * pt, Boolean undo)
 {
-  Position bbcx, bbcy;
+  Location bbcx, bbcy;
   /* compute center of element bounding box */
   bbcx = (pt->element->BoundingBox.X1 + pt->element->BoundingBox.X2) / 2;
   bbcy = (pt->element->BoundingBox.Y1 + pt->element->BoundingBox.Y2) / 2;
@@ -704,7 +704,7 @@ doPerturb (PerturbationType * pt, Boolean undo)
     {
     case SHIFT:
       {
-	Position DX = pt->DX, DY = pt->DY;
+	Location DX = pt->DX, DY = pt->DY;
 	if (undo)
 	  {
 	    DX = -DX;
@@ -723,7 +723,7 @@ doPerturb (PerturbationType * pt, Boolean undo)
 	  RotateElementLowLevel (pt->element, bbcx, bbcy, b);
 	else
 	  {
-	    Position y = pt->element->BoundingBox.Y1;
+	    Location y = pt->element->BoundingBox.Y1;
 	    MirrorElementCoordinates (pt->element, 0);
 	    /* mirroring moves the element.  move it back. */
 	    MoveElementLowLevel (pt->element, 0,
@@ -734,10 +734,10 @@ doPerturb (PerturbationType * pt, Boolean undo)
     case EXCHANGE:
       {
 	/* first exchange positions */
-	Position x1 = pt->element->BoundingBox.X1;
-	Position y1 = pt->element->BoundingBox.Y1;
-	Position x2 = pt->other->BoundingBox.X1;
-	Position y2 = pt->other->BoundingBox.Y1;
+	Location x1 = pt->element->BoundingBox.X1;
+	Location y1 = pt->element->BoundingBox.Y1;
+	Location x2 = pt->other->BoundingBox.X1;
+	Location y2 = pt->other->BoundingBox.Y1;
 	MoveElementLowLevel (pt->element, x2 - x1, y2 - y1);
 	MoveElementLowLevel (pt->other, x1 - x2, y1 - y2);
 	/* then flip both elements if they are on opposite sides */

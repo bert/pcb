@@ -88,7 +88,7 @@ static char *rcsid =
 typedef struct
 {
   String Label;			/* label to display */
-  Dimension Min,		/* limits of scale */
+  BDimension Min,		/* limits of scale */
     Max, Step,			/* one step */
     Value;
   Widget Scrollbar,		/* some widgets */
@@ -114,8 +114,8 @@ static SliderType Sliders[] = {
  * some local prototypes
  */
 static void UpdateSlider (SliderTypePtr);
-static Dimension UpdateThumb (SliderTypePtr, Dimension);
-static void UpdateScrollbar (SliderTypePtr, Dimension);
+static BDimension UpdateThumb (SliderTypePtr, BDimension);
+static void UpdateScrollbar (SliderTypePtr, BDimension);
 static void CB_CancelOrOK (Widget, XtPointer, XtPointer);
 static void CB_ScrollProc (Widget, XtPointer, XtPointer);
 static void CB_JumpProc (Widget, XtPointer, XtPointer);
@@ -136,8 +136,8 @@ UpdateSlider (SliderTypePtr Slider)
  * clips the value to fit into min/max range and updates the widget
  * returns the clipped value
  */
-static Dimension
-UpdateThumb (SliderTypePtr Slider, Dimension NewValue)
+static BDimension
+UpdateThumb (SliderTypePtr Slider, BDimension NewValue)
 {
   float top;
 
@@ -166,7 +166,7 @@ UpdateThumb (SliderTypePtr Slider, Dimension NewValue)
  * the thumb position is passed; related scrollbars are updated too
  */
 static void
-UpdateScrollbar (SliderTypePtr Slider, Dimension NewValue)
+UpdateScrollbar (SliderTypePtr Slider, BDimension NewValue)
 {
   NewValue = UpdateThumb (Slider, NewValue);
   UpdateSlider (Slider);
@@ -230,8 +230,8 @@ CB_JumpProc (Widget W, XtPointer ClientData, XtPointer CallData)
   SliderTypePtr slider = (SliderTypePtr) ClientData;
 
   UpdateScrollbar (slider,
-		   (Dimension) (top * (slider->Max - slider->Min) +
-				(float) slider->Min + 0.5));
+		   (BDimension) (top * (slider->Max - slider->Min) +
+				 (float) slider->Min + 0.5));
 }
 
 /* ---------------------------------------------------------------------------

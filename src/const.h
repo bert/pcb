@@ -45,7 +45,7 @@
 /* ---------------------------------------------------------------------------
  * misc constants
  */
-#define	MARK_SIZE		50		/* mark size of elements */
+#define	MARK_SIZE		5000		/* relative marker size */
 #define	UNDO_WARNING_SIZE	(1024*1024)	/* warning limit of undo */
 #define	USERMEDIANAME		"user defined"	/* label of default media */
 
@@ -64,6 +64,8 @@
 #define SQRT2OVER2		0.707106781	/* 1/sqrt(2) */
 #define MIL_TO_MM               0.025400000
 #define MM_TO_MIL               39.37007874
+#define COOR_TO_MM		0.000254000
+#define MM_TO_COOR		3937.007874
 
 /* ---------------------------------------------------------------------------
  * modes

@@ -248,8 +248,8 @@ static char *rcsid = "$Id$";
 typedef struct
 {
   void **Data;			/* pointer to index data */
-  Cardinal Position,		/* currently used position */
-    DrawPosition, Number;	/* number of objects in list */
+  Cardinal Location,		/* currently used position */
+    DrawLocation, Number;	/* number of objects in list */
 }
 ListType, *ListTypePtr;
 
@@ -271,7 +271,7 @@ PadDataType, *PadDataTypePtr;
  * some local identifiers
  */
 static float fBloat = 0.0;
-static Position Bloat = 0;
+static Location Bloat = 0;
 static int TheFlag = FOUNDFLAG;
 static int OldFlag = FOUNDFLAG;
 static Boolean User = False;	/* user action causing this */
@@ -301,20 +301,20 @@ static int CompareArcByLowX (const void *, const void *);
 static int CompareRatByHighX (const void *, const void *);
 static int CompareRatByLowX (const void *, const void *);
 static int ComparePVByX (const void *, const void *);
-static Cardinal GetPadByLowX (Position, Cardinal);
-static Cardinal GetPadByHighX (Position, Cardinal);
-static Cardinal GetLineByLowX (Position, Cardinal);
-static Cardinal GetLineByHighX (Position, Cardinal);
-static Cardinal GetArcByLowX (Position, Cardinal);
-static Cardinal GetArcByHighX (Position, Cardinal);
-static Cardinal GetRatByLowX (Position);
-static Cardinal GetRatByHighX (Position);
-static Cardinal GetPVByX (int, Position);
-static PadDataTypePtr *GetIndexOfPads (Position, Position,
+static Cardinal GetPadByLowX (Location, Cardinal);
+static Cardinal GetPadByHighX (Location, Cardinal);
+static Cardinal GetLineByLowX (Location, Cardinal);
+static Cardinal GetLineByHighX (Location, Cardinal);
+static Cardinal GetArcByLowX (Location, Cardinal);
+static Cardinal GetArcByHighX (Location, Cardinal);
+static Cardinal GetRatByLowX (Location);
+static Cardinal GetRatByHighX (Location);
+static Cardinal GetPVByX (int, Location);
+static PadDataTypePtr *GetIndexOfPads (Location, Location,
 				       Cardinal, Cardinal *);
-static LineTypePtr *GetIndexOfLines (Position, Position,
+static LineTypePtr *GetIndexOfLines (Location, Location,
 				     Cardinal, Cardinal *);
-static PVDataType *LookupPVByCoordinates (int, Position, Position);
+static PVDataType *LookupPVByCoordinates (int, Location, Location);
 static PadDataTypePtr LookupPadByAddress (PadTypePtr);
 static Boolean LookupLOConnectionsToPVList (Boolean);
 static Boolean LookupLOConnectionsToLOList (Boolean);
@@ -569,7 +569,7 @@ ComparePVByX (const void *Index1, const void *Index2)
  * the field is sorted in a descending order
  */
 static Cardinal
-GetPadByLowX (Position X, Cardinal Layer)
+GetPadByLowX (Location X, Cardinal Layer)
 {
   PadDataTypePtr *ptr = PadSortedByLowX[Layer];
   int left = 0, right = NumberOfPads[Layer] - 1, position;
@@ -592,7 +592,7 @@ GetPadByLowX (Position X, Cardinal Layer)
  * the field is sorted in a ascending order
  */
 static Cardinal
-GetPadByHighX (Position X, Cardinal Layer)
+GetPadByHighX (Location X, Cardinal Layer)
 {
   PadDataTypePtr *ptr = PadSortedByHighX[Layer];
   int left = 0, right = NumberOfPads[Layer] - 1, position;
@@ -615,7 +615,7 @@ GetPadByHighX (Position X, Cardinal Layer)
  * the field is sorted in a descending order
  */
 static Cardinal
-GetLineByLowX (Position X, Cardinal Layer)
+GetLineByLowX (Location X, Cardinal Layer)
 {
   LineTypePtr *ptr = LineSortedByLowX[Layer];
   int left = 0, right = PCB->Data->Layer[Layer].LineN - 1, position;
@@ -637,7 +637,7 @@ GetLineByLowX (Position X, Cardinal Layer)
  * the field is sorted in a ascending order
  */
 static Cardinal
-GetLineByHighX (Position X, Cardinal Layer)
+GetLineByHighX (Location X, Cardinal Layer)
 {
   LineTypePtr *ptr = LineSortedByHighX[Layer];
   int left = 0, right = PCB->Data->Layer[Layer].LineN - 1, position;
@@ -659,7 +659,7 @@ GetLineByHighX (Position X, Cardinal Layer)
  * the field is sorted in a ascending order
  */
 static Cardinal
-GetRatByHighX (Position X)
+GetRatByHighX (Location X)
 {
   RatTypePtr *ptr = RatSortedByHighX;
   int left = 0, right = PCB->Data->RatN - 1, position;
@@ -681,7 +681,7 @@ GetRatByHighX (Position X)
  * the field is sorted in a descending order
  */
 static Cardinal
-GetRatByLowX (Position X)
+GetRatByLowX (Location X)
 {
   RatTypePtr *ptr = RatSortedByLowX;
   int left = 0, right = PCB->Data->RatN - 1, position;
@@ -703,7 +703,7 @@ GetRatByLowX (Position X)
  * the field is sorted in a descending order
  */
 static Cardinal
-GetArcByLowX (Position X, Cardinal Layer)
+GetArcByLowX (Location X, Cardinal Layer)
 {
   ArcTypePtr *ptr = ArcSortedByLowX[Layer];
   int left = 0, right = PCB->Data->Layer[Layer].ArcN - 1, position;
@@ -725,7 +725,7 @@ GetArcByLowX (Position X, Cardinal Layer)
  * the field is sorted in a descending order
  */
 static Cardinal
-GetArcByHighX (Position X, Cardinal Layer)
+GetArcByHighX (Location X, Cardinal Layer)
 {
   ArcTypePtr *ptr = ArcSortedByHighX[Layer];
   int left = 0, right = PCB->Data->Layer[Layer].ArcN - 1, position;
@@ -748,7 +748,7 @@ GetArcByHighX (Position X, Cardinal Layer)
  * kind = 1 means pins, kind = 0 means vias
  */
 static Cardinal
-GetPVByX (int kind, Position X)
+GetPVByX (int kind, Location X)
 {
   int left = 0, right, position;
 
@@ -883,8 +883,8 @@ InitComponentLookup (void)
 	}
 
       /* clear some struct members */
-      PadList[i].Position = 0;
-      PadList[i].DrawPosition = 0;
+      PadList[i].Location = 0;
+      PadList[i].DrawLocation = 0;
       PadList[i].Number = 0;
     }
   /* pin and via data; start with counting their total number,
@@ -1002,22 +1002,22 @@ InitLayoutLookup (void)
 						  "InitConnectionLookup()");
 
       /* clear some struct members */
-      LineList[i].Position = 0;
-      LineList[i].DrawPosition = 0;
+      LineList[i].Location = 0;
+      LineList[i].DrawLocation = 0;
       LineList[i].Number = 0;
-      ArcList[i].Position = 0;
-      ArcList[i].DrawPosition = 0;
+      ArcList[i].Location = 0;
+      ArcList[i].DrawLocation = 0;
       ArcList[i].Number = 0;
-      PolygonList[i].Position = 0;
-      PolygonList[i].DrawPosition = 0;
+      PolygonList[i].Location = 0;
+      PolygonList[i].DrawLocation = 0;
       PolygonList[i].Number = 0;
     }
 
   /* allocate memory for 'new PV to check' list and clear struct */
   PVList.Data = (void **) MyCalloc (TotalP + TotalV, sizeof (PVDataTypePtr),
 				    "InitConnectionLookup()");
-  PVList.Position = 0;
-  PVList.DrawPosition = 0;
+  PVList.Location = 0;
+  PVList.DrawLocation = 0;
   PVList.Number = 0;
   /* Initialize ratline data */
   if (PCB->Data->RatN)
@@ -1045,8 +1045,8 @@ InitLayoutLookup (void)
 	     CompareRatByHighX);
 
     }
-  RatList.Position = 0;
-  RatList.DrawPosition = 0;
+  RatList.Location = 0;
+  RatList.DrawLocation = 0;
   RatList.Number = 0;
 }
 
@@ -1057,7 +1057,7 @@ InitLayoutLookup (void)
  * may match the specified x coordinate range.
  */
 static PadDataTypePtr *
-GetIndexOfPads (Position Xlow, Position Xhigh,
+GetIndexOfPads (Location Xlow, Location Xhigh,
 		Cardinal Layer, Cardinal * Number)
 {
   Cardinal index1, index2;
@@ -1084,7 +1084,7 @@ GetIndexOfPads (Position Xlow, Position Xhigh,
  * may match the specified x coordinate range.
  */
 static LineTypePtr *
-GetIndexOfLines (Position Xlow, Position Xhigh,
+GetIndexOfLines (Location Xlow, Location Xhigh,
 		 Cardinal Layer, Cardinal * Number)
 {
   Cardinal index1, index2;
@@ -1111,7 +1111,7 @@ GetIndexOfLines (Position Xlow, Position Xhigh,
  * may match the specified x coordinate range.
  */
 static RatTypePtr *
-GetIndexOfRats (Position Xlow, Position Xhigh, Cardinal * Number)
+GetIndexOfRats (Location Xlow, Location Xhigh, Cardinal * Number)
 {
   Cardinal index1, index2;
 
@@ -1136,7 +1136,7 @@ GetIndexOfRats (Position Xlow, Position Xhigh, Cardinal * Number)
  * may match the specified x coordinate range.
  */
 static ArcTypePtr *
-GetIndexOfArcs (Position Xlow, Position Xhigh,
+GetIndexOfArcs (Location Xlow, Location Xhigh,
 		Cardinal Layer, Cardinal * Number)
 {
   Cardinal index1, index2;
@@ -1185,7 +1185,7 @@ LookupPadByAddress (PadTypePtr Pad)
  * A pointer to the list entry or NULL is returned
  */
 static PVDataTypePtr
-LookupPVByCoordinates (int kind, Position X, Position Y)
+LookupPVByCoordinates (int kind, Location X, Location Y)
 {
   Cardinal i, limit;
 
@@ -1220,12 +1220,13 @@ Boolean
 viaClear (PinTypePtr pv)
 {
   Cardinal layer, i, j, limit;
-  Dimension distance;
+  BDimension distance;
 
   /* check pads (which are lines) */
   for (layer = 0; layer < 2; layer++)
     {
-      Dimension distance = MAX ((MAX_PADSIZE + pv->Thickness) / 2 + Bloat, 0);
+      BDimension distance =
+	MAX ((MAX_PADSIZE + pv->Thickness) / 2 + Bloat, 0);
       PadDataTypePtr *sortedptr;
       Cardinal i;
 
@@ -1243,7 +1244,7 @@ viaClear (PinTypePtr pv)
   /* now all lines, arcs and polygons of the several layers */
   for (layer = 0; layer < MAX_LAYER; layer++)
     {
-      Dimension distance =
+      BDimension distance =
 	MAX ((MAX_LINESIZE + pv->Thickness) / 2 + Bloat, 0);
       LineTypePtr *sortedptr;
       ArcTypePtr *sortedarc;
@@ -1305,15 +1306,15 @@ LookupLOConnectionsToPVList (Boolean AndRats)
   Cardinal layer;
 
   /* loop over all PVs currently on list */
-  while (PVList.Position < PVList.Number)
+  while (PVList.Location < PVList.Number)
     {
       /* get pointer to data */
-      pv = PVLIST_ENTRY (PVList.Position)->Data;
+      pv = PVLIST_ENTRY (PVList.Location)->Data;
 
       /* check pads (which are lines) */
       for (layer = 0; layer < 2; layer++)
 	{
-	  Dimension distance =
+	  BDimension distance =
 	    MAX ((MAX_PADSIZE + pv->Thickness) / 2 + Bloat, 0);
 	  PadDataTypePtr *sortedptr;
 	  Cardinal i;
@@ -1333,7 +1334,7 @@ LookupLOConnectionsToPVList (Boolean AndRats)
       for (layer = 0; layer < MAX_LAYER; layer++)
 	{
 	  PolygonTypePtr polygon = PCB->Data->Layer[layer].Polygon;
-	  Dimension distance =
+	  BDimension distance =
 	    MAX ((MAX_LINESIZE + pv->Thickness) / 2 + Bloat, 0);
 	  LineTypePtr *sortedptr;
 	  ArcTypePtr *sortedarc;
@@ -1381,7 +1382,7 @@ LookupLOConnectionsToPVList (Boolean AndRats)
 		IS_PV_ON_RAT (pv, *sortedptr))
 	      ADD_RAT_TO_LIST (*sortedptr);
 	}
-      PVList.Position++;
+      PVList.Location++;
     }
   return (False);
 }
@@ -1403,13 +1404,13 @@ LookupLOConnectionsToLOList (Boolean AndRats)
    */
   for (i = 0; i < MAX_LAYER; i++)
     {
-      lineposition[i] = LineList[i].Position;
-      polyposition[i] = PolygonList[i].Position;
-      arcposition[i] = ArcList[i].Position;
+      lineposition[i] = LineList[i].Location;
+      polyposition[i] = PolygonList[i].Location;
+      arcposition[i] = ArcList[i].Location;
     }
   for (i = 0; i < 2; i++)
-    padposition[i] = PadList[i].Position;
-  ratposition = RatList.Position;
+    padposition[i] = PadList[i].Location;
+  ratposition = RatList.Location;
 
   /* loop over all new LOs in the list; recurse until no
    * more new connections in the layergroup were found
@@ -1508,17 +1509,17 @@ LookupLOConnectionsToLOList (Boolean AndRats)
 static Boolean
 LookupPVConnectionsToPVList (void)
 {
-  Dimension distance;
+  BDimension distance;
   PinTypePtr pv;
   Cardinal i, j, limit, save_place;
 
 
   /* loop over all PVs on list */
-  save_place = PVList.Position;
-  while (PVList.Position < PVList.Number)
+  save_place = PVList.Location;
+  while (PVList.Location < PVList.Number)
     {
       /* get pointer to data */
-      pv = PVLIST_ENTRY (PVList.Position)->Data;
+      pv = PVLIST_ENTRY (PVList.Location)->Data;
       distance = MAX ((MAX_PINORVIASIZE + pv->Thickness) / 2 + Bloat, 0);
       for (j = 0; j < 2; j++)
 	{
@@ -1547,9 +1548,9 @@ LookupPVConnectionsToPVList (void)
 		}
 	    }
 	}
-      PVList.Position++;
+      PVList.Location++;
     }
-  PVList.Position = save_place;
+  PVList.Location = save_place;
   return (False);
 }
 
@@ -1564,7 +1565,7 @@ static Boolean
 LookupPVConnectionsToLOList (Boolean AndRats)
 {
   Cardinal layer, i, j, limit;
-  Dimension distance;
+  BDimension distance;
   int Myflag;
 
   /* loop over all layers */
@@ -1573,17 +1574,17 @@ LookupPVConnectionsToLOList (Boolean AndRats)
       /* do nothing if there are no PV's */
       if (TotalP + TotalV == 0)
 	{
-	  LineList[layer].Position = LineList[layer].Number;
-	  ArcList[layer].Position = ArcList[layer].Number;
-	  PolygonList[layer].Position = PolygonList[layer].Number;
+	  LineList[layer].Location = LineList[layer].Number;
+	  ArcList[layer].Location = ArcList[layer].Number;
+	  PolygonList[layer].Location = PolygonList[layer].Number;
 	  continue;
 	}
 
       /* check all lines */
-      while (LineList[layer].Position < LineList[layer].Number)
+      while (LineList[layer].Location < LineList[layer].Number)
 	{
 	  LineTypePtr line = LINELIST_ENTRY (layer,
-					     LineList[layer].Position);
+					     LineList[layer].Location);
 
 	  /* get the positions in sorted field to speed up searching
 	   * ### line->Point1.X <= line->Point2.X ###
@@ -1624,14 +1625,14 @@ LookupPVConnectionsToLOList (Boolean AndRats)
 		    }
 		}
 	    }
-	  LineList[layer].Position++;
+	  LineList[layer].Location++;
 	}
 
       /* check all arcs */
-      while (ArcList[layer].Position < ArcList[layer].Number)
+      while (ArcList[layer].Location < ArcList[layer].Number)
 	{
-	  Position X1, X2;
-	  ArcTypePtr arc = ARCLIST_ENTRY (layer, ArcList[layer].Position);
+	  Location X1, X2;
+	  ArcTypePtr arc = ARCLIST_ENTRY (layer, ArcList[layer].Location);
 
 	  /* get the positions in sorted field to speed up searching
 	   * the '+1' in the second call of GetPVByX()
@@ -1669,15 +1670,15 @@ LookupPVConnectionsToLOList (Boolean AndRats)
 		    }
 		}
 	    }
-	  ArcList[layer].Position++;
+	  ArcList[layer].Location++;
 	}
 
       /* now all polygons */
-      while (PolygonList[layer].Position < PolygonList[layer].Number)
+      while (PolygonList[layer].Location < PolygonList[layer].Number)
 	{
 	  PolygonTypePtr polygon;
 
-	  polygon = POLYGONLIST_ENTRY (layer, PolygonList[layer].Position);
+	  polygon = POLYGONLIST_ENTRY (layer, PolygonList[layer].Location);
 
 	  /* get the positions in sorted field to speed up searching */
 	  distance = MAX_PINORVIASIZE / 2;
@@ -1706,7 +1707,7 @@ LookupPVConnectionsToLOList (Boolean AndRats)
 		    ADD_PV_TO_LIST (j ? &PSortedByX[i] : &VSortedByX[i]);
 		}
 	    }
-	  PolygonList[layer].Position++;
+	  PolygonList[layer].Location++;
 	}
     }
 
@@ -1716,18 +1717,18 @@ LookupPVConnectionsToLOList (Boolean AndRats)
       /* do nothing if there are no PV's */
       if (TotalP + TotalV == 0)
 	{
-	  PadList[layer].Position = PadList[layer].Number;
+	  PadList[layer].Location = PadList[layer].Number;
 	  continue;
 	}
 
       /* check all pads; for a detailed description see
        * the handling of lines in this subroutine
        */
-      while (PadList[layer].Position < PadList[layer].Number)
+      while (PadList[layer].Location < PadList[layer].Number)
 	{
 	  PadTypePtr pad;
 
-	  pad = PADLIST_ENTRY (layer, PadList[layer].Position)->Data;
+	  pad = PADLIST_ENTRY (layer, PadList[layer].Location)->Data;
 	  distance = MAX ((MAX_PINORVIASIZE + pad->Thickness) / 2 + Bloat, 0);
 	  for (j = 0; j < 2; j++)
 	    {
@@ -1758,22 +1759,22 @@ LookupPVConnectionsToLOList (Boolean AndRats)
 		    }
 		}
 	    }
-	  PadList[layer].Position++;
+	  PadList[layer].Location++;
 	}
     }
 
   /* do nothing if there are no PV's */
   if (TotalP + TotalV == 0)
-    RatList.Position = RatList.Number;
+    RatList.Location = RatList.Number;
 
   /* check all rat-lines */
   if (AndRats)
     {
-      while (RatList.Position < RatList.Number)
+      while (RatList.Location < RatList.Number)
 	{
 	  RatTypePtr rat;
 
-	  rat = RATLIST_ENTRY (RatList.Position);
+	  rat = RATLIST_ENTRY (RatList.Location);
 	  distance = (MAX_PINORVIASIZE) / 2;
 	  for (j = 0; j < 2; j++)
 	    {
@@ -1796,7 +1797,7 @@ LookupPVConnectionsToLOList (Boolean AndRats)
 		    ADD_PV_TO_LIST (j ? &PSortedByX[i] : &VSortedByX[i]);
 		}
 	    }
-	  RatList.Position++;
+	  RatList.Location++;
 	}
     }
   return (False);
@@ -1806,7 +1807,7 @@ static Boolean
 PVTouchesLine (LineTypePtr line)
 {
   Cardinal i, j, limit;
-  Dimension distance;
+  BDimension distance;
 
   /* do nothing if there are no PV's */
   if (TotalP + TotalV == 0)
@@ -1868,7 +1869,7 @@ static Boolean
 ArcArcIntersect (ArcTypePtr Arc1, ArcTypePtr Arc2)
 {
   register float x, y, dx, dy, r1, r2, a, d, l, t, t2;
-  register Position pdx, pdy;
+  register Location pdx, pdy;
   BoxTypePtr box;
   BoxType box1, box2;
 
@@ -2340,7 +2341,7 @@ static Boolean
 LookupLOConnectionsToArc (ArcTypePtr Arc, Cardinal LayerGroup)
 {
   Cardinal entry;
-  Position xlow, xhigh;
+  Location xlow, xhigh;
 
   /* the maximum possible distance */
 
@@ -2418,7 +2419,7 @@ static Boolean
   (LineTypePtr Line, Cardinal LayerGroup, Boolean PolysTo)
 {
   Cardinal entry;
-  Position xlow, xhigh;
+  Location xlow, xhigh;
   RatTypePtr *sortedrat;
   Cardinal i;
 
@@ -2519,7 +2520,7 @@ static Boolean
 LOTouchesLine (LineTypePtr Line, Cardinal LayerGroup)
 {
   Cardinal entry;
-  Position xlow, xhigh;
+  Location xlow, xhigh;
   Cardinal i;
 
   /* the maximum possible distance */
@@ -2659,7 +2660,7 @@ static Boolean
 LookupLOConnectionsToPad (PadTypePtr Pad, Cardinal LayerGroup)
 {
   Cardinal entry, i;
-  Position xlow, xhigh;
+  Location xlow, xhigh;
   RatTypePtr *sortedrat;
   LineTypePtr Line = (LineTypePtr) Pad;
 
@@ -2872,7 +2873,7 @@ IsArcInPolygon (ArcTypePtr Arc, PolygonTypePtr Polygon)
 Boolean
 IsLineInPolygon (LineTypePtr Line, PolygonTypePtr Polygon)
 {
-  Position minx = MIN (Line->Point1.X, Line->Point2.X)
+  Location minx = MIN (Line->Point1.X, Line->Point2.X)
     - MAX (Line->Thickness + Bloat, 0),
     maxx = MAX (Line->Point1.X, Line->Point2.X)
     + MAX (Line->Thickness + Bloat, 0),
@@ -3091,13 +3092,13 @@ ListsEmpty (Boolean AndRats)
   Boolean empty;
   int i;
 
-  empty = (PVList.Position >= PVList.Number);
+  empty = (PVList.Location >= PVList.Number);
   if (AndRats)
-    empty = empty && (RatList.Position >= RatList.Number);
+    empty = empty && (RatList.Location >= RatList.Number);
   for (i = 0; i < MAX_LAYER && empty; i++)
-    empty = empty && LineList[i].Position >= LineList[i].Number
-      && ArcList[i].Position >= ArcList[i].Number
-      && PolygonList[i].Position >= PolygonList[i].Number;
+    empty = empty && LineList[i].Location >= LineList[i].Number
+      && ArcList[i].Location >= ArcList[i].Number
+      && PolygonList[i].Location >= PolygonList[i].Number;
   return (empty);
 }
 
@@ -3265,16 +3266,16 @@ PrepareNextLoop (FILE * FP)
   /* reset found LOs for the next pin */
   for (layer = 0; layer < MAX_LAYER; layer++)
     {
-      LineList[layer].Position = LineList[layer].Number = 0;
-      PolygonList[layer].Position = PolygonList[layer].Number = 0;
+      LineList[layer].Location = LineList[layer].Number = 0;
+      PolygonList[layer].Location = PolygonList[layer].Number = 0;
     }
 
   /* reset found pads */
   for (layer = 0; layer < 2; layer++)
-    PadList[layer].Position = PadList[layer].Number = 0;
+    PadList[layer].Location = PadList[layer].Number = 0;
 
   /* reset PVs */
-  PVList.Number = PVList.Position = 0;
+  PVList.Number = PVList.Location = 0;
 
   /* check if abort buttons has been pressed */
   if (CheckAbort ())
@@ -3370,23 +3371,23 @@ DrawNewConnections (void)
       if (PCB->Data->Layer[layer].On)
 	{
 	  /* draw all new lines */
-	  position = LineList[layer].DrawPosition;
+	  position = LineList[layer].DrawLocation;
 	  for (; position < LineList[layer].Number; position++)
 	    DrawLine (LAYER_PTR (layer), LINELIST_ENTRY (layer, position), 0);
-	  LineList[layer].DrawPosition = LineList[layer].Number;
+	  LineList[layer].DrawLocation = LineList[layer].Number;
 
 	  /* draw all new arcs */
-	  position = ArcList[layer].DrawPosition;
+	  position = ArcList[layer].DrawLocation;
 	  for (; position < ArcList[layer].Number; position++)
 	    DrawArc (LAYER_PTR (layer), ARCLIST_ENTRY (layer, position), 0);
-	  ArcList[layer].DrawPosition = ArcList[layer].Number;
+	  ArcList[layer].DrawLocation = ArcList[layer].Number;
 
 	  /* draw all new polygons */
-	  position = PolygonList[layer].DrawPosition;
+	  position = PolygonList[layer].DrawLocation;
 	  for (; position < PolygonList[layer].Number; position++)
 	    DrawPolygon
 	      (LAYER_PTR (layer), POLYGONLIST_ENTRY (layer, position), 0);
-	  PolygonList[layer].DrawPosition = PolygonList[layer].Number;
+	  PolygonList[layer].DrawLocation = PolygonList[layer].Number;
 	}
     }
 
@@ -3394,19 +3395,19 @@ DrawNewConnections (void)
   if (PCB->PinOn)
     for (i = 0; i < 2; i++)
       {
-	position = PadList[i].DrawPosition;
+	position = PadList[i].DrawLocation;
 
 	for (; position < PadList[i].Number; position++)
 	  DrawPad (PADLIST_ENTRY (i, position)->Data, 0);
-	PadList[i].DrawPosition = PadList[i].Number;
+	PadList[i].DrawLocation = PadList[i].Number;
       }
 
   /* draw all new PVs; 'PVList' holds a list of pointers to the
    * sorted array pointers to PV data
    */
-  while (PVList.DrawPosition < PVList.Number)
+  while (PVList.DrawLocation < PVList.Number)
     {
-      PVDataTypePtr pv = PVLIST_ENTRY (PVList.DrawPosition);
+      PVDataTypePtr pv = PVLIST_ENTRY (PVList.DrawLocation);
 
       if (TEST_FLAG (PINFLAG, pv->Data))
 	{
@@ -3415,15 +3416,15 @@ DrawNewConnections (void)
 	}
       else if (PCB->ViaOn)
 	DrawVia (pv->Data, 0);
-      PVList.DrawPosition++;
+      PVList.DrawLocation++;
     }
   /* draw the new rat-lines */
   if (PCB->RatOn)
     {
-      position = RatList.DrawPosition;
+      position = RatList.DrawLocation;
       for (; position < RatList.Number; position++)
 	DrawRat (RATLIST_ENTRY (position), 0);
-      RatList.DrawPosition = RatList.Number;
+      RatList.DrawLocation = RatList.Number;
     }
 }
 
@@ -3570,7 +3571,7 @@ ListStart (int type, void *ptr1, void *ptr2, void *ptr3)
  * also the action is marked as undoable if AndDraw is true
  */
 void
-LookupConnection (Position X, Position Y, Boolean AndDraw, Dimension Range)
+LookupConnection (Location X, Location Y, Boolean AndDraw, BDimension Range)
 {
   void *ptr1, *ptr2, *ptr3;
   int type;
@@ -3579,12 +3580,12 @@ LookupConnection (Position X, Position Y, Boolean AndDraw, Dimension Range)
 
 
   type
-    = SearchObjectByPosition (LOOKUP_FIRST, &ptr1, &ptr2, &ptr3, X, Y, Range);
+    = SearchObjectByLocation (LOOKUP_FIRST, &ptr1, &ptr2, &ptr3, X, Y, Range);
   if (type == NO_TYPE)
     {
       type
 	=
-	SearchObjectByPosition
+	SearchObjectByLocation
 	(LOOKUP_MORE, &ptr1, &ptr2, &ptr3, X, Y, Range);
       if (type == NO_TYPE)
 	return;
@@ -3830,23 +3831,23 @@ DumpList (void)
   for (i = 0; i < 2; i++)
     {
       PadList[i].Number = 0;
-      PadList[i].Position = 0;
+      PadList[i].Location = 0;
     }
 
   PVList.Number = 0;
-  PVList.Position = 0;
+  PVList.Location = 0;
 
   for (i = 0; i < MAX_LAYER; i++)
     {
-      LineList[i].Position = 0;
+      LineList[i].Location = 0;
       LineList[i].Number = 0;
-      ArcList[i].Position = 0;
+      ArcList[i].Location = 0;
       ArcList[i].Number = 0;
-      PolygonList[i].Position = 0;
+      PolygonList[i].Location = 0;
       PolygonList[i].Number = 0;
     }
   RatList.Number = 0;
-  RatList.Position = 0;
+  RatList.Location = 0;
 }
 
 /*-----------------------------------------------------------------------------
@@ -4035,7 +4036,7 @@ DRCAll (void)
 static void
 GotoError (void)
 {
-  Position X, Y;
+  Location X, Y;
 
 
   COPPERLINE_LOOP (PCB->Data, 
@@ -4101,8 +4102,9 @@ GotoError (void)
   );
   return;
 gotcha:
-  Message ("near location (%d,%d)\n", X, Y);
-  CenterDisplay (TO_SCREEN_X (X), TO_SCREEN_Y (Y), False);
+  Message ("near location (%d.%02d,%d.%02d)\n", X / 100, X % 100, Y / 100,
+	   Y % 100);
+  CenterDisplay (X, Y, False);
   RedrawOutput ();
 }
 

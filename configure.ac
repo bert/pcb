@@ -2,7 +2,7 @@ dnl $Id$
 dnl Process this file with autoconf to produce a configure script.
 
 AC_INIT(src/pinout.c)
-AM_INIT_AUTOMAKE(pcb, 1.99o)
+AM_INIT_AUTOMAKE(pcb, 1.99p)
 AM_CONFIG_HEADER(config.h)
 
 dnl Checks for programs.

@@ -52,45 +52,45 @@ static char *rcsid = "$Id$";
 /* ---------------------------------------------------------------------------
  * some local identifiers
  */
-static Position PosX,		/* search position for subroutines */
+static float PosX,		/* search position for subroutines */
   PosY;
-static Dimension SearchRadius;
+static BDimension SearchRadius;
 static LayerTypePtr SearchLayer;
 static Boolean ScreenOnly = False;
 
 /* ---------------------------------------------------------------------------
  * some local prototypes
  */
-static Boolean SearchLineByPosition (LayerTypePtr *, LineTypePtr *,
+static Boolean SearchLineByLocation (LayerTypePtr *, LineTypePtr *,
 				     LineTypePtr *);
-static Boolean SearchArcByPosition (LayerTypePtr *, ArcTypePtr *,
+static Boolean SearchArcByLocation (LayerTypePtr *, ArcTypePtr *,
 				    ArcTypePtr *);
-static Boolean SearchRatLineByPosition (RatTypePtr *, RatTypePtr *,
+static Boolean SearchRatLineByLocation (RatTypePtr *, RatTypePtr *,
 					RatTypePtr *);
-static Boolean SearchTextByPosition (LayerTypePtr *, TextTypePtr *,
+static Boolean SearchTextByLocation (LayerTypePtr *, TextTypePtr *,
 				     TextTypePtr *);
-static Boolean SearchPolygonByPosition (LayerTypePtr *, PolygonTypePtr *,
+static Boolean SearchPolygonByLocation (LayerTypePtr *, PolygonTypePtr *,
 					PolygonTypePtr *);
-static Boolean SearchPinByPosition (ElementTypePtr *, PinTypePtr *,
+static Boolean SearchPinByLocation (ElementTypePtr *, PinTypePtr *,
 				    PinTypePtr *);
-static Boolean SearchPadByPosition (ElementTypePtr *, PadTypePtr *,
+static Boolean SearchPadByLocation (ElementTypePtr *, PadTypePtr *,
 				    PadTypePtr *, Boolean);
-static Boolean SearchViaByPosition (PinTypePtr *, PinTypePtr *, PinTypePtr *);
-static Boolean SearchElementNameByPosition (ElementTypePtr *, TextTypePtr *,
+static Boolean SearchViaByLocation (PinTypePtr *, PinTypePtr *, PinTypePtr *);
+static Boolean SearchElementNameByLocation (ElementTypePtr *, TextTypePtr *,
 					    TextTypePtr *, Boolean);
-static Boolean SearchLinePointByPosition (LayerTypePtr *, LineTypePtr *,
+static Boolean SearchLinePointByLocation (LayerTypePtr *, LineTypePtr *,
 					  PointTypePtr *);
-static Boolean SearchPointByPosition (LayerTypePtr *, PolygonTypePtr *,
+static Boolean SearchPointByLocation (LayerTypePtr *, PolygonTypePtr *,
 				      PointTypePtr *);
-static Boolean SearchElementByPosition (ElementTypePtr *, ElementTypePtr *,
+static Boolean SearchElementByLocation (ElementTypePtr *, ElementTypePtr *,
 					ElementTypePtr *, Boolean);
-static Boolean IsPointInBox (Position, Position, BoxTypePtr, Cardinal);
+static Boolean IsPointInBox (Location, Location, BoxTypePtr, Cardinal);
 
 /* ---------------------------------------------------------------------------
  * searches a via
  */
 static Boolean
-SearchViaByPosition (PinTypePtr * Via, PinTypePtr * Dummy1,
+SearchViaByLocation (PinTypePtr * Via, PinTypePtr * Dummy1,
 		     PinTypePtr * Dummy2)
 {
   /* search only if via-layer is visible */
@@ -114,7 +114,7 @@ SearchViaByPosition (PinTypePtr * Via, PinTypePtr * Dummy1,
  * starts with the newest element
  */
 static Boolean
-SearchPinByPosition (ElementTypePtr * Element, PinTypePtr * Pin,
+SearchPinByLocation (ElementTypePtr * Element, PinTypePtr * Pin,
 		     PinTypePtr * Dummy)
 {
   /* search only if pin-layer is visible */
@@ -143,7 +143,7 @@ SearchPinByPosition (ElementTypePtr * Element, PinTypePtr * Pin,
  * starts with the newest element
  */
 static Boolean
-SearchPadByPosition (ElementTypePtr * Element, PadTypePtr * Pad,
+SearchPadByLocation (ElementTypePtr * Element, PadTypePtr * Pad,
 		     PadTypePtr * Dummy, Boolean BackToo)
 {
   /* search only if pin-layer is visible */
@@ -191,7 +191,7 @@ SearchPadByPosition (ElementTypePtr * Element, PadTypePtr * Pad,
  * searches ordinary line on the SearchLayer 
  */
 static Boolean
-SearchLineByPosition (LayerTypePtr * Layer, LineTypePtr * Line,
+SearchLineByLocation (LayerTypePtr * Layer, LineTypePtr * Line,
 		      LineTypePtr * Dummy)
 {
   *Layer = SearchLayer;
@@ -213,7 +213,7 @@ SearchLineByPosition (LayerTypePtr * Layer, LineTypePtr * Line,
  * searches rat lines if they are visible
  */
 static Boolean
-SearchRatLineByPosition (RatTypePtr * Line, RatTypePtr * Dummy1,
+SearchRatLineByLocation (RatTypePtr * Line, RatTypePtr * Dummy1,
 			 RatTypePtr * Dummy2)
 {
   RAT_LOOP (PCB->Data, 
@@ -234,7 +234,7 @@ SearchRatLineByPosition (RatTypePtr * Line, RatTypePtr * Dummy1,
  * searches arc on the SearchLayer 
  */
 static Boolean
-SearchArcByPosition (LayerTypePtr * Layer, ArcTypePtr * Arc,
+SearchArcByLocation (LayerTypePtr * Layer, ArcTypePtr * Arc,
 		     ArcTypePtr * Dummy)
 {
   *Layer = SearchLayer;
@@ -256,7 +256,7 @@ SearchArcByPosition (LayerTypePtr * Layer, ArcTypePtr * Arc,
  * searches text on the SearchLayer
  */
 static Boolean
-SearchTextByPosition (LayerTypePtr * Layer, TextTypePtr * Text,
+SearchTextByLocation (LayerTypePtr * Layer, TextTypePtr * Text,
 		      TextTypePtr * Dummy)
 {
   *Layer = SearchLayer;
@@ -279,7 +279,7 @@ SearchTextByPosition (LayerTypePtr * Layer, TextTypePtr * Text,
  * searches a polygon on the SearchLayer 
  */
 static Boolean
-SearchPolygonByPosition (LayerTypePtr * Layer,
+SearchPolygonByLocation (LayerTypePtr * Layer,
 			 PolygonTypePtr * Polygon, PolygonTypePtr * Dummy)
 {
   *Layer = SearchLayer;
@@ -301,7 +301,7 @@ SearchPolygonByPosition (LayerTypePtr * Layer,
  * searches a line-point on all the search layer
  */
 static Boolean
-SearchLinePointByPosition (LayerTypePtr * Layer, LineTypePtr * Line,
+SearchLinePointByLocation (LayerTypePtr * Layer, LineTypePtr * Line,
 			   PointTypePtr * Point)
 {
   float d, least;
@@ -348,7 +348,7 @@ SearchLinePointByPosition (LayerTypePtr * Layer, LineTypePtr * Line,
  * in layerstack order
  */
 static Boolean
-SearchPointByPosition (LayerTypePtr * Layer,
+SearchPointByLocation (LayerTypePtr * Layer,
 		       PolygonTypePtr * Polygon, PointTypePtr * Point)
 {
   float d, least;
@@ -389,7 +389,7 @@ SearchPointByPosition (LayerTypePtr * Layer,
  * the search starts with the last element and goes back to the beginning
  */
 static Boolean
-SearchElementNameByPosition (ElementTypePtr * Element,
+SearchElementNameByLocation (ElementTypePtr * Element,
 			     TextTypePtr * Text, TextTypePtr * Dummy,
 			     Boolean BackToo)
 {
@@ -426,12 +426,12 @@ SearchElementNameByPosition (ElementTypePtr * Element,
  * if more than one element matches, the smallest one is taken
  */
 static Boolean
-SearchElementByPosition (ElementTypePtr * Element,
+SearchElementByLocation (ElementTypePtr * Element,
 			 ElementTypePtr * Dummy1, ElementTypePtr * Dummy2,
 			 Boolean BackToo)
 {
   ElementTypePtr save = NULL;
-  long area = 0;
+  float area = 0;
   Boolean found;
 
   /* Both package layers have to be switched on */
@@ -454,12 +454,13 @@ SearchElementByPosition (ElementTypePtr * Element,
 				       Name[NAME_INDEX (PCB)].BoundingBox);
 	      if (found)
 		{
-		  long newarea;
+		  float newarea;
 		  /* use the element with the smallest bounding box */
 		  newarea =
 		    (element->BoundingBox.X2 -
-		     element->BoundingBox.X1) * (element->BoundingBox.Y2 -
-						 element->BoundingBox.Y1);
+		     element->BoundingBox.X1) *
+		    (float) (element->BoundingBox.Y2 -
+			     element->BoundingBox.Y1);
 		  if (!save || newarea < area)
 		    {
 		      area = newarea;
@@ -483,7 +484,7 @@ IsPointOnPin (float X, float Y, float Radius, PinTypePtr pin)
   if (TEST_FLAG (SQUAREFLAG, pin))
     {
       BoxType b;
-      Dimension t = pin->Thickness / 2;
+      BDimension t = pin->Thickness / 2;
 
       b.X1 = pin->X - t;
       b.X2 = pin->X + t;
@@ -502,7 +503,7 @@ IsPointOnPin (float X, float Y, float Radius, PinTypePtr pin)
  * checks if a rat-line end is on a PV
  */
 Boolean
-IsPointOnLineEnd (Position X, Position Y, RatTypePtr Line)
+IsPointOnLineEnd (Location X, Location Y, RatTypePtr Line)
 {
   if (((X == Line->Point1.X) && (Y == Line->Point1.Y)) ||
       ((X == Line->Point2.X) && (Y == Line->Point2.Y)))
@@ -559,9 +560,8 @@ IsPointOnLine (float X, float Y, float Radius, LineTypePtr Line)
   if ((l = dx * dx + dy * dy) == 0.0)
     {
       l =
-	(Line->Point1.X - X) * (Line->Point1.X - X) + (Line->Point1.Y -
-						       Y) * (Line->Point1.Y -
-							     Y);
+	(Line->Point1.X - X) * (float) (Line->Point1.X - X) +
+	(Line->Point1.Y - Y) * (float) (Line->Point1.Y - Y);
       return ((l <= Radius) ? True : False);
     }
   if (d * d > Radius * l)
@@ -584,12 +584,12 @@ IsPointOnLine (float X, float Y, float Radius, LineTypePtr Line)
  * checks if a line crosses a rectangle
  */
 Boolean
-IsLineInRectangle (Position X1, Position Y1,
-		   Position X2, Position Y2, LineTypePtr Line)
+IsLineInRectangle (Location X1, Location Y1,
+		   Location X2, Location Y2, LineTypePtr Line)
 {
   LineType line;
-  Dimension thick = Line->Thickness / 2 + 1;
-  Position minx = MIN (Line->Point1.X, Line->Point2.X) - thick,
+  BDimension thick = Line->Thickness / 2 + 1;
+  Location minx = MIN (Line->Point1.X, Line->Point2.X) - thick,
     miny = MIN (Line->Point1.Y, Line->Point2.Y) - thick,
     maxx = MAX (Line->Point1.X, Line->Point2.X) + thick,
     maxy = MAX (Line->Point1.Y, Line->Point2.Y) + thick;
@@ -654,8 +654,8 @@ IsLineInRectangle (Position X1, Position Y1,
  * checks if an arc crosses a square
  */
 Boolean
-IsArcInRectangle (Position X1, Position Y1,
-		  Position X2, Position Y2, ArcTypePtr Arc)
+IsArcInRectangle (Location X1, Location Y1,
+		  Location X2, Location Y2, ArcTypePtr Arc)
 {
   LineType line;
 
@@ -699,9 +699,9 @@ IsArcInRectangle (Position X1, Position Y1,
  * fixed 10/30/98 - radius can't expand both edges of a square box
  */
 Boolean
-IsPointInSquarePad (Position X, Position Y, Cardinal Radius, PadTypePtr Pad)
+IsPointInSquarePad (Location X, Location Y, Cardinal Radius, PadTypePtr Pad)
 {
-  register Dimension t2 = Pad->Thickness / 2;
+  register BDimension t2 = Pad->Thickness / 2;
   BoxType padbox;
 
   padbox.X1 = MIN (Pad->Point1.X, Pad->Point2.X) - t2;
@@ -712,7 +712,7 @@ IsPointInSquarePad (Position X, Position Y, Cardinal Radius, PadTypePtr Pad)
 }
 
 static Boolean
-IsPointInBox (Position X, Position Y, BoxTypePtr box, Cardinal Radius)
+IsPointInBox (Location X, Location Y, BoxTypePtr box, Cardinal Radius)
 {
   LineType line;
 
@@ -759,10 +759,10 @@ IsPointInPolygon (float X, float Y, float Radius, PolygonTypePtr Polygon)
   BoxType boundingbox = Polygon->BoundingBox;
 
   /* increment the size of the bounding box by the radius */
-  boundingbox.X1 -= (Position) Radius;
-  boundingbox.Y1 -= (Position) Radius;
-  boundingbox.X2 += (Position) Radius;
-  boundingbox.Y2 += (Position) Radius;
+  boundingbox.X1 -= (Location) Radius;
+  boundingbox.Y1 -= (Location) Radius;
+  boundingbox.X2 += (Location) Radius;
+  boundingbox.Y2 += (Location) Radius;
 
   /* quick check if the point may lay inside */
   if (POINT_IN_BOX (X, Y, &boundingbox))
@@ -814,8 +814,8 @@ IsPointInPolygon (float X, float Y, float Radius, PolygonTypePtr Polygon)
  * checks if a polygon intersects with a square
  */
 Boolean
-IsRectangleInPolygon (Position X1, Position Y1,
-		      Position X2, Position Y2, PolygonTypePtr Polygon)
+IsRectangleInPolygon (Location X1, Location Y1,
+		      Location X2, Location Y2, PolygonTypePtr Polygon)
 {
   PolygonType polygon;
   PointType points[4];
@@ -835,7 +835,7 @@ IsPointOnArc (float X, float Y, float Radius, ArcTypePtr Arc)
 {
 
   register float x, y, dx, dy, r1, r2, a, d, l;
-  register Position pdx, pdy;
+  register float pdx, pdy;
   int ang1, ang2, delta;
   int startAngle, arcDelta;
 
@@ -920,13 +920,13 @@ IsPointOnArc (float X, float Y, float Radius, ArcTypePtr Arc)
  *   polygon-point, pin, via, line, text, elementname, polygon, element
  */
 int
-SearchObjectByPosition (int Type,
+SearchObjectByLocation (int Type,
 			void **Result1, void **Result2, void **Result3,
-			Position X, Position Y, Dimension Radius)
+			Location X, Location Y, BDimension Radius)
 {
   void *r1, *r2, *r3;
   int i;
-  int HigherBound = 0;
+  float HigherBound = 0;
   int HigherAvail = NO_TYPE;
   /* setup local identifiers */
   PosX = X;
@@ -934,37 +934,37 @@ SearchObjectByPosition (int Type,
   SearchRadius = Radius;
 
   if (Type & VIA_TYPE &&
-      SearchViaByPosition ((PinTypePtr *) Result1,
+      SearchViaByLocation ((PinTypePtr *) Result1,
 			   (PinTypePtr *) Result2, (PinTypePtr *) Result3))
     return (VIA_TYPE);
 
   if (Type & PIN_TYPE &&
-      SearchPinByPosition ((ElementTypePtr *) & r1,
+      SearchPinByLocation ((ElementTypePtr *) & r1,
 			   (PinTypePtr *) & r2, (PinTypePtr *) & r3))
     HigherAvail = PIN_TYPE;
 
   if (!HigherAvail && Type & PAD_TYPE &&
-      SearchPadByPosition ((ElementTypePtr *) & r1,
+      SearchPadByLocation ((ElementTypePtr *) & r1,
 			   (PadTypePtr *) & r2, (PadTypePtr *) & r3, False))
     HigherAvail = PAD_TYPE;
 
   if (!HigherAvail && Type & ELEMENTNAME_TYPE &&
-      SearchElementNameByPosition ((ElementTypePtr *) & r1,
+      SearchElementNameByLocation ((ElementTypePtr *) & r1,
 				   (TextTypePtr *) & r2, (TextTypePtr *) & r3,
 				   False))
     {
       BoxTypePtr box = &((TextTypePtr) r2)->BoundingBox;
-      HigherBound = (box->X2 - box->X1) * (box->Y2 - box->Y1);
+      HigherBound = (float) (box->X2 - box->X1) * (float) (box->Y2 - box->Y1);
       HigherAvail = ELEMENTNAME_TYPE;
     }
 
   if (!HigherAvail && Type & ELEMENT_TYPE &&
-      SearchElementByPosition ((ElementTypePtr *) & r1,
+      SearchElementByLocation ((ElementTypePtr *) & r1,
 			       (ElementTypePtr *) & r2,
 			       (ElementTypePtr *) & r3, False))
     {
       BoxTypePtr box = &((ElementTypePtr) r1)->BoundingBox;
-      HigherBound = (box->X2 - box->X1) * (box->Y2 - box->Y1);
+      HigherBound = (float) (box->X2 - box->X1) * (float) (box->Y2 - box->Y1);
       HigherAvail = ELEMENT_TYPE;
     }
 
@@ -979,37 +979,37 @@ SearchObjectByPosition (int Type,
       if (SearchLayer->On)
 	{
 	  if (Type & POLYGONPOINT_TYPE &&
-	      SearchPointByPosition ((LayerTypePtr *) Result1,
+	      SearchPointByLocation ((LayerTypePtr *) Result1,
 				     (PolygonTypePtr *) Result2,
 				     (PointTypePtr *) Result3))
 	    return (POLYGONPOINT_TYPE);
 
 	  if (Type & LINEPOINT_TYPE &&
-	      SearchLinePointByPosition ((LayerTypePtr *) Result1,
+	      SearchLinePointByLocation ((LayerTypePtr *) Result1,
 					 (LineTypePtr *) Result2,
 					 (PointTypePtr *) Result3))
 	    return (LINEPOINT_TYPE);
 
 	  if ((HigherAvail & (PIN_TYPE | PAD_TYPE)) == 0 && Type & LINE_TYPE
-	      && SearchLineByPosition ((LayerTypePtr *) Result1,
+	      && SearchLineByLocation ((LayerTypePtr *) Result1,
 				       (LineTypePtr *) Result2,
 				       (LineTypePtr *) Result3))
 	    return (LINE_TYPE);
 
 	  if ((HigherAvail & (PIN_TYPE | PAD_TYPE)) == 0 && Type & ARC_TYPE &&
-	      SearchArcByPosition ((LayerTypePtr *) Result1,
+	      SearchArcByLocation ((LayerTypePtr *) Result1,
 				   (ArcTypePtr *) Result2,
 				   (ArcTypePtr *) Result3))
 	    return (ARC_TYPE);
 
 	  if ((HigherAvail & (PIN_TYPE | PAD_TYPE)) == 0 && Type & TEXT_TYPE
-	      && SearchTextByPosition ((LayerTypePtr *) Result1,
+	      && SearchTextByLocation ((LayerTypePtr *) Result1,
 				       (TextTypePtr *) Result2,
 				       (TextTypePtr *) Result3))
 	    return (TEXT_TYPE);
 
 	  if (Type & POLYGON_TYPE &&
-	      SearchPolygonByPosition ((LayerTypePtr *) Result1,
+	      SearchPolygonByLocation ((LayerTypePtr *) Result1,
 				       (PolygonTypePtr *) Result2,
 				       (PolygonTypePtr *) Result3))
 	    {
@@ -1017,7 +1017,8 @@ SearchObjectByPosition (int Type,
 		{
 		  BoxTypePtr box =
 		    &(*(PolygonTypePtr *) Result2)->BoundingBox;
-		  int area = (box->X2 - box->X1) * (box->X2 - box->X1);
+		  float area =
+		    (float) (box->X2 - box->X1) * (float) (box->X2 - box->X1);
 		  if (HigherBound < area)
 		    break;
 		  else
@@ -1054,7 +1055,7 @@ SearchObjectByPosition (int Type,
     }
 
   if (Type & RATLINE_TYPE &&
-      SearchRatLineByPosition ((RatTypePtr *) Result1,
+      SearchRatLineByLocation ((RatTypePtr *) Result1,
 			       (RatTypePtr *) Result2,
 			       (RatTypePtr *) Result3))
     return (RATLINE_TYPE);
@@ -1072,19 +1073,19 @@ SearchObjectByPosition (int Type,
     return (NO_TYPE);
 
   if (Type & PAD_TYPE &&
-      SearchPadByPosition ((ElementTypePtr *) Result1,
+      SearchPadByLocation ((ElementTypePtr *) Result1,
 			   (PadTypePtr *) Result2, (PadTypePtr *) Result3,
 			   True))
     return (PAD_TYPE);
 
   if (Type & ELEMENTNAME_TYPE &&
-      SearchElementNameByPosition ((ElementTypePtr *) Result1,
+      SearchElementNameByLocation ((ElementTypePtr *) Result1,
 				   (TextTypePtr *) Result2,
 				   (TextTypePtr *) Result3, True))
     return (ELEMENTNAME_TYPE);
 
   if (Type & ELEMENT_TYPE &&
-      SearchElementByPosition ((ElementTypePtr *) Result1,
+      SearchElementByLocation ((ElementTypePtr *) Result1,
 			       (ElementTypePtr *) Result2,
 			       (ElementTypePtr *) Result3, True))
     return (ELEMENT_TYPE);
@@ -1170,7 +1171,8 @@ SearchObjectByID (DataTypePtr Base,
 	      *Result2 = *Result3 = (void *) polygon;
 	      return (POLYGON_TYPE);
 	    }
-	  POLYGONPOINT_LOOP (polygon, 
+	  if (type == POLYGONPOINT_TYPE)
+	    POLYGONPOINT_LOOP (polygon, 
 	    {
 	      if (point->ID == ID)
 		{
@@ -1323,13 +1325,13 @@ SearchElementByName (DataTypePtr Base, char *Name)
  * searches the cursor position for the type 
  */
 int
-SearchScreen (Position X, Position Y, int Type, void **Result1,
+SearchScreen (Location X, Location Y, int Type, void **Result1,
 	      void **Result2, void **Result3)
 {
   int ans;
 
   ScreenOnly = True;
-  ans = SearchObjectByPosition (Type, Result1, Result2, Result3,
+  ans = SearchObjectByLocation (Type, Result1, Result2, Result3,
 				X, Y, TO_PCB (SLOP));
   ScreenOnly = False;
   return (ans);

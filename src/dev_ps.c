@@ -62,7 +62,7 @@ static char *rcsid = "$Id$";
 /* ---------------------------------------------------------------------------
  * some defines
  */
-#define	PS_UNIT		0.072	/* 1 mil in PostScript units */
+#define	PS_UNIT		0.00072	/* 0.01 mil in PostScript units */
 
 /* ---------------------------------------------------------------------------
  * some local prototypes
@@ -88,8 +88,8 @@ static void PS_PrintTextLowLevel (TextTypePtr);
 static void PS_PrintElementPackage (ElementTypePtr);
 static void PS_PrintPad (PadTypePtr, int);
 static void PS_PrintPinOrVia (PinTypePtr, int);
-static void PS_Outline (Position, Position, Position, Position);
-static void PS_Alignment (Position, Position, Position, Position);
+static void PS_Outline (Location, Location, Location, Location);
+static void PS_Alignment (Location, Location, Location, Location);
 static void PS_DrillHelper (PinTypePtr, int);
 
 /* ----------------------------------------------------------------------
@@ -523,17 +523,17 @@ PS_EPS_Init (PrintInitTypePtr Flags, char *Description, Boolean CreateEPS)
    * - rotate it
    * - transform to PS coordinates#
    */
-  box.X1 = (Position) ((float) PS_Flags.OffsetX * PS_UNIT) - 1;
-  box.Y1 = (Position) ((float) PS_Flags.OffsetY * PS_UNIT) - 1;
+  box.X1 = (Location) ((float) PS_Flags.OffsetX * PS_UNIT) - 1;
+  box.Y1 = (Location) ((float) PS_Flags.OffsetY * PS_UNIT) - 1;
   if (!PS_Flags.RotateFlag)
     {
-      box.X2 = (Position) ((dx + PS_Flags.OffsetX) * PS_UNIT) + 1;
-      box.Y2 = (Position) ((dy + PS_Flags.OffsetY) * PS_UNIT) + 1;
+      box.X2 = (Location) ((dx + PS_Flags.OffsetX) * PS_UNIT) + 1;
+      box.Y2 = (Location) ((dy + PS_Flags.OffsetY) * PS_UNIT) + 1;
     }
   else
     {
-      box.X2 = (Position) ((dy + PS_Flags.OffsetX) * PS_UNIT) + 1;
-      box.Y2 = (Position) ((dx + PS_Flags.OffsetY) * PS_UNIT) + 1;
+      box.X2 = (Location) ((dy + PS_Flags.OffsetX) * PS_UNIT) + 1;
+      box.Y2 = (Location) ((dx + PS_Flags.OffsetY) * PS_UNIT) + 1;
     }
 
   /* print it if encapsulated PostScript has been requested
@@ -741,7 +741,7 @@ PS_PrintPolygon (PolygonTypePtr Ptr)
 static void
 PS_PrintTextLowLevel (TextTypePtr Text)
 {
-  Position x = 0, width;
+  Location x = 0, width;
   unsigned char *string = (unsigned char *) Text->TextString;
   Cardinal n;
   FontTypePtr font = &PCB->Font;
@@ -797,7 +797,7 @@ PS_PrintTextLowLevel (TextTypePtr Text)
 	{
 	  /* the default symbol is a filled box */
 	  BoxType defaultsymbol = PCB->Font.DefaultSymbol;
-	  Position size = (defaultsymbol.X2 - defaultsymbol.X1) * 6 / 5;
+	  Location size = (defaultsymbol.X2 - defaultsymbol.X1) * 6 / 5;
 
 	  defaultsymbol.X1 = (defaultsymbol.X1 + x) * Text->Scale / 100;
 	  defaultsymbol.Y1 = defaultsymbol.Y1 * Text->Scale / 100;
@@ -965,7 +965,7 @@ PS_PrintPinOrVia (PinTypePtr Ptr, int mode)
  * the upper/left and lower/right corner are passed
  */
 static void
-PS_Outline (Position X1, Position Y1, Position X2, Position Y2)
+PS_Outline (Location X1, Location Y1, Location X2, Location Y2)
 {
   fprintf (PS_Flags.FP, "%d %d %d %d Outline\n",
 	   (int) X1, (int) Y1, (int) X2, (int) Y2);
@@ -976,7 +976,7 @@ PS_Outline (Position X1, Position Y1, Position X2, Position Y2)
  * the upper/left and lower/right corner are passed
  */
 static void
-PS_Alignment (Position X1, Position Y1, Position X2, Position Y2)
+PS_Alignment (Location X1, Location Y1, Location X2, Location Y2)
 {
   fprintf (PS_Flags.FP, "%d %d %d %d %d Alignment\n",
 	   (int) X1,

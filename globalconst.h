@@ -63,25 +63,25 @@
 #define	MAX_LAYER		8	/* max number of layer, check source */
 					/* code for more changes, a *lot* more changes */
 #define NUM_STYLES		4
-#define	MIN_LINESIZE		1	/* thickness of lines in 1/1000'' */
-#define	MAX_LINESIZE		250
+#define	MIN_LINESIZE		1	/* thickness of lines in 1/100000'' */
+#define	MAX_LINESIZE		25000
 #define	MIN_TEXTSCALE		20	/* scaling of text objects in percent */
 #define	MAX_TEXTSCALE		1000
-#define	MIN_PINORVIASIZE	30	/* size of a pin or via in mils */
-#define	MIN_PINORVIAHOLE	10	/* size of a pins or vias drilling hole */
-#define	MAX_PINORVIASIZE	400
-#define	MIN_PINORVIACOPPER	20	/* min difference outer-inner diameter */
-#define	MIN_PADSIZE		10	/* size of a pad */
-#define	MAX_PADSIZE		250
-#define	MIN_GRID		1	/* grid in 1/1000'' */
-#define	MAX_GRID		200
-#define	CHUNK			1	/* step size for size sliders */
-#define	MIN_ZOOM		0	/* min zoom (shift operations) */
+#define	MIN_PINORVIASIZE	3000	/* size of a pin or via in mils */
+#define	MIN_PINORVIAHOLE	500	/* size of a pins or vias drilling hole */
+#define	MAX_PINORVIASIZE	40000
+#define	MIN_PINORVIACOPPER	500	/* min difference outer-inner diameter */
+#define	MIN_PADSIZE		500	/* size of a pad */
+#define	MAX_PADSIZE		25000
+#define	MIN_GRID		1	/* grid in 1/100000'' */
+#define	MAX_GRID		20000
+#define	CHUNK			100	/* step size for size sliders */
+#define	MIN_ZOOM		-6	/* min zoom (shift operations) */
 #define	MAX_ZOOM		6	/* max zoom (shift operations) */
 #define	MAX_FONTPOSITION	127	/* upper limit of characters in my font */
 
-#define	MAX_COORD		30000	/* coordinate limits */
-#define	MIN_SIZE		1200	/* lowest width and height */
+#define	MAX_COORD		3000000	/* coordinate limits */
+#define	MIN_SIZE		120000	/* lowest width and height */
 #define	MAX_BUFFER		5	/* number of pastebuffers */
 					/* additional changes in menu.c are */
 					/* also required to select more buffers */
@@ -117,6 +117,6 @@
 #define	MIN_GRID_DISTANCE		4	/* minimum distance between point */
 						/* to enable grid drawing */
 	/* size of diamond element mark */
-#define EMARK_SIZE	10
+#define EMARK_SIZE	1000
 #define GBX_MAXAPERTURECOUNT	256
 #endif

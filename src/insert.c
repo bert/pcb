@@ -62,7 +62,7 @@ static void *InsertPointIntoRat (RatTypePtr);
 /* ---------------------------------------------------------------------------
  * some local identifiers
  */
-static Position InsertX,	/* used by local routines as offset */
+static Location InsertX,	/* used by local routines as offset */
   InsertY;
 static Cardinal InsertAt;
 static Boolean Forcible;
@@ -185,7 +185,7 @@ InsertPointIntoPolygon (LayerTypePtr Layer, PolygonTypePtr Polygon)
  */
 void *
 InsertPointIntoObject (int Type, void *Ptr1, void *Ptr2, Cardinal * Ptr3,
-		       Position DX, Position DY, Boolean Force)
+		       Location DX, Location DY, Boolean Force)
 {
   void *ptr;
 

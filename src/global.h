@@ -47,6 +47,8 @@
 #include <X11/Intrinsic.h>
 #include <X11/StringDefs.h>
 #include <X11/keysym.h>
+typedef int Location;
+typedef int BDimension; /* big dimension */
 
 /* ---------------------------------------------------------------------------
  * do not change the following definition even if it's not very nice.
@@ -56,7 +58,7 @@
 #define	LINESTRUCT			\
 	long int		ID,		\
 			Flags;		\
-	Dimension	Thickness,      \
+	BDimension	Thickness,      \
                         Clearance;      \
 	PointType	Point1,		\
 			Point2;	
@@ -81,7 +83,7 @@ typedef struct				/* holds information about output window */
 			fgGC,		/* changed from some routines */
 			pmGC,		/* pixmap GC to store clip */
 			GridGC;		/* for the grid */
-	Dimension	cw,		/* canvas width/height */
+	BDimension	cw,		/* canvas width/height */
 			ch,
 			Width,		/* sizes of output window (porthole) */
 			Height;
@@ -102,7 +104,7 @@ typedef struct
 
 typedef struct				/* a bounding box */
 {
-	Position	X1, Y1,		/* upper left */
+	Location	X1, Y1,		/* upper left */
 			X2, Y2;		/* and lower right corner */
 } BoxType, *BoxTypePtr;
 
@@ -117,7 +119,7 @@ typedef struct				/* all objects start with an ID */
 typedef struct				/* a line/polygon point */
 {
 	long int		ID;
-	Position	X,
+	Location	X,
 			Y;
 } PointType, *PointTypePtr;
 
@@ -132,7 +134,7 @@ typedef struct
 	long int		ID,
 			Flags;
 	Dimension	Scale;		/* text scaling in percent */
-	Position	X,		/* origin */
+	Location	X,		/* origin */
 			Y;
 	BoxType		BoundingBox;
 	BYTE		Direction;
@@ -153,11 +155,11 @@ typedef struct				/* holds information about arcs */
 {
 	long int		ID,		/* these fields are unused when contained in elements */
 			Flags;
-	Dimension	Thickness,
-			Clearance,
-                        Width,		/* length of axis */
-			Height;
-	Position	X,		/* center coordinates */
+	BDimension	Thickness,
+			Clearance;
+	Location	Width,		/* length of axis */
+			Height,
+			X,		/* center coordinates */
 			Y;
 	long int		StartAngle,	/* the two limiting angles in degrees */
 			Delta;	
@@ -193,7 +195,7 @@ typedef struct				/* a rat-line */
 typedef struct				/* a SMD pad */
 {
 	LINESTRUCT
-	Dimension	Mask;
+	BDimension	Mask;
 	char		*Name, *Number;			/* 'Line' */
 	void		*Spare;
 } PadType, *PadTypePtr;
@@ -202,11 +204,11 @@ typedef struct
 {
 	long int		ID,
 			Flags;
-	Dimension	Thickness,
+	BDimension	Thickness,
 			Clearance,
 			Mask,
 			DrillingHole;
-	Position	X,			/* center and diameter */
+	Location	X,			/* center and diameter */
 			Y;
 	char		*Name, *Number;
 	void		*Spare;
@@ -221,7 +223,7 @@ typedef struct
 						/* name on PCB second, */
 						/* value third */
 						/* see macro.h */
-	Position	MarkX,		/* position mark */
+	Location	MarkX,		/* position mark */
 			MarkY;
 	BoxType		BoundingBox;
 	Cardinal	PinN,		/* number of pins, lines and arcs */
@@ -247,14 +249,14 @@ typedef struct				/* a single symbol */
 	Boolean		Valid;
 	Cardinal	LineN,		/* number of lines */
 			LineMax;
-	Dimension	Width,		/* size of cell */
+	BDimension	Width,		/* size of cell */
 			Height,
-			Delta;		/* distance to next symbol in 0.001'' */
+			Delta;		/* distance to next symbol in 0.00001'' */
 } SymbolType, *SymbolTypePtr;
 
 typedef struct				/* complete set of symbols */
 {
-	Dimension	MaxHeight,	/* maximum cell width and height */
+	Location	MaxHeight,	/* maximum cell width and height */
 			MaxWidth;
 	BoxType		DefaultSymbol;	/* the default symbol is a filled box */
 	SymbolType	Symbol[MAX_FONTPOSITION+1];
@@ -277,7 +279,7 @@ typedef struct			/* holds all objects */
 
 typedef struct                                /* holds drill information */
 {
-      Dimension       DrillSize;      /* this drill's diameter */
+      BDimension       DrillSize;      /* this drill's diameter */
       Cardinal        ElementN,       /* the number of elements using this drill size */
                       ElementMax,             /* max number of elements from malloc() */
                       PinCount,               /* number of pins drilled this size */
@@ -298,7 +300,7 @@ typedef struct                                /* holds a range of Drill Infos */
 
 typedef struct
 {
-	Dimension	Thick,		/* line thickness */
+	BDimension	Thick,		/* line thickness */
 			Diameter,	/* via diameter */
 			Hole,		/* via drill hole */
 			Keepaway;	/* min. separation from other nets */
@@ -372,10 +374,10 @@ typedef struct		/* holds information about board layout */
 	long int		Zoom,			/* zoom factor (factor = 1 << zoom) */
 			CursorX,		/* cursor position as saved with layout */
 			CursorY,
-			Clipping,
-			GridOffsetX,	/* as saves with layout */
-			GridOffsetY;
-	Dimension	MaxWidth,		/* allowed size */
+			Clipping;
+	BDimension	GridOffsetX,	/* as saves with layout */
+			GridOffsetY,
+			MaxWidth,		/* allowed size */
 			MaxHeight;
 	float		Grid;			/* used grid with offsets */
 	FontType	Font;
@@ -387,7 +389,7 @@ typedef struct		/* holds information about board layout */
 
 typedef struct				/* information about the paste buffer */
 {
-	Position	X,				/* offset */
+	Location	X,				/* offset */
 			Y;
 	BoxType		BoundingBox;
 	DataTypePtr	Data;			/* data; not all members of PCBType */
@@ -423,7 +425,7 @@ typedef struct			/* currently marked block */
 
 typedef struct			/* currently attached object */
 {
-	Position		X,		/* saved position when MOVE_MODE */
+	Location		X,		/* saved position when MOVE_MODE */
 				Y;		/* was entered */
 	BoxType			BoundingBox;
 	long int			Type,		/* object type */
@@ -440,7 +442,7 @@ typedef struct			/* holds cursor information */
 {
 	GC			GC,		/* GC for cursor drawing */
 				AttachGC;	/* and for displaying buffer contents */
-	Position		X,		/* position in PCB coordinates */
+	Location		X,		/* position in PCB coordinates */
 				Y,
 				MinX,		/* lowest and highest coordinates */
 				MinY,
@@ -485,7 +487,7 @@ typedef struct			/* some resources... */
 			LayerSelectedColor[MAX_LAYER],
 			WarnColor,
 			MaskColor;
-	Dimension	ViaThickness,	/* some preset values */
+	BDimension	ViaThickness,	/* some preset values */
 			ViaDrillingHole,
 			LineThickness,
 			RatThickness,
@@ -527,9 +529,9 @@ typedef struct			/* some resources... */
 			LibraryPath,
 			Size,			/* geometry string for size */
 			Media;			/* type of output media */
-	Position	PinoutOffsetX,		/* offset of origin */
-			PinoutOffsetY,
-			PinoutTextOffsetX,	/* offset of text from pin center */
+	Location	PinoutOffsetX,		/* offset of origin */
+			PinoutOffsetY;
+	Position	PinoutTextOffsetX,	/* offset of text from pin center */
 			PinoutTextOffsetY;
 	RouteStyleType	RouteStyle[NUM_STYLES];	/* default routing styles */
 	LayerGroupType	LayerGroups;		/* default layer groups */
@@ -578,9 +580,10 @@ typedef struct
  * structure used by device drivers
  */
 typedef struct				/* media description */
-{ String		Name;		/* name and size (in mil) */ Dimension	Width,
+{ String		Name;		/* name and size (in mil*100) */
+	BDimension	Width,
 			Height;
-	Position	MarginX,
+	Location	MarginX,
 			MarginY;
 } MediaType, *MediaTypePtr;
 
@@ -591,7 +594,7 @@ typedef struct				/* needs and abilities of a driver */
 	Boolean		MirrorFlag,	/* several flags */
 			RotateFlag,
 			InvertFlag;
-	Position	OffsetX,	/* offset from lower/left corner */
+	Dimension	OffsetX,	/* offset from lower/left corner */
 			OffsetY;
 	float		Scale;		/* scaleing */
 	BoxType		BoundingBox;	/* bounding box of output */
@@ -615,8 +618,8 @@ typedef struct				/* functions of a print driver */
 	void		(*PinOrVia)(PinTypePtr, int);		/* pin diam=0 clear=1 mask=2 */
 	void		(*ElementPackage)(ElementTypePtr);
 	void		(*Drill)(PinTypePtr, Cardinal);			/* drilling information */
-	void		(*Outline)(Position, Position, Position, Position);
-	void		(*Alignment)(Position, Position, Position, Position);
+	void		(*Outline)(Location, Location, Location, Location);
+	void		(*Alignment)(Location, Location, Location, Location);
 	void		(*DrillHelper)(PinTypePtr, int);
 	void		(*GroupID)(int);			/* comments group info */
 	Boolean		HandlesColor,		/* colored output */
@@ -635,7 +638,7 @@ typedef struct
 
 typedef struct                        /* holds a connection */
 {
-	Position	X, Y;			/* coordinate of connection */
+	Location	X, Y;			/* coordinate of connection */
 	long int		type;			/* type of object in ptr1 - 3 */
 	void		*ptr1, *ptr2;		/* the object of the connection */
 	Cardinal	group;		/* the layer group of the connection */

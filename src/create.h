@@ -35,43 +35,43 @@
 
 DataTypePtr		CreateNewBuffer(void);
 PCBTypePtr		CreateNewPCB(Boolean);
-PinTypePtr		CreateNewVia(DataTypePtr, Position, Position, Dimension,
-				Dimension, Dimension, Dimension, char *, int);
-LineTypePtr		CreateDrawnLineOnLayer(LayerTypePtr, Position,
-				Position, Position, Position, Dimension,
-				Dimension, int);
-LineTypePtr		CreateNewLineOnLayer(LayerTypePtr, Position,
-				Position, Position, Position, Dimension,
-				Dimension, int);
-RatTypePtr		CreateNewRat(DataTypePtr, Position,
-				Position, Position, Position, Cardinal,
-				Cardinal, Dimension, int);
-ArcTypePtr		CreateNewArcOnLayer(LayerTypePtr, Position,
-				Position, Dimension, int,
-				int, Dimension, Dimension, int);
+PinTypePtr		CreateNewVia(DataTypePtr, Location, Location, BDimension,
+				BDimension, BDimension, BDimension, char *, int);
+LineTypePtr		CreateDrawnLineOnLayer(LayerTypePtr, Location,
+				Location, Location, Location, BDimension,
+				BDimension, int);
+LineTypePtr		CreateNewLineOnLayer(LayerTypePtr, Location,
+				Location, Location, Location, BDimension,
+				BDimension, int);
+RatTypePtr		CreateNewRat(DataTypePtr, Location,
+				Location, Location, Location, Cardinal,
+				Cardinal, BDimension, int);
+ArcTypePtr		CreateNewArcOnLayer(LayerTypePtr, Location,
+				Location, BDimension, int,
+				int, BDimension, BDimension, int);
 PolygonTypePtr		CreateNewPolygonFromRectangle(LayerTypePtr,
-				Position, Position, Position, Position, int);
-TextTypePtr		CreateNewText(LayerTypePtr, FontTypePtr, Position,
-				Position, BYTE, int, char *, int);
+				Location, Location, Location, Location, int);
+TextTypePtr		CreateNewText(LayerTypePtr, FontTypePtr, Location,
+				Location, BYTE, int, char *, int);
 PolygonTypePtr		CreateNewPolygon(LayerTypePtr, int);
 PointTypePtr		CreateNewPointInPolygon(PolygonTypePtr,
-				Position, Position);
+				Location, Location);
 ElementTypePtr		CreateNewElement(DataTypePtr, ElementTypePtr,
 				FontTypePtr, int, char *, char *, char *,
-				Position, Position, BYTE, int, int, Boolean);
-LineTypePtr		CreateNewLineInElement(ElementTypePtr, Position,
-				Position, Position, Position, Dimension);
-ArcTypePtr		CreateNewArcInElement(ElementTypePtr, Position,
-				Position, Dimension, Dimension,
-				int, int, Dimension);
-PinTypePtr		CreateNewPin(ElementTypePtr, Position, Position,
-				Dimension, Dimension, Dimension, Dimension,
+				Location, Location, BYTE, int, int, Boolean);
+LineTypePtr		CreateNewLineInElement(ElementTypePtr, Location,
+				Location, Location, Location, BDimension);
+ArcTypePtr		CreateNewArcInElement(ElementTypePtr, Location,
+				Location, BDimension, BDimension,
+				int, int, BDimension);
+PinTypePtr		CreateNewPin(ElementTypePtr, Location, Location,
+				BDimension, BDimension, BDimension, BDimension,
 				char *, char *, int);
-PadTypePtr		CreateNewPad(ElementTypePtr, Position, Position,
-				Position, Position, Dimension, Dimension,
-				Dimension, char *, char *, int);
-LineTypePtr		CreateNewLineInSymbol(SymbolTypePtr, Position,
-				Position, Position, Position, Dimension);
+PadTypePtr		CreateNewPad(ElementTypePtr, Location, Location,
+				Location, Location, BDimension, BDimension,
+				BDimension, char *, char *, int);
+LineTypePtr		CreateNewLineInSymbol(SymbolTypePtr, Location,
+				Location, Location, Location, BDimension);
 void			CreateDefaultFont(void);
 RubberbandTypePtr	CreateNewRubberbandEntry(LayerTypePtr,
 				LineTypePtr, PointTypePtr);

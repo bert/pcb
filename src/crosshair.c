@@ -58,30 +58,30 @@ static char *rcsid =
  * some local identifiers
  */
 static Boolean CrosshairStack[MAX_CROSSHAIRSTACK_DEPTH];
-static int CrosshairStackPosition = 0;
+static int CrosshairStackLocation = 0;
 static XPoint *Points = NULL;	/* data of tmp polygon */
 static Cardinal MaxPoints = 0;	/* number of points */
 
 /* ---------------------------------------------------------------------------
  * some local prototypes
  */
-static void CreateTMPPolygon (PolygonTypePtr, Position, Position);
+static void CreateTMPPolygon (PolygonTypePtr, Location, Location);
 static void DrawCrosshair (void);
-static void XORDrawElement (ElementTypePtr, Position, Position);
+static void XORDrawElement (ElementTypePtr, Location, Location);
 static void XORDrawBuffer (BufferTypePtr);
 static void XORDrawInsertPointObject (void);
 static void XORDrawMoveOrCopyObject (void);
-static void XORDrawAttachedLine (Position, Position, Position, Position,
-				 Dimension);
-static void XORDrawAttachedArc (Dimension);
+static void XORDrawAttachedLine (Location, Location, Location, Location,
+				 BDimension);
+static void XORDrawAttachedArc (BDimension);
 static void DrawAttached (Boolean);
-static void FitCrosshairIntoGrid (Position, Position);
+static void FitCrosshairIntoGrid (Location, Location);
 
 /* ---------------------------------------------------------------------------
  * creates a tmp polygon with coordinates converted to screen system
  */
 static void
-CreateTMPPolygon (PolygonTypePtr Polygon, Position DX, Position DY)
+CreateTMPPolygon (PolygonTypePtr Polygon, Location DX, Location DY)
 {
   /* allocate memory for data with screen coordinates */
   if (Polygon->PointN >= MaxPoints)
@@ -117,10 +117,10 @@ DrawCrosshair (void)
   XSetForeground (Dpy, Crosshair.GC, Settings.CrossColor);
   XDrawLine (Dpy, Output.OutputWindow, Crosshair.GC,
 	     TO_SCREEN_X (Crosshair.X), 0,
-	     TO_SCREEN_X (Crosshair.X), MAX_COORD);
+	     TO_SCREEN_X (Crosshair.X), MAX_COORD / 100);
 
   XDrawLine (Dpy, Output.OutputWindow, Crosshair.GC,
-	     0, TO_SCREEN_Y (Crosshair.Y), MAX_COORD,
+	     0, TO_SCREEN_Y (Crosshair.Y), MAX_COORD / 100,
 	     TO_SCREEN_Y (Crosshair.Y));
   XSetForeground (Dpy, Crosshair.GC, Settings.CrosshairColor);
 }
@@ -129,13 +129,13 @@ DrawCrosshair (void)
  * Draws the outline of an arc
  */
 static void
-XORDrawAttachedArc (Dimension thick)
+XORDrawAttachedArc (BDimension thick)
 {
   ArcType arc;
   BoxTypePtr bx;
-  Position wx, wy;
+  Location wx, wy;
   int sa, dir;
-  Dimension wid = thick / 2;
+  BDimension wid = thick / 2;
 
   wx = Crosshair.X - Crosshair.AttachedBox.Point1.X;
   wy = Crosshair.Y - Crosshair.AttachedBox.Point1.Y;
@@ -205,12 +205,12 @@ XORDrawAttachedArc (Dimension thick)
  * Draws the outline of a line
  */
 static void
-XORDrawAttachedLine (Position x1, Position y1, Position x2,
-		     Position y2, Dimension thick)
+XORDrawAttachedLine (Location x1, Location y1, Location x2,
+		     Location y2, BDimension thick)
 {
-  Position dx, dy, ox, oy;
+  Location dx, dy, ox, oy;
   float h;
-  Dimension wid = thick / 2;
+  BDimension wid = thick / 2;
 
   dx = x2 - x1;
   dy = y2 - y1;
@@ -225,7 +225,7 @@ XORDrawAttachedLine (Position x1, Position y1, Position x2,
 	     TO_SCREEN_X (x2 + ox), TO_SCREEN_Y (y2 + oy));
   if (TO_SCREEN (abs (ox)) || TO_SCREEN (abs (oy)))
     {
-      Position angle =
+      Location angle =
 	TO_SCREEN_ANGLE (atan2 ((float) dx, (float) dy) * 3666.9298888);
       XDrawLine (Dpy, Output.OutputWindow, Crosshair.GC,
 		 TO_SCREEN_X (x1 - ox), TO_SCREEN_Y (y1 - oy),
@@ -245,7 +245,7 @@ XORDrawAttachedLine (Position x1, Position y1, Position x2,
  * draws the elements of a loaded circuit which is to be merged in
  */
 static void
-XORDrawElement (ElementTypePtr Element, Position DX, Position DY)
+XORDrawElement (ElementTypePtr Element, Location DX, Location DY)
 {
   /* if no silkscreen, draw the bounding box */
   if (Element->ArcN == 0 && Element->LineN == 0)
@@ -358,7 +358,7 @@ static void
 XORDrawBuffer (BufferTypePtr Buffer)
 {
   Cardinal i;
-  Position x, y;
+  Location x, y;
 
   /* set offset */
   x = Crosshair.X - Buffer->X;
@@ -399,7 +399,7 @@ XORDrawBuffer (BufferTypePtr Buffer)
 	TEXT_LOOP (layer, 
 	  {
 	    BoxTypePtr box = &text->BoundingBox;
-	    Position y0;
+	    Location y0;
 	    y0 = Settings.ShowSolderSide ? box->Y2 : box->Y1;
 	    XDrawRectangle (Dpy, Output.OutputWindow, Crosshair.GC,
 			    TO_SCREEN_X (x + box->X1),
@@ -472,7 +472,7 @@ XORDrawMoveOrCopyObject (void)
 {
   RubberbandTypePtr ptr;
   Cardinal i;
-  Position dx = Crosshair.X - Crosshair.AttachedObject.X,
+  Location dx = Crosshair.X - Crosshair.AttachedObject.X,
     dy = Crosshair.Y - Crosshair.AttachedObject.Y;
 
   switch (Crosshair.AttachedObject.Type)
@@ -733,7 +733,7 @@ DrawAttached (Boolean BlockToo)
   if (Crosshair.AttachedBox.State == STATE_SECOND ||
       (BlockToo && Crosshair.AttachedBox.State == STATE_THIRD))
     {
-      Position x1, y1, x2, y2, y0;
+      Location x1, y1, x2, y2, y0;
 
       x1 =
 	MIN (Crosshair.AttachedBox.Point1.X, Crosshair.AttachedBox.Point2.X);
@@ -787,9 +787,9 @@ CrosshairOff (Boolean BlockToo)
 void
 HideCrosshair (Boolean BlockToo)
 {
-  CrosshairStack[CrosshairStackPosition++] = Crosshair.On;
-  if (CrosshairStackPosition >= MAX_CROSSHAIRSTACK_DEPTH)
-    CrosshairStackPosition--;
+  CrosshairStack[CrosshairStackLocation++] = Crosshair.On;
+  if (CrosshairStackLocation >= MAX_CROSSHAIRSTACK_DEPTH)
+    CrosshairStackLocation--;
   CrosshairOff (BlockToo);
 }
 
@@ -799,9 +799,9 @@ HideCrosshair (Boolean BlockToo)
 void
 RestoreCrosshair (Boolean BlockToo)
 {
-  if (CrosshairStackPosition)
+  if (CrosshairStackLocation)
     {
-      if (CrosshairStack[--CrosshairStackPosition])
+      if (CrosshairStack[--CrosshairStackLocation])
 	CrosshairOn (BlockToo);
       else
 	CrosshairOff (BlockToo);
@@ -812,9 +812,9 @@ RestoreCrosshair (Boolean BlockToo)
  * recalculates the passed coordinates to fit the current grid setting
  */
 static void
-FitCrosshairIntoGrid (Position X, Position Y)
+FitCrosshairIntoGrid (Location X, Location Y)
 {
-  Position x2, y2, x0, y0;
+  Location x2, y2, x0, y0;
   void *ptr1, *ptr2, *ptr3;
   int ans;
 
@@ -974,7 +974,7 @@ FitCrosshairIntoGrid (Position X, Position Y)
  * move crosshair relative (has to be switched off)
  */
 void
-MoveCrosshairRelative (Position DeltaX, Position DeltaY)
+MoveCrosshairRelative (Location DeltaX, Location DeltaY)
 {
   FitCrosshairIntoGrid (Crosshair.X + DeltaX, Crosshair.Y + DeltaY);
 }
@@ -984,9 +984,9 @@ MoveCrosshairRelative (Position DeltaX, Position DeltaY)
  * return True if it switched off
  */
 Boolean
-MoveCrosshairAbsolute (Position X, Position Y)
+MoveCrosshairAbsolute (Location X, Location Y)
 {
-  Position x, y, z;
+  Location x, y, z;
   x = Crosshair.X;
   y = Crosshair.Y;
   FitCrosshairIntoGrid (X, Y);
@@ -1011,12 +1011,12 @@ MoveCrosshairAbsolute (Position X, Position Y)
  * sets the valid range for the crosshair cursor
  */
 void
-SetCrosshairRange (Position MinX, Position MinY, Position MaxX, Position MaxY)
+SetCrosshairRange (Location MinX, Location MinY, Location MaxX, Location MaxY)
 {
   Crosshair.MinX = MAX (0, MinX);
   Crosshair.MinY = MAX (0, MinY);
-  Crosshair.MaxX = MIN ((Position) PCB->MaxWidth, MaxX);
-  Crosshair.MaxY = MIN ((Position) PCB->MaxHeight, MaxY);
+  Crosshair.MaxX = MIN ((Location) PCB->MaxWidth, MaxX);
+  Crosshair.MaxY = MIN ((Location) PCB->MaxHeight, MaxY);
 
   /* force update of position */
   MoveCrosshairRelative (0, 0);
@@ -1064,8 +1064,8 @@ InitCrosshair (void)
   XSetLineAttributes (Dpy, Crosshair.GC, 1, LineSolid, CapButt, JoinMiter);
 
   /* fake an crosshair off entry on stack */
-  CrosshairStackPosition = 0;
-  CrosshairStack[CrosshairStackPosition++] = True;
+  CrosshairStackLocation = 0;
+  CrosshairStack[CrosshairStackLocation++] = True;
   Crosshair.On = False;
 
   /* set default limits */

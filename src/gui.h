@@ -30,7 +30,7 @@
 void InitGui(void);
 Boolean ShiftPressed(void);
 Boolean CtrlPressed(void);
-Boolean GetPosition(char *);
+Boolean GetLocation(char *);
 void handCursor(void);
 void watchCursor(void);
 void modeCursor(int mode);

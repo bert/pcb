@@ -37,7 +37,7 @@ static char *rcsid = "$Id$";
 #endif
 
 #define	SWAP_IDENT		SwapOutput
-#define TO_SCREEN(a)	((ZoomValue < 0) ? (a) << -ZoomValue : (a) >> ZoomValue)
+#define TO_SCREEN(a)	((Position)SATURATE((a)/Zoom_divisor[ZoomValue + 6]))
 #define XORIG dxo
 #define YORIG dyo
 
@@ -77,7 +77,7 @@ static XRectangle UpdateRect;
 static BoxType Block;
 static Boolean Gathering = True;
 static int Erasing = False;
-static Position dxo, dyo;
+static Location dxo, dyo;
 
 
 /* ---------------------------------------------------------------------------
@@ -88,7 +88,7 @@ static void DrawEverything (void);
 static void DrawTop (void);
 static void DrawLayer (LayerTypePtr, int);
 static void InitSpecialPolygon (void);
-static void DrawSpecialPolygon (Drawable, GC, Position, Position, XPoint *);
+static void DrawSpecialPolygon (Drawable, GC, Location, Location, XPoint *);
 static void DrawPinOrViaLowLevel (PinTypePtr, Boolean);
 static void ClearOnlyPin (PinTypePtr, Boolean);
 static void ThermPin (LayerTypePtr, PinTypePtr);
@@ -108,7 +108,7 @@ static void DrawPlainPolygon (LayerTypePtr Layer, PolygonTypePtr Polygon);
 static void AddPart (void);
 static void SetPVColor (PinTypePtr, int);
 static void DrawGrid (void);
-static void DrawEMark (Position, Position, Boolean);
+static void DrawEMark (Location, Location, Boolean);
 static void ClearLine (LineTypePtr);
 static void ClearArc (ArcTypePtr);
 static void ClearPad (PadTypePtr, Boolean);
@@ -171,8 +171,8 @@ UpdateAll (void)
 {
   Block.X1 = 1;
   Block.Y1 = 1;
-  Block.Y2 = MAX_COORD - 1;
-  Block.X2 = MAX_COORD - 1;
+  Block.Y2 = MAX_COORD / 100 - 1;
+  Block.X2 = MAX_COORD / 100 - 1;
   Draw ();
 }
 
@@ -274,9 +274,11 @@ Redraw (Boolean ClearWindow)
       XSetForeground (Dpy, Output.bgGC, ~0);
       XSetForeground (Dpy, Output.fgGC, Settings.OffLimitColor);
       XFillRectangle (Dpy, DrawingWindow, Output.fgGC,
-		      TO_DRAWABS_X (PCB->MaxWidth), 0, MAX_COORD, MAX_COORD);
-      XFillRectangle (Dpy, DrawingWindow, Output.fgGC,
-		      0, TO_DRAWABS_Y (PCB->MaxHeight), MAX_COORD, MAX_COORD);
+		      TO_DRAWABS_X (PCB->MaxWidth), 0, MAX_COORD / 100,
+		      MAX_COORD / 100);
+      XFillRectangle (Dpy, DrawingWindow, Output.fgGC, 0,
+		      TO_DRAWABS_Y (PCB->MaxHeight), MAX_COORD / 100,
+		      MAX_COORD / 100);
       if (ClearWindow && !VALID_PIXMAP (Offscreen))
 	Crosshair.On = False;
 
@@ -430,7 +432,7 @@ DrawEverything (void)
 }
 
 static void
-DrawEMark (Position X, Position Y, Boolean invisible)
+DrawEMark (Location X, Location Y, Boolean invisible)
 {
   if (!PCB->InvisibleObjectsOn && invisible)
     return;
@@ -686,7 +688,7 @@ InitSpecialPolygon (void)
  */
 static void
 DrawSpecialPolygon (Drawable d, GC DrawGC,
-		    Position X, Position Y, XPoint * PolyPtr)
+		    Location X, Location Y, XPoint * PolyPtr)
 {
   int i;
   XPoint polygon[9];
@@ -715,7 +717,7 @@ DrawSpecialPolygon (Drawable d, GC DrawGC,
 static void
 DrawPinOrViaLowLevel (PinTypePtr Ptr, Boolean drawHole)
 {
-  Dimension half = (Ptr->Thickness + Ptr->Clearance) / 2;
+  BDimension half = (Ptr->Thickness + Ptr->Clearance) / 2;
 
   if (TEST_FLAG (SHOWMASKFLAG, PCB))
     half = MAX (half, Ptr->Mask / 2);
@@ -853,7 +855,7 @@ DrawHole (PinTypePtr Ptr)
     }
   if (TEST_FLAG (HOLEFLAG, Ptr))
     {
-      Dimension half = Ptr->DrillingHole / 2;
+      BDimension half = Ptr->DrillingHole / 2;
 
       if (TEST_FLAG (SELECTEDFLAG, Ptr))
 	XSetForeground (Dpy, Output.fgGC, PCB->ViaSelectedColor);
@@ -875,7 +877,7 @@ DrawHole (PinTypePtr Ptr)
 static void
 ClearOnlyPin (PinTypePtr Pin, Boolean mask)
 {
-  Dimension half =
+  BDimension half =
     (mask ? Pin->Mask / 2 : (Pin->Thickness + Pin->Clearance) / 2);
 
   if (!mask && TEST_FLAG (HOLEFLAG, Pin))
@@ -922,9 +924,9 @@ ClearOnlyPin (PinTypePtr Pin, Boolean mask)
 static void
 ThermPin (LayerTypePtr layer, PinTypePtr Pin)
 {
-  Dimension half = (Pin->Thickness + Pin->Clearance) / 2;
-  Dimension halfs = (TO_SCREEN (half) * SQRT2OVER2 + 1);
-  Dimension finger;
+  BDimension half = (Pin->Thickness + Pin->Clearance) / 2;
+  BDimension halfs = (TO_SCREEN (half) * SQRT2OVER2 + 1);
+  BDimension finger;
 
   if (TEST_FLAG (SELECTEDFLAG | FOUNDFLAG, Pin))
     {
@@ -976,8 +978,8 @@ ClearPin (PinTypePtr Pin, int Type, int unused)
   int ThermLayerFlag;
   LayerTypePtr layer;
   Cardinal i;
-  Dimension half = (Pin->Thickness + Pin->Clearance) / 2;
-  Dimension halfs = (TO_SCREEN (half) * SQRT2OVER2 + 1);
+  BDimension half = (Pin->Thickness + Pin->Clearance) / 2;
+  BDimension halfs = (TO_SCREEN (half) * SQRT2OVER2 + 1);
 
   if (Gathering)
     {
@@ -1100,13 +1102,11 @@ static void
 DrawVText (int x, int y, int w, int h, int de, char *str)
 {
   Pixmap pm;
-  GC gc, ogc;
-  XImage *im, *im2;
-  Visual *v;
-  char *mem;
+  GC gc;
+  XImage *im;
   int i, j;
 
-  if (strlen(str) == 0)
+  if (strlen (str) == 0)
     return;
 
   pm = XCreatePixmap (Dpy, DrawingWindow, w, h, 1);
@@ -1150,7 +1150,7 @@ DrawPinOrViaNameLowLevel (PinTypePtr Ptr)
       UpdateRect.x = TO_DRAW_X (Ptr->X) - ascent + descent;
       UpdateRect.y =
 	TO_DRAW_Y (Ptr->Y + Ptr->Thickness / 2 + Settings.PinoutTextOffsetY)
-	           + overall.lbearing;
+	+ overall.lbearing;
     }
   else
     {
@@ -1194,7 +1194,7 @@ DrawPadLowLevel (PadTypePtr Pad)
 {
   if (Gathering)
     {
-      Dimension size = Pad->Thickness + Pad->Clearance;
+      BDimension size = Pad->Thickness + Pad->Clearance;
 
       if (TEST_FLAG (SHOWMASKFLAG, PCB))
 	size = MAX (size, Pad->Mask);
@@ -1397,7 +1397,7 @@ DrawLineLowLevel (LineTypePtr Line, Boolean HaveGathered)
 {
   if (Gathering && !HaveGathered)
     {
-      Dimension wide = Line->Thickness;
+      BDimension wide = Line->Thickness;
 
       if (TEST_FLAG (CLEARLINEFLAG, Line))
 	wide += Line->Clearance;
@@ -1447,7 +1447,7 @@ DrawLineLowLevel (LineTypePtr Line, Boolean HaveGathered)
 static void
 DrawTextLowLevel (TextTypePtr Text)
 {
-  Position x = 0;
+  Location x = 0;
   int maxthick = 0;
   unsigned char *string = (unsigned char *) Text->TextString;
   Cardinal n;
@@ -1536,7 +1536,7 @@ DrawTextLowLevel (TextTypePtr Text)
 	{
 	  /* the default symbol is a filled box */
 	  BoxType defaultsymbol = PCB->Font.DefaultSymbol;
-	  Position size = (defaultsymbol.X2 - defaultsymbol.X1) * 6 / 5;
+	  Location size = (defaultsymbol.X2 - defaultsymbol.X1) * 6 / 5;
 
 	  defaultsymbol.X1 = (defaultsymbol.X1 + x) * Text->Scale / 100;
 	  defaultsymbol.Y1 = defaultsymbol.Y1 * Text->Scale / 100;
@@ -1643,7 +1643,7 @@ DrawPolygonLowLevel (PolygonTypePtr Polygon, Boolean OnMask)
 static void
 DrawArcLowLevel (ArcTypePtr Arc)
 {
-  Dimension width = Arc->Thickness;
+  BDimension width = Arc->Thickness;
 
   if (Gathering)
     {
@@ -2286,7 +2286,7 @@ EraseElementName (ElementTypePtr Element)
 static void
 DrawGrid ()
 {
-  Position minx, miny, maxx, maxy, temp;
+  Location minx, miny, maxx, maxy, temp;
   float x, y, delta;
 
   delta = GetGridFactor () * PCB->Grid;
@@ -2311,8 +2311,8 @@ DrawGrid ()
       minx -= delta;
       miny -= delta;
 #endif
-      maxx = MIN ((Dimension) maxx, PCB->MaxWidth);
-      maxy = MIN ((Dimension) maxy, PCB->MaxHeight);
+      maxx = MIN ((BDimension) maxx, PCB->MaxWidth);
+      maxy = MIN ((BDimension) maxy, PCB->MaxHeight);
       miny = MAX (0, miny);
       minx = MAX (0, minx);
       for (y = miny; y <= maxy; y += delta)

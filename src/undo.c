@@ -83,14 +83,14 @@ ChangeNameType, *ChangeNameTypePtr;
 
 typedef struct			/* information about a move command */
 {
-  Position DX,			/* movement vector */
+  Location DX,			/* movement vector */
     DY;
 }
 MoveType, *MoveTypePtr;
 
 typedef struct			/* information about removed polygon points */
 {
-  Position X, Y;		/* data */
+  Location X, Y;		/* data */
   int ID;
   Cardinal Index;		/* index in a polygons array of points */
 }
@@ -98,7 +98,7 @@ RemovedPointType, *RemovedPointTypePtr;
 
 typedef struct			/* informstion about rotation */
 {
-  Position CenterX,		/* center of rotation */
+  Location CenterX,		/* center of rotation */
     CenterY;
   BYTE Steps;			/* number of steps */
 }
@@ -124,7 +124,7 @@ typedef struct			/* holds information about an operation */
     RotateType Rotate;
     MoveToLayerType MoveToLayer;
     int Flags;
-    Dimension Size;
+    BDimension Size;
   }
   Data;
 }
@@ -308,7 +308,7 @@ UndoChange2ndSize (UndoListTypePtr Entry)
 {
   void *ptr1, *ptr2, *ptr3;
   int type;
-  Dimension swap;
+  BDimension swap;
 
   /* lookup entry by ID */
   type =
@@ -336,7 +336,7 @@ UndoChangeClearSize (UndoListTypePtr Entry)
 {
   void *ptr1, *ptr2, *ptr3;
   int type;
-  Dimension swap;
+  BDimension swap;
 
   /* lookup entry by ID */
   type =
@@ -365,7 +365,7 @@ UndoChangeMaskSize (UndoListTypePtr Entry)
 {
   void *ptr1, *ptr2, *ptr3;
   int type;
-  Dimension swap;
+  BDimension swap;
 
   /* lookup entry by ID */
   type =
@@ -395,7 +395,7 @@ UndoChangeSize (UndoListTypePtr Entry)
 {
   void *ptr1, *ptr2, *ptr3;
   int type;
-  Dimension swap;
+  BDimension swap;
 
   /* lookup entry by ID */
   type =
@@ -913,7 +913,7 @@ ClearUndoList (Boolean Force)
  */
 void
 AddObjectToMirrorUndoList (int Type, void *Ptr1, void *Ptr2, void *Ptr3,
-			   Position yoff)
+			   Location yoff)
 {
   UndoListTypePtr undo;
 
@@ -929,7 +929,7 @@ AddObjectToMirrorUndoList (int Type, void *Ptr1, void *Ptr2, void *Ptr3,
  */
 void
 AddObjectToRotateUndoList (int Type, void *Ptr1, void *Ptr2, void *Ptr3,
-			   Position CenterX, Position CenterY, BYTE Steps)
+			   Location CenterX, Location CenterY, BYTE Steps)
 {
   UndoListTypePtr undo;
 
@@ -1010,7 +1010,7 @@ AddObjectToInsertPointUndoList (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
  */
 void
 AddObjectToMoveUndoList (int Type, void *Ptr1, void *Ptr2, void *Ptr3,
-			 Position DX, Position DY)
+			 Location DX, Location DY)
 {
   UndoListTypePtr undo;
 

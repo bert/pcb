@@ -56,7 +56,7 @@
 #endif
 
 /* define this for more thorough self-checking of data structures */
-#define SLOW_ASSERTIONS
+#undef SLOW_ASSERTIONS
 
 /* mtspace data structures are built on kd-trees. */
 
@@ -78,9 +78,9 @@ struct mtspace
   /* kd-tree keeping track of "empty" regions. */
   kdtree_t *kdtree;
   /* what is the feature radius for this empty space tree? */
-  Dimension radius;
+  BDimension radius;
   /* what is the feature keepaway size for this empty space tree? */
-  Dimension keepaway;
+  BDimension keepaway;
   /* bounding box */
   BoxType bounds;
 };
@@ -127,7 +127,7 @@ mtspace_create_box (const BoxType * box, int fixed, int even, int odd)
  * radius greater-than-or-equal-to feature_radius+keepaway. */
 mtspace_t *
 mtspace_create (const BoxType * bounds,
-		Dimension feature_radius, Dimension keepaway)
+		BDimension feature_radius, BDimension keepaway)
 {
   BoxType smaller_bounds;
   mtspacebox_t *mtsb;
@@ -160,7 +160,7 @@ mtspace_destroy (mtspace_t ** mtspacep)
 
 /* returns the minimum empty-space radius relevant for
  * this mtspace structure. */
-Dimension
+BDimension
 mtspace_get_bloat (mtspace_t * mtspace)
 {
   assert (__mtspace_is_good (mtspace));
@@ -198,7 +198,7 @@ check_one (const BoxType * box, void *cl)
   mtspacebox_t *adj = (mtspacebox_t *) box, *nb;
   direction_t d;
   BoxType a, b, c;
-  Position x1, x2;
+  Location x1, x2;
   int i;
   assert (__mtspace_box_is_good (cc->mtsb));
   assert (__mtspace_box_is_good (adj));
@@ -300,7 +300,9 @@ mtspace_coalesce (mtspace_t * mtspace, struct coalesce_closure *cc)
 	{
 	  /* search region is one larger than mtsb on all sides */
 	  BoxType region = bloat_box (&cc->mtsb->box, 1);
+#ifndef NDEBUG
 	  int r = kd_search (mtspace->kdtree, &region, NULL, check_one, cc);
+#endif
 	  assert (r == 0);	/* otherwise we would have called 'longjmp' */
 	  /* ----- didn't find anything to coalesce ----- */
 	  assert (kd_region_is_empty (mtspace->kdtree, &cc->mtsb->box));
@@ -411,7 +413,7 @@ mtspace_remove_chunk (mtspace_t * mtspace, struct coalesce_closure *cc)
 static void
 mtspace_mutate (mtspace_t * mtspace,
 		const BoxType * box, mtspace_type_t which,
-		Dimension keepaway, Boolean is_add)
+		BDimension keepaway, Boolean is_add)
 {
   struct coalesce_closure cc;
   BoxType bloated;
@@ -450,7 +452,7 @@ mtspace_mutate (mtspace_t * mtspace,
  * instead. */
 void
 mtspace_add (mtspace_t * mtspace,
-	     const BoxType * box, mtspace_type_t which, Dimension keepaway)
+	     const BoxType * box, mtspace_type_t which, BDimension keepaway)
 {
   mtspace_mutate (mtspace, box, which, keepaway, True);
 }
@@ -462,7 +464,8 @@ mtspace_add (mtspace_t * mtspace,
  * instead. */
 void
 mtspace_remove (mtspace_t * mtspace,
-		const BoxType * box, mtspace_type_t which, Dimension keepaway)
+		const BoxType * box, mtspace_type_t which,
+		BDimension keepaway)
 {
   mtspace_mutate (mtspace, box, which, keepaway, False);
 }

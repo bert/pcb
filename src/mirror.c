@@ -57,7 +57,7 @@ static char *rcsid = "$Id$";
  * an additional offset is passed
  */
 void
-MirrorElementCoordinates (ElementTypePtr Element, Position yoff)
+MirrorElementCoordinates (ElementTypePtr Element, Location yoff)
 {
   ELEMENTLINE_LOOP (Element, 
     {

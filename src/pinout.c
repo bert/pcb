@@ -69,7 +69,7 @@ typedef struct			/* information of one window */
     Enlarge,			/* enlarge button */
     Shrink;			/* shrink button */
   int Zoom;			/* zoom factor of window */
-  Position MaxX,		/* size of used drawing area independend */
+  Location MaxX,		/* size of used drawing area independend */
     MaxY;			/* from zoom setting */
 }
 PinoutType, *PinoutTypePtr;
