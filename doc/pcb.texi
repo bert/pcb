@@ -4687,7 +4687,9 @@ To create
 @item Make the component layer active.
 @item For a leaded part, select the via tool and place vias where the
 pads for the part should go.  For surface mount pads, draw line
-segments.
+segments.  Note that until the footprint is completed, the surface
+mount pads will remain rounded.  Currently a rectangle or polygon
+may not be used as a pad.
 @item For each via and line segment which will become a pad, select it,
 right-click to bring up the popup menu and choose "edit name".  Enter
 the pin number and press enter.  Alternatively, you can use the "n"
