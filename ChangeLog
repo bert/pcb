@@ -1,3 +1,137 @@
+2005-03-10 17:33  danmc
+
+	* Makefile.in, README_FILES/Makefile.in, doc/Makefile.in,
+	  doc/version.texi, example/Makefile.in,
+	  example/libraries/Makefile.in, lib/Makefile.in,
+	  newlib/Makefile.in, newlib/2_pin_thru-hole_packages/Makefile.in,
+	  newlib/analog-devices/Makefile.in, newlib/burr-brown/Makefile.in,
+	  newlib/connectors/Makefile.in, newlib/crystal/Makefile.in,
+	  newlib/cypress/Makefile.in, newlib/electro-optics/Makefile.in,
+	  newlib/generic_SMD_packages/Makefile.in,
+	  newlib/headers/Makefile.in, newlib/msp430/Makefile.in,
+	  newlib/not_vetted_ingo/Makefile.in, newlib/sockets/Makefile.in,
+	  newlib/tests/Makefile.in, newlib/toko/Makefile.in,
+	  src/Makefile.in, src/icons/Makefile.in, src/script/Makefile.in,
+	  tools/Makefile.in, tutorial/Makefile.in: regen after adding gtk
+	  configure.ac stuff
+
+2005-03-10 17:32  danmc
+
+	* autogen.sh: use ACLOCAL_FLAGS if set
+
+2005-03-10 17:22  danmc
+
+	* lib/: geda.inc, misc.inc, to.inc: add MULTIWATT and friends.	Fix
+	  drill size for several versions of the TO-220 package, fix some
+	  bugs which caused several TO-220 packages and others to generate
+	  syntax errors, and fix the drill size on several TO-* packages.
+	  You can't fit a 40 mil pin in a 20 mil hole!
+
+2005-02-23 09:05  djdelorie
+
+	* src/: global.h, main.c, print.c: Allow FAB author name to be set
+	  by .Xdefaults
+
+2005-02-09 19:19  danmc
+
+	* src/action.h: add a few missing prototypes
+
+2005-02-09 18:36  danmc
+
+	* aclocal.m4: regen
+
+2005-02-09 18:34  danmc
+
+	* configure: regen after adding --enable-gtk and --disable-xaw
+
+2005-02-09 18:32  danmc
+
+	* configure.ac: add --enable-gtk and --disable-xaw configure flags
+	  which will turn on the configuring of gtk+ and turn off the
+	  configuring of Athena widgets respectively.  At this time the
+	  effect is that you will not be able to compile if you use these
+	  options.  They are added to help support some gtk+ development
+	  work.
+
+2005-02-02 17:37  danmc
+
+	* src/: data.c, dialog.c, printdialog.c: fix a segfault bug when
+	  using <Key>Up and <Key>Down to try and adjust the scale slider in
+	  the print dialog box.  While here fix up the print dialog box so
+	  that you can use the arrow keys to fine adjust the scale slider.
+	  Noted in bug #1111847 filed by Bob Paddock.
+
+2005-02-01 20:59  danmc
+
+	* src/rotate.c: fix a segfault bug on the pinout window (no null
+	  pointer dereference)
+
+2005-02-01 20:59  danmc
+
+	* src/Pcb.ad.in: change units to 1/100 mil for pinout window offset
+
+2005-01-30 14:01  danmc
+
+	* lib/geda.inc: Add DIP44.  Provided by Walter Fetter Lages in
+	  patch #1108881
+
+2005-01-30 09:05  danmc
+
+	* lib/misc.inc: fix drill size for ZIP packages.  Noted by Walter
+	  Fetter Lages in patch #1108881
+
+2005-01-29 20:09  danmc
+
+	* lib/connector.inc: fix drill size for PKG_BNC_LAY.  Provided by
+	  Walter Fetter Lages in patch #1108881
+
+2005-01-29 19:34  danmc
+
+	* lib/geda.inc: add TQFP packages provided by Walter Fetter Lages
+	  in patch #1108881.  More to come from that patch...
+
+2005-01-29 08:58  danmc
+
+	* doc/Makefile.in: regen
+
+2005-01-29 08:57  danmc
+
+	* doc/Makefile.am: add flag to keep building the html manual as a
+	  single page.	Having multiple pages seems to do strange things to
+	  the install.
+
+2005-01-28 20:01  danmc
+
+	* doc/Makefile.am: fix typo in target for creating texi files from
+	  the ascii list of drills
+
+2005-01-28 19:59  danmc
+
+	* doc/: Makefile.in: regen
+
+2005-01-28 19:59  danmc
+
+	* doc/: Makefile.am, ascii2texi.awk, fractional_size.tab,
+	  letter_size.tab, metric_size.tab, pcb.texi, wire_size.tab: add an
+	  appendix with a big list of drill sizes.  Included are American
+	  Standard wire size, letter size, fractional size, and metric.
+
+2005-01-27 18:15  danmc
+
+	* configure, doc/version.texi: set version for snapshot
+
+2005-01-27 06:26  danmc
+
+	* configure.ac: change version for snapshot
+
+2005-01-27 06:19  danmc
+
+	* NEWS: add news for snapshot 20050127
+
+2005-01-26 21:38  danmc
+
+	* ChangeLog: update to get ready for next snapshot
+
 2005-01-26 21:36  danmc
 
 	* Makefile.in, aclocal.m4, README_FILES/Makefile.in,
