@@ -1520,7 +1520,7 @@ orthopull ()
       c = c->next;
     }
   if (rv)
-    printf ("orthopull: %d mils saved\n", rv);
+    printf ("orthopull: %d mils saved\n", rv / 100);
   return rv;
 }
 
@@ -1661,7 +1661,7 @@ debumpify ()
 
   rv += simple_optimizations ();
   if (rv)
-    printf ("debumpify: %d mils saved\n", rv * 2);
+    printf ("debumpify: %d mils saved\n", rv / 50);
   return rv;
 }
 
@@ -1895,7 +1895,7 @@ vianudge ()
       /* at this point, we know we can move it */
 
       dprintf ("vianudge: nudging via at %d,%d by %d mils saving %d\n",
-	       c->x, c->y, len, saved);
+	       c->x, c->y, len / 100, saved / 100);
       rv += len * saved;
       move_corner (c, c2->x, c2->y);
 
@@ -1906,7 +1906,7 @@ vianudge ()
     }
 
   if (rv)
-    printf ("vianudge: %d mils saved\n", rv);
+    printf ("vianudge: %d mils saved\n", rv / 100);
   return rv;
 }
 
