@@ -26,14 +26,11 @@
  *  haceaton@aplcomm.jhuapl.edu
  *
  */
-
 /* this file, autoroute.c, was written and is
  * Copyright (c) 2001 C. Scott Ananian
  */
-
 /* functions used to autoroute nets.
  */
-
 /*
  *-------------------------------------------------------------------
  * This file implements a rectangle-expansion router, based on
@@ -46,23 +43,18 @@
  * library.
  *--------------------------------------------------------------------
  */
-
 #define NET_HEAP
 #define REGION 75000
-
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
-
 #include <assert.h>
 #include <math.h>
 #include <stdlib.h>
 #include <setjmp.h>
-
 #include "data.h"
 #include "global.h"
 #include "macro.h"
-
 #include "autoroute.h"
 #include "box.h"
 #include "clip.h"
@@ -79,20 +71,16 @@
 #include "remove.h"
 #include "undo.h"
 #include "vector.h"
-
 #ifdef HAVE_LIBDMALLOC
 #include <dmalloc.h>
 #endif
-
 /* #defines to enable some debugging output */
 #define ROUTE_VERBOSE
-
 /*
 #define ROUTE_DEBUG
 #define DEBUG_SHOW_ROUTE_BOXES
 #define DEBUG_SHOW_VIA_BOXES
 */
-
 /* round up "half" thicknesses */
 #define HALF_THICK(x) (((x)+1)/2)
 /* a styles maximum bloat is its keepaway plus the larger of its via radius
@@ -109,9 +97,7 @@
 	 AutoRouteParameters.ConflictPenalty : \
 	 CONFLICT_LEVEL(rb)==LO_CONFLICT ? \
 	 AutoRouteParameters.LastConflictPenalty : 1)
-
 #define ABS(x) (((x)<0)?-(x):(x))
-
 #define LIST_LOOP(init, which, x) do {\
      routebox_t *__next_one__ = (init);\
    x = NULL;\
@@ -119,7 +105,6 @@
      x = __next_one__;\
      /* save next one first in case the command modifies or frees it */\
      __next_one__ = x->which.next
-
 #define FOREACH_SUBNET(net, p) do {\
   routebox_t *_pp_;\
   /* fail-fast: check subnet_processed flags */\
@@ -140,7 +125,6 @@
   p->flags.subnet_processed=0;\
   END_LOOP;\
 } while (0)
-
 /* notes:
  * all rectangles are assumed to be closed on the top and left and
  * open on the bottom and right.   That is, they include their top-left
@@ -155,11 +139,9 @@
  * expansion regions are always half-closed.  This means that when
  * tracing paths, you must steer clear of the bottom and right edges.
  */
-
 /* ---------------------------------------------------------------------------
  * some local types
  */
-
 /* augmented RouteStyleType */
 typedef struct
 {
@@ -179,11 +161,6 @@ conflict_t;
 typedef struct routebox
 {
   const BoxType box;
-  unsigned char group;
-  unsigned char layer;
-  enum
-  { PAD, PIN, VIA, VIA_SHADOW, LINE, OTHER, EXPANSION_AREA, PLANE }
-  type;
   union
   {
     PadTypePtr pad;
@@ -196,6 +173,12 @@ typedef struct routebox
     struct routebox *expansion_area;	/* previous expansion area in search */
   }
   parent;
+  unsigned char group;
+  unsigned char layer;
+  enum
+  { PAD, PIN, VIA, VIA_SHADOW, LINE, OTHER, EXPANSION_AREA, PLANE }
+  type;
+  cost_t cost;
   struct
   {
     unsigned nonstraight:1;
@@ -320,7 +303,8 @@ static int ro = 0;
  */
 static routebox_t *CreateExpansionArea (const BoxType * area, Cardinal group,
 					routebox_t * parent,
-					Boolean relax_edge_requirements);
+					Boolean relax_edge_requirements,
+					edge_t * edge);
 
 static cost_t edge_cost (const edge_t * e);
 
@@ -1055,10 +1039,16 @@ cost_to_point (const CheapPointType * p1, Cardinal point_layer1,
 	       const CheapPointType * p2, Cardinal point_layer2)
 {
   cost_t x_dist = (p1->X - p2->X), y_dist = (p1->Y - p2->Y), r;
-  if (bad_x[point_layer1] && bad_x[point_layer2])
+  if (bad_x[point_layer1])
     x_dist *= AutoRouteParameters.DirectionPenalty;
-  if (bad_y[point_layer1] && bad_y[point_layer2])
+  if (bad_y[point_layer1])
     y_dist *= AutoRouteParameters.DirectionPenalty;
+  /* penalize the surface layers in order to minimize SMD pad congestion */
+  if (point_layer1 == front || point_layer1 == back)
+    {
+      x_dist *= 1.5;
+      y_dist *= 1.5;
+    }
   /* cost is proportional to orthogonal distance. */
   r = ABS (x_dist) + ABS (y_dist);
   /* apply via cost penalty if layers differ */
@@ -1087,8 +1077,14 @@ static cost_t
 cost_to_routebox (const CheapPointType * p, Cardinal point_layer,
 		  const routebox_t * rb)
 {
+  cost_t trial;
   CheapPointType p2 = closest_point_in_box (p, &rb->box);
-  return cost_to_point (p, point_layer, &p2, rb->group);
+  if (point_layer == rb->group)
+    return cost_to_point (p, point_layer, &p2, rb->group);
+  trial = AutoRouteParameters.ViaCost;
+  trial += MIN (cost_to_point (p, point_layer, &p2, point_layer),
+		cost_to_point (p, rb->group, &p2, rb->group));
+  return trial;
 }
 
 static BoxType
@@ -1374,7 +1370,7 @@ CreateViaEdge (const BoxType * area, Cardinal group,
   assert (AutoRouteParameters.with_conflicts ||
 	  (to_site_conflict == NO_CONFLICT &&
 	   through_site_conflict == NO_CONFLICT));
-  rb = CreateExpansionArea (area, group, parent, True);
+  rb = CreateExpansionArea (area, group, parent, True, previous_edge);
   rb->flags.is_via = 1;
 #if defined(ROUTE_DEBUG) && defined(DEBUG_SHOW_VIA_BOXES)
   showroutebox (rb);
@@ -1441,7 +1437,7 @@ CreateEdgeWithConflicts (const BoxType * interior_edge,
   b = bloat_routebox (container);
   assert (previous_edge->rb->group == container->group);
   rb = CreateExpansionArea (&b, previous_edge->rb->group, previous_edge->rb,
-			    True);
+			    True, previous_edge);
   rb->underlying = container;	/* crucial! */
   costpoint = closest_point_in_box (&previous_edge->cost_point, &b);
   d = cost_to_point (&costpoint, previous_edge->rb->group,
@@ -1654,7 +1650,8 @@ edge_intersect (const BoxType * child, const BoxType * parent)
  * so we can remove them all easily at the end. */
 static routebox_t *
 CreateExpansionArea (const BoxType * area, Cardinal group,
-		     routebox_t * parent, Boolean relax_edge_requirements)
+		     routebox_t * parent, Boolean relax_edge_requirements,
+		     edge_t * src_edge)
 {
   routebox_t *rb = (routebox_t *) calloc (1, sizeof (*rb));
   assert (area && parent);
@@ -1671,6 +1668,7 @@ CreateExpansionArea (const BoxType * area, Cardinal group,
     RB_up_count (rb->parent.expansion_area);
   rb->flags.orphan = 1;
   rb->augStyle = AutoRouteParameters.augStyle;
+  rb->cost = src_edge->cost;
   InitLists (rb);
 #if defined(ROUTE_DEBUG) && defined(DEBUG_SHOW_EXPANSION_BOXES)
   showroutebox (rb);
@@ -2049,7 +2047,7 @@ BreakEdges (routedata_t * rd, vector_t * edge_vec, rtree_t * targets)
 	  /* okay, create new, clipped, edge */
 	  nrb =
 	    CreateExpansionArea (&newbox, e->rb->group, route_parent (e->rb),
-				 True);
+				 True, e);
 	  ne = CreateEdge2 (nrb, e->expand_dir, e, targets, NULL);
 	  nrb->flags.source = e->rb->flags.source;
 	  nrb->flags.nobloat = e->rb->flags.nobloat;
@@ -2096,7 +2094,7 @@ BreakEdges (routedata_t * rd, vector_t * edge_vec, rtree_t * targets)
 	      {
 		routebox_t *nrb = CreateExpansionArea (i ? &r.left : &r.right,
 						       e->rb->group, parent,
-						       False);
+						       False, e);
 		ne = CreateEdge2 (nrb, e->expand_dir, e, targets, NULL);
 		nrb->flags.source = e->rb->flags.source;
 		nrb->flags.nobloat = e->rb->flags.nobloat;
@@ -2513,18 +2511,24 @@ struct routeone_state
 static void
 add_or_destroy_edge (struct routeone_state *s, edge_t * e)
 {
-    routebox_t *fixed = route_parent (e->rb);
-    /* discard edges that are too far outside the route box */
-    {
-      if ((e->cost_point.X + REGION < MIN (fixed->box.X1, e->mincost_target->box.X1))
-      || (e->cost_point.Y + REGION < MIN (fixed->box.Y1, e->mincost_target->box.Y1))
-      || (e->cost_point.X - REGION > MAX (fixed->box.X2, e->mincost_target->box.X2))
-      || (e->cost_point.Y - REGION > MAX (fixed->box.Y2, e->mincost_target->box.Y2)))
-        {
-	  DestroyEdge (&e);
-	  return;
-	}
-     }
+#if 0
+  routebox_t *fixed = route_parent (e->rb);
+  /* discard edges that are too far outside the route box */
+  {
+    if ((e->cost_point.X + REGION <
+	 MIN (fixed->box.X1, e->mincost_target->box.X1))
+	|| (e->cost_point.Y + REGION <
+	    MIN (fixed->box.Y1, e->mincost_target->box.Y1))
+	|| (e->cost_point.X - REGION >
+	    MAX (fixed->box.X2, e->mincost_target->box.X2))
+	|| (e->cost_point.Y - REGION >
+	    MAX (fixed->box.Y2, e->mincost_target->box.Y2)))
+      {
+	DestroyEdge (&e);
+	return;
+      }
+  }
+#endif
   e->cost = edge_cost (e);
   assert (__edge_is_good (e));
   assert (is_layer_group_active (e->rb->group));
@@ -2573,7 +2577,7 @@ add_via_sites (struct routeone_state *s,
 	       conflict_t within_conflict_level,
 	       edge_t * parent_edge, rtree_t * targets, BDimension shrink)
 {
-  int i, j;
+  int i, j, count = 0;
   BoxType region = shrink_box (&within->box, shrink);
 
   assert (AutoRouteParameters.use_vias);
@@ -2600,15 +2604,16 @@ add_via_sites (struct routeone_state *s,
 	{
 	  BoxType cliparea;
 	  BoxType *area = vector_remove_last (v);
-	  if (!box_intersect (area, &region) || 
-	  !(i == NO_CONFLICT || AutoRouteParameters.with_conflicts))
+	  if (!box_intersect (area, &region) ||
+	      !(i == NO_CONFLICT || AutoRouteParameters.with_conflicts))
 	    {
-	       free (area);
-	       continue;
+	      free (area);
+	      continue;
 	    }
 	  cliparea = clip_box (area, &region);
 	  free (area);
 	  assert (__box_is_good (&cliparea));
+	  count++;
 	  for (j = 0; j < MAX_LAYER; j++)
 	    {
 	      edge_t *ne;
@@ -2720,6 +2725,7 @@ RouteOne (routedata_t * rd, routebox_t * from, routebox_t * to, int max_edges)
       END_LOOP;
       result.found_route = False;
       result.net_completely_routed = True;
+      result.best_route_cost = 0;
       return result;
     }
   result.net_completely_routed = False;
@@ -2747,6 +2753,7 @@ RouteOne (routedata_t * rd, routebox_t * from, routebox_t * to, int max_edges)
     /* we need the test for 'source' because this box may be nonstraight */
     if (p->flags.source && is_layer_group_active (p->group))
       {
+	edge_t *e;
 	cost_t ns_penalty = 0, ew_penalty = 0;
 	/* penalize long-side expansion of pads */
 	if (p->type == PAD)
@@ -2760,28 +2767,27 @@ RouteOne (routedata_t * rd, routebox_t * from, routebox_t * to, int max_edges)
 	/* note that planes shouldn't really expand, but we need an edge */
 	if (p->type != PLANE)
 	  {
-	    vector_append (source_vec,
-			   CreateEdge (p, (p->box.X1 + p->box.X2) / 2,
-				       p->box.Y1, ns_penalty, NULL,
-				       p->type == PLANE ? SOUTH : NORTH,
-				       targets));
-	    vector_append (source_vec,
-			   CreateEdge (p, (p->box.X1 + p->box.X2) / 2,
-				       p->box.Y2, ns_penalty, NULL,
-				       p->type == PLANE ? NORTH : SOUTH,
-				       targets));
-	    vector_append (source_vec,
-			   CreateEdge (p, p->box.X2,
-				       (p->box.Y1 + p->box.Y2) / 2,
-				       ew_penalty, NULL,
-				       p->type == PLANE ? WEST : EAST,
-				       targets));
+	    e = CreateEdge (p, (p->box.X1 + p->box.X2) / 2,
+			    p->box.Y1, ns_penalty, NULL,
+			    p->type == PLANE ? SOUTH : NORTH, targets);
+	    e->cost = edge_cost (e);
+	    vector_append (source_vec, e);
+	    e = CreateEdge (p, (p->box.X1 + p->box.X2) / 2,
+			    p->box.Y2, ns_penalty, NULL,
+			    p->type == PLANE ? NORTH : SOUTH, targets);
+	    vector_append (source_vec, e);
+	    e = CreateEdge (p, p->box.X2,
+			    (p->box.Y1 + p->box.Y2) / 2,
+			    ew_penalty, NULL,
+			    p->type == PLANE ? WEST : EAST, targets);
+	    e->cost = edge_cost (e);
+	    vector_append (source_vec, e);
 	  }
-	vector_append (source_vec,
-		       CreateEdge (p, p->box.X1,
-				   (p->box.Y1 + p->box.Y2) / 2, ew_penalty,
-				   NULL, p->type == PLANE ? EAST : WEST,
-				   targets));
+	e = CreateEdge (p, p->box.X1,
+			(p->box.Y1 + p->box.Y2) / 2, ew_penalty,
+			NULL, p->type == PLANE ? EAST : WEST, targets);
+	e->cost = edge_cost (e);
+	vector_append (source_vec, e);
       }
   }
   END_LOOP;
@@ -2819,15 +2825,15 @@ RouteOne (routedata_t * rd, routebox_t * from, routebox_t * to, int max_edges)
        * is already larger than the best edge cost we've found. */
       if (s.best_path && e->cost > s.best_cost)
 	goto dontexpand;	/* skip this edge */
-        /* cost the route so far when failed */
-      if (seen == max_edges && ! s.best_path)
-        s.best_cost = e->cost;
-        /* surprisingly it helps to give up and not try too hard to find
-	 * a route! This is not only faster, but results in better routing.
-	 * who would have guessed?
-	 */
+      /* cost the route so far when failed */
+      if (seen <= max_edges && !s.best_path)
+	s.best_cost = e->cost;
+      /* surprisingly it helps to give up and not try too hard to find
+       * a route! This is not only faster, but results in better routing.
+       * who would have guessed?
+       */
       if (seen++ > max_edges)
-        goto dontexpand;
+	goto dontexpand;
       /* for a plane, look for quick connections with thermals or vias */
       if (e->rb->type == PLANE)
 	{
@@ -2836,7 +2842,7 @@ RouteOne (routedata_t * rd, routebox_t * from, routebox_t * to, int max_edges)
 	    {
 	      edge_t *ne;
 	      routebox_t *nrb =
-		CreateExpansionArea (&pin->box, e->rb->group, e->rb, True);
+		CreateExpansionArea (&pin->box, e->rb->group, e->rb, True, e);
 	      nrb->type = PLANE;
 	      ne = CreateEdge2 (nrb, e->expand_dir, e, NULL, pin);
 	      best_path_candidate (&s, ne, pin);
@@ -3048,7 +3054,7 @@ RouteOne (routedata_t * rd, routebox_t * from, routebox_t * to, int max_edges)
 	      /* create new route box nrb and add it to the tree */
 	      nrb =
 		CreateExpansionArea (&expand_region, e->rb->group, e->rb,
-				     False);
+				     False, e);
 	      assert (r_region_is_empty
 		      (rd->layergrouptree[nrb->group], &nrb->box));
 	      r_insert_entry (rd->layergrouptree[nrb->group], &nrb->box, 1);
@@ -3074,6 +3080,8 @@ RouteOne (routedata_t * rd, routebox_t * from, routebox_t * to, int max_edges)
 	   * then don't expand any more in this direction. */
 	  if (next == NULL)
 	    goto dontexpand;
+	  if (next->flags.source)
+	    goto dontexpand;
 	  /* split the blocked edge at the obstacle.  Add the two
 	   * free edges; the edge that abuts the obstacle is also a
 	   * (high-cost) expansion edge as long as the thing we hit isn't
@@ -3088,7 +3096,7 @@ RouteOne (routedata_t * rd, routebox_t * from, routebox_t * to, int max_edges)
 	      assert (bb.is_valid_center);
 	      nrb =
 		CreateExpansionArea (&next->box, e->rb->group, top_parent,
-				     True);
+				     True, e);
 	      /* the expansion area we just created is the target box
 	       * we hit it coming from the e->expand_dir direction, but
 	       * the edge we hit is the opposite one on *this* box
@@ -3109,7 +3117,7 @@ RouteOne (routedata_t * rd, routebox_t * from, routebox_t * to, int max_edges)
 	    {			/* left edge valid? */
 	      nrb =
 		CreateExpansionArea (&bb.left, e->rb->group, top_parent,
-				     False);
+				     False, e);
 	      ne = CreateEdge2 (nrb, e->expand_dir, e, targets, NULL);
 	      add_or_destroy_edge (&s, ne);
 	    }
@@ -3118,14 +3126,36 @@ RouteOne (routedata_t * rd, routebox_t * from, routebox_t * to, int max_edges)
 	    {			/* right edge valid? */
 	      nrb =
 		CreateExpansionArea (&bb.right, e->rb->group, top_parent,
-				     False);
+				     False, e);
 	      ne = CreateEdge2 (nrb, e->expand_dir, e, targets, NULL);
 	      add_or_destroy_edge (&s, ne);
 	    }
-	  else if (next->type == EXPANSION_AREA)
+	  if (next->type == EXPANSION_AREA)
 	    {
-	      /* don't expand this edge */
-	      /* XXX: maybe update parent, if this route is cheaper? */
+            /* don't expand this edge, but check if we found a cheaper way here */
+            /*XXX prevent loops */
+	      if (next->cost > e->cost)
+		{
+		  routebox_t *rb;
+		  for (rb = top_parent; !rb->flags.source;
+		       rb = rb->parent.expansion_area)
+		    if (rb == next)
+		      break;
+		  /* if this route is cheaper, replace the blocker's parent */
+		  if (rb != next)
+		    {
+		      for (rb = next; !rb->flags.source;
+		       rb = rb->parent.expansion_area)
+		    if (rb == top_parent)
+		      break;
+		    if (rb != top_parent) {
+		      next->parent.expansion_area = top_parent;
+		      next->cost = e->cost;
+		      if (top_parent->flags.orphan)
+		        RB_up_count (top_parent);
+		      }
+		    }
+		}
 	    }
 	  else if (!next->flags.target && !next->flags.fixed
 		   && AutoRouteParameters.with_conflicts)
@@ -3135,7 +3165,7 @@ RouteOne (routedata_t * rd, routebox_t * from, routebox_t * to, int max_edges)
 	      assert (bb.is_valid_center);	/* how could it not be? */
 	      nrb =
 		CreateExpansionArea (&bb.center, e->rb->group, top_parent,
-				     False);
+				     False, e);
 	      ne = CreateEdge2 (nrb, e->expand_dir, e, targets, NULL);
 	      /* no penalty to reach conflict box, since we're still outside here */
 	      ne2 =
@@ -3314,10 +3344,10 @@ RouteAll (routedata_t * rd)
 		    mtspace_remove (rd->mtspace, &p->box,
 				    p->flags.is_odd ? ODD : EVEN,
 				    p->augStyle->style->Keepaway);
-		  r_delete_entry (rd->layergrouptree[p->group], &p->box);
 		  if (Settings.liveRouting
 		      && (p->type == LINE || p->type == VIA))
 		    EraseRouteBox (p);
+		  r_delete_entry (rd->layergrouptree[p->group], &p->box);
 		}
 	      END_LOOP;
 	      /* reset to original connectivity */
@@ -3358,7 +3388,7 @@ RouteAll (routedata_t * rd)
 		    {
 		      do
 			{
-			  ros = RouteOne (rd, p, NULL, 9000);
+			  ros = RouteOne (rd, p, NULL, 3000);
 			  if (ros.found_route)
 			    {
 			      total_net_cost += ros.best_route_cost;
