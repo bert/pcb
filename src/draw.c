@@ -196,9 +196,6 @@ Draw (void)
   render = True;
   if (VALID_PIXMAP (Offscreen))
     {
-      XFillRectangle (Dpy, Offscreen, Output.bgGC, SATURATE (Block.X1 - 1),
-		      SATURATE (Block.Y1 - 1), SATURATE (Block.X2 - Block.X1 + 2),
-		      SATURATE (Block.Y2 - Block.Y1 + 2));
       /* create an update event */
       erased.type = Expose;
       erased.display = Dpy;
@@ -208,6 +205,8 @@ Draw (void)
       erased.width = SATURATE (Block.X2 - Block.X1 + 2);
       erased.height = SATURATE (Block.Y2 - Block.Y1 + 2);
       erased.count = 0;
+      XFillRectangle (Dpy, Offscreen, Output.bgGC, erased.x,
+		      erased.y, erased.width, erased.height);
       XSendEvent (Dpy, Output.OutputWindow, False, ExposureMask,
 		  (XEvent *) & erased);
     }
@@ -255,6 +254,8 @@ static void
 Redraw (Boolean ClearWindow, BoxTypePtr screen_area)
 {
   BoxType draw_area;
+  Dimension pcbwidth, pcbheight;
+
   /* make sure window exists */
   if (Output.OutputWindow
       && (render || ClearWindow || !VALID_PIXMAP (Offscreen)))
@@ -284,17 +285,18 @@ Redraw (Boolean ClearWindow, BoxTypePtr screen_area)
       /* clear the background
        * of the drawing area
        */
+      pcbwidth = TO_DRAWABS_X (PCB->MaxWidth);
+      pcbheight = TO_DRAWABS_Y (PCB->MaxHeight);
       XFillRectangle (Dpy, DrawingWindow, Output.bgGC, 0, 0,
-		      TO_DRAWABS_X (PCB->MaxWidth),
-		      TO_DRAWABS_Y (PCB->MaxHeight));
-      XSetForeground (Dpy, Output.bgGC, Settings.bgColor);
+		      MIN (pcbwidth, Output.Width),
+                      MIN (pcbheight, Output.Height));
       XSetForeground (Dpy, Output.fgGC, Settings.OffLimitColor);
-      XFillRectangle (Dpy, DrawingWindow, Output.fgGC,
-		      TO_DRAWABS_X (PCB->MaxWidth), 0, MAX_COORD / 100,
-		      MAX_COORD / 100);
-      XFillRectangle (Dpy, DrawingWindow, Output.fgGC, 0,
-		      TO_DRAWABS_Y (PCB->MaxHeight), MAX_COORD / 100,
-		      MAX_COORD / 100);
+      if (pcbwidth < Output.Width)
+        XFillRectangle (Dpy, DrawingWindow, Output.fgGC,
+		        pcbwidth, 0, Output.Width - pcbwidth, Output.Height);
+      if (pcbheight < Output.Height)
+        XFillRectangle (Dpy, DrawingWindow, Output.fgGC, 0,
+		        pcbheight, Output.Width, Output.Height - pcbheight);
       if (ClearWindow && !VALID_PIXMAP (Offscreen))
 	Crosshair.On = False;
 
