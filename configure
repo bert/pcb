@@ -1623,7 +1623,7 @@ fi
 
 
 # Define the identity of the package.
- PACKAGE=pcb
+ PACKAGE=pcb-xaw
  VERSION=1.99p
 
 
