@@ -71,4 +71,5 @@ int r_search(rtree_t *rtree, const BoxType * starting_region,
 /* return 0 if there are any rectangles in the given region. */
 int r_region_is_empty(rtree_t *rtree, const BoxType * region);
 
+void __r_dump_tree (struct rtree_node *, int);
 #endif
