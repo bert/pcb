@@ -1,3 +1,4 @@
+## -*- makefile -*-
 ##
 ##                            COPYRIGHT
 ##
@@ -27,6 +28,8 @@
 
 info_TEXINFOS=	pcb.texi
 pkgdata_DATA=	${html_docs} ${ps_docs} ${pdf_docs}
+
+man_MANS=	pcb.1
 
 html_docs=	${info_TEXINFOS:.texi=.html}
 ps_docs=	${info_TEXINFOS:.texi=.ps} refcard.ps
