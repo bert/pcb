@@ -3170,6 +3170,20 @@ Default:
 !Mod1 Shift<Key>s: Change2ndSize(Object, -5)
 @end example
 
+@findex ChangeFlag()
+@cindex flags, changing
+@cindex octagonal flag, changing
+@cindex square flag, changing
+@cindex thermal flag, changing
+@itemx ChangeFlag(Object|SelectElements|SelectedPins|SelectedVias|Selected,thermal|octagon|square,0|1)
+Sets/clears the indicated flag.  This adds/removes thermals, adds/removes the flag
+which indicates a pin/pad should be square, or adds/removes the flag which
+indicates a pin/pad should be octagonal.
+@example
+:ChangeFlag(SelectedVias,thermal,1)
+:ChangeFlag(SelectedPads,square,0)
+@end example
+
 @findex ChangeHole()
 @cindex vias, converting to mounting hole
 @cindex mounting holes
@@ -3244,6 +3258,20 @@ certain pin, normally the first one, of circuits. It is also used to
 make SMD pads have square ends.
 @example
 None<Key>q:   ChangeSquare(Object)
+@end example
+
+@findex ClrFlag()
+@cindex flags, clearing
+@cindex flags, clearing
+@cindex octagonal flag, clearing
+@cindex square flag, clearing
+@cindex thermal flag, clearing
+@itemx ClrFlag(Object|SelectElements|SelectedPins|SelectedVias|Selected,thermal|octagon|square)
+Clears the indicated flag.  This removes thermals, removes the flag
+which indicates a pin/pad should be square, or removes the flag which
+indicates a pin/pad should be octagonal.
+@example
+:ClrFlag(SelectedVias,thermal)
 @end example
 
 @findex Command()
@@ -3652,6 +3680,19 @@ Default:
 @example
 None<Btn3Down>:  Select(ToggleObject)
 None<Btn3Down>,None<Btn3Motion>: See resource file - this is complex
+@end example
+
+@findex SetFlag()
+@cindex flags, setting
+@cindex octagonal flag, setting
+@cindex square flag, setting
+@cindex thermal flag, setting
+@itemx SetFlag(Object|SelectElements|SelectedPins|SelectedVias|Selected,thermal|octagon|square)
+Sets the indicated flag.  This adds thermals, sets the flag
+which indicates a pin/pad should be square, or sets the flag which
+indicates a pin/pad should be octagonal.
+@example
+:SetFlag(Selected,thermal)
 @end example
 
 @findex SetValue()
