@@ -147,7 +147,17 @@ define(`OLHEIGHT', eval(HEIGHT+NOSMUDGE))
 )')
 
 # -------------------------------------------------------------------
-# the definition of a plcc package with socket
+# the definition of a plcc package with through-hole socket
+#
+# for example, Assmann A-CCS##-{Z,G} series
+# or mil-max 940-XX-XXX-24-000000 series.
+#
+# mil-max specifies 0.035" drill hole and 0.062" pad.
+# Assman says 0.0315" hole.  Also the mil-max outside
+# dimensions are ever so slightly larger than Assmann so
+# use those.  See for example
+# http://www.milmax.com/images/products/pdf/092.PDF
+#
 # modified for correct pin numbering by Holm Tiffe
 # $1: canonical name
 # $2: name on PCB
@@ -162,6 +172,8 @@ define(`PKG_PLCC_SOCKET',
 	define(`WIDTH', `eval((OFFSET+1) *100 +2*BORDER)')
 	define(`CENTER', `eval(WIDTH / 2)')
 	define(`NUMPINS', `$4')
+	define(`PADSIZE', `62')
+	define(`DRILL', `35')
 Element(0x00 "$1" "$2" "$3" eval(BORDER+200) CENTER 0 100 0x00)
 
 # PLCC - 44 is a  special case, pad 1 in inner row
@@ -177,52 +189,52 @@ ifelse(eval(NUMPINS=32),1,`define(`QUARTER',9)')
 
 # top left row
 forloop(`i', 1, ltr,
-	`PIN(X, Y, 50, 20, count)' `define(`count', incr(count))'
-	`PIN(eval(X-100), eval(Y-100), 50, 20, count)' `define(`count', incr(count))'
+	`PIN(X, Y, PADSIZE, DRILL, count)' `define(`count', incr(count))'
+	`PIN(eval(X-100), eval(Y-100), PADSIZE, DRILL, count)' `define(`count', incr(count))'
 	`define(`X', eval(X-100))'
 )
 
 #left row
 define(`X',eval(X-100))
 forloop(`i', 1, eval((QUARTER-1)/2),
-	`PIN(X, Y, 50, 20, count)' `define(`count', incr(count))'
-	`PIN(eval(X+100), Y, 50, 20, count)' `define(`count', incr(count))'
+	`PIN(X, Y, PADSIZE, DRILL, count)' `define(`count', incr(count))'
+	`PIN(eval(X+100), Y, PADSIZE, DRILL, count)' `define(`count', incr(count))'
 	`define(`Y', eval(Y+100))'
 )
-PIN(X, Y, 50, 20, count)
+PIN(X, Y, PADSIZE, DRILL, count)
 define(`count', incr(count))
 
 # bottom row
 define(`X',eval(X+100))
 define(`Y',eval(Y+100))
 forloop(`i', 1, eval(ltr*2-1),
-	`PIN(X, Y, 50, 20, count)' `define(`count', incr(count))'
-	`PIN(X, eval(Y-100), 50, 20, count)' `define(`count', incr(count))'
+	`PIN(X, Y, PADSIZE, DRILL, count)' `define(`count', incr(count))'
+	`PIN(X, eval(Y-100), PADSIZE, DRILL, count)' `define(`count', incr(count))'
 	`define(`X', eval(X+100))'
 )
-PIN(X, Y, 50, 20, count)
+PIN(X, Y, PADSIZE, DRILL, count)
 define(`count', incr(count))
 
 # right row
 define(`X',eval(X+100))
 define(`Y',eval(Y-100))
 forloop(`i', 1, eval((QUARTER-1)/2),
-	`PIN(X, Y, 50, 20, count)' `define(`count', incr(count))'
-	`PIN(eval(X-100), Y, 50, 20, count)' `define(`count', incr(count))'
+	`PIN(X, Y, PADSIZE, DRILL, count)' `define(`count', incr(count))'
+	`PIN(eval(X-100), Y, PADSIZE, DRILL, count)' `define(`count', incr(count))'
 	`define(`Y', eval(Y-100))'
 )
-PIN(X, Y, 50, 20, count)
+PIN(X, Y, PADSIZE, DRILL, count)
 define(`count', incr(count))
 
 # top rigth row
 define(`X',eval(X-100))
 define(`Y',eval(Y-100))
 forloop(`i', 1, eval(ltr-1),
-	`PIN(X, Y, 50, 20, count)' `define(`count', incr(count))'
-	`PIN(X, eval(Y+100), 50, 20, count)' `define(`count', incr(count))'
+	`PIN(X, Y, PADSIZE, DRILL, count)' `define(`count', incr(count))'
+	`PIN(X, eval(Y+100), PADSIZE, DRILL, count)' `define(`count', incr(count))'
 	`define(`X', eval(X-100))'
 )
-PIN(X, Y, 50, 20, count)
+PIN(X, Y, PADSIZE, DRILL, count)
 
 ifelse(eval(NUMPINS=32),1,`define(`HEIGHT',eval(WIDTH+100))',`define(`HEIGHT',WIDTH)')
 	ElementLine(0 0 WIDTH 0 20)
@@ -250,44 +262,44 @@ define(`X',CENTER)
 define(`Y',BORDER)
 define(`count',1)
 forloop(`i', 1, eval((QUARTER-1)/4),
-	`PIN(X, Y, 50, 20, count)' `define(`count', incr(count))'
-	`PIN(X, eval(Y+100), 50, 20, count)' `define(`count', incr(count))'
+	`PIN(X, Y, PADSIZE, DRILL, count)' `define(`count', incr(count))'
+	`PIN(X, eval(Y+100), PADSIZE, DRILL, count)' `define(`count', incr(count))'
 	`define(`X',eval(X-100))'
 )
-PIN(X, Y, 50, 20, count)
+PIN(X, Y, PADSIZE, DRILL, count)
 define(`count', incr(count))
 
 # left row
 define(`Y',eval(BORDER+100))
 define(`X',BORDER)
 forloop(`i', 1, eval((QUARTER-1)/2),
-	`PIN(X, Y, 50, 20, count)' `define(`count', incr(count))'
-	`PIN(eval(X+100), Y, 50, 20, count)' `define(`count', incr(count))'
+	`PIN(X, Y, PADSIZE, DRILL, count)' `define(`count', incr(count))'
+	`PIN(eval(X+100), Y, PADSIZE, DRILL, count)' `define(`count', incr(count))'
 	`define(`Y',eval(Y+100))'
 )
-PIN(X, Y, 50, 20, count)
+PIN(X, Y, PADSIZE, DRILL, count)
 define(`count', incr(count))
 
 # bottom row
 define(`X',eval(BORDER+100))
 define(`Y',eval(WIDTH-BORDER))
 forloop(`i', 1, eval((QUARTER-1)/2),
-	`PIN(X, Y, 50, 20, count)' `define(`count', incr(count))'
-	`PIN(X, eval(Y-100), 50, 20, count)' `define(`count', incr(count))'
+	`PIN(X, Y, PADSIZE, DRILL, count)' `define(`count', incr(count))'
+	`PIN(X, eval(Y-100), PADSIZE, DRILL, count)' `define(`count', incr(count))'
 	`define(`X',eval(X+100))'
 )
-PIN(X, Y, 50, 20, count)
+PIN(X, Y, PADSIZE, DRILL, count)
 define(`count', incr(count))
 
 # right row
 define(`X',eval(WIDTH-BORDER))
 define(`Y',eval(WIDTH-BORDER-100))
 forloop(`i', 1, eval((QUARTER-1)/2),
-	`PIN(X, Y, 50, 20, count)' `define(`count', incr(count))'
-	`PIN(eval(X-100), Y, 50, 20, count)' `define(`count', incr(count))'
+	`PIN(X, Y, PADSIZE, DRILL, count)' `define(`count', incr(count))'
+	`PIN(eval(X-100), Y, PADSIZE, DRILL, count)' `define(`count', incr(count))'
 	`define(`Y',eval(Y-100))'
 )
-PIN(X, Y, 50, 20, count)
+PIN(X, Y, PADSIZE, DRILL, count)
 define(`count', incr(count))
 
 #top right row
@@ -295,8 +307,8 @@ define(`count', incr(count))
 define(`X',eval(WIDTH-BORDER-100))
 define(`Y',BORDER)
 forloop(`i', 1, eval((QUARTER-1)/4),
-	`PIN(X, Y, 50, 20, count)' `define(`count', incr(count))'
-	`PIN(X, eval(Y+100), 50, 20, count)' `define(`count', incr(count))'
+	`PIN(X, Y, PADSIZE, DRILL, count)' `define(`count', incr(count))'
+	`PIN(X, eval(Y+100), PADSIZE, DRILL, count)' `define(`count', incr(count))'
 	`define(`X',eval(X-100))'
 )
 
