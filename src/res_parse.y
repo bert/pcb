@@ -33,6 +33,8 @@ static Resource *current_res;
 
 static void resource_do_include(Resource *parent, char *);
 
+int reserror(char *);
+
 #define f(x) current_res->flags |= x
 
 %}
@@ -110,7 +112,6 @@ res_parse_getchars(char *buf, int max_size)
 Resource *
 resource_parse(char *filename, const char **strings)
 {
-  Resource *r;
   res_lineno = 1;
   if (filename)
     {
@@ -195,6 +196,7 @@ reserror(char *str)
   fprintf(stderr, "Error: %s around line %d: %s\n",
 	  res_file ? res_filename : "internal strings",
 	  res_lineno, str);
+  return 0;
 }
 
 static void
