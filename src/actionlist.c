@@ -44,6 +44,7 @@ extern int FlagCurrentStyle(int);
 extern int FlagElementName(int);
 extern int FlagGrid(int);
 extern int FlagGridFactor(int);
+extern int FlagHaveRegex(int);
 extern int FlagIsDataEmpty(int);
 extern int FlagIsDataEmpty(int);
 extern int FlagNetlist(int);
@@ -103,6 +104,7 @@ struct {
   {"elementname", FlagElementName, 0 },
   {"grid", FlagGrid, 0 },
   {"gridfactor", FlagGridFactor, 0 },
+  {"have_regex", FlagHaveRegex, 0 },
   {"liveroute", FlagSETTINGS, XtOffsetOf(SettingType,liveRouting) },
   {"liveroute", FlagTESTFLAG, LIVEROUTEFLAG },
   {"localref", FlagTESTFLAG, LOCALREFFLAG },
@@ -135,7 +137,7 @@ struct {
   {0,0,0}
 };
 
-int FlagFuncListSize = 43;
+int FlagFuncListSize = 44;
 struct Resource;
 extern void SizesMenuInclude(struct Resource *);
 
