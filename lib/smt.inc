@@ -103,7 +103,7 @@ define(`COMMON_SMT_3PAD_MIL',
 	define(`SKIP_SILK', `$11')
 
 		
-Element(0x00 "$1" "$2" "$3" eval(XMIN+20) eval(YMAX+20) 0 100 0x00)
+Element(0x00 "`$1'" "`$2'" "`$3'" eval(XMIN+20) eval(YMAX+20) 0 100 0x00)
 (
 	ifelse(0, eval(PADW>PADL),
 	# Pads which have the perpendicular pad dimension less
