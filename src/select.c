@@ -523,23 +523,32 @@ Boolean SelectedOperation (ObjectFunctionTypePtr F, Boolean Reset, int type)
   );
   if (type & PIN_TYPE && PCB->PinOn && F->Pin)
     ELEMENT_LOOP (PCB->Data,
-		  PIN_LOOP (element, if (TEST_FLAG (SELECTEDFLAG, pin))
-			    {
-			    if (Reset)
-			    {
+		  PIN_LOOP (element,
+		    if (TEST_FLAG (SELECTEDFLAG, pin))
+		      {
+		        if (Reset)
+		          {
 			    AddObjectToFlagUndoList (PIN_TYPE,
 						     element, pin, pin);
-			    CLEAR_FLAG (SELECTEDFLAG, pin);}
-			    F->Pin (element, pin); changed = True;}
-		  ); PAD_LOOP (element, if (TEST_FLAG (SELECTEDFLAG, pad))
-			       {
-			       if (Reset)
-			       {
+			    CLEAR_FLAG (SELECTEDFLAG, pin);
+			  }
+		        F->Pin (element, pin); changed = True;
+	              }
+		  );
+		  if (F->Pad)
+		    PAD_LOOP (element,
+		        if (TEST_FLAG (SELECTEDFLAG, pad))
+		          {
+		            if (Reset)
+		              {
 			       AddObjectToFlagUndoList (PAD_TYPE,
 							element, pad, pad);
-			       CLEAR_FLAG (SELECTEDFLAG, pad);}
-			       F->Pad (element, pad); changed = True;}
-		  ););
+			       CLEAR_FLAG (SELECTEDFLAG, pad);
+			      }
+			     F->Pad (element, pad); changed = True;
+			  }
+		     );
+     );
 
   /* process vias */
   if (type & VIA_TYPE && PCB->ViaOn && F->Via)
