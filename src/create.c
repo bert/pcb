@@ -678,6 +678,11 @@ CreateNewPad (ElementTypePtr Element,
   PadTypePtr pad = GetPadMemory (Element);
 
   /* copy values */
+  if (X1 != X2 && Y1 != Y2)
+   {
+     Message ("Diagonal pads are forbidden!\n");
+     return NULL;
+   }
   pad->Point1.X = MIN (X1, X2);	/* works since either X1 == X2 or Y1 == Y2 */
   pad->Point1.Y = MIN (Y1, Y2);
   pad->Point2.X = MAX (X1, X2);
