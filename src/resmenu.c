@@ -82,7 +82,7 @@ invoke_action (Widget w, char *rstr)
   if (str)
     free(str);
 
-  sp = str = MyStrdup(rstr, __FUNCTION__);
+  sp = str = MyStrdup(rstr, "invoke_action");
   while (*sp && (*sp == ' ' || *sp == '\t'))
     sp ++;
   aname = sp;
