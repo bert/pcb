@@ -220,7 +220,7 @@ RotateElementLowLevel (DataTypePtr Data, ElementTypePtr Element,
    */
   ELEMENTTEXT_LOOP (Element);
     {
-      if (Data->name_tree[n])
+      if (Data && Data->name_tree[n])
         r_delete_entry (Data->name_tree[n], (BoxType *) text);
       RotateTextLowLevel (text, X, Y, Number);
     }
