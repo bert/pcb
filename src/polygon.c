@@ -331,6 +331,11 @@ DoPIPFlags (PinTypePtr Pin, ElementTypePtr Element,
     wide = (Pin->Thickness + Pin->Clearance ) * 0.5;
   if (IsPointInPolygon (Pin->X, Pin->Y, wide, Polygon))
     {
+      if (TEST_FLAG(HOLEFLAG, Pin))
+        {
+	  Message("WARNING Unplated hole piercing or too close to polygon\n");
+	  SET_FLAG(WARNFLAG, Pin);
+	}
       SET_FLAG (LayerPIPFlag, Pin);
       return True;
     }
