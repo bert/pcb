@@ -2583,6 +2583,11 @@ ActionRemoveSelected (Widget W, XEvent * Event,
 	SetChangedFlag (True);
       RestoreCrosshair (True);
     }
+  else
+    {
+      Message ("Usage\n"
+	       "RemoveSelected()\n");
+    }
 }
 
 /* ---------------------------------------------------------------------------
