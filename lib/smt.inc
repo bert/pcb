@@ -1,4 +1,4 @@
-#
+# -*- m4 -*-
 #   $Id$
 #
 #   surface mounted components
