@@ -272,5 +272,4 @@ PopupMenu = {
     {"Selection Tool" Mode(Arrow)}
     {"Text Tool" Mode(Text)}
     {"Panner Tool" Mode(None)}
-    {"DJ" Mode(None)}
 }
