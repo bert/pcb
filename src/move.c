@@ -41,6 +41,7 @@ static char *rcsid = "$Id$";
 #include "crosshair.h"
 #include "data.h"
 #include "draw.h"
+#include "error.h"
 #include "misc.h"
 #include "move.h"
 #include "mymem.h"
