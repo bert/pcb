@@ -619,7 +619,7 @@ Element[0x00000000 "$1" "`$2'" "$3" 0 0 -2000 -6000 0 100 0x00000000]
 	ElementLine[ XMAX -YMAX  2500 -YMAX SILKW]
 
 	# punt on the arc on small parts as it can cover the pads
-	ifelse(eval((PADSEP-PADLENGTH)/1000 > 50), 1, `ElementArc[0 -YMAX 2500 2500 0 180 SILKW]', )
+	ifelse(eval((PADSEP)/1000 > 70), 1, `ElementArc[0 -YMAX 2500 2500 0 180 SILKW]', )
 	
 )')
 
