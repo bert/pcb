@@ -27,19 +27,22 @@
 ##
 
 info_TEXINFOS=	pcb.texi
-pkgdata_DATA=	${html_docs} ${ps_docs} ${pdf_docs}
+dist_pkgdata_DATA=	${html_docs} ${ps_docs} ${pdf_docs}
 
-man_MANS=	pcb.1
+dist_man_MANS=	pcb.1
 
 html_docs=	${info_TEXINFOS:.texi=.html}
 ps_docs=	${info_TEXINFOS:.texi=.ps} refcard.ps
 pdf_docs=	${info_TEXINFOS:.texi=.pdf} refcard.pdf
 
+
+# use this to avoid having the clean target delete pcb.{dvi,html,pdf,ps}
+# which unfortunately deletes files which are part of the distfile
+mostlyclean-aminfo:
+	-rm -rf pcb.aux pcb.cp pcb.cps pcb.fn pcb.fns pcb.ky pcb.kys pcb.log pcb.pg \
+	pcb.pgs pcb.tmp pcb.toc pcb.tp pcb.tps pcb.vr pcb.vrs 
+
 EXTRA_DIST= \
-	${man_MANS} \
-	${html_docs} \
-	${ps_docs} \
-	${pdf_docs} \
 	refcard.tex \
 	pad.obj \
 	pad.png \
@@ -47,14 +50,12 @@ EXTRA_DIST= \
 	pcb.dvi \
 	refcard.dvi
 
-SUFFIXES=	.html .pdf
+SUFFIXES=	.obj
 
-DISTCLEANFILES= \
-	*.fns \
-	*.trs \
-	*.vrs \
-	refcard.log \
-	refcard.aux 
+
+MAINTAINERCLEANFILES= \
+	refcard.aux refcard.dvi refcard.log refcard.pdf refcard.ps \
+	pcb.dvi pcb.html pcb.pdf pcb.ps
 
 BUILT_SOURCES=	\
 	pad.eps \
@@ -63,31 +64,18 @@ BUILT_SOURCES=	\
 TGIF_X=		XENVIRONMENT=$(srcdir)/Xdefaults.tgif ${TGIF}
 TGIF_FLAGS=	-print -color
 
-.obj.eps:
-	${TGIF_X} ${TGIF_FLAGS} -eps $<
+$(srcdir)/pad.eps: $(srcdir)/pad.obj
+	${TGIF_X} ${TGIF_FLAGS} -eps $(srcdir)/pad.obj
 
-.obj.png:
-	${TGIF_X} ${TGIF_FLAGS} -png $<
+$(srcdir)/pad.png: $(srcdir)/pad.obj
+	${TGIF_X} ${TGIF_FLAGS} -png $(srcdir)/pad.obj
 
-.ps.pdf:
-	ps2pdf $<
+refcard.dvi: $(srcdir)/refcard.tex
+	${LATEX} $(srcdir)/refcard.tex
 
-.texi.html:
-	$(MAKEINFO) --html $<
-
-.PHONY: html
-html: version.texi $(html_docs)
-
-
-.PHONY: ps
-ps: version.texi $(ps_docs)
-
-.PHONY: pdf
-pdf: version.texi $(pdf_docs)
-
-refcard.dvi: refcard.tex
-	${LATEX} ${srcdir}/refcard.tex
-
-refcard.ps: refcard.dvi
+refcard.ps: $(srcdir)/refcard.dvi
 	${DVIPS} -Ppdf -j0 -D 300 -o $@ refcard.dvi
+
+refcard.pdf: refcard.ps
+	${PS2PDF} refcard.ps
 
