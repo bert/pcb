@@ -78,6 +78,25 @@ if test -n "$fc_x_proto_value"; then
 	AC_DEFINE_UNQUOTED(NARROWPROTO, $fc_x_proto_value, [NARROWPROTO used by Xaw])
 fi
 
+_use_rpath=yes
+AC_MSG_CHECKING([if hardcoding of the X11 runtime library path is desired])
+AC_ARG_ENABLE([rpath],
+[  --disable-rpath         Disable hardcoding the X11 runtime library path [default=enabled]],
+[
+if test "X$enable_rpath" = "Xno" ; then
+	AC_MSG_RESULT([no])
+	_use_rpath=no
+else
+	AC_MSG_RESULT([yes])
+	_use_rpath=yes
+fi
+],
+[
+	AC_MSG_RESULT([yes])
+	_use_rpath=yes
+])
+
+if test "X$_use_rpath" = "Xyes" ; then
 dnl Try to figure out if we need -Rpath for finding X11 libs
 dnl at runtime.  Why autoconf doesn't already do this, I don't
 dnl know...
@@ -109,6 +128,7 @@ if test -n "$rpath"; then
    X_LIBS="$X_LIBS $xlib_rpath"
 fi
 LIBS=$pcb_save_LIBS
+fi
 
 dnl Checks for header files.
 AC_HEADER_STDC
