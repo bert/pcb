@@ -84,6 +84,8 @@ FLOATING                -?[0-9]*"."[0-9]*
 CARDINAL		[1-9][0-9]*|0
 STRINGCHAR		([^"\n\r\\]|\\\\|\\\")
 
+%option yylineno
+
 %%
 
 PCB			{ return(T_PCB); }
@@ -221,7 +223,7 @@ static int Parse(char *Executable, char *Path, char *Filename, char *Parameter)
 	returncode = yyparse();
 #endif
 	/* clean up parse buffer */
-	yy_delete_buffer(yy_current_buffer);
+	yy_delete_buffer(YY_CURRENT_BUFFER);
 
 	restoreCursor();
 	return(pclose(yyin) ? 1 : returncode);
