@@ -48,6 +48,7 @@ void	ActionFinishInputDialog(Widget, XEvent *, String *, Cardinal *);
 void	ActionQuit(Widget, XEvent *, String *, Cardinal *);
 void	ActionConnection(Widget, XEvent *, String *, Cardinal *);
 void	ActionCommand(Widget, XEvent *, String *, Cardinal *);
+void	ActionDisperseElements(Widget, XEvent *, String *, Cardinal *);
 void	ActionDisplay(Widget, XEvent *, String *, Cardinal *);
 void	ActionMode(Widget, XEvent *, String *, Cardinal *);
 void	ActionMoveToSilk(Widget, XEvent *, String *, Cardinal *);

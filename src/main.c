@@ -965,6 +965,7 @@ static XtActionsRec Actions[] = {
   {"Quit", ActionQuit},
   {"Connection", ActionConnection},
   {"Command", ActionCommand},
+  {"DisperseElements", ActionDisperseElements},
   {"Display", ActionDisplay},
   {"Report", ActionReport},
   {"ListAct", ActionListAct},

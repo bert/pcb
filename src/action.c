@@ -2088,6 +2088,98 @@ warpNoWhere (void)
 }
 
 /* ---------------------------------------------------------------------------
+ * disperses all elements
+ * syntax: DisperseElements()
+ */
+#define GAP 10000
+
+void
+ActionDisperseElements (Widget W, XEvent * Event, String * Params, Cardinal * Num)
+{
+  long minx, miny, maxx, maxy, dx, dy;
+  
+  minx = GAP;
+  miny = GAP;
+  maxx = GAP;
+  maxy = GAP;
+
+  if (*Num != 0)
+    {
+      Message ("Usage:  \n"
+	       "DisperseElements()\n");
+      return ;
+    }
+
+  ELEMENT_LOOP (PCB->Data);
+  {
+    /* 
+     * If we want to disperse selected elements, maybe we need smarter
+     * code here to avoid putting components on top of others which
+     * are not selected.  For now, I'm assuming that this is typically
+     * going to be used either with a brand new design or a scratch
+     * design holding some new components
+     */
+    if (1 || TEST_FLAG (SELECTEDFLAG, element))
+      {
+
+	/* figure out how much to move the element */
+	dx = minx - element->BoundingBox.X1 ;
+	
+	/* snap to the grid */
+	dx -= ( element->MarkX + dx ) % (long) (PCB->Grid);
+	
+	/* 
+	 * and add one grid size so we make sure we always space by GAP or
+	 * more
+	 */
+	dx += (long) (PCB->Grid);
+	
+	/* Figure out if this row has room.  If not, start a new row */
+	if ( GAP + element->BoundingBox.X2 + dx > PCB->MaxWidth )
+	  {
+	    miny = maxy + GAP;
+	    minx = GAP;
+	  }
+	
+	/* figure out how much to move the element */
+	dx = minx - element->BoundingBox.X1 ;
+	dy = miny - element->BoundingBox.Y1 ;
+	
+	/* snap to the grid */
+	dx -= ( element->MarkX + dx ) % (long) (PCB->Grid);
+	dx += (long) (PCB->Grid);
+	dy -= ( element->MarkY + dy ) % (long) (PCB->Grid);
+	dy += (long) (PCB->Grid);
+
+	/* move the element */
+	MoveElementLowLevel (PCB->Data, element, dx, dy);
+
+	/* and add to the undo list so we can undo this operation */
+	AddObjectToMoveUndoList (ELEMENT_TYPE, NULL, NULL, element, dx, dy);
+
+	/* keep track of how tall this row is */
+	minx += element->BoundingBox.X2 - element->BoundingBox.X1 + GAP;
+	if (maxy < element->BoundingBox.Y2 )
+	  {
+	    maxy = element->BoundingBox.Y2;
+	  }
+      }
+    
+  }
+  END_LOOP;
+
+  /* done with our action so increment the undo # */
+  IncrementUndoSerialNumber ();
+
+  ClearAndRedrawOutput ();
+  SetChangedFlag (True);
+
+  return ;
+}
+
+#undef GAP
+
+/* ---------------------------------------------------------------------------
  * several display related actions
  * syntax: Display(NameOnPCB|Description|Value)
  *         Display(Grid|Center|ClearAndRedraw|Redraw)

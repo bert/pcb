@@ -3511,6 +3511,19 @@ Disables automatic drill size mapping to the loaded vendor drill table.
 DisableVendor()
 @end example
 
+@findex DisperseElements()
+@cindex dispersing elements
+@cindex distributing elements
+@cindex elements, dispersing
+@cindex elements, distributing
+@item DisperseElements()
+Disperses all elements in the layout.  This action should be used at the
+start of a design to spread out all footprints before any placement or
+routing is done.
+@example
+DisperseElements()
+@end example
+
 
 @findex Display()
 @cindex centering
