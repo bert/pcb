@@ -107,9 +107,7 @@ UpdateCircuitSelector (LibraryMenuTypePtr Menu)
   FreeSelectorEntries (&CircuitSelector);
   ENTRY_LOOP (Menu, 
     {
-      AddEntryToSelector (MyStrdup
-			  (entry->ListEntry,
-			   "UpdateCircuitSelector()"),
+      AddEntryToSelector (entry->ListEntry,
 			  (XtPointer) entry, &CircuitSelector);
     }
   );

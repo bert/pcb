@@ -331,6 +331,7 @@ Pan (Location X, Location Y, Boolean Scroll, Boolean Update)
     }
   x = Xorig;
   y = Yorig;
+  XDestroyRegion (myRegion);
   return clip;
 }
 

@@ -777,6 +777,7 @@ FreePCBMemory (PCBTypePtr PCBPtr)
       MyFree (&PCBPtr->Filename);
       MyFree (&PCBPtr->PrintFilename);
       FreeDataMemory (PCBPtr->Data);
+      MyFree (&PCBPtr->Data);
       /* release font symbols */
       for (i = 0; i <= MAX_FONTPOSITION; i++)
 	MyFree ((char **) &PCBPtr->Font.Symbol[i].Line);
@@ -841,6 +842,12 @@ FreeDataMemory (DataTypePtr Data)
         r_destroy_tree(&Data->element_tree);
       if (Data->via_tree)
         r_destroy_tree(&Data->via_tree);
+      if (Data->pin_tree)
+        r_destroy_tree(&Data->pin_tree);
+      if (Data->pad_tree)
+        r_destroy_tree(&Data->pad_tree);
+      if (Data->rat_tree)
+        r_destroy_tree(&Data->rat_tree);
       /* clear struct */
       memset (Data, 0, sizeof (DataType));
     }

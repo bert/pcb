@@ -410,46 +410,28 @@ plow_callback (const BoxType *b, void *cl)
 	   break;
 	 }
        case VIA_TYPE:
+       case PIN_TYPE:
          {
 	   PinTypePtr pin = (PinTypePtr) b;
 	   if (!TEST_FLAG (HOLEFLAG, pin) && TEST_FLAG (plow->PIPflag, pin))
 	     {
-	       r = plow->callback (VIA_TYPE, pin, pin, pin, plow->layer,
+	       r = plow->callback (plow->type, plow->type == PIN_TYPE ?
+	                           pin->Element : pin, pin, pin, plow->layer,
                                    plow->polygon);
 	     }
 	   break;
 	 }
-       case ELEMENT_TYPE:
+       case PAD_TYPE:
          {
-	   ElementTypePtr element = (ElementTypePtr) b;
-	   PIN_LOOP (element,
-	     {
-	       if (!TEST_FLAG (HOLEFLAG, pin) && TEST_FLAG (plow->PIPflag, pin))
+	   PadTypePtr pad = (PadTypePtr) b;
+	   if ((TEST_FLAG (ONSOLDERFLAG, pad)) ==
+	      (plow->group == plow->solder ? True : False))
 	         {
-	           r = plow->callback (PIN_TYPE, element, pin, pin,
-                                       plow->layer, plow->polygon);
-	         }
-		 if (r)
-		   break;
-	     }
-	   );
-	   if (r || (plow->group != plow->solder && plow->group != plow->component))
-	     break;
-           PAD_LOOP (element,
-	     {
-	       if ((TEST_FLAG (ONSOLDERFLAG, pad)) ==
-		   (plow->group == plow->solder ? True : False))
-	         {
-		  /* commas aren't good inside the LOOP macro */
-		    Location x1=0;
-		    Location x2=0;
-		    Location y1=0;
-		    Location y2=0;
+		    Location x1=0, x2=0, y1=0, y2=0;
 		    BDimension wid = pad->Thickness / 2;
 
 		    CLEAR_FLAG (CLEARLINEFLAG, pad);
 		    pad->Thickness += pad->Clearance;
-    
 		    if (TEST_FLAG (SQUAREFLAG, pad))
 		      {
 		         x1 = MIN (pad->Point1.X, pad->Point2.X) - wid;
@@ -463,18 +445,14 @@ plow_callback (const BoxType *b, void *cl)
 			 && IsLineInPolygon ((LineTypePtr) pad, plow->polygon)))
 		      {
 		        pad->Thickness -= pad->Clearance;
-		        r = plow->callback (PAD_TYPE, element, pad, pad,
+		        r = plow->callback (PAD_TYPE, pad->Element, pad, pad,
                                             plow->layer, plow->polygon);
 		        pad->Thickness += pad->Clearance;
 		      }
 		    pad->Thickness -= pad->Clearance;
 		  }
-		if (r)
-		  break;
-             }
-           );		/* end of PAD_LOOP */
-	   break;
-	 } /* end of ELEMENT_TYPE case */
+	  break;
+        }
       default:
         Message("hace: bad plow tree callback\n");
 	return 0;
@@ -508,7 +486,7 @@ PolygonPlows (int group, BoxTypePtr range,
     {
 	if (!layer->PolygonN)
 	  continue;
-	info.PIPflag |= L0PIPFLAG << number;
+	info.PIPflag = L0PIPFLAG << number;
 	info.layer = layer;
 
 	POLYGON_LOOP (layer,
@@ -537,9 +515,16 @@ PolygonPlows (int group, BoxTypePtr range,
                r_search (PCB->Data->via_tree, &sb, NULL, plow_callback, &info);
 	     else
 	       return 1;
-             info.type = ELEMENT_TYPE; 
+	     info.type = PIN_TYPE;
              if (setjmp (info.env) == 0)
-               r_search (PCB->Data->element_tree, &sb, NULL, plow_callback, &info);
+               r_search (PCB->Data->pin_tree, &sb, NULL, plow_callback, &info);
+	     else
+	       return 1;
+	     if (info.group != info.solder && info.group != info.component)
+               continue;
+	     info.type = PAD_TYPE; 
+             if (setjmp (info.env) == 0)
+               r_search (PCB->Data->pad_tree, &sb, NULL, plow_callback, &info);
 	     else
 	       return 1;
 	  }
