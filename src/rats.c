@@ -220,7 +220,7 @@ ProcNetlist (LibraryTypePtr net_menu)
   if (!net_menu->MenuN)
     return (NULL);
   FreeNetListMemory (Wantlist);
-  MyFree((char **)&Wantlist);
+  MyFree ((char **) &Wantlist);
   badnet = False;
 
   /* find layer groups of the component side and solder side */
@@ -230,73 +230,55 @@ ProcNetlist (LibraryTypePtr net_menu)
   Wantlist = MyCalloc (1, sizeof (NetListType), "ProcNetlist()");
   if (Wantlist)
     {
-      ALLPIN_LOOP (PCB->Data, 
-	{
-	  pin->Spare = NULL;
-	  CLEAR_FLAG (DRCFLAG, pin);
-	}
-      );
-      ALLPAD_LOOP (PCB->Data, 
-	{
-	  pad->Spare = NULL;
-	  CLEAR_FLAG (DRCFLAG, pad);
-	}
-      );
-      MENU_LOOP (net_menu, 
-	{
-	  if (menu->Name[0] == '*')
+      ALLPIN_LOOP (PCB->Data);
+      {
+	pin->Spare = NULL;
+	CLEAR_FLAG (DRCFLAG, pin);
+      }
+      ENDALL_LOOP;
+      ALLPAD_LOOP (PCB->Data);
+      {
+	pad->Spare = NULL;
+	CLEAR_FLAG (DRCFLAG, pad);
+      }
+      ENDALL_LOOP;
+      MENU_LOOP (net_menu);
+      {
+	if (menu->Name[0] == '*')
+	  {
+	    badnet = True;
+	    continue;
+	  }
+	net = GetNetMemory (Wantlist);
+	if (menu->Style)
+	  {
+	    STYLE_LOOP (PCB);
 	    {
-	      badnet = True;
-	      continue;
-	    }
-	  net = GetNetMemory (Wantlist);
-	  if (menu->Style)
-	    {
-	      STYLE_LOOP (PCB, 
+	      if (style->Name && !strcmp (style->Name, menu->Style))
 		{
-		  if (style->Name && !strcmp (style->Name, menu->Style))
-		    {
-		      net->Style = style;
-		      break;
-		    }
+		  net->Style = style;
+		  break;
 		}
-	      );
 	    }
-	  else			/* default to style 0 if none found */
-	    net->Style = &PCB->RouteStyle[0];
-	  ENTRY_LOOP (menu, 
+	    END_LOOP;
+	  }
+	else			/* default to style 0 if none found */
+	  net->Style = &PCB->RouteStyle[0];
+	ENTRY_LOOP (menu);
+	{
+	  if (SeekPad (entry, &LastPoint, False))
 	    {
-	      if (SeekPad (entry, &LastPoint, False))
-		{
-		  if (TEST_FLAG (DRCFLAG, (PinTypePtr) LastPoint.ptr2))
-		    Message
-		      ("Argh - element %s pin %s appears multiple times\n"
-		       "in the netlist file.   That's a problem.\n",
-		       NAMEONPCB_NAME ((ElementTypePtr)
-				       LastPoint.ptr1),
-		       (LastPoint.type ==
-			PIN_TYPE) ? ((PinTypePtr) LastPoint.
-				     ptr2)->Number : ((PadTypePtr)
-						      LastPoint.ptr2)->
-		       Number);
-		  else
-		    {
-		      connection = GetConnectionMemory (net);
-		      *connection = LastPoint;
-		      /* indicate expect net */
-		      connection->menu = menu;
-		      /* mark as visited */
-		      SET_FLAG (DRCFLAG, (PinTypePtr) LastPoint.ptr2);
-		      if (LastPoint.type == PIN_TYPE)
-			((PinTypePtr) LastPoint.ptr2)->Spare = (void *) menu;
-		      else
-			((PadTypePtr) LastPoint.ptr2)->Spare = (void *) menu;
-		    }
-		}
+	      if (TEST_FLAG (DRCFLAG, (PinTypePtr) LastPoint.ptr2))
+		Message
+		  ("Argh - element %s pin %s appears multiple times\n"
+		   "in the netlist file.   That's a problem.\n",
+		   NAMEONPCB_NAME ((ElementTypePtr)
+				   LastPoint.ptr1),
+		   (LastPoint.type ==
+		    PIN_TYPE) ? ((PinTypePtr) LastPoint.
+				 ptr2)->Number : ((PadTypePtr)
+						  LastPoint.ptr2)->Number);
 	      else
-		badnet = True;
-	      /* check for more pins with the same number */
-	      for (; SeekPad (entry, &LastPoint, True);)
 		{
 		  connection = GetConnectionMemory (net);
 		  *connection = LastPoint;
@@ -310,21 +292,38 @@ ProcNetlist (LibraryTypePtr net_menu)
 		    ((PadTypePtr) LastPoint.ptr2)->Spare = (void *) menu;
 		}
 	    }
-	  );
+	  else
+	    badnet = True;
+	  /* check for more pins with the same number */
+	  for (; SeekPad (entry, &LastPoint, True);)
+	    {
+	      connection = GetConnectionMemory (net);
+	      *connection = LastPoint;
+	      /* indicate expect net */
+	      connection->menu = menu;
+	      /* mark as visited */
+	      SET_FLAG (DRCFLAG, (PinTypePtr) LastPoint.ptr2);
+	      if (LastPoint.type == PIN_TYPE)
+		((PinTypePtr) LastPoint.ptr2)->Spare = (void *) menu;
+	      else
+		((PadTypePtr) LastPoint.ptr2)->Spare = (void *) menu;
+	    }
 	}
-      );
+	END_LOOP;
+      }
+      END_LOOP;
     }
   /* clear all visit marks */
-  ALLPIN_LOOP (PCB->Data, 
-    {
-      CLEAR_FLAG (DRCFLAG, pin);
-    }
-  );
-  ALLPAD_LOOP (PCB->Data, 
-    {
-      CLEAR_FLAG (DRCFLAG, pad);
-    }
-  );
+  ALLPIN_LOOP (PCB->Data);
+  {
+    CLEAR_FLAG (DRCFLAG, pin);
+  }
+  ENDALL_LOOP;
+  ALLPAD_LOOP (PCB->Data);
+  {
+    CLEAR_FLAG (DRCFLAG, pad);
+  }
+  ENDALL_LOOP;
   return (Wantlist);
 }
 
@@ -337,12 +336,12 @@ TransferNet (NetListTypePtr Netl, NetTypePtr SourceNet, NetTypePtr DestNet)
 {
   ConnectionTypePtr conn;
 
-  CONNECTION_LOOP (SourceNet, 
-    {
-      conn = GetConnectionMemory (DestNet);
-      *conn = *connection;
-    }
-  );
+  CONNECTION_LOOP (SourceNet);
+  {
+    conn = GetConnectionMemory (DestNet);
+    *conn = *connection;
+  }
+  END_LOOP;
   DestNet->Style = SourceNet->Style;
   /* free the connection memory */
   FreeNetMemory (SourceNet);
@@ -364,77 +363,77 @@ CheckShorts (LibraryMenuTypePtr theNet)
   void **menu = GetPointerMemory (generic);
 
   *menu = theNet;
-  ALLPIN_LOOP (PCB->Data, 
-    {
-      if (TEST_FLAG (DRCFLAG, pin))
+  ALLPIN_LOOP (PCB->Data);
+  {
+    if (TEST_FLAG (DRCFLAG, pin))
+      {
+	warn = True;
+	if (!pin->Spare)
+	  {
+	    Message ("WARNING!! net \"%s\" is shorted"
+		     " to %s pin %s\n", &theNet->Name[2],
+		     NAMEONPCB_NAME (element), pin->Number);
+	    SET_FLAG (WARNFLAG, pin);
+	    continue;
+	  }
+	new = True;
+	POINTER_LOOP (generic);
 	{
-	  warn = True;
-	  if (!pin->Spare)
+	  if (*ptr == pin->Spare)
 	    {
-	      Message ("WARNING!! net \"%s\" is shorted"
-		       " to %s pin %s\n", &theNet->Name[2],
-		       NAMEONPCB_NAME (element), pin->Number);
-	      SET_FLAG (WARNFLAG, pin);
-	      continue;
-	    }
-	  new = True;
-	  POINTER_LOOP (generic, 
-	    {
-	      if (*ptr == pin->Spare)
-		{
-		  new = False;
-		  break;
-		}
-	    }
-	  );
-	  if (new)
-	    {
-	      menu = GetPointerMemory (generic);
-	      *menu = pin->Spare;
-	      Message ("WARNING!! net \"%s\" is shorted"
-		       " to net \"%s\"\n",
-		       &theNet->Name[2],
-		       &((LibraryMenuTypePtr) (pin->Spare))->Name[2]);
-	      SET_FLAG (WARNFLAG, pin);
+	      new = False;
+	      break;
 	    }
 	}
-    }
-  );
-  ALLPAD_LOOP (PCB->Data, 
-    {
-      if (TEST_FLAG (DRCFLAG, pad))
+	END_LOOP;
+	if (new)
+	  {
+	    menu = GetPointerMemory (generic);
+	    *menu = pin->Spare;
+	    Message ("WARNING!! net \"%s\" is shorted"
+		     " to net \"%s\"\n",
+		     &theNet->Name[2],
+		     &((LibraryMenuTypePtr) (pin->Spare))->Name[2]);
+	    SET_FLAG (WARNFLAG, pin);
+	  }
+      }
+  }
+  ENDALL_LOOP;
+  ALLPAD_LOOP (PCB->Data);
+  {
+    if (TEST_FLAG (DRCFLAG, pad))
+      {
+	warn = True;
+	if (!pad->Spare)
+	  {
+	    Message ("WARNING!! net \"%s\" is shorted"
+		     " to %s pad %s\n", &theNet->Name[2],
+		     NAMEONPCB_NAME (element), pad->Number);
+	    SET_FLAG (WARNFLAG, pad);
+	    continue;
+	  }
+	new = True;
+	POINTER_LOOP (generic);
 	{
-	  warn = True;
-	  if (!pad->Spare)
+	  if (*ptr == pad->Spare)
 	    {
-	      Message ("WARNING!! net \"%s\" is shorted"
-		       " to %s pad %s\n", &theNet->Name[2],
-		       NAMEONPCB_NAME (element), pad->Number);
-	      SET_FLAG (WARNFLAG, pad);
-	      continue;
-	    }
-	  new = True;
-	  POINTER_LOOP (generic, 
-	    {
-	      if (*ptr == pad->Spare)
-		{
-		  new = False;
-		  break;
-		}
-	    }
-	  );
-	  if (new)
-	    {
-	      menu = GetPointerMemory (generic);
-	      *menu = pad->Spare;
-	      Message ("WARNING!! net \"%s\" is shorted"
-		       " to net \"%s\"\n", &theNet->Name[2],
-		       &((LibraryMenuTypePtr) (pad->Spare))->Name[2]);
-	      SET_FLAG (WARNFLAG, pad);
+	      new = False;
+	      break;
 	    }
 	}
-    }
-  );
+	END_LOOP;
+	if (new)
+	  {
+	    menu = GetPointerMemory (generic);
+	    *menu = pad->Spare;
+	    Message ("WARNING!! net \"%s\" is shorted"
+		     " to net \"%s\"\n", &theNet->Name[2],
+		     &((LibraryMenuTypePtr) (pad->Spare))->Name[2]);
+	    SET_FLAG (WARNFLAG, pad);
+	  }
+      }
+  }
+  ENDALL_LOOP;
   FreePointerListMemory (generic);
   SaveFree (generic);
   return (warn);
@@ -480,43 +479,43 @@ GatherSubnets (NetListTypePtr Netl, Boolean NoWarn, Boolean AndRats)
 	}
       /* now add other possible attachment points to the subnet */
       /* e.g. line end-points and vias */
-      ALLLINE_LOOP (PCB->Data, 
-	{
-	  if (TEST_FLAG (DRCFLAG, line))
-	    {
-	      conn = GetConnectionMemory (a);
-	      conn->X = line->Point1.X;
-	      conn->Y = line->Point1.Y;
-	      conn->type = LINE_TYPE;
-	      conn->ptr1 = layer;
-	      conn->ptr2 = line;
-	      conn->group = GetLayerGroupNumberByPointer (layer);
-	      conn->menu = NULL;	/* agnostic view of where it belongs */
-	      conn = GetConnectionMemory (a);
-	      conn->X = line->Point2.X;
-	      conn->Y = line->Point2.Y;
-	      conn->type = LINE_TYPE;
-	      conn->ptr1 = layer;
-	      conn->ptr2 = line;
-	      conn->group = GetLayerGroupNumberByPointer (layer);
-	      conn->menu = NULL;
-	    }
-	}
-      );
-      VIA_LOOP (PCB->Data, 
-	{
-	  if (TEST_FLAG (DRCFLAG, via))
-	    {
-	      conn = GetConnectionMemory (a);
-	      conn->X = via->X;
-	      conn->Y = via->Y;
-	      conn->type = VIA_TYPE;
-	      conn->ptr1 = via;
-	      conn->ptr2 = via;
-	      conn->group = SLayer;
-	    }
-	}
-      );
+      ALLLINE_LOOP (PCB->Data);
+      {
+	if (TEST_FLAG (DRCFLAG, line))
+	  {
+	    conn = GetConnectionMemory (a);
+	    conn->X = line->Point1.X;
+	    conn->Y = line->Point1.Y;
+	    conn->type = LINE_TYPE;
+	    conn->ptr1 = layer;
+	    conn->ptr2 = line;
+	    conn->group = GetLayerGroupNumberByPointer (layer);
+	    conn->menu = NULL;	/* agnostic view of where it belongs */
+	    conn = GetConnectionMemory (a);
+	    conn->X = line->Point2.X;
+	    conn->Y = line->Point2.Y;
+	    conn->type = LINE_TYPE;
+	    conn->ptr1 = layer;
+	    conn->ptr2 = line;
+	    conn->group = GetLayerGroupNumberByPointer (layer);
+	    conn->menu = NULL;
+	  }
+      }
+      ENDALL_LOOP;
+      VIA_LOOP (PCB->Data);
+      {
+	if (TEST_FLAG (DRCFLAG, via))
+	  {
+	    conn = GetConnectionMemory (a);
+	    conn->X = via->X;
+	    conn->Y = via->Y;
+	    conn->type = VIA_TYPE;
+	    conn->ptr1 = via;
+	    conn->ptr2 = via;
+	    conn->group = SLayer;
+	  }
+      }
+      END_LOOP;
       if (!NoWarn)
 	Warned |= CheckShorts (a->Connection[0].menu);
     }
@@ -641,25 +640,25 @@ AddAllRats (Boolean SelectedOnly, void (*funcp) ())
    * from Nets, so *Nets is empty after the
    * DrawShortestRats call
    */
-  NET_LOOP (Wantlist, 
+  NET_LOOP (Wantlist);
+  {
+    CONNECTION_LOOP (net);
     {
-      CONNECTION_LOOP (net, 
+      if (!SelectedOnly
+	  || TEST_FLAG (SELECTEDFLAG, (PinTypePtr) connection->ptr2))
 	{
-	  if (!SelectedOnly
-	      || TEST_FLAG (SELECTEDFLAG, (PinTypePtr) connection->ptr2))
-	    {
-	      lonesome = GetNetMemory (Nets);
-	      onepin = GetConnectionMemory (lonesome);
-	      *onepin = *connection;
-	      lonesome->Style = net->Style;
-	    }
+	  lonesome = GetNetMemory (Nets);
+	  onepin = GetConnectionMemory (lonesome);
+	  *onepin = *connection;
+	  lonesome->Style = net->Style;
 	}
-      );
-      Warned |= GatherSubnets (Nets, SelectedOnly, True);
-      if (Nets->NetN > 0)
-	changed |= DrawShortestRats (Nets, funcp);
     }
-  );
+    END_LOOP;
+    Warned |= GatherSubnets (Nets, SelectedOnly, True);
+    if (Nets->NetN > 0)
+      changed |= DrawShortestRats (Nets, funcp);
+  }
+  END_LOOP;
   FreeNetListMemory (Nets);
   FreeConnectionLookupMemory ();
   RestoreFindFlag ();
@@ -724,25 +723,25 @@ CollectSubnets (Boolean SelectedOnly)
    * from Nets, so *Nets is empty after the
    * DrawShortestRats call
    */
-  NET_LOOP (Wantlist, 
+  NET_LOOP (Wantlist);
+  {
+    Nets = GetNetListMemory (&result);
+    CONNECTION_LOOP (net);
     {
-      Nets = GetNetListMemory (&result);
-      CONNECTION_LOOP (net, 
+      if (!SelectedOnly
+	  || TEST_FLAG (SELECTEDFLAG, (PinTypePtr) connection->ptr2))
 	{
-	  if (!SelectedOnly
-	      || TEST_FLAG (SELECTEDFLAG, (PinTypePtr) connection->ptr2))
-	    {
-	      lonesome = GetNetMemory (Nets);
-	      onepin = GetConnectionMemory (lonesome);
-	      *onepin = *connection;
-	      lonesome->Style = net->Style;
-	    }
+	  lonesome = GetNetMemory (Nets);
+	  onepin = GetConnectionMemory (lonesome);
+	  *onepin = *connection;
+	  lonesome->Style = net->Style;
 	}
-      );
-      /* Note that AndRats is *FALSE* here! */
-      GatherSubnets (Nets, SelectedOnly, False);
     }
-  );
+    END_LOOP;
+    /* Note that AndRats is *FALSE* here! */
+    GatherSubnets (Nets, SelectedOnly, False);
+  }
+  END_LOOP;
   FreeConnectionLookupMemory ();
   RestoreFindFlag ();
   return result;

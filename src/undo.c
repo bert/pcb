@@ -661,7 +661,7 @@ UndoInsertPoint (UndoListTypePtr Entry)
 	Entry->ID = polygon->ID;
 	Entry->Kind = POLYGON_TYPE;
 	Entry->Type = UNDO_REMOVE_POINT;
-	POLYGONPOINT_LOOP (polygon, 
+	POLYGONPOINT_LOOP (polygon);
 	  {
 	    if (pnt == point)
 	      {
@@ -669,7 +669,7 @@ UndoInsertPoint (UndoListTypePtr Entry)
 		break;
 	      }
 	  }
-	);
+	END_LOOP;
 	DestroyObject (PCB->Data, POLYGONPOINT_TYPE, layer, polygon, pnt);
 	if (andDraw && layer->On)
 	  DrawPolygon (layer, polygon, 0);

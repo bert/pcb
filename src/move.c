@@ -111,39 +111,39 @@ MoveElementLowLevel (DataTypePtr Data, ElementTypePtr Element, Location DX,
 {
   if (Data)
     r_delete_entry (Data->element_tree, (BoxType *) Element);
-  ELEMENTLINE_LOOP (Element, 
-    {
-      MOVE_LINE_LOWLEVEL (line, DX, DY);
-    }
-  );
-  PIN_LOOP (Element, 
-    {
-      if (Data)
-	r_delete_entry (Data->pin_tree, (BoxType *) pin);
-      MOVE_PIN_LOWLEVEL (pin, DX, DY);
-      if (Data)
-	r_insert_entry (Data->pin_tree, (BoxType *) pin, 0);
-    }
-  );
-  PAD_LOOP (Element, 
-    {
-      if (Data)
-	r_delete_entry (Data->pad_tree, (BoxType *) pad);
-      MOVE_PAD_LOWLEVEL (pad, DX, DY);
-      if (Data)
-	r_insert_entry (Data->pad_tree, (BoxType *) pad, 0);
-    }
-  );
-  ARC_LOOP (Element, 
-    {
-      MOVE_ARC_LOWLEVEL (arc, DX, DY);
-    }
-  );
-  ELEMENTTEXT_LOOP (Element, 
-    {
-      MOVE_TEXT_LOWLEVEL (text, DX, DY);
-    }
-  );
+  ELEMENTLINE_LOOP (Element);
+  {
+    MOVE_LINE_LOWLEVEL (line, DX, DY);
+  }
+  END_LOOP;
+  PIN_LOOP (Element);
+  {
+    if (Data)
+      r_delete_entry (Data->pin_tree, (BoxType *) pin);
+    MOVE_PIN_LOWLEVEL (pin, DX, DY);
+    if (Data)
+      r_insert_entry (Data->pin_tree, (BoxType *) pin, 0);
+  }
+  END_LOOP;
+  PAD_LOOP (Element);
+  {
+    if (Data)
+      r_delete_entry (Data->pad_tree, (BoxType *) pad);
+    MOVE_PAD_LOWLEVEL (pad, DX, DY);
+    if (Data)
+      r_insert_entry (Data->pad_tree, (BoxType *) pad, 0);
+  }
+  END_LOOP;
+  ARC_LOOP (Element);
+  {
+    MOVE_ARC_LOWLEVEL (arc, DX, DY);
+  }
+  END_LOOP;
+  ELEMENTTEXT_LOOP (Element);
+  {
+    MOVE_TEXT_LOWLEVEL (text, DX, DY);
+  }
+  END_LOOP;
   MOVE_BOX_LOWLEVEL (&Element->BoundingBox, DX, DY);
   MOVE_BOX_LOWLEVEL (&Element->VBox, DX, DY);
   MOVE (Element->MarkX, Element->MarkY, DX, DY);
@@ -160,21 +160,21 @@ MoveElementName (ElementTypePtr Element)
   if (PCB->ElementOn && (FRONT (Element) || PCB->InvisibleObjectsOn))
     {
       EraseElementName (Element);
-      ELEMENTTEXT_LOOP (Element, 
-	{
-	  MOVE_TEXT_LOWLEVEL (text, DeltaX, DeltaY);
-	}
-      );
+      ELEMENTTEXT_LOOP (Element);
+      {
+	MOVE_TEXT_LOWLEVEL (text, DeltaX, DeltaY);
+      }
+      END_LOOP;
       DrawElementName (Element, 0);
       Draw ();
     }
   else
     {
-      ELEMENTTEXT_LOOP (Element, 
-	{
-	  MOVE_TEXT_LOWLEVEL (text, DeltaX, DeltaY);
-	}
-      );
+      ELEMENTTEXT_LOOP (Element);
+      {
+	MOVE_TEXT_LOWLEVEL (text, DeltaX, DeltaY);
+      }
+      END_LOOP;
     }
   return (Element);
 }
@@ -304,11 +304,11 @@ MoveText (LayerTypePtr Layer, TextTypePtr Text)
 void
 MovePolygonLowLevel (PolygonTypePtr Polygon, Location DeltaX, Location DeltaY)
 {
-  POLYGONPOINT_LOOP (Polygon, 
-    {
-      MOVE (point->X, point->Y, DeltaX, DeltaY);
-    }
-  );
+  POLYGONPOINT_LOOP (Polygon);
+  {
+    MOVE (point->X, point->Y, DeltaX, DeltaY);
+  }
+  END_LOOP;
   MOVE_BOX_LOWLEVEL (&Polygon->BoundingBox, DeltaX, DeltaY);
 }
 
@@ -686,28 +686,28 @@ MovePolygonToLayer (LayerTypePtr Layer, PolygonTypePtr Polygon)
   /* Move all of the thermals with the polygon */
   LayerThermFlag = L0THERMFLAG << GetLayerNumber (PCB->Data, Layer);
   DestThermFlag = L0THERMFLAG << GetLayerNumber (PCB->Data, Dest);
-  ALLPIN_LOOP (PCB->Data, 
-    {
-      if (TEST_FLAG (LayerThermFlag, pin) &&
-	  IsPointInPolygon (pin->X, pin->Y, 0, Polygon))
-	{
-	  AddObjectToFlagUndoList (PIN_TYPE, Layer, pin, pin);
-	  CLEAR_FLAG (LayerThermFlag, pin);
-	  SET_FLAG (DestThermFlag, pin);
-	}
-    }
-  );
-  VIA_LOOP (PCB->Data, 
-    {
-      if (TEST_FLAG (LayerThermFlag, via) &&
-	  IsPointInPolygon (via->X, via->Y, 0, Polygon))
-	{
-	  AddObjectToFlagUndoList (VIA_TYPE, Layer, via, via);
-	  CLEAR_FLAG (LayerThermFlag, via);
-	  SET_FLAG (DestThermFlag, via);
-	}
-    }
-  );
+  ALLPIN_LOOP (PCB->Data);
+  {
+    if (TEST_FLAG (LayerThermFlag, pin) &&
+	IsPointInPolygon (pin->X, pin->Y, 0, Polygon))
+      {
+	AddObjectToFlagUndoList (PIN_TYPE, Layer, pin, pin);
+	CLEAR_FLAG (LayerThermFlag, pin);
+	SET_FLAG (DestThermFlag, pin);
+      }
+  }
+  ENDALL_LOOP;
+  VIA_LOOP (PCB->Data);
+  {
+    if (TEST_FLAG (LayerThermFlag, via) &&
+	IsPointInPolygon (via->X, via->Y, 0, Polygon))
+      {
+	AddObjectToFlagUndoList (VIA_TYPE, Layer, via, via);
+	CLEAR_FLAG (LayerThermFlag, via);
+	SET_FLAG (DestThermFlag, via);
+      }
+  }
+  END_LOOP;
   new = MovePolygonToLayerLowLevel (Layer, Polygon, Dest);
   UpdatePIPFlags (NULL, NULL, Layer, NULL, True);
   UpdatePIPFlags (NULL, NULL, Dest, new, True);

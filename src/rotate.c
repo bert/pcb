@@ -155,11 +155,11 @@ void
 RotatePolygonLowLevel (PolygonTypePtr Polygon,
 		       Location X, Location Y, BYTE Number)
 {
-  POLYGONPOINT_LOOP (Polygon, 
+  POLYGONPOINT_LOOP (Polygon);
     {
       ROTATE (point->X, point->Y, X, Y, Number);
     }
-  );
+  END_LOOP;
   RotateBoxLowLevel (&Polygon->BoundingBox, X, Y, Number);
 }
 
@@ -212,17 +212,17 @@ RotateElementLowLevel (DataTypePtr Data, ElementTypePtr Element,
   /* the text subroutine decides by itself if the direction
    * is to be corrected
    */
-  ELEMENTTEXT_LOOP (Element, 
+  ELEMENTTEXT_LOOP (Element);
     {
       RotateTextLowLevel (text, X, Y, Number);
     }
-  );
-  ELEMENTLINE_LOOP (Element, 
+  END_LOOP;
+  ELEMENTLINE_LOOP (Element);
     {
       RotateLineLowLevel (line, X, Y, Number);
     }
-  );
-  PIN_LOOP (Element, 
+  END_LOOP;
+  PIN_LOOP (Element);
     {
       /* pre-delete the pins from the pin-tree before their coordinates change */
       if (Data)
@@ -231,20 +231,20 @@ RotateElementLowLevel (DataTypePtr Data, ElementTypePtr Element,
       if (PCB->Data == Data)
 	UpdatePIPFlags (pin, Element, NULL, NULL, True);
     }
-  );
-  PAD_LOOP (Element, 
+  END_LOOP;
+  PAD_LOOP (Element);
     {
       /* pre-delete the pads before their coordinates change */
       if (Data)
 	r_delete_entry (PCB->Data->pad_tree, (BoxType *) pad);
       ROTATE_PAD_LOWLEVEL (pad, X, Y, Number);
     }
-  );
-  ARC_LOOP (Element, 
+  END_LOOP;
+  ARC_LOOP (Element);
     {
       RotateArcLowLevel (arc, X, Y, Number);
     }
-  );
+  END_LOOP;
   ROTATE (Element->MarkX, Element->MarkY, X, Y, Number);
   /* SetElementBoundingBox reenters the pins/pads into their trees */
   SetElementBoundingBox (Data, Element, &PCB->Font);
@@ -312,11 +312,11 @@ static void *
 RotateElementName (ElementTypePtr Element)
 {
   EraseElementName (Element);
-  ELEMENTTEXT_LOOP (Element, 
+  ELEMENTTEXT_LOOP (Element);
     {
       RotateTextLowLevel (text, CenterX, CenterY, Number);
     }
-  );
+  END_LOOP;
   DrawElementName (Element, 0);
   Draw ();
   return (Element);

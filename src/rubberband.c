@@ -48,6 +48,7 @@ static char *rcsid =
 
 #include "create.h"
 #include "data.h"
+#include "error.h"
 #include "misc.h"
 #include "rubberband.h"
 #include "rtree.h"
@@ -67,7 +68,7 @@ static void CheckLinePointForRubberbandConnection (LayerTypePtr,
 static void CheckPolygonForRubberbandConnection (LayerTypePtr,
 						 PolygonTypePtr);
 static void CheckLinePointForRat (LayerTypePtr, PointTypePtr);
-static int  rubber_callback (const BoxType *b, void *cl);
+static int rubber_callback (const BoxType * b, void *cl);
 
 struct rubber_info
 {
@@ -79,40 +80,42 @@ struct rubber_info
 };
 
 static int
-rubber_callback (const BoxType *b, void *cl)
+rubber_callback (const BoxType * b, void *cl)
 {
   LineTypePtr line = (LineTypePtr) b;
-  struct rubber_info *i = (struct rubber_info *)cl;
+  struct rubber_info *i = (struct rubber_info *) cl;
   float x, y;
 
-  if (TEST_FLAG(LOCKFLAG, line))
+  if (TEST_FLAG (LOCKFLAG, line))
     return 0;
   if (line == i->line)
     return 0;
-  if (i->radius == 0) /* rectangular search region */
+  if (i->radius == 0)		/* rectangular search region */
     {
-      BDimension t = line->Thickness/2;
-      if (line->Point1.X + t >= i->box.X1 && line->Point1.X - t <= i->box.X2 &&
-          line->Point1.Y + t >= i->box.Y1 && line->Point1.Y - t <= i->box.Y2)
-        {
-          CreateNewRubberbandEntry (i->layer, line, &line->Point1);
-          return 1;
-        }
-      if (line->Point2.X + t >= i->box.X1 && line->Point2.X - t <= i->box.X2 &&
-          line->Point2.Y + t >= i->box.Y1 && line->Point2.Y - t <= i->box.Y2)
-        {
-          CreateNewRubberbandEntry (i->layer, line, &line->Point2);
-          return 1;
-        }
+      BDimension t = line->Thickness / 2;
+      if (line->Point1.X + t >= i->box.X1 && line->Point1.X - t <= i->box.X2
+	  && line->Point1.Y + t >= i->box.Y1
+	  && line->Point1.Y - t <= i->box.Y2)
+	{
+	  CreateNewRubberbandEntry (i->layer, line, &line->Point1);
+	  return 1;
+	}
+      if (line->Point2.X + t >= i->box.X1 && line->Point2.X - t <= i->box.X2
+	  && line->Point2.Y + t >= i->box.Y1
+	  && line->Point2.Y - t <= i->box.Y2)
+	{
+	  CreateNewRubberbandEntry (i->layer, line, &line->Point2);
+	  return 1;
+	}
       return 0;
     }
-   /* circular search region */
+  /* circular search region */
   x = (i->X - line->Point1.X);
   x *= x;
   y = (i->Y - line->Point1.Y);
   y *= y;
   x = x + y - (line->Thickness * line->Thickness);
-  if (x < (i->radius * ( i->radius + 2 * line->Thickness)))
+  if (x < (i->radius * (i->radius + 2 * line->Thickness)))
     {
       CreateNewRubberbandEntry (i->layer, line, &line->Point1);
       return 1;
@@ -122,14 +125,14 @@ rubber_callback (const BoxType *b, void *cl)
   y = (i->Y - line->Point2.Y);
   y *= y;
   x = x + y - (line->Thickness * line->Thickness);
-  if (x < (i->radius * ( i->radius + 2 * line->Thickness)))
+  if (x < (i->radius * (i->radius + 2 * line->Thickness)))
     {
       CreateNewRubberbandEntry (i->layer, line, &line->Point2);
       return 1;
     }
   return 0;
 }
-  
+
 /* ---------------------------------------------------------------------------
  * checks all visible lines which belong to the same layergroup as the
  * passed pad. If one of the endpoints of the line lays inside the pad,
@@ -153,46 +156,111 @@ CheckPadForRubberbandConnection (PadTypePtr Pad)
   group = GetLayerGroupNumberByNumber (i);
 
   /* check all visible layers in the same group */
-  GROUP_LOOP(group,
+  GROUP_LOOP (group);
+  {
+    /* check all visible lines of the group member */
+    info.layer = layer;
+    if (info.layer->On)
+      {
+	r_search (info.layer->line_tree, &info.box, NULL, rubber_callback,
+		  &info);
+      }
+  }
+  END_LOOP;
+}
+
+struct rinfo
+{
+  int type;
+  Cardinal group;
+  PinTypePtr pin;
+  PadTypePtr pad;
+  PointTypePtr point;
+};
+
+static int
+rat_callback (const BoxType * box, void *cl)
+{
+  RatTypePtr rat = (RatTypePtr) box;
+  struct rinfo *i = (struct rinfo *) cl;
+
+  switch (i->type)
     {
-      /* check all visible lines of the group member */
-      info.layer = layer;
-      if (info.layer->On)
-	{
-	  r_search(info.layer->line_tree, &info.box, NULL, rubber_callback, &info);
-	}
+    case PIN_TYPE:
+      if (rat->Point1.X == i->pin->X && rat->Point1.Y == i->pin->Y)
+	CreateNewRubberbandEntry (NULL, (LineTypePtr) rat, &rat->Point1);
+      else if (rat->Point2.X == i->pin->X && rat->Point2.Y == i->pin->Y)
+	CreateNewRubberbandEntry (NULL, (LineTypePtr) rat, &rat->Point2);
+      break;
+    case PAD_TYPE:
+      if (rat->Point1.X == i->pad->Point1.X &&
+	  rat->Point1.Y == i->pad->Point1.Y && rat->group1 == i->group)
+	CreateNewRubberbandEntry (NULL, (LineTypePtr) rat, &rat->Point1);
+      else
+	if (rat->Point2.X == i->pad->Point1.X &&
+	    rat->Point2.Y == i->pad->Point1.Y && rat->group2 == i->group)
+	CreateNewRubberbandEntry (NULL, (LineTypePtr) rat, &rat->Point2);
+      else
+	if (rat->Point1.X == i->pad->Point2.X &&
+	    rat->Point1.Y == i->pad->Point2.Y && rat->group1 == i->group)
+	CreateNewRubberbandEntry (NULL, (LineTypePtr) rat, &rat->Point1);
+      else
+	if (rat->Point2.X == i->pad->Point2.X &&
+	    rat->Point2.Y == i->pad->Point2.Y && rat->group2 == i->group)
+	CreateNewRubberbandEntry (NULL, (LineTypePtr) rat, &rat->Point2);
+      break;
+    case LINEPOINT_TYPE:
+      if (rat->group1 == i->group &&
+	  rat->Point1.X == i->point->X && rat->Point1.Y == i->point->Y)
+	CreateNewRubberbandEntry (NULL, (LineTypePtr) rat, &rat->Point1);
+      else
+	if (rat->group2 == i->group &&
+	    rat->Point2.X == i->point->X && rat->Point2.Y == i->point->Y)
+	CreateNewRubberbandEntry (NULL, (LineTypePtr) rat, &rat->Point2);
+      break;
+    default:
+      Message ("hace: bad rubber-rat lookup callback\n");
     }
-  );
+  return 0;
 }
 
 static void
 CheckPadForRat (PadTypePtr Pad)
 {
-  Cardinal i, group;
+  struct rinfo info;
+  Cardinal i;
 
   i = MAX_LAYER +
     (TEST_FLAG (ONSOLDERFLAG, Pad) ? SOLDER_LAYER : COMPONENT_LAYER);
-  group = GetLayerGroupNumberByNumber (i);
+  info.group = GetLayerGroupNumberByNumber (i);
+  info.pad = Pad;
+  info.type = PAD_TYPE;
 
-  RAT_LOOP (PCB->Data, 
-    {
-      if (line->Point1.X == Pad->Point1.X &&
-	  line->Point1.Y == Pad->Point1.Y && line->group1 == group)
-	CreateNewRubberbandEntry (NULL, (LineTypePtr) line, &line->Point1);
-      else
-	if (line->Point2.X == Pad->Point1.X &&
-	    line->Point2.Y == Pad->Point1.Y && line->group2 == group)
-	CreateNewRubberbandEntry (NULL, (LineTypePtr) line, &line->Point2);
-      else
-	if (line->Point1.X == Pad->Point2.X &&
-	    line->Point1.Y == Pad->Point2.Y && line->group1 == group)
-	CreateNewRubberbandEntry (NULL, (LineTypePtr) line, &line->Point1);
-      else
-	if (line->Point2.X == Pad->Point2.X &&
-	    line->Point2.Y == Pad->Point2.Y && line->group2 == group)
-	CreateNewRubberbandEntry (NULL, (LineTypePtr) line, &line->Point2);
-    }
-  );
+  r_search (PCB->Data->rat_tree, &Pad->BoundingBox, NULL, rat_callback,
+	    &info);
+}
+
+static void
+CheckPinForRat (PinTypePtr Pin)
+{
+  struct rinfo info;
+
+  info.type = PIN_TYPE;
+  info.pin = Pin;
+  r_search (PCB->Data->rat_tree, &Pin->BoundingBox, NULL, rat_callback,
+	    &info);
+}
+
+static void
+CheckLinePointForRat (LayerTypePtr Layer, PointTypePtr Point)
+{
+  struct rinfo info;
+  info.group = GetLayerGroupNumberByPointer (Layer);
+  info.point = Point;
+  info.type = LINEPOINT_TYPE;
+
+  r_search (PCB->Data->rat_tree, (BoxType *) Point, NULL, rat_callback,
+	    &info);
 }
 
 /* ---------------------------------------------------------------------------
@@ -208,14 +276,14 @@ CheckPinForRubberbandConnection (PinTypePtr Pin)
 {
   struct rubber_info info;
   Cardinal n;
-  BDimension t = Pin->Thickness/2;
+  BDimension t = Pin->Thickness / 2;
 
   info.box.X1 = Pin->X - t;
   info.box.X2 = Pin->X + t;
   info.box.Y1 = Pin->Y - t;
   info.box.Y2 = Pin->Y + t;
   info.line = NULL;
-  if (TEST_FLAG(SQUAREFLAG, Pin))
+  if (TEST_FLAG (SQUAREFLAG, Pin))
     info.radius = 0;
   else
     {
@@ -226,43 +294,11 @@ CheckPinForRubberbandConnection (PinTypePtr Pin)
 
   for (n = 0; n < MAX_LAYER; n++)
     {
-      info.layer = LAYER_PTR(n);
-      r_search (info.layer->line_tree, &info.box, NULL, rubber_callback, &info);
+      info.layer = LAYER_PTR (n);
+      r_search (info.layer->line_tree, &info.box, NULL, rubber_callback,
+		&info);
     }
 }
-
-static void
-CheckPinForRat (PinTypePtr Pin)
-{
-  RAT_LOOP (PCB->Data, 
-    {
-      if (line->Point1.X == Pin->X && line->Point1.Y == Pin->Y)
-	CreateNewRubberbandEntry (NULL, (LineTypePtr) line, &line->Point1);
-      else if (line->Point2.X == Pin->X && line->Point2.Y == Pin->Y)
-	CreateNewRubberbandEntry (NULL, (LineTypePtr) line, &line->Point2);
-    }
-  );
-}
-
-static void
-CheckLinePointForRat (LayerTypePtr Layer, PointTypePtr Point)
-{
-  Cardinal group = GetLayerGroupNumberByPointer (Layer);
-
-  RAT_LOOP (PCB->Data, 
-    {
-      if (line->group1 == group &&
-	  line->Point1.X == Point->X && line->Point1.Y == Point->Y)
-	CreateNewRubberbandEntry (NULL, (LineTypePtr) line, &line->Point1);
-      else
-	if (line->group2 == group &&
-	    line->Point2.X == Point->X && line->Point2.Y == Point->Y)
-	CreateNewRubberbandEntry (NULL, (LineTypePtr) line, &line->Point2);
-    }
-  );
-}
-
-
 
 /* ---------------------------------------------------------------------------
  * checks all visible lines which belong to the same group as the passed line.
@@ -276,7 +312,7 @@ CheckLinePointForRubberbandConnection (LayerTypePtr Layer,
 {
   Cardinal group;
   struct rubber_info info;
-  BDimension t = Line->Thickness/2;
+  BDimension t = Line->Thickness / 2;
 
   /* lookup layergroup and check all visible lines in this group */
   info.radius = Line->Thickness;
@@ -288,16 +324,16 @@ CheckLinePointForRubberbandConnection (LayerTypePtr Layer,
   info.X = LinePoint->X;
   info.Y = LinePoint->Y;
   group = GetLayerGroupNumberByPointer (Layer);
-  GROUP_LOOP (group,
-    {
-      /* check all visible lines of the group member */
-      if (layer->On)
-	{
-	  info.layer = layer;
-	  r_search(layer->line_tree, &info.box, NULL, rubber_callback, &info);
-	}
-    }
-  );
+  GROUP_LOOP (group);
+  {
+    /* check all visible lines of the group member */
+    if (layer->On)
+      {
+	info.layer = layer;
+	r_search (layer->line_tree, &info.box, NULL, rubber_callback, &info);
+      }
+  }
+  END_LOOP;
 }
 
 /* ---------------------------------------------------------------------------
@@ -313,33 +349,33 @@ CheckPolygonForRubberbandConnection (LayerTypePtr Layer,
 
   /* lookup layergroup and check all visible lines in this group */
   group = GetLayerGroupNumberByPointer (Layer);
-  GROUP_LOOP (group,
-    {
-      if (layer->On)
-	{
-	  BDimension thick;
+  GROUP_LOOP (group);
+  {
+    if (layer->On)
+      {
+	BDimension thick;
 
-	  /* the following code just stupidly compares the endpoints
-	   * of the lines
-	   */
-	  LINE_LOOP (layer, 
-	    {
-	      if (TEST_FLAG (LOCKFLAG, line))
-		continue;
-	      if (TEST_FLAG (CLEARLINEFLAG, line))
-		continue;
-	      thick = (line->Thickness + 1) / 2;
-	      if (IsPointInPolygon (line->Point1.X, line->Point1.Y,
-				    thick, Polygon))
-		CreateNewRubberbandEntry (layer, line, &line->Point1);
-	      if (IsPointInPolygon (line->Point2.X, line->Point2.Y,
-				    thick, Polygon))
-		CreateNewRubberbandEntry (layer, line, &line->Point1);
-	    }
-	  );
+	/* the following code just stupidly compares the endpoints
+	 * of the lines
+	 */
+	LINE_LOOP (layer);
+	{
+	  if (TEST_FLAG (LOCKFLAG, line))
+	    continue;
+	  if (TEST_FLAG (CLEARLINEFLAG, line))
+	    continue;
+	  thick = (line->Thickness + 1) / 2;
+	  if (IsPointInPolygon (line->Point1.X, line->Point1.Y,
+				thick, Polygon))
+	    CreateNewRubberbandEntry (layer, line, &line->Point1);
+	  if (IsPointInPolygon (line->Point2.X, line->Point2.Y,
+				thick, Polygon))
+	    CreateNewRubberbandEntry (layer, line, &line->Point1);
 	}
-    }
-  );
+	END_LOOP;
+      }
+  }
+  END_LOOP;
 }
 
 /* ---------------------------------------------------------------------------
@@ -366,16 +402,16 @@ LookupRubberbandLines (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
 	 * and readability is more important then the few %
 	 * of faiures that are immediately recognized
 	 */
-	PIN_LOOP (element, 
-	  {
-	    CheckPinForRubberbandConnection (pin);
-	  }
-	);
-	PAD_LOOP (element, 
-	  {
-	    CheckPadForRubberbandConnection (pad);
-	  }
-	);
+	PIN_LOOP (element);
+	{
+	  CheckPinForRubberbandConnection (pin);
+	}
+	END_LOOP;
+	PAD_LOOP (element);
+	{
+	  CheckPadForRubberbandConnection (pad);
+	}
+	END_LOOP;
 	break;
       }
 
@@ -421,16 +457,16 @@ LookupRatLines (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
       {
 	ElementTypePtr element = (ElementTypePtr) Ptr1;
 
-	PIN_LOOP (element, 
-	  {
-	    CheckPinForRat (pin);
-	  }
-	);
-	PAD_LOOP (element, 
-	  {
-	    CheckPadForRat (pad);
-	  }
-	);
+	PIN_LOOP (element);
+	{
+	  CheckPinForRat (pin);
+	}
+	END_LOOP;
+	PAD_LOOP (element);
+	{
+	  CheckPadForRat (pad);
+	}
+	END_LOOP;
 	break;
       }
 

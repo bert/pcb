@@ -2670,43 +2670,43 @@ ActionDJopt (Widget w, XEvent * e, String * argv, Cardinal * argc)
 
   grok_layer_groups ();
 
-  ELEMENT_LOOP (PCB->Data, 
-    PIN_LOOP (element, 
-    {
-      c = find_corner (pin->X, pin->Y, -1);
-      c->pin = pin;
-    }
-  );
-  PAD_LOOP (element, 
-    {
-      line_s *ls2;
-      int layern =
-	element->Flags & ONSOLDERFLAG ? solder_layer : component_layer;
-      line_s *ls = (line_s *) malloc (sizeof (line_s));
-      ls->next = lines;
-      lines = ls;
-      ls->s = find_corner (pad->Point1.X, pad->Point1.Y, layern);
-      ls->s->pad = pad;
-      ls->e = find_corner (pad->Point2.X, pad->Point2.Y, layern);
-      ls->e->pad = pad;
-      ls->layer = layern;
-      ls->line = (LineTypePtr) pad;
-      add_line_to_corner (ls, ls->s);
-      add_line_to_corner (ls, ls->e);
+  ELEMENT_LOOP (PCB->Data);
+  PIN_LOOP (element);
+  {
+    c = find_corner (pin->X, pin->Y, -1);
+    c->pin = pin;
+  }
+  END_LOOP;
+  PAD_LOOP (element);
+  {
+    line_s *ls2;
+    int layern =
+      element->Flags & ONSOLDERFLAG ? solder_layer : component_layer;
+    line_s *ls = (line_s *) malloc (sizeof (line_s));
+    ls->next = lines;
+    lines = ls;
+    ls->s = find_corner (pad->Point1.X, pad->Point1.Y, layern);
+    ls->s->pad = pad;
+    ls->e = find_corner (pad->Point2.X, pad->Point2.Y, layern);
+    ls->e->pad = pad;
+    ls->layer = layern;
+    ls->line = (LineTypePtr) pad;
+    add_line_to_corner (ls, ls->s);
+    add_line_to_corner (ls, ls->e);
 
-    }
-  );
-  );
-  VIA_LOOP (PCB->Data, 
-    /* hace don't mess with vias that have thermals */
-    /* but then again don't bump into them
-       if (!TEST_FLAG(ALLTHERMFLAGS, via))
-     */
-    {
-      c = find_corner (via->X, via->Y, -1);
-      c->via = via;
-    }
-  );
+  }
+  END_LOOP;
+  END_LOOP;
+  VIA_LOOP (PCB->Data);
+  /* hace don't mess with vias that have thermals */
+  /* but then again don't bump into them
+     if (!TEST_FLAG(ALLTHERMFLAGS, via))
+   */
+  {
+    c = find_corner (via->X, via->Y, -1);
+    c->via = via;
+  }
+  END_LOOP;
   check (0, 0);
 
   for (layn = 0; layn < MAX_LAYER; layn++)

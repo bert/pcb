@@ -797,21 +797,49 @@ CreateRouteData ()
     }
 
   /* add pins and pads of elements */
-  ALLPIN_LOOP (PCB->Data, AddPin (layergroupboxes, pin, False));
-  ALLPAD_LOOP (PCB->Data, AddPad (layergroupboxes, element, pad));
+  ALLPIN_LOOP (PCB->Data);
+    {
+      AddPin (layergroupboxes, pin, False);
+    }
+  ENDALL_LOOP;
+  ALLPAD_LOOP (PCB->Data);
+    {
+      AddPad (layergroupboxes, element, pad);
+    }
+  ENDALL_LOOP;
   /* add all vias */
-  VIA_LOOP (PCB->Data, AddPin (layergroupboxes, via, True));
+  VIA_LOOP (PCB->Data);
+    {
+      AddPin (layergroupboxes, via, True);
+    }
+  END_LOOP;
+
   for (i = 0; i < MAX_LAYER; i++)
     {
       /* add all (non-rat) lines */
-      LINE_LOOP (LAYER_PTR(i), AddLine (layergroupboxes, i, line));
+      LINE_LOOP (LAYER_PTR(i));
+        {
+	  AddLine (layergroupboxes, i, line);
+	}
+      END_LOOP;
       /* add all "should-avoid" polygons */
-      POLYGON_LOOP (LAYER_PTR(i),
-		    AddPolygon (layergroupboxes, i, polygon));
+      POLYGON_LOOP (LAYER_PTR(i));
+        {
+		    AddPolygon (layergroupboxes, i, polygon);
+	}
+      END_LOOP;
       /* add all copper text */
-      TEXT_LOOP (LAYER_PTR(i), AddText (layergroupboxes, i, text));
+      TEXT_LOOP (LAYER_PTR(i));
+        {
+	  AddText (layergroupboxes, i, text);
+	}
+      END_LOOP;
       /* add all arcs */
-      ARC_LOOP (LAYER_PTR(i), AddArc (layergroupboxes, i, arc));
+      ARC_LOOP (LAYER_PTR(i));
+        {
+	  AddArc (layergroupboxes, i, arc);
+	}
+      END_LOOP;
     }
 
   /* create k-d trees from pointer lists */
@@ -819,9 +847,12 @@ CreateRouteData ()
     {
       /* initialize style (we'll fill in a "real" style later, when we add
        * the connectivity information) */
-      POINTER_LOOP (&layergroupboxes[i],
+      POINTER_LOOP (&layergroupboxes[i]);
+        {
 		    /* we're initializing this to the "default" style */
-		    ((routebox_t *) * ptr)->augStyle = &rd->augStyles[NUM_STYLES]);
+		    ((routebox_t *) * ptr)->augStyle = &rd->augStyles[NUM_STYLES];
+	}
+      END_LOOP;
       /* create the r-tree */
       rd->layergrouptree[i] =
 	r_create_tree ((const BoxType **) layergroupboxes[i].Ptr,
@@ -832,13 +863,14 @@ CreateRouteData ()
   Nets = CollectSubnets (False);
   {
     routebox_t *last_net = NULL;
-    NETLIST_LOOP (&Nets,
-		  {
-		  routebox_t * last_in_net = NULL;
-		  NET_LOOP (netlist,
+    NETLIST_LOOP (&Nets);
+      {
+	  routebox_t * last_in_net = NULL;
+	  NET_LOOP (netlist);
 			    {
 			    routebox_t *
-			    last_in_subnet = NULL; CONNECTION_LOOP (net,
+			    last_in_subnet = NULL;
+			    CONNECTION_LOOP (net);
 								    {
 								    routebox_t
 								    * rb =
@@ -881,12 +913,16 @@ CreateRouteData ()
 								    MAX
 								    (rd->max_bloat,
 								     BLOAT
-								     (rb->augStyle->style));});});
+								     (rb->augStyle->style));
+								     }
+		END_LOOP;
+		}
+		END_LOOP;
 		  if (last_net
 		      && last_in_net) MergeNets (last_net, last_in_net,
 						 DIFFERENT_NET);
 		  last_net = last_in_net;}
-    );
+    END_LOOP;
     rd->first_net = last_net;
   }
   FreeNetListListMemory (&Nets);
@@ -905,13 +941,14 @@ CreateRouteData ()
 	{
 	  if (rd->augStyles[j].Used)
 	    {
-	      POINTER_LOOP (&layergroupboxes[i],
+	      POINTER_LOOP (&layergroupboxes[i]);
 			    {
 			    routebox_t * rb = (routebox_t *) * ptr;
 			    if (!rb->flags.clear_poly)
 			    mtspace_add (rd->augStyles[j].mtspace,
 					 &rb->box, FIXED,
-					 rb->augStyle->style->Keepaway);});
+					 rb->augStyle->style->Keepaway);}
+	END_LOOP;
 	    }
 	}
     }
@@ -3094,7 +3131,12 @@ RouteAll (routedata_t * rd)
 	routebox_t *net, *rb, *last;
 	int i = 0;
 	/* count numberof rats selected */
-	RAT_LOOP (PCB->Data, if (TEST_FLAG (SELECTEDFLAG, line)) i++);
+	RAT_LOOP (PCB->Data);
+	  {
+	    if (TEST_FLAG (SELECTEDFLAG, line))
+	      i++;
+	  }
+	END_LOOP;
 #ifdef ROUTE_VERBOSE
 	printf ("%d nets!\n", i);
 #endif
@@ -3103,7 +3145,8 @@ RouteAll (routedata_t * rd)
 	/* if only one rat selected, do things the quick way. =) */
 	if (i == 1)
 	  {
-	    RAT_LOOP (PCB->Data, if (TEST_FLAG (SELECTEDFLAG, line))
+	    RAT_LOOP (PCB->Data);
+	      if (TEST_FLAG (SELECTEDFLAG, line))
 		      {
 		      /* look up the end points of this rat line */
 		      routebox_t * a; routebox_t * b;
@@ -3118,7 +3161,7 @@ RouteAll (routedata_t * rd)
 		      InitAutoRouteParameters (0, a->augStyle, False, True);
 		      changed = RouteOne (rd, a, b).found_route || changed;
 		      goto donerouting;}
-	    );
+	    END_LOOP;
 	  }
 	/* otherwise, munge the netlists so that only the selected rats
 	 * get connected. */
@@ -3145,7 +3188,7 @@ RouteAll (routedata_t * rd)
 	  }
 
 	/* now merge only those subnets connected by a rat line */
-	RAT_LOOP (PCB->Data, if (TEST_FLAG (SELECTEDFLAG, line))
+	RAT_LOOP (PCB->Data); if (TEST_FLAG (SELECTEDFLAG, line))
 		  {
 		  /* look up the end points of this rat line */
 		  routebox_t * a; routebox_t * b;
@@ -3158,7 +3201,7 @@ RouteAll (routedata_t * rd)
 		  assert (a != NULL && b != NULL);
 		  /* merge subnets into a net! */
 		  MergeNets (a, b, NET);}
-	);
+	END_LOOP;
 	/* now 'different_net' may point to too many different nets.  Reset. */
 	LIST_LOOP (rd->first_net, different_net, net,
 		   {

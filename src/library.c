@@ -90,11 +90,11 @@ CreateTypeSelector (Widget Parent, Widget Top, Widget Left)
 
   /* create the selector, add all entries and sort them */
   selector = CreateSelector (Parent, Top, Left, &TypeSelector, 1);
-  MENU_LOOP (&Library, 
-    {
-      AddEntryToSelector (menu->Name, (XtPointer) menu, &TypeSelector);
-    }
-  );
+  MENU_LOOP (&Library);
+  {
+    AddEntryToSelector (menu->Name, (XtPointer) menu, &TypeSelector);
+  }
+  END_LOOP;
   return (selector);
 }
 
@@ -105,12 +105,12 @@ static void
 UpdateCircuitSelector (LibraryMenuTypePtr Menu)
 {
   FreeSelectorEntries (&CircuitSelector);
-  ENTRY_LOOP (Menu, 
-    {
-      AddEntryToSelector (entry->ListEntry,
-			  (XtPointer) entry, &CircuitSelector);
-    }
-  );
+  ENTRY_LOOP (Menu);
+  {
+    AddEntryToSelector (entry->ListEntry,
+			(XtPointer) entry, &CircuitSelector);
+  }
+  END_LOOP;
   UpdateSelector (&CircuitSelector);
 
   /* update label */

@@ -117,31 +117,32 @@ PinoutWindow (Widget Parent, ElementTypePtr Element)
    */
   CopyElementLowLevel (PCB->Data, &pinout->Element, Element, False);
   minx = miny = 32767;
-  PIN_LOOP (&pinout->Element, 
-    {
-      tx = abs (pinout->Element.Pin[0].X - pin->X);
-      ty = abs (pinout->Element.Pin[0].Y - pin->Y);
-      if (tx != 0 && tx < minx)
-	minx = tx;
-      if (ty != 0 && ty < miny)
-	miny = ty;
-      SET_FLAG (DISPLAYNAMEFLAG, pin);
-    }
-  );
+  PIN_LOOP (&pinout->Element);
+  {
+    tx = abs (pinout->Element.Pin[0].X - pin->X);
+    ty = abs (pinout->Element.Pin[0].Y - pin->Y);
+    if (tx != 0 && tx < minx)
+      minx = tx;
+    if (ty != 0 && ty < miny)
+      miny = ty;
+    SET_FLAG (DISPLAYNAMEFLAG, pin);
+  }
+  END_LOOP;
 
-  PAD_LOOP (&pinout->Element, 
-    {
-      tx = abs (pinout->Element.Pad[0].Point1.X - pad->Point1.X);
-      ty = abs (pinout->Element.Pad[0].Point1.Y - pad->Point1.Y);
-      if (tx != 0 && tx < minx)
-	minx = tx;
-      if (ty != 0 && ty < miny)
-	miny = ty;
-      SET_FLAG (DISPLAYNAMEFLAG, pad);
-    }
-  );
+  PAD_LOOP (&pinout->Element);
+  {
+    tx = abs (pinout->Element.Pad[0].Point1.X - pad->Point1.X);
+    ty = abs (pinout->Element.Pad[0].Point1.Y - pad->Point1.Y);
+    if (tx != 0 && tx < minx)
+      minx = tx;
+    if (ty != 0 && ty < miny)
+      miny = ty;
+    SET_FLAG (DISPLAYNAMEFLAG, pad);
+  }
+  END_LOOP;
   if (minx < miny)
-    RotateElementLowLevel (NULL, &pinout->Element, pinout->Element.BoundingBox.X1,
+    RotateElementLowLevel (NULL, &pinout->Element,
+			   pinout->Element.BoundingBox.X1,
 			   pinout->Element.BoundingBox.Y1, 1);
 
   MoveElementLowLevel (NULL, &pinout->Element,
@@ -150,19 +151,19 @@ PinoutWindow (Widget Parent, ElementTypePtr Element)
 		       -pinout->Element.BoundingBox.Y1 +
 		       Settings.PinoutOffsetY);
   pinout->Zoom = Settings.PinoutZoom;
-  pinout->scale = 1./(100. * exp(pinout->Zoom * LN_2_OVER_2));
+  pinout->scale = 1. / (100. * exp (pinout->Zoom * LN_2_OVER_2));
   pinout->MaxX = pinout->Element.BoundingBox.X2 + Settings.PinoutOffsetX;
   pinout->MaxY = pinout->Element.BoundingBox.Y2 + Settings.PinoutOffsetY;
-  ELEMENTLINE_LOOP (&pinout->Element, 
-    {
-      line->Thickness = 0;
-    }
-  );
-  ARC_LOOP (&pinout->Element, 
-    {
-      arc->Thickness = 0;
-    }
-  );
+  ELEMENTLINE_LOOP (&pinout->Element);
+  {
+    line->Thickness = 0;
+  }
+  END_LOOP;
+  ARC_LOOP (&pinout->Element);
+  {
+    arc->Thickness = 0;
+  }
+  END_LOOP;
 
   /* create shell window with viewport,
    * shrink, enlarge and exit button
@@ -193,9 +194,11 @@ PinoutWindow (Widget Parent, ElementTypePtr Element)
 					    viewport,
 					    XtNresizable, True,
 					    XtNwidth,
-					    (Dimension) (pinout->MaxX * pinout->scale),
+					    (Dimension) (pinout->MaxX *
+							 pinout->scale),
 					    XtNheight,
-					    (Dimension) (pinout->MaxY * pinout->scale),
+					    (Dimension) (pinout->MaxY *
+							 pinout->scale),
 					    NULL);
   dismiss =
     XtVaCreateManagedWidget ("dismiss", commandWidgetClass, masterform,
@@ -307,7 +310,7 @@ CB_ShrinkOrEnlarge (Widget W, XtPointer ClientData, XtPointer CallData)
   if (W == pinout->Enlarge && pinout->Zoom > MIN_ZOOM)
     pinout->Zoom -= 1.0;
   XtVaSetValues (pinout->Output,
-		 XtNwidth, (Dimension)(pinout->MaxX * pinout->scale),
-		 XtNheight, (Dimension)(pinout->MaxY * pinout->scale), NULL);
+		 XtNwidth, (Dimension) (pinout->MaxX * pinout->scale),
+		 XtNheight, (Dimension) (pinout->MaxY * pinout->scale), NULL);
   RedrawPinoutWindow (pinout);
 }

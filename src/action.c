@@ -25,7 +25,8 @@
  *
  */
 
-static char *rcsid = "$Id$";
+static char *rcsid =
+  "$Id$";
 
 /* action routines for output window
  */
@@ -380,7 +381,7 @@ FinishStroke (void)
 	case 456:
 	  if (Settings.Mode == LINE_MODE)
 	    {
-              SetMode (LINE_MODE);
+	      SetMode (LINE_MODE);
 	    }
 	  break;
 	case 9874123:
@@ -388,15 +389,13 @@ FinishStroke (void)
 	case 987412:
 	case 8741236:
 	case 874123:
-	  RotateScreenObject(StrokeBox.X1, StrokeBox.Y1,
-	                     SWAP_IDENT ? 1: 3);
+	  RotateScreenObject (StrokeBox.X1, StrokeBox.Y1, SWAP_IDENT ? 1 : 3);
 	  break;
 	case 7896321:
 	case 786321:
 	case 789632:
 	case 896321:
-	  RotateScreenObject(StrokeBox.X1, StrokeBox.Y1,
-	                     SWAP_IDENT ? 3: 1);
+	  RotateScreenObject (StrokeBox.X1, StrokeBox.Y1, SWAP_IDENT ? 3 : 1);
 	  break;
 	case 258:
 	  SetMode (LINE_MODE);
@@ -474,24 +473,24 @@ static void
 ClearWarnings ()
 {
   Settings.RatWarn = False;
-  ALLPIN_LOOP (PCB->Data, 
-    {
-      if (TEST_FLAG (WARNFLAG, pin))
-	{
-	  CLEAR_FLAG (WARNFLAG, pin);
-	  DrawPin (pin, 0);
-	}
-    }
-  );
-  ALLPAD_LOOP (PCB->Data, 
-    {
-      if (TEST_FLAG (WARNFLAG, pad))
-	{
-	  CLEAR_FLAG (WARNFLAG, pad);
-	  DrawPad (pad, 0);
-	}
-    }
-  );
+  ALLPIN_LOOP (PCB->Data);
+  {
+    if (TEST_FLAG (WARNFLAG, pin))
+      {
+	CLEAR_FLAG (WARNFLAG, pin);
+	DrawPin (pin, 0);
+      }
+  }
+  ENDALL_LOOP;
+  ALLPAD_LOOP (PCB->Data);
+  {
+    if (TEST_FLAG (WARNFLAG, pad))
+      {
+	CLEAR_FLAG (WARNFLAG, pad);
+	DrawPad (pad, 0);
+      }
+  }
+  ENDALL_LOOP;
   UpdatePIPFlags (NULL, NULL, NULL, NULL, False);
   Draw ();
 }
@@ -511,15 +510,15 @@ CB_Click (XtPointer unused, XtIntervalId * time)
 	  AddSelectedToBuffer (PASTEBUFFER, Note.X, Note.Y, True);
 	  SaveUndoSerialNumber ();
 	  RemoveSelected ();
-          SaveMode();
-          saved_mode = True;
+	  SaveMode ();
+	  saved_mode = True;
 	  SetMode (PASTEBUFFER_MODE);
 	  RestoreCrosshair (True);
 	}
       else if (Note.Hit && !ShiftPressed ())
 	{
 	  HideCrosshair (True);
-          SaveMode();
+	  SaveMode ();
 	  saved_mode = True;
 	  SetMode (MOVE_MODE);
 	  Crosshair.AttachedObject.Ptr1 = Note.ptr1;
@@ -618,7 +617,7 @@ ReleaseMode (void)
       Crosshair.AttachedBox.State = STATE_FIRST;
     }
   if (saved_mode)
-    RestoreMode();
+    RestoreMode ();
   saved_mode = False;
 }
 
@@ -710,7 +709,7 @@ AdjustAttachedObjects (void)
     case INSERTPOINT_MODE:
       pnt = AdjustInsertPoint ();
       if (pnt)
-        InsertedPoint = *pnt;
+	InsertedPoint = *pnt;
       break;
     case ROTATE_MODE:
       modeCursor (ROTATE_MODE);
@@ -728,7 +727,7 @@ NotifyLine (void)
   void *ptr1, *ptr2, *ptr3;
 
   if (!Marked.status || TEST_FLAG (LOCALREFFLAG, PCB))
-    SetLocalRef(Crosshair.X, Crosshair.Y, True);
+    SetLocalRef (Crosshair.X, Crosshair.Y, True);
   switch (Crosshair.AttachedLine.State)
     {
     case STATE_FIRST:		/* first point */
@@ -740,42 +739,43 @@ NotifyLine (void)
 	  break;
 	}
       if (TEST_FLAG (AUTODRCFLAG, PCB) && Settings.Mode == LINE_MODE)
-        {
+	{
 	  type = SearchScreen (Crosshair.X, Crosshair.Y,
-	          PIN_TYPE | PAD_TYPE | VIA_TYPE, &ptr1, &ptr2, &ptr3);
-	  LookupConnection (Crosshair.X, Crosshair.Y, True, TO_PCB(1));
+			       PIN_TYPE | PAD_TYPE | VIA_TYPE, &ptr1, &ptr2,
+			       &ptr3);
+	  LookupConnection (Crosshair.X, Crosshair.Y, True, TO_PCB (1));
 	}
       if (type == PIN_TYPE || type == VIA_TYPE)
-        {
-          Crosshair.AttachedLine.Point1.X =
-	    Crosshair.AttachedLine.Point2.X = ((PinTypePtr)ptr2)->X;
-          Crosshair.AttachedLine.Point1.Y =
-	    Crosshair.AttachedLine.Point2.Y = ((PinTypePtr)ptr2)->Y;
+	{
+	  Crosshair.AttachedLine.Point1.X =
+	    Crosshair.AttachedLine.Point2.X = ((PinTypePtr) ptr2)->X;
+	  Crosshair.AttachedLine.Point1.Y =
+	    Crosshair.AttachedLine.Point2.Y = ((PinTypePtr) ptr2)->Y;
 	}
       else if (type == PAD_TYPE)
-        {
+	{
 	  PadTypePtr pad = (PadTypePtr) ptr2;
 	  float d1, d2;
 	  d1 = SQUARE (Crosshair.X - pad->Point1.X) +
-	       SQUARE (Crosshair.Y - pad->Point1.Y);
+	    SQUARE (Crosshair.Y - pad->Point1.Y);
 	  d2 = SQUARE (Crosshair.X - pad->Point2.X) +
-	       SQUARE (Crosshair.Y - pad->Point2.Y);
+	    SQUARE (Crosshair.Y - pad->Point2.Y);
 	  if (d2 < d1)
 	    {
-              Crosshair.AttachedLine.Point1 =
-                Crosshair.AttachedLine.Point2 = pad->Point2;
+	      Crosshair.AttachedLine.Point1 =
+		Crosshair.AttachedLine.Point2 = pad->Point2;
 	    }
 	  else
 	    {
-              Crosshair.AttachedLine.Point1 = 
-                Crosshair.AttachedLine.Point2 = pad->Point1;
+	      Crosshair.AttachedLine.Point1 =
+		Crosshair.AttachedLine.Point2 = pad->Point1;
 	    }
-        }
+	}
       else
-        {
-          Crosshair.AttachedLine.Point1.X =
+	{
+	  Crosshair.AttachedLine.Point1.X =
 	    Crosshair.AttachedLine.Point2.X = Crosshair.X;
-          Crosshair.AttachedLine.Point1.Y =
+	  Crosshair.AttachedLine.Point1.Y =
 	    Crosshair.AttachedLine.Point2.Y = Crosshair.Y;
 	}
       Crosshair.AttachedLine.State = STATE_SECOND;
@@ -915,7 +915,7 @@ NotifyMode (void)
 		    Crosshair.AttachedBox.Point1.X + abs (wy) * SGNZ (wx);
 		  sa = (wx >= 0) ? 0 : 180;
 #ifdef ARC45
-		  if (abs (wy)/2 >= abs (wx))
+		  if (abs (wy) / 2 >= abs (wx))
 		    dir = (SGNZ (wx) == SGNZ (wy)) ? 45 : -45;
 		  else
 #endif
@@ -927,7 +927,7 @@ NotifyMode (void)
 		    Crosshair.AttachedBox.Point1.Y + abs (wx) * SGNZ (wy);
 		  sa = (wy >= 0) ? -90 : 90;
 #ifdef ARC45
-		  if (abs (wx)/2 >= abs (wy))
+		  if (abs (wx) / 2 >= abs (wy))
 		    dir = (SGNZ (wx) == SGNZ (wy)) ? -45 : 45;
 		  else
 #endif
@@ -945,7 +945,7 @@ NotifyMode (void)
 							      dir,
 							      Settings.
 							      LineThickness,
-							      2*Settings.
+							      2 * Settings.
 							      Keepaway,
 							      TEST_FLAG
 							      (CLEARNEWFLAG,
@@ -980,18 +980,18 @@ NotifyMode (void)
 	    ElementTypePtr element = (ElementTypePtr) ptr2;
 
 	    TOGGLE_FLAG (LOCKFLAG, element);
-	    PIN_LOOP (element, 
-	      {
-		TOGGLE_FLAG (LOCKFLAG, pin);
-		CLEAR_FLAG (SELECTEDFLAG, pin);
-	      }
-	    );
-	    PAD_LOOP (element, 
-	      {
-		TOGGLE_FLAG (LOCKFLAG, pad);
-		CLEAR_FLAG (SELECTEDFLAG, pad);
-	      }
-	    );
+	    PIN_LOOP (element);
+	    {
+	      TOGGLE_FLAG (LOCKFLAG, pin);
+	      CLEAR_FLAG (SELECTEDFLAG, pin);
+	    }
+	    END_LOOP;
+	    PAD_LOOP (element);
+	    {
+	      TOGGLE_FLAG (LOCKFLAG, pad);
+	      CLEAR_FLAG (SELECTEDFLAG, pad);
+	    }
+	    END_LOOP;
 	    CLEAR_FLAG (SELECTEDFLAG, element);
 	    /* always re-draw it since I'm too lazy
 	     * to tell if a selected flag changed
@@ -1042,21 +1042,21 @@ NotifyMode (void)
       /* do update of position */
       NotifyLine ();
       if (Crosshair.AttachedLine.State != STATE_THIRD)
-       break;
+	break;
 
-	/* Remove anchor if clicking on start point;
-         * this means we can't paint 0 length lines
-         * which could be used for square SMD pads.
-         * Instead use a very small delta, or change
-         * the file after saving.
-         */
+      /* Remove anchor if clicking on start point;
+       * this means we can't paint 0 length lines
+       * which could be used for square SMD pads.
+       * Instead use a very small delta, or change
+       * the file after saving.
+       */
       if (Crosshair.X == Crosshair.AttachedLine.Point1.X
-          && Crosshair.Y == Crosshair.AttachedLine.Point1.Y)
-        {
+	  && Crosshair.Y == Crosshair.AttachedLine.Point1.Y)
+	{
 	  SetMode (LINE_MODE);
-          break;
-        }
-    
+	  break;
+	}
+
       if (PCB->RatDraw)
 	{
 	  RatTypePtr line;
@@ -1074,7 +1074,7 @@ NotifyMode (void)
 	  break;
 	}
       else
-      /* create line if both ends are determined && length != 0 */
+	/* create line if both ends are determined && length != 0 */
 	{
 	  LineTypePtr line;
 
@@ -1104,9 +1104,9 @@ NotifyMode (void)
 					  Crosshair.AttachedLine.Point2.X,
 					  Crosshair.AttachedLine.Point2.Y,
 					  Settings.LineThickness,
-					  2*Settings.Keepaway,
+					  2 * Settings.Keepaway,
 					  (TEST_FLAG (AUTODRCFLAG, PCB) ?
-					   FOUNDFLAG : 0) | 
+					   FOUNDFLAG : 0) |
 					  (TEST_FLAG (CLEARNEWFLAG, PCB) ?
 					   CLEARLINEFLAG : 0))) != NULL)
 	    {
@@ -1156,9 +1156,9 @@ NotifyMode (void)
 					  Crosshair.AttachedLine.Point2.Y,
 					  Note.X, Note.Y,
 					  Settings.LineThickness,
-					  2*Settings.Keepaway,
+					  2 * Settings.Keepaway,
 					  (TEST_FLAG (AUTODRCFLAG, PCB) ?
-					   FOUNDFLAG : 0) | 
+					   FOUNDFLAG : 0) |
 					  (TEST_FLAG (CLEARNEWFLAG, PCB) ?
 					   CLEARLINEFLAG : 0))) != NULL)
 	    {
@@ -1327,8 +1327,9 @@ NotifyMode (void)
       break;
 
     case ROTATE_MODE:
-      RotateScreenObject(Note.X, Note.Y, ShiftPressed() ? (SWAP_IDENT ?
-      			1 : 3) : (SWAP_IDENT ? 3 : 1));
+      RotateScreenObject (Note.X, Note.Y, ShiftPressed ()? (SWAP_IDENT ?
+							    1 : 3)
+			  : (SWAP_IDENT ? 3 : 1));
       break;
 
       /* both are almost the same */
@@ -1464,7 +1465,7 @@ NotifyMode (void)
 static void
 WarpPointer (Boolean ignore)
 {
-   /* don't warp with the auto drc - that creates auto-scroll chaos */
+  /* don't warp with the auto drc - that creates auto-scroll chaos */
   if (TEST_FLAG (AUTODRCFLAG, PCB) && Settings.Mode == LINE_MODE
       && Crosshair.AttachedLine.State != STATE_FIRST)
     return;
@@ -1540,17 +1541,17 @@ ActionDRCheck (Widget W, XEvent * Event, String * Params, Cardinal * Num)
   if (*Num == 0)
     {
       Message ("Rules are minspace %d.%02d, minoverlap %d.%d "
-               "minwidth %d.%02d\n",
-              (Settings.Bloat+1)/100, (Settings.Bloat+1) % 100,
-	      Settings.Shrink/100, Settings.Shrink % 100,
-              Settings.minWid/100, Settings.minWid % 100);
+	       "minwidth %d.%02d\n",
+	       (Settings.Bloat + 1) / 100, (Settings.Bloat + 1) % 100,
+	       Settings.Shrink / 100, Settings.Shrink % 100,
+	       Settings.minWid / 100, Settings.minWid % 100);
       HideCrosshair (True);
       watchCursor ();
       count = DRCAll ();
       if (count == 0)
 	Message ("No DRC problems found.\n");
       else
-        Message ("found %d design rule errors\n", count);
+	Message ("found %d design rule errors\n", count);
       restoreCursor ();
       RestoreCrosshair (True);
     }
@@ -1651,7 +1652,7 @@ ActionMovePointer (Widget W, XEvent * Event, String * Params, Cardinal * Num)
       dx = (Location) (atoi (*Params) * PCB->Grid);
       dy = (Location) (atoi (*(Params + 1)) * PCB->Grid);
       MoveCrosshairRelative (TO_SCREEN_SIGN_X (dx), TO_SCREEN_SIGN_Y (dy));
-           FitCrosshairIntoGrid (Crosshair.X, Crosshair.Y);
+      FitCrosshairIntoGrid (Crosshair.X, Crosshair.Y);
       /* adjust pointer before erasing anything */
       /* in case there is no hardware cursor */
       WarpPointer (True);
@@ -1775,7 +1776,7 @@ ActionSetValue (Widget W, XEvent * Event, String * Params, Cardinal * Num)
 
 	case F_Text:
 	case F_TextScale:
-          value /= 45;	  
+	  value /= 45;
 	  SetTextScale (r ? value : value + Settings.TextScale);
 	  break;
 	}
@@ -1901,9 +1902,9 @@ ActionCommand (Widget W, XEvent * Event, String * Params, Cardinal * Num)
   if (*Num == 0)
     {
       if (Settings.SaveLastCommand)
-        command = GetUserInput ("Enter command:", previous ? previous : "");
+	command = GetUserInput ("Enter command:", previous ? previous : "");
       else
-        command = GetUserInput ("Enter command:", "");
+	command = GetUserInput ("Enter command:", "");
       if (command != NULL)
 	{
 	  /* copy new comand line to save buffer */
@@ -1914,11 +1915,11 @@ ActionCommand (Widget W, XEvent * Event, String * Params, Cardinal * Num)
 	}
     }
   else if (previous)
-   {
-     command = MyStrdup (previous, "ActionCommand()");
-     ExecuteUserCommand (command);
-     SaveFree (command);
-   }
+    {
+      command = MyStrdup (previous, "ActionCommand()");
+      ExecuteUserCommand (command);
+      SaveFree (command);
+    }
   RestoreCrosshair (True);
 }
 
@@ -1989,11 +1990,11 @@ ActionDisplay (Widget W, XEvent * Event, String * Params, Cardinal * Num)
 	case F_Value:
 	case F_NameOnPCB:
 	case F_Description:
-	  ELEMENT_LOOP (PCB->Data, 
-	    {
-	      EraseElementName (element);
-	    }
-	  );
+	  ELEMENT_LOOP (PCB->Data);
+	  {
+	    EraseElementName (element);
+	  }
+	  END_LOOP;
 	  CLEAR_FLAG (DESCRIPTIONFLAG | NAMEONPCBFLAG, PCB);
 	  switch (id)
 	    {
@@ -2006,11 +2007,11 @@ ActionDisplay (Widget W, XEvent * Event, String * Params, Cardinal * Num)
 	      SET_FLAG (DESCRIPTIONFLAG, PCB);
 	      break;
 	    }
-	  ELEMENT_LOOP (PCB->Data, 
-	    {
-	      DrawElementName (element, 0);
-	    }
-	  );
+	  ELEMENT_LOOP (PCB->Data);
+	  {
+	    DrawElementName (element, 0);
+	  }
+	  END_LOOP;
 	  Draw ();
 	  break;
 
@@ -2069,16 +2070,16 @@ ActionDisplay (Widget W, XEvent * Event, String * Params, Cardinal * Num)
 
 	case F_ToggleAutoDRC:
 	  TOGGLE_FLAG (AUTODRCFLAG, PCB);
-	   if (TEST_FLAG (AUTODRCFLAG, PCB) && Settings.Mode == LINE_MODE)
-	     {
-	       SaveUndoSerialNumber ();
-	       ResetFoundPinsViasAndPads (True);
-	       RestoreUndoSerialNumber ();
-	       ResetFoundLinesAndPolygons (True);
-	       if (Crosshair.AttachedLine.State != STATE_FIRST)
-	         LookupConnection (Crosshair.AttachedLine.Point1.X,
-		                   Crosshair.AttachedLine.Point1.Y, True, 1);
-	     }
+	  if (TEST_FLAG (AUTODRCFLAG, PCB) && Settings.Mode == LINE_MODE)
+	    {
+	      SaveUndoSerialNumber ();
+	      ResetFoundPinsViasAndPads (True);
+	      RestoreUndoSerialNumber ();
+	      ResetFoundLinesAndPolygons (True);
+	      if (Crosshair.AttachedLine.State != STATE_FIRST)
+		LookupConnection (Crosshair.AttachedLine.Point1.X,
+				  Crosshair.AttachedLine.Point1.Y, True, 1);
+	    }
 	  break;
 
 	case F_ToggleCheckPlanes:
@@ -2149,26 +2150,26 @@ ActionDisplay (Widget W, XEvent * Event, String * Params, Cardinal * Num)
 				  (void **) &ptr3))
 	      {
 	      case ELEMENT_TYPE:
-		PIN_LOOP ((ElementTypePtr) ptr1, 
-		  {
-		    if (TEST_FLAG (DISPLAYNAMEFLAG, pin))
-		      ErasePinName (pin);
-		    else
-		      DrawPinName (pin, 0);
-		    AddObjectToFlagUndoList (PIN_TYPE, ptr1, pin, pin);
-		    TOGGLE_FLAG (DISPLAYNAMEFLAG, pin);
-		  }
-		);
-		PAD_LOOP ((ElementTypePtr) ptr1, 
-		  {
-		    if (TEST_FLAG (DISPLAYNAMEFLAG, pad))
-		      ErasePadName (pad);
-		    else
-		      DrawPadName (pad, 0);
-		    AddObjectToFlagUndoList (PAD_TYPE, ptr1, pad, pad);
-		    TOGGLE_FLAG (DISPLAYNAMEFLAG, pad);
-		  }
-		);
+		PIN_LOOP ((ElementTypePtr) ptr1);
+		{
+		  if (TEST_FLAG (DISPLAYNAMEFLAG, pin))
+		    ErasePinName (pin);
+		  else
+		    DrawPinName (pin, 0);
+		  AddObjectToFlagUndoList (PIN_TYPE, ptr1, pin, pin);
+		  TOGGLE_FLAG (DISPLAYNAMEFLAG, pin);
+		}
+		END_LOOP;
+		PAD_LOOP ((ElementTypePtr) ptr1);
+		{
+		  if (TEST_FLAG (DISPLAYNAMEFLAG, pad))
+		    ErasePadName (pad);
+		  else
+		    DrawPadName (pad, 0);
+		  AddObjectToFlagUndoList (PAD_TYPE, ptr1, pad, pad);
+		  TOGGLE_FLAG (DISPLAYNAMEFLAG, pad);
+		}
+		END_LOOP;
 		SetChangedFlag (True);
 		IncrementUndoSerialNumber ();
 		Draw ();
@@ -2343,14 +2344,14 @@ ActionMode (Widget W, XEvent * Event, String * Params, Cardinal * Num)
 	  break;
 #else
 	  if (Settings.Mode == LINE_MODE
-              && Crosshair.AttachedLine.State != STATE_FIRST)
+	      && Crosshair.AttachedLine.State != STATE_FIRST)
 	    {
 	      SetMode (LINE_MODE);
 	    }
 	  else
 	    {
-              SaveMode();
-              saved_mode = True;
+	      SaveMode ();
+	      saved_mode = True;
 	      SetMode (ARROW_MODE);
 	      NotifyMode ();
 	    }
@@ -2367,11 +2368,11 @@ ActionMode (Widget W, XEvent * Event, String * Params, Cardinal * Num)
 	  break;
 
 	case F_Restore:	/* restore the last saved mode */
-          RestoreMode();
+	  RestoreMode ();
 	  break;
 
 	case F_Save:		/* save currently selected mode */
-          SaveMode();
+	  SaveMode ();
 	  break;
 	}
       RestoreCrosshair (True);
@@ -2411,24 +2412,24 @@ ActionRipUp (Widget W, XEvent * Event, String * Params, Cardinal * Num)
       switch (GetFunctionID (*Params))
 	{
 	case F_All:
-	  ALLLINE_LOOP (PCB->Data, 
-	    {
-	      if (line->Flags & AUTOFLAG)
-		{
-		  RemoveObject (LINE_TYPE, layer, line, line);
-		  changed = True;
-		}
-	    }
-	  );
-	  VIA_LOOP (PCB->Data, 
-	    {
-	      if (via->Flags & AUTOFLAG)
-		{
-		  RemoveObject (VIA_TYPE, via, via, via);
-		  changed = True;
-		}
-	    }
-	  );
+	  ALLLINE_LOOP (PCB->Data);
+	  {
+	    if (line->Flags & AUTOFLAG)
+	      {
+		RemoveObject (LINE_TYPE, layer, line, line);
+		changed = True;
+	      }
+	  }
+	  ENDALL_LOOP;
+	  VIA_LOOP (PCB->Data);
+	  {
+	    if (via->Flags & AUTOFLAG)
+	      {
+		RemoveObject (VIA_TYPE, via, via, via);
+		changed = True;
+	      }
+	  }
+	  END_LOOP;
 
 	  if (changed)
 	    {
@@ -2437,53 +2438,53 @@ ActionRipUp (Widget W, XEvent * Event, String * Params, Cardinal * Num)
 	    }
 	  break;
 	case F_Selected:
-	  VISIBLELINE_LOOP (PCB->Data, 
-	    {
-	      if ((line->Flags & AUTOFLAG) && (line->Flags & SELECTEDFLAG))
-		{
-		  RemoveObject (LINE_TYPE, layer, line, line);
-		  changed = True;
-		}
-	    }
-	  );
+	  VISIBLELINE_LOOP (PCB->Data);
+	  {
+	    if ((line->Flags & AUTOFLAG) && (line->Flags & SELECTEDFLAG))
+	      {
+		RemoveObject (LINE_TYPE, layer, line, line);
+		changed = True;
+	      }
+	  }
+	  ENDALL_LOOP;
 	  if (PCB->ViaOn)
-	    VIA_LOOP (PCB->Data, 
-	    {
-	      if ((via->Flags & AUTOFLAG) && (via->Flags & SELECTEDFLAG))
-		{
-		  RemoveObject (VIA_TYPE, via, via, via);
-		  changed = True;
-		}
-	    }
-	  );
+	    VIA_LOOP (PCB->Data);
+	  {
+	    if ((via->Flags & AUTOFLAG) && (via->Flags & SELECTEDFLAG))
+	      {
+		RemoveObject (VIA_TYPE, via, via, via);
+		changed = True;
+	      }
+	  }
+	  END_LOOP;
 	  if (changed)
 	    {
 	      IncrementUndoSerialNumber ();
 	      SetChangedFlag (True);
 	    }
 	  break;
-       case F_Element:
-          {
-            void *ptr1, *ptr2, *ptr3;
-             
+	case F_Element:
+	  {
+	    void *ptr1, *ptr2, *ptr3;
+
 	    if (SearchScreen (Crosshair.X, Crosshair.Y, ELEMENT_TYPE,
-			       &ptr1, &ptr2, &ptr3) != NO_TYPE)
-	    Note.Buffer = Settings.BufferNumber;
+			      &ptr1, &ptr2, &ptr3) != NO_TYPE)
+	      Note.Buffer = Settings.BufferNumber;
 	    SetBufferNumber (MAX_BUFFER - 1);
 	    ClearBuffer (PASTEBUFFER);
 	    CopyObjectToBuffer (PASTEBUFFER->Data, PCB->Data, ELEMENT_TYPE,
-                                 ptr1, ptr2, ptr3);
+				ptr1, ptr2, ptr3);
 	    SmashBufferElement (PASTEBUFFER);
-            PASTEBUFFER->X = 0;
-            PASTEBUFFER->Y = 0;
-            SaveUndoSerialNumber ();
-	    EraseObject(ELEMENT_TYPE, ptr1);
-            MoveObjectToRemoveUndoList(ELEMENT_TYPE, ptr1, ptr2, ptr3);
+	    PASTEBUFFER->X = 0;
+	    PASTEBUFFER->Y = 0;
+	    SaveUndoSerialNumber ();
+	    EraseObject (ELEMENT_TYPE, ptr1);
+	    MoveObjectToRemoveUndoList (ELEMENT_TYPE, ptr1, ptr2, ptr3);
 	    RestoreUndoSerialNumber ();
-	    CopyPastebufferToLayout (0,0);
+	    CopyPastebufferToLayout (0, 0);
 	    SetBufferNumber (Note.Buffer);
 	    SetChangedFlag (True);
-          }
+	  }
 	  break;
 	}
       RestoreCrosshair (True);
@@ -2516,30 +2517,31 @@ ActionAddRats (Widget W, XEvent * Event, String * Params, Cardinal * Num)
 	  if (AddAllRats (True, NULL))
 	    SetChangedFlag (True);
 	  break;
-        case F_Close:
+	case F_Close:
 	  small = SQUARE (MAX_COORD);
 	  shorty = NULL;
-	  RAT_LOOP (PCB->Data,
-	    {
-	      if (TEST_FLAG (SELECTEDFLAG, line))
-	        continue;
-	      len = SQUARE (line->Point1.X - line->Point2.X) +
-	            SQUARE (line->Point1.Y - line->Point2.Y);
-	      if (len < small)
-	        {
-		  small = len;
-		  shorty = line;
-		}
-	    }
-	  );
+	  RAT_LOOP (PCB->Data);
+	  {
+	    if (TEST_FLAG (SELECTEDFLAG, line))
+	      continue;
+	    len = SQUARE (line->Point1.X - line->Point2.X) +
+	      SQUARE (line->Point1.Y - line->Point2.Y);
+	    if (len < small)
+	      {
+		small = len;
+		shorty = line;
+	      }
+	  }
+	  END_LOOP;
 	  if (shorty)
 	    {
 	      AddObjectToFlagUndoList (RATLINE_TYPE, shorty, shorty, shorty);
 	      SET_FLAG (SELECTEDFLAG, shorty);
 	      DrawRat (shorty, 0);
 	      Draw ();
-	      CenterDisplay ((shorty->Point2.X + shorty->Point1.X)/2,
-	                    (shorty->Point2.Y + shorty->Point1.Y)/2, False);
+	      CenterDisplay ((shorty->Point2.X + shorty->Point1.X) / 2,
+			     (shorty->Point2.Y + shorty->Point1.Y) / 2,
+			     False);
 	    }
 	  break;
 	}
@@ -2584,7 +2586,7 @@ ActionAutoPlaceSelected (Widget W, XEvent * Event,
 {
   if (*Num == 0 &&
       ConfirmDialog ("Auto-placement can NOT be undone.\n"
-                     "Do you want to continue anyway?\n"))
+		     "Do you want to continue anyway?\n"))
     {
       HideCrosshair (True);
       watchCursor ();
@@ -2687,8 +2689,7 @@ ActionChangeSize (Widget W, XEvent * Event, String * Params, Cardinal * Num)
 			       &ptr1, &ptr2, &ptr3)) != NO_TYPE)
 	      if (TEST_FLAG (LOCKFLAG, (PinTypePtr) ptr2))
 		Message ("Sorry, that object is locked\n");
-	    if (ChangeObjectSize
-		(type, ptr1, ptr2, ptr3, value, r))
+	    if (ChangeObjectSize (type, ptr1, ptr2, ptr3, value, r))
 	      SetChangedFlag (True);
 	    break;
 	  }
@@ -2960,22 +2961,22 @@ ActionToggleHideName (Widget W, XEvent * Event, String * Params,
 	case F_Selected:
 	  {
 	    Boolean changed = False;
-	    ELEMENT_LOOP (PCB->Data, 
-	      {
-		if ((TEST_FLAG (SELECTEDFLAG, element) ||
-		     TEST_FLAG (SELECTEDFLAG,
-				&NAMEONPCB_TEXT (element)))
-		    && (FRONT (element) || PCB->InvisibleObjectsOn))
-		  {
-		    AddObjectToFlagUndoList (ELEMENT_TYPE, element,
-					     element, element);
-		    EraseElementName (element);
-		    TOGGLE_FLAG (HIDENAMEFLAG, element);
-		    DrawElementName (element, 0);
-		    changed = True;
-		  }
-	      }
-	    );
+	    ELEMENT_LOOP (PCB->Data);
+	    {
+	      if ((TEST_FLAG (SELECTEDFLAG, element) ||
+		   TEST_FLAG (SELECTEDFLAG,
+			      &NAMEONPCB_TEXT (element)))
+		  && (FRONT (element) || PCB->InvisibleObjectsOn))
+		{
+		  AddObjectToFlagUndoList (ELEMENT_TYPE, element,
+					   element, element);
+		  EraseElementName (element);
+		  TOGGLE_FLAG (HIDENAMEFLAG, element);
+		  DrawElementName (element, 0);
+		  changed = True;
+		}
+	    }
+	    END_LOOP;
 	    if (changed)
 	      {
 		Draw ();
@@ -3185,7 +3186,7 @@ ActionSelect (Widget W, XEvent * Event, String * Params, Cardinal * Num)
       switch (GetFunctionID (*Params))
 	{
 #if defined(HAVE_REGCOMP) || defined(HAVE_RE_COMP)
-        int type;
+	  int type;
 	  /* select objects by their names */
 	case F_ElementByName:
 	  type = ELEMENT_TYPE;
@@ -3555,7 +3556,7 @@ ActionNew (Widget W, XEvent * Event, String * Params, Cardinal * Num)
 	  UpdateSettingsOnScreen ();
 	  ScaleOutput (Output.Width, Output.Height);
 	  SetZoom (2);
-	  CenterDisplay (PCB->MaxWidth/2, PCB->MaxHeight/2, False);
+	  CenterDisplay (PCB->MaxWidth / 2, PCB->MaxHeight / 2, False);
 	  ClearAndRedrawOutput ();
 	}
       RestoreCrosshair (True);
@@ -3724,7 +3725,7 @@ ActionUndo (Widget W, XEvent * Event, String * Params, Cardinal * Num)
 	  if (Crosshair.AttachedLine.State == STATE_SECOND)
 	    {
 	      if (TEST_FLAG (AUTODRCFLAG, PCB))
-	        Undo (True); /* undo the connection find */
+		Undo (True);	/* undo the connection find */
 	      Crosshair.AttachedLine.State = STATE_FIRST;
 	      SetLocalRef (0, 0, False);
 	      RestoreCrosshair (True);
@@ -3946,12 +3947,13 @@ ActionToggleVisibility (Widget W, XEvent * Event,
   if (*Num == 1)
     {
       number = atoi (*Params) - 1;
-      if (number >= 0 && number < MAX_LAYER+2)
+      if (number >= 0 && number < MAX_LAYER + 2)
 	{
-	  if(PCB->Data->Layer[number].On == False)
+	  if (PCB->Data->Layer[number].On == False)
 	    ChangeGroupVisibility (number, True, False);
-	  else if((LayerStack[0] != number) &&
-		  (GetLayerGroupNumberByNumber(number) != GetLayerGroupNumberByNumber(LayerStack[0])))
+	  else if ((LayerStack[0] != number) &&
+		   (GetLayerGroupNumberByNumber (number) !=
+		    GetLayerGroupNumberByNumber (LayerStack[0])))
 	    ChangeGroupVisibility (number, False, False);
 	  UpdateControlPanel ();
 	  ClearAndRedrawOutput ();
@@ -3972,7 +3974,7 @@ ActionSwitchDrawingLayer (Widget W, XEvent * Event,
   if (*Num == 1)
     {
       number = atoi (*Params) - 1;
-      if (number >= 0 && number < MAX_LAYER+2)
+      if (number >= 0 && number < MAX_LAYER + 2)
 	{
 	  ChangeGroupVisibility (number, True, True);
 	  UpdateControlPanel ();
@@ -3998,8 +4000,7 @@ ActionEditLayerGroups (Widget W, XEvent * Event,
  * syntax: MoveObject(X,Y,[dim])
  */
 void
-ActionMoveObject (Widget W, XEvent * Event,
-		       String * Params, Cardinal * Num)
+ActionMoveObject (Widget W, XEvent * Event, String * Params, Cardinal * Num)
 {
   Location x, y;
   Boolean r1, r2;
@@ -4008,24 +4009,24 @@ ActionMoveObject (Widget W, XEvent * Event,
 
   switch (*Num)
     {
-      case 2:
-        y = GetValue(Params + 1,&r1,*Num);
-        x = GetValue(Params, &r2, *Num);
-        break;
-      case 3:
-        y = GetValue(Params + 1, &r1, *Num);
-        *(Params + 1) = *Params;
-        x = GetValue(Params + 1, &r2, *Num);
-        break;
-      default:
-        Message("Illegal argument to MoveObject()\n");
-        return;
-     }
-  type =  SearchScreen (Crosshair.X, Crosshair.Y, MOVE_TYPES,
-			       &ptr1, &ptr2, &ptr3);
+    case 2:
+      y = GetValue (Params + 1, &r1, *Num);
+      x = GetValue (Params, &r2, *Num);
+      break;
+    case 3:
+      y = GetValue (Params + 1, &r1, *Num);
+      *(Params + 1) = *Params;
+      x = GetValue (Params + 1, &r2, *Num);
+      break;
+    default:
+      Message ("Illegal argument to MoveObject()\n");
+      return;
+    }
+  type = SearchScreen (Crosshair.X, Crosshair.Y, MOVE_TYPES,
+		       &ptr1, &ptr2, &ptr3);
   if (type == NO_TYPE)
     {
-      Message("Nothing found under crosshair\n");
+      Message ("Nothing found under crosshair\n");
       return;
     }
   if (r1)
@@ -4124,34 +4125,34 @@ ActionSetSame (Widget W, XEvent * Event, String * Params, Cardinal * Num)
   switch (type)
     {
     case LINE_TYPE:
-      HideCrosshair(True);
+      HideCrosshair (True);
       Settings.LineThickness = ((LineTypePtr) ptr2)->Thickness;
-      Settings.Keepaway = ((LineTypePtr) ptr2)->Clearance/2;
+      Settings.Keepaway = ((LineTypePtr) ptr2)->Clearance / 2;
       layer = (LayerTypePtr) ptr1;
       if (Settings.Mode != LINE_MODE)
-        SetMode(LINE_MODE);
-      RestoreCrosshair(True);
+	SetMode (LINE_MODE);
+      RestoreCrosshair (True);
       break;
     case ARC_TYPE:
-      HideCrosshair(True);
+      HideCrosshair (True);
       Settings.LineThickness = ((ArcTypePtr) ptr2)->Thickness;
-      Settings.Keepaway = ((ArcTypePtr) ptr2)->Clearance/2;
+      Settings.Keepaway = ((ArcTypePtr) ptr2)->Clearance / 2;
       layer = (LayerTypePtr) ptr1;
       if (Settings.Mode != ARC_MODE)
-        SetMode(ARC_MODE);
-      RestoreCrosshair(True);
+	SetMode (ARC_MODE);
+      RestoreCrosshair (True);
       break;
     case POLYGON_TYPE:
       layer = (LayerTypePtr) ptr1;
       break;
     case VIA_TYPE:
-      HideCrosshair(True);
+      HideCrosshair (True);
       Settings.ViaThickness = ((PinTypePtr) ptr2)->Thickness;
       Settings.ViaDrillingHole = ((PinTypePtr) ptr2)->DrillingHole;
-      Settings.Keepaway = ((PinTypePtr) ptr2)->Clearance/2;
+      Settings.Keepaway = ((PinTypePtr) ptr2)->Clearance / 2;
       if (Settings.Mode != VIA_MODE)
-        SetMode(VIA_MODE);
-      RestoreCrosshair(True);
+	SetMode (VIA_MODE);
+      RestoreCrosshair (True);
       break;
     default:
       return;

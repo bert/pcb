@@ -208,12 +208,12 @@ GetPinMemory (ElementTypePtr Element)
     {
       if (PCB->Data->pin_tree)
 	{
-	  PIN_LOOP (Element, 
-	    {
-	      if (r_delete_entry (PCB->Data->pin_tree, (BoxType *) pin))
-		onBoard = True;
-	    }
-	  );
+	  PIN_LOOP (Element);
+	  {
+	    if (r_delete_entry (PCB->Data->pin_tree, (BoxType *) pin))
+	      onBoard = True;
+	  }
+	  END_LOOP;
 	}
       Element->PinMax += STEP_PIN;
       pin = MyRealloc (pin, Element->PinMax * sizeof (PinType),
@@ -222,11 +222,11 @@ GetPinMemory (ElementTypePtr Element)
       memset (pin + Element->PinN, 0, STEP_PIN * sizeof (PinType));
       if (onBoard)
 	{
-	  PIN_LOOP (Element, 
-	    {
-	      r_insert_entry (PCB->Data->pin_tree, (BoxType *) pin, 0);
-	    }
-	  );
+	  PIN_LOOP (Element);
+	  {
+	    r_insert_entry (PCB->Data->pin_tree, (BoxType *) pin, 0);
+	  }
+	  END_LOOP;
 	}
     }
   return (pin + Element->PinN++);
@@ -246,12 +246,12 @@ GetPadMemory (ElementTypePtr Element)
     {
       if (PCB->Data->pad_tree)
 	{
-	  PAD_LOOP (Element, 
-	    {
-	      if (r_delete_entry (PCB->Data->pad_tree, (BoxType *) pad))
-		onBoard = True;
-	    }
-	  );
+	  PAD_LOOP (Element);
+	  {
+	    if (r_delete_entry (PCB->Data->pad_tree, (BoxType *) pad))
+	      onBoard = True;
+	  }
+	  END_LOOP;
 	}
       Element->PadMax += STEP_PAD;
       pad = MyRealloc (pad, Element->PadMax * sizeof (PadType),
@@ -260,11 +260,11 @@ GetPadMemory (ElementTypePtr Element)
       memset (pad + Element->PadN, 0, STEP_PAD * sizeof (PadType));
       if (onBoard)
 	{
-	  PAD_LOOP (Element, 
-	    {
-	      r_insert_entry (PCB->Data->pad_tree, (BoxType *) pad, 0);
-	    }
-	  );
+	  PAD_LOOP (Element);
+	  {
+	    r_insert_entry (PCB->Data->pad_tree, (BoxType *) pad, 0);
+	  }
+	  END_LOOP;
 	}
     }
   return (pad + Element->PadN++);
@@ -289,11 +289,11 @@ GetViaMemory (DataTypePtr Data)
       Data->Via = via;
       memset (via + Data->ViaN, 0, STEP_VIA * sizeof (PinType));
       Data->via_tree = r_create_tree (NULL, 0, 0);
-      VIA_LOOP (Data, 
-	{
-	  r_insert_entry (Data->via_tree, (BoxType *) via, 0);
-	}
-      );
+      VIA_LOOP (Data);
+      {
+	r_insert_entry (Data->via_tree, (BoxType *) via, 0);
+      }
+      END_LOOP;
     }
   return (via + Data->ViaN++);
 }
@@ -338,11 +338,11 @@ GetLineMemory (LayerTypePtr Layer)
       Layer->Line = line;
       memset (line + Layer->LineN, 0, STEP_LINE * sizeof (LineType));
       Layer->line_tree = r_create_tree (NULL, 0, 0);
-      LINE_LOOP (Layer, 
-	{
-	  r_insert_entry (Layer->line_tree, (BoxTypePtr) line, 0);
-	}
-      );
+      LINE_LOOP (Layer);
+      {
+	r_insert_entry (Layer->line_tree, (BoxTypePtr) line, 0);
+      }
+      END_LOOP;
     }
   return (line + Layer->LineN++);
 }
@@ -366,11 +366,11 @@ GetArcMemory (LayerTypePtr Layer)
       Layer->Arc = arc;
       memset (arc + Layer->ArcN, 0, STEP_ARC * sizeof (ArcType));
       Layer->arc_tree = r_create_tree (NULL, 0, 0);
-      ARC_LOOP (Layer, 
-	{
-	  r_insert_entry (Layer->arc_tree, (BoxTypePtr) arc, 0);
-	}
-      );
+      ARC_LOOP (Layer);
+      {
+	r_insert_entry (Layer->arc_tree, (BoxTypePtr) arc, 0);
+      }
+      END_LOOP;
     }
   return (arc + Layer->ArcN++);
 }
@@ -394,11 +394,11 @@ GetTextMemory (LayerTypePtr Layer)
       Layer->Text = text;
       memset (text + Layer->TextN, 0, STEP_TEXT * sizeof (TextType));
       Layer->text_tree = r_create_tree (NULL, 0, 0);
-      TEXT_LOOP (Layer, 
-	{
-	  r_insert_entry (Layer->text_tree, (BoxTypePtr) text, 0);
-	}
-      );
+      TEXT_LOOP (Layer);
+      {
+	r_insert_entry (Layer->text_tree, (BoxTypePtr) text, 0);
+      }
+      END_LOOP;
     }
   return (text + Layer->TextN++);
 }
@@ -466,21 +466,21 @@ GetElementMemory (DataTypePtr Data)
       memset (element + Data->ElementN, 0,
 	      STEP_ELEMENT * sizeof (ElementType));
       Data->element_tree = r_create_tree (NULL, 0, 0);
-      ELEMENT_LOOP (Data, 
+      ELEMENT_LOOP (Data);
+      {
+	r_insert_entry (Data->element_tree, (BoxType *) element, 0);
+	PIN_LOOP (element);
 	{
-	  r_insert_entry (Data->element_tree, (BoxType *) element, 0);
-	  PIN_LOOP (element, 
-	    {
-	      pin->Element = element;
-	    }
-	  );
-	  PAD_LOOP (element, 
-	    {
-	      pad->Element = element;
-	    }
-	  );
+	  pin->Element = element;
 	}
-      );
+	END_LOOP;
+	PAD_LOOP (element);
+	{
+	  pad->Element = element;
+	}
+	END_LOOP;
+      }
+      END_LOOP;
     }
   return (element + Data->ElementN++);
 }
@@ -698,11 +698,11 @@ FreeNetListMemory (NetListTypePtr Netlist)
 {
   if (Netlist)
     {
-      NET_LOOP (Netlist, 
-	{
-	  FreeNetMemory (net);
-	}
-      );
+      NET_LOOP (Netlist);
+      {
+	FreeNetMemory (net);
+      }
+      END_LOOP;
       MyFree ((char **) &Netlist->Net);
       memset (Netlist, 0, sizeof (NetListType));
     }
@@ -716,11 +716,11 @@ FreeNetListListMemory (NetListListTypePtr Netlistlist)
 {
   if (Netlistlist)
     {
-      NETLIST_LOOP (Netlistlist, 
-	{
-	  FreeNetListMemory (netlist);
-	}
-      );
+      NETLIST_LOOP (Netlistlist);
+      {
+	FreeNetListMemory (netlist);
+      }
+      END_LOOP;
       MyFree ((char **) &Netlistlist->NetList);
       memset (Netlistlist, 0, sizeof (NetListListType));
     }
@@ -747,23 +747,23 @@ FreeElementMemory (ElementTypePtr Element)
 {
   if (Element)
     {
-      ELEMENTNAME_LOOP (Element, 
-	{
-	  MyFree (&textstring);
-	}
-      );
-      PIN_LOOP (Element, 
-	{
-	  MyFree (&pin->Name);
-	  MyFree (&pin->Number);
-	}
-      );
-      PAD_LOOP (Element, 
-	{
-	  MyFree (&pad->Name);
-	  MyFree (&pad->Number);
-	}
-      );
+      ELEMENTNAME_LOOP (Element);
+      {
+	MyFree (&textstring);
+      }
+      END_LOOP;
+      PIN_LOOP (Element);
+      {
+	MyFree (&pin->Name);
+	MyFree (&pin->Number);
+      }
+      END_LOOP;
+      PAD_LOOP (Element);
+      {
+	MyFree (&pad->Name);
+	MyFree (&pad->Number);
+      }
+      END_LOOP;
       MyFree ((char **) &Element->Pin);
       MyFree ((char **) &Element->Pad);
       MyFree ((char **) &Element->Line);
@@ -807,39 +807,39 @@ FreeDataMemory (DataTypePtr Data)
 
   if (Data)
     {
-      VIA_LOOP (Data, 
-	{
-	  MyFree (&via->Name);
-	}
-      );
-      ELEMENT_LOOP (Data, 
-	{
-	  FreeElementMemory (element);
-	}
-      );
+      VIA_LOOP (Data);
+      {
+	MyFree (&via->Name);
+      }
+      END_LOOP;
+      ELEMENT_LOOP (Data);
+      {
+	FreeElementMemory (element);
+      }
+      END_LOOP;
 
       for (layer = Data->Layer, i = 0; i < MAX_LAYER + 2; layer++, i++)
 	{
-	  TEXT_LOOP (layer, 
-	    {
-	      MyFree (&text->TextString);
-	    }
-	  );
+	  TEXT_LOOP (layer);
+	  {
+	    MyFree (&text->TextString);
+	  }
+	  END_LOOP;
 	  MyFree (&layer->Name);
-	  LINE_LOOP (layer, 
-	    {
-	      if (line->Number)
-		MyFree (&line->Number);
-	    }
-	  );
+	  LINE_LOOP (layer);
+	  {
+	    if (line->Number)
+	      MyFree (&line->Number);
+	  }
+	  END_LOOP;
 	  MyFree ((char **) &layer->Line);
 	  MyFree ((char **) &layer->Arc);
 	  MyFree ((char **) &layer->Text);
-	  POLYGON_LOOP (layer, 
-	    {
-	      FreePolygonMemory (polygon);
-	    }
-	  );
+	  POLYGON_LOOP (layer);
+	  {
+	    FreePolygonMemory (polygon);
+	  }
+	  END_LOOP;
 	  MyFree ((char **) &layer->Polygon);
 	  if (layer->line_tree)
 	    r_destroy_tree (&layer->line_tree);
@@ -870,16 +870,18 @@ FreeDataMemory (DataTypePtr Data)
 void
 FreeLibraryMemory (LibraryTypePtr lib)
 {
-  MENU_LOOP (lib, 
+  MENU_LOOP (lib);
+  {
+    ENTRY_LOOP (menu);
     {
-      ENTRY_LOOP (menu, 
-	{
-	  SaveFree ((void *) entry->AllocatedMemory);
-	  SaveFree ((void *) entry->ListEntry);
-	} );
-      SaveFree ((void *) menu->Entry);
-      SaveFree ((void *) menu->Name);
-    } );
+      SaveFree ((void *) entry->AllocatedMemory);
+      SaveFree ((void *) entry->ListEntry);
+    }
+    END_LOOP;
+    SaveFree ((void *) menu->Entry);
+    SaveFree ((void *) menu->Name);
+  }
+  END_LOOP;
   SaveFree ((void *) lib->Menu);
 
   /* clear struct */

@@ -217,32 +217,32 @@ static void *
 DestroyElement (ElementTypePtr Element)
 {
   r_delete_entry (DestroyTarget->element_tree, (BoxType *) Element);
-  PIN_LOOP (Element, 
-    {
-      r_delete_entry (DestroyTarget->pin_tree, (BoxType *) pin);
-    }
-  );
-  PAD_LOOP (Element, 
-    {
-      r_delete_entry (DestroyTarget->pad_tree, (BoxType *) pad);
-    }
-  );
+  PIN_LOOP (Element);
+  {
+    r_delete_entry (DestroyTarget->pin_tree, (BoxType *) pin);
+  }
+  END_LOOP;
+  PAD_LOOP (Element);
+  {
+    r_delete_entry (DestroyTarget->pad_tree, (BoxType *) pad);
+  }
+  END_LOOP;
   FreeElementMemory (Element);
   *Element = DestroyTarget->Element[--DestroyTarget->ElementN];
   /* deal with changed element pointer */
   r_substitute (DestroyTarget->element_tree,
 		(BoxType *) & DestroyTarget->Element[DestroyTarget->ElementN],
 		(BoxType *) Element);
-  PIN_LOOP (Element, 
-    {
-      pin->Element = Element;
-    }
-  );
-  PAD_LOOP (Element, 
-    {
-      pad->Element = Element;
-    }
-  );
+  PIN_LOOP (Element);
+  {
+    pin->Element = Element;
+  }
+  END_LOOP;
+  PAD_LOOP (Element);
+  {
+    pad->Element = Element;
+  }
+  END_LOOP;
   memset (&DestroyTarget->Element[DestroyTarget->ElementN], 0,
 	  sizeof (ElementType));
   return (NULL);
@@ -311,26 +311,24 @@ RemoveLinePoint (LayerTypePtr Layer, LineTypePtr Line, PointTypePtr Point)
     oldPoint = Line->Point2;
   else
     oldPoint = Line->Point1;
-  LINE_LOOP (Layer, 
-    {
-      if (line == Line)
-	continue;
-      if ((line->Point1.X == Point->X) && (line->Point1.Y == Point->Y))
-	{
-	  MoveObject (LINEPOINT_TYPE, Layer, line, &line->Point1,
-		      oldPoint.X - line->Point1.X,
-		      oldPoint.Y - line->Point1.Y);
-	  break;
-	}
-      if ((line->Point2.X == Point->X) && (line->Point2.Y == Point->Y))
-	{
-	  MoveObject (LINEPOINT_TYPE, Layer, line, &line->Point2,
-		      oldPoint.X - line->Point2.X,
-		      oldPoint.Y - line->Point2.Y);
-	  break;
-	}
-    }
-  );
+  LINE_LOOP (Layer);
+  {
+    if (line == Line)
+      continue;
+    if ((line->Point1.X == Point->X) && (line->Point1.Y == Point->Y))
+      {
+	MoveObject (LINEPOINT_TYPE, Layer, line, &line->Point1,
+		    oldPoint.X - line->Point1.X, oldPoint.Y - line->Point1.Y);
+	break;
+      }
+    if ((line->Point2.X == Point->X) && (line->Point2.Y == Point->Y))
+      {
+	MoveObject (LINEPOINT_TYPE, Layer, line, &line->Point2,
+		    oldPoint.X - line->Point2.X, oldPoint.Y - line->Point2.Y);
+	break;
+      }
+  }
+  END_LOOP;
   return (RemoveLine (Layer, Line));
 }
 
@@ -414,15 +412,15 @@ RemovePolygonPoint (LayerTypePtr Layer,
   Cardinal index = 0;
 
   /* insert the polygon-point into the undo list */
-  POLYGONPOINT_LOOP (Polygon, 
-    {
-      if (point == Point)
-	{
-	  index = n;
-	  break;
-	}
-    }
-  );
+  POLYGONPOINT_LOOP (Polygon);
+  {
+    if (point == Point)
+      {
+	index = n;
+	break;
+      }
+  }
+  END_LOOP;
   AddObjectToRemovePointUndoList (POLYGONPOINT_TYPE, Layer, Polygon, index);
 
   if (Layer->On)
@@ -507,15 +505,15 @@ DeleteRats (Boolean selected)
   Boolean changed = False;
 
   Bulk = True;
-  RAT_LOOP (PCB->Data, 
-    {
-      if ((!selected) || TEST_FLAG (SELECTEDFLAG, line))
-	{
-	  changed = True;
-	  RemoveRat (line);
-	}
-    }
-  );
+  RAT_LOOP (PCB->Data);
+  {
+    if ((!selected) || TEST_FLAG (SELECTEDFLAG, line))
+      {
+	changed = True;
+	RemoveRat (line);
+      }
+  }
+  END_LOOP;
   Bulk = False;
   if (changed)
     {

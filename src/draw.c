@@ -215,13 +215,13 @@ Draw (void)
       HideCrosshair (True);
       /* clear and create event if not drawing to a pixmap */
       XClearArea (Dpy, Output.OutputWindow, SATURATE (Block.X1 - 1),
-      		  SATURATE (Block.Y1 - 1), SATURATE (Block.X2 - Block.X1 + 2),
+		  SATURATE (Block.Y1 - 1), SATURATE (Block.X2 - Block.X1 + 2),
 		  SATURATE (Block.Y2 - Block.Y1 + 2), True);
       RestoreCrosshair (True);
     }
   /* shrink the update block */
-  Block.X1 = MAX_COORD/100;
-  Block.Y1 = MAX_COORD/100;
+  Block.X1 = MAX_COORD / 100;
+  Block.Y1 = MAX_COORD / 100;
   Block.X2 = Block.Y2 = 0;
 }
 
@@ -261,8 +261,8 @@ Redraw (Boolean ClearWindow, BoxTypePtr screen_area)
       && (render || ClearWindow || !VALID_PIXMAP (Offscreen)))
     {
       /* shrink the update block */
-      Block.X1 = MAX_COORD/100;
-      Block.Y1 = MAX_COORD/100;
+      Block.X1 = MAX_COORD / 100;
+      Block.Y1 = MAX_COORD / 100;
       Block.X2 = Block.Y2 = 0;
 
       /* switch off crosshair if needed,
@@ -289,14 +289,14 @@ Redraw (Boolean ClearWindow, BoxTypePtr screen_area)
       pcbheight = TO_DRAWABS_Y (PCB->MaxHeight);
       XFillRectangle (Dpy, DrawingWindow, Output.bgGC, 0, 0,
 		      MIN (pcbwidth, Output.Width),
-                      MIN (pcbheight, Output.Height));
+		      MIN (pcbheight, Output.Height));
       XSetForeground (Dpy, Output.fgGC, Settings.OffLimitColor);
       if (pcbwidth < Output.Width)
-        XFillRectangle (Dpy, DrawingWindow, Output.fgGC,
-		        pcbwidth, 0, Output.Width - pcbwidth, Output.Height);
+	XFillRectangle (Dpy, DrawingWindow, Output.fgGC,
+			pcbwidth, 0, Output.Width - pcbwidth, Output.Height);
       if (pcbheight < Output.Height)
-        XFillRectangle (Dpy, DrawingWindow, Output.fgGC, 0,
-		        pcbheight, Output.Width, Output.Height - pcbheight);
+	XFillRectangle (Dpy, DrawingWindow, Output.fgGC, 0,
+			pcbheight, Output.Width, Output.Height - pcbheight);
       if (ClearWindow && !VALID_PIXMAP (Offscreen))
 	Crosshair.On = False;
 
@@ -402,7 +402,7 @@ rat_callback (const BoxType * b, void *cl)
 static int
 lowvia_callback (const BoxType * b, void *cl)
 {
-  PinTypePtr via = (PinTypePtr)b;
+  PinTypePtr via = (PinTypePtr) b;
   if (!via->Mask)
     DrawPlainVia (via, False);
   return 1;
@@ -489,7 +489,7 @@ DrawEMark (Location X, Location Y, Boolean invisible)
 static int
 via_callback (const BoxType * b, void *cl)
 {
-  PinTypePtr via = (PinTypePtr)b;
+  PinTypePtr via = (PinTypePtr) b;
   if (via->Mask)
     DrawPlainVia (via, False);
   return 1;
@@ -693,21 +693,21 @@ DrawLayer (LayerTypePtr Layer, BoxType * screen)
   if (Layer->PolygonN)
     {
       /* print the clearing polys */
-      POLYGON_LOOP (Layer, 
-	{
-	  if (VPOLY (polygon) && TEST_FLAG (CLEARPOLYFLAG, polygon))
-	    DrawPlainPolygon (Layer, polygon);
-	}
-      );
+      POLYGON_LOOP (Layer);
+      {
+	if (VPOLY (polygon) && TEST_FLAG (CLEARPOLYFLAG, polygon))
+	  DrawPlainPolygon (Layer, polygon);
+      }
+      END_LOOP;
       /* restore the clip region */
       XCopyGC (Dpy, Output.bgGC, GCClipMask, Output.fgGC);
       /* print the non-clearing polys */
-      POLYGON_LOOP (Layer, 
-	{
-	  if (VPOLY (polygon) && !TEST_FLAG (CLEARPOLYFLAG, polygon))
-	    DrawPlainPolygon (Layer, polygon);
-	}
-      );
+      POLYGON_LOOP (Layer);
+      {
+	if (VPOLY (polygon) && !TEST_FLAG (CLEARPOLYFLAG, polygon))
+	  DrawPlainPolygon (Layer, polygon);
+      }
+      END_LOOP;
       if (layernum < MAX_LAYER)
 	{
 	  PIPFlag = (L0THERMFLAG | L0PIPFLAG) << layernum;
@@ -1582,16 +1582,16 @@ static void
 DrawElementPackageLowLevel (ElementTypePtr Element, int unused)
 {
   /* draw lines, arcs, text and pins */
-  ELEMENTLINE_LOOP (Element, 
-    {
-      DrawLineLowLevel (line, False);
-    }
-  );
-  ARC_LOOP (Element, 
-    {
-      DrawArcLowLevel (arc);
-    }
-  );
+  ELEMENTLINE_LOOP (Element);
+  {
+    DrawLineLowLevel (line, False);
+  }
+  END_LOOP;
+  ARC_LOOP (Element);
+  {
+    DrawArcLowLevel (arc);
+  }
+  END_LOOP;
 }
 
 /* ---------------------------------------------------------------------------
@@ -1932,17 +1932,17 @@ DrawElementPackage (ElementTypePtr Element, int unused)
 void
 DrawElementPinsAndPads (ElementTypePtr Element, int unused)
 {
-  PAD_LOOP (Element, 
-    {
-      if (FRONT (pad) || PCB->InvisibleObjectsOn)
-	DrawPad (pad, unused);
-    }
-  );
-  PIN_LOOP (Element, 
-    {
-      DrawPin (pin, unused);
-    }
-  );
+  PAD_LOOP (Element);
+  {
+    if (FRONT (pad) || PCB->InvisibleObjectsOn)
+      DrawPad (pad, unused);
+  }
+  END_LOOP;
+  PIN_LOOP (Element);
+  {
+    DrawPin (pin, unused);
+  }
+  END_LOOP;
 }
 
 /* ---------------------------------------------------------------------------
@@ -2097,16 +2097,16 @@ EraseElement (ElementTypePtr Element)
   Erasing++;
   /* set color and draw lines, arcs, text and pins */
   XSetForeground (Dpy, Output.fgGC, Settings.bgColor);
-  ELEMENTLINE_LOOP (Element, 
-    {
-      DrawLineLowLevel (line, False);
-    }
-  );
-  ARC_LOOP (Element, 
-    {
-      DrawArcLowLevel (arc);
-    }
-  );
+  ELEMENTLINE_LOOP (Element);
+  {
+    DrawLineLowLevel (line, False);
+  }
+  END_LOOP;
+  ARC_LOOP (Element);
+  {
+    DrawArcLowLevel (arc);
+  }
+  END_LOOP;
   if (!TEST_FLAG (HIDENAMEFLAG, Element))
     DrawTextLowLevel (&ELEMENT_TEXT (PCB, Element));
   EraseElementPinsAndPads (Element);
@@ -2121,25 +2121,25 @@ EraseElementPinsAndPads (ElementTypePtr Element)
 {
   Erasing++;
   XSetForeground (Dpy, Output.fgGC, Settings.bgColor);
-  PIN_LOOP (Element, 
-    {
-      if (TEST_FLAG (ALLPIPFLAGS, pin))
-	{
-	  ClearPin (pin, NO_TYPE, 0);
-	  XSetForeground (Dpy, Output.fgGC, Settings.bgColor);
-	}
-      DrawPinOrViaLowLevel (pin, False);
-      if (TEST_FLAG (DISPLAYNAMEFLAG, pin))
-	DrawPinOrViaNameLowLevel (pin);
-    }
-  );
-  PAD_LOOP (Element, 
-    {
-      DrawPadLowLevel (pad);
-      if (TEST_FLAG (DISPLAYNAMEFLAG, pad))
-	DrawPadNameLowLevel (pad);
-    }
-  );
+  PIN_LOOP (Element);
+  {
+    if (TEST_FLAG (ALLPIPFLAGS, pin))
+      {
+	ClearPin (pin, NO_TYPE, 0);
+	XSetForeground (Dpy, Output.fgGC, Settings.bgColor);
+      }
+    DrawPinOrViaLowLevel (pin, False);
+    if (TEST_FLAG (DISPLAYNAMEFLAG, pin))
+      DrawPinOrViaNameLowLevel (pin);
+  }
+  END_LOOP;
+  PAD_LOOP (Element);
+  {
+    DrawPadLowLevel (pad);
+    if (TEST_FLAG (DISPLAYNAMEFLAG, pad))
+      DrawPadNameLowLevel (pad);
+  }
+  END_LOOP;
   Erasing--;
 }
 

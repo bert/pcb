@@ -24,7 +24,8 @@
  *
  */
 
-static char *rcsid = "$Id$";
+static char *rcsid =
+  "$Id$";
 
 /* functions used to create vias, pins ...
  */
@@ -151,11 +152,11 @@ CreateNewPCB (Boolean SetDefaultNames)
     SET_FLAG (CLEARNEWFLAG, ptr);
   ptr->Grid = Settings.Grid;
   ptr->LayerGroups = Settings.LayerGroups;
-  STYLE_LOOP (ptr, 
-    {
-      *style = Settings.RouteStyle[n];
-    }
-  );
+  STYLE_LOOP (ptr);
+  {
+    *style = Settings.RouteStyle[n];
+  }
+  END_LOOP;
   ptr->Zoom = Settings.Zoom;
   ptr->MaxWidth = Settings.MaxWidth;
   ptr->MaxHeight = Settings.MaxHeight;
@@ -175,13 +176,13 @@ CreateNewVia (DataTypePtr Data,
 {
   PinTypePtr Via;
 
-  VIA_LOOP (Data, 
-    {
-      if (SQUARE (via->X - X) + SQUARE (via->Y - Y) <=
-	  SQUARE (via->Thickness / 2 + Thickness / 2))
-	return (NULL);		/* don't allow via stacking */
-    }
-  );
+  VIA_LOOP (Data);
+  {
+    if (SQUARE (via->X - X) + SQUARE (via->Y - Y) <=
+	SQUARE (via->Thickness / 2 + Thickness / 2))
+      return (NULL);		/* don't allow via stacking */
+  }
+  END_LOOP;
 
   Via = GetViaMemory (Data);
 
@@ -418,14 +419,14 @@ CreateNewArcOnLayer (LayerTypePtr Layer,
 {
   ArcTypePtr Arc;
 
-  ARC_LOOP (Layer, 
-    {
-      if (arc->X == X1 && arc->Y == Y1 && arc->Width == width &&
-	  (arc->StartAngle + 360) % 360 == (sa + 360) % 360 &&
-	  arc->Delta == dir)
-	return (NULL);		/* prevent stacked arcs */
-    }
-  );
+  ARC_LOOP (Layer);
+  {
+    if (arc->X == X1 && arc->Y == Y1 && arc->Width == width &&
+	(arc->StartAngle + 360) % 360 == (sa + 360) % 360 &&
+	arc->Delta == dir)
+      return (NULL);		/* prevent stacked arcs */
+  }
+  END_LOOP;
   Arc = GetArcMemory (Layer);
   if (!Arc)
     return (Arc);

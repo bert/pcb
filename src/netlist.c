@@ -108,11 +108,11 @@ CreateNetSelector (Widget Parent, Widget Top, Widget Left)
 
   /* create the selector, add all entries and sort them */
   selector = CreateSelector (Parent, Top, Left, &NetSelector, 1);
-  MENU_LOOP (&PCB->NetlistLib, 
-    {
-      AddEntryToSelector (menu->Name, (XtPointer) menu, &NetSelector);
-    }
-  );
+  MENU_LOOP (&PCB->NetlistLib);
+  {
+    AddEntryToSelector (menu->Name, (XtPointer) menu, &NetSelector);
+  }
+  END_LOOP;
   return (selector);
 }
 
@@ -123,11 +123,11 @@ static void
 UpdateNetSelector (void)
 {
   FreeSelectorEntries (&NetSelector);
-  MENU_LOOP (&PCB->NetlistLib, 
-    {
-      AddEntryToSelector (menu->Name, (XtPointer) menu, &NetSelector);
-    }
-  );
+  MENU_LOOP (&PCB->NetlistLib);
+  {
+    AddEntryToSelector (menu->Name, (XtPointer) menu, &NetSelector);
+  }
+  END_LOOP;
   UpdateSelector (&NetSelector);
 }
 
@@ -139,12 +139,12 @@ UpdateConnectionSelector (LibraryMenuTypePtr Menu)
 {
   SelectedNet = Menu;
   FreeSelectorEntries (&ConnectionSelector);
-  ENTRY_LOOP (Menu, 
-    {
-      AddEntryToSelector (entry->ListEntry,
-			  (XtPointer) entry, &ConnectionSelector);
-    }
-  );
+  ENTRY_LOOP (Menu);
+  {
+    AddEntryToSelector (entry->ListEntry,
+			(XtPointer) entry, &ConnectionSelector);
+  }
+  END_LOOP;
   UpdateSelector (&ConnectionSelector);
 
   /* update label */
@@ -238,12 +238,12 @@ CB_Net (Widget W, XtPointer ClientData, XtPointer CallData)
 static void
 CB_Disable (Widget W, XtPointer ClientData, XtPointer CallData)
 {
-  MENU_LOOP (&PCB->NetlistLib, 
-    {
-      *NetSelector.StringList[l] = '*';
-      menu->Name[0] = '*';
-    }
-  );
+  MENU_LOOP (&PCB->NetlistLib);
+  {
+    *NetSelector.StringList[l] = '*';
+    menu->Name[0] = '*';
+  }
+  END_LOOP;
   XawListChange (NetSelector.ListW, NetSelector.StringList,
 		 NetSelector.Number, 0, False);
 }
@@ -254,12 +254,12 @@ CB_Disable (Widget W, XtPointer ClientData, XtPointer CallData)
 static void
 CB_Enable (Widget W, XtPointer ClientData, XtPointer CallData)
 {
-  MENU_LOOP (&PCB->NetlistLib, 
-    {
-      *NetSelector.StringList[l] = ' ';
-      menu->Name[0] = ' ';
-    }
-  );
+  MENU_LOOP (&PCB->NetlistLib);
+  {
+    *NetSelector.StringList[l] = ' ';
+    menu->Name[0] = ' ';
+  }
+  END_LOOP;
   XawListChange (NetSelector.ListW, NetSelector.StringList,
 		 NetSelector.Number, 0, False);
 }

@@ -458,7 +458,7 @@ SetRouteStyle (char *name)
 {
   char *arg, num[10];
 
-  STYLE_LOOP (PCB, 
+  STYLE_LOOP (PCB);
     {
       if (name && strcmp (name, style->Name) == 0)
 	{
@@ -468,7 +468,7 @@ SetRouteStyle (char *name)
 	  break;
 	}
     }
-  );
+  END_LOOP;
 }
 
 void

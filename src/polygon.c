@@ -256,31 +256,24 @@ UpdatePIPFlags (PinTypePtr Pin, ElementTypePtr Element,
 
   if (Element == NULL)
     {
-      ALLPIN_LOOP (PCB->Data, 
-	{
-	  {
-	    UpdatePIPFlags (pin, element, Layer, Polygon, AddUndo);
-	  }
-	}
-      );
-      VIA_LOOP (PCB->Data, 
-	{
-	  {
-	    UpdatePIPFlags (via, (ElementTypePtr) via, Layer, Polygon,
-			    AddUndo);
-	  }
-	}
-      );
+      ALLPIN_LOOP (PCB->Data);
+      {
+	UpdatePIPFlags (pin, element, Layer, Polygon, AddUndo);
+      }
+      ENDALL_LOOP;
+      VIA_LOOP (PCB->Data);
+      {
+	UpdatePIPFlags (via, (ElementTypePtr) via, Layer, Polygon, AddUndo);
+      }
+      END_LOOP;
     }
   else if (Pin == NULL)
     {
-      PIN_LOOP (Element, 
-	{
-	  {
-	    UpdatePIPFlags (pin, Element, Layer, Polygon, AddUndo);
-	  }
-	}
-      );
+      PIN_LOOP (Element);
+      {
+	UpdatePIPFlags (pin, Element, Layer, Polygon, AddUndo);
+      }
+      END_LOOP;
     }
   else if (Layer == NULL)
     {
@@ -296,19 +289,17 @@ UpdatePIPFlags (PinTypePtr Pin, ElementTypePtr Element,
       Pin->Flags &= ~(mask | WARNFLAG);
       if (Polygon == NULL || !TEST_FLAG (CLEARPOLYFLAG, Polygon))
 	{
-	  POLYGON_LOOP (Layer, 
-	    {
-	      {
-		if (TEST_FLAG (CLEARPOLYFLAG, polygon))
-		  if (DoPIPFlags (Pin, Element, Layer, polygon, mask))
-		    break;
-	      }
-	    }
-	  );
+	  POLYGON_LOOP (Layer);
+	  {
+	    if (TEST_FLAG (CLEARPOLYFLAG, polygon))
+	      if (DoPIPFlags (Pin, Element, Layer, polygon, mask))
+		break;
+	  }
+	  END_LOOP;
 	}
       else
 	{
-	    DoPIPFlags (Pin, Element, Layer, Polygon, mask);
+	  DoPIPFlags (Pin, Element, Layer, Polygon, mask);
 	}
       new_flags = Pin->Flags;
       if (new_flags != old_flags)
@@ -354,99 +345,98 @@ DoPIPFlags (PinTypePtr Pin, ElementTypePtr Element,
 
 struct plow_info
 {
-   int type, PIPflag;
-   LayerTypePtr layer;
-   Cardinal group, component, solder;
-   PolygonTypePtr polygon;
-   int (*callback)(int, void *, void *, void *, LayerTypePtr,
-                   PolygonTypePtr);
-   jmp_buf env;
+  int type, PIPflag;
+  LayerTypePtr layer;
+  Cardinal group, component, solder;
+  PolygonTypePtr polygon;
+  int (*callback) (int, void *, void *, void *, LayerTypePtr, PolygonTypePtr);
+  jmp_buf env;
 };
 
 static int
-plow_callback (const BoxType *b, void *cl)
+plow_callback (const BoxType * b, void *cl)
 {
-   struct plow_info *plow = (struct plow_info *) cl;
-   int r = 0;
+  struct plow_info *plow = (struct plow_info *) cl;
+  int r = 0;
 
-   switch (plow->type)
-     {
-       case LINE_TYPE:
-         {
-	   LineTypePtr line = (LineTypePtr) b;
-	   if (!TEST_FLAG(CLEARLINEFLAG, line))
-	     return 0;
-	   CLEAR_FLAG(CLEARLINEFLAG, line);
-	   line->Thickness += line->Clearance;
-           if (IsLineInPolygon (line, plow->polygon))
-	     {
-	       line->Thickness -= line->Clearance;
-	       SET_FLAG (CLEARLINEFLAG, line);
-	       r = plow->callback (LINE_TYPE, plow->layer, line, line,
-                                   plow->layer, plow->polygon);
-	       line->Thickness += line->Clearance;
-	     }
-	   SET_FLAG (CLEARLINEFLAG, line);
-	   line->Thickness -= line->Clearance;
-	   break;
-	 }
-       case ARC_TYPE:
-         {
-	   ArcTypePtr arc = (ArcTypePtr) b;
-	   if (!TEST_FLAG(CLEARLINEFLAG, arc))
-	     return 0;
-	   CLEAR_FLAG(CLEARLINEFLAG, arc);
-	   arc->Thickness += arc->Clearance;
-           if (IsArcInPolygon (arc, plow->polygon))
-	     {
-	       arc->Thickness -= arc->Clearance;
-	       SET_FLAG (CLEARLINEFLAG, arc);
-	       r = plow->callback (ARC_TYPE, plow->layer, arc, arc,
-                                   plow->layer, plow->polygon);
-	       arc->Thickness += arc->Clearance;
-	     }
-	   SET_FLAG (CLEARLINEFLAG, arc);
-	   arc->Thickness -= arc->Clearance;
-	   break;
-	 }
-       case VIA_TYPE:
-       case PIN_TYPE:
-         {
-	   PinTypePtr pin = (PinTypePtr) b;
-	   if (!TEST_FLAG (HOLEFLAG, pin) && TEST_FLAG (plow->PIPflag, pin))
-	     {
-	       r = plow->callback (plow->type, plow->type == PIN_TYPE ?
-	                           pin->Element : pin, pin, pin, plow->layer,
-                                   plow->polygon);
-	     }
-	   break;
-	 }
-       case PAD_TYPE:
-         {
-	   PadTypePtr pad = (PadTypePtr) b;
-	   if ((TEST_FLAG (ONSOLDERFLAG, pad)) ==
-	      (plow->group == plow->solder ? True : False))
-	         {
-                    pad->Thickness += pad->Clearance;
-		    if (IsPadInPolygon (pad, plow->polygon))
-		      {
-		        pad->Thickness -= pad->Clearance;
-		        r = plow->callback (PAD_TYPE, pad->Element, pad, pad,
-                                            plow->layer, plow->polygon);
-		        pad->Thickness += pad->Clearance;
-		      }
-		    pad->Thickness -= pad->Clearance;
-		  }
-	  break;
-        }
-      default:
-        Message("hace: bad plow tree callback\n");
-	return 0;
+  switch (plow->type)
+    {
+    case LINE_TYPE:
+      {
+	LineTypePtr line = (LineTypePtr) b;
+	if (!TEST_FLAG (CLEARLINEFLAG, line))
+	  return 0;
+	CLEAR_FLAG (CLEARLINEFLAG, line);
+	line->Thickness += line->Clearance;
+	if (IsLineInPolygon (line, plow->polygon))
+	  {
+	    line->Thickness -= line->Clearance;
+	    SET_FLAG (CLEARLINEFLAG, line);
+	    r = plow->callback (LINE_TYPE, plow->layer, line, line,
+				plow->layer, plow->polygon);
+	    line->Thickness += line->Clearance;
+	  }
+	SET_FLAG (CLEARLINEFLAG, line);
+	line->Thickness -= line->Clearance;
+	break;
+      }
+    case ARC_TYPE:
+      {
+	ArcTypePtr arc = (ArcTypePtr) b;
+	if (!TEST_FLAG (CLEARLINEFLAG, arc))
+	  return 0;
+	CLEAR_FLAG (CLEARLINEFLAG, arc);
+	arc->Thickness += arc->Clearance;
+	if (IsArcInPolygon (arc, plow->polygon))
+	  {
+	    arc->Thickness -= arc->Clearance;
+	    SET_FLAG (CLEARLINEFLAG, arc);
+	    r = plow->callback (ARC_TYPE, plow->layer, arc, arc,
+				plow->layer, plow->polygon);
+	    arc->Thickness += arc->Clearance;
+	  }
+	SET_FLAG (CLEARLINEFLAG, arc);
+	arc->Thickness -= arc->Clearance;
+	break;
+      }
+    case VIA_TYPE:
+    case PIN_TYPE:
+      {
+	PinTypePtr pin = (PinTypePtr) b;
+	if (!TEST_FLAG (HOLEFLAG, pin) && TEST_FLAG (plow->PIPflag, pin))
+	  {
+	    r = plow->callback (plow->type, plow->type == PIN_TYPE ?
+				pin->Element : pin, pin, pin, plow->layer,
+				plow->polygon);
+	  }
+	break;
+      }
+    case PAD_TYPE:
+      {
+	PadTypePtr pad = (PadTypePtr) b;
+	if ((TEST_FLAG (ONSOLDERFLAG, pad)) ==
+	    (plow->group == plow->solder ? True : False))
+	  {
+	    pad->Thickness += pad->Clearance;
+	    if (IsPadInPolygon (pad, plow->polygon))
+	      {
+		pad->Thickness -= pad->Clearance;
+		r = plow->callback (PAD_TYPE, pad->Element, pad, pad,
+				    plow->layer, plow->polygon);
+		pad->Thickness += pad->Clearance;
+	      }
+	    pad->Thickness -= pad->Clearance;
+	  }
+	break;
+      }
+    default:
+      Message ("hace: bad plow tree callback\n");
+      return 0;
     }
-   if (r)
-     {
-       longjmp (plow->env, 1);
-     }
+  if (r)
+    {
+      longjmp (plow->env, 1);
+    }
   return 0;
 }
 
@@ -459,7 +449,7 @@ plow_callback (const BoxType *b, void *cl)
 int
 PolygonPlows (int group, BoxTypePtr range,
 	      int (*any_call) (int type, void *ptr1, void *ptr2, void *ptr3,
-              LayerTypePtr lay, PolygonTypePtr poly))
+			       LayerTypePtr lay, PolygonTypePtr poly))
 {
   struct plow_info info;
   BoxType sb;
@@ -468,54 +458,54 @@ PolygonPlows (int group, BoxTypePtr range,
   info.component = GetLayerGroupNumberByNumber (MAX_LAYER + COMPONENT_LAYER);
   info.solder = GetLayerGroupNumberByNumber (MAX_LAYER + SOLDER_LAYER);
   info.callback = any_call;
-  GROUP_LOOP (group, 
-    {
-	if (!layer->PolygonN)
-	  continue;
-	info.PIPflag = L0PIPFLAG << number;
-	info.layer = layer;
+  GROUP_LOOP (group);
+  {
+    if (!layer->PolygonN)
+      continue;
+    info.PIPflag = L0PIPFLAG << number;
+    info.layer = layer;
 
-	POLYGON_LOOP (layer,
-	  {
-	     if (!TEST_FLAG (CLEARPOLYFLAG, polygon))
-	        continue;
-	      /* minimize the search box */
-	     sb = polygon->BoundingBox;
-	     MAKEMAX(sb.X1, range->X1);
-	     MAKEMIN(sb.X2, range->X2);
-	     MAKEMAX(sb.Y1, range->Y1);
-	     MAKEMIN(sb.Y2, range->Y2);
-	     info.polygon = polygon;
-             info.type = LINE_TYPE; 
-             if (setjmp (info.env) == 0)
-               r_search (layer->line_tree, &sb, NULL, plow_callback, &info);
-	     else
-	       return 1;
-             info.type = ARC_TYPE; 
-             if (setjmp (info.env) == 0)
-               r_search (layer->arc_tree, &sb, NULL, plow_callback, &info);
-	     else
-	       return 1;
-	     info.type = VIA_TYPE;
-             if (setjmp (info.env) == 0)
-               r_search (PCB->Data->via_tree, &sb, NULL, plow_callback, &info);
-	     else
-	       return 1;
-	     info.type = PIN_TYPE;
-             if (setjmp (info.env) == 0)
-               r_search (PCB->Data->pin_tree, &sb, NULL, plow_callback, &info);
-	     else
-	       return 1;
-	     if (info.group != info.solder && info.group != info.component)
-               continue;
-	     info.type = PAD_TYPE; 
-             if (setjmp (info.env) == 0)
-               r_search (PCB->Data->pad_tree, &sb, NULL, plow_callback, &info);
-	     else
-	       return 1;
-	  }
-	);
+    POLYGON_LOOP (layer);
+    {
+      if (!TEST_FLAG (CLEARPOLYFLAG, polygon))
+	continue;
+      /* minimize the search box */
+      sb = polygon->BoundingBox;
+      MAKEMAX (sb.X1, range->X1);
+      MAKEMIN (sb.X2, range->X2);
+      MAKEMAX (sb.Y1, range->Y1);
+      MAKEMIN (sb.Y2, range->Y2);
+      info.polygon = polygon;
+      info.type = LINE_TYPE;
+      if (setjmp (info.env) == 0)
+	r_search (layer->line_tree, &sb, NULL, plow_callback, &info);
+      else
+	return 1;
+      info.type = ARC_TYPE;
+      if (setjmp (info.env) == 0)
+	r_search (layer->arc_tree, &sb, NULL, plow_callback, &info);
+      else
+	return 1;
+      info.type = VIA_TYPE;
+      if (setjmp (info.env) == 0)
+	r_search (PCB->Data->via_tree, &sb, NULL, plow_callback, &info);
+      else
+	return 1;
+      info.type = PIN_TYPE;
+      if (setjmp (info.env) == 0)
+	r_search (PCB->Data->pin_tree, &sb, NULL, plow_callback, &info);
+      else
+	return 1;
+      if (info.group != info.solder && info.group != info.component)
+	continue;
+      info.type = PAD_TYPE;
+      if (setjmp (info.env) == 0)
+	r_search (PCB->Data->pad_tree, &sb, NULL, plow_callback, &info);
+      else
+	return 1;
     }
-  );
+    END_LOOP;
+  }
+  END_LOOP;
   return 0;
 }

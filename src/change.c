@@ -486,29 +486,29 @@ ChangeElement2ndSize (ElementTypePtr Element)
 
   if (TEST_FLAG (LOCKFLAG, Element))
     return (NULL);
-  PIN_LOOP (Element, 
-    {
-      value = (Absolute) ? Absolute : pin->DrillingHole + Delta;
-      if (value <= MAX_PINORVIASIZE &&
-	  value >= MIN_PINORVIAHOLE && (TEST_FLAG (HOLEFLAG, pin) ||
-					value <=
-					pin->Thickness -
-					MIN_PINORVIACOPPER)
-	  && value != pin->DrillingHole)
-	{
-	  changed = True;
-	  AddObjectTo2ndSizeUndoList (PIN_TYPE, Element, pin, pin);
-	  ErasePin (pin);
-	  pin->DrillingHole = value;
-	  DrawPin (pin, 0);
-	  if (TEST_FLAG (HOLEFLAG, pin))
-	    {
-	      AddObjectToSizeUndoList (PIN_TYPE, Element, pin, pin);
-	      pin->Thickness = value;
-	    }
-	}
-    }
-  );
+  PIN_LOOP (Element);
+  {
+    value = (Absolute) ? Absolute : pin->DrillingHole + Delta;
+    if (value <= MAX_PINORVIASIZE &&
+	value >= MIN_PINORVIAHOLE && (TEST_FLAG (HOLEFLAG, pin) ||
+				      value <=
+				      pin->Thickness -
+				      MIN_PINORVIACOPPER)
+	&& value != pin->DrillingHole)
+      {
+	changed = True;
+	AddObjectTo2ndSizeUndoList (PIN_TYPE, Element, pin, pin);
+	ErasePin (pin);
+	pin->DrillingHole = value;
+	DrawPin (pin, 0);
+	if (TEST_FLAG (HOLEFLAG, pin))
+	  {
+	    AddObjectToSizeUndoList (PIN_TYPE, Element, pin, pin);
+	    pin->Thickness = value;
+	  }
+      }
+  }
+  END_LOOP;
   if (changed)
     return (Element);
   else
@@ -700,30 +700,30 @@ ChangeElementSize (ElementTypePtr Element)
     return (NULL);
   if (PCB->ElementOn)
     EraseElement (Element);
-  ELEMENTLINE_LOOP (Element, 
-    {
-      value = (Absolute) ? Absolute : line->Thickness + Delta;
-      if (value <= MAX_LINESIZE && value >= MIN_LINESIZE &&
-	  value != line->Thickness)
-	{
-	  AddObjectToSizeUndoList (ELEMENTLINE_TYPE, Element, line, line);
-	  line->Thickness = value;
-	  changed = True;
-	}
-    }
-  );
-  ARC_LOOP (Element, 
-    {
-      value = (Absolute) ? Absolute : arc->Thickness + Delta;
-      if (value <= MAX_LINESIZE && value >= MIN_LINESIZE &&
-	  value != arc->Thickness)
-	{
-	  AddObjectToSizeUndoList (ELEMENTARC_TYPE, Element, arc, arc);
-	  arc->Thickness = value;
-	  changed = True;
-	}
-    }
-  );
+  ELEMENTLINE_LOOP (Element);
+  {
+    value = (Absolute) ? Absolute : line->Thickness + Delta;
+    if (value <= MAX_LINESIZE && value >= MIN_LINESIZE &&
+	value != line->Thickness)
+      {
+	AddObjectToSizeUndoList (ELEMENTLINE_TYPE, Element, line, line);
+	line->Thickness = value;
+	changed = True;
+      }
+  }
+  END_LOOP;
+  ARC_LOOP (Element);
+  {
+    value = (Absolute) ? Absolute : arc->Thickness + Delta;
+    if (value <= MAX_LINESIZE && value >= MIN_LINESIZE &&
+	value != arc->Thickness)
+      {
+	AddObjectToSizeUndoList (ELEMENTARC_TYPE, Element, arc, arc);
+	arc->Thickness = value;
+	changed = True;
+      }
+  }
+  END_LOOP;
   if (PCB->ElementOn)
     {
       DrawElement (Element, 0);
@@ -749,13 +749,13 @@ ChangeElementNameSize (ElementTypePtr Element)
   if (value <= MAX_TEXTSCALE && value >= MIN_TEXTSCALE)
     {
       EraseElementName (Element);
-      ELEMENTTEXT_LOOP (Element, 
-	{
-	  AddObjectToSizeUndoList (ELEMENTNAME_TYPE, Element, text, text);
-	  text->Scale = value;
-	  SetTextBoundingBox (&PCB->Font, text);
-	}
-      );
+      ELEMENTTEXT_LOOP (Element);
+      {
+	AddObjectToSizeUndoList (ELEMENTNAME_TYPE, Element, text, text);
+	text->Scale = value;
+	SetTextBoundingBox (&PCB->Font, text);
+      }
+      END_LOOP;
       DrawElementName (Element, 0);
       return (Element);
     }
@@ -960,16 +960,16 @@ ChangeElementSquare (ElementTypePtr Element)
 
   if (TEST_FLAG (LOCKFLAG, Element))
     return (NULL);
-  PIN_LOOP (Element, 
-    {
-      ans = ChangePinSquare (Element, pin);
-    }
-  );
-  PAD_LOOP (Element, 
-    {
-      ans = ChangePadSquare (Element, pad);
-    }
-  );
+  PIN_LOOP (Element);
+  {
+    ans = ChangePinSquare (Element, pin);
+  }
+  END_LOOP;
+  PAD_LOOP (Element);
+  {
+    ans = ChangePadSquare (Element, pad);
+  }
+  END_LOOP;
   return (ans);
 }
 
@@ -983,12 +983,12 @@ ChangeElementOctagon (ElementTypePtr Element)
 
   if (TEST_FLAG (LOCKFLAG, Element))
     return (NULL);
-  PIN_LOOP (Element, 
-    {
-      ChangePinOctagon (Element, pin);
-      result = Element;
-    }
-  );
+  PIN_LOOP (Element);
+  {
+    ChangePinOctagon (Element, pin);
+    result = Element;
+  }
+  END_LOOP;
   return (result);
 }
 
@@ -1104,15 +1104,15 @@ ChangeSelectedElementSide (void)
 
   /* setup identifiers */
   if (PCB->PinOn && PCB->ElementOn)
-    ELEMENT_LOOP (PCB->Data, 
-    {
-      if (TEST_FLAG (SELECTEDFLAG, element))
-	{
-	  change |= ChangeElementSide (element, 0);
-	  UpdatePIPFlags (NULL, element, NULL, NULL, True);
-	}
-    }
-  );
+    ELEMENT_LOOP (PCB->Data);
+  {
+    if (TEST_FLAG (SELECTEDFLAG, element))
+      {
+	change |= ChangeElementSide (element, 0);
+	UpdatePIPFlags (NULL, element, NULL, NULL, True);
+      }
+  }
+  END_LOOP;
   if (change)
     {
       Draw ();
@@ -1270,12 +1270,12 @@ ChangeSelectedHole (void)
   Boolean change = False;
 
   if (PCB->ViaOn)
-    VIA_LOOP (PCB->Data, 
-    {
-      if (TEST_FLAG (SELECTEDFLAG, via))
-	change |= ChangeHole (via);
-    }
-  );
+    VIA_LOOP (PCB->Data);
+  {
+    if (TEST_FLAG (SELECTEDFLAG, via))
+      change |= ChangeHole (via);
+  }
+  END_LOOP;
   if (change)
     {
       Draw ();

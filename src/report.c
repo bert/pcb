@@ -26,7 +26,8 @@
  *
  */
 
-static char *rcsid = "$Id$";
+static char *rcsid =
+  "$Id$";
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -106,8 +107,9 @@ ReportDrills (void)
     {
       sprintf (thestring,
 	       "  %5d                 %5d          %5d            %5d           %5d\n",
-	       AllDrills->Drill[n].DrillSize/100, AllDrills->Drill[n].PinCount,
-	       AllDrills->Drill[n].ViaCount, AllDrills->Drill[n].ElementN,
+	       AllDrills->Drill[n].DrillSize / 100,
+	       AllDrills->Drill[n].PinCount, AllDrills->Drill[n].ViaCount,
+	       AllDrills->Drill[n].ElementN,
 	       AllDrills->Drill[n].UnplatedCount);
       while (*thestring != '\0')
 	thestring++;
@@ -164,12 +166,12 @@ ReportDialog (void)
 	PinTypePtr Pin = (PinTypePtr) ptr2;
 	ElementTypePtr element = (ElementTypePtr) ptr1;
 
-	PIN_LOOP (element, 
-	  {
-	    if (pin == Pin)
-	      break;
-	  }
-	);
+	PIN_LOOP (element);
+	{
+	  if (pin == Pin)
+	    break;
+	}
+	END_LOOP;
 	if (TEST_FLAG (HOLEFLAG, Pin))
 	  sprintf (&report[0], "PIN ID# %ld  Flags:0x%08lx\n"
 		   "(X,Y) = (%d, %d)\n"
@@ -259,7 +261,7 @@ ReportDialog (void)
 	PolygonTypePtr Polygon = (PolygonTypePtr) ptr2;
 
 	sprintf (&report[0], "POLYGON ID# %ld   Flags:0x%08lx\n"
-                 "It's bounding box is (%d,%d) (%d,%d)\n"
+		 "It's bounding box is (%d,%d) (%d,%d)\n"
 		 "It has %d points and could store %d more\n"
 		 "without using more memory.\n"
 		 "It resides on layer %d\n"
@@ -277,14 +279,14 @@ ReportDialog (void)
 	PadTypePtr Pad = (PadTypePtr) ptr2;
 	ElementTypePtr element = (ElementTypePtr) ptr1;
 
-	PAD_LOOP (element, 
+	PAD_LOOP (element);
+	{
 	  {
-	    {
-	      if (pad == Pad)
-		break;
-	    }
+	    if (pad == Pad)
+	      break;
 	  }
-	);
+	}
+	END_LOOP;
 	sprintf (&report[0], "PAD ID# %ld   Flags:0x%08lx\n"
 		 "FirstPoint(X,Y) = (%d, %d)  ID = %ld\n"
 		 "SecondPoint(X,Y) = (%d, %d)  ID = %ld\n"
@@ -309,7 +311,7 @@ ReportDialog (void)
       {
 	ElementTypePtr element = (ElementTypePtr) ptr2;
 	sprintf (&report[0], "ELEMENT ID# %ld   Flags:0x%08lx\n"
-	         "BoundingBox (%d,%d) (%d,%d)\n"
+		 "BoundingBox (%d,%d) (%d,%d)\n"
 		 "Descriptive Name \"%s\"\n"
 		 "Name on board \"%s\"\n"
 		 "Part number name \"%s\"\n"
@@ -363,7 +365,7 @@ ReportDialog (void)
 		 point->X, point->Y,
 		 (type == LINEPOINT_TYPE) ? "line" : "polygon",
 		 GetLayerNumber (PCB->Data, (LayerTypePtr) ptr1));
-        break;
+	break;
       }
     case NO_TYPE:
       report[0] = '\0';
@@ -400,33 +402,33 @@ ReportFoundPins (void)
 
   DSClearString (&list);
   DSAddString (&list, "The following pins/pads are FOUND:\n");
-  ELEMENT_LOOP (PCB->Data, 
+  ELEMENT_LOOP (PCB->Data);
+  {
+    PIN_LOOP (element);
     {
-      PIN_LOOP (element, 
+      if (TEST_FLAG (FOUNDFLAG, pin))
 	{
-	  if (TEST_FLAG (FOUNDFLAG, pin))
-	    {
-	      sprintf (temp, "%s-%s,%c",
-		       NAMEONPCB_NAME (element),
-		       pin->Number,
-		       ((col++ % (COLUMNS + 1)) == COLUMNS) ? '\n' : ' ');
-	      DSAddString (&list, temp);
-	    }
+	  sprintf (temp, "%s-%s,%c",
+		   NAMEONPCB_NAME (element),
+		   pin->Number,
+		   ((col++ % (COLUMNS + 1)) == COLUMNS) ? '\n' : ' ');
+	  DSAddString (&list, temp);
 	}
-      );
-      PAD_LOOP (element, 
-	{
-	  if (TEST_FLAG (FOUNDFLAG, pad))
-	    {
-	      sprintf (temp, "%s-%s,%c",
-		       NAMEONPCB_NAME (element), pad->Number,
-		       ((col++ % (COLUMNS + 1)) == COLUMNS) ? '\n' : ' ');
-	      DSAddString (&list, temp);
-	    }
-	}
-      );
     }
-  );
+    END_LOOP;
+    PAD_LOOP (element);
+    {
+      if (TEST_FLAG (FOUNDFLAG, pad))
+	{
+	  sprintf (temp, "%s-%s,%c",
+		   NAMEONPCB_NAME (element), pad->Number,
+		   ((col++ % (COLUMNS + 1)) == COLUMNS) ? '\n' : ' ');
+	  DSAddString (&list, temp);
+	}
+    }
+    END_LOOP;
+  }
+  END_LOOP;
   HideCrosshair (False);
   /* create dialog box */
   popup = CreateDialogBox (list.Data, &button, 1, "Report");

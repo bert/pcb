@@ -143,23 +143,23 @@ OpenPrintFile (char *FileExtention, Boolean is_drill)
   /* evaluate add extention and suffix to filename */
   if ((filename = ExpandFilename (NULL, GlobalCommand)) == NULL)
     filename = GlobalCommand;
-  if (is_drill && strcmp(Device->Suffix, "gbr")==0)
+  if (is_drill && strcmp (Device->Suffix, "gbr") == 0)
     {
-       length = strlen (EMPTY (GlobalCommand)) + 1 +
-                strlen (FileExtention) + 5;
-       completeFilename = MyCalloc (length, sizeof (char), "OpenPrintFile()");
-       sprintf (completeFilename, "%s%s%s.cnc",
-	   GlobalDOSFlag ? "" : EMPTY (GlobalCommand),
-	   GlobalDOSFlag ? "" : "_", FileExtention);
+      length = strlen (EMPTY (GlobalCommand)) + 1 +
+	strlen (FileExtention) + 5;
+      completeFilename = MyCalloc (length, sizeof (char), "OpenPrintFile()");
+      sprintf (completeFilename, "%s%s%s.cnc",
+	       GlobalDOSFlag ? "" : EMPTY (GlobalCommand),
+	       GlobalDOSFlag ? "" : "_", FileExtention);
     }
   else
     {
       length = strlen (EMPTY (GlobalCommand)) + 1 +
-        strlen (FileExtention) + 1 + strlen (Device->Suffix) + 1;
+	strlen (FileExtention) + 1 + strlen (Device->Suffix) + 1;
       completeFilename = MyCalloc (length, sizeof (char), "OpenPrintFile()");
       sprintf (completeFilename, "%s%s%s.%s",
 	       GlobalDOSFlag ? "" : EMPTY (GlobalCommand),
-  	       GlobalDOSFlag ? "" : "_", FileExtention, Device->Suffix);
+	       GlobalDOSFlag ? "" : "_", FileExtention, Device->Suffix);
     }
 
   /* try to open all the file; if the value of
@@ -231,30 +231,30 @@ FPrintAlignment (void)
 /* ---------------------------------------------------------------------------
  * callback functions for polygon clearances
  */
-static int 
-any_callback(int type, void *ptr1, void *ptr2, void *ptr3, 
-             LayerTypePtr lay, PolygonTypePtr poly)
+static int
+any_callback (int type, void *ptr1, void *ptr2, void *ptr3,
+	      LayerTypePtr lay, PolygonTypePtr poly)
 {
-  DoPolarity();
+  DoPolarity ();
   switch (type)
-   {
-     case LINE_TYPE:
-       Device->Line ((LineTypePtr) ptr2, True);
-       break;
-     case ARC_TYPE:
-       Device->Arc ((ArcTypePtr) ptr2, True);
-       break;
-     case PIN_TYPE:
-     case VIA_TYPE:
-       Device->PinOrVia ((PinTypePtr) ptr2, 1);
-       break;
-     case PAD_TYPE:
-       Device->Pad ((PadTypePtr) ptr2, 1);
-       break;
-     default:
-       Message("hace bad plow callback\n");
-   }
-   return 0;
+    {
+    case LINE_TYPE:
+      Device->Line ((LineTypePtr) ptr2, True);
+      break;
+    case ARC_TYPE:
+      Device->Arc ((ArcTypePtr) ptr2, True);
+      break;
+    case PIN_TYPE:
+    case VIA_TYPE:
+      Device->PinOrVia ((PinTypePtr) ptr2, 1);
+      break;
+    case PAD_TYPE:
+      Device->Pad ((PadTypePtr) ptr2, 1);
+      break;
+    default:
+      Message ("hace bad plow callback\n");
+    }
+  return 0;
 }
 
 /* ---------------------------------------------------------------------------
@@ -290,7 +290,7 @@ PrintLayergroups (void)
     if (PCB->LayerGroups.Number[group])
       {
 	Somepolys = 0;
-        PIPflag = Tflag = 0;
+	PIPflag = Tflag = 0;
 	/* see if we can make the special negative plane */
 	if (strcmp (Device->Name, "Gerber/RS-274X") == 0)
 	  negative_plane = True;
@@ -302,52 +302,52 @@ PrintLayergroups (void)
 	solder = GetLayerGroupNumberByNumber (MAX_LAYER + SOLDER_LAYER);
 	noData = True;
 
-       /* negative plane possibility checks */
+	/* negative plane possibility checks */
 	if (group == component)
 	  {
 	    noData = False;
-	    ALLPAD_LOOP (PCB->Data, 
-	      {
-		if (!TEST_FLAG (ONSOLDERFLAG, pad))
-		  {
-		    negative_plane = False;
-		    break;
-		  }
-	      }
-	    );
+	    ALLPAD_LOOP (PCB->Data);
+	    {
+	      if (!TEST_FLAG (ONSOLDERFLAG, pad))
+		{
+		  negative_plane = False;
+		  break;
+		}
+	    }
+	    ENDALL_LOOP;
 	  }
 	else if (group == solder)
 	  {
 	    noData = False;
-	    ALLPAD_LOOP (PCB->Data, 
-	      {
-		if (TEST_FLAG (ONSOLDERFLAG, pad))
-		  {
-		    negative_plane = False;
-		    break;
-		  }
-	      }
-	    );
-	  }
-	GROUP_LOOP(group,
-	  {
-	    PIPflag |= L0PIPFLAG << number;
-	    Tflag |= L0THERMFLAG << number;
-	    layer = LAYER_PTR (number);
-	    if (layer->LineN || layer->TextN || layer->ArcN)
-	      {
-		noData = False;
-		negative_plane = False;
-	      }
-	    if (layer->PolygonN)
-	      {
-		noData = False;
-		Somepolys += layer->PolygonN;
-		if (!TEST_FLAG(CLEARPOLYFLAG, layer->Polygon))
+	    ALLPAD_LOOP (PCB->Data);
+	    {
+	      if (TEST_FLAG (ONSOLDERFLAG, pad))
+		{
 		  negative_plane = False;
-	      }
+		  break;
+		}
+	    }
+	    ENDALL_LOOP;
 	  }
-	);
+	GROUP_LOOP (group);
+	{
+	  PIPflag |= L0PIPFLAG << number;
+	  Tflag |= L0THERMFLAG << number;
+	  layer = LAYER_PTR (number);
+	  if (layer->LineN || layer->TextN || layer->ArcN)
+	    {
+	      noData = False;
+	      negative_plane = False;
+	    }
+	  if (layer->PolygonN)
+	    {
+	      noData = False;
+	      Somepolys += layer->PolygonN;
+	      if (!TEST_FLAG (CLEARPOLYFLAG, layer->Polygon))
+		negative_plane = False;
+	    }
+	}
+	END_LOOP;
 	/* skip empty layers */
 	if (noData)
 	  continue;
@@ -355,25 +355,25 @@ PrintLayergroups (void)
 	if (Somepolys != 1)
 	  negative_plane = False;
 	if (negative_plane)
-	  ALLPIN_LOOP (PCB->Data, 
+	  ALLPIN_LOOP (PCB->Data);
+	{
+	  if (!TEST_FLAG (PIPflag, pin))
 	    {
-	      if (!TEST_FLAG(PIPflag, pin))
-	        {
-	          negative_plane = False;
-		  break;
-		}
+	      negative_plane = False;
+	      break;
 	    }
-	  );
+	}
+	ENDALL_LOOP;
 	if (negative_plane)
-	  VIA_LOOP (PCB->Data, 
+	  VIA_LOOP (PCB->Data);
+	{
+	  if (!TEST_FLAG (PIPflag, via))
 	    {
-	      if (!TEST_FLAG(PIPflag, via))
-	        {
-	          negative_plane = False;
-		  break;
-		}
+	      negative_plane = False;
+	      break;
 	    }
-	  );
+	}
+	END_LOOP;
 
 	/* setup extention and open new file */
 	if (component == group)
@@ -381,7 +381,8 @@ PrintLayergroups (void)
 	else if (solder == group)
 	  sprintf (extention, "back");
 	else
-	  sprintf (extention, "%s%i", GlobalDOSFlag ? "" : "group", group + 1);
+	  sprintf (extention, "%s%i", GlobalDOSFlag ? "" : "group",
+		   group + 1);
 	sprintf (description, "layergroup #%i", group + 1);
 
 	if (SetupPrintFile (extention, description, False))
@@ -399,63 +400,63 @@ PrintLayergroups (void)
 	      FPrintAlignment ();
 
 	    /* print all polygons in the group that get clearances */
-	    GROUP_LOOP(group,
-	      {
-		if (layer->PolygonN)
+	    GROUP_LOOP (group);
+	    {
+	      if (layer->PolygonN)
+		{
+		  SetPrintColor (layer->Color);
+		  POLYGON_LOOP (layer);
 		  {
-		    SetPrintColor (layer->Color);
-		    POLYGON_LOOP (layer, 
-		      {
-		        if (TEST_FLAG(CLEARPOLYFLAG, polygon))
-			  Device->Poly (polygon);
-		      }
-		    );
+		    if (TEST_FLAG (CLEARPOLYFLAG, polygon))
+		      Device->Poly (polygon);
 		  }
-	      }
-	    );
+		  END_LOOP;
+		}
+	    }
+	    END_LOOP;
 	    /* clear the intersecting lines, arcs, pins and vias */
 	    if (Somepolys)
 	      {
-	        BoxType all;
-		
-		all.X1 = - MAX_COORD;
+		BoxType all;
+
+		all.X1 = -MAX_COORD;
 		all.X2 = MAX_COORD;
-		all.Y1 = - MAX_COORD;
+		all.Y1 = -MAX_COORD;
 		all.Y2 = MAX_COORD;
-                polarity_called = False;
-                PolygonPlows(group, &all, any_callback);
-                if (polarity_called)
-                  Device->Polarity (3);
-	      } 
+		polarity_called = False;
+		PolygonPlows (group, &all, any_callback);
+		if (polarity_called)
+		  Device->Polarity (3);
+	      }
 	    /* ok clearances are done, now print
 	     * the lines/arcs/text and non-clearing polygons
 	     */
-	     GROUP_LOOP (group,
-	       {
-		SetPrintColor (layer->Color);
-	        POLYGON_LOOP (layer,
-		  {
-		    if (!TEST_FLAG(CLEARPOLYFLAG, polygon))
-		      Device->Poly (polygon);
-		  }
-		);
-		LINE_LOOP (layer, 
-		  {
-		    Device->Line (line, False);
-		  }
-		);
-		ARC_LOOP (layer, 
-		  {
-		    Device->Arc (arc, False);
-		  }
-		);
-		TEXT_LOOP (layer, 
-		  {
-		    Device->Text (text);
-		  }
-		);
+	    GROUP_LOOP (group);
+	    {
+	      SetPrintColor (layer->Color);
+	      POLYGON_LOOP (layer);
+	      {
+		if (!TEST_FLAG (CLEARPOLYFLAG, polygon))
+		  Device->Poly (polygon);
 	      }
-	    );
+	      END_LOOP;
+	      LINE_LOOP (layer);
+	      {
+		Device->Line (line, False);
+	      }
+	      END_LOOP;
+	      ARC_LOOP (layer);
+	      {
+		Device->Arc (arc, False);
+	      }
+	      END_LOOP;
+	      TEXT_LOOP (layer);
+	      {
+		Device->Text (text);
+	      }
+	      END_LOOP;
+	    }
+	    END_LOOP;
 	    use_mode = 0;
 	  }
 	else
@@ -466,85 +467,85 @@ PrintLayergroups (void)
 	  }
 	/* now print the pins/pads and vias */
 	SetPrintColor (PCB->PinColor);
-	ALLPIN_LOOP (PCB->Data, 
-	  {
-	    if (!TEST_FLAG (HOLEFLAG, pin))
-	      {
-	        int n;
-		int flag = L0PIPFLAG | L0THERMFLAG;
-		CLEAR_FLAG (USETHERMALFLAG, pin);
-		for (n=0; n < MAX_LAYER; n++)
-		  {
-		    if ((flag & Tflag) && TEST_FLAGS (flag, pin))
-		      {
-		        SET_FLAG (USETHERMALFLAG, pin);
-			break;
-	              }
-		    flag <<= 1;
-		  }
-		Device->PinOrVia (pin, use_mode);
-	      }
-	  }
-	);
+	ALLPIN_LOOP (PCB->Data);
+	{
+	  if (!TEST_FLAG (HOLEFLAG, pin))
+	    {
+	      int n;
+	      int flag = L0PIPFLAG | L0THERMFLAG;
+	      CLEAR_FLAG (USETHERMALFLAG, pin);
+	      for (n = 0; n < MAX_LAYER; n++)
+		{
+		  if ((flag & Tflag) && TEST_FLAGS (flag, pin))
+		    {
+		      SET_FLAG (USETHERMALFLAG, pin);
+		      break;
+		    }
+		  flag <<= 1;
+		}
+	      Device->PinOrVia (pin, use_mode);
+	    }
+	}
+	ENDALL_LOOP;
 	SetPrintColor (PCB->ViaColor);
-	VIA_LOOP (PCB->Data, 
-	  {
-	    if (!TEST_FLAG (HOLEFLAG, via))
-	      {
-	        int n;
-		int flag = L0PIPFLAG | L0THERMFLAG;
-		CLEAR_FLAG (USETHERMALFLAG, via);
-		for (n=0; n < MAX_LAYER; n++)
-		  {
-		    if ((flag & Tflag) && TEST_FLAGS (flag, via))
-		      {
-		        SET_FLAG (USETHERMALFLAG, via);
-			break;
-		      }
-		    flag <<= 1;
-		  }
-		Device->PinOrVia (via, use_mode);
-	      }
-	  }
-	);
+	VIA_LOOP (PCB->Data);
+	{
+	  if (!TEST_FLAG (HOLEFLAG, via))
+	    {
+	      int n;
+	      int flag = L0PIPFLAG | L0THERMFLAG;
+	      CLEAR_FLAG (USETHERMALFLAG, via);
+	      for (n = 0; n < MAX_LAYER; n++)
+		{
+		  if ((flag & Tflag) && TEST_FLAGS (flag, via))
+		    {
+		      SET_FLAG (USETHERMALFLAG, via);
+		      break;
+		    }
+		  flag <<= 1;
+		}
+	      Device->PinOrVia (via, use_mode);
+	    }
+	}
+	END_LOOP;
 	if (group == component)
 	  {
 	    if (GlobalOutlineFlag)
 	      FPrintOutline ();
-	    ALLPAD_LOOP (PCB->Data, 
-	      {
-		if (!TEST_FLAG (ONSOLDERFLAG, pad))
-		  Device->Pad (pad, 0);
-	      }
-	    );
+	    ALLPAD_LOOP (PCB->Data);
+	    {
+	      if (!TEST_FLAG (ONSOLDERFLAG, pad))
+		Device->Pad (pad, 0);
+	    }
+	    ENDALL_LOOP;
 	  }
 	else if (group == solder)
 	  {
 	    if (GlobalOutlineFlag)
 	      FPrintOutline ();
-	    ALLPAD_LOOP (PCB->Data, 
-	      {
-		if (TEST_FLAG (ONSOLDERFLAG, pad))
-		  Device->Pad (pad, 0);
-	      }
-	    );
+	    ALLPAD_LOOP (PCB->Data);
+	    {
+	      if (TEST_FLAG (ONSOLDERFLAG, pad))
+		Device->Pad (pad, 0);
+	    }
+	    ENDALL_LOOP;
 	  }
 
 	/* print drill-helper if requested */
 	if (GlobalDrillHelperFlag && Device->DrillHelper)
 	  {
 	    SetPrintColor (PCB->PinColor);
-	    ALLPIN_LOOP (PCB->Data, 
-	      {
-		Device->DrillHelper (pin, 1);
-	      }
-	    );
+	    ALLPIN_LOOP (PCB->Data);
+	    {
+	      Device->DrillHelper (pin, 1);
+	    }
+	    ENDALL_LOOP;
 	    SetPrintColor (PCB->ViaColor);
-	    VIA_LOOP (PCB->Data, 
-	      {
-		Device->DrillHelper (via, 1);
-	      }
-	    );
+	    VIA_LOOP (PCB->Data);
+	    {
+	      Device->DrillHelper (via, 1);
+	    }
+	    END_LOOP;
 	  }
 	/* close the device */
 	ClosePrintFile ();
@@ -578,156 +579,158 @@ clearSilkPin (PinTypePtr pin)
 }
 
 static int
-silkPinElement_callback (const BoxType *box, void *cl)
+silkPinElement_callback (const BoxType * box, void *cl)
 {
-  ElementTypePtr element = (ElementTypePtr)box;
-  struct silkInfo *i = (struct silkInfo *)cl;
+  ElementTypePtr element = (ElementTypePtr) box;
+  struct silkInfo *i = (struct silkInfo *) cl;
 
-      LINE_LOOP (element,
-        {
-          if (IsPointOnLine (i->pin->X, i->pin->Y, 0.5 * i->pin->Thickness, line))
-            {
-              clearSilkPin (i->pin);
-	      longjmp (i->env, 1);
-	    }
-	}
-      );
-      ARC_LOOP (element,
-        {
-          if (IsPointOnArc (i->pin->X, i->pin->Y, 0.5 * i->pin->Thickness, arc))
-            {
-              clearSilkPin (i->pin);
-	      longjmp (i->env, 1);
-	    }
-	}
-      );
-     if (IsPointInBox (i->pin->X, i->pin->Y, &NAMEONPCB_TEXT(element).BoundingBox,
-         i->pin->Thickness/2))
-	 {
-       clearSilkPin (i->pin);
-	      longjmp (i->env, 1);
-	    }
+  LINE_LOOP (element);
+  {
+    if (IsPointOnLine (i->pin->X, i->pin->Y, 0.5 * i->pin->Thickness, line))
+      {
+	clearSilkPin (i->pin);
+	longjmp (i->env, 1);
+      }
+  }
+  END_LOOP;
+  ARC_LOOP (element);
+  {
+    if (IsPointOnArc (i->pin->X, i->pin->Y, 0.5 * i->pin->Thickness, arc))
+      {
+	clearSilkPin (i->pin);
+	longjmp (i->env, 1);
+      }
+  }
+  END_LOOP;
+  if (IsPointInBox
+      (i->pin->X, i->pin->Y, &NAMEONPCB_TEXT (element).BoundingBox,
+       i->pin->Thickness / 2))
+    {
+      clearSilkPin (i->pin);
+      longjmp (i->env, 1);
+    }
   return 0;
 }
 
 static int
-silkPadElement_callback (const BoxType *box, void *cl)
+silkPadElement_callback (const BoxType * box, void *cl)
 {
-  ElementTypePtr element = (ElementTypePtr)box;
-  struct silkInfo *i = (struct silkInfo *)cl;
+  ElementTypePtr element = (ElementTypePtr) box;
+  struct silkInfo *i = (struct silkInfo *) cl;
 
-      LINE_LOOP (element,
-        {
-          if (LinePadIntersect (line, i->pad))
-            {
-              clearSilkPad (i->pad);
-	      longjmp (i->env, 1);
-	    }
-	}
-      );
-      ARC_LOOP (element,
-        {
-          if (ArcPadIntersect (arc, i->pad))
-            {
-              clearSilkPad (i->pad);
-	      longjmp (i->env, 1);
-	    }
-	}
-      );
+  LINE_LOOP (element);
+  {
+    if (LinePadIntersect (line, i->pad))
+      {
+	clearSilkPad (i->pad);
+	longjmp (i->env, 1);
+      }
+  }
+  END_LOOP;
+  ARC_LOOP (element);
+  {
+    if (ArcPadIntersect (arc, i->pad))
+      {
+	clearSilkPad (i->pad);
+	longjmp (i->env, 1);
+      }
+  }
+  END_LOOP;
   return 0;
 }
 
 static int
-silkPinLine_callback (const BoxType *box, void *cl)
+silkPinLine_callback (const BoxType * box, void *cl)
 {
-  LineTypePtr line = (LineTypePtr)box;
-  struct silkInfo *i = (struct silkInfo *)cl;
+  LineTypePtr line = (LineTypePtr) box;
+  struct silkInfo *i = (struct silkInfo *) cl;
 
-          if (IsPointOnLine (i->pin->X, i->pin->Y, 0.5 * i->pin->Thickness, line))
-            {
-              clearSilkPin (i->pin);
-	      longjmp (i->env, 1);
-	    }
+  if (IsPointOnLine (i->pin->X, i->pin->Y, 0.5 * i->pin->Thickness, line))
+    {
+      clearSilkPin (i->pin);
+      longjmp (i->env, 1);
+    }
   return 0;
 }
 
 static int
-silkPinArc_callback (const BoxType *box, void *cl)
+silkPinArc_callback (const BoxType * box, void *cl)
 {
-  ArcTypePtr arc = (ArcTypePtr)box;
-  struct silkInfo *i = (struct silkInfo *)cl;
+  ArcTypePtr arc = (ArcTypePtr) box;
+  struct silkInfo *i = (struct silkInfo *) cl;
 
-          if (IsPointOnArc (i->pin->X, i->pin->Y, 0.5 * i->pin->Thickness, arc))
-            {
-              clearSilkPin (i->pin);
-	      longjmp (i->env, 1);
-	    }
+  if (IsPointOnArc (i->pin->X, i->pin->Y, 0.5 * i->pin->Thickness, arc))
+    {
+      clearSilkPin (i->pin);
+      longjmp (i->env, 1);
+    }
   return 0;
 }
 
 static int
-silkPadLine_callback (const BoxType *box, void *cl)
+silkPadLine_callback (const BoxType * box, void *cl)
 {
-  LineTypePtr line = (LineTypePtr)box;
-  struct silkInfo *i = (struct silkInfo *)cl;
+  LineTypePtr line = (LineTypePtr) box;
+  struct silkInfo *i = (struct silkInfo *) cl;
 
-          if (LinePadIntersect (line, i->pad))
-            {
-              clearSilkPad (i->pad);
-	      longjmp (i->env, 1);
-	    }
+  if (LinePadIntersect (line, i->pad))
+    {
+      clearSilkPad (i->pad);
+      longjmp (i->env, 1);
+    }
   return 0;
 }
 
 static int
-silkPadArc_callback (const BoxType *box, void *cl)
+silkPadArc_callback (const BoxType * box, void *cl)
 {
-  ArcTypePtr arc = (ArcTypePtr)box;
-  struct silkInfo *i = (struct silkInfo *)cl;
+  ArcTypePtr arc = (ArcTypePtr) box;
+  struct silkInfo *i = (struct silkInfo *) cl;
 
-          if (ArcPadIntersect (arc, i->pad))
-            {
-              clearSilkPad (i->pad);
-	      longjmp (i->env, 1);
-	    }
+  if (ArcPadIntersect (arc, i->pad))
+    {
+      clearSilkPad (i->pad);
+      longjmp (i->env, 1);
+    }
   return 0;
 }
 
 static int
-silkPinText_callback (const BoxType *box, void *cl)
+silkPinText_callback (const BoxType * box, void *cl)
 {
-  TextTypePtr text = (TextTypePtr)box;
-  struct silkInfo *i = (struct silkInfo *)cl;
+  TextTypePtr text = (TextTypePtr) box;
+  struct silkInfo *i = (struct silkInfo *) cl;
 
-     if (IsPointInBox (i->pin->X, i->pin->Y, &text->BoundingBox,
-         i->pin->Thickness/2))
-{
-       clearSilkPin (i->pin);
-       longjmp (i->env, 1);
-       }
-     return 0;
+  if (IsPointInBox (i->pin->X, i->pin->Y, &text->BoundingBox,
+		    i->pin->Thickness / 2))
+    {
+      clearSilkPin (i->pin);
+      longjmp (i->env, 1);
+    }
+  return 0;
 }
 
 static int
-silkPadText_callback (const BoxType *box, void *cl)
+silkPadText_callback (const BoxType * box, void *cl)
 {
-  TextTypePtr text = (TextTypePtr)box;
-  struct silkInfo *i = (struct silkInfo *)cl;
+  TextTypePtr text = (TextTypePtr) box;
+  struct silkInfo *i = (struct silkInfo *) cl;
   BoxTypePtr b1;
   BoxType b2;
   BDimension w;
 
-  w = i->pad->Thickness/2;
+  w = i->pad->Thickness / 2;
   b2.X1 = MIN (i->pad->Point1.X, i->pad->Point2.X) - w;
   b2.X2 = MAX (i->pad->Point1.X, i->pad->Point2.X) + w;
   b2.Y1 = MIN (i->pad->Point1.Y, i->pad->Point2.Y) - w;
   b2.Y2 = MAX (i->pad->Point1.Y, i->pad->Point2.Y) + w;
   b1 = &text->BoundingBox;
-  if (b1->X1 <= b2.X2 && b1->X2 >= b2.X1 && b1->Y1 <= b2.Y2 && b1->Y2 >= b2.X1)
-  {
-    clearSilkPad (i->pad);
-    longjmp (i->env, 1);
-  }
+  if (b1->X1 <= b2.X2 && b1->X2 >= b2.X1 && b1->Y1 <= b2.Y2
+      && b1->Y2 >= b2.X1)
+    {
+      clearSilkPad (i->pad);
+      longjmp (i->env, 1);
+    }
   return 0;
 }
 
@@ -739,8 +742,7 @@ silkPadText_callback (const BoxType *box, void *cl)
 static int
 PrintSilkscreen (void)
 {
-  static char *extention[2] = { "frontsilk", "backsilk" },
-    *DOSextention[2] =
+  static char *extention[2] = { "frontsilk", "backsilk" }, *DOSextention[2] =
   {
   "fsilk", "bsilk"}
   , *description[2] =
@@ -757,15 +759,15 @@ PrintSilkscreen (void)
       layer =
 	LAYER_PTR (MAX_LAYER + (i == 0 ? COMPONENT_LAYER : SOLDER_LAYER));
       noData = True;
-      ELEMENT_LOOP (PCB->Data, 
-	{
-	  if ((TEST_FLAG (ONSOLDERFLAG, element) == 0) == (i == 0))
-	    {
-	      noData = False;
-	      break;
-	    }
-	}
-      );
+      ELEMENT_LOOP (PCB->Data);
+      {
+	if ((TEST_FLAG (ONSOLDERFLAG, element) == 0) == (i == 0))
+	  {
+	    noData = False;
+	    break;
+	  }
+      }
+      END_LOOP;
       if (layer->PolygonN || layer->LineN || layer->ArcN || layer->TextN)
 	noData = False;
       if (noData)
@@ -783,117 +785,117 @@ PrintSilkscreen (void)
 	FPrintAlignment ();
 
       SetPrintColor (PCB->ElementColor);
-      ELEMENT_LOOP (PCB->Data, 
-	{
-	  if ((TEST_FLAG (ONSOLDERFLAG, element) == 0) == (i == 0))
-	    Device->ElementPackage (element);
-	}
-      );
+      ELEMENT_LOOP (PCB->Data);
+      {
+	if ((TEST_FLAG (ONSOLDERFLAG, element) == 0) == (i == 0))
+	  Device->ElementPackage (element);
+      }
+      END_LOOP;
 
-      POLYGON_LOOP (layer, 
-	{
-	  Device->Poly (polygon);
-	}
-      );
-      LINE_LOOP (layer, 
-	{
-	  Device->Line (line, False);
-	}
-      );
-      ARC_LOOP (layer, 
-	{
-	  Device->Arc (arc, False);
-	}
-      );
-      TEXT_LOOP (layer, 
-	{
-	  Device->Text (text);
-	}
-      );
+      POLYGON_LOOP (layer);
+      {
+	Device->Poly (polygon);
+      }
+      END_LOOP;
+      LINE_LOOP (layer);
+      {
+	Device->Line (line, False);
+      }
+      END_LOOP;
+      ARC_LOOP (layer);
+      {
+	Device->Arc (arc, False);
+      }
+      END_LOOP;
+      TEXT_LOOP (layer);
+      {
+	Device->Text (text);
+      }
+      END_LOOP;
 
       /* erase any silk that might have crossed solder areas */
       polarity_called = False;
-      ALLPIN_LOOP (PCB->Data,
-        {
-	  info.pin = pin;
-	  if (setjmp (info.env) == 0)
+      ALLPIN_LOOP (PCB->Data);
+      {
+	info.pin = pin;
+	if (setjmp (info.env) == 0)
+	  {
+	    r_search (PCB->Data->element_tree, &pin->BoundingBox, NULL,
+		      silkPinElement_callback, &info);
+	    r_search (layer->line_tree, &pin->BoundingBox, NULL,
+		      silkPinLine_callback, &info);
+	    r_search (layer->arc_tree, &pin->BoundingBox, NULL,
+		      silkPinArc_callback, &info);
+	    r_search (layer->text_tree, &pin->BoundingBox, NULL,
+		      silkPinText_callback, &info);
+	    POLYGON_LOOP (layer);
 	    {
-	      r_search (PCB->Data->element_tree, &pin->BoundingBox, NULL,
-	                silkPinElement_callback, &info);
-	      r_search (layer->line_tree, &pin->BoundingBox, NULL,
-	                silkPinLine_callback, &info);
-	      r_search (layer->arc_tree, &pin->BoundingBox, NULL,
-	                silkPinArc_callback, &info);
-	      r_search (layer->text_tree, &pin->BoundingBox, NULL,
-	                silkPinText_callback, &info);
-	      POLYGON_LOOP (layer,
-	        {
-		   if (IsPointInPolygon (pin->X, pin->Y, 0.5 * pin->Thickness,
-		                         polygon))
-                     {
-		       DoPolarity ();
-		       clearSilkPin (pin);
-		       break;
-		     }
+	      if (IsPointInPolygon (pin->X, pin->Y, 0.5 * pin->Thickness,
+				    polygon))
+		{
+		  DoPolarity ();
+		  clearSilkPin (pin);
+		  break;
 		}
-              );
 	    }
-	 }
-       );
-     VIA_LOOP (PCB->Data,
-       {
-         info.pin = via;
-	 if (via->Mask && setjmp (info.env) == 0)
-	   {
-	      r_search (PCB->Data->element_tree, &via->BoundingBox, NULL,
-	                silkPinElement_callback, &info);
-	      r_search (layer->line_tree, &via->BoundingBox, NULL,
-	                silkPinLine_callback, &info);
-	      r_search (layer->arc_tree, &via->BoundingBox, NULL,
-	                silkPinArc_callback, &info);
-	      r_search (layer->text_tree, &via->BoundingBox, NULL,
-	                silkPinText_callback, &info);
-	      POLYGON_LOOP (layer,
-	        {
-		   if (IsPointInPolygon (via->X, via->Y, 0.5 * via->Thickness,
-		                         polygon))
-                     {
-		       DoPolarity ();
-		     clearSilkPin (via);
-		     break;
-		     }
+	    END_LOOP;
+	  }
+      }
+      ENDALL_LOOP;
+      VIA_LOOP (PCB->Data);
+      {
+	info.pin = via;
+	if (via->Mask && setjmp (info.env) == 0)
+	  {
+	    r_search (PCB->Data->element_tree, &via->BoundingBox, NULL,
+		      silkPinElement_callback, &info);
+	    r_search (layer->line_tree, &via->BoundingBox, NULL,
+		      silkPinLine_callback, &info);
+	    r_search (layer->arc_tree, &via->BoundingBox, NULL,
+		      silkPinArc_callback, &info);
+	    r_search (layer->text_tree, &via->BoundingBox, NULL,
+		      silkPinText_callback, &info);
+	    POLYGON_LOOP (layer);
+	    {
+	      if (IsPointInPolygon
+		  (via->X, via->Y, 0.5 * via->Thickness, polygon))
+		{
+		  DoPolarity ();
+		  clearSilkPin (via);
+		  break;
 		}
-              );
 	    }
-	 }
-       );
-     ALLPAD_LOOP (PCB->Data,
-       {
-         info.pad = pad;
-	 if (setjmp (info.env) == 0)
-	   {
-	      r_search (PCB->Data->element_tree, &pad->BoundingBox, NULL,
-	                silkPadElement_callback, &info);
-	      r_search (layer->line_tree, &pad->BoundingBox, NULL,
-	                silkPadLine_callback, &info);
-	      r_search (layer->arc_tree, &pad->BoundingBox, NULL,
-	                silkPadArc_callback, &info);
-	      r_search (layer->text_tree, &pad->BoundingBox, NULL,
-	                silkPadText_callback, &info);
-	      POLYGON_LOOP (layer,
-	        {
-		   CLEAR_FLAG (CLEARPOLYFLAG, polygon);
-		   if (IsPadInPolygon (pad, polygon))
-                     {
-		     DoPolarity ();
-		     clearSilkPad (pad);
-		     break;
-		     }
+	    END_LOOP;
+	  }
+      }
+      END_LOOP;
+      ALLPAD_LOOP (PCB->Data);
+      {
+	info.pad = pad;
+	if (setjmp (info.env) == 0)
+	  {
+	    r_search (PCB->Data->element_tree, &pad->BoundingBox, NULL,
+		      silkPadElement_callback, &info);
+	    r_search (layer->line_tree, &pad->BoundingBox, NULL,
+		      silkPadLine_callback, &info);
+	    r_search (layer->arc_tree, &pad->BoundingBox, NULL,
+		      silkPadArc_callback, &info);
+	    r_search (layer->text_tree, &pad->BoundingBox, NULL,
+		      silkPadText_callback, &info);
+	    POLYGON_LOOP (layer);
+	    {
+	      CLEAR_FLAG (CLEARPOLYFLAG, polygon);
+	      if (IsPadInPolygon (pad, polygon))
+		{
+		  DoPolarity ();
+		  clearSilkPad (pad);
+		  break;
 		}
-              );
 	    }
-	 }
-       );
+	    END_LOOP;
+	  }
+      }
+      ENDALL_LOOP;
       ClosePrintFile ();
     }
   return (0);
@@ -920,15 +922,15 @@ PrintPaste (void)
   for (i = 0; i < 2; i++)
     {
       NoData = True;
-      ALLPAD_LOOP (PCB->Data, 
-	{
-	  if ((TEST_FLAG (ONSOLDERFLAG, pad) == 0) == (i == 0))
-	    {
-	      NoData = False;
-	      break;
-	    }
-	}
-      );
+      ALLPAD_LOOP (PCB->Data);
+      {
+	if ((TEST_FLAG (ONSOLDERFLAG, pad) == 0) == (i == 0))
+	  {
+	    NoData = False;
+	    break;
+	  }
+      }
+      ENDALL_LOOP;
       /* skip empty files */
       if (NoData)
 	continue;
@@ -943,12 +945,12 @@ PrintPaste (void)
 	FPrintAlignment ();
 
       SetPrintColor (PCB->ElementColor);
-      ALLPAD_LOOP (PCB->Data, 
-	{
-	  if ((TEST_FLAG (ONSOLDERFLAG, pad) == 0) == (i == 0))
-	    Device->Pad (pad, 3);
-	}
-      );
+      ALLPAD_LOOP (PCB->Data);
+      {
+	if ((TEST_FLAG (ONSOLDERFLAG, pad) == 0) == (i == 0))
+	  Device->Pad (pad, 3);
+      }
+      ENDALL_LOOP;
       ClosePrintFile ();
     }
   return (0);
@@ -977,16 +979,16 @@ PrintDrill (void)
       SetPrintColor (PCB->PinColor);
       AllDrills = GetDrillInfo (PCB->Data);
       index = 0;
-      DRILL_LOOP (AllDrills, 
-	{
-	  index++;
-	  for (i = 0; i < drill->PinN; i++)
-	    if (!TEST_FLAG (HOLEFLAG, drill->Pin[i]))
-	      Device->Drill (drill->Pin[i], index);
-	    else if (GlobalDrillHelperFlag)
-	      Device->Drill (drill->Pin[i], index);
-	}
-      );
+      DRILL_LOOP (AllDrills);
+      {
+	index++;
+	for (i = 0; i < drill->PinN; i++)
+	  if (!TEST_FLAG (HOLEFLAG, drill->Pin[i]))
+	    Device->Drill (drill->Pin[i], index);
+	  else if (GlobalDrillHelperFlag)
+	    Device->Drill (drill->Pin[i], index);
+      }
+      END_LOOP;
       /* close the file */
       ClosePrintFile ();
       if (GlobalDrillHelperFlag)
@@ -1002,14 +1004,14 @@ PrintDrill (void)
 	}
       SetPrintColor (PCB->PinColor);
       index = 0;
-      DRILL_LOOP (AllDrills, 
-	{
-	  index++;
-	  for (i = 0; i < drill->PinN; i++)
-	    if (TEST_FLAG (HOLEFLAG, drill->Pin[i]))
-	      Device->Drill (drill->Pin[i], index);
-	}
-      );
+      DRILL_LOOP (AllDrills);
+      {
+	index++;
+	for (i = 0; i < drill->PinN; i++)
+	  if (TEST_FLAG (HOLEFLAG, drill->Pin[i]))
+	    Device->Drill (drill->Pin[i], index);
+      }
+      END_LOOP;
       /* close the file */
       ClosePrintFile ();
       FreeDrillInfo (AllDrills);
@@ -1024,8 +1026,7 @@ PrintDrill (void)
 static int
 PrintMask (void)
 {
-  static char *extention[2] = { "frontmask", "backmask" },
-    *DOSextention[2] =
+  static char *extention[2] = { "frontmask", "backmask" }, *DOSextention[2] =
   {
   "fmask", "bmask"}
   , *description[2] =
@@ -1048,22 +1049,22 @@ PrintMask (void)
       SetPrintColor (PCB->PinColor);
       if (GlobalAlignmentFlag)
 	FPrintAlignment ();
-      ALLPAD_LOOP (PCB->Data, 
-	{
-	  if ((TEST_FLAG (ONSOLDERFLAG, pad) == 0) == (i == 0))
-	    Device->Pad (pad, 2);
-	}
-      );
-      ALLPIN_LOOP (PCB->Data, 
-	{
-	  Device->PinOrVia (pin, 2);
-	}
-      );
-      VIA_LOOP (PCB->Data, 
-	{
-	  Device->PinOrVia (via, 2);
-	}
-      );
+      ALLPAD_LOOP (PCB->Data);
+      {
+	if ((TEST_FLAG (ONSOLDERFLAG, pad) == 0) == (i == 0))
+	  Device->Pad (pad, 2);
+      }
+      ENDALL_LOOP;
+      ALLPIN_LOOP (PCB->Data);
+      {
+	Device->PinOrVia (pin, 2);
+      }
+      ENDALL_LOOP;
+      VIA_LOOP (PCB->Data);
+      {
+	Device->PinOrVia (via, 2);
+      }
+      END_LOOP;
 
       ClosePrintFile ();
       /* Restore the invert flag */
@@ -1131,7 +1132,8 @@ text_at (int x, int y, int align, char *fmt, ...)
   t.X = x;
   t.Y = y;
   for (i = 0; tmp[i]; i++)
-    w += (font->Symbol[(int)tmp[i]].Width + font->Symbol[(int)tmp[i]].Delta);
+    w +=
+      (font->Symbol[(int) tmp[i]].Width + font->Symbol[(int) tmp[i]].Delta);
   w = w * TEXT_SIZE / 100;
   t.X -= w * (align & 3) / 2;
   if (t.X < 0)
@@ -1140,7 +1142,8 @@ text_at (int x, int y, int align, char *fmt, ...)
   Device->Text (&t);
   if (align & 8)
     fab_line (t.X, t.Y + font->MaxHeight * TEXT_SIZE / 100 + 1000,
-	      t.X + w, t.Y + font->MaxHeight * TEXT_SIZE / 100 + 1000, FAB_LINE_W);
+	      t.X + w, t.Y + font->MaxHeight * TEXT_SIZE / 100 + 1000,
+	      FAB_LINE_W);
 }
 
 /* Y, +, X, circle, square */
@@ -1166,10 +1169,14 @@ drill_sym (int idx, int x, int y)
       fab_line (x - s2, y, x + s2, y, FAB_LINE_W);
       for (i = 1; i <= size; i++)
 	{
-	  fab_line (x - i * 1600, y - i * 1600, x + i * 1600, y - i * 1600, FAB_LINE_W);
-	  fab_line (x - i * 1600, y - i * 1600, x - i * 1600, y + i * 1600, FAB_LINE_W);
-	  fab_line (x - i * 1600, y + i * 1600, x + i * 1600, y + i * 1600, FAB_LINE_W);
-	  fab_line (x + i * 1600, y - i * 1600, x + i * 1600, y + i * 1600, FAB_LINE_W);
+	  fab_line (x - i * 1600, y - i * 1600, x + i * 1600, y - i * 1600,
+		    FAB_LINE_W);
+	  fab_line (x - i * 1600, y - i * 1600, x - i * 1600, y + i * 1600,
+		    FAB_LINE_W);
+	  fab_line (x - i * 1600, y + i * 1600, x + i * 1600, y + i * 1600,
+		    FAB_LINE_W);
+	  fab_line (x + i * 1600, y - i * 1600, x + i * 1600, y + i * 1600,
+		    FAB_LINE_W);
 	}
       break;
     case 2:			/* X */ ;
@@ -1179,10 +1186,14 @@ drill_sym (int idx, int x, int y)
 		y - s2 * 3 / 4, FAB_LINE_W);
       for (i = 1; i <= size; i++)
 	{
-	  fab_line (x - i * 1600, y - i * 1600, x + i * 1600, y - i * 1600, FAB_LINE_W);
-	  fab_line (x - i * 1600, y - i * 1600, x - i * 1600, y + i * 1600, FAB_LINE_W);
-	  fab_line (x - i * 1600, y + i * 1600, x + i * 1600, y + i * 1600, FAB_LINE_W);
-	  fab_line (x + i * 1600, y - i * 1600, x + i * 1600, y + i * 1600, FAB_LINE_W);
+	  fab_line (x - i * 1600, y - i * 1600, x + i * 1600, y - i * 1600,
+		    FAB_LINE_W);
+	  fab_line (x - i * 1600, y - i * 1600, x - i * 1600, y + i * 1600,
+		    FAB_LINE_W);
+	  fab_line (x - i * 1600, y + i * 1600, x + i * 1600, y + i * 1600,
+		    FAB_LINE_W);
+	  fab_line (x + i * 1600, y - i * 1600, x + i * 1600, y + i * 1600,
+		    FAB_LINE_W);
 	}
       break;
     case 3:			/* circle */ ;
@@ -1192,10 +1203,14 @@ drill_sym (int idx, int x, int y)
     case 4:			/* square */
       for (i = 1; i <= size + 1; i++)
 	{
-	  fab_line (x - i * 1600, y - i * 1600, x + i * 1600, y - i * 1600, FAB_LINE_W);
-	  fab_line (x - i * 1600, y - i * 1600, x - i * 1600, y + i * 1600, FAB_LINE_W);
-	  fab_line (x - i * 1600, y + i * 1600, x + i * 1600, y + i * 1600, FAB_LINE_W);
-	  fab_line (x + i * 1600, y - i * 1600, x + i * 1600, y + i * 1600, FAB_LINE_W);
+	  fab_line (x - i * 1600, y - i * 1600, x + i * 1600, y - i * 1600,
+		    FAB_LINE_W);
+	  fab_line (x - i * 1600, y - i * 1600, x - i * 1600, y + i * 1600,
+		    FAB_LINE_W);
+	  fab_line (x - i * 1600, y + i * 1600, x + i * 1600, y + i * 1600,
+		    FAB_LINE_W);
+	  fab_line (x + i * 1600, y - i * 1600, x + i * 1600, y + i * 1600,
+		    FAB_LINE_W);
 	}
       break;
     }
@@ -1246,19 +1261,21 @@ PrintFab (void)
 		   plated_sym, drill->Pin[i]->X, drill->Pin[i]->Y);
 
       if (plated_sym != -1)
-        {
-	  drill_sym (plated_sym, 100*TEXT_SIZE, yoff + 100*TEXT_SIZE / 4);
-          text_at(135000, yoff, 200, "YES");
-          text_at(98000, yoff, 200, "%d", drill->PinCount + drill->ViaCount);
-        }
+	{
+	  drill_sym (plated_sym, 100 * TEXT_SIZE, yoff + 100 * TEXT_SIZE / 4);
+	  text_at (135000, yoff, 200, "YES");
+	  text_at (98000, yoff, 200, "%d", drill->PinCount + drill->ViaCount);
+	}
       if (unplated_sym != -1)
-        {
-	  drill_sym (unplated_sym, 100*TEXT_SIZE, yoff + 100*TEXT_SIZE / 4);
-          text_at(140000, yoff, 200, "NO");
-          text_at(98000, yoff, 200, "%d", drill->UnplatedCount);
-        }
+	{
+	  drill_sym (unplated_sym, 100 * TEXT_SIZE,
+		     yoff + 100 * TEXT_SIZE / 4);
+	  text_at (140000, yoff, 200, "NO");
+	  text_at (98000, yoff, 200, "%d", drill->UnplatedCount);
+	}
       SetPrintColor (PCB->ElementColor);
-      text_at (45000, yoff, 200, "%0.3f", drill->DrillSize/100000. + 0.0004);
+      text_at (45000, yoff, 200, "%0.3f",
+	       drill->DrillSize / 100000. + 0.0004);
       yoff -= TEXT_LINE;
 
       total_drills += drill->PinCount;
@@ -1282,43 +1299,44 @@ PrintFab (void)
   strftime (utcTime, sizeof utcTime, "%c UTC", gmtime (&currenttime));
 
   yoff = -TEXT_LINE;
-  for (i=0; i < MAX_LAYER; i++)
+  for (i = 0; i < MAX_LAYER; i++)
     {
-      if (strcasecmp("route", LAYER_PTR(i)->Name) == 0)
-        break;
-      if (strcasecmp("outline", LAYER_PTR(i)->Name) == 0)
-        break;
+      if (strcasecmp ("route", LAYER_PTR (i)->Name) == 0)
+	break;
+      if (strcasecmp ("outline", LAYER_PTR (i)->Name) == 0)
+	break;
     }
   if (i == MAX_LAYER)
     {
-      text_at (200000, yoff, 0, "Maximum Dimensions: %d mils wide, %d mils high",
-	   PCB->MaxWidth/100, PCB->MaxHeight/100);
+      text_at (200000, yoff, 0,
+	       "Maximum Dimensions: %d mils wide, %d mils high",
+	       PCB->MaxWidth / 100, PCB->MaxHeight / 100);
       FPrintOutline ();
       text_at (PCB->MaxWidth / 2, PCB->MaxHeight + 2000, 1,
-	   "Board outline is the centerline of this 10 mil"
-           " rectangle - 0,0 to %d,%d mils",
-	   PCB->MaxWidth/100, PCB->MaxHeight/100);
+	       "Board outline is the centerline of this 10 mil"
+	       " rectangle - 0,0 to %d,%d mils",
+	       PCB->MaxWidth / 100, PCB->MaxHeight / 100);
     }
   else
     {
-      LayerTypePtr layer = LAYER_PTR(i);
-      LINE_LOOP (layer, 
-        {
-          Device->Line (line, False);
-        }
-      );
-      ARC_LOOP (layer, 
-        {
-          Device->Arc (arc, False);
-        }
-      );
-      TEXT_LOOP (layer, 
-        {
-          Device->Text (text);
-        }
-      );
+      LayerTypePtr layer = LAYER_PTR (i);
+      LINE_LOOP (layer);
+      {
+	Device->Line (line, False);
+      }
+      END_LOOP;
+      ARC_LOOP (layer);
+      {
+	Device->Arc (arc, False);
+      }
+      END_LOOP;
+      TEXT_LOOP (layer);
+      {
+	Device->Text (text);
+      }
+      END_LOOP;
       text_at (PCB->MaxWidth / 2, PCB->MaxHeight + 2000, 1,
-	   "Board outline is the centerline of this path");
+	       "Board outline is the centerline of this path");
     }
   yoff -= TEXT_LINE;
   text_at (200000, yoff, 0, "Date: %s", utcTime);
@@ -1415,4 +1433,3 @@ Print (char *Command, float Scale,
   restoreCursor ();
   return (0);
 }
-

@@ -192,7 +192,7 @@ static PointerListType
 collectSelectedElements ()
 {
   PointerListType list = { 0, 0, NULL };
-  ELEMENT_LOOP (PCB->Data, 
+  ELEMENT_LOOP (PCB->Data);
     {
       if (TEST_FLAG (SELECTEDFLAG, element))
 	{
@@ -200,7 +200,7 @@ collectSelectedElements ()
 	  *epp = element;
 	}
     }
-  );
+  END_LOOP;
   return list;
 }
 
@@ -392,7 +392,7 @@ ComputeCost (NetListTypePtr Nets, double T0, double T)
   /* now collect module areas (bounding rect of pins/pads) */
   /* two lists for solder side / component side. */
 
-   ELEMENT_LOOP (PCB->Data, 
+   ELEMENT_LOOP (PCB->Data);
     {
 	BoxListTypePtr thisside;
 	BoxListTypePtr otherside;
@@ -420,7 +420,7 @@ ComputeCost (NetListTypePtr Nets, double T0, double T)
 	box->Y1 = MAX_COORD;
 	box->X2 = -MAX_COORD;
 	box->Y2 = -MAX_COORD;
-	PIN_LOOP (element, 
+	PIN_LOOP (element); 
 	  {
 	    thickness = pin->Thickness / 2;
 	    clearance = pin->Clearance * 2;
@@ -428,9 +428,10 @@ ComputeCost (NetListTypePtr Nets, double T0, double T)
 			  pin->X - (thickness + clearance),
 			  pin->Y - (thickness + clearance),
 			  pin->X + (thickness + clearance),
-			  pin->Y + (thickness + clearance))}
-	);
-	PAD_LOOP (element, 
+			  pin->Y + (thickness + clearance))
+	  }
+	END_LOOP;
+	PAD_LOOP (element);
 	  {
 	    thickness = pad->Thickness / 2;
 	    clearance = pad->Clearance * 2;
@@ -447,11 +448,11 @@ ComputeCost (NetListTypePtr Nets, double T0, double T)
 			  MAX (pad->Point1.Y,
 				 pad->Point2.Y) + (thickness +
 						     clearance))}
-	);
+	END_LOOP;
 	/* add a box for each pin to the "opposite side":
 	 * surface mount components can't sit on top of pins */
 	if (!CostParameter.fast)
-	  PIN_LOOP (element, 
+	  PIN_LOOP (element);
 	  {
 	    box = GetBoxMemory (otherside);
 	    thickness = pin->Thickness / 2;
@@ -484,7 +485,7 @@ ComputeCost (NetListTypePtr Nets, double T0, double T)
 	    else
 	      lastbox = box;
 	  }
-	);
+	END_LOOP;
 	/* assess out of bounds penalty */
 	if (element->VBox.X1 < 0 ||
 	    element->VBox.Y1 < 0 ||
@@ -492,7 +493,7 @@ ComputeCost (NetListTypePtr Nets, double T0, double T)
 	    element->VBox.Y2 > PCB->MaxHeight)
 	  delta3 += CostParameter.out_of_bounds_penalty;
     }
-  );
+  END_LOOP;
   /* compute intersection area of module areas box list */
   delta2 = sqrt (fabs (ComputeIntersectionArea (&solderside) +
 	    ComputeIntersectionArea (&componentside))) *
@@ -522,7 +523,7 @@ ComputeCost (NetListTypePtr Nets, double T0, double T)
     struct ebox **boxpp, *boxp;
     rtree_t *rt_s, *rt_c;
     int factor;
-    ELEMENT_LOOP (PCB->Data, 
+    ELEMENT_LOOP (PCB->Data);
       {
 	boxpp = (struct ebox **)
 	  GetPointerMemory (TEST_FLAG (ONSOLDERFLAG, element) ?
@@ -531,7 +532,7 @@ ComputeCost (NetListTypePtr Nets, double T0, double T)
 	(*boxpp)->box = element->VBox;
 	(*boxpp)->element = element;
       }
-    );
+    END_LOOP;
     rt_s = r_create_tree ((const BoxType **) seboxes.Ptr, seboxes.PtrN, 1);
     rt_c = r_create_tree ((const BoxType **) ceboxes.Ptr, ceboxes.PtrN, 1);
     FreePointerListMemory (&seboxes);
@@ -539,7 +540,7 @@ ComputeCost (NetListTypePtr Nets, double T0, double T)
     /* now, for each element, find its neighbor on all four sides */
     delta4 = 0;
     for (i = 0; i < 4; i++)
-      ELEMENT_LOOP (PCB->Data, 
+      ELEMENT_LOOP (PCB->Data);
       {
 	boxp = (struct ebox *)
 	  r_find_neighbor (TEST_FLAG (ONSOLDERFLAG, element) ?
@@ -575,7 +576,7 @@ ComputeCost (NetListTypePtr Nets, double T0, double T)
 	    element->VBox.Y2 == boxp->element->VBox.Y2)
 	  delta4 += factor * CostParameter.aligned_neighbor_bonus;
       }
-    );
+    END_LOOP;
     /* free k-d tree memory */
     r_destroy_tree (&rt_s);
     r_destroy_tree (&rt_c);
@@ -584,14 +585,14 @@ ComputeCost (NetListTypePtr Nets, double T0, double T)
   {
     Location minX = MAX_COORD, minY = MAX_COORD;
     Location maxX = -MAX_COORD, maxY = -MAX_COORD;
-    ELEMENT_LOOP (PCB->Data, 
+    ELEMENT_LOOP (PCB->Data);
       {
 	MAKEMIN (minX, element->VBox.X1);
 	MAKEMIN (minY, element->VBox.Y1);
 	MAKEMAX (maxX, element->VBox.X2);
 	MAKEMAX (maxY, element->VBox.Y2);
       }
-    );
+    END_LOOP;
     if (minX < maxX && minY < maxY)
       delta5 = CostParameter.overall_area_penalty *
 	sqrt((double)(maxX - minX) * (maxY - minY) * 0.0001);

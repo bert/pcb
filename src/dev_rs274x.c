@@ -319,17 +319,17 @@ GBX_Init (PrintInitTypePtr Flags)
 {
   initApertures (&GBX_Apertures);
   /* gather all aperture macros */
-  ALLLINE_LOOP (PCB->Data, 
+  ALLLINE_LOOP (PCB->Data);
     {
       findApertureCode (&GBX_Apertures, line->Thickness, 0, 0, ROUND);
       if (TEST_FLAG (CLEARLINEFLAG, line))
 	findApertureCode (&GBX_Apertures,
 			  line->Thickness + line->Clearance, 0, 0, ROUND);
     }
-  );
-  ELEMENT_LOOP (PCB->Data, 
+  ENDALL_LOOP;
+  ELEMENT_LOOP (PCB->Data);
     {
-      PIN_LOOP (element, 
+      PIN_LOOP (element);
 	{
 	  findApertureCode (&GBX_Apertures, pin->Thickness, 0, 0,
 			    TEST_FLAG (SQUAREFLAG,
@@ -367,8 +367,8 @@ GBX_Init (PrintInitTypePtr Flags)
 				OCTAGON : ROUND);
 	    }
 	}
-      );
-      PAD_LOOP (element, 
+      END_LOOP;
+      PAD_LOOP (element);
 	{
 	  findApertureCode (&GBX_Apertures, pad->Thickness, 0, 0,
 			    TEST_FLAG (SQUAREFLAG, pad) ? SQUARE : ROUND);
@@ -380,26 +380,26 @@ GBX_Init (PrintInitTypePtr Flags)
 	  findApertureCode (&GBX_Apertures, pad->Mask, 0, 0,
 			    TEST_FLAG (SQUAREFLAG, pad) ? SQUARE : ROUND);
 	}
-      );
-      ELEMENTLINE_LOOP (element, 
+      END_LOOP;
+      ELEMENTLINE_LOOP (element);
 	{
 	  findApertureCode (&GBX_Apertures, line->Thickness, 0, 0, ROUND);
 	}
-      );
-      ARC_LOOP (element, 
+      END_LOOP;
+      ARC_LOOP (element);
 	{
 	  findApertureCode (&GBX_Apertures, arc->Thickness, 0, 0, ROUND);
 	}
-      );
+      END_LOOP;
       findTextApertures (&ELEMENT_TEXT (PCB, element));
     }
-  );
-  ALLTEXT_LOOP (PCB->Data, 
+      END_LOOP;
+  ALLTEXT_LOOP (PCB->Data);
     {
       findTextApertures (text);
     }
-  );
-  VIA_LOOP (PCB->Data, 
+  ENDALL_LOOP;
+  VIA_LOOP (PCB->Data);
     {
       findApertureCode (&GBX_Apertures, via->Thickness, 0, 0,
 			TEST_FLAG (SQUAREFLAG,
@@ -432,7 +432,7 @@ GBX_Init (PrintInitTypePtr Flags)
 				       via) ? SQUARECLEAR : ROUNDCLEAR);
 	}
     }
-  );
+      END_LOOP;
 
   /* make sure the outline/alignment aperture exists should it be used */
   /* polygons use this aperture also  */
@@ -473,12 +473,12 @@ GBX_Preamble (PrintInitTypePtr Flags, char *Description)
 
       fprintf (GBX_Flags.FP, "M48\015\012" "INCH,TZ\015\012");
       usedDrills = GetDrillInfo (PCB->Data);
-      DRILL_LOOP (usedDrills, 
+      DRILL_LOOP (usedDrills);
 	{
 	  fprintf (GBX_Flags.FP, "T%02dC%.3f\015\012",
 		   index++, drill->DrillSize / 100000.0);
 	}
-      );
+      END_LOOP;
       FreeDrillInfo (usedDrills);
       fprintf (GBX_Flags.FP, "%%\015\012");
       lastDrill = 0;
@@ -626,11 +626,11 @@ GBX_GroupID (int group)
 {
   theGroup = group;
   fprintf (GBX_Flags.FP, "G04 contains layers ");
-  GROUP_LOOP (group,
+  GROUP_LOOP (group);
     {
       fprintf (GBX_Flags.FP, "%s (%i) ", UNKNOWN (layer->Name), number);
     }
-  );
+  END_LOOP;
   fprintf (GBX_Flags.FP, "*\015\012");
 }
 
@@ -743,7 +743,7 @@ GBX_PrintPolygon (PolygonTypePtr Ptr)
   /* All polygon fills need to have a defined aperture.  */
   setAperture (&GBX_Apertures, 1000, 0, 0, ROUND);
   fprintf (GBX_Flags.FP, "G36*\015\012");
-  POLYGONPOINT_LOOP (Ptr, 
+  POLYGONPOINT_LOOP (Ptr);
     {
       if (point->X != lastX)
 	{
@@ -769,7 +769,7 @@ GBX_PrintPolygon (PolygonTypePtr Ptr)
 	fprintf (GBX_Flags.FP, "D01*\015\012");
       m = False;
     }
-  );
+  END_LOOP;
   if (startX != lastX)
     {
       m = True;
@@ -927,16 +927,16 @@ GBX_PrintText (TextTypePtr Text)
 static void
 GBX_PrintElementPackage (ElementTypePtr Element)
 {
-  ELEMENTLINE_LOOP (Element, 
+  ELEMENTLINE_LOOP (Element);
     {
       GBX_PrintLine (line, False);
     }
-  );
-  ARC_LOOP (Element, 
+  END_LOOP;
+  ARC_LOOP (Element);
     {
       GBX_PrintArc (arc, False);
     }
-  );
+  END_LOOP;
   if (!TEST_FLAG (HIDENAMEFLAG, Element))
     GBX_PrintText (&ELEMENT_TEXT (PCB, Element));
 }

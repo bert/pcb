@@ -183,9 +183,9 @@ GetValue (String * Params, Boolean * absolute, Cardinal Num)
   else
     {
       if (isdigit (**Params))
-        *absolute = True;
+	*absolute = True;
       else
-        *absolute = False;
+	*absolute = False;
       value = atof (*Params);
     }
   if (Num == 3)
@@ -216,10 +216,10 @@ SetPinBoundingBox (PinTypePtr Pin)
 {
   BDimension width;
 
-   /* the bounding box covers the extent of influence
-    * so it must include the clearance values too
-    */
-  width = (Pin->Clearance +1)/2 + (Pin->Thickness +1)/2;
+  /* the bounding box covers the extent of influence
+   * so it must include the clearance values too
+   */
+  width = (Pin->Clearance + 1) / 2 + (Pin->Thickness + 1) / 2;
   width = MAX (width, Pin->Mask);
   Pin->BoundingBox.X1 = Pin->X - width;
   Pin->BoundingBox.Y1 = Pin->Y - width;
@@ -235,15 +235,15 @@ SetPadBoundingBox (PadTypePtr Pad)
 {
   BDimension width;
 
-   /* the bounding box covers the extent of influence
-    * so it must include the clearance values too
-    */
-  width = (Pad->Thickness + Pad->Clearance +1)/2;
+  /* the bounding box covers the extent of influence
+   * so it must include the clearance values too
+   */
+  width = (Pad->Thickness + Pad->Clearance + 1) / 2;
   width = MAX (width, Pad->Mask);
-  Pad->BoundingBox.X1 = MIN(Pad->Point1.X, Pad->Point2.X) - width;
-  Pad->BoundingBox.X2 = MAX(Pad->Point1.X, Pad->Point2.X) + width;
-  Pad->BoundingBox.Y1 = MIN(Pad->Point1.Y, Pad->Point2.Y) - width;
-  Pad->BoundingBox.Y2 = MAX(Pad->Point1.Y, Pad->Point2.Y) + width;
+  Pad->BoundingBox.X1 = MIN (Pad->Point1.X, Pad->Point2.X) - width;
+  Pad->BoundingBox.X2 = MAX (Pad->Point1.X, Pad->Point2.X) + width;
+  Pad->BoundingBox.Y1 = MIN (Pad->Point1.Y, Pad->Point2.Y) - width;
+  Pad->BoundingBox.Y2 = MAX (Pad->Point1.Y, Pad->Point2.Y) + width;
 }
 
 /* ---------------------------------------------------------------------------
@@ -254,12 +254,12 @@ SetLineBoundingBox (LineTypePtr Line)
 {
   BDimension width;
 
-  width = (Line->Thickness + Line->Clearance +1)/2;
+  width = (Line->Thickness + Line->Clearance + 1) / 2;
 
-  Line->BoundingBox.X1 = MIN(Line->Point1.X, Line->Point2.X) - width;
-  Line->BoundingBox.X2 = MAX(Line->Point1.X, Line->Point2.X) + width;
-  Line->BoundingBox.Y1 = MIN(Line->Point1.Y, Line->Point2.Y) - width;
-  Line->BoundingBox.Y2 = MAX(Line->Point1.Y, Line->Point2.Y) + width;
+  Line->BoundingBox.X1 = MIN (Line->Point1.X, Line->Point2.X) - width;
+  Line->BoundingBox.X2 = MAX (Line->Point1.X, Line->Point2.X) + width;
+  Line->BoundingBox.Y1 = MIN (Line->Point1.Y, Line->Point2.Y) - width;
+  Line->BoundingBox.Y2 = MAX (Line->Point1.Y, Line->Point2.Y) + width;
   SetPointBoundingBox (&Line->Point1);
   SetPointBoundingBox (&Line->Point2);
 }
@@ -272,32 +272,33 @@ SetPolygonBoundingBox (PolygonTypePtr Polygon)
 {
   Polygon->BoundingBox.X1 = Polygon->BoundingBox.Y1 = MAX_COORD;
   Polygon->BoundingBox.X2 = Polygon->BoundingBox.Y2 = 0;
-  POLYGONPOINT_LOOP (Polygon, 
-    {
-      MAKEMIN (Polygon->BoundingBox.X1, point->X);
-      MAKEMIN (Polygon->BoundingBox.Y1, point->Y);
-      MAKEMAX (Polygon->BoundingBox.X2, point->X);
-      MAKEMAX (Polygon->BoundingBox.Y2, point->Y);
-    }
-  );
+  POLYGONPOINT_LOOP (Polygon);
+  {
+    MAKEMIN (Polygon->BoundingBox.X1, point->X);
+    MAKEMIN (Polygon->BoundingBox.Y1, point->Y);
+    MAKEMAX (Polygon->BoundingBox.X2, point->X);
+    MAKEMAX (Polygon->BoundingBox.Y2, point->Y);
+  }
+  END_LOOP;
 }
 
 /* ---------------------------------------------------------------------------
  * sets the bounding box of an elements
  */
 void
-SetElementBoundingBox (DataTypePtr Data, ElementTypePtr Element, FontTypePtr Font)
+SetElementBoundingBox (DataTypePtr Data, ElementTypePtr Element,
+		       FontTypePtr Font)
 {
   BoxTypePtr box, vbox;
 
   if (Data && Data->element_tree)
-    r_delete_entry(Data->element_tree, (BoxType *)Element);
+    r_delete_entry (Data->element_tree, (BoxType *) Element);
   /* first update the text objects */
-  ELEMENTTEXT_LOOP (Element, 
-    {
-      SetTextBoundingBox (Font, text);
-    }
-  );
+  ELEMENTTEXT_LOOP (Element);
+  {
+    SetTextBoundingBox (Font, text);
+  }
+  END_LOOP;
 
   /* do not include the elementnames bounding box which
    * is handles seperatly
@@ -306,120 +307,120 @@ SetElementBoundingBox (DataTypePtr Data, ElementTypePtr Element, FontTypePtr Fon
   vbox = &Element->VBox;
   box->X1 = box->Y1 = MAX_COORD;
   box->X2 = box->Y2 = 0;
-  ELEMENTLINE_LOOP (Element, 
-    {
-      SetLineBoundingBox (line);
-      MAKEMIN (box->X1, line->Point1.X - (line->Thickness + 1) / 2);
-      MAKEMIN (box->Y1, line->Point1.Y - (line->Thickness + 1) / 2);
-      MAKEMIN (box->X1, line->Point2.X - (line->Thickness + 1) / 2);
-      MAKEMIN (box->Y1, line->Point2.Y - (line->Thickness + 1) / 2);
-      MAKEMAX (box->X2, line->Point1.X + (line->Thickness + 1) / 2);
-      MAKEMAX (box->Y2, line->Point1.Y + (line->Thickness + 1) / 2);
-      MAKEMAX (box->X2, line->Point2.X + (line->Thickness + 1) / 2);
-      MAKEMAX (box->Y2, line->Point2.Y + (line->Thickness + 1) / 2);
-    }
-  );
-  ARC_LOOP (Element, 
-    {
-      SetArcBoundingBox (arc);
-      MAKEMIN (box->X1, arc->BoundingBox.X1);
-      MAKEMIN (box->Y1, arc->BoundingBox.Y1);
-      MAKEMAX (box->X2, arc->BoundingBox.X2);
-      MAKEMAX (box->Y2, arc->BoundingBox.Y2);
-    }
-  );
+  ELEMENTLINE_LOOP (Element);
+  {
+    SetLineBoundingBox (line);
+    MAKEMIN (box->X1, line->Point1.X - (line->Thickness + 1) / 2);
+    MAKEMIN (box->Y1, line->Point1.Y - (line->Thickness + 1) / 2);
+    MAKEMIN (box->X1, line->Point2.X - (line->Thickness + 1) / 2);
+    MAKEMIN (box->Y1, line->Point2.Y - (line->Thickness + 1) / 2);
+    MAKEMAX (box->X2, line->Point1.X + (line->Thickness + 1) / 2);
+    MAKEMAX (box->Y2, line->Point1.Y + (line->Thickness + 1) / 2);
+    MAKEMAX (box->X2, line->Point2.X + (line->Thickness + 1) / 2);
+    MAKEMAX (box->Y2, line->Point2.Y + (line->Thickness + 1) / 2);
+  }
+  END_LOOP;
+  ARC_LOOP (Element);
+  {
+    SetArcBoundingBox (arc);
+    MAKEMIN (box->X1, arc->BoundingBox.X1);
+    MAKEMIN (box->Y1, arc->BoundingBox.Y1);
+    MAKEMAX (box->X2, arc->BoundingBox.X2);
+    MAKEMAX (box->Y2, arc->BoundingBox.Y2);
+  }
+  END_LOOP;
   *vbox = *box;
-  PIN_LOOP (Element, 
-    {
-      if (Data && Data->pin_tree)
-        r_delete_entry (Data->pin_tree, (BoxType *)pin);
-      SetPinBoundingBox (pin);
-      if (Data)
-        {
-          if (!Data->pin_tree)
-            Data->pin_tree = r_create_tree (NULL, 0, 0);
-          r_insert_entry (Data->pin_tree, (BoxType *)pin, 0);
-        }
-      MAKEMIN (box->X1, pin->BoundingBox.X1);
-      MAKEMIN (box->Y1, pin->BoundingBox.Y1);
-      MAKEMAX (box->X2, pin->BoundingBox.X2);
-      MAKEMAX (box->Y2, pin->BoundingBox.Y2);
-      MAKEMIN (vbox->X1, pin->X - pin->Thickness/2);
-      MAKEMIN (vbox->Y1, pin->Y - pin->Thickness/2);
-      MAKEMAX (vbox->X2, pin->X + pin->Thickness/2);
-      MAKEMAX (vbox->Y2, pin->Y + pin->Thickness/2);
-    }
-  );
-  PAD_LOOP (Element, 
-    {
-      if (Data && Data->pad_tree)
-        r_delete_entry (Data->pad_tree, (BoxType *)pad);
-      SetPadBoundingBox (pad);
-      if (Data)
-        {
-          if (!Data->pad_tree)
-            Data->pad_tree = r_create_tree (NULL, 0, 0);
-          r_insert_entry (Data->pad_tree, (BoxType *)pad, 0);
-          MAKEMIN (box->X1, pad->BoundingBox.X1);
-          MAKEMIN (box->Y1, pad->BoundingBox.Y1);
-          MAKEMAX (box->X2, pad->BoundingBox.X2);
-          MAKEMAX (box->Y2, pad->BoundingBox.Y2);
-          MAKEMIN (vbox->X1,
-	              MIN (pad->Point1.X, pad->Point2.X) - pad->Thickness/2);
-          MAKEMIN (vbox->Y1,
-	              MIN (pad->Point1.Y, pad->Point2.Y) - pad->Thickness/2);
-          MAKEMAX (vbox->X2,
-	              MAX (pad->Point1.X, pad->Point2.X) + pad->Thickness/2);
-          MAKEMAX (vbox->Y2,
-	              MAX (pad->Point1.Y, pad->Point2.Y) + pad->Thickness/2);
-        }
-    }
-  );
+  PIN_LOOP (Element);
+  {
+    if (Data && Data->pin_tree)
+      r_delete_entry (Data->pin_tree, (BoxType *) pin);
+    SetPinBoundingBox (pin);
+    if (Data)
+      {
+	if (!Data->pin_tree)
+	  Data->pin_tree = r_create_tree (NULL, 0, 0);
+	r_insert_entry (Data->pin_tree, (BoxType *) pin, 0);
+      }
+    MAKEMIN (box->X1, pin->BoundingBox.X1);
+    MAKEMIN (box->Y1, pin->BoundingBox.Y1);
+    MAKEMAX (box->X2, pin->BoundingBox.X2);
+    MAKEMAX (box->Y2, pin->BoundingBox.Y2);
+    MAKEMIN (vbox->X1, pin->X - pin->Thickness / 2);
+    MAKEMIN (vbox->Y1, pin->Y - pin->Thickness / 2);
+    MAKEMAX (vbox->X2, pin->X + pin->Thickness / 2);
+    MAKEMAX (vbox->Y2, pin->Y + pin->Thickness / 2);
+  }
+  END_LOOP;
+  PAD_LOOP (Element);
+  {
+    if (Data && Data->pad_tree)
+      r_delete_entry (Data->pad_tree, (BoxType *) pad);
+    SetPadBoundingBox (pad);
+    if (Data)
+      {
+	if (!Data->pad_tree)
+	  Data->pad_tree = r_create_tree (NULL, 0, 0);
+	r_insert_entry (Data->pad_tree, (BoxType *) pad, 0);
+	MAKEMIN (box->X1, pad->BoundingBox.X1);
+	MAKEMIN (box->Y1, pad->BoundingBox.Y1);
+	MAKEMAX (box->X2, pad->BoundingBox.X2);
+	MAKEMAX (box->Y2, pad->BoundingBox.Y2);
+	MAKEMIN (vbox->X1,
+		 MIN (pad->Point1.X, pad->Point2.X) - pad->Thickness / 2);
+	MAKEMIN (vbox->Y1,
+		 MIN (pad->Point1.Y, pad->Point2.Y) - pad->Thickness / 2);
+	MAKEMAX (vbox->X2,
+		 MAX (pad->Point1.X, pad->Point2.X) + pad->Thickness / 2);
+	MAKEMAX (vbox->Y2,
+		 MAX (pad->Point1.Y, pad->Point2.Y) + pad->Thickness / 2);
+      }
+  }
+  END_LOOP;
   /* now we set the EDGE2FLAG of the pad if Point2
    * is closer to the outside edge than Point1
    */
-  PAD_LOOP (Element, 
-    {
-      if (pad->Point1.Y == pad->Point2.Y)
-	{
-	  /* horizontal pad */
-	  if (box->X2 - pad->Point2.X < pad->Point1.X - box->X1)
-	    SET_FLAG (EDGE2FLAG, pad);
-	  else
-	    CLEAR_FLAG (EDGE2FLAG, pad);
-	}
-      else
-	{
-	  /* vertical pad */
-	  if (box->Y2 - pad->Point2.Y < pad->Point1.Y - box->Y1)
-	    SET_FLAG (EDGE2FLAG, pad);
-	  else
-	    CLEAR_FLAG (EDGE2FLAG, pad);
-	}
-    }
-  );
+  PAD_LOOP (Element);
+  {
+    if (pad->Point1.Y == pad->Point2.Y)
+      {
+	/* horizontal pad */
+	if (box->X2 - pad->Point2.X < pad->Point1.X - box->X1)
+	  SET_FLAG (EDGE2FLAG, pad);
+	else
+	  CLEAR_FLAG (EDGE2FLAG, pad);
+      }
+    else
+      {
+	/* vertical pad */
+	if (box->Y2 - pad->Point2.Y < pad->Point1.Y - box->Y1)
+	  SET_FLAG (EDGE2FLAG, pad);
+	else
+	  CLEAR_FLAG (EDGE2FLAG, pad);
+      }
+  }
+  END_LOOP;
 
   /* mark pins with component orientation */
   if ((box->X2 - box->X1) > (box->Y2 - box->Y1))
     {
-      PIN_LOOP (Element, 
-	{
-	  SET_FLAG (EDGE2FLAG, pin);
-	}
-      );
+      PIN_LOOP (Element);
+      {
+	SET_FLAG (EDGE2FLAG, pin);
+      }
+      END_LOOP;
     }
   else
     {
-      PIN_LOOP (Element, 
-	{
-	  CLEAR_FLAG (EDGE2FLAG, pin);
-	}
-      );
+      PIN_LOOP (Element);
+      {
+	CLEAR_FLAG (EDGE2FLAG, pin);
+      }
+      END_LOOP;
     }
   if (Data && !Data->element_tree)
-    Data->element_tree = r_create_tree(NULL, 0, 0);
+    Data->element_tree = r_create_tree (NULL, 0, 0);
   if (Data)
-    r_insert_entry(Data->element_tree, box, 0);
+    r_insert_entry (Data->element_tree, box, 0);
 }
 
 /* ---------------------------------------------------------------------------
@@ -439,8 +440,8 @@ SetTextBoundingBox (FontTypePtr FontPtr, TextTypePtr Text)
     if (*s <= MAX_FONTPOSITION && symbol[*s].Valid)
       {
 	LineTypePtr line = symbol[*s].Line;
-        for (i = 0; i < symbol[*s].LineN; line++, i++)
-          if (line->Thickness > maxThick)
+	for (i = 0; i < symbol[*s].LineN; line++, i++)
+	  if (line->Thickness > maxThick)
 	    maxThick = line->Thickness;
 	width += symbol[*s].Width + symbol[*s].Delta;
 	height = MAX (height, (Location) symbol[*s].Height);
@@ -469,17 +470,19 @@ SetTextBoundingBox (FontTypePtr FontPtr, TextTypePtr Text)
     {
       Text->BoundingBox.X1 -= maxThick;
       Text->BoundingBox.Y1 -= SWAP_SIGN_Y (maxThick);
-      Text->BoundingBox.X2 = Text->BoundingBox.X1 + SWAP_SIGN_X (width + maxThick);
-      Text->BoundingBox.Y2 = Text->BoundingBox.Y1 + SWAP_SIGN_Y (height + 2*maxThick);
-      RotateBoxLowLevel (&Text->BoundingBox,
-			 Text->X, Text->Y, (4 - Text->Direction) & 0x03);
+      Text->BoundingBox.X2 =
+	Text->BoundingBox.X1 + SWAP_SIGN_X (width + maxThick);
+      Text->BoundingBox.Y2 =
+	Text->BoundingBox.Y1 + SWAP_SIGN_Y (height + 2 * maxThick);
+      RotateBoxLowLevel (&Text->BoundingBox, Text->X, Text->Y,
+			 (4 - Text->Direction) & 0x03);
     }
   else
     {
       Text->BoundingBox.X1 -= maxThick;
       Text->BoundingBox.Y1 -= maxThick;
       Text->BoundingBox.X2 = Text->BoundingBox.X1 + width + maxThick;
-      Text->BoundingBox.Y2 = Text->BoundingBox.Y1 + height + 2*maxThick;
+      Text->BoundingBox.Y2 = Text->BoundingBox.Y1 + height + 2 * maxThick;
       RotateBoxLowLevel (&Text->BoundingBox,
 			 Text->X, Text->Y, Text->Direction);
     }
@@ -518,65 +521,65 @@ GetDataBoundingBox (DataTypePtr Data)
   box.X2 = box.Y2 = -MAX_COORD;
 
   /* now scan for the lowest/highest X and Y coodinate */
-  VIA_LOOP (Data, 
+  VIA_LOOP (Data);
+  {
+    box.X1 = MIN (box.X1, via->X - via->Thickness / 2);
+    box.Y1 = MIN (box.Y1, via->Y - via->Thickness / 2);
+    box.X2 = MAX (box.X2, via->X + via->Thickness / 2);
+    box.Y2 = MAX (box.Y2, via->Y + via->Thickness / 2);
+  }
+  END_LOOP;
+  ELEMENT_LOOP (Data);
+  {
+    box.X1 = MIN (box.X1, element->BoundingBox.X1);
+    box.Y1 = MIN (box.Y1, element->BoundingBox.Y1);
+    box.X2 = MAX (box.X2, element->BoundingBox.X2);
+    box.Y2 = MAX (box.Y2, element->BoundingBox.Y2);
     {
-      box.X1 = MIN (box.X1, via->X - via->Thickness / 2);
-      box.Y1 = MIN (box.Y1, via->Y - via->Thickness / 2);
-      box.X2 = MAX (box.X2, via->X + via->Thickness / 2);
-      box.Y2 = MAX (box.Y2, via->Y + via->Thickness / 2);
-    }
-  );
-  ELEMENT_LOOP (Data, 
-    {
-      box.X1 = MIN (box.X1, element->BoundingBox.X1);
-      box.Y1 = MIN (box.Y1, element->BoundingBox.Y1);
-      box.X2 = MAX (box.X2, element->BoundingBox.X2);
-      box.Y2 = MAX (box.Y2, element->BoundingBox.Y2);
-      {
-	TextTypePtr text = &NAMEONPCB_TEXT (element);
-	box.X1 = MIN (box.X1, text->BoundingBox.X1);
-	box.Y1 = MIN (box.Y1, text->BoundingBox.Y1);
-	box.X2 = MAX (box.X2, text->BoundingBox.X2);
-	box.Y2 = MAX (box.Y2, text->BoundingBox.Y2);
-      };
-    }
-  );
-  ALLLINE_LOOP (Data, 
-    {
-      box.X1 = MIN (box.X1, line->Point1.X - line->Thickness / 2);
-      box.Y1 = MIN (box.Y1, line->Point1.Y - line->Thickness / 2);
-      box.X1 = MIN (box.X1, line->Point2.X - line->Thickness / 2);
-      box.Y1 = MIN (box.Y1, line->Point2.Y - line->Thickness / 2);
-      box.X2 = MAX (box.X2, line->Point1.X + line->Thickness / 2);
-      box.Y2 = MAX (box.Y2, line->Point1.Y + line->Thickness / 2);
-      box.X2 = MAX (box.X2, line->Point2.X + line->Thickness / 2);
-      box.Y2 = MAX (box.Y2, line->Point2.Y + line->Thickness / 2);
-    }
-  );
-  ALLARC_LOOP (Data, 
-    {
-      box.X1 = MIN (box.X1, arc->BoundingBox.X1);
-      box.Y1 = MIN (box.Y1, arc->BoundingBox.Y1);
-      box.X2 = MAX (box.X2, arc->BoundingBox.X2);
-      box.Y2 = MAX (box.Y2, arc->BoundingBox.Y2);
-    }
-  );
-  ALLTEXT_LOOP (Data, 
-    {
+      TextTypePtr text = &NAMEONPCB_TEXT (element);
       box.X1 = MIN (box.X1, text->BoundingBox.X1);
       box.Y1 = MIN (box.Y1, text->BoundingBox.Y1);
       box.X2 = MAX (box.X2, text->BoundingBox.X2);
       box.Y2 = MAX (box.Y2, text->BoundingBox.Y2);
-    }
-  );
-  ALLPOLYGON_LOOP (Data, 
-    {
-      box.X1 = MIN (box.X1, polygon->BoundingBox.X1);
-      box.Y1 = MIN (box.Y1, polygon->BoundingBox.Y1);
-      box.X2 = MAX (box.X2, polygon->BoundingBox.X2);
-      box.Y2 = MAX (box.Y2, polygon->BoundingBox.Y2);
-    }
-  );
+    };
+  }
+  END_LOOP;
+  ALLLINE_LOOP (Data);
+  {
+    box.X1 = MIN (box.X1, line->Point1.X - line->Thickness / 2);
+    box.Y1 = MIN (box.Y1, line->Point1.Y - line->Thickness / 2);
+    box.X1 = MIN (box.X1, line->Point2.X - line->Thickness / 2);
+    box.Y1 = MIN (box.Y1, line->Point2.Y - line->Thickness / 2);
+    box.X2 = MAX (box.X2, line->Point1.X + line->Thickness / 2);
+    box.Y2 = MAX (box.Y2, line->Point1.Y + line->Thickness / 2);
+    box.X2 = MAX (box.X2, line->Point2.X + line->Thickness / 2);
+    box.Y2 = MAX (box.Y2, line->Point2.Y + line->Thickness / 2);
+  }
+  ENDALL_LOOP;
+  ALLARC_LOOP (Data);
+  {
+    box.X1 = MIN (box.X1, arc->BoundingBox.X1);
+    box.Y1 = MIN (box.Y1, arc->BoundingBox.Y1);
+    box.X2 = MAX (box.X2, arc->BoundingBox.X2);
+    box.Y2 = MAX (box.Y2, arc->BoundingBox.Y2);
+  }
+  ENDALL_LOOP;
+  ALLTEXT_LOOP (Data);
+  {
+    box.X1 = MIN (box.X1, text->BoundingBox.X1);
+    box.Y1 = MIN (box.Y1, text->BoundingBox.Y1);
+    box.X2 = MAX (box.X2, text->BoundingBox.X2);
+    box.Y2 = MAX (box.Y2, text->BoundingBox.Y2);
+  }
+  ENDALL_LOOP;
+  ALLPOLYGON_LOOP (Data);
+  {
+    box.X1 = MIN (box.X1, polygon->BoundingBox.X1);
+    box.Y1 = MIN (box.Y1, polygon->BoundingBox.Y1);
+    box.X2 = MAX (box.X2, polygon->BoundingBox.X2);
+    box.Y2 = MAX (box.Y2, polygon->BoundingBox.Y2);
+  }
+  ENDALL_LOOP;
   return (IsDataEmpty (Data) ? NULL : &box);
 }
 
@@ -598,14 +601,14 @@ CenterDisplay (Location X, Location Y, Boolean Delta)
     {
       x = X - TO_PCB (Output.Width / 2);
       if (SWAP_IDENT)
-        y = PCB->MaxHeight - Y - TO_PCB(Output.Height /2 );
+	y = PCB->MaxHeight - Y - TO_PCB (Output.Height / 2);
       else
-        y = Y - TO_PCB (Output.Height / 2);
+	y = Y - TO_PCB (Output.Height / 2);
     }
   else
     {
-      x = Xorig + TO_PCB(X);
-      y = Yorig + TO_PCB(Y);
+      x = Xorig + TO_PCB (X);
+      y = Yorig + TO_PCB (Y);
     }
   Pan (x, y, True, True);
 }
@@ -1127,7 +1130,7 @@ SetArcBoundingBox (ArcTypePtr Arc)
   temp = box->Y1;
   box->Y1 = MIN (box->Y1, box->Y2);
   box->Y2 = MAX (box->Y2, temp);
-  width = (Arc->Thickness + Arc->Clearance)/ 2;
+  width = (Arc->Thickness + Arc->Clearance) / 2;
   box->X1 -= width;
   box->X2 += width;
   box->Y1 -= width;
@@ -1284,17 +1287,17 @@ UniqueElementName (DataTypePtr Data, char *Name)
 
   for (;;)
     {
-      ELEMENT_LOOP (Data, 
-	{
-	  if (NAMEONPCB_NAME (element) &&
-	      strcmp (NAMEONPCB_NAME (element), Name) == 0)
-	    {
-	      Name = BumpName (Name);
-	      unique = False;
-	      break;
-	    }
-	}
-      );
+      ELEMENT_LOOP (Data);
+      {
+	if (NAMEONPCB_NAME (element) &&
+	    strcmp (NAMEONPCB_NAME (element), Name) == 0)
+	  {
+	    Name = BumpName (Name);
+	    unique = False;
+	    break;
+	  }
+      }
+      END_LOOP;
       if (unique)
 	return (Name);
       unique = True;
@@ -1353,7 +1356,7 @@ AttachForCopy (Location PlaceX, Location PlaceY)
   Location mx, my;
 
   Crosshair.AttachedObject.RubberbandN = 0;
-  if (TEST_FLAG(SNAPPINFLAG, PCB))
+  if (TEST_FLAG (SNAPPINFLAG, PCB))
     {
       mx = 0;
       my = 0;
@@ -1372,7 +1375,7 @@ AttachForCopy (Location PlaceX, Location PlaceY)
     }
   Crosshair.AttachedObject.X = PlaceX - mx;
   Crosshair.AttachedObject.Y = PlaceY - my;
-  if (!Marked.status || TEST_FLAG(LOCALREFFLAG, PCB))
+  if (!Marked.status || TEST_FLAG (LOCALREFFLAG, PCB))
     SetLocalRef (PlaceX - mx, PlaceY - my, True);
   Crosshair.AttachedObject.State = STATE_SECOND;
 
