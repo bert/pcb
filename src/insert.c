@@ -43,6 +43,7 @@ static char *rcsid = "$Id$";
 #include "misc.h"
 #include "move.h"
 #include "polygon.h"
+#include "rtree.h"
 #include "search.h"
 #include "select.h"
 #include "set.h"
@@ -120,6 +121,15 @@ InsertPointIntoLine (LayerTypePtr Layer, LineTypePtr Line)
 			   InsertX - Line->Point2.X,
 			   InsertY - Line->Point2.Y);
   EraseLine (Line);
+  r_delete_entry(Layer->line_tree, (BoxTypePtr)Line);
+  Line->Point2.X = InsertX;
+  Line->Point2.Y = InsertY;
+  SetLineBoundingBox(Line);
+  r_insert_entry(Layer->line_tree, (BoxTypePtr)Line, 0);
+  DrawLine (Layer, Line, 0);
+   /* we must create after playing with Line since creation may
+    * invalidate the line pointer
+    */
   if ((line = CreateDrawnLineOnLayer (Layer, InsertX, InsertY,
 				      Line->Point2.X, Line->Point2.Y,
 				      Line->Thickness, Line->Clearance,
@@ -127,12 +137,10 @@ InsertPointIntoLine (LayerTypePtr Layer, LineTypePtr Line)
     {
       AddObjectToCreateUndoList (LINE_TYPE, Layer, line, line);
       DrawLine (Layer, line, 0);
+      /* creation call adds it to the rtree */
     }
-  Line->Point2.X = InsertX;
-  Line->Point2.Y = InsertY;
-  DrawLine (Layer, Line, 0);
   Draw ();
-  return (Line);
+  return (line);
 }
 
 /* ---------------------------------------------------------------------------

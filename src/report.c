@@ -123,9 +123,6 @@ ReportDrills (void)
   SaveFree (stringlist);
 }
 
-
-
-
 void
 ReportDialog (void)
 {

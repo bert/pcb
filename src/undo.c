@@ -23,7 +23,6 @@
  *  Thomas.Nau@rz.uni-ulm.de
  *
  */
-#define DEBUG_ID 1
 static char *rcsid = "$Id$";
 
 /* functions used to undo operations
@@ -470,7 +469,7 @@ UndoMirror (UndoListTypePtr Entry)
 	return (False);
       if (andDraw)
 	EraseElement (element);
-      MirrorElementCoordinates (element, Entry->Data.Move.DY);
+      MirrorElementCoordinates (PCB->Data, element, Entry->Data.Move.DY);
       if (andDraw)
 	DrawElement (element, 0);
       return (True);

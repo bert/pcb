@@ -51,7 +51,9 @@ static char *rcsid = "$Id$";
 #include "error.h"
 #include "mymem.h"
 #include "misc.h"
+#include "polygon.h"
 #include "rotate.h"
+#include "rtree.h"
 #include "search.h"
 #include "select.h"
 
@@ -87,8 +89,8 @@ static Location dxo, dyo;
  */
 static void Redraw (Boolean);
 static void DrawEverything (void);
-static void DrawTop (void);
-static void DrawLayer (LayerTypePtr, int);
+static void DrawTop (BoxType *);
+static void DrawLayer (LayerTypePtr, BoxType *);
 static void DrawSpecialPolygon (Drawable, GC, Location, Location, BDimension);
 static void DrawPinOrViaLowLevel (PinTypePtr, Boolean);
 static void ClearOnlyPin (PinTypePtr, Boolean);
@@ -114,7 +116,7 @@ static void ClearLine (LineTypePtr);
 static void ClearArc (ArcTypePtr);
 static void ClearPad (PadTypePtr, Boolean);
 static void DrawHole (PinTypePtr);
-static void DrawMask (void);
+static void DrawMask (BoxType *);
 
 /*--------------------------------------------------------------------------------------
  * setup color for pin or via
@@ -325,6 +327,74 @@ SwitchDrawingWindow (float Zoom, Window OutputWindow, Boolean Swap,
   return (oldGather);
 }
 
+static int
+viaHole_callback (const BoxType *b, void *cl)
+{
+  DrawHole((PinTypePtr)b);
+  return 1;
+}
+
+static int
+backE_callback (const BoxType *b, void *cl)
+{
+  ElementTypePtr element = (ElementTypePtr)b;
+  
+  if (!FRONT (element))
+    {
+      if (PCB->ElementOn)
+	{
+	  DrawElementPackage (element, 0);
+	  if (VELTEXT (element))
+	    DrawElementName (element, 0);
+	}
+    }
+  if (PCB->PinOn && VELEMENT (element))
+    PAD_LOOP (element, 
+      {
+        if (!FRONT (pad))
+	  DrawPad (pad, 0);
+      }
+    );
+  return 1;
+}
+
+static int
+frontE_callback (const BoxType *b, void *cl)
+{
+  ElementTypePtr element = (ElementTypePtr)b;
+  
+  if (FRONT (element))
+    {
+      DrawElementPackage (element, 0);
+      if (VELTEXT (element))
+	DrawElementName (element, 0);
+    }
+  /* Draw pin holes */
+  if (PCB->PinOn)
+    {
+      PIN_LOOP (element, 
+	{
+	  DrawHole (pin);
+	}
+      );
+      DrawEMark (element->MarkX, element->MarkY, !FRONT (element));
+    }
+  return 1;
+}
+
+static int
+holeE_callback (const BoxType *b, void *cl)
+{
+  ElementTypePtr element = (ElementTypePtr)b;
+
+  PIN_LOOP (element, 
+    {
+      DrawHole (pin);
+    }
+  );
+  return 1;
+}
+
 /* ---------------------------------------------------------------------------
  * initializes some identifiers for a new zoom factor and redraws whole screen
  */
@@ -332,94 +402,47 @@ static void
 DrawEverything (void)
 {
   int i;
+  BoxType screen;
+
+  screen.X1 = vxl;
+  screen.Y1 = vyl;
+  screen.X2 = vxh;
+  screen.Y2 = vyh;
 
   /*
    * first draw all 'invisible' stuff
    */
   if (PCB->InvisibleObjectsOn)
     {
-      ELEMENT_LOOP (PCB->Data, 
-	{
-	  if (!FRONT (element))
-	    {
-	      if (PCB->ElementOn)
-		{
-		  if (VELEMENT (element))
-		    DrawElementPackage (element, 0);
-		  if (VELTEXT (element))
-		    DrawElementName (element, 0);
-		}
-	    }
-	  if (PCB->PinOn && VELEMENT (element))
-	    PAD_LOOP (element, 
-	    {
-	      if (!FRONT (pad))
-		DrawPad (pad, 0);
-	    }
-	  );
-	}
-      );
+      r_search(PCB->Data->element_tree, &screen, NULL, backE_callback, NULL);
       if (PCB->ElementOn)
-	DrawLayer (LAYER_PTR (MAX_LAYER +
+      DrawLayer (LAYER_PTR (MAX_LAYER +
 			      (SWAP_IDENT ? COMPONENT_LAYER :
-			       SOLDER_LAYER)), 0);
+			       SOLDER_LAYER)), &screen);
     }
   /* draw all layers in layerstack order */
   for (i = MAX_LAYER - 1; i >= 0; i--)
     if ((LAYER_ON_STACK (i))->On)
-      DrawLayer (LAYER_ON_STACK (i), 0);
+      DrawLayer (LAYER_ON_STACK (i), &screen);
   /* Draw pins, pads, vias */
-  DrawTop ();
+  DrawTop (&screen);
   /* Draw the solder mask if turned on */
   if (TEST_FLAG (SHOWMASKFLAG, PCB))
-    DrawMask ();
+    DrawMask (&screen);
   /* Draw top silkscreen */
   if (PCB->ElementOn)
     {
       DrawLayer (LAYER_PTR (MAX_LAYER + (SWAP_IDENT ? SOLDER_LAYER :
-					 COMPONENT_LAYER)), 0);
-      ELEMENT_LOOP (PCB->Data, 
-	{
-	  if (FRONT (element))
-	    {
-	      if (VELEMENT (element))
-		DrawElementPackage (element, 0);
-	      if (VELTEXT (element))
-		DrawElementName (element, 0);
-	    }
-	  /* Draw pin holes */
-	  if (PCB->PinOn && VELEMENT (element))
-	    {
-	      PIN_LOOP (element, 
-		{
-		  DrawHole (pin);
-		}
-	      );
-	      DrawEMark (element->MarkX, element->MarkY, !FRONT (element));
-	    }
-	}
-      );
+					 COMPONENT_LAYER)), &screen);
+
+      r_search (PCB->Data->element_tree, &screen, NULL, frontE_callback, NULL);
     }
   else if (PCB->PinOn)
-    /* Draw pin holes */
-    ELEMENT_LOOP (PCB->Data, 
-    {
-      if (VELEMENT (element))
-	PIN_LOOP (element, 
-	{
-	  DrawHole (pin);
-	}
-      );
-    }
-  );
+  /* Draw pin holes */
+    r_search (PCB->Data->element_tree, &screen, NULL, holeE_callback, NULL);
   /* Draw via holes */
   if (PCB->ViaOn)
-    VIA_LOOP (PCB->Data, 
-    {
-      if (VVIA (via))
-	DrawHole (via);
-    }
-  );
+    r_search(PCB->Data->via_tree, &screen, NULL, viaHole_callback, NULL);
   /* Draw rat lines on top */
   if (PCB->RatOn)
     RAT_LOOP (PCB->Data, 
@@ -450,37 +473,62 @@ DrawEMark (Location X, Location Y, Boolean invisible)
 	     TO_DRAW_Y (Y), TO_DRAW_X (X), TO_DRAW_Y (Y + EMARK_SIZE));
 }
 
+static int
+via_callback (const BoxType *b, void *cl)
+{
+  DrawPlainVia ((PinTypePtr)b, False);
+  return 1;
+}
+
+static int
+element_callback (const BoxType *b, void *cl)
+{
+  DrawPlainElementPinsAndPads ((ElementTypePtr)b, False);
+  return 1;
+}
+
 /* ---------------------------------------------------------------------------
  * draws pins pads and vias
  */
 static void
-DrawTop (void)
+DrawTop (BoxType *screen)
 {
   /* draw element pins */
   if (PCB->PinOn)
-    ELEMENT_LOOP (PCB->Data, 
-    {
-      if (VELEMENT (element))
-	DrawPlainElementPinsAndPads (element, False);
-    }
-  );
-
+    r_search(PCB->Data->element_tree, screen, NULL, element_callback, NULL);
   /* draw vias */
   if (PCB->ViaOn)
-    VIA_LOOP (PCB->Data, 
-    {
-      if (VVIA (via))
-	DrawPlainVia (via, False);
-    }
-  );
+    r_search(PCB->Data->via_tree, screen, NULL, via_callback, NULL);
+}
+
+struct pin_info
+{
+  Boolean arg;
+  int PIPFlag;
+  LayerTypePtr Layer;
+};
+
+static int
+clearPin_callback (const BoxType *b, void *cl)
+{
+  PinTypePtr pin = (PinTypePtr)b;
+  struct pin_info *i = (struct pin_info *)cl;
+  if (i->arg)
+    ClearOnlyPin (pin, True);
+  else if (TEST_FLAG(i->PIPFlag, pin))
+    ClearOnlyPin (pin, False);
+  return 1;
 }
 
 /* ---------------------------------------------------------------------------
  * draws solder mask layer - this will cover nearly everything
  */
 static void
-DrawMask (void)
+DrawMask (BoxType *screen)
 {
+  struct pin_info info;
+
+  info.arg = True;
   XSetFunction (Dpy, Output.pmGC, GXcopy);
   /* fill whole map first */
   XSetForeground (Dpy, Output.pmGC, AllPlanes);
@@ -494,11 +542,7 @@ DrawMask (void)
       ClearOnlyPin (pin, True);
     }
   );
-  VIA_LOOP (PCB->Data, 
-    {
-      ClearOnlyPin (via, True);
-    }
-  );
+  r_search(PCB->Data->via_tree, screen, NULL, clearPin_callback, &info);
   ALLPAD_LOOP (PCB->Data, 
     {
       if (!XOR (TEST_FLAG (ONSOLDERFLAG, pad), SWAP_IDENT))
@@ -515,16 +559,76 @@ DrawMask (void)
   XCopyGC (Dpy, Output.bgGC, GCClipMask, Output.fgGC);
 }
 
+static int
+clear_callback (int type, void *ptr1, void *ptr2, void *ptr3)
+{
+  LineTypePtr l = (LineTypePtr) ptr2;
+  ArcTypePtr a = (ArcTypePtr) ptr2;
+
+  switch (type)
+    {
+      case LINE_TYPE:
+        ClearLine(l);
+	break;
+      case ARC_TYPE:
+        ClearArc(a);
+	break;
+      case PIN_TYPE:
+      case VIA_TYPE:
+        ClearOnlyPin ((PinTypePtr) ptr2, False);
+	break;
+      case PAD_TYPE:
+        ClearPad ((PadTypePtr) ptr2, False);
+	break;
+      default:
+        Message("Bad clear callback\n");
+    }
+  return 0;
+}
+
+static int
+line_callback (const BoxType *b, void *cl)
+{
+  DrawLine ((LayerTypePtr)cl, (LineTypePtr)b, 0);
+  return 1;
+}
+    
+static int
+arc_callback (const BoxType *b, void *cl)
+{
+  DrawArc ((LayerTypePtr)cl, (ArcTypePtr)b, 0);
+  return 1;
+}
+
+static int
+therm_callback (const BoxType *b, void *cl)
+{
+  PinTypePtr pin = (PinTypePtr)b;
+  struct pin_info *i = (struct pin_info *)cl;
+
+  if (TEST_FLAGS (i->PIPFlag, pin))
+    {
+      ThermPin (i->Layer, pin);
+      return 1;
+    }
+  return 0;
+}
+    
+
 /* ---------------------------------------------------------------------------
  * draws one layer
  */
 static void
-DrawLayer (LayerTypePtr Layer, int unused)
+DrawLayer (LayerTypePtr Layer, BoxType *screen)
 {
   int layernum = GetLayerNumber (PCB->Data, Layer);
   Cardinal group = GetLayerGroupNumberByNumber (layernum);
+  struct pin_info info;
 
   int PIPFlag = L0PIPFLAG << layernum;
+  info.PIPFlag = PIPFlag;
+  info.arg = False;
+  info.Layer = Layer;
 /* in order to render polygons with line cut-outs:
  * draw a solid (or stippled) 1-bit pixmap, then erase
  * the clearance areas.  Use that as the mask when
@@ -547,48 +651,7 @@ DrawLayer (LayerTypePtr Layer, int unused)
 	XSetFillStyle (Dpy, Output.pmGC, FillSolid);
       /* make clearances around lines, arcs, pins and vias */
       XSetFunction (Dpy, Output.pmGC, GXclear);
-      GROUP_LOOP (group,
-	{
-	  LINE_LOOP (layer, 
-   	    {
-	      if (TEST_FLAG (CLEARLINEFLAG, line) && VLINE (line))
-	        ClearLine (line);
-            }		
-	  );
-	  ARC_LOOP (layer, 
-	    {
-	      if (TEST_FLAG (CLEARLINEFLAG, arc) && VARC (arc))
-	        ClearArc (arc);
-            }
-	  );
-	}
-      );
-      ALLPIN_LOOP (PCB->Data, 
-	{
-	  if (TEST_FLAG (PIPFlag, pin))
-	    ClearOnlyPin (pin, False);
-	}
-      );
-      VIA_LOOP (PCB->Data, 
-	{
-	  if (TEST_FLAG (PIPFlag, via))
-	    ClearOnlyPin (via, False);
-	}
-      );
-      if (group == GetLayerGroupNumberByNumber (MAX_LAYER + SOLDER_LAYER))
-	ALLPAD_LOOP (PCB->Data, 
-	{
-	  if (TEST_FLAG (ONSOLDERFLAG, pad))
-	    ClearPad (pad, False);
-	}
-      );
-      if (group == GetLayerGroupNumberByNumber (MAX_LAYER + COMPONENT_LAYER))
-	ALLPAD_LOOP (PCB->Data, 
-	{
-	  if (!TEST_FLAG (ONSOLDERFLAG, pad))
-	    ClearPad (pad, False);
-	}
-      );
+      PolygonPlows(group, screen, clear_callback);
       XSetClipMask (Dpy, Output.fgGC, Offmask);
     }
   if (Layer->PolygonN)
@@ -612,38 +675,26 @@ DrawLayer (LayerTypePtr Layer, int unused)
       if (layernum < MAX_LAYER)
 	{
 	  PIPFlag = (L0THERMFLAG | L0PIPFLAG) << layernum;
+	  info.PIPFlag = PIPFlag;
 	  ALLPIN_LOOP (PCB->Data, 
 	    {
 	      if (TEST_FLAGS (PIPFlag, pin) && VTHERM(pin))
 		ThermPin (Layer, pin);
 	    }
 	  );
-	  VIA_LOOP (PCB->Data, 
-	    {
-	      if (TEST_FLAGS (PIPFlag, via) && VTHERM(via))
-		ThermPin (Layer, via);
-	    }
-	  );
+	  r_search(PCB->Data->via_tree, screen, NULL, therm_callback, &info);
 	}
     }
   if (TEST_FLAG(CHECKPLANESFLAG, PCB))
     return;
-  LINE_LOOP (Layer, 
-    {
-      if (VLINE (line))
-	DrawLine (Layer, line, unused);
-    }
-  );
-  ARC_LOOP (Layer, 
-    {
-      if (VARC (arc))
-	DrawArc (Layer, arc, unused);
-    }
-  );
+   /* draw all lines on screen */
+  r_search(Layer->line_tree, screen, NULL, line_callback, Layer);
+   /* draw all arcs on screen */
+  r_search(Layer->arc_tree, screen, NULL, arc_callback, Layer);
   TEXT_LOOP (Layer, 
     {
       if (VTEXT (text))
-	DrawRegularText (Layer, text, unused);
+	DrawRegularText (Layer, text, 0);
     }
   );
 }

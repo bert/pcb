@@ -72,6 +72,7 @@
 #define SORT_BY_AREA
 #define SORT_HIGH
 
+#define DELETE_BY_POINTER
 typedef long long bigun;
 
 struct rtree
@@ -416,9 +417,7 @@ r_create_tree (const BoxType * boxlist[], int N, int manage)
   rtree_t *rtree;
   struct rtree_node *node;
   int i;
-  Boolean *managelist;
 
-  assert (boxlist);
   assert (N >= 0);
   rtree = calloc (1, sizeof (*rtree));
   /* start with a single empty leaf node */
@@ -428,7 +427,10 @@ r_create_tree (const BoxType * boxlist[], int N, int manage)
   rtree->root = node;
    /* simple, just insert all of the boxes! */
   for (i = 0; i < N; i++)
-    r_insert_entry (rtree, boxlist[i], manage);
+    {
+      assert(boxlist[i]);
+      r_insert_entry (rtree, boxlist[i], manage);
+    }
 #ifdef SLOW_ASSERTS
   assert(__r_tree_is_good(rtree->root));
 #endif
@@ -550,6 +552,12 @@ r_search (rtree_t * rtree, const BoxType * starting_region,
 {
   if (!rtree || rtree->size < 1)
     return 0;
+  if (starting_region)
+    query = *starting_region;
+  else
+    query = rtree->root->box;
+  if (query.X2 < query.X1 || query.Y2 < query.Y1)
+    return 0;
   closure = cl;
   region_in_search = check_region;
 
@@ -562,10 +570,6 @@ r_search (rtree_t * rtree, const BoxType * starting_region,
     rectangle_in_region = __r_search_nop;
   else
     rectangle_in_region = found_rectangle;
-  if (starting_region)
-    query = *starting_region;
-  else
-    query = rtree->root->box;
     return __r_search (rtree->root);
 }
 
@@ -1008,7 +1012,7 @@ __r_delete(struct rtree_node *node)
    a = 1;
    for (i = 0; i < M_SIZE; i++)
      {
-#if DELETE_BY_POINTER
+#ifdef DELETE_BY_POINTER
        if (!node->u.rects[i].bptr || node->u.rects[i].bptr == box_ptr)
 #else
        if (node->u.rects[i].bounds.X1 == query.X1 &&
@@ -1067,12 +1071,47 @@ r_delete_entry(rtree_t *rtree, const BoxType *box)
 #if 0
    if (r == 0)
      __r_dump_tree(rtree->root, 0);
-#endif
    assert(r);
-   rtree->size--;
-   assert(rtree->size >= 0);
+#endif
+   if (r)
+     rtree->size --;
 #ifdef SLOW_ASSERTS
    assert(__r_tree_is_good(rtree->root));
 #endif
 }
+
+int
+__r_sub (struct rtree_node *node, BoxType *b, BoxType *a)
+{
+  int i;
+  
+  if (node->flags.is_leaf)
+    {
+       for (i = 0; i < M_SIZE; i++)
+         if (node->u.rects[i].bptr == b)
+	   {
+	     node->u.rects[i].bptr = a;
+	     assert(a->X1 == node->u.rects[i].bounds.X1);
+	     assert(a->X2 == node->u.rects[i].bounds.X2);
+	     assert(a->Y1 == node->u.rects[i].bounds.Y1);
+	     assert(a->Y2 == node->u.rects[i].bounds.Y2);
+	     return 1;
+	   }
+       return 0;
+    }
+  for (i = 0; i < M_SIZE; i++)
+    if (node->u.kids[i] && __r_sub(node->u.kids[i], b, a))
+      return 1;
+  return 0;
+}
+
+
+void
+r_substitute(rtree_t *rtree, const BoxType *before, const BoxType *after)
+{
+  if (before == after)
+    return;
+  __r_sub(rtree->root, before, after);
+}
+
 

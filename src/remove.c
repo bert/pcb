@@ -46,6 +46,7 @@ static char *rcsid = "$Id$";
 #include "polygon.h"
 #include "rats.h"
 #include "remove.h"
+#include "rtree.h"
 #include "search.h"
 #include "select.h"
 #include "set.h"
@@ -122,8 +123,12 @@ RemovePCB (PCBTypePtr Ptr)
 static void *
 DestroyVia (PinTypePtr Via)
 {
+  r_delete_entry(DestroyTarget->via_tree, (BoxTypePtr)Via);
   MyFree (&Via->Name);
   *Via = DestroyTarget->Via[--DestroyTarget->ViaN];
+  r_substitute(DestroyTarget->via_tree, (BoxTypePtr)
+               (BoxType *)&DestroyTarget->Via[DestroyTarget->ViaN], 
+	       (BoxType *)Via);
   memset (&DestroyTarget->Via[DestroyTarget->ViaN], 0, sizeof (PinType));
   return (NULL);
 }
@@ -134,8 +139,12 @@ DestroyVia (PinTypePtr Via)
 static void *
 DestroyLine (LayerTypePtr Layer, LineTypePtr Line)
 {
+  r_delete_entry(Layer->line_tree, (BoxTypePtr)Line);
   MyFree (&Line->Number);
   *Line = Layer->Line[--Layer->LineN];
+    /* tricky - line pointers are moved around */
+  r_substitute(Layer->line_tree, (BoxType *)&Layer->Line[Layer->LineN],
+               (BoxType *)Line);
   memset (&Layer->Line[Layer->LineN], 0, sizeof (LineType));
   return (NULL);
 }
@@ -146,7 +155,10 @@ DestroyLine (LayerTypePtr Layer, LineTypePtr Line)
 static void *
 DestroyArc (LayerTypePtr Layer, ArcTypePtr Arc)
 {
+  r_delete_entry(Layer->arc_tree, (BoxTypePtr)Arc);
   *Arc = Layer->Arc[--Layer->ArcN];
+  r_substitute(Layer->arc_tree, (BoxType *)&Layer->Arc[Layer->ArcN],
+               (BoxType *)Arc);
   memset (&Layer->Arc[Layer->ArcN], 0, sizeof (ArcType));
   return (NULL);
 }
@@ -201,8 +213,12 @@ DestroyText (LayerTypePtr Layer, TextTypePtr Text)
 static void *
 DestroyElement (ElementTypePtr Element)
 {
+  r_delete_entry (DestroyTarget->element_tree, (BoxType *)Element);
   FreeElementMemory (Element);
   *Element = DestroyTarget->Element[--DestroyTarget->ElementN];
+  r_substitute (DestroyTarget->element_tree,
+                (BoxType *)&DestroyTarget->Element[DestroyTarget->ElementN],
+		(BoxType *)Element);
   memset (&DestroyTarget->Element[DestroyTarget->ElementN], 0,
 	  sizeof (ElementType));
   return (NULL);

@@ -49,6 +49,7 @@
 #include <X11/keysym.h>
 typedef int Location;
 typedef int BDimension; /* big dimension */
+typedef struct rtree rtree_t;
 
 /* ---------------------------------------------------------------------------
  * do not change the following definition even if it's not very nice.
@@ -111,41 +112,43 @@ typedef struct				/* a bounding box */
 /* ---------------------------------------------------------------------------
  * the basic object types supported by PCB
  */
-typedef struct				/* all objects start with an ID */
+typedef struct				/* all objects start with a Bounding box and ID */
 {
-	long int		ID;
+	BoxType		BoundingBox;
+	long int	ID;
 } AnyObjectType, *AnyObjectTypePtr;
 
 typedef struct				/* a line/polygon point */
 {
-	long int		ID;
-	Location	X,
-			Y;
+	Location	X, Y,
+			X2, Y2;		/* so Point type can be cast as BoxType */
+	long int	ID;
 } PointType, *PointTypePtr;
 
 typedef struct				/* holds information about one line */
 {
+	BoxType		BoundingBox;
 	LINESTRUCT
 	char		*Number;
 } LineType, *LineTypePtr;
 
 typedef struct
 {
+	BoxType		BoundingBox;
 	long int		ID,
 			Flags;
 	BDimension	Scale;		/* text scaling in percent */
 	Location	X,		/* origin */
 			Y;
-	BoxType		BoundingBox;
 	BYTE		Direction;
 	char		*TextString;	/* string */
 } TextType, *TextTypePtr;
 
 typedef struct			/* holds information about a polygon */
 {
+	BoxType		BoundingBox;
 	long int		ID,
 			Flags;
-	BoxType		BoundingBox;
 	Cardinal	PointN,		/* number of points in polygon */
 			PointMax;	/* max number from malloc() */
 	PointTypePtr	Points;		/* data */
@@ -153,6 +156,7 @@ typedef struct			/* holds information about a polygon */
 
 typedef struct				/* holds information about arcs */
 {
+	BoxType		BoundingBox;
 	long int		ID,		/* these fields are unused when contained in elements */
 			Flags;
 	BDimension	Thickness,
@@ -163,7 +167,6 @@ typedef struct				/* holds information about arcs */
 			Y;
 	long int		StartAngle,	/* the two limiting angles in degrees */
 			Delta;	
-	BoxType		BoundingBox;	/* only filled in for arcs on layers */
 } ArcType, *ArcTypePtr;
 
 typedef struct			/* holds information about one layer */
@@ -181,6 +184,10 @@ typedef struct			/* holds information about one layer */
 	TextTypePtr	Text;
 	PolygonTypePtr	Polygon;
 	ArcTypePtr	Arc;
+	rtree_t		*line_tree,
+			*text_tree,
+			*polygon_tree,
+			*arc_tree;
 	Boolean		On;		/* visible flag */
 	Pixel		Color,		/* color */
 			SelectedColor;
@@ -188,12 +195,14 @@ typedef struct			/* holds information about one layer */
 
 typedef struct				/* a rat-line */
 {
+	BoxType		BoundingBox;
 	LINESTRUCT
 	Cardinal group1, group2;	/* the layer group each point is on */
 } RatType, *RatTypePtr;
 
 typedef struct				/* a SMD pad */
 {
+	BoxType		BoundingBox;
 	LINESTRUCT
 	BDimension	Mask;
 	char		*Name, *Number;			/* 'Line' */
@@ -202,6 +211,7 @@ typedef struct				/* a SMD pad */
 
 typedef struct
 {
+	BoxType		BoundingBox;
 	long int		ID,
 			Flags;
 	BDimension	Thickness,
@@ -216,6 +226,7 @@ typedef struct
 
 typedef struct
 {
+	BoxType		BoundingBox;
 	long int		ID,
 			Flags;
 	TextType	Name[MAX_ELEMENTNAMES];	/* the elements names; */
@@ -225,7 +236,6 @@ typedef struct
 						/* see macro.h */
 	Location	MarkX,		/* position mark */
 			MarkY;
-	BoxType		BoundingBox;
 	Cardinal	PinN,		/* number of pins, lines and arcs */
 			PinMax,
 			PadN,
@@ -274,6 +284,10 @@ typedef struct			/* holds all objects */
 	PinTypePtr	Via;			/* pointer to object data */
 	ElementTypePtr	Element;
 	RatTypePtr	Rat;
+	rtree_t		*via_tree,
+			*element_tree,
+			*name_tree,		/* for element names */
+			*rat_tree;
 	LayerType	Layer[MAX_LAYER + 2];	/* add 2 silkscreen layers */
 } DataType, *DataTypePtr;
 

@@ -33,6 +33,7 @@ static char *rcsid = "$Id$";
 #include "config.h"
 #endif
 
+#include <setjmp.h>
 #include <stdlib.h>
 
 #include "global.h"
@@ -46,6 +47,7 @@ static char *rcsid = "$Id$";
 #include "move.h"
 #include "mymem.h"
 #include "polygon.h"
+#include "rtree.h"
 #include "search.h"
 #include "select.h"
 #include "undo.h"
@@ -104,8 +106,9 @@ MoveLineToLayer,
  * moves a element by +-X and +-Y
  */
 void
-MoveElementLowLevel (ElementTypePtr Element, Location DX, Location DY)
+MoveElementLowLevel (DataTypePtr Data, ElementTypePtr Element, Location DX, Location DY)
 {
+  r_delete_entry(Data->element_tree, (BoxType *)Element);
   ELEMENTLINE_LOOP (Element, 
     {
       MOVE_LINE_LOWLEVEL (line, DX, DY);
@@ -114,11 +117,13 @@ MoveElementLowLevel (ElementTypePtr Element, Location DX, Location DY)
   PIN_LOOP (Element, 
     {
       MOVE_PIN_LOWLEVEL (pin, DX, DY);
+      MOVE_BOX_LOWLEVEL ((BoxTypePtr)pin, DX, DY);
     }
   );
   PAD_LOOP (Element, 
     {
       MOVE_PAD_LOWLEVEL (pad, DX, DY);
+      MOVE_BOX_LOWLEVEL ((BoxTypePtr)pad, DX, DY);
     }
   );
   ARC_LOOP (Element, 
@@ -133,6 +138,7 @@ MoveElementLowLevel (ElementTypePtr Element, Location DX, Location DY)
   );
   MOVE_BOX_LOWLEVEL (&Element->BoundingBox, DX, DY);
   MOVE (Element->MarkX, Element->MarkY, DX, DY);
+  r_insert_entry(Data->element_tree, (BoxType *)Element, 0);
 }
 
 /* ----------------------------------------------------------------------
@@ -174,7 +180,7 @@ MoveElement (ElementTypePtr Element)
   if (PCB->ElementOn && (FRONT (Element) || PCB->InvisibleObjectsOn))
     {
       EraseElement (Element);
-      MoveElementLowLevel (Element, DeltaX, DeltaY);
+      MoveElementLowLevel (PCB->Data, Element, DeltaX, DeltaY);
       DrawElementName (Element, 0);
       DrawElementPackage (Element, 0);
       didDraw = True;
@@ -183,7 +189,7 @@ MoveElement (ElementTypePtr Element)
     {
       if (PCB->PinOn)
 	EraseElementPinsAndPads (Element);
-      MoveElementLowLevel (Element, DeltaX, DeltaY);
+      MoveElementLowLevel (PCB->Data, Element, DeltaX, DeltaY);
     }
   UpdatePIPFlags (NULL, Element, NULL, NULL, True);
   if (PCB->PinOn)
@@ -202,6 +208,7 @@ MoveElement (ElementTypePtr Element)
 static void *
 MoveVia (PinTypePtr Via)
 {
+  r_delete_entry(PCB->Data->via_tree, (BoxTypePtr) Via);
   if (PCB->ViaOn)
     {
       EraseVia (Via);
@@ -209,7 +216,9 @@ MoveVia (PinTypePtr Via)
     }
   else
     MOVE_VIA_LOWLEVEL (Via, DeltaX, DeltaY);
+  SetPinBoundingBox(Via);
   UpdatePIPFlags (Via, (ElementTypePtr) Via, NULL, NULL, True);
+  r_insert_entry(PCB->Data->via_tree, (BoxTypePtr) Via, 0);
   if (PCB->ViaOn)
     {
       DrawVia (Via, 0);
@@ -224,6 +233,7 @@ MoveVia (PinTypePtr Via)
 static void *
 MoveLine (LayerTypePtr Layer, LineTypePtr Line)
 {
+  r_delete_entry(Layer->line_tree, (BoxTypePtr)Line);
   if (Layer->On)
     {
       EraseLine (Line);
@@ -233,6 +243,8 @@ MoveLine (LayerTypePtr Layer, LineTypePtr Line)
     }
   else
     MOVE_LINE_LOWLEVEL (Line, DeltaX, DeltaY);
+  SetLineBoundingBox(Line);
+  r_insert_entry(Layer->line_tree, (BoxTypePtr)Line, 0);
   return (Line);
 }
 
@@ -242,6 +254,7 @@ MoveLine (LayerTypePtr Layer, LineTypePtr Line)
 static void *
 MoveArc (LayerTypePtr Layer, ArcTypePtr Arc)
 {
+  r_delete_entry(Layer->arc_tree, (BoxTypePtr)Arc);
   if (Layer->On)
     {
       EraseArc (Arc);
@@ -255,6 +268,7 @@ MoveArc (LayerTypePtr Layer, ArcTypePtr Arc)
       MOVE_ARC_LOWLEVEL (Arc, DeltaX, DeltaY);
       SetArcBoundingBox (Arc);
     }
+  r_insert_entry(Layer->arc_tree, (BoxTypePtr)Arc, 0);
   return (Arc);
 }
 
@@ -317,6 +331,7 @@ MoveLinePoint (LayerTypePtr Layer, LineTypePtr Line, PointTypePtr Point)
 {
   if (Layer)
     {
+      r_delete_entry(Layer->line_tree, (BoxTypePtr)Line);
       if (Layer->On)
 	{
 	  EraseLine (Line);
@@ -324,7 +339,10 @@ MoveLinePoint (LayerTypePtr Layer, LineTypePtr Line, PointTypePtr Point)
 	  Draw ();
 	}
       else
-	MOVE (Point->X, Point->Y, DeltaX, DeltaY) return (Line);
+	MOVE (Point->X, Point->Y, DeltaX, DeltaY);
+      SetLineBoundingBox(Line);
+      r_insert_entry(Layer->line_tree, (BoxTypePtr)Line, 0);
+      return (Line);
     }
   else				/* must be a rat */
     {
@@ -336,7 +354,8 @@ MoveLinePoint (LayerTypePtr Layer, LineTypePtr Line, PointTypePtr Point)
 	  Draw ();
 	}
       else
-	MOVE (Point->X, Point->Y, DeltaX, DeltaY) return (Line);
+	MOVE (Point->X, Point->Y, DeltaX, DeltaY);
+      return (Line);
     }
 }
 
@@ -377,10 +396,13 @@ MoveLineToLayerLowLevel (LayerTypePtr Source, LineTypePtr Line,
 {
   LineTypePtr new = GetLineMemory (Destination);
 
+  r_delete_entry(Source->line_tree, (BoxTypePtr)Line);
   /* copy the data and remove it from the former layer */
   *new = *Line;
   *Line = Source->Line[--Source->LineN];
+  r_substitute(Source->line_tree, (BoxType *)&Source->Line[Source->LineN], (BoxType *)Line);
   memset (&Source->Line[Source->LineN], 0, sizeof (LineType));
+  r_insert_entry(Destination->line_tree, (BoxTypePtr)new, 0);
   return (new);
 }
 
@@ -393,10 +415,13 @@ MoveArcToLayerLowLevel (LayerTypePtr Source, ArcTypePtr Arc,
 {
   ArcTypePtr new = GetArcMemory (Destination);
 
+  r_delete_entry(Source->arc_tree, (BoxTypePtr)Arc);
   /* copy the data and remove it from the former layer */
   *new = *Arc;
   *Arc = Source->Arc[--Source->ArcN];
+  r_substitute(Source->arc_tree, (BoxType *)&Source->Arc[Source->ArcN], (BoxType *)Arc);
   memset (&Source->Arc[Source->ArcN], 0, sizeof (ArcType));
+  r_insert_entry(Destination->arc_tree, (BoxTypePtr)new, 0);
   return (new);
 }
 
@@ -459,11 +484,38 @@ MoveRatToLayer (RatTypePtr Rat)
 /* ---------------------------------------------------------------------------
  * moves a line between layers
  */
+
+struct via_info
+{
+  Location X, Y;
+  jmp_buf env;
+};
+
+static int
+moveline_callback (const BoxType *b, void *cl)
+{
+ struct via_info *i = (struct via_info *)cl;
+ PinTypePtr via;
+
+ if ((via =
+       CreateNewVia (PCB->Data, i->X, i->Y,
+		     Settings.ViaThickness, 2 * Settings.Keepaway,
+		     NOFLAG, Settings.ViaDrillingHole, NULL,
+		     VIAFLAG)) != NULL)
+    {
+      UpdatePIPFlags (via, (ElementTypePtr) via, NULL, NULL, False);
+      AddObjectToCreateUndoList (VIA_TYPE, via, via, via);
+      DrawVia (via, 0);
+    }
+  longjmp(i->env, 1);
+}
+
 static void *
 MoveLineToLayer (LayerTypePtr Layer, LineTypePtr Line)
 {
+  struct via_info info;
+  BoxType sb;
   LineTypePtr new;
-  PinTypePtr via;
   void *ptr1, *ptr2, *ptr3;
 
   if (TEST_FLAG(LOCKFLAG, Line))
@@ -490,52 +542,34 @@ MoveLineToLayer (LayerTypePtr Layer, LineTypePtr Line)
       GetLayerGroupNumberByPointer (Layer) ==
       GetLayerGroupNumberByPointer (Dest))
     return (new);
+  /* consider via at Point1 */
+  sb.X1 = new->Point1.X - new->Thickness/2;
+  sb.X2 = new->Point1.X + new->Thickness/2;
+  sb.Y1 = new->Point1.Y - new->Thickness/2;
+  sb.Y2 = new->Point1.Y + new->Thickness/2;
   if ((SearchObjectByLocation (PIN_TYPES, &ptr1, &ptr2, &ptr3,
-			       new->Point1.X, new->Point1.Y, 0) == NO_TYPE))
-    LINE_LOOP (Layer, 
+			       new->Point1.X, new->Point1.Y,
+			       Settings.ViaThickness/2) == NO_TYPE))
     {
-      if (((line->Point1.X == new->Point1.X)
-	   && (line->Point1.Y == new->Point1.Y))
-	  || ((line->Point2.X == new->Point1.X)
-	      && (line->Point2.Y == new->Point1.Y)))
-	{
-	  if ((via =
-	       CreateNewVia (PCB->Data, new->Point1.X, new->Point1.Y,
-			     Settings.ViaThickness, 2 * Settings.Keepaway,
-			     0, Settings.ViaDrillingHole, NULL,
-			     VIAFLAG)) != NULL)
-	    {
-	      UpdatePIPFlags (via, (ElementTypePtr) via, NULL, NULL, False);
-	      AddObjectToCreateUndoList (VIA_TYPE, via, via, via);
-	      DrawVia (via, 0);
-	    }
-	  break;
-	}
+      info.X = new->Point1.X;
+      info.Y = new->Point1.Y;
+      if (setjmp(info.env) == 0)
+        r_search(Layer->line_tree, &sb, NULL, moveline_callback, &info);
     }
-  );
+  /* consider via at Point2 */
+  sb.X1 = new->Point2.X - new->Thickness/2;
+  sb.X2 = new->Point2.X + new->Thickness/2;
+  sb.Y1 = new->Point2.Y - new->Thickness/2;
+  sb.Y2 = new->Point2.Y + new->Thickness/2;
   if ((SearchObjectByLocation (PIN_TYPES, &ptr1, &ptr2, &ptr3,
-			       new->Point2.X, new->Point2.Y, 0) == NO_TYPE))
-    LINE_LOOP (Layer, 
+			       new->Point2.X, new->Point2.Y,
+			       Settings.ViaThickness/2) == NO_TYPE))
     {
-      if (((line->Point1.X == new->Point2.X)
-	   && (line->Point1.Y == new->Point2.Y))
-	  || ((line->Point2.X == new->Point2.X)
-	      && (line->Point2.Y == new->Point2.Y)))
-	{
-	  if ((via =
-	       CreateNewVia (PCB->Data, new->Point2.X, new->Point2.Y,
-			     Settings.ViaThickness, 2 * Settings.Keepaway,
-			     0, Settings.ViaDrillingHole, NULL,
-			     VIAFLAG)) != NULL)
-	    {
-	      UpdatePIPFlags (via, (ElementTypePtr) via, NULL, NULL, False);
-	      AddObjectToCreateUndoList (VIA_TYPE, via, via, via);
-	      DrawVia (via, 0);
-	    }
-	  break;
-	}
+      info.X = new->Point2.X;
+      info.Y = new->Point2.Y;
+      if (setjmp(info.env) == 0)
+        r_search(Layer->line_tree, &sb, NULL, moveline_callback, &info);
     }
-  );
   Draw ();
   return (new);
 }

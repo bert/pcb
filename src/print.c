@@ -407,8 +407,14 @@ PrintLayergroups (void)
 	    /* clear the intersecting lines, arcs, pins and vias */
 	    if (Somepolys)
 	      {
+	        BoxType all;
+		
+		all.X1 = - MAX_COORD;
+		all.X2 = MAX_COORD;
+		all.Y1 = - MAX_COORD;
+		all.Y2 = MAX_COORD;
                 polarity_called = False;
-                PolygonPlows(group, any_callback);
+                PolygonPlows(group, &all, any_callback);
                 if (polarity_called)
                   Device->Polarity (3);
 	      } 
@@ -852,7 +858,7 @@ text_at (int x, int y, int align, char *fmt, ...)
   t.X = x;
   t.Y = y;
   for (i = 0; tmp[i]; i++)
-    w += (font->Symbol[tmp[i]].Width + font->Symbol[tmp[i]].Delta);
+    w += (font->Symbol[(int)tmp[i]].Width + font->Symbol[(int)tmp[i]].Delta);
   w = w * TEXT_SIZE / 100;
   t.X -= w * (align & 3) / 2;
   if (t.X < 0)

@@ -613,7 +613,7 @@ element_oldformat
 			}
 		  elementdefinitions ')'
 			{
-				SetElementBoundingBox(yyElement, yyFont);
+				SetElementBoundingBox(yyData, yyElement, yyFont);
 			}
 		;
 
@@ -631,7 +631,7 @@ element_1.3.4_format
 			}
 		  elementdefinitions ')'
 			{
-				SetElementBoundingBox(yyElement, yyFont);
+				SetElementBoundingBox(yyData, yyElement, yyFont);
 			}
 		;
 
@@ -650,7 +650,7 @@ element_newformat
 			}
 		  elementdefinitions ')'
 			{
-				SetElementBoundingBox(yyElement, yyFont);
+				SetElementBoundingBox(yyData, yyElement, yyFont);
 			}
 		;
 
@@ -671,7 +671,7 @@ element_1.7_format
 			}
 		  relementdefs ')'
 			{
-				SetElementBoundingBox(yyElement, yyFont);
+				SetElementBoundingBox(yyData, yyElement, yyFont);
 			}
 		;
 
@@ -692,7 +692,7 @@ element_hi_format
 			}
 		  relementdefs ')'
 			{
-				SetElementBoundingBox(yyElement, yyFont);
+				SetElementBoundingBox(yyData, yyElement, yyFont);
 			}
 		;
 

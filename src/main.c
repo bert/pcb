@@ -1327,7 +1327,7 @@ main (int argc, char *argv[])
   UpRegion = XCreateRegion ();
   FullRegion = XCreateRegion ();
   Big.x = Big.y = 0;
-  Big.width = Big.height = MAX_COORD;
+  Big.width = Big.height = TO_SCREEN(MAX_COORD);
   XUnionRectWithRegion (&Big, FullRegion, FullRegion);
   InitErrorLog ();
   switch (--argc)

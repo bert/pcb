@@ -192,7 +192,6 @@ int
 LoadPCB (char *Filename)
 {
   PCBTypePtr newPCB = CreateNewPCB (False);
-  int save;
 
   /* new data isn't added to the undo list */
   if (!ParsePCB (newPCB, Filename))

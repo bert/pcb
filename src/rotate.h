@@ -65,7 +65,8 @@ void	RotateArcLowLevel(ArcTypePtr, Location, Location, BYTE);
 void	RotateBoxLowLevel(BoxTypePtr, Location, Location, BYTE);
 void	RotateTextLowLevel(TextTypePtr, Location, Location, BYTE);
 void	RotatePolygonLowLevel(PolygonTypePtr, Location, Location, BYTE);
-void	RotateElementLowLevel(ElementTypePtr, Location, Location, BYTE);
+void	RotateElementLowLevel(DataTypePtr, ElementTypePtr, Location, Location, BYTE);
 void	*RotateObject(int, void *, void *, void *, Location, Location, BYTE);
+void    RotateScreenObject(Location, Location, BYTE);
 
 #endif

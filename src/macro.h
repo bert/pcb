@@ -88,6 +88,8 @@
 #define SGN(a)			((a) >0 ? 1 : ((a) == 0 ? 0 : -1))
 #endif
 #define SGNZ(a)                 ((a) >=0 ? 1 : -1)
+#define MAKEMIN(a,b)            if ((b) < (a)) (a) = (b)
+#define MAKEMAX(a,b)            if ((b) > (a)) (a) = (b)
 
 #define	ENTRIES(x)		(sizeof((x))/sizeof((x)[0]))
 #define	UNKNOWN(a)		((a) && *(a) ? (a) : "(unknown)")

@@ -37,8 +37,12 @@
 
 void		Copyright(void);
 void		Usage(void);
+void		SetLineBoundingBox(LineTypePtr);
+void		SetArcBoundingBox(ArcTypePtr);
+void		SetPointBoundingBox(PointTypePtr);
+void		SetPinBoundingBox(PinTypePtr);
 void		SetPolygonBoundingBox(PolygonTypePtr);
-void		SetElementBoundingBox(ElementTypePtr, FontTypePtr);
+void		SetElementBoundingBox(DataTypePtr, ElementTypePtr, FontTypePtr);
 Boolean		IsDataEmpty(DataTypePtr);
 BoxTypePtr	GetDataBoundingBox(DataTypePtr);
 void		CenterDisplay(Location, Location, Boolean);
@@ -60,7 +64,6 @@ void		ResetStackAndVisibility(void);
 char		*GetWorkingDirectory(char *);
 void		CreateQuotedString(DynamicStringTypePtr, char *);
 int		GetGridFactor(void);
-void		SetArcBoundingBox(ArcTypePtr);
 BoxTypePtr	GetArcEnds(ArcTypePtr);
 char		*UniqueElementName(DataTypePtr, char *);
 void		AttachForCopy(Location, Location);

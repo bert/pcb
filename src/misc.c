@@ -63,6 +63,7 @@ static char *rcsid = "$Id$";
 #include "move.h"
 #include "output.h"
 #include "remove.h"
+#include "rtree.h"
 #include "rotate.h"
 #include "rubberband.h"
 #include "search.h"
@@ -198,6 +199,50 @@ GetValue (String * Params, Boolean * absolute, Cardinal Num)
 }
 
 /* ---------------------------------------------------------------------------
+ * sets the bounding box of a point (which is silly)
+ */
+void
+SetPointBoundingBox (PointTypePtr Pnt)
+{
+  Pnt->X2 = Pnt->X;
+  Pnt->Y2 = Pnt->Y;
+}
+
+/* ---------------------------------------------------------------------------
+ * sets the bounding box of a pin or via
+ */
+void
+SetPinBoundingBox (PinTypePtr Pin)
+{
+  BDimension width;
+
+   /* the bounding box covers the extent of influence
+    * so if must include the clearance value too
+    */
+  width = (Pin->Clearance +1)/2 + (Pin->Thickness +1)/2;
+  Pin->BoundingBox.X1 = Pin->X - width;
+  Pin->BoundingBox.Y1 = Pin->Y - width;
+  Pin->BoundingBox.X2 = Pin->X + width;
+  Pin->BoundingBox.Y2 = Pin->Y + width;
+}
+
+/* ---------------------------------------------------------------------------
+ * sets the bounding box of a line
+ */
+void
+SetLineBoundingBox (LineTypePtr Line)
+{
+  BDimension width;
+
+  width = (Line->Thickness +1)/2 + (Line->Clearance +1)/2;
+
+  Line->BoundingBox.X1 = MIN(Line->Point1.X, Line->Point2.X) - width;
+  Line->BoundingBox.X2 = MAX(Line->Point1.X, Line->Point2.X) + width;
+  Line->BoundingBox.Y1 = MIN(Line->Point1.Y, Line->Point2.Y) - width;
+  Line->BoundingBox.Y2 = MAX(Line->Point1.Y, Line->Point2.Y) + width;
+}
+
+/* ---------------------------------------------------------------------------
  * sets the bounding box of a polygons
  */
 void
@@ -225,12 +270,14 @@ SetPolygonBoundingBox (PolygonTypePtr Polygon)
  * sets the bounding box of an elements
  */
 void
-SetElementBoundingBox (ElementTypePtr Element, FontTypePtr Font)
+SetElementBoundingBox (DataTypePtr Data, ElementTypePtr Element, FontTypePtr Font)
 {
   Location minx, miny, maxx, maxy;
   float fminx, fminy, fmaxx, fmaxy;
   int angle1, angle2, angle;
 
+  if (Data && Data->element_tree)
+    r_delete_entry(Data->element_tree, (BoxType *)Element);
   /* first update the text objects */
   ELEMENTTEXT_LOOP (Element, 
     {
@@ -257,6 +304,7 @@ SetElementBoundingBox (ElementTypePtr Element, FontTypePtr Font)
   );
   PIN_LOOP (Element, 
     {
+      SetPinBoundingBox (pin);
       minx = MIN (minx, pin->X - pin->Thickness / 2);
       miny = MIN (miny, pin->Y - pin->Thickness / 2);
       maxx = MAX (maxx, pin->X + pin->Thickness / 2);
@@ -301,6 +349,7 @@ SetElementBoundingBox (ElementTypePtr Element, FontTypePtr Font)
   );
   PAD_LOOP (Element, 
     {
+      SetLineBoundingBox((LineTypePtr)pad);
       minx = MIN (minx, pad->Point1.X - pad->Thickness / 2);
       miny = MIN (miny, pad->Point1.Y - pad->Thickness / 2);
       minx = MIN (minx, pad->Point2.X - pad->Thickness / 2);
@@ -357,6 +406,10 @@ SetElementBoundingBox (ElementTypePtr Element, FontTypePtr Font)
   Element->BoundingBox.Y1 = miny;
   Element->BoundingBox.X2 = maxx;
   Element->BoundingBox.Y2 = maxy;
+  if (Data && !Data->element_tree)
+    Data->element_tree = r_create_tree(NULL, 0, 0);
+  if (Data)
+    r_insert_entry(Data->element_tree, (BoxType *)Element, 0);
 }
 
 /* ---------------------------------------------------------------------------
@@ -1051,7 +1104,7 @@ SetArcBoundingBox (ArcTypePtr Arc)
   temp = box->Y1;
   box->Y1 = MIN (box->Y1, box->Y2);
   box->Y2 = MAX (box->Y2, temp);
-  width = Arc->Thickness / 2;
+  width = (Arc->Thickness + Arc->Clearance)/ 2;
   box->X1 -= width;
   box->X2 += width;
   box->Y1 -= width;
@@ -1277,15 +1330,23 @@ AttachForCopy (Location PlaceX, Location PlaceY)
   Location mx, my;
 
   Crosshair.AttachedObject.RubberbandN = 0;
-  /* dither the grab point so that the mark, center, etc
-   * will end up on a grid coordinate
-   */
-  GetGridLockCoordinates (Crosshair.AttachedObject.Type,
-			  Crosshair.AttachedObject.Ptr1,
-			  Crosshair.AttachedObject.Ptr2,
-			  Crosshair.AttachedObject.Ptr3, &mx, &my);
-  mx = GRIDFIT_X (mx, PCB->Grid) - mx;
-  my = GRIDFIT_Y (my, PCB->Grid) - my;
+  if (TEST_FLAG(SNAPPINFLAG, PCB))
+    {
+      mx = 0;
+      my = 0;
+    }
+  else
+    {
+      /* dither the grab point so that the mark, center, etc
+       * will end up on a grid coordinate
+       */
+      GetGridLockCoordinates (Crosshair.AttachedObject.Type,
+			      Crosshair.AttachedObject.Ptr1,
+			      Crosshair.AttachedObject.Ptr2,
+			      Crosshair.AttachedObject.Ptr3, &mx, &my);
+      mx = GRIDFIT_X (mx, PCB->Grid) - mx;
+      my = GRIDFIT_Y (my, PCB->Grid) - my;
+    }
   Crosshair.AttachedObject.X = PlaceX - mx;
   Crosshair.AttachedObject.Y = PlaceY - my;
   if (!Marked.status || TEST_FLAG(LOCALREFFLAG, PCB))

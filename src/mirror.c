@@ -57,7 +57,7 @@ static char *rcsid = "$Id$";
  * an additional offset is passed
  */
 void
-MirrorElementCoordinates (ElementTypePtr Element, Location yoff)
+MirrorElementCoordinates (DataTypePtr Data, ElementTypePtr Element, Location yoff)
 {
   ELEMENTLINE_LOOP (Element, 
     {
@@ -102,5 +102,5 @@ MirrorElementCoordinates (ElementTypePtr Element, Location yoff)
 
   /* now toggle the solder-side flag */
   TOGGLE_FLAG (ONSOLDERFLAG, Element);
-  SetElementBoundingBox (Element, &PCB->Font);
+  SetElementBoundingBox (Data, Element, &PCB->Font);
 }

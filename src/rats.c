@@ -539,6 +539,7 @@ DrawShortestRats (NetListTypePtr Netl, void (*funcp) ())
   Cardinal n, m, j;
   NetTypePtr next, subnet, theSubnet;
 
+  firstpoint = secondpoint = NULL;
   while (Netl->NetN > 1)
     {
       subnet = &Netl->Net[0];

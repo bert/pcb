@@ -50,6 +50,7 @@ static char *rcsid = "$Id$";
 #include "mymem.h"
 #include "misc.h"
 #include "rats.h"
+#include "rtree.h"
 
 #ifdef HAVE_LIBDMALLOC
 #include <dmalloc.h>
@@ -245,10 +246,18 @@ GetViaMemory (DataTypePtr Data)
   if (Data->ViaN >= Data->ViaMax)
     {
       Data->ViaMax += STEP_VIA;
+      if (Data->via_tree)
+        r_destroy_tree(&Data->via_tree);
       via = MyRealloc (via, Data->ViaMax * sizeof (PinType),
 		       "GetViaMemory()");
       Data->Via = via;
       memset (via + Data->ViaN, 0, STEP_VIA * sizeof (PinType));
+      Data->via_tree = r_create_tree(NULL, 0, 0);
+      VIA_LOOP(Data,
+        {
+          r_insert_entry(Data->via_tree, (BoxType *)via, 0);
+	}
+      );
     }
   return (via + Data->ViaN++);
 }
@@ -285,10 +294,19 @@ GetLineMemory (LayerTypePtr Layer)
   if (Layer->LineN >= Layer->LineMax)
     {
       Layer->LineMax += STEP_LINE;
+       /* all of the pointers move, so rebuild the whole tree */
+      if (Layer->line_tree)
+        r_destroy_tree(&Layer->line_tree);
       line = MyRealloc (line, Layer->LineMax * sizeof (LineType),
 			"GetLineMemory()");
       Layer->Line = line;
       memset (line + Layer->LineN, 0, STEP_LINE * sizeof (LineType));
+      Layer->line_tree = r_create_tree(NULL, 0, 0);
+      LINE_LOOP(Layer,
+        {
+	  r_insert_entry(Layer->line_tree, (BoxTypePtr)line, 0);
+	}
+      );
     }
   return (line + Layer->LineN++);
 }
@@ -305,10 +323,18 @@ GetArcMemory (LayerTypePtr Layer)
   if (Layer->ArcN >= Layer->ArcMax)
     {
       Layer->ArcMax += STEP_ARC;
+      if (Layer->arc_tree)
+        r_destroy_tree(&Layer->arc_tree);
       arc = MyRealloc (arc, Layer->ArcMax * sizeof (ArcType),
 		       "GetArcMemory()");
       Layer->Arc = arc;
       memset (arc + Layer->ArcN, 0, STEP_ARC * sizeof (ArcType));
+      Layer->arc_tree = r_create_tree(NULL, 0, 0);
+      ARC_LOOP(Layer,
+        {
+	  r_insert_entry(Layer->arc_tree, (BoxTypePtr)arc, 0);
+	}
+      );
     }
   return (arc + Layer->ArcN++);
 }
@@ -388,11 +414,19 @@ GetElementMemory (DataTypePtr Data)
   if (Data->ElementN >= Data->ElementMax)
     {
       Data->ElementMax += STEP_ELEMENT;
+      if (Data->element_tree)
+        r_destroy_tree(&Data->element_tree);
       element = MyRealloc (element, Data->ElementMax * sizeof (ElementType),
 			   "GetElementMemory()");
       Data->Element = element;
       memset (element + Data->ElementN, 0,
 	      STEP_ELEMENT * sizeof (ElementType));
+      Data->element_tree = r_create_tree(NULL, 0, 0);
+      ELEMENT_LOOP(Data,
+        {
+	  r_insert_entry(Data->element_tree, (BoxType *)element, 0);
+	}
+      );
     }
   return (element + Data->ElementN++);
 }
@@ -751,8 +785,16 @@ FreeDataMemory (DataTypePtr Data)
 	    }
 	  );
 	  MyFree ((char **) &layer->Polygon);
+	  if (layer->line_tree)
+	    r_destroy_tree(&layer->line_tree);
+	  if (layer->arc_tree)
+	    r_destroy_tree(&layer->arc_tree);
 	}
 
+      if (Data->element_tree)
+        r_destroy_tree(&Data->element_tree);
+      if (Data->via_tree)
+        r_destroy_tree(&Data->via_tree);
       /* clear struct */
       memset (Data, 0, sizeof (DataType));
     }
@@ -785,7 +827,7 @@ FreeLibraryMemory (LibraryTypePtr lib)
 /* ---------------------------------------------------------------------------
  * a 'save' free routine which first does a quick check if the pointer
  * is zero. The routine isn't implemented as a macro to make additional
- * savety features easier to implement
+ * safety features easier to implement
  */
 void
 SaveFree (void *Ptr)

@@ -32,6 +32,7 @@ static char *rcsid = "$Id$";
 #include "config.h"
 #endif
 
+#include <math.h>
 #include <stdio.h>
 #ifdef HAVE_STRING_H
 #include <string.h>
@@ -140,10 +141,10 @@ PinoutWindow (Widget Parent, ElementTypePtr Element)
     }
   );
   if (minx < miny)
-    RotateElementLowLevel (&pinout->Element, pinout->Element.BoundingBox.X1,
+    RotateElementLowLevel (NULL, &pinout->Element, pinout->Element.BoundingBox.X1,
 			   pinout->Element.BoundingBox.Y1, 1);
 
-  MoveElementLowLevel (&pinout->Element,
+  MoveElementLowLevel (NULL, &pinout->Element,
 		       -pinout->Element.BoundingBox.X1 +
 		       Settings.PinoutOffsetX,
 		       -pinout->Element.BoundingBox.Y1 +

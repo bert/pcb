@@ -82,6 +82,7 @@ static char *rcsid = "$Id$";
 #include <string.h>
 #endif
 #include <math.h>
+#include <setjmp.h>
 #include <sys/times.h>
 
 #include "global.h"
@@ -95,6 +96,7 @@ static char *rcsid = "$Id$";
 #include "mymem.h"
 #include "misc.h"
 #include "netlist.h"
+#include "rtree.h"
 #include "polygon.h"
 #include "search.h"
 #include "set.h"
@@ -281,10 +283,6 @@ static Boolean User = False;	/* user action causing this */
 static Boolean drc = False;	/* whether to stop if finding something not found */
 static Boolean IsBad = False;
 static Cardinal drcerr_count;    /* count of drc errors */
-static LineTypePtr *LineSortedByLowX[MAX_LAYER],	/* sorted array of */
- *LineSortedByHighX[MAX_LAYER];	/* line pointers */
-static ArcTypePtr *ArcSortedByLowX[MAX_LAYER],	/* sorted array of */
- *ArcSortedByHighX[MAX_LAYER];	/* arc pointers */
 static RatTypePtr *RatSortedByLowX, *RatSortedByHighX;
 static PadDataTypePtr PadData[2];
 static PadDataTypePtr *PadSortedByLowX[2], *PadSortedByHighX[2];
@@ -299,26 +297,14 @@ static ListType LineList[MAX_LAYER],	/* list of objects to */
  */
 static int ComparePadByLowX (const void *, const void *);
 static int ComparePadByHighX (const void *, const void *);
-static int CompareLineByLowX (const void *, const void *);
-static int CompareLineByHighX (const void *, const void *);
-static int CompareArcByHighX (const void *, const void *);
-static int CompareArcByLowX (const void *, const void *);
 static int CompareRatByHighX (const void *, const void *);
 static int CompareRatByLowX (const void *, const void *);
 static int ComparePVByX (const void *, const void *);
 static Cardinal GetPadByLowX (Location, Cardinal);
 static Cardinal GetPadByHighX (Location, Cardinal);
-static Cardinal GetLineByLowX (Location, Cardinal);
-static Cardinal GetLineByHighX (Location, Cardinal);
-static Cardinal GetArcByLowX (Location, Cardinal);
-static Cardinal GetArcByHighX (Location, Cardinal);
 static Cardinal GetRatByLowX (Location);
 static Cardinal GetRatByHighX (Location);
 static Cardinal GetPVByX (int, Location);
-static PadDataTypePtr *GetIndexOfPads (Location, Location,
-				       Cardinal, Cardinal *);
-static LineTypePtr *GetIndexOfLines (Location, Location,
-				     Cardinal, Cardinal *);
 static PVDataType *LookupPVByCoordinates (int, Location, Location);
 static PadDataTypePtr LookupPadByAddress (PadTypePtr);
 static Boolean LookupLOConnectionsToPVList (Boolean);
@@ -437,7 +423,7 @@ PadPadIntersect (PadTypePtr p1, PadTypePtr p2)
 static inline Boolean
 PV_TOUCH_PV (PinTypePtr PV1, PinTypePtr PV2)
 {
-  float x1, x2, t1, t2;
+  float t1, t2;
   BoxType b1, b2;
 
   t1 = MAX (PV1->Thickness / 2.0 + fBloat, 0);
@@ -486,60 +472,6 @@ ComparePadByHighX (const void *Index1, const void *Index2)
 
   return ((int) (MAX (ptr1->Data->Point1.X, ptr1->Data->Point2.X) -
 		 MAX (ptr2->Data->Point1.X, ptr2->Data->Point2.X)));
-}
-
-/* ---------------------------------------------------------------------------
- * quicksort compare function for line coordinate X1
- * line field is sorted in decending order of X1
- */
-static int
-CompareLineByLowX (const void *Index1, const void *Index2)
-{
-  LineTypePtr ptr1 = *((LineTypePtr *) Index1),
-    ptr2 = *((LineTypePtr *) Index2);
-
-  return ((int)
-	  (MIN (ptr2->Point1.X, ptr2->Point2.X) -
-	   MIN (ptr1->Point1.X, ptr1->Point2.X)));
-}
-
-/* ---------------------------------------------------------------------------
- * quicksort compare function for line coordinate X2
- * line field is sorted in ascending order of X2
- */
-static int
-CompareLineByHighX (const void *Index1, const void *Index2)
-{
-  LineTypePtr ptr1 = *((LineTypePtr *) Index1),
-    ptr2 = *((LineTypePtr *) Index2);
-
-  return ((int)
-	  (MAX (ptr1->Point1.X, ptr1->Point2.X) -
-	   MAX (ptr2->Point1.X, ptr2->Point2.X)));
-}
-
-/* ---------------------------------------------------------------------------
- * quicksort compare function for arc coordinate X2
- * arc field is sorted in ascending order of X2
- */
-static int
-CompareArcByLowX (const void *Index1, const void *Index2)
-{
-  ArcTypePtr ptr1 = *((ArcTypePtr *) Index1), ptr2 = *((ArcTypePtr *) Index2);
-
-  return ((int) (ptr2->BoundingBox.X1 - ptr1->BoundingBox.X1));
-}
-
-/* ---------------------------------------------------------------------------
- * quicksort compare function for arc coordinate X2
- * arc field is sorted in ascending order of X2
- */
-static int
-CompareArcByHighX (const void *Index1, const void *Index2)
-{
-  ArcTypePtr ptr1 = *((ArcTypePtr *) Index1), ptr2 = *((ArcTypePtr *) Index2);
-
-  return ((int) (ptr1->BoundingBox.X2 - ptr2->BoundingBox.X2));
 }
 
 /* ---------------------------------------------------------------------------
@@ -631,50 +563,6 @@ GetPadByHighX (Location X, Cardinal Layer)
 
 /* ---------------------------------------------------------------------------
  * returns the minimum index which matches
- * lowX(line[index]) <= X for all index >= 'found one'
- * the field is sorted in a descending order
- */
-static Cardinal
-GetLineByLowX (Location X, Cardinal Layer)
-{
-  LineTypePtr *ptr = LineSortedByLowX[Layer];
-  int left = 0, right = PCB->Data->Layer[Layer].LineN - 1, position;
-
-  while (left < right)
-    {
-      position = (left + right) / 2;
-      if (MIN (ptr[position]->Point1.X, ptr[position]->Point2.X) <= X)
-	right = position;
-      else
-	left = position + 1;
-    }
-  return ((Cardinal) left);
-}
-
-/* ---------------------------------------------------------------------------
- * returns the minimum index which matches
- * highX(line[index]) >= X for all index >= 'found one'
- * the field is sorted in a ascending order
- */
-static Cardinal
-GetLineByHighX (Location X, Cardinal Layer)
-{
-  LineTypePtr *ptr = LineSortedByHighX[Layer];
-  int left = 0, right = PCB->Data->Layer[Layer].LineN - 1, position;
-
-  while (left < right)
-    {
-      position = (left + right) / 2;
-      if (MAX (ptr[position]->Point1.X, ptr[position]->Point2.X) >= X)
-	right = position;
-      else
-	left = position + 1;
-    }
-  return ((Cardinal) left);
-}
-
-/* ---------------------------------------------------------------------------
- * returns the minimum index which matches
  * highX(rat[index]) >= X for all index >= 'found one'
  * the field is sorted in a ascending order
  */
@@ -710,50 +598,6 @@ GetRatByLowX (Location X)
     {
       position = (left + right) / 2;
       if (MIN (ptr[position]->Point1.X, ptr[position]->Point2.X) <= X)
-	right = position;
-      else
-	left = position + 1;
-    }
-  return ((Cardinal) left);
-}
-
-/* ---------------------------------------------------------------------------
- * returns the minimum index which matches
- * lowX(arc[index]) <= X for all index >= 'found one'
- * the field is sorted in a descending order
- */
-static Cardinal
-GetArcByLowX (Location X, Cardinal Layer)
-{
-  ArcTypePtr *ptr = ArcSortedByLowX[Layer];
-  int left = 0, right = PCB->Data->Layer[Layer].ArcN - 1, position;
-
-  while (left < right)
-    {
-      position = (left + right) / 2;
-      if (ptr[position]->BoundingBox.X1 <= X)
-	right = position;
-      else
-	left = position + 1;
-    }
-  return ((Cardinal) left);
-}
-
-/* ---------------------------------------------------------------------------
- * returns the minimum index which matches
- * highX(arc[index]) >= X for all index >= 'found one'
- * the field is sorted in a descending order
- */
-static Cardinal
-GetArcByHighX (Location X, Cardinal Layer)
-{
-  ArcTypePtr *ptr = ArcSortedByHighX[Layer];
-  int left = 0, right = PCB->Data->Layer[Layer].ArcN - 1, position;
-
-  while (left < right)
-    {
-      position = (left + right) / 2;
-      if (ptr[position]->BoundingBox.X2 >= X)
 	right = position;
       else
 	left = position + 1;
@@ -807,11 +651,7 @@ FreeLayoutLookupMemory (void)
 
   for (i = 0; i < MAX_LAYER; i++)
     {
-      MyFree ((char **) &LineSortedByLowX[i]);
-      MyFree ((char **) &LineSortedByHighX[i]);
       MyFree ((char **) &LineList[i].Data);
-      MyFree ((char **) &ArcSortedByLowX[i]);
-      MyFree ((char **) &ArcSortedByHighX[i]);
       MyFree ((char **) &ArcList[i].Data);
       MyFree ((char **) &PolygonList[i].Data);
     }
@@ -967,51 +807,15 @@ InitLayoutLookup (void)
       if (layer->LineN)
 	{
 	  /* allocate memory for line pointer lists */
-	  LineSortedByLowX[i] = (LineTypePtr *) MyCalloc (layer->LineN,
-							  sizeof
-							  (LineTypePtr),
-							  "InitConnectionLookup()");
-	  LineSortedByHighX[i] =
-	    (LineTypePtr *) MyCalloc (layer->LineN, sizeof (LineTypePtr),
-				      "InitConnectionLookup()");
 	  LineList[i].Data =
 	    (void **) MyCalloc (layer->LineN, sizeof (LineTypePtr),
 				"InitConnectionLookup()");
-
-	  /* copy addresses to arrays and sort them */
-	  LINE_LOOP (layer, 
-	    {
-	      LineSortedByLowX[i][n] = LineSortedByHighX[i][n] = line;
-	    }
-	  );
-	  qsort (LineSortedByLowX[i], layer->LineN, sizeof (LineTypePtr),
-		 CompareLineByLowX);
-	  qsort (LineSortedByHighX[i], layer->LineN, sizeof (LineTypePtr),
-		 CompareLineByHighX);
-
 	}
       if (layer->ArcN)
 	{
-	  /* allocate memory for arc pointer lists */
-	  ArcSortedByLowX[i] = (ArcTypePtr *) MyCalloc (layer->ArcN,
-							sizeof (ArcTypePtr),
-							"InitConnectionLookup()");
-	  ArcSortedByHighX[i] =
-	    (ArcTypePtr *) MyCalloc (layer->ArcN, sizeof (ArcTypePtr),
-				     "InitConnectionLookup()");
 	  ArcList[i].Data =
 	    (void **) MyCalloc (layer->ArcN, sizeof (ArcTypePtr),
 				"InitConnectionLookup()");
-
-	  ARC_LOOP (layer, 
-	    {
-	      ArcSortedByLowX[i][n] = ArcSortedByHighX[i][n] = arc;
-	    }
-	  );
-	  qsort (ArcSortedByLowX[i], layer->ArcN, sizeof (ArcTypePtr),
-		 CompareArcByLowX);
-	  qsort (ArcSortedByHighX[i], layer->ArcN, sizeof (ArcTypePtr),
-		 CompareArcByHighX);
 	}
 
 
@@ -1103,33 +907,6 @@ GetIndexOfPads (Location Xlow, Location Xhigh,
  * All list entries starting from the pointer position to the end
  * may match the specified x coordinate range.
  */
-static LineTypePtr *
-GetIndexOfLines (Location Xlow, Location Xhigh,
-		 Cardinal Layer, Cardinal * Number)
-{
-  Cardinal index1, index2;
-
-  /* get index of the first line that may match the coordinates
-   * see GetLineByLowX(), GetLineByHighX()
-   * take the field with less entries to speed up searching
-   */
-  index1 = GetLineByLowX (Xhigh, Layer);
-  index2 = GetLineByHighX (Xlow, Layer);
-  if (index1 > index2)
-    {
-      *Number = PCB->Data->Layer[Layer].LineN - index1;
-      return (&LineSortedByLowX[Layer][index1]);
-    }
-  *Number = PCB->Data->Layer[Layer].LineN - index2;
-  return (&LineSortedByHighX[Layer][index2]);
-}
-
-/* ---------------------------------------------------------------------------
- * returns a pointer into the sorted list with the highest index and the
- * number of entries left to check
- * All list entries starting from the pointer position to the end
- * may match the specified x coordinate range.
- */
 static RatTypePtr *
 GetIndexOfRats (Location Xlow, Location Xhigh, Cardinal * Number)
 {
@@ -1148,34 +925,6 @@ GetIndexOfRats (Location Xlow, Location Xhigh, Cardinal * Number)
   *Number = PCB->Data->RatN - index2;
   return (&RatSortedByHighX[index2]);
 }
-
-/* ---------------------------------------------------------------------------
- * returns a pointer into the sorted list with the highest index and the
- * number of entries left to check
- * All list entries starting from the pointer position to the end
- * may match the specified x coordinate range.
- */
-static ArcTypePtr *
-GetIndexOfArcs (Location Xlow, Location Xhigh,
-		Cardinal Layer, Cardinal * Number)
-{
-  Cardinal index1, index2;
-
-  /* get index of the first arc that may match the coordinates
-   * see GetArcByLowX(), GetArcByHighX()
-   * take the field with less entries to speed up searching
-   */
-  index1 = GetArcByLowX (Xhigh, Layer);
-  index2 = GetArcByHighX (Xlow, Layer);
-  if (index1 > index2)
-    {
-      *Number = PCB->Data->Layer[Layer].ArcN - index1;
-      return (&ArcSortedByLowX[Layer][index1]);
-    }
-  *Number = PCB->Data->Layer[Layer].ArcN - index2;
-  return (&ArcSortedByHighX[Layer][index2]);
-}
-
 
 /* ---------------------------------------------------------------------------
  * finds a pad by it's address in the sorted list
@@ -1236,83 +985,38 @@ LookupPVByCoordinates (int kind, Location X, Location Y)
   return (NULL);
 }
 
-Boolean
-viaClear (PinTypePtr pv)
+struct pv_info
 {
-  Cardinal layer, i, j, limit;
-  BDimension distance;
+  Cardinal layer;
+  PinTypePtr pv;
+};
 
-  /* check pads (which are lines) */
-  for (layer = 0; layer < 2; layer++)
+static int
+LOCtoPVline_callback(const BoxType *b, void *cl)
+{
+  LineTypePtr line = (LineTypePtr)b;
+  struct pv_info *i = (struct pv_info *)cl;
+
+  if (!TEST_FLAG (TheFlag, line) && IS_PV_ON_LINE (i->pv, line))
     {
-      BDimension distance =
-	MAX ((MAX_PADSIZE + pv->Thickness) / 2 + Bloat, 0);
-      PadDataTypePtr *sortedptr;
-      Cardinal i;
-
-      /* get the lowest data pointer of pads which may have
-       * a connection to the PV ### pad->Point1.X <= pad->Point2.X ###
-       */
-      sortedptr = GetIndexOfPads (pv->X - distance, pv->X + distance,
-				  layer, &i);
-      for (; i; i--, sortedptr++)
-	if (!TEST_FLAG (TheFlag, (*sortedptr)->Data) &&
-	    IS_PV_ON_PAD (pv, (*sortedptr)->Data))
-	  return (False);
+      ADD_LINE_TO_LIST (i->layer, line);
+      return 1;
     }
+  return 0;
+}
 
-  /* now all lines, arcs and polygons of the several layers */
-  for (layer = 0; layer < MAX_LAYER; layer++)
+static int
+LOCtoPVarc_callback(const BoxType *b, void *cl)
+{
+  ArcTypePtr arc = (ArcTypePtr)b;
+  struct pv_info *i = (struct pv_info *)cl;
+
+  if (!TEST_FLAG (TheFlag, arc) && IS_PV_ON_ARC (i->pv, arc))
     {
-      BDimension distance =
-	MAX ((MAX_LINESIZE + pv->Thickness) / 2 + Bloat, 0);
-      LineTypePtr *sortedptr;
-      ArcTypePtr *sortedarc;
-      Cardinal i;
-
-      /* get the lowest data pointer of lines which may have
-       * a connection to the PV
-       * ### line->Point1.X <= line->Point2.X ###
-       */
-      sortedptr = GetIndexOfLines (pv->X - distance, pv->X + distance,
-				   layer, &i);
-      for (; i; i--, sortedptr++)
-	if (!TEST_FLAG (TheFlag, *sortedptr) &&
-	    IS_PV_ON_LINE (pv, *sortedptr))
-	  return (False);
-
-      sortedarc = GetIndexOfArcs (pv->X - distance, pv->X + distance,
-				  layer, &i);
-      for (; i; i--, sortedarc++)
-	if (!TEST_FLAG (TheFlag, *sortedarc) && IS_PV_ON_ARC (pv, *sortedarc))
-	  return (False);
+      ADD_ARC_TO_LIST (i->layer, arc);
+      return 1;
     }
-  /* now look for PVs that may touch */
-  distance = MAX_PINORVIASIZE + pv->Thickness + Bloat;
-  for (j = 0; j < 2; j++)
-    {
-      if ((j == 0 && TotalV == 0) || (j == 1 && TotalP == 0))
-	continue;
-      i = GetPVByX (j, pv->X - distance);
-      limit = GetPVByX (j, pv->X + distance + 1);
-      for (; i <= limit; i++)
-	{
-	  PinTypePtr pvs = ((j) ? PSortedByX[i].Data : VSortedByX[i].Data);
-
-	  /* we also test those already "found"
-	   * since touching of these types leads to
-	   * the danger of hole overlap
-	   */
-	  if ((pvs->Thickness + pv->Thickness) *
-	      (pvs->Thickness + pv->Thickness) / 4 > ((pvs->X - pv->X) *
-						      (pvs->X - pv->X) +
-						      (pvs->Y -
-						       pv->Y) * (pvs->Y -
-								 pv->Y)))
-	    return (False);
-	}
-    }
-  return (True);
+  return 0;
 }
 
 /* ---------------------------------------------------------------------------
@@ -1324,6 +1028,7 @@ LookupLOConnectionsToPVList (Boolean AndRats)
 {
   PinTypePtr pv;
   Cardinal layer;
+  struct pv_info info;
 
   /* loop over all PVs currently on list */
   while (PVList.Location < PVList.Number)
@@ -1351,32 +1056,18 @@ LookupLOConnectionsToPVList (Boolean AndRats)
 	}
 
       /* now all lines, arcs and polygons of the several layers */
+      info.pv = pv;
       for (layer = 0; layer < MAX_LAYER; layer++)
 	{
 	  PolygonTypePtr polygon = PCB->Data->Layer[layer].Polygon;
-	  BDimension distance =
-	    MAX ((MAX_LINESIZE + pv->Thickness) / 2 + Bloat, 0);
-	  LineTypePtr *sortedptr;
-	  ArcTypePtr *sortedarc;
 	  Cardinal i;
 	  int Myflag;
 
-	  /* get the lowest data pointer of lines which may have
-	   * a connection to the PV
-	   * ### line->Point1.X <= line->Point2.X ###
-	   */
-	  sortedptr =
-	    GetIndexOfLines (pv->X - distance, pv->X + distance, layer, &i);
-	  for (; i; i--, sortedptr++)
-	    if (!TEST_FLAG (TheFlag, *sortedptr) &&
-		IS_PV_ON_LINE (pv, *sortedptr))
-	      ADD_LINE_TO_LIST (layer, *sortedptr);
-	  sortedarc =
-	    GetIndexOfArcs (pv->X - distance, pv->X + distance, layer, &i);
-	  for (; i; i--, sortedarc++)
-	    if (!TEST_FLAG (TheFlag, *sortedarc) &&
-		IS_PV_ON_ARC (pv, *sortedarc))
-	      ADD_ARC_TO_LIST (layer, *sortedarc);
+	  info.layer = layer;
+          /* add touching lines */
+	  r_search(LAYER_PTR(layer)->line_tree, (BoxType *)pv, NULL, LOCtoPVline_callback, &info);
+	  /* add touching arcs */
+	  r_search(LAYER_PTR(layer)->arc_tree, (BoxType *)pv, NULL, LOCtoPVarc_callback, &info);
 	  /* check all polygons */
 	  for (i = 0; i < PCB->Data->Layer[layer].PolygonN; i++, polygon++)
 	    {
@@ -2350,6 +2041,40 @@ LineArcIntersect (LineTypePtr Line, ArcTypePtr Arc)
   return (False);
 }
 
+struct arc_info
+{
+  Cardinal layer;
+  ArcTypePtr arc;
+};
+
+static int
+LOCtoArcLine_callback (const BoxType *b, void *cl)
+{
+  LineTypePtr line = (LineTypePtr)b;
+  struct arc_info *i = (struct arc_info *)cl;
+
+  if (!TEST_FLAG (TheFlag, line) && LineArcIntersect (line, i->arc))
+    {
+      ADD_LINE_TO_LIST (i->layer, line);
+      return 1;
+    }
+  return 0;
+}
+
+static int
+LOCtoArcArc_callback (const BoxType *b, void *cl)
+{
+  ArcTypePtr arc = (ArcTypePtr)b;
+  struct arc_info *i = (struct arc_info *)cl;
+
+  if (!TEST_FLAG (TheFlag, arc) && ArcArcIntersect (i->arc, arc))
+    {
+      ADD_ARC_TO_LIST (i->layer, arc);
+      return 1;
+    }
+  return 0;
+}
+
 /* ---------------------------------------------------------------------------
  * searches all LOs that are connected to the given arc on the given
  * layergroup. All found connections are added to the list
@@ -2362,6 +2087,7 @@ LookupLOConnectionsToArc (ArcTypePtr Arc, Cardinal LayerGroup)
 {
   Cardinal entry;
   Location xlow, xhigh;
+  struct arc_info info;
 
   /* the maximum possible distance */
 
@@ -2369,6 +2095,7 @@ LookupLOConnectionsToArc (ArcTypePtr Arc, Cardinal LayerGroup)
   xlow = Arc->BoundingBox.X1 - MAX (MAX_PADSIZE, MAX_LINESIZE) / 2;
   xhigh = Arc->BoundingBox.X2 + MAX (MAX_PADSIZE, MAX_LINESIZE) / 2;
 
+  info.arc = Arc;
   /* loop over all layers of the group */
   for (entry = 0; entry < PCB->LayerGroups.Number[LayerGroup]; entry++)
     {
@@ -2380,27 +2107,15 @@ LookupLOConnectionsToArc (ArcTypePtr Arc, Cardinal LayerGroup)
       if (layer < MAX_LAYER)
 	{
 	  PolygonTypePtr polygon;
-	  LineTypePtr *sortedptr;
-	  ArcTypePtr *sortedarc;
 
-	  /* get index of the first line that may match the coordinates */
+          info.layer = layer;
+	    /* add arcs */
+	  r_search(LAYER_PTR(layer)->line_tree, &Arc->BoundingBox, NULL,
+	           LOCtoArcLine_callback, &info);
 
-	  sortedptr = GetIndexOfLines (xlow, xhigh, layer, &i);
+	  r_search(LAYER_PTR(layer)->arc_tree, &Arc->BoundingBox, NULL,
+	           LOCtoArcArc_callback, &info);
 
-	  /* loop till the end of the data is reached
-	   * DONT RETRY LINES THAT HAVE BEEN FOUND
-	   */
-	  for (; i; i--, sortedptr++)
-	    if (!TEST_FLAG (TheFlag, *sortedptr))
-	      {
-		if (LineArcIntersect (*sortedptr, Arc))
-		  ADD_LINE_TO_LIST (layer, *sortedptr);
-	      }
-	  sortedarc = GetIndexOfArcs (xlow, xhigh, layer, &i);
-	  for (; i; i--, sortedarc++)
-	    if (!TEST_FLAG
-		(TheFlag, *sortedarc) && ArcArcIntersect (Arc, *sortedarc))
-	      ADD_ARC_TO_LIST (layer, *sortedarc);
 	  /* now check all polygons */
 	  i = 0;
 	  polygon = PCB->Data->Layer[layer].Polygon;
@@ -2427,6 +2142,40 @@ LookupLOConnectionsToArc (ArcTypePtr Arc, Cardinal LayerGroup)
   return (False);
 }
 
+struct line_info
+{
+  Cardinal layer;
+  LineTypePtr line;
+};
+
+static int
+LOCtoLineLine_callback (const BoxType *b, void *cl)
+{
+  LineTypePtr line = (LineTypePtr)b;
+  struct line_info *i = (struct line_info *)cl;
+
+  if (!TEST_FLAG (TheFlag, line) && LineLineIntersect (i->line, line))
+    {
+      ADD_LINE_TO_LIST (i->layer, line);
+      return 1;
+    }
+  return 0;
+}
+
+static int
+LOCtoLineArc_callback (const BoxType *b, void *cl)
+{
+  ArcTypePtr arc = (ArcTypePtr)b;
+  struct line_info *i = (struct line_info *)cl;
+
+  if (!TEST_FLAG (TheFlag, arc) && LineArcIntersect (i->line, arc))
+    {
+      ADD_ARC_TO_LIST (i->layer, arc);
+      return 1;
+    }
+  return 0;
+}
+  
 /* ---------------------------------------------------------------------------
  * searches all LOs that are connected to the given line on the given
  * layergroup. All found connections are added to the list
@@ -2438,10 +2187,10 @@ static Boolean
   LookupLOConnectionsToLine
   (LineTypePtr Line, Cardinal LayerGroup, Boolean PolysTo)
 {
-  Cardinal entry;
+  Cardinal entry, i;
   Location xlow, xhigh;
   RatTypePtr *sortedrat;
-  Cardinal i;
+  struct line_info info;
 
   /* the maximum possible distance */
 
@@ -2455,6 +2204,7 @@ static Boolean
 	 Line->Point2.X) +
     MAX (Line->Thickness + MAX (MAX_PADSIZE, MAX_LINESIZE) / 2 + Bloat, 0);
 
+  info.line = Line;
   /* add the new rat lines */
 
 
@@ -2487,26 +2237,14 @@ static Boolean
       if (layer < MAX_LAYER)
 	{
 	  PolygonTypePtr polygon;
-	  LineTypePtr *sortedptr;
-	  ArcTypePtr *sortedarc;
 
-	  /* get index of the first line that may match the coordinates */
-	  sortedptr = GetIndexOfLines (xlow, xhigh, layer, &i);
-
-	  /* loop till the end of the data is reached
-	   * DONT RETRY LINES THAT HAVE BEEN FOUND
-	   */
-	  for (; i; i--, sortedptr++)
-	    if (!TEST_FLAG (TheFlag, *sortedptr))
-	      {
-		if (LineLineIntersect (Line, *sortedptr))
-		  ADD_LINE_TO_LIST (layer, *sortedptr);
-	      }
-	  sortedarc = GetIndexOfArcs (xlow, xhigh, layer, &i);
-	  for (; i; i--, sortedarc++)
-	    if (!TEST_FLAG (TheFlag, *sortedarc)
-		&& LineArcIntersect (Line, *sortedarc))
-	      ADD_ARC_TO_LIST (layer, *sortedarc);
+          info.layer = layer;
+	   /* add lines */
+	  r_search(LAYER_PTR(layer)->line_tree, (BoxType *)Line, NULL,
+	           LOCtoLineLine_callback, &info);
+	   /* add arcs */
+	  r_search(LAYER_PTR(layer)->arc_tree, (BoxType *)Line, NULL,
+	           LOCtoLineArc_callback, &info);
 	  /* now check all polygons */
 	  if (PolysTo)
 	    {
@@ -2536,16 +2274,46 @@ static Boolean
   return (False);
 }
 
+struct linejmp_info
+{
+  LineTypePtr line;
+  jmp_buf env;
+};
+
+static int
+LOT_Linecallback (const BoxType *b, void *cl)
+{
+  LineTypePtr line = (LineTypePtr)b;
+  struct linejmp_info *i = (struct linejmp_info *)cl;
+  
+  if (!TEST_FLAG (TheFlag, line) && LineLineIntersect (i->line, line))
+    longjmp (i->env, 1);
+  return 0;
+}
+
+static int
+LOT_Arccallback (const BoxType *b, void *cl)
+{
+  ArcTypePtr arc = (ArcTypePtr)b;
+  struct linejmp_info *i = (struct linejmp_info *)cl;
+  
+  if (!TEST_FLAG (TheFlag, arc) && LineArcIntersect (i->line, arc))
+    longjmp (i->env, 1);
+  return 0;
+}
+
 static Boolean
 LOTouchesLine (LineTypePtr Line, Cardinal LayerGroup)
 {
   Cardinal entry;
   Location xlow, xhigh;
   Cardinal i;
+  struct linejmp_info info;
+
 
   /* the maximum possible distance */
 
-
+  info.line = Line;
   xlow = MIN (Line->Point1.X, Line->Point2.X)
     - MAX (Line->Thickness + MAX (MAX_PADSIZE, MAX_LINESIZE) / 2 - Bloat, 0);
 
@@ -2556,38 +2324,25 @@ LOTouchesLine (LineTypePtr Line, Cardinal LayerGroup)
   /* loop over all layers of the group */
   for (entry = 0; entry < PCB->LayerGroups.Number[LayerGroup]; entry++)
     {
-      Cardinal layer;
-
-
-
-      layer = PCB->LayerGroups.Entries[LayerGroup][entry];
+      Cardinal layer = PCB->LayerGroups.Entries[LayerGroup][entry];
 
       /* handle normal layers */
       if (layer < MAX_LAYER)
 	{
 	  PolygonTypePtr polygon;
-	  LineTypePtr *sortedptr;
-	  ArcTypePtr *sortedarc;
 
-	  /* get index of the first line that may match the coordinates */
+	  /* find the first line that touches coordinates */
 
-
-	  sortedptr = GetIndexOfLines (xlow, xhigh, layer, &i);
-
-	  /* loop till the end of the data is reached
-	   * DONT RETRY LINES THAT HAVE BEEN FOUND
-	   */
-	  for (; i; i--, sortedptr++)
-	    if (!TEST_FLAG (TheFlag, *sortedptr))
-	      {
-		if (LineLineIntersect (Line, *sortedptr))
-		  return (True);
-	      }
-	  sortedarc = GetIndexOfArcs (xlow, xhigh, layer, &i);
-	  for (; i; i--, sortedarc++)
-	    if (!TEST_FLAG (TheFlag, *sortedarc) &&
-		LineArcIntersect (Line, *sortedarc))
-	      return (True);
+	  if (setjmp (info.env) == 0)
+	     r_search (LAYER_PTR(layer)->line_tree, (BoxType *)Line, NULL,
+	               LOT_Linecallback, &info);
+          else
+	    return (True);
+	  if (setjmp (info.env) == 0)
+	     r_search (LAYER_PTR(layer)->arc_tree, (BoxType *)Line, NULL,
+	               LOT_Arccallback, &info);
+          else
+	    return (True);
 
 	  /* now check all polygons */
 	  i = 0;
@@ -2612,6 +2367,30 @@ LOTouchesLine (LineTypePtr Line, Cardinal LayerGroup)
   return (False);
 }
 
+struct rat_info
+{
+  Cardinal layer;
+  PointTypePtr Point;
+};
+
+static int
+LOCtoRat_callback (const BoxType *b, void *cl)
+{
+  LineTypePtr line = (LineTypePtr)b;
+  struct rat_info *i = (struct rat_info *)cl;
+
+  if (!TEST_FLAG (TheFlag, line) &&
+	((line->Point1.X == i->Point->X &&
+	  line->Point1.Y == i->Point->Y) ||
+	 (line->Point2.X == i->Point->X &&
+	  line->Point2.Y == i->Point->Y)))
+    {
+      ADD_LINE_TO_LIST (i->layer, line);
+      return 1;
+    }
+  return 0;
+}
+
 /* ---------------------------------------------------------------------------
  * searches all LOs that are connected to the given rat-line on the given
  * layergroup. All found connections are added to the list
@@ -2623,6 +2402,9 @@ static Boolean
 LookupLOConnectionsToRatEnd (PointTypePtr Point, Cardinal LayerGroup)
 {
   Cardinal entry;
+  struct rat_info info;
+
+  info.Point = Point;
   /* loop over all layers of this group */
   for (entry = 0; entry < PCB->LayerGroups.Number[LayerGroup]; entry++)
     {
@@ -2636,19 +2418,9 @@ LookupLOConnectionsToRatEnd (PointTypePtr Point, Cardinal LayerGroup)
 
       if (layer < MAX_LAYER)
 	{
-	  LineTypePtr *sortedptr;
-/* get index of the first line that may match the coordinates */
-	  sortedptr = GetIndexOfLines (Point->X, Point->X, layer, &i);
-	  /* loop till the end of the data is reached
-	   * DONT RETRY LINES THAT HAVE BEEN FOUND
-	   */
-	  for (; i; i--, sortedptr++)
-	    if (!TEST_FLAG (TheFlag, *sortedptr) &&
-		(((*sortedptr)->Point1.X == Point->X &&
-		  (*sortedptr)->Point1.Y == Point->Y) ||
-		 ((*sortedptr)->Point2.X == Point->X &&
-		  (*sortedptr)->Point2.Y == Point->Y)))
-	      ADD_LINE_TO_LIST (layer, *sortedptr);
+	  info.layer = layer;
+	  r_search(LAYER_PTR(layer)->line_tree, (BoxType *)Point, NULL,
+	           LOCtoRat_callback, &info);
 	}
       else
 	{			/* handle special 'pad' layers */
@@ -2669,6 +2441,34 @@ LookupLOConnectionsToRatEnd (PointTypePtr Point, Cardinal LayerGroup)
   return (False);
 }
 
+static int
+LOCtoPadLine_callback (const BoxType *b, void *cl)
+{
+  LineTypePtr line = (LineTypePtr)b;
+  struct line_info *i = (struct line_info *) cl;
+
+  if (!TEST_FLAG (TheFlag, line) && LinePadIntersect (line, i->line))
+    {
+      ADD_LINE_TO_LIST (i->layer, line);
+      return 1;
+    }
+  return 0;
+}
+
+static int
+LOCtoPadArc_callback (const BoxType *b, void *cl)
+{
+  ArcTypePtr arc = (ArcTypePtr)b;
+  struct line_info *i = (struct line_info *) cl;
+
+  if (!TEST_FLAG (TheFlag, arc) && ArcPadIntersect (i->line, arc))
+    {
+      ADD_ARC_TO_LIST (i->layer, arc);
+      return 1;
+    }
+  return 0;
+}
+
 /* ---------------------------------------------------------------------------
  * searches all LOs that are connected to the given pad on the given
  * layergroup. All found connections are added to the list
@@ -2683,7 +2483,9 @@ LookupLOConnectionsToPad (PadTypePtr Pad, Cardinal LayerGroup)
   Location xlow, xhigh;
   RatTypePtr *sortedrat;
   LineTypePtr Line = (LineTypePtr) Pad;
+  struct line_info info;
 
+  info.line = Line;
   if (!TEST_FLAG (SQUAREFLAG, Pad))
     return (LookupLOConnectionsToLine (Line, LayerGroup, False));
 
@@ -2727,24 +2529,13 @@ LookupLOConnectionsToPad (PadTypePtr Pad, Cardinal LayerGroup)
       /* handle normal layers */
       if (layer < MAX_LAYER)
 	{
-	  LineTypePtr *sortedptr;
-	  ArcTypePtr *sortedarc;
-
-	  /* get index of the first line that may match the coordinates */
-	  sortedptr = GetIndexOfLines (xlow, xhigh, layer, &i);
-
-	  /* loop till the end of the data is reached
-	   * DONT RETRY LINES THAT HAVE BEEN FOUND
-	   */
-	  for (; i; i--, sortedptr++)
-	    if (!TEST_FLAG (TheFlag, *sortedptr))
-	      if (LinePadIntersect (*sortedptr, Line))
-		ADD_LINE_TO_LIST (layer, *sortedptr);
-	  sortedarc = GetIndexOfArcs (xlow, xhigh, layer, &i);
-	  for (; i; i--, sortedarc++)
-	    if (!TEST_FLAG (TheFlag, *sortedarc) &&
-		ArcPadIntersect (Line, *sortedarc))
-	      ADD_ARC_TO_LIST (layer, *sortedarc);
+          info.layer = layer;
+           /* add lines */
+          r_search (LAYER_PTR(layer)->line_tree, (BoxType *)Pad, NULL,
+	            LOCtoPadLine_callback, &info);
+           /* add arcs */
+          r_search (LAYER_PTR(layer)->arc_tree, (BoxType *)Pad, NULL,
+	            LOCtoPadArc_callback, &info);
 	}
       else
 	{
@@ -2762,6 +2553,42 @@ LookupLOConnectionsToPad (PadTypePtr Pad, Cardinal LayerGroup)
   return (False);
 }
 
+struct poly_info
+{
+  Cardinal layer;
+  PolygonTypePtr polygon;
+};
+
+static int
+LOCtoPolyLine_callback (const BoxType *b, void *cl)
+{
+  LineTypePtr line = (LineTypePtr) b;
+  struct poly_info *i = (struct poly_info *)cl;
+
+  if (!TEST_FLAG (TheFlag, line)
+	&& IsLineInPolygon (line, i->polygon))
+    {
+      ADD_LINE_TO_LIST (i->layer, line);
+      return 1;
+    }
+  return 0;
+}
+
+static int
+LOCtoPolyArc_callback (const BoxType *b, void *cl)
+{
+  ArcTypePtr arc = (ArcTypePtr) b;
+  struct poly_info *i = (struct poly_info *)cl;
+
+  if (!TEST_FLAG (TheFlag, arc)
+	&& IsArcInPolygon (arc, i->polygon))
+    {
+      ADD_ARC_TO_LIST (i->layer, arc);
+      return 1;
+    }
+  return 0;
+}
+
 /* ---------------------------------------------------------------------------
  * looks up LOs that are connected to the given polygon
  * on the given layergroup. All found connections are added to the list
@@ -2770,6 +2597,9 @@ static Boolean
 LookupLOConnectionsToPolygon (PolygonTypePtr Polygon, Cardinal LayerGroup)
 {
   Cardinal entry;
+  struct poly_info info;
+
+  info.polygon = Polygon;
 /* loop over all layers of the group */
   for (entry = 0; entry < PCB->LayerGroups.Number[LayerGroup]; entry++)
     {
@@ -2781,8 +2611,6 @@ LookupLOConnectionsToPolygon (PolygonTypePtr Polygon, Cardinal LayerGroup)
       if (layer < MAX_LAYER)
 	{
 	  PolygonTypePtr polygon;
-	  LineTypePtr *sortedptr;
-	  ArcTypePtr *sortedarc;
 
 	  /* check all polygons */
 
@@ -2792,35 +2620,13 @@ LookupLOConnectionsToPolygon (PolygonTypePtr Polygon, Cardinal LayerGroup)
 		&& IsPolygonInPolygon (polygon, Polygon))
 	      ADD_POLYGON_TO_LIST (layer, polygon);
 
-	  /* and now check all lines, first reduce the number of lines by
-	   * evaluating the coordinates from the sorted lists
-	   */
-
-	  sortedptr =
-	    GetIndexOfLines (Polygon->BoundingBox.X1 - MAX_LINESIZE / 2,
-			     Polygon->BoundingBox.X2 + MAX_LINESIZE / 2,
-			     layer, &i);
-
-	  /* now check all lines that match the condition */
-	  for (; i; i--, sortedptr++)
-	    if (!TEST_FLAG (TheFlag, *sortedptr)
-		&& IsLineInPolygon (*sortedptr, Polygon))
-	      ADD_LINE_TO_LIST (layer, *sortedptr);
-
-	  /* and now check all arcs, first reduce the number of arcs by
-	   * evaluating the coordinates from the sorted lists
-	   */
-
-	  sortedarc =
-	    GetIndexOfArcs (Polygon->BoundingBox.X1 - MAX_LINESIZE / 2,
-			    Polygon->BoundingBox.X2 + MAX_LINESIZE / 2, layer,
-			    &i);
-
-	  /* now check all arcs that match the condition */
-	  for (; i; i--, sortedarc++)
-	    if (!TEST_FLAG (TheFlag, *sortedarc)
-		&& IsArcInPolygon (*sortedarc, Polygon))
-	      ADD_ARC_TO_LIST (layer, *sortedarc);
+	  info.layer = layer;
+	  /* check all lines */
+          r_search (LAYER_PTR(layer)->line_tree, (BoxType *)Polygon, NULL,
+	            LOCtoPolyLine_callback, &info);
+	  /* check all arcs */
+          r_search (LAYER_PTR(layer)->arc_tree, (BoxType *)Polygon, NULL,
+	            LOCtoPolyArc_callback, &info);
 	}
     }
   return (False);
@@ -3503,6 +3309,7 @@ LookupConnectionsToAllElements (FILE * FP)
 static Boolean
 ListStart (int type, void *ptr1, void *ptr2, void *ptr3)
 {
+  DumpList();
   switch (type)
     {
     case PIN_TYPE:
@@ -4147,9 +3954,14 @@ DRCAll (void)
   if (!IsBad)
     {
       Cardinal group;
+      BoxType all;
 
+      all.X1 = -MAX_COORD;
+      all.X2 = MAX_COORD;
+      all.Y1 = -MAX_COORD;
+      all.Y2 = MAX_COORD;
       for (group = 0; group < MAX_LAYER; group++)
-        PolygonPlows(group, drc_callback);
+        PolygonPlows(group, &all, drc_callback);
     }
   /* check minimum widths */
   if (!IsBad)

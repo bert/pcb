@@ -163,7 +163,7 @@ CopyElementLowLevel (DataTypePtr Data, ElementTypePtr Dest,
   Dest->MarkX = Src->MarkX;
   Dest->MarkY = Src->MarkY;
 
-  SetElementBoundingBox (Dest, &PCB->Font);
+  SetElementBoundingBox (Data, Dest, &PCB->Font);
   return (Dest);
 }
 
@@ -280,7 +280,7 @@ CopyElement (ElementTypePtr Element)
 						TEST_FLAG (UNIQUENAMEFLAG,
 							   PCB));
 
-  MoveElementLowLevel (element, DeltaX, DeltaY);
+  MoveElementLowLevel (PCB->Data, element, DeltaX, DeltaY);
   if (PCB->ElementOn && (FRONT (element) || PCB->InvisibleObjectsOn))
     {
       DrawElementName (element, 0);

@@ -37,7 +37,6 @@
 
 #include "global.h"
 
-typedef struct rtree rtree_t;
 
 /* create an rtree from the list of boxes.  if 'manage' is true, then
  * the tree will take ownership of 'boxlist' and free it when the tree
@@ -48,6 +47,7 @@ void r_destroy_tree(rtree_t **rtree);
 
 void r_delete_entry(rtree_t *rtree, const BoxType *which);
 void r_insert_entry(rtree_t *rtree, const BoxType *which, int manage);
+void r_substitute(rtree_t *rtree, const BoxType *before, const BoxType *after);
 
 /* generic search routine */
 /* region_in_search should return true if "what you're looking for" is
@@ -70,8 +70,5 @@ int r_search(rtree_t *rtree, const BoxType * starting_region,
 /* -- special-purpose searches build upon r_search -- */
 /* return 0 if there are any rectangles in the given region. */
 int r_region_is_empty(rtree_t *rtree, const BoxType * region);
-
-#define MAKEMIN(a, b) if ((b) < (a)) (a)=(b);
-#define MAKEMAX(a, b) if ((b) > (a)) (a)=(b);
 
 #endif

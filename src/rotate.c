@@ -40,11 +40,15 @@ static char *rcsid = "$Id$";
 #include "crosshair.h"
 #include "data.h"
 #include "draw.h"
+#include "error.h"
 #include "misc.h"
 #include "polygon.h"
 #include "rotate.h"
+#include "rtree.h"
+#include "rubberband.h"
 #include "search.h"
 #include "select.h"
+#include "set.h"
 #include "undo.h"
 
 #ifdef HAVE_LIBDMALLOC
@@ -197,17 +201,9 @@ RotateArcLowLevel (ArcTypePtr Arc, Location X, Location Y, BYTE Number)
  * rotate an element in 90 degree steps
  */
 void
-RotateElementLowLevel (ElementTypePtr Element,
+RotateElementLowLevel (DataTypePtr Data, ElementTypePtr Element,
 		       Location X, Location Y, BYTE Number)
 {
-  Boolean OnLayout = False;
-
-  ELEMENT_LOOP (PCB->Data, 
-    {
-      if (element == Element)
-	OnLayout = True;
-    }
-  );
   /* solder side objects need a different orientation */
 
   /* the text subroutine decides by itself if the direction
@@ -226,7 +222,7 @@ RotateElementLowLevel (ElementTypePtr Element,
   PIN_LOOP (Element, 
     {
       ROTATE_PIN_LOWLEVEL (pin, X, Y, Number);
-      if (OnLayout)
+      if (PCB->Data == Data)
 	UpdatePIPFlags (pin, Element, NULL, NULL, True);
     }
   );
@@ -241,7 +237,7 @@ RotateElementLowLevel (ElementTypePtr Element,
     }
   );
   ROTATE (Element->MarkX, Element->MarkY, X, Y, Number);
-  SetElementBoundingBox (Element, &PCB->Font);
+  SetElementBoundingBox (Data, Element, &PCB->Font);
 }
 
 /* ---------------------------------------------------------------------------
@@ -251,7 +247,10 @@ static void *
 RotateLinePoint (LayerTypePtr Layer, LineTypePtr Line, PointTypePtr Point)
 {
   EraseLine (Line);
+  r_delete_entry(Layer->line_tree, (BoxTypePtr)Line);
   RotatePointLowLevel (Point, CenterX, CenterY, Number);
+  SetLineBoundingBox(Line);
+  r_insert_entry(Layer->line_tree, (BoxTypePtr)Line, 0);
   DrawLine (Layer, Line, 0);
   Draw ();
   return (Line);
@@ -264,7 +263,9 @@ static void *
 RotateArc (LayerTypePtr Layer, ArcTypePtr Arc)
 {
   EraseArc (Arc);
+  r_delete_entry(Layer->arc_tree, (BoxTypePtr)Arc);
   RotateArcLowLevel (Arc, CenterX, CenterY, Number);
+  r_insert_entry(Layer->arc_tree, (BoxTypePtr)Arc, 0);
   DrawArc (Layer, Arc, 0);
   Draw ();
   return (Arc);
@@ -277,7 +278,7 @@ static void *
 RotateElement (ElementTypePtr Element)
 {
   EraseElement (Element);
-  RotateElementLowLevel (Element, CenterX, CenterY, Number);
+  RotateElementLowLevel (PCB->Data, Element, CenterX, CenterY, Number);
   DrawElement (Element, 0);
   Draw ();
   return (Element);
@@ -357,4 +358,28 @@ RotateObject (int Type, void *Ptr1, void *Ptr2, void *Ptr3,
       IncrementUndoSerialNumber ();
     }
   return (ptr2);
+}
+
+void
+RotateScreenObject(Location X, Location Y, BYTE Steps)
+{
+  int type;
+  void *ptr1, *ptr2, *ptr3;
+  if ((type = SearchScreen (X, Y, ROTATE_TYPES, &ptr1, &ptr2,
+			    &ptr3)) != NO_TYPE)
+    {
+      if (TEST_FLAG(LOCKFLAG, (ArcTypePtr)ptr2))
+        {
+	  Message("Sorry that object is locked\n");
+	  return;
+	}
+      Crosshair.AttachedObject.RubberbandN = 0;
+      if (TEST_FLAG (RUBBERBANDFLAG, PCB))
+	LookupRubberbandLines (type, ptr1, ptr2, ptr3);
+      if (type == ELEMENT_TYPE)
+	LookupRatLines (type, ptr1, ptr2, ptr3);
+      RotateObject (type, ptr1, ptr2, ptr3, X,
+		    Y, Steps);
+      SetChangedFlag (True);
+    }
 }
