@@ -31,7 +31,7 @@
 #include "config.h"
 #endif
 
-#define VERY_SMALL 20
+#define VERY_SMALL 8
 #include "global.h"
 
 #include "action.h"
