@@ -334,4 +334,5 @@ DoPIPFlags (PinTypePtr Pin, ElementTypePtr Element,
       SET_FLAG (LayerPIPFlag, Pin);
       return True;
     }
+  return False;
 }
