@@ -299,7 +299,6 @@ UpdatePIPFlags (PinTypePtr Pin, ElementTypePtr Element,
 	return;
       else
 	{
-	  Pin->Flags &= ~(mask | WARNFLAG);
 	  if (TEST_FLAG (CLEARPOLYFLAG, Polygon))
 	    DoPIPFlags (Pin, Element, Layer, Polygon, mask);
 	}
@@ -314,7 +313,7 @@ UpdatePIPFlags (PinTypePtr Pin, ElementTypePtr Element,
 	      else
 		AddObjectToFlagUndoList (PIN_TYPE, Element, Pin, Pin);
 	    }
-	  Pin->Flags = new_flags & ((new_flags >> 8) | ~ALLTHERMFLAGS);
+	  Pin->Flags = new_flags;
 	}
     }
 }
@@ -331,7 +330,7 @@ DoPIPFlags (PinTypePtr Pin, ElementTypePtr Element,
     wide = (Pin->Thickness + Pin->Clearance ) * 0.5;
   if (IsPointInPolygon (Pin->X, Pin->Y, wide, Polygon))
     {
-      if (TEST_FLAG(HOLEFLAG, Pin))
+      if (TEST_FLAG(HOLEFLAG, Pin) && !TEST_FLAG(WARNFLAG, Pin))
         {
 	  Message("WARNING Unplated hole piercing or too close to polygon\n");
 	  SET_FLAG(WARNFLAG, Pin);

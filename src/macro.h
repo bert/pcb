@@ -168,8 +168,9 @@
 #define	SET_FLAG(f,p)		((p)->Flags |= (f))
 #define	CLEAR_FLAG(f,p)		((p)->Flags &= (~(f)))
 #define	TEST_FLAG(f,p)		((p)->Flags & (f) ? True : False)
-#define	TOGGLE_FLAG(f,p)	((p)->Flags = TEST_FLAG((f),(p)) ? (p)->Flags & (~(f)) : (p)->Flags | (f))
+#define	TOGGLE_FLAG(f,p)	((p)->Flags ^= (f))
 #define	ASSIGN_FLAG(f,v,p)	((p)->Flags = ((p)->Flags & (~(f))) | ((v) ? (f) : 0))
+#define TEST_FLAGS(f,p)         (((p)->Flags & (f)) == (f) ? True : False)
 
 /* ---------------------------------------------------------------------------
  * access macros for elements name structure
@@ -230,16 +231,16 @@
  * all data is relativ to an objects name 'top' which can be either
  * PCB or PasteBuffer
  */
-#define STYLE_LOOP(top, command) {		\
+#define STYLE_LOOP(top, command)  do {		\
 	Cardinal	n;			\
 	RouteStyleTypePtr	style;			\
 	for (n = 0; n < NUM_STYLES; n++)	\
 	{					\
 		style = &(top)->RouteStyle[n];	\
 		command;			\
-	}}
+	}} while (0)
 
-#define	VIA_LOOP(top, command)	{ 		\
+#define	VIA_LOOP(top, command)	do { 		\
 	Cardinal	n, sn;			\
 	PinTypePtr	via;			\
         for (sn = (top)->ViaN, n = 0; (top)->ViaN > 0 && n < (top)->ViaN ; \
@@ -247,82 +248,82 @@
 	{					\
 		via = &(top)->Via[n];		\
 		command;			\
-	}}
+	}} while (0)
 
-#define DRILL_LOOP(top, command)              {               \
+#define DRILL_LOOP(top, command) do             {               \
         Cardinal        n;                                      \
         DrillTypePtr    drill;                                  \
         for (n = 0; (top)->DrillN > 0 && n < (top)->DrillN; n++)                        \
         {                                                       \
                 drill = &(top)->Drill[n];                       \
                 command;                                        \
-        }}      
+        }} while (0) 
 
-#define NETLIST_LOOP(top, command)    {                         \
+#define NETLIST_LOOP(top, command) do   {                         \
         Cardinal        n;                                      \
         NetListTypePtr   netlist;                               \
         for (n = (top)->NetListN-1; n != -1; n--)               \
         {                                                       \
                 netlist = &(top)->NetList[n];                   \
                 command;                                        \
-        }}      
+        }} while (0)   
 
-#define NET_LOOP(top, command)    {                             \
+#define NET_LOOP(top, command) do   {                             \
         Cardinal        n;                                      \
         NetTypePtr   net;                                       \
         for (n = (top)->NetN-1; n != -1; n--)                   \
         {                                                       \
                 net = &(top)->Net[n];                           \
                 command;                                        \
-        }}      
+        }} while (0)     
 
-#define CONNECTION_LOOP(net, command) {                         \
+#define CONNECTION_LOOP(net, command) do {                         \
         Cardinal        n;                                      \
         ConnectionTypePtr       connection;                     \
         for (n = (net)->ConnectionN-1; n != -1; n--)            \
         {                                                       \
                 connection = & (net)->Connection[n];            \
                 command;                                        \
-        }}
+        }} while (0)
 
-#define	ELEMENT_LOOP(top, command)	{ 		\
+#define	ELEMENT_LOOP(top, command) do	{ 		\
 	Cardinal 		n;			\
 	ElementTypePtr	element;			\
 	for (n = (top)->ElementN-1; n != -1; n--)	\
 	{						\
 		element = &(top)->Element[n];		\
 		command;				\
-	}}
+	}} while (0)
 
-#define RAT_LOOP(top, command)	{			\
+#define RAT_LOOP(top, command) do	{			\
 	Cardinal	n;				\
 	RatTypePtr	line;				\
 	for (n = (top)->RatN-1; n != -1; n--)		\
 	{						\
 		line = &(top)->Rat[n];			\
 		command;				\
-	}}
+	}} while (0)
 
 
-#define	ELEMENTTEXT_LOOP(element, command)	{ 	\
+#define	ELEMENTTEXT_LOOP(element, command) do { 	\
 	Cardinal	n;				\
 	TextTypePtr	text;				\
 	for (n = MAX_ELEMENTNAMES-1; n != -1; n--)	\
 	{						\
 		text = &(element)->Name[n];		\
 		command;				\
-	}}
+	}} while (0)
 
-#define	ELEMENTNAME_LOOP(element, command)	{ 		\
+#define	ELEMENTNAME_LOOP(element, command) do	{ 		\
 	Cardinal	n;					\
 	char		*textstring;				\
 	for (n = MAX_ELEMENTNAMES-1; n != -1; n--)		\
 	{							\
 		textstring = (element)->Name[n].TextString;	\
 		command;					\
-	}}
+	}} while (0)
 
-#define	PIN_LOOP(element, command)	{ 		\
+#define	PIN_LOOP(element, command)	do { 		\
 	Cardinal	n, sn;				\
 	PinTypePtr	pin;				\
         for (sn = (element)->PinN, n = 0; (element)->PinN > 0 && n < (element)->PinN ; \
@@ -330,9 +331,9 @@
 	{						\
 		pin = &(element)->Pin[n];		\
 		command;				\
-	}}
+	}} while (0)
 
-#define	PAD_LOOP(element, command)	{ 		\
+#define	PAD_LOOP(element, command)	do { 		\
 	Cardinal	n, sn;				\
 	PadTypePtr	pad;				\
         for (sn = (element)->PadN, n = 0; (element)->PadN > 0 && n < (element)->PadN ; \
@@ -340,177 +341,177 @@
 	{						\
 		pad = &(element)->Pad[n];		\
 		command;				\
-	}}
+	}} while (0)
 
-#define	ARC_LOOP(element, command)	{ 		\
+#define	ARC_LOOP(element, command)	do { 		\
 	Cardinal	n;				\
 	ArcTypePtr	arc;				\
 	for (n = (element)->ArcN-1; n != -1; n--)	\
 	{						\
 		arc = &(element)->Arc[n];		\
 		command;				\
-	}}
+	}} while (0)
 
-#define	ELEMENTLINE_LOOP(element, command)	{ 	\
+#define	ELEMENTLINE_LOOP(element, command)	do { 	\
 	Cardinal	n;				\
 	LineTypePtr	line;				\
 	for (n = (element)->LineN-1; n != -1; n--)	\
 	{						\
 		line = &(element)->Line[n];		\
 		command;				\
-	}}
+	}} while (0)
 
-#define	LINE_LOOP(layer, command) {			\
+#define	LINE_LOOP(layer, command) do {			\
 	Cardinal		n;			\
 	LineTypePtr		line;			\
 	for (n = (layer)->LineN-1; n != -1; n--)	\
 	{						\
 		line = &(layer)->Line[n];		\
 		command;				\
-	}}
+	}} while (0)
 
-#define	TEXT_LOOP(layer, command) {			\
+#define	TEXT_LOOP(layer, command) do {			\
 	Cardinal		n;			\
 	TextTypePtr		text;			\
 	for (n = (layer)->TextN-1; n != -1; n--)	\
 	{						\
 		text = &(layer)->Text[n];		\
 		command;				\
-	}}
+	}} while (0)
 
-#define	POLYGON_LOOP(layer, command) {			\
+#define	POLYGON_LOOP(layer, command) do {			\
 	Cardinal		n;			\
 	PolygonTypePtr	polygon;			\
 	for (n = (layer)->PolygonN-1; n != -1; n--)	\
 	{						\
 		polygon = &(layer)->Polygon[n];		\
 		command;				\
-	}}
+	}} while (0)
 
-#define	POLYGONPOINT_LOOP(polygon, command)	{	\
+#define	POLYGONPOINT_LOOP(polygon, command) do	{	\
 	Cardinal			n;		\
 	PointTypePtr	point;				\
 	for (n = (polygon)->PointN-1; n != -1; n--)	\
 	{						\
 		point = &(polygon)->Points[n];		\
 		command;				\
-	}}
+	}} while (0)
 
-#define	ALLPIN_LOOP(top, command)	{			\
-	ELEMENT_LOOP((top), PIN_LOOP(element, command ))	\
-	}
+#define	ALLPIN_LOOP(top, command) do {			\
+	ELEMENT_LOOP((top), PIN_LOOP(element, command ));	\
+	} while (0)
 
-#define	ALLPAD_LOOP(top, command)	{			\
-	ELEMENT_LOOP((top), PAD_LOOP(element, command ))	\
-	}
+#define	ALLPAD_LOOP(top, command) do	{			\
+	ELEMENT_LOOP((top), PAD_LOOP(element, command ));	\
+	} while (0)
 
-#define	ALLLINE_LOOP(top, command)	{		\
+#define	ALLLINE_LOOP(top, command) do	{		\
 	Cardinal		l;			\
 	LayerTypePtr	layer = (top)->Layer;		\
 	for (l = 0; l < MAX_LAYER + 2; l++, layer++)	\
 		LINE_LOOP(layer, command );		\
-	}
+	} while (0)
 
-#define ALLARC_LOOP(top, command)	{		\
+#define ALLARC_LOOP(top, command) do {		\
 	Cardinal		l;			\
 	LayerTypePtr	layer = (top)->Layer;		\
 	for (l =0; l < MAX_LAYER + 2; l++, layer++)		\
 		ARC_LOOP(layer, command );		\
-	}
+	} while (0)
 
-#define	ALLPOLYGON_LOOP(top, command)	{		\
+#define	ALLPOLYGON_LOOP(top, command)	do {		\
 	Cardinal		l;			\
 	LayerTypePtr	layer = (top)->Layer;		\
 	for (l = 0; l < MAX_LAYER + 2; l++, layer++)	\
 		POLYGON_LOOP(layer, command );		\
-	}
+	} while (0)
 
-#define	COPPERLINE_LOOP(top, command)	{		\
+#define	COPPERLINE_LOOP(top, command) do	{		\
 	Cardinal		l;			\
 	LayerTypePtr	layer = (top)->Layer;		\
 	for (l = 0; l < MAX_LAYER; l++, layer++)	\
 		LINE_LOOP(layer, command );		\
-	}
+	} while (0)
 
-#define COPPERARC_LOOP(top, command)	{		\
+#define COPPERARC_LOOP(top, command) do	{		\
 	Cardinal		l;			\
 	LayerTypePtr	layer = (top)->Layer;		\
 	for (l =0; l < MAX_LAYER; l++, layer++)		\
 		ARC_LOOP(layer, command );		\
-	}
+	} while (0)
 
-#define	COPPERPOLYGON_LOOP(top, command)	{		\
+#define	COPPERPOLYGON_LOOP(top, command) do	{		\
 	Cardinal		l;			\
 	LayerTypePtr	layer = (top)->Layer;		\
 	for (l = 0; l < MAX_LAYER; l++, layer++)	\
 		POLYGON_LOOP(layer, command );		\
-	}
+	} while (0)
 
-#define	ALLTEXT_LOOP(top, command)	{		\
+#define	ALLTEXT_LOOP(top, command)	do {		\
 	Cardinal		l;			\
 	LayerTypePtr	layer = (top)->Layer;		\
 	for (l = 0; l < MAX_LAYER + 2; l++, layer++)	\
 		TEXT_LOOP(layer, command );		\
-	}
+	} while (0)
 
-#define	VISIBLELINE_LOOP(top, command)	{		\
+#define	VISIBLELINE_LOOP(top, command) do	{		\
 	Cardinal		l;			\
 	LayerTypePtr	layer = (top)->Layer;		\
 	for (l = 0; l < MAX_LAYER + 2; l++, layer++)	\
 		if (layer->On)				\
 			LINE_LOOP(layer, command );	\
-	}
+	} while (0)
 
-#define	VISIBLEARC_LOOP(top, command)	{		\
+#define	VISIBLEARC_LOOP(top, command) do	{		\
 	Cardinal		l;			\
 	LayerTypePtr	layer = (top)->Layer;		\
 	for (l = 0; l < MAX_LAYER + 2; l++, layer++)	\
 		if (layer->On)				\
 			ARC_LOOP(layer, command );	\
-	}
+	} while (0)
 
-#define	VISIBLETEXT_LOOP(board, command)	{		\
+#define	VISIBLETEXT_LOOP(board, command) do	{		\
 	Cardinal		l;			\
 	LayerTypePtr	layer = (board)->Data->Layer;		\
 	for (l = 0; l < MAX_LAYER + 2; l++, layer++)	\
                 TEXT_LOOP(layer,                                        \
                           if (TEXT_IS_VISIBLE((board), layer, text))                      \
                           command );                              \
-	}
+	} while (0)
 
-#define	VISIBLEPOLYGON_LOOP(top, command)	{	\
+#define	VISIBLEPOLYGON_LOOP(top, command) do	{	\
 	Cardinal		l;			\
 	LayerTypePtr	layer = (top)->Layer;		\
 	for (l = 0; l < MAX_LAYER + 2; l++, layer++)	\
 		if (layer->On)				\
 			POLYGON_LOOP(layer, command );	\
-	}
+	} while (0)
 
-#define POINTER_LOOP(top, command)	{	\
+#define POINTER_LOOP(top, command) do	{	\
 	Cardinal	n;			\
 	void	**ptr;				\
 	for (n = (top)->PtrN-1; n != -1; n--)	\
 	{					\
 		ptr = &(top)->Ptr[n];		\
 		command;			\
-	}}
+	}} while (0)
 
-#define MENU_LOOP(top, command)	{	\
+#define MENU_LOOP(top, command)	do {	\
 	Cardinal	l;			\
 	LibraryMenuTypePtr menu;		\
 	for (l = (top)->MenuN-1; l != -1; l--)	\
 	{					\
 		menu = &(top)->Menu[l];		\
 		command;			\
-	}}
+	}} while (0)
 
-#define ENTRY_LOOP(top, command)	{	\
+#define ENTRY_LOOP(top, command) do	{	\
 	Cardinal	n;			\
 	LibraryEntryTypePtr entry;		\
 	for (n = (top)->EntryN-1; n != -1; n--)	\
 	{					\
 		entry = &(top)->Entry[n];	\
 		command;			\
-	}}
+	}} while (0)
 #endif
 

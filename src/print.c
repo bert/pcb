@@ -588,7 +588,7 @@ twice_break:
 	  {
 	    if (!TEST_FLAG (HOLEFLAG, pin))
 	      {
-		if (TEST_FLAG (Tflag, pin))
+		if (TEST_FLAGS (Tflag | PIPflag, pin))
 		  SET_FLAG (USETHERMALFLAG, pin);
 		else
 		  CLEAR_FLAG (USETHERMALFLAG, pin);
@@ -601,7 +601,7 @@ twice_break:
 	  {
 	    if (!TEST_FLAG (HOLEFLAG, via))
 	      {
-		if (TEST_FLAG (Tflag, via))
+		if (TEST_FLAGS (Tflag | PIPflag, via))
 		  SET_FLAG (USETHERMALFLAG, via);
 		else
 		  CLEAR_FLAG (USETHERMALFLAG, via);

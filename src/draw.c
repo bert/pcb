@@ -612,16 +612,16 @@ DrawLayer (LayerTypePtr Layer, int unused)
       XCopyGC (Dpy, Output.bgGC, GCClipMask, Output.fgGC);
       if (layernum < MAX_LAYER)
 	{
-	  PIPFlag = L0THERMFLAG << layernum;
+	  PIPFlag = (L0THERMFLAG | L0PIPFLAG) << layernum;
 	  ALLPIN_LOOP (PCB->Data, 
 	    {
-	      if (TEST_FLAG (PIPFlag, pin) && VTHERM(pin))
+	      if (TEST_FLAGS (PIPFlag, pin) && VTHERM(pin))
 		ThermPin (Layer, pin);
 	    }
 	  );
 	  VIA_LOOP (PCB->Data, 
 	    {
-	      if (TEST_FLAG (PIPFlag, via) && VTHERM(via))
+	      if (TEST_FLAGS (PIPFlag, via) && VTHERM(via))
 		ThermPin (Layer, via);
 	    }
 	  );
@@ -860,7 +860,9 @@ DrawHole (PinTypePtr Ptr)
     {
       BDimension half = Ptr->DrillingHole / 2;
 
-      if (TEST_FLAG (SELECTEDFLAG, Ptr))
+      if (TEST_FLAG(WARNFLAG, Ptr))
+        XSetForeground (Dpy, Output.fgGC, PCB->WarnColor);
+      else if (TEST_FLAG (SELECTEDFLAG, Ptr))
 	XSetForeground (Dpy, Output.fgGC, PCB->ViaSelectedColor);
       else
 	XSetForeground (Dpy, Output.fgGC,
@@ -1027,8 +1029,8 @@ ClearPin (PinTypePtr Pin, int Type, int unused)
       layer = LAYER_ON_STACK (i - 1);
       if (!layer->On)
 	continue;
-      ThermLayerFlag = L0THERMFLAG << GetLayerNumber (PCB->Data, layer);
-      if (TEST_FLAG (ThermLayerFlag, Pin))
+      ThermLayerFlag = (L0THERMFLAG | L0PIPFLAG) << GetLayerNumber(PCB->Data, layer);
+      if (TEST_FLAGS (ThermLayerFlag, Pin))
 	{
 	  if (!Erasing)
 	    {
@@ -1928,7 +1930,7 @@ DrawRegularText (LayerTypePtr Layer, TextTypePtr Text, int unused)
 void
 DrawPolygon (LayerTypePtr Layer, PolygonTypePtr Polygon, int unused)
 {
-  int Myflag, layernum;
+  int layernum;
 
   if (TEST_FLAG (SELECTEDFLAG | FOUNDFLAG, Polygon))
     {
@@ -1948,12 +1950,11 @@ DrawPolygon (LayerTypePtr Layer, PolygonTypePtr Polygon, int unused)
   DrawPolygonLowLevel (Polygon, False);
   if (Settings.StipplePolygons)
     XSetFillStyle (Dpy, Output.fgGC, FillSolid);
-  Myflag = L0THERMFLAG << GetLayerNumber (PCB->Data, Layer);
   if (TEST_FLAG (CLEARPOLYFLAG, Polygon))
     {
       ALLPIN_LOOP (PCB->Data, 
 	{
-	  if (IsPointInPolygon (pin->X, pin->Y, 0, Polygon))
+	  if (IsPointInPolygon (pin->X, pin->Y, (pin->Thickness+pin->Clearance)/2, Polygon))
 	    {
 	      ClearPin (pin, PIN_TYPE, 0);
 	    }
@@ -1961,7 +1962,7 @@ DrawPolygon (LayerTypePtr Layer, PolygonTypePtr Polygon, int unused)
       );
       VIA_LOOP (PCB->Data, 
 	{
-	  if (IsPointInPolygon (via->X, via->Y, 0, Polygon))
+	  if (IsPointInPolygon (via->X, via->Y, (via->Thickness+via->Clearance)/2, Polygon))
 	    {
 	      ClearPin (via, VIA_TYPE, 0);
 	    }
