@@ -801,14 +801,14 @@ CreateRouteData ()
   for (i = 0; i < MAX_LAYER; i++)
     {
       /* add all (non-rat) lines */
-      LINE_LOOP (&PCB->Data->Layer[i], AddLine (layergroupboxes, i, line));
+      LINE_LOOP (LAYER_PTR(i), AddLine (layergroupboxes, i, line));
       /* add all "should-avoid" polygons */
-      POLYGON_LOOP (&PCB->Data->Layer[i],
+      POLYGON_LOOP (LAYER_PTR(i),
 		    AddPolygon (layergroupboxes, i, polygon));
       /* add all copper text */
-      TEXT_LOOP (&PCB->Data->Layer[i], AddText (layergroupboxes, i, text));
+      TEXT_LOOP (LAYER_PTR(i), AddText (layergroupboxes, i, text));
       /* add all arcs */
-      ARC_LOOP (&PCB->Data->Layer[i], AddArc (layergroupboxes, i, arc));
+      ARC_LOOP (LAYER_PTR(i), AddArc (layergroupboxes, i, arc));
     }
 
   /* create k-d trees from pointer lists */
@@ -2888,10 +2888,7 @@ RouteAll (routedata_t * rd)
 			    for (i = 0, layer = NULL;
 				 i < PCB->LayerGroups.Number[p->group]; i++)
 			    {
-			    layer =
-			    &PCB->Data->Layer[PCB->
-					      LayerGroups.Entries[p->
-								  group][i]];
+			    layer = LAYER_PTR(PCB->LayerGroups.Entries[p->group][i]);
 			    if (layer->On) break;}
 			    assert (layer && layer->On);	/*at least one layer must be on in this group! */
 			    assert (p->type != EXPANSION_AREA);

@@ -129,6 +129,7 @@
  * layer macros
  */
 #define	LAYER_ON_STACK(n)	(&PCB->Data->Layer[LayerStack[(n)]])
+#define LAYER_PTR(n)            (&PCB->Data->Layer[(n)])
 #define	CURRENT			(PCB->SilkActive ? &PCB->Data->Layer[MAX_LAYER + \
 				(Settings.ShowSolderSide ? SOLDER_LAYER : COMPONENT_LAYER)] \
 				: LAYER_ON_STACK(0))
@@ -155,7 +156,7 @@
  */
 #define	SET_FLAG(f,p)		((p)->Flags |= (f))
 #define	CLEAR_FLAG(f,p)		((p)->Flags &= (~(f)))
-#define	TEST_FLAG(f,p)		(((p)->Flags & (f)) ? True : False)
+#define	TEST_FLAG(f,p)		((p)->Flags & (f) ? True : False)
 #define	TOGGLE_FLAG(f,p)	((p)->Flags = TEST_FLAG((f),(p)) ? (p)->Flags & (~(f)) : (p)->Flags | (f))
 #define	ASSIGN_FLAG(f,v,p)	((p)->Flags = ((p)->Flags & (~(f))) | ((v) ? (f) : 0))
 

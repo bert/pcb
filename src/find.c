@@ -194,7 +194,7 @@ static char *rcsid = "$Id$";
 #define	ADD_LINE_TO_LIST(L,Ptr)							\
 {										\
 	if (User)								\
-		AddObjectToFlagUndoList(LINE_TYPE, &PCB->Data->Layer[(L)], \
+		AddObjectToFlagUndoList(LINE_TYPE, LAYER_PTR(L), \
 		(Ptr), (Ptr));							\
 	SET_FLAG(TheFlag, (Ptr));							\
 	LINELIST_ENTRY((L),LineList[(L)].Number) = (Ptr);	\
@@ -206,7 +206,7 @@ static char *rcsid = "$Id$";
 #define ADD_ARC_TO_LIST(L,Ptr)						\
 {													\
 	if (User)										\
-		AddObjectToFlagUndoList(ARC_TYPE, &PCB->Data->Layer[(L)], \
+		AddObjectToFlagUndoList(ARC_TYPE, LAYER_PTR(L), \
 		(Ptr), (Ptr));								\
 	SET_FLAG(TheFlag, (Ptr));						\
 	ARCLIST_ENTRY((L),ArcList[(L)].Number) = (Ptr);	\
@@ -229,7 +229,7 @@ static char *rcsid = "$Id$";
 #define	ADD_POLYGON_TO_LIST(L,Ptr)							\
 {															\
 	if (User)												\
-		AddObjectToFlagUndoList(POLYGON_TYPE, &PCB->Data->Layer[(L)],	\
+		AddObjectToFlagUndoList(POLYGON_TYPE, LAYER_PTR(L),	\
 		(Ptr), (Ptr));										\
 	SET_FLAG(TheFlag, (Ptr));								\
 	POLYGONLIST_ENTRY((L), PolygonList[(L)].Number) = (Ptr);\
@@ -911,7 +911,7 @@ InitLayoutLookup (void)
   /* initialize line arc and polygon data */
   for (i = 0; i < MAX_LAYER; i++)
     {
-      LayerTypePtr layer = &PCB->Data->Layer[i];
+      LayerTypePtr layer = LAYER_PTR(i);
 
       if (layer->LineN)
 	{
@@ -3299,22 +3299,21 @@ static void DrawNewConnections (void)
 	  position = LineList[layer].DrawPosition;
 	  for (; position < LineList[layer].Number; position++)
 	    DrawLine
-	      (&PCB->Data->Layer[layer], LINELIST_ENTRY (layer, position), 0);
+	      (LAYER_PTR(layer), LINELIST_ENTRY (layer, position), 0);
 	  LineList[layer].DrawPosition = LineList[layer].Number;
 
 	  /* draw all new arcs */
 	  position = ArcList[layer].DrawPosition;
 	  for (; position < ArcList[layer].Number; position++)
 	    DrawArc
-	      (&PCB->Data->Layer[layer], ARCLIST_ENTRY (layer, position), 0);
+	      (LAYER_PTR(layer), ARCLIST_ENTRY (layer, position), 0);
 	  ArcList[layer].DrawPosition = ArcList[layer].Number;
 
 	  /* draw all new polygons */
 	  position = PolygonList[layer].DrawPosition;
 	  for (; position < PolygonList[layer].Number; position++)
 	    DrawPolygon
-	      (&PCB->
-	       Data->Layer[layer], POLYGONLIST_ENTRY (layer, position), 0);
+	      (LAYER_PTR(layer), POLYGONLIST_ENTRY (layer, position), 0);
 	  PolygonList[layer].DrawPosition = PolygonList[layer].Number;
 	}
     }

@@ -301,7 +301,7 @@ Boolean CopyPastebufferToLayout (Position X, Position Y)
   for (i = 0; i < MAX_LAYER + 2; i++)
     {
       LayerTypePtr sourcelayer = &PASTEBUFFER->Data->Layer[i],
-	destlayer = &PCB->Data->Layer[i];
+	destlayer = LAYER_PTR(i);
 
       if (destlayer->On)
 	{

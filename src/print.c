@@ -268,7 +268,7 @@ PrintLayergroups (void)
 	    if ((number = PCB->LayerGroups.Entries[group][entry]) >=
 		MAX_LAYER)
 	      continue;
-	    layer = &PCB->Data->Layer[number];
+	    layer = LAYER_PTR(number);
 	    if (layer->LineN || layer->TextN || layer->ArcN)
             {
 	      noData = False;
@@ -329,7 +329,7 @@ PrintLayergroups (void)
 	    if (number >= MAX_LAYER)
 	      continue;
 
-	    layer = &PCB->Data->Layer[number];
+	    layer = LAYER_PTR(number);
 	    if (layer->PolygonN)
 	      {
 		SetPrintColor (layer->Color);
@@ -355,7 +355,7 @@ PrintLayergroups (void)
 		if (number >= MAX_LAYER)
 		  continue;
 
-		layer = &PCB->Data->Layer[number];
+		layer = LAYER_PTR(number);
 		PIPflag |= L0PIPFLAG << number;
 		Tflag |= L0THERMFLAG << number;
 		LINE_LOOP (layer,
@@ -431,7 +431,7 @@ PrintLayergroups (void)
 	    if (number >= MAX_LAYER)
 	      continue;
 
-	    layer = &PCB->Data->Layer[number];
+	    layer = LAYER_PTR(number);
 	    SetPrintColor (layer->Color);
 	    LINE_LOOP (layer, Device->Line (line, False));
 	    ARC_LOOP (layer, Device->Arc (arc, False));
@@ -517,8 +517,7 @@ PrintSilkscreen (void)
   for (i = 0; i < 2; i++)
     {
       layer =
-	&PCB->Data->Layer[MAX_LAYER +
-			  (i == 0 ? COMPONENT_LAYER : SOLDER_LAYER)];
+	LAYER_PTR(MAX_LAYER + (i == 0 ? COMPONENT_LAYER : SOLDER_LAYER));
       noData = True;
       ELEMENT_LOOP (PCB->Data,
 		    if ((TEST_FLAG (ONSOLDERFLAG, element) == 0) == (i == 0))

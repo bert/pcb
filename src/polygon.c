@@ -262,7 +262,7 @@ UpdatePIPFlags (PinTypePtr Pin, ElementTypePtr Element,
     {
       Cardinal l;
       for (l = 0; l < MAX_LAYER; l++)
-	UpdatePIPFlags (Pin, Element, &PCB->Data->Layer[l], Polygon, AddUndo);
+	UpdatePIPFlags (Pin, Element, LAYER_PTR(l), Polygon, AddUndo);
     }
   else
     {

@@ -96,7 +96,7 @@ CheckPadForRubberbandConnection (PadTypePtr Pad)
 	continue;
 
       /* check all visible lines of the group member */
-      layer = &PCB->Data->Layer[number];
+      layer = LAYER_PTR(number);
       if (layer->On)
 	{
 	  LINE_LOOP (layer,
@@ -236,7 +236,7 @@ CheckLinePointForRubberbandConnection (LayerTypePtr Layer,
 	continue;
 
       /* check all visible lines of the group member */
-      layer = &PCB->Data->Layer[number];
+      layer = LAYER_PTR(number);
       if (layer->On)
 	{
 	  register float radius, dx, dy;
@@ -291,7 +291,7 @@ CheckPolygonForRubberbandConnection (LayerTypePtr Layer,
 	continue;
 
       /* check all visible lines of the group member */
-      layer = &PCB->Data->Layer[number];
+      layer = LAYER_PTR(number);
       if (layer->On)
 	{
 	  Dimension thick;

@@ -344,9 +344,9 @@ DrawEverything (void)
 		    if (PCB->PinOn && VELEMENT (element))
 		    PAD_LOOP (element, if (!FRONT (pad)) DrawPad (pad, 0)););
       if (PCB->ElementOn)
-	DrawLayer (&PCB->Data->Layer[MAX_LAYER +
+	DrawLayer (LAYER_PTR(MAX_LAYER +
 				     (SWAP_IDENT ? COMPONENT_LAYER :
-				      SOLDER_LAYER)], 0);
+				      SOLDER_LAYER)), 0);
     }
   /* draw all layers in layerstack order */
   for (i = MAX_LAYER - 1; i >= 0; i--)
@@ -360,9 +360,8 @@ DrawEverything (void)
   /* Draw top silkscreen */
   if (PCB->ElementOn)
     {
-      DrawLayer (&PCB->Data->Layer[MAX_LAYER +
-				   (SWAP_IDENT ? SOLDER_LAYER :
-				    COMPONENT_LAYER)], 0);
+      DrawLayer (LAYER_PTR(MAX_LAYER + (SWAP_IDENT ? SOLDER_LAYER :
+				    COMPONENT_LAYER)), 0);
       ELEMENT_LOOP (PCB->Data, if (FRONT (element))
 		    {
 		    if (VELEMENT (element))
@@ -496,7 +495,7 @@ DrawLayer (LayerTypePtr Layer, int unused)
 
 	  if (guest < MAX_LAYER)
 	    {
-	      LayerTypePtr guestLayer = &PCB->Data->Layer[guest];
+	      LayerTypePtr guestLayer = LAYER_PTR(guest);
 
 	      LINE_LOOP (guestLayer,
 			 if (TEST_FLAG (CLEARLINEFLAG, line) && VLINE (line))
