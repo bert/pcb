@@ -606,6 +606,7 @@ MovePolygonToLayer (LayerTypePtr Layer, PolygonTypePtr Polygon)
 
 /* ---------------------------------------------------------------------------
  * moves the object identified by its data pointers and the type
+ * not we don't bump the undo serial number
  */
 void *
 MoveObject (int Type, void *Ptr1, void *Ptr2, void *Ptr3,
@@ -617,7 +618,6 @@ MoveObject (int Type, void *Ptr1, void *Ptr2, void *Ptr3,
   DeltaY = DY;
   AddObjectToMoveUndoList (Type, Ptr1, Ptr2, Ptr3, DX, DY);
   result = ObjectOperation (&MoveFunctions, Type, Ptr1, Ptr2, Ptr3);
-  IncrementUndoSerialNumber ();
   return (result);
 }
 

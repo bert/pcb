@@ -258,22 +258,21 @@ RemoveLinePoint (LayerTypePtr Layer, LineTypePtr Line, PointTypePtr Point)
     oldPoint = Line->Point1;
   LINE_LOOP (Layer,
 	     {
-	     if (line == Line)
-	     continue;
-	     if ((line->Point1.X == Point->X) && (line->Point1.Y == Point->Y))
-	     {
-	     SaveUndoSerialNumber ();
-	     MoveObject (LINEPOINT_TYPE, Layer, line, &line->Point1,
+	       if (line == Line)
+	          continue;
+	       if ((line->Point1.X == Point->X) && (line->Point1.Y == Point->Y))
+	         {
+	           MoveObject (LINEPOINT_TYPE, Layer, line, &line->Point1,
 			 oldPoint.X - line->Point1.X,
 			 oldPoint.Y - line->Point1.Y);
-	     RestoreUndoSerialNumber (); break;}
-	     if ((line->Point2.X == Point->X) && (line->Point2.Y == Point->Y))
-	     {
-	     SaveUndoSerialNumber ();
-	     MoveObject (LINEPOINT_TYPE, Layer, line, &line->Point2,
+		 }
+	       if ((line->Point2.X == Point->X) && (line->Point2.Y == Point->Y))
+	         {
+	           MoveObject (LINEPOINT_TYPE, Layer, line, &line->Point2,
 			 oldPoint.X - line->Point2.X,
 			 oldPoint.Y - line->Point2.Y);
-	     RestoreUndoSerialNumber (); break;}
+	         }
+	        break;
 	     }
   );
   return (RemoveLine (Layer, Line));
