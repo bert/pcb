@@ -293,6 +293,8 @@ PrintLayergroups (void)
 	    if ((number = PCB->LayerGroups.Entries[group][entry]) >=
 		MAX_LAYER)
 	      continue;
+	    PIPflag |= L0PIPFLAG << number;
+	    Tflag |= L0THERMFLAG << number;
 	    layer = LAYER_PTR (number);
 	    if (layer->LineN || layer->TextN || layer->ArcN)
 	      {
@@ -303,8 +305,6 @@ PrintLayergroups (void)
 	      {
 		noData = False;
 		Somepolys += layer->PolygonN;
-		PIPflag |= L0PIPFLAG << number;
-		Tflag |= L0THERMFLAG << number;
 	      }
 	  }
 	/* skip empty layers */
@@ -326,7 +326,7 @@ PrintLayergroups (void)
 	if (negative_plane)
 	  VIA_LOOP (PCB->Data, 
 	    {
-	      if (TEST_FLAG(PIPflag, via))
+	      if (!TEST_FLAG(PIPflag, via))
 	        {
 	          negative_plane = False;
 		  break;
@@ -379,7 +379,6 @@ PrintLayergroups (void)
 		  }
 	      }
 	    /* clear the intersecting lines, arcs, pins and vias */
-	    PIPflag = Tflag = 0;
 	    if (Somepolys)
 	      {
 	        Boolean polarity_called = False;
@@ -401,8 +400,6 @@ PrintLayergroups (void)
 		      continue;
 
 		    layer = LAYER_PTR (number);
-		    PIPflag |= L0PIPFLAG << number;
-		    Tflag |= L0THERMFLAG << number;
 		    LINE_LOOP (layer, 
 		      {
 			if (TEST_FLAG (CLEARLINEFLAG, line))
@@ -588,10 +585,18 @@ twice_break:
 	  {
 	    if (!TEST_FLAG (HOLEFLAG, pin))
 	      {
-		if (TEST_FLAGS (Tflag | PIPflag, pin))
-		  SET_FLAG (USETHERMALFLAG, pin);
-		else
-		  CLEAR_FLAG (USETHERMALFLAG, pin);
+	        int n;
+		int flag = L0PIPFLAG | L0THERMFLAG;
+		CLEAR_FLAG (USETHERMALFLAG, pin);
+		for (n=0; n < MAX_LAYER; n++)
+		  {
+		    if ((flag & Tflag) && TEST_FLAGS (flag, pin))
+		      {
+		        SET_FLAG (USETHERMALFLAG, pin);
+			break;
+	              }
+		    flag <<= 1;
+		  }
 		Device->PinOrVia (pin, use_mode);
 	      }
 	  }
@@ -601,10 +606,18 @@ twice_break:
 	  {
 	    if (!TEST_FLAG (HOLEFLAG, via))
 	      {
-		if (TEST_FLAGS (Tflag | PIPflag, via))
-		  SET_FLAG (USETHERMALFLAG, via);
-		else
-		  CLEAR_FLAG (USETHERMALFLAG, via);
+	        int n;
+		int flag = L0PIPFLAG | L0THERMFLAG;
+		CLEAR_FLAG (USETHERMALFLAG, via);
+		for (n=0; n < MAX_LAYER; n++)
+		  {
+		    if ((flag & Tflag) && TEST_FLAGS (flag, via))
+		      {
+		        SET_FLAG (USETHERMALFLAG, via);
+			break;
+		      }
+		    flag <<= 1;
+		  }
 		Device->PinOrVia (via, use_mode);
 	      }
 	  }
