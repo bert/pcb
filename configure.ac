@@ -128,8 +128,10 @@ AC_ARG_ENABLE([dmalloc],
 [
 if test "X$enable_dmalloc" != "Xno" ; then
 	AC_MSG_RESULT([yes])
-	AC_CHECK_HEADER(dmalloc.h)
-	AC_CHECK_LIB(dmalloc)
+	AC_CHECK_HEADER(dmalloc.h,,
+		AC_ERROR([You have requested dmalloc debugging but dmalloc.h could not be found]))
+	AC_CHECK_LIB(dmalloc,main,,
+		AC_ERROR([You have requested dmalloc debugging but -ldmalloc could not be found]), $X_LIBS)
 	DMALLOC_LIBS="-ldmalloc"
 else
 	AC_MSG_RESULT([no])
