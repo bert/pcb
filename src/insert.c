@@ -96,14 +96,19 @@ InsertPointIntoRat (RatTypePtr Rat)
   new = CreateDrawnLineOnLayer (CURRENT, Rat->Point1.X, Rat->Point1.Y,
 				InsertX, InsertY, Settings.LineThickness,
 				2*Settings.Keepaway, Rat->Flags & ~RATFLAG);
+  if (!new)
+    return new;
   AddObjectToCreateUndoList (LINE_TYPE, CURRENT, new, new);
   EraseRat (Rat);
   DrawLine (CURRENT, new, 0);
   new = CreateDrawnLineOnLayer (CURRENT, Rat->Point2.X, Rat->Point2.Y,
 				InsertX, InsertY, Settings.LineThickness,
 				2*Settings.Keepaway, Rat->Flags & ~RATFLAG);
-  AddObjectToCreateUndoList (LINE_TYPE, CURRENT, new, new);
-  DrawLine (CURRENT, new, 0);
+  if (new)
+    {
+      AddObjectToCreateUndoList (LINE_TYPE, CURRENT, new, new);
+      DrawLine (CURRENT, new, 0);
+    }
   MoveObjectToRemoveUndoList (RATLINE_TYPE, Rat, Rat, Rat);
   Draw ();
   return (new);

@@ -49,13 +49,15 @@ static char *rcsid = "$Id$";
 #include "crosshair.h"
 #include "control.h"
 #include "data.h"
-#include "error.h"
 #include "draw.h"
+#include "error.h"
+#include "find.h"
 #include "gui.h"
 #include "menu.h"
 #include "misc.h"
 #include "output.h"
 #include "set.h"
+#include "undo.h"
 
 #ifdef HAVE_LIBDMALLOC
 #include <dmalloc.h>
@@ -421,6 +423,14 @@ SetMode (int Mode)
         SetLocalRef(0, 0, False);
       Crosshair.AttachedBox.State = STATE_FIRST;
       Crosshair.AttachedLine.State = STATE_FIRST;
+      if (TEST_FLAG (AUTODRCFLAG, PCB))
+        {
+	  SaveUndoSerialNumber ();
+	  ResetFoundPinsViasAndPads (True);
+	  RestoreUndoSerialNumber ();
+	  ResetFoundLinesAndPolygons (True);
+	  IncrementUndoSerialNumber();
+	}
     }
 
   Settings.Mode = Mode;

@@ -335,7 +335,7 @@ MoveLinePoint (LayerTypePtr Layer, LineTypePtr Line, PointTypePtr Point)
 {
   if (Layer)
     {
-      r_delete_entry(Layer->line_tree, (BoxTypePtr)Line);
+      r_delete_entry(Layer->line_tree, &Line->BoundingBox);
       if (Layer->On)
 	{
 	  EraseLine (Line);
@@ -345,11 +345,12 @@ MoveLinePoint (LayerTypePtr Layer, LineTypePtr Line, PointTypePtr Point)
       else
 	MOVE (Point->X, Point->Y, DeltaX, DeltaY);
       SetLineBoundingBox(Line);
-      r_insert_entry(Layer->line_tree, (BoxTypePtr)Line, 0);
+      r_insert_entry(Layer->line_tree, &Line->BoundingBox, 0);
       return (Line);
     }
   else				/* must be a rat */
     {
+      r_delete_entry (PCB->Data->rat_tree, &Line->BoundingBox);
       if (PCB->RatOn)
 	{
 	  EraseRat ((RatTypePtr) Line);
@@ -359,6 +360,8 @@ MoveLinePoint (LayerTypePtr Layer, LineTypePtr Line, PointTypePtr Point)
 	}
       else
 	MOVE (Point->X, Point->Y, DeltaX, DeltaY);
+      SetLineBoundingBox(Line);
+      r_insert_entry (PCB->Data->rat_tree, &Line->BoundingBox, 0);
       return (Line);
     }
 }

@@ -409,6 +409,9 @@ CreateNewRat (DataTypePtr Data, Location X1, Location Y1,
   SetLineBoundingBox((LineTypePtr)Line);
   SetPointBoundingBox(&Line->Point1);
   SetPointBoundingBox(&Line->Point2);
+  if (!Data->rat_tree)
+    Data->rat_tree = r_create_tree (NULL, 0, 0);
+  r_insert_entry (Data->rat_tree, &Line->BoundingBox, 0);
   return (Line);
 }
 
@@ -546,6 +549,7 @@ CreateNewElement (DataTypePtr Data, ElementTypePtr Element,
     Element = GetElementMemory (Data);
 
   /* copy values and set additional information */
+  TextScale = MAX (MIN_TEXTSCALE, TextScale);
   AddTextToElement (&DESCRIPTION_TEXT (Element), PCBFont, TextX, TextY,
 		    Direction, Description, TextScale, TextFlags);
   if (uniqueName)

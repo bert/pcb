@@ -304,6 +304,8 @@ static PopupEntryType SettingsMenuEntries[] = {
    "Display,ToggleSnapPin", NULL},
   {"toggleShowDRC", "crosshair shows DRC clearance", CB_Action,
    "Display,ToggleShowDRC", NULL},
+  {"toggleAutoDRC", "auto enforce DRC clearance", CB_Action,
+   "Display,ToggleAutoDRC", NULL},
   {"line", NULL, NULL, NULL, NULL},
   {"toggleRubberBandMode", "rubber band mode", CB_Action,
    "Display,ToggleRubberBandMode", NULL},
@@ -844,6 +846,8 @@ CBPOPUP_Settings (Widget W, XtPointer ClientData, XtPointer CallData)
     CheckEntry (&SettingsMenu, "toggleOrthoMove");
   if (TEST_FLAG (SHOWDRCFLAG, PCB))
     CheckEntry (&SettingsMenu, "toggleShowDRC");
+  if (TEST_FLAG (AUTODRCFLAG, PCB))
+    CheckEntry (&SettingsMenu, "toggleAutoDRC");
 }
 
 

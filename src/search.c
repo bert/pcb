@@ -102,14 +102,15 @@ struct ans_info
 };
 
 static int
-via_callback(const BoxType *box, void *cl)
+pinorvia_callback(const BoxType *box, void *cl)
 {
   struct ans_info *i = (struct ans_info *) cl;
   PinTypePtr pin = (PinTypePtr) box;
 
   if (!IsPointOnPin(PosX, PosY, SearchRadius, pin))
     return 0;
-  *i->ptr1 = *i->ptr2 = *i->ptr3 = pin;
+  *i->ptr1 = pin->Element ? pin->Element : pin;
+  *i->ptr2 = *i->ptr3 = pin;
   longjmp (i->env, 1);
   return 1;			/* never reached */
 }
@@ -128,30 +129,10 @@ SearchViaByLocation (PinTypePtr * Via, PinTypePtr * Dummy1,
     return False;
   if (setjmp (info.env) == 0)
     {
-      r_search(PCB->Data->via_tree, &SearchBox, NULL, via_callback, &info);
+      r_search(PCB->Data->via_tree, &SearchBox, NULL, pinorvia_callback, &info);
       return False;
     }
   return True;
-}
-
-
-static int
-pin_callback(const BoxType *box, void *cl)
-{
-  struct ans_info *i = (struct ans_info *) cl;
-  ElementTypePtr element = (ElementTypePtr) box;
-
-  PIN_LOOP(element,
-    {
-      if (IsPointOnPin(PosX, PosY, SearchRadius, pin))
-        {
-	  *i->ptr1 = element;
-          *i->ptr2 = *i->ptr3 = pin;
-          longjmp (i->env, 1);
-	}
-    }
-  );
-  return 0;
 }
 
 /* ---------------------------------------------------------------------------
@@ -164,54 +145,50 @@ SearchPinByLocation (ElementTypePtr * Element, PinTypePtr * Pin,
 {
   struct ans_info info;
 
+  /* search only if pin-layer is visible */
+  if (!PCB->PinOn)
+    return False;
   info.ptr1 = (void **)Element;
   info.ptr2 = (void **)Pin;
   info.ptr3 = (void **)Dummy;
 
-  /* search only if pin-layer is visible */
-  if (PCB->PinOn)
-    {
-      if (setjmp (info.env) == 0)
-        r_search(PCB->Data->element_tree, &SearchBox, NULL, pin_callback, &info);
-      else
-        return True;
-    }
+  if (setjmp (info.env) == 0)
+    r_search(PCB->Data->pin_tree, &SearchBox, NULL, pinorvia_callback, &info);
+  else
+    return True;
   return False;
 }
 
 static int
 pad_callback (const BoxType *b, void *cl)
 {
-  ElementTypePtr element = (ElementTypePtr)b;
+  PadTypePtr pad = (PadTypePtr)b;
   struct ans_info *i = (struct ans_info *)cl;
 
-  PAD_LOOP (element, 
-   {
-     if (FRONT (pad) || (i->BackToo & PCB->InvisibleObjectsOn))
-       {
-         if (TEST_FLAG (SQUAREFLAG, pad))
-           {
-	     if (IsPointInSquarePad (PosX, PosY, SearchRadius, pad))
-	       {	    
-		 *i->ptr1 = element;
-		 *i->ptr2 = *i->ptr3 = pad;
-		 longjmp (i->env, 1);
-	       }
-           }
-	 else
-	   {
-	     if (IsPointOnLine (PosX, PosY, SearchRadius, (LineTypePtr) pad))
-	       { 
-		 *i->ptr1 = element;
-		 *i->ptr2 = *i->ptr3 = pad;
-		 longjmp (i->env, 1);
-	       }
-	   }
-       }
+  if (FRONT (pad) || (i->BackToo && PCB->InvisibleObjectsOn))
+    {
+      if (TEST_FLAG (SQUAREFLAG, pad))
+        {
+          if (IsPointInSquarePad (PosX, PosY, SearchRadius, pad))
+            {	    
+              *i->ptr1 = pad->Element;
+              *i->ptr2 = *i->ptr3 = pad;
+              longjmp (i->env, 1);
+            }
+        }
+      else
+        {
+          if (IsPointOnLine (PosX, PosY, SearchRadius, (LineTypePtr) pad))
+	    { 
+	      *i->ptr1 = pad->Element;
+	      *i->ptr2 = *i->ptr3 = pad;
+	      longjmp (i->env, 1);
+	    }
+	}
     }
-  );
   return 0;
 }
+
 /* ---------------------------------------------------------------------------
  * searches a pad
  * starts with the newest element
@@ -222,15 +199,15 @@ SearchPadByLocation (ElementTypePtr * Element, PadTypePtr * Pad,
 {
   struct ans_info info;
 
+  /* search only if pin-layer is visible */
+  if (!PCB->PinOn)
+    return (False);
   info.ptr1 = (void **)Element;
   info.ptr2 = (void **)Pad;
   info.ptr3 = (void **)Dummy;
   info.BackToo = BackToo;
-  /* search only if pin-layer is visible */
-  if (!PCB->PinOn)
-    return (False);
   if (setjmp (info.env) == 0)
-    r_search(PCB->Data->element_tree, &SearchBox, NULL, pad_callback, &info);
+    r_search(PCB->Data->pad_tree, &SearchBox, NULL, pad_callback, &info);
   else
     return True;
   return False;

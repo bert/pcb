@@ -297,8 +297,8 @@ ChangeViaSize (PinTypePtr Via)
       value != Via->Thickness)
     {
       AddObjectToSizeUndoList (VIA_TYPE, Via, Via, Via);
-      r_delete_entry(PCB->Data->via_tree, (BoxType *)Via);
       EraseVia (Via);
+      r_delete_entry(PCB->Data->via_tree, (BoxType *)Via);
       if (Via->Mask)
         {
           AddObjectToMaskSizeUndoList (VIA_TYPE, Via, Via, Via);
@@ -357,12 +357,13 @@ ChangeViaClearSize (PinTypePtr Via)
     return (NULL);
   value = MIN (MAX_LINESIZE, MAX (value, Settings.Bloat * 2));
   AddObjectToClearSizeUndoList (VIA_TYPE, Via, Via, Via);
-  r_delete_entry(PCB->Data->via_tree, (BoxType *)Via);
   EraseVia (Via);
+  r_delete_entry(PCB->Data->via_tree, (BoxType *)Via);
   Via->Clearance = value;
   SetPinBoundingBox(Via);
   r_insert_entry(PCB->Data->via_tree, (BoxType *)Via, 0);
   DrawVia (Via, 0);
+  Via->Element = NULL;
   return (Via);
 }
 
@@ -378,7 +379,6 @@ ChangePinSize (ElementTypePtr Element, PinTypePtr Pin)
 
   if (TEST_FLAG (LOCKFLAG, Pin))
     return (NULL);
-  Element = Element;		/* get rid of 'unused...' warnings */
   if (!TEST_FLAG (HOLEFLAG, Pin) && value <= MAX_PINORVIASIZE &&
       value >= MIN_PINORVIASIZE &&
       value >= Pin->DrillingHole + MIN_PINORVIACOPPER &&
@@ -387,9 +387,11 @@ ChangePinSize (ElementTypePtr Element, PinTypePtr Pin)
       AddObjectToSizeUndoList (PIN_TYPE, Element, Pin, Pin);
       AddObjectToMaskSizeUndoList (PIN_TYPE, Element, Pin, Pin);
       ErasePin (Pin);
+      r_delete_entry (PCB->Data->pin_tree, &Pin->BoundingBox);
       Pin->Mask += value - Pin->Thickness;
       Pin->Thickness = value;
       SetPinBoundingBox(Pin);
+      r_insert_entry (PCB->Data->pin_tree, &Pin->BoundingBox, 0);
       DrawPin (Pin, 0);
       return (Pin);
     }
@@ -408,11 +410,12 @@ ChangePinClearSize (ElementTypePtr Element, PinTypePtr Pin)
   if (TEST_FLAG (LOCKFLAG, Pin))
     return (NULL);
   value = MIN (MAX_LINESIZE, MAX (value, Settings.Bloat * 2));
-  Element = Element;		/* get rid of 'unused...' warnings */
   AddObjectToClearSizeUndoList (PIN_TYPE, Element, Pin, Pin);
   ErasePin (Pin);
+  r_delete_entry (PCB->Data->pin_tree, &Pin->BoundingBox);
   Pin->Clearance = value;
-  SetPinBoundingBox(Pin);
+  SetPinBoundingBox (Pin);
+  r_insert_entry (PCB->Data->pin_tree, &Pin->BoundingBox, 0);
   DrawPin (Pin, 0);
   return (Pin);
 }
@@ -433,8 +436,11 @@ ChangePadSize (ElementTypePtr Element, PadTypePtr Pad)
       AddObjectToSizeUndoList (PAD_TYPE, Element, Pad, Pad);
       AddObjectToMaskSizeUndoList (PAD_TYPE, Element, Pad, Pad);
       ErasePad (Pad);
+      r_delete_entry (PCB->Data->pad_tree, &Pad->BoundingBox);
       Pad->Mask += value - Pad->Thickness;
       Pad->Thickness = value;
+      SetPadBoundingBox (Pad);
+      r_insert_entry (PCB->Data->pad_tree, &Pad->BoundingBox, 0);
       DrawPad (Pad, 0);
       return (Pad);
     }
@@ -457,7 +463,10 @@ ChangePadClearSize (ElementTypePtr Element, PadTypePtr Pad)
     {
       AddObjectToClearSizeUndoList (PAD_TYPE, Element, Pad, Pad);
       ErasePad (Pad);
+      r_delete_entry (PCB->Data->pad_tree, &Pad->BoundingBox);
       Pad->Clearance = value;
+      SetPadBoundingBox (Pad);
+      r_insert_entry (PCB->Data->pad_tree, &Pad->BoundingBox, 0);
       DrawPad (Pad, 0);
       return (Pad);
     }

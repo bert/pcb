@@ -134,7 +134,7 @@ UndoListType, *UndoListTypePtr;
  */
 static DataTypePtr RemoveList;	/* list of removed objects */
 static UndoListTypePtr UndoList;	/* list of operations */
-static int Serial,		/* serial number */
+static int Serial = 1,		/* serial number */
   SavedSerial;
 static size_t UndoN, RedoN,	/* number of entries */
   UndoMax;
@@ -875,6 +875,9 @@ IncrementUndoSerialNumber (void)
 {
   if (!Locked)
     {
+       /* don't increment if nothing was added */
+      if (UndoN == 0 || UndoList[UndoN - 1].Serial != Serial)
+        return;
       Serial++;
       Bumped = True;
       SetChangedFlag (True);
@@ -905,7 +908,7 @@ ClearUndoList (Boolean Force)
     }
 
   /* reset counter in any case */
-  Serial = 0;
+  Serial = 1;
 }
 
 /* ---------------------------------------------------------------------------

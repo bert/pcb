@@ -145,7 +145,7 @@
 /* ---------------------------------------------------------------------------
  * PCB flags
  */
-#define	PCB_FLAGS		0xff77	/* all used flags */
+#define	PCB_FLAGS		0xffff	/* all used flags */
 #define SHOWNUMBERFLAG          0x0001  /* pinout displays pin numbers instead of names */
 #define LOCALREFFLAG            0x0002  /* use local reference for moves */
 #define CHECKPLANESFLAG         0x0004  /* see if polygons have isolated regions */
@@ -154,6 +154,7 @@
 					/* rubberband connections */
 #define	DESCRIPTIONFLAG		0x0020	/* display description of elements */
 #define	NAMEONPCBFLAG		0x0040	/* display name of an element */
+#define AUTODRCFLAG             0x0080
 #define	ALLDIRECTIONFLAG	0x0100	/* enable 'all-direction' lines */
 #define SWAPSTARTDIRFLAG        0x0200  /* switch starting angle after each click */
 #define UNIQUENAMEFLAG		0x0400	/* force unique names on board */

@@ -29,18 +29,11 @@ static char *rcsid = "$Id$";
 
 /*
  * short description:
- * - all pin and via pointers are copied to a single array to have linear
- *   access to them. All pointers refer to this list.
- * - two fields, with pointers to line data, are build for each layer
- *   sorted by:
- *     -  the lower x line coordinates in decending order and
- *     -  the higher x line coordinates in asscending order.
- *   Similar fields for arcs and pads are created.
- *   They are used to have fewer accesses when looking for line connections.
  * - lists for pins and vias, lines, arcs, pads and for polygons are created.
  *   Every object that has to be checked is added to its list.
+ *   Coarse searching is accomplished with the data rtrees.
  * - there's no 'speed-up' mechanism for polygons because they are not used
- *   as often as lines and are much easier to handle
+ *   as often as other objects 
  * - the maximum distance between line and pin ... would depend on the angle
  *   between them. To speed up computation the limit is set to one half
  *   of the thickness of the objects (cause of square pins).
@@ -48,7 +41,7 @@ static char *rcsid = "$Id$";
  * PV:  means pin or via (objects that connect layers)
  * LO:  all non PV objects (layer objects like lines, arcs, polygons, pads)
  *
- * 1. first, the PV at the given coordinates is looked up
+ * 1. first, the LO or PV at the given coordinates is looked up
  * 2. all LO connections to that PV are looked up next
  * 3. lookup of all LOs connected to LOs from (2).
  *    This step is repeated until no more new connections are found.
@@ -62,10 +55,6 @@ static char *rcsid = "$Id$";
  *   (X1,Y1) in range [0,1], return true if 0 <= distance <= 1
  * - depending on (r > 1.0 or r < 0.0) check the distance of X2,Y2 or X1,Y1
  *   to X,Y
- * - There is a maximum difference between the inner circle
- *   of a PV and the outer one of 8.2% of its radius.
- *   This difference is ignored which means that lines that end
- *   right at the corner of a PV are not recognized.
  *
  * Intersection of line <--> line:
  * - see the description of 'LineLineIntersect()'
@@ -87,6 +76,7 @@ static char *rcsid = "$Id$";
 
 #include "global.h"
 
+#include "control.h"
 #include "crosshair.h"
 #include "data.h"
 #include "dialog.h"
@@ -120,7 +110,7 @@ static char *rcsid = "$Id$";
 	}
 
 #define	PADLIST_ENTRY(L,I)	\
-	(((PadDataTypePtr *)PadList[(L)].Data)[(I)])
+	(((PadTypePtr *)PadList[(L)].Data)[(I)])
 
 #define	LINELIST_ENTRY(L,I)	\
 	(((LineTypePtr *)LineList[(L)].Data)[(I)])
@@ -178,13 +168,6 @@ typedef struct
 }
 ListType, *ListTypePtr;
 
-typedef struct			/* holds a copy of all pads of a layer */
-{				/* plus a pointer to the according element */
-  PadTypePtr Data;
-  ElementTypePtr Element;
-}
-PadDataType, *PadDataTypePtr;
-
 /* ---------------------------------------------------------------------------
  * some local identifiers
  */
@@ -198,25 +181,13 @@ static Boolean User = False;	/* user action causing this */
 static Boolean drc = False;	/* whether to stop if finding something not found */
 static Boolean IsBad = False;
 static Cardinal drcerr_count;    /* count of drc errors */
-static RatTypePtr *RatSortedByLowX, *RatSortedByHighX;
-static PadDataTypePtr PadData[2];
-Cardinal TotalP, TotalV, NumberOfPads[2];
-static PadDataTypePtr *PadSortedByLowX[2], *PadSortedByHighX[2];
+static Cardinal TotalP, TotalV, NumberOfPads[2];
 static ListType LineList[MAX_LAYER],	/* list of objects to */
   PolygonList[MAX_LAYER], ArcList[MAX_LAYER], PadList[2], RatList, PVList;
 
 /* ---------------------------------------------------------------------------
  * some local prototypes
  */
-static int ComparePadByLowX (const void *, const void *);
-static int ComparePadByHighX (const void *, const void *);
-static int CompareRatByHighX (const void *, const void *);
-static int CompareRatByLowX (const void *, const void *);
-static Cardinal GetPadByLowX (Location, Cardinal);
-static Cardinal GetPadByHighX (Location, Cardinal);
-static Cardinal GetRatByLowX (Location);
-static Cardinal GetRatByHighX (Location);
-static PadDataTypePtr LookupPadByAddress (PadTypePtr);
 static Boolean LookupLOConnectionsToPVList (Boolean);
 static Boolean LookupLOConnectionsToLOList (Boolean);
 static Boolean LookupPVConnectionsToLOList (Boolean);
@@ -289,16 +260,15 @@ ADD_PV_TO_LIST(PinTypePtr Pin)
 }
 
 static Boolean
-ADD_PAD_TO_LIST(Cardinal L, PadDataTypePtr Ptr)
+ADD_PAD_TO_LIST(Cardinal L, PadTypePtr Pad)
 {
 if (User)
-  AddObjectToFlagUndoList(PAD_TYPE, (Ptr)->Element,
-                          (Ptr)->Data, (Ptr)->Data);
-  SET_FLAG(TheFlag, (Ptr)->Data);	
-  PADLIST_ENTRY((L),PadList[(L)].Number) = (Ptr);
+  AddObjectToFlagUndoList(PAD_TYPE, Pad->Element, Pad, Pad);
+  SET_FLAG(TheFlag, Pad);	
+  PADLIST_ENTRY((L),PadList[(L)].Number) = Pad;
   PadList[(L)].Number++;
-  if (drc && !TEST_FLAG(SELECTEDFLAG, (Ptr)->Data))
-    return(SetThing(PAD_TYPE, (Ptr)->Element, (Ptr)->Data, (Ptr)->Data));
+  if (drc && !TEST_FLAG(SELECTEDFLAG, Pad))
+    return(SetThing(PAD_TYPE, Pad->Element, Pad, Pad));
   return False;
 }
 
@@ -440,152 +410,6 @@ PV_TOUCH_PV (PinTypePtr PV1, PinTypePtr PV2)
 }
 
 /* ---------------------------------------------------------------------------
- * quicksort compare function for pad coordinate X1
- * pad field is sorted in decending order of X1
- */
-static int
-ComparePadByLowX (const void *Index1, const void *Index2)
-{
-  PadDataTypePtr ptr1 = *((PadDataTypePtr *) Index1),
-    ptr2 = *((PadDataTypePtr *) Index2);
-
-  return ((int) (MIN (ptr2->Data->Point1.X, ptr2->Data->Point2.X) -
-		 MIN (ptr1->Data->Point1.X, ptr1->Data->Point2.X)));
-}
-
-/* ---------------------------------------------------------------------------
- * quicksort compare function for pad coordinate X2
- * pad field is sorted in ascending order of X2
- */
-static int
-ComparePadByHighX (const void *Index1, const void *Index2)
-{
-  PadDataTypePtr ptr1 = *((PadDataTypePtr *) Index1),
-    ptr2 = *((PadDataTypePtr *) Index2);
-
-  return ((int) (MAX (ptr1->Data->Point1.X, ptr1->Data->Point2.X) -
-		 MAX (ptr2->Data->Point1.X, ptr2->Data->Point2.X)));
-}
-
-/* ---------------------------------------------------------------------------
- * quicksort compare function for rat coordinate X2
- * rat field is sorted in ascending order of X2
- */
-static int
-CompareRatByLowX (const void *Index1, const void *Index2)
-{
-  RatTypePtr ptr1 = *((RatTypePtr *) Index1), ptr2 = *((RatTypePtr *) Index2);
-
-  return ((int)
-	  (MIN (ptr2->Point1.X, ptr2->Point2.X) -
-	   MIN (ptr1->Point1.X, ptr1->Point2.X)));
-}
-
-/* ---------------------------------------------------------------------------
- * quicksort compare function for rat coordinate X2
- * rat field is sorted in ascending order of X2
- */
-static int
-CompareRatByHighX (const void *Index1, const void *Index2)
-{
-  RatTypePtr ptr1 = *((RatTypePtr *) Index1), ptr2 = *((RatTypePtr *) Index2);
-
-  return ((int)
-	  (MAX (ptr1->Point1.X, ptr1->Point2.X) -
-	   MAX (ptr2->Point1.X, ptr2->Point2.X)));
-}
-
-/* ---------------------------------------------------------------------------
- * returns the minimum index which matches
- * lowX(pad[index]) <= X for all index >= 'found one'
- * the field is sorted in a descending order
- */
-static Cardinal
-GetPadByLowX (Location X, Cardinal Layer)
-{
-  PadDataTypePtr *ptr = PadSortedByLowX[Layer];
-  int left = 0, right = NumberOfPads[Layer] - 1, position;
-
-  while (left < right)
-    {
-      position = (left + right) / 2;
-      if (MIN (ptr[position]->Data->Point1.X, ptr[position]->Data->Point2.X)
-	  <= X)
-	right = position;
-      else
-	left = position + 1;
-    }
-  return ((Cardinal) left);
-}
-
-/* ---------------------------------------------------------------------------
- * returns the minimum index which matches
- * highX(pad[index]) >= X for all index >= 'found one'
- * the field is sorted in a ascending order
- */
-static Cardinal
-GetPadByHighX (Location X, Cardinal Layer)
-{
-  PadDataTypePtr *ptr = PadSortedByHighX[Layer];
-  int left = 0, right = NumberOfPads[Layer] - 1, position;
-
-  while (left < right)
-    {
-      position = (left + right) / 2;
-      if (MAX (ptr[position]->Data->Point1.X, ptr[position]->Data->Point2.X)
-	  >= X)
-	right = position;
-      else
-	left = position + 1;
-    }
-  return ((Cardinal) left);
-}
-
-/* ---------------------------------------------------------------------------
- * returns the minimum index which matches
- * highX(rat[index]) >= X for all index >= 'found one'
- * the field is sorted in a ascending order
- */
-static Cardinal
-GetRatByHighX (Location X)
-{
-  RatTypePtr *ptr = RatSortedByHighX;
-  int left = 0, right = PCB->Data->RatN - 1, position;
-
-  while (left < right)
-    {
-      position = (left + right) / 2;
-      if (MAX (ptr[position]->Point1.X, ptr[position]->Point2.X) >= X)
-	right = position;
-      else
-	left = position + 1;
-    }
-  return ((Cardinal) left);
-}
-
-/* ---------------------------------------------------------------------------
- * returns the minimum index which matches
- * lowX(rat[index]) <= X for all index >= 'found one'
- * the field is sorted in a descending order
- */
-static Cardinal
-GetRatByLowX (Location X)
-{
-  RatTypePtr *ptr = RatSortedByLowX;
-  int left = 0, right = PCB->Data->RatN - 1, position;
-
-  while (left < right)
-    {
-      position = (left + right) / 2;
-      if (MIN (ptr[position]->Point1.X, ptr[position]->Point2.X) <= X)
-	right = position;
-      else
-	left = position + 1;
-    }
-  return ((Cardinal) left);
-}
-
-/* ---------------------------------------------------------------------------
  * releases all allocated memory
  */
 void
@@ -600,23 +424,14 @@ FreeLayoutLookupMemory (void)
       MyFree ((char **) &PolygonList[i].Data);
     }
   MyFree ((char **) &PVList.Data);
-  MyFree ((char **) &RatSortedByLowX);
-  MyFree ((char **) &RatSortedByHighX);
   MyFree ((char **) &RatList.Data);
 }
 
 void
 FreeComponentLookupMemory (void)
 {
-  Cardinal i;
-
-  for (i = 0; i < 2; i++)
-    {
-      MyFree ((char **) &PadData[i]);
-      MyFree ((char **) &PadSortedByLowX[i]);
-      MyFree ((char **) &PadSortedByHighX[i]);
-      MyFree ((char **) &PadList[i].Data);
-    }
+   MyFree ((char **) &PadList[0].Data);
+   MyFree ((char **) &PadList[1].Data);
 }
 
 /* ---------------------------------------------------------------------------
@@ -626,7 +441,7 @@ FreeComponentLookupMemory (void)
 void
 InitComponentLookup (void)
 {
-  Cardinal i, pos;
+  Cardinal i;
 
   /* initialize pad data; start by counting the total number
    * on each of the two possible layers
@@ -642,53 +457,15 @@ InitComponentLookup (void)
   );
   for (i = 0; i < 2; i++)
     {
-      if (NumberOfPads[i])
-	{
-	  int count = 0;
-
-	  /* copy pad and element pointers to a list */
-	  PadData[i] = (PadDataTypePtr) MyCalloc (NumberOfPads[i],
-						  sizeof (PadDataType),
-						  "InitConnectionLookup()");
-	  ALLPAD_LOOP (PCB->Data, 
-	    {
-	      if ((TEST_FLAG (ONSOLDERFLAG, pad) != 0) == (i == SOLDER_LAYER))
-		{
-		  PadData[i][count].Data = pad;
-		  PadData[i][count].Element = element;
-		  count++;
-		}
-	    }
-	  );
-
-	  /* create two sorted lists of pointers */
-	  PadSortedByLowX[i] = (PadDataTypePtr *) MyCalloc (NumberOfPads[i],
-							    sizeof
-							    (PadDataTypePtr),
-							    "InitConnectionLookup()");
-	  PadSortedByHighX[i] =
-	    (PadDataTypePtr *) MyCalloc (NumberOfPads[i],
-					 sizeof (PadDataTypePtr),
-					 "InitConnectionLookup()");
-	  for (count = 0; count < NumberOfPads[i]; count++)
-	    PadSortedByLowX[i][count] = PadSortedByHighX[i][count] =
-	      &PadData[i][count];
-	  qsort (PadSortedByLowX[i], NumberOfPads[i], sizeof (PadDataTypePtr),
-		 ComparePadByLowX);
-	  qsort (PadSortedByHighX[i], NumberOfPads[i],
-		 sizeof (PadDataTypePtr), ComparePadByHighX);
-
-	  /* allocate memory for working list */
-	  PadList[i].Data = (void **) MyCalloc (NumberOfPads[i],
-						sizeof (PadDataTypePtr),
-						"InitConnectionLookup()");
-	}
+      /* allocate memory for working list */
+       PadList[i].Data = (void **) MyCalloc (NumberOfPads[i], sizeof (PadTypePtr),
+		                            "InitConnectionLookup()");
+    }
 
       /* clear some struct members */
       PadList[i].Location = 0;
       PadList[i].DrawLocation = 0;
       PadList[i].Number = 0;
-    }
 }
 
 /* ---------------------------------------------------------------------------
@@ -698,7 +475,7 @@ InitComponentLookup (void)
 void
 InitLayoutLookup (void)
 {
-  Cardinal i, pos;
+  Cardinal i;
 
   /* initialize line arc and polygon data */
   for (i = 0; i < MAX_LAYER; i++)
@@ -753,109 +530,11 @@ InitLayoutLookup (void)
   PVList.DrawLocation = 0;
   PVList.Number = 0;
   /* Initialize ratline data */
-  if (PCB->Data->RatN)
-    {
-      /* allocate memory for rat pointer lists */
-      RatSortedByLowX = (RatTypePtr *) MyCalloc (PCB->Data->RatN,
-						 sizeof (RatTypePtr),
-						 "InitConnectionLookup()");
-      RatSortedByHighX =
-	(RatTypePtr *) MyCalloc (PCB->Data->RatN, sizeof (RatTypePtr),
-				 "InitConnectionLookup()");
-      RatList.Data =
-	(void **) MyCalloc (PCB->Data->RatN, sizeof (RatTypePtr),
-			    "InitConnectionLookup()");
-
-      /* copy addresses to arrays and sort them */
-      RAT_LOOP (PCB->Data, 
-	{
-	  RatSortedByLowX[n] = RatSortedByHighX[n] = line;
-	}
-      );
-      qsort (RatSortedByLowX, PCB->Data->RatN, sizeof (RatTypePtr),
-	     CompareRatByLowX);
-      qsort (RatSortedByHighX, PCB->Data->RatN, sizeof (RatTypePtr),
-	     CompareRatByHighX);
-
-    }
+  RatList.Data = (void **) MyCalloc (PCB->Data->RatN, sizeof (RatTypePtr),
+				    "InitConnectionLookup()");
   RatList.Location = 0;
   RatList.DrawLocation = 0;
   RatList.Number = 0;
-}
-
-/* ---------------------------------------------------------------------------
- * returns a pointer into the sorted list with the highest index and the
- * number of entries left to check
- * All list entries starting from the pointer position to the end
- * may match the specified x coordinate range.
- */
-static PadDataTypePtr *
-GetIndexOfPads (Location Xlow, Location Xhigh,
-		Cardinal Layer, Cardinal * Number)
-{
-  Cardinal index1, index2;
-
-  /* get index of the first pad that may match the coordinates
-   * see GetPadByLowX(), GetPadByHighX()
-   * take the field with less entries to speed up searching
-   */
-  index1 = GetPadByLowX (Xhigh, Layer);
-  index2 = GetPadByHighX (Xlow, Layer);
-  if (index1 > index2)
-    {
-      *Number = NumberOfPads[Layer] - index1;
-      return (&PadSortedByLowX[Layer][index1]);
-    }
-  *Number = NumberOfPads[Layer] - index2;
-  return (&PadSortedByHighX[Layer][index2]);
-}
-
-/* ---------------------------------------------------------------------------
- * returns a pointer into the sorted list with the highest index and the
- * number of entries left to check
- * All list entries starting from the pointer position to the end
- * may match the specified x coordinate range.
- */
-static RatTypePtr *
-GetIndexOfRats (Location Xlow, Location Xhigh, Cardinal * Number)
-{
-  Cardinal index1, index2;
-
-  /* get index of the first rat-line that may match the coordinates
-   * take the field with less entries to speed up searching
-   */
-  index1 = GetRatByLowX (Xhigh);
-  index2 = GetRatByHighX (Xlow);
-  if (index1 > index2)
-    {
-      *Number = PCB->Data->RatN - index1;
-      return (&RatSortedByLowX[index1]);
-    }
-  *Number = PCB->Data->RatN - index2;
-  return (&RatSortedByHighX[index2]);
-}
-
-/* ---------------------------------------------------------------------------
- * finds a pad by it's address in the sorted list
- * A pointer to the list entry or NULL is returned
- */
-static PadDataTypePtr
-LookupPadByAddress (PadTypePtr Pad)
-{
-  Cardinal i, layer;
-  PadDataTypePtr ptr;
-
-  layer = TEST_FLAG (ONSOLDERFLAG, Pad) ? SOLDER_LAYER : COMPONENT_LAYER;
-  i = NumberOfPads[layer];
-  ptr = PadData[layer];
-  while (i)
-    {
-      if (ptr->Data == Pad)
-	return (ptr);
-      i--;
-      ptr++;
-    }
-  return (NULL);
 }
 
 struct pv_info
@@ -893,6 +572,31 @@ LOCtoPVarc_callback(const BoxType *b, void *cl)
   return 0;
 }
 
+static int
+LOCtoPVpad_callback(const BoxType *b, void *cl)
+{
+  PadTypePtr pad = (PadTypePtr)b;
+  struct pv_info *i = (struct pv_info *)cl;
+
+  if (!TEST_FLAG (TheFlag, pad) && IS_PV_ON_PAD (i->pv, pad) &&
+      ADD_PAD_TO_LIST (TEST_FLAG (ONSOLDERFLAG, pad) ? SOLDER_LAYER : COMPONENT_LAYER,
+      pad))
+    longjmp (i->env, 1);
+  return 0;
+}
+
+static int
+LOCtoPVrat_callback(const BoxType *b, void *cl)
+{
+  RatTypePtr rat = (RatTypePtr)b;
+  struct pv_info *i = (struct pv_info *)cl;
+
+  if (!TEST_FLAG (TheFlag, rat) && IS_PV_ON_RAT (i->pv, rat) &&
+      ADD_RAT_TO_LIST (rat))
+    longjmp (i->env, 1);
+  return 0;
+}
+
 /* ---------------------------------------------------------------------------
  * checks if a PV is connected to LOs, if it is, the LO is added to
  * the appropriate list and the 'used' flag is set
@@ -903,6 +607,7 @@ LookupLOConnectionsToPVList (Boolean AndRats)
   PinTypePtr pv;
   Cardinal layer;
   struct pv_info info;
+  float wide;
 
   /* loop over all PVs currently on list */
   while (PVList.Location < PVList.Number)
@@ -910,28 +615,20 @@ LookupLOConnectionsToPVList (Boolean AndRats)
       /* get pointer to data */
       pv = PVLIST_ENTRY (PVList.Location);
 
-      /* check pads (which are lines) */
-      for (layer = 0; layer < 2; layer++)
-	{
-	  BDimension distance =
-	    MAX ((MAX_PADSIZE + pv->Thickness) / 2 + Bloat, 0);
-	  PadDataTypePtr *sortedptr;
-	  Cardinal i;
-
-	  /* get the lowest data pointer of pads which may have
-	   * a connection to the PV ### pad->Point1.X <= pad->Point2.X ###
-	   */
-	  sortedptr = GetIndexOfPads (pv->X - distance, pv->X + distance,
-				      layer, &i);
-	  for (; i; i--, sortedptr++)
-	    if (!TEST_FLAG (TheFlag, (*sortedptr)->Data) &&
-		IS_PV_ON_PAD (pv, (*sortedptr)->Data) &&
-	        ADD_PAD_TO_LIST (layer, *sortedptr))
-	      return True;
-	}
+      if (TEST_FLAG (SQUAREFLAG, pv))
+        wide = pv->Thickness * SQRT2OVER2 + fBloat;
+      else
+        wide = 0.5 * pv->Thickness + fBloat;
+      wide = MIN (wide, 0);
+      info.pv = pv;
+      /* check pads */
+      if (setjmp (info.env) == 0)
+        r_search(PCB->Data->pad_tree, (BoxType *)pv, NULL, LOCtoPVpad_callback,
+	        &info);
+      else
+        return True;
 
       /* now all lines, arcs and polygons of the several layers */
-      info.pv = pv;
       for (layer = 0; layer < MAX_LAYER; layer++)
 	{
 	  PolygonTypePtr polygon = PCB->Data->Layer[layer].Polygon;
@@ -941,39 +638,35 @@ LookupLOConnectionsToPVList (Boolean AndRats)
 	  info.layer = layer;
           /* add touching lines */
 	  if (setjmp(info.env) == 0)
-	    r_search(LAYER_PTR(layer)->line_tree, (BoxType *)pv, NULL, LOCtoPVline_callback, &info);
+	    r_search(LAYER_PTR(layer)->line_tree, (BoxType *)pv, NULL,
+	             LOCtoPVline_callback, &info);
 	  else
 	    return True;
 	  /* add touching arcs */
 	  if (setjmp(info.env) == 0)
-	    r_search(LAYER_PTR(layer)->arc_tree, (BoxType *)pv, NULL, LOCtoPVarc_callback, &info);
+	    r_search(LAYER_PTR(layer)->arc_tree, (BoxType *)pv, NULL,
+	             LOCtoPVarc_callback, &info);
 	  else
 	    return True;
 	  /* check all polygons */
 	  for (i = 0; i < PCB->Data->Layer[layer].PolygonN; i++, polygon++)
 	    {
 	      Myflag = (L0THERMFLAG | L0PIPFLAG) << layer;
-	      if ((TEST_FLAGS (Myflag, pv)
-		   || !TEST_FLAG (CLEARPOLYFLAG, polygon))
-		  && !TEST_FLAG (TheFlag, polygon)
-		  && ADD_POLYGON_TO_LIST (layer, polygon))
+	      if ((TEST_FLAGS (Myflag, pv) || !TEST_FLAG (CLEARPOLYFLAG, polygon))
+		 && !TEST_FLAG (TheFlag, polygon) &&
+		 IsPointInPolygon (pv->X, pv->Y, wide, polygon)
+		 && ADD_POLYGON_TO_LIST (layer, polygon))
 		return True;
 	    }
 	}
       /* Check for rat-lines that may intersect the PV */
       if (AndRats)
 	{
-	  RatTypePtr *sortedptr;
-	  Cardinal i;
-
-	  /* probably don't need distance offsets here */
-	  /* since rat-lines only connect at the end points */
-	  sortedptr = GetIndexOfRats (pv->X, pv->X, &i);
-	  for (; i; i--, sortedptr++)
-	    if (!TEST_FLAG (TheFlag, *sortedptr) &&
-		IS_PV_ON_RAT (pv, *sortedptr) &&
-	        ADD_RAT_TO_LIST (*sortedptr))
-	      return True;
+	if (setjmp (info.env) == 0)
+	  r_search (PCB->Data->rat_tree, (BoxType *)pv, NULL,
+	            LOCtoPVrat_callback, &info);
+	else
+	  return True;
 	}
       PVList.Location++;
     }
@@ -1069,7 +762,7 @@ LookupLOConnectionsToLOList (Boolean AndRats)
 		  position = &padposition[layer];
 		  for (; *position < PadList[layer].Number; (*position)++)
 		    if (LookupLOConnectionsToPad
-			(PADLIST_ENTRY (layer, *position)->Data, group))
+			(PADLIST_ENTRY (layer, *position), group))
 		      return (True);
 		}
 	    }
@@ -1124,8 +817,7 @@ int pv_pv_callback (const BoxType *b, void *cl)
 static Boolean
 LookupPVConnectionsToPVList (void)
 {
-  BDimension distance;
-  Cardinal i, j, limit, save_place;
+  Cardinal save_place;
   struct pv_info info;
 
 
@@ -1255,9 +947,7 @@ pv_rat_callback (const BoxType *b, void *cl)
 static Boolean
 LookupPVConnectionsToLOList (Boolean AndRats)
 {
-  Cardinal layer, i, j, limit;
-  BDimension distance;
-  int Myflag;
+  Cardinal layer;
   struct lo_info info;
 
   /* loop over all layers */
@@ -1340,7 +1030,7 @@ LookupPVConnectionsToLOList (Boolean AndRats)
        */
       while (PadList[layer].Location < PadList[layer].Number)
 	{
-          info.pad = PADLIST_ENTRY (layer, PadList[layer].Location)->Data;
+          info.pad = PADLIST_ENTRY (layer, PadList[layer].Location);
           if (setjmp (info.env) == 0)
             r_search (PCB->Data->via_tree, (BoxType *)info.pad, NULL,
                      pv_pad_callback, &info);
@@ -1923,6 +1613,20 @@ LOCtoArcArc_callback (const BoxType *b, void *cl)
   return 0;
 }
 
+static int
+LOCtoArcPad_callback (const BoxType *b, void *cl)
+{
+  PadTypePtr pad = (PadTypePtr)b;
+  struct lo_info *i = (struct lo_info *)cl;
+
+  if (!TEST_FLAG (TheFlag, pad) && i->layer ==
+      (TEST_FLAG (ONSOLDERFLAG, pad) ? SOLDER_LAYER : COMPONENT_LAYER)
+      && ArcPadIntersect (pad, i->arc)
+      && ADD_PAD_TO_LIST (i->layer, pad))
+    longjmp (i->env, 1);
+  return 0;
+}
+
 /* ---------------------------------------------------------------------------
  * searches all LOs that are connected to the given arc on the given
  * layergroup. All found connections are added to the list
@@ -1959,13 +1663,13 @@ LookupLOConnectionsToArc (ArcTypePtr Arc, Cardinal LayerGroup)
           info.layer = layer;
 	    /* add arcs */
 	  if (setjmp(info.env) == 0)
-	    r_search(LAYER_PTR(layer)->line_tree, &Arc->BoundingBox, NULL,
+	    r_search (LAYER_PTR(layer)->line_tree, &Arc->BoundingBox, NULL,
 	             LOCtoArcLine_callback, &info);
 	  else
 	    return True;
 
 	  if (setjmp(info.env) == 0)
-	    r_search(LAYER_PTR(layer)->arc_tree, &Arc->BoundingBox, NULL,
+	    r_search (LAYER_PTR(layer)->arc_tree, &Arc->BoundingBox, NULL,
 	             LOCtoArcArc_callback, &info);
 	  else
 	    return True;
@@ -1974,23 +1678,18 @@ LookupLOConnectionsToArc (ArcTypePtr Arc, Cardinal LayerGroup)
 	  i = 0;
 	  polygon = PCB->Data->Layer[layer].Polygon;
 	  for (; i < PCB->Data->Layer[layer].PolygonN; i++, polygon++)
-	    if (!TEST_FLAG
-		(TheFlag, polygon) && IsArcInPolygon (Arc, polygon)
+	    if (!TEST_FLAG (TheFlag, polygon) && IsArcInPolygon (Arc, polygon)
 	        && ADD_POLYGON_TO_LIST (layer, polygon))
 	      return True;
 	}
       else
-	{
-	  /* handle special 'pad' layers */
-	  PadDataTypePtr *sortedptr;
-
-	  layer -= MAX_LAYER;
-	  sortedptr = GetIndexOfPads (xlow, xhigh, layer, &i);
-	  for (; i; i--, sortedptr++)
-	    if (!TEST_FLAG (TheFlag, (*sortedptr)-> Data)
-	        && ArcPadIntersect ((*sortedptr)->Data, Arc)
-	        && ADD_PAD_TO_LIST (layer, *sortedptr))
-	      return True;
+        {
+	  info.layer = layer - MAX_LAYER;
+	  if (setjmp (info.env) == 0)
+	    r_search (PCB->Data->pad_tree, &Arc->BoundingBox, NULL,
+	             LOCtoArcPad_callback, &info);
+          else
+	    return True;
 	}
     }
   return (False);
@@ -2023,7 +1722,42 @@ LOCtoLineArc_callback (const BoxType *b, void *cl)
     }
   return 0;
 }
-  
+
+static int
+LOCtoLineRat_callback (const BoxType *b, void *cl)
+{
+  RatTypePtr rat = (RatTypePtr)b;
+  struct lo_info *i = (struct lo_info *)cl;
+
+  if (!TEST_FLAG (TheFlag, rat))
+    {
+      if ((rat->group1 == i->layer) && IsRatPointOnLineEnd (&rat->Point1, i->line))
+        {
+	    if (ADD_RAT_TO_LIST (rat))
+	      longjmp (i->env, 1);
+	}
+      else if ((rat->group2 == i->layer) && IsRatPointOnLineEnd (&rat->Point2, i->line))
+	  {
+	    if (ADD_RAT_TO_LIST (rat))
+	      longjmp (i->env, 1);
+	  }
+      }
+   return 0;
+}
+
+static int
+LOCtoLinePad_callback (const BoxType *b, void *cl)
+{
+  PadTypePtr pad = (PadTypePtr)b;
+  struct lo_info *i = (struct lo_info *)cl;
+
+  if (!TEST_FLAG (TheFlag, pad) && i->layer ==
+      (TEST_FLAG (ONSOLDERFLAG, pad) ? SOLDER_LAYER : COMPONENT_LAYER)
+      && LinePadIntersect (i->line, pad) && ADD_PAD_TO_LIST (i->layer, pad))
+    longjmp (i->env, 1);
+  return 0;
+}
+
 /* ---------------------------------------------------------------------------
  * searches all LOs that are connected to the given line on the given
  * layergroup. All found connections are added to the list
@@ -2032,49 +1766,20 @@ LOCtoLineArc_callback (const BoxType *b, void *cl)
  * Xij means Xj at line i
  */
 static Boolean
-  LookupLOConnectionsToLine
-  (LineTypePtr Line, Cardinal LayerGroup, Boolean PolysTo)
+LookupLOConnectionsToLine (LineTypePtr Line, Cardinal LayerGroup, Boolean PolysTo)
 {
-  Cardinal entry, i;
-  Location xlow, xhigh;
-  RatTypePtr *sortedrat;
+  Cardinal entry;
   struct lo_info info;
 
-  /* the maximum possible distance */
-
-
-  xlow =
-    MIN (Line->Point1.X,
-	 Line->Point2.X) -
-    MAX (Line->Thickness + MAX (MAX_PADSIZE, MAX_LINESIZE) / 2 - Bloat, 0);
-  xhigh =
-    MAX (Line->Point1.X,
-	 Line->Point2.X) +
-    MAX (Line->Thickness + MAX (MAX_PADSIZE, MAX_LINESIZE) / 2 + Bloat, 0);
-
   info.line = Line;
+  info.layer = LayerGroup;
+
   /* add the new rat lines */
-
-
-  sortedrat = GetIndexOfRats (xlow, xhigh, &i);
-  for (; i; i--, sortedrat++)
-    if (!TEST_FLAG (TheFlag, *sortedrat))
-      {
-	RatTypePtr rat = *sortedrat;
-
-	if ((rat->group1 ==
-	     LayerGroup) && IsRatPointOnLineEnd (&rat->Point1, Line))
-	  {
-	    if (ADD_RAT_TO_LIST (rat))
-	      return True;
-	  }
-	else if ((rat->group2 ==
-		  LayerGroup) && IsRatPointOnLineEnd (&rat->Point2, Line))
-	  {
-	    if (ADD_RAT_TO_LIST (rat))
-	      return True;
-	  }
-      }
+  if (setjmp (info.env) == 0)
+    r_search (PCB->Data->rat_tree, &Line->BoundingBox, NULL,
+              LOCtoLineRat_callback, &info);
+  else
+    return True;
 
   /* loop over all layers of the group */
   for (entry = 0; entry < PCB->LayerGroups.Number[LayerGroup]; entry++)
@@ -2104,7 +1809,7 @@ static Boolean
 	  /* now check all polygons */
 	  if (PolysTo)
 	    {
-	      i = 0;
+	      Cardinal i = 0;
 	      polygon = PCB->Data->Layer[layer].Polygon;
 	      for (; i < PCB->Data->Layer[layer].PolygonN; i++, polygon++)
 		if (!TEST_FLAG
@@ -2116,15 +1821,12 @@ static Boolean
       else
 	{
 	  /* handle special 'pad' layers */
-	  PadDataTypePtr *sortedptr;
-
-	  layer -= MAX_LAYER;
-	  sortedptr = GetIndexOfPads (xlow, xhigh, layer, &i);
-	  for (; i; i--, sortedptr++)
-	    if (!TEST_FLAG (TheFlag, (*sortedptr)->Data)
-		&& LinePadIntersect (Line, (*sortedptr)->Data)
-		&& ADD_PAD_TO_LIST (layer, *sortedptr))
-	      return True;
+	  info.layer = layer - MAX_LAYER;
+	  if (setjmp (info.env) == 0)
+	    r_search (PCB->Data->pad_tree, &Line->BoundingBox, NULL,
+	              LOCtoLinePad_callback, &info);
+          else
+	    return True;
 	}
     }
   return (False);
@@ -2148,6 +1850,19 @@ LOT_Arccallback (const BoxType *b, void *cl)
   struct lo_info *i = (struct lo_info *)cl;
   
   if (!TEST_FLAG (TheFlag, arc) && LineArcIntersect (i->line, arc))
+    longjmp (i->env, 1);
+  return 0;
+}
+
+static int
+LOT_Padcallback (const BoxType *b, void *cl)
+{
+  PadTypePtr pad = (PadTypePtr)b;
+  struct lo_info *i = (struct lo_info *)cl;
+  
+  if (!TEST_FLAG (TheFlag, pad) && i->layer ==
+      (TEST_FLAG (ONSOLDERFLAG, pad) ? SOLDER_LAYER : COMPONENT_LAYER)
+      && LinePadIntersect (i->line, pad))
     longjmp (i->env, 1);
   return 0;
 }
@@ -2205,13 +1920,12 @@ LOTouchesLine (LineTypePtr Line, Cardinal LayerGroup)
       else
 	{
 	  /* handle special 'pad' layers */
-	  PadDataTypePtr *sortedptr;
-	  layer -= MAX_LAYER;
-	  sortedptr = GetIndexOfPads (xlow, xhigh, layer, &i);
-	  for (; i; i--, sortedptr++)
-	    if (!TEST_FLAG (TheFlag, (*sortedptr)->Data) &&
-		LinePadIntersect (Line, (*sortedptr)->Data))
-	      return (True);
+	  info.layer = layer - MAX_LAYER;
+	  if (setjmp (info.env) == 0)
+	    r_search (PCB->Data->pad_tree, &Line->BoundingBox, NULL,
+	             LOT_Padcallback, &info);
+          else
+	    return True;
 	}
     }
   return (False);
@@ -2242,6 +1956,21 @@ LOCtoRat_callback (const BoxType *b, void *cl)
   return 0;
 }
 
+static int
+LOCtoPad_callback (const BoxType *b, void *cl)
+{
+  PadTypePtr pad = (PadTypePtr)b;
+  struct rat_info *i = (struct rat_info *)cl;
+
+  if (!TEST_FLAG (TheFlag, pad) && i->layer ==
+      (TEST_FLAG (ONSOLDERFLAG, pad) ? SOLDER_LAYER : COMPONENT_LAYER)
+       && (((pad->Point1.X == i->Point->X && pad->Point1.Y == i->Point->Y)) ||
+          ((pad->Point2.X == i->Point->X && pad->Point2.Y == i->Point->Y)))
+       && ADD_PAD_TO_LIST (i->layer, pad))
+    longjmp (i->env, 1);
+  return 0;
+}
+
 /* ---------------------------------------------------------------------------
  * searches all LOs that are connected to the given rat-line on the given
  * layergroup. All found connections are added to the list
@@ -2259,7 +1988,7 @@ LookupLOConnectionsToRatEnd (PointTypePtr Point, Cardinal LayerGroup)
   /* loop over all layers of this group */
   for (entry = 0; entry < PCB->LayerGroups.Number[LayerGroup]; entry++)
     {
-      Cardinal layer, i;
+      Cardinal layer;
 
       layer = PCB->LayerGroups.Entries[LayerGroup][entry];
       /* handle normal layers 
@@ -2271,26 +2000,20 @@ LookupLOConnectionsToRatEnd (PointTypePtr Point, Cardinal LayerGroup)
 	{
 	  info.layer = layer;
 	  if (setjmp(info.env) == 0)
-	    r_search(LAYER_PTR(layer)->line_tree, (BoxType *)Point, NULL,
+	    r_search (LAYER_PTR(layer)->line_tree, (BoxType *)Point, NULL,
 	             LOCtoRat_callback, &info);
           else
 	    return True;
 	}
       else
-	{			/* handle special 'pad' layers */
-	  PadDataTypePtr *sortedptr;
-	  layer -= MAX_LAYER;
-	  sortedptr = GetIndexOfPads (Point->X, Point->X, layer, &i);
-	  for (; i; i--, sortedptr++)
-	    /* rats always touch points of a pad */
-	    /* if they touch at all */
-	    if (!TEST_FLAG (TheFlag, (*sortedptr)->Data) &&
-		((((*sortedptr)->Data->Point1.X == Point->X &&
-		   (*sortedptr)->Data->Point1.Y == Point->Y)) ||
-		 (((*sortedptr)->Data->Point2.X == Point->X &&
-		   (*sortedptr)->Data->Point2.Y == Point->Y)))
-	        && ADD_PAD_TO_LIST (layer, *sortedptr))
-	      return True;
+	{
+	  /* handle special 'pad' layers */
+	  info.layer = layer - MAX_LAYER;
+	  if (setjmp(info.env) == 0)
+	    r_search (PCB->Data->pad_tree, (BoxType *)Point, NULL,
+	             LOCtoPad_callback, &info);
+          else
+	    return True;
 	}
     }
   return (False);
@@ -2302,7 +2025,7 @@ LOCtoPadLine_callback (const BoxType *b, void *cl)
   LineTypePtr line = (LineTypePtr)b;
   struct lo_info *i = (struct lo_info *) cl;
 
-  if (!TEST_FLAG (TheFlag, line) && LinePadIntersect (line, i->line))
+  if (!TEST_FLAG (TheFlag, line) && LinePadIntersect (line, i->pad))
     {
       if (ADD_LINE_TO_LIST (i->layer, line))
         longjmp (i->env, 1);
@@ -2316,7 +2039,7 @@ LOCtoPadArc_callback (const BoxType *b, void *cl)
   ArcTypePtr arc = (ArcTypePtr)b;
   struct lo_info *i = (struct lo_info *) cl;
 
-  if (!TEST_FLAG (TheFlag, arc) && ArcPadIntersect (i->line, arc))
+  if (!TEST_FLAG (TheFlag, arc) && ArcPadIntersect (i->pad, arc))
     {
       if (ADD_ARC_TO_LIST (i->layer, arc))
         longjmp (i->env, 1);
@@ -2324,63 +2047,72 @@ LOCtoPadArc_callback (const BoxType *b, void *cl)
   return 0;
 }
 
+static int
+LOCtoPadRat_callback (const BoxType *b, void *cl)
+{
+  RatTypePtr rat = (RatTypePtr)b;
+  struct lo_info *i = (struct lo_info *) cl;
+
+  if (!TEST_FLAG (TheFlag, rat))
+    {
+      if (rat->group1 == i->layer &&
+	 ((rat->Point1.X == i->pad->Point1.X && rat->Point1.Y == i->pad->Point1.Y)
+	 || (rat->Point1.X == i->pad->Point2.X && rat->Point1.Y == i->pad->Point2.Y)))
+	{
+	  if (ADD_RAT_TO_LIST (rat))
+	    longjmp (i->env, 1);
+	}
+      else if (rat->group2 == i->layer &&
+	    ((rat->Point2.X == i->pad->Point1.X && rat->Point2.Y == i->pad->Point1.Y)
+	    || (rat->Point2.X == i->pad->Point2.X && rat->Point2.Y == i->pad->Point2.Y)))
+	{
+	  if (ADD_RAT_TO_LIST (rat))
+	    longjmp (i->env, 1);
+	}
+    }
+  return 0;
+}
+
+static int
+LOCtoPadPad_callback (const BoxType *b, void *cl)
+{
+  PadTypePtr pad = (PadTypePtr)b;
+  struct lo_info *i = (struct lo_info *) cl;
+
+  if (!TEST_FLAG (TheFlag, pad) && i->layer ==
+      (TEST_FLAG (ONSOLDERFLAG, pad) ? SOLDER_LAYER : COMPONENT_LAYER)
+      && PadPadIntersect (pad, i->pad)
+      && ADD_PAD_TO_LIST (i->layer, pad))
+    longjmp (i->env, 1);
+  return 0;
+}
+
 /* ---------------------------------------------------------------------------
  * searches all LOs that are connected to the given pad on the given
  * layergroup. All found connections are added to the list
- *
- * the notation that is used is:
- * Xij means Xj at line i
  */
 static Boolean
 LookupLOConnectionsToPad (PadTypePtr Pad, Cardinal LayerGroup)
 {
-  Cardinal entry, i;
-  Location xlow, xhigh;
-  RatTypePtr *sortedrat;
-  LineTypePtr Line = (LineTypePtr) Pad;
+  Cardinal entry;
   struct lo_info info;
 
-  info.line = Line;
+  info.pad = Pad;
   if (!TEST_FLAG (SQUAREFLAG, Pad))
-    return (LookupLOConnectionsToLine (Line, LayerGroup, False));
+    return (LookupLOConnectionsToLine ((LineTypePtr)Pad, LayerGroup, False));
 
   /* add the new rat lines */
-
-  sortedrat = GetIndexOfRats (Pad->Point1.X, Pad->Point2.X, &i);
-  for (; i; i--, sortedrat++)
-    if (!TEST_FLAG (TheFlag, *sortedrat))
-      {
-	RatTypePtr rat = *sortedrat;
-
-	if (rat->group1 == LayerGroup &&
-	    (rat->Point1.X == Pad->Point1.X || rat->Point1.X == Pad->Point2.X)
-	    && (rat->Point1.Y == Pad->Point1.Y
-		|| rat->Point1.Y == Pad->Point2.Y))
-	  {
-	    if (ADD_RAT_TO_LIST (rat))
-	      return True;
-	  }
-	else if (rat->group2 == LayerGroup &&
-		 (rat->Point2.X == Pad->Point1.X
-		  || rat->Point2.X == Pad->Point2.X)
-		 && (rat->Point2.Y == Pad->Point1.Y
-		     || rat->Point2.Y == Pad->Point2.Y))
-	  {
-	    if (ADD_RAT_TO_LIST (rat))
-	      return True;
-	  }
-      }
-
-  /* the maximum possible distance */
-  xlow = MIN (Line->Point1.X, Line->Point2.X) -
-    MAX (Line->Thickness + MAX (MAX_PADSIZE, MAX_LINESIZE) / 2 - Bloat, 0);
-  xhigh = MAX (Line->Point1.X, Line->Point2.X) +
-    MAX (Line->Thickness + MAX (MAX_PADSIZE, MAX_LINESIZE) / 2 + Bloat, 0);
+  info.layer = LayerGroup;
+  if (setjmp (info.env) == 0)
+    r_search (PCB->Data->rat_tree, &Pad->BoundingBox, NULL,
+              LOCtoPadRat_callback, &info);
+  else
+    return True;
 
   /* loop over all layers of the group */
   for (entry = 0; entry < PCB->LayerGroups.Number[LayerGroup]; entry++)
     {
-      Cardinal layer, i;
+      Cardinal layer;
 
       layer = PCB->LayerGroups.Entries[LayerGroup][entry];
       /* handle normal layers */
@@ -2389,30 +2121,55 @@ LookupLOConnectionsToPad (PadTypePtr Pad, Cardinal LayerGroup)
           info.layer = layer;
            /* add lines */
 	  if (setjmp(info.env) == 0)
-            r_search (LAYER_PTR(layer)->line_tree, (BoxType *)Pad, NULL,
+            r_search (LAYER_PTR(layer)->line_tree, &Pad->BoundingBox, NULL,
 	              LOCtoPadLine_callback, &info);
           else
 	    return True;
            /* add arcs */
           if (setjmp(info.env) == 0)
-	    r_search (LAYER_PTR(layer)->arc_tree, (BoxType *)Pad, NULL,
+	    r_search (LAYER_PTR(layer)->arc_tree, &Pad->BoundingBox, NULL,
 	              LOCtoPadArc_callback, &info);
           else
 	    return True;
+           /* add polygons */
+	  POLYGON_LOOP (LAYER_PTR(layer),
+	    {
+	      if (TEST_FLAG(TheFlag | CLEARPOLYFLAG, polygon))
+	        continue;
+	      if (!TEST_FLAG (SQUAREFLAG, Pad))
+	        {
+		  if (IsLineInPolygon ((LineTypePtr) Pad, polygon) &&
+		      ADD_POLYGON_TO_LIST (layer, polygon))
+		    return True;
+		}
+	      else
+	        {
+		  Location x1;
+		  Location x2;
+		  Location y1;
+		  Location y2;
+		  x1 = MIN (Pad->Point1.X, Pad->Point2.X) - (Pad->Thickness + Bloat)/2;
+		  x2 = MAX (Pad->Point1.X, Pad->Point2.X) + (Pad->Thickness + Bloat)/2;
+		  y1 = MIN (Pad->Point1.Y, Pad->Point2.Y) - (Pad->Thickness + Bloat)/2;
+		  y2 = MAX (Pad->Point1.Y, Pad->Point2.Y) + (Pad->Thickness + Bloat)/2;
+		  if (IsRectangleInPolygon (x1, y1, x2, y2, polygon) &&
+		     ADD_POLYGON_TO_LIST (layer, polygon))
+		    return True;
+		}
+	     }
+	   );
 	}
       else
 	{
 	  /* handle special 'pad' layers */
-	  PadDataTypePtr *sortedptr;
-
-	  layer -= MAX_LAYER;
-	  sortedptr = GetIndexOfPads (xlow, xhigh, layer, &i);
-	  for (; i; i--, sortedptr++)
-	    if (!TEST_FLAG (TheFlag, (*sortedptr)->Data) &&
-		PadPadIntersect (Pad, (*sortedptr)->Data)
-	        && ADD_PAD_TO_LIST (layer, *sortedptr))
-	      return True;
+	  info.layer = layer -MAX_LAYER;
+          if (setjmp(info.env) == 0)
+	    r_search (PCB->Data->pad_tree, (BoxType *)Pad, NULL,
+	              LOCtoPadPad_callback, &info);
+          else
+	    return True;
 	}
+
     }
   return (False);
 }
@@ -2446,6 +2203,23 @@ LOCtoPolyArc_callback (const BoxType *b, void *cl)
     }
   return 0;
 }
+
+static int
+LOCtoPolyPad_callback (const BoxType *b, void *cl)
+{
+  PadTypePtr pad = (PadTypePtr) b;
+  struct lo_info *i = (struct lo_info *)cl;
+
+  if (!TEST_FLAG (TheFlag, pad) && i->layer ==
+      (TEST_FLAG (ONSOLDERFLAG, pad) ? SOLDER_LAYER : COMPONENT_LAYER)
+      && IsLineInPolygon ((LineTypePtr)pad, i->polygon))
+    {
+      if (ADD_PAD_TO_LIST (i->layer, pad))
+        longjmp (i->env, 1);
+    }
+  return 0;
+}
+
 
 /* ---------------------------------------------------------------------------
  * looks up LOs that are connected to the given polygon
@@ -2492,6 +2266,18 @@ LookupLOConnectionsToPolygon (PolygonTypePtr Polygon, Cardinal LayerGroup)
 	              LOCtoPolyArc_callback, &info);
 	  else
 	    return True;
+	}
+      else
+        {
+	  if (!TEST_FLAG (CLEARPOLYFLAG, Polygon))
+	    {
+	      info.layer = layer - MAX_LAYER;
+              if (setjmp (info.env) == 0)
+	        r_search (PCB->Data->pad_tree, (BoxType *)Polygon, NULL,
+	                  LOCtoPolyPad_callback, &info);
+	      else
+	        return True;
+	    }
 	}
     }
   return (False);
@@ -2716,7 +2502,7 @@ static void
 PrintPadConnections (Cardinal Layer, FILE * FP, Boolean IsFirst)
 {
   Cardinal i;
-  PadDataTypePtr ptr;
+  PadTypePtr ptr;
 
   if (!PadList[Layer].Number)
     return;
@@ -2725,7 +2511,7 @@ PrintPadConnections (Cardinal Layer, FILE * FP, Boolean IsFirst)
   if (IsFirst)
     {
       ptr = PADLIST_ENTRY (Layer, 0);
-      PrintConnectionListEntry (UNKNOWN (ptr->Data->Name), NULL, True, FP);
+      PrintConnectionListEntry (UNKNOWN (ptr->Name), NULL, True, FP);
     }
 
   /* we maybe have to start with i=1 if we are handling the
@@ -2735,7 +2521,7 @@ PrintPadConnections (Cardinal Layer, FILE * FP, Boolean IsFirst)
     {
       ptr = PADLIST_ENTRY (Layer, i);
       PrintConnectionListEntry
-	(EMPTY (ptr->Data->Name), ptr->Element, False, FP);
+	(EMPTY (ptr->Name), ptr->Element, False, FP);
     }
 }
 
@@ -2891,15 +2677,13 @@ PrintAndSelectUnusedPinsAndPadsOfElement (ElementTypePtr Element, FILE * FP)
   /* check all pads in element */
   PAD_LOOP (Element, 
     {
-      PadDataTypePtr entry;
       /* lookup pad in list */
-      entry = LookupPadByAddress (pad);
       /* pad might has bee checked before, add to list if not */
-      if (!TEST_FLAG (TheFlag, entry->Data) && FP)
+      if (!TEST_FLAG (TheFlag, pad) && FP)
 	{
 	  int i;
 	  if (ADD_PAD_TO_LIST (TEST_FLAG (ONSOLDERFLAG, pad)
-			   ? SOLDER_LAYER : COMPONENT_LAYER, entry))
+			   ? SOLDER_LAYER : COMPONENT_LAYER, pad))
 	    return True;
 	  DoIt (True, True);
 	  number = PadList[COMPONENT_LAYER].Number
@@ -2920,10 +2704,10 @@ PrintAndSelectUnusedPinsAndPadsOfElement (ElementTypePtr Element, FILE * FP)
 		}
 
 	      /* write name to list and draw selected object */
-	      CreateQuotedString (&oname, EMPTY (entry->Data->Name));
+	      CreateQuotedString (&oname, EMPTY (pad->Name));
 	      fprintf (FP, "\t%s\n", oname.Data);
-	      SET_FLAG (SELECTEDFLAG, entry->Data);
-	      DrawPad (entry->Data, 0);
+	      SET_FLAG (SELECTEDFLAG, pad);
+	      DrawPad (pad, 0);
 	    }
 
 	  /* reset found objects for the next pin */
@@ -3010,7 +2794,6 @@ PrintElementConnections (ElementTypePtr Element, FILE * FP, Boolean AndDraw)
   /* check all pads in element */
   PAD_LOOP (Element, 
     {
-      PadDataTypePtr entry;
       Cardinal layer;
       /* pad might have been checked before, add to list if not */
       if (TEST_FLAG (TheFlag, pad))
@@ -3019,15 +2802,14 @@ PrintElementConnections (ElementTypePtr Element, FILE * FP, Boolean AndDraw)
 	  fputs ("\t\t__CHECKED_BEFORE__\n\t}\n", FP);
 	  continue;
 	}
-      entry = LookupPadByAddress (pad);
       layer = TEST_FLAG (ONSOLDERFLAG, pad) ? SOLDER_LAYER : COMPONENT_LAYER;
-      if (ADD_PAD_TO_LIST (layer, entry))
+      if (ADD_PAD_TO_LIST (layer, pad))
         return True;
       DoIt (True, AndDraw);
       /* print all found connections */
       PrintPadConnections (layer, FP, True);
       PrintPadConnections (layer ==
-			   COMPONENT_LAYER ? SOLDER_LAYER : COMPONENT_LAYER,
+			   (COMPONENT_LAYER ? SOLDER_LAYER : COMPONENT_LAYER),
 			   FP, False);
       PrintPinConnections (FP, False);
       fputs ("\t}\n", FP);
@@ -3084,7 +2866,7 @@ DrawNewConnections (void)
 	position = PadList[i].DrawLocation;
 
 	for (; position < PadList[i].Number; position++)
-	  DrawPad (PADLIST_ENTRY (i, position)->Data, 0);
+	  DrawPad (PADLIST_ENTRY (i, position), 0);
 	PadList[i].DrawLocation = PadList[i].Number;
       }
 
@@ -3223,12 +3005,9 @@ ListStart (int type, void *ptr1, void *ptr2, void *ptr3)
     case PAD_TYPE:
       {
 	PadTypePtr pad = (PadTypePtr) ptr2;
-	PadDataTypePtr entry;
-
-	entry = LookupPadByAddress (pad);
 	if (ADD_PAD_TO_LIST
 	  (TEST_FLAG
-	   (ONSOLDERFLAG, pad) ? SOLDER_LAYER : COMPONENT_LAYER, entry))
+	   (ONSOLDERFLAG, pad) ? SOLDER_LAYER : COMPONENT_LAYER, pad))
 	  return True;
 	break;
       }

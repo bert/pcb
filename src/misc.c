@@ -225,6 +225,40 @@ SetPinBoundingBox (PinTypePtr Pin)
   Pin->BoundingBox.Y1 = Pin->Y - width;
   Pin->BoundingBox.X2 = Pin->X + width;
   Pin->BoundingBox.Y2 = Pin->Y + width;
+  if (Pin->Element)
+    {
+      BoxTypePtr box;
+      box = &((ElementTypePtr)(Pin->Element))->BoundingBox;
+      box->X1 = MIN (box->X1, Pin->BoundingBox.X1);
+      box->Y1 = MIN (box->Y1, Pin->BoundingBox.Y1);
+      box->X2 = MAX (box->X2, Pin->BoundingBox.X2);
+      box->Y2 = MAX (box->Y2, Pin->BoundingBox.Y2);
+    }
+}
+
+/* ---------------------------------------------------------------------------
+ * sets the bounding box of a pad
+ */
+void
+SetPadBoundingBox (PadTypePtr Pad)
+{
+  BDimension width;
+  BoxTypePtr box;
+
+   /* the bounding box covers the extent of influence
+    * so it must include the clearance values too
+    */
+  width = (Pad->Thickness + Pad->Clearance +1)/2;
+  width = MAX (width, Pad->Mask);
+  Pad->BoundingBox.X1 = MIN(Pad->Point1.X, Pad->Point2.X) - width;
+  Pad->BoundingBox.X2 = MAX(Pad->Point1.X, Pad->Point2.X) + width;
+  Pad->BoundingBox.Y1 = MIN(Pad->Point1.Y, Pad->Point2.Y) - width;
+  Pad->BoundingBox.Y2 = MAX(Pad->Point1.Y, Pad->Point2.Y) + width;
+  box = &((ElementTypePtr)(Pad->Element))->BoundingBox;
+  box->X1 = MIN (box->X1, Pad->BoundingBox.X1);
+  box->Y1 = MIN (box->Y1, Pad->BoundingBox.Y1);
+  box->X2 = MAX (box->X2, Pad->BoundingBox.X2);
+  box->Y2 = MAX (box->Y2, Pad->BoundingBox.Y2);
 }
 
 /* ---------------------------------------------------------------------------
@@ -235,7 +269,7 @@ SetLineBoundingBox (LineTypePtr Line)
 {
   BDimension width;
 
-  width = (Line->Thickness +1)/2 + (Line->Clearance +1)/2;
+  width = (Line->Thickness + Line->Clearance +1)/2;
 
   Line->BoundingBox.X1 = MIN(Line->Point1.X, Line->Point2.X) - width;
   Line->BoundingBox.X2 = MAX(Line->Point1.X, Line->Point2.X) + width;
@@ -273,9 +307,7 @@ SetPolygonBoundingBox (PolygonTypePtr Polygon)
 void
 SetElementBoundingBox (DataTypePtr Data, ElementTypePtr Element, FontTypePtr Font)
 {
-  Location minx, miny, maxx, maxy;
-  float fminx, fminy, fmaxx, fmaxy;
-  int angle1, angle2, angle;
+  BoxTypePtr box;
 
   if (Data && Data->element_tree)
     r_delete_entry(Data->element_tree, (BoxType *)Element);
@@ -289,18 +321,28 @@ SetElementBoundingBox (DataTypePtr Data, ElementTypePtr Element, FontTypePtr Fon
   /* do not include the elementnames bounding box which
    * is handles seperatly
    */
-  minx = miny = MAX_COORD;
-  maxx = maxy = 0;
+  box = &Element->BoundingBox;
+  box->X1 = box->Y1 = MAX_COORD;
+  box->X2 = box->Y2 = 0;
   ELEMENTLINE_LOOP (Element, 
     {
-      minx = MIN (minx, line->Point1.X - line->Thickness / 2);
-      miny = MIN (miny, line->Point1.Y - line->Thickness / 2);
-      minx = MIN (minx, line->Point2.X - line->Thickness / 2);
-      miny = MIN (miny, line->Point2.Y - line->Thickness / 2);
-      maxx = MAX (maxx, line->Point1.X + line->Thickness / 2);
-      maxy = MAX (maxy, line->Point1.Y + line->Thickness / 2);
-      maxx = MAX (maxx, line->Point2.X + line->Thickness / 2);
-      maxy = MAX (maxy, line->Point2.Y + line->Thickness / 2);
+      box->X1 = MIN (box->X1, line->Point1.X - (line->Thickness + 1) / 2);
+      box->Y1 = MIN (box->Y1, line->Point1.Y - (line->Thickness + 1) / 2);
+      box->X1 = MIN (box->X1, line->Point2.X - (line->Thickness + 1) / 2);
+      box->Y1 = MIN (box->Y1, line->Point2.Y - (line->Thickness + 1) / 2);
+      box->X2 = MAX (box->X2, line->Point1.X + (line->Thickness + 1) / 2);
+      box->Y2 = MAX (box->Y2, line->Point1.Y + (line->Thickness + 1) / 2);
+      box->X2 = MAX (box->X2, line->Point2.X + (line->Thickness + 1) / 2);
+      box->Y2 = MAX (box->Y2, line->Point2.Y + (line->Thickness + 1) / 2);
+    }
+  );
+  ARC_LOOP (Element, 
+    {
+      SetArcBoundingBox (arc);
+      box->X1 = MIN (box->X1, arc->BoundingBox.X1);
+      box->Y1 = MIN (box->Y1, arc->BoundingBox.Y1);
+      box->X2 = MAX (box->X2, arc->BoundingBox.X2);
+      box->Y2 = MAX (box->Y2, arc->BoundingBox.Y2);
     }
   );
   PIN_LOOP (Element, 
@@ -314,36 +356,19 @@ SetElementBoundingBox (DataTypePtr Data, ElementTypePtr Element, FontTypePtr Fon
             Data->pin_tree = r_create_tree (NULL, 0, 0);
           r_insert_entry (Data->pin_tree, (BoxType *)pin, 0);
         }
-      minx = MIN (minx, pin->BoundingBox.X1);
-      miny = MIN (miny, pin->BoundingBox.Y1);
-      maxx = MAX (maxx, pin->BoundingBox.X2);
-      maxy = MAX (maxy, pin->BoundingBox.Y2);
-    }
-  );
-  ARC_LOOP (Element, 
-    {
-      SetArcBoundingBox (arc);
-      minx = MIN (minx, arc->BoundingBox.X1);
-      miny = MIN (miny, arc->BoundingBox.Y1);
-      maxx = MAX (maxx, arc->BoundingBox.X2);
-      maxy = MAX (maxy, arc->BoundingBox.Y2);
     }
   );
   PAD_LOOP (Element, 
     {
       if (Data && Data->pad_tree)
         r_delete_entry (Data->pad_tree, (BoxType *)pad);
-      SetLineBoundingBox((LineTypePtr)pad);
+      SetPadBoundingBox (pad);
       if (Data)
         {
           if (!Data->pad_tree)
             Data->pad_tree = r_create_tree (NULL, 0, 0);
           r_insert_entry (Data->pad_tree, (BoxType *)pad, 0);
         }
-      minx = MIN (minx, pad->BoundingBox.X1);
-      miny = MIN (miny, pad->BoundingBox.Y1);
-      maxx = MAX (maxx, pad->BoundingBox.X2);
-      maxy = MAX (maxy, pad->BoundingBox.Y2);
     }
   );
   /* now we set the EDGE2FLAG of the pad if Point2
@@ -354,7 +379,7 @@ SetElementBoundingBox (DataTypePtr Data, ElementTypePtr Element, FontTypePtr Fon
       if (pad->Point1.Y == pad->Point2.Y)
 	{
 	  /* horizontal pad */
-	  if (maxx - pad->Point2.X < pad->Point1.X - minx)
+	  if (box->X2 - pad->Point2.X < pad->Point1.X - box->X1)
 	    SET_FLAG (EDGE2FLAG, pad);
 	  else
 	    CLEAR_FLAG (EDGE2FLAG, pad);
@@ -362,7 +387,7 @@ SetElementBoundingBox (DataTypePtr Data, ElementTypePtr Element, FontTypePtr Fon
       else
 	{
 	  /* vertical pad */
-	  if (maxy - pad->Point2.Y < pad->Point1.Y - miny)
+	  if (box->Y2 - pad->Point2.Y < pad->Point1.Y - box->Y1)
 	    SET_FLAG (EDGE2FLAG, pad);
 	  else
 	    CLEAR_FLAG (EDGE2FLAG, pad);
@@ -371,7 +396,7 @@ SetElementBoundingBox (DataTypePtr Data, ElementTypePtr Element, FontTypePtr Fon
   );
 
   /* mark pins with component orientation */
-  if ((maxx - minx) > (maxy - miny))
+  if ((box->X2 - box->X1) > (box->Y2 - box->Y1))
     {
       PIN_LOOP (Element, 
 	{
@@ -387,15 +412,10 @@ SetElementBoundingBox (DataTypePtr Data, ElementTypePtr Element, FontTypePtr Fon
 	}
       );
     }
-
-  Element->BoundingBox.X1 = minx;
-  Element->BoundingBox.Y1 = miny;
-  Element->BoundingBox.X2 = maxx;
-  Element->BoundingBox.Y2 = maxy;
   if (Data && !Data->element_tree)
     Data->element_tree = r_create_tree(NULL, 0, 0);
   if (Data)
-    r_insert_entry(Data->element_tree, (BoxType *)Element, 0);
+    r_insert_entry(Data->element_tree, box, 0);
 }
 
 /* ---------------------------------------------------------------------------

@@ -172,6 +172,7 @@ typedef enum
   F_TextScale,
   F_Thermal,
   F_ToggleAllDirections,
+  F_ToggleAutoDRC,
   F_ToggleClearLine,
   F_ToggleGrid,
   F_ToggleMask,
@@ -331,6 +332,7 @@ static FunctionType Functions[] = {
   {"ToggleLocalRef", F_ToggleLocalRef},
   {"ToggleOrthoMove", F_ToggleOrthoMove},
   {"ToggleShowDRC", F_ToggleShowDRC},
+  {"ToggleAutoDRC", F_ToggleAutoDRC},
   {"ToggleUniqueNames", F_ToggleUniqueNames},
   {"Value", F_Value},
   {"Via", F_Via},
@@ -739,6 +741,9 @@ NotifyLine (void)
 	Crosshair.AttachedLine.Point2.X = Crosshair.X;
       Crosshair.AttachedLine.Point1.Y =
 	Crosshair.AttachedLine.Point2.Y = Crosshair.Y;
+      if (TEST_FLAG (AUTODRCFLAG, PCB) && Settings.Mode == LINE_MODE)
+	LookupConnection (Crosshair.AttachedLine.Point1.X,
+	                  Crosshair.AttachedLine.Point1.Y, True, TO_PCB(1));
       break;
 
     case STATE_SECOND:
@@ -1889,7 +1894,7 @@ warpNoWhere (void)
  *         Display(ToggleGrid|ToggleRubberBandMode|ToggleUniqueNames)
  *         Display(ToggleMask|ToggleName|ToggleClearLine|ToggleSnapPin)
  *         Display(ToggleThindraw|ToggleOrthoMove|ToggleLocalRef)
- *         Display(ToggleCheckPlanes|ToggleShowDRC)
+ *         Display(ToggleCheckPlanes|ToggleShowDRC|ToggleAutoDRC)
  *         Display(Pinout|PinOrPadName)
  *	   Display(Save|Restore)
  *	   Display(Scroll, Direction)
@@ -2009,6 +2014,20 @@ ActionDisplay (Widget W, XEvent * Event, String * Params, Cardinal * Num)
 
 	case F_ToggleShowDRC:
 	  TOGGLE_FLAG (SHOWDRCFLAG, PCB);
+	  break;
+
+	case F_ToggleAutoDRC:
+	  TOGGLE_FLAG (AUTODRCFLAG, PCB);
+	   if (TEST_FLAG (AUTODRCFLAG, PCB) && Settings.Mode == LINE_MODE)
+	     {
+	       SaveUndoSerialNumber ();
+	       ResetFoundPinsViasAndPads (True);
+	       RestoreUndoSerialNumber ();
+	       ResetFoundLinesAndPolygons (True);
+	       if (Crosshair.AttachedLine.State != STATE_FIRST)
+	          LookupConnection (Crosshair.AttachedLine.Point1.X,
+		                    Crosshair.AttachedLine.Point1.Y, True, 1);
+	     }
 	  break;
 
 	case F_ToggleCheckPlanes:

@@ -251,7 +251,12 @@ DestroyElement (ElementTypePtr Element)
 static void *
 DestroyRat (RatTypePtr Rat)
 {
+  if (DestroyTarget->rat_tree)
+    r_delete_entry (DestroyTarget->rat_tree, &Rat->BoundingBox);
   *Rat = DestroyTarget->Rat[--DestroyTarget->RatN];
+  r_substitute (DestroyTarget->rat_tree,
+                &DestroyTarget->Rat[DestroyTarget->RatN].BoundingBox,
+		&Rat->BoundingBox);
   memset (&DestroyTarget->Rat[DestroyTarget->RatN], 0, sizeof (RatType));
   return (NULL);
 }

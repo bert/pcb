@@ -263,9 +263,15 @@ MoveRatToBuffer (RatTypePtr Rat)
 
   rat = GetRatMemory (Dest);
   *rat = *Rat;
+  r_delete_entry (Source->rat_tree, &Rat->BoundingBox);
   *Rat = Source->Rat[--Source->RatN];
+  r_substitute (Source->rat_tree, &Source->Rat[Source->RatN].BoundingBox,
+               &Rat->BoundingBox);
   Rat->Flags &= ~FOUNDFLAG;
   memset (&Source->Rat[Source->RatN], 0, sizeof (RatType));
+  if (!Dest->rat_tree)
+    Dest->rat_tree = r_create_tree (NULL, 0, 0);
+  r_insert_entry (Dest->rat_tree, &rat->BoundingBox, 0);
   return (rat);
 }
 
@@ -666,6 +672,8 @@ ConvertBufferToElement (BufferTypePtr Buffer)
   GROUP_LOOP (group,
     {
       char num[8];
+       /* GROUP_LOOP macro assumes board so we must switch to buffer */
+      layer = &Buffer->Data->Layer[number];
       LINE_LOOP (layer, 
 	{
 	  if (line->Point1.X == line->Point2.X
@@ -692,6 +700,8 @@ ConvertBufferToElement (BufferTypePtr Buffer)
     {
       Boolean warned = False;
       char num[8];
+       /* GROUP_LOOP macro assumes board so we must switch to buffer */
+      layer = &Buffer->Data->Layer[number];
       LINE_LOOP (layer, 
 	{
 	  if (line->Point1.X == line->Point2.X

@@ -41,6 +41,7 @@ void		SetLineBoundingBox(LineTypePtr);
 void		SetArcBoundingBox(ArcTypePtr);
 void		SetPointBoundingBox(PointTypePtr);
 void		SetPinBoundingBox(PinTypePtr);
+void		SetPadBoundingBox(PadTypePtr);
 void		SetPolygonBoundingBox(PolygonTypePtr);
 void		SetElementBoundingBox(DataTypePtr, ElementTypePtr, FontTypePtr);
 Boolean		IsDataEmpty(DataTypePtr);
