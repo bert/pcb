@@ -64,14 +64,16 @@ static Dimension SliderWidth,	/* errors caused by slider */
 static MediaTypePtr MediaSelection = NULL;	/* selected media */
 static MediaType Media[] = {	/* first one is user defined */
   {USERMEDIANAME, 0, 0, 0, 0},
-  {"  a3  ", 1169000, 1653000, 50000, 50000},
-  {"  a4  ", 826000, 1169000, 50000, 50000},
-  {"  a5  ", 583000, 826000, 50000, 50000},
-  {"letter", 850000, 1100000, 50000, 50000},
+  {"  A3  ", 1169000, 1653000, 50000, 50000},
+  {"  A4  ", 826000, 1169000, 50000, 50000},
+  {"  A5  ", 583000, 826000, 50000, 50000},
+  {"Letter", 850000, 1100000, 50000, 50000},
   {"11x17", 1100000, 1700000, 50000, 50000},
-  {"ledger", 1700000, 1100000, 50000, 50000},
-  {"legal", 850000, 1400000, 50000, 50000},
-  {"executivepage", 750000, 1000000, 50000, 50000}
+  {"Ledger", 1700000, 1100000, 50000, 50000},
+  {"Legal", 850000, 1400000, 50000, 50000},
+  {"Executive", 750000, 1000000, 50000, 50000},
+  {"C-size", 1700000, 2200000, 50000, 50000},
+  {"D-size", 2200000, 3400000, 50000, 50000}
 };
 static PopupEntryType MediaMenuEntries[ENTRIES (Media) + 1];
 static PopupMenuType MediaMenu =

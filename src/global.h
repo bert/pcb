@@ -137,6 +137,7 @@ typedef struct
     Y;
   BYTE Direction;
   char *TextString;		/* string */
+  void *Element;
 } TextType, *TextTypePtr;
 
 typedef struct			/* holds information about a polygon */

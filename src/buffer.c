@@ -378,6 +378,11 @@ MoveElementToBuffer (ElementTypePtr Element)
     r_delete_entry (Source->pad_tree, (BoxType *) pad);
   }
   END_LOOP;
+  ELEMENTTEXT_LOOP (Element);
+  {
+    r_delete_entry (Source->name_tree[n], (BoxType *) text);
+  }
+  END_LOOP;
   element = GetElementMemory (Dest);
   *element = *Element;
   PIN_LOOP (element);
@@ -407,6 +412,14 @@ MoveElementToBuffer (ElementTypePtr Element)
     pad->Element = Element;
   }
   END_LOOP;
+  ELEMENTTEXT_LOOP (Element);
+  {
+    r_substitute (Source->name_tree[n],
+		  (BoxType *) & Source->Element[Source->ElementN].Name[n],
+		  (BoxType *) text);
+    text->Element = Element;
+  }
+  END_LOOP;
   memset (&Source->Element[Source->ElementN], 0, sizeof (ElementType));
   /* do we need rtrees for the buffer ? */
   if (!Dest->element_tree)
@@ -416,6 +429,13 @@ MoveElementToBuffer (ElementTypePtr Element)
     Dest->pin_tree = r_create_tree (NULL, 0, 0);
   if (!Dest->pad_tree)
     Dest->pad_tree = r_create_tree (NULL, 0, 0);
+  ELEMENTTEXT_LOOP (element);
+  {
+    if (!Dest->name_tree[n])
+      Dest->name_tree[n] = r_create_tree (NULL, 0, 0);
+    r_insert_entry (Dest->name_tree[n], (BoxType *) text, 0);
+  }
+  END_LOOP;
   PIN_LOOP (element);
   {
     r_insert_entry (Dest->pin_tree, (BoxType *) pin, 0);

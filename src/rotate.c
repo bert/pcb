@@ -214,6 +214,8 @@ RotateElementLowLevel (DataTypePtr Data, ElementTypePtr Element,
    */
   ELEMENTTEXT_LOOP (Element);
     {
+      if (Data->name_tree[n])
+        r_delete_entry (Data->name_tree[n], (BoxType *) text);
       RotateTextLowLevel (text, X, Y, Number);
     }
   END_LOOP;
@@ -314,7 +316,9 @@ RotateElementName (ElementTypePtr Element)
   EraseElementName (Element);
   ELEMENTTEXT_LOOP (Element);
     {
+      r_delete_entry (PCB->Data->name_tree[n], (BoxType *)text);
       RotateTextLowLevel (text, CenterX, CenterY, Number);
+      r_insert_entry (PCB->Data->name_tree[n], (BoxType *)text, 0);
     }
   END_LOOP;
   DrawElementName (Element, 0);

@@ -553,6 +553,9 @@ CreateNewElement (DataTypePtr Data, ElementTypePtr Element,
 		    Direction, NameOnPCB, TextScale, TextFlags);
   AddTextToElement (&VALUE_TEXT (Element), PCBFont, TextX, TextY,
 		    Direction, Value, TextScale, TextFlags);
+  DESCRIPTION_TEXT (Element).Element = Element;
+  NAMEONPCB_TEXT (Element).Element = Element;
+  VALUE_TEXT (Element).Element = Element;
   Element->Flags = Flags;
   Element->ID = ID++;
   return (Element);

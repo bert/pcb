@@ -350,10 +350,19 @@ backE_callback (const BoxType * b, void *cl)
   if (!FRONT (element))
     {
       DrawElementPackage (element, 0);
-      if (VELTEXT (element))
-	DrawElementName (element, 0);
     }
   return 1;
+}
+
+static int
+backN_callback (const BoxType * b, void *cl)
+{
+  TextTypePtr text = (TextTypePtr) b;
+  ElementTypePtr element = (ElementTypePtr) text->Element;
+
+  if (!FRONT (element) && !TEST_FLAG (HIDENAMEFLAG, element))
+    DrawElementName (element, 0);
+  return 0;
 }
 
 static int
@@ -374,8 +383,6 @@ frontE_callback (const BoxType * b, void *cl)
   if (FRONT (element))
     {
       DrawElementPackage (element, 0);
-      if (VELTEXT (element))
-	DrawElementName (element, 0);
     }
   /* Draw mark holes */
   if (PCB->PinOn)
@@ -383,6 +390,17 @@ frontE_callback (const BoxType * b, void *cl)
       DrawEMark (element->MarkX, element->MarkY, !FRONT (element));
     }
   return 1;
+}
+
+static int
+frontN_callback (const BoxType * b, void *cl)
+{
+  TextTypePtr text = (TextTypePtr) b;
+  ElementTypePtr element = (ElementTypePtr) text->Element;
+
+  if (FRONT (element) && !TEST_FLAG (HIDENAMEFLAG, element))
+    DrawElementName (element, 0);
+  return 0;
 }
 
 static int
@@ -427,6 +445,8 @@ DrawEverything (BoxTypePtr drawn_area)
 	{
 	  r_search (PCB->Data->element_tree, drawn_area, NULL, backE_callback,
 		    NULL);
+	  r_search (PCB->Data->name_tree[NAME_INDEX (PCB)], drawn_area, NULL,
+		    backN_callback, NULL);
 	  DrawLayer (LAYER_PTR
 		     (MAX_LAYER +
 		      (SWAP_IDENT ? COMPONENT_LAYER : SOLDER_LAYER)),
@@ -452,6 +472,8 @@ DrawEverything (BoxTypePtr drawn_area)
       /* draw package */
       r_search (PCB->Data->element_tree, drawn_area, NULL, frontE_callback,
 		NULL);
+      r_search (PCB->Data->name_tree[NAME_INDEX (PCB)], drawn_area, NULL,
+		frontN_callback, NULL);
     }
   /* Draw pins, pads, vias above silk */
   DrawTop (drawn_area);

@@ -481,6 +481,31 @@ SearchPointByLocation (LayerTypePtr * Layer,
   return (False);
 }
 
+static int
+name_callback (const BoxType * box, void *cl)
+{
+  TextTypePtr text = (TextTypePtr) box;
+  struct ans_info *i = (struct ans_info *) cl;
+  ElementTypePtr element = (ElementTypePtr) text->Element;
+  float newarea;
+
+  if ((FRONT (element) || i->BackToo) && !TEST_FLAG (HIDENAMEFLAG, element) &&
+      POINT_IN_BOX (PosX, PosY, &text->BoundingBox))
+    {
+      /* use the text with the smallest bounding box */
+      newarea = (text->BoundingBox.X2 - text->BoundingBox.X1) *
+	(float) (text->BoundingBox.Y2 - text->BoundingBox.Y1);
+      if (newarea < i->area)
+	{
+	  i->area = newarea;
+	  *i->ptr1 = element;
+	  *i->ptr2 = *i->ptr3 = text;
+	}
+      return 1;
+    }
+  return 0;
+}
+
 /* ---------------------------------------------------------------------------
  * searches the name of an element
  * the search starts with the last element and goes back to the beginning
@@ -490,29 +515,19 @@ SearchElementNameByLocation (ElementTypePtr * Element,
 			     TextTypePtr * Text, TextTypePtr * Dummy,
 			     Boolean BackToo)
 {
-  TextTypePtr text;
+  struct ans_info info;
 
   /* package layer have to be switched on */
   if (PCB->ElementOn)
     {
-      ELEMENT_LOOP (PCB->Data);
-      {
-	if (ScreenOnly && !VELTEXT (element))
-	  continue;
-	if ((FRONT (element)
-	     || (BackToo && PCB->InvisibleObjectsOn))
-	    && !TEST_FLAG (HIDENAMEFLAG, element))
-	  {
-	    text = &ELEMENT_TEXT (PCB, element);
-	    if (POINT_IN_BOX (PosX, PosY, &text->BoundingBox))
-	      {
-		*Element = element;
-		*Text = *Dummy = text;
-		return (True);
-	      }
-	  }
-      }
-      END_LOOP;
+      info.ptr1 = (void **) Element;
+      info.ptr2 = (void **) Text;
+      info.ptr3 = (void **) Dummy;
+      info.area = SQUARE (MAX_COORD);
+      info.BackToo = (BackToo && PCB->InvisibleObjectsOn);
+      if (r_search (PCB->Data->name_tree[NAME_INDEX (PCB)], &SearchBox, NULL,
+		    name_callback, &info))
+	return True;
     }
   return (False);
 }

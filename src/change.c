@@ -752,8 +752,10 @@ ChangeElementNameSize (ElementTypePtr Element)
       ELEMENTTEXT_LOOP (Element);
       {
 	AddObjectToSizeUndoList (ELEMENTNAME_TYPE, Element, text, text);
+	r_delete_entry (PCB->Data->name_tree[n], (BoxType *) text);
 	text->Scale = value;
 	SetTextBoundingBox (&PCB->Font, text);
+	r_insert_entry (PCB->Data->name_tree[n], (BoxType *) text, 0);
       }
       END_LOOP;
       DrawElementName (Element, 0);

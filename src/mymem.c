@@ -453,6 +453,7 @@ ElementTypePtr
 GetElementMemory (DataTypePtr Data)
 {
   ElementTypePtr element = Data->Element;
+  int i;
 
   /* realloc new memory if necessary and clear it */
   if (Data->ElementN >= Data->ElementMax)
@@ -466,6 +467,13 @@ GetElementMemory (DataTypePtr Data)
       memset (element + Data->ElementN, 0,
 	      STEP_ELEMENT * sizeof (ElementType));
       Data->element_tree = r_create_tree (NULL, 0, 0);
+      for (i = 0; i < MAX_ELEMENTNAMES; i++)
+	{
+	  if (Data->name_tree[i])
+	    r_destroy_tree (&Data->name_tree[i]);
+	  Data->name_tree[i] = r_create_tree (NULL, 0, 0);
+	}
+
       ELEMENT_LOOP (Data);
       {
 	r_insert_entry (Data->element_tree, (BoxType *) element, 0);
@@ -477,6 +485,12 @@ GetElementMemory (DataTypePtr Data)
 	PAD_LOOP (element);
 	{
 	  pad->Element = element;
+	}
+	END_LOOP;
+	ELEMENTTEXT_LOOP (element);
+	{
+	  text->Element = element;
+	  r_insert_entry (Data->name_tree[n], (BoxType *) text, 0);
 	}
 	END_LOOP;
       }
@@ -851,6 +865,9 @@ FreeDataMemory (DataTypePtr Data)
 
       if (Data->element_tree)
 	r_destroy_tree (&Data->element_tree);
+      for (i = 0; i < MAX_ELEMENTNAMES; i++)
+	if (Data->name_tree[i])
+	  r_destroy_tree (&Data->name_tree[i]);
       if (Data->via_tree)
 	r_destroy_tree (&Data->via_tree);
       if (Data->pin_tree)

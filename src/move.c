@@ -141,7 +141,11 @@ MoveElementLowLevel (DataTypePtr Data, ElementTypePtr Element, Location DX,
   END_LOOP;
   ELEMENTTEXT_LOOP (Element);
   {
-    MOVE_TEXT_LOWLEVEL (text, DX, DY);
+    if (Data->name_tree[n])
+      r_delete_entry (PCB->Data->name_tree[n], (BoxType *)text);
+    MOVE_TEXT_LOWLEVEL (text, DeltaX, DeltaY);
+    if (Data->name_tree[n])
+      r_insert_entry (PCB->Data->name_tree[n], (BoxType *)text, 0);
   }
   END_LOOP;
   MOVE_BOX_LOWLEVEL (&Element->BoundingBox, DX, DY);
@@ -162,7 +166,11 @@ MoveElementName (ElementTypePtr Element)
       EraseElementName (Element);
       ELEMENTTEXT_LOOP (Element);
       {
+        if (PCB->Data->name_tree[n])
+	  r_delete_entry (PCB->Data->name_tree[n], (BoxType *)text);
 	MOVE_TEXT_LOWLEVEL (text, DeltaX, DeltaY);
+        if (PCB->Data->name_tree[n])
+	  r_insert_entry (PCB->Data->name_tree[n], (BoxType *)text, 0);
       }
       END_LOOP;
       DrawElementName (Element, 0);
@@ -172,7 +180,11 @@ MoveElementName (ElementTypePtr Element)
     {
       ELEMENTTEXT_LOOP (Element);
       {
+        if (PCB->Data->name_tree[n])
+	  r_delete_entry (PCB->Data->name_tree[n], (BoxType *)text);
 	MOVE_TEXT_LOWLEVEL (text, DeltaX, DeltaY);
+        if (PCB->Data->name_tree[n])
+	  r_insert_entry (PCB->Data->name_tree[n], (BoxType *)text, 0);
       }
       END_LOOP;
     }

@@ -24,7 +24,8 @@
  *
  */
 
-static char *rcsid = "$Id$";
+static char *rcsid =
+  "$Id$";
 
 /* functions used to remove vias, pins ...
  */
@@ -216,15 +217,28 @@ DestroyText (LayerTypePtr Layer, TextTypePtr Text)
 static void *
 DestroyElement (ElementTypePtr Element)
 {
-  r_delete_entry (DestroyTarget->element_tree, (BoxType *) Element);
-  PIN_LOOP (Element);
+  if (DestroyTarget->element_tree)
+    r_delete_entry (DestroyTarget->element_tree, (BoxType *) Element);
+  if (DestroyTarget->pin_tree)
+    {
+      PIN_LOOP (Element);
+      {
+	r_delete_entry (DestroyTarget->pin_tree, (BoxType *) pin);
+      }
+      END_LOOP;
+    }
+  if (DestroyTarget->pad_tree)
+    {
+      PAD_LOOP (Element);
+      {
+	r_delete_entry (DestroyTarget->pad_tree, (BoxType *) pad);
+      }
+      END_LOOP;
+    }
+  ELEMENTTEXT_LOOP (Element);
   {
-    r_delete_entry (DestroyTarget->pin_tree, (BoxType *) pin);
-  }
-  END_LOOP;
-  PAD_LOOP (Element);
-  {
-    r_delete_entry (DestroyTarget->pad_tree, (BoxType *) pad);
+    if (DestroyTarget->name_tree[n])
+      r_delete_entry (DestroyTarget->name_tree[n], (BoxType *) text);
   }
   END_LOOP;
   FreeElementMemory (Element);
@@ -241,6 +255,15 @@ DestroyElement (ElementTypePtr Element)
   PAD_LOOP (Element);
   {
     pad->Element = Element;
+  }
+  END_LOOP;
+  ELEMENTTEXT_LOOP (Element);
+  {
+    r_substitute (DestroyTarget->name_tree[n],
+		  (BoxType *) & DestroyTarget->Element[DestroyTarget->
+						       ElementN].Name[n],
+		  (BoxType *) text);
+    text->Element = Element;
   }
   END_LOOP;
   memset (&DestroyTarget->Element[DestroyTarget->ElementN], 0,

@@ -63,6 +63,7 @@ static char *rcsid = "$Id$";
  * some defines
  */
 #define	PS_UNIT		0.00072	/* 0.01 mil in PostScript units */
+#define POST_SCALE(x) ((int)((x) * PS_UNIT))
 
 /* ---------------------------------------------------------------------------
  * some local prototypes
@@ -555,8 +556,10 @@ PS_EPS_Init (PrintInitTypePtr Flags, char *Description, Boolean CreateEPS)
 	{
 	  fputs ("%%Pages: 1\n", PS_Flags.FP);
 	  fputs ("%%PageOrder: Ascend\n", PS_Flags.FP);
-	  fprintf (PS_Flags.FP, "%%%%IncludeFeature: *PageSize %s\n",
-		   PS_Flags.SelectedMedia->Name);
+	  fprintf (PS_Flags.FP, "%%%%DocumentMedia: %s %d %d\n",
+		   PS_Flags.SelectedMedia->Name,
+		   POST_SCALE(PS_Flags.SelectedMedia->Width),
+		   POST_SCALE(PS_Flags.SelectedMedia->Height));
 	}
 
       /* OK, continue with structured comments */
@@ -573,8 +576,6 @@ PS_EPS_Init (PrintInitTypePtr Flags, char *Description, Boolean CreateEPS)
       fputs ("%%BeginDefaults\n", PS_Flags.FP);
       fputs ("%%EndDefaults\n", PS_Flags.FP);
       fputs ("%%BeginSetup\n", PS_Flags.FP);
-      if (!CreateEPS && strcmp (PS_Flags.SelectedMedia->Name, USERMEDIANAME))
-	fprintf (PS_Flags.FP, "%s\n", PS_Flags.SelectedMedia->Name);
       PrintStringArray (PS_Setup, ENTRIES (PS_Setup), PS_Flags.FP);
       fputs ("%%EndSetup\n", PS_Flags.FP);
 

@@ -749,7 +749,7 @@ silkPadText_callback (const BoxType * box, void *cl)
   b2.Y2 = MAX (i->pad->Point1.Y, i->pad->Point2.Y) + w;
   b1 = &text->BoundingBox;
   if (b1->X1 <= b2.X2 && b1->X2 >= b2.X1 && b1->Y1 <= b2.Y2
-      && b1->Y2 >= b2.X1)
+      && b1->Y2 >= b2.Y1)
     {
       clearSilkPad (i->pad);
       longjmp (i->env, 1);
@@ -802,6 +802,8 @@ DoSilkPrint (Cardinal i, LayerTypePtr layer, Boolean clip)
       {
 	r_search (PCB->Data->element_tree, &pin->BoundingBox, NULL,
 		  silkPinElement_callback, &info);
+	r_search (PCB->Data->name_tree[NAMEONPCB_INDEX], &pin->BoundingBox, NULL,
+		  silkPinText_callback, &info);
 	r_search (layer->line_tree, &pin->BoundingBox, NULL,
 		  silkPinLine_callback, &info);
 	r_search (layer->arc_tree, &pin->BoundingBox, NULL,
@@ -829,6 +831,8 @@ DoSilkPrint (Cardinal i, LayerTypePtr layer, Boolean clip)
       {
 	r_search (PCB->Data->element_tree, &via->BoundingBox, NULL,
 		  silkPinElement_callback, &info);
+	r_search (PCB->Data->name_tree[NAMEONPCB_INDEX], &via->BoundingBox, NULL,
+		  silkPinText_callback, &info);
 	r_search (layer->line_tree, &via->BoundingBox, NULL,
 		  silkPinLine_callback, &info);
 	r_search (layer->arc_tree, &via->BoundingBox, NULL,
@@ -856,6 +860,8 @@ DoSilkPrint (Cardinal i, LayerTypePtr layer, Boolean clip)
       {
 	r_search (PCB->Data->element_tree, &pad->BoundingBox, NULL,
 		  silkPadElement_callback, &info);
+	r_search (PCB->Data->name_tree[NAMEONPCB_INDEX], &pad->BoundingBox, NULL,
+		  silkPadText_callback, &info);
 	r_search (layer->line_tree, &pad->BoundingBox, NULL,
 		  silkPadLine_callback, &info);
 	r_search (layer->arc_tree, &pad->BoundingBox, NULL,
@@ -945,7 +951,6 @@ PrintAssembly (void)
 {
   static char *extention = "assembly", *DOSextention = "assem", *description =
     "assembly drawing";
-  Boolean noData;
   XColor rgb;
   Location y2;
   Cardinal layer;

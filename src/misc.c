@@ -296,7 +296,13 @@ SetElementBoundingBox (DataTypePtr Data, ElementTypePtr Element,
   /* first update the text objects */
   ELEMENTTEXT_LOOP (Element);
   {
+    if (Data && Data->name_tree[n])
+      r_delete_entry (Data->name_tree[n], (BoxType *) text);
     SetTextBoundingBox (Font, text);
+    if (Data && !Data->name_tree[n])
+      Data->name_tree[n] = r_create_tree (NULL, 0, 0);
+    if (Data)
+      r_insert_entry (Data->name_tree[n], (BoxType *) text, 0);
   }
   END_LOOP;
 

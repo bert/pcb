@@ -62,6 +62,9 @@
 		MOVE((a)->X,(a)->Y,(dx),(dy)) \
 		MOVE_BOX_LOWLEVEL(&((a)->BoundingBox),(dx),(dy));		\
 	}
+/* Rather than mode the line bounding box, we set it so the point bounding
+ * boxes are updated too.
+ */
 #define	MOVE_LINE_LOWLEVEL(l,dx,dy)							\
 	{									\
 		MOVE((l)->Point1.X,(l)->Point1.Y,(dx),(dy))			\
