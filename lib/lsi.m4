@@ -402,6 +402,21 @@ define(`PinList_AT90S1300_dil', ``/Reset',`PD0',`PD1',`XTAL2',`XTAL1',`PD2/INT0'
 define(`Description_AT90S2313_dil', `AVR Enhanced RISC microcontroller')
 define(`Param1_AT90S2313_dil', 20)
 define(`Param2_AT90S2313_dil', 300)
-define(`PinList_AT90S2313_dil', ``/Reset',`PD0/RxD',`PD1/TxD',`XTAL2',`XTAL1',`PD2/INT0',`PD3/INT1',`PD4/T0 ',`PD5/T1',`Gnd',`PD6/ICP',`PB0/AIN0',`PB1/AIN1',`PB2/OC0',`PB3/OC1',`PB4', `PB5/MOSI',`PB6/MISO',`PB7/SCK',`Vcc'')
+define(`PinList_AT90S2313_dil', ``/Reset',`PD0/RxD',`PD1/TxD',`XTAL2',`XTAL1',`PD2/INT0',`PD3/INT1',`PD4/T0',`PD5/T1',`Gnd',`PD6/ICP',`PB0/AIN0',`PB1/AIN1',`PB2/OC0',`PB3/OC1',`PB4', `PB5/MOSI',`PB6/MISO',`PB7/SCK',`Vcc'')
+
+define(`Description_AT90S4434_dil', `AVR Enhanced RISC microcontroller')
+define(`Param1_AT90S4434_dil', 28)
+define(`Param2_AT90S4434_dil', 300)
+define(`PinList_AT90S4434_dil', ``/Reset',`PD0/RxD',`PD1/TxD',`PD2/INT0',`PD3/INT1',`PD4/T0',`Vcc',`Gnd',`XTAL1',`XTAL2',`PD5/T1',`PD6/AIN0',`PD7/AIN1',`PB0/ICP',`PB1/OC1',`PB2//SS', `PB3/MOSI',`PB4/MISO',`PB5/SCK',`AVcc',`AREF',`AGnd',`PC0/ADC0',`PC1/ADC1',`PC2/ADC2',`PC3/ADC3',`PC4/ADC4',`PC5/ADC5'')
+
+define(`Description_AT90S8535_dil', `AVR Enhanced RISC microcontroller')
+define(`Param1_AT90S8535_dil', 40)
+define(`Param2_AT90S8535_dil', 600)
+define(`PinList_AT90S8535_dil', ``PB0/T0',`PB1/T1',`PB2/AIN0',`PB3/AIN1',`PB4//SS',`PB5/MOSI',`PB6/MISO',`PB7/SCK',`/Reset',`Vcc',`Gnd',`XTAL2',`XTAL1',`PD0/RxD',`PD1/TxD',`PD2/INT0', `PD3/INT1',`PD4/OC1B',`PD5/OC1A',`PD6/ICP',`PD7/OC2',`PC0',`PC1',`PC2',`PC3',`PC4',`PC5',`PC6/TOSC1',`PC7/TOSC2',`AVcc',`AGnd',`AREF',`PA7/ADC7',`PA6/ADC6',`PA5/ADC5',`PA4/ADC4',`PA3/ADC3',`PA2/ADC2',`PA1/ADC1',`PA0/ADC0'')
+
+define(`Description_AT90S8535_plcc', `AVR Enhanced RISC microcontroller')
+define(`Param1_AT90S8535_plcc', 44)
+define(`Param2_AT90S8535_plcc', 150)
+define(`PinList_AT90S8535_plcc', ``Gnd',`PB0/T0',`PB1/T1',`PB2/AIN0',`PB3/AIN1',`PB4//SS',`PB5/MOSI',`PB6/MISO',`PB7/SCK',`/Reset',`Vcc',`Gnd',`XTAL2',`XTAL1',`PD0/RxD',`PD1/TxD',`PD2/INT0', `PD3/INT1',`PD4/OC1B',`PD5/OC1A',`PD6/ICP',`PD7/OC2',`Vcc',`Gnd',`PC0',`PC1',`PC2',`PC3',`PC4',`PC5',`PC6/TOSC1',`PC7/TOSC2',`AVcc',`AGnd',`AREF',`PA7/ADC7',`PA6/ADC6',`PA5/ADC5',`PA4/ADC4',`PA3/ADC3',`PA2/ADC2',`PA1/ADC1',`PA0/ADC0',`Vcc'')
 
 divert(0)dnl
