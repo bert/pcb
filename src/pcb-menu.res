@@ -137,15 +137,15 @@ MainMenu = {
         -
         {"Change size of selected objects" foreground=red sensitive=false vertSpace=60}
         {"Lines -10 mil" ChangeSize(SelectedLines,-10,mil)}
-        {"Lines +10 mil" ChangeSize(SelectedLines,-10,mil)}
+        {"Lines +10 mil" ChangeSize(SelectedLines,+10,mil)}
         {"Pads -10 mil" ChangeSize(SelectedPads,-10,mil)}
-        {"Pads +10 mil" ChangeSize(SelectedPads,-10,mil)}
+        {"Pads +10 mil" ChangeSize(SelectedPads,+10,mil)}
         {"Pins -10 mil" ChangeSize(SelectedPins,-10,mil)}
-        {"Pins +10 mil" ChangeSize(SelectedPins,-10,mil)}
+        {"Pins +10 mil" ChangeSize(SelectedPins,+10,mil)}
         {"Texts -10 mil" ChangeSize(SelectedTexts,-10,mil)}
-        {"Texts +10 mil" ChangeSize(SelectedTexts,-10,mil)}
+        {"Texts +10 mil" ChangeSize(SelectedTexts,+10,mil)}
         {"Vias -10 mil" ChangeSize(SelectedVias,-10,mil)}
-        {"Vias +10 mil" ChangeSize(SelectedVias,-10,mil)}
+        {"Vias +10 mil" ChangeSize(SelectedVias,+10,mil)}
         -
         {"Change drilling hole of selected objects" foreground=red sensitive=false vertSpace=60}
         {"Vias -10 mil" ChangeDrillSize(SelectedVias,-10,mil)}
