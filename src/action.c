@@ -2044,7 +2044,10 @@ ActionConnection (Widget W, XEvent * Event, String * Params, Cardinal * Num)
 	  break;
 	}
       RestoreCrosshair (True);
+      return;
     }
+    Message("Usage:  \n"
+	    "Connection(Find|ResetLinesAndPolygons|ResetPinsAndVias|Reset)\n");
 }
 
 /* ---------------------------------------------------------------------------
@@ -2110,6 +2113,7 @@ ActionDisplay (Widget W, XEvent * Event, String * Params, Cardinal * Num)
 {
   int id;
   static int saved = 0;
+  int err = 0;
 
   if (*Num == 1)
     {
@@ -2376,57 +2380,81 @@ ActionDisplay (Widget W, XEvent * Event, String * Params, Cardinal * Num)
 	      }
 	    break;
 	  }
+	default:
+	  err = 1;
 	}
       RestoreCrosshair (True);
     }
-  else if (*Num == 2 && GetFunctionID (*Params) == F_Scroll)
+  else if (*Num == 2)
     {
-      /* direction is like keypad, e.g. 4 = left 8 = up */
-      int direction = atoi (*(Params + 1));
-
-      switch (direction)
+      if (GetFunctionID (*Params) == F_Scroll)
 	{
-	case 0:		/* special case: reposition crosshair */
-	  {
-	    int x, y;
-	    GetXPointer (&x, &y);
-	    if (MoveCrosshairAbsolute (TO_PCB_X (x), TO_PCB_Y (y)))
-	      {
-		AdjustAttachedObjects ();
-		SetCursorStatusLine ();
-		RestoreCrosshair (False);
-	      }
-	  }
-	  break;
-	case 1:		/* down, left */
-	  CenterDisplay (-Output.Width / 2, Output.Height / 2, True);
-	  break;
-	case 2:		/* down */
-	  CenterDisplay (0, Output.Height / 2, True);
-	  break;
-	case 3:		/* down, right */
-	  CenterDisplay (Output.Width / 2, Output.Height / 2, True);
-	  break;
-	case 4:		/* left */
-	  CenterDisplay (-Output.Width / 2, 0, True);
-	  break;
-	case 6:		/* right */
-	  CenterDisplay (Output.Width / 2, 0, True);
-	  break;
-	case 7:		/* up, left */
-	  CenterDisplay (-Output.Width / 2, -Output.Height / 2, True);
-	  break;
-	case 8:		/* up */
-	  CenterDisplay (0, -Output.Height / 2, True);
-	  break;
-	case 9:		/* up, right */
-	  CenterDisplay (Output.Width / 2, -Output.Height / 2, True);
-	  break;
-	default:
-	  Message ("Bad argument (%d) to Display(Scroll)\n", direction);
-	}
+	  /* direction is like keypad, e.g. 4 = left 8 = up */
+	  int direction = atoi (*(Params + 1));
 
+	  switch (direction)
+	    {
+	    case 0:		/* special case: reposition crosshair */
+	      {
+		int x, y;
+		GetXPointer (&x, &y);
+		if (MoveCrosshairAbsolute (TO_PCB_X (x), TO_PCB_Y (y)))
+		  {
+		    AdjustAttachedObjects ();
+		    SetCursorStatusLine ();
+		    RestoreCrosshair (False);
+		  }
+	      }
+	    break;
+	    case 1:		/* down, left */
+	      CenterDisplay (-Output.Width / 2, Output.Height / 2, True);
+	      break;
+	    case 2:		/* down */
+	      CenterDisplay (0, Output.Height / 2, True);
+	      break;
+	    case 3:		/* down, right */
+	      CenterDisplay (Output.Width / 2, Output.Height / 2, True);
+	      break;
+	    case 4:		/* left */
+	      CenterDisplay (-Output.Width / 2, 0, True);
+	      break;
+	    case 6:		/* right */
+	      CenterDisplay (Output.Width / 2, 0, True);
+	      break;
+	    case 7:		/* up, left */
+	      CenterDisplay (-Output.Width / 2, -Output.Height / 2, True);
+	      break;
+	    case 8:		/* up */
+	      CenterDisplay (0, -Output.Height / 2, True);
+	      break;
+	    case 9:		/* up, right */
+	      CenterDisplay (Output.Width / 2, -Output.Height / 2, True);
+	      break;
+	    default:
+	      Message ("Bad argument (%d) to Display(Scroll)\n", direction);
+	      err = 1;
+	    }
+	}
+      else
+	err = 1;
     }
+
+  if( ! err )
+    return;
+
+  Message("Usage\n"
+	  "Display(NameOnPCB|Description|Value)\n"
+	  "Display(Grid|Center|ClearAndRedraw|Redraw)\n"
+	  "Display(CycleClip|Toggle45Degree|ToggleStartDirection)\n"
+	  "Display(ToggleGrid|ToggleRubberBandMode|ToggleUniqueNames)\n"
+	  "Display(ToggleMask|ToggleName|ToggleClearLine|ToggleSnapPin)\n"
+	  "Display(ToggleThindraw|ToggleOrthoMove|ToggleLocalRef)\n"
+	  "Display(ToggleCheckPlanes|ToggleShowDRC|ToggleAutoDRC)\n"
+	  "Display(ToggleLiveRoute)\n"
+	  "Display(Pinout|PinOrPadName)\n"
+	  "Display(Save|Restore)\n"
+	  "Display(Scroll, Direction)\n");
+ 
 }
 
 /* ---------------------------------------------------------------------------
@@ -2540,7 +2568,15 @@ ActionMode (Widget W, XEvent * Event, String * Params, Cardinal * Num)
 	  break;
 	}
       RestoreCrosshair (True);
+      return;
     }
+
+  Message("Usage\n"
+	  "Mode(Copy|InsertPoint|Line|Move|None|PasteBuffer|Polygon)\n"
+	  "Mode(Remove|Rectangle|Text|Via|Arrow|Thermal)\n"
+	  "Mode(Notify|Release)\n"
+	  "Mode(Save|Restore)\n");
+
 }
 
 /* ---------------------------------------------------------------------------
