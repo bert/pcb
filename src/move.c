@@ -106,34 +106,32 @@ MoveLineToLayer,
  * moves a element by +-X and +-Y
  */
 void
-MoveElementLowLevel (DataTypePtr Data, ElementTypePtr Element, Location DX, Location DY)
+MoveElementLowLevel (DataTypePtr Data, ElementTypePtr Element, Location DX,
+		     Location DY)
 {
   if (Data)
-    r_delete_entry(Data->element_tree, (BoxType *)Element);
+    r_delete_entry (Data->element_tree, (BoxType *) Element);
   ELEMENTLINE_LOOP (Element, 
     {
       MOVE_LINE_LOWLEVEL (line, DX, DY);
-      MOVE_BOX_LOWLEVEL ((BoxTypePtr)line, DX, DY);
     }
   );
   PIN_LOOP (Element, 
     {
       if (Data)
-        r_delete_entry (Data->pin_tree, (BoxType *)pin);
+	r_delete_entry (Data->pin_tree, (BoxType *) pin);
       MOVE_PIN_LOWLEVEL (pin, DX, DY);
-      MOVE_BOX_LOWLEVEL ((BoxTypePtr)pin, DX, DY);
       if (Data)
-        r_insert_entry (Data->pin_tree, (BoxType *)pin, 0);
+	r_insert_entry (Data->pin_tree, (BoxType *) pin, 0);
     }
   );
   PAD_LOOP (Element, 
     {
       if (Data)
-        r_delete_entry (Data->pad_tree, (BoxType *)pad);
+	r_delete_entry (Data->pad_tree, (BoxType *) pad);
       MOVE_PAD_LOWLEVEL (pad, DX, DY);
-      MOVE_BOX_LOWLEVEL ((BoxTypePtr)pad, DX, DY);
       if (Data)
-        r_insert_entry (Data->pad_tree, (BoxType *)pad, 0);
+	r_insert_entry (Data->pad_tree, (BoxType *) pad, 0);
     }
   );
   ARC_LOOP (Element, 
@@ -150,7 +148,7 @@ MoveElementLowLevel (DataTypePtr Data, ElementTypePtr Element, Location DX, Loca
   MOVE_BOX_LOWLEVEL (&Element->VBox, DX, DY);
   MOVE (Element->MarkX, Element->MarkY, DX, DY);
   if (Data)
-    r_insert_entry(Data->element_tree, (BoxType *)Element, 0);
+    r_insert_entry (Data->element_tree, (BoxType *) Element, 0);
 }
 
 /* ----------------------------------------------------------------------
@@ -220,7 +218,7 @@ MoveElement (ElementTypePtr Element)
 static void *
 MoveVia (PinTypePtr Via)
 {
-  r_delete_entry(PCB->Data->via_tree, (BoxTypePtr) Via);
+  r_delete_entry (PCB->Data->via_tree, (BoxTypePtr) Via);
   if (PCB->ViaOn)
     {
       EraseVia (Via);
@@ -228,9 +226,8 @@ MoveVia (PinTypePtr Via)
     }
   else
     MOVE_VIA_LOWLEVEL (Via, DeltaX, DeltaY);
-  SetPinBoundingBox(Via);
   UpdatePIPFlags (Via, (ElementTypePtr) Via, NULL, NULL, True);
-  r_insert_entry(PCB->Data->via_tree, (BoxTypePtr) Via, 0);
+  r_insert_entry (PCB->Data->via_tree, (BoxTypePtr) Via, 0);
   if (PCB->ViaOn)
     {
       DrawVia (Via, 0);
@@ -245,7 +242,7 @@ MoveVia (PinTypePtr Via)
 static void *
 MoveLine (LayerTypePtr Layer, LineTypePtr Line)
 {
-  r_delete_entry(Layer->line_tree, (BoxTypePtr)Line);
+  r_delete_entry (Layer->line_tree, (BoxTypePtr) Line);
   if (Layer->On)
     {
       EraseLine (Line);
@@ -255,8 +252,7 @@ MoveLine (LayerTypePtr Layer, LineTypePtr Line)
     }
   else
     MOVE_LINE_LOWLEVEL (Line, DeltaX, DeltaY);
-  SetLineBoundingBox(Line);
-  r_insert_entry(Layer->line_tree, (BoxTypePtr)Line, 0);
+  r_insert_entry (Layer->line_tree, (BoxTypePtr) Line, 0);
   return (Line);
 }
 
@@ -266,21 +262,19 @@ MoveLine (LayerTypePtr Layer, LineTypePtr Line)
 static void *
 MoveArc (LayerTypePtr Layer, ArcTypePtr Arc)
 {
-  r_delete_entry(Layer->arc_tree, (BoxTypePtr)Arc);
+  r_delete_entry (Layer->arc_tree, (BoxTypePtr) Arc);
   if (Layer->On)
     {
       EraseArc (Arc);
       MOVE_ARC_LOWLEVEL (Arc, DeltaX, DeltaY);
-      SetArcBoundingBox (Arc);
       DrawArc (Layer, Arc, 0);
       Draw ();
     }
   else
     {
       MOVE_ARC_LOWLEVEL (Arc, DeltaX, DeltaY);
-      SetArcBoundingBox (Arc);
     }
-  r_insert_entry(Layer->arc_tree, (BoxTypePtr)Arc, 0);
+  r_insert_entry (Layer->arc_tree, (BoxTypePtr) Arc, 0);
   return (Arc);
 }
 
@@ -290,6 +284,7 @@ MoveArc (LayerTypePtr Layer, ArcTypePtr Arc)
 static void *
 MoveText (LayerTypePtr Layer, TextTypePtr Text)
 {
+  r_delete_entry (Layer->text_tree, (BoxTypePtr) Text);
   if (Layer->On)
     {
       EraseText (Text);
@@ -299,6 +294,7 @@ MoveText (LayerTypePtr Layer, TextTypePtr Text)
     }
   else
     MOVE_TEXT_LOWLEVEL (Text, DeltaX, DeltaY);
+  r_insert_entry (Layer->text_tree, (BoxTypePtr) Text, 0);
   return (Text);
 }
 
@@ -343,7 +339,7 @@ MoveLinePoint (LayerTypePtr Layer, LineTypePtr Line, PointTypePtr Point)
 {
   if (Layer)
     {
-      r_delete_entry(Layer->line_tree, &Line->BoundingBox);
+      r_delete_entry (Layer->line_tree, &Line->BoundingBox);
       if (Layer->On)
 	{
 	  EraseLine (Line);
@@ -352,8 +348,8 @@ MoveLinePoint (LayerTypePtr Layer, LineTypePtr Line, PointTypePtr Point)
 	}
       else
 	MOVE (Point->X, Point->Y, DeltaX, DeltaY);
-      SetLineBoundingBox(Line);
-      r_insert_entry(Layer->line_tree, &Line->BoundingBox, 0);
+      SetLineBoundingBox (Line);
+      r_insert_entry (Layer->line_tree, &Line->BoundingBox, 0);
       return (Line);
     }
   else				/* must be a rat */
@@ -368,7 +364,7 @@ MoveLinePoint (LayerTypePtr Layer, LineTypePtr Line, PointTypePtr Point)
 	}
       else
 	MOVE (Point->X, Point->Y, DeltaX, DeltaY);
-      SetLineBoundingBox(Line);
+      SetLineBoundingBox (Line);
       r_insert_entry (PCB->Data->rat_tree, &Line->BoundingBox, 0);
       return (Line);
     }
@@ -411,13 +407,16 @@ MoveLineToLayerLowLevel (LayerTypePtr Source, LineTypePtr Line,
 {
   LineTypePtr new = GetLineMemory (Destination);
 
-  r_delete_entry(Source->line_tree, (BoxTypePtr)Line);
+  r_delete_entry (Source->line_tree, (BoxTypePtr) Line);
   /* copy the data and remove it from the former layer */
   *new = *Line;
   *Line = Source->Line[--Source->LineN];
-  r_substitute(Source->line_tree, (BoxType *)&Source->Line[Source->LineN], (BoxType *)Line);
+  r_substitute (Source->line_tree, (BoxType *) & Source->Line[Source->LineN],
+		(BoxType *) Line);
   memset (&Source->Line[Source->LineN], 0, sizeof (LineType));
-  r_insert_entry(Destination->line_tree, (BoxTypePtr)new, 0);
+  if (!Destination->line_tree)
+    Destination->line_tree = r_create_tree (NULL, 0, 0);
+  r_insert_entry (Destination->line_tree, (BoxTypePtr) new, 0);
   return (new);
 }
 
@@ -430,13 +429,16 @@ MoveArcToLayerLowLevel (LayerTypePtr Source, ArcTypePtr Arc,
 {
   ArcTypePtr new = GetArcMemory (Destination);
 
-  r_delete_entry(Source->arc_tree, (BoxTypePtr)Arc);
+  r_delete_entry (Source->arc_tree, (BoxTypePtr) Arc);
   /* copy the data and remove it from the former layer */
   *new = *Arc;
   *Arc = Source->Arc[--Source->ArcN];
-  r_substitute(Source->arc_tree, (BoxType *)&Source->Arc[Source->ArcN], (BoxType *)Arc);
+  r_substitute (Source->arc_tree, (BoxType *) & Source->Arc[Source->ArcN],
+		(BoxType *) Arc);
   memset (&Source->Arc[Source->ArcN], 0, sizeof (ArcType));
-  r_insert_entry(Destination->arc_tree, (BoxTypePtr)new, 0);
+  if (!Destination->arc_tree)
+    Destination->arc_tree = r_create_tree (NULL, 0, 0);
+  r_insert_entry (Destination->arc_tree, (BoxTypePtr) new, 0);
   return (new);
 }
 
@@ -449,9 +451,9 @@ MoveArcToLayer (LayerTypePtr Layer, ArcTypePtr Arc)
 {
   ArcTypePtr new;
 
-  if (TEST_FLAG(LOCKFLAG, Arc))
+  if (TEST_FLAG (LOCKFLAG, Arc))
     {
-      Message("Sorry that's locked\n");
+      Message ("Sorry that's locked\n");
       return NULL;
     }
   if (Dest == Layer && Layer->On)
@@ -481,7 +483,7 @@ MoveRatToLayer (RatTypePtr Rat)
 
   new = CreateNewLineOnLayer (Dest, Rat->Point1.X, Rat->Point1.Y,
 			      Rat->Point2.X, Rat->Point2.Y,
-			      Settings.LineThickness, 2*Settings.Keepaway,
+			      Settings.LineThickness, 2 * Settings.Keepaway,
 			      (Rat->Flags & ~RATFLAG) |
 			      (TEST_FLAG (CLEARNEWFLAG, PCB) ? CLEARLINEFLAG :
 			       0));
@@ -507,12 +509,12 @@ struct via_info
 };
 
 static int
-moveline_callback (const BoxType *b, void *cl)
+moveline_callback (const BoxType * b, void *cl)
 {
- struct via_info *i = (struct via_info *)cl;
- PinTypePtr via;
+  struct via_info *i = (struct via_info *) cl;
+  PinTypePtr via;
 
- if ((via =
+  if ((via =
        CreateNewVia (PCB->Data, i->X, i->Y,
 		     Settings.ViaThickness, 2 * Settings.Keepaway,
 		     NOFLAG, Settings.ViaDrillingHole, NULL,
@@ -522,7 +524,7 @@ moveline_callback (const BoxType *b, void *cl)
       AddObjectToCreateUndoList (VIA_TYPE, via, via, via);
       DrawVia (via, 0);
     }
-  longjmp(i->env, 1);
+  longjmp (i->env, 1);
 }
 
 static void *
@@ -533,9 +535,9 @@ MoveLineToLayer (LayerTypePtr Layer, LineTypePtr Line)
   LineTypePtr new;
   void *ptr1, *ptr2, *ptr3;
 
-  if (TEST_FLAG(LOCKFLAG, Line))
+  if (TEST_FLAG (LOCKFLAG, Line))
     {
-      Message("Sorry that's locked\n");
+      Message ("Sorry that's locked\n");
       return NULL;
     }
   if (Dest == Layer && Layer->On)
@@ -558,32 +560,32 @@ MoveLineToLayer (LayerTypePtr Layer, LineTypePtr Line)
       GetLayerGroupNumberByPointer (Dest))
     return (new);
   /* consider via at Point1 */
-  sb.X1 = new->Point1.X - new->Thickness/2;
-  sb.X2 = new->Point1.X + new->Thickness/2;
-  sb.Y1 = new->Point1.Y - new->Thickness/2;
-  sb.Y2 = new->Point1.Y + new->Thickness/2;
+  sb.X1 = new->Point1.X - new->Thickness / 2;
+  sb.X2 = new->Point1.X + new->Thickness / 2;
+  sb.Y1 = new->Point1.Y - new->Thickness / 2;
+  sb.Y2 = new->Point1.Y + new->Thickness / 2;
   if ((SearchObjectByLocation (PIN_TYPES, &ptr1, &ptr2, &ptr3,
 			       new->Point1.X, new->Point1.Y,
-			       Settings.ViaThickness/2) == NO_TYPE))
+			       Settings.ViaThickness / 2) == NO_TYPE))
     {
       info.X = new->Point1.X;
       info.Y = new->Point1.Y;
-      if (setjmp(info.env) == 0)
-        r_search(Layer->line_tree, &sb, NULL, moveline_callback, &info);
+      if (setjmp (info.env) == 0)
+	r_search (Layer->line_tree, &sb, NULL, moveline_callback, &info);
     }
   /* consider via at Point2 */
-  sb.X1 = new->Point2.X - new->Thickness/2;
-  sb.X2 = new->Point2.X + new->Thickness/2;
-  sb.Y1 = new->Point2.Y - new->Thickness/2;
-  sb.Y2 = new->Point2.Y + new->Thickness/2;
+  sb.X1 = new->Point2.X - new->Thickness / 2;
+  sb.X2 = new->Point2.X + new->Thickness / 2;
+  sb.Y1 = new->Point2.Y - new->Thickness / 2;
+  sb.Y2 = new->Point2.Y + new->Thickness / 2;
   if ((SearchObjectByLocation (PIN_TYPES, &ptr1, &ptr2, &ptr3,
 			       new->Point2.X, new->Point2.Y,
-			       Settings.ViaThickness/2) == NO_TYPE))
+			       Settings.ViaThickness / 2) == NO_TYPE))
     {
       info.X = new->Point2.X;
       info.Y = new->Point2.Y;
-      if (setjmp(info.env) == 0)
-        r_search(Layer->line_tree, &sb, NULL, moveline_callback, &info);
+      if (setjmp (info.env) == 0)
+	r_search (Layer->line_tree, &sb, NULL, moveline_callback, &info);
     }
   Draw ();
   return (new);
@@ -598,9 +600,12 @@ MoveTextToLayerLowLevel (LayerTypePtr Source, TextTypePtr Text,
 {
   TextTypePtr new = GetTextMemory (Destination);
 
+  r_delete_entry (Source->text_tree, (BoxTypePtr) Text);
   /* copy the data and remove it from the former layer */
   *new = *Text;
   *Text = Source->Text[--Source->TextN];
+  r_substitute (Source->text_tree, (BoxType *) & Source->Text[Source->TextN],
+		(BoxType *) Text);
   memset (&Source->Text[Source->TextN], 0, sizeof (TextType));
   if (GetLayerGroupNumberByNumber (MAX_LAYER + SOLDER_LAYER) ==
       GetLayerGroupNumberByPointer (Destination))
@@ -609,6 +614,9 @@ MoveTextToLayerLowLevel (LayerTypePtr Source, TextTypePtr Text,
     CLEAR_FLAG (ONSOLDERFLAG, new);
   /* re-calculate the bounding box (it could be mirrored now) */
   SetTextBoundingBox (&PCB->Font, new);
+  if (!Destination->text_tree)
+    Destination->text_tree = r_create_tree (NULL, 0, 0);
+  r_insert_entry (Destination->text_tree, (BoxTypePtr) new, 0);
   return (new);
 }
 
@@ -620,17 +628,17 @@ MoveTextToLayer (LayerTypePtr Layer, TextTypePtr Text)
 {
   TextTypePtr new;
 
-  if (TEST_FLAG(LOCKFLAG, Text))
+  if (TEST_FLAG (LOCKFLAG, Text))
     {
-      Message("Sorry that's locked\n");
+      Message ("Sorry that's locked\n");
       return NULL;
     }
   if (Dest != Layer)
     {
       AddObjectToMoveToLayerUndoList (TEXT_TYPE, Layer, Text, Text);
-      new = MoveTextToLayerLowLevel (Layer, Text, Dest);
       if (Layer->On)
 	EraseText (Text);
+      new = MoveTextToLayerLowLevel (Layer, Text, Dest);
       if (Dest->On)
 	DrawText (Dest, new, 0);
       if (Layer->On || Dest->On)
@@ -665,9 +673,9 @@ MovePolygonToLayer (LayerTypePtr Layer, PolygonTypePtr Polygon)
   PolygonTypePtr new;
   int LayerThermFlag, DestThermFlag;
 
-  if (TEST_FLAG(LOCKFLAG, Polygon))
+  if (TEST_FLAG (LOCKFLAG, Polygon))
     {
-      Message("Sorry that's locked\n");
+      Message ("Sorry that's locked\n");
       return NULL;
     }
   if (((long int) Dest == -1) || (Layer == Dest))

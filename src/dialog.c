@@ -319,7 +319,18 @@ SendEnterNotify (void)
       event.type = EnterNotify;
       event.display = Dpy;
       event.window = Output.OutputWindow;
+      event.subwindow = child;
       event.root = root;
+      event.detail = NotifyInferior;
+      event.x = child_y;
+      event.y = child_x;
+      event.x_root = root_x;
+      event.y_root = root_y;
+      event.mode = 0;
+      event.state = 0;
+      event.time = 0;
+      event.focus = True;
+      event.same_screen = True;
       XSendEvent (Dpy, Output.OutputWindow, True,
 		  EnterWindowMask, (XEvent *) & event);
     }

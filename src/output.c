@@ -105,6 +105,7 @@ GetSizeOfDrawingArea (void)
       UpdateAll ();
     }
 }
+
 void
 ScaleOutput (Dimension width, Dimension height)
 {
@@ -216,7 +217,7 @@ Pan (Location X, Location Y, Boolean Scroll, Boolean Update)
 {
   Boolean clip = False;
   static Position x, y;
-  Region myRegion = XCreateRegion ();
+  Region myRegion;
   XRectangle rect;
 
 
@@ -281,6 +282,7 @@ Pan (Location X, Location Y, Boolean Scroll, Boolean Update)
       return clip;
     }
   /* scroll the pixmap */
+  myRegion = XCreateRegion ();
   if (Scroll && !VALID_PIXMAP (Offscreen))
     {
       XCopyArea (Dpy, Output.OutputWindow, Output.OutputWindow,
@@ -299,8 +301,10 @@ Pan (Location X, Location Y, Boolean Scroll, Boolean Update)
 	  rect.width = Output.Width;
 	  rect.height = abs (TO_SCREEN (y - Yorig));
 	  XUnionRectWithRegion (&rect, myRegion, myRegion);
+#if 0
 	  XFillRectangle (Dpy, Output.OutputWindow, Output.bgGC,
 			  rect.x, rect.y, rect.width, rect.height);
+#endif
 	}
       if (x != Xorig)
 	{
@@ -309,8 +313,10 @@ Pan (Location X, Location Y, Boolean Scroll, Boolean Update)
 	  rect.width = abs (TO_SCREEN (x - Xorig));
 	  rect.height = Output.Height;
 	  XUnionRectWithRegion (&rect, myRegion, myRegion);
+#if 0
 	  XFillRectangle (Dpy, Output.OutputWindow, Output.bgGC,
 			  rect.x, rect.y, rect.width, rect.height);
+#endif
 	}
     }
   else
@@ -329,9 +335,12 @@ Pan (Location X, Location Y, Boolean Scroll, Boolean Update)
 		     XtNsliderY, TO_SCREEN (Yorig), NULL);
       DrawClipped (myRegion);
     }
+  else
+    {
+      XDestroyRegion (myRegion);
+    }
   x = Xorig;
   y = Yorig;
-  XDestroyRegion (myRegion);
   return clip;
 }
 
@@ -374,6 +383,7 @@ UpdateExposed (XEvent * Event)
 static void
 DrawClipped (Region myRegion)
 {
+  BoxType drawBox;
   XRectangle clipBox;
 
   /* pixmap and screen have different clip regions */
@@ -399,7 +409,11 @@ DrawClipped (Region myRegion)
 		      0, 0, Output.Width, Output.Height);
       XSetRegion (Dpy, Output.pmGC, myRegion);
     }
-  RedrawOutput ();
+  drawBox.X1 = clipBox.x;
+  drawBox.Y1 = clipBox.y;
+  drawBox.X2 = clipBox.x + clipBox.width;
+  drawBox.Y2 = clipBox.y + clipBox.height;
+  RedrawOutput (&drawBox);
   XDestroyRegion (myRegion);
   if (!VALID_PIXMAP (Offscreen))
     {
@@ -419,7 +433,7 @@ DrawClipped (Region myRegion)
 	{
 	  /* shouldn't be possible to fail, but... */
 	  ReleaseOffscreenPixmap ();
-	  RedrawOutput ();
+	  RedrawOutput (&drawBox);
 	  Message ("hace: problem with XCopyArea!\n");
 	}
       RestoreCrosshair (True);

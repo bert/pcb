@@ -123,12 +123,12 @@ RemovePCB (PCBTypePtr Ptr)
 static void *
 DestroyVia (PinTypePtr Via)
 {
-  r_delete_entry(DestroyTarget->via_tree, (BoxTypePtr)Via);
+  r_delete_entry (DestroyTarget->via_tree, (BoxTypePtr) Via);
   MyFree (&Via->Name);
   *Via = DestroyTarget->Via[--DestroyTarget->ViaN];
-  r_substitute(DestroyTarget->via_tree, (BoxTypePtr)
-               (BoxType *)&DestroyTarget->Via[DestroyTarget->ViaN], 
-	       (BoxType *)Via);
+  r_substitute (DestroyTarget->via_tree, (BoxTypePtr)
+		(BoxType *) & DestroyTarget->Via[DestroyTarget->ViaN],
+		(BoxType *) Via);
   memset (&DestroyTarget->Via[DestroyTarget->ViaN], 0, sizeof (PinType));
   return (NULL);
 }
@@ -139,12 +139,12 @@ DestroyVia (PinTypePtr Via)
 static void *
 DestroyLine (LayerTypePtr Layer, LineTypePtr Line)
 {
-  r_delete_entry(Layer->line_tree, (BoxTypePtr)Line);
+  r_delete_entry (Layer->line_tree, (BoxTypePtr) Line);
   MyFree (&Line->Number);
   *Line = Layer->Line[--Layer->LineN];
-    /* tricky - line pointers are moved around */
-  r_substitute(Layer->line_tree, (BoxType *)&Layer->Line[Layer->LineN],
-               (BoxType *)Line);
+  /* tricky - line pointers are moved around */
+  r_substitute (Layer->line_tree, (BoxType *) & Layer->Line[Layer->LineN],
+		(BoxType *) Line);
   memset (&Layer->Line[Layer->LineN], 0, sizeof (LineType));
   return (NULL);
 }
@@ -155,10 +155,10 @@ DestroyLine (LayerTypePtr Layer, LineTypePtr Line)
 static void *
 DestroyArc (LayerTypePtr Layer, ArcTypePtr Arc)
 {
-  r_delete_entry(Layer->arc_tree, (BoxTypePtr)Arc);
+  r_delete_entry (Layer->arc_tree, (BoxTypePtr) Arc);
   *Arc = Layer->Arc[--Layer->ArcN];
-  r_substitute(Layer->arc_tree, (BoxType *)&Layer->Arc[Layer->ArcN],
-               (BoxType *)Arc);
+  r_substitute (Layer->arc_tree, (BoxType *) & Layer->Arc[Layer->ArcN],
+		(BoxType *) Arc);
   memset (&Layer->Arc[Layer->ArcN], 0, sizeof (ArcType));
   return (NULL);
 }
@@ -202,7 +202,10 @@ static void *
 DestroyText (LayerTypePtr Layer, TextTypePtr Text)
 {
   MyFree (&Text->TextString);
+  r_delete_entry (Layer->text_tree, (BoxTypePtr) Text);
   *Text = Layer->Text[--Layer->TextN];
+  r_substitute (Layer->text_tree, (BoxType *) & Layer->Text[Layer->TextN],
+		(BoxType *) Text);
   memset (&Layer->Text[Layer->TextN], 0, sizeof (TextType));
   return (NULL);
 }
@@ -213,29 +216,29 @@ DestroyText (LayerTypePtr Layer, TextTypePtr Text)
 static void *
 DestroyElement (ElementTypePtr Element)
 {
-  r_delete_entry (DestroyTarget->element_tree, (BoxType *)Element);
-  PIN_LOOP (Element,
+  r_delete_entry (DestroyTarget->element_tree, (BoxType *) Element);
+  PIN_LOOP (Element, 
     {
-      r_delete_entry (DestroyTarget->pin_tree, (BoxType *)pin);
+      r_delete_entry (DestroyTarget->pin_tree, (BoxType *) pin);
     }
   );
-  PAD_LOOP (Element,
+  PAD_LOOP (Element, 
     {
-      r_delete_entry (DestroyTarget->pad_tree, (BoxType *)pad);
+      r_delete_entry (DestroyTarget->pad_tree, (BoxType *) pad);
     }
   );
   FreeElementMemory (Element);
   *Element = DestroyTarget->Element[--DestroyTarget->ElementN];
-   /* deal with changed element pointer */
+  /* deal with changed element pointer */
   r_substitute (DestroyTarget->element_tree,
-                (BoxType *)&DestroyTarget->Element[DestroyTarget->ElementN],
-		(BoxType *)Element);
-  PIN_LOOP (Element,
+		(BoxType *) & DestroyTarget->Element[DestroyTarget->ElementN],
+		(BoxType *) Element);
+  PIN_LOOP (Element, 
     {
       pin->Element = Element;
     }
   );
-  PAD_LOOP (Element,
+  PAD_LOOP (Element, 
     {
       pad->Element = Element;
     }
@@ -255,7 +258,7 @@ DestroyRat (RatTypePtr Rat)
     r_delete_entry (DestroyTarget->rat_tree, &Rat->BoundingBox);
   *Rat = DestroyTarget->Rat[--DestroyTarget->RatN];
   r_substitute (DestroyTarget->rat_tree,
-                &DestroyTarget->Rat[DestroyTarget->RatN].BoundingBox,
+		&DestroyTarget->Rat[DestroyTarget->RatN].BoundingBox,
 		&Rat->BoundingBox);
   memset (&DestroyTarget->Rat[DestroyTarget->RatN], 0, sizeof (RatType));
   return (NULL);
@@ -317,14 +320,15 @@ RemoveLinePoint (LayerTypePtr Layer, LineTypePtr Line, PointTypePtr Point)
 	  MoveObject (LINEPOINT_TYPE, Layer, line, &line->Point1,
 		      oldPoint.X - line->Point1.X,
 		      oldPoint.Y - line->Point1.Y);
+	  break;
 	}
       if ((line->Point2.X == Point->X) && (line->Point2.Y == Point->Y))
 	{
 	  MoveObject (LINEPOINT_TYPE, Layer, line, &line->Point2,
 		      oldPoint.X - line->Point2.X,
 		      oldPoint.Y - line->Point2.Y);
+	  break;
 	}
-      break;
     }
   );
   return (RemoveLine (Layer, Line));

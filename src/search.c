@@ -24,7 +24,8 @@
  *
  */
 
-static char *rcsid = "$Id$";
+static char *rcsid =
+  "$Id$";
 
 /* search routines
  * some of the functions use dummy parameters
@@ -94,21 +95,19 @@ static Boolean IsPointInBox (Location, Location, BoxTypePtr, Cardinal);
  */
 struct ans_info
 {
-   void **ptr1,
-        **ptr2,
-	**ptr3;
-   Boolean BackToo;
-   float area;
-   jmp_buf env;
+  void **ptr1, **ptr2, **ptr3;
+  Boolean BackToo;
+  float area;
+  jmp_buf env;
 };
 
 static int
-pinorvia_callback(const BoxType *box, void *cl)
+pinorvia_callback (const BoxType * box, void *cl)
 {
   struct ans_info *i = (struct ans_info *) cl;
   PinTypePtr pin = (PinTypePtr) box;
 
-  if (!IsPointOnPin(PosX, PosY, SearchRadius, pin))
+  if (!IsPointOnPin (PosX, PosY, SearchRadius, pin))
     return 0;
   *i->ptr1 = pin->Element ? pin->Element : pin;
   *i->ptr2 = *i->ptr3 = pin;
@@ -122,15 +121,16 @@ SearchViaByLocation (PinTypePtr * Via, PinTypePtr * Dummy1,
 {
   struct ans_info info;
 
-  info.ptr1 = (void **)Via;
-  info.ptr2 = (void **)Dummy1;
-  info.ptr3 = (void **)Dummy2;
+  info.ptr1 = (void **) Via;
+  info.ptr2 = (void **) Dummy1;
+  info.ptr3 = (void **) Dummy2;
   /* search only if via-layer is visible */
   if (!PCB->ViaOn)
     return False;
   if (setjmp (info.env) == 0)
     {
-      r_search(PCB->Data->via_tree, &SearchBox, NULL, pinorvia_callback, &info);
+      r_search (PCB->Data->via_tree, &SearchBox, NULL, pinorvia_callback,
+		&info);
       return False;
     }
   return True;
@@ -149,38 +149,39 @@ SearchPinByLocation (ElementTypePtr * Element, PinTypePtr * Pin,
   /* search only if pin-layer is visible */
   if (!PCB->PinOn)
     return False;
-  info.ptr1 = (void **)Element;
-  info.ptr2 = (void **)Pin;
-  info.ptr3 = (void **)Dummy;
+  info.ptr1 = (void **) Element;
+  info.ptr2 = (void **) Pin;
+  info.ptr3 = (void **) Dummy;
 
   if (setjmp (info.env) == 0)
-    r_search(PCB->Data->pin_tree, &SearchBox, NULL, pinorvia_callback, &info);
+    r_search (PCB->Data->pin_tree, &SearchBox, NULL, pinorvia_callback,
+	      &info);
   else
     return True;
   return False;
 }
 
 static int
-pad_callback (const BoxType *b, void *cl)
+pad_callback (const BoxType * b, void *cl)
 {
-  PadTypePtr pad = (PadTypePtr)b;
-  struct ans_info *i = (struct ans_info *)cl;
+  PadTypePtr pad = (PadTypePtr) b;
+  struct ans_info *i = (struct ans_info *) cl;
 
-  if (FRONT (pad) || (i->BackToo && PCB->InvisibleObjectsOn))
+  if (FRONT (pad) || i->BackToo)
     {
       if (TEST_FLAG (SQUAREFLAG, pad))
-        {
-          if (IsPointInSquarePad (PosX, PosY, SearchRadius, pad))
-            {	    
-              *i->ptr1 = pad->Element;
-              *i->ptr2 = *i->ptr3 = pad;
-              longjmp (i->env, 1);
-            }
-        }
+	{
+	  if (IsPointInSquarePad (PosX, PosY, SearchRadius, pad))
+	    {
+	      *i->ptr1 = pad->Element;
+	      *i->ptr2 = *i->ptr3 = pad;
+	      longjmp (i->env, 1);
+	    }
+	}
       else
-        {
-          if (IsPointOnLine (PosX, PosY, SearchRadius, (LineTypePtr) pad))
-	    { 
+	{
+	  if (IsPointOnLine (PosX, PosY, SearchRadius, (LineTypePtr) pad))
+	    {
 	      *i->ptr1 = pad->Element;
 	      *i->ptr2 = *i->ptr3 = pad;
 	      longjmp (i->env, 1);
@@ -203,12 +204,12 @@ SearchPadByLocation (ElementTypePtr * Element, PadTypePtr * Pad,
   /* search only if pin-layer is visible */
   if (!PCB->PinOn)
     return (False);
-  info.ptr1 = (void **)Element;
-  info.ptr2 = (void **)Pad;
-  info.ptr3 = (void **)Dummy;
-  info.BackToo = BackToo;
+  info.ptr1 = (void **) Element;
+  info.ptr2 = (void **) Pad;
+  info.ptr3 = (void **) Dummy;
+  info.BackToo = (BackToo && PCB->InvisibleObjectsOn);
   if (setjmp (info.env) == 0)
-    r_search(PCB->Data->pad_tree, &SearchBox, NULL, pad_callback, &info);
+    r_search (PCB->Data->pad_tree, &SearchBox, NULL, pad_callback, &info);
   else
     return True;
   return False;
@@ -220,22 +221,22 @@ SearchPadByLocation (ElementTypePtr * Element, PadTypePtr * Pad,
 
 struct line_info
 {
-   LineTypePtr  *Line;
-   PointTypePtr *Point;
-   float least;
+  LineTypePtr *Line;
+  PointTypePtr *Point;
+  float least;
   jmp_buf env;
 };
 
 static int
-line_callback(const BoxType *box, void *cl)
+line_callback (const BoxType * box, void *cl)
 {
   struct line_info *i = (struct line_info *) cl;
   LineTypePtr l = (LineTypePtr) box;
 
-  if (!IsPointOnLine(PosX, PosY, SearchRadius, l))
+  if (!IsPointOnLine (PosX, PosY, SearchRadius, l))
     return 0;
   *i->Line = l;
-  *i->Point = (PointTypePtr)l;
+  *i->Point = (PointTypePtr) l;
   longjmp (i->env, 1);
   return 1;			/* never reached */
 }
@@ -248,15 +249,30 @@ SearchLineByLocation (LayerTypePtr * Layer, LineTypePtr * Line,
   struct line_info info;
 
   info.Line = Line;
-  info.Point = (PointTypePtr *)Dummy;
+  info.Point = (PointTypePtr *) Dummy;
 
   *Layer = SearchLayer;
   if (setjmp (info.env) == 0)
     {
-      r_search(SearchLayer->line_tree, &SearchBox, NULL, line_callback, &info);
+      r_search (SearchLayer->line_tree, &SearchBox, NULL, line_callback,
+		&info);
       return False;
     }
   return (True);
+}
+
+static int
+rat_callback (const BoxType * box, void *cl)
+{
+  LineTypePtr line = (LineTypePtr) box;
+  struct ans_info *i = (struct ans_info *) cl;
+
+  if (IsPointOnLine (PosX, PosY, SearchRadius, line))
+    {
+      *i->ptr1 = *i->ptr2 = *i->ptr3 = line;
+      longjmp (i->env, 1);
+    }
+  return 0;
 }
 
 /* ---------------------------------------------------------------------------
@@ -266,18 +282,18 @@ static Boolean
 SearchRatLineByLocation (RatTypePtr * Line, RatTypePtr * Dummy1,
 			 RatTypePtr * Dummy2)
 {
-  RAT_LOOP (PCB->Data, 
+  struct ans_info info;
+
+  info.ptr1 = (void **) Line;
+  info.ptr2 = (void **) Dummy1;
+  info.ptr3 = (void **) Dummy2;
+
+  if (setjmp (info.env) == 0)
     {
-      if (ScreenOnly && !VLINE (line))
-	continue;
-      if (IsPointOnLine (PosX, PosY, SearchRadius, (LineTypePtr) line))
-	{
-	  *Line = *Dummy1 = *Dummy2 = line;
-	  return (True);
-	}
+      r_search (PCB->Data->rat_tree, &SearchBox, NULL, rat_callback, &info);
+      return False;
     }
-  );
-  return (False);
+  return (True);
 }
 
 /* ---------------------------------------------------------------------------
@@ -285,18 +301,17 @@ SearchRatLineByLocation (RatTypePtr * Line, RatTypePtr * Dummy1,
  */
 struct arc_info
 {
-   ArcTypePtr *Arc,
-              *Dummy;
+  ArcTypePtr *Arc, *Dummy;
   jmp_buf env;
 };
 
 static int
-arc_callback(const BoxType *box, void *cl)
+arc_callback (const BoxType * box, void *cl)
 {
   struct arc_info *i = (struct arc_info *) cl;
   ArcTypePtr a = (ArcTypePtr) box;
 
-  if (!IsPointOnArc(PosX, PosY, SearchRadius, a))
+  if (!IsPointOnArc (PosX, PosY, SearchRadius, a))
     return 0;
   *i->Arc = a;
   *i->Dummy = a;
@@ -317,10 +332,24 @@ SearchArcByLocation (LayerTypePtr * Layer, ArcTypePtr * Arc,
   *Layer = SearchLayer;
   if (setjmp (info.env) == 0)
     {
-      r_search(SearchLayer->arc_tree, &SearchBox, NULL, arc_callback, &info);
+      r_search (SearchLayer->arc_tree, &SearchBox, NULL, arc_callback, &info);
       return False;
     }
   return (True);
+}
+
+static int
+text_callback (const BoxType * box, void *cl)
+{
+  TextTypePtr text = (TextTypePtr) box;
+  struct ans_info *i = (struct ans_info *) cl;
+
+  if (POINT_IN_BOX (PosX, PosY, &text->BoundingBox))
+    {
+      *i->ptr2 = *i->ptr3 = text;
+      longjmp (i->env, 1);
+    }
+  return 0;
 }
 
 /* ---------------------------------------------------------------------------
@@ -330,20 +359,19 @@ static Boolean
 SearchTextByLocation (LayerTypePtr * Layer, TextTypePtr * Text,
 		      TextTypePtr * Dummy)
 {
+  struct ans_info info;
+
   *Layer = SearchLayer;
-  TEXT_LOOP (*Layer, 
+  info.ptr2 = (void **) Text;
+  info.ptr3 = (void **) Dummy;
+
+  if (setjmp (info.env) == 0)
     {
-      if (ScreenOnly && !VTEXT (text))
-	continue;
-      if (TEXT_IS_VISIBLE (PCB, *Layer, text) &&
-	  POINT_IN_BOX (PosX, PosY, &text->BoundingBox))
-	{
-	  *Text = *Dummy = text;
-	  return (True);
-	}
+      r_search (SearchLayer->text_tree, &SearchBox, NULL, text_callback,
+		&info);
+      return False;
     }
-  );
-  return (False);
+  return (True);
 }
 
 /* ---------------------------------------------------------------------------
@@ -368,17 +396,17 @@ SearchPolygonByLocation (LayerTypePtr * Layer,
   return (False);
 }
 
-int
-linepoint_callback (const BoxType *b, void *cl)
+static int
+linepoint_callback (const BoxType * b, void *cl)
 {
-  LineTypePtr line = (LineTypePtr)b;
-  struct line_info *i = (struct line_info *)cl;
+  LineTypePtr line = (LineTypePtr) b;
+  struct line_info *i = (struct line_info *) cl;
   int ret_val = 0;
   float d;
 
-      /* some stupid code to check both points */
+  /* some stupid code to check both points */
   d = (PosX - line->Point1.X) * (PosX - line->Point1.X) +
-      (PosY - line->Point1.Y) * (PosY - line->Point1.Y);
+    (PosY - line->Point1.Y) * (PosY - line->Point1.Y);
   if (d < i->least)
     {
       i->least = d;
@@ -388,7 +416,7 @@ linepoint_callback (const BoxType *b, void *cl)
     }
 
   d = (PosX - line->Point2.X) * (PosX - line->Point2.X) +
-      (PosY - line->Point2.Y) * (PosY - line->Point2.Y);
+    (PosY - line->Point2.Y) * (PosY - line->Point2.Y);
   if (d < i->least)
     {
       i->least = d;
@@ -414,7 +442,8 @@ SearchLinePointByLocation (LayerTypePtr * Layer, LineTypePtr * Line,
   info.least =
     (MAX_LINE_POINT_DISTANCE + SearchRadius) * (MAX_LINE_POINT_DISTANCE +
 						SearchRadius);
-  if (r_search(SearchLayer->line_tree, &SearchBox, NULL, linepoint_callback, &info))
+  if (r_search
+      (SearchLayer->line_tree, &SearchBox, NULL, linepoint_callback, &info))
     return True;
   return False;
 }
@@ -496,24 +525,25 @@ SearchElementNameByLocation (ElementTypePtr * Element,
   return (False);
 }
 
-int
-element_callback (const BoxType *box, void *cl)
+static int
+element_callback (const BoxType * box, void *cl)
 {
-  ElementTypePtr element = (ElementTypePtr)box;
+  ElementTypePtr element = (ElementTypePtr) box;
   struct ans_info *i = (struct ans_info *) cl;
   float newarea;
 
-  if (POINT_IN_BOX (PosX, PosY, &element->VBox))
+  if ((FRONT (element) || i->BackToo) &&
+      POINT_IN_BOX (PosX, PosY, &element->VBox))
     {
-	  /* use the element with the smallest bounding box */
-       newarea = (element->VBox.X2 - element->VBox.X1) *
-		 (float) (element->VBox.Y2 - element->VBox.Y1);
-       if (newarea < i->area)
-         {
-	   i->area = newarea;
-           *i->ptr1 = *i->ptr2 = *i->ptr3 = element;
-	 }
-       return 1;
+      /* use the element with the smallest bounding box */
+      newarea = (element->VBox.X2 - element->VBox.X1) *
+	(float) (element->VBox.Y2 - element->VBox.Y1);
+      if (newarea < i->area)
+	{
+	  i->area = newarea;
+	  *i->ptr1 = *i->ptr2 = *i->ptr3 = element;
+	}
+      return 1;
     }
   return 0;
 }
@@ -533,12 +563,14 @@ SearchElementByLocation (ElementTypePtr * Element,
   /* Both package layers have to be switched on */
   if (PCB->ElementOn && PCB->PinOn)
     {
-      info.ptr1 = (void **)Element;
-      info.ptr2 = (void **)Dummy1;
-      info.ptr3 = (void **)Dummy2;
-      info.area = (float)MAX_COORD * MAX_COORD;
-      if (r_search (PCB->Data->element_tree, &SearchBox, NULL, element_callback,
-                    &info))
+      info.ptr1 = (void **) Element;
+      info.ptr2 = (void **) Dummy1;
+      info.ptr3 = (void **) Dummy2;
+      info.area = (float) MAX_COORD *MAX_COORD;
+      info.BackToo = (BackToo && PCB->InvisibleObjectsOn);
+      if (r_search
+	  (PCB->Data->element_tree, &SearchBox, NULL, element_callback,
+	   &info))
 	return True;
     }
   return False;
@@ -827,8 +859,7 @@ IsPointInPolygon (float X, float Y, float Radius, PolygonTypePtr Polygon)
 		(float) (Y - ptr->Y) / (float) (point->Y - ptr->Y) + ptr->X)))
 	    inside = !inside;
 	  ptr = point;
-	}
-      );
+	} );
 
       /* check the distance between the lines of the
        * polygon and the point itself
@@ -986,12 +1017,12 @@ SearchObjectByLocation (int Type,
   SearchBox.Y2 = Y + Radius;
   if (ScreenOnly)
     {
-      MAKEMAX(SearchBox.X1, vxl);
-      MAKEMAX(SearchBox.Y1, vyl);
-      MAKEMIN(SearchBox.X2, vxh);
-      MAKEMIN(SearchBox.Y2, vyh);
+      MAKEMAX (SearchBox.X1, vxl);
+      MAKEMAX (SearchBox.Y1, vyl);
+      MAKEMIN (SearchBox.X2, vxh);
+      MAKEMIN (SearchBox.Y2, vyh);
       if (SearchBox.X1 > SearchBox.X2 || SearchBox.Y1 > SearchBox.Y2)
-        return NO_TYPE;
+	return NO_TYPE;
     }
 
   if (Type & RATLINE_TYPE && PCB->RatOn &&
@@ -1046,7 +1077,7 @@ SearchObjectByLocation (int Type,
       if (SearchLayer->On)
 	{
 	  if ((HigherAvail & (PIN_TYPE | PAD_TYPE)) == 0 &&
-              Type & POLYGONPOINT_TYPE &&
+	      Type & POLYGONPOINT_TYPE &&
 	      SearchPointByLocation ((LayerTypePtr *) Result1,
 				     (PolygonTypePtr *) Result2,
 				     (PointTypePtr *) Result3))

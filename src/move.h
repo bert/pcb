@@ -41,21 +41,35 @@
 		((xs) += (deltax));									\
 		((ys) += (deltay));									\
 	}
-#define	MOVE_VIA_LOWLEVEL(v,dx,dy)	MOVE((v)->X,(v)->Y,(dx),(dy))
-#define	MOVE_PIN_LOWLEVEL(p,dx,dy)	MOVE((p)->X,(p)->Y,(dx),(dy))
-#define	MOVE_ARC_LOWLEVEL(a,dx,dy)	MOVE((a)->X,(a)->Y,(dx),(dy))
-#define	MOVE_LINE_LOWLEVEL(l,dx,dy)							\
-	{														\
-		MOVE((l)->Point1.X,(l)->Point1.Y,(dx),(dy))			\
-		MOVE((l)->Point2.X,(l)->Point2.Y,(dx),(dy))			\
-	}
-#define	MOVE_PAD_LOWLEVEL(p,dx,dy)	\
-	MOVE_LINE_LOWLEVEL((LineTypePtr)(p),(dx),(dy))
 #define	MOVE_BOX_LOWLEVEL(b,dx,dy)		\
 	{									\
 		MOVE((b)->X1,(b)->Y1,(dx),(dy))	\
 		MOVE((b)->X2,(b)->Y2,(dx),(dy))	\
 	}
+#define	MOVE_VIA_LOWLEVEL(v,dx,dy) \
+        { \
+	        MOVE((v)->X,(v)->Y,(dx),(dy)) \
+		MOVE_BOX_LOWLEVEL(&((v)->BoundingBox),(dx),(dy));		\
+	}
+#define	MOVE_PIN_LOWLEVEL(p,dx,dy) \
+	{ \
+		MOVE((p)->X,(p)->Y,(dx),(dy)) \
+		MOVE_BOX_LOWLEVEL(&((p)->BoundingBox),(dx),(dy));		\
+	}
+
+#define	MOVE_ARC_LOWLEVEL(a,dx,dy) \
+	{ \
+		MOVE((a)->X,(a)->Y,(dx),(dy)) \
+		MOVE_BOX_LOWLEVEL(&((a)->BoundingBox),(dx),(dy));		\
+	}
+#define	MOVE_LINE_LOWLEVEL(l,dx,dy)							\
+	{									\
+		MOVE((l)->Point1.X,(l)->Point1.Y,(dx),(dy))			\
+		MOVE((l)->Point2.X,(l)->Point2.Y,(dx),(dy))			\
+		SetLineBoundingBox ((l)); \
+	}
+#define	MOVE_PAD_LOWLEVEL(p,dx,dy)	\
+	MOVE_LINE_LOWLEVEL((LineTypePtr)(p),(dx),(dy))
 #define	MOVE_TEXT_LOWLEVEL(t,dx,dy)								\
 	{															\
 		MOVE_BOX_LOWLEVEL(&((t)->BoundingBox),(dx),(dy));		\

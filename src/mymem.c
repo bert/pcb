@@ -207,27 +207,27 @@ GetPinMemory (ElementTypePtr Element)
   if (Element->PinN >= Element->PinMax)
     {
       if (PCB->Data->pin_tree)
-        {
-          PIN_LOOP (Element,
-            {
-              if (r_delete_entry (PCB->Data->pin_tree, (BoxType *)pin))
-                onBoard = True;
-            }
-          );
-        }
+	{
+	  PIN_LOOP (Element, 
+	    {
+	      if (r_delete_entry (PCB->Data->pin_tree, (BoxType *) pin))
+		onBoard = True;
+	    }
+	  );
+	}
       Element->PinMax += STEP_PIN;
       pin = MyRealloc (pin, Element->PinMax * sizeof (PinType),
 		       "GetPinMemory()");
       Element->Pin = pin;
       memset (pin + Element->PinN, 0, STEP_PIN * sizeof (PinType));
       if (onBoard)
-        {
-          PIN_LOOP (Element,
-            {
-              r_insert_entry (PCB->Data->pin_tree, (BoxType *) pin, 0);
-            }
-          );
-        }
+	{
+	  PIN_LOOP (Element, 
+	    {
+	      r_insert_entry (PCB->Data->pin_tree, (BoxType *) pin, 0);
+	    }
+	  );
+	}
     }
   return (pin + Element->PinN++);
 }
@@ -245,27 +245,27 @@ GetPadMemory (ElementTypePtr Element)
   if (Element->PadN >= Element->PadMax)
     {
       if (PCB->Data->pad_tree)
-        {
-          PAD_LOOP (Element,
-            {
-              if (r_delete_entry (PCB->Data->pad_tree, (BoxType *)pad))
-                onBoard = True;
-            }
-          );
-        }
+	{
+	  PAD_LOOP (Element, 
+	    {
+	      if (r_delete_entry (PCB->Data->pad_tree, (BoxType *) pad))
+		onBoard = True;
+	    }
+	  );
+	}
       Element->PadMax += STEP_PAD;
       pad = MyRealloc (pad, Element->PadMax * sizeof (PadType),
 		       "GetPadMemory()");
       Element->Pad = pad;
       memset (pad + Element->PadN, 0, STEP_PAD * sizeof (PadType));
       if (onBoard)
-        {
-          PAD_LOOP (Element,
-            {
-              r_insert_entry (PCB->Data->pad_tree, (BoxType *)pad, 0);
-            }
-          );
-        }
+	{
+	  PAD_LOOP (Element, 
+	    {
+	      r_insert_entry (PCB->Data->pad_tree, (BoxType *) pad, 0);
+	    }
+	  );
+	}
     }
   return (pad + Element->PadN++);
 }
@@ -283,15 +283,15 @@ GetViaMemory (DataTypePtr Data)
     {
       Data->ViaMax += STEP_VIA;
       if (Data->via_tree)
-        r_destroy_tree(&Data->via_tree);
+	r_destroy_tree (&Data->via_tree);
       via = MyRealloc (via, Data->ViaMax * sizeof (PinType),
 		       "GetViaMemory()");
       Data->Via = via;
       memset (via + Data->ViaN, 0, STEP_VIA * sizeof (PinType));
-      Data->via_tree = r_create_tree(NULL, 0, 0);
-      VIA_LOOP(Data,
-        {
-          r_insert_entry(Data->via_tree, (BoxType *)via, 0);
+      Data->via_tree = r_create_tree (NULL, 0, 0);
+      VIA_LOOP (Data, 
+	{
+	  r_insert_entry (Data->via_tree, (BoxType *) via, 0);
 	}
       );
     }
@@ -330,17 +330,17 @@ GetLineMemory (LayerTypePtr Layer)
   if (Layer->LineN >= Layer->LineMax)
     {
       Layer->LineMax += STEP_LINE;
-       /* all of the pointers move, so rebuild the whole tree */
+      /* all of the pointers move, so rebuild the whole tree */
       if (Layer->line_tree)
-        r_destroy_tree(&Layer->line_tree);
+	r_destroy_tree (&Layer->line_tree);
       line = MyRealloc (line, Layer->LineMax * sizeof (LineType),
 			"GetLineMemory()");
       Layer->Line = line;
       memset (line + Layer->LineN, 0, STEP_LINE * sizeof (LineType));
-      Layer->line_tree = r_create_tree(NULL, 0, 0);
-      LINE_LOOP(Layer,
-        {
-	  r_insert_entry(Layer->line_tree, (BoxTypePtr)line, 0);
+      Layer->line_tree = r_create_tree (NULL, 0, 0);
+      LINE_LOOP (Layer, 
+	{
+	  r_insert_entry (Layer->line_tree, (BoxTypePtr) line, 0);
 	}
       );
     }
@@ -360,15 +360,15 @@ GetArcMemory (LayerTypePtr Layer)
     {
       Layer->ArcMax += STEP_ARC;
       if (Layer->arc_tree)
-        r_destroy_tree(&Layer->arc_tree);
+	r_destroy_tree (&Layer->arc_tree);
       arc = MyRealloc (arc, Layer->ArcMax * sizeof (ArcType),
 		       "GetArcMemory()");
       Layer->Arc = arc;
       memset (arc + Layer->ArcN, 0, STEP_ARC * sizeof (ArcType));
-      Layer->arc_tree = r_create_tree(NULL, 0, 0);
-      ARC_LOOP(Layer,
-        {
-	  r_insert_entry(Layer->arc_tree, (BoxTypePtr)arc, 0);
+      Layer->arc_tree = r_create_tree (NULL, 0, 0);
+      ARC_LOOP (Layer, 
+	{
+	  r_insert_entry (Layer->arc_tree, (BoxTypePtr) arc, 0);
 	}
       );
     }
@@ -387,10 +387,18 @@ GetTextMemory (LayerTypePtr Layer)
   if (Layer->TextN >= Layer->TextMax)
     {
       Layer->TextMax += STEP_TEXT;
+      if (Layer->text_tree)
+	r_destroy_tree (&Layer->text_tree);
       text = MyRealloc (text, Layer->TextMax * sizeof (TextType),
 			"GetTextMemory()");
       Layer->Text = text;
       memset (text + Layer->TextN, 0, STEP_TEXT * sizeof (TextType));
+      Layer->text_tree = r_create_tree (NULL, 0, 0);
+      TEXT_LOOP (Layer, 
+	{
+	  r_insert_entry (Layer->text_tree, (BoxTypePtr) text, 0);
+	}
+      );
     }
   return (text + Layer->TextN++);
 }
@@ -451,26 +459,26 @@ GetElementMemory (DataTypePtr Data)
     {
       Data->ElementMax += STEP_ELEMENT;
       if (Data->element_tree)
-        r_destroy_tree(&Data->element_tree);
+	r_destroy_tree (&Data->element_tree);
       element = MyRealloc (element, Data->ElementMax * sizeof (ElementType),
 			   "GetElementMemory()");
       Data->Element = element;
       memset (element + Data->ElementN, 0,
 	      STEP_ELEMENT * sizeof (ElementType));
-      Data->element_tree = r_create_tree(NULL, 0, 0);
-      ELEMENT_LOOP(Data,
-        {
-	  r_insert_entry(Data->element_tree, (BoxType *)element, 0);
-          PIN_LOOP (element,
-            {
-              pin->Element = element;
-            }
-          );
-          PAD_LOOP (element,
-            {
-              pad->Element = element;
-            }
-          );
+      Data->element_tree = r_create_tree (NULL, 0, 0);
+      ELEMENT_LOOP (Data, 
+	{
+	  r_insert_entry (Data->element_tree, (BoxType *) element, 0);
+	  PIN_LOOP (element, 
+	    {
+	      pin->Element = element;
+	    }
+	  );
+	  PAD_LOOP (element, 
+	    {
+	      pad->Element = element;
+	    }
+	  );
 	}
       );
     }
@@ -757,6 +765,7 @@ FreeElementMemory (ElementTypePtr Element)
 	}
       );
       MyFree ((char **) &Element->Pin);
+      MyFree ((char **) &Element->Pad);
       MyFree ((char **) &Element->Line);
       MyFree ((char **) &Element->Arc);
       memset (Element, 0, sizeof (ElementType));
@@ -777,7 +786,7 @@ FreePCBMemory (PCBTypePtr PCBPtr)
       MyFree (&PCBPtr->Filename);
       MyFree (&PCBPtr->PrintFilename);
       FreeDataMemory (PCBPtr->Data);
-      MyFree (&PCBPtr->Data);
+      MyFree ((char **) &PCBPtr->Data);
       /* release font symbols */
       for (i = 0; i <= MAX_FONTPOSITION; i++)
 	MyFree ((char **) &PCBPtr->Font.Symbol[i].Line);
@@ -833,21 +842,23 @@ FreeDataMemory (DataTypePtr Data)
 	  );
 	  MyFree ((char **) &layer->Polygon);
 	  if (layer->line_tree)
-	    r_destroy_tree(&layer->line_tree);
+	    r_destroy_tree (&layer->line_tree);
 	  if (layer->arc_tree)
-	    r_destroy_tree(&layer->arc_tree);
+	    r_destroy_tree (&layer->arc_tree);
+	  if (layer->text_tree)
+	    r_destroy_tree (&layer->text_tree);
 	}
 
       if (Data->element_tree)
-        r_destroy_tree(&Data->element_tree);
+	r_destroy_tree (&Data->element_tree);
       if (Data->via_tree)
-        r_destroy_tree(&Data->via_tree);
+	r_destroy_tree (&Data->via_tree);
       if (Data->pin_tree)
-        r_destroy_tree(&Data->pin_tree);
+	r_destroy_tree (&Data->pin_tree);
       if (Data->pad_tree)
-        r_destroy_tree(&Data->pad_tree);
+	r_destroy_tree (&Data->pad_tree);
       if (Data->rat_tree)
-        r_destroy_tree(&Data->rat_tree);
+	r_destroy_tree (&Data->rat_tree);
       /* clear struct */
       memset (Data, 0, sizeof (DataType));
     }
@@ -865,12 +876,10 @@ FreeLibraryMemory (LibraryTypePtr lib)
 	{
 	  SaveFree ((void *) entry->AllocatedMemory);
 	  SaveFree ((void *) entry->ListEntry);
-	}
-      );
+	} );
       SaveFree ((void *) menu->Entry);
       SaveFree ((void *) menu->Name);
-    }
-  );
+    } );
   SaveFree ((void *) lib->Menu);
 
   /* clear struct */

@@ -260,7 +260,6 @@ InitDefaultMedia (void)
 {
   int i, x, y;
   unsigned int width, height;
-  char *p1, *p2;
 
   /* check if the passed string is equal to a known media type
    * first entry is user defined, last one holds a zero pointer only

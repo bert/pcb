@@ -24,7 +24,8 @@
  *
  */
 
-static char *rcsid = "$Id$";
+static char *rcsid =
+  "$Id$";
 
 /* functions used by paste- and move/copy buffer
  */
@@ -98,22 +99,15 @@ static ObjectFunctionType AddBufferFunctions = {
   NULL,
   AddArcToBuffer,
   AddRatToBuffer
-},
+}, MoveBufferFunctions =
 
-MoveBufferFunctions = {
-    MoveLineToBuffer,
+{
+MoveLineToBuffer,
     MoveTextToBuffer,
     MovePolygonToBuffer,
     MoveViaToBuffer,
     MoveElementToBuffer,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    MoveArcToBuffer,
-    MoveRatToBuffer
-};
+    NULL, NULL, NULL, NULL, NULL, MoveArcToBuffer, MoveRatToBuffer};
 
 static int ExtraFlag = 0;
 
@@ -240,16 +234,17 @@ MoveViaToBuffer (PinTypePtr Via)
 {
   PinTypePtr via;
 
-  r_delete_entry(Source->via_tree, (BoxType *)Via);
+  r_delete_entry (Source->via_tree, (BoxType *) Via);
   via = GetViaMemory (Dest);
   *via = *Via;
   *Via = Source->Via[--Source->ViaN];
-  r_substitute(Source->via_tree, (BoxType *)&Source->Via[Source->ViaN], (BoxType *)Via);
+  r_substitute (Source->via_tree, (BoxType *) & Source->Via[Source->ViaN],
+		(BoxType *) Via);
   via->Flags &= ~(WARNFLAG | FOUNDFLAG);
   memset (&Source->Via[Source->ViaN], 0, sizeof (PinType));
   if (!Dest->via_tree)
     Dest->via_tree = r_create_tree (NULL, 0, 0);
-  r_insert_entry(Dest->via_tree, (BoxType *)via, 0);
+  r_insert_entry (Dest->via_tree, (BoxType *) via, 0);
   return (via);
 }
 
@@ -266,7 +261,7 @@ MoveRatToBuffer (RatTypePtr Rat)
   r_delete_entry (Source->rat_tree, &Rat->BoundingBox);
   *Rat = Source->Rat[--Source->RatN];
   r_substitute (Source->rat_tree, &Source->Rat[Source->RatN].BoundingBox,
-               &Rat->BoundingBox);
+		&Rat->BoundingBox);
   Rat->Flags &= ~FOUNDFLAG;
   memset (&Source->Rat[Source->RatN], 0, sizeof (RatType));
   if (!Dest->rat_tree)
@@ -284,18 +279,19 @@ MoveLineToBuffer (LayerTypePtr Layer, LineTypePtr Line)
   LayerTypePtr lay;
   LineTypePtr line;
 
-  r_delete_entry(Layer->line_tree, (BoxTypePtr)Line);
+  r_delete_entry (Layer->line_tree, (BoxTypePtr) Line);
   lay = &Dest->Layer[GetLayerNumber (Source, Layer)];
   line = GetLineMemory (lay);
   *line = *Line;
   line->Flags &= ~FOUNDFLAG;
-    /* line pointers being shuffled */
+  /* line pointers being shuffled */
   *Line = Layer->Line[--Layer->LineN];
-  r_substitute(Layer->line_tree, (BoxTypePtr)&Layer->Line[Layer->LineN], (BoxTypePtr)Line);
+  r_substitute (Layer->line_tree, (BoxTypePtr) & Layer->Line[Layer->LineN],
+		(BoxTypePtr) Line);
   memset (&Layer->Line[Layer->LineN], 0, sizeof (LineType));
   if (!lay->line_tree)
-    lay->line_tree = r_create_tree(NULL, 0, 0);
-  r_insert_entry(lay->line_tree, (BoxTypePtr)line, 0);
+    lay->line_tree = r_create_tree (NULL, 0, 0);
+  r_insert_entry (lay->line_tree, (BoxTypePtr) line, 0);
   return (line);
 }
 
@@ -308,18 +304,19 @@ MoveArcToBuffer (LayerTypePtr Layer, ArcTypePtr Arc)
   LayerTypePtr lay;
   ArcTypePtr arc;
 
-  r_delete_entry(Layer->arc_tree, (BoxTypePtr)Arc);
+  r_delete_entry (Layer->arc_tree, (BoxTypePtr) Arc);
   lay = &Dest->Layer[GetLayerNumber (Source, Layer)];
   arc = GetArcMemory (lay);
   *arc = *Arc;
   arc->Flags &= ~FOUNDFLAG;
-    /* arc pointers being shuffled */
+  /* arc pointers being shuffled */
   *Arc = Layer->Arc[--Layer->ArcN];
-  r_substitute(Layer->arc_tree, (BoxTypePtr)&Layer->Arc[Layer->ArcN], (BoxTypePtr)Arc);
+  r_substitute (Layer->arc_tree, (BoxTypePtr) & Layer->Arc[Layer->ArcN],
+		(BoxTypePtr) Arc);
   memset (&Layer->Arc[Layer->ArcN], 0, sizeof (ArcType));
   if (!lay->arc_tree)
-    lay->arc_tree = r_create_tree(NULL, 0, 0);
-  r_insert_entry(lay->arc_tree, (BoxTypePtr)arc, 0);
+    lay->arc_tree = r_create_tree (NULL, 0, 0);
+  r_insert_entry (lay->arc_tree, (BoxTypePtr) arc, 0);
   return (arc);
 }
 
@@ -330,11 +327,19 @@ static void *
 MoveTextToBuffer (LayerTypePtr Layer, TextTypePtr Text)
 {
   TextTypePtr text;
+  LayerTypePtr lay;
 
-  text = GetTextMemory (&Dest->Layer[GetLayerNumber (Source, Layer)]);
+  r_delete_entry (Layer->text_tree, (BoxTypePtr) Text);
+  lay = &Dest->Layer[GetLayerNumber (Source, Layer)];
+  text = GetTextMemory (lay);
   *text = *Text;
   *Text = Layer->Text[--Layer->TextN];
+  r_substitute (Layer->text_tree, (BoxTypePtr) & Layer->Text[Layer->TextN],
+		(BoxTypePtr) Text);
   memset (&Layer->Text[Layer->TextN], 0, sizeof (TextType));
+  if (!lay->text_tree)
+    lay->text_tree = r_create_tree (NULL, 0, 0);
+  r_insert_entry (lay->text_tree, (BoxTypePtr) text, 0);
   return (text);
 }
 
@@ -362,15 +367,15 @@ MoveElementToBuffer (ElementTypePtr Element)
 {
   ElementTypePtr element;
 
-  r_delete_entry(Source->element_tree, (BoxType *)Element);
-  PIN_LOOP (Element,
+  r_delete_entry (Source->element_tree, (BoxType *) Element);
+  PIN_LOOP (Element, 
     {
-      r_delete_entry (Source->pin_tree, (BoxType *)pin);
+      r_delete_entry (Source->pin_tree, (BoxType *) pin);
     }
   );
-  PAD_LOOP (Element,
+  PAD_LOOP (Element, 
     {
-      r_delete_entry (Source->pad_tree, (BoxType *)pad);
+      r_delete_entry (Source->pad_tree, (BoxType *) pad);
     }
   );
   element = GetElementMemory (Dest);
@@ -388,38 +393,39 @@ MoveElementToBuffer (ElementTypePtr Element)
     }
   );
   *Element = Source->Element[--Source->ElementN];
-   /* deal with element pointer changing */
-  r_substitute (Source->element_tree, (BoxType *)&Source->Element[Source->ElementN],
-                (BoxType *)Element);
-  PIN_LOOP (Element,
+  /* deal with element pointer changing */
+  r_substitute (Source->element_tree,
+		(BoxType *) & Source->Element[Source->ElementN],
+		(BoxType *) Element);
+  PIN_LOOP (Element, 
     {
-       pin->Element = Element;
+      pin->Element = Element;
     }
   );
-  PAD_LOOP (Element,
+  PAD_LOOP (Element, 
     {
-       pad->Element = Element;
+      pad->Element = Element;
     }
   );
   memset (&Source->Element[Source->ElementN], 0, sizeof (ElementType));
-   /* do we need rtrees for the buffer ? */
+  /* do we need rtrees for the buffer ? */
   if (!Dest->element_tree)
     Dest->element_tree = r_create_tree (NULL, 0, 0);
-  r_insert_entry(Dest->element_tree, (BoxType *)element, 0);
+  r_insert_entry (Dest->element_tree, (BoxType *) element, 0);
   if (!Dest->pin_tree)
     Dest->pin_tree = r_create_tree (NULL, 0, 0);
   if (!Dest->pad_tree)
     Dest->pad_tree = r_create_tree (NULL, 0, 0);
-  PIN_LOOP (element,
+  PIN_LOOP (element, 
     {
-      r_insert_entry (Dest->pin_tree, (BoxType *)pin, 0);
+      r_insert_entry (Dest->pin_tree, (BoxType *) pin, 0);
     }
-  ); 
-  PAD_LOOP (element,
+  );
+  PAD_LOOP (element, 
     {
-      r_insert_entry (Dest->pad_tree, (BoxType *)pad, 0);
+      r_insert_entry (Dest->pad_tree, (BoxType *) pad, 0);
     }
-  ); 
+  );
   return (element);
 }
 
@@ -497,24 +503,6 @@ LoadElementToBuffer (BufferTypePtr Buffer, char *Name, Boolean FromFile)
 	{
 	  if (Settings.ShowSolderSide)
 	    SwapBuffer (Buffer);
-	  else
-	    {
-	      ELEMENT_LOOP (Buffer->Data, 
-		{
-		  SetElementBoundingBox (Buffer->Data, element, &PCB->Font);
-		}
-	      );
-	      ALLPOLYGON_LOOP (Buffer->Data, 
-		{
-		  SetPolygonBoundingBox (polygon);
-		}
-	      );
-	      ALLTEXT_LOOP (Buffer->Data, 
-		{
-		  SetTextBoundingBox (&PCB->Font, text);
-		}
-	      );
-	    }
 	  SetBufferBoundingBox (Buffer);
 	  if (Buffer->Data->ElementN)
 	    {
@@ -637,8 +625,7 @@ ConvertBufferToElement (BufferTypePtr Buffer)
   Element = CreateNewElement (PCB->Data, NULL, &PCB->Font, NOFLAG,
 			      NULL, NULL, NULL, PASTEBUFFER->X,
 			      PASTEBUFFER->Y, 0, 100,
-			      SWAP_IDENT ? ONSOLDERFLAG : NOFLAG,
-			      False);
+			      SWAP_IDENT ? ONSOLDERFLAG : NOFLAG, False);
   if (!Element)
     return (False);
   VIA_LOOP (Buffer->Data, 
@@ -669,10 +656,10 @@ ConvertBufferToElement (BufferTypePtr Buffer)
   group = GetLayerGroupNumberByNumber (MAX_LAYER +
 				       (SWAP_IDENT ? SOLDER_LAYER :
 					COMPONENT_LAYER));
-  GROUP_LOOP (group,
+  GROUP_LOOP (group, 
     {
       char num[8];
-       /* GROUP_LOOP macro assumes board so we must switch to buffer */
+      /* GROUP_LOOP macro assumes board so we must switch to buffer */
       layer = &Buffer->Data->Layer[number];
       LINE_LOOP (layer, 
 	{
@@ -681,8 +668,9 @@ ConvertBufferToElement (BufferTypePtr Buffer)
 	    {
 	      sprintf (num, "%d", pin_n++);
 	      CreateNewPad (Element, line->Point1.X,
-			    line->Point1.Y, line->Point2.X, line->Point2.Y,
-			    line->Thickness, line->Clearance,
+			    line->Point1.Y, line->Point2.X,
+			    line->Point2.Y, line->Thickness,
+			    line->Clearance,
 			    line->Thickness + line->Clearance, NULL,
 			    line->Number ? line->Number : num,
 			    SWAP_IDENT ? ONSOLDERFLAG : NOFLAG);
@@ -696,11 +684,11 @@ ConvertBufferToElement (BufferTypePtr Buffer)
   group = GetLayerGroupNumberByNumber (MAX_LAYER +
 				       (SWAP_IDENT ? COMPONENT_LAYER :
 					SOLDER_LAYER));
-  GROUP_LOOP (group,
+  GROUP_LOOP (group, 
     {
       Boolean warned = False;
       char num[8];
-       /* GROUP_LOOP macro assumes board so we must switch to buffer */
+      /* GROUP_LOOP macro assumes board so we must switch to buffer */
       layer = &Buffer->Data->Layer[number];
       LINE_LOOP (layer, 
 	{
@@ -709,21 +697,23 @@ ConvertBufferToElement (BufferTypePtr Buffer)
 	    {
 	      sprintf (num, "%d", pin_n++);
 	      CreateNewPad (Element, line->Point1.X,
-			    line->Point1.Y, line->Point2.X, line->Point2.Y,
-			    line->Thickness, line->Clearance,
+			    line->Point1.Y, line->Point2.X,
+			    line->Point2.Y, line->Thickness,
+			    line->Clearance,
 			    line->Thickness + line->Clearance, NULL,
 			    line->Number ? line->Number : num,
 			    SWAP_IDENT ? NOFLAG : ONSOLDERFLAG);
 	      if (!hasParts && !warned)
 		{
 		  warned = True;
-		  Message ("Warning: All of the pads are on the opposite\n"
-			   "side from the component - that's probably not what\n"
-			   "you wanted\n");
+		  Message
+		    ("Warning: All of the pads are on the opposite\n"
+		     "side from the component - that's probably not what\n"
+		     "you wanted\n");
 		}
 	      hasParts = True;
 	    }
-	 }
+	}
       );
     }
   );
@@ -802,39 +792,41 @@ RotateBuffer (BufferTypePtr Buffer, BYTE Number)
   /* rotate vias */
   VIA_LOOP (Buffer->Data, 
     {
-      r_delete_entry (Buffer->Data->via_tree, (BoxTypePtr)via);
+      r_delete_entry (Buffer->Data->via_tree, (BoxTypePtr) via);
       ROTATE_VIA_LOWLEVEL (via, Buffer->X, Buffer->Y, Number);
-      SetPinBoundingBox(via);
-      r_insert_entry (Buffer->Data->via_tree, (BoxTypePtr)via, 0);
+      SetPinBoundingBox (via);
+      r_insert_entry (Buffer->Data->via_tree, (BoxTypePtr) via, 0);
     }
   );
 
   /* elements */
   ELEMENT_LOOP (Buffer->Data, 
     {
-      RotateElementLowLevel (Buffer->Data, element, Buffer->X, Buffer->Y, Number);
+      RotateElementLowLevel (Buffer->Data, element, Buffer->X, Buffer->Y,
+			     Number);
     }
   );
 
   /* all layer related objects */
   ALLLINE_LOOP (Buffer->Data, 
     {
-      r_delete_entry (layer->line_tree, (BoxTypePtr)line);
+      r_delete_entry (layer->line_tree, (BoxTypePtr) line);
       RotateLineLowLevel (line, Buffer->X, Buffer->Y, Number);
-      SetLineBoundingBox (line);
-      r_insert_entry (layer->line_tree, (BoxTypePtr)line, 0);
+      r_insert_entry (layer->line_tree, (BoxTypePtr) line, 0);
     }
   );
   ALLARC_LOOP (Buffer->Data, 
     {
-      r_delete_entry (layer->arc_tree, (BoxTypePtr)arc);
+      r_delete_entry (layer->arc_tree, (BoxTypePtr) arc);
       RotateArcLowLevel (arc, Buffer->X, Buffer->Y, Number);
-      r_insert_entry (layer->arc_tree, (BoxTypePtr)arc, 0);
+      r_insert_entry (layer->arc_tree, (BoxTypePtr) arc, 0);
     }
   );
   ALLTEXT_LOOP (Buffer->Data, 
     {
+      r_delete_entry (layer->text_tree, (BoxTypePtr) text);
       RotateTextLowLevel (text, Buffer->X, Buffer->Y, Number);
+      r_insert_entry (layer->text_tree, (BoxTypePtr) text, 0);
     }
   );
   ALLPOLYGON_LOOP (Buffer->Data, 
@@ -877,17 +869,17 @@ MirrorBuffer (BufferTypePtr Buffer)
 
   if (Buffer->Data->ElementN)
     {
-      Message("You can't mirror a buffer that has element(s)!\n");
+      Message ("You can't mirror a buffer that has element(s)!\n");
       return;
     }
   for (i = 0; i < MAX_LAYER + 2; i++)
     {
-      LayerTypePtr layer = LAYER_PTR(i);
+      LayerTypePtr layer = LAYER_PTR (i);
       if (layer->TextN)
-        {
-          Message("You can't mirror a buffer that has text(s)!\n");
-          return;
-        }
+	{
+	  Message ("You can't mirror a buffer that has text(s)!\n");
+	  return;
+	}
     }
   /* set buffer offset to 'mark' position */
   Buffer->X = SWAP_X (Buffer->X);
@@ -912,7 +904,7 @@ MirrorBuffer (BufferTypePtr Buffer)
       arc->Y = SWAP_Y (arc->Y);
       arc->StartAngle = SWAP_ANGLE (arc->StartAngle);
       arc->Delta = SWAP_DELTA (arc->Delta);
-      SetArcBoundingBox(arc);
+      SetArcBoundingBox (arc);
     }
   );
   ALLPOLYGON_LOOP (Buffer->Data, 
@@ -950,33 +942,33 @@ SwapBuffer (BufferTypePtr Buffer)
   Buffer->Y = SWAP_Y (Buffer->Y);
   VIA_LOOP (Buffer->Data, 
     {
-      r_delete_entry (Buffer->Data->via_tree, (BoxTypePtr)via);
+      r_delete_entry (Buffer->Data->via_tree, (BoxTypePtr) via);
       via->X = SWAP_X (via->X);
       via->Y = SWAP_Y (via->Y);
-      SetPinBoundingBox(via);
-      r_insert_entry (Buffer->Data->via_tree, (BoxTypePtr)via, 0);
+      SetPinBoundingBox (via);
+      r_insert_entry (Buffer->Data->via_tree, (BoxTypePtr) via, 0);
     }
   );
   ALLLINE_LOOP (Buffer->Data, 
     {
-      r_delete_entry(layer->line_tree, (BoxTypePtr)line);
+      r_delete_entry (layer->line_tree, (BoxTypePtr) line);
       line->Point1.X = SWAP_X (line->Point1.X);
       line->Point1.Y = SWAP_Y (line->Point1.Y);
       line->Point2.X = SWAP_X (line->Point2.X);
       line->Point2.Y = SWAP_Y (line->Point2.Y);
-      SetLineBoundingBox(line);
-      r_insert_entry(layer->line_tree, (BoxTypePtr)line, 0);
+      SetLineBoundingBox (line);
+      r_insert_entry (layer->line_tree, (BoxTypePtr) line, 0);
     }
   );
   ALLARC_LOOP (Buffer->Data, 
     {
-      r_delete_entry(layer->arc_tree, (BoxTypePtr)arc);
+      r_delete_entry (layer->arc_tree, (BoxTypePtr) arc);
       arc->X = SWAP_X (arc->X);
       arc->Y = SWAP_Y (arc->Y);
       arc->StartAngle = SWAP_ANGLE (arc->StartAngle);
       arc->Delta = SWAP_DELTA (arc->Delta);
-      SetArcBoundingBox(arc);
-      r_insert_entry(layer->arc_tree, (BoxTypePtr)arc, 0);
+      SetArcBoundingBox (arc);
+      r_insert_entry (layer->arc_tree, (BoxTypePtr) arc, 0);
     }
   );
   ALLPOLYGON_LOOP (Buffer->Data, 
@@ -992,10 +984,12 @@ SwapBuffer (BufferTypePtr Buffer)
   );
   ALLTEXT_LOOP (Buffer->Data, 
     {
+      r_delete_entry (layer->text_tree, (BoxTypePtr) text);
       text->X = SWAP_X (text->X);
       text->Y = SWAP_Y (text->Y);
       TOGGLE_FLAG (ONSOLDERFLAG, text);
       SetTextBoundingBox (&PCB->Font, text);
+      r_insert_entry (layer->text_tree, (BoxTypePtr) text, 0);
     }
   );
   /* swap silkscreen layers */

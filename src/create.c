@@ -199,10 +199,10 @@ CreateNewVia (DataTypePtr Data,
   Via->Name = MyStrdup (Name, "CreateNewVia()");
   Via->Flags = Flags & ~WARNFLAG;
   Via->ID = ID++;
-  SetPinBoundingBox(Via);
+  SetPinBoundingBox (Via);
   if (!Data->via_tree)
-    Data->via_tree = r_create_tree(NULL, 0, 0);
-  r_insert_entry(Data->via_tree, (BoxTypePtr)Via, 0);
+    Data->via_tree = r_create_tree (NULL, 0, 0);
+  r_insert_entry (Data->via_tree, (BoxTypePtr) Via, 0);
   return (Via);
 }
 
@@ -213,94 +213,91 @@ struct line_info
   LineType test, *ans;
   jmp_buf env;
 };
-  
+
 static int
-line_callback (const BoxType *b, void *cl)
+line_callback (const BoxType * b, void *cl)
 {
-  LineTypePtr line = (LineTypePtr)b;
-  struct line_info *i = (struct line_info *)cl;
+  LineTypePtr line = (LineTypePtr) b;
+  struct line_info *i = (struct line_info *) cl;
 
   if (line->Point1.X == i->X1 &&
       line->Point2.X == i->X2 &&
-      line->Point1.Y == i->Y1 &&
-      line->Point2.Y == i->Y2)
+      line->Point1.Y == i->Y1 && line->Point2.Y == i->Y2)
     {
-      i->ans = (LineTypePtr)(-1);
+      i->ans = (LineTypePtr) (-1);
       longjmp (i->env, 1);
     }
-    /* check the other point order */
+  /* check the other point order */
   if (line->Point1.X == i->X1 &&
       line->Point2.X == i->X2 &&
-      line->Point1.Y == i->Y1 &&
-      line->Point2.Y == i->Y2)
+      line->Point1.Y == i->Y1 && line->Point2.Y == i->Y2)
     {
-      i->ans = (LineTypePtr)(-1);
+      i->ans = (LineTypePtr) (-1);
       longjmp (i->env, 1);
     }
   if (line->Point2.X == i->X1 &&
       line->Point1.X == i->X2 &&
-      line->Point2.Y == i->Y1 &&
-      line->Point1.Y == i->Y2)
+      line->Point2.Y == i->Y1 && line->Point1.Y == i->Y2)
     {
-      i->ans = (LineTypePtr)-1;
+      i->ans = (LineTypePtr) - 1;
       longjmp (i->env, 1);
     }
-     /* remove unncessary line points */
+  /* remove unncessary line points */
   if (line->Thickness == i->Thickness)
     {
       if (line->Point1.X == i->X1 && line->Point1.Y == i->Y1)
-        {
-           i->test.Point1.X = line->Point2.X;
-           i->test.Point1.Y = line->Point2.Y;
-           i->test.Point2.X = i->X2;
-           i->test.Point2.Y = i->Y2;
-	   if (IsPointOnLine ((float) i->X1, (float) i->Y1, 0.0, &i->test))
-	     {
-	       i->ans = line;
-               longjmp (i->env, 1);
-             } 
+	{
+	  i->test.Point1.X = line->Point2.X;
+	  i->test.Point1.Y = line->Point2.Y;
+	  i->test.Point2.X = i->X2;
+	  i->test.Point2.Y = i->Y2;
+	  if (IsPointOnLine ((float) i->X1, (float) i->Y1, 0.0, &i->test))
+	    {
+	      i->ans = line;
+	      longjmp (i->env, 1);
+	    }
 	}
       else if (line->Point2.X == i->X1 && line->Point2.Y == i->Y1)
-        {
-	   i->test.Point1.X = line->Point1.X;
-	   i->test.Point1.Y = line->Point1.Y;
-	   i->test.Point2.X = i->X2;
-	   i->test.Point2.Y = i->Y2;
-	   if (IsPointOnLine ((float) i->X1, (float) i->Y1, 0.0, &i->test))
-	     {
-	       i->ans = line;
-               longjmp (i->env, 1);
-	     }
-        }
+	{
+	  i->test.Point1.X = line->Point1.X;
+	  i->test.Point1.Y = line->Point1.Y;
+	  i->test.Point2.X = i->X2;
+	  i->test.Point2.Y = i->Y2;
+	  if (IsPointOnLine ((float) i->X1, (float) i->Y1, 0.0, &i->test))
+	    {
+	      i->ans = line;
+	      longjmp (i->env, 1);
+	    }
+	}
       else if (line->Point1.X == i->X2 && line->Point1.Y == i->Y2)
-        {
-           i->test.Point1.X = line->Point2.X;
-           i->test.Point1.Y = line->Point2.Y;
-           i->test.Point2.X = i->X1;
-           i->test.Point2.Y = i->Y1;
-           if (IsPointOnLine ((float) i->X2, (float) i->Y2, 0.0, &i->test))
-             {
-	       i->ans = line;
-               longjmp (i->env, 1);
-             }
-        }
+	{
+	  i->test.Point1.X = line->Point2.X;
+	  i->test.Point1.Y = line->Point2.Y;
+	  i->test.Point2.X = i->X1;
+	  i->test.Point2.Y = i->Y1;
+	  if (IsPointOnLine ((float) i->X2, (float) i->Y2, 0.0, &i->test))
+	    {
+	      i->ans = line;
+	      longjmp (i->env, 1);
+	    }
+	}
       else if (line->Point2.X == i->X2 && line->Point2.Y == i->Y2)
-        {
-          i->test.Point1.X = line->Point1.X;
+	{
+	  i->test.Point1.X = line->Point1.X;
 	  i->test.Point1.Y = line->Point1.Y;
 	  i->test.Point2.X = i->X1;
 	  i->test.Point2.Y = i->Y1;
 	  if (IsPointOnLine ((float) i->X2, (float) i->Y2, 0.0, &i->test))
 	    {
 	      i->ans = line;
-              longjmp (i->env, 1);
-            }
-        }
+	      longjmp (i->env, 1);
+	    }
+	}
     }
   return 0;
 }
 
-    
+
 /* ---------------------------------------------------------------------------
  * creates a new line on a layer and checks for overlap and extension
  */
@@ -313,10 +310,10 @@ CreateDrawnLineOnLayer (LayerTypePtr Layer,
   struct line_info info;
   BoxType search;
 
-  search.X1 = MIN(X1,X2);
-  search.X2 = MAX(X1,X2);
-  search.Y1 = MIN(Y1,Y2);
-  search.Y2 = MAX(Y1,Y2);
+  search.X1 = MIN (X1, X2);
+  search.X2 = MAX (X1, X2);
+  search.Y1 = MIN (Y1, Y2);
+  search.Y2 = MAX (Y1, Y2);
   info.X1 = X1;
   info.X2 = X2;
   info.Y1 = Y1;
@@ -331,13 +328,13 @@ CreateDrawnLineOnLayer (LayerTypePtr Layer,
    */
   if (setjmp (info.env) == 0)
     {
-      r_search(Layer->line_tree, &search, NULL, line_callback, &info);
+      r_search (Layer->line_tree, &search, NULL, line_callback, &info);
       return CreateNewLineOnLayer (Layer, X1, Y1, X2, Y2,
-		       Thickness, Clearance, Flags);
+				   Thickness, Clearance, Flags);
     }
-   
-  if ((void *)info.ans == (void *)(-1))
-    return NULL; /* stacked line */
+
+  if ((void *) info.ans == (void *) (-1))
+    return NULL;		/* stacked line */
   /* remove unneccessary points */
   if (info.ans)
     {
@@ -349,7 +346,7 @@ CreateDrawnLineOnLayer (LayerTypePtr Layer,
       Y2 = info.test.Point2.Y;
     }
   return CreateNewLineOnLayer (Layer, X1, Y1, X2, Y2,
-	       Thickness, Clearance, Flags);
+			       Thickness, Clearance, Flags);
 }
 
 LineTypePtr
@@ -373,12 +370,10 @@ CreateNewLineOnLayer (LayerTypePtr Layer,
   Line->Point2.X = X2;
   Line->Point2.Y = Y2;
   Line->Point2.ID = ID++;
-  SetLineBoundingBox(Line);
-  SetPointBoundingBox(&Line->Point1);
-  SetPointBoundingBox(&Line->Point2);
+  SetLineBoundingBox (Line);
   if (!Layer->line_tree)
-    Layer->line_tree = r_create_tree(NULL, 0, 0);
-  r_insert_entry(Layer->line_tree, (BoxTypePtr)Line, 0);
+    Layer->line_tree = r_create_tree (NULL, 0, 0);
+  r_insert_entry (Layer->line_tree, (BoxTypePtr) Line, 0);
   return (Line);
 }
 
@@ -406,9 +401,7 @@ CreateNewRat (DataTypePtr Data, Location X1, Location Y1,
   Line->Point2.ID = ID++;
   Line->group1 = group1;
   Line->group2 = group2;
-  SetLineBoundingBox((LineTypePtr)Line);
-  SetPointBoundingBox(&Line->Point1);
-  SetPointBoundingBox(&Line->Point2);
+  SetLineBoundingBox ((LineTypePtr) Line);
   if (!Data->rat_tree)
     Data->rat_tree = r_create_tree (NULL, 0, 0);
   r_insert_entry (Data->rat_tree, &Line->BoundingBox, 0);
@@ -450,8 +443,8 @@ CreateNewArcOnLayer (LayerTypePtr Layer,
   Arc->Delta = dir;
   SetArcBoundingBox (Arc);
   if (!Layer->arc_tree)
-    Layer->arc_tree = r_create_tree(NULL, 0, 0);
-  r_insert_entry(Layer->arc_tree, (BoxTypePtr)Arc, 0);
+    Layer->arc_tree = r_create_tree (NULL, 0, 0);
+  r_insert_entry (Layer->arc_tree, (BoxTypePtr) Arc, 0);
   return (Arc);
 }
 
@@ -501,6 +494,9 @@ CreateNewText (LayerTypePtr Layer, FontTypePtr PCBFont,
   /* calculate size of the bounding box */
   SetTextBoundingBox (PCBFont, text);
   text->ID = ID++;
+  if (!Layer->text_tree)
+    Layer->text_tree = r_create_tree (NULL, 0, 0);
+  r_insert_entry (Layer->text_tree, (BoxTypePtr) text, 0);
   return (text);
 }
 
@@ -637,6 +633,7 @@ CreateNewLineInElement (ElementTypePtr Element,
   line->Point2.X = X2;
   line->Point2.Y = Y2;
   line->Thickness = Thickness;
+  line->Flags = NOFLAG;
   line->ID = ID++;
   return (line);
 }

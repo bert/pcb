@@ -123,7 +123,8 @@ RotateLineLowLevel (LineTypePtr Line, Location X, Location Y, BYTE Number)
 	  Line->Point2.X = t;
 	}
     }
-
+  /* instead of rotating the bounding box, the call updates both end points too */
+  SetLineBoundingBox (Line);
 }
 
 /* ---------------------------------------------------------------------------
@@ -169,7 +170,9 @@ static void *
 RotateText (LayerTypePtr Layer, TextTypePtr Text)
 {
   EraseText (Text);
+  r_delete_entry (Layer->text_tree, (BoxTypePtr) Text);
   RotateTextLowLevel (Text, CenterX, CenterY, Number);
+  r_insert_entry (Layer->text_tree, (BoxTypePtr) Text, 0);
   DrawText (Layer, Text, 0);
   Draw ();
   return (Text);
@@ -194,7 +197,7 @@ RotateArcLowLevel (ArcTypePtr Arc, Location X, Location Y, BYTE Number)
       Arc->Width = Arc->Height;
       Arc->Height = save;
     }
-  SetArcBoundingBox (Arc);
+  RotateBoxLowLevel (&Arc->BoundingBox, X, Y, Number);
 }
 
 /* ---------------------------------------------------------------------------
@@ -221,6 +224,9 @@ RotateElementLowLevel (DataTypePtr Data, ElementTypePtr Element,
   );
   PIN_LOOP (Element, 
     {
+      /* pre-delete the pins from the pin-tree before their coordinates change */
+      if (Data)
+	r_delete_entry (PCB->Data->pin_tree, (BoxType *) pin);
       ROTATE_PIN_LOWLEVEL (pin, X, Y, Number);
       if (PCB->Data == Data)
 	UpdatePIPFlags (pin, Element, NULL, NULL, True);
@@ -228,6 +234,9 @@ RotateElementLowLevel (DataTypePtr Data, ElementTypePtr Element,
   );
   PAD_LOOP (Element, 
     {
+      /* pre-delete the pads before their coordinates change */
+      if (Data)
+	r_delete_entry (PCB->Data->pad_tree, (BoxType *) pad);
       ROTATE_PAD_LOWLEVEL (pad, X, Y, Number);
     }
   );
@@ -237,6 +246,7 @@ RotateElementLowLevel (DataTypePtr Data, ElementTypePtr Element,
     }
   );
   ROTATE (Element->MarkX, Element->MarkY, X, Y, Number);
+  /* SetElementBoundingBox reenters the pins/pads into their trees */
   SetElementBoundingBox (Data, Element, &PCB->Font);
 }
 
@@ -247,10 +257,10 @@ static void *
 RotateLinePoint (LayerTypePtr Layer, LineTypePtr Line, PointTypePtr Point)
 {
   EraseLine (Line);
-  r_delete_entry(Layer->line_tree, (BoxTypePtr)Line);
+  r_delete_entry (Layer->line_tree, (BoxTypePtr) Line);
   RotatePointLowLevel (Point, CenterX, CenterY, Number);
-  SetLineBoundingBox(Line);
-  r_insert_entry(Layer->line_tree, (BoxTypePtr)Line, 0);
+  SetLineBoundingBox (Line);
+  r_insert_entry (Layer->line_tree, (BoxTypePtr) Line, 0);
   DrawLine (Layer, Line, 0);
   Draw ();
   return (Line);
@@ -263,9 +273,9 @@ static void *
 RotateArc (LayerTypePtr Layer, ArcTypePtr Arc)
 {
   EraseArc (Arc);
-  r_delete_entry(Layer->arc_tree, (BoxTypePtr)Arc);
+  r_delete_entry (Layer->arc_tree, (BoxTypePtr) Arc);
   RotateArcLowLevel (Arc, CenterX, CenterY, Number);
-  r_insert_entry(Layer->arc_tree, (BoxTypePtr)Arc, 0);
+  r_insert_entry (Layer->arc_tree, (BoxTypePtr) Arc, 0);
   DrawArc (Layer, Arc, 0);
   Draw ();
   return (Arc);
@@ -343,7 +353,10 @@ RotateObject (int Type, void *Ptr1, void *Ptr2, void *Ptr3,
       AddObjectToRotateUndoList (LINEPOINT_TYPE, ptr->Layer, ptr->Line,
 				 ptr->MovedPoint, CenterX, CenterY, Steps);
       EraseLine (ptr->Line);
+      r_delete_entry (ptr->Layer->line_tree, (BoxType *) ptr->Line);
       RotatePointLowLevel (ptr->MovedPoint, CenterX, CenterY, Steps);
+      SetLineBoundingBox (ptr->Line);
+      r_insert_entry (ptr->Layer->line_tree, (BoxType *) ptr->Line, 0);
       DrawLine (ptr->Layer, ptr->Line, 0);
       Crosshair.AttachedObject.RubberbandN--;
       ptr++;
@@ -361,16 +374,16 @@ RotateObject (int Type, void *Ptr1, void *Ptr2, void *Ptr3,
 }
 
 void
-RotateScreenObject(Location X, Location Y, BYTE Steps)
+RotateScreenObject (Location X, Location Y, BYTE Steps)
 {
   int type;
   void *ptr1, *ptr2, *ptr3;
   if ((type = SearchScreen (X, Y, ROTATE_TYPES, &ptr1, &ptr2,
 			    &ptr3)) != NO_TYPE)
     {
-      if (TEST_FLAG(LOCKFLAG, (ArcTypePtr)ptr2))
-        {
-	  Message("Sorry that object is locked\n");
+      if (TEST_FLAG (LOCKFLAG, (ArcTypePtr) ptr2))
+	{
+	  Message ("Sorry that object is locked\n");
 	  return;
 	}
       Crosshair.AttachedObject.RubberbandN = 0;
@@ -378,8 +391,7 @@ RotateScreenObject(Location X, Location Y, BYTE Steps)
 	LookupRubberbandLines (type, ptr1, ptr2, ptr3);
       if (type == ELEMENT_TYPE)
 	LookupRatLines (type, ptr1, ptr2, ptr3);
-      RotateObject (type, ptr1, ptr2, ptr3, X,
-		    Y, Steps);
+      RotateObject (type, ptr1, ptr2, ptr3, X, Y, Steps);
       SetChangedFlag (True);
     }
 }

@@ -24,7 +24,8 @@
  *
  */
 
-static char *rcsid = "$Id$";
+static char *rcsid =
+  "$Id$";
 
 /* functions used to change object properties
  *
@@ -298,15 +299,15 @@ ChangeViaSize (PinTypePtr Via)
     {
       AddObjectToSizeUndoList (VIA_TYPE, Via, Via, Via);
       EraseVia (Via);
-      r_delete_entry(PCB->Data->via_tree, (BoxType *)Via);
+      r_delete_entry (PCB->Data->via_tree, (BoxType *) Via);
       if (Via->Mask)
-        {
-          AddObjectToMaskSizeUndoList (VIA_TYPE, Via, Via, Via);
-          Via->Mask += value - Via->Thickness;
+	{
+	  AddObjectToMaskSizeUndoList (VIA_TYPE, Via, Via, Via);
+	  Via->Mask += value - Via->Thickness;
 	}
       Via->Thickness = value;
-      SetPinBoundingBox(Via);
-      r_insert_entry(PCB->Data->via_tree, (BoxType *)Via, 0);
+      SetPinBoundingBox (Via);
+      r_insert_entry (PCB->Data->via_tree, (BoxType *) Via, 0);
       DrawVia (Via, 0);
       return (Via);
     }
@@ -358,10 +359,10 @@ ChangeViaClearSize (PinTypePtr Via)
   value = MIN (MAX_LINESIZE, MAX (value, Settings.Bloat * 2));
   AddObjectToClearSizeUndoList (VIA_TYPE, Via, Via, Via);
   EraseVia (Via);
-  r_delete_entry(PCB->Data->via_tree, (BoxType *)Via);
+  r_delete_entry (PCB->Data->via_tree, (BoxType *) Via);
   Via->Clearance = value;
-  SetPinBoundingBox(Via);
-  r_insert_entry(PCB->Data->via_tree, (BoxType *)Via, 0);
+  SetPinBoundingBox (Via);
+  r_insert_entry (PCB->Data->via_tree, (BoxType *) Via, 0);
   DrawVia (Via, 0);
   Via->Element = NULL;
   return (Via);
@@ -390,8 +391,8 @@ ChangePinSize (ElementTypePtr Element, PinTypePtr Pin)
       r_delete_entry (PCB->Data->pin_tree, &Pin->BoundingBox);
       Pin->Mask += value - Pin->Thickness;
       Pin->Thickness = value;
-       /* SetElementBB updates all associated rtrees */
-      SetElementBoundingBox(PCB->Data, Element, &PCB->Font);
+      /* SetElementBB updates all associated rtrees */
+      SetElementBoundingBox (PCB->Data, Element, &PCB->Font);
       DrawPin (Pin, 0);
       return (Pin);
     }
@@ -414,8 +415,8 @@ ChangePinClearSize (ElementTypePtr Element, PinTypePtr Pin)
   ErasePin (Pin);
   r_delete_entry (PCB->Data->pin_tree, &Pin->BoundingBox);
   Pin->Clearance = value;
-       /* SetElementBB updates all associated rtrees */
-  SetElementBoundingBox(PCB->Data, Element, &PCB->Font);
+  /* SetElementBB updates all associated rtrees */
+  SetElementBoundingBox (PCB->Data, Element, &PCB->Font);
   DrawPin (Pin, 0);
   return (Pin);
 }
@@ -439,8 +440,8 @@ ChangePadSize (ElementTypePtr Element, PadTypePtr Pad)
       r_delete_entry (PCB->Data->pad_tree, &Pad->BoundingBox);
       Pad->Mask += value - Pad->Thickness;
       Pad->Thickness = value;
-       /* SetElementBB updates all associated rtrees */
-      SetElementBoundingBox(PCB->Data, Element, &PCB->Font);
+      /* SetElementBB updates all associated rtrees */
+      SetElementBoundingBox (PCB->Data, Element, &PCB->Font);
       DrawPad (Pad, 0);
       return (Pad);
     }
@@ -465,8 +466,8 @@ ChangePadClearSize (ElementTypePtr Element, PadTypePtr Pad)
       ErasePad (Pad);
       r_delete_entry (PCB->Data->pad_tree, &Pad->BoundingBox);
       Pad->Clearance = value;
-       /* SetElementBB updates all associated rtrees */
-      SetElementBoundingBox(PCB->Data, Element, &PCB->Font);
+      /* SetElementBB updates all associated rtrees */
+      SetElementBoundingBox (PCB->Data, Element, &PCB->Font);
       DrawPad (Pad, 0);
       return (Pad);
     }
@@ -561,10 +562,10 @@ ChangeLineSize (LayerTypePtr Layer, LineTypePtr Line)
     {
       AddObjectToSizeUndoList (LINE_TYPE, Layer, Line, Line);
       EraseLine (Line);
-      r_delete_entry(Layer->line_tree, (BoxTypePtr)Line);
+      r_delete_entry (Layer->line_tree, (BoxTypePtr) Line);
       Line->Thickness = value;
-      SetLineBoundingBox(Line);
-      r_insert_entry(Layer->line_tree, (BoxTypePtr)Line, 0);
+      SetLineBoundingBox (Line);
+      r_insert_entry (Layer->line_tree, (BoxTypePtr) Line, 0);
       DrawLine (Layer, Line, 0);
       return (Line);
     }
@@ -580,22 +581,22 @@ ChangeLineClearSize (LayerTypePtr Layer, LineTypePtr Line)
 {
   BDimension value = (Absolute) ? Absolute : Line->Clearance + Delta;
 
-  if (TEST_FLAG (LOCKFLAG, Line) || !TEST_FLAG(CLEARLINEFLAG, Line))
+  if (TEST_FLAG (LOCKFLAG, Line) || !TEST_FLAG (CLEARLINEFLAG, Line))
     return (NULL);
   value = MIN (MAX_LINESIZE, MAX (value, Settings.Bloat * 2));
   if (value != Line->Clearance)
     {
       AddObjectToClearSizeUndoList (LINE_TYPE, Layer, Line, Line);
       EraseLine (Line);
-      r_delete_entry(Layer->line_tree, (BoxTypePtr)Line);
+      r_delete_entry (Layer->line_tree, (BoxTypePtr) Line);
       Line->Clearance = value;
       if (Line->Clearance == 0)
-        {
+	{
 	  CLEAR_FLAG (CLEARLINEFLAG, Line);
-          Line->Clearance = 1000;
-        }
-      SetLineBoundingBox(Line);
-      r_insert_entry(Layer->line_tree, (BoxTypePtr)Line, 0);
+	  Line->Clearance = 1000;
+	}
+      SetLineBoundingBox (Line);
+      r_insert_entry (Layer->line_tree, (BoxTypePtr) Line, 0);
       DrawLine (Layer, Line, 0);
       return (Line);
     }
@@ -618,10 +619,10 @@ ChangeArcSize (LayerTypePtr Layer, ArcTypePtr Arc)
     {
       AddObjectToSizeUndoList (ARC_TYPE, Layer, Arc, Arc);
       EraseArc (Arc);
-      r_delete_entry(Layer->arc_tree, (BoxTypePtr)Arc);
+      r_delete_entry (Layer->arc_tree, (BoxTypePtr) Arc);
       Arc->Thickness = value;
-      SetArcBoundingBox(Arc);
-      r_insert_entry(Layer->arc_tree, (BoxTypePtr)Arc, 0);
+      SetArcBoundingBox (Arc);
+      r_insert_entry (Layer->arc_tree, (BoxTypePtr) Arc, 0);
       DrawArc (Layer, Arc, 0);
       return (Arc);
     }
@@ -637,22 +638,22 @@ ChangeArcClearSize (LayerTypePtr Layer, ArcTypePtr Arc)
 {
   BDimension value = (Absolute) ? Absolute : Arc->Clearance + Delta;
 
-  if (TEST_FLAG (LOCKFLAG, Arc) || !TEST_FLAG(CLEARLINEFLAG, Arc))
+  if (TEST_FLAG (LOCKFLAG, Arc) || !TEST_FLAG (CLEARLINEFLAG, Arc))
     return (NULL);
   value = MIN (MAX_LINESIZE, MAX (value, Settings.Bloat * 2));
   if (value != Arc->Clearance)
     {
       AddObjectToClearSizeUndoList (ARC_TYPE, Layer, Arc, Arc);
       EraseArc (Arc);
-      r_delete_entry(Layer->arc_tree, (BoxTypePtr)Arc);
+      r_delete_entry (Layer->arc_tree, (BoxTypePtr) Arc);
       Arc->Clearance = value;
       if (Arc->Clearance == 0)
-        {
+	{
 	  CLEAR_FLAG (CLEARLINEFLAG, Arc);
-          Arc->Clearance = 1000;
-        }
-      SetArcBoundingBox(Arc);
-      r_insert_entry(Layer->arc_tree, (BoxTypePtr)Arc, 0);
+	  Arc->Clearance = 1000;
+	}
+      SetArcBoundingBox (Arc);
+      r_insert_entry (Layer->arc_tree, (BoxTypePtr) Arc, 0);
       DrawArc (Layer, Arc, 0);
       return (Arc);
     }
@@ -666,7 +667,7 @@ ChangeArcClearSize (LayerTypePtr Layer, ArcTypePtr Arc)
 static void *
 ChangeTextSize (LayerTypePtr Layer, TextTypePtr Text)
 {
-  BDimension value = (Absolute) ? Absolute/45 : Text->Scale + Delta/45;
+  BDimension value = (Absolute) ? Absolute / 45 : Text->Scale + Delta / 45;
 
   if (TEST_FLAG (LOCKFLAG, Text))
     return (NULL);
@@ -675,8 +676,10 @@ ChangeTextSize (LayerTypePtr Layer, TextTypePtr Text)
     {
       AddObjectToSizeUndoList (TEXT_TYPE, Layer, Text, Text);
       EraseText (Text);
+      r_delete_entry (Layer->text_tree, (BoxTypePtr) Text);
       Text->Scale = value;
       SetTextBoundingBox (&PCB->Font, Text);
+      r_insert_entry (Layer->text_tree, (BoxTypePtr) Text, 0);
       DrawText (Layer, Text, 0);
       return (Text);
     }
@@ -738,7 +741,8 @@ static void *
 ChangeElementNameSize (ElementTypePtr Element)
 {
   BDimension value =
-    (Absolute) ? Absolute/45 : DESCRIPTION_TEXT (Element).Scale + Delta/45;
+    (Absolute) ? Absolute / 45 : DESCRIPTION_TEXT (Element).Scale +
+    Delta / 45;
 
   if (TEST_FLAG (LOCKFLAG, &Element->Name[0]))
     return (NULL);
@@ -1618,7 +1622,7 @@ ChangeViaMaskSize (PinTypePtr Via)
   BDimension value;
 
   value = (Absolute) ? Absolute : Via->Mask + Delta;
-  value = MAX(value, 0);
+  value = MAX (value, 0);
   if (value != Via->Mask)
     {
       AddObjectToMaskSizeUndoList (VIA_TYPE, Via, Via, Via);

@@ -796,7 +796,8 @@ LookupLOConnectionsToLOList (Boolean AndRats)
   return (False);
 }
 
-int pv_pv_callback (const BoxType *b, void *cl)
+static int
+pv_pv_callback (const BoxType *b, void *cl)
 {
   PinTypePtr pin = (PinTypePtr)b;
   struct pv_info *i = (struct pv_info *)cl;
@@ -861,7 +862,7 @@ struct lo_info
   jmp_buf env;
 };
 
-int
+static int
 pv_line_callback (const BoxType *b, void *cl)
 {
   PinTypePtr pv = (PinTypePtr)b;
@@ -881,7 +882,7 @@ pv_line_callback (const BoxType *b, void *cl)
   return 0;
 }
 
-int
+static int
 pv_pad_callback (const BoxType *b, void *cl)
 {
   PinTypePtr pv = (PinTypePtr)b;
@@ -901,7 +902,7 @@ pv_pad_callback (const BoxType *b, void *cl)
   return 0;
 }
 
-int
+static int
 pv_arc_callback (const BoxType *b, void *cl)
 {
   PinTypePtr pv = (PinTypePtr)b;
@@ -921,7 +922,7 @@ pv_arc_callback (const BoxType *b, void *cl)
   return 0;
 }
 
-int
+static int
 pv_poly_callback (const BoxType *b, void *cl)
 {
   PinTypePtr pv = (PinTypePtr)b;
@@ -952,7 +953,7 @@ pv_poly_callback (const BoxType *b, void *cl)
   return 0;
 }
 
-int
+static int
 pv_rat_callback (const BoxType *b, void *cl)
 {
   PinTypePtr pv = (PinTypePtr)b;
@@ -2972,7 +2973,7 @@ LookupConnectionsToAllElements (FILE * FP)
     Beep (Settings.Volume);
   ResetConnections (False);
   FreeConnectionLookupMemory ();
-  RedrawOutput ();
+  ClearAndRedrawOutput ();
 }
 
 /*---------------------------------------------------------------------------
@@ -3806,7 +3807,6 @@ GotoError (void)
   Message ("near location (%d.%02d,%d.%02d)\n", X / 100, X % 100, Y / 100,
 	   Y % 100);
   CenterDisplay (X, Y, False);
-  RedrawOutput ();
 }
 
 void

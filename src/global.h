@@ -299,7 +299,7 @@ typedef struct			/* holds all objects */
 			*element_tree,
                         *pin_tree,
                         *pad_tree,
-			*name_tree,		/* for element names */
+			*name_tree[3],		/* for element names */
 			*rat_tree;
 	LayerType	Layer[MAX_LAYER + 2];	/* add 2 silkscreen layers */
 } DataType, *DataTypePtr;

@@ -221,11 +221,11 @@ __r_dump_tree(struct rtree_node *node, int depth)
   for (i=0; i<depth; i++)
     printf("  ");
   if (!node->flags.is_leaf)
-    printf("p=0x%08x node X(%d, %d) Y(%d, %d)\n", node,
+    printf("p=0x%p node X(%d, %d) Y(%d, %d)\n", node,
       node->box.X1, node->box.X2, node->box.Y1, node->box.Y2);
   else
     {
-      printf("p=0x%08x leaf manage(%02x) X(%d, %d) Y(%d, %d)\n", node, node->flags.manage,
+      printf("p=0x%p leaf manage(%02x) X(%d, %d) Y(%d, %d)\n", node, node->flags.manage,
              node->box.X1, node->box.X2, node->box.Y1, node->box.Y2);
       for (j = 0; j < M_SIZE; j++)
         {
@@ -233,7 +233,7 @@ __r_dump_tree(struct rtree_node *node, int depth)
 	    break;
 	  for (i =0; i< depth +1; i++)
             printf("  ");
-	  printf("entry 0x%08x X(%d, %d) Y(%d, %d)\n", node->u.rects[j].bptr,
+	  printf("entry 0x%p X(%d, %d) Y(%d, %d)\n", node->u.rects[j].bptr,
 	  node->u.rects[j].bounds.X1,
 	  node->u.rects[j].bounds.X2, node->u.rects[j].bounds.Y1,
 	  node->u.rects[j].bounds.Y2);
@@ -491,7 +491,6 @@ __r_search (struct rtree_node *node, const BoxType *query,
   /* maybe something is here, check them */
   if (node->flags.is_leaf)
     {
-      int flag = 1;
       for (i = 0; i < M_SIZE; i++)
         {
 	  if (!node->u.rects[i].bptr)
@@ -502,7 +501,6 @@ __r_search (struct rtree_node *node, const BoxType *query,
 	      (node->u.rects[i].bounds.Y2 > query->Y1) &&
 	      (!found_it || found_it (node->u.rects[i].bptr, closure)))
             seen++;
-	  flag <<= 1;
 	}
       return seen;
     }
@@ -918,9 +916,7 @@ __r_delete(rtree_t * seed, struct rtree_node * node, const BoxType * query)
 {
    int i, flag, mask, a;
 
-#ifdef SLOW_ASSERTS
-   assert(__r_node_is_good(node));
-#endif
+   /* the tree might be inconsistant during delete */
    if (query->X1 < node->box.X1 || query->Y1 < node->box.Y1
       || query->X2 > node->box.X2 || query->Y2 > node->box.Y2)
      return False;
