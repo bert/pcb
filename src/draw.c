@@ -2343,6 +2343,7 @@ EraseObject (int type, void *ptr)
       EraseElement ((ElementTypePtr) ptr);
       break;
     case LINE_TYPE:
+    case ELEMENTLINE_TYPE:
     case RATLINE_TYPE:
       EraseLine ((LineTypePtr) ptr);
       break;
@@ -2350,6 +2351,7 @@ EraseObject (int type, void *ptr)
       ErasePad ((PadTypePtr) ptr);
       break;
     case ARC_TYPE:
+    case ELEMENTARC_TYPE:
       EraseArc ((ArcTypePtr) ptr);
       break;
     default:

@@ -1998,6 +1998,7 @@ ActionSetValue (Widget W, XEvent * Event, String * Params, Cardinal * Num)
 
 	case F_Text:
 	case F_TextScale:
+          value /= 45;	  
 	  SetTextScale (r ? value : value + Settings.TextScale);
 	  break;
 	}
@@ -2822,6 +2823,8 @@ ActionChangeSize (Widget W, XEvent * Event, String * Params, Cardinal * Num)
 			       &ptr1, &ptr2, &ptr3)) != NO_TYPE)
 	      if (TEST_FLAG (LOCKFLAG, (PinTypePtr) ptr2))
 		Message ("Sorry, that object is locked\n");
+            if (type == TEXT_TYPE || type == ELEMENTNAME_TYPE)
+	       value /= 45;
 	    if (ChangeObjectSize
 		(type, ptr1, ptr2, ptr3, value, r))
 	      SetChangedFlag (True);
@@ -2849,6 +2852,7 @@ ActionChangeSize (Widget W, XEvent * Event, String * Params, Cardinal * Num)
 	  break;
 
 	case F_SelectedTexts:
+	  value /= 45;
 	  if (ChangeSelectedSize (TEXT_TYPE, value, r))
 	    SetChangedFlag (True);
 	  break;
