@@ -2582,7 +2582,9 @@ void
 ActionAutoPlaceSelected (Widget W, XEvent * Event,
 			 String * Params, Cardinal * Num)
 {
-  if (*Num == 0)		/* no parameters */
+  if (*Num == 0 &&
+      ConfirmDialog ("Auto-placement can NOT be undone.\n"
+                     "Do you want to continue anyway?\n"))
     {
       HideCrosshair (True);
       watchCursor ();
