@@ -62,7 +62,7 @@
 #include <dmalloc.h>
 #endif
 
-RCSID("$Id$");
+RCSID ("$Id$");
 
 /* ---------------------------------------------------------------------------
  * some local prototypes
@@ -1054,8 +1054,12 @@ ChangeElementName (ElementTypePtr Element)
 	}
     }
   EraseElementName (Element);
+  r_delete_entry (PCB->Data->name_tree[NAME_INDEX (PCB)],
+		  (BoxType *) & ELEMENT_TEXT (PCB, Element));
   ELEMENT_NAME (PCB, Element) = NewName;
   SetTextBoundingBox (&PCB->Font, &ELEMENT_TEXT (PCB, Element));
+  r_insert_entry (PCB->Data->name_tree[NAME_INDEX (PCB)],
+		  (BoxType *) & ELEMENT_TEXT (PCB, Element), 0);
   DrawElementName (Element, 0);
   return (old);
 }
@@ -1420,7 +1424,7 @@ SetPinOctagon (ElementTypePtr Element, PinTypePtr Pin)
 {
   if (TEST_FLAG (LOCKFLAG, Pin) || TEST_FLAG (OCTAGONFLAG, Pin))
     return (NULL);
-  
+
   return (ChangePinOctagon (Element, Pin));
 }
 
@@ -1432,7 +1436,7 @@ ClrPinOctagon (ElementTypePtr Element, PinTypePtr Pin)
 {
   if (TEST_FLAG (LOCKFLAG, Pin) || !TEST_FLAG (OCTAGONFLAG, Pin))
     return (NULL);
-  
+
   return (ChangePinOctagon (Element, Pin));
 }
 
@@ -1450,7 +1454,7 @@ ChangeHole (PinTypePtr Via)
   if (TEST_FLAG (HOLEFLAG, Via))
     {
       AddObjectToSizeUndoList (VIA_TYPE, Via, Via, Via);
-      Via->Thickness = Via->DrillingHole;
+      Via->Thickness = Via->Mask = Via->DrillingHole;
     }
   else
     {
@@ -1859,8 +1863,7 @@ SetObjectThermal (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
   Boolean change;
 
   change =
-    (ObjectOperation (&SetThermalFunctions, Type, Ptr1, Ptr2, Ptr3) !=
-     NULL);
+    (ObjectOperation (&SetThermalFunctions, Type, Ptr1, Ptr2, Ptr3) != NULL);
   if (change)
     {
       Draw ();
@@ -1879,8 +1882,7 @@ ClrObjectThermal (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
   Boolean change;
 
   change =
-    (ObjectOperation (&ClrThermalFunctions, Type, Ptr1, Ptr2, Ptr3) !=
-     NULL);
+    (ObjectOperation (&ClrThermalFunctions, Type, Ptr1, Ptr2, Ptr3) != NULL);
   if (change)
     {
       Draw ();
@@ -1996,8 +1998,7 @@ ChangeObjectSquare (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
 Boolean
 SetObjectSquare (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
 {
-  if (ObjectOperation (&SetSquareFunctions, Type, Ptr1, Ptr2, Ptr3) !=
-      NULL)
+  if (ObjectOperation (&SetSquareFunctions, Type, Ptr1, Ptr2, Ptr3) != NULL)
     {
       Draw ();
       IncrementUndoSerialNumber ();
@@ -2013,8 +2014,7 @@ SetObjectSquare (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
 Boolean
 ClrObjectSquare (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
 {
-  if (ObjectOperation (&ClrSquareFunctions, Type, Ptr1, Ptr2, Ptr3) !=
-      NULL)
+  if (ObjectOperation (&ClrSquareFunctions, Type, Ptr1, Ptr2, Ptr3) != NULL)
     {
       Draw ();
       IncrementUndoSerialNumber ();
@@ -2047,8 +2047,7 @@ ChangeObjectOctagon (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
 Boolean
 SetObjectOctagon (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
 {
-  if (ObjectOperation (&SetOctagonFunctions, Type, Ptr1, Ptr2, Ptr3) !=
-      NULL)
+  if (ObjectOperation (&SetOctagonFunctions, Type, Ptr1, Ptr2, Ptr3) != NULL)
     {
       Draw ();
       IncrementUndoSerialNumber ();
@@ -2064,8 +2063,7 @@ SetObjectOctagon (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
 Boolean
 ClrObjectOctagon (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
 {
-  if (ObjectOperation (&ClrOctagonFunctions, Type, Ptr1, Ptr2, Ptr3) !=
-      NULL)
+  if (ObjectOperation (&ClrOctagonFunctions, Type, Ptr1, Ptr2, Ptr3) != NULL)
     {
       Draw ();
       IncrementUndoSerialNumber ();
