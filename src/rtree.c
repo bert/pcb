@@ -95,7 +95,7 @@ struct rtree_node
   {
   struct rtree_node *kids[M_SIZE+1];	/* when not leaf */
   Rentry rects[M_SIZE+1];  /* when leaf */
-  } ;
+  } u;
 };
 
 #ifdef SLOW_ASSERTS
@@ -112,13 +112,13 @@ __r_node_is_good (struct rtree_node *node)
     {
       if (node->flags.is_leaf)
         {
-	  if (!node->rects[i].bptr)
+	  if (!node->u.rects[i].bptr)
 	    {
 	      last = True;
 	      continue;
 	    }
 	    /* check that once one entry is empty, all the rest are too */
-	  if (node->rects[i].bptr && last)
+	  if (node->u.rects[i].bptr && last)
 	    assert(0);
 	   /* check that the box makes sense */
 	  if (node->box.X1 > node->box.X2)
@@ -126,47 +126,47 @@ __r_node_is_good (struct rtree_node *node)
 	  if (node->box.Y1 > node->box.Y2)
 	    assert(0);
 	   /* check that bounds is the same as the pointer */
-	  if (node->rects[i].bounds.X1 != node->rects[i].bptr->X1)
+	  if (node->u.rects[i].bounds.X1 != node->u.rects[i].bptr->X1)
 	    assert(0);
-	  if (node->rects[i].bounds.Y1 != node->rects[i].bptr->Y1)
+	  if (node->u.rects[i].bounds.Y1 != node->u.rects[i].bptr->Y1)
 	    assert(0);
-	  if (node->rects[i].bounds.X2 != node->rects[i].bptr->X2)
+	  if (node->u.rects[i].bounds.X2 != node->u.rects[i].bptr->X2)
 	    assert(0);
-	  if (node->rects[i].bounds.Y2 != node->rects[i].bptr->Y2)
+	  if (node->u.rects[i].bounds.Y2 != node->u.rects[i].bptr->Y2)
 	    assert(0);
 	   /* check that entries are within node bounds */
-	  if (node->rects[i].bounds.X1 < node->box.X1)
+	  if (node->u.rects[i].bounds.X1 < node->box.X1)
 	    assert(0);
-	  if (node->rects[i].bounds.X2 > node->box.X2)
+	  if (node->u.rects[i].bounds.X2 > node->box.X2)
 	    assert(0);
-	  if (node->rects[i].bounds.Y1 < node->box.Y1)
+	  if (node->u.rects[i].bounds.Y1 < node->box.Y1)
 	    assert(0);
-	  if (node->rects[i].bounds.Y2 > node->box.Y2)
+	  if (node->u.rects[i].bounds.Y2 > node->box.Y2)
 	    assert(0);
 	}
       else
         {
-	  if (!node->kids[i])
+	  if (!node->u.kids[i])
 	    {
 	      last = True;
 	      continue;
 	    }
 	    /* make sure all children are the same type */
 	  if (kind == -1)
-	    kind = node->kids[i]->flags.is_leaf;
-	  else if (kind != node->kids[i]->flags.is_leaf)
+	    kind = node->u.kids[i]->flags.is_leaf;
+	  else if (kind != node->u.kids[i]->flags.is_leaf)
 	    assert(0);
 	    /* check that once one entry is empty, all the rest are too */
-	  if (node->kids[i] && last)
+	  if (node->u.kids[i] && last)
 	    assert(0);
 	   /* check that entries are within node bounds */
-	  if (node->kids[i]->box.X1 < node->box.X1)
+	  if (node->u.kids[i]->box.X1 < node->box.X1)
 	    assert(0);
-	  if (node->kids[i]->box.X2 > node->box.X2)
+	  if (node->u.kids[i]->box.X2 > node->box.X2)
 	    assert(0);
-	  if (node->kids[i]->box.Y1 < node->box.Y1)
+	  if (node->u.kids[i]->box.Y1 < node->box.Y1)
 	    assert(0);
-	  if (node->kids[i]->box.Y2 > node->box.Y2)
+	  if (node->u.kids[i]->box.Y2 > node->box.Y2)
 	    assert(0);
 	}
 	flag <<= 1;
@@ -184,9 +184,9 @@ __r_node_is_good (struct rtree_node *node)
 	   assert(0);
        }
       /* make sure overflow is empty */
-     if (!node->flags.is_leaf && node->kids[i])
+     if (!node->flags.is_leaf && node->u.kids[i])
        assert(0);
-     if (node->flags.is_leaf && node->rects[i].bptr)
+     if (node->flags.is_leaf && node->u.rects[i].bptr)
        assert(0);
   return 1;
 }
@@ -206,7 +206,7 @@ __r_tree_is_good(struct rtree_node *node)
     return 1;
   for (i=0; i < M_SIZE; i++)
     {
-      if (! __r_tree_is_good(node->kids[i]))
+      if (! __r_tree_is_good(node->u.kids[i]))
         return 0;
     }
   return 1;
@@ -229,20 +229,20 @@ __r_dump_tree(struct rtree_node *node, int depth)
              node->box.X1, node->box.X2, node->box.Y1, node->box.Y2);
       for (j = 0; j < M_SIZE; j++)
         {
-	  if (!node->rects[j].bptr)
+	  if (!node->u.rects[j].bptr)
 	    break;
 	  for (i =0; i< depth +1; i++)
             printf("  ");
-	  printf("entry 0x%p X(%d, %d) Y(%d, %d)\n", node->rects[j].bptr,
-	  node->rects[j].bounds.X1,
-	  node->rects[j].bounds.X2, node->rects[j].bounds.Y1,
-	  node->rects[j].bounds.Y2);
+	  printf("entry 0x%p X(%d, %d) Y(%d, %d)\n", node->u.rects[j].bptr,
+	  node->u.rects[j].bounds.X1,
+	  node->u.rects[j].bounds.X2, node->u.rects[j].bounds.Y1,
+	  node->u.rects[j].bounds.Y2);
 	}
       return;
     }
   for (i = 0; i < M_SIZE; i++)
-    if (node->kids[i])
-      __r_dump_tree(node->kids[i],depth+1);
+    if (node->u.kids[i])
+      __r_dump_tree(node->u.kids[i],depth+1);
 }
 #endif
 
@@ -263,7 +263,7 @@ sort_node(struct rtree_node *node)
     {
       register Rentry *r, *i, temp;
       
-      for (r = &node->rects[1]; r->bptr; r++)
+      for (r = &node->u.rects[1]; r->bptr; r++)
         {
 	  temp = *r;
 #ifdef SORT_BY_LENGTH
@@ -273,7 +273,7 @@ sort_node(struct rtree_node *node)
 	  ref *= (r->bounds.Y2 - r->bounds.Y1);
 #endif
 	  i = r - 1;
-	  while (i >= &node->rects[0])
+	  while (i >= &node->u.rects[0])
 	    {
 #ifdef SORT_BY_LENGTH
 	      size = MAX(i->bounds.X2 - i->bounds.X1, i->bounds.Y2 - i->bounds.Y1);
@@ -298,7 +298,7 @@ sort_node(struct rtree_node *node)
     {
       register struct rtree_node **r, **i, *temp;
       
-      for (r = &node->kids[1]; *r; r++)
+      for (r = &node->u.kids[1]; *r; r++)
         {
 	  temp = *r;
 #ifdef SORT_BY_LENGTH
@@ -308,7 +308,7 @@ sort_node(struct rtree_node *node)
 	  ref *= ((*r)->box.Y2 - (*r)->box.Y1);
 #endif
 	  i = r - 1;
-	  while (i >= &node->kids[0])
+	  while (i >= &node->u.kids[0])
 	    {
 #ifdef SORT_BY_LENGTH
 	      size = MAX((*i)->box.X2 - (*i)->box.X1, (*i)->box.Y2 - (*i)->box.Y1);
@@ -360,31 +360,31 @@ adjust_bounds(struct rtree_node *node)
   int i;
 
   assert(node);
-  assert(node->kids[0]);
+  assert(node->u.kids[0]);
   if (node->flags.is_leaf)
     {
-      node->box = node->rects[0].bounds;
+      node->box = node->u.rects[0].bounds;
       for (i = 1; i < M_SIZE + 1; i++)
         {
-          if (!node->rects[i].bptr)
+          if (!node->u.rects[i].bptr)
             return;
-          MAKEMIN(node->box.X1, node->rects[i].bounds.X1);
-          MAKEMAX(node->box.X2, node->rects[i].bounds.X2);
-          MAKEMIN(node->box.Y1, node->rects[i].bounds.Y1);
-          MAKEMAX(node->box.Y2, node->rects[i].bounds.Y2);
+          MAKEMIN(node->box.X1, node->u.rects[i].bounds.X1);
+          MAKEMAX(node->box.X2, node->u.rects[i].bounds.X2);
+          MAKEMIN(node->box.Y1, node->u.rects[i].bounds.Y1);
+          MAKEMAX(node->box.Y2, node->u.rects[i].bounds.Y2);
 	}
     }
   else
     {
-      node->box = node->kids[0]->box;
+      node->box = node->u.kids[0]->box;
       for (i = 1; i < M_SIZE + 1; i++)
         {
-	  if (!node->kids[i])
+	  if (!node->u.kids[i])
 	    return;
-          MAKEMIN(node->box.X1, node->kids[i]->box.X1);
-          MAKEMAX(node->box.X2, node->kids[i]->box.X2);
-          MAKEMIN(node->box.Y1, node->kids[i]->box.Y1);
-          MAKEMAX(node->box.Y2, node->kids[i]->box.Y2);
+          MAKEMIN(node->box.X1, node->u.kids[i]->box.X1);
+          MAKEMAX(node->box.X2, node->u.kids[i]->box.X2);
+          MAKEMIN(node->box.Y1, node->u.kids[i]->box.Y1);
+          MAKEMAX(node->box.Y2, node->u.kids[i]->box.Y2);
 	}
     }
 }
@@ -428,18 +428,18 @@ __r_destroy_tree (struct rtree_node *node)
   if (node->flags.is_leaf)
     for (i = 0; i < M_SIZE; i++)
       {
-        if (!node->rects[i].bptr)
+        if (!node->u.rects[i].bptr)
           break;
         if (node->flags.manage & flag)
-          free ((void *)node->rects[i].bptr);
+          free ((void *)node->u.rects[i].bptr);
 	flag = flag << 1;
       }
   else
     for (i = 0; i < M_SIZE; i++)
       {
-        if (!node->kids[i])
+        if (!node->u.kids[i])
           break;
-        __r_destroy_tree(node->kids[i]);
+        __r_destroy_tree(node->u.kids[i]);
       }
   free (node);
 }
@@ -493,13 +493,13 @@ __r_search (struct rtree_node *node, const BoxType *query,
     {
       for (i = 0; i < M_SIZE; i++)
         {
-	  if (!node->rects[i].bptr)
+	  if (!node->u.rects[i].bptr)
 	    return seen;
-          if ((node->rects[i].bounds.X1 < query->X2) &&
-	      (node->rects[i].bounds.X2 > query->X1) &&
-	      (node->rects[i].bounds.Y1 < query->Y2) &&
-	      (node->rects[i].bounds.Y2 > query->Y1) &&
-	      (!found_it || found_it (node->rects[i].bptr, closure)))
+          if ((node->u.rects[i].bounds.X1 < query->X2) &&
+	      (node->u.rects[i].bounds.X2 > query->X1) &&
+	      (node->u.rects[i].bounds.Y1 < query->Y2) &&
+	      (node->u.rects[i].bounds.Y2 > query->Y1) &&
+	      (!found_it || found_it (node->u.rects[i].bptr, closure)))
             seen++;
 	}
       return seen;
@@ -508,10 +508,10 @@ __r_search (struct rtree_node *node, const BoxType *query,
   /* not a leaf, recurse on lower nodes */
   for (i = 0; i< M_SIZE; i++)
     {
-      if (!node->kids[i])
+      if (!node->u.kids[i])
         return seen;
       if (!check_it || check_it (&(node->box), closure))
-        seen += __r_search (node->kids[i], query, check_it, found_it, closure);
+        seen += __r_search (node->u.kids[i], query, check_it, found_it, closure);
     }
   return seen;
 }
@@ -587,9 +587,9 @@ find_clusters(struct rtree_node * node)
   for (i = 0; i < M_SIZE + 1; i++)
     {
       if (node->flags.is_leaf)
-        b = &(node->rects[i].bounds);
+        b = &(node->u.rects[i].bounds);
       else
-        b = &(node->kids[i]->box);
+        b = &(node->u.kids[i]->box);
       center[i].x = 0.5 * (b->X1 + b->X2);
       center[i].y = 0.5 * (b->Y1 + b->Y2);
        /* adding 1 prevents zero area */
@@ -677,14 +677,14 @@ find_clusters(struct rtree_node * node)
       {
         if (belong[i])
 	  {
-	    node->rects[clust_a++] = node->rects[i];
+	    node->u.rects[clust_a++] = node->u.rects[i];
 	    if (node->flags.manage & flag)
 	      a_manage |= a_flag;
 	    a_flag <<= 1;
 	  }
 	else
 	  {
-	    new_node->rects[clust_b++] = node->rects[i];
+	    new_node->u.rects[clust_b++] = node->u.rects[i];
 	    if (node->flags.manage & flag)
 	      b_manage |= b_flag;
 	    b_flag <<= 1;
@@ -697,11 +697,11 @@ find_clusters(struct rtree_node * node)
       for (i = 0; i < M_SIZE+1; i++)
         {
           if (belong[i])
-	    node->kids[clust_a++] = node->kids[i];
+	    node->u.kids[clust_a++] = node->u.kids[i];
 	  else
 	    {
-	      node->kids[i]->parent = new_node;
-	      new_node->kids[clust_b++] = node->kids[i];
+	      node->u.kids[i]->parent = new_node;
+	      new_node->u.kids[clust_b++] = node->u.kids[i];
 	    } 
         }
     }
@@ -711,10 +711,10 @@ find_clusters(struct rtree_node * node)
   assert(clust_b != 0);
   if (node->flags.is_leaf)
     for ( ; clust_a < M_SIZE+1; clust_a++)
-      node->rects[clust_a].bptr = NULL;
+      node->u.rects[clust_a].bptr = NULL;
   else
     for ( ; clust_a < M_SIZE+1; clust_a++)
-      node->kids[clust_a] = NULL;
+      node->u.kids[clust_a] = NULL;
   adjust_bounds(node);
   sort_node(node);
   adjust_bounds(new_node);
@@ -731,7 +731,7 @@ split_node (struct rtree_node * node)
   struct rtree_node *new_node;
 
   assert(node);
-  assert(node->flags.is_leaf ? node->rects[M_SIZE].bptr : node->kids[M_SIZE]);
+  assert(node->flags.is_leaf ? node->u.rects[M_SIZE].bptr : node->u.kids[M_SIZE]);
   new_node = find_clusters(node);
   if (node->parent == NULL) /* split root node */
     {
@@ -741,15 +741,15 @@ split_node (struct rtree_node * node)
       *second = *node;
       if (!second->flags.is_leaf)
         for (i=0; i < M_SIZE; i++)
-          if (second->kids[i])
-	    second->kids[i]->parent = second;
+          if (second->u.kids[i])
+	    second->u.kids[i]->parent = second;
       node->flags.is_leaf = 0;
       node->flags.manage = 0;
       second->parent = new_node->parent = node;
-      node->kids[0] = new_node;
-      node->kids[1] = second;
+      node->u.kids[0] = new_node;
+      node->u.kids[1] = second;
       for (i = 2; i < M_SIZE + 1; i++)
-        node->kids[i] = NULL;
+        node->u.kids[i] = NULL;
       adjust_bounds(node);
       sort_node(node);
 #ifdef SLOW_ASSERTS
@@ -758,9 +758,9 @@ split_node (struct rtree_node * node)
       return;
     }
   for (i = 0; i < M_SIZE; i++)
-    if (!node->parent->kids[i])
+    if (!node->parent->u.kids[i])
        break;
-  node->parent->kids[i] = new_node;
+  node->parent->u.kids[i] = new_node;
 #ifdef SLOW_ASSERTS
   assert(__r_node_is_good(node));
   assert(__r_node_is_good(new_node));
@@ -813,7 +813,7 @@ __r_insert_node(struct rtree_node * node, const BoxType * query, int manage, Boo
 
           for (i = 0; i < M_SIZE; i++)
             {
-              if (!node->rects[i].bptr)
+              if (!node->u.rects[i].bptr)
                 break;
 	      flag <<= 1;
 	    }
@@ -822,12 +822,12 @@ __r_insert_node(struct rtree_node * node, const BoxType * query, int manage, Boo
       else
         {
           for (i = 0; i < M_SIZE; i++)
-            if (!node->rects[i].bptr)
+            if (!node->u.rects[i].bptr)
 	      break;
 	}
       /* the node always has an extra space available */
-      node->rects[i].bptr = query;
-      node->rects[i].bounds = *query;
+      node->u.rects[i].bptr = query;
+      node->u.rects[i].bounds = *query;
       /* first entry in node determines initial bounding box */
       if (i == 0)
         node->box = *query;
@@ -860,19 +860,19 @@ __r_insert_node(struct rtree_node * node, const BoxType * query, int manage, Boo
         MAKEMAX(node->box.Y2, query->Y2);
       }
       /* this node encloses it, but it's not a leaf, so decend the tree */
-      assert(node->kids[0]);
-      best_score = __r_insert_node (node->kids[0], query, manage, force);
+      assert(node->u.kids[0]);
+      best_score = __r_insert_node (node->u.kids[0], query, manage, force);
       if (best_score == 0)
         {
 	  sort_node(node);
           return 0;
 	}
-      best_node = node->kids[0];
+      best_node = node->u.kids[0];
       for (i = 1; i < M_SIZE; i++)
         {
-	  if (node->kids[i])
+	  if (node->u.kids[i])
 	    {
-	      score = __r_insert_node (node->kids[i], query, manage, force);
+	      score = __r_insert_node (node->u.kids[i], query, manage, force);
 	      if (score == 0)
 	        {
 		  sort_node(node);
@@ -881,7 +881,7 @@ __r_insert_node(struct rtree_node * node, const BoxType * query, int manage, Boo
 	      else if (score < best_score)
 	        {
 	          best_score = score;
-		  best_node = node->kids[i];
+		  best_node = node->u.kids[i];
 		}
 	    }
 	 }
@@ -923,17 +923,17 @@ __r_delete(rtree_t * seed, struct rtree_node * node, const BoxType * query)
        for (i = 0; i < M_SIZE; i++)
          {
 	     /* if this is us being removed, free and copy over */
-	   if (node->kids[i] == (struct rtree_node *)query)
+	   if (node->u.kids[i] == (struct rtree_node *)query)
 	     {
 	       free((void *)query);
 	       for ( ; i < M_SIZE; i++)
 	         {
-	           node->kids[i] = node->kids[i+1];
-		   if (!node->kids[i])
+	           node->u.kids[i] = node->u.kids[i+1];
+		   if (!node->u.kids[i])
 		     break;
 		 }
 		/* nobody home here now ? */
-	       if (!node->kids[0])
+	       if (!node->u.kids[0])
 	         {
 		   if (!node->parent)
 		     {
@@ -941,7 +941,7 @@ __r_delete(rtree_t * seed, struct rtree_node * node, const BoxType * query)
 		       node->flags.is_leaf = 1;
 		       /* changing type of node, be sure it's all zero */
 		       for (i = 1; i < M_SIZE+1; i++)
-		         node->rects[i].bptr = NULL;
+		         node->u.rects[i].bptr = NULL;
 		       return True;
 		     }
 		   return(__r_delete(seed, node->parent, &node->box));
@@ -955,9 +955,9 @@ __r_delete(rtree_t * seed, struct rtree_node * node, const BoxType * query)
 		 }
 	       return True;
              }
-           if (node->kids[i])
+           if (node->u.kids[i])
 	     {
-	       if (__r_delete(seed, node->kids[i], query))
+	       if (__r_delete(seed, node->u.kids[i], query))
 	         return True;
              }
 	   else
@@ -971,33 +971,33 @@ __r_delete(rtree_t * seed, struct rtree_node * node, const BoxType * query)
    for (i = 0; i < M_SIZE; i++)
      {
 #ifdef DELETE_BY_POINTER
-       if (!node->rects[i].bptr || node->rects[i].bptr == query)
+       if (!node->u.rects[i].bptr || node->u.rects[i].bptr == query)
 #else
-       if (node->rects[i].bounds.X1 == query->X1 &&
-           node->rects[i].bounds.X2 == query->X2 &&
-           node->rects[i].bounds.Y1 == query->Y1 &&
-           node->rects[i].bounds.Y2 == query->Y2)
+       if (node->u.rects[i].bounds.X1 == query->X1 &&
+           node->u.rects[i].bounds.X2 == query->X2 &&
+           node->u.rects[i].bounds.Y1 == query->Y1 &&
+           node->u.rects[i].bounds.Y2 == query->Y2)
 #endif
          break;
        mask |= a;
        a <<= 1;
      }
-   if (!node->rects[i].bptr)
+   if (!node->u.rects[i].bptr)
      return False;   /* not at this leaf */
     /* we have to 'manage' this pointer even after it's deleted! */
    if (node->flags.manage & a)
-     move_to_manage(seed, node->rects[i].bptr);
+     move_to_manage(seed, node->u.rects[i].bptr);
     /* squeeze the manage flags together */
    flag = node->flags.manage & mask;
    node->flags.manage = flag | ((node->flags.manage & (~mask)) >> (i+1));
     /* remove the entry */
    for ( ; i < M_SIZE; i++)
      {
-       node->rects[i] = node->rects[i+1];
-       if (!node->rects[i].bptr)
+       node->u.rects[i] = node->u.rects[i+1];
+       if (!node->u.rects[i].bptr)
          break;
      }
-   if (!node->rects[0].bptr)
+   if (!node->u.rects[0].bptr)
      {
        if (node->parent)
          __r_delete(seed, node->parent, &node->box);
@@ -1037,19 +1037,19 @@ __r_sub (struct rtree_node *node, const BoxType *b, const BoxType *a)
   if (node->flags.is_leaf)
     {
        for (i = 0; i < M_SIZE; i++)
-         if (node->rects[i].bptr == b)
+         if (node->u.rects[i].bptr == b)
 	   {
-	     node->rects[i].bptr = a;
-	     assert(a->X1 == node->rects[i].bounds.X1);
-	     assert(a->X2 == node->rects[i].bounds.X2);
-	     assert(a->Y1 == node->rects[i].bounds.Y1);
-	     assert(a->Y2 == node->rects[i].bounds.Y2);
+	     node->u.rects[i].bptr = a;
+	     assert(a->X1 == node->u.rects[i].bounds.X1);
+	     assert(a->X2 == node->u.rects[i].bounds.X2);
+	     assert(a->Y1 == node->u.rects[i].bounds.Y1);
+	     assert(a->Y2 == node->u.rects[i].bounds.Y2);
 	     return 1;
 	   }
        return 0;
     }
   for (i = 0; i < M_SIZE; i++)
-    if (node->kids[i] && __r_sub(node->kids[i], b, a))
+    if (node->u.kids[i] && __r_sub(node->u.kids[i], b, a))
       return 1;
   return 0;
 }
