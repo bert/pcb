@@ -186,15 +186,20 @@ html_docs = ${info_TEXINFOS:.texi=.html}
 ps_docs = ${info_TEXINFOS:.texi=.ps} refcard.ps
 pdf_docs = ${info_TEXINFOS:.texi=.pdf} refcard.pdf
 EXTRA_DIST = \
+	ascii2texi.awk \
 	refcard.tex \
 	pad.obj \
 	pad.png \
 	pad.eps \
 	pcb.dvi \
 	refcard.dvi \
+	wire_size.tab \
 	wire_size.texi \
+	letter_size.tab \
 	letter_size.texi \
+	metric_size.tab \
 	metric_size.texi \
+	fractional_size.tab \
 	fractional_size.texi
 
 SUFFIXES = .obj .tab
