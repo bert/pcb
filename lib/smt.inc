@@ -517,7 +517,7 @@ define(`PKG_TSSOP', `COMMON_SMT_DUALINLINE(`$1',`$2',`$3',`$4',260,2600,14,40)')
 # $5: pad width  (1/1000 mil)
 # $6: pad length (1/1000 mil)
 # $7: pad pitch (1/1000 mil)
-# $8: pad seperation center to center for pads on opposite sides of
+# $8: pad seperation (gap in the copper) for pads on opposite sides of
 #     the package (1/1000 mil)
 # $9: define to make the pins get numbered starting with the highest pin
 #     instead of pin 1.  Needed for certain brain damaged packages like
