@@ -29,41 +29,39 @@ define(`COMMON_SMT_2PAD_MIL',
 	define(`addTIN',   `eval(sizY / 5)')
 	define(`padX',     `eval(metalX + 2*addTIN)')
 	define(`padY',     `eval(sizY + 2*addTIN)')
-	define(`maxX',     `eval(sizX + 2*addFRAME + 2*addTIN)')
-	define(`maxY',     `eval(sizY + 2*addFRAME + 2*addTIN)')
-	define(`centerY',  `eval(maxY / 2)')
-	define(`centerX1', `eval(addFRAME + padX/2)')
-	define(`centerX2', `eval(maxX - centerX1)')
+	define(`width',    `eval(sizX/2 + addFRAME + addTIN)')
+	define(`height',   `eval(sizY/2 + addFRAME + addTIN)')
+	define(`centerX',  `eval((sizX - padX + 2*addTIN)/2)')
 	define(`silkW',    `ifelse(eval(sizY >= 50), 1, 10, eval(sizY/5))')
-Element(0x00 "$1" "$2" "$3" eval(maxX + 20) 0 3 100 0x00)
+Element(0x00 "`$1'" "`$2'" "`$3'" eval(width + 20) 0 3 100 0x00)
 (
 	ifelse(eval($7 > 0), 1,
-	   `ElementLine(0 addFRAME 0 eval(maxY-addFRAME) eval(2*silkW))
-	    ElementLine(0 eval(maxY-addFRAME) eval(padX/2) maxY silkW)
-	    ElementLine(eval(padX/2) maxY maxX maxY silkW)
-	    ElementLine(maxX maxY maxX 0 silkW)
-	    ElementLine(maxX 0 eval(padX/2) 0 silkW)
-	    ElementLine(eval(padX/2) 0 0 addFRAME silkW)
+	   `ElementLine(eval(-width-silkW) eval(-height + addFRAME) eval(-width-silkW) eval(height-addFRAME) eval(2*silkW))
+	    ElementLine(eval(-width-silkW) eval( height - addFRAME) eval(-width + padX/2 -silkW) height silkW)
+	    ElementLine(eval(-width + padX/2 - silkW) height width height silkW)
+	    ElementLine(width height width -height silkW)
+	    ElementLine(width -height eval(-width + padX/2 -silkW) -height silkW)
+	    ElementLine(eval(-width + padX/2 -silkW) -height eval(-width-silkW) eval(-height + addFRAME) silkW)
 	   ', 
-	   `ElementLine(0 0 0 maxY silkW)
-	    ElementLine(0 maxY maxX maxY silkW)
-	    ElementLine(maxX maxY maxX 0 silkW)
-	    ElementLine(maxX 0 0 0 silkW)
+	   `ElementLine(-width -height -width height silkW)
+	    ElementLine(-width height width height silkW)
+	    ElementLine(width height width -height silkW)
+	    ElementLine(width -height -width -height silkW)
 	   ')
 
 	ifelse(eval(padX > padY), 1,       
-	   `Pad(eval(addFRAME+padY/2) centerY eval(addFRAME+padX-padY/2) centerY
+	   `Pad(eval((-2*centerX - padX + padY)/2) 0 eval((-2*centerX + padX - padY)/2) 0
 							padY "1" "1" 0x100)
-	    Pad(eval(maxX-(addFRAME+padY/2)) centerY eval(maxX-(addFRAME+padX-padY/2)) centerY
+	    Pad(eval(( 2*centerX - padX + padY)/2) 0 eval(( 2*centerX + padX - padY)/2) 0
 							padY "2" "2" 0x100)
 	 ',
-	   `Pad(centerX1 eval(addFRAME+padX/2) centerX1 eval(addFRAME+padY-padX/2)
+	   `Pad(-centerX eval((-padY+padX)/2) -centerX eval((padY-padX)/2)
 							padX "1" "1" 0x100)
-	    Pad(centerX2 eval(addFRAME+padX/2) centerX2 eval(addFRAME+padY-padX/2)
+	    Pad(centerX eval((-padY+padX)/2) centerX eval((padY-padX)/2)
 							padX "2" "2" 0x100)
 	 ')
 
-	Mark(eval(addFRAME+padX/2) centerY)
+	Mark(0 0)
 )')
 # -------------------------------------------------------------------
 # 
@@ -180,7 +178,7 @@ define(`COMMON_SMT_TRANSISTOR_MIL',
 	define(`silkW',    `ifelse(eval(spaceY >= 50), 1, 10, eval(spaceY/5))')
 	define(`indeX',    `0')
 
-Element(0x00 "$1" "$2" "$3" eval(maxX+20) 0 3 100 0x00)
+Element(0x00 "`$1'" "`$2'" "`$3'" eval(maxX+20) 0 3 100 0x00)
 (
 	ElementLine(0 0 0 maxY silkW)
 	ElementLine(0 maxY maxX maxY silkW)
@@ -270,7 +268,7 @@ define(`COMMON_SMT_TRANSISTORX_MIL',
 	define(`silkW',    `ifelse(eval(spaceY >= 50), 1, 10, eval(spaceY/5))')
 	define(`indeX',    `0')
 
-Element(0x00 "$1" "$2" "$3" eval(maxX+20) 0 3 100 0x00)
+Element(0x00 "`$1'" "`$2'" "`$3'" eval(maxX+20) 0 3 100 0x00)
 (
 	ElementLine(0 0 0 maxY silkW)
 	ElementLine(0 maxY maxX maxY silkW)
@@ -340,7 +338,7 @@ define(`COMMON_SMT_DUALINLINE',
 	define(`lowX2',   `eval(maxX - (padX-padY))')
 	define(`highX2',  `eval(maxX - padY/2)')
 	define(`centerX', `eval(maxX / 2)')
-Element(0x00 "$1" "$2" "$3" eval(centerX + 20) 50 3 100 0x00)
+Element(0x00 "`$1'" "`$2'" "`$3'" eval(centerX + 20) 50 3 100 0x00)
 (
 	forloop(`i', 1, eval(pinCOUNT/2),
 		`PAD(lowX1, eval((i*pinS100 - pinS100/2)/100),
@@ -567,7 +565,7 @@ define(`COMMON_SMT_DIL_MIL',
 	,
 		`define(`CURPIN', `1')'
 	)	
-Element(0x00 "$1" "$2" "$3" -20 -60 0 100 0x00)
+Element(0x00 "`$1'" "`$2'" "`$3'" -20 -60 0 100 0x00)
 (
         forloop(`i', 1, eval(NPADS / 2),
                 `ifelse(EVEN,"yes",
