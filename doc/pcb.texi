@@ -2476,6 +2476,14 @@ The command may contain %f which is replaced by the filename. The command
 must read its data from the standard input.
 The resource @emph{saveCommand} is overwritten.
 
+@vindex scriptFilename
+@findex -script
+@cindex startup actions script
+@item -script filename
+Specifies a script file containg PCB actions to be executed
+upon startup.  Overwrites the resource
+@emph{scriptFilename}.
+
 @vindex size
 @cindex size of a layout
 @cindex layout size
@@ -2504,6 +2512,7 @@ The available special options are:
 @table @samp
 
 @findex -copyright
+@findex --copyright
 @cindex copyright
 @item -copyright
 Prints out the copyright notice and terminates.
@@ -3417,6 +3426,25 @@ None<Key>/:  Display(CycleClip)
 @item DRC()
 Initiates design rule checking of the entire layout. Must be repeated
 until no errors are found.
+
+@findex ExecuteFile()
+@cindex actions file, executing
+@cindex script file, executing
+@itemx ExecuteFile(filename)
+Executes the PCB actions contained in the specified file.
+This can be used to automate a complex sequence of operations.
+@example
+:ExecuteFile(custom.cmd)
+@end example
+The command file contains a list of PCB actions.  Blank lines
+are ignored and lines starting with a # are treated as comment
+lines.  For example
+@example
+# This is a comment line
+Display(Grid)
+SetValue(Zoom,2)
+DRC()
+@end example
 
 @findex EditLayerGroups()
 @cindex layers, editing of groups
