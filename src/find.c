@@ -325,7 +325,6 @@ static Boolean LookupLOConnectionsToPad (PadTypePtr, Cardinal);
 static Boolean LookupLOConnectionsToPolygon (PolygonTypePtr, Cardinal);
 static Boolean LookupLOConnectionsToArc (ArcTypePtr, Cardinal);
 static Boolean LookupLOConnectionsToRatEnd (PointTypePtr, Cardinal);
-static Boolean IsArcInPolygon (ArcTypePtr, PolygonTypePtr);
 static Boolean IsRatPointOnLineEnd (PointTypePtr, LineTypePtr);
 static Boolean ArcArcIntersect (ArcTypePtr, ArcTypePtr);
 static Boolean PrepareNextLoop (FILE *);
@@ -2814,7 +2813,7 @@ LookupLOConnectionsToPolygon (PolygonTypePtr Polygon, Cardinal LayerGroup)
  * - check the two end points of the arc. If none of them matches
  * - check all segments of the polygon against the arc.
  */
-static Boolean
+Boolean
 IsArcInPolygon (ArcTypePtr Arc, PolygonTypePtr Polygon)
 {
   BoxTypePtr Box;
@@ -2873,17 +2872,19 @@ IsArcInPolygon (ArcTypePtr Arc, PolygonTypePtr Polygon)
 Boolean
 IsLineInPolygon (LineTypePtr Line, PolygonTypePtr Polygon)
 {
-  Location minx = MIN (Line->Point1.X, Line->Point2.X)
-    - MAX (Line->Thickness + Bloat, 0),
-    maxx = MAX (Line->Point1.X, Line->Point2.X)
-    + MAX (Line->Thickness + Bloat, 0),
-    miny = MIN (Line->Point1.Y, Line->Point2.Y)
-    - MAX (Line->Thickness + Bloat, 0),
-    maxy = MAX (Line->Point1.Y, Line->Point2.Y)
-    + MAX (Line->Thickness + Bloat, 0);
+  Location minx, maxx, miny, maxy;
+  
   /* lines with clearance never touch polygons */
   if (TEST_FLAG (CLEARLINEFLAG, Line))
     return (False);
+  minx = MIN (Line->Point1.X, Line->Point2.X)
+    - MAX (Line->Thickness + Bloat, 0);
+  maxx = MAX (Line->Point1.X, Line->Point2.X)
+    + MAX (Line->Thickness + Bloat, 0);
+  miny = MIN (Line->Point1.Y, Line->Point2.Y)
+    - MAX (Line->Thickness + Bloat, 0);
+  maxy = MAX (Line->Point1.Y, Line->Point2.Y)
+    + MAX (Line->Thickness + Bloat, 0);
   if (minx <= Polygon->BoundingBox.X2 && maxx >= Polygon->BoundingBox.X1
       && miny <= Polygon->BoundingBox.Y2 && maxy >= Polygon->BoundingBox.Y1)
     {

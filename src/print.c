@@ -58,6 +58,7 @@ static char *rcsid = "$Id$";
 #include "error.h"
 #include "misc.h"
 #include "print.h"
+#include "search.h"
 
 #ifdef HAVE_LIBDMALLOC
 #include <dmalloc.h>
@@ -233,6 +234,7 @@ PrintLayergroups (void)
    * (2) Exactly one polygon
    * (3) No Pads
    * (4) All Pins and Vias pierce the polygon
+   * should probably require (5) polygon is a rectangle but that's TODO
    */
   if (PCB->Data->RatN)
     {
@@ -244,6 +246,7 @@ PrintLayergroups (void)
     if (PCB->LayerGroups.Number[group])
       {
 	Somepolys = 0;
+        PIPflag = Tflag = 0;
 	/* see if we can make the special negative plane */
 	if (strcmp (Device->Name, "Gerber/RS-274X") == 0)
 	  negative_plane = True;
@@ -253,18 +256,19 @@ PrintLayergroups (void)
 	/* always include solder/component layers */
 	component = GetLayerGroupNumberByNumber (MAX_LAYER + COMPONENT_LAYER);
 	solder = GetLayerGroupNumberByNumber (MAX_LAYER + SOLDER_LAYER);
-	if (component == group || solder == group)
-	  noData = False;
-	else
-	  noData = True;
+	noData = True;
 
+       /* negative plane possibility checks */
 	if (group == component)
 	  {
 	    noData = False;
 	    ALLPAD_LOOP (PCB->Data, 
 	      {
 		if (!TEST_FLAG (ONSOLDERFLAG, pad))
-		  negative_plane = False;
+		  {
+		    negative_plane = False;
+		    break;
+		  }
 	      }
 	    );
 	  }
@@ -274,7 +278,10 @@ PrintLayergroups (void)
 	    ALLPAD_LOOP (PCB->Data, 
 	      {
 		if (TEST_FLAG (ONSOLDERFLAG, pad))
-		  negative_plane = False;
+		  {
+		    negative_plane = False;
+		    break;
+		  }
 	      }
 	    );
 	  }
@@ -296,8 +303,8 @@ PrintLayergroups (void)
 	      {
 		noData = False;
 		Somepolys += layer->PolygonN;
-		PIPflag = L0PIPFLAG << number;
-		Tflag = L0THERMFLAG << number;
+		PIPflag |= L0PIPFLAG << number;
+		Tflag |= L0THERMFLAG << number;
 	      }
 	  }
 	/* skip empty layers */
@@ -307,20 +314,25 @@ PrintLayergroups (void)
 	if (Somepolys != 1)
 	  negative_plane = False;
 	if (negative_plane)
-	  {
-	    ALLPIN_LOOP (PCB->Data, 
-	      {
-		if (!TEST_FLAG (PIPflag, pin))
-		  negative_plane = False;
-	      }
-	    );
-	    VIA_LOOP (PCB->Data, 
-	      {
-		if (!TEST_FLAG (PIPflag, via))
-		  negative_plane = False;
-	      }
-	    );
-	  }
+	  ALLPIN_LOOP (PCB->Data, 
+	    {
+	      if (!TEST_FLAG(PIPflag, pin))
+	        {
+	          negative_plane = False;
+		  break;
+		}
+	    }
+	  );
+	if (negative_plane)
+	  VIA_LOOP (PCB->Data, 
+	    {
+	      if (TEST_FLAG(PIPflag, via))
+	        {
+	          negative_plane = False;
+		  break;
+		}
+	    }
+	  );
 
 	/* setup extention and open new file */
 	if (component == group)
@@ -342,13 +354,10 @@ PrintLayergroups (void)
 	  {
 	    /* indicate positive polarity */
 	    Device->Polarity (0);
-	    /* loop and check each layer
-	     * for being a member of the group
-	     */
 	    if (GlobalAlignmentFlag)
 	      FPrintAlignment ();
 
-	    /* print all polygons */
+	    /* print all polygons in the group*/
 	    for (entry = 0; entry < PCB->LayerGroups.Number[group]; entry++)
 	      {
 		LayerTypePtr layer;
@@ -369,22 +378,24 @@ PrintLayergroups (void)
 		    );
 		  }
 	      }
-	    /* clear all lines, arcs, pins */
+	    /* clear the intersecting lines, arcs, pins and vias */
 	    PIPflag = Tflag = 0;
-/* TO DO: It would be good to make sure something is actually clearing
- * drawn regions before calling Device->Polarity
- */
 	    if (Somepolys)
 	      {
-		Device->Polarity (2);
+	        Boolean polarity_called = False;
 		for (entry = 0; entry < PCB->LayerGroups.Number[group];
 		     entry++)
 		  {
 		    LayerTypePtr layer;
 		    Cardinal number;
 
-		    InitConnectionLookup ();
-		    SaveFindFlag (DRCFLAG);
+		 /* this is a time-consuming connection search done
+		  * over and over, but presumably printing isn't done
+		  * often so its ok to take a little time
+		  *
+		  * eventually we should use the rtree to pre-condition
+		  * candidates
+		  */
 		    number = PCB->LayerGroups.Entries[group][entry];
 		    if (number >= MAX_LAYER)
 		      continue;
@@ -397,86 +408,146 @@ PrintLayergroups (void)
 			if (TEST_FLAG (CLEARLINEFLAG, line))
 			  {
 			    CLEAR_FLAG (CLEARLINEFLAG, line);
-			    line->Thickness += Settings.Bloat;
-			    ResetFoundLinesAndPolygons (False);
-			    ResetFoundPinsViasAndPads (False);
-			    RatFindHook (LINE_TYPE, layer, line, line,
-					 False, False);
-			    line->Thickness -= Settings.Bloat;
-			    SET_FLAG (CLEARLINEFLAG, line);
-			    /* now if any polygons are found, do the clear */
-			    COPPERPOLYGON_LOOP (PCB->Data, 
+			    line->Thickness += line->Clearance;
+			    /* now see if it would touch any polygon */
+			    POLYGON_LOOP (layer, 
 			      {
-				if (TEST_FLAG (DRCFLAG, polygon))
+			        if (IsLineInPolygon(line, polygon))
 				  {
+		                    if (!polarity_called)
+				      {
+				        polarity_called = True;
+					Device->Polarity (2);
+			              }
+			            line->Thickness -= line->Clearance;
 				    Device->Line (line, True);
+			            line->Thickness += line->Clearance;
 				    break;
 				  }
 			      }
 			    );
+			    line->Thickness -= line->Clearance;
+			    SET_FLAG (CLEARLINEFLAG, line);
 			  }
 		      }
-		    );
+		    ); /* end of LINE_LOOP */
 		    ARC_LOOP (layer, 
 		      {
 			if (TEST_FLAG (CLEARLINEFLAG, arc))
-			  CLEAR_FLAG (CLEARLINEFLAG, arc);
-			arc->Thickness += Settings.Bloat;
-			ResetFoundLinesAndPolygons (False);
-			ResetFoundPinsViasAndPads (False);
-			RatFindHook (ARC_TYPE, layer, arc, arc, False, False);
-			arc->Thickness -= Settings.Bloat;
-			SET_FLAG (CLEARLINEFLAG, arc);
-			/* now if any polygons are found, do the clear */
-			COPPERPOLYGON_LOOP (PCB->Data, 
 			  {
-			    if (TEST_FLAG (DRCFLAG, polygon))
+			    CLEAR_FLAG (CLEARLINEFLAG, arc);
+			    arc->Thickness += arc->Clearance;
+			    POLYGON_LOOP(layer,
 			      {
-				Device->Arc (arc, True);
-				break;
+			        if (IsArcInPolygon(arc, polygon))
+				  {
+		                    if (!polarity_called)
+				      {
+				        polarity_called = True;
+					Device->Polarity (2);
+			              }
+			            arc->Thickness -= arc->Clearance;
+				    Device->Arc (arc, True);
+			            arc->Thickness += arc->Clearance;
+				    break;
+				  }
 			      }
-			  }
-			);
+		           );
+		           arc->Thickness -= arc->Clearance; 
+		           SET_FLAG (CLEARLINEFLAG, arc);
+		         }
 		      }
-		    );
-		  }
+		    ); /* end of ARC_LOOP */
+		  }  /* end of entry loop */
 		ALLPIN_LOOP (PCB->Data, 
 		  {
 		    if (TEST_FLAG (PIPflag, pin))
-		      Device->PinOrVia (pin, 1);
+		      {
+		        if (!polarity_called)
+			  {
+			    polarity_called = True;
+			    Device->Polarity (2);
+		          }
+		        Device->PinOrVia (pin, 1);
+		      }
 		  }
 		);
 		VIA_LOOP (PCB->Data, 
 		  {
 		    if (TEST_FLAG (PIPflag, via))
-		      Device->PinOrVia (via, 1);
-		  }
-		);
-		/* fixme: would be nice to only clear pads inside polys
-		 * probably the thing to do would be create PIPflags
-		 * for the pads too.
-		 */
-		if (group == component)
-		  {
-		    ALLPAD_LOOP (PCB->Data, 
 		      {
-			if (!TEST_FLAG (ONSOLDERFLAG, pad))
-			  Device->Pad (pad, 1);
+		        if (!polarity_called)
+			  {
+			    polarity_called = True;
+			    Device->Polarity (2);
+		          }
+		        Device->PinOrVia (via, 1);
 		      }
-		    );
-		  }
-		else if (group == solder)
-		  ALLPAD_LOOP (PCB->Data, 
-		  {
-		    if (TEST_FLAG (ONSOLDERFLAG, pad))
-		      Device->Pad (pad, 1);
 		  }
 		);
-		FreeConnectionLookupMemory ();
-		RestoreFindFlag ();
-		Device->Polarity (3);
-	      }
-	    /* print the lines/arcs/pins/pads/vias */
+		/* pads are a bitch */
+		if (group == component || group == solder)
+		  {
+		  PadTypePtr pad;
+		    ALLPAD_LOOP (PCB->Data,
+		      {
+			if ((TEST_FLAG (ONSOLDERFLAG, pad)) == (group == solder ? True : False))
+		          {
+		             CLEAR_FLAG(CLEARLINEFLAG, pad);
+		             pad->Thickness += pad->Clearance;
+	                     for (entry = 0; entry < PCB->LayerGroups.Number[group]; entry++)
+	                       {
+		                  LayerTypePtr layer;
+		                  Cardinal number;
+				  /* commas aren't good inside the LOOP macro */
+		                  Location x1;
+				  Location x2;
+				  Location y1;
+				  Location y2;
+				  BDimension wid = pad->Thickness/2;
+		                  number = PCB->LayerGroups.Entries[group][entry];
+		                  if (number >= MAX_LAYER)
+		                    continue;
+				  layer = LAYER_PTR(number);
+				  POLYGON_LOOP(layer,
+				    {
+			              if (TEST_FLAG(SQUAREFLAG, pad))
+			                {
+				          x1 = MIN(pad->Point1.X, pad->Point2.X) - wid;
+				          y1 = MIN(pad->Point1.Y, pad->Point2.Y) - wid;
+				          x2 = MAX(pad->Point1.X, pad->Point2.X) + wid;
+				          y2 = MAX(pad->Point1.Y, pad->Point2.Y) + wid;
+					}
+			              if ((TEST_FLAG(SQUAREFLAG, pad) && 
+				           IsRectangleInPolygon (x1, y1, x2, y2, polygon)) ||
+					  (!TEST_FLAG(SQUAREFLAG, pad) &&
+			                   IsLineInPolygon ((LineTypePtr)pad, polygon)))
+				        {
+			                  if (!polarity_called)
+			                    {
+			                       polarity_called = True;
+			                       Device->Polarity (2);
+		                            }
+					  pad->Thickness -= pad->Clearance;
+			                  Device->Pad (pad, 1);
+					  pad->Thickness += pad->Clearance;
+					  goto twice_break;
+	                                }
+				    }
+				 ); // end of POLYGON_LOOP 
+			       } // end of entry loop
+twice_break:
+                             pad->Thickness -= pad->Clearance;
+	                  } // end of solderside test
+		       }
+		    ); // end of ALLPAD_LOOP
+		  } /* end of group test */
+		if (polarity_called)
+		  Device->Polarity (3);
+	      } /* end of somepolys test */
+	    /* ok clearances are done, now print
+	     * the lines/arcs/pins/pads/vias inside
+	     */
 	    for (entry = 0; entry < PCB->LayerGroups.Number[group]; entry++)
 	      {
 		LayerTypePtr layer;
@@ -673,10 +744,10 @@ PrintSilkscreen (void)
 static int
 PrintPaste (void)
 {
-  static char *extention[2] = { "componentpaste", "solderpaste" },
+  static char *extention[2] = { "frontpaste", "backpaste" },
     *DOSextention[2] =
   {
-  "cpaste", "spaste"}
+  "fpaste", "bpaste"}
   , *description[2] =
   {
   "solder paste, component side", "solder paste, solder side"};

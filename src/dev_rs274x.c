@@ -229,8 +229,9 @@ findApertureCode (Apertures * apertures, int width, int gap, int finger,
     {
       ap = &apertures->aperture[i];
 
-      if (ap->apertureSize == width && ap->apertureShape == shape
-	  && ap->finger == finger && ap->gap == gap)
+      if (ap->apertureSize == width && ap->apertureShape == shape)
+        if (shape == SQUARE || shape == ROUND ||
+	  (ap->finger == finger && ap->gap == gap))
 	return (ap->dCode);
     }
   appMacro[0] = '\0';
@@ -248,31 +249,31 @@ findApertureCode (Apertures * apertures, int width, int gap, int finger,
       switch (shape)
 	{
 	case ROUND:
-	  sprintf (appMacro, "%%ADD%dC,%.3f*%%\015\012", ap->dCode,
+	  sprintf (appMacro, "%%ADD%dC,%.4f*%%\015\012", ap->dCode,
 		   width / 100000.0);
 	  break;
 	case SQUARE:
-	  sprintf (appMacro, "%%ADD%dR,%.3fX%.3f*%%\015\012",
+	  sprintf (appMacro, "%%ADD%dR,%.4fX%.4f*%%\015\012",
 		   ap->dCode, width / 100000.0, width / 100000.0);
 	  break;
 	case OCTAGON:
-	  sprintf (appMacro, "%%AMOCT%d*5,0,8,0,0,%.3f,22.5*%%\015\012"
+	  sprintf (appMacro, "%%AMOCT%d*5,0,8,0,0,%.4f,22.5*%%\015\012"
 		   "%%ADD%dOCT%d*%%\015\012", lastTherm,
 		   width / (100000.0 * COS_22_5_DEGREE), ap->dCode, lastTherm);
 	  lastTherm++;
 	  break;
 	case THERMAL:
-	  sprintf (appMacro, "%%AMTHERM%d*7,0,0,%.3f,%.3f,%.3f,45*%%\015\012"
+	  sprintf (appMacro, "%%AMTHERM%d*7,0,0,%.4f,%.4f,%.4f,45*%%\015\012"
 		   "%%ADD%dTHERM%d*%%\015\012", lastTherm, gap / 100000.0,
 		   width / 100000.0, finger / 100000.0, ap->dCode, lastTherm);
 	  lastTherm++;
 	  break;
 	case ROUNDCLEAR:
-	  sprintf (appMacro, "%%ADD%dC,%.3fX%.3f*%%\015\012",
+	  sprintf (appMacro, "%%ADD%dC,%.4fX%.4f*%%\015\012",
 		   ap->dCode, gap / 100000.0, width / 100000.0);
 	  break;
 	case SQUARECLEAR:
-	  sprintf (appMacro, "%%ADD%dR,%.3fX%.3fX%.3fX%.3f*%%\015\012",
+	  sprintf (appMacro, "%%ADD%dR,%.4fX%.4fX%.4fX%.4f*%%\015\012",
 		   ap->dCode, gap / 100000.0, gap / 100000.0, width / 100000.0,
 		   width / 100000.0);
 	  break;
@@ -813,14 +814,14 @@ findTextApertures (TextTypePtr Text)
 	  for (n = font->Symbol[*string].LineN; n; n--, line++)
 	    {
 	      int tw = line->Thickness * Text->Scale / 200;
-	      if (tw < 8)
-		tw = 8;
+	      if (tw < 800)
+		tw = 800;
 	      findApertureCode (&GBX_Apertures, tw, 0, 0, ROUND);
 	    }
 	}
       else
 	{
-	  findApertureCode (&GBX_Apertures, 8, 0, 0, ROUND);
+	  findApertureCode (&GBX_Apertures, 800, 0, 0, ROUND);
 	}
       string++;
     }
