@@ -525,7 +525,7 @@ CB_Click (XtPointer unused, XtIntervalId * time)
 	  HideCrosshair (True);
 	  SaveMode ();
 	  saved_mode = True;
-	  SetMode (MOVE_MODE);
+	  SetMode (CtrlPressed() ? COPY_MODE : MOVE_MODE);
 	  Crosshair.AttachedObject.Ptr1 = Note.ptr1;
 	  Crosshair.AttachedObject.Ptr2 = Note.ptr2;
 	  Crosshair.AttachedObject.Ptr3 = Note.ptr3;
