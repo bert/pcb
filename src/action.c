@@ -182,6 +182,7 @@ typedef enum
   F_ToggleThindraw,
   F_ToggleOrthoMove,
   F_ToggleLocalRef,
+  F_ToggleCheckPlanes,
   F_ToggleUniqueNames,
   F_Via,
   F_ViaByName,
@@ -324,6 +325,7 @@ static FunctionType Functions[] = {
   {"ToggleStartDirection", F_ToggleStartDirection},
   {"ToggleSnapPin", F_ToggleSnapPin},
   {"ToggleThindraw", F_ToggleThindraw},
+  {"ToggleCheckPlanes", F_ToggleCheckPlanes},
   {"ToggleLocalRef", F_ToggleLocalRef},
   {"ToggleOrthoMove", F_ToggleOrthoMove},
   {"ToggleUniqueNames", F_ToggleUniqueNames},
@@ -2187,7 +2189,8 @@ warpNoWhere (void)
  *         Display(CycleClip|Toggle45Degree|ToggleStartDirection)
  *         Display(ToggleGrid|ToggleRubberBandMode|ToggleUniqueNames)
  *         Display(ToggleMask|ToggleName|ToggleClearLine|ToggleSnapPin)
- *         Display(ToggleThindraw|OrthoMove|ToggleLocalRef)
+ *         Display(ToggleThindraw|ToggleOrthoMove|ToggleLocalRef)
+ *         Display(ToggleCheckPlanes)
  *         Display(Pinout|PinOrPadName)
  *	   Display(Save|Restore)
  *	   Display(Scroll, Direction)
@@ -2302,6 +2305,11 @@ ActionDisplay (Widget W, XEvent * Event, String * Params, Cardinal * Num)
 
 	case F_ToggleThindraw:
 	  TOGGLE_FLAG (THINDRAWFLAG, PCB);
+	  ClearAndRedrawOutput ();
+	  break;
+
+	case F_ToggleCheckPlanes:
+	  TOGGLE_FLAG (CHECKPLANESFLAG, PCB);
 	  ClearAndRedrawOutput ();
 	  break;
 
@@ -4284,21 +4292,33 @@ ActionSetSame (Widget W, XEvent * Event, String * Params, Cardinal * Num)
   switch (type)
     {
     case LINE_TYPE:
+      HideCrosshair(True);
       Settings.LineThickness = ((LineTypePtr) ptr2)->Thickness;
       Settings.Keepaway = ((LineTypePtr) ptr2)->Clearance;
       layer = (LayerTypePtr) ptr1;
+      if (Settings.Mode != LINE_MODE)
+        SetMode(LINE_MODE);
+      RestoreCrosshair(True);
       break;
     case ARC_TYPE:
+      HideCrosshair(True);
       Settings.LineThickness = ((ArcTypePtr) ptr2)->Thickness;
       Settings.Keepaway = ((ArcTypePtr) ptr2)->Clearance;
       layer = (LayerTypePtr) ptr1;
+      if (Settings.Mode != ARC_MODE)
+        SetMode(ARC_MODE);
+      RestoreCrosshair(True);
       break;
     case POLYGON_TYPE:
       layer = (LayerTypePtr) ptr1;
       break;
     case VIA_TYPE:
+      HideCrosshair(True);
       Settings.ViaThickness = ((PinTypePtr) ptr2)->Thickness;
       Settings.ViaDrillingHole = ((PinTypePtr) ptr2)->DrillingHole;
+      if (Settings.Mode != VIA_MODE)
+        SetMode(VIA_MODE);
+      RestoreCrosshair(True);
       break;
     default:
       return;

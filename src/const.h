@@ -145,9 +145,10 @@
 /* ---------------------------------------------------------------------------
  * PCB flags
  */
-#define	PCB_FLAGS		0xff73	/* all used flags */
+#define	PCB_FLAGS		0xff77	/* all used flags */
 #define SHOWNUMBERFLAG          0x0001  /* pinout displays pin numbers instead of names */
 #define LOCALREFFLAG            0x0002  /* use local reference for moves */
+#define CHECKPLANESFLAG         0x0004  /* see if polygons have isolated regions */
 #define RUBBERBANDFLAG		0x0010	/* do all move, mirror, rotate with */
 					/* rubberband connections */
 #define	DESCRIPTIONFLAG		0x0020	/* display description of elements */

@@ -312,6 +312,8 @@ static PopupEntryType SettingsMenuEntries[] = {
    "Display,ToggleThindraw", NULL},
   {"toggleOrthoMove", "orthogonal moves", CB_Action,
    "Display,ToggleOrthoMove", NULL},
+  {"toggleCheckPlanes", "check polygons", CB_Action,
+   "Display,ToggleCheckPlanes", NULL},
   {NULL, NULL, NULL, NULL, NULL}
 };
 static PopupMenuType SettingsMenu =
@@ -825,6 +827,8 @@ CBPOPUP_Settings (Widget W, XtPointer ClientData, XtPointer CallData)
     CheckEntry (&SettingsMenu, "toggleClearLine");
   if (TEST_FLAG (THINDRAWFLAG, PCB))
     CheckEntry (&SettingsMenu, "toggleThindraw");
+  if (TEST_FLAG (CHECKPLANESFLAG, PCB))
+    CheckEntry (&SettingsMenu, "toggleCheckPlanes");
   if (TEST_FLAG (ORTHOMOVEFLAG, PCB))
     CheckEntry (&SettingsMenu, "toggleOrthoMove");
 }
