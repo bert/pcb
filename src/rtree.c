@@ -417,11 +417,11 @@ sort_node (struct rtree_node *node)
 static void
 move_to_manage (rtree_t * seed, const BoxType * b)
 {
-  if (sizeof (*b) * (1 + seed->m_count) > seed->m_size)
+  if (sizeof (b) * (1 + seed->m_count) > seed->m_size)
     {
       seed->managed = realloc (seed->managed,
-			       seed->m_size + 1024 * sizeof (*b));
-      seed->m_size += 1024 * sizeof (*b);
+			       seed->m_size + 1024 * sizeof (b));
+      seed->m_size += 1024 * sizeof (b);
     }
   seed->managed[seed->m_count++] = b;
 }
