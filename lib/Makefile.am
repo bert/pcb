@@ -38,6 +38,7 @@ COMMON_FILE= common.m4
 
 M4_DIST_FILES= \
 	TTL_74xx_DIL.m4 \
+	amphenol.m4 \
 	connector.m4 \
 	crystal.m4 \
 	generic.m4 \
@@ -59,6 +60,7 @@ M4_DIST_FILES= \
 
 LIST_DIST_FILES= \
 	TTL_74xx_DIL.list \
+	amphenol.list \
 	connector.list \
 	crystal.list \
 	generic.list \
@@ -80,6 +82,7 @@ LIST_DIST_FILES= \
 
 INC_FILES= \
 	bga.inc \
+	amphenol.inc \
 	connector.inc \
 	dil.inc \
 	geda.inc \

@@ -71,6 +71,7 @@ define(`args',`
 	ifelse($#, 0, , $#, 1,`define(`arg'cnt,`$1')',
 	`define(`arg'cnt,`$1') define(`cnt',incr(cnt)) args(shift($@))')')
 
+include(amphenol.inc)
 include(bga.inc)
 include(connector.inc)
 include(dil.inc)
