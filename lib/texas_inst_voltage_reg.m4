@@ -30,7 +30,7 @@ define(`Description_uA7905C',`-5V 1.5A voltage regulator')
 define(`PinList_uA7905C',``Com',`In',`Out',`In'')
 
 define(`Description_uA7952C',`-5.2V 1.5A voltage regulator')
-define(`PinList_uA7952C',``Com',`In',`Out','I'')
+define(`PinList_uA7952C',``Com',`In',`Out',`In'')
 
 define(`Description_uA7906C',`-6V 1.5A voltage regulator')
 define(`PinList_uA7906C',``Com',`In',`Out',`In'')
