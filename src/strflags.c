@@ -186,6 +186,7 @@ parse_layer_list (const char *bp, void (*error)(const char *))
 {
   const char *orig_bp = bp;
   int l = 0, range = -1;
+
   grow_layer_list (0);
   while (*bp)
     {
@@ -207,9 +208,9 @@ parse_layer_list (const char *bp, void (*error)(const char *))
 
       else if (error)
 	{
-	  char *fmt = "Syntax error parsing layer list \"%.*s\"";
+	  char *fmt = "Syntax error parsing layer list \"%.*s\" at %c";
 	  char *msg = alloc_buf (strlen(fmt) + strlen(orig_bp));
-	  sprintf (msg, fmt, bp - orig_bp + 5, orig_bp);
+	  sprintf (msg, fmt, bp - orig_bp + 5, orig_bp, *bp);
 	  error(msg);
 	  error = NULL;
 	}
@@ -321,7 +322,7 @@ string_to_flags (const char *flagstring, void (*error)(const char *msg))
 	;
       flen = ep - fp;
       if (*ep == '(')
-	ep = parse_layer_list (ep, error);
+	ep = parse_layer_list (ep+1, error);
 
       if (flen == 7 && memcmp (fp, "thermal", 7) == 0)
 	{
@@ -330,20 +331,22 @@ string_to_flags (const char *flagstring, void (*error)(const char *msg))
 	      rv |= L0THERMFLAG << i;
 	}
       else
-	for (i=0; i<NUM_FLAGBITS; i++)
-	  if (flagbits[i].nlen == flen
-	      && memcmp (flagbits[i].name, fp, flen) == 0)
-	    {
-	      found = 1;
-	      rv |= flagbits[i].mask;
-	      break;
-	    }
-      if (!found)
 	{
-	  const char *fmt = "Unknown flag: \"%.*s\" ignored";
-	  char *msg = alloc_buf (strlen(fmt) + flen);
-	  sprintf(msg, fmt, flen, fp);
-	  error(msg);
+	  for (i=0; i<NUM_FLAGBITS; i++)
+	    if (flagbits[i].nlen == flen
+		&& memcmp (flagbits[i].name, fp, flen) == 0)
+	      {
+		found = 1;
+		rv |= flagbits[i].mask;
+		break;
+	      }
+	  if (!found)
+	    {
+	      const char *fmt = "Unknown flag: \"%.*s\" ignored";
+	      char *msg = alloc_buf (strlen(fmt) + flen);
+	      sprintf(msg, fmt, flen, fp);
+	      error(msg);
+	    }
 	}
       fp = ep+1;
     }
@@ -368,6 +371,7 @@ flags_to_string (int flags, int object_type)
   int i, saveflags;
   char *buf, *bp;
 
+#ifndef FLAG_TEST
   switch (object_type)
     {
     case VIA_TYPE:
@@ -380,6 +384,7 @@ flags_to_string (int flags, int object_type)
       flags &= ~PINFLAG;
       break;
     }
+#endif
   saveflags = flags;
 
   len = 3; /* for "()\0" */
@@ -439,7 +444,7 @@ flags_to_string (int flags, int object_type)
 /*
  * This exists for standalone testing of this file.
  *
- * Compile as: gcc -DFLAG_TEST flags.c -o flags.x -I..
+ * Compile as: gcc -DHAVE_CONFIG_H -DFLAG_TEST strflags.c -o strflags.x -I..
  * and then run it.
  */
 
@@ -464,7 +469,7 @@ main()
 	set_layer_list (i, 0);
       p = print_layer_list ();
       printf("%2d : %20s =", i, p);
-      parse_layer_list (p);
+      parse_layer_list (p + 1, 0);
       for (j=0; j<num_layers; j++)
 	printf(" %d", layers[j]);
       printf("\n");
@@ -497,7 +502,7 @@ main()
 	flag |= (random() & ALLTHERMFLAGS);
 
       str = flags_to_string (flag, otype);
-      new_flag = string_to_flags (str);
+      new_flag = string_to_flags (str, 0);
 
       count ++;
       if (flag != new_flag)
