@@ -202,16 +202,24 @@ CreateNewVia (DataTypePtr Data,
       Message ("Mapped via drill hole to %.2f mils from %.2f mils per vendor table\n",
 	       0.01*Via->DrillingHole, 0.01*DrillingHole);
     }
-  if (Via->Thickness < Via->DrillingHole + MIN_PINORVIACOPPER)
+
+  Via->Name = MyStrdup (Name, "CreateNewVia()");
+  Via->Flags = Flags & ~WARNFLAG;
+  Via->ID = ID++;
+
+  /* 
+   * don't complain about MIN_PINORVIACOPPER on a mounting hole (pure
+   * hole)
+   */
+  if ( !TEST_FLAG (HOLEFLAG, Via) && 
+       (Via->Thickness < Via->DrillingHole + MIN_PINORVIACOPPER) )
     {
       Via->Thickness = Via->DrillingHole + MIN_PINORVIACOPPER;
       Message ("Increased via thickness to %.2f mils to allow enough copper"
 	       " at (%.2f,%.2f).\n",
 	       0.01*Via->Thickness, 0.01*Via->X, 0.01*Via->Y);
     }
-  Via->Name = MyStrdup (Name, "CreateNewVia()");
-  Via->Flags = Flags & ~WARNFLAG;
-  Via->ID = ID++;
+
   SetPinBoundingBox (Via);
   if (!Data->via_tree)
     Data->via_tree = r_create_tree (NULL, 0, 0);
