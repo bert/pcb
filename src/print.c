@@ -827,7 +827,8 @@ PrintMask (void)
  */
 
 #define TEXT_SIZE	150
-#define TEXT_LINE	150
+#define TEXT_LINE	15000
+#define FAB_LINE_W      800
 
 static void
 fab_line (int x1, int y1, int x2, int y2, int t)
@@ -888,8 +889,8 @@ text_at (int x, int y, int align, char *fmt, ...)
 
   Device->Text (&t);
   if (align & 8)
-    fab_line (t.X, t.Y + font->MaxHeight * TEXT_SIZE / 100 + 10,
-	      t.X + w, t.Y + font->MaxHeight * TEXT_SIZE / 100 + 10, 8);
+    fab_line (t.X, t.Y + font->MaxHeight * TEXT_SIZE / 100 + 1000,
+	      t.X + w, t.Y + font->MaxHeight * TEXT_SIZE / 100 + 1000, FAB_LINE_W);
 }
 
 /* Y, X, circle, square */
@@ -898,53 +899,53 @@ drill_sym (int idx, int x, int y)
 {
   int type = idx % 5;
   int size = idx / 5;
-  int s2 = (size + 1) * 16;
+  int s2 = (size + 1) * 1600;
   int i;
 
   switch (type)
     {
     case 0:			/* Y */ ;
-      fab_line (x, y, x, y + s2, 8);
-      fab_line (x, y, x + s2 * 13 / 15, y - s2 / 2, 8);
-      fab_line (x, y, x - s2 * 13 / 15, y - s2 / 2, 8);
+      fab_line (x, y, x, y + s2, FAB_LINE_W);
+      fab_line (x, y, x + s2 * 13 / 15, y - s2 / 2, FAB_LINE_W);
+      fab_line (x, y, x - s2 * 13 / 15, y - s2 / 2, FAB_LINE_W);
       for (i = 1; i <= size; i++)
-	fab_circle (x, y, i * 16, 8);
+	fab_circle (x, y, i * 1600, FAB_LINE_W);
       break;
     case 1:			/* + */ ;
-      fab_line (x, y - s2, x, y + s2, 8);
-      fab_line (x - s2, y, x + s2, y, 8);
+      fab_line (x, y - s2, x, y + s2, FAB_LINE_W);
+      fab_line (x - s2, y, x + s2, y, FAB_LINE_W);
       for (i = 1; i <= size; i++)
 	{
-	  fab_line (x - i * 16, y - i * 16, x + i * 16, y - i * 16, 8);
-	  fab_line (x - i * 16, y - i * 16, x - i * 16, y + i * 16, 8);
-	  fab_line (x - i * 16, y + i * 16, x + i * 16, y + i * 16, 8);
-	  fab_line (x + i * 16, y - i * 16, x + i * 16, y + i * 16, 8);
+	  fab_line (x - i * 1600, y - i * 1600, x + i * 1600, y - i * 1600, FAB_LINE_W);
+	  fab_line (x - i * 1600, y - i * 1600, x - i * 1600, y + i * 1600, FAB_LINE_W);
+	  fab_line (x - i * 1600, y + i * 1600, x + i * 1600, y + i * 1600, FAB_LINE_W);
+	  fab_line (x + i * 1600, y - i * 1600, x + i * 1600, y + i * 1600, FAB_LINE_W);
 	}
       break;
     case 2:			/* X */ ;
       fab_line (x - s2 * 3 / 4, y - s2 * 3 / 4, x + s2 * 3 / 4,
-		y + s2 * 3 / 4, 8);
+		y + s2 * 3 / 4, FAB_LINE_W);
       fab_line (x - s2 * 3 / 4, y + s2 * 3 / 4, x + s2 * 3 / 4,
-		y - s2 * 3 / 4, 8);
+		y - s2 * 3 / 4, FAB_LINE_W);
       for (i = 1; i <= size; i++)
 	{
-	  fab_line (x - i * 16, y - i * 16, x + i * 16, y - i * 16, 8);
-	  fab_line (x - i * 16, y - i * 16, x - i * 16, y + i * 16, 8);
-	  fab_line (x - i * 16, y + i * 16, x + i * 16, y + i * 16, 8);
-	  fab_line (x + i * 16, y - i * 16, x + i * 16, y + i * 16, 8);
+	  fab_line (x - i * 1600, y - i * 1600, x + i * 1600, y - i * 1600, FAB_LINE_W);
+	  fab_line (x - i * 1600, y - i * 1600, x - i * 1600, y + i * 1600, FAB_LINE_W);
+	  fab_line (x - i * 1600, y + i * 1600, x + i * 1600, y + i * 1600, FAB_LINE_W);
+	  fab_line (x + i * 1600, y - i * 1600, x + i * 1600, y + i * 1600, FAB_LINE_W);
 	}
       break;
     case 3:			/* circle */ ;
       for (i = 0; i <= size; i++)
-	fab_circle (x, y, (i + 1) * 16 - 8, 8);
+	fab_circle (x, y, (i + 1) * 1600 - 800, FAB_LINE_W);
       break;
     case 4:			/* square */
       for (i = 1; i <= size + 1; i++)
 	{
-	  fab_line (x - i * 16, y - i * 16, x + i * 16, y - i * 16, 8);
-	  fab_line (x - i * 16, y - i * 16, x - i * 16, y + i * 16, 8);
-	  fab_line (x - i * 16, y + i * 16, x + i * 16, y + i * 16, 8);
-	  fab_line (x + i * 16, y - i * 16, x + i * 16, y + i * 16, 8);
+	  fab_line (x - i * 1600, y - i * 1600, x + i * 1600, y - i * 1600, FAB_LINE_W);
+	  fab_line (x - i * 1600, y - i * 1600, x - i * 1600, y + i * 1600, FAB_LINE_W);
+	  fab_line (x - i * 1600, y + i * 1600, x + i * 1600, y + i * 1600, FAB_LINE_W);
+	  fab_line (x + i * 1600, y - i * 1600, x + i * 1600, y + i * 1600, FAB_LINE_W);
 	}
       break;
     }
@@ -1001,13 +1002,13 @@ PrintFab (void)
       if (plated_sym != -1)
 	drill_sym (plated_sym, TEXT_SIZE / 4, yoff + TEXT_SIZE / 4);
       if (unplated_sym != -1)
-	drill_sym (unplated_sym, 1700 + TEXT_SIZE / 4, yoff + TEXT_SIZE / 4);
+	drill_sym (unplated_sym, 170000 + TEXT_SIZE / 4, yoff + TEXT_SIZE / 4);
       SetPrintColor (PCB->ElementColor);
-      text_at (300, yoff, 2, "%d", drill->DrillSize);
-      text_at (600, yoff, 2, "%d", drill->PinCount);
-      text_at (900, yoff, 2, "%d", drill->ViaCount);
-      text_at (1250, yoff, 2, "%d", drill->ElementN);
-      text_at (1700, yoff, 2, "%d", drill->UnplatedCount);
+      text_at (30000, yoff, 200, "%d", drill->DrillSize/100);
+      text_at (60000, yoff, 200, "%d", drill->PinCount);
+      text_at (90000, yoff, 200, "%d", drill->ViaCount);
+      text_at (125000, yoff, 200, "%d", drill->ElementN);
+      text_at (170000, yoff, 200, "%d", drill->UnplatedCount);
       yoff -= TEXT_LINE;
 
       total_drills += drill->PinCount;
@@ -1015,11 +1016,11 @@ PrintFab (void)
     }
 
   SetPrintColor (PCB->ElementColor);
-  text_at (250, yoff, 9, "Diam.");
-  text_at (550, yoff, 9, "Pins");
-  text_at (850, yoff, 9, "Vias");
-  text_at (1200, yoff, 9, "Elements");
-  text_at (1650, yoff, 9, "Unplated");
+  text_at (25000, yoff, 900, "Diam.");
+  text_at (55000, yoff, 900, "Pins");
+  text_at (85000, yoff, 900, "Vias");
+  text_at (120000, yoff, 900, "Elements");
+  text_at (165000, yoff, 900, "Unplated");
   yoff -= TEXT_LINE;
   text_at (0, yoff, 0,
 	   "There are %d different drill sizes used in this layout, %d holes total",
@@ -1032,19 +1033,19 @@ PrintFab (void)
   strftime (utcTime, sizeof utcTime, "%c UTC", gmtime (&currenttime));
 
   yoff = -TEXT_LINE;
-  text_at (2000, yoff, 0, "Dimensions: %d mils wide, %d mils high",
-	   PCB->MaxWidth, PCB->MaxHeight);
+  text_at (200000, yoff, 0, "Dimensions: %d mils wide, %d mils high",
+	   PCB->MaxWidth/100, PCB->MaxHeight/100);
   yoff -= TEXT_LINE;
-  text_at (2000, yoff, 0, "Date: %s", utcTime);
+  text_at (200000, yoff, 0, "Date: %s", utcTime);
   yoff -= TEXT_LINE;
-  text_at (2000, yoff, 0, "Author: %s", pwentry->pw_gecos);
+  text_at (200000, yoff, 0, "Author: %s", pwentry->pw_gecos);
   yoff -= TEXT_LINE;
-  text_at (2000, yoff, 0, "Title: %s - Fabrication Drawing",
+  text_at (200000, yoff, 0, "Title: %s - Fabrication Drawing",
 	   UNKNOWN (PCB->Name));
 
-  text_at (PCB->MaxWidth / 2, PCB->MaxHeight + 20, 1,
+  text_at (PCB->MaxWidth / 2, PCB->MaxHeight + 2000, 1,
 	   "Board outline is the centerline of this 10 mil rectangle - 0,0 to %d,%d mils",
-	   PCB->MaxWidth, PCB->MaxHeight);
+	   PCB->MaxWidth/100, PCB->MaxHeight/100);
 
 #if 0
   ELEMENT_LOOP (PCB->Data, 
