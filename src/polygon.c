@@ -24,7 +24,8 @@
  *
  */
 
-static char *rcsid = "$Id$";
+static char *rcsid =
+  "$Id$";
 
 /* special polygon editing routines
  */
@@ -68,7 +69,8 @@ static int new_flags, mask;
  * line between the points on either side of it is redundant.
  * returns true if any points are removed
  */
-Boolean RemoveExcessPolygonPoints (LayerTypePtr Layer, PolygonTypePtr Polygon)
+Boolean
+RemoveExcessPolygonPoints (LayerTypePtr Layer, PolygonTypePtr Polygon)
 {
   PointTypePtr pt1, pt2, pt3;
   Cardinal n;
@@ -251,22 +253,31 @@ UpdatePIPFlags (PinTypePtr Pin, ElementTypePtr Element,
 
   if (Element == NULL)
     {
-      ALLPIN_LOOP (PCB->Data,
-		   UpdatePIPFlags (pin, element, Layer, Polygon, AddUndo););
-      VIA_LOOP (PCB->Data,
-		UpdatePIPFlags (via, (ElementTypePtr) via, Layer,
-				Polygon, AddUndo););
+      ALLPIN_LOOP (PCB->Data, 
+	  {
+	    UpdatePIPFlags (pin, element, Layer, Polygon, AddUndo);
+	  }
+      );
+      VIA_LOOP (PCB->Data, 
+	  {
+	    UpdatePIPFlags (via, (ElementTypePtr) via, Layer, Polygon,
+			    AddUndo);
+	  }
+      );
     }
   else if (Pin == NULL)
     {
-      PIN_LOOP (Element,
-		UpdatePIPFlags (pin, Element, Layer, Polygon, AddUndo););
+      PIN_LOOP (Element, 
+	  {
+	    UpdatePIPFlags (pin, Element, Layer, Polygon, AddUndo);
+	  }
+      );
     }
   else if (Layer == NULL)
     {
       Cardinal l;
       for (l = 0; l < MAX_LAYER; l++)
-	UpdatePIPFlags (Pin, Element, LAYER_PTR(l), Polygon, AddUndo);
+	UpdatePIPFlags (Pin, Element, LAYER_PTR (l), Polygon, AddUndo);
     }
   else
     {
@@ -276,10 +287,13 @@ UpdatePIPFlags (PinTypePtr Pin, ElementTypePtr Element,
       if (Polygon == NULL)
 	{
 	  Pin->Flags &= ~(mask | WARNFLAG);
-	  POLYGON_LOOP (Layer,
-			if (TEST_FLAG (CLEARPOLYFLAG, polygon))
-			if (DoPIPFlags (Pin, Element,
-					Layer, polygon, mask)) break;);
+	  POLYGON_LOOP (Layer, 
+	      {
+		if (TEST_FLAG (CLEARPOLYFLAG, polygon))
+		  if (DoPIPFlags (Pin, Element, Layer, polygon, mask))
+		    break;
+	      }
+	  );
 	}
       /* if already piercing, no need to check the new poly */
       else if (Pin->Flags & mask)

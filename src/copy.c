@@ -89,11 +89,15 @@ static ObjectFunctionType CopyFunctions = {
  * copies data from one polygon to another
  * 'Dest' has to exist
  */
-PolygonTypePtr CopyPolygonLowLevel (PolygonTypePtr Dest, PolygonTypePtr Src)
+PolygonTypePtr
+CopyPolygonLowLevel (PolygonTypePtr Dest, PolygonTypePtr Src)
 {
   /* copy all data */
-  POLYGONPOINT_LOOP (Src, CreateNewPointInPolygon (Dest, point->X, point->Y);
-    );
+  POLYGONPOINT_LOOP (Src, 
+      {
+	CreateNewPointInPolygon (Dest, point->X, point->Y);
+      }
+  );
   SetPolygonBoundingBox (Dest);
   Dest->Flags = Src->Flags & (~(FOUNDFLAG));
   return (Dest);
@@ -126,25 +130,35 @@ CopyElementLowLevel (DataTypePtr Data, ElementTypePtr Dest,
   if (!Dest)
     return (Dest);
 
-  ELEMENTLINE_LOOP (Src,
-		    CreateNewLineInElement (Dest, line->Point1.X,
-					    line->Point1.Y, line->Point2.X,
-					    line->Point2.Y,
-					    line->Thickness););
-  PIN_LOOP (Src,
-	    CreateNewPin (Dest, pin->X, pin->Y, pin->Thickness,
-			  pin->Clearance, pin->Mask, pin->DrillingHole,
-			  pin->Name, pin->Number,
-			  pin->Flags & (~(FOUNDFLAG))););
-  PAD_LOOP (Src,
-	    CreateNewPad (Dest, pad->Point1.X, pad->Point1.Y, pad->Point2.X,
-			  pad->Point2.Y, pad->Thickness, pad->Clearance,
-			  pad->Mask, pad->Name, pad->Number,
-			  pad->Flags & (~(FOUNDFLAG))););
-  ARC_LOOP (Src,
-	    CreateNewArcInElement (Dest, arc->X, arc->Y, arc->Width,
-				   arc->Height, arc->StartAngle, arc->Delta,
-				   arc->Thickness););
+  ELEMENTLINE_LOOP (Src, 
+      {
+	CreateNewLineInElement (Dest, line->Point1.X,
+				line->Point1.Y, line->Point2.X,
+				line->Point2.Y, line->Thickness);
+      }
+  );
+  PIN_LOOP (Src, 
+      {
+	CreateNewPin (Dest, pin->X, pin->Y, pin->Thickness,
+		      pin->Clearance, pin->Mask, pin->DrillingHole,
+		      pin->Name, pin->Number, pin->Flags & (~(FOUNDFLAG)));
+      }
+  );
+  PAD_LOOP (Src, 
+      {
+	CreateNewPad (Dest, pad->Point1.X, pad->Point1.Y, pad->Point2.X,
+		      pad->Point2.Y, pad->Thickness, pad->Clearance,
+		      pad->Mask, pad->Name, pad->Number,
+		      pad->Flags & (~(FOUNDFLAG)));
+      }
+  );
+  ARC_LOOP (Src, 
+      {
+	CreateNewArcInElement (Dest, arc->X, arc->Y, arc->Width,
+			       arc->Height, arc->StartAngle, arc->Delta,
+			       arc->Thickness);
+      }
+  );
 
   Dest->MarkX = Src->MarkX;
   Dest->MarkY = Src->MarkY;
@@ -191,7 +205,7 @@ CopyLine (LayerTypePtr Layer, LineTypePtr Line)
   if (!line)
     return (line);
   if (Line->Number)
-    line->Number = MyStrdup(Line->Number, "CopyLine");
+    line->Number = MyStrdup (Line->Number, "CopyLine");
   DrawLine (Layer, line, 0);
   Draw ();
   AddObjectToCreateUndoList (LINE_TYPE, Layer, line, line);
@@ -289,7 +303,8 @@ CopyElement (ElementTypePtr Element)
  * pastes the contents of the buffer to the layout. Only visible objects
  * are handled by the routine.
  */
-Boolean CopyPastebufferToLayout (Position X, Position Y)
+Boolean
+CopyPastebufferToLayout (Position X, Position Y)
 {
   Cardinal i;
   Boolean changed = False;
@@ -301,7 +316,7 @@ Boolean CopyPastebufferToLayout (Position X, Position Y)
   for (i = 0; i < MAX_LAYER + 2; i++)
     {
       LayerTypePtr sourcelayer = &PASTEBUFFER->Data->Layer[i],
-	destlayer = LAYER_PTR(i);
+	destlayer = LAYER_PTR (i);
 
       if (destlayer->On)
 	{
@@ -309,20 +324,40 @@ Boolean CopyPastebufferToLayout (Position X, Position Y)
 	    (sourcelayer->LineN != 0) ||
 	    (sourcelayer->ArcN != 0) ||
 	    (sourcelayer->PolygonN != 0) || (sourcelayer->TextN != 0);
-	  LINE_LOOP (sourcelayer, CopyLine (destlayer, line););
-	  ARC_LOOP (sourcelayer, CopyArc (destlayer, arc););
-	  TEXT_LOOP (sourcelayer, CopyText (destlayer, text););
-	  POLYGON_LOOP (sourcelayer, CopyPolygon (destlayer, polygon););
+	  LINE_LOOP (sourcelayer, 
+	      {
+		CopyLine (destlayer, line);
+	      }
+	  );
+	  ARC_LOOP (sourcelayer, 
+	      {
+		CopyArc (destlayer, arc);
+	      }
+	  );
+	  TEXT_LOOP (sourcelayer, 
+	      {
+		CopyText (destlayer, text);
+	      }
+	  );
+	  POLYGON_LOOP (sourcelayer, 
+	      {
+		CopyPolygon (destlayer, polygon);
+	      }
+	  );
 	}
     }
 
   /* paste elements */
   if (PCB->PinOn && PCB->ElementOn)
     {
-      ELEMENT_LOOP (PASTEBUFFER->Data,
-		    if (FRONT (element) || PCB->InvisibleObjectsOn)
-		    {
-		    CopyElement (element); changed = True;}
+      ELEMENT_LOOP (PASTEBUFFER->Data, 
+	{
+	  if (FRONT (element) || PCB->InvisibleObjectsOn)
+	      {
+		CopyElement (element);
+		changed = True;
+	      }
+	}
       );
     }
 
@@ -330,7 +365,11 @@ Boolean CopyPastebufferToLayout (Position X, Position Y)
   if (PCB->ViaOn)
     {
       changed |= (PASTEBUFFER->Data->ViaN != 0);
-      VIA_LOOP (PASTEBUFFER->Data, CopyVia (via););
+      VIA_LOOP (PASTEBUFFER->Data, 
+	  {
+	    CopyVia (via);
+	  }
+      );
     }
   if (changed)
     {

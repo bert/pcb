@@ -24,7 +24,8 @@
  *
  */
 
-static char *rcsid = "$Id$";
+static char *rcsid =
+  "$Id$";
 
 /* functions used by paste- and move/copy buffer
  */
@@ -98,8 +99,9 @@ static ObjectFunctionType AddBufferFunctions = {
   AddArcToBuffer,
   AddRatToBuffer
 }, MoveBufferFunctions =
+
 {
-  MoveLineToBuffer,
+MoveLineToBuffer,
     MoveTextToBuffer,
     MovePolygonToBuffer,
     MoveViaToBuffer,
@@ -204,12 +206,21 @@ AddElementToBuffer (ElementTypePtr Element)
   element->Flags &= ~ExtraFlag;
   if (ExtraFlag)
     {
-      ELEMENTTEXT_LOOP (element, text->Flags &= ~ExtraFlag;
-	);
-      PIN_LOOP (element, pin->Flags &= ~ExtraFlag;
-	);
-      PAD_LOOP (element, pad->Flags &= ~ExtraFlag;
-	);
+      ELEMENTTEXT_LOOP (element, 
+	  {
+	    text->Flags &= ~ExtraFlag;
+	  }
+      );
+      PIN_LOOP (element, 
+	  {
+	    pin->Flags &= ~ExtraFlag;
+	  }
+      );
+      PAD_LOOP (element, 
+	  {
+	    pad->Flags &= ~ExtraFlag;
+	  }
+      );
     }
   return (element);
 }
@@ -319,10 +330,16 @@ MoveElementToBuffer (ElementTypePtr Element)
 
   element = GetElementMemory (Dest);
   *element = *Element;
-  PIN_LOOP (element, pin->Flags &= ~(WARNFLAG | FOUNDFLAG);
-    );
-  PAD_LOOP (element, pad->Flags &= ~(WARNFLAG | FOUNDFLAG);
-    );
+  PIN_LOOP (element, 
+      {
+	pin->Flags &= ~(WARNFLAG | FOUNDFLAG);
+      }
+  );
+  PAD_LOOP (element, 
+      {
+	pad->Flags &= ~(WARNFLAG | FOUNDFLAG);
+      }
+  );
   *Element = Source->Element[--Source->ElementN];
   memset (&Source->Element[Source->ElementN], 0, sizeof (ElementType));
   return (element);
@@ -404,12 +421,21 @@ LoadElementToBuffer (BufferTypePtr Buffer, char *Name, Boolean FromFile)
 	    SwapBuffer (Buffer);
 	  else
 	    {
-	      ELEMENT_LOOP (Buffer->Data,
-			    SetElementBoundingBox (element, &PCB->Font););
-	      ALLPOLYGON_LOOP (Buffer->Data, SetPolygonBoundingBox (polygon);
-		);
-	      ALLTEXT_LOOP (Buffer->Data,
-			    SetTextBoundingBox (&PCB->Font, text););
+	      ELEMENT_LOOP (Buffer->Data, 
+		  {
+		    SetElementBoundingBox (element, &PCB->Font);
+		  }
+	      );
+	      ALLPOLYGON_LOOP (Buffer->Data, 
+		  {
+		    SetPolygonBoundingBox (polygon);
+		  }
+	      );
+	      ALLTEXT_LOOP (Buffer->Data, 
+		  {
+		    SetTextBoundingBox (&PCB->Font, text);
+		  }
+	      );
 	    }
 	  SetBufferBoundingBox (Buffer);
 	  if (Buffer->Data->ElementN)
@@ -429,7 +455,8 @@ LoadElementToBuffer (BufferTypePtr Buffer, char *Name, Boolean FromFile)
     }
   else
     {
-      if (!ParseLibraryEntry (Buffer->Data, Name) && Buffer->Data->ElementN != 0)
+      if (!ParseLibraryEntry (Buffer->Data, Name)
+	  && Buffer->Data->ElementN != 0)
 	{
 	  element = &(Buffer->Data->Element[0]);
 
@@ -457,7 +484,8 @@ LoadElementToBuffer (BufferTypePtr Buffer, char *Name, Boolean FromFile)
  *
  * break buffer element into pieces
  */
-Boolean SmashBufferElement (BufferTypePtr Buffer)
+Boolean
+SmashBufferElement (BufferTypePtr Buffer)
 {
   ElementTypePtr element;
   Cardinal group;
@@ -471,36 +499,47 @@ Boolean SmashBufferElement (BufferTypePtr Buffer)
   element = &Buffer->Data->Element[0];
   Buffer->Data->ElementN = 0;
   ClearBuffer (Buffer);
-  ELEMENTLINE_LOOP (element,
-		    CreateNewLineOnLayer (&Buffer->Data->SILKLAYER,
-					  line->Point1.X, line->Point1.Y,
-					  line->Point2.X, line->Point2.Y,
-					  line->Thickness, 0, 0);
-                    if (line) line->Number = MyStrdup(NAMEONPCB_NAME(element),
-                           "SmashBuffer");
-    );
-  ARC_LOOP (element,
-	    CreateNewArcOnLayer (&Buffer->Data->SILKLAYER,
-				 arc->X, arc->Y, arc->Width, arc->StartAngle,
-				 arc->Delta, arc->Thickness, 0, 0);
-    );
-  PIN_LOOP (element,
-	    CreateNewVia (Buffer->Data, pin->X, pin->Y,
-			  pin->Thickness, pin->Clearance, pin->Mask,
-			  pin->DrillingHole, pin->Number,
-			  VIAFLAG | (pin->Flags & HOLEFLAG)));
+  ELEMENTLINE_LOOP (element, 
+      {
+	CreateNewLineOnLayer (&Buffer->Data->SILKLAYER,
+			      line->Point1.X, line->Point1.Y,
+			      line->Point2.X, line->Point2.Y,
+			      line->Thickness, 0, 0);
+	if (line)
+	  line->Number = MyStrdup (NAMEONPCB_NAME (element), "SmashBuffer");
+      }
+  );
+  ARC_LOOP (element, 
+      {
+	CreateNewArcOnLayer (&Buffer->Data->SILKLAYER,
+			     arc->X, arc->Y, arc->Width, arc->StartAngle,
+			     arc->Delta, arc->Thickness, 0, 0);
+      }
+  );
+  PIN_LOOP (element, 
+      {
+      CreateNewVia (Buffer->Data, pin->X, pin->Y,
+		      pin->Thickness, pin->Clearance, pin->Mask,
+		      pin->DrillingHole, pin->Number,
+		      VIAFLAG | (pin->Flags & HOLEFLAG));
+      }
+  );
   group =
     GetLayerGroupNumberByNumber (MAX_LAYER +
 				 (SWAP_IDENT ? SOLDER_LAYER :
 				  COMPONENT_LAYER));
   layer = &Buffer->Data->Layer[PCB->LayerGroups.Entries[group][0]];
-  PAD_LOOP (element,
-	    {
-	    LineTypePtr line;
-	    line = CreateNewLineOnLayer (layer, pad->Point1.X, pad->Point1.Y,
-					 pad->Point2.X, pad->Point2.Y,
-					 pad->Thickness, pad->Clearance, 0);
-	    if (line) line->Number = MyStrdup (pad->Number, "SmashBuffer");}
+  PAD_LOOP (element, 
+      {
+	{
+	  LineTypePtr line;
+	  line = CreateNewLineOnLayer (layer, pad->Point1.X, pad->Point1.Y,
+				       pad->Point2.X, pad->Point2.Y,
+				       pad->Thickness, pad->Clearance, 0);
+	  if (line)
+	    line->Number = MyStrdup (pad->Number, "SmashBuffer");
+	}
+      }
   );
   FreeElementMemory (element);
   SaveFree (element);
@@ -511,7 +550,8 @@ Boolean SmashBufferElement (BufferTypePtr Buffer)
  *
  * convert buffer contents into an element
  */
-Boolean ConvertBufferToElement (BufferTypePtr Buffer)
+Boolean
+ConvertBufferToElement (BufferTypePtr Buffer)
 {
   ElementTypePtr Element;
   Cardinal group, i;
@@ -523,27 +563,31 @@ Boolean ConvertBufferToElement (BufferTypePtr Buffer)
 			      PASTEBUFFER->Y, 0, 100, NOFLAG, False);
   if (!Element)
     return (False);
-  VIA_LOOP (Buffer->Data,
-	    {
-	    char num[8];
-	    if (via->Mask < via->Thickness)
+  VIA_LOOP (Buffer->Data, 
+      {
+	{
+	  char num[8];
+	  if (via->Mask < via->Thickness)
 	    via->Mask = via->Thickness + 2 * MASKFRAME;
-	    if (via->Name)
+	  if (via->Name)
 	    CreateNewPin (Element, via->X, via->Y, via->Thickness,
 			  via->Clearance, via->Mask, via->DrillingHole,
 			  NULL, via->Name, (via->Flags &
 					    ~(VIAFLAG | FOUNDFLAG |
 					      SELECTEDFLAG | WARNFLAG)) |
 			  PINFLAG);
-	    else
+	  else
 	    {
-	    sprintf (num, "%d", pin_n++);
-	    CreateNewPin (Element, via->X, via->Y, via->Thickness,
-			  via->Clearance, via->Mask, via->DrillingHole,
-			  NULL, num, (via->Flags &
-				      ~(VIAFLAG | FOUNDFLAG | SELECTEDFLAG
-					| WARNFLAG)) | PINFLAG);}
-	    hasParts = True;}
+	      sprintf (num, "%d", pin_n++);
+	      CreateNewPin (Element, via->X, via->Y, via->Thickness,
+			    via->Clearance, via->Mask, via->DrillingHole,
+			    NULL, num, (via->Flags &
+					~(VIAFLAG | FOUNDFLAG | SELECTEDFLAG
+					  | WARNFLAG)) | PINFLAG);
+	    }
+	  hasParts = True;
+	}
+      }
   );
   /* get the component-side SM pads */
   group = GetLayerGroupNumberByNumber (MAX_LAYER +
@@ -558,18 +602,21 @@ Boolean ConvertBufferToElement (BufferTypePtr Buffer)
       if (number >= MAX_LAYER)
 	continue;
       padlayer = &Buffer->Data->Layer[number];
-      LINE_LOOP (padlayer,
-		 if (line->Point1.X == line->Point2.X
-		     || line->Point1.Y == line->Point2.Y)
-		 {
-		 sprintf (num, "%d", pin_n++);
-		 CreateNewPad (Element, line->Point1.X,
-			       line->Point1.Y, line->Point2.X, line->Point2.Y,
-			       line->Thickness, line->Clearance,
-			       line->Thickness + line->Clearance, NULL,
-			       line->Number ? line->Number : num,
-			       SWAP_IDENT ? ONSOLDERFLAG : NOFLAG);
-		 hasParts = True;}
+      LINE_LOOP (padlayer, 
+	  {
+	    if (line->Point1.X == line->Point2.X
+		|| line->Point1.Y == line->Point2.Y)
+	      {
+		sprintf (num, "%d", pin_n++);
+		CreateNewPad (Element, line->Point1.X,
+			      line->Point1.Y, line->Point2.X, line->Point2.Y,
+			      line->Thickness, line->Clearance,
+			      line->Thickness + line->Clearance, NULL,
+			      line->Number ? line->Number : num,
+			      SWAP_IDENT ? ONSOLDERFLAG : NOFLAG);
+		hasParts = True;
+	      }
+	  }
       );
     }
   /* now get the opposite side pads */
@@ -586,38 +633,48 @@ Boolean ConvertBufferToElement (BufferTypePtr Buffer)
       if (number >= MAX_LAYER)
 	continue;
       padlayer = &Buffer->Data->Layer[number];
-      LINE_LOOP (padlayer,
-		 if (line->Point1.X == line->Point2.X
-		     || line->Point1.Y == line->Point2.Y)
-		 {
-		 sprintf (num, "%d", pin_n++);
-		 CreateNewPad (Element, line->Point1.X,
-			       line->Point1.Y, line->Point2.X, line->Point2.Y,
-			       line->Thickness, line->Clearance,
-			       line->Thickness + line->Clearance, NULL,
-			       line->Number ? line->Number : num,
-			       SWAP_IDENT ? NOFLAG : ONSOLDERFLAG);
-		 if (!hasParts && !warned)
-		 {
-		 warned = True;
-		 Message ("Warning: All of the pads are on the opposite\n"
-			  "side from the component - that's probably not what\n"
-			  "you wanted\n");}
-		 hasParts = True;}
+      LINE_LOOP (padlayer, 
+	  {
+	    if (line->Point1.X == line->Point2.X
+		|| line->Point1.Y == line->Point2.Y)
+	      {
+		sprintf (num, "%d", pin_n++);
+		CreateNewPad (Element, line->Point1.X,
+			      line->Point1.Y, line->Point2.X, line->Point2.Y,
+			      line->Thickness, line->Clearance,
+			      line->Thickness + line->Clearance, NULL,
+			      line->Number ? line->Number : num,
+			      SWAP_IDENT ? NOFLAG : ONSOLDERFLAG);
+		if (!hasParts && !warned)
+		  {
+		    warned = True;
+		    Message ("Warning: All of the pads are on the opposite\n"
+			     "side from the component - that's probably not what\n"
+			     "you wanted\n");
+		  }
+		hasParts = True;
+	      }
+	  }
       );
     }
   /* now add the silkscreen. NOTE: elements must have pads or pins too */
-  LINE_LOOP (&Buffer->Data->SILKLAYER,
-             if (line->Number && !NAMEONPCB_NAME(Element))
-               NAMEONPCB_NAME(Element) = MyStrdup(line->Number,
-			"ConvertBufferToElement"); 
-	     CreateNewLineInElement (Element, line->Point1.X,
-				     line->Point1.Y, line->Point2.X,
-				     line->Point2.Y, line->Thickness););
-  ARC_LOOP (&Buffer->Data->SILKLAYER,
-	    CreateNewArcInElement (Element, arc->X, arc->Y, arc->Width,
-				   arc->Height, arc->StartAngle, arc->Delta,
-				   arc->Thickness););
+  LINE_LOOP (&Buffer->Data->SILKLAYER, 
+      {
+	if (line->Number && !NAMEONPCB_NAME (Element))
+	  NAMEONPCB_NAME (Element) = MyStrdup (line->Number,
+					       "ConvertBufferToElement");
+	CreateNewLineInElement (Element, line->Point1.X,
+				line->Point1.Y, line->Point2.X,
+				line->Point2.Y, line->Thickness);
+      }
+  );
+  ARC_LOOP (&Buffer->Data->SILKLAYER, 
+      {
+	CreateNewArcInElement (Element, arc->X, arc->Y, arc->Width,
+			       arc->Height, arc->StartAngle, arc->Delta,
+			       arc->Thickness);
+      }
+  );
   if (!hasParts)
     {
       DestroyObject (PCB->Data, ELEMENT_TYPE, Element, Element, Element);
@@ -642,7 +699,8 @@ Boolean ConvertBufferToElement (BufferTypePtr Buffer)
  * parse the file with enabled 'PCB mode' (see parser)
  * if successful, update some other stuff
  */
-Boolean LoadLayoutToBuffer (BufferTypePtr Buffer, char *Filename)
+Boolean
+LoadLayoutToBuffer (BufferTypePtr Buffer, char *Filename)
 {
   PCBTypePtr newPCB = CreateNewPCB (False);
 
@@ -672,24 +730,40 @@ void
 RotateBuffer (BufferTypePtr Buffer, BYTE Number)
 {
   /* rotate vias */
-  VIA_LOOP (Buffer->Data,
-	    ROTATE_VIA_LOWLEVEL (via, Buffer->X, Buffer->Y, Number););
+  VIA_LOOP (Buffer->Data, 
+      {
+	ROTATE_VIA_LOWLEVEL (via, Buffer->X, Buffer->Y, Number);
+      }
+  );
 
   /* elements */
-  ELEMENT_LOOP (Buffer->Data,
-		RotateElementLowLevel (element, Buffer->X, Buffer->Y,
-				       Number););
+  ELEMENT_LOOP (Buffer->Data, 
+      {
+	RotateElementLowLevel (element, Buffer->X, Buffer->Y, Number);
+      }
+  );
 
   /* all layer related objects */
-  ALLLINE_LOOP (Buffer->Data,
-		RotateLineLowLevel (line, Buffer->X, Buffer->Y, Number););
-  ALLARC_LOOP (Buffer->Data,
-	       RotateArcLowLevel (arc, Buffer->X, Buffer->Y, Number););
-  ALLTEXT_LOOP (Buffer->Data,
-		RotateTextLowLevel (text, Buffer->X, Buffer->Y, Number););
-  ALLPOLYGON_LOOP (Buffer->Data,
-		   RotatePolygonLowLevel (polygon, Buffer->X, Buffer->Y,
-					  Number););
+  ALLLINE_LOOP (Buffer->Data, 
+      {
+	RotateLineLowLevel (line, Buffer->X, Buffer->Y, Number);
+      }
+  );
+  ALLARC_LOOP (Buffer->Data, 
+      {
+	RotateArcLowLevel (arc, Buffer->X, Buffer->Y, Number);
+      }
+  );
+  ALLTEXT_LOOP (Buffer->Data, 
+      {
+	RotateTextLowLevel (text, Buffer->X, Buffer->Y, Number);
+      }
+  );
+  ALLPOLYGON_LOOP (Buffer->Data, 
+      {
+	RotatePolygonLowLevel (polygon, Buffer->X, Buffer->Y, Number);
+      }
+  );
 
   /* finally the origin and the bounding box */
   ROTATE (Buffer->X, Buffer->Y, Buffer->X, Buffer->Y, Number);
@@ -728,37 +802,55 @@ SwapBuffer (BufferTypePtr Buffer)
   Cardinal sgroup, cgroup;
   LayerType swap;
 
-  ELEMENT_LOOP (Buffer->Data, MirrorElementCoordinates (element, 0));
+  ELEMENT_LOOP (Buffer->Data, 
+      {
+        MirrorElementCoordinates (element, 0);
+      }
+  );
   /* set buffer offset to 'mark' position */
   Buffer->X = SWAP_X (Buffer->X);
   Buffer->Y = SWAP_Y (Buffer->Y);
-  VIA_LOOP (Buffer->Data, via->X = SWAP_X (via->X);
-	    via->Y = SWAP_Y (via->Y);
-    );
-  ALLLINE_LOOP (Buffer->Data,
-		line->Point1.X = SWAP_X (line->Point1.X);
-		line->Point1.Y = SWAP_Y (line->Point1.Y);
-		line->Point2.X = SWAP_X (line->Point2.X);
-		line->Point2.Y = SWAP_Y (line->Point2.Y);
-    );
-  ALLARC_LOOP (Buffer->Data,
-	       arc->X = SWAP_X (arc->X);
-	       arc->Y = SWAP_Y (arc->Y);
-	       arc->StartAngle = SWAP_ANGLE (arc->StartAngle);
-	       arc->Delta = SWAP_DELTA (arc->Delta);
-    );
-  ALLPOLYGON_LOOP (Buffer->Data,
-		   POLYGONPOINT_LOOP (polygon,
-				      point->X = SWAP_X (point->X);
-				      point->Y = SWAP_Y (point->Y);
-		   ); SetPolygonBoundingBox (polygon);
-    );
-  ALLTEXT_LOOP (Buffer->Data,
-		text->X = SWAP_X (text->X);
-		text->Y = SWAP_Y (text->Y);
-		TOGGLE_FLAG (ONSOLDERFLAG, text);
-		SetTextBoundingBox (&PCB->Font, text);
-    );
+  VIA_LOOP (Buffer->Data, 
+      {
+	via->X = SWAP_X (via->X);
+	via->Y = SWAP_Y (via->Y);
+      }
+  );
+  ALLLINE_LOOP (Buffer->Data, 
+      {
+	line->Point1.X = SWAP_X (line->Point1.X);
+	line->Point1.Y = SWAP_Y (line->Point1.Y);
+	line->Point2.X = SWAP_X (line->Point2.X);
+	line->Point2.Y = SWAP_Y (line->Point2.Y);
+      }
+  );
+  ALLARC_LOOP (Buffer->Data, 
+      {
+	arc->X = SWAP_X (arc->X);
+	arc->Y = SWAP_Y (arc->Y);
+	arc->StartAngle = SWAP_ANGLE (arc->StartAngle);
+	arc->Delta = SWAP_DELTA (arc->Delta);
+      }
+  );
+  ALLPOLYGON_LOOP (Buffer->Data, 
+      {
+	POLYGONPOINT_LOOP (polygon, 
+	    {
+	      point->X = SWAP_X (point->X);
+	      point->Y = SWAP_Y (point->Y);
+	    }
+	);
+	SetPolygonBoundingBox (polygon);
+      }
+  );
+  ALLTEXT_LOOP (Buffer->Data, 
+      {
+	text->X = SWAP_X (text->X);
+	text->Y = SWAP_Y (text->Y);
+	TOGGLE_FLAG (ONSOLDERFLAG, text);
+	SetTextBoundingBox (&PCB->Font, text);
+      }
+  );
   /* swap silkscreen layers */
   swap = Buffer->Data->Layer[MAX_LAYER + SOLDER_LAYER];
   Buffer->Data->Layer[MAX_LAYER + SOLDER_LAYER] =
@@ -791,16 +883,20 @@ SwapBuffer (BufferTypePtr Buffer)
 	  /* move the thermal flags with the layers */
 	  t1 = L0THERMFLAG << snumber;
 	  t2 = L0THERMFLAG << cnumber;
-	  ALLPIN_LOOP (Buffer->Data,
-		       f1 = (TEST_FLAG (t1, pin)) ? t2 : 0;
-		       f2 = (TEST_FLAG (t2, pin)) ? t1 : 0;
-		       pin->Flags = (pin->Flags & ~t1 & ~t2) | f1 | f2;
-	    );
-	  VIA_LOOP (Buffer->Data,
-		    f1 = (TEST_FLAG (t1, via)) ? t2 : 0;
-		    f2 = (TEST_FLAG (t2, via)) ? t1 : 0;
-		    via->Flags = (via->Flags & ~t1 & ~t2) | f1 | f2;
-	    );
+	  ALLPIN_LOOP (Buffer->Data, 
+	      {
+		f1 = (TEST_FLAG (t1, pin)) ? t2 : 0;
+		f2 = (TEST_FLAG (t2, pin)) ? t1 : 0;
+		pin->Flags = (pin->Flags & ~t1 & ~t2) | f1 | f2;
+	      }
+	  );
+	  VIA_LOOP (Buffer->Data, 
+	      {
+		f1 = (TEST_FLAG (t1, via)) ? t2 : 0;
+		f2 = (TEST_FLAG (t2, via)) ? t1 : 0;
+		via->Flags = (via->Flags & ~t1 & ~t2) | f1 | f2;
+	      }
+	  );
 	}
     }
   SetBufferBoundingBox (Buffer);

@@ -71,8 +71,8 @@ SetCursorStatusLine (void)
   if (Marked.status)
     sprintf (text, "%-i,%-i <%-i,%-i> (%-.2fmm,%-.2fmm)", Crosshair.X,
 	     Crosshair.Y, Crosshair.X - Marked.X, Crosshair.Y - Marked.Y,
-             MIL_TO_MM * (Crosshair.X - Marked.X),
-             MIL_TO_MM * (Crosshair.Y - Marked.Y));
+	     MIL_TO_MM * (Crosshair.X - Marked.X),
+	     MIL_TO_MM * (Crosshair.Y - Marked.Y));
   else
     sprintf (text, "%-i,%-i", Crosshair.X, Crosshair.Y);
   SetOutputLabel (Output.CursorPosition, text);
@@ -414,12 +414,16 @@ SetRouteStyle (char *name)
 {
   char *arg, num[10];
 
-  STYLE_LOOP (PCB, if (name && strcmp (name, style->Name) == 0)
-	      {
-	      arg = &num[0];
-	      sprintf (num, "%d", n + 1);
-	      CallActionProc (Output.Output, "RouteStyle", NULL, &arg, 1);
-	      break;}
+  STYLE_LOOP (PCB, 
+      {
+	if (name && strcmp (name, style->Name) == 0)
+	  {
+	    arg = &num[0];
+	    sprintf (num, "%d", n + 1);
+	    CallActionProc (Output.Output, "RouteStyle", NULL, &arg, 1);
+	    break;
+	  }
+      }
   );
 }
 

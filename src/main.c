@@ -786,7 +786,8 @@ static XtResource ToplevelResources[] = {
   {"resetAfterElement", "ResetAfterElement", XtRBoolean, sizeof (Boolean),
    XtOffsetOf (SettingType, ResetAfterElement), XtRString, "False"}
   ,
-  {"ringBellWhenFinished", "RingBellWhenFinished", XtRBoolean, sizeof (Boolean),
+  {"ringBellWhenFinished", "RingBellWhenFinished", XtRBoolean,
+   sizeof (Boolean),
    XtOffsetOf (SettingType, RingBellWhenFinished), XtRString, "True"}
   ,
   {"routeStyles", "RouteStyles", XtRString, sizeof (String),
@@ -954,7 +955,7 @@ static XtActionsRec Actions[] = {
   {"EditLayerGroups", ActionEditLayerGroups},
   {"MoveToCurrentLayer", ActionMoveToCurrentLayer},
   {"SwitchDrawingLayer", ActionSwitchDrawingLayer},
-  { "djopt", ActionDJopt }
+  {"djopt", ActionDJopt}
 };
 
 /* ---------------------------------------------------------------------------
@@ -1051,8 +1052,7 @@ InitStatusLine (Widget Parent, Widget Top, Widget Left)
 					       XtNresize, True,
 					       XtNfromVert, Top,
 					       XtNfromHoriz, Left,
-					       LAYOUT_TOP,
-					       NULL);
+					       LAYOUT_TOP, NULL);
 }
 
 /* ---------------------------------------------------------------------------
@@ -1102,7 +1102,8 @@ InitIcon (void)
   XtVaSetValues (Output.Toplevel,
 		 XtNiconPixmap, XCreatePixmapFromBitmapData (Dpy,
 							     XtWindow
-							     (Output.Toplevel),
+							     (Output.
+							      Toplevel),
 							     icon_bits,
 							     icon_width,
 							     icon_height,
@@ -1152,7 +1153,8 @@ InitGC (void)
   Output.GridGC = XCreateGC (Dpy, Output.OutputWindow, 0, NULL);
   if (!VALID_GC ((long int) Output.fgGC) ||
       !VALID_GC ((long int) Output.bgGC) ||
-      !VALID_GC ((long int) Output.GridGC || !VALID_GC ((long int) Output.pmGC)))
+      !VALID_GC ((long int) Output.GridGC
+		 || !VALID_GC ((long int) Output.pmGC)))
     MyFatal ("can't create default GC\n");
 
   XSetForeground (Dpy, Output.bgGC, Settings.bgColor);
@@ -1244,7 +1246,7 @@ InitWidgets (void)
   InitIcon ();
   InitHandler ();
   InitBuffers ();
-  SetMode(NO_MODE);
+  SetMode (NO_MODE);
 
   /* set window manager property to get 'delete window' messages */
   WMDeleteWindowAtom = XInternAtom (Dpy, "WM_DELETE_WINDOW", True);
@@ -1327,7 +1329,7 @@ main (int argc, char *argv[])
       break;
 
     case 1:			/* load an initial layout;
-				   * abort if filename looks like an option
+				 * abort if filename looks like an option
 				 */
       ++argv;
       if (**argv == '-')

@@ -121,10 +121,12 @@ __kd_node_is_good (struct kdtree_node *node)
     /* constraints on bounds */
     (node->lo_kid == NULL || (node->lo_min_bound <= key (node->lo_kid->box,
 							 LO_SIDE (node->
-								  flags.discrim))))
+								  flags.
+								  discrim))))
     && (node->hi_kid == NULL || (node->hi_max_bound >= key (node->hi_kid->box,
-							    HI_SIDE
-							    (node->flags.discrim))))
+							    HI_SIDE (node->
+								     flags.
+								     discrim))))
     &&
     /** XXX: bounds on other_bound */
     /* constraints on parent/kid pointers */
@@ -139,7 +141,7 @@ __kd_node_is_good (struct kdtree_node *node)
     (node->size == ((node->flags.inactive ? 0 : 1) +
 		    (node->lo_kid == NULL ? 0 : node->lo_kid->size) +
 		    (node->hi_kid == NULL ? 0 : node->hi_kid->size))) &&
-#endif				/* AUTO_OPTIMIZE */
+#endif /* AUTO_OPTIMIZE */
     /* done */
     1;
   assert (r);			/* bad node */

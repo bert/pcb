@@ -266,24 +266,26 @@ RemoveLinePoint (LayerTypePtr Layer, LineTypePtr Line, PointTypePtr Point)
     oldPoint = Line->Point2;
   else
     oldPoint = Line->Point1;
-  LINE_LOOP (Layer,
-	     {
-	       if (line == Line)
-	          continue;
-	       if ((line->Point1.X == Point->X) && (line->Point1.Y == Point->Y))
-	         {
-	           MoveObject (LINEPOINT_TYPE, Layer, line, &line->Point1,
-			 oldPoint.X - line->Point1.X,
-			 oldPoint.Y - line->Point1.Y);
-		 }
-	       if ((line->Point2.X == Point->X) && (line->Point2.Y == Point->Y))
-	         {
-	           MoveObject (LINEPOINT_TYPE, Layer, line, &line->Point2,
-			 oldPoint.X - line->Point2.X,
-			 oldPoint.Y - line->Point2.Y);
-	         }
-	        break;
-	     }
+  LINE_LOOP (Layer, 
+      {
+	{
+	  if (line == Line)
+	    continue;
+	  if ((line->Point1.X == Point->X) && (line->Point1.Y == Point->Y))
+	    {
+	      MoveObject (LINEPOINT_TYPE, Layer, line, &line->Point1,
+			  oldPoint.X - line->Point1.X,
+			  oldPoint.Y - line->Point1.Y);
+	    }
+	  if ((line->Point2.X == Point->X) && (line->Point2.Y == Point->Y))
+	    {
+	      MoveObject (LINEPOINT_TYPE, Layer, line, &line->Point2,
+			  oldPoint.X - line->Point2.X,
+			  oldPoint.Y - line->Point2.Y);
+	    }
+	  break;
+	}
+      }
   );
   return (RemoveLine (Layer, Line));
 }
@@ -368,9 +370,14 @@ RemovePolygonPoint (LayerTypePtr Layer,
   Cardinal index = 0;
 
   /* insert the polygon-point into the undo list */
-  POLYGONPOINT_LOOP (Polygon, if (point == Point)
-		     {
-		     index = n; break;}
+  POLYGONPOINT_LOOP (Polygon, 
+      {
+	if (point == Point)
+	  {
+	    index = n;
+	    break;
+	  }
+      }
   );
   AddObjectToRemovePointUndoList (POLYGONPOINT_TYPE, Layer, Polygon, index);
 
@@ -419,7 +426,8 @@ RemoveElement (ElementTypePtr Element)
  * removes all selected and visible objects
  * returns True if any objects have been removed
  */
-Boolean RemoveSelected (void)
+Boolean
+RemoveSelected (void)
 {
   Bulk = True;
   if (SelectedOperation (&RemoveFunctions, False, ALL_TYPES))
@@ -449,14 +457,20 @@ RemoveObject (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
  * can delete all rat lines, or only selected one
  */
 
-Boolean DeleteRats (Boolean selected)
+Boolean
+DeleteRats (Boolean selected)
 {
   Boolean changed = False;
 
   Bulk = True;
-  RAT_LOOP (PCB->Data, if ((!selected) || TEST_FLAG (SELECTEDFLAG, line))
-	    {
-	    changed = True; RemoveRat (line);}
+  RAT_LOOP (PCB->Data, 
+      {
+	if ((!selected) || TEST_FLAG (SELECTEDFLAG, line))
+	  {
+	    changed = True;
+	    RemoveRat (line);
+	  }
+      }
   );
   Bulk = False;
   if (changed)

@@ -63,7 +63,8 @@ static void DSRealloc (DynamicStringTypePtr, size_t);
 /* ---------------------------------------------------------------------------
  * get next slot for a rubberband connection, allocates memory if necessary
  */
-RubberbandTypePtr GetRubberbandMemory (void)
+RubberbandTypePtr
+GetRubberbandMemory (void)
 {
   RubberbandTypePtr ptr = Crosshair.AttachedObject.Rubberband;
 
@@ -110,7 +111,8 @@ FreePointerListMemory (PointerListTypePtr list)
 /* ---------------------------------------------------------------------------
  * get next slot for a box, allocates memory if necessary
  */
-BoxTypePtr GetBoxMemory (BoxListTypePtr Boxes)
+BoxTypePtr
+GetBoxMemory (BoxListTypePtr Boxes)
 {
   BoxTypePtr box = Boxes->Box;
 
@@ -131,7 +133,8 @@ BoxTypePtr GetBoxMemory (BoxListTypePtr Boxes)
 /* ---------------------------------------------------------------------------
  * get next slot for a connection, allocates memory if necessary
  */
-ConnectionTypePtr GetConnectionMemory (NetTypePtr Net)
+ConnectionTypePtr
+GetConnectionMemory (NetTypePtr Net)
 {
   ConnectionTypePtr con = Net->Connection;
 
@@ -151,7 +154,8 @@ ConnectionTypePtr GetConnectionMemory (NetTypePtr Net)
 /* ---------------------------------------------------------------------------
  * get next slot for a subnet, allocates memory if necessary
  */
-NetTypePtr GetNetMemory (NetListTypePtr Netlist)
+NetTypePtr
+GetNetMemory (NetListTypePtr Netlist)
 {
   NetTypePtr net = Netlist->Net;
 
@@ -170,7 +174,8 @@ NetTypePtr GetNetMemory (NetListTypePtr Netlist)
 /* ---------------------------------------------------------------------------
  * get next slot for a net list, allocates memory if necessary
  */
-NetListTypePtr GetNetListMemory (NetListListTypePtr Netlistlist)
+NetListTypePtr
+GetNetListMemory (NetListListTypePtr Netlistlist)
 {
   NetListTypePtr netlist = Netlistlist->NetList;
 
@@ -191,7 +196,8 @@ NetListTypePtr GetNetListMemory (NetListListTypePtr Netlistlist)
 /* ---------------------------------------------------------------------------
  * get next slot for a pin, allocates memory if necessary
  */
-PinTypePtr GetPinMemory (ElementTypePtr Element)
+PinTypePtr
+GetPinMemory (ElementTypePtr Element)
 {
   PinTypePtr pin = Element->Pin;
 
@@ -210,7 +216,8 @@ PinTypePtr GetPinMemory (ElementTypePtr Element)
 /* ---------------------------------------------------------------------------
  * get next slot for a pad, allocates memory if necessary
  */
-PadTypePtr GetPadMemory (ElementTypePtr Element)
+PadTypePtr
+GetPadMemory (ElementTypePtr Element)
 {
   PadTypePtr pad = Element->Pad;
 
@@ -229,7 +236,8 @@ PadTypePtr GetPadMemory (ElementTypePtr Element)
 /* ---------------------------------------------------------------------------
  * get next slot for a via, allocates memory if necessary
  */
-PinTypePtr GetViaMemory (DataTypePtr Data)
+PinTypePtr
+GetViaMemory (DataTypePtr Data)
 {
   PinTypePtr via = Data->Via;
 
@@ -248,7 +256,8 @@ PinTypePtr GetViaMemory (DataTypePtr Data)
 /* ---------------------------------------------------------------------------
  * get next slot for a Rat, allocates memory if necessary
  */
-RatTypePtr GetRatMemory (DataTypePtr Data)
+RatTypePtr
+GetRatMemory (DataTypePtr Data)
 {
   RatTypePtr rat = Data->Rat;
 
@@ -267,7 +276,8 @@ RatTypePtr GetRatMemory (DataTypePtr Data)
 /* ---------------------------------------------------------------------------
  * get next slot for a line, allocates memory if necessary
  */
-LineTypePtr GetLineMemory (LayerTypePtr Layer)
+LineTypePtr
+GetLineMemory (LayerTypePtr Layer)
 {
   LineTypePtr line = Layer->Line;
 
@@ -286,7 +296,8 @@ LineTypePtr GetLineMemory (LayerTypePtr Layer)
 /* ---------------------------------------------------------------------------
  * get next slot for an arc, allocates memory if necessary
  */
-ArcTypePtr GetArcMemory (LayerTypePtr Layer)
+ArcTypePtr
+GetArcMemory (LayerTypePtr Layer)
 {
   ArcTypePtr arc = Layer->Arc;
 
@@ -305,7 +316,8 @@ ArcTypePtr GetArcMemory (LayerTypePtr Layer)
 /* ---------------------------------------------------------------------------
  * get next slot for a text object, allocates memory if necessary
  */
-TextTypePtr GetTextMemory (LayerTypePtr Layer)
+TextTypePtr
+GetTextMemory (LayerTypePtr Layer)
 {
   TextTypePtr text = Layer->Text;
 
@@ -324,7 +336,8 @@ TextTypePtr GetTextMemory (LayerTypePtr Layer)
 /* ---------------------------------------------------------------------------
  * get next slot for a polygon object, allocates memory if necessary
  */
-PolygonTypePtr GetPolygonMemory (LayerTypePtr Layer)
+PolygonTypePtr
+GetPolygonMemory (LayerTypePtr Layer)
 {
   PolygonTypePtr polygon = Layer->Polygon;
 
@@ -345,7 +358,8 @@ PolygonTypePtr GetPolygonMemory (LayerTypePtr Layer)
  * gets the next slot for a point in a polygon struct, allocates memory
  * if necessary
  */
-PointTypePtr GetPointMemoryInPolygon (PolygonTypePtr Polygon)
+PointTypePtr
+GetPointMemoryInPolygon (PolygonTypePtr Polygon)
 {
   PointTypePtr points = Polygon->Points;
 
@@ -365,7 +379,8 @@ PointTypePtr GetPointMemoryInPolygon (PolygonTypePtr Polygon)
 /* ---------------------------------------------------------------------------
  * get next slot for an element, allocates memory if necessary
  */
-ElementTypePtr GetElementMemory (DataTypePtr Data)
+ElementTypePtr
+GetElementMemory (DataTypePtr Data)
 {
   ElementTypePtr element = Data->Element;
 
@@ -385,7 +400,8 @@ ElementTypePtr GetElementMemory (DataTypePtr Data)
 /* ---------------------------------------------------------------------------
  * get next slot for an library menu, allocates memory if necessary
  */
-LibraryMenuTypePtr GetLibraryMenuMemory (LibraryTypePtr lib)
+LibraryMenuTypePtr
+GetLibraryMenuMemory (LibraryTypePtr lib)
 {
   LibraryMenuTypePtr menu = lib->Menu;
 
@@ -405,7 +421,8 @@ LibraryMenuTypePtr GetLibraryMenuMemory (LibraryTypePtr lib)
 /* ---------------------------------------------------------------------------
  * get next slot for a library entry, allocates memory if necessary
  */
-LibraryEntryTypePtr GetLibraryEntryMemory (LibraryMenuTypePtr Menu)
+LibraryEntryTypePtr
+GetLibraryEntryMemory (LibraryMenuTypePtr Menu)
 {
   LibraryEntryTypePtr entry = Menu->Entry;
 
@@ -425,7 +442,8 @@ LibraryEntryTypePtr GetLibraryEntryMemory (LibraryMenuTypePtr Menu)
 /* ---------------------------------------------------------------------------
  * get next slot for a DrillElement, allocates memory if necessary
  */
-ElementTypeHandle GetDrillElementMemory (DrillTypePtr Drill)
+ElementTypeHandle
+GetDrillElementMemory (DrillTypePtr Drill)
 {
   ElementTypePtr *element;
 
@@ -448,7 +466,8 @@ ElementTypeHandle GetDrillElementMemory (DrillTypePtr Drill)
 /* ---------------------------------------------------------------------------
  * get next slot for a DrillPoint, allocates memory if necessary
  */
-PinTypeHandle GetDrillPinMemory (DrillTypePtr Drill)
+PinTypeHandle
+GetDrillPinMemory (DrillTypePtr Drill)
 {
   PinTypePtr *pin;
 
@@ -469,7 +488,8 @@ PinTypeHandle GetDrillPinMemory (DrillTypePtr Drill)
 /* ---------------------------------------------------------------------------
  * get next slot for a Drill, allocates memory if necessary
  */
-DrillTypePtr GetDrillInfoDrillMemory (DrillInfoTypePtr DrillInfo)
+DrillTypePtr
+GetDrillInfoDrillMemory (DrillInfoTypePtr DrillInfo)
 {
   DrillTypePtr drill = DrillInfo->Drill;
 
@@ -590,7 +610,11 @@ FreeNetListMemory (NetListTypePtr Netlist)
 {
   if (Netlist)
     {
-      NET_LOOP (Netlist, FreeNetMemory (net));
+      NET_LOOP (Netlist, 
+        {
+	  FreeNetMemory (net);
+	}
+      );
       MyFree ((char **) &Netlist->Net);
       memset (Netlist, 0, sizeof (NetListType));
     }
@@ -604,7 +628,11 @@ FreeNetListListMemory (NetListListTypePtr Netlistlist)
 {
   if (Netlistlist)
     {
-      NETLIST_LOOP (Netlistlist, FreeNetListMemory (netlist));
+      NETLIST_LOOP (Netlistlist, 
+        {
+	  FreeNetListMemory (netlist);
+	}
+      );
       MyFree ((char **) &Netlistlist->NetList);
       memset (Netlistlist, 0, sizeof (NetListListType));
     }
@@ -631,13 +659,23 @@ FreeElementMemory (ElementTypePtr Element)
 {
   if (Element)
     {
-      ELEMENTNAME_LOOP (Element, MyFree (&textstring));
-      PIN_LOOP (Element, MyFree (&pin->Name);
-		MyFree (&pin->Number);
-	);
-      PAD_LOOP (Element, MyFree (&pad->Name);
-		MyFree (&pad->Number);
-	);
+      ELEMENTNAME_LOOP (Element, 
+        {
+	  MyFree (&textstring);
+	}
+      );
+      PIN_LOOP (Element, 
+	  {
+	    MyFree (&pin->Name);
+	    MyFree (&pin->Number);
+	  }
+      );
+      PAD_LOOP (Element, 
+	  {
+	    MyFree (&pad->Name);
+	    MyFree (&pad->Number);
+	  }
+      );
       MyFree ((char **) &Element->Pin);
       MyFree ((char **) &Element->Line);
       MyFree ((char **) &Element->Arc);
@@ -679,18 +717,39 @@ FreeDataMemory (DataTypePtr Data)
 
   if (Data)
     {
-      VIA_LOOP (Data, MyFree (&via->Name););
-      ELEMENT_LOOP (Data, FreeElementMemory (element););
+      VIA_LOOP (Data, 
+	  {
+	    MyFree (&via->Name);
+	  }
+      );
+      ELEMENT_LOOP (Data, 
+	  {
+	    FreeElementMemory (element);
+	  }
+      );
 
       for (layer = Data->Layer, i = 0; i < MAX_LAYER + 2; layer++, i++)
 	{
-	  TEXT_LOOP (layer, MyFree (&text->TextString););
+	  TEXT_LOOP (layer, 
+	      {
+		MyFree (&text->TextString);
+	      }
+	  );
 	  MyFree (&layer->Name);
-	  LINE_LOOP (layer, if (line->Number) MyFree (&line->Number););
+	  LINE_LOOP (layer, 
+	      {
+		if (line->Number)
+		  MyFree (&line->Number);
+	      }
+	  );
 	  MyFree ((char **) &layer->Line);
 	  MyFree ((char **) &layer->Arc);
 	  MyFree ((char **) &layer->Text);
-	  POLYGON_LOOP (layer, FreePolygonMemory (polygon));
+	  POLYGON_LOOP (layer, 
+	    {
+	      FreePolygonMemory (polygon);
+	    }
+	  );
 	  MyFree ((char **) &layer->Polygon);
 	}
 
@@ -705,13 +764,18 @@ FreeDataMemory (DataTypePtr Data)
 void
 FreeLibraryMemory (LibraryTypePtr lib)
 {
-  MENU_LOOP (lib,
-	     ENTRY_LOOP (menu,
-			 SaveFree ((void *) entry->AllocatedMemory);
-			 SaveFree ((void *) entry->ListEntry);
-	     );
-	     SaveFree ((void *) menu->Entry);
-	     SaveFree ((void *) menu->Name););
+  MENU_LOOP (lib, 
+      {
+	ENTRY_LOOP (menu, 
+	    {
+	      SaveFree ((void *) entry->AllocatedMemory);
+	      SaveFree ((void *) entry->ListEntry);
+	    }
+	);
+	SaveFree ((void *) menu->Entry);
+	SaveFree ((void *) menu->Name);
+      }
+  );
   SaveFree ((void *) lib->Menu);
 
   /* clear struct */

@@ -24,7 +24,8 @@
  *
  */
 
-static char *rcsid = "$Id$";
+static char *rcsid =
+  "$Id$";
 
 /* pinout routines */
 
@@ -114,21 +115,29 @@ PinoutWindow (Widget Parent, ElementTypePtr Element)
    */
   CopyElementLowLevel (PCB->Data, &pinout->Element, Element, False);
   minx = miny = 32767;
-  PIN_LOOP (&pinout->Element,
-	    tx = abs (pinout->Element.Pin[0].X - pin->X);
-	    ty = abs (pinout->Element.Pin[0].Y - pin->Y);
-	    if (tx != 0 && tx < minx)
-	    minx = tx;
-	    if (ty != 0 && ty < miny)
-	    miny = ty; SET_FLAG (DISPLAYNAMEFLAG, pin););
+  PIN_LOOP (&pinout->Element, 
+      {
+	tx = abs (pinout->Element.Pin[0].X - pin->X);
+	ty = abs (pinout->Element.Pin[0].Y - pin->Y);
+	if (tx != 0 && tx < minx)
+	  minx = tx;
+	if (ty != 0 && ty < miny)
+	  miny = ty;
+	SET_FLAG (DISPLAYNAMEFLAG, pin);
+      }
+  );
 
-  PAD_LOOP (&pinout->Element,
-	    tx = abs (pinout->Element.Pad[0].Point1.X - pad->Point1.X);
-	    ty = abs (pinout->Element.Pad[0].Point1.Y - pad->Point1.Y);
-	    if (tx != 0 && tx < minx)
-	    minx = tx;
-	    if (ty != 0 && ty < miny)
-	    miny = ty; SET_FLAG (DISPLAYNAMEFLAG, pad););
+  PAD_LOOP (&pinout->Element, 
+      {
+	tx = abs (pinout->Element.Pad[0].Point1.X - pad->Point1.X);
+	ty = abs (pinout->Element.Pad[0].Point1.Y - pad->Point1.Y);
+	if (tx != 0 && tx < minx)
+	  minx = tx;
+	if (ty != 0 && ty < miny)
+	  miny = ty;
+	SET_FLAG (DISPLAYNAMEFLAG, pad);
+      }
+  );
   if (minx < miny)
     RotateElementLowLevel (&pinout->Element, pinout->Element.BoundingBox.X1,
 			   pinout->Element.BoundingBox.Y1, 1);
@@ -141,8 +150,16 @@ PinoutWindow (Widget Parent, ElementTypePtr Element)
   pinout->Zoom = Settings.PinoutZoom;
   pinout->MaxX = pinout->Element.BoundingBox.X2 + Settings.PinoutOffsetX;
   pinout->MaxY = pinout->Element.BoundingBox.Y2 + Settings.PinoutOffsetY;
-  ELEMENTLINE_LOOP (&pinout->Element, line->Thickness = 0;);
-  ARC_LOOP (&pinout->Element, arc->Thickness = 0;);
+  ELEMENTLINE_LOOP (&pinout->Element, 
+      {
+	line->Thickness = 0;
+      }
+  );
+  ARC_LOOP (&pinout->Element, 
+      {
+	arc->Thickness = 0;
+      }
+  );
 
   /* create shell window with viewport,
    * shrink, enlarge and exit button

@@ -24,7 +24,8 @@
  *
  */
 
-static char *rcsid = "$Id$";
+static char *rcsid =
+  "$Id$";
 
 /* size dialog routines
  */
@@ -98,7 +99,7 @@ SliderType, *SliderTypePtr;
 /* ---------------------------------------------------------------------------
  * some local identifiers
  */
-static long int ReturnCode;		/* returncode of buttons */
+static long int ReturnCode;	/* returncode of buttons */
 static SliderType Sliders[] = {
   {"linewidth", MIN_LINESIZE, MAX_LINESIZE, CHUNK, 0, NULL, NULL},
   {"via hole", MIN_PINORVIAHOLE, 0, CHUNK, 0, NULL, NULL},

@@ -106,9 +106,11 @@ CreateNetSelector (Widget Parent, Widget Top, Widget Left)
 
   /* create the selector, add all entries and sort them */
   selector = CreateSelector (Parent, Top, Left, &NetSelector, 1);
-  MENU_LOOP (&PCB->NetlistLib,
-	     AddEntryToSelector (menu->Name, (XtPointer) menu,
-				 &NetSelector););
+  MENU_LOOP (&PCB->NetlistLib, 
+      {
+	AddEntryToSelector (menu->Name, (XtPointer) menu, &NetSelector);
+      }
+  );
   return (selector);
 }
 
@@ -119,9 +121,11 @@ static void
 UpdateNetSelector (void)
 {
   FreeSelectorEntries (&NetSelector);
-  MENU_LOOP (&PCB->NetlistLib,
-	     AddEntryToSelector (menu->Name, (XtPointer) menu,
-				 &NetSelector););
+  MENU_LOOP (&PCB->NetlistLib, 
+      {
+	AddEntryToSelector (menu->Name, (XtPointer) menu, &NetSelector);
+      }
+  );
   UpdateSelector (&NetSelector);
 }
 
@@ -133,11 +137,14 @@ UpdateConnectionSelector (LibraryMenuTypePtr Menu)
 {
   SelectedNet = Menu;
   FreeSelectorEntries (&ConnectionSelector);
-  ENTRY_LOOP (Menu,
-	      AddEntryToSelector (MyStrdup
-				  (entry->ListEntry,
-				   "UpdateCircuitSelector()"),
-				  (XtPointer) entry, &ConnectionSelector););
+  ENTRY_LOOP (Menu, 
+      {
+	AddEntryToSelector (MyStrdup
+			    (entry->ListEntry,
+			     "UpdateCircuitSelector()"),
+			    (XtPointer) entry, &ConnectionSelector);
+      }
+  );
   UpdateSelector (&ConnectionSelector);
 
   /* update label */
@@ -233,9 +240,12 @@ CB_Net (Widget W, XtPointer ClientData, XtPointer CallData)
 static void
 CB_Disable (Widget W, XtPointer ClientData, XtPointer CallData)
 {
-  MENU_LOOP (&PCB->NetlistLib, *NetSelector.StringList[l] = '*';
-	     menu->Name[0] = '*';
-    );
+  MENU_LOOP (&PCB->NetlistLib, 
+      {
+	*NetSelector.StringList[l] = '*';
+	menu->Name[0] = '*';
+      }
+  );
   XawListChange (NetSelector.ListW, NetSelector.StringList,
 		 NetSelector.Number, 0, False);
 }
@@ -246,9 +256,12 @@ CB_Disable (Widget W, XtPointer ClientData, XtPointer CallData)
 static void
 CB_Enable (Widget W, XtPointer ClientData, XtPointer CallData)
 {
-  MENU_LOOP (&PCB->NetlistLib, *NetSelector.StringList[l] = ' ';
-	     menu->Name[0] = ' ';
-    );
+  MENU_LOOP (&PCB->NetlistLib, 
+      {
+	*NetSelector.StringList[l] = ' ';
+	menu->Name[0] = ' ';
+      }
+  );
   XawListChange (NetSelector.ListW, NetSelector.StringList,
 		 NetSelector.Number, 0, False);
 }
@@ -314,11 +327,11 @@ CB_Connection (Widget W, XtPointer ClientData, XtPointer CallData)
 		/* if last connection, delete net too */
 		SaveFree (SelectedNet->Name);
 		*SelectedNet = PCB->NetlistLib.Menu[--PCB->NetlistLib.MenuN];
-                if (PCB->NetlistLib.MenuN == 0)
-                  { /* all gone, remove the window */
-                  InitNetlistWindow(Output.Toplevel);
-                  return;
-                  }
+		if (PCB->NetlistLib.MenuN == 0)
+		  {		/* all gone, remove the window */
+		    InitNetlistWindow (Output.Toplevel);
+		    return;
+		  }
 		UpdateNetSelector ();
 		XawListHighlight (NetSelector.ListW, 0);
 		SelectedNet = &PCB->NetlistLib.Menu[0];
@@ -528,7 +541,8 @@ GetMenuFromName (char *name, Boolean EnabledOnly)
   return (netmenu);
 }
 
-RatTypePtr AddNet (void)
+RatTypePtr
+AddNet (void)
 {
   static int ratDrawn = 0;
   char name1[256], *name2;
@@ -551,12 +565,13 @@ RatTypePtr AddNet (void)
       Message ("No pad/pin under rat line\n");
       return (NULL);
     }
-  if (NAMEONPCB_NAME((ElementTypePtr)ptr1) == NULL || *NAMEONPCB_NAME((ElementTypePtr)ptr1) == 0)
+  if (NAMEONPCB_NAME ((ElementTypePtr) ptr1) == NULL
+      || *NAMEONPCB_NAME ((ElementTypePtr) ptr1) == 0)
     {
       Message ("You must name the starting element first\n");
       return (NULL);
     }
-    
+
   /* will work for pins to since the FLAG is common */
   group1 = (TEST_FLAG (ONSOLDERFLAG, (PadTypePtr) ptr2) ?
 	    GetLayerGroupNumberByNumber (MAX_LAYER + SOLDER_LAYER) :
@@ -570,7 +585,8 @@ RatTypePtr AddNet (void)
       Message ("No pad/pin under rat line\n");
       return (NULL);
     }
-  if (NAMEONPCB_NAME((ElementTypePtr)ptr1) == NULL || *NAMEONPCB_NAME((ElementTypePtr)ptr1) == 0)
+  if (NAMEONPCB_NAME ((ElementTypePtr) ptr1) == NULL
+      || *NAMEONPCB_NAME ((ElementTypePtr) ptr1) == 0)
     {
       Message ("You must name the ending element first\n");
       return (NULL);

@@ -107,7 +107,8 @@ static Widget Panner,		/* the panner widget */
 /* ---------------------------------------------------------------------------
  * returns pointer to current media selection
  */
-MediaTypePtr PrintPannerGetMedia (void)
+MediaTypePtr
+PrintPannerGetMedia (void)
 {
   return (MediaSelection);
 }
@@ -178,7 +179,8 @@ CB_Report (Widget W, XtPointer ClientData, XtPointer CallData)
 /* ---------------------------------------------------------------------------
  * creates a print command dialog
  */
-Widget PrintPannerCreate (Widget Parent, Widget Top, Widget Left)
+Widget
+PrintPannerCreate (Widget Parent, Widget Top, Widget Left)
 {
   Widget masterform, label, menu;
   BoxTypePtr box;

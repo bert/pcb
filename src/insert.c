@@ -148,7 +148,7 @@ InsertPointIntoPolygon (LayerTypePtr Layer, PolygonTypePtr Polygon)
   if (!Forcible)
     {
       /*
-         * first make sure adding the point is sensible
+       * first make sure adding the point is sensible
        */
       line.Thickness = 0;
       if (InsertAt == 0)

@@ -24,7 +24,8 @@
  *
  */
 
-static char *rcsid = "$Id$";
+static char *rcsid =
+  "$Id$";
 
 /* functions used to change the mirror flag of an object
  *
@@ -59,33 +60,44 @@ static char *rcsid = "$Id$";
 void
 MirrorElementCoordinates (ElementTypePtr Element, Position yoff)
 {
-  ELEMENTLINE_LOOP (Element,
-		    line->Point1.X = SWAP_X (line->Point1.X);
-		    line->Point1.Y = SWAP_Y (line->Point1.Y) + yoff;
-		    line->Point2.X = SWAP_X (line->Point2.X);
-		    line->Point2.Y = SWAP_Y (line->Point2.Y) + yoff;
-    );
-  PIN_LOOP (Element, pin->X = SWAP_X (pin->X);
-	    pin->Y = SWAP_Y (pin->Y) + yoff;
-    );
-  PAD_LOOP (Element,
-	    pad->Point1.X = SWAP_X (pad->Point1.X);
-	    pad->Point1.Y = SWAP_Y (pad->Point1.Y) + yoff;
-	    pad->Point2.X = SWAP_X (pad->Point2.X);
-	    pad->Point2.Y = SWAP_Y (pad->Point2.Y) + yoff;
-	    TOGGLE_FLAG (ONSOLDERFLAG, pad);
-    );
-  ARC_LOOP (Element,
-	    arc->X = SWAP_X (arc->X);
-	    arc->Y = SWAP_Y (arc->Y) + yoff;
-	    arc->StartAngle = SWAP_ANGLE (arc->StartAngle);
-	    arc->Delta = SWAP_DELTA (arc->Delta);
-    );
-  ELEMENTTEXT_LOOP (Element,
-		    text->X = SWAP_X (text->X);
-		    text->Y = SWAP_Y (text->Y) + yoff;
-		    TOGGLE_FLAG (ONSOLDERFLAG, text);
-    );
+  ELEMENTLINE_LOOP (Element, 
+      {
+	line->Point1.X = SWAP_X (line->Point1.X);
+	line->Point1.Y = SWAP_Y (line->Point1.Y) + yoff;
+	line->Point2.X = SWAP_X (line->Point2.X);
+	line->Point2.Y = SWAP_Y (line->Point2.Y) + yoff;
+      }
+  );
+  PIN_LOOP (Element, 
+      {
+	pin->X = SWAP_X (pin->X);
+	pin->Y = SWAP_Y (pin->Y) + yoff;
+      }
+  );
+  PAD_LOOP (Element, 
+      {
+	pad->Point1.X = SWAP_X (pad->Point1.X);
+	pad->Point1.Y = SWAP_Y (pad->Point1.Y) + yoff;
+	pad->Point2.X = SWAP_X (pad->Point2.X);
+	pad->Point2.Y = SWAP_Y (pad->Point2.Y) + yoff;
+	TOGGLE_FLAG (ONSOLDERFLAG, pad);
+      }
+  );
+  ARC_LOOP (Element, 
+      {
+	arc->X = SWAP_X (arc->X);
+	arc->Y = SWAP_Y (arc->Y) + yoff;
+	arc->StartAngle = SWAP_ANGLE (arc->StartAngle);
+	arc->Delta = SWAP_DELTA (arc->Delta);
+      }
+  );
+  ELEMENTTEXT_LOOP (Element, 
+      {
+	text->X = SWAP_X (text->X);
+	text->Y = SWAP_Y (text->Y) + yoff;
+	TOGGLE_FLAG (ONSOLDERFLAG, text);
+      }
+  );
   Element->MarkX = SWAP_X (Element->MarkX);
   Element->MarkY = SWAP_Y (Element->MarkY) + yoff;
 

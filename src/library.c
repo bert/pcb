@@ -24,7 +24,8 @@
  *
  */
 
-static char *rcsid = "$Id$";
+static char *rcsid =
+  "$Id$";
 
 /* library-element select box
  * some of the actions are local to this module
@@ -89,9 +90,11 @@ CreateTypeSelector (Widget Parent, Widget Top, Widget Left)
 
   /* create the selector, add all entries and sort them */
   selector = CreateSelector (Parent, Top, Left, &TypeSelector, 1);
-  MENU_LOOP (&Library,
-	     AddEntryToSelector (menu->Name, (XtPointer) menu,
-				 &TypeSelector););
+  MENU_LOOP (&Library, 
+      {
+	AddEntryToSelector (menu->Name, (XtPointer) menu, &TypeSelector);
+      }
+  );
   return (selector);
 }
 
@@ -102,11 +105,14 @@ static void
 UpdateCircuitSelector (LibraryMenuTypePtr Menu)
 {
   FreeSelectorEntries (&CircuitSelector);
-  ENTRY_LOOP (Menu,
-	      AddEntryToSelector (MyStrdup
-				  (entry->ListEntry,
-				   "UpdateCircuitSelector()"),
-				  (XtPointer) entry, &CircuitSelector););
+  ENTRY_LOOP (Menu, 
+      {
+	AddEntryToSelector (MyStrdup
+			    (entry->ListEntry,
+			     "UpdateCircuitSelector()"),
+			    (XtPointer) entry, &CircuitSelector);
+      }
+  );
   UpdateSelector (&CircuitSelector);
 
   /* update label */
@@ -122,8 +128,7 @@ CB_Type (Widget W, XtPointer ClientData, XtPointer CallData)
   XawListReturnStruct *selected = XawListShowCurrent (W);
 
   if (selected->list_index != XAW_LIST_NONE)
-    UpdateCircuitSelector (
-			   (LibraryMenuTypePtr)
+    UpdateCircuitSelector ((LibraryMenuTypePtr)
 			   TypeSelector.Entries[selected->list_index].
 			   ClientData);
 }

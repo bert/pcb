@@ -78,7 +78,8 @@ static void AppendToLog (char *, int);
 /* ---------------------------------------------------------------------------
  * creates a new window to display logging messages
  */
-Widget InitLogWindow (Widget Parent, int Filedes)
+Widget
+InitLogWindow (Widget Parent, int Filedes)
 {
   static char *windowName = NULL;
 

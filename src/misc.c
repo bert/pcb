@@ -174,11 +174,14 @@ SetPolygonBoundingBox (PolygonTypePtr Polygon)
 
   minx = miny = MAX_COORD;
   maxx = maxy = 0;
-  POLYGONPOINT_LOOP (Polygon,
-		     minx = MIN (minx, point->X);
-		     miny = MIN (miny, point->Y);
-		     maxx = MAX (maxx, point->X); maxy = MAX (maxy, point->Y);
-    );
+  POLYGONPOINT_LOOP (Polygon, 
+      {
+	minx = MIN (minx, point->X);
+	miny = MIN (miny, point->Y);
+	maxx = MAX (maxx, point->X);
+	maxy = MAX (maxy, point->Y);
+      }
+  );
   Polygon->BoundingBox.X1 = minx;
   Polygon->BoundingBox.Y1 = miny;
   Polygon->BoundingBox.X2 = maxx;
@@ -196,92 +199,110 @@ SetElementBoundingBox (ElementTypePtr Element, FontTypePtr Font)
   int angle1, angle2, angle;
 
   /* first update the text objects */
-  ELEMENTTEXT_LOOP (Element, SetTextBoundingBox (Font, text));
+  ELEMENTTEXT_LOOP (Element, 
+    {
+      SetTextBoundingBox (Font, text);
+    }
+  );
 
   /* do not include the elementnames bounding box which
    * is handles seperatly
    */
   minx = miny = MAX_COORD;
   maxx = maxy = 0;
-  ELEMENTLINE_LOOP (Element,
-		    minx = MIN (minx, line->Point1.X - line->Thickness / 2);
-		    miny = MIN (miny, line->Point1.Y - line->Thickness / 2);
-		    minx = MIN (minx, line->Point2.X - line->Thickness / 2);
-		    miny = MIN (miny, line->Point2.Y - line->Thickness / 2);
-		    maxx = MAX (maxx, line->Point1.X + line->Thickness / 2);
-		    maxy = MAX (maxy, line->Point1.Y + line->Thickness / 2);
-		    maxx = MAX (maxx, line->Point2.X + line->Thickness / 2);
-		    maxy = MAX (maxy, line->Point2.Y + line->Thickness / 2);
-    );
-  PIN_LOOP (Element,
-	    minx = MIN (minx, pin->X - pin->Thickness / 2);
-	    miny = MIN (miny, pin->Y - pin->Thickness / 2);
-	    maxx = MAX (maxx, pin->X + pin->Thickness / 2);
-	    maxy = MAX (maxy, pin->Y + pin->Thickness / 2);
-    );
-  ARC_LOOP (Element,
-	    /* arc->StartAngle is in [0,360], arc->Delta in [0,360] */
-	    angle1 = arc->StartAngle;
-	    angle2 = arc->StartAngle + arc->Delta;
-	    /* initialize limits */
-	    fminx =
-	    MIN (-cos (M180 * (float) angle1), -cos (M180 * (float) angle2));
-	    fmaxx =
-	    MAX (-cos (M180 * (float) angle1), -cos (M180 * (float) angle2));
-	    fminy =
-	    MIN (sin (M180 * (float) angle1), sin (M180 * (float) angle2));
-	    fmaxy =
-	    MAX (sin (M180 * (float) angle1), sin (M180 * (float) angle2));
-	    /* loop and check all angles n*180
-	     * with angle1 <= a <= angle2
-	     */
-	    for (angle = (angle1 / 180 + 1) * 180; angle < angle2;
-		 angle += 180)
-	    {
+  ELEMENTLINE_LOOP (Element, 
+      {
+	minx = MIN (minx, line->Point1.X - line->Thickness / 2);
+	miny = MIN (miny, line->Point1.Y - line->Thickness / 2);
+	minx = MIN (minx, line->Point2.X - line->Thickness / 2);
+	miny = MIN (miny, line->Point2.Y - line->Thickness / 2);
+	maxx = MAX (maxx, line->Point1.X + line->Thickness / 2);
+	maxy = MAX (maxy, line->Point1.Y + line->Thickness / 2);
+	maxx = MAX (maxx, line->Point2.X + line->Thickness / 2);
+	maxy = MAX (maxy, line->Point2.Y + line->Thickness / 2);
+      }
+  );
+  PIN_LOOP (Element, 
+      {
+	minx = MIN (minx, pin->X - pin->Thickness / 2);
+	miny = MIN (miny, pin->Y - pin->Thickness / 2);
+	maxx = MAX (maxx, pin->X + pin->Thickness / 2);
+	maxy = MAX (maxy, pin->Y + pin->Thickness / 2);
+      }
+  );
+  ARC_LOOP (Element, 
+      {
+	/* arc->StartAngle is in [0,360], arc->Delta in [0,360] */
+	angle1 = arc->StartAngle;
+	angle2 = arc->StartAngle + arc->Delta;
+	/* initialize limits */
+	fminx =
+	  MIN (-cos (M180 * (float) angle1), -cos (M180 * (float) angle2));
+	fmaxx =
+	  MAX (-cos (M180 * (float) angle1), -cos (M180 * (float) angle2));
+	fminy =
+	  MIN (sin (M180 * (float) angle1), sin (M180 * (float) angle2));
+	fmaxy =
+	  MAX (sin (M180 * (float) angle1), sin (M180 * (float) angle2));
+	/* loop and check all angles n*180
+	 * with angle1 <= a <= angle2
+	 */
+	for (angle = (angle1 / 180 + 1) * 180; angle < angle2; angle += 180)
+	  {
 	    fminx = MIN (-cos (M180 * (float) angle), fminx);
-	    fmaxx = MAX (-cos (M180 * (float) angle), fmaxx);}
+	    fmaxx = MAX (-cos (M180 * (float) angle), fmaxx);
+	  }
 
-	    /* loop and check all angles n*180+90
-	     * with angle1 <= a <= angle2
-	     */
-	    for (angle = ((angle1 + 90) / 180) * 180 + 90; angle < angle2;
-		 angle += 180)
-	    {
+	/* loop and check all angles n*180+90
+	 * with angle1 <= a <= angle2
+	 */
+	for (angle = ((angle1 + 90) / 180) * 180 + 90; angle < angle2;
+	     angle += 180)
+	  {
 	    fminy = MIN (sin (M180 * (float) angle), fminy);
-	    fmaxy = MAX (sin (M180 * (float) angle), fmaxy);}
-	    minx = MIN (minx, (int) (fminx * arc->Width) + arc->X);
-	    miny = MIN (miny, (int) (fminy * arc->Height) + arc->Y);
-	    maxx = MAX (maxx, (int) (fmaxx * arc->Width) + arc->X);
-	    maxy = MAX (maxy, (int) (fmaxy * arc->Height) + arc->Y););
-  PAD_LOOP (Element,
-	    minx = MIN (minx, pad->Point1.X - pad->Thickness / 2);
-	    miny = MIN (miny, pad->Point1.Y - pad->Thickness / 2);
-	    minx = MIN (minx, pad->Point2.X - pad->Thickness / 2);
-	    miny = MIN (miny, pad->Point2.Y - pad->Thickness / 2);
-	    maxx = MAX (maxx, pad->Point1.X + pad->Thickness / 2);
-	    maxy = MAX (maxy, pad->Point1.Y + pad->Thickness / 2);
-	    maxx = MAX (maxx, pad->Point2.X + pad->Thickness / 2);
-	    maxy = MAX (maxy, pad->Point2.Y + pad->Thickness / 2);
-    );
-	/* now we set the EDGE2FLAG of the pad if Point2
-         * is closer to the outside edge than Point1
-         */
-  PAD_LOOP (Element,
-            if (pad->Point1.Y == pad->Point2.Y)
-            {
-               /* horizontal pad */
-              if (maxx - pad->Point2.X < pad->Point1.X - minx)
-                 SET_FLAG(EDGE2FLAG, pad);
-              else
-                 CLEAR_FLAG(EDGE2FLAG, pad);
-            } else {
-		/* vertical pad */
-              if (maxy - pad->Point2.Y < pad->Point1.Y - miny)
-                 SET_FLAG(EDGE2FLAG, pad);
-              else
-                 CLEAR_FLAG(EDGE2FLAG, pad);
-           }
-    );
+	    fmaxy = MAX (sin (M180 * (float) angle), fmaxy);
+	  }
+	minx = MIN (minx, (int) (fminx * arc->Width) + arc->X);
+	miny = MIN (miny, (int) (fminy * arc->Height) + arc->Y);
+	maxx = MAX (maxx, (int) (fmaxx * arc->Width) + arc->X);
+	maxy = MAX (maxy, (int) (fmaxy * arc->Height) + arc->Y);
+     }
+  );
+  PAD_LOOP (Element, 
+      {
+	minx = MIN (minx, pad->Point1.X - pad->Thickness / 2);
+	miny = MIN (miny, pad->Point1.Y - pad->Thickness / 2);
+	minx = MIN (minx, pad->Point2.X - pad->Thickness / 2);
+	miny = MIN (miny, pad->Point2.Y - pad->Thickness / 2);
+	maxx = MAX (maxx, pad->Point1.X + pad->Thickness / 2);
+	maxy = MAX (maxy, pad->Point1.Y + pad->Thickness / 2);
+	maxx = MAX (maxx, pad->Point2.X + pad->Thickness / 2);
+	maxy = MAX (maxy, pad->Point2.Y + pad->Thickness / 2);
+      }
+  );
+  /* now we set the EDGE2FLAG of the pad if Point2
+   * is closer to the outside edge than Point1
+   */
+  PAD_LOOP (Element, 
+      {
+	if (pad->Point1.Y == pad->Point2.Y)
+	  {
+	    /* horizontal pad */
+	    if (maxx - pad->Point2.X < pad->Point1.X - minx)
+	      SET_FLAG (EDGE2FLAG, pad);
+	    else
+	      CLEAR_FLAG (EDGE2FLAG, pad);
+	  }
+	else
+	  {
+	    /* vertical pad */
+	    if (maxy - pad->Point2.Y < pad->Point1.Y - miny)
+	      SET_FLAG (EDGE2FLAG, pad);
+	    else
+	      CLEAR_FLAG (EDGE2FLAG, pad);
+	  }
+      }
+  );
 
   Element->BoundingBox.X1 = minx;
   Element->BoundingBox.Y1 = miny;
@@ -342,7 +363,8 @@ SetTextBoundingBox (FontTypePtr FontPtr, TextTypePtr Text)
 /* ---------------------------------------------------------------------------
  * returns True if data area is empty
  */
-Boolean IsDataEmpty (DataTypePtr Data)
+Boolean
+IsDataEmpty (DataTypePtr Data)
 {
   Boolean hasNoObjects;
   Cardinal i;
@@ -361,7 +383,8 @@ Boolean IsDataEmpty (DataTypePtr Data)
  * gets minimum and maximum coordinates
  * returns NULL if layout is empty
  */
-BoxTypePtr GetDataBoundingBox (DataTypePtr Data)
+BoxTypePtr
+GetDataBoundingBox (DataTypePtr Data)
 {
   static BoxType box;
 
@@ -370,53 +393,65 @@ BoxTypePtr GetDataBoundingBox (DataTypePtr Data)
   box.X2 = box.Y2 = -MAX_COORD;
 
   /* now scan for the lowest/highest X and Y coodinate */
-  VIA_LOOP (Data,
-	    box.X1 = MIN (box.X1, via->X - via->Thickness / 2);
-	    box.Y1 = MIN (box.Y1, via->Y - via->Thickness / 2);
-	    box.X2 = MAX (box.X2, via->X + via->Thickness / 2);
-	    box.Y2 = MAX (box.Y2, via->Y + via->Thickness / 2);
-    );
-  ELEMENT_LOOP (Data,
-		box.X1 = MIN (box.X1, element->BoundingBox.X1);
-		box.Y1 = MIN (box.Y1, element->BoundingBox.Y1);
-		box.X2 = MAX (box.X2, element->BoundingBox.X2);
-		box.Y2 = MAX (box.Y2, element->BoundingBox.Y2);
-		{
-		TextTypePtr text = &NAMEONPCB_TEXT (element);
-		box.X1 = MIN (box.X1, text->BoundingBox.X1);
-		box.Y1 = MIN (box.Y1, text->BoundingBox.Y1);
-		box.X2 = MAX (box.X2, text->BoundingBox.X2);
-		box.Y2 = MAX (box.Y2, text->BoundingBox.Y2);
-		};
-    );
-  ALLLINE_LOOP (Data,
-		box.X1 = MIN (box.X1, line->Point1.X - line->Thickness / 2);
-		box.Y1 = MIN (box.Y1, line->Point1.Y - line->Thickness / 2);
-		box.X1 = MIN (box.X1, line->Point2.X - line->Thickness / 2);
-		box.Y1 = MIN (box.Y1, line->Point2.Y - line->Thickness / 2);
-		box.X2 = MAX (box.X2, line->Point1.X + line->Thickness / 2);
-		box.Y2 = MAX (box.Y2, line->Point1.Y + line->Thickness / 2);
-		box.X2 = MAX (box.X2, line->Point2.X + line->Thickness / 2);
-		box.Y2 = MAX (box.Y2, line->Point2.Y + line->Thickness / 2);
-    );
-  ALLARC_LOOP (Data,
-	       box.X1 = MIN (box.X1, arc->BoundingBox.X1);
-	       box.Y1 = MIN (box.Y1, arc->BoundingBox.Y1);
-	       box.X2 = MAX (box.X2, arc->BoundingBox.X2);
-	       box.Y2 = MAX (box.Y2, arc->BoundingBox.Y2);
-    );
-  ALLTEXT_LOOP (Data,
-		box.X1 = MIN (box.X1, text->BoundingBox.X1);
-		box.Y1 = MIN (box.Y1, text->BoundingBox.Y1);
-		box.X2 = MAX (box.X2, text->BoundingBox.X2);
-		box.Y2 = MAX (box.Y2, text->BoundingBox.Y2);
-    );
-  ALLPOLYGON_LOOP (Data,
-		   box.X1 = MIN (box.X1, polygon->BoundingBox.X1);
-		   box.Y1 = MIN (box.Y1, polygon->BoundingBox.Y1);
-		   box.X2 = MAX (box.X2, polygon->BoundingBox.X2);
-		   box.Y2 = MAX (box.Y2, polygon->BoundingBox.Y2);
-    );
+  VIA_LOOP (Data, 
+      {
+	box.X1 = MIN (box.X1, via->X - via->Thickness / 2);
+	box.Y1 = MIN (box.Y1, via->Y - via->Thickness / 2);
+	box.X2 = MAX (box.X2, via->X + via->Thickness / 2);
+	box.Y2 = MAX (box.Y2, via->Y + via->Thickness / 2);
+      }
+  );
+  ELEMENT_LOOP (Data, 
+      {
+	box.X1 = MIN (box.X1, element->BoundingBox.X1);
+	box.Y1 = MIN (box.Y1, element->BoundingBox.Y1);
+	box.X2 = MAX (box.X2, element->BoundingBox.X2);
+	box.Y2 = MAX (box.Y2, element->BoundingBox.Y2);
+	{
+	  TextTypePtr text = &NAMEONPCB_TEXT (element);
+	  box.X1 = MIN (box.X1, text->BoundingBox.X1);
+	  box.Y1 = MIN (box.Y1, text->BoundingBox.Y1);
+	  box.X2 = MAX (box.X2, text->BoundingBox.X2);
+	  box.Y2 = MAX (box.Y2, text->BoundingBox.Y2);
+	};
+      }
+  );
+  ALLLINE_LOOP (Data, 
+      {
+	box.X1 = MIN (box.X1, line->Point1.X - line->Thickness / 2);
+	box.Y1 = MIN (box.Y1, line->Point1.Y - line->Thickness / 2);
+	box.X1 = MIN (box.X1, line->Point2.X - line->Thickness / 2);
+	box.Y1 = MIN (box.Y1, line->Point2.Y - line->Thickness / 2);
+	box.X2 = MAX (box.X2, line->Point1.X + line->Thickness / 2);
+	box.Y2 = MAX (box.Y2, line->Point1.Y + line->Thickness / 2);
+	box.X2 = MAX (box.X2, line->Point2.X + line->Thickness / 2);
+	box.Y2 = MAX (box.Y2, line->Point2.Y + line->Thickness / 2);
+      }
+  );
+  ALLARC_LOOP (Data, 
+      {
+	box.X1 = MIN (box.X1, arc->BoundingBox.X1);
+	box.Y1 = MIN (box.Y1, arc->BoundingBox.Y1);
+	box.X2 = MAX (box.X2, arc->BoundingBox.X2);
+	box.Y2 = MAX (box.Y2, arc->BoundingBox.Y2);
+      }
+  );
+  ALLTEXT_LOOP (Data, 
+      {
+	box.X1 = MIN (box.X1, text->BoundingBox.X1);
+	box.Y1 = MIN (box.Y1, text->BoundingBox.Y1);
+	box.X2 = MAX (box.X2, text->BoundingBox.X2);
+	box.Y2 = MAX (box.Y2, text->BoundingBox.Y2);
+      }
+  );
+  ALLPOLYGON_LOOP (Data, 
+      {
+	box.X1 = MIN (box.X1, polygon->BoundingBox.X1);
+	box.Y1 = MIN (box.Y1, polygon->BoundingBox.Y1);
+	box.X2 = MAX (box.X2, polygon->BoundingBox.X2);
+	box.Y2 = MAX (box.Y2, polygon->BoundingBox.Y2);
+      }
+  );
   return (IsDataEmpty (Data) ? NULL : &box);
 }
 
@@ -826,7 +861,8 @@ GetLayerGroupNumberByNumber (Cardinal Layer)
  * returns a pointer to an objects bounding box;
  * data is valid until the routine is called again
  */
-BoxTypePtr GetObjectBoundingBox (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
+BoxTypePtr
+GetObjectBoundingBox (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
 {
   static BoxType box;
 
@@ -992,7 +1028,7 @@ char *
 GetWorkingDirectory (char *path)
 {
 #if defined(SYSV) || defined(linux) || defined(__NetBSD__)
-  return getcwd(path, MAXPATHLEN);
+  return getcwd (path, MAXPATHLEN);
 #else
   /* seems that some BSD releases lack of a prototype for getwd() */
   return getwd (path);
@@ -1055,7 +1091,8 @@ RightAngles (int Angle, float *cosa, float *sina)
   *sina = (float) sin ((double) Angle * M180);
 }
 
-BoxTypePtr GetArcEnds (ArcTypePtr Arc)
+BoxTypePtr
+GetArcEnds (ArcTypePtr Arc)
 {
   static BoxType box;
   float ca, sa;
@@ -1110,11 +1147,16 @@ UniqueElementName (DataTypePtr Data, char *Name)
 
   for (;;)
     {
-      ELEMENT_LOOP (Data,
-		    if (NAMEONPCB_NAME (element) &&
-			strcmp (NAMEONPCB_NAME (element), Name) == 0)
-		    {
-		    Name = BumpName (Name); unique = False; break;}
+      ELEMENT_LOOP (Data, 
+	  {
+	    if (NAMEONPCB_NAME (element) &&
+		strcmp (NAMEONPCB_NAME (element), Name) == 0)
+	      {
+		Name = BumpName (Name);
+		unique = False;
+		break;
+	      }
+	  }
       );
       if (unique)
 	return (Name);

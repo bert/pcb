@@ -24,7 +24,8 @@
  *
  */
 
-static char *rcsid = "$Id$";
+static char *rcsid =
+  "$Id$";
 
 /* layer-group dialog routines
  */
@@ -65,7 +66,7 @@ static void CB_CancelOrOK (Widget, XtPointer, XtPointer);
 /* ---------------------------------------------------------------------------
  * some local identifiers
  */
-static long int ReturnCode;		/* return code of buttons */
+static long int ReturnCode;	/* return code of buttons */
 static LayerGroupType LayerGroups;	/* working copy of current lg */
 
 /* ---------------------------------------------------------------------------
@@ -80,7 +81,8 @@ CB_CancelOrOK (Widget W, XtPointer ClientData, XtPointer CallData)
 /* ---------------------------------------------------------------------------
  * layer-group dialog
  */
-Boolean LayerGroupDialog (void)
+Boolean
+LayerGroupDialog (void)
 {
   Widget popup, masterform, last, layernameW, radioGroup[MAX_LAYER + 2];
   long int i, group, layer;
@@ -212,7 +214,7 @@ Boolean LayerGroupDialog (void)
   if (ReturnCode == OK_BUTTON)
     {
       int componentgroup = 0,	/* assign value to get rid of warnings */
-        soldergroup = 0;
+	soldergroup = 0;
 
       /* clear all entries and read layer by layer */
       for (group = 0; group < MAX_LAYER; group++)

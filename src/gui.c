@@ -77,7 +77,8 @@ InitGui (void)
 /* ---------------------------------------------------------------------------
  * check if shift key is currently held down
  */
-Boolean ShiftPressed (void)
+Boolean
+ShiftPressed (void)
 {
   char keys[32];
 
@@ -91,7 +92,8 @@ Boolean ShiftPressed (void)
 /* ---------------------------------------------------------------------------
  * check if Control key is currently held down
  */
-Boolean CtrlPressed (void)
+Boolean
+CtrlPressed (void)
 {
   char keys[32];
 
@@ -107,7 +109,8 @@ Boolean CtrlPressed (void)
  * action when a button event has been detected
  * cursor key events are handled
  */
-Boolean GetPosition (char *MessageText)
+Boolean
+GetPosition (char *MessageText)
 {
   XEvent event;
   XAnyEvent *any = (XAnyEvent *) & event;
@@ -202,21 +205,21 @@ SetOutputXCursor (unsigned int Shape)
 	  wht.blue = 65535;
 	  blk.flags = DoRed | DoGreen | DoBlue;
 	  wht.flags = DoRed | DoGreen | DoBlue;
-          if (Shape == XC_Clockwise)
-	  Output.XCursor = XCreatePixmapCursor (Dpy, XC_clock_source,
-						XC_clock_mask, &blk, &wht,
-						rotateIcon_x_hot,
-						rotateIcon_y_hot);
-          else if (Shape == XC_Drag)
-	  Output.XCursor = XCreatePixmapCursor (Dpy, XC_hand_source,
-						XC_hand_mask, &blk, &wht,
-						handIcon_x_hot,
-						handIcon_y_hot);
-          else if (Shape == XC_Lock)
-	  Output.XCursor = XCreatePixmapCursor (Dpy, XC_lock_source,
-						XC_lock_mask, &blk, &wht,
-						lockIcon_x_hot,
-						lockIcon_y_hot);
+	  if (Shape == XC_Clockwise)
+	    Output.XCursor = XCreatePixmapCursor (Dpy, XC_clock_source,
+						  XC_clock_mask, &blk, &wht,
+						  rotateIcon_x_hot,
+						  rotateIcon_y_hot);
+	  else if (Shape == XC_Drag)
+	    Output.XCursor = XCreatePixmapCursor (Dpy, XC_hand_source,
+						  XC_hand_mask, &blk, &wht,
+						  handIcon_x_hot,
+						  handIcon_y_hot);
+	  else if (Shape == XC_Lock)
+	    Output.XCursor = XCreatePixmapCursor (Dpy, XC_lock_source,
+						  XC_lock_mask, &blk, &wht,
+						  lockIcon_x_hot,
+						  lockIcon_y_hot);
 	}
       else
 	Output.XCursor = XCreateFontCursor (Dpy, Shape);
@@ -368,7 +371,8 @@ CreateAbortDialog (char *msg)
  * dispatches all events and returns the status of
  * 'Abort'
  */
-Boolean CheckAbort (void)
+Boolean
+CheckAbort (void)
 {
   while (XtAppPending (Context))
     XtAppProcessEvent (Context, XtIMAll);

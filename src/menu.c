@@ -246,8 +246,8 @@ static PopupEntryType DisplayMenuEntries[] = {
   {"grid100", "100 mil", CB_Action, "SetValue,Grid,100", NULL},
   {"gridInc", "increment by 5 mil", CB_Action, "SetValue,Grid,+5", NULL},
   {"gridDec", "decrement by 5 mil", CB_Action, "SetValue,Grid,-5", NULL},
-  
-    {"gridIncmm", "increment by 0.1 mm", CB_Action,
+
+  {"gridIncmm", "increment by 0.1 mm", CB_Action,
    "SetValue,Grid,+3.937007874", NULL},
   {"gridDecmm", "decrement by 0.1 mm", CB_Action,
    "SetValue,Grid,-3.937007874", NULL},
@@ -267,7 +267,8 @@ static PopupEntryType DisplayMenuEntries[] = {
   {"value", "value", CB_Action, "Display,Value", NULL},
   {"line", NULL, NULL, NULL, NULL},
   {"pinnum", "pinout shows number", CB_Action, "Display,ToggleName", NULL},
-  {"pinout", "open pinout window", CB_ElementPosition, "Display,Pinout", NULL},
+  {"pinout", "open pinout window", CB_ElementPosition, "Display,Pinout",
+   NULL},
   {NULL, NULL, NULL, NULL, NULL}
 };
 static PopupMenuType DisplayMenu =
@@ -461,22 +462,22 @@ static PopupEntryType ConnectionMenuEntries[] = {
   {"ripup", "rip up all auto-routed tracks", CB_Action,
    "RipUp,All", NULL},
   {"line", NULL, NULL, NULL, NULL},
-  { "djopt-auto", "Auto-Optimize", CB_Action,
-    "djopt,auto\n" "Display,ClearAndRedraw", NULL },
-  { "djopt-bump", "Debumpify", CB_Action,
-    "djopt,debumpify\n" "Display,ClearAndRedraw", NULL },
-  { "djopt-unjaggy", "Unjaggy", CB_Action,
-    "djopt,unjaggy\n" "Display,ClearAndRedraw", NULL },
-  { "djopt-vianudge", "Vianudge", CB_Action,
-    "djopt,vianudge\n" "Display,ClearAndRedraw", NULL },
-  { "djopt-viatrim", "Viatrim", CB_Action,
-    "djopt,viatrim\n" "Display,ClearAndRedraw", NULL },
-  { "djopt-orthopull", "Orthopull", CB_Action,
-    "djopt,orthopull\n" "Display,ClearAndRedraw", NULL },
-  { "djopt-simple", "SimpleOpts", CB_Action,
-    "djopt,simple\n" "Display,ClearAndRedraw", NULL },
-  { "djopt-miter", "Miter", CB_Action,
-    "djopt,miter\n" "Display,ClearAndRedraw", NULL },
+  {"djopt-auto", "Auto-Optimize", CB_Action,
+   "djopt,auto\n" "Display,ClearAndRedraw", NULL},
+  {"djopt-bump", "Debumpify", CB_Action,
+   "djopt,debumpify\n" "Display,ClearAndRedraw", NULL},
+  {"djopt-unjaggy", "Unjaggy", CB_Action,
+   "djopt,unjaggy\n" "Display,ClearAndRedraw", NULL},
+  {"djopt-vianudge", "Vianudge", CB_Action,
+   "djopt,vianudge\n" "Display,ClearAndRedraw", NULL},
+  {"djopt-viatrim", "Viatrim", CB_Action,
+   "djopt,viatrim\n" "Display,ClearAndRedraw", NULL},
+  {"djopt-orthopull", "Orthopull", CB_Action,
+   "djopt,orthopull\n" "Display,ClearAndRedraw", NULL},
+  {"djopt-simple", "SimpleOpts", CB_Action,
+   "djopt,simple\n" "Display,ClearAndRedraw", NULL},
+  {"djopt-miter", "Miter", CB_Action,
+   "djopt,miter\n" "Display,ClearAndRedraw", NULL},
   {"line", NULL, NULL, NULL, NULL},
   {"drc", "design rule checker", CB_Action, "DRC", NULL},
   {NULL, NULL, NULL, NULL, NULL}
@@ -528,16 +529,18 @@ FillSizesMenu (void)
   static char action[NUM_STYLES * 2 + 1][16];
   int i;
 
-  STYLE_LOOP (PCB,
-	      {
-	      sprintf (name[n], "size%d", n + 1);
-	      sprintf (label[n], "use '%s' routing style", style->Name);
-	      sprintf (action[n], "RouteStyle,%d", n + 1);
-	      SizesMenuEntries[n].Name = name[n];
-	      SizesMenuEntries[n].Label = label[n];
-	      SizesMenuEntries[n].Callback = CB_Action;
-	      SizesMenuEntries[n].ClientData = (XtPointer) action[n];
-	      }
+  STYLE_LOOP (PCB, 
+      {
+	{
+	  sprintf (name[n], "size%d", n + 1);
+	  sprintf (label[n], "use '%s' routing style", style->Name);
+	  sprintf (action[n], "RouteStyle,%d", n + 1);
+	  SizesMenuEntries[n].Name = name[n];
+	  SizesMenuEntries[n].Label = label[n];
+	  SizesMenuEntries[n].Callback = CB_Action;
+	  SizesMenuEntries[n].ClientData = (XtPointer) action[n];
+	}
+      }
   );
   for (i = NUM_STYLES; i < 2 * NUM_STYLES; i++)
     {
@@ -727,15 +730,19 @@ CBPOPUP_Sizes (Widget W, XtPointer ClientData, XtPointer CallData)
   char menuname[5];
 
   RemoveCheckFromMenu (&SizesMenu);
-  STYLE_LOOP (PCB,
-	      {
-	      if (style->Thick == Settings.LineThickness &&
-		  style->Diameter == Settings.ViaThickness &&
-		  style->Hole == Settings.ViaDrillingHole)
-	      {
+  STYLE_LOOP (PCB, 
+      {
+	{
+	  if (style->Thick == Settings.LineThickness &&
+	      style->Diameter == Settings.ViaThickness &&
+	      style->Hole == Settings.ViaDrillingHole)
+	    {
 	      sprintf (menuname, "size%d", n + 1);
-	      CheckEntry (&SizesMenu, menuname); break;}
-	      }
+	      CheckEntry (&SizesMenu, menuname);
+	      break;
+	    }
+	}
+      }
   );
 }
 
@@ -783,7 +790,7 @@ CBPOPUP_Display (Widget W, XtPointer ClientData, XtPointer CallData)
 	      TEST_FLAG (NAMEONPCBFLAG, PCB) ? "onPCB" :
 	      TEST_FLAG (DESCRIPTIONFLAG, PCB) ? "description" : "value");
   if (TEST_FLAG (SHOWNUMBERFLAG, PCB))
-   CheckEntry (&DisplayMenu, "pinnum");
+    CheckEntry (&DisplayMenu, "pinnum");
 }
 
 /* ---------------------------------------------------------------------- 
@@ -961,8 +968,8 @@ InitMenuButton (Widget Parent,
 			     XtNmenuName, MenuButtonPtr->PopupMenu->Name,
 			     XtNfromHoriz, Left, XtNfromVert, Top, LAYOUT_TOP,
 			     NULL);
-  XtAddEventHandler(MenuButtonPtr->W, EnterWindowMask, False, CB_StopScroll,
-   NULL);
+  XtAddEventHandler (MenuButtonPtr->W, EnterWindowMask, False, CB_StopScroll,
+		     NULL);
   InitPopupMenu (MenuButtonPtr->W, MenuButtonPtr->PopupMenu);
 
   /* return the created button widget to position some others */

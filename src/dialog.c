@@ -24,7 +24,8 @@
  *
  */
 
-static char *rcsid = "$Id$";
+static char *rcsid =
+  "$Id$";
 
 /* dialog routines
  */
@@ -63,7 +64,7 @@ static char *rcsid = "$Id$";
 /* ---------------------------------------------------------------------------
  * some local identifiers
  */
-static long int ReturnCode;		/* used by standard dialogs */
+static long int ReturnCode;	/* used by standard dialogs */
 
 /* ---------------------------------------------------------------------------
  * some local prototypes
@@ -472,7 +473,8 @@ ConfirmReplaceFileDialog (char *MessageText, Boolean AllButton)
 /* ----------------------------------------------------------------------
  * confirmation dialog
  */
-Boolean ConfirmDialog (char *MessageText)
+Boolean
+ConfirmDialog (char *MessageText)
 {
   Widget popup;
   static DialogButtonType buttons[] = {

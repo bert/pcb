@@ -186,7 +186,8 @@ CB_ScrollY (XtPointer unused, XtIntervalId * time)
  * coordinates xs,ys.
  * Returns True if that is not possible, False otherwise.
  */
-Boolean CoalignScreen (Position xs, Position ys, Position xp, Position yp)
+Boolean
+CoalignScreen (Position xs, Position ys, Position xp, Position yp)
 {
   Position x, y;
 
@@ -204,7 +205,8 @@ Boolean CoalignScreen (Position xs, Position ys, Position xp, Position yp)
  * If Update is True, an update event is generated so the display
  * is redrawn.
  */
-Boolean Pan (Position X, Position Y, Boolean Scroll, Boolean Update)
+Boolean
+Pan (Position X, Position Y, Boolean Scroll, Boolean Update)
 {
   Boolean clip = False;
   static Position x, y;
@@ -569,7 +571,8 @@ CB_StopScroll (Widget W, XtPointer ClientData, XEvent * Event, Boolean * Flag)
     StopAutoScroll ();
 }
 
-Widget InitOutputPanner (Widget Parent, Widget Top, Widget Left)
+Widget
+InitOutputPanner (Widget Parent, Widget Top, Widget Left)
 {
   Widget panner;
 

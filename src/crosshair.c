@@ -94,10 +94,12 @@ CreateTMPPolygon (PolygonTypePtr Polygon, Position DX, Position DY)
     }
 
   /* copy data to tmp array and convert it to screen coordinates */
-  POLYGONPOINT_LOOP (Polygon,
-		     Points[n].x = TO_SCREEN_X (point->X + DX);
-		     Points[n].y = TO_SCREEN_Y (point->Y + DY);
-    );
+  POLYGONPOINT_LOOP (Polygon, 
+      {
+	Points[n].x = TO_SCREEN_X (point->X + DX);
+	Points[n].y = TO_SCREEN_Y (point->Y + DY);
+      }
+  );
 
   /* the last point is identical to the first one */
   Points[Polygon->PointN].x = Points[0].x;
@@ -271,51 +273,61 @@ XORDrawElement (ElementTypePtr Element, Position DX, Position DY)
     }
   else
     {
-      ELEMENTLINE_LOOP (Element,
-			XDrawLine (Dpy, Output.OutputWindow, Crosshair.GC,
-				   TO_SCREEN_X (DX + line->Point1.X),
-				   TO_SCREEN_Y (DY + line->Point1.Y),
-				   TO_SCREEN_X (DX + line->Point2.X),
-				   TO_SCREEN_Y (DY + line->Point2.Y)););
+      ELEMENTLINE_LOOP (Element, 
+	  {
+	    XDrawLine (Dpy, Output.OutputWindow, Crosshair.GC,
+		       TO_SCREEN_X (DX + line->Point1.X),
+		       TO_SCREEN_Y (DY + line->Point1.Y),
+		       TO_SCREEN_X (DX + line->Point2.X),
+		       TO_SCREEN_Y (DY + line->Point2.Y));
+	  }
+      );
 
       /* arc coordinates and angles have to be converted to X11 notation */
-      ARC_LOOP (Element,
-		XDrawArc (Dpy, Output.OutputWindow, Crosshair.GC,
-			  TO_SCREEN_X (DX + arc->X) - TO_SCREEN (arc->Width),
-			  TO_SCREEN_Y (DY + arc->Y) - TO_SCREEN (arc->Height),
-			  TO_SCREEN (2 * arc->Width),
-			  TO_SCREEN (2 * arc->Height),
-			  (TO_SCREEN_ANGLE (arc->StartAngle) + 180) * 64,
-			  TO_SCREEN_DELTA (arc->Delta) * 64););
+      ARC_LOOP (Element, 
+	  {
+	    XDrawArc (Dpy, Output.OutputWindow, Crosshair.GC,
+		      TO_SCREEN_X (DX + arc->X) - TO_SCREEN (arc->Width),
+		      TO_SCREEN_Y (DY + arc->Y) - TO_SCREEN (arc->Height),
+		      TO_SCREEN (2 * arc->Width),
+		      TO_SCREEN (2 * arc->Height),
+		      (TO_SCREEN_ANGLE (arc->StartAngle) + 180) * 64,
+		      TO_SCREEN_DELTA (arc->Delta) * 64);
+	  }
+      );
     }
   /* pin coordinates and angles have to be converted to X11 notation */
-  PIN_LOOP (Element,
-	    XDrawArc (Dpy, Output.OutputWindow, Crosshair.GC,
-		      TO_SCREEN_X (DX + pin->X) -
-		      TO_SCREEN (pin->Thickness / 2),
-		      TO_SCREEN_Y (DY + pin->Y) -
-		      TO_SCREEN (pin->Thickness / 2),
-		      TO_SCREEN (pin->Thickness), TO_SCREEN (pin->Thickness),
-		      0, 360 * 64););
+  PIN_LOOP (Element, 
+      {
+	XDrawArc (Dpy, Output.OutputWindow, Crosshair.GC,
+		  TO_SCREEN_X (DX + pin->X) -
+		  TO_SCREEN (pin->Thickness / 2),
+		  TO_SCREEN_Y (DY + pin->Y) -
+		  TO_SCREEN (pin->Thickness / 2),
+		  TO_SCREEN (pin->Thickness), TO_SCREEN (pin->Thickness),
+		  0, 360 * 64);
+      }
+  );
 
   /* pads */
-  PAD_LOOP (Element,
-	    if ((TEST_FLAG (ONSOLDERFLAG, pad) != 0) ==
-		Settings.ShowSolderSide
-		|| PCB->InvisibleObjectsOn) XDrawLine (Dpy,
-						       Output.OutputWindow,
-						       Crosshair.GC,
-						       TO_SCREEN_X (DX +
-								    pad->Point1.
-								    X),
-						       TO_SCREEN_Y (DY +
-								    pad->Point1.
-								    Y),
-						       TO_SCREEN_X (DX +
-								    pad->Point2.
-								    X),
-						       TO_SCREEN_Y (DY +
-								    pad->Point2.Y)););
+  PAD_LOOP (Element, 
+      {
+	if ((TEST_FLAG (ONSOLDERFLAG, pad) != 0) ==
+	    Settings.ShowSolderSide || PCB->InvisibleObjectsOn)
+	  XDrawLine (Dpy,
+		     Output.OutputWindow,
+		     Crosshair.GC,
+		     TO_SCREEN_X (DX +
+				  pad->Point1.
+				  X),
+		     TO_SCREEN_Y (DY +
+				  pad->Point1.
+				  Y),
+		     TO_SCREEN_X (DX +
+				  pad->Point2.
+				  X), TO_SCREEN_Y (DY + pad->Point2.Y));
+      }
+  );
   /* mark */
   XDrawLine (Dpy, Output.OutputWindow, Crosshair.GC,
 	     TO_SCREEN_X (Element->MarkX + DX - EMARK_SIZE),
@@ -358,68 +370,81 @@ XORDrawBuffer (BufferTypePtr Buffer)
       {
 	LayerTypePtr layer = &Buffer->Data->Layer[i];
 
-	LINE_LOOP (layer,
+	LINE_LOOP (layer, 
+	    {
 /*
 				XORDrawAttachedLine(x +line->Point1.X,
 					y +line->Point1.Y, x +line->Point2.X,
 					y +line->Point2.Y, line->Thickness);
 */
-		   XDrawLine (Dpy, Output.OutputWindow, Crosshair.GC,
-			      TO_SCREEN_X (x + line->Point1.X),
-			      TO_SCREEN_Y (y + line->Point1.Y),
-			      TO_SCREEN_X (x + line->Point2.X),
-			      TO_SCREEN_Y (y + line->Point2.Y));
-	  );
-	ARC_LOOP (layer,
-		  XDrawArc (Dpy, Output.OutputWindow, Crosshair.GC,
-			    TO_SCREEN_X (x + arc->X) - TO_SCREEN (arc->Width),
-			    TO_SCREEN_Y (y + arc->Y) -
-			    TO_SCREEN (arc->Height),
-			    TO_SCREEN (2 * arc->Width),
-			    TO_SCREEN (2 * arc->Height),
-			    (TO_SCREEN_ANGLE (arc->StartAngle) - 180) * 64,
-			    TO_SCREEN_DELTA (arc->Delta) * 64);
-	  );
-	TEXT_LOOP (layer,
-		   {
-		   BoxTypePtr box = &text->BoundingBox;
-		   Position y0;
-		   y0 = Settings.ShowSolderSide ? box->Y2 : box->Y1;
-		   XDrawRectangle (Dpy, Output.OutputWindow, Crosshair.GC,
-				   TO_SCREEN_X (x + box->X1),
-				   TO_SCREEN_Y (y + y0),
-				   TO_SCREEN (box->X2 - box->X1),
-				   TO_SCREEN (box->Y2 - box->Y1));
-		   }
+	      XDrawLine (Dpy, Output.OutputWindow, Crosshair.GC,
+			 TO_SCREEN_X (x + line->Point1.X),
+			 TO_SCREEN_Y (y + line->Point1.Y),
+			 TO_SCREEN_X (x + line->Point2.X),
+			 TO_SCREEN_Y (y + line->Point2.Y));
+	    }
+	);
+	ARC_LOOP (layer, 
+	    {
+	      XDrawArc (Dpy, Output.OutputWindow, Crosshair.GC,
+			TO_SCREEN_X (x + arc->X) - TO_SCREEN (arc->Width),
+			TO_SCREEN_Y (y + arc->Y) -
+			TO_SCREEN (arc->Height),
+			TO_SCREEN (2 * arc->Width),
+			TO_SCREEN (2 * arc->Height),
+			(TO_SCREEN_ANGLE (arc->StartAngle) - 180) * 64,
+			TO_SCREEN_DELTA (arc->Delta) * 64);
+	    }
+	);
+	TEXT_LOOP (layer, 
+	    {
+	      {
+		BoxTypePtr box = &text->BoundingBox;
+		Position y0;
+		y0 = Settings.ShowSolderSide ? box->Y2 : box->Y1;
+		XDrawRectangle (Dpy, Output.OutputWindow, Crosshair.GC,
+				TO_SCREEN_X (x + box->X1),
+				TO_SCREEN_Y (y + y0),
+				TO_SCREEN (box->X2 - box->X1),
+				TO_SCREEN (box->Y2 - box->Y1));
+	      }
+	    }
 	);
 	/* the tmp polygon has n+1 points because the first
 	 * and the last one are set to the same coordinates
 	 */
-	POLYGON_LOOP (layer,
-		      {
-		      CreateTMPPolygon (polygon, x, y);
-		      XDrawLines (Dpy, Output.OutputWindow, Crosshair.GC,
-				  Points, polygon->PointN + 1,
-				  CoordModeOrigin);}
+	POLYGON_LOOP (layer, 
+	    {
+	      {
+		CreateTMPPolygon (polygon, x, y);
+		XDrawLines (Dpy, Output.OutputWindow, Crosshair.GC,
+			    Points, polygon->PointN + 1, CoordModeOrigin);
+	      }
+	    }
 	);
       }
 
   /* draw elements if visible */
   if (PCB->PinOn && PCB->ElementOn)
-    ELEMENT_LOOP (Buffer->Data,
-		  if (FRONT (element) || PCB->InvisibleObjectsOn)
-		  XORDrawElement (element, x, y););
+    ELEMENT_LOOP (Buffer->Data, 
+      {
+	if (FRONT (element) || PCB->InvisibleObjectsOn)
+	  XORDrawElement (element, x, y);
+      }
+  );
 
   /* and the vias, move offset by thickness/2 */
   if (PCB->ViaOn)
-    VIA_LOOP (Buffer->Data,
-	      XDrawArc (Dpy, Output.OutputWindow, Crosshair.GC,
-			TO_SCREEN_X (x + via->X - via->Thickness / 2),
-			TO_SCREEN_Y (y + via->Y -
-				     TO_SCREEN_SIGN_Y (via->Thickness / 2)),
-			TO_SCREEN (via->Thickness),
-			TO_SCREEN (via->Thickness), 0, 360 * 64);
-    );
+    VIA_LOOP (Buffer->Data, 
+      {
+	XDrawArc (Dpy, Output.OutputWindow, Crosshair.GC,
+		  TO_SCREEN_X (x + via->X - via->Thickness / 2),
+		  TO_SCREEN_Y (y + via->Y -
+			       TO_SCREEN_SIGN_Y (via->Thickness / 2)),
+		  TO_SCREEN (via->Thickness),
+		  TO_SCREEN (via->Thickness), 0, 360 * 64);
+      }
+  );
 }
 
 /* ---------------------------------------------------------------------------
@@ -814,11 +839,12 @@ FitCrosshairIntoGrid (Position X, Position Y)
 
   if (PCB->RatDraw || TEST_FLAG (SNAPPINFLAG, PCB))
     {
-    ans = SearchScreen (Crosshair.X, Crosshair.Y, VIA_TYPE | PAD_TYPE | PIN_TYPE,
-			&ptr1, &ptr2, &ptr3);
-    if (ans == NO_TYPE)
-      ans = SearchScreen (Crosshair.X, Crosshair.Y, LINEPOINT_TYPE,
-			&ptr1, &ptr2, &ptr3);
+      ans =
+	SearchScreen (Crosshair.X, Crosshair.Y,
+		      VIA_TYPE | PAD_TYPE | PIN_TYPE, &ptr1, &ptr2, &ptr3);
+      if (ans == NO_TYPE)
+	ans = SearchScreen (Crosshair.X, Crosshair.Y, LINEPOINT_TYPE,
+			    &ptr1, &ptr2, &ptr3);
     }
   else
     ans = NO_TYPE;
@@ -841,16 +867,16 @@ FitCrosshairIntoGrid (Position X, Position Y)
 	    last_vert = -1;
 	  last_x = Marked.X;
 	  last_y = Marked.Y;
-	  if (ABS(dx) < HIST && ABS(dy) < HIST)
+	  if (ABS (dx) < HIST && ABS (dy) < HIST)
 	    ;
-	  else if (ABS(dx) > ABS(dy))
+	  else if (ABS (dx) > ABS (dy))
 	    last_vert = 0;
 	  else
 	    last_vert = 1;
 	  switch (last_vert)
 	    {
 	    case -1:
-	      if (ABS(dx) > ABS(dy))
+	      if (ABS (dx) > ABS (dy))
 		Crosshair.Y = Marked.Y;
 	      else
 		Crosshair.X = Marked.X;
@@ -920,8 +946,7 @@ FitCrosshairIntoGrid (Position X, Position Y)
   else if (ans & (PIN_TYPE | VIA_TYPE))
     {
       PinTypePtr pin = (PinTypePtr) ptr2;
-      if (
-	  ((x0 - Crosshair.X) * (x0 - Crosshair.X) +
+      if (((x0 - Crosshair.X) * (x0 - Crosshair.X) +
 	   (y0 - Crosshair.Y) * (y0 - Crosshair.Y)) >
 	  ((pin->X - Crosshair.X) * (pin->X - Crosshair.X) +
 	   (pin->Y - Crosshair.Y) * (pin->Y - Crosshair.Y)))
@@ -933,8 +958,7 @@ FitCrosshairIntoGrid (Position X, Position Y)
   else if (ans & LINEPOINT_TYPE)
     {
       PointTypePtr pnt = (PointTypePtr) ptr3;
-      if (
-	  ((x0 - Crosshair.X) * (x0 - Crosshair.X) +
+      if (((x0 - Crosshair.X) * (x0 - Crosshair.X) +
 	   (y0 - Crosshair.Y) * (y0 - Crosshair.Y)) >
 	  ((pnt->X - Crosshair.X) * (pnt->X - Crosshair.X) +
 	   (pnt->Y - Crosshair.Y) * (pnt->Y - Crosshair.Y)))
@@ -972,17 +996,17 @@ MoveCrosshairAbsolute (Position X, Position Y)
   FitCrosshairIntoGrid (X, Y);
   if (Crosshair.X != x || Crosshair.Y != y)
     {
-	/* back up to old position and erase crosshair */
-    z = Crosshair.X;
-    Crosshair.X = x;
-    x = z;
-    z = Crosshair.Y;
-    Crosshair.Y = y;
-    HideCrosshair(False);
-       /* now move forward again */
-    Crosshair.X = x;
-    Crosshair.Y = z;
-    return (True);
+      /* back up to old position and erase crosshair */
+      z = Crosshair.X;
+      Crosshair.X = x;
+      x = z;
+      z = Crosshair.Y;
+      Crosshair.Y = y;
+      HideCrosshair (False);
+      /* now move forward again */
+      Crosshair.X = x;
+      Crosshair.Y = z;
+      return (True);
     }
   return (False);
 }

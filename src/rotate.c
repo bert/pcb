@@ -24,7 +24,8 @@
  *
  */
 
-static char *rcsid = "$Id$";
+static char *rcsid =
+  "$Id$";
 
 /* functions used to rotate pins, elements ...
  */
@@ -98,27 +99,27 @@ RotateLineLowLevel (LineTypePtr Line, Position X, Position Y, BYTE Number)
 {
   ROTATE (Line->Point1.X, Line->Point1.Y, X, Y, Number);
   ROTATE (Line->Point2.X, Line->Point2.Y, X, Y, Number);
-    /* keep horizontal, vertical Point2 > Point1 */
+  /* keep horizontal, vertical Point2 > Point1 */
   if (Line->Point1.X == Line->Point2.X)
-   {
-   if (Line->Point1.Y > Line->Point2.Y)
-     {
-     Position t;
-     t = Line->Point1.Y;
-     Line->Point1.Y = Line->Point2.Y;
-     Line->Point2.Y = t;
-     }
-   }
+    {
+      if (Line->Point1.Y > Line->Point2.Y)
+	{
+	  Position t;
+	  t = Line->Point1.Y;
+	  Line->Point1.Y = Line->Point2.Y;
+	  Line->Point2.Y = t;
+	}
+    }
   else if (Line->Point1.Y == Line->Point2.Y)
-   {
-   if (Line->Point1.X > Line->Point2.X)
-     {
-     Position t;
-     t = Line->Point1.X;
-     Line->Point1.X = Line->Point2.X;
-     Line->Point2.X = t;
-     }
-   }
+    {
+      if (Line->Point1.X > Line->Point2.X)
+	{
+	  Position t;
+	  t = Line->Point1.X;
+	  Line->Point1.X = Line->Point2.X;
+	  Line->Point2.X = t;
+	}
+    }
 
 }
 
@@ -150,8 +151,11 @@ void
 RotatePolygonLowLevel (PolygonTypePtr Polygon,
 		       Position X, Position Y, BYTE Number)
 {
-  POLYGONPOINT_LOOP (Polygon, ROTATE (point->X, point->Y, X, Y, Number);
-    );
+  POLYGONPOINT_LOOP (Polygon, 
+      {
+	ROTATE (point->X, point->Y, X, Y, Number);
+      }
+  );
   RotateBoxLowLevel (&Polygon->BoundingBox, X, Y, Number);
 }
 
@@ -199,23 +203,48 @@ RotateElementLowLevel (ElementTypePtr Element,
 {
   Boolean OnLayout = False;
 
-  ELEMENT_LOOP (PCB->Data, if (element == Element) OnLayout = True;);
+  ELEMENT_LOOP (PCB->Data, 
+      {
+	if (element == Element)
+	  OnLayout = True;
+      }
+  );
   /* solder side objects need a different orientation */
 
   /* the text subroutine decides by itself if the direction
    * is to be corrected
    */
-  ELEMENTTEXT_LOOP (Element, RotateTextLowLevel (text, X, Y, Number));
-  ELEMENTLINE_LOOP (Element, RotateLineLowLevel (line, X, Y, Number););
-  PIN_LOOP (Element,
-	    {
-	    ROTATE_PIN_LOWLEVEL (pin, X, Y, Number);
-	    if (OnLayout) UpdatePIPFlags (pin, Element, NULL, NULL, True);}
+  ELEMENTTEXT_LOOP (Element, 
+    {
+      RotateTextLowLevel (text, X, Y, Number);
+    }
   );
-  PAD_LOOP (Element, ROTATE_PAD_LOWLEVEL (pad, X, Y, Number););
-  ARC_LOOP (Element, RotateArcLowLevel (arc, X, Y, Number););
+  ELEMENTLINE_LOOP (Element, 
+      {
+	RotateLineLowLevel (line, X, Y, Number);
+      }
+  );
+  PIN_LOOP (Element, 
+      {
+	{
+	  ROTATE_PIN_LOWLEVEL (pin, X, Y, Number);
+	  if (OnLayout)
+	    UpdatePIPFlags (pin, Element, NULL, NULL, True);
+	}
+      }
+  );
+  PAD_LOOP (Element, 
+      {
+	ROTATE_PAD_LOWLEVEL (pad, X, Y, Number);
+      }
+  );
+  ARC_LOOP (Element, 
+      {
+	RotateArcLowLevel (arc, X, Y, Number);
+      }
+  );
   ROTATE (Element->MarkX, Element->MarkY, X, Y, Number);
-  SetElementBoundingBox(Element, &PCB->Font);
+  SetElementBoundingBox (Element, &PCB->Font);
 }
 
 /* ---------------------------------------------------------------------------
@@ -264,8 +293,11 @@ static void *
 RotateElementName (ElementTypePtr Element)
 {
   EraseElementName (Element);
-  ELEMENTTEXT_LOOP (Element,
-		    RotateTextLowLevel (text, CenterX, CenterY, Number));
+  ELEMENTTEXT_LOOP (Element, 
+    {
+      RotateTextLowLevel (text, CenterX, CenterY, Number);
+    }
+  );
   DrawElementName (Element, 0);
   Draw ();
   return (Element);

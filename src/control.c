@@ -24,7 +24,8 @@
  *
  */
 
-static char *rcsid = "$Id$";
+static char *rcsid =
+  "$Id$";
 
 /* control panel
  */
@@ -264,8 +265,8 @@ AddOnOffSelection (Widget Parent)
 						 XtNfromHoriz, NULL,
 						 XtNfromVert, last,
 						 LAYOUT_TOP, NULL);
-      XtAddEventHandler(OnOffWidgets[i], EnterWindowMask, False, CB_StopScroll,
-       NULL);
+      XtAddEventHandler (OnOffWidgets[i], EnterWindowMask, False,
+			 CB_StopScroll, NULL);
       last = OnOffWidgets[i];
       XtAddCallback (last, XtNcallback, CB_SetOnOff, (XtPointer) i);
     }
@@ -600,7 +601,7 @@ CB_SetMode (Widget W, XtPointer ClientData, XtPointer CallData)
   /* the radio group is determined by the widget of button 0 */
   button = (ModeButtonTypePtr) XawToggleGetCurrent (ModeButtons[0].W);
   if (button)
-     SetMode (button->Mode);
+    SetMode (button->Mode);
 }
 
 /* ---------------------------------------------------------------------------
@@ -613,21 +614,21 @@ UpdateModeSelection (void)
    * the first buttons widget identifies the radio group whereas
    * radioData points to the array member itself
    */
-      int i;
+  int i;
 
-      for (i = 0; i < ENTRIES (ModeButtons); i++)
-	if (Settings.Mode == ModeButtons[i].Mode)
-	  {
-	    XawToggleSetCurrent (ModeButtons[0].W,
-				 (XtPointer) & ModeButtons[i]);
-	    break;
-	  }
+  for (i = 0; i < ENTRIES (ModeButtons); i++)
+    if (Settings.Mode == ModeButtons[i].Mode)
+      {
+	XawToggleSetCurrent (ModeButtons[0].W, (XtPointer) & ModeButtons[i]);
+	break;
+      }
 }
 
 /* ---------------------------------------------------------------------------
  * initializes mode buttons
  */
-Widget InitModeButtons (Widget Parent, Widget Top, Widget Left)
+Widget
+InitModeButtons (Widget Parent, Widget Top, Widget Left)
 {
   Widget masterform;
   int i;
@@ -671,8 +672,8 @@ Widget InitModeButtons (Widget Parent, Widget Top, Widget Left)
 						    XtNfromVert, Top,
 						    LAYOUT_TOP, NULL);
 
-      XtAddEventHandler(ModeButtons[i].W, EnterWindowMask, False,
-       CB_StopScroll, NULL);
+      XtAddEventHandler (ModeButtons[i].W, EnterWindowMask, False,
+			 CB_StopScroll, NULL);
       /* the first entry identifies the radiogroup,
        * we have to make sure that no NULL is passed to XtNradioData
        */

@@ -30,7 +30,8 @@
  * silkscreen layer. Perhaps the design is not the best.
  */
 
-static char *rcsid = "$Id$";
+static char *rcsid =
+  "$Id$";
 
 /* PostScript device driver
  * code is shared for EPS and PS output
@@ -150,12 +151,10 @@ static PrintDeviceType PS_QueryConstants = {
   True,				/* allows rotate */
   True
 },				/* allows scaling */
+
   EPS_QueryConstants =
 {
-  "encapsulated PostScript", "eps", EPS_Init, EPS_Exit, EPS_Preamble,
-    EPS_Postamble, PS_SetColor, PS_Invert, PS_PrintLine, PS_PrintArc,
-    PS_PrintPolygon, PS_PrintText, PS_PrintPad, PS_PrintPinOrVia,
-    PS_PrintElementPackage, NULL,	/* no drill information */
+  "encapsulated PostScript", "eps", EPS_Init, EPS_Exit, EPS_Preamble, EPS_Postamble, PS_SetColor, PS_Invert, PS_PrintLine, PS_PrintArc, PS_PrintPolygon, PS_PrintText, PS_PrintPad, PS_PrintPinOrVia, PS_PrintElementPackage, NULL,	/* no drill information */
     PS_Outline, PS_Alignment, PS_DrillHelper, NULL,	/* no group ID */
     True, False, False,		/* encapsulated doesn't allow media changes */
     True, True,			/* allows rotate */
@@ -413,7 +412,8 @@ PrintStringArray (char **Array, int Number, FILE * FP)
 /* ---------------------------------------------------------------------------
  * returns information about the PostScript driver
  */
-PrintDeviceTypePtr PS_Query (void)
+PrintDeviceTypePtr
+PS_Query (void)
 {
   return (&PS_QueryConstants);
 }
@@ -421,7 +421,8 @@ PrintDeviceTypePtr PS_Query (void)
 /* ---------------------------------------------------------------------------
  * returns information about the encapsulated PostScript driver
  */
-PrintDeviceTypePtr EPS_Query (void)
+PrintDeviceTypePtr
+EPS_Query (void)
 {
   return (&EPS_QueryConstants);
 }
@@ -722,12 +723,12 @@ PS_PrintPolygon (PolygonTypePtr Ptr)
 {
   int i = 0;
 
-  POLYGONPOINT_LOOP (Ptr,
-		     {
-		     if (i++ % 9 == 8)
-		     fputc ('\n', PS_Flags.FP);
-		     fprintf (PS_Flags.FP, "%i %i ",
-			      (int) point->X, (int) point->Y);}
+  POLYGONPOINT_LOOP (Ptr, 
+     {
+        if (i++ % 9 == 8)
+	    fputc ('\n', PS_Flags.FP);
+        fprintf (PS_Flags.FP, "%i %i ", (int) point->X, (int) point->Y);
+     }
   );
   fprintf (PS_Flags.FP, "%d PO\n", Ptr->PointN);
 }
@@ -840,14 +841,21 @@ PS_PrintText (TextTypePtr Text)
 static void
 PS_PrintElementPackage (ElementTypePtr Element)
 {
-  ELEMENTLINE_LOOP (Element, PS_PrintLine (line, False););
-  ARC_LOOP (Element,
-	    fprintf (PS_Flags.FP, "%d %d %d %d %d %d %d A\n",
-		     (int) arc->X,
-		     (int) arc->Y,
-		     (int) arc->Width,
-		     (int) arc->Height,
-		     (int) arc->Thickness, arc->StartAngle, arc->Delta););
+  ELEMENTLINE_LOOP (Element, 
+      {
+	PS_PrintLine (line, False);
+      }
+  );
+  ARC_LOOP (Element, 
+      {
+	fprintf (PS_Flags.FP, "%d %d %d %d %d %d %d A\n",
+		 (int) arc->X,
+		 (int) arc->Y,
+		 (int) arc->Width,
+		 (int) arc->Height,
+		 (int) arc->Thickness, arc->StartAngle, arc->Delta);
+      }
+  );
   if (!TEST_FLAG (HIDENAMEFLAG, Element))
     PS_PrintTextLowLevel (&ELEMENT_TEXT (PCB, Element));
 }

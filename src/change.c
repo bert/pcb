@@ -24,7 +24,8 @@
  *
  */
 
-static char *rcsid = "$Id$";
+static char *rcsid =
+  "$Id$";
 
 /* functions used to change object properties
  *
@@ -288,7 +289,7 @@ ChangeViaSize (PinTypePtr Via)
 {
   Dimension value = Absolute ? Absolute : Via->Thickness + Delta;
 
-  if (TEST_FLAG(LOCKFLAG, Via))
+  if (TEST_FLAG (LOCKFLAG, Via))
     return (NULL);
   if (!TEST_FLAG (HOLEFLAG, Via) && value <= MAX_PINORVIASIZE &&
       value >= MIN_PINORVIASIZE &&
@@ -313,7 +314,7 @@ ChangeVia2ndSize (PinTypePtr Via)
 {
   Dimension value = (Absolute) ? Absolute : Via->DrillingHole + Delta;
 
-  if (TEST_FLAG(LOCKFLAG, Via))
+  if (TEST_FLAG (LOCKFLAG, Via))
     return (NULL);
   if (value <= MAX_PINORVIASIZE &&
       value >= MIN_PINORVIAHOLE && (TEST_FLAG (HOLEFLAG, Via) ||
@@ -344,7 +345,7 @@ ChangeViaClearSize (PinTypePtr Via)
 {
   Dimension value = (Absolute) ? Absolute : Via->Clearance + Delta;
 
-  if (TEST_FLAG(LOCKFLAG, Via))
+  if (TEST_FLAG (LOCKFLAG, Via))
     return (NULL);
   value = MIN (MAX_LINESIZE, MAX (value, Settings.Bloat * 2));
   AddObjectToClearSizeUndoList (VIA_TYPE, Via, Via, Via);
@@ -364,7 +365,7 @@ ChangePinSize (ElementTypePtr Element, PinTypePtr Pin)
 {
   Dimension value = (Absolute) ? Absolute : Pin->Thickness + Delta;
 
-  if (TEST_FLAG(LOCKFLAG, Pin))
+  if (TEST_FLAG (LOCKFLAG, Pin))
     return (NULL);
   Element = Element;		/* get rid of 'unused...' warnings */
   if (!TEST_FLAG (HOLEFLAG, Pin) && value <= MAX_PINORVIASIZE &&
@@ -390,7 +391,7 @@ ChangePinClearSize (ElementTypePtr Element, PinTypePtr Pin)
 {
   Dimension value = (Absolute) ? Absolute : Pin->Clearance + Delta;
 
-  if (TEST_FLAG(LOCKFLAG, Pin))
+  if (TEST_FLAG (LOCKFLAG, Pin))
     return (NULL);
   value = MIN (MAX_LINESIZE, MAX (value, Settings.Bloat * 2));
   Element = Element;		/* get rid of 'unused...' warnings */
@@ -409,8 +410,8 @@ static void *
 ChangePadSize (ElementTypePtr Element, PadTypePtr Pad)
 {
   Dimension value = (Absolute) ? Absolute : Pad->Thickness + Delta;
-  
-  if (TEST_FLAG(LOCKFLAG, Pad))
+
+  if (TEST_FLAG (LOCKFLAG, Pad))
     return (NULL);
   if (value <= MAX_PADSIZE && value >= MIN_PADSIZE && value != Pad->Thickness)
     {
@@ -432,7 +433,7 @@ ChangePadClearSize (ElementTypePtr Element, PadTypePtr Pad)
 {
   Dimension value = (Absolute) ? Absolute : Pad->Clearance + Delta;
 
-  if (TEST_FLAG(LOCKFLAG, Pad))
+  if (TEST_FLAG (LOCKFLAG, Pad))
     return (NULL);
   value = MIN (MAX_LINESIZE, MAX (value, Settings.Bloat * 2));
   if (value <= MAX_PADSIZE && value >= MIN_PADSIZE && value != Pad->Thickness)
@@ -456,26 +457,30 @@ ChangeElement2ndSize (ElementTypePtr Element)
   Boolean changed = False;
   Dimension value;
 
-  if (TEST_FLAG(LOCKFLAG, Element))
+  if (TEST_FLAG (LOCKFLAG, Element))
     return (NULL);
-  PIN_LOOP (Element,
-	    value = (Absolute) ? Absolute : pin->DrillingHole + Delta;
-	    if (value <= MAX_PINORVIASIZE &&
-		value >= MIN_PINORVIAHOLE && (TEST_FLAG (HOLEFLAG, pin) ||
-					      value <=
-					      pin->Thickness -
-					      MIN_PINORVIACOPPER)
-		&& value != pin->DrillingHole)
-	    {
+  PIN_LOOP (Element, 
+      {
+	value = (Absolute) ? Absolute : pin->DrillingHole + Delta;
+	if (value <= MAX_PINORVIASIZE &&
+	    value >= MIN_PINORVIAHOLE && (TEST_FLAG (HOLEFLAG, pin) ||
+					  value <=
+					  pin->Thickness -
+					  MIN_PINORVIACOPPER)
+	    && value != pin->DrillingHole)
+	  {
 	    changed = True;
 	    AddObjectTo2ndSizeUndoList (PIN_TYPE, Element, pin, pin);
 	    ErasePin (pin);
 	    pin->DrillingHole = value;
-	    DrawPin (pin, 0); if (TEST_FLAG (HOLEFLAG, pin))
-	    {
-	    AddObjectToSizeUndoList (PIN_TYPE, Element, pin, pin);
-	    pin->Thickness = value;}
-	    }
+	    DrawPin (pin, 0);
+	    if (TEST_FLAG (HOLEFLAG, pin))
+	      {
+		AddObjectToSizeUndoList (PIN_TYPE, Element, pin, pin);
+		pin->Thickness = value;
+	      }
+	  }
+      }
   );
   if (changed)
     return (Element);
@@ -492,7 +497,7 @@ ChangePin2ndSize (ElementTypePtr Element, PinTypePtr Pin)
 {
   Dimension value = (Absolute) ? Absolute : Pin->DrillingHole + Delta;
 
-  if (TEST_FLAG(LOCKFLAG, Pin))
+  if (TEST_FLAG (LOCKFLAG, Pin))
     return (NULL);
   if (value <= MAX_PINORVIASIZE &&
       value >= MIN_PINORVIAHOLE && (TEST_FLAG (HOLEFLAG, Pin) ||
@@ -523,7 +528,7 @@ ChangeLineSize (LayerTypePtr Layer, LineTypePtr Line)
 {
   Dimension value = (Absolute) ? Absolute : Line->Thickness + Delta;
 
-  if (TEST_FLAG(LOCKFLAG, Line))
+  if (TEST_FLAG (LOCKFLAG, Line))
     return (NULL);
   if (value <= MAX_LINESIZE && value >= MIN_LINESIZE &&
       value != Line->Thickness)
@@ -546,7 +551,7 @@ ChangeLineClearSize (LayerTypePtr Layer, LineTypePtr Line)
 {
   Dimension value = (Absolute) ? Absolute : Line->Clearance + Delta;
 
-  if (TEST_FLAG(LOCKFLAG, Line))
+  if (TEST_FLAG (LOCKFLAG, Line))
     return (NULL);
   value = MIN (MAX_LINESIZE, MAX (value, Settings.Bloat * 2));
   if (value != Line->Clearance)
@@ -555,9 +560,9 @@ ChangeLineClearSize (LayerTypePtr Layer, LineTypePtr Line)
       EraseLine (Line);
       Line->Clearance = value;
       if (Line->Clearance > 0)
-	SET_FLAG(CLEARLINEFLAG, Line);
+	SET_FLAG (CLEARLINEFLAG, Line);
       else
-	CLEAR_FLAG(CLEARLINEFLAG, Line);
+	CLEAR_FLAG (CLEARLINEFLAG, Line);
       DrawLine (Layer, Line, 0);
       return (Line);
     }
@@ -573,7 +578,7 @@ ChangeArcSize (LayerTypePtr Layer, ArcTypePtr Arc)
 {
   Dimension value = (Absolute) ? Absolute : Arc->Thickness + Delta;
 
-  if (TEST_FLAG(LOCKFLAG, Arc))
+  if (TEST_FLAG (LOCKFLAG, Arc))
     return (NULL);
   if (value <= MAX_LINESIZE && value >= MIN_LINESIZE &&
       value != Arc->Thickness)
@@ -596,7 +601,7 @@ ChangeArcClearSize (LayerTypePtr Layer, ArcTypePtr Arc)
 {
   Dimension value = (Absolute) ? Absolute : Arc->Clearance + Delta;
 
-  if (TEST_FLAG(LOCKFLAG, Arc))
+  if (TEST_FLAG (LOCKFLAG, Arc))
     return (NULL);
   value = MIN (MAX_LINESIZE, MAX (value, Settings.Bloat * 2));
   if (value != Arc->Clearance)
@@ -605,9 +610,9 @@ ChangeArcClearSize (LayerTypePtr Layer, ArcTypePtr Arc)
       EraseArc (Arc);
       Arc->Clearance = value;
       if (Arc->Clearance > 0)
-	SET_FLAG(CLEARLINEFLAG, Arc);
+	SET_FLAG (CLEARLINEFLAG, Arc);
       else
-	CLEAR_FLAG(CLEARLINEFLAG, Arc);
+	CLEAR_FLAG (CLEARLINEFLAG, Arc);
       DrawArc (Layer, Arc, 0);
       return (Arc);
     }
@@ -623,7 +628,7 @@ ChangeTextSize (LayerTypePtr Layer, TextTypePtr Text)
 {
   Dimension value = (Absolute) ? Absolute : Text->Scale + Delta;
 
-  if (TEST_FLAG(LOCKFLAG, Text))
+  if (TEST_FLAG (LOCKFLAG, Text))
     return (NULL);
   if (value <= MAX_TEXTSCALE && value >= MIN_TEXTSCALE &&
       value != Text->Scale)
@@ -648,30 +653,37 @@ ChangeElementSize (ElementTypePtr Element)
   Dimension value;
   Boolean changed = False;
 
-  if (TEST_FLAG(LOCKFLAG, Element))
+  if (TEST_FLAG (LOCKFLAG, Element))
     return (NULL);
   if (PCB->ElementOn)
     EraseElement (Element);
-  ELEMENTLINE_LOOP (Element,
-		    {
-		    value = (Absolute) ? Absolute : line->Thickness + Delta;
-		    if (value <= MAX_LINESIZE && value >= MIN_LINESIZE &&
-			value != line->Thickness)
-		    {
-		    AddObjectToSizeUndoList (ELEMENTLINE_TYPE, Element, line,
-					     line); line->Thickness = value;
-		    changed = True;}
-		    }
-  );
-  ARC_LOOP (Element,
+  ELEMENTLINE_LOOP (Element, 
+      {
+	{
+	  value = (Absolute) ? Absolute : line->Thickness + Delta;
+	  if (value <= MAX_LINESIZE && value >= MIN_LINESIZE &&
+	      value != line->Thickness)
 	    {
-	    value = (Absolute) ? Absolute : arc->Thickness + Delta;
-	    if (value <= MAX_LINESIZE && value >= MIN_LINESIZE &&
-		value != arc->Thickness)
-	    {
-	    AddObjectToSizeUndoList (ELEMENTARC_TYPE, Element, arc, arc);
-	    arc->Thickness = value; changed = True;}
+	      AddObjectToSizeUndoList (ELEMENTLINE_TYPE, Element, line, line);
+	      line->Thickness = value;
+	      changed = True;
 	    }
+	}
+      }
+  );
+  ARC_LOOP (Element, 
+      {
+	{
+	  value = (Absolute) ? Absolute : arc->Thickness + Delta;
+	  if (value <= MAX_LINESIZE && value >= MIN_LINESIZE &&
+	      value != arc->Thickness)
+	    {
+	      AddObjectToSizeUndoList (ELEMENTARC_TYPE, Element, arc, arc);
+	      arc->Thickness = value;
+	      changed = True;
+	    }
+	}
+      }
   );
   if (PCB->ElementOn)
     {
@@ -692,16 +704,18 @@ ChangeElementNameSize (ElementTypePtr Element)
   Dimension value =
     (Absolute) ? Absolute : DESCRIPTION_TEXT (Element).Scale + Delta;
 
-  if (TEST_FLAG(LOCKFLAG, &Element->Name[0]))
+  if (TEST_FLAG (LOCKFLAG, &Element->Name[0]))
     return (NULL);
   if (value <= MAX_TEXTSCALE && value >= MIN_TEXTSCALE)
     {
       EraseElementName (Element);
-      ELEMENTTEXT_LOOP (Element,
-			AddObjectToSizeUndoList (ELEMENTNAME_TYPE, Element,
-						 text, text);
-			text->Scale = value;
-			SetTextBoundingBox (&PCB->Font, text););
+      ELEMENTTEXT_LOOP (Element, 
+	  {
+	    AddObjectToSizeUndoList (ELEMENTNAME_TYPE, Element, text, text);
+	    text->Scale = value;
+	    SetTextBoundingBox (&PCB->Font, text);
+	  }
+      );
       DrawElementName (Element, 0);
       return (Element);
     }
@@ -716,12 +730,13 @@ ChangeViaName (PinTypePtr Via)
 {
   char *old = Via->Name;
 
-  if (TEST_FLAG(DISPLAYNAMEFLAG, Via))
-  {
-    ErasePinName(Via);
-    Via->Name = NewName;
-    DrawPinName(Via, 0);
-  } else
+  if (TEST_FLAG (DISPLAYNAMEFLAG, Via))
+    {
+      ErasePinName (Via);
+      Via->Name = NewName;
+      DrawPinName (Via, 0);
+    }
+  else
     Via->Name = NewName;
   return (old);
 }
@@ -735,13 +750,14 @@ ChangePinName (ElementTypePtr Element, PinTypePtr Pin)
   char *old = Pin->Name;
 
   Element = Element;		/* get rid of 'unused...' warnings */
-  if (TEST_FLAG(DISPLAYNAMEFLAG, Pin))
-  {
-    ErasePinName(Pin);
+  if (TEST_FLAG (DISPLAYNAMEFLAG, Pin))
+    {
+      ErasePinName (Pin);
+      Pin->Name = NewName;
+      DrawPinName (Pin, 0);
+    }
+  else
     Pin->Name = NewName;
-    DrawPinName(Pin, 0);
-  } else
-  Pin->Name = NewName;
   return (old);
 }
 
@@ -754,12 +770,13 @@ ChangePadName (ElementTypePtr Element, PadTypePtr Pad)
   char *old = Pad->Name;
 
   Element = Element;		/* get rid of 'unused...' warnings */
-  if (TEST_FLAG(DISPLAYNAMEFLAG, Pad))
-  {
-    ErasePadName(Pad);
-    Pad->Name = NewName;
-    DrawPadName(Pad, 0);
-  } else
+  if (TEST_FLAG (DISPLAYNAMEFLAG, Pad))
+    {
+      ErasePadName (Pad);
+      Pad->Name = NewName;
+      DrawPadName (Pad, 0);
+    }
+  else
     Pad->Name = NewName;
   return (old);
 }
@@ -785,7 +802,7 @@ ChangeElementName (ElementTypePtr Element)
 {
   char *old = ELEMENT_NAME (PCB, Element);
 
-  if (TEST_FLAG(LOCKFLAG, &Element->Name[0]))
+  if (TEST_FLAG (LOCKFLAG, &Element->Name[0]))
     return (NULL);
   if (NAME_INDEX (PCB) == NAMEONPCB_INDEX)
     {
@@ -814,7 +831,7 @@ ChangeTextName (LayerTypePtr Layer, TextTypePtr Text)
 {
   char *old = Text->TextString;
 
-  if (TEST_FLAG(LOCKFLAG, Text))
+  if (TEST_FLAG (LOCKFLAG, Text))
     return (NULL);
   EraseText (Text);
   Text->TextString = NewName;
@@ -828,7 +845,8 @@ ChangeTextName (LayerTypePtr Layer, TextTypePtr Text)
 /* ---------------------------------------------------------------------------
  * changes the name of a layout; memory has to be already allocated
  */
-Boolean ChangeLayoutName (char *Name)
+Boolean
+ChangeLayoutName (char *Name)
 {
   PCB->Name = Name;
   SetStatusLine ();
@@ -839,10 +857,11 @@ Boolean ChangeLayoutName (char *Name)
  * changes the side of the board an element is on
  * returns TRUE if done
  */
-Boolean ChangeElementSide (ElementTypePtr Element, Position yoff)
+Boolean
+ChangeElementSide (ElementTypePtr Element, Position yoff)
 {
-  if (TEST_FLAG(LOCKFLAG, Element))
-    return(False);
+  if (TEST_FLAG (LOCKFLAG, Element))
+    return (False);
   EraseElement (Element);
   AddObjectToMirrorUndoList (ELEMENT_TYPE, Element, Element, Element, yoff);
   MirrorElementCoordinates (Element, yoff);
@@ -853,7 +872,8 @@ Boolean ChangeElementSide (ElementTypePtr Element, Position yoff)
 /* ---------------------------------------------------------------------------
  * changes the name of a layer; memory has to be already allocated
  */
-Boolean ChangeLayerName (LayerTypePtr Layer, char *Name)
+Boolean
+ChangeLayerName (LayerTypePtr Layer, char *Name)
 {
   CURRENT->Name = Name;
   UpdateControlPanel ();
@@ -866,8 +886,8 @@ Boolean ChangeLayerName (LayerTypePtr Layer, char *Name)
 static void *
 ChangeLineJoin (LayerTypePtr Layer, LineTypePtr Line)
 {
-  if (TEST_FLAG(LOCKFLAG, Line))
-    return(NULL);
+  if (TEST_FLAG (LOCKFLAG, Line))
+    return (NULL);
   EraseLine (Line);
   AddObjectToFlagUndoList (LINE_TYPE, Layer, Line, Line);
   TOGGLE_FLAG (CLEARLINEFLAG, Line);
@@ -881,8 +901,8 @@ ChangeLineJoin (LayerTypePtr Layer, LineTypePtr Line)
 static void *
 ChangeArcJoin (LayerTypePtr Layer, ArcTypePtr Arc)
 {
-  if (TEST_FLAG(LOCKFLAG, Arc))
-    return(NULL);
+  if (TEST_FLAG (LOCKFLAG, Arc))
+    return (NULL);
   EraseArc (Arc);
   AddObjectToFlagUndoList (ARC_TYPE, Layer, Arc, Arc);
   TOGGLE_FLAG (CLEARLINEFLAG, Arc);
@@ -898,10 +918,18 @@ ChangeElementSquare (ElementTypePtr Element)
 {
   void *ans = NULL;
 
-  if (TEST_FLAG(LOCKFLAG, Element))
-    return(NULL);
-  PIN_LOOP (Element, ans = ChangePinSquare (Element, pin););
-  PAD_LOOP (Element, ans = ChangePadSquare (Element, pad););
+  if (TEST_FLAG (LOCKFLAG, Element))
+    return (NULL);
+  PIN_LOOP (Element, 
+      {
+	ans = ChangePinSquare (Element, pin);
+      }
+  );
+  PAD_LOOP (Element, 
+      {
+	ans = ChangePadSquare (Element, pad);
+      }
+  );
   return (ans);
 }
 
@@ -913,11 +941,14 @@ ChangeElementOctagon (ElementTypePtr Element)
 {
   void *result = NULL;
 
-  if (TEST_FLAG(LOCKFLAG, Element))
-    return(NULL);
-  PIN_LOOP (Element, ChangePinOctagon (Element, pin);
-	    result = Element;
-    );
+  if (TEST_FLAG (LOCKFLAG, Element))
+    return (NULL);
+  PIN_LOOP (Element, 
+      {
+	ChangePinOctagon (Element, pin);
+	result = Element;
+      }
+  );
   return (result);
 }
 
@@ -927,8 +958,8 @@ ChangeElementOctagon (ElementTypePtr Element)
 static void *
 ChangePadSquare (ElementTypePtr Element, PadTypePtr Pad)
 {
-  if (TEST_FLAG(LOCKFLAG, Pad))
-    return(NULL);
+  if (TEST_FLAG (LOCKFLAG, Pad))
+    return (NULL);
   ErasePad (Pad);
   AddObjectToFlagUndoList (PAD_TYPE, Element, Pad, Pad);
   TOGGLE_FLAG (SQUAREFLAG, Pad);
@@ -942,8 +973,8 @@ ChangePadSquare (ElementTypePtr Element, PadTypePtr Pad)
 static void *
 ChangePinSquare (ElementTypePtr Element, PinTypePtr Pin)
 {
-  if (TEST_FLAG(LOCKFLAG, Pin))
-    return(NULL);
+  if (TEST_FLAG (LOCKFLAG, Pin))
+    return (NULL);
   ErasePin (Pin);
   AddObjectToFlagUndoList (PIN_TYPE, Element, Pin, Pin);
   TOGGLE_FLAG (SQUAREFLAG, Pin);
@@ -957,8 +988,8 @@ ChangePinSquare (ElementTypePtr Element, PinTypePtr Pin)
 static void *
 ChangeViaOctagon (PinTypePtr Via)
 {
-  if (TEST_FLAG(LOCKFLAG, Via))
-    return(NULL);
+  if (TEST_FLAG (LOCKFLAG, Via))
+    return (NULL);
   EraseVia (Via);
   AddObjectToFlagUndoList (VIA_TYPE, Via, Via, Via);
   TOGGLE_FLAG (OCTAGONFLAG, Via);
@@ -972,8 +1003,8 @@ ChangeViaOctagon (PinTypePtr Via)
 static void *
 ChangePinOctagon (ElementTypePtr Element, PinTypePtr Pin)
 {
-  if (TEST_FLAG(LOCKFLAG, Pin))
-    return(NULL);
+  if (TEST_FLAG (LOCKFLAG, Pin))
+    return (NULL);
   ErasePin (Pin);
   AddObjectToFlagUndoList (PIN_TYPE, Element, Pin, Pin);
   TOGGLE_FLAG (OCTAGONFLAG, Pin);
@@ -984,10 +1015,11 @@ ChangePinOctagon (ElementTypePtr Element, PinTypePtr Pin)
 /* ---------------------------------------------------------------------------
  * changes the hole flag of a via
  */
-Boolean ChangeHole (PinTypePtr Via)
+Boolean
+ChangeHole (PinTypePtr Via)
 {
-  if (TEST_FLAG(LOCKFLAG, Via))
-    return(False);
+  if (TEST_FLAG (LOCKFLAG, Via))
+    return (False);
   EraseVia (Via);
   AddObjectToFlagUndoList (VIA_TYPE, Via, Via, Via);
   TOGGLE_FLAG (HOLEFLAG, Via);
@@ -1012,8 +1044,8 @@ Boolean ChangeHole (PinTypePtr Via)
 static void *
 ChangePolyClear (LayerTypePtr Layer, PolygonTypePtr Polygon)
 {
-  if (TEST_FLAG(LOCKFLAG, Polygon))
-    return(NULL);
+  if (TEST_FLAG (LOCKFLAG, Polygon))
+    return (NULL);
   AddObjectToFlagUndoList (POLYGON_TYPE, Layer, Polygon, Polygon);
   TOGGLE_FLAG (CLEARPOLYFLAG, Polygon);
   UpdatePIPFlags (NULL, NULL, Layer, Polygon, True);
@@ -1025,16 +1057,21 @@ ChangePolyClear (LayerTypePtr Layer, PolygonTypePtr Polygon)
  * changes the side of all selected and visible elements 
  * returns True if anything has changed
  */
-Boolean ChangeSelectedElementSide (void)
+Boolean
+ChangeSelectedElementSide (void)
 {
   Boolean change = False;
 
   /* setup identifiers */
   if (PCB->PinOn && PCB->ElementOn)
-    ELEMENT_LOOP (PCB->Data, if (TEST_FLAG (SELECTEDFLAG, element))
-		  {
-		  change |= ChangeElementSide (element, 0);
-		  UpdatePIPFlags (NULL, element, NULL, NULL, True);}
+    ELEMENT_LOOP (PCB->Data, 
+      {
+	if (TEST_FLAG (SELECTEDFLAG, element))
+	  {
+	    change |= ChangeElementSide (element, 0);
+	    UpdatePIPFlags (NULL, element, NULL, NULL, True);
+	  }
+      }
   );
   if (change)
     {
@@ -1048,7 +1085,8 @@ Boolean ChangeSelectedElementSide (void)
  * changes the thermals on all selected and visible pins
  * and/or vias. Returns True if anything has changed
  */
-Boolean ChangeSelectedThermals (int types)
+Boolean
+ChangeSelectedThermals (int types)
 {
   Boolean change = False;
 
@@ -1065,7 +1103,8 @@ Boolean ChangeSelectedThermals (int types)
  * changes the size of all selected and visible object types 
  * returns True if anything has changed
  */
-Boolean ChangeSelectedSize (int types, Position Difference, Boolean fixIt)
+Boolean
+ChangeSelectedSize (int types, Position Difference, Boolean fixIt)
 {
   Boolean change = False;
 
@@ -1110,7 +1149,8 @@ ChangeSelectedClearSize (int types, Position Difference, Boolean fixIt)
  * changes the 2nd size (drilling hole) of all selected and visible objects
  * returns True if anything has changed
  */
-Boolean ChangeSelected2ndSize (int types, Position Difference, Boolean fixIt)
+Boolean
+ChangeSelected2ndSize (int types, Position Difference, Boolean fixIt)
 {
   Boolean change = False;
 
@@ -1130,7 +1170,8 @@ Boolean ChangeSelected2ndSize (int types, Position Difference, Boolean fixIt)
  * changes the clearance flag (join) of all selected and visible lines
  * and/or arcs. Returns True if anything has changed
  */
-Boolean ChangeSelectedJoin (int types)
+Boolean
+ChangeSelectedJoin (int types)
 {
   Boolean change = False;
 
@@ -1147,7 +1188,8 @@ Boolean ChangeSelectedJoin (int types)
  * changes the square-flag of all selected and visible pins or pads
  * returns True if anything has changed
  */
-Boolean ChangeSelectedSquare (int types)
+Boolean
+ChangeSelectedSquare (int types)
 {
   Boolean change = False;
 
@@ -1164,7 +1206,8 @@ Boolean ChangeSelectedSquare (int types)
  * changes the octagon-flag of all selected and visible pins and vias
  * returns True if anything has changed
  */
-Boolean ChangeSelectedOctagon (int types)
+Boolean
+ChangeSelectedOctagon (int types)
 {
   Boolean change = False;
 
@@ -1181,13 +1224,18 @@ Boolean ChangeSelectedOctagon (int types)
  * changes the hole-flag of all selected and visible vias 
  * returns True if anything has changed
  */
-Boolean ChangeSelectedHole (void)
+Boolean
+ChangeSelectedHole (void)
 {
   Boolean change = False;
 
   if (PCB->ViaOn)
-    VIA_LOOP (PCB->Data,
-	      if (TEST_FLAG (SELECTEDFLAG, via)) change |= ChangeHole (via););
+    VIA_LOOP (PCB->Data, 
+      {
+	if (TEST_FLAG (SELECTEDFLAG, via))
+	  change |= ChangeHole (via);
+      }
+  );
   if (change)
     {
       Draw ();
@@ -1253,7 +1301,8 @@ ChangeObjectClearSize (int Type, void *Ptr1, void *Ptr2, void *Ptr3,
  * changes the thermal of the passed object
  * Returns True if anything is changed
  */
-Boolean ChangeObjectThermal (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
+Boolean
+ChangeObjectThermal (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
 {
   Boolean change;
 
@@ -1329,8 +1378,7 @@ ChangeObjectName (int Type, void *Ptr1, void *Ptr2, void *Ptr3, char *Name)
   void *result;
   /* setup identifier */
   NewName = Name;
-  if (
-      (result =
+  if ((result =
        ObjectOperation (&ChangeNameFunctions, Type, Ptr1, Ptr2, Ptr3)));
   Draw ();
   return (result);
@@ -1340,7 +1388,8 @@ ChangeObjectName (int Type, void *Ptr1, void *Ptr2, void *Ptr3, char *Name)
  * changes the clearance-flag of the passed object
  * Returns True if anything is changed
  */
-Boolean ChangeObjectJoin (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
+Boolean
+ChangeObjectJoin (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
 {
   if (ObjectOperation (&ChangeJoinFunctions, Type, Ptr1, Ptr2, Ptr3) != NULL)
     {
@@ -1355,7 +1404,8 @@ Boolean ChangeObjectJoin (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
  * changes the square-flag of the passed object
  * Returns True if anything is changed
  */
-Boolean ChangeObjectSquare (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
+Boolean
+ChangeObjectSquare (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
 {
   if (ObjectOperation (&ChangeSquareFunctions, Type, Ptr1, Ptr2, Ptr3) !=
       NULL)
@@ -1371,7 +1421,8 @@ Boolean ChangeObjectSquare (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
  * changes the octagon-flag of the passed object
  * Returns True if anything is changed
  */
-Boolean ChangeObjectOctagon (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
+Boolean
+ChangeObjectOctagon (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
 {
   if (ObjectOperation (&ChangeOctagonFunctions, Type, Ptr1, Ptr2, Ptr3) !=
       NULL)
@@ -1458,9 +1509,10 @@ ChangePCBSize (Dimension Width, Dimension Height)
 			    Width - (PASTEBUFFER->BoundingBox.X2 -
 				     PASTEBUFFER->X)), MAX (0,
 							    Height -
-							    (PASTEBUFFER->BoundingBox.
-							     Y2 -
-							     PASTEBUFFER->Y)));
+							    (PASTEBUFFER->
+							     BoundingBox.Y2 -
+							     PASTEBUFFER->
+							     Y)));
   else
     SetCrosshairRange (0, 0, (Position) Width, (Position) Height);
   ScaleOutput (Output.Width, Output.Height);

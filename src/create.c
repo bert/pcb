@@ -24,7 +24,8 @@
  *
  */
 
-static char *rcsid = "$Id$";
+static char *rcsid =
+  "$Id$";
 
 /* functions used to create vias, pins ...
  */
@@ -69,7 +70,8 @@ static void AddTextToElement (TextTypePtr, FontTypePtr,
 /* ---------------------------------------------------------------------------
  * creates a new paste buffer
  */
-DataTypePtr CreateNewBuffer (void)
+DataTypePtr
+CreateNewBuffer (void)
 {
   return ((DataTypePtr) MyCalloc (1, sizeof (DataType), "CreateNewBuffer()"));
 }
@@ -77,7 +79,8 @@ DataTypePtr CreateNewBuffer (void)
 /* ---------------------------------------------------------------------------
  * creates a new PCB
  */
-PCBTypePtr CreateNewPCB (Boolean SetDefaultNames)
+PCBTypePtr
+CreateNewPCB (Boolean SetDefaultNames)
 {
   PCBTypePtr ptr;
   int i;
@@ -144,7 +147,11 @@ PCBTypePtr CreateNewPCB (Boolean SetDefaultNames)
     SET_FLAG (CLEARNEWFLAG, ptr);
   ptr->Grid = Settings.Grid;
   ptr->LayerGroups = Settings.LayerGroups;
-  STYLE_LOOP (ptr, *style = Settings.RouteStyle[n]);
+  STYLE_LOOP (ptr, 
+      {
+      *style = Settings.RouteStyle[n];
+      }
+  );
   ptr->Zoom = Settings.Zoom;
   ptr->MaxWidth = Settings.MaxWidth;
   ptr->MaxHeight = Settings.MaxHeight;
@@ -163,12 +170,15 @@ CreateNewVia (DataTypePtr Data,
 {
   PinTypePtr Via;
 
-  VIA_LOOP (Data,
-	    if ((float) (via->X - X) * (float) (via->X - X) +
-		(float) (via->Y - Y) * (float) (via->Y - Y) <=
-		((float) (via->Thickness / 2 + Thickness / 2) *
-		 (float) (via->Thickness / 2 + Thickness / 2))) return (NULL);	/* don't allow via stacking */
-    );
+  VIA_LOOP (Data, 
+      {
+	if ((float) (via->X - X) * (float) (via->X - X) +
+	    (float) (via->Y - Y) * (float) (via->Y - Y) <=
+	    ((float) (via->Thickness / 2 + Thickness / 2) *
+	     (float) (via->Thickness / 2 + Thickness / 2)))
+	  return (NULL);	/* don't allow via stacking */
+      }
+  );
 
   Via = GetViaMemory (Data);
 
@@ -205,60 +215,67 @@ CreateDrawnLineOnLayer (LayerTypePtr Layer,
    * and remove needless intermediate points
    * verify that the layer is on the board first!
    */
-  LINE_LOOP (Layer,
-	     /* prevent stacked lines */
-	     if ((line->Point1.X == X1 && line->Point1.Y == Y1
-		  && line->Point2.X == X2 && line->Point2.Y == Y2)
-		 || (line->Point1.X == X2 && line->Point1.Y == Y2
-		     && line->Point2.X == X1 && line->Point2.Y == Y1))
-	     return (NULL);
-	     /* remove unncessary line points */
-	     if (line->Thickness == Thickness)
-	     {
-	     if (line->Point1.X == X1 && line->Point1.Y == Y1)
-	     {
-	     test.Point1.X = line->Point2.X;
-	     test.Point1.Y = line->Point2.Y;
-	     test.Point2.X = X2;
-	     test.Point2.Y = Y2;
-	     if (IsPointOnLine ((float) X1, (float) Y1, 0.0, &test))
-	     {
-	     project = line; break;}
-	     }
-	     else
-	     if (line->Point2.X == X1 && line->Point2.Y == Y1)
-	     {
-	     test.Point1.X = line->Point1.X;
-	     test.Point1.Y = line->Point1.Y;
-	     test.Point2.X = X2;
-	     test.Point2.Y = Y2;
-	     if (IsPointOnLine ((float) X1, (float) Y1, 0.0, &test))
-	     {
-	     project = line; break;}
-	     }
-	     else
-	     if (line->Point1.X == X2 && line->Point1.Y == Y2)
-	     {
-	     test.Point1.X = line->Point2.X;
-	     test.Point1.Y = line->Point2.Y;
-	     test.Point2.X = X1;
-	     test.Point2.Y = Y1;
-	     if (IsPointOnLine ((float) X2, (float) Y2, 0.0, &test))
-	     {
-	     project = line; break;}
-	     }
-	     else
-	     if (line->Point2.X == X2 && line->Point2.Y == Y2)
-	     {
-	     test.Point1.X = line->Point1.X;
-	     test.Point1.Y = line->Point1.Y;
-	     test.Point2.X = X1;
-	     test.Point2.Y = Y1;
-	     if (IsPointOnLine ((float) X2, (float) Y2, 0.0, &test))
-	     {
-	     project = line; break;}
-	     }
-	     }
+  LINE_LOOP (Layer, 
+      {
+	/* prevent stacked lines */
+	if ((line->Point1.X == X1 && line->Point1.Y == Y1
+	     && line->Point2.X == X2 && line->Point2.Y == Y2)
+	    || (line->Point1.X == X2 && line->Point1.Y == Y2
+		&& line->Point2.X == X1 && line->Point2.Y == Y1))
+	  return (NULL);
+	/* remove unncessary line points */
+	if (line->Thickness == Thickness)
+	  {
+	    if (line->Point1.X == X1 && line->Point1.Y == Y1)
+	      {
+		test.Point1.X = line->Point2.X;
+		test.Point1.Y = line->Point2.Y;
+		test.Point2.X = X2;
+		test.Point2.Y = Y2;
+		if (IsPointOnLine ((float) X1, (float) Y1, 0.0, &test))
+		  {
+		    project = line;
+		    break;
+		  }
+	      }
+	    else if (line->Point2.X == X1 && line->Point2.Y == Y1)
+	      {
+		test.Point1.X = line->Point1.X;
+		test.Point1.Y = line->Point1.Y;
+		test.Point2.X = X2;
+		test.Point2.Y = Y2;
+		if (IsPointOnLine ((float) X1, (float) Y1, 0.0, &test))
+		  {
+		    project = line;
+		    break;
+		  }
+	      }
+	    else if (line->Point1.X == X2 && line->Point1.Y == Y2)
+	      {
+		test.Point1.X = line->Point2.X;
+		test.Point1.Y = line->Point2.Y;
+		test.Point2.X = X1;
+		test.Point2.Y = Y1;
+		if (IsPointOnLine ((float) X2, (float) Y2, 0.0, &test))
+		  {
+		    project = line;
+		    break;
+		  }
+	      }
+	    else if (line->Point2.X == X2 && line->Point2.Y == Y2)
+	      {
+		test.Point1.X = line->Point1.X;
+		test.Point1.Y = line->Point1.Y;
+		test.Point2.X = X1;
+		test.Point2.Y = Y1;
+		if (IsPointOnLine ((float) X2, (float) Y2, 0.0, &test))
+		  {
+		    project = line;
+		    break;
+		  }
+	      }
+	  }
+      }
   );
   /* remove unneccessary points */
   if (project)
@@ -339,11 +356,14 @@ CreateNewArcOnLayer (LayerTypePtr Layer,
 {
   ArcTypePtr Arc;
 
-  ARC_LOOP (Layer,
-	    if (arc->X == X1 && arc->Y == Y1 && arc->Width == width &&
-		(arc->StartAngle + 360) % 360 == (sa + 360) % 360 &&
-		arc->Delta == dir) return (NULL);	/* prevent stacked arcs */
-    );
+  ARC_LOOP (Layer, 
+      {
+	if (arc->X == X1 && arc->Y == Y1 && arc->Width == width &&
+	    (arc->StartAngle + 360) % 360 == (sa + 360) % 360 &&
+	    arc->Delta == dir)
+	  return (NULL);	/* prevent stacked arcs */
+      }
+  );
   Arc = GetArcMemory (Layer);
   if (!Arc)
     return (Arc);
@@ -413,7 +433,8 @@ CreateNewText (LayerTypePtr Layer, FontTypePtr PCBFont,
 /* ---------------------------------------------------------------------------
  * creates a new polygon on a layer
  */
-PolygonTypePtr CreateNewPolygon (LayerTypePtr Layer, int Flags)
+PolygonTypePtr
+CreateNewPolygon (LayerTypePtr Layer, int Flags)
 {
   PolygonTypePtr polygon = GetPolygonMemory (Layer);
 
@@ -522,7 +543,8 @@ CreateNewLineInElement (ElementTypePtr Element,
 {
   LineTypePtr line = Element->Line;
 
-  if (Thickness == 0) return(NULL);
+  if (Thickness == 0)
+    return (NULL);
   /* realloc new memory if necessary and clear it */
   if (Element->LineN >= Element->LineMax)
     {
@@ -581,10 +603,10 @@ CreateNewPad (ElementTypePtr Element,
   PadTypePtr pad = GetPadMemory (Element);
 
   /* copy values */
-  pad->Point1.X = MIN(X1, X2); /* works since either X1 == X2 or Y1 == Y2 */
-  pad->Point1.Y = MIN(Y1, Y2);
-  pad->Point2.X = MAX(X1, X2);
-  pad->Point2.Y = MAX(Y1, Y2);
+  pad->Point1.X = MIN (X1, X2);	/* works since either X1 == X2 or Y1 == Y2 */
+  pad->Point1.Y = MIN (Y1, Y2);
+  pad->Point2.X = MAX (X1, X2);
+  pad->Point2.Y = MAX (Y1, Y2);
   pad->Thickness = Thickness;
   pad->Clearance = Clearance;
   pad->Mask = Mask;
@@ -682,7 +704,8 @@ CreateNewRubberbandEntry (LayerTypePtr Layer,
 /* ---------------------------------------------------------------------------
  * Add a new net to the netlist menu
  */
-LibraryMenuTypePtr CreateNewNet (LibraryTypePtr lib, char *name, char *style)
+LibraryMenuTypePtr
+CreateNewNet (LibraryTypePtr lib, char *name, char *style)
 {
   LibraryMenuTypePtr menu;
   char temp[64];
@@ -700,7 +723,8 @@ LibraryMenuTypePtr CreateNewNet (LibraryTypePtr lib, char *name, char *style)
 /* ---------------------------------------------------------------------------
  * Add a connection to the net
  */
-LibraryEntryTypePtr CreateNewConnection (LibraryMenuTypePtr net, char *conn)
+LibraryEntryTypePtr
+CreateNewConnection (LibraryMenuTypePtr net, char *conn)
 {
   LibraryEntryTypePtr entry = GetLibraryEntryMemory (net);
 

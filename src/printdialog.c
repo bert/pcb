@@ -89,7 +89,7 @@ static Widget Popup,		/* the popup shells */
   FilenameLabelW,		/* a label */
   FilenameW;			/* input line */
 static float Scale = 1.0;	/* initial scaling factor */
-static long int ReturnCode;		/* returncode of buttons */
+static long int ReturnCode;	/* returncode of buttons */
 static Boolean RotateFlag = False,	/* initial rotation flag */
   OutlineFlag = False,		/* don't draw board outline.. */
   AlignmentFlag = False, DOSFilenames = False;

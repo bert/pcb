@@ -122,7 +122,8 @@ vector_size (vector_t * vector)
   return (vector->size);
 }
 
-vector_element_t vector_element (vector_t * vector, int N)
+vector_element_t
+vector_element (vector_t * vector, int N)
 {
   assert (__vector_is_good (vector));
   assert (N < vector->size);
@@ -130,7 +131,8 @@ vector_element_t vector_element (vector_t * vector, int N)
 }
 
 /* return the first element of the vector. */
-vector_element_t vector_element_first (vector_t * vector)
+vector_element_t
+vector_element_first (vector_t * vector)
 {
   assert (__vector_is_good (vector));
   assert (vector->size > 0);
@@ -138,7 +140,8 @@ vector_element_t vector_element_first (vector_t * vector)
 }
 
 /* return the last element of the vector. */
-vector_element_t vector_element_last (vector_t * vector)
+vector_element_t
+vector_element_last (vector_t * vector)
 {
   assert (__vector_is_good (vector));
   assert (vector->size > 0);
@@ -195,14 +198,16 @@ vector_insert_many (vector_t * vector, int N,
 }
 
 /* return and delete the *last* element of vector */
-vector_element_t vector_remove_last (vector_t * vector)
+vector_element_t
+vector_remove_last (vector_t * vector)
 {
   assert (vector->size > 0);
   return vector_remove (vector, vector->size - 1);
 }
 
 /* return and delete data at specified position of vector */
-vector_element_t vector_remove (vector_t * vector, int N)
+vector_element_t
+vector_remove (vector_t * vector, int N)
 {
   vector_element_t old;
   assert (__vector_is_good (vector));

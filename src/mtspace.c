@@ -158,7 +158,8 @@ mtspace_destroy (mtspace_t ** mtspacep)
 
 /* returns the minimum empty-space radius relevant for
  * this mtspace structure. */
-Dimension mtspace_get_bloat (mtspace_t * mtspace)
+Dimension
+mtspace_get_bloat (mtspace_t * mtspace)
 {
   assert (__mtspace_is_good (mtspace));
   return mtspace->radius + mtspace->keepaway;

@@ -213,30 +213,30 @@ PrintLayergroups (void)
   int Somepolys, use_mode;
   int PIPflag, Tflag;
 
- /* check for a special case where we can make a negative gnd/power plane */
- /* this can be helpful for lame-brained manufacturers that can't handle */
- /* composite layers. If there is no complex stuff on a layer, a simple */
- /* negative is possible. We require:
-  * (1) No Lines, Text or Arcs
-  * (2) Exactly one polygon
-  * (3) No Pads
-  * (4) All Pins and Vias pierce the polygon
-  */
+  /* check for a special case where we can make a negative gnd/power plane */
+  /* this can be helpful for lame-brained manufacturers that can't handle */
+  /* composite layers. If there is no complex stuff on a layer, a simple */
+  /* negative is possible. We require:
+   * (1) No Lines, Text or Arcs
+   * (2) Exactly one polygon
+   * (3) No Pads
+   * (4) All Pins and Vias pierce the polygon
+   */
   if (PCB->Data->RatN)
-  {
+    {
       Message ("WARNING!!  Rat lines in layout during printing!\n"
 	       "You're not DONE with the layout!!!!\n");
-  };
+    };
 
   for (group = 0; group < MAX_LAYER; group++)
     if (PCB->LayerGroups.Number[group])
-    {
-        Somepolys = 0;
-        /* see if we can make the special negative plane */
-        if (strcmp(Device->Name,"Gerber/RS-274X")==0)
-          negative_plane = True;
-        else
-          negative_plane = False;
+      {
+	Somepolys = 0;
+	/* see if we can make the special negative plane */
+	if (strcmp (Device->Name, "Gerber/RS-274X") == 0)
+	  negative_plane = True;
+	else
+	  negative_plane = False;
 
 	/* always include solder/component layers */
 	component = GetLayerGroupNumberByNumber (MAX_LAYER + COMPONENT_LAYER);
@@ -247,56 +247,68 @@ PrintLayergroups (void)
 	  noData = True;
 
 	if (group == component)
-        {
-          noData = False;
-	  ALLPAD_LOOP (PCB->Data,
-	     if (!TEST_FLAG (ONSOLDERFLAG, pad))
-		     negative_plane = False;);
-        }
+	  {
+	    noData = False;
+	    ALLPAD_LOOP (PCB->Data, 
+		{
+		  if (!TEST_FLAG (ONSOLDERFLAG, pad))
+		    negative_plane = False;
+		}
+	    );
+	  }
 	else if (group == solder)
-        {
-          noData = False;
-	  ALLPAD_LOOP (PCB->Data,
-	      if (TEST_FLAG (ONSOLDERFLAG, pad))
-		     negative_plane = False;);
-        }
+	  {
+	    noData = False;
+	    ALLPAD_LOOP (PCB->Data, 
+		{
+		  if (TEST_FLAG (ONSOLDERFLAG, pad))
+		    negative_plane = False;
+		}
+	    );
+	  }
 	for (entry = 0; entry < PCB->LayerGroups.Number[group]; entry++)
-        {
+	  {
 	    LayerTypePtr layer;
 	    Cardinal number;
 
 	    if ((number = PCB->LayerGroups.Entries[group][entry]) >=
 		MAX_LAYER)
 	      continue;
-	    layer = LAYER_PTR(number);
+	    layer = LAYER_PTR (number);
 	    if (layer->LineN || layer->TextN || layer->ArcN)
-            {
-	      noData = False;
-              negative_plane = False;
-            }
-            if (layer->PolygonN)
-            {
-              noData = False;
-              Somepolys += layer->PolygonN;
-	      PIPflag = L0PIPFLAG << number;
-	      Tflag = L0THERMFLAG << number;
-            }
-        }
+	      {
+		noData = False;
+		negative_plane = False;
+	      }
+	    if (layer->PolygonN)
+	      {
+		noData = False;
+		Somepolys += layer->PolygonN;
+		PIPflag = L0PIPFLAG << number;
+		Tflag = L0THERMFLAG << number;
+	      }
+	  }
 	/* skip empty layers */
 	if (noData)
 	  continue;
-        /* complete the special plane check: All pins/vias must pierce one polygon */
-        if (Somepolys != 1)
-          negative_plane = False;
-        if (negative_plane)
-        {
-	    ALLPIN_LOOP (PCB->Data,
-			 if (!TEST_FLAG (PIPflag, pin))
-			    negative_plane = False;);
-	    VIA_LOOP (PCB->Data,
-		      if (!TEST_FLAG (PIPflag, via))
-			    negative_plane = False;);
-        }
+	/* complete the special plane check: All pins/vias must pierce one polygon */
+	if (Somepolys != 1)
+	  negative_plane = False;
+	if (negative_plane)
+	  {
+	    ALLPIN_LOOP (PCB->Data, 
+		{
+		  if (!TEST_FLAG (PIPflag, pin))
+		    negative_plane = False;
+		}
+	    );
+	    VIA_LOOP (PCB->Data, 
+		{
+		  if (!TEST_FLAG (PIPflag, via))
+		    negative_plane = False;
+		}
+	    );
+	  }
 
 	/* setup extention and open new file */
 	sprintf (extention, "%s%i", GlobalDOSFlag ? "" : "group", group + 1);
@@ -307,186 +319,247 @@ PrintLayergroups (void)
 	/* comment on what layers in group */
 	if (Device->GroupID)
 	  Device->GroupID (group);
-        
-        /* now if negative plane is possible, do it here */
-        if (!negative_plane)
-        {
-	/* indicate positive polarity */
-	Device->Polarity (0);
-	/* loop and check each layer
-	 * for being a member of the group
-	 */
-	if (GlobalAlignmentFlag)
-	  FPrintAlignment ();
 
-	/* print all polygons */
-	for (entry = 0; entry < PCB->LayerGroups.Number[group]; entry++)
+	/* now if negative plane is possible, do it here */
+	if (!negative_plane)
 	  {
-	    LayerTypePtr layer;
-	    Cardinal number;
+	    /* indicate positive polarity */
+	    Device->Polarity (0);
+	    /* loop and check each layer
+	     * for being a member of the group
+	     */
+	    if (GlobalAlignmentFlag)
+	      FPrintAlignment ();
 
-	    number = PCB->LayerGroups.Entries[group][entry];
-	    if (number >= MAX_LAYER)
-	      continue;
-
-	    layer = LAYER_PTR(number);
-	    if (layer->PolygonN)
-	      {
-		SetPrintColor (layer->Color);
-		POLYGON_LOOP (layer, Device->Poly (polygon));
-	      }
-	  }
-	/* clear all lines, arcs, pins */
-	PIPflag = Tflag = 0;
-/* TO DO: It would be good to make sure something is actually clearing
- * drawn regions before calling Device->Polarity
- */
-	if (Somepolys)
-	  {
-	    Device->Polarity (2);
+	    /* print all polygons */
 	    for (entry = 0; entry < PCB->LayerGroups.Number[group]; entry++)
 	      {
 		LayerTypePtr layer;
 		Cardinal number;
 
-		InitConnectionLookup();
-		SaveFindFlag(DRCFLAG);
 		number = PCB->LayerGroups.Entries[group][entry];
 		if (number >= MAX_LAYER)
 		  continue;
 
-		layer = LAYER_PTR(number);
-		PIPflag |= L0PIPFLAG << number;
-		Tflag |= L0THERMFLAG << number;
-		LINE_LOOP (layer,
-			   if (TEST_FLAG (CLEARLINEFLAG, line))
-			   {
-                           CLEAR_FLAG(CLEARLINEFLAG, line);
-                           line->Thickness += Settings.Bloat;
-			   ResetFoundLinesAndPolygons(False);
-			   ResetFoundPinsViasAndPads(False);
-			   RatFindHook(LINE_TYPE, layer, line, line, False, False);
-			   line->Thickness -= Settings.Bloat;
-			   SET_FLAG(CLEARLINEFLAG, line);
-			   /* now if any polygons are found, do the clear */
-			   COPPERPOLYGON_LOOP(PCB->Data,
-				if (TEST_FLAG(DRCFLAG, polygon))
-				  {
-			          Device->Line (line, True);
-				  break;
-			          }
-                           );
-			   }
-                );
-		ARC_LOOP (layer,
-			  if (TEST_FLAG (CLEARLINEFLAG, arc))
-                           CLEAR_FLAG(CLEARLINEFLAG, arc);
-                           arc->Thickness += Settings.Bloat;
-			   ResetFoundLinesAndPolygons(False);
-			   ResetFoundPinsViasAndPads(False);
-			   RatFindHook(ARC_TYPE, layer, arc, arc, False, False);
-			   arc->Thickness -= Settings.Bloat;
-			   SET_FLAG(CLEARLINEFLAG, arc);
-			   /* now if any polygons are found, do the clear */
-			   COPPERPOLYGON_LOOP(PCB->Data,
-				if (TEST_FLAG(DRCFLAG, polygon))
-				  {
-			          Device->Arc (arc, True);
-			          break;
-			          }
-                           );
-                 );
+		layer = LAYER_PTR (number);
+		if (layer->PolygonN)
+		  {
+		    SetPrintColor (layer->Color);
+		    POLYGON_LOOP (layer, 
+		      {
+			Device->Poly (polygon);
+		      }
+		    );
+		  }
 	      }
-	    ALLPIN_LOOP (PCB->Data,
-			 if (TEST_FLAG (PIPflag, pin))
-			 Device->PinOrVia (pin, 1););
-	    VIA_LOOP (PCB->Data,
+	    /* clear all lines, arcs, pins */
+	    PIPflag = Tflag = 0;
+/* TO DO: It would be good to make sure something is actually clearing
+ * drawn regions before calling Device->Polarity
+ */
+	    if (Somepolys)
+	      {
+		Device->Polarity (2);
+		for (entry = 0; entry < PCB->LayerGroups.Number[group];
+		     entry++)
+		  {
+		    LayerTypePtr layer;
+		    Cardinal number;
+
+		    InitConnectionLookup ();
+		    SaveFindFlag (DRCFLAG);
+		    number = PCB->LayerGroups.Entries[group][entry];
+		    if (number >= MAX_LAYER)
+		      continue;
+
+		    layer = LAYER_PTR (number);
+		    PIPflag |= L0PIPFLAG << number;
+		    Tflag |= L0THERMFLAG << number;
+		    LINE_LOOP (layer, 
+			{
+			  if (TEST_FLAG (CLEARLINEFLAG, line))
+			    {
+			      CLEAR_FLAG (CLEARLINEFLAG, line);
+			      line->Thickness += Settings.Bloat;
+			      ResetFoundLinesAndPolygons (False);
+			      ResetFoundPinsViasAndPads (False);
+			      RatFindHook (LINE_TYPE, layer, line, line,
+					   False, False);
+			      line->Thickness -= Settings.Bloat;
+			      SET_FLAG (CLEARLINEFLAG, line);
+			      /* now if any polygons are found, do the clear */
+			      COPPERPOLYGON_LOOP (PCB->Data, 
+				  {
+				    if (TEST_FLAG (DRCFLAG, polygon))
+				      {
+					Device->Line (line, True);
+					break;
+				      }
+				  }
+			      );
+			    }
+			}
+		    );
+		    ARC_LOOP (layer, 
+			{
+			  if (TEST_FLAG (CLEARLINEFLAG, arc))
+			    CLEAR_FLAG (CLEARLINEFLAG, arc);
+			  arc->Thickness += Settings.Bloat;
+			  ResetFoundLinesAndPolygons (False);
+			  ResetFoundPinsViasAndPads (False);
+			  RatFindHook (ARC_TYPE, layer, arc, arc, False,
+				       False);
+			  arc->Thickness -= Settings.Bloat;
+			  SET_FLAG (CLEARLINEFLAG, arc);
+			  /* now if any polygons are found, do the clear */
+			  COPPERPOLYGON_LOOP (PCB->Data, 
+			      {
+				if (TEST_FLAG (DRCFLAG, polygon))
+				  {
+				    Device->Arc (arc, True);
+				    break;
+				  }
+			      }
+			  );
+			}
+		    );
+		  }
+		ALLPIN_LOOP (PCB->Data, 
+		    {
+		      if (TEST_FLAG (PIPflag, pin))
+			Device->PinOrVia (pin, 1);
+		    }
+		);
+		VIA_LOOP (PCB->Data, 
+		    {
 		      if (TEST_FLAG (PIPflag, via))
-		      Device->PinOrVia (via, 1););
+			Device->PinOrVia (via, 1);
+		    }
+		);
 		/* fixme: would be nice to only clear pads inside polys
 		 * probably the thing to do would be create PIPflags
-                 * for the pads too.
-                 */
-	    if (group == component)
-	      {
-		ALLPAD_LOOP (PCB->Data,
-			     if (!TEST_FLAG (ONSOLDERFLAG, pad))
-			     Device->Pad (pad, 1););
+		 * for the pads too.
+		 */
+		if (group == component)
+		  {
+		    ALLPAD_LOOP (PCB->Data, 
+			{
+			  if (!TEST_FLAG (ONSOLDERFLAG, pad))
+			    Device->Pad (pad, 1);
+			}
+		    );
+		  }
+		else if (group == solder)
+		  ALLPAD_LOOP (PCB->Data, 
+		    {
+		      if (TEST_FLAG (ONSOLDERFLAG, pad))
+			Device->Pad (pad, 1);
+		    }
+		);
+		FreeConnectionLookupMemory ();
+		RestoreFindFlag ();
+		Device->Polarity (3);
 	      }
-	    else if (group == solder)
-	      ALLPAD_LOOP (PCB->Data,
-			   if (TEST_FLAG (ONSOLDERFLAG, pad))
-			   Device->Pad (pad, 1););
-	    FreeConnectionLookupMemory ();
-            RestoreFindFlag ();
-	    Device->Polarity (3);
+	    /* print the lines/arcs/pins/pads/vias */
+	    for (entry = 0; entry < PCB->LayerGroups.Number[group]; entry++)
+	      {
+		LayerTypePtr layer;
+		Cardinal number;
+
+		number = PCB->LayerGroups.Entries[group][entry];
+		if (number >= MAX_LAYER)
+		  continue;
+
+		layer = LAYER_PTR (number);
+		SetPrintColor (layer->Color);
+		LINE_LOOP (layer, 
+		  {
+		    Device->Line (line, False);
+		  }
+		);
+		ARC_LOOP (layer, 
+		  {
+		    Device->Arc (arc, False);
+		  }
+		);
+		TEXT_LOOP (layer, 
+		  {
+		    Device->Text (text);
+		  }
+		);
+	      }
+	    use_mode = 0;
 	  }
-	/* print the lines/arcs/pins/pads/vias */
-	for (entry = 0; entry < PCB->LayerGroups.Number[group]; entry++)
+	else
 	  {
-	    LayerTypePtr layer;
-	    Cardinal number;
-
-	    number = PCB->LayerGroups.Entries[group][entry];
-	    if (number >= MAX_LAYER)
-	      continue;
-
-	    layer = LAYER_PTR(number);
-	    SetPrintColor (layer->Color);
-	    LINE_LOOP (layer, Device->Line (line, False));
-	    ARC_LOOP (layer, Device->Arc (arc, False));
-	    TEXT_LOOP (layer, Device->Text (text));
+	    /* special negative plane */
+	    Device->Polarity (1);
+	    use_mode = 3;
 	  }
-          use_mode = 0;
-        }
-        else
-        {
-           /* special negative plane */
-           Device->Polarity(1);
-           use_mode = 3;
-        }
 	SetPrintColor (PCB->PinColor);
-	ALLPIN_LOOP (PCB->Data, if (!TEST_FLAG (HOLEFLAG, pin))
-		     {
-		     if (TEST_FLAG (Tflag, pin))
-		     SET_FLAG (USETHERMALFLAG, pin);
-		     else
-		     CLEAR_FLAG (USETHERMALFLAG, pin);
-		     Device->PinOrVia (pin, use_mode);}
+	ALLPIN_LOOP (PCB->Data, 
+	    {
+	      if (!TEST_FLAG (HOLEFLAG, pin))
+		{
+		  if (TEST_FLAG (Tflag, pin))
+		    SET_FLAG (USETHERMALFLAG, pin);
+		  else
+		    CLEAR_FLAG (USETHERMALFLAG, pin);
+		  Device->PinOrVia (pin, use_mode);
+		}
+	    }
 	);
 	SetPrintColor (PCB->ViaColor);
-	VIA_LOOP (PCB->Data, if (!TEST_FLAG (HOLEFLAG, via))
-		  {
+	VIA_LOOP (PCB->Data, 
+	    {
+	      if (!TEST_FLAG (HOLEFLAG, via))
+		{
 		  if (TEST_FLAG (Tflag, via))
-                    SET_FLAG (USETHERMALFLAG, via);
+		    SET_FLAG (USETHERMALFLAG, via);
 		  else
 		    CLEAR_FLAG (USETHERMALFLAG, via);
-                  Device->PinOrVia (via, use_mode);}
+		  Device->PinOrVia (via, use_mode);
+		}
+	    }
 	);
 	if (group == component)
 	  {
 	    if (GlobalOutlineFlag)
 	      FPrintOutline ();
-	    ALLPAD_LOOP (PCB->Data,
-			 if (!TEST_FLAG (ONSOLDERFLAG, pad))
-			 Device->Pad (pad, 0););
+	    ALLPAD_LOOP (PCB->Data, 
+		{
+		  if (!TEST_FLAG (ONSOLDERFLAG, pad))
+		    Device->Pad (pad, 0);
+		}
+	    );
 	  }
 	else if (group == solder)
 	  {
 	    if (GlobalOutlineFlag)
 	      FPrintOutline ();
-	    ALLPAD_LOOP (PCB->Data,
-			 if (TEST_FLAG (ONSOLDERFLAG, pad))
-			 Device->Pad (pad, 0););
+	    ALLPAD_LOOP (PCB->Data, 
+		{
+		  if (TEST_FLAG (ONSOLDERFLAG, pad))
+		    Device->Pad (pad, 0);
+		}
+	    );
 	  }
 
 	/* print drill-helper if requested */
 	if (GlobalDrillHelperFlag && Device->DrillHelper)
 	  {
 	    SetPrintColor (PCB->PinColor);
-	    ALLPIN_LOOP (PCB->Data, Device->DrillHelper (pin, 1););
+	    ALLPIN_LOOP (PCB->Data, 
+		{
+		  Device->DrillHelper (pin, 1);
+		}
+	    );
 	    SetPrintColor (PCB->ViaColor);
-	    VIA_LOOP (PCB->Data, Device->DrillHelper (via, 1););
+	    VIA_LOOP (PCB->Data, 
+		{
+		  Device->DrillHelper (via, 1);
+		}
+	    );
 	  }
 	/* close the device */
 	ClosePrintFile ();
@@ -517,12 +590,16 @@ PrintSilkscreen (void)
   for (i = 0; i < 2; i++)
     {
       layer =
-	LAYER_PTR(MAX_LAYER + (i == 0 ? COMPONENT_LAYER : SOLDER_LAYER));
+	LAYER_PTR (MAX_LAYER + (i == 0 ? COMPONENT_LAYER : SOLDER_LAYER));
       noData = True;
-      ELEMENT_LOOP (PCB->Data,
-		    if ((TEST_FLAG (ONSOLDERFLAG, element) == 0) == (i == 0))
-		    {
-		    noData = False; break;}
+      ELEMENT_LOOP (PCB->Data, 
+	  {
+	    if ((TEST_FLAG (ONSOLDERFLAG, element) == 0) == (i == 0))
+	      {
+		noData = False;
+		break;
+	      }
+	  }
       );
       if (layer->PolygonN || layer->LineN || layer->ArcN || layer->TextN)
 	noData = False;
@@ -541,14 +618,33 @@ PrintSilkscreen (void)
 	FPrintAlignment ();
 
       SetPrintColor (PCB->ElementColor);
-      ELEMENT_LOOP (PCB->Data,
-		    if ((TEST_FLAG (ONSOLDERFLAG, element) == 0) == (i == 0))
-		    Device->ElementPackage (element););
+      ELEMENT_LOOP (PCB->Data, 
+	  {
+	    if ((TEST_FLAG (ONSOLDERFLAG, element) == 0) == (i == 0))
+	      Device->ElementPackage (element);
+	  }
+      );
 
-      POLYGON_LOOP (layer, Device->Poly (polygon));
-      LINE_LOOP (layer, Device->Line (line, False));
-      ARC_LOOP (layer, Device->Arc (arc, False));
-      TEXT_LOOP (layer, Device->Text (text));
+      POLYGON_LOOP (layer, 
+        {
+	  Device->Poly (polygon);
+	}
+      );
+      LINE_LOOP (layer, 
+	{
+	  Device->Line (line, False);
+	}
+      );
+      ARC_LOOP (layer, 
+	{
+	  Device->Arc (arc, False);
+	}
+      );
+      TEXT_LOOP (layer, 
+	{
+	  Device->Text (text);
+	}
+      );
       ClosePrintFile ();
     }
   return (0);
@@ -575,10 +671,14 @@ PrintPaste (void)
   for (i = 0; i < 2; i++)
     {
       NoData = True;
-      ALLPAD_LOOP (PCB->Data,
-		   if ((TEST_FLAG (ONSOLDERFLAG, pad) == 0) == (i == 0))
-		   {
-		   NoData = False; break;}
+      ALLPAD_LOOP (PCB->Data, 
+	  {
+	    if ((TEST_FLAG (ONSOLDERFLAG, pad) == 0) == (i == 0))
+	      {
+		NoData = False;
+		break;
+	      }
+	  }
       );
       /* skip empty files */
       if (NoData)
@@ -594,9 +694,12 @@ PrintPaste (void)
 	FPrintAlignment ();
 
       SetPrintColor (PCB->ElementColor);
-      ALLPAD_LOOP (PCB->Data,
-		   if ((TEST_FLAG (ONSOLDERFLAG, pad) == 0) == (i == 0))
-		   Device->Pad (pad, 3););
+      ALLPAD_LOOP (PCB->Data, 
+	  {
+	    if ((TEST_FLAG (ONSOLDERFLAG, pad) == 0) == (i == 0))
+	      Device->Pad (pad, 3);
+	  }
+      );
       ClosePrintFile ();
     }
   return (0);
@@ -625,14 +728,16 @@ PrintDrill (void)
       SetPrintColor (PCB->PinColor);
       AllDrills = GetDrillInfo (PCB->Data);
       index = 0;
-      DRILL_LOOP (AllDrills,
-		  index++;
-		  for (i = 0; i < drill->PinN; i++)
-		  if (!TEST_FLAG (HOLEFLAG, drill->Pin[i]))
-		  Device->Drill (drill->Pin[i], index);
-		  else
-		  if (GlobalDrillHelperFlag)
-		  Device->Drill (drill->Pin[i], index););
+      DRILL_LOOP (AllDrills, 
+	  {
+	    index++;
+	    for (i = 0; i < drill->PinN; i++)
+	      if (!TEST_FLAG (HOLEFLAG, drill->Pin[i]))
+		Device->Drill (drill->Pin[i], index);
+	      else if (GlobalDrillHelperFlag)
+		Device->Drill (drill->Pin[i], index);
+	  }
+      );
       /* close the file */
       ClosePrintFile ();
       if (GlobalDrillHelperFlag)
@@ -648,11 +753,14 @@ PrintDrill (void)
 	}
       SetPrintColor (PCB->PinColor);
       index = 0;
-      DRILL_LOOP (AllDrills,
-		  index++;
-		  for (i = 0; i < drill->PinN; i++)
-		  if (TEST_FLAG (HOLEFLAG, drill->Pin[i]))
-		  Device->Drill (drill->Pin[i], index););
+      DRILL_LOOP (AllDrills, 
+	  {
+	    index++;
+	    for (i = 0; i < drill->PinN; i++)
+	      if (TEST_FLAG (HOLEFLAG, drill->Pin[i]))
+		Device->Drill (drill->Pin[i], index);
+	  }
+      );
       /* close the file */
       ClosePrintFile ();
       FreeDrillInfo (AllDrills);
@@ -691,11 +799,22 @@ PrintMask (void)
       SetPrintColor (PCB->PinColor);
       if (GlobalAlignmentFlag)
 	FPrintAlignment ();
-      ALLPAD_LOOP (PCB->Data,
-		   if ((TEST_FLAG (ONSOLDERFLAG, pad) == 0) == (i == 0))
-		   Device->Pad (pad, 2););
-      ALLPIN_LOOP (PCB->Data, Device->PinOrVia (pin, 2););
-      VIA_LOOP (PCB->Data, Device->PinOrVia (via, 2););
+      ALLPAD_LOOP (PCB->Data, 
+	  {
+	    if ((TEST_FLAG (ONSOLDERFLAG, pad) == 0) == (i == 0))
+	      Device->Pad (pad, 2);
+	  }
+      );
+      ALLPIN_LOOP (PCB->Data, 
+	  {
+	    Device->PinOrVia (pin, 2);
+	  }
+      );
+      VIA_LOOP (PCB->Data, 
+	  {
+	    Device->PinOrVia (via, 2);
+	  }
+      );
 
       ClosePrintFile ();
       /* Restore the invert flag */
@@ -721,7 +840,7 @@ fab_line (int x1, int y1, int x2, int y2, int t)
   l.Point2.X = x2;
   l.Point2.Y = y2;
   l.Thickness = t;
-  Device->Line(&l, 0);
+  Device->Line (&l, 0);
 }
 
 static void
@@ -736,9 +855,9 @@ fab_circle (int x, int y, int r, int t)
   a.StartAngle = 0;
   a.Delta = 180;
   a.Thickness = t;
-  Device->Arc(&a, 0);
+  Device->Arc (&a, 0);
   a.StartAngle = 180;
-  Device->Arc(&a, 0);
+  Device->Arc (&a, 0);
 }
 
 /* align is 0=left, 1=center, 2=right, add 8 for underline */
@@ -751,9 +870,9 @@ text_at (int x, int y, int align, char *fmt, ...)
   va_list a;
   FontTypePtr font = &PCB->Font;
 
-  va_start(a, fmt);
-  vsprintf(tmp, fmt, a);
-  va_end(a);
+  va_start (a, fmt);
+  vsprintf (tmp, fmt, a);
+  va_end (a);
 
   t.Direction = 0;
   t.TextString = tmp;
@@ -761,18 +880,17 @@ text_at (int x, int y, int align, char *fmt, ...)
   t.Flags = 0;
   t.X = x;
   t.Y = y;
-  for (i=0; tmp[i]; i++)
+  for (i = 0; tmp[i]; i++)
     w += (font->Symbol[tmp[i]].Width + font->Symbol[tmp[i]].Delta);
   w = w * TEXT_SIZE / 100;
   t.X -= w * (align & 3) / 2;
   if (t.X < 0)
     t.X = 0;
 
-  Device->Text(&t);
+  Device->Text (&t);
   if (align & 8)
-    fab_line (t.X, t.Y + font->MaxHeight * TEXT_SIZE/100 + 10,
-	      t.X + w, t.Y + font->MaxHeight * TEXT_SIZE/100 + 10,
-	      8);
+    fab_line (t.X, t.Y + font->MaxHeight * TEXT_SIZE / 100 + 10,
+	      t.X + w, t.Y + font->MaxHeight * TEXT_SIZE / 100 + 10, 8);
 }
 
 /* Y, X, circle, square */
@@ -781,51 +899,53 @@ drill_sym (int idx, int x, int y)
 {
   int type = idx % 5;
   int size = idx / 5;
-  int s2 = (size+1)*16;
+  int s2 = (size + 1) * 16;
   int i;
 
   switch (type)
     {
-    case 0: /* Y */;
-      fab_line (x, y, x, y+s2, 8);
-      fab_line (x, y, x+s2*13/15, y-s2/2, 8);
-      fab_line (x, y, x-s2*13/15, y-s2/2, 8);
-      for (i=1; i<=size; i++)
-	fab_circle (x, y, i*16, 8);
+    case 0:			/* Y */ ;
+      fab_line (x, y, x, y + s2, 8);
+      fab_line (x, y, x + s2 * 13 / 15, y - s2 / 2, 8);
+      fab_line (x, y, x - s2 * 13 / 15, y - s2 / 2, 8);
+      for (i = 1; i <= size; i++)
+	fab_circle (x, y, i * 16, 8);
       break;
-    case 1: /* + */;
-      fab_line (x, y-s2, x, y+s2, 8);
-      fab_line (x-s2, y, x+s2, y, 8);
-      for (i=1; i<=size; i++)
+    case 1:			/* + */ ;
+      fab_line (x, y - s2, x, y + s2, 8);
+      fab_line (x - s2, y, x + s2, y, 8);
+      for (i = 1; i <= size; i++)
 	{
-	  fab_line (x-i*16, y-i*16, x+i*16, y-i*16, 8);
-	  fab_line (x-i*16, y-i*16, x-i*16, y+i*16, 8);
-	  fab_line (x-i*16, y+i*16, x+i*16, y+i*16, 8);
-	  fab_line (x+i*16, y-i*16, x+i*16, y+i*16, 8);
+	  fab_line (x - i * 16, y - i * 16, x + i * 16, y - i * 16, 8);
+	  fab_line (x - i * 16, y - i * 16, x - i * 16, y + i * 16, 8);
+	  fab_line (x - i * 16, y + i * 16, x + i * 16, y + i * 16, 8);
+	  fab_line (x + i * 16, y - i * 16, x + i * 16, y + i * 16, 8);
 	}
       break;
-    case 2: /* X */;
-      fab_line (x-s2*3/4, y-s2*3/4, x+s2*3/4, y+s2*3/4, 8);
-      fab_line (x-s2*3/4, y+s2*3/4, x+s2*3/4, y-s2*3/4, 8);
-      for (i=1; i<=size; i++)
+    case 2:			/* X */ ;
+      fab_line (x - s2 * 3 / 4, y - s2 * 3 / 4, x + s2 * 3 / 4,
+		y + s2 * 3 / 4, 8);
+      fab_line (x - s2 * 3 / 4, y + s2 * 3 / 4, x + s2 * 3 / 4,
+		y - s2 * 3 / 4, 8);
+      for (i = 1; i <= size; i++)
 	{
-	  fab_line (x-i*16, y-i*16, x+i*16, y-i*16, 8);
-	  fab_line (x-i*16, y-i*16, x-i*16, y+i*16, 8);
-	  fab_line (x-i*16, y+i*16, x+i*16, y+i*16, 8);
-	  fab_line (x+i*16, y-i*16, x+i*16, y+i*16, 8);
+	  fab_line (x - i * 16, y - i * 16, x + i * 16, y - i * 16, 8);
+	  fab_line (x - i * 16, y - i * 16, x - i * 16, y + i * 16, 8);
+	  fab_line (x - i * 16, y + i * 16, x + i * 16, y + i * 16, 8);
+	  fab_line (x + i * 16, y - i * 16, x + i * 16, y + i * 16, 8);
 	}
       break;
-    case 3: /* circle */;
-      for (i=0; i<=size; i++)
-	fab_circle (x, y, (i+1)*16-8, 8);
+    case 3:			/* circle */ ;
+      for (i = 0; i <= size; i++)
+	fab_circle (x, y, (i + 1) * 16 - 8, 8);
       break;
-    case 4: /* square */
-      for (i=1; i<=size+1; i++)
+    case 4:			/* square */
+      for (i = 1; i <= size + 1; i++)
 	{
-	  fab_line (x-i*16, y-i*16, x+i*16, y-i*16, 8);
-	  fab_line (x-i*16, y-i*16, x-i*16, y+i*16, 8);
-	  fab_line (x-i*16, y+i*16, x+i*16, y+i*16, 8);
-	  fab_line (x+i*16, y-i*16, x+i*16, y+i*16, 8);
+	  fab_line (x - i * 16, y - i * 16, x + i * 16, y - i * 16, 8);
+	  fab_line (x - i * 16, y - i * 16, x - i * 16, y + i * 16, 8);
+	  fab_line (x - i * 16, y + i * 16, x + i * 16, y + i * 16, 8);
+	  fab_line (x + i * 16, y - i * 16, x + i * 16, y + i * 16, 8);
 	}
       break;
     }
@@ -838,7 +958,7 @@ PrintFab (void)
   DrillInfoTypePtr AllDrills;
   DrillTypePtr dp;
   Cardinal index;
-  int i, n, yoff, total_drills = 0, ds=0;
+  int i, n, yoff, total_drills = 0, ds = 0;
   char buf[100];
   time_t currenttime;
   char utcTime[64];
@@ -854,7 +974,7 @@ PrintFab (void)
   AllDrills = GetDrillInfo (PCB->Data);
   yoff = -TEXT_LINE;
 
-  for (n=AllDrills->DrillN-1; n >=0; n--)
+  for (n = AllDrills->DrillN - 1; n >= 0; n--)
     {
       DrillTypePtr drill = &(AllDrills->Drill[n]);
 
@@ -864,9 +984,9 @@ PrintFab (void)
 	ds++;
     }
 
-  for (n=AllDrills->DrillN-1; n >=0; n--)
+  for (n = AllDrills->DrillN - 1; n >= 0; n--)
     {
-      int plated_sym=-1, unplated_sym=-1;
+      int plated_sym = -1, unplated_sym = -1;
       DrillTypePtr drill = &(AllDrills->Drill[n]);
 
       if (drill->PinCount + drill->ViaCount > drill->UnplatedCount)
@@ -876,17 +996,17 @@ PrintFab (void)
 
       SetPrintColor (PCB->PinColor);
       for (i = 0; i < drill->PinN; i++)
-	drill_sym (TEST_FLAG (HOLEFLAG, drill->Pin[i]) ? unplated_sym : plated_sym,
-		   drill->Pin[i]->X, drill->Pin[i]->Y);
+	drill_sym (TEST_FLAG (HOLEFLAG, drill->Pin[i]) ? unplated_sym :
+		   plated_sym, drill->Pin[i]->X, drill->Pin[i]->Y);
 
       if (plated_sym != -1)
-	drill_sym (plated_sym, TEXT_SIZE/4, yoff + TEXT_SIZE/4);
+	drill_sym (plated_sym, TEXT_SIZE / 4, yoff + TEXT_SIZE / 4);
       if (unplated_sym != -1)
-	drill_sym (unplated_sym, 1700 + TEXT_SIZE/4, yoff + TEXT_SIZE/4);
+	drill_sym (unplated_sym, 1700 + TEXT_SIZE / 4, yoff + TEXT_SIZE / 4);
       SetPrintColor (PCB->ElementColor);
-      text_at ( 300, yoff, 2, "%d", drill->DrillSize);
-      text_at ( 600, yoff, 2, "%d", drill->PinCount);
-      text_at ( 900, yoff, 2, "%d", drill->ViaCount);
+      text_at (300, yoff, 2, "%d", drill->DrillSize);
+      text_at (600, yoff, 2, "%d", drill->PinCount);
+      text_at (900, yoff, 2, "%d", drill->ViaCount);
       text_at (1250, yoff, 2, "%d", drill->ElementN);
       text_at (1700, yoff, 2, "%d", drill->UnplatedCount);
       yoff -= TEXT_LINE;
@@ -896,9 +1016,9 @@ PrintFab (void)
     }
 
   SetPrintColor (PCB->ElementColor);
-  text_at ( 250, yoff, 9, "Diam.");
-  text_at ( 550, yoff, 9, "Pins");
-  text_at ( 850, yoff, 9, "Vias");
+  text_at (250, yoff, 9, "Diam.");
+  text_at (550, yoff, 9, "Pins");
+  text_at (850, yoff, 9, "Vias");
   text_at (1200, yoff, 9, "Elements");
   text_at (1650, yoff, 9, "Unplated");
   yoff -= TEXT_LINE;
@@ -923,13 +1043,16 @@ PrintFab (void)
   text_at (2000, yoff, 0, "Title: %s - Fabrication Drawing",
 	   UNKNOWN (PCB->Name));
 
-  text_at (PCB->MaxWidth/2, PCB->MaxHeight+20, 1,
+  text_at (PCB->MaxWidth / 2, PCB->MaxHeight + 20, 1,
 	   "Board outline is the centerline of this 10 mil rectangle - 0,0 to %d,%d mils",
 	   PCB->MaxWidth, PCB->MaxHeight);
 
 #if 0
-  ELEMENT_LOOP (PCB->Data,
-		Device->ElementPackage (element););
+  ELEMENT_LOOP (PCB->Data, 
+      {
+	Device->ElementPackage (element);
+      }
+  );
 #endif
 
   ClosePrintFile ();
@@ -1008,13 +1131,13 @@ Print (char *Command, float Scale,
       DeviceFlags.BoundingBox.Y2 =
 	PCB->MaxHeight + 2 * Settings.AlignmentDistance;
     }
-  watchCursor();
+  watchCursor ();
   Device->init (&DeviceFlags);
   /* OK, call all necessary subroutines */
   if (PrintLayergroups () || PrintSilkscreen () ||
       PrintDrill () || PrintMask () || PrintPaste () || PrintFab ())
     return (1);
   Device->Exit ();
-  restoreCursor();
+  restoreCursor ();
   return (0);
 }

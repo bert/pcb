@@ -55,7 +55,7 @@ static char *rcsid = "$Id$";
 #include <dmalloc.h>
 #endif
 
-static long int ReturnCode;		/* filled in by dialog */
+static long int ReturnCode;	/* filled in by dialog */
 
 /*
  * some local prototypes
@@ -135,7 +135,7 @@ ReportDialog (void)
   Widget popup;
 
   switch (type = SearchScreen (Crosshair.X, Crosshair.Y,
-                 REPORT_TYPES, &ptr1, &ptr2, &ptr3))
+			       REPORT_TYPES, &ptr1, &ptr2, &ptr3))
     {
     case VIA_TYPE:
       {
@@ -145,9 +145,9 @@ ReportDialog (void)
 		   "(X,Y) = (%d, %d)\n"
 		   "It is a pure hole of diameter %d mils\n"
 		   "Name = \"%s\""
-                   "%s", via->ID, via->Flags, via->X,
+		   "%s", via->ID, via->Flags, via->X,
 		   via->Y, via->DrillingHole, EMPTY (via->Name),
-                   TEST_FLAG(LOCKFLAG, via) ? "It is LOCKED\n" : "");
+		   TEST_FLAG (LOCKFLAG, via) ? "It is LOCKED\n" : "");
 	else
 	  sprintf (&report[0], "VIA ID# %d   Flags:0x%08x\n"
 		   "(X,Y) = (%d, %d)\n"
@@ -155,11 +155,11 @@ ReportDialog (void)
 		   "Clearance width in polygons = %d mils\n"
 		   "Solder mask hole = %d mils\n"
 		   "Name = \"%s\""
-                   "%s", via->ID, via->Flags, via->X,
+		   "%s", via->ID, via->Flags, via->X,
 		   via->Y, via->Thickness, via->DrillingHole,
 		   via->Clearance, via->Mask,
-		   EMPTY (via->Name), TEST_FLAG(LOCKFLAG, via) ?
-                   "It is LOCKED\n" : "");
+		   EMPTY (via->Name), TEST_FLAG (LOCKFLAG, via) ?
+		   "It is LOCKED\n" : "");
 	break;
       }
     case PIN_TYPE:
@@ -167,20 +167,23 @@ ReportDialog (void)
 	PinTypePtr Pin = (PinTypePtr) ptr2;
 	ElementTypePtr element = (ElementTypePtr) ptr1;
 
-	PIN_LOOP (element,
-		  {
-		  if (pin == Pin) break;}
+	PIN_LOOP (element, 
+	    {
+	      {
+		if (pin == Pin)
+		  break;
+	      }
+	    }
 	);
 	if (TEST_FLAG (HOLEFLAG, Pin))
 	  sprintf (&report[0], "PIN ID# %d  Flags:0x%08x\n"
 		   "(X,Y) = (%d, %d)\n"
 		   "It is a mounting hole, Drill width = %d mils\n"
 		   "It is owned by element %s\n"
-                   "%s", Pin->ID, Pin->Flags,
+		   "%s", Pin->ID, Pin->Flags,
 		   Pin->X, Pin->Y, Pin->DrillingHole,
 		   EMPTY (element->Name[1].TextString),
-                   TEST_FLAG(LOCKFLAG, Pin) ?
-                   "It is LOCKED\n" : "");
+		   TEST_FLAG (LOCKFLAG, Pin) ? "It is LOCKED\n" : "");
 	else
 	  sprintf (&report[0],
 		   "PIN ID# %d   Flags:0x%08x\n" "(X,Y) = (%d, %d)\n"
@@ -188,12 +191,12 @@ ReportDialog (void)
 		   "Clearance width to Polygon = %d mils\n"
 		   "Solder mask hole = %d mils\n" "Name = \"%s\"\n"
 		   "It is owned by element %s\n" "As pin number %s\n"
-                   "%s",
+		   "%s",
 		   Pin->ID, Pin->Flags, Pin->X, Pin->Y, Pin->Thickness,
 		   Pin->DrillingHole, Pin->Clearance,
 		   Pin->Mask, EMPTY (Pin->Name),
 		   EMPTY (element->Name[1].TextString), EMPTY (Pin->Number),
-                   TEST_FLAG(LOCKFLAG, Pin) ? "It is LOCKED\n" : "");
+		   TEST_FLAG (LOCKFLAG, Pin) ? "It is LOCKED\n" : "");
 	break;
       }
     case LINE_TYPE:
@@ -205,14 +208,14 @@ ReportDialog (void)
 		 "Width = %d mils. Clearance width in polygons = %d mils.\n"
 		 "It is on layer %d\n"
 		 "and has name %s\n"
-                 "%s",
+		 "%s",
 		 line->ID, line->Flags,
 		 line->Point1.X, line->Point1.Y,
 		 line->Point1.ID, line->Point2.X, line->Point2.Y,
 		 line->Point2.ID, line->Thickness, line->Clearance,
 		 GetLayerNumber (PCB->Data, (LayerTypePtr) ptr1),
-		 UNKNOWN (line->Number), TEST_FLAG(LOCKFLAG, line) ?
-                 "It is LOCKED\n" : "");
+		 UNKNOWN (line->Number), TEST_FLAG (LOCKFLAG, line) ?
+		 "It is LOCKED\n" : "");
 	break;
       }
     case RATLINE_TYPE:
@@ -242,12 +245,12 @@ ReportDialog (void)
 		 "StartAngle = %d degrees, DeltaAngle = %d degrees\n"
 		 "That makes the end points at (%d,%d) and (%d,%d)\n"
 		 "It is on layer %d\n"
-                 "%s", Arc->ID, Arc->Flags,
+		 "%s", Arc->ID, Arc->Flags,
 		 Arc->X, Arc->Y, Arc->Width, Arc->Thickness, Arc->Clearance,
 		 Arc->StartAngle, Arc->Delta, box->X1, box->Y1,
 		 box->X2, box->Y2, GetLayerNumber (PCB->Data,
 						   (LayerTypePtr) ptr1),
-                 TEST_FLAG(LOCKFLAG, Arc) ? "It is LOCKED\n" : "");
+		 TEST_FLAG (LOCKFLAG, Arc) ? "It is LOCKED\n" : "");
 	break;
       }
     case POLYGON_TYPE:
@@ -258,11 +261,11 @@ ReportDialog (void)
 		 "It has %d points and could store %d more\n"
 		 "without using more memory.\n"
 		 "It resides on layer %d\n"
-                 "%s", Polygon->ID,
+		 "%s", Polygon->ID,
 		 Polygon->Flags, Polygon->PointN, Polygon->PointMax
 		 - Polygon->PointN,
 		 GetLayerNumber (PCB->Data, (LayerTypePtr) ptr1),
-                 TEST_FLAG(LOCKFLAG, Polygon) ? "It is LOCKED\n" : "");
+		 TEST_FLAG (LOCKFLAG, Polygon) ? "It is LOCKED\n" : "");
 	break;
       }
     case PAD_TYPE:
@@ -270,9 +273,13 @@ ReportDialog (void)
 	PadTypePtr Pad = (PadTypePtr) ptr2;
 	ElementTypePtr element = (ElementTypePtr) ptr1;
 
-	PAD_LOOP (element,
-		  {
-		  if (pad == Pad) break;}
+	PAD_LOOP (element, 
+	    {
+	      {
+		if (pad == Pad)
+		  break;
+	      }
+	    }
 	);
 	sprintf (&report[0], "PAD ID# %d   Flags:0x%08x\n"
 		 "FirstPoint(X,Y) = (%d, %d)  ID = %d\n"
@@ -283,7 +290,7 @@ ReportDialog (void)
 		 "It is owned by SMD element %s\n"
 		 "As pin number %s and is on the %s\n"
 		 "side of the board.\n"
-                 "%s", Pad->ID,
+		 "%s", Pad->ID,
 		 Pad->Flags, Pad->Point1.X,
 		 Pad->Point1.Y, Pad->Point1.ID, Pad->Point2.X, Pad->Point2.Y,
 		 Pad->Point2.ID, Pad->Thickness, Pad->Clearance, Pad->Mask,
@@ -291,7 +298,7 @@ ReportDialog (void)
 		 EMPTY (element->Name[1].TextString), EMPTY (Pad->Number),
 		 TEST_FLAG (ONSOLDERFLAG,
 			    Pad) ? "solder (bottom)" : "component",
-                 TEST_FLAG (LOCKFLAG, Pad) ? "It is LOCKED\n" : "");
+		 TEST_FLAG (LOCKFLAG, Pad) ? "It is LOCKED\n" : "");
 	break;
       }
     case ELEMENT_TYPE:
@@ -303,15 +310,15 @@ ReportDialog (void)
 		 "Part number name \"%s\"\n"
 		 "Mark located at point (X,Y) = (%d,%d)\n"
 		 "It is on the %s side of the board.\n"
-                 "%s",
+		 "%s",
 		 element->ID, element->Flags,
 		 EMPTY (element->Name[0].TextString),
 		 EMPTY (element->Name[1].TextString),
 		 EMPTY (element->Name[2].TextString), element->MarkX,
 		 element->MarkY, TEST_FLAG (ONSOLDERFLAG,
 					    element) ? "solder (bottom)" :
-		 "component", TEST_FLAG(LOCKFLAG, element) ?
-                 "It is LOCKED\n" : "");
+		 "component", TEST_FLAG (LOCKFLAG, element) ?
+		 "It is LOCKED\n" : "");
 	break;
       }
     case TEXT_TYPE:
@@ -330,13 +337,13 @@ ReportDialog (void)
 		 "Direction is %d\n"
 		 "The bounding box is (%d,%d) (%d, %d)\n"
 		 "It %s\n"
-                 "%s", text->ID, text->Flags,
+		 "%s", text->ID, text->Flags,
 		 text->X, text->Y, text->Scale,
 		 text->TextString, text->Direction,
 		 text->BoundingBox.X1, text->BoundingBox.Y1,
 		 text->BoundingBox.X2, text->BoundingBox.Y2,
 		 (type == TEXT_TYPE) ? laynum : "is an element name.",
-                 TEST_FLAG(LOCKFLAG, text) ? "It is LOCKED\n" : "");
+		 TEST_FLAG (LOCKFLAG, text) ? "It is LOCKED\n" : "");
 	break;
       }
     case LINEPOINT_TYPE:
@@ -386,22 +393,33 @@ ReportFoundPins (void)
 
   DSClearString (&list);
   DSAddString (&list, "The following pins/pads are FOUND:\n");
-  ELEMENT_LOOP (PCB->Data, PIN_LOOP (element, if (TEST_FLAG (FOUNDFLAG, pin))
-				     {
-				     sprintf (temp, "%s-%s,%c",
-					      NAMEONPCB_NAME (element),
-					      pin->Number,
-					      ((col++ % (COLUMNS + 1)) ==
-					       COLUMNS) ? '\n' : ' ');
-				     DSAddString (&list, temp);}
-		); PAD_LOOP (element, if (TEST_FLAG (FOUNDFLAG, pad))
-			     {
-			     sprintf (temp, "%s-%s,%c",
-				      NAMEONPCB_NAME (element), pad->Number,
-				      ((col++ % (COLUMNS + 1)) ==
-				       COLUMNS) ? '\n' : ' ');
-			     DSAddString (&list, temp);}
-		););
+  ELEMENT_LOOP (PCB->Data, 
+      {
+	PIN_LOOP (element, 
+	    {
+	      if (TEST_FLAG (FOUNDFLAG, pin))
+		{
+		  sprintf (temp, "%s-%s,%c",
+			   NAMEONPCB_NAME (element),
+			   pin->Number,
+			   ((col++ % (COLUMNS + 1)) == COLUMNS) ? '\n' : ' ');
+		  DSAddString (&list, temp);
+		}
+	    }
+	);
+	PAD_LOOP (element, 
+	    {
+	      if (TEST_FLAG (FOUNDFLAG, pad))
+		{
+		  sprintf (temp, "%s-%s,%c",
+			   NAMEONPCB_NAME (element), pad->Number,
+			   ((col++ % (COLUMNS + 1)) == COLUMNS) ? '\n' : ' ');
+		  DSAddString (&list, temp);
+		}
+	    }
+	);
+      }
+  );
   HideCrosshair (False);
   /* create dialog box */
   popup = CreateDialogBox (list.Data, &button, 1, "Report");
