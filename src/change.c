@@ -295,8 +295,10 @@ ChangeViaSize (PinTypePtr Via)
       value >= Via->DrillingHole + MIN_PINORVIACOPPER &&
       value != Via->Thickness)
     {
+      AddObjectToMaskSizeUndoList (VIA_TYPE, Via, Via, Via);
       AddObjectToSizeUndoList (VIA_TYPE, Via, Via, Via);
       EraseVia (Via);
+      Via->Mask += value - Via->Thickness;
       Via->Thickness = value;
       DrawVia (Via, 0);
       return (Via);
@@ -373,7 +375,9 @@ ChangePinSize (ElementTypePtr Element, PinTypePtr Pin)
       value != Pin->Thickness)
     {
       AddObjectToSizeUndoList (PIN_TYPE, Element, Pin, Pin);
+      AddObjectToMaskSizeUndoList (PIN_TYPE, Element, Pin, Pin);
       ErasePin (Pin);
+      Pin->Mask += value - Pin->Thickness;
       Pin->Thickness = value;
       DrawPin (Pin, 0);
       return (Pin);
@@ -415,7 +419,9 @@ ChangePadSize (ElementTypePtr Element, PadTypePtr Pad)
   if (value <= MAX_PADSIZE && value >= MIN_PADSIZE && value != Pad->Thickness)
     {
       AddObjectToSizeUndoList (PAD_TYPE, Element, Pad, Pad);
+      AddObjectToMaskSizeUndoList (PAD_TYPE, Element, Pad, Pad);
       ErasePad (Pad);
+      Pad->Mask += value - Pad->Thickness;
       Pad->Thickness = value;
       DrawPad (Pad, 0);
       return (Pad);
@@ -1528,7 +1534,7 @@ ChangePadMaskSize (ElementTypePtr Element, PadTypePtr Pad)
 {
   BDimension value = (Absolute) ? Absolute : Pad->Mask + Delta;
 
-  value = MAX (value, Pad->Thickness);
+  value = MAX (value, 0);
   if (value != Pad->Mask)
     {
       AddObjectToMaskSizeUndoList (PAD_TYPE, Element, Pad, Pad);
@@ -1549,7 +1555,7 @@ ChangePinMaskSize (ElementTypePtr Element, PinTypePtr Pin)
 {
   BDimension value = (Absolute) ? Absolute : Pin->Mask + Delta;
 
-  value = MAX (value, Pin->Thickness);
+  value = MAX (value, 0);
   if (value != Pin->Mask)
     {
       AddObjectToMaskSizeUndoList (PIN_TYPE, Element, Pin, Pin);
@@ -1570,13 +1576,8 @@ ChangeViaMaskSize (PinTypePtr Via)
 {
   BDimension value;
 
-  if (Absolute)
-    value = Absolute;
-  else if (Delta == 0)
-    value = Via->Thickness;
-  else
-    value = Via->Mask + Delta;
-
+  value = (Absolute) ? Absolute : Via->Mask + Delta;
+  value = MAX(value, 0);
   if (value != Via->Mask)
     {
       AddObjectToMaskSizeUndoList (VIA_TYPE, Via, Via, Via);
