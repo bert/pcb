@@ -26,7 +26,7 @@ typedef struct Resource {
   struct Resource *parent;
   void *user_ptr;
   int flags;
-  int c;
+  int c;              /* number of v[i] */
   ResourceVal *v;
 } Resource;
 
