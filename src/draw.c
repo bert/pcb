@@ -36,6 +36,7 @@ static char *rcsid = "$Id$";
 #include "config.h"
 #endif
 
+#include <ctype.h>
 #include <math.h>
 #include "global.h"
 #include "clip.h"
