@@ -125,7 +125,7 @@ GetLowestDistancePolygonPoint (PolygonTypePtr Polygon, Location X, Location Y)
 
       distance = ptr2->X - ptr1->X;
       temp = ptr2->Y - ptr1->Y;
-      length = sqrt(distance * distance + temp * temp);
+      length = sqrt (distance * distance + temp * temp);
       if (length != 0.0)
 	{
 	  distance = fabs ((temp * (Crosshair.X - ptr1->X) -
@@ -256,12 +256,17 @@ UpdatePIPFlags (PinTypePtr Pin, ElementTypePtr Element,
     {
       ALLPIN_LOOP (PCB->Data, 
 	{
-	  UpdatePIPFlags (pin, element, Layer, Polygon, AddUndo);
+	  {
+	    UpdatePIPFlags (pin, element, Layer, Polygon, AddUndo);
+	  }
 	}
       );
       VIA_LOOP (PCB->Data, 
 	{
-	  UpdatePIPFlags (via, (ElementTypePtr) via, Layer, Polygon, AddUndo);
+	  {
+	    UpdatePIPFlags (via, (ElementTypePtr) via, Layer, Polygon,
+			    AddUndo);
+	  }
 	}
       );
     }
@@ -269,7 +274,9 @@ UpdatePIPFlags (PinTypePtr Pin, ElementTypePtr Element,
     {
       PIN_LOOP (Element, 
 	{
-	  UpdatePIPFlags (pin, Element, Layer, Polygon, AddUndo);
+	  {
+	    UpdatePIPFlags (pin, Element, Layer, Polygon, AddUndo);
+	  }
 	}
       );
     }
@@ -289,9 +296,11 @@ UpdatePIPFlags (PinTypePtr Pin, ElementTypePtr Element,
 	  Pin->Flags &= ~(mask | WARNFLAG);
 	  POLYGON_LOOP (Layer, 
 	    {
-	      if (TEST_FLAG (CLEARPOLYFLAG, polygon))
-		if (DoPIPFlags (Pin, Element, Layer, polygon, mask))
-		  break;
+	      {
+		if (TEST_FLAG (CLEARPOLYFLAG, polygon))
+		  if (DoPIPFlags (Pin, Element, Layer, polygon, mask))
+		    break;
+	      }
 	    }
 	  );
 	}
@@ -324,20 +333,21 @@ DoPIPFlags (PinTypePtr Pin, ElementTypePtr Element,
 	    LayerTypePtr Layer, PolygonTypePtr Polygon, int LayerPIPFlag)
 {
   float wide;
-  
-  if (TEST_FLAG(SQUAREFLAG, Pin))
-    wide = (Pin->Thickness + Pin->Clearance ) * SQRT2OVER2;
+
+  if (TEST_FLAG (SQUAREFLAG, Pin))
+    wide = (Pin->Thickness + Pin->Clearance) * SQRT2OVER2;
   else
-    wide = (Pin->Thickness + Pin->Clearance ) * 0.5;
+    wide = (Pin->Thickness + Pin->Clearance) * 0.5;
   if (IsPointInPolygon (Pin->X, Pin->Y, wide, Polygon))
     {
-      if (TEST_FLAG(HOLEFLAG, Pin) && !TEST_FLAG(WARNFLAG, Pin))
-        {
-	  Message("WARNING Unplated hole piercing or too close to polygon\n");
-	  SET_FLAG(WARNFLAG, Pin);
+      if (TEST_FLAG (HOLEFLAG, Pin) && !TEST_FLAG (WARNFLAG, Pin))
+	{
+	  Message
+	    ("WARNING Unplated hole piercing or too close to polygon\n");
+	  SET_FLAG (WARNFLAG, Pin);
 	}
       if (!TEST_FLAG (CLEARPOLYFLAG, Polygon))
-        return False;
+	return False;
       SET_FLAG (LayerPIPFlag, Pin);
       return True;
     }
@@ -346,144 +356,170 @@ DoPIPFlags (PinTypePtr Pin, ElementTypePtr Element,
 
 /* find everything clearing an actual polygon and call the callback function for it */
 
-int PolygonPlows (int group, int (*any_call)(int type, void *ptr1, void *ptr2, void *ptr3))
+int
+PolygonPlows (int group,
+	      int (*any_call) (int type, void *ptr1, void *ptr2, void *ptr3))
 {
+  Cardinal component, solder;
   int PIPflag = 0;
-  int r;
+  int r = 0;
 
-  GROUP_LOOP (group,
+  GROUP_LOOP (group, 
     {
-      if (!layer->PolygonN)
-        continue;
-      PIPflag |= L0PIPFLAG << number;
+      {
+	if (!layer->PolygonN)
+	  continue;
+	PIPflag |= L0PIPFLAG << number;
 
-      LINE_LOOP (layer, 
-      {
-	if (TEST_FLAG (CLEARLINEFLAG, line))
+	LINE_LOOP (layer, 
 	  {
-	    CLEAR_FLAG (CLEARLINEFLAG, line);
-	    line->Thickness += line->Clearance;
-	    /* now see if it would touch any polygon */
-	    POLYGON_LOOP (layer, 
-	      {
-	        if (!TEST_FLAG(CLEARPOLYFLAG, polygon))
-		  continue;
-	        if (IsLineInPolygon(line, polygon))
-		  {
-	            line->Thickness -= line->Clearance;
-                    r = any_call (LINE_TYPE, layer, line, line);
-	            line->Thickness += line->Clearance;
-		    break;
-		  }
-	      }
-	    );
-	    line->Thickness -= line->Clearance;
-	    SET_FLAG (CLEARLINEFLAG, line);
-            if (r)
-             return r;
+	    {
+	      if (TEST_FLAG (CLEARLINEFLAG, line))
+		{
+		  CLEAR_FLAG (CLEARLINEFLAG, line);
+		  line->Thickness += line->Clearance;
+		  /* now see if it would touch any polygon */
+		  POLYGON_LOOP (layer, 
+		    {
+		      {
+			if (!TEST_FLAG (CLEARPOLYFLAG, polygon))
+			  continue;
+			if (IsLineInPolygon (line, polygon))
+			  {
+			    line->Thickness -= line->Clearance;
+			    r = any_call (LINE_TYPE, layer, line, line);
+			    line->Thickness += line->Clearance;
+			    break;
+			  }
+		      }
+		    }
+		  );
+		  line->Thickness -= line->Clearance;
+		  SET_FLAG (CLEARLINEFLAG, line);
+		  if (r)
+		    return r;
+		}
+	    }
 	  }
-      }
-    ); /* end of LINE_LOOP */
-    ARC_LOOP (layer, 
-      {
-	if (TEST_FLAG (CLEARLINEFLAG, arc))
+	);		/* end of LINE_LOOP */
+	ARC_LOOP (layer, 
 	  {
-	    CLEAR_FLAG (CLEARLINEFLAG, arc);
-	    arc->Thickness += arc->Clearance;
-	    POLYGON_LOOP(layer,
-	      {
-	        if (!TEST_FLAG(CLEARPOLYFLAG, polygon))
-		  continue;
-	        if (IsArcInPolygon(arc, polygon))
-		  {
-	            arc->Thickness -= arc->Clearance;
-		    r = any_call (ARC_TYPE, layer, arc, arc);
-	            arc->Thickness += arc->Clearance;
-		    break;
-		  }
-	      }
-            );
-            arc->Thickness -= arc->Clearance; 
-            SET_FLAG (CLEARLINEFLAG, arc);
-            if (r)
-              return r;
-          }
-       }
-     ); /* end of ARC_LOOP */
-    }  /* end of GROUP_LOOP */
+	    {
+	      if (TEST_FLAG (CLEARLINEFLAG, arc))
+		{
+		  CLEAR_FLAG (CLEARLINEFLAG, arc);
+		  arc->Thickness += arc->Clearance;
+		  POLYGON_LOOP (layer, 
+		    {
+		      {
+			if (!TEST_FLAG (CLEARPOLYFLAG, polygon))
+			  continue;
+			if (IsArcInPolygon (arc, polygon))
+			  {
+			    arc->Thickness -= arc->Clearance;
+			    r = any_call (ARC_TYPE, layer, arc, arc);
+			    arc->Thickness += arc->Clearance;
+			    break;
+			  }
+		      }
+		    }
+		  );
+		  arc->Thickness -= arc->Clearance;
+		  SET_FLAG (CLEARLINEFLAG, arc);
+		  if (r)
+		    return r;
+		}
+	    }
+	  }
+	);		/* end of ARC_LOOP */
+      }				/* end of GROUP_LOOP */
+    }
   );
   ALLPIN_LOOP (PCB->Data, 
     {
-      if (!TEST_FLAG(HOLEFLAG, pin) && TEST_FLAG (PIPflag, pin))
-        {
-          r = any_call (PIN_TYPE, element, pin, pin);
-        } 
-      if (r)
-       return r;
+      {
+	if (!TEST_FLAG (HOLEFLAG, pin) && TEST_FLAG (PIPflag, pin))
+	  {
+	    r = any_call (PIN_TYPE, element, pin, pin);
+	  }
+	if (r)
+	  return r;
+      }
     }
   );
   VIA_LOOP (PCB->Data, 
     {
-      if (!TEST_FLAG(HOLEFLAG, via) && TEST_FLAG (PIPflag, via))
-        {
-          r = any_call (VIA_TYPE, via, via, via);
-        }
-      if (r)
-        return r;
+      {
+	if (!TEST_FLAG (HOLEFLAG, via) && TEST_FLAG (PIPflag, via))
+	  {
+	    r = any_call (VIA_TYPE, via, via, via);
+	  }
+	if (r)
+	  return r;
+      }
     }
   );
   /* pads are a bitch */
-      Cardinal component = GetLayerGroupNumberByNumber (MAX_LAYER + COMPONENT_LAYER);
-      Cardinal solder = GetLayerGroupNumberByNumber (MAX_LAYER + SOLDER_LAYER);
-      if (group == component || group == solder)
-        {
-          ALLPAD_LOOP (PCB->Data,
-            {
-	      if ((TEST_FLAG (ONSOLDERFLAG, pad)) == (group == solder ? True : False))
-                {
-                   CLEAR_FLAG(CLEARLINEFLAG, pad);
-                   pad->Thickness += pad->Clearance;
-		   GROUP_LOOP (group,
-                     {
-		        /* commas aren't good inside the LOOP macro */
-                        Location x1;
-		        Location x2;
-		        Location y1;
-		        Location y2;
-		        BDimension wid = pad->Thickness/2;
+  component = GetLayerGroupNumberByNumber (MAX_LAYER + COMPONENT_LAYER);
+  solder = GetLayerGroupNumberByNumber (MAX_LAYER + SOLDER_LAYER);
+  if (group == component || group == solder)
+    {
+      ALLPAD_LOOP (PCB->Data, 
+	{
+	  {
+	    if ((TEST_FLAG (ONSOLDERFLAG, pad)) ==
+		(group == solder ? True : False))
+	      {
+		CLEAR_FLAG (CLEARLINEFLAG, pad);
+		pad->Thickness += pad->Clearance;
+		GROUP_LOOP (group, 
+		  {
+		    {
+		      /* commas aren't good inside the LOOP macro */
+		      Location x1=0;
+		      Location x2=0;
+		      Location y1=0;
+		      Location y2=0;
+		      BDimension wid = pad->Thickness / 2;
 
-		        POLYGON_LOOP(layer,
-		          {
+		      POLYGON_LOOP (layer, 
+			{
+			  {
 			    if (!TEST_FLAG (CLEARPOLYFLAG, polygon))
 			      continue;
-	                    if (TEST_FLAG(SQUAREFLAG, pad))
-	                      {
-		                x1 = MIN(pad->Point1.X, pad->Point2.X) - wid;
-		                y1 = MIN(pad->Point1.Y, pad->Point2.Y) - wid;
-		                x2 = MAX(pad->Point1.X, pad->Point2.X) + wid;
-		                y2 = MAX(pad->Point1.Y, pad->Point2.Y) + wid;
+			    if (TEST_FLAG (SQUAREFLAG, pad))
+			      {
+				x1 = MIN (pad->Point1.X, pad->Point2.X) - wid;
+				y1 = MIN (pad->Point1.Y, pad->Point2.Y) - wid;
+				x2 = MAX (pad->Point1.X, pad->Point2.X) + wid;
+				y2 = MAX (pad->Point1.Y, pad->Point2.Y) + wid;
 			      }
-	                    if ((TEST_FLAG(SQUAREFLAG, pad) && 
-		                 IsRectangleInPolygon (x1, y1, x2, y2, polygon)) ||
-			        (!TEST_FLAG(SQUAREFLAG, pad) &&
-	                         IsLineInPolygon ((LineTypePtr)pad, polygon)))
-		              {
-			        pad->Thickness -= pad->Clearance;
-	                        r = any_call (PAD_TYPE, element, pad, pad);
-			        pad->Thickness += pad->Clearance;
-			        goto twice_break;
-                              }
-		          }
-		        ); // end of POLYGON_LOOP 
-	             } // end of GROUP_LOOP
-		   );
-twice_break:
-                   pad->Thickness -= pad->Clearance;
-                   if (r)
-                     return r;
-                 } // end of solderside test
-             }
-          ); // end of ALLPAD_LOOP
-        } /* end of group test */
+			    if ((TEST_FLAG (SQUAREFLAG, pad) &&
+				 IsRectangleInPolygon (x1, y1, x2, y2,
+						       polygon))
+				|| (!TEST_FLAG (SQUAREFLAG, pad)
+				    && IsLineInPolygon ((LineTypePtr) pad,
+							polygon)))
+			      {
+				pad->Thickness -= pad->Clearance;
+				r = any_call (PAD_TYPE, element, pad, pad);
+				pad->Thickness += pad->Clearance;
+				goto twice_break;
+			      }
+			  }
+			}
+		      );	// end of POLYGON_LOOP 
+		    }		// end of GROUP_LOOP
+		  }
+		);
+	      twice_break:
+		pad->Thickness -= pad->Clearance;
+		if (r)
+		  return r;
+	      }			// end of solderside test
+	  }
+	}
+      );		// end of ALLPAD_LOOP
+    }				/* end of group test */
   return 0;
 }
