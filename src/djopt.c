@@ -451,7 +451,7 @@ new_line (corner_s *s, corner_s *e, int layer, LineType *example)
 {
   line_s *ls;
 
-  if (layer > 4)
+  if (layer >= MAX_LAYER)
     dj_abort("layer %d\n", layer);
 
   if (s->x == e->x && s->y == e->y)
