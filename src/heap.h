@@ -38,7 +38,7 @@
 #include "global.h"
 
 /* type of heap costs.  *must be integer!* */ 
-typedef signed long cost_t;
+typedef signed long long cost_t;
 /* what a heap looks like */
 typedef struct heap_struct heap_t;
 

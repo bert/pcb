@@ -55,7 +55,7 @@
 #undef SLOW_ASSERTIONS
 /* define this to auto-optimize the kd-tree when the maximum rank
  * exceeds twice the log-base-2 of the size. */
-/* #define AUTO_OPTIMIZE */
+#define AUTO_OPTIMIZE
 /* define this to print a message on standard out whenever the kdtree
  * is optimized. */
 #undef SHOW_OPTIMIZATION
@@ -91,7 +91,7 @@ struct kdtree_node
 };
 
 /* select numbered Location from box */
-static Location
+static inline Location
 key (const BoxType * box, int which)
 {
   switch (which)
@@ -143,7 +143,7 @@ __kd_node_is_good (struct kdtree_node *node)
     (node->size == ((node->flags.inactive ? 0 : 1) +
 		    (node->lo_kid == NULL ? 0 : node->lo_kid->size) +
 		    (node->hi_kid == NULL ? 0 : node->hi_kid->size))) &&
-#endif /* AUTO_OPTIMIZE */
+#endif				/* AUTO_OPTIMIZE */
     /* done */
     1;
   assert (r);			/* bad node */
@@ -169,39 +169,39 @@ __kd_tree_is_good_bounded (struct kdtree_node *node, BoxType lt, BoxType ge)
 	{
 	case 0:
 	  /* key bounds */
-	  lo_lt.X1 = MIN (lo_lt.X1, node->box->X1);
-	  hi_ge.X1 = MAX (hi_ge.X1, node->box->X1);
+	  MAKEMIN (lo_lt.X1, node->box->X1);
+	  MAKEMAX (hi_ge.X1, node->box->X1);
 	  /* other bounds */
-	  lo_ge.X1 = MAX (lo_ge.X1, node->lo_min_bound);
-	  lo_lt.X2 = MIN (lo_lt.X2, node->other_bound + 1);	/* less-than-or-equals */
-	  hi_lt.X2 = MIN (hi_lt.X2, node->hi_max_bound + 1);	/* less-than-or-equals */
+	  MAKEMAX (lo_ge.X1, node->lo_min_bound);
+	  MAKEMIN (lo_lt.X2, node->other_bound + 1);	/* less-than-or-equals */
+	  MAKEMIN (hi_lt.X2, node->hi_max_bound + 1);	/* less-than-or-equals */
 	  break;
 	case 1:
 	  /* key bounds */
-	  lo_lt.Y1 = MIN (lo_lt.Y1, node->box->Y1);
-	  hi_ge.Y1 = MAX (hi_ge.Y1, node->box->Y1);
+	  MAKEMIN (lo_lt.Y1, node->box->Y1);
+	  MAKEMAX (hi_ge.Y1, node->box->Y1);
 	  /* other bounds */
-	  lo_ge.Y1 = MAX (lo_ge.Y1, node->lo_min_bound);
-	  lo_lt.Y2 = MIN (lo_lt.Y2, node->other_bound + 1);	/* less-than-or-equals */
-	  hi_lt.Y2 = MIN (hi_lt.Y2, node->hi_max_bound + 1);	/* less-than-or-equals */
+	  MAKEMAX (lo_ge.Y1, node->lo_min_bound);
+	  MAKEMIN (lo_lt.Y2, node->other_bound + 1);	/* less-than-or-equals */
+	  MAKEMIN (hi_lt.Y2, node->hi_max_bound + 1);	/* less-than-or-equals */
 	  break;
 	case 2:
 	  /* key bounds */
-	  lo_lt.X2 = MIN (lo_lt.X2, node->box->X2);
-	  hi_ge.X2 = MAX (hi_ge.X2, node->box->X2);
+	  MAKEMIN (lo_lt.X2, node->box->X2);
+	  MAKEMAX (hi_ge.X2, node->box->X2);
 	  /* other bounds */
-	  lo_ge.X1 = MAX (lo_ge.X1, node->lo_min_bound);
-	  hi_ge.X1 = MIN (hi_ge.X1, node->other_bound);
-	  hi_lt.X2 = MIN (hi_lt.X2, node->hi_max_bound + 1);	/* less-than-or-equals */
+	  MAKEMAX (lo_ge.X1, node->lo_min_bound);
+	  MAKEMIN (hi_ge.X1, node->other_bound);
+	  MAKEMIN (hi_lt.X2, node->hi_max_bound + 1);	/* less-than-or-equals */
 	  break;
 	case 3:
 	  /* key bounds */
-	  lo_lt.Y2 = MIN (lo_lt.Y2, node->box->Y2);
-	  hi_ge.Y2 = MAX (hi_ge.Y2, node->box->Y2);
+	  MAKEMIN (lo_lt.Y2, node->box->Y2);
+	  MAKEMAX (hi_ge.Y2, node->box->Y2);
 	  /* other bounds */
-	  lo_ge.Y1 = MAX (lo_ge.Y1, node->lo_min_bound);
-	  hi_ge.Y1 = MIN (hi_ge.Y1, node->other_bound);
-	  hi_lt.Y2 = MIN (hi_lt.Y2, node->hi_max_bound + 1);	/* less-than-or-equals */
+	  MAKEMAX (lo_ge.Y1, node->lo_min_bound);
+	  MAKEMIN (hi_ge.Y1, node->other_bound);
+	  MAKEMIN (hi_lt.Y2, node->hi_max_bound + 1);	/* less-than-or-equals */
 	  break;
 	default:
 	  assert (0);
@@ -294,15 +294,15 @@ __partition (const BoxType * boxlist[],
   minbox = maxbox = *boxlist[start];
   for (i = start + 1; i < end; i++)
     {
-      minbox.X1 = MIN (minbox.X1, boxlist[i]->X1);
-      minbox.Y1 = MIN (minbox.Y1, boxlist[i]->Y1);
-      minbox.X2 = MIN (minbox.X2, boxlist[i]->X2);
-      minbox.Y2 = MIN (minbox.Y2, boxlist[i]->Y2);
+      MAKEMIN (minbox.X1, boxlist[i]->X1);
+      MAKEMIN (minbox.Y1, boxlist[i]->Y1);
+      MAKEMIN (minbox.X2, boxlist[i]->X2);
+      MAKEMIN (minbox.Y2, boxlist[i]->Y2);
 
-      maxbox.X1 = MAX (maxbox.X1, boxlist[i]->X1);
-      maxbox.Y1 = MAX (maxbox.Y1, boxlist[i]->Y1);
-      maxbox.X2 = MAX (maxbox.X2, boxlist[i]->X2);
-      maxbox.Y2 = MAX (maxbox.Y2, boxlist[i]->Y2);
+      MAKEMAX (maxbox.X1, boxlist[i]->X1);
+      MAKEMAX (maxbox.Y1, boxlist[i]->Y1);
+      MAKEMAX (maxbox.X2, boxlist[i]->X2);
+      MAKEMAX (maxbox.Y2, boxlist[i]->Y2);
     }
   /* find largest dimension */
   {
@@ -356,13 +356,13 @@ __partition (const BoxType * boxlist[],
     {				/* low-end keys */
       ob = node->lo_min_bound;
       for (i = start; i < median; i++)
-	ob = MAX (ob, key (boxlist[i], HI_SIDE (d)));
+	MAKEMAX (ob, key (boxlist[i], HI_SIDE (d)));
     }
   else
     {				/* high-end keys */
       ob = node->hi_max_bound;
       for (i = end - 1; i > median; i--)
-	ob = MIN (ob, key (boxlist[i], LO_SIDE (d)));
+	MAKEMIN (ob, key (boxlist[i], LO_SIDE (d)));
     }
   node->other_bound = ob;
 
@@ -437,10 +437,10 @@ kd_create_tree (const BoxType * boxlist[], int N, int manage)
       for (i = 1; i < N; i++)
 	{
 	  const BoxType *b = boxlist[i];
-	  kdtree->bounding_box.X1 = MIN (kdtree->bounding_box.X1, b->X1);
-	  kdtree->bounding_box.Y1 = MIN (kdtree->bounding_box.Y1, b->Y1);
-	  kdtree->bounding_box.X2 = MAX (kdtree->bounding_box.X2, b->X2);
-	  kdtree->bounding_box.Y2 = MAX (kdtree->bounding_box.Y2, b->Y2);
+	  MAKEMIN (kdtree->bounding_box.X1, b->X1);
+	  MAKEMIN (kdtree->bounding_box.Y1, b->Y1);
+	  MAKEMAX (kdtree->bounding_box.X2, b->X2);
+	  MAKEMAX (kdtree->bounding_box.Y2, b->Y2);
 	}
       /* create array of booleans for 'manage' flag for each box */
       managelist = malloc (N * sizeof (*managelist));
@@ -497,10 +497,10 @@ __kd_collect (struct kdtree_node *node, BoxType * bbox,
        * old tree. */
       node->flags.own_box = 0;
       /* collect bounding-box information */
-      bbox->X1 = MIN (bbox->X1, node->box->X1);
-      bbox->Y1 = MIN (bbox->Y1, node->box->Y1);
-      bbox->X2 = MAX (bbox->X2, node->box->X2);
-      bbox->Y2 = MAX (bbox->Y2, node->box->Y2);
+      MAKEMIN (bbox->X1, node->box->X1);
+      MAKEMIN (bbox->Y1, node->box->Y1);
+      MAKEMAX (bbox->X2, node->box->X2);
+      MAKEMAX (bbox->Y2, node->box->Y2);
       /* increment start */
       start++;
     }
@@ -562,6 +562,9 @@ kd_optimize_tree (kdtree_t * kdtree)
   return;
 }
 
+/* most of the auto-routing time is spent in this routine
+ * so some careful thought has been given to minimizing it
+ */
 int
 __kd_search (struct kdtree_node *node, const BoxType * starting_region,
 	     int (*region_in_search) (const BoxType * region, void *cl),
@@ -570,63 +573,75 @@ __kd_search (struct kdtree_node *node, const BoxType * starting_region,
 {
   BoxType lo, hi;
   int seen = 0;
-  assert (node && starting_region && region_in_search && rectangle_in_region);
+
+  assert (node && starting_region);
   /** assert that starting_region is well formed */
   assert (starting_region->X1 <= starting_region->X2 &&
 	  starting_region->Y1 <= starting_region->Y2);
   /** assert that node is well formed */
   assert (__kd_node_is_good (node));
   /* check this box */
-  if ((!node->flags.inactive) &&
-      node->box->X1 < starting_region->X2 &&
+  /* hace: (should the X1, Y1 be <= ??)
+   * since the top left corner is closed?
+   */
+  if (node->box->X1 < starting_region->X2 &&
       node->box->X2 > starting_region->X1 &&
       node->box->Y1 < starting_region->Y2 &&
       node->box->Y2 > starting_region->Y1 &&
+  (!node->flags.inactive) &&
       rectangle_in_region (node->box, closure))
     seen++;
   /* narrow regions for low/hi children */
-  lo = hi = *starting_region;
   switch (node->flags.discrim)
     {
-    case 0:			/* x1 */
-      lo.X1 = MAX (lo.X1, node->lo_min_bound);
-      lo.X2 = MIN (lo.X2, node->other_bound);
-      hi.X1 = MAX (hi.X1, node->box->X1);
-      hi.X2 = MIN (hi.X2, node->hi_max_bound);
+    case 0:			/* x1 is key */
+      lo.X1 = MAX (starting_region->X1, node->lo_min_bound);
+      lo.X2 = MIN (starting_region->X2, node->other_bound);
+      hi.X1 = MAX (starting_region->X1, node->box->X1);
+      hi.X2 = MIN (starting_region->X2, node->hi_max_bound);
+      hi.Y1 = lo.Y1 = starting_region->Y1;
+      hi.Y2 = lo.Y2 = starting_region->Y2;
       break;
-    case 1:			/* y1 */
-      lo.Y1 = MAX (lo.Y1, node->lo_min_bound);
-      lo.Y2 = MIN (lo.Y2, node->other_bound);
-      hi.Y1 = MAX (hi.Y1, node->box->Y1);
-      hi.Y2 = MIN (hi.Y2, node->hi_max_bound);
+    case 1:			/* y1 is key */
+      lo.Y1 = MAX (starting_region->Y1, node->lo_min_bound);
+      lo.Y2 = MIN (starting_region->Y2, node->other_bound);
+      hi.Y1 = MAX (starting_region->Y1, node->box->Y1);
+      hi.Y2 = MIN (starting_region->Y2, node->hi_max_bound);
+      hi.X1 = lo.X1 = starting_region->X1;
+      hi.X2 = lo.X2 = starting_region->X2;
       break;
-    case 2:			/* x2 */
-      lo.X1 = MAX (lo.X1, node->lo_min_bound);
-      lo.X2 = MIN (lo.X2, node->box->X2);
-      hi.X1 = MAX (hi.X1, node->other_bound);
-      hi.X2 = MIN (hi.X2, node->hi_max_bound);
+    case 2:			/* x2 is key */
+      lo.X1 = MAX (starting_region->X1, node->lo_min_bound);
+      lo.X2 = MIN (starting_region->X2, node->box->X2);
+      hi.X1 = MAX (starting_region->X1, node->other_bound);
+      hi.X2 = MIN (starting_region->X2, node->hi_max_bound);
+      hi.Y1 = lo.Y1 = starting_region->Y1;
+      hi.Y2 = lo.Y2 = starting_region->Y2;
       break;
-    case 3:			/* y2 */
-      lo.Y1 = MAX (lo.Y1, node->lo_min_bound);
-      lo.Y2 = MIN (lo.Y2, node->box->Y2);
-      hi.Y1 = MAX (hi.Y1, node->other_bound);
-      hi.Y2 = MIN (hi.Y2, node->hi_max_bound);
+    case 3:			/* y2 is key */
+      lo.Y1 = MAX (starting_region->Y1, node->lo_min_bound);
+      lo.Y2 = MIN (starting_region->Y2, node->box->Y2);
+      hi.Y1 = MAX (starting_region->Y1, node->other_bound);
+      hi.Y2 = MIN (starting_region->Y2, node->hi_max_bound);
+      hi.X1 = lo.X1 = starting_region->X1;
+      hi.X2 = lo.X2 = starting_region->X2;
       break;
     default:
       assert (0);
     }
   /* recurse if any chance lo or hi kid could be in the target region */
-  if (node->lo_kid &&
-      lo.X1 <= lo.X2 && lo.Y1 <= lo.Y2 && region_in_search (&lo, closure))
+  if (lo.X1 <= lo.X2 && lo.Y1 <= lo.Y2 && node->lo_kid &&
+      ((region_in_search == NULL) || region_in_search (&lo, closure)))
     seen += __kd_search (node->lo_kid, &lo,
 			 region_in_search, rectangle_in_region, closure);
-  if (node->hi_kid &&
-      hi.X1 <= hi.X2 && hi.Y1 <= hi.Y2 && region_in_search (&hi, closure))
+  if (hi.X1 <= hi.X2 && hi.Y1 <= hi.Y2 && node->hi_kid &&
+      ((region_in_search == NULL) || region_in_search (&hi, closure)))
     seen += __kd_search (node->hi_kid, &hi,
 			 region_in_search, rectangle_in_region, closure);
   /* done! */
   return seen;
 }
+
 static int
 __kd_search_nop (const BoxType * b, void *cl)
 {
@@ -642,8 +657,11 @@ kd_search (kdtree_t * kdtree, const BoxType * starting_region,
 {
   BoxType bbox;
   assert (kdtree);
-  if (!region_in_search)
-    region_in_search = __kd_search_nop;
+  /* rectangle_in_region is rarely ever NULL */
+  /* but region_in_search often is */
+  /* so it is more efficient to use a nop for */
+  /* rare cases and test for a null pointer */
+  /* at the time of call for the common cases */
   if (!rectangle_in_region)
     rectangle_in_region = __kd_search_nop;
 #ifdef SLOW_ASSERTIONS
@@ -655,10 +673,10 @@ kd_search (kdtree_t * kdtree, const BoxType * starting_region,
   if (starting_region)
     {
       /* narrow bbox according to given starting_region */
-      bbox.X1 = MAX (bbox.X1, starting_region->X1);
-      bbox.Y1 = MAX (bbox.Y1, starting_region->Y1);
-      bbox.X2 = MIN (bbox.X2, starting_region->X2);
-      bbox.Y2 = MIN (bbox.Y2, starting_region->Y2);
+      MAKEMAX (bbox.X1, starting_region->X1);
+      MAKEMAX (bbox.Y1, starting_region->Y1);
+      MAKEMIN (bbox.X2, starting_region->X2);
+      MAKEMIN (bbox.Y2, starting_region->Y2);
     }
   if (bbox.X1 <= bbox.X2 && bbox.Y1 <= bbox.Y2)
     return __kd_search (kdtree->root, &bbox,
@@ -742,19 +760,15 @@ __kd_find_node (kdtree_t * kdtree,
 	{
 	  if (v < k)
 	    {			/* lo kid */
-	      n->lo_min_bound =
-		MIN (n->lo_min_bound, key (which, LO_SIDE (d)));
+	      MAKEMIN (n->lo_min_bound, key (which, LO_SIDE (d)));
 	      if (d < 2)
-		n->other_bound =
-		  MAX (n->other_bound, key (which, HI_SIDE (d)));
+		MAKEMAX (n->other_bound, key (which, HI_SIDE (d)));
 	    }
 	  else
 	    {			/* hi kid */
-	      n->hi_max_bound =
-		MAX (n->hi_max_bound, key (which, HI_SIDE (d)));
+	      MAKEMAX (n->hi_max_bound, key (which, HI_SIDE (d)));
 	      if (d > 1)
-		n->other_bound =
-		  MIN (n->other_bound, key (which, LO_SIDE (d)));
+		MAKEMIN (n->other_bound, key (which, LO_SIDE (d)));
 	    }
 	}
       /* okay, where to look next? */
@@ -815,10 +829,10 @@ kd_insert_node (kdtree_t * kdtree, const BoxType * which, int manage)
   /* expand top-level bounds */
   if (kdtree->root == NULL)
     kdtree->bounding_box = *which;
-  kdtree->bounding_box.X1 = MIN (kdtree->bounding_box.X1, which->X1);
-  kdtree->bounding_box.Y1 = MIN (kdtree->bounding_box.Y1, which->Y1);
-  kdtree->bounding_box.X2 = MAX (kdtree->bounding_box.X2, which->X2);
-  kdtree->bounding_box.Y2 = MAX (kdtree->bounding_box.Y2, which->Y2);
+  MAKEMIN (kdtree->bounding_box.X1, which->X1);
+  MAKEMIN (kdtree->bounding_box.Y1, which->Y1);
+  MAKEMAX (kdtree->bounding_box.X2, which->X2);
+  MAKEMAX (kdtree->bounding_box.Y2, which->Y2);
   /* okay, do the insertion */
   fi = __kd_find_node (kdtree, which, INSERT, INEXACT);
   assert (fi.nodepp);

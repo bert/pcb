@@ -74,4 +74,7 @@ int kd_region_is_empty(kdtree_t *kdtree, const BoxType * region);
 /* dump a listing of all rectangles in the kd-tree to the stream */
 void kd_print(kdtree_t *kdtree, FILE *stream);
 
+#define MAKEMIN(a, b) if ((b) < (a)) (a)=(b);
+#define MAKEMAX(a, b) if ((b) > (a)) (a)=(b);
+
 #endif

@@ -2782,12 +2782,12 @@ InitAutoRouteParameters (int pass,
   /* routing style */
   AutoRouteParameters.augStyle = augStyle;
   /* costs */
-  AutoRouteParameters.ViaCost = 50;
+  AutoRouteParameters.ViaCost = 25000;
   AutoRouteParameters.LastConflictPenalty = 2 << MIN (15, pass * 2);
   AutoRouteParameters.ConflictPenalty = 4 *
     AutoRouteParameters.LastConflictPenalty;
   AutoRouteParameters.JogPenalty = 0;
-  AutoRouteParameters.DirectionPenaltyNumerator = 1;
+  AutoRouteParameters.DirectionPenaltyNumerator = 2;
   AutoRouteParameters.DirectionPenaltyDenominator = 1;
   /* other */
   AutoRouteParameters.use_vias = True;
