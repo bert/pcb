@@ -74,7 +74,6 @@ static int ZoomValue;		/* zoom for pin fonts */
 static float Local_Zoom;	/* zoom factor */
 static Window DrawingWindow;	/* flag common to all */
 static Boolean SwapOutput;	/* all drawing routines */
-static XPoint Outline[MAX_SIZE + 1][8];
 static XRectangle UpdateRect;
 static BoxType Block;
 static Boolean Gathering = True;
@@ -89,8 +88,7 @@ static void Redraw (Boolean);
 static void DrawEverything (void);
 static void DrawTop (void);
 static void DrawLayer (LayerTypePtr, int);
-static void InitSpecialPolygon (void);
-static void DrawSpecialPolygon (Drawable, GC, Location, Location, XPoint *);
+static void DrawSpecialPolygon (Drawable, GC, Location, Location, BDimension);
 static void DrawPinOrViaLowLevel (PinTypePtr, Boolean);
 static void ClearOnlyPin (PinTypePtr, Boolean);
 static void ThermPin (LayerTypePtr, PinTypePtr);
@@ -323,7 +321,6 @@ SwitchDrawingWindow (float Zoom, Window OutputWindow, Boolean Swap,
   SwapOutput = Swap;
   XSetFont (Dpy, Output.fgGC, Settings.PinoutFont[ZoomValue]->fid);
   XSetFont (Dpy, Output.bgGC, Settings.PinoutFont[ZoomValue]->fid);
-  InitSpecialPolygon ();
   return (oldGather);
 }
 
@@ -651,34 +648,6 @@ DrawLayer (LayerTypePtr Layer, int unused)
 }
 
 /* ---------------------------------------------------------------------------
- * initializes some zoom dependend information for pins and lines
- * just to speed up drawing a bit
- */
-static void
-InitSpecialPolygon (void)
-{
-  int i, j;
-  static FloatPolyType p[8] = { {0.5, -TAN_22_5_DEGREE_2},
-  {TAN_22_5_DEGREE_2, -0.5},
-  {-TAN_22_5_DEGREE_2, -0.5},
-  {-0.5, -TAN_22_5_DEGREE_2},
-  {-0.5, TAN_22_5_DEGREE_2},
-  {-TAN_22_5_DEGREE_2, 0.5},
-  {TAN_22_5_DEGREE_2, 0.5},
-  {0.5, TAN_22_5_DEGREE_2}
-  };
-
-
-  /* loop over maximum number of different sizes */
-  for (i = MAX (MAX_PINORVIASIZE, MAX_LINESIZE); i != -1; i--)
-    for (j = 0; j < 8; j++)
-      {
-	Outline[i][j].x = (p[j].X * TO_SCREEN (i));
-	Outline[i][j].y = (p[j].Y * TO_SCREEN (i));
-      }
-}
-
-/* ---------------------------------------------------------------------------
  * draws one polygon
  * x and y are already in display coordinates
  * the points are numbered:
@@ -694,23 +663,44 @@ InitSpecialPolygon (void)
  */
 static void
 DrawSpecialPolygon (Drawable d, GC DrawGC,
-		    Location X, Location Y, XPoint * PolyPtr)
+		    Location X, Location Y, BDimension Thickness)
 {
-  int i;
+  static FloatPolyType p[8] = { {0.5, -TAN_22_5_DEGREE_2},
+  {TAN_22_5_DEGREE_2, -0.5},
+  {-TAN_22_5_DEGREE_2, -0.5},
+  {-0.5, -TAN_22_5_DEGREE_2},
+  {-0.5, TAN_22_5_DEGREE_2},
+  {-TAN_22_5_DEGREE_2, 0.5},
+  {TAN_22_5_DEGREE_2, 0.5},
+  {0.5, TAN_22_5_DEGREE_2}
+  };
+  static Dimension special_size = 0;
+  static XPoint scaled[8];
   XPoint polygon[9];
+  int i;
 
+  
+  if (TO_SCREEN (Thickness) != special_size)
+    {
+      special_size = TO_SCREEN (Thickness);
+      for (i = 0; i < 8; i++)
+        {
+          scaled[i].x = p[i].X * special_size;
+          scaled[i].y = p[i].Y * special_size;
+	}
+    }
   /* add line offset */
   for (i = 0; i < 8; i++)
     {
-      polygon[i].x = X + PolyPtr[i].x;
-      polygon[i].y = Y + PolyPtr[i].y;
+      polygon[i].x = X + scaled[i].x;
+      polygon[i].y = Y + scaled[i].y;
     }
   if (TEST_FLAG (THINDRAWFLAG, PCB))
     {
       XSetLineAttributes (Dpy, Output.fgGC, 1,
 			  LineSolid, CapRound, JoinRound);
-      polygon[8].x = X + PolyPtr[0].x;
-      polygon[8].y = Y + PolyPtr[0].y;
+      polygon[8].x = X + scaled[0].x;
+      polygon[8].y = Y + scaled[0].y;
       XDrawLines (Dpy, d, DrawGC, polygon, 9, CoordModeOrigin);
     }
   else
@@ -788,7 +778,7 @@ DrawPinOrViaLowLevel (PinTypePtr Ptr, Boolean drawHole)
       /* transform X11 specific coord system */
       DrawSpecialPolygon (DrawingWindow, Output.fgGC,
 			  TO_DRAW_X (Ptr->X), TO_DRAW_Y (Ptr->Y),
-			  &Outline[Ptr->Thickness][0]);
+			  Ptr->Thickness);
     }
   else
     {				/* draw a round pin or via */
@@ -912,8 +902,8 @@ ClearOnlyPin (PinTypePtr Pin, Boolean mask)
       /* transform X11 specific coord system */
       DrawSpecialPolygon (Offmask, Output.pmGC,
 			  TO_MASK_X (Pin->X), TO_MASK_Y (Pin->Y),
-			  &Outline[mask ? Pin->Mask : Pin->Thickness +
-				   Pin->Clearance][0]);
+			  mask ? Pin->Mask : Pin->Thickness +
+				   Pin->Clearance);
     }
   else
     {
@@ -1016,7 +1006,7 @@ ClearPin (PinTypePtr Pin, int Type, int unused)
       /* transform X11 specific coord system */
       DrawSpecialPolygon (DrawingWindow, Output.bgGC,
 			  TO_DRAW_X (Pin->X), TO_DRAW_Y (Pin->Y),
-			  &Outline[Pin->Thickness + Pin->Clearance][0]);
+			  Pin->Thickness + Pin->Clearance);
     }
   else
     {
