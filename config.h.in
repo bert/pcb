@@ -33,9 +33,6 @@
 /* Define to 1 if you have the `X11' library (-lX11). */
 #undef HAVE_LIBX11
 
-/* Define to 1 if you have the `Xaw' library (-lXaw). */
-#undef HAVE_LIBXAW
-
 /* Define to 1 if you have the `Xext' library (-lXext). */
 #undef HAVE_LIBXEXT
 
@@ -44,6 +41,9 @@
 
 /* Define to 1 if you have the `xnet' library (-lxnet). */
 #undef HAVE_LIBXNET
+
+/* Define to 1 if you have the `Xpm' library (-lXpm). */
+#undef HAVE_LIBXPM
 
 /* Define to 1 if you have the `Xt' library (-lXt). */
 #undef HAVE_LIBXT
