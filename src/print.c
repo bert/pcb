@@ -461,7 +461,7 @@ PrintLayergroups (void)
 		  }  /* end of entry loop */
 		ALLPIN_LOOP (PCB->Data, 
 		  {
-		    if (TEST_FLAG (PIPflag, pin))
+		    if (!TEST_FLAG(HOLEFLAG, pin) && TEST_FLAG (PIPflag, pin))
 		      {
 		        if (!polarity_called)
 			  {
@@ -474,7 +474,7 @@ PrintLayergroups (void)
 		);
 		VIA_LOOP (PCB->Data, 
 		  {
-		    if (TEST_FLAG (PIPflag, via))
+		    if (!TEST_FLAG(HOLEFLAG, via) && TEST_FLAG (PIPflag, via))
 		      {
 		        if (!polarity_called)
 			  {
