@@ -3682,6 +3682,17 @@ ActionSelect (Widget W, XEvent * Event, String * Params, Cardinal * Num)
     }
 }
 
+/* FLAG(have_regex,FlagHaveRegex,0) */
+int 
+FlagHaveRegex (int parm)
+{
+#if defined(HAVE_REGCOMP) || defined(HAVE_RE_COMP)
+  return 1;
+#else
+  return 0;
+#endif
+}
+
 /* ---------------------------------------------------------------------------
  * unselects the object at the pointer location
  * syntax: Unselect(All|Block|Connection)
