@@ -153,6 +153,7 @@ FindPad (char *ElementName, char *PinNum, ConnectionType * conn, Boolean Same)
 	{
 	  for (i = 0; i < element->PinN; i++)
 	    if (!TEST_FLAG (HOLEFLAG, &element->Pin[i]) &&
+		element->Pin[i].Number &&
 		strcmp (PinNum, element->Pin[i].Number) == 0 &&
 		(!Same || !TEST_FLAG (DRCFLAG, &element->Pin[i])))
 	      {
