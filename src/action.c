@@ -2921,6 +2921,7 @@ ActionChangeSize (Widget W, XEvent * Event, String * Params, Cardinal * Num)
 	  break;
 
 	case F_SelectedNames:
+	  value /= 45;
 	  if (ChangeSelectedSize (ELEMENTNAME_TYPE, value, r))
 	    SetChangedFlag (True);
 	  break;
