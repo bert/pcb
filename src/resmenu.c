@@ -72,7 +72,7 @@ action_type (char *str)
   return AT_activate;
 }
 
-static void
+static char *
 invoke_action (Widget w, char *rstr)
 {
   static char **list = 0;
@@ -107,7 +107,7 @@ invoke_action (Widget w, char *rstr)
   if (! *sp)
     {
       XtCallActionProc(w, aname, 0, 0, 0);
-      return;
+      return 0;
     }
 
   /* 
@@ -124,7 +124,7 @@ invoke_action (Widget w, char *rstr)
       {
 	*sp = 0;
 	XtCallActionProc(w, aname, 0, list, num);
-	break;
+	return sp+1;
       }
     else if (*sp == 0 && !maybe_empty)
       break;
@@ -157,6 +157,20 @@ invoke_action (Widget w, char *rstr)
   }
 }
 
+static void
+invoke_multiple_actions (Widget w, char *string)
+{
+  char *sp = string;;
+  while (sp)
+    {
+      while (*sp == ' ' || *sp == '\t')
+	*sp ++;
+      if (! *sp)
+	return;
+      sp = invoke_action (w, sp);
+    }
+}
+
 /* ************************************************************ */
 
 /* ACTION(ExecuteAction,ActionExecuteAction) */
@@ -166,7 +180,7 @@ ActionExecuteAction(Widget W, XEvent *Event, String *Params, Cardinal *num)
 {
   int i;
   for (i=0; i<*num; i++)
-    invoke_action (W, Params[i]);
+    invoke_multiple_actions (W, Params[i]);
 }
 
 /* ACTION(ExecuteFile,ActionExecuteFile) */
@@ -218,7 +232,7 @@ ActionExecuteFile(Widget W, XEvent *Event, String *Params, Cardinal *num)
 	{
 	  Message("%s : line %-3d : \"%s\"\n", fname, n, sp);
 	  /* printf ("%s : line %-3d : \"%s\"\n", fname, n, sp); */
-	  invoke_action(W, sp);
+	  invoke_multiple_actions(W, sp);
 	}
     }
   
