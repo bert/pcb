@@ -153,6 +153,7 @@
 #define CLEARNEWFLAG		0x0800  /* new lines/arc clear polygons */
 #define SNAPPINFLAG             0x1000  /* crosshair snaps to pins and pads */
 #define SHOWMASKFLAG            0x2000  /* show the solder mask layer */
+#define THINDRAWFLAG            0x4000  /* draw with thin lines */
 
 /* ---------------------------------------------------------------------------
  * object types

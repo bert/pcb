@@ -565,7 +565,8 @@ Pcb.masterForm*output.baseTranslations:   #override \
 			SetValue(Zoom, 1000) \n\
   Shift<Btn3Up>:	Display(Center) \
 			Display(Restore) \n\
-  <Btn3Down>:	ButtonThree() \n\
+  <Btn3Down>:	ButtonThree()  \n\
+  <Key>|:	Display(ToggleThindraw) \n\
   Shift<Key>=:	djopt(auto) Display(ClearAndRedraw) \n\
   <Key>=:	djopt(simple) Display(ClearAndRedraw) \n
 !-------------------------------------------------------------------- 

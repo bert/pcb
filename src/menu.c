@@ -303,6 +303,8 @@ static PopupEntryType SettingsMenuEntries[] = {
    "Display,ToggleSnapPin", NULL},
   {"toggleClearLine", "new lines, arcs clear polygons", CB_Action,
    "Display,ToggleClearLine", NULL},
+  {"toggleThindraw", "thin draw", CB_Action,
+   "Display,ToggleThindraw", NULL},
   {NULL, NULL, NULL, NULL, NULL}
 };
 static PopupMenuType SettingsMenu =
@@ -802,6 +804,8 @@ CBPOPUP_Settings (Widget W, XtPointer ClientData, XtPointer CallData)
     CheckEntry (&SettingsMenu, "toggleSnapPin");
   if (TEST_FLAG (CLEARNEWFLAG, PCB))
     CheckEntry (&SettingsMenu, "toggleClearLine");
+  if (TEST_FLAG (THINDRAWFLAG, PCB))
+    CheckEntry (&SettingsMenu, "toggleThindraw");
 }
 
 
