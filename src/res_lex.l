@@ -1,3 +1,5 @@
+/* $Id$ */
+
 %{
 
 #include "res_parse.h"
