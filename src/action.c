@@ -1161,26 +1161,26 @@ NotifyMode (void)
 	      if (XOR (Crosshair.AttachedBox.otherway, abs (wy) > abs (wx)))
 		{
 		  Crosshair.AttachedBox.Point2.X =
-		    Crosshair.AttachedBox.Point1.X + abs (wy) * SGN (wx);
+		    Crosshair.AttachedBox.Point1.X + abs (wy) * SGNZ (wx);
 		  sa = (wx >= 0) ? 0 : 180;
 #ifdef ARC45
 		  if (abs (wy)/2 >= abs (wx))
-		    dir = (SGN (wx) == SGN (wy)) ? 45 : -45;
+		    dir = (SGNZ (wx) == SGNZ (wy)) ? 45 : -45;
 		  else
 #endif
-		    dir = (SGN (wx) == SGN (wy)) ? 90 : -90;
+		    dir = (SGNZ (wx) == SGNZ (wy)) ? 90 : -90;
 		}
 	      else
 		{
 		  Crosshair.AttachedBox.Point2.Y =
-		    Crosshair.AttachedBox.Point1.Y + abs (wx) * SGN (wy);
+		    Crosshair.AttachedBox.Point1.Y + abs (wx) * SGNZ (wy);
 		  sa = (wy >= 0) ? -90 : 90;
 #ifdef ARC45
 		  if (abs (wx)/2 >= abs (wy))
-		    dir = (SGN (wx) == SGN (wy)) ? -45 : 45;
+		    dir = (SGNZ (wx) == SGNZ (wy)) ? -45 : 45;
 		  else
 #endif
-		    dir = (SGN (wx) == SGN (wy)) ? -90 : 90;
+		    dir = (SGNZ (wx) == SGNZ (wy)) ? -90 : 90;
 		  wy = wx;
 		}
 	      if (abs (wy) > 0 && (arc = CreateNewArcOnLayer (CURRENT,
