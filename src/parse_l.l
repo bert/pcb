@@ -92,6 +92,7 @@ PCB			{ return(T_PCB); }
 Grid		{ return(T_GRID); }
 Cursor		{ return(T_CURSOR); }
 Thermal		{ return(T_THERMAL); }
+DRC		{ return(T_DRC); }
 Flags		{ return(T_FLAGS); }
 Layer		{ return(T_LAYER); }
 Pin			{ return(T_PIN); }
