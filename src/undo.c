@@ -404,6 +404,7 @@ UndoChangeSize (UndoListTypePtr Entry)
     {
       if (TEST_FLAG (LOCKFLAG, (PinTypePtr) ptr2))
 	return (False);
+        /* Wow! can any object be treated as a pin type for size change?? */
       swap = ((PinTypePtr) ptr2)->Thickness;
       if (andDraw)
 	EraseObject (type, ptr2);

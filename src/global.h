@@ -133,7 +133,7 @@ typedef struct
 {
 	long int		ID,
 			Flags;
-	Dimension	Scale;		/* text scaling in percent */
+	BDimension	Scale;		/* text scaling in percent */
 	Location	X,		/* origin */
 			Y;
 	BoxType		BoundingBox;
