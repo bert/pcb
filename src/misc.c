@@ -984,19 +984,20 @@ ResetStackAndVisibility (void)
 }
 
 /* ----------------------------------------------------------------------
- * returns pointer to current working directory
+ * returns pointer to current working directory.  If 'path' is not
+ * NULL, then the current working directory is copied to the array
+ * pointed to by 'path'
  */
 char *
-GetWorkingDirectory (void)
+GetWorkingDirectory (char *path)
 {
-  static char path[MAXPATHLEN + 1];
-
 #if defined(SYSV) || defined(linux) || defined(__NetBSD__)
-  return (getcwd (path, MAXPATHLEN));
+  return getcwd(path, MAXPATHLEN);
 #else
   /* seems that some BSD releases lack of a prototype for getwd() */
-  return ((char *) getwd (path));
+  return getwd (path);
 #endif
+
 }
 
 /* ---------------------------------------------------------------------------

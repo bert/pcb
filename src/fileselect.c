@@ -92,7 +92,7 @@ static Widget CreateMenuFromPath (Widget, Widget, Widget, char *);
 static Widget InputW,		/* input field */
   CurrentW;			/* label (current directory) */
 static long int ReturnCode;	/* returncode of buttons */
-static String CurrentDir;	/* current directory */
+static char CurrentDir[MAXPATHLEN + 1]; /* current directory */
 static Boolean LockCallback;	/* used by CB_Text() */
 static SelectorType DirectorySelector =
   { "directoryList", NULL, NULL, CB_Directory,
@@ -281,7 +281,7 @@ FillListsFromCommand (char *Command)
     }
 
   /* update label */
-  CurrentDir = Command;
+  strncpy(CurrentDir, Command, sizeof(CurrentDir)-1);
   XtVaSetValues (CurrentW, XtNlabel, Command, NULL);
   return (0);
 }
@@ -299,7 +299,7 @@ FillListsFromDirectory (char *DirName)
   /* open directory */
   if (ChangeDirectory (DirName))
     return (1);
-  CurrentDir = GetWorkingDirectory ();
+  GetWorkingDirectory (CurrentDir);
   if ((dir = opendir (CurrentDir)) == NULL)
     {
       OpendirErrorMessage (CurrentDir);
@@ -382,7 +382,7 @@ CreateMenuFromPath (Widget Parent, Widget Top, Widget Left, char *Path)
       /* copy first path element to CurrentDir */
       if (first)
 	{
-	  CurrentDir = path;
+	  strncpy(CurrentDir, path, sizeof(CurrentDir)-1);
 	  first = False;
 	}
       entry = XtVaCreateManagedWidget ("directory", smeBSBObjectClass,
@@ -408,7 +408,7 @@ FileSelectBox (char *MessageText, char *DefaultFile, char *Path)
   static char result[MAXPATHLEN + 1];
 
   /* save current directory */
-  strcpy (currentdir, GetWorkingDirectory ());
+  GetWorkingDirectory (currentdir);
 
   /* create the popup shell */
   popup = XtVaCreatePopupShell ("popup", transientShellWidgetClass,

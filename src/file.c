@@ -736,22 +736,38 @@ RemoveTMPData (void)
 void
 ParseLibraryTree (void)
 {
-  char *path;
-  char *working;
+  char path[MAXPATHLEN + 1];
+  char working[MAXPATHLEN + 1];
+  char *libpaths, *p;
   DIR *dir, *subdir;
   struct stat buffer;
   struct dirent *direntry, *e2;
   LibraryMenuTypePtr menu = NULL;
   LibraryEntryTypePtr entry;
   
-  path = Settings.LibraryTree;
-  if ((dir = opendir (path)) == NULL)
-    {
-      OpendirErrorMessage (path);
-      return;
-    }
+  memset(path, 0, sizeof path);
+  memset(working, 0, sizeof working);
+
   /* save the current working directory */
-  working = GetWorkingDirectory ();
+  GetWorkingDirectory (working);
+
+  /* Additional loop to allow for multiple 'newlib' style library directories */
+  libpaths = MyStrdup(Settings.LibraryTree, "ParseLibraryTree");
+  for(p = strtok(libpaths, ":"); p && *p; p = strtok(NULL, ":"))
+    {
+      strncpy(path,p, sizeof(path)-1);
+
+      /* 
+       * start out in the working directory in case the path is a
+       * relative path 
+       */
+      chdir (working);
+
+      if ((dir = opendir (path)) == NULL)
+	{
+	  OpendirErrorMessage (path);
+	  continue;
+	}
 
   /*
    * change to the directory which is the top of the library tree
@@ -759,7 +775,7 @@ ParseLibraryTree (void)
    * name, not a relative path name.
    */
   chdir (path);
-  path = GetWorkingDirectory ();
+  GetWorkingDirectory (path);
 
   /* read all entries */
   while ((direntry = readdir (dir)) != NULL)
@@ -811,6 +827,9 @@ ParseLibraryTree (void)
 	}
     }
   closedir (dir);
+    }
+  free(libpaths);
+
   /* restore the original working directory */
   chdir (working);
 }

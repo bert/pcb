@@ -57,7 +57,7 @@ int		GetLayerGroupNumberByPointer(LayerTypePtr);
 int		GetLayerGroupNumberByNumber(Cardinal);
 BoxTypePtr	GetObjectBoundingBox(int, void *, void *, void *);
 void		ResetStackAndVisibility(void);
-char		*GetWorkingDirectory(void);
+char		*GetWorkingDirectory(char *);
 void		CreateQuotedString(DynamicStringTypePtr, char *);
 int		GetGridFactor(void);
 void		SetArcBoundingBox(ArcTypePtr);
