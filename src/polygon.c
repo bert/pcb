@@ -44,6 +44,7 @@ static char *rcsid =
 #include "data.h"
 #include "draw.h"
 #include "error.h"
+#include "find.h"
 #include "misc.h"
 #include "move.h"
 #include "polygon.h"
@@ -487,4 +488,5 @@ twice_break:
              }
           ); // end of ALLPAD_LOOP
         } /* end of group test */
+  return 0;
 }
