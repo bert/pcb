@@ -977,27 +977,34 @@ GBX_PrintFilledRectangle (Position X1, Position Y1, Position X2, Position Y2)
 static void
 GBX_PrintOutline (Position X1, Position Y1, Position X2, Position Y2)
 {
+  int gx1, gy1, gx2, gy2;
+
   fprintf (GBX_Flags.FP, "*G04 Outline ***\015\012");
 
-  fprintf (GBX_Flags.FP,
-	   "G54D%d*X%dY%dD02*X%dY%dD01*\015\012",
-	   findApertureCode (&GBX_Apertures, 10, ROUND),
-	   (int) X1, (int) Y1, (int) X2, (int) Y1);
+  gx1 = gerberX (PCB, (int) X1);
+  gy1 = gerberX (PCB, (int) Y1);
+  gx2 = gerberX (PCB, (int) (int) X2);
+  gy2 = gerberX (PCB, Y2);
 
   fprintf (GBX_Flags.FP,
 	   "G54D%d*X%dY%dD02*X%dY%dD01*\015\012",
 	   findApertureCode (&GBX_Apertures, 10, ROUND),
-	   (int) X2, (int) Y1, (int) X2, (int) Y2);
+	   gx1, gy1, gx2, gy1);
 
   fprintf (GBX_Flags.FP,
 	   "G54D%d*X%dY%dD02*X%dY%dD01*\015\012",
 	   findApertureCode (&GBX_Apertures, 10, ROUND),
-	   (int) X2, (int) Y2, (int) X1, (int) Y2);
+	   gx2, gy1, gx2, gy2);
 
   fprintf (GBX_Flags.FP,
 	   "G54D%d*X%dY%dD02*X%dY%dD01*\015\012",
 	   findApertureCode (&GBX_Apertures, 10, ROUND),
-	   (int) X1, (int) Y2, (int) X1, (int) Y1);
+	   gx2, gy2, gx1, gy2);
+
+  fprintf (GBX_Flags.FP,
+	   "G54D%d*X%dY%dD02*X%dY%dD01*\015\012",
+	   findApertureCode (&GBX_Apertures, 10, ROUND),
+	   gx1, gy2, gx1, gy1);
   lastX = X1;
   lastY = Y1;
 }
@@ -1010,52 +1017,71 @@ GBX_PrintOutline (Position X1, Position Y1, Position X2, Position Y2)
 static void
 GBX_PrintAlignment (Position X1, Position Y1, Position X2, Position Y2)
 {
-  int XZ1 = (int) X1 + Settings.AlignmentDistance;
-  int XZ2 = (int) X2 - Settings.AlignmentDistance;
-  int YZ1 = (int) Y1 + Settings.AlignmentDistance;
-  int YZ2 = (int) Y2 - Settings.AlignmentDistance;
+  int gx1, gy1, gx2, gy2;
+
+  int XZ1 = gerberX (PCB, (int) X1 + Settings.AlignmentDistance);
+  int XZ2 = gerberX (PCB, (int) X2 - Settings.AlignmentDistance);
+  int XZ3 = gerberX (PCB, (int) X2 - Settings.AlignmentDistance/2);
+  int YZ1 = gerberY (PCB, (int) Y1 + Settings.AlignmentDistance);
+  int YZ2 = gerberY (PCB, (int) Y2 - Settings.AlignmentDistance);
+
+  gx1 = gerberX (PCB, X1);
+  gy1 = gerberY (PCB, Y1);
+  gx2 = gerberX (PCB, X2);
+  gy2 = gerberY (PCB, Y2);
 
   fprintf (GBX_Flags.FP, "*G04 Alignment Targets ***\015\012");
 
   fprintf (GBX_Flags.FP,
 	   "G54D%d*X%dY%dD02*X%dY%dD01*\015\012",
 	   findApertureCode (&GBX_Apertures, 10, ROUND),
-	   (int) X1, (int) Y1, XZ1, (int) Y1);
+	   gx1, gy1, XZ1, gy1);
 
   fprintf (GBX_Flags.FP,
 	   "G54D%d*X%dY%dD02*X%dY%dD01*\015\012",
 	   findApertureCode (&GBX_Apertures, 10, ROUND),
-	   XZ2, (int) Y1, (int) X2, (int) Y1);
+	   XZ2, gy1, gx2, gy1);
 
   fprintf (GBX_Flags.FP,
 	   "G54D%d*X%dY%dD02*X%dY%dD01*\015\012",
 	   findApertureCode (&GBX_Apertures, 10, ROUND),
-	   (int) X2, (int) Y1, (int) X2, YZ1);
+	   gx2, gy1, gx2, YZ1);
 
   fprintf (GBX_Flags.FP,
 	   "G54D%d*X%dY%dD02*X%dY%dD01*\015\012",
 	   findApertureCode (&GBX_Apertures, 10, ROUND),
-	   (int) X2, YZ2, (int) X2, (int) Y2);
+	   XZ3, gy1, XZ3, YZ1);
 
   fprintf (GBX_Flags.FP,
 	   "G54D%d*X%dY%dD02*X%dY%dD01*\015\012",
 	   findApertureCode (&GBX_Apertures, 10, ROUND),
-	   (int) X2, (int) Y2, XZ2, (int) Y2);
+	   gx2, gy1, gx2, YZ1);
 
   fprintf (GBX_Flags.FP,
 	   "G54D%d*X%dY%dD02*X%dY%dD01*\015\012",
 	   findApertureCode (&GBX_Apertures, 10, ROUND),
-	   XZ1, (int) Y2, (int) X1, (int) Y2);
+	   gx2, YZ2, gx2, gy2);
 
   fprintf (GBX_Flags.FP,
 	   "G54D%d*X%dY%dD02*X%dY%dD01*\015\012",
 	   findApertureCode (&GBX_Apertures, 10, ROUND),
-	   (int) X1, (int) Y2, (int) X1, YZ2);
+	   gx2, gy2, XZ2, gy2);
 
   fprintf (GBX_Flags.FP,
 	   "G54D%d*X%dY%dD02*X%dY%dD01*\015\012",
 	   findApertureCode (&GBX_Apertures, 10, ROUND),
-	   (int) X1, YZ1, (int) X1, (int) Y1);
+	   XZ1, gy2, gx1, gy2);
+
+  fprintf (GBX_Flags.FP,
+	   "G54D%d*X%dY%dD02*X%dY%dD01*\015\012",
+	   findApertureCode (&GBX_Apertures, 10, ROUND),
+	   gx1, gy2, gx1, YZ2);
+
+  fprintf (GBX_Flags.FP,
+	   "G54D%d*X%dY%dD02*X%dY%dD01*\015\012",
+	   findApertureCode (&GBX_Apertures, 10, ROUND),
+	   gx1, YZ1, gx1, gy1);
+
   lastX = X1;
   lastY = Y1;
 }
