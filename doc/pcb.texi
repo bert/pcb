@@ -68,6 +68,8 @@ board layout system for @code{X11}.
 * Command-Line Options::   Calling @code{Pcb} from a shell.
 * X11 Interface::          Action routines, resources and default translation.
 * File Formats::           Description of @code{ASCII} files used by @code{Pcb}.
+* Library Creation::       Detailed description of symbol library creation.
+* Schematic Frontends::    Schematic capture programs that work with PCB.
 * Installation::           Compiling, installing and troubleshooting.
 @end menu
 
@@ -3776,7 +3778,7 @@ element names.
 
 
 @c --------------------------- chapter 6 -------------------------------
-@node File Formats, Installation, X11 Interface, Top
+@node File Formats, Library Creation, X11 Interface, Top
 @cindex file formats
 @cindex ASCII files, format of
 @chapter File Formats
@@ -4295,7 +4297,648 @@ not what some out there expect. But in my opinion it's much more useful to
 look at the comments and follow the macros step by step.
 
 
-@node Installation, , File Formats, Top
+@c --------------------------- chapter 7 -------------------------------
+@node Library Creation, Schematic Frontends, File Formats, Top
+@cindex library creation
+@chapter Library Creation
+This chapter provides a detailed look at how footprint libraries are
+created and used.  The chapter is split into two section, the first
+section covers the "old" style libraries which use the @code{m4} macro
+processor and the second section covers the "new" style libraries.
+
+Despite the names "old" and "new", both styles of libraries are useful
+and the "old" style should not be discounted because of its name.  The
+advantage of the old style libraries is that one can define a family of
+footprints, say a DIP package, and then quickly produce all the members
+of that family.  Because the individual packages make use of a base
+definition, corrections made to the base definition propagate to all the
+members of a family.  The primary drawback to using this library
+approach is that the effort to create a single footprint is more than a
+graphical interface and may take even longer if the user has not used
+the @code{m4} macro language previously.
+
+The new style of footprint libraries stores each footprint in its own
+file.  The footprints are created graphically by placing pads and then
+converting a group of pads to a component.  This library method has the
+advantage of being quick to learn and it is easily to build single
+footprints quickly.  If you are building a family of parts, however, the
+additional effort in creating each one individually makes this approach
+undesireable.  In addition, creating a part with a large pin count
+can be quite tedious when done by hand.
+
+
+@section Old Style (m4) Libraries
+The old style libraries for pcb use the @code{m4} macro processor to
+allow the definition of a family of parts.  There are several files
+associated with the old style library.  The file @file{common.m4} is the
+top level file associated with the library.  @file{common.m4} defines a
+few utility macros which are used by other portions of the library,
+and then includes a predefined set of library files (the lines like
+@code{include(geda.inc)}).
+
+@subsection Overview of Oldlib Operation
+The big picture view of the old style library system is that the library
+is simply a collection of macro definitions.  The macros are written in
+the @code{m4} macro language.  An example of a macro and what it expands
+to is the following.  One of the predefined footprints in the library
+which comes with PCB is the @code{PKG_SO8} macro.  Note that all the
+footprint macros begin with @code{PKG_}.  For this particular example,
+@code{PKG_SO8} is a macro for an 8-pin small outline surface mount
+packge.  All of the footprint macros take 3 arguments.  The first is the
+canonical name of the footprint on the board.  In this case "SO8" is an
+appropriate name.  The second argument is the reference designator on
+the board such as "U1" or "U23".  The third and final argument is the
+value.  For an integrated circuit this is usually the part number such
+as "MAX4107" or "78L05" and for a component such as a resistor or
+capacitor it is the resistance or capacitance.  The complete call to the
+macro in our example is @samp{PKG_SO8(SO8, U1, MAX4107)}.  When
+processed by @code{m4} using the macros defined in the PCB library, this
+macro expands to
+@example
+Element(0x00 "SO8" "U1" "MAX4107" 146 50 3 100 0x00)
+(
+        Pad(10 25 38 25 20 "1" 0x00)
+        Pad(10 75 38 75 20 "2" 0x100)
+        Pad(10 125 38 125 20 "3" 0x100)
+        Pad(10 175 38 175 20 "4" 0x100)
+        Pad(214 175 242 175 20 "5" 0x100)
+        Pad(214 125 242 125 20 "6" 0x100)
+        Pad(214 75 242 75 20 "7" 0x100)
+        Pad(214 25 242 25 20 "8" 0x100)
+        ElementLine(0 0 151 0 10)
+        ElementArc(126 0 25 25 0 180 10)
+        ElementLine(101 0 252 0 10)
+        ElementLine(252 0 252 200 10)
+        ElementLine(252 200 0 200 10)
+        ElementLine(0 200 0 0 10)
+        Mark(29 25)
+)
+@end example
+which is the actual definition of the footprint that the PCB program
+works with.  As a user of PCB the only time you will need or want to run
+@code{m4} directly is when you are debugging a new library addition.  In
+normal operation, the calls to @code{m4} are made by helper scripts that
+come with PCB.
+
+Tools such as @code{gsch2pcb} (used to interface the gEDA schematic
+capture program to PCB layout) will call @code{m4} to produce an initial
+PCB layout that includes all the components on a schematic.  In
+addition, when manually instantiating parts from within PCB, @code{m4}
+will be called by PCB's helper scripts to produce the footprints.
+
+@subsection The Library Scripts
+There are several scripts that are used for processing the m4
+libraries.  This section briefly describes these scripts and details how
+they are used by PCB.
+
+@subsubsection Scripts Used During Compilation
+The scripts described in this section are used during compilation of
+PCB.  They are run automatically by the build system, but are described
+here to help document the complete library processing that occurs.
+During the build of PCB, the following actions are taken.  The
+@code{CreateLibrary.sh} script is run to produce an M4 "frozen file".
+This frozen file is simply a partially processed M4 input file which can
+be loaded by M4 more quickly than the original input file.
+
+A typical call to @code{CreateLibrary.sh} used during the compilation of
+PCB is:
+@example
+./CreateLibrary.sh -I . pcblib ./common.m4 TTL_74xx_DIL.m4
+connector.m4 crystal.m4 generic.m4 genericsmt.m4 gtag.m4
+jerry.m4 linear.m4 logic.m4 lsi.m4 memory.m4 optical.m4 pci.m4
+resistor_0.25W.m4 resistor_adjust.m4 resistor_array.m4
+texas_inst_amplifier.m4 texas_inst_voltage_reg.m4
+transistor.m4 geda.m4  
+@end example
+The @samp{-I .} says to search in the current directory for the
+@file{.m4} files.  The output frozen file is @file{pcblib}.  The main
+@file{common.m4} file is listed as well as all of the @file{*.m4} files
+which define the components in the library. 
+
+In addition, a library contents file is created during the build with
+the @code{CreateLibraryContents.sh} script.  
+A typical call to @code{CreateLibrary.sh} used during the compilation of
+PCB is:
+@example
+./CreateLibraryContents.sh -I . ./common.m4 TTL_74xx_DIL.list
+connector.list crystal.list generic.list genericsmt.list gtag.list
+jerry.list linear.list logic.list lsi.list memory.list optical.list
+pci.list resistor_0.25W.list resistor_adjust.list resistor_array.list
+texas_inst_amplifier.list texas_inst_voltage_reg.list transistor.list
+geda.list > pcblib.contents
+@end example
+
+The @file{pcblib.contents} file is used by the PCB program to define the
+libraries and components which will be displayed when you bring up
+the library window from within PCB.  An example of part of the
+@file{pcblib.contents} file is:
+@example
+TYPE=~TTL 74xx DIL
+7400_dil:N:7400:4 dual-NAND
+7401_dil:N:7401:4 dual-NAND OC
+7402_dil:N:7402:4 dual-NOR
+TYPE=~geda
+geda_DIP6:DIP6:DIP6:Dual in-line package, narrow (300 mil)
+geda_DIP8:DIP8:DIP8:Dual in-line package, narrow (300 mil)
+geda_DIP14:DIP14:DIP14:Dual in-line package, narrow (300 mil)
+geda_ACY300:ACY300:ACY300:Axial non-polar component,
+@end example
+The @code{TYPE=} lines define the library name that will show up in the
+library window in PCB.  The other lines define the actual components in
+the library.
+
+@subsubsection Scripts Used by PCB at Runtime
+When PCB is first executed, it makes a call to the
+@code{ListLibraryContents.sh} script.  This script provides the PCB
+program with the contents of the library contents file created when PCB
+was compiled.  A typical call to @code{ListLibraryContents.sh} is
+@example
+../lib/ListLibraryContents.sh .:/tmp/pcb-20030903/src/../lib pcblib
+@end example
+This command says to search the path
+@samp{.:/tmp/pcb-20030903/src/../lib} for a file called
+@file{pcblib.contents} (the @file{.contents} part is added
+automatically) and display the contents of the file.
+PCB parses this output and generates the library window entries.
+
+When you pick a library component from the library window, PCB calls the
+@code{QueryLibrary.sh} script to actually pull the footprint into the
+layout.  For example, when the ACY300 component is selected from the
+@code{~geda} library, the generated call may be:
+
+@example
+/tmp/pcb-20030903/src/../lib/QueryLibrary.sh
+.:/tmp/pcb-20030903/src/../lib pcblib geda_ACY300 ACY300
+ACY300 
+@end example
+If you were to run this command by hand you would see the PCB code for
+the element:
+@example
+Element(0x00 "Axial non-polar component," "" "ACY300" 245 70 0 100 0x00)
+(
+        Pin(0 25 50 20 "1" 0x101)
+        Pin(300 25 50 20 "2" 0x01)
+
+        ElementLine(0 25 75 25 10)
+        ElementLine(225 25 300 25 10)
+
+        ElementLine(75 0 225 0 10)
+        ElementLine(225 0 225 50 10)
+        ElementLine(225 50 75 50 10)
+        ElementLine(75 50 75 0 10)
+
+#       ElementArc(X1 Y 50 50 270 180 10)
+#       ElementArc(X2 Y 50 50 90 180 10)
+
+        Mark(75 25)
+)
+@end example
+
+@subsection Creating an Oldlib Footprint
+This section provides a complete example of defining a family of
+footprints using the M4 style library.  As a vehicle for this example, a
+family of footprints for surface mount resistors and capacitors will be
+developed.   The file @file{example.inc} should have been installed on
+your system as @file{$prefix/share/examples/oldlib/example.inc} where
+@file{$prefix} is often times @file{/usr/local}.
+
+The @file{example.inc} file defines a macro called
+@code{COMMON_PKG_RCSMT} which is a generic definition for a surface
+mount footprint with two identical, rectangular pads.  This macro will
+be called with different parameters to fill out the family of parts.
+The arguments to the @code{COMMON_PKG_RCSMT} are:
+@example
+# -------------------------------------------------------------------
+# the definition for suface mount resistors and capacitors
+# $1: canonical name
+# $2: name on PCB
+# $3: value
+# $4: pad width   (in direction perpendicular to part)
+# $5: pad length  (in direction parallel with part)
+# $6: pad spacing (center to center)
+# $7: distance from edge of pad to silk (in direction 
+#     perpendicular to part)
+# $8: distance from edge of pad to silk (in direction parallel
+#     with part)
+# $9: Set to "no" to skip silk screen on the sides of the part
+@end example
+
+@example
+define(`COMMON_PKG_RCSMT',
+	`define(`XMIN', `eval( -1*`$6'/2 - `$5'/2 - `$8')')	
+	define(`XMAX', `eval(  `$6'/2 + `$5'/2 + `$8')')
+	define(`YMIN', `eval(-1*`$4'/2 - `$7')')	
+	define(`YMAX', `eval(   `$4'/2 + `$7')')
+Element(0x00 "$1" "$2" "$3" eval(XMIN+20) eval(YMAX+20) 0 100 0x00)
+(
+	ifelse(0, eval($4>$5),
+	# Pads which have the perpendicular pad dimension less
+	# than or equal to the parallel pad dimension 	
+	Pad(eval(-1*(   $6 + $5 - $4)/2) 0 
+            eval((-1*$6 + $5 - $4)/2) 0 eval($4) "1" 0x100)
+	Pad(eval(-1*(-1*$6 + $5 - $4)/2) 0 
+            eval((   $6 + $5 - $4)/2) 0 eval($4) "2" 0x100)
+        ,
+	# Pads which have the perpendicular pad dimension greater
+	# than or equal to the parallel pad dimension 
+ 	Pad(eval(-1*$6/2) eval(-1*($4 - $5)/2) 
+            eval(-1*$6/2)  eval(($4 - $5)/2) eval($5) "1" 0x100)
+ 	Pad(eval(   $6/2) eval(-1*($4 - $5)/2) 
+            eval(   $6/2)  eval(($4 - $5)/2) eval($5) "2" 0x100)
+	)
+
+	# silk screen
+	# ends
+	ElementLine(XMIN YMIN XMIN YMAX 10)
+	ElementLine(XMAX YMAX XMAX YMIN 10)
+	# sides
+ifelse($9,"no",
+	#skip side silk
+	,
+	ElementLine(XMIN YMIN XMAX YMIN 10)
+	ElementLine(XMAX YMAX XMIN YMAX 10)
+)
+	Mark(0 0)
+)')
+@end example
+Note that the part has been defined with the mark located at
+@code{(0,0)} and that the pads have been placed with the mark at the
+common centroid of the footprint.  While not a requirement, this is
+highly desireable when developing a library that will need to interface
+with a pick and place machine used for factory assembly of a board.
+
+The final part of @file{example.inc} defines particular versions of the
+generic footprint we have created.  These particular versions correspond
+to various industry standard package sizes.  
+@example
+# 0402 package
+#
+# 30x30 mil pad, 15 mil metal-metal spacing=> 
+# 15 + 15 + 15 = 45 center-to-center
+define(`PKG_RC0402', 
+  `COMMON_PKG_RCSMT(`$1', `$2', `$3', 30, 30, 45, 0, 10, "no")')
+
+# 0603 package
+#
+# 40x40 mil pad, 30 mil metal-metal spacing=>
+#  30 + 20 + 20 = 70 center-to-center
+define(`PKG_RC0603', 
+  `COMMON_PKG_RCSMT(`$1', `$2', `$3', 40, 40, 70, 10, 10)')
+
+# 1206 package
+#
+# 40x60 mil pad, 90 mil metal-metal spacing=> 
+#  90 + 20 + 20 = 130 center-to-center
+define(`PKG_RC1206', 
+  `COMMON_PKG_RCSMT(`$1', `$2', `$3', 60, 40, 130, 10, 10)')
+@end example
+
+At this point, the @file{example.inc} file could be used by third party
+tools such as @code{gsch2pcb}.  However to fully integrate our
+footprints into PCB we need to create the @file{example.m4} and
+@file{example.list} files.  The @file{example.m4} file defines
+descriptions for the new footprints.
+@example
+define(`Description_my_RC0402', 
+  ``Standard SMT resistor/capacitor (0402)'')
+define(`Description_my_RC0603', 
+  ``Standard SMT resistor/capacitor (0603)'')
+define(`Description_my_RC1206', 
+  ``Standard SMT resistor/capacitor (1206)'')
+@end example
+Finally we need to create the @file{example.list} file.
+@example
+my_RC0402:RC0402:RES0402
+my_RC0402:RC0402:CAP0402
+my_RC0603:RC0603:RES0603
+my_RC0603:RC0603:CAP0603
+my_RC1206:RC1206:RES1206
+my_RC1206:RC1206:CAP1206
+@end example
+The first field in the list file has the name corresponding to the
+Description definitions in @file{example.m4}.  The second field is the
+template name which corresponds to the macros @code{PKG_*} we defined in
+@file{example.inc} with the leading @code{PKG_} removed.  It is the
+second field which controls what footprint will actually appear on the
+board.  The final
+field is the name of the part type on the board.  The first line in our
+@file{example.list} file will produce a menu entry in the library window
+that reads:
+@example
+CAP0402, Standard SMT resistor/capacitor (0402)
+@end example
+The @code{CAP0402} portion comes directly from the third field in
+@code{example.list} and the longer description comes from descriptions
+macros in @code{example.m4}. 
+
+@subsection Troubleshooting Old Style Libraries
+
+A powerful technique to help debug problems with libraries is to invoke
+the @code{m4} processor directly.  This approach will provide error
+output which is not visible from within PCB.  The following example
+shows how one might try to debug an 8 pin small outline (SO8) package.  The
+macro name for the package is PKG_SO8.  In this example, the
+canonical name that is to be associated with the part is SO8, the
+reference designator is U1, and the value is MAX4107 (the part number).
+
+@example
+echo "PKG_SO8(SO8, U1, MAX4107)" | \
+   gm4 common.m4 - | \
+   awk '/^[ \t]*$/ @{next@} @{print@}' | \
+   more
+@end example
+The @code{awk} call simply removes blank lines which make the output
+hard to read.
+
+For this particular example, the output is:
+@example
+Element(0x00 "SO8" "U1" "MAX4107" 146 50 3 100 0x00)
+(
+        Pad(10 25 38 25 20 "1" 0x00)
+        Pad(10 75 38 75 20 "2" 0x100)
+        Pad(10 125 38 125 20 "3" 0x100)
+        Pad(10 175 38 175 20 "4" 0x100)
+        Pad(214 175 242 175 20 "5" 0x100)
+        Pad(214 125 242 125 20 "6" 0x100)
+        Pad(214 75 242 75 20 "7" 0x100)
+        Pad(214 25 242 25 20 "8" 0x100)
+        ElementLine(0 0 151 0 10)
+        ElementArc(126 0 25 25 0 180 10)
+        ElementLine(101 0 252 0 10)
+        ElementLine(252 0 252 200 10)
+        ElementLine(252 200 0 200 10)
+        ElementLine(0 200 0 0 10)
+        Mark(29 25)
+)
+@end example
+
+@section New Style Libraries
+Footprints for the new style library are created graphically using the
+PCB program.  A single footprint is saved in each file.
+
+@subsection Creating Newlib Footprints
+To create 
+@enumerate
+@item Start PCB with an empty layout.
+@item Make the component layer active.
+@item For a leaded part, select the via tool and place vias where the
+pads for the part should go.  For surface mount pads, draw line
+segments.
+@item For each via and line segment which will become a pad, select it,
+right-click to bring up the popup menu and choose "edit name".  Enter
+the pin number and press enter.  Alternatively, you can use the "n"
+hotkey to activate the rename command.
+@item Make the silk layer active.
+@item Using the line and arc tools, draw a silk screen outline for the
+part. 
+@item Using the selection tool, select all of the pins and silk screen
+for the part.
+@item Place the pointer above the reference point for the part.  This is
+typically the common centroid.  Keeping the pointer there, right-click
+to bring up the pop-up menu and choose "convert 
+selection to element". 
+@item Under the buffer menu, choose "save buffer elements to file" to
+save the new footprint to a file. 
+@end enumerate
+
+@subsection Modifying Newlib Footprints
+@enumerate
+@item In the PCB program, instantiate the footprint you wish to modify.
+@item Using the selection tool, select the footprint.
+@item Under the buffer menu, choose "copy selection to buffer".  Now
+left-click on the layout area of the PCB window and then press the ESC
+key.  This copies the selected items to the buffer.
+@item Under the buffer menu, choose "break buffer element to pieces",
+"past buffer to layout", and then left-click to place the broken apart
+footprint to an open area of the layout.
+@item Make your desired modifications to the footprint and then convert
+the pieces back to an element using the same procedure as when starting
+from scratch on a new footprint.
+@end enumerate
+
+
+@c --------------------------- chapter 8 -------------------------------
+@node Schematic Frontends, Installation, Library Creation, Top
+@cindex schematic capture
+@cindex schematic frontend
+@chapter Schematic Capture for PCB
+When designing a circuit board of any complexity, a schematic capture
+frontend for the design is highly desired.  Any schematic capture
+program which is able to generate a netlist in a user defined format as
+well as a bill of materials can be made to work with PCB.  Currently, we
+are aware of two freely available schematic capture programs which can
+interface with PCB.  This chapter shows how a design can be taken from
+start to finish using either of these two tools for schematic capture
+and PCB for layout.
+
+@menu
+* gEDA::          Interfacing with GNU EDA (gEDA).
+* xcircuit::      Interfacing with xcircuit.
+@end menu
+
+@node gEDA, xcircuit, , Schematic Frontends
+@cindex gschem, how to interface with
+@cindex gEDA, how to interface with
+@section gEDA
+This section shows how to use gEDA as the schematic capture frontend for
+a PCB design.  This section is not intended to be complete documentation
+on gEDA and it is assumed that the user has at least some familiarity
+with the gEDA suite of programs.
+
+The basic steps in a gEDA + PCB design flow are:
+@enumerate
+@item Set up project directories
+@item Set up gEDA (gschem/gnetlist) config files
+@item Set up gsch2pcb config files
+@item Capture schematics using @code{gschem} (part of gEDA)
+@item Create any unique PCB footprints needed for the design
+@item Generate initial PCB design using @code{gsch2pcb} (part of gEDA)
+@item Layout circuit board using @code{pcb}
+@item Make any additional schematic changes with @code{gschem} and
+forward annotate to PCB with @code{gsch2pcb}
+@item Generate photoplot files (RS-274-X, also known as "Gerber") for
+board vendor
+@end enumerate
+
+@subsection Set Up Project Directories
+Although not required, a typical project directory will contain the
+schematics and board layout at the top level.  
+Schematic symbols and circuit board footprints which are unique to this
+project are stored in subdirectories.  For this example, @file{sym}
+contains the project specific schematic symbols and @file{pkg} contains
+the project specific footprints.  Set up the project subdirectory and
+subdirectories by executing:
+@example
+mkdir ~/myproj
+cd ~/myproj
+mkdir sym
+mkdir pkg
+mkdir pkg/newlib
+mkdir pkg/m4
+@end example
+
+@subsection Set Up gEDA Config Files
+The gEDA tools, specifically @code{gschem} and @code{gnetlist}, use
+configuration files to set the search path for symbol libraries in
+addition to other user preferences.  Create a file in the top level
+project directory called @file{gschemrc}.  Add the following lines to
+that file:
+@example
+
+;; list libraries here.  Order matters as it sets the
+;; search order
+(component-library "./sym")
+
+@end example
+This sets the local search path for the schematic capture program
+@code{gschem}.  Now the netlister, @code{gnetlist}, must also be
+configured.  This can be done by copying the file @file{gschemrc} to
+@file{gnetlistrc} by running @samp{cp gschemrc gnetlistrc}.
+Alternatively, you can create a soft link so only a single file needs to
+be updated if additional symbol paths are added.  The link is created by
+running @samp{ln -s gschemrc gnetlistrc}.
+
+@subsection Set Up @code{gsch2pcb} Config Files
+The program @code{gsch2pcb}, not to be confused with the older
+@code{gschem2pcb} script, is used to link the schematic to layout.
+@code{gsch2pcb} is responsible for creating the netlist used to provide
+connectivity information to PCB as well creating an initial layout with
+all components instantiated in the design.  Forward annotation of
+schematic changes to the layout is also done using @code{gsch2pcb}.
+@code{gsch2pcb} uses a project file to set up the schematic file names,
+PCB library locations, and output file names.  Create a project file
+called @file{project} using the following as an example:
+@example
+
+# List all the schematics to be netlisted 
+# and laid out on the pc board.
+schematics      first.sch second.sch third.sch
+
+# For an output-name of foo, gsch2pcb generates files 
+# foo.net, foo.pcb, and foo.new.pcb.  If there is no 
+# output-name specified, the file names are derived from
+# the first listed schematic, i.e. first.net, etc.
+output-name  preamp
+
+@end example
+
+
+@subsection Capture Schematics Using @code{gschem}
+This section is fairly brief and assumes familiarity with using the
+@code{gschem} schematic capture program.  As you are creating your
+schematics, be sure to observe the following rules:
+@itemize
+@item Make sure that each component in the schematic has a
+@code{footprint} attribute that corresponds to a footprint in the PCB
+library or a footprint you plan on creating.  
+@item Make sure all reference designators are unique.  One way to ensure
+this is to run the @code{refdes_renum} script (part of gEDA) after the
+schematics are created.
+@end itemize
+
+@subsection Create Any Unique PCB Footprints
+Create the new footprints you design needs using either the m4 style or
+newlib style of PCB libraries.  Refer to chapter ? for details on this
+process.  For m4 style footprints, store them in the @file{pkg/m4}
+subdirectory and for newlib footprints, store them in the
+@file{pkg/newlib} subdirectory.
+
+@subsection Generate Initial PCB Design Using @code{gsch2pcb}
+The @code{gsch2pcb} program connects the schematic and layout.  It basic
+operation is to call @code{gnetlist} to generate the connectivity
+netlist that PCB used to verify connectivity and to instantiate all
+elements found in the schematic to a new layout. 
+The default, as of @code{gsch2pcb} version 0.9,  is to use any found  m4
+style parts first and then search for newlib style if no old style part
+was found.  By using the @code{--use-files} or @code{-f} flag to @code{gsch2pcb}
+priority is given to newlib style parts even if m4 style are found.  You
+may wish to verify this in the @code{gsch2pcb} documentation in case
+this changes in the future.
+To start your layout,
+run @samp{gsch2pcb project} where @file{project} is the project file
+created previously.  This will create a new netlist file,
+@file{preamp.net}, and a new layout file, @file{preamp.pcb}.
+
+
+@subsection Layout Circuit Board
+Run PCB on the new layout by running @samp{pcb preamp.pcb}.
+Load the netlist file by selecting "load netlist file" from the "file"
+menu.  In the file selection dialog box, choose @file{preamp.net}.  This
+loads connectivity information into PCB.
+
+Using the selection tool, grab and move apart the various footprints
+with the middle mouse button.  Once the parts are moved apart from each
+other, choose "optimize rats-nest" from the "Connects" menu.  This menu
+choice will display and optimize the rats nest.  Use the rats nest to
+help guide placement of the parts.  You may wish to re-run the "optimize
+rats-nest" command after moving parts around.
+
+After the placement is complete, use the line tool to add traces to the
+board.  As traces are added, the corresponding rats line will disappear.
+
+@section Forward Annotation of Schematic Changes
+If schematic changes are made after the layout has started,
+@code{gsch2pcb} can be used to forward annotate these changes to the
+layout.  To forward annotate schematic changes, run @samp{gsch2pcb
+project}.  This command will create the files @file{preamp.new.pcb},
+@file{preamp.net}, and modify the file @file{preamp.pcb}.  The
+modifications to @file{preamp.pcb} include forward annotation of
+schematic component value changes, adds any new components, and removes
+any deleted components.
+
+@subsection Generate Photoplot Files (RS-274-X)
+After the layout is complete, choose "edit layer-groupings" from the
+"Settings" menu.  The LayerGroups form lets you specify which layers
+will appear in each output layer group.  For example, in the default
+form, layer group 1 has "component" and "component side" in it.  The
+output file @file{1.grb} if DOS file names are used, or
+@file{somename_group1.grb} if long file names are used will contain the
+"component" and "component side" layers in it.  Usually the defaults are
+sufficient, but this form is still a useful reference.
+
+Choose "print layout..." from the "File" menu.  In the print dialog box,
+select "Gerber/RS-274X" for the device 
+driver.  Select the "outline", "alignment", and "drillhelper" options.
+To get DOS compatible file names, select the "DOS (8.3) names" option,
+otherwise enter "preamp" for the filename.  Press "OK".
+
+The following output files should have been created in the project directory.
+The names in parentheses correspond to the DOS compatible output file names.
+@table @file
+@item preamp_componentsilk.grb (csilk.grb)
+Top side silk screen.
+@item preamp_componentmask.grb (cmask.grb)
+Top side soldermask relief.
+@item preamp_group1.grb (1.grb)
+Top copper.
+@item preamp_soldermask.grb (smask.grb)
+Bottom side soldermask relief.
+@item preamp_group2.grb (2.grb)
+Bottom Copper.
+@item preamp_fab.grb (fab.grb)
+Fabrication drawing.  Also known as the drill drawing.  This drawing is
+used for reference by the board vendor but is not directly used in the
+fabrication process.
+@item preamp_plated-drill.grb (pdrill.grb)
+The extension @file{.grb} is a bit misleading as this file is actually
+the Numeric Control Drill (NCD) file and not a RS-274X format file. 
+@end table
+
+@comment to include an image:
+@comment @image{geda1, 6in, 4in, geda schematic, png}
+
+@node xcircuit, , gEDA, Schematic Frontends
+@cindex xcircuit, how to interface with
+@cindex xcircuit, how to interface with
+@section xcircuit
+If anyone cares to contribute this section, it will get added.  Please
+submit changes to the bug tracking system at the sourceforge project
+page for PCB which can be found from the PCB homepage at
+@url{http://pcb.sourceforge.net}. 
+
+@c --------------------------- Appendix A -------------------------------
+
+@node Installation, , Schematic Frontends, Top
 @appendix Installation and Troubleshooting
 Compiling and installing the package should be straightforward. If any problems
 occur, please contact the author @email{Thomas.Nau@@rz.uni-ulm.de}, or the
