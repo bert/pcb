@@ -143,7 +143,7 @@ MoveElementLowLevel (DataTypePtr Data, ElementTypePtr Element, Location DX,
   {
     if (Data->name_tree[n])
       r_delete_entry (PCB->Data->name_tree[n], (BoxType *)text);
-    MOVE_TEXT_LOWLEVEL (text, DeltaX, DeltaY);
+    MOVE_TEXT_LOWLEVEL (text, DX, DY);
     if (Data->name_tree[n])
       r_insert_entry (PCB->Data->name_tree[n], (BoxType *)text, 0);
   }

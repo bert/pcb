@@ -366,6 +366,7 @@ static void *
 MoveElementToBuffer (ElementTypePtr Element)
 {
   ElementTypePtr element;
+  int i;
 
   r_delete_entry (Source->element_tree, (BoxType *) Element);
   PIN_LOOP (Element);
@@ -397,11 +398,21 @@ MoveElementToBuffer (ElementTypePtr Element)
     pad->Element = element;
   }
   END_LOOP;
+  ELEMENTTEXT_LOOP (element);
+  {
+    text->Element = element;
+  }
+  END_LOOP;
   *Element = Source->Element[--Source->ElementN];
   /* deal with element pointer changing */
   r_substitute (Source->element_tree,
 		(BoxType *) & Source->Element[Source->ElementN],
 		(BoxType *) Element);
+  for (i=0; i<MAX_ELEMENTNAMES; i++)
+    r_substitute (Source->name_tree[i],
+		  (BoxType *) & Source->Element[Source->ElementN].Name[i],
+		  (BoxType *) &Element->Name[i]);
+
   PIN_LOOP (Element);
   {
     pin->Element = Element;
@@ -414,9 +425,6 @@ MoveElementToBuffer (ElementTypePtr Element)
   END_LOOP;
   ELEMENTTEXT_LOOP (Element);
   {
-    r_substitute (Source->name_tree[n],
-		  (BoxType *) & Source->Element[Source->ElementN].Name[n],
-		  (BoxType *) text);
     text->Element = Element;
   }
   END_LOOP;
