@@ -1559,7 +1559,11 @@ ActionDRCheck (Widget W, XEvent * Event, String * Params, Cardinal * Num)
 	Message ("found %d design rule errors\n", count);
       restoreCursor ();
       RestoreCrosshair (True);
+      return ;
     }
+
+  Message("Usage:  \nDRC()\n");
+
 }
 
 /* --------------------------------------------------------------------------
@@ -1570,6 +1574,7 @@ void
 ActionFlip (Widget W, XEvent * Event, String * Params, Cardinal * Num)
 {
   ElementTypePtr element;
+  int err = 0;
 
   if (*Num == 1)
     {
@@ -1592,9 +1597,18 @@ ActionFlip (Widget W, XEvent * Event, String * Params, Cardinal * Num)
 	case F_SelectedElements:
 	  ChangeSelectedElementSide ();
 	  break;
+	default:
+	  err = 1;
+	  break;
 	}
       RestoreCrosshair (True);
+      if ( ! err ) 
+	return;
     }
+  
+  Message("Usage:  \n"
+	  "Flip(Object|Selected|SelectedElements)\n");
+  
 }
 
 
@@ -1608,6 +1622,7 @@ ActionToggleThermal (Widget W, XEvent * Event, String * Params,
 {
   void *ptr1, *ptr2, *ptr3;
   int type;
+  int err = 0;
 
   if (*Num == 1)
     {
@@ -1634,9 +1649,17 @@ ActionToggleThermal (Widget W, XEvent * Event, String * Params,
 	case F_SelectedElements:
 	  ChangeSelectedThermals (CHANGETHERMAL_TYPES);
 	  break;
+	default:
+	  err = 1;
+	  break;
 	}
       RestoreCrosshair (True);
+      if ( ! err ) 
+	return;
     }
+  Message("Usage:  \n"
+	  "ToggleThermal(Object|Selected|SelectedElements|"
+	  "SelectedPins|SelectedVias)\n");
 }
 
 /* --------------------------------------------------------------------------
@@ -1649,6 +1672,7 @@ ActionSetThermal (Widget W, XEvent * Event, String * Params,
 {
   void *ptr1, *ptr2, *ptr3;
   int type;
+  int err = 0;
 
   if (*Num == 1)
     {
@@ -1675,9 +1699,17 @@ ActionSetThermal (Widget W, XEvent * Event, String * Params,
 	case F_SelectedElements:
 	  SetSelectedThermals (CHANGETHERMAL_TYPES);
 	  break;
+	default:
+	  err = 1;
+	  break;
 	}
       RestoreCrosshair (True);
+      if ( ! err ) 
+	return;
     }
+  Message("Usage:  \n"
+	  "SetThermal(Object|Selected|SelectedElements|"
+	  "SelectedPins|SelectedVias)\n");
 }
 
 /* --------------------------------------------------------------------------
@@ -1690,6 +1722,7 @@ ActionClearThermal (Widget W, XEvent * Event, String * Params,
 {
   void *ptr1, *ptr2, *ptr3;
   int type;
+  int err = 0;
 
   if (*Num == 1)
     {
@@ -1716,9 +1749,17 @@ ActionClearThermal (Widget W, XEvent * Event, String * Params,
 	case F_SelectedElements:
 	  ClrSelectedThermals (CHANGETHERMAL_TYPES);
 	  break;
+	default:
+	  err = 1;
+	  break;
 	}
       RestoreCrosshair (True);
+      if ( ! err ) 
+	return;
     }
+  Message("Usage:  \n"
+	  "ClearThermal(Object|Selected|SelectedElements"
+	  "|SelectedPins|SelectedVias)\n");
 }
 
 
@@ -1752,7 +1793,11 @@ ActionMovePointer (Widget W, XEvent * Event, String * Params, Cardinal * Num)
       AdjustAttachedObjects ();
       SetCursorStatusLine ();
       RestoreCrosshair (False);
+      return ;
     }
+
+  Message("Usage:  \n"
+	  "MovePointer(deltax, deltay)\n");
 }
 
 /* ---------------------------------------------------------------------------
@@ -1822,6 +1867,7 @@ ActionSetValue (Widget W, XEvent * Event, String * Params, Cardinal * Num)
 {
   Boolean r;			/* flag for 'relative' value */
   float value;
+  int err = 0;
 
   if (*Num == 2 || *Num == 3)
     {
@@ -1866,9 +1912,20 @@ ActionSetValue (Widget W, XEvent * Event, String * Params, Cardinal * Num)
 	  value /= 45;
 	  SetTextScale (r ? value : value + Settings.TextScale);
 	  break;
+	default:
+	  err = 1;
+	  break;
 	}
       RestoreCrosshair (True);
+      if ( ! err ) 
+	return;
     }
+    Message("Usage:  \n"
+	    "SetValue(Grid|Zoom|LineSize|TextScale|"
+	    "ViaDrillingHole|ViaSize, value)\n"
+	    "SetValue(Grid|Zoom|LineSize|TextScale|"
+	    "ViaDrillingHole|ViaSize, value, mil|mm)\n");
+
 }
 
 /* ---------------------------------------------------------------------------
@@ -1881,6 +1938,10 @@ ActionFinishInputDialog (Widget W, XEvent * Event,
 {
   if (*Num == 1)
     FinishInputDialog (!strcmp ("OK", *Params));
+  else
+    Message("Usage:  \n"
+	    "FinishInput(OK|Cancel)\n");
+
 }
 
 
@@ -1923,6 +1984,10 @@ ActionReport (Widget W, XEvent * Event, String * Params, Cardinal * Num)
 	  break;
 	}
       }
+  else
+    Message("Usage:  \n"
+	    "Report(Object|DrillReport|FoundPins)\n");
+
 }
 
 /* ---------------------------------------------------------------------------
@@ -1932,8 +1997,15 @@ ActionReport (Widget W, XEvent * Event, String * Params, Cardinal * Num)
 void
 ActionQuit (Widget W, XEvent * Event, String * Params, Cardinal * Num)
 {
-  if (*Num == 0 && (!PCB->Changed || ConfirmDialog ("OK to lose data ?")))
-    QuitApplication ();
+  if (*Num == 0 )
+    {
+      if (!PCB->Changed || ConfirmDialog ("OK to lose data ?"))
+	QuitApplication ();
+    }
+  else
+    Message("Usage:  \n"
+	    "Quit()\n");
+
 }
 
 /* ---------------------------------------------------------------------------
