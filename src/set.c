@@ -466,16 +466,20 @@ SetLocalRef (Location X, Location Y, Boolean Showing)
 
   if (Showing)
     {
+      HideCrosshair (True);
       if (count == 0)
         old = Marked;
       Marked.X = X;
       Marked.Y = Y;
       Marked.status = True;
       count++;
+      RestoreCrosshair (False);
     }
   else if (count > 0)
     {
+      HideCrosshair (False);
       count = 0;
       Marked = old;
+      RestoreCrosshair (False);
     }
 }
