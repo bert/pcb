@@ -4631,7 +4631,9 @@ CAP0402, Standard SMT resistor/capacitor (0402)
 @end example
 The @code{CAP0402} portion comes directly from the third field in
 @code{example.list} and the longer description comes from descriptions
-macros in @code{example.m4}. 
+macros in @code{example.m4}.  Please note that any extra white space
+at the end of a line in the @file{.list} files will cause them to
+not work properly.
 
 @subsection Troubleshooting Old Style Libraries
 
