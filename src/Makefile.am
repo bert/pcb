@@ -148,7 +148,8 @@ pcb_bin_SOURCES = \
 	undo.h \
 	vector.c \
 	vector.h \
-	vendor.c
+	vendor.c \
+	vendor.h
 
 # for globalconst.h
 INCLUDES=	-I$(top_srcdir) -I$(srcdir)/icons
