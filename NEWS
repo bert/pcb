@@ -19,6 +19,9 @@ Release Notes for PCB snapshot 20040903
 - Protect some gcc extensions with tests for gcc.  This allows
   compilation with the IRIX c compiler.
 
+- Add support for a background image in the drawing area which can
+  help in importing a layout from a scanned image.
+
 - Updated the ~geda library 150 and 300 mil width SOIC packages
   to remove silk on pads and to more closely follow the IPC
   recommendations
