@@ -51,15 +51,20 @@ mostlyclean-aminfo:
 	pcb.pgs pcb.tmp pcb.toc pcb.tp pcb.tps pcb.vr pcb.vrs 
 
 EXTRA_DIST= \
+	ascii2texi.awk \
 	refcard.tex \
 	pad.obj \
 	pad.png \
 	pad.eps \
 	pcb.dvi \
 	refcard.dvi \
+	wire_size.tab \
 	wire_size.texi \
+	letter_size.tab \
 	letter_size.texi \
+	metric_size.tab \
 	metric_size.texi \
+	fractional_size.tab \
 	fractional_size.texi
 
 SUFFIXES=	.obj .tab
