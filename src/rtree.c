@@ -507,8 +507,6 @@ __r_destroy_tree (struct rtree_node *node)
 void
 r_destroy_tree (rtree_t ** rtree)
 {
-  unsigned i;
-  const BoxType **b;
 
   __r_destroy_tree ((*rtree)->root);
   free (*rtree);
