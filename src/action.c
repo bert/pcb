@@ -2163,7 +2163,7 @@ void
 ActionDisplay (Widget W, XEvent * Event, String * Params, Cardinal * Num)
 {
   int id;
-  int saved = 0;
+  static int saved = 0;
 
   if (*Num == 1)
     {
