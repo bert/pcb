@@ -159,7 +159,9 @@ Thomas Nau (who started the project and wrote the early versions).
 C. Scott Ananian (who wrote the auto-router code).
 Bernhard Daeubler (Bernhard.Daeubler@@physik.uni-ulm.de)
 Harald Daeubler (Harald.Daeubler@@physik.uni-ulm.de)
+DJ Delorie (djdelorie@@users.sourceforge.net)
 Larry Doolittle (ldoolitt@@recycle.lbl.gov)
+Dan McMahill (danmc@@users.sourceforge.net)
 Roland Merk (merk@@faw.uni-ulm.de)
 Erland Unruh (Erland.Unruh@@malmo.trab.se)
 Albert John FitzPatrick III (ajf_nylorac@@acm.org)
