@@ -1151,7 +1151,8 @@ NotifyMode (void)
 	  case STATE_THIRD:
 	    {
 	      ArcTypePtr arc;
-	      int wx, wy, sa, dir;
+	      Location wx, wy;
+	      int sa, dir;
 
 	      wx = Note.X - Crosshair.AttachedBox.Point1.X;
 	      wy = Note.Y - Crosshair.AttachedBox.Point1.Y;
@@ -1161,7 +1162,7 @@ NotifyMode (void)
 		    Crosshair.AttachedBox.Point1.X + abs (wy) * SGN (wx);
 		  sa = (wx >= 0) ? 0 : 180;
 #ifdef ARC45
-		  if (abs (wy) >= 2 * abs (wx))
+		  if (abs (wy)/2 >= abs (wx))
 		    dir = (SGN (wx) == SGN (wy)) ? 45 : -45;
 		  else
 #endif
@@ -1173,7 +1174,7 @@ NotifyMode (void)
 		    Crosshair.AttachedBox.Point1.Y + abs (wx) * SGN (wy);
 		  sa = (wy >= 0) ? -90 : 90;
 #ifdef ARC45
-		  if (abs (wx) >= 2 * abs (wy))
+		  if (abs (wx)/2 >= abs (wy))
 		    dir = (SGN (wx) == SGN (wy)) ? -45 : 45;
 		  else
 #endif

@@ -507,7 +507,7 @@ arc_1.7_format
 			/* x, y, width, height, thickness, clearance, startangle, delta, flags */
 		: T_ARC '(' NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER ')'
 			{
-				CreateNewArcOnLayer(Layer, $3*100, $4*100, $5*100, $9*100, $10*100, $7, $8, $11 & OBJ_FLAGS);
+				CreateNewArcOnLayer(Layer, $3*100, $4*100, $5*100, $9, $10, $7*100, $8*100, $11 & OBJ_FLAGS);
 			}
 		;
 
@@ -515,8 +515,8 @@ arc_oldformat
 			/* x, y, width, height, thickness, startangle, delta, flags */
 		: T_ARC '(' NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER ')'
 			{
-				CreateNewArcOnLayer(Layer, $3*100, $4*100, $5*100, $8*100, $9*100,
-					$7, 200*GROUNDPLANEFRAME, $10 & OBJ_FLAGS);
+				CreateNewArcOnLayer(Layer, $3*100, $4*100, $5*100, $8, $9,
+					$7*100, 200*GROUNDPLANEFRAME, $10 & OBJ_FLAGS);
 			}
 		;
 
