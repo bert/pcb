@@ -10,6 +10,7 @@ AM_MAINTAINER_MODE
 dnl Checks for programs.
 AC_PROG_CC
 AC_PROG_CC_STDC
+AC_PROG_CPP
 AM_PROG_LEX
 AC_PROG_YACC
 AC_PROG_INSTALL
@@ -37,6 +38,25 @@ AC_CHECK_LIB(fl, yywrap)
 AC_CHECK_FUNCS(strerror)
 AC_CHECK_FUNCS(regcomp re_comp)
 AC_CHECK_FUNCS(logf expf rint)
+
+AC_MSG_CHECKING([if X/Xaw should be configured])
+gui_xaw=yes
+AC_ARG_ENABLE([xaw],
+[  --disable-xaw           Disable configure detection of Xaw, not complete yet. [[default: enabled]]],
+[
+if test "X$enable_xaw" = "Xno" ; then
+	AC_MSG_RESULT([no])
+	gui_xaw="no *** THIS IS NOT YET SUPPORTED AND PROBABLY WILL NOT COMPILE ***"
+else
+	AC_MSG_RESULT([yes])
+fi
+],
+[
+	AC_MSG_RESULT([yes])
+])
+
+if test "X$gui_xaw" = "Xyes" ; then
+
 AC_PATH_XTRA
 AC_ARG_WITH([libstroke],
 [  --without-libstroke     disable libstroke support (default: enabled)],
@@ -130,6 +150,56 @@ fi
 LIBS=$pcb_save_LIBS
 fi
 
+fi 
+
+############################################################################
+# Check for gtk+
+# 
+
+gui_gtk=no
+AC_MSG_CHECKING([if gtk should be configured])
+AC_ARG_ENABLE([gtk],
+[  --enable-gtk            Enable configure detection of gtk, gtk port not complete yet. [[default: disabled]]],
+[
+if test "X$enable_gtk" = "Xno" ; then
+	AC_MSG_RESULT([no])
+else
+	AC_MSG_RESULT([yes])
+	if test "X$gui_xaw" = "Xyes" ; then
+		AC_MSG_ERROR([To use --enable-gtk, you must also use --disable-xaw])
+	fi
+	gui_gtk="yes *** THIS IS NOT YET SUPPORTED AND PROBABLY WILL NOT COMPILE***"
+
+	# Check for pkg-config
+	AC_PATH_PROG(PKG_CONFIG, pkg-config, no)
+	if test "$PKG_CONFIG" = "no"; then
+		AC_MSG_ERROR([Cannot find pkg-config, make sure it is installed and in your PATH])
+	fi
+
+	PKG_CHECK_MODULES(GTK, gtk+-2.0 >= 2.2.0, , 
+		[AC_MSG_ERROR([Cannot find gtk+ >= 2.2.0, install it and rerun ./configure])]
+	)
+	GTK_VERSION=`$PKG_CONFIG gtk+-2.0 --modversion`
+
+	# Search for glib
+	PKG_CHECK_MODULES(GLIB, glib-2.0 >= 2.2.0, , 
+		[AC_MSG_ERROR([Cannot find glib >= 2.2.0, install it and rerun ./configure.])]
+	)
+	GLIB_VERSION=`$PKG_CONFIG glib-2.0 --modversion`
+fi
+],
+[
+	AC_MSG_RESULT([no])
+])
+
+if test "X$gui_gtk" = "Xno" -a "X$gui_xaw" != "Xyes" ; then
+	AC_MSG_ERROR([You must enable some gui toolkit (gtk+ or Xaw)])
+fi
+
+# 
+# end of check for gtk+
+############################################################################
+
 dnl Checks for header files.
 AC_HEADER_STDC
 AC_CHECK_HEADERS(string.h)
@@ -143,6 +213,7 @@ dnl Checks for library functions.
 
 # ------------- dmalloc -------------------
 dnl dmalloc checks
+with_dmalloc=no
 AC_MSG_CHECKING([if dmalloc debugging should be enabled])
 AC_ARG_ENABLE([dmalloc],
 [  --enable-dmalloc        Compile and link with dmalloc for malloc debugging [default=no]],
@@ -154,6 +225,7 @@ if test "X$enable_dmalloc" != "Xno" ; then
 	AC_CHECK_LIB(dmalloc,main,,
 		AC_ERROR([You have requested dmalloc debugging but -ldmalloc could not be found]), $X_LIBS)
 	DMALLOC_LIBS="-ldmalloc"
+	with_dmalloc=yes
 else
 	AC_MSG_RESULT([no])
 	DMALLOC_LIBS=""
@@ -166,6 +238,7 @@ fi
 
 # ------------- ElectricFence -------------------
 dnl ElectricFence checks
+with_efence=no
 AC_MSG_CHECKING([if ElectricFence debugging should be enabled])
 AC_ARG_ENABLE([efence],
 [  --enable-efence         Link with ElectricFence for malloc debugging [default=no]],
@@ -174,6 +247,7 @@ if test "X$enable_efence" != "Xno" ; then
 	AC_MSG_RESULT([yes])
 	AC_CHECK_LIB(efence,main,,
 		AC_ERROR([You have requested ElectricFence debugging but -lefence could not be found]), $X_LIBS)
+	with_efence=yes
 else
 	AC_MSG_RESULT([no])
 fi
@@ -220,8 +294,8 @@ if test "x$GCC" = "xyes"; then
 	fi
 fi
 
-CFLAGS="$CFLAGS $X_CFLAGS"
-LIBS="$LIBS $X_LIBS $DMALLOC_LIBS"
+CFLAGS="$CFLAGS $X_CFLAGS $GTK_CFLAGS"
+LIBS="$LIBS $X_LIBS $GTK_LIBS $DMALLOC_LIBS"
 
 BTNMOD=${BTNMOD:-"Mod1"}
 AC_SUBST(BTNMOD)
@@ -260,3 +334,17 @@ AC_OUTPUT(
 	)
 
 
+AC_MSG_RESULT([
+** Configuration summary for $PACKAGE $VERSION:
+
+   Athena Widgets Based GUI: $gui_xaw
+   GTK+ Based GUI:           $gui_gtk
+   GTK+ library version:     $GTK_VERSION
+   GLIB library version:     $GLIB_VERSION
+   dmalloc debugging:        $with_dmalloc
+   ElectricFence debugging:  $with_efence
+   CPPFLAGS:                 $CPPFLAGS
+   CFLAGS:                   $CFLAGS
+   LIBS:                     $LIBS
+
+])
