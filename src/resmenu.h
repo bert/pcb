@@ -5,6 +5,8 @@
 
 #include <stdio.h>
 
+#include "resource.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif

@@ -60,6 +60,7 @@
 #include "mymem.h"
 #include "output.h"
 #include "remove.h"
+#include "resmenu.h"
 #include "set.h"
 #include "djopt.h"
 #include "resource.h"
