@@ -2692,7 +2692,10 @@ ActionRipUp (Widget W, XEvent * Event, String * Params, Cardinal * Num)
 	    CopyObjectToBuffer (PASTEBUFFER->Data, PCB->Data, ELEMENT_TYPE,
                                  ptr1, ptr2, ptr3);
 	    SmashBufferElement (PASTEBUFFER);
+            PASTEBUFFER->X = 0;
+            PASTEBUFFER->Y = 0;
             SaveUndoSerialNumber ();
+	    EraseObject(ELEMENT_TYPE, ptr1);
             MoveObjectToRemoveUndoList(ELEMENT_TYPE, ptr1, ptr2, ptr3);
 	    RestoreUndoSerialNumber ();
 	    CopyPastebufferToLayout (0,0);
