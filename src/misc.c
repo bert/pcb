@@ -183,8 +183,11 @@ Usage (void)
 	   "  -v <value>:               sets the volume of the X speaker\n"
 	   "special options are:\n"
 	   "  -copyright:               prints copyright information\n"
+	   "  --copyright:              prints copyright information\n"
 	   "  -help:                    prints this message\n"
-	   "  -version:                 prints the current version number\n",
+	   "  --help:                   prints this message\n"
+	   "  -version:                 prints the current version number\n"
+	   "  --version:                prints the current version number\n",
 	   Progname, Progname);
   exit (1);
 }

@@ -1331,11 +1331,14 @@ main (int argc, char *argv[])
   /* take care of special options */
   if (argc == 2)
     {
-      if (!strcmp ("-help", argv[1]))
+      if (!strcmp ("-help", argv[1]) ||
+	  !strcmp ("--help", argv[1]) )
 	Usage ();
-      if (!strcmp ("-copyright", argv[1]))
+      if (!strcmp ("-copyright", argv[1]) ||
+	  !strcmp ("--copyright", argv[1]) )
 	Copyright ();
-      if (!strcmp ("-version", argv[1]))
+      if (!strcmp ("-version", argv[1]) ||
+	  !strcmp ("--version", argv[1]) )
 	{
 	  puts (VERSION);
 	  exit (0);
