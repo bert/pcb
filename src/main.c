@@ -115,7 +115,7 @@ static void InitDeviceDriver (void);
  *  Stipple patterns with 50 % pixels
  */
 #define gray_size 8
-typedef char pattern[8];
+typedef unsigned char pattern[8];
 static pattern gray_bits[] = {
   {0xa5, 0x5a, 0xa5, 0x5a, 0xa5, 0x5a, 0xa5, 0x5a},
   {0x33, 0xcc, 0x33, 0xcc, 0x33, 0xcc, 0x33, 0xcc},
@@ -1154,7 +1154,7 @@ InitIcon (void)
 							     XtWindow
 							     (Output.
 							      Toplevel),
-							     icon_bits,
+							     (char *) icon_bits,
 							     icon_width,
 							     icon_height,
 							     BlackPixelOfScreen
@@ -1164,24 +1164,24 @@ InitIcon (void)
 							     DefaultDepthOfScreen
 							     (screen)), NULL);
   XC_clock_source =
-    XCreateBitmapFromData (Dpy, XtWindow (Output.Toplevel), rotateIcon_bits,
+    XCreateBitmapFromData (Dpy, XtWindow (Output.Toplevel), (char *) rotateIcon_bits,
 			   rotateIcon_width, rotateIcon_height);
   XC_clock_mask =
-    XCreateBitmapFromData (Dpy, XtWindow (Output.Toplevel), rotateMask_bits,
+    XCreateBitmapFromData (Dpy, XtWindow (Output.Toplevel), (char *) rotateMask_bits,
 			   rotateMask_width, rotateMask_height);
 
   XC_hand_source =
-    XCreateBitmapFromData (Dpy, XtWindow (Output.Toplevel), handIcon_bits,
+    XCreateBitmapFromData (Dpy, XtWindow (Output.Toplevel), (char *) handIcon_bits,
 			   handIcon_width, handIcon_height);
   XC_hand_mask =
-    XCreateBitmapFromData (Dpy, XtWindow (Output.Toplevel), handMask_bits,
+    XCreateBitmapFromData (Dpy, XtWindow (Output.Toplevel), (char *) handMask_bits,
 			   handMask_width, handMask_height);
 
   XC_lock_source =
-    XCreateBitmapFromData (Dpy, XtWindow (Output.Toplevel), lockIcon_bits,
+    XCreateBitmapFromData (Dpy, XtWindow (Output.Toplevel), (char *) lockIcon_bits,
 			   lockIcon_width, lockIcon_height);
   XC_lock_mask =
-    XCreateBitmapFromData (Dpy, XtWindow (Output.Toplevel), lockMask_bits,
+    XCreateBitmapFromData (Dpy, XtWindow (Output.Toplevel), (char *) lockMask_bits,
 			   lockMask_width, lockMask_height);
 }
 
@@ -1214,7 +1214,7 @@ InitGC (void)
   for (i = 0; i < 9; i++)
     {
       Stipples[i] = XCreateBitmapFromData (Dpy, Output.OutputWindow,
-					   gray_bits[i], gray_size,
+					   (char *) gray_bits[i], gray_size,
 					   gray_size);
     }
   XSetState (Dpy, Output.GridGC, Settings.GridColor, Settings.bgColor,

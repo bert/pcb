@@ -155,6 +155,8 @@ invoke_action (Widget w, char *rstr)
 	  }
       }
   }
+
+  return 0;
 }
 
 static void
@@ -359,7 +361,7 @@ ActionCheckWhen (Widget w, XEvent * e, String * argv, Cardinal * argc)
   if (check_pixmap == BadAlloc)
     check_pixmap = XCreateBitmapFromData (XtDisplay(XtParent(w)),
 					  RootWindowOfScreen (XtScreen (XtParent(w))),
-					  check_icon_bits, check_icon_width,
+					  (char *) check_icon_bits, check_icon_width,
 					  check_icon_height);
 
   if (v)

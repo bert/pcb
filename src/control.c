@@ -78,7 +78,7 @@ typedef struct			/* description for a single mode button */
   char *Name,			/* the widgets name and label */
    *Label;
   int Mode;			/* mode ID */
-  char *Bitmap;			/* background bitmap data */
+  unsigned char *Bitmap;			/* background bitmap data */
   unsigned int Width,		/* bitmap size */
     Height;
   Widget W;
@@ -656,7 +656,7 @@ InitModeButtons (Widget Parent, Widget Top, Widget Left)
 
       /* create background pixmap */
       bitmap = XCreateBitmapFromData (Dpy, XtWindow (Parent),
-				      ModeButtons[i].Bitmap,
+				      (char *) ModeButtons[i].Bitmap,
 				      ModeButtons[i].Width,
 				      ModeButtons[i].Height);
 
