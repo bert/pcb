@@ -394,6 +394,7 @@ CheckShorts (LibraryMenuTypePtr theNet)
 		       " to net \"%s\"\n",
 		       &theNet->Name[2],
 		       &((LibraryMenuTypePtr) (pin->Spare))->Name[2]);
+	      SET_FLAG (WARNFLAG, pin);
 	    }
 	}
     }
@@ -428,6 +429,7 @@ CheckShorts (LibraryMenuTypePtr theNet)
 	      Message ("WARNING!! net \"%s\" is shorted"
 		       " to net \"%s\"\n", &theNet->Name[2],
 		       &((LibraryMenuTypePtr) (pad->Spare))->Name[2]);
+	      SET_FLAG (WARNFLAG, pad);
 	    }
 	}
     }
