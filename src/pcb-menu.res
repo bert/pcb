@@ -79,7 +79,7 @@ MainMenu = {
         -
         {"Displayed element-name..." foreground=red sensitive=false vertSpace=60}
         {"Description" Display(Description) CheckWhen(elementname,1)}
-        {"Name on PCB" Display(NameOnPCB) CheckWhen(elementname,2)}
+        {"Reference Designator" Display(NameOnPCB) CheckWhen(elementname,2)}
         {"Value" Display(Value) CheckWhen(elementname,3)}
         -
         {"Pinout shows number" CheckWhen(shownumber) Display(ToggleName)}
