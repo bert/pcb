@@ -203,7 +203,7 @@ MainMenu = {
         {"Miter" djopt(miter) Display(ClearAndRedraw)}
         {"Only autorouted nets" OptAutoOnly() CheckWhen(OptAutoOnly)}
         -
-        {"Design Rule Checker" SetValue(Zoom,=-2) DRC()}
+        {"Design Rule Checker" DRC()}
         }
     
     {Info
