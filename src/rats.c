@@ -220,6 +220,7 @@ ProcNetlist (LibraryTypePtr net_menu)
   if (!net_menu->MenuN)
     return (NULL);
   FreeNetListMemory (Wantlist);
+  MyFree((char **)&Wantlist);
   badnet = False;
 
   /* find layer groups of the component side and solder side */
