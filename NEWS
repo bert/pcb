@@ -1,3 +1,67 @@
+
+========================================================================
+Release Notes for PCB snapshot 20040530
+========================================================================
+This has been an exciting 3 months for PCB.  Many improvements have
+been made in the program as well as additions and improvements to the
+footprint library.  Thanks to everyone who has provided feedback,
+patches, etc.
+
+----------------------
+Additions/Improvements
+----------------------
+  - Expanded DRC checking
+  - "Realtime" DRC checking
+  - DRC settings are now stored in the board fle
+  - Centroid (X-Y) and bill of materials output
+  - Dynamic menus.  Users can now customize the menus via a
+    site-wide, per-user, or per-project menu resource file.
+  - Significant improvements to autorouting of congested designs.
+  - Autorouter can now use power planes.
+  - Improved appearance in autorouter output.
+  - Silk on pads/pins is clipped in RS-274-X output
+  - Ordering is preserved when writing output files so that diff
+    may be effectively used on pcb files.
+  - The autoplace feature now actually works
+  - Added ToggleVisibility action
+  - Most of the database is now kept in rtrees which avoids linear
+    searches.  This speeds up operation significantly.
+  - Added SetFlag, ClrFlag, ChangeFlag actions
+
+---------
+Bug Fixes
+---------
+  - pin/pad bounding box calculation fixed.  Components can
+    now be placed closer to the edge of the board.
+  - miter trace optimization bug.
+  - Fix bug with pins which are enclosed by multiple polygons.
+  - Shorts to unnamed elements and pins are handled correctly.
+  - Various memory leaks fixed.
+  - Fixed some bugs with a really high zoom.
+  - Fixed default media selection in postscript print dialog
+  - Fix some DRC bugs with square pins.
+
+------------------
+Footprint Library:
+------------------
+  - Added SOJ footprint family (~geda library)
+  - Added CTS series 742/3/4/5/6 resistor pack footprints (~cts library)
+  - Added PKG_CONNECTOR_DIL macro to let the HEADER*_1 footprints work
+    (~geda library)
+  - Correct the SDIP footprints (~geda library)
+  - Correct some Minicircuits footprints (~minicircuits library)
+  - Correct some panasonic footprints (~panasonic library)
+  - Change refdes silk size for sockets (~johnstech library)
+  - Increase soldermask relief on some mounting holes
+    (~johnstech library)
+  - Convert the COMMON_SMT_DIL_MIL and COMMON_SMT_DIL_MM macros
+    used by several other libraries to the hi-res format.
+  - Correct pin count on 100 pin QFP packages (100 not 72)
+    (~geda library)
+  - Correct pin count on HEADER60_2 (60 not 50) (~geda library)
+
+========================================================================
+
 New Features for 2.0
 
 (1) New library system. A directory tree is parsed and added to the library 
@@ -190,5 +254,4 @@ color you want, but the connectivity should not change.
 Installation tip: BE SURE TO INSTALL THE NEW X11 RESOURCE FILE - run
 make install to do this. If you just want to test without installing,
 run the pcbtest.sh script in the src directory.
-
 
