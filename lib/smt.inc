@@ -537,13 +537,19 @@ define(`COMMON_SMT_DIL_MIL',
 	# seperation between pads on opposite sides 1/1000 mil
 	define(`PADSEP',`$8')
 
-	# X coordinates for the right hand column of pads (mils)
-        define(`X1', `eval( (PADSEP/2 + PADLENGTH - PADWIDTH/2)/1000)')
-        define(`X2', `eval( (PADSEP/2 + PADWIDTH/2)/1000)')
+	# X coordinates for the right hand column of pads (1/100 mils)
+        define(`X1', `eval( (PADSEP/2 + PADLENGTH - PADWIDTH/2)/10)')
+        define(`X2', `eval( (PADSEP/2 + PADWIDTH/2)/10)')
 
-	# silk screen width (mils)
-	define(`SILKW', `10')
-	define(`SILKSEP', `5')
+	# pad clearance to plane layer in 1/100 mil
+        define(`PADCLEAR', 1000)
+
+	# pad soldermask width in 1/100 mil
+        define(`PADMASK', eval(PADWIDTH/10 + 1000))
+
+	# silk screen width (1/100 mils)
+	define(`SILKW', `1000')
+	define(`SILKSEP', `500')
 
 
 	# figure out if we have an even or odd number of pins per side
@@ -551,11 +557,11 @@ define(`COMMON_SMT_DIL_MIL',
 	define(`TMP2', eval((4*TMP1 - NPADS) == 0))
 	ifelse(TMP2, 1, `define(`EVEN',"yes")', `define(`EVEN',"no")')
 
-	# silk bounding box is -XMAX,-YMAX, XMAX,YMAX (mils)
-	define(`XMAX', `eval( (PADSEP/2 + PADLENGTH + 500*SILKW)/1000 + SILKSEP )')
+	# silk bounding box is -XMAX,-YMAX, XMAX,YMAX (1/100 mils)
+	define(`XMAX', `eval( (PADSEP/2 + PADLENGTH + 5*SILKW)/10 + SILKSEP )')
 	ifelse(EVEN,"yes",
-		`define(`YMAX', `eval( ((NPADS/4)*PITCH - PITCH/2 + PADWIDTH/2 + 500*SILKW)/1000 + SILKSEP )')',
-		`define(`YMAX', `eval( ((NPADS/4)*PITCH           + PADWIDTH/2 + 500*SILKW)/1000 + SILKSEP )')'
+		`define(`YMAX', `eval( ((NPADS/4)*PITCH - PITCH/2 + PADWIDTH/2 + 5*SILKW)/10 + SILKSEP )')',
+		`define(`YMAX', `eval( ((NPADS/4)*PITCH           + PADWIDTH/2 + 5*SILKW)/10 + SILKSEP )')'
 	)
 
 	define(`REV', `$9')
@@ -565,16 +571,20 @@ define(`COMMON_SMT_DIL_MIL',
 	,
 		`define(`CURPIN', `1')'
 	)	
-Element(0x00 "$1" "`$2'" "$3" -20 -60 0 100 0x00)
+# element_flags, description, pcb-name, value, mark_x, mark_y,
+# text_x, text_y, text_direction, text_scale, text_flags
+Element[0x00000000 "$1" "`$2'" "$3" 0 0 -2000 -6000 0 10000  0x00000000]
 (
+# 
+# Pad[x1, y1, x2, y2, thickness, clearance, mask, name , pad number, flags]
         forloop(`i', 1, eval(NPADS / 2),
                 `ifelse(EVEN,"yes",
-		 `Pad(   -X1 eval( (-(NPADS/4)*PITCH - PITCH/2 + i*PITCH)/1000) 
-			 -X2 eval( (-(NPADS/4)*PITCH - PITCH/2 + i*PITCH)/1000) 
-			eval(PADWIDTH/1000) "CURPIN" "CURPIN" 0x100)',
-		 `Pad(   -X1 eval( (-(NPADS/4)*PITCH - PITCH   + i*PITCH)/1000) 
-			 -X2 eval( (-(NPADS/4)*PITCH - PITCH   + i*PITCH)/1000) 
-			eval(PADWIDTH/1000) "CURPIN" "CURPIN" 0x100)')
+		 `Pad[   -X1 eval( (-(NPADS/4)*PITCH - PITCH/2 + i*PITCH)/10) 
+			 -X2 eval( (-(NPADS/4)*PITCH - PITCH/2 + i*PITCH)/10) 
+			eval(PADWIDTH/10) PADCLEAR PADMASK "CURPIN" "CURPIN" 0x00000100]',
+		 `Pad[   -X1 eval( (-(NPADS/4)*PITCH - PITCH   + i*PITCH)/10) 
+			 -X2 eval( (-(NPADS/4)*PITCH - PITCH   + i*PITCH)/10) 
+			eval(PADWIDTH/10) PADCLEAR PADMASK "CURPIN" "CURPIN" 0x00000100]')
 
 		ifelse(REV,"reverse", 
 			`define(`CURPIN', decr(CURPIN))',
@@ -583,29 +593,27 @@ Element(0x00 "$1" "`$2'" "$3" -20 -60 0 100 0x00)
         ')
         forloop(`i', eval((NPADS / 2) + 1), NPADS,
                 `ifelse(EVEN,"yes",
-		 `Pad(   X1 eval( ((NPADS/4)*PITCH + PITCH/2 - (i-NPADS/2)*PITCH)/1000) 
-			 X2 eval( ((NPADS/4)*PITCH + PITCH/2 - (i-NPADS/2)*PITCH)/1000) 
-			eval(PADWIDTH/1000) "CURPIN" "CURPIN" 0x100)',
-		 `Pad(   X1 eval( ((NPADS/4)*PITCH + PITCH   - (i-NPADS/2)*PITCH)/1000) 
-			 X2 eval( ((NPADS/4)*PITCH + PITCH   - (i-NPADS/2)*PITCH)/1000) 
-			eval(PADWIDTH/1000) "CURPIN" "CURPIN" 0x100)')
+		 `Pad[   X1 eval( ((NPADS/4)*PITCH + PITCH/2 - (i-NPADS/2)*PITCH)/10) 
+			 X2 eval( ((NPADS/4)*PITCH + PITCH/2 - (i-NPADS/2)*PITCH)/10) 
+			eval(PADWIDTH/10) PADCLEAR PADMASK "CURPIN" "CURPIN" 0x00000100]',
+		 `Pad[   X1 eval( ((NPADS/4)*PITCH + PITCH   - (i-NPADS/2)*PITCH)/10) 
+			 X2 eval( ((NPADS/4)*PITCH + PITCH   - (i-NPADS/2)*PITCH)/10) 
+			eval(PADWIDTH/10) PADCLEAR PADMASK "CURPIN" "CURPIN" 0x00000100]')
 		ifelse(REV,"reverse", 
 			`define(`CURPIN', decr(CURPIN))',
 			`define(`CURPIN', incr(CURPIN))'
 			)
         ')
 
-	ElementLine(-XMAX -YMAX -XMAX  YMAX SILKW)
-	ElementLine(-XMAX  YMAX  XMAX  YMAX SILKW)
-	ElementLine( XMAX  YMAX  XMAX -YMAX SILKW)
-	ElementLine(-XMAX -YMAX   -25 -YMAX SILKW)
-	ElementLine( XMAX -YMAX    25 -YMAX SILKW)
+	ElementLine[-XMAX -YMAX -XMAX  YMAX SILKW]
+	ElementLine[-XMAX  YMAX  XMAX  YMAX SILKW]
+	ElementLine[ XMAX  YMAX  XMAX -YMAX SILKW]
+	ElementLine[-XMAX -YMAX -2500 -YMAX SILKW]
+	ElementLine[ XMAX -YMAX  2500 -YMAX SILKW]
 
 	# punt on the arc on small parts as it can cover the pads
-	ifelse(eval((PADSEP-PADLENGTH)/1000 > 50), 1, `ElementArc(0 -YMAX 25 25 0 180 SILKW)', )
+	ifelse(eval((PADSEP-PADLENGTH)/1000 > 50), 1, `ElementArc[0 -YMAX 25 25 0 180 SILKW]', )
 	
-	# Mark at the common centroid
-        Mark(0 0)
 )')
 
 # dimensions are given in 1/100 mm.
