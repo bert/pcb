@@ -955,6 +955,7 @@ static XtActionsRec Actions[] = {
   {"EditLayerGroups", ActionEditLayerGroups},
   {"MoveToCurrentLayer", ActionMoveToCurrentLayer},
   {"SwitchDrawingLayer", ActionSwitchDrawingLayer},
+  {"MoveObject", ActionMoveObject},
   {"djopt", ActionDJopt}
 };
 

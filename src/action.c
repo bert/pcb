@@ -225,6 +225,7 @@ Note;
 
 static Cardinal polyIndex = 0;
 static Boolean IgnoreMotionEvents = False;
+static Boolean saved_mode = False;
 #ifdef HAVE_LIBSTROKE
 static Boolean mid_stroke = False;
 static BoxType StrokeBox;
@@ -528,12 +529,16 @@ CB_Click (XtPointer unused, XtIntervalId * time)
 	  AddSelectedToBuffer (PASTEBUFFER, Note.X, Note.Y, True);
 	  SaveUndoSerialNumber ();
 	  RemoveSelected ();
+          SaveMode();
+          saved_mode = True;
 	  SetMode (PASTEBUFFER_MODE);
 	  RestoreCrosshair (True);
 	}
       else if (Note.Hit && !ShiftPressed ())
 	{
 	  HideCrosshair (True);
+          SaveMode();
+	  saved_mode = True;
 	  SetMode (MOVE_MODE);
 	  Crosshair.AttachedObject.Ptr1 = Note.ptr1;
 	  Crosshair.AttachedObject.Ptr2 = Note.ptr2;
@@ -605,14 +610,12 @@ ReleaseMode (void)
       NotifyMode ();
       ClearBuffer (PASTEBUFFER);
       SetBufferNumber (Note.Buffer);
-      SetMode (ARROW_MODE);
       Note.Moving = False;
       Note.Hit = 0;
     }
   else if (Note.Hit)
     {
       NotifyMode ();
-      SetMode (ARROW_MODE);
       Note.Hit = 0;
     }
   else if (Settings.Mode == ARROW_MODE)
@@ -632,6 +635,9 @@ ReleaseMode (void)
 	IncrementUndoSerialNumber ();
       Crosshair.AttachedBox.State = STATE_FIRST;
     }
+  if (saved_mode)
+    RestoreMode();
+  saved_mode = False;
 }
 
 /* ---------------------------------------------------------------------------
@@ -1276,9 +1282,24 @@ NotifyMode (void)
     case LINE_MODE:
       /* do update of position */
       NotifyLine ();
+      if (Crosshair.AttachedLine.State != STATE_THIRD)
+       break;
 
-
-      if (PCB->RatDraw && Crosshair.AttachedLine.State == STATE_THIRD)
+	/* Remove anchor if clicking on start point;
+         * this means we can't paint 0 length lines
+         * which could be used for square SMD pads.
+         * Instead use a very small delta, or change
+         * the file after saving.
+         */
+      if (Crosshair.X == Crosshair.AttachedLine.Point1.X
+          && Crosshair.Y == Crosshair.AttachedLine.Point1.Y)
+        {
+          SetMode(NO_MODE);
+          SetMode(LINE_MODE);
+          break;
+        }
+    
+      if (PCB->RatDraw)
 	{
 	  RatTypePtr line;
 	  if ((line = AddNet ()))
@@ -1294,8 +1315,8 @@ NotifyMode (void)
 	    }
 	  break;
 	}
+      else
       /* create line if both ends are determined && length != 0 */
-      if (Crosshair.AttachedLine.State == STATE_THIRD)
 	{
 	  LineTypePtr line;
 
@@ -2466,9 +2487,6 @@ ActionDisplay (Widget W, XEvent * Event, String * Params, Cardinal * Num)
 void
 ActionMode (Widget W, XEvent * Event, String * Params, Cardinal * Num)
 {
-  static int position = 0;
-  static int stack[MAX_MODESTACK_DEPTH];
-
   if (*Num == 1)
     {
       Note.X = Crosshair.X;
@@ -2534,13 +2552,16 @@ ActionMode (Widget W, XEvent * Event, String * Params, Cardinal * Num)
 	  StrokeBox.Y1 = Crosshair.Y;
 	  break;
 #else
-	  if (Settings.Mode == LINE_MODE)
+	  if (Settings.Mode == LINE_MODE
+              && Crosshair.AttachedLine.State != STATE_FIRST)
 	    {
 	      SetMode (NO_MODE);
 	      SetMode (LINE_MODE);
 	    }
 	  else
 	    {
+              SaveMode();
+              saved_mode = True;
 	      SetMode (ARROW_MODE);
 	      NotifyMode ();
 	    }
@@ -2557,13 +2578,11 @@ ActionMode (Widget W, XEvent * Event, String * Params, Cardinal * Num)
 	  break;
 
 	case F_Restore:	/* restore the last saved mode */
-	  SetMode (position > 0 ? stack[--position] : NO_MODE);
+          RestoreMode();
 	  break;
 
 	case F_Save:		/* save currently selected mode */
-	  stack[position] = Settings.Mode;
-	  if (position < MAX_MODESTACK_DEPTH - 1)
-	    position++;
+          SaveMode();
 	  break;
 	}
       RestoreCrosshair (True);
@@ -4101,6 +4120,54 @@ ActionEditLayerGroups (Widget W, XEvent * Event,
 {
   if (*Num == 0 && LayerGroupDialog ())
     ClearAndRedrawOutput ();
+}
+
+/* ---------------------------------------------------------------------------
+ * MoveObject
+ * syntax: MoveObject(X,Y,[dim])
+ */
+void
+ActionMoveObject (Widget W, XEvent * Event,
+		       String * Params, Cardinal * Num)
+{
+  Location x, y;
+  Boolean r1, r2;
+  void *ptr1, *ptr2, *ptr3;
+  int type;
+
+  switch (*Num)
+    {
+      case 2:
+        y = GetValue(Params + 1,&r1,*Num);
+        x = GetValue(Params, &r2, *Num);
+        break;
+      case 3:
+        y = GetValue(Params + 1, &r1, *Num);
+        *(Params + 1) = *Params;
+        x = GetValue(Params + 1, &r2, *Num);
+        break;
+      default:
+        Message("Illegal argument to MoveObject()\n");
+        return;
+     }
+  type =  SearchScreen (Crosshair.X, Crosshair.Y, MOVE_TYPES,
+			       &ptr1, &ptr2, &ptr3);
+  if (type == NO_TYPE)
+    {
+      Message("Nothing found under crosshair\n");
+      return;
+    }
+  if (r1)
+    x -= Crosshair.X;
+  if (r2)
+    y -= Crosshair.Y;
+  Crosshair.AttachedObject.RubberbandN = 0;
+  if (TEST_FLAG (RUBBERBANDFLAG, PCB))
+    LookupRubberbandLines (type, ptr1, ptr2, ptr3);
+  if (type == ELEMENT_TYPE)
+    LookupRatLines (type, ptr1, ptr2, ptr3);
+  MoveObjectAndRubberband (type, ptr1, ptr2, ptr3, x, y);
+  SetChangedFlag (True);
 }
 
 /* ---------------------------------------------------------------------------

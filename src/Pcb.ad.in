@@ -538,9 +538,9 @@ Pcb.masterForm*output.baseTranslations:   #override \
   <Key>F11:  Mode(Arrow) \n\
   \
   <Key>[:	Mode(Save) \
-		Mode(Move) \
+		Mode(Arrow) \
 		Mode(Notify) \n\
-  <Key>]:	Mode(Notify) \
+  <Key>]:	Mode(Release) \
 		Mode(Restore) \n\
   \
   Shift Ctrl<Btn1Down>: Mode(Save) \

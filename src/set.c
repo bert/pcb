@@ -60,6 +60,9 @@ static char *rcsid = "$Id$";
 #include <dmalloc.h>
 #endif
 
+static int mode_position = 0;
+static int mode_stack[MAX_MODESTACK_DEPTH];
+
 /* ---------------------------------------------------------------------------
  * output of cursor position
  */
@@ -338,6 +341,26 @@ UpdateSettingsOnScreen (void)
   UpdateControlPanel ();
   UpdateSizesMenu ();
 }
+
+void
+SaveMode (void)
+{
+  mode_stack[mode_position] = Settings.Mode;
+  if (mode_position < MAX_MODESTACK_DEPTH -1)
+    mode_position++;
+}
+
+void
+RestoreMode (void)
+{
+  if (mode_position == 0)
+    {
+      Message("hace: underflow of restore mode\n");
+      return;
+    }
+  SetMode(mode_stack[--mode_position]);
+}
+
 
 /* ---------------------------------------------------------------------------
  * set a new mode and update X cursor

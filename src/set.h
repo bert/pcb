@@ -50,5 +50,7 @@ void		SetCrosshairRangeToBuffer(void);
 void		SetRouteStyle(char *);
 void		SetLocalRef(Location, Location, Boolean);
 void		RedrawZoom(Position, Position);
+void		SaveMode(void);
+void		RestoreMode(void);
 
 #endif
