@@ -73,7 +73,7 @@ am_pcb_bin_OBJECTS = action.$(OBJEXT) actionlist.$(OBJEXT) \
 	res_lex.$(OBJEXT) resmenu.$(OBJEXT) rotate.$(OBJEXT) \
 	rubberband.$(OBJEXT) search.$(OBJEXT) select.$(OBJEXT) \
 	selector.$(OBJEXT) set.$(OBJEXT) sizedialog.$(OBJEXT) \
-	undo.$(OBJEXT) vector.$(OBJEXT)
+	undo.$(OBJEXT) vector.$(OBJEXT) vendor.$(OBJEXT)
 pcb_bin_OBJECTS = $(am_pcb_bin_OBJECTS)
 pcb_bin_LDADD = $(LDADD)
 DEFAULT_INCLUDES = -I. -I$(srcdir) -I$(top_builddir)
@@ -346,7 +346,8 @@ pcb_bin_SOURCES = \
 	undo.c \
 	undo.h \
 	vector.c \
-	vector.h 
+	vector.h \
+	vendor.c
 
 
 # for globalconst.h
@@ -505,6 +506,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sizedialog.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/undo.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vector.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vendor.Po@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	if $(COMPILE) -MT $@ -MD -MP -MF "$(DEPDIR)/$*.Tpo" -c -o $@ $<; \
