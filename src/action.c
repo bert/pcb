@@ -110,6 +110,7 @@ typedef enum
   F_DeleteRats,
   F_Drag,
   F_DrillReport,
+  F_Element,
   F_ElementByName,
   F_ElementConnections,
   F_ElementToBuffer,
@@ -253,6 +254,7 @@ static FunctionType Functions[] = {
   {"DeleteRats", F_DeleteRats},
   {"Drag", F_Drag},
   {"DrillReport", F_DrillReport},
+  {"Element", F_Element},
   {"ElementByName", F_ElementByName},
   {"ElementConnections", F_ElementConnections},
   {"ElementToBuffer", F_ElementToBuffer},
@@ -347,7 +349,6 @@ static void NotifyLine (void);
 static void NotifyBlock (void);
 static void NotifyMode (void);
 static void ClearWarnings (void);
-static void StopLine (void);
 #ifdef HAVE_LIBSTROKE
 static void FinishStroke (void);
 extern void stroke_init (void);
@@ -486,16 +487,6 @@ FinishStroke (void)
     Beep (Settings.Volume);
 }
 #endif
-
-/* ---------------------------------------------------------------------------
- * Keep line mode, but drop anchor point
- */
-void
-StopLine (void)
-{
-  SetMode(NO_MODE);
-  SetMode(LINE_MODE);
-}
 
 /* ---------------------------------------------------------------------------
  * Clear warning color from pins/pads
@@ -2623,8 +2614,9 @@ ActionRemoveSelected (Widget W, XEvent * Event,
 }
 
 /* ---------------------------------------------------------------------------
- * action routine to ripup auto-routed tracks
- * syntax: RemoveSelected()
+ * action routine to ripup auto-routed tracks (All|Selected)
+ * or smash an element to pieces on the layout
+ * syntax: RipUp(All|Selected|Element)
  */
 void
 ActionRipUp (Widget W, XEvent * Event, String * Params, Cardinal * Num)
@@ -2688,8 +2680,27 @@ ActionRipUp (Widget W, XEvent * Event, String * Params, Cardinal * Num)
 	      SetChangedFlag (True);
 	    }
 	  break;
+       case F_Element:
+          {
+            void *ptr1, *ptr2, *ptr3;
+             
+	    if (SearchScreen (Crosshair.X, Crosshair.Y, ELEMENT_TYPE,
+			       &ptr1, &ptr2, &ptr3) != NO_TYPE)
+	    Note.Buffer = Settings.BufferNumber;
+	    SetBufferNumber (MAX_BUFFER - 1);
+	    ClearBuffer (PASTEBUFFER);
+	    CopyObjectToBuffer (PASTEBUFFER->Data, PCB->Data, ELEMENT_TYPE,
+                                 ptr1, ptr2, ptr3);
+	    SmashBufferElement (PASTEBUFFER);
+            SaveUndoSerialNumber ();
+            MoveObjectToRemoveUndoList(ELEMENT_TYPE, ptr1, ptr2, ptr3);
+	    RestoreUndoSerialNumber ();
+	    CopyPastebufferToLayout (0,0);
+	    SetBufferNumber (Note.Buffer);
+	    SetChangedFlag (True);
+          }
+	  break;
 	}
-
       RestoreCrosshair (True);
     }
 }
