@@ -136,6 +136,7 @@ ps_docs = ${info_TEXINFOS:.texi=.ps} refcard.ps
 pdf_docs = ${info_TEXINFOS:.texi=.pdf} refcard.pdf
 
 EXTRA_DIST = \
+	${man_MANS} \
 	${html_docs} \
 	${ps_docs} \
 	${pdf_docs} \
