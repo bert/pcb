@@ -258,6 +258,7 @@ typedef struct
 	PadTypePtr	Pad;		/* pad description of SMD components */
 	LineTypePtr	Line;
 	ArcTypePtr	Arc;
+	BoxType         VBox;
 } ElementType, *ElementTypePtr, **ElementTypeHandle;
 
 /* ---------------------------------------------------------------------------

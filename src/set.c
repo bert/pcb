@@ -225,6 +225,8 @@ SetLineSize (BDimension Size)
   if (Size >= MIN_LINESIZE && Size <= MAX_LINESIZE)
     {
       Settings.LineThickness = Size;
+      if (TEST_FLAG (AUTODRCFLAG, PCB))
+        FitCrosshairIntoGrid (Crosshair.X, Crosshair.Y);
       SetStatusLine ();
     }
 }

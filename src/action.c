@@ -1070,6 +1070,8 @@ NotifyMode (void)
 					  Crosshair.AttachedLine.Point2.Y,
 					  Settings.LineThickness,
 					  2*Settings.Keepaway,
+					  (TEST_FLAG (AUTODRCFLAG, PCB) ?
+					   FOUNDFLAG : 0) | 
 					  (TEST_FLAG (CLEARNEWFLAG, PCB) ?
 					   CLEARLINEFLAG : 0))) != NULL)
 	    {
@@ -1120,6 +1122,8 @@ NotifyMode (void)
 					  Note.X, Note.Y,
 					  Settings.LineThickness,
 					  2*Settings.Keepaway,
+					  (TEST_FLAG (AUTODRCFLAG, PCB) ?
+					   FOUNDFLAG : 0) | 
 					  (TEST_FLAG (CLEARNEWFLAG, PCB) ?
 					   CLEARLINEFLAG : 0))) != NULL)
 	    {
@@ -1425,6 +1429,10 @@ NotifyMode (void)
 static void
 WarpPointer (Boolean ignore)
 {
+   /* don't warp with the auto drc - that creates auto-scroll chaos */
+  if (TEST_FLAG (AUTODRCFLAG, PCB) && Settings.Mode == LINE_MODE
+      && Crosshair.AttachedLine.State != STATE_FIRST)
+   return; 
   XWarpPointer (Dpy, Output.OutputWindow, Output.OutputWindow,
 		0, 0, 0, 0,
 		(int) (TO_SCREEN_X (Crosshair.X)),

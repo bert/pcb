@@ -92,7 +92,6 @@ static void AddDrawingLayerSelection (Widget);
 static void AddOnOffSelection (Widget);
 static void UpdateDrawingLayerSelection (void);
 static void UpdateOnOffSelection (void);
-static Cardinal GetGroupOfLayer (Cardinal);
 static void PushOnTopOfLayerStack (int);
 static void CBPOPUP_SetDrawingLayer (Widget, XtPointer, XtPointer);
 static void CB_SetOnOff (Widget, XtPointer, XtPointer);
@@ -331,7 +330,7 @@ UpdateOnOffSelection (void)
  * lookup the group to which a layer belongs to
  * returns MAX_LAYER if no group is found
  */
-static Cardinal
+Cardinal
 GetGroupOfLayer (Cardinal Layer)
 {
   int group, i;

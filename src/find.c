@@ -127,17 +127,6 @@ static char *rcsid = "$Id$";
 #define	PVLIST_ENTRY(I)	\
 	(((PinTypePtr *)PVList.Data)[(I)])
 
-/* IsLineInRectangle already has Bloat factor */
-#define	IS_PV_ON_LINE(PV,Line)	\
-	(TEST_FLAG(SQUAREFLAG, (PV)) ? \
-		IsLineInRectangle( \
-			(PV)->X -((PV)->Thickness+1)/2, \
-			(PV)->Y -((PV)->Thickness+1)/2, \
-			(PV)->X +((PV)->Thickness+1)/2, \
-			(PV)->Y +((PV)->Thickness+1)/2, \
-			(Line)) : \
-		IsPointOnLine((PV)->X,(PV)->Y,MAX((PV)->Thickness/2.0 + fBloat,0.0), (Line)))
-
 #define IS_PV_ON_RAT(PV, Rat) \
 	(IsPointOnLineEnd((PV)->X,(PV)->Y, (Rat)))
 
@@ -152,7 +141,7 @@ static char *rcsid = "$Id$";
 #define	IS_PV_ON_PAD(PV,Pad) \
 	((TEST_FLAG(SQUAREFLAG, (Pad))) ? \
 			IsPointInSquarePad((PV)->X, (PV)->Y, MAX((PV)->Thickness/2 +Bloat,0), (Pad)) : \
-			IS_PV_ON_LINE((PV), (LineTypePtr) (Pad)))
+			PinLineIntersect((PV), (LineTypePtr) (Pad)))
 
 /* ---------------------------------------------------------------------------
  * some local types
@@ -225,25 +214,31 @@ static Boolean SetThing(int, void *, void *, void *);
  * some of the 'pad' routines are the same as for lines because the 'pad'
  * struct starts with a line struct. See global.h for details
  */
-#define	LinePadIntersect(Line, Pad)			\
-	(TEST_FLAG(SQUAREFLAG,Pad) ?		\
-	IsLineInRectangle( \
-		MIN((Pad)->Point1.X, (Pad)->Point2.X) -((Pad)->Thickness+1)/2, \
-		MIN((Pad)->Point1.Y, (Pad)->Point2.Y) -((Pad)->Thickness+1)/2, \
-		MAX((Pad)->Point1.X, (Pad)->Point2.X) +((Pad)->Thickness+1)/2, \
-		MAX((Pad)->Point1.Y, (Pad)->Point2.Y) +((Pad)->Thickness+1)/2, \
-		        (Line)) : \
-	LineLineIntersect((Line), (LineTypePtr) (Pad)))
+Boolean	LinePadIntersect(LineTypePtr Line, PadTypePtr Pad)
+{
+  return TEST_FLAG(SQUAREFLAG,Pad) ?
+	IsLineInRectangle(
+		MIN((Pad)->Point1.X, (Pad)->Point2.X) -((Pad)->Thickness+1)/2,
+		MIN((Pad)->Point1.Y, (Pad)->Point2.Y) -((Pad)->Thickness+1)/2,
+		MAX((Pad)->Point1.X, (Pad)->Point2.X) +((Pad)->Thickness+1)/2,
+		MAX((Pad)->Point1.Y, (Pad)->Point2.Y) +((Pad)->Thickness+1)/2,
+		        (Line)) : 
+	LineLineIntersect((Line), (LineTypePtr) (Pad));
+}
+
+Boolean
+ArcPadIntersect(ArcTypePtr Arc, PadTypePtr Pad)
+{
+ return	TEST_FLAG(SQUAREFLAG,Pad) ?
 /* IsArcInRectangle already applies Bloat */
-#define ArcPadIntersect(Pad, Arc)		\
-	(TEST_FLAG(SQUAREFLAG,Pad) ?		\
-	IsArcInRectangle( \
-		MIN((Pad)->Point1.X, (Pad)->Point2.X) -((Pad)->Thickness+1)/2, \
-		MIN((Pad)->Point1.Y, (Pad)->Point2.Y) -((Pad)->Thickness+1)/2, \
-		MAX((Pad)->Point1.X, (Pad)->Point2.X) +((Pad)->Thickness+1)/2, \
-		MAX((Pad)->Point1.Y, (Pad)->Point2.Y) +((Pad)->Thickness+1)/2, \
-			(Arc)) : \
-	LineArcIntersect((LineTypePtr) (Pad), (Arc)))
+	IsArcInRectangle(
+		MIN((Pad)->Point1.X, (Pad)->Point2.X) -((Pad)->Thickness+1)/2,
+		MIN((Pad)->Point1.Y, (Pad)->Point2.Y) -((Pad)->Thickness+1)/2,
+		MAX((Pad)->Point1.X, (Pad)->Point2.X) +((Pad)->Thickness+1)/2,
+		MAX((Pad)->Point1.Y, (Pad)->Point2.Y) +((Pad)->Thickness+1)/2,
+			(Arc)) :
+	LineArcIntersect((LineTypePtr) (Pad), (Arc));
+}
 
 static Boolean
 ADD_PV_TO_LIST(PinTypePtr Pin)
@@ -326,6 +321,18 @@ ADD_POLYGON_TO_LIST(Cardinal L, PolygonTypePtr Ptr)
 		return(SetThing(POLYGON_TYPE, LAYER_PTR(L), (Ptr), (Ptr)));
         return False;	
 }
+
+Boolean
+PinLineIntersect (PinTypePtr PV, LineTypePtr Line)
+{
+   /* IsLineInRectangle already has Bloat factor */
+  return TEST_FLAG(SQUAREFLAG, PV) ?  IsLineInRectangle(
+	 PV->X -(PV->Thickness+1)/2, PV->Y -(PV->Thickness+1)/2,
+	 PV->X +(PV->Thickness+1)/2, PV->Y +(PV->Thickness+1)/2,
+	 Line) : 
+	 IsPointOnLine(PV->X,PV->Y,MAX(PV->Thickness/2.0 + fBloat, 0.0), Line);
+}
+
 
 Boolean
 SetThing(int type, void * ptr1, void * ptr2, void *ptr3)
@@ -550,7 +557,7 @@ LOCtoPVline_callback(const BoxType *b, void *cl)
   LineTypePtr line = (LineTypePtr)b;
   struct pv_info *i = (struct pv_info *)cl;
 
-  if (!TEST_FLAG (TheFlag, line) && IS_PV_ON_LINE (i->pv, line))
+  if (!TEST_FLAG (TheFlag, line) && PinLineIntersect (i->pv, line))
     {
       if (ADD_LINE_TO_LIST (i->layer, line))
         longjmp (i->env, 1);
@@ -860,7 +867,7 @@ pv_line_callback (const BoxType *b, void *cl)
   PinTypePtr pv = (PinTypePtr)b;
   struct lo_info *i = (struct lo_info *)cl;
 
-  if (!TEST_FLAG (TheFlag, pv) && IS_PV_ON_LINE (pv, i->line))
+  if (!TEST_FLAG (TheFlag, pv) && PinLineIntersect (pv, i->line))
     {
       if (TEST_FLAG (HOLEFLAG, pv))
 	{
@@ -923,8 +930,25 @@ pv_poly_callback (const BoxType *b, void *cl)
 
    /* note that holes in polygons are ok */
   if ((TEST_FLAGS (Myflag, pv) || !TEST_FLAG (CLEARPOLYFLAG, i->polygon))
-      && !TEST_FLAG (TheFlag, pv) && ADD_PV_TO_LIST (pv))
-    longjmp (i->env, 1);
+      && !TEST_FLAG (TheFlag, pv))
+    {
+      if (TEST_FLAG (SQUAREFLAG, pv))
+        {
+	  Location x1,x2,y1,y2;
+	  x1 = pv->X - (pv->Thickness+1)/2 - Bloat;
+	  x2 = pv->X + (pv->Thickness+1)/2 + Bloat;
+	  y1 = pv->Y - (pv->Thickness+1)/2 - Bloat;
+	  y2 = pv->Y + (pv->Thickness+1)/2 + Bloat;
+          if (IsRectangleInPolygon (x1, y1, x2, y2, i->polygon) && ADD_PV_TO_LIST (pv))
+            longjmp (i->env, 1);
+	}
+      else
+        {
+	  if (IsPointInPolygon (pv->X, pv->Y, pv->Thickness * 0.5 + fBloat, i->polygon)
+             && ADD_PV_TO_LIST (pv))
+            longjmp (i->env, 1);
+	}
+    }
   return 0;
 }
 
@@ -1076,7 +1100,7 @@ pv_touch_callback (const BoxType *b, void *cl)
   PinTypePtr pin = (PinTypePtr)b;
   struct lo_info *i = (struct lo_info *)cl;
 
-  if (!TEST_FLAG (TheFlag, pin) && IS_PV_ON_LINE (pin, i->line))
+  if (!TEST_FLAG (TheFlag, pin) && PinLineIntersect (pin, i->line))
     longjmp (i->env, 1);
   return 0;
 }
@@ -1301,15 +1325,20 @@ LineLineIntersect (LineTypePtr Line1, LineTypePtr Line2)
 {
   register float dx, dy, dx1, dy1, s, r;
 
+#if 0
+  if (Line1->BoundingBox.X1 - Bloat > Line2->BoundBoxing.X2
+     || Line1->BoundingBox.X2 + Bloat < Line2->BoundingBox.X1
+     || Line1->BoundingBox.Y1 - Bloat < Line2->BoundingBox.Y2
+     || Line1->BoundingBox.Y2 + Bloat < Line2->BoundingBox.Y1)
+    return False;
+#endif
+
   /* setup some constants */
   dx = (float) (Line1->Point2.X - Line1->Point1.X);
   dy = (float) (Line1->Point2.Y - Line1->Point1.Y);
   dx1 = (float) (Line1->Point1.X - Line2->Point1.X);
   dy1 = (float) (Line1->Point1.Y - Line2->Point1.Y);
   s = dy1 * dx - dx1 * dy;
-
-
-
 
   r =
     dx * (float) (Line2->Point2.Y -
@@ -1431,8 +1460,6 @@ LineLineIntersect (LineTypePtr Line1, LineTypePtr Line2)
     }
   else
     {
-      register float radius;
-
       s /= r;
       r =
 	(dy1 *
@@ -1479,28 +1506,19 @@ LineLineIntersect (LineTypePtr Line1, LineTypePtr Line2)
 	}
 
       /* no intersection of zero-width lines but maybe of thick lines;
-       * BEEP! Must check each end point to find the nearest two
+       * Must check each end point to exclude intersection
        */
-      radius =
-	MAX (0.5 * (Line1->Thickness + Line2->Thickness) + fBloat, 0.0);
-      radius *= radius;
-      dx = (float) Line1->Point1.X - Line2->Point1.X;
-      dy = (float) Line1->Point1.Y - Line2->Point1.Y;
-      if (dx * dx + dy * dy <= radius)
-	return (True);
-      dx = (float) Line1->Point1.X - Line2->Point2.X;
-      dy = (float) Line1->Point1.Y - Line2->Point2.Y;
-      if (dx * dx + dy * dy <= radius)
-	return (True);
-      dx = (float) Line1->Point2.X - Line2->Point1.X;
-      dy = (float) Line1->Point2.Y - Line2->Point1.Y;
-      if (dx * dx + dy * dy <= radius)
-	return (True);
-      dx = (float) Line1->Point2.X - Line2->Point2.X;
-      dy = (float) Line1->Point2.Y - Line2->Point2.Y;
-      if (dx * dx + dy * dy <= radius)
-	return (True);
-      return (False);
+      if (IsPointOnLine (Line1->Point1.X, Line1->Point1.Y,
+          Line1->Thickness/2.0 + fBloat, Line2))
+	return True;
+      if (IsPointOnLine (Line1->Point2.X, Line1->Point2.Y,
+          Line1->Thickness/2.0 + fBloat, Line2))
+	return True;
+      if (IsPointOnLine (Line2->Point1.X, Line2->Point1.Y,
+          Line2->Thickness/2.0 + fBloat, Line1))
+	return True;
+      return IsPointOnLine (Line2->Point2.X, Line2->Point2.Y,
+          Line2->Thickness/2.0 + fBloat, Line1);
     }
 }
 
@@ -1537,6 +1555,7 @@ Boolean
 LineArcIntersect (LineTypePtr Line, ArcTypePtr Arc)
 {
   register float dx, dy, dx1, dy1, l, d, r, r2, Radius;
+  BoxTypePtr box;
 
   dx = (float) (Line->Point2.X - Line->Point1.X);
   dy = (float) (Line->Point2.Y - Line->Point1.Y);
@@ -1547,8 +1566,6 @@ LineArcIntersect (LineTypePtr Line, ArcTypePtr Arc)
   d *= d;
 
   /* use the larger diameter circle first */
-
-
   Radius =
     Arc->Width + MAX (0.5 * (Arc->Thickness + Line->Thickness) + fBloat, 0.0);
   Radius *= Radius;
@@ -1582,7 +1599,13 @@ LineArcIntersect (LineTypePtr Line, ArcTypePtr Arc)
 		       Line->Point1.Y + r * dy,
 		       MAX (0.5 * Line->Thickness + fBloat, 0.0), Arc))
     return (True);
-  return (False);
+    /* check arc end points */
+  box = GetArcEnds (Arc);
+  if (IsPointOnLine (box->X1, box->Y1, Arc->Thickness * 0.5 + fBloat, Line))
+    return True;
+  if (IsPointOnLine (box->X2, box->Y2, Arc->Thickness * 0.5 + fBloat, Line))
+    return True;
+  return False;
 }
 
 static int
@@ -1621,7 +1644,7 @@ LOCtoArcPad_callback (const BoxType *b, void *cl)
 
   if (!TEST_FLAG (TheFlag, pad) && i->layer ==
       (TEST_FLAG (ONSOLDERFLAG, pad) ? SOLDER_LAYER : COMPONENT_LAYER)
-      && ArcPadIntersect (pad, i->arc)
+      && ArcPadIntersect (i->arc, pad)
       && ADD_PAD_TO_LIST (i->layer, pad))
     longjmp (i->env, 1);
   return 0;
@@ -2039,7 +2062,7 @@ LOCtoPadArc_callback (const BoxType *b, void *cl)
   ArcTypePtr arc = (ArcTypePtr)b;
   struct lo_info *i = (struct lo_info *) cl;
 
-  if (!TEST_FLAG (TheFlag, arc) && ArcPadIntersect (i->pad, arc))
+  if (!TEST_FLAG (TheFlag, arc) && ArcPadIntersect (arc, i->pad))
     {
       if (ADD_ARC_TO_LIST (i->layer, arc))
         longjmp (i->env, 1);
@@ -2148,10 +2171,14 @@ LookupLOConnectionsToPad (PadTypePtr Pad, Cardinal LayerGroup)
 		  Location x2;
 		  Location y1;
 		  Location y2;
-		  x1 = MIN (Pad->Point1.X, Pad->Point2.X) - (Pad->Thickness + Bloat)/2;
-		  x2 = MAX (Pad->Point1.X, Pad->Point2.X) + (Pad->Thickness + Bloat)/2;
-		  y1 = MIN (Pad->Point1.Y, Pad->Point2.Y) - (Pad->Thickness + Bloat)/2;
-		  y2 = MAX (Pad->Point1.Y, Pad->Point2.Y) + (Pad->Thickness + Bloat)/2;
+		  x1 = MIN (Pad->Point1.X, Pad->Point2.X)
+		       - (Pad->Thickness + 1)/2 - Bloat;
+		  x2 = MAX (Pad->Point1.X, Pad->Point2.X)
+		       + (Pad->Thickness + 1)/2 + Bloat;
+		  y1 = MIN (Pad->Point1.Y, Pad->Point2.Y)
+		       - (Pad->Thickness + 1)/2 - Bloat;
+		  y2 = MAX (Pad->Point1.Y, Pad->Point2.Y)
+		       + (Pad->Thickness + 1)/2 + Bloat;
 		  if (IsRectangleInPolygon (x1, y1, x2, y2, polygon) &&
 		     ADD_POLYGON_TO_LIST (layer, polygon))
 		    return True;

@@ -38,5 +38,6 @@ void	InitControlPanel(Widget, Widget, Widget);
 void	UpdateControlPanel(void);
 void	UpdateModeSelection(void);
 int		ChangeGroupVisibility(Cardinal, Boolean, Boolean);
+Cardinal GetGroupOfLayer (Cardinal);
 
 #endif

@@ -98,6 +98,7 @@ struct ans_info
         **ptr2,
 	**ptr3;
    Boolean BackToo;
+   float area;
    jmp_buf env;
 };
 
@@ -495,6 +496,28 @@ SearchElementNameByLocation (ElementTypePtr * Element,
   return (False);
 }
 
+int
+element_callback (const BoxType *box, void *cl)
+{
+  ElementTypePtr element = (ElementTypePtr)box;
+  struct ans_info *i = (struct ans_info *) cl;
+  float newarea;
+
+  if (POINT_IN_BOX (PosX, PosY, &element->VBox))
+    {
+	  /* use the element with the smallest bounding box */
+       newarea = (element->VBox.X2 - element->VBox.X1) *
+		 (float) (element->VBox.Y2 - element->VBox.Y1);
+       if (newarea < i->area)
+         {
+	   i->area = newarea;
+           *i->ptr1 = *i->ptr2 = *i->ptr3 = element;
+	 }
+       return 1;
+    }
+  return 0;
+}
+
 /* ---------------------------------------------------------------------------
  * searches an element
  * the search starts with the last element and goes back to the beginning
@@ -505,49 +528,20 @@ SearchElementByLocation (ElementTypePtr * Element,
 			 ElementTypePtr * Dummy1, ElementTypePtr * Dummy2,
 			 Boolean BackToo)
 {
-  ElementTypePtr save = NULL;
-  float area = 0;
-  Boolean found;
+  struct ans_info info;
 
   /* Both package layers have to be switched on */
   if (PCB->ElementOn && PCB->PinOn)
     {
-      /* the element names bounding box is not necessarily
-       * a part of the elements bounding box;
-       * we have to check all of them
-       */
-      ELEMENT_LOOP (PCB->Data, 
-	{
-	  if (ScreenOnly && !VELEMENT (element))
-	    continue;
-	  if (FRONT (element) || (BackToo && PCB->InvisibleObjectsOn))
-	    {
-	      found = POINT_IN_BOX (PosX, PosY, &element->BoundingBox);
-	      if (!TEST_FLAG (HIDENAMEFLAG, element))
-		found |= POINT_IN_BOX (PosX, PosY,
-				       &element->
-				       Name[NAME_INDEX (PCB)].BoundingBox);
-	      if (found)
-		{
-		  float newarea;
-		  /* use the element with the smallest bounding box */
-		  newarea =
-		    (element->BoundingBox.X2 -
-		     element->BoundingBox.X1) *
-		    (float) (element->BoundingBox.Y2 -
-			     element->BoundingBox.Y1);
-		  if (!save || newarea < area)
-		    {
-		      area = newarea;
-		      save = element;
-		    }
-		}
-	    }
-	}
-      );
+      info.ptr1 = (void **)Element;
+      info.ptr2 = (void **)Dummy1;
+      info.ptr3 = (void **)Dummy2;
+      info.area = (float)MAX_COORD * MAX_COORD;
+      if (r_search (PCB->Data->element_tree, &SearchBox, NULL, element_callback,
+                    &info))
+	return True;
     }
-  *Element = *Dummy1 = *Dummy2 = save;
-  return (save != NULL);
+  return False;
 }
 
 /* ---------------------------------------------------------------------------

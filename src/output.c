@@ -563,6 +563,8 @@ OutputEvent (Widget W, XtPointer ClientData, XEvent * Event, Boolean * Flag)
 	  ksym == XK_Control_R || ksym == XK_Control_L)
 	{
 	  HideCrosshair (False);
+	  FitCrosshairIntoGrid (TO_PCB_X (((XKeyEvent *) Event)->x),
+	                        TO_PCB_Y (((XKeyEvent *)Event)->y));
 	  AdjustAttachedObjects ();
 	  RestoreCrosshair (True);
 	}

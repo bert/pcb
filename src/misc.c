@@ -225,15 +225,6 @@ SetPinBoundingBox (PinTypePtr Pin)
   Pin->BoundingBox.Y1 = Pin->Y - width;
   Pin->BoundingBox.X2 = Pin->X + width;
   Pin->BoundingBox.Y2 = Pin->Y + width;
-  if (Pin->Element)
-    {
-      BoxTypePtr box;
-      box = &((ElementTypePtr)(Pin->Element))->BoundingBox;
-      box->X1 = MIN (box->X1, Pin->BoundingBox.X1);
-      box->Y1 = MIN (box->Y1, Pin->BoundingBox.Y1);
-      box->X2 = MAX (box->X2, Pin->BoundingBox.X2);
-      box->Y2 = MAX (box->Y2, Pin->BoundingBox.Y2);
-    }
 }
 
 /* ---------------------------------------------------------------------------
@@ -243,7 +234,6 @@ void
 SetPadBoundingBox (PadTypePtr Pad)
 {
   BDimension width;
-  BoxTypePtr box;
 
    /* the bounding box covers the extent of influence
     * so it must include the clearance values too
@@ -254,11 +244,6 @@ SetPadBoundingBox (PadTypePtr Pad)
   Pad->BoundingBox.X2 = MAX(Pad->Point1.X, Pad->Point2.X) + width;
   Pad->BoundingBox.Y1 = MIN(Pad->Point1.Y, Pad->Point2.Y) - width;
   Pad->BoundingBox.Y2 = MAX(Pad->Point1.Y, Pad->Point2.Y) + width;
-  box = &((ElementTypePtr)(Pad->Element))->BoundingBox;
-  box->X1 = MIN (box->X1, Pad->BoundingBox.X1);
-  box->Y1 = MIN (box->Y1, Pad->BoundingBox.Y1);
-  box->X2 = MAX (box->X2, Pad->BoundingBox.X2);
-  box->Y2 = MAX (box->Y2, Pad->BoundingBox.Y2);
 }
 
 /* ---------------------------------------------------------------------------
@@ -283,22 +268,16 @@ SetLineBoundingBox (LineTypePtr Line)
 void
 SetPolygonBoundingBox (PolygonTypePtr Polygon)
 {
-  Location minx, miny, maxx, maxy;
-
-  minx = miny = MAX_COORD;
-  maxx = maxy = 0;
+  Polygon->BoundingBox.X1 = Polygon->BoundingBox.Y1 = MAX_COORD;
+  Polygon->BoundingBox.X2 = Polygon->BoundingBox.Y2 = 0;
   POLYGONPOINT_LOOP (Polygon, 
     {
-      minx = MIN (minx, point->X);
-      miny = MIN (miny, point->Y);
-      maxx = MAX (maxx, point->X);
-      maxy = MAX (maxy, point->Y);
+      MAKEMIN (Polygon->BoundingBox.X1, point->X);
+      MAKEMIN (Polygon->BoundingBox.Y1, point->Y);
+      MAKEMAX (Polygon->BoundingBox.X2, point->X);
+      MAKEMAX (Polygon->BoundingBox.Y2, point->Y);
     }
   );
-  Polygon->BoundingBox.X1 = minx;
-  Polygon->BoundingBox.Y1 = miny;
-  Polygon->BoundingBox.X2 = maxx;
-  Polygon->BoundingBox.Y2 = maxy;
 }
 
 /* ---------------------------------------------------------------------------
@@ -307,7 +286,7 @@ SetPolygonBoundingBox (PolygonTypePtr Polygon)
 void
 SetElementBoundingBox (DataTypePtr Data, ElementTypePtr Element, FontTypePtr Font)
 {
-  BoxTypePtr box;
+  BoxTypePtr box, vbox;
 
   if (Data && Data->element_tree)
     r_delete_entry(Data->element_tree, (BoxType *)Element);
@@ -322,29 +301,31 @@ SetElementBoundingBox (DataTypePtr Data, ElementTypePtr Element, FontTypePtr Fon
    * is handles seperatly
    */
   box = &Element->BoundingBox;
+  vbox = &Element->VBox;
   box->X1 = box->Y1 = MAX_COORD;
   box->X2 = box->Y2 = 0;
   ELEMENTLINE_LOOP (Element, 
     {
-      box->X1 = MIN (box->X1, line->Point1.X - (line->Thickness + 1) / 2);
-      box->Y1 = MIN (box->Y1, line->Point1.Y - (line->Thickness + 1) / 2);
-      box->X1 = MIN (box->X1, line->Point2.X - (line->Thickness + 1) / 2);
-      box->Y1 = MIN (box->Y1, line->Point2.Y - (line->Thickness + 1) / 2);
-      box->X2 = MAX (box->X2, line->Point1.X + (line->Thickness + 1) / 2);
-      box->Y2 = MAX (box->Y2, line->Point1.Y + (line->Thickness + 1) / 2);
-      box->X2 = MAX (box->X2, line->Point2.X + (line->Thickness + 1) / 2);
-      box->Y2 = MAX (box->Y2, line->Point2.Y + (line->Thickness + 1) / 2);
+      MAKEMIN (box->X1, line->Point1.X - (line->Thickness + 1) / 2);
+      MAKEMIN (box->Y1, line->Point1.Y - (line->Thickness + 1) / 2);
+      MAKEMIN (box->X1, line->Point2.X - (line->Thickness + 1) / 2);
+      MAKEMIN (box->Y1, line->Point2.Y - (line->Thickness + 1) / 2);
+      MAKEMAX (box->X2, line->Point1.X + (line->Thickness + 1) / 2);
+      MAKEMAX (box->Y2, line->Point1.Y + (line->Thickness + 1) / 2);
+      MAKEMAX (box->X2, line->Point2.X + (line->Thickness + 1) / 2);
+      MAKEMAX (box->Y2, line->Point2.Y + (line->Thickness + 1) / 2);
     }
   );
   ARC_LOOP (Element, 
     {
       SetArcBoundingBox (arc);
-      box->X1 = MIN (box->X1, arc->BoundingBox.X1);
-      box->Y1 = MIN (box->Y1, arc->BoundingBox.Y1);
-      box->X2 = MAX (box->X2, arc->BoundingBox.X2);
-      box->Y2 = MAX (box->Y2, arc->BoundingBox.Y2);
+      MAKEMIN (box->X1, arc->BoundingBox.X1);
+      MAKEMIN (box->Y1, arc->BoundingBox.Y1);
+      MAKEMAX (box->X2, arc->BoundingBox.X2);
+      MAKEMAX (box->Y2, arc->BoundingBox.Y2);
     }
   );
+  *vbox = *box;
   PIN_LOOP (Element, 
     {
       if (Data && Data->pin_tree)
@@ -356,6 +337,14 @@ SetElementBoundingBox (DataTypePtr Data, ElementTypePtr Element, FontTypePtr Fon
             Data->pin_tree = r_create_tree (NULL, 0, 0);
           r_insert_entry (Data->pin_tree, (BoxType *)pin, 0);
         }
+      MAKEMIN (box->X1, pin->BoundingBox.X1);
+      MAKEMIN (box->Y1, pin->BoundingBox.Y1);
+      MAKEMAX (box->X2, pin->BoundingBox.X2);
+      MAKEMAX (box->Y2, pin->BoundingBox.Y2);
+      MAKEMIN (vbox->X1, pin->X - pin->Thickness/2);
+      MAKEMIN (vbox->Y1, pin->Y - pin->Thickness/2);
+      MAKEMAX (vbox->X2, pin->X + pin->Thickness/2);
+      MAKEMAX (vbox->Y2, pin->Y + pin->Thickness/2);
     }
   );
   PAD_LOOP (Element, 
@@ -368,6 +357,18 @@ SetElementBoundingBox (DataTypePtr Data, ElementTypePtr Element, FontTypePtr Fon
           if (!Data->pad_tree)
             Data->pad_tree = r_create_tree (NULL, 0, 0);
           r_insert_entry (Data->pad_tree, (BoxType *)pad, 0);
+          MAKEMIN (box->X1, pad->BoundingBox.X1);
+          MAKEMIN (box->Y1, pad->BoundingBox.Y1);
+          MAKEMAX (box->X2, pad->BoundingBox.X2);
+          MAKEMAX (box->Y2, pad->BoundingBox.Y2);
+          MAKEMIN (vbox->X1,
+	              MIN (pad->Point1.X, pad->Point2.X) - pad->Thickness/2);
+          MAKEMIN (vbox->Y1,
+	              MIN (pad->Point1.Y, pad->Point2.Y) - pad->Thickness/2);
+          MAKEMAX (vbox->X2,
+	              MAX (pad->Point1.X, pad->Point2.X) + pad->Thickness/2);
+          MAKEMAX (vbox->Y2,
+	              MAX (pad->Point1.Y, pad->Point2.Y) + pad->Thickness/2);
         }
     }
   );

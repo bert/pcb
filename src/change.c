@@ -390,8 +390,8 @@ ChangePinSize (ElementTypePtr Element, PinTypePtr Pin)
       r_delete_entry (PCB->Data->pin_tree, &Pin->BoundingBox);
       Pin->Mask += value - Pin->Thickness;
       Pin->Thickness = value;
-      SetPinBoundingBox(Pin);
-      r_insert_entry (PCB->Data->pin_tree, &Pin->BoundingBox, 0);
+       /* SetElementBB updates all associated rtrees */
+      SetElementBoundingBox(PCB->Data, Element, &PCB->Font);
       DrawPin (Pin, 0);
       return (Pin);
     }
@@ -414,8 +414,8 @@ ChangePinClearSize (ElementTypePtr Element, PinTypePtr Pin)
   ErasePin (Pin);
   r_delete_entry (PCB->Data->pin_tree, &Pin->BoundingBox);
   Pin->Clearance = value;
-  SetPinBoundingBox (Pin);
-  r_insert_entry (PCB->Data->pin_tree, &Pin->BoundingBox, 0);
+       /* SetElementBB updates all associated rtrees */
+  SetElementBoundingBox(PCB->Data, Element, &PCB->Font);
   DrawPin (Pin, 0);
   return (Pin);
 }
@@ -439,8 +439,8 @@ ChangePadSize (ElementTypePtr Element, PadTypePtr Pad)
       r_delete_entry (PCB->Data->pad_tree, &Pad->BoundingBox);
       Pad->Mask += value - Pad->Thickness;
       Pad->Thickness = value;
-      SetPadBoundingBox (Pad);
-      r_insert_entry (PCB->Data->pad_tree, &Pad->BoundingBox, 0);
+       /* SetElementBB updates all associated rtrees */
+      SetElementBoundingBox(PCB->Data, Element, &PCB->Font);
       DrawPad (Pad, 0);
       return (Pad);
     }
@@ -465,8 +465,8 @@ ChangePadClearSize (ElementTypePtr Element, PadTypePtr Pad)
       ErasePad (Pad);
       r_delete_entry (PCB->Data->pad_tree, &Pad->BoundingBox);
       Pad->Clearance = value;
-      SetPadBoundingBox (Pad);
-      r_insert_entry (PCB->Data->pad_tree, &Pad->BoundingBox, 0);
+       /* SetElementBB updates all associated rtrees */
+      SetElementBoundingBox(PCB->Data, Element, &PCB->Font);
       DrawPad (Pad, 0);
       return (Pad);
     }
@@ -1574,7 +1574,9 @@ ChangePadMaskSize (ElementTypePtr Element, PadTypePtr Pad)
     {
       AddObjectToMaskSizeUndoList (PAD_TYPE, Element, Pad, Pad);
       ErasePad (Pad);
+      r_delete_entry (PCB->Data->pad_tree, &Pad->BoundingBox);
       Pad->Mask = value;
+      SetElementBoundingBox (PCB->Data, Element, &PCB->Font);
       DrawPad (Pad, 0);
       return (Pad);
     }
@@ -1597,7 +1599,9 @@ ChangePinMaskSize (ElementTypePtr Element, PinTypePtr Pin)
     {
       AddObjectToMaskSizeUndoList (PIN_TYPE, Element, Pin, Pin);
       ErasePin (Pin);
+      r_delete_entry (PCB->Data->pin_tree, &Pin->BoundingBox);
       Pin->Mask = value;
+      SetElementBoundingBox (PCB->Data, Element, &PCB->Font);
       DrawPin (Pin, 0);
       return (Pin);
     }

@@ -46,6 +46,9 @@
 
 Boolean	LineLineIntersect(LineTypePtr, LineTypePtr);
 Boolean LineArcIntersect(LineTypePtr, ArcTypePtr);
+Boolean PinLineIntersect(PinTypePtr, LineTypePtr);
+Boolean LinePadIntersect(LineTypePtr, PadTypePtr);
+Boolean ArcPadIntersect(ArcTypePtr, PadTypePtr);
 Boolean	IsPolygonInPolygon(PolygonTypePtr, PolygonTypePtr);
 void	LookupElementConnections(ElementTypePtr, FILE *);
 void	LookupConnectionsToAllElements(FILE *);
