@@ -143,6 +143,12 @@ static char *rcsid = "$Id$";
 			IsPointInSquarePad((PV)->X, (PV)->Y, MAX((PV)->Thickness/2 +Bloat,0), (Pad)) : \
 			PinLineIntersect((PV), (LineTypePtr) (Pad)))
 
+/*
+ * message when asked about continuing DRC checks after first 
+ * violation is found.
+ */
+#define DRC_CONTINUE "Stop here? (Cancel to continue checking)"
+
 /* ---------------------------------------------------------------------------
  * some local types
  *
@@ -3447,7 +3453,7 @@ DRCFind (int What, void *ptr1, void *ptr2, void *ptr3)
       drc = False;
       drcerr_count++;
       GotoError ();
-      if (ConfirmDialog ("Stop here? (Cancel to continue checking)"))
+      if (ConfirmDialog (DRC_CONTINUE))
 	return (True);
       IncrementUndoSerialNumber ();
       Undo (True);
@@ -3487,7 +3493,7 @@ DRCFind (int What, void *ptr1, void *ptr2, void *ptr3)
       GotoError ();
       User = False;
       drc = False;
-      if (ConfirmDialog ("Stop here? (Cancel to continue checking)"))
+      if (ConfirmDialog (DRC_CONTINUE))
 	return (True);
       IncrementUndoSerialNumber ();
       Undo (True);
@@ -3603,7 +3609,7 @@ doIsBad:
   DrawObject (type, ptr1, ptr2, 0);
   drcerr_count++;
   GotoError ();
-  if (ConfirmDialog ("Stop here? (Cancel to continue checking)"))
+  if (ConfirmDialog (DRC_CONTINUE))
     {
       IsBad = True;
       return 1;
@@ -3702,7 +3708,7 @@ DRCAll (void)
 	    drcerr_count++;
 	    SetThing (LINE_TYPE, layer, line, line);
 	    GotoError ();
-	    if (ConfirmDialog ("Stop here? (Cancel to continue checking)"))
+	    if (ConfirmDialog (DRC_CONTINUE))
 	      {
 		IsBad = True;
 		break;
@@ -3726,7 +3732,7 @@ DRCAll (void)
 	    drcerr_count++;
 	    SetThing (ARC_TYPE, layer, arc, arc);
 	    GotoError ();
-	    if (ConfirmDialog ("Stop here? (Cancel to continue checking)"))
+	    if (ConfirmDialog (DRC_CONTINUE))
 	      {
 		IsBad = True;
 		break;
@@ -3751,7 +3757,7 @@ DRCAll (void)
 	    drcerr_count++;
 	    SetThing (PIN_TYPE, element, pin, pin);
 	    GotoError ();
-	    if (ConfirmDialog ("Stop here? (Cancel to continue checking)"))
+	    if (ConfirmDialog (DRC_CONTINUE))
 	      {
 		IsBad = True;
 		break;
@@ -3775,7 +3781,7 @@ DRCAll (void)
 	    drcerr_count++;
 	    SetThing (PAD_TYPE, element, pad, pad);
 	    GotoError ();
-	    if (ConfirmDialog ("Stop here? (Cancel to continue checking)"))
+	    if (ConfirmDialog (DRC_CONTINUE))
 	      {
 		IsBad = True;
 		break;
@@ -3800,7 +3806,7 @@ DRCAll (void)
 	    drcerr_count++;
 	    SetThing (VIA_TYPE, via, via, via);
 	    GotoError ();
-	    if (ConfirmDialog ("Stop here? (Cancel to continue checking)"))
+	    if (ConfirmDialog (DRC_CONTINUE))
 	      {
 		IsBad = True;
 		break;
