@@ -271,6 +271,10 @@ SizeDialog (void)
       Sliders[WIDTH_SLIDER].Min = box->X2;
       Sliders[HEIGHT_SLIDER].Min = box->Y2;
     }
+  if (Sliders[WIDTH_SLIDER].Min > Sliders[WIDTH_SLIDER].Value)
+    Sliders[WIDTH_SLIDER].Min = Sliders[WIDTH_SLIDER].Value;
+  if (Sliders[HEIGHT_SLIDER].Min > Sliders[HEIGHT_SLIDER].Value)
+    Sliders[HEIGHT_SLIDER].Min = Sliders[HEIGHT_SLIDER].Value;
 
   /* create a popup shell */
   popup = XtVaCreatePopupShell ("Sizes", transientShellWidgetClass,
