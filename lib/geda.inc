@@ -1,4 +1,4 @@
-#
+# -*- m4 -*-
 #   $Id$
 #
 #   gEDA compatible footprint names
@@ -69,6 +69,14 @@ define(`PKG_SIP10', `PKG_CSIL(`$1', `$2', `$3', 10)');
 define(`PKG_SIP11', `PKG_CSIL(`$1', `$2', `$3', 11)');
 define(`PKG_SIP12', `PKG_CSIL(`$1', `$2', `$3', 12)');
 define(`PKG_SIP13', `PKG_CSIL(`$1', `$2', `$3', 13)');
+
+#
+##  Ultra (Micro?) Small outline package
+#
+# pins, width (1/100mil), pitch (1/100 mil)
+define(`PKG_US8',     `PKG_US( `$1', `$2', `$3',  8)');
+define(`PKG_US14',    `PKG_US( `$1', `$2', `$3', 14)');
+define(`PKG_US16',    `PKG_US( `$1', `$2', `$3', 16)');
 
 #
 ##  Small outline package, narrow (150mil)
@@ -604,6 +612,15 @@ define(`PKG_1806',      `PKG_SMT_2PAD_MIL(  `$1', `$2', `$3', 180,   60)');
 define(`PKG_1812',      `PKG_SMT_2PAD_MIL(  `$1', `$2', `$3', 180, 120)');
 define(`PKG_1825',      `PKG_SMT_2PAD_MIL(  `$1', `$2', `$3', 180, 250)');
 define(`PKG_2706',      `PKG_SMT_2PAD_MIL(  `$1', `$2', `$3', 270,   60)');
+
+#
+## 3-Pin SMT EMI Filter based on standard SMT sizes
+#  See www.murata.com for example
+#
+define(`PKG_EMI0603',      `COMMON_SMT_3PAD_MIL(  `$1', `$2', `$3', 24, 24,  63,  47, 16, 10, 10)');
+define(`PKG_EMI0805',      `COMMON_SMT_3PAD_MIL(  `$1', `$2', `$3', 32, 24,  79,  75, 24, 10, 10)');
+define(`PKG_EMI1206',      `COMMON_SMT_3PAD_MIL(  `$1', `$2', `$3', 32, 28, 126,  79, 39, 10, 10)');
+define(`PKG_EMI1806',      `COMMON_SMT_3PAD_MIL(  `$1', `$2', `$3', 39, 39, 177, 102, 59, 10, 10)');
 
 #
 ## Tantalum SMT capacitor (pin 1 is +)

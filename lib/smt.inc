@@ -8,6 +8,8 @@
 #   Initial stub
 #
 #
+
+
 # -------------------------------------------------------------------
 #
 # internal: general purpose two pole surface mount
@@ -63,6 +65,90 @@ Element(0x00 "$1" "$2" "$3" eval(maxX + 20) 0 3 100 0x00)
 
 	Mark(eval(addFRAME+padX/2) centerY)
 )')
+# -------------------------------------------------------------------
+# 
+#
+# general purpose 3 pole surface mount
+# $1: canonical name
+# $2: name on PCB
+# $3: value
+# $4: outer pad width   (mil) (in direction perpendicular to part)
+# $5: outer pad length  (mil) (in direction parallel with part)
+# $6: outer pad spacing (mil) (center to center)
+# $7: inner pad width  (mil) (in direction perpendicular to part)
+# $8: inner pad length (mil) (in direction parallel with part)
+# $9: distance from edge of pad to silk (mil) (in direction
+#     perpendicular to part)
+# $10: distance from edge of pad to silk (mil) (in direction
+#     parallel with part)
+# $11: Set to "no" to skip silk screen on the sides of the part
+define(`COMMON_SMT_3PAD_MIL',
+	`
+	define(`PADW', `$4')
+	define(`PADL', `$5')
+	define(`PADS', `$6')
+	define(`PADW2',`$7')
+	define(`PADL2',`$8')
+	define(`SLKW', `$9')
+	define(`SLKL', `$10')
+
+	# silk screen width (mils)
+	define(`SILKW', `10')
+	
+	# silk screen bounding box
+	define(`XMIN', `eval( -PADS/2 - PADL/2 - SLKL - SILKW/2)')	
+	define(`XMAX', `eval(  PADS/2 + PADL/2 + SLKL + SILKW/2)')
+	define(`YMIN', `eval(-PADW2/2 - SLKW - SILKW/2)')	
+	define(`YMAX', `eval( PADW2/2 + SLKW + SILKW/2)')
+	define(`SKIP_SILK', `$11')
+
+		
+Element(0x00 "$1" "$2" "$3" eval(XMIN+20) eval(YMAX+20) 0 100 0x00)
+(
+	ifelse(0, eval(PADW>PADL),
+	# Pads which have the perpendicular pad dimension less
+	# than or equal to the parallel pad dimension 	
+	Pad(eval(-1*(   PADS + PADL - PADW)/2) 0 
+            eval((-1*PADS + PADL - PADW)/2) 0 eval(PADW) "1" 0x100)
+	Pad(eval(-1*(-1*PADS + PADL - PADW)/2) 0 
+            eval((   PADS + PADL - PADW)/2) 0 eval(PADW) "3" 0x100)
+        ,
+	# Pads which have the perpendicular pad dimension greater
+	# than or equal to the parallel pad dimension 
+ 	Pad(eval(-1*PADS/2) eval(-1*(PADW - PADL)/2) 
+            eval(-1*PADS/2)  eval((PADW - PADL)/2) eval(PADL) "1" 0x100)
+ 	Pad(eval(   PADS/2) eval(-1*(PADW - PADL)/2) 
+            eval(   PADS/2)  eval((PADW - PADL)/2) eval(PADL) "3" 0x100)
+	)
+
+	ifelse(0, eval(PADW2>PADL2),
+	# Pads which have the perpendicular pad dimension less
+	# than or equal to the parallel pad dimension 	
+	Pad(eval((-PADL2 + PADW2)/2) 0 
+            eval(( PADL2 - PADW2)/2) 0 PADW2 "2" 0x100)
+        ,
+	# Pads which have the perpendicular pad dimension greater
+	# than or equal to the parallel pad dimension 
+ 	Pad(0 eval((-PADW2 + PADL2)/2) 
+            0 eval(( PADW2 - PADL2)/2) PADL2 "2" 0x100)
+	)
+
+	# silk screen
+	# ends
+	ElementLine(XMIN YMIN XMIN YMAX SILKW)
+	ElementLine(XMAX YMAX XMAX YMIN SILKW)
+	# sides
+ifelse(SKIP_SILK,"no",
+	#skip side silk
+	,
+	ElementLine(XMIN YMIN XMAX YMIN SILKW)
+	ElementLine(XMAX YMAX XMIN YMAX SILKW)
+)
+	# Mark the common centroid of the part
+	Mark(0 0)
+)')
+
+
 #
 # -------------------------------------------------------------------
 #
@@ -287,7 +373,6 @@ Element(0x00 "$1" "$2" "$3" eval(centerX + 20) 50 3 100 0x00)
 define(`PKG_SMT_2PAD_MIL',
   `COMMON_SMT_2PAD_MIL(`$1', `$2', `$3', `$4', `$5', 20, 0)')
 #
-#
 # general purpose two pole surface mount, pin 1 is marked
 # $1: canonical name
 # $2: name on PCB
@@ -420,3 +505,74 @@ define(`PKG_TSSOP', `COMMON_SMT_DUALINLINE(`$1',`$2',`$3',`$4',260,2600,14,40)')
 #efine(`xKG_SO',   `COMMON_SMT_DUALINLINE(`$1',`$2',`$3',`$4',244,5000,20,50)')
 # BUG: add PowerSO.PDF = MO166 - include dx=244+ dy=630 wide strip / X,Y=437,630
 #efine(`PKG_MO166',  `COMMON_SMT_DUALINLINE(`$1',`$2',`$3',`$4',570,5000,25,50)') # 24:
+
+
+# -------------------------------------------------------------------
+# the definition of a SMT dual inline package
+# $1: canonical name
+# $2: name on PCB
+# $3: value
+# $4: number of pins
+# $5: pad width  (1/1000 mil)
+# $6: pad length (1/1000 mil)
+# $7: pad pitch (1/1000 mil)
+# $8: pad seperation center to center for pads on opposite sides of
+#     the package (1/1000 mil)
+#
+# pin 1 will be upper left, pin N/2 will be lower left,
+# pin N will be upper right as defined here
+define(`COMMON_SMT_DIL_MIL',
+        `
+	# number of pads
+	define(`NPADS', `$4')
+	# pad width in 1/1000 mil
+        define(`PADWIDTH', `$5')
+	# pad length in 1/1000 mil
+        define(`PADLENGTH',`$6')
+	# pad pitch 1/1000 mil
+	define(`PITCH',`$7')
+	# seperation between pads on opposite sides 1/1000 mil
+	define(`PADSEP',`$8')
+
+	# X coordinates for the right hand column of pads (mils)
+        define(`X1', `eval( (PADSEP/2 + PADLENGTH - PADWIDTH/2)/1000)')
+        define(`X2', `eval( (PADSEP/2 + PADWIDTH/2)/1000)')
+
+	# silk screen width (mils)
+	define(`SILKW', `10')
+	define(`SILKSEP', `5')
+	# silk bounding box is -XMAX,-YMAX, XMAX,YMAX (mils)
+	define(`XMAX', `eval( (PADSEP/2 + PADLENGTH + 500*SILKW)/1000 + SILKSEP )')
+	define(`YMAX', `eval( ((NPADS/4)*PITCH - PITCH/2 + PADWIDTH/2 + 500*SILKW)/1000 + SILKSEP )')
+
+Element(0x00 "$1" "$2" "$3" -20 -60 0 100 0x00)
+(
+        forloop(`i', 1, eval(NPADS / 2),
+                `PAD(   -X1, eval( (-(NPADS/4)*PITCH - PITCH/2 + i*PITCH)/1000), 
+			-X2, eval( (-(NPADS/4)*PITCH - PITCH/2 + i*PITCH)/1000), 
+			eval(PADWIDTH/1000), i)
+        ')
+        forloop(`i', eval((NPADS / 2) + 1), NPADS,
+                `PAD(   X1, eval( ((NPADS/4)*PITCH + PITCH/2 - (i-NPADS/2)*PITCH)/1000), 
+			X2, eval( ((NPADS/4)*PITCH + PITCH/2 - (i-NPADS/2)*PITCH)/1000), 
+			eval(PADWIDTH/1000), i)
+        ')
+
+	ElementLine(-XMAX -YMAX -XMAX  YMAX SILKW)
+	ElementLine(-XMAX  YMAX  XMAX  YMAX SILKW)
+	ElementLine( XMAX  YMAX  XMAX -YMAX SILKW)
+	ElementLine(-XMAX -YMAX   -25 -YMAX SILKW)
+	ElementLine( XMAX -YMAX    25 -YMAX SILKW)
+	ElementArc(0 -YMAX 25 25 0 180 SILKW)
+	
+	# Mark at the common centroid
+        Mark(0 0)
+)')
+
+# dimensions are given in 1/100 mm.
+# $5-$8 are pad width, length, pitch, and sep
+define(`COMMON_SMT_DIL_MM',  `COMMON_SMT_DIL_MIL(`$1',`$2',`$3',`$4',
+	eval($5*100000/254),eval($6*100000/254),eval($7*100000/254),eval($8*100000/254))')
+
+define(`PKG_US',  `COMMON_SMT_DIL_MM(`$1',`$2',`$3',`$4',30,70,50,200)')
+
