@@ -179,6 +179,7 @@ SizesMenuInclude(Resource *menu)
 
   for (i = 0; i <  NUM_STYLES; i++)
     {
+      Resource *acc;
       Resource *sub = resource_create(menu);
       resource_add_val (sub, 0, PCB->RouteStyle[i].Name, 0);
       sprintf(tmp, "SizesLabel(%d,use)", i);
@@ -188,6 +189,13 @@ SizesMenuInclude(Resource *menu)
       sprintf(tmp, "CheckWhen(style,%d)", i+1);
       resource_add_val (sub, 0, MyStrdup(tmp, "SizesMenuInclude"), 0);
       resource_add_val (menu, 0, 0, sub);
+
+      acc = resource_create(sub);
+      sprintf(tmp, "Ctrl-%d", i+1);
+      resource_add_val (acc, 0, MyStrdup(tmp, "SizesMenuInclude"), 0);
+      sprintf(tmp, "Ctrl<Key>%d", i+1);
+      resource_add_val (acc, 0, MyStrdup(tmp, "SizesMenuInclude"), 0);
+      resource_add_val (sub, "a", 0, acc);
     }
   for (i = 0; i <  NUM_STYLES; i++)
     {

@@ -394,18 +394,6 @@ Pcb.masterForm*output.baseTranslations:   #override \
 			Mode(Notify) \
 			Mode(Restore) \n\
   <Key>Insert:      Mode(InsertPoint) \n\
-  <Key>Tab:         SwapSides() \n\
-  \
-  Ctrl<Key>1: RouteStyle(1) \n\
-  Ctrl<Key>2: RouteStyle(2) \n\
-  Ctrl<Key>3: RouteStyle(3) \n\
-  Ctrl<Key>4: RouteStyle(4) \n\
-  \
-  Shift<Key>1: PasteBuffer(1) \n\
-  Shift<Key>2: PasteBuffer(2) \n\
-  Shift<Key>3: PasteBuffer(3) \n\
-  Shift<Key>4: PasteBuffer(4) \n\
-  Shift<Key>5: PasteBuffer(5) \n\
   \
   <Key>1: SwitchDrawingLayer(1) \n\
   <Key>2: SwitchDrawingLayer(2) \n\
@@ -417,27 +405,17 @@ Pcb.masterForm*output.baseTranslations:   #override \
   <Key>8: SwitchDrawingLayer(8) \n\
   <Key>9: SwitchDrawingLayer(9) \n\
   \
-  Shift @btnmod@<Key>a:	Unselect(All) \n\
-  @btnmod@<Key>a:	Select(All) \n\
   <Key>a:		SetSame() \n\
-  Shift<Key>b:		Flip(Selected) \n\
   <Key>b:		Flip(Object) \n\
   @btnmod@<Key>c:       PasteBuffer(Clear) \
                        PasteBuffer(AddSelected) \
                        Unselect(All) \n\
-  <Key>c:          Display(Center) \n\
-  Shift<Key>d:        Display(Pinout) \n\
   <Key>d:          Display(PinOrPadName) \n\
   Shift<Key>e:        DeleteRats(SelectedRats) \n\
-  <Key>e:          DeleteRats(AllRats) \n\
-  Ctrl<Key>f:	   Connection(Find) \n\
-  Shift<Key>f:        Connection(Reset) \n\
   <Key>f:          Connection(Reset) \
 		   Connection(Find) \n\
   Shift Ctrl<Key>g:        SetValue(Grid, -0.05, mm) \n\
-  Shift<Key>g:        SetValue(Grid, -5, mil) \n\
   Ctrl<Key>g:          SetValue(Grid, +0.05, mm) \n\
-  <Key>g:          SetValue(Grid, +5, mil) \n\
   Shift<Key>h:        ToggleHideName(SelectedElements) \n\
   Ctrl<Key>h:         ChangeHole(ToggleObject) \n\
   <Key>h:          ToggleHideName(Object) \n\
@@ -453,35 +431,21 @@ Pcb.masterForm*output.baseTranslations:   #override \
   Ctrl<Key>m:         MarkCrosshair() \n\
   <Key>m:          MoveToCurrentLayer(Object) \n\
   Shift<Key>n:     AddRats(Close) \n\
-  <Key>n:          ChangeName(Object) \n\
   Shift<Key>o:        Atomic(Save) \
 		       DeleteRats(AllRats) \
 		       Atomic(Restore) \
                        AddRats(SelectedRats) \
 		       Atomic(Block) \n\
   Ctrl<Key>o:         ChangeOctagon(Object) \n\
-  <Key>o:          Atomic(Save) \
-		       DeleteRats(AllRats) \
-		       Atomic(Restore) \
-                       AddRats(AllRats) \
-		       Atomic(Block) \n\
-  Ctrl<Key>p:	AutoPlaceSelected() \n\
   Shift<Key>p:        Polygon(Close) \n\
   <Key>p:          Polygon(PreviousPoint) \n\
-  @btnmod@<Key>q:	Quit() \n\
   <Key>q:          ChangeSquare(ToggleObject) \n\
-  @btnmod@<Key>r:	AutoRoute(SelectedRats) \n\
-  Shift<Key>r:        Redo() \n\
-  Ctrl<Key>r:         Report(Object) \n\
-  <Key>r:          Display(ClearAndRedraw) \n\
   @btnmod@ Shift<Key>s: ChangeDrillSize(Object, -5, mil) \n\
   Shift<Key>s:        ChangeSize(Object, -5, mil) \n\
   @btnmod@<Key>s:       ChangeDrillSize(Object, +5, mil) \n\
   <Key>s:          ChangeSize(Object, +5, mil) \n\
   Shift<Key>t:          SetValue(TextScale, -10, mil) \n\
   <Key>t:               SetValue(TextScale, +10, mil) \n\
-  Shift Ctrl<Key>u:   Undo(ClearList) \n\
-  <Key>u:          Undo() \n\
   @btnmod@ Shift<Key>v: SetValue(ViaDrillingHole, -5, mil) \n\
   Shift Ctrl<Key>v:        SetValue(ViaSize, -5, mil) \n\
   @btnmod@<Key>v:       SetValue(ViaDrillingHole, +5, mil) \n\
@@ -489,13 +453,6 @@ Pcb.masterForm*output.baseTranslations:   #override \
   <Key>v:          SetValue(Zoom, 1000) \n\
   Shift<Key>w:        AddRats(SelectedRats) \n\
   <Key>w:          AddRats(AllRats) \n\
-  Shift Ctrl<Key>x:   PasteBuffer(Clear) \
-                       PasteBuffer(AddSelected) \
-                       RemoveSelected() \
-                       Mode(PasteBuffer) \n\
-  Ctrl<Key>x:         PasteBuffer(Clear) \
-                       PasteBuffer(AddSelected) \
-                       Mode(PasteBuffer) \n\
   @btnmod@<Key>x:       PasteBuffer(Clear) \
                        PasteBuffer(AddSelected) \
                        RemoveSelected() \n\
@@ -538,7 +495,6 @@ Pcb.masterForm*output.baseTranslations:   #override \
   <Key>F5:   Mode(Rectangle) \n\
   <Key>F6:   Mode(Polygon) \n\
   Shift<Key>F7: PasteBuffer(Rotate, 1) \n\
-  <Key>F7:   Mode(PasteBuffer) \n\
   <Key>F8:   Mode(Delete) \n\
   <Key>F9:	Mode(Rotate) \n\
   <Key>F10:   Mode(Thermal) \n\
@@ -582,10 +538,8 @@ Pcb.masterForm*output.baseTranslations:   #override \
 			SetValue(Zoom, 1000) \n\
   Shift<Btn3Up>:	Display(Center) \
 			Display(Restore) \n\
-  <Btn3Down>:	ButtonThree()  \n\
-  <Key>|:	Display(ToggleThindraw) \n\
-  Shift<Key>=:	djopt(auto) Display(ClearAndRedraw) \n\
-  <Key>=:	djopt(simple) Display(ClearAndRedraw) \n
+  <Btn3Down>:	ButtonThree()  \n
+
 !-------------------------------------------------------------------- 
 ! The "None" is necessary for the MenuPopup,
 ! otherwise the menu won't get a grab 

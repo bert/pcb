@@ -1257,6 +1257,8 @@ InitWidgets (void)
   XtAugmentTranslations (Output.Toplevel,
 			 XtParseTranslationTable (DefaultTranslations));
 
+  MenuSetAccelerators (Output.Output);
+
   /* realize the tree, get the IDs of the output window
    * and initialize some identifiers in draw.c
    */

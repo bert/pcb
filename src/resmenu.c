@@ -317,12 +317,91 @@ callback(Widget w, Resource *res, void *pbcs)
 	invoke_action (w, res->v[vi].value);
 }
 
+void
+MenuSetRight(Widget menu, const char *string)
+{
+  Pixmap rb;
+  XFontStruct *font;
+  int height, width;
+  int dir, ascent, descent;
+  XCharStruct overall;
+  static GC gc = 0;
+  Display *display = XtDisplay (XtParent (menu));
+  Window window = XDefaultRootWindow (display);
+
+#define SPACE_BETWEEN 10
+#define SPACE_RIGHT 5
+
+  n = 0;
+  arg(XtNfont, &font);
+  XtGetValues(menu, args, n);
+
+  XTextExtents (font, string, strlen(string), &dir, &ascent, &descent, &overall);
+  height = ascent + descent;
+  width = overall.lbearing + overall.rbearing + SPACE_BETWEEN;
+
+  rb = XCreatePixmap(display, window, width, height, 1);
+
+  if (gc == 0)
+    gc = XCreateGC (display, rb, 0, 0);
+
+  XSetFont (display, gc, font->fid);
+  XSetForeground (display, gc, 0);
+  XFillRectangle (display, rb, gc, 0, 0, width, height);
+  XSetForeground (display, gc, 1);
+  XDrawString (display, rb, gc, overall.lbearing + SPACE_BETWEEN, ascent, string, strlen(string));
+
+  n = 0;
+  arg(XtNrightBitmap, rb);
+  arg(XtNrightMargin, width + 8);
+  XtSetValues(menu, args, n);
+}
+
+static char *
+append (char *str, char *add)
+{
+  int len = strlen (add);
+  int sl;
+  if (str)
+    {
+      sl = strlen(str);
+      str = (char *)realloc (str, sl + len + 1);
+    }
+  else
+    {
+      sl = 0;
+      str = (char *)malloc (len + 1);
+    }
+  memcpy (str + sl, add, len+1);
+  return str;
+}
+
+static char *accel = 0;
+
+void
+MenuSetAccelerators (Widget w)
+{
+  XtAccelerators a;
+  if (!accel)
+    return;
+
+  a = XtParseAcceleratorTable(accel);
+  n = 0;
+  arg (XtNaccelerators, a);
+  XtSetValues(w, args, n);
+  XtInstallAccelerators (w, w);
+}
+
 Widget
 MenuCreateFromResource(Widget menu, Resource *res, Widget top, Widget left, int chain)
 {
   int i, j;
   char *v, *val;
   Widget sub, btn;
+
+  if (accel == 0)
+    accel = append (accel, "#override");
+
   for (i=0; i<res->c; i++)
     {
       switch (resource_type(res->v[i]))
@@ -390,11 +469,37 @@ MenuCreateFromResource(Widget menu, Resource *res, Widget top, Widget left, int 
 	    }
 	  else
 	    {
+	      Resource *r, *me;
+
 	      btn = XtCreateManagedWidget(v, smeBSBObjectClass,
 					  menu, args, n);
 	      res->v[i].subres->user_ptr = btn;
 	      XtAddCallback(btn, XtNcallback,
 			    (XtCallbackProc)callback, (XtPointer)res->v[i].subres);
+
+	      r = resource_subres (res->v[i].subres, "a");
+	      if (r && r->c >= 1)
+		{
+		  int vi;
+		  MenuSetRight (btn, r->v[0].value);
+
+		  if (r->c >= 2)
+		    {
+		      me = res->v[i].subres;
+		      if (accel)
+			accel = append (accel, "\n");
+		      accel = append (accel, r->v[1].value);
+		      accel = append (accel, ":");
+		      for (vi=1; vi<me->c; vi++)
+			if (resource_type(me->v[vi]) == 10)
+			  if (action_type(me->v[vi].value) == AT_activate
+			      && strncmp(me->v[vi].value, "GetXY(", 6) != 0)
+			    {
+			      accel = append (accel, " ");
+			      accel = append (accel, me->v[vi].value);
+			    }
+		    }
+		}
 	    }
 	  for (j=1; j<res->v[i].subres->c; j++)
 	    {

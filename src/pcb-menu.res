@@ -16,25 +16,27 @@ MainMenu = {
         -
         {"Start new layout" New()}
         -
-        {"Quit Program" Quit()}
+        {"Quit Program" Quit() a={"Alt-Q" "Mod1<Key>q"}}
         }
     
     {Edit
-        {"Undo last operation" Undo()}
-        {"Redo last undone operation" Redo()}
-        {"Clear undo-buffer" Undo(ClearList)}
+        {"Undo last operation" Undo() a={"U" "<Key>u"}}
+        {"Redo last undone operation" Redo() a={"Shift-R" "Shift<Key>r"}}
+        {"Clear undo-buffer" Undo(ClearList) a={"Shift-Ctrl-U" "Shift Ctrl<Key>u"}}
         -
         {"Cut selection to buffer" GetXY(Press a button at the element's location)
-            PasteBuffer(Clear) PasteBuffer(AddSelected) RemoveSelected() Mode(PasteBuffer)}
+            PasteBuffer(Clear) PasteBuffer(AddSelected) RemoveSelected() Mode(PasteBuffer)
+	    a={"Shift-Ctrl-X" "Shift Ctrl<Key>x"}}
         {"Copy selection to buffer" GetXY(Press a button at the element's location)
-            PasteBuffer(Clear) PasteBuffer(AddSelected) Mode(PasteBuffer)}
-        {"Paste buffer to layout" Mode(PasteBuffer)}
+            PasteBuffer(Clear) PasteBuffer(AddSelected) Mode(PasteBuffer)
+	    a={"Ctrl-X" "Ctrl<Key>x"}}
+        {"Paste buffer to layout" Mode(PasteBuffer) a={"F7" "<Key>F7"}}
         -
-        {"Unselect all" Unselect(All)}
-        {"Select all" Select(All)}
+        {"Unselect all" Unselect(All) a={"Shift-Alt-A" "Shift Mod1<Key>a"}}
+        {"Select all" Select(All) a={"Alt-A" "Alt<Key>a"}}
         -
         {"Edit Names..." foreground=red sensitive=false}
-        {" Change text on layout" ChangeName(Object)}
+        {" Change text on layout" ChangeName(Object) a={"N" "<Key>n"}}
         {" Edit name of layout" ChangeName(Layout)}
         {" Edit name of active layer" ChangeName(Layer)}
         -
@@ -42,12 +44,13 @@ MainMenu = {
         }
     
     {Screen
-        {"Redraw layout" Display(Redraw)}
-        {"Center layout" Display(Center)}
+        {"Redraw layout" Display(ClearAndRedraw) a={"R" "<Key>r"}}
+        {"Center layout" Display(Center) a={"C" "<Key>c"}}
         -
         {"Display grid" CheckWhen(drawgrid) ActiveWhen(gridfactor) Display(Grid)}
         {"Realign grid" GetXY(Press a button at a grid point) Display(ToggleGrid)}
-        {"View solder side" CheckWhen(showsolderside) GetXY(Press a button at the desired point) SwapSides()}
+        {"View solder side" CheckWhen(showsolderside) GetXY(Press a button at the desired point) SwapSides()
+		a={"Tab" "<Key>Tab"}}
         {"Show soldermask" CheckWhen(showmask) Display(ToggleMask)}
         -
         {"Grid Setting..." foreground=red sensitive=false vertSpace=60}
@@ -60,8 +63,8 @@ MainMenu = {
         {"25 mil" SetValue(Grid,2500) CheckWhen(grid,2500)}
         {"50 mil" SetValue(Grid,5000) CheckWhen(grid,5000)}
         {"100 mil" SetValue(Grid,10000) CheckWhen(grid,10000)}
-        {"increment by 5 mil" SetValue(Grid,+500)}
-        {"decrement by 5 mil" SetValue(Grid,-500)}
+        {"increment by 5 mil" SetValue(Grid,+500) a={"G" "<Key>g"}}
+        {"decrement by 5 mil" SetValue(Grid,-500) a={"Shift-G" "Shift<Key>g"}}
         {"increment by 1 mm" SetValue(Grid,+393.7007874)}
         {"decrement by 1 mm" SetValue(Grid,-393.7007874)}
         -
@@ -80,7 +83,7 @@ MainMenu = {
         {"Value" Display(Value) CheckWhen(elementname,3)}
         -
         {"Pinout shows number" CheckWhen(shownumber) Display(ToggleName)}
-        {"Open pinout menu" GetXY(Select an element) Display(Pinout)}
+        {"Open pinout menu" GetXY(Select an element) Display(Pinout) a={"Shift-D" "Shift<Key>d"}}
         }
     
     {Sizes
@@ -104,7 +107,7 @@ MainMenu = {
         {"Auto-zero delta measurements" CheckWhen(localref) Display(ToggleLocalRef)}
         {"New lines, arcs clear polygons" CheckWhen(clearnew) Display(ToggleClearLine)}
 	{"Show autorouter trials" CheckWhen(liveroute) Display(ToggleLiveRoute)}
-        {"Thin draw" CheckWhen(thindraw) Display(ToggleThindraw)}
+        {"Thin draw" CheckWhen(thindraw) Display(ToggleThindraw) a={"|" "<Key>|"}}
         {"Check polygons" CheckWhen(checkplanes) Display(ToggleCheckPlanes)}
         }
     
@@ -123,13 +126,13 @@ MainMenu = {
         {"Text Objects" Select(TextByName) ActiveWhen(have_regex)}
         {"Vias" Select(ViaByName) ActiveWhen(have_regex)}
         -
-        {"Auto-place selected elements" AutoPlaceSelected()}
-        {"Move selected elements to other side" Flip(SelectedElements)}
+        {"Auto-place selected elements" AutoPlaceSelected() a={"Ctrl-P" "Ctrl<Key>p"}}
+        {"Move selected elements to other side" Flip(SelectedElements) a={"Shift-B" "Shift<Key>b"}}
         {"Delete selected objects" RemoveSelected()}
         {"Convert selection to element" Select(Convert)}
         -
         {"Optimize selected rats" DeleteRats(SelectedRats) AddRats(SelectedRats)}
-        {"Auto-route selected rats" AutoRoute(SelectedRats)}
+        {"Auto-route selected rats" AutoRoute(SelectedRats) a={"Alt-R" "Mod1<Key>r"}}
         {"Rip-up selected auto-routed tracks" RipUp(Selected)}
         -
         {"Change size of selected objects" foreground=red sensitive=false vertSpace=60}
@@ -174,33 +177,34 @@ MainMenu = {
         {"Save buffer elements to file" PasteBuffer(Save)}
         -
         {"Select current buffer" foreground=red sensitive=false vertSpace=60}
-        {"#1" CheckWhen(buffer,1) PasteBuffer(1)}
-        {"#2" CheckWhen(buffer,2) PasteBuffer(2)}
-        {"#3" CheckWhen(buffer,3) PasteBuffer(3)}
-        {"#4" CheckWhen(buffer,4) PasteBuffer(4)}
-        {"#5" CheckWhen(buffer,5) PasteBuffer(5)}
+        {"#1" CheckWhen(buffer,1) PasteBuffer(1) a={"Shift-1" "Shift<Key>1"}}
+        {"#2" CheckWhen(buffer,2) PasteBuffer(2) a={"Shift-2" "Shift<Key>2"}}
+        {"#3" CheckWhen(buffer,3) PasteBuffer(3) a={"Shift-3" "Shift<Key>3"}}
+        {"#4" CheckWhen(buffer,4) PasteBuffer(4) a={"Shift-4" "Shift<Key>4"}}
+        {"#5" CheckWhen(buffer,5) PasteBuffer(5) a={"Shift-5" "Shift<Key>5"}}
         }
     
     {Connects
-        {"Lookup connection to object" GetXY(Select the object) Connection(Find)}
+        {"Lookup connection to object" GetXY(Select the object) Connection(Find) a={"Ctrl-F" "Ctrl<Key>f"}}
         {"Reset scanned pads/pins/vias" Connection(ResetPinsViasAndPads) Display(Redraw)}
         {"Reset scanned lines/polygons" Connection(ResetLinesAndPolygons) Display(Redraw)}
-        {"Reset all connections" Connection(Reset) Display(Redraw)}
+        {"Reset all connections" Connection(Reset) Display(Redraw) a={"Shift-F" "Shift<Key>f"}}
         -
-        {"Optimize rats-nest" DeleteRats(AllRats) AddRats(AllRats)}
-        {"Erase rats-nest" DeleteRats(AllRats)}
+        {"Optimize rats-nest" Atomic(Save) DeleteRats(AllRats)
+		Atomic(Restore) AddRats(AllRats) Atomic(Block) a={"O" "<Key>o"}}
+        {"Erase rats-nest" DeleteRats(AllRats) a={"E" "<Key>e"}}
         -
         {"Auto-route selected rats" AutoRoute(Selected)}
         {"Auto-route all rats" AutoRoute(AllRats)}
         {"Rip up all auto-routed tracks" RipUp(All)}
         -
-        {"Auto-Optimize" djopt(auto) Display(ClearAndRedraw)}
+        {"Auto-Optimize" djopt(auto) Display(ClearAndRedraw) a={"Shift-=" "Shift<Key>="}}
         {"Debumpify" djopt(debumpify) Display(ClearAndRedraw)}
         {"Unjaggy" djopt(unjaggy) Display(ClearAndRedraw)}
         {"Vianudge" djopt(vianudge) Display(ClearAndRedraw)}
         {"Viatrim" djopt(viatrim) Display(ClearAndRedraw)}
         {"Orthopull" djopt(orthopull) Display(ClearAndRedraw)}
-        {"SimpleOpts" djopt(simple) Display(ClearAndRedraw)}
+        {"SimpleOpts" djopt(simple) Display(ClearAndRedraw) a={"=" "<Key>="}}
         {"Miter" djopt(miter) Display(ClearAndRedraw)}
         {"Only autorouted nets" OptAutoOnly() CheckWhen(OptAutoOnly)}
         -
@@ -208,7 +212,7 @@ MainMenu = {
         }
     
     {Info
-        {"Generate object report" GetXY(Select the object) Report(Object)}
+        {"Generate object report" GetXY(Select the object) Report(Object) a={"Ctrl-R" "Ctrl<Key>r"}}
         {"Generate drill summary" Report(DrillReport)}
         {"Report found pins/pads" Report(FoundPins)}
         }
