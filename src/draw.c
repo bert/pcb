@@ -2,7 +2,7 @@
  *                            COPYRIGHT
  *
  *  PCB, interactive printed circuit board design
- *  Copyright (C) 1994,1995,1996, 2003 Thomas Nau
+ *  Copyright (C) 1994,1995,1996, 2003, 2004 Thomas Nau
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -246,6 +246,187 @@ ClearAndRedrawOutput (void)
 }
 
 /* ---------------------------------------------------------------------- 
+ * redraws the background image
+ */
+
+static int bg_w, bg_h, bgi_w, bgi_h;
+static Pixel **bg = 0;
+static XImage *bgi = 0;
+static enum {
+  PT_unknown,
+  PT_RGB565
+} pixel_type = PT_unknown;
+
+static void
+LoadBackgroundFile (FILE *f, char *filename)
+{
+  Display *display;
+  Colormap cmap;
+  XVisualInfo vinfot, *vinfo;
+  Visual *vis;
+  int c, r, b;
+  int i, nret;
+  int p[3], rows, cols, maxval;
+
+  if (fgetc(f) != 'P')
+    {
+      printf("bgimage: %s signature not P6\n", filename);
+      return;
+    }
+  if (fgetc(f) != '6')
+    {
+      printf("bgimage: %s signature not P6\n", filename);
+      return;
+    }
+  for (i=0; i<3; i++)
+    {
+      do {
+	b = fgetc(f);
+	if (feof(f))
+	  return;
+	if (b == '#')
+	  while (!feof(f) && b != '\n')
+	    b = fgetc(f);
+      } while (!isdigit(b));
+      p[i] = b - '0';
+      while (isdigit(b = fgetc(f)))
+	p[i] = p[i]*10 + b - '0';
+    }
+  bg_w = cols = p[0];
+  bg_h = rows = p[1];
+  maxval = p[2];
+
+  setbuf(stdout, 0);
+  bg = (Pixel **) malloc (rows * sizeof (Pixel *));
+  if (!bg)
+    {
+      printf("Out of memory loading %s\n", filename);
+      return;
+    }
+  for (i=0; i<rows; i++)
+    {
+      bg[i] = (Pixel *) malloc (cols * sizeof (Pixel));
+      if (!bg[i])
+	{
+	  printf("Out of memory loading %s\n", filename);
+	  while (--i >= 0)
+	    free (bg[i]);
+	  free (bg);
+	  bg = 0;
+	  return;
+	}
+    }
+
+  display = XtDisplay (Output.Toplevel);
+  cmap = DefaultColormap (display, DefaultScreen(display));
+  vis = DefaultVisual (display, DefaultScreen(display));
+
+  vinfot.visualid = XVisualIDFromVisual(vis);
+  vinfo = XGetVisualInfo (display, VisualIDMask, &vinfot, &nret);
+
+#if 0
+  /* If you want to support more visuals below, you'll probably need
+     this. */
+  printf("vinfo: rm %04x gm %04x bm %04x depth %d class %d\n",
+	 vinfo->red_mask, vinfo->green_mask, vinfo->blue_mask,
+	 vinfo->depth, vinfo->class);
+#endif
+
+  if (vinfo->class = TrueColor
+      && vinfo->depth == 16
+      && vinfo->red_mask == 0xf800
+      && vinfo->green_mask == 0x07e0
+      && vinfo->blue_mask == 0x001f)
+    pixel_type = PT_RGB565;
+
+  for (r=0; r<rows; r++)
+    {
+      for (c=0; c<cols; c++)
+	{
+	  XColor pix;
+	  unsigned int pr = (unsigned)fgetc(f);
+	  unsigned int pg = (unsigned)fgetc(f);
+	  unsigned int pb = (unsigned)fgetc(f);
+
+	  switch (pixel_type)
+	    {
+	    case PT_unknown:
+	      pix.red = pr * 65535 / maxval;
+	      pix.green = pg * 65535 / maxval;
+	      pix.blue = pb * 65535 / maxval;
+	      pix.flags = DoRed | DoGreen | DoBlue;
+	      XAllocColor (display, cmap, &pix);
+	      bg[r][c] = pix.pixel;
+	      break;
+	    case PT_RGB565:
+	      bg[r][c] = (pr>>3)<<11 | (pg>>2)<<5 | (pb>>3);
+	      break;
+	    }
+	}
+    }
+}
+
+void
+LoadBackgroundImage (char *filename)
+{
+  FILE *f = fopen(filename, "rb");
+  if (!f)
+    {
+      if (strcmp (filename, "pcb-background.ppm"))
+	perror(filename);
+      return;
+    }
+  LoadBackgroundFile (f, filename);
+  fclose(f);
+}
+
+static void
+DrawBackgroundImage ()
+{
+  int x, y, w, h;
+  double xscale, yscale;
+  int pcbwidth = TO_DRAWABS_X (PCB->MaxWidth);
+  int pcbheight = TO_DRAWABS_Y (PCB->MaxHeight);
+
+  if (!DrawingWindow || !bg)
+    return;
+
+  if (!bgi || Output.Width != bgi_w || Output.Height != bgi_h)
+    {
+      if (bgi)
+	XDestroyImage (bgi);
+      /* Cheat - get the image, which sets up the format too.  */
+      bgi = XGetImage (XtDisplay(Output.Toplevel),
+		       DrawingWindow,
+		       0, 0, Output.Width, Output.Height,
+		       -1, ZPixmap);
+      bgi_w = Output.Width;
+      bgi_h = Output.Height;
+    }
+
+  w = MIN (Output.Width, pcbwidth);
+  h = MIN (Output.Height, pcbheight);
+
+  xscale = (double)bg_w / PCB->MaxWidth;
+  yscale = (double)bg_h / PCB->MaxHeight;
+
+  for (y=0; y<h; y++)
+    {
+      int pr = TO_PCB_Y(y);
+      int ir = pr * yscale;
+      for (x=0; x<w; x++)
+	{
+	  int pc = TO_PCB_X(x);
+	  int ic = pc * xscale;
+	  XPutPixel (bgi, x, y, bg[ir][ic]);
+	}
+    }
+  XPutImage(XtDisplay(Output.Toplevel), DrawingWindow, Output.fgGC,
+	    bgi,
+	    0, 0, 0, 0, w, h);
+}
+
+/* ---------------------------------------------------------------------- 
  * redraws all the data
  * all necessary sizes are already set by the porthole widget and
  * by the event handlers
@@ -300,6 +481,7 @@ Redraw (Boolean ClearWindow, BoxTypePtr screen_area)
       if (ClearWindow && !VALID_PIXMAP (Offscreen))
 	Crosshair.On = False;
 
+      DrawBackgroundImage ();
       DrawEverything (&draw_area);
 
       if (!VALID_PIXMAP (Offscreen))

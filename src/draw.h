@@ -2,7 +2,7 @@
  *                            COPYRIGHT
  *
  *  PCB, interactive printed circuit board design
- *  Copyright (C) 1994,1995,1996 Thomas Nau
+ *  Copyright (C) 1994,1995,1996, 2004 Thomas Nau
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -69,6 +69,7 @@ void	EraseElement(ElementTypePtr);
 void	EraseElementPinsAndPads(ElementTypePtr);
 void	EraseElementName(ElementTypePtr);
 void	EraseObject(int, void *);
+void	LoadBackgroundImage (char *);
 void	UpdateAll(void);
 
 #endif

@@ -2,7 +2,7 @@
  *                            COPYRIGHT
  *
  *  PCB, interactive printed circuit board design
- *  Copyright (C) 1994,1995,1996 Thomas Nau
+ *  Copyright (C) 1994,1995,1996, 2004 Thomas Nau
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -136,6 +136,7 @@ Usage (void)
 	   "  +alldirections:           force 45 degree lines\n"
 	   "  +rubberband:              enable rubberband move and rotate\n"
 	   "  -rubberband:              turn off rubberband move and rotate\n"
+	   "  -background <file>:       PPM file to display as board background\n"
 	   "  -backup <seconds>:        time between two backups\n"
 	   "  -c <number>:              characters per output-line\n"
 	   "  -fontfile <file>:         read default font from this file\n"

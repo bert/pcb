@@ -2,7 +2,7 @@
  *                            COPYRIGHT
  *
  *  PCB, interactive printed circuit board design
- *  Copyright (C) 1994,1995,1996 Thomas Nau
+ *  Copyright (C) 1994,1995,1996, 2004 Thomas Nau
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -492,7 +492,8 @@ typedef struct			/* some resources... */
     Routes,			/* string with route styles */
     FilePath, RatPath, RatCommand, FontPath, ElementPath, LibraryPath, Size,	/* geometry string for size */
     Media,			/* type of output media */
-    MenuFile;			/* file containing menu definitions */
+    MenuFile,			/* file containing menu definitions */
+    BackgroundImage;		/* PPM file for board background */
   Boolean DumpMenuFile;		/* dump internal menu definitions */
   Location PinoutOffsetX,	/* offset of origin */
     PinoutOffsetY;

@@ -2,7 +2,7 @@
  *                            COPYRIGHT
  *
  *  PCB, interactive printed circuit board design
- *  Copyright (C) 1994,1995,1996 Thomas Nau
+ *  Copyright (C) 1994,1995,1996, 2004 Thomas Nau
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -554,6 +554,9 @@ static XtResource ToplevelResources[] = {
   {"allDirectionLines", "AllDirectionLines", XtRBoolean, sizeof (Boolean),
    XtOffsetOf (SettingType, AllDirectionLines), XtRString, "True"}
   ,
+  {"backgroundImage", "BackgroundImage", XtRString, sizeof (String),
+   XtOffsetOf (SettingType, BackgroundImage), XtRString, "pcb-background.ppm"}
+  ,
   {"backupInterval", "BackupInterval", XtRInt, sizeof (long),
    XtOffsetOf (SettingType, BackupInterval), XtRString, "300"}
   ,
@@ -889,6 +892,7 @@ static XrmOptionDescRec CommandLineOptions[] = {
   {"+alldirections", "allDirectionLines", XrmoptionNoArg, (caddr_t) "False"},
   {"-rubberband", "rubberBandMode", XrmoptionNoArg, (caddr_t) "False"},
   {"+rubberband", "rubberBandMode", XrmoptionNoArg, (caddr_t) "True"},
+  {"-background", "backgroundImage", XrmoptionSepArg, (caddr_t) NULL},
   {"-backup", "backupInterval", XrmoptionSepArg, (caddr_t) NULL},
   {"-c", "charactersPerLine", XrmoptionSepArg, (caddr_t) NULL},
   {"-dumpmenu", "dumpMenuFile", XrmoptionNoArg, (caddr_t) "True"},
@@ -1381,6 +1385,7 @@ main (int argc, char *argv[])
       Usage ();
       break;
     }
+  LoadBackgroundImage (Settings.BackgroundImage);
 
   /* Register a function to be called when the program terminates.
    * This makes sure that data is saved even if LEX/YACC routines

@@ -25,7 +25,7 @@ END-INFO-DIR-ENTRY
 This file documents how to use Pcb, 
 the interactive printed circuit board layout system for @code{X11}.
 
-Copyright (C) 1994,1995,1996 Thomas Nau
+Copyright (C) 1994,1995,1996, 2004 Thomas Nau
 
 Copyright (C) 1997, 1998, 1999, 2000, 2001, 2002 harry eaton
 
@@ -2265,6 +2265,13 @@ or
 Disables or enables line clipping to 45 degree angles. Overwrites the
 resource @emph{allDirectionLines}.
 
+@vindex backgroundImage
+@cindex background
+@findex -background
+@item -background file
+Selects a PPM file to be displayed as the board background (for tracing).
+See backgroundImage in @ref{Resources} for details.
+
 @vindex backupInterval
 @cindex backup
 @findex -backup
@@ -2547,6 +2554,29 @@ Specifies the distance between the boards outline to the alignment targets.
 @cindex clipping lines to 45 degree
 @item allDirectionLines (boolean)
 Enables (default) or disables clipping of new lines to 45 degree angles.
+
+@vindex backgroundImage
+@cindex background
+@item backgroundImage (string)
+If specified, this image will be drawn as the background for the
+board.  The purpose of this option is to allow you to use a scan of an
+existing layout as a prototype for your new layout.  To do this, there
+are some limitations as to what this image must be.  The image must be
+a PPM binary image (magic number @samp{P6}).  It must have a maximum
+pixel value of 255 or less (i.e. no 16-bit images).  It must represent
+the entire board, as it will be scaled to fit the board dimensions
+exactly.  Note that it may be scaled unevenly if the image doesn't
+have the same aspect ratio of your board.  You must ensure that the
+image does not use more colors than are available on your system
+(mostly this is for pseudocolor displays, like old 8-bit displays).
+For best results, I suggest the following procedure using The Gimp:
+Load your image (any type).  Image->Scale if needed.
+Image->Colors->Curves and for each of Red, Green, and Blue channel
+move the lower left point up to about the 3/4 line (value 192).  This
+will make your image pale so it doesn't interfere with the traces
+you'll be adding.  Image->Mode->Indexed and select, say, 32 colors
+with Normal F-S dithering.  File->Save As, file type by extension,
+use @file{.ppm} as the extension.  Select Raw formatting.
 
 @vindex backupInterval
 @cindex backup
