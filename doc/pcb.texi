@@ -347,6 +347,12 @@ whether the element's pins and pads are displayed. The @code{far-side} layer con
 of objects (silkscreen and pads) that are on the far (@emph{i.e.} not currently viewed) side
 of the board.
 
+The ``oldlib'' style of footprint libraries distributed with
+@code{Pcb} rely upon the M4 macro processor.  M4 is typically
+installed under the name @code{m4} on most unix-like operating
+systems.  It is recommended that you use the GNU version of M4 to
+avoid limitations found in some vendor implementations.  See the m4
+man page on your system for more information.
 Every element file is preprocessed by a user-defined command when the file is read.
 For details see @samp{elementCommand}, @ref{Resources}. @code{m4}, the default
 value of @samp{elementCommand}, allows you to create libraries for
