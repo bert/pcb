@@ -421,11 +421,17 @@ SetTextBoundingBox (FontTypePtr FontPtr, TextTypePtr Text)
   SymbolTypePtr symbol = FontPtr->Symbol;
   unsigned char *s = (unsigned char *) Text->TextString;
   Location width = 0, height = 0;
+  BDimension maxThick = 0;
+  int i;
 
   /* calculate size of the bounding box */
   for (; s && *s; s++)
     if (*s <= MAX_FONTPOSITION && symbol[*s].Valid)
       {
+	LineTypePtr line = symbol[*s].Line;
+        for (i = 0; i < symbol[*s].LineN; line++, i++)
+          if (line->Thickness > maxThick)
+	    maxThick = line->Thickness;
 	width += symbol[*s].Width + symbol[*s].Delta;
 	height = MAX (height, (Location) symbol[*s].Height);
       }
@@ -436,9 +442,12 @@ SetTextBoundingBox (FontTypePtr FontPtr, TextTypePtr Text)
 	height = (FontPtr->DefaultSymbol.Y2 - FontPtr->DefaultSymbol.Y1);
       }
 
-  /* scale values and rotate them */
-  width = width * Text->Scale / 100;
-  height = height * Text->Scale / 100;
+  /* scale values */
+  width *= Text->Scale / 100.;
+  height *= Text->Scale / 100.;
+  maxThick *= Text->Scale / 200.;
+  if (maxThick < 400)
+    maxThick = 400;
 
   /* set upper-left and lower-right corner;
    * swap coordinates if necessary (origin is already in 'swapped')
@@ -448,15 +457,19 @@ SetTextBoundingBox (FontTypePtr FontPtr, TextTypePtr Text)
   Text->BoundingBox.Y1 = Text->Y;
   if (TEST_FLAG (ONSOLDERFLAG, Text))
     {
-      Text->BoundingBox.X2 = Text->BoundingBox.X1 + SWAP_SIGN_X (width);
-      Text->BoundingBox.Y2 = Text->BoundingBox.Y1 + SWAP_SIGN_Y (height);
+      Text->BoundingBox.X1 -= maxThick;
+      Text->BoundingBox.Y1 -= SWAP_SIGN_Y (maxThick);
+      Text->BoundingBox.X2 = Text->BoundingBox.X1 + SWAP_SIGN_X (width + maxThick);
+      Text->BoundingBox.Y2 = Text->BoundingBox.Y1 + SWAP_SIGN_Y (height + 2*maxThick);
       RotateBoxLowLevel (&Text->BoundingBox,
 			 Text->X, Text->Y, (4 - Text->Direction) & 0x03);
     }
   else
     {
-      Text->BoundingBox.X2 = Text->BoundingBox.X1 + width;
-      Text->BoundingBox.Y2 = Text->BoundingBox.Y1 + height;
+      Text->BoundingBox.X1 -= maxThick;
+      Text->BoundingBox.Y1 -= maxThick;
+      Text->BoundingBox.X2 = Text->BoundingBox.X1 + width + maxThick;
+      Text->BoundingBox.Y2 = Text->BoundingBox.Y1 + height + 2*maxThick;
       RotateBoxLowLevel (&Text->BoundingBox,
 			 Text->X, Text->Y, Text->Direction);
     }
@@ -1213,10 +1226,10 @@ GetArcEnds (ArcTypePtr Arc)
 
   RightAngles (Arc->StartAngle, &ca, &sa);
   box.X1 = Arc->X - Arc->Width * ca;
-  box.Y1 = Arc->Y + Arc->Width * sa;
+  box.Y1 = Arc->Y + Arc->Height * sa;
   RightAngles (Arc->StartAngle + Arc->Delta, &ca, &sa);
   box.X2 = Arc->X - Arc->Width * ca;
-  box.Y2 = Arc->Y + Arc->Width * sa;
+  box.Y2 = Arc->Y + Arc->Height * sa;
   return (&box);
 }
 
