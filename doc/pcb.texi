@@ -8,6 +8,14 @@
 
 @include version.texi
 
+@ifinfo
+@format
+START-INFO-DIR-ENTRY
+* pcb: (pcb).                   An interactive printed circuit board editor.
+END-INFO-DIR-ENTRY
+@end format
+@end ifinfo
+
 @iftex
 @finalout
 @end iftex
