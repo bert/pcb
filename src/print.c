@@ -1557,7 +1557,9 @@ PrintBOM (void)
       sumy += (double) pin->Y;
       pin_cnt++;
 
-      if (strcmp(pin->Number, "1") == 0)
+      if (pin->Number == 0)
+	/* Skip unnumbered pins */ ;
+      else if (strcmp(pin->Number, "1") == 0)
 	{
 	  pin1x = (double) pin->X;
 	  pin1y = (double) pin->Y;
