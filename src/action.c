@@ -1949,8 +1949,14 @@ ActionSetValue (Widget W, XEvent * Event, String * Params, Cardinal * Num)
       /* if the first character is a sign we have to add the
        * value to the current one
        */
-      r = !isdigit (**(Params + 1));
-      value = atof (*(Params + 1));
+       if (**(Params + 1) == '=')
+       {
+         r = 0;
+         value = atof (*(Params + 1) + 1);
+       } else  {
+         r = !isdigit (**(Params + 1));
+         value = atof (*(Params + 1));
+       }
       switch (GetFunctionID (*Params))
 	{
 	case F_ViaDrillingHole:
