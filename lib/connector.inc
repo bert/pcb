@@ -1,4 +1,4 @@
-# -*- m4 -*-
+*# -*- m4 -*-
 #                             COPYRIGHT
 # 
 #   PCB, interactive printed circuit board design
@@ -42,6 +42,35 @@ Element(0x00 "$1" "$2" "$3" eval(MAXX + 60) 0 3 100 0x00)
 	forloop(`row', 1, $4, `forloop(`col', 1, $5,
 		`PIN(eval(col * 100 -50), eval(row * 100 -50), 60, 30, eval((row-1)*$5+col))
 	') ')
+	ElementLine(0 0 0 MAXY 20)
+	ElementLine(0 MAXY MAXX MAXY 20)
+	ElementLine(MAXX MAXY MAXX 0 20)
+	ElementLine(MAXX 0 0 0 20)
+	ElementLine(0 100 100 100 10)
+	ElementLine(100 100 100 0 10)
+	Mark(50 50)
+)')
+
+# -------------------------------------------------------------------
+# the definition of a 2 column header connector with DIP
+# pin numbering.  Use PKG_CONNECTOR for ribbon cable numbering
+#
+# $1: canonical name
+# $2: name on PCB
+# $3: value
+# $4: number of rows
+#
+define(`PKG_CONNECTOR_DIL',
+	`define(`MAXY', `eval(`$4' * 100)')
+	define(`MAXX', `200')
+Element(0x00 "$1" "$2" "$3" eval(MAXX + 60) 0 3 100 0x00)
+(
+	forloop(`row', 1, eval(`$4'),
+		`PIN(50, eval(row * 100 -50), 60, 30, eval(row))
+	')
+	forloop(`row', 1, eval(`$4'),
+		`PIN(150, eval(($4 + 1 - row) * 100 -50), 60, 30, eval($4 + row))
+	')
 	ElementLine(0 0 0 MAXY 20)
 	ElementLine(0 MAXY MAXX MAXY 20)
 	ElementLine(MAXX MAXY MAXX 0 20)
