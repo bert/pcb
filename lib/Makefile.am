@@ -89,6 +89,7 @@ INC_FILES= \
 	geda.inc \
 	genericsmt.inc \
 	johnstech.inc \
+	minicircuits.inc \
 	misc.inc \
 	pci.inc \
 	plcc.inc \
@@ -105,8 +106,8 @@ INC_FILES= \
 DAT_FILES= \
 	qfp.dat
 
-M4_FILES=	${M4_DIST_FILES} bourns.m4 geda.m4 johnstech.m4
-LIST_FILES=	${LIST_DIST_FILES} bourns.list geda.list johnstech.list
+M4_FILES=	${M4_DIST_FILES} bourns.m4 geda.m4 johnstech.m4 minicircuits.m4
+LIST_FILES=	${LIST_DIST_FILES} bourns.list geda.list johnstech.list minicircuits.list
 
 LIB_FILES= ${COMMON_FILE} ${M4_FILES} ${LIST_FILES} ${INC_FILES} 
 
@@ -115,8 +116,7 @@ EXTRA_DIST=	ListLibraryContents.sh ${COMMON_FILE} ${M4_DIST_FILES} ${LIST_DIST_F
 		${DAT_FILES} gen_list.awk gen_m4.awk gen_geda_m4.awk gen_geda_list.awk
 
 DISTCLEANFILES=	${LIBRARYFILENAME} ${LIBRARYFILENAME}.contents bourns.m4 bourns.list \
-	geda.m4 geda.list johnstech.m4 \
-	johnstech.list
+	geda.m4 geda.list johnstech.m4 johnstech.list minicircuits.m4 minicircuits.list
 
 ${LIBRARYFILENAME}: ${COMMON_FILE} ${INC_FILES} ${DAT_FILES} ${M4_FILES} CreateLibrary.sh
 	${SHELL} ./CreateLibrary.sh -I $(srcdir) $@ $(srcdir)/${COMMON_FILE} ${M4_FILES}
@@ -135,6 +135,12 @@ johnstech.list: johnstech.inc gen_list.awk
 
 johnstech.m4: johnstech.inc gen_m4.awk
 	${AWK} -f $(srcdir)/gen_m4.awk name=johnstech $(srcdir)/johnstech.inc > $@
+
+minicircuits.list: minicircuits.inc gen_list.awk
+	${AWK} -f $(srcdir)/gen_list.awk name=minicircuits $(srcdir)/minicircuits.inc > $@
+
+minicircuits.m4: minicircuits.inc gen_m4.awk
+	${AWK} -f $(srcdir)/gen_m4.awk name=minicircuits $(srcdir)/minicircuits.inc > $@
 
 geda.m4: geda.inc gen_geda_m4.awk
 	${AWK} -f $(srcdir)/gen_geda_m4.awk $(srcdir)/geda.inc > $@
