@@ -3100,8 +3100,10 @@ fi
 done
 
 
-# Extract the first word of "wish wish83 wish8.3 wish80 wish8.0 cygwish83 cygwish80", so it can be a program name with args.
-set dummy wish wish83 wish8.3 wish80 wish8.0 cygwish83 cygwish80; ac_word=$2
+for ac_prog in wish wish83 wish8.3 wish80 wish8.0 cygwish83 cygwish80
+do
+  # Extract the first word of "$ac_prog", so it can be a program name with args.
+set dummy $ac_prog; ac_word=$2
 echo "$as_me:$LINENO: checking for $ac_word" >&5
 echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6
 if test "${ac_cv_path_WISH+set}" = set; then
@@ -3126,7 +3128,6 @@ do
 done
 done
 
-  test -z "$ac_cv_path_WISH" && ac_cv_path_WISH="none"
   ;;
 esac
 fi
@@ -3139,6 +3140,10 @@ else
   echo "$as_me:$LINENO: result: no" >&5
 echo "${ECHO_T}no" >&6
 fi
+
+  test -n "$WISH" && break
+done
+test -n "$WISH" || WISH="none"
 
 if test "X$WISH" = "Xnone" ; then
 	{ { echo "$as_me:$LINENO: error: Did not find the wish executible.  You need to make sure
