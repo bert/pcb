@@ -537,7 +537,7 @@ static void add_to_drills(char *sval)
 				 n_vendor_drills*sizeof(int))) == NULL )
     {
       fprintf (stderr, "realloc() failed to allocate %ld bytes\n", 
-	       n_vendor_drills*sizeof(int));
+	       (unsigned long) n_vendor_drills*sizeof(int));
       return ; 
     }
   
