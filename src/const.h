@@ -187,10 +187,10 @@
 #define ARC_TYPE                0x4000
 #define ELEMENTARC_TYPE		0x8000
 
-#define PIN_TYPES     VIA_TYPE | PIN_TYPE
-#define LOCK_TYPES    VIA_TYPE | LINE_TYPE | ARC_TYPE | POLYGON_TYPE | ELEMENT_TYPE \
-                      | TEXT_TYPE | ELEMENTNAME_TYPE
+#define PIN_TYPES     (VIA_TYPE | PIN_TYPE)
+#define LOCK_TYPES    (VIA_TYPE | LINE_TYPE | ARC_TYPE | POLYGON_TYPE | ELEMENT_TYPE \
+                      | TEXT_TYPE | ELEMENTNAME_TYPE)
 
-#define	ALL_TYPES		-1	/* all bits set */
+#define	ALL_TYPES		(~0)	/* all bits set */
 
 #endif
