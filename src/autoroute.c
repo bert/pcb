@@ -48,6 +48,7 @@
  */
 
 #define NET_HEAP
+#define REGION 75000
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -178,7 +179,8 @@ conflict_t;
 typedef struct routebox
 {
   const BoxType box;
-  Cardinal group, layer;		/* layer group this box belongs to */
+  unsigned char group;
+  unsigned char layer;
   enum
   { PAD, PIN, VIA, VIA_SHADOW, LINE, OTHER, EXPANSION_AREA, PLANE }
   type;
@@ -311,6 +313,8 @@ static struct
 }
 AutoRouteParameters;
 
+static int ro = 0;
+
 /* ---------------------------------------------------------------------------
  * some local prototypes
  */
@@ -327,6 +331,9 @@ static void ResetSubnet (routebox_t * net);
 /* ---------------------------------------------------------------------------
  * some local identifiers
  */
+/* group number of groups that hold surface mount pads */
+static Cardinal front, back;
+static Boolean bad_x[MAX_LAYER], bad_y[MAX_LAYER];
 
 /* assertion helper for routeboxen */
 #ifndef NDEBUG
@@ -536,9 +543,7 @@ AddPad (PointerListType layergroupboxes[],
 {
   BDimension halfthick;
   routebox_t **rbpp;
-  int layer = TEST_FLAG (ONSOLDERFLAG, element) ?
-    (MAX_LAYER + SOLDER_LAYER) : (MAX_LAYER + COMPONENT_LAYER);
-  int layergroup = GetLayerGroupNumberByNumber (layer);
+  int layergroup = TEST_FLAG (ONSOLDERFLAG, element) ? back : front;
   assert (0 <= layergroup && layergroup < MAX_LAYER);
   assert (PCB->LayerGroups.Number[layergroup] > 0);
   rbpp = (routebox_t **) GetPointerMemory (&layergroupboxes[layergroup]);
@@ -637,6 +642,12 @@ AddPolygon (PointerListType layergroupboxes[], Cardinal layer,
 	    PolygonTypePtr polygon)
 {
   int is_not_rectangle = 1;
+  routebox_t *rb = AddIrregularObstacle (layergroupboxes,
+					 polygon->BoundingBox.X1,
+					 polygon->BoundingBox.Y1,
+					 polygon->BoundingBox.X2,
+					 polygon->BoundingBox.Y2,
+					 layer, polygon);
   if (polygon->PointN == 4 &&
       (polygon->Points[0].X == polygon->Points[1].X ||
        polygon->Points[0].Y == polygon->Points[1].Y) &&
@@ -647,18 +658,13 @@ AddPolygon (PointerListType layergroupboxes[], Cardinal layer,
       (polygon->Points[3].X == polygon->Points[0].X ||
        polygon->Points[3].Y == polygon->Points[0].Y))
     is_not_rectangle = 0;
-  routebox_t *rb = AddIrregularObstacle (layergroupboxes,
-					 polygon->BoundingBox.X1,
-					 polygon->BoundingBox.Y1,
-					 polygon->BoundingBox.X2,
-					 polygon->BoundingBox.Y2,
-					 layer, polygon);
   rb->flags.nonstraight = is_not_rectangle;
   rb->layer = layer;
   if (TEST_FLAG (CLEARPOLYFLAG, polygon))
     {
       rb->flags.clear_poly = 1;
-      rb->type = PLANE;
+      if (!is_not_rectangle)
+	rb->type = PLANE;
     }
 }
 static void
@@ -782,12 +788,31 @@ DumpRouteBox (routebox_t * rb)
 static routedata_t *
 CreateRouteData ()
 {
+  BDimension nearest = Settings.Keepaway;
   NetListListType Nets;
   PointerListType layergroupboxes[MAX_LAYER];
   BoxType bbox;
   routedata_t *rd;
+  Boolean other = True;
   int i;
 
+  front = GetLayerGroupNumberByNumber (MAX_LAYER + COMPONENT_LAYER);
+  back = GetLayerGroupNumberByNumber (MAX_LAYER + SOLDER_LAYER);
+  /* determine prefered routing direction on each group */
+  for (i = 0; i < MAX_LAYER; i++)
+    {
+      if (i != back && i != front)
+	{
+	  bad_x[i] = other;
+	  other = !other;
+	  bad_y[i] = other;
+	}
+      else
+	{
+	  bad_x[i] = False;
+	  bad_y[i] = False;
+	}
+    }
   /* create routedata */
   rd = calloc (1, sizeof (*rd));
   /* create default style */
@@ -800,7 +825,6 @@ CreateRouteData ()
   bbox.X1 = bbox.Y1 = 0;
   bbox.X2 = PCB->MaxWidth;
   bbox.Y2 = PCB->MaxHeight;
-  rd->mtspace = mtspace_create (&bbox, Settings.Keepaway);
   for (i = 0; i < NUM_STYLES + 1; i++)
     {
       RouteStyleType *style =
@@ -942,6 +966,14 @@ CreateRouteData ()
     ResetSubnet (net);
     END_LOOP;
   }
+  /* find smallest keepaway for mtspace */
+  for (i = 0; i < NUM_STYLES + 1; i++)
+    {
+      RouteStyleType *style =
+	(i < NUM_STYLES) ? &PCB->RouteStyle[i] : &rd->defaultStyle;
+      MAKEMIN (nearest, style->Keepaway);
+    }
+  rd->mtspace = mtspace_create (&bbox, nearest);
 
   /* create "empty-space" structures for via placement (now that we know
    * appropriate keepaways for all the fixed elements) */
@@ -1023,10 +1055,9 @@ cost_to_point (const CheapPointType * p1, Cardinal point_layer1,
 	       const CheapPointType * p2, Cardinal point_layer2)
 {
   cost_t x_dist = (p1->X - p2->X), y_dist = (p1->Y - p2->Y), r;
-  /* even layers are horiz; odd layers are vert. */
-  if ((point_layer1 % 2) != 0 && (point_layer2 % 2) != 0)
+  if (bad_x[point_layer1] && bad_x[point_layer2])
     x_dist *= AutoRouteParameters.DirectionPenalty;
-  if ((point_layer1 % 2) != 1 && (point_layer2 % 2) != 1)
+  if (bad_y[point_layer1] && bad_y[point_layer2])
     y_dist *= AutoRouteParameters.DirectionPenalty;
   /* cost is proportional to orthogonal distance. */
   r = ABS (x_dist) + ABS (y_dist);
@@ -1046,9 +1077,8 @@ cost_to_layerless_box (const CheapPointType * p, Cardinal point_layer,
 		       const BoxType * b)
 {
   CheapPointType p2 = closest_point_in_box (p, b);
-  cost_t cost1 = cost_to_point (p, point_layer, &p2, point_layer);
-  cost_t cost2 = cost_to_point (p, point_layer, &p2, point_layer + 1);
-  return MIN (cost1, cost2);
+  /* front layer has no prefered direction so it's cheapest */
+  return cost_to_point (p, front, &p2, front);
 }
 
 /* return the minimum *cost* from a point to a route box, including possible
@@ -1352,18 +1382,24 @@ CreateViaEdge (const BoxType * area, Cardinal group,
   /* for planes, choose a point near the target */
   if (parent->type == PLANE)
     {
+      routebox_t *target;
       CheapPointType pnt;
-      pnt.X =
-	(previous_edge->mincost_target->box.X1 +
-	 previous_edge->mincost_target->box.X2) / 2;
-      pnt.Y =
-	(previous_edge->mincost_target->box.Y1 +
-	 previous_edge->mincost_target->box.Y2) / 2;
+      /* find a target near this via box */
+      pnt.X = (area->X2 + area->X1) / 2;
+      pnt.Y = (area->Y2 + area->Y1) / 2;
+      target = mincost_target_to_point (&pnt, rb->group,
+					targets,
+					previous_edge->mincost_target);
+      /* now find point near the target */
+      pnt.X = (target->box.X1 + target->box.X2) / 2;
+      pnt.Y = (target->box.Y1 + target->box.Y2) / 2;
       costpoint = closest_point_in_box (&pnt, &rb->box);
       d =
 	(scale[through_site_conflict] *
 	 cost_to_point (&costpoint, group, &costpoint,
 			previous_edge->rb->group));
+      ne = CreateEdge (rb, costpoint.X, costpoint.Y, previous_edge->cost_to_point + d, target, NORTH	/*arbitrary */
+		       , NULL);
     }
   else
     {
@@ -1376,9 +1412,9 @@ CreateViaEdge (const BoxType * area, Cardinal group,
 	(scale[through_site_conflict] *
 	 cost_to_point (&costpoint, group, &costpoint,
 			previous_edge->rb->group));
+      ne = CreateEdge (rb, costpoint.X, costpoint.Y, previous_edge->cost_to_point + d, previous_edge->mincost_target, NORTH	/*arbitrary */
+		       , targets);
     }
-  ne = CreateEdge (rb, costpoint.X, costpoint.Y, previous_edge->cost_to_point + d, previous_edge->mincost_target, NORTH	/*arbitrary */
-		   , targets);
   ne->flags.expand_all_sides = ne->flags.is_via = 1;
   ne->flags.via_conflict_level = to_site_conflict;
   assert (__edge_is_good (ne));
@@ -1434,6 +1470,10 @@ edge_cost (const edge_t * e)
 {
   if (e->rb->type == PLANE)
     return 1;			/* thermals are cheap */
+  /* we should penalize an edge that will expand to choke-off a bunch
+   * of pads i.e. it's on a pad layer, and there is a pad with +/- a few vias
+   * rectangle from the edge but I don't know how to do that easily
+   */
   /* cost_to_routebox adds in our via correction, too. */
   return e->cost_to_point +
     cost_to_routebox (&e->cost_point, e->rb->group, e->mincost_target);
@@ -1984,6 +2024,11 @@ BreakEdges (routedata_t * rd, vector_t * edge_vec, rtree_t * targets)
       routebox_t *rb;
       /* pop off the top edge */
       e = vector_remove_last (edge_vec);
+      if (e->rb->type == PLANE)
+	{
+	  vector_append (broken_vec, e);
+	  continue;
+	}
       assert (!e->flags.expand_all_sides);
       /* check for edges that poke off the edge of the routeable area */
       edgebox = edge_to_box (&e->rb->box, e->expand_dir);
@@ -2009,7 +2054,7 @@ BreakEdges (routedata_t * rd, vector_t * edge_vec, rtree_t * targets)
 	  nrb->flags.source = e->rb->flags.source;
 	  nrb->flags.nobloat = e->rb->flags.nobloat;
 	  /* adjust cost */
-	  ne->cost_to_point = nrb->flags.source ? 0 :
+	  ne->cost_to_point = nrb->flags.source ? e->cost_to_point :
 	    e->cost_to_point +
 	    (CONFLICT_PENALTY (nonorphan_parent (e->rb)) *
 	     (ne->cost_to_point - e->cost_to_point));
@@ -2067,8 +2112,9 @@ BreakEdges (routedata_t * rd, vector_t * edge_vec, rtree_t * targets)
 	  /* don't bother adding if this is a source-interior edge */
 	  /* or an expansion edge or the conflict is fixed */
 	  if (r.is_valid_center && (!rb->flags.source) &&
-	      rb->type != EXPANSION_AREA && !rb->flags.fixed &&
-	      AutoRouteParameters.with_conflicts)
+	      rb->type != EXPANSION_AREA && (rb->flags.target
+					     || !rb->flags.fixed)
+	      && AutoRouteParameters.with_conflicts)
 	    {
 	      ne = CreateEdgeWithConflicts (&r.center, rb, e,
 					    CONFLICT_PENALTY (nonorphan_parent
@@ -2096,7 +2142,8 @@ BreakEdges (routedata_t * rd, vector_t * edge_vec, rtree_t * targets)
  */
 static void
 RD_DrawThermal (routedata_t * rd, Location X, Location Y,
-		Cardinal group, Cardinal layer, routebox_t * subnet, Boolean is_bad)
+		Cardinal group, Cardinal layer, routebox_t * subnet,
+		Boolean is_bad)
 {
   routebox_t *rb;
   rb = (routebox_t *) calloc (1, sizeof (*rb));
@@ -2466,6 +2513,18 @@ struct routeone_state
 static void
 add_or_destroy_edge (struct routeone_state *s, edge_t * e)
 {
+    routebox_t *fixed = route_parent (e->rb);
+    /* discard edges that are too far outside the route box */
+    {
+      if ((e->cost_point.X + REGION < MIN (fixed->box.X1, e->mincost_target->box.X1))
+      || (e->cost_point.Y + REGION < MIN (fixed->box.Y1, e->mincost_target->box.Y1))
+      || (e->cost_point.X - REGION > MAX (fixed->box.X2, e->mincost_target->box.X2))
+      || (e->cost_point.Y - REGION > MAX (fixed->box.Y2, e->mincost_target->box.Y2)))
+        {
+	  DestroyEdge (&e);
+	  return;
+	}
+     }
   e->cost = edge_cost (e);
   assert (__edge_is_good (e));
   assert (is_layer_group_active (e->rb->group));
@@ -2541,11 +2600,14 @@ add_via_sites (struct routeone_state *s,
 	{
 	  BoxType cliparea;
 	  BoxType *area = vector_remove_last (v);
-	  if (!box_intersect (area, &region))
-	    continue;
-	  if (!(i == NO_CONFLICT || AutoRouteParameters.with_conflicts))
-	    continue;
+	  if (!box_intersect (area, &region) || 
+	  !(i == NO_CONFLICT || AutoRouteParameters.with_conflicts))
+	    {
+	       free (area);
+	       continue;
+	    }
 	  cliparea = clip_box (area, &region);
+	  free (area);
 	  assert (__box_is_good (&cliparea));
 	  for (j = 0; j < MAX_LAYER; j++)
 	    {
@@ -2574,7 +2636,7 @@ struct routeone_status
 };
 
 static struct routeone_status
-RouteOne (routedata_t * rd, routebox_t * from, routebox_t * to)
+RouteOne (routedata_t * rd, routebox_t * from, routebox_t * to, int max_edges)
 {
   struct routeone_status result;
   routebox_t *p;
@@ -2605,6 +2667,7 @@ RouteOne (routedata_t * rd, routebox_t * from, routebox_t * to)
   END_LOOP;
   assert (from->flags.source);
 
+  seen = 0;
   if (to)
     {				/* if we're routing to a specific target */
       if (!to->flags.source)
@@ -2697,33 +2760,28 @@ RouteOne (routedata_t * rd, routebox_t * from, routebox_t * to)
 	/* note that planes shouldn't really expand, but we need an edge */
 	if (p->type != PLANE)
 	  {
-	    if (1)
-	      {
-		vector_append (source_vec,
-			       CreateEdge (p, (p->box.X1 + p->box.X2) / 2,
-					   p->box.Y1, ns_penalty, NULL,
-					   p->type == PLANE ? SOUTH : NORTH,
-					   targets));
-		vector_append (source_vec,
-			       CreateEdge (p, (p->box.X1 + p->box.X2) / 2,
-					   p->box.Y2, ns_penalty, NULL,
-					   p->type == PLANE ? NORTH : SOUTH,
-					   targets));
-	      }
-	    if (ew_penalty == 0)
-	      vector_append (source_vec,
-			     CreateEdge (p, p->box.X2,
-					 (p->box.Y1 + p->box.Y2) / 2,
-					 ew_penalty, NULL,
-					 p->type == PLANE ? WEST : EAST,
-					 targets));
+	    vector_append (source_vec,
+			   CreateEdge (p, (p->box.X1 + p->box.X2) / 2,
+				       p->box.Y1, ns_penalty, NULL,
+				       p->type == PLANE ? SOUTH : NORTH,
+				       targets));
+	    vector_append (source_vec,
+			   CreateEdge (p, (p->box.X1 + p->box.X2) / 2,
+				       p->box.Y2, ns_penalty, NULL,
+				       p->type == PLANE ? NORTH : SOUTH,
+				       targets));
+	    vector_append (source_vec,
+			   CreateEdge (p, p->box.X2,
+				       (p->box.Y1 + p->box.Y2) / 2,
+				       ew_penalty, NULL,
+				       p->type == PLANE ? WEST : EAST,
+				       targets));
 	  }
-	if (1)
-	  vector_append (source_vec,
-			 CreateEdge (p, p->box.X1,
-				     (p->box.Y1 + p->box.Y2) / 2, ew_penalty,
-				     NULL, p->type == PLANE ? EAST : WEST,
-				     targets));
+	vector_append (source_vec,
+		       CreateEdge (p, p->box.X1,
+				   (p->box.Y1 + p->box.Y2) / 2, ew_penalty,
+				   NULL, p->type == PLANE ? EAST : WEST,
+				   targets));
       }
   }
   END_LOOP;
@@ -2761,16 +2819,26 @@ RouteOne (routedata_t * rd, routebox_t * from, routebox_t * to)
        * is already larger than the best edge cost we've found. */
       if (s.best_path && e->cost > s.best_cost)
 	goto dontexpand;	/* skip this edge */
+        /* cost the route so far when failed */
+      if (seen == max_edges && ! s.best_path)
+        s.best_cost = e->cost;
+        /* surprisingly it helps to give up and not try too hard to find
+	 * a route! This is not only faster, but results in better routing.
+	 * who would have guessed?
+	 */
+      if (seen++ > max_edges)
+        goto dontexpand;
       /* for a plane, look for quick connections with thermals or vias */
       if (e->rb->type == PLANE)
 	{
 	  routebox_t *pin = FindThermable (targets, &e->rb->box);
 	  if (pin)
 	    {
+	      edge_t *ne;
 	      routebox_t *nrb =
 		CreateExpansionArea (&pin->box, e->rb->group, e->rb, True);
 	      nrb->type = PLANE;
-	      edge_t *ne = CreateEdge2 (nrb, e->expand_dir, e, NULL, pin);
+	      ne = CreateEdge2 (nrb, e->expand_dir, e, NULL, pin);
 	      best_path_candidate (&s, ne, pin);
 	      DestroyEdge (&ne);
 	    }
@@ -3089,7 +3157,7 @@ RouteOne (routedata_t * rd, routebox_t * from, routebox_t * to)
     {
       routebox_t *rb;
 #ifdef ROUTE_VERBOSE
-      printf ("BEST PATH COST: %.0f", s.best_cost);
+      printf ("%d:%d RC %.0f", ro++, seen, s.best_cost);
 #endif
       result.found_route = True;
       result.best_route_cost = s.best_cost;
@@ -3118,8 +3186,9 @@ RouteOne (routedata_t * rd, routebox_t * from, routebox_t * to)
   else
     {
 #ifdef ROUTE_VERBOSE
-      printf ("NO PATH FOUND.\n");
+      printf ("%d:%d NO PATH FOUND.\n", ro++, seen);
 #endif
+      result.best_route_cost = s.best_cost;
       result.found_route = False;
     }
   /* clean up; remove all 'source', 'target', and 'nobloat' flags */
@@ -3158,12 +3227,12 @@ InitAutoRouteParameters (int pass,
   /* routing style */
   AutoRouteParameters.augStyle = augStyle;
   /* costs */
-  AutoRouteParameters.ViaCost = 50000;
+  AutoRouteParameters.ViaCost = 15000;
   AutoRouteParameters.LastConflictPenalty =
-    100. * exp (LN_2_OVER_2 * MIN (30, pass * 4));
+    30. * (exp (LN_2_OVER_2 * MIN (30, pass * 4)) - 0.9);
   AutoRouteParameters.ConflictPenalty =
-    4 * AutoRouteParameters.LastConflictPenalty;
-  AutoRouteParameters.JogPenalty = 1000;
+    10 * AutoRouteParameters.LastConflictPenalty;
+  AutoRouteParameters.JogPenalty = 2000;
   AutoRouteParameters.DirectionPenalty = 2;
   /* other */
   AutoRouteParameters.use_vias = True;
@@ -3192,7 +3261,7 @@ RouteAll (routedata_t * rd)
   heap_t *this_pass, *next_pass, *tmp;
   routebox_t *net, *p, *pp;
   cost_t total_net_cost;
-  int i, limit = 4;
+  int i, limit = 9;
 
   /* initialize heap for first pass; 
    * do smallest area first; that makes
@@ -3270,12 +3339,14 @@ RouteAll (routedata_t * rd)
 	      LIST_LOOP (net, same_net, p);
 	      {
 #ifdef NET_HEAP
-		/* using the heap allows us to start from smaller objects and
-		 * end at bigger ones. also prefer to start at pads */
+		/* using a heap allows us to start from smaller objects and
+		 * end at bigger ones. also prefer to start at planes, then pads */
 		if (p->flags.fixed)
 		  heap_insert (net_heap, (float) (p->box.X2 - p->box.X1) *
-			       (p->box.Y2 - p->box.Y1) * (p->type ==
-							  PAD ? 1 : 10), p);
+			       (p->box.Y2 - p->box.Y1) * (p->type == PLANE ?
+							  -1 : (p->type ==
+								PAD ? 1 :
+								10)), p);
 	      }
 	      END_LOOP;
 	      while (!heap_is_empty (net_heap))
@@ -3287,7 +3358,7 @@ RouteAll (routedata_t * rd)
 		    {
 		      do
 			{
-			  ros = RouteOne (rd, p, NULL);
+			  ros = RouteOne (rd, p, NULL, 9000);
 			  if (ros.found_route)
 			    {
 			      total_net_cost += ros.best_route_cost;
@@ -3298,6 +3369,7 @@ RouteAll (routedata_t * rd)
 			    }
 			  else
 			    {
+			      total_net_cost += ros.best_route_cost;
 			      /* don't bother trying any other source in this subnet */
 			      LIST_LOOP (p, same_subnet, pp);
 			      pp->flags.subnet_processed = 1;
@@ -3315,8 +3387,12 @@ RouteAll (routedata_t * rd)
 	      END_LOOP;
 #endif
 	    }
-	  /* route easiest nets first */
-	  /* surprisingly, this works best */
+	  /* Route easiest nets from this pass first on next pass.
+	   * This works best because it's likely that the hardest
+	   * is the last one routed (since it has the most obstacles)
+	   * but it will do no good to rip it up and try it again
+	   * without first changing any of the other routes
+	   */
 	  heap_insert (next_pass, total_net_cost, net);
 	  /* reset subnet_processed flags */
 	  LIST_LOOP (net, same_net, p);
@@ -3326,6 +3402,7 @@ RouteAll (routedata_t * rd)
 	  END_LOOP;
 	}
       /* swap this_pass and next_pass and do it all over again! */
+      ro = 0;
       assert (heap_is_empty (this_pass));
       tmp = this_pass;
       this_pass = next_pass;
@@ -3585,7 +3662,7 @@ AutoRoute (Boolean selected)
 	      assert (a->augStyle == b->augStyle);
 	      /* route exactly one net, without allowing conflicts */
 	      InitAutoRouteParameters (0, a->augStyle, False, True);
-	      changed = RouteOne (rd, a, b).found_route || changed;
+	      changed = RouteOne (rd, a, b, 150000).found_route || changed;
 	      goto donerouting;
 	    }
 	  END_LOOP;

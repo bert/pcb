@@ -66,7 +66,6 @@
 typedef struct mtspacebox
 {
   const BoxType box;
-  BoxType shrunk_box;		/* empty region */
   int fixed_count;
   int even_count;
   int odd_count;
@@ -295,7 +294,7 @@ mtspace_coalesce (mtspace_t * mtspace, struct coalesce_closure *cc)
 	  /* ----- didn't find anything to coalesce ----- */
 #ifndef NDEBUG
 	  r = r_region_is_empty (mtspace->rtree, &cc->mtsb->box);
-//        assert(r);
+          assert(r);
 #endif
 	  r_insert_entry (mtspace->rtree, &cc->mtsb->box, 1);
 	}
@@ -469,6 +468,7 @@ query_one (const BoxType * box, void *cl)
   struct query_closure *qc = (struct query_closure *) cl;
   mtspacebox_t *mtsb = (mtspacebox_t *) box;
   BDimension shrink = 0;
+  BoxTypePtr shrunk;
   assert (box_intersect (qc->region, &mtsb->box));
   if (mtsb->fixed_count > 0)
     /* ignore fixed boxes */
@@ -476,27 +476,30 @@ query_one (const BoxType * box, void *cl)
   if (qc->keepaway > mtsb->keepaway)
     shrink = qc->keepaway - mtsb->keepaway;
   shrink += qc->radius;
-  mtsb->shrunk_box = shrink_box (box, shrink);
-  if (mtsb->shrunk_box.X2 <= mtsb->shrunk_box.X1
-      || mtsb->shrunk_box.Y2 <= mtsb->shrunk_box.Y1)
-    return 0;
-  if (!box_intersect (qc->region, &mtsb->shrunk_box))
-    return 0;
+  shrunk = (BoxType *) calloc (1, sizeof(*shrunk));
+  *shrunk = shrink_box (box, shrink);
+  if (shrunk->X2 <= shrunk->X1
+      || shrunk->Y2 <= shrunk->Y1 ||
+  !box_intersect (qc->region, shrunk))
+    {
+      free (shrunk);
+      return 0;
+    }
   else if ((qc->is_odd ? mtsb->odd_count : mtsb->even_count) > 0)
     {
       /* this is a hi_conflict */
-      vector_append (qc->hi_conflict_space_vec, (BoxTypePtr) & mtsb->shrunk_box);
+      vector_append (qc->hi_conflict_space_vec, shrunk);
     }
   else if (mtsb->odd_count > 0 || mtsb->even_count > 0)
     {
       /* this is a lo_conflict */
-      vector_append (qc->lo_conflict_space_vec, (BoxTypePtr) & mtsb->shrunk_box);
+      vector_append (qc->lo_conflict_space_vec, shrunk);
     }
   else
     {
       /* no conflict! */
       assert (boxtype (mtsb) == 0);
-      vector_append (qc->free_space_vec, (BoxTypePtr) & mtsb->shrunk_box);
+      vector_append (qc->free_space_vec, shrunk);
     }
   return 1;
 }
