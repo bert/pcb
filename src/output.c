@@ -195,7 +195,10 @@ CoalignScreen (Position xs, Position ys, Location xp, Location yp)
   Message ("CoalignScreen(%d %d %d %d)\n", xs, ys, xp, yp);
 #endif
   x = xp - TO_PCB (xs);
-  y = yp - TO_PCB (ys);
+  if (SWAP_IDENT)
+    y  = PCB->MaxHeight - yp - TO_PCB(ys);
+  else
+    y = yp - TO_PCB (ys);
   return Pan (x, y, False, True);
 }
 

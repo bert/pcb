@@ -57,11 +57,11 @@
 #define	TO_SCREEN(x)		((Position)SATURATE((x)/Zoom_divisor[PCB->Zoom + 6]))
 #endif
 
-#define	TO_SCREEN_X(x)		(TO_SCREEN((SWAP_IDENT ? SWAP_X(x) : (x)) - Xorig))
-#define	TO_SCREEN_Y(y)		(TO_SCREEN((SWAP_IDENT ? SWAP_Y(y) : (y)) - Yorig))
-#define	TO_DRAW_X(x)		(TO_SCREEN((SWAP_IDENT ? SWAP_X(x) : (x)) - XORIG))
+#define	TO_SCREEN_X(x)		TO_SCREEN((SWAP_IDENT ? SWAP_X(x) : (x)) - Xorig)
+#define	TO_SCREEN_Y(y)		TO_SCREEN((SWAP_IDENT ? SWAP_Y(y)  : (y)) - Yorig)
+#define	TO_DRAW_X(x)		TO_SCREEN((SWAP_IDENT ? SWAP_X(x) : (x)) - XORIG)
 #define	TO_DRAWABS_X(x)		(TO_SCREEN((x) - XORIG))
-#define	TO_DRAW_Y(y)		(TO_SCREEN((SWAP_IDENT ? SWAP_Y(y) : (y)) - YORIG))
+#define	TO_DRAW_Y(y)		TO_SCREEN((SWAP_IDENT ? SWAP_Y(y) : (y)) - YORIG)
 #define	TO_DRAWABS_Y(y)		(TO_SCREEN((y) - YORIG))
 #define	TO_MASK_X(x)		TO_SCREEN_X((x))
 #define	TO_MASK_Y(y)		TO_SCREEN_Y((y))
@@ -75,7 +75,7 @@
 #endif
 #define	TO_PCB_X(x)		TO_PCB(x) + Xorig
 #define	TO_PCB_Y(y)		(SWAP_IDENT ? \
-				PCB->MaxHeight -TO_PCB(y) + Yorig : TO_PCB(y) + Yorig)
+				PCB->MaxHeight - TO_PCB(y) - Yorig : TO_PCB(y) + Yorig)
 
 /* ---------------------------------------------------------------------------
  * misc macros, some might already be defined by <limits.h>
