@@ -79,12 +79,35 @@ static char *GlobalCommand;
 static Boolean polarity_called = False;
 static Boolean negative_plane;
 
+
+enum {
+  FILE_DRILL,
+  FILE_LAYER,
+  FILE_BOM
+};
+
+typedef struct _StringList
+{
+  char *str;
+  struct _StringList *next;
+} StringList;
+
+typedef struct _BomList
+{
+  char *descr;
+  char *value;
+  int num;
+  StringList *refdes;
+  struct _BomList *next;
+} BomList;
+
+
 /* ---------------------------------------------------------------------------
  * some local prototypes
  */
 static void SetPrintColor (Pixel);
-static FILE *OpenPrintFile (char *, Boolean);
-static int SetupPrintFile (char *, char *, Boolean);
+static FILE *OpenPrintFile (char *, int);
+static int SetupPrintFile (char *, char *, int);
 static int ClosePrintFile (void);
 static int FPrintOutline (void);
 static int FPrintAlignment (void);
@@ -93,6 +116,12 @@ static int PrintSilkscreen (void);
 static int PrintDrill (void);
 static int PrintMask (void);
 static int PrintPaste (void);
+static int PrintBOM (void);
+
+static char *CleanBOMString (char *);
+static double xyToAngle(double, double);
+static BomList *bom_insert (char *, char *, char *, BomList *);
+static StringList *string_insert(char *, StringList *);
 
 static void
 DoPolarity (void)
@@ -134,7 +163,7 @@ SetPrintColor (Pixel X11Color)
  * opens a file for printing
  */
 static FILE *
-OpenPrintFile (char *FileExtention, Boolean is_drill)
+OpenPrintFile (char *FileExtention, int file_type)
 {
   char *filename, *completeFilename;
   size_t length;
@@ -143,12 +172,22 @@ OpenPrintFile (char *FileExtention, Boolean is_drill)
   /* evaluate add extention and suffix to filename */
   if ((filename = ExpandFilename (NULL, GlobalCommand)) == NULL)
     filename = GlobalCommand;
-  if (is_drill && strcmp (Device->Suffix, "gbr") == 0)
+
+  if ( (file_type == FILE_DRILL) && strcmp (Device->Suffix, "gbr") == 0)
     {
       length = strlen (EMPTY (GlobalCommand)) + 1 +
 	strlen (FileExtention) + 5;
       completeFilename = MyCalloc (length, sizeof (char), "OpenPrintFile()");
       sprintf (completeFilename, "%s%s%s.cnc",
+	       GlobalDOSFlag ? "" : EMPTY (GlobalCommand),
+	       GlobalDOSFlag ? "" : "_", FileExtention);
+    }
+  else if (file_type == FILE_BOM) 
+    {
+      length = strlen (EMPTY (GlobalCommand)) + 1 +
+	strlen (FileExtention) + 5;
+      completeFilename = MyCalloc (length, sizeof (char), "OpenPrintFile()");
+      sprintf (completeFilename, "%s%s%s.txt",
 	       GlobalDOSFlag ? "" : EMPTY (GlobalCommand),
 	       GlobalDOSFlag ? "" : "_", FileExtention);
     }
@@ -181,11 +220,11 @@ OpenPrintFile (char *FileExtention, Boolean is_drill)
  * setup new print file
  */
 static int
-SetupPrintFile (char *FileExtention, char *Description, Boolean drilling)
+SetupPrintFile (char *FileExtention, char *Description, int file_type)
 {
   char *message;
 
-  if ((DeviceFlags.FP = OpenPrintFile (FileExtention, drilling)) == NULL)
+  if ((DeviceFlags.FP = OpenPrintFile (FileExtention, file_type)) == NULL)
     return (1);
   if ((message = Device->Preamble (&DeviceFlags, Description)) != NULL)
     {
@@ -376,7 +415,7 @@ PrintOneGroup (Cardinal group, Boolean manageFile)
 	sprintf (extention, "%s%i", GlobalDOSFlag ? "" : "group", group + 1);
       sprintf (description, "layergroup #%i", group + 1);
 
-      if (SetupPrintFile (extention, description, False))
+      if (SetupPrintFile (extention, description, FILE_LAYER))
 	return (1);
       /* comment on what layers in group */
       if (Device->GroupID)
@@ -923,7 +962,7 @@ PrintSilkscreen (void)
 	continue;
       /* start with the component side */
       if (SetupPrintFile (GlobalDOSFlag ? DOSextention[i] : extention[i],
-			  description[i], False))
+			  description[i], FILE_LAYER))
 	return (1);
       /* positive polarity */
       Device->Polarity (0);
@@ -965,7 +1004,7 @@ PrintAssembly (void)
   y2 *= (DRIFT - 1);
   DeviceFlags.Scale /= 2;
   if (SetupPrintFile
-      (GlobalDOSFlag ? DOSextention : extention, description, False))
+      (GlobalDOSFlag ? DOSextention : extention, description, FILE_LAYER))
     return (1);
   /* start with 10% intensity */
   rgb.red = rgb.blue = rgb.green = 52428;
@@ -1034,7 +1073,7 @@ PrintPaste (void)
       /* start with the component side */
       if (SetupPrintFile
 	  (GlobalDOSFlag ? DOSextention[i] : extention[i],
-	   description[i], False))
+	   description[i], FILE_LAYER))
 	return (1);
       Device->Polarity (0);
       if (GlobalAlignmentFlag)
@@ -1068,7 +1107,7 @@ PrintDrill (void)
     {
       if (SetupPrintFile
 	  (GlobalDOSFlag ? "pdrill" : "plated-drill",
-	   "drill information", True))
+	   "drill information", FILE_DRILL))
 	return (1);
       SetPrintColor (PCB->PinColor);
       AllDrills = GetDrillInfo (PCB->Data);
@@ -1092,7 +1131,7 @@ PrintDrill (void)
 	}
       if (SetupPrintFile
 	  (GlobalDOSFlag ? "udrill" : "unplated-drill",
-	   "drill information", True))
+	   "drill information", FILE_DRILL))
 	{
 	  FreeDrillInfo (AllDrills);
 	  return (1);
@@ -1138,7 +1177,7 @@ PrintMask (void)
       /* start with the component side */
       if (SetupPrintFile
 	  (GlobalDOSFlag ? DOSextention[i] : extention[i],
-	   description[i], False))
+	   description[i], FILE_LAYER))
 	return (1);
       Device->Polarity (1);
       SetPrintColor (PCB->PinColor);
@@ -1318,7 +1357,7 @@ PrintFab (void)
   time_t currenttime;
   char utcTime[64];
   struct passwd *pwentry;
-  if (SetupPrintFile ("fab", "Fabrication Drawing", False))
+  if (SetupPrintFile ("fab", "Fabrication Drawing", FILE_LAYER))
     return (1);
   Device->Polarity (0);
   tmp_pin.Flags = 0;
@@ -1432,6 +1471,372 @@ PrintFab (void)
   return (0);
 }
 
+/* ---------------------------------------------------------------------------
+ * prints a centroid file in a format which includes data needed by a
+ * pick and place machine.  Further formatting for a particular factory setup
+ * can easily be generated with awk or perl.  In addition, a bill of materials
+ * file is generated which can be used for checking stock and purchasing needed
+ * materials.
+ * returns != zero on error
+ */
+static int
+PrintBOM (void)
+{
+  char utcTime[64];
+  double x, y, theta;
+  double sumx, sumy;
+  double pin1x, pin1y, pin1angle;
+  double pin2x, pin2y, pin2angle;
+  int found_pin1;
+  int found_pin2;
+  int pin_cnt;
+  struct passwd *pwentry;
+  time_t currenttime;
+  FILE *fp;
+  BomList *bom = NULL;
+  BomList *lastb;
+  StringList *lasts;
+
+  /* Only print the BOM when we do gerber output */
+  if ( strcmp (Device->Suffix, "gbr") != 0 )
+    return 0;
+
+  if ( (fp = OpenPrintFile ("xy", FILE_BOM)) == NULL)
+    return (1);
+
+  /* ID the user. */
+  pwentry = getpwuid (getuid ());
+  /* Create a portable timestamp. */
+  currenttime = time (NULL);
+  strftime (utcTime, sizeof (utcTime), "%c UTC", gmtime (&currenttime));
+
+  fprintf (fp, "# $Id");
+  fprintf (fp, "$\n");
+  fprintf (fp, "# PcbXY Version 1.0\n");
+  fprintf (fp, "# Date: %s\n", utcTime);
+  fprintf (fp, "# Author: %s\n", pwentry->pw_gecos);
+  fprintf (fp, "# Title: %s - PCB X-Y\n", UNKNOWN (PCB->Name));
+  fprintf (fp, "# RefDes, Description, Value, X, Y, rotation, top/bottom\n");
+  fprintf (fp, "# X,Y in mils.  rotation in degrees.\n");
+  fprintf (fp, "# --------------------------------------------\n");
+
+  /*
+   * For each element we calculate the centroid of the footprint.
+   * In addition, we need to extract some notion of rotation.  
+   * While here generate the BOM list
+   */
+
+  ELEMENT_LOOP (PCB->Data);
+  {
+
+    /* initialize our pin count and our totals for finding the
+       centriod */
+    pin_cnt = 0;
+    sumx = 0.0;
+    sumy = 0.0;
+    found_pin1 = 0;
+    found_pin2 = 0;
+    
+    /* insert this component into the bill of materials list */
+    bom = bom_insert ( UNKNOWN (NAMEONPCB_NAME (element)),
+		       UNKNOWN (DESCRIPTION_NAME (element)),
+		       UNKNOWN (VALUE_NAME (element)), bom);
+      
+    
+    PIN_LOOP (element);
+    {
+      sumx += (double) pin->X;
+      sumy += (double) pin->Y;
+      pin_cnt++;
+
+      if (strcmp(pin->Number, "1") == 0)
+	{
+	  pin1x = (double) pin->X;
+	  pin1y = (double) pin->Y;
+	  pin1angle = 0.0;
+	  found_pin1 = 1;
+	}
+      else if (strcmp(pin->Number, "2") == 0)
+	{
+	  pin2x = (double) pin->X;
+	  pin2y = (double) pin->Y;
+	  pin2angle = 0.0;
+	  found_pin2 = 1;
+	}
+    }
+    END_LOOP;
+    
+    PAD_LOOP (element);
+    {
+      sumx +=  (pad->Point1.X + pad->Point2.X)/2.0;
+      sumy +=  (pad->Point1.Y + pad->Point2.Y)/2.0;
+      pin_cnt++;
+
+      if (strcmp(pad->Number, "1") == 0)
+	{
+	  pin1x = (double) (pad->Point1.X + pad->Point2.X)/2.0;
+	  pin1y = (double) (pad->Point1.Y + pad->Point2.Y)/2.0;
+	  /*
+	   * NOTE:  We swap the Y points because in PCB, the Y-axis
+	   * is inverted.  Increasing Y moves down.
+	   */
+	  pin1angle = (180.0 / M_PI) * atan2(pad->Point1.Y - pad->Point2.Y ,
+					     pad->Point2.X - pad->Point1.X );
+	  found_pin1 = 1;
+	}
+      else if (strcmp(pad->Number, "2") == 0)
+	{
+	  pin2x = (double) (pad->Point1.X + pad->Point2.X)/2.0;
+	  pin2y = (double) (pad->Point1.Y + pad->Point2.Y)/2.0;
+	  pin2angle = (180.0 / M_PI) * atan2(pad->Point1.Y - pad->Point2.Y ,
+					     pad->Point2.X - pad->Point1.X );
+	  found_pin2 = 1;
+	}
+
+    }
+    END_LOOP;
+
+    if ( pin_cnt > 0) 
+      {
+	x = sumx / (double) pin_cnt;
+	y = sumy / (double) pin_cnt;
+
+	if (found_pin1) 
+	  {
+	    /* recenter pin #1 onto the axis which cross at the part
+	       centroid */
+	    pin1x -= x;
+	    pin1y -= y;
+	    pin1y = -1.0 * pin1y;
+
+	    /* if only 1 pin, use pin 1's angle */
+	    if (pin_cnt == 1)
+	      theta = pin1angle;
+	    else
+	      {
+		/* if pin #1 is at (0,0) use pin #2 for rotation */
+		if ( (pin1x == 0.0) && (pin1y == 0.0) )
+		  {
+		    if (found_pin2)
+		      theta = xyToAngle( pin2x, pin2y);
+		    else
+		      {
+			Message ("PrintBOM(): unable to figure out angle of element\n"
+				 "     %s because pin #1 is at the centroid of the part.\n"
+				 "     and I could not find pin #2's location\n"
+				 "     Setting to %g degrees\n",
+				 UNKNOWN (NAMEONPCB_NAME(element) ), theta );
+		      }
+		  }
+		else
+		  theta = xyToAngle( pin1x, pin1y);
+	      }
+	  }
+	/* we did not find pin #1 */
+	else
+	  {
+	    theta = 0.0;
+	    Message ("PrintBOM(): unable to figure out angle because I could\n"
+		     "     not find pin #1 of element %s\n"
+		     "     Setting to %g degrees\n",
+		     UNKNOWN (NAMEONPCB_NAME(element) ),
+		     theta );
+	  }
+	
+	fprintf (fp, "%s,\"%s\",\"%s\",%.2f,%.2f,%g,%s\n", 
+		 CleanBOMString(UNKNOWN (NAMEONPCB_NAME(element) )),
+		 CleanBOMString(UNKNOWN (DESCRIPTION_NAME(element) )),
+		 CleanBOMString(UNKNOWN (VALUE_NAME(element) )),
+#if 0
+		 (double) element->MarkX, (double) element->MarkY,
+#else
+		 0.01*x, 0.01*y,
+#endif
+		 theta,
+		 FRONT(element) == 1 ? "top" : "bottom");
+      }
+  }
+  END_LOOP;
+  
+  fclose (fp);
+
+  /* Now print out a Bill of Materials file */
+  
+  if ( (fp = OpenPrintFile ("bom", FILE_BOM)) == NULL)
+    return (1);
+    
+  fprintf (fp, "# $Id");
+  fprintf (fp, "$\n");
+  fprintf (fp, "# PcbBOM Version 1.0\n");
+  fprintf (fp, "# Date: %s\n", utcTime);
+  fprintf (fp, "# Author: %s\n", pwentry->pw_gecos);
+  fprintf (fp, "# Title: %s - PCB BOM\n", UNKNOWN (PCB->Name));
+  fprintf (fp, "# Quantity, Description, Value, RefDes\n");
+  fprintf (fp, "# --------------------------------------------\n");
+  
+  while (bom != NULL)
+    {
+      fprintf (fp,"%d,\"%s\",\"%s\",", 
+	       bom->num, 
+	       CleanBOMString(bom->descr), 
+	       CleanBOMString(bom->value));
+      while (bom->refdes != NULL)
+	{
+	  fprintf (fp,"%s ", bom->refdes->str);
+	  free (bom->refdes->str);
+	  lasts = bom->refdes;
+	  bom->refdes = bom->refdes->next;
+	  free (lasts);
+	}
+      fprintf (fp, "\n");
+      lastb = bom;
+      bom = bom->next;
+      free (lastb);
+    }
+
+  fclose (fp);
+  
+  return (0);
+}
+
+
+static char *CleanBOMString (char *in)
+{
+  char *out;
+  int i;
+
+  if ( (out = malloc( (strlen(in) + 1)*sizeof(char) ) ) == NULL ) {
+    fprintf(stderr, "Error:  CleanBOMString() malloc() failed\n");
+    exit (1);
+  }
+
+  /* 
+   * copy over in to out with some character conversions.
+   * Go all the way to then end to get the terminating \0
+   */
+  for (i = 0; i<=strlen(in); i++) {
+    switch (in[i])
+      {
+      case '"':
+	out[i] = '\'';
+	break;
+      default:
+	out[i] = in[i];
+      }
+  }
+
+  return out;
+}
+
+
+static double xyToAngle(double x, double y)
+{
+  double theta;
+
+  if( ( x > 0.0) && ( y >= 0.0) )
+    theta = 180.0;
+  else if( ( x <= 0.0) && ( y > 0.0) )
+    theta = 90.0;
+  else if( ( x < 0.0) && ( y <= 0.0) )
+    theta = 0.0;
+  else if( ( x >= 0.0) && ( y < 0.0) )
+    theta = 270.0;
+  else
+    {
+      theta = 0.0;
+      Message ("xyToAngle(): unable to figure out angle of element\n"
+	       "     because the pin is at the centroid of the part.\n"
+	       "     This is a BUG!!!\n"
+	       "     Setting to %g degrees\n",
+	       theta );
+    }
+
+  return (theta);
+}
+
+BomList *bom_insert (char *refdes, char *descr, char *value, BomList *bom)
+{
+  BomList *new, *cur, *prev;
+
+  if (bom == NULL)
+    {
+      /* this is the first element so automatically create an entry */
+      if ( (new = (BomList *) malloc (sizeof (BomList) ) ) == NULL )
+	{
+	  fprintf(stderr, "malloc() failed in bom_insert()\n");
+	  exit (1);
+	}
+
+      new->next = NULL;
+      new->descr = strdup(descr);
+      new->value = strdup(value);
+      new->num = 1;
+      new->refdes = string_insert(refdes, NULL);
+      return (new);
+    }
+
+  /* search and see if we already have used one of these
+     components */
+  cur = bom;
+  while (cur != NULL)
+    {
+      if ( (strcmp(descr, cur->descr) == 0) &&
+	   (strcmp(value, cur->value) == 0) )
+	{
+	  cur->num++;
+	  cur->refdes = string_insert(refdes, cur->refdes);
+	  break;
+	}
+      prev = cur;
+      cur = cur->next;
+    }
+  
+  if (cur == NULL)
+    {
+      if ( (new = (BomList *) malloc (sizeof (BomList) ) ) == NULL )
+	{
+	  fprintf(stderr, "malloc() failed in bom_insert()\n");
+	  exit (1);
+	}
+      
+      prev->next = new;
+      
+      new->next = NULL;
+      new->descr = strdup(descr);
+      new->value = strdup(value);
+      new->num = 1;
+      new->refdes = string_insert(refdes, NULL);
+    }
+
+  return (bom);
+
+}
+
+static StringList *string_insert(char *str, StringList *list)
+{
+  StringList *new, *cur;
+
+  if ( (new = (StringList *) malloc (sizeof (StringList) ) ) == NULL )
+    {
+	  fprintf(stderr, "malloc() failed in string_insert()\n");
+	  exit (1);
+    }
+  
+  new->next = NULL;
+  new->str = strdup(str);
+  
+  if (list == NULL)
+    return (new);
+
+  cur = list;
+  while ( cur->next != NULL )
+    cur = cur->next;
+  
+  cur->next = new;
+
+  return (list);
+}
+
 /* ----------------------------------------------------------------------
  * generates printout
  * mirroring, rotating, scaling and the request for outlines and/or
@@ -1504,8 +1909,8 @@ Print (char *Command, float Scale,
   Device->init (&DeviceFlags);
   /* OK, call all necessary subroutines */
   if (PrintLayergroups () || PrintSilkscreen () ||
-      PrintDrill () || PrintMask () || PrintPaste () || PrintFab ()
-      || PrintAssembly ())
+      PrintDrill () || PrintMask () || PrintPaste () || 
+      PrintFab () || PrintBOM () || PrintAssembly () )
     return (1);
   Device->Exit ();
   restoreCursor ();
