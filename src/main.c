@@ -818,7 +818,7 @@ static XtResource ToplevelResources[] = {
   {"swapStartDirection", "SwapStartDirection", XtRBoolean, sizeof (Boolean),
    XtOffsetOf (SettingType, SwapStartDirection), XtRString, "True"}
   ,
-  {"textScale", "TextScale", XtRDimension, sizeof (Dimension),
+  {"textScale", "TextScale", XtRInt, sizeof (BDimension),
    XtOffsetOf (SettingType, TextScale), XtRString, "100"}
   ,
   {"uniqueNames", "UniqueNames", XtRBoolean, sizeof (Boolean),
