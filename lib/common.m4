@@ -71,6 +71,7 @@ define(`args',`
 	ifelse($#, 0, , $#, 1,`define(`arg'cnt,`$1')',
 	`define(`arg'cnt,`$1') define(`cnt',incr(cnt)) args(shift($@))')')
 
+include(bga.inc)
 include(connector.inc)
 include(dil.inc)
 include(geda.inc)
@@ -78,11 +79,12 @@ include(genericsmt.inc)
 include(misc.inc)
 include(pci.inc)
 include(plcc.inc)
-include(rules.inc)
-include(to.inc)
 include(qfp.inc)
 include(qfp2.inc)
+include(resistor_adjust.inc)
+include(rules.inc)
 include(smt.inc)
+include(to.inc)
 include(zif.inc)
 
 # if any of these files exist, then include them.  
