@@ -474,7 +474,7 @@ typedef struct			/* some resources... */
     ViaDrillingHole, LineThickness, RatThickness, Keepaway, MaxWidth,	/* maximum size of a layout */
     MaxHeight, TextScale,	/* text scaling in % */
     AlignmentDistance, Bloat,	/* drc sizes */
-    Shrink, minWid;
+    Shrink, minWid, minSlk;
   float Grid,			/* grid 0.001'' */
     Zoom,			/* number of shift operations for zooming */
     PinoutZoom;			/* same for pinout windows */

@@ -3626,6 +3626,8 @@ doIsBad:
 Cardinal
 DRCAll (void)
 {
+  int tmpcnt;
+
   IsBad = False;
   drcerr_count = 0;
   ResetStackAndVisibility ();
@@ -3822,10 +3824,71 @@ DRCAll (void)
   TheFlag = FOUNDFLAG;
   Bloat = 0;
   fBloat = 0.0;
+
+  /* check silkscreen minimum widths outside of elements */
+  /* XXX - need to check text and polygons too! */
+  TheFlag = SELECTEDFLAG;
+  if (!IsBad)
+    {
+      SILKLINE_LOOP(PCB->Data);
+      {
+	if (line->Thickness < Settings.minSlk)
+	  {
+	    SET_FLAG(TheFlag, line);
+	    Message("Silk line is too thin\n");
+	    DrawLine(layer, line, 0);
+	    drcerr_count++;
+	    SetThing(LINE_TYPE, layer, line, line);
+	    GotoError();
+	    if (ConfirmDialog (DRC_CONTINUE))
+	      {
+		IsBad = True;
+		break;
+	      }
+	  }
+      }
+      ENDALL_LOOP;
+    }
+
+  /* check silkscreen minimum widths inside of elements */
+  /* XXX - need to check text and polygons too! */
+  TheFlag = SELECTEDFLAG;
+  if (!IsBad)
+    {
+      ELEMENT_LOOP (PCB->Data);
+      {
+	tmpcnt = 0;
+	ELEMENTLINE_LOOP (element);
+	{
+          if (line->Thickness < Settings.minSlk)
+	    tmpcnt++;
+	}
+	END_LOOP;
+	if (tmpcnt > 0)
+	  {
+	    SET_FLAG(TheFlag, element);
+	    Message("Element %s has %d silk lines which are too thin\n", 
+		    UNKNOWN (NAMEONPCB_NAME(element) ), tmpcnt);
+	    DrawElement(element, 0);
+	    drcerr_count++;
+	    SetThing(ELEMENT_TYPE, element, element, element);
+	    GotoError();
+	    if (ConfirmDialog (DRC_CONTINUE))
+	      {
+		IsBad = True;
+		break;
+	      }
+	  }
+      }
+      END_LOOP;
+    }
+
+
   if (IsBad)
     {
       IncrementUndoSerialNumber ();
     }
+
   return (drcerr_count);
 }
 
@@ -3873,6 +3936,13 @@ GotoError (void)
 	PadTypePtr pad = (PadTypePtr) thing_ptr3;
 	X = (pad->Point1.X + pad->Point2.X) / 2;
 	Y = (pad->Point1.Y + pad->Point2.Y) / 2;
+	break;
+      }
+    case ELEMENT_TYPE:
+      {
+        ElementTypePtr element = (ElementTypePtr) thing_ptr3;
+	X = element->MarkX;
+	Y = element->MarkY;
 	break;
       }
     default:

@@ -267,12 +267,28 @@ pcbthermal
 		;
 
 pcbdrc
+		: pcbdrc1
+		| pcbdrc2
+		;
+
+pcbdrc1
                 :
 		| T_DRC '[' NUMBER NUMBER NUMBER ']'
 		        {
 				Settings.Bloat = $3;
 				Settings.Shrink = $4;
 				Settings.minWid = $5;
+			}
+		;
+
+pcbdrc2
+                :
+		| T_DRC '[' NUMBER NUMBER NUMBER NUMBER ']'
+		        {
+				Settings.Bloat = $3;
+				Settings.Shrink = $4;
+				Settings.minWid = $5;
+				Settings.minSlk = $6;
 			}
 		;
 

@@ -419,6 +419,30 @@
 	{ \
 		POLYGON_LOOP(layer)
 
+#define	SILKLINE_LOOP(top) do	{		\
+	Cardinal		l;			\
+	LayerTypePtr	layer = (top)->Layer;		\
+	layer += MAX_LAYER;				\
+	for (l = 0; l < 2; l++, layer++)		\
+	{ \
+		LINE_LOOP(layer)
+
+#define SILKARC_LOOP(top) do	{		\
+	Cardinal		l;			\
+	LayerTypePtr	layer = (top)->Layer;		\
+	layer += MAX_LAYER;				\
+	for (l = 0; l < 2; l++, layer++)		\
+	{ \
+		ARC_LOOP(layer)
+
+#define	SILKPOLYGON_LOOP(top) do	{		\
+	Cardinal		l;			\
+	LayerTypePtr	layer = (top)->Layer;		\
+	layer += MAX_LAYER;				\
+	for (l = 0; l < 2; l++, layer++)		\
+	{ \
+		POLYGON_LOOP(layer)
+
 #define	ALLTEXT_LOOP(top)	do {		\
 	Cardinal		l;			\
 	LayerTypePtr	layer = (top)->Layer;		\

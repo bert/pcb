@@ -82,8 +82,9 @@ static char *rcsid =
 #define	BLOAT_SLIDER		5
 #define	DRCWID_SLIDER		6
 #define	SHRINK_SLIDER		7
-#define	WIDTH_SLIDER		8
-#define	HEIGHT_SLIDER		9
+#define	DRCSLK_SLIDER		8
+#define	WIDTH_SLIDER		9
+#define	HEIGHT_SLIDER		10
 
 /* ---------------------------------------------------------------------------
  * some local types
@@ -112,6 +113,7 @@ static SliderType Sliders[] = {
   {"DRC minimum space", 10, 50000, CHUNK/10, 0, NULL, NULL},
   {"DRC minimum width", 10, 50000, CHUNK/10, 0, NULL, NULL},
   {"DRC minimum overlap", 10, 50000, CHUNK/10, 0, NULL, NULL},
+  {"DRC minimum silkwidth", 100, 3000, CHUNK/10, 0, NULL, NULL},
   {"PCB width", MIN_SIZE, MAX_COORD, 100, 0, NULL, NULL},
   {"PCB height", MIN_SIZE, MAX_COORD, 100, 0, NULL, NULL}
 };
@@ -267,6 +269,7 @@ SizeDialog (void)
   Sliders[BLOAT_SLIDER].Value = Settings.Bloat + 1;
   Sliders[DRCWID_SLIDER].Value = Settings.minWid;
   Sliders[SHRINK_SLIDER].Value = Settings.Shrink;
+  Sliders[DRCSLK_SLIDER].Value = Settings.minSlk;
   Sliders[WIDTH_SLIDER].Value = PCB->MaxWidth;
   Sliders[HEIGHT_SLIDER].Value = PCB->MaxHeight;
 
@@ -352,6 +355,7 @@ SizeDialog (void)
       SetTextScale (Sliders[TEXTSCALE_SLIDER].Value);
       Settings.Bloat = Sliders[BLOAT_SLIDER].Value -1;
       Settings.minWid = Sliders[DRCWID_SLIDER].Value;
+      Settings.minSlk = Sliders[DRCSLK_SLIDER].Value;
       Settings.Shrink = Sliders[SHRINK_SLIDER].Value;
       /* set new maximum size and update scrollbars */
       if (PCB->MaxWidth != Sliders[WIDTH_SLIDER].Value ||
@@ -392,6 +396,7 @@ StyleSizeDialog (int index)
   Sliders[KEEPAWAY_SLIDER].Value = PCB->RouteStyle[index].Keepaway;
   Sliders[BLOAT_SLIDER].Value = Settings.Bloat +1;
   Sliders[DRCWID_SLIDER].Value = Settings.minWid;
+  Sliders[DRCSLK_SLIDER].Value = Settings.minSlk;
   Sliders[SHRINK_SLIDER].Value = Settings.Shrink;
 
   sprintf (styleName, "'%s' Sizes", PCB->RouteStyle[index].Name);

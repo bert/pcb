@@ -122,6 +122,7 @@ Pcb.zoom:                   3
 Pcb.Bloat:		    699
 Pcb.minWid:		    800
 Pcb.Shrink:		    400
+Pcb.minSlk:		    800
 
 !---------------------------------------------------------------------------
 ! resources that are common to all 'subwindows'
