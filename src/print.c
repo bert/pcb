@@ -1356,6 +1356,26 @@ drill_sym (int idx, int x, int y)
     }
 }
 
+static char *
+fab_author (void)
+{
+  static struct passwd *pwentry;
+  static char *fab_author = 0;
+
+  if (!fab_author)
+    {
+      if (Settings.FabAuthor && Settings.FabAuthor[0])
+	fab_author = Settings.FabAuthor;
+      else
+	{
+	  /* ID the user. */
+	  pwentry = getpwuid (getuid ());
+	  fab_author = pwentry->pw_gecos;
+	}
+    }
+  return fab_author;
+}
+
 static int
 PrintFab (void)
 {
@@ -1364,7 +1384,7 @@ PrintFab (void)
   int i, n, yoff, total_drills = 0, ds = 0;
   time_t currenttime;
   char utcTime[64];
-  struct passwd *pwentry;
+
   if (SetupPrintFile ("fab", "Fabrication Drawing", FILE_LAYER))
     return (1);
   Device->Polarity (0);
@@ -1439,8 +1459,6 @@ PrintFab (void)
   text_at (0, yoff, 0,
 	   "There are %d different drill sizes used in this layout, %d holes total",
 	   AllDrills->DrillN, total_drills);
-  /* ID the user. */
-  pwentry = getpwuid (getuid ());
   /* Create a portable timestamp. */
   currenttime = time (NULL);
   strftime (utcTime, sizeof utcTime, "%c UTC", gmtime (&currenttime));
@@ -1487,7 +1505,7 @@ PrintFab (void)
   yoff -= TEXT_LINE;
   text_at (200000, yoff, 0, "Date: %s", utcTime);
   yoff -= TEXT_LINE;
-  text_at (200000, yoff, 0, "Author: %s", pwentry->pw_gecos);
+  text_at (200000, yoff, 0, "Author: %s", fab_author());
   yoff -= TEXT_LINE;
   text_at (200000, yoff, 0,
 	   "Title: %s - Fabrication Drawing", UNKNOWN (PCB->Name));
@@ -1514,7 +1532,6 @@ PrintBOM (void)
   int found_pin1;
   int found_pin2;
   int pin_cnt;
-  struct passwd *pwentry;
   time_t currenttime;
   FILE *fp;
   BomList *bom = NULL;
@@ -1528,8 +1545,6 @@ PrintBOM (void)
   if ( (fp = OpenPrintFile ("xy", FILE_BOM)) == NULL)
     return (1);
 
-  /* ID the user. */
-  pwentry = getpwuid (getuid ());
   /* Create a portable timestamp. */
   currenttime = time (NULL);
   strftime (utcTime, sizeof (utcTime), "%c UTC", gmtime (&currenttime));
@@ -1538,7 +1553,7 @@ PrintBOM (void)
   fprintf (fp, "$\n");
   fprintf (fp, "# PcbXY Version 1.0\n");
   fprintf (fp, "# Date: %s\n", utcTime);
-  fprintf (fp, "# Author: %s\n", pwentry->pw_gecos);
+  fprintf (fp, "# Author: %s\n", fab_author());
   fprintf (fp, "# Title: %s - PCB X-Y\n", UNKNOWN (PCB->Name));
   fprintf (fp, "# RefDes, Description, Value, X, Y, rotation, top/bottom\n");
   fprintf (fp, "# X,Y in mils.  rotation in degrees.\n");
@@ -1695,7 +1710,7 @@ PrintBOM (void)
   fprintf (fp, "$\n");
   fprintf (fp, "# PcbBOM Version 1.0\n");
   fprintf (fp, "# Date: %s\n", utcTime);
-  fprintf (fp, "# Author: %s\n", pwentry->pw_gecos);
+  fprintf (fp, "# Author: %s\n", fab_author());
   fprintf (fp, "# Title: %s - PCB BOM\n", UNKNOWN (PCB->Name));
   fprintf (fp, "# Quantity, Description, Value, RefDes\n");
   fprintf (fp, "# --------------------------------------------\n");

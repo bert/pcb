@@ -495,7 +495,8 @@ typedef struct			/* some resources... */
     MenuFile,			/* file containing menu definitions */
     BackgroundImage,		/* PPM file for board background */
     ScriptFilename,             /* PCB Actions script to execute on startup */
-    ActionString;               /* PCB Actions string to execute on startup */
+    ActionString,               /* PCB Actions string to execute on startup */
+    FabAuthor;			/* Full name of author for FAB drawings */
   Boolean DumpMenuFile;		/* dump internal menu definitions */
   LocationType PinoutOffsetX,	/* offset of origin */
     PinoutOffsetY;

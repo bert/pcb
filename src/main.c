@@ -605,6 +605,9 @@ static XtResource ToplevelResources[] = {
   {"elementPath", "ElementPath", XtRString, sizeof (String),
    XtOffsetOf (SettingType, ElementPath), XtRString, PCBLIBDIR}
   ,
+  {"fabAuthor", "FabAuthor", XtRString, sizeof (String),
+   XtOffsetOf (SettingType, FabAuthor), XtRString, ""}
+  ,
   {"fileCommand", "FileCommand", XtRString, sizeof (String),
    XtOffsetOf (SettingType, FileCommand), XtRString, "cat %f"}
   ,
