@@ -167,7 +167,7 @@
 #define	PASTEBUFFER		(&Buffers[Settings.BufferNumber])
 
 /* ---------------------------------------------------------------------------
- * some routines for flag setting, clearing, changeing and testing
+ * some routines for flag setting, clearing, changing and testing
  */
 #define	SET_FLAG(f,p)		((p)->Flags |= (f))
 #define	CLEAR_FLAG(f,p)		((p)->Flags &= (~(f)))
