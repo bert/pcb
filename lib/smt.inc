@@ -33,7 +33,7 @@ define(`COMMON_SMT_2PAD_MIL',
 	define(`height',   `eval(sizY/2 + addFRAME + addTIN)')
 	define(`centerX',  `eval((sizX - padX + 2*addTIN)/2)')
 	define(`silkW',    `ifelse(eval(sizY >= 50), 1, 10, eval(sizY/5))')
-Element(0x00 "`$1'" "`$2'" "`$3'" eval(width + 20) 0 3 100 0x00)
+Element(0x00 "$1" "`$2'" "$3" eval(width + 20) 0 3 100 0x00)
 (
 	ifelse(eval($7 > 0), 1,
 	   `ElementLine(eval(-width-silkW) eval(-height + addFRAME) eval(-width-silkW) eval(height-addFRAME) eval(2*silkW))
@@ -101,7 +101,7 @@ define(`COMMON_SMT_3PAD_MIL',
 	define(`SKIP_SILK', `$11')
 
 		
-Element(0x00 "`$1'" "`$2'" "`$3'" eval(XMIN+20) eval(YMAX+20) 0 100 0x00)
+Element(0x00 "$1" "`$2'" "$3" eval(XMIN+20) eval(YMAX+20) 0 100 0x00)
 (
 	ifelse(0, eval(PADW>PADL),
 	# Pads which have the perpendicular pad dimension less
@@ -178,7 +178,7 @@ define(`COMMON_SMT_TRANSISTOR_MIL',
 	define(`silkW',    `ifelse(eval(spaceY >= 50), 1, 10, eval(spaceY/5))')
 	define(`indeX',    `0')
 
-Element(0x00 "`$1'" "`$2'" "`$3'" eval(maxX+20) 0 3 100 0x00)
+Element(0x00 "$1" "`$2'" "$3" eval(maxX+20) 0 3 100 0x00)
 (
 	ElementLine(0 0 0 maxY silkW)
 	ElementLine(0 maxY maxX maxY silkW)
@@ -268,7 +268,7 @@ define(`COMMON_SMT_TRANSISTORX_MIL',
 	define(`silkW',    `ifelse(eval(spaceY >= 50), 1, 10, eval(spaceY/5))')
 	define(`indeX',    `0')
 
-Element(0x00 "`$1'" "`$2'" "`$3'" eval(maxX+20) 0 3 100 0x00)
+Element(0x00 "$1" "`$2'" "$3" eval(maxX+20) 0 3 100 0x00)
 (
 	ElementLine(0 0 0 maxY silkW)
 	ElementLine(0 maxY maxX maxY silkW)
@@ -338,7 +338,7 @@ define(`COMMON_SMT_DUALINLINE',
 	define(`lowX2',   `eval(maxX - (padX-padY))')
 	define(`highX2',  `eval(maxX - padY/2)')
 	define(`centerX', `eval(maxX / 2)')
-Element(0x00 "`$1'" "`$2'" "`$3'" eval(centerX + 20) 50 3 100 0x00)
+Element(0x00 "$1" "`$2'" "$3" eval(centerX + 20) 50 3 100 0x00)
 (
 	forloop(`i', 1, eval(pinCOUNT/2),
 		`PAD(lowX1, eval((i*pinS100 - pinS100/2)/100),
@@ -565,7 +565,7 @@ define(`COMMON_SMT_DIL_MIL',
 	,
 		`define(`CURPIN', `1')'
 	)	
-Element(0x00 "`$1'" "`$2'" "`$3'" -20 -60 0 100 0x00)
+Element(0x00 "$1" "`$2'" "$3" -20 -60 0 100 0x00)
 (
         forloop(`i', 1, eval(NPADS / 2),
                 `ifelse(EVEN,"yes",
