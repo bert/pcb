@@ -513,6 +513,7 @@ WriteElementData (FILE * FP, DataTypePtr Data)
 		       (int) arc->Thickness); 
             }
        );
+       fputs("\n\t)\n", FP);
     }
   );
 }
@@ -570,7 +571,7 @@ WriteLayerData (FILE * FP, Cardinal Number, LayerTypePtr layer)
 		           (int) point->Y);
 	        }
 	     );
-             fputs ("\t)\n", FP);
+             fputs ("\n\t)\n", FP);
 	  }
       );
       fputs (")\n", FP);
