@@ -451,6 +451,13 @@ GetUserInput (char *MessageText, char *OutputString)
   XtSetKeyboardFocus (Output.Toplevel, inputfield);
   XtOverrideTranslations (inputfield,
 			  XtParseTranslationTable (InputTranslations));
+
+  /* also add translations for command history */
+  XtOverrideTranslations (inputfield,
+			  XtParseTranslationTable (
+			      "<Key>Up:       CommandHistory(prev)\n "
+			      "<Key>Down:     CommandHistory(next)\n " ) );
+
   XtInstallAccelerators (inputfield, Output.MasterForm);
   XtAddGrab (inputfield, True, False);
   XtRealizeWidget (inputfield);

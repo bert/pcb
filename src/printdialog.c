@@ -49,6 +49,8 @@
 #include "printdialog.h"
 #include "printpanner.h"
 
+#include <math.h>
+
 #include <X11/Shell.h>
 #include <X11/Xaw/AsciiText.h>
 #include <X11/Xaw/Command.h>
@@ -225,12 +227,20 @@ UpdateScrollbar (float NewScale)
 {
   float top;
 
-  /* set new scale, ignore all but first digit behind decimal dot */
-  NewScale = MIN (NewScale, MAX_SCALE);
-  NewScale = MAX (NewScale, MIN_SCALE);
-  Scale = ((int) (10.0 * NewScale)) / 10.0;
+  /* round to nearest 0.1 */
+  Scale = ceil (10.0 * NewScale - 0.5) / 10.0;
+
+  /* clip to between MIN_SCALE and MAX_SCALE */
+  Scale = MIN (Scale, MAX_SCALE);
+  Scale = MAX (Scale, MIN_SCALE);
+
+  /* convert to a percentage */
   top = (Scale - MIN_SCALE) / (MAX_SCALE - MIN_SCALE);
+
+  /* save room for the length on the thumb */
   top = MIN (top, (1.0 - ((float) THUMB_LENGTH / (float) SCROLLBAR_LENGTH)));
+
+  /* and set the thumb position */
   XawScrollbarSetThumb (ScrollbarW, top, -1.0);
   UpdateScale ();
   PrintPannerUpdate (Scale, RotateFlag, OutlineFlag, AlignmentFlag);
@@ -265,14 +275,16 @@ CB_Flags (Widget W, XtPointer ClientData, XtPointer CallData)
 static void
 CB_ScrollProc (Widget W, XtPointer ClientData, XtPointer CallData)
 {
-  float top;
+  float NewScale;
   long int delta = (long int) CallData;
 
-  /* get thumb postion */
-  XtVaGetValues (W, XtNtopOfThumb, &top, NULL);
-  top += ((float) delta / (float) SCROLLBAR_LENGTH);
-  top = MIN (1.0, MAX (top, 0.0));
-  UpdateScrollbar ((float) (MAX_SCALE - MIN_SCALE) * top + (float) MIN_SCALE);
+  NewScale = Scale;
+  if (delta > 0) 
+    NewScale += 0.1;
+  else
+    NewScale -= 0.1;
+
+  UpdateScrollbar (NewScale);
 }
 
 /* ---------------------------------------------------------------------------
@@ -452,7 +464,6 @@ PrintDialog (void)
   XtAddCallback (DOSnames, XtNcallback, CB_DOS, NULL);
   XtAddCallback (ScrollbarW, XtNscrollProc, CB_ScrollProc, NULL);
   XtAddCallback (ScrollbarW, XtNjumpProc, CB_JumpProc, NULL);
-  XtAddCallback (ScrollbarW, XtNscrollProc, CB_ScrollProc, NULL);
 
   /* override default translations and
    * install accelerators for buttons
@@ -463,7 +474,11 @@ PrintDialog (void)
   XtInstallAccelerators (FilenameW, buttons[1].W);
 
   /* set focus to input line */
-  XtSetKeyboardFocus (masterform, FilenameW);
+  /*
+   * don't do this or <Key>Up, <Key>Down can't be used to fine
+   * tune the scale.  Not sure why...
+   */
+  /* XtSetKeyboardFocus (masterform, FilenameW); */
 
   /* the panner widget has to be realized before the offset can be set;
    * update sliders and buttons too
