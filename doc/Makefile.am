@@ -37,6 +37,9 @@ EXTRA_DIST= \
 	${ps_docs} \
 	${pdf_docs} \
 	refcard.tex \
+	pad.obj \
+	pad.png \
+	pad.eps \
 	pcb.dvi \
 	refcard.dvi
 
@@ -48,6 +51,19 @@ DISTCLEANFILES= \
 	*.vrs \
 	refcard.log \
 	refcard.aux 
+
+BUILT_SOURCES=	\
+	pad.eps \
+	pad.png
+
+TGIF=		XENVIRONMENT=$(srcdir)/Xdefaults.tgif tgif
+TGIF_FLAGS=	-print -color
+
+.obj.eps:
+	${TGIF} ${TGIF_FLAGS} -eps $<
+
+.obj.png:
+	${TGIF} ${TGIF_FLAGS} -png $<
 
 .ps.pdf:
 	ps2pdf $<
