@@ -813,8 +813,13 @@ FitCrosshairIntoGrid (Position X, Position Y)
   Crosshair.Y = MIN (Crosshair.MaxY, MAX (Crosshair.MinY, Crosshair.Y));
 
   if (PCB->RatDraw || TEST_FLAG (SNAPPINFLAG, PCB))
-    ans = SearchScreen (Crosshair.X, Crosshair.Y, PAD_TYPE | PIN_TYPE,
+    {
+    ans = SearchScreen (Crosshair.X, Crosshair.Y, VIA_TYPE | PAD_TYPE | PIN_TYPE,
 			&ptr1, &ptr2, &ptr3);
+    if (ans == NO_TYPE)
+      ans = SearchScreen (Crosshair.X, Crosshair.Y, LINEPOINT_TYPE,
+			&ptr1, &ptr2, &ptr3);
+    }
   else
     ans = NO_TYPE;
 
@@ -912,7 +917,7 @@ FitCrosshairIntoGrid (Position X, Position Y)
 	    x0 = pad->Point2.X;
 	}
     }
-  else if (ans & PIN_TYPE)
+  else if (ans & (PIN_TYPE | VIA_TYPE))
     {
       PinTypePtr pin = (PinTypePtr) ptr2;
       if (
@@ -923,6 +928,19 @@ FitCrosshairIntoGrid (Position X, Position Y)
 	{
 	  x0 = pin->X;
 	  y0 = pin->Y;
+	}
+    }
+  else if (ans & LINEPOINT_TYPE)
+    {
+      PointTypePtr pnt = (PointTypePtr) ptr3;
+      if (
+	  ((x0 - Crosshair.X) * (x0 - Crosshair.X) +
+	   (y0 - Crosshair.Y) * (y0 - Crosshair.Y)) >
+	  ((pnt->X - Crosshair.X) * (pnt->X - Crosshair.X) +
+	   (pnt->Y - Crosshair.Y) * (pnt->Y - Crosshair.Y)))
+	{
+	  x0 = pnt->X;
+	  y0 = pnt->Y;
 	}
     }
   if (x0 >= 0 && y0 >= 0)
