@@ -243,7 +243,7 @@ define(`PKG_QFP160_28', `PKG_QFP_65(`$1',`$2',`$3',`160',`28')');
 define(`PKG_QFP240_32', `PKG_QFP_50(`$1',`$2',`$3',`240',`32')');
 define(`PKG_QFP304_40', `PKG_QFP_50(`$1',`$2',`$3',`304',`40')');
 #
-##  Square Quad-side flat pack
+##  Rectangular Quad-side flat pack
 
 define(`PKG_QFP64_R',   `PKG_QFP_100(`$1',`$2',`$3', `64',`0')');
 define(`PKG_QFP80_R',   `PKG_QFP_80L(`$1',`$2',`$3', `80',`0')');
