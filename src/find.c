@@ -2169,30 +2169,9 @@ LookupLOConnectionsToPad (PadTypePtr Pad, Cardinal LayerGroup)
 	    {
 	      if (TEST_FLAG(TheFlag | CLEARPOLYFLAG, polygon))
 	        continue;
-	      if (!TEST_FLAG (SQUAREFLAG, Pad))
-	        {
-		  if (IsLineInPolygon ((LineTypePtr) Pad, polygon) &&
+		  if (IsPadInPolygon (Pad, polygon) &&
 		      ADD_POLYGON_TO_LIST (layer, polygon))
 		    return True;
-		}
-	      else
-	        {
-		  Location x1;
-		  Location x2;
-		  Location y1;
-		  Location y2;
-		  x1 = MIN (Pad->Point1.X, Pad->Point2.X)
-		       - (Pad->Thickness + 1)/2;
-		  x2 = MAX (Pad->Point1.X, Pad->Point2.X)
-		       + (Pad->Thickness + 1)/2;
-		  y1 = MIN (Pad->Point1.Y, Pad->Point2.Y)
-		       - (Pad->Thickness + 1)/2;
-		  y2 = MAX (Pad->Point1.Y, Pad->Point2.Y)
-		       + (Pad->Thickness + 1)/2;
-		  if (IsRectangleInPolygon (x1, y1, x2, y2, polygon) &&
-		     ADD_POLYGON_TO_LIST (layer, polygon))
-		    return True;
-		}
 	     }
 	}
       else
@@ -2248,7 +2227,7 @@ LOCtoPolyPad_callback (const BoxType *b, void *cl)
 
   if (!TEST_FLAG (TheFlag, pad) && i->layer ==
       (TEST_FLAG (ONSOLDERFLAG, pad) ? SOLDER_LAYER : COMPONENT_LAYER)
-      && IsLineInPolygon ((LineTypePtr)pad, i->polygon))
+      && IsPadInPolygon (pad, i->polygon))
     {
       if (ADD_PAD_TO_LIST (i->layer, pad))
         longjmp (i->env, 1);
@@ -2431,6 +2410,29 @@ IsLineInPolygon (LineTypePtr Line, PolygonTypePtr Polygon)
       );
     }
   return (False);
+}
+
+/* ---------------------------------------------------------------------------
+ * checks if a pad connects to a non-clearing polygon
+ *
+ * The polygon is assumed to already have been proven non-clearing
+ */
+Boolean
+IsPadInPolygon (PadTypePtr pad, PolygonTypePtr polygon)
+{
+  if (TEST_FLAG (SQUAREFLAG, pad))
+    {
+      BDimension wid = pad->Thickness / 2;
+      Location x1, x2, y1, y2;
+
+      x1 = MIN (pad->Point1.X, pad->Point2.X) - wid;
+      y1 = MIN (pad->Point1.Y, pad->Point2.Y) - wid;
+      x2 = MAX (pad->Point1.X, pad->Point2.X) + wid;
+      y2 = MAX (pad->Point1.Y, pad->Point2.Y) + wid;
+      return IsRectangleInPolygon (x1, y1, x2, y2, polygon);
+    }
+  else
+    return IsLineInPolygon ((LineTypePtr) pad, polygon);
 }
 
 /* ---------------------------------------------------------------------------

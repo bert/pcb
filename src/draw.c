@@ -397,6 +397,15 @@ rat_callback (const BoxType * b, void *cl)
   return 1;
 }
 
+static int
+lowvia_callback (const BoxType * b, void *cl)
+{
+  PinTypePtr via = (PinTypePtr)b;
+  if (!via->Mask)
+    DrawPlainVia (via, False);
+  return 1;
+}
+
 /* ---------------------------------------------------------------------------
  * initializes some identifiers for a new zoom factor and redraws whole screen
  */
@@ -426,8 +435,9 @@ DrawEverything (BoxTypePtr drawn_area)
   for (i = MAX_LAYER - 1; i >= 0; i--)
     if ((LAYER_ON_STACK (i))->On)
       DrawLayer (LAYER_ON_STACK (i), drawn_area);
-  /* Draw pins, pads, vias */
-  DrawTop (drawn_area);
+  /* draw vias below silk */
+  if (PCB->ViaOn)
+    r_search (PCB->Data->via_tree, drawn_area, NULL, lowvia_callback, NULL);
   /* Draw the solder mask if turned on */
   if (TEST_FLAG (SHOWMASKFLAG, PCB))
     DrawMask (drawn_area);
@@ -441,6 +451,8 @@ DrawEverything (BoxTypePtr drawn_area)
       r_search (PCB->Data->element_tree, drawn_area, NULL, frontE_callback,
 		NULL);
     }
+  /* Draw pins, pads, vias above silk */
+  DrawTop (drawn_area);
   if (PCB->PinOn)
     /* Draw pin holes */
     r_search (PCB->Data->pin_tree, drawn_area, NULL, hole_callback, NULL);
@@ -475,7 +487,9 @@ DrawEMark (Location X, Location Y, Boolean invisible)
 static int
 via_callback (const BoxType * b, void *cl)
 {
-  DrawPlainVia ((PinTypePtr) b, False);
+  PinTypePtr via = (PinTypePtr)b;
+  if (via->Mask)
+    DrawPlainVia (via, False);
   return 1;
 }
 

@@ -69,5 +69,6 @@ Cardinal DRCAll(void);
 Boolean lineClear(LineTypePtr, Cardinal);
 Boolean IsLineInPolygon(LineTypePtr, PolygonTypePtr);
 Boolean IsArcInPolygon(ArcTypePtr, PolygonTypePtr);
+Boolean IsPadInPolygon(PadTypePtr, PolygonTypePtr);
 
 #endif

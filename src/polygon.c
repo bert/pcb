@@ -427,22 +427,7 @@ plow_callback (const BoxType *b, void *cl)
 	   if ((TEST_FLAG (ONSOLDERFLAG, pad)) ==
 	      (plow->group == plow->solder ? True : False))
 	         {
-		    Location x1=0, x2=0, y1=0, y2=0;
-		    BDimension wid = pad->Thickness / 2;
-
-		    CLEAR_FLAG (CLEARLINEFLAG, pad);
-		    pad->Thickness += pad->Clearance;
-		    if (TEST_FLAG (SQUAREFLAG, pad))
-		      {
-		         x1 = MIN (pad->Point1.X, pad->Point2.X) - wid;
-		         y1 = MIN (pad->Point1.Y, pad->Point2.Y) - wid;
-		         x2 = MAX (pad->Point1.X, pad->Point2.X) + wid;
-		         y2 = MAX (pad->Point1.Y, pad->Point2.Y) + wid;
-		      }
-		    if ((TEST_FLAG (SQUAREFLAG, pad) &&
-			 IsRectangleInPolygon (x1, y1, x2, y2, plow->polygon))
-			 || (!TEST_FLAG (SQUAREFLAG, pad)
-			 && IsLineInPolygon ((LineTypePtr) pad, plow->polygon)))
+		    if (IsPadInPolygon (pad, plow->polygon))
 		      {
 		        pad->Thickness -= pad->Clearance;
 		        r = plow->callback (PAD_TYPE, pad->Element, pad, pad,

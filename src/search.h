@@ -79,6 +79,7 @@ Boolean	IsLineInRectangle(Location, Location, Location, Location, LineTypePtr);
 Boolean IsArcInRectangle(Location, Location, Location, Location, ArcTypePtr);
 Boolean	IsPointInPolygon(float, float, float, PolygonTypePtr);
 Boolean IsPointInSquarePad(Location, Location, Cardinal, PadTypePtr);
+Boolean IsPointInBox(Location, Location, BoxTypePtr, Cardinal);
 Boolean	IsRectangleInPolygon(Location, Location, Location, Location,
 			PolygonTypePtr);
 int		SearchObjectByLocation(int, void **, void **, void **,

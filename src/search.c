@@ -88,7 +88,6 @@ static Boolean SearchPointByLocation (LayerTypePtr *, PolygonTypePtr *,
 				      PointTypePtr *);
 static Boolean SearchElementByLocation (ElementTypePtr *, ElementTypePtr *,
 					ElementTypePtr *, Boolean);
-static Boolean IsPointInBox (Location, Location, BoxTypePtr, Cardinal);
 
 /* ---------------------------------------------------------------------------
  * searches a via
@@ -405,8 +404,7 @@ linepoint_callback (const BoxType * b, void *cl)
   float d;
 
   /* some stupid code to check both points */
-  d = (PosX - line->Point1.X) * (PosX - line->Point1.X) +
-    (PosY - line->Point1.Y) * (PosY - line->Point1.Y);
+  d = SQUARE (PosX - line->Point1.X) + SQUARE (PosY - line->Point1.Y);
   if (d < i->least)
     {
       i->least = d;
@@ -415,8 +413,7 @@ linepoint_callback (const BoxType * b, void *cl)
       ret_val = 1;
     }
 
-  d = (PosX - line->Point2.X) * (PosX - line->Point2.X) +
-    (PosY - line->Point2.Y) * (PosY - line->Point2.Y);
+  d = SQUARE (PosX - line->Point2.X) + SQUARE (PosY - line->Point2.Y);
   if (d < i->least)
     {
       i->least = d;
@@ -459,9 +456,7 @@ SearchPointByLocation (LayerTypePtr * Layer,
   float d, least;
   Boolean found = False;
 
-  least =
-    (SearchRadius + MAX_POLYGON_POINT_DISTANCE) * (SearchRadius +
-						   MAX_POLYGON_POINT_DISTANCE);
+  least = SQUARE (SearchRadius + MAX_POLYGON_POINT_DISTANCE);
   *Layer = SearchLayer;
   POLYGON_LOOP (*Layer, 
     {
@@ -469,10 +464,8 @@ SearchPointByLocation (LayerTypePtr * Layer,
 	continue;
       POLYGONPOINT_LOOP (polygon, 
 	{
-	  d =
-	    (point->X - PosX) * (point->X -
-				 PosX) +
-	    (point->Y - PosY) * (point->Y - PosY);
+	  d = SQUARE (point->X - PosX) +
+	      SQUARE (point->Y - PosY);
 	  if (d < least)
 	    {
 	      least = d;
@@ -566,7 +559,7 @@ SearchElementByLocation (ElementTypePtr * Element,
       info.ptr1 = (void **) Element;
       info.ptr2 = (void **) Dummy1;
       info.ptr3 = (void **) Dummy2;
-      info.area = (float) MAX_COORD *MAX_COORD;
+      info.area = SQUARE (MAX_COORD);
       info.BackToo = (BackToo && PCB->InvisibleObjectsOn);
       if (r_search
 	  (PCB->Data->element_tree, &SearchBox, NULL, element_callback,
@@ -660,9 +653,7 @@ IsPointOnLine (float X, float Y, float Radius, LineTypePtr Line)
   Radius *= Radius;
   if ((l = dx * dx + dy * dy) == 0.0)
     {
-      l =
-	(Line->Point1.X - X) * (float) (Line->Point1.X - X) +
-	(Line->Point1.Y - Y) * (float) (Line->Point1.Y - Y);
+      l = SQUARE (Line->Point1.X - X) + SQUARE (Line->Point1.Y - Y);
       return ((l <= Radius) ? True : False);
     }
   if (d * d > Radius * l)
@@ -791,7 +782,7 @@ IsPointInSquarePad (Location X, Location Y, Cardinal Radius, PadTypePtr Pad)
   return (IsPointInBox (X, Y, &padbox, Radius));
 }
 
-static Boolean
+Boolean
 IsPointInBox (Location X, Location Y, BoxTypePtr box, Cardinal Radius)
 {
   LineType line;
@@ -859,8 +850,8 @@ IsPointInPolygon (float X, float Y, float Radius, PolygonTypePtr Polygon)
 		(float) (Y - ptr->Y) / (float) (point->Y - ptr->Y) + ptr->X)))
 	    inside = !inside;
 	  ptr = point;
-	} );
-
+	}
+      );
       /* check the distance between the lines of the
        * polygon and the point itself
        *

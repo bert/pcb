@@ -45,6 +45,7 @@ static char *rcsid = "$Id$";
 #include <unistd.h>
 #endif
 #include <pwd.h>
+#include <setjmp.h>
 
 #include "global.h"
 
@@ -59,6 +60,7 @@ static char *rcsid = "$Id$";
 #include "misc.h"
 #include "print.h"
 #include "polygon.h"
+#include "rtree.h"
 #include "search.h"
 
 #ifdef HAVE_LIBDMALLOC
@@ -91,6 +93,16 @@ static int PrintSilkscreen (void);
 static int PrintDrill (void);
 static int PrintMask (void);
 static int PrintPaste (void);
+
+static void
+DoPolarity (void)
+{
+  if (!polarity_called)
+    {
+      polarity_called = True;
+      Device->Polarity (2);
+    }
+}
 
 /* ----------------------------------------------------------------------
  * queries color from X11 database and calls device  command
@@ -223,11 +235,7 @@ static int
 any_callback(int type, void *ptr1, void *ptr2, void *ptr3, 
              LayerTypePtr lay, PolygonTypePtr poly)
 {
-  if (!polarity_called)
-    {
-      polarity_called = True;
-      Device->Polarity (2);
-    }
+  DoPolarity();
   switch (type)
    {
      case LINE_TYPE:
@@ -544,6 +552,185 @@ PrintLayergroups (void)
   return (0);
 }
 
+struct silkInfo
+{
+  PinTypePtr pin;
+  PadTypePtr pad;
+  jmp_buf env;
+};
+
+static void
+clearSilkPad (PadTypePtr pad)
+{
+  DoPolarity ();
+  pad->Thickness -= pad->Clearance;
+  Device->Pad (pad, 1);
+  pad->Thickness += pad->Clearance;
+}
+
+static void
+clearSilkPin (PinTypePtr pin)
+{
+  DoPolarity ();
+  pin->Thickness -= pin->Clearance;
+  Device->PinOrVia (pin, 1);
+  pin->Thickness += pin->Clearance;
+}
+
+static int
+silkPinElement_callback (const BoxType *box, void *cl)
+{
+  ElementTypePtr element = (ElementTypePtr)box;
+  struct silkInfo *i = (struct silkInfo *)cl;
+
+      LINE_LOOP (element,
+        {
+          if (IsPointOnLine (i->pin->X, i->pin->Y, 0.5 * i->pin->Thickness, line))
+            {
+              clearSilkPin (i->pin);
+	      longjmp (i->env, 1);
+	    }
+	}
+      );
+      ARC_LOOP (element,
+        {
+          if (IsPointOnArc (i->pin->X, i->pin->Y, 0.5 * i->pin->Thickness, arc))
+            {
+              clearSilkPin (i->pin);
+	      longjmp (i->env, 1);
+	    }
+	}
+      );
+     if (IsPointInBox (i->pin->X, i->pin->Y, &NAMEONPCB_TEXT(element).BoundingBox,
+         i->pin->Thickness/2))
+	 {
+       clearSilkPin (i->pin);
+	      longjmp (i->env, 1);
+	    }
+  return 0;
+}
+
+static int
+silkPadElement_callback (const BoxType *box, void *cl)
+{
+  ElementTypePtr element = (ElementTypePtr)box;
+  struct silkInfo *i = (struct silkInfo *)cl;
+
+      LINE_LOOP (element,
+        {
+          if (LinePadIntersect (line, i->pad))
+            {
+              clearSilkPad (i->pad);
+	      longjmp (i->env, 1);
+	    }
+	}
+      );
+      ARC_LOOP (element,
+        {
+          if (ArcPadIntersect (arc, i->pad))
+            {
+              clearSilkPad (i->pad);
+	      longjmp (i->env, 1);
+	    }
+	}
+      );
+  return 0;
+}
+
+static int
+silkPinLine_callback (const BoxType *box, void *cl)
+{
+  LineTypePtr line = (LineTypePtr)box;
+  struct silkInfo *i = (struct silkInfo *)cl;
+
+          if (IsPointOnLine (i->pin->X, i->pin->Y, 0.5 * i->pin->Thickness, line))
+            {
+              clearSilkPin (i->pin);
+	      longjmp (i->env, 1);
+	    }
+  return 0;
+}
+
+static int
+silkPinArc_callback (const BoxType *box, void *cl)
+{
+  ArcTypePtr arc = (ArcTypePtr)box;
+  struct silkInfo *i = (struct silkInfo *)cl;
+
+          if (IsPointOnArc (i->pin->X, i->pin->Y, 0.5 * i->pin->Thickness, arc))
+            {
+              clearSilkPin (i->pin);
+	      longjmp (i->env, 1);
+	    }
+  return 0;
+}
+
+static int
+silkPadLine_callback (const BoxType *box, void *cl)
+{
+  LineTypePtr line = (LineTypePtr)box;
+  struct silkInfo *i = (struct silkInfo *)cl;
+
+          if (LinePadIntersect (line, i->pad))
+            {
+              clearSilkPad (i->pad);
+	      longjmp (i->env, 1);
+	    }
+  return 0;
+}
+
+static int
+silkPadArc_callback (const BoxType *box, void *cl)
+{
+  ArcTypePtr arc = (ArcTypePtr)box;
+  struct silkInfo *i = (struct silkInfo *)cl;
+
+          if (ArcPadIntersect (arc, i->pad))
+            {
+              clearSilkPad (i->pad);
+	      longjmp (i->env, 1);
+	    }
+  return 0;
+}
+
+static int
+silkPinText_callback (const BoxType *box, void *cl)
+{
+  TextTypePtr text = (TextTypePtr)box;
+  struct silkInfo *i = (struct silkInfo *)cl;
+
+     if (IsPointInBox (i->pin->X, i->pin->Y, &text->BoundingBox,
+         i->pin->Thickness/2))
+{
+       clearSilkPin (i->pin);
+       longjmp (i->env, 1);
+       }
+     return 0;
+}
+
+static int
+silkPadText_callback (const BoxType *box, void *cl)
+{
+  TextTypePtr text = (TextTypePtr)box;
+  struct silkInfo *i = (struct silkInfo *)cl;
+  BoxTypePtr b1;
+  BoxType b2;
+  BDimension w;
+
+  w = i->pad->Thickness/2;
+  b2.X1 = MIN (i->pad->Point1.X, i->pad->Point2.X) - w;
+  b2.X2 = MAX (i->pad->Point1.X, i->pad->Point2.X) + w;
+  b2.Y1 = MIN (i->pad->Point1.Y, i->pad->Point2.Y) - w;
+  b2.Y2 = MAX (i->pad->Point1.Y, i->pad->Point2.Y) + w;
+  b1 = &text->BoundingBox;
+  if (b1->X1 <= b2.X2 && b1->X2 >= b2.X1 && b1->Y1 <= b2.Y2 && b1->Y2 >= b2.X1)
+  {
+    clearSilkPad (i->pad);
+    longjmp (i->env, 1);
+  }
+  return 0;
+}
+
 /* ---------------------------------------------------------------------------
  * prints solder and component side silk screens
  * first print element outlines and names, then silk layer
@@ -562,6 +749,7 @@ PrintSilkscreen (void)
   LayerTypePtr layer;
   int i;
   Boolean noData;
+  struct silkInfo info;
 
   /* loop over both sides, start with component */
   for (i = 0; i < 2; i++)
@@ -622,6 +810,90 @@ PrintSilkscreen (void)
 	  Device->Text (text);
 	}
       );
+
+      /* erase any silk that might have crossed solder areas */
+      polarity_called = False;
+      ALLPIN_LOOP (PCB->Data,
+        {
+	  info.pin = pin;
+	  if (setjmp (info.env) == 0)
+	    {
+	      r_search (PCB->Data->element_tree, &pin->BoundingBox, NULL,
+	                silkPinElement_callback, &info);
+	      r_search (layer->line_tree, &pin->BoundingBox, NULL,
+	                silkPinLine_callback, &info);
+	      r_search (layer->arc_tree, &pin->BoundingBox, NULL,
+	                silkPinArc_callback, &info);
+	      r_search (layer->text_tree, &pin->BoundingBox, NULL,
+	                silkPinText_callback, &info);
+	      POLYGON_LOOP (layer,
+	        {
+		   if (IsPointInPolygon (pin->X, pin->Y, 0.5 * pin->Thickness,
+		                         polygon))
+                     {
+		       DoPolarity ();
+		       clearSilkPin (pin);
+		       break;
+		     }
+		}
+              );
+	    }
+	 }
+       );
+     VIA_LOOP (PCB->Data,
+       {
+         info.pin = via;
+	 if (via->Mask && setjmp (info.env) == 0)
+	   {
+	      r_search (PCB->Data->element_tree, &via->BoundingBox, NULL,
+	                silkPinElement_callback, &info);
+	      r_search (layer->line_tree, &via->BoundingBox, NULL,
+	                silkPinLine_callback, &info);
+	      r_search (layer->arc_tree, &via->BoundingBox, NULL,
+	                silkPinArc_callback, &info);
+	      r_search (layer->text_tree, &via->BoundingBox, NULL,
+	                silkPinText_callback, &info);
+	      POLYGON_LOOP (layer,
+	        {
+		   if (IsPointInPolygon (via->X, via->Y, 0.5 * via->Thickness,
+		                         polygon))
+                     {
+		       DoPolarity ();
+		     clearSilkPin (via);
+		     break;
+		     }
+		}
+              );
+	    }
+	 }
+       );
+     ALLPAD_LOOP (PCB->Data,
+       {
+         info.pad = pad;
+	 if (setjmp (info.env) == 0)
+	   {
+	      r_search (PCB->Data->element_tree, &pad->BoundingBox, NULL,
+	                silkPadElement_callback, &info);
+	      r_search (layer->line_tree, &pad->BoundingBox, NULL,
+	                silkPadLine_callback, &info);
+	      r_search (layer->arc_tree, &pad->BoundingBox, NULL,
+	                silkPadArc_callback, &info);
+	      r_search (layer->text_tree, &pad->BoundingBox, NULL,
+	                silkPadText_callback, &info);
+	      POLYGON_LOOP (layer,
+	        {
+		   CLEAR_FLAG (CLEARPOLYFLAG, polygon);
+		   if (IsPadInPolygon (pad, polygon))
+                     {
+		     DoPolarity ();
+		     clearSilkPad (pad);
+		     break;
+		     }
+		}
+              );
+	    }
+	 }
+       );
       ClosePrintFile ();
     }
   return (0);
