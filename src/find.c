@@ -177,7 +177,7 @@ static char *rcsid = "$Id$";
 	PVLIST_ENTRY(PVList.Number) = (Ptr);	\
 	PVList.Number++;			\
 	if (drc && !TEST_FLAG(SELECTEDFLAG, (Ptr)->Data))	\
-		return(True);			\
+		return(SetThing(PIN_TYPE, (Ptr)->Element, (Ptr)->Data, (Ptr)->Data));			\
 }
 
 #define	ADD_PAD_TO_LIST(L,Ptr)						\
@@ -189,7 +189,7 @@ static char *rcsid = "$Id$";
 	PADLIST_ENTRY((L),PadList[(L)].Number) = (Ptr);		\
 	PadList[(L)].Number++;					\
 	if (drc && !TEST_FLAG(SELECTEDFLAG, (Ptr)->Data))	\
-		return(True);					\
+		return(SetThing(PAD_TYPE, (Ptr)->Element, (Ptr)->Data, (Ptr)->Data));					\
 }
 
 #define	ADD_LINE_TO_LIST(L,Ptr)							\
@@ -201,7 +201,7 @@ static char *rcsid = "$Id$";
 	LINELIST_ENTRY((L),LineList[(L)].Number) = (Ptr);	\
 	LineList[(L)].Number++;								\
 	if (drc && !TEST_FLAG(SELECTEDFLAG, (Ptr)))	\
-		return(True);				\
+		return(SetThing(LINE_TYPE, LAYER_PTR(L), (Ptr), (Ptr)));				\
 }
 
 #define ADD_ARC_TO_LIST(L,Ptr)						\
@@ -213,7 +213,7 @@ static char *rcsid = "$Id$";
 	ARCLIST_ENTRY((L),ArcList[(L)].Number) = (Ptr);	\
 	ArcList[(L)].Number++;							\
 	if (drc && !TEST_FLAG(SELECTEDFLAG, (Ptr)))	\
-		return(True);				\
+		return(SetThing(ARC_TYPE, LAYER_PTR(L), (Ptr), (Ptr)));				\
 }
 
 #define ADD_RAT_TO_LIST(Ptr)							\
@@ -224,7 +224,7 @@ static char *rcsid = "$Id$";
 	RATLIST_ENTRY(RatList.Number) = (Ptr);					\
 	RatList.Number++;							\
 	if (drc && !TEST_FLAG(SELECTEDFLAG, (Ptr)))				\
-		return(True);							\
+		return(SetThing(RATLINE_TYPE, (Ptr), (Ptr), (Ptr)));							\
 }
 
 #define	ADD_POLYGON_TO_LIST(L,Ptr)							\
@@ -236,7 +236,7 @@ static char *rcsid = "$Id$";
 	POLYGONLIST_ENTRY((L), PolygonList[(L)].Number) = (Ptr);\
 	PolygonList[(L)].Number++;								\
 	if (drc && !TEST_FLAG(SELECTEDFLAG, (Ptr)))	\
-		return(True);				\
+		return(SetThing(POLYGON_TYPE, LAYER_PTR(L), (Ptr), (Ptr)));				\
 }
 
 /* ---------------------------------------------------------------------------
@@ -274,6 +274,8 @@ static float fBloat = 0.0;
 static Location Bloat = 0;
 static int TheFlag = FOUNDFLAG;
 static int OldFlag = FOUNDFLAG;
+static void *thing_ptr1, *thing_ptr2, *thing_ptr3;
+static int thing_type;
 static Boolean User = False;	/* user action causing this */
 static Boolean drc = False;	/* whether to stop if finding something not found */
 static Cardinal drcerr_count;    /* count of drc errors */
@@ -348,6 +350,7 @@ static Boolean DRCFind (int, void *, void *, void *);
 static Boolean ListStart (int, void *, void *, void *);
 static Boolean LOTouchesLine (LineTypePtr Line, Cardinal LayerGroup);
 static Boolean PVTouchesLine (LineTypePtr line);
+static Boolean SetThing(int, void *, void *, void *);
 
 /* ---------------------------------------------------------------------------
  * some of the 'pad' routines are the same as for lines because the 'pad'
@@ -372,6 +375,21 @@ static Boolean PVTouchesLine (LineTypePtr line);
 		MAX((Pad)->Point1.Y, (Pad)->Point2.Y) +((Pad)->Thickness+1)/2, \
 			(Arc)) : \
 	LineArcIntersect((LineTypePtr) (Pad), (Arc)))
+
+Boolean
+SetThing(int type, void * ptr1, void * ptr2, void *ptr3)
+{
+  thing_ptr1 = ptr1;
+  thing_ptr2 = ptr2;
+  thing_ptr3 = ptr3;
+  thing_type = type;
+  if (type == PIN_TYPE && ptr1 == NULL)
+    {
+      thing_ptr1 = ptr3;
+      thing_type = VIA_TYPE;
+    }
+  return True;
+}
 
 Boolean
 BoxBoxIntersection (BoxTypePtr b1, BoxTypePtr b2)
@@ -3907,7 +3925,7 @@ DRCFind (int What, void *ptr1, void *ptr2, void *ptr3)
   Bloat = Settings.Bloat;
   fBloat = (float) Settings.Bloat;
   drc = True;
-  if (DoIt (True, False))
+  while (DoIt (True, False))
     {
       DumpList ();
       Message ("WARNING!!!  Design Rule error - copper areas too close!\n");
@@ -3930,14 +3948,25 @@ DRCFind (int What, void *ptr1, void *ptr2, void *ptr3)
       drc = True;
       DoIt (True, True);
       DumpList ();
-      User = False;
-      drc = False;
       drcerr_count++;
       GotoError();
+      User = False;
+      drc = False;
       if (ConfirmDialog ("Stop here? (Cancel to continue checking)"))
         return (True);
-      IncrementUndoSerialNumber();
+      IncrementUndoSerialNumber ();
       Undo(True);
+      /* highlest the rest of the encroaching net so it's not reported it again */
+      TheFlag |= SELECTEDFLAG;
+      Bloat = 0;
+      fBloat = 0.0;
+      ListStart(thing_type, thing_ptr1, thing_ptr2, thing_ptr3);
+      DoIt (True, True);
+      DumpList ();
+      drc = True;
+      Bloat = Settings.Bloat;
+      fBloat = (float) Settings.Bloat;
+      ListStart (What, ptr1, ptr2, ptr3);
     }
   drc = False;
   DumpList ();
@@ -4047,69 +4076,47 @@ GotoError (void)
   Location X, Y;
 
 
-  COPPERLINE_LOOP (PCB->Data, 
+  switch (thing_type)
     {
-      if (!TEST_FLAG (SELECTEDFLAG, line) && TEST_FLAG (FOUNDFLAG, line))
-	{
+      case LINE_TYPE:
+        {
+          LineTypePtr line = (LineTypePtr) thing_ptr3;
 	  X = (line->Point1.X + line->Point2.X) / 2;
 	  Y = (line->Point1.Y + line->Point2.Y) / 2;
-	  goto gotcha;
+          break;
 	}
-    }
-  );
-  COPPERARC_LOOP (PCB->Data, 
-    {
-      if (!TEST_FLAG (SELECTEDFLAG, arc) && TEST_FLAG (FOUNDFLAG, arc))
-	{
+      case ARC_TYPE:
+        {
+          ArcTypePtr arc = (ArcTypePtr) thing_ptr3;
 	  X = arc->X;
 	  Y = arc->Y;
-	  goto gotcha;
+          break;
 	}
-    }
-  );
-  COPPERPOLYGON_LOOP (PCB->Data, 
-    {
-      if (!TEST_FLAG (SELECTEDFLAG, polygon)
-	  && TEST_FLAG (FOUNDFLAG, polygon))
-	{
+      case POLYGON_TYPE:
+        {
+          PolygonTypePtr polygon = (PolygonTypePtr) thing_ptr3;
 	  X = (polygon->BoundingBox.X1 + polygon->BoundingBox.X2) / 2;
 	  Y = (polygon->BoundingBox.Y1 + polygon->BoundingBox.Y2) / 2;
-	  goto gotcha;
+          break;
 	}
-    }
-  );
-  ALLPIN_LOOP (PCB->Data, 
-    {
-      if (!TEST_FLAG (SELECTEDFLAG, pin) && TEST_FLAG (FOUNDFLAG, pin))
-	{
+      case PIN_TYPE:
+      case VIA_TYPE:
+        {
+          PinTypePtr pin = (PinTypePtr) thing_ptr3;
 	  X = pin->X;
 	  Y = pin->Y;
-	  goto gotcha;
+          break;
 	}
-    }
-  );
-  ALLPAD_LOOP (PCB->Data, 
-    {
-      if (!TEST_FLAG (SELECTEDFLAG, pad) && TEST_FLAG (FOUNDFLAG, pad))
-	{
+      case PAD_TYPE:
+        {
+          PadTypePtr pad = (PadTypePtr) thing_ptr3;
 	  X = (pad->Point1.X + pad->Point2.X) / 2;
 	  Y = (pad->Point1.Y + pad->Point2.Y) / 2;
-	  goto gotcha;
+          break;
 	}
+      default:
+        return;
     }
-  );
-  VIA_LOOP (PCB->Data, 
-    {
-      if (!TEST_FLAG (SELECTEDFLAG, via) && TEST_FLAG (FOUNDFLAG, via))
-	{
-	  X = via->X;
-	  Y = via->Y;
-	  goto gotcha;
-	}
-    }
-  );
-  return;
-gotcha:
   Message ("near location (%d.%02d,%d.%02d)\n", X / 100, X % 100, Y / 100,
 	   Y % 100);
   CenterDisplay (X, Y, False);
@@ -4129,3 +4136,4 @@ FreeConnectionLookupMemory (void)
   FreeComponentLookupMemory ();
   FreeLayoutLookupMemory ();
 }
+
