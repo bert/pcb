@@ -614,7 +614,7 @@ GBX_Drill (PinTypePtr PinOrVia, Cardinal index)
       fprintf (GBX_Flags.FP, "T%02d\015\012", index);
     }
   fprintf (GBX_Flags.FP,
-	   "X%ldY%ld\015\012",
+	   "X%06ldY%06ld\015\012",
 	   gerberX (PCB, PinOrVia->X), gerberY (PCB, PinOrVia->Y));
 }
 
@@ -748,7 +748,7 @@ GBX_PrintPolygon (PolygonTypePtr Ptr)
   Location startX = 0, startY = 0;
 
   /* All polygon fills need to have a defined aperture.  */
-  setAperture (&GBX_Apertures, 10, 0, 0, ROUND);
+  setAperture (&GBX_Apertures, 1000, 0, 0, ROUND);
   fprintf (GBX_Flags.FP, "G36*\015\012");
   POLYGONPOINT_LOOP (Ptr, 
     {
@@ -1097,7 +1097,7 @@ GBX_PrintFilledRectangle (Location X1, Location Y1, Location X2, Location Y2)
   int X, Y;
 
 
-  setAperture (&GBX_Apertures, 10, 0, 0, ROUND);
+  setAperture (&GBX_Apertures, 1000, 0, 0, ROUND);
 
   for (j = Y1; j < Y2; j += 4)
     {
@@ -1165,7 +1165,7 @@ GBX_PrintAlignment (Location X1, Location Y1, Location X2, Location Y2)
 
   fprintf (GBX_Flags.FP, "*G04 Alignment Targets ***\015\012");
 
-  setAperture (&GBX_Apertures, 10, 0, 0, ROUND),
+  setAperture (&GBX_Apertures, 1000, 0, 0, ROUND),
     fprintf (GBX_Flags.FP,
 	     "X%dY%dD02*X%dY%dD01*\015\012", gx1, gy1, XZ1, gy1);
 
