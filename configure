@@ -853,6 +853,7 @@ Optional Features:
 			  (and sometimes confusing) to the casual installer
   --disable-dependency-tracking  speeds up one-time build
   --enable-dependency-tracking   do not reject slow dependency extractors
+  --disable-rpath         Disable hardcoding the X11 runtime library path default=enabled
   --enable-dmalloc        Compile and link with dmalloc for malloc debugging default=no
   --enable-efence         Link with ElectricFence for malloc debugging default=no
 
@@ -6696,6 +6697,32 @@ _ACEOF
 
 fi
 
+_use_rpath=yes
+echo "$as_me:$LINENO: checking if hardcoding of the X11 runtime library path is desired" >&5
+echo $ECHO_N "checking if hardcoding of the X11 runtime library path is desired... $ECHO_C" >&6
+# Check whether --enable-rpath or --disable-rpath was given.
+if test "${enable_rpath+set}" = set; then
+  enableval="$enable_rpath"
+
+if test "X$enable_rpath" = "Xno" ; then
+	echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6
+	_use_rpath=no
+else
+	echo "$as_me:$LINENO: result: yes" >&5
+echo "${ECHO_T}yes" >&6
+	_use_rpath=yes
+fi
+
+else
+
+	echo "$as_me:$LINENO: result: yes" >&5
+echo "${ECHO_T}yes" >&6
+	_use_rpath=yes
+
+fi;
+
+if test "X$_use_rpath" = "Xyes" ; then
 xlib_path=""
 for p in $X_LIBS ; do
     case $p in
@@ -6770,6 +6797,7 @@ if test -n "$rpath"; then
    X_LIBS="$X_LIBS $xlib_rpath"
 fi
 LIBS=$pcb_save_LIBS
+fi
 
 echo "$as_me:$LINENO: checking for egrep" >&5
 echo $ECHO_N "checking for egrep... $ECHO_C" >&6
