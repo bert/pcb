@@ -313,7 +313,7 @@ define(`PKG_CRYSTAL',
 	define(`Y', `100')
 	define(`Y1', `eval(Y -50)')
 	define(`Y2', `eval(Y +50)')
-Element(0x00 "$1" "$2" "$3" X1 eval(Y2+20) 0 100 0x00)
+Element(0x00 "$1" "`$2'" "$3" X1 eval(Y2+20) 0 100 0x00)
 (
 	PIN(X1, Y, 60, 20, 1)
 	PIN(X2, Y, 60, 20, 2)
