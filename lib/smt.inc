@@ -543,9 +543,19 @@ define(`COMMON_SMT_DIL_MIL',
 	# silk screen width (mils)
 	define(`SILKW', `10')
 	define(`SILKSEP', `5')
+
+
+	# figure out if we have an even or odd number of pins per side
+	define(`TMP1', eval(NPADS/4))
+	define(`TMP2', eval((4*TMP1 - NPADS) == 0))
+	ifelse(TMP2, 1, `define(`EVEN',"yes")', `define(`EVEN',"no")')
+
 	# silk bounding box is -XMAX,-YMAX, XMAX,YMAX (mils)
 	define(`XMAX', `eval( (PADSEP/2 + PADLENGTH + 500*SILKW)/1000 + SILKSEP )')
-	define(`YMAX', `eval( ((NPADS/4)*PITCH - PITCH/2 + PADWIDTH/2 + 500*SILKW)/1000 + SILKSEP )')
+	ifelse(EVEN,"yes",
+		`define(`YMAX', `eval( ((NPADS/4)*PITCH - PITCH/2 + PADWIDTH/2 + 500*SILKW)/1000 + SILKSEP )')',
+		`define(`YMAX', `eval( ((NPADS/4)*PITCH           + PADWIDTH/2 + 500*SILKW)/1000 + SILKSEP )')'
+	)
 
 	define(`REV', `$9')
 
@@ -557,18 +567,27 @@ define(`COMMON_SMT_DIL_MIL',
 Element(0x00 "$1" "$2" "$3" -20 -60 0 100 0x00)
 (
         forloop(`i', 1, eval(NPADS / 2),
-                `PAD(   -X1, eval( (-(NPADS/4)*PITCH - PITCH/2 + i*PITCH)/1000), 
-			-X2, eval( (-(NPADS/4)*PITCH - PITCH/2 + i*PITCH)/1000), 
-			eval(PADWIDTH/1000), CURPIN)
+                `ifelse(EVEN,"yes",
+		 `Pad(   -X1 eval( (-(NPADS/4)*PITCH - PITCH/2 + i*PITCH)/1000) 
+			 -X2 eval( (-(NPADS/4)*PITCH - PITCH/2 + i*PITCH)/1000) 
+			eval(PADWIDTH/1000) "CURPIN" 0x100)',
+		 `Pad(   -X1 eval( (-(NPADS/4)*PITCH - PITCH   + i*PITCH)/1000) 
+			 -X2 eval( (-(NPADS/4)*PITCH - PITCH   + i*PITCH)/1000) 
+			eval(PADWIDTH/1000) "CURPIN" 0x100)')
+
 		ifelse(REV,"reverse", 
 			`define(`CURPIN', decr(CURPIN))',
 			`define(`CURPIN', incr(CURPIN))'
 			)
         ')
         forloop(`i', eval((NPADS / 2) + 1), NPADS,
-                `PAD(   X1, eval( ((NPADS/4)*PITCH + PITCH/2 - (i-NPADS/2)*PITCH)/1000), 
-			X2, eval( ((NPADS/4)*PITCH + PITCH/2 - (i-NPADS/2)*PITCH)/1000), 
-			eval(PADWIDTH/1000), CURPIN)
+                `ifelse(EVEN,"yes",
+		 `Pad(   X1 eval( ((NPADS/4)*PITCH + PITCH/2 - (i-NPADS/2)*PITCH)/1000) 
+			 X2 eval( ((NPADS/4)*PITCH + PITCH/2 - (i-NPADS/2)*PITCH)/1000) 
+			eval(PADWIDTH/1000) "CURPIN" 0x100)',
+		 `Pad(   X1 eval( ((NPADS/4)*PITCH + PITCH   - (i-NPADS/2)*PITCH)/1000) 
+			 X2 eval( ((NPADS/4)*PITCH + PITCH   - (i-NPADS/2)*PITCH)/1000) 
+			eval(PADWIDTH/1000) "CURPIN" 0x100)')
 		ifelse(REV,"reverse", 
 			`define(`CURPIN', decr(CURPIN))',
 			`define(`CURPIN', incr(CURPIN))'
@@ -580,7 +599,9 @@ Element(0x00 "$1" "$2" "$3" -20 -60 0 100 0x00)
 	ElementLine( XMAX  YMAX  XMAX -YMAX SILKW)
 	ElementLine(-XMAX -YMAX   -25 -YMAX SILKW)
 	ElementLine( XMAX -YMAX    25 -YMAX SILKW)
-	ElementArc(0 -YMAX 25 25 0 180 SILKW)
+
+	# punt on the arc on small parts as it can cover the pads
+	ifelse(eval((PADSEP-PADLENGTH)/1000 > 50), 1, `ElementArc(0 -YMAX 25 25 0 180 SILKW)', )
 	
 	# Mark at the common centroid
         Mark(0 0)
