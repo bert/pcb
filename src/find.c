@@ -2200,7 +2200,6 @@ LookupLOConnectionsToPad (PadTypePtr Pad, Cardinal LayerGroup)
       /* handle normal layers */
       if (layer < MAX_LAYER)
 	{
-	  PolygonTypePtr polygon;
 	  info.layer = layer;
 	  /* add lines */
 	  if (setjmp (info.env) == 0)
