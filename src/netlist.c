@@ -392,6 +392,7 @@ InitNetlistWindow (Widget Parent)
       FreeSelectorEntries (&NetSelector);
       XtDestroyWidget (popup);
       PCB->NetlistLib.Wind = 0;
+      popup = NULL;
     }
   /* if no menu, don't create widgets */
   if (!PCB->NetlistLib.MenuN)
@@ -550,6 +551,12 @@ RatTypePtr AddNet (void)
       Message ("No pad/pin under rat line\n");
       return (NULL);
     }
+  if (NAMEONPCB_NAME((ElementTypePtr)ptr1) == NULL || *NAMEONPCB_NAME((ElementTypePtr)ptr1) == 0)
+    {
+      Message ("You must name the element first\n");
+      return (NULL);
+    }
+    
   /* will work for pins to since the FLAG is common */
   group1 = (TEST_FLAG (ONSOLDERFLAG, (PadTypePtr) ptr2) ?
 	    GetLayerGroupNumberByNumber (MAX_LAYER + SOLDER_LAYER) :
