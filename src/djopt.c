@@ -26,6 +26,10 @@
  *
  */
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
@@ -43,6 +47,10 @@
 #include "move.h"
 #include "draw.h"
 #include "undo.h"
+
+#ifndef HAVE_RINT
+#define rint(x)  (ceil((x) - 0.5))
+#endif
 
 #define dprintf if(0)printf
 
@@ -279,10 +287,25 @@ min (int x, int y)
   return x < y ? x : y;
 }
 
+/* 
+ * Find distance between 2 points.  We use floating point math here
+ * because we can fairly easily overflow a 32 bit integer here.  In
+ * fact it only takes 0.46" to do so.
+ */
 static int
 dist (int x1, int y1, int x2, int y2)
 {
-  return sqrt ((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
+  double dx1, dy1, dx2, dy2, d;
+
+  dx1 = (double) x1;
+  dy1 = (double) y1;
+  dx2 = (double) x2;
+  dy2 = (double) y2;
+
+  d = sqrt ((dx1 - dx2) * (dx1 - dx2) + (dy1 - dy2) * (dy1 - dy2));
+  d = rint(d);
+
+  return (int) d;
 }
 
 static int
@@ -499,6 +522,9 @@ new_line (corner_s * s, corner_s * e, int layer, LineType * example)
 
   if (layer >= MAX_LAYER)
     dj_abort ("layer %d\n", layer);
+
+  if (example == NULL)
+    dj_abort ("NULL example passed to new_line()\n", layer);
 
   if (s->x == e->x && s->y == e->y)
     return;
@@ -2299,14 +2325,15 @@ dump_all ()
     {
       if (DELETED (c))
 	continue;
-      printf ("%08x corner %d,%d layer %d net %d\n",
+      printf ("%p corner %d,%d layer %d net %d\n",
 	      c, c->x, c->y, c->layer, c->net);
     }
   for (l = lines; l; l = l->next)
     {
       if (DELETED (l))
 	continue;
-      printf ("%08x line %08x to %08x layer %d\n", l, l->s, l->e, l->layer);
+      printf ("%p line %p to %p layer %d\n", 
+	      l, l->s, l->e, l->layer);
     }
 }
 
@@ -2335,7 +2362,7 @@ static int
 connect_corners (corner_s * c1, corner_s * c2)
 {
   int layer;
-  LineType *example = c1->n_lines ? c1->lines[0]->line : c2->n_lines ? c2->lines[0]->line : 0;
+  LineType *example = c1->n_lines ? c1->lines[0]->line : c2->n_lines ? c2->lines[0]->line : NULL;
 
   layer = (c1->layer == -1) ? c2->layer : c1->layer;
   if (layer == -1)
@@ -2366,7 +2393,10 @@ connect_corners (corner_s * c1, corner_s * c2)
     {
       corner_s *nc = find_corner (c1->x, c2->y, layer);
       new_line (c1, nc, layer, example);
-      new_line (nc, c2, layer, c1->lines[0]->line);
+      if (c1->n_lines > 0)
+         new_line (nc, c2, layer, c1->lines[0]->line);
+      else
+         new_line (nc, c2, layer, example);
       return 0;
     }
 }
