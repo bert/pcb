@@ -121,7 +121,7 @@ PinoutWindow (Widget Parent, ElementTypePtr Element)
    * move element to a 5% offset from zero position
    * set all package lines/arcs to zero with
    */
-  CopyElementLowLevel (PCB->Data, &pinout->Element, Element, False);
+  CopyElementLowLevel (NULL, &pinout->Element, Element, False);
   minx = miny = 32767;
   PIN_LOOP (&pinout->Element);
   {

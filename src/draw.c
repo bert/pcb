@@ -33,6 +33,8 @@
 /* ---------------------------------------------------------------------------
  * define TO_SCREEN before macro.h is included from global.h
  */
+#define TO_SCREEN(c)  ((Position)((c)*Local_Zoom)) 
+
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
