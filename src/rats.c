@@ -262,8 +262,8 @@ ProcNetlist (LibraryTypePtr net_menu)
 	    }
 	    END_LOOP;
 	  }
-	else			/* default to style 0 if none found */
-	  net->Style = &PCB->RouteStyle[0];
+	else			/* default to NULL if none found */
+	  net->Style = NULL;
 	ENTRY_LOOP (menu);
 	{
 	  if (SeekPad (entry, &LastPoint, False))
@@ -499,6 +499,35 @@ GatherSubnets (NetListTypePtr Netl, Boolean NoWarn, Boolean AndRats)
 	    conn->ptr2 = line;
 	    conn->group = GetLayerGroupNumberByPointer (layer);
 	    conn->menu = NULL;
+	  }
+      }
+      ENDALL_LOOP;
+      /* add rectangular polygons so the auto-router can see them as targets */
+      ALLPOLYGON_LOOP (PCB->Data);
+      {
+	if (TEST_FLAG (DRCFLAG, polygon) && polygon->PointN == 4)
+	  {
+	    if (polygon->Points[0].X != polygon->Points[1].X &&
+	        polygon->Points[0].Y != polygon->Points[1].Y)
+	      continue;
+	    if (polygon->Points[1].X != polygon->Points[2].X &&
+	        polygon->Points[1].Y != polygon->Points[2].Y)
+	      continue;
+	    if (polygon->Points[2].X != polygon->Points[3].X &&
+	        polygon->Points[2].Y != polygon->Points[3].Y)
+	      continue;
+	    if (polygon->Points[0].X != polygon->Points[3].X &&
+	        polygon->Points[0].Y != polygon->Points[3].Y)
+	      continue;
+	    conn = GetConnectionMemory (a);
+	    /* make point just inside rectangle */
+	    conn->X = polygon->BoundingBox.X1+1;
+	    conn->Y = polygon->BoundingBox.Y1+1;
+	    conn->type = POLYGON_TYPE;
+	    conn->ptr1 = layer;
+	    conn->ptr2 = polygon;
+	    conn->group = GetLayerGroupNumberByPointer (layer);
+	    conn->menu = NULL;	/* agnostic view of where it belongs */
 	  }
       }
       ENDALL_LOOP;

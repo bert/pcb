@@ -2055,6 +2055,18 @@ LookupLOConnectionsToRatEnd (PointTypePtr Point, Cardinal LayerGroup)
 		      LOCtoRat_callback, &info);
 	  else
 	    return True;
+	  POLYGON_LOOP (LAYER_PTR (layer));
+	  {
+	    if (TEST_FLAG (TheFlag, polygon))
+	      continue;
+	    if ((Point->X == polygon->BoundingBox.X1 + 1) &&
+		(Point->Y == polygon->BoundingBox.Y1 + 1))
+	      {
+		if (ADD_POLYGON_TO_LIST (layer, polygon))
+		  return True;
+	      }
+	  }
+	  END_LOOP;
 	}
       else
 	{
@@ -2187,8 +2199,7 @@ LookupLOConnectionsToPad (PadTypePtr Pad, Cardinal LayerGroup)
 	  else
 	    return True;
 	  /* add polygons */
-	  for (polygon = LAYER_PTR (layer)->Polygon; polygon && polygon->ID;
-	       polygon++)
+	  POLYGON_LOOP(LAYER_PTR(layer));
 	    {
 	      if (TEST_FLAG (TheFlag | CLEARPOLYFLAG, polygon))
 		continue;
@@ -2196,6 +2207,7 @@ LookupLOConnectionsToPad (PadTypePtr Pad, Cardinal LayerGroup)
 		  ADD_POLYGON_TO_LIST (layer, polygon))
 		return True;
 	    }
+	  END_LOOP;
 	}
       else
 	{
@@ -2256,6 +2268,24 @@ LOCtoPolyPad_callback (const BoxType * b, void *cl)
   return 0;
 }
 
+static int
+LOCtoPolyRat_callback (const BoxType * b, void *cl)
+{
+  RatTypePtr rat = (RatTypePtr) b;
+  struct lo_info *i = (struct lo_info *) cl;
+
+  if (!TEST_FLAG (TheFlag, rat))
+    {
+      if ((rat->Point1.X == (i->polygon->BoundingBox.X1 + 1) &&
+	   rat->Point1.Y == (i->polygon->BoundingBox.Y1 + 1)) ||
+	  (rat->Point2.X == (i->polygon->BoundingBox.X1 + 1) &&
+	   rat->Point2.Y == (i->polygon->BoundingBox.Y1 + 1)))
+	if (ADD_RAT_TO_LIST (rat))
+	  longjmp (i->env, 1);
+    }
+  return 0;
+}
+
 
 /* ---------------------------------------------------------------------------
  * looks up LOs that are connected to the given polygon
@@ -2300,6 +2330,12 @@ LookupLOConnectionsToPolygon (PolygonTypePtr Polygon, Cardinal LayerGroup)
 	  if (setjmp (info.env) == 0)
 	    r_search (LAYER_PTR (layer)->arc_tree, (BoxType *) Polygon, NULL,
 		      LOCtoPolyArc_callback, &info);
+	  else
+	    return True;
+	  /* check rats */
+	  if (setjmp (info.env) == 0)
+	    r_search (PCB->Data->rat_tree, (BoxType *) Polygon, NULL,
+		      LOCtoPolyRat_callback, &info);
 	  else
 	    return True;
 	}
