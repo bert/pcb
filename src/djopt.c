@@ -96,6 +96,7 @@ typedef struct rect_s
 static corner_s *corners, *next_corner = 0;
 static line_s *lines;
 
+static int layer_groupings[MAX_LAYER];
 static char layer_type[MAX_LAYER];
 #define LT_COMPONENT 1
 #define LT_SOLDER 2
@@ -297,6 +298,18 @@ sqr (int a)
 }
 
 static int
+intersecting_layers (int l1, int l2)
+{
+  if (l1 == -1 || l2 == -1)
+    return 1;
+  if (l1 == l2)
+    return 1;
+  if (layer_groupings[l1] == layer_groupings[l2])
+    return 1;
+  return 0;
+}
+
+static int
 dist_line_to_point (line_s * l, corner_s * c)
 {
   double len, r, d;
@@ -387,7 +400,7 @@ find_corner_if (int x, int y, int l)
 	continue;
       if (c->x != x || c->y != y)
 	continue;
-      if (!(c->layer == -1 || c->layer == l))
+      if (!(c->layer == -1 || intersecting_layers (c->layer, l)))
 	continue;
       return c;
     }
@@ -404,7 +417,7 @@ find_corner (int x, int y, int l)
 	continue;
       if (c->x != x || c->y != y)
 	continue;
-      if (!(c->layer == -1 || c->layer == l))
+      if (!(c->layer == -1 || intersecting_layers (c->layer, l)))
 	continue;
       return c;
     }
@@ -542,16 +555,6 @@ other_line (corner_s * c, line_s * l)
       rv = c->lines[i];
     }
   return rv;
-}
-
-static int
-intersecting_layers (int l1, int l2)
-{
-  if (l1 == -1 || l2 == -1)
-    return 1;
-  if (l1 == l2)
-    return 1;
-  return 0;
 }
 
 static void
@@ -2433,7 +2436,7 @@ pinsnap ()
 		      got_one++;
 		      dprintf ("found orphan %s vs %s\n", corner_name (c2),
 			       corner_name (c));
-		      connect_corners (c2, c);
+		      connect_corners (c, c2);
 		      again = 1;
 		      continue;
 		    }
@@ -2629,7 +2632,10 @@ grok_layer_groups ()
 
   solder_layer = component_layer = -1;
   for (i = 0; i < MAX_LAYER; i++)
-    layer_type[i] = 0;
+    {
+      layer_type[i] = 0;
+      layer_groupings[i] = 0;
+    }
   for (i = 0; i < MAX_LAYER; i++)
     {
       f = 0;
@@ -2645,6 +2651,7 @@ grok_layer_groups ()
 	  if (l->Entries[i][j] >= 0 && l->Entries[i][j] < MAX_LAYER)
 	    {
 	      layer_type[l->Entries[i][j]] |= f;
+	      layer_groupings[l->Entries[i][j]] = i;
 	      if (solder_layer == -1 && f == LT_SOLDER)
 		solder_layer = l->Entries[i][j];
 	      if (component_layer == -1 && f == LT_COMPONENT)
