@@ -162,11 +162,11 @@ corner_name (corner_s * c)
 
   if (c->net == 0xf1eef1ee)
     {
-      sprintf (buf[bn], "\033[31m[0x%08x freed corner]\033[0m", c);
+      sprintf (buf[bn], "\033[31m[%p freed corner]\033[0m", c);
       return buf[bn];
     }
 
-  sprintf (buf[bn], "\033[%dm[0x%08x ",
+  sprintf (buf[bn], "\033[%dm[%p ",
 	   (c->pin || c->pad || c->via) ? 33 : 34, c);
   bp = buf[bn] + strlen (buf[bn]);
 
@@ -423,6 +423,7 @@ common_corner (line_s * l1, line_s * l2)
   if (l1->e == l2->s || l1->e == l2->e)
     return l1->e;
   dj_abort ("common_corner: no common corner found\n");
+  return NULL;
 }
 
 static corner_s *
@@ -433,6 +434,7 @@ other_corner (line_s * l, corner_s * c)
   if (l->e == c)
     return l->s;
   dj_abort ("other_corner: neither corner passed\n");
+  return NULL;
 }
 
 static corner_s *
@@ -553,7 +555,7 @@ new_line (corner_s * s, corner_s * e, int layer, LineType * example)
 #endif
     {
       LineType *nl;
-      dprintf ("New line \033[35m%d,%d to %d,%d from l%d t%d c%d f%d\033[0m\n",
+      dprintf ("New line \033[35m%d,%d to %d,%d from l%d t%d c%d f%ld\033[0m\n",
 	       s->x, s->y, e->x, e->y, layer,
 	       example->Thickness, example->Clearance, example->Flags);
       nl = create_pcb_line (layer, s->x, s->y, e->x, e->y,
@@ -864,7 +866,7 @@ move_corner (corner_s * c, int x, int y)
   check (c, 0);
   if (c->pad || c->pin)
     dj_abort ("move_corner: has pin or pad\n");
-  dprintf ("move_corner %x from %d,%d to %d,%d\n", c, c->x, c->y, x, y);
+  dprintf ("move_corner %p from %d,%d to %d,%d\n", c, c->x, c->y, x, y);
   pad = find_corner_if (x, y, c->layer);
   c->x = x;
   c->y = y;
@@ -891,7 +893,7 @@ move_corner (corner_s * c, int x, int y)
 			  &tl->Point2, x - (tl->Point2.X),
 			  y - (tl->Point2.Y));
 	    }
-	  dprintf ("Line %08x moved to %d,%d %d,%d\n", tl,
+	  dprintf ("Line %p moved to %d,%d %d,%d\n", tl,
 		   tl->Point1.X, tl->Point1.Y, tl->Point2.X, tl->Point2.Y);
 	}
     }
@@ -904,7 +906,7 @@ move_corner (corner_s * c, int x, int y)
 	    && c->lines[i]->s->y == c->lines[i]->e->y)
 	  {
 	    corner_s *c2 = other_corner (c->lines[i], c);
-	    dprintf ("move_corner: removing line %d,%d %d,%d %x %x\n",
+	    dprintf ("move_corner: removing line %d,%d %d,%d %p %p\n",
 		     c->x, c->y, c2->x, c2->y, c, c2);
 
 	    remove_line (c->lines[i]);
@@ -1999,7 +2001,7 @@ viatrim ()
 
       my_layer = l->layer;
       other_layer = -1;
-      dprintf ("line %x on layer %d from %d,%d to %d,%d\n", l, l->layer,
+      dprintf ("line %p on layer %d from %d,%d to %d,%d\n", l, l->layer,
 	       l->s->x, l->s->y, l->e->x, l->e->y);
       for (i = 0; i < l->s->n_lines; i++)
 	if (l->s->lines[i] != l)
@@ -2007,12 +2009,12 @@ viatrim ()
 	    if (other_layer == -1)
 	      {
 		other_layer = l->s->lines[i]->layer;
-		dprintf ("noting other line %x on layer %d\n",
+		dprintf ("noting other line %p on layer %d\n",
 			 l->s->lines[i], my_layer);
 	      }
 	    else if (l->s->lines[i]->layer != other_layer)
 	      {
-		dprintf ("saw other line %x on layer %d (not %d)\n",
+		dprintf ("saw other line %p on layer %d (not %d)\n",
 			 l->s->lines[i], l->s->lines[i]->layer, my_layer);
 		other_layer = -1;
 		goto viatrim_other_corner;
@@ -2026,7 +2028,7 @@ viatrim ()
 	      if (other_layer == -1)
 		{
 		  other_layer = l->s->lines[i]->layer;
-		  dprintf ("noting other line %x on layer %d\n",
+		  dprintf ("noting other line %p on layer %d\n",
 			   l->s->lines[i], my_layer);
 		}
 	      else if (l->e->lines[i]->layer != other_layer)
@@ -2368,7 +2370,6 @@ static line_s *
 choose_example_line (corner_s * c1, corner_s * c2)
 {
   int ci, li;
-  line_s *ex;
   corner_s *c[2];
   c[0] = c1;
   c[1] = c2;
@@ -2376,7 +2377,7 @@ choose_example_line (corner_s * c1, corner_s * c2)
   for (ci=0; ci<2; ci++)
     for (li=0; li<c[ci]->n_lines; li++)
       {
-	dprintf ("  try[%d,%d] \033[36m<%d,%d-%d,%d t%d c%d f%d>\033[0m\n",
+	dprintf ("  try[%d,%d] \033[36m<%d,%d-%d,%d t%d c%d f%ld>\033[0m\n",
 		 ci, li,
 		 c[ci]->lines[li]->s->x, c[ci]->lines[li]->s->y,
 		 c[ci]->lines[li]->e->x, c[ci]->lines[li]->e->y,
@@ -2385,7 +2386,7 @@ choose_example_line (corner_s * c1, corner_s * c2)
 		 c[ci]->lines[li]->line->Flags
 		 );
 	/* Pads are disqualified, as we want to mimic a trace line. */
-	if (c[ci]->lines[li]->line == c[ci]->pad)
+	if (c[ci]->lines[li]->line == (LineTypePtr) c[ci]->pad)
 	  {
 	    dprintf ("  bad, pad\n");
 	    continue;
@@ -2452,7 +2453,7 @@ pinsnap ()
   corner_s *c;
   int best_dist[MAX_LAYER + 1];
   corner_s *best_c[MAX_LAYER + 1];
-  int l, l2, got_one;
+  int l, got_one;
   int left, right, top, bottom;
   PinType *pin;
   int again = 1;
@@ -2570,9 +2571,6 @@ pinsnap ()
 		  for (l = 0; l <= MAX_LAYER; l++)
 		    if (best_c[l])
 		      {
-			int bx = best_c[l]->x, by = best_c[l]->y;
-			int nx = c->x, ny = c->y;
-
 			dprintf ("move %s to %s\n", corner_name (best_c[l]),
 				 corner_name (c));
 			connect_corners (best_c[l], c);
@@ -2681,7 +2679,7 @@ static void
 padcleaner ()
 {
   line_s *l, *nextl;
-  int left, right, top, bottom, close;
+  int close;
   rect_s r;
   int ei, pi;
 
@@ -2693,7 +2691,7 @@ padcleaner ()
       if (DELETED (l))
 	continue;
 
-      dprintf ("dj: line %08x\n", l);
+      dprintf ("dj: line %p\n", l);
       check (0, l);
 
       if (l->s->pad && l->s->pad == l->e->pad)
@@ -2775,7 +2773,7 @@ grok_layer_groups ()
 void
 ActionDJopt (Widget w, XEvent * e, String * argv, Cardinal * argc)
 {
-  int layn, ei, pi, saved = 0;
+  int layn, saved = 0;
   corner_s *c;
 
   printf ("djopt: %s\n", argv[0]);
