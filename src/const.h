@@ -154,6 +154,7 @@
 #define SNAPPINFLAG             0x1000  /* crosshair snaps to pins and pads */
 #define SHOWMASKFLAG            0x2000  /* show the solder mask layer */
 #define THINDRAWFLAG            0x4000  /* draw with thin lines */
+#define ORTHOMOVEFLAG           0x8000  /* move items orthogonally */
 
 /* ---------------------------------------------------------------------------
  * object types
