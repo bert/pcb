@@ -54,15 +54,15 @@
 #endif
 
 #undef SLOW_ASSERTS
-/* all rectangles are assumed to be closed on the top and left and
- * open on the bottom and right.   That is, they include their top-left
- * corner but don't include their bottom-right corner.
+/* All rectangles are closed. i.e. they contain both corner points.
+ * Often the auto router will "open" the rectangle on an edge
+ * using the search callback functions.
  */
 
 /* the number of entries in each rtree node
- * 4 or 5 seem to be pretty good settings
+ * 4 - 7 seem to be pretty good settings
  */
-#define M_SIZE 4 
+#define M_SIZE 6 
 
 /* it seems that sorting the leaf order slows us down
  * but sometimes gives better routes
@@ -272,7 +272,7 @@ sort_node(struct rtree_node *node)
 #ifdef SORT_BY_LENGTH
   int size, ref;
 #else
-  float size, ref;
+  long long size, ref;
 #endif
 
   if (node->flags.is_leaf)
@@ -811,7 +811,6 @@ bigun
 __r_insert_node(struct rtree_node *node, Boolean force)
 {
   int i;
-  long long score;
 
 #ifdef SLOW_ASSERTS
   assert(__r_node_is_good(node));
@@ -819,6 +818,7 @@ __r_insert_node(struct rtree_node *node, Boolean force)
   if (!force && (node->box.X1 > query.X1 || node->box.X2 < query.X2 ||
       node->box.Y1 > query.Y1 || node->box.Y2 < query.Y2))
     {
+      long long score;
       /* We're not already contained at this node, so compute
        * the area penalty for inserting here and return.
        * The penalty is the increase in area necessary
@@ -882,7 +882,7 @@ __r_insert_node(struct rtree_node *node, Boolean force)
   else
     {
       struct rtree_node *best_node;
-      long long best_score;
+      long long score, best_score;
 
     if (force)
       {
