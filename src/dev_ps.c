@@ -160,6 +160,7 @@ static PrintDeviceType PS_QueryConstants = {
 True};				/* allows scaling */
 
 static PrintInitType PS_Flags;
+static Boolean preamble = False;
 
 static char *PS_Functions[] = {
   "",
@@ -479,8 +480,6 @@ PS_EPS_Init (PrintInitTypePtr Flags, char *Description, Boolean CreateEPS)
 
   /* save passed-in data */
   PS_Flags = *Flags;
-  currenttime = time (NULL);
-
   /* adjust the 'mirror' flag because (0,0) is in the lower/left
    * corner which is different from X coordinates
    */
@@ -499,104 +498,115 @@ PS_EPS_Init (PrintInitTypePtr Flags, char *Description, Boolean CreateEPS)
     {
       PS_Flags.OffsetX = 0;
       PS_Flags.OffsetY = 0;
-      fputs ("%!PS-Adobe-3.0 EPSF-3.0\n", PS_Flags.FP);
     }
   else
     {
       PS_Flags.OffsetY = PS_Flags.SelectedMedia->Height - PS_Flags.OffsetY;
       PS_Flags.OffsetY -= (BDimension) (PS_Flags.RotateFlag ? dx : dy);
-      fputs ("%!PS-Adobe-3.0\n", PS_Flags.FP);
     }
-  fprintf (PS_Flags.FP, "%%%%Title: %s, %s\n", UNKNOWN (PCB->Name),
-	   UNKNOWN (Description));
-  fprintf (PS_Flags.FP, "%%%%Creator: %s " VERSION "\n", Progname);
-  fprintf (PS_Flags.FP, "%%%%CreationDate: %s",
-	   asctime (localtime (&currenttime)));
-  pwentry = getpwuid (getuid ());
-  fprintf (PS_Flags.FP, "%%%%For: %s (%s)\n", pwentry->pw_name,
-	   pwentry->pw_gecos);
-  fputs ("%%LanguageLevel: 1\n", PS_Flags.FP);
-  fputs ("%%Orientation: Portrait\n", PS_Flags.FP);
-
-  /* - calculate the width and height of the bounding box;
-   * - write bounding box data to file
-   * - rotate it
-   * - transform to PS coordinates#
-   */
-  box.X1 = (Location) ((float) PS_Flags.OffsetX * PS_UNIT) - 1;
-  box.Y1 = (Location) ((float) PS_Flags.OffsetY * PS_UNIT) - 1;
-  if (!PS_Flags.RotateFlag)
+  if (!preamble)
     {
-      box.X2 = (Location) ((dx + PS_Flags.OffsetX) * PS_UNIT) + 1;
-      box.Y2 = (Location) ((dy + PS_Flags.OffsetY) * PS_UNIT) + 1;
+      preamble = True;
+      if (CreateEPS)
+	fputs ("%!PS-Adobe-3.0 EPSF-3.0\n", PS_Flags.FP);
+      else
+	fputs ("%!PS-Adobe-3.0\n", PS_Flags.FP);
+      currenttime = time (NULL);
+
+      fprintf (PS_Flags.FP, "%%%%Title: %s, %s\n", UNKNOWN (PCB->Name),
+	       UNKNOWN (Description));
+      fprintf (PS_Flags.FP, "%%%%Creator: %s " VERSION "\n", Progname);
+      fprintf (PS_Flags.FP, "%%%%CreationDate: %s",
+	       asctime (localtime (&currenttime)));
+      pwentry = getpwuid (getuid ());
+      fprintf (PS_Flags.FP, "%%%%For: %s (%s)\n", pwentry->pw_name,
+	       pwentry->pw_gecos);
+      fputs ("%%LanguageLevel: 1\n", PS_Flags.FP);
+      fputs ("%%Orientation: Portrait\n", PS_Flags.FP);
+
+      /* - calculate the width and height of the bounding box;
+       * - write bounding box data to file
+       * - rotate it
+       * - transform to PS coordinates#
+       */
+      box.X1 = (Location) ((float) PS_Flags.OffsetX * PS_UNIT) - 1;
+      box.Y1 = (Location) ((float) PS_Flags.OffsetY * PS_UNIT) - 1;
+      if (!PS_Flags.RotateFlag)
+	{
+	  box.X2 = (Location) ((dx + PS_Flags.OffsetX) * PS_UNIT) + 1;
+	  box.Y2 = (Location) ((dy + PS_Flags.OffsetY) * PS_UNIT) + 1;
+	}
+      else
+	{
+	  box.X2 = (Location) ((dy + PS_Flags.OffsetX) * PS_UNIT) + 1;
+	  box.Y2 = (Location) ((dx + PS_Flags.OffsetY) * PS_UNIT) + 1;
+	}
+
+      /* print it if encapsulated PostScript has been requested
+       * and add the appropriate structured comments
+       */
+      if (CreateEPS)
+	{
+	  fprintf (PS_Flags.FP, "%%%%BoundingBox: %i %i %i %i\n",
+		   (int) box.X1, (int) box.Y1, (int) box.X2, (int) box.Y2);
+	  fputs ("%%Pages: 0\n", PS_Flags.FP);
+	}
+      else
+	{
+	  fputs ("%%Pages: 1\n", PS_Flags.FP);
+	  fputs ("%%PageOrder: Ascend\n", PS_Flags.FP);
+	  fprintf (PS_Flags.FP, "%%%%IncludeFeature: *PageSize %s\n",
+		   PS_Flags.SelectedMedia->Name);
+	}
+
+      /* OK, continue with structured comments */
+      fputs ("%%EndComments\n", PS_Flags.FP);
+      fputs ("%%BeginProlog\n", PS_Flags.FP);
+      PrintStringArray (PS_Functions, ENTRIES (PS_Functions), PS_Flags.FP);
+      if (PS_Flags.InvertFlag)
+	PrintStringArray (PS_InvertColorFunctions,
+			  ENTRIES (PS_InvertColorFunctions), PS_Flags.FP);
+      else
+	PrintStringArray (PS_ColorFunctions,
+			  ENTRIES (PS_ColorFunctions), PS_Flags.FP);
+      fputs ("%%EndProlog\n", PS_Flags.FP);
+      fputs ("%%BeginDefaults\n", PS_Flags.FP);
+      fputs ("%%EndDefaults\n", PS_Flags.FP);
+      fputs ("%%BeginSetup\n", PS_Flags.FP);
+      if (!CreateEPS && strcmp (PS_Flags.SelectedMedia->Name, USERMEDIANAME))
+	fprintf (PS_Flags.FP, "%s\n", PS_Flags.SelectedMedia->Name);
+      PrintStringArray (PS_Setup, ENTRIES (PS_Setup), PS_Flags.FP);
+      fputs ("%%EndSetup\n", PS_Flags.FP);
+
+      if (!CreateEPS)
+	{
+	  fputs ("%%Page: 1 1\n", PS_Flags.FP);
+	  fputs ("%%BeginPageSetup\n", PS_Flags.FP);
+	  fputs ("%%EndPageSetup\n", PS_Flags.FP);
+	}
+
+      /* clear the area */
+      fputs ("gsave White newpath\n", PS_Flags.FP);
+      fprintf (PS_Flags.FP,
+	       "%i %i moveto %i %i lineto %i %i lineto %i %i lineto\n",
+	       (int) box.X1, (int) box.Y1,
+	       (int) box.X2, (int) box.Y1,
+	       (int) box.X2, (int) box.Y2, (int) box.X1, (int) box.Y2);
+      fputs ("closepath fill stroke grestore\n", PS_Flags.FP);
+
+      /* add information about layout size, offset ... */
+      fprintf (PS_Flags.FP, "%% PCBMIN(%d,%d), PCBMAX(%d,%d)\n",
+	       (int) PS_Flags.BoundingBox.X1,
+	       (int) PS_Flags.BoundingBox.Y1,
+	       (int) PS_Flags.BoundingBox.X2, (int) PS_Flags.BoundingBox.Y2);
+      fprintf (PS_Flags.FP, "%% PCBOFFSET(%d,%d), PCBSCALE(%.5f)\n",
+	       PS_Flags.OffsetX, PS_Flags.OffsetY, PS_Flags.Scale);
+      fputs ("% PCBSTARTDATA --- do not remove ---\n", PS_Flags.FP);
+      fputs ("gsave\n", PS_Flags.FP);
     }
   else
-    {
-      box.X2 = (Location) ((dy + PS_Flags.OffsetX) * PS_UNIT) + 1;
-      box.Y2 = (Location) ((dx + PS_Flags.OffsetY) * PS_UNIT) + 1;
-    }
+    fputs ("grestore\ngsave\n", PS_Flags.FP);
 
-  /* print it if encapsulated PostScript has been requested
-   * and add the appropriate structured comments
-   */
-  if (CreateEPS)
-    {
-      fprintf (PS_Flags.FP, "%%%%BoundingBox: %i %i %i %i\n",
-	       (int) box.X1, (int) box.Y1, (int) box.X2, (int) box.Y2);
-      fputs ("%%Pages: 0\n", PS_Flags.FP);
-    }
-  else
-    {
-      fputs ("%%Pages: 1\n", PS_Flags.FP);
-      fputs ("%%PageOrder: Ascend\n", PS_Flags.FP);
-      fprintf (PS_Flags.FP, "%%%%IncludeFeature: *PageSize %s\n",
-	       PS_Flags.SelectedMedia->Name);
-    }
-
-  /* OK, continue with structured comments */
-  fputs ("%%EndComments\n", PS_Flags.FP);
-  fputs ("%%BeginProlog\n", PS_Flags.FP);
-  PrintStringArray (PS_Functions, ENTRIES (PS_Functions), PS_Flags.FP);
-  if (PS_Flags.InvertFlag)
-    PrintStringArray (PS_InvertColorFunctions,
-		      ENTRIES (PS_InvertColorFunctions), PS_Flags.FP);
-  else
-    PrintStringArray (PS_ColorFunctions,
-		      ENTRIES (PS_ColorFunctions), PS_Flags.FP);
-  fputs ("%%EndProlog\n", PS_Flags.FP);
-  fputs ("%%BeginDefaults\n", PS_Flags.FP);
-  fputs ("%%EndDefaults\n", PS_Flags.FP);
-  fputs ("%%BeginSetup\n", PS_Flags.FP);
-  if (!CreateEPS && strcmp (PS_Flags.SelectedMedia->Name, USERMEDIANAME))
-    fprintf (PS_Flags.FP, "%s\n", PS_Flags.SelectedMedia->Name);
-  PrintStringArray (PS_Setup, ENTRIES (PS_Setup), PS_Flags.FP);
-  fputs ("%%EndSetup\n", PS_Flags.FP);
-
-  if (!CreateEPS)
-    {
-      fputs ("%%Page: 1 1\n", PS_Flags.FP);
-      fputs ("%%BeginPageSetup\n", PS_Flags.FP);
-      fputs ("%%EndPageSetup\n", PS_Flags.FP);
-    }
-
-  /* clear the area */
-  fputs ("gsave White newpath\n", PS_Flags.FP);
-  fprintf (PS_Flags.FP,
-	   "%i %i moveto %i %i lineto %i %i lineto %i %i lineto\n",
-	   (int) box.X1, (int) box.Y1,
-	   (int) box.X2, (int) box.Y1,
-	   (int) box.X2, (int) box.Y2, (int) box.X1, (int) box.Y2);
-  fputs ("closepath fill stroke grestore\n", PS_Flags.FP);
-
-  /* add information about layout size, offset ... */
-  fprintf (PS_Flags.FP, "%% PCBMIN(%d,%d), PCBMAX(%d,%d)\n",
-	   (int) PS_Flags.BoundingBox.X1,
-	   (int) PS_Flags.BoundingBox.Y1,
-	   (int) PS_Flags.BoundingBox.X2, (int) PS_Flags.BoundingBox.Y2);
-  fprintf (PS_Flags.FP, "%% PCBOFFSET(%d,%d), PCBSCALE(%.5f)\n",
-	   PS_Flags.OffsetX, PS_Flags.OffsetY, PS_Flags.Scale);
-  fputs ("% PCBSTARTDATA --- do not remove ---\n", PS_Flags.FP);
-  fputs ("gsave\n", PS_Flags.FP);
 
   /* now insert transformation commands (reverse order):
    * - move upper/left edge of layout to (0,0)
@@ -634,6 +644,7 @@ PS_EPS_Init (PrintInitTypePtr Flags, char *Description, Boolean CreateEPS)
 static void
 PS_Postamble (void)
 {
+  preamble = False;
   PS_EPS_Exit (False);
 }
 static void
@@ -723,11 +734,11 @@ PS_PrintPolygon (PolygonTypePtr Ptr)
   int i = 0;
 
   POLYGONPOINT_LOOP (Ptr);
-    {
-      if (i++ % 9 == 8)
-	fputc ('\n', PS_Flags.FP);
-      fprintf (PS_Flags.FP, "%i %i ", (int) point->X, (int) point->Y);
-    }
+  {
+    if (i++ % 9 == 8)
+      fputc ('\n', PS_Flags.FP);
+    fprintf (PS_Flags.FP, "%i %i ", (int) point->X, (int) point->Y);
+  }
   END_LOOP;
   fprintf (PS_Flags.FP, "%d PO\n", Ptr->PointN);
 }
@@ -841,19 +852,19 @@ static void
 PS_PrintElementPackage (ElementTypePtr Element)
 {
   ELEMENTLINE_LOOP (Element);
-    {
-      PS_PrintLine (line, False);
-    }
+  {
+    PS_PrintLine (line, False);
+  }
   END_LOOP;
   ARC_LOOP (Element);
-    {
-      fprintf (PS_Flags.FP, "%d %d %d %d %d %ld %ld A\n",
-	       (int) arc->X,
-	       (int) arc->Y,
-	       (int) arc->Width,
-	       (int) arc->Height,
-	       (int) arc->Thickness, arc->StartAngle, arc->Delta);
-    }
+  {
+    fprintf (PS_Flags.FP, "%d %d %d %d %d %ld %ld A\n",
+	     (int) arc->X,
+	     (int) arc->Y,
+	     (int) arc->Width,
+	     (int) arc->Height,
+	     (int) arc->Thickness, arc->StartAngle, arc->Delta);
+  }
   END_LOOP;
   if (!TEST_FLAG (HIDENAMEFLAG, Element))
     PS_PrintTextLowLevel (&ELEMENT_TEXT (PCB, Element));
