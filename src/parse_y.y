@@ -74,6 +74,7 @@ extern	char			*yyfilename;	/* in this file */
 %token	T_PCB T_LAYER T_VIA T_RAT T_LINE T_ARC T_RECTANGLE T_TEXT T_ELEMENTLINE
 %token	T_ELEMENT T_PIN T_PAD T_GRID T_FLAGS T_SYMBOL T_SYMBOLLINE T_CURSOR
 %token	T_ELEMENTARC T_MARK T_GROUPS T_STYLES T_POLYGON T_NETLIST T_NET T_CONN
+%token	T_THERMAL
 
 %type	<number>	symbolid
 
@@ -106,6 +107,7 @@ parsepcb
 		  pcbname 
 		  pcbgrid
 		  pcbcursor
+		  pcbthermal 
 		  pcbflags
 		  pcbgroups
 		  pcbstyles
@@ -252,6 +254,14 @@ pcbcursor
 				yyPCB->Zoom = $5;
 			}
 		|
+		;
+
+pcbthermal
+		:
+		| T_THERMAL '[' FLOAT ']'
+			{
+				yyPCB->ThermScale = $3;
+			}
 		;
 
 pcbflags

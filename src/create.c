@@ -155,6 +155,7 @@ CreateNewPCB (Boolean SetDefaultNames)
   ptr->MaxWidth = Settings.MaxWidth;
   ptr->MaxHeight = Settings.MaxHeight;
   ptr->ID = ID++;
+  ptr->ThermScale = 0.5;
   return (ptr);
 }
 

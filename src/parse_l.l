@@ -91,6 +91,7 @@ STRINGCHAR		([^"\n\r\\]|\\\\|\\\")
 PCB			{ return(T_PCB); }
 Grid		{ return(T_GRID); }
 Cursor		{ return(T_CURSOR); }
+Thermal		{ return(T_THERMAL); }
 Flags		{ return(T_FLAGS); }
 Layer		{ return(T_LAYER); }
 Pin			{ return(T_PIN); }

@@ -938,7 +938,7 @@ PS_PrintPinOrVia (PinTypePtr Ptr, int mode)
       if (TEST_FLAG (USETHERMALFLAG, Ptr))
 	{
 	  int size2 = (size + Ptr->Clearance) / 2;
-	  int finger = (Ptr->Thickness - Ptr->DrillingHole) / 2;
+	  int finger = (Ptr->Thickness - Ptr->DrillingHole) * PCB->ThermScale;
 
 	  if (!TEST_FLAG (SQUAREFLAG, Ptr))
 	    size2 = (7 * size2) / 10;

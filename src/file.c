@@ -293,6 +293,7 @@ WritePCBDataHeader (FILE * FP)
 	   (int) Settings.DrawGrid);
   fprintf (FP, "Cursor[%i %i %f]\n", (int) TO_PCB_X (Output.Width / 2),
 	   (int) TO_PCB_Y (Output.Height / 2), PCB->Zoom);
+  fprintf (FP, "Thermal[%f]\n", PCB->ThermScale);
   fprintf (FP, "Flags(0x%016x)\n", (int) PCB->Flags);
   fputs ("Groups(\"", FP);
   for (group = 0; group < MAX_LAYER; group++)

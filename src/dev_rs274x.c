@@ -345,7 +345,7 @@ GBX_Init (PrintInitTypePtr Flags)
 	  /* check for thermal cross being used */
 	  if (TEST_FLAG (ALLTHERMFLAGS, pin))
 	    {
-	      int finger = (pin->Thickness - pin->DrillingHole) / 2;
+	      int finger = (pin->Thickness - pin->DrillingHole) * PCB->ThermScale;
 	      findApertureCode (&GBX_Apertures, finger, 0, 0, ROUND);
 	      findApertureCode (&GBX_Apertures, pin->Thickness,
 				pin->Thickness + pin->Clearance, finger,
@@ -413,7 +413,7 @@ GBX_Init (PrintInitTypePtr Flags)
       /* check for thermal cross being used */
       if (TEST_FLAG (ALLTHERMFLAGS, via))
 	{
-	  int finger = (via->Thickness - via->DrillingHole) / 2;
+	  int finger = (via->Thickness - via->DrillingHole) * PCB->ThermScale;
 	  findApertureCode (&GBX_Apertures, finger, 0, 0, ROUND);
 	  findApertureCode (&GBX_Apertures, via->Thickness,
 			    via->Thickness + via->Clearance, finger, THERMAL);
@@ -1030,7 +1030,7 @@ GBX_PrintPinOrVia (PinTypePtr Ptr, int mode)
       /* negative plane mode */
       if (TEST_FLAG (USETHERMALFLAG, Ptr))
 	setAperture (&GBX_Apertures, Ptr->Thickness,
-		     size, (Ptr->Thickness - Ptr->DrillingHole) / 2, THERMAL);
+		     size, (Ptr->Thickness - Ptr->DrillingHole) * PCB->ThermScale, THERMAL);
       else
 	setAperture (&GBX_Apertures, Ptr->Thickness, size,
 		     0, TEST_FLAG (SQUAREFLAG,
@@ -1063,7 +1063,7 @@ GBX_PrintPinOrVia (PinTypePtr Ptr, int mode)
     {
       LineType line;
       int size2 = (size + Ptr->Clearance) / 2;
-      int finger = (Ptr->Thickness - Ptr->DrillingHole) / 2;
+      int finger = (Ptr->Thickness - Ptr->DrillingHole) * PCB->ThermScale;
 
       if (!TEST_FLAG (SQUAREFLAG, Ptr))
 	size2 = (7 * size2) / 10;

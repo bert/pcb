@@ -936,7 +936,7 @@ ThermPin (LayerTypePtr layer, PinTypePtr Pin)
   else
     XSetForeground (Dpy, Output.fgGC, layer->Color);
 
-  finger = (Pin->Thickness - Pin->DrillingHole) / 2;
+  finger = (Pin->Thickness - Pin->DrillingHole) * PCB->ThermScale;
   XSetLineAttributes (Dpy, Output.fgGC,
 		      TEST_FLAG (THINDRAWFLAG, PCB) ? 1 : TO_SCREEN (finger),
 		      LineSolid, CapRound, JoinRound);

@@ -379,7 +379,8 @@ typedef struct		/* holds information about board layout */
 			MaxWidth,		/* allowed size */
 			MaxHeight;
 	float		Grid,			/* used grid with offsets */
-			Zoom;			/* zoom factor */
+			Zoom,			/* zoom factor */
+			ThermScale;		/* scale factor used with thermals */
 	FontType	Font;
 	LayerGroupType	LayerGroups;
 	RouteStyleType	RouteStyle[NUM_STYLES];
