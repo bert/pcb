@@ -616,13 +616,15 @@ PrintMask (void)
   /* loop over both sides, start with component */
   for (i = 0; i < 2; i++)
     {
+      /* solder reliefs are positive, use invert if you need to */
+      DeviceFlags.InvertFlag = !DeviceFlags.InvertFlag;
+
       /* start with the component side */
       if (SetupPrintFile (GlobalDOSFlag ? DOSextention[i] : extention[i],
 			  description[i]))
 	return (1);
 
-      /* solder reliefs are positive, use invert if you need to */
-      Device->Polarity (0);
+      Device->Polarity (1);
       SetPrintColor (PCB->PinColor);
       if (GlobalAlignmentFlag)
 	FPrintAlignment ();
@@ -633,6 +635,8 @@ PrintMask (void)
       VIA_LOOP (PCB->Data, Device->PinOrVia (via, 2););
 
       ClosePrintFile ();
+      /* Restore the invert flag */
+      DeviceFlags.InvertFlag = !DeviceFlags.InvertFlag;
     }
   return (0);
 }
