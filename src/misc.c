@@ -181,14 +181,17 @@ GetValue (String * Params, Boolean * absolute, Cardinal Num)
     }
   else
     {
-      *absolute = isdigit (**Params);
+      if (isdigit (**Params))
+        *absolute = True;
+      else
+        *absolute = False;
       value = atof (*Params);
     }
   if (Num == 3)
     {
-      if (strncmp (*(Params + 1), "mm", 2) == 0)
+      if (strncasecmp (*(Params + 1), "mm", 2) == 0)
 	value *= MM_TO_COOR;
-      else if (strncmp (*(Params + 1), "mil", 3) == 0)
+      else if (strncasecmp (*(Params + 1), "mil", 3) == 0)
 	value *= 100;
     }
   return value;

@@ -644,7 +644,7 @@ GetFunctionID (String Ident)
 
   i = ENTRIES (Functions);
   while (i)
-    if (!strcmp (Ident, Functions[--i].Identifier))
+    if (!strcasecmp (Ident, Functions[--i].Identifier))
       return ((int) Functions[i].ID);
   return (-1);
 }
@@ -1970,7 +1970,7 @@ ActionSetValue (Widget W, XEvent * Event, String * Params, Cardinal * Num)
 	  break;
 
 	case F_Grid:
-	  if (r)
+	  if (!r)
 	    {
 	      if ((value == (int) value && PCB->Grid == (int) PCB->Grid)
 		  || (value != (int) value && PCB->Grid != (int) PCB->Grid))

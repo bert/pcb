@@ -431,7 +431,9 @@ Pcb.masterForm*output.baseTranslations:   #override \
   Shift<Key>f:        Connection(Reset) \n\
   <Key>f:          Connection(Reset) \
 		   Connection(Find) \n\
+  Shift Ctrl<Key>g:        SetValue(Grid, -0.05, mm) \n\
   Shift<Key>g:        SetValue(Grid, -5, mil) \n\
+  Ctrl<Key>g:          SetValue(Grid, +0.05, mm) \n\
   <Key>g:          SetValue(Grid, +5, mil) \n\
   Shift<Key>h:        ToggleHideName(SelectedElements) \n\
   Ctrl<Key>h:         ChangeHole(ToggleObject) \n\
@@ -472,8 +474,8 @@ Pcb.masterForm*output.baseTranslations:   #override \
   Shift<Key>s:        ChangeSize(Object, -5, mil) \n\
   @btnmod@<Key>s:       ChangeDrillSize(Object, +5, mil) \n\
   <Key>s:          ChangeSize(Object, +5, mil) \n\
-  Shift<Key>t:          SetValue(TextScale, -5) \n\
-  <Key>t:               SetValue(TextScale, +5) \n\
+  Shift<Key>t:          SetValue(TextScale, -10, mil) \n\
+  <Key>t:               SetValue(TextScale, +10, mil) \n\
   Shift Ctrl<Key>u:   Undo(ClearList) \n\
   <Key>u:          Undo() \n\
   @btnmod@ Shift<Key>v: SetValue(ViaDrillingHole, -5, mil) \n\

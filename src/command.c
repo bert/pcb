@@ -118,7 +118,7 @@ CommandQuit (void)
 	       "quits without saving or warning for its need\n");
       return (1);
     }
-  if (strcmp (argv[0], "q!") == 0)
+  if (strcasecmp (argv[0], "q!") == 0)
     QuitApplication ();
   if (!PCB->Changed || ConfirmDialog ("OK to lose data ?"))
     QuitApplication ();
@@ -373,7 +373,7 @@ ExecuteUserCommand (char *CommandLine)
     {
       /* scan command list */
       for (i = 0; i < ENTRIES (Command); i++)
-	if (!strcmp (Command[i].Text, argv[0]))
+	if (!strcasecmp (Command[i].Text, argv[0]))
 	  break;
       if (i == ENTRIES (Command))
 	/* it wasn't listed, it must have been an action command */
