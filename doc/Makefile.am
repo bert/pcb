@@ -27,6 +27,12 @@
 ##
 
 info_TEXINFOS=	pcb.texi
+pcb_TEXINFOS=	\
+	fractional_size.texi \
+	letter_size.texi \
+	metric_size.texi \
+	wire_size.texi
+	
 dist_pkgdata_DATA=	${html_docs} ${ps_docs} ${pdf_docs}
 
 dist_man_MANS=	pcb.1
@@ -35,6 +41,8 @@ html_docs=	${info_TEXINFOS:.texi=.html}
 ps_docs=	${info_TEXINFOS:.texi=.ps} refcard.ps
 pdf_docs=	${info_TEXINFOS:.texi=.pdf} refcard.pdf
 
+# put the html manual into 1 file instead of multiple files
+AM_MAKEINFOHTMLFLAGS=	--no-split
 
 # use this to avoid having the clean target delete pcb.{dvi,html,pdf,ps}
 # which unfortunately deletes files which are part of the distfile
@@ -48,9 +56,13 @@ EXTRA_DIST= \
 	pad.png \
 	pad.eps \
 	pcb.dvi \
-	refcard.dvi
+	refcard.dvi \
+	wire_size.texi \
+	letter_size.texi \
+	metric_size.texi \
+	fractional_size.texi
 
-SUFFIXES=	.obj
+SUFFIXES=	.obj .tab
 
 
 MAINTAINERCLEANFILES= \
@@ -59,7 +71,25 @@ MAINTAINERCLEANFILES= \
 
 BUILT_SOURCES=	\
 	pad.eps \
-	pad.png
+	pad.png \
+	wire_size.texi \
+	letter_size.texi \
+	metric_size.texi \
+	fractional_size.texi
+
+ASCII2TEXI=	${AWK} -f $(srcdir)/ascii2texi.awk ncol=3
+
+$(srcdir)/wire_size.texi: $(srcdir)/wire_size.tab $(srcdir)/ascii2texi.awk
+
+$(srcdir)/letter_size.texi: $(srcdir)/letter_size.txt $(srcdir)/ascii2texi.awk
+
+$(srcdir)/metric_size.texi: $(srcdir)/metric_size.txt $(srcdir)/ascii2texi.awk
+
+$(srcdir)/fractional_size.texi: $(srcdir)/fractional_size.txt $(srcdir)/ascii2texi.awk
+
+.tab.texi:
+	${ASCII2TEXI} $< > $@
+
 
 TGIF_X=		XENVIRONMENT=$(srcdir)/Xdefaults.tgif ${TGIF}
 TGIF_FLAGS=	-print -color

@@ -79,6 +79,7 @@ board layout system for @code{X11}.
 * Installation::           Compiling, installing and troubleshooting.
 * Custom Menus::           Customizing the menu bar.
 * Regular Expressions::    Searching for elements with regular expressions
+* Standard Drill Sizes::   Tables of standard drill sizes
 * Index::                  The Index.
 @end menu
 
@@ -5747,7 +5748,7 @@ pcb -dumpmenu
 @end example
 
 @c --------------------------- Appendix C -------------------------------
-@node Regular Expressions, Index, Custom Menus, Top
+@node Regular Expressions, Standard Drill Sizes, Custom Menus, Top
 @cindex Element Search
 @cindex Regular Expressions
 @vindex Element Search
@@ -5795,8 +5796,27 @@ Enter "R128+".
 @end table
 
 
+@c --------------------------- Appendix -- drill sizes -------------------------------
+@node Standard Drill Sizes, Index, Regular Expressions, Top
+@cindex drill sizes, list of standard
+@cindex standard drill sizes
+@appendix Standard Drill Size Tables
+
+@section American Standard Wire Size Drills
+@include wire_size.texi
+
+@section American Standard Letter Size Drills
+@include letter_size.texi
+
+@section Fractional Inch Size Drills
+@include fractional_size.texi
+
+@section Metric Drills
+@include metric_size.texi
+
+
 @c ---------------------------------------------------------------------
-@node Index, , Regular Expressions, Top
+@node Index, , Standard Drill Sizes, Top
 @unnumbered Index of Resources
 @printindex vr
 
