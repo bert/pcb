@@ -72,12 +72,12 @@ define(`PinList_DS1220_dil', ``A7',`A6',`A5',`A4',`A3',`A2',`A1',`A0',`D0',`D1',
 define(`Description_DS1225_dil', ``NVSRAM 8Kx8'')
 define(`Param1_DS1225_dil', 28)
 define(`Param2_DS1225_dil', 600)
-define(`PinList_DS1225_dil', ``n/c', `A12', `A7',`A6',`A5',`A4',`A3',`A2',`A1',`A0',`D0',`D1',`D2',`Gnd',`D3',`D4',`D5',`D6',`D7',`/Ce',`A10',`/Oe',`A11',`A9',`A8',`n/c', `\We', `Vcc'')
+define(`PinList_DS1225_dil', ``n/c', `A12', `A7',`A6',`A5',`A4',`A3',`A2',`A1',`A0',`D0',`D1',`D2',`Gnd',`D3',`D4',`D5',`D6',`D7',`/Ce',`A10',`/Oe',`A11',`A9',`A8',`n/c', `/We', `Vcc'')
 
 define(`Description_DS1230_dil', ``NVSRAM 32Kx8'')
 define(`Param1_DS1230_dil', 28)
 define(`Param2_DS1230_dil', 600)
-define(`PinList_DS1230_dil', ``A14', `A12', `A7',`A6',`A5',`A4',`A3',`A2',`A1',`A0',`D0',`D1',`D2',`Gnd',`D3',`D4',`D5',`D6',`D7',`/Ce',`A10',`/Oe',`A11',`A9',`A8',`A13', `\We', `Vcc'')
+define(`PinList_DS1230_dil', ``A14', `A12', `A7',`A6',`A5',`A4',`A3',`A2',`A1',`A0',`D0',`D1',`D2',`Gnd',`D3',`D4',`D5',`D6',`D7',`/Ce',`A10',`/Oe',`A11',`A9',`A8',`A13', `/We', `Vcc'')
 
 
 # EPROM
