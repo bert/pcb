@@ -177,10 +177,8 @@ CreateNewVia (DataTypePtr Data,
 
   VIA_LOOP (Data, 
     {
-      if ((float) (via->X - X) * (float) (via->X - X) +
-	  (float) (via->Y - Y) * (float) (via->Y - Y) <=
-	  ((float) (via->Thickness / 2 + Thickness / 2) *
-	   (float) (via->Thickness / 2 + Thickness / 2)))
+      if (SQUARE (via->X - X) + SQUARE (via->Y - Y) <=
+	  SQUARE (via->Thickness / 2 + Thickness / 2))
 	return (NULL);		/* don't allow via stacking */
     }
   );

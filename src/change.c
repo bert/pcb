@@ -1627,7 +1627,10 @@ ChangeViaMaskSize (PinTypePtr Via)
     {
       AddObjectToMaskSizeUndoList (VIA_TYPE, Via, Via, Via);
       EraseVia (Via);
+      r_delete_entry (PCB->Data->via_tree, &Via->BoundingBox);
       Via->Mask = value;
+      SetPinBoundingBox (Via);
+      r_insert_entry (PCB->Data->via_tree, &Via->BoundingBox, 0);
       DrawVia (Via, 0);
       return (Via);
     }

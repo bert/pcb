@@ -754,10 +754,10 @@ NotifyLine (void)
         {
 	  PadTypePtr pad = (PadTypePtr) ptr2;
 	  float d1, d2;
-	  d1 = Crosshair.X - pad->Point1.X;
-	  d1 = d1*d1 + (float)(Crosshair.Y - pad->Point1.Y)*(Crosshair.Y - pad->Point1.Y);
-	  d2 = Crosshair.X - pad->Point2.X;
-	  d2 = d2*d2 + (float)(Crosshair.Y - pad->Point2.Y)*(Crosshair.Y - pad->Point2.Y);
+	  d1 = SQUARE (Crosshair.X - pad->Point1.X) +
+	       SQUARE (Crosshair.Y - pad->Point1.Y);
+	  d2 = SQUARE (Crosshair.X - pad->Point2.X) +
+	       SQUARE (Crosshair.Y - pad->Point2.Y);
 	  if (d2 < d1)
 	    {
               Crosshair.AttachedLine.Point1 =
@@ -2515,14 +2515,14 @@ ActionAddRats (Widget W, XEvent * Event, String * Params, Cardinal * Num)
 	    SetChangedFlag (True);
 	  break;
         case F_Close:
-	  small = (float)MAX_COORD * MAX_COORD;
+	  small = SQUARE (MAX_COORD);
 	  shorty = NULL;
 	  RAT_LOOP (PCB->Data,
 	    {
 	      if (TEST_FLAG (SELECTEDFLAG, line))
 	        continue;
-	      len = (float)(line->Point1.X - line->Point2.X)*(line->Point1.X - line->Point2.X) +
-	          (float)(line->Point1.Y - line->Point2.Y)*(line->Point1.Y - line->Point2.Y);
+	      len = SQUARE (line->Point1.X - line->Point2.X) +
+	            SQUARE (line->Point1.Y - line->Point2.Y);
 	      if (len < small)
 	        {
 		  small = len;
@@ -2533,7 +2533,6 @@ ActionAddRats (Widget W, XEvent * Event, String * Params, Cardinal * Num)
 	  if (shorty)
 	    {
 	      AddObjectToFlagUndoList (RATLINE_TYPE, shorty, shorty, shorty);
-	      IncrementUndoSerialNumber();
 	      SET_FLAG (SELECTEDFLAG, shorty);
 	      DrawRat (shorty, 0);
 	      Draw ();
