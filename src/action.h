@@ -78,6 +78,7 @@ void	ActionUndo(Widget, XEvent *, String *, Cardinal *);
 void	ActionRedo(Widget, XEvent *, String *, Cardinal *);
 void	ActionPolygon(Widget, XEvent *, String *, Cardinal *);
 void	ActionSwitchDrawingLayer(Widget, XEvent *, String *, Cardinal *);
+void	ActionToggleVisibility(Widget, XEvent *, String *, Cardinal *);
 void	ActionEditLayerGroups(Widget, XEvent *, String *, Cardinal *);
 void	ActionMoveToCurrentLayer(Widget, XEvent *, String *, Cardinal *);
 void	ActionDRCheck(Widget, XEvent *, String *, Cardinal *);

@@ -3891,6 +3891,31 @@ ActionAdjustStyle (Widget W, XEvent * Event, String * Params, Cardinal * Num)
 }
 
 /* ---------------------------------------------------------------------------
+ * Turn on or off the visibility of a layer
+ */
+void
+ActionToggleVisibility (Widget W, XEvent * Event,
+			String * Params, Cardinal * Num)
+{
+  int number;
+
+  if (*Num == 1)
+    {
+      number = atoi (*Params) - 1;
+      if (number >= 0 && number < MAX_LAYER+2)
+	{
+	  if(PCB->Data->Layer[number].On == False)
+	    ChangeGroupVisibility (number, True, False);
+	  else if((LayerStack[0] != number) &&
+		  (GetLayerGroupNumberByNumber(number) != GetLayerGroupNumberByNumber(LayerStack[0])))
+	    ChangeGroupVisibility (number, False, False);
+	  UpdateControlPanel ();
+	  ClearAndRedrawOutput ();
+	}
+    }
+}
+
+/* ---------------------------------------------------------------------------
  * changes the current drawing-layer
  * syntax: SwitchDrawingLayer()
  */
@@ -3903,7 +3928,7 @@ ActionSwitchDrawingLayer (Widget W, XEvent * Event,
   if (*Num == 1)
     {
       number = atoi (*Params) - 1;
-      if (number >= 0 && number < MAX_LAYER)
+      if (number >= 0 && number < MAX_LAYER+2)
 	{
 	  ChangeGroupVisibility (number, True, True);
 	  UpdateControlPanel ();
