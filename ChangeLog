@@ -1,0 +1,2298 @@
+2004-05-30 20:49  danmc
+
+	* doc/version.texi: bump updated date to match snapshot date
+
+2004-05-30 20:46  danmc
+
+	* NEWS: add some release notes for the upcoming 20040530 snapshot
+
+2004-05-29 14:57  danmc
+
+	* src/change.c: add missing prototype
+
+2004-05-28 22:26  danmc
+
+	* globalconst.h: set MASKFRAME to be 3 (mils) instead of 0.  This
+	  way the soldermask opening will be larger than the pads for
+	  components defined using the older style format which did not
+	  explicitly give soldermask relief size.
+
+2004-05-28 21:47  danmc
+
+	* doc/pcb.texi: document the SetFlag(), ClrFlag(), and ChangeFlag()
+	  actions
+
+2004-05-28 21:38  danmc
+
+	* doc/pcb.texi: correct location for Pcb appdefaults file
+
+2004-05-28 20:15  danmc
+
+	* src/: pcbtest.sh.in, script/pcb.in: For the pcb wrapper script,
+	  if the first argument is "-gdb", pick off that flag and run pcb
+	  inside of the gdb debugger.  Should simplify debugging a bit.
+
+2004-05-28 20:13  danmc
+
+	* src/: action.c, action.h, change.c, change.h, main.c: Add
+	  SetFlag, ClrFlag, and ChangeFlag actions.  These currently let
+	  you set, clear, or change the square, octagon, or thermal pads.
+	  For example :SetFlag(SelectedVias,thermal)
+	  :ClrFlag(SelectedObjects,square)
+	  :ChangeFlag(SelectedPads,octagon,1)
+
+2004-05-27 23:17  danmc
+
+	* src/djopt.c: Fix the segfault bug noted in bug report #959073 by
+	  Bob Paddock.	While here, also fix a bug which can potentially
+	  cause a floating point exception.
+
+2004-05-27 23:15  danmc
+
+	* config.h.in, configure: regen after adding rint() test
+
+2004-05-27 23:12  danmc
+
+	* configure.ac: add test for rint()
+
+2004-05-26 22:11  danmc
+
+	* doc/version.texi: bump date
+
+2004-05-26 22:10  danmc
+
+	* doc/pcb.texi: add INFO-DIR-SECTION Miscellaneous per bug #957369
+	  submitted by Mike Frysinger
+
+2004-05-23 14:57  danmc
+
+	* lib/smt.inc: update the COMMON_SMT_2PAD_MIL macro to the newer
+	  element format.  With this change, the soldermask relief and
+	  clearance can now be specified for the pads.	This fixes the
+	  issue noted recently on the geda mailing list about 0805
+	  footprints from the ~geda library having soldermask openings
+	  which are the same size as the pads.
+
+2004-05-14 17:23  danmc
+
+	* src/dev_ps.c: make sure we get the preamble in all EPS output
+	  files.  Bug noted by David Koski
+
+2004-05-14 17:22  danmc
+
+	* lib/geda.inc: add SOJ packages (lots of them)
+
+2004-05-14 17:22  danmc
+
+	* lib/smt.inc: fix a hi-res bug in the polarity arc silk for some
+	  SMT DIL pkgs
+
+2004-05-14 17:22  danmc
+
+	* src/res_parse.y: add missing string.h (for strcmp).  Noted by
+	  Dave McGuire
+
+2004-05-13 22:59  danmc
+
+	* src/: pcbtest.sh.in, script/pcb.in: unset XUSERFILESEARCHPATH
+	  which causes a conflict with XAPPLRESDIR
+
+2004-05-13 22:29  danmc
+
+	* src/resource.h: add a comment
+
+2004-05-13 18:09  danmc
+
+	* src/misc.c: correct the pin/pad bounding box calculation.  Bug
+	  noted by David Koski.
+
+2004-05-04 23:47  danmc
+
+	* src/macro.h: fix typo in comment
+
+2004-05-02 01:02  djdelorie
+
+	* src/: djopt.c, pcb-menu.res: Add flag to default to optimizing
+	  only autorouted nets, plus menu option to control it.
+
+2004-05-02 00:26  djdelorie
+
+	* src/resmenu.c: Don't use local var for widget name.
+
+2004-05-02 00:23  djdelorie
+
+	* src/djopt.c: Fix bug wrt intersecting layer groups in miter
+
+2004-05-01 23:40  djdelorie
+
+	* src/: menu.c, resmenu.c: Remove gcc-isms
+
+2004-05-01 00:44  danmc
+
+	* doc/pcb.texi: fix typo
+
+2004-05-01 00:29  danmc
+
+	* src/resmenu.c: protect the inclusion of string.h with
+	  HAVE_STRING_H
+
+2004-04-30 18:55  danmc
+
+	* lib/minicircuits.inc: adjust spacing between the 2 rows of pins
+	  to better match the datasheet
+
+2004-04-30 18:55  danmc
+
+	* lib/smt.inc: clarify a comment
+
+2004-04-29 21:49  danmc
+
+	* src/: Pcb.ad.in, action.c, file.c, find.c, global.h, macro.h,
+	  main.c, parse_y.y, sizedialog.c: Add some DRC checking of
+	  silkscreen layers.  Currently this check looks for minimum widths
+	  of silk lines.  Currently not checked are:
+
+	  - silk polygons - silk text - wide silk lines made by overlapping
+	  several narrow silk lines
+
+2004-04-29 20:19  danmc
+
+	* src/find.c: put a string which is repeated several times into a
+	  #define and use that macro instead.
+
+2004-04-29 19:50  danmc
+
+	* src/: autoplace.h, autoroute.h, djopt.h, drill.h, heap.h,
+	  intersect.h, netlist.h, output.c, rats.c, resmenu.h, rtree.h,
+	  selector.c, vector.h: RCS Id police
+
+2004-04-29 19:09  danmc
+
+	* src/Makefile.in: regen
+
+2004-04-29 19:05  danmc
+
+	* src/Makefile.am: minor fixes to get the distcheck target working
+	  again.
+
+2004-04-28 23:12  danmc
+
+	* doc/pcb.texi: add a note about the centroid and bill of materials
+	  output.  While here add a feature list near the top of the
+	  document to help a new user quickly answer the question "what is
+	  pcb and what can it do?".
+
+2004-04-28 22:41  danmc
+
+	* src/resmenu.c: RCS Id and config.h police
+
+2004-04-28 22:34  danmc
+
+	* src/print.c: When printing to RS-274-X also generate a centroid
+	  data file (X-Y data) with the required data to drive a pick and
+	  place machine.  The centroid of each part is calculated from the
+	  center of each pin/pad.  The rotation is determined by looking at
+	  the angle of pin1 relative to the centroid.
+
+	  In addition, generate a bill of materials file.  This lists the
+	  part, quantity, and list of reference designators.
+
+2004-04-28 22:21  danmc
+
+	* src/: res_lex.l, res_parse.y, resmenu.c: fix some 64-bit bugs to
+	  get this working on my alpha.  Of prime importance, an int isn't
+	  big enough to hold a pointer.
+
+2004-04-28 21:31  danmc
+
+	* src/resource.h: RCS Id police
+
+2004-04-28 18:42  danmc
+
+	* src/: res_lex.l, res_parse.y: RCS Id police
+
+2004-04-28 18:42  danmc
+
+	* src/misc.c: put variable declarations at the beginning of
+	  functions.  Avoids syntax error on gcc-2.95
+
+2004-04-28 17:53  danmc
+
+	* lib/: amp.inc, bourns.inc, johnstech.inc, minicircuits.inc,
+	  panasonic.inc: fix the EXTRACT_END flag
+
+2004-04-28 17:34  danmc
+
+	* lib/: Makefile.am, Makefile.in, common.m4, cts.inc: add cts
+	  library containing CTS series 742/3/4/5/6 resistor packs
+
+2004-04-28 17:34  danmc
+
+	* lib/: johnstech.inc, smt.inc: fix refdes silk size
+
+2004-04-27 22:42  danmc
+
+	* lib/: dil.inc, geda.inc: Fix SDIP (shrink DIP) footprints.  Patch
+	  from Wojciech Kazubski in RFE #929697 slightly modified by me.
+
+2004-04-27 22:17  danmc
+
+	* lib/panasonic.inc: Correct the spacing between the rows of pads.
+	  Also fix one of the pad widths on a footprint which was obviously
+	  broken.
+
+2004-04-27 22:09  danmc
+
+	* lib/smt.inc: hires-ify the COMMON_SMT_DIL_MIL macro.	The macro
+	  already took input arguments in 1/1000 mil so now we simple only
+	  reduce the resolution to 1/100 mil in the output instead of to 1
+	  mil.	This also helps the COMMON_SMT_DIL_MM which calls the
+	  COMMON_SMT_DIL_MIL macro.
+
+2004-04-27 18:28  danmc
+
+	* src/tmp.txt: test commit #3
+
+2004-04-27 18:18  danmc
+
+	* src/tmp.txt: test commit #2
+
+2004-04-27 18:17  danmc
+
+	* src/tmp.txt: test commit
+
+2004-04-27 15:13  djdelorie
+
+	* doc/version.texi: add version.texi for non-maintainers
+
+2004-04-27 15:08  djdelorie
+
+	* src/Makefile.am, src/Makefile.in, src/Pcb.ad.in, src/Pcb.ad.raw,
+	  src/Pcb.ad.small, src/action.h, src/dialog.c, src/gather-actions,
+	  src/global.h, src/gui.c, src/main.c, src/menu.c, src/menu.h,
+	  src/misc.c, src/misc.h, src/pcb-menu.res, src/res_lex.l,
+	  src/res_parse.y, src/resmenu.c, src/resmenu.h, src/resource.h,
+	  src/set.c, src/sizedialog.c, doc/pcb.texi: add file-driven menus
+
+2004-04-27 14:49  djdelorie
+
+	* Makefile.in, ylwrap: add ylwrap
+
+2004-04-27 08:56  haceaton
+
+	* src/autoroute.c: More autorouter improvements, some bug fixes
+
+2004-04-26 09:20  haceaton
+
+	* src/: autoroute.c, mtspace.c: Significant improvements to
+	  autorouting of congested designs
+
+2004-04-25 00:56  haceaton
+
+	* src/: global.h, rtree.c: Fix rtree memory management bugs
+
+2004-04-19 17:20  haceaton
+
+	* src/rtree.c: Fix a bug that allocates too much memory to store
+	  pointers
+
+2004-04-19 17:20  haceaton
+
+	* src/: buffer.c, move.c: Fix some bugs with rtree based name
+	  handling
+
+2004-04-18 22:19  haceaton
+
+	* src/: autoroute.c, find.c, rats.c: More autorouter improvements.
+	  Improve trace appearance, slightly speed up and allow it to use
+	  power planes
+
+2004-04-18 10:12  haceaton
+
+	* src/: action.c, change.c, copy.c, file.c, insert.c, move.c,
+	  polygon.c, polygon.h, remove.c, rotate.c: Fix pin-in-poly bug;
+	  because polys can overlap can never check one single polygon.
+
+2004-04-12 00:12  haceaton
+
+	* src/: djopt.c, autoroute.c: Restore mistakenly lost lines in
+	  djopt, and various improvements to auto-router
+
+2004-04-11 11:15  haceaton
+
+	* src/move.c: Argh, another attempt to properly fix the bug
+
+2004-04-11 11:12  haceaton
+
+	* src/: djopt.c, move.c: Fixup some errors introduced in last patch
+
+2004-04-09 00:13  haceaton
+
+	* src/djopt.c: Fix segfault with edge-connector elements (pads on
+	  both sides)
+
+2004-04-08 20:25  haceaton
+
+	* src/: draw.c, insert.c, move.c, output.c: Various bug fixes
+
+2004-03-28 12:45  haceaton
+
+	* src/: action.c, autoroute.c, global.h, menu.c: Still more
+	  improvements to the router, plus can show it's action on screen.
+
+2004-03-27 22:06  haceaton
+
+	* src/: autoroute.c, box.h, mtspace.c, mtspace.h: More improvements
+	  to the autorouter
+
+2004-03-26 15:44  haceaton
+
+	* src/create.c: Forbid diagonal pads when created externally with
+	  an editor
+
+2004-03-25 17:36  haceaton
+
+	* src/autoroute.c: Some improvements to autorouter - still need to
+	  better handle mtspace structures so there is not so much
+	  duplicate effort with multiple route styles
+
+2004-03-23 15:28  djdelorie
+
+	* src/parse_y.y: Provide our own yywrap(), just in case.
+
+2004-03-22 08:12  haceaton
+
+	* src/Pcb.ad.in: Fix a couple of key binding bugs
+
+2004-03-22 01:27  haceaton
+
+	* src/find.c: Fix some re-drawing issues after finding connections
+
+2004-03-22 01:26  haceaton
+
+	* src/autoroute.c: Fix some autoroute bugs; add proper style
+	  handling to autorouter
+
+2004-03-20 18:02  haceaton
+
+	* src/: report.c, rtree.c: Provide better rtree visualization
+	  capability
+
+2004-03-20 18:01  haceaton
+
+	* src/: buffer.c, change.c, create.c, dev_ps.c, draw.c, global.h,
+	  misc.c, move.c, move.h, mymem.c, print.c, printpanner.c,
+	  remove.c, rotate.c, search.c: Use rtree to search element names;
+	  fix postscript paper handling; fix silk names clipped over
+	  pins/pads
+
+2004-03-20 13:25  haceaton
+
+	* src/: rtree.c, rtree.h: Slight optimization of tree construction,
+	  plus add means to visualize tree
+
+2004-03-20 12:01  haceaton
+
+	* src/file.c: Don't use _LOOP macros for writing files in order to
+	  preserver ordering so that diff can be effectively used on pcb
+	  files
+
+2004-03-18 19:08  danmc
+
+	* lib/johnstech.inc: increase soldermask relief on mounting pads
+
+2004-03-18 10:35  haceaton
+
+	* src/: const.h, draw.c, polygon.c: Use sqrt(2)/2 defined in math
+	  library when available
+
+2004-03-18 10:34  haceaton
+
+	* src/rats.c: Handle shorts to unnamed elements and pins
+
+2004-03-18 10:33  haceaton
+
+	* src/line.c: Forgot to check this in with the _LOOP macro changes
+
+2004-03-18 00:46  haceaton
+
+	* src/: print.c, dev_ps.c: Add assembly drawing output for
+	  postscript
+
+2004-03-16 23:59  haceaton
+
+	* src/: action.c, autoplace.c, autoroute.c, buffer.c, change.c,
+	  copy.c, create.c, crosshair.c, dev_ps.c, dev_rs274x.c, djopt.c,
+	  draw.c, drill.c, file.c, find.c, global.h, library.c, macro.h,
+	  menu.c, mirror.c, misc.c, move.c, mymem.c, netlist.c, pinout.c,
+	  polygon.c, print.c, rats.c, remove.c, report.c, rotate.c,
+	  rtree.c, rubberband.c, search.c, select.c, set.c, undo.c: Change
+	  _LOOP macros so that gdb can break inside the loop
+
+2004-03-16 19:29  danmc
+
+	* src/rtree.c: revert last change.  Some compilers including
+	  gcc-2.95.3 do not like it.  ok'ed by harry.
+
+2004-03-14 01:30  haceaton
+
+	* src/: autoplace.c, intersect.c: Various fixes to autoplacement
+	  code
+
+2004-03-14 01:29  haceaton
+
+	* src/set.c: auto drc bug fix
+
+2004-03-14 01:29  haceaton
+
+	* src/action.c: Acknowledge placement
+
+2004-03-14 01:26  haceaton
+
+	* src/: netlist.c, rats.c: Fix memory leaks
+
+2004-03-13 00:51  haceaton
+
+	* src/rotate.c: corrctly distinguish rubberand rat lines
+
+2004-03-11 17:57  haceaton
+
+	* src/rtree.c: Remove unnecessary union identifier to clarify code
+
+2004-03-10 17:55  haceaton
+
+	* src/action.c: Fix polygon insert point bug introduced when
+	  reorganizing code
+
+2004-03-09 20:17  danmc
+
+	* lib/geda.inc: 100 pin QFP packages have 100 pins not 72
+
+2004-03-09 19:10  haceaton
+
+	* src/error.c: Fix for bad pipe handling under cygwin
+
+2004-03-09 14:51  haceaton
+
+	* src/draw.c: Minimize rectangle fills
+
+2004-03-09 14:30  haceaton
+
+	* src/polygon.c: Oops - this fixes the error introduced moving to
+	  IsPadInPolygon
+
+2004-03-09 09:01  haceaton
+
+	* src/crosshair.c: Use SQUARE macro
+
+2004-03-09 08:59  haceaton
+
+	* src/: action.c, create.c, rats.c, change.c: clean up code to use
+	  SQUARE macro and fix via mask update bug
+
+2004-03-09 08:58  haceaton
+
+	* src/: draw.c, find.c, find.h, polygon.c, print.c, search.c,
+	  search.h: Erase silk over solder regions when they cross and
+	  display that way on screen
+
+2004-03-08 17:48  haceaton
+
+	* src/rtree.c: Streamline code for clustering
+
+2004-03-07 21:29  haceaton
+
+	* src/: Pcb.ad.in, action.c: Added a function { AddRats(Close)
+	  bound to shift-n } that selects the shortest unselected ratline
+	  and centers the screen view on it.
+
+2004-03-07 20:52  haceaton
+
+	* src/: crosshair.c, crosshair.h, line.c, line.h: New Auto-DRC line
+	  drawing mode implemented.
+
+2004-03-07 13:24  haceaton
+
+	* src/: draw.c, draw.h: Forgot to checkin draw.h; fix some bugs
+	  with really high zoom
+
+2004-03-07 13:20  haceaton
+
+	* src/find.c: Avoid doubling DRC clearance between non-clearing
+	  polygons and square pins/pads
+
+2004-03-06 22:38  haceaton
+
+	* src/: action.c, buffer.c, change.c, create.c, dialog.c, draw.c,
+	  find.c, global.h, move.c, move.h, mymem.c, output.c,
+	  printpanner.c, remove.c, rotate.c, rtree.c, search.c, select.c:
+	  Fixes for various bugs introduced with the rtree database
+	  infrastructure
+
+2004-03-06 22:31  haceaton
+
+	* src/: menu.c, misc.c: A couple of bug fixes: absolute negative
+	  value entries (e.g. =-4) also check the correct zoom level in the
+	  menu
+
+2004-03-06 00:55  haceaton
+
+	* src/select.h: Fix conditional compile variable name
+
+2004-03-05 08:29  haceaton
+
+	* src/: library.c, mymem.c, output.c, polygon.c: Fixes for several
+	  memory leaks and some uninitialized varibable bugs
+
+2004-03-04 21:22  haceaton
+
+	* src/: file.c, parse_l.l, parse_y.y: Save the DRC settings in the
+	  board file
+
+2004-03-04 18:41  haceaton
+
+	* src/: Pcb.ad.in, dev_ps.c, global.h, printdialog.c,
+	  printpanner.c: Fix the postscript print panner bugs introduced
+	  with hi-res; also fix the long-standing bug where the default
+	  media selection wasn't used
+
+2004-03-04 17:12  danmc
+
+	* src/select.h: one more regex bug fix noted by Matt Ettus
+
+2004-03-03 23:44  danmc
+
+	* doc/pcb.texi: document the ToggleVisibility action
+
+2004-03-03 23:38  danmc
+
+	* src/: action.c, action.h, main.c: Added a new action which will
+	  toggle the visibility of layers without clicking on them.
+	  Intended to be bound to keys.  Patch provided by Matt Ettus in
+	  patch #908658.
+
+2004-03-03 23:27  danmc
+
+	* src/: action.c, menu.c, select.c: enable the regex select stuff.
+	  A trial of a regex select of some components seems to work.
+	  Prompted by patches provided by Matt Ettus in patch submission
+	  908651.
+
+2004-03-02 21:51  danmc
+
+	* lib/geda.inc: a HEADER60_2 should have 60 pins not 50 as noted in
+	  bug report 900231
+
+2004-03-02 20:49  haceaton
+
+	* globalconst.h, src/action.c, src/draw.c, src/misc.c, src/move.c,
+	  src/report.c: Fixes for element line boundry handling
+
+2004-03-01 11:59  haceaton
+
+	* src/move.c: Fix for search element bounding box error
+
+2004-03-01 11:19  haceaton
+
+	* src/: crosshair.c, crosshair.h: These were updated too for the
+	  auto-DRC infrastructure
+
+2004-03-01 00:10  haceaton
+
+	* src/: find.c, action.c, change.c, control.c, control.h, find.h,
+	  global.h, misc.c, misc.h, move.c, output.c, search.c, set.c: Some
+	  intersection bug fixes and more rtree infrastructure change Also
+	  more ground work for auto drc line mode
+
+2004-02-28 22:52  djdelorie
+
+	* src/Makefile.in: Regenerate.
+
+2004-02-28 18:44  haceaton
+
+	* src/: action.c, buffer.c, change.c, const.h, create.c, draw.c,
+	  find.c, global.h, insert.c, menu.c, misc.c, misc.h, move.c,
+	  remove.c, search.c, set.c, undo.c: More usage of rtrees for rats,
+	  pins and pads. Some foundation work for a new auto-drc line
+	  drawing mode, and some bug fixes.
+
+2004-02-27 17:20  haceaton
+
+	* src/: buffer.c, create.c, find.c, global.h, menu.c, misc.c,
+	  move.c, mymem.c, remove.c, rtree.c, rtree.h: Store pins/pads in
+	  rtree
+
+2004-02-27 10:35  haceaton
+
+	* src/rtree.c: Fixes for some compiler warnings
+
+2004-02-27 01:23  haceaton
+
+	* src/: clip.c, clip.h: Oh Yeah, the drawing clipping won't work
+	  without these files!
+
+2004-02-27 01:16  haceaton
+
+	* src/: Makefile.am, Makefile.in, action.c, create.c, data.c,
+	  data.h, draw.c, global.h, insert.c, insert.h, line.c, line.h,
+	  macro.h, misc.c, output.c, parse_y.y, polygon.c, report.c: Fixes
+	  for clipping the drawing. Simple saturation could change the
+	  geometry when zoomed way in. Also some organizational changes to
+	  make the code easier to maintain.
+
+2004-02-26 23:53  danmc
+
+	* doc/pcb.texi: clarify the pad creation a little
+
+2004-02-26 23:41  haceaton
+
+	* src/misc.c: Fix for text bounding box error
+
+2004-02-25 15:56  haceaton
+
+	* src/: action.c, const.h, crosshair.c, menu.c: Add a feature to
+	  display design-rule clearance arround prospective line/arc/via
+
+2004-02-25 14:33  haceaton
+
+	* src/: find.c, search.c: Fix some DRC bugs with square pins
+
+2004-02-19 22:11  danmc
+
+	* lib/misc.inc: whitespace fix
+
+2004-02-18 22:10  danmc
+
+	* lib/connector.inc: add a PKG_CONNECTOR_DIL for 2 column headers
+	  with DIL pin numbering.  This fixes the HEADER*_1 entries in the
+	  geda footprint library.
+
+2004-02-17 11:12  haceaton
+
+	* src/buffer.c: Fix typo that caused bug in via tree handling.
+
+2004-02-17 07:40  danmc
+
+	* lib/generic.list: remove extra whitespace in generic208_lqfp
+
+2004-02-17 01:27  haceaton
+
+	* src/: action.c, draw.c, find.c, polygon.c, polygon.h, print.c,
+	  report.c, rtree.c: Bug fixes for design rule checking
+
+2004-02-16 22:31  haceaton
+
+	* src/rtree.c: Make rtree routines reentrant since now they are
+	  used that way when drawing during DRC.
+
+2004-02-15 13:04  haceaton
+
+	* src/: action.c, autoplace.c, autoroute.c, buffer.c, change.c,
+	  copy.c, create.c, dev_ps.c, draw.c, file.c, find.c, insert.c,
+	  main.c, mirror.c, misc.c, move.c, mtspace.c, mymem.c, pinout.c,
+	  polygon.c, print.c, find.h, global.h, macro.h, mirror.h, misc.h,
+	  move.h, mymem.h, parse_y.y, polygon.h, rats.c, remove.c,
+	  report.c, rotate.c, rotate.h, rtree.c, rtree.h, rubberband.c,
+	  search.c, search.h, select.c, undo.c: Large number of changes to
+	  keep most of the database in rtrees and avoid linear searches
+
+2004-02-15 11:54  haceaton
+
+	* src/change.c: Fix minor bug in pad clearance adjustment
+
+2004-02-15 02:46  danmc
+
+	* src/Makefile.in: regen after adding compat.c/h
+
+2004-02-15 02:46  danmc
+
+	* src/: Makefile.am, compat.c, compat.h, draw.c, set.c: add a place
+	  for putting our own implementation of missing/broken functions.
+	  For now add a logf and expf to help solaris.
+
+2004-02-15 02:44  danmc
+
+	* tools/: Makefile.am, Makefile.in: install MergePCBPS and
+	  Merge_dimPBPS
+
+2004-02-15 02:29  danmc
+
+	* config.h.in, configure: regen after adding logf and expf checks
+
+2004-02-15 02:28  danmc
+
+	* configure.ac: add checks for logf and expf
+
+2004-02-15 02:12  danmc
+
+	* src/: create.c, dev_ps.c, dev_rs274x.c, draw.c, file.c, global.h,
+	  parse_l.l, parse_y.y: add a way to control the scale factor
+	  associated with thermals.  This is a global value stored in the
+	  .pcb file.  The default gives the same behaviour as previous
+	  version.  By increasing the scale factor, the width of the spokes
+	  increases.  Eventually it would be nice to make this be per
+	  pin/via.
+
+2004-02-15 02:00  danmc
+
+	* src/report.c: correct the drill diameter in the drill report
+	  after the hi-res changes
+
+2004-02-14 18:04  haceaton
+
+	* src/polygon.c: Fixed syntax error and potential bug
+
+2004-02-14 13:03  haceaton
+
+	* src/draw.c: Elliminate pre-computing of octagons - there are too
+	  many with .01 mil resolution
+
+2004-02-14 11:12  haceaton
+
+	* src/: find.c, polygon.c: More non-clearing polygon fixes
+
+2004-02-14 10:46  haceaton
+
+	* src/: buffer.c, dev_rs274x.c, draw.c, macro.h, menu.c, polygon.c,
+	  print.c, rubberband.c: Fixed some bugs with non-clearing polygons
+	  and made GROUP_LOOP macro
+
+2004-02-14 01:40  haceaton
+
+	* src/: action.c, crosshair.c, macro.h: Fix arc creation tool when
+	  crosshair is on-axis with start point
+
+2004-02-13 21:48  haceaton
+
+	* src/: report.c, report.h: Report on points and fix some formating
+
+2004-02-13 21:38  haceaton
+
+	* src/set.c: Fix formatting mismatch
+
+2004-02-13 21:32  haceaton
+
+	* src/polygon.c: Fixup includes and trivial bug
+
+2004-02-13 21:22  haceaton
+
+	* src/move.c: fix includes for Message()
+
+2004-02-13 21:21  haceaton
+
+	* src/menu.c: add left/right buffer mirror menu entry
+
+2004-02-13 17:31  haceaton
+
+	* src/: Pcb.ad.in, action.c, find.c, global.h, insert.c, main.c,
+	  polygon.c, polygon.h, print.c, report.c, set.c, sizedialog.c:
+	  More complete and sensible DRC checking
+
+2004-02-13 16:11  haceaton
+
+	* src/: move.c, search.c: Prevent changing layers of locked
+	  objects, find ratlines before other layer objects
+
+2004-02-13 00:54  haceaton
+
+	* src/: action.c, buffer.c, buffer.h, menu.c: Added function to
+	  mirror the buffer
+
+2004-02-13 00:36  haceaton
+
+	* src/buffer.c: Recalculate arc bounding box when swaping the side
+
+2004-02-12 21:02  haceaton
+
+	* src/dialog.c: Updated about dialog
+
+2004-02-12 20:57  haceaton
+
+	* src/rats.c: Use warn color on pins/pads even when netname is
+	  known
+
+2004-02-12 20:11  haceaton
+
+	* src/change.c: Only change masks with size change when they're
+	  non-zero to begin with
+
+2004-02-12 20:06  haceaton
+
+	* src/change.c: Allow +0 change to mask size to make it equal the
+	  underlying copper
+
+2004-02-12 19:51  haceaton
+
+	* src/: action.c, change.c, select.c: Proper handling of all text
+	  scalings
+
+2004-02-12 19:13  haceaton
+
+	* src/: action.c, select.c: Handle element name size changing
+	  properly
+
+2004-02-12 10:56  haceaton
+
+	* src/change.c: Automatically adjust mask size when copper size is
+	  changed
+
+2004-02-10 17:13  haceaton
+
+	* src/print.c: Fixed output bug with persistant thermal changes
+
+2004-02-08 23:08  danmc
+
+	* tools/Makefile.in: regen after adding Merge_dimPCBPS
+
+2004-02-08 23:07  danmc
+
+	* tools/Makefile.am: add Merge_dimPCBPS
+
+2004-02-08 23:06  danmc
+
+	* tools/: MergePCBPS, Merge_dimPCBPS: #/bin/sh -> #!/bin/sh to make
+	  these execute correctly.
+
+	  While here, add RCS Id's.
+
+2004-02-06 22:28  haceaton
+
+	* src/find.c: Find more errors when skipping through DRCs
+
+2004-02-06 16:59  haceaton
+
+	* src/: action.c, find.c, find.h: Added feature to continue
+	  checking drc after first error is found
+
+2004-02-06 16:03  haceaton
+
+	* src/change.c: Prevent clearance size adjustment from changing
+	  joined lines to unjoined
+
+2004-02-06 15:57  haceaton
+
+	* src/set.c: Fix bug where local reference mark was not erased
+	  properly
+
+2004-02-06 15:40  haceaton
+
+	* src/file.c: Fix bug where loading pcb didn't restore saved view
+	  position correctly
+
+2004-02-06 15:30  haceaton
+
+	* src/: global.h, undo.c: Fixed undo change text size bug
+	  introduced with hi-res changes
+
+2004-02-06 11:25  haceaton
+
+	* src/draw.c: Special drawing mode to examine planes for break-up
+	  due to tracks routing through them.
+
+2004-02-06 11:22  haceaton
+
+	* tools/Merge_dimPCBPS: Add a tool to merge to PCB postscript files
+	  where the first one is printed in a light gray color. This is
+	  useful for making an assembly drawing where the front tracks are
+	  shown in light gray while the silkscreen is solid black.
+
+2004-02-05 23:11  haceaton
+
+	* src/: macro.h, draw.c, polygon.c, print.c: Make persistant
+	  thermal flags for easier changes to polygons
+
+2004-02-05 17:04  haceaton
+
+	* src/: action.c, const.h, menu.c: Add mode for poly viewing to
+	  help spot broken planes
+
+2004-02-05 17:02  haceaton
+
+	* src/main.c: Fix text scaling intialization
+
+2004-02-05 09:18  haceaton
+
+	* src/dev_rs274x.c: Fix a couple of gerber bugs introduced with
+	  hi-res
+
+2004-02-05 01:25  haceaton
+
+	* src/polygon.c: Warn on unplated holes piercing polygons
+
+2004-02-05 01:21  haceaton
+
+	* src/print.c: Don't clear pure-holes in polygons
+
+2004-02-05 01:20  haceaton
+
+	* src/polygon.c: Fix bug in PIP flags
+
+2004-02-05 01:06  haceaton
+
+	* src/: dev_rs274x.c, find.c, find.h, print.c: Fixed some gerber
+	  hi-res bugs and some complex ground-plane print issues
+
+2004-02-03 23:09  djdelorie
+
+	* example/libraries/Makefile.in: * Detect re_comp(), regcomp(), and
+	  <regex.h> (select.c doesn't use the	new HAVE_* yet, this is a
+	  prelude to it).
+
+	  * Set -DNDEBUG for all src/* compiles.
+
+	  * Support maintainer mode (--enable-maintainer-mode) (I got tired
+	  of   having half the world regenerated just because I did a "cvs
+	  update")
+
+	  * Detect tgif, if not found pad.{png,eps} just isn't built
+	  (what's   that for, anyway?)	Prebuilt copies of those should be
+	  checked in   too at some point.
+
+2004-02-03 22:59  djdelorie
+
+	* Makefile.in, aclocal.m4, config.h.in, configure, configure.ac,
+	  README_FILES/Makefile.in, doc/Makefile.am, doc/Makefile.in,
+	  example/Makefile.in, lib/Makefile.in, newlib/Makefile.in,
+	  newlib/2_pin_thru-hole_packages/Makefile.in,
+	  newlib/analog-devices/Makefile.in, newlib/burr-brown/Makefile.in,
+	  newlib/connectors/Makefile.in, newlib/crystal/Makefile.in,
+	  newlib/cypress/Makefile.in, newlib/electro-optics/Makefile.in,
+	  newlib/generic_SMD_packages/Makefile.in,
+	  newlib/headers/Makefile.in, newlib/msp430/Makefile.in,
+	  newlib/not_vetted_ingo/Makefile.in, newlib/sockets/Makefile.in,
+	  newlib/tests/Makefile.in, newlib/toko/Makefile.in,
+	  src/Makefile.am, src/Makefile.in, src/icons/Makefile.in,
+	  src/script/Makefile.in, tools/Makefile.in, tutorial/Makefile.in:
+	  * Detect re_comp(), regcomp(), and <regex.h> (select.c doesn't
+	  use the   new HAVE_* yet, this is a prelude to it).
+
+	  * Set -DNDEBUG for all src/* compiles.
+
+	  * Support maintainer mode (--enable-maintainer-mode) (I got tired
+	  of   having half the world regenerated just because I did a "cvs
+	  update")
+
+	  * Detect tgif, if not found pad.{png,eps} just isn't built
+	  (what's   that for, anyway?)	Prebuilt copies of those should be
+	  checked in   too at some point.
+
+2004-02-03 19:53  djdelorie
+
+	* src/draw.c: Don't assume that an all-ones pixel is white.
+
+2004-02-03 18:28  haceaton
+
+	* src/menu.c: Fixes for hi-res bugs
+
+2004-02-03 18:10  haceaton
+
+	* src/print.c: Changes to the fab drawing for improved clarity and
+	  allows for a an outline route by naming a layer "outline" or
+	  "route"
+
+2004-02-03 00:30  haceaton
+
+	* src/error.c: Added a line count to Message mechanism
+
+2004-02-02 22:08  danmc
+
+	* NEWS: note harry's hi-res changes.
+
+2004-02-01 20:03  haceaton
+
+	* src/: autoroute.c, heap.c, heap.h: More speed-ups for the router
+
+2004-02-01 12:12  haceaton
+
+	* src/print.c: Change gerber drill files to have .cnc suffix and
+	  name the component side output group "front", the solder-side
+	  output "back"
+
+2004-02-01 11:28  haceaton
+
+	* src/: action.c, parse_y.y: A couple of bug fixes for arc handling
+	  in hi-res
+
+2004-01-31 10:35  haceaton
+
+	* src/autoroute.c: More speed-up changes. Limit the intial search
+	  in FindIntersecting
+
+2004-01-31 10:33  haceaton
+
+	* src/rtree.c: Minor comment changes and some tiny tweaks
+
+2004-01-30 22:20  haceaton
+
+	* src/buffer.c: Fix bug in element name mirroring when elements are
+	  created on the solder side
+
+2004-01-30 09:09  haceaton
+
+	* src/main.c: Fix initial screen/offscreen zoom
+
+2004-01-30 09:09  haceaton
+
+	* src/polygon.c: Some Hi-res fixes plus elliminat too close to
+	  polygon concept
+
+2004-01-29 23:34  haceaton
+
+	* src/output.c: Fixed the auto-scroll broken when switched to
+	  hi-res
+
+2004-01-29 23:20  haceaton
+
+	* src/rats.c: Fix bug introduced changing to hi-res
+
+2004-01-29 01:46  haceaton
+
+	* src/: autoroute.c, box.h: More speed ups to the auto-router code.
+	  This is only code streamlining, there is no algorithm change
+
+2004-01-27 23:54  haceaton
+
+	* src/: kdtree.c, kdtree.h: The kdtree has been replaced with rtree
+	  which is faster given the way it is used
+
+2004-01-27 23:48  haceaton
+
+	* src/: rtree.c, rtree.h: rtree for faster rectangle intersection
+	  searching
+
+2004-01-27 23:47  haceaton
+
+	* src/: Makefile.am, Makefile.in, autoplace.c, autoroute.c,
+	  mtspace.c: replaced kd-tree with r-tree for faster auto-routing
+
+2004-01-20 11:15  haceaton
+
+	* src/action.c: Fix for smashing element in place
+
+2004-01-19 17:17  haceaton
+
+	* src/: autoroute.c, heap.h, kdtree.c, kdtree.h: Fixes for
+	  auto-router with hi-res and some speed-ups of its operation
+
+2004-01-19 16:49  haceaton
+
+	* src/find.c: Speed up polygon/polygon intersection testing. The
+	  special case is *all* points inside polygon, not just some points
+	  so only one point need be tested
+
+2004-01-19 14:16  haceaton
+
+	* src/: const.h, data.c, data.h, draw.c, draw.h, file.c, global.h,
+	  macro.h, main.c, menu.c, parse_y.y, pinout.c, set.c, set.h:
+	  Modifications to support arbitrary zoom ratios
+
+2004-01-17 20:08  haceaton
+
+	* src/menu.c: Fix for intermediate zoom levels
+
+2004-01-17 20:05  haceaton
+
+	* globalconst.h, src/Pcb.ad.in, src/data.c, src/draw.c,
+	  src/macro.h, src/output.c, src/parse_y.y, src/set.c: Added some
+	  intermediate zooms, so now it goes by sqrt(2)
+
+2004-01-17 18:07  haceaton
+
+	* src/menu.c: Add menu item to auto-route only selected rats
+
+2004-01-17 18:06  haceaton
+
+	* src/output.c: Increase the minimum size of the panner control
+
+2004-01-17 18:06  haceaton
+
+	* src/main.c: Fix some default sizes for hi-res when no resource
+	  file is available
+
+2004-01-15 15:16  haceaton
+
+	* src/: action.c, action.h, menu.c: Added support to smash an
+	  element in place
+
+2004-01-15 11:17  haceaton
+
+	* src/: action.c, const.h, menu.c, misc.c, set.c: Added Local
+	  reference measurement for line drawing and allow not-overriding
+	  the mark position for moves and line-drawing
+
+2004-01-15 09:21  haceaton
+
+	* src/: Pcb.ad.in, action.c, main.c, set.c, set.h: Fix to keep mode
+	  setting and add a function for moving an object by/to numerical
+	  coordinates
+
+2004-01-13 22:10  haceaton
+
+	* src/: Pcb.ad.in, action.c, command.c, misc.c: Tweaks for
+	  case-insensitive command arguments, keyboard adjust of grid and
+	  fixed a couple of absolute/relative bugs.
+
+2004-01-13 21:24  haceaton
+
+	* src/misc.c: Turned off debugging messages
+
+2004-01-13 21:23  haceaton
+
+	* src/: macro.h, misc.c, output.c: Fixes for several solder-side
+	  viewing bugs introduced with hi-res changes
+
+2004-01-13 00:00  haceaton
+
+	* src/djopt.c: Fixed for new definition of mils for savings report
+
+2004-01-12 23:52  haceaton
+
+	* src/: box.h, mtspace.c: Fix for mtspace coalesce; hi-res requires
+	  floats for area computation
+
+2004-01-10 14:38  haceaton
+
+	* src/: action.c, draw.c, report.c: Fixes for text scaling
+
+2004-01-09 20:23  danmc
+
+	* src/parse_y.y: One more hi-res buglet.  Correct parsing of 'Arc'.
+	  Thanks to Bill Wilson for catching this one.
+
+2004-01-09 07:15  danmc
+
+	* lib/smt.inc: partially undo the last change with respect to
+	  quoting.  Only quote $2.  This keeps the reference designator
+	  from being expanded as desired but lets the Description field get
+	  expanded as desired.
+
+2004-01-08 00:00  haceaton
+
+	* Makefile.in, aclocal.m4, configure, doc/Makefile.in,
+	  lib/Makefile.in, newlib/Makefile.in,
+	  newlib/2_pin_thru-hole_packages/Makefile.in,
+	  newlib/analog-devices/Makefile.in, newlib/burr-brown/Makefile.in,
+	  newlib/connectors/Makefile.in, newlib/crystal/Makefile.in,
+	  newlib/cypress/Makefile.in, newlib/electro-optics/Makefile.in,
+	  newlib/generic_SMD_packages/Makefile.in,
+	  newlib/headers/Makefile.in, newlib/msp430/Makefile.in,
+	  newlib/not_vetted_ingo/Makefile.in, newlib/sockets/Makefile.in,
+	  newlib/tests/Makefile.in, newlib/toko/Makefile.in, src/Pcb.ad.in,
+	  src/action.c, src/main.c, src/misc.c, src/icons/Makefile.in,
+	  src/script/Makefile.in: Fixes for absolute/relative size change.
+	  Also added repeat last typed command and fixed a few hi-res bugs.
+
+2004-01-06 18:53  haceaton
+
+	* src/set.c: Fixed sign display in fractional mil part of crosshair
+
+2004-01-05 20:04  haceaton
+
+	* src/action.c: Fix for Display(Save|Restore)
+
+2004-01-05 18:41  danmc
+
+	* src/print.c: fix generation of fab drawing with the high
+	  resolution changes
+
+2004-01-05 18:40  danmc
+
+	* src/dev_rs274x.c: fix a couple of other bugs related to the high
+	  res changes.	In particular, correct the aperture for the fab
+	  drawing and for the outline.	Also fix up text output.
+
+2004-01-05 17:23  danmc
+
+	* lib/johnstech.inc: Convert to a high resolution footprint.  Pads
+	  are a little more accurate now.
+
+2004-01-05 17:21  danmc
+
+	* src/dev_rs274x.c: correct the aperture definition output lines
+	  and the drill tool definition output lines after the hi-res
+	  change.  Gerber output should be ok again.
+
+2004-01-05 00:00  haceaton
+
+	* src/Pcb.ad.in: fixed missing continuation in scroll commands
+
+2004-01-04 20:40  haceaton
+
+	* configure, configure.ac, globalconst.h, src/Makefile.in,
+	  src/Pcb.ad.in, src/action.c, src/action.h, src/autoplace.c,
+	  src/autoplace.h, src/autoroute.c, src/autoroute.h, src/box.h,
+	  src/buffer.c, src/buffer.h, src/change.c, src/change.h,
+	  src/const.h, src/copy.c, src/copy.h, src/create.c, src/create.h,
+	  src/crosshair.c, src/crosshair.h, src/data.c, src/data.h,
+	  src/dev_ps.c, src/dev_rs274x.c, src/djopt.c, src/djopt.h,
+	  src/draw.c, src/drill.h, src/file.c, src/find.c, src/find.h,
+	  src/global.h, src/gui.c, src/gui.h, src/heap.h, src/insert.c,
+	  src/insert.h, src/intersect.c, src/intersect.h, src/kdtree.c,
+	  src/kdtree.h, src/macro.h, src/main.c, src/menu.c, src/mirror.c,
+	  src/mirror.h, src/misc.c, src/misc.h, src/move.c, src/move.h,
+	  src/mtspace.c, src/mtspace.h, src/netlist.c, src/netlist.h,
+	  src/output.c, src/output.h, src/parse_y.y, src/pinout.c,
+	  src/polygon.c, src/polygon.h, src/print.c, src/print.h,
+	  src/rats.c, src/report.c, src/rotate.c, src/rotate.h,
+	  src/rubberband.c, src/search.c, src/search.h, src/set.c,
+	  src/set.h, src/sizedialog.c, src/undo.c, src/undo.h,
+	  src/vector.h: Many changes to add 0.01 mil resolution
+
+2004-01-02 15:52  haceaton
+
+	* src/change.c: Display pin/pad number when prompting for name
+
+2004-01-02 00:46  haceaton
+
+	* src/draw.c: Minor correction to not attempt to write vertical
+	  null strings
+
+2004-01-02 00:26  danmc
+
+	* doc/refcard.tex: add missing RCS Id
+
+2004-01-02 00:00  danmc
+
+	* src/: autoplace.h, autoroute.h, box.h, djopt.h, drill.h, gui.h,
+	  heap.h, intersect.h, kdtree.h, mtspace.h, netlist.h, vector.h,
+	  autoplace.c, autoroute.c, djopt.c, gui.c, heap.c, intersect.c,
+	  kdtree.c, mtspace.c, netlist.c, rats.c, vector.c: add missing RCS
+	  Id
+
+2004-01-01 15:05  danmc
+
+	* lib/smt.inc: - modify the 2 pad smt base definition to put the
+	  origin of the footprint   at the common centroid.  Useful both
+	  for driving pick and place as noted	in bug report 716519 and
+	  for centering a part on a grid.
+
+	  - while here make sure the $1, $2, and $3 arguments to the
+	  various   macros are properly quoted.  This helps avoid some
+	  obscure bugs	 with generated layouts from gEDA.
+
+2004-01-01 08:30  haceaton
+
+	* src/draw.c: Font metrics need to be outside TO_DRAW() macros
+
+2004-01-01 02:43  danmc
+
+	* lib/smt.inc: fix some quoting
+
+2004-01-01 02:42  danmc
+
+	* lib/amphenol.inc: bump copyright date
+
+2004-01-01 02:42  danmc
+
+	* lib/amphenol.inc: properly pass down the arguments to the
+	  underlying macro for the PKG_AMPHENOL_ARFX123{0,1,2} packages
+
+2003-12-31 23:43  danmc
+
+	* doc/wishlist.txt: add element versioning and database of good
+	  elements
+
+2003-12-31 23:41  danmc
+
+	* doc/wishlist.txt: add a features wish list.  not sure if this is
+	  the best place for such a thing, but for now it'll do.
+
+2003-12-31 14:37  danmc
+
+	* lib/Makefile.in: regen after adding amp library
+
+2003-12-31 14:26  danmc
+
+	* lib/: Makefile.am, amp.inc, common.m4: add Amp connector library.
+	  Currently its populated with the 767054 series of Mictor
+	  connectors.
+
+2003-12-31 00:01  haceaton
+
+	* src/menu.c: Fixed menu selection of metric grids: The
+	  C-preprocessor won't change string literals of course.
+
+2003-12-30 22:41  haceaton
+
+	* src/: Pcb.ad.in, const.h, draw.c, misc.c: Added vertical text
+	  support for pinout descriptions
+
+2003-12-30 22:33  danmc
+
+	* lib/smt.inc: with reverse order numbering in COMMON_SMT_DIL_MIL
+	  and COMMON_SMT_DIL_MM, make sure the pin number matches the pin
+	  name.
+
+2003-12-30 22:03  danmc
+
+	* lib/panasonic.inc: fix typo in a comment
+
+2003-12-30 21:57  danmc
+
+	* lib/: geda.inc, smt.inc: add SC70_3, SC70_4, SC70_5, and SC70_6
+	  footprints (the 3,4,5, and 6 pin SC70 family).
+
+2003-12-30 21:37  danmc
+
+	* lib/to.inc: rename the SOT23 and SOT323 footprints here to
+	  SOT23_CEL and SOT323_CEL to avoid a conflict with the ones
+	  defined in the geda library.	The "CEL" part reflects that the
+	  pin numbering is the one used by CEL which is different from what
+	  others seem to use.
+
+2003-12-30 21:32  danmc
+
+	* lib/Makefile.in: regen after adding panasonic library
+
+2003-12-30 21:30  danmc
+
+	* lib/: Makefile.am, common.m4, panasonic.inc: Add the panasonic
+	  EXB series of chip resistor arrays.
+
+2003-12-30 21:29  danmc
+
+	* lib/smt.inc: deal with SMT DIL packages with an odd number of
+	  pads per side
+
+2003-12-30 20:24  danmc
+
+	* lib/smt.inc: add an extra argument to COMMON_SMT_DIL_MIL and
+	  COMMON_SMT_DIL_MM to allow the pins to go in the reverse order to
+	  deal with some non-standard pinouts like the mini-circuits KK81
+	  package.
+
+2003-12-30 20:05  danmc
+
+	* lib/Makefile.in: regen after adding minicircuits
+
+2003-12-30 20:04  danmc
+
+	* lib/: Makefile.am, common.m4, minicircuits.inc: add several
+	  minicircuits packages
+
+2003-12-30 18:05  danmc
+
+	* lib/Makefile.in: regen after adding bourns library
+
+2003-12-30 18:04  danmc
+
+	* lib/: geda.inc, smt.inc: - add a handful of 3 pin SMT EMI filter
+	  footprints - add US* family of SMT packages.
+
+2003-12-30 18:02  danmc
+
+	* lib/connector.inc: add through hole test point footprint.
+
+2003-12-30 17:59  danmc
+
+	* lib/common.m4: include the bourns library
+
+2003-12-30 17:59  danmc
+
+	* lib/: amphenol.inc, amphenol.list, amphenol.m4: add some more SMA
+	  connectors
+
+2003-12-30 17:58  danmc
+
+	* lib/: Makefile.am, bourns.inc: add bourns 3224G, 3224J, 3224W,
+	  and 3224X trim pots
+
+2003-12-29 23:42  danmc
+
+	* doc/pcb.texi: add note about the dangers of whitespace in .list
+	  files
+
+2003-12-29 23:37  danmc
+
+	* lib/amphenol.m4: correct capitalization for amphenol_ARFX1229
+
+2003-12-29 23:37  danmc
+
+	* lib/amphenol.list: remove extra whitespace at end of ARFX1229
+	  line
+
+2003-12-29 23:13  danmc
+
+	* lib/Makefile.in: regen after adding amphenol library
+
+2003-12-29 23:08  danmc
+
+	* lib/: Makefile.am, amphenol.inc, amphenol.list, amphenol.m4,
+	  common.m4: Add amphenol connectors.  Start out with the ARFX1229
+	  SMA connector.
+
+2003-12-29 23:06  danmc
+
+	* lib/: connector.inc, geda.inc: add MTA100 connectors
+
+2003-12-29 21:18  haceaton
+
+	* src/: action.c, autoplace.c, buffer.c, change.c, copy.c,
+	  create.c, crosshair.c, dev_ps.c, dev_rs274x.c, dialog.c, draw.c,
+	  drill.c, file.c, find.c, library.c, menu.c, mirror.c, misc.c,
+	  move.c, mymem.c, netlist.c, pinout.c, polygon.c, print.c, rats.c,
+	  remove.c, report.c, rotate.c, rubberband.c, search.c, select.c,
+	  set.c, undo.c: Ok, this complete the formating changes. Whew!
+
+2003-12-29 18:40  haceaton
+
+	* src/file.c: Fixed another glitch during format change
+
+2003-12-29 09:24  haceaton
+
+	* src/find.c: Fixed a polygon/polygon intersection bug where a
+	  wrong point index was used
+
+2003-12-29 09:10  haceaton
+
+	* src/file.c: Restored accidentally deleted line during formating
+	  change.
+
+2003-12-28 22:15  haceaton
+
+	* src/: action.c, autoplace.c, buffer.c, change.c, command.c,
+	  control.c, copy.c, create.c, crosshair.c, dev_ps.c, dev_rs274x.c,
+	  dialog.c, draw.c, drill.c, error.c, file.c, fileselect.c, find.c,
+	  gui.c, insert.c, kdtree.c, lgdialog.c, library.c, log.c, main.c,
+	  menu.c, mirror.c, misc.c, move.c, mtspace.c, mymem.c, netlist.c,
+	  output.c, pinout.c, polygon.c, print.c, printdialog.c,
+	  printpanner.c, rats.c, remove.c, report.c, rotate.c,
+	  rubberband.c, search.c, select.c, set.c, sizedialog.c, undo.c,
+	  vector.c: Cleaned up coding formating from long-ago indent
+	  diaster with _LOOP macros.  These should be formating changes
+	  only.
+
+2003-12-28 12:16  haceaton
+
+	* src/: insert.c, polygon.c, remove.c, search.c, search.h, undo.c:
+	  fixed polygon undo bugs; speed-up of undo operations
+
+2003-12-26 15:04  djdelorie
+
+	* src/djopt.c: Use the layer groups to determine which layers are
+	  solder and component.  Fix bugs in check2 and padcleaner where
+	  deleted lines weren't skipped.
+
+2003-12-25 22:33  haceaton
+
+	* src/djopt.c: added undo capability for trace optimizations
+
+2003-12-25 12:22  haceaton
+
+	* src/: autoroute.c, copy.c, dev_rs274x.c, draw.c, find.c, macro.h,
+	  polygon.c, print.c, rubberband.c, undo.c: using macro
+	  LAYER_PTR(n) to go from layer number to pointer.  this simplifies
+	  the code a little bit
+
+2003-12-25 11:27  haceaton
+
+	* src/: move.c, remove.c: simplified ObjectMove undo serial number
+	  handling
+
+2003-12-24 18:58  haceaton
+
+	* src/select.c: fixed bug where null F->Pad could be called (e.g.
+	  change drill size)
+
+2003-12-22 09:13  haceaton
+
+	* src/netlist.c: Both ends of an added rat line must have named
+	  elements
+
+2003-12-22 00:16  haceaton
+
+	* src/: find.c, search.c: Fixed various DRC errors with arcs,
+	  square pads and square pins
+
+2003-12-21 13:58  haceaton
+
+	* src/netlist.c: Disallow drawing rat-lines to unnamed elements;
+	  fixed a problem with netlist window being doubly disposed.
+
+2003-12-19 22:31  danmc
+
+	* lib/smt.inc: add -*- m4 -*-
+
+2003-12-16 22:36  danmc
+
+	* lib/: Makefile.am, Makefile.in, common.m4, gen_list.awk,
+	  gen_m4.awk, johnstech.inc: add footprints for Johnstech
+	  Evaluation Socket for QFN packages Johnstech Socket Part Numbers
+	  724810 through 724839.  Note, the footprint has been checked by
+	  hand but not yet verified through fabrication.
+
+2003-11-30 19:30  danmc
+
+	* configure: regen after -R fix
+
+2003-11-30 19:28  danmc
+
+	* configure.ac: When trying out the various -R, --rpath, etc.
+	  compiler flags, actually try them out instead of just claiming
+	  to.  Addresses part of bug report 850369 filed by Tom Saunders.
+
+2003-11-28 21:00  haceaton
+
+	* src/crosshair.c: Allow snap to line end-points and vias when
+	  off-grid
+
+2003-11-20 13:55  haceaton
+
+	* src/dev_rs274x.c: restored bug fixes that got lost, fixed some
+	  bugs and cleaned the code a little
+
+2003-11-20 10:43  haceaton
+
+	* src/dev_rs274x.c: removed #include <varargs> that accidentally
+	  got in on the last commit
+
+2003-11-19 16:58  haceaton
+
+	* src/: dev_rs274x.c, print.c:
+	  Changed print.c and dev_rs274x.c in order to provide negative
+	  image ground planes for gerber output when possible. Some fab
+	  vendors can't handle or charge extra for composite ground planes
+	  which is the motivation for this.  Negative image planes are made
+	  when (1) There are no lines, arcs, text, or pads on a layer and
+	  (2) There is exactly 1 polygon on the layer and (3) All
+	  vias/holes/pins pierce the polygon. The polygon is then assumed
+	  to consume all of the area and only the thermal reliefs and
+	  pin/via clearances are needed. haceaton 11/19/03
+
+2003-11-13 04:18  danmc
+
+	* doc/Makefile.in: regen
+
+2003-11-13 04:13  danmc
+
+	* doc/Makefile.am: add rules for creating postscript and png from a
+	  tgif drawing.  Needed for improved docs.
+
+2003-11-13 04:06  danmc
+
+	* config.h.in: regen after adding Xpm check
+
+2003-11-13 04:01  danmc
+
+	* src/print.c: Change how the polarity of the soldermask relief
+	  layer is handled.  The polarity is not changed but it now
+	  correctly works for postscript output as well as gerber output.
+	  Previously the postscript output produced white on a white
+	  background or black on a black background.  This addresses PR
+	  825680 filed by Russ Dill.
+
+2003-11-08 00:12  danmc
+
+	* configure.ac, configure: use AC_PATH_PROGS to search through a
+	  list of candidates for wish
+
+2003-11-07 22:35  danmc
+
+	* configure, src/Makefile.in, src/script/Makefile.in: regen after
+	  moving the pcb script to a subdirectory.
+
+2003-11-07 22:31  danmc
+
+	* configure.ac, src/Makefile.am, src/pcb.in,
+	  src/script/Makefile.am, src/script/pcb.in: move the pcb script to
+	  a subdirectory to avoid name conflicts with the Pcb application
+	  default file on systems such as cygwin that are not case
+	  sensitive.
+
+2003-11-07 22:06  danmc
+
+	* configure.ac, configure: search for libXpm which is needed on
+	  cygwin libXaw
+
+2003-11-07 19:05  danmc
+
+	* configure.ac, configure: add a few more variants of wish (wish83,
+	  cygwish80, etc) to search for
+
+2003-10-15 19:54  danmc
+
+	* src/dev_rs274x.c: fix two bugs related to gerber file generation.
+	   The first bug is triggered when the first aperture used in a
+	  file is the same as the last aperture used in the previous file.
+	  In this case the aperture selection code is missing from the
+	  output file.
+
+	  The second bug is when the first point drawn has its Y coordinate
+	  (in PCB coordinates) equal to zero.  The output will be at gerber
+	  Y coordinate zero which is on the opposite side of the board.
+
+	  Thanks to Gabriel Paubert (paubert at iram dot es) for noting
+	  these bugs and supplying a patch.
+
+2003-10-12 23:37  danmc
+
+	* src/report.c: correct the reporting of soldermask relief for pads
+	  and via's.  Patch provided by Gabriel Paubert, paubert at iram
+	  dot es on the geda-dev mailing list.
+
+2003-10-11 00:43  danmc
+
+	* src/report.c: show pad names in object report.  patch supplied in
+	  bug report 787711 by Olof Tangrot.
+
+2003-10-10 23:35  danmc
+
+	* src/: cmask.grb, cpaste.grb, csilk.grb, pdrill.grb, smask.grb,
+	  spaste.grb, ssilk.grb, udrill.grb: remove some output files which
+	  should have never been in CVS.
+
+2003-10-02 20:04  danmc
+
+	* lib/Makefile.in: regen after qfn.inc additions
+
+2003-10-02 20:02  danmc
+
+	* lib/: Makefile.am, common.m4, geda.inc, qfn.inc: add 60 members
+	  of the Quad Flat No-lead (QFN) package family.  Based on package
+	  drawings downloaded from www.maxim-ic.com and Intersil technical
+	  brief TB389.1 "PCB Land Pattern Desugn and Surface Mount
+	  Guidelines for QFN (MLFP) Packages".
+
+2003-10-01 07:20  danmc
+
+	* doc/: Xdefaults.tgif, pad.obj: add a figure to help with
+	  describing the pads.	Also add an Xresources file needed to
+	  convert the tgif drawing to png
+
+2003-09-30 19:50  danmc
+
+	* doc/pcb.texi: update copyright for last changes
+
+2003-09-30 19:41  danmc
+
+	* configure, example/Makefile.in, example/libraries/Makefile.in:
+	  regen after example/libraries addition
+
+2003-09-30 19:38  danmc
+
+	* configure.ac, example/Makefile.am: add example/libraries/Makefile
+
+2003-09-30 19:32  danmc
+
+	* doc/pcb.texi, example/libraries/Makefile.am,
+	  example/libraries/example.inc, example/libraries/example.list,
+	  example/libraries/example.m4: Add two new chapters to the manual.
+	  The first attempts to provide some more documentation about
+	  library creation.  It includes a complete example of adding
+	  footprints using M4 style libraries as well as giving
+	  instructions on creating newlib style footprints.  The second
+	  added chapter shows how to take a design from start to finish
+	  using gEDA as the schematic capture and PCB as the layout tool.
+	  This chapter still needs work, but early feedback is good and its
+	  better than no documentation.
+
+2003-09-02 23:18  djdelorie
+
+	* src/: dev_ps.c, dev_rs274x.c, draw.c, drill.c, print.c, report.c:
+	  Add FAB drawing page.  Use thinner traces for larger fonts.
+
+2003-09-02 22:08  danmc
+
+	* aclocal.m4, configure: regen
+
+2003-09-02 22:06  danmc
+
+	* acinclude.m4, configure.ac: don't hardcode -lXaw in the FUNCPROTO
+	  and related tests.
+
+2003-09-02 21:50  danmc
+
+	* configure: regen
+
+2003-09-02 21:49  danmc
+
+	* configure.ac: add a --with-xaw= option that lets you select an
+	  alternative to Xaw.  For example, --with-xaw=Xaw3d will search
+	  for the Xaw3d library.
+
+2003-09-02 20:21  danmc
+
+	* doc/pcb.texi: add brief section about the trace optimizer.
+
+2003-08-31 19:10  danmc
+
+	* lib/geda.inc: change 'Square' to 'Rectangular' to the comment for
+	  the rectangular QFP section.
+
+2003-08-29 20:26  danmc
+
+	* lib/: gen_geda_list.awk, gen_geda_m4.awk: remove the lines which
+	  tried to copy the source file RCS Id to the generated files.	CVS
+	  broke this feature by expanding keywords on me.
+
+2003-08-29 20:21  danmc
+
+	* lib/: geda.list, geda.m4: these files are autogenerated now
+
+2003-08-29 20:17  danmc
+
+	* lib/: geda.inc, qfpdj.inc: rework the QFP packages fixing several
+	  bugs and greatly expanding the footprint database.  Patches
+	  supplied in bug report 785400 by Wojciech Kazubski.  Many thanks
+	  for the contribution!
+
+2003-08-29 20:12  danmc
+
+	* lib/common.m4: add qfpdj.inc to the include list
+
+2003-08-29 20:12  danmc
+
+	* lib/CreateLibraryContents.sh.in: when given a -I flag, look both
+	  there and the current directory for .list files.   Needed for
+	  building outside the source tree directory.
+
+2003-08-29 20:11  danmc
+
+	* lib/: Makefile.am, Makefile.in, gen_geda_list.awk,
+	  gen_geda_m4.awk: add scripts which autogenerate geda.m4 and
+	  geda.list from geda.inc.
+
+2003-08-26 06:48  danmc
+
+	* lib/: geda.inc, geda.list, geda.m4, plcc.inc: Add 20,28,32 pin
+	  PLCC footprints, both unsocketed and socketed (through hole).
+	  Provided in bug report 777539 by Troy Jacobson.
+
+2003-08-23 00:41  djdelorie
+
+	* src/djopt.c: Support however many layers are configured.
+
+2003-08-16 16:01  danmc
+
+	* doc/pcb.texi: add info-dir entry
+
+2003-08-16 15:52  danmc
+
+	* newlib/2_pin_thru-hole_packages/Makefile.in: regen
+
+2003-08-16 15:37  danmc
+
+	* newlib/2_pin_thru-hole_packages/Makefile.am: Makefile.am is not a
+	  library component so do not install it as one
+
+2003-08-14 21:07  danmc
+
+	* README.snapshots: add a note on creating snapshots
+
+2003-08-14 20:42  danmc
+
+	* doc/pcb.texi: add DJ and myself
+
+2003-08-14 07:01  danmc
+
+	* lib/: lsi.list, lsi.m4: Remove extra space in one of the pin
+	  names in AT90S2313_dil and add missing AT90S4434_dil
+	  AT90S8535_dil AT90S8535_plcc.  Patch provided in bug report
+	  770829 by Daniel Mooney (dbmk).
+
+2003-08-06 08:10  danmc
+
+	* lib/texas_inst_voltage_reg.m4: fix parse error on uA7952C.  Patch
+	  provided in bug report 770829 by Daniel Mooney (dbmk).
+
+2003-08-05 05:38  danmc
+
+	* lib/texas_inst_amplifier.m4: fix parse errors in TL083 and ua747.
+	  Patch provided in bug report 770829 by Daniel Mooney (dbmk).
+
+2003-08-05 05:18  danmc
+
+	* lib/jerry.m4: fix parse errors on DS1225 and DS1230.	Patch
+	  provided in bug report 770829 by Daniel Mooney (dbmk).
+
+2003-07-24 22:12  djdelorie
+
+	* src/djopt.c: second dummy commit
+
+2003-07-24 20:22  djdelorie
+
+	* src/djopt.c: Dummy commit to test log messages
+
+2003-07-20 15:58  danmc
+
+	* README.cvs: note that autoconf 2.13 is not new enough and mention
+	  how to get the version
+
+2003-07-19 23:04  djdelorie
+
+	* src/dev_rs274x.c: polygon fills must have a defined aperture also
+
+2003-07-19 22:39  djdelorie
+
+	* src/: dev_rs274x.c, print.c: Solder mask layers are reliefs and
+	  normally are positive prints.  Support inverted gerber plots.
+
+2003-07-06 20:22  djdelorie
+
+	* src/dev_rs274x.c: Properly scale outline and alignment.  Add
+	  segment to alignment to act as registration.
+
+2003-07-06 12:39  djdelorie
+
+	* src/report.c: Sort drill report by hole size, list total hole
+	  count.
+
+2003-07-02 09:33  djdelorie
+
+	* src/djopt.c: Fix off-by-one bug in handling bloat.  Be more
+	  careful about cleaning up traces within pads.
+
+2003-07-01 12:27  djdelorie
+
+	* src/sizedialog.c: The minimum size of a board should never be
+	  more than the current actual size of the board.
+
+2003-06-25 19:48  djdelorie
+
+	* src/: Pcb.ad.in, change.c: Automatically set CLEARLINEFLAG if the
+	  user modifies the clearance.	Add keys for changing clearance by
+	  selection instead of pointer.
+
+2003-06-22 13:06  djdelorie
+
+	* src/Makefile.in: Regenerate with djopt.c
+
+2003-06-22 13:02  djdelorie
+
+	* src/: action.c, const.h, crosshair.c, menu.c: Add orthogonal move
+	  feature
+
+2003-06-22 12:51  djdelorie
+
+	* src/: Pcb.ad.in, action.c, const.h, draw.c, menu.c: Add Thindraw
+
+2003-06-22 00:34  djdelorie
+
+	* src/: Makefile.am, Pcb.ad.in, djopt.c, djopt.h, main.c, menu.c:
+	  Add trace optimizer.
+
+2003-06-13 19:52  danmc
+
+	* Makefile.in, aclocal.m4, config.h.in, configure, depcomp: add
+	  automake/conf output to make it easier for users to build
+
+2003-06-13 19:42  danmc
+
+	* README_FILES/Makefile.in, doc/Makefile.in, example/Makefile.in,
+	  lib/Makefile.in, newlib/2_pin_thru-hole_packages/Makefile.in,
+	  newlib/analog-devices/Makefile.in, newlib/burr-brown/Makefile.in,
+	  newlib/connectors/Makefile.in, newlib/crystal/Makefile.in,
+	  newlib/cypress/Makefile.in, newlib/electro-optics/Makefile.in,
+	  newlib/generic_SMD_packages/Makefile.in,
+	  newlib/headers/Makefile.in, newlib/Makefile.in,
+	  newlib/msp430/Makefile.in, newlib/not_vetted_ingo/Makefile.in,
+	  newlib/sockets/Makefile.in, newlib/tests/Makefile.in,
+	  newlib/toko/Makefile.in, src/icons/Makefile.in, src/Makefile.in,
+	  tools/Makefile.in, tutorial/Makefile.in: add the automake/conf
+	  generated files to make building from CVS sources easier for
+	  people.
+
+2003-06-13 19:14  danmc
+
+	* src/error.c: only declare sys_nerr if we're using the sys_errlist
+	  interface.  This fixes compilation on NetBSD/alpha using gcc-3.3.
+
+2003-06-13 19:10  danmc
+
+	* src/dev_rs274x.c: remove unused varargs.h header which breaks
+	  gcc-3.3 compilation
+
+2003-06-05 06:48  danmc
+
+	* src/: action.c, menu.c: Allow '=' at the beginning of the zoom
+	  exponent to indicate an absolute number rather than a relative
+	  number.  This lets a value of "=-2" be used to indicate an
+	  absolute -2 while "-2" still indicates a relative -2.  Also
+	  correct the position of the check mark on the zoom menu.
+
+	  Patch from DJ Delorie.
+
+2003-05-26 19:45  danmc
+
+	* src/: file.c, fileselect.c, misc.c, misc.h: Fix a bug in the way
+	  the current working directory is found.  This caused the file
+	  dialog box to always start in the library tree directory.
+
+	  In addition add a loop in ParseLibraryTree() to allow multiple
+	  newlib style directory tree's to be specified in the Xresource.
+	  This provides an easy way to have per-user and per-project
+	  library directories.	These directories may either be specified
+	  as an absolute or relative path.
+
+	  Patches provided by Tony (droghedra at users dot sourceforge dot
+	  net) in bug report 736010 with minor changes by me.
+
+2003-05-22 17:51  danmc
+
+	* lib/Makefile.am: add missing rules.inc
+
+2003-05-22 07:31  danmc
+
+	* src/menu.c: add 2 more levels of zooming to the menu.  Inspired
+	  by an email from DJ Delorie on the gEDA mailing list.
+
+2003-05-20 20:39  danmc
+
+	* src/parse_l.l: change yy_current_buffer to YY_CURRENT_BUFFER.
+	  This addresses the build \ problem reported in bug 734403 and
+	  also agrees with the man page for \ flex-2.5.4.\ \ In addition
+	  add a %option yylineno to address part of bug 736010\ where the
+	  line number associated with a parse error is incorrectly\
+	  displayed as 1. \
+
+2003-05-20 07:50  danmc
+
+	* lib/common.m4: add missing bga.inc and resistor_adjust.inc
+	  included.  The latter addresses part of bug report 734403.
+
+2003-03-17 06:50  danmc
+
+	* src/.output.h.swp: remove spurious file which should not have
+	  been imported.  Noted by  Mark Becker.
+
+2003-03-17 06:16  danmc
+
+	* ...: remove spurious file which should not have been imported.
+	  Noted by Mark Becker.
+
+2003-03-04 21:17  danmc
+
+	* src/error.c: if strerror() is present on our system then use it
+	  instead of trying to use sys_errlist.  Patch from harry, with the
+	  check for strerror from me.
+
+2003-03-04 21:11  danmc
+
+	* configure.ac: move the strerror test up in the configure process
+	  so we don't need to link to the X libraries for the test.
+
+2003-03-04 20:58  danmc
+
+	* configure.ac: add check for strerror()
+
+2003-02-24 07:18  danmc
+
+	* src/autoroute.c: when checking for a NULL pointer compare to NULL
+	  rather than 0 for enhanced portability.
+
+2003-02-20 21:14  danmc
+
+	* configure.ac: bump to 1.99o since a 1.99n version was posted to
+	  the geda list.  We should avoid further updates to this version
+	  number until a release.  If users want snapshots, they can get
+	  them from CVS.
+
+2003-02-20 21:10  danmc
+
+	* src/kdtree.c: change c++ style comments to c style and remove the
+	  use of non-static initializers to allow the SunPRO c compiler to
+	  be able to compile this file.
+
+2003-02-20 21:05  danmc
+
+	* src/autoroute.c: coding style fixes to allow this to be compiled
+	  with the SunPRO c compiler.  Changes are moving from c++ style
+	  comments to c style comments and getting rid of non-static
+	  initializers.
+
+2003-02-20 20:40  danmc
+
+	* README.cvs: - add section on checking out via anoncvs and
+	  updating via anoncvs.
+
+	  - point to INSTALL document for what to do afte bootstrapping the
+	  auto*   tools
+
+2003-02-20 05:26  danmc
+
+	* doc/: Imakefile, pcb.texi.in, pcb.texi.raw, refcard.tex.in,
+	  refcard.tex.raw: remove obsolete files
+
+2003-02-20 05:19  danmc
+
+	* lib/newlib.tgz: remove obsolete file (the contents live in
+	  pcb/newlib/ now
+
+2003-02-20 05:18  danmc
+
+	* lib/: CreateLibrary.sh.raw, CreateLibraryContents.sh.raw,
+	  Imakefile, QueryLibrary.sh.raw: remove obsolete files
+
+2003-02-19 20:00  danmc
+
+	* src/: CreateSedScript.sh, Imakefile: remove obsolete files
+
+2003-02-19 19:46  danmc
+
+	* src/: 1.grb, 2.grb, 3.grb, 4.grb, 5.grb: remove unneeded output
+	  files
+
+2003-02-19 19:22  danmc
+
+	* AUTHORS, ..., COPYING, ChangeLog, INSTALL, Makefile.am, NEWS,
+	  README, README.cvs, acinclude.m4, autogen.sh, configure.ac,
+	  globalconst.h, install-sh, missing, mkinstalldirs,
+	  README_FILES/CHANGES, README_FILES/INSTALL, README_FILES/LICENSE,
+	  README_FILES/MAILING, README_FILES/Makefile.am,
+	  README_FILES/README, README_FILES/Tools,
+	  README_FILES/Whats_new_in_2.0, doc/Imakefile, doc/Makefile.am,
+	  doc/mdate-sh, doc/pcb.man.in, doc/pcb.man.raw, doc/pcb.texi,
+	  doc/pcb.texi.in, doc/pcb.texi.raw, doc/refcard.tex,
+	  doc/refcard.tex.in, doc/refcard.tex.raw, doc/texinfo.tex,
+	  example/LED.NET, example/LED, example/Makefile.am, example/LED2,
+	  lib/CreateLibrary.sh.in, lib/CreateLibrary.sh.raw,
+	  lib/CreateLibraryContents.sh.in,
+	  lib/CreateLibraryContents.sh.raw, lib/Imakefile,
+	  lib/ListLibraryContents.sh, lib/Makefile.am,
+	  lib/QueryLibrary.sh.in, lib/QueryLibrary.sh.raw,
+	  lib/TTL_74xx_DIL.list, lib/TTL_74xx_DIL.m4, lib/bga.inc,
+	  lib/common.m4, lib/connector.inc, lib/connector.list,
+	  lib/connector.m4, lib/crystal.list, lib/crystal.m4, lib/dil.inc,
+	  lib/geda.inc, lib/geda.list, lib/geda.m4, lib/generic.list,
+	  lib/generic.m4, lib/genericsmt.inc, lib/genericsmt.list,
+	  lib/genericsmt.m4, lib/gtag.list, lib/gtag.m4, lib/jerry.list,
+	  lib/jerry.m4, lib/linear.list, lib/linear.m4, lib/logic.list,
+	  lib/logic.m4, lib/lsi.list, lib/lsi.m4, lib/memory.list,
+	  lib/memory.m4, lib/misc.inc, lib/newlib.tgz, lib/optical.list,
+	  lib/optical.m4, lib/pci.inc, lib/pci.list, lib/pci.m4,
+	  lib/plcc.inc, lib/qfp-ui.in, lib/qfp.dat, lib/qfp.inc,
+	  lib/qfp2.inc, lib/qfpdj.inc, lib/resistor_0.25W.list,
+	  lib/resistor_0.25W.m4, lib/resistor_adjust.inc,
+	  lib/resistor_adjust.list, lib/resistor_adjust.m4,
+	  lib/resistor_array.list, lib/resistor_array.m4, lib/rules.inc,
+	  lib/smt.inc, lib/texas_inst_amplifier.list,
+	  lib/texas_inst_amplifier.m4, lib/texas_inst_voltage_reg.list,
+	  lib/texas_inst_voltage_reg.m4, lib/to.inc, lib/transistor.list,
+	  lib/transistor.m4, lib/zif.inc, newlib/Makefile.am,
+	  newlib/2_pin_thru-hole_packages/0.125W_Carbon_Resistor,
+	  newlib/2_pin_thru-hole_packages/1W_Carbon_Resistor,
+	  newlib/2_pin_thru-hole_packages/CK05_type_Capacitor,
+	  newlib/2_pin_thru-hole_packages/CK06_type_capacitor,
+	  newlib/2_pin_thru-hole_packages/IRU1015-33CT_3.3V_reg_TO220,
+	  newlib/2_pin_thru-hole_packages/Makefile.am,
+	  newlib/2_pin_thru-hole_packages/RN55_type_0.1W_Resistor,
+	  newlib/2_pin_thru-hole_packages/T1.75_LED,
+	  newlib/analog-devices/ADC12138CIMSA,
+	  newlib/analog-devices/Makefile.am, newlib/burr-brown/Makefile.am,
+	  newlib/burr-brown/OPA340_SOT23-5, newlib/connectors/100_Pin_jack,
+	  newlib/connectors/16x1_SMD_jack,
+	  newlib/connectors/3terminal_screw_block,
+	  newlib/connectors/72pin45degreeSIMMconnector,
+	  newlib/connectors/MOLEX_miniFitJr-12pin,
+	  newlib/connectors/Makefile.am, newlib/connectors/Power_Jack,
+	  newlib/connectors/RightAngleSMA,
+	  newlib/connectors/SJ-3523-SMT_3.5mm_stereo_jack,
+	  newlib/crystal/CTX169_oscillator, newlib/crystal/Makefile.am,
+	  newlib/cypress/Makefile.am,
+	  newlib/electro-optics/IRF_optical_switch,
+	  newlib/electro-optics/Makefile.am,
+	  newlib/generic_SMD_packages/0805_reflow_solder,
+	  newlib/generic_SMD_packages/0805_wave_solder,
+	  newlib/generic_SMD_packages/1206_reflow_solder,
+	  newlib/generic_SMD_packages/Makefile.am,
+	  newlib/generic_SMD_packages/SOT-23_Transistor,
+	  newlib/headers/0.1_inch_10pin, newlib/headers/0.1_inch_2pin,
+	  newlib/headers/2mm_8pin_header, newlib/headers/Makefile.am,
+	  newlib/msp430/MSP430F1121, newlib/msp430/MSP430F1121+jtag,
+	  newlib/msp430/Makefile.am, newlib/not_vetted_ingo/Makefile.am,
+	  newlib/not_vetted_ingo/pc104+.ele,
+	  newlib/not_vetted_ingo/pc104.ele,
+	  newlib/not_vetted_ingo/pq100.ele,
+	  newlib/not_vetted_ingo/pq128.ele,
+	  newlib/not_vetted_ingo/pq144.ele,
+	  newlib/not_vetted_ingo/pq160.ele,
+	  newlib/not_vetted_ingo/pq208.ele,
+	  newlib/not_vetted_ingo/pq240.ele,
+	  newlib/not_vetted_ingo/pq304.ele,
+	  newlib/not_vetted_ingo/pq32.ele, newlib/not_vetted_ingo/pq44.ele,
+	  newlib/not_vetted_ingo/smt0402.ele,
+	  newlib/not_vetted_ingo/smt0603.ele,
+	  newlib/not_vetted_ingo/smt0805.ele,
+	  newlib/not_vetted_ingo/smt1206.ele,
+	  newlib/not_vetted_ingo/smt1210.ele,
+	  newlib/not_vetted_ingo/smt1913.ele,
+	  newlib/not_vetted_ingo/smt2416.ele, newlib/sockets/Makefile.am,
+	  newlib/tests/14DIP_oval_pad, newlib/tests/Generic_TSOP48_Flash,
+	  newlib/tests/MONOBLOCK_large, newlib/tests/Makefile.am,
+	  newlib/tests/StrongARM_CPU, newlib/tests/TK11950,
+	  newlib/tests/TO99fromLED, newlib/tests/UART,
+	  newlib/tests/monoblock_small, newlib/toko/Makefile.am,
+	  src/smask.grb, src/.output.h.swp, src/1.grb, src/2.grb,
+	  src/3.grb, src/4.grb, src/5.grb, src/CreateSedScript.sh,
+	  src/Imakefile, src/Makefile.am, src/Pcb.ad.in, src/Pcb.ad.raw,
+	  src/Pcb.ad.small, src/action.c, src/action.h, src/autoplace.c,
+	  src/autoplace.h, src/autoroute.c, src/autoroute.h, src/box.h,
+	  src/buffer.c, src/buffer.h, src/change.c, src/change.h,
+	  src/check_icon.data, src/cmask.grb, src/set.h, src/command.c,
+	  src/command.h, src/const.h, src/control.c, src/control.h,
+	  src/copy.c, src/copy.h, src/cpaste.grb, src/create.c,
+	  src/create.h, src/crosshair.c, src/crosshair.h, src/csilk.grb,
+	  src/data.c, src/data.h, src/default_font, src/dev_ps.c,
+	  src/dev_ps.h, src/dev_rs274x.c, src/dev_rs274x.h, src/dialog.c,
+	  src/dialog.h, src/draw.c, src/draw.h, src/drill.c, src/drill.h,
+	  src/error.c, src/error.h, src/file.c, src/file.h,
+	  src/fileselect.c, src/fileselect.h, src/find.c, src/find.h,
+	  src/global.h, src/gui.c, src/gui.h, src/heap.c, src/heap.h,
+	  src/icon.data, src/insert.c, src/insert.h, src/intersect.c,
+	  src/intersect.h, src/kdtree.c, src/kdtree.h, src/lgdialog.c,
+	  src/lgdialog.h, src/library.c, src/library.h, src/log.c,
+	  src/log.h, src/macro.h, src/main.c, src/menu.c, src/menu.h,
+	  src/mirror.c, src/mirror.h, src/misc.c, src/misc.h,
+	  src/mode_icon.data, src/move.c, src/move.h, src/mtspace.c,
+	  src/mtspace.h, src/mymem.c, src/mymem.h, src/netlist.c,
+	  src/netlist.h, src/output.c, src/output.h, src/parse_l.h,
+	  src/parse_l.l, src/parse_y.y, src/pcb.in, src/pcbtest.sh.in,
+	  src/pdrill.grb, src/pinout.c, src/pinout.h, src/polygon.c,
+	  src/polygon.h, src/print.c, src/print.h, src/printdialog.c,
+	  src/printdialog.h, src/printpanner.c, src/printpanner.h,
+	  src/rats.c, src/rats.h, src/remove.c, src/remove.h, src/report.c,
+	  src/report.h, src/rotate.c, src/rotate.h, src/rubberband.c,
+	  src/rubberband.h, src/search.c, src/search.h, src/select.c,
+	  src/select.h, src/selector.c, src/selector.h, src/set.c,
+	  src/sizedialog.c, src/sizedialog.h, src/spaste.grb,
+	  src/ssilk.grb, src/udrill.grb, src/undo.c, src/undo.h,
+	  src/vector.c, src/vector.h, src/icons/Makefile.am,
+	  src/icons/hand.dat, src/icons/hcurs.dat, src/icons/lcurs.dat,
+	  src/icons/lock.dat, tools/Makefile.am, tools/MergePCBPS,
+	  tools/PCB2HPGL, tools/apctools.zip, tools/gerbertotk.c,
+	  tools/pcb2ncap.tgz, tools/tgo2pcb.tcl, tutorial/Makefile.am,
+	  tutorial/tut1.pcb: Initial revision
+
+2003-02-19 19:22  danmc
+
+	* AUTHORS, ..., COPYING, ChangeLog, INSTALL, Makefile.am, NEWS,
+	  README, README.cvs, acinclude.m4, autogen.sh, configure.ac,
+	  globalconst.h, install-sh, missing, mkinstalldirs,
+	  README_FILES/CHANGES, README_FILES/INSTALL, README_FILES/LICENSE,
+	  README_FILES/MAILING, README_FILES/Makefile.am,
+	  README_FILES/README, README_FILES/Tools,
+	  README_FILES/Whats_new_in_2.0, doc/Imakefile, doc/Makefile.am,
+	  doc/mdate-sh, doc/pcb.man.in, doc/pcb.man.raw, doc/pcb.texi,
+	  doc/pcb.texi.in, doc/pcb.texi.raw, doc/refcard.tex,
+	  doc/refcard.tex.in, doc/refcard.tex.raw, doc/texinfo.tex,
+	  example/LED.NET, example/LED, example/Makefile.am, example/LED2,
+	  lib/CreateLibrary.sh.in, lib/CreateLibrary.sh.raw,
+	  lib/CreateLibraryContents.sh.in,
+	  lib/CreateLibraryContents.sh.raw, lib/Imakefile,
+	  lib/ListLibraryContents.sh, lib/Makefile.am,
+	  lib/QueryLibrary.sh.in, lib/QueryLibrary.sh.raw,
+	  lib/TTL_74xx_DIL.list, lib/TTL_74xx_DIL.m4, lib/bga.inc,
+	  lib/common.m4, lib/connector.inc, lib/connector.list,
+	  lib/connector.m4, lib/crystal.list, lib/crystal.m4, lib/dil.inc,
+	  lib/geda.inc, lib/geda.list, lib/geda.m4, lib/generic.list,
+	  lib/generic.m4, lib/genericsmt.inc, lib/genericsmt.list,
+	  lib/genericsmt.m4, lib/gtag.list, lib/gtag.m4, lib/jerry.list,
+	  lib/jerry.m4, lib/linear.list, lib/linear.m4, lib/logic.list,
+	  lib/logic.m4, lib/lsi.list, lib/lsi.m4, lib/memory.list,
+	  lib/memory.m4, lib/misc.inc, lib/newlib.tgz, lib/optical.list,
+	  lib/optical.m4, lib/pci.inc, lib/pci.list, lib/pci.m4,
+	  lib/plcc.inc, lib/qfp-ui.in, lib/qfp.dat, lib/qfp.inc,
+	  lib/qfp2.inc, lib/qfpdj.inc, lib/resistor_0.25W.list,
+	  lib/resistor_0.25W.m4, lib/resistor_adjust.inc,
+	  lib/resistor_adjust.list, lib/resistor_adjust.m4,
+	  lib/resistor_array.list, lib/resistor_array.m4, lib/rules.inc,
+	  lib/smt.inc, lib/texas_inst_amplifier.list,
+	  lib/texas_inst_amplifier.m4, lib/texas_inst_voltage_reg.list,
+	  lib/texas_inst_voltage_reg.m4, lib/to.inc, lib/transistor.list,
+	  lib/transistor.m4, lib/zif.inc, newlib/Makefile.am,
+	  newlib/2_pin_thru-hole_packages/0.125W_Carbon_Resistor,
+	  newlib/2_pin_thru-hole_packages/1W_Carbon_Resistor,
+	  newlib/2_pin_thru-hole_packages/CK05_type_Capacitor,
+	  newlib/2_pin_thru-hole_packages/CK06_type_capacitor,
+	  newlib/2_pin_thru-hole_packages/IRU1015-33CT_3.3V_reg_TO220,
+	  newlib/2_pin_thru-hole_packages/Makefile.am,
+	  newlib/2_pin_thru-hole_packages/RN55_type_0.1W_Resistor,
+	  newlib/2_pin_thru-hole_packages/T1.75_LED,
+	  newlib/analog-devices/ADC12138CIMSA,
+	  newlib/analog-devices/Makefile.am, newlib/burr-brown/Makefile.am,
+	  newlib/burr-brown/OPA340_SOT23-5, newlib/connectors/100_Pin_jack,
+	  newlib/connectors/16x1_SMD_jack,
+	  newlib/connectors/3terminal_screw_block,
+	  newlib/connectors/72pin45degreeSIMMconnector,
+	  newlib/connectors/MOLEX_miniFitJr-12pin,
+	  newlib/connectors/Makefile.am, newlib/connectors/Power_Jack,
+	  newlib/connectors/RightAngleSMA,
+	  newlib/connectors/SJ-3523-SMT_3.5mm_stereo_jack,
+	  newlib/crystal/CTX169_oscillator, newlib/crystal/Makefile.am,
+	  newlib/cypress/Makefile.am,
+	  newlib/electro-optics/IRF_optical_switch,
+	  newlib/electro-optics/Makefile.am,
+	  newlib/generic_SMD_packages/0805_reflow_solder,
+	  newlib/generic_SMD_packages/0805_wave_solder,
+	  newlib/generic_SMD_packages/1206_reflow_solder,
+	  newlib/generic_SMD_packages/Makefile.am,
+	  newlib/generic_SMD_packages/SOT-23_Transistor,
+	  newlib/headers/0.1_inch_10pin, newlib/headers/0.1_inch_2pin,
+	  newlib/headers/2mm_8pin_header, newlib/headers/Makefile.am,
+	  newlib/msp430/MSP430F1121, newlib/msp430/MSP430F1121+jtag,
+	  newlib/msp430/Makefile.am, newlib/not_vetted_ingo/Makefile.am,
+	  newlib/not_vetted_ingo/pc104+.ele,
+	  newlib/not_vetted_ingo/pc104.ele,
+	  newlib/not_vetted_ingo/pq100.ele,
+	  newlib/not_vetted_ingo/pq128.ele,
+	  newlib/not_vetted_ingo/pq144.ele,
+	  newlib/not_vetted_ingo/pq160.ele,
+	  newlib/not_vetted_ingo/pq208.ele,
+	  newlib/not_vetted_ingo/pq240.ele,
+	  newlib/not_vetted_ingo/pq304.ele,
+	  newlib/not_vetted_ingo/pq32.ele, newlib/not_vetted_ingo/pq44.ele,
+	  newlib/not_vetted_ingo/smt0402.ele,
+	  newlib/not_vetted_ingo/smt0603.ele,
+	  newlib/not_vetted_ingo/smt0805.ele,
+	  newlib/not_vetted_ingo/smt1206.ele,
+	  newlib/not_vetted_ingo/smt1210.ele,
+	  newlib/not_vetted_ingo/smt1913.ele,
+	  newlib/not_vetted_ingo/smt2416.ele, newlib/sockets/Makefile.am,
+	  newlib/tests/14DIP_oval_pad, newlib/tests/Generic_TSOP48_Flash,
+	  newlib/tests/MONOBLOCK_large, newlib/tests/Makefile.am,
+	  newlib/tests/StrongARM_CPU, newlib/tests/TK11950,
+	  newlib/tests/TO99fromLED, newlib/tests/UART,
+	  newlib/tests/monoblock_small, newlib/toko/Makefile.am,
+	  src/smask.grb, src/.output.h.swp, src/1.grb, src/2.grb,
+	  src/3.grb, src/4.grb, src/5.grb, src/CreateSedScript.sh,
+	  src/Imakefile, src/Makefile.am, src/Pcb.ad.in, src/Pcb.ad.raw,
+	  src/Pcb.ad.small, src/action.c, src/action.h, src/autoplace.c,
+	  src/autoplace.h, src/autoroute.c, src/autoroute.h, src/box.h,
+	  src/buffer.c, src/buffer.h, src/change.c, src/change.h,
+	  src/check_icon.data, src/cmask.grb, src/set.h, src/command.c,
+	  src/command.h, src/const.h, src/control.c, src/control.h,
+	  src/copy.c, src/copy.h, src/cpaste.grb, src/create.c,
+	  src/create.h, src/crosshair.c, src/crosshair.h, src/csilk.grb,
+	  src/data.c, src/data.h, src/default_font, src/dev_ps.c,
+	  src/dev_ps.h, src/dev_rs274x.c, src/dev_rs274x.h, src/dialog.c,
+	  src/dialog.h, src/draw.c, src/draw.h, src/drill.c, src/drill.h,
+	  src/error.c, src/error.h, src/file.c, src/file.h,
+	  src/fileselect.c, src/fileselect.h, src/find.c, src/find.h,
+	  src/global.h, src/gui.c, src/gui.h, src/heap.c, src/heap.h,
+	  src/icon.data, src/insert.c, src/insert.h, src/intersect.c,
+	  src/intersect.h, src/kdtree.c, src/kdtree.h, src/lgdialog.c,
+	  src/lgdialog.h, src/library.c, src/library.h, src/log.c,
+	  src/log.h, src/macro.h, src/main.c, src/menu.c, src/menu.h,
+	  src/mirror.c, src/mirror.h, src/misc.c, src/misc.h,
+	  src/mode_icon.data, src/move.c, src/move.h, src/mtspace.c,
+	  src/mtspace.h, src/mymem.c, src/mymem.h, src/netlist.c,
+	  src/netlist.h, src/output.c, src/output.h, src/parse_l.h,
+	  src/parse_l.l, src/parse_y.y, src/pcb.in, src/pcbtest.sh.in,
+	  src/pdrill.grb, src/pinout.c, src/pinout.h, src/polygon.c,
+	  src/polygon.h, src/print.c, src/print.h, src/printdialog.c,
+	  src/printdialog.h, src/printpanner.c, src/printpanner.h,
+	  src/rats.c, src/rats.h, src/remove.c, src/remove.h, src/report.c,
+	  src/report.h, src/rotate.c, src/rotate.h, src/rubberband.c,
+	  src/rubberband.h, src/search.c, src/search.h, src/select.c,
+	  src/select.h, src/selector.c, src/selector.h, src/set.c,
+	  src/sizedialog.c, src/sizedialog.h, src/spaste.grb,
+	  src/ssilk.grb, src/udrill.grb, src/undo.c, src/undo.h,
+	  src/vector.c, src/vector.h, src/icons/Makefile.am,
+	  src/icons/hand.dat, src/icons/hcurs.dat, src/icons/lcurs.dat,
+	  src/icons/lock.dat, tools/Makefile.am, tools/MergePCBPS,
+	  tools/PCB2HPGL, tools/apctools.zip, tools/gerbertotk.c,
+	  tools/pcb2ncap.tgz, tools/tgo2pcb.tcl, tutorial/Makefile.am,
+	  tutorial/tut1.pcb: import pcb sources (automake version) from my
+	  private CVS sources.	This matches the sources with the
+	  'sourceforge' tag on my private CVS.
+
