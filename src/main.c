@@ -60,6 +60,7 @@ static char *rcsid = "$Id$";
 #include "output.h"
 #include "remove.h"
 #include "set.h"
+#include "djopt.h"
 
 #include <X11/cursorfont.h>
 #include <X11/Shell.h>
@@ -952,7 +953,8 @@ static XtActionsRec Actions[] = {
   {"Polygon", ActionPolygon},
   {"EditLayerGroups", ActionEditLayerGroups},
   {"MoveToCurrentLayer", ActionMoveToCurrentLayer},
-  {"SwitchDrawingLayer", ActionSwitchDrawingLayer}
+  {"SwitchDrawingLayer", ActionSwitchDrawingLayer},
+  { "djopt", ActionDJopt }
 };
 
 /* ---------------------------------------------------------------------------

@@ -45,6 +45,8 @@ pcb_bin_SOURCES = \
 	dev_rs274x.h \
 	dialog.c \
 	dialog.h \
+	djopt.c \
+	djopt.h \
 	draw.c \
 	draw.h \
 	drill.c \
