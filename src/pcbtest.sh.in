@@ -33,4 +33,5 @@
 #
 XAPPLRESDIR=`pwd`/.test/
 export XAPPLRESDIR
+unset XUSERFILESEARCHPATH
 exec ./pcb-bin $@
