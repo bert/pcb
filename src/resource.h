@@ -1,3 +1,5 @@
+/* $Id$ */
+
 #ifndef __RESOURCE_INCLUDED_
 #define __RESOURCE_INCLUDED_ 1
 
