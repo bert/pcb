@@ -92,7 +92,7 @@ Pcb.pinoutNameLength:       8
 Pcb.pinoutOffsetX:          100
 Pcb.pinoutOffsetY:          100
 Pcb.pinoutTextOffsetX:      20
-Pcb.pinoutTextOffsetY:      0
+Pcb.pinoutTextOffsetY:      20
 Pcb.pinoutZoom:             2
 Pcb.printFile:             %f.output
 Pcb.raiseLogWindow:         On

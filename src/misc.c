@@ -302,6 +302,24 @@ SetElementBoundingBox (ElementTypePtr Element, FontTypePtr Font)
     }
   );
 
+  /* mark pins with component orientation */
+  if ((maxx - minx) > (maxy - miny))
+    {
+      PIN_LOOP (Element, 
+	{
+	  SET_FLAG (EDGE2FLAG, pin);
+	}
+      );
+    }
+  else
+    {
+      PIN_LOOP (Element, 
+	{
+	  CLEAR_FLAG (EDGE2FLAG, pin);
+	}
+      );
+    }
+
   Element->BoundingBox.X1 = minx;
   Element->BoundingBox.Y1 = miny;
   Element->BoundingBox.X2 = maxx;

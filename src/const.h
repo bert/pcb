@@ -115,9 +115,10 @@
 #define USETHERMALFLAG		0x0400          /* draw pin, via with thermal fingers */
 #define ONSILKFLAG              0x0400  /* old files use this to indicate silk */
 #define OCTAGONFLAG		0x0800		/* draw pin/via as octagon instead of round */
-#define EDGE2FLAG               0x0800  /* Padr.Point2 is closer to outside edge */
 #define DRCFLAG			0x1000		/* flag like FOUND flag for DRC checking */
 #define LOCKFLAG                0x2000  /* object locked in place */
+#define EDGE2FLAG               0x4000  /* Padr.Point2 is closer to outside edge */
+					/* also pinout text for pins is vertical */
 #define ALLTHERMFLAGS		0xff0000        /* 8 flags indicating pin/via connects to polys */
 #define L0THERMFLAG           0x010000        /* Pin/Via connects to Polygons on Layer 0 */
 #define L1THERMFLAG           0x020000        /* Pin/Via connects to Polygons on Layer 1 */

@@ -1092,6 +1092,42 @@ ClearPin (PinTypePtr Pin, int Type, int unused)
     }
 }
 
+/* virtical text handling provided by Martin Devera with fixes by harry eaton */
+
+/* draw vertical text; xywh is bounding, de is text's descend used for
+   positioning */
+static void
+DrawVText (int x, int y, int w, int h, int de, char *str)
+{
+  Pixmap pm;
+  GC gc, ogc;
+  XImage *im, *im2;
+  Visual *v;
+  char *mem;
+  int i, j;
+
+  pm = XCreatePixmap (Dpy, DrawingWindow, w, h, 1);
+  gc = XCreateGC (Dpy, pm, 0, 0);
+
+  /* draw into pixmap */
+  XFillRectangle (Dpy, pm, gc, 0, 0, w, h);
+  XSetForeground (Dpy, gc, 1);
+  XSetFont (Dpy, gc, Settings.PinoutFont[MIN (MAX (0, ZoomValue), 4)]->fid);
+  XDrawString (Dpy, pm, gc, 0, h - de, str,
+	       MIN (Settings.PinoutNameLength, strlen (str)));
+
+  im = XGetImage (Dpy, pm, 0, 0, w, h, 1, XYPixmap);
+
+  /* im2 <= Transpose(im); TODO: find faster way */
+  for (i = 0; i < w; i++)
+    for (j = 0; j < h; j++)
+      if (XGetPixel (im, i, j))
+	XDrawPoint (Dpy, DrawingWindow, Output.fgGC, x + j, y + w - i - 1);
+  XFreeGC (Dpy, gc);
+  XFreePixmap (Dpy, pm);
+}
+
+
 /* ---------------------------------------------------------------------------
  * lowlevel drawing routine for pin and via names
  */
@@ -1103,29 +1139,53 @@ DrawPinOrViaNameLowLevel (PinTypePtr Ptr)
   char *name;
 
   name = EMPTY (TEST_FLAG (SHOWNUMBERFLAG, PCB) ? Ptr->Number : Ptr->Name);
-  UpdateRect.x =
-    TO_DRAW_X (Ptr->X + Ptr->Thickness / 2 + Settings.PinoutTextOffsetX);
-  UpdateRect.y =
-    TO_DRAW_Y (Ptr->Y + Ptr->Thickness / 2 + Settings.PinoutTextOffsetY);
+  XTextExtents (Settings.PinoutFont[MIN (MAX (0, ZoomValue), 4)],
+		name, MIN (Settings.PinoutNameLength, strlen (name)),
+		&direction, &ascent, &descent, &overall);
+  if (TEST_FLAG (EDGE2FLAG, Ptr))
+    {
+      UpdateRect.x = TO_DRAW_X (Ptr->X - overall.ascent / 2);
+      UpdateRect.y =
+	TO_DRAW_Y (Ptr->Y + Ptr->Thickness / 2 + overall.lbearing +
+		   Settings.PinoutTextOffsetY);
+    }
+  else
+    {
+      UpdateRect.x =
+	TO_DRAW_X (Ptr->X + Ptr->Thickness / 2 + Settings.PinoutTextOffsetX);
+      UpdateRect.y = TO_DRAW_Y (Ptr->Y + overall.ascent / 2);
+    }
   if (Gathering)
     {
-      XTextExtents (Settings.PinoutFont[MIN (MAX (0, PCB->Zoom), 4)],
-		    name, MIN (Settings.PinoutNameLength, strlen (name)),
-		    &direction, &ascent, &descent, &overall);
-      UpdateRect.x += overall.lbearing;
-      UpdateRect.width = overall.width;
-      UpdateRect.y -= overall.ascent;
-      UpdateRect.height = ascent + descent;
+      if (!TEST_FLAG (EDGE2FLAG, Ptr))
+	{
+	  UpdateRect.x += overall.lbearing;
+	  UpdateRect.y -= overall.ascent;
+	  UpdateRect.width = overall.width;
+	  UpdateRect.height = ascent + descent;
+	}
+      else
+	{
+	  UpdateRect.width = ascent + descent;;
+	  UpdateRect.height = overall.width;
+	}
       AddPart ();
       return;
     }
-  XDrawString (Dpy, DrawingWindow, Output.fgGC, UpdateRect.x, UpdateRect.y,
-	       name, MIN (Settings.PinoutNameLength, strlen (name)));
+  if (TEST_FLAG (EDGE2FLAG, Ptr))
+    DrawVText (UpdateRect.x, UpdateRect.y, overall.width,
+	       ascent + descent, descent, name);
+  else
+    XDrawString (Dpy, DrawingWindow, Output.fgGC,
+		 UpdateRect.x, UpdateRect.y,
+		 name, MIN (Settings.PinoutNameLength, strlen (name)));
+
 }
 
 /* ---------------------------------------------------------------------------
  * lowlevel drawing routine for pads
  */
+
 static void
 DrawPadLowLevel (PadTypePtr Pad)
 {
@@ -1218,53 +1278,64 @@ DrawPadLowLevel (PadTypePtr Pad)
 /* ---------------------------------------------------------------------------
  * lowlevel drawing routine for pad names
  */
+
 static void
 DrawPadNameLowLevel (PadTypePtr Pad)
 {
-  Dimension offX, offY;
-  int direction, ascent, descent;
+  int direction, ascent, descent, vert;
   XCharStruct overall;
   char *name;
 
-
   name = EMPTY (TEST_FLAG (SHOWNUMBERFLAG, PCB) ? Pad->Number : Pad->Name);
-  XTextExtents (Settings.PinoutFont[MAX (0, PCB->Zoom)],
-		name, MIN (Settings.PinoutNameLength, strlen (name)),
+
+  XTextExtents (Settings.PinoutFont[MIN (MAX (0, ZoomValue), 4)], name,
+		MIN (Settings.PinoutNameLength, strlen (name)),
 		&direction, &ascent, &descent, &overall);
-  if (Pad->Point1.Y == Pad->Point2.Y)
+  /* should text be vertical ? */
+  vert = (Pad->Point1.X == Pad->Point2.X);
+  if (vert)
     {
-      /* horizontal pad */
-      offX = Settings.PinoutTextOffsetX;
-      offY = Settings.PinoutTextOffsetY;
-      UpdateRect.x =
-	TEST_FLAG (EDGE2FLAG, Pad) ? TO_DRAW_X (Pad->Point2.X + offX) :
-	TO_DRAW_X (Pad->Point1.X - offX) - overall.width;
-      UpdateRect.y = TO_DRAW_Y (Pad->Point1.Y + offY);
+      UpdateRect.x = TO_DRAW_X (Pad->Point1.X - overall.ascent / 2);
+      UpdateRect.y =
+	TO_DRAW_Y (MAX (Pad->Point1.Y, Pad->Point2.Y) + Pad->Thickness / 2);
     }
   else
     {
-      /* vertial pad */
-      offY = Settings.PinoutTextOffsetX;
-      offX = Settings.PinoutTextOffsetY;
-      UpdateRect.y =
-	TEST_FLAG (EDGE2FLAG, Pad) ? TO_DRAW_Y (Pad->Point2.Y + offY)
-	+ ascent + descent : TO_DRAW_Y (Pad->Point1.Y - offY);
-      UpdateRect.x = TO_DRAW_X (Pad->Point1.X + offX) - overall.width / 2;
+      UpdateRect.x =
+	TO_DRAW_X (MAX (Pad->Point1.X, Pad->Point2.X) + Pad->Thickness / 2);
+      UpdateRect.y = TO_DRAW_Y (Pad->Point1.Y + overall.ascent / 2);
     }
 
+  if (vert)
+    UpdateRect.y += overall.lbearing + TO_SCREEN (Settings.PinoutTextOffsetY);
+  else
+    UpdateRect.x += TO_SCREEN (Settings.PinoutTextOffsetX);
 
   if (Gathering)
     {
-      UpdateRect.x += overall.lbearing;
-      UpdateRect.width = overall.width;
-      UpdateRect.y -= overall.ascent;
-      UpdateRect.height = ascent + descent;
+      if (vert)
+	{
+	  UpdateRect.width = ascent + descent;
+	  UpdateRect.height = overall.width;
+	}
+      else
+	{
+	  UpdateRect.x += overall.lbearing;
+	  UpdateRect.y -= ascent;
+	  UpdateRect.width = overall.width;
+	  UpdateRect.height = ascent + descent;
+	}
       AddPart ();
       return;
     }
 
-  XDrawString (Dpy, DrawingWindow, Output.fgGC, UpdateRect.x, UpdateRect.y,
-	       name, MIN (Settings.PinoutNameLength, strlen (name)));
+  if (vert)
+    DrawVText (UpdateRect.x, UpdateRect.y, overall.width,
+	       ascent + descent, descent, name);
+  else
+    XDrawString (Dpy, DrawingWindow, Output.fgGC,
+		 UpdateRect.x, UpdateRect.y,
+		 name, MIN (Settings.PinoutNameLength, strlen (name)));
 }
 
 /* ---------------------------------------------------------------------------
