@@ -343,7 +343,6 @@ UpdateSettingsOnScreen (void)
   SetStatusLine ();
   SetCursorStatusLine ();
   UpdateControlPanel ();
-  UpdateSizesMenu ();
 }
 
 void

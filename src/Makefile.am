@@ -7,7 +7,8 @@ pcbtreedir=	@PCBTREEDIR@
 pcblibdir=	@PCBLIBDIR@
 
 pcblib_DATA=	\
-	default_font
+	default_font \
+	pcb-menu.res
 
 pkgdata_DATA=	Pcb
 
@@ -18,6 +19,7 @@ AM_CFLAGS = -DNDEBUG
 pcb_bin_SOURCES = \
 	action.c \
 	action.h \
+	actionlist.c \
 	autoplace.c \
 	autoplace.h \
 	autoroute.c \
@@ -108,6 +110,7 @@ pcb_bin_SOURCES = \
 	parse_y.y \
 	pinout.c \
 	pinout.h \
+	pcb-menu.res \
 	polygon.c \
 	polygon.h \
 	print.c \
@@ -122,6 +125,9 @@ pcb_bin_SOURCES = \
 	remove.h \
 	report.c \
 	report.h \
+	res_parse.y \
+	res_lex.l \
+	resmenu.c \
 	rotate.c \
 	rotate.h \
 	rubberband.c \
@@ -144,7 +150,7 @@ pcb_bin_SOURCES = \
 # for globalconst.h
 INCLUDES=	-I$(top_srcdir) -I$(srcdir)/icons
 
-BUILT_SOURCES=	parse_y.h
+BUILT_SOURCES=	parse_y.h pcb-menu.h
 
 EXTRA_DIST= \
 	check_icon.data \
@@ -157,6 +163,15 @@ EXTRA_DIST= \
 AM_YFLAGS=	-d
 
 all-local: pcbtest.sh .test/Pcb
+
+actionlist.c : ${pcb_bin_SOURCES} gather-actions
+	perl ./gather-actions ${pcb_bin_SOURCES}
+
+pcb-menu.h : pcb-menu.res
+	echo '/* AUTOMATICALLY GENERATED FROM pcb-menu.res DO NOT EDIT */' > pcb-menu.h
+	echo 'const char *pcb_menu_default[] = {' >> pcb-menu.h
+	sed 's/\\/\\\\/g; s/"/\\"/g; s/^/"/; s/$$/",/' < pcb-menu.res >> pcb-menu.h
+	echo '0};' >> pcb-menu.h
 
 DISTCLEANFILES= pcbtest.sh Pcb .test/Pcb
 

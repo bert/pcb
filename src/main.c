@@ -61,6 +61,7 @@ static char *rcsid = "$Id$";
 #include "remove.h"
 #include "set.h"
 #include "djopt.h"
+#include "resource.h"
 
 #include <X11/cursorfont.h>
 #include <X11/Shell.h>
@@ -85,6 +86,9 @@ static char *rcsid = "$Id$";
 #ifdef HAVE_LIBSTROKE
 extern void stroke_init (void);
 #endif
+
+extern XtActionsRec ActionList[];
+extern int ActionListSize;
 
 /* ---------------------------------------------------------------------------
  * some local prototypes
@@ -722,6 +726,12 @@ static XtResource ToplevelResources[] = {
   {"media", "Media", XtRString, sizeof (String),
    XtOffsetOf (SettingType, Media), XtRString, DEFAULT_MEDIASIZE}
   ,
+  {"menuFile", "MenuFile", XtRString, sizeof (String),
+   XtOffsetOf (SettingType, MenuFile), XtRString, PCBLIBDIR "/pcb-menu.res"}
+  ,
+  {"dumpMenuFile", "DumpMenuFile", XtRBoolean, sizeof (Boolean),
+   XtOffsetOf (SettingType, DumpMenuFile), XtRString, "False"}
+  ,
   {"offLimitColor", XtCColor, XtRPixel, sizeof (Pixel),
    XtOffsetOf (SettingType, OffLimitColor), XtRString, XtDefaultBackground}
   ,
@@ -877,6 +887,7 @@ static XrmOptionDescRec CommandLineOptions[] = {
   {"+rubberband", "rubberBandMode", XrmoptionNoArg, (caddr_t) "True"},
   {"-backup", "backupInterval", XrmoptionSepArg, (caddr_t) NULL},
   {"-c", "charactersPerLine", XrmoptionSepArg, (caddr_t) NULL},
+  {"-dumpmenu", "dumpMenuFile", XrmoptionNoArg, (caddr_t) "True"},
   {"-fontfile", "fontFile", XrmoptionSepArg, (caddr_t) NULL},
   {"-laperture", "apertureCommand", XrmoptionSepArg, (caddr_t) NULL},
   {"-lelement", "elementCommand", XrmoptionSepArg, (caddr_t) NULL},
@@ -961,7 +972,8 @@ static XtActionsRec Actions[] = {
   {"SwitchDrawingLayer", ActionSwitchDrawingLayer},
   {"ToggleVisibility", ActionToggleVisibility},
   {"MoveObject", ActionMoveObject},
-  {"djopt", ActionDJopt}
+  {"djopt", ActionDJopt},
+  {"GetLoc", ActionGetLocation}
 };
 
 /* ---------------------------------------------------------------------------
@@ -1221,6 +1233,9 @@ InitWidgets (void)
 					       Output.Toplevel,
 					       XtNresizable, True, NULL);
 
+  XtAppAddActions (Context, Actions, XtNumber (Actions));
+  XtAppAddActions (Context, ActionList, ActionListSize);
+
   /* init all other widgets as childs of the masterform */
   InitMenu (Output.MasterForm, NULL, NULL);
   InitControlPanel (Output.MasterForm, Output.Menu, NULL);
@@ -1232,7 +1247,6 @@ InitWidgets (void)
    * the menu must be initialized before the actions are added
    * for XawPositionSimpleMenu() to be available
    */
-  XtAppAddActions (Context, Actions, XtNumber (Actions));
   XtAugmentTranslations (Output.Toplevel,
 			 XtParseTranslationTable (DefaultTranslations));
 
@@ -1316,6 +1330,9 @@ main (int argc, char *argv[])
     }
 
   InitShell (&argc, argv);
+  if (Settings.DumpMenuFile)
+    DumpMenu();
+
   InitDeviceDriver ();
   PCB = CreateNewPCB (True);
   ResetStackAndVisibility ();

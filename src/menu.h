@@ -77,7 +77,7 @@ typedef struct
  */
 Widget	InitMenuButton(Widget, MenuButtonTypePtr, Widget, Widget);
 void	InitMenu(Widget, Widget, Widget);
-void	UpdateSizesMenu(void);
+void	DumpMenu();
 void	RemoveCheckFromMenu(PopupMenuTypePtr);
 void	CheckEntry(PopupMenuTypePtr, String);
 

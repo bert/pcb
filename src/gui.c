@@ -37,6 +37,7 @@
 #include "dialog.h"
 #include "gui.h"
 #include "misc.h"
+#include "action.h"
 
 #include <X11/cursorfont.h>
 #include <X11/Xlib.h>
@@ -174,6 +175,16 @@ GetLocation (char *MessageText)
 	}
     }
 }
+
+/* ---------------------------------------------------------------------------*/
+
+void
+ActionGetLocation (Widget w, XEvent * e, String * argv, Cardinal * argc)
+{
+  GetLocation(argv[0]);
+}
+
+/* ACTION(GetXY,ActionGetLocation) */
 
 /* ---------------------------------------------------------------------------
  * sets the X cursor for the output window (uses cursorfont)

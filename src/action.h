@@ -88,6 +88,8 @@ void	ActionToggleThermal(Widget, XEvent *, String *, Cardinal *);
 void	ActionButton3(Widget, XEvent *, String *, Cardinal *);
 void	ActionSetSame(Widget, XEvent *, String *, Cardinal *);
 void	ActionRipUp(Widget, XEvent *, String *, Cardinal *);
+void	ActionGetLocation(Widget, XEvent *, String *, Cardinal *);
+void	ActionAbout(Widget, XEvent *, String *, Cardinal *);
 void	AdjustAttachedObjects(void);
 void	CallActionProc(Widget, String, XEvent *, String *, Cardinal);
 void	warpNoWhere(void);

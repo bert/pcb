@@ -475,7 +475,6 @@ StyleSizeDialog (int index)
       XtVaGetValues (inputfield, XtNstring, &string, NULL);
       SaveFree (PCB->RouteStyle[index].Name);
       PCB->RouteStyle[index].Name = StripWhiteSpaceAndDup (string);
-      UpdateSizesMenu ();
       SetChangedFlag (True);
     }
   EndDialog (popup);

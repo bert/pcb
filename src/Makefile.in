@@ -137,7 +137,8 @@ pcbtreedir = @PCBTREEDIR@
 pcblibdir = @PCBLIBDIR@
 
 pcblib_DATA = \
-	default_font
+	default_font \
+	pcb-menu.res
 
 
 pkgdata_DATA = Pcb
@@ -149,6 +150,7 @@ AM_CFLAGS = -DNDEBUG
 pcb_bin_SOURCES = \
 	action.c \
 	action.h \
+	actionlist.c \
 	autoplace.c \
 	autoplace.h \
 	autoroute.c \
@@ -239,6 +241,7 @@ pcb_bin_SOURCES = \
 	parse_y.y \
 	pinout.c \
 	pinout.h \
+	pcb-menu.res \
 	polygon.c \
 	polygon.h \
 	print.c \
@@ -253,6 +256,9 @@ pcb_bin_SOURCES = \
 	remove.h \
 	report.c \
 	report.h \
+	res_parse.y \
+	res_lex.l \
+	resmenu.c \
 	rotate.c \
 	rotate.h \
 	rubberband.c \
@@ -276,7 +282,7 @@ pcb_bin_SOURCES = \
 # for globalconst.h
 INCLUDES = -I$(top_srcdir) -I$(srcdir)/icons
 
-BUILT_SOURCES = parse_y.h
+BUILT_SOURCES = parse_y.h pcb-menu.h
 
 EXTRA_DIST = \
 	check_icon.data \
@@ -298,23 +304,24 @@ CONFIG_CLEAN_FILES =
 bin_PROGRAMS = pcb-bin$(EXEEXT)
 PROGRAMS = $(bin_PROGRAMS)
 
-am_pcb_bin_OBJECTS = action.$(OBJEXT) autoplace.$(OBJEXT) \
-	autoroute.$(OBJEXT) buffer.$(OBJEXT) change.$(OBJEXT) \
-	clip.$(OBJEXT) command.$(OBJEXT) compat.$(OBJEXT) \
-	control.$(OBJEXT) copy.$(OBJEXT) create.$(OBJEXT) \
-	crosshair.$(OBJEXT) data.$(OBJEXT) dev_ps.$(OBJEXT) \
-	dev_rs274x.$(OBJEXT) dialog.$(OBJEXT) djopt.$(OBJEXT) \
-	draw.$(OBJEXT) drill.$(OBJEXT) error.$(OBJEXT) file.$(OBJEXT) \
-	fileselect.$(OBJEXT) find.$(OBJEXT) gui.$(OBJEXT) \
-	heap.$(OBJEXT) insert.$(OBJEXT) intersect.$(OBJEXT) \
-	rtree.$(OBJEXT) lgdialog.$(OBJEXT) library.$(OBJEXT) \
-	line.$(OBJEXT) log.$(OBJEXT) main.$(OBJEXT) menu.$(OBJEXT) \
-	mirror.$(OBJEXT) misc.$(OBJEXT) move.$(OBJEXT) \
+am_pcb_bin_OBJECTS = action.$(OBJEXT) actionlist.$(OBJEXT) \
+	autoplace.$(OBJEXT) autoroute.$(OBJEXT) buffer.$(OBJEXT) \
+	change.$(OBJEXT) clip.$(OBJEXT) command.$(OBJEXT) \
+	compat.$(OBJEXT) control.$(OBJEXT) copy.$(OBJEXT) \
+	create.$(OBJEXT) crosshair.$(OBJEXT) data.$(OBJEXT) \
+	dev_ps.$(OBJEXT) dev_rs274x.$(OBJEXT) dialog.$(OBJEXT) \
+	djopt.$(OBJEXT) draw.$(OBJEXT) drill.$(OBJEXT) error.$(OBJEXT) \
+	file.$(OBJEXT) fileselect.$(OBJEXT) find.$(OBJEXT) \
+	gui.$(OBJEXT) heap.$(OBJEXT) insert.$(OBJEXT) \
+	intersect.$(OBJEXT) rtree.$(OBJEXT) lgdialog.$(OBJEXT) \
+	library.$(OBJEXT) line.$(OBJEXT) log.$(OBJEXT) main.$(OBJEXT) \
+	menu.$(OBJEXT) mirror.$(OBJEXT) misc.$(OBJEXT) move.$(OBJEXT) \
 	mtspace.$(OBJEXT) mymem.$(OBJEXT) netlist.$(OBJEXT) \
 	output.$(OBJEXT) parse_l.$(OBJEXT) parse_y.$(OBJEXT) \
 	pinout.$(OBJEXT) polygon.$(OBJEXT) print.$(OBJEXT) \
 	printdialog.$(OBJEXT) printpanner.$(OBJEXT) rats.$(OBJEXT) \
-	remove.$(OBJEXT) report.$(OBJEXT) rotate.$(OBJEXT) \
+	remove.$(OBJEXT) report.$(OBJEXT) res_parse.$(OBJEXT) \
+	res_lex.$(OBJEXT) resmenu.$(OBJEXT) rotate.$(OBJEXT) \
 	rubberband.$(OBJEXT) search.$(OBJEXT) select.$(OBJEXT) \
 	selector.$(OBJEXT) set.$(OBJEXT) sizedialog.$(OBJEXT) \
 	undo.$(OBJEXT) vector.$(OBJEXT)
@@ -326,41 +333,45 @@ pcb_bin_LDFLAGS =
 DEFAULT_INCLUDES =  -I. -I$(srcdir) -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
-@AMDEP_TRUE@DEP_FILES = ./$(DEPDIR)/action.Po ./$(DEPDIR)/autoplace.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/autoroute.Po ./$(DEPDIR)/buffer.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/change.Po ./$(DEPDIR)/clip.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/command.Po ./$(DEPDIR)/compat.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/control.Po ./$(DEPDIR)/copy.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/create.Po ./$(DEPDIR)/crosshair.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/data.Po ./$(DEPDIR)/dev_ps.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/dev_rs274x.Po ./$(DEPDIR)/dialog.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/djopt.Po ./$(DEPDIR)/draw.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/drill.Po ./$(DEPDIR)/error.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/file.Po ./$(DEPDIR)/fileselect.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/find.Po ./$(DEPDIR)/gui.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/heap.Po ./$(DEPDIR)/insert.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/intersect.Po ./$(DEPDIR)/lgdialog.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/library.Po ./$(DEPDIR)/line.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/log.Po ./$(DEPDIR)/main.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/menu.Po ./$(DEPDIR)/mirror.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/misc.Po ./$(DEPDIR)/move.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/mtspace.Po ./$(DEPDIR)/mymem.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/netlist.Po ./$(DEPDIR)/output.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/parse_l.Po ./$(DEPDIR)/parse_y.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/pinout.Po ./$(DEPDIR)/polygon.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/print.Po ./$(DEPDIR)/printdialog.Po \
+@AMDEP_TRUE@DEP_FILES = ./$(DEPDIR)/action.Po ./$(DEPDIR)/actionlist.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/autoplace.Po ./$(DEPDIR)/autoroute.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/buffer.Po ./$(DEPDIR)/change.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/clip.Po ./$(DEPDIR)/command.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/compat.Po ./$(DEPDIR)/control.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/copy.Po ./$(DEPDIR)/create.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/crosshair.Po ./$(DEPDIR)/data.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/dev_ps.Po ./$(DEPDIR)/dev_rs274x.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/dialog.Po ./$(DEPDIR)/djopt.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/draw.Po ./$(DEPDIR)/drill.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/error.Po ./$(DEPDIR)/file.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/fileselect.Po ./$(DEPDIR)/find.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/gui.Po ./$(DEPDIR)/heap.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/insert.Po ./$(DEPDIR)/intersect.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/lgdialog.Po ./$(DEPDIR)/library.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/line.Po ./$(DEPDIR)/log.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/main.Po ./$(DEPDIR)/menu.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/mirror.Po ./$(DEPDIR)/misc.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/move.Po ./$(DEPDIR)/mtspace.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/mymem.Po ./$(DEPDIR)/netlist.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/output.Po ./$(DEPDIR)/parse_l.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/parse_y.Po ./$(DEPDIR)/pinout.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/polygon.Po ./$(DEPDIR)/print.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/printdialog.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/printpanner.Po ./$(DEPDIR)/rats.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/remove.Po ./$(DEPDIR)/report.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/rotate.Po ./$(DEPDIR)/rtree.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/rubberband.Po ./$(DEPDIR)/search.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/select.Po ./$(DEPDIR)/selector.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/set.Po ./$(DEPDIR)/sizedialog.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/undo.Po ./$(DEPDIR)/vector.Po
+@AMDEP_TRUE@	./$(DEPDIR)/res_lex.Po ./$(DEPDIR)/res_parse.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/resmenu.Po ./$(DEPDIR)/rotate.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/rtree.Po ./$(DEPDIR)/rubberband.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/search.Po ./$(DEPDIR)/select.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/selector.Po ./$(DEPDIR)/set.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/sizedialog.Po ./$(DEPDIR)/undo.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/vector.Po
 COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
 	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 CCLD = $(CC)
 LINK = $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
 LEXCOMPILE = $(LEX) $(LFLAGS) $(AM_LFLAGS)
+YLWRAP = $(top_srcdir)/ylwrap
 YACCCOMPILE = $(YACC) $(YFLAGS) $(AM_YFLAGS)
 DIST_SOURCES = $(pcb_bin_SOURCES)
 DATA = $(pcblib_DATA) $(pkgdata_DATA)
@@ -372,7 +383,7 @@ RECURSIVE_TARGETS = info-recursive dvi-recursive pdf-recursive \
 	installdirs-recursive install-recursive uninstall-recursive \
 	check-recursive installcheck-recursive
 DIST_COMMON = $(srcdir)/Makefile.in Makefile.am parse_l.c parse_y.c \
-	parse_y.h
+	parse_y.h res_lex.c res_parse.c res_parse.h
 DIST_SUBDIRS = $(SUBDIRS)
 SOURCES = $(pcb_bin_SOURCES)
 
@@ -415,6 +426,11 @@ parse_y.h: parse_y.c
 	  rm -f parse_y.c; \
 	  $(MAKE) parse_y.c; \
 	else :; fi
+res_parse.h: res_parse.c
+	@if test ! -f $@; then \
+	  rm -f res_parse.c; \
+	  $(MAKE) res_parse.c; \
+	else :; fi
 pcb-bin$(EXEEXT): $(pcb_bin_OBJECTS) $(pcb_bin_DEPENDENCIES) 
 	@rm -f pcb-bin$(EXEEXT)
 	$(LINK) $(pcb_bin_LDFLAGS) $(pcb_bin_OBJECTS) $(pcb_bin_LDADD) $(LIBS)
@@ -426,6 +442,7 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/action.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/actionlist.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/autoplace.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/autoroute.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/buffer.Po@am__quote@
@@ -475,6 +492,9 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/rats.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/remove.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/report.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/res_lex.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/res_parse.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/resmenu.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/rotate.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/rtree.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/rubberband.Po@am__quote@
@@ -509,29 +529,10 @@ distclean-compile:
 @am__fastdepCC_FALSE@	$(COMPILE) -c `if test -f '$<'; then $(CYGPATH_W) '$<'; else $(CYGPATH_W) '$(srcdir)/$<'; fi`
 
 .l.c:
-	$(LEXCOMPILE) `test -f $< || echo '$(srcdir)/'`$<
-	sed '/^#/ s|$(LEX_OUTPUT_ROOT)\.c|$@|' $(LEX_OUTPUT_ROOT).c >$@
-	rm -f $(LEX_OUTPUT_ROOT).c
+	$(SHELL) $(YLWRAP) `test -f '$<' || echo '$(srcdir)/'`$< $(LEX_OUTPUT_ROOT).c $@ -- $(LEXCOMPILE)
 
 .y.c:
-	$(YACCCOMPILE) `test -f '$<' || echo '$(srcdir)/'`$<
-	if test -f y.tab.h; then \
-	  to=`echo "$*_H" | sed \
-                -e 'y/abcdefghijklmnopqrstuvwxyz/ABCDEFGHIJKLMNOPQRSTUVWXYZ/' \
-                -e 's/[^ABCDEFGHIJKLMNOPQRSTUVWXYZ]/_/g'`; \
-	  sed "/^#/ s/Y_TAB_H/$$to/g" y.tab.h >$*.ht; \
-	  rm -f y.tab.h; \
-	  if cmp -s $*.ht $*.h; then \
-	    rm -f $*.ht ;\
-	  else \
-	    mv $*.ht $*.h; \
-	  fi; \
-	fi
-	if test -f y.output; then \
-	  mv y.output $*.output; \
-	fi
-	sed '/^#/ s|y\.tab\.c|$@|' y.tab.c >$@t && mv $@t $@
-	rm -f y.tab.c
+	$(SHELL) $(YLWRAP) `test -f '$<' || echo '$(srcdir)/'`$< y.tab.c $@ y.tab.h $*.h y.output $*.output -- $(YACCCOMPILE)
 uninstall-info-am:
 pcblibDATA_INSTALL = $(INSTALL_DATA)
 install-pcblibDATA: $(pcblib_DATA)
@@ -772,6 +773,9 @@ distclean-generic:
 maintainer-clean-generic:
 	@echo "This command is intended for maintainers to use"
 	@echo "it deletes files that may require special tools to rebuild."
+	-rm -f res_lex.c
+	-rm -f res_parse.c
+	-rm -f res_parse.h
 	-rm -f parse_l.c
 	-test -z "$(BUILT_SOURCES)" || rm -f $(BUILT_SOURCES)
 	-rm -f parse_y.c
@@ -847,6 +851,15 @@ uninstall-info: uninstall-info-recursive
 
 
 all-local: pcbtest.sh .test/Pcb
+
+actionlist.c : ${pcb_bin_SOURCES} gather-actions
+	perl ./gather-actions ${pcb_bin_SOURCES}
+
+pcb-menu.h : pcb-menu.res
+	echo '/* AUTOMATICALLY GENERATED FROM pcb-menu.res DO NOT EDIT */' > pcb-menu.h
+	echo 'const char *pcb_menu_default[] = {' >> pcb-menu.h
+	sed 's/\\/\\\\/g; s/"/\\"/g; s/^/"/; s/$$/",/' < pcb-menu.res >> pcb-menu.h
+	echo '0};' >> pcb-menu.h
 
 # create wrapper script that lets you test pcb prior to installation
 pcbtest.sh:	$(srcdir)/pcbtest.sh.in Makefile

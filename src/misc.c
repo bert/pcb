@@ -34,6 +34,7 @@ static char *rcsid = "$Id$";
 #endif
 
 #include <stdlib.h>
+#include <stdarg.h>
 #ifdef HAVE_STRING_H
 #include <string.h>
 #endif
@@ -68,6 +69,7 @@ static char *rcsid = "$Id$";
 #include "rubberband.h"
 #include "search.h"
 #include "set.h"
+#include "action.h"
 
 #ifdef HAVE_LIBDMALLOC
 #include <dmalloc.h>
@@ -512,6 +514,16 @@ IsDataEmpty (DataTypePtr Data)
       Data->Layer[i].TextN == 0 && Data->Layer[i].PolygonN == 0;
   return (hasNoObjects);
 }
+
+int
+FlagIsDataEmpty(int parm)
+{
+  int i = IsDataEmpty(PCB->Data);
+  return parm ? !i : i;
+}
+
+/* FLAG(DataEmpty,FlagIsDataEmpty,0) */
+/* FLAG(DataNonEmpty,FlagIsDataEmpty,1) */
 
 /* ---------------------------------------------------------------------------
  * gets minimum and maximum coordinates
@@ -1410,4 +1422,45 @@ AttachForCopy (Location PlaceX, Location PlaceY)
 		    Crosshair.AttachedObject.Ptr1,
 		    Crosshair.AttachedObject.Ptr2,
 		    Crosshair.AttachedObject.Ptr3);
+}
+
+/*
+ * Return nonzero if the given file exists and is readable.
+ */
+int
+FileExists (const char *name)
+{
+  FILE *f;
+  f = fopen(name, "r");
+  if (f)
+    {
+      fclose(f);
+      return 1;
+    }
+  return 0;
+}
+
+char *
+Concat (const char *first, ...)
+{
+  char *rv;
+  int len;
+
+  len = strlen(first);
+  rv = (char *) malloc (len + 1);
+  strcpy (rv, first);
+
+  va_list a;
+  va_start (a, first);
+  while (1)
+    {
+      const char *s = va_arg (a, const char *);
+      if (!s)
+	break;
+      len += strlen (s);
+      rv = (char *) realloc (rv, len+1);
+      strcat (rv, s);
+    }
+  va_end (a);
+  return rv;
 }

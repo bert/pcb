@@ -491,7 +491,9 @@ typedef struct			/* some resources... */
     Groups,			/* string with layergroups */
     Routes,			/* string with route styles */
     FilePath, RatPath, RatCommand, FontPath, ElementPath, LibraryPath, Size,	/* geometry string for size */
-    Media;			/* type of output media */
+    Media,			/* type of output media */
+    MenuFile;			/* file containing menu definitions */
+  Boolean DumpMenuFile;		/* dump internal menu definitions */
   Location PinoutOffsetX,	/* offset of origin */
     PinoutOffsetY;
   Position PinoutTextOffsetX,	/* offset of text from pin center */

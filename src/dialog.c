@@ -405,6 +405,8 @@ GetUserInput (char *MessageText, char *OutputString)
 /* ---------------------------------------------------------------------------
  * pops up and 'About' dialog
  */
+
+/* ACTION(About,AboutDialog) */
 void
 AboutDialog (void)
 {

@@ -53,6 +53,8 @@ static char *rcsid = "$Id$";
 #include "misc.h"
 #include "output.h"
 #include "sizedialog.h"
+#include "resource.h"
+#include "resmenu.h"
 
 #include <X11/cursorfont.h>
 #include <X11/Xaw/Form.h>
@@ -65,6 +67,8 @@ static char *rcsid = "$Id$";
 #include <dmalloc.h>
 #endif
 
+#include "pcb-menu.h"
+
 /* ---------------------------------------------------------------------------
  * include icon data
  */
@@ -73,22 +77,9 @@ static char *rcsid = "$Id$";
 /* ---------------------------------------------------------------------------
  * some local prototypes
  */
-static void CBPOPUP_Display (Widget, XtPointer, XtPointer);
-static void CBPOPUP_Settings (Widget, XtPointer, XtPointer);
-static void CBPOPUP_File (Widget, XtPointer, XtPointer);
-static void CBPOPUP_Buffer (Widget, XtPointer, XtPointer);
-static void CBPOPUP_Sizes (Widget, XtPointer, XtPointer);
-static void CBPOPUP_Window (Widget, XtPointer, XtPointer);
 static void CB_Action (Widget, XtPointer, XtPointer);
-static void CB_Position (Widget, XtPointer, XtPointer);
-static void CB_ElementPosition (Widget, XtPointer, XtPointer);
-static void CB_TextPosition (Widget, XtPointer, XtPointer);
-static void CB_ObjectPosition (Widget, XtPointer, XtPointer);
-static void CB_About (Widget, XtPointer, XtPointer);
 static void InitPopupTree (Widget, PopupEntryTypePtr);
 static void InitPopupMenu (Widget, PopupMenuTypePtr);
-static void DoWindows (Widget, XtPointer, XtPointer);
-static Widget InitializeSizesMenu (Widget, Widget, Widget);
 static Boolean InitCheckPixmap (void);
 
 /* ---------------------------------------------------------------------------
@@ -162,458 +153,81 @@ static PopupEntryType p2MenuEntries[] = {
 static PopupMenuType p2Menu =
   { "p2menu", NULL, p2MenuEntries, NULL, NULL, NULL };
 
-/* ---------------------------------------------------------------------------
- * file menu button
- */
-static PopupEntryType FileMenuEntries[] = {
-  {"about", "About...", CB_About, NULL, NULL},
-  {"save", "save layout", CB_Action, "Save,Layout", NULL},
-  {"saveas", "save layout as...", CB_Action, "Save,LayoutAs", NULL},
-  {"load", "load layout", CB_Action, "Load,Layout", NULL},
-  {"loadelement", "load element data to paste-buffer", CB_Action,
-   "PasteBuffer,Clear\n" "Load,ElementToBuffer", NULL},
-  {"loadlayout", "load layout data to paste-buffer", CB_Action,
-   "PasteBuffer,Clear\n" "Load,LayoutToBuffer", NULL},
-  {"loadnetlist", "load netlist file", CB_Action, "Load,Netlist", NULL},
-  {"print", "print layout...", CB_Action, "Print", NULL},
-  {"line", NULL, NULL, NULL, NULL},
-  {"header", "save connection data of", NULL, NULL, NULL},
-  {"savesingle", "a single element", CB_ElementPosition,
-   "Save,ElementConnections", NULL},
-  {"saveall", "all elements", CB_Action, "Save,AllConnections", NULL},
-  {"saveunused", "unused pins", CB_Action, "Save,AllUnusedPins", NULL},
-  {"line", NULL, NULL, NULL, NULL},
-  {"new", "start new layout", CB_Action, "New", NULL},
-  {"line", NULL, NULL, NULL, NULL},
-  {"quit", "quit program", CB_Action, "Quit", NULL},
-  {NULL, NULL, NULL, NULL, NULL}
-};
-static PopupMenuType FileMenu =
-  { "file", NULL, FileMenuEntries, CBPOPUP_File, NULL, NULL };
-static MenuButtonType FileMenuButton = { "file", "File", &FileMenu, NULL };
+/* --------------------------------------------------------------------------- */
 
-/* ---------------------------------------------------------------------------
- * edit menu button
- */
-static PopupEntryType EditMenuEntries[] = {
-  {"undo", "undo last operation", CB_Action, "Undo", NULL},
-  {"redo", "redo last undone operation", CB_Action, "Redo", NULL},
-  {"clear", "clear undo-buffer", CB_Action, "Undo,ClearList", NULL},
-  {"line", NULL, NULL, NULL, NULL},
-  {"cut", "cut selection to buffer", CB_Position,
-   "PasteBuffer,Clear\n"
-   "PasteBuffer,AddSelected\n" "RemoveSelected\n" "Mode,PasteBuffer",
-   NULL},
-  {"copy", "copy selection to buffer", CB_Position,
-   "PasteBuffer,Clear\n" "PasteBuffer,AddSelected\n" "Mode,PasteBuffer",
-   NULL},
-  {"paste", "paste buffer to layout", CB_Action, "Mode,PasteBuffer", NULL},
-  {"line", NULL, NULL, NULL, NULL},
-  {"unselect", "unselect all", CB_Action, "Unselect,All", NULL},
-  {"select", "select all", CB_Action, "Select,All", NULL},
-  {"line", NULL, NULL, NULL, NULL},
-  {"header", "Edit Names", NULL, NULL, NULL},
-  {"edit", "edit text on layout", CB_TextPosition, "ChangeName,Object", NULL},
-  {"layoutname", "edit name of layout", CB_Action, "ChangeName,Layout", NULL},
-
-  {"layername", "edit name of active layer", CB_Action, "ChangeName,Layer",
-   NULL},
-  {"line", NULL, NULL, NULL, NULL},
-  {"boardSize", "change board size...", CB_Action, "AdjustStyle,0", NULL},
-  {NULL, NULL, NULL, NULL, NULL}
-};
-static PopupMenuType EditMenu =
-  { "edit", NULL, EditMenuEntries, NULL, NULL, NULL };
-static MenuButtonType EditMenuButton = { "edits", "Edit", &EditMenu, NULL };
-
-/* ---------------------------------------------------------------------------
- * display menu button
- */
-static PopupEntryType DisplayMenuEntries[] = {
-  {"redraw", "redraw layout", CB_Action, "Display,Redraw", NULL},
-  {"center", "center layout", CB_Position, "Display,Center", NULL},
-  {"line", NULL, NULL, NULL, NULL},
-  {"displayGrid", "display grid", CB_Action, "Display,Grid", NULL},
-  {"toggleGrid", "realign grid", CB_Position, "Display,ToggleGrid", NULL},
-  {"solderSide", "view solder side", CB_Position, "SwapSides", NULL},
-  {"showMask", "show soldermask", CB_Action, "Display,ToggleMask", NULL},
-  {"line", NULL, NULL, NULL, NULL},
-  {"header", "grid setting", NULL, NULL, NULL},
-  {"grid01", " 1 mil", CB_Action, "SetValue,Grid,100", NULL},
-  {"grid.1mm", "0.1 mm", CB_Action, "SetValue,Grid,393.7007874", NULL},
-  {"grid10", "10 mil", CB_Action, "SetValue,Grid,1000", NULL},
-  {"grid1mm", "1.0 mm", CB_Action, "SetValue,Grid,3937.007874", NULL},
-  {"grid25", "25 mil", CB_Action, "SetValue,Grid,2500", NULL},
-  {"grid50", "50 mil", CB_Action, "SetValue,Grid,5000", NULL},
-  {"grid100", "100 mil", CB_Action, "SetValue,Grid,10000", NULL},
-  {"gridInc", "increment by 5 mil", CB_Action, "SetValue,Grid,+500", NULL},
-  {"gridDec", "decrement by 5 mil", CB_Action, "SetValue,Grid,-500", NULL},
-
-  {"gridIncmm", "increment by 0.1 mm", CB_Action,
-   "SetValue,Grid,+393.7007874", NULL},
-  {"gridDecmm", "decrement by 0.1 mm", CB_Action,
-   "SetValue,Grid,-393.7007874", NULL},
-  {"line", NULL, NULL, NULL, NULL},
-  {"header", "zoom setting", NULL, NULL, NULL},
-  {"zoom25", "4 : 1 ", CB_Position, "SetValue,Zoom,=-4", NULL},
-  {"zoom5", "2 : 1 ", CB_Position, "SetValue,Zoom,=-2", NULL},
-  {"zoom1", "1 : 1 ", CB_Position, "SetValue,Zoom,0", NULL},
-  {"zoom2", "1 : 2 ", CB_Position, "SetValue,Zoom,2", NULL},
-  {"zoom4", "1 : 4 ", CB_Position, "SetValue,Zoom,4", NULL},
-  {"zoom8", "1 : 8 ", CB_Position, "SetValue,Zoom,6", NULL},
-  {"zoom16", "1 :16 ", CB_Position, "SetValue,Zoom,8", NULL},
-  {"line", NULL, NULL, NULL, NULL},
-  {"header", "displayed element-name", NULL, NULL, NULL},
-  {"description", "description", CB_Action, "Display,Description", NULL},
-  {"onPCB", "name on PCB", CB_Action, "Display,NameOnPCB", NULL},
-  {"value", "value", CB_Action, "Display,Value", NULL},
-  {"line", NULL, NULL, NULL, NULL},
-  {"pinnum", "pinout shows number", CB_Action, "Display,ToggleName", NULL},
-  {"pinout", "open pinout window", CB_ElementPosition, "Display,Pinout",
-   NULL},
-  {NULL, NULL, NULL, NULL, NULL}
-};
-static PopupMenuType DisplayMenu =
-  { "display", NULL, DisplayMenuEntries, CBPOPUP_Display, NULL, NULL };
-static MenuButtonType DisplayMenuButton =
-  { "display", "Screen", &DisplayMenu, NULL };
-
-/* ----------------------------------------------------------------------
- * Sizes menu button - contains variable contents
- */
-static PopupEntryType SizesMenuEntries[NUM_STYLES * 2 + 2];
-static PopupMenuType SizesMenu =
-  { "sizes", NULL, SizesMenuEntries, CBPOPUP_Sizes, NULL, NULL };
-static MenuButtonType SizesMenuButton =
-  { "sizes", "Sizes", &SizesMenu, NULL };
-
-/* ---------------------------------------------------------------------------
- * settings menu button
- */
-static PopupEntryType SettingsMenuEntries[] = {
-  {"header", "layer-groups", NULL, NULL, NULL},
-  {"lgedit", "edit layer-groupings", CB_Action, "EditLayerGroups", NULL},
-  {"line", NULL, NULL, NULL, NULL},
-  {"toggleAllDirections", "'all-direction' lines", CB_Action,
-   "Display,Toggle45Degree", NULL},
-  {"toggleSwapStartDirection", "auto swap line start angle", CB_Action,
-   "Display,ToggleStartDirection", NULL},
-  {"toggleOrthoMove", "orthogonal moves", CB_Action,
-   "Display,ToggleOrthoMove", NULL},
-  {"toggleSnapPin", "crosshair snaps to pins and pads", CB_Action,
-   "Display,ToggleSnapPin", NULL},
-  {"toggleShowDRC", "crosshair shows DRC clearance", CB_Action,
-   "Display,ToggleShowDRC", NULL},
-  {"toggleAutoDRC", "auto enforce DRC clearance", CB_Action,
-   "Display,ToggleAutoDRC", NULL},
-  {"line", NULL, NULL, NULL, NULL},
-  {"toggleRubberBandMode", "rubber band mode", CB_Action,
-   "Display,ToggleRubberBandMode", NULL},
-  {"toggleUniqueName", "require unique element names", CB_Action,
-   "Display,ToggleUniqueNames", NULL},
-  {"toggleLocalRef", "auto-zero delta measurements", CB_Action,
-   "Display,ToggleLocalRef", NULL},
-  {"toggleClearLine", "new lines, arcs clear polygons", CB_Action,
-   "Display,ToggleClearLine", NULL},
-  {"toggleLiveRoute", "show autoroute", CB_Action,
-   "Display,ToggleLiveRoute", NULL},
-  {"toggleThindraw", "thin draw", CB_Action,
-   "Display,ToggleThindraw", NULL},
-  {"toggleCheckPlanes", "check polygons", CB_Action,
-   "Display,ToggleCheckPlanes", NULL},
-  {NULL, NULL, NULL, NULL, NULL}
-};
-static PopupMenuType SettingsMenu =
-  { "settings", NULL, SettingsMenuEntries, CBPOPUP_Settings, NULL, NULL };
-static MenuButtonType SettingsMenuButton =
-  { "settings", "Settings", &SettingsMenu, NULL };
-
-/* ---------------------------------------------------------------------------
- * selection menu button
- */
-static PopupEntryType SelectionMenuEntries[] = {
-  {"select", "select all objects", CB_Action, "Select,All", NULL},
-  {"selectconnection", "select all connected objects", CB_Action,
-   "Select,Connection", NULL},
-  {"line", NULL, NULL, NULL, NULL},
-  {"unselect", "unselect all objects", CB_Action, "Unselect,All", NULL},
-  {"unselectconnection", "unselect all connected objects", CB_Action,
-   "Unselect,Connection", NULL},
-#if defined(HAVE_REGCOMP) || defined(HAVE_RE_COMP)
-  {"line", NULL, NULL, NULL, NULL},
-  {"header", "select by name", NULL, NULL, NULL},
-  {"allByName", "all objects", CB_Action, "Select,ObjectByName", NULL},
-  {"elementByName", "elements", CB_Action, "Select,ElementByName", NULL},
-  {"padByName", "pads", CB_Action, "Select,PadByName", NULL},
-  {"pinByName", "pins", CB_Action, "Select,PinByName", NULL},
-  {"textByName", "text objects", CB_Action, "Select,TextByName", NULL},
-  {"viaByName", "vias", CB_Action, "Select,ViaByName", NULL},
-#endif
-  {"line", NULL, NULL, NULL, NULL},
-  {"autoplace", "auto-place selected elements", CB_Action,
-   "AutoPlaceSelected", NULL},
-  {"flip", "move selected elements to other side", CB_Action,
-   "Flip,SelectedElements", NULL},
-  {"remove", "delete selected objects", CB_Action,
-   "RemoveSelected", NULL},
-  {"conv", "convert selection to element", CB_Position,
-   "Select,Convert", NULL},
-  {"line", NULL, NULL, NULL, NULL},
-  {"optrats", "optimize selected rats", CB_Action,
-   "DeleteRats,SelectedRats\n" "AddRats,SelectedRats", NULL},
-  {"autoroute", "auto-route selected rats", CB_Action,
-   "AutoRoute,SelectedRats", NULL},
-  {"ripup", "Rip-up selected auto-routed tracks", CB_Action,
-   "RipUp,Selected", NULL},
-  {"line", NULL, NULL, NULL, NULL},
-  {"header", "change size of selected objects", NULL, NULL, NULL},
-  {"decrementline", "lines -10 mil", CB_Action,
-   "ChangeSize,SelectedLines,-10,mil", NULL},
-  {"incrementline", "lines +10 mil", CB_Action,
-   "ChangeSize,SelectedLines,+10,mil", NULL},
-  {"decrementpad", "pads -10 mil", CB_Action,
-   "ChangeSize,SelectedPads,-10,mil", NULL},
-  {"incrementpad", "pads +10 mil", CB_Action,
-   "ChangeSize,SelectedPads,+10,mil", NULL},
-  {"decrementpin", "pins -10 mil", CB_Action,
-   "ChangeSize,SelectedPins,-10,mil", NULL},
-  {"incrementpin", "pins +10 mil", CB_Action,
-   "ChangeSize,SelectedPins,+10,mil", NULL},
-  {"decrementtext", "texts -10 mil", CB_Action,
-   "ChangeSize,SelectedTexts,-10,mil", NULL},
-  {"incrementtext", "texts +10 mil", CB_Action,
-   "ChangeSize,SelectedTexts,+10,mil", NULL},
-  {"decrementvia", "vias -10 mil", CB_Action,
-   "ChangeSize,SelectedVias,-10,mil", NULL},
-  {"incrementvia", "vias +10 mil", CB_Action,
-   "ChangeSize,SelectedVias,+10,mil", NULL},
-  {"line", NULL, NULL, NULL, NULL},
-  {"header", "change drilling hole of selected objects", NULL, NULL, NULL},
-  {"decrementviahole", "vias -10 mil", CB_Action,
-   "ChangeDrillSize,SelectedVias,-10,mil", NULL},
-  {"incrementviahole", "vias +10 mil", CB_Action,
-   "ChangeDrillSize,SelectedVias,+10,mil", NULL},
-  {"decrementpinhole", "pins -10 mil", CB_Action,
-   "ChangeDrillSize,SelectedPins,-10,mil", NULL},
-  {"incrementpinhole", "pins +10 mil", CB_Action,
-   "ChangeDrillSize,SelectedPins,+10,mil", NULL},
-  {"line", NULL, NULL, NULL, NULL},
-  {"header", "change square-flag of selected objects", NULL, NULL, NULL},
-  {"elementsquare", "elements", CB_Action,
-   "ChangeSquare,SelectedElements", NULL},
-  {"pinsquare", "pins", CB_Action,
-   "ChangeSquare,SelectedPins", NULL},
-  {NULL, NULL, NULL, NULL, NULL}
-};
-static PopupMenuType SelectionMenu =
-  { "selection", NULL, SelectionMenuEntries, NULL, NULL, NULL };
-static MenuButtonType SelectionMenuButton =
-  { "selection", "Select", &SelectionMenu, NULL };
-
-/* ---------------------------------------------------------------------------
- * paste buffer menu button
- */
-static PopupEntryType BufferMenuEntries[] = {
-  {"copy", "copy selection to buffer", CB_Position,
-   "PasteBuffer,Clear\n" "PasteBuffer,AddSelected\n" "Mode,PasteBuffer",
-   NULL},
-  {"cut", "cut selection to buffer", CB_Position,
-   "PasteBuffer,Clear\n"
-   "PasteBuffer,AddSelected\n" "RemoveSelected\n" "Mode,PasteBuffer",
-   NULL},
-  {"paste", "paste buffer to layout", CB_Action, "Mode,PasteBuffer", NULL},
-  {"line", NULL, NULL, NULL, NULL},
-  {"rotate", "rotate buffer 90 deg CCW", CB_Action,
-   "Mode,PasteBuffer\n" "PasteBuffer,Rotate,1",
-   NULL},
-  {"rotate", "rotate buffer 90 deg CW", CB_Action,
-   "Mode,PasteBuffer\n" "PasteBuffer,Rotate,3",
-   NULL},
-  {"mirror", "Mirror Buffer (up/down)", CB_Action,
-   "Mode,PasteBuffer\n" "PasteBuffer,Mirror",
-   NULL},
-  {"mirror", "Mirror Buffer (left/right)", CB_Action,
-   "Mode,PasteBuffer\n" "PasteBuffer,Rotate,1\n"
-   "PasteBuffer,Mirror\nPasteBuffer,Rotate,3",
-   NULL},
-  {"line", NULL, NULL, NULL, NULL},
-  {"clear", "clear buffer", CB_Action, "PasteBuffer,Clear", NULL},
-
-  {"convert", "convert buffer to element", CB_Action, "PasteBuffer,Convert",
-   NULL},
-  {"smash", "break buffer element to pieces", CB_Action,
-   "PasteBuffer,Restore", NULL},
-  {"saveb", "save buffer elements to file", CB_Action, "PasteBuffer,Save",
-   NULL},
-  {"line", NULL, NULL, NULL, NULL},
-  {"header", "select current buffer", NULL, NULL, NULL},
-  {"buffer1", "#1", CB_Action, "PasteBuffer,1", NULL},
-  {"buffer2", "#2", CB_Action, "PasteBuffer,2", NULL},
-  {"buffer3", "#3", CB_Action, "PasteBuffer,3", NULL},
-  {"buffer4", "#4", CB_Action, "PasteBuffer,4", NULL},
-  {"buffer5", "#5", CB_Action, "PasteBuffer,5", NULL},
-  {NULL, NULL, NULL, NULL, NULL}
-};
-static PopupMenuType BufferMenu =
-  { "buffer", NULL, BufferMenuEntries, CBPOPUP_Buffer, NULL, NULL };
-static MenuButtonType BufferMenuButton =
-  { "buffer", "Buffer", &BufferMenu, NULL };
-
-/* ---------------------------------------------------------------------------
- * connection menu button
- */
-static PopupEntryType ConnectionMenuEntries[] = {
-  {"lookup", "lookup connection to object", CB_ObjectPosition,
-   "Connection,Find", NULL},
-  {"resetPVP", "reset scanned pads/pins/vias", CB_Action,
-   "Connection,ResetPinsViasAndPads\n" "Display,Redraw", NULL},
-  {"resetLR", "reset scanned lines/polygons", CB_Action,
-   "Connection,ResetLinesAndPolygons\n" "Display,Redraw", NULL},
-  {"reset", "reset all connections", CB_Action,
-   "Connection,Reset\n" "Display,Redraw", NULL},
-  {"line", NULL, NULL, NULL, NULL},
-  {"ratsnest", "optimize rats-nest", CB_Action,
-   "DeleteRats,AllRats\n" "AddRats,AllRats", NULL},
-  {"eraseRats", "erase rats-nest", CB_Action,
-   "DeleteRats,AllRats", NULL},
-  {"line", NULL, NULL, NULL, NULL},
-  {"autoroute", "auto-route selected rats", CB_Action,
-   "AutoRoute,Selected", NULL},
-  {"autoroute", "auto-route all rats", CB_Action,
-   "AutoRoute,AllRats", NULL},
-  {"ripup", "rip up all auto-routed tracks", CB_Action,
-   "RipUp,All", NULL},
-  {"line", NULL, NULL, NULL, NULL},
-  {"djopt-auto", "Auto-Optimize", CB_Action,
-   "djopt,auto\n" "Display,ClearAndRedraw", NULL},
-  {"djopt-bump", "Debumpify", CB_Action,
-   "djopt,debumpify\n" "Display,ClearAndRedraw", NULL},
-  {"djopt-unjaggy", "Unjaggy", CB_Action,
-   "djopt,unjaggy\n" "Display,ClearAndRedraw", NULL},
-  {"djopt-vianudge", "Vianudge", CB_Action,
-   "djopt,vianudge\n" "Display,ClearAndRedraw", NULL},
-  {"djopt-viatrim", "Viatrim", CB_Action,
-   "djopt,viatrim\n" "Display,ClearAndRedraw", NULL},
-  {"djopt-orthopull", "Orthopull", CB_Action,
-   "djopt,orthopull\n" "Display,ClearAndRedraw", NULL},
-  {"djopt-simple", "SimpleOpts", CB_Action,
-   "djopt,simple\n" "Display,ClearAndRedraw", NULL},
-  {"djopt-miter", "Miter", CB_Action,
-   "djopt,miter\n" "Display,ClearAndRedraw", NULL},
-  {"line", NULL, NULL, NULL, NULL},
-  {"drc", "design rule checker", CB_Action, "SetValue,Zoom,=-2\n"
-   "DRC", NULL},
-  {NULL, NULL, NULL, NULL, NULL}
-};
-
-static PopupMenuType ConnectionMenu =
-  { "connections", NULL, ConnectionMenuEntries, NULL, NULL, NULL };
-
-static MenuButtonType ConnectionMenuButton =
-  { "connections", "Connects", &ConnectionMenu, NULL };
-
-/* ---------------------------------------------------------------------------
- * report menu button
- */
-static PopupEntryType ReportMenuEntries[] = {
-  {"report", "generate object report", CB_Position, "Report,Object", NULL},
-
-  {"drillreport", "generate drill summary", CB_Action, "Report,DrillReport",
-   NULL},
-  {"foundreport", "report found pins/pads", CB_Action, "Report,FoundPins",
-   NULL},
-  {NULL, NULL, NULL, NULL, NULL}
-};
-static PopupMenuType ReportMenu =
-  { "report", NULL, ReportMenuEntries, NULL, NULL, NULL };
-static MenuButtonType ReportMenuButton =
-  { "report", "Info", &ReportMenu, NULL };
-
-/* ---------------------------------------------------------------------------
- * windows menu button
- */
-static PopupEntryType WindowMenuEntries[] = {
-  {"layout", "board layout", DoWindows, "1", NULL},
-  {"library", "library", DoWindows, "2", NULL},
-  {"log", "message log", DoWindows, "3", NULL},
-  {"netlist", "netlist", DoWindows, "4", NULL},
-  {NULL, NULL, NULL, NULL, NULL}
-};
-static PopupMenuType WindowMenu =
-  { "window", NULL, WindowMenuEntries, CBPOPUP_Window, NULL, NULL };
-static MenuButtonType WindowMenuButton =
-  { "window", "Window", &WindowMenu, NULL };
-
-static void
-FillSizesMenu (void)
+/* FLAG(style,FlagCurrentStyle) */
+int
+FlagCurrentStyle()
 {
-  static char name[NUM_STYLES * 2 + 1][8];
-  static char label[NUM_STYLES * 2 + 1][64];
-  static char action[NUM_STYLES * 2 + 1][16];
-  int i;
-
-  STYLE_LOOP (PCB); 
-    {
-      sprintf (name[n], "size%d", n + 1);
-      sprintf (label[n], "use '%s' routing style", style->Name);
-      sprintf (action[n], "RouteStyle,%d", n + 1);
-      SizesMenuEntries[n].Name = name[n];
-      SizesMenuEntries[n].Label = label[n];
-      SizesMenuEntries[n].Callback = CB_Action;
-      SizesMenuEntries[n].ClientData = (XtPointer) action[n];
-    }
+  STYLE_LOOP (PCB);
+  {
+    if (style->Thick == Settings.LineThickness &&
+	style->Diameter == Settings.ViaThickness &&
+	style->Hole == Settings.ViaDrillingHole)
+      return n+1;
+  }
   END_LOOP;
-  for (i = NUM_STYLES; i < 2 * NUM_STYLES; i++)
-    {
-      sprintf (name[i], "size%d", i + 1);
-      sprintf (label[i], "adjust '%s' sizes ...",
-	       PCB->RouteStyle[i - NUM_STYLES].Name);
-      sprintf (action[i], "AdjustStyle,%d", i - NUM_STYLES + 1);
-      SizesMenuEntries[i].Name = name[i];
-      SizesMenuEntries[i].Label = label[i];
-      SizesMenuEntries[i].Callback = CB_Action;
-      SizesMenuEntries[i].ClientData = (XtPointer) action[i];
-    }
-  sprintf (name[i], "size%d", i + 1);
-  sprintf (label[i], "adjust active sizes ...");
-  sprintf (action[i], "AdjustStyle,0");
-  SizesMenuEntries[i].Name = name[i];
-  SizesMenuEntries[i].Label = label[i];
-  SizesMenuEntries[i].Callback = CB_Action;
-  SizesMenuEntries[i].ClientData = (XtPointer) action[i];
-  i++;
-  SizesMenuEntries[i].Name = NULL;
-  SizesMenuEntries[i].Label = NULL;
+  return 0;
 }
 
+/* MENU(sizes,SizesMenuInclude) */
 void
-UpdateSizesMenu (void)
+SizesMenuInclude(Resource *menu)
 {
+  char tmp[64];
   int i;
 
-  FillSizesMenu ();
-  for (i = 0; i < 2 * NUM_STYLES + 1; i++)
-    XtVaSetValues (SizesMenuEntries[i].W, XtNlabel, SizesMenuEntries[i].Label,
-		   NULL);
+  for (i = 0; i <  NUM_STYLES; i++)
+    {
+      Resource *sub = resource_create(menu);
+      resource_add_val (sub, 0, PCB->RouteStyle[i].Name, 0);
+      sprintf(tmp, "SizesLabel(%d,use)", i);
+      resource_add_val (sub, 0, MyStrdup(tmp, __FUNCTION__), 0);
+      sprintf(tmp, "RouteStyle(%d)", i+1);
+      resource_add_val (sub, 0, MyStrdup(tmp, __FUNCTION__), 0);
+      sprintf(tmp, "CheckWhen(style,%d)", i+1);
+      resource_add_val (sub, 0, MyStrdup(tmp, __FUNCTION__), 0);
+      resource_add_val (menu, 0, 0, sub);
+    }
+  for (i = 0; i <  NUM_STYLES; i++)
+    {
+      Resource *sub = resource_create(menu);
+      resource_add_val (sub, 0, PCB->RouteStyle[i].Name, 0);
+      sprintf(tmp, "SizesLabel(%d,set)", i);
+      resource_add_val (sub, 0, MyStrdup(tmp, __FUNCTION__), 0);
+      sprintf(tmp, "AdjustStyle(%d)", i+1);
+      resource_add_val (sub, 0, MyStrdup(tmp, __FUNCTION__), 0);
+      resource_add_val (menu, 0, 0, sub);
+    }
 }
 
-/* ----------------------------------------------------------------------
- * Initializes the sizes menu with the routing style names etc.
- */
-static Widget
-InitializeSizesMenu (Widget Parent, Widget Top, Widget Last)
+/* ACTION(SizesLabel,ActionSizesLabel) POPUP */
+void
+ActionSizesLabel (Widget w, XEvent * e, String * argv, Cardinal * argc)
 {
-  FillSizesMenu ();
-  return (InitMenuButton (Parent, &SizesMenuButton, Top, Last));
+  char tmp[64];
+  int i = atoi(argv[0]);
+
+  if (strcmp(argv[1], "use") == 0)
+    sprintf(tmp, "Use '%s' routing style", PCB->RouteStyle[i].Name);
+  else
+    sprintf(tmp, "Adjust '%s' sizes ...", PCB->RouteStyle[i].Name);
+  XtVaSetValues (w, XtNlabel, tmp, NULL);
 }
 
 /* ----------------------------------------------------------------------
  * menu callback for window menu
  */
-static void
-DoWindows (Widget W, XtPointer ClientData, XtPointer CallData)
+
+/* ACTION(DoWindows,ActionDoWindows) */
+void
+ActionDoWindows (Widget w, XEvent * e, String * argv, Cardinal * argc)
 {
-  int n = atoi ((char *) ClientData);
+  int n;
+
+  if (*argc == 0)
+    return;
+  n = atoi (argv[0]);
 
   switch (n)
     {
@@ -633,7 +247,6 @@ DoWindows (Widget W, XtPointer ClientData, XtPointer CallData)
       break;
     }
 }
-
 
 /* ----------------------------------------------------------------------
  * menu callback interface for actions routines that don't need
@@ -696,210 +309,94 @@ CB_Action (Widget W, XtPointer ClientData, XtPointer CallData)
   SaveFree (copy);
 }
 
-/* ----------------------------------------------------------------------
- * menu callback interface for misc actions routines that need
- * position information
- */
-static void
-CB_Position (Widget W, XtPointer ClientData, XtPointer CallData)
+
+
+
+
+/* FLAG(grid,FlagGrid) */
+int
+FlagGrid()
 {
-  if (GetLocation
-      ("Move the pointer to the appropriate screen position and press a button."))
-    CB_Action (W, ClientData, CallData);
+  return (int)PCB->Grid;
 }
 
-/* ----------------------------------------------------------------------
- * menu callback interface for element related actions routines that need
- * position information
- */
-static void
-CB_ElementPosition (Widget W, XtPointer ClientData, XtPointer CallData)
+/* FLAG(zoom,FlagZoom) */
+int
+FlagZoom()
 {
-  if (GetLocation ("press a button at the element's location"))
-    CB_Action (W, ClientData, CallData);
-}
-
-/* ----------------------------------------------------------------------
- * menu callback interface for text related actions routines that need
- * position information
- */
-static void
-CB_TextPosition (Widget W, XtPointer ClientData, XtPointer CallData)
-{
-  if (GetLocation ("press a button at the text location"))
-    CB_Action (W, ClientData, CallData);
-}
-
-/* ----------------------------------------------------------------------
- * menu callback interface for pin/via related actions routines that need
- * position information update
- */
-static void
-CB_ObjectPosition (Widget W, XtPointer ClientData, XtPointer CallData)
-{
-  if (GetLocation ("press a button at a 'connecting-objects' location"))
-    CB_Action (W, ClientData, CallData);
-}
-
-/* ---------------------------------------------------------------------- 
- * called before sizes menu is popped up
- * used to mark the current route style 
- */
-static void
-CBPOPUP_Sizes (Widget W, XtPointer ClientData, XtPointer CallData)
-{
-  char menuname[5];
-
-  RemoveCheckFromMenu (&SizesMenu);
-  STYLE_LOOP (PCB);
-    {
-      if (style->Thick == Settings.LineThickness &&
-	  style->Diameter == Settings.ViaThickness &&
-	  style->Hole == Settings.ViaDrillingHole)
-	{
-	  sprintf (menuname, "size%d", n + 1);
-	  CheckEntry (&SizesMenu, menuname);
-	  break;
-	}
-    }
-  END_LOOP;
-}
-
-/* ---------------------------------------------------------------------- 
- * called before display menu is popped up
- * used to mark the current grid-mode, zoom value ...
- */
-static void
-CBPOPUP_Display (Widget W, XtPointer ClientData, XtPointer CallData)
-{
-  int zoom;
-  RemoveCheckFromMenu (&DisplayMenu);
-  XtSetSensitive (XtNameToWidget (DisplayMenu.W, "displayGrid"),
-		  GetGridFactor () != 0);
-  if (Settings.DrawGrid)
-    CheckEntry (&DisplayMenu, "displayGrid");
-  if (TEST_FLAG (SHOWMASKFLAG, PCB))
-    CheckEntry (&DisplayMenu, "showMask");
-  if (Settings.ShowSolderSide)
-    CheckEntry (&DisplayMenu, "solderSide");
-  zoom = (int)(PCB->Zoom + SGN(PCB->Zoom) * 0.5);
+  int zoom = (int)(PCB->Zoom + (PCB->Zoom < 0 ? -0.5 : 0.5));
   if (abs(PCB->Zoom - zoom) > 0.1)
     zoom = -8; /* not close enough to integer value */
-  switch (zoom)
-    {
-    case -4:
-      CheckEntry (&DisplayMenu, "zoom25");
-      break;
-    case -2:
-      CheckEntry (&DisplayMenu, "zoom5");
-      break;
-    case 0:
-      CheckEntry (&DisplayMenu, "zoom1");
-      break;
-    case 2:
-      CheckEntry (&DisplayMenu, "zoom2");
-      break;
-    case 4:
-      CheckEntry (&DisplayMenu, "zoom4");
-      break;
-    case 6:
-      CheckEntry (&DisplayMenu, "zoom8");
-      break;
-    case 8:
-      CheckEntry (&DisplayMenu, "zoom16");
-      break;
-    default:
-      break;
-    }
-  CheckEntry (&DisplayMenu,
-	      TEST_FLAG (NAMEONPCBFLAG, PCB) ? "onPCB" :
-	      TEST_FLAG (DESCRIPTIONFLAG, PCB) ? "description" : "value");
-  if (TEST_FLAG (SHOWNUMBERFLAG, PCB))
-    CheckEntry (&DisplayMenu, "pinnum");
+  return zoom;
 }
 
-/* ---------------------------------------------------------------------- 
- * called before settings menu is popped up
- * used to mark the boolean settings
- */
-static void
-CBPOPUP_Settings (Widget W, XtPointer ClientData, XtPointer CallData)
+/* FLAG(elementname,FlagElementName) */
+int
+FlagElementName()
 {
-  RemoveCheckFromMenu (&SettingsMenu);
-  if (TEST_FLAG (ALLDIRECTIONFLAG, PCB))
-    CheckEntry (&SettingsMenu, "toggleAllDirections");
-  if (TEST_FLAG (RUBBERBANDFLAG, PCB))
-    CheckEntry (&SettingsMenu, "toggleRubberBandMode");
-  if (TEST_FLAG (SWAPSTARTDIRFLAG, PCB))
-    CheckEntry (&SettingsMenu, "toggleSwapStartDirection");
-  if (TEST_FLAG (UNIQUENAMEFLAG, PCB))
-    CheckEntry (&SettingsMenu, "toggleUniqueName");
-  if (TEST_FLAG (SNAPPINFLAG, PCB))
-    CheckEntry (&SettingsMenu, "toggleSnapPin");
-  if (TEST_FLAG (LOCALREFFLAG, PCB))
-    CheckEntry (&SettingsMenu, "toggleLocalRef");
-  if (TEST_FLAG (CLEARNEWFLAG, PCB))
-    CheckEntry (&SettingsMenu, "toggleClearLine");
-  if (TEST_FLAG (THINDRAWFLAG, PCB))
-    CheckEntry (&SettingsMenu, "toggleThindraw");
-  if (TEST_FLAG (CHECKPLANESFLAG, PCB))
-    CheckEntry (&SettingsMenu, "toggleCheckPlanes");
-  if (TEST_FLAG (ORTHOMOVEFLAG, PCB))
-    CheckEntry (&SettingsMenu, "toggleOrthoMove");
-  if (TEST_FLAG (SHOWDRCFLAG, PCB))
-    CheckEntry (&SettingsMenu, "toggleShowDRC");
-  if (Settings.liveRouting)
-    CheckEntry (&SettingsMenu, "toggleLiveRoute");
-  if (TEST_FLAG (AUTODRCFLAG, PCB))
-    CheckEntry (&SettingsMenu, "toggleAutoDRC");
+  if (TEST_FLAG (NAMEONPCBFLAG, PCB))
+    return 2;
+  if (TEST_FLAG (DESCRIPTIONFLAG, PCB))
+    return 1;
+  return 3;
 }
 
-
-/* ---------------------------------------------------------------------- 
- * called before file menu is popped up
- * enables/disables printing
- */
-static void
-CBPOPUP_File (Widget W, XtPointer ClientData, XtPointer CallData)
+/* FLAG(gridfactor,FlagGridFactor) */
+int
+FlagGridFactor()
 {
-  XtSetSensitive (XtNameToWidget (FileMenu.W, "print"),
-		  !IsDataEmpty (PCB->Data));
+  return GetGridFactor() != 0;
 }
 
-/* ---------------------------------------------------------------------- 
- * called before buffer menu is popped up
- */
-static void
-CBPOPUP_Buffer (Widget W, XtPointer ClientData, XtPointer CallData)
+/* FLAG(shownumber,FlagTESTFLAG,SHOWNUMBERFLAG) */
+/* FLAG(localref,FlagTESTFLAG,LOCALREFFLAG) */
+/* FLAG(checkplanes,FlagTESTFLAG,CHECKPLANESFLAG) */
+/* FLAG(showdrc,FlagTESTFLAG,SHOWDRCFLAG) */
+/* FLAG(rubberband,FlagTESTFLAG,RUBBERBANDFLAG) */
+/* FLAG(description,FlagTESTFLAG,DESCRIPTIONFLAG) */
+/* FLAG(nameonpcb,FlagTESTFLAG,NAMEONPCBFLAG) */
+/* FLAG(autodrc,FlagTESTFLAG,AUTODRCFLAG) */
+/* FLAG(alldirection,FlagTESTFLAG,ALLDIRECTIONFLAG) */
+/* FLAG(swapstartdir,FlagTESTFLAG,SWAPSTARTDIRFLAG) */
+/* FLAG(uniquename,FlagTESTFLAG,UNIQUENAMEFLAG) */
+/* FLAG(clearnew,FlagTESTFLAG,CLEARNEWFLAG) */
+/* FLAG(snappin,FlagTESTFLAG,SNAPPINFLAG) */
+/* FLAG(showmask,FlagTESTFLAG,SHOWMASKFLAG) */
+/* FLAG(thindraw,FlagTESTFLAG,THINDRAWFLAG) */
+/* FLAG(orthomove,FlagTESTFLAG,ORTHOMOVEFLAG) */
+int
+FlagTESTFLAG(int bit)
 {
-  char name[10];
-
-  RemoveCheckFromMenu (&BufferMenu);
-  sprintf (name, "buffer%i", (int)(Settings.BufferNumber + 1));
-  CheckEntry (&BufferMenu, name);
+  return TEST_FLAG(bit, PCB) ? 1 : 0;
 }
 
-/* ---------------------------------------------------------------------- 
- * called before window menu is popped up
- * enables/disables log window 
- */
-static void
-CBPOPUP_Window (Widget W, XtPointer ClientData, XtPointer CallData)
+/* FLAG(clearline,FlagSETTINGS,XtOffsetOf(SettingType,ClearLine)) */
+/* FLAG(uniquenames,FlagSETTINGS,XtOffsetOf(SettingType,UniqueNames)) */
+/* FLAG(uselogwindow,FlagSETTINGS,XtOffsetOf(SettingType,UseLogWindow)) */
+/* FLAG(raiselogwindow,FlagSETTINGS,XtOffsetOf(SettingType,RaiseLogWindow)) */
+/* FLAG(showsolderside,FlagSETTINGS,XtOffsetOf(SettingType,ShowSolderSide)) */
+/* FLAG(savelastcommand,FlagSETTINGS,XtOffsetOf(SettingType,SaveLastCommand)) */
+/* FLAG(saveintmp,FlagSETTINGS,XtOffsetOf(SettingType,SaveInTMP)) */
+/* FLAG(drawgrid,FlagSETTINGS,XtOffsetOf(SettingType,DrawGrid)) */
+/* FLAG(ratwarn,FlagSETTINGS,XtOffsetOf(SettingType,RatWarn)) */
+/* FLAG(stipplepolygons,FlagSETTINGS,XtOffsetOf(SettingType,StipplePolygons)) */
+/* FLAG(alldirectionlines,FlagSETTINGS,XtOffsetOf(SettingType,AllDirectionLines)) */
+/* FLAG(rubberbandmode,FlagSETTINGS,XtOffsetOf(SettingType,RubberBandMode)) */
+/* FLAG(swapstartdirection,FlagSETTINGS,XtOffsetOf(SettingType,SwapStartDirection)) */
+/* FLAG(showdrc,FlagSETTINGS,XtOffsetOf(SettingType,ShowDRC)) */
+/* FLAG(resetafterelement,FlagSETTINGS,XtOffsetOf(SettingType,ResetAfterElement)) */
+/* FLAG(ringbellwhenfinished,FlagSETTINGS,XtOffsetOf(SettingType,RingBellWhenFinished)) */
+int
+FlagSETTINGS(int ofs)
 {
-  XtSetSensitive (XtNameToWidget (WindowMenu.W, "log"),
-		  Settings.UseLogWindow);
-  XtSetSensitive (XtNameToWidget (WindowMenu.W, "netlist"),
-		  PCB->NetlistLib.Wind != 0);
+  return *(Boolean *)((char *)(&Settings) + ofs);
 }
 
-
-/* ---------------------------------------------------------------------- 
- * callback routine used by about entry
- */
-static void
-CB_About (Widget W, XtPointer ClientData, XtPointer CallData)
+/* FLAG(netlist,FlagNetlist) */
+int
+FlagNetlist()
 {
-  AboutDialog ();
+  return PCB->NetlistLib.Wind != 0;
 }
 
 /* ---------------------------------------------------------------------------
@@ -1029,22 +526,64 @@ InitCheckPixmap (void)
 /* ---------------------------------------------------------------------------
  * initializes button related menus
  */
+
 void
 InitMenu (Widget Parent, Widget Top, Widget Left)
 {
   Widget last;
+  Resource *res, *mres;
+  char *home = getenv("HOME");
+  char *menu_file = 0;
 
-  last = InitMenuButton (Parent, &FileMenuButton, Top, Left);
-  last = InitMenuButton (Parent, &EditMenuButton, Top, last);
-  last = InitMenuButton (Parent, &DisplayMenuButton, Top, last);
-  last = InitializeSizesMenu (Parent, Top, last);
-  last = InitMenuButton (Parent, &SettingsMenuButton, Top, last);
-  last = InitMenuButton (Parent, &SelectionMenuButton, Top, last);
-  last = InitMenuButton (Parent, &BufferMenuButton, Top, last);
-  last = InitMenuButton (Parent, &ConnectionMenuButton, Top, last);
-  last = InitMenuButton (Parent, &ReportMenuButton, Top, last);
-  last = InitMenuButton (Parent, &WindowMenuButton, Top, last);
+  if (FileExists("pcb-menu.res"))
+    menu_file = "pcb-menu.res";
+  if (home && !menu_file)
+    {
+      menu_file = Concat (home, "/.pcb-menu.res", 0);
+      if (! FileExists(menu_file))
+	menu_file = 0;
+    }
+  if (!menu_file && FileExists(Settings.MenuFile))
+    menu_file = Settings.MenuFile;
+
+  if (menu_file)
+    res = resource_parse(menu_file, 0);
+  else
+    {
+      menu_file = "<internal default>";
+      res = resource_parse (0, pcb_menu_default);
+    }
+
+  if (!res)
+    {
+      fprintf(stderr, "Unable to parse menu file %s\n", menu_file);
+      return;
+    }
+  mres = resource_subres (res, "MainMenu");
+  if (!mres)
+    {
+      fprintf(stderr, "Cannot find MainMenu resource in %s, trying internal defaults\n", menu_file);
+      menu_file = "<internal default>";
+      res = resource_parse (0, pcb_menu_default);
+      mres = resource_subres (res, "MainMenu");
+      if (!mres)
+	{
+	  fprintf (stderr, "Cannot find MainMenu resource internally either\n");
+	  exit (1);
+	}
+    }
+  last = MenuCreateFromResource (Parent, mres, Top, Left, 1);
+
   InitPopupMenu (Parent, &pMenu);
   InitPopupMenu (Parent, &p2Menu);
   Output.Menu = last;
+}
+
+void
+DumpMenu()
+{
+  int i;
+  for (i=0; pcb_menu_default[i]; i++)
+    puts(pcb_menu_default[i]);
+  exit (0);
 }

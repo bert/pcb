@@ -69,5 +69,7 @@ BoxTypePtr	GetArcEnds(ArcTypePtr);
 char		*UniqueElementName(DataTypePtr, char *);
 void		AttachForCopy(Location, Location);
 float		GetValue(String *, Boolean *, Cardinal);
+int		FileExists(const char *);
+char *		Concat (const char *, ...); /* end with NULL */
 
 #endif

@@ -30,6 +30,8 @@ Copyright (C) 1997, 1998, 1999, 2000, 2001, 2002 harry eaton
 
 Copyright (C) 2003, 2004 Dan McMahill
 
+Copyright (C) 2004 DJ Delorie
+
 This program is free software; you may redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
@@ -73,6 +75,8 @@ board layout system for @code{X11}.
 * Library Creation::       Detailed description of symbol library creation.
 * Schematic Frontends::    Schematic capture programs that work with PCB.
 * Installation::           Compiling, installing and troubleshooting.
+* Custom Menus::           Customizing the menu bar.
+* Index::                  The Index.
 @end menu
 
 @c ---------------------------------------------------------------------
@@ -4956,7 +4960,7 @@ page for PCB which can be found from the PCB homepage at
 
 @c --------------------------- Appendix A -------------------------------
 
-@node Installation, , Schematic Frontends, Top
+@node Installation, Custom Menus, Schematic Frontends, Top
 @appendix Installation and Troubleshooting
 Compiling and installing the package should be straightforward. If any problems
 occur, please contact the author @email{Thomas.Nau@@rz.uni-ulm.de}, or the
@@ -5194,7 +5198,176 @@ FTP sites.
 @emph{ftp.uni-ulm.de} for ready-to-print versions of the manuals.
 
 
+@c --------------------------- Appendix B -------------------------------
+
+@node Custom Menus, Index, Installation, Top
+@appendix Customizing the Menus
+
+The menu system is driven off a data file that contains
+@dfn{resources}.  A resource is a hierarchical description of a data
+tree which, in this case, is mapped to the hierarchical menus used by
+Pcb.
+
+@menu
+* Resource Syntax::          What a resource file looks like.
+* Menu Definitions::         Using a resource to define a menu.
+* Menu Files and Defaults::  Where Pcb looks for its menu resource.
+@end menu
+
+@node Resource Syntax, Menu Definitions, , Custom Menus
+@section Resource Syntax
+
+A resource file is a simple text file.  It contains curly braces to
+group things, spaces between things, and double quotes when strings
+need to include spaces.  There are four fundamental ways of adding
+data to a resource.
+
+First, a string (either a single word or a quoted string with spaces,
+we call both ``strings'' in this appendix) can be added all by itself,
+to add a string resource to the current resource.  This is used, for
+example, to define the string printed on a menu button.  In this
+example, four strings are added to the @var{File} resource:
+
+@example
+File = @{
+  Sample
+  "longer sample"
+  some text
+@}
+@end example
+
+Second, a named string may be added by giving two strings separated by
+an equals sign.  This is used to specify X resources and a few other
+optional parameters of menus, for example.  Note that a string all by
+itself is thus an ``unnamed'' string.
+
+@example
+@{"Layer groups" foreground=red sensitive=false@}
+@end example
+
+Third, an unnamed subresource may be added.  This is used create
+submenus and menu buttons.  To add a subresource, simply group other
+things in curly braces.  This example describes a resource containing
+one string and three subresources:
+
+@example
+@{File
+  @{New do_new()@}
+  @{Save do_save()@}
+  @{Quit do_quit()@}
+@}
+@end example
+
+Lastly, a named subresource may be added by prefixing an unnamed
+subresource with a string and an equals sign, just as when naming
+strings.  This syntax is used to name the resources used for the main
+menu and popup menus:
+
+@example
+MainMenu = @{
+  @dots{}
+  @}
+@end example
+
+Additionally, the menu parser allows for ``hooks'' whereby portions of
+the menu system can be programmatically created at runtime by the
+application.  These hooks are invoked by a single word preceeded by an
+at sign, such as this example where most of the Sizes menu is created
+automatically:
+
+@example
+@{Sizes
+    @@sizes
+    @{"Adjust active sizes ..." AdjustStyle(0)@}
+    @}
+@end example
+
+@node Menu Definitions, Menu Files and Defaults, Resource Syntax, Custom Menus
+@section Menu Definitions
+
+To best understand this section, you should find the
+@file{pcb-menu.res} file that your Pcb uses and refer to it for
+examples (@pxref{Menu Files and Defaults}).
+
+A resource defines a menu when it meets certain semantic requirements.
+The menu heirarchy is reflected as a heirarchy of unnamed
+subresources, with the first string of each subresource defining the
+label used for the menu button.  A subresource that itself contains
+subresources becomes a submenu, a subresource that does not becomes a
+button.
+
+A submenu should only contain subresources for the buttons or submenus
+within that submenu.  Two exceptions are allowed: an initial string
+sets the label, and the string ``-'' (a single dash) will create a
+separator.
+
+A button should not contain subresources, but will contain many
+strings, named and unnamed.  The first member shall be an unnamed
+string which is the label for the button.  Any other unnamed strings
+within the button's resource will be used as actions (much like the
+.Xdefaults action strings), which are functions that will be called
+when the button is pressed (or popped up, or created, depending on the
+action).  As a convenience, if a left parenthesis is seen, the current
+``word'' will continue at least until the matching right parenthesis.
+This allows you to pass strings with spaces as arguments to actions
+without needing to quote the action.
+
+Named resources in button resources will be used as X resources.  Such
+resources can be used to set the font, color, and spacing of buttons.
+As a convenience, ``fg'' can be used as an abbreviation for ``foreground''.
+
+Within the menu's resource file, Pcb will look for a few key named
+subresources.  At the moment, the only one it looks for is one called
+@code{MainMenu}.  This will be used for the main menu bar.  In the
+future, other named subresources will be used for popup resources.
+
+Given all this, a small sample @file{pcb-menu.res} would be:
+
+@example
+MainMenu = @{
+  @{File
+    @{"Load layout" Load(Layout)@}
+    -
+    @{"Quit Program" Quit() fg=red font=10x20@}
+  @}
+@}
+@end example
+
+Within the Pcb sources are specially crafted comments that mark all
+the actions, flags, menu hooks, and whatnot that Pcb offers.  Read the
+file @file{src/gather-actions} in the Pcb source tree for
+documentation for these comments.
+
+@node Menu Files and Defaults, , Menu Definitions, Custom Menus
+@section Menu Files and Defaults
+
+Pcb will look for a file which defines its menus, trying the following
+names:
+
+@example
+./pcb-menu.res
+$HOME/.pcb-menu.res
+$PCBLIBDIR/pcb-menu.res
+<internal>
+@end example
+
+Note that @var{pcblibdir} defaults to @file{/usr/local/share/pcb}
+(hence, @file{/usr/local/share/pcb/pcb-menu.res}).  The
+@file{<internal>} entry refers to a menu definition within the Pcb
+application itself.  The master file for all this is the file
+@file{src/pcb-menu.res} in the Pcb source tree.  This master source is
+used to create the internal menu definition as well as being installed
+in @file{$pcblibdir}.
+
+You can view the internal menu definition (the default) by running
+@file{pcb} with the @code{-dumpmenu} option, like this:
+
+@example
+pcb -dumpmenu
+@end example
+
 @c ---------------------------------------------------------------------
+@node Index, , Custom Menus, Top
 @unnumbered Index of Resources
 @printindex vr
 

@@ -82,6 +82,7 @@ pcb.libraryFilename:        LIBRARYFILENAME
 pcb.libraryPath:            .:PCBLIBDIR
 pcb.lineThickness:          10
 pcb.media:                  a4
+pcb.menuFile:		    PCBLIBDIR/pcb-menu.res
 pcb.offLimitColor:          gray80
 pcb.pinColor:               gray30
 pcb.pinSelectedColor:       cyan

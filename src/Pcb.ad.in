@@ -80,6 +80,7 @@ Pcb.libraryPath:            .:@pcblibdir@
 Pcb.libraryTree:            @pcbtreedir@
 Pcb.lineThickness:          1000
 Pcb.media:                  letter
+Pcb.menuFile:		    @pcblibdir@/pcb-menu.res
 Pcb.offLimitColor:          gray80
 Pcb.pinColor:               gray30
 Pcb.pinSelectedColor:       cyan
