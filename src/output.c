@@ -44,6 +44,7 @@
 #include "gui.h"
 #include "output.h"
 #include "misc.h"
+#include "set.h"
 
 #include <X11/Xaw/Form.h>
 #include <X11/Xaw/Panner.h>
