@@ -146,6 +146,7 @@ MoveElementLowLevel (DataTypePtr Data, ElementTypePtr Element, Location DX, Loca
     }
   );
   MOVE_BOX_LOWLEVEL (&Element->BoundingBox, DX, DY);
+  MOVE_BOX_LOWLEVEL (&Element->VBox, DX, DY);
   MOVE (Element->MarkX, Element->MarkY, DX, DY);
   if (Data)
     r_insert_entry(Data->element_tree, (BoxType *)Element, 0);
