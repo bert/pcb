@@ -680,6 +680,8 @@ typedef struct
 
 #if GCC_VERSION > 2007
 #define ATTRIBUTE_UNUSED __attribute__((unused)) 
+#else
+#define ATTRIBUTE_UNUSED
 #endif 
 
 #define RCSID(x) static char *rcsid  ATTRIBUTE_UNUSED = x
