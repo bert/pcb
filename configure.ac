@@ -30,6 +30,7 @@ dnl Checks for libraries.
 AC_CHECK_LIB(m, sqrt)
 AC_CHECK_LIB(xnet, gethostbyname)
 AC_CHECK_LIB(fl, yywrap)
+AC_CHECK_FUNCS(strerror)
 AC_PATH_XTRA
 AC_ARG_WITH([libstroke],
 [  --without-libstroke     disable libstroke support (default: enabled)],
@@ -93,7 +94,6 @@ dnl Checks for typedefs, structures, and compiler characteristics.
 dnl Checks for data types
 
 dnl Checks for library functions.
-AC_CHECK_FUNCS(strerror)
 
 # ------------- dmalloc -------------------
 dnl dmalloc checks
