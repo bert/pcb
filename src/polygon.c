@@ -214,10 +214,13 @@ void
 CopyAttachedPolygonToLayer (void)
 {
   PolygonTypePtr polygon;
+  int saveID;
 
   /* move data to layer and clear attached struct */
   polygon = CreateNewPolygon (CURRENT, NOFLAG);
+  saveID = polygon->ID;
   *polygon = Crosshair.AttachedPolygon;
+  polygon->ID = saveID;
   SET_FLAG (CLEARPOLYFLAG, polygon);
   memset (&Crosshair.AttachedPolygon, 0, sizeof (PolygonType));
   SetPolygonBoundingBox (polygon);
@@ -238,7 +241,8 @@ CopyAttachedPolygonToLayer (void)
  *  Updates the pin-in-polygon flags
  *  if called with Element == NULL, seach all pins
  *  if called with Pin == NULL, search all pins on element
- *  if called with Layer == NULL, search all polygons
+ *  if called with Polygon == NULL, search all polygons
+ *  if called with Layer == NULL, search all layers
  */
 void
 UpdatePIPFlags (PinTypePtr Pin, ElementTypePtr Element,

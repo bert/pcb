@@ -170,7 +170,17 @@ static void *
 DestroyPolygonPoint (LayerTypePtr Layer,
 		     PolygonTypePtr Polygon, PointTypePtr Point)
 {
-  return (RemovePolygonPoint (Layer, Polygon, Point));
+  PointTypePtr ptr;
+
+  for (ptr = Point + 1; ptr != &Polygon->Points[Polygon->PointN]; ptr++)
+    {
+      *Point = *ptr;
+      Point = ptr;
+    }
+  Polygon->PointN--;
+  SetPolygonBoundingBox (Polygon);
+  UpdatePIPFlags (NULL, NULL, Layer, NULL, True);
+  return (Polygon);
 }
 
 /* ---------------------------------------------------------------------------

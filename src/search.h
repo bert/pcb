@@ -84,7 +84,7 @@ Boolean	IsRectangleInPolygon(Position, Position, Position, Position,
 int		SearchObjectByPosition(int, void **, void **, void **,
 			Position, Position, Dimension);
 int		SearchScreen(Position, Position, int, void **, void **, void **);
-int		SearchObjectByID(DataTypePtr, void **, void **, void **, int);
+int		SearchObjectByID(DataTypePtr, void **, void **, void **, int, int);
 ElementTypePtr SearchElementByName(DataTypePtr, char *);
 
 #endif
