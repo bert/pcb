@@ -73,7 +73,7 @@ SetCursorStatusLine (void)
 
   if (Marked.status)
     sprintf (text,
-	     "%-i.%02d, %-i.%02d <%-i.%02d, %-i.%0d> (%-.2fmm, %-.2fmm)",
+	     "%-i.%02d, %-i.%02d <%-li.%02d, %-li.%02d> (%-.2fmm, %-.2fmm)",
 	     Crosshair.X / 100, abs(Crosshair.X % 100), Crosshair.Y / 100,
 	     abs(Crosshair.Y % 100), (Crosshair.X - Marked.X) / 100,
 	     abs(Crosshair.X - Marked.X) % 100, (Crosshair.Y - Marked.Y) / 100,
@@ -98,7 +98,7 @@ SetStatusLine (void)
   if (PCB->Grid == (int) PCB->Grid)
     sprintf (text,
 	     "%c %s, grid=%i.%02i:%i,%s%sline=%i.%02i, via=%i.%02i(%i.%02i),"
-	     "clearance=%i.%i, text=%i%%, buffer=#%-i, name: ",
+	     " clearance=%i.%02i, text=%i%%, buffer=#%li, name: ",
 	     PCB->Changed ? '*' : ' ',
 	     Settings.ShowSolderSide ? "solder" : "component",
 	     (int) PCB->Grid / 100, (int) (PCB->Grid) % 100,
@@ -116,7 +116,7 @@ SetStatusLine (void)
   else
     sprintf (text,
 	     "%c %s, grid=%4.2fmm:%i,%s%sline=%i.%02i, via=%i.%02i(%i.%02i),"
-	     "clearance=%i.%02i, text=%i%%, buffer=#%-i, name: ",
+	     " clearance=%i.%02i, text=%i%%, buffer=#%li, name: ",
 	     PCB->Changed ? '*' : ' ',
 	     Settings.ShowSolderSide ? "solder" : "component",
 	     PCB->Grid * COOR_TO_MM, (int) Settings.GridFactor,
