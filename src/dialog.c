@@ -343,15 +343,84 @@ SendEnterNotify (void)
 }
 
 /* ---------------------------------------------------------------------------
+ * Various functions to manage the history buffer.
+ */
+
+typedef struct {
+  /* int caret; - future */
+  char *buffer;
+} HistoryElement;
+
+HistoryElement *history_buffer = 0;
+int history_size, history_last, history_cur;
+
+void
+history_init (void)
+{
+  if (Settings.HistorySize == 0)
+    return;
+  history_size = Settings.HistorySize + 2;
+  if (history_size < 3)
+    history_size = 3;
+  history_buffer = calloc (history_size, sizeof (HistoryElement));
+  history_last = history_cur = 0;
+}
+
+HistoryElement *
+history_get(int index)
+{
+  int i;
+
+  if (!history_buffer)
+    history_init();
+  if (!history_buffer)
+    return;
+
+  i = (index + history_size) % history_size;
+  return history_buffer+i;
+}
+
+void
+history_put(char *str, int temp)
+{
+  if (!history_buffer)
+    history_init();
+  if (!history_buffer)
+    return;
+
+  /* Avoid storing duplicates.  */
+  if (temp
+      || !history_buffer[history_last].buffer
+      || strcmp (str, history_buffer[history_last].buffer) != 0)
+    {
+      history_last = (history_last + 1) % history_size;
+      if (history_buffer[history_last].buffer)
+	free (history_buffer[history_last].buffer);
+      history_buffer[history_last].buffer = MyStrdup (str, "history_put()");
+    }
+
+  /* Make sure there is at least one NULL entry in the loop.  */
+  if (history_buffer[(history_last+1) % history_size].buffer)
+    {
+      free (history_buffer[(history_last+1) % history_size].buffer);
+      history_buffer[(history_last+1) % history_size].buffer = 0;
+    }
+  if (temp)
+    history_last = (history_last - 1 + history_size) % history_size;
+}
+
+/* ---------------------------------------------------------------------------
  * gets a string from user, memory is allocated for the string,
  * the user is responsible for releasing the allocated memory
  * string might be empty if flag is set
  */
+
+static  Widget inputfield;
+
 char *
 GetUserInput (char *MessageText, char *OutputString)
 {
   char *string;
-  Widget inputfield;
   Dimension messageWidth, viewportWidth;
 
   /* display single line message */
@@ -369,6 +438,7 @@ GetUserInput (char *MessageText, char *OutputString)
 					XtNfromHoriz, Output.Message,
 					XtNfromVert, Output.Porthole,
 					XtNstring, EMPTY (OutputString),
+					XtNinsertPosition, OutputString ? strlen(OutputString) : 0,
 					XtNwidth, MAX (100,
 						       viewportWidth -
 						       messageWidth),
@@ -385,18 +455,23 @@ GetUserInput (char *MessageText, char *OutputString)
   XtAddGrab (inputfield, True, False);
   XtRealizeWidget (inputfield);
 
+  /* -1 means the history queue doesn't contain the current line yet.  */
+  history_cur = -1;
+
   /* wait for input to complete and allocate memory if necessary */
   if (DialogEventLoop (&ReturnCode) == OK_BUTTON)
     {
       /* strip white space and return string */
       XtVaGetValues (inputfield, XtNstring, &string, NULL);
       string = StripWhiteSpaceAndDup (string);
+      history_put (string, 0);
     }
   else
     string = NULL;
 
   /* restore normal outfit */
   XtRemoveGrab (inputfield);
+  XtUnmanageChild (inputfield);
   XtDestroyWidget (inputfield);
   MessagePrompt (NULL);
 
@@ -406,6 +481,52 @@ GetUserInput (char *MessageText, char *OutputString)
   SendEnterNotify ();
   XSync (Dpy, False);
   return (string);
+}
+
+/* ACTION(CommandHistory,ActionCommandHistory) */
+void
+ActionCommandHistory (Widget W, XEvent *Event, String *Params, Cardinal *num)
+{
+  char *string;
+  HistoryElement *he;
+  int i, offs = 0;
+
+  if (!Settings.HistorySize || !Params[0])
+    {
+      XBell(Dpy, 100);
+      return;
+    }
+  if (strcmp (Params[0], "prev") == 0)
+    offs = -1;
+  else if (strcmp (Params[0], "next") == 0)
+    offs = +1;
+  else
+    {
+      fprintf(stderr, "Usage: CommandHistory(prev|next)\n");
+      return;
+    }
+
+  if (history_cur == -1
+      || history_cur == (history_last + 1) % history_size)
+    {
+      XtVaGetValues (inputfield, XtNstring, &string, NULL);
+      history_put (string, 1);
+      history_cur = (history_last + 1) % history_size;
+    }
+
+  if (offs)
+    {
+      he = history_get (history_cur + offs);
+      if (!he->buffer)
+	{
+	  XBell(Dpy, 100);
+	  return;
+	}
+      history_cur += offs + history_size;
+      history_cur %= history_size;
+      XtVaSetValues (inputfield, XtNstring, he->buffer, NULL);
+      XtVaSetValues (inputfield, XtNinsertPosition, strlen(he->buffer), NULL);
+    }
 }
 
 /* ---------------------------------------------------------------------------

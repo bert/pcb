@@ -90,6 +90,8 @@ String InputTranslations =
   "<Key>Linefeed: no-op()\n "
   "<Key>Return:   FinishInputDialog(OK)\n "
   "<Key>Escape:   FinishInputDialog(Cancel)\n "
+  "<Key>Up:       CommandHistory(prev)\n "
+  "<Key>Down:     CommandHistory(next)\n "
   "Ctrl<Key>j:    no-op()\n "
   "Ctrl<Key>m:    no-op()\n " "Ctrl<Key>o:    no-op()\n ";
 

@@ -621,6 +621,9 @@ static XtResource ToplevelResources[] = {
   {"gridColor", XtCColor, XtRPixel, sizeof (Pixel),
    XtOffsetOf (SettingType, GridColor), XtRString, XtDefaultForeground}
   ,
+  {"historySize", "HistorySize", XtRInt, sizeof (int),
+   XtOffsetOf (SettingType, HistorySize), XtRString, "100"}
+  ,
   {"invisibleObjectsColor", XtCColor, XtRPixel, sizeof (Pixel),
    XtOffsetOf (SettingType, InvisibleObjectsColor),
    XtRString, XtDefaultForeground}

@@ -522,6 +522,7 @@ typedef struct			/* some resources... */
   /* produced when searching of */
   /* connections is done */
   XFontStruct *PinoutFont[MAX_ZOOM + 1];	/* font ID used for pin names */
+  int HistorySize;
 } SettingType, *SettingTypePtr;
 
 /* ----------------------------------------------------------------------

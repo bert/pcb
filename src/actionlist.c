@@ -6,6 +6,7 @@
 extern void AboutDialog(Widget,XEvent *,String *, Cardinal *);
 extern void ActionActiveWhen(Widget,XEvent *,String *, Cardinal *);
 extern void ActionCheckWhen(Widget,XEvent *,String *, Cardinal *);
+extern void ActionCommandHistory(Widget,XEvent *,String *, Cardinal *);
 extern void ActionDoWindows(Widget,XEvent *,String *, Cardinal *);
 extern void ActionExecuteFile(Widget,XEvent *,String *, Cardinal *);
 extern void ActionGetLocation(Widget,XEvent *,String *, Cardinal *);
@@ -16,6 +17,7 @@ XtActionsRec ActionList[] = {
   {"About", AboutDialog},
   {"ActiveWhen", ActionActiveWhen},
   {"CheckWhen", ActionCheckWhen},
+  {"CommandHistory", ActionCommandHistory},
   {"DoWindows", ActionDoWindows},
   {"ExecuteFile", ActionExecuteFile},
   {"GetXY", ActionGetLocation},
@@ -28,6 +30,7 @@ struct { char *name; int type; } ActionTypeList[] = {
   {"About", 0},
   {"ActiveWhen", 'p'},
   {"CheckWhen", 'p'},
+  {"CommandHistory", 0},
   {"DoWindows", 0},
   {"ExecuteFile", 0},
   {"GetXY", 0},
@@ -36,7 +39,7 @@ struct { char *name; int type; } ActionTypeList[] = {
   {0,0}
 };
 
-int ActionListSize = 8;
+int ActionListSize = 9;
 extern int FlagCurrentStyle(int);
 extern int FlagElementName(int);
 extern int FlagGrid(int);
