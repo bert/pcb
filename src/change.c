@@ -2085,6 +2085,13 @@ QueryInputAndChangeObjectName (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
   char *name = NULL;
   char msg[513];
 
+  /* if passed an element name, make it an element reference instead */
+  if (Type == ELEMENTNAME_TYPE)
+    {
+      Type = ELEMENT_TYPE;
+      Ptr2 = Ptr1;
+      Ptr3 = Ptr1;
+    }
   switch (Type)
     {
     case LINE_TYPE:
