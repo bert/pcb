@@ -44,7 +44,7 @@ void		*ObjectOperation(ObjectFunctionTypePtr, int,
 				void *, void *, void *);
 Boolean		SelectConnection(Boolean);
 
-#if defined(HAS_REGCOMP) || defined(HAS_RE_COMP)
+#if defined(HAVE_REGCOMP) || defined(HAVE_RE_COMP)
 Boolean		SelectObjectByName(int, char *);
 #endif
 
