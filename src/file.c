@@ -570,9 +570,9 @@ WriteLayerData (FILE * FP, Cardinal Number, LayerTypePtr layer)
 		           (int) point->Y);
 	        }
 	     );
+             fputs ("\t)\n", FP);
 	  }
       );
-
       fputs (")\n", FP);
     }
 }
