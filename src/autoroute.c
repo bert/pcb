@@ -1658,6 +1658,7 @@ fio_rect_in_reg (const BoxType * box, void *cl)
   return 1;			/* never reached */
 }
 
+/* exclude equality point from search depending on expansion direction */
 static int
 fio_reg_in_sea (const BoxType * region, void *cl)
 {
@@ -1668,31 +1669,23 @@ fio_reg_in_sea (const BoxType * region, void *cl)
     {
       case WEST:
 	if (-rbox.Y2 >= fio->north_box.X2 ||
-            -rbox.Y1 <= fio->north_box.X1 ||
-	    rbox.X1 > fio->north_box.Y2 ||
-	    rbox.X2 < fio->north_box.Y1)
-	  return 0;
+            -rbox.Y1 <= fio->north_box.X1)
+	    return 0;
 	return 1;
       case SOUTH:
         if (-rbox.X2 >= fio->north_box.X2 ||
-	    -rbox.X1 <= fio->north_box.X1 ||
-	    -rbox.Y2 > fio->north_box.Y2 ||
-	    -rbox.Y1 < fio->north_box.Y1)
-	  return 0;
+	    -rbox.X1 <= fio->north_box.X1)
+	    return 0;
 	return 1;
       case EAST:
         if (rbox.Y1 >= fio->north_box.X2 ||
-	    rbox.Y2 <= fio->north_box.X1 ||
-	    -rbox.X2 > fio->north_box.Y2 ||
-	    -rbox.X1 < fio->north_box.Y1)
-	  return 0;
+	    rbox.Y2 <= fio->north_box.X1)
+	    return 0;
 	return 1;
       case NORTH:
         if (rbox.X1 >= fio->north_box.X2 ||
-	    rbox.X2 <= fio->north_box.X1 ||
-	    rbox.Y1 > fio->north_box.Y2 ||
-	    rbox.Y2 < fio->north_box.Y1)
-	  return 0;
+	    rbox.X2 <= fio->north_box.X1)
+	    return 0;
 	return 1;
       default:
         assert(0);
@@ -1703,15 +1696,17 @@ static routebox_t *
 FindIntersectingObstacle (rtree_t * rtree, edge_t * e, BDimension maxbloat)
 {
   struct fio_info fio;
+  BoxType sbox;
 
   fio.edge = e;
   fio.maxbloat = maxbloat;
   fio.intersect = NULL;
   fio.north_box = e->rb->box;
 
+  sbox = bloat_box (&e->rb->box, maxbloat);
   ROTATEBOX_TO_NORTH (fio.north_box, e->expand_dir);
   if (setjmp (fio.env) == 0)
-    r_search (rtree, NULL, fio_reg_in_sea, fio_rect_in_reg, &fio);
+    r_search (rtree, &sbox, fio_reg_in_sea, fio_rect_in_reg, &fio);
   return fio.intersect;
 }
 
@@ -1811,7 +1806,7 @@ ExpandAllEdges (edge_t * e, vector_t * result_vec,
   return;
 }
 
-/* find edges which intersect obstacles, and break them into
+/* find edges that intersect obstacles, and break them into
  * intersecting and non-intersecting edges. */
 void
 BreakEdges (routedata_t * rd, vector_t * edge_vec, rtree_t * targets)
