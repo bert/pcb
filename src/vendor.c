@@ -730,13 +730,12 @@ rematch( const char *re, const char *s)
     }
   
   result = regexec (&compiled, s, 1, &match, 0);
+  regfree (&compiled);
 
   if (result == 0)
     return (True);
   else
     return (False);
-
-  regfree (&compiled);
 
 #elif defined(HAVE_RE_COMP)
   int m;
