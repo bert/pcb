@@ -373,10 +373,13 @@ UndoChangeMaskSize (UndoListTypePtr Entry)
     {
       if (TEST_FLAG (LOCKFLAG, (PinTypePtr) ptr2))
 	return (False);
-      swap = ((PinTypePtr) ptr2)->Mask;
+      swap = (type == PAD_TYPE ? ((PadTypePtr) ptr2)->Mask : ((PinTypePtr) ptr2)->Mask);
       if (andDraw)
 	EraseObject (type, ptr2);
-      ((PinTypePtr) ptr2)->Mask = Entry->Data.Size;
+      if (type == PAD_TYPE)
+        ((PadTypePtr) ptr2)->Mask = Entry->Data.Size;
+      else
+        ((PinTypePtr) ptr2)->Mask = Entry->Data.Size;
       Entry->Data.Size = swap;
       if (andDraw)
 	DrawObject (type, ptr1, ptr2, 0);
