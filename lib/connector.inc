@@ -712,3 +712,26 @@ define(`PKG_NANOENGINE',
 	')'
 	`PKG_MOLEX_025($1, $2, $3, 160)'
 )
+
+# -------------------------------------------------------------------
+# the definition of a through hole test point
+# $1: canonical name
+# $2: name on PCB
+# $3: value
+# $4: drill diameter (mils)
+# $5: silk diameter  (mils)
+#
+define(`PKG_TP',
+        `
+	define(`DRILL', `$4')
+	define(`SILK',  `eval($5/2)')
+	define(`PADDIA', `eval(DRILL + 20)')
+	define(`SILKW', `10')
+Element(0x00 "$1" "$2" "$3" -20 eval(-SILK - 60) 0 100 0x00)
+(
+	Pin( 0 0 PADDIA DRILL "1" "1" 0x0)
+	ElementArc(0 0 SILK SILK 0 360 SILKW)
+	
+	# Mark at the common centroid
+        Mark(0 0)
+)')
