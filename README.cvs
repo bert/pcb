@@ -16,7 +16,14 @@ To download and track sources you will need:
 cvs
 ssh
 
-To bootstrap and build you will need recent versions of:
+To compile you will need a C compiler, a lex (or flex) and a yacc (or bison)
+implementation.  If you do not have lex or yacc, try installing:
+
+bison     -- ftp://ftp.gnu.org/pub/gnu/bison/
+flex      -- ftp://ftp.gnu.org/pub/non-gnu/flex/
+
+In addition, if you make any edits to configure.ac or any of the 
+Makefile.am's, you will need recent versions of:
 
 autoconf  -- ftp://ftp.gnu.org/pub/gnu/autoconf/
              Please note that version 2.13 is too old.
@@ -26,11 +33,10 @@ texinfo   -- ftp://ftp.gnu.org/pub/gnu/texinfo/
 You can find the version of autoconf and automake by running them with the 
 --version flag.
 
-In addition you will need a C compiler, a lex (or flex) and a yacc (or bison)
-implementation.  If you do not have lex or yacc, try installing:
-
-bison     -- ftp://ftp.gnu.org/pub/gnu/bison/
-flex      -- ftp://ftp.gnu.org/pub/non-gnu/flex/
+Finally, if you edit any of the actions identified by 
+/* ACTION(Foo,ActionFoo) */
+comments, you will need perl and in addition, you must have used
+the --enable-maintainer-mode flag to the configure script.
 
 ---------
 Check out
@@ -57,12 +63,23 @@ from your top level pcb directory:
 ----------------------------------
 Bootstrapping with the auto* tools
 ----------------------------------
-from the pcb directory, run:
+If you have made any edits to configure.ac in the top level pcb directory
+or any of the Makefile.am's, you will need to run 
 
 ./autogen.sh
 
-This will run the various auto* tools which creates the configure script,
-the config.h.in file and the various Makefile.in's.
+from the top level pcb directory.  This will run the various auto* tools
+which creates the configure script, the config.h.in file and the various
+Makefile.in's.
+
+If you have not edited configure.ac or Makefile.am's, you can skip this
+step.
+
+If you plan on making changes to configure.ac, Makefile.am's, or actions
+defined by the 
+/* ACTION(Foo,ActionFoo) */
+comments, you may want to enable maintainer mode by passing the
+--enable-maintainer mode flag to ./autogen.sh
 
 At this point you can proceed to configure and build PCB as outlined in
 the INSTALL document.
