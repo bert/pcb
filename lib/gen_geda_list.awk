@@ -10,17 +10,9 @@
 #
 
 BEGIN {
-}
-
-/^[ \t]*\#[ \t]*\$Id$]*\$/ {
-	id = substr($0, index($0, "Id:"));
-	ind = index(id, "Exp $");
-	id = substr(id, 1, ind+3);
 	printf("#\n");
 	printf("# NOTE: Auto-generated. Do not change.\n");
-	printf("# Generated from:\n");
-	printf("#  %s\n", id);
-	next;
+	printf("#");
 }
 
 /^\#\#/ {
