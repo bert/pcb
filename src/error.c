@@ -40,6 +40,9 @@ static char *rcsid = "$Id$";
 #include <errno.h>
 #include <stdarg.h>
 #include <signal.h>
+#ifdef HAVE_STRING_H
+#include <string.h>
+#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -65,9 +68,15 @@ static char *rcsid = "$Id$";
 extern int errno,		/* system error code */
   sys_nerr;			/* number of messages available from array */
 
+#if !defined(HAVE_STRERROR)
+#define USE_SYS_ERRLIST
+#endif
+
 /* the list is already defined for some OS */
 #if !defined(__NetBSD__) && !defined(__FreeBSD__) && !defined(__linux__)
-extern char *sys_errlist[];	/* array of error messages */
+  #ifdef USE_SYS_ERRLIST
+	extern char *sys_errlist[];	/* array of error messages */
+  #endif
 #endif
 
 /* ---------------------------------------------------------------------------
@@ -115,9 +124,15 @@ Message (char *Format, ...)
 void
 OpenErrorMessage (char *Filename)
 {
-  Message ("can't open file\n"
-	   "   '%s'\nfopen() returned: '%s'\n",
-	   Filename, errno <= sys_nerr ? sys_errlist[errno] : "???");
+   #ifdef USE_SYS_ERRLIST
+ 	Message("can't open file\n"
+ 		"   '%s'\nfopen() returned: '%s'\n",
+ 		Filename, errno <= sys_nerr ? sys_errlist[errno] : "???");
+   #else
+	Message("can't open file\n"
+		"   '%s'\nfopen() returned: '%s'\n",
+		Filename, strerror(errno));
+   #endif
 }
 
 /* ---------------------------------------------------------------------------
@@ -126,9 +141,15 @@ OpenErrorMessage (char *Filename)
 void
 PopenErrorMessage (char *Filename)
 {
-  Message ("can't execute command\n"
-	   "   '%s'\npopen() returned: '%s'\n",
-	   Filename, errno <= sys_nerr ? sys_errlist[errno] : "???");
+   #ifdef USE_SYS_ERRLIST
+ 	Message("can't execute command\n"
+ 		"   '%s'\npopen() returned: '%s'\n",
+ 		Filename, errno <= sys_nerr ? sys_errlist[errno] : "???");
+   #else
+	Message("can't execute command\n"
+		"   '%s'\npopen() returned: '%s'\n",
+		Filename, strerror(errno));
+   #endif
 }
 
 /* ---------------------------------------------------------------------------
@@ -137,9 +158,15 @@ PopenErrorMessage (char *Filename)
 void
 OpendirErrorMessage (char *DirName)
 {
-  Message ("can't scan directory\n"
-	   "   '%s'\nopendir() returned: '%s'\n",
-	   DirName, errno <= sys_nerr ? sys_errlist[errno] : "???");
+   #ifdef USE_SYS_ERRLIST
+ 	Message("can't scan directory\n"
+ 		"   '%s'\nopendir() returned: '%s'\n",
+ 		DirName, errno <= sys_nerr ? sys_errlist[errno] : "???");
+   #else
+	Message("can't scan directory\n"
+		"   '%s'\nopendir() returned: '%s'\n",
+		DirName, strerror(errno));
+   #endif
 }
 
 /* ---------------------------------------------------------------------------
@@ -148,9 +175,15 @@ OpendirErrorMessage (char *DirName)
 void
 ChdirErrorMessage (char *DirName)
 {
-  Message ("can't change working directory to\n"
-	   "   '%s'\nchdir() returned: '%s'\n",
-	   DirName, errno <= sys_nerr ? sys_errlist[errno] : "???");
+   #ifdef USE_SYS_ERRLIST
+ 	Message("can't change working directory to\n"
+ 		"   '%s'\nchdir() returned: '%s'\n",
+ 		DirName, errno <= sys_nerr ? sys_errlist[errno] : "???");
+   #else
+	Message("can't change working directory to\n"
+		"   '%s'\nchdir() returned: '%s'\n",
+		DirName, strerror(errno));
+   #endif
 }
 
 /* ---------------------------------------------------------------------------
