@@ -489,6 +489,17 @@ define(`PKG_ACY600',  `PKG_AXIAL_LAY(`$1', `$2', `$3', 600)');
 define(`PKG_ACY800',  `PKG_AXIAL_LAY(`$1', `$2', `$3', 800)');
 define(`PKG_ACY1000', `PKG_AXIAL_LAY(`$1', `$2', `$3', 1000)');
 
+
+##  Axial polar component (typically capacitor),
+#   300 through 1000 mil between pins
+#
+define(`PKG_ACY300P',  `PKG_AXIAL_LAY_POLAR(`$1', `$2', `$3', 300)')
+define(`PKG_ACY400P',  `PKG_AXIAL_LAY_POLAR(`$1', `$2', `$3', 400)')
+define(`PKG_ACY500P',  `PKG_AXIAL_LAY_POLAR(`$1', `$2', `$3', 500)')
+define(`PKG_ACY600P',  `PKG_AXIAL_LAY_POLAR(`$1', `$2', `$3', 600)')
+define(`PKG_ACY800P',  `PKG_AXIAL_LAY_POLAR(`$1', `$2', `$3', 800)')
+define(`PKG_ACY1000P', `PKG_AXIAL_LAY_POLAR(`$1', `$2', `$3', 1000)')
+
 #
 ##  Axial diode (pin 1 is cathode)
 #   ALF300 .. ALF1000
@@ -514,6 +525,20 @@ define(`PKG_RCY500',  `PKG_RADIAL_CAN(`$1', `$2', `$3', 1000)');
 define(`PKG_RCY600',  `PKG_RADIAL_CAN(`$1', `$2', `$3', 1200)');
 define(`PKG_RCY800',  `PKG_RADIAL_CAN(`$1', `$2', `$3', 1600)');
 define(`PKG_RCY1000', `PKG_RADIAL_CAN(`$1', `$2', `$3', 2000)');
+
+
+##  Bottom lead polar circular component (typically capacitor)
+#   pin spacing 100 mil and up
+#
+define(`PKG_RCY100P',  `PKG_RADIAL_CAN_POLAR(`$1', `$2', `$3', 200)');
+define(`PKG_RCY200P',  `PKG_RADIAL_CAN_POLAR(`$1', `$2', `$3', 400)');
+define(`PKG_RCY300P',  `PKG_RADIAL_CAN_POLAR(`$1', `$2', `$3', 600)');
+define(`PKG_RCY400P',  `PKG_RADIAL_CAN_POLAR(`$1', `$2', `$3', 800)');
+define(`PKG_RCY500P',  `PKG_RADIAL_CAN_POLAR(`$1', `$2', `$3', 1000)');
+define(`PKG_RCY600P',  `PKG_RADIAL_CAN_POLAR(`$1', `$2', `$3', 1200)');
+define(`PKG_RCY800P',  `PKG_RADIAL_CAN_POLAR(`$1', `$2', `$3', 1600)');
+define(`PKG_RCY1000P', `PKG_RADIAL_CAN_POLAR(`$1', `$2', `$3', 2000)');
+
 
 #
 ##  Bottom lead rectangular non-polar component (typically capacitor)
@@ -579,10 +604,53 @@ define(`PKG_TO220S', `PKG_TO220LAY_WIDE(  `$1', `$2', `$3')');
 define(`PKG_TO220W', `PKG_TO220STAND(     `$1', `$2', `$3')');
 define(`PKG_TO220SW',`PKG_TO220STAND_WIDE(`$1', `$2', `$3')');
 
+## diode in TO220
 #
-#  Power IC
+define(`PKG_TO220ACS', `PKG_TO220ACSTAND(`$1', `$2', `$3')');
+define(`PKG_TO218',    `GENERIC_PL_POWER(`$1', `$2', `$3',  3, 219, 615, 200, 120,100, 60,   0)');
+# aka TOP3
+define(`PKG_TO247',    `GENERIC_PL_POWER(`$1', `$2', `$3',  3, 219, 630, 210, 130,100, 60,   0)');
+# diode in TO247/TOP3
+define(`PKG_TO247_2',  `GENERIC_PL_POWER(`$1', `$2', `$3',  2, 438, 630, 210, 130,100, 60,   0)');
+# aka TOP3BIG
+define(`PKG_TO264',    `GENERIC_PL_POWER(`$1', `$2', `$3',  3, 219, 800, 210, 130,100, 60,   0)');
+# aka IPAK
+define(`PKG_TO251',    `GENERIC_PL_POWER(`$1', `$2', `$3',  3,  90, 265, 100,  50, 70, 40,   0)');
+
+define(`PKG_TO220ACSTAND',    `GENERIC_PL_POWER(`$1', `$2', `$3',  2, 200, 400, 180, 100, 80, 40,   0)')
+
+# the definitions of PKG_TO220STAND PKG_TO220STAND-WIDE can be replaced by following lines:
+#define(`PKG_TO220STAND',      `GENERIC_PL_POWER(`$1', `$2', `$3',  3, 100, 400, 180, 100, 80, 40,   0)')
+#define(`PKG_TO220STAND-WIDE', `GENERIC_PL_POWER(`$1', `$2', `$3',  3, 100, 400, 180, 200, 80, 40,-100)')
+
 #
-# as is MULTIWATT15
+##  Power IC, as in MULTIWATT15
+#
+# See the following:
+# PENTAWATT: http://www.st.com/stonline/books/pdf/docs/9262.pdf
+# HEPTAWATT: http://www.st.com/stonline/books/pdf/docs/5430.pdf
+# MULTIWATT8: http://www.st.com/stonline/books/pdf/docs/5437.pdf
+# MULTIWATT11: http://www.st.com/stonline/books/pdf/docs/5433.pdf
+# MULTIWATT15: http://www.st.com/stonline/books/pdf/docs/5439.pdf
+
+# GENERIC_PL_POWER
+# $1: canonical name
+# $2: name on PCB
+# $3: value
+# $4: pin count
+# $5: pin spacing
+# $6: body length (dimension parallel to rows of pins)
+# $7: body width  (dimension perpendicular to rows of pins)
+# $8: pin/tab spacing
+# $9: pad size
+# $10: drill size
+# $11: pin row spacing
+
+define(`PKG_PENTAWATT',       `GENERIC_PL_POWER(`$1', `$2', `$3',  5,  67, 409, 189, 177, 90, 60, 157)' );
+define(`PKG_HEPTAWATT',       `GENERIC_PL_POWER(`$1', `$2', `$3',  7,  50, 409, 189, 110, 90, 60, 200)' );
+define(`PKG_MULTIWATT8',      `GENERIC_PL_POWER(`$1', `$2', `$3',  8, 100, 800, 200, 115, 90, 60,   0)' );
+define(`PKG_MULTIWATT11',     `GENERIC_PL_POWER(`$1', `$2', `$3', 11,  67, 800, 200, 180, 90, 60, 200)' );
+define(`PKG_MULTIWATT15',     `GENERIC_PL_POWER(`$1', `$2', `$3', 15,  50, 800, 200, 180, 90, 60, 200)' );
 
 #
 ## Jumper, i.e. single row headers

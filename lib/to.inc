@@ -135,9 +135,9 @@ define(`PKG_TO92',
 define(`PKG_TO126LAY',
 `Element(0x00 "$1" "$2" "$3" 80 480 1 100 0x00)
 (
-	PIN(100, 600, 80, 20, 1)
-	PIN(200, 600, 80, 20, 2)
-	PIN(300, 600, 80, 20, 3) 
+	PIN(110, 600, 75, 50, 1)
+	PIN(200, 600, 75, 50, 2)
+	PIN(290, 600, 75, 50, 3) 
 
 	# Befestigungsbohrung
 	PIN(200, 170, 130, 110, 4)
@@ -156,12 +156,12 @@ define(`PKG_TO126LAY',
 	Mark(100 600)
 )')
 
-define(`PKG_TO126LAY-WIDE',
+define(`PKG_TO126LAY_WIDE',
 `Element(0x00 "$1" "$2" "$3" 80 480 1 100 0x00)
 (
-	PIN(100, 600, 80, 20, 1)
-	PIN(200, 700, 80, 20, 2)
-	PIN(300, 600, 80, 20, 3)
+	PIN(110, 600, 75, 50, 1)
+	PIN(200, 700, 75, 50, 2)
+	PIN(290, 600, 75, 50, 3)
 
 	# Befestigungsbohrung
 	PIN(200, 170, 130, 110, 4)
@@ -183,9 +183,9 @@ define(`PKG_TO126LAY-WIDE',
 define(`PKG_TO126STAND',
 `Element(0x00 "$1" "$2" "$3" 60 170 0 100 0x00)
 (
-	PIN(100, 100, 80, 20, 1)
-	PIN(200, 100, 80, 20, 2)
-	PIN(300, 100, 80, 20, 3)
+	PIN(110, 100, 75, 50, 1)
+	PIN(200, 100, 75, 50, 2)
+	PIN(290, 100, 75, 50, 3)
 
 	ElementLine(50 50 350 50 20)
 	ElementLine(350 50 350 150 20)
@@ -195,12 +195,12 @@ define(`PKG_TO126STAND',
 	Mark(100 100)
 )')
 
-define(`PKG_TO126STAND-WIDE',
+define(`PKG_TO126STAND_WIDE',
 `Element(0x00 "$1" "$2" "$3" 270 170 0 100 0x00)
 (
-	PIN(100, 100, 80, 20, 1)
-	PIN(200, 200, 80, 20, 2)
-	PIN(300, 100, 80, 20, 3)
+	PIN(110, 100, 75, 50, 1)
+	PIN(200, 200, 75, 50, 2)
+	PIN(290, 100, 75, 50, 3)
 
 	# Gehaeuse
 	ElementLine(200 200 200 150 30)
@@ -227,9 +227,9 @@ define(`PKG_TO126STAND-WIDE',
 define(`PKG_TO220LAY',
 `Element(0x00 "$1" "$2" "$3" 50 570 1 100 0x00)
 (
-	PIN(100, 800, 80, 20, 1)
-	PIN(200, 800, 80, 20, 2)
-	PIN(300, 800, 80, 20, 3)
+	PIN(100, 800, 90, 60, 1)
+	PIN(200, 800, 90, 60, 2)
+	PIN(300, 800, 90, 60, 3)
 
 	# Befestigungsbohrung
 	PIN(200, 130, 150, 130, 4)
@@ -262,12 +262,12 @@ define(`PKG_TO220LAY',
 	Mark(200 800)
 )')
 
-define(`PKG_TO220LAY-WIDE',
+define(`PKG_TO220LAY_WIDE',
 `Element(0x00 "$1" "$2" "$3" 50 570 1 100 0x00)
 (
-	PIN(100, 800, 80, 20, 1)
-	PIN(200, 900, 80, 20, 2)
-	PIN(300, 800, 80, 20, 3)
+	PIN(100, 800, 90, 60, 1)
+	PIN(200, 900, 90, 60, 2)
+	PIN(300, 800, 90, 60, 3)
 		  
 	# Befestigungsbohrung  
 	PIN(200, 130, 150, 130, 4)
@@ -303,9 +303,9 @@ define(`PKG_TO220LAY-WIDE',
 define(`PKG_TO220STAND',
 `Element(0x00 "$1" "$2" "$3" 0 10 0 100 0x00)
 (
-	PIN(100, 200, 80, 20, 1)
-	PIN(200, 200, 80, 20, 2)
-	PIN(300, 200, 80, 20, 3)
+	PIN(100, 200, 90, 60, 1)
+	PIN(200, 200, 90, 60, 2)
+	PIN(300, 200, 90, 60, 3)
 
 	# Gehaeuse
 	ElementLine(  0  80 400  80 20)
@@ -325,12 +325,12 @@ define(`PKG_TO220STAND',
 	Mark(100 200)
 )')
 
-define(`PKG_TO220STAND-WIDE',
+define(`PKG_TO220STAND_WIDE',
 `Element(0x00 "$1" "$2" "$3" 0 10 0 100 0x00)
 (
-	PIN(100, 200, 80, 20, 1)
-	PIN(200, 300, 80, 20, 2)
-	PIN(300, 200, 80, 20, 3)
+	PIN(100, 200, 90, 60, 1)
+	PIN(200, 300, 90, 60, 2)
+	PIN(300, 200, 90, 60, 3)
 		  
 	# Gehaeuse
 	ElementLine(  0  80 400  80 20)

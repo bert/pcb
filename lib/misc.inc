@@ -63,23 +63,37 @@ Element(0x00 "$1" "$2" "$3" 275 50 3 100 0x00)
 )')
 
 # -------------------------------------------------------------------
-# the definition of a "MULTIWATT" package (I never actually saw one)
+# the definition of a plastic power package vertical
+# for TO220 (2-7pins), TO251, TOP3, MULTIWATT(8-15pins)
 # based on 'old style format' by Olaf Kaluza (olaf@criseis.ruhr.de)
 # $1: canonical name
 # $2: name on PCB
 # $3: value
-define(`PKG_MULTIWATT15',
-`Element(0x00 "$1" "$2" "$3" 150 100 3 100 0x00)
+# $4: pin count
+# $5: pin spacing
+# $6: body length (dimension parallel to rows of pins)
+# $7: body width  (dimension perpendicular to rows of pins)
+# $8: pin/tab spacing
+# $9: pad size
+# $10: drill size
+# $11: pin row spacing
+
+define(`GENERIC_PL_POWER',
+    `define(`pin1X', `eval((`$6' - (`$4' - 1) * `$5')/2)')
+Element(0x00 "$1" "$2" "$3" eval(`$6'+60) 50 3 100 0x00)
 (
-	forloop(`i', 1, 15,
-		`PIN(ifelse(eval(i % 2 == 0), 1, 250, 50), eval(i*50), 60, 20, i)
-	')
-	ElementLine(0 0 400 0 20)
-	ElementLine(400 0 400 800 20)
-	ElementLine(400 800 0 800 20)
-	ElementLine(0 800 0 0 20)
-	Mark(50 50)
-)')
+       forloop(`i', 1, `$4',
+               `PIN(eval(pin1X + (i-1)*`$5'), ifelse(eval(i % 2 == 0), 0, eval(`$8'+`$11'), `$8'), `$9', `$10', i)
+       ')
+       ElementLine(0 0 0 `$7' 20)
+       ElementLine(0 `$7' `$6' `$7' 20)
+       ElementLine(`$6' `$7' `$6' 0 20)
+       ElementLine(`$6' 0 0 0 20)
+       ElementLine(0 50 `$6' 50 10)
+       ElementLine(eval(`$6'/2 - 75) 0 eval(`$6'/2 - 75) 50 10)
+       ElementLine(eval(`$6'/2 + 75) 0 eval(`$6'/2 + 75) 50 10)
+       Mark(pin1X eval(`$7'+`$10'))
+ )')
 
 # -------------------------------------------------------------------
 # the definition of a resistor (0.25W) package
