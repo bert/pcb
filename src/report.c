@@ -76,6 +76,14 @@ CB_OK (Widget W, XtPointer ClientData, XtPointer CallData)
   ReturnCode = (long int) ClientData;
 }
 
+static int
+DrillQSort(const void *va, const void *vb)
+{
+  DrillType *a = (DrillType *)va;
+  DrillType *b = (DrillType *)vb;
+  return a->DrillSize - b->DrillSize;
+}
+
 void
 ReportDrills (void)
 {
@@ -83,13 +91,23 @@ ReportDrills (void)
   Cardinal n;
   char *stringlist, *thestring;
   Widget popup;
+  int total_drills = 0;
 
   AllDrills = GetDrillInfo (PCB->Data);
+
+  for (n = 0; n < AllDrills->DrillN; n++)
+    {
+      total_drills += AllDrills->Drill[n].PinCount;
+      total_drills += AllDrills->Drill[n].ViaCount;
+      total_drills += AllDrills->Drill[n].UnplatedCount;
+    }
+
+  qsort (AllDrills->Drill, AllDrills->DrillN, sizeof (DrillType), DrillQSort);
   stringlist = malloc (512L + AllDrills->DrillN * 64L);
   sprintf (stringlist,
-	   "There are %d different drill sizes used in this layout\n\n"
+	   "There are %d different drill sizes used in this layout, %d holes total\n\n"
 	   "Drill Diam. (mils)      # of Pins     # of Vias    # of Elements    # Unplated\n",
-	   AllDrills->DrillN);
+	   AllDrills->DrillN, total_drills);
   thestring = stringlist;
   while (*thestring != '\0')
     thestring++;
