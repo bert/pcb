@@ -2679,7 +2679,7 @@ ActionDJopt (Widget w, XEvent * e, String * argv, Cardinal * argc)
   END_LOOP;
   PAD_LOOP (element);
   {
-    line_s *ls2;
+    line_s *ls;
     int layern =
       pad->Flags & ONSOLDERFLAG ? solder_layer : component_layer;
     ls->layer = layern;

@@ -356,13 +356,16 @@ MoveLinePoint (LayerTypePtr Layer, LineTypePtr Line, PointTypePtr Point)
 	{
 	  EraseLine (Line);
 	  MOVE (Point->X, Point->Y, DeltaX, DeltaY) DrawLine (Layer, Line, 0);
-	  DrawLine (Layer, Line, 0);
-	  Draw ();
 	}
       else
 	MOVE (Point->X, Point->Y, DeltaX, DeltaY);
       SetLineBoundingBox (Line);
       r_insert_entry (Layer->line_tree, &Line->BoundingBox, 0);
+      if (Layer->On)
+        {
+	  DrawLine (Layer, Line, 0);
+	  Draw ();
+	}
       return (Line);
     }
   else				/* must be a rat */
