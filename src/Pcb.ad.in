@@ -90,8 +90,8 @@ Pcb.pinoutFont2:            -*-courier-bold-r-*-*-8-*-*-*-*-*-*-*
 Pcb.pinoutFont3:            -*-courier-bold-r-*-*-4-*-*-*-*-*-*-*
 Pcb.pinoutFont4:            -*-courier-bold-r-*-*-2-*-*-*-*-*-*-*
 Pcb.pinoutNameLength:       8
-Pcb.pinoutOffsetX:          100
-Pcb.pinoutOffsetY:          100
+Pcb.pinoutOffsetX:          10000
+Pcb.pinoutOffsetY:          10000
 Pcb.pinoutTextOffsetX:      8
 Pcb.pinoutTextOffsetY:      8
 Pcb.pinoutZoom:             2
