@@ -253,6 +253,8 @@ static PopupEntryType DisplayMenuEntries[] = {
    "SetValue,Grid,-3.937007874", NULL},
   {"line", NULL, NULL, NULL, NULL},
   {"header", "zoom setting", NULL, NULL, NULL},
+  {"zoom25", "4 : 1 ", CB_Position, "SetValue,Zoom,-2", NULL},
+  {"zoom5", "2 : 1 ", CB_Position, "SetValue,Zoom,-1", NULL},
   {"zoom1", "1 : 1 ", CB_Position, "SetValue,Zoom,0", NULL},
   {"zoom2", "1 : 2 ", CB_Position, "SetValue,Zoom,1", NULL},
   {"zoom4", "1 : 4 ", CB_Position, "SetValue,Zoom,2", NULL},
@@ -735,18 +737,24 @@ CBPOPUP_Display (Widget W, XtPointer ClientData, XtPointer CallData)
   switch (PCB->Zoom)
     {
     case 0:
-      CheckEntry (&DisplayMenu, "zoom1");
+      CheckEntry (&DisplayMenu, "zoom25");
       break;
     case 1:
-      CheckEntry (&DisplayMenu, "zoom2");
+      CheckEntry (&DisplayMenu, "zoom5");
       break;
     case 2:
-      CheckEntry (&DisplayMenu, "zoom4");
+      CheckEntry (&DisplayMenu, "zoom1");
       break;
     case 3:
-      CheckEntry (&DisplayMenu, "zoom8");
+      CheckEntry (&DisplayMenu, "zoom2");
       break;
     case 4:
+      CheckEntry (&DisplayMenu, "zoom4");
+      break;
+    case 5:
+      CheckEntry (&DisplayMenu, "zoom8");
+      break;
+    case 6:
       CheckEntry (&DisplayMenu, "zoom16");
       break;
     }
