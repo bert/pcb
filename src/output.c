@@ -245,9 +245,6 @@ Pan (Location X, Location Y, Boolean Scroll, Boolean Update)
       Y = MAX (0, PCB->MaxHeight - TO_PCB (Output.Height));
     }
 
-#ifdef DEBUGDISP
-  Message ("Pan setting Xorig, Yorig = (%d,%d)\n", X, Y);
-#endif
   Xorig = X;
   Yorig = Y;
   render = True;
@@ -256,6 +253,10 @@ Pan (Location X, Location Y, Boolean Scroll, Boolean Update)
   vxh = TO_PCB_X (Output.Width);
   vyl = MAX (0, MIN (TO_PCB_Y (0), TO_PCB_Y (Output.Height)));
   vyh = MIN (PCB->MaxHeight, MAX (TO_PCB_Y (0), TO_PCB_Y (Output.Height)));
+#ifdef DEBUGDISP
+  Message ("Pan setting Xorig, Yorig = (%d,%d)\n", X, Y);
+  Message ("Visible is (%d < X < %d), (%d < Y < %d)\n",vxl,vxh,vyl,vyh);
+#endif
 
   /* ignore the no - change case 
    * BUG: if zoom or viewed side

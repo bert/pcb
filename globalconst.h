@@ -76,8 +76,8 @@
 #define	MIN_GRID		1	/* grid in 1/100000'' */
 #define	MAX_GRID		20000
 #define	CHUNK			100	/* step size for size sliders */
-#define	MIN_ZOOM		-6	/* min zoom (shift operations) */
-#define	MAX_ZOOM		6	/* max zoom (shift operations) */
+#define	MIN_ZOOM		-12	/* min zoom */
+#define	MAX_ZOOM		12	/* max zoom */
 #define	MAX_FONTPOSITION	127	/* upper limit of characters in my font */
 
 #define	MAX_COORD		3000000	/* coordinate limits */

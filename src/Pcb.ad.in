@@ -511,16 +511,20 @@ Pcb.masterForm*output.baseTranslations:   #override \
   @btnmod@<Key>Left:    Display(Scroll, 4) \
 		    Display(Scroll, 0) \n\
   \
-  Ctrl<Key>Up:      Display(Scroll, 8) \n\
+  Ctrl<Key>Up:      Display(Scroll, 8) \
+  		    Display(Scroll, 0) \n\
   Shift<Key>Up:    MovePointer(0, -10) \n\
   <Key>Up:      MovePointer(0, -1) \n\
-  Ctrl<Key>Down:    Display(Scroll, 2) \n\
+  Ctrl<Key>Down:    Display(Scroll, 2) \
+  			Display(Scroll, 0) \n\
   Shift<Key>Down:  MovePointer(0, 10) \n\
   <Key>Down:    MovePointer(0, 1) \n\
-  Ctrl<Key>Right:   Display(Scroll, 6) \n\
+  Ctrl<Key>Right:   Display(Scroll, 6) \
+  			Display(Scroll, 0) \n\
   Shift<Key>Right: MovePointer(10, 0) \n\
   <Key>Right:   MovePointer(1, 0) \n\
-  Ctrl<Key>Left:    Display(Scroll, 4) \n\
+  Ctrl<Key>Left:    Display(Scroll, 4) \
+  			Display(Scroll, 0) \n\
   Shift<Key>Left:  MovePointer(-10, 0) \n\
   <Key>Left:    MovePointer(-1, 0) \n\
   \

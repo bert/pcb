@@ -237,7 +237,7 @@ pcbcursor
 			{
 				yyPCB->CursorX = $3*100;
 				yyPCB->CursorY = $4*100;
-				yyPCB->Zoom = $5;
+				yyPCB->Zoom = $5*2;
 			}
 		| T_CURSOR '[' NUMBER NUMBER NUMBER ']'
 			{

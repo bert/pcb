@@ -175,12 +175,12 @@ SetZoom (int Zoom)
       if (!box)
 	return;
       Zoom =
-	1 + log (0.01 * (float) (box->X2 - box->X1) / Output.Width) / log (2);
+	1 + log (0.01 * (float) (box->X2 - box->X1) / Output.Width) / log (1.41421356);
       Zoom =
 	MAX (Zoom,
 	     1 +
 	     log (0.01 * (float) (box->Y2 - box->Y1) / Output.Height) /
-	     log (2));
+	     log (1.41421356));
       Crosshair.X = (box->X1 + box->X2) / 2;
       Crosshair.Y = (box->Y1 + box->Y2) / 2;
       old_x = Output.Width / 2;

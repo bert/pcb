@@ -54,7 +54,7 @@
 #define SATURATE(x)             ((x) > 32767 ? 32767 : ((x) < -32767 ? -32767 : (x)))
 
 #ifndef	TO_SCREEN
-#define	TO_SCREEN(x)		((Position)SATURATE((x)/Zoom_divisor[PCB->Zoom + 6]))
+#define	TO_SCREEN(x)		((Position)SATURATE((x)/Zoom_divisor[PCB->Zoom + 12]))
 #endif
 
 #define	TO_SCREEN_X(x)		TO_SCREEN((SWAP_IDENT ? SWAP_X(x) : (x)) - Xorig)
@@ -71,7 +71,7 @@
 #define	TO_SCREEN_SIGN_Y(y)	(SWAP_IDENT ? SWAP_SIGN_Y(y) : (y))
 
 #ifndef	TO_PCB
-#define	TO_PCB(x)		((Location)((x)*Zoom_divisor[PCB->Zoom + 6]))
+#define	TO_PCB(x)		((Location)((x)*Zoom_divisor[PCB->Zoom + 12]))
 #endif
 #define	TO_PCB_X(x)		TO_PCB(x) + Xorig
 #define	TO_PCB_Y(y)		(SWAP_IDENT ? \
@@ -111,10 +111,14 @@
 	(t)->BoundingBox.X2 >= vxl && \
 	(t)->BoundingBox.Y1 <= vyh && \
 	(t)->BoundingBox.Y2 >= vyl)
-#define VLINE(l)	((((l)->Point2.X >= vxl && (l)->Point1.X <= vxh) || \
-	((l)->Point1.X >= vxl && (l)->Point2.X <= vxh)) && \
-	((((l)->Point2.Y >= vyl && (l)->Point1.Y <= vyh) || \
-	((l)->Point1.Y >= vyl && (l)->Point2.Y <= vyh))))
+#define VLINE(l)	((((l)->Point2.X >= vxl - (l)->Thickness && \
+        (l)->Point1.X <= vxh + (l)->Thickness) || \
+	((l)->Point1.X >= vxl - (l)->Thickness && \
+	(l)->Point2.X <= vxh + (l)->Thickness)) && \
+	((((l)->Point2.Y >= vyl - (l)->Thickness && \
+	(l)->Point1.Y <= vyh + (l)->Thickness) || \
+	((l)->Point1.Y >= vyl - (l)->Thickness && \
+	(l)->Point2.Y <= vyh + (l)->Thickness))))
 #define VARC(a) 	((a)->BoundingBox.X1 <= vxh && \
 	(a)->BoundingBox.X2 >= vxl && \
 	(a)->BoundingBox.Y1 <= vyh && \

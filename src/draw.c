@@ -37,7 +37,7 @@ static char *rcsid = "$Id$";
 #endif
 
 #define	SWAP_IDENT		SwapOutput
-#define TO_SCREEN(a)	((Position)SATURATE((a)/Zoom_divisor[ZoomValue + 6]))
+#define TO_SCREEN(a)	((Position)SATURATE((a)/Zoom_divisor[ZoomValue + 12]))
 #define XORIG dxo
 #define YORIG dyo
 
