@@ -73,6 +73,7 @@ define(`args',`
 
 include(amphenol.inc)
 include(bga.inc)
+include(bourns.inc)
 include(connector.inc)
 include(dil.inc)
 include(geda.inc)
