@@ -42,25 +42,37 @@
 typedef enum { NORTH=0, EAST=1, SOUTH=2, WEST=3 } direction_t;
 
 /* rotates box 90-degrees cw */
+/* that's a strange rotation! */
 #define ROTATEBOX_CW(box) { Location t;\
-    t = (box).X1; (box).X1 = - (box).Y1; (box).Y1 = t;\
-    t = (box).X2; (box).X2 = - (box).Y2; (box).Y2 = t;\
-    t = (box).X1; (box).X1 =   (box).X2; (box).X2 = t;\
+    t = (box).X1; (box).X1 = -(box).Y2; (box).Y2 = (box).X2;\
+    (box).X2 = -(box).Y1; (box).Y1 = t;\
 }
-#define ROTATEBOX_TO_NORTH(box, dir) do {\
+#define ROTATEBOX_TO_NORTH(box, dir) do { Location t;\
   switch(dir) {\
-  case EAST: ROTATEBOX_CW(box);\
-  case SOUTH: ROTATEBOX_CW(box);\
-  case WEST: ROTATEBOX_CW(box);\
+  case EAST: \
+   t = (box).X1; (box).X1 = (box).Y1; (box).Y1 = -(box).X2;\
+   (box).X2 = (box).Y2; (box).Y2 = -t; break;\
+  case SOUTH: \
+   t = (box).X1; (box).X1 = -(box).X2; (box).X2 = -t;\
+   t = (box).Y1; (box).Y1 = -(box).Y2; (box).Y2 = -t; break;\
+  case WEST: \
+   t = (box).X1; (box).X1 = -(box).Y2; (box).Y2 = (box).X2;\
+   (box).X2 = -(box).Y1; (box).Y1 = t; break;\
   case NORTH: break;\
   default: assert(0);\
   }\
   } while (0)
-#define ROTATEBOX_FROM_NORTH(box, dir) do {\
+#define ROTATEBOX_FROM_NORTH(box, dir) do { Location t;\
   switch(dir) {\
-  case WEST: ROTATEBOX_CW(box);\
-  case SOUTH: ROTATEBOX_CW(box);\
-  case EAST: ROTATEBOX_CW(box);\
+  case WEST: \
+   t = (box).X1; (box).X1 = (box).Y1; (box).Y1 = -(box).X2;\
+   (box).X2 = (box).Y2; (box).Y2 = -t; break;\
+  case SOUTH: \
+   t = (box).X1; (box).X1 = -(box).X2; (box).X2 = -t;\
+   t = (box).Y1; (box).Y1 = -(box).Y2; (box).Y2 = -t; break;\
+  case EAST: \
+   t = (box).X1; (box).X1 = -(box).Y2; (box).Y2 = (box).X2;\
+   (box).X2 = -(box).Y1; (box).Y1 = t; break;\
   case NORTH: break;\
   default: assert(0);\
   }\

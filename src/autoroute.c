@@ -1519,43 +1519,33 @@ struct FindBlocker_info
   BDimension maxbloat;
   routebox_t *blocker;
   Location min_dist;
+  BoxType north_box;
 };
 /* helper methods for __FindBlocker */
 static int
-__FindBlocker_checkbox (const BoxType * region_or_box,
-			struct FindBlocker_info *fbi, Boolean is_region)
+__FindBlocker_rect_in_reg (const BoxType * box, void *cl)
 {
-  BoxType rbox, ebox;
-  ebox = fbi->expansion_edge->rb->box;
-  rbox = is_region ? bloat_box (region_or_box, fbi->maxbloat) :
-    bloat_routebox ((routebox_t *) region_or_box);
+  struct FindBlocker_info *fbi = (struct FindBlocker_info *) cl;
+  BoxType rbox;
+  rbox = bloat_routebox ((routebox_t *) box);
   ROTATEBOX_TO_NORTH (rbox, fbi->expansion_edge->expand_dir);
-  ROTATEBOX_TO_NORTH (ebox, fbi->expansion_edge->expand_dir);
-  if (rbox.X2 < ebox.X1)
+  if (rbox.X2 <= fbi->north_box.X1 || rbox.X1 >= fbi->north_box.X2 || rbox.Y1 > fbi->north_box.Y1)
     return 0;
-  if (rbox.X1 > ebox.X2)
+  if (fbi->blocker != NULL && rbox.Y2 < fbi->north_box.Y1 - fbi->min_dist)
     return 0;
-  if (rbox.Y1 > ebox.Y1)
-    return 0;
-  if (fbi->blocker != NULL && rbox.Y2 < ebox.Y1 - fbi->min_dist)
-    return 0;
-  if (is_region)
-    return 1;
   /* this is a box; it has to jump through a few more hoops */
-  if (rbox.X2 == ebox.X1 || rbox.X1 == ebox.X2)
-    return 0;			/* only touches */
-  if ((routebox_t *) region_or_box ==
+  if ((routebox_t *) box ==
       nonorphan_parent (fbi->expansion_edge->rb))
     return 0;			/* this is the parent */
-  if (rbox.Y2 > ebox.Y1)
+  if (rbox.Y2 > fbi->north_box.Y1)
     {				/* extends below edge */
       assert (fbi->expansion_edge->flags.is_interior);
       /* XXX: what to do here? */
     }
   /* okay, this is the closest we've found. */
-  assert (fbi->blocker == NULL || (ebox.Y1 - rbox.Y2) <= fbi->min_dist);
-  fbi->blocker = (routebox_t *) region_or_box;
-  fbi->min_dist = ebox.Y1 - rbox.Y2;
+  assert (fbi->blocker == NULL || (fbi->north_box.Y1 - rbox.Y2) <= fbi->min_dist);
+  fbi->blocker = (routebox_t *) box;
+  fbi->min_dist = fbi->north_box.Y1 - rbox.Y2;
   assert (fbi->min_dist >= 0);
   return 1;
 }
@@ -1563,23 +1553,55 @@ static int
 __FindBlocker_reg_in_sea (const BoxType * region, void *cl)
 {
   struct FindBlocker_info *fbi = (struct FindBlocker_info *) cl;
-  int r = __FindBlocker_checkbox (region, fbi, True);
+  BoxType rbox;
+  rbox = bloat_box (region, fbi->maxbloat);
 #if 0
-  printf ("Checking against region (%d %d)-(%d %d): %d (min dist %d)\n",
-	  region->X1, region->Y1, region->X2, region->Y2, r, fbi->min_dist);
+  ROTATEBOX_TO_NORTH (rbox, fbi->expansion_edge->expand_dir);
+  if (rbox.X2 < fbi->north_box.X1 || rbox.X1 > fbi->north_box.X2 ||
+      rbox.Y1 > fbi->north_box.Y1)
+    return 0;
+  if (fbi->blocker != NULL && rbox.Y2 < fbi->north_box.Y1 - fbi->min_dist)
+    return 0;
+#else
+  switch(fbi->expansion_edge->expand_dir)
+    {
+      case WEST:
+	if (-rbox.Y2 > fbi->north_box.X2 ||
+            -rbox.Y1 < fbi->north_box.X1 ||
+	    rbox.X1 > fbi->north_box.Y1 ||
+	    (fbi->blocker != NULL &&
+	     rbox.X2 < fbi->north_box.Y1 - fbi->min_dist))
+	  return 0;
+	return 1;
+      case SOUTH:
+        if (-rbox.X2 > fbi->north_box.X2 ||
+	    -rbox.X1 < fbi->north_box.X1 ||
+	    -rbox.Y2 > fbi->north_box.Y1 ||
+	    (fbi->blocker != NULL &&
+	     -rbox.Y1 < fbi->north_box.Y1 - fbi->min_dist))
+	  return 0;
+	return 1;
+      case EAST:
+        if (rbox.Y1 > fbi->north_box.X2 ||
+	    rbox.Y2 < fbi->north_box.X1 ||
+	    -rbox.X2 > fbi->north_box.Y1 ||
+	    (fbi->blocker != NULL &&
+	     -rbox.X1 < fbi->north_box.Y1 - fbi->min_dist))
+	  return 0;
+	return 1;
+      case NORTH:
+        if (rbox.X1 > fbi->north_box.X2 ||
+	    rbox.X2 < fbi->north_box.X1 ||
+	    rbox.Y1 > fbi->north_box.Y1 ||
+	    (fbi->blocker != NULL &&
+	     rbox.Y2 < fbi->north_box.Y1 - fbi->min_dist))
+	  return 0;
+	return 1;
+      default:
+        assert(0);
+    }
 #endif
-  return r;
-}
-static int
-__FindBlocker_rect_in_reg (const BoxType * box, void *cl)
-{
-  struct FindBlocker_info *fbi = (struct FindBlocker_info *) cl;
-  int r = __FindBlocker_checkbox (box, fbi, False);
-#if 0
-  printf ("Checking against rect (%d %d)-(%d %d): %d\n",
-	  box->X1, box->Y1, box->X2, box->Y2, r);
-#endif
-  return r;
+  return 1;
 }
 
 /* main FindBlocker routine.  Returns NULL if no neighbor in the
@@ -1595,7 +1617,9 @@ FindBlocker (rtree_t * rtree, edge_t * e, BDimension maxbloat)
   fbi.maxbloat = maxbloat;
   fbi.blocker = NULL;
   fbi.min_dist = 0;
+  fbi.north_box = e->rb->box;
 
+  ROTATEBOX_TO_NORTH (fbi.north_box, e->expand_dir);
   r_search (rtree, NULL,
 	     __FindBlocker_reg_in_sea, __FindBlocker_rect_in_reg, &fbi);
   return fbi.blocker;
@@ -1609,31 +1633,22 @@ struct fio_info
   BDimension maxbloat;
   routebox_t *intersect;
   jmp_buf env;
+  BoxType north_box;
 };
 static int
-fio_check (const BoxType * region_or_box, struct fio_info *fio,
-	   Boolean is_region)
+fio_rect_in_reg (const BoxType * box, void *cl)
 {
+  struct fio_info *fio =(struct fio_info *) cl;
   routebox_t *rb;
-  BoxType rbox, ebox;
-  ebox = fio->edge->rb->box;
-  rbox = is_region ? bloat_box (region_or_box, fio->maxbloat) :
-    bloat_routebox ((routebox_t *) region_or_box);
+  BoxType rbox;
+  rbox = bloat_routebox ((routebox_t *) box);
   ROTATEBOX_TO_NORTH (rbox, fio->edge->expand_dir);
-  ROTATEBOX_TO_NORTH (ebox, fio->edge->expand_dir);
-  if (rbox.X2 <= ebox.X1)
+  if (rbox.X2 <= fio->north_box.X1 || rbox.X1 >= fio->north_box.X2 ||
+      rbox.Y1 > fio->north_box.Y1 || rbox.Y2 < fio->north_box.Y1)
     return 0;
-  if (rbox.X1 >= ebox.X2)
-    return 0;
-  if (rbox.Y1 > ebox.Y1)
-    return 0;
-  if (rbox.Y2 < ebox.Y1)
-    return 0;
-  if (is_region)
-    return 1;
   /* this is a box; it has to jump through a few more hoops */
   /* everything on same net is ignored */
-  rb = (routebox_t *) region_or_box;
+  rb = (routebox_t *) box;
   assert (rb == nonorphan_parent (rb));
   if (rb == nonorphan_parent (fio->edge->rb))
     return 0;
@@ -1642,16 +1657,48 @@ fio_check (const BoxType * region_or_box, struct fio_info *fio,
   longjmp (fio->env, 1);	/* skip to the end! */
   return 1;			/* never reached */
 }
+
 static int
 fio_reg_in_sea (const BoxType * region, void *cl)
 {
-  return fio_check (region, (struct fio_info *) cl, True);
+  struct fio_info *fio =(struct fio_info *) cl;
+  BoxType rbox;
+  rbox = bloat_box (region, fio->maxbloat);
+  switch(fio->edge->expand_dir)
+    {
+      case WEST:
+	if (-rbox.Y2 >= fio->north_box.X2 ||
+            -rbox.Y1 <= fio->north_box.X1 ||
+	    rbox.X1 > fio->north_box.Y2 ||
+	    rbox.X2 < fio->north_box.Y1)
+	  return 0;
+	return 1;
+      case SOUTH:
+        if (-rbox.X2 >= fio->north_box.X2 ||
+	    -rbox.X1 <= fio->north_box.X1 ||
+	    -rbox.Y2 > fio->north_box.Y2 ||
+	    -rbox.Y1 < fio->north_box.Y1)
+	  return 0;
+	return 1;
+      case EAST:
+        if (rbox.Y1 >= fio->north_box.X2 ||
+	    rbox.Y2 <= fio->north_box.X1 ||
+	    -rbox.X2 > fio->north_box.Y2 ||
+	    -rbox.X1 < fio->north_box.Y1)
+	  return 0;
+	return 1;
+      case NORTH:
+        if (rbox.X1 >= fio->north_box.X2 ||
+	    rbox.X2 <= fio->north_box.X1 ||
+	    rbox.Y1 > fio->north_box.Y2 ||
+	    rbox.Y2 < fio->north_box.Y1)
+	  return 0;
+	return 1;
+      default:
+        assert(0);
+    }
 }
-static int
-fio_rect_in_reg (const BoxType * box, void *cl)
-{
-  return fio_check (box, (struct fio_info *) cl, False);
-}
+
 static routebox_t *
 FindIntersectingObstacle (rtree_t * rtree, edge_t * e, BDimension maxbloat)
 {
@@ -1660,7 +1707,9 @@ FindIntersectingObstacle (rtree_t * rtree, edge_t * e, BDimension maxbloat)
   fio.edge = e;
   fio.maxbloat = maxbloat;
   fio.intersect = NULL;
+  fio.north_box = e->rb->box;
 
+  ROTATEBOX_TO_NORTH (fio.north_box, e->expand_dir);
   if (setjmp (fio.env) == 0)
     r_search (rtree, NULL, fio_reg_in_sea, fio_rect_in_reg, &fio);
   return fio.intersect;
