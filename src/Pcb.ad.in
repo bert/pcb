@@ -517,7 +517,7 @@ Pcb.masterForm*output.baseTranslations:   #override \
   Ctrl<Key>Right:   Display(Scroll, 6) \n\
   Shift<Key>Right: MovePointer(10, 0) \n\
   <Key>Right:   MovePointer(1, 0) \n\
-  Ctrl<Key>Left:    Display(Scroll, 4) \n
+  Ctrl<Key>Left:    Display(Scroll, 4) \n\
   Shift<Key>Left:  MovePointer(-10, 0) \n\
   <Key>Left:    MovePointer(-1, 0) \n\
   \
