@@ -563,35 +563,44 @@ r_region_is_empty (rtree_t * rtree, const BoxType * region)
   return 1;			/* no rectangles found */
 }
 
+struct centroid
+{
+  float x, y, area;
+};
+
 /* split the node into two nodes putting clusters in each
  * use the k-means clustering algorithm
  */
 struct rtree_node *
 find_clusters(struct rtree_node * node)
 {
-  float area, total_a, total_b;
+  float total_a, total_b;
   float a_X, a_Y, b_X, b_Y;
   Boolean belong[M_SIZE+1];
+  struct centroid center[M_SIZE+1];
   int clust_a, clust_b, tries;
   int a_manage =0, b_manage = 0;
   int i, old_ax, old_ay, old_bx, old_by;
   struct rtree_node *new_node;
   BoxType *b;
 
-  if (node->flags.is_leaf)
-    b = &(node->u.rects[0].bounds);
-  else
-    b = &(node->u.kids[0]->box);
+  for (i = 0; i < M_SIZE + 1; i++)
+    {
+      if (node->flags.is_leaf)
+        b = &(node->u.rects[i].bounds);
+      else
+        b = &(node->u.kids[i]->box);
+      center[i].x = 0.5 * (b->X1 + b->X2);
+      center[i].y = 0.5 * (b->Y1 + b->Y2);
+       /* adding 1 prevents zero area */
+      center[i].area = 1. + (float)(b->X2 - b->X1) * (float)(b->Y2 - b->Y1);
+    }
    /* starting 'A' cluster center */
-  a_X = b->X1/2. + b->X2/2.;
-  a_Y = b->Y1/2. + b->Y2/2.;
-  if (node->flags.is_leaf)
-    b = &(node->u.rects[M_SIZE].bounds);
-  else
-    b = &(node->u.kids[M_SIZE]->box);
+  a_X = center[0].x;
+  a_Y = center[0].y;
    /* starting 'B' cluster center */
-  b_X = b->X1/2. + b->X2/2.;
-  b_Y = b->Y1/2. + b->Y2/2.;
+  b_X = center[M_SIZE].x;
+  b_Y = center[M_SIZE].y;
    /* don't allow the same cluster centers */
   if (b_X == a_X && b_Y == a_Y)
     {
@@ -609,15 +618,10 @@ find_clusters(struct rtree_node * node)
         {
 	  float dist1, dist2;
 
-	  if (node->flags.is_leaf)
-	    b = &(node->u.rects[i].bounds);
-	  else
-	    b = &(node->u.kids[i]->box);
-
-	  dist1 = (a_X - b->X1/2. - b->X2/2.)*(a_X - b->X1/2. - b->X2/2.) +
-	          (a_Y - b->Y1/2. - b->Y2/2.)*(a_Y - b->Y1/2. - b->Y2/2.);
-	  dist2 = (b_X - b->X1/2. - b->X2/2.)*(b_X - b->X1/2. - b->X2/2.) +
-	          (b_Y - b->Y1/2. - b->Y2/2.)*(b_Y - b->Y1/2. - b->Y2/2.);
+	  dist1 = SQUARE (a_X - center[i].x) +
+	          SQUARE (a_Y - center[i].y);
+	  dist2 = SQUARE (b_X - center[i].x) +
+	          SQUARE (b_Y - center[i].y);
           if (dist1 < dist2)
 	    {
 	      belong[i] = True;
@@ -639,23 +643,17 @@ find_clusters(struct rtree_node * node)
       a_X = a_Y = b_X = b_Y = 0;
       for (i = 0; i < M_SIZE+1; i++)
         {
-          if (node->flags.is_leaf)
-	    b = &(node->u.rects[i].bounds);
-	  else
-	    b = &(node->u.kids[i]->box);
-	   /* the +1 prevents lines from having zero area */
-	  area = (b->X2 - b->X1 + 1.) * (b->Y2 - b->Y1 + 1.);
 	  if (belong[i])
 	    {
-	      a_X += area*(b->X2/2. + b->X1/2.);
-	      a_Y += area*(b->Y2/2. + b->Y1/2.);
-	      total_a += area;
+	      a_X += center[i].x * center[i].area;
+	      a_Y += center[i].y * center[i].area;
+	      total_a += center[i].area;
 	    }
 	  else
 	    {
-	      b_X += area*(b->X2/2. + b->X1/2.);
-	      b_Y += area*(b->Y2/2. + b->Y1/2.);
-	      total_b += area;
+	      b_X += center[i].x * center[i].area;
+	      b_Y += center[i].y * center[i].area;
+	      total_b += center[i].area;
 	    }
 	}
       a_X /= total_a;
