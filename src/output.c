@@ -249,10 +249,23 @@ Pan (Location X, Location Y, Boolean Scroll, Boolean Update)
   Yorig = Y;
   render = True;
   /* calculate the visbile bounds in pcb coordinates */
-  vxl = TO_PCB_X (0);
-  vxh = TO_PCB_X (Output.Width);
-  vyl = MAX (0, MIN (TO_PCB_Y (0), TO_PCB_Y (Output.Height)));
-  vyh = MIN (PCB->MaxHeight, MAX (TO_PCB_Y (0), TO_PCB_Y (Output.Height)));
+  theScreen.X1 = vxl = TO_PCB_X (0);
+  theScreen.X2 = vxh = TO_PCB_X (Output.Width);
+  theScreen.Y1 = vyl = MAX (0, MIN (TO_PCB_Y (0), TO_PCB_Y (Output.Height)));
+  theScreen.Y2 = vyh = MIN (PCB->MaxHeight, MAX (TO_PCB_Y (0), TO_PCB_Y (Output.Height)));
+  /* set up the clipBox */
+  clipBox = theScreen;
+#ifdef CLIPDEBUG
+  clipBox.X1 += TO_PCB(50);
+  clipBox.X2 -= TO_PCB(50);
+  clipBox.Y1 += TO_PCB(50);
+  clipBox.Y2 -= TO_PCB(50);
+#else
+  clipBox.X1 -= MAX_SIZE;
+  clipBox.X2 += MAX_SIZE;
+  clipBox.Y1 -= MAX_SIZE;
+  clipBox.Y2 += MAX_SIZE;
+#endif
 #ifdef DEBUGDISP
   Message ("Pan setting Xorig, Yorig = (%d,%d)\n", X, Y);
   Message ("Visible is (%d < X < %d), (%d < Y < %d)\n",vxl,vxh,vyl,vyh);

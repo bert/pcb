@@ -36,14 +36,9 @@ static char *rcsid = "$Id$";
 #include "config.h"
 #endif
 
-#define	SWAP_IDENT		SwapOutput
-#define TO_SCREEN(a)	((Position)SATURATE((a)*Local_Zoom))
-#define XORIG dxo
-#define YORIG dyo
-
 #include <math.h>
 #include "global.h"
-
+#include "clip.h"
 #include "compat.h"
 #include "crosshair.h"
 #include "data.h"
@@ -74,14 +69,10 @@ FloatPolyType, *FloatPolyTypePtr;
  * some local identifiers
  */
 static int ZoomValue;		/* zoom for pin fonts */
-static float Local_Zoom;	/* zoom factor */
 static Window DrawingWindow;	/* flag common to all */
-static Boolean SwapOutput;	/* all drawing routines */
-static XRectangle UpdateRect;
 static BoxType Block;
 static Boolean Gathering = True;
 static int Erasing = False;
-static Location dxo, dyo;
 
 
 /* ---------------------------------------------------------------------------
@@ -104,11 +95,11 @@ static void DrawPadNameLowLevel (PadTypePtr);
 static void DrawLineLowLevel (LineTypePtr, Boolean);
 static void DrawTextLowLevel (TextTypePtr);
 static void DrawRegularText (LayerTypePtr, TextTypePtr, int);
-static void DrawPolygonLowLevel (PolygonTypePtr, Boolean);
+static void DrawPolygonLowLevel (PolygonTypePtr);
 static void DrawArcLowLevel (ArcTypePtr);
 static void DrawElementPackageLowLevel (ElementTypePtr Element, int);
 static void DrawPlainPolygon (LayerTypePtr Layer, PolygonTypePtr Polygon);
-static void AddPart (void);
+static void AddPart (void *, Boolean);
 static void SetPVColor (PinTypePtr, int);
 static void DrawGrid (void);
 static void DrawEMark (Location, Location, Boolean);
@@ -158,12 +149,24 @@ SetPVColor (PinTypePtr Pin, int Type)
  *  Adds the update rect to the update region
  */
 static void
-AddPart ()
+AddPart (void *b, Boolean screen_coord)
 {
-  Block.X1 = MIN (Block.X1, UpdateRect.x);
-  Block.X2 = MAX (Block.X2, UpdateRect.x + UpdateRect.width);
-  Block.Y1 = MIN (Block.Y1, UpdateRect.y);
-  Block.Y2 = MAX (Block.Y2, UpdateRect.y + UpdateRect.height);
+  BoxType *box = (BoxType *) b;
+
+  if (screen_coord)
+    {
+      Block.X1 = MIN (Block.X1, box->X1);
+      Block.X2 = MAX (Block.X2, box->X2);
+      Block.Y1 = MIN (Block.Y1, box->Y1);
+      Block.Y2 = MAX (Block.Y2, box->Y2);
+    }
+  else
+    {
+      Block.X1 = MIN (Block.X1, TO_LIMIT_X(box->X1));
+      Block.X2 = MAX (Block.X2, TO_LIMIT_X(box->X2));
+      Block.Y1 = MIN (Block.Y1, TO_LIMIT_Y(box->Y1));
+      Block.Y2 = MAX (Block.Y2, TO_LIMIT_Y(box->Y2));
+    }
 }
 
 /*
@@ -402,47 +405,41 @@ static void
 DrawEverything (void)
 {
   int i;
-  BoxType screen;
-
-  screen.X1 = vxl;
-  screen.Y1 = vyl;
-  screen.X2 = vxh;
-  screen.Y2 = vyh;
 
   /*
    * first draw all 'invisible' stuff
    */
   if (PCB->InvisibleObjectsOn)
     {
-      r_search(PCB->Data->element_tree, &screen, NULL, backE_callback, NULL);
+      r_search(PCB->Data->element_tree, &theScreen, NULL, backE_callback, NULL);
       if (PCB->ElementOn)
       DrawLayer (LAYER_PTR (MAX_LAYER +
 			      (SWAP_IDENT ? COMPONENT_LAYER :
-			       SOLDER_LAYER)), &screen);
+			       SOLDER_LAYER)), &theScreen);
     }
   /* draw all layers in layerstack order */
   for (i = MAX_LAYER - 1; i >= 0; i--)
     if ((LAYER_ON_STACK (i))->On)
-      DrawLayer (LAYER_ON_STACK (i), &screen);
+      DrawLayer (LAYER_ON_STACK (i), &theScreen);
   /* Draw pins, pads, vias */
-  DrawTop (&screen);
+  DrawTop (&theScreen);
   /* Draw the solder mask if turned on */
   if (TEST_FLAG (SHOWMASKFLAG, PCB))
-    DrawMask (&screen);
+    DrawMask (&theScreen);
   /* Draw top silkscreen */
   if (PCB->ElementOn)
     {
       DrawLayer (LAYER_PTR (MAX_LAYER + (SWAP_IDENT ? SOLDER_LAYER :
-					 COMPONENT_LAYER)), &screen);
+					 COMPONENT_LAYER)), &theScreen);
 
-      r_search (PCB->Data->element_tree, &screen, NULL, frontE_callback, NULL);
+      r_search (PCB->Data->element_tree, &theScreen, NULL, frontE_callback, NULL);
     }
   else if (PCB->PinOn)
   /* Draw pin holes */
-    r_search (PCB->Data->element_tree, &screen, NULL, holeE_callback, NULL);
+    r_search (PCB->Data->element_tree, &theScreen, NULL, holeE_callback, NULL);
   /* Draw via holes */
   if (PCB->ViaOn)
-    r_search(PCB->Data->via_tree, &screen, NULL, viaHole_callback, NULL);
+    r_search(PCB->Data->via_tree, &theScreen, NULL, viaHole_callback, NULL);
   /* Draw rat lines on top */
   if (PCB->RatOn)
     RAT_LOOP (PCB->Data, 
@@ -463,14 +460,14 @@ DrawEMark (Location X, Location Y, Boolean invisible)
   XSetForeground (Dpy, Output.fgGC,
 		  invisible ? PCB->InvisibleMarkColor : PCB->ElementColor);
   XSetLineAttributes (Dpy, Output.fgGC, 1, LineSolid, CapRound, JoinRound);
-  XDrawLine (Dpy, DrawingWindow, Output.fgGC, TO_DRAW_X (X - EMARK_SIZE),
-	     TO_DRAW_Y (Y), TO_DRAW_X (X), TO_DRAW_Y (Y - EMARK_SIZE));
-  XDrawLine (Dpy, DrawingWindow, Output.fgGC, TO_DRAW_X (X + EMARK_SIZE),
-	     TO_DRAW_Y (Y), TO_DRAW_X (X), TO_DRAW_Y (Y - EMARK_SIZE));
-  XDrawLine (Dpy, DrawingWindow, Output.fgGC, TO_DRAW_X (X - EMARK_SIZE),
-	     TO_DRAW_Y (Y), TO_DRAW_X (X), TO_DRAW_Y (Y + EMARK_SIZE));
-  XDrawLine (Dpy, DrawingWindow, Output.fgGC, TO_DRAW_X (X + EMARK_SIZE),
-	     TO_DRAW_Y (Y), TO_DRAW_X (X), TO_DRAW_Y (Y + EMARK_SIZE));
+  XDrawCLine (Dpy, DrawingWindow, Output.fgGC, X - EMARK_SIZE,
+	     Y, X, Y - EMARK_SIZE);
+  XDrawCLine (Dpy, DrawingWindow, Output.fgGC, X + EMARK_SIZE,
+	     Y, X, Y - EMARK_SIZE);
+  XDrawCLine (Dpy, DrawingWindow, Output.fgGC, X - EMARK_SIZE,
+	     Y, X, Y + EMARK_SIZE);
+  XDrawCLine (Dpy, DrawingWindow, Output.fgGC, X + EMARK_SIZE,
+	     Y, X, Y + EMARK_SIZE);
 }
 
 static int
@@ -766,16 +763,9 @@ DrawSpecialPolygon (Drawable d, GC DrawGC,
 static void
 DrawPinOrViaLowLevel (PinTypePtr Ptr, Boolean drawHole)
 {
-  BDimension half = (Ptr->Thickness + Ptr->Clearance) / 2;
-
-  if (TEST_FLAG (SHOWMASKFLAG, PCB))
-    half = MAX (half, Ptr->Mask / 2);
-  UpdateRect.x = TO_DRAW_X (Ptr->X - half);
-  UpdateRect.y = TO_DRAW_Y (Ptr->Y) - TO_SCREEN (half);
-  UpdateRect.width = UpdateRect.height = TO_SCREEN (half * 2);
   if (Gathering)
     {
-      AddPart ();
+      AddPart (Ptr, False);
       return;
     }
 
@@ -785,17 +775,12 @@ DrawPinOrViaLowLevel (PinTypePtr Ptr, Boolean drawHole)
 	{
 	  XSetLineAttributes (Dpy, Output.bgGC, TO_SCREEN (Ptr->Thickness),
 			      LineSolid, CapRound, JoinRound);
-	  XDrawLine (Dpy, DrawingWindow, Output.bgGC, TO_DRAW_X (Ptr->X),
-		     TO_DRAW_Y (Ptr->Y), TO_DRAW_X (Ptr->X),
-		     TO_DRAW_Y (Ptr->Y));
+	  XDrawCLine (Dpy, DrawingWindow, Output.bgGC, Ptr->X, Ptr->Y,
+	              Ptr->X, Ptr->Y);
 	  XSetLineAttributes (Dpy, Output.fgGC, 1, LineSolid, CapRound,
 			      JoinRound);
-	  XDrawArc (Dpy, DrawingWindow, Output.fgGC,
-		    TO_DRAW_X (Ptr->X - Ptr->Thickness / 2),
-		    TO_DRAW_Y (Ptr->Y -
-			       TO_SCREEN_SIGN_Y (Ptr->Thickness / 2)),
-		    TO_SCREEN (Ptr->Thickness), TO_SCREEN (Ptr->Thickness), 0,
-		    23040);
+	  XDrawCArc (Dpy, DrawingWindow, Output.fgGC, Ptr->X, Ptr->Y,
+	             Ptr->Thickness, Ptr->Thickness, 0, 23040);
 	}
       return;
     }
@@ -837,20 +822,17 @@ DrawPinOrViaLowLevel (PinTypePtr Ptr, Boolean drawHole)
     {				/* draw a round pin or via */
       if (TEST_FLAG (THINDRAWFLAG, PCB))
 	{
-	  int t = TO_SCREEN (Ptr->Thickness);
 	  XSetLineAttributes (Dpy, Output.fgGC, 1,
 			      LineSolid, CapRound, JoinRound);
-	  XDrawArc (Dpy, DrawingWindow, Output.fgGC,
-		    TO_DRAW_X (Ptr->X) - t / 2, TO_DRAW_Y (Ptr->Y) - t / 2, t,
-		    t, 0, 360 * 64);
+	  XDrawCArc (Dpy, DrawingWindow, Output.fgGC, Ptr->X, Ptr->Y,
+		    Ptr->Thickness, Ptr->Thickness, 0, 360 * 64);
 	}
       else
 	{
 	  XSetLineAttributes (Dpy, Output.fgGC, TO_SCREEN (Ptr->Thickness),
 			      LineSolid, CapRound, JoinRound);
-	  XDrawLine (Dpy, DrawingWindow, Output.fgGC, TO_DRAW_X (Ptr->X),
-		     TO_DRAW_Y (Ptr->Y), TO_DRAW_X (Ptr->X),
-		     TO_DRAW_Y (Ptr->Y));
+	  XDrawCLine (Dpy, DrawingWindow, Output.fgGC, Ptr->X, Ptr->Y,
+	              Ptr->X, Ptr->Y);
 	}
     }
 
@@ -859,20 +841,18 @@ DrawPinOrViaLowLevel (PinTypePtr Ptr, Boolean drawHole)
     {
       if (TEST_FLAG (THINDRAWFLAG, PCB))
 	{
-	  int t = TO_SCREEN (Ptr->DrillingHole);
 	  XSetLineAttributes (Dpy, Output.fgGC, 1,
 			      LineSolid, CapRound, JoinRound);
-	  XDrawArc (Dpy, DrawingWindow, Output.fgGC,
-		    TO_DRAW_X (Ptr->X) - t / 2, TO_DRAW_Y (Ptr->Y) - t / 2, t,
-		    t, 0, 360 * 64);
+	  XDrawCArc (Dpy, DrawingWindow, Output.fgGC,
+		    Ptr->X, Ptr->Y, Ptr->DrillingHole,
+		    Ptr->DrillingHole, 0, 360 * 64);
 	}
       else
 	{
 	  XSetLineAttributes (Dpy, Output.bgGC, TO_SCREEN (Ptr->DrillingHole),
 			      LineSolid, CapRound, JoinRound);
-	  XDrawLine (Dpy, DrawingWindow, Output.bgGC, TO_DRAW_X (Ptr->X),
-		     TO_DRAW_Y (Ptr->Y), TO_DRAW_X (Ptr->X),
-		     TO_DRAW_Y (Ptr->Y));
+	  XDrawCLine (Dpy, DrawingWindow, Output.bgGC, Ptr->X, Ptr->Y,
+	              Ptr->X, Ptr->Y);
 	}
     }
 }
@@ -887,25 +867,21 @@ DrawHole (PinTypePtr Ptr)
     {
       if (!TEST_FLAG (HOLEFLAG, Ptr))
 	{
-	  int t = TO_SCREEN (Ptr->DrillingHole);
 	  XSetLineAttributes (Dpy, Output.fgGC, 1,
 			      LineSolid, CapRound, JoinRound);
-	  XDrawArc (Dpy, DrawingWindow, Output.fgGC,
-		    TO_DRAW_X (Ptr->X) - t / 2, TO_DRAW_Y (Ptr->Y) - t / 2, t,
-		    t, 0, 360 * 64);
+	  XDrawCArc (Dpy, DrawingWindow, Output.fgGC, Ptr->X, Ptr->Y,
+		    Ptr->DrillingHole, Ptr->DrillingHole, 0, 360 * 64);
 	}
     }
   else
     {
       XSetLineAttributes (Dpy, Output.bgGC, TO_SCREEN (Ptr->DrillingHole),
 			  LineSolid, CapRound, JoinRound);
-      XDrawLine (Dpy, DrawingWindow, Output.bgGC, TO_DRAW_X (Ptr->X),
-		 TO_DRAW_Y (Ptr->Y), TO_DRAW_X (Ptr->X), TO_DRAW_Y (Ptr->Y));
+      XDrawCLine (Dpy, DrawingWindow, Output.bgGC, Ptr->X,
+		 Ptr->Y, Ptr->X, Ptr->Y);
     }
   if (TEST_FLAG (HOLEFLAG, Ptr))
     {
-      BDimension half = Ptr->DrillingHole / 2;
-
       if (TEST_FLAG(WARNFLAG, Ptr))
         XSetForeground (Dpy, Output.fgGC, PCB->WarnColor);
       else if (TEST_FLAG (SELECTEDFLAG, Ptr))
@@ -915,10 +891,8 @@ DrawHole (PinTypePtr Ptr)
 			BlackPixelOfScreen (XtScreen (Output.Output)));
       XSetLineAttributes (Dpy, Output.fgGC, 1, LineSolid, CapRound,
 			  JoinRound);
-      XDrawArc (Dpy, DrawingWindow, Output.fgGC, TO_DRAW_X (Ptr->X - half),
-		TO_DRAW_Y (Ptr->Y - TO_SCREEN_SIGN_Y (half)),
-		TO_SCREEN (Ptr->DrillingHole), TO_SCREEN (Ptr->DrillingHole),
-		0, 23040);
+      XDrawCArc (Dpy, DrawingWindow, Output.fgGC, Ptr->X, Ptr->Y,
+                 Ptr->DrillingHole, Ptr->DrillingHole, 0, 23040);
     }
 }
 
@@ -938,8 +912,8 @@ ClearOnlyPin (PinTypePtr Pin, Boolean mask)
   if (TEST_FLAG (SQUAREFLAG, Pin))
     {
       XFillRectangle (Dpy, Offmask, Output.pmGC,
-		      TO_MASK_X (Pin->X - TO_SCREEN_SIGN_X (half)),
-		      TO_MASK_Y (Pin->Y - TO_SCREEN_SIGN_Y (half)),
+		      TO_DRAW_X (Pin->X - TO_SCREEN_SIGN_X (half)),
+		      TO_DRAW_Y (Pin->Y - TO_SCREEN_SIGN_Y (half)),
 		      TO_SCREEN (mask ? Pin->Mask : Pin->Thickness +
 				 Pin->Clearance),
 		      TO_SCREEN (mask ? Pin->Mask : Pin->Thickness +
@@ -954,7 +928,7 @@ ClearOnlyPin (PinTypePtr Pin, Boolean mask)
 
       /* transform X11 specific coord system */
       DrawSpecialPolygon (Offmask, Output.pmGC,
-			  TO_MASK_X (Pin->X), TO_MASK_Y (Pin->Y),
+			  TO_DRAW_X (Pin->X), TO_DRAW_Y (Pin->Y),
 			  mask ? Pin->Mask : Pin->Thickness +
 				   Pin->Clearance);
     }
@@ -964,8 +938,7 @@ ClearOnlyPin (PinTypePtr Pin, Boolean mask)
 			  TO_SCREEN (mask ? Pin->Mask : Pin->Thickness +
 				     Pin->Clearance), LineSolid, CapRound,
 			  JoinRound);
-      XDrawLine (Dpy, Offmask, Output.pmGC, TO_MASK_X (Pin->X),
-		 TO_MASK_Y (Pin->Y), TO_MASK_X (Pin->X), TO_MASK_Y (Pin->Y));
+      XDrawCLine (Dpy, Offmask, Output.pmGC, Pin->X, Pin->Y, Pin->X, Pin->Y);
     }
 }
 
@@ -976,7 +949,6 @@ static void
 ThermPin (LayerTypePtr layer, PinTypePtr Pin)
 {
   BDimension half = (Pin->Thickness + Pin->Clearance) / 2;
-  BDimension halfs = (TO_SCREEN (half) * SQRT2OVER2 + 1);
   BDimension finger;
 
   if (TEST_FLAG (SELECTEDFLAG | FOUNDFLAG, Pin))
@@ -996,27 +968,19 @@ ThermPin (LayerTypePtr layer, PinTypePtr Pin)
   if (TEST_FLAG (SQUAREFLAG, Pin))
     {
 
-      XDrawLine (Dpy, DrawingWindow, Output.fgGC,
-		 TO_DRAW_X (Pin->X) - TO_SCREEN (half),
-		 TO_DRAW_Y (Pin->Y) - TO_SCREEN (half),
-		 TO_DRAW_X (Pin->X) + TO_SCREEN (half),
-		 TO_DRAW_Y (Pin->Y) + TO_SCREEN (half));
-      XDrawLine (Dpy, DrawingWindow, Output.fgGC,
-		 TO_DRAW_X (Pin->X) - TO_SCREEN (half),
-		 TO_DRAW_Y (Pin->Y) + TO_SCREEN (half),
-		 TO_DRAW_X (Pin->X) + TO_SCREEN (half),
-		 TO_DRAW_Y (Pin->Y) - TO_SCREEN (half));
+      XDrawCLine (Dpy, DrawingWindow, Output.fgGC,
+		 Pin->X - half, Pin->Y - half, Pin->X + half, Pin->Y + half);
+      XDrawCLine (Dpy, DrawingWindow, Output.fgGC,
+		 Pin->X - half, Pin->Y + half, Pin->X + half, Pin->Y - half);
     }
   else
     {
-      XDrawLine (Dpy, DrawingWindow, Output.fgGC,
-		 TO_DRAW_X (Pin->X) - halfs,
-		 TO_DRAW_Y (Pin->Y) - halfs,
-		 TO_DRAW_X (Pin->X) + halfs, TO_DRAW_Y (Pin->Y) + halfs);
-      XDrawLine (Dpy, DrawingWindow, Output.fgGC,
-		 TO_DRAW_X (Pin->X) - halfs,
-		 TO_DRAW_Y (Pin->Y) + halfs,
-		 TO_DRAW_X (Pin->X) + halfs, TO_DRAW_Y (Pin->Y) - halfs);
+      BDimension halfs = (half * SQRT2OVER2 + 1);
+      
+      XDrawCLine (Dpy, DrawingWindow, Output.fgGC,
+		 Pin->X - halfs, Pin->Y - halfs, Pin->X + halfs, Pin->Y + halfs);
+      XDrawCLine (Dpy, DrawingWindow, Output.fgGC,
+		 Pin->X - halfs, Pin->Y + halfs, Pin->X + halfs, Pin->Y - halfs);
     }
 }
 
@@ -1030,14 +994,10 @@ ClearPin (PinTypePtr Pin, int Type, int unused)
   LayerTypePtr layer;
   Cardinal i;
   BDimension half = (Pin->Thickness + Pin->Clearance) / 2;
-  BDimension halfs = (TO_SCREEN (half) * SQRT2OVER2 + 1);
 
   if (Gathering)
     {
-      UpdateRect.x = TO_DRAW_X (Pin->X) - TO_SCREEN (half);
-      UpdateRect.y = TO_DRAW_Y (Pin->Y) - TO_SCREEN (half);
-      UpdateRect.width = UpdateRect.height = TO_SCREEN (2 * half);
-      AddPart ();
+      AddPart (Pin, False);
       return;
     }
   /* Clear the area around the pin */
@@ -1066,8 +1026,8 @@ ClearPin (PinTypePtr Pin, int Type, int unused)
       XSetLineAttributes (Dpy, Output.bgGC,
 			  TO_SCREEN (Pin->Thickness + Pin->Clearance),
 			  LineSolid, CapRound, JoinRound);
-      XDrawLine (Dpy, DrawingWindow, Output.bgGC, TO_DRAW_X (Pin->X),
-		 TO_DRAW_Y (Pin->Y), TO_DRAW_X (Pin->X), TO_DRAW_Y (Pin->Y));
+      XDrawCLine (Dpy, DrawingWindow, Output.bgGC, Pin->X,
+		 Pin->Y, Pin->X, Pin->Y);
     }
   /* draw all the thermal(s) */
   for (i = MAX_LAYER; i; i--)
@@ -1099,32 +1059,22 @@ ClearPin (PinTypePtr Pin, int Type, int unused)
 								   2),
 				  LineSolid, CapRound, JoinRound);
 
-	      XDrawLine (Dpy, DrawingWindow, Output.fgGC,
-			 TO_DRAW_X (Pin->X) - TO_SCREEN (half),
-			 TO_DRAW_Y (Pin->Y) - TO_SCREEN (half),
-			 TO_DRAW_X (Pin->X) + TO_SCREEN (half),
-			 TO_DRAW_Y (Pin->Y) + TO_SCREEN (half));
-	      XDrawLine (Dpy, DrawingWindow, Output.fgGC,
-			 TO_DRAW_X (Pin->X) - TO_SCREEN (half),
-			 TO_DRAW_Y (Pin->Y) + TO_SCREEN (half),
-			 TO_DRAW_X (Pin->X) + TO_SCREEN (half),
-			 TO_DRAW_Y (Pin->Y) - TO_SCREEN (half));
+	      XDrawCLine (Dpy, DrawingWindow, Output.fgGC, Pin->X - half,
+	                  Pin->Y - half, Pin->X + half, Pin->Y + half);
+	      XDrawCLine (Dpy, DrawingWindow, Output.fgGC, Pin->X - half,
+			 Pin->Y + half, Pin->X + half, Pin->Y - half);
 	    }
 	  else
 	    {
+              BDimension halfs = (half * SQRT2OVER2 + 1);
+
 	      XSetLineAttributes (Dpy, Output.fgGC,
 				  TO_SCREEN (Pin->Clearance / 2), LineSolid,
 				  CapRound, JoinRound);
-	      XDrawLine (Dpy, DrawingWindow, Output.fgGC,
-			 TO_DRAW_X (Pin->X) - halfs,
-			 TO_DRAW_Y (Pin->Y) - halfs,
-			 TO_DRAW_X (Pin->X) + halfs,
-			 TO_DRAW_Y (Pin->Y) + halfs);
-	      XDrawLine (Dpy, DrawingWindow, Output.fgGC,
-			 TO_DRAW_X (Pin->X) - halfs,
-			 TO_DRAW_Y (Pin->Y) + halfs,
-			 TO_DRAW_X (Pin->X) + halfs,
-			 TO_DRAW_Y (Pin->Y) - halfs);
+	      XDrawCLine (Dpy, DrawingWindow, Output.fgGC, Pin->X - halfs,
+			 Pin->Y - halfs, Pin->X + halfs, Pin->Y + halfs);
+	      XDrawCLine (Dpy, DrawingWindow, Output.fgGC, Pin->X - halfs,
+			 Pin->Y + halfs, Pin->X + halfs, Pin->Y - halfs);
 	    }
 	}
     }
@@ -1191,6 +1141,7 @@ DrawPinOrViaNameLowLevel (PinTypePtr Ptr)
   int direction, ascent, descent;
   XCharStruct overall;
   char *name;
+  BoxType box;
 
   name = EMPTY (TEST_FLAG (SHOWNUMBERFLAG, PCB) ? Ptr->Number : Ptr->Name);
   XTextExtents (Settings.PinoutFont[ZoomValue],
@@ -1198,40 +1149,40 @@ DrawPinOrViaNameLowLevel (PinTypePtr Ptr)
 		&direction, &ascent, &descent, &overall);
   if (TEST_FLAG (EDGE2FLAG, Ptr))
     {
-      UpdateRect.x = TO_DRAW_X (Ptr->X) - ascent + descent;
-      UpdateRect.y =
+      box.X1 = TO_DRAW_X (Ptr->X) - ascent + descent;
+      box.Y1 =
 	TO_DRAW_Y (Ptr->Y + Ptr->Thickness / 2 + Settings.PinoutTextOffsetY)
 	+ overall.lbearing;
     }
   else
     {
-      UpdateRect.x =
+      box.X1 =
 	TO_DRAW_X (Ptr->X + Ptr->Thickness / 2 + Settings.PinoutTextOffsetX);
-      UpdateRect.y = TO_DRAW_Y (Ptr->Y) + overall.ascent / 2;
+      box.Y1 = TO_DRAW_Y (Ptr->Y) + overall.ascent / 2;
     }
   if (Gathering)
     {
       if (!TEST_FLAG (EDGE2FLAG, Ptr))
 	{
-	  UpdateRect.x += overall.lbearing;
-	  UpdateRect.y -= overall.ascent;
-	  UpdateRect.width = overall.width;
-	  UpdateRect.height = ascent + descent;
+	  box.X1 += overall.lbearing;
+	  box.Y1 -= overall.ascent;
+	  box.X2 = box.X1 + overall.width;
+	  box.Y2 = box.Y1 + ascent + descent;
 	}
       else
 	{
-	  UpdateRect.width = ascent + descent;;
-	  UpdateRect.height = overall.width;
+	  box.X2 = box.X1 + ascent + descent;;
+	  box.Y2 = box.Y1 + overall.width;
 	}
-      AddPart ();
+      AddPart (&box, True);
       return;
     }
   if (TEST_FLAG (EDGE2FLAG, Ptr))
-    DrawVText (UpdateRect.x, UpdateRect.y, overall.width,
+    DrawVText (box.X1, box.Y1, overall.width,
 	       ascent + descent, descent, name);
   else
     XDrawString (Dpy, DrawingWindow, Output.fgGC,
-		 UpdateRect.x, UpdateRect.y,
+		 box.X1, box.Y1,
 		 name, MIN (Settings.PinoutNameLength, strlen (name)));
 
 }
@@ -1245,33 +1196,19 @@ DrawPadLowLevel (PadTypePtr Pad)
 {
   if (Gathering)
     {
-      BDimension size = Pad->Thickness + Pad->Clearance;
-
-      if (TEST_FLAG (SHOWMASKFLAG, PCB))
-	size = MAX (size, Pad->Mask);
-      UpdateRect.x =
-	MIN (TO_DRAW_X (Pad->Point1.X), TO_DRAW_X (Pad->Point2.X));
-      UpdateRect.x -= TO_SCREEN (size / 2);
-      UpdateRect.y =
-	MIN (TO_DRAW_Y (Pad->Point1.Y), TO_DRAW_Y (Pad->Point2.Y));
-      UpdateRect.y -= TO_SCREEN (size / 2);
-      UpdateRect.width =
-	TO_SCREEN (abs (Pad->Point1.X - Pad->Point2.X) + size);
-      UpdateRect.height =
-	TO_SCREEN (abs (Pad->Point1.Y - Pad->Point2.Y) + size);
-      AddPart ();
+      AddPart (Pad, False);
       return;
     }
 
   if (TEST_FLAG (THINDRAWFLAG, PCB))
     {
       int x1, y1, x2, y2, t, t2;
-      t = TO_SCREEN (Pad->Thickness) / 2;
-      t2 = TO_SCREEN (Pad->Thickness) - t;
-      x1 = TO_DRAW_X (Pad->Point1.X);
-      y1 = TO_DRAW_Y (Pad->Point1.Y);
-      x2 = TO_DRAW_X (Pad->Point2.X);
-      y2 = TO_DRAW_Y (Pad->Point2.Y);
+      t = Pad->Thickness / 2;
+      t2 = Pad->Thickness - t;
+      x1 = Pad->Point1.X;
+      y1 = Pad->Point1.Y;
+      x2 = Pad->Point2.X;
+      y2 = Pad->Point2.Y;
       if (x1 > x2 || y1 > y2)
 	{
 	  x1 ^= x2;
@@ -1289,30 +1226,30 @@ DrawPadLowLevel (PadTypePtr Pad)
 	  y1 -= t;
 	  x2 += t2;
 	  y2 += t2;
-	  XDrawLine (Dpy, DrawingWindow, Output.fgGC, x1, y1, x1, y2);
-	  XDrawLine (Dpy, DrawingWindow, Output.fgGC, x1, y2, x2, y2);
-	  XDrawLine (Dpy, DrawingWindow, Output.fgGC, x2, y2, x2, y1);
-	  XDrawLine (Dpy, DrawingWindow, Output.fgGC, x2, y1, x1, y1);
+	  XDrawCLine (Dpy, DrawingWindow, Output.fgGC, x1, y1, x1, y2);
+	  XDrawCLine (Dpy, DrawingWindow, Output.fgGC, x1, y2, x2, y2);
+	  XDrawCLine (Dpy, DrawingWindow, Output.fgGC, x2, y2, x2, y1);
+	  XDrawCLine (Dpy, DrawingWindow, Output.fgGC, x2, y1, x1, y1);
 	}
       else if (x1 == x2)
 	{
-	  XDrawLine (Dpy, DrawingWindow, Output.fgGC, x1 - t, y1, x2 - t, y2);
-	  XDrawLine (Dpy, DrawingWindow, Output.fgGC, x1 + t2, y1, x2 + t2,
+	  XDrawCLine (Dpy, DrawingWindow, Output.fgGC, x1 - t, y1, x2 - t, y2);
+	  XDrawCLine (Dpy, DrawingWindow, Output.fgGC, x1 + t2, y1, x2 + t2,
 		     y2);
-	  XDrawArc (Dpy, DrawingWindow, Output.fgGC, x1 - t, y1 - t, t + t2,
-		    t + t2, 0, 180 * 64);
-	  XDrawArc (Dpy, DrawingWindow, Output.fgGC, x2 - t, y2 - t, t + t2,
-		    t + t2, 180 * 64, 180 * 64);
+	  XDrawCArc (Dpy, DrawingWindow, Output.fgGC, x1, y1, Pad->Thickness,
+		    Pad->Thickness, 0, 180 * 64);
+	  XDrawCArc (Dpy, DrawingWindow, Output.fgGC, x2, y2, Pad->Thickness,
+		    Pad->Thickness, 180 * 64, 180 * 64);
 	}
       else
 	{
-	  XDrawLine (Dpy, DrawingWindow, Output.fgGC, x1, y1 - t, x2, y2 - t);
-	  XDrawLine (Dpy, DrawingWindow, Output.fgGC, x1, y1 + t2, x2,
+	  XDrawCLine (Dpy, DrawingWindow, Output.fgGC, x1, y1 - t, x2, y2 - t);
+	  XDrawCLine (Dpy, DrawingWindow, Output.fgGC, x1, y1 + t2, x2,
 		     y2 + t2);
-	  XDrawArc (Dpy, DrawingWindow, Output.fgGC, x1 - t, y1 - t, t + t2,
-		    t + t2, 90 * 64, 180 * 64);
-	  XDrawArc (Dpy, DrawingWindow, Output.fgGC, x2 - t, y2 - t, t + t2,
-		    t + t2, 270 * 64, 180 * 64);
+	  XDrawCArc (Dpy, DrawingWindow, Output.fgGC, x1, y1, Pad->Thickness, 
+		    Pad->Thickness, 90 * 64, 180 * 64);
+	  XDrawCArc (Dpy, DrawingWindow, Output.fgGC, x2, y2, Pad->Thickness,
+		    Pad->Thickness, 270 * 64, 180 * 64);
 	}
     }
   else
@@ -1323,9 +1260,8 @@ DrawPadLowLevel (PadTypePtr Pad)
 			  TEST_FLAG (SQUAREFLAG,
 				     Pad) ? CapProjecting : CapRound,
 			  JoinRound);
-      XDrawLine (Dpy, DrawingWindow, Output.fgGC, TO_DRAW_X (Pad->Point1.X),
-		 TO_DRAW_Y (Pad->Point1.Y), TO_DRAW_X (Pad->Point2.X),
-		 TO_DRAW_Y (Pad->Point2.Y));
+      XDrawCLine (Dpy, DrawingWindow, Output.fgGC, Pad->Point1.X,
+		 Pad->Point1.Y, Pad->Point2.X, Pad->Point2.Y);
     }
 }
 
@@ -1339,6 +1275,7 @@ DrawPadNameLowLevel (PadTypePtr Pad)
   int direction, ascent, descent, vert;
   XCharStruct overall;
   char *name;
+  BoxType box;
 
   name = EMPTY (TEST_FLAG (SHOWNUMBERFLAG, PCB) ? Pad->Number : Pad->Name);
 
@@ -1349,46 +1286,46 @@ DrawPadNameLowLevel (PadTypePtr Pad)
   vert = (Pad->Point1.X == Pad->Point2.X);
   if (vert)
     {
-      UpdateRect.x = TO_DRAW_X (Pad->Point1.X) - ascent + descent;
-      UpdateRect.y =
+      box.X1 = TO_DRAW_X (Pad->Point1.X) - ascent + descent;
+      box.Y1 =
 	TO_DRAW_Y (MAX (Pad->Point1.Y, Pad->Point2.Y) + Pad->Thickness / 2);
     }
   else
     {
-      UpdateRect.x =
+      box.X1 =
 	TO_DRAW_X (MAX (Pad->Point1.X, Pad->Point2.X) + Pad->Thickness / 2);
-      UpdateRect.y = TO_DRAW_Y (Pad->Point1.Y) + overall.ascent / 2;
+      box.Y1 = TO_DRAW_Y (Pad->Point1.Y) + overall.ascent / 2;
     }
 
   if (vert)
-    UpdateRect.y += overall.lbearing + TO_SCREEN (Settings.PinoutTextOffsetY);
+    box.Y1 += overall.lbearing + TO_SCREEN (Settings.PinoutTextOffsetY);
   else
-    UpdateRect.x += TO_SCREEN (Settings.PinoutTextOffsetX);
+    box.X1 += TO_SCREEN (Settings.PinoutTextOffsetX);
 
   if (Gathering)
     {
       if (vert)
 	{
-	  UpdateRect.width = ascent + descent;
-	  UpdateRect.height = overall.width;
+	  box.X2 = box.X1 + ascent + descent;
+	  box.Y2 = box.Y1 + overall.width;
 	}
       else
 	{
-	  UpdateRect.x += overall.lbearing;
-	  UpdateRect.y -= ascent;
-	  UpdateRect.width = overall.width;
-	  UpdateRect.height = ascent + descent;
+	  box.X1 += overall.lbearing;
+	  box.Y1 -= ascent;
+	  box.X2 = box.X1 + overall.width;
+	  box.Y2 = box.Y1 + ascent + descent;
 	}
-      AddPart ();
+      AddPart (&box, True);
       return;
     }
 
   if (vert)
-    DrawVText (UpdateRect.x, UpdateRect.y, overall.width,
+    DrawVText (box.X1, box.Y1, overall.width,
 	       ascent + descent, descent, name);
   else
     XDrawString (Dpy, DrawingWindow, Output.fgGC,
-		 UpdateRect.x, UpdateRect.y,
+		 box.X1, box.Y1,
 		 name, MIN (Settings.PinoutNameLength, strlen (name)));
 }
 
@@ -1403,9 +1340,8 @@ ClearPad (PadTypePtr Pad, Boolean mask)
 				 Pad->Clearance), LineSolid,
 		      TEST_FLAG (SQUAREFLAG, Pad) ? CapProjecting : CapRound,
 		      JoinRound);
-  XDrawLine (Dpy, Offmask, Output.pmGC, TO_MASK_X (Pad->Point1.X),
-	     TO_MASK_Y (Pad->Point1.Y), TO_MASK_X (Pad->Point2.X),
-	     TO_MASK_Y (Pad->Point2.Y));
+  XDrawCLine (Dpy, Offmask, Output.pmGC, Pad->Point1.X, Pad->Point1.Y,
+              Pad->Point2.X, Pad->Point2.Y);
 }
 
 /* ---------------------------------------------------------------------------
@@ -1417,9 +1353,8 @@ ClearLine (LineTypePtr Line)
   XSetLineAttributes (Dpy, Output.pmGC,
 		      TO_SCREEN (Line->Clearance + Line->Thickness),
 		      LineSolid, CapRound, JoinRound);
-  XDrawLine (Dpy, Offmask, Output.pmGC, TO_MASK_X (Line->Point1.X),
-	     TO_MASK_Y (Line->Point1.Y), TO_MASK_X (Line->Point2.X),
-	     TO_MASK_Y (Line->Point2.Y));
+  XDrawCLine (Dpy, Offmask, Output.pmGC, Line->Point1.X, Line->Point1.Y,
+              Line->Point2.X, Line->Point2.Y);
 }
 
 /* ---------------------------------------------------------------------------
@@ -1431,13 +1366,9 @@ ClearArc (ArcTypePtr Arc)
   XSetLineAttributes (Dpy, Output.pmGC,
 		      TO_SCREEN (Arc->Thickness + Arc->Clearance),
 		      LineSolid, CapRound, JoinRound);
-  XDrawArc (Dpy, Offmask, Output.pmGC,
-	    TO_MASK_X (Arc->X) - TO_SCREEN (Arc->Width),
-	    TO_MASK_Y (Arc->Y) - TO_SCREEN (Arc->Height),
-	    TO_SCREEN (2 * Arc->Width),
-	    TO_SCREEN (2 * Arc->Height),
-	    (TO_SCREEN_ANGLE (Arc->StartAngle) - 180) * 64,
-	    TO_SCREEN_DELTA (Arc->Delta) * 64);
+  XDrawCArc (Dpy, Offmask, Output.pmGC, Arc->X, Arc->Y,
+            2 * Arc->Width, 2 * Arc->Height,
+	    (Arc->StartAngle - 180) * 64, Arc->Delta * 64);
 }
 
 /* ---------------------------------------------------------------------------
@@ -1448,25 +1379,7 @@ DrawLineLowLevel (LineTypePtr Line, Boolean HaveGathered)
 {
   if (Gathering && !HaveGathered)
     {
-      BDimension wide = Line->Thickness;
-
-      if (TEST_FLAG (CLEARLINEFLAG, Line))
-	wide += Line->Clearance;
-      UpdateRect.x =
-	MIN (TO_DRAW_X (Line->Point1.X), TO_DRAW_X (Line->Point2.X));
-      UpdateRect.x -= TO_SCREEN (wide / 2);
-      UpdateRect.y =
-	MIN (TO_DRAW_Y (Line->Point1.Y), TO_DRAW_Y (Line->Point2.Y));
-      UpdateRect.y -= TO_SCREEN (wide / 2);
-      UpdateRect.width =
-	TO_SCREEN (abs (Line->Point1.X - Line->Point2.X) + wide);
-      UpdateRect.height =
-	TO_SCREEN (abs (Line->Point1.Y - Line->Point2.Y) + wide);
-      if (UpdateRect.width == 0)
-	UpdateRect.width = 1;
-      if (UpdateRect.height == 0)
-	UpdateRect.height = 1;
-      AddPart ();
+      AddPart (Line, False);
       return;
     }
 
@@ -1481,15 +1394,15 @@ DrawLineLowLevel (LineTypePtr Line, Boolean HaveGathered)
     {
       XSetStipple (Dpy, Output.fgGC, Stipples[0]);
       XSetFillStyle (Dpy, Output.fgGC, FillStippled);
-      XDrawLine (Dpy, DrawingWindow, Output.fgGC,
-		 TO_DRAW_X (Line->Point1.X), TO_DRAW_Y (Line->Point1.Y),
-		 TO_DRAW_X (Line->Point2.X), TO_DRAW_Y (Line->Point2.Y));
+      XDrawCLine (Dpy, DrawingWindow, Output.fgGC,
+		 Line->Point1.X, Line->Point1.Y,
+		 Line->Point2.X, Line->Point2.Y);
       XSetFillStyle (Dpy, Output.fgGC, FillSolid);
     }
   else
-    XDrawLine (Dpy, DrawingWindow, Output.fgGC,
-	       TO_DRAW_X (Line->Point1.X), TO_DRAW_Y (Line->Point1.Y),
-	       TO_DRAW_X (Line->Point2.X), TO_DRAW_Y (Line->Point2.Y));
+    XDrawCLine (Dpy, DrawingWindow, Output.fgGC,
+	       Line->Point1.X, Line->Point1.Y,
+	       Line->Point2.X, Line->Point2.Y);
 }
 
 /* ---------------------------------------------------------------------------
@@ -1499,42 +1412,13 @@ static void
 DrawTextLowLevel (TextTypePtr Text)
 {
   Location x = 0;
-  int maxthick = 0;
   unsigned char *string = (unsigned char *) Text->TextString;
   Cardinal n;
   FontTypePtr font = &PCB->Font;
 
   if (Gathering)
     {
-      while (string && *string)
-	{
-	  /* draw lines if symbol is valid and data is present */
-	  if (*string <= MAX_FONTPOSITION && font->Symbol[*string].Valid)
-	    {
-	      LineTypePtr line = font->Symbol[*string].Line;
-
-	      for (n = font->Symbol[*string].LineN; n; n--, line++)
-		if (line->Thickness > maxthick)
-		  maxthick = line->Thickness;
-	    }
-	  string++;
-	}
-      maxthick *= Text->Scale / 100;
-      UpdateRect.x =
-	MIN (TO_DRAW_X (Text->BoundingBox.X1),
-	     TO_DRAW_X (Text->BoundingBox.X2));
-      UpdateRect.y =
-	MIN (TO_DRAW_Y (Text->BoundingBox.Y1),
-	     TO_DRAW_Y (Text->BoundingBox.Y2));
-      UpdateRect.x -= TO_SCREEN (maxthick);
-      UpdateRect.y -= TO_SCREEN (maxthick);
-      UpdateRect.width =
-	TO_SCREEN (abs (Text->BoundingBox.X2 - Text->BoundingBox.X1) +
-		   2 * maxthick);
-      UpdateRect.height =
-	TO_SCREEN (abs (Text->BoundingBox.Y2 - Text->BoundingBox.Y1) +
-		   2 * maxthick);
-      AddPart ();
+      AddPart (Text, False);
       return;
     }
 
@@ -1555,10 +1439,8 @@ DrawTextLowLevel (TextTypePtr Text)
 	      newline.Point2.X = (newline.Point2.X + x) * Text->Scale / 100;
 	      newline.Point2.Y = newline.Point2.Y * Text->Scale / 100;
 	      newline.Thickness = newline.Thickness * Text->Scale / 200;
-	      if (newline.Thickness < 8)
-		newline.Thickness = 8;
-	      if (newline.Thickness > maxthick)
-		maxthick = newline.Thickness;
+	      if (newline.Thickness < 800)
+		newline.Thickness = 800;
 
 	      RotateLineLowLevel (&newline, 0, 0, Text->Direction);
 
@@ -1628,64 +1510,14 @@ DrawTextLowLevel (TextTypePtr Text)
  * lowlevel drawing routine for polygons
  */
 static void
-DrawPolygonLowLevel (PolygonTypePtr Polygon, Boolean OnMask)
+DrawPolygonLowLevel (PolygonTypePtr Polygon)
 {
-  static XPoint *data = NULL;	/* tmp pointer */
-  static Cardinal max = 0;
-
   if (Gathering)
     {
-      UpdateRect.x =
-	MIN (TO_DRAW_X (Polygon->BoundingBox.X1),
-	     TO_DRAW_X (Polygon->BoundingBox.X2));
-      UpdateRect.y =
-	MIN (TO_DRAW_Y (Polygon->BoundingBox.Y1),
-	     TO_DRAW_Y (Polygon->BoundingBox.Y2));
-      UpdateRect.width =
-	TO_SCREEN (Polygon->BoundingBox.X2 - Polygon->BoundingBox.X1);
-      UpdateRect.height =
-	TO_SCREEN (Polygon->BoundingBox.Y2 - Polygon->BoundingBox.Y1);
-      AddPart ();
+      AddPart (Polygon, False);
       return;
     }
-  /* allocate memory for data with screen coordinates */
-  if (Polygon->PointN > max)
-    {
-      max = Polygon->PointN;
-      data = (XPoint *) MyRealloc (data, (max + 1) * sizeof (XPoint),
-				   "DrawPolygonLowLevel()");
-    }
-
-  /* copy data to tmp array and convert it to screen coordinates */
-  POLYGONPOINT_LOOP (Polygon, 
-    {
-      if (OnMask)
-	{
-	  data[n].x = TO_MASK_X (point->X);
-	  data[n].y = TO_MASK_Y (point->Y);
-	}
-      else
-	{
-	  data[n].x = TO_DRAW_X (point->X);
-	  data[n].y = TO_DRAW_Y (point->Y);
-	}
-    }
-  );
-  if (OnMask)
-    XFillPolygon (Dpy, Offmask, Output.pmGC,
-		  data, Polygon->PointN, Complex, CoordModeOrigin);
-  else
-    {
-      if (TEST_FLAG (THINDRAWFLAG, PCB))
-	{
-	  data[Polygon->PointN] = data[0];
-	  XDrawLines (Dpy, DrawingWindow, Output.fgGC,
-		      data, Polygon->PointN + 1, CoordModeOrigin);
-	}
-      else
-	XFillPolygon (Dpy, DrawingWindow, Output.fgGC,
-		      data, Polygon->PointN, Complex, CoordModeOrigin);
-    }
+  DrawCPolygon (DrawingWindow, Polygon);
 }
 
 /* ---------------------------------------------------------------------------
@@ -1694,17 +1526,9 @@ DrawPolygonLowLevel (PolygonTypePtr Polygon, Boolean OnMask)
 static void
 DrawArcLowLevel (ArcTypePtr Arc)
 {
-  BDimension width = Arc->Thickness;
-
   if (Gathering)
     {
-      if (TEST_FLAG (CLEARLINEFLAG, Arc))
-	width += Arc->Clearance;
-      UpdateRect.x = TO_DRAW_X (Arc->X) - TO_SCREEN (Arc->Width + width / 2);
-      UpdateRect.y = TO_DRAW_Y (Arc->Y) - TO_SCREEN (Arc->Height + width / 2);
-      UpdateRect.width = TO_SCREEN (2 * Arc->Width + width);
-      UpdateRect.height = TO_SCREEN (2 * Arc->Height + width);
-      AddPart ();
+      AddPart (Arc, False);
       return;
     }
   /* angles have to be converted to X11 notation */
@@ -1715,12 +1539,8 @@ DrawArcLowLevel (ArcTypePtr Arc)
 			TO_SCREEN (Arc->Thickness), LineSolid, CapRound,
 			JoinRound);
 
-  XDrawArc (Dpy, DrawingWindow, Output.fgGC,
-	    TO_DRAW_X (Arc->X) - TO_SCREEN (Arc->Width),
-	    TO_DRAW_Y (Arc->Y) - TO_SCREEN (Arc->Height),
-	    TO_SCREEN (2 * Arc->Width), TO_SCREEN (2 * Arc->Height),
-	    (TO_SCREEN_ANGLE (Arc->StartAngle) - 180) * 64,
-	    TO_SCREEN_DELTA (Arc->Delta) * 64);
+  XDrawCArc (Dpy, DrawingWindow, Output.fgGC, Arc->X, Arc->Y, 2 * Arc->Width,
+            2 * Arc->Height, (Arc->StartAngle - 180) * 64, Arc->Delta * 64);
 }
 
 /* ---------------------------------------------------------------------------
@@ -1993,7 +1813,7 @@ DrawPolygon (LayerTypePtr Layer, PolygonTypePtr Polygon, int unused)
       XSetStipple (Dpy, Output.fgGC, Stipples[layernum]);
       XSetFillStyle (Dpy, Output.fgGC, FillStippled);
     }
-  DrawPolygonLowLevel (Polygon, False);
+  DrawPolygonLowLevel (Polygon);
   if (Settings.StipplePolygons)
     XSetFillStyle (Dpy, Output.fgGC, FillSolid);
   if (TEST_FLAG (CLEARPOLYFLAG, Polygon))
@@ -2032,7 +1852,7 @@ DrawPlainPolygon (LayerTypePtr Layer, PolygonTypePtr Polygon)
     }
   else
     XSetForeground (Dpy, Output.fgGC, Layer->Color);
-  DrawPolygonLowLevel (Polygon, False);
+  DrawPolygonLowLevel (Polygon);
 }
 
 /* ---------------------------------------------------------------------------
@@ -2257,7 +2077,7 @@ ErasePolygon (PolygonTypePtr Polygon)
 {
   Erasing++;
   XSetForeground (Dpy, Output.fgGC, Settings.bgColor);
-  DrawPolygonLowLevel (Polygon, False);
+  DrawPolygonLowLevel (Polygon);
   Erasing--;
 }
 

@@ -240,11 +240,14 @@ ReportDialog (void)
 		 "Radius = %0.2f mils, Thickness = %0.2f mils\n"
 		 "Clearance width in polygons = %0.2f mils\n"
 		 "StartAngle = %ld degrees, DeltaAngle = %ld degrees\n"
+		 "Bounding Box is (%d,%d), (%d,%d)\n"
 		 "That makes the end points at (%d,%d) and (%d,%d)\n"
 		 "It is on layer %d\n"
 		 "%s", Arc->ID, Arc->Flags,
 		 Arc->X, Arc->Y, Arc->Width / 100., Arc->Thickness / 100.,
-		 Arc->Clearance / 200., Arc->StartAngle, Arc->Delta, box->X1,
+		 Arc->Clearance / 200., Arc->StartAngle, Arc->Delta,
+		 Arc->BoundingBox.X1, Arc->BoundingBox.Y1,
+		 Arc->BoundingBox.X2, Arc->BoundingBox.Y2, box->X1,
 		 box->Y1, box->X2, box->Y2, GetLayerNumber (PCB->Data,
 							    (LayerTypePtr)
 							    ptr1),

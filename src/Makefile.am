@@ -27,6 +27,8 @@ pcb_bin_SOURCES = \
 	buffer.h \
 	change.c \
 	change.h \
+	clip.c \
+	clip.h \
 	command.c \
 	command.h \
 	compat.c \
@@ -78,6 +80,8 @@ pcb_bin_SOURCES = \
 	lgdialog.h \
 	library.c \
 	library.h \
+	line.c \
+	line.h \
 	log.c \
 	log.h \
 	macro.h \

@@ -54,7 +54,7 @@
 #define SATURATE(x)             ((x) > 32767 ? 32767 : ((x) < -32767 ? -32767 : (x)))
 
 #ifndef	TO_SCREEN
-#define	TO_SCREEN(x)		((Position)SATURATE((x)*Zoom_Multiplier))
+#define	TO_SCREEN(x)		((Position)((x)*Zoom_Multiplier))
 #endif
 
 #define	TO_SCREEN_X(x)		TO_SCREEN((SWAP_IDENT ? SWAP_X(x) : (x)) - Xorig)
@@ -63,8 +63,9 @@
 #define	TO_DRAWABS_X(x)		(TO_SCREEN((x) - XORIG))
 #define	TO_DRAW_Y(y)		TO_SCREEN((SWAP_IDENT ? SWAP_Y(y) : (y)) - YORIG)
 #define	TO_DRAWABS_Y(y)		(TO_SCREEN((y) - YORIG))
-#define	TO_MASK_X(x)		TO_SCREEN_X((x))
-#define	TO_MASK_Y(y)		TO_SCREEN_Y((y))
+#define TO_LIMIT_X(x)           ((Position)(SATURATE(Local_Zoom * ((x) - XORIG))))
+#define TO_LIMIT_Y(y)           ((Position)(SATURATE(Local_Zoom * \
+                                ((SWAP_IDENT ? SWAP_Y(y) : (y)) - YORIG))))
 #define	TO_SCREEN_ANGLE(a)	(SWAP_IDENT ? SWAP_ANGLE((a)) : (a))
 #define	TO_SCREEN_DELTA(d)	(SWAP_IDENT ? SWAP_DELTA((d)) : (d))
 #define	TO_SCREEN_SIGN_X(x)	(SWAP_IDENT ? SWAP_SIGN_X(x) : (x))

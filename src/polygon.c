@@ -286,16 +286,16 @@ UpdatePIPFlags (PinTypePtr Pin, ElementTypePtr Element,
     {
       Cardinal l;
       for (l = 0; l < MAX_LAYER; l++)
-	UpdatePIPFlags (Pin, Element, LAYER_PTR (l), Polygon, AddUndo);
+	UpdatePIPFlags (Pin, Element, LAYER_PTR (l), NULL, AddUndo);
     }
   else
     {
       int old_flags = Pin->Flags;
       mask = L0PIPFLAG << GetLayerNumber (PCB->Data, Layer);
       /* assume no pierce on this layer */
-      if (Polygon == NULL)
+      Pin->Flags &= ~(mask | WARNFLAG);
+      if (Polygon == NULL || !TEST_FLAG (CLEARPOLYFLAG, Polygon))
 	{
-	  Pin->Flags &= ~(mask | WARNFLAG);
 	  POLYGON_LOOP (Layer, 
 	    {
 	      {
@@ -306,12 +306,8 @@ UpdatePIPFlags (PinTypePtr Pin, ElementTypePtr Element,
 	    }
 	  );
 	}
-      /* if already piercing, no need to check the new poly */
-      else if (Pin->Flags & mask)
-	return;
       else
 	{
-	  if (TEST_FLAG (CLEARPOLYFLAG, Polygon))
 	    DoPIPFlags (Pin, Element, Layer, Polygon, mask);
 	}
       new_flags = Pin->Flags;

@@ -30,6 +30,7 @@ static	char	*rcsid = "$Id$";
 /* grammar to parse ASCII input of PCB description
  */
 
+#define GRIDFIT(x,g) (int)(0.5 + (int)(((x)+(g)/2.)/(g))*(g))
 #include "global.h"
 #include "create.h"
 #include "data.h"
@@ -852,8 +853,9 @@ pad_hi_format
 			/* x1, y1, x2, y2, thickness, clearance, mask, name , pad number, flags */
 		: T_PAD '[' NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER STRING STRING NUMBER ']'
 			{
-				CreateNewPad(yyElement,$3 + yyElement->MarkX,
-					$4 + yyElement->MarkY, $5 + yyElement->MarkX,
+				CreateNewPad(yyElement, $3 + yyElement->MarkX,
+					$4 + yyElement->MarkY,
+					$5 + yyElement->MarkX,
 					$6 + yyElement->MarkY, $7, $8, $9,
 					$10, $11, ($12 & OBJ_FLAGS));
 				SaveFree($10);

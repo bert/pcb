@@ -3,6 +3,7 @@
  *
  *  PCB, interactive printed circuit board design
  *  Copyright (C) 1994,1995,1996 Thomas Nau
+ *  Copyright (C) 2004 harry eaton
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -28,17 +29,15 @@
 /* prototypes for inserting points into objects
  */
 
-#ifndef	__INSERT_INCLUDED__
-#define	__INSERT_INCLUDED__
+#ifndef	__LINE_INCLUDED__
+#define	__LINE_INCLUDED__
 
 #include "global.h"
-
-#define	INSERT_TYPES	(POLYGON_TYPE | LINE_TYPE | RATLINE_TYPE)
 
 /* ---------------------------------------------------------------------------
  * prototypes
  */
-void	*InsertPointIntoObject (int, void *, void *, Cardinal *, Location, Location, Boolean);
-PointTypePtr    AdjustInsertPoint (void);
-
+void AdjustAttachedLine (void);
+void AdjustTwoLine (int);
+void FortyFiveLine (AttachedLineTypePtr);
 #endif

@@ -206,13 +206,14 @@ typedef struct				/* a SMD pad */
 	LINESTRUCT
 	BDimension	Mask;
 	char		*Name, *Number;			/* 'Line' */
+	struct ElementType     *Element;
 	void		*Spare;
 } PadType, *PadTypePtr;
 
 typedef struct
 {
 	BoxType		BoundingBox;
-	long int		ID,
+	long int	ID,
 			Flags;
 	BDimension	Thickness,
 			Clearance,
@@ -221,6 +222,7 @@ typedef struct
 	Location	X,			/* center and diameter */
 			Y;
 	char		*Name, *Number;
+	struct ElementType     *Element;
 	void		*Spare;
 } PinType, *PinTypePtr, **PinTypeHandle;
 
@@ -565,6 +567,7 @@ typedef struct			/* some resources... */
 			AllDirectionLines,	/* enable lines to all directions */
 			RubberBandMode,		/* move, rotate use rubberband connections */
 			SwapStartDirection,	/* change starting direction after each click */
+			ShowDRC,		/* show drc region on crosshair */
 			ResetAfterElement,	/* reset connections after */
 						/* each element */
 			RingBellWhenFinished;	/* flag if a signal should be */

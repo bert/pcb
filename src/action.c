@@ -60,6 +60,7 @@ static char *rcsid = "$Id$";
 #include "find.h"
 #include "gui.h"
 #include "insert.h"
+#include "line.h"
 #include "lgdialog.h"
 #include "mymem.h"
 #include "misc.h"
@@ -344,10 +345,6 @@ static FunctionType Functions[] = {
  */
 static void WarpPointer (Boolean);
 static int GetFunctionID (String);
-static void AdjustAttachedLine (void);
-static void ClipLine (AttachedLineTypePtr);
-static void AdjustInsertPoint (void);
-static void AdjustTwoLine (int);
 static void AdjustAttachedBox (void);
 static void NotifyLine (void);
 static void NotifyBlock (void);
@@ -639,270 +636,6 @@ GetFunctionID (String Ident)
 }
 
 /* ---------------------------------------------------------------------------
- * Adjust the attached line to 45 degrees if necessary
- */
-static void
-AdjustAttachedLine (void)
-{
-  AttachedLineTypePtr line = &Crosshair.AttachedLine;
-
-  /* I need at least one point */
-  if (line->State == STATE_FIRST)
-    return;
-  /* don't draw outline when ctrl key is pressed */
-  if (Settings.Mode == LINE_MODE && CtrlPressed ())
-    {
-      line->draw = False;
-      return;
-    }
-  else
-    line->draw = True;
-  /* no 45 degree lines required */
-  if (PCB->RatDraw || TEST_FLAG (ALLDIRECTIONFLAG, PCB))
-    {
-      line->Point2.X = Crosshair.X;
-      line->Point2.Y = Crosshair.Y;
-      return;
-    }
-  ClipLine (line);
-}
-
-/* ---------------------------------------------------------------------------
- * makes the 'marked line' fit into a 45 degree direction
- *
- * directions:
- *
- *           0
- *          7 1
- *         6   2
- *          5 3
- *           4
- */
-static void
-ClipLine (AttachedLineTypePtr Line)
-{
-  Location dx, dy, min;
-  BYTE direction = 0;
-  float m;
-
-  /* first calculate direction of line */
-  dx = Crosshair.X - Line->Point1.X;
-  dy = Crosshair.Y - Line->Point1.Y;
-
-  if (!dx)
-    {
-      if (!dy)
-	/* zero length line, don't draw anything */
-	return;
-      else
-	direction = dy > 0 ? 0 : 4;
-    }
-  else
-    {
-      m = (float) dy / (float) dx;
-      direction = 2;
-      if (m > TAN_30_DEGREE)
-	direction = m > TAN_60_DEGREE ? 0 : 1;
-      else if (m < -TAN_30_DEGREE)
-	direction = m < -TAN_60_DEGREE ? 0 : 3;
-    }
-  if (dx < 0)
-    direction += 4;
-
-  dx = abs (dx);
-  dy = abs (dy);
-  min = MIN (dx, dy);
-
-  /* now set up the second pair of coordinates */
-  switch (direction)
-    {
-    case 0:
-    case 4:
-      Line->Point2.X = Line->Point1.X;
-      Line->Point2.Y = Crosshair.Y;
-      break;
-
-    case 2:
-    case 6:
-      Line->Point2.X = Crosshair.X;
-      Line->Point2.Y = Line->Point1.Y;
-      break;
-
-    case 1:
-      Line->Point2.X = Line->Point1.X + min;
-      Line->Point2.Y = Line->Point1.Y + min;
-      break;
-
-    case 3:
-      Line->Point2.X = Line->Point1.X + min;
-      Line->Point2.Y = Line->Point1.Y - min;
-      break;
-
-    case 5:
-      Line->Point2.X = Line->Point1.X - min;
-      Line->Point2.Y = Line->Point1.Y - min;
-      break;
-
-    case 7:
-      Line->Point2.X = Line->Point1.X - min;
-      Line->Point2.Y = Line->Point1.Y + min;
-      break;
-    }
-}
-
-/* ---------------------------------------------------------------------------
- *  adjusts the insert lines to make them 45 degrees as necessary
- */
-static void
-AdjustTwoLine (int way)
-{
-  Location dx, dy;
-  AttachedLineTypePtr line = &Crosshair.AttachedLine;
-
-  if (Crosshair.AttachedLine.State == STATE_FIRST)
-    return;
-  /* don't draw outline when ctrl key is pressed */
-  if (CtrlPressed ())
-    {
-      line->draw = False;
-      return;
-    }
-  else
-    line->draw = True;
-  if (TEST_FLAG (ALLDIRECTIONFLAG, PCB))
-    {
-      line->Point2.X = Crosshair.X;
-      line->Point2.Y = Crosshair.Y;
-      return;
-    }
-  /* swap the modes if shift is held down */
-  if (ShiftPressed ())
-    way = !way;
-  dx = Crosshair.X - line->Point1.X;
-  dy = Crosshair.Y - line->Point1.Y;
-  if (!way)
-    {
-      if (abs (dx) > abs (dy))
-	{
-	  line->Point2.X = Crosshair.X - SGN (dx) * abs (dy);
-	  line->Point2.Y = line->Point1.Y;
-	}
-      else
-	{
-	  line->Point2.X = line->Point1.X;
-	  line->Point2.Y = Crosshair.Y - SGN (dy) * abs (dx);
-	}
-    }
-  else
-    {
-      if (abs (dx) > abs (dy))
-	{
-	  line->Point2.X = line->Point1.X + SGN (dx) * abs (dy);
-	  line->Point2.Y = Crosshair.Y;
-	}
-      else
-	{
-	  line->Point2.X = Crosshair.X;
-	  line->Point2.Y = line->Point1.Y + SGN (dy) * abs (dx);;
-	}
-    }
-}
-
-
-
-/* ---------------------------------------------------------------------------
- *  adjusts the insert point to make 45 degree lines as necessary
- */
-static void
-AdjustInsertPoint (void)
-{
-  float m;
-  Location x, y, dx, dy, m1, m2;
-  LineTypePtr line = (LineTypePtr) Crosshair.AttachedObject.Ptr2;
-
-  if (Crosshair.AttachedObject.State == STATE_FIRST)
-    return;
-  Crosshair.AttachedObject.Ptr3 = &InsertedPoint;
-  if (ShiftPressed ())
-    {
-      AttachedLineType myline;
-      dx = Crosshair.X - line->Point1.X;
-      dy = Crosshair.Y - line->Point1.Y;
-      m = dx * dx + dy * dy;
-      dx = Crosshair.X - line->Point2.X;
-      dy = Crosshair.Y - line->Point2.Y;
-      /* only force 45 degree for nearest point */
-      if (m < (dx * dx + dy * dy))
-	myline.Point1 = myline.Point2 = line->Point1;
-      else
-	myline.Point1 = myline.Point2 = line->Point2;
-      ClipLine (&myline);
-      InsertedPoint.X = myline.Point2.X;
-      InsertedPoint.Y = myline.Point2.Y;
-      return;
-    }
-  if (TEST_FLAG (ALLDIRECTIONFLAG, PCB))
-    {
-      InsertedPoint.X = Crosshair.X;
-      InsertedPoint.Y = Crosshair.Y;
-      return;
-    }
-  dx = Crosshair.X - line->Point1.X;
-  dy = Crosshair.Y - line->Point1.Y;
-  if (!dx)
-    m1 = 2;			/* 2 signals infinite slope */
-  else
-    {
-      m = (float) dy / (float) dx;
-      m1 = 0;
-      if (m > TAN_30_DEGREE)
-	m1 = (m > TAN_60_DEGREE) ? 2 : 1;
-      else if (m < -TAN_30_DEGREE)
-	m1 = (m < -TAN_60_DEGREE) ? 2 : -1;
-    }
-  dx = Crosshair.X - line->Point2.X;
-  dy = Crosshair.Y - line->Point2.Y;
-  if (!dx)
-    m2 = 2;			/* 2 signals infinite slope */
-  else
-    {
-      m = (float) dy / (float) dx;
-      m2 = 0;
-      if (m > TAN_30_DEGREE)
-	m2 = (m > TAN_60_DEGREE) ? 2 : 1;
-      else if (m < -TAN_30_DEGREE)
-	m2 = (m < -TAN_60_DEGREE) ? 2 : -1;
-    }
-  if (m1 == m2)
-    {
-      InsertedPoint.X = line->Point1.X;
-      InsertedPoint.Y = line->Point1.Y;
-      return;
-    }
-  if (m1 == 2)
-    {
-      x = line->Point1.X;
-      y = line->Point2.Y + m2 * (line->Point1.X - line->Point2.X);
-    }
-  else if (m2 == 2)
-    {
-      x = line->Point2.X;
-      y = line->Point1.Y + m1 * (line->Point2.X - line->Point1.X);
-    }
-  else
-    {
-      x = (line->Point2.Y - line->Point1.Y + m1 * line->Point1.X
-	   - m2 * line->Point2.X) / (m1 - m2);
-      y = (m1 * line->Point2.Y - m1 * m2 * line->Point2.X
-	   - m2 * line->Point1.Y + m1 * m2 * line->Point1.X) / (m1 - m2);
-    }
-  InsertedPoint.X = x;
-  InsertedPoint.Y = y;
-}
-
-
-
-/* ---------------------------------------------------------------------------
  * set new coordinates if in 'RECTANGLE' mode
  * the cursor shape is also adjusted
  */
@@ -972,7 +705,7 @@ AdjustAttachedObjects (void)
       break;
       /* point insertion mode */
     case INSERTPOINT_MODE:
-      AdjustInsertPoint ();
+      InsertedPoint = *AdjustInsertPoint ();
       break;
 
     case ROTATE_MODE:

@@ -37,9 +37,12 @@ static char *rcsid = "$Id$";
 
 #include "copy.h"
 #include "create.h"
+#include "crosshair.h"
 #include "data.h"
 #include "draw.h"
+#include "gui.h"
 #include "insert.h"
+#include "line.h"
 #include "misc.h"
 #include "move.h"
 #include "polygon.h"
@@ -209,3 +212,98 @@ InsertPointIntoObject (int Type, void *Ptr1, void *Ptr2, Cardinal * Ptr3,
     IncrementUndoSerialNumber ();
   return (ptr);
 }
+
+/* ---------------------------------------------------------------------------
+ *  adjusts the insert point to make 45 degree lines as necessary
+ */
+PointTypePtr
+AdjustInsertPoint (void)
+{
+  static PointType InsertedPoint;
+  float m;
+  Location x, y, dx, dy, m1, m2;
+  LineTypePtr line = (LineTypePtr) Crosshair.AttachedObject.Ptr2;
+
+  if (Crosshair.AttachedObject.State == STATE_FIRST)
+    return NULL;
+  Crosshair.AttachedObject.Ptr3 = &InsertedPoint;
+  if (ShiftPressed ())
+    {
+      AttachedLineType myline;
+      dx = Crosshair.X - line->Point1.X;
+      dy = Crosshair.Y - line->Point1.Y;
+      m = dx * dx + dy * dy;
+      dx = Crosshair.X - line->Point2.X;
+      dy = Crosshair.Y - line->Point2.Y;
+      /* only force 45 degree for nearest point */
+      if (m < (dx * dx + dy * dy))
+	myline.Point1 = myline.Point2 = line->Point1;
+      else
+	myline.Point1 = myline.Point2 = line->Point2;
+      FortyFiveLine (&myline);
+      InsertedPoint.X = myline.Point2.X;
+      InsertedPoint.Y = myline.Point2.Y;
+      return &InsertedPoint;
+    }
+  if (TEST_FLAG (ALLDIRECTIONFLAG, PCB))
+    {
+      InsertedPoint.X = Crosshair.X;
+      InsertedPoint.Y = Crosshair.Y;
+      return &InsertedPoint;
+    }
+  dx = Crosshair.X - line->Point1.X;
+  dy = Crosshair.Y - line->Point1.Y;
+  if (!dx)
+    m1 = 2;			/* 2 signals infinite slope */
+  else
+    {
+      m = (float) dy / (float) dx;
+      m1 = 0;
+      if (m > TAN_30_DEGREE)
+	m1 = (m > TAN_60_DEGREE) ? 2 : 1;
+      else if (m < -TAN_30_DEGREE)
+	m1 = (m < -TAN_60_DEGREE) ? 2 : -1;
+    }
+  dx = Crosshair.X - line->Point2.X;
+  dy = Crosshair.Y - line->Point2.Y;
+  if (!dx)
+    m2 = 2;			/* 2 signals infinite slope */
+  else
+    {
+      m = (float) dy / (float) dx;
+      m2 = 0;
+      if (m > TAN_30_DEGREE)
+	m2 = (m > TAN_60_DEGREE) ? 2 : 1;
+      else if (m < -TAN_30_DEGREE)
+	m2 = (m < -TAN_60_DEGREE) ? 2 : -1;
+    }
+  if (m1 == m2)
+    {
+      InsertedPoint.X = line->Point1.X;
+      InsertedPoint.Y = line->Point1.Y;
+      return &InsertedPoint;
+    }
+  if (m1 == 2)
+    {
+      x = line->Point1.X;
+      y = line->Point2.Y + m2 * (line->Point1.X - line->Point2.X);
+    }
+  else if (m2 == 2)
+    {
+      x = line->Point2.X;
+      y = line->Point1.Y + m1 * (line->Point2.X - line->Point1.X);
+    }
+  else
+    {
+      x = (line->Point2.Y - line->Point1.Y + m1 * line->Point1.X
+	   - m2 * line->Point2.X) / (m1 - m2);
+      y = (m1 * line->Point2.Y - m1 * m2 * line->Point2.X
+	   - m2 * line->Point1.Y + m1 * m2 * line->Point1.X) / (m1 - m2);
+    }
+  InsertedPoint.X = x;
+  InsertedPoint.Y = y;
+  return &InsertedPoint;
+}
+
+
+

@@ -158,6 +158,8 @@ pcb_bin_SOURCES = \
 	buffer.h \
 	change.c \
 	change.h \
+	clip.c \
+	clip.h \
 	command.c \
 	command.h \
 	compat.c \
@@ -209,6 +211,8 @@ pcb_bin_SOURCES = \
 	lgdialog.h \
 	library.c \
 	library.h \
+	line.c \
+	line.h \
 	log.c \
 	log.h \
 	macro.h \
@@ -296,15 +300,15 @@ PROGRAMS = $(bin_PROGRAMS)
 
 am_pcb_bin_OBJECTS = action.$(OBJEXT) autoplace.$(OBJEXT) \
 	autoroute.$(OBJEXT) buffer.$(OBJEXT) change.$(OBJEXT) \
-	command.$(OBJEXT) compat.$(OBJEXT) control.$(OBJEXT) \
+	clip.$(OBJEXT) command.$(OBJEXT) compat.$(OBJEXT) control.$(OBJEXT) \
 	copy.$(OBJEXT) create.$(OBJEXT) crosshair.$(OBJEXT) \
 	data.$(OBJEXT) dev_ps.$(OBJEXT) dev_rs274x.$(OBJEXT) \
 	dialog.$(OBJEXT) djopt.$(OBJEXT) draw.$(OBJEXT) drill.$(OBJEXT) \
 	error.$(OBJEXT) file.$(OBJEXT) fileselect.$(OBJEXT) \
 	find.$(OBJEXT) gui.$(OBJEXT) heap.$(OBJEXT) insert.$(OBJEXT) \
 	intersect.$(OBJEXT) rtree.$(OBJEXT) lgdialog.$(OBJEXT) \
-	library.$(OBJEXT) log.$(OBJEXT) main.$(OBJEXT) menu.$(OBJEXT) \
-	mirror.$(OBJEXT) misc.$(OBJEXT) move.$(OBJEXT) \
+	library.$(OBJEXT) line.$(OBJEXT) log.$(OBJEXT) main.$(OBJEXT) \
+	menu.$(OBJEXT) mirror.$(OBJEXT) misc.$(OBJEXT) move.$(OBJEXT) \
 	mtspace.$(OBJEXT) mymem.$(OBJEXT) netlist.$(OBJEXT) \
 	output.$(OBJEXT) parse_l.$(OBJEXT) parse_y.$(OBJEXT) \
 	pinout.$(OBJEXT) polygon.$(OBJEXT) print.$(OBJEXT) \

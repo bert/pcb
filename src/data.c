@@ -69,7 +69,9 @@ Pixmap *Stipples, XC_clock_source, XC_clock_mask;
 Pixmap XC_hand_source, XC_hand_mask;
 Pixmap XC_lock_source, XC_lock_mask;
 int addedLines;
-Location vxl, vxh, vyl, vyh;	/* approximate visible pcb coordinates */
+Location vxl, vxh, vyl, vyh;	/* visible pcb coordinates */
+BoxType theScreen;		/* box of screen in pcb coordinates */
+BoxType clipBox;		/* box for clipping of drawing */
 
 float Zoom_Multiplier = 0.01;
 /*  { 1.5625, 2.2097, 3.125, 4.4194, 6.25, 8.8388,
