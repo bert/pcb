@@ -85,6 +85,12 @@ typedef enum { NORTH=0, EAST=1, SOUTH=2, WEST=3 } direction_t;
 #define __inline__ /* not inline on non-gcc platforms */
 #endif /* __GNUC__ */
 
+typedef struct cheap_point
+{
+  Location X, Y;
+} CheapPointType;
+
+
 /* note that boxes are closed on top and left and open on bottom and right. */
 /* this means that top-left corner is in box, *but bottom-right corner is
  * not*.  */
@@ -108,20 +114,20 @@ Boolean box_intersect(const BoxType *a, const BoxType *b) {
 }
 
 static __inline__
-Boolean box_in_box(const BoxType *outer, const BoxType *inner) {
-  return
-    (outer->X1 <= inner->X1) && (inner->X2 <= outer->X2) &&
-    (outer->Y1 <= inner->Y1) && (inner->Y2 <= outer->Y2);
-}
-
-static __inline__
-PointType closest_point_in_box(const PointType * from, const BoxType * box) {
-  PointType r;
+CheapPointType closest_point_in_box(const CheapPointType * from, const BoxType * box) {
+  CheapPointType r;
   assert(box->X1 < box->X2 && box->Y1 < box->Y2);
   r.X= (from->X < box->X1)? box->X1: (from->X > box->X2-1)? box->X2-1: from->X;
   r.Y= (from->Y < box->Y1)? box->Y1: (from->Y > box->Y2-1)? box->Y2-1: from->Y;
   assert(point_in_box(box, r.X, r.Y));
   return r;
+}
+
+static __inline__
+Boolean box_in_box(const BoxType *outer, const BoxType *inner) {
+  return
+    (outer->X1 <= inner->X1) && (inner->X2 <= outer->X2) &&
+    (outer->Y1 <= inner->Y1) && (inner->Y2 <= outer->Y2);
 }
 
 static __inline__
@@ -152,8 +158,8 @@ BoxType bloat_box(const BoxType *box, Location amount) {
  * inside a box.  The box is half-closed!  That is, the top-left corner
  * is considered in the box, but the bottom-right corner is not. */
 static __inline__
-float dist2_to_box(const PointType * p, const BoxType * b) {
-  PointType r = closest_point_in_box(p, b);
+float dist2_to_box(const CheapPointType * p, const BoxType * b) {
+  CheapPointType r = closest_point_in_box(p, b);
   float x_dist = (r.X - p->X);
   float y_dist = (r.Y - p->Y);
   return (x_dist * x_dist) + (y_dist * y_dist);

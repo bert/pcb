@@ -65,10 +65,12 @@
  */
 typedef struct mtspacebox
 {
-  const BoxType box;		/* empty region */
+  const BoxType box;
+  BoxType shrunk_box;		/* empty region */
   int fixed_count;
   int even_count;
   int odd_count;
+  BDimension keepaway; /* the smallest keepaway around this box */
 }
 mtspacebox_t;
 
@@ -77,10 +79,6 @@ struct mtspace
 {
   /* r-tree keeping track of "empty" regions. */
   rtree_t *rtree;
-  /* what is the feature radius for this empty space tree? */
-  BDimension radius;
-  /* what is the feature keepaway size for this empty space tree? */
-  BDimension keepaway;
   /* bounding box */
   BoxType bounds;
 };
@@ -92,16 +90,14 @@ __mtspace_box_is_good (mtspacebox_t * mtsb)
   int r = mtsb &&
     __box_is_good (&mtsb->box) &&
     mtsb->fixed_count >= 0 && mtsb->even_count >= 0 && mtsb->odd_count >= 0 &&
-    1;
+    mtsb->keepaway > 0 && 1;
   assert (r);
   return r;
 }
 static int
 __mtspace_is_good (mtspace_t * mtspace)
 {
-  int r = mtspace && mtspace->rtree &&
-    __box_is_good (&mtspace->bounds) &&
-    mtspace->radius > 0 && mtspace->keepaway > 0 &&
+  int r = mtspace && mtspace->rtree && __box_is_good (&mtspace->bounds) &&
     /* XXX: check that no boxed in mtspace tree overlap */
     1;
   assert (r);
@@ -119,28 +115,26 @@ mtspace_create_box (const BoxType * box, int fixed, int even, int odd)
   mtsb->fixed_count = fixed;
   mtsb->even_count = even;
   mtsb->odd_count = odd;
+  mtsb->keepaway = MAX_COORD; /* impossibly large start */
   assert (__mtspace_box_is_good (mtsb));
   return mtsb;
 }
 
-/* create an "empty space" representation where every empty space is has
- * radius greater-than-or-equal-to feature_radius+keepaway. */
+/* create an "empty space" representation */
 mtspace_t *
-mtspace_create (const BoxType * bounds,
-		BDimension feature_radius, BDimension keepaway)
+mtspace_create (const BoxType * bounds, BDimension keepaway)
 {
   BoxType smaller_bounds;
   mtspacebox_t *mtsb;
   mtspace_t *mtspace;
-  assert (bounds && feature_radius > 0 && keepaway > 0);
+  assert (bounds);
   assert (__box_is_good (bounds));
   /* create initial "empty region" */
-  smaller_bounds = shrink_box (bounds, feature_radius + keepaway);
+  smaller_bounds = shrink_box (bounds, keepaway);
   mtsb = mtspace_create_box (&smaller_bounds, 0, 0, 0);
+  mtsb->keepaway = keepaway;
   /* create mtspace data structure */
   mtspace = calloc (1, sizeof (*mtspace));
-  mtspace->radius = feature_radius;
-  mtspace->keepaway = keepaway;
   mtspace->rtree = r_create_tree ((const BoxType **) &mtsb, 1, 1);
   mtspace->bounds = smaller_bounds;
   /* done! */
@@ -156,15 +150,6 @@ mtspace_destroy (mtspace_t ** mtspacep)
   r_destroy_tree (&(*mtspacep)->rtree);
   free (*mtspacep);
   *mtspacep = NULL;
-}
-
-/* returns the minimum empty-space radius relevant for
- * this mtspace structure. */
-BDimension
-mtspace_get_bloat (mtspace_t * mtspace)
-{
-  assert (__mtspace_is_good (mtspace));
-  return mtspace->radius + mtspace->keepaway;
 }
 
 struct coalesce_closure
@@ -234,9 +219,9 @@ check_one (const BoxType * box, void *cl)
   assert (x1 <= x2);		/* overlap */
   /* area of new coalesced box is (b.Y2-a.Y1)*(x2-x1).  this must be
    * larger than area of either box a or box b for this to be a win */
-  new_area = (float)(b.Y2 - a.Y1) * (float)(x2 - x1);
-  area_a = (float)(a.Y2 - a.Y1) * (float)(a.X2 - a.X1);
-  area_b = (float)(b.Y2 - b.Y1) * (float)(b.X2 - b.X1);
+  new_area = (float) (b.Y2 - a.Y1) * (float) (x2 - x1);
+  area_a = (float) (a.Y2 - a.Y1) * (float) (a.X2 - a.X1);
+  area_b = (float) (b.Y2 - b.Y1) * (float) (b.X2 - b.X1);
   if ((new_area <= area_a) || (new_area <= area_b))
     return 0;
   /* okay! coalesce these boxes! */
@@ -277,6 +262,7 @@ check_one (const BoxType * box, void *cl)
 	  ROTATEBOX_FROM_NORTH (c, d);
 	  nb = mtspace_create_box
 	    (&c, adj->fixed_count, adj->even_count, adj->odd_count);
+	  nb->keepaway = MIN (adj->keepaway, cc->mtsb->keepaway);
 	  vector_append (cc->add_vec, nb);
 	}
     }
@@ -305,11 +291,11 @@ mtspace_coalesce (mtspace_t * mtspace, struct coalesce_closure *cc)
 	  BoxType region = bloat_box (&cc->mtsb->box, 1);
 	  int r;
 	  r = r_search (mtspace->rtree, &region, NULL, check_one, cc);
-//	  assert (r == 0);	/* otherwise we would have called 'longjmp' */
+	  assert (r == 0);	/* otherwise we would have called 'longjmp' */
 	  /* ----- didn't find anything to coalesce ----- */
 #ifndef NDEBUG
 	  r = r_region_is_empty (mtspace->rtree, &cc->mtsb->box);
-//	  assert(r);
+//        assert(r);
 #endif
 	  r_insert_entry (mtspace->rtree, &cc->mtsb->box, 1);
 	}
@@ -384,6 +370,7 @@ remove_one (const BoxType * box, void *cl)
 	    {
 	      nb = mtspace_create_box
 		(&b, ibox->fixed_count, ibox->even_count, ibox->odd_count);
+	      nb->keepaway = MIN (nb->keepaway, cc->mtsb->keepaway);
 	      if (i == 1 && j == 1)
 		{		/* this is the intersecting piece */
 		  assert (box_intersect (&nb->box, &cc->mtsb->box));
@@ -429,14 +416,14 @@ mtspace_mutate (mtspace_t * mtspace,
   cc.add_vec = vector_create ();
   cc.remove_vec = vector_create ();
   cc.is_add = is_add;
-  /* bloat the given box, but clip to bounds */
-  bloated =
-    bloat_box (box, mtspace->radius + MAX (keepaway, mtspace->keepaway));
+  /* clip to bounds */
+  bloated = bloat_box (box, keepaway);
   bloated = clip_box (&bloated, &mtspace->bounds);
   assert (__box_is_good (&bloated));
   cc.mtsb = mtspace_create_box
     (&bloated, which == FIXED ? 1 : 0, which == EVEN ? 1 : 0,
      which == ODD ? 1 : 0);
+  cc.mtsb->keepaway = keepaway;
   assert (boxtype (cc.mtsb) != 0);
   /* take a chunk out of anything which intersects our clipped bloated box */
   mtspace_remove_chunk (mtspace, &cc);
@@ -450,27 +437,18 @@ mtspace_mutate (mtspace_t * mtspace,
   return;
 }
 
-/* add a space-filler to the empty space representation.  The given box
- * should *not* be bloated; it should be "true".  The feature will fill
- * *at least* a radius of keepaway around it; if the mtspace 'keepaway'
- * parameter is larger than the specified keepaway, than that is used
- * instead. */
+/* add a space-filler to the empty space representation.  */
 void
-mtspace_add (mtspace_t * mtspace,
-	     const BoxType * box, mtspace_type_t which, BDimension keepaway)
+mtspace_add (mtspace_t * mtspace, const BoxType * box, mtspace_type_t which,
+             BDimension keepaway)
 {
   mtspace_mutate (mtspace, box, which, keepaway, True);
 }
 
-/* remove a space-filler from the empty space representation.  The given box
- * should *not* be bloated; it should be "true".  The feature will fill
- * *at least* a radius of keepaway around it; if the mtspace 'keepaway'
- * parameter is larger than the specified keepaway, than that is used
- * instead. */
+/* remove a space-filler from the empty space representation. */
 void
 mtspace_remove (mtspace_t * mtspace,
-		const BoxType * box, mtspace_type_t which,
-		BDimension keepaway)
+		const BoxType * box, mtspace_type_t which, BDimension keepaway)
 {
   mtspace_mutate (mtspace, box, which, keepaway, False);
 }
@@ -481,6 +459,7 @@ struct query_closure
   vector_t *free_space_vec;
   vector_t *lo_conflict_space_vec;
   vector_t *hi_conflict_space_vec;
+  BDimension radius, keepaway;
   Boolean is_odd;
 };
 
@@ -489,25 +468,35 @@ query_one (const BoxType * box, void *cl)
 {
   struct query_closure *qc = (struct query_closure *) cl;
   mtspacebox_t *mtsb = (mtspacebox_t *) box;
+  BDimension shrink = 0;
   assert (box_intersect (qc->region, &mtsb->box));
   if (mtsb->fixed_count > 0)
     /* ignore fixed boxes */
     return 0;
+  if (qc->keepaway > mtsb->keepaway)
+    shrink = qc->keepaway - mtsb->keepaway;
+  shrink += qc->radius;
+  mtsb->shrunk_box = shrink_box (box, shrink);
+  if (mtsb->shrunk_box.X2 <= mtsb->shrunk_box.X1
+      || mtsb->shrunk_box.Y2 <= mtsb->shrunk_box.Y1)
+    return 0;
+  if (!box_intersect (qc->region, &mtsb->shrunk_box))
+    return 0;
   else if ((qc->is_odd ? mtsb->odd_count : mtsb->even_count) > 0)
     {
       /* this is a hi_conflict */
-      vector_append (qc->hi_conflict_space_vec, (BoxTypePtr) & mtsb->box);
+      vector_append (qc->hi_conflict_space_vec, (BoxTypePtr) & mtsb->shrunk_box);
     }
   else if (mtsb->odd_count > 0 || mtsb->even_count > 0)
     {
       /* this is a lo_conflict */
-      vector_append (qc->lo_conflict_space_vec, (BoxTypePtr) & mtsb->box);
+      vector_append (qc->lo_conflict_space_vec, (BoxTypePtr) & mtsb->shrunk_box);
     }
   else
     {
       /* no conflict! */
       assert (boxtype (mtsb) == 0);
-      vector_append (qc->free_space_vec, (BoxTypePtr) & mtsb->box);
+      vector_append (qc->free_space_vec, (BoxTypePtr) & mtsb->shrunk_box);
     }
   return 1;
 }
@@ -522,6 +511,7 @@ query_one (const BoxType * box, void *cl)
  * are filled by fixed objects are not returned at all. */
 void
 mtspace_query_rect (mtspace_t * mtspace, const BoxType * region,
+		    BDimension radius, BDimension keepaway,
 		    vector_t * free_space_vec,
 		    vector_t * lo_conflict_space_vec,
 		    vector_t * hi_conflict_space_vec, Boolean is_odd)
@@ -539,6 +529,8 @@ mtspace_query_rect (mtspace_t * mtspace, const BoxType * region,
   qc.lo_conflict_space_vec = lo_conflict_space_vec;
   qc.hi_conflict_space_vec = hi_conflict_space_vec;
   qc.is_odd = is_odd;
+  qc.keepaway = keepaway;
+  qc.radius = radius;
   /* do the query */
   r_search (mtspace->rtree, region, NULL, query_one, &qc);
   /* post-assertions */
@@ -554,6 +546,7 @@ mtspace_query_rect (mtspace_t * mtspace, const BoxType * region,
 	for (j = 0; j < vector_size (v); j++)
 	  {
 	    const BoxType *b = (const BoxType *) vector_element (v, j);
+	    assert (__box_is_good (b));
 	    assert (box_intersect (region, b));
 	  }
       }

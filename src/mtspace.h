@@ -37,7 +37,7 @@
 
 #ifndef __MTSPACE_INCLUDED__
 #define __MTSPACE_INCLUDED__
-/* mtspace data structures are built on kd-trees. */
+/* mtspace data structures are built on r-trees. */
 
 #include "global.h"
 #include "vector.h" /* for vector_t in mtspace_query_rect prototype */
@@ -45,10 +45,8 @@
 typedef struct mtspace mtspace_t;
 typedef enum { FIXED, ODD, EVEN } mtspace_type_t;
 
-/* create an "empty space" representation where every empty space is has
- * radius greater-than-or-equal-to feature_radius+keepaway. */
-mtspace_t * mtspace_create(const BoxType *bounds,
-			   BDimension feature_radius, BDimension keepaway);
+/* create an "empty space" representation with a shrunken boundry */
+mtspace_t * mtspace_create(const BoxType *bounds, BDimension keepaway);
 /* destroy an "empty space" representation. */
 void mtspace_destroy(mtspace_t **mtspacep);
 
@@ -60,8 +58,8 @@ void mtspace_destroy(mtspace_t **mtspacep);
  * parameter is larger than the specified keepaway, than that is used
  * instead. */
 void mtspace_add(mtspace_t *mtspace,
-		 const BoxType *box, mtspace_type_t which,
-		 BDimension keepaway);
+		 const BoxType *box, mtspace_type_t which, BDimension
+		 keepaway);
 /* remove a space-filler from the empty space representation.  The given box
  * should *not* be bloated; it should be "true".  The feature will fill
  * *at least* a radius of keepaway around it; if the mtspace 'keepaway'
@@ -71,11 +69,6 @@ void mtspace_remove(mtspace_t *mtspace,
 		    const BoxType *box, mtspace_type_t which,
 		    BDimension keepaway);
 
-/* -- interrogation -- */
-
-/* returns the minimum empty-space radius relevant for
- * this mtspace structure. */
-BDimension mtspace_get_bloat(mtspace_t *mtspace);
 
 /* returns all empty spaces in 'region' which may hold a feature with the
  * mtspace feature_radius with the specified minimum keepaway.  Completely
@@ -86,6 +79,7 @@ BDimension mtspace_get_bloat(mtspace_t *mtspace);
  * vector.  The current pass identity is given by 'is_odd'.  Regions which
  * are filled by fixed objects are not returned at all. */
 void mtspace_query_rect(mtspace_t *mtspace, const BoxType *region,
+			BDimension radius, BDimension keepaway,
 			vector_t *free_space_vec,
 			vector_t *lo_conflict_space_vec,
 			vector_t *hi_conflict_space_vec,

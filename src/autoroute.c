@@ -83,23 +83,22 @@
 
 /* #defines to enable some debugging output */
 #define ROUTE_VERBOSE
+
 /*
 #define ROUTE_DEBUG
 #define DEBUG_SHOW_ROUTE_BOXES
 #define DEBUG_SHOW_VIA_BOXES
 */
 
+
 /* round up "half" thicknesses */
 #define HALF_THICK(x) (((x)+1)/2)
 /* a styles maximum bloat is its keepaway plus the larger of its via radius
  * or line half-thickness. */
-#if 0
-#define BLOAT(style)\
-	((style)->Keepaway + HALF_THICK(MAX((style)->Thick,(style)->Diameter)))
-#else
+#define VIABLOAT(style)\
+	((style)->Keepaway + HALF_THICK((style)->Thick + (style)->Diameter))
 #define BLOAT(style)\
 	((style)->Keepaway + HALF_THICK((style)->Thick))
-#endif
 /* conflict penalty is less for traces laid down during previous pass than
  * it is for traces already laid down in this pass. */
 #define CONFLICT_LEVEL(rb)\
@@ -166,9 +165,6 @@ typedef struct
 {
   /* a routing style */
   const RouteStyleType *style;
-  /* a via-area structure appropriate for the style's
-   * via radius and keepaway */
-  mtspace_t *mtspace;
   /* flag indicating whether this augmented style is ever used.
    * We only update mtspace if the style is used somewhere in the netlist */
   Boolean Used;
@@ -266,13 +262,14 @@ typedef struct routedata
   /* what is the maximum bloat (keepaway+line half-width or
    * keepaway+via_radius) for any style we've seen? */
   BDimension max_bloat;
+  mtspace_t *mtspace;
 }
 routedata_t;
 
 typedef struct edge_struct
 {
   routebox_t *rb;		/* path expansion edges are real routeboxen. */
-  PointType cost_point;
+  CheapPointType cost_point;
   cost_t cost_to_point;		/* from source */
   routebox_t *mincost_target;	/* minimum cost from cost_point to any target */
   direction_t expand_dir;	/* ignored if expand_all_sides is set */
@@ -777,7 +774,7 @@ CreateRouteData ()
   PointerListType layergroupboxes[MAX_LAYER];
   BoxType bbox;
   routedata_t *rd;
-  int i, j;
+  int i;
 
   /* create routedata */
   rd = calloc (1, sizeof (*rd));
@@ -791,13 +788,12 @@ CreateRouteData ()
   bbox.X1 = bbox.Y1 = 0;
   bbox.X2 = PCB->MaxWidth;
   bbox.Y2 = PCB->MaxHeight;
+  rd->mtspace = mtspace_create (&bbox, Settings.Keepaway);
   for (i = 0; i < NUM_STYLES + 1; i++)
     {
       RouteStyleType *style =
 	(i < NUM_STYLES) ? &PCB->RouteStyle[i] : &rd->defaultStyle;
       rd->augStyles[i].style = style;
-      rd->augStyles[i].mtspace = mtspace_create
-	(&bbox, HALF_THICK (style->Diameter), HALF_THICK (style->Keepaway));
       rd->augStyles[i].Used = False;
     }
 
@@ -939,21 +935,14 @@ CreateRouteData ()
    * appropriate keepaways for all the fixed elements) */
   for (i = 0; i < MAX_LAYER; i++)
     {
-      for (j = 0; j < NUM_STYLES + 1; j++)
-	{
-	  if (rd->augStyles[j].Used)
-	    {
-	      POINTER_LOOP (&layergroupboxes[i]);
-	      {
-		routebox_t *rb = (routebox_t *) * ptr;
-		if (!rb->flags.clear_poly)
-		  mtspace_add (rd->augStyles[j].mtspace,
-			       &rb->box, FIXED,
-			       rb->augStyle->style->Keepaway);
-	      }
-	      END_LOOP;
-	    }
-	}
+      POINTER_LOOP (&layergroupboxes[i]);
+      {
+	routebox_t *rb = (routebox_t *) * ptr;
+	if (!rb->flags.clear_poly)
+	  mtspace_add (rd->mtspace, &rb->box, FIXED,
+		       rb->augStyle->style->Keepaway);
+      }
+      END_LOOP;
     }
   /* free pointer lists */
   for (i = 0; i < MAX_LAYER; i++)
@@ -968,8 +957,7 @@ DestroyRouteData (routedata_t ** rd)
   int i;
   for (i = 0; i < MAX_LAYER; i++)
     r_destroy_tree (&(*rd)->layergrouptree[i]);
-  for (i = 0; i < NUM_STYLES + 1; i++)
-    mtspace_destroy (&(*rd)->augStyles[i].mtspace);
+  mtspace_destroy (&(*rd)->mtspace);
   free (*rd);
   *rd = NULL;
 }
@@ -1019,8 +1007,8 @@ ResetSubnet (routebox_t * net)
 }
 
 static cost_t
-cost_to_point (const PointType * p1, Cardinal point_layer1,
-	       const PointType * p2, Cardinal point_layer2)
+cost_to_point (const CheapPointType * p1, Cardinal point_layer1,
+	       const CheapPointType * p2, Cardinal point_layer2)
 {
   cost_t x_dist = (p1->X - p2->X), y_dist = (p1->Y - p2->Y), r;
   /* even layers are horiz; odd layers are vert. */
@@ -1042,10 +1030,10 @@ cost_to_point (const PointType * p1, Cardinal point_layer1,
  * in.  If the direction penalty code above changes, this routine
  * will have to be changed too. */
 static cost_t
-cost_to_layerless_box (const PointType * p, Cardinal point_layer,
+cost_to_layerless_box (const CheapPointType * p, Cardinal point_layer,
 		       const BoxType * b)
 {
-  PointType p2 = closest_point_in_box (p, b);
+  CheapPointType p2 = closest_point_in_box (p, b);
   cost_t cost1 = cost_to_point (p, point_layer, &p2, point_layer);
   cost_t cost2 = cost_to_point (p, point_layer, &p2, point_layer + 1);
   return MIN (cost1, cost2);
@@ -1054,10 +1042,10 @@ cost_to_layerless_box (const PointType * p, Cardinal point_layer,
 /* return the minimum *cost* from a point to a route box, including possible
  * via costs if the route box is on a different layer. */
 static cost_t
-cost_to_routebox (const PointType * p, Cardinal point_layer,
+cost_to_routebox (const CheapPointType * p, Cardinal point_layer,
 		  const routebox_t * rb)
 {
-  PointType p2 = closest_point_in_box (p, &rb->box);
+  CheapPointType p2 = closest_point_in_box (p, &rb->box);
   return cost_to_point (p, point_layer, &p2, rb->group);
 }
 
@@ -1099,6 +1087,18 @@ showbox (BoxType b, Dimension thickness, int group)
   XDrawCLine (Dpy, Output.OutputWindow, Output.fgGC, b.X2, b.Y1, b.X2, b.Y2);
   if (XtAppPending (Context))
     XtAppProcessEvent (Context, XtIMAll);
+  if (b.Y1 == b.Y2 || b.X1 == b.X2)
+    thickness = 5;
+  CreateNewLineOnLayer (LAYER_PTR (MAX_LAYER + COMPONENT_LAYER),
+			b.X1, b.Y1, b.X2, b.Y1, thickness, 0, 0);
+  if (b.Y1 != b.Y2)
+    CreateNewLineOnLayer (LAYER_PTR (MAX_LAYER + COMPONENT_LAYER),
+			  b.X1, b.Y2, b.X2, b.Y2, thickness, 0, 0);
+  CreateNewLineOnLayer (LAYER_PTR (MAX_LAYER + COMPONENT_LAYER),
+			b.X1, b.Y1, b.X1, b.Y2, thickness, 0, 0);
+  if (b.X1 != b.X2)
+    CreateNewLineOnLayer (LAYER_PTR (MAX_LAYER + COMPONENT_LAYER),
+			  b.X2, b.Y1, b.X2, b.Y2, thickness, 0, 0);
 }
 #endif
 
@@ -1138,7 +1138,7 @@ nonorphan_parent (routebox_t * rb)
  * a target (any target) */
 struct mincost_target_closure
 {
-  const PointType *CostPoint;
+  const CheapPointType *CostPoint;
   Cardinal CostPointLayer;
   routebox_t *nearest;
   cost_t nearest_cost;
@@ -1147,12 +1147,13 @@ static int
 __region_within_guess (const BoxType * region, void *cl)
 {
   struct mincost_target_closure *mtc = (struct mincost_target_closure *) cl;
-  cost_t cost_to_region =
+  cost_t cost_to_region;
+  if (mtc->nearest == NULL)
+    return 1;
+  cost_to_region =
     cost_to_layerless_box (mtc->CostPoint, mtc->CostPointLayer, region);
   assert (cost_to_region >= 0);
   /* if no guess yet, all regions are "close enough" */
-  if (mtc->nearest == NULL)
-    return 1;
   /* note that cost is *strictly more* than minimum distance, so we'll
    * always search a region large enough. */
   return (cost_to_region < mtc->nearest_cost);
@@ -1180,7 +1181,7 @@ __found_new_guess (const BoxType * box, void *cl)
 /* target_guess is our guess at what the nearest target is, or NULL if we
  * just plum don't have a clue. */
 static routebox_t *
-mincost_target_to_point (const PointType * CostPoint,
+mincost_target_to_point (const CheapPointType * CostPoint,
 			 Cardinal CostPointLayer,
 			 rtree_t * targets, routebox_t * target_guess)
 {
@@ -1243,7 +1244,7 @@ CreateEdge2 (routebox_t * rb, direction_t expand_dir,
 	     edge_t * previous_edge, rtree_t * targets)
 {
   BoxType thisbox;
-  PointType thiscost, prevcost;
+  CheapPointType thiscost, prevcost;
   cost_t d;
 
   assert (rb && previous_edge && targets);
@@ -1270,7 +1271,7 @@ CreateViaEdge (const BoxType * area, Cardinal group,
 	       conflict_t through_site_conflict, rtree_t * targets)
 {
   routebox_t *rb;
-  PointType costpoint;
+  CheapPointType costpoint;
   cost_t d;
   edge_t *ne;
   cost_t scale[3];
@@ -1312,7 +1313,7 @@ CreateEdgeWithConflicts (const BoxType * interior_edge,
 {
   routebox_t *rb;
   BoxType b;
-  PointType costpoint;
+  CheapPointType costpoint;
   cost_t d;
   edge_t *ne;
   assert (interior_edge && container && previous_edge && targets);
@@ -1578,17 +1579,23 @@ __FindBlocker_rect_in_reg (const BoxType * box, void *cl)
   /* this is a box; it has to jump through a few more hoops */
   if ((routebox_t *) box == nonorphan_parent (fbi->expansion_edge->rb))
     return 0;			/* this is the parent */
+#if 0
   if (rbox.Y2 > fbi->north_box.Y1)
     {				/* extends below edge */
+      /* this assert can fail if minimum keepaway is > pin spacing */  
       assert (fbi->expansion_edge->flags.is_interior);
       /* XXX: what to do here? */
     }
+#endif
   /* okay, this is the closest we've found. */
   assert (fbi->blocker == NULL
 	  || (fbi->north_box.Y1 - rbox.Y2) <= fbi->min_dist);
   fbi->blocker = (routebox_t *) box;
   fbi->min_dist = fbi->north_box.Y1 - rbox.Y2;
+  /* this assert can fail if the minimum keepaway is failed by an element
+     pin spacing.
   assert (fbi->min_dist >= 0);
+  */
   return 1;
 }
 static int
@@ -1824,7 +1831,7 @@ void
 ExpandAllEdges (edge_t * e, vector_t * result_vec,
 		cost_t cost_penalty_in_box, rtree_t * targets)
 {
-  PointType costpoint;
+  CheapPointType costpoint;
   cost_t cost;
   int i;
   assert (__edge_is_good (e));
@@ -1920,7 +1927,7 @@ BreakEdges (routedata_t * rd, vector_t * edge_vec, rtree_t * targets)
       assert (__edge_is_good (e));
       if (rb == NULL)
 	{			/* no intersecting obstacle, this baby's good! */
-#if defined(ROUTE_DEBUG) && defined(DEBUG_SHOW_ROUTE_BOXES)
+#if defined(ROUTE_DEBUG) && defined(DEBUG_SHOW_EDGE_BOXES)
 	  showroutebox (e->rb);
 	  printf ("GOOD EDGE FOUND!\n");
 #endif
@@ -1993,7 +2000,7 @@ RD_DrawVia (routedata_t * rd, Location X, Location Y,
 	    BDimension radius, routebox_t * subnet, Boolean is_bad)
 {
   routebox_t *rb, *first_via = NULL;
-  int i, j;
+  int i;
   /* a via cuts through every layer group */
   for (i = 0; i < MAX_LAYER; i++)
     {
@@ -2029,11 +2036,8 @@ RD_DrawVia (routedata_t * rd, Location X, Location Y,
       r_insert_entry (rd->layergrouptree[rb->group], &rb->box, 1);
       /* and to the via space structures */
       if (AutoRouteParameters.use_vias)
-	for (j = 0; j < NUM_STYLES + 1; j++)
-	  if (rd->augStyles[j].Used)
-	    mtspace_add (rd->augStyles[j].mtspace, &rb->box,
-			 rb->flags.is_odd ? ODD : EVEN,
-			 rb->augStyle->style->Keepaway);
+	mtspace_add (rd->mtspace, &rb->box, rb->flags.is_odd ? ODD : EVEN,
+		     rb->augStyle->style->Keepaway);
     }
 }
 static void
@@ -2043,7 +2047,6 @@ RD_DrawLine (routedata_t * rd,
 	     routebox_t * subnet, Boolean is_bad, Boolean is_45)
 {
   routebox_t *rb;
-  int i;
   /* don't draw zero-length segments. */
   if (X1 == X2 && Y1 == Y2)
     return;
@@ -2073,20 +2076,17 @@ RD_DrawLine (routedata_t * rd,
   r_insert_entry (rd->layergrouptree[rb->group], &rb->box, 1);
   /* and to the via space structures */
   if (AutoRouteParameters.use_vias)
-    for (i = 0; i < NUM_STYLES + 1; i++)
-      if (rd->augStyles[i].Used)
-	mtspace_add (rd->augStyles[i].mtspace, &rb->box,
-		     rb->flags.is_odd ? ODD : EVEN,
-		     rb->augStyle->style->Keepaway);
+    mtspace_add (rd->mtspace, &rb->box, rb->flags.is_odd ? ODD : EVEN,
+		 rb->augStyle->style->Keepaway);
 }
 static void
 RD_DrawManhattanLine (routedata_t * rd,
 		      const BoxType * bbox,
-		      PointType start, PointType end,
+		      CheapPointType start, CheapPointType end,
 		      BDimension halfthick, Cardinal group,
 		      routebox_t * subnet, Boolean is_bad)
 {
-  PointType knee = start;
+  CheapPointType knee = start;
   /* don't draw zero-length segments; start and knee should box be in bbox */
   if (point_in_box (bbox, end.X, start.Y))
     knee.X = end.X;
@@ -2106,7 +2106,7 @@ RD_DrawManhattanLine (routedata_t * rd,
     {
       /* draw 45-degree path across knee */
       BDimension len45 = MIN (ABS (start.X - end.X), ABS (start.Y - end.Y));
-      PointType kneestart = knee, kneeend = knee;
+      CheapPointType kneestart = knee, kneeend = knee;
       if (kneestart.X == start.X)
 	kneestart.Y += (kneestart.Y > start.Y) ? -len45 : len45;
       else
@@ -2132,7 +2132,7 @@ TracePath (routedata_t * rd, routebox_t * path, routebox_t * target,
     HALF_THICK (AutoRouteParameters.augStyle->style->Thick);
   BDimension radius =
     HALF_THICK (AutoRouteParameters.augStyle->style->Diameter);
-  PointType lastpoint, nextpoint;
+  CheapPointType lastpoint, nextpoint;
   routebox_t *lastpath;
   BoxType b;
 
@@ -2219,6 +2219,7 @@ TracePath (routedata_t * rd, routebox_t * path, routebox_t * target,
 	  Boolean ns = (lastpoint.X == nextpoint.X);
 	  Boolean ew = (lastpoint.Y == nextpoint.Y);
 	  BoxType bb = shrink_box (&b, keepaway + 2 * halfwidth);
+	  CheapPointType upcoming;
 	  if (bb.X1 >= bb.X2 || !ew)
 	    {
 	      bb.X1 = b.X1;
@@ -2231,8 +2232,24 @@ TracePath (routedata_t * rd, routebox_t * path, routebox_t * target,
 	    }
 	  lastpoint = nextpoint;
 	  nextpoint = closest_point_in_box (&lastpoint, &bb);
-	  RD_DrawManhattanLine (rd, &path->box, lastpoint, nextpoint,
-				halfwidth, path->group, subnet, is_bad);
+	  /* the smoothing might create a jag - skip if so */
+	  if (path->parent.expansion_area)
+	    {
+	      upcoming = closest_point_in_box (&nextpoint,
+					       &path->parent.expansion_area->
+					       box);
+	      if ((SGN (nextpoint.X - lastpoint.X) ==
+		  SGN (upcoming.X - nextpoint.X) || upcoming.X == nextpoint.X)
+		  && (SGN (nextpoint.Y - lastpoint.Y) ==
+		  SGN (upcoming.Y - nextpoint.Y) || upcoming.Y == nextpoint.Y))
+		RD_DrawManhattanLine (rd, &path->box, lastpoint, nextpoint,
+				      halfwidth, path->group, subnet, is_bad);
+	      else
+		nextpoint = lastpoint;
+	    }
+	  else
+	    RD_DrawManhattanLine (rd, &path->box, lastpoint, nextpoint,
+				  halfwidth, path->group, subnet, is_bad);
 	}
       if (path->flags.is_via)
 	{			/* if via, then add via */
@@ -2343,13 +2360,20 @@ add_via_sites (struct routeone_state *s,
 	       edge_t * parent_edge, rtree_t * targets)
 {
   int i, j;
+
+  /* XXX Ok, no way to inforce larger keepaway with the agnostic
+   * mtspace structure. But it's *so much* cheaper!
+   */
+
   assert (AutoRouteParameters.use_vias);
   /* XXX: need to clip 'within' to shrunk_pcb_bounds, because when
      XXX: routing with conflicts may poke over edge. */
 
   mtspace_query_rect (mtspace, &within->box,
-		      vss->free_space_vec,
-		      vss->lo_conflict_space_vec,
+		      HALF_THICK (AutoRouteParameters.augStyle->style->
+				  Diameter),
+		      AutoRouteParameters.augStyle->style->Keepaway,
+		      vss->free_space_vec, vss->lo_conflict_space_vec,
 		      vss->hi_conflict_space_vec, AutoRouteParameters.is_odd);
 
   for (i = 0; i < 3; i++)
@@ -2361,11 +2385,14 @@ add_via_sites (struct routeone_state *s,
       assert (v);
       while (!vector_is_empty (v))
 	{
+	  BoxType cliparea;
 	  BoxType *area = vector_remove_last (v);
-	  BoxType cliparea = clip_box (area, &within->box);
-	  assert (__box_is_good (&cliparea));
+	  if (!box_intersect (area, &within->box))
+	    continue;
 	  if (!(i == NO_CONFLICT || AutoRouteParameters.with_conflicts))
 	    continue;
+	  cliparea = clip_box (area, &within->box);
+	  assert (__box_is_good (&cliparea));
 	  for (j = 0; j < MAX_LAYER; j++)
 	    {
 	      edge_t *ne;
@@ -2580,7 +2607,7 @@ RouteOne (routedata_t * rd, routebox_t * from, routebox_t * to)
 	  /* add in possible via sites on conflict rect. */
 	  /* note that e->rb should be bloated version of conflict rect */
 	  if (AutoRouteParameters.use_vias)
-	    add_via_sites (&s, &vss, e->rb->augStyle->mtspace, e->rb,
+	    add_via_sites (&s, &vss, rd->mtspace, e->rb,
 			   CONFLICT_LEVEL (e->rb->underlying), e, targets);
 	}
       else if (e->flags.is_via)
@@ -2756,8 +2783,7 @@ RouteOne (routedata_t * rd, routebox_t * from, routebox_t * to)
 	      /* add in possible via sites in nrb */
 	      if (AutoRouteParameters.use_vias)
 		add_via_sites (&s, &vss,
-			       nrb->augStyle->mtspace, nrb, NO_CONFLICT, e,
-			       targets);
+			       rd->mtspace, nrb, NO_CONFLICT, e, targets);
 	    }
 	  /* if we didn't hit *anything* (i.e. we hit the edge of the board),
 	   * then don't expand any more in this direction. */
@@ -2939,7 +2965,7 @@ RouteAll (routedata_t * rd)
   heap_t *this_pass, *next_pass, *tmp;
   routebox_t *net, *p, *pp;
   cost_t total_net_cost;
-  int i, j, limit = 6;
+  int i, limit = 6;
 
   /* initialize heap for first pass; all nets are same length 'cuz we
    * don't know any better. */
@@ -2972,11 +2998,9 @@ RouteAll (routedata_t * rd)
 		  RemoveFromNet (p, NET);
 		  RemoveFromNet (p, SUBNET);
 		  if (AutoRouteParameters.use_vias)
-		    for (j = 0; j < NUM_STYLES + 1; j++)
-		      if (rd->augStyles[j].Used)
-			mtspace_remove (rd->augStyles[j].mtspace, &p->box,
-					p->flags.is_odd ? ODD : EVEN,
-					p->augStyle->style->Keepaway);
+		    mtspace_remove (rd->mtspace, &p->box,
+				    p->flags.is_odd ? ODD : EVEN,
+				    p->augStyle->style->Keepaway);
 		  r_delete_entry (rd->layergrouptree[p->group], &p->box);
 		}
 	      END_LOOP;
