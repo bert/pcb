@@ -59,6 +59,7 @@ TEXINFOS = pcb.texi
 TEXI2DVI = texi2dvi
 TEXI2PDF = $(TEXI2DVI) --pdf --batch
 MAKEINFOHTML = $(MAKEINFO) --html
+AM_MAKEINFOHTMLFLAGS = $(AM_MAKEINFOFLAGS)
 am__installdirs = "$(DESTDIR)$(infodir)" "$(DESTDIR)$(man1dir)" \
 	"$(DESTDIR)$(pkgdatadir)"
 man1dir = $(mandir)/man1
@@ -179,9 +180,6 @@ dist_man_MANS = pcb.1
 html_docs = ${info_TEXINFOS:.texi=.html}
 ps_docs = ${info_TEXINFOS:.texi=.ps} refcard.ps
 pdf_docs = ${info_TEXINFOS:.texi=.pdf} refcard.pdf
-
-# put the html manual into 1 file instead of multiple files
-AM_MAKEINFOHTMLFLAGS = --no-split
 EXTRA_DIST = \
 	refcard.tex \
 	pad.obj \
@@ -586,6 +584,9 @@ uninstall-man: uninstall-man1
 	uninstall-dist_pkgdataDATA uninstall-info-am uninstall-man \
 	uninstall-man1
 
+
+# put the html manual into 1 file instead of multiple files
+#AM_MAKEINFOHTMLFLAGS=	--no-split
 
 # use this to avoid having the clean target delete pcb.{dvi,html,pdf,ps}
 # which unfortunately deletes files which are part of the distfile
