@@ -1,3 +1,5 @@
+/* $Id$ */
+
 #ifndef __RESMENU_INCLUDED_
 #define __RESMENU_INCLUDED_ 1
 
