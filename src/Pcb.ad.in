@@ -460,6 +460,7 @@ Pcb.masterForm*output.baseTranslations:   #override \
   @btnmod@<Key>z:       Undo() \n\
   <Key>z:          SetValue(Zoom, -1) \
                    Display(Center) \n\
+  <Key>.:          Display(Toggle45Degree) \n\
   <Key>/:          Display(CycleClip) \n\
   \
   @btnmod@<Key>Up:      Display(Scroll, 8) \
