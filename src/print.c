@@ -77,8 +77,8 @@ static char *GlobalCommand;
  * some local prototypes
  */
 static void SetPrintColor (Pixel);
-static FILE *OpenPrintFile (char *);
-static int SetupPrintFile (char *, char *);
+static FILE *OpenPrintFile (char *, Boolean);
+static int SetupPrintFile (char *, char *, Boolean);
 static int ClosePrintFile (void);
 static int FPrintOutline (void);
 static int FPrintAlignment (void);
@@ -118,7 +118,7 @@ SetPrintColor (Pixel X11Color)
  * opens a file for printing
  */
 static FILE *
-OpenPrintFile (char *FileExtention)
+OpenPrintFile (char *FileExtention, Boolean is_drill)
 {
   char *filename, *completeFilename;
   size_t length;
@@ -127,12 +127,24 @@ OpenPrintFile (char *FileExtention)
   /* evaluate add extention and suffix to filename */
   if ((filename = ExpandFilename (NULL, GlobalCommand)) == NULL)
     filename = GlobalCommand;
-  length = strlen (EMPTY (GlobalCommand)) + 1 +
-    strlen (FileExtention) + 1 + strlen (Device->Suffix) + 1;
-  completeFilename = MyCalloc (length, sizeof (char), "OpenPrintFile()");
-  sprintf (completeFilename, "%s%s%s.%s",
+  if (is_drill && strcmp(Device->Suffix, "gbr")==0)
+    {
+       length = strlen (EMPTY (GlobalCommand)) + 1 +
+                strlen (FileExtention) + 5;
+       completeFilename = MyCalloc (length, sizeof (char), "OpenPrintFile()");
+       sprintf (completeFilename, "%s%s%s.cnc",
 	   GlobalDOSFlag ? "" : EMPTY (GlobalCommand),
-	   GlobalDOSFlag ? "" : "_", FileExtention, Device->Suffix);
+	   GlobalDOSFlag ? "" : "_", FileExtention);
+    }
+  else
+    {
+      length = strlen (EMPTY (GlobalCommand)) + 1 +
+        strlen (FileExtention) + 1 + strlen (Device->Suffix) + 1;
+      completeFilename = MyCalloc (length, sizeof (char), "OpenPrintFile()");
+      sprintf (completeFilename, "%s%s%s.%s",
+	       GlobalDOSFlag ? "" : EMPTY (GlobalCommand),
+  	       GlobalDOSFlag ? "" : "_", FileExtention, Device->Suffix);
+    }
 
   /* try to open all the file; if the value of
    * 'ReplaceOK' is set to 'True' no more confirmation is
@@ -153,11 +165,11 @@ OpenPrintFile (char *FileExtention)
  * setup new print file
  */
 static int
-SetupPrintFile (char *FileExtention, char *Description)
+SetupPrintFile (char *FileExtention, char *Description, Boolean drilling)
 {
   char *message;
 
-  if ((DeviceFlags.FP = OpenPrintFile (FileExtention)) == NULL)
+  if ((DeviceFlags.FP = OpenPrintFile (FileExtention, drilling)) == NULL)
     return (1);
   if ((message = Device->Preamble (&DeviceFlags, Description)) != NULL)
     {
@@ -311,10 +323,15 @@ PrintLayergroups (void)
 	  }
 
 	/* setup extention and open new file */
-	sprintf (extention, "%s%i", GlobalDOSFlag ? "" : "group", group + 1);
+	if (component == group)
+	  sprintf (extention, "front");
+	else if (solder == group)
+	  sprintf (extention, "back");
+	else
+	  sprintf (extention, "%s%i", GlobalDOSFlag ? "" : "group", group + 1);
 	sprintf (description, "layergroup #%i", group + 1);
 
-	if (SetupPrintFile (extention, description))
+	if (SetupPrintFile (extention, description, False))
 	  return (1);
 	/* comment on what layers in group */
 	if (Device->GroupID)
@@ -606,7 +623,7 @@ PrintSilkscreen (void)
 	continue;
       /* start with the component side */
       if (SetupPrintFile (GlobalDOSFlag ? DOSextention[i] : extention[i],
-			  description[i]))
+			  description[i], False))
 	return (1);
       /* positive polarity */
       Device->Polarity (0);
@@ -685,7 +702,7 @@ PrintPaste (void)
 
       /* start with the component side */
       if (SetupPrintFile (GlobalDOSFlag ? DOSextention[i] : extention[i],
-			  description[i]))
+			  description[i], False))
 	return (1);
 
       Device->Polarity (0);
@@ -721,7 +738,7 @@ PrintDrill (void)
   if (Device->HandlesDrill)
     {
       if (SetupPrintFile (GlobalDOSFlag ? "pdrill" : "plated-drill",
-			  "drill information"))
+			  "drill information", True))
 	return (1);
 
       SetPrintColor (PCB->PinColor);
@@ -745,7 +762,7 @@ PrintDrill (void)
 	  return (0);
 	}
       if (SetupPrintFile (GlobalDOSFlag ? "udrill" : "unplated-drill",
-			  "drill information"))
+			  "drill information", True))
 	{
 	  FreeDrillInfo (AllDrills);
 	  return (1);
@@ -774,10 +791,10 @@ PrintDrill (void)
 static int
 PrintMask (void)
 {
-  static char *extention[2] = { "componentmask", "soldermask" },
+  static char *extention[2] = { "frontmask", "backmask" },
     *DOSextention[2] =
   {
-  "cmask", "smask"}
+  "fmask", "bmask"}
   , *description[2] =
   {
   "solder mask component side", "solder mask solder side"};
@@ -791,7 +808,7 @@ PrintMask (void)
 
       /* start with the component side */
       if (SetupPrintFile (GlobalDOSFlag ? DOSextention[i] : extention[i],
-			  description[i]))
+			  description[i], False))
 	return (1);
 
       Device->Polarity (1);
@@ -964,7 +981,7 @@ PrintFab (void)
   char utcTime[64];
   struct passwd *pwentry;
 
-  if (SetupPrintFile ("fab", "Fabrication Drawing"))
+  if (SetupPrintFile ("fab", "Fabrication Drawing", False))
     return (1);
 
   Device->Polarity (0);
