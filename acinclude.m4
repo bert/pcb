@@ -27,7 +27,7 @@ dnl   if test -n "$fc_x_proto_value"; then
 dnl     AC_DEFINE_UNQUOTED(FUNCPROTO, $fc_x_proto_value)
 dnl   fi
 dnl
-AC_DEFUN(FC_CHECK_X_PROTO_DEFINE,
+AC_DEFUN([FC_CHECK_X_PROTO_DEFINE],
 [AC_REQUIRE([FC_CHECK_X_PROTO_FETCH])dnl
 AC_MSG_CHECKING(for Xfuncproto control definition $1)
 # Search for the requested defined variable; return it's value:
@@ -61,7 +61,7 @@ dnl
 dnl Example use:
 dnl   AC_REQUIRE([FC_CHECK_X_PROTO_FETCH])
 dnl
-AC_DEFUN(FC_CHECK_X_PROTO_FETCH,
+AC_DEFUN([FC_CHECK_X_PROTO_FETCH],
 [AC_REQUIRE([AC_PATH_X])dnl
 AC_MSG_CHECKING(whether Xfuncproto was supplied)
 dnl May override determined defines with explicit argument:
@@ -155,7 +155,7 @@ dnl   if test "x$fc_x_proto_FUNCPROTO" != "xno"; then
 dnl     echo Compile using FUNCPROTO=$fc_x_proto_FUNCPROTO
 dnl   fi
 dnl
-AC_DEFUN(FC_CHECK_X_PROTO_FUNCPROTO_COMPILE,
+AC_DEFUN([FC_CHECK_X_PROTO_FUNCPROTO_COMPILE],
 [AC_REQUIRE([AC_PATH_XTRA])dnl
 AC_LANG_SAVE
 AC_LANG_C
@@ -200,7 +200,7 @@ dnl   if test "x$fc_x_proto_NARROWPROTO" != "xno"; then
 dnl     echo Compile using NARROWPROTO=$fc_x_proto_NARROWPROTO
 dnl   fi
 dnl
-AC_DEFUN(FC_CHECK_X_PROTO_NARROWPROTO_WORKS,
+AC_DEFUN([FC_CHECK_X_PROTO_NARROWPROTO_WORKS],
 [AC_REQUIRE([AC_PATH_XTRA])dnl
 AC_LANG_SAVE
 AC_LANG_C
