@@ -408,6 +408,11 @@ MoveArcToLayer (LayerTypePtr Layer, ArcTypePtr Arc)
 {
   ArcTypePtr new;
 
+  if (TEST_FLAG(LOCKFLAG, Arc))
+    {
+      Message("Sorry that's locked\n");
+      return NULL;
+    }
   if (Dest == Layer && Layer->On)
     {
       DrawArc (Layer, Arc, 0);
@@ -435,7 +440,7 @@ MoveRatToLayer (RatTypePtr Rat)
 
   new = CreateNewLineOnLayer (Dest, Rat->Point1.X, Rat->Point1.Y,
 			      Rat->Point2.X, Rat->Point2.Y,
-			      Settings.LineThickness, Settings.Keepaway,
+			      Settings.LineThickness, 2*Settings.Keepaway,
 			      (Rat->Flags & ~RATFLAG) |
 			      (TEST_FLAG (CLEARNEWFLAG, PCB) ? CLEARLINEFLAG :
 			       0));
@@ -460,6 +465,11 @@ MoveLineToLayer (LayerTypePtr Layer, LineTypePtr Line)
   PinTypePtr via;
   void *ptr1, *ptr2, *ptr3;
 
+  if (TEST_FLAG(LOCKFLAG, Line))
+    {
+      Message("Sorry that's locked\n");
+      return NULL;
+    }
   if (Dest == Layer && Layer->On)
     {
       DrawLine (Layer, Line, 0);
@@ -560,6 +570,11 @@ MoveTextToLayer (LayerTypePtr Layer, TextTypePtr Text)
 {
   TextTypePtr new;
 
+  if (TEST_FLAG(LOCKFLAG, Text))
+    {
+      Message("Sorry that's locked\n");
+      return NULL;
+    }
   if (Dest != Layer)
     {
       AddObjectToMoveToLayerUndoList (TEXT_TYPE, Layer, Text, Text);
@@ -600,6 +615,11 @@ MovePolygonToLayer (LayerTypePtr Layer, PolygonTypePtr Polygon)
   PolygonTypePtr new;
   int LayerThermFlag, DestThermFlag;
 
+  if (TEST_FLAG(LOCKFLAG, Polygon))
+    {
+      Message("Sorry that's locked\n");
+      return NULL;
+    }
   if (((long int) Dest == -1) || (Layer == Dest))
     return (Polygon);
   AddObjectToMoveToLayerUndoList (POLYGON_TYPE, Layer, Polygon, Polygon);
