@@ -2935,17 +2935,12 @@ IsPolygonInPolygon (PolygonTypePtr P1, PolygonTypePtr P2)
     {
       LineType line;
 
-      POLYGONPOINT_LOOP (P1, 
-	{
-	  if (IsPointInPolygon (point->X, point->Y, 0, P2))
-	    return (True);
-	}
-      );
-
       POLYGONPOINT_LOOP (P2, 
 	{
 	  if (IsPointInPolygon (point->X, point->Y, 0, P1))
 	    return (True);
+          else
+            break;  /* only one point need be tested */
 	}
       );
 
