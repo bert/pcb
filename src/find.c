@@ -2840,7 +2840,7 @@ IsArcInPolygon (ArcTypePtr Arc, PolygonTypePtr Polygon)
   BoxTypePtr Box;
 
   /* arcs with clearance never touch polys */
-  if (TEST_FLAG (CLEARLINEFLAG, Arc))
+  if (TEST_FLAG (CLEARPOLYFLAG, Polygon) && TEST_FLAG (CLEARLINEFLAG, Arc))
     return (False);
 
   Box =
@@ -2896,7 +2896,7 @@ IsLineInPolygon (LineTypePtr Line, PolygonTypePtr Polygon)
   Location minx, maxx, miny, maxy;
   
   /* lines with clearance never touch polygons */
-  if (TEST_FLAG (CLEARLINEFLAG, Line))
+  if (TEST_FLAG(CLEARPOLYFLAG, Polygon) && TEST_FLAG (CLEARLINEFLAG, Line))
     return (False);
   minx = MIN (Line->Point1.X, Line->Point2.X)
     - MAX (Line->Thickness + Bloat, 0);

@@ -336,6 +336,8 @@ DoPIPFlags (PinTypePtr Pin, ElementTypePtr Element,
 	  Message("WARNING Unplated hole piercing or too close to polygon\n");
 	  SET_FLAG(WARNFLAG, Pin);
 	}
+      if (!TEST_FLAG (CLEARPOLYFLAG, Polygon))
+        return False;
       SET_FLAG (LayerPIPFlag, Pin);
       return True;
     }
@@ -364,6 +366,8 @@ int PolygonPlows (int group, int (*any_call)(int type, void *ptr1, void *ptr2, v
 	    /* now see if it would touch any polygon */
 	    POLYGON_LOOP (layer, 
 	      {
+	        if (!TEST_FLAG(CLEARPOLYFLAG, polygon))
+		  continue;
 	        if (IsLineInPolygon(line, polygon))
 		  {
 	            line->Thickness -= line->Clearance;
@@ -388,6 +392,8 @@ int PolygonPlows (int group, int (*any_call)(int type, void *ptr1, void *ptr2, v
 	    arc->Thickness += arc->Clearance;
 	    POLYGON_LOOP(layer,
 	      {
+	        if (!TEST_FLAG(CLEARPOLYFLAG, polygon))
+		  continue;
 	        if (IsArcInPolygon(arc, polygon))
 		  {
 	            arc->Thickness -= arc->Clearance;
@@ -448,6 +454,8 @@ int PolygonPlows (int group, int (*any_call)(int type, void *ptr1, void *ptr2, v
 
 		        POLYGON_LOOP(layer,
 		          {
+			    if (!TEST_FLAG (CLEARPOLYFLAG, polygon))
+			      continue;
 	                    if (TEST_FLAG(SQUAREFLAG, pad))
 	                      {
 		                x1 = MIN(pad->Point1.X, pad->Point2.X) - wid;
