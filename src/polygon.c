@@ -59,7 +59,7 @@
 #include <dmalloc.h>
 #endif
 
-RCSID("$Id$");
+RCSID ("$Id$");
 
 
 /* ---------------------------------------------------------------------------
@@ -472,16 +472,20 @@ PolygonPlows (int group, BoxTypePtr range,
       MAKEMAX (sb.Y1, range->Y1);
       MAKEMIN (sb.Y2, range->Y2);
       info.polygon = polygon;
-      info.type = LINE_TYPE;
-      if (setjmp (info.env) == 0)
-	r_search (layer->line_tree, &sb, NULL, plow_callback, &info);
-      else
-	return 1;
-      info.type = ARC_TYPE;
-      if (setjmp (info.env) == 0)
-	r_search (layer->arc_tree, &sb, NULL, plow_callback, &info);
-      else
-	return 1;
+      GROUP_LOOP (group);
+      {
+	info.type = LINE_TYPE;
+	if (setjmp (info.env) == 0)
+	  r_search (layer->line_tree, &sb, NULL, plow_callback, &info);
+	else
+	  return 1;
+	info.type = ARC_TYPE;
+	if (setjmp (info.env) == 0)
+	  r_search (layer->arc_tree, &sb, NULL, plow_callback, &info);
+	else
+	  return 1;
+      }
+      END_LOOP;
       info.type = VIA_TYPE;
       if (setjmp (info.env) == 0)
 	r_search (PCB->Data->via_tree, &sb, NULL, plow_callback, &info);
