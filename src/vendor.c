@@ -38,6 +38,14 @@
 #include <string.h>
 #endif
 
+#ifdef HAVE_REGEX_H
+#include <regex.h>
+#else
+#ifdef HAVE_UNISTD_H
+#include <unistd.h>
+#endif
+#endif
+
 #include "change.h"
 #include "data.h"
 #include "draw.h"
@@ -56,6 +64,7 @@
 static void add_to_drills(char *);
 static void apply_vendor_map(void);
 static void process_skips(Resource *);
+static Boolean rematch( const char *, const char *);
 
 /* list of vendor drills and a count of them */
 static int *vendor_drills = NULL;
@@ -648,27 +657,36 @@ Boolean vendorIsElementMappable(ElementTypePtr element)
   noskip = 1;
   for (i=0 ; i<n_refdes ; i++) 
     {
-      if (strcmp (UNKNOWN (NAMEONPCB_NAME(element) ), ignore_refdes[i]) == 0) 
+      if ( (strcmp (UNKNOWN (NAMEONPCB_NAME(element) ), ignore_refdes[i]) == 0) ||
+	   rematch ( ignore_refdes[i], UNKNOWN (NAMEONPCB_NAME(element) )) )
 	{
-	  Message ("Vendor mapping skipped because refdes = %s\n", ignore_refdes[i]);
+	  Message ("Vendor mapping skipped because refdes = %s matches %s\n", 
+		   UNKNOWN (NAMEONPCB_NAME(element) ),
+		   ignore_refdes[i]);
 	  noskip = 0;
 	}
     }
   if ( noskip )
     for (i=0 ; i<n_value ; i++) 
       {
-	if (strcmp (UNKNOWN (VALUE_NAME(element) ), ignore_value[i]) == 0) 
+	if ( (strcmp (UNKNOWN (VALUE_NAME(element) ), ignore_value[i]) == 0) ||
+	     rematch ( ignore_value[i], UNKNOWN (VALUE_NAME(element) )) )
 	  {
-	    Message ("Vendor mapping skipped because value = %s\n", ignore_value[i]);
+	    Message ("Vendor mapping skipped because value = %s matches %s\n", 
+		     UNKNOWN (VALUE_NAME(element)),
+		     ignore_value[i]);
 	    noskip = 0;
 	  }
       }
   
   if ( noskip )
     for (i=0 ; i<n_descr ; i++) {
-      if (strcmp (UNKNOWN (DESCRIPTION_NAME(element) ), ignore_descr[i]) == 0) 
+      if ( (strcmp (UNKNOWN (DESCRIPTION_NAME(element) ), ignore_descr[i]) == 0) ||
+	   rematch ( ignore_descr[i], UNKNOWN (DESCRIPTION_NAME(element) )) )
 	{
-	  Message ("Vendor mapping skipped because descr = %s\n", ignore_descr[i]);
+	  Message ("Vendor mapping skipped because descr = %s matches %s\n", 
+		   UNKNOWN (DESCRIPTION_NAME(element) ),
+		   ignore_descr[i]);
 	  noskip = 0;
 	}
     }
@@ -685,3 +703,71 @@ Boolean vendorIsElementMappable(ElementTypePtr element)
     return False;
 }
 
+static Boolean
+rematch( const char *re, const char *s)
+{
+  /*
+   * If this system has regular expression capability, then
+   * add support for regular expressions in the skip lists.
+   */
+  
+#if defined(HAVE_REGCOMP)
+  
+  int result;
+  regmatch_t match;
+  regex_t compiled;
+  
+  /* compile the regular expression */
+  result = regcomp (&compiled, re, REG_EXTENDED | REG_ICASE | REG_NOSUB);
+  if (result)
+    {
+      char errorstring[128];
+      
+      regerror (result, &compiled, errorstring, sizeof(errorstring));
+      Message ("regexp error: %s\n", errorstring);
+      regfree (&compiled);
+      return (False);
+    }
+  
+  result = regexec (&compiled, s, 1, &match, 0);
+
+  if (result == 0)
+    return (True);
+  else
+    return (False);
+
+  regfree (&compiled);
+
+#elif defined(HAVE_RE_COMP)
+  int m;
+  char *rslt;
+
+  /* compile the regular expression */
+  if ((rslt = re_comp (re)) != NULL)
+    {
+      Message ("re_comp error: %s\n", rslt);
+      return (False);
+    }
+
+  m = re_exec (s);
+
+  switch m
+    {
+    case 1:
+      return (True);
+      break;
+
+    case 0:
+      return (False);
+      break;
+
+    default:
+      Message ("re_exec error\n");
+      break;
+    }
+
+#else
+    return (False);
+#endif
+
+}
