@@ -1002,10 +1002,10 @@ InitShell (int *Argc, char **Argv)
 			     NULL, 0);
   if (Settings.LineThickness > MAX_LINESIZE
       || Settings.LineThickness < MIN_LINESIZE)
-    Settings.LineThickness = 10;
+    Settings.LineThickness = 1000;
   if (Settings.ViaThickness > MAX_PINORVIASIZE ||
       Settings.ViaThickness < MIN_PINORVIASIZE)
-    Settings.ViaThickness = 40;
+    Settings.ViaThickness = 4000;
   if (Settings.ViaDrillingHole <= 0)
     Settings.ViaDrillingHole =
       DEFAULT_DRILLINGHOLE * Settings.ViaThickness / 100;
