@@ -494,7 +494,8 @@ typedef struct			/* some resources... */
     Media,			/* type of output media */
     MenuFile,			/* file containing menu definitions */
     BackgroundImage,		/* PPM file for board background */
-    ScriptFilename;             /* PCB Actions script to execute on startup */
+    ScriptFilename,             /* PCB Actions script to execute on startup */
+    ActionString;               /* PCB Actions string to execute on startup */
   Boolean DumpMenuFile;		/* dump internal menu definitions */
   Location PinoutOffsetX,	/* offset of origin */
     PinoutOffsetY;

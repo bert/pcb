@@ -8,6 +8,7 @@ extern void ActionActiveWhen(Widget,XEvent *,String *, Cardinal *);
 extern void ActionCheckWhen(Widget,XEvent *,String *, Cardinal *);
 extern void ActionCommandHistory(Widget,XEvent *,String *, Cardinal *);
 extern void ActionDoWindows(Widget,XEvent *,String *, Cardinal *);
+extern void ActionExecuteAction(Widget,XEvent *,String *, Cardinal *);
 extern void ActionExecuteFile(Widget,XEvent *,String *, Cardinal *);
 extern void ActionGetLocation(Widget,XEvent *,String *, Cardinal *);
 extern void ActionSizesLabel(Widget,XEvent *,String *, Cardinal *);
@@ -19,6 +20,7 @@ XtActionsRec ActionList[] = {
   {"CheckWhen", ActionCheckWhen},
   {"CommandHistory", ActionCommandHistory},
   {"DoWindows", ActionDoWindows},
+  {"ExecuteAction", ActionExecuteAction},
   {"ExecuteFile", ActionExecuteFile},
   {"GetXY", ActionGetLocation},
   {"OptAutoOnly", djopt_set_auto_only},
@@ -32,6 +34,7 @@ struct { char *name; int type; } ActionTypeList[] = {
   {"CheckWhen", 'p'},
   {"CommandHistory", 0},
   {"DoWindows", 0},
+  {"ExecuteAction", 0},
   {"ExecuteFile", 0},
   {"GetXY", 0},
   {"OptAutoOnly", 0},
@@ -39,7 +42,7 @@ struct { char *name; int type; } ActionTypeList[] = {
   {0,0}
 };
 
-int ActionListSize = 9;
+int ActionListSize = 10;
 extern int FlagCurrentStyle(int);
 extern int FlagElementName(int);
 extern int FlagGrid(int);

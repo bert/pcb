@@ -159,6 +159,16 @@ invoke_action (Widget w, char *rstr)
 
 /* ************************************************************ */
 
+/* ACTION(ExecuteAction,ActionExecuteAction) */
+
+void
+ActionExecuteAction(Widget W, XEvent *Event, String *Params, Cardinal *num)
+{
+  int i;
+  for (i=0; i<*num; i++)
+    invoke_action (W, Params[i]);
+}
+
 /* ACTION(ExecuteFile,ActionExecuteFile) */
 
 void
