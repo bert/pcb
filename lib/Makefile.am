@@ -1,3 +1,4 @@
+## -*- makefile -*-
 ## $Id$
 ##
 
@@ -83,6 +84,7 @@ INC_FILES= \
 	dil.inc \
 	geda.inc \
 	genericsmt.inc \
+	johnstech.inc \
 	misc.inc \
 	pci.inc \
 	plcc.inc \
@@ -99,22 +101,29 @@ INC_FILES= \
 DAT_FILES= \
 	qfp.dat
 
-M4_FILES=	${M4_DIST_FILES} geda.m4
-LIST_FILES=	${LIST_DIST_FILES} geda.list
+M4_FILES=	${M4_DIST_FILES} geda.m4 johnstech.m4
+LIST_FILES=	${LIST_DIST_FILES} geda.list johnstech.list
 
 LIB_FILES= ${COMMON_FILE} ${M4_FILES} ${LIST_FILES} ${INC_FILES} 
 
 EXTRA_DIST=	ListLibraryContents.sh ${COMMON_FILE} ${M4_DIST_FILES} ${LIST_DIST_FILES} ${INC_FILES} \
 		${LIBCONTENTS} \
-		${DAT_FILES} gen_geda_m4.awk gen_geda_list.awk
+		${DAT_FILES} gen_list.awk gen_m4.awk gen_geda_m4.awk gen_geda_list.awk
 
-DISTCLEANFILES=	${LIBRARYFILENAME} ${LIBRARYFILENAME}.contents geda.m4 geda.list
+DISTCLEANFILES=	${LIBRARYFILENAME} ${LIBRARYFILENAME}.contents geda.m4 geda.list johnstech.m4 \
+	johnstech.list
 
 ${LIBRARYFILENAME}: ${COMMON_FILE} ${INC_FILES} ${DAT_FILES} ${M4_FILES} CreateLibrary.sh
 	${SHELL} ./CreateLibrary.sh -I $(srcdir) $@ $(srcdir)/${COMMON_FILE} ${M4_FILES}
 
 ${LIBRARYFILENAME}.contents: ${COMMON_FILE} ${INC_FILES} ${DAT_FILES} ${LIST_FILES} CreateLibraryContents.sh
 	${SHELL} ./CreateLibraryContents.sh -I $(srcdir) $(srcdir)/${COMMON_FILE} ${LIST_FILES} > $@
+
+johnstech.list: johnstech.inc gen_list.awk
+	${AWK} -f $(srcdir)/gen_list.awk name=johnstech $(srcdir)/johnstech.inc > $@
+
+johnstech.m4: johnstech.inc gen_m4.awk
+	${AWK} -f $(srcdir)/gen_m4.awk name=johnstech $(srcdir)/johnstech.inc > $@
 
 geda.m4: geda.inc gen_geda_m4.awk
 	${AWK} -f $(srcdir)/gen_geda_m4.awk $(srcdir)/geda.inc > $@
