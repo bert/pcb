@@ -147,7 +147,7 @@
 /* ---------------------------------------------------------------------------
  * PCB flags
  */
-#define	PCB_FLAGS		0xffff	/* all used flags */
+#define	PCB_FLAGS		0x1ffff	/* all used flags */
 #define SHOWNUMBERFLAG          0x0001  /* pinout displays pin numbers instead of names */
 #define LOCALREFFLAG            0x0002  /* use local reference for moves */
 #define CHECKPLANESFLAG         0x0004  /* see if polygons have isolated regions */
@@ -165,6 +165,7 @@
 #define SHOWMASKFLAG            0x2000  /* show the solder mask layer */
 #define THINDRAWFLAG            0x4000  /* draw with thin lines */
 #define ORTHOMOVEFLAG           0x8000  /* move items orthogonally */
+#define LIVEROUTEFLAG           0x10000 /* draw autoroute paths real-time */
 
 /* ---------------------------------------------------------------------------
  * object types

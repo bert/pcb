@@ -25,8 +25,7 @@
  *
  */
 
-static char *rcsid =
-  "$Id$";
+static char *rcsid = "$Id$";
 
 /* action routines for output window
  */
@@ -1138,8 +1137,7 @@ NotifyMode (void)
 				    Settings.ViaDrillingHole, NULL,
 				    VIAFLAG)) != NULL)
 		{
-		  UpdatePIPFlags (via, (ElementTypePtr) via, NULL,
-				  False);
+		  UpdatePIPFlags (via, (ElementTypePtr) via, NULL, False);
 		  AddObjectToCreateUndoList (VIA_TYPE, via, via, via);
 		  DrawVia (via, 0);
 		}
@@ -1559,10 +1557,10 @@ ActionDRCheck (Widget W, XEvent * Event, String * Params, Cardinal * Num)
 	Message ("found %d design rule errors\n", count);
       restoreCursor ();
       RestoreCrosshair (True);
-      return ;
+      return;
     }
 
-  Message("Usage:  \nDRC()\n");
+  Message ("Usage:  \nDRC()\n");
 
 }
 
@@ -1602,13 +1600,12 @@ ActionFlip (Widget W, XEvent * Event, String * Params, Cardinal * Num)
 	  break;
 	}
       RestoreCrosshair (True);
-      if ( ! err ) 
+      if (!err)
 	return;
     }
-  
-  Message("Usage:  \n"
-	  "Flip(Object|Selected|SelectedElements)\n");
-  
+
+  Message ("Usage:  \n" "Flip(Object|Selected|SelectedElements)\n");
+
 }
 
 
@@ -1654,12 +1651,12 @@ ActionToggleThermal (Widget W, XEvent * Event, String * Params,
 	  break;
 	}
       RestoreCrosshair (True);
-      if ( ! err ) 
+      if (!err)
 	return;
     }
-  Message("Usage:  \n"
-	  "ToggleThermal(Object|Selected|SelectedElements|"
-	  "SelectedPins|SelectedVias)\n");
+  Message ("Usage:  \n"
+	   "ToggleThermal(Object|Selected|SelectedElements|"
+	   "SelectedPins|SelectedVias)\n");
 }
 
 /* --------------------------------------------------------------------------
@@ -1667,8 +1664,7 @@ ActionToggleThermal (Widget W, XEvent * Event, String * Params,
  * syntax: SetThermal(Object|SelectePins|SelectedVias|Selected);
  */
 void
-ActionSetThermal (Widget W, XEvent * Event, String * Params,
-		     Cardinal * Num)
+ActionSetThermal (Widget W, XEvent * Event, String * Params, Cardinal * Num)
 {
   void *ptr1, *ptr2, *ptr3;
   int type;
@@ -1704,12 +1700,12 @@ ActionSetThermal (Widget W, XEvent * Event, String * Params,
 	  break;
 	}
       RestoreCrosshair (True);
-      if ( ! err ) 
+      if (!err)
 	return;
     }
-  Message("Usage:  \n"
-	  "SetThermal(Object|Selected|SelectedElements|"
-	  "SelectedPins|SelectedVias)\n");
+  Message ("Usage:  \n"
+	   "SetThermal(Object|Selected|SelectedElements|"
+	   "SelectedPins|SelectedVias)\n");
 }
 
 /* --------------------------------------------------------------------------
@@ -1717,8 +1713,7 @@ ActionSetThermal (Widget W, XEvent * Event, String * Params,
  * syntax: ClearThermal(Object|SelectePins|SelectedVias|Selected);
  */
 void
-ActionClearThermal (Widget W, XEvent * Event, String * Params,
-		     Cardinal * Num)
+ActionClearThermal (Widget W, XEvent * Event, String * Params, Cardinal * Num)
 {
   void *ptr1, *ptr2, *ptr3;
   int type;
@@ -1754,12 +1749,12 @@ ActionClearThermal (Widget W, XEvent * Event, String * Params,
 	  break;
 	}
       RestoreCrosshair (True);
-      if ( ! err ) 
+      if (!err)
 	return;
     }
-  Message("Usage:  \n"
-	  "ClearThermal(Object|Selected|SelectedElements"
-	  "|SelectedPins|SelectedVias)\n");
+  Message ("Usage:  \n"
+	   "ClearThermal(Object|Selected|SelectedElements"
+	   "|SelectedPins|SelectedVias)\n");
 }
 
 
@@ -1793,11 +1788,10 @@ ActionMovePointer (Widget W, XEvent * Event, String * Params, Cardinal * Num)
       AdjustAttachedObjects ();
       SetCursorStatusLine ();
       RestoreCrosshair (False);
-      return ;
+      return;
     }
 
-  Message("Usage:  \n"
-	  "MovePointer(deltax, deltay)\n");
+  Message ("Usage:  \n" "MovePointer(deltax, deltay)\n");
 }
 
 /* ---------------------------------------------------------------------------
@@ -1917,14 +1911,14 @@ ActionSetValue (Widget W, XEvent * Event, String * Params, Cardinal * Num)
 	  break;
 	}
       RestoreCrosshair (True);
-      if ( ! err ) 
+      if (!err)
 	return;
     }
-    Message("Usage:  \n"
-	    "SetValue(Grid|Zoom|LineSize|TextScale|"
-	    "ViaDrillingHole|ViaSize, value)\n"
-	    "SetValue(Grid|Zoom|LineSize|TextScale|"
-	    "ViaDrillingHole|ViaSize, value, mil|mm)\n");
+  Message ("Usage:  \n"
+	   "SetValue(Grid|Zoom|LineSize|TextScale|"
+	   "ViaDrillingHole|ViaSize, value)\n"
+	   "SetValue(Grid|Zoom|LineSize|TextScale|"
+	   "ViaDrillingHole|ViaSize, value, mil|mm)\n");
 
 }
 
@@ -1939,8 +1933,7 @@ ActionFinishInputDialog (Widget W, XEvent * Event,
   if (*Num == 1)
     FinishInputDialog (!strcmp ("OK", *Params));
   else
-    Message("Usage:  \n"
-	    "FinishInput(OK|Cancel)\n");
+    Message ("Usage:  \n" "FinishInput(OK|Cancel)\n");
 
 }
 
@@ -1985,8 +1978,7 @@ ActionReport (Widget W, XEvent * Event, String * Params, Cardinal * Num)
 	}
       }
   else
-    Message("Usage:  \n"
-	    "Report(Object|DrillReport|FoundPins)\n");
+    Message ("Usage:  \n" "Report(Object|DrillReport|FoundPins)\n");
 
 }
 
@@ -1997,14 +1989,13 @@ ActionReport (Widget W, XEvent * Event, String * Params, Cardinal * Num)
 void
 ActionQuit (Widget W, XEvent * Event, String * Params, Cardinal * Num)
 {
-  if (*Num == 0 )
+  if (*Num == 0)
     {
       if (!PCB->Changed || ConfirmDialog ("OK to lose data ?"))
 	QuitApplication ();
     }
   else
-    Message("Usage:  \n"
-	    "Quit()\n");
+    Message ("Usage:  \n" "Quit()\n");
 
 }
 
@@ -2046,8 +2037,8 @@ ActionConnection (Widget W, XEvent * Event, String * Params, Cardinal * Num)
       RestoreCrosshair (True);
       return;
     }
-    Message("Usage:  \n"
-	    "Connection(Find|ResetLinesAndPolygons|ResetPinsAndVias|Reset)\n");
+  Message ("Usage:  \n"
+	   "Connection(Find|ResetLinesAndPolygons|ResetPinsAndVias|Reset)\n");
 }
 
 /* ---------------------------------------------------------------------------
@@ -2233,7 +2224,7 @@ ActionDisplay (Widget W, XEvent * Event, String * Params, Cardinal * Num)
 	  break;
 
 	case F_ToggleLiveRoute:
-	  Settings.liveRouting = ! Settings.liveRouting;
+	  TOGGLE_FLAG (LIVEROUTEFLAG, PCB);
 	  break;
 
 	case F_ToggleAutoDRC:
@@ -2405,7 +2396,7 @@ ActionDisplay (Widget W, XEvent * Event, String * Params, Cardinal * Num)
 		    RestoreCrosshair (False);
 		  }
 	      }
-	    break;
+	      break;
 	    case 1:		/* down, left */
 	      CenterDisplay (-Output.Width / 2, Output.Height / 2, True);
 	      break;
@@ -2439,22 +2430,21 @@ ActionDisplay (Widget W, XEvent * Event, String * Params, Cardinal * Num)
 	err = 1;
     }
 
-  if( ! err )
+  if (!err)
     return;
 
-  Message("Usage\n"
-	  "Display(NameOnPCB|Description|Value)\n"
-	  "Display(Grid|Center|ClearAndRedraw|Redraw)\n"
-	  "Display(CycleClip|Toggle45Degree|ToggleStartDirection)\n"
-	  "Display(ToggleGrid|ToggleRubberBandMode|ToggleUniqueNames)\n"
-	  "Display(ToggleMask|ToggleName|ToggleClearLine|ToggleSnapPin)\n"
-	  "Display(ToggleThindraw|ToggleOrthoMove|ToggleLocalRef)\n"
-	  "Display(ToggleCheckPlanes|ToggleShowDRC|ToggleAutoDRC)\n"
-	  "Display(ToggleLiveRoute)\n"
-	  "Display(Pinout|PinOrPadName)\n"
-	  "Display(Save|Restore)\n"
-	  "Display(Scroll, Direction)\n");
- 
+  Message ("Usage\n"
+	   "Display(NameOnPCB|Description|Value)\n"
+	   "Display(Grid|Center|ClearAndRedraw|Redraw)\n"
+	   "Display(CycleClip|Toggle45Degree|ToggleStartDirection)\n"
+	   "Display(ToggleGrid|ToggleRubberBandMode|ToggleUniqueNames)\n"
+	   "Display(ToggleMask|ToggleName|ToggleClearLine|ToggleSnapPin)\n"
+	   "Display(ToggleThindraw|ToggleOrthoMove|ToggleLocalRef)\n"
+	   "Display(ToggleCheckPlanes|ToggleShowDRC|ToggleAutoDRC)\n"
+	   "Display(ToggleLiveRoute)\n"
+	   "Display(Pinout|PinOrPadName)\n"
+	   "Display(Save|Restore)\n" "Display(Scroll, Direction)\n");
+
 }
 
 /* ---------------------------------------------------------------------------
@@ -2571,11 +2561,10 @@ ActionMode (Widget W, XEvent * Event, String * Params, Cardinal * Num)
       return;
     }
 
-  Message("Usage\n"
-	  "Mode(Copy|InsertPoint|Line|Move|None|PasteBuffer|Polygon)\n"
-	  "Mode(Remove|Rectangle|Text|Via|Arrow|Thermal)\n"
-	  "Mode(Notify|Release)\n"
-	  "Mode(Save|Restore)\n");
+  Message ("Usage\n"
+	   "Mode(Copy|InsertPoint|Line|Move|None|PasteBuffer|Polygon)\n"
+	   "Mode(Remove|Rectangle|Text|Via|Arrow|Thermal)\n"
+	   "Mode(Notify|Release)\n" "Mode(Save|Restore)\n");
 
 }
 
@@ -2614,7 +2603,7 @@ ActionRipUp (Widget W, XEvent * Event, String * Params, Cardinal * Num)
 	case F_All:
 	  ALLLINE_LOOP (PCB->Data);
 	  {
-	    if (line->Flags & AUTOFLAG)
+	    if (TEST_FLAG (AUTOFLAG, line) && !TEST_FLAG (LOCKFLAG, line))
 	      {
 		RemoveObject (LINE_TYPE, layer, line, line);
 		changed = True;
@@ -2623,7 +2612,7 @@ ActionRipUp (Widget W, XEvent * Event, String * Params, Cardinal * Num)
 	  ENDALL_LOOP;
 	  VIA_LOOP (PCB->Data);
 	  {
-	    if (via->Flags & AUTOFLAG)
+	    if (TEST_FLAG (AUTOFLAG, via) && !TEST_FLAG (LOCKFLAG, via))
 	      {
 		RemoveObject (VIA_TYPE, via, via, via);
 		changed = True;
@@ -2640,7 +2629,8 @@ ActionRipUp (Widget W, XEvent * Event, String * Params, Cardinal * Num)
 	case F_Selected:
 	  VISIBLELINE_LOOP (PCB->Data);
 	  {
-	    if ((line->Flags & AUTOFLAG) && (line->Flags & SELECTEDFLAG))
+	    if (TEST_FLAGS (AUTOFLAG | SELECTEDFLAG, line)
+		&& !TEST_FLAG (LOCKFLAG, line))
 	      {
 		RemoveObject (LINE_TYPE, layer, line, line);
 		changed = True;
@@ -2650,7 +2640,8 @@ ActionRipUp (Widget W, XEvent * Event, String * Params, Cardinal * Num)
 	  if (PCB->ViaOn)
 	    VIA_LOOP (PCB->Data);
 	  {
-	    if ((via->Flags & AUTOFLAG) && (via->Flags & SELECTEDFLAG))
+	    if (TEST_FLAGS (AUTOFLAG | SELECTEDFLAG, via)
+		&& !TEST_FLAG (LOCKFLAG, via))
 	      {
 		RemoveObject (VIA_TYPE, via, via, via);
 		changed = True;
@@ -2669,21 +2660,23 @@ ActionRipUp (Widget W, XEvent * Event, String * Params, Cardinal * Num)
 
 	    if (SearchScreen (Crosshair.X, Crosshair.Y, ELEMENT_TYPE,
 			      &ptr1, &ptr2, &ptr3) != NO_TYPE)
-	      Note.Buffer = Settings.BufferNumber;
-	    SetBufferNumber (MAX_BUFFER - 1);
-	    ClearBuffer (PASTEBUFFER);
-	    CopyObjectToBuffer (PASTEBUFFER->Data, PCB->Data, ELEMENT_TYPE,
-				ptr1, ptr2, ptr3);
-	    SmashBufferElement (PASTEBUFFER);
-	    PASTEBUFFER->X = 0;
-	    PASTEBUFFER->Y = 0;
-	    SaveUndoSerialNumber ();
-	    EraseObject (ELEMENT_TYPE, ptr1);
-	    MoveObjectToRemoveUndoList (ELEMENT_TYPE, ptr1, ptr2, ptr3);
-	    RestoreUndoSerialNumber ();
-	    CopyPastebufferToLayout (0, 0);
-	    SetBufferNumber (Note.Buffer);
-	    SetChangedFlag (True);
+	      {
+		Note.Buffer = Settings.BufferNumber;
+		SetBufferNumber (MAX_BUFFER - 1);
+		ClearBuffer (PASTEBUFFER);
+		CopyObjectToBuffer (PASTEBUFFER->Data, PCB->Data,
+				    ELEMENT_TYPE, ptr1, ptr2, ptr3);
+		SmashBufferElement (PASTEBUFFER);
+		PASTEBUFFER->X = 0;
+		PASTEBUFFER->Y = 0;
+		SaveUndoSerialNumber ();
+		EraseObject (ELEMENT_TYPE, ptr1);
+		MoveObjectToRemoveUndoList (ELEMENT_TYPE, ptr1, ptr2, ptr3);
+		RestoreUndoSerialNumber ();
+		CopyPastebufferToLayout (0, 0);
+		SetBufferNumber (Note.Buffer);
+		SetChangedFlag (True);
+	      }
 	  }
 	  break;
 	}
@@ -3429,8 +3422,7 @@ ActionChangeOctagon (Widget W, XEvent * Event, String * Params,
  * syntax: ChangeOctagon(ToggleObject|SelectedElements|Selected)
  */
 void
-ActionSetOctagon (Widget W, XEvent * Event, String * Params,
-		     Cardinal * Num)
+ActionSetOctagon (Widget W, XEvent * Event, String * Params, Cardinal * Num)
 {
   if (*Num == 1)
     {
@@ -3481,8 +3473,7 @@ ActionSetOctagon (Widget W, XEvent * Event, String * Params,
  * syntax: ClearOctagon(ToggleObject|SelectedElements|Selected)
  */
 void
-ActionClearOctagon (Widget W, XEvent * Event, String * Params,
-		     Cardinal * Num)
+ActionClearOctagon (Widget W, XEvent * Event, String * Params, Cardinal * Num)
 {
   if (*Num == 1)
     {
@@ -4577,17 +4568,17 @@ ActionSetSame (Widget W, XEvent * Event, String * Params, Cardinal * Num)
 void
 ActionSetFlag (Widget W, XEvent * Event, String * Params, Cardinal * Num)
 {
-  if ( *Num != 2 )
+  if (*Num != 2)
     {
-      Message("Usage:  \n"
-	      "SetFlag(Object, flag)\n"
-	      "SetFlag(SelectedLines|SelectedPins|SelectedVias, flag)\n"
-	      "SetFlag(SelectedPads|SelectedTexts|SelectedNames, flag)\n"
-	      "SetFlag(SelectedElements, flag)\n"
-	      "flag = square | octagon | thermal\n");
-      return ;
+      Message ("Usage:  \n"
+	       "SetFlag(Object, flag)\n"
+	       "SetFlag(SelectedLines|SelectedPins|SelectedVias, flag)\n"
+	       "SetFlag(SelectedPads|SelectedTexts|SelectedNames, flag)\n"
+	       "SetFlag(SelectedElements, flag)\n"
+	       "flag = square | octagon | thermal\n");
+      return;
     }
-  ChangeFlag(W, Event, Params, 1, "SetFlag");
+  ChangeFlag (W, Event, Params, 1, "SetFlag");
 }
 
 /* ---------------------------------------------------------------------------
@@ -4605,18 +4596,18 @@ void
 ActionClrFlag (Widget W, XEvent * Event, String * Params, Cardinal * Num)
 {
 
-  if ( *Num != 2 )
+  if (*Num != 2)
     {
-      Message("Usage:  \n"
-	      "ClrFlag(Object, flag)\n"
-	      "ClrFlag(SelectedLines|SelectedPins|SelectedVias, flag)\n"
-	      "ClrFlag(SelectedPads|SelectedTexts|SelectedNames, flag)\n"
-	      "ClrFlag(SelectedElements, flag)\n"
-	      "flag = square | octagon | thermal\n");
-      return ;
+      Message ("Usage:  \n"
+	       "ClrFlag(Object, flag)\n"
+	       "ClrFlag(SelectedLines|SelectedPins|SelectedVias, flag)\n"
+	       "ClrFlag(SelectedPads|SelectedTexts|SelectedNames, flag)\n"
+	       "ClrFlag(SelectedElements, flag)\n"
+	       "flag = square | octagon | thermal\n");
+      return;
     }
 
-  ChangeFlag(W, Event, Params, 0, "ClrFlag");
+  ChangeFlag (W, Event, Params, 0, "ClrFlag");
 }
 
 /* ---------------------------------------------------------------------------
@@ -4636,35 +4627,35 @@ ActionChangeFlag (Widget W, XEvent * Event, String * Params, Cardinal * Num)
 {
   int val;
 
-  if ( *Num != 3 )
+  if (*Num != 3)
     {
-      Message("Usage:  \n"
-	      "ChangeFlag(Object, flag, value)\n"
-	      "ChangeFlag(SelectedLines|SelectedPins|SelectedVias, flag, value)\n"
-	      "ChangeFlag(SelectedPads|SelectedTexts|SelectedNames, flag, value)\n"
-	      "ChangeFlag(SelectedElements, flag, value)\n"
-	      "flag = square | octagon | thermal\n");
-      
-      return ;
+      Message ("Usage:  \n"
+	       "ChangeFlag(Object, flag, value)\n"
+	       "ChangeFlag(SelectedLines|SelectedPins|SelectedVias, flag, value)\n"
+	       "ChangeFlag(SelectedPads|SelectedTexts|SelectedNames, flag, value)\n"
+	       "ChangeFlag(SelectedElements, flag, value)\n"
+	       "flag = square | octagon | thermal\n");
+
+      return;
     }
 
-  if ( strcmp(Params[2], "0") == 0 ) 
+  if (strcmp (Params[2], "0") == 0)
     val = 0;
-  else if ( strcmp(Params[2], "1") == 0 ) 
+  else if (strcmp (Params[2], "1") == 0)
     val = 1;
   else
     {
-      Message("ChangeFlag():  Value \"%s\" is not valid\n", Params[2]);
-      return ;
+      Message ("ChangeFlag():  Value \"%s\" is not valid\n", Params[2]);
+      return;
     }
 
-  ChangeFlag(W, Event, Params, val, "ChangeFlag");
+  ChangeFlag (W, Event, Params, val, "ChangeFlag");
 }
 
 
 static void
-ChangeFlag (Widget W, XEvent * Event, 
-	    String *Params, int value, char *cmd_name)
+ChangeFlag (Widget W, XEvent * Event,
+	    String * Params, int value, char *cmd_name)
 {
   Boolean r;			/* True if flag is to be set rather
 				   than cleared */
@@ -4678,19 +4669,19 @@ ChangeFlag (Widget W, XEvent * Event,
   what = Params[0];
   flag_name = Params[1];
 
-  if ( strcmp(flag_name, "square") == 0 ) 
+  if (strcmp (flag_name, "square") == 0)
     {
       flag = SQUAREFLAG;
       set_object = value ? SetObjectSquare : ClrObjectSquare;
       set_selected = value ? SetSelectedSquare : ClrSelectedSquare;
     }
-  else if ( strcmp(flag_name, "octagon") == 0 ) 
+  else if (strcmp (flag_name, "octagon") == 0)
     {
       flag = OCTAGONFLAG;
       set_object = value ? SetObjectOctagon : ClrObjectOctagon;
       set_selected = value ? SetSelectedOctagon : ClrSelectedOctagon;
     }
-  else if ( strcmp(flag_name, "thermal") == 0 ) 
+  else if (strcmp (flag_name, "thermal") == 0)
     {
       flag = L0THERMFLAG;
       set_object = value ? SetObjectThermal : ClrObjectThermal;
@@ -4698,10 +4689,10 @@ ChangeFlag (Widget W, XEvent * Event,
     }
   else
     {
-      Message("%s():  Flag \"%s\" is not valid\n", cmd_name, flag_name);
-      return ;
+      Message ("%s():  Flag \"%s\" is not valid\n", cmd_name, flag_name);
+      return;
     }
-  
+
   HideCrosshair (True);
   switch (GetFunctionID (*Params))
     {
@@ -4709,7 +4700,7 @@ ChangeFlag (Widget W, XEvent * Event,
       {
 	int type;
 	void *ptr1, *ptr2, *ptr3;
-	
+
 	if ((type =
 	     SearchScreen (Crosshair.X, Crosshair.Y, CHANGESIZE_TYPES,
 			   &ptr1, &ptr2, &ptr3)) != NO_TYPE)

@@ -103,6 +103,7 @@ MainMenu = {
         {"Require unique element names" CheckWhen(uniquename) Display(ToggleUniqueNames)}
         {"Auto-zero delta measurements" CheckWhen(localref) Display(ToggleLocalRef)}
         {"New lines, arcs clear polygons" CheckWhen(clearnew) Display(ToggleClearLine)}
+	{"Show autorouter trials" CheckWhen(liveroute) Display(ToggleLiveRoute)}
         {"Thin draw" CheckWhen(thindraw) Display(ToggleThindraw)}
         {"Check polygons" CheckWhen(checkplanes) Display(ToggleCheckPlanes)}
         }

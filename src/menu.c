@@ -364,6 +364,7 @@ FlagGridFactor()
 /* FLAG(showmask,FlagTESTFLAG,SHOWMASKFLAG) */
 /* FLAG(thindraw,FlagTESTFLAG,THINDRAWFLAG) */
 /* FLAG(orthomove,FlagTESTFLAG,ORTHOMOVEFLAG) */
+/* FLAG(liveroute,FlagTESTFLAG,LIVEROUTEFLAG) */
 int
 FlagTESTFLAG(int bit)
 {
@@ -384,6 +385,7 @@ FlagTESTFLAG(int bit)
 /* FLAG(rubberbandmode,FlagSETTINGS,XtOffsetOf(SettingType,RubberBandMode)) */
 /* FLAG(swapstartdirection,FlagSETTINGS,XtOffsetOf(SettingType,SwapStartDirection)) */
 /* FLAG(showdrc,FlagSETTINGS,XtOffsetOf(SettingType,ShowDRC)) */
+/* FLAG(liveroute,FlagSETTINGS,XtOffsetOf(SettingType,liveRouting)) */
 /* FLAG(resetafterelement,FlagSETTINGS,XtOffsetOf(SettingType,ResetAfterElement)) */
 /* FLAG(ringbellwhenfinished,FlagSETTINGS,XtOffsetOf(SettingType,RingBellWhenFinished)) */
 int

@@ -76,10 +76,12 @@
 #endif
 /* #defines to enable some debugging output */
 #define ROUTE_VERBOSE
+
 /*
 #define ROUTE_DEBUG
 #define DEBUG_SHOW_ROUTE_BOXES
 #define DEBUG_SHOW_VIA_BOXES
+#define DEBUG_SHOW_EXPANSION_BOXES
 */
 /* round up "half" thicknesses */
 #define HALF_THICK(x) (((x)+1)/2)
@@ -1058,17 +1060,15 @@ cost_to_point (const CheapPointType * p1, Cardinal point_layer1,
 }
 
 /* return the minimum *cost* from a point to a box on any layer.
- * The minimum cost may be either the cost to a box on the same layer,
- * or the cost to a box on a different layer, with a via cost added
- * in.  If the direction penalty code above changes, this routine
- * will have to be changed too. */
+ * It's safe to return a smaller than minimum cost
+ */
 static cost_t
 cost_to_layerless_box (const CheapPointType * p, Cardinal point_layer,
 		       const BoxType * b)
 {
   CheapPointType p2 = closest_point_in_box (p, b);
   /* front layer has no prefered direction so it's cheapest */
-  return cost_to_point (p, front, &p2, front);
+  return ABS (p2.X - p->X) + ABS (p2.Y - p->Y);
 }
 
 /* return the minimum *cost* from a point to a route box, including possible
@@ -1160,9 +1160,38 @@ showbox (BoxType b, Dimension thickness, int group)
 
 #if defined(ROUTE_DEBUG)
 static void
+showedge (edge_t * e)
+{
+  BoxType *b = (BoxType *) e->rb;
+  XSetLineAttributes (Dpy, Output.fgGC, 1, LineSolid, CapRound, JoinRound);
+  XSetForeground (Dpy, Output.fgGC, Settings.MaskColor);
+  switch (e->expand_dir)
+    {
+    case NORTH:
+      XDrawCLine (Dpy, Output.OutputWindow, Output.fgGC, b->X1, b->Y1, b->X2,
+		  b->Y1);
+      break;
+    case SOUTH:
+      XDrawCLine (Dpy, Output.OutputWindow, Output.fgGC, b->X1, b->Y2, b->X2,
+		  b->Y2);
+      break;
+    case WEST:
+      XDrawCLine (Dpy, Output.OutputWindow, Output.fgGC, b->X1, b->Y1, b->X1,
+		  b->Y2);
+      break;
+    case EAST:
+      XDrawCLine (Dpy, Output.OutputWindow, Output.fgGC, b->X2, b->Y1, b->X2,
+		  b->Y2);
+      break;
+    }
+}
+#endif
+
+#if defined(ROUTE_DEBUG)
+static void
 showroutebox (routebox_t * rb)
 {
-  showbox (rb->box, rb->flags.source ? 4 : 1,
+  showbox (rb->box, rb->flags.source ? 5 : 3,
 	   rb->flags.is_via ? MAX_LAYER + COMPONENT_LAYER : rb->group);
 }
 #endif
@@ -1653,6 +1682,7 @@ CreateExpansionArea (const BoxType * area, Cardinal group,
 		     routebox_t * parent, Boolean relax_edge_requirements,
 		     edge_t * src_edge)
 {
+  CheapPointType center;
   routebox_t *rb = (routebox_t *) calloc (1, sizeof (*rb));
   assert (area && parent);
   init_const_box (rb, area->X1, area->Y1, area->X2, area->Y2);
@@ -1668,7 +1698,11 @@ CreateExpansionArea (const BoxType * area, Cardinal group,
     RB_up_count (rb->parent.expansion_area);
   rb->flags.orphan = 1;
   rb->augStyle = AutoRouteParameters.augStyle;
-  rb->cost = src_edge->cost;
+  center.X = (area->X1 + area->X2) / 2;
+  center.Y = (area->Y1 + area->Y2) / 2;
+  rb->cost =
+    src_edge->cost_to_point + cost_to_point (&src_edge->cost_point, group,
+					     &center, group);
   InitLists (rb);
 #if defined(ROUTE_DEBUG) && defined(DEBUG_SHOW_EXPANSION_BOXES)
   showroutebox (rb);
@@ -2049,10 +2083,11 @@ BreakEdges (routedata_t * rd, vector_t * edge_vec, rtree_t * targets)
 	    CreateExpansionArea (&newbox, e->rb->group, route_parent (e->rb),
 				 True, e);
 	  ne = CreateEdge2 (nrb, e->expand_dir, e, targets, NULL);
-	  nrb->flags.source = e->rb->flags.source;
+	  if (!e->rb->flags.circular)
+	    nrb->flags.source = e->rb->flags.source;
 	  nrb->flags.nobloat = e->rb->flags.nobloat;
 	  /* adjust cost */
-	  ne->cost_to_point = nrb->flags.source ? e->cost_to_point :
+	  ne->cost_to_point = e->rb->flags.source ? e->cost_to_point :
 	    e->cost_to_point +
 	    (CONFLICT_PENALTY (nonorphan_parent (e->rb)) *
 	     (ne->cost_to_point - e->cost_to_point));
@@ -2096,10 +2131,11 @@ BreakEdges (routedata_t * rd, vector_t * edge_vec, rtree_t * targets)
 						       e->rb->group, parent,
 						       False, e);
 		ne = CreateEdge2 (nrb, e->expand_dir, e, targets, NULL);
-		nrb->flags.source = e->rb->flags.source;
+	  if (!e->rb->flags.circular)
+	    nrb->flags.source = e->rb->flags.source;
 		nrb->flags.nobloat = e->rb->flags.nobloat;
 		/* adjust cost */
-		ne->cost_to_point = nrb->flags.source ? e->cost_to_point :
+		ne->cost_to_point = e->rb->flags.source ? e->cost_to_point :
 		  e->cost_to_point +
 		  (CONFLICT_PENALTY (nonorphan_parent (e->rb)) *
 		   (ne->cost_to_point - e->cost_to_point));
@@ -2202,7 +2238,7 @@ RD_DrawVia (routedata_t * rd, Location X, Location Y,
       assert (__routebox_is_good (rb));
       /* and add it to the r-tree! */
       r_insert_entry (rd->layergrouptree[rb->group], &rb->box, 1);
-      if (Settings.liveRouting)
+      if (TEST_FLAG(LIVEROUTEFLAG, PCB))
 	{
 	  XSetLineAttributes (Dpy, Output.fgGC, TO_SCREEN (2 * radius),
 			      LineSolid, CapRound, JoinRound);
@@ -2249,7 +2285,7 @@ RD_DrawLine (routedata_t * rd,
   assert (__routebox_is_good (rb));
   /* and add it to the r-tree! */
   r_insert_entry (rd->layergrouptree[rb->group], &rb->box, 1);
-  if (Settings.liveRouting)
+  if (TEST_FLAG(LIVEROUTEFLAG, PCB))
     {
       LayerTypePtr layp = LAYER_PTR (PCB->LayerGroups.Entries[rb->group][0]);
 
@@ -2319,7 +2355,6 @@ TracePath (routedata_t * rd, routebox_t * path, routebox_t * target,
 	   routebox_t * subnet, Boolean is_bad)
 {
   Boolean last_x = False;
-  BDimension keepaway = AutoRouteParameters.augStyle->style->Keepaway;
   BDimension halfwidth =
     HALF_THICK (AutoRouteParameters.augStyle->style->Thick);
   BDimension radius =
@@ -2363,6 +2398,22 @@ TracePath (routedata_t * rd, routebox_t * path, routebox_t * target,
       else
 	nextpoint.Y = target->parent.pad->Point2.Y;
     }
+#ifdef TO_LINE
+  else if (target->type == LINE)
+    {
+      BDimension half_thick = MIN (b.X2 - b.X1, b.Y2 - b.Y1) / 2;
+      if (abs (b.X1 + half_thick - nextpoint.X) <
+	  abs (b.X2 - half_thick - nextpoint.X))
+	nextpoint.X = b.X1 + half_thick;
+      else
+	nextpoint.X = b.X2 - half_thick;
+      if (abs (b.Y1 + half_thick - nextpoint.Y) <
+	  abs (b.Y2 - half_thick - nextpoint.Y))
+	nextpoint.Y = b.Y1 + half_thick;
+      else
+	nextpoint.Y = b.Y2 - half_thick;
+    }
+#endif
 #if defined(ROUTE_DEBUG) && defined(DEBUG_SHOW_ROUTE_BOXES)
   showroutebox (path);
   printf ("TRACEPOINT start (%d, %d)\n", nextpoint.X, nextpoint.Y);
@@ -2404,6 +2455,24 @@ TracePath (routedata_t * rd, routebox_t * path, routebox_t * target,
 	      nextpoint.Y = (b.Y1 + b.Y2) / 2;
 	      nextpoint = closest_point_in_box (&nextpoint, &lastpath->box);
 	      break;
+#ifdef TO_LINE
+	    case LINE:
+	      {
+		BDimension half_thick = MIN (b.X2 - b.X1, b.Y2 - b.Y1) / 2;
+		if (abs (b.X1 + half_thick - lastpoint.X) <
+		    abs (b.X2 - half_thick - lastpoint.X))
+		  nextpoint.X = b.X1 + half_thick;
+		else
+		  nextpoint.X = b.X2 - half_thick;
+		if (abs (b.Y1 + half_thick - lastpoint.Y) <
+		    abs (b.Y2 - half_thick - lastpoint.Y))
+		  nextpoint.Y = b.Y1 + half_thick;
+		else
+		  nextpoint.Y = b.Y2 - half_thick;
+		nextpoint = closest_point_in_box (&nextpoint, &lastpath->box);
+	      }
+	      break;
+#endif
 	    default:
 	      if (abs (b.X1 - lastpoint.X) < abs (b.X2 - lastpoint.X))
 		nextpoint.X = b.X1;
@@ -2486,6 +2555,22 @@ TracePath (routedata_t * rd, routebox_t * path, routebox_t * target,
       else
 	nextpoint.Y = path->parent.pad->Point2.Y;
     }
+#ifdef TO_LINE
+  else if (path->type == LINE)
+    {
+      BDimension half_thick = MIN (b.X2 - b.X1, b.Y2 - b.Y1) / 2;
+      if (abs (b.X1 + half_thick - lastpoint.X) <
+	  abs (b.X2 - half_thick - lastpoint.X))
+	nextpoint.X = b.X1 + half_thick;
+      else
+	nextpoint.X = b.X2 - half_thick;
+      if (abs (b.Y1 + half_thick - lastpoint.Y) <
+	  abs (b.Y2 - half_thick - lastpoint.Y))
+	nextpoint.Y = b.Y1 + half_thick;
+      else
+	nextpoint.Y = b.Y2 - half_thick;
+    }
+#endif
 #if defined(ROUTE_DEBUG)
   printf ("TRACEPATH: ");
   DumpRouteBox (path);
@@ -2834,6 +2919,9 @@ RouteOne (routedata_t * rd, routebox_t * from, routebox_t * to, int max_edges)
        */
       if (seen++ > max_edges)
 	goto dontexpand;
+#if defined(ROUTE_DEBUG) && defined(DEBUG_SHOW_EXPANSION_BOXES)
+      showedge (e);
+#endif
       /* for a plane, look for quick connections with thermals or vias */
       if (e->rb->type == PLANE)
 	{
@@ -3132,30 +3220,38 @@ RouteOne (routedata_t * rd, routebox_t * from, routebox_t * to, int max_edges)
 	    }
 	  if (next->type == EXPANSION_AREA)
 	    {
-            /* don't expand this edge, but check if we found a cheaper way here */
-            /*XXX prevent loops */
-	      if (next->cost > e->cost)
-		{
-		  routebox_t *rb;
-		  for (rb = top_parent; !rb->flags.source;
-		       rb = rb->parent.expansion_area)
-		    if (rb == next)
-		      break;
-		  /* if this route is cheaper, replace the blocker's parent */
-		  if (rb != next)
-		    {
-		      for (rb = next; !rb->flags.source;
-		       rb = rb->parent.expansion_area)
-		    if (rb == top_parent)
-		      break;
-		    if (rb != top_parent) {
-		      next->parent.expansion_area = top_parent;
-		      next->cost = e->cost;
-		      if (top_parent->flags.orphan)
-		        RB_up_count (top_parent);
+	      CheapPointType center;
+	      cost_t cost;
+	      center.X = (next->box.X1 + next->box.X2) / 2;
+	      center.Y = (next->box.Y1 + next->box.Y2) / 2;
+	      cost =
+		cost_to_point (&e->cost_point, next->group, &center,
+			       next->group);
+	      /* don't expand this edge, but check if we found a cheaper way here */
+	      /*XXX prevent loops */
+	      if (next->cost >= e->cost_to_point + cost);
+	      {
+		routebox_t *rb;
+		for (rb = top_parent; !rb->flags.source;
+		     rb = rb->parent.expansion_area)
+		  if (rb == next)
+		    break;
+		/* if this route is cheaper, replace the blocker's parent */
+		if (rb != next)
+		  {
+		    for (rb = next; !rb->flags.source;
+			 rb = rb->parent.expansion_area)
+		      if (rb == top_parent)
+			break;
+		    if (rb != top_parent)
+		      {
+			next->parent.expansion_area = top_parent;
+			next->cost = e->cost_to_point + cost;
+			if (top_parent->flags.orphan)
+			  RB_up_count (top_parent);
 		      }
-		    }
-		}
+		  }
+	      }
 	    }
 	  else if (!next->flags.target && !next->flags.fixed
 		   && AutoRouteParameters.with_conflicts)
@@ -3344,7 +3440,7 @@ RouteAll (routedata_t * rd)
 		    mtspace_remove (rd->mtspace, &p->box,
 				    p->flags.is_odd ? ODD : EVEN,
 				    p->augStyle->style->Keepaway);
-		  if (Settings.liveRouting
+		  if (TEST_FLAG(LIVEROUTEFLAG, PCB)
 		      && (p->type == LINE || p->type == VIA))
 		    EraseRouteBox (p);
 		  r_delete_entry (rd->layergrouptree[p->group], &p->box);
@@ -3742,7 +3838,11 @@ AutoRoute (Boolean selected)
 	  b =
 	    FindRouteBoxOnLayerGroup (rd, line->Point2.X,
 				      line->Point2.Y, line->group2);
-	  assert (a != NULL && b != NULL);
+	  if (!a || !b)
+	    {
+	      Message ("The rats nest is stale! Aborting autoroute...\n");
+	      goto donerouting;
+	    }
 	  /* merge subnets into a net! */
 	  MergeNets (a, b, NET);
 	}
