@@ -857,6 +857,9 @@ Optional Packages:
   --without-PACKAGE       do not use PACKAGE (same as --with-PACKAGE=no)
   --with-x                use the X Window System
   --without-libstroke     disable libstroke support (default: enabled)
+  --with-xaw=Xaw         Use the specified Athena Widgets type.
+                          For example, Xaw, or Xaw3d.
+                          default = Xaw
   --with-x-funcproto=DEFS Xfuncproto control definitions are DEFS
                           (e.g.: --with-x-funcproto='FUNCPROTO=15 NARROWPROTO'
 
@@ -5374,13 +5377,32 @@ _ACEOF
 fi
 
 
-echo "$as_me:$LINENO: checking for XawInitializeWidgetSet in -lXaw" >&5
-echo $ECHO_N "checking for XawInitializeWidgetSet in -lXaw... $ECHO_C" >&6
-if test "${ac_cv_lib_Xaw_XawInitializeWidgetSet+set}" = set; then
+
+# Check whether --with-xaw or --without-xaw was given.
+if test "${with_xaw+set}" = set; then
+  withval="$with_xaw"
+
+if test "X$with_xaw" = "Xno" ; then
+	{ { echo "$as_me:$LINENO: error: --without-xaw is not allowed" >&5
+echo "$as_me: error: --without-xaw is not allowed" >&2;}
+   { (exit 1); exit 1; }; }
+fi
+
+else
+
+with_xaw=Xaw
+
+fi;
+
+
+as_ac_Lib=`echo "ac_cv_lib_$with_xaw''_XawInitializeWidgetSet" | $as_tr_sh`
+echo "$as_me:$LINENO: checking for XawInitializeWidgetSet in -l$with_xaw" >&5
+echo $ECHO_N "checking for XawInitializeWidgetSet in -l$with_xaw... $ECHO_C" >&6
+if eval "test \"\${$as_ac_Lib+set}\" = set"; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
 else
   ac_check_lib_save_LIBS=$LIBS
-LIBS="-lXaw $X_LIBS $LIBS"
+LIBS="-l$with_xaw $X_LIBS $LIBS"
 cat >conftest.$ac_ext <<_ACEOF
 #line $LINENO "configure"
 /* confdefs.h.  */
@@ -5416,24 +5438,24 @@ if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
   ac_status=$?
   echo "$as_me:$LINENO: \$? = $ac_status" >&5
   (exit $ac_status); }; }; then
-  ac_cv_lib_Xaw_XawInitializeWidgetSet=yes
+  eval "$as_ac_Lib=yes"
 else
   echo "$as_me: failed program was:" >&5
 sed 's/^/| /' conftest.$ac_ext >&5
 
-ac_cv_lib_Xaw_XawInitializeWidgetSet=no
+eval "$as_ac_Lib=no"
 fi
 rm -f conftest.$ac_objext conftest$ac_exeext conftest.$ac_ext
 LIBS=$ac_check_lib_save_LIBS
 fi
-echo "$as_me:$LINENO: result: $ac_cv_lib_Xaw_XawInitializeWidgetSet" >&5
-echo "${ECHO_T}$ac_cv_lib_Xaw_XawInitializeWidgetSet" >&6
-if test $ac_cv_lib_Xaw_XawInitializeWidgetSet = yes; then
+echo "$as_me:$LINENO: result: `eval echo '${'$as_ac_Lib'}'`" >&5
+echo "${ECHO_T}`eval echo '${'$as_ac_Lib'}'`" >&6
+if test `eval echo '${'$as_ac_Lib'}'` = yes; then
   cat >>confdefs.h <<_ACEOF
-#define HAVE_LIBXAW 1
+#define `echo "HAVE_LIB$with_xaw" | $as_tr_cpp` 1
 _ACEOF
 
-  LIBS="-lXaw $LIBS"
+  LIBS="-l$with_xaw $LIBS"
 
 fi
 
