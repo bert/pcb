@@ -43,6 +43,8 @@
 
 #define dprintf if(0)printf
 
+#define SB (Settings.Bloat+1)
+
 /* must be 2^N-1 */
 #define INC 7
 
@@ -1194,10 +1196,10 @@ orthopull_1(corner_s *c, int fdir, int rdir, int any_sel)
       rr.x2 = c->x + r1 + max;
       break;
     }
-  rr.x1 -= Settings.Bloat;
-  rr.x2 += Settings.Bloat;
-  rr.y1 -= Settings.Bloat;
-  rr.y2 += Settings.Bloat;
+  rr.x1 -= SB + 1;
+  rr.x2 += SB + 1;
+  rr.y1 -= SB + 1;
+  rr.y2 += SB + 1;
 
   snap = 0;
   for (cb=corners; cb; cb=cb->next)
@@ -1218,13 +1220,13 @@ orthopull_1(corner_s *c, int fdir, int rdir, int any_sel)
 	      if (!intersecting_layers(cs[i]->layer, cb->layer)) \
 		continue; \
 	      r2 = corner_radius(cs[i]); \
-	      if (cb->X + r1 <= cs[i]->X - r2 - Settings.Bloat - 1) \
+	      if (cb->X + r1 <= cs[i]->X - r2 - SB - 1) \
 		continue; \
-	      if (cb->X - r1 >= cs[i]->X + r2 + Settings.Bloat + 1) \
+	      if (cb->X - r1 >= cs[i]->X + r2 + SB + 1) \
 		continue; \
 	      if (cb->Y LT cs[i]->Y) \
 		continue; \
-	      sep = abs(cb->Y - cs[i]->Y) - r1 - r2 - Settings.Bloat - 1; \
+	      sep = abs(cb->Y - cs[i]->Y) - r1 - r2 - SB - 1; \
 	      if (max > sep) \
 		{ max = sep; snap = 1; }\
 	    } \
@@ -1235,7 +1237,7 @@ orthopull_1(corner_s *c, int fdir, int rdir, int any_sel)
 	      if (cb->X <= cs[i]->X || cb->X >= cs[i+1]->X) \
 		continue; \
 	      sep = (abs(cb->Y - cs[i]->Y) - ls[i]->line->Thickness/2 \
-		     - r1 - Settings.Bloat - 1); \
+		     - r1 - SB - 1); \
 	      if (max > sep) \
 		{ max = sep; snap = 1; }\
 	    }
@@ -1323,7 +1325,7 @@ orthopull_1(corner_s *c, int fdir, int rdir, int any_sel)
       /* Ok, now see how far we can get for each of our corners. */
       for (i=0; i<cn; i++)
 	{
-	  int r = l->line->Thickness + Settings.Bloat + corner_radius(cs[i]) + 1;
+	  int r = l->line->Thickness + SB + corner_radius(cs[i]) + 1;
 	  int len;
 	  if ((fdir == RIGHT && (x2 < cs[i]->x || x1 > cs[i]->x))
 	      || (fdir == DOWN && (y2 < cs[i]->y || y1 > cs[i]->y)))
@@ -1370,7 +1372,7 @@ orthopull_1(corner_s *c, int fdir, int rdir, int any_sel)
 	      }
 	    len -= corner_radius(l->s);
 	    len -= corner_radius(l->e);
-	    len -= Settings.Bloat + 1;
+	    len -= SB + 1;
 	    if (max > len)
 	      {
 		max = len;
@@ -1497,7 +1499,7 @@ debumpify()
 	continue;
 
       dprintf("\nline: %d,%d to %d,%d\n", l->s->x, l->s->y, l->e->x, l->e->y);
-      w = l->line->Thickness/2 + Settings.Bloat + 1;
+      w = l->line->Thickness/2 + SB + 1;
       empty_rect(&rr);
       add_line_to_rect(&rr, l1);
       add_line_to_rect(&rr, l2);
@@ -1669,7 +1671,7 @@ unjaggy_once()
 	continue;
       dprintf("orient ok\n");
 
-      w = c->lines[0]->line->Thickness/2 + Settings.Bloat + 1;
+      w = c->lines[0]->line->Thickness/2 + SB + 1;
       empty_rect(&rr);
       add_line_to_rect(&rr, c->lines[0]);
       add_line_to_rect(&rr, c->lines[1]);
@@ -1800,7 +1802,7 @@ vianudge()
 	continue;
 
       /* Now look for clearance in the new position */
-      vr = c->via->Thickness / 2 + Settings.Bloat + 1;
+      vr = c->via->Thickness / 2 + SB + 1;
       for (c3=corners; c3; c3=c3->next)
 	{
 	  if (DELETED(c3))
@@ -2033,7 +2035,7 @@ miter()
 	      ref = c->x * mx + c->y * my;
 	      dist = max;
 
-	      bloat = (c->lines[0]->line->Thickness / 2 + Settings.Bloat + 1) * 3/2;
+	      bloat = (c->lines[0]->line->Thickness / 2 + SB + 1) * 3/2;
 
 	      for (c2=corners; c2; c2=c2->next)
 		{
@@ -2428,6 +2430,16 @@ pinsnap()
     }
 }
 
+static int
+pad_orient (PadType *p)
+{
+  if (p->Point1.X == p->Point2.X)
+    return O_VERT;
+  if (p->Point1.Y == p->Point2.Y)
+    return O_HORIZ;
+  return DIAGONAL;
+}
+
 static void
 padcleaner()
 {
@@ -2454,10 +2466,11 @@ padcleaner()
 
 	      empty_rect (&r);
 	      close = p->Thickness / 2 + 1;
-	      add_point_to_rect (&r, p->Point1.X, p->Point1.Y, close);
-	      add_point_to_rect (&r, p->Point2.X, p->Point2.Y, close);
+	      add_point_to_rect (&r, p->Point1.X, p->Point1.Y, close - SB/2);
+	      add_point_to_rect (&r, p->Point2.X, p->Point2.Y, close - SB/2);
 	      if (pin_in_rect (&r, l->s->x, l->s->y, 0)
-		  && pin_in_rect (&r, l->e->x, l->e->y, 0))
+		  && pin_in_rect (&r, l->e->x, l->e->y, 0)
+		  && ORIENT(line_orient (l, 0)) == pad_orient (p))
 		{
 		  dprintf("padcleaner %d,%d-%d,%d %d vs line %d,%d-%d,%d %d\n",
 			 p->Point1.X, p->Point1.Y, p->Point2.X, p->Point2.Y, p->Thickness,
