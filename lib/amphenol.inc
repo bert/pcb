@@ -61,7 +61,7 @@ Element(0x00 "$1" "$2" "$3" eval(XMIN+20) eval(YMAX+20) 0 100 0x00)
 # XXX once we get some sort of annotation layer in PCB, the right
 # angle connectors should have an annotation showing where the connector
 # really goes to.  Same for a keep out layer.
-define(`PKG_AMPHENOL_ARFX1230',`PKG_AMPHENOL_ARFX1229')
-define(`PKG_AMPHENOL_ARFX1231',`PKG_AMPHENOL_ARFX1229')
-define(`PKG_AMPHENOL_ARFX1232',`PKG_AMPHENOL_ARFX1229')
+define(`PKG_AMPHENOL_ARFX1230',`PKG_AMPHENOL_ARFX1229(`$1', `$2', `$3')')
+define(`PKG_AMPHENOL_ARFX1231',`PKG_AMPHENOL_ARFX1229(`$1', `$2', `$3')')
+define(`PKG_AMPHENOL_ARFX1232',`PKG_AMPHENOL_ARFX1229(`$1', `$2', `$3')')
 
