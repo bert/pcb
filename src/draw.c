@@ -333,7 +333,7 @@ LoadBackgroundFile (FILE *f, char *filename)
 	 vinfo->depth, vinfo->class);
 #endif
 
-  if (vinfo->class = TrueColor
+  if (vinfo->class == TrueColor
       && vinfo->depth == 16
       && vinfo->red_mask == 0xf800
       && vinfo->green_mask == 0x07e0
