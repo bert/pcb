@@ -5020,10 +5020,10 @@ any deleted components.
 After the layout is complete, choose "edit layer-groupings" from the
 "Settings" menu.  The LayerGroups form lets you specify which layers
 will appear in each output layer group.  For example, in the default
-form, layer group 1 has "component" and "component side" in it.  The
-output file @file{1.grb} if DOS file names are used, or
-@file{somename_group1.grb} if long file names are used will contain the
-"component" and "component side" layers in it.  Usually the defaults are
+form, layer group 1 has "front" and "front side" in it.  The
+output file @file{1.gbr} if DOS file names are used, or
+@file{somename_front.gbr} if long file names are used will contain the
+"front" and "front side" layers in it.  Usually the defaults are
 sufficient, but this form is still a useful reference.
 
 Choose "print layout..." from the "File" menu.  In the print dialog box,
@@ -5035,23 +5035,28 @@ otherwise enter "preamp" for the filename.  Press "OK".
 The following output files should have been created in the project directory.
 The names in parentheses correspond to the DOS compatible output file names.
 @table @file
-@item preamp_componentsilk.grb (csilk.grb)
+@item preamp_frontsilk.gbr (csilk.gbr)
 Top side silk screen.
-@item preamp_componentmask.grb (cmask.grb)
+@item preamp_frontmask.gbr (cmask.gbr)
 Top side soldermask relief.
-@item preamp_group1.grb (1.grb)
+@item preamp_front.gbr (1.gbr)
 Top copper.
-@item preamp_soldermask.grb (smask.grb)
+@item preamp_backmask.gbr (smask.gbr)
 Bottom side soldermask relief.
-@item preamp_group2.grb (2.grb)
+@item preamp_back.gbr (2.gbr)
 Bottom Copper.
-@item preamp_fab.grb (fab.grb)
+@item preamp_fab.gbr (fab.gbr)
 Fabrication drawing.  Also known as the drill drawing.  This drawing is
 used for reference by the board vendor but is not directly used in the
 fabrication process.
-@item preamp_plated-drill.grb (pdrill.grb)
-The extension @file{.grb} is a bit misleading as this file is actually
-the Numeric Control Drill (NCD) file and not a RS-274X format file. 
+@item preamp_plated-drill.cnc (pdrill.cnc)
+NC Drill format file for the plated through holes.
+@item preamp_unplated-drill.cnc (udrill.cnc)
+NC Drill format file for the unplated through holes.
+@item preamp_bom.txt (bom.txt)
+A bill of materials for the layout.
+@item preamp_xy.txt (xy.txt)
+Centroid (X-Y) data for driving automated assembly equipment.
 @end table
 
 @comment to include an image:
