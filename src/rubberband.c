@@ -85,6 +85,9 @@ rubber_callback (const BoxType * b, void *cl)
   LineTypePtr line = (LineTypePtr) b;
   struct rubber_info *i = (struct rubber_info *) cl;
   float x, y;
+  BDimension t;
+
+  t = line->Thickness / 2;
 
   if (TEST_FLAG (LOCKFLAG, line))
     return 0;
@@ -92,7 +95,6 @@ rubber_callback (const BoxType * b, void *cl)
     return 0;
   if (i->radius == 0)		/* rectangular search region */
     {
-      BDimension t = line->Thickness / 2;
       if (line->Point1.X + t >= i->box.X1 && line->Point1.X - t <= i->box.X2
 	  && line->Point1.Y + t >= i->box.Y1
 	  && line->Point1.Y - t <= i->box.Y2)
@@ -114,8 +116,8 @@ rubber_callback (const BoxType * b, void *cl)
   x *= x;
   y = (i->Y - line->Point1.Y);
   y *= y;
-  x = x + y - (line->Thickness * line->Thickness);
-  if (x < (i->radius * (i->radius + 2 * line->Thickness)))
+  x = x + y - (t * t);
+  if (x < (i->radius * (i->radius + 2 * t)))
     {
       CreateNewRubberbandEntry (i->layer, line, &line->Point1);
       return 1;
@@ -124,8 +126,8 @@ rubber_callback (const BoxType * b, void *cl)
   x *= x;
   y = (i->Y - line->Point2.Y);
   y *= y;
-  x = x + y - (line->Thickness * line->Thickness);
-  if (x < (i->radius * (i->radius + 2 * line->Thickness)))
+  x = x + y - (t * t);
+  if (x < (i->radius * (i->radius + 2 * t)))
     {
       CreateNewRubberbandEntry (i->layer, line, &line->Point2);
       return 1;
@@ -315,7 +317,7 @@ CheckLinePointForRubberbandConnection (LayerTypePtr Layer,
   BDimension t = Line->Thickness / 2;
 
   /* lookup layergroup and check all visible lines in this group */
-  info.radius = Line->Thickness;
+  info.radius = Line->Thickness / 2;
   info.box.X1 = LinePoint->X - t;
   info.box.X2 = LinePoint->X + t;;
   info.box.Y1 = LinePoint->Y - t;
