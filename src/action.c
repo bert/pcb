@@ -1795,14 +1795,19 @@ ActionAtomic (Widget W, XEvent * Event, String * Params, Cardinal * Num)
 void
 ActionDRCheck (Widget W, XEvent * Event, String * Params, Cardinal * Num)
 {
+  Cardinal count;
+
   if (*Num == 0)
     {
       Message ("Rules are bloat %d, shrink %d\n", Settings.Bloat,
 	       Settings.Shrink);
       HideCrosshair (True);
       watchCursor ();
-      if (!DRCAll ())
+      count = DRCAll ();
+      if (count == 0)
 	Message ("No DRC problems found.\n");
+      else
+        Message ("found %d design rule errors\n", count);
       restoreCursor ();
       RestoreCrosshair (True);
     }

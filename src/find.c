@@ -276,6 +276,7 @@ static int TheFlag = FOUNDFLAG;
 static int OldFlag = FOUNDFLAG;
 static Boolean User = False;	/* user action causing this */
 static Boolean drc = False;	/* whether to stop if finding something not found */
+static Cardinal drcerr_count;    /* count of drc errors */
 static LineTypePtr *LineSortedByLowX[MAX_LAYER],	/* sorted array of */
  *LineSortedByHighX[MAX_LAYER];	/* line pointers */
 static ArcTypePtr *ArcSortedByLowX[MAX_LAYER],	/* sorted array of */
@@ -3891,7 +3892,12 @@ DRCFind (int What, void *ptr1, void *ptr2, void *ptr3)
       DumpList ();
       User = False;
       drc = False;
-      return (True);
+      drcerr_count++;
+      GotoError();
+      if (ConfirmDialog ("Stop here? (Cancel to continue checking)"))
+        return (True);
+      IncrementUndoSerialNumber ();
+      Undo(True);
     }
   DumpList ();
   /* now check the bloated condition */
@@ -3926,7 +3932,12 @@ DRCFind (int What, void *ptr1, void *ptr2, void *ptr3)
       DumpList ();
       User = False;
       drc = False;
-      return (True);
+      drcerr_count++;
+      GotoError();
+      if (ConfirmDialog ("Stop here? (Cancel to continue checking)"))
+        return (True);
+      IncrementUndoSerialNumber();
+      Undo(True);
     }
   drc = False;
   DumpList ();
@@ -3958,10 +3969,12 @@ RestoreFindFlag (void)
  * Check for DRC violations
  * see if the connectivity changes when everything is bloated, or shrunk
  */
-Boolean
+Cardinal
 DRCAll (void)
 {
   Boolean IsBad = False;
+
+  drcerr_count = 0;
 
   InitConnectionLookup ();
 
@@ -4021,9 +4034,8 @@ DRCAll (void)
   if (IsBad)
     {
       IncrementUndoSerialNumber ();
-      GotoError ();
     }
-  return (IsBad);
+  return (drcerr_count);
 }
 
 /*----------------------------------------------------------------------------
