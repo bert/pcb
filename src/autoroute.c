@@ -47,6 +47,8 @@
  *--------------------------------------------------------------------
  */
 
+#define NET_HEAP
+
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -83,13 +85,11 @@
 
 /* #defines to enable some debugging output */
 #define ROUTE_VERBOSE
-
 /*
 #define ROUTE_DEBUG
 #define DEBUG_SHOW_ROUTE_BOXES
 #define DEBUG_SHOW_VIA_BOXES
 */
-
 
 /* round up "half" thicknesses */
 #define HALF_THICK(x) (((x)+1)/2)
@@ -1481,7 +1481,8 @@ limit_region (BoxType region, edge_t * e, BoxType lbox)
   assert (lbox.X1 <= region.X2);
   assert (lbox.X2 >= region.X1);
   region.Y1 = lbox.Y2;
-  assert (region.Y1 <= region.Y2);
+  /* this can fail if starting copper violates spacing rule */
+/*  assert (region.Y1 <= region.Y2); */
   /* now rotate back */
   ROTATEBOX_FROM_NORTH (region, e->expand_dir);
   return region;
@@ -2112,15 +2113,22 @@ RD_DrawManhattanLine (routedata_t * rd,
 		      BDimension halfthick, Cardinal group,
 		      routebox_t * subnet, Boolean is_bad)
 {
+  static Boolean last_was_x = False;
   CheapPointType knee = start;
   /* don't draw zero-length segments; start and knee should box be in bbox */
   if (point_in_box (bbox, end.X, start.Y))
     knee.X = end.X;
-  else
+  else 
     knee.Y = end.Y;
+  if (knee.X == end.X && last_was_x && point_in_box (bbox, start.X, end.Y))
+    {
+      knee.X = start.X;
+      knee.Y = end.Y;
+    }
   assert (point_in_box (bbox, knee.X, knee.Y));
+  last_was_x = (knee.X == end.X);
 
-  if (1 || !AutoRouteParameters.is_smoothing)
+  if (1 && !AutoRouteParameters.is_smoothing)
     {
       /* draw standard manhattan paths */
       RD_DrawLine (rd, start.X, start.Y, knee.X, knee.Y, halfthick, group,
@@ -2238,7 +2246,7 @@ TracePath (routedata_t * rd, routebox_t * path, routebox_t * target,
       /* if this is a smoothing pass, attempt to place the trace in
        * the center of the box */
       /* DISABLED because the results don't look like anything we'd want. */
-      if (AutoRouteParameters.is_smoothing)
+      if (!path->flags.source && AutoRouteParameters.is_smoothing)
 	{
 	  /* now that we're in path box, overshoot 2*HALF_THICK+keepaway to
 	   * allow another trace in here. */
@@ -2278,6 +2286,13 @@ TracePath (routedata_t * rd, routebox_t * path, routebox_t * target,
 	  else
 	    RD_DrawManhattanLine (rd, &path->box, lastpoint, nextpoint,
 				  halfwidth, path->group, subnet, is_bad);
+#if defined(ROUTE_DEBUG)
+      printf ("TRACEPATH: ");
+      DumpRouteBox (path);
+      printf ("TRACEPATH: (smoothing) point (%d, %d) to point (%d, %d) layer %d\n",
+	      lastpoint.X, lastpoint.Y, nextpoint.X, nextpoint.Y,
+	      path->group);
+#endif
 	}
       if (path->flags.is_via)
 	{			/* if via, then add via */
@@ -2324,8 +2339,12 @@ TracePath (routedata_t * rd, routebox_t * path, routebox_t * target,
       else
 	nextpoint.Y = path->parent.pad->Point2.Y;
     }
-#if 0
-  printf ("TRACEPATH end (%d, %d)\n", nextpoint.X, nextpoint.Y);
+#if defined(ROUTE_DEBUG)
+      printf ("TRACEPATH: ");
+      DumpRouteBox (path);
+      printf ("TRACEPATH: point (%d, %d) to last point (%d, %d) layer %d\n",
+	      lastpoint.X, lastpoint.Y, nextpoint.X, nextpoint.Y,
+	      path->group);
 #endif
   RD_DrawManhattanLine (rd, &lastpath->box,
 			lastpoint, nextpoint, halfwidth,
@@ -2500,7 +2519,8 @@ RouteOne (routedata_t * rd, routebox_t * from, routebox_t * to)
 	}
     }
   else
-    {				/* all nodes on the net but not connected to from are targets */
+    {	
+      /* all nodes on the net but not connected to from are targets */
       LIST_LOOP (from, same_net, p);
       if (!p->flags.source)
 	p->flags.target = 1;
@@ -2550,25 +2570,26 @@ RouteOne (routedata_t * rd, routebox_t * from, routebox_t * to)
   assert (i <= num_targets);
   free (target_list);
 
-  /* add all sources to a vector */
+  /* add all sources to a vector (since we need to BreakEdges) */
   source_vec = vector_create ();
   LIST_LOOP (from, same_subnet, p);
   if (p->flags.source && is_layer_group_active (p->group))
     {
       /* we need the test for 'source' because this box may be nonstraight */
       /* may expand in all directions from source; arbitrary cost point. */
+
       vector_append (source_vec,
-		     CreateEdge (p, p->box.X1, p->box.Y1, 0, NULL,
-				 NORTH, targets));
+		     CreateEdge (p, (p->box.X1 + p->box.X2) / 2, p->box.Y1, 0,
+				 NULL, NORTH, targets));
       vector_append (source_vec,
-		     CreateEdge (p, p->box.X2, p->box.Y1, 0, NULL,
-				 EAST, targets));
+		     CreateEdge (p, p->box.X2, (p->box.Y1 + p->box.Y2) / 2, 0,
+				 NULL, EAST, targets));
       vector_append (source_vec,
-		     CreateEdge (p, p->box.X2, p->box.Y2, 0, NULL,
-				 SOUTH, targets));
+		     CreateEdge (p, (p->box.X1 + p->box.X2) / 2, p->box.Y2, 0,
+				 NULL, SOUTH, targets));
       vector_append (source_vec,
-		     CreateEdge (p, p->box.X1, p->box.Y2, 0, NULL,
-				 WEST, targets));
+		     CreateEdge (p, p->box.X1, (p->box.Y1 + p->box.Y2) / 2, 0,
+				 NULL, WEST, targets));
     }
   END_LOOP;
   /* break source edges; some edges may be too near obstacles to be able
@@ -2776,6 +2797,9 @@ RouteOne (routedata_t * rd, routebox_t * from, routebox_t * to)
 	  if (next)
 	    expand_region =
 	      limit_region (expand_region, e, bloat_routebox (next));
+	  if (expand_region.X1 > expand_region.X2 ||
+	      expand_region.Y1 > expand_region.Y2)
+	    goto dontexpand;	/* existing copper violates spacing rule */
 
 	  if (edge_length (&expand_region, (e->expand_dir + 1) % 4) > 0)
 	    {
@@ -2990,17 +3014,37 @@ RouteAll (routedata_t * rd)
 {
   struct routeall_status ras;
   struct routeone_status ros;
+#ifdef NET_HEAP
+  heap_t *net_heap;
+#endif
   heap_t *this_pass, *next_pass, *tmp;
   routebox_t *net, *p, *pp;
   cost_t total_net_cost;
   int i, limit = 6;
 
-  /* initialize heap for first pass; all nets are same length 'cuz we
-   * don't know any better. */
+  /* initialize heap for first pass; 
+   * do smallest area first; that makes
+   * the subsequent costs more representative */
   this_pass = heap_create ();
   next_pass = heap_create ();
+#ifdef NET_HEAP
+  net_heap = heap_create ();
+#endif
   LIST_LOOP (rd->first_net, different_net, net);
-  heap_insert (this_pass, 0, net);
+  {
+    float area;
+    BoxType bb = net->box;
+    LIST_LOOP (net, same_net, p);
+    {
+      MAKEMIN (bb.X1, p->box.X1);
+      MAKEMIN (bb.Y1, p->box.Y1);
+      MAKEMAX (bb.X2, p->box.X2);
+      MAKEMAX (bb.Y2, p->box.Y2);
+    }
+    END_LOOP;
+    area = (float) (bb.X2 - bb.X1) * (bb.Y2 - bb.Y1);
+    heap_insert (this_pass, area, net);
+  }
   END_LOOP;
 
   /* refinement/finishing passes */
@@ -3046,41 +3090,60 @@ RouteAll (routedata_t * rd)
 	  ras.total_subnets--;
 	  /* and re-route! */
 	  total_net_cost = 0;
-	  /* the LIST_LOOP here ensures that we get to all subnets even if
-	   * some of them are unreachable from the first subnet */
+	  /* the loop here ensures that we get to all subnets even if
+	   * some of them are unreachable from the first subnet. */
 	  LIST_LOOP (net, same_net, p);
-	  if (p->flags.fixed && !p->flags.subnet_processed)
-	    {
-	      do
-		{
-		  ros = RouteOne (rd, p, NULL);
-		  if (ros.found_route)
-		    {
-		      total_net_cost += ros.best_route_cost;
-		      if (ros.route_had_conflicts)
-			ras.conflict_subnets++;
-		      else
-			ras.routed_subnets++;
-		    }
-		  else
-		    {
-		      /* don't bother trying any other source in this subnet */
-		      LIST_LOOP (p, same_subnet, pp);
-		      pp->flags.subnet_processed = 1;
-		      END_LOOP;
-		    }
-		  /* note that we can infer nothing about ras.total_subnets based
-		   * on the number of calls to RouteOne, because we may be unable
-		   * to route a net from a particular starting point, but perfectly
-		   * able to route it from some other. */
-		}
-	      while (ros.found_route && !ros.net_completely_routed);
-	    }
+	  {
+#ifdef NET_HEAP
+		/* using the heap allows us to start from smaller objects and
+		 * end at bigger ones. */
+	    if (p->flags.fixed)
+	      heap_insert (net_heap, (float) (p->box.X2 - p->box.X1) *
+			   (p->box.Y2 - p->box.Y1), p);
+	  }
 	  END_LOOP;
+	  while (!heap_is_empty (net_heap))
+	    {
+	      p = (routebox_t *) heap_remove_smallest (net_heap);
+#endif
+	      if (p->flags.fixed && !p->flags.subnet_processed)
+		{
+		  do
+		    {
+		      ros = RouteOne (rd, p, NULL);
+		      if (ros.found_route)
+			{
+			  total_net_cost += ros.best_route_cost;
+			  if (ros.route_had_conflicts)
+			    ras.conflict_subnets++;
+			  else
+			    ras.routed_subnets++;
+			}
+		      else
+			{
+			  /* don't bother trying any other source in this subnet */
+			  LIST_LOOP (p, same_subnet, pp);
+			  pp->flags.subnet_processed = 1;
+			  END_LOOP;
+			}
+		      /* note that we can infer nothing about ras.total_subnets based
+		       * on the number of calls to RouteOne, because we may be unable
+		       * to route a net from a particular starting point, but perfectly
+		       * able to route it from some other. */
+		    }
+		  while (ros.found_route && !ros.net_completely_routed);
+		}
+	    }
+#ifndef NET_HEAP
+	  END_LOOP;
+#endif
+	   /* route costliest nets first on even passes */
 	  heap_insert (next_pass, -total_net_cost, net);
 	  /* reset subnet_processed flags */
 	  LIST_LOOP (net, same_net, p);
-	  p->flags.subnet_processed = 0;
+	  {
+	    p->flags.subnet_processed = 0;
+	  }
 	  END_LOOP;
 	}
       /* swap this_pass and next_pass and do it all over again! */
@@ -3100,6 +3163,9 @@ RouteAll (routedata_t * rd)
 
   heap_destroy (&this_pass);
   heap_destroy (&next_pass);
+#ifdef NET_HEAP
+  heap_destroy (&net_heap);
+#endif
 
   /* no conflicts should be left at the end of the process. */
   assert (ras.conflict_subnets == 0);
