@@ -651,6 +651,7 @@ if that works, then @code{Pcb} hasn't been installed properly.
 * Arrow Tool::             Selecting/Moving objects.
 * Rats Nest::		   Helps you place and route tracks against a netlist.
 * Design Rule Checking::   Check for manufactureability
+* Trace Optimizer::        Optimization of layouts
 * Connection Lists::       How to get a list of all or some connections.
 @end menu
 
@@ -1998,7 +1999,7 @@ out a sub-section of the board before going further. This is easy to accomplish 
 new rat-lines are never added where routed connectivity already makes the necessary
 connections.
 
-@node Design Rule Checking, , Rats Nest, Getting Started 
+@node Design Rule Checking, Trace Optimizer, Rats Nest, Getting Started 
 @cindex design rule checking 
 @cindex drc
 @cindex spacing, minimum
@@ -2036,6 +2037,52 @@ If you want to turn off the highlighting produced by the DRC, perform an
 undo (assuming no other changes have been made).  To restore the highlighting,
 use redo.  The redo will restore the highlighting quickly without re-running
 the DRC checker.
+
+@node Trace Optimizer, , Design Rule Checking, Getting Started 
+@cindex trace optimizer
+@cindex optimizer
+@section Trace Optimizer
+PCB includes a flexible trace optimizer.  The trace optimizer can be run
+after auto routing or hand routing to clean up the traces.
+
+@table @b
+@item Auto-Optimize
+Performs debumpify, unjaggy, orthopull, vianudge, and viatrim, in that
+order, repeating until no further optimizations are performed.
+
+@item Debumpify
+Looks for U shaped traces that can be shortened or eliminated.
+
+@item Unjaggy
+Looks for corners which could be flipped to eliminate one or more
+corners (i.e. jaggy lines become simpler).
+
+@item Vianudge
+Looks for vias where all traces leave in the same direction. Tries to
+move via in that direction to eliminate one of the traces (and thus a
+corner).
+
+@item Viatrim
+Looks for traces that go from via to via, where moving that trace to a
+different layer eliminates one or both vias.
+
+@item Orthopull
+Looks for chains of traces all going in one direction, with more traces
+orthagonal on one side than on the other. Moves the chain in that
+direction, causing a net reduction in trace length, possibly eliminating
+traces and/or corners.
+
+@item SimpleOpts
+Removing uneeded vias, replacing two or more trace segments in a row
+with a single segment. This is usually performed automatically after
+other optimizations.
+
+@item Miter
+Replaces 90 degree corners with a pair of 45 degree corners, to reduce
+RF losses and trace length.
+
+@end table
+
 
 @c --------------------------- chapter 3 -------------------------------
 @node User Commands, Command-Line Options, Getting Started, Top
