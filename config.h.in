@@ -9,6 +9,9 @@
 /* m4 program used by pcb */
 #undef GNUM4
 
+/* Define to 1 if you have the `expf' function. */
+#undef HAVE_EXPF
+
 /* Define to 1 if you have the <inttypes.h> header file. */
 #undef HAVE_INTTYPES_H
 
@@ -47,6 +50,9 @@
 
 /* Define to 1 if you have the `Xt' library (-lXt). */
 #undef HAVE_LIBXT
+
+/* Define to 1 if you have the `logf' function. */
+#undef HAVE_LOGF
 
 /* Define to 1 if you have the <memory.h> header file. */
 #undef HAVE_MEMORY_H
