@@ -175,6 +175,7 @@ AC_OUTPUT(
 	README_FILES/Makefile
 	doc/Makefile
 	example/Makefile
+	example/libraries/Makefile
 	lib/CreateLibraryContents.sh
 	lib/CreateLibrary.sh
 	lib/Makefile
