@@ -4882,10 +4882,18 @@ for the part.
 typically the common centroid.  Keeping the pointer there, right-click
 to bring up the popup menu and choose "convert
 selection to element".
-@item Still keeping the pointer above the selected element, right-click
-to bring up the popup menu back up and choose ``Copy Selection to Buffer''.
+@item At this point, the vias, line segments, and silk screen will have
+been converted to an element.  To change any of the line segments to
+have square ends rather than round ends, select the pads by holding
+down the shift key and clicking each pad with the center mouse button.
+Now under the Select menu, "Change square-flag of selected objects"
+section, choose "Pins".
+@item Select the element, right-click to bring up the popup menu, and
+choose "Copy Selection to Buffer".  Now left-click on the center of 
+the new element.
 @item Under the buffer menu, choose "save buffer elements to file" to
 save the new footprint to a file.
+@item Press ESC to exit from buffer mode.
 @end enumerate
 
 @subsection Modifying Newlib Footprints
@@ -5025,7 +5033,7 @@ schematics are created.
 
 @subsection Create Any Unique PCB Footprints
 Create the new footprints you design needs using either the m4 style or
-newlib style of PCB libraries.  Refer to chapter ? for details on this
+newlib style of PCB libraries.  Refer to @ref{Library Creation} for details on this
 process.  For m4 style footprints, store them in the @file{pkg/m4}
 subdirectory and for newlib footprints, store them in the
 @file{pkg/newlib} subdirectory.
