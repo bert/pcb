@@ -450,6 +450,7 @@ Pcb.masterForm*output.baseTranslations:   #override \
   Shift<Key>m:        MoveToCurrentLayer(SelectedObjects) \n\
   Ctrl<Key>m:         MarkCrosshair() \n\
   <Key>m:          MoveToCurrentLayer(Object) \n\
+  Shift<Key>n:     AddRats(Close) \n\
   <Key>n:          ChangeName(Object) \n\
   Shift<Key>o:        Atomic(Save) \
 		       DeleteRats(AllRats) \

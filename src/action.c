@@ -2490,11 +2490,15 @@ ActionRipUp (Widget W, XEvent * Event, String * Params, Cardinal * Num)
 
 /* ---------------------------------------------------------------------------
  * action routine to add rat lines
- * syntax: AddRats(AllRats|SelectedRats)
+ * syntax: AddRats(AllRats|SelectedRats|Close)
+ * The Close argument selects the shortest unselect rat on the board
  */
 void
 ActionAddRats (Widget W, XEvent * Event, String * Params, Cardinal * Num)
 {
+  RatTypePtr shorty;
+  float len, small;
+
   if (*Num == 1)
     {
       HideCrosshair (True);
@@ -2509,6 +2513,34 @@ ActionAddRats (Widget W, XEvent * Event, String * Params, Cardinal * Num)
 	case F_Selected:
 	  if (AddAllRats (True, NULL))
 	    SetChangedFlag (True);
+	  break;
+        case F_Close:
+	  small = (float)MAX_COORD * MAX_COORD;
+	  shorty = NULL;
+	  RAT_LOOP (PCB->Data,
+	    {
+	      if (TEST_FLAG (SELECTEDFLAG, line))
+	        continue;
+	      len = (float)(line->Point1.X - line->Point2.X)*(line->Point1.X - line->Point2.X) +
+	          (float)(line->Point1.Y - line->Point2.Y)*(line->Point1.Y - line->Point2.Y);
+	      if (len < small)
+	        {
+		  small = len;
+		  shorty = line;
+		}
+	    }
+	  );
+	  if (shorty)
+	    {
+	      AddObjectToFlagUndoList (RATLINE_TYPE, shorty, shorty, shorty);
+	      IncrementUndoSerialNumber();
+	      SET_FLAG (SELECTEDFLAG, shorty);
+	      DrawRat (shorty, 0);
+	      Draw ();
+	      CenterDisplay ((shorty->Point2.X + shorty->Point1.X)/2,
+	                    (shorty->Point2.Y + shorty->Point1.Y)/2, False);
+	    }
+	  break;
 	}
       restoreCursor ();
       RestoreCrosshair (True);
