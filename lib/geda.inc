@@ -86,7 +86,7 @@ define(`PKG_SO8M',    `PKG_SO( `$1', `$2', `$3',  8, 330, 5000)');
 define(`PKG_SO18M',   `PKG_SO( `$1', `$2', `$3', 18, 330, 5000)');
 define(`PKG_SO20M',   `PKG_SO( `$1', `$2', `$3', 20, 330, 5000)');
 define(`PKG_SO22M',   `PKG_SO( `$1', `$2', `$3', 22, 330, 5000)');
-define(`PKG_SO24M',   `PKG_SO( `$1', `$2', `$3', 22, 330, 5000)');
+define(`PKG_SO24M',   `PKG_SO( `$1', `$2', `$3', 24, 330, 5000)');
 
 ##  Small outline package, wide (300mil)
 define(`PKG_SO8W',    `PKG_SO( `$1', `$2', `$3',  8, 419, 5000)');
@@ -180,6 +180,9 @@ define(`PKG_TSSOP64',  `PKG_TSOP(  `$1', `$2', `$3', 64, 319, 2000)');
 #   BUG: similar:
 #   QFJ 18,20,22,28,32,44,68,84
 #
+define(`PKG_PLCC20',  `PKG_PLCC(`$1', `$2', `$3', 20, 150)');
+define(`PKG_PLCC28',  `PKG_PLCC(`$1', `$2', `$3', 28, 150)');
+define(`PKG_PLCC32',  `PKG_PLCC(`$1', `$2', `$3', 32, 150)');
 define(`PKG_PLCC44',  `PKG_PLCC(`$1', `$2', `$3', 44, 150)');
 define(`PKG_PLCC52',  `PKG_PLCC(`$1', `$2', `$3', 52, 150)');
 define(`PKG_PLCC68',  `PKG_PLCC(`$1', `$2', `$3', 68, 150)');
@@ -189,6 +192,9 @@ define(`PKG_PLCC84',  `PKG_PLCC(`$1', `$2', `$3', 84, 150)');
 ##  Plastic leadless chip carrier with pin socket
 #   PLCC44X .. PLCC84X
 #
+define(`PKG_PLCC20X',  `PKG_PLCC_SOCKET(`$1', `$2', `$3', 20, 150)');
+define(`PKG_PLCC28X',  `PKG_PLCC_SOCKET(`$1', `$2', `$3', 28, 150)');
+define(`PKG_PLCC32X',  `PKG_PLCC_SOCKET(`$1', `$2', `$3', 32, 150)');
 define(`PKG_PLCC44X',  `PKG_PLCC_SOCKET(`$1', `$2', `$3', 44, 150)');
 define(`PKG_PLCC52X',  `PKG_PLCC_SOCKET(`$1', `$2', `$3', 52, 150)');
 define(`PKG_PLCC68X',  `PKG_PLCC_SOCKET(`$1', `$2', `$3', 68, 150)');

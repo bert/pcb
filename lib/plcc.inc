@@ -49,11 +49,13 @@
 # $5: additional border (will be ignored)
 #
 define(`PKG_PLCC',
-	`define(`QUARTER', `eval($4 /4)')
+	`define(`NUMPINS', `$4')
+	ifelse(eval(NUMPINS = 32),1,`define(`QUARTER',7)',`define(`QUARTER', `eval($4 /4)')')
 	define(`OFFSET', `eval((QUARTER +1) /2)')
 	define(`WIDTH', `eval((QUARTER-1) *50 +2*75)')
+	ifelse(eval(NUMPINS = 32),1,`define(`SIDE',`eval((NUMPINS-2*QUARTER)/2)')', `define(`SIDE',QUARTER)')
+	define(`HEIGHT', `eval((SIDE-1)* 50 + 2*75)')
 	define(`CENTER', `eval(WIDTH / 2)')
-	define(`NUMPINS', `$4')
 	define(`PUSHOUT', 20)    # was 15
 	define(`PUSHIN', 40)     # was 50
 Element(0x00 "$1" "$2" "$3" 100 CENTER 0 100 0x00)
@@ -72,14 +74,14 @@ forloop(`i', 1, OFFSET,
 define(`X', 0)
 define(`Y', 75)
 define(`count', `eval(OFFSET+1)')
-forloop(`i', 1, QUARTER,
+forloop(`i', 1, SIDE,
 	`PAD(eval(X-PUSHOUT), Y, eval(X+PUSHIN), Y, 20, count)' `define(`count', incr(count))'
 	`define(`Y', eval(Y+50))'
 	)
 
 	# bottom row
 define(`X', 75)
-define(`Y', WIDTH)
+define(`Y', HEIGHT)
 forloop(`i', 1, QUARTER,
 	`PAD(X, eval(Y+PUSHOUT), X, eval(Y-PUSHIN), 20, count)' `define(`count', incr(count))'
 	`define(`X', eval(X+50))'
@@ -87,8 +89,8 @@ forloop(`i', 1, QUARTER,
 
 	# right row
 define(`X', WIDTH)
-define(`Y', eval(WIDTH-75))
-forloop(`i', 1, QUARTER,
+define(`Y', eval(HEIGHT-75))
+forloop(`i', 1, SIDE,
 	`PAD(eval(X+PUSHOUT), Y, eval(X-PUSHIN), Y, 20, count)' `define(`count', incr(count))'
 	`define(`Y', eval(Y-50))'
 )
@@ -113,13 +115,14 @@ forloop(`i', 1, eval(OFFSET-1),
 # only.
 
 define(`OLWIDTH', eval(WIDTH-50))
+define(`OLHEIGHT', eval(HEIGHT-50))
 	
 	ElementLine(OLWIDTH 0 WIDTH 0 10)
 	ElementLine(WIDTH 0 WIDTH 50 10)
-	ElementLine(WIDTH OLWIDTH WIDTH WIDTH 10)
-	ElementLine(WIDTH WIDTH OLWIDTH WIDTH 10)
-	ElementLine(50 WIDTH 0 WIDTH 10)
-	ElementLine(0 WIDTH 0 OLWIDTH 10)
+	ElementLine(WIDTH OLHEIGHT WIDTH HEIGHT 10)
+	ElementLine(WIDTH HEIGHT OLWIDTH HEIGHT 10)
+	ElementLine(50 HEIGHT 0 HEIGHT 10)
+	ElementLine(0 HEIGHT 0 OLHEIGHT 10)
 	ElementLine(0 50 50 0 10)
 
 # Approach two: move outline to edge of pads.
@@ -130,11 +133,12 @@ define(`OLWIDTH', eval(WIDTH-50))
 # Try 40 mils, and parameterize it.  1/12/00 LRD
 define(`NOSMUDGE', 40)
 define(`OLWIDTH', eval(WIDTH+NOSMUDGE))
+define(`OLHEIGHT', eval(HEIGHT+NOSMUDGE))
 
 	ElementLine(50 -NOSMUDGE OLWIDTH -NOSMUDGE 10)
-	ElementLine(OLWIDTH -NOSMUDGE OLWIDTH OLWIDTH 10)
-	ElementLine(OLWIDTH OLWIDTH -NOSMUDGE OLWIDTH 10)
-	ElementLine(-NOSMUDGE OLWIDTH -NOSMUDGE 50 10)
+	ElementLine(OLWIDTH -NOSMUDGE OLWIDTH OLHEIGHT 10)
+	ElementLine(OLWIDTH OLHEIGHT -NOSMUDGE OLHEIGHT 10)
+	ElementLine(-NOSMUDGE OLHEIGHT -NOSMUDGE 50 10)
 	ElementLine(-NOSMUDGE 50 50 -NOSMUDGE 10)
 
 	ElementArc(CENTER 100 20 20 0 360 10)
@@ -162,14 +166,17 @@ Element(0x00 "$1" "$2" "$3" eval(BORDER+200) CENTER 0 100 0x00)
 
 # PLCC - 44 is a  special case, pad 1 in inner row
 
-ifelse(eval(NUMPINS = 44), 1, `(
+ifelse(eval(NUMPINS = 44 || NUMPINS = 28 || NUMPINS = 32), 1, `(
 
 define(`X',eval(CENTER+50))
 define(`Y',eval(BORDER+100))
 define(`count',1)
 
+ifelse(eval(NUMPINS=44),1,`define(`ltr',3)',`define(`ltr',2)')
+ifelse(eval(NUMPINS=32),1,`define(`QUARTER',9)')
+
 # top left row
-forloop(`i', 1, 3,
+forloop(`i', 1, ltr,
 	`PIN(X, Y, 50, 20, count)' `define(`count', incr(count))'
 	`PIN(eval(X-100), eval(Y-100), 50, 20, count)' `define(`count', incr(count))'
 	`define(`X', eval(X-100))'
@@ -188,7 +195,7 @@ define(`count', incr(count))
 # bottom row
 define(`X',eval(X+100))
 define(`Y',eval(Y+100))
-forloop(`i', 1, eval((QUARTER-1)/2),
+forloop(`i', 1, eval(ltr*2-1),
 	`PIN(X, Y, 50, 20, count)' `define(`count', incr(count))'
 	`PIN(X, eval(Y-100), 50, 20, count)' `define(`count', incr(count))'
 	`define(`X', eval(X+100))'
@@ -210,17 +217,18 @@ define(`count', incr(count))
 # top rigth row
 define(`X',eval(X-100))
 define(`Y',eval(Y-100))
-forloop(`i', 1, 2,
+forloop(`i', 1, eval(ltr-1),
 	`PIN(X, Y, 50, 20, count)' `define(`count', incr(count))'
 	`PIN(X, eval(Y+100), 50, 20, count)' `define(`count', incr(count))'
 	`define(`X', eval(X-100))'
 )
 PIN(X, Y, 50, 20, count)
 
+ifelse(eval(NUMPINS=32),1,`define(`HEIGHT',eval(WIDTH+100))',`define(`HEIGHT',WIDTH)')
 	ElementLine(0 0 WIDTH 0 20)
-	ElementLine(WIDTH 0 WIDTH WIDTH 20)
-	ElementLine(WIDTH WIDTH 0 WIDTH 20)
-	ElementLine(0 WIDTH 0 0 20)
+	ElementLine(WIDTH 0 WIDTH HEIGHT 20)
+	ElementLine(WIDTH HEIGHT 0 HEIGHT 20)
+	ElementLine(0 HEIGHT 0 0 20)
 	ElementLine(0 100 100 0 10)
 	ElementLine(eval(CENTER-50) 0 CENTER 50 10)
 	ElementLine(CENTER 50 eval(CENTER+50) 0 10)
@@ -229,9 +237,9 @@ PIN(X, Y, 50, 20, count)
 
 
 #------------------------------------------------------------------------
-# all other sockets, currently 52,68 and 84 pins
+# all other sockets, currently 20,52,68 and 84 pins
 
-)',eval(NUMPINS != 44), 1, `(
+)', `(
 
 # the default case, Pad 1 is on outer top row, in the middle
 
