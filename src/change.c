@@ -444,7 +444,7 @@ ChangePadClearSize (ElementTypePtr Element, PadTypePtr Pad)
   if (TEST_FLAG (LOCKFLAG, Pad))
     return (NULL);
   value = MIN (MAX_LINESIZE, MAX (value, Settings.Bloat * 2));
-  if (value <= MAX_PADSIZE && value >= MIN_PADSIZE && value != Pad->Thickness)
+  if (value <= MAX_PADSIZE && value >= MIN_PADSIZE && value != Pad->Clearance)
     {
       AddObjectToClearSizeUndoList (PAD_TYPE, Element, Pad, Pad);
       ErasePad (Pad);
