@@ -1,0 +1,16 @@
+#!/bin/sh
+#
+
+This briefly documents what is done to create a development snapshot.
+
+sh
+cvs update -PdA
+VERSION=`date +%Y%m%d`
+gmake distcheck VERSION=$VERSION
+
+#then if everything builds ok,
+
+cvs tag snapshot-$VERSION
+
+# upload the 'pcb-$VERSION.tar.gz' file to the sourceforge file release system
+
