@@ -239,7 +239,7 @@ __r_dump_tree (struct rtree_node *node, int depth)
     printf ("  ");
   if (!node->flags.is_leaf)
     {
-      printf ("p=0x%p node X(%d, %d) Y(%d, %d)\n", node,
+      printf ("p=0x%p node X(%d, %d) Y(%d, %d)\n", (void *) node,
 	      node->box.X1, node->box.X2, node->box.Y1, node->box.Y2);
 #ifdef DRAWBOX
       XSetLineAttributes (Dpy, Output.fgGC, 4, LineSolid, CapRound,
@@ -273,7 +273,7 @@ __r_dump_tree (struct rtree_node *node, int depth)
       XDrawCLine (Dpy, Output.OutputWindow, Output.fgGC,
 		  node->box.X1, node->box.Y2, node->box.X1, node->box.Y1);
 #endif
-      printf ("p=0x%p leaf manage(%02x) X(%d, %d) Y(%d, %d)\n", node,
+      printf ("p=0x%p leaf manage(%02x) X(%d, %d) Y(%d, %d)\n", (void *) node,
 	      node->flags.manage, node->box.X1, node->box.X2, node->box.Y1,
 	      node->box.Y2);
       for (j = 0; j < M_SIZE; j++)
@@ -305,7 +305,7 @@ __r_dump_tree (struct rtree_node *node, int depth)
 #endif
 	  for (i = 0; i < depth + 1; i++)
 	    printf ("  ");
-	  printf ("entry 0x%p X(%d, %d) Y(%d, %d)\n", node->u.rects[j].bptr,
+	  printf ("entry 0x%p X(%d, %d) Y(%d, %d)\n", (void *) (node->u.rects[j].bptr),
 		  node->u.rects[j].bounds.X1,
 		  node->u.rects[j].bounds.X2, node->u.rects[j].bounds.Y1,
 		  node->u.rects[j].bounds.Y2);

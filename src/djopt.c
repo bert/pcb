@@ -162,12 +162,12 @@ corner_name (corner_s * c)
 
   if (c->net == 0xf1eef1ee)
     {
-      sprintf (buf[bn], "\033[31m[%p freed corner]\033[0m", c);
+      sprintf (buf[bn], "\033[31m[%p freed corner]\033[0m", (void *) c);
       return buf[bn];
     }
 
   sprintf (buf[bn], "\033[%dm[%p ",
-	   (c->pin || c->pad || c->via) ? 33 : 34, c);
+	   (c->pin || c->pad || c->via) ? 33 : 34, (void *) c);
   bp = buf[bn] + strlen (buf[bn]);
 
   if (c->pin)
@@ -866,7 +866,7 @@ move_corner (corner_s * c, int x, int y)
   check (c, 0);
   if (c->pad || c->pin)
     dj_abort ("move_corner: has pin or pad\n");
-  dprintf ("move_corner %p from %d,%d to %d,%d\n", c, c->x, c->y, x, y);
+  dprintf ("move_corner %p from %d,%d to %d,%d\n", (void *) c, c->x, c->y, x, y);
   pad = find_corner_if (x, y, c->layer);
   c->x = x;
   c->y = y;
@@ -893,7 +893,7 @@ move_corner (corner_s * c, int x, int y)
 			  &tl->Point2, x - (tl->Point2.X),
 			  y - (tl->Point2.Y));
 	    }
-	  dprintf ("Line %p moved to %d,%d %d,%d\n", tl,
+	  dprintf ("Line %p moved to %d,%d %d,%d\n", (void *) tl,
 		   tl->Point1.X, tl->Point1.Y, tl->Point2.X, tl->Point2.Y);
 	}
     }
@@ -907,7 +907,7 @@ move_corner (corner_s * c, int x, int y)
 	  {
 	    corner_s *c2 = other_corner (c->lines[i], c);
 	    dprintf ("move_corner: removing line %d,%d %d,%d %p %p\n",
-		     c->x, c->y, c2->x, c2->y, c, c2);
+		     c->x, c->y, c2->x, c2->y, (void *) c, (void *) c2);
 
 	    remove_line (c->lines[i]);
 	    if (c != c2)
@@ -2001,7 +2001,7 @@ viatrim ()
 
       my_layer = l->layer;
       other_layer = -1;
-      dprintf ("line %p on layer %d from %d,%d to %d,%d\n", l, l->layer,
+      dprintf ("line %p on layer %d from %d,%d to %d,%d\n", (void *) l, l->layer,
 	       l->s->x, l->s->y, l->e->x, l->e->y);
       for (i = 0; i < l->s->n_lines; i++)
 	if (l->s->lines[i] != l)
@@ -2010,12 +2010,12 @@ viatrim ()
 	      {
 		other_layer = l->s->lines[i]->layer;
 		dprintf ("noting other line %p on layer %d\n",
-			 l->s->lines[i], my_layer);
+			 (void *) (l->s->lines[i]), my_layer);
 	      }
 	    else if (l->s->lines[i]->layer != other_layer)
 	      {
 		dprintf ("saw other line %p on layer %d (not %d)\n",
-			 l->s->lines[i], l->s->lines[i]->layer, my_layer);
+			 (void *) (l->s->lines[i]), l->s->lines[i]->layer, my_layer);
 		other_layer = -1;
 		goto viatrim_other_corner;
 	      }
@@ -2029,7 +2029,7 @@ viatrim ()
 		{
 		  other_layer = l->s->lines[i]->layer;
 		  dprintf ("noting other line %p on layer %d\n",
-			   l->s->lines[i], my_layer);
+			   (void *) (l->s->lines[i]), my_layer);
 		}
 	      else if (l->e->lines[i]->layer != other_layer)
 		{
@@ -2334,14 +2334,14 @@ dump_all ()
       if (DELETED (c))
 	continue;
       printf ("%p corner %d,%d layer %d net %d\n",
-	      c, c->x, c->y, c->layer, c->net);
+	      (void *) c, c->x, c->y, c->layer, c->net);
     }
   for (l = lines; l; l = l->next)
     {
       if (DELETED (l))
 	continue;
       printf ("%p line %p to %p layer %d\n", 
-	      l, l->s, l->e, l->layer);
+	      (void *) l, (void *) (l->s), (void *) (l->e), l->layer);
     }
 }
 
@@ -2691,7 +2691,7 @@ padcleaner ()
       if (DELETED (l))
 	continue;
 
-      dprintf ("dj: line %p\n", l);
+      dprintf ("dj: line %p\n", (void *) l);
       check (0, l);
 
       if (l->s->pad && l->s->pad == l->e->pad)
