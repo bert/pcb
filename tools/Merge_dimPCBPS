@@ -1,0 +1,49 @@
+#/bin/sh
+#
+# merges PostScript files created by pcb (version >= 1.4.2) into
+# a single file for backward compatibility
+#
+# Usage: name files...
+#
+# by Thomas Nau 9/96
+#
+
+if [ $# -eq 0 ]; then
+	echo "Usage: `basename $0` files..." >&2
+	exit 1
+fi
+
+# some system need nawk
+#
+case `uname` in
+	SunOS)	AWK=nawk;;
+	*)		AWK=awk;;
+esac
+
+$AWK '
+	BEGIN								{ filecount = 0; }
+	/^%!PS/								{ filecount++;  if (filecount > 1) { print "Black"; } }
+	/^%!PS/,/^% PCBENDDATA/				{
+		if (filecount == 1)
+		{
+			if (index($0, "%%Title:") == 1)
+				sub(",.*$", ", merged layouts");
+                        if (index($0, "Black") == 1)
+                           sub ("Black", "0.9 mysetgray");
+			print $0;
+			next;
+		}
+	}
+	/^% PCBSTARTDATA/,/^% PCBENDDATA/	{
+		if (filecount > 1)
+		{
+			print $0;
+			next;
+		}
+	}
+										{ next; }
+	END									{
+		print "showpage";
+		print "%%EOF";
+	}
+' $@
