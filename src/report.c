@@ -106,7 +106,7 @@ ReportDrills (void)
     {
       sprintf (thestring,
 	       "  %5d                 %5d          %5d            %5d           %5d\n",
-	       AllDrills->Drill[n].DrillSize, AllDrills->Drill[n].PinCount,
+	       AllDrills->Drill[n].DrillSize/100, AllDrills->Drill[n].PinCount,
 	       AllDrills->Drill[n].ViaCount, AllDrills->Drill[n].ElementN,
 	       AllDrills->Drill[n].UnplatedCount);
       while (*thestring != '\0')
