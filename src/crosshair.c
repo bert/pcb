@@ -215,7 +215,7 @@ XORDrawAttachedLine (Location x1, Location y1, Location x2,
   dx = x2 - x1;
   dy = y2 - y1;
   if (dx != 0 || dy != 0)
-    h = 0.5 * thick / sqrt ((float) ((float) dx * dx + (float) dy * dy));
+    h = 0.5 * thick / sqrt (SQUARE (dx) + SQUARE (dy));
   else
     h = 0.0;
   ox = dy * h + 0.5 * SGN (dy);
