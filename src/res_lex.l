@@ -10,8 +10,15 @@
 #include <string.h>
 #endif
 
+#include "global.h"
 #include "resource.h"
 #include "res_parse.h"
+
+#ifdef HAVE_LIBDMALLOC
+#include <dmalloc.h>
+#endif
+
+RCSID("$Id$");
 
 #define YY_INPUT(buf,result,max_size) { result = res_parse_getchars(buf, max_size); }
 

@@ -1,3 +1,5 @@
+/* $Id$ */
+
 /*
  *                            COPYRIGHT
  *
@@ -24,8 +26,6 @@
  *
  */
 
-static char *rcsid =
-  "$Id$";
 
 /* print dialog panner routines
  * only available for X11R5 and later
@@ -51,6 +51,9 @@ static char *rcsid =
 #ifdef HAVE_LIBDMALLOC
 #include <dmalloc.h>
 #endif
+
+RCSID("$Id$");
+
 
 /* ---------------------------------------------------------------------------
  * some local identifiers

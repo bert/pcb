@@ -1,3 +1,5 @@
+/* $Id$ */
+
 %{
 /*
  *                            COPYRIGHT
@@ -25,10 +27,12 @@
  *
  */
 
-static	char	*rcsid = "$Id$";
-
 /* lexical definitions to parse ASCII input of PCB and Element description
  */
+
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -38,9 +42,14 @@ static	char	*rcsid = "$Id$";
 #include <unistd.h>
 #endif
 
-#ifdef DMALLOC
+#include "global.h"
+
+#ifdef HAVE_LIBDMALLOC
 # include <dmalloc.h> /* see http://dmalloc.com */
 #endif
+
+RCSID("$Id$");
+
 
 #include "global.h"
 #include "crosshair.h"

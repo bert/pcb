@@ -1,3 +1,5 @@
+/* $Id$ */
+
 /*
  *
  *                            COPYRIGHT
@@ -25,7 +27,6 @@
  *
  */
 
-static char *rcsid = "$Id$";
 
 /*
  * short description:
@@ -96,6 +97,11 @@ static char *rcsid = "$Id$";
 #ifdef HAVE_LIBDMALLOC
 #include <dmalloc.h>
 #endif
+
+RCSID("$Id$");
+
+
+
 
 /* ---------------------------------------------------------------------------
  * some local macros

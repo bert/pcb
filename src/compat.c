@@ -28,6 +28,13 @@
 
 #include <math.h>
 #include "compat.h"
+#include "global.h"
+
+#ifdef HAVE_LIBDMALLOC
+#include <dmalloc.h>
+#endif
+
+RCSID("$Id$");
 
 #ifndef HAVE_EXPF
 float expf(float x)

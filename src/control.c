@@ -1,3 +1,5 @@
+/* $Id$ */
+
 /*
  *                            COPYRIGHT
  *
@@ -23,9 +25,6 @@
  *  Thomas.Nau@rz.uni-ulm.de
  *
  */
-
-static char *rcsid =
-  "$Id$";
 
 /* control panel
  */
@@ -58,6 +57,8 @@ static char *rcsid =
 #ifdef HAVE_LIBDMALLOC
 #include <dmalloc.h>
 #endif
+
+RCSID("$Id$");
 
 /* ---------------------------------------------------------------------------
  * include bitmap data

@@ -1,3 +1,5 @@
+/* $Id$ */
+
 /*
  *                            COPYRIGHT
  *
@@ -35,8 +37,6 @@
  *
  */
 
-static char *rcsid =
-  "$Id$";
 
 /*
  * Gerber/RS-274X device driver
@@ -73,9 +73,7 @@ static char *rcsid =
 #include <dmalloc.h>
 #endif
 
-#ifdef HAVE_LIBDMALLOC
-#include <dmalloc.h>
-#endif
+RCSID("$Id$");
 
 /*----------------------------------------------------------------------------*/
 /* Private data structures                                                    */

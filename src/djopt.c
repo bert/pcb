@@ -48,6 +48,12 @@
 #include "draw.h"
 #include "undo.h"
 
+#ifdef HAVE_LIBDMALLOC
+#include <dmalloc.h>
+#endif
+     
+RCSID("$Id$");
+
 #ifndef HAVE_RINT
 #define rint(x)  (ceil((x) - 0.5))
 #endif

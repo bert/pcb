@@ -1,3 +1,5 @@
+/* $Id$ */
+
 /*
  *                            COPYRIGHT
  *
@@ -23,8 +25,6 @@
  *  Thomas.Nau@rz.uni-ulm.de
  *
  */
-
-static char *rcsid = "$Id$";
 
 /* functions used to copy pins, elements ...
  * it's necessary to copy data by calling create... since the base pointer
@@ -55,6 +55,8 @@ static char *rcsid = "$Id$";
 #ifdef HAVE_LIBDMALLOC
 #include <dmalloc.h>
 #endif
+
+RCSID("$Id$");
 
 /* ---------------------------------------------------------------------------
  * some local prototypes

@@ -1,3 +1,5 @@
+/* $Id$ */
+
 /*
  *                            COPYRIGHT
  *
@@ -24,8 +26,6 @@
  *  haceaton@aplcomm.jhuapl.edu
  *
  */
-
-static char *rcsid = "$Id$";
 
 /* action routines for output window
  */
@@ -84,6 +84,8 @@ static char *rcsid = "$Id$";
 #ifdef HAVE_LIBDMALLOC
 #include <dmalloc.h>
 #endif
+
+RCSID("$Id$");
 
 /* ---------------------------------------------------------------------------
  * some local types

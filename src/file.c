@@ -1,3 +1,5 @@
+/* $Id$ */
+
 /*
  *                            COPYRIGHT
  *
@@ -23,8 +25,6 @@
  *  Thomas.Nau@rz.uni-ulm.de
  *
  */
-
-static char *rcsid = "$Id$";
 
 /* file save, load, merge ... routines
  * getpid() needs a cast to (int) to get rid of compiler warnings
@@ -74,6 +74,8 @@ static char *rcsid = "$Id$";
 #ifdef HAVE_LIBDMALLOC
 #include <dmalloc.h>
 #endif
+
+RCSID("$Id$");
 
 #if !defined(HAS_ATEXIT) && !defined(HAS_ON_EXIT)
 /* ---------------------------------------------------------------------------

@@ -1,3 +1,5 @@
+/* $Id$ */
+
 /*
  *                            COPYRIGHT
  *
@@ -24,7 +26,6 @@
  *
  */
 
-static char *rcsid = "$Id$";
 
 /* dialog routines
  */
@@ -54,6 +55,11 @@ static char *rcsid = "$Id$";
 #ifdef HAVE_LIBDMALLOC
 #include <dmalloc.h>
 #endif
+
+RCSID("$Id$");
+
+
+
 
 /* ---------------------------------------------------------------------------
  * include the icon data

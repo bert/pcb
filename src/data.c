@@ -1,3 +1,5 @@
+/* $Id$ */
+
 /*
  *                            COPYRIGHT
  *
@@ -24,8 +26,6 @@
  *
  */
 
-static char *rcsid = "$Id$";
-
 /* just defines common identifiers
  */
 #ifdef HAVE_CONFIG_H
@@ -39,6 +39,8 @@ static char *rcsid = "$Id$";
 #ifdef HAVE_LIBDMALLOC
 #include <dmalloc.h>
 #endif
+
+RCSID("$Id$");
 
 /* ---------------------------------------------------------------------------
  * some shared identifiers

@@ -1,3 +1,5 @@
+/* $Id$ */
+
 /*
  *                            COPYRIGHT
  *
@@ -24,7 +26,6 @@
  *
  */
 
-static char *rcsid = "$Id$";
 
 /* error and debug funtions
  * getpid() needs a cast to (int) to get rid of compiler warnings
@@ -61,6 +62,11 @@ static char *rcsid = "$Id$";
 #ifdef HAVE_LIBDMALLOC
 #include <dmalloc.h>
 #endif
+
+RCSID("$Id$");
+
+
+
 
 /* ----------------------------------------------------------------------
  * some external identifiers

@@ -1,3 +1,5 @@
+/* $Id$ */
+
 /*
  *                            COPYRIGHT
  *
@@ -24,9 +26,6 @@
  *
  */
 
-static char *rcsid =
-  "$Id$";
-
 /* crosshair stuff
  */
 
@@ -52,6 +51,8 @@ static char *rcsid =
 #ifdef HAVE_LIBDMALLOC
 #include <dmalloc.h>
 #endif
+
+RCSID("$Id$");
 
 #define ABS(x) (((x)<0)?-(x):(x))
 

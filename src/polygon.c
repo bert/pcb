@@ -1,3 +1,5 @@
+/* $Id$ */
+
 /*
  *                            COPYRIGHT
  *
@@ -24,8 +26,6 @@
  *
  */
 
-static char *rcsid =
-  "$Id$";
 
 /* special polygon editing routines
  */
@@ -58,6 +58,9 @@ static char *rcsid =
 #ifdef HAVE_LIBDMALLOC
 #include <dmalloc.h>
 #endif
+
+RCSID("$Id$");
+
 
 /* ---------------------------------------------------------------------------
  * local prototypes

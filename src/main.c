@@ -1,3 +1,5 @@
+/* $Id$ */
+
 /*
  *                            COPYRIGHT
  *
@@ -24,7 +26,6 @@
  *
  */
 
-static char *rcsid = "$Id$";
 
 /* main program, initializes some stuff and handles user input
  */
@@ -77,6 +78,11 @@ static char *rcsid = "$Id$";
 #ifdef HAVE_LIBDMALLOC
 #include <dmalloc.h>
 #endif
+
+RCSID("$Id$");
+
+
+
 
 /* ---------------------------------------------------------------------------
  * icon data as created by 'bitmap'

@@ -42,11 +42,9 @@
 #include <assert.h>
 #include <setjmp.h>
 #include <stdlib.h>
-#ifdef DMALLOC
-# include <dmalloc.h>		/* see http://dmalloc.com */
-#endif /* DMALLOC */
 
 #include "box.h"
+#include "global.h"
 #include "rtree.h"
 #include "mtspace.h"
 #include "vector.h"
@@ -54,6 +52,9 @@
 #ifdef HAVE_LIBDMALLOC
 #include <dmalloc.h>
 #endif
+
+RCSID("$Id$");
+
 
 /* define this for more thorough self-checking of data structures */
 #define SLOW_ASSERTIONS

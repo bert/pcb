@@ -1,3 +1,5 @@
+/* $Id$ */
+
 /*
  *                            COPYRIGHT
  *
@@ -24,8 +26,6 @@
  *
  */
 
-static char *rcsid =
-  "$Id$";
 
 /* size dialog routines
  */
@@ -60,6 +60,9 @@ static char *rcsid =
 #ifdef HAVE_LIBDMALLOC
 #include <dmalloc.h>
 #endif
+
+RCSID("$Id$");
+
 
 /* ---------------------------------------------------------------------------
  * define resource for X11R4 (names have changed from R4 to R5)

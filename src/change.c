@@ -1,3 +1,5 @@
+/* $Id$ */
+
 /*
  *                            COPYRIGHT
  *
@@ -23,9 +25,6 @@
  *  Thomas.Nau@rz.uni-ulm.de
  *
  */
-
-static char *rcsid =
-  "$Id$";
 
 /* functions used to change object properties
  *
@@ -62,6 +61,8 @@ static char *rcsid =
 #ifdef HAVE_LIBDMALLOC
 #include <dmalloc.h>
 #endif
+
+RCSID("$Id$");
 
 /* ---------------------------------------------------------------------------
  * some local prototypes

@@ -44,14 +44,14 @@
 #include <string.h>
 #endif
 
+#include "global.h"
 #include "vector.h"
 
 #ifdef HAVE_LIBDMALLOC
 #include <dmalloc.h>
 #endif
 
-#define MAX(x, y) (((x)>(y)) ? (x) : (y))
-#define MIN(x, y) (((x)<(y)) ? (x) : (y))
+RCSID("$Id$");
 
 /* ---------------------------------------------------------------------------
  * some local prototypes

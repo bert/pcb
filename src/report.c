@@ -1,3 +1,5 @@
+/* $Id$ */
+
 #include "rtree.h"
 /*
  *                            COPYRIGHT
@@ -27,8 +29,6 @@
  *
  */
 
-static char *rcsid =
-  "$Id$";
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -57,6 +57,9 @@ static char *rcsid =
 #ifdef HAVE_LIBDMALLOC
 #include <dmalloc.h>
 #endif
+
+RCSID("$Id$");
+
 
 static long int ReturnCode;	/* filled in by dialog */
 

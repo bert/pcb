@@ -49,6 +49,9 @@
 #include <dmalloc.h>
 #endif
 
+RCSID("$Id$");
+
+
 /* define this for more thorough self-checking of data structures */
 #undef SLOW_ASSERTIONS
 

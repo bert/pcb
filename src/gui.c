@@ -46,6 +46,9 @@
 #include <dmalloc.h>
 #endif
 
+RCSID("$Id$");
+
+
 #define DEFAULT_CURSORSHAPE	XC_crosshair
 #define XC_Clockwise		257
 #define XC_Drag                 258

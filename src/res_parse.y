@@ -2,7 +2,9 @@
 
 %{
 
+#ifdef HAVE_CONFIG_H
 #include "config.h"
+#endif
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -16,8 +18,15 @@
 
   /* #define YYSTYPE void * */
 
+#include "global.h"
 #include "resource.h"
 #include "res_parse.h"
+
+#ifdef HAVE_LIBDMALLOC
+#include <dmalloc.h>
+#endif
+
+RCSID("$Id$");
 
 static Resource *parsed_res;
 static Resource *current_res;

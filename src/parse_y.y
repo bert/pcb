@@ -1,3 +1,5 @@
+/* $Id$ */
+
 %{
 /*
  *                            COPYRIGHT
@@ -25,10 +27,12 @@
  *
  */
 
-static	char	*rcsid = "$Id$";
-
 /* grammar to parse ASCII input of PCB description
  */
+
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
 
 #define GRIDFIT(x,g) (int)(0.5 + (int)(((x)+(g)/2.)/(g))*(g))
 #include "global.h"
@@ -40,9 +44,11 @@ static	char	*rcsid = "$Id$";
 #include "parse_l.h"
 #include "remove.h"
 
-#ifdef DMALLOC
+#ifdef HAVE_LIBDMALLOC
 # include <dmalloc.h> /* see http://dmalloc.com */
 #endif
+
+RCSID("$Id$");
 
 static	LayerTypePtr	Layer;
 static	PolygonTypePtr	Polygon;

@@ -25,6 +25,12 @@
 #include <X11/Xaw/SmeBSB.h>
 #include <X11/Xaw/SmeLine.h>
 
+#ifdef HAVE_LIBDMALLOC
+#include <dmalloc.h>
+#endif
+
+RCSID("$Id$");
+
 static Arg args[100];
 static int n;
 #define arg(a,b) XtSetArg(args[n], a, b); n++

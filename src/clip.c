@@ -1,3 +1,5 @@
+/* $Id$ */
+
 /*
  *                            COPYRIGHT
  *
@@ -23,13 +25,16 @@
  *  Thomas Nau, Schlehenweg 15, 88471 Baustetten, Germany
  *  Thomas.Nau@rz.uni-ulm.de
  *
- *  RCS: $Id$
  */
 
 #define	SWAP_IDENT		SwapOutput
 #define TO_SCREEN(a)	((Position)((a)*Local_Zoom))
 #define XORIG dxo
 #define YORIG dyo
+
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
 
 #include <assert.h>
 #include <math.h>
@@ -39,6 +44,12 @@
 #include "data.h"
 #include "draw.h"
 #include "mymem.h"
+
+#ifdef HAVE_LIBDMALLOC
+#include <dmalloc.h>
+#endif
+
+RCSID("$Id$");
 
 Location dxo, dyo;
 Boolean SwapOutput;

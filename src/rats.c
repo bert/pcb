@@ -60,6 +60,9 @@
 #include <dmalloc.h>
 #endif
 
+RCSID("$Id$");
+
+
 #define TRIEDFIRST 0x1
 #define BESTFOUND 0x2
 

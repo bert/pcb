@@ -55,6 +55,9 @@
 #include <dmalloc.h>
 #endif
 
+RCSID("$Id$");
+
+
 /* ----------------------------------------------------------------------
  * Function prototype declarations
  */

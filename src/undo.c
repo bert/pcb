@@ -1,3 +1,5 @@
+/* $Id$ */
+
 /*
  *                            COPYRIGHT
  *
@@ -23,7 +25,6 @@
  *  Thomas.Nau@rz.uni-ulm.de
  *
  */
-static char *rcsid = "$Id$";
 
 /* functions used to undo operations
  *
@@ -70,6 +71,8 @@ static char *rcsid = "$Id$";
 #ifdef HAVE_LIBDMALLOC
 #include <dmalloc.h>
 #endif
+
+RCSID("$Id$");
 
 /* ---------------------------------------------------------------------------
  * some local data types
