@@ -568,10 +568,10 @@ SelectedOperation (ObjectFunctionTypePtr F, Boolean Reset, int type)
   );
 
   /* elements silkscreen */
-  if (type & ELEMENT_TYPE && PCB->ElementOn)
+  if (type & ELEMENT_TYPE && PCB->ElementOn && F->Element)
     ELEMENT_LOOP (PCB->Data, 
     {
-      if (F->Element && TEST_FLAG (SELECTEDFLAG, element))
+      if (TEST_FLAG (SELECTEDFLAG, element))
 	{
 	  if (Reset)
 	    {
@@ -584,7 +584,7 @@ SelectedOperation (ObjectFunctionTypePtr F, Boolean Reset, int type)
 	}
     }
   );
-  else if (type & ELEMENTNAME_TYPE && PCB->ElementOn && F->ElementName)
+  if (type & ELEMENTNAME_TYPE && PCB->ElementOn && F->ElementName)
     ELEMENT_LOOP (PCB->Data, 
     { 
       if (TEST_FLAG (SELECTEDFLAG, &ELEMENT_TEXT (PCB, element)))

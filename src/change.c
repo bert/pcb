@@ -633,7 +633,7 @@ ChangeArcClearSize (LayerTypePtr Layer, ArcTypePtr Arc)
 static void *
 ChangeTextSize (LayerTypePtr Layer, TextTypePtr Text)
 {
-  BDimension value = (Absolute) ? Absolute : Text->Scale + Delta;
+  BDimension value = (Absolute) ? Absolute/45 : Text->Scale + Delta/45;
 
   if (TEST_FLAG (LOCKFLAG, Text))
     return (NULL);
@@ -705,7 +705,7 @@ static void *
 ChangeElementNameSize (ElementTypePtr Element)
 {
   BDimension value =
-    (Absolute) ? Absolute : DESCRIPTION_TEXT (Element).Scale + Delta;
+    (Absolute) ? Absolute/45 : DESCRIPTION_TEXT (Element).Scale + Delta/45;
 
   if (TEST_FLAG (LOCKFLAG, &Element->Name[0]))
     return (NULL);
