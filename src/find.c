@@ -3341,6 +3341,7 @@ DumpList (void)
     {
       PadList[i].Number = 0;
       PadList[i].Location = 0;
+      PadList[i].DrawLocation = 0;
     }
 
   PVList.Number = 0;
@@ -3349,14 +3350,18 @@ DumpList (void)
   for (i = 0; i < MAX_LAYER; i++)
     {
       LineList[i].Location = 0;
+      LineList[i].DrawLocation = 0;
       LineList[i].Number = 0;
       ArcList[i].Location = 0;
+      ArcList[i].DrawLocation = 0;
       ArcList[i].Number = 0;
       PolygonList[i].Location = 0;
+      PolygonList[i].DrawLocation = 0;
       PolygonList[i].Number = 0;
     }
   RatList.Number = 0;
   RatList.Location = 0;
+  RatList.DrawLocation = 0;
 }
 
 /*-----------------------------------------------------------------------------
