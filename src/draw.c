@@ -579,6 +579,7 @@ EMark_callback (const BoxType * b, void *cl)
   ElementTypePtr element = (ElementTypePtr) b;
 
   DrawEMark (element->MarkX, element->MarkY, !FRONT (element));
+  return 1;
 }
 
 static int
