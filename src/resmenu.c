@@ -371,7 +371,7 @@ MenuCreateFromResource(Widget menu, Resource *res, Widget top, Widget left, int 
 	      sub = XtCreateManagedWidget(menu_name, simpleMenuWidgetClass,
 					  menu, args+nn, n-nn);
 	      n = nn;
-	      arg(XtNmenuName, menu_name);
+	      arg(XtNmenuName, strdup(menu_name));
 	      btn = XtCreateManagedWidget(v, menuButtonWidgetClass,
 					  menu, args, n);
 	      MenuCreateFromResource(sub, res->v[i].subres, 0, 0, 0);

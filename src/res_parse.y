@@ -2,11 +2,12 @@
 
 %{
 #include <stdio.h>
+#include <stdlib.h>
 
 #define YYDEBUG 0
 #define YYERROR_VERBOSE 1
 
-#define YYSTYPE void *
+  /* #define YYSTYPE void * */
 
 #include "resource.h"
 #include "res_parse.h"
@@ -23,12 +24,19 @@ static void resource_do_include(Resource *parent, char *);
 %name-prefix="res"
 %start top_res
 
-%token STRING INCLUDE
+%union {
+  int ival;
+  char *sval;
+  Resource *rval;
+};
+
+%token <sval> STRING INCLUDE
+%type <rval> res
 
 %%
 
 top_res
- : { current_res = parsed_res = resource_create(0); }
+ : { current_res = parsed_res = resource_create(NULL); }
    res_item_zm
  ;
 
@@ -92,7 +100,7 @@ resource_parse(char *filename, const char **strings)
     {
       res_filename = filename;
       res_file = fopen (filename, "r");
-      if (res_file == 0)
+      if (res_file == NULL)
 	{
 	  perror(filename);
 	  return 0;
@@ -100,12 +108,12 @@ resource_parse(char *filename, const char **strings)
     }
   else if (strings)
     {
-      res_filename = 0;
+      res_filename = NULL;
       res_strings = strings;
       res_string_idx = 0;
     }
   else
-    return 0;
+    return NULL;
 #if YYDEBUG
   yydebug = 1;
 #endif
@@ -206,6 +214,7 @@ void
 resource_do_include(Resource *r, char *str)
 {
   int i;
+
   for (i=0; i<MenuFuncListSize; i++)
     if (strcmp (MenuFuncList[i].name, str) == 0)
       MenuFuncList[i].func(r);
