@@ -51,6 +51,8 @@ MainMenu = {
         {"Show soldermask" CheckWhen(showmask) Display(ToggleMask)}
         -
         {"Grid Setting..." foreground=red sensitive=false vertSpace=60}
+        {"0.1 mil" SetValue(Grid,10) CheckWhen(grid,10)}
+        {"0.5 mil" SetValue(Grid,50) CheckWhen(grid,50)}
         {"1 mil" SetValue(Grid,100) CheckWhen(grid,100)}
         {"0.1 mm" SetValue(Grid,393.7007874) CheckWhen(grid,393)}
         {"10 mil" SetValue(Grid,1000) CheckWhen(grid,1000)}
