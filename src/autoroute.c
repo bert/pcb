@@ -675,9 +675,12 @@ __found_one (const BoxType * box, void *cl)
 static routebox_t *
 FindRouteBox (routedata_t * rd, Position X, Position Y, void *matches)
 {
-  struct find_closure fc = { NULL, matches };
+  struct find_closure fc;
   BoxType region;
   int i;
+
+  fc.match =  NULL;
+  fc.key   = matches;
   region.X1 = region.X2 = X;
   region.Y1 = region.Y2 = Y;
   for (i = 0; i < MAX_LAYER; i++)
@@ -1220,10 +1223,12 @@ CreateViaEdge (const BoxType * area, Cardinal group,
   PointType costpoint;
   cost_t d;
   edge_t *ne;
-  cost_t scale[3] = { 1,
-    AutoRouteParameters.LastConflictPenalty,
-    AutoRouteParameters.ConflictPenalty
-  };
+  cost_t scale[3];
+
+  scale[0] = 1;
+  scale[1] = AutoRouteParameters.LastConflictPenalty;
+  scale[2] = AutoRouteParameters.ConflictPenalty;
+
   assert (__box_is_good (area));
   assert (AutoRouteParameters.with_conflicts ||
 	  (to_site_conflict == NO_CONFLICT &&
@@ -1540,7 +1545,7 @@ __FindBlocker_checkbox (const BoxType * region_or_box,
   if (rbox.Y2 > ebox.Y1)
     {				/* extends below edge */
       assert (fbi->expansion_edge->flags.is_interior);
-      // XXX: what to do here?
+      /* XXX: what to do here? */
     }
   /* okay, this is the closest we've found. */
   assert (fbi->blocker == NULL || (ebox.Y1 - rbox.Y2) <= fbi->min_dist);
@@ -1579,7 +1584,13 @@ __FindBlocker_rect_in_reg (const BoxType * box, void *cl)
 routebox_t *
 FindBlocker (kdtree_t * kdtree, edge_t * e, Dimension maxbloat)
 {
-  struct FindBlocker_info fbi = { e, maxbloat, NULL, 0 };
+  struct FindBlocker_info fbi;
+
+  fbi.expansion_edge = e;
+  fbi.maxbloat = maxbloat;
+  fbi.blocker = NULL;
+  fbi.min_dist = 0;
+
   kd_search (kdtree, NULL,
 	     __FindBlocker_reg_in_sea, __FindBlocker_rect_in_reg, &fbi);
   return fbi.blocker;
@@ -1639,7 +1650,12 @@ fio_rect_in_reg (const BoxType * box, void *cl)
 static routebox_t *
 FindIntersectingObstacle (kdtree_t * kdtree, edge_t * e, Dimension maxbloat)
 {
-  struct fio_info fio = { e, maxbloat, NULL };
+  struct fio_info fio;
+
+  fio.edge = e;
+  fio.maxbloat = maxbloat;
+  fio.intersect = NULL;
+
   if (setjmp (fio.env) == 0)
     kd_search (kdtree, NULL, fio_reg_in_sea, fio_rect_in_reg, &fio);
   return fio.intersect;
@@ -1684,7 +1700,12 @@ foib_rect_in_reg (const BoxType * box, void *cl)
 static routebox_t *
 FindOneInBox (kdtree_t * kdtree, const BoxType * box, Dimension maxbloat)
 {
-  struct foib_info foib = { box, maxbloat, NULL };
+  struct foib_info foib;
+
+  foib.box = box;
+  foib.maxbloat = maxbloat;
+  foib.intersect = NULL;
+
   if (setjmp (foib.env) == 0)
     kd_search (kdtree, NULL, foib_reg_in_sea, foib_rect_in_reg, &foib);
   return foib.intersect;
@@ -2039,7 +2060,8 @@ TracePath (routedata_t * rd, routebox_t * path, routebox_t * target,
       path = path->parent.expansion_area;
 
       b = path->box;
-      // XXX: if this is a smoothing pass, try to use a larger trace size?
+      /* XXX: if this is a smoothing pass, try to use a larger trace
+	 size? */
       assert (b.X1 != b.X2 && b.Y1 != b.Y2);	/* need someplace to put line! */
       /* find point on path perimeter closest to last point */
       nextpoint = closest_point_in_box (&lastpoint, &b);
@@ -2112,7 +2134,7 @@ TracePath (routedata_t * rd, routebox_t * path, routebox_t * target,
   RD_DrawManhattanLine (rd, &lastpath->box,
 			lastpoint, nextpoint, halfwidth,
 			lastpath->group, subnet, is_bad);
-  //XXX: nonstraight terminals may not be connected properly!
+  /* XXX: nonstraight terminals may not be connected properly! */
   /* done! */
 }
 
@@ -2171,8 +2193,8 @@ add_via_sites (struct routeone_state *s,
 {
   int i, j;
   assert (AutoRouteParameters.use_vias);
-  //XXX: need to clip 'within' to shrunk_pcb_bounds, because when
-  //XXX: routing with conflicts may poke over edge.
+  /* XXX: need to clip 'within' to shrunk_pcb_bounds, because when
+     XXX: routing with conflicts may poke over edge. */
 
   mtspace_query_rect (mtspace, &within->box,
 		      vss->free_space_vec,
@@ -2418,7 +2440,8 @@ RouteOne (routedata_t * rd, routebox_t * from, routebox_t * to)
 		}
 	    }
 	  else
-	    {			// XXX: disabling this causes no via collisions.
+	    {			/* XXX: disabling this causes no via
+				   collisions. */
 	      BoxType a = bloat_routebox (intersecting), b;
 	      edge_t *ne;
 	      int i, j;
