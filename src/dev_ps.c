@@ -659,6 +659,7 @@ PS_Exit (void)
 static void
 EPS_Postamble (void)
 {
+  preamble = False;
   PS_EPS_Exit (True);
 }
 static void
