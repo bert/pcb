@@ -52,7 +52,7 @@
 #include <dmalloc.h>
 #endif
 
-RCSID("$Id$");
+RCSID ("$Id$");
 
 #define ABS(x) (((x)<0)?-(x):(x))
 
@@ -891,6 +891,10 @@ FitCrosshairIntoGrid (Location X, Location Y)
 	ans =
 	  SearchScreen (Crosshair.X, Crosshair.Y, VIA_TYPE | LINEPOINT_TYPE,
 			&ptr1, &ptr2, &ptr3);
+      if (ans == NO_TYPE && !PCB->RatDraw)
+	ans =
+	  SearchScreen (Crosshair.X, Crosshair.Y, ELEMENT_TYPE, &ptr1, &ptr2,
+			&ptr3);
     }
   else
     ans = NO_TYPE;
@@ -947,32 +951,22 @@ FitCrosshairIntoGrid (Location X, Location Y)
   if (ans & PAD_TYPE)
     {
       PadTypePtr pad = (PadTypePtr) ptr2;
-      if (pad->Point1.X == pad->Point2.X)
+      Location px, py;
+      px = (pad->Point1.X + pad->Point2.X) / 2;
+      py = (pad->Point1.Y + pad->Point2.Y) / 2;
+      if (SQUARE (x0 - Crosshair.X) + SQUARE (y0 - Crosshair.Y) >
+	  SQUARE (px - Crosshair.X) + SQUARE (py - Crosshair.Y))
 	{
-	  if (abs (pad->Point1.X - Crosshair.X) < abs (x0 - Crosshair.X))
-	    x0 = pad->Point1.X;
-	  if (abs (pad->Point1.Y - Crosshair.Y) < abs (y0 - Crosshair.Y))
-	    y0 = pad->Point1.Y;
-	  if (abs (pad->Point2.Y - Crosshair.Y) < abs (y0 - Crosshair.Y))
-	    y0 = pad->Point2.Y;
-	}
-      else
-	{
-	  if (abs (pad->Point1.Y - Crosshair.Y) < abs (y0 - Crosshair.Y))
-	    y0 = pad->Point1.Y;
-	  if (abs (pad->Point1.X - Crosshair.X) < abs (x0 - Crosshair.X))
-	    x0 = pad->Point1.X;
-	  if (abs (pad->Point2.X - Crosshair.X) < abs (x0 - Crosshair.X))
-	    x0 = pad->Point2.X;
+	  x0 = px;
+	  y0 = py;
 	}
     }
   else if (ans & (PIN_TYPE | VIA_TYPE))
     {
       PinTypePtr pin = (PinTypePtr) ptr2;
-      if (((x0 - Crosshair.X) * (x0 - Crosshair.X) +
-	   (y0 - Crosshair.Y) * (y0 - Crosshair.Y)) >
-	  ((pin->X - Crosshair.X) * (pin->X - Crosshair.X) +
-	   (pin->Y - Crosshair.Y) * (pin->Y - Crosshair.Y)))
+      if (SQUARE (x0 - Crosshair.X) +
+	  SQUARE (y0 - Crosshair.Y) >
+	  SQUARE (pin->X - Crosshair.X) + SQUARE (pin->Y - Crosshair.Y))
 	{
 	  x0 = pin->X;
 	  y0 = pin->Y;
@@ -988,6 +982,16 @@ FitCrosshairIntoGrid (Location X, Location Y)
 	{
 	  x0 = pnt->X;
 	  y0 = pnt->Y;
+	}
+    }
+  else if (ans & ELEMENT_TYPE)
+    {
+      ElementTypePtr el = (ElementTypePtr) ptr1;
+      if (SQUARE (x0 - Crosshair.X) + SQUARE (y0 - Crosshair.Y) >
+	  SQUARE (el->MarkX - Crosshair.X) + SQUARE (el->MarkY - Crosshair.Y))
+	{
+	  x0 = el->MarkX;
+	  y0 = el->MarkY;
 	}
     }
   if (x0 >= 0 && y0 >= 0)
