@@ -35,11 +35,10 @@ all-local:
 
 COMMON_FILE= common.m4
 
-M4_FILES= \
+M4_DIST_FILES= \
 	TTL_74xx_DIL.m4 \
 	connector.m4 \
 	crystal.m4 \
-	geda.m4 \
 	generic.m4 \
 	genericsmt.m4 \
 	gtag.m4 \
@@ -57,11 +56,10 @@ M4_FILES= \
 	texas_inst_voltage_reg.m4 \
 	transistor.m4 
 
-LIST_FILES= \
+LIST_DIST_FILES= \
 	TTL_74xx_DIL.list \
 	connector.list \
 	crystal.list \
-	geda.list \
 	generic.list \
 	genericsmt.list \
 	gtag.list \
@@ -100,15 +98,26 @@ INC_FILES= \
 DAT_FILES= \
 	qfp.dat
 
+M4_FILES=	${M4_DIST_FILES} geda.m4
+LIST_FILES=	${LIST_DIST_FILES} geda.list
+
 LIB_FILES= ${COMMON_FILE} ${M4_FILES} ${LIST_FILES} ${INC_FILES} 
 
-EXTRA_DIST=	ListLibraryContents.sh ${LIB_FILES} ${LIBCONTENTS} ${DAT_FILES}
+EXTRA_DIST=	ListLibraryContents.sh ${COMMON_FILE} ${M4_DIST_FILES} ${LIST_DIST_FILES} ${INC_FILES} \
+		${LIBCONTENTS} \
+		${DAT_FILES} gen_geda_m4.awk gen_geda_list.awk
 
-DISTCLEANFILES=	${LIBRARYFILENAME} ${LIBRARYFILENAME}.contents
+DISTCLEANFILES=	${LIBRARYFILENAME} ${LIBRARYFILENAME}.contents geda.m4 geda.list
 
 ${LIBRARYFILENAME}: ${COMMON_FILE} ${INC_FILES} ${DAT_FILES} ${M4_FILES} CreateLibrary.sh
 	${SHELL} ./CreateLibrary.sh -I $(srcdir) $@ $(srcdir)/${COMMON_FILE} ${M4_FILES}
 
 ${LIBRARYFILENAME}.contents: ${COMMON_FILE} ${INC_FILES} ${DAT_FILES} ${LIST_FILES} CreateLibraryContents.sh
 	${SHELL} ./CreateLibraryContents.sh -I $(srcdir) $(srcdir)/${COMMON_FILE} ${LIST_FILES} > $@
+
+geda.m4: geda.inc gen_geda_m4.awk
+	${AWK} -f $(srcdir)/gen_geda_m4.awk $(srcdir)/geda.inc > $@
+
+geda.list: geda.inc gen_geda_list.awk
+	${AWK} -f $(srcdir)/gen_geda_list.awk $(srcdir)/geda.inc > $@
 
