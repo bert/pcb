@@ -233,7 +233,7 @@ MoveViaToBuffer (PinTypePtr Via)
 {
   PinTypePtr via;
 
-  r_delete_entry(Source->via_tree, (BoxType *)via);
+  r_delete_entry(Source->via_tree, (BoxType *)Via);
   via = GetViaMemory (Dest);
   *via = *Via;
   *Via = Source->Via[--Source->ViaN];
