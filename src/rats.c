@@ -550,8 +550,8 @@ DrawShortestRats (NetListTypePtr Netl, void (*funcp) ())
 	      for (m = next->ConnectionN - 1; m != -1; m--)
 		{
 		  conn2 = &next->Connection[m];
-		  if ((temp = (conn1->X - conn2->X) * (conn1->X - conn2->X) +
-		       (conn1->Y - conn2->Y) * (conn1->Y - conn2->Y)) <
+		  if ((temp = ((float)conn1->X - conn2->X) * (conn1->X - conn2->X) +
+		       ((float)conn1->Y - conn2->Y) * (conn1->Y - conn2->Y)) <
 		      distance)
 		    {
 		      distance = temp;
