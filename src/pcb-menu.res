@@ -99,7 +99,7 @@ MainMenu = {
         {"Layer groups" foreground=red sensitive=false vertSpace=60}
         {"Edit layer groupings" EditLayerGroups()}
         -
-        {"'All-direction' lines" CheckWhen(alldirection) Display(Toggle45Degree)}
+        {"'All-direction' lines" CheckWhen(alldirection) Display(Toggle45Degree) a={"." "<Key>."}}
         {"Auto swap line start angle" CheckWhen(swapstartdir) Display(ToggleStartDirection)}
         {"Orthogonal moves" CheckWhen(orthomove) Display(ToggleOrthoMove)}
         {"Crosshair snaps to pins and pads" CheckWhen(snappin) Display(ToggleSnapPin)}
