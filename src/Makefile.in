@@ -126,7 +126,7 @@ sharedstatedir = @sharedstatedir@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 
-SUBDIRS = icons
+SUBDIRS = icons script
 
 pcbtreedir = @PCBTREEDIR@
 pcblibdir = @PCBLIBDIR@
@@ -138,7 +138,6 @@ pcblib_DATA = \
 pkgdata_DATA = Pcb
 
 bin_PROGRAMS = pcb-bin
-bin_SCRIPTS = pcb
 
 pcb_bin_SOURCES = \
 	action.c \
@@ -271,13 +270,12 @@ EXTRA_DIST = \
 	icon.data \
 	mode_icon.data \
 	Pcb.ad.in  \
-	pcb.in \
 	pcbtest.sh.in
 
 
 AM_YFLAGS = -d
 
-DISTCLEANFILES = pcbtest.sh pcb Pcb .test/Pcb
+DISTCLEANFILES = pcbtest.sh Pcb .test/Pcb
 subdir = src
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_HEADER = $(top_builddir)/config.h
@@ -308,8 +306,6 @@ pcb_bin_OBJECTS = $(am_pcb_bin_OBJECTS)
 pcb_bin_LDADD = $(LDADD)
 pcb_bin_DEPENDENCIES =
 pcb_bin_LDFLAGS =
-SCRIPTS = $(bin_SCRIPTS)
-
 
 DEFAULT_INCLUDES =  -I. -I$(srcdir) -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
@@ -404,26 +400,6 @@ parse_y.h: parse_y.c
 pcb-bin$(EXEEXT): $(pcb_bin_OBJECTS) $(pcb_bin_DEPENDENCIES) 
 	@rm -f pcb-bin$(EXEEXT)
 	$(LINK) $(pcb_bin_LDFLAGS) $(pcb_bin_OBJECTS) $(pcb_bin_LDADD) $(LIBS)
-binSCRIPT_INSTALL = $(INSTALL_SCRIPT)
-install-binSCRIPTS: $(bin_SCRIPTS)
-	@$(NORMAL_INSTALL)
-	$(mkinstalldirs) $(DESTDIR)$(bindir)
-	@list='$(bin_SCRIPTS)'; for p in $$list; do \
-	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
-	  if test -f $$d$$p; then \
-	    f=`echo "$$p" | sed 's|^.*/||;$(transform)'`; \
-	    echo " $(binSCRIPT_INSTALL) $$d$$p $(DESTDIR)$(bindir)/$$f"; \
-	    $(binSCRIPT_INSTALL) $$d$$p $(DESTDIR)$(bindir)/$$f; \
-	  else :; fi; \
-	done
-
-uninstall-binSCRIPTS:
-	@$(NORMAL_UNINSTALL)
-	@list='$(bin_SCRIPTS)'; for p in $$list; do \
-	  f=`echo "$$p" | sed 's|^.*/||;$(transform)'`; \
-	  echo " rm -f $(DESTDIR)$(bindir)/$$f"; \
-	  rm -f $(DESTDIR)$(bindir)/$$f; \
-	done
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT) core *.core
@@ -741,10 +717,10 @@ distdir: $(DISTFILES)
 check-am: all-am
 check: $(BUILT_SOURCES)
 	$(MAKE) $(AM_MAKEFLAGS) check-recursive
-all-am: Makefile $(PROGRAMS) $(SCRIPTS) $(DATA) all-local
+all-am: Makefile $(PROGRAMS) $(DATA) all-local
 installdirs: installdirs-recursive
 installdirs-am:
-	$(mkinstalldirs) $(DESTDIR)$(bindir) $(DESTDIR)$(bindir) $(DESTDIR)$(pcblibdir) $(DESTDIR)$(pkgdatadir)
+	$(mkinstalldirs) $(DESTDIR)$(bindir) $(DESTDIR)$(pcblibdir) $(DESTDIR)$(pkgdatadir)
 
 install: install-recursive
 install-exec: install-exec-recursive
@@ -771,10 +747,10 @@ distclean-generic:
 maintainer-clean-generic:
 	@echo "This command is intended for maintainers to use"
 	@echo "it deletes files that may require special tools to rebuild."
-	-rm -f parse_l.c
+	-rm -f parse_y.h
 	-test -z "$(BUILT_SOURCES)" || rm -f $(BUILT_SOURCES)
 	-rm -f parse_y.c
-	-rm -f parse_y.h
+	-rm -f parse_l.c
 clean: clean-recursive
 
 clean-am: clean-binPROGRAMS clean-generic mostlyclean-am
@@ -794,7 +770,7 @@ info-am:
 
 install-data-am: install-pcblibDATA install-pkgdataDATA
 
-install-exec-am: install-binPROGRAMS install-binSCRIPTS
+install-exec-am: install-binPROGRAMS
 
 install-info: install-info-recursive
 
@@ -818,8 +794,8 @@ ps: ps-recursive
 
 ps-am:
 
-uninstall-am: uninstall-binPROGRAMS uninstall-binSCRIPTS \
-	uninstall-info-am uninstall-pcblibDATA uninstall-pkgdataDATA
+uninstall-am: uninstall-binPROGRAMS uninstall-info-am \
+	uninstall-pcblibDATA uninstall-pkgdataDATA
 
 uninstall-info: uninstall-info-recursive
 
@@ -829,19 +805,18 @@ uninstall-info: uninstall-info-recursive
 	distclean-depend distclean-generic distclean-recursive \
 	distclean-tags distdir dvi dvi-am dvi-recursive info info-am \
 	info-recursive install install-am install-binPROGRAMS \
-	install-binSCRIPTS install-data install-data-am \
-	install-data-recursive install-exec install-exec-am \
-	install-exec-recursive install-info install-info-am \
-	install-info-recursive install-man install-pcblibDATA \
-	install-pkgdataDATA install-recursive install-strip \
-	installcheck installcheck-am installdirs installdirs-am \
-	installdirs-recursive maintainer-clean maintainer-clean-generic \
-	maintainer-clean-recursive mostlyclean mostlyclean-compile \
-	mostlyclean-generic mostlyclean-recursive pdf pdf-am \
-	pdf-recursive ps ps-am ps-recursive tags tags-recursive \
-	uninstall uninstall-am uninstall-binPROGRAMS \
-	uninstall-binSCRIPTS uninstall-info-am uninstall-info-recursive \
-	uninstall-pcblibDATA uninstall-pkgdataDATA uninstall-recursive
+	install-data install-data-am install-data-recursive \
+	install-exec install-exec-am install-exec-recursive \
+	install-info install-info-am install-info-recursive install-man \
+	install-pcblibDATA install-pkgdataDATA install-recursive \
+	install-strip installcheck installcheck-am installdirs \
+	installdirs-am installdirs-recursive maintainer-clean \
+	maintainer-clean-generic maintainer-clean-recursive mostlyclean \
+	mostlyclean-compile mostlyclean-generic mostlyclean-recursive \
+	pdf pdf-am pdf-recursive ps ps-am ps-recursive tags \
+	tags-recursive uninstall uninstall-am uninstall-binPROGRAMS \
+	uninstall-info-am uninstall-info-recursive uninstall-pcblibDATA \
+	uninstall-pkgdataDATA uninstall-recursive
 
 
 all-local: pcbtest.sh .test/Pcb
@@ -850,12 +825,6 @@ all-local: pcbtest.sh .test/Pcb
 pcbtest.sh:	$(srcdir)/pcbtest.sh.in Makefile
 	sed -e "s;@BUILDDIR@;`pwd`;g" -e "s;@TOPSRCDIR@;${top_srcdir};g" \
 		$(srcdir)/pcbtest.sh.in > $@
-	chmod 755 $@
-
-# create wrapper script for running pcb after installation
-pcb:	$(srcdir)/pcb.in Makefile
-	sed -e 's;@BINDIR@;${bindir};g' -e 's;@PKGDATADIR@;${pkgdatadir};g' \
-		$(srcdir)/pcb.in > $@
 	chmod 755 $@
 Pcb:	$(srcdir)/Pcb.ad.in Makefile
 	sed \

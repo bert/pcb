@@ -6541,7 +6541,7 @@ LIBS="$LIBS $X_LIBS $DMALLOC_LIBS"
 BTNMOD=${BTNMOD:-"Mod1"}
 
 
-                                                                                                                                                                                                                                                                                                  ac_config_files="$ac_config_files Makefile README_FILES/Makefile doc/Makefile example/Makefile example/libraries/Makefile lib/CreateLibraryContents.sh lib/CreateLibrary.sh lib/Makefile lib/QueryLibrary.sh lib/qfp-ui newlib/2_pin_thru-hole_packages/Makefile newlib/Makefile newlib/analog-devices/Makefile newlib/burr-brown/Makefile newlib/connectors/Makefile newlib/crystal/Makefile newlib/cypress/Makefile newlib/electro-optics/Makefile newlib/generic_SMD_packages/Makefile newlib/headers/Makefile newlib/msp430/Makefile newlib/not_vetted_ingo/Makefile newlib/sockets/Makefile newlib/tests/Makefile newlib/toko/Makefile src/Makefile src/icons/Makefile tools/Makefile tutorial/Makefile"
+                                                                                                                                                                                                                                                                                                            ac_config_files="$ac_config_files Makefile README_FILES/Makefile doc/Makefile example/Makefile example/libraries/Makefile lib/CreateLibraryContents.sh lib/CreateLibrary.sh lib/Makefile lib/QueryLibrary.sh lib/qfp-ui newlib/2_pin_thru-hole_packages/Makefile newlib/Makefile newlib/analog-devices/Makefile newlib/burr-brown/Makefile newlib/connectors/Makefile newlib/crystal/Makefile newlib/cypress/Makefile newlib/electro-optics/Makefile newlib/generic_SMD_packages/Makefile newlib/headers/Makefile newlib/msp430/Makefile newlib/not_vetted_ingo/Makefile newlib/sockets/Makefile newlib/tests/Makefile newlib/toko/Makefile src/Makefile src/script/Makefile src/icons/Makefile tools/Makefile tutorial/Makefile"
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
 # tests run on this system so they can be shared between configure
@@ -7116,6 +7116,7 @@ do
   "newlib/tests/Makefile" ) CONFIG_FILES="$CONFIG_FILES newlib/tests/Makefile" ;;
   "newlib/toko/Makefile" ) CONFIG_FILES="$CONFIG_FILES newlib/toko/Makefile" ;;
   "src/Makefile" ) CONFIG_FILES="$CONFIG_FILES src/Makefile" ;;
+  "src/script/Makefile" ) CONFIG_FILES="$CONFIG_FILES src/script/Makefile" ;;
   "src/icons/Makefile" ) CONFIG_FILES="$CONFIG_FILES src/icons/Makefile" ;;
   "tools/Makefile" ) CONFIG_FILES="$CONFIG_FILES tools/Makefile" ;;
   "tutorial/Makefile" ) CONFIG_FILES="$CONFIG_FILES tutorial/Makefile" ;;
