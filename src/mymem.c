@@ -201,15 +201,33 @@ PinTypePtr
 GetPinMemory (ElementTypePtr Element)
 {
   PinTypePtr pin = Element->Pin;
+  Boolean onBoard = False;
 
   /* realloc new memory if necessary and clear it */
   if (Element->PinN >= Element->PinMax)
     {
+      if (PCB->Data->pin_tree)
+        {
+          PIN_LOOP (Element,
+            {
+              if (r_delete_entry (PCB->Data->pin_tree, (BoxType *)pin))
+                onBoard = True;
+            }
+          );
+        }
       Element->PinMax += STEP_PIN;
       pin = MyRealloc (pin, Element->PinMax * sizeof (PinType),
 		       "GetPinMemory()");
       Element->Pin = pin;
       memset (pin + Element->PinN, 0, STEP_PIN * sizeof (PinType));
+      if (onBoard)
+        {
+          PIN_LOOP (Element,
+            {
+              r_insert_entry (PCB->Data->pin_tree, (BoxType *) pin, 0);
+            }
+          );
+        }
     }
   return (pin + Element->PinN++);
 }
@@ -221,15 +239,33 @@ PadTypePtr
 GetPadMemory (ElementTypePtr Element)
 {
   PadTypePtr pad = Element->Pad;
+  Boolean onBoard = False;
 
   /* realloc new memory if necessary and clear it */
   if (Element->PadN >= Element->PadMax)
     {
+      if (PCB->Data->pad_tree)
+        {
+          PAD_LOOP (Element,
+            {
+              if (r_delete_entry (PCB->Data->pad_tree, (BoxType *)pad))
+                onBoard = True;
+            }
+          );
+        }
       Element->PadMax += STEP_PAD;
       pad = MyRealloc (pad, Element->PadMax * sizeof (PadType),
 		       "GetPadMemory()");
       Element->Pad = pad;
       memset (pad + Element->PadN, 0, STEP_PAD * sizeof (PadType));
+      if (onBoard)
+        {
+          PAD_LOOP (Element,
+            {
+              r_insert_entry (PCB->Data->pad_tree, (BoxType *)pad, 0);
+            }
+          );
+        }
     }
   return (pad + Element->PadN++);
 }
@@ -425,6 +461,16 @@ GetElementMemory (DataTypePtr Data)
       ELEMENT_LOOP(Data,
         {
 	  r_insert_entry(Data->element_tree, (BoxType *)element, 0);
+          PIN_LOOP (element,
+            {
+              pin->Element = element;
+            }
+          );
+          PAD_LOOP (element,
+            {
+              pad->Element = element;
+            }
+          );
 	}
       );
     }

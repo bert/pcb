@@ -49,7 +49,6 @@
 #include <X11/keysym.h>
 typedef int Location;
 typedef int BDimension; /* big dimension */
-typedef struct rtree rtree_t;
 
 /* ---------------------------------------------------------------------------
  * do not change the following definition even if it's not very nice.
@@ -169,6 +168,15 @@ typedef struct				/* holds information about arcs */
 			Delta;	
 } ArcType, *ArcTypePtr;
 
+typedef struct
+{
+  struct rtree_node *root;
+  int size;			/* number of entries in tree */
+  BoxType **managed;		/* a list of managed boxes for disposal */
+  size_t m_size;		/* the size of the manage memory */
+  unsigned m_count;		/* how many managed pointers */
+} rtree_t;
+
 typedef struct			/* holds information about one layer */
 {
 	char		*Name;		/* layer name */
@@ -206,7 +214,7 @@ typedef struct				/* a SMD pad */
 	LINESTRUCT
 	BDimension	Mask;
 	char		*Name, *Number;			/* 'Line' */
-	struct ElementType     *Element;
+	void            *Element;
 	void		*Spare;
 } PadType, *PadTypePtr;
 
@@ -222,7 +230,7 @@ typedef struct
 	Location	X,			/* center and diameter */
 			Y;
 	char		*Name, *Number;
-	struct ElementType     *Element;
+	void            *Element;
 	void		*Spare;
 } PinType, *PinTypePtr, **PinTypeHandle;
 
@@ -288,6 +296,8 @@ typedef struct			/* holds all objects */
 	RatTypePtr	Rat;
 	rtree_t		*via_tree,
 			*element_tree,
+                        *pin_tree,
+                        *pad_tree,
 			*name_tree,		/* for element names */
 			*rat_tree;
 	LayerType	Layer[MAX_LAYER + 2];	/* add 2 silkscreen layers */
@@ -700,6 +710,7 @@ typedef struct
       BoxTypePtr      Box; 
 	
 } BoxListType, *BoxListTypePtr;
+
 
 /* ---------------------------------------------------------------------------
  * define supported types of undo operations

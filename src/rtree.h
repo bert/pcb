@@ -45,7 +45,7 @@ rtree_t * r_create_tree(const BoxType * boxlist[], int N, int manage);
 /* destroy an rtree */
 void r_destroy_tree(rtree_t **rtree);
 
-void r_delete_entry(rtree_t *rtree, const BoxType *which);
+Boolean r_delete_entry(rtree_t *rtree, const BoxType *which);
 void r_insert_entry(rtree_t *rtree, const BoxType *which, int manage);
 void r_substitute(rtree_t *rtree, const BoxType *before, const BoxType *after);
 

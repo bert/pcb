@@ -406,7 +406,9 @@ CreateNewRat (DataTypePtr Data, Location X1, Location Y1,
   Line->Point2.ID = ID++;
   Line->group1 = group1;
   Line->group2 = group2;
-  SetLineBoundingBox(Line);
+  SetLineBoundingBox((LineTypePtr)Line);
+  SetPointBoundingBox(&Line->Point1);
+  SetPointBoundingBox(&Line->Point2);
   return (Line);
 }
 

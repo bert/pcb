@@ -497,7 +497,8 @@ static PopupEntryType ConnectionMenuEntries[] = {
   {"djopt-miter", "Miter", CB_Action,
    "djopt,miter\n" "Display,ClearAndRedraw", NULL},
   {"line", NULL, NULL, NULL, NULL},
-  {"drc", "design rule checker", CB_Action, "DRC", NULL},
+  {"drc", "design rule checker", CB_Action, "SetValue,Zoom,=-2\n"
+   "DRC", NULL},
   {NULL, NULL, NULL, NULL, NULL}
 };
 

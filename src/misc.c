@@ -305,60 +305,45 @@ SetElementBoundingBox (DataTypePtr Data, ElementTypePtr Element, FontTypePtr Fon
   );
   PIN_LOOP (Element, 
     {
+      if (Data && Data->pin_tree)
+        r_delete_entry (Data->pin_tree, (BoxType *)pin);
       SetPinBoundingBox (pin);
-      minx = MIN (minx, pin->X - pin->Thickness / 2);
-      miny = MIN (miny, pin->Y - pin->Thickness / 2);
-      maxx = MAX (maxx, pin->X + pin->Thickness / 2);
-      maxy = MAX (maxy, pin->Y + pin->Thickness / 2);
+      if (Data)
+        {
+          if (!Data->pin_tree)
+            Data->pin_tree = r_create_tree (NULL, 0, 0);
+          r_insert_entry (Data->pin_tree, (BoxType *)pin, 0);
+        }
+      minx = MIN (minx, pin->BoundingBox.X1);
+      miny = MIN (miny, pin->BoundingBox.Y1);
+      maxx = MAX (maxx, pin->BoundingBox.X2);
+      maxy = MAX (maxy, pin->BoundingBox.Y2);
     }
   );
   ARC_LOOP (Element, 
     {
-      /* arc->StartAngle is in [0,360], arc->Delta in [0,360] */
-      angle1 = arc->StartAngle;
-      angle2 = arc->StartAngle + arc->Delta;
-      /* initialize limits */
-      fminx =
-	MIN (-cos (M180 * (float) angle1), -cos (M180 * (float) angle2));
-      fmaxx =
-	MAX (-cos (M180 * (float) angle1), -cos (M180 * (float) angle2));
-      fminy = MIN (sin (M180 * (float) angle1), sin (M180 * (float) angle2));
-      fmaxy = MAX (sin (M180 * (float) angle1), sin (M180 * (float) angle2));
-      /* loop and check all angles n*180
-       * with angle1 <= a <= angle2
-       */
-      for (angle = (angle1 / 180 + 1) * 180; angle < angle2; angle += 180)
-	{
-	  fminx = MIN (-cos (M180 * (float) angle), fminx);
-	  fmaxx = MAX (-cos (M180 * (float) angle), fmaxx);
-	}
-
-      /* loop and check all angles n*180+90
-       * with angle1 <= a <= angle2
-       */
-      for (angle = ((angle1 + 90) / 180) * 180 + 90; angle < angle2;
-	   angle += 180)
-	{
-	  fminy = MIN (sin (M180 * (float) angle), fminy);
-	  fmaxy = MAX (sin (M180 * (float) angle), fmaxy);
-	}
-      minx = MIN (minx, (int) (fminx * arc->Width) + arc->X);
-      miny = MIN (miny, (int) (fminy * arc->Height) + arc->Y);
-      maxx = MAX (maxx, (int) (fmaxx * arc->Width) + arc->X);
-      maxy = MAX (maxy, (int) (fmaxy * arc->Height) + arc->Y);
+      SetArcBoundingBox (arc);
+      minx = MIN (minx, arc->BoundingBox.X1);
+      miny = MIN (miny, arc->BoundingBox.Y1);
+      maxx = MAX (maxx, arc->BoundingBox.X2);
+      maxy = MAX (maxy, arc->BoundingBox.Y2);
     }
   );
   PAD_LOOP (Element, 
     {
+      if (Data && Data->pad_tree)
+        r_delete_entry (Data->pad_tree, (BoxType *)pad);
       SetLineBoundingBox((LineTypePtr)pad);
-      minx = MIN (minx, pad->Point1.X - pad->Thickness / 2);
-      miny = MIN (miny, pad->Point1.Y - pad->Thickness / 2);
-      minx = MIN (minx, pad->Point2.X - pad->Thickness / 2);
-      miny = MIN (miny, pad->Point2.Y - pad->Thickness / 2);
-      maxx = MAX (maxx, pad->Point1.X + pad->Thickness / 2);
-      maxy = MAX (maxy, pad->Point1.Y + pad->Thickness / 2);
-      maxx = MAX (maxx, pad->Point2.X + pad->Thickness / 2);
-      maxy = MAX (maxy, pad->Point2.Y + pad->Thickness / 2);
+      if (Data)
+        {
+          if (!Data->pad_tree)
+            Data->pad_tree = r_create_tree (NULL, 0, 0);
+          r_insert_entry (Data->pad_tree, (BoxType *)pad, 0);
+        }
+      minx = MIN (minx, pad->BoundingBox.X1);
+      miny = MIN (miny, pad->BoundingBox.Y1);
+      maxx = MAX (maxx, pad->BoundingBox.X2);
+      maxy = MAX (maxy, pad->BoundingBox.Y2);
     }
   );
   /* now we set the EDGE2FLAG of the pad if Point2

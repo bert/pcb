@@ -214,11 +214,32 @@ static void *
 DestroyElement (ElementTypePtr Element)
 {
   r_delete_entry (DestroyTarget->element_tree, (BoxType *)Element);
+  PIN_LOOP (Element,
+    {
+      r_delete_entry (DestroyTarget->pin_tree, (BoxType *)pin);
+    }
+  );
+  PAD_LOOP (Element,
+    {
+      r_delete_entry (DestroyTarget->pad_tree, (BoxType *)pad);
+    }
+  );
   FreeElementMemory (Element);
   *Element = DestroyTarget->Element[--DestroyTarget->ElementN];
+   /* deal with changed element pointer */
   r_substitute (DestroyTarget->element_tree,
                 (BoxType *)&DestroyTarget->Element[DestroyTarget->ElementN],
 		(BoxType *)Element);
+  PIN_LOOP (Element,
+    {
+      pin->Element = Element;
+    }
+  );
+  PAD_LOOP (Element,
+    {
+      pad->Element = Element;
+    }
+  );
   memset (&DestroyTarget->Element[DestroyTarget->ElementN], 0,
 	  sizeof (ElementType));
   return (NULL);

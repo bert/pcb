@@ -98,15 +98,22 @@ static ObjectFunctionType AddBufferFunctions = {
   NULL,
   AddArcToBuffer,
   AddRatToBuffer
-}, MoveBufferFunctions =
+},
 
-{
-MoveLineToBuffer,
+MoveBufferFunctions = {
+    MoveLineToBuffer,
     MoveTextToBuffer,
     MovePolygonToBuffer,
     MoveViaToBuffer,
     MoveElementToBuffer,
-    NULL, NULL, NULL, NULL, NULL, MoveArcToBuffer, MoveRatToBuffer};
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    MoveArcToBuffer,
+    MoveRatToBuffer
+};
 
 static int ExtraFlag = 0;
 
@@ -350,25 +357,63 @@ MoveElementToBuffer (ElementTypePtr Element)
   ElementTypePtr element;
 
   r_delete_entry(Source->element_tree, (BoxType *)Element);
+  PIN_LOOP (Element,
+    {
+      r_delete_entry (Source->pin_tree, (BoxType *)pin);
+    }
+  );
+  PAD_LOOP (Element,
+    {
+      r_delete_entry (Source->pad_tree, (BoxType *)pad);
+    }
+  );
   element = GetElementMemory (Dest);
   *element = *Element;
   PIN_LOOP (element, 
     {
       pin->Flags &= ~(WARNFLAG | FOUNDFLAG);
+      pin->Element = element;
     }
   );
   PAD_LOOP (element, 
     {
       pad->Flags &= ~(WARNFLAG | FOUNDFLAG);
+      pad->Element = element;
     }
   );
   *Element = Source->Element[--Source->ElementN];
+   /* deal with element pointer changing */
   r_substitute (Source->element_tree, (BoxType *)&Source->Element[Source->ElementN],
                 (BoxType *)Element);
+  PIN_LOOP (Element,
+    {
+       pin->Element = Element;
+    }
+  );
+  PAD_LOOP (Element,
+    {
+       pad->Element = Element;
+    }
+  );
   memset (&Source->Element[Source->ElementN], 0, sizeof (ElementType));
+   /* do we need rtrees for the buffer ? */
   if (!Dest->element_tree)
     Dest->element_tree = r_create_tree (NULL, 0, 0);
-  r_insert_entry(Dest->element_tree, (BoxType *)Element, 0);
+  r_insert_entry(Dest->element_tree, (BoxType *)element, 0);
+  if (!Dest->pin_tree)
+    Dest->pin_tree = r_create_tree (NULL, 0, 0);
+  if (!Dest->pad_tree)
+    Dest->pad_tree = r_create_tree (NULL, 0, 0);
+  PIN_LOOP (element,
+    {
+      r_insert_entry (Dest->pin_tree, (BoxType *)pin, 0);
+    }
+  ); 
+  PAD_LOOP (element,
+    {
+      r_insert_entry (Dest->pad_tree, (BoxType *)pad, 0);
+    }
+  ); 
   return (element);
 }
 

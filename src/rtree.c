@@ -75,15 +75,6 @@
 #define DELETE_BY_POINTER
 typedef long long bigun;
 
-struct rtree
-{
-   struct rtree_node *root;
-   int size;			/* not really necessary, but save the size */
-   const BoxType **managed;	/* a list of managed boxes for disposal */
-   size_t m_size;		/* the size of the manage memory */
-   unsigned m_count;		/* how many managed pointers */
-};
-
 typedef struct
 {
   const BoxType *bptr;		/* pointer to the box */
@@ -1028,24 +1019,20 @@ __r_delete(rtree_t * seed, struct rtree_node * node, const BoxType * query)
    return True;
 }
 
-void
+Boolean
 r_delete_entry(rtree_t *rtree, const BoxType *box)
 {
-   int r;
+   Boolean r;
 
    assert(box);
    assert(rtree);
    r = __r_delete(rtree, rtree->root, box);
-#if 0
-   if (r == 0)
-     __r_dump_tree(rtree->root, 0);
-   assert(r);
-#endif
    if (r)
      rtree->size --;
 #ifdef SLOW_ASSERTS
    assert(__r_tree_is_good(rtree->root));
 #endif
+   return r;
 }
 
 int

@@ -135,7 +135,7 @@ static char *rcsid = "$Id$";
 	(((PolygonTypePtr *)PolygonList[(L)].Data)[(I)])
 
 #define	PVLIST_ENTRY(I)	\
-	(((PVDataTypePtr *)PVList.Data)[(I)])
+	(((PinTypePtr *)PVList.Data)[(I)])
 
 /* IsLineInRectangle already has Bloat factor */
 #define	IS_PV_ON_LINE(PV,Line)	\
@@ -178,13 +178,6 @@ typedef struct
 }
 ListType, *ListTypePtr;
 
-typedef struct			/* holds a copy of all pins and vias */
-{				/* plus a pointer to the according element */
-  PinTypePtr Data;
-  ElementTypePtr Element;
-}
-PVDataType, *PVDataTypePtr;
-
 typedef struct			/* holds a copy of all pads of a layer */
 {				/* plus a pointer to the according element */
   PadTypePtr Data;
@@ -207,10 +200,8 @@ static Boolean IsBad = False;
 static Cardinal drcerr_count;    /* count of drc errors */
 static RatTypePtr *RatSortedByLowX, *RatSortedByHighX;
 static PadDataTypePtr PadData[2];
+Cardinal TotalP, TotalV, NumberOfPads[2];
 static PadDataTypePtr *PadSortedByLowX[2], *PadSortedByHighX[2];
-static PVDataTypePtr PSortedByX, VSortedByX;	/* same for PV */
-static Cardinal TotalP, TotalV,	/* total number of PV */
-  NumberOfPads[2];
 static ListType LineList[MAX_LAYER],	/* list of objects to */
   PolygonList[MAX_LAYER], ArcList[MAX_LAYER], PadList[2], RatList, PVList;
 
@@ -221,13 +212,10 @@ static int ComparePadByLowX (const void *, const void *);
 static int ComparePadByHighX (const void *, const void *);
 static int CompareRatByHighX (const void *, const void *);
 static int CompareRatByLowX (const void *, const void *);
-static int ComparePVByX (const void *, const void *);
 static Cardinal GetPadByLowX (Location, Cardinal);
 static Cardinal GetPadByHighX (Location, Cardinal);
 static Cardinal GetRatByLowX (Location);
 static Cardinal GetRatByHighX (Location);
-static Cardinal GetPVByX (int, Location);
-static PVDataType *LookupPVByCoordinates (int, Location, Location);
 static PadDataTypePtr LookupPadByAddress (PadTypePtr);
 static Boolean LookupLOConnectionsToPVList (Boolean);
 static Boolean LookupLOConnectionsToLOList (Boolean);
@@ -287,16 +275,16 @@ static Boolean SetThing(int, void *, void *, void *);
 	LineArcIntersect((LineTypePtr) (Pad), (Arc)))
 
 static Boolean
-ADD_PV_TO_LIST(PVDataTypePtr Ptr)
+ADD_PV_TO_LIST(PinTypePtr Pin)
 {
   if (User)
-    AddObjectToFlagUndoList((Ptr)->Element ? PIN_TYPE : VIA_TYPE,
-	                    (Ptr)->Element, (Ptr)->Data, (Ptr)->Data);
-  SET_FLAG(TheFlag, (Ptr)->Data);	
-  PVLIST_ENTRY(PVList.Number) = (Ptr);
+    AddObjectToFlagUndoList(Pin->Element ? PIN_TYPE : VIA_TYPE,
+	                    Pin->Element ? Pin->Element : Pin, Pin, Pin);
+  SET_FLAG(TheFlag, Pin);	
+  PVLIST_ENTRY(PVList.Number) = Pin;
   PVList.Number++;
-  if (drc && !TEST_FLAG(SELECTEDFLAG, (Ptr)->Data))
-    return(SetThing(PIN_TYPE, (Ptr)->Element, (Ptr)->Data, (Ptr)->Data));
+  if (drc && !TEST_FLAG(SELECTEDFLAG, Pin))
+    return(SetThing(PIN_TYPE, Pin->Element, Pin, Pin));
   return False;
 }
 
@@ -508,19 +496,6 @@ CompareRatByHighX (const void *Index1, const void *Index2)
 }
 
 /* ---------------------------------------------------------------------------
- * quicksort compare function for pin (via) coordinate X
- * for sorting the PV field in ascending order of X
- */
-static int
-ComparePVByX (const void *Index1, const void *Index2)
-{
-  PinTypePtr ptr1 = ((PVDataTypePtr) Index1)->Data,
-    ptr2 = ((PVDataTypePtr) Index2)->Data;
-
-  return ((int) (ptr1->X - ptr2->X));
-}
-
-/* ---------------------------------------------------------------------------
  * returns the minimum index which matches
  * lowX(pad[index]) <= X for all index >= 'found one'
  * the field is sorted in a descending order
@@ -611,42 +586,6 @@ GetRatByLowX (Location X)
 }
 
 /* ---------------------------------------------------------------------------
- * returns the minimum index which matches
- * X(PV[index]) >= X for all index >= 'found one'
- * the field is sorted in a ascending order
- * kind = 1 means pins, kind = 0 means vias
- */
-static Cardinal
-GetPVByX (int kind, Location X)
-{
-  int left = 0, right, position;
-
-  if (kind)
-    right = TotalP - 1;
-  else
-    right = TotalV - 1;
-  while (left < right)
-    {
-      position = (left + right) / 2;
-      if (kind)
-	{
-	  if (PSortedByX[position].Data->X >= X)
-	    right = position;
-	  else
-	    left = position + 1;
-	}
-      else
-	{
-	  if (VSortedByX[position].Data->X >= X)
-	    right = position;
-	  else
-	    left = position + 1;
-	}
-    }
-  return ((Cardinal) left);
-}
-
-/* ---------------------------------------------------------------------------
  * releases all allocated memory
  */
 void
@@ -660,7 +599,6 @@ FreeLayoutLookupMemory (void)
       MyFree ((char **) &ArcList[i].Data);
       MyFree ((char **) &PolygonList[i].Data);
     }
-  MyFree ((char **) &VSortedByX);
   MyFree ((char **) &PVList.Data);
   MyFree ((char **) &RatSortedByLowX);
   MyFree ((char **) &RatSortedByHighX);
@@ -679,7 +617,6 @@ FreeComponentLookupMemory (void)
       MyFree ((char **) &PadSortedByHighX[i]);
       MyFree ((char **) &PadList[i].Data);
     }
-  MyFree ((char **) &PSortedByX);
 }
 
 /* ---------------------------------------------------------------------------
@@ -752,31 +689,6 @@ InitComponentLookup (void)
       PadList[i].DrawLocation = 0;
       PadList[i].Number = 0;
     }
-  /* pin and via data; start with counting their total number,
-   * then allocate memory and copy the data to a tmp field
-   * set number of the according element in tmp field too
-   */
-  TotalP = 0;
-  ELEMENT_LOOP (PCB->Data, 
-    {
-      TotalP += element->PinN;
-    }
-  );
-  PSortedByX = (PVDataTypePtr) MyCalloc (TotalP, sizeof (PVDataType),
-					 "InitConnectionLookup()");
-
-  pos = 0;
-  ELEMENT_LOOP (PCB->Data, 
-    {
-      PIN_LOOP (element, 
-	{
-	  PSortedByX[pos].Data = pin;
-	  PSortedByX[pos++].Element = element;
-	}
-      );
-    }
-  );
-  qsort (PSortedByX, TotalP, sizeof (PVDataType), ComparePVByX);
 }
 
 /* ---------------------------------------------------------------------------
@@ -787,22 +699,6 @@ void
 InitLayoutLookup (void)
 {
   Cardinal i, pos;
-
-  /* copy via data; field is initialized with NULL */
-  pos = 0;
-  TotalV = PCB->Data->ViaN;
-  VSortedByX = (PVDataTypePtr) MyCalloc (TotalV, sizeof (PVDataType),
-					 "InitConnectionLookup()");
-  VIA_LOOP (PCB->Data, 
-    {
-      VSortedByX[pos].Element = NULL;
-      VSortedByX[pos++].Data = via;
-    }
-  );
-
-  /* sort array by X */
-  qsort (VSortedByX, TotalV, sizeof (PVDataType), ComparePVByX);
-
 
   /* initialize line arc and polygon data */
   for (i = 0; i < MAX_LAYER; i++)
@@ -842,8 +738,16 @@ InitLayoutLookup (void)
       PolygonList[i].Number = 0;
     }
 
+  if (PCB->Data->pin_tree)
+    TotalP = PCB->Data->pin_tree->size;
+  else
+    TotalP = 0;
+  if (PCB->Data->via_tree)
+    TotalV = PCB->Data->via_tree->size;
+  else
+    TotalV = 0;
   /* allocate memory for 'new PV to check' list and clear struct */
-  PVList.Data = (void **) MyCalloc (TotalP + TotalV, sizeof (PVDataTypePtr),
+  PVList.Data = (void **) MyCalloc (TotalP + TotalV, sizeof (PinTypePtr),
 				    "InitConnectionLookup()");
   PVList.Location = 0;
   PVList.DrawLocation = 0;
@@ -954,42 +858,6 @@ LookupPadByAddress (PadTypePtr Pad)
   return (NULL);
 }
 
-/* ---------------------------------------------------------------------------
- * finds a Pin by it's coordinates in the sorted list
- * A pointer to the list entry or NULL is returned
- */
-static PVDataTypePtr
-LookupPVByCoordinates (int kind, Location X, Location Y)
-{
-  Cardinal i, limit;
-
-  /* return if their are no PVs */
-  if (kind && !TotalP)
-    return (NULL);
-  if (!kind && !TotalV)
-    return (NULL);
-
-  /* get absolute lower/upper boundary */
-  i = GetPVByX (kind, X - MAX_PINORVIASIZE);
-  limit = GetPVByX (kind, X + MAX_PINORVIASIZE + 1);
-  while (i <= limit)
-    {
-      PinTypePtr ptr;
-
-      if (kind)
-	ptr = PSortedByX[i].Data;
-      else
-	ptr = VSortedByX[i].Data;
-
-      /* check which one matches */
-      if (abs (ptr->X - X) <= ptr->Thickness / 4 &&
-	  abs (ptr->Y - Y) <= ptr->Thickness / 4)
-	return (kind ? &PSortedByX[i] : &VSortedByX[i]);
-      i++;
-    }
-  return (NULL);
-}
-
 struct pv_info
 {
   Cardinal layer;
@@ -1040,7 +908,7 @@ LookupLOConnectionsToPVList (Boolean AndRats)
   while (PVList.Location < PVList.Number)
     {
       /* get pointer to data */
-      pv = PVLIST_ENTRY (PVList.Location)->Data;
+      pv = PVLIST_ENTRY (PVList.Location);
 
       /* check pads (which are lines) */
       for (layer = 0; layer < 2; layer++)
@@ -1228,6 +1096,28 @@ LookupLOConnectionsToLOList (Boolean AndRats)
   return (False);
 }
 
+int pv_pv_callback (const BoxType *b, void *cl)
+{
+  PinTypePtr pin = (PinTypePtr)b;
+  struct pv_info *i = (struct pv_info *)cl;
+
+  if (!TEST_FLAG (TheFlag, pin) && PV_TOUCH_PV (i->pv, pin))
+    {
+      if (TEST_FLAG (HOLEFLAG, pin))
+	{
+          SET_FLAG (WARNFLAG, pin);
+          Settings.RatWarn = True;
+          if (pin->Element)
+            Message ("WARNING: Hole too close to pin.\n");
+          else
+            Message ("WARNING: Hole too close to via.\n");
+        }
+      if (ADD_PV_TO_LIST (pin))
+        longjmp (i->env, 1);
+    }
+  return 0;
+}
+
 /* ---------------------------------------------------------------------------
  * searches for new PVs that are connected to PVs on the list
  */
@@ -1235,8 +1125,8 @@ static Boolean
 LookupPVConnectionsToPVList (void)
 {
   BDimension distance;
-  PinTypePtr pv;
   Cardinal i, j, limit, save_place;
+  struct pv_info info;
 
 
   /* loop over all PVs on list */
@@ -1244,44 +1134,119 @@ LookupPVConnectionsToPVList (void)
   while (PVList.Location < PVList.Number)
     {
       /* get pointer to data */
-      pv = PVLIST_ENTRY (PVList.Location)->Data;
-      distance = MAX ((MAX_PINORVIASIZE + pv->Thickness) / 2 + Bloat, 0);
-      for (j = 0; j < 2; j++)
-	{
-	  if ((j == 0 && TotalV == 0) || (j == 1 && TotalP == 0))
-	    continue;
-	  i = GetPVByX (j, pv->X - distance);
-	  limit = GetPVByX (j, pv->X + distance + 1);
-	  for (; i <= limit; i++)
-	    {
-	      PinTypePtr pv2;
-
-	      if (j)
-		pv2 = PSortedByX[i].Data;
-	      else
-		pv2 = VSortedByX[i].Data;
-
-	      if (!TEST_FLAG (TheFlag, pv2) && PV_TOUCH_PV (pv, pv2))
-		{
-		  if (TEST_FLAG (HOLEFLAG, pv2))
-		    {
-		      SET_FLAG (WARNFLAG, pv2);
-		      Settings.RatWarn = True;
-		      Message ("WARNING: Hole touches pin or via.\n");
-		    }
-		  if (ADD_PV_TO_LIST (j ? &PSortedByX[i] : &VSortedByX[i]))
-		    return True;
-		}
-	    }
-	}
+      info.pv = PVLIST_ENTRY (PVList.Location);
+      if (setjmp (info.env) == 0)
+        r_search (PCB->Data->via_tree, (BoxType *)info.pv, NULL, pv_pv_callback,
+                  &info);
+      else
+        return True;
+      if (setjmp (info.env) == 0)
+        r_search (PCB->Data->pin_tree, (BoxType *)info.pv, NULL, pv_pv_callback,
+                  &info);
+      else
+        return True;
       PVList.Location++;
     }
   PVList.Location = save_place;
   return (False);
 }
 
+struct lo_info
+{
+  Cardinal layer;
+  LineTypePtr line;
+  PadTypePtr pad;
+  ArcTypePtr arc;
+  PolygonTypePtr polygon;
+  RatTypePtr rat;
+  jmp_buf env;
+};
 
+int
+pv_line_callback (const BoxType *b, void *cl)
+{
+  PinTypePtr pv = (PinTypePtr)b;
+  struct lo_info *i = (struct lo_info *)cl;
 
+  if (!TEST_FLAG (TheFlag, pv) && IS_PV_ON_LINE (pv, i->line))
+    {
+      if (TEST_FLAG (HOLEFLAG, pv))
+	{
+	  SET_FLAG (WARNFLAG, pv);
+	  Settings.RatWarn = True;
+	  Message ("WARNING: Hole too clost to line.\n");
+	}
+      if (ADD_PV_TO_LIST (pv))
+        longjmp (i->env, 1);
+    }
+  return 0;
+}
+
+int
+pv_pad_callback (const BoxType *b, void *cl)
+{
+  PinTypePtr pv = (PinTypePtr)b;
+  struct lo_info *i = (struct lo_info *)cl;
+
+  if (!TEST_FLAG (TheFlag, pv) && IS_PV_ON_PAD (pv, i->pad))
+    {
+      if (TEST_FLAG (HOLEFLAG, pv))
+	{
+	  SET_FLAG (WARNFLAG, pv);
+	  Settings.RatWarn = True;
+	  Message ("WARNING: Hole too close to pad.\n");
+	}
+      if (ADD_PV_TO_LIST (pv))
+        longjmp (i->env, 1);
+    }
+  return 0;
+}
+
+int
+pv_arc_callback (const BoxType *b, void *cl)
+{
+  PinTypePtr pv = (PinTypePtr)b;
+  struct lo_info *i = (struct lo_info *)cl;
+
+  if (!TEST_FLAG (TheFlag, pv) && IS_PV_ON_ARC (pv, i->arc))
+    {
+      if (TEST_FLAG (HOLEFLAG, pv))
+	{
+	  SET_FLAG (WARNFLAG, pv);
+	  Settings.RatWarn = True;
+	  Message ("WARNING: Hole touches arc.\n");
+	}
+      if (ADD_PV_TO_LIST (pv))
+        longjmp (i->env, 1);
+    }
+  return 0;
+}
+
+int
+pv_poly_callback (const BoxType *b, void *cl)
+{
+  PinTypePtr pv = (PinTypePtr)b;
+  struct lo_info *i = (struct lo_info *)cl;
+  int Myflag = (L0THERMFLAG | L0PIPFLAG) << i->layer;
+
+   /* note that holes in polygons are ok */
+  if ((TEST_FLAGS (Myflag, pv) || !TEST_FLAG (CLEARPOLYFLAG, i->polygon))
+      && !TEST_FLAG (TheFlag, pv) && ADD_PV_TO_LIST (pv))
+    longjmp (i->env, 1);
+  return 0;
+}
+
+int
+pv_rat_callback (const BoxType *b, void *cl)
+{
+  PinTypePtr pv = (PinTypePtr)b;
+  struct lo_info *i = (struct lo_info *)cl;
+
+   /* rats can't cause DRC so there is no early exit */
+  if (!TEST_FLAG (TheFlag, pv) && IS_PV_ON_RAT (pv, i->rat))
+    ADD_PV_TO_LIST (pv);
+  return 0;
+}
 
 /* ---------------------------------------------------------------------------
  * searches for new PVs that are connected to NEW LOs on the list
@@ -1293,6 +1258,7 @@ LookupPVConnectionsToLOList (Boolean AndRats)
   Cardinal layer, i, j, limit;
   BDimension distance;
   int Myflag;
+  struct lo_info info;
 
   /* loop over all layers */
   for (layer = 0; layer < MAX_LAYER; layer++)
@@ -1309,131 +1275,52 @@ LookupPVConnectionsToLOList (Boolean AndRats)
       /* check all lines */
       while (LineList[layer].Location < LineList[layer].Number)
 	{
-	  LineTypePtr line = LINELIST_ENTRY (layer,
-					     LineList[layer].Location);
-
-	  /* get the positions in sorted field to speed up searching
-	   * ### line->Point1.X <= line->Point2.X ###
-	   * the '+1' in the second call of GetPVByX()
-	   * makes sure that 'limit' is realy the position outside the
-	   * range.
-	   */
-	  distance =
-	    MAX ((MAX_PINORVIASIZE + line->Thickness) / 2 + Bloat, 0);
-	  for (j = 0; j < 2; j++)
-	    {
-	      if ((j == 0 && TotalV == 0) || (j == 1 && TotalP == 0))
-		continue;
-	      i =
-		GetPVByX (j, MIN (line->Point1.X, line->Point2.X) - distance);
-	      limit =
-		GetPVByX (j,
-			  MAX (line->Point1.X,
-			       line->Point2.X) + distance + 1);
-	      for (; i <= limit; i++)
-		{
-		  PinTypePtr pv;
-
-		  if (j)
-		    pv = PSortedByX[i].Data;
-		  else
-		    pv = VSortedByX[i].Data;
-
-		  if (!TEST_FLAG (TheFlag, pv) && IS_PV_ON_LINE (pv, line))
-		    {
-		      if (TEST_FLAG (HOLEFLAG, pv))
-			{
-			  SET_FLAG (WARNFLAG, pv);
-			  Settings.RatWarn = True;
-			  Message ("WARNING: Hole touches line.\n");
-			}
-		      if (ADD_PV_TO_LIST (j ? &PSortedByX[i] : &VSortedByX[i]))
-		        return True;
-		    }
-		}
-	    }
+	  info.line = LINELIST_ENTRY (layer, LineList[layer].Location);
+          if (setjmp (info.env) == 0)
+            r_search (PCB->Data->via_tree, (BoxType *)info.line, NULL,
+                     pv_line_callback, &info);
+          else
+           return True;
+          if (setjmp (info.env) == 0)
+            r_search (PCB->Data->pin_tree, (BoxType *)info.line, NULL,
+                     pv_line_callback, &info);
+          else
+           return True;
 	  LineList[layer].Location++;
 	}
 
       /* check all arcs */
       while (ArcList[layer].Location < ArcList[layer].Number)
 	{
-	  Location X1, X2;
-	  ArcTypePtr arc = ARCLIST_ENTRY (layer, ArcList[layer].Location);
-
-	  /* get the positions in sorted field to speed up searching
-	   * the '+1' in the second call of GetPVByX()
-	   * makes sure that 'limit' is realy the position outside the
-	   * range
-	   */
-	  distance = MAX ((MAX_PINORVIASIZE + arc->Thickness) / 2 + Bloat, 0);
-	  X1 = arc->X - arc->Width * cos (M180 * arc->StartAngle);
-	  X2 =
-	    arc->X - arc->Width * cos (M180 * (arc->StartAngle + arc->Delta));
-	  for (j = 0; j < 2; j++)
-	    {
-	      if ((j == 0 && TotalV == 0) || (j == 1 && TotalP == 0))
-		continue;
-	      i = GetPVByX (j, MIN (X1, X2) - distance);
-	      limit = GetPVByX (j, MAX (X1, X2) + distance + 1);
-	      for (; i <= limit; i++)
-		{
-		  PinTypePtr pv;
-
-		  if (j)
-		    pv = PSortedByX[i].Data;
-		  else
-		    pv = VSortedByX[i].Data;
-
-		  if (!TEST_FLAG (TheFlag, pv) && IS_PV_ON_ARC (pv, arc))
-		    {
-		      if (TEST_FLAG (HOLEFLAG, pv))
-			{
-			  SET_FLAG (WARNFLAG, pv);
-			  Settings.RatWarn = True;
-			  Message ("WARNING: Hole touches arc.\n");
-			}
-		      if (ADD_PV_TO_LIST (j ? &PSortedByX[i] : &VSortedByX[i]))
-		        return True;
-		    }
-		}
-	    }
+	  info.arc = ARCLIST_ENTRY (layer, ArcList[layer].Location);
+          if (setjmp (info.env) == 0)
+            r_search (PCB->Data->via_tree, (BoxType *)info.arc, NULL,
+                     pv_arc_callback, &info);
+          else
+            return True;
+          if (setjmp (info.env) == 0)
+            r_search (PCB->Data->pin_tree, (BoxType *)info.arc, NULL,
+                     pv_arc_callback, &info);
+          else
+            return True;
 	  ArcList[layer].Location++;
 	}
 
       /* now all polygons */
+      info.layer = layer;
       while (PolygonList[layer].Location < PolygonList[layer].Number)
 	{
-	  PolygonTypePtr polygon;
-
-	  polygon = POLYGONLIST_ENTRY (layer, PolygonList[layer].Location);
-
-	  /* get the positions in sorted field to speed up searching */
-	  distance = MAX_PINORVIASIZE / 2;
-	  Myflag = (L0THERMFLAG | L0PIPFLAG) << layer;
-	  for (j = 0; j < 2; j++)
-	    {
-	      if ((j == 0 && TotalV == 0) || (j == 1 && TotalP == 0))
-		continue;
-	      i = GetPVByX (j, polygon->BoundingBox.X1 - distance);
-	      limit = GetPVByX (j, polygon->BoundingBox.X2 + distance + 1);
-	      for (; i <= limit; i++)
-		{
-		  PinTypePtr pv;
-
-		  if (j)
-		    pv = PSortedByX[i].Data;
-		  else
-		    pv = VSortedByX[i].Data;
-
-		  /* note that holes in polygons are ok */
-		  if ((TEST_FLAGS (Myflag, pv)
-		       || !TEST_FLAG (CLEARPOLYFLAG, polygon))
-		      && !TEST_FLAG (TheFlag, pv)
-		      && ADD_PV_TO_LIST (j ? &PSortedByX[i] : &VSortedByX[i]))
-		    return True;
-		}
-	    }
+	  info.polygon = POLYGONLIST_ENTRY (layer, PolygonList[layer].Location);
+          if (setjmp (info.env) == 0)
+            r_search (PCB->Data->via_tree, (BoxType *)info.polygon, NULL,
+                     pv_poly_callback, &info);
+          else
+            return True;
+          if (setjmp (info.env) == 0)
+            r_search (PCB->Data->pin_tree, (BoxType *)info.polygon, NULL,
+                     pv_poly_callback, &info);
+          else
+            return True;
 	  PolygonList[layer].Location++;
 	}
     }
@@ -1453,40 +1340,17 @@ LookupPVConnectionsToLOList (Boolean AndRats)
        */
       while (PadList[layer].Location < PadList[layer].Number)
 	{
-	  PadTypePtr pad;
-
-	  pad = PADLIST_ENTRY (layer, PadList[layer].Location)->Data;
-	  distance = MAX ((MAX_PINORVIASIZE + pad->Thickness) / 2 + Bloat, 0);
-	  for (j = 0; j < 2; j++)
-	    {
-	      if ((j == 0 && TotalV == 0) || (j == 1 && TotalP == 0))
-		continue;
-	      i = GetPVByX (j, MIN (pad->Point1.X, pad->Point2.X) - distance);
-	      limit =
-		GetPVByX (j,
-			  MAX (pad->Point1.X, pad->Point2.X) + distance + 1);
-	      for (; i <= limit; i++)
-		{
-		  PinTypePtr pv;
-
-		  if (j)
-		    pv = PSortedByX[i].Data;
-		  else
-		    pv = VSortedByX[i].Data;
-
-		  if (!TEST_FLAG (TheFlag, pv) && IS_PV_ON_PAD (pv, pad))
-		    {
-		      if (TEST_FLAG (HOLEFLAG, pv))
-			{
-			  SET_FLAG (WARNFLAG, pv);
-			  Settings.RatWarn = True;
-			  Message ("WARNING: Hole touches pad.\n");
-			}
-		      if (ADD_PV_TO_LIST (j ? &PSortedByX[i] : &VSortedByX[i]))
-		        return True;
-		    }
-		}
-	    }
+          info.pad = PADLIST_ENTRY (layer, PadList[layer].Location)->Data;
+          if (setjmp (info.env) == 0)
+            r_search (PCB->Data->via_tree, (BoxType *)info.pad, NULL,
+                     pv_pad_callback, &info);
+          else
+            return True; 
+          if (setjmp (info.env) == 0)
+            r_search (PCB->Data->pin_tree, (BoxType *)info.pad, NULL,
+                     pv_pad_callback, &info);
+          else
+            return True;
 	  PadList[layer].Location++;
 	}
     }
@@ -1500,72 +1364,50 @@ LookupPVConnectionsToLOList (Boolean AndRats)
     {
       while (RatList.Location < RatList.Number)
 	{
-	  RatTypePtr rat;
+	  info.rat = RATLIST_ENTRY (RatList.Location);
+          r_search (PCB->Data->via_tree, (BoxType *)&info.rat->Point1, NULL,
+                   pv_rat_callback, &info);
+          r_search (PCB->Data->via_tree, (BoxType *)&info.rat->Point2, NULL,
+                   pv_rat_callback, &info);
+          r_search (PCB->Data->pin_tree, (BoxType *)&info.rat->Point1, NULL,
+                     pv_rat_callback, &info);
+          r_search (PCB->Data->pin_tree, (BoxType *)&info.rat->Point2, NULL,
+                     pv_rat_callback, &info);
 
-	  rat = RATLIST_ENTRY (RatList.Location);
-	  distance = (MAX_PINORVIASIZE) / 2;
-	  for (j = 0; j < 2; j++)
-	    {
-	      if ((j == 0 && TotalV == 0) || (j == 1 && TotalP == 0))
-		continue;
-	      i = GetPVByX (j, MIN (rat->Point1.X, rat->Point2.X) - distance);
-	      limit =
-		GetPVByX (j,
-			  MAX (rat->Point1.X, rat->Point2.X) + distance + 1);
-	      for (; i <= limit; i++)
-		{
-		  PinTypePtr pv;
-
-		  if (j)
-		    pv = PSortedByX[i].Data;
-		  else
-		    pv = VSortedByX[i].Data;
-
-		  if (!TEST_FLAG (TheFlag, pv) && IS_PV_ON_RAT (pv, rat) &&
-		      ADD_PV_TO_LIST (j ? &PSortedByX[i] : &VSortedByX[i]))
-		    return True;
-		}
-	    }
 	  RatList.Location++;
 	}
     }
   return (False);
 }
 
+int
+pv_touch_callback (const BoxType *b, void *cl)
+{
+  PinTypePtr pin = (PinTypePtr)b;
+  struct lo_info *i = (struct lo_info *)cl;
+
+  if (!TEST_FLAG (TheFlag, pin) && IS_PV_ON_LINE (pin, i->line))
+    longjmp (i->env, 1);
+  return 0;
+}
+
 static Boolean
 PVTouchesLine (LineTypePtr line)
 {
-  Cardinal i, j, limit;
-  BDimension distance;
+  struct lo_info info;
 
-  /* do nothing if there are no PV's */
-  if (TotalP + TotalV == 0)
-    return (False);
+  info.line = line;
+  if (setjmp (info.env) == 0)
+    r_search (PCB->Data->via_tree, (BoxType *)line, NULL,
+              pv_touch_callback, &info);
+  else
+    return True;
+  if (setjmp (info.env) == 0)
+    r_search (PCB->Data->pin_tree, (BoxType *)line, NULL,
+              pv_touch_callback, &info);
+  else
+    return True;
 
-  /* get the positions in sorted field to speed up searching
-   * ### line->Point1.X <= line->Point2.X ###
-   * the '+1' in the second call of GetPVByX()
-   * makes sure that 'limit' is realy the position outside the
-   * range
-   */
-
-
-  distance = MAX ((MAX_PINORVIASIZE + line->Thickness) / 2 + Bloat, 0);
-  for (j = 0; j < 2; j++)
-    {
-      if ((j == 0 && TotalV == 0) || (j == 1 && TotalP == 0))
-	continue;
-      i = GetPVByX (j, MIN (line->Point1.X, line->Point2.X) - distance);
-      limit =
-	GetPVByX (j, MAX (line->Point1.X, line->Point2.X) + distance + 1);
-      for (; i <= limit; i++)
-	{
-	  PinTypePtr pv = ((j) ? PSortedByX[i].Data : VSortedByX[i].Data);
-
-	  if (!TEST_FLAG (TheFlag, pv) && IS_PV_ON_LINE (pv, line))
-	    return (True);
-	}
-    }
   return (False);
 }
 
@@ -2053,18 +1895,11 @@ LineArcIntersect (LineTypePtr Line, ArcTypePtr Arc)
   return (False);
 }
 
-struct arc_info
-{
-  Cardinal layer;
-  ArcTypePtr arc;
-  jmp_buf env;
-};
-
 static int
 LOCtoArcLine_callback (const BoxType *b, void *cl)
 {
   LineTypePtr line = (LineTypePtr)b;
-  struct arc_info *i = (struct arc_info *)cl;
+  struct lo_info *i = (struct lo_info *)cl;
 
   if (!TEST_FLAG (TheFlag, line) && LineArcIntersect (line, i->arc))
     {
@@ -2078,7 +1913,7 @@ static int
 LOCtoArcArc_callback (const BoxType *b, void *cl)
 {
   ArcTypePtr arc = (ArcTypePtr)b;
-  struct arc_info *i = (struct arc_info *)cl;
+  struct lo_info *i = (struct lo_info *)cl;
 
   if (!TEST_FLAG (TheFlag, arc) && ArcArcIntersect (i->arc, arc))
     {
@@ -2100,7 +1935,7 @@ LookupLOConnectionsToArc (ArcTypePtr Arc, Cardinal LayerGroup)
 {
   Cardinal entry;
   Location xlow, xhigh;
-  struct arc_info info;
+  struct lo_info info;
 
   /* the maximum possible distance */
 
@@ -2161,18 +1996,11 @@ LookupLOConnectionsToArc (ArcTypePtr Arc, Cardinal LayerGroup)
   return (False);
 }
 
-struct line_info
-{
-  Cardinal layer;
-  LineTypePtr line;
-  jmp_buf env;
-};
-
 static int
 LOCtoLineLine_callback (const BoxType *b, void *cl)
 {
   LineTypePtr line = (LineTypePtr)b;
-  struct line_info *i = (struct line_info *)cl;
+  struct lo_info *i = (struct lo_info *)cl;
 
   if (!TEST_FLAG (TheFlag, line) && LineLineIntersect (i->line, line))
     {
@@ -2186,7 +2014,7 @@ static int
 LOCtoLineArc_callback (const BoxType *b, void *cl)
 {
   ArcTypePtr arc = (ArcTypePtr)b;
-  struct line_info *i = (struct line_info *)cl;
+  struct lo_info *i = (struct lo_info *)cl;
 
   if (!TEST_FLAG (TheFlag, arc) && LineArcIntersect (i->line, arc))
     {
@@ -2210,7 +2038,7 @@ static Boolean
   Cardinal entry, i;
   Location xlow, xhigh;
   RatTypePtr *sortedrat;
-  struct line_info info;
+  struct lo_info info;
 
   /* the maximum possible distance */
 
@@ -2306,7 +2134,7 @@ static int
 LOT_Linecallback (const BoxType *b, void *cl)
 {
   LineTypePtr line = (LineTypePtr)b;
-  struct line_info *i = (struct line_info *)cl;
+  struct lo_info *i = (struct lo_info *)cl;
   
   if (!TEST_FLAG (TheFlag, line) && LineLineIntersect (i->line, line))
     longjmp (i->env, 1);
@@ -2317,7 +2145,7 @@ static int
 LOT_Arccallback (const BoxType *b, void *cl)
 {
   ArcTypePtr arc = (ArcTypePtr)b;
-  struct line_info *i = (struct line_info *)cl;
+  struct lo_info *i = (struct lo_info *)cl;
   
   if (!TEST_FLAG (TheFlag, arc) && LineArcIntersect (i->line, arc))
     longjmp (i->env, 1);
@@ -2330,7 +2158,7 @@ LOTouchesLine (LineTypePtr Line, Cardinal LayerGroup)
   Cardinal entry;
   Location xlow, xhigh;
   Cardinal i;
-  struct line_info info;
+  struct lo_info info;
 
 
   /* the maximum possible distance */
@@ -2472,7 +2300,7 @@ static int
 LOCtoPadLine_callback (const BoxType *b, void *cl)
 {
   LineTypePtr line = (LineTypePtr)b;
-  struct line_info *i = (struct line_info *) cl;
+  struct lo_info *i = (struct lo_info *) cl;
 
   if (!TEST_FLAG (TheFlag, line) && LinePadIntersect (line, i->line))
     {
@@ -2486,7 +2314,7 @@ static int
 LOCtoPadArc_callback (const BoxType *b, void *cl)
 {
   ArcTypePtr arc = (ArcTypePtr)b;
-  struct line_info *i = (struct line_info *) cl;
+  struct lo_info *i = (struct lo_info *) cl;
 
   if (!TEST_FLAG (TheFlag, arc) && ArcPadIntersect (i->line, arc))
     {
@@ -2510,7 +2338,7 @@ LookupLOConnectionsToPad (PadTypePtr Pad, Cardinal LayerGroup)
   Location xlow, xhigh;
   RatTypePtr *sortedrat;
   LineTypePtr Line = (LineTypePtr) Pad;
-  struct line_info info;
+  struct lo_info info;
 
   info.line = Line;
   if (!TEST_FLAG (SQUAREFLAG, Pad))
@@ -2589,18 +2417,11 @@ LookupLOConnectionsToPad (PadTypePtr Pad, Cardinal LayerGroup)
   return (False);
 }
 
-struct poly_info
-{
-  Cardinal layer;
-  PolygonTypePtr polygon;
-  jmp_buf env;
-};
-
 static int
 LOCtoPolyLine_callback (const BoxType *b, void *cl)
 {
   LineTypePtr line = (LineTypePtr) b;
-  struct poly_info *i = (struct poly_info *)cl;
+  struct lo_info *i = (struct lo_info *)cl;
 
   if (!TEST_FLAG (TheFlag, line)
 	&& IsLineInPolygon (line, i->polygon))
@@ -2615,7 +2436,7 @@ static int
 LOCtoPolyArc_callback (const BoxType *b, void *cl)
 {
   ArcTypePtr arc = (ArcTypePtr) b;
-  struct poly_info *i = (struct poly_info *)cl;
+  struct lo_info *i = (struct lo_info *)cl;
 
   if (!TEST_FLAG (TheFlag, arc)
 	&& IsArcInPolygon (arc, i->polygon))
@@ -2634,7 +2455,7 @@ static Boolean
 LookupLOConnectionsToPolygon (PolygonTypePtr Polygon, Cardinal LayerGroup)
 {
   Cardinal entry;
-  struct poly_info info;
+  struct lo_info info;
 
   info.polygon = Polygon;
 /* loop over all layers of the group */
@@ -2926,7 +2747,7 @@ static void
 PrintPinConnections (FILE * FP, Boolean IsFirst)
 {
   Cardinal i;
-  PVDataTypePtr pv;
+  PinTypePtr pv;
 
   if (!PVList.Number)
     return;
@@ -2935,7 +2756,7 @@ PrintPinConnections (FILE * FP, Boolean IsFirst)
     {
       /* the starting pin */
       pv = PVLIST_ENTRY (0);
-      PrintConnectionListEntry (EMPTY (pv->Data->Name), NULL, True, FP);
+      PrintConnectionListEntry (EMPTY (pv->Name), NULL, True, FP);
     }
 
   /* we maybe have to start with i=1 if we are handling the
@@ -2946,7 +2767,7 @@ PrintPinConnections (FILE * FP, Boolean IsFirst)
       /* get the elements name or assume that its a via */
       pv = PVLIST_ENTRY (i);
       PrintConnectionListEntry
-	(EMPTY (pv->Data->Name), pv->Element, False, FP);
+	(EMPTY (pv->Name), pv->Element, False, FP);
     }
 }
 
@@ -3028,14 +2849,11 @@ PrintAndSelectUnusedPinsAndPadsOfElement (ElementTypePtr Element, FILE * FP)
     {
       if (!TEST_FLAG (HOLEFLAG, pin))
 	{
-	  PVDataTypePtr entry;
-	  /* lookup pin in list */
-	  entry = LookupPVByCoordinates (1, pin->X, pin->Y);
-	  /* pin might has bee checked before, add to list if not */
-	  if (!TEST_FLAG (TheFlag, entry->Data) && FP)
+	  /* pin might have bee checked before, add to list if not */
+	  if (!TEST_FLAG (TheFlag, pin) && FP)
 	    {
 	      int i;
-	      if (ADD_PV_TO_LIST (entry))
+	      if (ADD_PV_TO_LIST (pin))
 	        return True;
 	      DoIt (True, True);
 	      number = PadList[COMPONENT_LAYER].Number
@@ -3056,10 +2874,10 @@ PrintAndSelectUnusedPinsAndPadsOfElement (ElementTypePtr Element, FILE * FP)
 		    }
 
 		  /* write name to list and draw selected object */
-		  CreateQuotedString (&oname, EMPTY (entry->Data->Name));
+		  CreateQuotedString (&oname, EMPTY (pin->Name));
 		  fprintf (FP, "\t%s\n", oname.Data);
-		  SET_FLAG (SELECTEDFLAG, entry->Data);
-		  DrawPin (entry->Data, 0);
+		  SET_FLAG (SELECTEDFLAG, pin);
+		  DrawPin (pin, 0);
 		}
 
 	      /* reset found objects for the next pin */
@@ -3074,9 +2892,9 @@ PrintAndSelectUnusedPinsAndPadsOfElement (ElementTypePtr Element, FILE * FP)
   PAD_LOOP (Element, 
     {
       PadDataTypePtr entry;
-      /* lookup pin in list */
+      /* lookup pad in list */
       entry = LookupPadByAddress (pad);
-      /* pin might has bee checked before, add to list if not */
+      /* pad might has bee checked before, add to list if not */
       if (!TEST_FLAG (TheFlag, entry->Data) && FP)
 	{
 	  int i;
@@ -3169,17 +2987,14 @@ PrintElementConnections (ElementTypePtr Element, FILE * FP, Boolean AndDraw)
   /* check all pins in element */
   PIN_LOOP (Element, 
     {
-      PVDataTypePtr entry;
-      /* lookup pin in list */
-      entry = LookupPVByCoordinates (1, pin->X, pin->Y);
       /* pin might have been checked before, add to list if not */
-      if (TEST_FLAG (TheFlag, entry->Data))
+      if (TEST_FLAG (TheFlag, pin))
 	{
 	  PrintConnectionListEntry (EMPTY (pin->Name), NULL, True, FP);
 	  fputs ("\t\t__CHECKED_BEFORE__\n\t}\n", FP);
 	  continue;
 	}
-      if (ADD_PV_TO_LIST (entry))
+      if (ADD_PV_TO_LIST (pin))
         return True;
       DoIt (True, AndDraw);
       /* printout all found connections */
@@ -3197,7 +3012,7 @@ PrintElementConnections (ElementTypePtr Element, FILE * FP, Boolean AndDraw)
     {
       PadDataTypePtr entry;
       Cardinal layer;
-      /* pad might has bee checked before, add to list if not */
+      /* pad might have been checked before, add to list if not */
       if (TEST_FLAG (TheFlag, pad))
 	{
 	  PrintConnectionListEntry (EMPTY (pad->Name), NULL, True, FP);
@@ -3278,15 +3093,15 @@ DrawNewConnections (void)
    */
   while (PVList.DrawLocation < PVList.Number)
     {
-      PVDataTypePtr pv = PVLIST_ENTRY (PVList.DrawLocation);
+      PinTypePtr pv = PVLIST_ENTRY (PVList.DrawLocation);
 
-      if (TEST_FLAG (PINFLAG, pv->Data))
+      if (TEST_FLAG (PINFLAG, pv))
 	{
 	  if (PCB->PinOn)
-	    DrawPin (pv->Data, 0);
+	    DrawPin (pv, 0);
 	}
       else if (PCB->ViaOn)
-	DrawVia (pv->Data, 0);
+	DrawVia (pv, 0);
       PVList.DrawLocation++;
     }
   /* draw the new rat-lines */
@@ -3361,30 +3176,9 @@ ListStart (int type, void *ptr1, void *ptr2, void *ptr3)
   switch (type)
     {
     case PIN_TYPE:
-      {
-	PVDataTypePtr entry;
-
-	/* use center coordinates else LookupPVByCoordinates()
-	 * may fail;
-	 * bug-fix by Ulrich Pegelow (ulrpeg@bigcomm.gun.de)
-	 */
-
-	entry =
-	  LookupPVByCoordinates (1, ((PinTypePtr) ptr2)->X,
-				 ((PinTypePtr) ptr2)->Y);
-	if (ADD_PV_TO_LIST (entry))
-	  return True;
-	break;
-      }
-
     case VIA_TYPE:
       {
-	PVDataTypePtr entry;
-
-	entry =
-	  LookupPVByCoordinates (0, ((PinTypePtr) ptr2)->X,
-				 ((PinTypePtr) ptr2)->Y);
-	if (ADD_PV_TO_LIST (entry))
+	if (ADD_PV_TO_LIST ((PinTypePtr) ptr2))
 	  return True;
 	break;
       }
@@ -4205,7 +3999,6 @@ GotoError (void)
     }
   Message ("near location (%d.%02d,%d.%02d)\n", X / 100, X % 100, Y / 100,
 	   Y % 100);
-  SetZoom(-2);
   CenterDisplay (X, Y, False);
   RedrawOutput ();
 }

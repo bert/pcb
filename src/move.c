@@ -116,14 +116,18 @@ MoveElementLowLevel (DataTypePtr Data, ElementTypePtr Element, Location DX, Loca
   );
   PIN_LOOP (Element, 
     {
+      r_delete_entry (Data->pin_tree, (BoxType *)pin);
       MOVE_PIN_LOWLEVEL (pin, DX, DY);
       MOVE_BOX_LOWLEVEL ((BoxTypePtr)pin, DX, DY);
+      r_insert_entry (Data->pin_tree, (BoxType *)pin, 0);
     }
   );
   PAD_LOOP (Element, 
     {
+      r_delete_entry (Data->pad_tree, (BoxType *)pad);
       MOVE_PAD_LOWLEVEL (pad, DX, DY);
       MOVE_BOX_LOWLEVEL ((BoxTypePtr)pad, DX, DY);
+      r_insert_entry (Data->pad_tree, (BoxType *)pad, 0);
     }
   );
   ARC_LOOP (Element, 
