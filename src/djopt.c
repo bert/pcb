@@ -421,16 +421,18 @@ create_pcb_line(int layer, int x1, int y1, int x2, int y2,
 {
   char *from, *to;
   LineType *nl;
+  LayerType *lyr = LAYER_PTR(layer);
 
-  from = (char *)PCB->Data->Layer[layer].Line;
+  from = (char *)lyr->Line;
   nl = CreateNewLineOnLayer(PCB->Data->Layer+layer,
 			    x1, y1,
 			    x2, y2,
 			    thick,
 			    clear,
 			    flags);
+  AddObjectToCreateUndoList(LINE_TYPE, lyr, nl, nl); 
 
-  to = (char *)PCB->Data->Layer[layer].Line;
+  to = (char *)lyr->Line;
   if (from != to)
     {
       line_s *lp;
@@ -439,7 +441,7 @@ create_pcb_line(int layer, int x1, int y1, int x2, int y2,
 	  if (DELETED(lp))
 	    continue;
 	  if ((char *)(lp->line) >= from
-	      && (char *)(lp->line) <= from + PCB->Data->Layer[layer].LineN * sizeof(LineType))
+	      && (char *)(lp->line) <= from + lyr->LineN * sizeof(LineType))
 	    lp->line = (LineType *)((char *)(lp->line) + (to - from));
 	}
     }
@@ -680,11 +682,11 @@ move_line_to_layer(line_s *l, int layer)
   LineType *oldbase=0, *newbase=0, *oldend;
   LineType *newline;
 
-  ls = PCB->Data->Layer+l->layer;
+  ls = LAYER_PTR(l->layer);
   from = &(ls->Line[ls->LineN-1]);
   to = l->line;
 
-  ld = PCB->Data->Layer+layer;
+  ld = LAYER_PTR(layer);
   oldbase = ld->Line;
   oldend = oldbase + ld->LineN;
 
@@ -789,30 +791,27 @@ move_corner(corner_s *c, int x, int y)
   via = c->via;
   if (via)
     {
-      EraseVia(via);
+      MoveObject(VIA_TYPE, via, via, via, x - via->X, y - via->Y);
       dprintf("via move %d,%d to %d,%d\n", via->X, via->Y, x, y);
-      via->X = x;
-      via->Y = y;
-      DrawVia(via, 0);
     }
   for (i=0; i<c->n_lines; i++)
     {
-      if (c->lines[i]->line)
+      LineTypePtr tl = c->lines[i]->line;
+      if (tl)
 	{
-	  EraseLine(c->lines[i]->line);
 	  if (c->lines[i]->s == c)
 	    {
-	      c->lines[i]->line->Point1.X = x;
-	      c->lines[i]->line->Point1.Y = y;
+	      MoveObject(LINEPOINT_TYPE, LAYER_PTR(c->lines[i]->layer), tl,
+	            &tl->Point1, x - (tl->Point1.X), y - (tl->Point1.Y));
 	    }
 	  else
 	    {
-	      c->lines[i]->line->Point2.X = x;
-	      c->lines[i]->line->Point2.Y = y;
+	      MoveObject(LINEPOINT_TYPE, LAYER_PTR(c->lines[i]->layer), tl,
+	            &tl->Point2, x - (tl->Point2.X), y - (tl->Point2.Y));
 	    }
-	  dprintf("Line %08x moved to %d,%d %d,%d\n", c->lines[i]->line,
-		  c->lines[i]->line->Point1.X, c->lines[i]->line->Point1.Y,
-		  c->lines[i]->line->Point2.X, c->lines[i]->line->Point2.Y);
+	  dprintf("Line %08x moved to %d,%d %d,%d\n", tl,
+		  tl->Point1.X, tl->Point1.Y,
+		  tl->Point2.X, tl->Point2.Y);
 	}
     }
   if (pad && pad != c)
@@ -835,9 +834,6 @@ move_corner(corner_s *c, int x, int y)
 	    break;
 	  }
       }
-  for (i=0; i<c->n_lines; i++)
-    DrawLine(PCB->Data->Layer+c->lines[i]->layer,
-	     c->lines[i]->line, 0);
   XFlush(Dpy);
   check(c,0);
 }
@@ -917,8 +913,8 @@ split_line(line_s *l, corner_s *c)
   add_line_to_corner(l,c);
   add_line_to_corner(ls,c);
 
-  l->line->Point2.X = c->x;
-  l->line->Point2.Y = c->y;
+  MoveObject(LINEPOINT_TYPE, LAYER_PTR(l->layer), l->line, &l->line->Point2,
+    c->x - (l->line->Point2.X), c->y -(l->line->Point2.Y));
 }
 
 static void
@@ -1592,7 +1588,7 @@ debumpify()
       check(0,l);
     }
 
-  simple_optimizations();
+  rv += simple_optimizations();
   if (rv)
     printf("debumpify: %d mils saved\n", rv*2);
   return rv;
@@ -1705,7 +1701,7 @@ unjaggy_once()
       rv ++;
       check(c,0);
     }
-  simple_optimizations();
+  rv += simple_optimizations();
   check(c,0);
   return rv;
 }
@@ -1933,31 +1929,33 @@ viatrim()
   vrm = simple_optimizations();
   if (rv > 0)
     printf("viatrim: %d traces moved, %d vias removed\n", rv, vrm);
-  return rv;
+  return rv + vrm;
 }
 
-static void
+static int 
 automagic()
 {
-  int more = 1;
+  int more = 1, oldmore = 0;
   int toomany = 100;
-  while (more && --toomany)
+  while (more != oldmore && --toomany)
     {
-      more = 0;
+      oldmore = more;
       more += debumpify();
       more += unjaggy();
       more += orthopull();
       more += vianudge();
       more += viatrim();
     }
+  return more - 1;
 }
 
-static void
+static int 
 miter()
 {
   corner_s *c;
   int done, progress;
   int sel = any_line_selected();
+  int saved = 0;
 
   for (c=corners; c; c=c->next)
     {
@@ -2106,9 +2104,11 @@ miter()
 	      c->miter = 0;
 	      c2->miter = 0;
 	      progress = 1;
+	      saved++;
 	    }
 	}
     }
+    return saved;
 }
 
 static void
@@ -2485,7 +2485,7 @@ padcleaner()
 void
 ActionDJopt(Widget w, XEvent *e, String *argv, Cardinal *argc)
 {
-  int layn, ei, pi;
+  int layn, ei, pi, saved=0;
   corner_s *c;
 
   printf("djopt: %s\n", argv[0]);
@@ -2504,42 +2504,47 @@ ActionDJopt(Widget w, XEvent *e, String *argv, Cardinal *argc)
 	component_layer = layn;
     }
 
-  for (ei=0; ei<PCB->Data->ElementN; ei++)
-    {
-      ElementType *e = &(PCB->Data->Element[ei]);
-      for (pi=0; pi<e->PinN; pi++)
-	{
-	  c = find_corner(e->Pin[pi].X,e->Pin[pi].Y, -1);
-	  c->pin = &(e->Pin[pi]);
-	}
-      for (pi=0; pi<e->PadN; pi++)
+  ELEMENT_LOOP(PCB->Data,
+    PIN_LOOP(element,
+        {
+          c = find_corner(pin->X, pin->Y, -1);
+          c->pin = pin;
+        }
+    );
+    PAD_LOOP(element,
 	{
 	  line_s *ls2;
-	  int layer = e->Flags & ONSOLDERFLAG ? solder_layer : component_layer;
+	  int layern = element->Flags & ONSOLDERFLAG ? solder_layer : component_layer;
 	  line_s *ls = (line_s *)malloc(sizeof(line_s));
 	  ls->next = lines;
 	  lines = ls;
-	  ls->s = find_corner(e->Pad[pi].Point1.X,e->Pad[pi].Point1.Y, layer);
-	  ls->s->pad = &(e->Pad[pi]);
-	  ls->e = find_corner(e->Pad[pi].Point2.X,e->Pad[pi].Point2.Y, layer);
-	  ls->e->pad = &(e->Pad[pi]);
-	  ls->layer = layer;
-	  ls->line = (LineTypePtr)&(e->Pad[pi]);
+	  ls->s = find_corner(pad->Point1.X, pad->Point1.Y, layern);
+	  ls->s->pad = pad;
+	  ls->e = find_corner(pad->Point2.X, pad->Point2.Y, layern);
+	  ls->e->pad = pad;
+	  ls->layer = layern;
+	  ls->line = (LineTypePtr)pad;
 	  add_line_to_corner(ls,ls->s);
 	  add_line_to_corner(ls,ls->e);
 
 	}
-    }
-  for (pi=0; pi<PCB->Data->ViaN; pi++)
-    {
-      c = find_corner(PCB->Data->Via[pi].X,PCB->Data->Via[pi].Y, -1);
-      c->via = &(PCB->Data->Via[pi]);
-    }
+     );
+  ); 
+  VIA_LOOP(PCB->Data, 
+    /* hace don't mess with vias that have thermals */
+    /* but then again don't bump into them
+    if (!TEST_FLAG(ALLTHERMFLAGS, via))
+    */
+      {
+        c = find_corner(via->X,via->Y, -1);
+        c->via = via;
+      }
+  );
   check(0,0);
 
   for (layn=0; layn<MAX_LAYER; layn++)
     {
-      LayerType *layer = &(PCB->Data->Layer[layn]);
+      LayerType *layer = LAYER_PTR(layn);
       int ln;
       for (ln=0; ln<layer->LineN; ln++)
 	{
@@ -2577,21 +2582,21 @@ ActionDJopt(Widget w, XEvent *e, String *argv, Cardinal *argc)
   check(0,0);
 
   if (strcmp(argv[0], "debumpify") == 0)
-    debumpify();
+    saved += debumpify();
   else if (strcmp(argv[0], "unjaggy") == 0)
-    unjaggy();
+    saved += unjaggy();
   else if (strcmp(argv[0], "simple") == 0)
-    simple_optimizations();
+    saved += simple_optimizations();
   else if (strcmp(argv[0], "vianudge") == 0)
-    vianudge();
+    saved += vianudge();
   else if (strcmp(argv[0], "viatrim") == 0)
-    viatrim();
+    saved += viatrim();
   else if (strcmp(argv[0], "orthopull") == 0)
-    orthopull();
+    saved += orthopull();
   else if (strcmp(argv[0], "auto") == 0)
-    automagic();
+    saved += automagic();
   else if (strcmp(argv[0], "miter") == 0)
-    miter();
+    saved += miter();
   else
     {
       printf("unknown command: %s\n", argv[0]);
@@ -2601,4 +2606,6 @@ ActionDJopt(Widget w, XEvent *e, String *argv, Cardinal *argc)
   padcleaner();
 
   check(0,0);
+  if (saved)
+   IncrementUndoSerialNumber();
 }
