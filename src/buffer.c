@@ -789,6 +789,66 @@ SwapBuffers (void)
   SetCrosshairRangeToBuffer ();
 }
 
+void
+MirrorBuffer (BufferTypePtr Buffer)
+{
+  int i;
+
+  if (Buffer->Data->ElementN)
+    {
+      Message("You can't mirror a buffer that has element(s)!\n");
+      return;
+    }
+  for (i = 0; i < MAX_LAYER + 2; i++)
+    {
+      LayerTypePtr layer = LAYER_PTR(i);
+      if (layer->TextN)
+        {
+          Message("You can't mirror a buffer that has text(s)!\n");
+          return;
+        }
+    }
+  /* set buffer offset to 'mark' position */
+  Buffer->X = SWAP_X (Buffer->X);
+  Buffer->Y = SWAP_Y (Buffer->Y);
+  VIA_LOOP (Buffer->Data, 
+    {
+      via->X = SWAP_X (via->X);
+      via->Y = SWAP_Y (via->Y);
+    }
+  );
+  ALLLINE_LOOP (Buffer->Data, 
+    {
+      line->Point1.X = SWAP_X (line->Point1.X);
+      line->Point1.Y = SWAP_Y (line->Point1.Y);
+      line->Point2.X = SWAP_X (line->Point2.X);
+      line->Point2.Y = SWAP_Y (line->Point2.Y);
+    }
+  );
+  ALLARC_LOOP (Buffer->Data, 
+    {
+      arc->X = SWAP_X (arc->X);
+      arc->Y = SWAP_Y (arc->Y);
+      arc->StartAngle = SWAP_ANGLE (arc->StartAngle);
+      arc->Delta = SWAP_DELTA (arc->Delta);
+      SetArcBoundingBox(arc);
+    }
+  );
+  ALLPOLYGON_LOOP (Buffer->Data, 
+    {
+      POLYGONPOINT_LOOP (polygon, 
+	{
+	  point->X = SWAP_X (point->X);
+	  point->Y = SWAP_Y (point->Y);
+	}
+      );
+      SetPolygonBoundingBox (polygon);
+    }
+  );
+  SetBufferBoundingBox (Buffer);
+}
+
+
 /* ---------------------------------------------------------------------------
  * flip components/tracks from one side to the other
  */

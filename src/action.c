@@ -3806,7 +3806,7 @@ ActionBell (Widget W, XEvent * Event, String * Params, Cardinal * Num)
  * paste buffer operations
  * syntax: PasteBuffer(AddSelected|Clear|1..MAX_BUFFER)
  *         PasteBuffer(Rotate, 1..3)
- *         PasteBuffer(Convert|Save|Restore)
+ *         PasteBuffer(Convert|Save|Restore|Mirror)
  */
 void
 ActionPasteBuffer (Widget W, XEvent * Event, String * Params, Cardinal * Num)
@@ -3836,6 +3836,11 @@ ActionPasteBuffer (Widget W, XEvent * Event, String * Params, Cardinal * Num)
 	  /* break up element for editing */
 	case F_Restore:
 	  SmashBufferElement (PASTEBUFFER);
+	  break;
+
+	  /* Mirror buffer */
+	case F_Mirror:
+	  MirrorBuffer (PASTEBUFFER);
 	  break;
 
 	case F_Save:

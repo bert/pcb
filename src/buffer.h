@@ -46,6 +46,7 @@ Boolean	LoadLayoutToBuffer(BufferTypePtr, char *);
 void	RotateBuffer(BufferTypePtr, BYTE);
 void	SelectPasteBuffer(int);
 void	SwapBuffers(void);
+void	MirrorBuffer(BufferTypePtr);
 void	InitBuffers(void);
 void	*MoveObjectToBuffer(DataTypePtr, DataTypePtr, int,
 			void *, void *, void *);
