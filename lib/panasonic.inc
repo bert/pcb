@@ -30,14 +30,26 @@
 #
 ##  Panasonic EXB Series Chip Resistor Array
 #
-define(`PKG_PANASONIC_EXB14V',  `COMMON_SMT_DIL_MM(`$1',`$2',`$3',4,30,30,50,60)')
-define(`PKG_PANASONIC_EXB24V',  `COMMON_SMT_DIL_MM(`$1',`$2',`$3',4,38,48,65,100)')
-define(`PKG_PANASONIC_EXB28V',  `COMMON_SMT_DIL_MM(`$1',`$2',`$3',8,53,54,50,94)')
-define(`PKG_PANASONIC_EXBV4V',  `COMMON_SMT_DIL_MM(`$1',`$2',`$3',4,43,70,80,150)')
-define(`PKG_PANASONIC_EXBV8V',  `COMMON_SMT_DIL_MM(`$1',`$2',`$3',8,43,70,80,150)')
-define(`PKG_PANASONIC_EXB34V',  `COMMON_SMT_DIL_MM(`$1',`$2',`$3',4,45,80,80,160)')
-define(`PKG_PANASONIC_EXB38V',  `COMMON_SMT_DIL_MM(`$1',`$2',`$3',8,45,80,80,160)')
-define(`PKG_PANASONIC_EXBS8V',  `COMMON_SMT_DIL_MM(`$1',`$2',`$3',8,63,120,127,230)')
-define(`PKG_PANASONIC_EXB2HV',  `COMMON_SMT_DIL_MM(`$1',`$2',`$3',16,43,50,50,150)')
+
+# COMMON_SMT_DIL_MM
+# $4: number of pins
+# $5: pad width  (1/100 mm)
+# $6: pad length (1/100 mm)
+# $7: pad pitch (1/100 mm)
+# $8: pad seperation for pads on opposite sides of
+#     the package (1/100 mm)
+# $9: define to make the pins get numbered starting with the highest pin
+#     instead of pin 1.  Needed for certain brain damaged packages like
+#     the Mini-Circuits KK81
+
+define(`PKG_PANASONIC_EXB14V',  `COMMON_SMT_DIL_MM(`$1',`$2',`$3',4,30,30,50,30)')
+define(`PKG_PANASONIC_EXB24V',  `COMMON_SMT_DIL_MM(`$1',`$2',`$3',4,38,48,65,50)')
+define(`PKG_PANASONIC_EXB28V',  `COMMON_SMT_DIL_MM(`$1',`$2',`$3',8,25,50,50,40)')
+define(`PKG_PANASONIC_EXBV4V',  `COMMON_SMT_DIL_MM(`$1',`$2',`$3',4,43,70,80,80)')
+define(`PKG_PANASONIC_EXBV8V',  `COMMON_SMT_DIL_MM(`$1',`$2',`$3',8,43,70,80,80)')
+define(`PKG_PANASONIC_EXB34V',  `COMMON_SMT_DIL_MM(`$1',`$2',`$3',4,45,80,80,80)')
+define(`PKG_PANASONIC_EXB38V',  `COMMON_SMT_DIL_MM(`$1',`$2',`$3',8,45,80,80,80)')
+define(`PKG_PANASONIC_EXBS8V',  `COMMON_SMT_DIL_MM(`$1',`$2',`$3',8,63,120,127,110)')
+define(`PKG_PANASONIC_EXB2HV',  `COMMON_SMT_DIL_MM(`$1',`$2',`$3',16,25,50,50,100)')
 
 # EXTRACT_BEGIN
