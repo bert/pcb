@@ -81,11 +81,11 @@ ASCII2TEXI=	${AWK} -f $(srcdir)/ascii2texi.awk ncol=3
 
 $(srcdir)/wire_size.texi: $(srcdir)/wire_size.tab $(srcdir)/ascii2texi.awk
 
-$(srcdir)/letter_size.texi: $(srcdir)/letter_size.txt $(srcdir)/ascii2texi.awk
+$(srcdir)/letter_size.texi: $(srcdir)/letter_size.tab $(srcdir)/ascii2texi.awk
 
-$(srcdir)/metric_size.texi: $(srcdir)/metric_size.txt $(srcdir)/ascii2texi.awk
+$(srcdir)/metric_size.texi: $(srcdir)/metric_size.tab $(srcdir)/ascii2texi.awk
 
-$(srcdir)/fractional_size.texi: $(srcdir)/fractional_size.txt $(srcdir)/ascii2texi.awk
+$(srcdir)/fractional_size.texi: $(srcdir)/fractional_size.tab $(srcdir)/ascii2texi.awk
 
 .tab.texi:
 	${ASCII2TEXI} $< > $@
