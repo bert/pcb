@@ -33,7 +33,11 @@ define(`COMMON_SMT_2PAD_MIL',
 	define(`height',   `eval(sizY/2 + addFRAME + addTIN)')
 	define(`centerX',  `eval((sizX - padX + 2*addTIN)/2)')
 	define(`silkW',    `ifelse(eval(sizY >= 50), 1, 10, eval(sizY/5))')
-Element(0x00 "$1" "`$2'" "$3" eval(width + 20) 0 3 100 0x00)
+	# how much to grow the pads by for soldermask
+	define(`maskGrow', 3)
+	# clearance from planes
+	define(`clearance', 10)
+Element(0x00 "$1" "`$2'" "$3" 0 0 eval(width + 20) 0 3 100 0x00)
 (
 	ifelse(eval($7 > 0), 1,
 	   `ElementLine(eval(-width-silkW) eval(-height + addFRAME) eval(-width-silkW) eval(height-addFRAME) eval(2*silkW))
@@ -50,18 +54,21 @@ Element(0x00 "$1" "`$2'" "$3" eval(width + 20) 0 3 100 0x00)
 	   ')
 
 	ifelse(eval(padX > padY), 1,       
-	   `Pad(eval((-2*centerX - padX + padY)/2) 0 eval((-2*centerX + padX - padY)/2) 0
-							padY "1" "1" 0x100)
-	    Pad(eval(( 2*centerX - padX + padY)/2) 0 eval(( 2*centerX + padX - padY)/2) 0
-							padY "2" "2" 0x100)
+	   `Pad(eval((-2*centerX - padX + padY)/2) 0 
+		eval((-2*centerX + padX - padY)/2) 0
+		padY eval(2*clearance) eval(padY + 2*maskGrow) "1" "1" 0x00000100)
+	    Pad(eval(( 2*centerX - padX + padY)/2) 0 
+		eval(( 2*centerX + padX - padY)/2) 0
+		padY eval(2*clearance) eval(padY + 2*maskGrow) "2" "2" 0x00000100)
 	 ',
-	   `Pad(-centerX eval((-padY+padX)/2) -centerX eval((padY-padX)/2)
-							padX "1" "1" 0x100)
-	    Pad(centerX eval((-padY+padX)/2) centerX eval((padY-padX)/2)
-							padX "2" "2" 0x100)
+	   `Pad(-centerX eval((-padY+padX)/2) 
+		-centerX eval((padY-padX)/2)
+		padX eval(2*clearance) eval(padX + 2*maskGrow) "1" "1" 0x00000100)
+	    Pad(centerX eval((-padY+padX)/2) 
+		centerX eval((padY-padX)/2)
+		padX eval(2*clearance) eval(padX + 2*maskGrow) "2" "2" 0x00000100)
 	 ')
 
-	Mark(0 0)
 )')
 # -------------------------------------------------------------------
 # 
