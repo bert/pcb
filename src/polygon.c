@@ -427,6 +427,7 @@ plow_callback (const BoxType *b, void *cl)
 	   if ((TEST_FLAG (ONSOLDERFLAG, pad)) ==
 	      (plow->group == plow->solder ? True : False))
 	         {
+                    pad->Thickness += pad->Clearance;
 		    if (IsPadInPolygon (pad, plow->polygon))
 		      {
 		        pad->Thickness -= pad->Clearance;
