@@ -349,6 +349,7 @@ GBX_Init (PrintInitTypePtr Flags)
 			      (TEST_FLAG (OCTAGONFLAG,
 					  via) ? OCTAGON : ROUND)););
   /* make sure the outline/alignment aperture exists should it be used */
+  /* polygons use this aperture also  */
   findApertureCode (&GBX_Apertures, 10, ROUND);
 }
 
@@ -645,8 +646,16 @@ GBX_PrintPolygon (PolygonTypePtr Ptr)
 {
   Boolean m = False;
   int firstTime = 1;
+  int apCode;
   Position startX = 0, startY = 0;
 
+  /* All polygon fills need to have a defined aperture.  */
+  apCode = findApertureCode (&GBX_Apertures, 10, ROUND);
+  if (lastAperture != apCode)
+    {
+      lastAperture = apCode;
+      fprintf (GBX_Flags.FP, "G54D%d*", lastAperture);
+    }
   fprintf (GBX_Flags.FP, "G36*\015\012");
   POLYGONPOINT_LOOP (Ptr,
 		     if (point->X != lastX)
