@@ -57,6 +57,6 @@ void	SetCrosshairRange(Location, Location, Location, Location);
 void	InitCrosshair(void);
 void	DestroyCrosshair(void);
 void	DrawMark(Boolean);
-void    FitCrosshairIntoGrid(Location, Location);
+void    FitCrosshairIntoGrid (Location, Location);
 
 #endif

@@ -40,4 +40,5 @@
 void AdjustAttachedLine (void);
 void AdjustTwoLine (int);
 void FortyFiveLine (AttachedLineTypePtr);
+void EnforceLineDRC (void);
 #endif

@@ -43,6 +43,7 @@ static char *rcsid =
 #include "data.h"
 #include "draw.h"
 #include "error.h"
+#include "line.h"
 #include "gui.h"
 #include "misc.h"
 #include "mymem.h"
@@ -991,6 +992,9 @@ FitCrosshairIntoGrid (Location X, Location Y)
       Crosshair.X = x0;
       Crosshair.Y = y0;
     }
+  if (Settings.Mode == LINE_MODE && Crosshair.AttachedLine.State != STATE_FIRST
+     && TEST_FLAG (AUTODRCFLAG, PCB))
+    EnforceLineDRC();
 }
 
 /* ---------------------------------------------------------------------------
