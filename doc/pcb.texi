@@ -695,6 +695,7 @@ if that works, then @code{Pcb} hasn't been installed properly.
 * Trace Optimizer::        Optimization of layouts
 * Searching for elements:: Searching for elements
 * Measuring distances::    Measuring distances
+* Vendor drill mapping::   Mapping drills to a vendor specified list
 * Connection Lists::       How to get a list of all or some connections.
 @end menu
 
@@ -2141,7 +2142,7 @@ appropriate subsection.  At the bottom of the screen the prompt
 @emph{pattern:} appears.  Enter the text or @ref{Regular Expressions}
 of the text to be found.  Found text will be highlighted.
 
-@node Measuring distances, , Searching for elements, Getting Started
+@node Measuring distances, Vendor drill mapping, Searching for elements, Getting Started
 @cindex Measuring distances
 @vindex Measuring distances
 @section Measuring distances
@@ -2155,6 +2156,92 @@ the mouse is moved away from the mark.  If a mark is already present,
 the mark is removed and the cursor display stops displaying relative
 cursor coordinates.
 
+@node Vendor drill mapping, , Measuring distances, Getting Started
+@cindex Vendor rules
+@cindex Vendor mapping
+@cindex Drill table
+@cindex Vendor drill table
+@section Vendor Drill Mapping
+
+@code{Pcb} includes support for mapping drill holes to a specified set
+of sizes used by a particular vendor.  Many PCB manufacturers have a
+prefered set of drill sizes and charge extra when others are used.
+The mapping can be performed on an existing design and can also be
+enabled to automatically map drill holes as vias and elements are
+instantiated. 
+
+The first step in using the vendor drill mapping feature is to create
+a resource file describing the capabilities of your vendor.  The file
+format is the resource file format described in @ref{Resource Syntax}.
+A complete example is given below.
+
+@example
+# Optional name of the vendor
+vendor = "Vendor Name"
+
+# units for dimensions in this file.
+# Allowed values:  mil/inch/mm
+units = mil
+
+# drill table
+drillmap = @{
+   # When mapping drill sizes, select the nearest size
+   # or always round up.  Allowed values:  up/nearest
+   round = up
+
+   # The list of vendor drill sizes.  Units are as specified
+   # above.
+   20
+   28
+   35
+   38
+   42
+   52
+   59.5
+   86
+  125   
+  152
+
+   # optional section for skipping mapping of certain elements
+   # based on reference designator, value, or description
+   # this is useful for critical parts where you may not
+   # want to change the drill size
+   skips = @{
+      @{refdes "J3"@}  # Skip J3.
+      @{refdes "U1" "R7" "X2"@} # Skip U1, R7, and X2 as well.
+      @{value "JOHNSTECH_QFN68_10"@} # Skip based on the value of a part.
+      @{descr "AMP_MICTOR_767054_1"@} # Skip based on the description.
+   @}
+@}
+
+# If specified, this section will change the current DRC
+# settings for the design.  Units are as specified above.
+drc = @{
+   copper_space = 7
+   copper_width = 7
+   silk_width = 10
+   copper_overlap = 4
+@}
+@end example
+
+The vendor resource is loaded using the @code{LoadVendor} action.
+This is invoked by entering:
+@example
+:LoadVendor(vendorfile)
+@end example
+from within @code{Pcb}.  Substitute the file name of your vendor
+resource file for @samp{vendorfile}.  This action will load the vendor
+resource and modify all the drill holes in the design as well as the
+default via hole size for the various routing styles.
+
+Once a vendor drill map has been loaded, new vias and elements will
+automatically have their drill hole sizes mapped to the vendor drill
+table.  Automatic drill mapping may be disabled under the ``Settings''
+menu.  To re-apply an already loaded vendor drill table to a design,
+choose ``Apply vendor drill mapping'' from the ``Connects'' menu.
+
+See @ref{Actions} for a complete description of the actions associated
+with vendor drill mapping.
 
 @c --------------------------- chapter 3 -------------------------------
 @node User Commands, Command-Line Options, Getting Started, Top
@@ -3207,6 +3294,15 @@ None<Key>o:	DeleteRats(AllRats) AddRats(AllRats)
 !Shift<Key>o:	DeleteRats(SelectedRats) AddRats(SelectedRats)
 @end example
 
+@findex ApplyVendor()
+@cindex vendor map
+@cindex vendor drill table
+@item ApplyVendor()
+Applies an already loaded vendor drill map to the design.
+@example
+ApplyVendor()
+@end example
+
 @findex Atomic()
 @cindex undo, multi-action resources
 @cindex atomic
@@ -3397,6 +3493,16 @@ None<Key>e:   DeleteRats(AllRats)
 !Shift<Key>e: DeleteRats(SelectedRats)
 @end example
 
+@findex DisableVendor()
+@cindex vendor map, disabling
+@cindex vendor drill table, disabling
+@item DisableVendor()
+Disables automatic drill size mapping to the loaded vendor drill table.
+@example
+DisableVendor()
+@end example
+
+
 @findex Display()
 @cindex centering
 @cindex redrawing layout
@@ -3481,6 +3587,16 @@ Pops up a dialog box to edit the layergroup setting. The function is also
 available from the @emph{Objects} menu.
 There are no defaults.
 
+@findex EnableVendor()
+@cindex vendor map, enabling
+@cindex vendor drill table, enabling
+@item EnableVendor()
+Enables automatic drill size mapping to the loaded vendor drill table.
+@example
+EnableVendor()
+@end example
+
+
 @findex Load()
 @cindex loading files
 @item Load(ElementToBuffer|Layout|LayoutToBuffer|Nelist)
@@ -3490,6 +3606,15 @@ The passed filename for layout data is saved and may be reused.
 @emph{ElementToBuffer} and @emph{LayoutToBuffer} load the data into the
 current buffer.
 There are no defaults.
+
+@findex LoadVendor()
+@cindex vendor map, loading
+@cindex vendor drill table, loading
+@item LoadVendor(vendorfile)
+Loads the specified vendor resource file.
+@example
+LoadVendor(myvendor.res)
+@end example
 
 @findex MarkCrosshair()
 @cindex mark
@@ -3853,6 +3978,15 @@ None<Key>h:	ToggleHideName(Object)
 !Shift<Key>h:	ToggleHideName(SelectedElements)
 @end example
 
+@findex ToggleVendor()
+@cindex vendor map, toggling
+@cindex vendor drill table, toggling
+@item ToggleVendor()
+Toggles automatic drill size mapping to the loaded vendor drill table.
+@example
+ToggleVendor()
+@end example
+
 @findex ToggleVisibility()
 @cindex toggle layer visibility
 @cindex layer visibility, toggling
@@ -3880,6 +4014,15 @@ Default:
 @example
 None<Key>u:        Undo()
 !Shift Ctrl<Key>u: Undo(ClearList)
+@end example
+
+@findex UnloadVendor()
+@cindex vendor map, unloading
+@cindex vendor drill table, unloading
+@item UnloadVendor()
+Unloads the loaded vendor drill table.
+@example
+UnloadVendor()
 @end example
 
 @findex Unselect()
