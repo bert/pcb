@@ -14,6 +14,8 @@ extern "C" {
 Widget MenuCreateFromResource(Widget menu, Resource *res,
 			      Widget top, Widget left, int chain);
 
+Widget MenuCreatePopup(Widget menu, Resource *res);
+
 void MenuSetFlag(char *flag, int value);
 
 void MenuSetAccelerators(Widget w);

@@ -83,7 +83,6 @@ RCSID("$Id$");
 /* ---------------------------------------------------------------------------
  * some local prototypes
  */
-static void CB_Action (Widget, XtPointer, XtPointer);
 static void InitPopupTree (Widget, PopupEntryTypePtr);
 static void InitPopupMenu (Widget, PopupMenuTypePtr);
 static Boolean InitCheckPixmap (void);
@@ -92,72 +91,6 @@ static Boolean InitCheckPixmap (void);
  * some local identifiers
  */
 static Pixmap Check = BadAlloc;
-
-/*-----------------------------------------------------------------------------
- * pop up menu for third mouse button
- */
-static PopupEntryType pMenuEntries[] = {
-  {"header", "Operations on Selections", NULL, NULL, NULL},
-  {"unselect", "Unselect All", CB_Action, "Unselect,All", NULL},
-  {"remove", "Remove Selected", CB_Action,
-   "RemoveSelected", NULL},
-  {"copy", "Copy Selection to Buffer", CB_Action,
-   "PasteBuffer,Clear\n" "PasteBuffer,AddSelected\n" "Mode,PasteBuffer",
-   NULL},
-  {"cut", "Cut Selection to Buffer", CB_Action,
-   "PasteBuffer,Clear\n"
-   "PasteBuffer,AddSelected\n" "RemoveSelected\n" "Mode,PasteBuffer",
-   NULL},
-  {"convert", "Convert Selection to Element", CB_Action,
-   "Select,Convert", NULL},
-  {"bash", "break element to pieces", CB_Action,
-   "RipUp,Element", NULL},
-  {"autoplace", "Auto-place Selected", CB_Action,
-   "AutoPlaceSelected", NULL},
-  {"autoroute", "Auto-route Selected Rats", CB_Action,
-   "AutoRoute,SelectedRats", NULL},
-  {"ripup", "Rip-up selected auto-routed tracks", CB_Action,
-   "RipUp,Selected", NULL},
-  {"header", "Operations on This Location", NULL, NULL, NULL},
-  {"hide", "Toggle Name Visibility", CB_Action,
-   "ToggleHideName,Selected", NULL},
-  {"edit", "Edit Name", CB_Action, "ChangeName,Object", NULL},
-  {"report", "Object Report", CB_Action, "Report,Object", NULL},
-  {"rotate", "Rotate Object CCW", CB_Action,
-   "Mode,Save\n" "Mode,Rotate\n" "Mode,Notify\n" "Mode,Restore", NULL},
-  {"rotate", "Rotate Object CW", CB_Action,
-   "Mode,Save\n" "Atomic,Save\n" "Mode,Rotate\n" "Mode,Notify\n"
-   "Atomic,Restore" "Mode,Notify\n" " Atomic,Restore"
-   "Mode,Notify\n" "Atomic,Block" "Mode,Restore", NULL},
-  {"flip", "Send To Other Side", CB_Action, "Flip,Object", NULL},
-  {"therm", "Toggle Thermal", CB_Action,
-   "Mode,Save\n" "Mode,Thermal\n" "Mode,Notify\n" "Mode,Restore", NULL},
-  {"lookup", "Lookup Connections", CB_Action,
-   "Connection,Find", NULL},
-#if 0
-  {"mark", "Position reference here", CB_Action,
-   "MarkCrosshair,Center", NULL},
-#endif
-  {"line", NULL, NULL, NULL, NULL},
-  {"undo", "Undo Last Operation", CB_Action, "Undo", NULL},
-  {"redo", "Redo Last Undone Operation", CB_Action, "Redo", NULL},
-  {"line", NULL, NULL, NULL, NULL},
-  {"lmode", "Line Tool", CB_Action, "Mode,Line", NULL},
-  {"vmode", "Via Tool", CB_Action, "Mode,Via", NULL},
-  {"rmode", "Rectangle Tool", CB_Action, "Mode,Rectangle", NULL},
-  {"amode", "Selection Tool", CB_Action, "Mode,Arrow", NULL},
-  {"tmode", "Text Tool", CB_Action, "Mode,Text", NULL},
-  {"nmode", "Panner Tool", CB_Action, "Mode,None", NULL},
-  {NULL, NULL, NULL, NULL, NULL}
-};
-static PopupMenuType pMenu =
-  { "pmenu", NULL, pMenuEntries, NULL, NULL, NULL };
-static PopupEntryType p2MenuEntries[] = {
-  {"nmode", "No Tool", CB_Action, "Mode,None", NULL},
-  {NULL, NULL, NULL, NULL, NULL}
-};
-static PopupMenuType p2Menu =
-  { "p2menu", NULL, p2MenuEntries, NULL, NULL, NULL };
 
 /* --------------------------------------------------------------------------- */
 
@@ -261,68 +194,6 @@ ActionDoWindows (Widget w, XEvent * e, String * argv, Cardinal * argc)
       break;
     }
 }
-
-/* ----------------------------------------------------------------------
- * menu callback interface for actions routines that don't need
- * position information
- *
- * ClientData passes a pointer to a comma seperated list of arguments.
- * The first one determines the action routine to be called, the
- * rest of them are arguments to the action routine
- *
- * if more than one action is to be called a new list is seperated
- * by '\n'
- */
-static void
-CB_Action (Widget W, XtPointer ClientData, XtPointer CallData)
-{
-  static char **array = NULL;
-  static size_t number = 0;
-  int n;
-  char *copy, *current, *next, *token;
-
-  /* get a copy of the string and split it */
-  copy = MyStrdup ((char *) ClientData, "CB_CallActionWithoutPosition()");
-
-  /* first loop over all action routines;
-   * strtok cannot be used in nested loops because it saves
-   * a pointer in a private data area which would be corrupted
-   * by the inner loop
-   */
-  for (current = copy; current; current = next)
-    {
-      /* lookup seperating '\n' character;
-       * update pointer if not at the end of the string
-       */
-      for (next = current; *next && *next != '\n'; next++);
-      if (*next)
-	{
-	  *next = '\0';
-	  next++;
-	}
-      else
-	next = NULL;
-
-      token = strtok (current, ",");
-      for (n = 0; token; token = strtok (NULL, ","), n++)
-	{
-	  /* allocate memory if necessary */
-	  if (n >= number)
-	    {
-	      number += 10;
-	      array = MyRealloc (array, number * sizeof (char *),
-				 "CB_CallActionWithoutPosition()");
-	    }
-	  array[n] = token;
-	}
-      /* call action routine */
-      CallActionProc (Output.Output, array[0], NULL, &array[1], n - 1);
-    }
-
-  /* release memory */
-  SaveFree (copy);
-}
-
 
 
 
@@ -547,7 +418,7 @@ void
 InitMenu (Widget Parent, Widget Top, Widget Left)
 {
   Widget last;
-  Resource *res, *mres;
+  Resource *res, *mres, *pres;
   char *home = getenv("HOME");
   char *menu_file = 0;
 
@@ -590,8 +461,10 @@ InitMenu (Widget Parent, Widget Top, Widget Left)
     }
   last = MenuCreateFromResource (Parent, mres, Top, Left, 1);
 
-  InitPopupMenu (Parent, &pMenu);
-  InitPopupMenu (Parent, &p2Menu);
+  pres = resource_subres (res, "PopupMenu");
+  if (pres)
+    MenuCreatePopup(Parent, pres);
+
   Output.Menu = last;
 }
 

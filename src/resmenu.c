@@ -11,6 +11,7 @@
 #include <X11/Intrinsic.h>
 
 #include "global.h"
+#include "data.h"
 
 #include "resource.h"
 #include "action.h"
@@ -701,4 +702,20 @@ MenuCreateFromResource(Widget menu, Resource *res, Widget top, Widget left, int 
     }
 
   return left;
+}
+
+Widget
+MenuCreatePopup (Widget parent, Resource *res)
+{
+  Widget sub;
+
+  n = 0;
+  arg(XtNmenuName, "pmenu");
+  sub = XtCreatePopupShell("pmenu", simpleMenuWidgetClass,
+			   parent, args, n);
+  MenuCreateFromResource(sub, res, 0, 0, 0);
+  XtAddCallback(sub, XtNpopupCallback,
+		(XtCallbackProc)MenuPopupCallback, (XtPointer)res);
+
+  return sub;
 }
