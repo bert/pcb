@@ -34,6 +34,7 @@ extern int res_parse_getchars(char *buf, int max_size);
 
 PARENSTR	([^ (){}=\"\'\t\r\n]|\([^\)]*\))+
 INCSTR		@[a-z0-9A-Z_]+
+COMMENT		#[^\n]*
 
 %%
 
@@ -45,6 +46,7 @@ INCSTR		@[a-z0-9A-Z_]+
 		  reslval.sval[strlen(reslval.sval) - 1] = 0;
 		  return STRING; }
 
+{COMMENT}\n	{ res_lineno++; }
 [ \t\r\n]	{ if (yytext[0] == '\n') res_lineno++; }
 
 {INCSTR}	{ reslval.sval = strdup(yytext+1);

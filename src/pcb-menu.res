@@ -1,3 +1,6 @@
+# Note - pcb-menu.res is used to build pcb-menu.h
+
+# This is the main menu bar
 MainMenu = {
     {File
         {"About..." About()}
