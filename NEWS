@@ -1,5 +1,78 @@
 
 ========================================================================
+Release Notes for PCB snapshot 20050127
+========================================================================
+
+- Fix drill size for PLCC sockets in ~geda library.  Fix drill size for
+  LED3 and LED5 footprints in ~geda library.
+
+- Move the right-click popup menu to pcb-menu.res.
+
+- Add DisperseElements() action for spreading out elements in an initial
+  layout.
+
+- Fix fab drawing output for the case where a very small number of
+  drill sizes are used.
+
+- Various documentation improvements.
+
+- Remove many compiler warnings.
+
+- Added metric output to the cursor display
+
+- Fix <Key>. for toggling 45 degree mode.
+
+- Crosshair snap snaps to center of pads and also to the mark of the
+  element.
+
+- Protect all strcmp() calls with a check for a NULL pointer.  Fixes
+  various crashes.
+
+- Fixed the mode buttons which were unresponsive in some versions of 
+  the X libraries.
+
+- Element names may be edited over the element.
+
+- Added --enable-efence for ElectricFence debugging.  Off by default
+
+- Added --disable-rpath to avoid using rpath for the X libraries.
+
+- Added vendor resource file support.  This allows lets you specify
+  a set of allowed drill sizes and drc rules for a particular vendor.
+
+- Added -action command line option to allow executing an action on
+  startup.
+
+- Date and time of compilation added to About dialog.
+
+- Fix a bug where the soldermask relief on a new element is 100x smaller
+  than the default when "convert buffer to element" is used.
+
+- Fix a name_tree corruption bug when changing an element name.
+
+- Don't remove the formatted manual with a 'make clean' since they are
+  part of the distfile.  
+
+- Let automake handle the html and pdf conversion.  This ends up using
+  texi2pdf for the pdf output which seems to do a better job than ps2pdf.
+
+- Sort actions by modifier so that both Ctrl<Key>x and <Key>x work.
+
+- Fix a SelectByName bug.
+
+- Fix non-gcc compilation
+
+- Command history added to :
+
+- Fixed pinout window crash
+
+- Allow Ctrl-drag to copy objects in arrow mode.
+
+- Fixed a polygon clearance bug
+
+- Fix an arc bounding box calculation error.
+
+========================================================================
 Release Notes for PCB snapshot 20040903
 ========================================================================
 
