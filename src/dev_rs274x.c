@@ -1095,7 +1095,7 @@ static void
 GBX_PrintFilledRectangle (Location X1, Location Y1, Location X2, Location Y2)
 {
   int j;
-  int X, Y;
+  long int X, Y;
 
 
   setAperture (&GBX_Apertures, 1000, 0, 0, ROUND);
