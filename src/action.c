@@ -3143,7 +3143,7 @@ ActionSelect (Widget W, XEvent * Event, String * Params, Cardinal * Num)
       HideCrosshair (True);
       switch (GetFunctionID (*Params))
 	{
-#ifdef HAS_REGEX
+#if defined(HAVE_REGCOMP) || defined(HAVE_RE_COMP)
         int type;
 	  /* select objects by their names */
 	case F_ElementByName:
@@ -3174,7 +3174,7 @@ ActionSelect (Widget W, XEvent * Event, String * Params, Cardinal * Num)
 		SetChangedFlag (True);
 	    break;
 	  }
-#endif /* HAS_REGEX */
+#endif /* defined(HAVE_REGCOMP) || defined(HAVE_RE_COMP) */
 
 	  /* select a single object */
 	case F_ToggleObject:

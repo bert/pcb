@@ -337,7 +337,7 @@ static PopupEntryType SelectionMenuEntries[] = {
   {"unselect", "unselect all objects", CB_Action, "Unselect,All", NULL},
   {"unselectconnection", "unselect all connected objects", CB_Action,
    "Unselect,Connection", NULL},
-#ifdef HAS_REGEX
+#if defined(HAVE_REGCOMP) || defined(HAVE_RE_COMP)
   {"line", NULL, NULL, NULL, NULL},
   {"header", "select by name", NULL, NULL, NULL},
   {"allByName", "all objects", CB_Action, "Select,ObjectByName", NULL},

@@ -42,14 +42,12 @@ static char *rcsid = "$Id$";
 #include "select.h"
 #include "undo.h"
 
-#ifdef HAS_REGEX
-#ifdef sgi
+#include <sys/types.h>
+#ifdef HAVE_REGEX_H
+#include <regex.h>
+#else
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
-#endif
-#else
-#include <sys/types.h>
-#include <regex.h>
 #endif
 #endif
 
@@ -772,7 +770,7 @@ SelectConnection (Boolean Flag)
   return (changed);
 }
 
-#ifdef HAS_REGEX
+#if defined(HAVE_REGCOMP) || defined(HAVE_RE_COMP)
 /* ---------------------------------------------------------------------------
  * selects objects as defined by Type by name;
  * it's a case insensitive match
@@ -783,18 +781,7 @@ SelectObjectByName (int Type, char *Pattern)
 {
   Boolean changed = False;
 
-#if defined(sgi)
-#define	REGEXEC(arg)	(re_exec((arg)) == 1)
-
-  char *compiled;
-
-  /* compile the regular expression */
-  if ((compiled = re_comp (Pattern)) != NULL)
-    {
-      Message ("re_comp error: %s\n", compiled);
-      return (False);
-    }
-#else
+#if defined(HAVE_REGCOMP)
 #define	REGEXEC(arg)	(!regexec(&compiled, (arg), 1, &match, 0))
 
   int result;
@@ -810,6 +797,17 @@ SelectObjectByName (int Type, char *Pattern)
       regerror (result, &compiled, errorstring, 128);
       Message ("regexp error: %s\n", errorstring);
       regfree (&compiled);
+      return (False);
+    }
+#else
+#define	REGEXEC(arg)	(re_exec((arg)) == 1)
+
+  char *compiled;
+
+  /* compile the regular expression */
+  if ((compiled = re_comp (Pattern)) != NULL)
+    {
+      Message ("re_comp error: %s\n", compiled);
       return (False);
     }
 #endif
@@ -919,4 +917,4 @@ SelectObjectByName (int Type, char *Pattern)
     }
   return (changed);
 }
-#endif /* HAS_REGEX */
+#endif /* defined(HAVE_REGCOMP) || defined(HAVE_RE_COMP) */
