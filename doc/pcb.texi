@@ -5275,7 +5275,7 @@ itself is thus an ``unnamed'' string.
 @{"Layer groups" foreground=red sensitive=false@}
 @end example
 
-Third, an unnamed subresource may be added.  This is used create
+Third, an unnamed subresource may be added.  This is used to create
 submenus and menu buttons.  To add a subresource, simply group other
 things in curly braces.  This example describes a resource containing
 one string and three subresources:
