@@ -222,7 +222,7 @@ SetPinBoundingBox (PinTypePtr Pin)
    * so it must include the clearance values too
    */
   width = (Pin->Clearance + 1) / 2 + (Pin->Thickness + 1) / 2;
-  width = MAX (width, Pin->Mask);
+  width = MAX (width, (Pin->Mask + 1) / 2);
   Pin->BoundingBox.X1 = Pin->X - width;
   Pin->BoundingBox.Y1 = Pin->Y - width;
   Pin->BoundingBox.X2 = Pin->X + width;
@@ -241,7 +241,7 @@ SetPadBoundingBox (PadTypePtr Pad)
    * so it must include the clearance values too
    */
   width = (Pad->Thickness + Pad->Clearance + 1) / 2;
-  width = MAX (width, Pad->Mask);
+  width = MAX (width, (Pad->Mask + 1) / 2);
   Pad->BoundingBox.X1 = MIN (Pad->Point1.X, Pad->Point2.X) - width;
   Pad->BoundingBox.X2 = MAX (Pad->Point1.X, Pad->Point2.X) + width;
   Pad->BoundingBox.Y1 = MIN (Pad->Point1.Y, Pad->Point2.Y) - width;
