@@ -9,7 +9,7 @@
 CONFIG_SHELL=/bin/sh
 export CONFIG_SHELL
 
-aclocal
+aclocal $ACLOCAL_FLAGS
 autoheader
 automake -a -c --foreign
 autoconf
