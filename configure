@@ -6274,6 +6274,10 @@ _ACEOF
 
   LIBS="-l$with_xaw $LIBS"
 
+else
+  { { echo "$as_me:$LINENO: error: You must have some version of Xaw installed on your system" >&5
+echo "$as_me: error: You must have some version of Xaw installed on your system" >&2;}
+   { (exit 1); exit 1; }; }
 fi
 
 LIBXAW=$with_xaw
