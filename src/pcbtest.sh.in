@@ -30,8 +30,21 @@
 # starts a test installation of pcb
 
 # execute pcb
-#
+
+# If the first argument is "-gdb" then run PCB inside the gdb
+# debugger.  
+
 XAPPLRESDIR=`pwd`/.test/
 export XAPPLRESDIR
 unset XUSERFILESEARCHPATH
-exec ./pcb-bin $@
+
+if [ "X$1" = "X-gdb" ]; then
+	shift
+	tmpf=/tmp/pcbtest.gdb.$$
+	echo "set args $@"  > $tmpf
+	exec gdb -x $tmpf ./pcb-bin
+	rm -f $tmpf
+else
+	exec ./pcb-bin $@
+fi
+
