@@ -65,6 +65,8 @@ extern	FontTypePtr		yyFont;
 extern	int				yylineno;		/* linenumber */
 extern	char			*yyfilename;	/* in this file */
 
+int yyerror(char *s);
+
 %}
 
 %union									/* define YYSTACK type */
