@@ -30,6 +30,14 @@
 # -------------------------------------------------------------------
 # the definition of a SD (ZIP) package
 # based on 'old style format' by Olaf Kaluza (olaf@criseis.ruhr.de)
+#
+# For example, see http://focus.ti.com/lit/ml/mczi002/mczi002.pdf
+# for the Texas Instruments SDZ (R-PZIP-T16) Ceramic Zig Zag package
+# That drawing shows the pin width varying from 0.45mm to 0.65mm 
+# (18 to 26 mils) and the width in the other dimension from .23mm
+# to .35mm.  The cross section is rectangular.  This gives a diagonal
+# from 0.505mm (19.9 mil) to 0.738mm (29 mil).
+#
 # $1: canonical name
 # $2: name on PCB
 # $3: value
@@ -40,8 +48,8 @@ define(`PKG_SD',
 Element(0x00 "$1" "$2" "$3" 275 50 3 100 0x00)
 (
 	forloop(`i', 1, eval($4 / 2),
-		`PIN(50,  eval(100*(i-1)+50), 50, 20, eval(2*i-1))
-		PIN(150, eval(100*(i-1)+100), 50, 20, eval(2*i))
+		`PIN(50,  eval(100*(i-1)+50), 60, 35, eval(2*i-1))
+		PIN(150, eval(100*(i-1)+100), 60, 35, eval(2*i))
 	')
 
 	ElementLine(0 0 0 MAXY 20)
