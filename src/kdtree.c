@@ -53,7 +53,7 @@
 #undef SLOW_ASSERTIONS
 /* define this to auto-optimize the kd-tree when the maximum rank
  * exceeds twice the log-base-2 of the size. */
-//#define AUTO_OPTIMIZE
+/* #define AUTO_OPTIMIZE */
 /* define this to print a message on standard out whenever the kdtree
  * is optimized. */
 #undef SHOW_OPTIMIZATION
@@ -713,7 +713,11 @@ __kd_find_node (kdtree_t * kdtree,
 		const BoxType * which,
 		is_insert_t is_insert, is_exact_t is_exact)
 {
-  struct kd_find_info fi = { NULL, &kdtree->root };
+  struct kd_find_info fi;
+
+  fi.parent = NULL;
+  fi.nodepp = &kdtree->root;
+
 #ifdef SLOW_ASSERTIONS
   assert (__kd_tree_is_good (kdtree));
 #endif /* SLOW_ASSERTIONS */
