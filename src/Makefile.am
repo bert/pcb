@@ -128,6 +128,8 @@ pcb_bin_SOURCES = \
 	res_parse.y \
 	res_lex.l \
 	resmenu.c \
+	resmenu.h \
+	resource.h \
 	rotate.c \
 	rotate.h \
 	rubberband.c \
@@ -150,30 +152,32 @@ pcb_bin_SOURCES = \
 # for globalconst.h
 INCLUDES=	-I$(top_srcdir) -I$(srcdir)/icons
 
-BUILT_SOURCES=	parse_y.h pcb-menu.h
+BUILT_SOURCES=	parse_y.h pcb-menu.h res_parse.h actionlist.c
 
 EXTRA_DIST= \
 	check_icon.data \
 	default_font \
+	gather-actions \
 	icon.data \
 	mode_icon.data \
 	Pcb.ad.in  \
+	pcb-menu.res \
 	pcbtest.sh.in
 
 AM_YFLAGS=	-d
 
 all-local: pcbtest.sh .test/Pcb
 
-actionlist.c : ${pcb_bin_SOURCES} gather-actions
-	perl ./gather-actions ${pcb_bin_SOURCES}
+actionlist.c : ${pcb_bin_SOURCES} ${srcdir}/gather-actions
+	perl ${srcdir}/gather-actions ${pcb_bin_SOURCES}
 
 pcb-menu.h : pcb-menu.res
 	echo '/* AUTOMATICALLY GENERATED FROM pcb-menu.res DO NOT EDIT */' > pcb-menu.h
 	echo 'const char *pcb_menu_default[] = {' >> pcb-menu.h
-	sed 's/\\/\\\\/g; s/"/\\"/g; s/^/"/; s/$$/",/' < pcb-menu.res >> pcb-menu.h
+	sed 's/\\/\\\\/g; s/"/\\"/g; s/^/"/; s/$$/",/' < ${srcdir}/pcb-menu.res >> pcb-menu.h
 	echo '0};' >> pcb-menu.h
 
-DISTCLEANFILES= pcbtest.sh Pcb .test/Pcb
+DISTCLEANFILES= pcbtest.sh Pcb .test/Pcb pcb-menu.h
 
 # create wrapper script that lets you test pcb prior to installation
 pcbtest.sh:	$(srcdir)/pcbtest.sh.in Makefile
