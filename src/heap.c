@@ -115,11 +115,7 @@ heap_create ()
   heap_t *heap;
   /* initialize MIN_COST if necessary */
   if (MIN_COST == 0)
-    {
-      MIN_COST = 1;
-      while (MIN_COST > 0)
-	MIN_COST <<= 1;
-    }
+    MIN_COST = -1e23;
   assert (MIN_COST < 0);
   /* okay, create empty heap */
   heap = calloc (1, sizeof (*heap));

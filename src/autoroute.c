@@ -292,8 +292,7 @@ static struct
     LastConflictPenalty,	/* length mult. for routing over last pass' trace */
     ConflictPenalty,		/* length multiplier for routing over another trace */
     JogPenalty,			/* additional "length" cost for changing direction */
-    DirectionPenaltyNumerator,	/* (rational) length multiplier for routing in */
-    DirectionPenaltyDenominator;	/* a non-preferred direction on a layer */
+    DirectionPenalty;		/* (rational) length multiplier for routing in */
   /* are vias allowed? */
   Boolean use_vias;
   /* is this an odd or even pass? */
@@ -985,11 +984,9 @@ cost_to_point (const PointType * p1, Cardinal point_layer1,
   cost_t x_dist = (p1->X - p2->X), y_dist = (p1->Y - p2->Y), r;
   /* even layers are horiz; odd layers are vert. */
   if ((point_layer1 % 2) != 0 && (point_layer2 % 2) != 0)
-    x_dist += (x_dist * AutoRouteParameters.DirectionPenaltyNumerator)
-      / AutoRouteParameters.DirectionPenaltyDenominator;
+    x_dist *= AutoRouteParameters.DirectionPenalty;
   if ((point_layer1 % 2) != 1 && (point_layer2 % 2) != 1)
-    y_dist += (y_dist * AutoRouteParameters.DirectionPenaltyNumerator)
-      / AutoRouteParameters.DirectionPenaltyDenominator;
+    y_dist *= AutoRouteParameters.DirectionPenalty;
   /* cost is proportional to orthogonal distance. */
   r = ABS (x_dist) + ABS (y_dist);
   /* apply via cost penalty if layers differ */
@@ -1612,6 +1609,7 @@ routebox_t *
 FindBlocker (rtree_t * rtree, edge_t * e, BDimension maxbloat)
 {
   struct FindBlocker_info fbi;
+  BoxType sbox;
 
   fbi.expansion_edge = e;
   fbi.maxbloat = maxbloat;
@@ -1619,8 +1617,26 @@ FindBlocker (rtree_t * rtree, edge_t * e, BDimension maxbloat)
   fbi.min_dist = 0;
   fbi.north_box = e->rb->box;
 
+  sbox = bloat_box (&e->rb->box, maxbloat);
+  switch (e->expand_dir)
+    {
+      case NORTH:
+        sbox.Y1 = -MAX_COORD;
+        break;
+      case EAST:
+        sbox.X2 = MAX_COORD;
+        break;
+      case SOUTH:
+        sbox.Y2 = MAX_COORD;
+	break;
+      case WEST:
+        sbox.X1 = -MAX_COORD;
+        break;
+      default:
+        assert(0);
+    }
   ROTATEBOX_TO_NORTH (fbi.north_box, e->expand_dir);
-  r_search (rtree, NULL,
+  r_search (rtree, &sbox,
 	     __FindBlocker_reg_in_sea, __FindBlocker_rect_in_reg, &fbi);
   return fbi.blocker;
 }
@@ -2418,9 +2434,9 @@ RouteOne (routedata_t * rd, routebox_t * from, routebox_t * to)
 	     {
 	     /* we need the test for 'source' because this box may be nonstraight */
 	     /* may expand in all directions from source; arbitrary cost point. */
-	     vector_append
-	     (source_vec,
-	      CreateEdge (p, p->box.X1, p->box.Y1, 0, NULL, NORTH, targets));
+	     vector_append (source_vec,
+	                    CreateEdge (p, p->box.X1, p->box.Y1, 0, NULL,
+			                NORTH, targets));
 	     vector_append (source_vec,
 			    CreateEdge (p, p->box.X2, p->box.Y1, 0, NULL,
 					EAST, targets));
@@ -2828,12 +2844,11 @@ InitAutoRouteParameters (int pass,
   AutoRouteParameters.augStyle = augStyle;
   /* costs */
   AutoRouteParameters.ViaCost = 25000;
-  AutoRouteParameters.LastConflictPenalty = 2 << MIN (15, pass * 2);
+  AutoRouteParameters.LastConflictPenalty = 100. * exp(LN_2_OVER_2*MIN (30, pass * 4));
   AutoRouteParameters.ConflictPenalty = 4 *
     AutoRouteParameters.LastConflictPenalty;
-  AutoRouteParameters.JogPenalty = 0;
-  AutoRouteParameters.DirectionPenaltyNumerator = 2;
-  AutoRouteParameters.DirectionPenaltyDenominator = 1;
+  AutoRouteParameters.JogPenalty = 1000;
+  AutoRouteParameters.DirectionPenalty = 2;
   /* other */
   AutoRouteParameters.use_vias = True;
   AutoRouteParameters.is_odd = (pass & 1);
