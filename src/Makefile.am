@@ -218,6 +218,7 @@ Pcb:	$(srcdir)/Pcb.ad.in Makefile
 		-e "s;^\(Pcb.libraryPath\).*$$;\1: .:`pwd`/../lib;" \
 		-e 's;^\(Pcb.libraryTree\).*$$;\1: $(top_srcdir)/newlib;' \
 		-e 's;^\(Pcb.libraryFilename\).*$$;\1: ${LIBRARYFILENAME};' \
+		-e 's;^\(Pcb.menuFile\).*$$;\1: $(srcdir)/pcb-menu.res;' \
 			Pcb > $@
 
 
