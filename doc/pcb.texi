@@ -5460,6 +5460,16 @@ automatically:
     @}
 @end example
 
+In addition to all that, any unquoted pound sign (@code{#}) begins a
+comment.  Commented text continues until the end of the containing
+line.  Comments may begin at the beginning of a line, or after other
+text on the line:
+
+@example
+# This is a comment
+MainMenu = @{ # This is also a comment
+@end example
+
 @node Menu Definitions, Menu Files and Defaults, Resource Syntax, Custom Menus
 @section Menu Definitions
 
