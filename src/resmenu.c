@@ -75,12 +75,15 @@ invoke_action (Widget w, char *rstr)
   static char **list = 0;
   static int max = 0;
   int num = 0;
-  char *str = 0;
+  static char *str = NULL;
   char *sp, *aname;
   int maybe_empty = 0;
 
-  if (str)
-    free(str);
+  if (str != NULL)
+    {
+      free (str);
+      str = NULL;
+    }
 
   sp = str = MyStrdup(rstr, "invoke_action");
   while (*sp && (*sp == ' ' || *sp == '\t'))
