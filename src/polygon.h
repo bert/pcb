@@ -41,6 +41,8 @@ void			ClosePolygon(void);
 void			CopyAttachedPolygonToLayer(void);
 void			UpdatePIPFlags(PinTypePtr, ElementTypePtr,
 				       LayerTypePtr, PolygonTypePtr, Boolean);
-int PolygonPlows (int group, BoxType *range, int (*callback)(int, void *, void *, void *));
+int PolygonPlows (int group, BoxType *range,
+                  int (*callback)(int, void *, void *, void *,
+                  LayerTypePtr, PolygonTypePtr));
 
 #endif

@@ -256,12 +256,15 @@ ReportDialog (void)
 	PolygonTypePtr Polygon = (PolygonTypePtr) ptr2;
 
 	sprintf (&report[0], "POLYGON ID# %ld   Flags:0x%08lx\n"
+                 "It's bounding box is (%d,%d) (%d,%d)\n"
 		 "It has %d points and could store %d more\n"
 		 "without using more memory.\n"
 		 "It resides on layer %d\n"
 		 "%s", Polygon->ID,
-		 Polygon->Flags, Polygon->PointN, Polygon->PointMax
-		 - Polygon->PointN,
+		 Polygon->Flags, Polygon->BoundingBox.X1,
+		 Polygon->BoundingBox.Y1, Polygon->BoundingBox.X2,
+		 Polygon->BoundingBox.Y2, Polygon->PointN,
+		 Polygon->PointMax - Polygon->PointN,
 		 GetLayerNumber (PCB->Data, (LayerTypePtr) ptr1),
 		 TEST_FLAG (LOCKFLAG, Polygon) ? "It is LOCKED\n" : "");
 	break;
@@ -348,13 +351,13 @@ ReportDialog (void)
     case POLYGONPOINT_TYPE:
       {
 	PointTypePtr point = (PointTypePtr) ptr2;
-	sprintf (&report[0], "POINT ID# %ld Points don't have flags."
+	sprintf (&report[0], "POINT ID# %ld. Points don't have flags.\n"
 		 "Located at (X,Y) = (%d,%d)\n"
 		 "It belongs to a %s on layer %d\n", point->ID,
 		 point->X, point->Y,
 		 (type == LINEPOINT_TYPE) ? "line" : "polygon",
 		 GetLayerNumber (PCB->Data, (LayerTypePtr) ptr1));
-
+        break;
       }
     case NO_TYPE:
       report[0] = '\0';

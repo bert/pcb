@@ -362,7 +362,8 @@ struct plow_info
    LayerTypePtr layer;
    Cardinal group, component, solder;
    PolygonTypePtr polygon;
-   int (*callback)(int, void *, void *, void *);
+   int (*callback)(int, void *, void *, void *, LayerTypePtr,
+                   PolygonTypePtr);
    jmp_buf env;
 };
 
@@ -384,7 +385,9 @@ plow_callback (const BoxType *b, void *cl)
            if (IsLineInPolygon (line, plow->polygon))
 	     {
 	       line->Thickness -= line->Clearance;
-	       r = plow->callback (LINE_TYPE, plow->layer, line, line);
+	       SET_FLAG (CLEARLINEFLAG, line);
+	       r = plow->callback (LINE_TYPE, plow->layer, line, line,
+                                   plow->layer, plow->polygon);
 	       line->Thickness += line->Clearance;
 	     }
 	   SET_FLAG (CLEARLINEFLAG, line);
@@ -401,7 +404,9 @@ plow_callback (const BoxType *b, void *cl)
            if (IsArcInPolygon (arc, plow->polygon))
 	     {
 	       arc->Thickness -= arc->Clearance;
-	       r = plow->callback (ARC_TYPE, plow->layer, arc, arc);
+	       SET_FLAG (CLEARLINEFLAG, arc);
+	       r = plow->callback (ARC_TYPE, plow->layer, arc, arc,
+                                   plow->layer, plow->polygon);
 	       arc->Thickness += arc->Clearance;
 	     }
 	   SET_FLAG (CLEARLINEFLAG, arc);
@@ -413,7 +418,8 @@ plow_callback (const BoxType *b, void *cl)
 	   PinTypePtr pin = (PinTypePtr) b;
 	   if (!TEST_FLAG (HOLEFLAG, pin) && TEST_FLAG (plow->PIPflag, pin))
 	     {
-	       r = plow->callback (VIA_TYPE, pin, pin, pin);
+	       r = plow->callback (VIA_TYPE, pin, pin, pin, plow->layer,
+                                   plow->polygon);
 	     }
 	   break;
 	 }
@@ -424,7 +430,8 @@ plow_callback (const BoxType *b, void *cl)
 	     {
 	       if (!TEST_FLAG (HOLEFLAG, pin) && TEST_FLAG (plow->PIPflag, pin))
 	         {
-	           r = plow->callback (PIN_TYPE, element, pin, pin);
+	           r = plow->callback (PIN_TYPE, element, pin, pin,
+                                       plow->layer, plow->polygon);
 	         }
 		 if (r)
 		   break;
@@ -460,7 +467,8 @@ plow_callback (const BoxType *b, void *cl)
 			 && IsLineInPolygon ((LineTypePtr) pad, plow->polygon)))
 		      {
 		        pad->Thickness -= pad->Clearance;
-		        r = plow->callback (PAD_TYPE, element, pad, pad);
+		        r = plow->callback (PAD_TYPE, element, pad, pad,
+                                            plow->layer, plow->polygon);
 		        pad->Thickness += pad->Clearance;
 		      }
 		    pad->Thickness -= pad->Clearance;
@@ -490,7 +498,8 @@ plow_callback (const BoxType *b, void *cl)
  */
 int
 PolygonPlows (int group, BoxTypePtr range,
-	      int (*any_call) (int type, void *ptr1, void *ptr2, void *ptr3))
+	      int (*any_call) (int type, void *ptr1, void *ptr2, void *ptr3,
+              LayerTypePtr lay, PolygonTypePtr poly))
 {
   struct plow_info info;
   BoxType sb;

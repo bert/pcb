@@ -53,7 +53,7 @@
 #include <dmalloc.h>
 #endif
 
-#undef SLOW_ASSERTS
+#define SLOW_ASSERTS
 /* All rectangles are closed. i.e. they contain both corner points.
  * Often the auto router will "open" the rectangle on an edge
  * using the search callback functions.

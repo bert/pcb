@@ -560,7 +560,8 @@ DrawMask (BoxType *screen)
 }
 
 static int
-clear_callback (int type, void *ptr1, void *ptr2, void *ptr3)
+clear_callback (int type, void *ptr1, void *ptr2, void *ptr3,
+                LayerTypePtr lay, PolygonTypePtr poly)
 {
   LineTypePtr l = (LineTypePtr) ptr2;
   ArcTypePtr a = (ArcTypePtr) ptr2;

@@ -220,7 +220,8 @@ FPrintAlignment (void)
  * callback functions for polygon clearances
  */
 static int 
-any_callback(int type, void *ptr1, void *ptr2, void *ptr3)
+any_callback(int type, void *ptr1, void *ptr2, void *ptr3, 
+             LayerTypePtr lay, PolygonTypePtr poly)
 {
   if (!polarity_called)
     {

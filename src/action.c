@@ -1755,9 +1755,11 @@ ActionDRCheck (Widget W, XEvent * Event, String * Params, Cardinal * Num)
 
   if (*Num == 0)
     {
-      Message ("Rules are minspace %d.%02d, minoverlap %d.%d\n",
+      Message ("Rules are minspace %d.%02d, minoverlap %d.%d "
+               "minwidth %d.%02d\n",
               (Settings.Bloat+1)/100, (Settings.Bloat+1) % 100,
-	      Settings.Shrink/100, Settings.Shrink % 100);
+	      Settings.Shrink/100, Settings.Shrink % 100,
+              Settings.minWid/100, Settings.minWid % 100);
       HideCrosshair (True);
       watchCursor ();
       count = DRCAll ();
@@ -2960,7 +2962,7 @@ ActionChangeClearSize (Widget W, XEvent * Event,
 
   if (*Num == 2 || *Num == 3)
     {
-      value = GetValue (Params + 1, &r, *Num);
+      value = 2 * GetValue (Params + 1, &r, *Num);
       HideCrosshair (True);
       switch (GetFunctionID (*Params))
 	{
