@@ -255,13 +255,13 @@ static PopupEntryType DisplayMenuEntries[] = {
    "SetValue,Grid,-393.7007874", NULL},
   {"line", NULL, NULL, NULL, NULL},
   {"header", "zoom setting", NULL, NULL, NULL},
-  {"zoom25", "4 : 1 ", CB_Position, "SetValue,Zoom,=-2", NULL},
-  {"zoom5", "2 : 1 ", CB_Position, "SetValue,Zoom,=-1", NULL},
+  {"zoom25", "4 : 1 ", CB_Position, "SetValue,Zoom,=-4", NULL},
+  {"zoom5", "2 : 1 ", CB_Position, "SetValue,Zoom,=-2", NULL},
   {"zoom1", "1 : 1 ", CB_Position, "SetValue,Zoom,0", NULL},
-  {"zoom2", "1 : 2 ", CB_Position, "SetValue,Zoom,1", NULL},
-  {"zoom4", "1 : 4 ", CB_Position, "SetValue,Zoom,2", NULL},
-  {"zoom8", "1 : 8 ", CB_Position, "SetValue,Zoom,3", NULL},
-  {"zoom16", "1 :16 ", CB_Position, "SetValue,Zoom,4", NULL},
+  {"zoom2", "1 : 2 ", CB_Position, "SetValue,Zoom,2", NULL},
+  {"zoom4", "1 : 4 ", CB_Position, "SetValue,Zoom,4", NULL},
+  {"zoom8", "1 : 8 ", CB_Position, "SetValue,Zoom,6", NULL},
+  {"zoom16", "1 :16 ", CB_Position, "SetValue,Zoom,8", NULL},
   {"line", NULL, NULL, NULL, NULL},
   {"header", "displayed element-name", NULL, NULL, NULL},
   {"description", "description", CB_Action, "Display,Description", NULL},
@@ -766,25 +766,25 @@ CBPOPUP_Display (Widget W, XtPointer ClientData, XtPointer CallData)
     CheckEntry (&DisplayMenu, "solderSide");
   switch (PCB->Zoom)
     {
-    case -2:
+    case -4:
       CheckEntry (&DisplayMenu, "zoom25");
       break;
-    case -1:
+    case -2:
       CheckEntry (&DisplayMenu, "zoom5");
       break;
     case 0:
       CheckEntry (&DisplayMenu, "zoom1");
       break;
-    case 1:
+    case 2:
       CheckEntry (&DisplayMenu, "zoom2");
       break;
-    case 2:
+    case 4:
       CheckEntry (&DisplayMenu, "zoom4");
       break;
-    case 3:
+    case 6:
       CheckEntry (&DisplayMenu, "zoom8");
       break;
-    case 4:
+    case 8:
       CheckEntry (&DisplayMenu, "zoom16");
       break;
     }
