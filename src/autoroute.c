@@ -1111,6 +1111,32 @@ showroutebox (routebox_t * rb)
 }
 #endif
 
+static void
+EraseRouteBox (routebox_t * rb)
+{
+  Location X1, Y1, X2, Y2;
+  BDimension thick;
+
+  if (rb->box.X2 - rb->box.X1 < rb->box.Y2 - rb->box.Y1)
+    {
+      thick = rb->box.X2 - rb->box.X1;
+      X1 = X2 = (rb->box.X2 + rb->box.X1) / 2;
+      Y1 = rb->box.Y1 + thick / 2;
+      Y2 = rb->box.Y2 - thick / 2;
+    }
+  else
+    {
+      thick = rb->box.Y2 - rb->box.Y1;
+      Y1 = Y2 = (rb->box.Y2 + rb->box.Y1) / 2;
+      X1 = rb->box.X1 + thick / 2;
+      X2 = rb->box.X2 - thick / 2;
+    }
+  XSetLineAttributes (Dpy, Output.fgGC, TO_SCREEN (thick), LineSolid,
+		      CapRound, JoinRound);
+  XSetForeground (Dpy, Output.fgGC, Settings.bgColor);
+  XDrawCLine (Dpy, Output.OutputWindow, Output.fgGC, X1, Y1, X2, Y2);
+}
+
 /* return a "parent" of this edge which immediately precedes it in the route.*/
 static routebox_t *
 route_parent (routebox_t * rb)
@@ -1582,7 +1608,7 @@ __FindBlocker_rect_in_reg (const BoxType * box, void *cl)
 #if 0
   if (rbox.Y2 > fbi->north_box.Y1)
     {				/* extends below edge */
-      /* this assert can fail if minimum keepaway is > pin spacing */  
+      /* this assert can fail if minimum keepaway is > pin spacing */
       assert (fbi->expansion_edge->flags.is_interior);
       /* XXX: what to do here? */
     }
@@ -1594,8 +1620,8 @@ __FindBlocker_rect_in_reg (const BoxType * box, void *cl)
   fbi->min_dist = fbi->north_box.Y1 - rbox.Y2;
   /* this assert can fail if the minimum keepaway is failed by an element
      pin spacing.
-  assert (fbi->min_dist >= 0);
-  */
+     assert (fbi->min_dist >= 0);
+   */
   return 1;
 }
 static int
@@ -1698,11 +1724,11 @@ FindBlocker (rtree_t * rtree, edge_t * e, BDimension maxbloat)
 struct fio_info
 {
   edge_t *edge;
-  BDimension maxbloat;
   routebox_t *intersect;
   jmp_buf env;
   BoxType north_box;
 };
+
 static int
 fio_rect_in_reg (const BoxType * box, void *cl)
 {
@@ -1726,37 +1752,6 @@ fio_rect_in_reg (const BoxType * box, void *cl)
   return 1;			/* never reached */
 }
 
-/* exclude equality point from search depending on expansion direction */
-static int
-fio_reg_in_sea (const BoxType * region, void *cl)
-{
-  struct fio_info *fio = (struct fio_info *) cl;
-  BoxType rbox;
-  rbox = bloat_box (region, fio->maxbloat);
-  switch (fio->edge->expand_dir)
-    {
-    case WEST:
-      if (-rbox.Y2 >= fio->north_box.X2 || -rbox.Y1 <= fio->north_box.X1)
-	return 0;
-      return 1;
-    case SOUTH:
-      if (-rbox.X2 >= fio->north_box.X2 || -rbox.X1 <= fio->north_box.X1)
-	return 0;
-      return 1;
-    case EAST:
-      if (rbox.Y1 >= fio->north_box.X2 || rbox.Y2 <= fio->north_box.X1)
-	return 0;
-      return 1;
-    case NORTH:
-      if (rbox.X1 >= fio->north_box.X2 || rbox.X2 <= fio->north_box.X1)
-	return 0;
-      return 1;
-    default:
-      assert (0);
-    }
-  return 0;
-}
-
 static routebox_t *
 FindIntersectingObstacle (rtree_t * rtree, edge_t * e, BDimension maxbloat)
 {
@@ -1764,14 +1759,29 @@ FindIntersectingObstacle (rtree_t * rtree, edge_t * e, BDimension maxbloat)
   BoxType sbox;
 
   fio.edge = e;
-  fio.maxbloat = maxbloat;
   fio.intersect = NULL;
   fio.north_box = e->rb->box;
 
   sbox = bloat_box (&e->rb->box, maxbloat);
+/* exclude equality point from search depending on expansion direction */
+  switch (e->expand_dir)
+    {
+    case NORTH:
+    case SOUTH:
+      sbox.X1 += 1;
+      sbox.X2 -= 1;
+      break;
+    case EAST:
+    case WEST:
+      sbox.Y1 += 1;
+      sbox.Y2 -= 1;
+      break;
+    default:
+      assert (0);
+    }
   ROTATEBOX_TO_NORTH (fio.north_box, e->expand_dir);
   if (setjmp (fio.env) == 0)
-    r_search (rtree, &sbox, fio_reg_in_sea, fio_rect_in_reg, &fio);
+    r_search (rtree, &sbox, NULL, fio_rect_in_reg, &fio);
   return fio.intersect;
 }
 
@@ -2034,6 +2044,13 @@ RD_DrawVia (routedata_t * rd, Location X, Location Y,
       assert (__routebox_is_good (rb));
       /* and add it to the r-tree! */
       r_insert_entry (rd->layergrouptree[rb->group], &rb->box, 1);
+      if (Settings.liveRouting)
+	{
+	  XSetLineAttributes (Dpy, Output.fgGC, TO_SCREEN (2 * radius),
+			      LineSolid, CapRound, JoinRound);
+	  XSetForeground (Dpy, Output.fgGC, PCB->ViaColor);
+	  XDrawCLine (Dpy, Output.OutputWindow, Output.fgGC, X, Y, X, Y);
+	}
       /* and to the via space structures */
       if (AutoRouteParameters.use_vias)
 	mtspace_add (rd->mtspace, &rb->box, rb->flags.is_odd ? ODD : EVEN,
@@ -2074,6 +2091,15 @@ RD_DrawLine (routedata_t * rd,
   assert (__routebox_is_good (rb));
   /* and add it to the r-tree! */
   r_insert_entry (rd->layergrouptree[rb->group], &rb->box, 1);
+  if (Settings.liveRouting)
+    {
+      LayerTypePtr layp = LAYER_PTR (PCB->LayerGroups.Entries[rb->group][0]);
+
+      XSetLineAttributes (Dpy, Output.fgGC, TO_SCREEN (2 * halfthick),
+			  LineSolid, CapRound, JoinRound);
+      XSetForeground (Dpy, Output.fgGC, layp->Color);
+      XDrawCLine (Dpy, Output.OutputWindow, Output.fgGC, X1, Y1, X2, Y2);
+    }
   /* and to the via space structures */
   if (AutoRouteParameters.use_vias)
     mtspace_add (rd->mtspace, &rb->box, rb->flags.is_odd ? ODD : EVEN,
@@ -2239,9 +2265,11 @@ TracePath (routedata_t * rd, routebox_t * path, routebox_t * target,
 					       &path->parent.expansion_area->
 					       box);
 	      if ((SGN (nextpoint.X - lastpoint.X) ==
-		  SGN (upcoming.X - nextpoint.X) || upcoming.X == nextpoint.X)
+		   SGN (upcoming.X - nextpoint.X)
+		   || upcoming.X == nextpoint.X)
 		  && (SGN (nextpoint.Y - lastpoint.Y) ==
-		  SGN (upcoming.Y - nextpoint.Y) || upcoming.Y == nextpoint.Y))
+		      SGN (upcoming.Y - nextpoint.Y)
+		      || upcoming.Y == nextpoint.Y))
 		RD_DrawManhattanLine (rd, &path->box, lastpoint, nextpoint,
 				      halfwidth, path->group, subnet, is_bad);
 	      else
@@ -3002,6 +3030,9 @@ RouteAll (routedata_t * rd)
 				    p->flags.is_odd ? ODD : EVEN,
 				    p->augStyle->style->Keepaway);
 		  r_delete_entry (rd->layergrouptree[p->group], &p->box);
+		  if (Settings.liveRouting
+		      && (p->type == LINE || p->type == VIA))
+		    EraseRouteBox (p);
 		}
 	      END_LOOP;
 	      /* reset to original connectivity */

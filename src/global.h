@@ -515,8 +515,8 @@ typedef struct			/* some resources... */
     RubberBandMode,		/* move, rotate use rubberband connections */
     SwapStartDirection,		/* change starting direction after each click */
     ShowDRC,			/* show drc region on crosshair */
-    ResetAfterElement,		/* reset connections after */
-    /* each element */
+    ResetAfterElement,		/* reset connections after each element */
+    liveRouting,		/* autorouter shows tracks in progress */
     RingBellWhenFinished;	/* flag if a signal should be */
   /* produced when searching of */
   /* connections is done */

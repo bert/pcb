@@ -315,6 +315,8 @@ static PopupEntryType SettingsMenuEntries[] = {
    "Display,ToggleLocalRef", NULL},
   {"toggleClearLine", "new lines, arcs clear polygons", CB_Action,
    "Display,ToggleClearLine", NULL},
+  {"toggleLiveRoute", "show autoroute", CB_Action,
+   "Display,ToggleLiveRoute", NULL},
   {"toggleThindraw", "thin draw", CB_Action,
    "Display,ToggleThindraw", NULL},
   {"toggleCheckPlanes", "check polygons", CB_Action,
@@ -846,6 +848,8 @@ CBPOPUP_Settings (Widget W, XtPointer ClientData, XtPointer CallData)
     CheckEntry (&SettingsMenu, "toggleOrthoMove");
   if (TEST_FLAG (SHOWDRCFLAG, PCB))
     CheckEntry (&SettingsMenu, "toggleShowDRC");
+  if (Settings.liveRouting)
+    CheckEntry (&SettingsMenu, "toggleLiveRoute");
   if (TEST_FLAG (AUTODRCFLAG, PCB))
     CheckEntry (&SettingsMenu, "toggleAutoDRC");
 }
