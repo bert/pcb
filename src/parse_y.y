@@ -491,7 +491,7 @@ line_oldformat
 
 arc_hi_format
 			/* x, y, width, height, thickness, clearance, startangle, delta, flags */
-		: T_ARC '(' NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER ')'
+		: T_ARC '[' NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER ']'
 			{
 				CreateNewArcOnLayer(Layer, $3, $4, $5, $9, $10, $7, $8, $11 & OBJ_FLAGS);
 			}
