@@ -336,7 +336,7 @@ static String Fallback[] = {
     "   <BtnDown>,<BtnUp>:	MenuPopdown() notify() unhighlight() \n"
     "   <BtnUp>: \n",
   "Pcb.masterForm*cursorPosition.justify:   left",
-  "Pcb.masterForm*cursorPosition.width:     400",
+  "Pcb.masterForm*cursorPosition.width:     700",
   "Pcb.masterForm*inputField*borderWidth:   0",
   "Pcb.masterForm*messageText.foreground:   red",
   "Pcb.masterForm*messageText.justify:      left",
