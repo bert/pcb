@@ -96,9 +96,11 @@ static PopupEntryType pMenuEntries[] = {
   {"remove", "Remove Selected", CB_Action,
    "RemoveSelected", NULL},
   {"copy", "Copy Selection to Buffer", CB_Action,
+   "GetXY,Press a button at the element's location\n"
    "PasteBuffer,Clear\n" "PasteBuffer,AddSelected\n" "Mode,PasteBuffer",
    NULL},
   {"cut", "Cut Selection to Buffer", CB_Action,
+   "GetXY,Press a button at the element's location\n"
    "PasteBuffer,Clear\n"
    "PasteBuffer,AddSelected\n" "RemoveSelected\n" "Mode,PasteBuffer",
    NULL},
