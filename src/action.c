@@ -361,8 +361,10 @@ extern void stroke_init (void);
 extern void stroke_record (int x, int y);
 extern int stroke_trans (char *s);
 #endif
+static void ChangeFlag (Widget, XEvent *, String *, int, char *);
 
 #ifdef HAVE_LIBSTROKE
+
 /* ---------------------------------------------------------------------------
  * FinishStroke - try to recognize the stroke sent
  */
@@ -1631,6 +1633,88 @@ ActionToggleThermal (Widget W, XEvent * Event, String * Params,
 	case F_Selected:
 	case F_SelectedElements:
 	  ChangeSelectedThermals (CHANGETHERMAL_TYPES);
+	  break;
+	}
+      RestoreCrosshair (True);
+    }
+}
+
+/* --------------------------------------------------------------------------
+ * action routine to set a thermal (on the current layer) to pins or vias
+ * syntax: SetThermal(Object|SelectePins|SelectedVias|Selected);
+ */
+void
+ActionSetThermal (Widget W, XEvent * Event, String * Params,
+		     Cardinal * Num)
+{
+  void *ptr1, *ptr2, *ptr3;
+  int type;
+
+  if (*Num == 1)
+    {
+      HideCrosshair (True);
+      switch (GetFunctionID (*Params))
+	{
+	case F_Object:
+	  if ((type =
+	       SearchScreen (Crosshair.X, Crosshair.Y, CHANGETHERMAL_TYPES,
+			     &ptr1, &ptr2, &ptr3)) != NO_TYPE)
+	    {
+	      SetObjectThermal (type, ptr1, ptr2, ptr3);
+	      IncrementUndoSerialNumber ();
+	      Draw ();
+	    }
+	  break;
+	case F_SelectedPins:
+	  SetSelectedThermals (PIN_TYPE);
+	  break;
+	case F_SelectedVias:
+	  SetSelectedThermals (VIA_TYPE);
+	  break;
+	case F_Selected:
+	case F_SelectedElements:
+	  SetSelectedThermals (CHANGETHERMAL_TYPES);
+	  break;
+	}
+      RestoreCrosshair (True);
+    }
+}
+
+/* --------------------------------------------------------------------------
+ * action routine to clear a thermal (on the current layer) to pins or vias
+ * syntax: ClearThermal(Object|SelectePins|SelectedVias|Selected);
+ */
+void
+ActionClearThermal (Widget W, XEvent * Event, String * Params,
+		     Cardinal * Num)
+{
+  void *ptr1, *ptr2, *ptr3;
+  int type;
+
+  if (*Num == 1)
+    {
+      HideCrosshair (True);
+      switch (GetFunctionID (*Params))
+	{
+	case F_Object:
+	  if ((type =
+	       SearchScreen (Crosshair.X, Crosshair.Y, CHANGETHERMAL_TYPES,
+			     &ptr1, &ptr2, &ptr3)) != NO_TYPE)
+	    {
+	      ClrObjectThermal (type, ptr1, ptr2, ptr3);
+	      IncrementUndoSerialNumber ();
+	      Draw ();
+	    }
+	  break;
+	case F_SelectedPins:
+	  ClrSelectedThermals (PIN_TYPE);
+	  break;
+	case F_SelectedVias:
+	  ClrSelectedThermals (VIA_TYPE);
+	  break;
+	case F_Selected:
+	case F_SelectedElements:
+	  ClrSelectedThermals (CHANGETHERMAL_TYPES);
 	  break;
 	}
       RestoreCrosshair (True);
@@ -3089,6 +3173,98 @@ ActionChangeSquare (Widget W, XEvent * Event, String * Params, Cardinal * Num)
 }
 
 /* ---------------------------------------------------------------------------
+ * sets the square-flag of objects
+ * syntax: SetSquare(ToggleObject|SelectedElements|SelectedPins)
+ */
+void
+ActionSetSquare (Widget W, XEvent * Event, String * Params, Cardinal * Num)
+{
+  if (*Num == 1)
+    {
+      /* HideCrosshair (True); */
+      switch (GetFunctionID (*Params))
+	{
+	case F_ToggleObject:
+	case F_Object:
+	  {
+	    int type;
+	    void *ptr1, *ptr2, *ptr3;
+
+	    if ((type =
+		 SearchScreen (Crosshair.X, Crosshair.Y, CHANGESQUARE_TYPES,
+			       &ptr1, &ptr2, &ptr3)) != NO_TYPE)
+	      if (SetObjectSquare (type, ptr1, ptr2, ptr3))
+		SetChangedFlag (True);
+	    break;
+	  }
+
+	case F_SelectedElements:
+	  if (SetSelectedSquare (ELEMENT_TYPE))
+	    SetChangedFlag (True);
+	  break;
+
+	case F_SelectedPins:
+	  if (SetSelectedSquare (PIN_TYPE | PAD_TYPE))
+	    SetChangedFlag (True);
+	  break;
+
+	case F_Selected:
+	case F_SelectedObjects:
+	  if (SetSelectedSquare (PIN_TYPE | PAD_TYPE))
+	    SetChangedFlag (True);
+	  break;
+	}
+      /* RestoreCrosshair (True); */
+    }
+}
+
+/* ---------------------------------------------------------------------------
+ * clears the square-flag of objects
+ * syntax: ClearSquare(ToggleObject|SelectedElements|SelectedPins)
+ */
+void
+ActionClearSquare (Widget W, XEvent * Event, String * Params, Cardinal * Num)
+{
+  if (*Num == 1)
+    {
+      /* HideCrosshair (True); */
+      switch (GetFunctionID (*Params))
+	{
+	case F_ToggleObject:
+	case F_Object:
+	  {
+	    int type;
+	    void *ptr1, *ptr2, *ptr3;
+
+	    if ((type =
+		 SearchScreen (Crosshair.X, Crosshair.Y, CHANGESQUARE_TYPES,
+			       &ptr1, &ptr2, &ptr3)) != NO_TYPE)
+	      if (ClrObjectSquare (type, ptr1, ptr2, ptr3))
+		SetChangedFlag (True);
+	    break;
+	  }
+
+	case F_SelectedElements:
+	  if (ClrSelectedSquare (ELEMENT_TYPE))
+	    SetChangedFlag (True);
+	  break;
+
+	case F_SelectedPins:
+	  if (ClrSelectedSquare (PIN_TYPE | PAD_TYPE))
+	    SetChangedFlag (True);
+	  break;
+
+	case F_Selected:
+	case F_SelectedObjects:
+	  if (ClrSelectedSquare (PIN_TYPE | PAD_TYPE))
+	    SetChangedFlag (True);
+	  break;
+	}
+      /* RestoreCrosshair (True); */
+    }
+}
+
+/* ---------------------------------------------------------------------------
  * changes the octagon-flag of objects
  * syntax: ChangeOctagon(ToggleObject|SelectedElements|Selected)
  */
@@ -3133,6 +3309,110 @@ ActionChangeOctagon (Widget W, XEvent * Event, String * Params,
 	case F_Selected:
 	case F_SelectedObjects:
 	  if (ChangeSelectedOctagon (PIN_TYPES))
+	    SetChangedFlag (True);
+	  break;
+	}
+      /* RestoreCrosshair (True); */
+    }
+}
+
+/* ---------------------------------------------------------------------------
+ * sets the octagon-flag of objects
+ * syntax: ChangeOctagon(ToggleObject|SelectedElements|Selected)
+ */
+void
+ActionSetOctagon (Widget W, XEvent * Event, String * Params,
+		     Cardinal * Num)
+{
+  if (*Num == 1)
+    {
+      /* HideCrosshair (True); */
+      switch (GetFunctionID (*Params))
+	{
+	case F_ToggleObject:
+	case F_Object:
+	  {
+	    int type;
+	    void *ptr1, *ptr2, *ptr3;
+
+	    if ((type =
+		 SearchScreen (Crosshair.X, Crosshair.Y, CHANGEOCTAGON_TYPES,
+			       &ptr1, &ptr2, &ptr3)) != NO_TYPE)
+	      if (SetObjectOctagon (type, ptr1, ptr2, ptr3))
+		SetChangedFlag (True);
+	    break;
+	  }
+
+	case F_SelectedElements:
+	  if (SetSelectedOctagon (ELEMENT_TYPE))
+	    SetChangedFlag (True);
+	  break;
+
+	case F_SelectedPins:
+	  if (SetSelectedOctagon (PIN_TYPE))
+	    SetChangedFlag (True);
+	  break;
+
+	case F_SelectedVias:
+	  if (SetSelectedOctagon (VIA_TYPE))
+	    SetChangedFlag (True);
+	  break;
+
+	case F_Selected:
+	case F_SelectedObjects:
+	  if (SetSelectedOctagon (PIN_TYPES))
+	    SetChangedFlag (True);
+	  break;
+	}
+      /* RestoreCrosshair (True); */
+    }
+}
+
+/* ---------------------------------------------------------------------------
+ * clears the octagon-flag of objects
+ * syntax: ClearOctagon(ToggleObject|SelectedElements|Selected)
+ */
+void
+ActionClearOctagon (Widget W, XEvent * Event, String * Params,
+		     Cardinal * Num)
+{
+  if (*Num == 1)
+    {
+      /* HideCrosshair (True); */
+      switch (GetFunctionID (*Params))
+	{
+	case F_ToggleObject:
+	case F_Object:
+	  {
+	    int type;
+	    void *ptr1, *ptr2, *ptr3;
+
+	    if ((type =
+		 SearchScreen (Crosshair.X, Crosshair.Y, CHANGEOCTAGON_TYPES,
+			       &ptr1, &ptr2, &ptr3)) != NO_TYPE)
+	      if (ClrObjectOctagon (type, ptr1, ptr2, ptr3))
+		SetChangedFlag (True);
+	    break;
+	  }
+
+	case F_SelectedElements:
+	  if (ClrSelectedOctagon (ELEMENT_TYPE))
+	    SetChangedFlag (True);
+	  break;
+
+	case F_SelectedPins:
+	  if (ClrSelectedOctagon (PIN_TYPE))
+	    SetChangedFlag (True);
+	  break;
+
+	case F_SelectedVias:
+	  if (ClrSelectedOctagon (VIA_TYPE))
+	    SetChangedFlag (True);
+	  break;
+
+	case F_Selected:
+	case F_SelectedObjects:
+	  if (ClrSelectedOctagon (PIN_TYPES))
 	    SetChangedFlag (True);
 	  break;
 	}
@@ -4172,4 +4452,207 @@ ActionSetSame (Widget W, XEvent * Event, String * Params, Cardinal * Num)
       ClearAndRedrawOutput ();
     }
   SetStatusLine ();
+}
+
+
+/* ---------------------------------------------------------------------------
+ * sets flags on object
+ * syntax: SetFlag(Object, flag)
+ *         SetFlag(SelectedLines|SelectedPins|SelectedVias, flag)
+ *         SetFlag(SelectedPads|SelectedTexts|SelectedNames, flag)
+ *	   SetFlag(SelectedElements, flag)
+ * examples:
+ * :SetFlag(SelectedVias,thermal) 
+ * :SetFlag(SelectedElements,square)
+ */
+
+void
+ActionSetFlag (Widget W, XEvent * Event, String * Params, Cardinal * Num)
+{
+  if ( *Num != 2 )
+    {
+      Message("Usage:  \n"
+	      "SetFlag(Object, flag)\n"
+	      "SetFlag(SelectedLines|SelectedPins|SelectedVias, flag)\n"
+	      "SetFlag(SelectedPads|SelectedTexts|SelectedNames, flag)\n"
+	      "SetFlag(SelectedElements, flag)\n"
+	      "flag = square | octagon | thermal\n");
+      return ;
+    }
+  ChangeFlag(W, Event, Params, 1, "SetFlag");
+}
+
+/* ---------------------------------------------------------------------------
+ * clears flags on object
+ * syntax: ClrFlag(Object, flag)
+ *         ClrFlag(SelectedLines|SelectedPins|SelectedVias, flag)
+ *         ClrFlag(SelectedPads|SelectedTexts|SelectedNames, flag)
+ *	   ClrFlag(SelectedElements, flag)
+ * examples:
+ * :ClrFlag(SelectedVias,thermal) 
+ * :ClrFlag(SelectedElements,square)
+ */
+
+void
+ActionClrFlag (Widget W, XEvent * Event, String * Params, Cardinal * Num)
+{
+
+  if ( *Num != 2 )
+    {
+      Message("Usage:  \n"
+	      "ClrFlag(Object, flag)\n"
+	      "ClrFlag(SelectedLines|SelectedPins|SelectedVias, flag)\n"
+	      "ClrFlag(SelectedPads|SelectedTexts|SelectedNames, flag)\n"
+	      "ClrFlag(SelectedElements, flag)\n"
+	      "flag = square | octagon | thermal\n");
+      return ;
+    }
+
+  ChangeFlag(W, Event, Params, 0, "ClrFlag");
+}
+
+/* ---------------------------------------------------------------------------
+ * sets or clears flags on object
+ * syntax: ChangeFlag(Object, flag, value)
+ *         ChangeFlag(SelectedLines|SelectedPins|SelectedVias, flag, value)
+ *         ChangeFlag(SelectedPads|SelectedTexts|SelectedNames, flag, value)
+ *	   ChangeFlag(SelectedElements, flag, value)
+ *
+ * examples:
+ *
+ * :ChangeFlag(SelectedVias,thermal,0) 
+ * :ChangeFlag(SelectedElements,square,1)
+ */
+void
+ActionChangeFlag (Widget W, XEvent * Event, String * Params, Cardinal * Num)
+{
+  int val;
+
+  if ( *Num != 3 )
+    {
+      Message("Usage:  \n"
+	      "ChangeFlag(Object, flag, value)\n"
+	      "ChangeFlag(SelectedLines|SelectedPins|SelectedVias, flag, value)\n"
+	      "ChangeFlag(SelectedPads|SelectedTexts|SelectedNames, flag, value)\n"
+	      "ChangeFlag(SelectedElements, flag, value)\n"
+	      "flag = square | octagon | thermal\n");
+      
+      return ;
+    }
+
+  if ( strcmp(Params[2], "0") == 0 ) 
+    val = 0;
+  else if ( strcmp(Params[2], "1") == 0 ) 
+    val = 1;
+  else
+    {
+      Message("ChangeFlag():  Value \"%s\" is not valid\n", Params[2]);
+      return ;
+    }
+
+  ChangeFlag(W, Event, Params, val, "ChangeFlag");
+}
+
+
+static void
+ChangeFlag (Widget W, XEvent * Event, 
+	    String *Params, int value, char *cmd_name)
+{
+  Boolean r;			/* True if flag is to be set rather
+				   than cleared */
+  int flag;
+  int i;
+  char *what;
+  char *flag_name;
+  Boolean (*set_object) (int, void *, void *, void *);
+  Boolean (*set_selected) (int);
+
+  what = Params[0];
+  flag_name = Params[1];
+
+  if ( strcmp(flag_name, "square") == 0 ) 
+    {
+      flag = SQUAREFLAG;
+      set_object = value ? SetObjectSquare : ClrObjectSquare;
+      set_selected = value ? SetSelectedSquare : ClrSelectedSquare;
+    }
+  else if ( strcmp(flag_name, "octagon") == 0 ) 
+    {
+      flag = OCTAGONFLAG;
+      set_object = value ? SetObjectOctagon : ClrObjectOctagon;
+      set_selected = value ? SetSelectedOctagon : ClrSelectedOctagon;
+    }
+  else if ( strcmp(flag_name, "thermal") == 0 ) 
+    {
+      flag = L0THERMFLAG;
+      set_object = value ? SetObjectThermal : ClrObjectThermal;
+      set_selected = value ? SetSelectedThermals : ClrSelectedThermals;
+    }
+  else
+    {
+      Message("%s():  Flag \"%s\" is not valid\n", cmd_name, flag_name);
+      return ;
+    }
+  
+  HideCrosshair (True);
+  switch (GetFunctionID (*Params))
+    {
+    case F_Object:
+      {
+	int type;
+	void *ptr1, *ptr2, *ptr3;
+	
+	if ((type =
+	     SearchScreen (Crosshair.X, Crosshair.Y, CHANGESIZE_TYPES,
+			   &ptr1, &ptr2, &ptr3)) != NO_TYPE)
+	  if (TEST_FLAG (LOCKFLAG, (PinTypePtr) ptr2))
+	    Message ("Sorry, that object is locked\n");
+	if (set_object (type, ptr1, ptr2, ptr3))
+	  SetChangedFlag (True);
+	break;
+      }
+
+    case F_SelectedVias:
+      if (set_selected (VIA_TYPE))
+	SetChangedFlag (True);
+      break;
+
+    case F_SelectedPins:
+      if (set_selected (PIN_TYPE))
+	SetChangedFlag (True);
+      break;
+
+    case F_SelectedPads:
+      if (set_selected (PAD_TYPE))
+	SetChangedFlag (True);
+      break;
+
+    case F_SelectedLines:
+      if (set_selected (LINE_TYPE))
+	SetChangedFlag (True);
+      break;
+
+    case F_SelectedTexts:
+      if (set_selected (TEXT_TYPE))
+	SetChangedFlag (True);
+      break;
+
+    case F_SelectedNames:
+      if (set_selected (ELEMENTNAME_TYPE))
+	SetChangedFlag (True);
+      break;
+
+    case F_SelectedElements:
+      if (set_selected (ELEMENT_TYPE))
+	SetChangedFlag (True);
+      break;
+
+    case F_Selected:
+    case F_SelectedObjects:
+      if (set_selected (CHANGESIZE_TYPES))
+	SetChangedFlag (True);
+      break;
+    }
+  RestoreCrosshair (True);
+
 }

@@ -91,13 +91,29 @@ static void *ChangeLineName (LayerTypePtr, LineTypePtr);
 static void *ChangeElementName (ElementTypePtr);
 static void *ChangeTextName (LayerTypePtr, TextTypePtr);
 static void *ChangeElementSquare (ElementTypePtr);
+static void *SetElementSquare (ElementTypePtr);
+static void *ClrElementSquare (ElementTypePtr);
 static void *ChangeElementOctagon (ElementTypePtr);
+static void *SetElementOctagon (ElementTypePtr);
+static void *ClrElementOctagon (ElementTypePtr);
 static void *ChangePinSquare (ElementTypePtr, PinTypePtr);
+static void *SetPinSquare (ElementTypePtr, PinTypePtr);
+static void *ClrPinSquare (ElementTypePtr, PinTypePtr);
 static void *ChangePinOctagon (ElementTypePtr, PinTypePtr);
+static void *SetPinOctagon (ElementTypePtr, PinTypePtr);
+static void *ClrPinOctagon (ElementTypePtr, PinTypePtr);
 static void *ChangeViaOctagon (PinTypePtr);
+static void *SetViaOctagon (PinTypePtr);
+static void *ClrViaOctagon (PinTypePtr);
 static void *ChangePadSquare (ElementTypePtr, PadTypePtr);
+static void *SetPadSquare (ElementTypePtr, PadTypePtr);
+static void *ClrPadSquare (ElementTypePtr, PadTypePtr);
 static void *ChangeViaThermal (PinTypePtr);
+static void *SetViaThermal (PinTypePtr);
+static void *ClrViaThermal (PinTypePtr);
 static void *ChangePinThermal (ElementTypePtr, PinTypePtr);
+static void *SetPinThermal (ElementTypePtr, PinTypePtr);
+static void *ClrPinThermal (ElementTypePtr, PinTypePtr);
 static void *ChangeLineJoin (LayerTypePtr, LineTypePtr);
 static void *ChangeArcJoin (LayerTypePtr, ArcTypePtr);
 static void *ChangePolyClear (LayerTypePtr, PolygonTypePtr);
@@ -238,6 +254,90 @@ static ObjectFunctionType ChangeMaskSizeFunctions = {
   NULL,
   NULL
 };
+static ObjectFunctionType SetThermalFunctions = {
+  NULL,
+  NULL,
+  NULL,
+  SetViaThermal,
+  NULL,
+  NULL,
+  SetPinThermal,
+  NULL,
+  NULL,
+  NULL,
+  NULL,
+  NULL
+};
+static ObjectFunctionType SetSquareFunctions = {
+  NULL,
+  NULL,
+  NULL,
+  NULL,
+  SetElementSquare,
+  NULL,
+  SetPinSquare,
+  SetPadSquare,
+  NULL,
+  NULL,
+  NULL,
+  NULL
+};
+static ObjectFunctionType SetOctagonFunctions = {
+  NULL,
+  NULL,
+  NULL,
+  SetViaOctagon,
+  SetElementOctagon,
+  NULL,
+  SetPinOctagon,
+  NULL,
+  NULL,
+  NULL,
+  NULL,
+  NULL
+};
+static ObjectFunctionType ClrThermalFunctions = {
+  NULL,
+  NULL,
+  NULL,
+  ClrViaThermal,
+  NULL,
+  NULL,
+  ClrPinThermal,
+  NULL,
+  NULL,
+  NULL,
+  NULL,
+  NULL
+};
+static ObjectFunctionType ClrSquareFunctions = {
+  NULL,
+  NULL,
+  NULL,
+  NULL,
+  ClrElementSquare,
+  NULL,
+  ClrPinSquare,
+  ClrPadSquare,
+  NULL,
+  NULL,
+  NULL,
+  NULL
+};
+static ObjectFunctionType ClrOctagonFunctions = {
+  NULL,
+  NULL,
+  NULL,
+  ClrViaOctagon,
+  ClrElementOctagon,
+  NULL,
+  ClrPinOctagon,
+  NULL,
+  NULL,
+  NULL,
+  NULL,
+  NULL
+};
 
 /* ---------------------------------------------------------------------------
  * changes the thermal on a via
@@ -277,6 +377,102 @@ ChangePinThermal (ElementTypePtr element, PinTypePtr Pin)
       TOGGLE_FLAG (LayerThermFlag, Pin);
       ClearPin (Pin, PIN_TYPE, 0);
       return (Pin);
+    }
+  return (NULL);
+}
+
+/* ---------------------------------------------------------------------------
+ * sets the thermal on a via
+ * returns TRUE if changed
+ */
+static void *
+SetViaThermal (PinTypePtr Via)
+{
+  int LayerThermFlag;
+  int LayerPIPFlag = L0PIPFLAG << INDEXOFCURRENT;
+
+  if (TEST_FLAG (LayerPIPFlag, Via) && !TEST_FLAG (HOLEFLAG, Via))
+    {
+      LayerThermFlag = L0THERMFLAG << INDEXOFCURRENT;
+      if (TEST_FLAG (LayerThermFlag, Via) == False)
+	{
+	  AddObjectToFlagUndoList (VIA_TYPE, Via, Via, Via);
+	  SET_FLAG (LayerThermFlag, Via);
+	  ClearPin (Via, VIA_TYPE, 0);
+	  return (Via);
+	}
+    }
+  return (NULL);
+}
+
+/* ---------------------------------------------------------------------------
+ * sets the thermal on a pin 
+ * returns TRUE if changed
+ */
+static void *
+SetPinThermal (ElementTypePtr element, PinTypePtr Pin)
+{
+  int LayerThermFlag;
+  int LayerPIPFlag = L0PIPFLAG << INDEXOFCURRENT;
+
+  if (TEST_FLAG (LayerPIPFlag, Pin) && !TEST_FLAG (HOLEFLAG, Pin))
+    {
+      LayerThermFlag = L0THERMFLAG << INDEXOFCURRENT;
+      if (TEST_FLAG (LayerThermFlag, Pin) == False)
+	{
+	  AddObjectToFlagUndoList (VIA_TYPE, element, Pin, Pin);
+	  SET_FLAG (LayerThermFlag, Pin);
+	  ClearPin (Pin, PIN_TYPE, 0);
+	  return (Pin);
+	}
+    }
+  return (NULL);
+}
+
+/* ---------------------------------------------------------------------------
+ * clears the thermal on a via
+ * returns TRUE if changed
+ */
+static void *
+ClrViaThermal (PinTypePtr Via)
+{
+  int LayerThermFlag;
+  int LayerPIPFlag = L0PIPFLAG << INDEXOFCURRENT;
+
+  if (TEST_FLAG (LayerPIPFlag, Via) && !TEST_FLAG (HOLEFLAG, Via))
+    {
+      LayerThermFlag = L0THERMFLAG << INDEXOFCURRENT;
+      if (TEST_FLAG (LayerThermFlag, Via) == True)
+	{
+	  AddObjectToFlagUndoList (VIA_TYPE, Via, Via, Via);
+	  CLEAR_FLAG (LayerThermFlag, Via);
+	  ClearPin (Via, VIA_TYPE, 0);
+	  return (Via);
+	}
+    }
+  return (NULL);
+}
+
+/* ---------------------------------------------------------------------------
+ * clears the thermal on a pin 
+ * returns TRUE if changed
+ */
+static void *
+ClrPinThermal (ElementTypePtr element, PinTypePtr Pin)
+{
+  int LayerThermFlag;
+  int LayerPIPFlag = L0PIPFLAG << INDEXOFCURRENT;
+
+  if (TEST_FLAG (LayerPIPFlag, Pin) && !TEST_FLAG (HOLEFLAG, Pin))
+    {
+      LayerThermFlag = L0THERMFLAG << INDEXOFCURRENT;
+      if (TEST_FLAG (LayerThermFlag, Pin) == True)
+	{
+	  AddObjectToFlagUndoList (VIA_TYPE, element, Pin, Pin);
+	  CLEAR_FLAG (LayerThermFlag, Pin);
+	  ClearPin (Pin, PIN_TYPE, 0);
+	  return (Pin);
+	}
     }
   return (NULL);
 }
@@ -976,6 +1172,52 @@ ChangeElementSquare (ElementTypePtr Element)
 }
 
 /* ---------------------------------------------------------------------------
+ * sets the square flag of all pins on an element
+ */
+static void *
+SetElementSquare (ElementTypePtr Element)
+{
+  void *ans = NULL;
+
+  if (TEST_FLAG (LOCKFLAG, Element))
+    return (NULL);
+  PIN_LOOP (Element);
+  {
+    ans = SetPinSquare (Element, pin);
+  }
+  END_LOOP;
+  PAD_LOOP (Element);
+  {
+    ans = SetPadSquare (Element, pad);
+  }
+  END_LOOP;
+  return (ans);
+}
+
+/* ---------------------------------------------------------------------------
+ * clears the square flag of all pins on an element
+ */
+static void *
+ClrElementSquare (ElementTypePtr Element)
+{
+  void *ans = NULL;
+
+  if (TEST_FLAG (LOCKFLAG, Element))
+    return (NULL);
+  PIN_LOOP (Element);
+  {
+    ans = ClrPinSquare (Element, pin);
+  }
+  END_LOOP;
+  PAD_LOOP (Element);
+  {
+    ans = ClrPadSquare (Element, pad);
+  }
+  END_LOOP;
+  return (ans);
+}
+
+/* ---------------------------------------------------------------------------
  * changes the octagon flags of all pins of an element
  */
 static void *
@@ -988,6 +1230,44 @@ ChangeElementOctagon (ElementTypePtr Element)
   PIN_LOOP (Element);
   {
     ChangePinOctagon (Element, pin);
+    result = Element;
+  }
+  END_LOOP;
+  return (result);
+}
+
+/* ---------------------------------------------------------------------------
+ * sets the octagon flags of all pins of an element
+ */
+static void *
+SetElementOctagon (ElementTypePtr Element)
+{
+  void *result = NULL;
+
+  if (TEST_FLAG (LOCKFLAG, Element))
+    return (NULL);
+  PIN_LOOP (Element);
+  {
+    SetPinOctagon (Element, pin);
+    result = Element;
+  }
+  END_LOOP;
+  return (result);
+}
+
+/* ---------------------------------------------------------------------------
+ * clears the octagon flags of all pins of an element
+ */
+static void *
+ClrElementOctagon (ElementTypePtr Element)
+{
+  void *result = NULL;
+
+  if (TEST_FLAG (LOCKFLAG, Element))
+    return (NULL);
+  PIN_LOOP (Element);
+  {
+    ClrPinOctagon (Element, pin);
     result = Element;
   }
   END_LOOP;
@@ -1010,6 +1290,34 @@ ChangePadSquare (ElementTypePtr Element, PadTypePtr Pad)
 }
 
 /* ---------------------------------------------------------------------------
+ * sets the square flag of a pad
+ */
+static void *
+SetPadSquare (ElementTypePtr Element, PadTypePtr Pad)
+{
+
+  if (TEST_FLAG (LOCKFLAG, Pad) || TEST_FLAG (SQUAREFLAG, Pad))
+    return (NULL);
+
+  return (ChangePadSquare (Element, Pad));
+}
+
+
+/* ---------------------------------------------------------------------------
+ * clears the square flag of a pad
+ */
+static void *
+ClrPadSquare (ElementTypePtr Element, PadTypePtr Pad)
+{
+
+  if (TEST_FLAG (LOCKFLAG, Pad) || !TEST_FLAG (SQUAREFLAG, Pad))
+    return (NULL);
+
+  return (ChangePadSquare (Element, Pad));
+}
+
+
+/* ---------------------------------------------------------------------------
  * changes the square flag of a pin
  */
 static void *
@@ -1022,6 +1330,30 @@ ChangePinSquare (ElementTypePtr Element, PinTypePtr Pin)
   TOGGLE_FLAG (SQUAREFLAG, Pin);
   DrawPin (Pin, 0);
   return (Pin);
+}
+
+/* ---------------------------------------------------------------------------
+ * sets the square flag of a pin
+ */
+static void *
+SetPinSquare (ElementTypePtr Element, PinTypePtr Pin)
+{
+  if (TEST_FLAG (LOCKFLAG, Pin) || TEST_FLAG (SQUAREFLAG, Pin))
+    return (NULL);
+
+  return (ChangePinSquare (Element, Pin));
+}
+
+/* ---------------------------------------------------------------------------
+ * clears the square flag of a pin
+ */
+static void *
+ClrPinSquare (ElementTypePtr Element, PinTypePtr Pin)
+{
+  if (TEST_FLAG (LOCKFLAG, Pin) || !TEST_FLAG (SQUAREFLAG, Pin))
+    return (NULL);
+
+  return (ChangePinSquare (Element, Pin));
 }
 
 /* ---------------------------------------------------------------------------
@@ -1040,6 +1372,30 @@ ChangeViaOctagon (PinTypePtr Via)
 }
 
 /* ---------------------------------------------------------------------------
+ * sets the octagon flag of a via 
+ */
+static void *
+SetViaOctagon (PinTypePtr Via)
+{
+  if (TEST_FLAG (LOCKFLAG, Via) || TEST_FLAG (OCTAGONFLAG, Via))
+    return (NULL);
+
+  return (ChangeViaOctagon (Via));
+}
+
+/* ---------------------------------------------------------------------------
+ * clears the octagon flag of a via 
+ */
+static void *
+ClrViaOctagon (PinTypePtr Via)
+{
+  if (TEST_FLAG (LOCKFLAG, Via) || !TEST_FLAG (OCTAGONFLAG, Via))
+    return (NULL);
+
+  return (ChangeViaOctagon (Via));
+}
+
+/* ---------------------------------------------------------------------------
  * changes the octagon flag of a pin
  */
 static void *
@@ -1052,6 +1408,30 @@ ChangePinOctagon (ElementTypePtr Element, PinTypePtr Pin)
   TOGGLE_FLAG (OCTAGONFLAG, Pin);
   DrawPin (Pin, 0);
   return (Pin);
+}
+
+/* ---------------------------------------------------------------------------
+ * sets the octagon flag of a pin
+ */
+static void *
+SetPinOctagon (ElementTypePtr Element, PinTypePtr Pin)
+{
+  if (TEST_FLAG (LOCKFLAG, Pin) || TEST_FLAG (OCTAGONFLAG, Pin))
+    return (NULL);
+  
+  return (ChangePinOctagon (Element, Pin));
+}
+
+/* ---------------------------------------------------------------------------
+ * clears the octagon flag of a pin
+ */
+static void *
+ClrPinOctagon (ElementTypePtr Element, PinTypePtr Pin)
+{
+  if (TEST_FLAG (LOCKFLAG, Pin) || !TEST_FLAG (OCTAGONFLAG, Pin))
+    return (NULL);
+  
+  return (ChangePinOctagon (Element, Pin));
 }
 
 /* ---------------------------------------------------------------------------
@@ -1133,6 +1513,42 @@ ChangeSelectedThermals (int types)
   Boolean change = False;
 
   change = SelectedOperation (&ChangeThermalFunctions, False, types);
+  if (change)
+    {
+      Draw ();
+      IncrementUndoSerialNumber ();
+    }
+  return (change);
+}
+
+/* ----------------------------------------------------------------------
+ * sets the thermals on all selected and visible pins
+ * and/or vias. Returns True if anything has changed
+ */
+Boolean
+SetSelectedThermals (int types)
+{
+  Boolean change = False;
+
+  change = SelectedOperation (&SetThermalFunctions, False, types);
+  if (change)
+    {
+      Draw ();
+      IncrementUndoSerialNumber ();
+    }
+  return (change);
+}
+
+/* ----------------------------------------------------------------------
+ * clears the thermals on all selected and visible pins
+ * and/or vias. Returns True if anything has changed
+ */
+Boolean
+ClrSelectedThermals (int types)
+{
+  Boolean change = False;
+
+  change = SelectedOperation (&ClrThermalFunctions, False, types);
   if (change)
     {
       Draw ();
@@ -1245,6 +1661,42 @@ ChangeSelectedSquare (int types)
 }
 
 /* ----------------------------------------------------------------------
+ * sets the square-flag of all selected and visible pins or pads
+ * returns True if anything has changed
+ */
+Boolean
+SetSelectedSquare (int types)
+{
+  Boolean change = False;
+
+  change = SelectedOperation (&SetSquareFunctions, False, types);
+  if (change)
+    {
+      Draw ();
+      IncrementUndoSerialNumber ();
+    }
+  return (change);
+}
+
+/* ----------------------------------------------------------------------
+ * clears the square-flag of all selected and visible pins or pads
+ * returns True if anything has changed
+ */
+Boolean
+ClrSelectedSquare (int types)
+{
+  Boolean change = False;
+
+  change = SelectedOperation (&ClrSquareFunctions, False, types);
+  if (change)
+    {
+      Draw ();
+      IncrementUndoSerialNumber ();
+    }
+  return (change);
+}
+
+/* ----------------------------------------------------------------------
  * changes the octagon-flag of all selected and visible pins and vias
  * returns True if anything has changed
  */
@@ -1254,6 +1706,42 @@ ChangeSelectedOctagon (int types)
   Boolean change = False;
 
   change = SelectedOperation (&ChangeOctagonFunctions, False, types);
+  if (change)
+    {
+      Draw ();
+      IncrementUndoSerialNumber ();
+    }
+  return (change);
+}
+
+/* ----------------------------------------------------------------------
+ * sets the octagon-flag of all selected and visible pins and vias
+ * returns True if anything has changed
+ */
+Boolean
+SetSelectedOctagon (int types)
+{
+  Boolean change = False;
+
+  change = SelectedOperation (&SetOctagonFunctions, False, types);
+  if (change)
+    {
+      Draw ();
+      IncrementUndoSerialNumber ();
+    }
+  return (change);
+}
+
+/* ----------------------------------------------------------------------
+ * clears the octagon-flag of all selected and visible pins and vias
+ * returns True if anything has changed
+ */
+Boolean
+ClrSelectedOctagon (int types)
+{
+  Boolean change = False;
+
+  change = SelectedOperation (&ClrOctagonFunctions, False, types);
   if (change)
     {
       Draw ();
@@ -1350,6 +1838,46 @@ ChangeObjectThermal (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
 
   change =
     (ObjectOperation (&ChangeThermalFunctions, Type, Ptr1, Ptr2, Ptr3) !=
+     NULL);
+  if (change)
+    {
+      Draw ();
+      IncrementUndoSerialNumber ();
+    }
+  return (change);
+}
+
+/* ---------------------------------------------------------------------------
+ * sets the thermal of the passed object
+ * Returns True if anything is changed
+ */
+Boolean
+SetObjectThermal (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
+{
+  Boolean change;
+
+  change =
+    (ObjectOperation (&SetThermalFunctions, Type, Ptr1, Ptr2, Ptr3) !=
+     NULL);
+  if (change)
+    {
+      Draw ();
+      IncrementUndoSerialNumber ();
+    }
+  return (change);
+}
+
+/* ---------------------------------------------------------------------------
+ * clears the thermal of the passed object
+ * Returns True if anything is changed
+ */
+Boolean
+ClrObjectThermal (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
+{
+  Boolean change;
+
+  change =
+    (ObjectOperation (&ClrThermalFunctions, Type, Ptr1, Ptr2, Ptr3) !=
      NULL);
   if (change)
     {
@@ -1460,6 +1988,40 @@ ChangeObjectSquare (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
 }
 
 /* ---------------------------------------------------------------------------
+ * sets the square-flag of the passed object
+ * Returns True if anything is changed
+ */
+Boolean
+SetObjectSquare (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
+{
+  if (ObjectOperation (&SetSquareFunctions, Type, Ptr1, Ptr2, Ptr3) !=
+      NULL)
+    {
+      Draw ();
+      IncrementUndoSerialNumber ();
+      return (True);
+    }
+  return (False);
+}
+
+/* ---------------------------------------------------------------------------
+ * clears the square-flag of the passed object
+ * Returns True if anything is changed
+ */
+Boolean
+ClrObjectSquare (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
+{
+  if (ObjectOperation (&ClrSquareFunctions, Type, Ptr1, Ptr2, Ptr3) !=
+      NULL)
+    {
+      Draw ();
+      IncrementUndoSerialNumber ();
+      return (True);
+    }
+  return (False);
+}
+
+/* ---------------------------------------------------------------------------
  * changes the octagon-flag of the passed object
  * Returns True if anything is changed
  */
@@ -1467,6 +2029,40 @@ Boolean
 ChangeObjectOctagon (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
 {
   if (ObjectOperation (&ChangeOctagonFunctions, Type, Ptr1, Ptr2, Ptr3) !=
+      NULL)
+    {
+      Draw ();
+      IncrementUndoSerialNumber ();
+      return (True);
+    }
+  return (False);
+}
+
+/* ---------------------------------------------------------------------------
+ * sets the octagon-flag of the passed object
+ * Returns True if anything is changed
+ */
+Boolean
+SetObjectOctagon (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
+{
+  if (ObjectOperation (&SetOctagonFunctions, Type, Ptr1, Ptr2, Ptr3) !=
+      NULL)
+    {
+      Draw ();
+      IncrementUndoSerialNumber ();
+      return (True);
+    }
+  return (False);
+}
+
+/* ---------------------------------------------------------------------------
+ * clears the octagon-flag of the passed object
+ * Returns True if anything is changed
+ */
+Boolean
+ClrObjectOctagon (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
+{
+  if (ObjectOperation (&ClrOctagonFunctions, Type, Ptr1, Ptr2, Ptr3) !=
       NULL)
     {
       Draw ();

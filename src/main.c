@@ -977,7 +977,10 @@ static XtActionsRec Actions[] = {
   {"ToggleVisibility", ActionToggleVisibility},
   {"MoveObject", ActionMoveObject},
   {"djopt", ActionDJopt},
-  {"GetLoc", ActionGetLocation}
+  {"GetLoc", ActionGetLocation},
+  {"SetFlag", ActionSetFlag},
+  {"ClrFlag", ActionClrFlag},
+  {"ChangeFlag", ActionChangeFlag}
 };
 
 /* ---------------------------------------------------------------------------

@@ -93,5 +93,8 @@ void	ActionAbout(Widget, XEvent *, String *, Cardinal *);
 void	AdjustAttachedObjects(void);
 void	CallActionProc(Widget, String, XEvent *, String *, Cardinal);
 void	warpNoWhere(void);
+void	ActionSetFlag(Widget, XEvent *, String *, Cardinal *);
+void	ActionClrFlag(Widget, XEvent *, String *, Cardinal *);
+void	ActionChangeFlag(Widget, XEvent *, String *, Cardinal *);
 
 #endif
