@@ -1623,8 +1623,8 @@ fi
 
 
 # Define the identity of the package.
- PACKAGE=pcb-xaw
- VERSION=1.99p
+ PACKAGE=pcb
+ VERSION=20050315
 
 
 cat >>confdefs.h <<_ACEOF
