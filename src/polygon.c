@@ -111,7 +111,7 @@ RemoveExcessPolygonPoints (LayerTypePtr Layer, PolygonTypePtr Polygon)
 Cardinal
 GetLowestDistancePolygonPoint (PolygonTypePtr Polygon, Location X, Location Y)
 {
-  float mindistance = MAX_COORD, length, distance;
+  float mindistance = MAX_COORD, length, distance, temp;
   PointTypePtr ptr1 = &Polygon->Points[Polygon->PointN - 1],
     ptr2 = &Polygon->Points[0];
   Cardinal n, result = 0;
@@ -122,13 +122,13 @@ GetLowestDistancePolygonPoint (PolygonTypePtr Polygon, Location X, Location Y)
   for (n = 0; n < Polygon->PointN; n++, ptr2++)
     {
 
-      length = sqrt ((ptr2->X - ptr1->X) * (ptr2->X - ptr1->X) +
-		     (ptr2->Y - ptr1->Y) * (ptr2->Y - ptr1->Y));
+      distance = ptr2->X - ptr1->X;
+      temp = ptr2->Y - ptr1->Y;
+      length = sqrt(distance * distance + temp * temp);
       if (length != 0.0)
 	{
-	  distance = fabs (((ptr2->Y - ptr1->Y) * (Crosshair.X - ptr1->X) -
-			    (ptr2->X - ptr1->X) * (Crosshair.Y -
-						   ptr1->Y)) / length);
+	  distance = fabs ((temp * (Crosshair.X - ptr1->X) -
+			    distance * (Crosshair.Y - ptr1->Y)) / length);
 	  if (distance < mindistance)
 	    {
 	      mindistance = distance;
@@ -323,17 +323,15 @@ static Boolean
 DoPIPFlags (PinTypePtr Pin, ElementTypePtr Element,
 	    LayerTypePtr Layer, PolygonTypePtr Polygon, int LayerPIPFlag)
 {
-  if (IsPointInPolygon (Pin->X, Pin->Y, 0, Polygon))
+  float wide;
+  
+  if (TEST_FLAG(SQUAREFLAG, Pin))
+    wide = (Pin->Thickness + Pin->Clearance ) * SQRT2OVER2;
+  else
+    wide = (Pin->Thickness + Pin->Clearance ) * 0.5;
+  if (IsPointInPolygon (Pin->X, Pin->Y, wide, Polygon))
     {
       SET_FLAG (LayerPIPFlag, Pin);
       return True;
     }
-  else if (!TEST_FLAG (WARNFLAG, Pin) &&
-	   IsPointInPolygon (Pin->X, Pin->Y, Pin->Thickness / 2 + 1, Polygon))
-    {
-      Message ("WARNING:  pin or via too close to polygon edge\n");
-      SET_FLAG (WARNFLAG, Pin);
-      DrawPin (Pin, 0);
-    }
-  return False;
 }
