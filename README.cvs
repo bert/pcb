@@ -32,6 +32,24 @@ flex      -- ftp://ftp.gnu.org/pub/non-gnu/flex/
 Check out
 ---------
 
+If you already have a checked PCB source tree, please proceed to the
+'Updating' section.
+
+To check out sources from the anonymous CVS server, run the following:
+
+	cvs -d:pserver:anonymous@cvs.sourceforge.net:/cvsroot/pcb login 
+	cvs -z3 -d:pserver:anonymous@cvs.sourceforge.net:/cvsroot/pcb co pcb
+
+---------
+Updating
+---------
+
+To update an already checked out copy of the PCB source tree, run these commands
+from your top level pcb directory:
+
+	cvs login 
+	cvs -z3 update -PdA
+
 ----------------------------------
 Bootstrapping with the auto* tools
 ----------------------------------
@@ -39,3 +57,8 @@ from the pcb directory, run:
 
 ./autogen.sh
 
+This will run the various auto* tools which creates the configure script,
+the config.h.in file and the various Makefile.in's.
+
+At this point you can proceed to configure and build PCB as outlined in
+the INSTALL document.
