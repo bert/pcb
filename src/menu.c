@@ -425,6 +425,10 @@ static PopupEntryType BufferMenuEntries[] = {
   {"mirror", "Mirror Buffer (up/down)", CB_Action,
    "Mode,PasteBuffer\n" "PasteBuffer,Mirror",
    NULL},
+  {"mirror", "Mirror Buffer (left/right)", CB_Action,
+   "Mode,PasteBuffer\n" "PasteBuffer,Rotate,1\n"
+   "PasteBuffer,Mirror\nPasteBuffer,Rotate,3",
+   NULL},
   {"line", NULL, NULL, NULL, NULL},
   {"clear", "clear buffer", CB_Action, "PasteBuffer,Clear", NULL},
 
