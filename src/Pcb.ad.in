@@ -351,6 +351,7 @@ Pcb.masterForm*output.baseTranslations:   #override \
   <Key>Escape:          Mode(None) \n\
   <Key>space:           Mode(Arrow) \n\
   <Key>colon:           Command() \n\
+  <Key>period:          Command(-1) \n\
   Shift<Key>BackSpace: Atomic(Save) \
 			Connection(Reset) \
 			Atomic(Restore) \
@@ -470,7 +471,7 @@ Pcb.masterForm*output.baseTranslations:   #override \
   @btnmod@ Shift<Key>s: ChangeDrillSize(Object, -5, mil) \n\
   Shift<Key>s:        ChangeSize(Object, -5, mil) \n\
   @btnmod@<Key>s:       ChangeDrillSize(Object, +5, mil) \n\
-  <Key>s:          ChangeSize(Object, +5) \n\
+  <Key>s:          ChangeSize(Object, +5, mil) \n\
   Shift<Key>t:          SetValue(TextScale, -5) \n\
   <Key>t:               SetValue(TextScale, +5) \n\
   Shift Ctrl<Key>u:   Undo(ClearList) \n\

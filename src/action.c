@@ -1965,7 +1965,7 @@ ActionSetValue (Widget W, XEvent * Event, String * Params, Cardinal * Num)
       switch (GetFunctionID (*Params))
 	{
 	case F_ViaDrillingHole:
-	  SetViaDrillingHole (r ? value + Settings.ViaDrillingHole : value,
+	  SetViaDrillingHole (r ? value : value + Settings.ViaDrillingHole,
 			      False);
 	  break;
 
@@ -1983,22 +1983,22 @@ ActionSetValue (Widget W, XEvent * Event, String * Params, Cardinal * Num)
 	  break;
 
 	case F_Zoom:
-	  SetZoom (r ? value + PCB->Zoom : value);
+	  SetZoom (r ? value : value + PCB->Zoom);
 	  break;
 
 	case F_LineSize:
 	case F_Line:
-	  SetLineSize (r ? value + Settings.LineThickness : value);
+	  SetLineSize (r ? value : value + Settings.LineThickness);
 	  break;
 
 	case F_Via:
 	case F_ViaSize:
-	  SetViaSize (r ? value + Settings.ViaThickness : value, False);
+	  SetViaSize (r ? value : value + Settings.ViaThickness, False);
 	  break;
 
 	case F_Text:
 	case F_TextScale:
-	  SetTextScale (r ? value + Settings.TextScale : value);
+	  SetTextScale (r ? value : value + Settings.TextScale);
 	  break;
 	}
       RestoreCrosshair (True);
@@ -2119,23 +2119,29 @@ ActionCommand (Widget W, XEvent * Event, String * Params, Cardinal * Num)
   char *command;
   static char *previous = NULL;
 
+  HideCrosshair (True);
   if (*Num == 0)
     {
-      HideCrosshair (True);
-      command = GetUserInput ("Enter command:", previous ? previous : "");
+      if (Settings.SaveLastCommand)
+        command = GetUserInput ("Enter command:", previous ? previous : "");
+      else
+        command = GetUserInput ("Enter command:", "");
       if (command != NULL)
 	{
 	  /* copy new comand line to save buffer */
-	  if (Settings.SaveLastCommand)
-	    {
-	      SaveFree (previous);
-	      previous = MyStrdup (command, "ActionCommand()");
-	    }
+	  SaveFree (previous);
+	  previous = MyStrdup (command, "ActionCommand()");
 	  ExecuteUserCommand (command);
 	  SaveFree (command);
 	}
-      RestoreCrosshair (True);
     }
+  else if (previous)
+   {
+     command = MyStrdup (previous, "ActionCommand()");
+     ExecuteUserCommand (command);
+     SaveFree (command);
+   }
+  RestoreCrosshair (True);
 }
 
 void
@@ -2817,7 +2823,7 @@ ActionChangeSize (Widget W, XEvent * Event, String * Params, Cardinal * Num)
 	      if (TEST_FLAG (LOCKFLAG, (PinTypePtr) ptr2))
 		Message ("Sorry, that object is locked\n");
 	    if (ChangeObjectSize
-		(type, ptr1, ptr2, ptr3, atoi (*(Params + 1)), r))
+		(type, ptr1, ptr2, ptr3, value, r))
 	      SetChangedFlag (True);
 	    break;
 	  }

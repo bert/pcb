@@ -164,8 +164,11 @@ Usage (void)
   exit (1);
 }
 
+/* Get Value returns a numeric value passed from the string and sets the
+ * Boolean variable absolute to False if it leads with a +/- character
+ */
 float
-GetValue (String * Params, Boolean * r, Cardinal Num)
+GetValue (String * Params, Boolean * absolute, Cardinal Num)
 {
   float value;
   /* if the first character is a sign we have to add the
@@ -173,12 +176,12 @@ GetValue (String * Params, Boolean * r, Cardinal Num)
    */
   if (**Params == '=')
     {
-      *r = 0;
-      value = atof (*Params);
+      *absolute = 1;
+      value = atof ((*Params)+1);
     }
   else
     {
-      *r = !isdigit (**Params);
+      *absolute = isdigit (**Params);
       value = atof (*Params);
     }
   if (Num == 3)
