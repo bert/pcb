@@ -1,0 +1,87 @@
+#  $Id$
+#
+
+This file is the start of a wish list of features/improvements in no particular
+order.
+
+-----------------------------------------------------------------------------
+- The ability to create more complex pad shapes.  For example, a pad which
+  has a square end on one end and a round end on the other.  Or, for example,
+  a polygon shaped pad.  
+-----------------------------------------------------------------------------
+
+-----------------------------------------------------------------------------
+- Support in both the layout editor and in components for additional non-mask
+  layers.  Examples are:
+      -  A layer with some alignment marks.  Uses are for connectors which must
+	 be mounted a specified distance from the board edge.  You could 
+	 align the alignment layer with the board outline.  I've used the 
+	 assembly layer for this in the past.
+
+      -  A keepout area for copper.  One use is if you create a microstrip
+	 filter and want to prevent traces from being accidentally placed
+	 too close or you want to keep the autorouter away from that area.
+
+      -  A keepout area for drills.  This is useful in some applications where
+	 you need to put vias on top of a pad, but need to keep other areas
+	 of a pad via-free.  The application here is, for example, a Johnstech
+	 socket for a QFN package.  See johnstech.inc.
+
+-----------------------------------------------------------------------------
+- Support for an arbitrary number of copper layers or at least lots more than
+  currently supported.
+
+-----------------------------------------------------------------------------
+- Support for including soldermask relief in a component.  Useful for some
+  engineering sockets used with advanced high frequency packages such as QFN
+  which require a certain area to be clear of soldermask and silk.
+-----------------------------------------------------------------------------
+
+-----------------------------------------------------------------------------
+- The ability to create components that include copper polygons and pads where
+  the user should connect up to.  This would enable creating elements like
+  a microstrip filter, a spiral inductor, patch antenna, etc which could easily
+  be handled by the layout.  You'd want some sort of keepout region around to
+  at a minimum cause a DRC violation if you got traces too close to part of your
+  microstrip stuff.  Another application is a solder bridgable gap.  This is 
+  typically made by taking a square or round pad and making a diagonal cut
+  across it.  Currently, you can make such a thing with a polygon, but it can't
+  become part of a component which is verified for connectivity.
+
+-----------------------------------------------------------------------------
+
+- some support for hierarchy.  I don't have a completely clear vision of how this
+  should work.  The things I'd like to accomplish are the following:
+     - When layout out a fully differential circuit, its nice to be able to 
+       layout a 1/2 circuit and instantiate two copies of it.  This helps ensure
+       that the layout is absolutely symmetric.
+
+     - When laying out multiple channels of some circuit, its nice to not have
+       to replicate the work.
+
+-----------------------------------------------------------------------------
+
+- Some link back to the library for components.  That way if I update a broken
+  footprint in my library I don't have to manually fix every instance of it.
+
+-----------------------------------------------------------------------------
+
+- A way to store the active/inactive list of nets so when you exit pcb and 
+  load it again, the set of nets is saved.  Also, when reloading the netlist
+  this saved set should be compared and merged as best as possible.  This
+  way, you can keep ground and power rats off while the design is still changing.
+
+-----------------------------------------------------------------------------
+
+- A 'distribute components' feature.  This would let you select a group of
+  components and automatically place them, but with no attention paid to
+  connectivity.  It would simply move them apart.  Useful if you've used
+  a tool such as gsch2pcb that created a new board from a schematic, but all
+  devices are on top of each other.
+
+-----------------------------------------------------------------------------
+- Port to GTK for a more modern look and feel along with providing an easy
+  path to a native windows port.
+-----------------------------------------------------------------------------
+
+
