@@ -550,7 +550,7 @@ ChangeLineClearSize (LayerTypePtr Layer, LineTypePtr Line)
 {
   BDimension value = (Absolute) ? Absolute : Line->Clearance + Delta;
 
-  if (TEST_FLAG (LOCKFLAG, Line))
+  if (TEST_FLAG (LOCKFLAG, Line) || !TEST_FLAG(CLEARLINEFLAG, Line))
     return (NULL);
   value = MIN (MAX_LINESIZE, MAX (value, Settings.Bloat * 2));
   if (value != Line->Clearance)
@@ -558,10 +558,11 @@ ChangeLineClearSize (LayerTypePtr Layer, LineTypePtr Line)
       AddObjectToClearSizeUndoList (LINE_TYPE, Layer, Line, Line);
       EraseLine (Line);
       Line->Clearance = value;
-      if (Line->Clearance > 0)
-	SET_FLAG (CLEARLINEFLAG, Line);
-      else
-	CLEAR_FLAG (CLEARLINEFLAG, Line);
+      if (Line->Clearance == 0)
+        {
+	  CLEAR_FLAG (CLEARLINEFLAG, Line);
+          Line->Clearance = 1000;
+        }
       DrawLine (Layer, Line, 0);
       return (Line);
     }
@@ -600,7 +601,7 @@ ChangeArcClearSize (LayerTypePtr Layer, ArcTypePtr Arc)
 {
   BDimension value = (Absolute) ? Absolute : Arc->Clearance + Delta;
 
-  if (TEST_FLAG (LOCKFLAG, Arc))
+  if (TEST_FLAG (LOCKFLAG, Arc) || !TEST_FLAG(CLEARLINEFLAG, Arc))
     return (NULL);
   value = MIN (MAX_LINESIZE, MAX (value, Settings.Bloat * 2));
   if (value != Arc->Clearance)
@@ -608,10 +609,11 @@ ChangeArcClearSize (LayerTypePtr Layer, ArcTypePtr Arc)
       AddObjectToClearSizeUndoList (ARC_TYPE, Layer, Arc, Arc);
       EraseArc (Arc);
       Arc->Clearance = value;
-      if (Arc->Clearance > 0)
-	SET_FLAG (CLEARLINEFLAG, Arc);
-      else
-	CLEAR_FLAG (CLEARLINEFLAG, Arc);
+      if (Arc->Clearance == 0)
+        {
+	  CLEAR_FLAG (CLEARLINEFLAG, Arc);
+          Arc->Clearance = 1000;
+        }
       DrawArc (Layer, Arc, 0);
       return (Arc);
     }
