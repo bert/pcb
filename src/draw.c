@@ -273,7 +273,7 @@ Redraw (Boolean ClearWindow)
       XFillRectangle (Dpy, DrawingWindow, Output.bgGC, 0, 0,
 		      TO_DRAWABS_X (PCB->MaxWidth),
 		      TO_DRAWABS_Y (PCB->MaxHeight));
-      XSetForeground (Dpy, Output.bgGC, ~0);
+      XSetForeground (Dpy, Output.bgGC, Settings.bgColor);
       XSetForeground (Dpy, Output.fgGC, Settings.OffLimitColor);
       XFillRectangle (Dpy, DrawingWindow, Output.fgGC,
 		      TO_DRAWABS_X (PCB->MaxWidth), 0, MAX_COORD / 100,
