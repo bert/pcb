@@ -894,6 +894,8 @@ DoSilkPrint (Cardinal i, LayerTypePtr layer, Boolean clip)
   END_LOOP;
   ALLPAD_LOOP (PCB->Data);
   {
+    if ((TEST_FLAG (ONSOLDERFLAG, element) == 0) != (i == 0))
+	continue;
     info.pad = pad;
     if (setjmp (info.env) == 0)
       {
