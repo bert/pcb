@@ -475,6 +475,24 @@ define(`PKG_JUMPER18',   `PKG_CONNECTOR(`$1', `$2', `$3', 18, 1)');
 define(`PKG_JUMPER20',   `PKG_CONNECTOR(`$1', `$2', `$3', 20, 1)');
 
 #
+## MTA Connector, (0.100 inch pitch)
+#
+define(`PKG_MTA100_2',    `PKG_MTA_100(`$1', `$2', `$3',  2)');
+define(`PKG_MTA100_3',    `PKG_MTA_100(`$1', `$2', `$3',  3)');
+define(`PKG_MTA100_4',    `PKG_MTA_100(`$1', `$2', `$3',  4)');
+define(`PKG_MTA100_5',    `PKG_MTA_100(`$1', `$2', `$3',  5)');
+define(`PKG_MTA100_6',    `PKG_MTA_100(`$1', `$2', `$3',  6)');
+define(`PKG_MTA100_7',    `PKG_MTA_100(`$1', `$2', `$3',  7)');
+define(`PKG_MTA100_8',    `PKG_MTA_100(`$1', `$2', `$3',  8)');
+define(`PKG_MTA100_9',    `PKG_MTA_100(`$1', `$2', `$3',  9)');
+define(`PKG_MTA100_10',   `PKG_MTA_100(`$1', `$2', `$3', 10)');
+define(`PKG_MTA100_11',   `PKG_MTA_100(`$1', `$2', `$3', 11)');
+define(`PKG_MTA100_12',   `PKG_MTA_100(`$1', `$2', `$3', 12)');
+define(`PKG_MTA100_13',   `PKG_MTA_100(`$1', `$2', `$3', 13)');
+define(`PKG_MTA100_14',   `PKG_MTA_100(`$1', `$2', `$3', 14)');
+define(`PKG_MTA100_15',   `PKG_MTA_100(`$1', `$2', `$3', 15)');
+
+#
 ## Header connector, DIP pin numbering
 #  Corresponding to gEDA symbols header2-1 .. header64-1
 #

@@ -1,4 +1,4 @@
-#
+# -*- m4 -*-
 #                             COPYRIGHT
 # 
 #   PCB, interactive printed circuit board design
@@ -534,6 +534,51 @@ Element(0x00 "$1" "$2" "$3" BASEX eval(BASEY+200) 3 100 0x00)
 	PIN(eval(BASEX-200), eval(BASEY+100), 60, 20, 2)
 	PIN(eval(BASEX),     eval(BASEY),     100, 40, m1)
 	PIN(eval(BASEX),     eval(BASEY+400), 100, 40, m2)
+)')
+
+
+# ---------------------------------------------------------------
+# definition for MTA-100 header,
+# such as AMP 640456-x
+#
+# $1: canonical name
+# $2: name on PCB
+# $3: value
+# $4: pins
+#
+#      0.100" pin pitch
+#      0.038" drill diameter
+#      0.060" pad diameter
+#      Available with 2 through 15 pins
+#
+define(`PKG_MTA_100',
+`
+        define(`PITCH', `100')
+        define(`NPINS', `eval($4)')
+        define(`SILKW', `10')
+        define(`SILKXOFS', `75')
+        define(`SILKYOFS', `115')
+        define(`SILKX1', `-SILKXOFS')
+        define(`SILKX2', `eval((NPINS-1)*PITCH + SILKXOFS)')
+        define(`SILKY1', `-SILKYOFS')
+        define(`SILKY2', `SILKYOFS')
+        define(`SILKY3', `eval(SILKYOFS+2*SILKW)')
+
+Element(0x00 "$1" "$2" "$3" 0  140 0 150 0x00)
+(
+        forloop(`i', 1, `$4',
+                `PIN(eval((i-1)*100), 0, 60, 38, `i')
+        ')
+        define(`X1',-78)
+        define(`X2', `eval(`$4'*100-78)')
+        ElementLine(SILKX1  SILKY1 SILKX2 SILKY1 SILKW) 
+        ElementLine(SILKX2  SILKY1 SILKX2 SILKY3 SILKW) 
+        ElementLine(SILKX2  SILKY2 SILKX1 SILKY2 SILKW) 
+        ElementLine(SILKX1  SILKY3 SILKX1 SILKY1 SILKW) 
+
+        ElementLine(SILKX2  SILKY3 SILKX1 SILKY3 SILKW) 
+
+        Mark(0 0)
 )')
 
 # ---------------------------------------------------------------
