@@ -15,29 +15,22 @@ The only requirements are:
 
 
 For installing the release refer to the file 'INSTALL'.
-For additional information read the manual (doc.ps/pcb.ps.gz) 
+For additional information read the manual (doc/pcb.pdf) 
 
-If you are updating read the files in capital letters
+If you are updating you may wish to read the ChangeLog
 
 Files:
 	README.xxx             this and some other files
 	doc/*                  source for manuals, texinfo...
-	doc.ps/*               preformatted PostScript manuals
+			       preformatted manuals exist here too.
 	example/*              some examples
 	lib/*                  circuit definitions
 	newlib/*               newer library format  circuit definitions
 	src/*                  sources, icons, ...
 	tools/*                some additional scripts...
 
-There is also a mailing list for publishing bugs, libraries ...
-See 'MAILING' in this directory.
-
-Please mail all bug reports, suggestions, additional features and element
-file that you've created to
-
-    haceaton@aplcomm.jhuapl.edu
-
-so they can be inserted into future releases.
+There is also a bug tracking system and user forum available on the
+sourceforge project page which can be found from http://pcb.sourceforge.net
 
 -------------------------------------------------------------------------
                             COPYRIGHT
@@ -66,3 +59,4 @@ so they can be inserted into future releases.
   6697 Buttonhole Court
   Columbia, MD 21044
   haceaton@aplcomm.jhuapl.edu
+
