@@ -59,52 +59,52 @@ define(`PKG_GENERIC_JOHNSTECH7248_QFN',
 	# pad length/width (1/1000 mil)
 	define(`PADLENGTH', `eval(`$8'*100000/254)')
 	define(`PADWIDTH', `eval(`$7'*100000/254)')
-	# pad width (mil)
-	define(`PADWIDTHMIL', `eval(PADWIDTH/1000)')
-	# min/max x coordinates for the pads on the left/right sides of the package (mil)
-	define(`LRXMAX',`eval((LRWIDTH/2 + EXTOUT - PADWIDTH/2)/1000)')
-	define(`LRXMIN',`eval((LRWIDTH/2 -PADLENGTH - EXTIN + PADWIDTH/2)/1000)')
-	# min/max y coordinates for the pads on the top/bottom sides of the package (mil)
-	define(`TBYMAX',`eval((TBWIDTH/2 + EXTOUT - PADWIDTH/2)/1000)')
-	define(`TBYMIN',`eval((TBWIDTH/2 -PADLENGTH - EXTIN + PADWIDTH/2)/1000)')
+	# pad width (mil/100)
+	define(`PADWIDTHMIL100', `eval(PADWIDTH/10)')
+	# min/max x coordinates for the pads on the left/right sides of the package (mil/100)
+	define(`LRXMAX',`eval((LRWIDTH/2 + EXTOUT - PADWIDTH/2)/10)')
+	define(`LRXMIN',`eval((LRWIDTH/2 -PADLENGTH - EXTIN + PADWIDTH/2)/10)')
+	# min/max y coordinates for the pads on the top/bottom sides of the package (mil/100)
+	define(`TBYMAX',`eval((TBWIDTH/2 + EXTOUT - PADWIDTH/2)/10)')
+	define(`TBYMIN',`eval((TBWIDTH/2 -PADLENGTH - EXTIN + PADWIDTH/2)/10)')
 
-	# pad size and drill size (mil) for the mounting holes
-	define(`MOUNTPAD', 77)
-	define(`MOUNTDRILL', 20)
+	# pad size and drill size (mil/100) for the mounting holes
+	define(`MOUNTPAD', 7700)
+	define(`MOUNTDRILL', 2000)
 
-	# silkscreen width (mils)
-	define(`SILKW', 10)
+	# silkscreen width (mils/100)
+	define(`SILKW', 1000)
 	# how much the silk screen is moved away from the package (1/1000 mil)
-	define(`SILKEXT', `eval(200*100000/254 + SILKW*1000/2 + 5*1000)')
-	# upper right corner for silk screen (mil)
-	define(`SILKX', `eval((LRWIDTH/2 + SILKEXT )/1000)')
-	define(`SILKY', `eval((TBWIDTH/2 + SILKEXT )/1000)')
-	# refdes text size (mil)
-	define(`TEXTSIZE', 100)
-	# x,y coordinates for refdes label (mil)
+	define(`SILKEXT', `eval(200*100000/254 + SILKW*10/2 + 5*1000)')
+	# upper right corner for silk screen (mil/100)
+	define(`SILKX', `eval((LRWIDTH/2 + SILKEXT )/10)')
+	define(`SILKY', `eval((TBWIDTH/2 + SILKEXT )/10)')
+	# refdes text size (mil/100)
+	define(`TEXTSIZE', 10000)
+	# x,y coordinates for refdes label (mil/100)
 	define(`TEXTX', -SILKX)
-	define(`TEXTY', `eval(-SILKY - 10 - TEXTSIZE/2)')
-	# square exposed paddle size (mil)
-	define(`EPSIZE', `eval(`$9'*100/254)')
+	define(`TEXTY', `eval(-SILKY - 1000 - TEXTSIZE/2)')
+	# square exposed paddle size (mil/100)
+	define(`EPSIZE', `eval(`$9'*10000/254)')
 
-	# location of mounting holes (mil)
-	define(`MOUNTX', `eval((LRWIDTH/2 + 39370)/1000)')
-	define(`MOUNTY', `eval((TBWIDTH/2 + 39370)/1000)')
+	# location of mounting holes (mil/100)
+	define(`MOUNTX', `eval((LRWIDTH/2 + 39370)/10)')
+	define(`MOUNTY', `eval((TBWIDTH/2 + 39370)/10)')
 
-	# latch silkscreen width (mils)
-	define(`LSILKW', 1)
-	# points for latch silk on the left/right sides of the part (mil)
-	define(`LATCHLRYMIN', `eval((-TBWIDTH/2 - 25*100000/254 )/1000)')
-	define(`LATCHLRYMAX', `eval(( TBWIDTH/2 + 25*100000/254 )/1000)')
+	# latch silkscreen width (mils/100)
+	define(`LSILKW', 100)
+	# points for latch silk on the left/right sides of the part (mil/100)
+	define(`LATCHLRYMIN', `eval((-TBWIDTH/2 - 25*100000/254 )/10)')
+	define(`LATCHLRYMAX', `eval(( TBWIDTH/2 + 25*100000/254 )/10)')
 	define(`LATCHLRXMIN', SILKX)
-	define(`LATCHLRXMAX', `eval(( LRWIDTH/2 + 400*100000/254 )/1000)')
-	# points for latch silk on the top/bottom sides of the part (mil)
-	define(`LATCHTBXMIN', `eval((-LRWIDTH/2 - 25*100000/254 )/1000)')
-	define(`LATCHTBXMAX', `eval(( LRWIDTH/2 + 25*100000/254 )/1000)')
+	define(`LATCHLRXMAX', `eval(( LRWIDTH/2 + 400*100000/254 )/10)')
+	# points for latch silk on the top/bottom sides of the part (mil/100)
+	define(`LATCHTBXMIN', `eval((-LRWIDTH/2 - 25*100000/254 )/10)')
+	define(`LATCHTBXMAX', `eval(( LRWIDTH/2 + 25*100000/254 )/10)')
 	define(`LATCHTBYMIN', SILKY)
-	define(`LATCHTBYMAX', `eval(( TBWIDTH/2 + 400*100000/254 )/1000)')
+	define(`LATCHTBYMAX', `eval(( TBWIDTH/2 + 400*100000/254 )/10)')
 
-	# points for silk showing where the exposed paddle contacts are (mil)
+	# points for silk showing where the exposed paddle contacts are (mil/100)
 	define(`CONTL', 100)
 	ifelse(1, eval(TBWIDTHMM>4), define(`CONTL', 200))
 	ifelse(1, eval(TBWIDTHMM>5), define(`CONTL', 300))
@@ -113,25 +113,25 @@ define(`PKG_GENERIC_JOHNSTECH7248_QFN',
 	define(`CONTS', 0)
 	ifelse(1, eval(TBWIDTHMM>5), define(`CONTS', `eval(TBWIDTHMM*100 - 430)'))
 
-	define(`EPY', `eval((CONTL*100000/254)/1000)')
-	define(`EPXMIN', `eval(((CONTS/2 - 20/2)*100000/254)/1000)')
-	define(`EPXMAX', `eval(((CONTS/2 + 20/2)*100000/254)/1000)')
+	define(`EPY', `eval((CONTL*100000/254)/10)')
+	define(`EPXMIN', `eval(((CONTS/2 - 20/2)*100000/254)/10)')
+	define(`EPXMAX', `eval(((CONTS/2 + 20/2)*100000/254)/10)')
 
-	# soldermask opening (mil)
-	define(`MASKSIZE', `eval((400*100000/254 + TBWIDTH)/1000)')
+	# soldermask opening (mil/100)
+	define(`MASKSIZE', `eval((400*100000/254 + TBWIDTH)/10)')
 
 
 # element_flags, description, pcb-name, value, mark_x, mark_y,
 # text_x, text_y, text_direction, text_scale, text_flags
-Element(0x00000000 "$1" "$2" "$3" 0 0 TEXTX TEXTY 0 TEXTSIZE 0x00000000)
+Element[0x00000000 "$1" "$2" "$3" 0 0 TEXTX TEXTY 0 TEXTSIZE 0x00000000]
 (
 
 # left row
 define(`CURPIN', 1)
 define(`idx',0)
 forloop(`i', 1, LRPINS,
-	`define(`Y', `eval((-LRYMAX + PITCH*idx)/1000)')'
-	`Pad(-LRXMAX  Y  -LRXMIN  Y  PADWIDTHMIL  0 0 "CURPIN" "CURPIN"  0x00000000)'
+	`define(`Y', `eval((-LRYMAX + PITCH*idx)/10)')'
+	`Pad[-LRXMAX  Y  -LRXMIN  Y  PADWIDTHMIL100  0 0 "CURPIN" "CURPIN"  0x00000000]'
 	`define(`CURPIN', incr(CURPIN))'
 	`define(`idx',incr(idx))'
 )
@@ -139,8 +139,8 @@ forloop(`i', 1, LRPINS,
 # bottom row
 define(`idx',0)
 forloop(`i', 1, TBPINS,
-	`define(`X', `eval((-TBXMAX + PITCH*idx)/1000)')'
-	`Pad(X  TBYMAX  X  TBYMIN  PADWIDTHMIL 0 0 "CURPIN" "CURPIN"  0x00000800)'
+	`define(`X', `eval((-TBXMAX + PITCH*idx)/10)')'
+	`Pad[X  TBYMAX  X  TBYMIN  PADWIDTHMIL100 0 0 "CURPIN" "CURPIN"  0x00000800]'
 	`define(`CURPIN', incr(CURPIN))'
 	`define(`idx',incr(idx))'
 )
@@ -148,8 +148,8 @@ forloop(`i', 1, TBPINS,
 # right row
 define(`idx',0)
 forloop(`i', 1, LRPINS,
-	`define(`Y', `eval(( LRYMAX - PITCH*idx)/1000)')'
-	`Pad(LRXMAX  Y  LRXMIN  Y  PADWIDTHMIL  0 0 "CURPIN" "CURPIN"  0x00000000)'
+	`define(`Y', `eval(( LRYMAX - PITCH*idx)/10)')'
+	`Pad[LRXMAX  Y  LRXMIN  Y  PADWIDTHMIL100  0 0 "CURPIN" "CURPIN"  0x00000000]'
 	`define(`CURPIN', incr(CURPIN))'
 	`define(`idx',incr(idx))'
 )
@@ -157,8 +157,8 @@ forloop(`i', 1, LRPINS,
 # top row
 define(`idx',0)
 forloop(`i', 1, TBPINS,
-	`define(`X', `eval((TBXMAX - PITCH*idx)/1000)')'
-	`Pad(X  -TBYMAX  X  -TBYMIN  PADWIDTHMIL 0 0 "CURPIN" "CURPIN" 0x00000800)'
+	`define(`X', `eval((TBXMAX - PITCH*idx)/10)')'
+	`Pad[X  -TBYMAX  X  -TBYMIN  PADWIDTHMIL100 0 0 "CURPIN" "CURPIN" 0x00000800]'
 	`define(`CURPIN', incr(CURPIN))'
 	`define(`idx',incr(idx))'
 )
@@ -167,65 +167,64 @@ forloop(`i', 1, TBPINS,
 # relief for the entire part.
 # Pad(X1, Y1, X2, Y3, width, clearance,
 #     soldermask, "pin name", "pin number", flags)
-Pad(0 0 0 0 EPSIZE 0 MASKSIZE "CURPIN" "CURPIN" 0x00000100)
+Pad[0 0 0 0 EPSIZE 0 MASKSIZE "CURPIN" "CURPIN" 0x00000100]
 define(`CURPIN', incr(CURPIN))
 # Mounting pins
 
-# Pin(X Y Thickness DrillingHole Name PinNumber Flags)
 # Pin(x, y, thickness, clearance, mask, drilling hole, name,
 #     number, flags 
 
-Pin( MOUNTX MOUNTY MOUNTPAD 10 10 MOUNTDRILL "Mount1" "CURPIN" 0x0)
+Pin[ MOUNTX MOUNTY MOUNTPAD 1000 1000 MOUNTDRILL "Mount1" "CURPIN" 0x0]
 define(`CURPIN', incr(CURPIN))
-Pin( -MOUNTX MOUNTY MOUNTPAD 10 10 MOUNTDRILL "Mount2" "CURPIN" 0x0)
+Pin[ -MOUNTX MOUNTY MOUNTPAD 1000 1000 MOUNTDRILL "Mount2" "CURPIN" 0x0]
 define(`CURPIN', incr(CURPIN))
-Pin( -MOUNTX -MOUNTY MOUNTPAD 10 10 MOUNTDRILL "Mount3" "CURPIN" 0x0)
+Pin[ -MOUNTX -MOUNTY MOUNTPAD 1000 1000 MOUNTDRILL "Mount3" "CURPIN" 0x0]
 define(`CURPIN', incr(CURPIN))
-Pin( MOUNTX -MOUNTY MOUNTPAD 10 10 MOUNTDRILL "Mount4" "CURPIN" 0x0)
+Pin[ MOUNTX -MOUNTY MOUNTPAD 1000 1000 MOUNTDRILL "Mount4" "CURPIN" 0x0]
 
 # Silk screen around package
-ElementLine( SILKX  SILKY  SILKX -SILKY SILKW)
-ElementLine( SILKX -SILKY -SILKX -SILKY SILKW)
-ElementLine(-SILKX -SILKY -SILKX  SILKY SILKW)
-ElementLine(-SILKX  SILKY  SILKX  SILKY SILKW)
+ElementLine[ SILKX  SILKY  SILKX -SILKY SILKW]
+ElementLine[ SILKX -SILKY -SILKX -SILKY SILKW]
+ElementLine[-SILKX -SILKY -SILKX  SILKY SILKW]
+ElementLine[-SILKX  SILKY  SILKX  SILKY SILKW]
 
 # Pin 1 indicator
-ElementLine(-SILKX -SILKY eval(-SILKX - 15) eval(-SILKY - 15) SILKW)
+ElementLine[-SILKX -SILKY eval(-SILKX - 1500) eval(-SILKY - 1500) SILKW]
 
 # Silk showing latch area
 
 # top
-ElementLine( LATCHTBXMIN -LATCHTBYMIN LATCHTBXMIN -LATCHTBYMAX LSILKW )
-ElementLine( LATCHTBXMIN -LATCHTBYMAX LATCHTBXMAX -LATCHTBYMAX LSILKW )
-ElementLine( LATCHTBXMAX -LATCHTBYMIN LATCHTBXMAX -LATCHTBYMAX LSILKW )
+ElementLine[ LATCHTBXMIN -LATCHTBYMIN LATCHTBXMIN -LATCHTBYMAX LSILKW ]
+ElementLine[ LATCHTBXMIN -LATCHTBYMAX LATCHTBXMAX -LATCHTBYMAX LSILKW ]
+ElementLine[ LATCHTBXMAX -LATCHTBYMIN LATCHTBXMAX -LATCHTBYMAX LSILKW ]
 
 # bottom
-ElementLine( LATCHTBXMIN LATCHTBYMIN LATCHTBXMIN LATCHTBYMAX LSILKW )
-ElementLine( LATCHTBXMIN LATCHTBYMAX LATCHTBXMAX LATCHTBYMAX LSILKW )
-ElementLine( LATCHTBXMAX LATCHTBYMIN LATCHTBXMAX LATCHTBYMAX LSILKW )
+ElementLine[ LATCHTBXMIN LATCHTBYMIN LATCHTBXMIN LATCHTBYMAX LSILKW ]
+ElementLine[ LATCHTBXMIN LATCHTBYMAX LATCHTBXMAX LATCHTBYMAX LSILKW ]
+ElementLine[ LATCHTBXMAX LATCHTBYMIN LATCHTBXMAX LATCHTBYMAX LSILKW ]
 
 # left
-ElementLine( -LATCHLRXMIN LATCHLRYMAX -LATCHLRXMAX LATCHLRYMAX LSILKW )
-ElementLine( -LATCHLRXMAX LATCHLRYMAX -LATCHLRXMAX LATCHLRYMIN LSILKW )
-ElementLine( -LATCHLRXMIN LATCHLRYMIN -LATCHLRXMAX LATCHLRYMIN LSILKW )
+ElementLine[ -LATCHLRXMIN LATCHLRYMAX -LATCHLRXMAX LATCHLRYMAX LSILKW ]
+ElementLine[ -LATCHLRXMAX LATCHLRYMAX -LATCHLRXMAX LATCHLRYMIN LSILKW ]
+ElementLine[ -LATCHLRXMIN LATCHLRYMIN -LATCHLRXMAX LATCHLRYMIN LSILKW ]
 
 # right
-ElementLine( LATCHLRXMIN LATCHLRYMAX LATCHLRXMAX LATCHLRYMAX LSILKW )
-ElementLine( LATCHLRXMAX LATCHLRYMAX LATCHLRXMAX LATCHLRYMIN LSILKW )
-ElementLine( LATCHLRXMIN LATCHLRYMIN LATCHLRXMAX LATCHLRYMIN LSILKW )
+ElementLine[ LATCHLRXMIN LATCHLRYMAX LATCHLRXMAX LATCHLRYMAX LSILKW ]
+ElementLine[ LATCHLRXMAX LATCHLRYMAX LATCHLRXMAX LATCHLRYMIN LSILKW ]
+ElementLine[ LATCHLRXMIN LATCHLRYMIN LATCHLRXMAX LATCHLRYMIN LSILKW ]
 
 # Silk showing area for exposed paddle socket contacts
-ElementLine( EPXMIN -EPY EPXMIN  EPY LSILKW )
-ElementLine( EPXMAX -EPY EPXMAX  EPY LSILKW )
-ElementLine( EPXMIN  EPY EPXMAX  EPY LSILKW )
-ElementLine( EPXMIN -EPY EPXMAX -EPY LSILKW )
+ElementLine[ EPXMIN -EPY EPXMIN  EPY LSILKW ]
+ElementLine[ EPXMAX -EPY EPXMAX  EPY LSILKW ]
+ElementLine[ EPXMIN  EPY EPXMAX  EPY LSILKW ]
+ElementLine[ EPXMIN -EPY EPXMAX -EPY LSILKW ]
 
 # packages with width >= 6.0 mm have 2 rows of contacts
 ifelse(1, eval(TBWIDTHMM>5), 
-ElementLine( -EPXMIN -EPY -EPXMIN  EPY LSILKW )
-ElementLine( -EPXMAX -EPY -EPXMAX  EPY LSILKW )
-ElementLine( -EPXMIN  EPY -EPXMAX  EPY LSILKW )
-ElementLine( -EPXMIN -EPY -EPXMAX -EPY LSILKW )
+ElementLine[ -EPXMIN -EPY -EPXMIN  EPY LSILKW ]
+ElementLine[ -EPXMAX -EPY -EPXMAX  EPY LSILKW ]
+ElementLine[ -EPXMIN  EPY -EPXMAX  EPY LSILKW ]
+ElementLine[ -EPXMIN -EPY -EPXMAX -EPY LSILKW ]
 )
 
 )')
