@@ -624,20 +624,13 @@ GBX_Drill (PinTypePtr PinOrVia, Cardinal index)
 static void
 GBX_GroupID (int group)
 {
-  int entry, laynum;
-  LayerTypePtr Layer;
-
   theGroup = group;
   fprintf (GBX_Flags.FP, "G04 contains layers ");
-  for (entry = 0; entry < PCB->LayerGroups.Number[group]; entry++)
+  GROUP_LOOP (group,
     {
-      laynum = PCB->LayerGroups.Entries[group][entry];
-      if (laynum < MAX_LAYER)
-	{
-	  Layer = LAYER_PTR (laynum);
-	  fprintf (GBX_Flags.FP, "%s (%i) ", UNKNOWN (Layer->Name), laynum);
-	}
+      fprintf (GBX_Flags.FP, "%s (%i) ", UNKNOWN (layer->Name), number);
     }
+  );
   fprintf (GBX_Flags.FP, "*\015\012");
 }
 

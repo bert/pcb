@@ -514,5 +514,17 @@
 		entry = &(top)->Entry[n];	\
 		command;			\
 	}} while (0)
+#define GROUP_LOOP(group, command) do { 	\
+	Cardinal entry; \
+        for (entry = 0; entry < PCB->LayerGroups.Number[(group)]; entry++) \
+        { \
+		LayerTypePtr layer;		\
+		Cardinal number; 		\
+		number = PCB->LayerGroups.Entries[(group)][entry]; \
+		if (number >= MAX_LAYER)	\
+		  continue;			\
+		layer = LAYER_PTR (number);     \
+		command;			\
+	}} while (0)
 #endif
 

@@ -861,7 +861,7 @@ CBPOPUP_Buffer (Widget W, XtPointer ClientData, XtPointer CallData)
   char name[10];
 
   RemoveCheckFromMenu (&BufferMenu);
-  sprintf (name, "buffer%i", Settings.BufferNumber + 1);
+  sprintf (name, "buffer%i", (int)(Settings.BufferNumber + 1));
   CheckEntry (&BufferMenu, name);
 }
 

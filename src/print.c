@@ -75,6 +75,7 @@ static Boolean GlobalOutlineFlag,	/* copy of local ident. */
 /* print output files */
 static char *GlobalCommand;
 static Boolean polarity_called = False;
+static Boolean negative_plane;
 
 /* ---------------------------------------------------------------------------
  * some local prototypes
@@ -255,8 +256,8 @@ static int
 PrintLayergroups (void)
 {
   char extention[12], description[18];
-  Cardinal group, entry, component, solder;
-  Boolean noData, negative_plane;
+  Cardinal group, component, solder;
+  Boolean noData;
   int Somepolys, use_mode;
   int PIPflag, Tflag;
 
@@ -319,14 +320,8 @@ PrintLayergroups (void)
 	      }
 	    );
 	  }
-	for (entry = 0; entry < PCB->LayerGroups.Number[group]; entry++)
+	GROUP_LOOP(group,
 	  {
-	    LayerTypePtr layer;
-	    Cardinal number;
-
-	    if ((number = PCB->LayerGroups.Entries[group][entry]) >=
-		MAX_LAYER)
-	      continue;
 	    PIPflag |= L0PIPFLAG << number;
 	    Tflag |= L0THERMFLAG << number;
 	    layer = LAYER_PTR (number);
@@ -339,8 +334,11 @@ PrintLayergroups (void)
 	      {
 		noData = False;
 		Somepolys += layer->PolygonN;
+		if (!TEST_FLAG(CLEARPOLYFLAG, layer->Polygon))
+		  negative_plane = False;
 	      }
 	  }
+	);
 	/* skip empty layers */
 	if (noData)
 	  continue;
@@ -391,27 +389,21 @@ PrintLayergroups (void)
 	    if (GlobalAlignmentFlag)
 	      FPrintAlignment ();
 
-	    /* print all polygons in the group*/
-	    for (entry = 0; entry < PCB->LayerGroups.Number[group]; entry++)
+	    /* print all polygons in the group that get clearances */
+	    GROUP_LOOP(group,
 	      {
-		LayerTypePtr layer;
-		Cardinal number;
-
-		number = PCB->LayerGroups.Entries[group][entry];
-		if (number >= MAX_LAYER)
-		  continue;
-
-		layer = LAYER_PTR (number);
 		if (layer->PolygonN)
 		  {
 		    SetPrintColor (layer->Color);
 		    POLYGON_LOOP (layer, 
 		      {
-			Device->Poly (polygon);
+		        if (TEST_FLAG(CLEARPOLYFLAG, polygon))
+			  Device->Poly (polygon);
 		      }
 		    );
 		  }
 	      }
+	    );
 	    /* clear the intersecting lines, arcs, pins and vias */
 	    if (Somepolys)
 	      {
@@ -421,19 +413,17 @@ PrintLayergroups (void)
                   Device->Polarity (3);
 	      } 
 	    /* ok clearances are done, now print
-	     * the lines/arcs/pins/pads/vias inside
+	     * the lines/arcs/text and non-clearing polygons
 	     */
-	    for (entry = 0; entry < PCB->LayerGroups.Number[group]; entry++)
-	      {
-		LayerTypePtr layer;
-		Cardinal number;
-
-		number = PCB->LayerGroups.Entries[group][entry];
-		if (number >= MAX_LAYER)
-		  continue;
-
-		layer = LAYER_PTR (number);
+	     GROUP_LOOP (group,
+	       {
 		SetPrintColor (layer->Color);
+	        POLYGON_LOOP (layer,
+		  {
+		    if (!TEST_FLAG(CLEARPOLYFLAG, polygon))
+		      Device->Poly (polygon);
+		  }
+		);
 		LINE_LOOP (layer, 
 		  {
 		    Device->Line (line, False);
@@ -450,6 +440,7 @@ PrintLayergroups (void)
 		  }
 		);
 	      }
+	    );
 	    use_mode = 0;
 	  }
 	else
@@ -458,6 +449,7 @@ PrintLayergroups (void)
 	    Device->Polarity (1);
 	    use_mode = 3;
 	  }
+	/* now print the pins/pads and vias */
 	SetPrintColor (PCB->PinColor);
 	ALLPIN_LOOP (PCB->Data, 
 	  {
@@ -935,10 +927,7 @@ PrintFab (void)
 {
   PinType tmp_pin;
   DrillInfoTypePtr AllDrills;
-  DrillTypePtr dp;
-  Cardinal index;
   int i, n, yoff, total_drills = 0, ds = 0;
-  char buf[100];
   time_t currenttime;
   char utcTime[64];
   struct passwd *pwentry;

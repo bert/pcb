@@ -346,19 +346,11 @@ DoPIPFlags (PinTypePtr Pin, ElementTypePtr Element,
 
 int PolygonPlows (int group, int (*any_call)(int type, void *ptr1, void *ptr2, void *ptr3))
 {
-  int entry, PIPflag = 0;
+  int PIPflag = 0;
   int r;
 
-  for (entry = 0; entry < PCB->LayerGroups.Number[group]; entry++)
+  GROUP_LOOP (group,
     {
-      LayerTypePtr layer;
-      Cardinal number;
-
-      number = PCB->LayerGroups.Entries[group][entry];
-      if (number >= MAX_LAYER)
-        continue;
-
-      layer = LAYER_PTR (number);
       if (!layer->PolygonN)
         continue;
       PIPflag |= L0PIPFLAG << number;
@@ -412,7 +404,8 @@ int PolygonPlows (int group, int (*any_call)(int type, void *ptr1, void *ptr2, v
           }
        }
      ); /* end of ARC_LOOP */
-    }  /* end of entry loop */
+    }  /* end of GROUP_LOOP */
+  );
   ALLPIN_LOOP (PCB->Data, 
     {
       if (!TEST_FLAG(HOLEFLAG, pin) && TEST_FLAG (PIPflag, pin))
@@ -444,20 +437,15 @@ int PolygonPlows (int group, int (*any_call)(int type, void *ptr1, void *ptr2, v
                 {
                    CLEAR_FLAG(CLEARLINEFLAG, pad);
                    pad->Thickness += pad->Clearance;
-                   for (entry = 0; entry < PCB->LayerGroups.Number[group]; entry++)
+		   GROUP_LOOP (group,
                      {
-                        LayerTypePtr layer;
-                        Cardinal number;
 		        /* commas aren't good inside the LOOP macro */
                         Location x1;
 		        Location x2;
 		        Location y1;
 		        Location y2;
 		        BDimension wid = pad->Thickness/2;
-                        number = PCB->LayerGroups.Entries[group][entry];
-                        if (number >= MAX_LAYER)
-                          continue;
-		        layer = LAYER_PTR(number);
+
 		        POLYGON_LOOP(layer,
 		          {
 	                    if (TEST_FLAG(SQUAREFLAG, pad))
@@ -479,7 +467,8 @@ int PolygonPlows (int group, int (*any_call)(int type, void *ptr1, void *ptr2, v
                               }
 		          }
 		        ); // end of POLYGON_LOOP 
-	             } // end of entry loop
+	             } // end of GROUP_LOOP
+		   );
 twice_break:
                    pad->Thickness -= pad->Clearance;
                    if (r)

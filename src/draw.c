@@ -525,7 +525,6 @@ DrawLayer (LayerTypePtr Layer, int unused)
 {
   int layernum = GetLayerNumber (PCB->Data, Layer);
   Cardinal group = GetLayerGroupNumberByNumber (layernum);
-  Cardinal entry;
 
   int PIPFlag = L0PIPFLAG << layernum;
 /* in order to render polygons with line cut-outs:
@@ -550,28 +549,22 @@ DrawLayer (LayerTypePtr Layer, int unused)
 	XSetFillStyle (Dpy, Output.pmGC, FillSolid);
       /* make clearances around lines, arcs, pins and vias */
       XSetFunction (Dpy, Output.pmGC, GXclear);
-      for (entry = 0; entry < PCB->LayerGroups.Number[group]; entry++)
+      GROUP_LOOP (group,
 	{
-	  Cardinal guest = PCB->LayerGroups.Entries[group][entry];
-
-	  if (guest < MAX_LAYER)
+	  LINE_LOOP (layer, 
+   	    {
+	      if (TEST_FLAG (CLEARLINEFLAG, line) && VLINE (line))
+	        ClearLine (line);
+            }		
+	  );
+	  ARC_LOOP (layer, 
 	    {
-	      LayerTypePtr guestLayer = LAYER_PTR (guest);
-
-	      LINE_LOOP (guestLayer, 
-		{
-		  if (TEST_FLAG (CLEARLINEFLAG, line) && VLINE (line))
-		    ClearLine (line);
-		}
-	      );
-	      ARC_LOOP (guestLayer, 
-		{
-		  if (TEST_FLAG (CLEARLINEFLAG, arc) && VARC (arc))
-		    ClearArc (arc);
-		}
-	      );
-	    }
+	      if (TEST_FLAG (CLEARLINEFLAG, arc) && VARC (arc))
+	        ClearArc (arc);
+            }
+	  );
 	}
+      );
       ALLPIN_LOOP (PCB->Data, 
 	{
 	  if (TEST_FLAG (PIPFlag, pin))
@@ -602,14 +595,22 @@ DrawLayer (LayerTypePtr Layer, int unused)
     }
   if (Layer->PolygonN)
     {
+       /* print the clearing polys */
       POLYGON_LOOP (Layer, 
 	{
-	  if (VPOLY (polygon))
+	  if (VPOLY (polygon) && TEST_FLAG (CLEARPOLYFLAG, polygon))
 	    DrawPlainPolygon (Layer, polygon);
 	}
       );
       /* restore the clip region */
       XCopyGC (Dpy, Output.bgGC, GCClipMask, Output.fgGC);
+       /* print the non-clearing polys */
+      POLYGON_LOOP (Layer, 
+	{
+	  if (VPOLY (polygon) && !TEST_FLAG (CLEARPOLYFLAG, polygon))
+	    DrawPlainPolygon (Layer, polygon);
+	}
+      );
       if (layernum < MAX_LAYER)
 	{
 	  PIPFlag = (L0THERMFLAG | L0PIPFLAG) << layernum;

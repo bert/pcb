@@ -225,25 +225,17 @@ CheckLinePointForRubberbandConnection (LayerTypePtr Layer,
 				       LineTypePtr Line,
 				       PointTypePtr LinePoint)
 {
-  Cardinal group, entry;
+  Cardinal group;
 
   /* lookup layergroup and check all visible lines in this group */
   group = GetLayerGroupNumberByPointer (Layer);
-  for (entry = 0; entry < PCB->LayerGroups.Number[group]; entry++)
+  GROUP_LOOP (group,
     {
-      Cardinal number = PCB->LayerGroups.Entries[group][entry];
-      LayerTypePtr layer;
-
-      /* skip solder/component layers */
-      if (number >= MAX_LAYER)
-	continue;
-
-      /* check all visible lines of the group member */
-      layer = LAYER_PTR (number);
       if (layer->On)
 	{
-	  register float radius, dx, dy;
-
+	  register float radius;
+	  register float dx;
+	  register float dy;
 	  /* the following code just compares the endpoints
 	   * of the lines
 	   */
@@ -275,6 +267,7 @@ CheckLinePointForRubberbandConnection (LayerTypePtr Layer,
 	  );
 	}
     }
+  );
 }
 
 /* ---------------------------------------------------------------------------
@@ -286,21 +279,12 @@ static void
 CheckPolygonForRubberbandConnection (LayerTypePtr Layer,
 				     PolygonTypePtr Polygon)
 {
-  Cardinal group, entry;
+  Cardinal group;
 
   /* lookup layergroup and check all visible lines in this group */
   group = GetLayerGroupNumberByPointer (Layer);
-  for (entry = 0; entry < PCB->LayerGroups.Number[group]; entry++)
+  GROUP_LOOP (group,
     {
-      Cardinal number = PCB->LayerGroups.Entries[group][entry];
-      LayerTypePtr layer;
-
-      /* skip solder/component layers */
-      if (number >= MAX_LAYER)
-	continue;
-
-      /* check all visible lines of the group member */
-      layer = LAYER_PTR (number);
       if (layer->On)
 	{
 	  BDimension thick;
@@ -325,6 +309,7 @@ CheckPolygonForRubberbandConnection (LayerTypePtr Layer,
 	  );
 	}
     }
+  );
 }
 
 /* ---------------------------------------------------------------------------
