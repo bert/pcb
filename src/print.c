@@ -591,10 +591,10 @@ PrintLayergroups (void)
 static int
 PrintSilkscreen (void)
 {
-  static char *extention[2] = { "componentsilk", "soldersilk" },
+  static char *extention[2] = { "frontsilk", "backsilk" },
     *DOSextention[2] =
   {
-  "csilk", "ssilk"}
+  "fsilk", "bsilk"}
   , *description[2] =
   {
   "silkscreen, component side", "silkscreen, solder side"};
@@ -910,7 +910,7 @@ text_at (int x, int y, int align, char *fmt, ...)
 	      t.X + w, t.Y + font->MaxHeight * TEXT_SIZE / 100 + 1000, FAB_LINE_W);
 }
 
-/* Y, X, circle, square */
+/* Y, +, X, circle, square */
 static void
 drill_sym (int idx, int x, int y)
 {
@@ -985,7 +985,6 @@ PrintFab (void)
     return (1);
 
   Device->Polarity (0);
-  FPrintOutline ();
 
   tmp_pin.Flags = 0;
   AllDrills = GetDrillInfo (PCB->Data);
@@ -1017,15 +1016,19 @@ PrintFab (void)
 		   plated_sym, drill->Pin[i]->X, drill->Pin[i]->Y);
 
       if (plated_sym != -1)
-	drill_sym (plated_sym, TEXT_SIZE / 4, yoff + TEXT_SIZE / 4);
+        {
+	  drill_sym (plated_sym, 100*TEXT_SIZE, yoff + 100*TEXT_SIZE / 4);
+          text_at(135000, yoff, 200, "YES");
+          text_at(98000, yoff, 200, "%d", drill->PinCount + drill->ViaCount);
+        }
       if (unplated_sym != -1)
-	drill_sym (unplated_sym, 170000 + TEXT_SIZE / 4, yoff + TEXT_SIZE / 4);
+        {
+	  drill_sym (unplated_sym, 100*TEXT_SIZE, yoff + 100*TEXT_SIZE / 4);
+          text_at(140000, yoff, 200, "NO");
+          text_at(98000, yoff, 200, "%d", drill->UnplatedCount);
+        }
       SetPrintColor (PCB->ElementColor);
-      text_at (30000, yoff, 200, "%d", drill->DrillSize/100);
-      text_at (60000, yoff, 200, "%d", drill->PinCount);
-      text_at (90000, yoff, 200, "%d", drill->ViaCount);
-      text_at (125000, yoff, 200, "%d", drill->ElementN);
-      text_at (170000, yoff, 200, "%d", drill->UnplatedCount);
+      text_at (45000, yoff, 200, "%0.3f", drill->DrillSize/100000. + 0.0004);
       yoff -= TEXT_LINE;
 
       total_drills += drill->PinCount;
@@ -1033,11 +1036,10 @@ PrintFab (void)
     }
 
   SetPrintColor (PCB->ElementColor);
-  text_at (25000, yoff, 900, "Diam.");
-  text_at (55000, yoff, 900, "Pins");
-  text_at (85000, yoff, 900, "Vias");
-  text_at (120000, yoff, 900, "Elements");
-  text_at (165000, yoff, 900, "Unplated");
+  text_at (0, yoff, 900, "Symbol");
+  text_at (41000, yoff, 900, "Diam. (Inch)");
+  text_at (95000, yoff, 900, "Count");
+  text_at (130000, yoff, 900, "Plated?");
   yoff -= TEXT_LINE;
   text_at (0, yoff, 0,
 	   "There are %d different drill sizes used in this layout, %d holes total",
@@ -1050,8 +1052,44 @@ PrintFab (void)
   strftime (utcTime, sizeof utcTime, "%c UTC", gmtime (&currenttime));
 
   yoff = -TEXT_LINE;
-  text_at (200000, yoff, 0, "Dimensions: %d mils wide, %d mils high",
+  for (i=0; i < MAX_LAYER; i++)
+    {
+      if (strcasecmp("route", LAYER_PTR(i)->Name) == 0)
+        break;
+      if (strcasecmp("outline", LAYER_PTR(i)->Name) == 0)
+        break;
+    }
+  if (i == MAX_LAYER)
+    {
+      text_at (200000, yoff, 0, "Maximum Dimensions: %d mils wide, %d mils high",
 	   PCB->MaxWidth/100, PCB->MaxHeight/100);
+      FPrintOutline ();
+      text_at (PCB->MaxWidth / 2, PCB->MaxHeight + 2000, 1,
+	   "Board outline is the centerline of this 10 mil"
+           " rectangle - 0,0 to %d,%d mils",
+	   PCB->MaxWidth/100, PCB->MaxHeight/100);
+    }
+  else
+    {
+      LayerTypePtr layer = LAYER_PTR(i);
+      LINE_LOOP (layer, 
+        {
+          Device->Line (line, False);
+        }
+      );
+      ARC_LOOP (layer, 
+        {
+          Device->Arc (arc, False);
+        }
+      );
+      TEXT_LOOP (layer, 
+        {
+          Device->Text (text);
+        }
+      );
+      text_at (PCB->MaxWidth / 2, PCB->MaxHeight + 2000, 1,
+	   "Board outline is the centerline of this path");
+    }
   yoff -= TEXT_LINE;
   text_at (200000, yoff, 0, "Date: %s", utcTime);
   yoff -= TEXT_LINE;
@@ -1060,17 +1098,6 @@ PrintFab (void)
   text_at (200000, yoff, 0, "Title: %s - Fabrication Drawing",
 	   UNKNOWN (PCB->Name));
 
-  text_at (PCB->MaxWidth / 2, PCB->MaxHeight + 2000, 1,
-	   "Board outline is the centerline of this 10 mil rectangle - 0,0 to %d,%d mils",
-	   PCB->MaxWidth/100, PCB->MaxHeight/100);
-
-#if 0
-  ELEMENT_LOOP (PCB->Data, 
-    {
-      Device->ElementPackage (element);
-    }
-  );
-#endif
 
   ClosePrintFile ();
   return (0);
@@ -1158,3 +1185,4 @@ Print (char *Command, float Scale,
   restoreCursor ();
   return (0);
 }
+
