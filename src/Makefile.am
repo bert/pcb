@@ -1,7 +1,7 @@
 ## $Id$
 ##
 
-SUBDIRS=	icons
+SUBDIRS=	icons script
 
 pcbtreedir=	@PCBTREEDIR@
 pcblibdir=	@PCBLIBDIR@
@@ -12,7 +12,6 @@ pcblib_DATA=	\
 pkgdata_DATA=	Pcb
 
 bin_PROGRAMS=	pcb-bin
-bin_SCRIPTS=	pcb
 
 pcb_bin_SOURCES = \
 	action.c \
@@ -144,25 +143,18 @@ EXTRA_DIST= \
 	icon.data \
 	mode_icon.data \
 	Pcb.ad.in  \
-	pcb.in \
 	pcbtest.sh.in
 
 AM_YFLAGS=	-d
 
 all-local: pcbtest.sh .test/Pcb
 
-DISTCLEANFILES= pcbtest.sh pcb Pcb .test/Pcb
+DISTCLEANFILES= pcbtest.sh Pcb .test/Pcb
 
 # create wrapper script that lets you test pcb prior to installation
 pcbtest.sh:	$(srcdir)/pcbtest.sh.in Makefile
 	sed -e "s;@BUILDDIR@;`pwd`;g" -e "s;@TOPSRCDIR@;${top_srcdir};g" \
 		$(srcdir)/pcbtest.sh.in > $@
-	chmod 755 $@
-
-# create wrapper script for running pcb after installation
-pcb:	$(srcdir)/pcb.in Makefile
-	sed -e 's;@BINDIR@;${bindir};g' -e 's;@PKGDATADIR@;${pkgdatadir};g' \
-		$(srcdir)/pcb.in > $@
 	chmod 755 $@
 
 # we create Pcb.ad here instead of directly with autoconf because we need

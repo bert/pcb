@@ -198,6 +198,7 @@ AC_OUTPUT(
 	newlib/tests/Makefile
 	newlib/toko/Makefile
 	src/Makefile
+	src/script/Makefile
 	src/icons/Makefile
 	tools/Makefile
 	tutorial/Makefile
