@@ -518,7 +518,9 @@ define(`PKG_TSSOP', `COMMON_SMT_DUALINLINE(`$1',`$2',`$3',`$4',260,2600,14,40)')
 # $7: pad pitch (1/1000 mil)
 # $8: pad seperation center to center for pads on opposite sides of
 #     the package (1/1000 mil)
-#
+# $9: define to make the pins get numbered starting with the highest pin
+#     instead of pin 1.  Needed for certain brain damaged packages like
+#     the Mini-Circuits KK81
 # pin 1 will be upper left, pin N/2 will be lower left,
 # pin N will be upper right as defined here
 define(`COMMON_SMT_DIL_MIL',
@@ -545,17 +547,32 @@ define(`COMMON_SMT_DIL_MIL',
 	define(`XMAX', `eval( (PADSEP/2 + PADLENGTH + 500*SILKW)/1000 + SILKSEP )')
 	define(`YMAX', `eval( ((NPADS/4)*PITCH - PITCH/2 + PADWIDTH/2 + 500*SILKW)/1000 + SILKSEP )')
 
+	define(`REV', `$9')
+
+	ifelse(REV,"reverse",
+		`define(`CURPIN', NPADS)'
+	,
+		`define(`CURPIN', `1')'
+	)	
 Element(0x00 "$1" "$2" "$3" -20 -60 0 100 0x00)
 (
         forloop(`i', 1, eval(NPADS / 2),
                 `PAD(   -X1, eval( (-(NPADS/4)*PITCH - PITCH/2 + i*PITCH)/1000), 
 			-X2, eval( (-(NPADS/4)*PITCH - PITCH/2 + i*PITCH)/1000), 
-			eval(PADWIDTH/1000), i)
+			eval(PADWIDTH/1000), CURPIN)
+		ifelse(REV,"reverse", 
+			`define(`CURPIN', decr(CURPIN))',
+			`define(`CURPIN', incr(CURPIN))'
+			)
         ')
         forloop(`i', eval((NPADS / 2) + 1), NPADS,
                 `PAD(   X1, eval( ((NPADS/4)*PITCH + PITCH/2 - (i-NPADS/2)*PITCH)/1000), 
 			X2, eval( ((NPADS/4)*PITCH + PITCH/2 - (i-NPADS/2)*PITCH)/1000), 
-			eval(PADWIDTH/1000), i)
+			eval(PADWIDTH/1000), CURPIN)
+		ifelse(REV,"reverse", 
+			`define(`CURPIN', decr(CURPIN))',
+			`define(`CURPIN', incr(CURPIN))'
+			)
         ')
 
 	ElementLine(-XMAX -YMAX -XMAX  YMAX SILKW)
@@ -572,7 +589,7 @@ Element(0x00 "$1" "$2" "$3" -20 -60 0 100 0x00)
 # dimensions are given in 1/100 mm.
 # $5-$8 are pad width, length, pitch, and sep
 define(`COMMON_SMT_DIL_MM',  `COMMON_SMT_DIL_MIL(`$1',`$2',`$3',`$4',
-	eval($5*100000/254),eval($6*100000/254),eval($7*100000/254),eval($8*100000/254))')
+	eval($5*100000/254),eval($6*100000/254),eval($7*100000/254),eval($8*100000/254), `$9')')
 
 define(`PKG_US',  `COMMON_SMT_DIL_MM(`$1',`$2',`$3',`$4',30,70,50,200)')
 
