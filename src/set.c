@@ -417,6 +417,8 @@ SetMode (int Mode)
     }
   else
     {
+      if (Settings.Mode == ARC_MODE || Settings.Mode == LINE_MODE)
+        SetLocalRef(0, 0, False);
       Crosshair.AttachedBox.State = STATE_FIRST;
       Crosshair.AttachedLine.State = STATE_FIRST;
     }
@@ -461,16 +463,20 @@ void
 SetLocalRef (Location X, Location Y, Boolean Showing)
 {
   static MarkType old;
+  static int count = 0;
 
   if (Showing)
     {
-      old = Marked;
+      if (count == 0)
+        old = Marked;
       Marked.X = X;
       Marked.Y = Y;
       Marked.status = True;
+      count++;
     }
-  else
+  else if (count > 0)
     {
+      count = 0;
       Marked = old;
     }
 }

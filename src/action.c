@@ -180,6 +180,7 @@ typedef enum
   F_ToggleSnapPin,
   F_ToggleThindraw,
   F_ToggleOrthoMove,
+  F_ToggleLocalRef,
   F_ToggleUniqueNames,
   F_Via,
   F_ViaByName,
@@ -321,6 +322,7 @@ static FunctionType Functions[] = {
   {"ToggleStartDirection", F_ToggleStartDirection},
   {"ToggleSnapPin", F_ToggleSnapPin},
   {"ToggleThindraw", F_ToggleThindraw},
+  {"ToggleLocalRef", F_ToggleLocalRef},
   {"ToggleOrthoMove", F_ToggleOrthoMove},
   {"ToggleUniqueNames", F_ToggleUniqueNames},
   {"Value", F_Value},
@@ -345,6 +347,7 @@ static void NotifyLine (void);
 static void NotifyBlock (void);
 static void NotifyMode (void);
 static void ClearWarnings (void);
+static void StopLine (void);
 #ifdef HAVE_LIBSTROKE
 static void FinishStroke (void);
 extern void stroke_init (void);
@@ -373,8 +376,7 @@ FinishStroke (void)
 	case 456:
 	  if (Settings.Mode == LINE_MODE)
 	    {
-	      SetMode (NO_MODE);
-	      SetMode (LINE_MODE);
+              SetMode (LINE_MODE);
 	    }
 	  break;
 	case 9874123:
@@ -484,6 +486,16 @@ FinishStroke (void)
     Beep (Settings.Volume);
 }
 #endif
+
+/* ---------------------------------------------------------------------------
+ * Keep line mode, but drop anchor point
+ */
+void
+StopLine (void)
+{
+  SetMode(NO_MODE);
+  SetMode(LINE_MODE);
+}
 
 /* ---------------------------------------------------------------------------
  * Clear warning color from pins/pads
@@ -1004,6 +1016,8 @@ AdjustAttachedObjects (void)
 static void
 NotifyLine (void)
 {
+  if (!Marked.status || TEST_FLAG (LOCALREFFLAG, PCB))
+    SetLocalRef(Crosshair.X, Crosshair.Y, True);
   switch (Crosshair.AttachedLine.State)
     {
       void *ptr1;
@@ -1294,8 +1308,7 @@ NotifyMode (void)
       if (Crosshair.X == Crosshair.AttachedLine.Point1.X
           && Crosshair.Y == Crosshair.AttachedLine.Point1.Y)
         {
-          SetMode(NO_MODE);
-          SetMode(LINE_MODE);
+	  SetMode (LINE_MODE);
           break;
         }
     
@@ -2182,7 +2195,7 @@ warpNoWhere (void)
  *         Display(CycleClip|Toggle45Degree|ToggleStartDirection)
  *         Display(ToggleGrid|ToggleRubberBandMode|ToggleUniqueNames)
  *         Display(ToggleMask|ToggleName|ToggleClearLine|ToggleSnapPin)
- *         Display(ToggleThindraw|OrthoMove)
+ *         Display(ToggleThindraw|OrthoMove|ToggleLocalRef)
  *         Display(Pinout|PinOrPadName)
  *	   Display(Save|Restore)
  *	   Display(Scroll, Direction)
@@ -2289,6 +2302,10 @@ ActionDisplay (Widget W, XEvent * Event, String * Params, Cardinal * Num)
 	case F_ToggleSnapPin:
 	  TOGGLE_FLAG (SNAPPINFLAG, PCB);
 	  SetStatusLine ();
+	  break;
+
+	case F_ToggleLocalRef:
+	  TOGGLE_FLAG (LOCALREFFLAG, PCB);
 	  break;
 
 	case F_ToggleThindraw:
@@ -2555,7 +2572,6 @@ ActionMode (Widget W, XEvent * Event, String * Params, Cardinal * Num)
 	  if (Settings.Mode == LINE_MODE
               && Crosshair.AttachedLine.State != STATE_FIRST)
 	    {
-	      SetMode (NO_MODE);
 	      SetMode (LINE_MODE);
 	    }
 	  else
@@ -4224,7 +4240,6 @@ ActionButton3 (Widget W, XEvent * Event, String * Params, Cardinal * Num)
   if (Settings.Mode == LINE_MODE &&
       Crosshair.AttachedLine.State != STATE_FIRST)
     {
-      SetMode (NO_MODE);
       SetMode (LINE_MODE);
       NotifyMode ();
     }
