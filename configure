@@ -5459,6 +5459,8 @@ _ACEOF
 
 fi
 
+LIBXAW=$with_xaw
+XAWINC=$with_xaw
 
 echo "$as_me:$LINENO: checking whether Xfuncproto was supplied" >&5
 echo $ECHO_N "checking whether Xfuncproto was supplied... $ECHO_C" >&6
@@ -5592,7 +5594,7 @@ else
   fc_x_compile="#define FUNCPROTO $fc_x_proto_FUNCPROTO"
 fi
 fc_x_save_CFLAGS="$CFLAGS"
-CFLAGS="$CFLAGS $X_CFLAGS $X_LIBS $X_PRE_LIBS -lXaw -lXt -lX11 $X_EXTRA_LIBS"
+CFLAGS="$CFLAGS $X_CFLAGS $X_LIBS $X_PRE_LIBS -l$LIBXAW -lXt -lX11 $X_EXTRA_LIBS"
 if test "$cross_compiling" = yes; then
   { { echo "$as_me:$LINENO: error: cannot run test program while cross compiling
 See \`config.log' for more details." >&5
@@ -5613,7 +5615,7 @@ $fc_x_compile
 #include <X11/Xfuncproto.h>
 #include <X11/Intrinsic.h>
 #include <X11/StringDefs.h>
-#include <X11/Xaw/Scrollbar.h>
+#include <X11/$XAWINC/Scrollbar.h>
 #define TOP_VAL 0.125
 #define SHOWN_VAL 0.25
 int main (int argc, char ** argv)
