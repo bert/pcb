@@ -827,6 +827,9 @@ static XtResource ToplevelResources[] = {
   {"saveLastCommand", "SaveLastCommand", XtRBoolean, sizeof (Boolean),
    XtOffsetOf (SettingType, SaveLastCommand), XtRString, "False"}
   ,
+  {"scriptFilename", "ScriptFilename", XtRString, sizeof (String),
+   XtOffsetOf (SettingType, ScriptFilename), XtRString, NULL}
+  ,
   {"shrink", "Shrink", XtRInt, sizeof (int),
    XtOffsetOf (SettingType, Shrink), XtRString, "500"}
   ,
@@ -920,6 +923,7 @@ static XrmOptionDescRec CommandLineOptions[] = {
   {"+s", "saveLastCommand", XrmoptionNoArg, (caddr_t) "False"},
   {"-save", "saveInTMP", XrmoptionNoArg, (caddr_t) "True"},
   {"+save", "saveInTMP", XrmoptionNoArg, (caddr_t) "False"},
+  {"-script", "scriptFilename", XrmoptionSepArg, (caddr_t) NULL},
   {"-size", "size", XrmoptionSepArg, (caddr_t) NULL},
   {"-sfile", "saveCommand", XrmoptionSepArg, (caddr_t) NULL},
   {"-v", "volume", XrmoptionSepArg, (caddr_t) NULL}
@@ -1312,6 +1316,7 @@ main (int argc, char *argv[])
 {
   Cardinal i;
   XRectangle Big;
+  char *script_file = NULL;
 
   /* init application:
    * - make program name available for error handlers
@@ -1419,6 +1424,24 @@ main (int argc, char *argv[])
 #ifdef HAVE_LIBSTROKE
   stroke_init ();
 #endif
+
+
+  /*
+   * see if we have a startup actions file to execute.  This
+   * may be from the -script flag or an Xresources setting
+   */
+
+  if (Settings.ScriptFilename != NULL)
+  {
+	String Param[1];
+	Cardinal nparam=1;
+
+	Message("Executing startup script file %s\n", 
+		Settings.ScriptFilename);
+	Param[0] = Settings.ScriptFilename;
+	ActionExecuteFile(Output.Output, NULL, Param, &nparam);
+  }
+
   XtAppMainLoop (Context);
   for (i = 0; i < 9; i++)
     XFreePixmap (Dpy, Stipples[i]);

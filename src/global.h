@@ -493,7 +493,8 @@ typedef struct			/* some resources... */
     FilePath, RatPath, RatCommand, FontPath, ElementPath, LibraryPath, Size,	/* geometry string for size */
     Media,			/* type of output media */
     MenuFile,			/* file containing menu definitions */
-    BackgroundImage;		/* PPM file for board background */
+    BackgroundImage,		/* PPM file for board background */
+    ScriptFilename;             /* PCB Actions script to execute on startup */
   Boolean DumpMenuFile;		/* dump internal menu definitions */
   Location PinoutOffsetX,	/* offset of origin */
     PinoutOffsetY;
