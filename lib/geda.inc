@@ -674,21 +674,25 @@ define(`PKG_SOT323D',  `PKG_SMT_TRANSISTOR2( `$1', `$2', `$3', 13, 18)');
 define(`PKG_SOT23',    `PKG_SMT_TRANSISTOR3( `$1', `$2', `$3', 20, 21)');
 define(`PKG_SOT323',   `PKG_SMT_TRANSISTOR3( `$1', `$2', `$3', 13, 18)');
 define(`PKG_SC90',     `PKG_SMT_TRANSISTOR3( `$1', `$2', `$3', 10, 15)');
+define(`PKG_SC70_3',   `PKG_SMT_TRANSISTOR3( `$1', `$2', `$3', 13, 18)');
 
 ## SMT transistor, 4 pins
 define(`PKG_SOT89',    `PKG_SMT_TRANSISTOR4X(`$1', `$2', `$3', 31, 31)');
 define(`PKG_SOT143',   `PKG_SMT_TRANSISTOR4( `$1', `$2', `$3', 19, 21)');
 define(`PKG_SOT223',   `PKG_SMT_TRANSISTOR4X(`$1', `$2', `$3', 46, 62)');
+define(`PKG_SC70_4',   `PKG_SMT_TRANSISTOR4( `$1', `$2', `$3', 13, 18)');
 
 ## SMT transistor, 5 pins
 # aka SOT23-5
 define(`PKG_SOT25',    `PKG_SMT_TRANSISTOR5( `$1', `$2', `$3', 20, 21)');
 define(`PKG_SOT325',   `PKG_SMT_TRANSISTOR5( `$1', `$2', `$3', 13, 18)');
+define(`PKG_SC70_5',   `PKG_SMT_TRANSISTOR5A(`$1', `$2', `$3', 13, 18)');
 
 ## SMT transistor, 6 pins
 # aka SOT23-6
 define(`PKG_SOT26',    `PKG_SMT_TRANSISTOR6( `$1', `$2', `$3', 20, 21)');
 define(`PKG_SOT326',   `PKG_SMT_TRANSISTOR6( `$1', `$2', `$3', 13, 18)');
+define(`PKG_SC70_6',   `PKG_SMT_TRANSISTOR6( `$1', `$2', `$3', 13, 18)');
 
 ## Pressure transducer
 define(`PKG_MPAK',     `COMMON_SMT_TRANSISTORX_MIL(`$1', `$2', `$3', 150, 437, 20, `12345')');

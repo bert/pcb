@@ -444,6 +444,9 @@ define(`PKG_SMT_TRANSISTOR4',
 define(`PKG_SMT_TRANSISTOR5',
   `COMMON_SMT_TRANSISTOR_MIL(`$1', `$2', `$3',
 		  `eval(($4*1000)/254)', `eval(($5*1000)/254)', 50, `12345')')
+define(`PKG_SMT_TRANSISTOR5A',
+  `COMMON_SMT_TRANSISTOR_MIL(`$1', `$2', `$3',
+		  `eval(($4*1000)/254)', `eval(($5*1000)/254)', 50, `45123')')
 #
 #
 # general purpose transistor, 6 pins
