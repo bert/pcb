@@ -827,6 +827,7 @@ SwapBuffer (BufferTypePtr Buffer)
       arc->Y = SWAP_Y (arc->Y);
       arc->StartAngle = SWAP_ANGLE (arc->StartAngle);
       arc->Delta = SWAP_DELTA (arc->Delta);
+      SetArcBoundingBox(arc);
     }
   );
   ALLPOLYGON_LOOP (Buffer->Data, 
