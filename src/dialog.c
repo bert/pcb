@@ -546,6 +546,7 @@ AboutDialog (void)
   popup = CreateDialogBox ("This is PCB, an interactive\n"
 			   "printed circuit board editor\n"
 			   "version " VERSION "\n\n"
+			   "Compiled on " __DATE__ " at " __TIME__ "\n\n"
 			   "by harry eaton\n\n"
 			   "Copyright (C) Thomas Nau 1994, 1995, 1996, 1997\n"
 			   "Copyright (C) harry eaton 1998-2004\n"
