@@ -441,9 +441,9 @@ Pcb.masterForm*output.baseTranslations:   #override \
   <Key>h:          ToggleHideName(Object) \n\
   <Key>j:		ChangeJoin(Object) \n\
   Shift<Key>j:		ChangeJoin(SelectedObjects) \n\
+  Shift Ctrl<Key>k:	ChangeClearSize(SelectedObjects, -2, mil) \n\
   Shift<Key>k:		ChangeClearSize(Object, -2, mil) \n\
   Ctrl<Key>k:		ChangeClearSize(SelectedObjects, +2, mil) \n\
-  Shift Ctrl<Key>k:	ChangeClearSize(SelectedObjects, -2, mil) \n\
   <Key>k:		ChangeClearSize(Object, +2, mil) \n\
   Shift<Key>l:        SetValue(LineSize, -5, mil) \n\
   <Key>l:          SetValue(LineSize, +5, mil) \n\
@@ -501,7 +501,6 @@ Pcb.masterForm*output.baseTranslations:   #override \
   @btnmod@<Key>z:       Undo() \n\
   <Key>z:          SetValue(Zoom, -1) \
                    Display(Center) \n\
-  <Key>.:          Display(Toggle45Degree) \n\
   <Key>/:          Display(CycleClip) \n\
   \
   @btnmod@<Key>Up:      Display(Scroll, 8) \
