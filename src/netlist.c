@@ -107,9 +107,9 @@ CreateNetSelector (Widget Parent, Widget Top, Widget Left)
   /* create the selector, add all entries and sort them */
   selector = CreateSelector (Parent, Top, Left, &NetSelector, 1);
   MENU_LOOP (&PCB->NetlistLib, 
-      {
-	AddEntryToSelector (menu->Name, (XtPointer) menu, &NetSelector);
-      }
+    {
+      AddEntryToSelector (menu->Name, (XtPointer) menu, &NetSelector);
+    }
   );
   return (selector);
 }
@@ -122,9 +122,9 @@ UpdateNetSelector (void)
 {
   FreeSelectorEntries (&NetSelector);
   MENU_LOOP (&PCB->NetlistLib, 
-      {
-	AddEntryToSelector (menu->Name, (XtPointer) menu, &NetSelector);
-      }
+    {
+      AddEntryToSelector (menu->Name, (XtPointer) menu, &NetSelector);
+    }
   );
   UpdateSelector (&NetSelector);
 }
@@ -138,12 +138,12 @@ UpdateConnectionSelector (LibraryMenuTypePtr Menu)
   SelectedNet = Menu;
   FreeSelectorEntries (&ConnectionSelector);
   ENTRY_LOOP (Menu, 
-      {
-	AddEntryToSelector (MyStrdup
-			    (entry->ListEntry,
-			     "UpdateCircuitSelector()"),
-			    (XtPointer) entry, &ConnectionSelector);
-      }
+    {
+      AddEntryToSelector (MyStrdup
+			  (entry->ListEntry,
+			   "UpdateCircuitSelector()"),
+			  (XtPointer) entry, &ConnectionSelector);
+    }
   );
   UpdateSelector (&ConnectionSelector);
 
@@ -241,10 +241,10 @@ static void
 CB_Disable (Widget W, XtPointer ClientData, XtPointer CallData)
 {
   MENU_LOOP (&PCB->NetlistLib, 
-      {
-	*NetSelector.StringList[l] = '*';
-	menu->Name[0] = '*';
-      }
+    {
+      *NetSelector.StringList[l] = '*';
+      menu->Name[0] = '*';
+    }
   );
   XawListChange (NetSelector.ListW, NetSelector.StringList,
 		 NetSelector.Number, 0, False);
@@ -257,10 +257,10 @@ static void
 CB_Enable (Widget W, XtPointer ClientData, XtPointer CallData)
 {
   MENU_LOOP (&PCB->NetlistLib, 
-      {
-	*NetSelector.StringList[l] = ' ';
-	menu->Name[0] = ' ';
-      }
+    {
+      *NetSelector.StringList[l] = ' ';
+      menu->Name[0] = ' ';
+    }
   );
   XawListChange (NetSelector.ListW, NetSelector.StringList,
 		 NetSelector.Number, 0, False);

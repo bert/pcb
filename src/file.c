@@ -375,14 +375,14 @@ WriteViaData (FILE * FP, DataTypePtr Data)
 {
   /* write information about vias */
   VIA_LOOP (Data, 
-      {
-	fprintf (FP, "Via(%i %i %i %i %i %i ",
-		 (int) via->X, (int) via->Y,
-		 (int) via->Thickness, (int) via->Clearance,
-		 (int) via->Mask, (int) via->DrillingHole);
-	PrintQuotedString (FP, EMPTY (via->Name));
-	fprintf (FP, " 0x%08x)\n", (int) via->Flags); 
-      }
+    {
+      fprintf (FP, "Via(%i %i %i %i %i %i ",
+	       (int) via->X, (int) via->Y,
+	       (int) via->Thickness, (int) via->Clearance,
+	       (int) via->Mask, (int) via->DrillingHole);
+      PrintQuotedString (FP, EMPTY (via->Name));
+      fprintf (FP, " 0x%08x)\n", (int) via->Flags);
+    }
   );
 }
 
@@ -394,13 +394,13 @@ WritePCBRatData (FILE * FP)
 {
   /* write information about rats */
   RAT_LOOP (PCB->Data, 
-      {
-	fprintf (FP, "Rat(%i %i %i %i %i %i ",
-		 (int) line->Point1.X, (int) line->Point1.Y,
-		 (int) line->group1, (int) line->Point2.X,
-		 (int) line->Point2.Y, (int) line->group2);
-	fprintf (FP, " 0x%08x)\n", (int) line->Flags);
-      }
+    {
+      fprintf (FP, "Rat(%i %i %i %i %i %i ",
+	       (int) line->Point1.X, (int) line->Point1.Y,
+	       (int) line->group1, (int) line->Point2.X,
+	       (int) line->Point2.Y, (int) line->group2);
+      fprintf (FP, " 0x%08x)\n", (int) line->Flags);
+    }
   );
 }
 
@@ -415,16 +415,16 @@ WritePCBNetlistData (FILE * FP)
     {
       fprintf (FP, "NetList()\n(\n");
       MENU_LOOP (&PCB->NetlistLib, 
-	  {
-	    fprintf (FP, "\tNet(\"%s\" \"%s\")\n\t(\n", &menu->Name[2],
-		     UNKNOWN (menu->Style));
-	    ENTRY_LOOP (menu, 
-		{
-		  fprintf (FP, "\t\tConnect(\"%s\")\n", entry->ListEntry);
-		}
-	    );
+	{
+	  fprintf (FP, "\tNet(\"%s\" \"%s\")\n\t(\n", &menu->Name[2],
+		   UNKNOWN (menu->Style));
+	  ENTRY_LOOP (menu, 
+	    {
+	      fprintf (FP, "\t\tConnect(\"%s\")\n", entry->ListEntry);
+	    }
+	  );
 	  fprintf (FP, "\t)\n");
-	  }
+	}
       );
       fprintf (FP, ")\n");
     }
@@ -437,83 +437,83 @@ static void
 WriteElementData (FILE * FP, DataTypePtr Data)
 {
   ELEMENT_LOOP (Data, 
-      {
-	/* only non empty elements */
-	if (!element->LineN && !element->PinN &&
-	    !element->ArcN && !element->PadN)
-	  continue;
-	/* the coordinates and text-flags are the same for
-	 * both names of an element
-	 */
-	fprintf (FP, "\nElement(0x%08x ", (int) element->Flags);
-	PrintQuotedString (FP, EMPTY (DESCRIPTION_NAME (element)));
-	fputc (' ', FP);
-	PrintQuotedString (FP, EMPTY (NAMEONPCB_NAME (element)));
-	fputc (' ', FP);
-	PrintQuotedString (FP, EMPTY (VALUE_NAME (element)));
-	fprintf (FP, " %i %i %i %i %i %i 0x%08x)\n(\n",
-		 (int) element->MarkX, (int) element->MarkY,
-		 (int) (DESCRIPTION_TEXT (element).X -
-			element->MarkX),
-		 (int) (DESCRIPTION_TEXT (element).Y -
-			element->MarkY),
-		 (int) DESCRIPTION_TEXT (element).Direction,
-		 (int) DESCRIPTION_TEXT (element).Scale,
-		 (int) DESCRIPTION_TEXT (element).Flags);
-	PIN_LOOP (element, 
-	    {
-	      fprintf (FP, "\tPin(%i %i %i %i %i %i ",
-		       (int) (pin->X - element->MarkX),
-		       (int) (pin->Y - element->MarkY),
-		       (int) pin->Thickness, (int) pin->Clearance,
-		       (int) pin->Mask, (int) pin->DrillingHole);
-	      PrintQuotedString (FP, EMPTY (pin->Name));
-	      fprintf (FP, " ");
-	      PrintQuotedString (FP, EMPTY (pin->Number));
-	      fprintf (FP, " 0x%08x)\n", (int) pin->Flags);
-            }
-	);
-	PAD_LOOP (element, 
-	    {
-	      fprintf (FP, "\tPad(%i %i %i %i %i %i %i ",
-		       (int) (pad->Point1.X - element->MarkX),
-		       (int) (pad->Point1.Y - element->MarkY),
-		       (int) (pad->Point2.X - element->MarkX),
-		       (int) (pad->Point2.Y - element->MarkY),
-		       (int) pad->Thickness, (int) pad->Clearance,
-		       (int) pad->Mask);
-	      PrintQuotedString (FP, EMPTY (pad->Name));
-	      fprintf (FP, " ");
-	      PrintQuotedString (FP, EMPTY (pad->Number));
-	      fprintf (FP, " 0x%08x)\n", (int) pad->Flags);
-	    }
-	);
-	ELEMENTLINE_LOOP (element, 
-	    {
-	      fprintf (FP,
-		       "\tElementLine (%i %i %i %i %i)\n",
-		       (int) (line->Point1.X -
-			      element->MarkX),
-		       (int) (line->Point1.Y -
-			      element->MarkY),
-		       (int) (line->Point2.X -
-			      element->MarkX),
-		       (int) (line->Point2.Y -
-			      element->MarkY), (int) line->Thickness);
-	    }
-	);
-	ARC_LOOP (element, 
-	    {
-	      fprintf (FP,
-		       "\tElementArc (%i %i %i %i %i %i %i)\n",
-		       (int) (arc->X - element->MarkX),
-		       (int) (arc->Y - element->MarkY),
-		       (int) arc->Width, (int) arc->Height,
-		       (int) arc->StartAngle, (int) arc->Delta,
-		       (int) arc->Thickness); 
-            }
-       );
-       fputs("\n\t)\n", FP);
+    {
+      /* only non empty elements */
+      if (!element->LineN && !element->PinN &&
+	  !element->ArcN && !element->PadN)
+	continue;
+      /* the coordinates and text-flags are the same for
+       * both names of an element
+       */
+      fprintf (FP, "\nElement(0x%08x ", (int) element->Flags);
+      PrintQuotedString (FP, EMPTY (DESCRIPTION_NAME (element)));
+      fputc (' ', FP);
+      PrintQuotedString (FP, EMPTY (NAMEONPCB_NAME (element)));
+      fputc (' ', FP);
+      PrintQuotedString (FP, EMPTY (VALUE_NAME (element)));
+      fprintf (FP, " %i %i %i %i %i %i 0x%08x)\n(\n",
+	       (int) element->MarkX, (int) element->MarkY,
+	       (int) (DESCRIPTION_TEXT (element).X -
+		      element->MarkX),
+	       (int) (DESCRIPTION_TEXT (element).Y -
+		      element->MarkY),
+	       (int) DESCRIPTION_TEXT (element).Direction,
+	       (int) DESCRIPTION_TEXT (element).Scale,
+	       (int) DESCRIPTION_TEXT (element).Flags);
+      PIN_LOOP (element, 
+	{
+	  fprintf (FP, "\tPin(%i %i %i %i %i %i ",
+		   (int) (pin->X - element->MarkX),
+		   (int) (pin->Y - element->MarkY),
+		   (int) pin->Thickness, (int) pin->Clearance,
+		   (int) pin->Mask, (int) pin->DrillingHole);
+	  PrintQuotedString (FP, EMPTY (pin->Name));
+	  fprintf (FP, " ");
+	  PrintQuotedString (FP, EMPTY (pin->Number));
+	  fprintf (FP, " 0x%08x)\n", (int) pin->Flags);
+	}
+      );
+      PAD_LOOP (element, 
+	{
+	  fprintf (FP, "\tPad(%i %i %i %i %i %i %i ",
+		   (int) (pad->Point1.X - element->MarkX),
+		   (int) (pad->Point1.Y - element->MarkY),
+		   (int) (pad->Point2.X - element->MarkX),
+		   (int) (pad->Point2.Y - element->MarkY),
+		   (int) pad->Thickness, (int) pad->Clearance,
+		   (int) pad->Mask);
+	  PrintQuotedString (FP, EMPTY (pad->Name));
+	  fprintf (FP, " ");
+	  PrintQuotedString (FP, EMPTY (pad->Number));
+	  fprintf (FP, " 0x%08x)\n", (int) pad->Flags);
+	}
+      );
+      ELEMENTLINE_LOOP (element, 
+	{
+	  fprintf (FP,
+		   "\tElementLine (%i %i %i %i %i)\n",
+		   (int) (line->Point1.X -
+			  element->MarkX),
+		   (int) (line->Point1.Y -
+			  element->MarkY),
+		   (int) (line->Point2.X -
+			  element->MarkX),
+		   (int) (line->Point2.Y -
+			  element->MarkY), (int) line->Thickness);
+	}
+      );
+      ARC_LOOP (element, 
+	{
+	  fprintf (FP,
+		   "\tElementArc (%i %i %i %i %i %i %i)\n",
+		   (int) (arc->X - element->MarkX),
+		   (int) (arc->Y - element->MarkY),
+		   (int) arc->Width, (int) arc->Height,
+		   (int) arc->StartAngle, (int) arc->Delta,
+		   (int) arc->Thickness);
+	}
+      );
+      fputs ("\n\t)\n", FP);
     }
   );
 }
@@ -533,46 +533,45 @@ WriteLayerData (FILE * FP, Cardinal Number, LayerTypePtr layer)
       fputs (")\n(\n", FP);
 
       LINE_LOOP (layer, 
-	  {
-	    fprintf (FP, "\tLine(%i %i %i %i %i %i 0x%08x)\n",
-		     (int) line->Point1.X, (int) line->Point1.Y,
-		     (int) line->Point2.X, (int) line->Point2.Y,
-		     (int) line->Thickness, (int) line->Clearance,
-		     (int) line->Flags);
-          }
+	{
+	  fprintf (FP, "\tLine(%i %i %i %i %i %i 0x%08x)\n",
+		   (int) line->Point1.X, (int) line->Point1.Y,
+		   (int) line->Point2.X, (int) line->Point2.Y,
+		   (int) line->Thickness, (int) line->Clearance,
+		   (int) line->Flags);
+	}
       );
       ARC_LOOP (layer, 
-	  {
-	    fprintf (FP, "\tArc(%i %i %i %i %i %i %i %i 0x%08x)\n",
-		     (int) arc->X, (int) arc->Y, (int) arc->Width,
-		     (int) arc->Height, (int) arc->Thickness,
-		     (int) arc->Clearance, (int) arc->StartAngle,
-		     (int) arc->Delta, (int) arc->Flags);
-	  }
+	{
+	  fprintf (FP, "\tArc(%i %i %i %i %i %i %i %i 0x%08x)\n",
+		   (int) arc->X, (int) arc->Y, (int) arc->Width,
+		   (int) arc->Height, (int) arc->Thickness,
+		   (int) arc->Clearance, (int) arc->StartAngle,
+		   (int) arc->Delta, (int) arc->Flags);
+	}
       );
       TEXT_LOOP (layer, 
-	  {
-	    fprintf (FP, "\tText(%i %i %i %i ",
-		     (int) text->X, (int) text->Y,
-		     (int) text->Direction, (int) text->Scale);
-	    PrintQuotedString (FP, EMPTY (text->TextString));
-	    fprintf (FP, " 0x%08x)\n", (int) text->Flags);
-	  }
+	{
+	  fprintf (FP, "\tText(%i %i %i %i ",
+		   (int) text->X, (int) text->Y,
+		   (int) text->Direction, (int) text->Scale);
+	  PrintQuotedString (FP, EMPTY (text->TextString));
+	  fprintf (FP, " 0x%08x)\n", (int) text->Flags);
+	}
       );
       POLYGON_LOOP (layer, 
-	  {
-	      int i = 0;
-	      fprintf (FP, "\tPolygon(0x%08x)\n\t(", (int) polygon->Flags);
-	      POLYGONPOINT_LOOP (polygon, 
-		{
-		  if (i++ % 5 == 0)
-		    fputs ("\n\t\t", FP);
-		  fprintf (FP, "(%i %i) ", (int) point->X,
-		           (int) point->Y);
-	        }
-	     );
-             fputs ("\n\t)\n", FP);
-	  }
+	{
+	  int i = 0;
+	  fprintf (FP, "\tPolygon(0x%08x)\n\t(", (int) polygon->Flags);
+	  POLYGONPOINT_LOOP (polygon, 
+	    {
+	      if (i++ % 5 == 0)
+		fputs ("\n\t\t", FP);
+	      fprintf (FP, "(%i %i) ", (int) point->X, (int) point->Y);
+	    }
+	  );
+	  fputs ("\n\t)\n", FP);
+	}
       );
       fputs (")\n", FP);
     }

@@ -190,13 +190,13 @@ collectSelectedElements ()
 {
   PointerListType list = { 0, 0, NULL };
   ELEMENT_LOOP (PCB->Data, 
-      {
-	if (TEST_FLAG (SELECTEDFLAG, element))
-	  {
-	    ElementTypePtr *epp = (ElementTypePtr *) GetPointerMemory (&list);
-	    *epp = element;
-	  }
-      }
+    {
+      if (TEST_FLAG (SELECTEDFLAG, element))
+	{
+	  ElementTypePtr *epp = (ElementTypePtr *) GetPointerMemory (&list);
+	  *epp = element;
+	}
+    }
   );
   return list;
 }
@@ -391,126 +391,126 @@ ComputeCost (NetListTypePtr Nets, double T0, double T)
   /* now collect module areas (bounding rect of pins/pads) */
   /* two lists for solder side / component side. */
   ELEMENT_LOOP (PCB->Data, 
+    {
       {
-	{
-	  BoxListTypePtr thisside;
-	  BoxListTypePtr otherside;
-	  BoxTypePtr box;
-	  BoxTypePtr lastbox = NULL;
-	  Dimension thickness;
-	  Dimension clearance;
-	  if (TEST_FLAG (ONSOLDERFLAG, element))
-	    {
-	      thisside = &solderside;
-	      otherside = &componentside;
-	    }
-	  else
-	    {
-	      thisside = &componentside;
-	      otherside = &solderside;
-	    }
-	  box = GetBoxMemory (thisside);
-	  /* protect against elements with no pins/pads */
-	  if (element->PinN == 0 && element->PadN == 0)
-	    continue;
-	  /* initialize box so that it will take the dimensions of
-	   * the first pin/pad */
-	  box->X1 = PCB->MaxWidth;
-	  box->Y1 = PCB->MaxHeight;
-	  box->X2 = 0;
-	  box->Y2 = 0;
+	BoxListTypePtr thisside;
+	BoxListTypePtr otherside;
+	BoxTypePtr box;
+	BoxTypePtr lastbox = NULL;
+	Dimension thickness;
+	Dimension clearance;
+	if (TEST_FLAG (ONSOLDERFLAG, element))
+	  {
+	    thisside = &solderside;
+	    otherside = &componentside;
+	  }
+	else
+	  {
+	    thisside = &componentside;
+	    otherside = &solderside;
+	  }
+	box = GetBoxMemory (thisside);
+	/* protect against elements with no pins/pads */
+	if (element->PinN == 0 && element->PadN == 0)
+	  continue;
+	/* initialize box so that it will take the dimensions of
+	 * the first pin/pad */
+	box->X1 = PCB->MaxWidth;
+	box->Y1 = PCB->MaxHeight;
+	box->X2 = 0;
+	box->Y2 = 0;
+	PIN_LOOP (element, 
+	  {
+	    thickness = pin->Thickness;
+	    clearance = pin->Clearance;
+	  EXPANDRECTXY (box,
+			  pin->X - (thickness / 2 +
+				      2 * clearance),
+			  pin->Y - (thickness / 2 +
+				      2 * clearance),
+			  pin->X + (thickness / 2 +
+				      2 * clearance),
+			  pin->Y + (thickness / 2 + 2 * clearance))}
+	);
+	PAD_LOOP (element, 
+	  {
+	    thickness = pad->Thickness;
+	    clearance = pad->Clearance;
+	  EXPANDRECTXY (box,
+			  MIN (pad->Point1.X,
+				 pad->Point2.X) - (thickness / 2 +
+						     2 * clearance),
+			  MIN (pad->Point1.Y,
+				 pad->Point2.Y) - (thickness / 2 +
+						     2 * clearance),
+			  MAX (pad->Point1.X,
+				 pad->Point2.X) + (thickness / 2 +
+						     2 * clearance),
+			  MAX (pad->Point1.Y,
+				 pad->Point2.Y) + (thickness / 2 +
+						     2 * clearance))}
+	);
+	/* add a box for each pin to the "opposite side":
+	 * surface mount components can't sit on top of pins */
+	if (!CostParameter.fast)
 	  PIN_LOOP (element, 
+	  {
+	    box = GetBoxMemory (otherside);
+	    thickness = pin->Thickness;
+	    clearance = pin->Clearance;
+	    /* we ignore clearance here */
+	    /* (otherwise pins don't fit next to each other) */
+	    box->X1 = pin->X - (thickness / 2);
+	    box->Y1 = pin->Y - (thickness / 2);
+	    box->X2 = pin->X + (thickness / 2);
+	    box->Y2 = pin->Y + (thickness / 2);
+	    /* speed hack! coalesce with last box if we can */
+	    if (lastbox != NULL &&
+		((lastbox->X1 == box->X1 &&
+		  lastbox->X2 == box->X2 &&
+		  MIN (abs (lastbox->Y1 - box->Y2),
+		       abs (box->Y1 - lastbox->Y2)) <
+		  2 * clearance) || (lastbox->Y1 == box->Y1
+				     && lastbox->Y2 == box->Y2
+				     &&
+				     MIN (abs
+					  (lastbox->X1 -
+					   box->X2),
+					  abs (box->X1 -
+					       lastbox->X2)) <
+				     2 * clearance)))
 	      {
-		thickness = pin->Thickness;
-		clearance = pin->Clearance;
-	      EXPANDRECTXY (box,
-			      pin->X - (thickness / 2 +
-					  2 * clearance),
-			      pin->Y - (thickness / 2 +
-					  2 * clearance),
-			      pin->X + (thickness / 2 +
-					  2 * clearance),
-			      pin->Y + (thickness / 2 + 2 * clearance))}
-	  );
-	  PAD_LOOP (element, 
-	      {
-		thickness = pad->Thickness;
-		clearance = pad->Clearance;
-	      EXPANDRECTXY (box,
-			      MIN (pad->Point1.X,
-				     pad->Point2.X) - (thickness / 2 +
-							 2 * clearance),
-			      MIN (pad->Point1.Y,
-				     pad->Point2.Y) - (thickness / 2 +
-							 2 * clearance),
-			      MAX (pad->Point1.X,
-				     pad->Point2.X) + (thickness / 2 +
-							 2 * clearance),
-			      MAX (pad->Point1.Y,
-				     pad->Point2.Y) + (thickness / 2 +
-							 2 * clearance))}
-	  );
-	  /* add a box for each pin to the "opposite side":
-	   * surface mount components can't sit on top of pins */
-	  if (!CostParameter.fast)
-	    PIN_LOOP (element, 
-	      {
-		box = GetBoxMemory (otherside);
-		thickness = pin->Thickness;
-		clearance = pin->Clearance;
-		/* we ignore clearance here */
-		/* (otherwise pins don't fit next to each other) */
-		box->X1 = pin->X - (thickness / 2);
-		box->Y1 = pin->Y - (thickness / 2);
-		box->X2 = pin->X + (thickness / 2);
-		box->Y2 = pin->Y + (thickness / 2);
-		/* speed hack! coalesce with last box if we can */
-		if (lastbox != NULL &&
-		    ((lastbox->X1 == box->X1 &&
-		      lastbox->X2 == box->X2 &&
-		      MIN (abs (lastbox->Y1 - box->Y2),
-			   abs (box->Y1 - lastbox->Y2)) <
-		      2 * clearance) || (lastbox->Y1 == box->Y1
-					 && lastbox->Y2 == box->Y2
-					 &&
-					 MIN (abs
-					      (lastbox->X1 -
-					       box->X2),
-					      abs (box->X1 -
-						   lastbox->X2)) <
-					 2 * clearance)))
-		  {
-		    EXPANDRECT (lastbox, box);
-		    otherside->BoxN--;
-		  }
-		else
-		  lastbox = box;
+		EXPANDRECT (lastbox, box);
+		otherside->BoxN--;
 	      }
-	  );
-	  /* assess out of bounds penalty */
-	  if (element->BoundingBox.X1 < 0 ||
-	      element->BoundingBox.Y1 < 0 ||
-	      element->BoundingBox.X2 >= PCB->MaxWidth ||
-	      element->BoundingBox.Y2 >= PCB->MaxHeight)
-	    delta3 += CostParameter.out_of_bounds_penalty;
-	  /* heck, make our pin/pad lists while we're at it too */
-	  /* (this is for alignment scoring) */
-	  PIN_LOOP (element, 
-	      {
-		box = GetBoxMemory (&thepins);
-		box->X1 = box->X2 = pin->X;
-		box->Y1 = box->Y2 = pin->Y;
-	      }
-	  );
-	  PAD_LOOP (element, 
-	      {
-		box = GetBoxMemory (&thepads);
-		box->X1 = box->X2 = pad->Point1.X;
-		box->Y1 = box->Y2 = pad->Point1.Y;
-	      }
-	  );
-	}
+	    else
+	      lastbox = box;
+	  }
+	);
+	/* assess out of bounds penalty */
+	if (element->BoundingBox.X1 < 0 ||
+	    element->BoundingBox.Y1 < 0 ||
+	    element->BoundingBox.X2 >= PCB->MaxWidth ||
+	    element->BoundingBox.Y2 >= PCB->MaxHeight)
+	  delta3 += CostParameter.out_of_bounds_penalty;
+	/* heck, make our pin/pad lists while we're at it too */
+	/* (this is for alignment scoring) */
+	PIN_LOOP (element, 
+	  {
+	    box = GetBoxMemory (&thepins);
+	    box->X1 = box->X2 = pin->X;
+	    box->Y1 = box->Y2 = pin->Y;
+	  }
+	);
+	PAD_LOOP (element, 
+	  {
+	    box = GetBoxMemory (&thepads);
+	    box->X1 = box->X2 = pad->Point1.X;
+	    box->Y1 = box->Y2 = pad->Point1.Y;
+	  }
+	);
       }
+    }
   );
   /* compute intersection area of module areas box list */
   delta2 = (ComputeIntersectionArea (&solderside) +
@@ -545,14 +545,14 @@ ComputeCost (NetListTypePtr Nets, double T0, double T)
     kdtree_t *kdt_s, *kdt_c;
     int factor;
     ELEMENT_LOOP (PCB->Data, 
-	{
-	  boxpp = (struct ebox **)
-	    GetPointerMemory (TEST_FLAG (ONSOLDERFLAG, element) ?
-			      &seboxes : &ceboxes);
-	  *boxpp = malloc (sizeof (**boxpp));
-	  (*boxpp)->box = element->BoundingBox;
-	  (*boxpp)->element = element;
-	}
+      {
+	boxpp = (struct ebox **)
+	  GetPointerMemory (TEST_FLAG (ONSOLDERFLAG, element) ?
+			    &seboxes : &ceboxes);
+	*boxpp = malloc (sizeof (**boxpp));
+	(*boxpp)->box = element->BoundingBox;
+	(*boxpp)->element = element;
+      }
     );
     kdt_s = kd_create_tree ((const BoxType **) seboxes.Ptr, seboxes.PtrN, 1);
     kdt_c = kd_create_tree ((const BoxType **) ceboxes.Ptr, ceboxes.PtrN, 1);
@@ -562,39 +562,39 @@ ComputeCost (NetListTypePtr Nets, double T0, double T)
     delta4 = 0;
     for (i = 0; i < 4; i++)
       ELEMENT_LOOP (PCB->Data, 
-	{
-	  boxp = (struct ebox *)
-	    kd_find_neighbor (TEST_FLAG (ONSOLDERFLAG, element) ?
-			      kdt_s : kdt_c, &element->BoundingBox, dir[i]);
-	  /* score bounding box alignments */
-	  if (!boxp)
-	    continue;
-	  factor = 1;
-	  if (0 == strcmp (element->Name[0].TextString,
-			   boxp->element->Name[0].TextString))
-	    {
-	      delta4 += CostParameter.matching_neighbor_bonus;
-	      factor++;
-	    }
-	  if (element->Name[0].Direction == boxp->element->Name[0].Direction)
-	    delta4 += factor * CostParameter.oriented_neighbor_bonus;
-	  if (element->BoundingBox.X1 ==
-	      boxp->element->BoundingBox.X1 ||
-	      element->BoundingBox.X1 ==
-	      boxp->element->BoundingBox.X2 ||
-	      element->BoundingBox.X2 ==
-	      boxp->element->BoundingBox.X1 ||
-	      element->BoundingBox.X2 ==
-	      boxp->element->BoundingBox.X2 ||
-	      element->BoundingBox.Y1 ==
-	      boxp->element->BoundingBox.Y1 ||
-	      element->BoundingBox.Y1 ==
-	      boxp->element->BoundingBox.Y2 ||
-	      element->BoundingBox.Y2 ==
-	      boxp->element->BoundingBox.Y1 ||
-	      element->BoundingBox.Y2 == boxp->element->BoundingBox.Y2)
-	    delta4 += factor * CostParameter.aligned_neighbor_bonus;
-	}
+      {
+	boxp = (struct ebox *)
+	  kd_find_neighbor (TEST_FLAG (ONSOLDERFLAG, element) ?
+			    kdt_s : kdt_c, &element->BoundingBox, dir[i]);
+	/* score bounding box alignments */
+	if (!boxp)
+	  continue;
+	factor = 1;
+	if (0 == strcmp (element->Name[0].TextString,
+			 boxp->element->Name[0].TextString))
+	  {
+	    delta4 += CostParameter.matching_neighbor_bonus;
+	    factor++;
+	  }
+	if (element->Name[0].Direction == boxp->element->Name[0].Direction)
+	  delta4 += factor * CostParameter.oriented_neighbor_bonus;
+	if (element->BoundingBox.X1 ==
+	    boxp->element->BoundingBox.X1 ||
+	    element->BoundingBox.X1 ==
+	    boxp->element->BoundingBox.X2 ||
+	    element->BoundingBox.X2 ==
+	    boxp->element->BoundingBox.X1 ||
+	    element->BoundingBox.X2 ==
+	    boxp->element->BoundingBox.X2 ||
+	    element->BoundingBox.Y1 ==
+	    boxp->element->BoundingBox.Y1 ||
+	    element->BoundingBox.Y1 ==
+	    boxp->element->BoundingBox.Y2 ||
+	    element->BoundingBox.Y2 ==
+	    boxp->element->BoundingBox.Y1 ||
+	    element->BoundingBox.Y2 == boxp->element->BoundingBox.Y2)
+	  delta4 += factor * CostParameter.aligned_neighbor_bonus;
+      }
     );
     /* free k-d tree memory */
     kd_destroy_tree (&kdt_s);
@@ -605,12 +605,12 @@ ComputeCost (NetListTypePtr Nets, double T0, double T)
     Position minX = PCB->MaxWidth, minY = PCB->MaxHeight;
     Position maxX = 0, maxY = 0;
     ELEMENT_LOOP (PCB->Data, 
-	{
-	  minX = MIN (minX, element->BoundingBox.X1);
-	  minY = MIN (minY, element->BoundingBox.Y1);
-	  maxX = MAX (maxX, element->BoundingBox.X2);
-	  maxY = MAX (maxY, element->BoundingBox.Y2);
-	}
+      {
+	minX = MIN (minX, element->BoundingBox.X1);
+	minY = MIN (minY, element->BoundingBox.Y1);
+	maxX = MAX (maxX, element->BoundingBox.X2);
+	maxY = MAX (maxY, element->BoundingBox.Y2);
+      }
     );
     if (minX < maxX && minY < maxY)
       delta5 = CostParameter.overall_area_penalty *

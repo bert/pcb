@@ -1,5 +1,5 @@
 /*
- * DEL CLOS
+ *
  *                            COPYRIGHT
  *
  *  PCB, interactive printed circuit board design
@@ -831,12 +831,12 @@ InitComponentLookup (void)
    */
   NumberOfPads[COMPONENT_LAYER] = NumberOfPads[SOLDER_LAYER] = 0;
   ALLPAD_LOOP (PCB->Data, 
-      {
-	if (TEST_FLAG (ONSOLDERFLAG, pad))
-	  NumberOfPads[SOLDER_LAYER]++;
-	else
-	  NumberOfPads[COMPONENT_LAYER]++;
-      }
+    {
+      if (TEST_FLAG (ONSOLDERFLAG, pad))
+	NumberOfPads[SOLDER_LAYER]++;
+      else
+	NumberOfPads[COMPONENT_LAYER]++;
+    }
   );
   for (i = 0; i < 2; i++)
     {
@@ -849,15 +849,14 @@ InitComponentLookup (void)
 						  sizeof (PadDataType),
 						  "InitConnectionLookup()");
 	  ALLPAD_LOOP (PCB->Data, 
-	      {
-		if ((TEST_FLAG (ONSOLDERFLAG, pad) != 0) ==
-		    (i == SOLDER_LAYER))
-		  {
-		    PadData[i][count].Data = pad;
-		    PadData[i][count].Element = element;
-		    count++;
-		  }
-	      }
+	    {
+	      if ((TEST_FLAG (ONSOLDERFLAG, pad) != 0) == (i == SOLDER_LAYER))
+		{
+		  PadData[i][count].Data = pad;
+		  PadData[i][count].Element = element;
+		  count++;
+		}
+	    }
 	  );
 
 	  /* create two sorted lists of pointers */
@@ -894,23 +893,23 @@ InitComponentLookup (void)
    */
   TotalP = 0;
   ELEMENT_LOOP (PCB->Data, 
-      {
-	TotalP += element->PinN;
-      }
+    {
+      TotalP += element->PinN;
+    }
   );
   PSortedByX = (PVDataTypePtr) MyCalloc (TotalP, sizeof (PVDataType),
 					 "InitConnectionLookup()");
 
   pos = 0;
   ELEMENT_LOOP (PCB->Data, 
-      {
-	PIN_LOOP (element, 
-	    {
-	      PSortedByX[pos].Data = pin;
-	      PSortedByX[pos++].Element = element;
-	    }
-	);
-      }
+    {
+      PIN_LOOP (element, 
+	{
+	  PSortedByX[pos].Data = pin;
+	  PSortedByX[pos++].Element = element;
+	}
+      );
+    }
   );
   qsort (PSortedByX, TotalP, sizeof (PVDataType), ComparePVByX);
 }
@@ -930,10 +929,10 @@ InitLayoutLookup (void)
   VSortedByX = (PVDataTypePtr) MyCalloc (TotalV, sizeof (PVDataType),
 					 "InitConnectionLookup()");
   VIA_LOOP (PCB->Data, 
-      {
-	VSortedByX[pos].Element = NULL;
-	VSortedByX[pos++].Data = via;
-      }
+    {
+      VSortedByX[pos].Element = NULL;
+      VSortedByX[pos++].Data = via;
+    }
   );
 
   /* sort array by X */
@@ -961,9 +960,9 @@ InitLayoutLookup (void)
 
 	  /* copy addresses to arrays and sort them */
 	  LINE_LOOP (layer, 
-	      {
-		LineSortedByLowX[i][n] = LineSortedByHighX[i][n] = line;
-	      }
+	    {
+	      LineSortedByLowX[i][n] = LineSortedByHighX[i][n] = line;
+	    }
 	  );
 	  qsort (LineSortedByLowX[i], layer->LineN, sizeof (LineTypePtr),
 		 CompareLineByLowX);
@@ -985,9 +984,9 @@ InitLayoutLookup (void)
 				"InitConnectionLookup()");
 
 	  ARC_LOOP (layer, 
-	      {
-		ArcSortedByLowX[i][n] = ArcSortedByHighX[i][n] = arc;
-	      }
+	    {
+	      ArcSortedByLowX[i][n] = ArcSortedByHighX[i][n] = arc;
+	    }
 	  );
 	  qsort (ArcSortedByLowX[i], layer->ArcN, sizeof (ArcTypePtr),
 		 CompareArcByLowX);
@@ -1036,9 +1035,9 @@ InitLayoutLookup (void)
 
       /* copy addresses to arrays and sort them */
       RAT_LOOP (PCB->Data, 
-	  {
-	    RatSortedByLowX[n] = RatSortedByHighX[n] = line;
-	  }
+	{
+	  RatSortedByLowX[n] = RatSortedByHighX[n] = line;
+	}
       );
       qsort (RatSortedByLowX, PCB->Data->RatN, sizeof (RatTypePtr),
 	     CompareRatByLowX);
@@ -2849,14 +2848,14 @@ IsArcInPolygon (ArcTypePtr Arc, PolygonTypePtr Polygon)
       line.Flags = NOFLAG;
 
       POLYGONPOINT_LOOP (Polygon, 
-	  {
-	    line.Point2.X = point->X;
-	    line.Point2.Y = point->Y;
-	    if (LineArcIntersect (&line, Arc))
-	      return (True);
-	    line.Point1.X = line.Point2.X;
-	    line.Point1.Y = line.Point2.Y;
-	  }
+	{
+	  line.Point2.X = point->X;
+	  line.Point2.Y = point->Y;
+	  if (LineArcIntersect (&line, Arc))
+	    return (True);
+	  line.Point1.X = line.Point2.X;
+	  line.Point1.Y = line.Point2.Y;
+	}
       );
     }
   return (False);
@@ -2905,14 +2904,14 @@ IsLineInPolygon (LineTypePtr Line, PolygonTypePtr Polygon)
       line.Flags = NOFLAG;
 
       POLYGONPOINT_LOOP (Polygon, 
-	  {
-	    line.Point2.X = point->X;
-	    line.Point2.Y = point->Y;
-	    if (LineLineIntersect (Line, &line))
-	      return (True);
-	    line.Point1.X = line.Point2.X;
-	    line.Point1.Y = line.Point2.Y;
-	  }
+	{
+	  line.Point2.X = point->X;
+	  line.Point2.Y = point->Y;
+	  if (LineLineIntersect (Line, &line))
+	    return (True);
+	  line.Point1.X = line.Point2.X;
+	  line.Point1.Y = line.Point2.Y;
+	}
       );
     }
   return (False);
@@ -2934,21 +2933,20 @@ IsPolygonInPolygon (PolygonTypePtr P1, PolygonTypePtr P2)
       P1->BoundingBox.Y2 >= P2->BoundingBox.Y1)
     {
       LineType line;
-#if 0
+
       POLYGONPOINT_LOOP (P1, 
-	  {
-	    if (IsPointInPolygon (point->X, point->Y, 0, P2))
-	      return (True);
-	  }
+	{
+	  if (IsPointInPolygon (point->X, point->Y, 0, P2))
+	    return (True);
+	}
       );
 
       POLYGONPOINT_LOOP (P2, 
-	  {
-	    if (IsPointInPolygon (point->X, point->Y, 0, P1))
-	      return (True);
-	  }
+	{
+	  if (IsPointInPolygon (point->X, point->Y, 0, P1))
+	    return (True);
+	}
       );
-#endif
 
       /* check all lines of P1 agains P2;
        * POLYGONPOINT_LOOP decrements the pointer !!!
@@ -2961,14 +2959,14 @@ IsPolygonInPolygon (PolygonTypePtr P1, PolygonTypePtr P2)
       line.Flags = NOFLAG;
 
       POLYGONPOINT_LOOP (P1, 
-	  {
-	    line.Point2.X = point->X;
-	    line.Point2.Y = point->Y;
-	    if (IsLineInPolygon (&line, P2))
-	      return (True);
-	    line.Point1.X = line.Point2.X;
-	    line.Point1.Y = line.Point2.Y;
-	  }
+	{
+	  line.Point2.X = point->X;
+	  line.Point2.Y = point->Y;
+	  if (IsLineInPolygon (&line, P2))
+	    return (True);
+	  line.Point1.X = line.Point2.X;
+	  line.Point1.Y = line.Point2.Y;
+	}
       );
     }
   return (False);
@@ -3159,92 +3157,92 @@ PrintAndSelectUnusedPinsAndPadsOfElement (ElementTypePtr Element, FILE * FP)
   /* check all pins in element */
 
   PIN_LOOP (Element, 
-      {
-	if (!TEST_FLAG (HOLEFLAG, pin))
-	  {
-	    PVDataTypePtr entry;
-	    /* lookup pin in list */
-	    entry = LookupPVByCoordinates (1, pin->X, pin->Y);
-	    /* pin might has bee checked before, add to list if not */
-	    if (!TEST_FLAG (TheFlag, entry->Data) && FP)
-	      {
-		int i;
-		ADD_PV_TO_LIST (entry);
-		DoIt (True, True);
-		number = PadList[COMPONENT_LAYER].Number
-		  + PadList[SOLDER_LAYER].Number + PVList.Number;
-		/* the pin has no connection if it's the only
-		 * list entry; don't count vias
-		 */
-		for (i = 0; i < PVList.Number; i++)
-		  if (!PVLIST_ENTRY (i)->Element)
-		    number--;
-		if (number == 1)
-		  {
-		    /* output of element name if not already done */
-		    if (first)
-		      {
-			PrintConnectionElementName (Element, FP);
-			first = False;
-		      }
+    {
+      if (!TEST_FLAG (HOLEFLAG, pin))
+	{
+	  PVDataTypePtr entry;
+	  /* lookup pin in list */
+	  entry = LookupPVByCoordinates (1, pin->X, pin->Y);
+	  /* pin might has bee checked before, add to list if not */
+	  if (!TEST_FLAG (TheFlag, entry->Data) && FP)
+	    {
+	      int i;
+	      ADD_PV_TO_LIST (entry);
+	      DoIt (True, True);
+	      number = PadList[COMPONENT_LAYER].Number
+		+ PadList[SOLDER_LAYER].Number + PVList.Number;
+	      /* the pin has no connection if it's the only
+	       * list entry; don't count vias
+	       */
+	      for (i = 0; i < PVList.Number; i++)
+		if (!PVLIST_ENTRY (i)->Element)
+		  number--;
+	      if (number == 1)
+		{
+		  /* output of element name if not already done */
+		  if (first)
+		    {
+		      PrintConnectionElementName (Element, FP);
+		      first = False;
+		    }
 
-		    /* write name to list and draw selected object */
-		    CreateQuotedString (&oname, EMPTY (entry->Data->Name));
-		    fprintf (FP, "\t%s\n", oname.Data);
-		    SET_FLAG (SELECTEDFLAG, entry->Data);
-		    DrawPin (entry->Data, 0);
-		  }
+		  /* write name to list and draw selected object */
+		  CreateQuotedString (&oname, EMPTY (entry->Data->Name));
+		  fprintf (FP, "\t%s\n", oname.Data);
+		  SET_FLAG (SELECTEDFLAG, entry->Data);
+		  DrawPin (entry->Data, 0);
+		}
 
-		/* reset found objects for the next pin */
-		if (PrepareNextLoop (FP))
-		  return (True);
-	      }
-	  }
-      }
+	      /* reset found objects for the next pin */
+	      if (PrepareNextLoop (FP))
+		return (True);
+	    }
+	}
+    }
   );
 
   /* check all pads in element */
   PAD_LOOP (Element, 
-      {
-	PadDataTypePtr entry;
-	/* lookup pin in list */
-	entry = LookupPadByAddress (pad);
-	/* pin might has bee checked before, add to list if not */
-	if (!TEST_FLAG (TheFlag, entry->Data) && FP)
-	  {
-	    int i;
-	    ADD_PAD_TO_LIST (TEST_FLAG (ONSOLDERFLAG, pad)
-			     ? SOLDER_LAYER : COMPONENT_LAYER, entry);
-	    DoIt (True, True);
-	    number = PadList[COMPONENT_LAYER].Number
-	      + PadList[SOLDER_LAYER].Number + PVList.Number;
-	    /* the pin has no connection if it's the only
-	     * list entry; don't count vias
-	     */
-	    for (i = 0; i < PVList.Number; i++)
-	      if (!PVLIST_ENTRY (i)->Element)
-		number--;
-	    if (number == 1)
-	      {
-		/* output of element name if not already done */
-		if (first)
-		  {
-		    PrintConnectionElementName (Element, FP);
-		    first = False;
-		  }
+    {
+      PadDataTypePtr entry;
+      /* lookup pin in list */
+      entry = LookupPadByAddress (pad);
+      /* pin might has bee checked before, add to list if not */
+      if (!TEST_FLAG (TheFlag, entry->Data) && FP)
+	{
+	  int i;
+	  ADD_PAD_TO_LIST (TEST_FLAG (ONSOLDERFLAG, pad)
+			   ? SOLDER_LAYER : COMPONENT_LAYER, entry);
+	  DoIt (True, True);
+	  number = PadList[COMPONENT_LAYER].Number
+	    + PadList[SOLDER_LAYER].Number + PVList.Number;
+	  /* the pin has no connection if it's the only
+	   * list entry; don't count vias
+	   */
+	  for (i = 0; i < PVList.Number; i++)
+	    if (!PVLIST_ENTRY (i)->Element)
+	      number--;
+	  if (number == 1)
+	    {
+	      /* output of element name if not already done */
+	      if (first)
+		{
+		  PrintConnectionElementName (Element, FP);
+		  first = False;
+		}
 
-		/* write name to list and draw selected object */
-		CreateQuotedString (&oname, EMPTY (entry->Data->Name));
-		fprintf (FP, "\t%s\n", oname.Data);
-		SET_FLAG (SELECTEDFLAG, entry->Data);
-		DrawPad (entry->Data, 0);
-	      }
+	      /* write name to list and draw selected object */
+	      CreateQuotedString (&oname, EMPTY (entry->Data->Name));
+	      fprintf (FP, "\t%s\n", oname.Data);
+	      SET_FLAG (SELECTEDFLAG, entry->Data);
+	      DrawPad (entry->Data, 0);
+	    }
 
-	    /* reset found objects for the next pin */
-	    if (PrepareNextLoop (FP))
-	      return (True);
-	  }
-      }
+	  /* reset found objects for the next pin */
+	  if (PrepareNextLoop (FP))
+	    return (True);
+	}
+    }
   );
 
   /* print seperator if element has unused pins or pads */
@@ -3300,56 +3298,55 @@ PrintElementConnections (ElementTypePtr Element, FILE * FP, Boolean AndDraw)
 
   /* check all pins in element */
   PIN_LOOP (Element, 
-      {
-	PVDataTypePtr entry;
-	/* lookup pin in list */
-	entry = LookupPVByCoordinates (1, pin->X, pin->Y);
-	/* pin might have been checked before, add to list if not */
-	if (TEST_FLAG (TheFlag, entry->Data))
-	  {
-	    PrintConnectionListEntry (EMPTY (pin->Name), NULL, True, FP);
-	    fputs ("\t\t__CHECKED_BEFORE__\n\t}\n", FP);
-	    continue;
-	  }
-	ADD_PV_TO_LIST (entry);
-	DoIt (True, AndDraw);
-	/* printout all found connections */
-	PrintPinConnections (FP, True);
-	PrintPadConnections (COMPONENT_LAYER, FP, False);
-	PrintPadConnections (SOLDER_LAYER, FP, False);
-	fputs ("\t}\n", FP);
-	if (PrepareNextLoop (FP))
-	  return (True);
-      }
+    {
+      PVDataTypePtr entry;
+      /* lookup pin in list */
+      entry = LookupPVByCoordinates (1, pin->X, pin->Y);
+      /* pin might have been checked before, add to list if not */
+      if (TEST_FLAG (TheFlag, entry->Data))
+	{
+	  PrintConnectionListEntry (EMPTY (pin->Name), NULL, True, FP);
+	  fputs ("\t\t__CHECKED_BEFORE__\n\t}\n", FP);
+	  continue;
+	}
+      ADD_PV_TO_LIST (entry);
+      DoIt (True, AndDraw);
+      /* printout all found connections */
+      PrintPinConnections (FP, True);
+      PrintPadConnections (COMPONENT_LAYER, FP, False);
+      PrintPadConnections (SOLDER_LAYER, FP, False);
+      fputs ("\t}\n", FP);
+      if (PrepareNextLoop (FP))
+	return (True);
+    }
   );
 
   /* check all pads in element */
   PAD_LOOP (Element, 
-      {
-	PadDataTypePtr entry;
-	Cardinal layer;
-	/* pad might has bee checked before, add to list if not */
-	if (TEST_FLAG (TheFlag, pad))
-	  {
-	    PrintConnectionListEntry (EMPTY (pad->Name), NULL, True, FP);
-	    fputs ("\t\t__CHECKED_BEFORE__\n\t}\n", FP);
-	    continue;
-	  }
-	entry = LookupPadByAddress (pad);
-	layer =
-	  TEST_FLAG (ONSOLDERFLAG, pad) ? SOLDER_LAYER : COMPONENT_LAYER;
-	ADD_PAD_TO_LIST (layer, entry);
-	DoIt (True, AndDraw);
-	/* print all found connections */
-	PrintPadConnections (layer, FP, True);
-	PrintPadConnections (layer ==
-			     COMPONENT_LAYER ? SOLDER_LAYER : COMPONENT_LAYER,
-			     FP, False);
-	PrintPinConnections (FP, False);
-	fputs ("\t}\n", FP);
-	if (PrepareNextLoop (FP))
-	  return (True);
-      }
+    {
+      PadDataTypePtr entry;
+      Cardinal layer;
+      /* pad might has bee checked before, add to list if not */
+      if (TEST_FLAG (TheFlag, pad))
+	{
+	  PrintConnectionListEntry (EMPTY (pad->Name), NULL, True, FP);
+	  fputs ("\t\t__CHECKED_BEFORE__\n\t}\n", FP);
+	  continue;
+	}
+      entry = LookupPadByAddress (pad);
+      layer = TEST_FLAG (ONSOLDERFLAG, pad) ? SOLDER_LAYER : COMPONENT_LAYER;
+      ADD_PAD_TO_LIST (layer, entry);
+      DoIt (True, AndDraw);
+      /* print all found connections */
+      PrintPadConnections (layer, FP, True);
+      PrintPadConnections (layer ==
+			   COMPONENT_LAYER ? SOLDER_LAYER : COMPONENT_LAYER,
+			   FP, False);
+      PrintPinConnections (FP, False);
+      fputs ("\t}\n", FP);
+      if (PrepareNextLoop (FP))
+	return (True);
+    }
   );
   fputs ("}\n\n", FP);
   return (False);
@@ -3465,14 +3462,14 @@ LookupConnectionsToAllElements (FILE * FP)
   InitConnectionLookup ();
 
   ELEMENT_LOOP (PCB->Data, 
-      {
-	/* break if abort dialog returned True */
-	if (PrintElementConnections (element, FP, False))
-	  break;
-	SEPERATE (FP);
-	if (Settings.ResetAfterElement && n != 1)
-	  ResetConnections (False);
-      }
+    {
+      /* break if abort dialog returned True */
+      if (PrintElementConnections (element, FP, False))
+	break;
+      SEPERATE (FP);
+      if (Settings.ResetAfterElement && n != 1)
+	ResetConnections (False);
+    }
   );
   EndAbort ();
   if (Settings.RingBellWhenFinished)
@@ -3655,13 +3652,13 @@ LookupUnusedPins (FILE * FP)
   InitConnectionLookup ();
 
   ELEMENT_LOOP (PCB->Data, 
-      {
-	/* break if abort dialog returned True;
-	 * passing NULL as filedescriptor discards the normal output
-	 */
-	if (PrintAndSelectUnusedPinsAndPadsOfElement (element, FP))
-	  break;
-      }
+    {
+      /* break if abort dialog returned True;
+       * passing NULL as filedescriptor discards the normal output
+       */
+      if (PrintAndSelectUnusedPinsAndPadsOfElement (element, FP))
+	break;
+    }
   );
   EndAbort ();
 
@@ -3683,47 +3680,47 @@ ResetFoundPinsViasAndPads (Boolean AndDraw)
 
 
   VIA_LOOP (PCB->Data, 
-      {
-	if (TEST_FLAG (TheFlag, via))
-	  {
-	    if (AndDraw)
-	      AddObjectToFlagUndoList (VIA_TYPE, via, via, via);
-	    CLEAR_FLAG (TheFlag, via);
-	    if (AndDraw)
-	      DrawVia (via, 0);
-	    change = True;
-	  }
-      }
+    {
+      if (TEST_FLAG (TheFlag, via))
+	{
+	  if (AndDraw)
+	    AddObjectToFlagUndoList (VIA_TYPE, via, via, via);
+	  CLEAR_FLAG (TheFlag, via);
+	  if (AndDraw)
+	    DrawVia (via, 0);
+	  change = True;
+	}
+    }
   );
   ELEMENT_LOOP (PCB->Data, 
-      {
-	PIN_LOOP (element, 
+    {
+      PIN_LOOP (element, 
+	{
+	  if (TEST_FLAG (TheFlag, pin))
 	    {
-	      if (TEST_FLAG (TheFlag, pin))
-		{
-		  if (AndDraw)
-		    AddObjectToFlagUndoList (PIN_TYPE, element, pin, pin);
-		  CLEAR_FLAG (TheFlag, pin);
-		  if (AndDraw)
-		    DrawPin (pin, 0);
-		  change = True;
-		}
+	      if (AndDraw)
+		AddObjectToFlagUndoList (PIN_TYPE, element, pin, pin);
+	      CLEAR_FLAG (TheFlag, pin);
+	      if (AndDraw)
+		DrawPin (pin, 0);
+	      change = True;
 	    }
-	);
-	PAD_LOOP (element, 
+	}
+      );
+      PAD_LOOP (element, 
+	{
+	  if (TEST_FLAG (TheFlag, pad))
 	    {
-	      if (TEST_FLAG (TheFlag, pad))
-		{
-		  if (AndDraw)
-		    AddObjectToFlagUndoList (PAD_TYPE, element, pad, pad);
-		  CLEAR_FLAG (TheFlag, pad);
-		  if (AndDraw)
-		    DrawPad (pad, 0);
-		  change = True;
-		}
+	      if (AndDraw)
+		AddObjectToFlagUndoList (PAD_TYPE, element, pad, pad);
+	      CLEAR_FLAG (TheFlag, pad);
+	      if (AndDraw)
+		DrawPad (pad, 0);
+	      change = True;
 	    }
-	);
-      }
+	}
+      );
+    }
   );
   if (change)
     {
@@ -3746,56 +3743,56 @@ ResetFoundLinesAndPolygons (Boolean AndDraw)
 
 
   RAT_LOOP (PCB->Data, 
-      {
-	if (TEST_FLAG (TheFlag, line))
-	  {
-	    if (AndDraw)
-	      AddObjectToFlagUndoList (RATLINE_TYPE, line, line, line);
-	    CLEAR_FLAG (TheFlag, line);
-	    if (AndDraw)
-	      DrawRat (line, 0);
-	    change = True;
-	  }
-      }
+    {
+      if (TEST_FLAG (TheFlag, line))
+	{
+	  if (AndDraw)
+	    AddObjectToFlagUndoList (RATLINE_TYPE, line, line, line);
+	  CLEAR_FLAG (TheFlag, line);
+	  if (AndDraw)
+	    DrawRat (line, 0);
+	  change = True;
+	}
+    }
   );
   COPPERLINE_LOOP (PCB->Data, 
-      {
-	if (TEST_FLAG (TheFlag, line))
-	  {
-	    if (AndDraw)
-	      AddObjectToFlagUndoList (LINE_TYPE, layer, line, line);
-	    CLEAR_FLAG (TheFlag, line);
-	    if (AndDraw)
-	      DrawLine (layer, line, 0);
-	    change = True;
-	  }
-      }
+    {
+      if (TEST_FLAG (TheFlag, line))
+	{
+	  if (AndDraw)
+	    AddObjectToFlagUndoList (LINE_TYPE, layer, line, line);
+	  CLEAR_FLAG (TheFlag, line);
+	  if (AndDraw)
+	    DrawLine (layer, line, 0);
+	  change = True;
+	}
+    }
   );
   COPPERARC_LOOP (PCB->Data, 
-      {
-	if (TEST_FLAG (TheFlag, arc))
-	  {
-	    if (AndDraw)
-	      AddObjectToFlagUndoList (ARC_TYPE, layer, arc, arc);
-	    CLEAR_FLAG (TheFlag, arc);
-	    if (AndDraw)
-	      DrawArc (layer, arc, 0);
-	    change = True;
-	  }
-      }
+    {
+      if (TEST_FLAG (TheFlag, arc))
+	{
+	  if (AndDraw)
+	    AddObjectToFlagUndoList (ARC_TYPE, layer, arc, arc);
+	  CLEAR_FLAG (TheFlag, arc);
+	  if (AndDraw)
+	    DrawArc (layer, arc, 0);
+	  change = True;
+	}
+    }
   );
   COPPERPOLYGON_LOOP (PCB->Data, 
-      {
-	if (TEST_FLAG (TheFlag, polygon))
-	  {
-	    if (AndDraw)
-	      AddObjectToFlagUndoList (POLYGON_TYPE, layer, polygon, polygon);
-	    CLEAR_FLAG (TheFlag, polygon);
-	    if (AndDraw)
-	      DrawPolygon (layer, polygon, 0);
-	    change = True;
-	  }
-      }
+    {
+      if (TEST_FLAG (TheFlag, polygon))
+	{
+	  if (AndDraw)
+	    AddObjectToFlagUndoList (POLYGON_TYPE, layer, polygon, polygon);
+	  CLEAR_FLAG (TheFlag, polygon);
+	  if (AndDraw)
+	    DrawPolygon (layer, polygon, 0);
+	  change = True;
+	}
+    }
   );
   if (change)
     {
@@ -3978,45 +3975,45 @@ DRCAll (void)
   User = False;
 
   ELEMENT_LOOP (PCB->Data, 
-      {
-	PIN_LOOP (element, 
+    {
+      PIN_LOOP (element, 
+	{
+	  if (!TEST_FLAG (DRCFLAG, pin)
+	      && DRCFind (PIN_TYPE, (void *) element, (void *) pin,
+			  (void *) pin))
 	    {
-	      if (!TEST_FLAG (DRCFLAG, pin)
-		  && DRCFind (PIN_TYPE, (void *) element, (void *) pin,
-			      (void *) pin))
-		{
-		  IsBad = True;
-		  break;
-		}
+	      IsBad = True;
+	      break;
 	    }
-	);
-	if (IsBad)
-	  break;
-	PAD_LOOP (element, 
+	}
+      );
+      if (IsBad)
+	break;
+      PAD_LOOP (element, 
+	{
+	  if (!TEST_FLAG (DRCFLAG, pad)
+	      && DRCFind (PAD_TYPE, (void *) element, (void *) pad,
+			  (void *) pad))
 	    {
-	      if (!TEST_FLAG (DRCFLAG, pad)
-		  && DRCFind (PAD_TYPE, (void *) element, (void *) pad,
-			      (void *) pad))
-		{
-		  IsBad = True;
-		  break;
-		}
+	      IsBad = True;
+	      break;
 	    }
-	);
-	if (IsBad)
-	  break;
-      }
+	}
+      );
+      if (IsBad)
+	break;
+    }
   );
   if (!IsBad)
     VIA_LOOP (PCB->Data, 
-      {
-	if (!TEST_FLAG (DRCFLAG, via)
-	    && DRCFind (VIA_TYPE, (void *) via, (void *) via, (void *) via))
-	  {
-	    IsBad = True;
-	    break;
-	  }
-      }
+    {
+      if (!TEST_FLAG (DRCFLAG, via)
+	  && DRCFind (VIA_TYPE, (void *) via, (void *) via, (void *) via))
+	{
+	  IsBad = True;
+	  break;
+	}
+    }
   );
   TheFlag = (IsBad) ? DRCFLAG : (FOUNDFLAG | DRCFLAG | SELECTEDFLAG);
   ResetConnections (False);
@@ -4042,65 +4039,65 @@ GotoError (void)
 
 
   COPPERLINE_LOOP (PCB->Data, 
-      {
-	if (!TEST_FLAG (SELECTEDFLAG, line) && TEST_FLAG (FOUNDFLAG, line))
-	  {
-	    X = (line->Point1.X + line->Point2.X) / 2;
-	    Y = (line->Point1.Y + line->Point2.Y) / 2;
-	    goto gotcha;
-	  }
-      }
+    {
+      if (!TEST_FLAG (SELECTEDFLAG, line) && TEST_FLAG (FOUNDFLAG, line))
+	{
+	  X = (line->Point1.X + line->Point2.X) / 2;
+	  Y = (line->Point1.Y + line->Point2.Y) / 2;
+	  goto gotcha;
+	}
+    }
   );
   COPPERARC_LOOP (PCB->Data, 
-      {
-	if (!TEST_FLAG (SELECTEDFLAG, arc) && TEST_FLAG (FOUNDFLAG, arc))
-	  {
-	    X = arc->X;
-	    Y = arc->Y;
-	    goto gotcha;
-	  }
-      }
+    {
+      if (!TEST_FLAG (SELECTEDFLAG, arc) && TEST_FLAG (FOUNDFLAG, arc))
+	{
+	  X = arc->X;
+	  Y = arc->Y;
+	  goto gotcha;
+	}
+    }
   );
   COPPERPOLYGON_LOOP (PCB->Data, 
-      {
-	if (!TEST_FLAG (SELECTEDFLAG, polygon)
-	    && TEST_FLAG (FOUNDFLAG, polygon))
-	  {
-	    X = (polygon->BoundingBox.X1 + polygon->BoundingBox.X2) / 2;
-	    Y = (polygon->BoundingBox.Y1 + polygon->BoundingBox.Y2) / 2;
-	    goto gotcha;
-	  }
-      }
+    {
+      if (!TEST_FLAG (SELECTEDFLAG, polygon)
+	  && TEST_FLAG (FOUNDFLAG, polygon))
+	{
+	  X = (polygon->BoundingBox.X1 + polygon->BoundingBox.X2) / 2;
+	  Y = (polygon->BoundingBox.Y1 + polygon->BoundingBox.Y2) / 2;
+	  goto gotcha;
+	}
+    }
   );
   ALLPIN_LOOP (PCB->Data, 
-      {
-	if (!TEST_FLAG (SELECTEDFLAG, pin) && TEST_FLAG (FOUNDFLAG, pin))
-	  {
-	    X = pin->X;
-	    Y = pin->Y;
-	    goto gotcha;
-	  }
-      }
+    {
+      if (!TEST_FLAG (SELECTEDFLAG, pin) && TEST_FLAG (FOUNDFLAG, pin))
+	{
+	  X = pin->X;
+	  Y = pin->Y;
+	  goto gotcha;
+	}
+    }
   );
   ALLPAD_LOOP (PCB->Data, 
-      {
-	if (!TEST_FLAG (SELECTEDFLAG, pad) && TEST_FLAG (FOUNDFLAG, pad))
-	  {
-	    X = (pad->Point1.X + pad->Point2.X) / 2;
-	    Y = (pad->Point1.Y + pad->Point2.Y) / 2;
-	    goto gotcha;
-	  }
-      }
+    {
+      if (!TEST_FLAG (SELECTEDFLAG, pad) && TEST_FLAG (FOUNDFLAG, pad))
+	{
+	  X = (pad->Point1.X + pad->Point2.X) / 2;
+	  Y = (pad->Point1.Y + pad->Point2.Y) / 2;
+	  goto gotcha;
+	}
+    }
   );
   VIA_LOOP (PCB->Data, 
-      {
-	if (!TEST_FLAG (SELECTEDFLAG, via) && TEST_FLAG (FOUNDFLAG, via))
-	  {
-	    X = via->X;
-	    Y = via->Y;
-	    goto gotcha;
-	  }
-      }
+    {
+      if (!TEST_FLAG (SELECTEDFLAG, via) && TEST_FLAG (FOUNDFLAG, via))
+	{
+	  X = via->X;
+	  Y = via->Y;
+	  goto gotcha;
+	}
+    }
   );
   return;
 gotcha:

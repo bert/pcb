@@ -267,25 +267,23 @@ RemoveLinePoint (LayerTypePtr Layer, LineTypePtr Line, PointTypePtr Point)
   else
     oldPoint = Line->Point1;
   LINE_LOOP (Layer, 
-      {
+    {
+      if (line == Line)
+	continue;
+      if ((line->Point1.X == Point->X) && (line->Point1.Y == Point->Y))
 	{
-	  if (line == Line)
-	    continue;
-	  if ((line->Point1.X == Point->X) && (line->Point1.Y == Point->Y))
-	    {
-	      MoveObject (LINEPOINT_TYPE, Layer, line, &line->Point1,
-			  oldPoint.X - line->Point1.X,
-			  oldPoint.Y - line->Point1.Y);
-	    }
-	  if ((line->Point2.X == Point->X) && (line->Point2.Y == Point->Y))
-	    {
-	      MoveObject (LINEPOINT_TYPE, Layer, line, &line->Point2,
-			  oldPoint.X - line->Point2.X,
-			  oldPoint.Y - line->Point2.Y);
-	    }
-	  break;
+	  MoveObject (LINEPOINT_TYPE, Layer, line, &line->Point1,
+		      oldPoint.X - line->Point1.X,
+		      oldPoint.Y - line->Point1.Y);
 	}
-      }
+      if ((line->Point2.X == Point->X) && (line->Point2.Y == Point->Y))
+	{
+	  MoveObject (LINEPOINT_TYPE, Layer, line, &line->Point2,
+		      oldPoint.X - line->Point2.X,
+		      oldPoint.Y - line->Point2.Y);
+	}
+      break;
+    }
   );
   return (RemoveLine (Layer, Line));
 }
@@ -371,13 +369,13 @@ RemovePolygonPoint (LayerTypePtr Layer,
 
   /* insert the polygon-point into the undo list */
   POLYGONPOINT_LOOP (Polygon, 
-      {
-	if (point == Point)
-	  {
-	    index = n;
-	    break;
-	  }
-      }
+    {
+      if (point == Point)
+	{
+	  index = n;
+	  break;
+	}
+    }
   );
   AddObjectToRemovePointUndoList (POLYGONPOINT_TYPE, Layer, Polygon, index);
 
@@ -464,13 +462,13 @@ DeleteRats (Boolean selected)
 
   Bulk = True;
   RAT_LOOP (PCB->Data, 
-      {
-	if ((!selected) || TEST_FLAG (SELECTEDFLAG, line))
-	  {
-	    changed = True;
-	    RemoveRat (line);
-	  }
-      }
+    {
+      if ((!selected) || TEST_FLAG (SELECTEDFLAG, line))
+	{
+	  changed = True;
+	  RemoveRat (line);
+	}
+    }
   );
   Bulk = False;
   if (changed)

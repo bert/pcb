@@ -611,7 +611,7 @@ FreeNetListMemory (NetListTypePtr Netlist)
   if (Netlist)
     {
       NET_LOOP (Netlist, 
-        {
+	{
 	  FreeNetMemory (net);
 	}
       );
@@ -629,7 +629,7 @@ FreeNetListListMemory (NetListListTypePtr Netlistlist)
   if (Netlistlist)
     {
       NETLIST_LOOP (Netlistlist, 
-        {
+	{
 	  FreeNetListMemory (netlist);
 	}
       );
@@ -660,21 +660,21 @@ FreeElementMemory (ElementTypePtr Element)
   if (Element)
     {
       ELEMENTNAME_LOOP (Element, 
-        {
+	{
 	  MyFree (&textstring);
 	}
       );
       PIN_LOOP (Element, 
-	  {
-	    MyFree (&pin->Name);
-	    MyFree (&pin->Number);
-	  }
+	{
+	  MyFree (&pin->Name);
+	  MyFree (&pin->Number);
+	}
       );
       PAD_LOOP (Element, 
-	  {
-	    MyFree (&pad->Name);
-	    MyFree (&pad->Number);
-	  }
+	{
+	  MyFree (&pad->Name);
+	  MyFree (&pad->Number);
+	}
       );
       MyFree ((char **) &Element->Pin);
       MyFree ((char **) &Element->Line);
@@ -718,29 +718,29 @@ FreeDataMemory (DataTypePtr Data)
   if (Data)
     {
       VIA_LOOP (Data, 
-	  {
-	    MyFree (&via->Name);
-	  }
+	{
+	  MyFree (&via->Name);
+	}
       );
       ELEMENT_LOOP (Data, 
-	  {
-	    FreeElementMemory (element);
-	  }
+	{
+	  FreeElementMemory (element);
+	}
       );
 
       for (layer = Data->Layer, i = 0; i < MAX_LAYER + 2; layer++, i++)
 	{
 	  TEXT_LOOP (layer, 
-	      {
-		MyFree (&text->TextString);
-	      }
+	    {
+	      MyFree (&text->TextString);
+	    }
 	  );
 	  MyFree (&layer->Name);
 	  LINE_LOOP (layer, 
-	      {
-		if (line->Number)
-		  MyFree (&line->Number);
-	      }
+	    {
+	      if (line->Number)
+		MyFree (&line->Number);
+	    }
 	  );
 	  MyFree ((char **) &layer->Line);
 	  MyFree ((char **) &layer->Arc);
@@ -765,16 +765,16 @@ void
 FreeLibraryMemory (LibraryTypePtr lib)
 {
   MENU_LOOP (lib, 
-      {
-	ENTRY_LOOP (menu, 
-	    {
-	      SaveFree ((void *) entry->AllocatedMemory);
-	      SaveFree ((void *) entry->ListEntry);
-	    }
-	);
-	SaveFree ((void *) menu->Entry);
-	SaveFree ((void *) menu->Name);
-      }
+    {
+      ENTRY_LOOP (menu, 
+	{
+	  SaveFree ((void *) entry->AllocatedMemory);
+	  SaveFree ((void *) entry->ListEntry);
+	}
+      );
+      SaveFree ((void *) menu->Entry);
+      SaveFree ((void *) menu->Name);
+    }
   );
   SaveFree ((void *) lib->Menu);
 

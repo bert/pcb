@@ -106,31 +106,29 @@ void
 MoveElementLowLevel (ElementTypePtr Element, Position DX, Position DY)
 {
   ELEMENTLINE_LOOP (Element, 
-      {
-	MOVE_LINE_LOWLEVEL (line, DX, DY);
-      }
+    {
+      MOVE_LINE_LOWLEVEL (line, DX, DY);
+    }
   );
   PIN_LOOP (Element, 
-      {
-	{
-	  MOVE_PIN_LOWLEVEL (pin, DX, DY);
-	}
-      }
+    {
+      MOVE_PIN_LOWLEVEL (pin, DX, DY);
+    }
   );
   PAD_LOOP (Element, 
-      {
-	MOVE_PAD_LOWLEVEL (pad, DX, DY);
-      }
+    {
+      MOVE_PAD_LOWLEVEL (pad, DX, DY);
+    }
   );
   ARC_LOOP (Element, 
-      {
-	MOVE_ARC_LOWLEVEL (arc, DX, DY);
-      }
+    {
+      MOVE_ARC_LOWLEVEL (arc, DX, DY);
+    }
   );
   ELEMENTTEXT_LOOP (Element, 
-      {
-	MOVE_TEXT_LOWLEVEL (text, DX, DY);
-      }
+    {
+      MOVE_TEXT_LOWLEVEL (text, DX, DY);
+    }
   );
   MOVE_BOX_LOWLEVEL (&Element->BoundingBox, DX, DY);
   MOVE (Element->MarkX, Element->MarkY, DX, DY);
@@ -146,8 +144,9 @@ MoveElementName (ElementTypePtr Element)
     {
       EraseElementName (Element);
       ELEMENTTEXT_LOOP (Element, 
-	  {
-	  MOVE_TEXT_LOWLEVEL (text, DeltaX, DeltaY)}
+	{
+	  MOVE_TEXT_LOWLEVEL (text, DeltaX, DeltaY);
+	}
       );
       DrawElementName (Element, 0);
       Draw ();
@@ -155,8 +154,9 @@ MoveElementName (ElementTypePtr Element)
   else
     {
       ELEMENTTEXT_LOOP (Element, 
-	  {
-	  MOVE_TEXT_LOWLEVEL (text, DeltaX, DeltaY)}
+	{
+	  MOVE_TEXT_LOWLEVEL (text, DeltaX, DeltaY);
+	}
       );
     }
   return (Element);
@@ -282,9 +282,9 @@ void
 MovePolygonLowLevel (PolygonTypePtr Polygon, Position DeltaX, Position DeltaY)
 {
   POLYGONPOINT_LOOP (Polygon, 
-      {
-	MOVE (point->X, point->Y, DeltaX, DeltaY);
-      }
+    {
+      MOVE (point->X, point->Y, DeltaX, DeltaY);
+    }
   );
   MOVE_BOX_LOWLEVEL (&Polygon->BoundingBox, DeltaX, DeltaY);
 }
@@ -482,48 +482,48 @@ MoveLineToLayer (LayerTypePtr Layer, LineTypePtr Line)
   if ((SearchObjectByPosition (PIN_TYPES, &ptr1, &ptr2, &ptr3,
 			       new->Point1.X, new->Point1.Y, 0) == NO_TYPE))
     LINE_LOOP (Layer, 
-      {
-	if (((line->Point1.X == new->Point1.X)
-	     && (line->Point1.Y == new->Point1.Y))
-	    || ((line->Point2.X == new->Point1.X)
-		&& (line->Point2.Y == new->Point1.Y)))
-	  {
-	    if ((via =
-		 CreateNewVia (PCB->Data, new->Point1.X, new->Point1.Y,
-			       Settings.ViaThickness, 2 * Settings.Keepaway,
-			       0, Settings.ViaDrillingHole, NULL,
-			       VIAFLAG)) != NULL)
-	      {
-		UpdatePIPFlags (via, (ElementTypePtr) via, NULL, NULL, False);
-		AddObjectToCreateUndoList (VIA_TYPE, via, via, via);
-		DrawVia (via, 0);
-	      }
-	    break;
-	  }
-      }
+    {
+      if (((line->Point1.X == new->Point1.X)
+	   && (line->Point1.Y == new->Point1.Y))
+	  || ((line->Point2.X == new->Point1.X)
+	      && (line->Point2.Y == new->Point1.Y)))
+	{
+	  if ((via =
+	       CreateNewVia (PCB->Data, new->Point1.X, new->Point1.Y,
+			     Settings.ViaThickness, 2 * Settings.Keepaway,
+			     0, Settings.ViaDrillingHole, NULL,
+			     VIAFLAG)) != NULL)
+	    {
+	      UpdatePIPFlags (via, (ElementTypePtr) via, NULL, NULL, False);
+	      AddObjectToCreateUndoList (VIA_TYPE, via, via, via);
+	      DrawVia (via, 0);
+	    }
+	  break;
+	}
+    }
   );
   if ((SearchObjectByPosition (PIN_TYPES, &ptr1, &ptr2, &ptr3,
 			       new->Point2.X, new->Point2.Y, 0) == NO_TYPE))
     LINE_LOOP (Layer, 
-      {
-	if (((line->Point1.X == new->Point2.X)
-	     && (line->Point1.Y == new->Point2.Y))
-	    || ((line->Point2.X == new->Point2.X)
-		&& (line->Point2.Y == new->Point2.Y)))
-	  {
-	    if ((via =
-		 CreateNewVia (PCB->Data, new->Point2.X, new->Point2.Y,
-			       Settings.ViaThickness, 2 * Settings.Keepaway,
-			       0, Settings.ViaDrillingHole, NULL,
-			       VIAFLAG)) != NULL)
-	      {
-		UpdatePIPFlags (via, (ElementTypePtr) via, NULL, NULL, False);
-		AddObjectToCreateUndoList (VIA_TYPE, via, via, via);
-		DrawVia (via, 0);
-	      }
-	    break;
-	  }
-      }
+    {
+      if (((line->Point1.X == new->Point2.X)
+	   && (line->Point1.Y == new->Point2.Y))
+	  || ((line->Point2.X == new->Point2.X)
+	      && (line->Point2.Y == new->Point2.Y)))
+	{
+	  if ((via =
+	       CreateNewVia (PCB->Data, new->Point2.X, new->Point2.Y,
+			     Settings.ViaThickness, 2 * Settings.Keepaway,
+			     0, Settings.ViaDrillingHole, NULL,
+			     VIAFLAG)) != NULL)
+	    {
+	      UpdatePIPFlags (via, (ElementTypePtr) via, NULL, NULL, False);
+	      AddObjectToCreateUndoList (VIA_TYPE, via, via, via);
+	      DrawVia (via, 0);
+	    }
+	  break;
+	}
+    }
   );
   Draw ();
   return (new);
@@ -609,26 +609,26 @@ MovePolygonToLayer (LayerTypePtr Layer, PolygonTypePtr Polygon)
   LayerThermFlag = L0THERMFLAG << GetLayerNumber (PCB->Data, Layer);
   DestThermFlag = L0THERMFLAG << GetLayerNumber (PCB->Data, Dest);
   ALLPIN_LOOP (PCB->Data, 
-      {
-	if (TEST_FLAG (LayerThermFlag, pin) &&
-	    IsPointInPolygon (pin->X, pin->Y, 0, Polygon))
-	  {
-	    AddObjectToFlagUndoList (PIN_TYPE, Layer, pin, pin);
-	    CLEAR_FLAG (LayerThermFlag, pin);
-	    SET_FLAG (DestThermFlag, pin);
-	  }
-      }
+    {
+      if (TEST_FLAG (LayerThermFlag, pin) &&
+	  IsPointInPolygon (pin->X, pin->Y, 0, Polygon))
+	{
+	  AddObjectToFlagUndoList (PIN_TYPE, Layer, pin, pin);
+	  CLEAR_FLAG (LayerThermFlag, pin);
+	  SET_FLAG (DestThermFlag, pin);
+	}
+    }
   );
   VIA_LOOP (PCB->Data, 
-      {
-	if (TEST_FLAG (LayerThermFlag, via) &&
-	    IsPointInPolygon (via->X, via->Y, 0, Polygon))
-	  {
-	    AddObjectToFlagUndoList (VIA_TYPE, Layer, via, via);
-	    CLEAR_FLAG (LayerThermFlag, via);
-	    SET_FLAG (DestThermFlag, via);
-	  }
-      }
+    {
+      if (TEST_FLAG (LayerThermFlag, via) &&
+	  IsPointInPolygon (via->X, via->Y, 0, Polygon))
+	{
+	  AddObjectToFlagUndoList (VIA_TYPE, Layer, via, via);
+	  CLEAR_FLAG (LayerThermFlag, via);
+	  SET_FLAG (DestThermFlag, via);
+	}
+    }
   );
   new = MovePolygonToLayerLowLevel (Layer, Polygon, Dest);
   UpdatePIPFlags (NULL, NULL, Layer, NULL, True);

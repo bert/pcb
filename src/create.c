@@ -24,8 +24,7 @@
  *
  */
 
-static char *rcsid =
-  "$Id$";
+static char *rcsid = "$Id$";
 
 /* functions used to create vias, pins ...
  */
@@ -148,9 +147,9 @@ CreateNewPCB (Boolean SetDefaultNames)
   ptr->Grid = Settings.Grid;
   ptr->LayerGroups = Settings.LayerGroups;
   STYLE_LOOP (ptr, 
-      {
+    {
       *style = Settings.RouteStyle[n];
-      }
+    }
   );
   ptr->Zoom = Settings.Zoom;
   ptr->MaxWidth = Settings.MaxWidth;
@@ -171,13 +170,13 @@ CreateNewVia (DataTypePtr Data,
   PinTypePtr Via;
 
   VIA_LOOP (Data, 
-      {
-	if ((float) (via->X - X) * (float) (via->X - X) +
-	    (float) (via->Y - Y) * (float) (via->Y - Y) <=
-	    ((float) (via->Thickness / 2 + Thickness / 2) *
-	     (float) (via->Thickness / 2 + Thickness / 2)))
-	  return (NULL);	/* don't allow via stacking */
-      }
+    {
+      if ((float) (via->X - X) * (float) (via->X - X) +
+	  (float) (via->Y - Y) * (float) (via->Y - Y) <=
+	  ((float) (via->Thickness / 2 + Thickness / 2) *
+	   (float) (via->Thickness / 2 + Thickness / 2)))
+	return (NULL);		/* don't allow via stacking */
+    }
   );
 
   Via = GetViaMemory (Data);
@@ -216,66 +215,66 @@ CreateDrawnLineOnLayer (LayerTypePtr Layer,
    * verify that the layer is on the board first!
    */
   LINE_LOOP (Layer, 
-      {
-	/* prevent stacked lines */
-	if ((line->Point1.X == X1 && line->Point1.Y == Y1
-	     && line->Point2.X == X2 && line->Point2.Y == Y2)
-	    || (line->Point1.X == X2 && line->Point1.Y == Y2
-		&& line->Point2.X == X1 && line->Point2.Y == Y1))
-	  return (NULL);
-	/* remove unncessary line points */
-	if (line->Thickness == Thickness)
-	  {
-	    if (line->Point1.X == X1 && line->Point1.Y == Y1)
-	      {
-		test.Point1.X = line->Point2.X;
-		test.Point1.Y = line->Point2.Y;
-		test.Point2.X = X2;
-		test.Point2.Y = Y2;
-		if (IsPointOnLine ((float) X1, (float) Y1, 0.0, &test))
-		  {
-		    project = line;
-		    break;
-		  }
-	      }
-	    else if (line->Point2.X == X1 && line->Point2.Y == Y1)
-	      {
-		test.Point1.X = line->Point1.X;
-		test.Point1.Y = line->Point1.Y;
-		test.Point2.X = X2;
-		test.Point2.Y = Y2;
-		if (IsPointOnLine ((float) X1, (float) Y1, 0.0, &test))
-		  {
-		    project = line;
-		    break;
-		  }
-	      }
-	    else if (line->Point1.X == X2 && line->Point1.Y == Y2)
-	      {
-		test.Point1.X = line->Point2.X;
-		test.Point1.Y = line->Point2.Y;
-		test.Point2.X = X1;
-		test.Point2.Y = Y1;
-		if (IsPointOnLine ((float) X2, (float) Y2, 0.0, &test))
-		  {
-		    project = line;
-		    break;
-		  }
-	      }
-	    else if (line->Point2.X == X2 && line->Point2.Y == Y2)
-	      {
-		test.Point1.X = line->Point1.X;
-		test.Point1.Y = line->Point1.Y;
-		test.Point2.X = X1;
-		test.Point2.Y = Y1;
-		if (IsPointOnLine ((float) X2, (float) Y2, 0.0, &test))
-		  {
-		    project = line;
-		    break;
-		  }
-	      }
-	  }
-      }
+    {
+      /* prevent stacked lines */
+      if ((line->Point1.X == X1 && line->Point1.Y == Y1
+	   && line->Point2.X == X2 && line->Point2.Y == Y2)
+	  || (line->Point1.X == X2 && line->Point1.Y == Y2
+	      && line->Point2.X == X1 && line->Point2.Y == Y1))
+	return (NULL);
+      /* remove unncessary line points */
+      if (line->Thickness == Thickness)
+	{
+	  if (line->Point1.X == X1 && line->Point1.Y == Y1)
+	    {
+	      test.Point1.X = line->Point2.X;
+	      test.Point1.Y = line->Point2.Y;
+	      test.Point2.X = X2;
+	      test.Point2.Y = Y2;
+	      if (IsPointOnLine ((float) X1, (float) Y1, 0.0, &test))
+		{
+		  project = line;
+		  break;
+		}
+	    }
+	  else if (line->Point2.X == X1 && line->Point2.Y == Y1)
+	    {
+	      test.Point1.X = line->Point1.X;
+	      test.Point1.Y = line->Point1.Y;
+	      test.Point2.X = X2;
+	      test.Point2.Y = Y2;
+	      if (IsPointOnLine ((float) X1, (float) Y1, 0.0, &test))
+		{
+		  project = line;
+		  break;
+		}
+	    }
+	  else if (line->Point1.X == X2 && line->Point1.Y == Y2)
+	    {
+	      test.Point1.X = line->Point2.X;
+	      test.Point1.Y = line->Point2.Y;
+	      test.Point2.X = X1;
+	      test.Point2.Y = Y1;
+	      if (IsPointOnLine ((float) X2, (float) Y2, 0.0, &test))
+		{
+		  project = line;
+		  break;
+		}
+	    }
+	  else if (line->Point2.X == X2 && line->Point2.Y == Y2)
+	    {
+	      test.Point1.X = line->Point1.X;
+	      test.Point1.Y = line->Point1.Y;
+	      test.Point2.X = X1;
+	      test.Point2.Y = Y1;
+	      if (IsPointOnLine ((float) X2, (float) Y2, 0.0, &test))
+		{
+		  project = line;
+		  break;
+		}
+	    }
+	}
+    }
   );
   /* remove unneccessary points */
   if (project)
@@ -357,12 +356,12 @@ CreateNewArcOnLayer (LayerTypePtr Layer,
   ArcTypePtr Arc;
 
   ARC_LOOP (Layer, 
-      {
-	if (arc->X == X1 && arc->Y == Y1 && arc->Width == width &&
-	    (arc->StartAngle + 360) % 360 == (sa + 360) % 360 &&
-	    arc->Delta == dir)
-	  return (NULL);	/* prevent stacked arcs */
-      }
+    {
+      if (arc->X == X1 && arc->Y == Y1 && arc->Width == width &&
+	  (arc->StartAngle + 360) % 360 == (sa + 360) % 360 &&
+	  arc->Delta == dir)
+	return (NULL);		/* prevent stacked arcs */
+    }
   );
   Arc = GetArcMemory (Layer);
   if (!Arc)

@@ -415,15 +415,15 @@ SetRouteStyle (char *name)
   char *arg, num[10];
 
   STYLE_LOOP (PCB, 
-      {
-	if (name && strcmp (name, style->Name) == 0)
-	  {
-	    arg = &num[0];
-	    sprintf (num, "%d", n + 1);
-	    CallActionProc (Output.Output, "RouteStyle", NULL, &arg, 1);
-	    break;
-	  }
-      }
+    {
+      if (name && strcmp (name, style->Name) == 0)
+	{
+	  arg = &num[0];
+	  sprintf (num, "%d", n + 1);
+	  CallActionProc (Output.Output, "RouteStyle", NULL, &arg, 1);
+	  break;
+	}
+    }
   );
 }
 

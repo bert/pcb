@@ -101,17 +101,17 @@ CheckPadForRubberbandConnection (PadTypePtr Pad)
       if (layer->On)
 	{
 	  LINE_LOOP (layer, 
-	      {
-		if (TEST_FLAG (LOCKFLAG, line))
-		  continue;
-		if (line->Point1.X >= minx && line->Point1.X <= maxx &&
-		    line->Point1.Y >= miny && line->Point1.Y <= maxy)
-		  CreateNewRubberbandEntry (layer, line, &line->Point1);
-		else
-		  if (line->Point2.X >= minx && line->Point2.X <= maxx &&
-		      line->Point2.Y >= miny && line->Point2.Y <= maxy)
-		  CreateNewRubberbandEntry (layer, line, &line->Point2);
-	      }
+	    {
+	      if (TEST_FLAG (LOCKFLAG, line))
+		continue;
+	      if (line->Point1.X >= minx && line->Point1.X <= maxx &&
+		  line->Point1.Y >= miny && line->Point1.Y <= maxy)
+		CreateNewRubberbandEntry (layer, line, &line->Point1);
+	      else
+		if (line->Point2.X >= minx && line->Point2.X <= maxx &&
+		    line->Point2.Y >= miny && line->Point2.Y <= maxy)
+		CreateNewRubberbandEntry (layer, line, &line->Point2);
+	    }
 	  );
 	}
     }
@@ -127,23 +127,23 @@ CheckPadForRat (PadTypePtr Pad)
   group = GetLayerGroupNumberByNumber (i);
 
   RAT_LOOP (PCB->Data, 
-      {
-	if (line->Point1.X == Pad->Point1.X &&
-	    line->Point1.Y == Pad->Point1.Y && line->group1 == group)
-	  CreateNewRubberbandEntry (NULL, (LineTypePtr) line, &line->Point1);
-	else
-	  if (line->Point2.X == Pad->Point1.X &&
-	      line->Point2.Y == Pad->Point1.Y && line->group2 == group)
-	  CreateNewRubberbandEntry (NULL, (LineTypePtr) line, &line->Point2);
-	else
-	  if (line->Point1.X == Pad->Point2.X &&
-	      line->Point1.Y == Pad->Point2.Y && line->group1 == group)
-	  CreateNewRubberbandEntry (NULL, (LineTypePtr) line, &line->Point1);
-	else
-	  if (line->Point2.X == Pad->Point2.X &&
-	      line->Point2.Y == Pad->Point2.Y && line->group2 == group)
-	  CreateNewRubberbandEntry (NULL, (LineTypePtr) line, &line->Point2);
-      }
+    {
+      if (line->Point1.X == Pad->Point1.X &&
+	  line->Point1.Y == Pad->Point1.Y && line->group1 == group)
+	CreateNewRubberbandEntry (NULL, (LineTypePtr) line, &line->Point1);
+      else
+	if (line->Point2.X == Pad->Point1.X &&
+	    line->Point2.Y == Pad->Point1.Y && line->group2 == group)
+	CreateNewRubberbandEntry (NULL, (LineTypePtr) line, &line->Point2);
+      else
+	if (line->Point1.X == Pad->Point2.X &&
+	    line->Point1.Y == Pad->Point2.Y && line->group1 == group)
+	CreateNewRubberbandEntry (NULL, (LineTypePtr) line, &line->Point1);
+      else
+	if (line->Point2.X == Pad->Point2.X &&
+	    line->Point2.Y == Pad->Point2.Y && line->group2 == group)
+	CreateNewRubberbandEntry (NULL, (LineTypePtr) line, &line->Point2);
+    }
   );
 }
 
@@ -161,24 +161,24 @@ CheckPinForRubberbandConnection (PinTypePtr Pin)
   register float radius, dx, dy;
 
   VISIBLELINE_LOOP (PCB->Data, 
-      {
-	if (TEST_FLAG (LOCKFLAG, line))
-	  continue;
-	/* save sqrt computation */
-	radius = (float) (Pin->Thickness + line->Thickness) / 2.0;
-	radius *= radius;
-	dx = line->Point1.X - Pin->X;
-	dy = line->Point1.Y - Pin->Y;
-	if (dx * dx + dy * dy <= radius)
-	  CreateNewRubberbandEntry (layer, line, &line->Point1);
-	else
-	  {
-	    dx = line->Point2.X - Pin->X;
-	    dy = line->Point2.Y - Pin->Y;
-	    if (dx * dx + dy * dy <= radius)
-	      CreateNewRubberbandEntry (layer, line, &line->Point2);
-	  }
-      }
+    {
+      if (TEST_FLAG (LOCKFLAG, line))
+	continue;
+      /* save sqrt computation */
+      radius = (float) (Pin->Thickness + line->Thickness) / 2.0;
+      radius *= radius;
+      dx = line->Point1.X - Pin->X;
+      dy = line->Point1.Y - Pin->Y;
+      if (dx * dx + dy * dy <= radius)
+	CreateNewRubberbandEntry (layer, line, &line->Point1);
+      else
+	{
+	  dx = line->Point2.X - Pin->X;
+	  dy = line->Point2.Y - Pin->Y;
+	  if (dx * dx + dy * dy <= radius)
+	    CreateNewRubberbandEntry (layer, line, &line->Point2);
+	}
+    }
   );
 }
 
@@ -186,12 +186,12 @@ static void
 CheckPinForRat (PinTypePtr Pin)
 {
   RAT_LOOP (PCB->Data, 
-      {
-	if (line->Point1.X == Pin->X && line->Point1.Y == Pin->Y)
-	  CreateNewRubberbandEntry (NULL, (LineTypePtr) line, &line->Point1);
-	else if (line->Point2.X == Pin->X && line->Point2.Y == Pin->Y)
-	  CreateNewRubberbandEntry (NULL, (LineTypePtr) line, &line->Point2);
-      }
+    {
+      if (line->Point1.X == Pin->X && line->Point1.Y == Pin->Y)
+	CreateNewRubberbandEntry (NULL, (LineTypePtr) line, &line->Point1);
+      else if (line->Point2.X == Pin->X && line->Point2.Y == Pin->Y)
+	CreateNewRubberbandEntry (NULL, (LineTypePtr) line, &line->Point2);
+    }
   );
 }
 
@@ -201,15 +201,15 @@ CheckLinePointForRat (LayerTypePtr Layer, PointTypePtr Point)
   Cardinal group = GetLayerGroupNumberByPointer (Layer);
 
   RAT_LOOP (PCB->Data, 
-      {
-	if (line->group1 == group &&
-	    line->Point1.X == Point->X && line->Point1.Y == Point->Y)
-	  CreateNewRubberbandEntry (NULL, (LineTypePtr) line, &line->Point1);
-	else
-	  if (line->group2 == group &&
-	      line->Point2.X == Point->X && line->Point2.Y == Point->Y)
-	  CreateNewRubberbandEntry (NULL, (LineTypePtr) line, &line->Point2);
-      }
+    {
+      if (line->group1 == group &&
+	  line->Point1.X == Point->X && line->Point1.Y == Point->Y)
+	CreateNewRubberbandEntry (NULL, (LineTypePtr) line, &line->Point1);
+      else
+	if (line->group2 == group &&
+	    line->Point2.X == Point->X && line->Point2.Y == Point->Y)
+	CreateNewRubberbandEntry (NULL, (LineTypePtr) line, &line->Point2);
+    }
   );
 }
 
@@ -248,30 +248,30 @@ CheckLinePointForRubberbandConnection (LayerTypePtr Layer,
 	   * of the lines
 	   */
 	  LINE_LOOP (layer, 
-	      {
-		/* skip the original line */
-		if (line == Line)
+	    {
+	      /* skip the original line */
+	      if (line == Line)
+		continue;
+	      if (TEST_FLAG (LOCKFLAG, line))
+		continue;
+	      /* save sqrt computation */
+	      radius = (float) (Line->Thickness + line->Thickness) / 2.0;
+	      radius *= radius;
+	      dx = line->Point1.X - LinePoint->X;
+	      dy = line->Point1.Y - LinePoint->Y;
+	      if (dx * dx + dy * dy <= radius)
+		{
+		  CreateNewRubberbandEntry (layer, line, &line->Point1);
 		  continue;
-		if (TEST_FLAG (LOCKFLAG, line))
+		}
+	      dx = line->Point2.X - LinePoint->X;
+	      dy = line->Point2.Y - LinePoint->Y;
+	      if (dx * dx + dy * dy <= radius)
+		{
+		  CreateNewRubberbandEntry (layer, line, &line->Point2);
 		  continue;
-		/* save sqrt computation */
-		radius = (float) (Line->Thickness + line->Thickness) / 2.0;
-		radius *= radius;
-		dx = line->Point1.X - LinePoint->X;
-		dy = line->Point1.Y - LinePoint->Y;
-		if (dx * dx + dy * dy <= radius)
-		  {
-		    CreateNewRubberbandEntry (layer, line, &line->Point1);
-		    continue;
-		  }
-		dx = line->Point2.X - LinePoint->X;
-		dy = line->Point2.Y - LinePoint->Y;
-		if (dx * dx + dy * dy <= radius)
-		  {
-		    CreateNewRubberbandEntry (layer, line, &line->Point2);
-		    continue;
-		  }
-	      }
+		}
+	    }
 	  );
 	}
     }
@@ -309,19 +309,19 @@ CheckPolygonForRubberbandConnection (LayerTypePtr Layer,
 	   * of the lines
 	   */
 	  LINE_LOOP (layer, 
-	      {
-		if (TEST_FLAG (LOCKFLAG, line))
-		  continue;
-		if (TEST_FLAG (CLEARLINEFLAG, line))
-		  continue;
-		thick = (line->Thickness + 1) / 2;
-		if (IsPointInPolygon (line->Point1.X, line->Point1.Y,
-				      thick, Polygon))
-		  CreateNewRubberbandEntry (layer, line, &line->Point1);
-		if (IsPointInPolygon (line->Point2.X, line->Point2.Y,
-				      thick, Polygon))
-		  CreateNewRubberbandEntry (layer, line, &line->Point1);
-	      }
+	    {
+	      if (TEST_FLAG (LOCKFLAG, line))
+		continue;
+	      if (TEST_FLAG (CLEARLINEFLAG, line))
+		continue;
+	      thick = (line->Thickness + 1) / 2;
+	      if (IsPointInPolygon (line->Point1.X, line->Point1.Y,
+				    thick, Polygon))
+		CreateNewRubberbandEntry (layer, line, &line->Point1);
+	      if (IsPointInPolygon (line->Point2.X, line->Point2.Y,
+				    thick, Polygon))
+		CreateNewRubberbandEntry (layer, line, &line->Point1);
+	    }
 	  );
 	}
     }
@@ -352,14 +352,14 @@ LookupRubberbandLines (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
 	 * of faiures that are immediately recognized
 	 */
 	PIN_LOOP (element, 
-	    {
-	      CheckPinForRubberbandConnection (pin);
-	    }
+	  {
+	    CheckPinForRubberbandConnection (pin);
+	  }
 	);
 	PAD_LOOP (element, 
-	    {
-	      CheckPadForRubberbandConnection (pad);
-	    }
+	  {
+	    CheckPadForRubberbandConnection (pad);
+	  }
 	);
 	break;
       }
@@ -407,14 +407,14 @@ LookupRatLines (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
 	ElementTypePtr element = (ElementTypePtr) Ptr1;
 
 	PIN_LOOP (element, 
-	    {
-	      CheckPinForRat (pin);
-	    }
+	  {
+	    CheckPinForRat (pin);
+	  }
 	);
 	PAD_LOOP (element, 
-	    {
-	      CheckPadForRat (pad);
-	    }
+	  {
+	    CheckPadForRat (pad);
+	  }
 	);
 	break;
       }

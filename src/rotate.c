@@ -24,8 +24,7 @@
  *
  */
 
-static char *rcsid =
-  "$Id$";
+static char *rcsid = "$Id$";
 
 /* functions used to rotate pins, elements ...
  */
@@ -152,9 +151,9 @@ RotatePolygonLowLevel (PolygonTypePtr Polygon,
 		       Position X, Position Y, BYTE Number)
 {
   POLYGONPOINT_LOOP (Polygon, 
-      {
-	ROTATE (point->X, point->Y, X, Y, Number);
-      }
+    {
+      ROTATE (point->X, point->Y, X, Y, Number);
+    }
   );
   RotateBoxLowLevel (&Polygon->BoundingBox, X, Y, Number);
 }
@@ -204,10 +203,10 @@ RotateElementLowLevel (ElementTypePtr Element,
   Boolean OnLayout = False;
 
   ELEMENT_LOOP (PCB->Data, 
-      {
-	if (element == Element)
-	  OnLayout = True;
-      }
+    {
+      if (element == Element)
+	OnLayout = True;
+    }
   );
   /* solder side objects need a different orientation */
 
@@ -220,28 +219,26 @@ RotateElementLowLevel (ElementTypePtr Element,
     }
   );
   ELEMENTLINE_LOOP (Element, 
-      {
-	RotateLineLowLevel (line, X, Y, Number);
-      }
+    {
+      RotateLineLowLevel (line, X, Y, Number);
+    }
   );
   PIN_LOOP (Element, 
-      {
-	{
-	  ROTATE_PIN_LOWLEVEL (pin, X, Y, Number);
-	  if (OnLayout)
-	    UpdatePIPFlags (pin, Element, NULL, NULL, True);
-	}
-      }
+    {
+      ROTATE_PIN_LOWLEVEL (pin, X, Y, Number);
+      if (OnLayout)
+	UpdatePIPFlags (pin, Element, NULL, NULL, True);
+    }
   );
   PAD_LOOP (Element, 
-      {
-	ROTATE_PAD_LOWLEVEL (pad, X, Y, Number);
-      }
+    {
+      ROTATE_PAD_LOWLEVEL (pad, X, Y, Number);
+    }
   );
   ARC_LOOP (Element, 
-      {
-	RotateArcLowLevel (arc, X, Y, Number);
-      }
+    {
+      RotateArcLowLevel (arc, X, Y, Number);
+    }
   );
   ROTATE (Element->MarkX, Element->MarkY, X, Y, Number);
   SetElementBoundingBox (Element, &PCB->Font);

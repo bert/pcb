@@ -168,12 +168,10 @@ ReportDialog (void)
 	ElementTypePtr element = (ElementTypePtr) ptr1;
 
 	PIN_LOOP (element, 
-	    {
-	      {
-		if (pin == Pin)
-		  break;
-	      }
-	    }
+	  {
+	    if (pin == Pin)
+	      break;
+	  }
 	);
 	if (TEST_FLAG (HOLEFLAG, Pin))
 	  sprintf (&report[0], "PIN ID# %d  Flags:0x%08x\n"
@@ -274,12 +272,12 @@ ReportDialog (void)
 	ElementTypePtr element = (ElementTypePtr) ptr1;
 
 	PAD_LOOP (element, 
+	  {
 	    {
-	      {
-		if (pad == Pad)
-		  break;
-	      }
+	      if (pad == Pad)
+		break;
 	    }
+	  }
 	);
 	sprintf (&report[0], "PAD ID# %d   Flags:0x%08x\n"
 		 "FirstPoint(X,Y) = (%d, %d)  ID = %d\n"
@@ -394,31 +392,31 @@ ReportFoundPins (void)
   DSClearString (&list);
   DSAddString (&list, "The following pins/pads are FOUND:\n");
   ELEMENT_LOOP (PCB->Data, 
-      {
-	PIN_LOOP (element, 
+    {
+      PIN_LOOP (element, 
+	{
+	  if (TEST_FLAG (FOUNDFLAG, pin))
 	    {
-	      if (TEST_FLAG (FOUNDFLAG, pin))
-		{
-		  sprintf (temp, "%s-%s,%c",
-			   NAMEONPCB_NAME (element),
-			   pin->Number,
-			   ((col++ % (COLUMNS + 1)) == COLUMNS) ? '\n' : ' ');
-		  DSAddString (&list, temp);
-		}
+	      sprintf (temp, "%s-%s,%c",
+		       NAMEONPCB_NAME (element),
+		       pin->Number,
+		       ((col++ % (COLUMNS + 1)) == COLUMNS) ? '\n' : ' ');
+	      DSAddString (&list, temp);
 	    }
-	);
-	PAD_LOOP (element, 
+	}
+      );
+      PAD_LOOP (element, 
+	{
+	  if (TEST_FLAG (FOUNDFLAG, pad))
 	    {
-	      if (TEST_FLAG (FOUNDFLAG, pad))
-		{
-		  sprintf (temp, "%s-%s,%c",
-			   NAMEONPCB_NAME (element), pad->Number,
-			   ((col++ % (COLUMNS + 1)) == COLUMNS) ? '\n' : ' ');
-		  DSAddString (&list, temp);
-		}
+	      sprintf (temp, "%s-%s,%c",
+		       NAMEONPCB_NAME (element), pad->Number,
+		       ((col++ % (COLUMNS + 1)) == COLUMNS) ? '\n' : ' ');
+	      DSAddString (&list, temp);
 	    }
-	);
-      }
+	}
+      );
+    }
   );
   HideCrosshair (False);
   /* create dialog box */

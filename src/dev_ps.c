@@ -30,8 +30,7 @@
  * silkscreen layer. Perhaps the design is not the best.
  */
 
-static char *rcsid =
-  "$Id$";
+static char *rcsid = "$Id$";
 
 /* PostScript device driver
  * code is shared for EPS and PS output
@@ -724,11 +723,11 @@ PS_PrintPolygon (PolygonTypePtr Ptr)
   int i = 0;
 
   POLYGONPOINT_LOOP (Ptr, 
-     {
-        if (i++ % 9 == 8)
-	    fputc ('\n', PS_Flags.FP);
-        fprintf (PS_Flags.FP, "%i %i ", (int) point->X, (int) point->Y);
-     }
+    {
+      if (i++ % 9 == 8)
+	fputc ('\n', PS_Flags.FP);
+      fprintf (PS_Flags.FP, "%i %i ", (int) point->X, (int) point->Y);
+    }
   );
   fprintf (PS_Flags.FP, "%d PO\n", Ptr->PointN);
 }
@@ -842,19 +841,19 @@ static void
 PS_PrintElementPackage (ElementTypePtr Element)
 {
   ELEMENTLINE_LOOP (Element, 
-      {
-	PS_PrintLine (line, False);
-      }
+    {
+      PS_PrintLine (line, False);
+    }
   );
   ARC_LOOP (Element, 
-      {
-	fprintf (PS_Flags.FP, "%d %d %d %d %d %d %d A\n",
-		 (int) arc->X,
-		 (int) arc->Y,
-		 (int) arc->Width,
-		 (int) arc->Height,
-		 (int) arc->Thickness, arc->StartAngle, arc->Delta);
-      }
+    {
+      fprintf (PS_Flags.FP, "%d %d %d %d %d %d %d A\n",
+	       (int) arc->X,
+	       (int) arc->Y,
+	       (int) arc->Width,
+	       (int) arc->Height,
+	       (int) arc->Thickness, arc->StartAngle, arc->Delta);
+    }
   );
   if (!TEST_FLAG (HIDENAMEFLAG, Element))
     PS_PrintTextLowLevel (&ELEMENT_TEXT (PCB, Element));

@@ -95,10 +95,10 @@ CreateTMPPolygon (PolygonTypePtr Polygon, Position DX, Position DY)
 
   /* copy data to tmp array and convert it to screen coordinates */
   POLYGONPOINT_LOOP (Polygon, 
-      {
-	Points[n].x = TO_SCREEN_X (point->X + DX);
-	Points[n].y = TO_SCREEN_Y (point->Y + DY);
-      }
+    {
+      Points[n].x = TO_SCREEN_X (point->X + DX);
+      Points[n].y = TO_SCREEN_Y (point->Y + DY);
+    }
   );
 
   /* the last point is identical to the first one */
@@ -274,59 +274,59 @@ XORDrawElement (ElementTypePtr Element, Position DX, Position DY)
   else
     {
       ELEMENTLINE_LOOP (Element, 
-	  {
-	    XDrawLine (Dpy, Output.OutputWindow, Crosshair.GC,
-		       TO_SCREEN_X (DX + line->Point1.X),
-		       TO_SCREEN_Y (DY + line->Point1.Y),
-		       TO_SCREEN_X (DX + line->Point2.X),
-		       TO_SCREEN_Y (DY + line->Point2.Y));
-	  }
+	{
+	  XDrawLine (Dpy, Output.OutputWindow, Crosshair.GC,
+		     TO_SCREEN_X (DX + line->Point1.X),
+		     TO_SCREEN_Y (DY + line->Point1.Y),
+		     TO_SCREEN_X (DX + line->Point2.X),
+		     TO_SCREEN_Y (DY + line->Point2.Y));
+	}
       );
 
       /* arc coordinates and angles have to be converted to X11 notation */
       ARC_LOOP (Element, 
-	  {
-	    XDrawArc (Dpy, Output.OutputWindow, Crosshair.GC,
-		      TO_SCREEN_X (DX + arc->X) - TO_SCREEN (arc->Width),
-		      TO_SCREEN_Y (DY + arc->Y) - TO_SCREEN (arc->Height),
-		      TO_SCREEN (2 * arc->Width),
-		      TO_SCREEN (2 * arc->Height),
-		      (TO_SCREEN_ANGLE (arc->StartAngle) + 180) * 64,
-		      TO_SCREEN_DELTA (arc->Delta) * 64);
-	  }
+	{
+	  XDrawArc (Dpy, Output.OutputWindow, Crosshair.GC,
+		    TO_SCREEN_X (DX + arc->X) - TO_SCREEN (arc->Width),
+		    TO_SCREEN_Y (DY + arc->Y) - TO_SCREEN (arc->Height),
+		    TO_SCREEN (2 * arc->Width),
+		    TO_SCREEN (2 * arc->Height),
+		    (TO_SCREEN_ANGLE (arc->StartAngle) + 180) * 64,
+		    TO_SCREEN_DELTA (arc->Delta) * 64);
+	}
       );
     }
   /* pin coordinates and angles have to be converted to X11 notation */
   PIN_LOOP (Element, 
-      {
-	XDrawArc (Dpy, Output.OutputWindow, Crosshair.GC,
-		  TO_SCREEN_X (DX + pin->X) -
-		  TO_SCREEN (pin->Thickness / 2),
-		  TO_SCREEN_Y (DY + pin->Y) -
-		  TO_SCREEN (pin->Thickness / 2),
-		  TO_SCREEN (pin->Thickness), TO_SCREEN (pin->Thickness),
-		  0, 360 * 64);
-      }
+    {
+      XDrawArc (Dpy, Output.OutputWindow, Crosshair.GC,
+		TO_SCREEN_X (DX + pin->X) -
+		TO_SCREEN (pin->Thickness / 2),
+		TO_SCREEN_Y (DY + pin->Y) -
+		TO_SCREEN (pin->Thickness / 2),
+		TO_SCREEN (pin->Thickness), TO_SCREEN (pin->Thickness),
+		0, 360 * 64);
+    }
   );
 
   /* pads */
   PAD_LOOP (Element, 
-      {
-	if ((TEST_FLAG (ONSOLDERFLAG, pad) != 0) ==
-	    Settings.ShowSolderSide || PCB->InvisibleObjectsOn)
-	  XDrawLine (Dpy,
-		     Output.OutputWindow,
-		     Crosshair.GC,
-		     TO_SCREEN_X (DX +
-				  pad->Point1.
-				  X),
-		     TO_SCREEN_Y (DY +
-				  pad->Point1.
-				  Y),
-		     TO_SCREEN_X (DX +
-				  pad->Point2.
-				  X), TO_SCREEN_Y (DY + pad->Point2.Y));
-      }
+    {
+      if ((TEST_FLAG (ONSOLDERFLAG, pad) != 0) ==
+	  Settings.ShowSolderSide || PCB->InvisibleObjectsOn)
+	XDrawLine (Dpy,
+		   Output.OutputWindow,
+		   Crosshair.GC,
+		   TO_SCREEN_X (DX +
+				pad->Point1.
+				X),
+		   TO_SCREEN_Y (DY +
+				pad->Point1.
+				Y),
+		   TO_SCREEN_X (DX +
+				pad->Point2.
+				X), TO_SCREEN_Y (DY + pad->Point2.Y));
+    }
   );
   /* mark */
   XDrawLine (Dpy, Output.OutputWindow, Crosshair.GC,
@@ -371,79 +371,75 @@ XORDrawBuffer (BufferTypePtr Buffer)
 	LayerTypePtr layer = &Buffer->Data->Layer[i];
 
 	LINE_LOOP (layer, 
-	    {
+	  {
 /*
 				XORDrawAttachedLine(x +line->Point1.X,
 					y +line->Point1.Y, x +line->Point2.X,
 					y +line->Point2.Y, line->Thickness);
 */
-	      XDrawLine (Dpy, Output.OutputWindow, Crosshair.GC,
-			 TO_SCREEN_X (x + line->Point1.X),
-			 TO_SCREEN_Y (y + line->Point1.Y),
-			 TO_SCREEN_X (x + line->Point2.X),
-			 TO_SCREEN_Y (y + line->Point2.Y));
-	    }
+	    XDrawLine (Dpy, Output.OutputWindow, Crosshair.GC,
+		       TO_SCREEN_X (x + line->Point1.X),
+		       TO_SCREEN_Y (y + line->Point1.Y),
+		       TO_SCREEN_X (x + line->Point2.X),
+		       TO_SCREEN_Y (y + line->Point2.Y));
+	  }
 	);
 	ARC_LOOP (layer, 
-	    {
-	      XDrawArc (Dpy, Output.OutputWindow, Crosshair.GC,
-			TO_SCREEN_X (x + arc->X) - TO_SCREEN (arc->Width),
-			TO_SCREEN_Y (y + arc->Y) -
-			TO_SCREEN (arc->Height),
-			TO_SCREEN (2 * arc->Width),
-			TO_SCREEN (2 * arc->Height),
-			(TO_SCREEN_ANGLE (arc->StartAngle) - 180) * 64,
-			TO_SCREEN_DELTA (arc->Delta) * 64);
-	    }
+	  {
+	    XDrawArc (Dpy, Output.OutputWindow, Crosshair.GC,
+		      TO_SCREEN_X (x + arc->X) - TO_SCREEN (arc->Width),
+		      TO_SCREEN_Y (y + arc->Y) -
+		      TO_SCREEN (arc->Height),
+		      TO_SCREEN (2 * arc->Width),
+		      TO_SCREEN (2 * arc->Height),
+		      (TO_SCREEN_ANGLE (arc->StartAngle) - 180) * 64,
+		      TO_SCREEN_DELTA (arc->Delta) * 64);
+	  }
 	);
 	TEXT_LOOP (layer, 
-	    {
-	      {
-		BoxTypePtr box = &text->BoundingBox;
-		Position y0;
-		y0 = Settings.ShowSolderSide ? box->Y2 : box->Y1;
-		XDrawRectangle (Dpy, Output.OutputWindow, Crosshair.GC,
-				TO_SCREEN_X (x + box->X1),
-				TO_SCREEN_Y (y + y0),
-				TO_SCREEN (box->X2 - box->X1),
-				TO_SCREEN (box->Y2 - box->Y1));
-	      }
-	    }
+	  {
+	    BoxTypePtr box = &text->BoundingBox;
+	    Position y0;
+	    y0 = Settings.ShowSolderSide ? box->Y2 : box->Y1;
+	    XDrawRectangle (Dpy, Output.OutputWindow, Crosshair.GC,
+			    TO_SCREEN_X (x + box->X1),
+			    TO_SCREEN_Y (y + y0),
+			    TO_SCREEN (box->X2 - box->X1),
+			    TO_SCREEN (box->Y2 - box->Y1));
+	  }
 	);
 	/* the tmp polygon has n+1 points because the first
 	 * and the last one are set to the same coordinates
 	 */
 	POLYGON_LOOP (layer, 
-	    {
-	      {
-		CreateTMPPolygon (polygon, x, y);
-		XDrawLines (Dpy, Output.OutputWindow, Crosshair.GC,
-			    Points, polygon->PointN + 1, CoordModeOrigin);
-	      }
-	    }
+	  {
+	    CreateTMPPolygon (polygon, x, y);
+	    XDrawLines (Dpy, Output.OutputWindow, Crosshair.GC,
+			Points, polygon->PointN + 1, CoordModeOrigin);
+	  }
 	);
       }
 
   /* draw elements if visible */
   if (PCB->PinOn && PCB->ElementOn)
     ELEMENT_LOOP (Buffer->Data, 
-      {
-	if (FRONT (element) || PCB->InvisibleObjectsOn)
-	  XORDrawElement (element, x, y);
-      }
+    {
+      if (FRONT (element) || PCB->InvisibleObjectsOn)
+	XORDrawElement (element, x, y);
+    }
   );
 
   /* and the vias, move offset by thickness/2 */
   if (PCB->ViaOn)
     VIA_LOOP (Buffer->Data, 
-      {
-	XDrawArc (Dpy, Output.OutputWindow, Crosshair.GC,
-		  TO_SCREEN_X (x + via->X - via->Thickness / 2),
-		  TO_SCREEN_Y (y + via->Y -
-			       TO_SCREEN_SIGN_Y (via->Thickness / 2)),
-		  TO_SCREEN (via->Thickness),
-		  TO_SCREEN (via->Thickness), 0, 360 * 64);
-      }
+    {
+      XDrawArc (Dpy, Output.OutputWindow, Crosshair.GC,
+		TO_SCREEN_X (x + via->X - via->Thickness / 2),
+		TO_SCREEN_Y (y + via->Y -
+			     TO_SCREEN_SIGN_Y (via->Thickness / 2)),
+		TO_SCREEN (via->Thickness),
+		TO_SCREEN (via->Thickness), 0, 360 * 64);
+    }
   );
 }
 

@@ -336,25 +336,25 @@ DrawEverything (void)
   if (PCB->InvisibleObjectsOn)
     {
       ELEMENT_LOOP (PCB->Data, 
-	  {
-	    if (!FRONT (element))
-	      {
-		if (PCB->ElementOn)
-		  {
-		    if (VELEMENT (element))
-		      DrawElementPackage (element, 0);
-		    if (VELTEXT (element))
-		      DrawElementName (element, 0);
-		  }
-	      }
-	    if (PCB->PinOn && VELEMENT (element))
-	      PAD_LOOP (element, 
+	{
+	  if (!FRONT (element))
+	    {
+	      if (PCB->ElementOn)
 		{
-		  if (!FRONT (pad))
-		    DrawPad (pad, 0);
+		  if (VELEMENT (element))
+		    DrawElementPackage (element, 0);
+		  if (VELTEXT (element))
+		    DrawElementName (element, 0);
 		}
-	    );
-	  }
+	    }
+	  if (PCB->PinOn && VELEMENT (element))
+	    PAD_LOOP (element, 
+	    {
+	      if (!FRONT (pad))
+		DrawPad (pad, 0);
+	    }
+	  );
+	}
       );
       if (PCB->ElementOn)
 	DrawLayer (LAYER_PTR (MAX_LAYER +
@@ -376,54 +376,54 @@ DrawEverything (void)
       DrawLayer (LAYER_PTR (MAX_LAYER + (SWAP_IDENT ? SOLDER_LAYER :
 					 COMPONENT_LAYER)), 0);
       ELEMENT_LOOP (PCB->Data, 
-	  {
-	    if (FRONT (element))
-	      {
-		if (VELEMENT (element))
-		  DrawElementPackage (element, 0);
-		if (VELTEXT (element))
-		  DrawElementName (element, 0);
-	      }
-	    /* Draw pin holes */
-	    if (PCB->PinOn && VELEMENT (element))
-	      {
-		PIN_LOOP (element, 
-		    {
-		      DrawHole (pin);
-		    }
-		);
-		DrawEMark (element->MarkX, element->MarkY, !FRONT (element));
-	      }
-	  }
+	{
+	  if (FRONT (element))
+	    {
+	      if (VELEMENT (element))
+		DrawElementPackage (element, 0);
+	      if (VELTEXT (element))
+		DrawElementName (element, 0);
+	    }
+	  /* Draw pin holes */
+	  if (PCB->PinOn && VELEMENT (element))
+	    {
+	      PIN_LOOP (element, 
+		{
+		  DrawHole (pin);
+		}
+	      );
+	      DrawEMark (element->MarkX, element->MarkY, !FRONT (element));
+	    }
+	}
       );
     }
   else if (PCB->PinOn)
     /* Draw pin holes */
     ELEMENT_LOOP (PCB->Data, 
-      {
-	if (VELEMENT (element))
-	  PIN_LOOP (element, 
-	    {
-	      DrawHole (pin);
-	    }
-	);
-      }
+    {
+      if (VELEMENT (element))
+	PIN_LOOP (element, 
+	{
+	  DrawHole (pin);
+	}
+      );
+    }
   );
   /* Draw via holes */
   if (PCB->ViaOn)
     VIA_LOOP (PCB->Data, 
-      {
-	if (VVIA (via))
-	  DrawHole (via);
-      }
+    {
+      if (VVIA (via))
+	DrawHole (via);
+    }
   );
   /* Draw rat lines on top */
   if (PCB->RatOn)
     RAT_LOOP (PCB->Data, 
-      {
-	if (VLINE (line))
-	  DrawRat (line, 0);
-      }
+    {
+      if (VLINE (line))
+	DrawRat (line, 0);
+    }
   );
   if (Settings.DrawGrid)
     DrawGrid ();
@@ -456,19 +456,19 @@ DrawTop (void)
   /* draw element pins */
   if (PCB->PinOn)
     ELEMENT_LOOP (PCB->Data, 
-      {
-	if (VELEMENT (element))
-	  DrawPlainElementPinsAndPads (element, False);
-      }
+    {
+      if (VELEMENT (element))
+	DrawPlainElementPinsAndPads (element, False);
+    }
   );
 
   /* draw vias */
   if (PCB->ViaOn)
     VIA_LOOP (PCB->Data, 
-      {
-	if (VVIA (via))
-	  DrawPlainVia (via, False);
-      }
+    {
+      if (VVIA (via))
+	DrawPlainVia (via, False);
+    }
   );
 }
 
@@ -487,20 +487,20 @@ DrawMask (void)
   /* make clearances in mask */
   XSetFunction (Dpy, Output.pmGC, GXclear);
   ALLPIN_LOOP (PCB->Data, 
-      {
-	ClearOnlyPin (pin, True);
-      }
+    {
+      ClearOnlyPin (pin, True);
+    }
   );
   VIA_LOOP (PCB->Data, 
-      {
-	ClearOnlyPin (via, True);
-      }
+    {
+      ClearOnlyPin (via, True);
+    }
   );
   ALLPAD_LOOP (PCB->Data, 
-      {
-	if (!XOR (TEST_FLAG (ONSOLDERFLAG, pad), SWAP_IDENT))
-	  ClearPad (pad, True);
-      }
+    {
+      if (!XOR (TEST_FLAG (ONSOLDERFLAG, pad), SWAP_IDENT))
+	ClearPad (pad, True);
+    }
   );
   XSetClipMask (Dpy, Output.fgGC, Offmask);
   /* now draw the mask */
@@ -554,54 +554,54 @@ DrawLayer (LayerTypePtr Layer, int unused)
 	      LayerTypePtr guestLayer = LAYER_PTR (guest);
 
 	      LINE_LOOP (guestLayer, 
-		  {
-		    if (TEST_FLAG (CLEARLINEFLAG, line) && VLINE (line))
-		      ClearLine (line);
-		  }
+		{
+		  if (TEST_FLAG (CLEARLINEFLAG, line) && VLINE (line))
+		    ClearLine (line);
+		}
 	      );
 	      ARC_LOOP (guestLayer, 
-		  {
-		    if (TEST_FLAG (CLEARLINEFLAG, arc) && VARC (arc))
-		      ClearArc (arc);
-		  }
+		{
+		  if (TEST_FLAG (CLEARLINEFLAG, arc) && VARC (arc))
+		    ClearArc (arc);
+		}
 	      );
 	    }
 	}
       ALLPIN_LOOP (PCB->Data, 
-	  {
-	    if (TEST_FLAG (PIPFlag, pin))
-	      ClearOnlyPin (pin, False);
-	  }
+	{
+	  if (TEST_FLAG (PIPFlag, pin))
+	    ClearOnlyPin (pin, False);
+	}
       );
       VIA_LOOP (PCB->Data, 
-	  {
-	    if (TEST_FLAG (PIPFlag, via))
-	      ClearOnlyPin (via, False);
-	  }
+	{
+	  if (TEST_FLAG (PIPFlag, via))
+	    ClearOnlyPin (via, False);
+	}
       );
       if (group == GetLayerGroupNumberByNumber (MAX_LAYER + SOLDER_LAYER))
 	ALLPAD_LOOP (PCB->Data, 
-	  {
-	    if (TEST_FLAG (ONSOLDERFLAG, pad))
-	      ClearPad (pad, False);
-	  }
+	{
+	  if (TEST_FLAG (ONSOLDERFLAG, pad))
+	    ClearPad (pad, False);
+	}
       );
       if (group == GetLayerGroupNumberByNumber (MAX_LAYER + COMPONENT_LAYER))
 	ALLPAD_LOOP (PCB->Data, 
-	  {
-	    if (!TEST_FLAG (ONSOLDERFLAG, pad))
-	      ClearPad (pad, False);
-	  }
+	{
+	  if (!TEST_FLAG (ONSOLDERFLAG, pad))
+	    ClearPad (pad, False);
+	}
       );
       XSetClipMask (Dpy, Output.fgGC, Offmask);
     }
   if (Layer->PolygonN)
     {
       POLYGON_LOOP (Layer, 
-	  {
-	    if (VPOLY (polygon))
-	      DrawPlainPolygon (Layer, polygon);
-	  }
+	{
+	  if (VPOLY (polygon))
+	    DrawPlainPolygon (Layer, polygon);
+	}
       );
       /* restore the clip region */
       XCopyGC (Dpy, Output.bgGC, GCClipMask, Output.fgGC);
@@ -609,36 +609,36 @@ DrawLayer (LayerTypePtr Layer, int unused)
 	{
 	  PIPFlag = L0THERMFLAG << layernum;
 	  ALLPIN_LOOP (PCB->Data, 
-	      {
-		if (TEST_FLAG (PIPFlag, pin))
-		  ThermPin (Layer, pin);
-	      }
+	    {
+	      if (TEST_FLAG (PIPFlag, pin))
+		ThermPin (Layer, pin);
+	    }
 	  );
 	  VIA_LOOP (PCB->Data, 
-	      {
-		if (TEST_FLAG (PIPFlag, via))
-		  ThermPin (Layer, via);
-	      }
+	    {
+	      if (TEST_FLAG (PIPFlag, via))
+		ThermPin (Layer, via);
+	    }
 	  );
 	}
     }
   LINE_LOOP (Layer, 
-      {
-	if (VLINE (line))
-	  DrawLine (Layer, line, unused);
-      }
+    {
+      if (VLINE (line))
+	DrawLine (Layer, line, unused);
+    }
   );
   ARC_LOOP (Layer, 
-      {
-	if (VARC (arc))
-	  DrawArc (Layer, arc, unused);
-      }
+    {
+      if (VARC (arc))
+	DrawArc (Layer, arc, unused);
+    }
   );
   TEXT_LOOP (Layer, 
-      {
-	if (VTEXT (text))
-	  DrawRegularText (Layer, text, unused);
-      }
+    {
+      if (VTEXT (text))
+	DrawRegularText (Layer, text, unused);
+    }
   );
 }
 
@@ -1533,18 +1533,18 @@ DrawPolygonLowLevel (PolygonTypePtr Polygon, Boolean OnMask)
 
   /* copy data to tmp array and convert it to screen coordinates */
   POLYGONPOINT_LOOP (Polygon, 
-      {
-	if (OnMask)
-	  {
-	    data[n].x = TO_MASK_X (point->X);
-	    data[n].y = TO_MASK_Y (point->Y);
-	  }
-	else
-	  {
-	    data[n].x = TO_DRAW_X (point->X);
-	    data[n].y = TO_DRAW_Y (point->Y);
-	  }
-      }
+    {
+      if (OnMask)
+	{
+	  data[n].x = TO_MASK_X (point->X);
+	  data[n].y = TO_MASK_Y (point->Y);
+	}
+      else
+	{
+	  data[n].x = TO_DRAW_X (point->X);
+	  data[n].y = TO_DRAW_Y (point->Y);
+	}
+    }
   );
   if (OnMask)
     XFillPolygon (Dpy, Offmask, Output.pmGC,
@@ -1606,14 +1606,14 @@ DrawElementPackageLowLevel (ElementTypePtr Element, int unused)
 {
   /* draw lines, arcs, text and pins */
   ELEMENTLINE_LOOP (Element, 
-      {
-	DrawLineLowLevel (line, False);
-      }
+    {
+      DrawLineLowLevel (line, False);
+    }
   );
   ARC_LOOP (Element, 
-      {
-	DrawArcLowLevel (arc);
-      }
+    {
+      DrawArcLowLevel (arc);
+    }
   );
 }
 
@@ -1875,20 +1875,20 @@ DrawPolygon (LayerTypePtr Layer, PolygonTypePtr Polygon, int unused)
   if (TEST_FLAG (CLEARPOLYFLAG, Polygon))
     {
       ALLPIN_LOOP (PCB->Data, 
-	  {
-	    if (IsPointInPolygon (pin->X, pin->Y, 0, Polygon))
-	      {
-		ClearPin (pin, PIN_TYPE, 0);
-	      }
-	  }
+	{
+	  if (IsPointInPolygon (pin->X, pin->Y, 0, Polygon))
+	    {
+	      ClearPin (pin, PIN_TYPE, 0);
+	    }
+	}
       );
       VIA_LOOP (PCB->Data, 
-	  {
-	    if (IsPointInPolygon (via->X, via->Y, 0, Polygon))
-	      {
-		ClearPin (via, VIA_TYPE, 0);
-	      }
-	  }
+	{
+	  if (IsPointInPolygon (via->X, via->Y, 0, Polygon))
+	    {
+	      ClearPin (via, VIA_TYPE, 0);
+	    }
+	}
       );
     }
 }
@@ -1962,15 +1962,15 @@ void
 DrawElementPinsAndPads (ElementTypePtr Element, int unused)
 {
   PAD_LOOP (Element, 
-      {
-	if (FRONT (pad) || PCB->InvisibleObjectsOn)
-	  DrawPad (pad, unused);
-      }
+    {
+      if (FRONT (pad) || PCB->InvisibleObjectsOn)
+	DrawPad (pad, unused);
+    }
   );
   PIN_LOOP (Element, 
-      {
-	DrawPin (pin, unused);
-      }
+    {
+      DrawPin (pin, unused);
+    }
   );
 }
 
@@ -1982,15 +1982,15 @@ DrawPlainElementPinsAndPads (ElementTypePtr Element, Boolean holeToo)
 {
   /* don't draw invisible pads, they're already handled */
   PAD_LOOP (Element, 
-      {
-	if (FRONT (pad))
-	  DrawPad (pad, 0);
-      }
+    {
+      if (FRONT (pad))
+	DrawPad (pad, 0);
+    }
   );
   PIN_LOOP (Element, 
-      {
-	DrawPlainPin (pin, holeToo);
-      }
+    {
+      DrawPlainPin (pin, holeToo);
+    }
   );
 }
 
@@ -2147,14 +2147,14 @@ EraseElement (ElementTypePtr Element)
   /* set color and draw lines, arcs, text and pins */
   XSetForeground (Dpy, Output.fgGC, Settings.bgColor);
   ELEMENTLINE_LOOP (Element, 
-      {
-	DrawLineLowLevel (line, False);
-      }
+    {
+      DrawLineLowLevel (line, False);
+    }
   );
   ARC_LOOP (Element, 
-      {
-	DrawArcLowLevel (arc);
-      }
+    {
+      DrawArcLowLevel (arc);
+    }
   );
   if (!TEST_FLAG (HIDENAMEFLAG, Element))
     DrawTextLowLevel (&ELEMENT_TEXT (PCB, Element));
@@ -2171,23 +2171,23 @@ EraseElementPinsAndPads (ElementTypePtr Element)
   Erasing++;
   XSetForeground (Dpy, Output.fgGC, Settings.bgColor);
   PIN_LOOP (Element, 
-      {
-	if (TEST_FLAG (ALLPIPFLAGS, pin))
-	  {
-	    ClearPin (pin, NO_TYPE, 0);
-	    XSetForeground (Dpy, Output.fgGC, Settings.bgColor);
-	  }
-	DrawPinOrViaLowLevel (pin, False);
-	if (TEST_FLAG (DISPLAYNAMEFLAG, pin))
-	  DrawPinOrViaNameLowLevel (pin);
-      }
+    {
+      if (TEST_FLAG (ALLPIPFLAGS, pin))
+	{
+	  ClearPin (pin, NO_TYPE, 0);
+	  XSetForeground (Dpy, Output.fgGC, Settings.bgColor);
+	}
+      DrawPinOrViaLowLevel (pin, False);
+      if (TEST_FLAG (DISPLAYNAMEFLAG, pin))
+	DrawPinOrViaNameLowLevel (pin);
+    }
   );
   PAD_LOOP (Element, 
-      {
-	DrawPadLowLevel (pad);
-	if (TEST_FLAG (DISPLAYNAMEFLAG, pad))
-	  DrawPadNameLowLevel (pad);
-      }
+    {
+      DrawPadLowLevel (pad);
+      if (TEST_FLAG (DISPLAYNAMEFLAG, pad))
+	DrawPadNameLowLevel (pad);
+    }
   );
   Erasing--;
 }

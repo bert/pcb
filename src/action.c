@@ -25,8 +25,7 @@
  *
  */
 
-static char *rcsid =
-  "$Id$";
+static char *rcsid = "$Id$";
 
 /* action routines for output window
  */
@@ -495,22 +494,22 @@ ClearWarnings ()
 {
   Settings.RatWarn = False;
   ALLPIN_LOOP (PCB->Data, 
-      {
-	if (TEST_FLAG (WARNFLAG, pin))
-	  {
-	    CLEAR_FLAG (WARNFLAG, pin);
-	    DrawPin (pin, 0);
-	  }
-      }
+    {
+      if (TEST_FLAG (WARNFLAG, pin))
+	{
+	  CLEAR_FLAG (WARNFLAG, pin);
+	  DrawPin (pin, 0);
+	}
+    }
   );
   ALLPAD_LOOP (PCB->Data, 
-      {
-	if (TEST_FLAG (WARNFLAG, pad))
-	  {
-	    CLEAR_FLAG (WARNFLAG, pad);
-	    DrawPad (pad, 0);
-	  }
-      }
+    {
+      if (TEST_FLAG (WARNFLAG, pad))
+	{
+	  CLEAR_FLAG (WARNFLAG, pad);
+	  DrawPad (pad, 0);
+	}
+    }
   );
   UpdatePIPFlags (NULL, NULL, NULL, NULL, False);
   Draw ();
@@ -1219,16 +1218,16 @@ NotifyMode (void)
 
 	    TOGGLE_FLAG (LOCKFLAG, element);
 	    PIN_LOOP (element, 
-		{
-		  TOGGLE_FLAG (LOCKFLAG, pin);
-		  CLEAR_FLAG (SELECTEDFLAG, pin);
-		}
+	      {
+		TOGGLE_FLAG (LOCKFLAG, pin);
+		CLEAR_FLAG (SELECTEDFLAG, pin);
+	      }
 	    );
 	    PAD_LOOP (element, 
-		{
-		  TOGGLE_FLAG (LOCKFLAG, pad);
-		  CLEAR_FLAG (SELECTEDFLAG, pad);
-		}
+	      {
+		TOGGLE_FLAG (LOCKFLAG, pad);
+		CLEAR_FLAG (SELECTEDFLAG, pad);
+	      }
 	    );
 	    CLEAR_FLAG (SELECTEDFLAG, element);
 	    /* always re-draw it since I'm too lazy
@@ -2213,9 +2212,9 @@ ActionDisplay (Widget W, XEvent * Event, String * Params, Cardinal * Num)
 	case F_NameOnPCB:
 	case F_Description:
 	  ELEMENT_LOOP (PCB->Data, 
-	      {
-		EraseElementName (element);
-	      }
+	    {
+	      EraseElementName (element);
+	    }
 	  );
 	  CLEAR_FLAG (DESCRIPTIONFLAG | NAMEONPCBFLAG, PCB);
 	  switch (id)
@@ -2230,9 +2229,9 @@ ActionDisplay (Widget W, XEvent * Event, String * Params, Cardinal * Num)
 	      break;
 	    }
 	  ELEMENT_LOOP (PCB->Data, 
-	      {
-		DrawElementName (element, 0);
-	      }
+	    {
+	      DrawElementName (element, 0);
+	    }
 	  );
 	  Draw ();
 	  break;
@@ -2346,24 +2345,24 @@ ActionDisplay (Widget W, XEvent * Event, String * Params, Cardinal * Num)
 	      {
 	      case ELEMENT_TYPE:
 		PIN_LOOP ((ElementTypePtr) ptr1, 
-		    {
-		      if (TEST_FLAG (DISPLAYNAMEFLAG, pin))
-			ErasePinName (pin);
-		      else
-			DrawPinName (pin, 0);
-		      AddObjectToFlagUndoList (PIN_TYPE, ptr1, pin, pin);
-		      TOGGLE_FLAG (DISPLAYNAMEFLAG, pin);
-		    }
+		  {
+		    if (TEST_FLAG (DISPLAYNAMEFLAG, pin))
+		      ErasePinName (pin);
+		    else
+		      DrawPinName (pin, 0);
+		    AddObjectToFlagUndoList (PIN_TYPE, ptr1, pin, pin);
+		    TOGGLE_FLAG (DISPLAYNAMEFLAG, pin);
+		  }
 		);
 		PAD_LOOP ((ElementTypePtr) ptr1, 
-		    {
-		      if (TEST_FLAG (DISPLAYNAMEFLAG, pad))
-			ErasePadName (pad);
-		      else
-			DrawPadName (pad, 0);
-		      AddObjectToFlagUndoList (PAD_TYPE, ptr1, pad, pad);
-		      TOGGLE_FLAG (DISPLAYNAMEFLAG, pad);
-		    }
+		  {
+		    if (TEST_FLAG (DISPLAYNAMEFLAG, pad))
+		      ErasePadName (pad);
+		    else
+		      DrawPadName (pad, 0);
+		    AddObjectToFlagUndoList (PAD_TYPE, ptr1, pad, pad);
+		    TOGGLE_FLAG (DISPLAYNAMEFLAG, pad);
+		  }
 		);
 		SetChangedFlag (True);
 		IncrementUndoSerialNumber ();
@@ -2610,22 +2609,22 @@ ActionRipUp (Widget W, XEvent * Event, String * Params, Cardinal * Num)
 	{
 	case F_All:
 	  ALLLINE_LOOP (PCB->Data, 
-	      {
-		if (line->Flags & AUTOFLAG)
-		  {
-		    RemoveObject (LINE_TYPE, layer, line, line);
-		    changed = True;
-		  }
-	      }
+	    {
+	      if (line->Flags & AUTOFLAG)
+		{
+		  RemoveObject (LINE_TYPE, layer, line, line);
+		  changed = True;
+		}
+	    }
 	  );
 	  VIA_LOOP (PCB->Data, 
-	      {
-		if (via->Flags & AUTOFLAG)
-		  {
-		    RemoveObject (VIA_TYPE, via, via, via);
-		    changed = True;
-		  }
-	      }
+	    {
+	      if (via->Flags & AUTOFLAG)
+		{
+		  RemoveObject (VIA_TYPE, via, via, via);
+		  changed = True;
+		}
+	    }
 	  );
 
 	  if (changed)
@@ -2636,23 +2635,23 @@ ActionRipUp (Widget W, XEvent * Event, String * Params, Cardinal * Num)
 	  break;
 	case F_Selected:
 	  VISIBLELINE_LOOP (PCB->Data, 
-	      {
-		if ((line->Flags & AUTOFLAG) && (line->Flags & SELECTEDFLAG))
-		  {
-		    RemoveObject (LINE_TYPE, layer, line, line);
-		    changed = True;
-		  }
-	      }
+	    {
+	      if ((line->Flags & AUTOFLAG) && (line->Flags & SELECTEDFLAG))
+		{
+		  RemoveObject (LINE_TYPE, layer, line, line);
+		  changed = True;
+		}
+	    }
 	  );
 	  if (PCB->ViaOn)
 	    VIA_LOOP (PCB->Data, 
-	      {
-		if ((via->Flags & AUTOFLAG) && (via->Flags & SELECTEDFLAG))
-		  {
-		    RemoveObject (VIA_TYPE, via, via, via);
-		    changed = True;
-		  }
-	      }
+	    {
+	      if ((via->Flags & AUTOFLAG) && (via->Flags & SELECTEDFLAG))
+		{
+		  RemoveObject (VIA_TYPE, via, via, via);
+		  changed = True;
+		}
+	    }
 	  );
 	  if (changed)
 	    {
@@ -3103,20 +3102,20 @@ ActionToggleHideName (Widget W, XEvent * Event, String * Params,
 	  {
 	    Boolean changed = False;
 	    ELEMENT_LOOP (PCB->Data, 
-		{
-		  if ((TEST_FLAG (SELECTEDFLAG, element) ||
-		       TEST_FLAG (SELECTEDFLAG,
-				  &NAMEONPCB_TEXT (element)))
-		      && (FRONT (element) || PCB->InvisibleObjectsOn))
-		    {
-		      AddObjectToFlagUndoList (ELEMENT_TYPE, element,
-					       element, element);
-		      EraseElementName (element);
-		      TOGGLE_FLAG (HIDENAMEFLAG, element);
-		      DrawElementName (element, 0);
-		      changed = True;
-		    }
-		}
+	      {
+		if ((TEST_FLAG (SELECTEDFLAG, element) ||
+		     TEST_FLAG (SELECTEDFLAG,
+				&NAMEONPCB_TEXT (element)))
+		    && (FRONT (element) || PCB->InvisibleObjectsOn))
+		  {
+		    AddObjectToFlagUndoList (ELEMENT_TYPE, element,
+					     element, element);
+		    EraseElementName (element);
+		    TOGGLE_FLAG (HIDENAMEFLAG, element);
+		    DrawElementName (element, 0);
+		    changed = True;
+		  }
+	      }
 	    );
 	    if (changed)
 	      {

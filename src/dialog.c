@@ -24,8 +24,7 @@
  *
  */
 
-static char *rcsid =
-  "$Id$";
+static char *rcsid = "$Id$";
 
 /* dialog routines
  */

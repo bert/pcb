@@ -96,15 +96,15 @@ SearchViaByPosition (PinTypePtr * Via, PinTypePtr * Dummy1,
   /* search only if via-layer is visible */
   if (PCB->ViaOn)
     VIA_LOOP (PCB->Data, 
-      {
-	if (ScreenOnly && !VVIA (via))
-	  continue;
-	if (IsPointOnPin (PosX, PosY, SearchRadius, (PinTypePtr) via))
-	  {
-	    *Via = *Dummy1 = *Dummy2 = via;
-	    return (True);
-	  }
-      }
+    {
+      if (ScreenOnly && !VVIA (via))
+	continue;
+      if (IsPointOnPin (PosX, PosY, SearchRadius, (PinTypePtr) via))
+	{
+	  *Via = *Dummy1 = *Dummy2 = via;
+	  return (True);
+	}
+    }
   );
   return (False);
 }
@@ -120,20 +120,20 @@ SearchPinByPosition (ElementTypePtr * Element, PinTypePtr * Pin,
   /* search only if pin-layer is visible */
   if (PCB->PinOn)
     ELEMENT_LOOP (PCB->Data, 
-      {
-	if (ScreenOnly && !VELEMENT (element))
-	  continue;
-	PIN_LOOP (element, 
+    {
+      if (ScreenOnly && !VELEMENT (element))
+	continue;
+      PIN_LOOP (element, 
+	{
+	  if (IsPointOnPin (PosX, PosY, SearchRadius, pin))
 	    {
-	      if (IsPointOnPin (PosX, PosY, SearchRadius, pin))
-		{
-		  *Element = element;
-		  *Pin = *Dummy = pin;
-		  return (True);
-		}
+	      *Element = element;
+	      *Pin = *Dummy = pin;
+	      return (True);
 	    }
-	);
-      }
+	}
+      );
+    }
   );
   return (False);
 }
@@ -150,39 +150,39 @@ SearchPadByPosition (ElementTypePtr * Element, PadTypePtr * Pad,
   if (!PCB->PinOn)
     return (False);
   ELEMENT_LOOP (PCB->Data, 
-      {
-	if (ScreenOnly && !VELEMENT (element))
-	  continue;
-	PAD_LOOP (element, 
+    {
+      if (ScreenOnly && !VELEMENT (element))
+	continue;
+      PAD_LOOP (element, 
+	{
+	  if (FRONT (pad) || (BackToo & PCB->InvisibleObjectsOn))
 	    {
-	      if (FRONT (pad) || (BackToo & PCB->InvisibleObjectsOn))
+	      if (TEST_FLAG (SQUAREFLAG, pad))
 		{
-		  if (TEST_FLAG (SQUAREFLAG, pad))
+		  if (IsPointInSquarePad (PosX, PosY, SearchRadius, pad))
 		    {
-		      if (IsPointInSquarePad (PosX, PosY, SearchRadius, pad))
-			{
-			  *Element = element;
-			  *Pad = *Dummy = pad;
-			  return (True);
-			}
+		      *Element = element;
+		      *Pad = *Dummy = pad;
+		      return (True);
 		    }
-		  else
+		}
+	      else
+		{
+		  /* the cast isn't very nice but working, check
+		   * global.h for details
+		   */
+		  if (IsPointOnLine
+		      (PosX, PosY, SearchRadius, (LineTypePtr) pad))
 		    {
-		      /* the cast isn't very nice but working, check
-		       * global.h for details
-		       */
-		      if (IsPointOnLine
-			  (PosX, PosY, SearchRadius, (LineTypePtr) pad))
-			{
-			  *Element = element;
-			  *Pad = *Dummy = pad;
-			  return (True);
-			}
+		      *Element = element;
+		      *Pad = *Dummy = pad;
+		      return (True);
 		    }
 		}
 	    }
-	);
-      }
+	}
+      );
+    }
   );
   return (False);
 }
@@ -196,15 +196,15 @@ SearchLineByPosition (LayerTypePtr * Layer, LineTypePtr * Line,
 {
   *Layer = SearchLayer;
   LINE_LOOP (*Layer, 
-      {
-	if (ScreenOnly && !VLINE (line))
-	  continue;
-	if (IsPointOnLine (PosX, PosY, SearchRadius, line))
-	  {
-	    *Line = *Dummy = line;
-	    return (True);
-	  }
-      }
+    {
+      if (ScreenOnly && !VLINE (line))
+	continue;
+      if (IsPointOnLine (PosX, PosY, SearchRadius, line))
+	{
+	  *Line = *Dummy = line;
+	  return (True);
+	}
+    }
   );
   return (False);
 }
@@ -217,15 +217,15 @@ SearchRatLineByPosition (RatTypePtr * Line, RatTypePtr * Dummy1,
 			 RatTypePtr * Dummy2)
 {
   RAT_LOOP (PCB->Data, 
-      {
-	if (ScreenOnly && !VLINE (line))
-	  continue;
-	if (IsPointOnLine (PosX, PosY, SearchRadius, (LineTypePtr) line))
-	  {
-	    *Line = *Dummy1 = *Dummy2 = line;
-	    return (True);
-	  }
-      }
+    {
+      if (ScreenOnly && !VLINE (line))
+	continue;
+      if (IsPointOnLine (PosX, PosY, SearchRadius, (LineTypePtr) line))
+	{
+	  *Line = *Dummy1 = *Dummy2 = line;
+	  return (True);
+	}
+    }
   );
   return (False);
 }
@@ -239,15 +239,15 @@ SearchArcByPosition (LayerTypePtr * Layer, ArcTypePtr * Arc,
 {
   *Layer = SearchLayer;
   ARC_LOOP (*Layer, 
-      {
-	if (ScreenOnly && !VARC (arc))
-	  continue;
-	if (IsPointOnArc (PosX, PosY, SearchRadius, arc))
-	  {
-	    *Arc = *Dummy = arc;
-	    return (True);
-	  }
-      }
+    {
+      if (ScreenOnly && !VARC (arc))
+	continue;
+      if (IsPointOnArc (PosX, PosY, SearchRadius, arc))
+	{
+	  *Arc = *Dummy = arc;
+	  return (True);
+	}
+    }
   );
   return (False);
 }
@@ -261,16 +261,16 @@ SearchTextByPosition (LayerTypePtr * Layer, TextTypePtr * Text,
 {
   *Layer = SearchLayer;
   TEXT_LOOP (*Layer, 
-      {
-	if (ScreenOnly && !VTEXT (text))
-	  continue;
-	if (TEXT_IS_VISIBLE (PCB, *Layer, text) &&
-	    POINT_IN_BOX (PosX, PosY, &text->BoundingBox))
-	  {
-	    *Text = *Dummy = text;
-	    return (True);
-	  }
-      }
+    {
+      if (ScreenOnly && !VTEXT (text))
+	continue;
+      if (TEXT_IS_VISIBLE (PCB, *Layer, text) &&
+	  POINT_IN_BOX (PosX, PosY, &text->BoundingBox))
+	{
+	  *Text = *Dummy = text;
+	  return (True);
+	}
+    }
   );
   return (False);
 }
@@ -284,15 +284,15 @@ SearchPolygonByPosition (LayerTypePtr * Layer,
 {
   *Layer = SearchLayer;
   POLYGON_LOOP (*Layer, 
-      {
-	if (ScreenOnly && !VPOLY (polygon))
-	  continue;
-	if (IsPointInPolygon (PosX, PosY, SearchRadius, polygon))
-	  {
-	    *Polygon = *Dummy = polygon;
-	    return (True);
-	  }
-      }
+    {
+      if (ScreenOnly && !VPOLY (polygon))
+	continue;
+      if (IsPointInPolygon (PosX, PosY, SearchRadius, polygon))
+	{
+	  *Polygon = *Dummy = polygon;
+	  return (True);
+	}
+    }
   );
   return (False);
 }
@@ -312,30 +312,30 @@ SearchLinePointByPosition (LayerTypePtr * Layer, LineTypePtr * Line,
 						SearchRadius);
   *Layer = SearchLayer;
   LINE_LOOP (*Layer, 
-      {
-	if (ScreenOnly && !VLINE (line))
-	  continue;
-	/* some stupid code to check both points */
-	d = (PosX - line->Point1.X) * (PosX - line->Point1.X) +
-	  (PosY - line->Point1.Y) * (PosY - line->Point1.Y);
-	if (d < least)
-	  {
-	    least = d;
-	    *Line = line;
-	    *Point = &line->Point1;
-	    found = True;
-	  }
+    {
+      if (ScreenOnly && !VLINE (line))
+	continue;
+      /* some stupid code to check both points */
+      d = (PosX - line->Point1.X) * (PosX - line->Point1.X) +
+	(PosY - line->Point1.Y) * (PosY - line->Point1.Y);
+      if (d < least)
+	{
+	  least = d;
+	  *Line = line;
+	  *Point = &line->Point1;
+	  found = True;
+	}
 
-	d = (PosX - line->Point2.X) * (PosX - line->Point2.X) +
-	  (PosY - line->Point2.Y) * (PosY - line->Point2.Y);
-	if (d < least)
-	  {
-	    least = d;
-	    *Line = line;
-	    *Point = &line->Point2;
-	    found = True;
-	  }
-      }
+      d = (PosX - line->Point2.X) * (PosX - line->Point2.X) +
+	(PosY - line->Point2.Y) * (PosY - line->Point2.Y);
+      if (d < least)
+	{
+	  least = d;
+	  *Line = line;
+	  *Point = &line->Point2;
+	  found = True;
+	}
+    }
   );
   /* return with nearest */
   if (found)
@@ -359,25 +359,25 @@ SearchPointByPosition (LayerTypePtr * Layer,
 						   MAX_POLYGON_POINT_DISTANCE);
   *Layer = SearchLayer;
   POLYGON_LOOP (*Layer, 
-      {
-	if (ScreenOnly && !VPOLY (polygon))
-	  continue;
-	POLYGONPOINT_LOOP (polygon, 
+    {
+      if (ScreenOnly && !VPOLY (polygon))
+	continue;
+      POLYGONPOINT_LOOP (polygon, 
+	{
+	  d =
+	    (point->X - PosX) * (point->X -
+				 PosX) +
+	    (point->Y - PosY) * (point->Y - PosY);
+	  if (d < least)
 	    {
-		d =
-		  (point->X - PosX) * (point->X -
-				       PosX) +
-		  (point->Y - PosY) * (point->Y - PosY);
-		if (d < least)
-		  {
-		    least = d;
-		    *Polygon = polygon;
-		    *Point = point;
-		    found = True;
-		  }
+	      least = d;
+	      *Polygon = polygon;
+	      *Point = point;
+	      found = True;
 	    }
-	);
-      }
+	}
+      );
+    }
   );
   if (found)
     return (True);
@@ -399,22 +399,22 @@ SearchElementNameByPosition (ElementTypePtr * Element,
   if (PCB->ElementOn)
     {
       ELEMENT_LOOP (PCB->Data, 
-	  {
-	    if (ScreenOnly && !VELTEXT (element))
-	      continue;
-	    if ((FRONT (element)
-		 || (BackToo && PCB->InvisibleObjectsOn))
-		&& !TEST_FLAG (HIDENAMEFLAG, element))
-	      {
-		text = &ELEMENT_TEXT (PCB, element);
-		if (POINT_IN_BOX (PosX, PosY, &text->BoundingBox))
-		  {
-		    *Element = element;
-		    *Text = *Dummy = text;
-		    return (True);
-		  }
-	      }
-	  }
+	{
+	  if (ScreenOnly && !VELTEXT (element))
+	    continue;
+	  if ((FRONT (element)
+	       || (BackToo && PCB->InvisibleObjectsOn))
+	      && !TEST_FLAG (HIDENAMEFLAG, element))
+	    {
+	      text = &ELEMENT_TEXT (PCB, element);
+	      if (POINT_IN_BOX (PosX, PosY, &text->BoundingBox))
+		{
+		  *Element = element;
+		  *Text = *Dummy = text;
+		  return (True);
+		}
+	    }
+	}
       );
     }
   return (False);
@@ -442,32 +442,32 @@ SearchElementByPosition (ElementTypePtr * Element,
        * we have to check all of them
        */
       ELEMENT_LOOP (PCB->Data, 
-	  {
-	    if (ScreenOnly && !VELEMENT (element))
-	      continue;
-	    if (FRONT (element) || (BackToo && PCB->InvisibleObjectsOn))
-	      {
-		found = POINT_IN_BOX (PosX, PosY, &element->BoundingBox);
-		if (!TEST_FLAG (HIDENAMEFLAG, element))
-		  found |= POINT_IN_BOX (PosX, PosY,
-					 &element->
-					 Name[NAME_INDEX (PCB)].BoundingBox);
-		if (found)
-		  {
-		    long newarea;
-		    /* use the element with the smallest bounding box */
-		    newarea =
-		      (element->BoundingBox.X2 -
-		       element->BoundingBox.X1) * (element->BoundingBox.Y2 -
-						   element->BoundingBox.Y1);
-		    if (!save || newarea < area)
-		      {
-			area = newarea;
-			save = element;
-		      }
-		  }
-	      }
-	  }
+	{
+	  if (ScreenOnly && !VELEMENT (element))
+	    continue;
+	  if (FRONT (element) || (BackToo && PCB->InvisibleObjectsOn))
+	    {
+	      found = POINT_IN_BOX (PosX, PosY, &element->BoundingBox);
+	      if (!TEST_FLAG (HIDENAMEFLAG, element))
+		found |= POINT_IN_BOX (PosX, PosY,
+				       &element->
+				       Name[NAME_INDEX (PCB)].BoundingBox);
+	      if (found)
+		{
+		  long newarea;
+		  /* use the element with the smallest bounding box */
+		  newarea =
+		    (element->BoundingBox.X2 -
+		     element->BoundingBox.X1) * (element->BoundingBox.Y2 -
+						 element->BoundingBox.Y1);
+		  if (!save || newarea < area)
+		    {
+		      area = newarea;
+		      save = element;
+		    }
+		}
+	    }
+	}
       );
     }
   *Element = *Dummy1 = *Dummy2 = save;
@@ -771,16 +771,15 @@ IsPointInPolygon (float X, float Y, float Radius, PolygonTypePtr Polygon)
 
       /* POLYGONPOINT_LOOP decrements pointers !!! */
       POLYGONPOINT_LOOP (Polygon, 
-	  {
-	    if ((((ptr->Y <= Y) && (Y < point->Y)) ||
-		 ((point->Y <= Y) && (Y < ptr->Y))) &&
-		(X <
-		 ((float) (point->X - ptr->X) *
-		  (float) (Y - ptr->Y) / (float) (point->Y - ptr->Y) +
-		  ptr->X)))
-	      inside = !inside;
-	    ptr = point;
-          }
+	{
+	  if ((((ptr->Y <= Y) && (Y < point->Y)) ||
+	       ((point->Y <= Y) && (Y < ptr->Y))) &&
+	      (X <
+	       ((float) (point->X - ptr->X) *
+		(float) (Y - ptr->Y) / (float) (point->Y - ptr->Y) + ptr->X)))
+	    inside = !inside;
+	  ptr = point;
+	}
       );
 
       /* check the distance between the lines of the
@@ -798,12 +797,12 @@ IsPointInPolygon (float X, float Y, float Radius, PolygonTypePtr Polygon)
 
 	  /* POLYGONPOINT_LOOP decrements pointers !!! */
 	  POLYGONPOINT_LOOP (Polygon, 
-	      {
-		line.Point2 = *point;
-		if (IsPointOnLine (X, Y, Radius, &line))
-		  return (True);
-		line.Point1 = *point;
-	      }
+	    {
+	      line.Point2 = *point;
+	      if (IsPointOnLine (X, Y, Radius, &line))
+		return (True);
+	      line.Point1 = *point;
+	    }
 	  );
 
 	}
@@ -1109,119 +1108,119 @@ SearchObjectByID (DataTypePtr Base,
   if (type == LINE_TYPE || type == LINEPOINT_TYPE)
     {
       ALLLINE_LOOP (Base, 
-	  {
-	    if (line->ID == ID)
-	      {
-		*Result1 = (void *) layer;
-		*Result2 = *Result3 = (void *) line;
-		return (LINE_TYPE);
-	      }
-	    if (line->Point1.ID == ID)
-	      {
-		*Result1 = (void *) layer;
-		*Result2 = (void *) line;
-		*Result3 = (void *) &line->Point1;
-		return (LINEPOINT_TYPE);
-	      }
-	    if (line->Point2.ID == ID)
-	      {
-		*Result1 = (void *) layer;
-		*Result2 = (void *) line;
-		*Result3 = (void *) &line->Point2;
-		return (LINEPOINT_TYPE);
-	      }
-	  }
+	{
+	  if (line->ID == ID)
+	    {
+	      *Result1 = (void *) layer;
+	      *Result2 = *Result3 = (void *) line;
+	      return (LINE_TYPE);
+	    }
+	  if (line->Point1.ID == ID)
+	    {
+	      *Result1 = (void *) layer;
+	      *Result2 = (void *) line;
+	      *Result3 = (void *) &line->Point1;
+	      return (LINEPOINT_TYPE);
+	    }
+	  if (line->Point2.ID == ID)
+	    {
+	      *Result1 = (void *) layer;
+	      *Result2 = (void *) line;
+	      *Result3 = (void *) &line->Point2;
+	      return (LINEPOINT_TYPE);
+	    }
+	}
       );
     }
   if (type == ARC_TYPE)
     {
       ALLARC_LOOP (Base, 
-	  {
-	    if (arc->ID == ID)
-	      {
-		*Result1 = (void *) layer;
-		*Result2 = *Result3 = (void *) arc;
-		return (ARC_TYPE);
-	      }
-	  }
+	{
+	  if (arc->ID == ID)
+	    {
+	      *Result1 = (void *) layer;
+	      *Result2 = *Result3 = (void *) arc;
+	      return (ARC_TYPE);
+	    }
+	}
       );
     }
 
   if (type == TEXT_TYPE)
     {
       ALLTEXT_LOOP (Base, 
-	  {
-	    if (text->ID == ID)
-	      {
-		*Result1 = (void *) layer;
-		*Result2 = *Result3 = (void *) text;
-		return (TEXT_TYPE);
-	      }
-	  }
+	{
+	  if (text->ID == ID)
+	    {
+	      *Result1 = (void *) layer;
+	      *Result2 = *Result3 = (void *) text;
+	      return (TEXT_TYPE);
+	    }
+	}
       );
     }
 
   if (type == POLYGON_TYPE || type == POLYGONPOINT_TYPE)
     {
       ALLPOLYGON_LOOP (Base, 
-	  {
-	    if (polygon->ID == ID)
-	      {
-		*Result1 = (void *) layer;
-		*Result2 = *Result3 = (void *) polygon;
-		return (POLYGON_TYPE);
-	      }
-	    POLYGONPOINT_LOOP (polygon, 
+	{
+	  if (polygon->ID == ID)
+	    {
+	      *Result1 = (void *) layer;
+	      *Result2 = *Result3 = (void *) polygon;
+	      return (POLYGON_TYPE);
+	    }
+	  POLYGONPOINT_LOOP (polygon, 
+	    {
+	      if (point->ID == ID)
 		{
-		  if (point->ID == ID)
-		    {
-		      *Result1 = (void *) layer;
-		      *Result2 = (void *) polygon;
-		      *Result3 = (void *) point;
-		      return (POLYGONPOINT_TYPE);
-		    }
+		  *Result1 = (void *) layer;
+		  *Result2 = (void *) polygon;
+		  *Result3 = (void *) point;
+		  return (POLYGONPOINT_TYPE);
 		}
-	    );
-	  }
+	    }
+	  );
+	}
       );
     }
   if (type == VIA_TYPE)
     {
       VIA_LOOP (Base, 
-	  {
-	    if (via->ID == ID)
-	      {
-		*Result1 = *Result2 = *Result3 = (void *) via;
-		return (VIA_TYPE);
-	      }
-	  }
+	{
+	  if (via->ID == ID)
+	    {
+	      *Result1 = *Result2 = *Result3 = (void *) via;
+	      return (VIA_TYPE);
+	    }
+	}
       );
     }
 
   if (type == RATLINE_TYPE || type == LINEPOINT_TYPE)
     {
       RAT_LOOP (Base, 
-	  {
-	    if (line->ID == ID)
-	      {
-		*Result1 = *Result2 = *Result3 = (void *) line;
-		return (RATLINE_TYPE);
-	      }
-	    if (line->Point1.ID == ID)
-	      {
-		*Result1 = (void *) NULL;
-		*Result2 = (void *) line;
-		*Result3 = (void *) &line->Point1;
-		return (LINEPOINT_TYPE);
-	      }
-	    if (line->Point2.ID == ID)
-	      {
-		*Result1 = (void *) NULL;
-		*Result2 = (void *) line;
-		*Result3 = (void *) &line->Point2;
-		return (LINEPOINT_TYPE);
-	      }
-	  }
+	{
+	  if (line->ID == ID)
+	    {
+	      *Result1 = *Result2 = *Result3 = (void *) line;
+	      return (RATLINE_TYPE);
+	    }
+	  if (line->Point1.ID == ID)
+	    {
+	      *Result1 = (void *) NULL;
+	      *Result2 = (void *) line;
+	      *Result3 = (void *) &line->Point1;
+	      return (LINEPOINT_TYPE);
+	    }
+	  if (line->Point2.ID == ID)
+	    {
+	      *Result1 = (void *) NULL;
+	      *Result2 = (void *) line;
+	      *Result3 = (void *) &line->Point2;
+	      return (LINEPOINT_TYPE);
+	    }
+	}
       );
     }
 
@@ -1230,68 +1229,68 @@ SearchObjectByID (DataTypePtr Base,
       || type == ELEMENTARC_TYPE)
     /* check pins and elementnames too */
     ELEMENT_LOOP (Base, 
-      {
-	if (element->ID == ID)
-	  {
-	    *Result1 = *Result2 = *Result3 = (void *) element;
-	    return (ELEMENT_TYPE);
-	  }
-	if (type == ELEMENTLINE_TYPE)
-	  ELEMENTLINE_LOOP (element, 
+    {
+      if (element->ID == ID)
+	{
+	  *Result1 = *Result2 = *Result3 = (void *) element;
+	  return (ELEMENT_TYPE);
+	}
+      if (type == ELEMENTLINE_TYPE)
+	ELEMENTLINE_LOOP (element, 
+	{
+	  if (line->ID == ID)
 	    {
-	      if (line->ID == ID)
-		{
-		  *Result1 = (void *) element;
-		  *Result2 = *Result3 = (void *) line;
-		  return (ELEMENTLINE_TYPE);
-		}
+	      *Result1 = (void *) element;
+	      *Result2 = *Result3 = (void *) line;
+	      return (ELEMENTLINE_TYPE);
 	    }
-	);
-	if (type == ELEMENTARC_TYPE)
-	  ARC_LOOP (element, 
+	}
+      );
+      if (type == ELEMENTARC_TYPE)
+	ARC_LOOP (element, 
+	{
+	  if (arc->ID == ID)
 	    {
-	      if (arc->ID == ID)
-		{
-		  *Result1 = (void *) element;
-		  *Result2 = *Result3 = (void *) arc;
-		  return (ELEMENTARC_TYPE);
-		}
+	      *Result1 = (void *) element;
+	      *Result2 = *Result3 = (void *) arc;
+	      return (ELEMENTARC_TYPE);
 	    }
-	);
-	if (type == ELEMENTNAME_TYPE)
-	  ELEMENTTEXT_LOOP (element, 
+	}
+      );
+      if (type == ELEMENTNAME_TYPE)
+	ELEMENTTEXT_LOOP (element, 
+	{
+	  if (text->ID == ID)
 	    {
-	      if (text->ID == ID)
-		{
-		  *Result1 = (void *) element;
-		  *Result2 = *Result3 = (void *) text;
-		  return (ELEMENTNAME_TYPE);
-		}
+	      *Result1 = (void *) element;
+	      *Result2 = *Result3 = (void *) text;
+	      return (ELEMENTNAME_TYPE);
 	    }
-	);
-	if (type == PIN_TYPE)
-	  PIN_LOOP (element, 
+	}
+      );
+      if (type == PIN_TYPE)
+	PIN_LOOP (element, 
+	{
+	  if (pin->ID == ID)
 	    {
-	      if (pin->ID == ID)
-		{
-		  *Result1 = (void *) element;
-		  *Result2 = *Result3 = (void *) pin;
-		  return (PIN_TYPE);
-		}
+	      *Result1 = (void *) element;
+	      *Result2 = *Result3 = (void *) pin;
+	      return (PIN_TYPE);
 	    }
-	);
-	if (type == PAD_TYPE)
-	  PAD_LOOP (element, 
+	}
+      );
+      if (type == PAD_TYPE)
+	PAD_LOOP (element, 
+	{
+	  if (pad->ID == ID)
 	    {
-	      if (pad->ID == ID)
-		{
-		  *Result1 = (void *) element;
-		  *Result2 = *Result3 = (void *) pad;
-		  return (PAD_TYPE);
-		}
+	      *Result1 = (void *) element;
+	      *Result2 = *Result3 = (void *) pad;
+	      return (PAD_TYPE);
 	    }
-	);
-      }
+	}
+      );
+    }
   );
 
   Message ("hace: Internal error, search for ID %d failed\n", ID);
@@ -1308,14 +1307,14 @@ SearchElementByName (DataTypePtr Base, char *Name)
   ElementTypePtr result = NULL;
 
   ELEMENT_LOOP (Base, 
-      {
-	if (element->Name[1].TextString &&
-	    strcmp (element->Name[1].TextString, Name) == 0)
-	  {
-	    result = element;
-	    return (result);
-	  }
-      }
+    {
+      if (element->Name[1].TextString &&
+	  strcmp (element->Name[1].TextString, Name) == 0)
+	{
+	  result = element;
+	  return (result);
+	}
+    }
   );
   return result;
 }
