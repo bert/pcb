@@ -58,7 +58,7 @@ generic84_plcc:PLCC_SOCKET:PLCC 84 socket
 
 generic44_qfp:QFP:QFP 44
 generic44_qfp:OLD_QFP:QFP 44 OLD
-generic 208_lqfp:208_LQFP:QFP 208
+generic208_lqfp:208_LQFP:QFP 208
 menu_qfp:MENU_QFP:QFP menu
 generic80_qfp:QFP2:QFP 80
 generic16_zif:ZIF:ZIF 16
