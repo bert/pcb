@@ -3,6 +3,17 @@
 
 This briefly documents what is done to create a development snapshot.
 
+FIX_ME:  perhaps we should put the VERSION into configure.ac, run
+./autogen.sh, gmake, cvs ci -m 'set version to ..... for snapshot',
+gmake distcheck, put something else into VERSION, ./autogen.sh,
+cvs ci -m 'set version to .... for post-snapshot'.  Maybe something
+like 20040530 for a snapshot and then post20040530 or 20040530cvs or
+just go back to 1.99.  Maybe 20040530A and each time we bump the file
+format bump the rev to 20040530B, 20040530C, etc.  The goals would be
+to a) distinguish versions where the file format changed and hence
+you need at least version yyyyyy to read the file and also for the
+about... dialog to give a meaningful version.
+
 sh
 cvs update -PdA
 VERSION=`date +%Y%m%d`
