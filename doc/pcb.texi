@@ -10,6 +10,7 @@
 
 @ifinfo
 @format
+INFO-DIR-SECTION Miscellaneous
 START-INFO-DIR-ENTRY
 * pcb: (pcb).                   An interactive printed circuit board editor.
 END-INFO-DIR-ENTRY
