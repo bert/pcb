@@ -854,6 +854,7 @@ Optional Features:
   --disable-dependency-tracking  speeds up one-time build
   --enable-dependency-tracking   do not reject slow dependency extractors
   --enable-dmalloc        Compile and link with dmalloc for malloc debugging default=no
+  --enable-efence         Link with ElectricFence for malloc debugging default=no
 
 Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
@@ -7567,6 +7568,100 @@ else
 	echo "$as_me:$LINENO: result: no" >&5
 echo "${ECHO_T}no" >&6
 	DMALLOC_LIBS=""
+
+fi;
+
+# ------------- ElectricFence -------------------
+echo "$as_me:$LINENO: checking if ElectricFence debugging should be enabled" >&5
+echo $ECHO_N "checking if ElectricFence debugging should be enabled... $ECHO_C" >&6
+# Check whether --enable-efence or --disable-efence was given.
+if test "${enable_efence+set}" = set; then
+  enableval="$enable_efence"
+
+if test "X$enable_efence" != "Xno" ; then
+	echo "$as_me:$LINENO: result: yes" >&5
+echo "${ECHO_T}yes" >&6
+
+echo "$as_me:$LINENO: checking for main in -lefence" >&5
+echo $ECHO_N "checking for main in -lefence... $ECHO_C" >&6
+if test "${ac_cv_lib_efence_main+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lefence $X_LIBS $LIBS"
+cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+
+
+int
+main ()
+{
+main ();
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext conftest$ac_exeext
+if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
+  (eval $ac_link) 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+	 { ac_try='test -z "$ac_c_werror_flag"
+			 || test ! -s conftest.err'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; } &&
+	 { ac_try='test -s conftest$ac_exeext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  ac_cv_lib_efence_main=yes
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+ac_cv_lib_efence_main=no
+fi
+rm -f conftest.err conftest.$ac_objext \
+      conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+echo "$as_me:$LINENO: result: $ac_cv_lib_efence_main" >&5
+echo "${ECHO_T}$ac_cv_lib_efence_main" >&6
+if test $ac_cv_lib_efence_main = yes; then
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_LIBEFENCE 1
+_ACEOF
+
+  LIBS="-lefence $LIBS"
+
+else
+  { { echo "$as_me:$LINENO: error: You have requested ElectricFence debugging but -lefence could not be found" >&5
+echo "$as_me: error: You have requested ElectricFence debugging but -lefence could not be found" >&2;}
+   { (exit 1); exit 1; }; }
+fi
+
+else
+	echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6
+fi
+
+else
+
+echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6
 
 fi;
 

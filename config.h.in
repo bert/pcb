@@ -18,6 +18,9 @@
 /* Define to 1 if you have the `dmalloc' library (-ldmalloc). */
 #undef HAVE_LIBDMALLOC
 
+/* Define to 1 if you have the `efence' library (-lefence). */
+#undef HAVE_LIBEFENCE
+
 /* Define to 1 if you have the `fl' library (-lfl). */
 #undef HAVE_LIBFL
 
