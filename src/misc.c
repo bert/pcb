@@ -1445,12 +1445,12 @@ Concat (const char *first, ...)
 {
   char *rv;
   int len;
+  va_list a;
 
   len = strlen(first);
   rv = (char *) malloc (len + 1);
   strcpy (rv, first);
 
-  va_list a;
   va_start (a, first);
   while (1)
     {
