@@ -1,27 +1,66 @@
 #!/bin/sh
 #
+# $Id$
+#
 
-This briefly documents what is done to create a development snapshot.
+This documents what is done to create a pcb release
 
-FIX_ME:  perhaps we should put the VERSION into configure.ac, run
-./autogen.sh, gmake, cvs ci -m 'set version to ..... for snapshot',
-gmake distcheck, put something else into VERSION, ./autogen.sh,
-cvs ci -m 'set version to .... for post-snapshot'.  Maybe something
-like 20040530 for a snapshot and then post20040530 or 20040530cvs or
-just go back to 1.99.  Maybe 20040530A and each time we bump the file
-format bump the rev to 20040530B, 20040530C, etc.  The goals would be
-to a) distinguish versions where the file format changed and hence
-you need at least version yyyyyy to read the file and also for the
-about... dialog to give a meaningful version.
+After following the steps below,
+upload the 'pcb-$VERSION.tar.gz' file to the sourceforge file release system
 
-sh
-cvs update -PdA
-VERSION=`date +%Y%m%d`
-gmake distcheck VERSION=$VERSION
 
-#then if everything builds ok,
+To make a pcb release do the following:
 
-cvs tag snapshot-$VERSION
 
-# upload the 'pcb-$VERSION.tar.gz' file to the sourceforge file release system
+=)	# make sure it makes distfiles ok:
+	gmake distclean ; ./autogen.sh  && ./configure && gmake distcheck
+
+=)	cvs ci
+
+=)	if this is a major release, then tag and branch:
+
+	1. Tag the base of the release branch
+		cvs tag pcb-20040530-base 
+
+	2. Create the release branch
+		cvs tag -R -b -r pcb-20040530-base pcb-20040530
+
+	3. FIX_ME [fix up this step.  what shall we do with the version
+	   on the trunk?]
+	   On the trunk, update configure.ac to update the version
+		for example 1.99x after releasing 1.99w
+		cvs update -PdA
+		vi configure.ac
+		cvs ci configure.ac
+
+	4. On the release branch, update configure.ac to update the version
+		for example 20040530_ALPHA.  Now pre-release snapshots can be made.
+		cvs update -PdA -r pcb-20040530
+
+	5. If desired tag an alpha release:
+		cvs update -PdA -r pcb-20040530
+		./autogen.sh
+		cvs tag -R -r pcb-20040530 pcb-20040530-ALPHA
+		cvs update -PdA -r pcb-20040530-ALPHA
+		./autogen.sh && ./configure && gmake distcheck
+
+	6. When the release branch is ready to go,  update configure.ac to
+	   set the final release version.  Then tag the release.
+		cvs update -PdA -r pcb-20040530
+		vi configure.ac
+		cvs ci configure.ac
+		./autogen.sh
+		cvs ci
+		cvs tag -R -r pcb-20040530 pcb-20040530-RELEASE
+		cvs update -PdA -r pcb-20040530-RELEASE
+		./autogen.sh && ./configure && gmake distcheck
+
+	7. Return to your regularly scheduled trunk development
+		cvs update -PdA
+
+=) 	if this is a patch release, then simply make desired changes to the branch, and
+		./autogen.sh 
+		cvs tag -R -r pcb-20040530 pcb-20040530-PATCH001
+
+=)	gmake distclean ; ./autogen.sh && ./configure && gmake distcheck
 
