@@ -81,6 +81,21 @@ static void RightAngles (int, float *, float *);
 static void GetGridLockCoordinates (int, void *, void *, void *, Location *,
 				    Location *);
 
+
+/* Local variables */
+
+/* 
+ * Used by SaveStackAndVisibility() and 
+ * RestoreStackAndVisibility()
+ */
+
+static struct {
+  Boolean ElementOn, InvisibleObjectsOn, PinOn, ViaOn, RatOn;
+  int LayerStack[MAX_LAYER];
+  Boolean LayerOn[MAX_LAYER];
+  int cnt;
+} SavedStack;
+
 /* ---------------------------------------------------------------------------
  * prints copyright information
  */
@@ -1175,6 +1190,76 @@ ResetStackAndVisibility (void)
   PCB->PinOn = True;
   PCB->ViaOn = True;
   PCB->RatOn = True;
+}
+
+/* ---------------------------------------------------------------------------
+ * saves the layerstack setting
+ */
+void
+SaveStackAndVisibility (void)
+{
+  Cardinal i;
+  static Boolean run = False;
+
+  if ( run == False )
+    {
+      SavedStack.cnt = 0;
+      run = True;
+    }
+
+  if( SavedStack.cnt != 0 )
+    {
+      fprintf(stderr, "SaveStackAndVisibility()  layerstack was already saved and not"
+	      "yet restored.  cnt = %d\n", SavedStack.cnt);
+    }
+
+  for (i = 0; i < MAX_LAYER + 2; i++)
+    {
+      if (i < MAX_LAYER)
+	SavedStack.LayerStack[i] = LayerStack[i];
+      SavedStack.LayerOn[i] = PCB->Data->Layer[i].On;
+    }
+  SavedStack.ElementOn = PCB->ElementOn;
+  SavedStack.InvisibleObjectsOn = PCB->InvisibleObjectsOn;
+  SavedStack.PinOn = PCB->PinOn;
+  SavedStack.ViaOn = PCB->ViaOn;
+  SavedStack.RatOn = PCB->RatOn;
+  SavedStack.cnt++;
+}
+
+/* ---------------------------------------------------------------------------
+ * restores the layerstack setting
+ */
+void
+RestoreStackAndVisibility (void)
+{
+  Cardinal i;
+  
+  if (SavedStack.cnt == 0)
+    {
+      fprintf(stderr, "RestoreStackAndVisibility()  layerstack has not"
+	      " been saved.  cnt = %d\n", SavedStack.cnt);
+      return ;
+    }
+  else if (SavedStack.cnt != 1)
+    {
+      fprintf(stderr, "RestoreStackAndVisibility()  layerstack save count is"
+	      " wrong.  cnt = %d\n", SavedStack.cnt);
+    }
+
+  for (i = 0; i < MAX_LAYER + 2; i++)
+    {
+      if (i < MAX_LAYER)
+	LayerStack[i] = SavedStack.LayerStack[i];
+       PCB->Data->Layer[i].On = SavedStack.LayerOn[i];
+    }
+  PCB->ElementOn = SavedStack.ElementOn;
+  PCB->InvisibleObjectsOn = SavedStack.InvisibleObjectsOn;
+  PCB->PinOn = SavedStack.PinOn;
+  PCB->ViaOn = SavedStack.ViaOn;
+  PCB->RatOn = SavedStack.RatOn;
+
+  SavedStack.cnt--;
 }
 
 /* ----------------------------------------------------------------------

@@ -3630,6 +3630,7 @@ DRCAll (void)
 
   IsBad = False;
   drcerr_count = 0;
+  SaveStackAndVisibility ();
   ResetStackAndVisibility ();
   UpdateControlPanel ();
   InitConnectionLookup ();
@@ -3888,6 +3889,10 @@ DRCAll (void)
     {
       IncrementUndoSerialNumber ();
     }
+
+
+  RestoreStackAndVisibility ();
+  UpdateControlPanel ();
 
   return (drcerr_count);
 }
