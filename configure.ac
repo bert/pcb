@@ -144,6 +144,24 @@ fi
 	DMALLOC_LIBS=""
 ])
 
+# ------------- ElectricFence -------------------
+dnl ElectricFence checks
+AC_MSG_CHECKING([if ElectricFence debugging should be enabled])
+AC_ARG_ENABLE([efence],
+[  --enable-efence         Link with ElectricFence for malloc debugging [default=no]],
+[
+if test "X$enable_efence" != "Xno" ; then
+	AC_MSG_RESULT([yes])
+	AC_CHECK_LIB(efence,main,,
+		AC_ERROR([You have requested ElectricFence debugging but -lefence could not be found]), $X_LIBS)
+else
+	AC_MSG_RESULT([no])
+fi
+],
+[
+AC_MSG_RESULT([no])
+])
+
 # XXX fix this!!!
 #if [ test "x$prefix" = xNONE ]; then
 #	datadir=$ac_default_prefix/share
