@@ -141,7 +141,7 @@ ReportDialog (void)
       {
 	PinTypePtr via = (PinTypePtr) ptr2;
 	if (TEST_FLAG (HOLEFLAG, via))
-	  sprintf (&report[0], "VIA ID# %d  Flags:0x%08x\n"
+	  sprintf (&report[0], "VIA ID# %ld  Flags:0x%08lx\n"
 		   "(X,Y) = (%d, %d)\n"
 		   "It is a pure hole of diameter %0.2f mils\n"
 		   "Name = \"%s\""
@@ -149,7 +149,7 @@ ReportDialog (void)
 		   via->Y, via->DrillingHole / 100.0, EMPTY (via->Name),
 		   TEST_FLAG (LOCKFLAG, via) ? "It is LOCKED\n" : "");
 	else
-	  sprintf (&report[0], "VIA ID# %d   Flags:0x%08x\n"
+	  sprintf (&report[0], "VIA ID# %ld   Flags:0x%08lx\n"
 		   "(X,Y) = (%d, %d)\n"
 		   "Copper width = %0.2f mils  Drill width = %0.2f mils\n"
 		   "Clearance width in polygons = %0.2f mils\n"
@@ -174,7 +174,7 @@ ReportDialog (void)
 	  }
 	);
 	if (TEST_FLAG (HOLEFLAG, Pin))
-	  sprintf (&report[0], "PIN ID# %d  Flags:0x%08x\n"
+	  sprintf (&report[0], "PIN ID# %ld  Flags:0x%08lx\n"
 		   "(X,Y) = (%d, %d)\n"
 		   "It is a mounting hole, Drill width = %0.2f mils\n"
 		   "It is owned by element %s\n"
@@ -184,7 +184,7 @@ ReportDialog (void)
 		   TEST_FLAG (LOCKFLAG, Pin) ? "It is LOCKED\n" : "");
 	else
 	  sprintf (&report[0],
-		   "PIN ID# %d   Flags:0x%08x\n" "(X,Y) = (%d, %d)\n"
+		   "PIN ID# %ld   Flags:0x%08lx\n" "(X,Y) = (%d, %d)\n"
 		   "Copper width = %0.2f mils  Drill width = %0.2f mils\n"
 		   "Clearance width to Polygon = %0.2f mils\n"
 		   "Solder mask hole = %0.2f mils\n" "Name = \"%s\"\n"
@@ -200,10 +200,10 @@ ReportDialog (void)
     case LINE_TYPE:
       {
 	LineTypePtr line = (LineTypePtr) ptr2;
-	sprintf (&report[0], "LINE ID# %d   Flags:0x%08x\n"
-		 "FirstPoint(X,Y) = (%d, %d)  ID = %d\n"
-		 "SecondPoint(X,Y) = (%d, %d)  ID = %d\n"
-		 "Width = %0.2f mils. Clearance width in polygons = %0.2f mils.\n"
+	sprintf (&report[0], "LINE ID# %ld   Flags:0x%08lx\n"
+		 "FirstPoint(X,Y) = (%d, %d)  ID = %ld\n"
+		 "SecondPoint(X,Y) = (%d, %d)  ID = %ld\n"
+		 "Width = %0.2f mils.\nClearance width in polygons = %0.2f mils.\n"
 		 "It is on layer %d\n"
 		 "and has name %s\n"
 		 "%s",
@@ -221,10 +221,10 @@ ReportDialog (void)
     case RATLINE_TYPE:
       {
 	RatTypePtr line = (RatTypePtr) ptr2;
-	sprintf (&report[0], "RAT-LINE ID# %d   Flags:0x%08x\n"
-		 "FirstPoint(X,Y) = (%d, %d) ID = %d "
+	sprintf (&report[0], "RAT-LINE ID# %ld   Flags:0x%08lx\n"
+		 "FirstPoint(X,Y) = (%d, %d) ID = %ld "
 		 "connects to layer group %d\n"
-		 "SecondPoint(X,Y) = (%d, %d) ID = %d "
+		 "SecondPoint(X,Y) = (%d, %d) ID = %ld "
 		 "connects to layer group %d\n",
 		 line->ID, line->Flags,
 		 line->Point1.X, line->Point1.Y,
@@ -238,11 +238,11 @@ ReportDialog (void)
 	ArcTypePtr Arc = (ArcTypePtr) ptr2;
 	BoxTypePtr box = GetArcEnds (Arc);
 
-	sprintf (&report[0], "ARC ID# %d   Flags:0x%08x\n"
+	sprintf (&report[0], "ARC ID# %ld   Flags:0x%08lx\n"
 		 "CenterPoint(X,Y) = (%d, %d)\n"
 		 "Radius = %0.2f mils, Thickness = %0.2f mils\n"
 		 "Clearance width in polygons = %0.2f mils\n"
-		 "StartAngle = %d degrees, DeltaAngle = %d degrees\n"
+		 "StartAngle = %ld degrees, DeltaAngle = %ld degrees\n"
 		 "That makes the end points at (%d,%d) and (%d,%d)\n"
 		 "It is on layer %d\n"
 		 "%s", Arc->ID, Arc->Flags,
@@ -258,7 +258,7 @@ ReportDialog (void)
       {
 	PolygonTypePtr Polygon = (PolygonTypePtr) ptr2;
 
-	sprintf (&report[0], "POLYGON ID# %d   Flags:0x%08x\n"
+	sprintf (&report[0], "POLYGON ID# %ld   Flags:0x%08lx\n"
 		 "It has %d points and could store %d more\n"
 		 "without using more memory.\n"
 		 "It resides on layer %d\n"
@@ -282,10 +282,10 @@ ReportDialog (void)
 	    }
 	  }
 	);
-	sprintf (&report[0], "PAD ID# %d   Flags:0x%08x\n"
-		 "FirstPoint(X,Y) = (%d, %d)  ID = %d\n"
-		 "SecondPoint(X,Y) = (%d, %d)  ID = %d\n"
-		 "Width = %0.2f mils. Clearance width in polygons = %0.2f mils.\n"
+	sprintf (&report[0], "PAD ID# %ld   Flags:0x%08lx\n"
+		 "FirstPoint(X,Y) = (%d, %d)  ID = %ld\n"
+		 "SecondPoint(X,Y) = (%d, %d)  ID = %ld\n"
+		 "Width = %0.2f mils.\nClearance width in polygons = %0.2f mils.\n"
 		 "Solder mask width = %0.2f mils\n"
 		 "Name = \"%s\"\n"
 		 "It is owned by SMD element %s\n"
@@ -305,7 +305,7 @@ ReportDialog (void)
     case ELEMENT_TYPE:
       {
 	ElementTypePtr element = (ElementTypePtr) ptr2;
-	sprintf (&report[0], "ELEMENT ID# %d   Flags:0x%08x\n"
+	sprintf (&report[0], "ELEMENT ID# %ld   Flags:0x%08lx\n"
 		 "Descriptive Name \"%s\"\n"
 		 "Name on board \"%s\"\n"
 		 "Part number name \"%s\"\n"
@@ -331,7 +331,7 @@ ReportDialog (void)
 	if (type == TEXT_TYPE)
 	  sprintf (laynum, "is on layer %d",
 		   GetLayerNumber (PCB->Data, (LayerTypePtr) ptr1));
-	sprintf (&report[0], "TEXT ID# %d   Flags:0x%08x\n"
+	sprintf (&report[0], "TEXT ID# %ld   Flags:0x%08lx\n"
 		 "Located at (X,Y) = (%d,%d)\n"
 		 "Characters are %0.2f mils tall\n"
 		 "Value is \"%s\"\n"
@@ -351,7 +351,7 @@ ReportDialog (void)
     case POLYGONPOINT_TYPE:
       {
 	PointTypePtr point = (PointTypePtr) ptr2;
-	sprintf (&report[0], "POINT ID# %d Points don't have flags."
+	sprintf (&report[0], "POINT ID# %ld Points don't have flags."
 		 "Located at (X,Y) = (%d,%d)\n"
 		 "It belongs to a %s on layer %d\n", point->ID,
 		 point->X, point->Y,
