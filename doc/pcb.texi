@@ -28,7 +28,7 @@ Copyright (C) 1994,1995,1996 Thomas Nau
 
 Copyright (C) 1997, 1998, 1999, 2000, 2001, 2002 harry eaton
 
-Copyright (C) 2003 Dan McMahill
+Copyright (C) 2003, 2004 Dan McMahill
 
 This program is free software; you may redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -3684,6 +3684,18 @@ on the silk layer when you print the layout.
 @example
 None<Key>h:	ToggleHideName(Object)
 !Shift<Key>h:	ToggleHideName(SelectedElements)
+@end example
+
+@findex ToggleVisibility()
+@cindex toggle layer visilibility
+@cindex layer visibility, toggling
+@item ToggleVisibility(Layer)
+Toggles the visibility of the layer.
+@example
+Mod1<Key>1:	ToggleVisibility(1)
+Mod1<Key>2:	ToggleVisibility(2)
+Mod1<Key>3:	ToggleVisibility(3)
+Mod1<Key>4:	ToggleVisibility(4)
 @end example
 
 @findex Undo()
