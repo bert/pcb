@@ -3,7 +3,12 @@
 # $Id$
 #
 
-This documents what is done to create a pcb release
+This documents what is done to create a pcb release.  The releases now
+are done by branching the sources, fixing up the release version number
+in the branch and then tagging the release branch sources.  The motivation
+for a branch rather than a tag is to make it easier to deal with setting
+the snapshot version number in the documentation, distfile, and the
+about dialog box.  
 
 After following the steps below,
 upload the 'pcb-$VERSION.tar.gz' file to the sourceforge file release system
@@ -16,6 +21,11 @@ To make a pcb release do the following:
 	gmake distclean ; ./autogen.sh  && ./configure && gmake distcheck
 
 =)	cvs ci
+
+=)	update the ChangeLog with 'cvs2cl.pl'.  Check in changes
+
+=)	update the NEWS file with some sort of release notes
+	summary.  Check in changes
 
 =)	if this is a major release, then tag and branch:
 
@@ -53,14 +63,15 @@ To make a pcb release do the following:
 		cvs ci
 		cvs tag -R -r pcb-20040530 pcb-20040530-RELEASE
 		cvs update -PdA -r pcb-20040530-RELEASE
-		./autogen.sh && ./configure && gmake distcheck
+		./autogen.sh && gmake distcheck
 
 	7. Return to your regularly scheduled trunk development
 		cvs update -PdA
 
 =) 	if this is a patch release, then simply make desired changes to the branch, and
 		./autogen.sh 
+		cvs ci
 		cvs tag -R -r pcb-20040530 pcb-20040530-PATCH001
 
-=)	gmake distclean ; ./autogen.sh && ./configure && gmake distcheck
+=)	gmake distclean ; ./autogen.sh && gmake distcheck
 
