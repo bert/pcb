@@ -1329,6 +1329,7 @@ main (int argc, char *argv[])
   switch (--argc)
     {
     case 0:			/* only program name */
+      SetZoom(PCB->Zoom);
       break;
 
     case 1:			/* load an initial layout;
