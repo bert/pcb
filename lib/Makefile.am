@@ -92,6 +92,7 @@ INC_FILES= \
 	qfp2.inc \
 	qfpdj.inc \
 	resistor_adjust.inc \
+	rules.inc \
 	smt.inc \
 	to.inc \
 	zif.inc 
