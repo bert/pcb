@@ -63,7 +63,7 @@ static void DrawClipped (Region);
 static void StopAutoScroll (void);
 
 static XtIntervalId SxID = 0, SyID = 0;
-static Position LastX, LastY;
+static Location LastX, LastY;
 
 /* ----------------------------------------------------------------------
  * sets the size of the drawing area
@@ -161,8 +161,8 @@ CB_ScrollX (XtPointer unused, XtIntervalId * time)
 {
   SxID = 0;
   HideCrosshair (False);
-  CenterDisplay (LastX, 0, True);
-  MoveCrosshairRelative (TO_PCB (LastX), 0);
+  CenterDisplay (TO_SCREEN(LastX), 0, True);
+  MoveCrosshairRelative (LastX, 0);
   AdjustAttachedObjects ();
   RestoreCrosshair (False);
   LastX += SGN (LastX) * Settings.Grid;
@@ -174,8 +174,8 @@ CB_ScrollY (XtPointer unused, XtIntervalId * time)
 {
   SyID = 0;
   HideCrosshair (False);
-  CenterDisplay (0, LastY, True);
-  MoveCrosshairRelative (0, TO_PCB (LastY));
+  CenterDisplay (0, TO_SCREEN(LastY), True);
+  MoveCrosshairRelative (0, LastY);
   AdjustAttachedObjects ();
   RestoreCrosshair (False);
   LastY += SGN (LastY) * Settings.Grid;
