@@ -404,6 +404,9 @@ GBX_Preamble (PrintInitTypePtr Flags, char *Description)
   /* No errors have occurred so far. */
   GBX_ErrorOccurred = False;
 
+  /* Current Aperture is undefined as this is a new file. */
+  lastAperture = 0;
+
   /* ID the user. */
   pwentry = getpwuid (getuid ());
 
@@ -441,10 +444,17 @@ GBX_Invert (int mode)
       fprintf (GBX_Flags.FP, "%s", appList.Data);
       fprintf (GBX_Flags.FP, "%%LNGROUP_%d*%%\015\012%%%s*%%\015\012", theGroup,
 	       GBX_Flags.InvertFlag ? "LPC" : "LPD");
-      /* indicate straight lines */
+      /* indicate straight lines and set our initial position (0,0) */
       fprintf (GBX_Flags.FP, "G01X0Y0D02*\015\012");
+
+      /* initalize our current x,y location.  Note that in PCB,
+       * the upper left corner is 0,0 and positive Y extents
+       * downwards, however in photoplotterland 0,0 is lower left with 
+       * positive Y extending updards.  lastX,lastY are in PCB
+       * coordinates.
+       */
       lastX = 0;
-      lastY = 0;
+      lastY = PCB->MaxHeight;
       break;
     case 1:
       /* indicate negative image */
@@ -458,8 +468,15 @@ GBX_Invert (int mode)
 	       GBX_Flags.InvertFlag ? "LPD" : "LPC");
       /* indicate straight lines */
       fprintf (GBX_Flags.FP, "G01X0Y0D02*\015\012");
+
+      /* initalize our current x,y location.  Note that in PCB,
+       * the upper left corner is 0,0 and positive Y extents
+       * downwards, however in photoplotterland 0,0 is lower left with 
+       * positive Y extending updards.  lastX,lastY are in PCB
+       * coordinates.
+       */
       lastX = 0;
-      lastY = 0;
+      lastY = PCB->MaxHeight;
       break;
     case 2:
       fprintf (GBX_Flags.FP, "%%LNCUTS*%%\015\012%%%s*%%\015\012",
