@@ -22,7 +22,7 @@
 # 
 # 
 #
-#  Panasonit Specific Footprints
+#  Panasonic Specific Footprints
 
 
 # EXTRACT_BEGIN
