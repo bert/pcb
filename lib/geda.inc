@@ -200,6 +200,90 @@ define(`PKG_PLCC52X',  `PKG_PLCC_SOCKET(`$1', `$2', `$3', 52, 150)');
 define(`PKG_PLCC68X',  `PKG_PLCC_SOCKET(`$1', `$2', `$3', 68, 150)');
 define(`PKG_PLCC84X',  `PKG_PLCC_SOCKET(`$1', `$2', `$3', 84, 150)');
 
+##  Square Quad Flat Nolead (QFN) package
+#
+
+# 4x4 mm
+define(`PKG_QFN12_4',     `PKG_QFN_80(`$1',`$2',`$3', `12', `4', `0')')
+define(`PKG_TQFN12_4',    `PKG_QFN_80(`$1',`$2',`$3', `12', `4', `0')')
+define(`PKG_QFN12_4_EP',  `PKG_QFN_80(`$1',`$2',`$3', `12', `4', `210')')
+define(`PKG_TQFN12_4_EP', `PKG_QFN_80(`$1',`$2',`$3', `12', `4', `210')')
+
+define(`PKG_QFN16_4',     `PKG_QFN_65(`$1',`$2',`$3', `16', `4', `0')')
+define(`PKG_TQFN16_4',    `PKG_QFN_65(`$1',`$2',`$3', `16', `4', `0')')
+define(`PKG_QFN16_4_EP',  `PKG_QFN_65(`$1',`$2',`$3', `16', `4', `210')')
+define(`PKG_TQFN16_4_EP', `PKG_QFN_65(`$1',`$2',`$3', `16', `4', `210')')
+
+define(`PKG_QFN20_4',     `PKG_QFN_50(`$1',`$2',`$3', `20', `4', `0')')
+define(`PKG_TQFN20_4',    `PKG_QFN_50(`$1',`$2',`$3', `20', `4', `0')')
+define(`PKG_QFN20_4_EP',  `PKG_QFN_50(`$1',`$2',`$3', `20', `4', `210')')
+define(`PKG_TQFN20_4_EP', `PKG_QFN_50(`$1',`$2',`$3', `20', `4', `210')')
+
+define(`PKG_QFN24_4',     `PKG_QFN_50S(`$1',`$2',`$3', `24', `4', `0')')
+define(`PKG_TQFN24_4',    `PKG_QFN_50S(`$1',`$2',`$3', `24', `4', `0')')
+define(`PKG_QFN24_4_EP',  `PKG_QFN_50S(`$1',`$2',`$3', `24', `4', `210')')
+define(`PKG_TQFN24_4_EP', `PKG_QFN_50S(`$1',`$2',`$3', `24', `4', `260')')
+
+# 5x5 mm
+define(`PKG_QFN16_5',     `PKG_QFN_80(`$1',`$2',`$3', `16', `5', `0')')
+define(`PKG_TQFN16_5',    `PKG_QFN_80(`$1',`$2',`$3', `16', `5', `0')')
+define(`PKG_QFN16_5_EP',  `PKG_QFN_80(`$1',`$2',`$3', `16', `5', `310')')
+define(`PKG_TQFN16_5_EP', `PKG_QFN_80(`$1',`$2',`$3', `16', `5', `310')')
+
+define(`PKG_QFN20_5',     `PKG_QFN_65(`$1',`$2',`$3', `20', `5', `0')')
+define(`PKG_TQFN20_5',    `PKG_QFN_65(`$1',`$2',`$3', `20', `5', `0')')
+define(`PKG_QFN20_5_EP',  `PKG_QFN_65(`$1',`$2',`$3', `20', `5', `310')')
+define(`PKG_TQFN20_5_EP', `PKG_QFN_65(`$1',`$2',`$3', `20', `5', `310')')
+
+define(`PKG_QFN28_5',     `PKG_QFN_50(`$1',`$2',`$3', `28', `5', `0')')
+define(`PKG_TQFN28_5',    `PKG_QFN_50(`$1',`$2',`$3', `28', `5', `0')')
+define(`PKG_QFN28_5_EP',  `PKG_QFN_50(`$1',`$2',`$3', `28', `5', `310')')
+define(`PKG_TQFN28_5_EP', `PKG_QFN_50(`$1',`$2',`$3', `28', `5', `325')')
+
+define(`PKG_QFN32_5',     `PKG_QFN_50S(`$1',`$2',`$3', `32', `5', `0')')
+define(`PKG_TQFN32_5',    `PKG_QFN_50S(`$1',`$2',`$3', `32', `5', `0')')
+define(`PKG_QFN32_5_EP',  `PKG_QFN_50S(`$1',`$2',`$3', `32', `5', `310')')
+define(`PKG_TQFN32_5_EP', `PKG_QFN_50S(`$1',`$2',`$3', `32', `5', `310')')
+
+# 6x6 mm
+define(`PKG_QFN36_6',     `PKG_QFN_50(`$1',`$2',`$3', `36', `6', `0')')
+define(`PKG_TQFN36_6',    `PKG_QFN_50(`$1',`$2',`$3', `36', `6', `0')')
+define(`PKG_QFN36_6_EP',  `PKG_QFN_50(`$1',`$2',`$3', `36', `6', `370')')
+define(`PKG_TQFN36_6_EP', `PKG_QFN_50(`$1',`$2',`$3', `36', `6', `370')')
+
+define(`PKG_QFN40_6',     `PKG_QFN_50S(`$1',`$2',`$3', `40', `6', `0')')
+define(`PKG_TQFN40_6',    `PKG_QFN_50S(`$1',`$2',`$3', `40', `6', `0')')
+define(`PKG_QFN40_6_EP',  `PKG_QFN_50S(`$1',`$2',`$3', `40', `6', `410')')
+define(`PKG_TQFN40_6_EP', `PKG_QFN_50S(`$1',`$2',`$3', `40', `6', `410')')
+
+# 7x7 mm
+define(`PKG_QFN32_7',     `PKG_QFN_65(`$1',`$2',`$3', `32', `7', `0')')
+define(`PKG_TQFN32_7',    `PKG_QFN_65(`$1',`$2',`$3', `32', `7', `0')')
+define(`PKG_QFN32_7_EP',  `PKG_QFN_65(`$1',`$2',`$3', `32', `7', `470')')
+define(`PKG_TQFN32_7_EP', `PKG_QFN_65(`$1',`$2',`$3', `32', `7', `470')')
+
+define(`PKG_QFN44_7',     `PKG_QFN_50(`$1',`$2',`$3', `44', `7', `0')')
+define(`PKG_TQFN44_7',    `PKG_QFN_50(`$1',`$2',`$3', `44', `7', `0')')
+define(`PKG_QFN44_7_EP',  `PKG_QFN_50(`$1',`$2',`$3', `44', `7', `470')')
+define(`PKG_TQFN44_7_EP', `PKG_QFN_50(`$1',`$2',`$3', `44', `7', `470')')
+
+define(`PKG_QFN48_7',     `PKG_QFN_50S(`$1',`$2',`$3', `48', `7', `0')')
+define(`PKG_TQFN48_7',    `PKG_QFN_50S(`$1',`$2',`$3', `48', `7', `0')')
+define(`PKG_QFN48_7_EP',  `PKG_QFN_50S(`$1',`$2',`$3', `48', `7', `560')')
+define(`PKG_TQFN48_7_EP', `PKG_QFN_50S(`$1',`$2',`$3', `48', `7', `560')')
+
+# 8x8 mm
+define(`PKG_QFN56_8',     `PKG_QFN_50S(`$1',`$2',`$3', `56', `8', `0')')
+define(`PKG_TQFN56_8',    `PKG_QFN_50S(`$1',`$2',`$3', `56', `8', `0')')
+define(`PKG_QFN56_8_EP',  `PKG_QFN_50S(`$1',`$2',`$3', `56', `8', `665')')
+define(`PKG_TQFN56_8_EP', `PKG_QFN_50S(`$1',`$2',`$3', `56', `8', `665')')
+
+# 10x10 mm
+define(`PKG_QFN68_10',     `PKG_QFN_50(`$1',`$2',`$3', `68', `10', `0')')
+define(`PKG_TQFN68_10',    `PKG_QFN_50(`$1',`$2',`$3', `68', `10', `0')')
+define(`PKG_QFN68_10_EP',  `PKG_QFN_50(`$1',`$2',`$3', `68', `10', `770')')
+define(`PKG_TQFN68_10_EP', `PKG_QFN_50(`$1',`$2',`$3', `68', `10', `770')')
+
 #
 ##  Square Quad-side flat pack
 #   QFP 32,44,56,64,80,100,128,160,208,240,272,304

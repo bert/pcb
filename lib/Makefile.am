@@ -86,6 +86,7 @@ INC_FILES= \
 	misc.inc \
 	pci.inc \
 	plcc.inc \
+	qfn.inc \
 	qfp.inc \
 	qfp2.inc \
 	qfpdj.inc \
