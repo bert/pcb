@@ -79,7 +79,7 @@ Pcb.libraryFilename:        @libraryfilename@
 Pcb.libraryPath:            .:@pcblibdir@
 Pcb.libraryTree:            @pcbtreedir@
 Pcb.lineThickness:          1000
-Pcb.media:                  a4
+Pcb.media:                  letter
 Pcb.offLimitColor:          gray80
 Pcb.pinColor:               gray30
 Pcb.pinSelectedColor:       cyan

@@ -624,7 +624,7 @@ typedef struct				/* needs and abilities of a driver */
 	Boolean		MirrorFlag,	/* several flags */
 			RotateFlag,
 			InvertFlag;
-	Dimension	OffsetX,	/* offset from lower/left corner */
+	BDimension	OffsetX,	/* offset from lower/left corner */
 			OffsetY;
 	float		Scale;		/* scaleing */
 	BoxType		BoundingBox;	/* bounding box of output */

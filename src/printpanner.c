@@ -38,6 +38,7 @@ static char *rcsid =
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <strings.h>
 #include <ctype.h>
 
 #include "global.h"
@@ -63,14 +64,14 @@ static Dimension SliderWidth,	/* errors caused by slider */
 static MediaTypePtr MediaSelection = NULL;	/* selected media */
 static MediaType Media[] = {	/* first one is user defined */
   {USERMEDIANAME, 0, 0, 0, 0},
-  {"  a3  ", 11690, 16530, 500, 500},
-  {"  a4  ", 8260, 11690, 500, 500},
-  {"  a5  ", 5830, 8260, 500, 500},
-  {"letter", 8500, 11000, 500, 500},
-  {"11x17", 11000, 17000, 500, 500},
-  {"ledger", 17000, 11000, 500, 500},
-  {"legal", 8500, 14000, 500, 500},
-  {"executivepage", 7500, 10000, 500, 500}
+  {"  a3  ", 1169000, 1653000, 50000, 50000},
+  {"  a4  ", 826000, 1169000, 50000, 50000},
+  {"  a5  ", 583000, 826000, 50000, 50000},
+  {"letter", 850000, 1100000, 50000, 50000},
+  {"11x17", 1100000, 1700000, 50000, 50000},
+  {"ledger", 1700000, 1100000, 50000, 50000},
+  {"legal", 850000, 1400000, 50000, 50000},
+  {"executivepage", 750000, 1000000, 50000, 50000}
 };
 static PopupEntryType MediaMenuEntries[ENTRIES (Media) + 1];
 static PopupMenuType MediaMenu =
@@ -120,7 +121,7 @@ static void
 CB_Media (Widget W, XtPointer ClientData, XtPointer CallData)
 {
   char size[80];
-  Dimension mediawidth, mediaheight;
+  BDimension mediawidth, mediaheight;
 
   /* print visible size of media */
   MediaSelection = (MediaTypePtr) ClientData;
@@ -128,16 +129,16 @@ CB_Media (Widget W, XtPointer ClientData, XtPointer CallData)
   mediaheight = MediaSelection->Height - 2 * MediaSelection->MarginY;
   sprintf (size, "media size:     %4.2f\" x %4.2f\"\n"
 	   "with margin: %4.2f\" x %4.2f\"\n",
-	   (float) MediaSelection->Width / 1000.0,
-	   (float) MediaSelection->Height / 1000.0,
-	   (float) mediawidth / 1000.0, (float) mediaheight / 1000.0);
+	   (float) MediaSelection->Width / 100000.0,
+	   (float) MediaSelection->Height / 100000.0,
+	   (float) mediawidth / 100000.0, (float) mediaheight / 100000.0);
 
   /* update widgets */
   XtVaSetValues (MediaMenuButton.W, XtNlabel, MediaSelection->Name, NULL);
   XtVaSetValues (SizeField, XtNlabel, size, NULL);
   XtVaSetValues (Panner,
-		 XtNcanvasHeight, mediaheight,
-		 XtNcanvasWidth, mediawidth, NULL);
+		 XtNcanvasHeight, mediaheight/100,
+		 XtNcanvasWidth, mediawidth/100, NULL);
 }
 
 /* ---------------------------------------------------------------------------
@@ -167,10 +168,10 @@ static void
 CB_Report (Widget W, XtPointer ClientData, XtPointer CallData)
 {
   XawPannerReport *report = (XawPannerReport *) CallData;
-  Dimension mediawidth, mediaheight;
+  BDimension mediawidth, mediaheight;
 
-  mediawidth = MediaSelection->Width - 2 * MediaSelection->MarginX;
-  mediaheight = MediaSelection->Height - 2 * MediaSelection->MarginY;
+  mediawidth = (MediaSelection->Width - 2 * MediaSelection->MarginX)/100;
+  mediaheight =(MediaSelection->Height - 2 * MediaSelection->MarginY)/100;
   SliderX = report->slider_x - (mediawidth - report->slider_width) / 2;
   SliderY = report->slider_y - (mediaheight - report->slider_height) / 2;
   PrintPannerSetSliderPosition (SliderX, SliderY);
@@ -224,8 +225,8 @@ PrintPannerCreate (Widget Parent, Widget Top, Widget Left)
    * layout has already be checked to be non-empty
    */
   box = GetDataBoundingBox (PCB->Data);
-  PCBWidth = box->X2 - box->X1;
-  PCBHeight = box->Y2 - box->Y1;
+  PCBWidth = (box->X2 - box->X1)/100;
+  PCBHeight = (box->Y2 - box->Y1)/100;
   CB_Media (NULL, (XtPointer) MediaSelection, NULL);
   return (masterform);
 }
@@ -243,10 +244,10 @@ PrintPannerSetSliderPosition (Position OffsetX, Position OffsetY)
   SliderY = OffsetY;
   XtVaGetValues (Panner,
 		 XtNsliderWidth, &width, XtNsliderHeight, &height, NULL);
-  OffsetX +=
-    ((MediaSelection->Width - 2 * MediaSelection->MarginX - width) / 2);
-  OffsetY +=
-    ((MediaSelection->Height - 2 * MediaSelection->MarginY - height) / 2);
+  OffsetX += 
+    ((MediaSelection->Width - 2 * MediaSelection->MarginX - 100 * (int)width) / 200);
+  OffsetY += 
+    ((MediaSelection->Height - 2 * MediaSelection->MarginY - 100 * (int)height) / 200);
   XtVaSetValues (Panner, XtNsliderX, OffsetX, XtNsliderY, OffsetY, NULL);
 }
 
@@ -264,17 +265,12 @@ InitDefaultMedia (void)
   /* check if the passed string is equal to a known media type
    * first entry is user defined, last one holds a zero pointer only
    */
+  MediaSelection = Media + 1;
   for (i = 1; i < ENTRIES (Media) - 1; i++)
     {
-      p1 = Media[i].Name;
-      p2 = Settings.Media;
-
-      /* ignore case */
-      for (; *p1 && *p2 && (tolower (*p1) == tolower (*p2)); p1++, p2++);
-
-      /* found a match */
-      if (*p1 == *p2)
-	break;
+      if (strcasecmp (Media[i].Name, Settings.Media) == 0)
+        break;
+      MediaSelection++;
     }
 
   if (MediaSelection != &Media[ENTRIES (Media) - 1])
@@ -299,8 +295,8 @@ InitDefaultMedia (void)
 	  (i & XValue) || (i & YValue))
 	{
 	  /* failed; use default setting (a4), no margin */
-	  width = 8260;
-	  height = 11690;
+	  width = 826000;
+	  height = 1169000;
 	  x = y = 0;
 	}
     }
@@ -322,12 +318,12 @@ PrintPannerUpdate (float Scale, Boolean RotateFlag, Boolean OutlineFlag,
 		   Boolean AlignmentFlag)
 {
   /* scale layout size */
-  SliderWidth = OutlineFlag ? PCB->MaxWidth : PCBWidth;
-  SliderHeight = OutlineFlag ? PCB->MaxHeight : PCBHeight;
+  SliderWidth = OutlineFlag ? PCB->MaxWidth/100 : PCBWidth;
+  SliderHeight = OutlineFlag ? PCB->MaxHeight/100 : PCBHeight;
   if (AlignmentFlag)
     {
-      SliderWidth += 2 * Settings.AlignmentDistance;
-      SliderHeight += 2 * Settings.AlignmentDistance;
+      SliderWidth += Settings.AlignmentDistance / 50;
+      SliderHeight += Settings.AlignmentDistance / 50;
     }
   if (RotateFlag)
     {

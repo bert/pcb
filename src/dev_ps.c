@@ -504,7 +504,7 @@ PS_EPS_Init (PrintInitTypePtr Flags, char *Description, Boolean CreateEPS)
   else
     {
       PS_Flags.OffsetY = PS_Flags.SelectedMedia->Height - PS_Flags.OffsetY;
-      PS_Flags.OffsetY -= (Dimension) (PS_Flags.RotateFlag ? dx : dy);
+      PS_Flags.OffsetY -= (BDimension) (PS_Flags.RotateFlag ? dx : dy);
       fputs ("%!PS-Adobe-3.0\n", PS_Flags.FP);
     }
   fprintf (PS_Flags.FP, "%%%%Title: %s, %s\n", UNKNOWN (PCB->Name),

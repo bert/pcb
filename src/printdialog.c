@@ -496,8 +496,8 @@ PrintDialog (void)
       PrintPannerGetSliderPosition (&offsetx, &offsety);
       PrintPannerGetSize (&width, &height);
       media = PrintPannerGetMedia ();
-      offsetx += ((media->Width - width) / 2);
-      offsety += ((media->Height - height) / 2);
+      offsetx += ((media->Width/100 - width) / 2);
+      offsety += ((media->Height/100 - height) / 2);
     }
   else
     {
@@ -521,5 +521,5 @@ PrintDialog (void)
     Print (PCB->PrintFilename, Scale,
 	   mirrorflag, RotateFlag, colorflag, invertflag,
 	   OutlineFlag, AlignmentFlag, drillhelperflag, DOSFilenames,
-	   DeviceSelection, media, offsetx, offsety, silkscreentextflag);
+	   DeviceSelection, media, (Location)offsetx * 100, (Location)offsety * 100, silkscreentextflag);
 }
