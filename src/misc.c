@@ -128,6 +128,12 @@ Copyright (void)
 void
 Usage (void)
 {
+  /*
+   * since we're going to exit, we want to make sure this message goes
+   * to the original stderr 
+   */
+  RestoreStderr ();
+
   fprintf (stderr,
 	   "\nUSAGE: %s [standard X options] [standard options] [layout]\n"
 	   "or   : %s [standard X options] <exactly one special option>\n\n"
