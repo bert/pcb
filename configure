@@ -3100,8 +3100,8 @@ fi
 done
 
 
-# Extract the first word of "wish", so it can be a program name with args.
-set dummy wish; ac_word=$2
+# Extract the first word of "wish wish83 wish8.3 wish80 wish8.0 cygwish83 cygwish80", so it can be a program name with args.
+set dummy wish wish83 wish8.3 wish80 wish8.0 cygwish83 cygwish80; ac_word=$2
 echo "$as_me:$LINENO: checking for $ac_word" >&5
 echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6
 if test "${ac_cv_path_WISH+set}" = set; then
