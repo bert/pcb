@@ -79,15 +79,15 @@ struct rtree
 {
    struct rtree_node *root;
    int size;			/* not really necessary, but save the size */
-   BoxType **managed;		/* a list of managed boxes for disposal */
+   const BoxType **managed;	/* a list of managed boxes for disposal */
    size_t m_size;		/* the size of the manage memory */
    unsigned m_count;		/* how many managed pointers */
 };
 
 typedef struct
 {
-  BoxType *bptr,		/* pointer to the box */
-  	  bounds;		/* copy of the box for locality of reference */
+  const BoxType *bptr;		/* pointer to the box */
+  BoxType       bounds;		/* copy of the box for locality of reference */
 } Rentry;
 
 struct rtree_node
@@ -348,7 +348,7 @@ sort_node(struct rtree_node *node)
  * so we can free them when it is destroyed
  */
 static void
-move_to_manage(rtree_t *seed, BoxType *b)
+move_to_manage(rtree_t *seed, const BoxType *b)
 {
   if (sizeof(*b) * (1+seed->m_count) > seed->m_size)
     {
@@ -440,7 +440,7 @@ __r_destroy_tree (struct rtree_node *node)
         if (!node->u.rects[i].bptr)
           break;
         if (node->flags.manage & flag)
-          free ( node->u.rects[i].bptr);
+          free ((void *)node->u.rects[i].bptr);
 	flag = flag << 1;
       }
   else
@@ -458,12 +458,12 @@ void
 r_destroy_tree (rtree_t ** rtree)
 {
   unsigned i;
-  BoxType **b;
+  const BoxType **b;
 
   __r_destroy_tree((*rtree)->root);
   b = (*rtree)->managed;
   for (i = 0; i < (*rtree)->m_count; i++)
-    free(*b++);
+    free ((void*)*b++);
   free (*rtree);
   *rtree = NULL;
 }
@@ -940,7 +940,7 @@ __r_delete(rtree_t * seed, struct rtree_node * node, const BoxType * query)
 	     /* if this is us being removed, free and copy over */
 	   if (node->u.kids[i] == (struct rtree_node *)query)
 	     {
-	       free(query);
+	       free((void *)query);
 	       for ( ; i < M_SIZE; i++)
 	         {
 	           node->u.kids[i] = node->u.kids[i+1];
@@ -1049,7 +1049,7 @@ r_delete_entry(rtree_t *rtree, const BoxType *box)
 }
 
 int
-__r_sub (struct rtree_node *node, BoxType *b, BoxType *a)
+__r_sub (struct rtree_node *node, const BoxType *b, const BoxType *a)
 {
   int i;
   
