@@ -19,8 +19,12 @@ ssh
 To bootstrap and build you will need recent versions of:
 
 autoconf  -- ftp://ftp.gnu.org/pub/gnu/autoconf/
+             Please note that version 2.13 is too old.
 automake  -- ftp://ftp.gnu.org/pub/gnu/automake/
 texinfo   -- ftp://ftp.gnu.org/pub/gnu/texinfo/
+
+You can find the version of autoconf and automake by running them with the 
+--version flag.
 
 In addition you will need a C compiler, a lex (or flex) and a yacc (or bison)
 implementation.  If you do not have lex or yacc, try installing:
