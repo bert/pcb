@@ -461,6 +461,8 @@ static PopupEntryType ConnectionMenuEntries[] = {
   {"eraseRats", "erase rats-nest", CB_Action,
    "DeleteRats,AllRats", NULL},
   {"line", NULL, NULL, NULL, NULL},
+  {"autoroute", "auto-route selected rats", CB_Action,
+   "AutoRoute,Selected", NULL},
   {"autoroute", "auto-route all rats", CB_Action,
    "AutoRoute,AllRats", NULL},
   {"ripup", "rip up all auto-routed tracks", CB_Action,
