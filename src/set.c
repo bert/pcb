@@ -164,23 +164,21 @@ SetGrid (float Grid, Boolean align)
 * sets new zoom factor, adapts size of viewport and centers the cursor
 */
 void
-SetZoom (int Zoom)
+SetZoom (float Zoom)
 {
   int old_x, old_y;
 
-  /* special argument of 1000 zooms to extents */
-  if (Zoom == 1000)
+  /* special argument of 1000 zooms to extents plus 10 percent */
+  if (Zoom == 1000.0)
     {
       BoxTypePtr box = GetDataBoundingBox (PCB->Data);
       if (!box)
 	return;
       Zoom =
-	1 + log (0.01 * (float) (box->X2 - box->X1) / Output.Width) / log (1.41421356);
+	logf (0.011 * (float) (box->X2 - box->X1) / Output.Width) / LN_2_OVER_2;
       Zoom =
-	MAX (Zoom,
-	     1 +
-	     log (0.01 * (float) (box->Y2 - box->Y1) / Output.Height) /
-	     log (1.41421356));
+	MAX (Zoom, logf (0.011 * (float) (box->Y2 - box->Y1) / Output.Height) /
+	     LN_2_OVER_2);
       Crosshair.X = (box->X1 + box->X2) / 2;
       Crosshair.Y = (box->Y1 + box->Y2) / 2;
       old_x = Output.Width / 2;
@@ -193,6 +191,7 @@ SetZoom (int Zoom)
     }
   Zoom = MAX (MIN_ZOOM, Zoom);
   Zoom = MIN (MAX_ZOOM, Zoom);
+  Zoom_Multiplier = 0.01/expf(Zoom * LN_2_OVER_2);
 
   /* redraw only if something changed */
   if (PCB->Zoom != Zoom)

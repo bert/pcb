@@ -36,7 +36,7 @@
 void		SetCursorStatusLine(void);
 void		SetStatusLine(void);
 void		SetGrid(float, Boolean);
-void		SetZoom(int);
+void		SetZoom(float);
 void		SetLineSize(BDimension);
 void		SetViaSize(BDimension, Boolean);
 void		SetViaDrillingHole(BDimension, Boolean);

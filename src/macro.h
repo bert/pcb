@@ -54,7 +54,7 @@
 #define SATURATE(x)             ((x) > 32767 ? 32767 : ((x) < -32767 ? -32767 : (x)))
 
 #ifndef	TO_SCREEN
-#define	TO_SCREEN(x)		((Position)SATURATE((x)/Zoom_divisor[PCB->Zoom + 12]))
+#define	TO_SCREEN(x)		((Position)SATURATE((x)*Zoom_Multiplier))
 #endif
 
 #define	TO_SCREEN_X(x)		TO_SCREEN((SWAP_IDENT ? SWAP_X(x) : (x)) - Xorig)
@@ -71,7 +71,7 @@
 #define	TO_SCREEN_SIGN_Y(y)	(SWAP_IDENT ? SWAP_SIGN_Y(y) : (y))
 
 #ifndef	TO_PCB
-#define	TO_PCB(x)		((Location)((x)*Zoom_divisor[PCB->Zoom + 12]))
+#define	TO_PCB(x)		((Location)((x)/Zoom_Multiplier))
 #endif
 #define	TO_PCB_X(x)		TO_PCB(x) + Xorig
 #define	TO_PCB_Y(y)		(SWAP_IDENT ? \
@@ -123,12 +123,18 @@
 	(a)->BoundingBox.X2 >= vxl && \
 	(a)->BoundingBox.Y1 <= vyh && \
 	(a)->BoundingBox.Y2 >= vyl)
-#define VPOLY(p) 	((p)->BoundingBox.X1 <= vxh && \
+#define VPOLY(p) 	(IsRectangleInPolygon(vxl, vyl, vxh, vyh, (p)))
+/* (p)->BoundingBox.X1 <= vxh && \
 	(p)->BoundingBox.X2 >= vxl && \
 	(p)->BoundingBox.Y1 <= vyh && \
 	(p)->BoundingBox.Y2 >= vyl)
+*/
 #define VVIA(v) 	((v)->X+(v)->Thickness >= vxl && (v)->X - (v)->Thickness <= vxh && \
 			(v)->Y+(v)->Thickness >= vyl && (v)->Y - (v)->Thickness  <= vyh)
+#define VTHERM(v) 	((v)->X + (v)->Thickness + (v)->Clearance >= vxl && \
+			(v)->X - (v)->Thickness - (v)->Clearance <= vxh && \
+			(v)->Y + (v)->Thickness + (v)->Thickness >= vyl && \
+			(v)->Y - (v)->Thickness - (v)->Clearance <= vyh)
 
 /* ---------------------------------------------------------------------------
  * layer macros

@@ -36,7 +36,7 @@
 void	Draw(void);
 void	RedrawOutput(void);
 void	ClearAndRedrawOutput(void);
-Boolean	SwitchDrawingWindow(int, Window, Boolean, Boolean);
+Boolean	SwitchDrawingWindow(float, Window, Boolean, Boolean);
 void	ClearPin(PinTypePtr, int, int);
 void	DrawVia(PinTypePtr, int);
 void	DrawRat(RatTypePtr, int);

@@ -62,7 +62,7 @@ extern	char			*yyfilename;	/* in this file */
 
 %union									/* define YYSTACK type */
 {
-	unsigned	number;
+	int		number;
 	float		floating;
 	char		*string;
 }
@@ -240,6 +240,12 @@ pcbcursor
 				yyPCB->Zoom = $5*2;
 			}
 		| T_CURSOR '[' NUMBER NUMBER NUMBER ']'
+			{
+				yyPCB->CursorX = $3;
+				yyPCB->CursorY = $4;
+				yyPCB->Zoom = $5;
+			}
+		| T_CURSOR '[' NUMBER NUMBER FLOAT ']'
 			{
 				yyPCB->CursorX = $3;
 				yyPCB->CursorY = $4;

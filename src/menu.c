@@ -755,6 +755,7 @@ CBPOPUP_Sizes (Widget W, XtPointer ClientData, XtPointer CallData)
 static void
 CBPOPUP_Display (Widget W, XtPointer ClientData, XtPointer CallData)
 {
+  int zoom;
   RemoveCheckFromMenu (&DisplayMenu);
   XtSetSensitive (XtNameToWidget (DisplayMenu.W, "displayGrid"),
 		  GetGridFactor () != 0);
@@ -764,7 +765,10 @@ CBPOPUP_Display (Widget W, XtPointer ClientData, XtPointer CallData)
     CheckEntry (&DisplayMenu, "showMask");
   if (Settings.ShowSolderSide)
     CheckEntry (&DisplayMenu, "solderSide");
-  switch (PCB->Zoom)
+  zoom = (int)(PCB->Zoom + 0.5);
+  if (abs(PCB->Zoom - zoom) > 0.1)
+    zoom = -8; /* not close enough to integer value */
+  switch (zoom)
     {
     case -4:
       CheckEntry (&DisplayMenu, "zoom25");
@@ -786,6 +790,8 @@ CBPOPUP_Display (Widget W, XtPointer ClientData, XtPointer CallData)
       break;
     case 8:
       CheckEntry (&DisplayMenu, "zoom16");
+      break;
+    default:
       break;
     }
   CheckEntry (&DisplayMenu,

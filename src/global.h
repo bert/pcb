@@ -371,15 +371,15 @@ typedef struct		/* holds information about board layout */
 			ConnectedColor,
 			WarnColor,
                         MaskColor;
-	long int		Zoom,			/* zoom factor (factor = 1 << zoom) */
-			CursorX,		/* cursor position as saved with layout */
+	long int        CursorX,		/* cursor position as saved with layout */
 			CursorY,
 			Clipping;
 	BDimension	GridOffsetX,	/* as saves with layout */
 			GridOffsetY,
 			MaxWidth,		/* allowed size */
 			MaxHeight;
-	float		Grid;			/* used grid with offsets */
+	float		Grid,			/* used grid with offsets */
+			Zoom;			/* zoom factor */
 	FontType	Font;
 	LayerGroupType	LayerGroups;
 	RouteStyleType	RouteStyle[NUM_STYLES];
@@ -498,10 +498,10 @@ typedef struct			/* some resources... */
 			AlignmentDistance,
 			Bloat,			/* drc sizes */
 			Shrink;
-	float		Grid;			/* grid 0.001'' */
-	long int		Zoom,			/* number of shift operations for zooming */
-			PinoutZoom,		/* same for pinout windows */
-			PinoutNameLength,	/* max displayed length of a pinname */
+	float		Grid,			/* grid 0.001'' */
+			Zoom,			/* number of shift operations for zooming */
+			PinoutZoom;		/* same for pinout windows */
+	long int	PinoutNameLength,	/* max displayed length of a pinname */
 			Volume,			/* the speakers volume -100..100 */
 			CharPerLine,	/* width of an output line in characters */
 			Mode,			/* currently active mode */

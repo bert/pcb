@@ -68,7 +68,8 @@ typedef struct			/* information of one window */
     Output,			/* output widget managed by a viewport widget */
     Enlarge,			/* enlarge button */
     Shrink;			/* shrink button */
-  int Zoom;			/* zoom factor of window */
+  float Zoom,			/* zoom factor of window */
+    scale;			/* scale factor of zoom */
   Location MaxX,		/* size of used drawing area independend */
     MaxY;			/* from zoom setting */
 }
@@ -81,6 +82,7 @@ static void CB_Dismiss (Widget, XtPointer, XtPointer);
 static void CB_ShrinkOrEnlarge (Widget, XtPointer, XtPointer);
 static void RedrawPinoutWindow (PinoutTypePtr);
 static void PinoutEvent (Widget, XtPointer, XEvent *, Boolean *);
+
 
 /* ---------------------------------------------------------------------------
  * creates a new window to display an elements pinout
@@ -147,6 +149,7 @@ PinoutWindow (Widget Parent, ElementTypePtr Element)
 		       -pinout->Element.BoundingBox.Y1 +
 		       Settings.PinoutOffsetY);
   pinout->Zoom = Settings.PinoutZoom;
+  pinout->scale = 1./(100. * exp(pinout->Zoom * LN_2_OVER_2));
   pinout->MaxX = pinout->Element.BoundingBox.X2 + Settings.PinoutOffsetX;
   pinout->MaxY = pinout->Element.BoundingBox.Y2 + Settings.PinoutOffsetY;
   ELEMENTLINE_LOOP (&pinout->Element, 
@@ -189,9 +192,9 @@ PinoutWindow (Widget Parent, ElementTypePtr Element)
 					    viewport,
 					    XtNresizable, True,
 					    XtNwidth,
-					    pinout->MaxX >> pinout->Zoom,
+					    (Dimension) (pinout->MaxX * pinout->scale),
 					    XtNheight,
-					    pinout->MaxY >> pinout->Zoom,
+					    (Dimension) (pinout->MaxY * pinout->scale),
 					    NULL);
   dismiss =
     XtVaCreateManagedWidget ("dismiss", commandWidgetClass, masterform,
@@ -299,11 +302,11 @@ CB_ShrinkOrEnlarge (Widget W, XtPointer ClientData, XtPointer CallData)
   PinoutTypePtr pinout = (PinoutTypePtr) ClientData;
 
   if (W == pinout->Shrink && pinout->Zoom < MAX_ZOOM)
-    pinout->Zoom++;
+    pinout->Zoom += 1.0;
   if (W == pinout->Enlarge && pinout->Zoom > MIN_ZOOM)
-    pinout->Zoom--;
+    pinout->Zoom -= 1.0;
   XtVaSetValues (pinout->Output,
-		 XtNwidth, pinout->MaxX >> pinout->Zoom,
-		 XtNheight, pinout->MaxY >> pinout->Zoom, NULL);
+		 XtNwidth, (Dimension)(pinout->MaxX * pinout->scale),
+		 XtNheight, (Dimension)(pinout->MaxY * pinout->scale), NULL);
   RedrawPinoutWindow (pinout);
 }

@@ -64,5 +64,5 @@ extern	Window		LogWindID;
 extern	Location	Xorig, Yorig;
 extern	Boolean		render;
 extern	Location	vxl, vxh, vyl, vyh;
-extern	float		Zoom_divisor[13];
+extern	float		Zoom_Multiplier;
 #endif

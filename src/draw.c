@@ -37,10 +37,11 @@ static char *rcsid = "$Id$";
 #endif
 
 #define	SWAP_IDENT		SwapOutput
-#define TO_SCREEN(a)	((Position)SATURATE((a)/Zoom_divisor[ZoomValue + 12]))
+#define TO_SCREEN(a)	((Position)SATURATE((a)*Local_Zoom))
 #define XORIG dxo
 #define YORIG dyo
 
+#include <math.h>
 #include "global.h"
 
 #include "crosshair.h"
@@ -69,7 +70,8 @@ FloatPolyType, *FloatPolyTypePtr;
 /* ---------------------------------------------------------------------------
  * some local identifiers
  */
-static int ZoomValue;		/* zoom, drawable and mirror */
+static int ZoomValue;		/* zoom for pin fonts */
+static float Local_Zoom;	/* zoom factor */
 static Window DrawingWindow;	/* flag common to all */
 static Boolean SwapOutput;	/* all drawing routines */
 static XPoint Outline[MAX_SIZE + 1][8];
@@ -295,13 +297,18 @@ Redraw (Boolean ClearWindow)
  * setup of zoom and output window for the next drawing operations
  */
 Boolean
-SwitchDrawingWindow (int Zoom, Window OutputWindow, Boolean Swap,
+SwitchDrawingWindow (float Zoom, Window OutputWindow, Boolean Swap,
 		     Boolean Gather)
 {
   Boolean oldGather = Gathering;
 
   Gathering = Gather;
-  ZoomValue = Zoom;
+  Local_Zoom = 0.01/expf(Zoom * LN_2_OVER_2);
+  if (Zoom < 0)
+    Zoom = 0;
+  if (Zoom > 4)
+    Zoom = 4;
+  ZoomValue = (int)Zoom;
   DrawingWindow = OutputWindow;
   if (OutputWindow == Offscreen || OutputWindow == Output.OutputWindow)
     {
@@ -314,12 +321,8 @@ SwitchDrawingWindow (int Zoom, Window OutputWindow, Boolean Swap,
       dyo = 0;
     }
   SwapOutput = Swap;
-  if (Zoom < 0)
-    Zoom = 0;
-  if (Zoom > 4)
-    Zoom = 4;
-  XSetFont (Dpy, Output.fgGC, Settings.PinoutFont[Zoom]->fid);
-  XSetFont (Dpy, Output.bgGC, Settings.PinoutFont[Zoom]->fid);
+  XSetFont (Dpy, Output.fgGC, Settings.PinoutFont[ZoomValue]->fid);
+  XSetFont (Dpy, Output.bgGC, Settings.PinoutFont[ZoomValue]->fid);
   InitSpecialPolygon ();
   return (oldGather);
 }
@@ -612,13 +615,13 @@ DrawLayer (LayerTypePtr Layer, int unused)
 	  PIPFlag = L0THERMFLAG << layernum;
 	  ALLPIN_LOOP (PCB->Data, 
 	    {
-	      if (TEST_FLAG (PIPFlag, pin))
+	      if (TEST_FLAG (PIPFlag, pin) && VTHERM(pin))
 		ThermPin (Layer, pin);
 	    }
 	  );
 	  VIA_LOOP (PCB->Data, 
 	    {
-	      if (TEST_FLAG (PIPFlag, via))
+	      if (TEST_FLAG (PIPFlag, via) && VTHERM(via))
 		ThermPin (Layer, via);
 	    }
 	  );
@@ -1115,7 +1118,7 @@ DrawVText (int x, int y, int w, int h, int de, char *str)
   /* draw into pixmap */
   XFillRectangle (Dpy, pm, gc, 0, 0, w, h);
   XSetForeground (Dpy, gc, 1);
-  XSetFont (Dpy, gc, Settings.PinoutFont[MIN (MAX (0, ZoomValue), 4)]->fid);
+  XSetFont (Dpy, gc, Settings.PinoutFont[ZoomValue]->fid);
   XDrawString (Dpy, pm, gc, 0, h - de, str,
 	       MIN (Settings.PinoutNameLength, strlen (str)));
 
@@ -1142,7 +1145,7 @@ DrawPinOrViaNameLowLevel (PinTypePtr Ptr)
   char *name;
 
   name = EMPTY (TEST_FLAG (SHOWNUMBERFLAG, PCB) ? Ptr->Number : Ptr->Name);
-  XTextExtents (Settings.PinoutFont[MIN (MAX (0, ZoomValue), 4)],
+  XTextExtents (Settings.PinoutFont[ZoomValue],
 		name, MIN (Settings.PinoutNameLength, strlen (name)),
 		&direction, &ascent, &descent, &overall);
   if (TEST_FLAG (EDGE2FLAG, Ptr))
@@ -1291,7 +1294,7 @@ DrawPadNameLowLevel (PadTypePtr Pad)
 
   name = EMPTY (TEST_FLAG (SHOWNUMBERFLAG, PCB) ? Pad->Number : Pad->Name);
 
-  XTextExtents (Settings.PinoutFont[MIN (MAX (0, ZoomValue), 4)], name,
+  XTextExtents (Settings.PinoutFont[ZoomValue], name,
 		MIN (Settings.PinoutNameLength, strlen (name)),
 		&direction, &ascent, &descent, &overall);
   /* should text be vertical ? */

@@ -290,8 +290,8 @@ WritePCBDataHeader (FILE * FP)
   fprintf (FP, "Grid[%2.8f %i %i %i]\n",
 	   PCB->Grid, (int) PCB->GridOffsetX, (int) PCB->GridOffsetY,
 	   (int) Settings.DrawGrid);
-  fprintf (FP, "Cursor[%i %i %i]\n", (int) TO_PCB_X (Output.Width / 2),
-	   (int) TO_PCB_Y (Output.Height / 2), (int) PCB->Zoom);
+  fprintf (FP, "Cursor[%i %i %f]\n", (int) TO_PCB_X (Output.Width / 2),
+	   (int) TO_PCB_Y (Output.Height / 2), PCB->Zoom);
   fprintf (FP, "Flags(0x%016x)\n", (int) PCB->Flags);
   fputs ("Groups(\"", FP);
   for (group = 0; group < MAX_LAYER; group++)
