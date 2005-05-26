@@ -3559,6 +3559,13 @@ fi
   test -n "$M4" && break
 done
 
+if test "X$M4" = "Xnone" ; then
+	{ { echo "$as_me:$LINENO: error: Did not find a m4 executible.  You need to make sure
+	that m4 is installed on your system and that m4 is in your path" >&5
+echo "$as_me: error: Did not find a m4 executible.  You need to make sure
+	that m4 is installed on your system and that m4 is in your path" >&2;}
+   { (exit 1); exit 1; }; }
+fi
 
 for ac_prog in wish wish83 wish8.3 wish80 wish8.0 cygwish83 cygwish80
 do
