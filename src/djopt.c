@@ -267,20 +267,22 @@ gridsnap (int n)
   return n - n % (int) (Settings.Grid);
 }
 
+/* Avoid commonly used names. */
+
 static int
-abs (int x)
+djabs (int x)
 {
   return x > 0 ? x : -x;
 }
 
 static int
-max (int x, int y)
+djmax (int x, int y)
 {
   return x > y ? x : y;
 }
 
 static int
-min (int x, int y)
+djmin (int x, int y)
 {
   return x < y ? x : y;
 }
@@ -310,9 +312,9 @@ static int
 line_length (line_s * l)
 {
   if (l->s->x == l->e->x)
-    return abs (l->s->y - l->e->y);
+    return djabs (l->s->y - l->e->y);
   if (l->s->y == l->e->y)
-    return abs (l->s->x - l->e->x);
+    return djabs (l->s->x - l->e->x);
   return dist (l->s->x, l->s->y, l->e->x, l->e->y);
 }
 
@@ -325,7 +327,7 @@ dist_ltp2 (int dx, int y, int y1, int y2)
     return dist (dx, y, 0, y1);
   if (y > y2)
     return dist (dx, y, 0, y2);
-  return abs (dx);
+  return djabs (dx);
 }
 
 int
@@ -675,12 +677,12 @@ corner_radius (corner_s * c)
   int diam = 0;
   int i;
   if (c->pin)
-    diam = max (c->pin->Thickness, diam);
+    diam = djmax (c->pin->Thickness, diam);
   if (c->via)
-    diam = max (c->via->Thickness, diam);
+    diam = djmax (c->via->Thickness, diam);
   for (i = 0; i < c->n_lines; i++)
     if (c->lines[i]->line)
-      diam = max (c->lines[i]->line->Thickness, diam);
+      diam = djmax (c->lines[i]->line->Thickness, diam);
   diam = (diam + 1) / 2;
   return diam;
 }
@@ -1326,7 +1328,7 @@ orthopull_1 (corner_s * c, int fdir, int rdir, int any_sel)
 		continue; \
 	      if (cb->Y LT cs[i]->Y) \
 		continue; \
-	      sep = abs(cb->Y - cs[i]->Y) - r1 - r2 - SB - 1; \
+	      sep = djabs(cb->Y - cs[i]->Y) - r1 - r2 - SB - 1; \
 	      if (max > sep) \
 		{ max = sep; snap = 1; }\
 	    } \
@@ -1336,7 +1338,7 @@ orthopull_1 (corner_s * c, int fdir, int rdir, int any_sel)
 		continue; \
 	      if (cb->X <= cs[i]->X || cb->X >= cs[i+1]->X) \
 		continue; \
-	      sep = (abs(cb->Y - cs[i]->Y) - ls[i]->line->Thickness/2 \
+	      sep = (djabs(cb->Y - cs[i]->Y) - ls[i]->line->Thickness/2 \
 		     - r1 - SB - 1); \
 	      if (max > sep) \
 		{ max = sep; snap = 1; }\
@@ -2495,10 +2497,10 @@ pinsnap ()
 	  else if (c->pad)
 	    {
 	      close = c->pad->Thickness / 2 + 1;
-	      left = min (c->pad->Point1.X, c->pad->Point2.X) - close;
-	      right = max (c->pad->Point1.X, c->pad->Point2.X) + close;
-	      bottom = min (c->pad->Point1.Y, c->pad->Point2.Y) - close;
-	      top = max (c->pad->Point1.Y, c->pad->Point2.Y) + close;
+	      left = djmin (c->pad->Point1.X, c->pad->Point2.X) - close;
+	      right = djmax (c->pad->Point1.X, c->pad->Point2.X) + close;
+	      bottom = djmin (c->pad->Point1.Y, c->pad->Point2.Y) - close;
+	      top = djmax (c->pad->Point1.Y, c->pad->Point2.Y) + close;
 	      if (c->pad->Point1.X == c->pad->Point2.X)
 		{
 		  int hy = (c->pad->Point1.Y + c->pad->Point2.Y) / 2;
