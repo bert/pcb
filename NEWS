@@ -1,5 +1,44 @@
 
 ========================================================================
+Release Notes for PCB snapshot 20050609
+========================================================================
+
+- **** The GUI is now based on gtk2 instead of Xaw ****  This represents
+  a fairly major change.  You will now need gtk-2.2 or higher installed
+  along with any of its dependencies to build pcb.  On linux
+  distributions, it is probably the case that you already have this.
+  For *BSD, Solaris, and others, you may want to use NetBSD's pkgsrc
+  to help install gtk2 and its dependencies.
+
+- Flags are stored symbolically in the .pcb file.  This is the start
+  of moving to support >8 layers.  Please note that >8 layer support
+  is not yet available in this snapshot.
+
+- Fixes for gcc-4
+
+- As part of the switch to gtk2, the user customizable menu feature has
+  been temporarily broken.  Hopefully this will be fixed by the next
+  snapshot.  In addition, the loading of background images has also been
+  temporarily broken.
+
+========================================================================
+Release Notes for PCB snapshot 20050315
+========================================================================
+
+- Several footprint library fixes including TO-220 parse errors and
+  incorrect drill holes on several componenets.
+
+- Fixed a crashing bug in the pinout window.
+
+- Allow the FAB author to be set via an Xresource to override what
+  PCB might have gotten from the gecos information.
+
+- Added table of standard drill sizes to the manual.
+
+- Fixed a crashing bug when trying to use arrow keys to adjust the scale
+  slider in the print dialog box.
+
+========================================================================
 Release Notes for PCB snapshot 20050127
 ========================================================================
 
