@@ -1,3 +1,143 @@
+2005-06-08 18:02  danmc
+
+	* globalconst.h: reduce minimum board size from 1.2 to 0.6 inches
+
+2005-06-08 08:37  danmc
+
+	* src/Makefile.in: regen [add missing strflags.h]
+
+2005-06-08 08:36  danmc
+
+	* src/Makefile.am: add missing strflags.h
+
+2005-06-08 07:34  danmc
+
+	* configure: regen
+
+2005-06-08 07:33  danmc
+
+	* configure.ac: make sure we still set the X library rpath (yes, it
+	  is still possible to use --disable-rpath debian folks).
+
+2005-06-07 21:34  danmc
+
+	* src/: draw.c, global.h, gui-config.c, gui-output-events.c,
+	  gui-top-window.c, gui-utils.c, main.c: convert several c++ style
+	  comments to c comments.  not all compilers like //
+
+2005-06-03 15:03  djdelorie
+
+	* src/djopt.c: Avoid name conflict with abs/min/max
+
+2005-05-25 23:32  danmc
+
+	* configure: regen [error out if m4 not found]
+
+2005-05-25 23:25  danmc
+
+	* configure.ac: error out if m4 is not found
+
+2005-03-27 20:22  djdelorie
+
+	* src/strflags.c: Fix the "all pads are ovals" bug.
+
+2005-03-20 21:57  djdelorie
+
+	* src/strflags.c: Minor bugfixes related to error handling
+
+2005-03-20 21:46  djdelorie
+
+	* src/: Makefile.am, Makefile.in, file.c, parse_y.y, strflags.c,
+	  strflags.h: When saving files, convert flags to symbolic format
+	  instead of storing the actual internal bitfield.
+
+2005-03-20 19:35  djdelorie
+
+	* src/const.h: Put parens around computed macros.  Use ~0 instead
+	  of -1 for "all bits".
+
+2005-03-16 05:52  danmc
+
+	* configure: regen (after version bump)
+
+2005-03-15 20:56  danmc
+
+	* configure.ac: set version
+
+2005-03-15 20:12  danmc
+
+	* NEWS: add some news for 20050315
+
+2005-03-13 22:41  danmc
+
+	* src/: gui-icons-misc.data, gui-icons-mode-buttons.data: add some
+	  files missed in the gtk-pcb checkin
+
+2005-03-13 09:59  danmc
+
+	* doc/pcbrc-sample, src/file.c, src/global.h, src/gui-config.c,
+	  src/gui-top-window.c, src/gui.h, src/main.c, src/misc.c,
+	  src/misc.h, src/pcbtest.sh.in: add some config file patches from
+	  Bill Wilson
+
+2005-03-11 21:27  danmc
+
+	* doc/Makefile.in: regen after Makefile.am pullup
+
+2005-03-11 21:23  danmc
+
+	* doc/Makefile.am: pullup rev 1.10.  Adds some missing files to
+	  EXTRA_DIST
+
+2005-03-11 21:17  danmc
+
+	* README-GTK_PORT, configure, configure.ac, globalconst.h,
+	  doc/version.texi, po/fr_FR.po, po/pcb.pot, src/Makefile.am,
+	  src/Makefile.in, src/Pcb.ad.in, src/action.c, src/action.h,
+	  src/autoplace.c, src/autoroute.c, src/buffer.c, src/change.c,
+	  src/clip.c, src/clip.h, src/command.c, src/command.h,
+	  src/const.h, src/create.c, src/crosshair.c, src/data.c,
+	  src/data.h, src/dev_ps.c, src/dev_rs274x.c, src/djopt.c,
+	  src/djopt.h, src/draw.c, src/draw.h, src/drill.c, src/error.c,
+	  src/error.h, src/file.c, src/file.h, src/find.c, src/global.h,
+	  src/gui-command-window.c, src/gui-config.c,
+	  src/gui-dialog-print.c, src/gui-dialog-size.c, src/gui-dialog.c,
+	  src/gui-keyref-window.c, src/gui-library-window.c,
+	  src/gui-log-window.c, src/gui-misc.c, src/gui-netlist-window.c,
+	  src/gui-output-events.c, src/gui-pinout-window.c,
+	  src/gui-top-window.c, src/gui-utils.c, src/gui.h, src/heap.c,
+	  src/insert.c, src/intersect.c, src/line.c, src/macro.h,
+	  src/main.c, src/menu.h, src/misc.c, src/misc.h, src/move.c,
+	  src/mtspace.c, src/mymem.c, src/output.c, src/output.h,
+	  src/parse_l.l, src/parse_y.y, src/pcb-menu.res,
+	  src/pcbtest.sh.in, src/polygon.c, src/print.c, src/rats.c,
+	  src/rats.h, src/report.c, src/res_parse.y, src/rotate.c,
+	  src/rtree.c, src/select.c, src/select.h, src/set.c, src/set.h,
+	  src/undo.c, src/vector.c, src/vendor.c, src/vendor.h,
+	  src/script/pcb.in: Import Bill Wilson's port of pcb to gtk.
+	  Things seem to compile and run but this should be considered a
+	  work in progress at the moment.
+
+2005-03-11 21:09  danmc
+
+	* doc/Makefile.in: regen
+
+2005-03-11 21:06  danmc
+
+	* doc/Makefile.am: add a few missing files to EXTRA_DIST
+
+2005-03-11 07:10  danmc
+
+	* configure: regen
+
+2005-03-11 07:07  danmc
+
+	* configure.ac: indicate that this is the xaw branch
+
+2005-03-10 17:56  danmc
+
+	* ChangeLog: update with latest changes
+
 2005-03-10 17:33  danmc
 
 	* Makefile.in, README_FILES/Makefile.in, doc/Makefile.in,
