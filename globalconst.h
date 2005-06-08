@@ -85,7 +85,7 @@
 #define	MAX_FONTPOSITION	127	/* upper limit of characters in my font */
 
 #define	MAX_COORD		3000000	/* coordinate limits */
-#define	MIN_SIZE		120000	/* lowest width and height */
+#define	MIN_SIZE		60000	/* lowest width and height */
 #define	MAX_BUFFER		5	/* number of pastebuffers */
 					/* additional changes in menu.c are */
 					/* also required to select more buffers */
