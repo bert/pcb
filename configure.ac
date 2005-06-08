@@ -43,6 +43,8 @@ AC_CHECK_FUNCS(strerror)
 AC_CHECK_FUNCS(regcomp re_comp)
 AC_CHECK_FUNCS(logf expf rint)
 
+AC_PATH_XTRA
+
 AC_MSG_CHECKING([if X/Xaw should be configured])
 gui_xaw=no
 AC_ARG_ENABLE([xaw],
@@ -61,7 +63,6 @@ fi
 
 if test "X$gui_xaw" != "Xno" ; then
 
-AC_PATH_XTRA
 AC_ARG_WITH([libstroke],
 [  --without-libstroke     disable libstroke support (default: enabled)],
 AC_CHECK_LIB(stroke, main, , AC_ERROR([libstroke not found.  Please specify its location or configure --without-libstroke]))
@@ -102,6 +103,8 @@ if test -n "$fc_x_proto_value"; then
 	AC_DEFINE_UNQUOTED(NARROWPROTO, $fc_x_proto_value, [NARROWPROTO used by Xaw])
 fi
 
+fi 
+
 _use_rpath=yes
 AC_MSG_CHECKING([if hardcoding of the X11 runtime library path is desired])
 AC_ARG_ENABLE([rpath],
@@ -121,40 +124,39 @@ fi
 ])
 
 if test "X$_use_rpath" = "Xyes" ; then
-dnl Try to figure out if we need -Rpath for finding X11 libs
-dnl at runtime.  Why autoconf doesn't already do this, I don't
-dnl know...
-xlib_path=""
-for p in $X_LIBS ; do
-    case $p in
-    -L*)
-	xlib_path="$xlib_path $p"
-	;;
+	dnl Try to figure out if we need -Rpath for finding X11 libs
+	dnl at runtime.  Why autoconf doesn't already do this, I don't
+	dnl know...
+	xlib_path=""
+	for p in $X_LIBS ; do
+		case $p in
+			-L*)
+			xlib_path="$xlib_path $p"
+			;;
 
-    esac
-done
-xlib_rpath=`echo $xlib_path | sed 's/-L/-R/g'`
+		esac
+	done
+	xlib_rpath=`echo $xlib_path | sed 's/-L/-R/g'`
 
-pcb_save_LIBS=$LIBS
-LIBS="$LIBS $X_LIBS"
-rpath=""
-for fl in "-Wl,-rpath " "-Wl,--rpath " "-rpath " "--rpath " "-Wl,-R" "-R" "-R " ; do
-    xlib_rpath=`echo $xlib_path | sed "s/-L/$fl/g"`
-    LIBS="$pcb_save_LIBS $X_LIBS $xlib_rpath"
-    AC_MSG_CHECKING([if the compiler accepts ${fl}path for runtime libraries])
-    AC_LINK_IFELSE([AC_LANG_PROGRAM()],
-	AC_MSG_RESULT([yes])
-	rpath=$fl, 
-	AC_MSG_RESULT([no]))
-    test -n "$rpath" && break
-done
-if test -n "$rpath"; then
-   X_LIBS="$X_LIBS $xlib_rpath"
+	pcb_save_LIBS=$LIBS
+	LIBS="$LIBS $X_LIBS"
+	rpath=""
+	for fl in "-Wl,-rpath " "-Wl,--rpath " "-rpath " "--rpath " "-Wl,-R" "-R" "-R " ; do
+		xlib_rpath=`echo $xlib_path | sed "s/-L/$fl/g"`
+		LIBS="$pcb_save_LIBS $X_LIBS $xlib_rpath"
+		AC_MSG_CHECKING([if the compiler accepts ${fl}path for runtime libraries])
+		AC_LINK_IFELSE([AC_LANG_PROGRAM()],
+			AC_MSG_RESULT([yes])
+			rpath=$fl, 
+			AC_MSG_RESULT([no]))
+		test -n "$rpath" && break
+	done
+
+	if test -n "$rpath"; then
+		X_LIBS="$X_LIBS $xlib_rpath"
+	fi
+	LIBS=$pcb_save_LIBS
 fi
-LIBS=$pcb_save_LIBS
-fi
-
-fi 
 
 ############################################################################
 # Check for gtk+
