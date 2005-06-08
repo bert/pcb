@@ -127,6 +127,7 @@ pcb_bin_SOURCES = \
 	set.c \
 	set.h \
 	strflags.c \
+	strflags.h \
 	undo.c \
 	undo.h \
 	vector.c \
