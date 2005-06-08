@@ -109,8 +109,8 @@ gui_output_positioners_scale(void)
 	adj->upper = v_upper_size;
 	gtk_signal_emit_by_name(GTK_OBJECT(adj), "changed");
 
-//	printf("gui_output_positioners_update_ranges: (%.2f) %.2f   (%.2f) %.2f\n",
-//	h_page_size, h_upper_size, v_page_size, v_upper_size);
+/*	printf("gui_output_positioners_update_ranges: (%.2f) %.2f   (%.2f) %.2f\n",
+	h_page_size, h_upper_size, v_page_size, v_upper_size); */
 
 	/* Hiding/showing here will cause this func to be recursively called.
 	*/

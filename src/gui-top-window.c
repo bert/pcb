@@ -138,7 +138,7 @@ h_adjustment_changed_cb(GtkAdjustment *adj, GuiPCB *g)
 	xval = gtk_adjustment_get_value(adj);
 	yval = gtk_adjustment_get_value(GTK_ADJUSTMENT(gui->v_adjustment));
 
-//	printf("h_adjustment_changed_cb: %f %f\n", xval, yval);
+/*	printf("h_adjustment_changed_cb: %f %f\n", xval, yval); */
 	Pan((gint) xval, (gint)yval, TRUE, TRUE);
 	}
 
@@ -152,7 +152,7 @@ v_adjustment_changed_cb(GtkAdjustment *adj, GuiPCB *g)
 	yval = gtk_adjustment_get_value(adj);
 	xval = gtk_adjustment_get_value(GTK_ADJUSTMENT(gui->h_adjustment));
 
-//	printf("v_adjustment_changed_cb: %f %f\n", xval, yval);
+/*	printf("v_adjustment_changed_cb: %f %f\n", xval, yval); */
 	Pan((gint) xval, (gint)yval, TRUE, TRUE);
 	}
 
@@ -1797,20 +1797,20 @@ static const gchar *ui_info =
 "			<menuitem action='CopySelectionToBuffer' />"
 "			<menuitem action='CutSelectionToBuffer' />"
 "			<menuitem action='ConvertSelectionToElement' />"
-//"			<menuitem action='BreakElement' />"
+/*"			<menuitem action='BreakElement' />"*/
 "			<menuitem action='AutoPlaceSelected' />"
 "			<menuitem action='AutoRouteSelectedRats' />"
 "			<menuitem action='RipUpSelectedTracks' />"
 "		</menu>"
 "		<menu action='LocationOperationMenu'>"
-//"			<menuitem action='ToggleNameVisibility' />"
-//"			<menuitem action='EditName' />"
+/*"			<menuitem action='ToggleNameVisibility' />"*/
+/*"			<menuitem action='EditName' />"*/
 "			<menuitem action='ObjectReport' />"
-//"			<menuitem action='RotateObjectCCW' />"
-//"			<menuitem action='RotateObjectCW' />"
-//"			<menuitem action='SendToOtherSide' />"
-//"			<menuitem action='ToggleThermal' />"
-//"			<menuitem action='LookupConnections' />"
+/*"			<menuitem action='RotateObjectCCW' />"*/
+/*"			<menuitem action='RotateObjectCW' />"*/
+/*"			<menuitem action='SendToOtherSide' />"*/
+/*"			<menuitem action='ToggleThermal' />"*/
+/*"			<menuitem action='LookupConnections' />"*/
 "		</menu>"
 "		<separator/>"
 "		<menuitem action='Undo' />"
@@ -2021,7 +2021,7 @@ gui_sync_with_new_layout(void)
 
 	action = gtk_action_group_get_action(gui->main_actions, "ToggleDrawGrid");
  	gtk_toggle_action_set_active(GTK_TOGGLE_ACTION(action), Settings.DrawGrid);
-//	g_object_set(action, "sensitive", Settings.XXX, NULL);
+/*	g_object_set(action, "sensitive", Settings.XXX, NULL); */
 
 	action = gtk_action_group_get_action(gui->main_actions,
 				"ToggleGridUnitsMm");
@@ -2341,8 +2341,8 @@ layer_select_button_cb(GtkWidget *widget, LayerButtonSet *lb)
 
 	ChangeGroupVisibility(lb->index, True, True);
 
-//	if (GTK_TOGGLE_BUTTON(widget)->active)
-//		printf("layer selected %d\n", lb->index);
+/*	if (GTK_TOGGLE_BUTTON(widget)->active)
+		printf("layer selected %d\n", lb->index); */
 
 	layer_select_button_index = lb->index;
 
@@ -2521,7 +2521,7 @@ make_layer_buttons(GtkWidget *vbox, OutputType *out)
 		gtk_container_add(GTK_CONTAINER(button), ebox);
 		gtk_table_attach_defaults(GTK_TABLE(table), button,
 					1, 2, i, i + 1);
-//		gtk_box_pack_start(GTK_BOX(hbox), button, TRUE, TRUE, 0);
+/*		gtk_box_pack_start(GTK_BOX(hbox), button, TRUE, TRUE, 0); */
 		gtk_toggle_button_set_mode(GTK_TOGGLE_BUTTON(button), FALSE);
 
 		lb->layer_enable_button = button;
@@ -3407,7 +3407,7 @@ gui_init(gint *argc, gchar ***argv)
 
 	/* Threads aren't used in PCB, but this call would go here.
 	*/
-//	g_thread_init(NULL);
+/*	g_thread_init(NULL); */
 
 #if defined (ENABLE_NLS)
 	/* Do our own setlocale() stufff since we want to override LC_NUMERIC

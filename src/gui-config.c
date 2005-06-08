@@ -112,7 +112,7 @@ static ConfigSettingsValues	config_settings_values[] =
 	{"volume",				&Settings.Volume,				"100"},
 	{"alignment-distance",	&Settings.AlignmentDistance,	"200"},
 	{"backup-interval",		&Settings.BackupInterval,		"60"},
-//	{"grid",				&Settings.Grid,					"10"},
+/*	{"grid",				&Settings.Grid,					"10"}, */
 	{"line-thickness",		&Settings.LineThickness,		"1000"},
 	{"rat-thickness",		&Settings.RatThickness,			"1000"},
 	{"pinout-offset-x",		&Settings.PinoutOffsetX,		"100"},
@@ -599,7 +599,7 @@ config_settings_load(void)
 	Settings.MaxWidth = MIN(MAX_COORD, MAX(Settings.MaxWidth, MIN_SIZE));
 	Settings.MaxHeight = MIN(MAX_COORD, MAX(Settings.MaxHeight, MIN_SIZE));
 
-//	Settings.Volume = MIN (100, MAX (-100, Settings.Volume));
+/*	Settings.Volume = MIN (100, MAX (-100, Settings.Volume)); */
 
 	Settings.Grid = 10;		/* XXX ConfigSettingsFloat ??? */
 
@@ -1354,7 +1354,7 @@ config_layer_group_button_state_update(void)
 	for (g = 0; g < MAX_LAYER; g++)
 		for (i = 0; i < layer_groups.Number[g]; i++)
 			{
-//			printf("layer %d in group %d\n", layer_groups.Entries[g][i], g +1);
+/*			printf("layer %d in group %d\n", layer_groups.Entries[g][i], g +1); */
 			config_layer_group[layer_groups.Entries[g][i]] = g + 1;
 			gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(
 					group_button[layer_groups.Entries[g][i]] [g]), TRUE);

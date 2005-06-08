@@ -63,7 +63,7 @@ typedef int		BDimension;		/* big dimension */
 typedef unsigned int	Cardinal;
 typedef unsigned char	BYTE;
 typedef gboolean		Boolean;
-//typedef unsigned int	Pixel;
+/*typedef unsigned int	Pixel;*/
 typedef char 			*String;
 typedef int				Position;
 typedef int				Dimension;
@@ -365,7 +365,7 @@ typedef struct
 {
   Cardinal MenuN, MenuMax;
   LibraryMenuTypePtr Menu;
-//Window Wind;
+/*Window Wind;*/
 	GtkWidget	*Wind;		/* wrong */
 } LibraryType, *LibraryTypePtr;
 

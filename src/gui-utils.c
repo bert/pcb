@@ -645,7 +645,7 @@ text_view_append(GtkWidget *view, gchar *s)
 
 	buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(view));
 	gtk_text_buffer_get_end_iter(buffer, &iter);
-//	gtk_text_iter_forward_to_end(&iter);
+/*	gtk_text_iter_forward_to_end(&iter); */
 
 	if (strncmp(s, "<b>", 3) == 0)
 		gtk_text_buffer_insert_with_tags_by_name (buffer, &iter,

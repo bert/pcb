@@ -556,7 +556,7 @@ Redraw (gboolean ClearWindow, BoxTypePtr screen_area)
       if (ClearWindow && !Output.pixmap)
 	Crosshair.On = False;
 
-//      DrawBackgroundImage ();
+/*      DrawBackgroundImage (); */
       DrawEverything (&draw_area);
 
       if (!Output.pixmap)
@@ -1479,12 +1479,12 @@ DrawPinOrViaNameLowLevel (PinTypePtr Ptr)
 	  box.X2 = box.X1 + width;
 	  box.Y2 = box.Y1 + height;
 	}
-//printf("AddPart: x1=%d y1=%d x2=%d y2=%d\n", box.X1, box.Y1, box.X2, box.Y2);
+/*printf("AddPart: x1=%d y1=%d x2=%d y2=%d\n", box.X1, box.Y1, box.X2, box.Y2);*/
       AddPart (&box, True);
       return;
     }
-//printf("DrawPin(%d,%d): x=%d y=%d w=%d h=%d\n",
-//TO_DRAW_X(Ptr->X), TO_DRAW_Y(Ptr->Y), box.X1, box.Y1, width, height);
+/*printf("DrawPin(%d,%d): x=%d y=%d w=%d h=%d\n",
+  TO_DRAW_X(Ptr->X), TO_DRAW_Y(Ptr->Y), box.X1, box.Y1, width, height);*/
 
   if (vert)
     DrawVText (box.X1, box.Y1, width, height, name);

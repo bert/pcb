@@ -621,8 +621,8 @@ main (int argc, char *argv[])
 			PCB->Filename = MyStrdup (command_line_pcb, "main()");
 		}
 
-//	XXX
-//	LoadBackgroundImage (Settings.BackgroundImage);
+/*	FIX_ME
+	LoadBackgroundImage (Settings.BackgroundImage); */
 
 	/* Register a function to be called when the program terminates.
 	 * This makes sure that data is saved even if LEX/YACC routines
