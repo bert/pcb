@@ -71,7 +71,7 @@ static int ID = 1;		/* current object ID; incremented after */
  * some local prototypes
  */
 static void AddTextToElement (TextTypePtr, FontTypePtr,
-			      LocationType, LocationType, BYTE, char *, int, int);
+			      LocationType, LocationType, BYTE, char *, int, FlagType);
 
 /* ---------------------------------------------------------------------------
  * creates a new paste buffer
@@ -192,7 +192,7 @@ PinTypePtr
 CreateNewVia (DataTypePtr Data,
 	      LocationType X, LocationType Y,
 	      BDimension Thickness, BDimension Clearance, BDimension Mask,
-	      BDimension DrillingHole, char *Name, int Flags)
+	      BDimension DrillingHole, char *Name, FlagType Flags)
 {
   PinTypePtr Via;
 
@@ -223,7 +223,9 @@ CreateNewVia (DataTypePtr Data,
     }
 
   Via->Name = MyStrdup (Name, "CreateNewVia()");
-  Via->Flags = Flags & ~WARNFLAG;
+  Via->Flags = Flags;
+  CLEAR_FLAG (WARNFLAG, Via);
+  SET_FLAG (VIAFLAG, Via);
   Via->ID = ID++;
 
   /* 
@@ -345,7 +347,7 @@ LineTypePtr
 CreateDrawnLineOnLayer (LayerTypePtr Layer,
 			LocationType X1, LocationType Y1,
 			LocationType X2, LocationType Y2,
-			BDimension Thickness, BDimension Clearance, int Flags)
+			BDimension Thickness, BDimension Clearance, FlagType Flags)
 {
   struct line_info info;
   BoxType search;
@@ -360,7 +362,7 @@ CreateDrawnLineOnLayer (LayerTypePtr Layer,
   info.Y2 = Y2;
   info.Thickness = Thickness;
   info.test.Thickness = 0;
-  info.test.Flags = NOFLAG;
+  info.test.Flags = NoFlags();
   info.ans = NULL;
   /* prevent stacking of duplicate lines
    * and remove needless intermediate points
@@ -393,7 +395,7 @@ LineTypePtr
 CreateNewLineOnLayer (LayerTypePtr Layer,
 		      LocationType X1, LocationType Y1,
 		      LocationType X2, LocationType Y2,
-		      BDimension Thickness, BDimension Clearance, int Flags)
+		      BDimension Thickness, BDimension Clearance, FlagType Flags)
 {
   LineTypePtr Line;
 
@@ -402,6 +404,7 @@ CreateNewLineOnLayer (LayerTypePtr Layer,
     return (Line);
   Line->ID = ID++;
   Line->Flags = Flags;
+  CLEAR_FLAG (RATFLAG, Line);
   Line->Thickness = Thickness;
   Line->Clearance = Clearance;
   Line->Point1.X = X1;
@@ -423,7 +426,7 @@ CreateNewLineOnLayer (LayerTypePtr Layer,
 RatTypePtr
 CreateNewRat (DataTypePtr Data, LocationType X1, LocationType Y1,
 	      LocationType X2, LocationType Y2, Cardinal group1,
-	      Cardinal group2, BDimension Thickness, int Flags)
+	      Cardinal group2, BDimension Thickness, FlagType Flags)
 {
   RatTypePtr Line = GetRatMemory (Data);
 
@@ -431,7 +434,8 @@ CreateNewRat (DataTypePtr Data, LocationType X1, LocationType Y1,
     return (Line);
 
   Line->ID = ID++;
-  Line->Flags = Flags | RATFLAG;
+  Line->Flags = Flags;
+  SET_FLAG (RATFLAG, Line);
   Line->Thickness = Thickness;
   Line->Point1.X = X1;
   Line->Point1.Y = Y1;
@@ -456,7 +460,7 @@ CreateNewArcOnLayer (LayerTypePtr Layer,
 		     LocationType X1, LocationType Y1,
 		     BDimension width, int sa,
 		     int dir, BDimension Thickness,
-		     BDimension Clearance, int Flags)
+		     BDimension Clearance, FlagType Flags)
 {
   ArcTypePtr Arc;
 
@@ -495,7 +499,7 @@ CreateNewArcOnLayer (LayerTypePtr Layer,
 PolygonTypePtr
 CreateNewPolygonFromRectangle (LayerTypePtr Layer,
 			       LocationType X1, LocationType Y1,
-			       LocationType X2, LocationType Y2, int Flags)
+			       LocationType X2, LocationType Y2, FlagType Flags)
 {
   PolygonTypePtr polygon = CreateNewPolygon (Layer, Flags);
   if (!polygon)
@@ -515,7 +519,7 @@ CreateNewPolygonFromRectangle (LayerTypePtr Layer,
 TextTypePtr
 CreateNewText (LayerTypePtr Layer, FontTypePtr PCBFont,
 	       LocationType X, LocationType Y,
-	       BYTE Direction, int Scale, char *TextString, int Flags)
+	       BYTE Direction, int Scale, char *TextString, FlagType Flags)
 {
   TextTypePtr text = GetTextMemory (Layer);
   if (!text)
@@ -544,7 +548,7 @@ CreateNewText (LayerTypePtr Layer, FontTypePtr PCBFont,
  * creates a new polygon on a layer
  */
 PolygonTypePtr
-CreateNewPolygon (LayerTypePtr Layer, int Flags)
+CreateNewPolygon (LayerTypePtr Layer, FlagType Flags)
 {
   PolygonTypePtr polygon = GetPolygonMemory (Layer);
 
@@ -576,10 +580,10 @@ CreateNewPointInPolygon (PolygonTypePtr Polygon, LocationType X, LocationType Y)
 ElementTypePtr
 CreateNewElement (DataTypePtr Data, ElementTypePtr Element,
 		  FontTypePtr PCBFont,
-		  int Flags,
+		  FlagType Flags,
 		  char *Description, char *NameOnPCB, char *Value,
 		  LocationType TextX, LocationType TextY, BYTE Direction,
-		  int TextScale, int TextFlags, Boolean uniqueName)
+		  int TextScale, FlagType TextFlags, Boolean uniqueName)
 {
   if (!Element)
     Element = GetElementMemory (Data);
@@ -676,7 +680,7 @@ CreateNewLineInElement (ElementTypePtr Element,
   line->Point2.X = X2;
   line->Point2.Y = Y2;
   line->Thickness = Thickness;
-  line->Flags = NOFLAG;
+  line->Flags = NoFlags();
   line->ID = ID++;
   return (line);
 }
@@ -688,7 +692,7 @@ PinTypePtr
 CreateNewPin (ElementTypePtr Element,
 	      LocationType X, LocationType Y,
 	      BDimension Thickness, BDimension Clearance, BDimension Mask,
-	      BDimension DrillingHole, char *Name, char *Number, int Flags)
+	      BDimension DrillingHole, char *Name, char *Number, FlagType Flags)
 {
   PinTypePtr pin = GetPinMemory (Element);
 
@@ -700,7 +704,9 @@ CreateNewPin (ElementTypePtr Element,
   pin->Mask = Mask;
   pin->Name = MyStrdup (Name, "CreateNewPin()");
   pin->Number = MyStrdup (Number, "CreateNewPin()");
-  pin->Flags = Flags & ~WARNFLAG;
+  pin->Flags = Flags;
+  CLEAR_FLAG (WARNFLAG, pin);
+  SET_FLAG (PINFLAG, pin);
   pin->ID = ID++;
   pin->Element = Element;
 
@@ -754,7 +760,7 @@ PadTypePtr
 CreateNewPad (ElementTypePtr Element,
 	      LocationType X1, LocationType Y1, LocationType X2, LocationType Y2,
 	      BDimension Thickness, BDimension Clearance, BDimension Mask,
-	      char *Name, char *Number, int Flags)
+	      char *Name, char *Number, FlagType Flags)
 {
   PadTypePtr pad = GetPadMemory (Element);
 
@@ -773,7 +779,8 @@ CreateNewPad (ElementTypePtr Element,
   pad->Mask = Mask;
   pad->Name = MyStrdup (Name, "CreateNewPad()");
   pad->Number = MyStrdup (Number, "CreateNewPad()");
-  pad->Flags = Flags & ~WARNFLAG;
+  pad->Flags = Flags;
+  CLEAR_FLAG (WARNFLAG, pad);
   pad->ID = ID++;
   pad->Element = Element;
   return (pad);
@@ -786,7 +793,7 @@ CreateNewPad (ElementTypePtr Element,
 static void
 AddTextToElement (TextTypePtr Text, FontTypePtr PCBFont,
 		  LocationType X, LocationType Y,
-		  BYTE Direction, char *TextString, int Scale, int Flags)
+		  BYTE Direction, char *TextString, int Scale, FlagType Flags)
 {
   MyFree (&Text->TextString);
   Text->X = X;
@@ -856,7 +863,7 @@ CreateNewRubberbandEntry (LayerTypePtr Layer,
 
   /* we toggle the RUBBERENDFLAG of the line to determine if */
   /* both points are being moved. */
-  Line->Flags ^= RUBBERENDFLAG;
+  TOGGLE_FLAG (RUBBERENDFLAG, Line);
   ptr->Layer = Layer;
   ptr->Line = Line;
   ptr->MovedPoint = MovedPoint;

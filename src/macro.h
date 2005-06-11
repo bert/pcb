@@ -170,12 +170,41 @@
 /* ---------------------------------------------------------------------------
  * some routines for flag setting, clearing, changing and testing
  */
-#define	SET_FLAG(f,p)		((p)->Flags |= (f))
-#define	CLEAR_FLAG(f,p)		((p)->Flags &= (~(f)))
-#define	TEST_FLAG(f,p)		((p)->Flags & (f) ? TRUE : FALSE)
-#define	TOGGLE_FLAG(f,p)	((p)->Flags ^= (f))
-#define	ASSIGN_FLAG(f,v,p)	((p)->Flags = ((p)->Flags & (~(f))) | ((v) ? (f) : 0))
-#define TEST_FLAGS(f,p)         (((p)->Flags & (f)) == (f) ? TRUE : FALSE)
+#define	SET_FLAG(F,P)		((P)->Flags.f |= (F))
+#define	CLEAR_FLAG(F,P)		((P)->Flags.f &= (~(F)))
+#define	TEST_FLAG(F,P)		((P)->Flags.f & (F) ? TRUE : FALSE)
+#define	TOGGLE_FLAG(F,P)	((P)->Flags.f ^= (F))
+#define	ASSIGN_FLAG(F,V,P)	((P)->Flags.f = ((P)->Flags.f & (~(F))) | ((V) ? (F) : 0))
+#define TEST_FLAGS(F,P)         (((P)->Flags.f & (F)) == (F) ? TRUE : FALSE)
+
+#define FLAGS_EQUAL(F1,F2)	(memcmp (&F1, &F2, sizeof(FlagType)) == 0)
+
+#define THERMFLAG(L)		(1 << ((L) % 8))
+
+#define TEST_THERM(L,P)		((P)->Flags.t[(L)/8] & THERMFLAG(L) ? TRUE : FALSE)
+#define SET_THERM(L,P)		(P)->Flags.t[(L)/8] |= THERMFLAG(L)
+#define CLEAR_THERM(L,P)	(P)->Flags.t[(L)/8] &= ~THERMFLAG(L)
+#define TOGGLE_THERM(L,P)	(P)->Flags.t[(L)/8] ^= THERMFLAG(L)
+#define ASSIGN_THERM(L,V,P)	(P)->Flags.t[(L)/8] = ((P)->Flags.t[(L)/8] & ~THERMFLAG(L)) | ((V) ? THERMFLAG(L) : 0)
+
+#define TEST_PIP(L,P)		((P)->Flags.p[(L)/8] & THERMFLAG(L) ? TRUE : FALSE)
+#define SET_PIP(L,P)		(P)->Flags.p[(L)/8] |= THERMFLAG(L)
+#define CLEAR_PIP(L,P)		(P)->Flags.p[(L)/8] &= ~THERMFLAG(L)
+
+/* Optimizations for common-ish cases.  */
+#if MAX_LAYER <= 8
+#define TEST_ANY_THERMS(P)	((P)->Flags.t[0] ? 1 : 0)
+#define TEST_ANY_PIPS(P)	((P)->Flags.p[0] ? 1 : 0)
+#else
+#if MAX_LAYER <= 16
+#define TEST_ANY_THERMS(P)	(((P)->Flags.t[0] | (P)->Flags.t[1]) ? 1 : 0)
+#define TEST_ANY_PIPS(P)	(((P)->Flags.p[0] | (P)->Flags.p[1]) ? 1 : 0)
+#else
+extern int mem_any_set(unsigned char *, int);
+#define TEST_ANY_THERMS(P)	mem_any_set((P)->Flags.t, sizeof((P)->Flags.t))
+#define TEST_ANY_PIPS(P)	mem_any_set((P)->Flags.p, sizeof((P)->Flags.p))
+#endif
+#endif
 
 /* ---------------------------------------------------------------------------
  * access macros for elements name structure

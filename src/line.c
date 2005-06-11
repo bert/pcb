@@ -295,7 +295,7 @@ drc_lines (PointTypePtr end, Boolean way)
   f = 1.0;
   s = 0.5;
   last = -1;
-  line1.Flags = line2.Flags = NOFLAG;
+  line1.Flags = line2.Flags = NoFlags();
   line1.Thickness = Settings.LineThickness + 2 * (PCB->Bloat + 1);
   line2.Thickness = line1.Thickness;
   line1.Clearance = line2.Clearance = 0;

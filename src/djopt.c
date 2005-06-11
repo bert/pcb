@@ -42,6 +42,7 @@
 #include "move.h"
 #include "draw.h"
 #include "undo.h"
+#include "strflags.h"
 
      
 RCSID("$Id$");
@@ -51,6 +52,9 @@ RCSID("$Id$");
 #endif
 
 #define dprintf if(0)printf
+
+#define selected(x) TEST_FLAG (SELECTEDFLAG, (x))
+#define autorouted(x) TEST_FLAG (AUTOFLAG, (x))
 
 #define SB (PCB->Bloat+1)
 
@@ -493,7 +497,7 @@ add_line_to_corner (line_s * l, corner_s * c)
 
 static LineType *
 create_pcb_line (int layer, int x1, int y1, int x2, int y2,
-		 int thick, int clear, int flags)
+		 int thick, int clear, FlagType flags)
 {
   char *from, *to;
   LineType *nl;
@@ -552,9 +556,10 @@ new_line (corner_s * s, corner_s * e, int layer, LineType * example)
 #endif
     {
       LineType *nl;
-      dprintf ("New line \033[35m%d,%d to %d,%d from l%d t%d c%d f%ld\033[0m\n",
+      dprintf ("New line \033[35m%d,%d to %d,%d from l%d t%d c%d f%s\033[0m\n",
 	       s->x, s->y, e->x, e->y, layer,
-	       example->Thickness, example->Clearance, example->Flags);
+	       example->Thickness, example->Clearance,
+	       flags_to_string (example->Flags, LINE_TYPE));
       nl = create_pcb_line (layer, s->x, s->y, e->x, e->y,
 			    example->Thickness,
 			    example->Clearance, example->Flags);
@@ -932,7 +937,7 @@ any_line_selected ()
     {
       if (DELETED (l))
 	continue;
-      if (l->line && l->line->Flags & SELECTEDFLAG)
+      if (l->line && selected (l->line))
 	return 1;
     }
   return 0;
@@ -1084,12 +1089,12 @@ simple_optimize_corner (corner_s * c)
   if (c->via)
     {
       /* see if no via is needed */
-      if (c->via->Flags & SELECTEDFLAG)
+      if (selected (c->via))
 	dprintf ("via check: line[0] layer %d at %d,%d nl %d\n",
 		 c->lines[0]->layer, c->x, c->y, c->n_lines);
       for (i = 1; i < c->n_lines; i++)
 	{
-	  if (c->via->Flags & SELECTEDFLAG)
+	  if (selected(c->via))
 	    dprintf ("           line[%d] layer %d %d,%d to %d,%d\n",
 		     i, c->lines[i]->layer,
 		     c->lines[i]->s->x, c->lines[i]->s->y,
@@ -1099,7 +1104,7 @@ simple_optimize_corner (corner_s * c)
 	}
       if (i == c->n_lines)
 	{
-	  if (c->via->Flags & SELECTEDFLAG)
+	  if (selected (c->via))
 	    dprintf ("           remove it\n");
 	  remove_via_at (c);
 	  rv++;
@@ -1117,10 +1122,10 @@ simple_optimize_corner (corner_s * c)
 	{
 	  dprintf ("straight %d,%d to %d,%d to %d,%d\n",
 		   c0->x, c0->y, c->x, c->y, c2->x, c2->y);
-	  if (c->lines[0]->line->Flags & SELECTEDFLAG)
-	    c->lines[1]->line->Flags |= SELECTEDFLAG;
-	  if (c->lines[1]->line->Flags & SELECTEDFLAG)
-	    c->lines[0]->line->Flags |= SELECTEDFLAG;
+	  if (selected (c->lines[0]->line))
+	    SET_FLAG (SELECTEDFLAG, c->lines[1]->line);
+	  if (selected (c->lines[1]->line))
+	    SET_FLAG (SELECTEDFLAG, c->lines[0]->line);
 	  move_corner (c, c2->x, c2->y);
 	}
     }
@@ -1236,9 +1241,9 @@ orthopull_1 (corner_s * c, int fdir, int rdir, int any_sel)
 	}
       if (!l)
 	break;
-      if (l->line->Flags & SELECTEDFLAG)
+      if (selected (l->line))
 	saw_sel = 1;
-      if (l->line->Flags & AUTOFLAG)
+      if (autorouted (l->line))
 	saw_auto = 1;
       if (ln >= lm)
 	{
@@ -1600,9 +1605,9 @@ debumpify ()
 	continue;
       if (!l->line)
 	continue;
-      if (any_selected && !(l->line->Flags & SELECTEDFLAG))
+      if (any_selected && ! selected (l->line))
 	continue;
-      if (!any_selected && autorouted_only && !(l->line->Flags & AUTOFLAG))
+      if (!any_selected && autorouted_only && ! autorouted (l->line))
 	continue;
       if (l->s->pin || l->s->pad || l->e->pin || l->e->pad)
 	continue;
@@ -1761,12 +1766,12 @@ unjaggy_once ()
 	continue;
       if (!c->lines[0]->line || !c->lines[1]->line)
 	continue;
-      if (sel && !(c->lines[0]->line->Flags & SELECTEDFLAG
-		   || c->lines[1]->line->Flags & SELECTEDFLAG))
+      if (sel && !(selected (c->lines[0]->line)
+		   || selected (c->lines[1]->line)))
 	continue;
       if (!sel && autorouted_only
-	  && !(c->lines[0]->line->Flags & AUTOFLAG
-	       || c->lines[1]->line->Flags & AUTOFLAG))
+	  && !(autorouted (c->lines[0]->line)
+	       || autorouted (c->lines[1]->line)))
 	continue;
       dprintf ("simple at %d,%d\n", c->x, c->y);
 
@@ -1997,9 +2002,9 @@ viatrim ()
 	continue;
       if (!l->e->via)
 	continue;
-      if (any_sel && !(l->line->Flags & SELECTEDFLAG))
+      if (any_sel && ! selected (l->line))
 	continue;
-      if (!any_sel && autorouted_only && !(l->line->Flags & AUTOFLAG))
+      if (!any_sel && autorouted_only && ! autorouted (l->line))
 	continue;
 
       my_layer = l->layer;
@@ -2158,11 +2163,11 @@ miter ()
 		oc2 = 0;
 #endif
 
-	      if ((sel && !(c->lines[0]->line->Flags & SELECTEDFLAG
-			    || c->lines[1]->line->Flags & SELECTEDFLAG))
+	      if ((sel && !(selected (c->lines[0]->line)
+			    || selected (c->lines[1]->line)))
 		  || (!sel && autorouted_only
-		      && !(c->lines[0]->line->Flags & AUTOFLAG
-			   || c->lines[1]->line->Flags & AUTOFLAG)))
+		      && !(autorouted (c->lines[0]->line)
+			   || autorouted (c->lines[1]->line))))
 		{
 		  c->miter = 0;
 		  progress = 1;
@@ -2710,7 +2715,7 @@ padcleaner ()
 	    {
 	      PadType *p = e->Pad + pi;
 	      int layerflag =
-		e->Flags & ONSOLDERFLAG ? LT_SOLDER : LT_COMPONENT;
+		TEST_FLAG (ONSOLDERFLAG, e) ? LT_SOLDER : LT_COMPONENT;
 
 	      if (layer_type[l->layer] != layerflag)
 		continue;
@@ -2802,7 +2807,7 @@ ActionDJopt (gchar *arg)
   PAD_LOOP (element);
   {
     int layern =
-      pad->Flags & ONSOLDERFLAG ? solder_layer : component_layer;
+      TEST_FLAG (ONSOLDERFLAG, pad) ? solder_layer : component_layer;
     line_s *ls = (line_s *) g_malloc (sizeof (line_s));
     ls->next = lines;
     lines = ls;
@@ -2842,7 +2847,7 @@ ActionDJopt (gchar *arg)
 	  LineType *l = &(layer->Line[ln]);
 	  line_s *ls;
 
-	  if (l->Flags & RATFLAG)
+	  if (TEST_FLAG (RATFLAG, l))
 	    continue;
 
 	  if (l->Point1.X == l->Point2.X && l->Point1.Y == l->Point2.Y)

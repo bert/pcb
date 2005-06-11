@@ -351,7 +351,7 @@ GBX_Init (PrintInitTypePtr Flags)
 			    : (TEST_FLAG (OCTAGONFLAG, pin) ?
 			       OCTAGON : ROUND));
 	  /* check for thermal cross being used */
-	  if (TEST_FLAG (ALLTHERMFLAGS, pin))
+	  if (TEST_ANY_THERMS (pin))
 	    {
 	      int finger = (pin->Thickness - pin->DrillingHole) * PCB->ThermScale;
 	      findApertureCode (&GBX_Apertures, finger, 0, 0, ROUND);
@@ -360,7 +360,7 @@ GBX_Init (PrintInitTypePtr Flags)
 				THERMAL);
 	    }
 	  /* check for polygon clearance being used */
-	  if (TEST_FLAG (ALLPIPFLAGS, pin))
+	  if (TEST_ANY_PIPS (pin))
 	    {
 	      /* negative planes need clears */
 	      findApertureCode (&GBX_Apertures, pin->Thickness,
@@ -419,7 +419,7 @@ GBX_Init (PrintInitTypePtr Flags)
 			SQUARE : (TEST_FLAG (OCTAGONFLAG, via) ?
 				  OCTAGON : ROUND));
       /* check for thermal cross being used */
-      if (TEST_FLAG (ALLTHERMFLAGS, via))
+      if (TEST_ANY_THERMS (via))
 	{
 	  int finger = (via->Thickness - via->DrillingHole) * PCB->ThermScale;
 	  findApertureCode (&GBX_Apertures, finger, 0, 0, ROUND);
@@ -427,7 +427,7 @@ GBX_Init (PrintInitTypePtr Flags)
 			    via->Thickness + via->Clearance, finger, THERMAL);
 	}
       /* check for polygon clearance being used */
-      if (TEST_FLAG (ALLPIPFLAGS, via))
+      if (TEST_ANY_PIPS (via))
 	{
 	  findApertureCode (&GBX_Apertures, via->Thickness + via->Clearance,
 			    0, 0, TEST_FLAG (SQUAREFLAG,
@@ -979,7 +979,7 @@ GBX_PrintPad (PadTypePtr Pad, int mode)
   if (size == 0)
     return;
   setAperture (&GBX_Apertures, size, 0, 0,
-	       (Pad->Flags & SQUAREFLAG) ? SQUARE : ROUND);
+	       TEST_FLAG (SQUAREFLAG, Pad) ? SQUARE : ROUND);
   if (Pad->Point1.X != lastX)
     {
       m = True;

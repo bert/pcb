@@ -503,9 +503,9 @@ MoveRatToLayer (RatTypePtr Rat)
   new = CreateNewLineOnLayer (Dest, Rat->Point1.X, Rat->Point1.Y,
 			      Rat->Point2.X, Rat->Point2.Y,
 			      Settings.LineThickness, 2 * Settings.Keepaway,
-			      (Rat->Flags & ~RATFLAG) |
-			      (TEST_FLAG (CLEARNEWFLAG, PCB) ? CLEARLINEFLAG :
-			       0));
+			      Rat->Flags);
+  if (TEST_FLAG (CLEARNEWFLAG, PCB))
+    SET_FLAG (CLEARLINEFLAG, new);
   if (!new)
     return (NULL);
   AddObjectToCreateUndoList (LINE_TYPE, Dest, new, new);
@@ -537,7 +537,7 @@ moveline_callback (const BoxType * b, void *cl)
        CreateNewVia (PCB->Data, i->X, i->Y,
 		     Settings.ViaThickness, 2 * Settings.Keepaway,
 		     NOFLAG, Settings.ViaDrillingHole, NULL,
-		     VIAFLAG)) != NULL)
+		     NoFlags())) != NULL)
     {
       UpdatePIPFlags (via, (ElementTypePtr) via, NULL, False);
       AddObjectToCreateUndoList (VIA_TYPE, via, via, via);
@@ -690,7 +690,6 @@ static void *
 MovePolygonToLayer (LayerTypePtr Layer, PolygonTypePtr Polygon)
 {
   PolygonTypePtr new;
-  int LayerThermFlag, DestThermFlag;
 
   if (TEST_FLAG (LOCKFLAG, Polygon))
     {
@@ -703,27 +702,25 @@ MovePolygonToLayer (LayerTypePtr Layer, PolygonTypePtr Polygon)
   if (Layer->On)
     ErasePolygon (Polygon);
   /* Move all of the thermals with the polygon */
-  LayerThermFlag = L0THERMFLAG << GetLayerNumber (PCB->Data, Layer);
-  DestThermFlag = L0THERMFLAG << GetLayerNumber (PCB->Data, Dest);
   ALLPIN_LOOP (PCB->Data);
   {
-    if (TEST_FLAG (LayerThermFlag, pin) &&
+    if (TEST_THERM (GetLayerNumber (PCB->Data, Layer), pin) &&
 	IsPointInPolygon (pin->X, pin->Y, 0, Polygon))
       {
 	AddObjectToFlagUndoList (PIN_TYPE, Layer, pin, pin);
-	CLEAR_FLAG (LayerThermFlag, pin);
-	SET_FLAG (DestThermFlag, pin);
+	CLEAR_THERM (GetLayerNumber (PCB->Data, Layer), pin);
+	SET_THERM (GetLayerNumber (PCB->Data, Dest), pin);
       }
   }
   ENDALL_LOOP;
   VIA_LOOP (PCB->Data);
   {
-    if (TEST_FLAG (LayerThermFlag, via) &&
+    if (TEST_THERM (GetLayerNumber (PCB->Data, Layer), via) &&
 	IsPointInPolygon (via->X, via->Y, 0, Polygon))
       {
 	AddObjectToFlagUndoList (VIA_TYPE, Layer, via, via);
-	CLEAR_FLAG (LayerThermFlag, via);
-	SET_FLAG (DestThermFlag, via);
+	CLEAR_THERM (GetLayerNumber (PCB->Data, Layer), via);
+	SET_THERM (GetLayerNumber (PCB->Data, Dest), via);
       }
   }
   END_LOOP;
@@ -777,7 +774,7 @@ MoveObjectAndRubberband (int Type, void *Ptr1, void *Ptr2, void *Ptr3,
   while (Crosshair.AttachedObject.RubberbandN)
     {
       /* first clear any marks that we made in the line flags */
-      ptr->Line->Flags &= ~RUBBERENDFLAG;
+      CLEAR_FLAG (RUBBERENDFLAG, ptr->Line);
       AddObjectToMoveUndoList (LINEPOINT_TYPE,
 			       ptr->Layer, ptr->Line, ptr->MovedPoint, DX,
 			       DY);

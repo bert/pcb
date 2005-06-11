@@ -77,4 +77,11 @@ float		GetValue(char *, char *, Boolean *);
 int		FileExists(const char *);
 char *		Concat (const char *, ...); /* end with NULL */
 
+/* For passing modified flags to other functions. */
+FlagType	MakeFlags(unsigned int);
+FlagType	OldFlags(unsigned int);
+FlagType	AddFlags(FlagType, unsigned int);
+FlagType	MaskFlags(FlagType, unsigned int);
+#define		NoFlags() MakeFlags(0)
+
 #endif

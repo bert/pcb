@@ -70,8 +70,6 @@ RCSID ("$Id$");
 static Boolean DoPIPFlags (PinTypePtr, ElementTypePtr,
 			   LayerTypePtr, PolygonTypePtr, int);
 
-static int new_flags, mask;
-
 /* --------------------------------------------------------------------------
  * remove redundant polygon points. Any point that lies on the straight
  * line between the points on either side of it is redundant.
@@ -227,7 +225,7 @@ CopyAttachedPolygonToLayer (void)
   int saveID;
 
   /* move data to layer and clear attached struct */
-  polygon = CreateNewPolygon (CURRENT, NOFLAG);
+  polygon = CreateNewPolygon (CURRENT, NoFlags());
   saveID = polygon->ID;
   *polygon = Crosshair.AttachedPolygon;
   polygon->ID = saveID;
@@ -288,19 +286,21 @@ UpdatePIPFlags (PinTypePtr Pin, ElementTypePtr Element,
     }
   else
     {
-      int old_flags = Pin->Flags;
-      mask = L0PIPFLAG << GetLayerNumber (PCB->Data, Layer);
+      FlagType old_flags = Pin->Flags, new_flags;
+      int layer = GetLayerNumber (PCB->Data, Layer);
       /* assume no pierce on this layer */
-      Pin->Flags &= ~(mask | WARNFLAG);
+      CLEAR_FLAG (WARNFLAG, Pin);
+      CLEAR_PIP (layer, Pin);
+
       POLYGON_LOOP (Layer);
       {
 	if (TEST_FLAG (CLEARPOLYFLAG, polygon) &&
-	    DoPIPFlags (Pin, Element, Layer, polygon, mask))
+	    DoPIPFlags (Pin, Element, Layer, polygon, layer))
 	  break;
       }
       END_LOOP;
       new_flags = Pin->Flags;
-      if (new_flags != old_flags)
+      if (! FLAGS_EQUAL (new_flags, old_flags))
 	{
 	  Pin->Flags = old_flags;
 	  if (AddUndo)
@@ -317,7 +317,7 @@ UpdatePIPFlags (PinTypePtr Pin, ElementTypePtr Element,
 
 static Boolean
 DoPIPFlags (PinTypePtr Pin, ElementTypePtr Element,
-	    LayerTypePtr Layer, PolygonTypePtr Polygon, int LayerPIPFlag)
+	    LayerTypePtr Layer, PolygonTypePtr Polygon, int LayerPIP)
 {
   float wide;
 
@@ -335,7 +335,7 @@ DoPIPFlags (PinTypePtr Pin, ElementTypePtr Element,
 	}
       if (!TEST_FLAG (CLEARPOLYFLAG, Polygon))
 	return False;
-      SET_FLAG (LayerPIPFlag, Pin);
+      SET_PIP (LayerPIP, Pin);
       return True;
     }
   return False;
@@ -401,7 +401,7 @@ plow_callback (const BoxType * b, void *cl)
     case PIN_TYPE:
       {
 	PinTypePtr pin = (PinTypePtr) b;
-	if (!TEST_FLAG (HOLEFLAG, pin) && TEST_FLAG (plow->PIPflag, pin))
+	if (!TEST_FLAG (HOLEFLAG, pin) && TEST_PIP (plow->PIPflag, pin))
 	  {
 	    r = plow->callback (plow->type, plow->type == PIN_TYPE ?
 				pin->Element : pin, pin, pin, plow->layer,
@@ -460,7 +460,7 @@ PolygonPlows (int group, BoxTypePtr range,
   {
     if (!layer->PolygonN)
       continue;
-    info.PIPflag = L0PIPFLAG << number;
+    info.PIPflag = number;
     info.layer = layer;
 
     POLYGON_LOOP (layer);

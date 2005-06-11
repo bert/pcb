@@ -612,7 +612,7 @@ DrawShortestRats (NetListTypePtr Netl, void (*funcp) ())
 				    firstpoint->X, firstpoint->Y,
 				    secondpoint->X, secondpoint->Y,
 				    firstpoint->group, secondpoint->group,
-				    Settings.RatThickness, NOFLAG)) != NULL)
+				    Settings.RatThickness, NoFlags())) != NULL)
 	    {
 	      AddObjectToCreateUndoList (RATLINE_TYPE, line, line, line);
 	      DrawRat (line, 0);
@@ -881,7 +881,7 @@ ratIt:
 			Crosshair.AttachedLine.Point1.Y,
 			Crosshair.AttachedLine.Point2.X,
 			Crosshair.AttachedLine.Point2.Y,
-			group1, group2, Settings.RatThickness, NOFLAG));
+			group1, group2, Settings.RatThickness, NoFlags()));
 }
 
 

@@ -3672,7 +3672,7 @@ IronDownAllUnfixedPaths (routedata_t * rd)
 	      p->parent.line = CreateDrawnLineOnLayer
 		(layer, b.X1, b.Y1, b.X2, b.Y2,
 		 p->augStyle->style->Thick,
-		 p->augStyle->style->Keepaway, AUTOFLAG);
+		 p->augStyle->style->Keepaway, MakeFlags(AUTOFLAG));
 	      if (p->parent.line)
 		{
 		  AddObjectToCreateUndoList (LINE_TYPE, layer,
@@ -3696,7 +3696,7 @@ IronDownAllUnfixedPaths (routedata_t * rd)
 				  pp->augStyle->style->Diameter,
 				  2 * pp->augStyle->style->Keepaway,
 				  0, pp->augStyle->style->Hole, NULL,
-				  VIAFLAG | AUTOFLAG);
+				  MakeFlags(AUTOFLAG));
 		  assert (pp->parent.via);
 		  if (pp->parent.via)
 		    {
@@ -3736,7 +3736,7 @@ IronDownAllUnfixedPaths (routedata_t * rd)
 	      AddObjectToFlagUndoList (type,
 				       pin->Element ? pin->Element : pin,
 				       pin, pin);
-	      SET_FLAG (L0THERMFLAG << p->layer, pin);
+	      SET_THERM (p->layer, pin);
 	    }
 	}
     }

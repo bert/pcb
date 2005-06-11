@@ -66,6 +66,7 @@
 #include "search.h"
 #include "set.h"
 #include "undo.h"
+#include "strflags.h"
 
 #include "gui.h"
 
@@ -126,7 +127,7 @@ typedef struct			/* holds information about an operation */
     RemovedPointType RemovedPoint;
     RotateType Rotate;
     MoveToLayerType MoveToLayer;
-    int Flags;
+    FlagType Flags;
     BDimension Size;
   }
   Data;
@@ -430,29 +431,45 @@ static Boolean
 UndoFlag (UndoListTypePtr Entry)
 {
   void *ptr1, *ptr2, *ptr3;
-  int type, swap, tests;
+  int type;
+  FlagType swap;
+  int must_redraw;
 
   /* lookup entry by ID */
   type =
     SearchObjectByID (PCB->Data, &ptr1, &ptr2, &ptr3, Entry->ID, Entry->Kind);
   if (type != NO_TYPE)
     {
-      if (TEST_FLAG (LOCKFLAG, (PinTypePtr) ptr2))
+      FlagType f1, f2;
+      PinTypePtr pin = (PinTypePtr) ptr2;
+
+      if (TEST_FLAG (LOCKFLAG, pin))
 	return (False);
-      swap = tests = ((PinTypePtr) ptr2)->Flags;
-      tests ^= Entry->Data.Flags;
-      if (andDraw && (tests & DRAW_FLAGS & ~(SELECTEDFLAG | FOUNDFLAG)))
+
+      swap = pin->Flags;
+
+      must_redraw = 0;
+      f1 = MaskFlags (pin->Flags, ~DRAW_FLAGS);
+      f2 = MaskFlags (Entry->Data.Flags, ~DRAW_FLAGS);
+
+      if (! FLAGS_EQUAL (f1, f2))
+	must_redraw = 1;
+
+      if (andDraw && must_redraw)
 	EraseObject (type, ptr2);
-      ((PinTypePtr) ptr2)->Flags = Entry->Data.Flags;
+
+      pin->Flags = Entry->Data.Flags;
+
       Entry->Data.Flags = swap;
-      if (andDraw && (tests & DRAW_FLAGS))
+
+      if (andDraw && must_redraw)
 	DrawObject (type, ptr1, ptr2, 0);
       return (True);
     }
   Message ("hace Internal error: Can't find ID %d type %08x\n", Entry->ID,
 	   Entry->Kind);
-  Message ("for UndoFlag Operation. Previous flags: %08x\n",
-	   Entry->Data.Flags);
+  Message ("for UndoFlag Operation. Previous flags: %s\n",
+	   flags_to_string (Entry->Data.Flags, 0));
   return (False);
 }
 

@@ -797,7 +797,7 @@ clearPin_callback (const BoxType * b, void *cl)
   struct pin_info *i = (struct pin_info *) cl;
   if (i->arg)
     ClearOnlyPin (pin, True);
-  else if (TEST_FLAG (i->PIPFlag, pin))
+  else if (TEST_PIP (i->PIPFlag, pin))
     ClearOnlyPin (pin, False);
   return 1;
 }
@@ -903,7 +903,8 @@ therm_callback (const BoxType * b, void *cl)
   PinTypePtr pin = (PinTypePtr) b;
   struct pin_info *i = (struct pin_info *) cl;
 
-  if (TEST_FLAGS (i->PIPFlag, pin))
+  if (TEST_THERM (i->PIPFlag, pin)
+      && TEST_PIP (i->PIPFlag, pin))
     {
       ThermPin (i->Layer, pin);
       return 1;
@@ -922,9 +923,8 @@ DrawLayer (LayerTypePtr Layer, BoxType * screen)
 	gint			group = GetLayerGroupNumberByNumber (layernum);
 	struct pin_info	info;
 	OutputType		*out = &Output;
-	gint			PIPFlag = L0PIPFLAG << layernum;
 
-	info.PIPFlag = PIPFlag;
+	info.PIPFlag = layernum;
 	info.arg = False;
 	info.Layer = Layer;
 
@@ -977,8 +977,7 @@ DrawLayer (LayerTypePtr Layer, BoxType * screen)
 
 		if (layernum < MAX_LAYER)
 			{
-			PIPFlag = (L0THERMFLAG | L0PIPFLAG) << layernum;
-			info.PIPFlag = PIPFlag;
+			info.PIPFlag = layernum;
 			r_search(PCB->Data->pin_tree, screen, NULL, therm_callback, &info);
 			r_search(PCB->Data->via_tree, screen, NULL, therm_callback, &info);
 			}
@@ -1286,7 +1285,6 @@ ThermPin (LayerTypePtr layer, PinTypePtr Pin)
 void
 ClearPin (PinTypePtr Pin, int Type, int unused)
 {
-  int ThermLayerFlag;
   LayerTypePtr layer;
   Cardinal i;
   BDimension half = (Pin->Thickness + Pin->Clearance) / 2;
@@ -1331,9 +1329,8 @@ ClearPin (PinTypePtr Pin, int Type, int unused)
       layer = LAYER_ON_STACK (i - 1);
       if (!layer->On)
 	continue;
-      ThermLayerFlag =
-	(L0THERMFLAG | L0PIPFLAG) << GetLayerNumber (PCB->Data, layer);
-      if (TEST_FLAGS (ThermLayerFlag, Pin))
+      if (TEST_THERM (GetLayerNumber (PCB->Data, layer), Pin)
+	  && TEST_PIP (GetLayerNumber (PCB->Data, layer), Pin))
 	{
 	  if (!Erasing)
 	    {
@@ -1879,7 +1876,7 @@ DrawVia (PinTypePtr Via, int unused)
 {
   if (!Gathering)
     SetPVColor (Via, VIA_TYPE);
-  if (!TEST_FLAG (HOLEFLAG, Via) && TEST_FLAG (ALLPIPFLAGS, Via))
+  if (!TEST_FLAG (HOLEFLAG, Via) && TEST_ANY_PIPS (Via))
     ClearPin (Via, VIA_TYPE, 0);
   else
     DrawPinOrViaLowLevel (Via, True);
@@ -1922,7 +1919,7 @@ DrawViaName (PinTypePtr Via, int unused)
 void
 DrawPin (PinTypePtr Pin, int unused)
 {
-  if (!TEST_FLAG (HOLEFLAG, Pin) && TEST_FLAG (ALLPIPFLAGS, Pin))
+  if (!TEST_FLAG (HOLEFLAG, Pin) && TEST_ANY_PIPS (Pin))
     ClearPin (Pin, PIN_TYPE, 0);
   else
     {
@@ -2229,7 +2226,7 @@ void
 EraseVia (PinTypePtr Via)
 {
   Erasing++;
-  if (TEST_FLAG (ALLPIPFLAGS, Via))
+  if (TEST_ANY_PIPS (Via))
     ClearPin (Via, NO_TYPE, 0);
   gdk_gc_set_foreground(Output.fgGC, &Settings.BackgroundColor);
   DrawPinOrViaLowLevel (Via, False);
@@ -2296,7 +2293,7 @@ void
 ErasePin (PinTypePtr Pin)
 {
   Erasing++;
-  if (TEST_FLAG (ALLPIPFLAGS, Pin))
+  if (TEST_ANY_PIPS (Pin))
     ClearPin (Pin, NO_TYPE, 0);
   gdk_gc_set_foreground(Output.fgGC, &Settings.BackgroundColor);
   DrawPinOrViaLowLevel (Pin, False);
@@ -2400,7 +2397,7 @@ EraseElementPinsAndPads (ElementTypePtr Element)
   gdk_gc_set_foreground(Output.fgGC, &Settings.BackgroundColor);
   PIN_LOOP (Element);
   {
-    if (TEST_FLAG (ALLPIPFLAGS, pin))
+    if (TEST_ANY_PIPS (pin))
       {
 	ClearPin (pin, NO_TYPE, 0);
 	gdk_gc_set_foreground(Output.fgGC, &Settings.BackgroundColor);

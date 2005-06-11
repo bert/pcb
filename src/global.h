@@ -71,6 +71,14 @@ typedef int				Dimension;
 #define True	1
 #define False	0
 
+/* Nobody should know about the internals of this except the macros in
+   macros.h that access it.  This structure must be simple-assignable
+   for now.  */
+typedef struct {
+  unsigned short f; /* generic flags */
+  unsigned char t[(MAX_LAYER+7)/8]; /* thermals */
+  unsigned char p[(MAX_LAYER+7)/8]; /* pip */
+} FlagType, *FlagTypePtr;
 
 
 /* ---------------------------------------------------------------------------
@@ -79,8 +87,8 @@ typedef int				Dimension;
  * their coordinates as a line.
  */
 #define	LINESTRUCT			\
-	long int		ID,		\
-			Flags;		\
+	long int	ID;		\
+	FlagType	Flags;		\
 	BDimension	Thickness,      \
                         Clearance;      \
 	PointType	Point1,		\
@@ -159,7 +167,8 @@ typedef struct			/* holds information about one line */
 typedef struct
 {
   BoxType BoundingBox;
-  long int ID, Flags;
+  long int ID;
+  FlagType Flags;
   BDimension Scale;		/* text scaling in percent */
   LocationType X,			/* origin */
     Y;
@@ -171,7 +180,8 @@ typedef struct
 typedef struct			/* holds information about a polygon */
 {
   BoxType BoundingBox;
-  long int ID, Flags;
+  long int ID;
+  FlagType Flags;
   Cardinal PointN,		/* number of points in polygon */
     PointMax;			/* max number from malloc() */
   PointTypePtr Points;		/* data */
@@ -180,8 +190,8 @@ typedef struct			/* holds information about a polygon */
 typedef struct			/* holds information about arcs */
 {
   BoxType BoundingBox;
-  long int ID,			/* these fields are unused when contained in elements */
-    Flags;
+  long int ID;			/* these fields are unused when contained in elements */
+  FlagType Flags;
   BDimension Thickness, Clearance;
   LocationType Width,		/* length of axis */
     Height, X,			/* center coordinates */
@@ -239,7 +249,8 @@ typedef struct			/* a SMD pad */
 typedef struct
 {
   BoxType BoundingBox;
-  long int ID, Flags;
+  long int ID;
+  FlagType Flags;
   BDimension Thickness, Clearance, Mask, DrillingHole;
   LocationType X,			/* center and diameter */
     Y;
@@ -251,7 +262,8 @@ typedef struct
 typedef struct
 {
   BoxType BoundingBox;
-  long int ID, Flags;
+  long int ID;
+  FlagType Flags;
   TextType Name[MAX_ELEMENTNAMES];	/* the elements names; */
   /* description text */
   /* name on PCB second, */
@@ -378,8 +390,8 @@ typedef struct
   */
 typedef struct
 	{
-	glong		ID,			/* see macro.h */
-				Flags;
+	glong		ID;			/* see macro.h */
+	FlagType	Flags;
 	gchar		*Name,			/* name of board */
 				*Filename,			/* name of file (from load) */
 				*PrintFilename,		/* from print dialog */

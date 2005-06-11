@@ -28,19 +28,18 @@
 #ifndef _FLAGS_H_
 #define _FLAGS_H_
 
-/* In a future version, "int" may be replaced by something that holds
-   more information.  The purpose of this interface is to make the
-   file format at least *able* to handle more than 32 flags, and to
-   hide the internal details of flags from the file format.  */
+/* The purpose of this interface is to make the file format able to
+   handle more than 32 flags, and to hide the internal details of
+   flags from the file format.  */
 
 /* When passed a string, parse it and return an appropriate set of
    flags.  Errors cause error() to be called with a suitable message;
    if error is NULL, errors are ignored.  */
-int string_to_flags (const char *flagstring, void (*error)(const char *msg));
+FlagType string_to_flags (const char *flagstring, void (*error)(const char *msg));
 
 /* Given a set of flags for a given object type, return a string which
    can be output to a file.  The returned pointer must not be
    freed.  */
-char *flags_to_string (int flags, int object_type);
+char *flags_to_string (FlagType flags, int object_type);
 
 #endif

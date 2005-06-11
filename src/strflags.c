@@ -44,8 +44,15 @@
 #include <unistd.h>
 #endif
 
+#include "globalconst.h"
+#include "global.h"
 #include "const.h"
 #include "strflags.h"
+
+/* Because all the macros expect it, that's why.  */
+typedef struct {
+  FlagType Flags;
+} FlagHolder;
 
 /* Be careful to list more specific flags first, followed by general
  * flags, when two flags use the same bit.  For example, "onsolder" is
@@ -294,20 +301,23 @@ print_layer_list ()
  */
 
 static void error_ignore (const char *msg) { /* do nothing */ }
+static FlagType empty_flags;
 
-int
+FlagType
 string_to_flags (const char *flagstring, void (*error)(const char *msg))
 {
   const char *fp, *ep;
   int flen;
-  int rv = 0;
+  FlagHolder rv;
   int i;
+
+  rv.Flags = empty_flags;
 
   if (error == 0)
     error = error_ignore;
 
   if (flagstring == NULL)
-    return 0;
+    return empty_flags;
 
   fp = ep = flagstring;
 
@@ -326,9 +336,9 @@ string_to_flags (const char *flagstring, void (*error)(const char *msg))
 
       if (flen == 7 && memcmp (fp, "thermal", 7) == 0)
 	{
-	  for (i=0; i<8 && i < num_layers; i++)
+	  for (i=0; i<MAX_LAYER && i < num_layers; i++)
 	    if (layers[i])
-	      rv |= L0THERMFLAG << i;
+	      SET_THERM (i, &rv);
 	}
       else
 	{
@@ -337,7 +347,7 @@ string_to_flags (const char *flagstring, void (*error)(const char *msg))
 		&& memcmp (flagbits[i].name, fp, flen) == 0)
 	      {
 		found = 1;
-		rv |= flagbits[i].mask;
+		SET_FLAG (flagbits[i].mask, &rv);
 		break;
 	      }
 	  if (!found)
@@ -350,7 +360,7 @@ string_to_flags (const char *flagstring, void (*error)(const char *msg))
 	}
       fp = ep+1;
     }
-  return rv;
+  return rv.Flags;
 }
 
 /*
@@ -365,70 +375,74 @@ string_to_flags (const char *flagstring, void (*error)(const char *msg))
  */
 
 char *
-flags_to_string (int flags, int object_type)
+flags_to_string (FlagType flags, int object_type)
 {
   int len;
-  int i, saveflags;
+  int i;
+  FlagHolder fh, savef;
   char *buf, *bp;
+
+  fh.Flags = flags;
 
 #ifndef FLAG_TEST
   switch (object_type)
     {
     case VIA_TYPE:
-      flags &= ~VIAFLAG;
+      CLEAR_FLAG (VIAFLAG, &fh);
       break;
     case RATLINE_TYPE:
-      flags &= ~RATFLAG;
+      CLEAR_FLAG (RATFLAG, &fh);
       break;
     case PIN_TYPE:
-      flags &= ~PINFLAG;
+      CLEAR_FLAG (PINFLAG, &fh);
       break;
     }
 #endif
-  saveflags = flags;
+
+  savef = fh;
 
   len = 3; /* for "()\0" */
   for (i = 0; i < NUM_FLAGBITS; i ++)
     if ((flagbits[i].object_types & object_type)
-	&& (flagbits[i].mask & flags))
+	&& (TEST_FLAG (flagbits[i].mask, &fh)))
       {
 	len += flagbits[i].nlen + 1;
-	flags &= ~flagbits[i].mask;
+	CLEAR_FLAG (flagbits[i].mask, &fh);
       }
 
-  if (flags & ALLTHERMFLAGS)
+  if (TEST_ANY_THERMS (&fh))
     {
       len += sizeof("thermal()");
-      for (i=0; i<8; i++)
-	if (flags & (L0THERMFLAG << i))
-	  len += 2;
+      for (i=0; i<MAX_LAYER; i++)
+	if (TEST_THERM (i, &fh))
+	  len += printed_int_length (i)+1;
     }
 
   bp = buf = alloc_buf (len + 2);
 
   *bp++ = '"';
 
-  flags = saveflags;
+  fh = savef;
   for (i = 0; i < NUM_FLAGBITS; i ++)
     if (flagbits[i].object_types & object_type
-	&& flagbits[i].mask & flags)
+	&& (TEST_FLAG (flagbits[i].mask, &fh)))
       {
 	if (bp != buf+1)
 	  *bp++ = ',';
 	strcpy (bp, flagbits[i].name);
 	bp += flagbits[i].nlen;
-	flags &= ~flagbits[i].mask;
+	CLEAR_FLAG (flagbits[i].mask, &fh);
       }
 
-  if (flags & ALLTHERMFLAGS)
+  if (TEST_ANY_THERMS (&fh))
     {
       if (bp != buf+1)
 	*bp++ = ',';
       strcpy (bp, "thermal");
       bp += strlen("thermal");
       grow_layer_list (0);
-      for (i=0; i<8; i++)
-	if (flags & (L0THERMFLAG << i))
+      for (i=0; i<MAX_LAYER; i++)
+	if (TEST_THERM (i, &fh))
 	  set_layer_list (i, 1);
       strcpy (bp, print_layer_list());
       bp += strlen (bp);
@@ -440,6 +454,19 @@ flags_to_string (int flags, int object_type)
 }
 
 #if FLAG_TEST
+
+static void
+dump_flag (FlagType *f)
+{
+  int l;
+  printf("F:%08x T:[", f->f);
+  for (l=0; l<(MAX_LAYER+7)/8; l++)
+    printf(" %02x", f->t[l]);
+  printf("] P:[");
+  for (l=0; l<(MAX_LAYER+7)/8; l++)
+    printf(" %02x", f->p[l]);
+  printf("]");
+}
 
 /*
  * This exists for standalone testing of this file.
@@ -477,17 +504,17 @@ main()
 
   while (count < 1000000)
     {
-      int flag;
+      FlagHolder fh;
       char *str;
-      int new_flag;
+      FlagType new_flags;
       int i;
       int otype;
 
       otype = ALL_TYPES;
-      flag = 0;
+      fh.Flags = empty_flags;
       for (i=0; i<NUM_FLAGBITS; i++)
 	{
-	  if (flag & flagbits[i].mask)
+	  if (TEST_FLAG (flagbits[i].mask, &fh))
 	    continue;
 	  if ((otype & flagbits[i].object_types) == 0)
 	    continue;
@@ -495,22 +522,27 @@ main()
 	    continue;
 
 	  otype &= flagbits[i].object_types;
-	  flag |= flagbits[i].mask;
+	  SET_FLAG (flagbits[i].mask, &fh);
 	}
 
       if (otype & PIN_TYPES)
-	flag |= (random() & ALLTHERMFLAGS);
+	for (i=0; i<MAX_LAYER; i++)
+	  if (random() & 4)
+	    SET_THERM (i, &fh);
 
-      str = flags_to_string (flag, otype);
-      new_flag = string_to_flags (str, 0);
+      str = flags_to_string (fh.Flags, otype);
+      new_flags = string_to_flags (str, 0);
 
       count ++;
-      if (flag != new_flag)
-	{
-	  printf("%08x %08x %s\n", flag, new_flag, str);
-	  if (++errors == 5)
-	    exit(1);
-	}
+      if (FLAGS_EQUAL (fh.Flags, new_flags))
+	continue;
+
+      dump_flag(&fh.Flags);
+      printf(" ");
+      dump_flag(&new_flags);
+      printf("\n");
+      if (++errors == 5)
+	exit(1);
     }
   printf ("%d out of %d failed\n", errors, count);
   return errors;

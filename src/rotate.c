@@ -372,7 +372,7 @@ RotateObject (int Type, void *Ptr1, void *Ptr2, void *Ptr3,
   while (Crosshair.AttachedObject.RubberbandN)
     {
       changed = True;
-      ptr->Line->Flags &= ~RUBBERENDFLAG;
+      CLEAR_FLAG (RUBBERENDFLAG, ptr->Line);
       AddObjectToRotateUndoList (LINEPOINT_TYPE, ptr->Layer, ptr->Line,
 				 ptr->MovedPoint, CenterX, CenterY, Steps);
       EraseLine (ptr->Line);

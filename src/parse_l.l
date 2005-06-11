@@ -59,6 +59,7 @@ RCSID("$Id$");
 #include "gui.h"
 #include "mymem.h"
 #include "misc.h"
+#include "strflags.h"
 #include "parse_l.h"
 #include "parse_y.h"
 

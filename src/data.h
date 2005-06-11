@@ -78,4 +78,6 @@ extern	gboolean	RedrawOnEnter;
 extern	gboolean	render;
 extern	gboolean	Bumped;
 
+extern	FlagType	no_flags;
+
 #endif

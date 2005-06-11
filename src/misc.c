@@ -1663,3 +1663,49 @@ Concat (const char *first, ...)
   va_end (a);
   return rv;
 }
+
+int
+mem_any_set (unsigned char *ptr, int bytes)
+{
+  while (bytes--)
+    if (*ptr++)
+      return 1;
+  return 0;
+}
+
+/* This just fills in a FlagType with current flags.  */
+FlagType
+MakeFlags (unsigned int flags)
+{
+  FlagType rv;
+  memset(&rv, 0, sizeof(rv));
+  rv.f = flags;
+  return rv;
+}
+
+/* This converts old flag bits (from saved PCB files) to new format.  */
+FlagType
+OldFlags (unsigned int flags)
+{
+  FlagType rv;
+  memset(&rv, 0, sizeof(rv));
+  /* If we move flag bits around, this is where we map old bits to them.  */
+  rv.f = flags & 0xffff;
+  rv.t[0] = (flags >> 16) & 0xff;
+  rv.p[0] = (flags >> 24) & 0xff;
+  return rv;
+}
+
+FlagType
+AddFlags (FlagType flag, unsigned int flags)
+{
+  flag.f |= flags;
+  return flag;
+}
+
+FlagType
+MaskFlags (FlagType flag, unsigned int flags)
+{
+  flag.f &= ~flags;
+  return flag;
+}

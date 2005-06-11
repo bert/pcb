@@ -870,7 +870,7 @@ NotifyMode (void)
 	if ((via = CreateNewVia (PCB->Data, Note.X, Note.Y,
 				 Settings.ViaThickness, 2 * Settings.Keepaway,
 				 0, Settings.ViaDrillingHole, NULL,
-				 VIAFLAG)) != NULL)
+				 NoFlags())) != NULL)
 	  {
 	    UpdatePIPFlags (via, (ElementTypePtr) via, NULL, False);
 	    AddObjectToCreateUndoList (VIA_TYPE, via, via, via);
@@ -940,11 +940,12 @@ NotifyMode (void)
 							      LineThickness,
 							      2 * Settings.
 							      Keepaway,
+							      MakeFlags (
 							      TEST_FLAG
 							      (CLEARNEWFLAG,
 							       PCB) ?
 							      CLEARLINEFLAG :
-							      0)))
+							      0))))
 		{
 		  BoxTypePtr bx;
 
@@ -1011,19 +1012,15 @@ NotifyMode (void)
       }
     case THERMAL_MODE:
       {
-	int LayerThermFlag;
-	int LayerPIPFlag = L0PIPFLAG << INDEXOFCURRENT;
-
 	if (((type
 	      =
 	      SearchScreen (Note.X, Note.Y, PIN_TYPES, &ptr1, &ptr2,
 			    &ptr3)) != NO_TYPE)
-	    && TEST_FLAG (LayerPIPFlag, (PinTypePtr) ptr3)
+	    && TEST_PIP (INDEXOFCURRENT, (PinTypePtr) ptr3)
 	    && !TEST_FLAG (HOLEFLAG, (PinTypePtr) ptr3))
 	  {
 	    AddObjectToFlagUndoList (type, ptr1, ptr2, ptr3);
-	    LayerThermFlag = L0THERMFLAG << INDEXOFCURRENT;
-	    TOGGLE_FLAG (LayerThermFlag, (PinTypePtr) ptr3);
+	    TOGGLE_THERM (INDEXOFCURRENT, (PinTypePtr) ptr3);
 	    IncrementUndoSerialNumber ();
 	    ClearPin ((PinTypePtr) ptr3, type, 0);
 	    Draw ();
@@ -1098,10 +1095,10 @@ NotifyMode (void)
 					  Crosshair.AttachedLine.Point2.Y,
 					  Settings.LineThickness,
 					  2 * Settings.Keepaway,
-					  (TEST_FLAG (AUTODRCFLAG, PCB) ?
+					  MakeFlags((TEST_FLAG (AUTODRCFLAG, PCB) ?
 					   FOUNDFLAG : 0) |
 					  (TEST_FLAG (CLEARNEWFLAG, PCB) ?
-					   CLEARLINEFLAG : 0))) != NULL)
+					   CLEARLINEFLAG : 0)))) != NULL)
 	    {
 	      PinTypePtr via;
 
@@ -1125,7 +1122,7 @@ NotifyMode (void)
 				    Settings.ViaThickness,
 				    2 * Settings.Keepaway, 0,
 				    Settings.ViaDrillingHole, NULL,
-				    VIAFLAG)) != NULL)
+				    NoFlags())) != NULL)
 		{
 		  UpdatePIPFlags (via, (ElementTypePtr) via, NULL, False);
 		  AddObjectToCreateUndoList (VIA_TYPE, via, via, via);
@@ -1149,10 +1146,10 @@ NotifyMode (void)
 					  Note.X, Note.Y,
 					  Settings.LineThickness,
 					  2 * Settings.Keepaway,
-					  (TEST_FLAG (AUTODRCFLAG, PCB) ?
+					  MakeFlags((TEST_FLAG (AUTODRCFLAG, PCB) ?
 					   FOUNDFLAG : 0) |
 					  (TEST_FLAG (CLEARNEWFLAG, PCB) ?
-					   CLEARLINEFLAG : 0))) != NULL)
+					   CLEARLINEFLAG : 0)))) != NULL)
 	    {
 	      addedLines++;
 	      AddObjectToCreateUndoList (LINE_TYPE, CURRENT, line, line);
@@ -1195,7 +1192,7 @@ NotifyMode (void)
 							AttachedBox.Point2.X,
 							Crosshair.
 							AttachedBox.Point2.Y,
-							CLEARPOLYFLAG)) !=
+							MakeFlags(CLEARPOLYFLAG))) !=
 	      NULL)
 	    {
 	      AddObjectToCreateUndoList (POLYGON_TYPE, CURRENT,
@@ -1225,7 +1222,7 @@ NotifyMode (void)
 	      flag = ONSOLDERFLAG;
 	    if ((text = CreateNewText (CURRENT, &PCB->Font, Note.X,
 				       Note.Y, 0, Settings.TextScale,
-				       string, flag)) != NULL)
+				       string, MakeFlags(flag))) != NULL)
 	      {
 		AddObjectToCreateUndoList (TEXT_TYPE, CURRENT, text, text);
 		IncrementUndoSerialNumber ();
@@ -4657,25 +4654,21 @@ ActionChangeFlag (char *function, char *flag, int value)
 static void
 ChangeFlag (char *what, char *flag_name, int value, char *cmd_name)
 {
-  int flag;
   Boolean (*set_object) (int, void *, void *, void *);
   Boolean (*set_selected) (int);
 
   if (NSTRCMP (flag_name, "square") == 0)
     {
-      flag = SQUAREFLAG;
       set_object = value ? SetObjectSquare : ClrObjectSquare;
       set_selected = value ? SetSelectedSquare : ClrSelectedSquare;
     }
   else if (NSTRCMP (flag_name, "octagon") == 0)
     {
-      flag = OCTAGONFLAG;
       set_object = value ? SetObjectOctagon : ClrObjectOctagon;
       set_selected = value ? SetSelectedOctagon : ClrSelectedOctagon;
     }
   else if (NSTRCMP (flag_name, "thermal") == 0)
     {
-      flag = L0THERMFLAG;
       set_object = value ? SetObjectThermal : ClrObjectThermal;
       set_selected = value ? SetSelectedThermals : ClrSelectedThermals;
     }

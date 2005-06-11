@@ -1988,9 +1988,9 @@ update_displayed_name_actions(void)
 
 	/* Get the index of the radio button to set
 	*/
-	if (PCB->Flags & DESCRIPTIONFLAG)
+	if (TEST_FLAG (DESCRIPTIONFLAG, PCB))
 		i = 0;
-	else if (PCB->Flags & NAMEONPCBFLAG)
+	else if (TEST_FLAG (NAMEONPCBFLAG, PCB))
 		i = 1;
 	else
 		i = 2;

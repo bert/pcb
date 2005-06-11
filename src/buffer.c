@@ -117,7 +117,7 @@ AddViaToBuffer (PinTypePtr Via)
 {
   return (CreateNewVia (Dest, Via->X, Via->Y, Via->Thickness, Via->Clearance,
 			Via->Mask, Via->DrillingHole, Via->Name,
-			Via->Flags & ~(FOUNDFLAG | ExtraFlag)));
+			MaskFlags(Via->Flags, FOUNDFLAG | ExtraFlag)));
 }
 
 /* ---------------------------------------------------------------------------
@@ -129,7 +129,7 @@ AddRatToBuffer (RatTypePtr Rat)
   return (CreateNewRat (Dest, Rat->Point1.X, Rat->Point1.Y,
 			Rat->Point2.X, Rat->Point2.Y, Rat->group1,
 			Rat->group2, Rat->Thickness,
-			Rat->Flags & ~(FOUNDFLAG | ExtraFlag)));
+			MaskFlags(Rat->Flags, FOUNDFLAG | ExtraFlag)));
 }
 
 /* ---------------------------------------------------------------------------
@@ -144,7 +144,7 @@ AddLineToBuffer (LayerTypePtr Layer, LineTypePtr Line)
   line = CreateNewLineOnLayer (layer, Line->Point1.X, Line->Point1.Y,
 			       Line->Point2.X, Line->Point2.Y,
 			       Line->Thickness, Line->Clearance,
-			       Line->Flags & ~(FOUNDFLAG | ExtraFlag));
+			       MaskFlags(Line->Flags, FOUNDFLAG | ExtraFlag));
   if (line && Line->Number)
     line->Number = MyStrdup (Line->Number, "AddLineToBuffer");
   return (line);
@@ -161,7 +161,7 @@ AddArcToBuffer (LayerTypePtr Layer, ArcTypePtr Arc)
   return (CreateNewArcOnLayer (layer, Arc->X, Arc->Y,
 			       Arc->Width, Arc->StartAngle, Arc->Delta,
 			       Arc->Thickness, Arc->Clearance,
-			       Arc->Flags & ~(FOUNDFLAG | ExtraFlag)));
+			       MaskFlags(Arc->Flags, FOUNDFLAG | ExtraFlag)));
 }
 
 /* ---------------------------------------------------------------------------
@@ -174,7 +174,7 @@ AddTextToBuffer (LayerTypePtr Layer, TextTypePtr Text)
 
   return (CreateNewText (layer, &PCB->Font, Text->X, Text->Y,
 			 Text->Direction, Text->Scale, Text->TextString,
-			 Text->Flags & ~ExtraFlag));
+			 MaskFlags(Text->Flags, ExtraFlag)));
 }
 
 /* ---------------------------------------------------------------------------
@@ -188,7 +188,7 @@ AddPolygonToBuffer (LayerTypePtr Layer, PolygonTypePtr Polygon)
 
   polygon = GetPolygonMemory (layer);
   CopyPolygonLowLevel (polygon, Polygon);
-  polygon->Flags = polygon->Flags & ~(FOUNDFLAG | ExtraFlag);
+  CLEAR_FLAG (FOUNDFLAG | ExtraFlag, polygon);
   return (polygon);
 }
 
@@ -202,22 +202,22 @@ AddElementToBuffer (ElementTypePtr Element)
 
   element = GetElementMemory (Dest);
   CopyElementLowLevel (Dest, element, Element, False);
-  element->Flags &= ~ExtraFlag;
+  CLEAR_FLAG (ExtraFlag, element);
   if (ExtraFlag)
     {
       ELEMENTTEXT_LOOP (element);
       {
-	text->Flags &= ~ExtraFlag;
+	CLEAR_FLAG (ExtraFlag, text);
       }
       END_LOOP;
       PIN_LOOP (element);
       {
-	pin->Flags &= ~ExtraFlag;
+	CLEAR_FLAG (ExtraFlag, pin);
       }
       END_LOOP;
       PAD_LOOP (element);
       {
-	pad->Flags &= ~ExtraFlag;
+	CLEAR_FLAG (ExtraFlag, pad);
       }
       END_LOOP;
     }
@@ -238,7 +238,7 @@ MoveViaToBuffer (PinTypePtr Via)
   *Via = Source->Via[--Source->ViaN];
   r_substitute (Source->via_tree, (BoxType *) & Source->Via[Source->ViaN],
 		(BoxType *) Via);
-  via->Flags &= ~(WARNFLAG | FOUNDFLAG);
+  CLEAR_FLAG (WARNFLAG | FOUNDFLAG, via);
   memset (&Source->Via[Source->ViaN], 0, sizeof (PinType));
   if (!Dest->via_tree)
     Dest->via_tree = r_create_tree (NULL, 0, 0);
@@ -260,7 +260,7 @@ MoveRatToBuffer (RatTypePtr Rat)
   *Rat = Source->Rat[--Source->RatN];
   r_substitute (Source->rat_tree, &Source->Rat[Source->RatN].BoundingBox,
 		&Rat->BoundingBox);
-  Rat->Flags &= ~FOUNDFLAG;
+  CLEAR_FLAG (FOUNDFLAG, Rat);
   memset (&Source->Rat[Source->RatN], 0, sizeof (RatType));
   if (!Dest->rat_tree)
     Dest->rat_tree = r_create_tree (NULL, 0, 0);
@@ -281,7 +281,7 @@ MoveLineToBuffer (LayerTypePtr Layer, LineTypePtr Line)
   lay = &Dest->Layer[GetLayerNumber (Source, Layer)];
   line = GetLineMemory (lay);
   *line = *Line;
-  line->Flags &= ~FOUNDFLAG;
+  CLEAR_FLAG (FOUNDFLAG, line);
   /* line pointers being shuffled */
   *Line = Layer->Line[--Layer->LineN];
   r_substitute (Layer->line_tree, (BoxTypePtr) & Layer->Line[Layer->LineN],
@@ -306,7 +306,7 @@ MoveArcToBuffer (LayerTypePtr Layer, ArcTypePtr Arc)
   lay = &Dest->Layer[GetLayerNumber (Source, Layer)];
   arc = GetArcMemory (lay);
   *arc = *Arc;
-  arc->Flags &= ~FOUNDFLAG;
+  CLEAR_FLAG (FOUNDFLAG, arc);
   /* arc pointers being shuffled */
   *Arc = Layer->Arc[--Layer->ArcN];
   r_substitute (Layer->arc_tree, (BoxTypePtr) & Layer->Arc[Layer->ArcN],
@@ -351,7 +351,7 @@ MovePolygonToBuffer (LayerTypePtr Layer, PolygonTypePtr Polygon)
 
   polygon = GetPolygonMemory (&Dest->Layer[GetLayerNumber (Source, Layer)]);
   *polygon = *Polygon;
-  polygon->Flags &= ~FOUNDFLAG;
+  CLEAR_FLAG (FOUNDFLAG, polygon);
   *Polygon = Layer->Polygon[--Layer->PolygonN];
   memset (&Layer->Polygon[Layer->PolygonN], 0, sizeof (PolygonType));
   return (polygon);
@@ -386,13 +386,13 @@ MoveElementToBuffer (ElementTypePtr Element)
   *element = *Element;
   PIN_LOOP (element);
   {
-    pin->Flags &= ~(WARNFLAG | FOUNDFLAG);
+    CLEAR_FLAG (WARNFLAG | FOUNDFLAG, pin);
     pin->Element = element;
   }
   END_LOOP;
   PAD_LOOP (element);
   {
-    pad->Flags &= ~(WARNFLAG | FOUNDFLAG);
+    CLEAR_FLAG (WARNFLAG | FOUNDFLAG, pad);
     pad->Element = element;
   }
   END_LOOP;
@@ -596,7 +596,7 @@ SmashBufferElement (BufferTypePtr Buffer)
     CreateNewLineOnLayer (&Buffer->Data->SILKLAYER,
 			  line->Point1.X, line->Point1.Y,
 			  line->Point2.X, line->Point2.Y,
-			  line->Thickness, 0, 0);
+			  line->Thickness, 0, NoFlags());
     if (line)
       line->Number = MyStrdup (NAMEONPCB_NAME (element), "SmashBuffer");
   }
@@ -605,7 +605,7 @@ SmashBufferElement (BufferTypePtr Buffer)
   {
     CreateNewArcOnLayer (&Buffer->Data->SILKLAYER,
 			 arc->X, arc->Y, arc->Width, arc->StartAngle,
-			 arc->Delta, arc->Thickness, 0, 0);
+			 arc->Delta, arc->Thickness, 0, NoFlags());
   }
   END_LOOP;
   PIN_LOOP (element);
@@ -613,7 +613,7 @@ SmashBufferElement (BufferTypePtr Buffer)
     CreateNewVia (Buffer->Data, pin->X, pin->Y,
 		  pin->Thickness, pin->Clearance, pin->Mask,
 		  pin->DrillingHole, pin->Number,
-		  VIAFLAG | (pin->Flags & HOLEFLAG));
+		  AddFlags(pin->Flags, HOLEFLAG));
   }
   END_LOOP;
   group =
@@ -626,7 +626,7 @@ SmashBufferElement (BufferTypePtr Buffer)
     LineTypePtr line;
     line = CreateNewLineOnLayer (layer, pad->Point1.X, pad->Point1.Y,
 				 pad->Point2.X, pad->Point2.Y,
-				 pad->Thickness, pad->Clearance, 0);
+				 pad->Thickness, pad->Clearance, NoFlags());
     if (line)
       line->Number = MyStrdup (pad->Number, "SmashBuffer");
   }
@@ -648,10 +648,10 @@ ConvertBufferToElement (BufferTypePtr Buffer)
   Cardinal pin_n = 1;
   Boolean hasParts = False;
 
-  Element = CreateNewElement (PCB->Data, NULL, &PCB->Font, NOFLAG,
+  Element = CreateNewElement (PCB->Data, NULL, &PCB->Font, NoFlags(),
 			      NULL, NULL, NULL, PASTEBUFFER->X,
 			      PASTEBUFFER->Y, 0, 100,
-			      SWAP_IDENT ? ONSOLDERFLAG : NOFLAG, False);
+			      MakeFlags(SWAP_IDENT ? ONSOLDERFLAG : NOFLAG), False);
   if (!Element)
     return (False);
   VIA_LOOP (Buffer->Data);
@@ -662,17 +662,17 @@ ConvertBufferToElement (BufferTypePtr Buffer)
     if (via->Name)
       CreateNewPin (Element, via->X, via->Y, via->Thickness,
 		    via->Clearance, via->Mask, via->DrillingHole,
-		    NULL, via->Name, (via->Flags &
-				      ~(VIAFLAG | FOUNDFLAG |
-					SELECTEDFLAG | WARNFLAG)) | PINFLAG);
+		    NULL, via->Name, MaskFlags (via->Flags,
+				      VIAFLAG | FOUNDFLAG |
+					SELECTEDFLAG | WARNFLAG));
     else
       {
 	sprintf (num, "%d", pin_n++);
 	CreateNewPin (Element, via->X, via->Y, via->Thickness,
 		      via->Clearance, via->Mask, via->DrillingHole,
-		      NULL, num, (via->Flags &
-				  ~(VIAFLAG | FOUNDFLAG | SELECTEDFLAG
-				    | WARNFLAG)) | PINFLAG);
+		      NULL, num, MaskFlags(via->Flags,
+					   VIAFLAG | FOUNDFLAG | SELECTEDFLAG
+					   | WARNFLAG));
       }
     hasParts = True;
   }
@@ -698,7 +698,7 @@ ConvertBufferToElement (BufferTypePtr Buffer)
 			line->Clearance,
 			line->Thickness + line->Clearance, NULL,
 			line->Number ? line->Number : num,
-			SWAP_IDENT ? ONSOLDERFLAG : NOFLAG);
+			MakeFlags(SWAP_IDENT ? ONSOLDERFLAG : NOFLAG));
 	  hasParts = True;
 	}
     }
@@ -727,7 +727,7 @@ ConvertBufferToElement (BufferTypePtr Buffer)
 			line->Clearance,
 			line->Thickness + line->Clearance, NULL,
 			line->Number ? line->Number : num,
-			SWAP_IDENT ? NOFLAG : ONSOLDERFLAG);
+			MakeFlags(SWAP_IDENT ? NOFLAG : ONSOLDERFLAG));
 	  if (!hasParts && !warned)
 	    {
 	      warned = True;
@@ -1030,7 +1030,7 @@ SwapBuffer (BufferTypePtr Buffer)
     {
       for (j = k = 0; j < PCB->LayerGroups.Number[sgroup]; j++)
 	{
-	  int t1, t2, f1, f2;
+	  int t1, t2;
 	  Cardinal cnumber = PCB->LayerGroups.Entries[cgroup][k];
 	  Cardinal snumber = PCB->LayerGroups.Entries[sgroup][j];
 
@@ -1047,20 +1047,20 @@ SwapBuffer (BufferTypePtr Buffer)
 	  Buffer->Data->Layer[cnumber] = swap;
 	  k++;
 	  /* move the thermal flags with the layers */
-	  t1 = L0THERMFLAG << snumber;
-	  t2 = L0THERMFLAG << cnumber;
 	  ALLPIN_LOOP (Buffer->Data);
 	  {
-	    f1 = (TEST_FLAG (t1, pin)) ? t2 : 0;
-	    f2 = (TEST_FLAG (t2, pin)) ? t1 : 0;
-	    pin->Flags = (pin->Flags & ~t1 & ~t2) | f1 | f2;
+	    t1 = TEST_THERM (snumber, pin);
+	    t2 = TEST_THERM (cnumber, pin);
+	    ASSIGN_THERM (snumber, t2, pin);
+	    ASSIGN_THERM (cnumber, t1, pin);
 	  }
 	  ENDALL_LOOP;
 	  VIA_LOOP (Buffer->Data);
 	  {
-	    f1 = (TEST_FLAG (t1, via)) ? t2 : 0;
-	    f2 = (TEST_FLAG (t2, via)) ? t1 : 0;
-	    via->Flags = (via->Flags & ~t1 & ~t2) | f1 | f2;
+	    t1 = TEST_THERM (snumber, via);
+	    t2 = TEST_THERM (cnumber, via);
+	    ASSIGN_THERM (snumber, t2, via);
+	    ASSIGN_THERM (cnumber, t1, via);
 	  }
 	  END_LOOP;
 	}

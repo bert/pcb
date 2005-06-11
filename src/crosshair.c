@@ -619,7 +619,7 @@ XORDrawMoveOrCopyObject (void)
     {
       PointTypePtr point1, point2;
 
-      if (ptr->Line->Flags & RUBBERENDFLAG)
+      if (TEST_FLAG (RUBBERENDFLAG, ptr->Line))
 	{
 	  /* 'point1' is always the fix-point */
 	  if (ptr->MovedPoint == &ptr->Line->Point1)

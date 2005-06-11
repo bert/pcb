@@ -345,14 +345,10 @@ static ObjectFunctionType ClrOctagonFunctions = {
 static void *
 ChangeViaThermal (PinTypePtr Via)
 {
-  int LayerThermFlag;
-  int LayerPIPFlag = L0PIPFLAG << INDEXOFCURRENT;
-
-  if (TEST_FLAG (LayerPIPFlag, Via) && !TEST_FLAG (HOLEFLAG, Via))
+  if (TEST_PIP (INDEXOFCURRENT, Via) && !TEST_FLAG (HOLEFLAG, Via))
     {
       AddObjectToFlagUndoList (VIA_TYPE, Via, Via, Via);
-      LayerThermFlag = L0THERMFLAG << INDEXOFCURRENT;
-      TOGGLE_FLAG (LayerThermFlag, Via);
+      TOGGLE_THERM (INDEXOFCURRENT, Via);
       ClearPin (Via, VIA_TYPE, 0);
       return (Via);
     }
@@ -366,14 +362,10 @@ ChangeViaThermal (PinTypePtr Via)
 static void *
 ChangePinThermal (ElementTypePtr element, PinTypePtr Pin)
 {
-  int LayerThermFlag;
-  int LayerPIPFlag = L0PIPFLAG << INDEXOFCURRENT;
-
-  if (TEST_FLAG (LayerPIPFlag, Pin) && !TEST_FLAG (HOLEFLAG, Pin))
+  if (TEST_PIP (INDEXOFCURRENT, Pin) && !TEST_FLAG (HOLEFLAG, Pin))
     {
       AddObjectToFlagUndoList (VIA_TYPE, element, Pin, Pin);
-      LayerThermFlag = L0THERMFLAG << INDEXOFCURRENT;
-      TOGGLE_FLAG (LayerThermFlag, Pin);
+      TOGGLE_THERM (INDEXOFCURRENT, Pin);
       ClearPin (Pin, PIN_TYPE, 0);
       return (Pin);
     }
@@ -387,16 +379,12 @@ ChangePinThermal (ElementTypePtr element, PinTypePtr Pin)
 static void *
 SetViaThermal (PinTypePtr Via)
 {
-  int LayerThermFlag;
-  int LayerPIPFlag = L0PIPFLAG << INDEXOFCURRENT;
-
-  if (TEST_FLAG (LayerPIPFlag, Via) && !TEST_FLAG (HOLEFLAG, Via))
+  if (TEST_PIP (INDEXOFCURRENT, Via) && !TEST_FLAG (HOLEFLAG, Via))
     {
-      LayerThermFlag = L0THERMFLAG << INDEXOFCURRENT;
-      if (TEST_FLAG (LayerThermFlag, Via) == False)
+      if (TEST_THERM (INDEXOFCURRENT, Via) == False)
 	{
 	  AddObjectToFlagUndoList (VIA_TYPE, Via, Via, Via);
-	  SET_FLAG (LayerThermFlag, Via);
+	  SET_THERM (INDEXOFCURRENT, Via);
 	  ClearPin (Via, VIA_TYPE, 0);
 	  return (Via);
 	}
@@ -411,16 +399,12 @@ SetViaThermal (PinTypePtr Via)
 static void *
 SetPinThermal (ElementTypePtr element, PinTypePtr Pin)
 {
-  int LayerThermFlag;
-  int LayerPIPFlag = L0PIPFLAG << INDEXOFCURRENT;
-
-  if (TEST_FLAG (LayerPIPFlag, Pin) && !TEST_FLAG (HOLEFLAG, Pin))
+  if (TEST_PIP (INDEXOFCURRENT, Pin) && !TEST_FLAG (HOLEFLAG, Pin))
     {
-      LayerThermFlag = L0THERMFLAG << INDEXOFCURRENT;
-      if (TEST_FLAG (LayerThermFlag, Pin) == False)
+      if (TEST_THERM (INDEXOFCURRENT, Pin) == False)
 	{
 	  AddObjectToFlagUndoList (VIA_TYPE, element, Pin, Pin);
-	  SET_FLAG (LayerThermFlag, Pin);
+	  SET_THERM (INDEXOFCURRENT, Pin);
 	  ClearPin (Pin, PIN_TYPE, 0);
 	  return (Pin);
 	}
@@ -435,16 +419,12 @@ SetPinThermal (ElementTypePtr element, PinTypePtr Pin)
 static void *
 ClrViaThermal (PinTypePtr Via)
 {
-  int LayerThermFlag;
-  int LayerPIPFlag = L0PIPFLAG << INDEXOFCURRENT;
-
-  if (TEST_FLAG (LayerPIPFlag, Via) && !TEST_FLAG (HOLEFLAG, Via))
+  if (TEST_PIP (INDEXOFCURRENT, Via) && !TEST_FLAG (HOLEFLAG, Via))
     {
-      LayerThermFlag = L0THERMFLAG << INDEXOFCURRENT;
-      if (TEST_FLAG (LayerThermFlag, Via) == True)
+      if (TEST_THERM (INDEXOFCURRENT, Via) == True)
 	{
 	  AddObjectToFlagUndoList (VIA_TYPE, Via, Via, Via);
-	  CLEAR_FLAG (LayerThermFlag, Via);
+	  CLEAR_THERM (INDEXOFCURRENT, Via);
 	  ClearPin (Via, VIA_TYPE, 0);
 	  return (Via);
 	}
@@ -459,16 +439,12 @@ ClrViaThermal (PinTypePtr Via)
 static void *
 ClrPinThermal (ElementTypePtr element, PinTypePtr Pin)
 {
-  int LayerThermFlag;
-  int LayerPIPFlag = L0PIPFLAG << INDEXOFCURRENT;
-
-  if (TEST_FLAG (LayerPIPFlag, Pin) && !TEST_FLAG (HOLEFLAG, Pin))
+  if (TEST_PIP (INDEXOFCURRENT, Pin) && !TEST_FLAG (HOLEFLAG, Pin))
     {
-      LayerThermFlag = L0THERMFLAG << INDEXOFCURRENT;
-      if (TEST_FLAG (LayerThermFlag, Pin) == True)
+      if (TEST_THERM (INDEXOFCURRENT, Pin) == True)
 	{
 	  AddObjectToFlagUndoList (VIA_TYPE, element, Pin, Pin);
-	  CLEAR_FLAG (LayerThermFlag, Pin);
+	  CLEAR_THERM (INDEXOFCURRENT, Pin);
 	  ClearPin (Pin, PIN_TYPE, 0);
 	  return (Pin);
 	}

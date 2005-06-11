@@ -662,7 +662,6 @@ LookupLOConnectionsToPVList (Boolean AndRats)
 	{
 	  PolygonTypePtr polygon = PCB->Data->Layer[layer].Polygon;
 	  Cardinal i;
-	  int Myflag;
 
 	  info.layer = layer;
 	  /* add touching lines */
@@ -682,8 +681,8 @@ LookupLOConnectionsToPVList (Boolean AndRats)
 	    {
 	      float wide = 0.5 * pv->Thickness + fBloat;
 	      wide = MAX (wide, 0);
-	      Myflag = (L0THERMFLAG | L0PIPFLAG) << layer;
-	      if ((TEST_FLAGS (Myflag, pv)
+	      if (((TEST_THERM (layer, pv)
+		    && TEST_PIP (layer, pv))
 		   || !TEST_FLAG (CLEARPOLYFLAG, polygon))
 		  && !TEST_FLAG (TheFlag, polygon))
 		{
@@ -965,10 +964,10 @@ pv_poly_callback (const BoxType * b, void *cl)
 {
   PinTypePtr pv = (PinTypePtr) b;
   struct lo_info *i = (struct lo_info *) cl;
-  int Myflag = (L0THERMFLAG | L0PIPFLAG) << i->layer;
 
   /* note that holes in polygons are ok */
-  if ((TEST_FLAGS (Myflag, pv) || !TEST_FLAG (CLEARPOLYFLAG, i->polygon))
+  if (((TEST_THERM (i->layer, pv) && TEST_PIP (i->layer, pv))
+       || !TEST_FLAG (CLEARPOLYFLAG, i->polygon))
       && !TEST_FLAG (TheFlag, pv))
     {
       if (TEST_FLAG (SQUAREFLAG, pv))
@@ -2409,7 +2408,7 @@ IsArcInPolygon (ArcTypePtr Arc, PolygonTypePtr Polygon)
 
       line.Point1 = Polygon->Points[0];
       line.Thickness = 0;
-      line.Flags = NOFLAG;
+      line.Flags = NoFlags();
 
       POLYGONPOINT_LOOP (Polygon);
       {
@@ -2467,7 +2466,7 @@ IsLineInPolygon (LineTypePtr Line, PolygonTypePtr Polygon)
 
       line.Point1 = Polygon->Points[0];
       line.Thickness = 0;
-      line.Flags = NOFLAG;
+      line.Flags = NoFlags();
 
       POLYGONPOINT_LOOP (Polygon);
       {
@@ -2540,7 +2539,7 @@ IsPolygonInPolygon (PolygonTypePtr P1, PolygonTypePtr P2)
       line.Point1.X = P1->Points[0].X;
       line.Point1.Y = P1->Points[0].Y;
       line.Thickness = 0;
-      line.Flags = NOFLAG;
+      line.Flags = NoFlags();
 
       POLYGONPOINT_LOOP (P1);
       {

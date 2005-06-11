@@ -67,6 +67,7 @@ extern	int				yylineno;		/* linenumber */
 extern	char			*yyfilename;	/* in this file */
 
 int yyerror(char *s);
+int yylex();
 
 %}
 
@@ -75,6 +76,7 @@ int yyerror(char *s);
 	int		number;
 	float		floating;
 	char		*string;
+	FlagType	flagtype;
 }
 
 %token	<number>	NUMBER CHAR_CONST	/* line thickness, coordinates ... */
@@ -86,7 +88,9 @@ int yyerror(char *s);
 %token	T_ELEMENTARC T_MARK T_GROUPS T_STYLES T_POLYGON T_NETLIST T_NET T_CONN
 %token	T_THERMAL T_DRC
 
-%type	<number>	symbolid flags
+%type	<number>	symbolid
+
+%type	<flagtype>	flags
 
 %%
 
@@ -304,7 +308,7 @@ pcbdrc2
 pcbflags
 		: T_FLAGS '(' NUMBER ')'
 			{
-				yyPCB->Flags = $3 & PCB_FLAGS;
+				yyPCB->Flags = MakeFlags ($3 & PCB_FLAGS);
 			}
 		|
 		;
@@ -377,8 +381,7 @@ via_hi_format
 			/* x, y, thickness, clearance, mask, drilling-hole, name, flags */
 		: T_VIA '[' NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER STRING flags ']'
 			{
-				CreateNewVia(yyData, $3, $4, $5, $6, $7, $8, $9,
-					($10 & OBJ_FLAGS) | VIAFLAG);
+				CreateNewVia(yyData, $3, $4, $5, $6, $7, $8, $9, $10);
 				SaveFree($9);
 			}
 		;
@@ -388,7 +391,7 @@ via_2.0_format
 		: T_VIA '(' NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER STRING NUMBER ')'
 			{
 				CreateNewVia(yyData, $3*100, $4*100, $5*100, $6*100, $7*100, $8*100, $9,
-					($10 & OBJ_FLAGS) | VIAFLAG);
+					OldFlags($10));
 				SaveFree($9);
 			}
 		;
@@ -398,8 +401,8 @@ via_1.7_format
 			/* x, y, thickness, clearance, drilling-hole, name, flags */
 		: T_VIA '(' NUMBER NUMBER NUMBER NUMBER NUMBER STRING NUMBER ')'
 			{
-				CreateNewVia(yyData, $3*100, $4*100, $5*100, $6*100, ($5 + $6)*100, $7*100, $8,
-					($9 & OBJ_FLAGS) | VIAFLAG);
+				CreateNewVia(yyData, $3*100, $4*100, $5*100, $6*100,
+					     ($5 + $6)*100, $7*100, $8, OldFlags($9));
 				SaveFree($8);
 			}
 		;
@@ -409,7 +412,7 @@ via_newformat
 		: T_VIA '(' NUMBER NUMBER NUMBER NUMBER STRING NUMBER ')'
 			{
 				CreateNewVia(yyData, $3*100, $4*100, $5*100, 200*GROUNDPLANEFRAME,
-					($5 + 2*MASKFRAME)*100,  $6*100, $7, ($8 & OBJ_FLAGS) | VIAFLAG);
+					($5 + 2*MASKFRAME)*100,  $6*100, $7, OldFlags($8));
 				SaveFree($7);
 			}
 		;
@@ -426,7 +429,7 @@ via_oldformat
 					hole = $5 -MIN_PINORVIACOPPER;
 
 				CreateNewVia(yyData, $3*100, $4*100, $5*100, 200*GROUNDPLANEFRAME,
-					($5 + 2*MASKFRAME)*100, hole, $6, ($7 & OBJ_FLAGS) | VIAFLAG);
+					($5 + 2*MASKFRAME)*100, hole, $6, OldFlags($7));
 				SaveFree($6);
 			}
 		;
@@ -435,12 +438,12 @@ rats
 		: T_RAT '[' NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER flags ']'
 			{
 				CreateNewRat(yyData, $3, $4, $6, $7, $5, $8,
-					Settings.RatThickness, ($9 & OBJ_FLAGS) | RATFLAG);
+					Settings.RatThickness, $9);
 			}
 		| T_RAT '(' NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER ')'
 			{
 				CreateNewRat(yyData, $3*100, $4*100, $6*100, $7*100, $5, $8,
-					Settings.RatThickness, ($9 & OBJ_FLAGS) | RATFLAG);
+					Settings.RatThickness, OldFlags($9));
 			}
 		;
 
@@ -488,7 +491,7 @@ layerdefinition
 		| T_RECTANGLE '(' NUMBER NUMBER NUMBER NUMBER NUMBER ')'
 			{
 				CreateNewPolygonFromRectangle(Layer,
-					$3*100, $4*100, ($3+$5)*100, ($4+$6)*100, $7 & OBJ_FLAGS);
+					$3*100, $4*100, ($3+$5)*100, ($4+$6)*100, OldFlags($7));
 			}
 		| text_hi_format
 		| text_newformat
@@ -496,7 +499,7 @@ layerdefinition
 			/* flags are passed in */
 		| T_POLYGON '(' flags ')' '('
 			{
-				Polygon = CreateNewPolygon(Layer, $3 & OBJ_FLAGS);
+				Polygon = CreateNewPolygon(Layer, $3);
 			}
 		  polygonpoints ')'
 		  	{
@@ -518,7 +521,7 @@ line_hi_format
 			/* x1, y1, x2, y2, thickness, clearance, flags */
 		: T_LINE '[' NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER flags ']'
 			{
-				CreateNewLineOnLayer(Layer, $3, $4, $5, $6, $7, $8, $9 & OBJ_FLAGS);
+				CreateNewLineOnLayer(Layer, $3, $4, $5, $6, $7, $8, $9);
 			}
 		;
 
@@ -526,7 +529,8 @@ line_1.7_format
 			/* x1, y1, x2, y2, thickness, clearance, flags */
 		: T_LINE '(' NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER ')'
 			{
-				CreateNewLineOnLayer(Layer, $3*100, $4*100, $5*100, $6*100, $7*100, $8*100, $9 & OBJ_FLAGS);
+				CreateNewLineOnLayer(Layer, $3*100, $4*100, $5*100, $6*100,
+						     $7*100, $8*100, OldFlags($9));
 			}
 		;
 
@@ -537,7 +541,7 @@ line_oldformat
 				/* elliminate old-style rat-lines */
 			if (($8 & RATFLAG) == 0)
 				CreateNewLineOnLayer(Layer, $3*100, $4*100, $5*100, $6*100, $7*100,
-					200*GROUNDPLANEFRAME, $8 & OBJ_FLAGS);
+					200*GROUNDPLANEFRAME, OldFlags($8));
 			}
 		;
 
@@ -545,7 +549,7 @@ arc_hi_format
 			/* x, y, width, height, thickness, clearance, startangle, delta, flags */
 		: T_ARC '[' NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER flags ']'
 			{
-				CreateNewArcOnLayer(Layer, $3, $4, $5, $9, $10, $7, $8, $11 & OBJ_FLAGS);
+				CreateNewArcOnLayer(Layer, $3, $4, $5, $9, $10, $7, $8, $11);
 			}
 		;
 
@@ -553,7 +557,8 @@ arc_1.7_format
 			/* x, y, width, height, thickness, clearance, startangle, delta, flags */
 		: T_ARC '(' NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER ')'
 			{
-				CreateNewArcOnLayer(Layer, $3*100, $4*100, $5*100, $9, $10, $7*100, $8*100, $11 & OBJ_FLAGS);
+				CreateNewArcOnLayer(Layer, $3*100, $4*100, $5*100, $9, $10,
+						    $7*100, $8*100, OldFlags($11));
 			}
 		;
 
@@ -562,7 +567,7 @@ arc_oldformat
 		: T_ARC '(' NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER ')'
 			{
 				CreateNewArcOnLayer(Layer, $3*100, $4*100, $5*100, $8, $9,
-					$7*100, 200*GROUNDPLANEFRAME, $10 & OBJ_FLAGS);
+					$7*100, 200*GROUNDPLANEFRAME, OldFlags($10));
 			}
 		;
 
@@ -571,7 +576,7 @@ text_oldformat
 		: T_TEXT '(' NUMBER NUMBER NUMBER STRING NUMBER ')'
 			{
 					/* use a default scale of 100% */
-				CreateNewText(Layer,yyFont,$3*100, $4*100, $5, 100, $6, $7 & OBJ_FLAGS);
+				CreateNewText(Layer,yyFont,$3*100, $4*100, $5, 100, $6, OldFlags($7));
 				SaveFree($6);
 			}
 		;
@@ -585,10 +590,12 @@ text_newformat
 					LayerTypePtr lay = &yyData->Layer[MAX_LAYER +
 						(($8 & ONSOLDERFLAG) ? SOLDER_LAYER : COMPONENT_LAYER)];
 
-					CreateNewText(lay ,yyFont, $3*100, $4*100, $5, $6, $7, $8 & OBJ_FLAGS);
+					CreateNewText(lay ,yyFont, $3*100, $4*100, $5, $6, $7,
+						      OldFlags($8));
 				}
 				else
-					CreateNewText(Layer, yyFont, $3*100, $4*100, $5, $6, $7, $8 & OBJ_FLAGS);
+					CreateNewText(Layer, yyFont, $3*100, $4*100, $5, $6, $7,
+						      OldFlags($8));
 				SaveFree($7);
 			}
 		;
@@ -596,15 +603,16 @@ text_hi_format
 			/* x, y, direction, scale, text, flags */
 		: T_TEXT '[' NUMBER NUMBER NUMBER NUMBER STRING flags ']'
 			{
-				if ($8 & ONSILKFLAG)
+				/* FIXME: shouldn't know about .f */
+				if ($8.f & ONSILKFLAG)
 				{
 					LayerTypePtr lay = &yyData->Layer[MAX_LAYER +
-						(($8 & ONSOLDERFLAG) ? SOLDER_LAYER : COMPONENT_LAYER)];
+						(($8.f & ONSOLDERFLAG) ? SOLDER_LAYER : COMPONENT_LAYER)];
 
-					CreateNewText(lay ,yyFont, $3, $4, $5, $6, $7, $8 & OBJ_FLAGS);
+					CreateNewText(lay, yyFont, $3, $4, $5, $6, $7, $8);
 				}
 				else
-					CreateNewText(Layer, yyFont, $3, $4, $5, $6, $7, $8 & OBJ_FLAGS);
+					CreateNewText(Layer, yyFont, $3, $4, $5, $6, $7, $8);
 				SaveFree($7);
 			}
 		;
@@ -641,8 +649,8 @@ element_oldformat
 			 */
 		: T_ELEMENT '(' STRING STRING NUMBER NUMBER NUMBER ')' '('
 			{
-				yyElement = CreateNewElement(yyData, yyElement, yyFont, 0x0000,
-					$3, $4, NULL, $5*100, $6*100, $7, 100, 0x0000, False);
+				yyElement = CreateNewElement(yyData, yyElement, yyFont, NoFlags(),
+					$3, $4, NULL, $5*100, $6*100, $7, 100, NoFlags(), False);
 				SaveFree($3);
 				SaveFree($4);
 				pin_num = 1;
@@ -659,8 +667,8 @@ element_1.3.4_format
 			 */
 		: T_ELEMENT '(' NUMBER STRING STRING NUMBER NUMBER NUMBER NUMBER NUMBER ')' '('
 			{
-				yyElement = CreateNewElement(yyData, yyElement, yyFont, $3,
-					$4, $5, NULL, $6*100, $7*100, $8, $9, $10, False);
+				yyElement = CreateNewElement(yyData, yyElement, yyFont, OldFlags($3),
+					$4, $5, NULL, $6*100, $7*100, $8, $9, OldFlags($10), False);
 				SaveFree($4);
 				SaveFree($5);
 				pin_num = 1;
@@ -677,8 +685,8 @@ element_newformat
 			 */
 		: T_ELEMENT '(' NUMBER STRING STRING STRING NUMBER NUMBER NUMBER NUMBER NUMBER ')' '('
 			{
-				yyElement = CreateNewElement(yyData, yyElement, yyFont, $3,
-					$4, $5, $6, $7*100, $8*100, $9, $10, $11, False);
+				yyElement = CreateNewElement(yyData, yyElement, yyFont, OldFlags($3),
+					$4, $5, $6, $7*100, $8*100, $9, $10, OldFlags($11), False);
 				SaveFree($4);
 				SaveFree($5);
 				SaveFree($6);
@@ -697,8 +705,8 @@ element_1.7_format
 		: T_ELEMENT '(' NUMBER STRING STRING STRING NUMBER NUMBER
 			NUMBER NUMBER NUMBER NUMBER NUMBER ')' '('
 			{
-				yyElement = CreateNewElement(yyData, yyElement, yyFont, $3,
-					$4, $5, $6, ($7+$9)*100, ($8+$10)*100, $11, $12, $13, False);
+				yyElement = CreateNewElement(yyData, yyElement, yyFont, OldFlags($3),
+					$4, $5, $6, ($7+$9)*100, ($8+$10)*100, $11, $12, OldFlags($13), False);
 				yyElement->MarkX = $7*100;
 				yyElement->MarkY = $8*100;
 				SaveFree($4);
@@ -819,7 +827,7 @@ pin_hi_format
 			{
 				CreateNewPin(yyElement, $3 + yyElement->MarkX,
 					$4 + yyElement->MarkY, $5, $6, $7, $8, $9,
-					$10, ($11 & OBJ_FLAGS) | PINFLAG);
+					$10, $11);
 				SaveFree($9);
 				SaveFree($10);
 			}
@@ -831,7 +839,7 @@ pin_1.7_format
 			{
 				CreateNewPin(yyElement, $3*100 + yyElement->MarkX,
 					$4*100 + yyElement->MarkY, $5*100, $6*100, $7*100, $8*100, $9,
-					$10, ($11 & OBJ_FLAGS) | PINFLAG);
+					$10, OldFlags($11));
 				SaveFree($9);
 				SaveFree($10);
 			}
@@ -842,8 +850,7 @@ pin_1.6.3_format
 		: T_PIN '(' NUMBER NUMBER NUMBER NUMBER STRING STRING NUMBER ')'
 			{
 				CreateNewPin(yyElement, $3*100, $4*100, $5*100, 200*GROUNDPLANEFRAME,
-					($5 + 2*MASKFRAME)*100, $6*100, $7, $8,
-					($9 & OBJ_FLAGS) | PINFLAG);
+					($5 + 2*MASKFRAME)*100, $6*100, $7, $8, OldFlags($9));
 				SaveFree($7);
 				SaveFree($8);
 			}
@@ -857,8 +864,7 @@ pin_newformat
 
 				sprintf(p_number, "%d", pin_num++);
 				CreateNewPin(yyElement, $3*100, $4*100, $5*100, 200*GROUNDPLANEFRAME,
-					($5 + 2*MASKFRAME)*100, $6*100, $7, p_number,
-					($8 & OBJ_FLAGS) | PINFLAG);
+					($5 + 2*MASKFRAME)*100, $6*100, $7, p_number, OldFlags($8));
 				SaveFree($7);
 			}
 		;
@@ -879,8 +885,7 @@ pin_oldformat
 
 				sprintf(p_number, "%d", pin_num++);
 				CreateNewPin(yyElement, $3*100, $4*100, $5*100, 200*GROUNDPLANEFRAME,
-					($5 + 2*MASKFRAME)*100, hole, $6, p_number,
-					($7 & OBJ_FLAGS) | PINFLAG);
+					($5 + 2*MASKFRAME)*100, hole, $6, p_number, OldFlags($7));
 				SaveFree($6);
 			}
 		;
@@ -893,7 +898,7 @@ pad_hi_format
 					$4 + yyElement->MarkY,
 					$5 + yyElement->MarkX,
 					$6 + yyElement->MarkY, $7, $8, $9,
-					$10, $11, ($12 & OBJ_FLAGS));
+					$10, $11, $12);
 				SaveFree($10);
 				SaveFree($11);
 			}
@@ -906,7 +911,7 @@ pad_1.7_format
 				CreateNewPad(yyElement,$3*100 + yyElement->MarkX,
 					$4*100 + yyElement->MarkY, $5*100 + yyElement->MarkX,
 					$6*100 + yyElement->MarkY, $7*100, $8*100, $9*100,
-					$10, $11, ($12 & OBJ_FLAGS));
+					$10, $11, OldFlags($12));
 				SaveFree($10);
 				SaveFree($11);
 			}
@@ -917,7 +922,7 @@ pad_newformat
 		: T_PAD '(' NUMBER NUMBER NUMBER NUMBER NUMBER STRING STRING NUMBER ')'
 			{
 				CreateNewPad(yyElement,$3*100,$4*100,$5*100,$6*100,$7*100, 200*GROUNDPLANEFRAME,
-					($7 + 2*MASKFRAME)*100, $8,$9, ($10 & OBJ_FLAGS));
+					($7 + 2*MASKFRAME)*100, $8,$9, OldFlags($10));
 				SaveFree($8);
 				SaveFree($9);
 			}
@@ -931,13 +936,12 @@ pad
 
 				sprintf(p_number, "%d", pin_num++);
 				CreateNewPad(yyElement,$3*100,$4*100,$5*100,$6*100,$7*100, 200*GROUNDPLANEFRAME,
-					($7 + 2*MASKFRAME)*100, $8,p_number,
-					($9 & OBJ_FLAGS));
+					($7 + 2*MASKFRAME)*100, $8,p_number, OldFlags($9));
 				SaveFree($8);
 			}
 		;
 
-flags		: NUMBER	{ $$ = $1; }
+flags		: NUMBER	{ $$ = OldFlags($1); }
 		| STRING	{ $$ = string_to_flags ($1, yyerror); }
 		;
 

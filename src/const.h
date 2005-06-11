@@ -95,7 +95,6 @@
 /* ---------------------------------------------------------------------------
  * object flags
  */
-#define	OBJ_FLAGS		0xffffffff	/* all used flags */
 #define	NOFLAG			0x0000
 #define	PINFLAG			0x0001	/* is a pin */
 #define	VIAFLAG			0x0002	/* is a via */
@@ -124,25 +123,6 @@
 #define LOCKFLAG                0x2000  /* object locked in place */
 #define EDGE2FLAG               0x4000  /* Padr.Point2 is closer to outside edge */
 					/* also pinout text for pins is vertical */
-#define ALLTHERMFLAGS		0xff0000        /* 8 flags indicating pin/via connects to polys */
-#define L0THERMFLAG           0x010000        /* Pin/Via connects to Polygons on Layer 0 */
-#define L1THERMFLAG           0x020000        /* Pin/Via connects to Polygons on Layer 1 */
-#define L2THERMFLAG           0x040000        /* Pin/Via connects to Polygons on Layer 2 */
-#define L3THERMFLAG           0x080000        /* Pin/Via connects to Polygons on Layer 3 */
-#define L4THERMFLAG           0x100000        /* Pin/Via connects to Polygons on Layer 4 */
-#define L5THERMFLAG           0x200000        /* Pin/Via connects to Polygons on Layer 5 */
-#define L6THERMFLAG           0x400000        /* Pin/Via connects to Polygons on Layer 6 */
-#define L7THERMFLAG           0x800000        /* Pin/Via connects to Polygons on Layer 7 */
-
-#define ALLPIPFLAGS           0xff000000      /* 8 flags indicating if pin/via is inside poly */
-#define L0PIPFLAG             0x01000000      /* Pin/Via is inside polygon on Layer 0 */ 
-#define L1PIPFLAG             0x02000000      /* Pin/Via is inside polygon on Layer 1 */
-#define L2PIPFLAG             0x04000000      /* Pin/Via is inside polygon on Layer 2 */  
-#define L3PIPFLAG             0x08000000      /* Pin/Via is inside polygon on Layer 3 */  
-#define L4PIPFLAG             0x10000000      /* Pin/Via is inside polygon on Layer 4 */
-#define L5PIPFLAG             0x20000000      /* Pin/Via is inside polygon on Layer 5 */
-#define L6PIPFLAG             0x40000000      /* Pin/Via is inside polygon on Layer 6 */
-#define L7PIPFLAG             0x80000000      /* Pin/Via is inside polygon on Layer 7 */
 
 /* ---------------------------------------------------------------------------
  * PCB flags

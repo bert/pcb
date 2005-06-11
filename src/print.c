@@ -292,6 +292,26 @@ any_callback (int type, void *ptr1, void *ptr2, void *ptr3,
   return 0;
 }
 
+/* Returns TRUE if pin/via needs to be plotted.  Sets USETHERMALFLAG
+   appropriately for the group being plotted. */
+static int
+pin_thermal_layer_group (PinTypePtr pin, Cardinal group)
+{
+  if (TEST_FLAG (HOLEFLAG, pin))
+    return 0;
+  CLEAR_FLAG (USETHERMALFLAG, pin);
+  GROUP_LOOP (group);
+  {
+    if (TEST_PIP (number, pin)
+	&& TEST_THERM (number, pin))
+      {
+	SET_FLAG (USETHERMALFLAG, pin);
+	return 1;
+      }
+  }
+  END_LOOP;
+  return 1;
+}
 
 int
 PrintOneGroup (Cardinal group, Boolean manageFile)
@@ -356,8 +376,6 @@ PrintOneGroup (Cardinal group, Boolean manageFile)
     }
   GROUP_LOOP (group);
   {
-    PIPflag |= L0PIPFLAG << number;
-    Tflag |= L0THERMFLAG << number;
     layer = LAYER_PTR (number);
     if (layer->LineN || layer->TextN || layer->ArcN)
       {
@@ -382,21 +400,29 @@ PrintOneGroup (Cardinal group, Boolean manageFile)
   if (negative_plane)
     ALLPIN_LOOP (PCB->Data);
   {
-    if (!TEST_FLAG (PIPflag, pin))
-      {
-	negative_plane = False;
-	break;
-      }
+    GROUP_LOOP (group);
+    {
+      if (!TEST_PIP (number, pin))
+	{
+	  negative_plane = False;
+	  break;
+	}
+    }
+    END_LOOP;
   }
   ENDALL_LOOP;
   if (negative_plane)
     VIA_LOOP (PCB->Data);
   {
-    if (!TEST_FLAG (PIPflag, via))
-      {
-	negative_plane = False;
-	break;
-      }
+    GROUP_LOOP (group);
+    {
+      if (!TEST_PIP (number, via))
+	{
+	  negative_plane = False;
+	  break;
+	}
+    }
+    END_LOOP;
   }
   END_LOOP;
 
@@ -499,44 +525,16 @@ PrintOneGroup (Cardinal group, Boolean manageFile)
     SetPrintColor (PCB->PinColor);
   ALLPIN_LOOP (PCB->Data);
   {
-    if (!TEST_FLAG (HOLEFLAG, pin))
-      {
-	int n;
-	int flag = L0PIPFLAG | L0THERMFLAG;
-	CLEAR_FLAG (USETHERMALFLAG, pin);
-	for (n = 0; n < MAX_LAYER; n++)
-	  {
-	    if ((flag & Tflag) && TEST_FLAGS (flag, pin))
-	      {
-		SET_FLAG (USETHERMALFLAG, pin);
-		break;
-	      }
-	    flag <<= 1;
-	  }
-	Device->PinOrVia (pin, use_mode);
-      }
+    if (pin_thermal_layer_group (pin, group))
+      Device->PinOrVia (pin, use_mode);
   }
   ENDALL_LOOP;
   if (manageFile)
     SetPrintColor (PCB->ViaColor);
   VIA_LOOP (PCB->Data);
   {
-    if (!TEST_FLAG (HOLEFLAG, via))
-      {
-	int n;
-	int flag = L0PIPFLAG | L0THERMFLAG;
-	CLEAR_FLAG (USETHERMALFLAG, via);
-	for (n = 0; n < MAX_LAYER; n++)
-	  {
-	    if ((flag & Tflag) && TEST_FLAGS (flag, via))
-	      {
-		SET_FLAG (USETHERMALFLAG, via);
-		break;
-	      }
-	    flag <<= 1;
-	  }
-	Device->PinOrVia (via, use_mode);
-      }
+    if (pin_thermal_layer_group (via, group))
+      Device->PinOrVia (via, use_mode);
   }
   END_LOOP;
   if (group == component)
@@ -1216,7 +1214,7 @@ static void
 fab_line (int x1, int y1, int x2, int y2, int t)
 {
   LineType l;
-  l.Flags = 0;
+  l.Flags = NoFlags();
   l.Point1.X = x1;
   l.Point1.Y = y1;
   l.Point2.X = x2;
@@ -1229,7 +1227,7 @@ static void
 fab_circle (int x, int y, int r, int t)
 {
   ArcType a;
-  a.Flags = 0;
+  a.Flags = NoFlags();
   a.X = x;
   a.Y = y;
   a.Width = r;
@@ -1257,7 +1255,7 @@ text_at (int x, int y, int align, char *fmt, ...)
   t.Direction = 0;
   t.TextString = tmp;
   t.Scale = TEXT_SIZE;
-  t.Flags = 0;
+  t.Flags = NoFlags();
   t.X = x;
   t.Y = y;
   for (i = 0; tmp[i]; i++)
@@ -1377,7 +1375,7 @@ PrintFab (void)
   if (SetupPrintFile ("fab", "Fabrication Drawing", FILE_LAYER))
     return (1);
   Device->Polarity (0);
-  tmp_pin.Flags = 0;
+  tmp_pin.Flags = NoFlags();
   AllDrills = GetDrillInfo (PCB->Data);
   yoff = -TEXT_LINE;
   for (n = AllDrills->DrillN - 1; n >= 0; n--)
@@ -1453,12 +1451,13 @@ PrintFab (void)
   strftime (utcTime, sizeof utcTime, "%c UTC", gmtime (&currenttime));
   yoff = -TEXT_LINE;
   for (i = 0; i < MAX_LAYER; i++)
-    {
-      if (strcasecmp ("route", LAYER_PTR (i)->Name) == 0)
-	break;
-      if (strcasecmp ("outline", LAYER_PTR (i)->Name) == 0)
-	break;
-    }
+    if (LAYER_PTR(i)->Name)
+      {
+	if (strcasecmp ("route", LAYER_PTR (i)->Name) == 0)
+	  break;
+	if (strcasecmp ("outline", LAYER_PTR (i)->Name) == 0)
+	  break;
+      }
   if (i == MAX_LAYER)
     {
       text_at (200000, yoff, 0,

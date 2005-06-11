@@ -841,7 +841,8 @@ FreeDataMemory (DataTypePtr Data)
 	    MyFree (&text->TextString);
 	  }
 	  END_LOOP;
-	  MyFree (&layer->Name);
+	  if (layer->Name)
+	    MyFree (&layer->Name);
 	  LINE_LOOP (layer);
 	  {
 	    if (line->Number)
