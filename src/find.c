@@ -152,7 +152,7 @@ RCSID("$Id$");
  * message when asked about continuing DRC checks after first 
  * violation is found.
  */
-#define DRC_CONTINUE _("Stop here? (Cancel to continue checking)")
+#define DRC_CONTINUE _("Press OK to continue DRC checking")
 
 /* ---------------------------------------------------------------------------
  * some local types
@@ -3465,7 +3465,7 @@ DRCFind (int What, void *ptr1, void *ptr2, void *ptr3)
       drc = False;
       drcerr_count++;
       GotoError ();
-      if (gui_dialog_confirm(DRC_CONTINUE))
+      if (!gui_dialog_confirm(DRC_CONTINUE))
 	return (True);
       IncrementUndoSerialNumber ();
       Undo (True);
@@ -3505,7 +3505,7 @@ DRCFind (int What, void *ptr1, void *ptr2, void *ptr3)
       GotoError ();
       User = False;
       drc = False;
-      if (gui_dialog_confirm(DRC_CONTINUE))
+      if (!gui_dialog_confirm(DRC_CONTINUE))
 	return (True);
       IncrementUndoSerialNumber ();
       Undo (True);
@@ -3621,7 +3621,7 @@ doIsBad:
   DrawObject (type, ptr1, ptr2, 0);
   drcerr_count++;
   GotoError ();
-  if (gui_dialog_confirm(DRC_CONTINUE))
+  if (!gui_dialog_confirm(DRC_CONTINUE))
     {
       IsBad = True;
       return 1;
@@ -3723,7 +3723,7 @@ DRCAll (void)
 	    drcerr_count++;
 	    SetThing (LINE_TYPE, layer, line, line);
 	    GotoError ();
-	    if (gui_dialog_confirm(DRC_CONTINUE))
+	    if (!gui_dialog_confirm(DRC_CONTINUE))
 	      {
 		IsBad = True;
 		break;
@@ -3747,7 +3747,7 @@ DRCAll (void)
 	    drcerr_count++;
 	    SetThing (ARC_TYPE, layer, arc, arc);
 	    GotoError ();
-	    if (gui_dialog_confirm(DRC_CONTINUE))
+	    if (!gui_dialog_confirm(DRC_CONTINUE))
 	      {
 		IsBad = True;
 		break;
@@ -3772,7 +3772,7 @@ DRCAll (void)
 	    drcerr_count++;
 	    SetThing (PIN_TYPE, element, pin, pin);
 	    GotoError ();
-	    if (gui_dialog_confirm(DRC_CONTINUE))
+	    if (!gui_dialog_confirm(DRC_CONTINUE))
 	      {
 		IsBad = True;
 		break;
@@ -3796,7 +3796,7 @@ DRCAll (void)
 	    drcerr_count++;
 	    SetThing (PAD_TYPE, element, pad, pad);
 	    GotoError ();
-	    if (gui_dialog_confirm(DRC_CONTINUE))
+	    if (!gui_dialog_confirm(DRC_CONTINUE))
 	      {
 		IsBad = True;
 		break;
@@ -3821,7 +3821,7 @@ DRCAll (void)
 	    drcerr_count++;
 	    SetThing (VIA_TYPE, via, via, via);
 	    GotoError ();
-	    if (gui_dialog_confirm(DRC_CONTINUE))
+	    if (!gui_dialog_confirm(DRC_CONTINUE))
 	      {
 		IsBad = True;
 		break;
@@ -3853,7 +3853,7 @@ DRCAll (void)
 	    drcerr_count++;
 	    SetThing(LINE_TYPE, layer, line, line);
 	    GotoError();
-	    if (gui_dialog_confirm(DRC_CONTINUE))
+	    if (!gui_dialog_confirm(DRC_CONTINUE))
 	      {
 		IsBad = True;
 		break;
@@ -3886,7 +3886,7 @@ DRCAll (void)
 	    drcerr_count++;
 	    SetThing(ELEMENT_TYPE, element, element, element);
 	    GotoError();
-	    if (gui_dialog_confirm(DRC_CONTINUE))
+	    if (!gui_dialog_confirm(DRC_CONTINUE))
 	      {
 		IsBad = True;
 		break;
@@ -3972,9 +3972,11 @@ GotoError (void)
     case LINE_TYPE:
     case ARC_TYPE:
     case POLYGON_TYPE:
-      g_message("GotoError: ChangeGroupVisibility (GetLayerNumber");
+      ChangeGroupVisibility (GetLayerNumber
+				(PCB->Data, (LayerTypePtr) thing_ptr1), True,
+				True);
     }
-  CenterDisplay (X, Y, False);
+  CenterDisplay (X, Y - TO_PCB(Output.Height / 4), False);
 }
 
 void

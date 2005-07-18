@@ -642,6 +642,7 @@ text_view_append(GtkWidget *view, gchar *s)
 	{
 	GtkTextIter		iter;
 	GtkTextBuffer	*buffer;
+	GtkTextMark		*mark;
 
 	buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(view));
 	gtk_text_buffer_get_end_iter(buffer, &iter);
@@ -664,6 +665,11 @@ text_view_append(GtkWidget *view, gchar *s)
 					s + 4, -1, "underline", NULL);
 	else
 		gtk_text_buffer_insert(buffer, &iter, s, -1);
+
+	mark = gtk_text_buffer_create_mark(buffer, NULL, &iter, FALSE);
+	gtk_text_view_scroll_to_mark(GTK_TEXT_VIEW(view), mark,
+					0, TRUE, 0.0, 1.0);
+	gtk_text_buffer_delete_mark(buffer, mark);
 	}
 
 void
