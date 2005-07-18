@@ -432,10 +432,6 @@ toggle_grid_units_cb(GtkToggleAction *action, OutputType *out)
 	ActionSetValue("Grid", grid, "");
 	g_free(grid);
 
-	set_cursor_position_labels();
-	gtk_label_set_markup(GTK_LABEL(gui->cursor_units_label),
-				Settings.grid_units_mm ?
-				"<b>mm</b> " : "<b>mil</b> ");
 	gui_config_handle_units_changed();
 	gui_change_selected_update_menu_actions();
 	}

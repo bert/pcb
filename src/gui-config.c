@@ -1796,6 +1796,10 @@ config_page_create(GtkTreeStore *tree, GtkTreeIter *iter,
 void
 gui_config_handle_units_changed(void)
 	{
+	set_cursor_position_labels();
+	gtk_label_set_markup(GTK_LABEL(gui->cursor_units_label),
+				Settings.grid_units_mm ?
+				"<b>mm</b> " : "<b>mil</b> ");
 	if (config_sizes_vbox)
 		{
 		gtk_widget_destroy(config_sizes_vbox);
@@ -1808,6 +1812,7 @@ gui_config_handle_units_changed(void)
 		config_increments_vbox = NULL;
 		config_increments_tab_create(config_increments_tab_vbox);
 		}
+	Settings.config_modified = TRUE;
 	}
 
 void

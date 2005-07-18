@@ -213,6 +213,7 @@ int
 LoadPCB (char *Filename)
 {
   PCBTypePtr newPCB = CreateNewPCB (False);
+  gboolean	units_mm;
 
   /* new data isn't added to the undo list */
   if (!ParsePCB (newPCB, Filename))
@@ -252,8 +253,11 @@ LoadPCB (char *Filename)
       UpdatePIPFlags (NULL, NULL, NULL, False);
       UpdateSettingsOnScreen ();
 
-      if (PCB->Grid != (gint) PCB->Grid)
-		Settings.grid_units_mm = TRUE;
+      units_mm = (PCB->Grid != (gint) PCB->Grid) ? TRUE : FALSE;
+
+      if (units_mm != Settings.grid_units_mm)
+        gui_config_handle_units_changed();
+      Settings.grid_units_mm = units_mm;
 
       gui_sync_with_new_layout();
 	
