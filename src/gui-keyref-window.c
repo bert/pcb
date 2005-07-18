@@ -172,9 +172,9 @@ N_("Redo last undone operation\n"),
 N_("Increment size of an object by configured size increment\n"),
 "<b><s>\ts\t",
 N_("Decrement size of an object by configured size increment\n"),
-"<b><c>\ts\t",
+"<b><a>\ts\t",
 N_("Increment drill size of a pin or via\n"),
-"<b><s><c>s ",
+"<b><s><a>s ",
 N_("Decrement drill size of a pin or via\n"),
 "\n",
 
@@ -214,6 +214,14 @@ N_("Zoom out\n"),
 
 "<b>\t|\t",
 N_("Toggle thin draw mode\n"),
+"\n",
+
+"<b>\t/\t",
+N_("Cycle multiline mode (Using <s> overrides)\n"),
+"\n",
+
+"<b>\t.\t",
+N_("Toggle 45 degree enforcement\n"),
 "\n",
 
 "<b>\tTAB\t",

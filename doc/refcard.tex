@@ -79,8 +79,9 @@
 \multicolumn{2}{c}{\bf misc operations} \\
 backspace & remove object \\
 \Shift\Ctrl\Btn1 & remove object \\
-escape & pan (Gumby) mode \\
-\Btn1 & create object or part \\
+scroll wheel & vertical pan \\
+\Shift scroll wheel & horizontal pan \\
+\Btn1 & current mode action \\
 u & undo operation \\
 \Shift r & redo operation \\
 \Shift\Ctrl u & clear undo-list \\
@@ -111,6 +112,7 @@ r & clear and redraw output \\
 z & zoom in \\
 \Shift z & zoom out \\
 v & zoom extents \\
+\Shift\Btn3 & temporary zoom extents \\
 \end{tabular}}
 \end{minipage}
 %
@@ -121,7 +123,7 @@ v & zoom extents \\
 \fbox{\rule[\BoxRaise]{0cm}{\BoxHeight} \begin{tabular}[t]{ll}
 \multicolumn{2}{c}{\bf selection} \\
 \Btn2 & select/deselect object \\
-\Shift\Btn2 & add object to selection \\
+\Shift\Btn2 & toggle object to selection \\
 drag \Btn2 & select only objects in box \\
 drag \Shift\Btn2 & add box to selection \\
 \Shift m & move selected to current layer \\
@@ -133,12 +135,12 @@ drag \Shift\Mod\Btn2 & override rubberband \& move \\
 m & move to current layer \\
  & \\
 \multicolumn{2}{c}{\bf pastebuffer} \\
-\Fun3 & enter pastebuffer-mode \\
-\Shift \Fun3 & rotate 90 degree cc \\
-\Btn1 & copy to layout \\
-\Shift 1$\cdots$5 & select buffer \# 1$\cdots$5 \\
-x & copy selected objects to buffer \\
-\Shift x & cut selected objects to buffer \\
+\Ctrl x & copy selected objects to buffer \\
+        & and enter pastebuffer mode \\
+\Shift \Ctrl x & cut selected objects to buffer \\
+        & and enter pastebuffer mode \\
+\Btn1 & in pastebuffer mode copy to layout \\
+\Ctrl 1$\cdots$5 & select buffer \# 1$\cdots$5 \\
  & \\
 \multicolumn{2}{c}{\bf sizing} \\
 s & increase size of TLAPV \footnote{TLAPV: text, line, arc, pin or via}\\
@@ -168,14 +170,14 @@ q & toggle square flag \\
 \multicolumn{2}{c}{\bf via} \\
 \Fun1 & enter via-mode \\
 \Ctrl v & increase initial size \\
-\Shift v & decrease initial size \\
+\Shift \Ctrl v & decrease initial size \\
 \Mod v & inc. initial drilling hole \\
 \Shift\Mod v & dec. initial drilling hole \\
 \Ctrl h & convert via to mounting hole \\
  & \\
 \multicolumn{2}{c}{\bf lines/arcs} \\
 \Fun2 & enter line mode \\
-\Fun8 & enter arc mode \\
+\Fun3 & enter arc mode \\
 l & increase initial line size \\
 \Shift l & decrease initial line size \\
 period & toggle 45 degree enforcement \\
@@ -183,13 +185,13 @@ period & toggle 45 degree enforcement \\
 \Shift & override multiline mode \\
  & \\
 \multicolumn{2}{c}{\bf polygon} \\
-\Fun4 & enter rectangle-mode \\
+\Fun5 & enter rectangle-mode \\
 \Fun6 & enter polygon-mode \\
 \Shift p & close path \\
 insert & enter insert point mode \\
  & \\
 \multicolumn{2}{c}{\bf text} \\
-\Fun5 & enter text-mode \\
+\Fun4 & enter text-mode \\
 n & edit string \\
 t & increase initial text size \\
 \Shift t & decrease initial text size \\

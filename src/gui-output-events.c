@@ -396,10 +396,10 @@ gui_output_key_press_cb(GtkWidget *drawing_area,
 
 		case GDK_s:
 		case GDK_S:
-			if (mk == CONTROL_PRESSED || mk == SHIFT_CONTROL_PRESSED)
+			if (mk == MOD1_PRESSED || mk == SHIFT_MOD1_PRESSED)
 				{
 				gui_size_increment_get_value(
-						(mk == CONTROL_PRESSED) ? "+" : "-", &arg, &units);
+						(mk == MOD1_PRESSED) ? "+" : "-", &arg, &units);
 				ActionChange2ndSize("Object", arg, units);
 				}
 			else
@@ -494,7 +494,11 @@ gui_output_key_press_cb(GtkWidget *drawing_area,
 			break;
 
 		case GDK_period:
-			ActionCommand("-1");
+			ActionDisplay("Toggle45Degree", "");
+			break;
+
+		case GDK_slash:
+			ActionDisplay("CycleClip", "");
 			break;
 
 		case GDK_Up:
