@@ -2255,15 +2255,31 @@ make_top_menubar(GtkWidget *hbox, OutputType *out)
 	}
 
 
-  /* Set the PCB name label.
+  /* Set the PCB name on a label or on the window title bar.
   */
 void
 gui_output_set_name_label(gchar *name)
 	{
 	gchar	*str;
 
-	str = g_strdup_printf(" <b><big>%s</big></b> ", name ? name : "Unnamed");
-	gtk_label_set_markup(GTK_LABEL(gui->name_label), str);
+	dup_string(&gui->name_label_string, name);
+	if (!gui->name_label_string || !*gui->name_label_string)
+		gui->name_label_string = g_strdup(_("Unnamed"));
+
+	if (Settings.gui_title_window)
+		{
+		gtk_widget_hide(gui->name_label);
+		str = g_strdup_printf("PCB:  %s", gui->name_label_string);
+		gtk_window_set_title(GTK_WINDOW(Output.top_window), str);
+		}
+	else
+		{
+		gtk_widget_show(gui->name_label);
+		str = g_strdup_printf(" <b><big>%s</big></b> ",
+				gui->name_label_string);
+		gtk_label_set_markup(GTK_LABEL(gui->name_label), str);
+		gtk_window_set_title(GTK_WINDOW(Output.top_window), "PCB");
+		}
 	g_free(str);
 	}
 

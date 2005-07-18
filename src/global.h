@@ -522,6 +522,7 @@ typedef struct			/* some resources... */
 				grid_units_mm,
 				small_layer_enable_label_markup,
 				gui_compact_horizontal,
+				gui_title_window,
 				use_command_window,
 				verbose;
 

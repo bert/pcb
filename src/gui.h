@@ -109,6 +109,8 @@ typedef struct
 	GtkObject		*h_adjustment,
 					*v_adjustment;
 
+	gchar			*name_label_string;
+
 	gboolean		adjustment_changed_holdoff,
 					toggle_holdoff,
 					command_entry_status_line_active;

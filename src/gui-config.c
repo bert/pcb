@@ -90,6 +90,7 @@ static ConfigSettingsValues	config_settings_values[] =
 	{
 	/* booleans */
 	{"gui-compact-horizontal", &Settings.gui_compact_horizontal, "0"},
+	{"gui-title-window",	&Settings.gui_title_window,		"0"},
 	{"use-command-window",	&Settings.use_command_window,	"1"},
 	{"grid-units-mm",		&Settings.grid_units_mm,		"0"},
 	{"all-direction-lines",	&Settings.AllDirectionLines,	"0"},
@@ -670,6 +671,17 @@ config_compact_toggle_cb(GtkToggleButton *button, gpointer data)
 					FALSE, FALSE, 0);
 		}
 	set_status_line_label();
+	Settings.config_modified = TRUE;
+	}
+
+static void
+config_title_window_cb(GtkToggleButton *button, gpointer data)
+	{
+	gboolean	active = gtk_toggle_button_get_active(button);
+
+	Settings.gui_title_window = active;
+	gui_output_set_name_label(gui->name_label_string);
+	Settings.config_modified = TRUE;
 	}
 
 static void
@@ -718,6 +730,11 @@ config_general_tab_create(GtkWidget *tab_vbox)
 				TRUE, FALSE, FALSE, 2,
 				config_compact_toggle_cb, NULL,
 				_("Compact horizontal top window for narrow screens"));
+
+	gui_check_button_connected(vbox, NULL, Settings.gui_title_window,
+				TRUE, FALSE, FALSE, 2,
+				config_title_window_cb, NULL,
+				_("Put layout name on the window title bar"));
 
 #if 0
 /* Works poorly */
