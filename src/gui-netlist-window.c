@@ -692,7 +692,7 @@ gui_netlist_highlight_node(gchar *node_name, gboolean change_style)
 	{
 	GtkTreePath			*path;
 	GtkTreeIter			iter;
-	LibraryMenuType		*net;;
+	LibraryMenuType			*net;
 	gchar				*name;
 
 	if (!node_name)

@@ -32,6 +32,7 @@
 #define	__CONST_INCLUDED__
 
 #include <limits.h>
+#include <math.h>
 
 #include "globalconst.h"
 

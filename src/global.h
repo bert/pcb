@@ -37,10 +37,10 @@
 #ifndef	__GLOBAL_INCLUDED__
 #define	__GLOBAL_INCLUDED__
 
+#include <gtk/gtk.h>
+
 #include "const.h"
 #include "macro.h"
-
-#include <gtk/gtk.h>
 
 #if !GTK_CHECK_VERSION(2,4,0)
 #error ******** Gtk 2.4 is required to compile this PCB package. *********
