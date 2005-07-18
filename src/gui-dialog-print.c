@@ -38,7 +38,6 @@
 #include "data.h"
 #include "dev_ps.h"
 #include "dev_rs274x.h"
-#include "menu.h"
 #include "misc.h"
 #include "mymem.h"
 #include "print.h"

@@ -52,7 +52,6 @@
 #include "draw.h"
 #include "error.h"
 #include "find.h"
-#include "menu.h"
 #include "misc.h"
 #include "output.h"
 #include "set.h"

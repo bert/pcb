@@ -40,7 +40,6 @@
 #include "crosshair.h"
 #include "data.h"
 #include "error.h"
-#include "menu.h"
 #include "misc.h"
 #include "set.h"
 
