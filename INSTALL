@@ -117,8 +117,7 @@ Here's how to install:
      make
 
 3. Get yourself a printed copy of the documentation (available in
-   ./doc/). Also print a copy of Pcb.ad (this is the X11 resource file
-   which is just text).
+   ./doc/).
    Read 'Whats_new*' to see if old file have to be updated.
 
 
@@ -130,8 +129,8 @@ Here's how to install:
    
 5. Take the printed copies from (3) and check if the translations work
    (see chapter 'Getting Started') by running
-       ./pcbtest.sh ../example/68HC11
-   It comes up with a 68HC11 microcontroller layout.
+       ./pcbtest.sh ../example/LED2
+   It comes up with a LED board layout you can play with.
 
    Take special care on the resources related to functions keys and the
    pointer buttons because most of the window managers use them too.

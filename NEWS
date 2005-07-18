@@ -4,9 +4,10 @@ Release Notes for PCB snapshot 20050609
 ========================================================================
 
 - **** The GUI is now based on gtk2 instead of Xaw ****  This represents
-  a fairly major change.  You will now need gtk-2.2 or higher installed
+  a fairly major change.  You will now need gtk-2.4 or higher installed
   along with any of its dependencies to build pcb.  On linux
-  distributions, it is probably the case that you already have this.
+  distributions, it is probably the case that you already have this,
+  but see the README-GTK_PORT file for a note on gtk versions.
   For *BSD, Solaris, and others, you may want to use NetBSD's pkgsrc
   to help install gtk2 and its dependencies.
 
