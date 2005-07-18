@@ -46,48 +46,64 @@ define(`PKG_GENERIC_QFN',
 	# x-coordinate for right pin on top/bottom sides  (1/1000 mil)
 	define(`TBXMAX', `eval((TBPINS-1)*PITCH/2)')
 	# total horizontal package width (1/1000 mil)
+	define(`LRWIDTHMM', `ifelse(0,`$5',`787',`eval($5)')')
 	define(`LRWIDTH', `ifelse(0,`$5',`787',`eval(`$5'*10000000/254)')')
 	# total vertical package width (1/1000 mil)
 	define(`TBWIDTH',`ifelse(0,`$5',`551',`eval(`$5'*10000000/254)')')
-	# how much pads extend beyond the package edge (1/1000 mil)
+	# how much pads extend beyond the package edge (1/1000 mil) (the 25 is 0.25 mm)
 	define(`EXTOUT', eval(25*100000/254))
 	# how much pads extend inward from the package pad edge (1/1000 mil)
 	define(`EXTIN', eval(5*100000/254))
 	# pad length/width (1/1000 mil)
 	define(`PADLENGTH', `eval(`$8'*100000/254)')
 	define(`PADWIDTH', `eval(`$7'*100000/254)')
-	# pad width (mil)
-	define(`PADWIDTHMIL', `eval(PADWIDTH/1000)')
-	# min/max x coordinates for the pads on the left/right sides of the package (mil)
-	define(`LRXMAX',`eval((LRWIDTH/2 + EXTOUT - PADWIDTH/2)/1000)')
-	define(`LRXMIN',`eval((LRWIDTH/2 -PADLENGTH - EXTIN + PADWIDTH/2)/1000)')
-	# min/max y coordinates for the pads on the top/bottom sides of the package (mil)
-	define(`TBYMAX',`eval((TBWIDTH/2 + EXTOUT - PADWIDTH/2)/1000)')
-	define(`TBYMIN',`eval((TBWIDTH/2 -PADLENGTH - EXTIN + PADWIDTH/2)/1000)')
-	# how much the silk screen is moved away from the package (1/1000 mil)
-	define(`SILKEXT', `eval(EXTOUT + 10*1000)')
-	# upper right corner for silk screen (mil)
-	define(`SILKX', `eval((LRWIDTH/2 + SILKEXT)/1000)')
-	define(`SILKY', `eval((TBWIDTH/2 + SILKEXT)/1000)')
-	# silkscreen width (mils)
-	define(`SILKW', 10)
-	# refdes text size (mil)
-	define(`TEXTSIZE', 100)
-	# x,y coordinates for refdes label (mil)
-	define(`TEXTX', -SILKX)
-	define(`TEXTY', `eval(-SILKY - 10 - TEXTSIZE/2)')
-	# square exposed paddle size (mil)
-	define(`EPSIZE', `eval(`$9'*100/254)')
+	# pad width (mil/100)
+	define(`PADWIDTHMIL100', `eval(PADWIDTH/10)')
+	# min/max x coordinates for the pads on the left/right sides of the package (mil/100)
+	define(`LRXMAX',`eval((LRWIDTH/2 + EXTOUT - PADWIDTH/2)/10)')
+	define(`LRXMIN',`eval((LRWIDTH/2 -PADLENGTH - EXTIN + PADWIDTH/2)/10)')
+	# min/max y coordinates for the pads on the top/bottom sides of the package (mil/100)
+	define(`TBYMAX',`eval((TBWIDTH/2 + EXTOUT - PADWIDTH/2)/10)')
+	define(`TBYMIN',`eval((TBWIDTH/2 -PADLENGTH - EXTIN + PADWIDTH/2)/10)')
 
-Element(0x00 "$1" "$2" "$3" TEXTX TEXTY 0 TEXTSIZE 0x00)
+	# silkscreen width (mils/100)
+	define(`SILKW', 1000)
+	# how much the silk screen is moved away from the package (1/1000 mil)
+	define(`SILKEXT', `eval(EXTOUT + SILKW*10/2 + 5*1000)')
+	# upper right corner for silk screen (mil/100)
+	define(`SILKX', `eval((LRWIDTH/2 + SILKEXT )/10)')
+	define(`SILKY', `eval((TBWIDTH/2 + SILKEXT )/10)')
+	# refdes text size (mil/100)
+	define(`TEXTSIZE', 100)
+	# x,y coordinates for refdes label (mil/100)
+	define(`TEXTX', -SILKX)
+	define(`TEXTY', `eval(-SILKY - 1000 - TEXTSIZE/2)')
+	# square exposed paddle size (mil/100)
+	define(`EPSIZE', `eval(`$9'*10000/254)')
+
+   # width of the pad solder mask relief (1/100 mil). 
+   # grow by 1.5 mils on each side
+   define(`PADMASK', `eval(2*150 + PADWIDTHMIL100)')
+
+   # width of the paddle soldermask relief (1/100 mil)
+   # grow by 200 mils on each side
+   define(`EPMASK', `eval(2*200 + EPSIZE)')
+
+# element_flags, description, pcb-name, value, mark_x, mark_y,
+# text_x, text_y, text_direction, text_scale, text_flags
+Element[0x00000000 "$1" "$2" "$3" 0 0 TEXTX TEXTY 0 TEXTSIZE 0x00000000]
 (
+
+
+# Pad[X1, Y1, X2, Y3, width, clearance,
+#     soldermask, "pin name", "pin number", flags]
 
 # left row
 define(`CURPIN', 1)
 define(`idx',0)
 forloop(`i', 1, LRPINS,
-	`define(`Y', `eval((-LRYMAX + PITCH*idx)/1000)')'
-	`Pad(-LRXMAX  Y  -LRXMIN  Y  PADWIDTHMIL  "CURPIN"  0x100)'
+	`define(`Y', `eval((-LRYMAX + PITCH*idx)/10)')'
+	`Pad[-LRXMAX  Y  -LRXMIN  Y  PADWIDTHMIL100  0 PADMASK "CURPIN" "CURPIN"  0x00000100]'
 	`define(`CURPIN', incr(CURPIN))'
 	`define(`idx',incr(idx))'
 )
@@ -95,8 +111,8 @@ forloop(`i', 1, LRPINS,
 # bottom row
 define(`idx',0)
 forloop(`i', 1, TBPINS,
-	`define(`X', `eval((-TBXMAX + PITCH*idx)/1000)')'
-	`Pad(X  TBYMAX  X  TBYMIN  PADWIDTHMIL  "CURPIN"  0x100)'
+	`define(`X', `eval((-TBXMAX + PITCH*idx)/10)')'
+	`Pad[X  TBYMAX  X  TBYMIN  PADWIDTHMIL100 0 PADMASK "CURPIN" "CURPIN"  0x00000900]'
 	`define(`CURPIN', incr(CURPIN))'
 	`define(`idx',incr(idx))'
 )
@@ -104,8 +120,8 @@ forloop(`i', 1, TBPINS,
 # right row
 define(`idx',0)
 forloop(`i', 1, LRPINS,
-	`define(`Y', `eval(( LRYMAX - PITCH*idx)/1000)')'
-	`Pad(LRXMAX  Y  LRXMIN  Y  PADWIDTHMIL  "CURPIN"  0x100)'
+	`define(`Y', `eval(( LRYMAX - PITCH*idx)/10)')'
+	`Pad[LRXMAX  Y  LRXMIN  Y  PADWIDTHMIL100  0 PADMASK "CURPIN" "CURPIN"  0x00000100]'
 	`define(`CURPIN', incr(CURPIN))'
 	`define(`idx',incr(idx))'
 )
@@ -113,26 +129,29 @@ forloop(`i', 1, LRPINS,
 # top row
 define(`idx',0)
 forloop(`i', 1, TBPINS,
-	`define(`X', `eval((TBXMAX - PITCH*idx)/1000)')'
-	`Pad(X  -TBYMAX  X  -TBYMIN  PADWIDTHMIL  "CURPIN" 0x100)'
+	`define(`X', `eval((TBXMAX - PITCH*idx)/10)')'
+	`Pad[X  -TBYMAX  X  -TBYMIN  PADWIDTHMIL100 0 PADMASK "CURPIN" "CURPIN" 0x00000900]'
 	`define(`CURPIN', incr(CURPIN))'
 	`define(`idx',incr(idx))'
 )
 
 # Exposed paddle (if this is an exposed paddle part)
-ifelse(1, eval(EPSIZE>0), PAD(0, 0, 0, 0, EPSIZE, CURPIN))
+ifelse(1, eval(EPSIZE>0), 
+# Pad(X1, Y1, X2, Y3, width, clearance,
+#     soldermask, "pin name", "pin number", flags)
+	Pad[0 0 0 0 EPSIZE 0 EPMASK "CURPIN" "CURPIN" 0x00000100]
+	define(`CURPIN', incr(CURPIN))
+)
 
 # Silk screen around package
-ElementLine( SILKX  SILKY  SILKX -SILKY SILKW)
-ElementLine( SILKX -SILKY -SILKX -SILKY SILKW)
-ElementLine(-SILKX -SILKY -SILKX  SILKY SILKW)
-ElementLine(-SILKX  SILKY  SILKX  SILKY SILKW)
+ElementLine[ SILKX  SILKY  SILKX -SILKY SILKW]
+ElementLine[ SILKX -SILKY -SILKX -SILKY SILKW]
+ElementLine[-SILKX -SILKY -SILKX  SILKY SILKW]
+ElementLine[-SILKX  SILKY  SILKX  SILKY SILKW]
 
 # Pin 1 indicator
-ElementLine(-SILKX -SILKY eval(-SILKX - 15) eval(-SILKY - 15) SILKW)
+ElementLine[-SILKX -SILKY eval(-SILKX - 1500) eval(-SILKY - 1500) SILKW]
 
-# Mark at the center of the part
-Mark(0 0)
 )')
 
 # -------------------------------------------------------------------
