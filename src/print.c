@@ -1570,26 +1570,32 @@ PrintBOM (void)
 		       UNKNOWN (VALUE_NAME (element)), bom);
       
     
+    /*
+     * iterate over the pins and pads keeping a running count of how
+     * many pins/pads total and the sum of x and y coordinates
+     * 
+     * While we're at it, store the location of pin/pad #1 and #2 if
+     * we can find them
+     */
+
     PIN_LOOP (element);
     {
       sumx += (double) pin->X;
       sumy += (double) pin->Y;
       pin_cnt++;
 
-      if (pin->Number == 0)
-	/* Skip unnumbered pins */ ;
-      else if (NSTRCMP(pin->Number, "1") == 0)
+      if (NSTRCMP(pin->Number, "1") == 0)
 	{
 	  pin1x = (double) pin->X;
 	  pin1y = (double) pin->Y;
-	  pin1angle = 0.0;
+	  pin1angle = 0.0; /* pins have no notion of angle */
 	  found_pin1 = 1;
 	}
       else if (NSTRCMP(pin->Number, "2") == 0)
 	{
 	  pin2x = (double) pin->X;
 	  pin2y = (double) pin->Y;
-	  pin2angle = 0.0;
+	  pin2angle = 0.0; /* pins have no notion of angle */
 	  found_pin2 = 1;
 	}
     }
@@ -1607,7 +1613,8 @@ PrintBOM (void)
 	  pin1y = (double) (pad->Point1.Y + pad->Point2.Y)/2.0;
 	  /*
 	   * NOTE:  We swap the Y points because in PCB, the Y-axis
-	   * is inverted.  Increasing Y moves down.
+	   * is inverted.  Increasing Y moves down.  We want to deal
+	   * in the usual increasing Y moves up coordinates though.
 	   */
 	  pin1angle = (180.0 / M_PI) * atan2(pad->Point1.Y - pad->Point2.Y ,
 					     pad->Point2.X - pad->Point1.X );
