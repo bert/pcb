@@ -29,7 +29,7 @@ Copyright (C) 1994,1995,1996, 2004 Thomas Nau
 
 Copyright (C) 1997, 1998, 1999, 2000, 2001, 2002 harry eaton
 
-Copyright (C) 2003, 2004 Dan McMahill
+Copyright (C) 2003, 2004, 2005 Dan McMahill
 
 Copyright (C) 2004 DJ Delorie
 
@@ -80,6 +80,7 @@ board layout system for @code{X11}.
 * Custom Menus::           Customizing the menu bar.
 * Regular Expressions::    Searching for elements with regular expressions
 * Standard Drill Sizes::   Tables of standard drill sizes
+* Centroid File Format::   Details of the centroid (x-y) output file
 * Index::                  The Index.
 @end menu
 
@@ -5797,7 +5798,7 @@ Enter "R128+".
 
 
 @c --------------------------- Appendix -- drill sizes -------------------------------
-@node Standard Drill Sizes, Index, Regular Expressions, Top
+@node Standard Drill Sizes, Centroid File Format, Regular Expressions, Top
 @cindex drill sizes, list of standard
 @cindex standard drill sizes
 @appendix Standard Drill Size Tables
@@ -5814,9 +5815,75 @@ Enter "R128+".
 @section Metric Drills
 @include metric_size.texi
 
+@c --------------------------- Appendix -- Centroid File Format ----------------------
+@node Centroid File Format, Index, Standard Drill Sizes, Top
+@cindex centroid file format
+@cindex x-y file format
+@appendix Centroid (X-Y) File Format
+
+@section Overview
+
+@section File Format
+The centroid output file is in a standard comma seperated values (CSV)
+format.  Comment lines begin with a ``#''.  The output file contains a
+header with an RCS Id tag (useful for those who will check the file
+into a version control system), a version number for the file format,
+some comments containing the author and title of the board, and a
+comment describing the remainder of the file format.
+
+An example centroid file is shown below.
+
+@example
+
+# @verb{ $ }Id@verb{ $ }
+# PcbXY Version 1.0
+# Date: Fri Jul 22 03:40:08 2005 UTC
+# Author: PCB User
+# Title: MyBoard - PCB X-Y
+# RefDes, Description, Value, X, Y, rotation, top/bottom
+# X,Y in mils.  rotation in degrees.
+# --------------------------------------------
+R61,"0603","10",2610.00,3560.00,90,top
+J5,"AMPHENOL_ARFX1231","unknown",2390.00,4220.00,180,top
+C13,"0402","0.01u",2340.00,3014.00,270,top
+
+@end example
+
+@section Computation of Centroid and Rotation
+@cindex centroid file, algorithms
+@cindex x-y file, algorithms
+The center of each element is found by averaging the (X,Y) coordinates
+for the center of each pin and pad in the element.  For example if an
+element has 2 pins, 1 at (1,0) and another at (1,4) then the centroid
+will be at (1,2).
+
+The calculation of rotation is a bit more complex.  Currently a
+rotation is not stored for each element but rather the rotated element
+is stored.  In other words if the element from the library has a pin
+at (0,0) and (0,2) and it has been rotated by 90 degrees, then the
+@file{.pcb} file will store (0,0) and (2,0) for the pin locations with
+no indication that they have been rotated from the original.
+
+In the event that the element has only 1 pin, then the rotation is set
+to zero.  If the element has only one pad (as opposed to a
+through-hole pin), then the rotation of the pad is used.
+
+When the element has multiple pins, the location of pin #1 is placed
+in the coordinate system which has the centroid of the part at (0,0).
+Then which quadrant pin #1 falls in determines the rotation.  Zero
+degrees of rotation is defines as pin #1 being in the upper left
+quadrant.  Increasing angles correspond to clockwise rotation so a
+rotation of 90 degrees places pin #1 in the lower left quadrant.
+Currently, the only allowed rotations are 0, 90, 180, and 270 degrees.
+
+If pin #1 happens to be at the centroid of the part, then pin #2 is
+examined to see which quadrant it is located in.  The same rules apply
+for the definitions of rotation.  In other words, when pin #1 is at
+the centroid of the part and pin #2 is in the upper left quadrant, the
+rotation is declared to be zero degrees.
 
 @c ---------------------------------------------------------------------
-@node Index, , Standard Drill Sizes, Top
+@node Index, , Centroid File Format, Top
 @unnumbered Index of Resources
 @printindex vr
 
