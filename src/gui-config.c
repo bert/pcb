@@ -146,7 +146,7 @@ static ConfigSettingsStrings	config_settings_strings[] =
 	/* These two can be overriden via rc file or command line args.
 	*/
 	{"groups",				&Settings.Groups,
-				"1:2:3:4:5:6:7:8"},
+				"1,c:2,s:3:4:5:6:7:8"},
 	{"route-styles",		&Settings.Routes,
 				"Signal,1000,3600,2000,1000:Power,2500,6000,3500,1000"
 				":Fat,4000,6000,3500,1000:Skinny,600,2402,1181,600" },
@@ -155,7 +155,7 @@ static ConfigSettingsStrings	config_settings_strings[] =
 
 	{"pinout-font",			&Settings.PinoutFont,			"Sans 10"},
 
-	{"layer-groups",		&Settings.Groups,		"1,s:2,c:3:4:5:6:7:8"},
+	{"layer-groups",		&Settings.Groups,		"1,c:2,s:3:4:5:6:7:8"},
 
 	{"layer-name-1",		&Settings.DefaultLayerName[0],	N_("component")},
 	{"layer-name-2",		&Settings.DefaultLayerName[1],	N_("solder")},
