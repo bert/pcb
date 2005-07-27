@@ -4,7 +4,7 @@
 #                            COPYRIGHT
 #
 #   PCB, interactive printed circuit board design
-#   Copyright (C) 2003 Dan McMahill
+#   Copyright (C) 2003, 2005 Dan McMahill
 #
 #   This program is free software; you can redistribute it and/or modify
 #   it under the terms of the GNU General Public License as published by
@@ -78,24 +78,20 @@ define(`PKG_BOURNS_GENERIC_POT',
 Element(0x00 "$1" "$2" "$3" TEXTX TEXTY 0 TEXTSIZE 0x00)
 (
 
-# pins 1 and 3
+# pin 1
 ifelse(0, eval(W13>L13),
 	# Pads which have the perpendicular pad dimension less
 	# than or equal to the parallel pad dimension 	
-	Pad(eval( (S12 - L13 + W13)*50/254) eval(-S13*50/254) 
-            eval( (S12 + L13 - W13)*50/254) eval(-S13*50/254) eval(W13*100/254) "3" 0x100)
 	Pad(eval( (S12 - L13 + W13)*50/254) eval( S13*50/254) 
             eval( (S12 + L13 - W13)*50/254) eval( S13*50/254) eval(W13*100/254) "1" 0x100)
         ,
 	# Pads which have the perpendicular pad dimension greater
 	# than or equal to the parallel pad dimension 
 	Pad(eval( (S12 + L13)*50/254) eval((-S13 - W13 + L13)*50/254)
-            eval( (S12 + L13)*50/254) eval((-S13 + W13 - L13)*50/254) eval(L13*100/254) "3" 0x100)
-	Pad(eval( (S12 + L13)*50/254) eval((-S13 - W13 + L13)*50/254)
             eval( (S12 + L13)*50/254) eval((-S13 + W13 - L13)*50/254) eval(L13*100/254) "1" 0x100)
 	)
 
-# pins 2
+# pin 2
 ifelse(0, eval(W2>L2),
 	# Pads which have the perpendicular pad dimension less
 	# than or equal to the parallel pad dimension 	
@@ -106,6 +102,19 @@ ifelse(0, eval(W2>L2),
 	# than or equal to the X (length) pad dimension 
 	Pad(eval( -S12*50/254) eval((- W2 + L2)*50/254)
             eval( -S12*50/254) eval((  W2 - L2)*50/254) eval(L2*100/254) "2" 0x100)
+	)
+
+# pin 3
+ifelse(0, eval(W13>L13),
+	# Pads which have the perpendicular pad dimension less
+	# than or equal to the parallel pad dimension 	
+	Pad(eval( (S12 - L13 + W13)*50/254) eval(-S13*50/254) 
+            eval( (S12 + L13 - W13)*50/254) eval(-S13*50/254) eval(W13*100/254) "3" 0x100)
+        ,
+	# Pads which have the perpendicular pad dimension greater
+	# than or equal to the parallel pad dimension 
+	Pad(eval( (S12 + L13)*50/254) eval((-S13 - W13 + L13)*50/254)
+            eval( (S12 + L13)*50/254) eval((-S13 + W13 - L13)*50/254) eval(L13*100/254) "3" 0x100)
 	)
 
 # Silk screen around package
