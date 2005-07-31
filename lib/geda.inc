@@ -796,6 +796,7 @@ define(`PKG_0201',      `PKG_SMT_2PAD_MIL(  `$1', `$2', `$3',  20,   10)');
 define(`PKG_0402',      `PKG_SMT_2PAD_MIL(  `$1', `$2', `$3',  40,   20)');
 define(`PKG_0603',      `PKG_SMT_2PAD_MIL(  `$1', `$2', `$3',  60,   30)');
 define(`PKG_0805',      `PKG_SMT_2PAD_MIL(  `$1', `$2', `$3',  80,   50)');
+define(`PKG_1008',      `PKG_SMT_2PAD_MIL(  `$1', `$2', `$3', 100,   80)');
 define(`PKG_1206',      `PKG_SMT_2PAD_MIL(  `$1', `$2', `$3', 120,   60)');
 define(`PKG_1210',      `PKG_SMT_2PAD_MIL(  `$1', `$2', `$3', 120, 100)');
 define(`PKG_1806',      `PKG_SMT_2PAD_MIL(  `$1', `$2', `$3', 180,   60)');
