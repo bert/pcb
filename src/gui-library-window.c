@@ -316,6 +316,9 @@ gui_library_window_show(OutputType *out)
 				G_CALLBACK(library_close_cb), NULL);
 	gtk_box_pack_start(GTK_BOX(hbox), button, TRUE, TRUE, 0);
 
+	if( Settings.AutoPlace )
+		gtk_widget_set_uposition( GTK_WIDGET(library_window), 10, 10);
+
 	gtk_widget_show_all(library_window);
 
 	/* If focus were grabbed, output drawing area would loose it which we
@@ -323,8 +326,6 @@ gui_library_window_show(OutputType *out)
 	*/
 	gtk_widget_realize(library_window);
 	gdk_window_set_accept_focus(library_window->window, FALSE);
-	if( Settings.AutoPlace )
-		gtk_widget_set_uposition( GTK_WIDGET(library_window), 10, 10);
 
 	gtk_widget_show_all(library_window);
 	}
