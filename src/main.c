@@ -210,6 +210,7 @@ static PcbOption	pcb_options[] =
 	*/
 	{"action-string",	&Settings.ActionString,			NULL, NULL, NULL},
 	{"action-script",	&Settings.ScriptFilename,		NULL, NULL, NULL},
+	{"auto-place",	        NULL,                     NULL, &Settings.AutoPlace, NULL},
 	{"background",		&Settings.BackgroundImage,		NULL, NULL, NULL},
 
 	{"lib-command-dir",	&library_command_dir,			NULL, NULL, NULL},
@@ -642,7 +643,12 @@ main (int argc, char *argv[])
 #ifdef HAVE_LIBSTROKE
 	stroke_init ();
 #endif
-
+	/*
+	 * Set this flag to zero.  Then if we have a startup
+	 * action which includes Quit(), the flag will be set
+	 * to -1 and we can avoid ever calling gtk_main();
+	 */
+	Settings.init_done = 0;
 	if (Settings.ScriptFilename)
 		{
 		Message(_("Executing startup script file %s\n"),
@@ -658,7 +664,11 @@ main (int argc, char *argv[])
 		ActionExecuteAction(param, 1);
 		}
 
-	gtk_main();
+	if( Settings.init_done == 0 )
+	{
+		Settings.init_done = 1;
+		gtk_main();
+	}
 
 	if (Settings.config_modified)
 		config_file_write();

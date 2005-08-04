@@ -283,5 +283,7 @@ gui_pinout_window_show(OutputType *out, ElementType *element)
 	*/
 	gtk_widget_realize(pinout->top_window);
 	gdk_window_set_accept_focus(pinout->top_window->window, FALSE);
+	if( Settings.AutoPlace )
+		gtk_widget_set_uposition( GTK_WIDGET(pinout->top_window), 10, 10);
 	gtk_widget_show_all(pinout->top_window);
 	}

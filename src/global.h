@@ -513,7 +513,7 @@ typedef struct
 
 /* ---------------------------------------------------------------------------
  * our resources
- * most of them is used as default when a new design is started
+ * most of them are used as default when a new design is started
  */
 typedef struct			/* some resources... */
 {
@@ -632,9 +632,11 @@ typedef struct			/* some resources... */
 				OrthogonalMoves,	/* */
 				ResetAfterElement,	/* reset connections after each element */
 				liveRouting,		/* autorouter shows tracks in progress */
-				RingBellWhenFinished; /* flag if a signal should be */
+				RingBellWhenFinished, /* flag if a signal should be */
 									/* produced when searching of */
 									/* connections is done */
+  AutoPlace; /* flag which says we should force placement of the
+		windows on startup */
 	gint		HistorySize,
 				n_mode_button_columns,
 				selected_print_device,
@@ -648,7 +650,9 @@ typedef struct			/* some resources... */
 				library_window_height,
 				netlist_window_height,
 				w_display,		/* Not a setting... */
-				h_display;
+				h_display,
+				init_done  /* flag which says it is ok to run gtk_main() */
+				;
 	}
 	SettingType, *SettingTypePtr;
 

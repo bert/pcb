@@ -86,6 +86,7 @@ typedef struct
 	{
 	gchar	*text;
 	void	(*function)();
+	gboolean        needs_params;
 	}
 	ActionType;
 
@@ -95,101 +96,112 @@ typedef struct
  */
 static ActionType	action[] =
 	{
-	{"AutoPlaceSelected",	ActionAutoPlaceSelected},
-	{"AutoRoute",			ActionAutoRoute},
-	{"SetSame",				ActionSetSame},
-	{"MovePointer",			ActionMovePointer},
-	{"ToggleHideName",		ActionToggleHideName},
-	{"ChangeHole",			ActionChangeHole},
-	{"ToggleThermal",		ActionToggleThermal},
-	{"Atomic",				ActionAtomic},
-	{"RouteStyle",			ActionRouteStyle},
-	{"DRC",					ActionDRCheck},
-	{"Flip",				ActionFlip},
-	{"SetValue",			ActionSetValue},
-	{"Quit",				ActionQuit},
-	{"Connection",			ActionConnection},
-	{"Command",				ActionCommand},
-	{"DisperseElements",	ActionDisperseElements},
-	{"Display",				ActionDisplay},
-	{"Report",				ActionReport},
-	{"Mode",				ActionMode},
-	{"RemoveSelected",		ActionRemoveSelected},
-	{"DeleteRats",			ActionDeleteRats},
-	{"AddRats",				ActionAddRats},
-	{"MarkCrosshair",		ActionMarkCrosshair},
-	{"ChangeSize",			ActionChangeSize},
-	{"ChangeClearSize",		ActionChangeClearSize},
-	{"ChangeDrillSize",		ActionChange2ndSize},
-	{"ChangeName",			ActionChangeName},
-	{"ChangeSquare",		ActionChangeSquare},
-	{"ChangeOctagon",		ActionChangeOctagon},
-	{"ChangeJoin",			ActionChangeJoin},
-	{"Select",				ActionSelect},
-	{"Unselect",			ActionUnselect},
-	{"Save",				ActionSave},
-	{"Load",				ActionLoad},
-	{"Print",				ActionPrint},
-	{"New",					ActionNew},
-	{"SwapSides",			ActionSwapSides},
-	{"Bell",				ActionBell},
-	{"PasteBuffer",			ActionPasteBuffer},
-	{"Undo",				ActionUndo},
-	{"Redo",				ActionRedo},
-	{"RipUp",				ActionRipUp},
-	{"Polygon",				ActionPolygon},
-	{"MoveToCurrentLayer",	ActionMoveToCurrentLayer},
-	{"SwitchDrawingLayer",	ActionSwitchDrawingLayer},
-	{"ToggleVisibility",	ActionToggleVisibility},
-	{"MoveObject",			ActionMoveObject},
-	{"djopt",				ActionDJopt},
-	{"GetLoc",				ActionGetXY},
-	{"SetFlag",				ActionSetFlag},
-	{"ClrFlag",				ActionClrFlag},
-	{"ChangeFlag",			ActionChangeFlag},
+	{"AutoPlaceSelected",	ActionAutoPlaceSelected, FALSE},
+	{"AutoRoute",			ActionAutoRoute, FALSE},
+	{"SetSame",				ActionSetSame, FALSE},
+	{"MovePointer",			ActionMovePointer, FALSE},
+	{"ToggleHideName",		ActionToggleHideName, FALSE},
+	{"ChangeHole",			ActionChangeHole, FALSE},
+	{"ToggleThermal",		ActionToggleThermal, FALSE},
+	{"Atomic",				ActionAtomic, FALSE},
+	{"RouteStyle",			ActionRouteStyle, FALSE},
+	{"DRC",					ActionDRCheck, FALSE},
+	{"Flip",				ActionFlip, FALSE},
+	{"SetValue",			ActionSetValue, FALSE},
+	{"Quit",				ActionQuit, FALSE},
+	{"Connection",			ActionConnection, FALSE},
+	{"Command",				ActionCommand, FALSE},
+	{"DisperseElements",	ActionDisperseElements, FALSE},
+	{"Display",				ActionDisplay, FALSE},
+	{"Report",				ActionReport, FALSE},
+	{"Mode",				ActionMode, FALSE},
+	{"RemoveSelected",		ActionRemoveSelected, FALSE},
+	{"DeleteRats",			ActionDeleteRats, FALSE},
+	{"AddRats",				ActionAddRats, FALSE},
+	{"MarkCrosshair",		ActionMarkCrosshair, FALSE},
+	{"ChangeSize",			ActionChangeSize, FALSE},
+	{"ChangeClearSize",		ActionChangeClearSize, FALSE},
+	{"ChangeDrillSize",		ActionChange2ndSize, FALSE},
+	{"ChangeName",			ActionChangeName, FALSE},
+	{"ChangeSquare",		ActionChangeSquare, FALSE},
+	{"ChangeOctagon",		ActionChangeOctagon, FALSE},
+	{"ChangeJoin",			ActionChangeJoin, FALSE},
+	{"Select",				ActionSelect, FALSE},
+	{"Unselect",			ActionUnselect, FALSE},
+	{"Save",				ActionSave, FALSE},
+	{"Load",				ActionLoad, FALSE},
+	{"PrintDialog",				ActionPrintDialog, FALSE},
+	{"Print",				ActionPrint, TRUE},
+	{"New",					ActionNew, FALSE},
+	{"SwapSides",			ActionSwapSides, FALSE},
+	{"Bell",				ActionBell, FALSE},
+	{"PasteBuffer",			ActionPasteBuffer, FALSE},
+	{"Undo",				ActionUndo, FALSE},
+	{"Redo",				ActionRedo, FALSE},
+	{"RipUp",				ActionRipUp, FALSE},
+	{"Polygon",				ActionPolygon, FALSE},
+	{"MoveToCurrentLayer",	ActionMoveToCurrentLayer, FALSE},
+	{"SwitchDrawingLayer",	ActionSwitchDrawingLayer, FALSE},
+	{"ToggleVisibility",	ActionToggleVisibility, FALSE},
+	{"MoveObject",			ActionMoveObject, FALSE},
+	{"djopt",				ActionDJopt, FALSE},
+	{"GetLoc",				ActionGetXY, FALSE},
+	{"SetFlag",				ActionSetFlag, FALSE},
+	{"ClrFlag",				ActionClrFlag, FALSE},
+	{"ChangeFlag",			ActionChangeFlag, FALSE},
 
-	{"ExecuteFile",			ActionExecuteFile},
+	{"ExecuteFile",			ActionExecuteFile, FALSE},
 
-	{"LoadVendor",			ActionLoadVendor},
-	{"UnloadVendor",		ActionUnloadVendor},
-	{"ApplyVendor",			ActionApplyVendor},
-	{"EnableVendor",		ActionEnableVendor},
-	{"DisableVendor",		ActionDisableVendor},
-	{"ToggleVendor",		ActionToggleVendor},
+	{"LoadVendor",			ActionLoadVendor, FALSE},
+	{"UnloadVendor",		ActionUnloadVendor, FALSE},
+	{"ApplyVendor",			ActionApplyVendor, FALSE},
+	{"EnableVendor",		ActionEnableVendor, FALSE},
+	{"DisableVendor",		ActionDisableVendor, FALSE},
+	{"ToggleVendor",		ActionToggleVendor, FALSE},
 
 	};
 
-  /* All action procs take 0 - 3 gchar * args, so just pass three args
-  |  to all of them.
+  /* All action procs invoked from the Gtk menus take 0 - 3 gchar * args,
+  |  so when "num" is <= 3, can just pass three args to the action proc.
+  |  Some command line action procs may want more than three args, and for
+  |  these have an argc/argv style calling convention.
   */
 void
 CallActionProc(gchar *cmd, gchar **params, gint num)
+{
+  gchar	*arg1 = "", *arg2 = "", *arg3 = "";
+  gint	i;
+
+  /* scan command list */
+  for (i = 0; i < G_N_ELEMENTS(action); i++)
+    {
+      if (!g_strcasecmp(action[i].text, cmd))
 	{
-	gchar	*arg1 = "", *arg2 = "", *arg3 = "";
-	gint	i;
-
-	if (num > 3)
+	  if (action[i].needs_params)
+	    action[i].function(params, num);
+	  else
+	    {
+	      if (num > 3)
 		{
-		fprintf(stderr, "%s has too many args to CallActionProc()?\n", cmd);
-		return;
+		  fprintf(stderr,
+			  "%s has too many args to CallActionProc()?\n", cmd);
+		  return;
 		}
-	if (num > 0)
+	      if (num > 0)
 		arg1 = params[0];
-	if (num > 1)
+	      if (num > 1)
 		arg2 = params[1];
-	if (num > 2)
+	      if (num > 2)
 		arg3 = params[2];
+	      action[i].function(arg1, arg2, arg3);
+	    }
 
-	/* scan command list */
-	for (i = 0; i < G_N_ELEMENTS(action); i++)
-		if (!g_strcasecmp(action[i].text, cmd))
-			{
-			action[i].function(arg1, arg2, arg3);
-			break;
-			}
-	if (i == G_N_ELEMENTS(action))
-		Message(_("Warning: action proc '%s' not found.\n"), cmd);
+	  break;
 	}
+    }
+  if (i == G_N_ELEMENTS(action))
+    Message(_("Warning: action proc '%s' not found.\n"), cmd);
+}
 
 
 /* ---------------------------------------------------------------------------

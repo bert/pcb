@@ -57,6 +57,7 @@
 #include "move.h"
 #include "output.h"
 #include "polygon.h"
+#include "print.h"
 #include "rats.h"
 #include "remove.h"
 #include "report.h"
@@ -3999,11 +4000,11 @@ ActionLoad (char *function)
 }
 
 /* ---------------------------------------------------------------------------
- * print data
- * syntax: Print()
+ * print data -- brings up Print dialog box
+ * syntax: PrintDialog()
  */
 void
-ActionPrint (void)
+ActionPrintDialog (void)
 {
       /* check if layout is empty */
       if (!IsDataEmpty (PCB->Data))
@@ -4011,6 +4012,81 @@ ActionPrint (void)
       else
 	Message (_("Can't print empty layout"));
 }
+
+/* ---------------------------------------------------------------------------
+ * sets all print settings and prints.  
+ *
+ * syntax: Print(prefix, device, scale,");
+ *               mirror, rotate, color, invert, outline");
+ *               add_alignment, add_drill_helper,");
+ *               use_dos_filenames)");
+ */
+
+void
+ActionPrint (gchar **Params, gint num)
+{
+
+  if (num == 11)
+    {
+      /* check if layout is empty */
+      if (!IsDataEmpty (PCB->Data))
+        {
+          char *prefix_str = Params[0];
+          int device_choice_i = atoi(Params[1]);
+          float scale = atof(Params[2]);
+
+          int mirror = atoi(Params[3]);
+          int rotate = atoi(Params[4]);
+          int color = atoi(Params[5]);
+          int invert = atoi(Params[6]);
+          int outline = atoi(Params[7]);
+
+          int add_alignment = atoi(Params[8]);
+          int add_drill_helper = atoi(Params[9]);
+
+          int use_dos_filenames = atoi(Params[10]);
+
+          /*
+	   * for(num_devices = 0; PrintingDevice[num_devices].Query; num_devices++);
+           * assert(0 <= i && i < num_devices);
+	   */
+
+          Print(
+		prefix_str,
+		scale,
+
+		/* boolean options */
+		mirror,
+		rotate,
+		color,
+		invert,
+		outline,
+		add_alignment,
+		add_drill_helper,
+		use_dos_filenames,
+
+		PrintingDevice[device_choice_i].Info,
+		0, /* media */
+
+		0, /* offsetx */
+		0, /* offsety */
+
+		/* boolean options */
+		0 /* silk screen text flag */
+		);
+        }
+      else
+	Message (_("Can't print empty layout"));
+    }
+  else
+    {
+      Message (_("syntax: Print(prefix, device, scale,\n"
+	       "              mirror, rotate, color, invert, outline\n"
+	       "              add_alignment, add_drill_helper,\n"
+	       "              use_dos_filenames)\n"));
+    }
+}
+
 
 /* ---------------------------------------------------------------------------
  * starts a new layout

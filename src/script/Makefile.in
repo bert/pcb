@@ -149,7 +149,7 @@ sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
-bin_SCRIPTS = pcb
+bin_SCRIPTS = pcb pcb-print
 EXTRA_DIST = pcb.in 
 DISTCLEANFILES = pcb
 all: all-am

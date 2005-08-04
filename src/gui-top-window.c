@@ -252,7 +252,7 @@ load_vendor_file_cb(GtkAction *action, OutputType *out)
 static void
 print_layout_cb(GtkAction *action, OutputType *out)
 	{
-	ActionPrint();
+	ActionPrintDialog();
 	}
 
 static void
@@ -3416,6 +3416,7 @@ gui_init(gint *argc, gchar ***argv)
 	{
 	GtkWidget	*window;
 	OutputType	*out	= &Output;
+	gint i;
 
 	/* Threads aren't used in PCB, but this call would go here.
 	*/
@@ -3437,6 +3438,12 @@ gui_init(gint *argc, gchar ***argv)
 	gtk_init(argc, argv);
 	gtk_widget_push_colormap(gdk_rgb_get_colormap());  /* need this ?? */
 
+	Settings.AutoPlace = 0;
+	for(i=0; i<*argc; i++)
+	{
+		if( strcmp((*argv)[i], "-auto-place") == 0)
+			Settings.AutoPlace = 1;
+	}
 #ifdef ENABLE_NLS
 #ifdef LOCALEDIR
 	bindtextdomain(PACKAGE, LOCALEDIR);
@@ -3449,6 +3456,9 @@ gui_init(gint *argc, gchar ***argv)
 
 	window = out->top_window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	gtk_window_set_title(GTK_WINDOW(window), "PCB");
+
+	if( Settings.AutoPlace )
+	  gtk_widget_set_uposition( GTK_WIDGET(window), 10, 10);
 
 	gtk_widget_realize(out->top_window);
 	}

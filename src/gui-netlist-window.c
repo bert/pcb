@@ -613,6 +613,9 @@ gui_netlist_window_show(OutputType *out)
 	*/
 	gtk_widget_realize(netlist_window);
 	gdk_window_set_accept_focus(netlist_window->window, FALSE);
+	if( Settings.AutoPlace )
+		gtk_widget_set_uposition( GTK_WIDGET(netlist_window), 10, 10);
+
 	gtk_widget_show_all(netlist_window);
 	}
 

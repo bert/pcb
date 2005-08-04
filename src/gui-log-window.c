@@ -102,6 +102,8 @@ gui_log_window_show(void)
 	*/
 	gtk_widget_realize(log_window);
 	gdk_window_set_accept_focus(log_window->window, FALSE);
+	if( Settings.AutoPlace )
+		gtk_widget_set_uposition( GTK_WIDGET(log_window), 10, 10);
 	gtk_widget_show_all(log_window);
 	}
 

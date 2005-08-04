@@ -5,7 +5,7 @@
 ## app-defaults file because certain platforms like cygwin don't have 
 ## case sensitive file systems.
 
-bin_SCRIPTS=	pcb
+bin_SCRIPTS=	pcb pcb-print
 
 EXTRA_DIST= pcb.in 
 

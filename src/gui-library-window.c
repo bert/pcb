@@ -323,5 +323,8 @@ gui_library_window_show(OutputType *out)
 	*/
 	gtk_widget_realize(library_window);
 	gdk_window_set_accept_focus(library_window->window, FALSE);
+	if( Settings.AutoPlace )
+		gtk_widget_set_uposition( GTK_WIDGET(library_window), 10, 10);
+
 	gtk_widget_show_all(library_window);
 	}
