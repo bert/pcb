@@ -7,7 +7,7 @@
 
 bin_SCRIPTS=	pcb pcb-print
 
-EXTRA_DIST= pcb.in 
+EXTRA_DIST= pcb.in pcb-print
 
 DISTCLEANFILES= pcb
 
