@@ -131,7 +131,7 @@ while test $# -ne 0 ; do
 
 		--outline) outline=1 ;;
 
-		--add-alignment) add-alignment=1 ;;
+		--add-alignment) add_alignment=1 ;;
 
 		--add-drill-helper) add_drill_helper=1 ;;
 
