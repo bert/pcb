@@ -46,6 +46,11 @@ AC_CHECK_FUNCS(logf expf rint)
 
 AC_PATH_XTRA
 
+# action.c still has a direct call to an X function (XWarpPointer)
+# so on some systems (Solaris) you need to explicitly link -lX11
+# instead of getting it through the gtk dependencies
+AC_CHECK_LIB(X11, XOpenDisplay, , , $X_LIBS)
+
 AC_MSG_CHECKING([if X/Xaw should be configured])
 gui_xaw=no
 AC_ARG_ENABLE([xaw],
@@ -68,7 +73,6 @@ AC_ARG_WITH([libstroke],
 [  --without-libstroke     disable libstroke support (default: enabled)],
 AC_CHECK_LIB(stroke, main, , AC_ERROR([libstroke not found.  Please specify its location or configure --without-libstroke]))
 )
-AC_CHECK_LIB(X11, XOpenDisplay, , , $X_LIBS)
 AC_CHECK_LIB(ICE, main, , , $X_LIBS)
 AC_CHECK_LIB(SM, main, , , $X_LIBS)
 AC_CHECK_LIB(Xext, main, , , $X_LIBS)
