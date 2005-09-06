@@ -9,8 +9,25 @@
 CONFIG_SHELL=/bin/sh
 export CONFIG_SHELL
 
-aclocal $ACLOCAL_FLAGS
-autoheader
-automake -a -c --foreign
-autoconf
-./configure $@
+echo "Running aclocal..."
+aclocal $ACLOCAL_FLAGS || exit 1
+echo "Done with aclocal"
+
+echo "Running autoheader..."
+autoheader || exit 1
+echo "Done with autoheader"
+
+echo "Running automake..."
+automake -a -c --foreign || exit 1
+echo "Done with automake"
+
+echo "Running autoconf..."
+autoconf || exit 1
+echo "Done with autoconf"
+
+echo "Running ./configure $@"
+./configure $@ || exit 1
+echo "Done with configure"
+
+echo "All done with autogen.sh"
+
