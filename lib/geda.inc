@@ -792,17 +792,166 @@ define(`PKG_DIN41612C64MS', `PKG_DIN41_612MALE_SMALL(  `$1', `$2', `$3', `ac')')
 ## Standard SMT resistor, capacitor etc
 #  0201 .. 2706
 #
-define(`PKG_0201',      `PKG_SMT_2PAD_MIL(  `$1', `$2', `$3',  20,   10)');
-define(`PKG_0402',      `PKG_SMT_2PAD_MIL(  `$1', `$2', `$3',  40,   20)');
-define(`PKG_0603',      `PKG_SMT_2PAD_MIL(  `$1', `$2', `$3',  60,   30)');
-define(`PKG_0805',      `PKG_SMT_2PAD_MIL(  `$1', `$2', `$3',  80,   50)');
-define(`PKG_1008',      `PKG_SMT_2PAD_MIL(  `$1', `$2', `$3', 100,   80)');
-define(`PKG_1206',      `PKG_SMT_2PAD_MIL(  `$1', `$2', `$3', 120,   60)');
-define(`PKG_1210',      `PKG_SMT_2PAD_MIL(  `$1', `$2', `$3', 120, 100)');
-define(`PKG_1806',      `PKG_SMT_2PAD_MIL(  `$1', `$2', `$3', 180,   60)');
-define(`PKG_1812',      `PKG_SMT_2PAD_MIL(  `$1', `$2', `$3', 180, 120)');
-define(`PKG_1825',      `PKG_SMT_2PAD_MIL(  `$1', `$2', `$3', 180, 250)');
+#define(`PKG_0201',      `PKG_SMT_2PAD_MIL(  `$1', `$2', `$3',  20,   10)');
+#define(`PKG_0402',      `PKG_SMT_2PAD_MIL(  `$1', `$2', `$3',  40,   20)');
+#define(`PKG_0603',      `PKG_SMT_2PAD_MIL(  `$1', `$2', `$3',  60,   30)');
+#define(`PKG_0805',      `PKG_SMT_2PAD_MIL(  `$1', `$2', `$3',  80,   50)');
+#define(`PKG_1008',      `PKG_SMT_2PAD_MIL(  `$1', `$2', `$3', 100,   80)');
+#define(`PKG_1206',      `PKG_SMT_2PAD_MIL(  `$1', `$2', `$3', 120,   60)');
+#define(`PKG_1210',      `PKG_SMT_2PAD_MIL(  `$1', `$2', `$3', 120, 100)');
+#define(`PKG_1806',      `PKG_SMT_2PAD_MIL(  `$1', `$2', `$3', 180,   60)');
+#define(`PKG_1812',      `PKG_SMT_2PAD_MIL(  `$1', `$2', `$3', 180, 120)');
+#define(`PKG_1825',      `PKG_SMT_2PAD_MIL(  `$1', `$2', `$3', 180, 250)');
 define(`PKG_2706',      `PKG_SMT_2PAD_MIL(  `$1', `$2', `$3', 270,   60)');
+
+# The following are recommendations from IPC-7351
+# The naming convention, like 'CAPC0603L' follows the IPC standard.  At the end
+# of each size is a package named like '0603', '1206' which is more or less a compromise part based 
+# on the nominal IPC footprints for that package size.  Any additions to this section
+# should follow the IPC naming convention and size.  
+# 
+# The base macro accepts the numbers directly (after multiplying by 100) from the IPC
+# standard so they are fairly simple to add.
+
+# $1:  canonical name
+# $2:  name on PCB
+# $3:  value
+# $4:  pad X (size of pad in direction perpendicular to axis of part) [1/100 mm]
+# $5:  pad Y (size of pad in direction parallel to axis of part) [1/100 mm]
+# $6:  pad center to center spacing [1/100 mm]
+# $7:  courtyard size in direction parallel to axis of part [1/100 mm] (V1)
+# $8:  courtyard size in direction perpendicular to axis of part [1/100 mm] (V2)
+# $9:  length of silk screen line [1/100 mm] (R1)
+# $10: spacing of silk screen line [1/100 mm] (R2)
+
+# 0201
+define(`PKG_CAPC0603L', `PKG_SMT_2PAD_MM100(  `$1', `$2', `$3',  30,   30,  50, 100,  60,   0,   0)');
+define(`PKG_CAPC0603N', `PKG_SMT_2PAD_MM100(  `$1', `$2', `$3',  40,   40,  60, 130,  80,   0,   0)');
+define(`PKG_CAPC0603M', `PKG_SMT_2PAD_MM100(  `$1', `$2', `$3',  50,   50,  80, 160,  90,   0,   0)');
+
+define(`PKG_RESC0603L', `PKG_SMT_2PAD_MM100(  `$1', `$2', `$3',  30,   30,  50, 100,  60,   0,   0)');
+define(`PKG_RESC0603N', `PKG_SMT_2PAD_MM100(  `$1', `$2', `$3',  40,   40,  60, 130,  80,   0,   0)');
+define(`PKG_RESC0603M', `PKG_SMT_2PAD_MM100(  `$1', `$2', `$3',  50,   50,  80, 160,  90,   0,   0)');
+
+define(`PKG_0201',      `PKG_SMT_2PAD_MM100(  `$1', `$2', `$3',  40,   40,  60, 130,  80,   0,   0)');
+
+# 0402 (C,L = 0.6 mm high, R = 0.4 mm high)
+define(`PKG_CAPC1005L', `PKG_SMT_2PAD_MM100(  `$1', `$2', `$3',  55,   40,  90, 150,  80,   0,   0)');
+define(`PKG_CAPC1005N', `PKG_SMT_2PAD_MM100(  `$1', `$2', `$3',  65,   50,  90, 170, 100,   0,   0)');
+define(`PKG_CAPC1005M', `PKG_SMT_2PAD_MM100(  `$1', `$2', `$3',  75,   60, 100, 200, 120,   0,   0)');
+
+define(`PKG_INDC1005L', `PKG_SMT_2PAD_MM100(  `$1', `$2', `$3',  60,   50,  80, 150,  90,   0,   0)');
+define(`PKG_INDC1005N', `PKG_SMT_2PAD_MM100(  `$1', `$2', `$3',  70,   50,  80, 170, 100,   0,   0)');
+define(`PKG_INDC1005M', `PKG_SMT_2PAD_MM100(  `$1', `$2', `$3',  80,   70, 100, 200, 120,   0,   0)');
+
+define(`PKG_RESC1005L', `PKG_SMT_2PAD_MM100(  `$1', `$2', `$3',  55,   35,  90, 150,  80,   0,   0)');
+define(`PKG_RESC1005N', `PKG_SMT_2PAD_MM100(  `$1', `$2', `$3',  65,   45, 100, 170, 100,   0,   0)');
+define(`PKG_RESC1005M', `PKG_SMT_2PAD_MM100(  `$1', `$2', `$3',  75,   55, 110, 200, 120,   0,   0)');
+
+define(`PKG_0402',      `PKG_SMT_2PAD_MM100(  `$1', `$2', `$3',  70,   50,  80, 170, 100,   0,   0)');
+
+# 0603 (C = 0.85 mm high, L = 0.95 mm high, R = 0.60 mm high)
+define(`PKG_CAPC1608L', `PKG_SMT_2PAD_MM100(  `$1', `$2', `$3',  90,   65, 120, 200, 120,   0,   0)');
+define(`PKG_CAPC1608N', `PKG_SMT_2PAD_MM100(  `$1', `$2', `$3', 100,   75, 130, 230, 130,   0,   0)');
+define(`PKG_CAPC1608M', `PKG_SMT_2PAD_MM100(  `$1', `$2', `$3', 110,   85, 140, 270, 150,   0,   0)');
+
+define(`PKG_INDC1608L', `PKG_SMT_2PAD_MM100(  `$1', `$2', `$3',  90,   65, 120, 200, 120,   0,   0)');
+define(`PKG_INDC1608N', `PKG_SMT_2PAD_MM100(  `$1', `$2', `$3', 100,   75, 130, 230, 130,   0,   0)');
+define(`PKG_INDC1608M', `PKG_SMT_2PAD_MM100(  `$1', `$2', `$3', 110,   85, 140, 270, 150,   0,   0)');
+
+define(`PKG_RESC1608L', `PKG_SMT_2PAD_MM100(  `$1', `$2', `$3',  90,   50, 120, 200, 120,   0,  90)');
+define(`PKG_RESC1608N', `PKG_SMT_2PAD_MM100(  `$1', `$2', `$3', 100,   60, 140, 230, 130,   0,   0)');
+define(`PKG_RESC1608M', `PKG_SMT_2PAD_MM100(  `$1', `$2', `$3', 110,   70, 150, 270, 150,  10, 110)');
+
+define(`PKG_0603',      `PKG_SMT_2PAD_MM100(  `$1', `$2', `$3', 100,   75, 130, 230, 130,   0,   0)');
+
+# 0805 (C = 1.1 mm high, L = 1.2 mm high, R = 0.65 mm high)
+define(`PKG_CAPC2012L', `PKG_SMT_2PAD_MM100(  `$1', `$2', `$3', 140,  110, 160, 280, 170,   0,   0)');
+define(`PKG_CAPC2012N', `PKG_SMT_2PAD_MM100(  `$1', `$2', `$3', 150,  130, 180, 350, 200,   0,   0)');
+define(`PKG_CAPC2012M', `PKG_SMT_2PAD_MM100(  `$1', `$2', `$3', 160,  150, 200, 440, 260,   0,   0)');
+
+define(`PKG_INDC2012L', `PKG_SMT_2PAD_MM100(  `$1', `$2', `$3', 140,  110, 160, 280, 170,   0,   0)');
+define(`PKG_INDC2012N', `PKG_SMT_2PAD_MM100(  `$1', `$2', `$3', 150,  130, 180, 350, 200,   0,   0)');
+define(`PKG_INDC2012M', `PKG_SMT_2PAD_MM100(  `$1', `$2', `$3', 160,  150, 200, 440, 260,   0,   0)');
+
+define(`PKG_RESC2012L', `PKG_SMT_2PAD_MM100(  `$1', `$2', `$3', 130,  100, 160, 280, 160,  20, 130)');
+define(`PKG_RESC2012N', `PKG_SMT_2PAD_MM100(  `$1', `$2', `$3', 140,  120, 180, 350, 190,  20, 140)');
+define(`PKG_RESC2012M', `PKG_SMT_2PAD_MM100(  `$1', `$2', `$3', 150,  140, 200, 440, 250,  20, 150)');
+
+define(`PKG_0805',      `PKG_SMT_2PAD_MM100(  `$1', `$2', `$3', 150,  130, 180, 350, 200,  20, 140)');
+
+# 1008 (L = 2.2 mm high)
+define(`PKG_INDC2520L', `PKG_SMT_2PAD_MM100(  `$1', `$2', `$3', 220,   90, 240, 340, 250,  80, 220)');
+define(`PKG_INDC2520N', `PKG_SMT_2PAD_MM100(  `$1', `$2', `$3', 230,  110, 260, 410, 280,  70, 230)');
+define(`PKG_INDC2520M', `PKG_SMT_2PAD_MM100(  `$1', `$2', `$3', 240,  130, 280, 500, 340,  80, 240)');
+
+define(`PKG_1008',      `PKG_SMT_2PAD_MM100(  `$1', `$2', `$3', 230,  110, 260, 410, 280,  70, 230)');
+
+# 1206 (C = 1.35 mm high, L = 1.9 mm high, R = 0.71 mm high)
+define(`PKG_CAPC3216L', `PKG_SMT_2PAD_MM100(  `$1', `$2', `$3', 170,  110, 280, 400, 200,  90, 170)');
+define(`PKG_CAPC3216N', `PKG_SMT_2PAD_MM100(  `$1', `$2', `$3', 180,  130, 300, 470, 230, 100, 180)');
+define(`PKG_CAPC3216M', `PKG_SMT_2PAD_MM100(  `$1', `$2', `$3', 190,  150, 320, 560, 290, 100, 190)');
+
+define(`PKG_INDC3216L', `PKG_SMT_2PAD_MM100(  `$1', `$2', `$3', 180,  100, 300, 420, 210, 120, 180)');
+define(`PKG_INDC3216N', `PKG_SMT_2PAD_MM100(  `$1', `$2', `$3', 190,  120, 320, 490, 240, 120, 190)');
+define(`PKG_RESC3216M', `PKG_SMT_2PAD_MM100(  `$1', `$2', `$3', 200,  140, 340, 580, 300, 130, 200)');
+
+define(`PKG_RESC3216L', `PKG_SMT_2PAD_MM100(  `$1', `$2', `$3', 170,  110, 280, 400, 200,  90, 170)');
+define(`PKG_RESC3216N', `PKG_SMT_2PAD_MM100(  `$1', `$2', `$3', 180,  130, 300, 470, 230, 100, 180)');
+define(`PKG_RESC3216M', `PKG_SMT_2PAD_MM100(  `$1', `$2', `$3', 190,  150, 320, 560, 290, 100, 190)');
+
+define(`PKG_1206',      `PKG_SMT_2PAD_MM100(  `$1', `$2', `$3', 190,  130, 300, 490, 240, 120, 190)');
+
+# 1210 (C = 1.35 mm high, L = 1.35 mm high, R = 0.71 mm high)
+define(`PKG_CAPC3225L', `PKG_SMT_2PAD_MM100(  `$1', `$2', `$3', 260,  110, 280, 400, 290,  90, 260)');
+define(`PKG_CAPC3225N', `PKG_SMT_2PAD_MM100(  `$1', `$2', `$3', 270,  130, 300, 470, 320, 100, 270)');
+define(`PKG_CAPC3225M', `PKG_SMT_2PAD_MM100(  `$1', `$2', `$3', 280,  150, 320, 560, 380, 100, 280)');
+
+define(`PKG_INDC3225L', `PKG_SMT_2PAD_MM100(  `$1', `$2', `$3', 260,  110, 280, 400, 290,  90, 260)');
+define(`PKG_INDC3225N', `PKG_SMT_2PAD_MM100(  `$1', `$2', `$3', 270,  130, 300, 470, 320, 100, 270)');
+define(`PKG_INDC3225M', `PKG_SMT_2PAD_MM100(  `$1', `$2', `$3', 280,  150, 320, 560, 380, 100, 280)');
+
+define(`PKG_RESC3225L', `PKG_SMT_2PAD_MM100(  `$1', `$2', `$3', 260,  110, 280, 400, 290,  90, 260)');
+define(`PKG_RESC3225N', `PKG_SMT_2PAD_MM100(  `$1', `$2', `$3', 270,  130, 300, 470, 320, 100, 270)');
+define(`PKG_RESC3225M', `PKG_SMT_2PAD_MM100(  `$1', `$2', `$3', 280,  150, 320, 560, 380, 100, 280)');
+
+define(`PKG_1210',      `PKG_SMT_2PAD_MM100(  `$1', `$2', `$3', 270,  130, 300, 470, 320, 100, 270)');
+
+# 1806 (L = 1.9 mm high)
+
+define(`PKG_INDC4509L', `PKG_SMT_2PAD_MM100(  `$1', `$2', `$3', 110,  130, 400, 540, 150, 200, 110)');
+define(`PKG_INDC4509N', `PKG_SMT_2PAD_MM100(  `$1', `$2', `$3', 120,  150, 420, 610, 170, 190, 120)');
+define(`PKG_INDC4509M', `PKG_SMT_2PAD_MM100(  `$1', `$2', `$3', 130,  170, 440, 700, 230, 200, 130)');
+
+define(`PKG_1806',      `PKG_SMT_2PAD_MM100(  `$1', `$2', `$3', 120,  150, 420, 610, 170, 190, 120)');
+
+# 1812 (C = 1.35 mm high, L = 1.75 mm high, R = 1.1 mm high)
+define(`PKG_CAPC4532L', `PKG_SMT_2PAD_MM100(  `$1', `$2', `$3', 330,  140, 380, 540, 370, 160, 330)');
+define(`PKG_CAPC4532N', `PKG_SMT_2PAD_MM100(  `$1', `$2', `$3', 340,  160, 400, 610, 390, 160, 340)');
+define(`PKG_CAPC4532M', `PKG_SMT_2PAD_MM100(  `$1', `$2', `$3', 350,  180, 420, 700, 450, 160, 350)');
+
+define(`PKG_INDC4532L', `PKG_SMT_2PAD_MM100(  `$1', `$2', `$3', 330,  140, 380, 540, 370, 160, 330)');
+define(`PKG_INDC4532N', `PKG_SMT_2PAD_MM100(  `$1', `$2', `$3', 340,  160, 400, 610, 390, 160, 340)');
+define(`PKG_INDC4532M', `PKG_SMT_2PAD_MM100(  `$1', `$2', `$3', 350,  180, 420, 700, 450, 160, 350)');
+
+define(`PKG_RESC4532L', `PKG_SMT_2PAD_MM100(  `$1', `$2', `$3', 330,  140, 380, 540, 370, 160, 330)');
+define(`PKG_RESC4532N', `PKG_SMT_2PAD_MM100(  `$1', `$2', `$3', 340,  160, 400, 610, 390, 160, 340)');
+define(`PKG_RESC4532M', `PKG_SMT_2PAD_MM100(  `$1', `$2', `$3', 350,  180, 420, 700, 450, 160, 350)');
+
+define(`PKG_1806',      `PKG_SMT_2PAD_MM100(  `$1', `$2', `$3', 340,  160, 400, 610, 390, 160, 340)');
+
+# 1825 (C = 1.1 mm high, R = 1.35 mm high)
+define(`PKG_CAPC4564L', `PKG_SMT_2PAD_MM100(  `$1', `$2', `$3', 670,  140, 380, 540, 700, 160, 670)');
+define(`PKG_CAPC4564N', `PKG_SMT_2PAD_MM100(  `$1', `$2', `$3', 680,  160, 400, 610, 730, 160, 680)');
+define(`PKG_CAPC4564M', `PKG_SMT_2PAD_MM100(  `$1', `$2', `$3', 690,  180, 420, 700, 790, 160, 690)');
+
+define(`PKG_RESC4564L', `PKG_SMT_2PAD_MM100(  `$1', `$2', `$3', 670,  140, 380, 540, 700, 160, 670)');
+define(`PKG_RESC4564N', `PKG_SMT_2PAD_MM100(  `$1', `$2', `$3', 680,  160, 400, 610, 730, 160, 680)');
+define(`PKG_RESC4564M', `PKG_SMT_2PAD_MM100(  `$1', `$2', `$3', 690,  180, 420, 700, 790, 160, 690)');
+
+define(`PKG_1825',      `PKG_SMT_2PAD_MM100(  `$1', `$2', `$3', 680,  160, 400, 610, 730, 160, 680)');
+
+
 
 #
 ## 3-Pin SMT EMI Filter based on standard SMT sizes
