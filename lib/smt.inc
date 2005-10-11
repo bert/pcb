@@ -70,6 +70,77 @@ Element(0x00 "$1" "`$2'" "$3" 0 0 eval(width + 20) 0 3 100 0x00)
 	 ')
 
 )')
+
+# -------------------------------------------------------------------
+#
+# internal: general purpose two pole surface mount
+# $1:  canonical name
+# $2:  name on PCB
+# $3:  value
+# $4:  pad X (size of pad in direction perpendicular to axis of part) [1/100 mm]
+# $5:  pad Y (size of pad in direction parallel to axis of part) [1/100 mm]
+# $6:  pad center to center spacing [1/100 mm]
+# $7:  courtyard size in direction parallel to axis of part [1/100 mm] (V1)
+# $8:  courtyard size in direction perpendicular to axis of part [1/100 mm] (V2)
+# $9:  length of silk screen line [1/100 mm] (R1)
+# $10: spacing of silk screen line [1/100 mm] (R2)
+#
+define(`PKG_SMT_2PAD_MM100',
+	# grab the input values and convert to 1/100 mil
+       `define(`X',     `eval(($4  * 10000)/254)')
+	define(`Y',     `eval(($5  * 10000)/254)')
+	define(`C',     `eval(($6  * 10000)/254)')
+	define(`V1',    `eval(($7  * 10000)/254)')
+	define(`V2',    `eval(($8  * 10000)/254)')
+	define(`R1',    `eval(($9  * 10000)/254)')
+	define(`R2',    `eval(($10 * 10000)/254)')
+	# how much to grow the pads by for soldermask [1/100 mil]
+	define(`maskGrow', 300)
+	# clearance from planes [1/100 mil]
+	define(`clearance', 1000)
+	# silk screen width  [1/100 mil]
+	define(`SILKW', `800')
+	# courtyard silk screen width  [1/100 mil]
+	define(`CYW', `100')
+# element_flags, description, pcb-name, value, mark_x, mark_y,
+# text_x, text_y, text_direction, text_scale, text_flags
+Element[0x00000000 "$1" "`$2'" "$3" 0 0 -3150 -3150 0 100 ""]
+(
+# 
+# Pad[x1, y1, x2, y2, thickness, clearance, mask, name , pad number, flags]
+	ifelse(eval(Y > X), 1,       
+	   `Pad[eval( (-1*C - (Y - X))/2) 0
+		eval( (-1*C + (Y - X))/2) 0
+		X eval(2*clearance) eval(X + 2*maskGrow) "1" "1" "square"]
+	    Pad[eval( (   C - (Y - X))/2) 0
+		eval( (   C + (Y - X))/2) 0
+		X eval(2*clearance) eval(X + 2*maskGrow) "2" "2" "square"]
+	 ',
+	   `Pad[eval( -1*C/2 ) eval(-(X-Y)/2)
+		eval( -1*C/2 ) eval( (X-Y)/2)
+		Y eval(2*clearance) eval(Y + 2*maskGrow) "1" "1" "square"]
+	    Pad[eval(    C/2 ) eval(-(X-Y)/2)
+		eval(    C/2 ) eval( (X-Y)/2)
+		Y eval(2*clearance) eval(Y + 2*maskGrow) "2" "2" "square"]
+	 ')
+
+	ifelse(eval(R1 > 0), 1,
+	   `ElementLine[eval(-1*R1/2) eval(-1*R2/2) eval(R1/2) eval(-1*R2/2) SILKW]
+	    ElementLine[eval(-1*R1/2) eval(   R2/2) eval(R1/2) eval(   R2/2) SILKW]
+	   ',)
+
+#
+# This draws a 1 mil placement courtyard outline in silk.  It should probably
+# not be included since you won't want to try and fab a 1 mil silk like.  Then
+# again, it is most useful during parts placement.  It really is time for some
+# additional non-fab layers...
+#	ElementLine[eval(-1*V1/2) eval(-1*V2/2) eval(-1*V1/2) eval(   V2/2) CYW]
+#	ElementLine[eval(-1*V1/2) eval(-1*V2/2) eval(   V1/2) eval(-1*V2/2) CYW]
+#	ElementLine[eval(   V1/2) eval(   V2/2) eval(   V1/2) eval(-1*V2/2) CYW]
+#	ElementLine[eval(   V1/2) eval(   V2/2) eval(-1*V1/2) eval(   V2/2) CYW]
+
+)')
+
 # -------------------------------------------------------------------
 # 
 #
@@ -363,7 +434,8 @@ Element(0x00 "$1" "`$2'" "$3" eval(centerX + 20) 50 3 100 0x00)
 	ElementLine(0 maxY 0 0 rSILK)
 	Mark(eval(padX/2) eval(pinS100/200))
 )')
-#
+
+
 #
 # -------------------------------------------------------------------
 #
