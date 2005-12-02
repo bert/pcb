@@ -981,7 +981,7 @@ define(`PKG_TANT_D',    `PKG_SMT_2PAD_EIA(  `$1', `$2', `$3', 73, 43)');
 ## Surface mount electrolytic capacitor, number is dia in mm
 define(`PKG_SME3',      `PKG_SMT_2PAD_EIA(  `$1', `$2', `$3', 33, 33)');
 define(`PKG_SME4',      `PKG_SMT_2PAD_EIA(  `$1', `$2', `$3', 43, 43)');
-define(`PKG_SME4',      `PKG_SMT_2PAD_EIA(  `$1', `$2', `$3', 53, 53)');
+define(`PKG_SME5',      `PKG_SMT_2PAD_EIA(  `$1', `$2', `$3', 53, 53)');
 define(`PKG_SME6',      `PKG_SMT_2PAD_EIA(  `$1', `$2', `$3', 66, 66)');
 define(`PKG_SME8',      `PKG_SMT_2PAD_EIA(  `$1', `$2', `$3', 84, 84)');
 define(`PKG_SME10',     `PKG_SMT_2PAD_EIA(  `$1', `$2', `$3',104,104)');
