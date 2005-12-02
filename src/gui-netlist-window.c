@@ -292,7 +292,7 @@ net_model_create(void)
 			continue;
 		gtk_list_store_append(store, &iter);
 		gtk_list_store_set(store, &iter,
-				NET_ENABLED_COLUMN, "",
+				NET_ENABLED_COLUMN, menu->flag ? "" : "*",
 				NET_NAME_COLUMN, menu->Name,
 				NET_LIBRARY_COLUMN, menu,
 				-1);
@@ -312,6 +312,7 @@ net_selection_double_click_cb(GtkTreeView *treeview, GtkTreePath *path,
 	GtkTreeModel	*model;
 	GtkTreeIter		iter;
 	gchar			*str;
+	LibraryMenuType		*menu;
 
 	model = gtk_tree_view_get_model(treeview);
 	if (gtk_tree_model_get_iter(model, &iter, path))
@@ -322,6 +323,9 @@ net_selection_double_click_cb(GtkTreeView *treeview, GtkTreePath *path,
 		gtk_list_store_set(GTK_LIST_STORE(model), &iter,
 					NET_ENABLED_COLUMN, !strcmp(str, "*") ? "" : "*",
 					-1);
+		/* set/clear the flag which says the net is enabled or disabled */
+		gtk_tree_model_get(model, &iter, NET_LIBRARY_COLUMN, &menu, -1);
+		menu->flag = strcmp(str, "*") == 0 ? 1 : 0; 
 		g_free(str);
 		}
 	}
@@ -360,6 +364,7 @@ netlist_disable_all_cb(GtkToggleButton *button, gpointer data)
 	{
 	GtkTreeIter		iter;
 	gboolean		active = gtk_toggle_button_get_active(button);
+	LibraryMenuType		*menu;
 
 	/* Get each net iter and change the NET_ENABLED_COLUMN to a "*" or ""
 	|  to flag it as disabled or enabled based on toggle button state.
@@ -370,6 +375,9 @@ netlist_disable_all_cb(GtkToggleButton *button, gpointer data)
 			gtk_list_store_set(GTK_LIST_STORE(net_model), &iter,
 					NET_ENABLED_COLUMN, active ? "*" : "",
 					-1);
+			/* set/clear the flag which says the net is enabled or disabled */
+			gtk_tree_model_get(net_model, &iter, NET_LIBRARY_COLUMN, &menu, -1);
+			menu->flag = active ? 0 : 1;
 			}
 		while (gtk_tree_model_iter_next(net_model, &iter));
 	}

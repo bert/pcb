@@ -882,6 +882,7 @@ CreateNewNet (LibraryTypePtr lib, char *name, char *style)
   sprintf (temp, "  %s", name);
   menu = GetLibraryMenuMemory (lib);
   menu->Name = MyStrdup (temp, "CreateNewNet()");
+  menu->flag = 1; /* net is enabled by default */
   if (NSTRCMP ("(unknown)", style) == 0)
     menu->Style = NULL;
   else

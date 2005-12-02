@@ -254,7 +254,7 @@ ProcNetlist (LibraryTypePtr net_menu)
       ENDALL_LOOP;
       MENU_LOOP (net_menu);
       {
-	if (menu->Name[0] == '*')
+	if (menu->Name[0] == '*' || menu->flag == 0)
 	  {
 	    badnet = True;
 	    continue;

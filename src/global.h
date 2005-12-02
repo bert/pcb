@@ -371,6 +371,7 @@ typedef struct
   Cardinal EntryN,		/* number of objects */
     EntryMax;			/* number of reserved memory locations */
   LibraryEntryTypePtr Entry;	/* the entries */
+  int flag;			/* used by the netlist window to enable/disable nets */
 } LibraryMenuType, *LibraryMenuTypePtr;
 
 typedef struct
