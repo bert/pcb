@@ -396,7 +396,7 @@ library names begin with a ~, so you can easily identify them.
 The old libraries also @emph{may} contain other sorts of errors,
 including incorrect pin spacing, silkscreen overlapping solder areas, etc.
 @b{Check carefully any element in the old library before using it!}
-As the new library grows, the old library will be paired down to
+As the new library grows, the old library will be pared down to
 at least remove all of the elements with errors, but this will
 take time.
 
@@ -4190,6 +4190,7 @@ and carriage returns at any place except within quoted strings.
 
 @menu
 * Basic Types::            Basic types used by all data files.
+* Pad and Line Representation::
 * Layout File::
 * Element File::
 * Font File::
@@ -4199,7 +4200,7 @@ and carriage returns at any place except within quoted strings.
 @end menu
 
 
-@node Basic Types, Layout File, , File Formats
+@node Basic Types, Pad and Line Representation, , File Formats
 @cindex basic types
 @cindex file formats, basic types
 @section Basic Types
@@ -4252,15 +4253,46 @@ quoted_string   = """ <anything except \n and \r> """
 zoom            = [0-MAX]
 @end example
 
+@node Pad and Line Representation, Layout File, Basic Types, File Formats
+@cindex pad specification
+@cindex file formats, pads and lines
+@section Pad and Line Representation
 
-@node Layout File, Element File, Basic Types, File Formats
+Pads and lines (copper traces, silk screen lines, etc) are represented by the
+line end points and the aperture used to draw the line.  It is important to 
+understand this when creating the pads for a new footprint.  The following figure
+illustrates a pad or line which is drawn using a square aperture.  The end
+points (X0,Y0), (X1,Y1) specify the center of the aperture.  The size parameter
+specifies the size of the aperture.
+@comment @image{pad, 6in, 4in, geda schematic, png}
+@image{pad,,,Pad Layout,}
+Pads and lines are represented in this way because this is how lines are 
+specified in RS-274-X (Gerber) files which are used for creating
+the masks used in board manufacturing.  In fact, older mask making
+equipment created lines in precisely this fashion.  A physical aperture was
+used to pass light through onto a photosensitive film.
+
+@node Layout File, Element File, Pad and Line Representation, File Formats
 @cindex layout files, format of
 @cindex format of layout files
 @cindex file format, layout data
 @section Layout File Format
 The layout file describes a complete layout including symbols, vias,
 elements and layers with lines, rectangles and text. This is the most
-complex file of all.
+complex file of all.  As @code{Pcb} has evolved, the file format has
+changed several times to accommodate new features.  @code{Pcb} has
+always been able to read all older versions of the @code{.pcb} file.
+This allows the migration of older designs to newer versions of the
+program.  Obviously older versions of @code{Pcb} will not be able
+to properly read layout files stored in newer versions of the file
+format.
+
+In practice it is very common for footprint libraries to contain
+elements which have been defined in various versions of the @code{Pcb}
+file format.  When faced with trying to understand an older element
+file or layout file, the best approach is to examine the file
+@file{src/parse_y.y} which is the definitive definition of the 
+file format.
 
 @example
 File            = Header Font PCBData
@@ -5871,8 +5903,8 @@ through-hole pin), then the rotation of the pad is used.
 When the element has multiple pins, the location of pin #1 is placed
 in the coordinate system which has the centroid of the part at (0,0).
 Then which quadrant pin #1 falls in determines the rotation.  Zero
-degrees of rotation is defines as pin #1 being in the upper left
-quadrant.  Increasing angles correspond to clockwise rotation so a
+degrees of rotation is defined as pin #1 being in the upper left
+quadrant.  Increasing angles correspond to counterclockwise rotation so a
 rotation of 90 degrees places pin #1 in the lower left quadrant.
 Currently, the only allowed rotations are 0, 90, 180, and 270 degrees.
 
