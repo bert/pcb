@@ -131,9 +131,10 @@ Element[0x00000000 "$1" "`$2'" "$3" 0 0 -3150 -3150 0 100 ""]
 
 #
 # This draws a 1 mil placement courtyard outline in silk.  It should probably
-# not be included since you won't want to try and fab a 1 mil silk like.  Then
+# not be included since you won't want to try and fab a 1 mil silk line.  Then
 # again, it is most useful during parts placement.  It really is time for some
 # additional non-fab layers...
+`
 #	ElementLine[eval(-1*V1/2) eval(-1*V2/2) eval(-1*V1/2) eval(   V2/2) CYW]
 #	ElementLine[eval(-1*V1/2) eval(-1*V2/2) eval(   V1/2) eval(-1*V2/2) CYW]
 #	ElementLine[eval(   V1/2) eval(   V2/2) eval(   V1/2) eval(-1*V2/2) CYW]
