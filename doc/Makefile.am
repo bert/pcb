@@ -42,7 +42,7 @@ ps_docs=	${info_TEXINFOS:.texi=.ps} refcard.ps
 pdf_docs=	${info_TEXINFOS:.texi=.pdf} refcard.pdf
 
 # put the html manual into 1 file instead of multiple files
-#AM_MAKEINFOHTMLFLAGS=	--no-split
+AM_MAKEINFOHTMLFLAGS=	--no-split
 
 # use this to avoid having the clean target delete pcb.{dvi,html,pdf,ps}
 # which unfortunately deletes files which are part of the distfile
