@@ -59,7 +59,7 @@
 RCSID("$Id$");
 
 
-#define SLOW_ASSERTS
+#undef SLOW_ASSERTS
 /* All rectangles are closed. i.e. they contain both corner points.
  * Often the auto router will "open" the rectangle on an edge
  * using the search callback functions.
@@ -676,7 +676,7 @@ find_clusters (struct rtree_node *node)
 
 	  dist1 = SQUARE (a_X - center[i].x) + SQUARE (a_Y - center[i].y);
 	  dist2 = SQUARE (b_X - center[i].x) + SQUARE (b_Y - center[i].y);
-	  if (dist1 < dist2)
+	  if (dist1 * (clust_a + M_SIZE/2) < dist2 * (clust_b + M_SIZE/2))
 	    {
 	      belong[i] = True;
 	      clust_a++;
