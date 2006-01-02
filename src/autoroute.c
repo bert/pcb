@@ -288,6 +288,7 @@ static struct
   AugmentedRouteStyleType *augStyle;
   /* cost parameters */
   cost_t ViaCost,		/* additional "length" cost for using a via */
+    SurfacePenalty,		/* scale for congestion on SMD layers */
     LastConflictPenalty,	/* length mult. for routing over last pass' trace */
     ConflictPenalty,		/* length multiplier for routing over another trace */
     JogPenalty,			/* additional "length" cost for changing direction */
@@ -1042,22 +1043,27 @@ ResetSubnet (routebox_t * net)
 }
 
 static cost_t
+cost_to_point_on_layer (const CheapPointType * p1,
+	       const CheapPointType * p2, Cardinal point_layer)
+{
+  cost_t x_dist = ABS (p1->X - p2->X), y_dist = ABS (p1->Y - p2->Y), r=0;
+  if (bad_x[point_layer])
+    x_dist *= AutoRouteParameters.DirectionPenalty;
+  else if (bad_y[point_layer])
+    y_dist *= AutoRouteParameters.DirectionPenalty;
+  /* cost is proportional to orthogonal distance. */
+  r = x_dist + y_dist;
+  /* penalize the surface layers in order to minimize SMD pad congestion */
+  if (point_layer == front || point_layer == back)
+      r *= AutoRouteParameters.SurfacePenalty;
+  return r;
+}
+
+static cost_t
 cost_to_point (const CheapPointType * p1, Cardinal point_layer1,
 	       const CheapPointType * p2, Cardinal point_layer2)
 {
-  cost_t x_dist = (p1->X - p2->X), y_dist = (p1->Y - p2->Y), r;
-  if (bad_x[point_layer1])
-    x_dist *= AutoRouteParameters.DirectionPenalty;
-  if (bad_y[point_layer1])
-    y_dist *= AutoRouteParameters.DirectionPenalty;
-  /* penalize the surface layers in order to minimize SMD pad congestion */
-  if (point_layer1 == front || point_layer1 == back)
-    {
-      x_dist *= 1.5;
-      y_dist *= 1.5;
-    }
-  /* cost is proportional to orthogonal distance. */
-  r = ABS (x_dist) + ABS (y_dist);
+  cost_t r = cost_to_point_on_layer (p1, p2, point_layer1);
   /* apply via cost penalty if layers differ */
   if (point_layer1 != point_layer2)
     r += AutoRouteParameters.ViaCost;
@@ -1085,10 +1091,10 @@ cost_to_routebox (const CheapPointType * p, Cardinal point_layer,
   cost_t trial;
   CheapPointType p2 = closest_point_in_box (p, &rb->box);
   if (point_layer == rb->group)
-    return cost_to_point (p, point_layer, &p2, rb->group);
+    return cost_to_point_on_layer (p, &p2, rb->group);
   trial = AutoRouteParameters.ViaCost;
-  trial += MIN (cost_to_point (p, point_layer, &p2, point_layer),
-		cost_to_point (p, rb->group, &p2, rb->group));
+  trial += MIN (cost_to_point_on_layer (p, &p2, point_layer),
+		cost_to_point_on_layer (p, &p2, rb->group));
   return trial;
 }
 
@@ -1381,7 +1387,7 @@ CreateEdge2 (routebox_t * rb, direction_t expand_dir,
   prevcost = previous_edge->cost_point;
   thiscost = closest_point_in_box (&prevcost, &thisbox);
   /* compute cost-to-point */
-  d = cost_to_point (&prevcost, rb->group, &thiscost, rb->group);
+  d = cost_to_point_on_layer (&prevcost, &thiscost, rb->group);
   /* add in jog penalty */
   if (previous_edge->expand_dir != expand_dir)
     d += AutoRouteParameters.JogPenalty;
@@ -1445,8 +1451,7 @@ CreateViaEdge (const BoxType * area, Cardinal group,
       costpoint = closest_point_in_box (&previous_edge->cost_point, &rb->box);
       d =
 	(scale[to_site_conflict] *
-	 cost_to_point (&costpoint, previous_edge->rb->group,
-			&previous_edge->cost_point,
+	 cost_to_point_on_layer (&costpoint, &previous_edge->cost_point,
 			previous_edge->rb->group)) +
 	(scale[through_site_conflict] *
 	 cost_to_point (&costpoint, group, &costpoint,
@@ -1483,8 +1488,8 @@ CreateEdgeWithConflicts (const BoxType * interior_edge,
 			    True, previous_edge);
   rb->underlying = container;	/* crucial! */
   costpoint = closest_point_in_box (&previous_edge->cost_point, &b);
-  d = cost_to_point (&costpoint, previous_edge->rb->group,
-		     &previous_edge->cost_point, previous_edge->rb->group);
+  d = cost_to_point_on_layer (&costpoint, &previous_edge->cost_point,
+                              previous_edge->rb->group);
   d *= cost_penalty_to_box;
   ne = CreateEdge (rb, costpoint.X, costpoint.Y, previous_edge->cost_to_point + d, previous_edge->mincost_target, NORTH	/*arbitrary */
 		   , targets);
@@ -1715,7 +1720,7 @@ CreateExpansionArea (const BoxType * area, Cardinal group,
   center.X = (area->X1 + area->X2) / 2;
   center.Y = (area->Y1 + area->Y2) / 2;
   rb->cost =
-    src_edge->cost_to_point + cost_to_point (&src_edge->cost_point, group,
+    src_edge->cost_to_point + cost_to_point_on_layer (&src_edge->cost_point,
 					     &center, group);
   InitLists (rb);
 #if defined(ROUTE_DEBUG) && defined(DEBUG_SHOW_EXPANSION_BOXES)
@@ -2046,7 +2051,7 @@ ExpandAllEdges (edge_t * e, vector_t * result_vec,
 	  assert (0);
 	}
       cost = cost_penalty_in_box *
-	cost_to_point (&e->cost_point, e->rb->group, &costpoint,
+	cost_to_point_on_layer (&e->cost_point, &costpoint,
 		       e->rb->group);
       vector_append (result_vec,
 		     CreateEdge (e->rb, costpoint.X, costpoint.Y,
@@ -3240,7 +3245,7 @@ RouteOne (routedata_t * rd, routebox_t * from, routebox_t * to, int max_edges)
 	      center.X = (next->box.X1 + next->box.X2) / 2;
 	      center.Y = (next->box.Y1 + next->box.Y2) / 2;
 	      cost =
-		cost_to_point (&e->cost_point, next->group, &center,
+		cost_to_point_on_layer (&e->cost_point, &center,
 			       next->group);
 	      /* don't expand this edge, but check if we found a cheaper way here */
 	      /*XXX prevent loops */
@@ -3375,6 +3380,7 @@ InitAutoRouteParameters (int pass,
     10 * AutoRouteParameters.LastConflictPenalty;
   AutoRouteParameters.JogPenalty = 2000;
   AutoRouteParameters.DirectionPenalty = 2;
+  AutoRouteParameters.SurfacePenalty = 1.5;
   /* other */
   AutoRouteParameters.use_vias = True;
   AutoRouteParameters.is_odd = (pass & 1);
