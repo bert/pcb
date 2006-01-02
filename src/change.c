@@ -527,7 +527,7 @@ ChangeViaClearSize (PinTypePtr Via)
 
   if (TEST_FLAG (LOCKFLAG, Via))
     return (NULL);
-  value = MIN (MAX_LINESIZE, MAX (value, PCB->Bloat * 2));
+  value = MIN (MAX_LINESIZE, MAX (value, PCB->Bloat * 2 + 2));
   AddObjectToClearSizeUndoList (VIA_TYPE, Via, Via, Via);
   EraseVia (Via);
   r_delete_entry (PCB->Data->via_tree, (BoxType *) Via);
@@ -581,7 +581,7 @@ ChangePinClearSize (ElementTypePtr Element, PinTypePtr Pin)
 
   if (TEST_FLAG (LOCKFLAG, Pin))
     return (NULL);
-  value = MIN (MAX_LINESIZE, MAX (value, PCB->Bloat * 2));
+  value = MIN (MAX_LINESIZE, MAX (value, PCB->Bloat * 2 + 2));
   AddObjectToClearSizeUndoList (PIN_TYPE, Element, Pin, Pin);
   ErasePin (Pin);
   r_delete_entry (PCB->Data->pin_tree, &Pin->BoundingBox);
@@ -630,7 +630,7 @@ ChangePadClearSize (ElementTypePtr Element, PadTypePtr Pad)
 
   if (TEST_FLAG (LOCKFLAG, Pad))
     return (NULL);
-  value = MIN (MAX_LINESIZE, MAX (value, PCB->Bloat * 2));
+  value = MIN (MAX_LINESIZE, MAX (value, PCB->Bloat * 2 + 2));
   if (value <= MAX_PADSIZE && value >= MIN_PADSIZE && value != Pad->Clearance)
     {
       AddObjectToClearSizeUndoList (PAD_TYPE, Element, Pad, Pad);
@@ -754,7 +754,7 @@ ChangeLineClearSize (LayerTypePtr Layer, LineTypePtr Line)
 
   if (TEST_FLAG (LOCKFLAG, Line) || !TEST_FLAG (CLEARLINEFLAG, Line))
     return (NULL);
-  value = MIN (MAX_LINESIZE, MAX (value, PCB->Bloat * 2));
+  value = MIN (MAX_LINESIZE, MAX (value, PCB->Bloat * 2 + 2));
   if (value != Line->Clearance)
     {
       AddObjectToClearSizeUndoList (LINE_TYPE, Layer, Line, Line);
@@ -811,7 +811,7 @@ ChangeArcClearSize (LayerTypePtr Layer, ArcTypePtr Arc)
 
   if (TEST_FLAG (LOCKFLAG, Arc) || !TEST_FLAG (CLEARLINEFLAG, Arc))
     return (NULL);
-  value = MIN (MAX_LINESIZE, MAX (value, PCB->Bloat * 2));
+  value = MIN (MAX_LINESIZE, MAX (value, PCB->Bloat * 2 + 2));
   if (value != Arc->Clearance)
     {
       AddObjectToClearSizeUndoList (ARC_TYPE, Layer, Arc, Arc);
