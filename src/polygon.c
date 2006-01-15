@@ -115,29 +115,47 @@ RemoveExcessPolygonPoints (LayerTypePtr Layer, PolygonTypePtr Polygon)
  * coordinates
  */
 Cardinal
-GetLowestDistancePolygonPoint (PolygonTypePtr Polygon, LocationType X, LocationType Y)
+GetLowestDistancePolygonPoint (PolygonTypePtr Polygon, LocationType X,
+			       LocationType Y)
 {
-  float mindistance = MAX_COORD, length, distance, temp;
+  double mindistance = (double) MAX_COORD * MAX_COORD;
   PointTypePtr ptr1 = &Polygon->Points[Polygon->PointN - 1],
     ptr2 = &Polygon->Points[0];
   Cardinal n, result = 0;
 
-  /* get segment next to crosshair location;
-   * it is determined by the last point of it
+  /* we calculate the distance to each segment and choose the
+   * shortest distance. If the closest approach between the
+   * given point and the projected line (i.e. the segment extended)
+   * is not on the segment, then the distance is the distance
+   * to the segment end point.
    */
+
   for (n = 0; n < Polygon->PointN; n++, ptr2++)
     {
-
-      distance = ptr2->X - ptr1->X;
-      temp = ptr2->Y - ptr1->Y;
-      length = sqrt (distance * distance + temp * temp);
-      if (length != 0.0)
+      register double u, dx, dy;
+      dx = ptr2->X - ptr1->X;
+      dy = ptr2->Y - ptr1->Y;
+      if (dx != 0.0 || dy != 0.0)
 	{
-	  distance = fabs ((temp * (Crosshair.X - ptr1->X) -
-			    distance * (Crosshair.Y - ptr1->Y)) / length);
-	  if (distance < mindistance)
+	  /* projected intersection is at P1 + u(P2 - P1) */
+	  u = ((X - ptr1->X) * dx + (Y - ptr1->Y) * dy) / (dx * dx + dy * dy);
+
+	  if (u < 0.0)
+	    {			/* ptr1 is closest point */
+	      u = SQUARE (X - ptr1->X) + SQUARE (Y - ptr1->Y);
+	    }
+	  else if (u > 1.0)
+	    {			/* ptr2 is closest point */
+	      u = SQUARE (X - ptr2->X) + SQUARE (Y - ptr2->Y);
+	    }
+	  else
+	    {			/* projected intersection is closest point */
+	      u = SQUARE (X - ptr1->X * (1.0 - u) - u * ptr2->X) +
+		SQUARE (Y - ptr1->Y * (1.0 - u) - u * ptr2->Y);
+	    }
+	  if (u < mindistance)
 	    {
-	      mindistance = distance;
+	      mindistance = u;
 	      result = n;
 	    }
 	}
@@ -204,7 +222,8 @@ ClosePolygon (void)
 	  if (!(dx == 0 || dy == 0 || dx == dy))
 	    {
 	      Message
-		(_("Cannot close polygon because 45 degree lines are requested.\n"));
+		(_
+		 ("Cannot close polygon because 45 degree lines are requested.\n"));
 	      return;
 	    }
 	}
@@ -225,7 +244,7 @@ CopyAttachedPolygonToLayer (void)
   int saveID;
 
   /* move data to layer and clear attached struct */
-  polygon = CreateNewPolygon (CURRENT, NoFlags());
+  polygon = CreateNewPolygon (CURRENT, NoFlags ());
   saveID = polygon->ID;
   *polygon = Crosshair.AttachedPolygon;
   polygon->ID = saveID;
@@ -300,7 +319,7 @@ UpdatePIPFlags (PinTypePtr Pin, ElementTypePtr Element,
       }
       END_LOOP;
       new_flags = Pin->Flags;
-      if (! FLAGS_EQUAL (new_flags, old_flags))
+      if (!FLAGS_EQUAL (new_flags, old_flags))
 	{
 	  Pin->Flags = old_flags;
 	  if (AddUndo)
