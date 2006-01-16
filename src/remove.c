@@ -57,7 +57,7 @@
 #include <dmalloc.h>
 #endif
 
-RCSID("$Id$");
+RCSID ("$Id$");
 
 
 /* ---------------------------------------------------------------------------
@@ -168,13 +168,17 @@ DestroyArc (LayerTypePtr Layer, ArcTypePtr Arc)
 }
 
 /* ---------------------------------------------------------------------------
- * destroys a rectangle from a layer
+ * destroys a polygon from a layer
  */
 static void *
 DestroyPolygon (LayerTypePtr Layer, PolygonTypePtr Polygon)
 {
+  r_delete_entry (Layer->polygon_tree, (BoxTypePtr) Polygon);
   FreePolygonMemory (Polygon);
   *Polygon = Layer->Polygon[--Layer->PolygonN];
+  r_substitute (Layer->polygon_tree,
+		(BoxType *) & Layer->Polygon[Layer->PolygonN],
+		(BoxType *) Polygon);
   memset (&Layer->Polygon[Layer->PolygonN], 0, sizeof (PolygonType));
   return (NULL);
 }
@@ -188,6 +192,7 @@ DestroyPolygonPoint (LayerTypePtr Layer,
 {
   PointTypePtr ptr;
 
+  r_delete_entry (Layer->polygon_tree, (BoxType *) Polygon);
   for (ptr = Point + 1; ptr != &Polygon->Points[Polygon->PointN]; ptr++)
     {
       *Point = *ptr;
@@ -195,6 +200,7 @@ DestroyPolygonPoint (LayerTypePtr Layer,
     }
   Polygon->PointN--;
   SetPolygonBoundingBox (Polygon);
+  r_insert_entry (Layer->polygon_tree, (BoxType *) Polygon, 0);
   UpdatePIPFlags (NULL, NULL, Layer, True);
   return (Polygon);
 }
@@ -437,6 +443,8 @@ RemovePolygonPoint (LayerTypePtr Layer,
   PointTypePtr ptr;
   Cardinal index = 0;
 
+  if (Layer->On)
+    ErasePolygon (Polygon);
   /* insert the polygon-point into the undo list */
   POLYGONPOINT_LOOP (Polygon);
   {
@@ -447,10 +455,9 @@ RemovePolygonPoint (LayerTypePtr Layer,
       }
   }
   END_LOOP;
-  AddObjectToRemovePointUndoList (POLYGONPOINT_TYPE, Layer, Polygon, index);
 
-  if (Layer->On)
-    ErasePolygon (Polygon);
+  AddObjectToRemovePointUndoList (POLYGONPOINT_TYPE, Layer, Polygon, index);
+  r_delete_entry (Layer->polygon_tree, (BoxType *) Polygon);
 
   /* remove point from list, keep point order */
   for (ptr = Point + 1; ptr != &Polygon->Points[Polygon->PointN]; ptr++)
@@ -460,6 +467,7 @@ RemovePolygonPoint (LayerTypePtr Layer,
     }
   Polygon->PointN--;
   SetPolygonBoundingBox (Polygon);
+  r_insert_entry (Layer->polygon_tree, (BoxType *) Polygon, 0);
   RemoveExcessPolygonPoints (Layer, Polygon);
   UpdatePIPFlags (NULL, NULL, Layer, True);
   /* redraw polygon if necessary */

@@ -54,7 +54,7 @@
 
 #include "gui.h"
 
-RCSID("$Id$");
+RCSID ("$Id$");
 
 
 
@@ -98,7 +98,7 @@ InsertPointIntoRat (RatTypePtr Rat)
 
   new = CreateDrawnLineOnLayer (CURRENT, Rat->Point1.X, Rat->Point1.Y,
 				InsertX, InsertY, Settings.LineThickness,
-				2*Settings.Keepaway, Rat->Flags);
+				2 * Settings.Keepaway, Rat->Flags);
   if (!new)
     return new;
   AddObjectToCreateUndoList (LINE_TYPE, CURRENT, new, new);
@@ -106,7 +106,7 @@ InsertPointIntoRat (RatTypePtr Rat)
   DrawLine (CURRENT, new, 0);
   new = CreateDrawnLineOnLayer (CURRENT, Rat->Point2.X, Rat->Point2.Y,
 				InsertX, InsertY, Settings.LineThickness,
-				2*Settings.Keepaway, Rat->Flags);
+				2 * Settings.Keepaway, Rat->Flags);
   if (new)
     {
       AddObjectToCreateUndoList (LINE_TYPE, CURRENT, new, new);
@@ -132,18 +132,17 @@ InsertPointIntoLine (LayerTypePtr Layer, LineTypePtr Line)
   X = Line->Point2.X;
   Y = Line->Point2.Y;
   AddObjectToMoveUndoList (LINEPOINT_TYPE, Layer, Line, &Line->Point2,
-			   InsertX - X,
-			   InsertY - Y);
+			   InsertX - X, InsertY - Y);
   EraseLine (Line);
-  r_delete_entry(Layer->line_tree, (BoxTypePtr)Line);
+  r_delete_entry (Layer->line_tree, (BoxTypePtr) Line);
   Line->Point2.X = InsertX;
   Line->Point2.Y = InsertY;
-  SetLineBoundingBox(Line);
-  r_insert_entry(Layer->line_tree, (BoxTypePtr)Line, 0);
+  SetLineBoundingBox (Line);
+  r_insert_entry (Layer->line_tree, (BoxTypePtr) Line, 0);
   DrawLine (Layer, Line, 0);
-   /* we must create after playing with Line since creation may
-    * invalidate the line pointer
-    */
+  /* we must create after playing with Line since creation may
+   * invalidate the line pointer
+   */
   if ((line = CreateDrawnLineOnLayer (Layer, InsertX, InsertY,
 				      X, Y,
 				      Line->Thickness, Line->Clearance,
@@ -185,6 +184,7 @@ InsertPointIntoPolygon (LayerTypePtr Layer, PolygonTypePtr Polygon)
    * second, shift the points up to make room for the new point
    */
   ErasePolygon (Polygon);
+  r_delete_entry (Layer->polygon_tree, (BoxTypePtr) Polygon);
   save = *CreateNewPointInPolygon (Polygon, InsertX, InsertY);
   for (n = Polygon->PointN - 1; n > InsertAt; n--)
     Polygon->Points[n] = Polygon->Points[n - 1];
@@ -192,10 +192,11 @@ InsertPointIntoPolygon (LayerTypePtr Layer, PolygonTypePtr Polygon)
   SetChangedFlag (True);
   AddObjectToInsertPointUndoList (POLYGONPOINT_TYPE, Layer, Polygon,
 				  &Polygon->Points[InsertAt]);
+  SetPolygonBoundingBox (Polygon);
+  r_insert_entry (Layer->polygon_tree, (BoxType *) Polygon, 0);
+  UpdatePIPFlags (NULL, NULL, Layer, True);
   if (Forcible || !RemoveExcessPolygonPoints (Layer, Polygon))
     {
-      SetPolygonBoundingBox (Polygon);
-      UpdatePIPFlags (NULL, NULL, Layer, True);
       DrawPolygon (Layer, Polygon, 0);
       Draw ();
     }
@@ -238,7 +239,7 @@ AdjustInsertPoint (void)
   if (Crosshair.AttachedObject.State == STATE_FIRST)
     return NULL;
   Crosshair.AttachedObject.Ptr3 = &InsertedPoint;
-  if (gui_shift_is_pressed())
+  if (gui_shift_is_pressed ())
     {
       AttachedLineType myline;
       dx = Crosshair.X - line->Point1.X;
@@ -315,6 +316,3 @@ AdjustInsertPoint (void)
   InsertedPoint.Y = y;
   return &InsertedPoint;
 }
-
-
-

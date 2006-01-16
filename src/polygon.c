@@ -251,6 +251,9 @@ CopyAttachedPolygonToLayer (void)
   SET_FLAG (CLEARPOLYFLAG, polygon);
   memset (&Crosshair.AttachedPolygon, 0, sizeof (PolygonType));
   SetPolygonBoundingBox (polygon);
+  if (!CURRENT->polygon_tree)
+    CURRENT->polygon_tree = r_create_tree (NULL, 0, 0);
+  r_insert_entry (CURRENT->polygon_tree, (BoxType *) polygon, 0);
   UpdatePIPFlags (NULL, NULL, CURRENT, True);
   DrawPolygon (CURRENT, polygon, 0);
   SetChangedFlag (True);
@@ -268,7 +271,6 @@ CopyAttachedPolygonToLayer (void)
  *  Updates the pin-in-polygon flags
  *  if called with Element == NULL, seach all pins
  *  if called with Pin == NULL, search all pins on element
- *  if called with Polygon == NULL, search all polygons
  *  if called with Layer == NULL, search all layers
  */
 void
@@ -366,8 +368,9 @@ struct plow_info
   LayerTypePtr layer;
   Cardinal group, component, solder;
   PolygonTypePtr polygon;
+  BoxTypePtr range;
   int (*callback) (int, void *, void *, void *, LayerTypePtr, PolygonTypePtr);
-  jmp_buf env;
+  jmp_buf env, env0;
 };
 
 static int
@@ -458,6 +461,55 @@ plow_callback (const BoxType * b, void *cl)
 }
 
 
+static int
+poly_plows_callback (const BoxType * b, void *cl)
+{
+  PolygonTypePtr polygon = (PolygonTypePtr) b;
+  struct plow_info *info = (struct plow_info *) cl;
+  BoxType sb;
+
+  if (!TEST_FLAG (CLEARPOLYFLAG, polygon))
+    return 0;
+  /* minimize the search box */
+  sb = polygon->BoundingBox;
+  MAKEMAX (sb.X1, info->range->X1);
+  MAKEMIN (sb.X2, info->range->X2);
+  MAKEMAX (sb.Y1, info->range->Y1);
+  MAKEMIN (sb.Y2, info->range->Y2);
+  info->polygon = polygon;
+  GROUP_LOOP (info->group);
+  {
+    info->type = LINE_TYPE;
+    if (setjmp (info->env) == 0)
+      r_search (layer->line_tree, &sb, NULL, plow_callback, info);
+    else
+      longjmp (info->env0, 1);
+    info->type = ARC_TYPE;
+    if (setjmp (info->env) == 0)
+      r_search (layer->arc_tree, &sb, NULL, plow_callback, info);
+    else
+      longjmp (info->env0, 1);
+  }
+  END_LOOP;
+  info->type = VIA_TYPE;
+  if (setjmp (info->env) == 0)
+    r_search (PCB->Data->via_tree, &sb, NULL, plow_callback, info);
+  else
+    longjmp (info->env0, 1);
+  info->type = PIN_TYPE;
+  if (setjmp (info->env) == 0)
+    r_search (PCB->Data->pin_tree, &sb, NULL, plow_callback, info);
+  else
+    longjmp (info->env0, 1);
+  if (info->group != info->solder && info->group != info->component)
+    return 0;
+  info->type = PAD_TYPE;
+  if (setjmp (info->env) == 0)
+    r_search (PCB->Data->pad_tree, &sb, NULL, plow_callback, info);
+  else
+    return 1;
+  return 0;
+}
 
 /* find everything within range clearing an actual polygon 
  * then call the callback function for it. If the callback
@@ -469,63 +521,22 @@ PolygonPlows (int group, BoxTypePtr range,
 			       LayerTypePtr lay, PolygonTypePtr poly))
 {
   struct plow_info info;
-  BoxType sb;
 
   info.group = group;
   info.component = GetLayerGroupNumberByNumber (MAX_LAYER + COMPONENT_LAYER);
   info.solder = GetLayerGroupNumberByNumber (MAX_LAYER + SOLDER_LAYER);
   info.callback = any_call;
+  info.range = range;
   GROUP_LOOP (group);
   {
     if (!layer->PolygonN)
       continue;
     info.PIPflag = number;
     info.layer = layer;
-
-    POLYGON_LOOP (layer);
-    {
-      if (!TEST_FLAG (CLEARPOLYFLAG, polygon))
-	continue;
-      /* minimize the search box */
-      sb = polygon->BoundingBox;
-      MAKEMAX (sb.X1, range->X1);
-      MAKEMIN (sb.X2, range->X2);
-      MAKEMAX (sb.Y1, range->Y1);
-      MAKEMIN (sb.Y2, range->Y2);
-      info.polygon = polygon;
-      GROUP_LOOP (group);
-      {
-	info.type = LINE_TYPE;
-	if (setjmp (info.env) == 0)
-	  r_search (layer->line_tree, &sb, NULL, plow_callback, &info);
-	else
-	  return 1;
-	info.type = ARC_TYPE;
-	if (setjmp (info.env) == 0)
-	  r_search (layer->arc_tree, &sb, NULL, plow_callback, &info);
-	else
-	  return 1;
-      }
-      END_LOOP;
-      info.type = VIA_TYPE;
-      if (setjmp (info.env) == 0)
-	r_search (PCB->Data->via_tree, &sb, NULL, plow_callback, &info);
-      else
-	return 1;
-      info.type = PIN_TYPE;
-      if (setjmp (info.env) == 0)
-	r_search (PCB->Data->pin_tree, &sb, NULL, plow_callback, &info);
-      else
-	return 1;
-      if (info.group != info.solder && info.group != info.component)
-	continue;
-      info.type = PAD_TYPE;
-      if (setjmp (info.env) == 0)
-	r_search (PCB->Data->pad_tree, &sb, NULL, plow_callback, &info);
-      else
-	return 1;
-    }
-    END_LOOP;
+    if (setjmp (info.env0) == 0)
+      r_search (layer->polygon_tree, range, NULL, poly_plows_callback, &info);
+    else
+      return 1;
   }
   END_LOOP;
   return 0;

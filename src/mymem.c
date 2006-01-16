@@ -49,7 +49,7 @@ B *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 #include <dmalloc.h>
 #endif
 
-RCSID("$Id$");
+RCSID ("$Id$");
 
 /* ---------------------------------------------------------------------------
  * local prototypes
@@ -410,11 +410,19 @@ GetPolygonMemory (LayerTypePtr Layer)
   if (Layer->PolygonN >= Layer->PolygonMax)
     {
       Layer->PolygonMax += STEP_POLYGON;
+      if (Layer->polygon_tree)
+	r_destroy_tree (&Layer->polygon_tree);
       polygon = MyRealloc (polygon, Layer->PolygonMax * sizeof (PolygonType),
 			   "GetPolygonMemory()");
       Layer->Polygon = polygon;
       memset (polygon + Layer->PolygonN, 0,
 	      STEP_POLYGON * sizeof (PolygonType));
+      Layer->polygon_tree = r_create_tree (NULL, 0, 0);
+      POLYGON_LOOP (Layer);
+      {
+	r_insert_entry (Layer->polygon_tree, (BoxType *) polygon, 0);
+      }
+      END_LOOP;
     }
   return (polygon + Layer->PolygonN++);
 }
@@ -614,8 +622,8 @@ MyCalloc (size_t Number, size_t Size, char *Text)
   fprintf (stderr, "MyCalloc %d by %d from %s ", Number, Size, Text);
 #endif
   /* InitComponentLookup() at least can ask for zero here, so return something
-  |  that can be freed.
-  */
+     |  that can be freed.
+   */
   if (Number == 0)
     Number = 1;
   if (Size == 0)
@@ -864,6 +872,8 @@ FreeDataMemory (DataTypePtr Data)
 	    r_destroy_tree (&layer->arc_tree);
 	  if (layer->text_tree)
 	    r_destroy_tree (&layer->text_tree);
+	  if (layer->polygon_tree)
+	    r_destroy_tree (&layer->polygon_tree);
 	}
 
       if (Data->element_tree)
@@ -1013,4 +1023,3 @@ StripWhiteSpaceAndDup (char *S)
   else
     return (NULL);
 }
-

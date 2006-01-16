@@ -97,7 +97,7 @@
 #include <dmalloc.h>
 #endif
 
-RCSID("$Id$");
+RCSID ("$Id$");
 
 
 
@@ -414,8 +414,8 @@ PadPadIntersect (PadTypePtr p1, PadTypePtr p2)
 }
 
 #ifndef __GNUC__
-#define __inline__ /* not inline on non-gcc platforms */
-#endif /* __GNUC__ */ 
+#define __inline__		/* not inline on non-gcc platforms */
+#endif /* __GNUC__ */
 
 static __inline__ Boolean
 PV_TOUCH_PV (PinTypePtr PV1, PinTypePtr PV2)
@@ -967,8 +967,7 @@ pv_poly_callback (const BoxType * b, void *cl)
 
   /* note that holes in polygons are ok */
   if (((TEST_THERM (i->layer, pv) && TEST_PIP (i->layer, pv))
-       || !TEST_FLAG (CLEARPOLYFLAG, i->polygon))
-      && !TEST_FLAG (TheFlag, pv))
+       || !TEST_FLAG (CLEARPOLYFLAG, i->polygon)) && !TEST_FLAG (TheFlag, pv))
     {
       if (TEST_FLAG (SQUAREFLAG, pv))
 	{
@@ -2020,6 +2019,21 @@ LOCtoRat_callback (const BoxType * b, void *cl)
     }
   return 0;
 }
+static int
+PolygonToRat_callback (const BoxType * b, void *cl)
+{
+  PolygonTypePtr polygon = (PolygonTypePtr) b;
+  struct rat_info *i = (struct rat_info *) cl;
+
+  if (TEST_FLAG (TheFlag, polygon) &&
+      (i->Point->X == polygon->BoundingBox.X1 + 1) &&
+      (i->Point->Y == polygon->BoundingBox.Y1 + 1))
+    {
+      if (ADD_POLYGON_TO_LIST (i->layer, polygon))
+	longjmp (i->env, 1);
+    }
+  return 0;
+}
 
 static int
 LOCtoPad_callback (const BoxType * b, void *cl)
@@ -2057,8 +2071,8 @@ LookupLOConnectionsToRatEnd (PointTypePtr Point, Cardinal LayerGroup)
 
       layer = PCB->LayerGroups.Entries[LayerGroup][entry];
       /* handle normal layers 
-         rats don't ever touch polygons
-         or arcs by definition
+         rats don't ever touch
+         arcs by definition
        */
 
       if (layer < MAX_LAYER)
@@ -2069,18 +2083,9 @@ LookupLOConnectionsToRatEnd (PointTypePtr Point, Cardinal LayerGroup)
 		      LOCtoRat_callback, &info);
 	  else
 	    return True;
-	  POLYGON_LOOP (LAYER_PTR (layer));
-	  {
-	    if (TEST_FLAG (TheFlag, polygon))
-	      continue;
-	    if ((Point->X == polygon->BoundingBox.X1 + 1) &&
-		(Point->Y == polygon->BoundingBox.Y1 + 1))
-	      {
-		if (ADD_POLYGON_TO_LIST (layer, polygon))
-		  return True;
-	      }
-	  }
-	  END_LOOP;
+	  if (setjmp (info.env) == 0)
+	    r_search (LAYER_PTR (layer)->polygon_tree, (BoxType *) Point,
+		      NULL, PolygonToRat_callback, &info);
 	}
       else
 	{
@@ -2119,6 +2124,22 @@ LOCtoPadArc_callback (const BoxType * b, void *cl)
   if (!TEST_FLAG (TheFlag, arc) && ArcPadIntersect (arc, i->pad))
     {
       if (ADD_ARC_TO_LIST (i->layer, arc))
+	longjmp (i->env, 1);
+    }
+  return 0;
+}
+
+static int
+LOCtoPadPoly_callback (const BoxType * b, void *cl)
+{
+  PolygonTypePtr polygon = (PolygonTypePtr) b;
+  struct lo_info *i = (struct lo_info *) cl;
+
+
+  if (!TEST_FLAG (TheFlag, polygon) && !TEST_FLAG (CLEARPOLYFLAG, polygon))
+    {
+      if (IsPadInPolygon (i->pad, polygon) &&
+	  ADD_POLYGON_TO_LIST (i->layer, polygon))
 	longjmp (i->env, 1);
     }
   return 0;
@@ -2212,15 +2233,11 @@ LookupLOConnectionsToPad (PadTypePtr Pad, Cardinal LayerGroup)
 	  else
 	    return True;
 	  /* add polygons */
-	  POLYGON_LOOP(LAYER_PTR(layer));
-	    {
-	      if (TEST_FLAG (TheFlag | CLEARPOLYFLAG, polygon))
-		continue;
-	      if (IsPadInPolygon (Pad, polygon) &&
-		  ADD_POLYGON_TO_LIST (layer, polygon))
-		return True;
-	    }
-	  END_LOOP;
+	  if (setjmp (info.env) == 0)
+	    r_search (LAYER_PTR (layer)->polygon_tree, &Pad->BoundingBox,
+		      NULL, LOCtoPadPoly_callback, &info);
+	  else
+	    return True;
 	}
       else
 	{
@@ -2368,6 +2385,32 @@ LookupLOConnectionsToPolygon (PolygonTypePtr Polygon, Cardinal LayerGroup)
   return (False);
 }
 
+/* LinePolyCandidate returns True if any point on the Line that
+ * is inside the polygon is outside the clearance zone of
+ * all clearances inside the polygon.
+ * Unfortunately, it's a really hard thing to do. We don't
+ * know what layer the polygon is on at the moment so it's
+ * impossible.
+ */
+Boolean
+LinePolyCandidate (LineTypePtr Line, PolygonTypePtr Polygon)
+{
+  return True;
+}
+
+/* ArcPolyCandidate returns True if any point on the Arc that
+ * is inside the polygon is outside the clearance zone of
+ * all clearances inside the polygon.
+ * Unfortunately, it's a really hard thing to do. We don't
+ * know what layer the polygon is on at the moment so it's
+ * impossible.
+ */
+Boolean
+ArcPolyCandidate (ArcTypePtr Arc, PolygonTypePtr Polygon)
+{
+  return True;
+}
+
 /* ---------------------------------------------------------------------------
  * checks if an arc has a connection to a polygon
  *
@@ -2400,7 +2443,7 @@ IsArcInPolygon (ArcTypePtr Arc, PolygonTypePtr Polygon)
 	  || IsPointInPolygon (Box->X2, Box->Y2,
 			       MAX (0.5 * Arc->Thickness + fBloat, 0.0),
 			       Polygon))
-	return (True);
+	return ArcPolyCandidate (Arc, Polygon);
 
       /* check all lines, start with the connection of the first-last
        * polygon point; POLYGONPOINT_LOOP decrements the pointers !!!
@@ -2408,14 +2451,14 @@ IsArcInPolygon (ArcTypePtr Arc, PolygonTypePtr Polygon)
 
       line.Point1 = Polygon->Points[0];
       line.Thickness = 0;
-      line.Flags = NoFlags();
+      line.Flags = NoFlags ();
 
       POLYGONPOINT_LOOP (Polygon);
       {
 	line.Point2.X = point->X;
 	line.Point2.Y = point->Y;
 	if (LineArcIntersect (&line, Arc))
-	  return (True);
+	  return ArcPolyCandidate (Arc, Polygon);
 	line.Point1.X = line.Point2.X;
 	line.Point1.Y = line.Point2.Y;
       }
@@ -2458,7 +2501,7 @@ IsLineInPolygon (LineTypePtr Line, PolygonTypePtr Polygon)
 	  || IsPointInPolygon (Line->Point2.X, Line->Point2.Y,
 			       MAX (0.5 * Line->Thickness + fBloat, 0.0),
 			       Polygon))
-	return (True);
+	return LinePolyCandidate (Line, Polygon);
 
       /* check all lines, start with the connection of the first-last
        * polygon point; POLYGONPOINT_LOOP decrements the pointers !!!
@@ -2466,14 +2509,14 @@ IsLineInPolygon (LineTypePtr Line, PolygonTypePtr Polygon)
 
       line.Point1 = Polygon->Points[0];
       line.Thickness = 0;
-      line.Flags = NoFlags();
+      line.Flags = NoFlags ();
 
       POLYGONPOINT_LOOP (Polygon);
       {
 	line.Point2.X = point->X;
 	line.Point2.Y = point->Y;
 	if (LineLineIntersect (Line, &line))
-	  return (True);
+	  return LinePolyCandidate (Line, Polygon);
 	line.Point1.X = line.Point2.X;
 	line.Point1.Y = line.Point2.Y;
       }
@@ -2539,7 +2582,7 @@ IsPolygonInPolygon (PolygonTypePtr P1, PolygonTypePtr P2)
       line.Point1.X = P1->Points[0].X;
       line.Point1.Y = P1->Points[0].Y;
       line.Thickness = 0;
-      line.Flags = NoFlags();
+      line.Flags = NoFlags ();
 
       POLYGONPOINT_LOOP (P1);
       {
@@ -2855,7 +2898,7 @@ PrepareNextLoop (FILE * FP)
   PVList.Number = PVList.Location = 0;
 
   /* check if abort buttons has been pressed */
-  if (gui_check_abort())
+  if (gui_check_abort ())
     {
       if (FP)
 	fputs ("\n\nABORTED...\n", FP);
@@ -3009,15 +3052,15 @@ void
 LookupElementConnections (ElementTypePtr Element, FILE * FP)
 {
   /* reset all currently marked connections */
-  gui_create_abort_dialog("Press button to abort connection scan");
+  gui_create_abort_dialog ("Press button to abort connection scan");
   User = True;
   ResetConnections (True);
   InitConnectionLookup ();
   PrintElementConnections (Element, FP, True);
   SetChangedFlag (True);
-  gui_end_abort();
+  gui_end_abort ();
   if (Settings.RingBellWhenFinished)
-    gui_beep(Settings.Volume);
+    gui_beep (Settings.Volume);
   FreeConnectionLookupMemory ();
   IncrementUndoSerialNumber ();
   User = False;
@@ -3032,7 +3075,7 @@ LookupConnectionsToAllElements (FILE * FP)
 {
   /* reset all currently marked connections */
   User = False;
-  gui_create_abort_dialog("Press button to abort connection scan");
+  gui_create_abort_dialog ("Press button to abort connection scan");
   ResetConnections (False);
   InitConnectionLookup ();
 
@@ -3046,9 +3089,9 @@ LookupConnectionsToAllElements (FILE * FP)
       ResetConnections (False);
   }
   END_LOOP;
-  gui_end_abort();
+  gui_end_abort ();
   if (Settings.RingBellWhenFinished)
-    gui_beep(Settings.Volume);
+    gui_beep (Settings.Volume);
   ResetConnections (False);
   FreeConnectionLookupMemory ();
   ClearAndRedrawOutput ();
@@ -3129,7 +3172,8 @@ ListStart (int type, void *ptr1, void *ptr2, void *ptr3)
  * also the action is marked as undoable if AndDraw is true
  */
 void
-LookupConnection (LocationType X, LocationType Y, Boolean AndDraw, BDimension Range)
+LookupConnection (LocationType X, LocationType Y, Boolean AndDraw,
+		  BDimension Range)
 {
   void *ptr1, *ptr2, *ptr3;
   char *name;
@@ -3160,9 +3204,9 @@ LookupConnection (LocationType X, LocationType Y, Boolean AndDraw, BDimension Ra
     }
   else
     {
-    name = ConnectionName(type, ptr1, ptr2);
-    gui_netlist_highlight_node(name, True);
-	}
+      name = ConnectionName (type, ptr1, ptr2);
+      gui_netlist_highlight_node (name, True);
+    }
 
   TheFlag = FOUNDFLAG;
   User = AndDraw;
@@ -3181,7 +3225,7 @@ LookupConnection (LocationType X, LocationType Y, Boolean AndDraw, BDimension Ra
   if (AndDraw)
     Draw ();
   if (AndDraw && Settings.RingBellWhenFinished)
-    gui_beep(Settings.Volume);
+    gui_beep (Settings.Volume);
   FreeConnectionLookupMemory ();
 }
 
@@ -3210,7 +3254,7 @@ LookupUnusedPins (FILE * FP)
   /* reset all currently marked connections */
   User = True;
   SaveUndoSerialNumber ();
-  gui_create_abort_dialog("Press button to abort unused pin scan");
+  gui_create_abort_dialog ("Press button to abort unused pin scan");
   ResetConnections (True);
   RestoreUndoSerialNumber ();
   InitConnectionLookup ();
@@ -3224,10 +3268,10 @@ LookupUnusedPins (FILE * FP)
       break;
   }
   END_LOOP;
-  gui_end_abort();
+  gui_end_abort ();
 
   if (Settings.RingBellWhenFinished)
-    gui_beep(Settings.Volume);
+    gui_beep (Settings.Volume);
   FreeConnectionLookupMemory ();
   IncrementUndoSerialNumber ();
   User = False;
@@ -3465,7 +3509,7 @@ DRCFind (int What, void *ptr1, void *ptr2, void *ptr3)
       drc = False;
       drcerr_count++;
       GotoError ();
-      if (!gui_dialog_confirm(DRC_CONTINUE))
+      if (!gui_dialog_confirm (DRC_CONTINUE))
 	return (True);
       IncrementUndoSerialNumber ();
       Undo (True);
@@ -3505,7 +3549,7 @@ DRCFind (int What, void *ptr1, void *ptr2, void *ptr3)
       GotoError ();
       User = False;
       drc = False;
-      if (!gui_dialog_confirm(DRC_CONTINUE))
+      if (!gui_dialog_confirm (DRC_CONTINUE))
 	return (True);
       IncrementUndoSerialNumber ();
       Undo (True);
@@ -3621,7 +3665,7 @@ doIsBad:
   DrawObject (type, ptr1, ptr2, 0);
   drcerr_count++;
   GotoError ();
-  if (!gui_dialog_confirm(DRC_CONTINUE))
+  if (!gui_dialog_confirm (DRC_CONTINUE))
     {
       IsBad = True;
       return 1;
@@ -3644,7 +3688,7 @@ DRCAll (void)
   drcerr_count = 0;
   SaveStackAndVisibility ();
   ResetStackAndVisibility ();
-  gui_layer_buttons_update();
+  gui_layer_buttons_update ();
   InitConnectionLookup ();
 
   TheFlag = FOUNDFLAG | DRCFLAG | SELECTEDFLAG;
@@ -3723,7 +3767,7 @@ DRCAll (void)
 	    drcerr_count++;
 	    SetThing (LINE_TYPE, layer, line, line);
 	    GotoError ();
-	    if (!gui_dialog_confirm(DRC_CONTINUE))
+	    if (!gui_dialog_confirm (DRC_CONTINUE))
 	      {
 		IsBad = True;
 		break;
@@ -3747,7 +3791,7 @@ DRCAll (void)
 	    drcerr_count++;
 	    SetThing (ARC_TYPE, layer, arc, arc);
 	    GotoError ();
-	    if (!gui_dialog_confirm(DRC_CONTINUE))
+	    if (!gui_dialog_confirm (DRC_CONTINUE))
 	      {
 		IsBad = True;
 		break;
@@ -3772,7 +3816,7 @@ DRCAll (void)
 	    drcerr_count++;
 	    SetThing (PIN_TYPE, element, pin, pin);
 	    GotoError ();
-	    if (!gui_dialog_confirm(DRC_CONTINUE))
+	    if (!gui_dialog_confirm (DRC_CONTINUE))
 	      {
 		IsBad = True;
 		break;
@@ -3796,7 +3840,7 @@ DRCAll (void)
 	    drcerr_count++;
 	    SetThing (PAD_TYPE, element, pad, pad);
 	    GotoError ();
-	    if (!gui_dialog_confirm(DRC_CONTINUE))
+	    if (!gui_dialog_confirm (DRC_CONTINUE))
 	      {
 		IsBad = True;
 		break;
@@ -3821,7 +3865,7 @@ DRCAll (void)
 	    drcerr_count++;
 	    SetThing (VIA_TYPE, via, via, via);
 	    GotoError ();
-	    if (!gui_dialog_confirm(DRC_CONTINUE))
+	    if (!gui_dialog_confirm (DRC_CONTINUE))
 	      {
 		IsBad = True;
 		break;
@@ -3843,17 +3887,17 @@ DRCAll (void)
   TheFlag = SELECTEDFLAG;
   if (!IsBad)
     {
-      SILKLINE_LOOP(PCB->Data);
+      SILKLINE_LOOP (PCB->Data);
       {
 	if (line->Thickness < PCB->minSlk)
 	  {
-	    SET_FLAG(TheFlag, line);
-	    Message(_("Silk line is too thin\n"));
-	    DrawLine(layer, line, 0);
+	    SET_FLAG (TheFlag, line);
+	    Message (_("Silk line is too thin\n"));
+	    DrawLine (layer, line, 0);
 	    drcerr_count++;
-	    SetThing(LINE_TYPE, layer, line, line);
-	    GotoError();
-	    if (!gui_dialog_confirm(DRC_CONTINUE))
+	    SetThing (LINE_TYPE, layer, line, line);
+	    GotoError ();
+	    if (!gui_dialog_confirm (DRC_CONTINUE))
 	      {
 		IsBad = True;
 		break;
@@ -3873,20 +3917,20 @@ DRCAll (void)
 	tmpcnt = 0;
 	ELEMENTLINE_LOOP (element);
 	{
-          if (line->Thickness < PCB->minSlk)
+	  if (line->Thickness < PCB->minSlk)
 	    tmpcnt++;
 	}
 	END_LOOP;
 	if (tmpcnt > 0)
 	  {
-	    SET_FLAG(TheFlag, element);
-	    Message(_("Element %s has %d silk lines which are too thin\n"), 
-		    UNKNOWN (NAMEONPCB_NAME(element) ), tmpcnt);
-	    DrawElement(element, 0);
+	    SET_FLAG (TheFlag, element);
+	    Message (_("Element %s has %d silk lines which are too thin\n"),
+		     UNKNOWN (NAMEONPCB_NAME (element)), tmpcnt);
+	    DrawElement (element, 0);
 	    drcerr_count++;
-	    SetThing(ELEMENT_TYPE, element, element, element);
-	    GotoError();
-	    if (!gui_dialog_confirm(DRC_CONTINUE))
+	    SetThing (ELEMENT_TYPE, element, element, element);
+	    GotoError ();
+	    if (!gui_dialog_confirm (DRC_CONTINUE))
 	      {
 		IsBad = True;
 		break;
@@ -3904,7 +3948,7 @@ DRCAll (void)
 
 
   RestoreStackAndVisibility ();
-  gui_layer_buttons_update();
+  gui_layer_buttons_update ();
 
   return (drcerr_count);
 }
@@ -3957,7 +4001,7 @@ GotoError (void)
       }
     case ELEMENT_TYPE:
       {
-        ElementTypePtr element = (ElementTypePtr) thing_ptr3;
+	ElementTypePtr element = (ElementTypePtr) thing_ptr3;
 	X = element->MarkX;
 	Y = element->MarkY;
 	break;
@@ -3973,10 +4017,10 @@ GotoError (void)
     case ARC_TYPE:
     case POLYGON_TYPE:
       ChangeGroupVisibility (GetLayerNumber
-				(PCB->Data, (LayerTypePtr) thing_ptr1), True,
-				True);
+			     (PCB->Data, (LayerTypePtr) thing_ptr1), True,
+			     True);
     }
-  CenterDisplay (X, Y - TO_PCB(Output.Height / 4), False);
+  CenterDisplay (X, Y - TO_PCB (Output.Height / 4), False);
 }
 
 void

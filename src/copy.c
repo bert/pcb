@@ -49,6 +49,7 @@
 #include "move.h"
 #include "polygon.h"
 #include "rats.h"
+#include "rtree.h"
 #include "select.h"
 #include "undo.h"
 
@@ -56,7 +57,7 @@
 #include <dmalloc.h>
 #endif
 
-RCSID("$Id$");
+RCSID ("$Id$");
 
 /* ---------------------------------------------------------------------------
  * some local prototypes
@@ -120,14 +121,14 @@ CopyElementLowLevel (DataTypePtr Data, ElementTypePtr Dest,
 
   /* both coordinates and flags are the same */
   Dest = CreateNewElement (Data, Dest, &PCB->Font,
-			   MaskFlags(Src->Flags,FOUNDFLAG),
+			   MaskFlags (Src->Flags, FOUNDFLAG),
 			   DESCRIPTION_NAME (Src), NAMEONPCB_NAME (Src),
 			   VALUE_NAME (Src), DESCRIPTION_TEXT (Src).X,
 			   DESCRIPTION_TEXT (Src).Y,
 			   DESCRIPTION_TEXT (Src).Direction,
 			   DESCRIPTION_TEXT (Src).Scale,
-			   MaskFlags(DESCRIPTION_TEXT (Src).Flags, FOUNDFLAG),
-			   uniqueName);
+			   MaskFlags (DESCRIPTION_TEXT (Src).Flags,
+				      FOUNDFLAG), uniqueName);
 
   /* abort on error */
   if (!Dest)
@@ -144,7 +145,7 @@ CopyElementLowLevel (DataTypePtr Data, ElementTypePtr Dest,
   {
     CreateNewPin (Dest, pin->X, pin->Y, pin->Thickness,
 		  pin->Clearance, pin->Mask, pin->DrillingHole,
-		  pin->Name, pin->Number, MaskFlags(pin->Flags,FOUNDFLAG));
+		  pin->Name, pin->Number, MaskFlags (pin->Flags, FOUNDFLAG));
   }
   END_LOOP;
   PAD_LOOP (Src);
@@ -152,7 +153,7 @@ CopyElementLowLevel (DataTypePtr Data, ElementTypePtr Dest,
     CreateNewPad (Dest, pad->Point1.X, pad->Point1.Y, pad->Point2.X,
 		  pad->Point2.Y, pad->Thickness, pad->Clearance,
 		  pad->Mask, pad->Name, pad->Number,
-		  MaskFlags(pad->Flags, FOUNDFLAG));
+		  MaskFlags (pad->Flags, FOUNDFLAG));
   }
   END_LOOP;
   ARC_LOOP (Src);
@@ -204,7 +205,7 @@ CopyLine (LayerTypePtr Layer, LineTypePtr Line)
 				 Line->Point2.X + DeltaX,
 				 Line->Point2.Y + DeltaY, Line->Thickness,
 				 Line->Clearance,
-				 MaskFlags (Line->Flags,FOUNDFLAG));
+				 MaskFlags (Line->Flags, FOUNDFLAG));
   if (!line)
     return (line);
   if (Line->Number)
@@ -261,9 +262,12 @@ CopyPolygon (LayerTypePtr Layer, PolygonTypePtr Polygon)
 {
   PolygonTypePtr polygon;
 
-  polygon = CreateNewPolygon (Layer, NoFlags());
+  polygon = CreateNewPolygon (Layer, NoFlags ());
   CopyPolygonLowLevel (polygon, Polygon);
   MovePolygonLowLevel (polygon, DeltaX, DeltaY);
+  if (!Layer->polygon_tree)
+    Layer->polygon_tree = r_create_tree (NULL, 0, 0);
+  r_insert_entry (Layer->polygon_tree, (BoxTypePtr) polygon, 0);
   DrawPolygon (Layer, polygon, 0);
   Draw ();
   UpdatePIPFlags (NULL, NULL, Layer, True);

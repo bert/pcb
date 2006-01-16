@@ -65,7 +65,7 @@
 #include "gui.h"
 
 
-RCSID("$Id$");
+RCSID ("$Id$");
 
 
 
@@ -83,7 +83,8 @@ static Boolean polarity_called = False;
 static Boolean negative_plane;
 
 
-enum {
+enum
+{
   FILE_DRILL,
   FILE_LAYER,
   FILE_BOM
@@ -122,9 +123,9 @@ static int PrintPaste (void);
 static int PrintBOM (void);
 
 static char *CleanBOMString (char *);
-static double xyToAngle(double, double);
+static double xyToAngle (double, double);
 static BomList *bom_insert (char *, char *, char *, BomList *);
-static StringList *string_insert(char *, StringList *);
+static StringList *string_insert (char *, StringList *);
 
 static void
 DoPolarity (void)
@@ -141,7 +142,7 @@ DoPolarity (void)
  * black is default on errors
  */
 static void
-SetPrintColor (GdkColor *color)
+SetPrintColor (GdkColor * color)
 {
   /* do nothing if no colors are requested */
   if (!GlobalColorFlag)
@@ -165,7 +166,7 @@ OpenPrintFile (char *FileExtention, int file_type)
   if ((filename = ExpandFilename (NULL, GlobalCommand)) == NULL)
     filename = GlobalCommand;
 
-  if ( (file_type == FILE_DRILL) && NSTRCMP (Device->Suffix, "gbr") == 0)
+  if ((file_type == FILE_DRILL) && NSTRCMP (Device->Suffix, "gbr") == 0)
     {
       length = strlen (EMPTY (GlobalCommand)) + 1 +
 	strlen (FileExtention) + 5;
@@ -174,7 +175,7 @@ OpenPrintFile (char *FileExtention, int file_type)
 	       GlobalDOSFlag ? "" : EMPTY (GlobalCommand),
 	       GlobalDOSFlag ? "" : "_", FileExtention);
     }
-  else if (file_type == FILE_BOM) 
+  else if (file_type == FILE_BOM)
     {
       length = strlen (EMPTY (GlobalCommand)) + 1 +
 	strlen (FileExtention) + 5;
@@ -200,11 +201,11 @@ OpenPrintFile (char *FileExtention, int file_type)
   was_cancel = False;
 
   fp = CheckAndOpenFile (completeFilename, !ReplaceOK, True,
-       &ReplaceOK, &was_cancel);
+			 &ReplaceOK, &was_cancel);
   if (fp == NULL)
-    {   /* get rid of annoying error message when hitting cancel */
+    {				/* get rid of annoying error message when hitting cancel */
       if (!was_cancel)
-        OpenErrorMessage (completeFilename);
+	OpenErrorMessage (completeFilename);
       SaveFree (completeFilename);
       return (NULL);
     }
@@ -302,8 +303,7 @@ pin_thermal_layer_group (PinTypePtr pin, Cardinal group)
   CLEAR_FLAG (USETHERMALFLAG, pin);
   GROUP_LOOP (group);
   {
-    if (TEST_PIP (number, pin)
-	&& TEST_THERM (number, pin))
+    if (TEST_PIP (number, pin) && TEST_THERM (number, pin))
       {
 	SET_FLAG (USETHERMALFLAG, pin);
 	return 1;
@@ -594,7 +594,7 @@ PrintLayergroups (void)
   if (PCB->Data->RatN)
     {
       Message (_("Warning!  Rat lines in layout during printing!\n"
-	       "You are not DONE with the layout!\n"));
+		 "You are not DONE with the layout!\n"));
     };
 
   for (group = 0; group < MAX_LAYER; group++)
@@ -724,6 +724,21 @@ silkPinArc_callback (const BoxType * box, void *cl)
 }
 
 static int
+silkPinPolygon_callback (const BoxType * box, void *cl)
+{
+  PolygonTypePtr polygon = (PolygonTypePtr) box;
+  struct silkInfo *i = (struct silkInfo *) cl;
+
+  if (IsPointInPolygon (i->pin->X, i->pin->Y, 0.5 * i->pin->Thickness,
+			polygon))
+    {
+      clearSilkPin (i->pin);
+      longjmp (i->env, 1);
+    }
+  return 0;
+}
+
+static int
 silkPadLine_callback (const BoxType * box, void *cl)
 {
   LineTypePtr line = (LineTypePtr) box;
@@ -744,6 +759,20 @@ silkPadArc_callback (const BoxType * box, void *cl)
   struct silkInfo *i = (struct silkInfo *) cl;
 
   if (ArcPadIntersect (arc, i->pad))
+    {
+      clearSilkPad (i->pad);
+      longjmp (i->env, 1);
+    }
+  return 0;
+}
+
+static int
+silkPadPolygon_callback (const BoxType * box, void *cl)
+{
+  PolygonTypePtr polygon = (PolygonTypePtr) box;
+  struct silkInfo *i = (struct silkInfo *) cl;
+
+  if (IsPadInPolygon (i->pad, polygon))
     {
       clearSilkPad (i->pad);
       longjmp (i->env, 1);
@@ -833,27 +862,24 @@ DoSilkPrint (Cardinal i, LayerTypePtr layer, Boolean clip)
     info.pin = pin;
     if (setjmp (info.env) == 0)
       {
-	r_search (PCB->Data->element_tree, &pin->BoundingBox, NULL,
-		  silkPinElement_callback, &info);
-	r_search (PCB->Data->name_tree[NAMEONPCB_INDEX], &pin->BoundingBox, NULL,
-		  silkPinText_callback, &info);
-	r_search (layer->line_tree, &pin->BoundingBox, NULL,
-		  silkPinLine_callback, &info);
-	r_search (layer->arc_tree, &pin->BoundingBox, NULL,
-		  silkPinArc_callback, &info);
-	r_search (layer->text_tree, &pin->BoundingBox, NULL,
-		  silkPinText_callback, &info);
-	POLYGON_LOOP (layer);
-	{
-	  if (IsPointInPolygon (pin->X, pin->Y, 0.5 * pin->Thickness,
-				polygon))
-	    {
-	      DoPolarity ();
-	      clearSilkPin (pin);
-	      break;
-	    }
-	}
-	END_LOOP;
+	if (r_search (PCB->Data->element_tree, &pin->BoundingBox, NULL,
+		      silkPinElement_callback, &info))
+	  continue;
+	if (r_search
+	    (PCB->Data->name_tree[NAMEONPCB_INDEX], &pin->BoundingBox, NULL,
+	     silkPinText_callback, &info))
+	  continue;
+	if (r_search (layer->line_tree, &pin->BoundingBox, NULL,
+		      silkPinLine_callback, &info))
+	  continue;
+	if (r_search (layer->arc_tree, &pin->BoundingBox, NULL,
+		      silkPinArc_callback, &info))
+	  continue;
+	if (r_search (layer->text_tree, &pin->BoundingBox, NULL,
+		      silkPinText_callback, &info))
+	  continue;
+	r_search (layer->polygon_tree, &pin->BoundingBox, NULL,
+		  silkPinPolygon_callback, &info);
       }
   }
   ENDALL_LOOP;
@@ -862,58 +888,52 @@ DoSilkPrint (Cardinal i, LayerTypePtr layer, Boolean clip)
     info.pin = via;
     if (via->Mask && setjmp (info.env) == 0)
       {
-	r_search (PCB->Data->element_tree, &via->BoundingBox, NULL,
-		  silkPinElement_callback, &info);
-	r_search (PCB->Data->name_tree[NAMEONPCB_INDEX], &via->BoundingBox, NULL,
-		  silkPinText_callback, &info);
-	r_search (layer->line_tree, &via->BoundingBox, NULL,
-		  silkPinLine_callback, &info);
-	r_search (layer->arc_tree, &via->BoundingBox, NULL,
-		  silkPinArc_callback, &info);
-	r_search (layer->text_tree, &via->BoundingBox, NULL,
-		  silkPinText_callback, &info);
-	POLYGON_LOOP (layer);
-	{
-	  if (IsPointInPolygon
-	      (via->X, via->Y, 0.5 * via->Thickness, polygon))
-	    {
-	      DoPolarity ();
-	      clearSilkPin (via);
-	      break;
-	    }
-	}
-	END_LOOP;
+	if (r_search (PCB->Data->element_tree, &via->BoundingBox, NULL,
+		      silkPinElement_callback, &info))
+	  continue;
+	if (r_search
+	    (PCB->Data->name_tree[NAMEONPCB_INDEX], &via->BoundingBox, NULL,
+	     silkPinText_callback, &info))
+	  continue;
+	if (r_search (layer->line_tree, &via->BoundingBox, NULL,
+		      silkPinLine_callback, &info))
+	  continue;
+	if (r_search (layer->arc_tree, &via->BoundingBox, NULL,
+		      silkPinArc_callback, &info))
+	  continue;
+	if (r_search (layer->text_tree, &via->BoundingBox, NULL,
+		      silkPinText_callback, &info))
+	  continue;
+	r_search (layer->polygon_tree, &via->BoundingBox, NULL,
+		  silkPinPolygon_callback, &info);
       }
   }
   END_LOOP;
   ALLPAD_LOOP (PCB->Data);
   {
     if ((TEST_FLAG (ONSOLDERFLAG, element) == 0) != (i == 0))
-	continue;
+      continue;
     info.pad = pad;
     if (setjmp (info.env) == 0)
       {
-	r_search (PCB->Data->element_tree, &pad->BoundingBox, NULL,
-		  silkPadElement_callback, &info);
-	r_search (PCB->Data->name_tree[NAMEONPCB_INDEX], &pad->BoundingBox, NULL,
-		  silkPadText_callback, &info);
-	r_search (layer->line_tree, &pad->BoundingBox, NULL,
-		  silkPadLine_callback, &info);
-	r_search (layer->arc_tree, &pad->BoundingBox, NULL,
-		  silkPadArc_callback, &info);
-	r_search (layer->text_tree, &pad->BoundingBox, NULL,
-		  silkPadText_callback, &info);
-	POLYGON_LOOP (layer);
-	{
-	  CLEAR_FLAG (CLEARPOLYFLAG, polygon);
-	  if (IsPadInPolygon (pad, polygon))
-	    {
-	      DoPolarity ();
-	      clearSilkPad (pad);
-	      break;
-	    }
-	}
-	END_LOOP;
+	if (r_search (PCB->Data->element_tree, &pad->BoundingBox, NULL,
+		      silkPadElement_callback, &info))
+	  continue;
+	if (r_search
+	    (PCB->Data->name_tree[NAMEONPCB_INDEX], &pad->BoundingBox, NULL,
+	     silkPadText_callback, &info))
+	  continue;
+	if (r_search (layer->line_tree, &pad->BoundingBox, NULL,
+		      silkPadLine_callback, &info))
+	  continue;
+	if (r_search (layer->arc_tree, &pad->BoundingBox, NULL,
+		      silkPadArc_callback, &info))
+	  continue;
+	if (r_search (layer->text_tree, &pad->BoundingBox, NULL,
+		      silkPadText_callback, &info))
+	  continue;
+	r_search (layer->polygon_tree, &pad->BoundingBox, NULL,
+		  silkPadPolygon_callback, &info);
       }
   }
   ENDALL_LOOP;
@@ -1214,7 +1234,7 @@ static void
 fab_line (int x1, int y1, int x2, int y2, int t)
 {
   LineType l;
-  l.Flags = NoFlags();
+  l.Flags = NoFlags ();
   l.Point1.X = x1;
   l.Point1.Y = y1;
   l.Point2.X = x2;
@@ -1227,7 +1247,7 @@ static void
 fab_circle (int x, int y, int r, int t)
 {
   ArcType a;
-  a.Flags = NoFlags();
+  a.Flags = NoFlags ();
   a.X = x;
   a.Y = y;
   a.Width = r;
@@ -1255,7 +1275,7 @@ text_at (int x, int y, int align, char *fmt, ...)
   t.Direction = 0;
   t.TextString = tmp;
   t.Scale = TEXT_SIZE;
-  t.Flags = NoFlags();
+  t.Flags = NoFlags ();
   t.X = x;
   t.Y = y;
   for (i = 0; tmp[i]; i++)
@@ -1375,7 +1395,7 @@ PrintFab (void)
   if (SetupPrintFile ("fab", "Fabrication Drawing", FILE_LAYER))
     return (1);
   Device->Polarity (0);
-  tmp_pin.Flags = NoFlags();
+  tmp_pin.Flags = NoFlags ();
   AllDrills = GetDrillInfo (PCB->Data);
   yoff = -TEXT_LINE;
   for (n = AllDrills->DrillN - 1; n >= 0; n--)
@@ -1392,7 +1412,7 @@ PrintFab (void)
    * drill table header doesn't fall on top of the board info
    * section.
    */
-  if (AllDrills->DrillN < 4 ) 
+  if (AllDrills->DrillN < 4)
     {
       yoff -= (4 - AllDrills->DrillN) * TEXT_LINE;
     }
@@ -1451,7 +1471,7 @@ PrintFab (void)
   strftime (utcTime, sizeof utcTime, "%c UTC", gmtime (&currenttime));
   yoff = -TEXT_LINE;
   for (i = 0; i < MAX_LAYER; i++)
-    if (LAYER_PTR(i)->Name)
+    if (LAYER_PTR (i)->Name)
       {
 	if (strcasecmp ("route", LAYER_PTR (i)->Name) == 0)
 	  break;
@@ -1493,7 +1513,7 @@ PrintFab (void)
   yoff -= TEXT_LINE;
   text_at (200000, yoff, 0, "Date: %s", utcTime);
   yoff -= TEXT_LINE;
-  text_at (200000, yoff, 0, "Author: %s", fab_author());
+  text_at (200000, yoff, 0, "Author: %s", fab_author ());
   yoff -= TEXT_LINE;
   text_at (200000, yoff, 0,
 	   "Title: %s - Fabrication Drawing", UNKNOWN (PCB->Name));
@@ -1527,10 +1547,10 @@ PrintBOM (void)
   StringList *lasts;
 
   /* Only print the BOM when we do gerber output */
-  if ( NSTRCMP (Device->Suffix, "gbr") != 0 )
+  if (NSTRCMP (Device->Suffix, "gbr") != 0)
     return 0;
 
-  if ( (fp = OpenPrintFile ("xy", FILE_BOM)) == NULL)
+  if ((fp = OpenPrintFile ("xy", FILE_BOM)) == NULL)
     return (1);
 
   /* Create a portable timestamp. */
@@ -1541,7 +1561,7 @@ PrintBOM (void)
   fprintf (fp, "$\n");
   fprintf (fp, "# PcbXY Version 1.0\n");
   fprintf (fp, "# Date: %s\n", utcTime);
-  fprintf (fp, "# Author: %s\n", fab_author());
+  fprintf (fp, "# Author: %s\n", fab_author ());
   fprintf (fp, "# Title: %s - PCB X-Y\n", UNKNOWN (PCB->Name));
   fprintf (fp, "# RefDes, Description, Value, X, Y, rotation, top/bottom\n");
   fprintf (fp, "# X,Y in mils.  rotation in degrees.\n");
@@ -1563,13 +1583,13 @@ PrintBOM (void)
     sumy = 0.0;
     found_pin1 = 0;
     found_pin2 = 0;
-    
+
     /* insert this component into the bill of materials list */
-    bom = bom_insert ( UNKNOWN (NAMEONPCB_NAME (element)),
-		       UNKNOWN (DESCRIPTION_NAME (element)),
-		       UNKNOWN (VALUE_NAME (element)), bom);
-      
-    
+    bom = bom_insert (UNKNOWN (NAMEONPCB_NAME (element)),
+		      UNKNOWN (DESCRIPTION_NAME (element)),
+		      UNKNOWN (VALUE_NAME (element)), bom);
+
+
     /*
      * iterate over the pins and pads keeping a running count of how
      * many pins/pads total and the sum of x and y coordinates
@@ -1584,60 +1604,60 @@ PrintBOM (void)
       sumy += (double) pin->Y;
       pin_cnt++;
 
-      if (NSTRCMP(pin->Number, "1") == 0)
+      if (NSTRCMP (pin->Number, "1") == 0)
 	{
 	  pin1x = (double) pin->X;
 	  pin1y = (double) pin->Y;
-	  pin1angle = 0.0; /* pins have no notion of angle */
+	  pin1angle = 0.0;	/* pins have no notion of angle */
 	  found_pin1 = 1;
 	}
-      else if (NSTRCMP(pin->Number, "2") == 0)
+      else if (NSTRCMP (pin->Number, "2") == 0)
 	{
 	  pin2x = (double) pin->X;
 	  pin2y = (double) pin->Y;
-	  pin2angle = 0.0; /* pins have no notion of angle */
+	  pin2angle = 0.0;	/* pins have no notion of angle */
 	  found_pin2 = 1;
 	}
     }
     END_LOOP;
-    
+
     PAD_LOOP (element);
     {
-      sumx +=  (pad->Point1.X + pad->Point2.X)/2.0;
-      sumy +=  (pad->Point1.Y + pad->Point2.Y)/2.0;
+      sumx += (pad->Point1.X + pad->Point2.X) / 2.0;
+      sumy += (pad->Point1.Y + pad->Point2.Y) / 2.0;
       pin_cnt++;
 
-      if (NSTRCMP(pad->Number, "1") == 0)
+      if (NSTRCMP (pad->Number, "1") == 0)
 	{
-	  pin1x = (double) (pad->Point1.X + pad->Point2.X)/2.0;
-	  pin1y = (double) (pad->Point1.Y + pad->Point2.Y)/2.0;
+	  pin1x = (double) (pad->Point1.X + pad->Point2.X) / 2.0;
+	  pin1y = (double) (pad->Point1.Y + pad->Point2.Y) / 2.0;
 	  /*
 	   * NOTE:  We swap the Y points because in PCB, the Y-axis
 	   * is inverted.  Increasing Y moves down.  We want to deal
 	   * in the usual increasing Y moves up coordinates though.
 	   */
-	  pin1angle = (180.0 / M_PI) * atan2(pad->Point1.Y - pad->Point2.Y ,
-					     pad->Point2.X - pad->Point1.X );
+	  pin1angle = (180.0 / M_PI) * atan2 (pad->Point1.Y - pad->Point2.Y,
+					      pad->Point2.X - pad->Point1.X);
 	  found_pin1 = 1;
 	}
-      else if (NSTRCMP(pad->Number, "2") == 0)
+      else if (NSTRCMP (pad->Number, "2") == 0)
 	{
-	  pin2x = (double) (pad->Point1.X + pad->Point2.X)/2.0;
-	  pin2y = (double) (pad->Point1.Y + pad->Point2.Y)/2.0;
-	  pin2angle = (180.0 / M_PI) * atan2(pad->Point1.Y - pad->Point2.Y ,
-					     pad->Point2.X - pad->Point1.X );
+	  pin2x = (double) (pad->Point1.X + pad->Point2.X) / 2.0;
+	  pin2y = (double) (pad->Point1.Y + pad->Point2.Y) / 2.0;
+	  pin2angle = (180.0 / M_PI) * atan2 (pad->Point1.Y - pad->Point2.Y,
+					      pad->Point2.X - pad->Point1.X);
 	  found_pin2 = 1;
 	}
 
     }
     END_LOOP;
 
-    if ( pin_cnt > 0) 
+    if (pin_cnt > 0)
       {
 	x = sumx / (double) pin_cnt;
 	y = sumy / (double) pin_cnt;
 
-	if (found_pin1) 
+	if (found_pin1)
 	  {
 	    /* recenter pin #1 onto the axis which cross at the part
 	       centroid */
@@ -1651,74 +1671,73 @@ PrintBOM (void)
 	    else
 	      {
 		/* if pin #1 is at (0,0) use pin #2 for rotation */
-		if ( (pin1x == 0.0) && (pin1y == 0.0) )
+		if ((pin1x == 0.0) && (pin1y == 0.0))
 		  {
 		    if (found_pin2)
-		      theta = xyToAngle( pin2x, pin2y);
+		      theta = xyToAngle (pin2x, pin2y);
 		    else
 		      {
-			Message ("PrintBOM(): unable to figure out angle of element\n"
-				 "     %s because pin #1 is at the centroid of the part.\n"
-				 "     and I could not find pin #2's location\n"
-				 "     Setting to %g degrees\n",
-				 UNKNOWN (NAMEONPCB_NAME(element) ), theta );
+			Message
+			  ("PrintBOM(): unable to figure out angle of element\n"
+			   "     %s because pin #1 is at the centroid of the part.\n"
+			   "     and I could not find pin #2's location\n"
+			   "     Setting to %g degrees\n",
+			   UNKNOWN (NAMEONPCB_NAME (element)), theta);
 		      }
 		  }
 		else
-		  theta = xyToAngle( pin1x, pin1y);
+		  theta = xyToAngle (pin1x, pin1y);
 	      }
 	  }
 	/* we did not find pin #1 */
 	else
 	  {
 	    theta = 0.0;
-	    Message ("PrintBOM(): unable to figure out angle because I could\n"
-		     "     not find pin #1 of element %s\n"
-		     "     Setting to %g degrees\n",
-		     UNKNOWN (NAMEONPCB_NAME(element) ),
-		     theta );
+	    Message
+	      ("PrintBOM(): unable to figure out angle because I could\n"
+	       "     not find pin #1 of element %s\n"
+	       "     Setting to %g degrees\n",
+	       UNKNOWN (NAMEONPCB_NAME (element)), theta);
 	  }
-	
-	fprintf (fp, "%s,\"%s\",\"%s\",%.2f,%.2f,%g,%s\n", 
-		 CleanBOMString(UNKNOWN (NAMEONPCB_NAME(element) )),
-		 CleanBOMString(UNKNOWN (DESCRIPTION_NAME(element) )),
-		 CleanBOMString(UNKNOWN (VALUE_NAME(element) )),
+
+	fprintf (fp, "%s,\"%s\",\"%s\",%.2f,%.2f,%g,%s\n",
+		 CleanBOMString (UNKNOWN (NAMEONPCB_NAME (element))),
+		 CleanBOMString (UNKNOWN (DESCRIPTION_NAME (element))),
+		 CleanBOMString (UNKNOWN (VALUE_NAME (element))),
 #if 0
 		 (double) element->MarkX, (double) element->MarkY,
 #else
-		 0.01*x, 0.01*y,
+		 0.01 * x, 0.01 * y,
 #endif
-		 theta,
-		 FRONT(element) == 1 ? "top" : "bottom");
+		 theta, FRONT (element) == 1 ? "top" : "bottom");
       }
   }
   END_LOOP;
-  
+
   fclose (fp);
 
   /* Now print out a Bill of Materials file */
-  
-  if ( (fp = OpenPrintFile ("bom", FILE_BOM)) == NULL)
+
+  if ((fp = OpenPrintFile ("bom", FILE_BOM)) == NULL)
     return (1);
-    
+
   fprintf (fp, "# $Id");
   fprintf (fp, "$\n");
   fprintf (fp, "# PcbBOM Version 1.0\n");
   fprintf (fp, "# Date: %s\n", utcTime);
-  fprintf (fp, "# Author: %s\n", fab_author());
+  fprintf (fp, "# Author: %s\n", fab_author ());
   fprintf (fp, "# Title: %s - PCB BOM\n", UNKNOWN (PCB->Name));
   fprintf (fp, "# Quantity, Description, Value, RefDes\n");
   fprintf (fp, "# --------------------------------------------\n");
-  
+
   while (bom != NULL)
     {
-      fprintf (fp,"%d,\"%s\",\"%s\",", 
-	       bom->num, 
-	       CleanBOMString(bom->descr), 
-	       CleanBOMString(bom->value));
+      fprintf (fp, "%d,\"%s\",\"%s\",",
+	       bom->num,
+	       CleanBOMString (bom->descr), CleanBOMString (bom->value));
       while (bom->refdes != NULL)
 	{
-	  fprintf (fp,"%s ", bom->refdes->str);
+	  fprintf (fp, "%s ", bom->refdes->str);
 	  g_free (bom->refdes->str);
 	  lasts = bom->refdes;
 	  bom->refdes = bom->refdes->next;
@@ -1731,51 +1750,55 @@ PrintBOM (void)
     }
 
   fclose (fp);
-  
+
   return (0);
 }
 
 
-static char *CleanBOMString (char *in)
+static char *
+CleanBOMString (char *in)
 {
   char *out;
   int i;
 
-  if ( (out = g_malloc( (strlen(in) + 1)*sizeof(char) ) ) == NULL ) {
-    fprintf(stderr, "Error:  CleanBOMString() g_malloc() failed\n");
-    exit (1);
-  }
+  if ((out = g_malloc ((strlen (in) + 1) * sizeof (char))) == NULL)
+    {
+      fprintf (stderr, "Error:  CleanBOMString() g_malloc() failed\n");
+      exit (1);
+    }
 
   /* 
    * copy over in to out with some character conversions.
    * Go all the way to then end to get the terminating \0
    */
-  for (i = 0; i<=strlen(in); i++) {
-    switch (in[i])
-      {
-      case '"':
-	out[i] = '\'';
-	break;
-      default:
-	out[i] = in[i];
-      }
-  }
+  for (i = 0; i <= strlen (in); i++)
+    {
+      switch (in[i])
+	{
+	case '"':
+	  out[i] = '\'';
+	  break;
+	default:
+	  out[i] = in[i];
+	}
+    }
 
   return out;
 }
 
 
-static double xyToAngle(double x, double y)
+static double
+xyToAngle (double x, double y)
 {
   double theta;
 
-  if( ( x > 0.0) && ( y >= 0.0) )
+  if ((x > 0.0) && (y >= 0.0))
     theta = 180.0;
-  else if( ( x <= 0.0) && ( y > 0.0) )
+  else if ((x <= 0.0) && (y > 0.0))
     theta = 90.0;
-  else if( ( x < 0.0) && ( y <= 0.0) )
+  else if ((x < 0.0) && (y <= 0.0))
     theta = 0.0;
-  else if( ( x >= 0.0) && ( y < 0.0) )
+  else if ((x >= 0.0) && (y < 0.0))
     theta = 270.0;
   else
     {
@@ -1783,31 +1806,31 @@ static double xyToAngle(double x, double y)
       Message ("xyToAngle(): unable to figure out angle of element\n"
 	       "     because the pin is at the centroid of the part.\n"
 	       "     This is a BUG!!!\n"
-	       "     Setting to %g degrees\n",
-	       theta );
+	       "     Setting to %g degrees\n", theta);
     }
 
   return (theta);
 }
 
-BomList *bom_insert (char *refdes, char *descr, char *value, BomList *bom)
+BomList *
+bom_insert (char *refdes, char *descr, char *value, BomList * bom)
 {
   BomList *new, *cur, *prev = NULL;
 
   if (bom == NULL)
     {
       /* this is the first element so automatically create an entry */
-      if ( (new = (BomList *) g_malloc (sizeof (BomList) ) ) == NULL )
+      if ((new = (BomList *) g_malloc (sizeof (BomList))) == NULL)
 	{
-	  fprintf(stderr, "g_malloc() failed in bom_insert()\n");
+	  fprintf (stderr, "g_malloc() failed in bom_insert()\n");
 	  exit (1);
 	}
 
       new->next = NULL;
-      new->descr = g_strdup(descr);
-      new->value = g_strdup(value);
+      new->descr = g_strdup (descr);
+      new->value = g_strdup (value);
       new->num = 1;
-      new->refdes = string_insert(refdes, NULL);
+      new->refdes = string_insert (refdes, NULL);
       return (new);
     }
 
@@ -1816,58 +1839,59 @@ BomList *bom_insert (char *refdes, char *descr, char *value, BomList *bom)
   cur = bom;
   while (cur != NULL)
     {
-      if ( (NSTRCMP(descr, cur->descr) == 0) &&
-	   (NSTRCMP(value, cur->value) == 0) )
+      if ((NSTRCMP (descr, cur->descr) == 0) &&
+	  (NSTRCMP (value, cur->value) == 0))
 	{
 	  cur->num++;
-	  cur->refdes = string_insert(refdes, cur->refdes);
+	  cur->refdes = string_insert (refdes, cur->refdes);
 	  break;
 	}
       prev = cur;
       cur = cur->next;
     }
-  
+
   if (cur == NULL)
     {
-      if ( (new = (BomList *) g_malloc (sizeof (BomList) ) ) == NULL )
+      if ((new = (BomList *) g_malloc (sizeof (BomList))) == NULL)
 	{
-	  fprintf(stderr, "g_malloc() failed in bom_insert()\n");
+	  fprintf (stderr, "g_malloc() failed in bom_insert()\n");
 	  exit (1);
 	}
-      
+
       prev->next = new;
-      
+
       new->next = NULL;
-      new->descr = g_strdup(descr);
-      new->value = g_strdup(value);
+      new->descr = g_strdup (descr);
+      new->value = g_strdup (value);
       new->num = 1;
-      new->refdes = string_insert(refdes, NULL);
+      new->refdes = string_insert (refdes, NULL);
     }
 
   return (bom);
 
 }
 
-static StringList *string_insert(char *str, StringList *list)
+static StringList *
+string_insert (char *str, StringList * list)
 {
   StringList *new, *cur;
 
-  if ( (new = (StringList *) g_malloc (sizeof (StringList) ) ) == NULL )
+  if ((new = (StringList *) g_malloc (sizeof (StringList))) == NULL)
     {
-	  fprintf(stderr, "g_malloc() failed in string_insert()\n");
-	  exit (1);
+      fprintf (stderr, "g_malloc() failed in string_insert()\n");
+      exit (1);
     }
-  
+
   new->next = NULL;
-  new->str = g_strdup(str);
-  
+  new->str = g_strdup (str);
+
   if (list == NULL)
     return (new);
 
   cur = list;
-  while ( cur->next != NULL )
+  while (cur->next != NULL)
     cur = cur->next;
-  
+
   cur->next = new;
 
   return (list);
@@ -1945,12 +1969,12 @@ Print (char *Command, float Scale,
   Device->init (&DeviceFlags);
   /* OK, call all necessary subroutines */
   if (PrintLayergroups () || PrintSilkscreen () ||
-      PrintDrill () || PrintMask () || PrintPaste () || 
-      PrintFab () || PrintBOM () || PrintAssembly () )
+      PrintDrill () || PrintMask () || PrintPaste () ||
+      PrintFab () || PrintBOM () || PrintAssembly ())
     {
-    gui_restore_cursor ();
-    return (1);
-	}
+      gui_restore_cursor ();
+      return (1);
+    }
   Device->Exit ();
   gui_restore_cursor ();
   return (0);
