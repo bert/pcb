@@ -66,6 +66,7 @@ void	ActionChangeSize(char *, char *, char *);
 void	ActionChange2ndSize(char *, char *, char *);
 void	ActionChangeClearSize(char *, char *, char *);
 void	ActionChangeName(char *);
+void	ActionChangePinName (char *, char *, char *);
 void	ActionChangeJoin(char *);
 void	ActionChangeSquare(char *);
 void	ActionChangeOctagon(char *);

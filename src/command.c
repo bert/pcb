@@ -123,6 +123,7 @@ static ActionType	action[] =
 	{"ChangeClearSize",		ActionChangeClearSize, FALSE},
 	{"ChangeDrillSize",		ActionChange2ndSize, FALSE},
 	{"ChangeName",			ActionChangeName, FALSE},
+	{"ChangePinName",		ActionChangePinName, FALSE},
 	{"ChangeSquare",		ActionChangeSquare, FALSE},
 	{"ChangeOctagon",		ActionChangeOctagon, FALSE},
 	{"ChangeJoin",			ActionChangeJoin, FALSE},
