@@ -3427,6 +3427,18 @@ Default:
 !Ctrl<Key>o: ChangeOctagon(Object)
 @end example
 
+@findex ChangePinName()
+@cindex changing pin/pad names
+@cindex pin/pad names, changing
+@item ChangePinName(ElementName, PinNumber, PinName)
+Changes the name for a specified pin or pad number on a specified element.
+This action is typically used to forward annotate pin/pad names from a schematic
+to the layout.
+@example
+ChangePinName(U1, 14, VDD)
+@end example
+
+
 @findex ChangeSize()
 @cindex change sizes
 @cindex sizes, changing of objects
