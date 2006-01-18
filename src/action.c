@@ -3139,55 +3139,69 @@ void
 ActionChangePinName (char *refdes, char *pinnum, char *pinname)
 {
   int changed = 0;
-
+  
   /* Strip leading white space */
-  while( refdes  && *refdes  != '\0' && *refdes  == ' ') refdes++;
-  while( pinnum  && *pinnum  != '\0' && *pinnum  == ' ') pinnum++;
-  while( pinname && *pinname != '\0' && *pinname == ' ') pinname++;
+  while (refdes  && (*refdes  != '\0') && (*refdes  == ' '))
+    refdes++;
+  while (pinnum  && (*pinnum  != '\0') && (*pinnum  == ' '))
+    pinnum++;
+  while (pinname && (*pinname != '\0') && (*pinname == ' '))
+    pinname++;
 
-  if( (refdes != NULL) && (pinnum != NULL) && (pinname != NULL) )
-  {
-  ELEMENT_LOOP (PCB->Data);
-  {
-    if( NSTRCMP( refdes, NAMEONPCB_NAME (element)) == 0 ) 
+  if ((refdes != NULL) && (pinnum != NULL) && (pinname != NULL))
     {
-
-      PIN_LOOP (element);
+      ELEMENT_LOOP (PCB->Data);
       {
-        if( NSTRCMP(pinnum, pin->Number) == 0 )
-	{
-	  AddObjectToChangeNameUndoList (PIN_TYPE, NULL, NULL, pin, pin->Name);
-	  /* Note:  we can't free() pin->Name first because it is used in the undo list */
-	  pin->Name = strdup( pinname );
-	  SetChangedFlag (True);
-	  changed = 1;
-	}
+	if( NSTRCMP (refdes, NAMEONPCB_NAME (element)) == 0)
+	  {
+	    PIN_LOOP (element);
+	    {
+	      if (NSTRCMP (pinnum, pin->Number) == 0)
+		{
+		  AddObjectToChangeNameUndoList (PIN_TYPE, NULL, NULL, 
+						 pin, pin->Name);
+		  /*
+		   * Note:  we can't free() pin->Name first because 
+		   * it is used in the undo list
+		   */
+		  pin->Name = strdup (pinname);
+		  SetChangedFlag (True);
+		  changed = 1;
+		}
+	    }
+	    END_LOOP;
+	    
+	    PAD_LOOP (element);
+	    {
+	      if (NSTRCMP (pinnum, pad->Number) == 0)
+		{
+		  AddObjectToChangeNameUndoList (PAD_TYPE, NULL, NULL, 
+						 pad, pad->Name);
+		  /* 
+		   * Note:  we can't free() pad->Name first because 
+		   * it is used in the undo list
+		   */
+		  pad->Name = strdup (pinname);
+		  SetChangedFlag (True);
+		  changed = 1;
+		}
+	    }
+	    END_LOOP;
+	  }
       }
       END_LOOP;
-
-      PAD_LOOP (element);
-      {
-        if( NSTRCMP(pinnum, pad->Number) == 0 )
-	{
-	  AddObjectToChangeNameUndoList (PAD_TYPE, NULL, NULL, pad, pad->Name);
-	  /* Note:  we can't free() pad->Name first because it is used in the undo list */
-	  pad->Name = strdup( pinname );
-	  SetChangedFlag (True);
-	  changed = 1;
-	}
-      }
-      END_LOOP;
+      /*
+       * done with our action so increment the undo # if we 
+       * actually changed anything
+       */
+      if (changed)
+	IncrementUndoSerialNumber ();
     }
-  }
-  END_LOOP;
-  /* done with our action so increment the undo # if we actually changed anything*/
-  if( changed ) IncrementUndoSerialNumber ();
-  }
   else 
-  {
-    Message("Usage:  ChangePinName(RefDes, PinNumber, PinName)\n");
-  }
-
+    {
+      Message ("Usage:  ChangePinName(RefDes, PinNumber, PinName)\n");
+    }
+  
 }
 
 /* ---------------------------------------------------------------------------
