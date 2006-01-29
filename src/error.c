@@ -66,7 +66,6 @@ RCSID("$Id$");
 /* ----------------------------------------------------------------------
  * some external identifiers
  */
-extern int errno;		/* system error code */
 
 #if !defined(HAVE_STRERROR)
 extern int sys_nerr;		/* number of messages available from array */
@@ -74,7 +73,7 @@ extern int sys_nerr;		/* number of messages available from array */
 #endif
 
 /* the list is already defined for some OS */
-#if !defined(__NetBSD__) && !defined(__FreeBSD__) && !defined(__linux__)
+#if !defined(__NetBSD__) && !defined(__FreeBSD__) && !defined(__linux__) && !defined(__DragonFly__)
 #ifdef USE_SYS_ERRLIST
 extern char *sys_errlist[];	/* array of error messages */
 #endif
