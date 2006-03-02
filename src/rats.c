@@ -785,6 +785,25 @@ CollectSubnets (Boolean SelectedOnly)
 }
 
 
+/*
+ * Check to see if a particular name is the name of an already existing rats
+ * line
+ */
+static int
+rat_used (char *name)
+{
+  if (name == NULL) 
+    return -1;
+
+  MENU_LOOP (&PCB->NetlistLib);
+  {
+    if (menu->Name && (strcmp(menu->Name, name) == 0) )
+      return 1;
+  }
+  END_LOOP;
+
+  return 0;
+}
 
   /* These next two functions moved from the original netlist.c as part of the
   |  gui code separation for the Gtk port.
@@ -866,8 +885,18 @@ AddNet (void)
       goto ratIt;
     }
   /* neither belong to a net, so create a new one */
-  menu = GetLibraryMenuMemory (&PCB->NetlistLib);
+
+  /*
+   * before creating a new rats here, we need to search
+   * for a unique name.
+   */
   sprintf (ratname, "  ratDrawn%i", ++ratDrawn);
+  while ( rat_used (ratname) )
+  {
+    sprintf (ratname, "  ratDrawn%i", ++ratDrawn);
+  }
+
+  menu = GetLibraryMenuMemory (&PCB->NetlistLib);
   menu->Name = MyStrdup (ratname, "AddNet");
   entry = GetLibraryEntryMemory (menu);
   entry->ListEntry = MyStrdup (name1, "AddNet");
