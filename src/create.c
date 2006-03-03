@@ -182,6 +182,8 @@ CreateNewPCB (Boolean SetDefaultNames)
   ptr->Shrink = Settings.Shrink;
   ptr->minWid = Settings.minWid;
   ptr->minSlk = Settings.minSlk;
+  ptr->minDrill = Settings.minDrill;
+  ptr->minRing = Settings.minRing;
 
   return (ptr);
 }

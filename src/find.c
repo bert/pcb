@@ -3811,7 +3811,43 @@ DRCAll (void)
 	  {
 	    AddObjectToFlagUndoList (PIN_TYPE, element, pin, pin);
 	    SET_FLAG (TheFlag, pin);
-	    Message (_("Pin annular ring is too small\n"));
+	    Message (_("Pin annular ring is too small based on minimum copper width\n"));
+	    DrawPin (pin, 0);
+	    drcerr_count++;
+	    SetThing (PIN_TYPE, element, pin, pin);
+	    GotoError ();
+	    if (!gui_dialog_confirm (DRC_CONTINUE))
+	      {
+		IsBad = True;
+		break;
+	      }
+	    IncrementUndoSerialNumber ();
+	    Undo (False);
+	  }
+	if (!TEST_FLAG (HOLEFLAG, pin) &&
+	    pin->Thickness - pin->DrillingHole < 2 * PCB->minRing)
+	  {
+	    AddObjectToFlagUndoList (PIN_TYPE, element, pin, pin);
+	    SET_FLAG (TheFlag, pin);
+	    Message (_("Pin annular ring is too small based on minimum annular ring\n"));
+	    DrawPin (pin, 0);
+	    drcerr_count++;
+	    SetThing (PIN_TYPE, element, pin, pin);
+	    GotoError ();
+	    if (!gui_dialog_confirm (DRC_CONTINUE))
+	      {
+		IsBad = True;
+		break;
+	      }
+	    IncrementUndoSerialNumber ();
+	    Undo (False);
+	  }
+	if (!TEST_FLAG (HOLEFLAG, pin) &&
+	    pin->DrillingHole < PCB->minDrill)
+	  {
+	    AddObjectToFlagUndoList (PIN_TYPE, element, pin, pin);
+	    SET_FLAG (TheFlag, pin);
+	    Message (_("Pin drill size is too small\n"));
 	    DrawPin (pin, 0);
 	    drcerr_count++;
 	    SetThing (PIN_TYPE, element, pin, pin);
@@ -3860,7 +3896,43 @@ DRCAll (void)
 	  {
 	    AddObjectToFlagUndoList (VIA_TYPE, via, via, via);
 	    SET_FLAG (TheFlag, via);
-	    Message (_("Via annular ring is too small\n"));
+	    Message (_("Via annular ring is too small based on minimum copper width\n"));
+	    DrawVia (via, 0);
+	    drcerr_count++;
+	    SetThing (VIA_TYPE, via, via, via);
+	    GotoError ();
+	    if (!gui_dialog_confirm (DRC_CONTINUE))
+	      {
+		IsBad = True;
+		break;
+	      }
+	    IncrementUndoSerialNumber ();
+	    Undo (False);
+	  }
+	if (!TEST_FLAG (HOLEFLAG, via) &&
+	    via->Thickness - via->DrillingHole < 2 * PCB->minRing)
+	  {
+	    AddObjectToFlagUndoList (VIA_TYPE, via, via, via);
+	    SET_FLAG (TheFlag, via);
+	    Message (_("Via annular ring is too small based on minimum annular ring\n"));
+	    DrawVia (via, 0);
+	    drcerr_count++;
+	    SetThing (VIA_TYPE, via, via, via);
+	    GotoError ();
+	    if (!gui_dialog_confirm (DRC_CONTINUE))
+	      {
+		IsBad = True;
+		break;
+	      }
+	    IncrementUndoSerialNumber ();
+	    Undo (False);
+	  }
+	if (!TEST_FLAG (HOLEFLAG, via) &&
+	    via->DrillingHole < PCB->minDrill)
+	  {
+	    AddObjectToFlagUndoList (VIA_TYPE, via, via, via);
+	    SET_FLAG (TheFlag, via);
+	    Message (_("Via drill size is too small\n"));
 	    DrawVia (via, 0);
 	    drcerr_count++;
 	    SetThing (VIA_TYPE, via, via, via);
@@ -3883,7 +3955,7 @@ DRCAll (void)
   fBloat = 0.0;
 
   /* check silkscreen minimum widths outside of elements */
-  /* XXX - need to check text and polygons too! */
+  /* FIXME - need to check text and polygons too! */
   TheFlag = SELECTEDFLAG;
   if (!IsBad)
     {
@@ -3908,7 +3980,7 @@ DRCAll (void)
     }
 
   /* check silkscreen minimum widths inside of elements */
-  /* XXX - need to check text and polygons too! */
+  /* FIXME - need to check text and polygons too! */
   TheFlag = SELECTEDFLAG;
   if (!IsBad)
     {

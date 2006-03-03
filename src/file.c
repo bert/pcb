@@ -328,8 +328,8 @@ WritePCBDataHeader (FILE * FP)
   fprintf (FP, "Cursor[%i %i %f]\n", (int) TO_PCB_X (Output.Width / 2),
 	   (int) TO_PCB_Y (Output.Height / 2), PCB->Zoom);
   fprintf (FP, "Thermal[%f]\n", PCB->ThermScale);
-  fprintf (FP, "DRC[%i %i %i %i]\n", PCB->Bloat, PCB->Shrink,
-	   PCB->minWid, PCB->minSlk);
+  fprintf (FP, "DRC[%i %i %i %i %i %i]\n", PCB->Bloat, PCB->Shrink,
+	   PCB->minWid, PCB->minSlk, PCB->minDrill, PCB->minRing);
   /* FIXME: This shouldn't know about .f, but we don't have a string
      converter for it yet.  */
   fprintf (FP, "Flags(0x%016x)\n", (int) PCB->Flags.f);

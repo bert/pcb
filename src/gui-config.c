@@ -1,3 +1,4 @@
+/* $Id$ */
 /*
  *                            COPYRIGHT
  *
@@ -136,6 +137,8 @@ static ConfigSettingsValues	config_settings_values[] =
 	{"shrink",				&Settings.Shrink,				"400"},
 	{"min-width",			&Settings.minWid,				"800"},
 	{"min-silk",			&Settings.minSlk,				"800"},
+	{"min-drill",			&Settings.minDrill,				"1000"},
+	{"min-ring",			&Settings.minRing,				"750"},
 
 	{"default-PCB-width",	&Settings.MaxWidth,				"600000"},
 	{"default-PCB-height",	&Settings.MaxHeight,			"500000"},
@@ -838,6 +841,8 @@ config_sizes_apply(void)
 		Settings.Shrink = PCB->Shrink;
 		Settings.minWid = PCB->minWid;
 		Settings.minSlk = PCB->minSlk;
+		Settings.minDrill = PCB->minDrill;
+		Settings.minRing = PCB->minRing;
 		Settings.config_modified = TRUE;
 		}
 
@@ -975,6 +980,20 @@ config_sizes_tab_create(GtkWidget *tab_vbox)
 			STEP0_SMALL_SIZE, STEP1_SMALL_SIZE,
 			SPIN_DIGITS, 0, size_spin_button_cb,
 			&PCB->minSlk, FALSE, _("Minimum silk width"));
+
+	gui_table_spin_button(table, 4, 0, NULL,
+			FROM_PCB_UNITS(PCB->minDrill),
+			FROM_PCB_UNITS(MIN_DRC_DRILL), FROM_PCB_UNITS(MAX_DRC_DRILL),
+			STEP0_SMALL_SIZE, STEP1_SMALL_SIZE,
+			SPIN_DIGITS, 0, size_spin_button_cb,
+			&PCB->minDrill, FALSE, _("Minimum drill size"));
+
+	gui_table_spin_button(table, 5, 0, NULL,
+			FROM_PCB_UNITS(PCB->minRing),
+			FROM_PCB_UNITS(MIN_DRC_RING), FROM_PCB_UNITS(MAX_DRC_RING),
+			STEP0_SMALL_SIZE, STEP1_SMALL_SIZE,
+			SPIN_DIGITS, 0, size_spin_button_cb,
+			&PCB->minRing, FALSE, _("Minimum annular ring on drilled pads/vias"));
 
 	gui_check_button_connected(vbox, &use_drc_sizes_default_button, FALSE,
 			TRUE, FALSE, FALSE, 0, NULL, NULL,

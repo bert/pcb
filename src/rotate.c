@@ -236,7 +236,7 @@ RotateElementLowLevel (DataTypePtr Data, ElementTypePtr Element,
     {
       /* pre-delete the pins from the pin-tree before their coordinates change */
       if (Data)
-	r_delete_entry (PCB->Data->pin_tree, (BoxType *) pin);
+	r_delete_entry (Data->pin_tree, (BoxType *) pin);
       ROTATE_PIN_LOWLEVEL (pin, X, Y, Number);
       if (PCB->Data == Data)
 	UpdatePIPFlags (pin, Element, NULL, True);
@@ -246,7 +246,7 @@ RotateElementLowLevel (DataTypePtr Data, ElementTypePtr Element,
     {
       /* pre-delete the pads before their coordinates change */
       if (Data)
-	r_delete_entry (PCB->Data->pad_tree, (BoxType *) pad);
+	r_delete_entry (Data->pad_tree, (BoxType *) pad);
       ROTATE_PAD_LOWLEVEL (pad, X, Y, Number);
     }
   END_LOOP;

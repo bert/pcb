@@ -336,6 +336,22 @@ ActionLoadVendor(gchar *filename)
 	       0.01*PCB->minSlk);
     }
 
+  sval = resource_value(drcres, "min_drill");
+  if (sval != NULL)
+    {
+      PCB->minDrill = floor (sf * atof(sval) + 0.5);
+      Message (_("Set DRC minimum drill diameter to %.2f mils\n"), 
+	       0.01*PCB->minDrill);
+    }
+
+  sval = resource_value(drcres, "min_ring");
+  if (sval != NULL)
+    {
+      PCB->minRing = floor (sf * atof(sval) + 0.5);
+      Message (_("Set DRC minimum annular ring on drill holes to %.2f mils\n"), 
+	       0.01*PCB->minRing);
+    }
+
   Message (_("Loaded %d vendor drills from %s\n"), n_vendor_drills, fname);
   Message (_("Loaded %d RefDes skips, %d Value skips, %d Descr skips\n"),
 	   n_refdes, n_value, n_descr);

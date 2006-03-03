@@ -424,7 +424,9 @@ typedef struct
 	gint		Bloat,			/* drc sizes saved with layout */
 				Shrink,
 				minWid,
-				minSlk;
+				minSlk,
+				minDrill,
+				minRing;
 	gint		GridOffsetX,	/* as saved with layout */
 				GridOffsetY,
 				MaxWidth,		/* allowed size */
@@ -559,7 +561,9 @@ typedef struct			/* some resources... */
 				Bloat,		/* default drc sizes */
 				Shrink,
 				minWid,
-				minSlk;
+				minSlk,
+				minDrill,
+				minRing;
 	gdouble		Grid,				/* grid 0.001'' */
 				grid_increment_mm,	/* key g and <shift>g value for mil units*/
 				grid_increment_mil,	/* key g and <shift>g value for mil units*/

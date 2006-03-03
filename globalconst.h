@@ -77,6 +77,10 @@
 #define	MAX_DRC_VALUE		50000
 #define	MIN_DRC_SILK		100
 #define	MAX_DRC_SILK		3000
+#define	MIN_DRC_DRILL		100
+#define	MAX_DRC_DRILL		5000
+#define	MIN_DRC_RING		0
+#define	MAX_DRC_RING		10000
 #define	MIN_GRID		1	/* grid in 1/100000'' */
 #define	MAX_GRID		20000
 #define	CHUNK			100	/* step size for size sliders */

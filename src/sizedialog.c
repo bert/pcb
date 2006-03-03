@@ -86,8 +86,10 @@ RCSID("$Id$");
 #define	DRCWID_SLIDER		6
 #define	SHRINK_SLIDER		7
 #define	DRCSLK_SLIDER		8
-#define	WIDTH_SLIDER		9
-#define	HEIGHT_SLIDER		10
+#define	DRCDRILL_SLIDER		9
+#define	DRCRING_SLIDER		10
+#define	WIDTH_SLIDER		11
+#define	HEIGHT_SLIDER		12
 
 /* ---------------------------------------------------------------------------
  * some local types
@@ -117,6 +119,8 @@ static SliderType Sliders[] = {
   {"DRC minimum width", 10, 50000, CHUNK/10, 0, NULL, NULL},
   {"DRC minimum overlap", 10, 50000, CHUNK/10, 0, NULL, NULL},
   {"DRC minimum silkwidth", 100, 3000, CHUNK/10, 0, NULL, NULL},
+  {"DRC minimum drill size", 100, 5000, CHUNK/10, 0, NULL, NULL},
+  {"DRC minimum drill annular ring", 0, 10000, CHUNK/10, 0, NULL, NULL},
   {"PCB width", MIN_SIZE, MAX_COORD, 100, 0, NULL, NULL},
   {"PCB height", MIN_SIZE, MAX_COORD, 100, 0, NULL, NULL}
 };
@@ -273,6 +277,8 @@ SizeDialog (void)
   Sliders[DRCWID_SLIDER].Value = Settings.minWid;
   Sliders[SHRINK_SLIDER].Value = Settings.Shrink;
   Sliders[DRCSLK_SLIDER].Value = Settings.minSlk;
+  Sliders[DRCDRILL_SLIDER].Value = Settings.minDrill;
+  Sliders[DRCRING_SLIDER].Value = Settings.minRing;
   Sliders[WIDTH_SLIDER].Value = PCB->MaxWidth;
   Sliders[HEIGHT_SLIDER].Value = PCB->MaxHeight;
 
@@ -359,6 +365,8 @@ SizeDialog (void)
       Settings.Bloat = Sliders[BLOAT_SLIDER].Value -1;
       Settings.minWid = Sliders[DRCWID_SLIDER].Value;
       Settings.minSlk = Sliders[DRCSLK_SLIDER].Value;
+      Settings.minDrill = Sliders[DRCDRILL_SLIDER].Value;
+      Settings.minRing = Sliders[DRCRING_SLIDER].Value;
       Settings.Shrink = Sliders[SHRINK_SLIDER].Value;
       /* set new maximum size and update scrollbars */
       if (PCB->MaxWidth != Sliders[WIDTH_SLIDER].Value ||
@@ -400,6 +408,8 @@ StyleSizeDialog (int index)
   Sliders[BLOAT_SLIDER].Value = Settings.Bloat +1;
   Sliders[DRCWID_SLIDER].Value = Settings.minWid;
   Sliders[DRCSLK_SLIDER].Value = Settings.minSlk;
+  Sliders[DRCDRILL_SLIDER].Value = Settings.minDrill;
+  Sliders[DRCRING_SLIDER].Value = Settings.minRing;
   Sliders[SHRINK_SLIDER].Value = Settings.Shrink;
 
   sprintf (styleName, "'%s' Sizes", PCB->RouteStyle[index].Name);
