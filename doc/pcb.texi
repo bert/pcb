@@ -29,7 +29,7 @@ Copyright (C) 1994,1995,1996, 2004 Thomas Nau
 
 Copyright (C) 1997, 1998, 1999, 2000, 2001, 2002 harry eaton
 
-Copyright (C) 2003, 2004, 2005 Dan McMahill
+Copyright (C) 2003, 2004, 2005, 2006 Dan McMahill
 
 Copyright (C) 2004 DJ Delorie
 
@@ -81,6 +81,7 @@ board layout system for @code{X11}.
 * Regular Expressions::    Searching for elements with regular expressions
 * Standard Drill Sizes::   Tables of standard drill sizes
 * Centroid File Format::   Details of the centroid (x-y) output file
+* Glossary::               Glossary
 * Index::                  The Index.
 @end menu
 
@@ -1720,6 +1721,15 @@ you can position the cursor over the object, press @emph{<Key>[},
 move it with the arrow keys, then press @emph{<Key>]} when it's at the
 desired position.  Remember that all movements are forced onto grid coordinates, so
 you may want to change the grid spacing first.
+
+@cindex moving, traces to a different layer
+@cindex changing layers
+To move a trace or group of traces to a different layer, first select
+the tracks to be moved.  It's easiest to do this if you shut off everything
+but that layer first (i.e. silk, pins, other layers, etc).
+Now set the current layer to be the new layer.  
+Press Shift-M to move all the selected tracks to the current layer.
+See the @emph{MoveToCurrentLayer} action for more details.
 
 @node Loading and Saving, Printing, Moving and Copying, Getting Started
 @section Loading and Saving
@@ -4301,10 +4311,11 @@ format.
 
 In practice it is very common for footprint libraries to contain
 elements which have been defined in various versions of the @code{Pcb}
-file format.  When faced with trying to understand an older element
+file format.  When faced with trying to understand an element
 file or layout file, the best approach is to examine the file
 @file{src/parse_y.y} which is the definitive definition of the 
-file format.
+file format.  Future versions of this manual may incorporate a more
+exhaustive file format specification.
 
 @example
 File            = Header Font PCBData
@@ -5860,7 +5871,7 @@ Enter "R128+".
 @include metric_size.texi
 
 @c --------------------------- Appendix -- Centroid File Format ----------------------
-@node Centroid File Format, Index, Standard Drill Sizes, Top
+@node Centroid File Format, Glossary, Standard Drill Sizes, Top
 @cindex centroid file format
 @cindex x-y file format
 @appendix Centroid (X-Y) File Format
@@ -5926,8 +5937,32 @@ for the definitions of rotation.  In other words, when pin #1 is at
 the centroid of the part and pin #2 is in the upper left quadrant, the
 rotation is declared to be zero degrees.
 
+@c --------------------------- Appendix -- Glossary ----------------------
+@node Glossary, Index, Centroid File Format, Top
+@cindex glossary
+@cindex terminology
+@cindex index of terms
+@appendix Glossary
+
+@table @asis
+
+@item Footprint
+The pattern of metal, silkscreen, soldermask relief, and drills which
+defines where you place a component on a circuit board.
+Footprints are the placed by the user onto the PC board during the
+placement phase of PCB layout.
+
+@item Gerber File
+The file format used in the industry to convey a board database to the
+manufacturer is RS-274-X (which replaces the now obsolete RS-274-D
+format).  This file format was originally developed by Gerber for
+their photo plotters and thus RS-274-D and RS-274-X format files 
+are often times refered to as ``Gerber'' files.
+
+@end table
+
 @c ---------------------------------------------------------------------
-@node Index, , Centroid File Format, Top
+@node Index, , Glossary, Top
 @unnumbered Index of Resources
 @printindex vr
 
