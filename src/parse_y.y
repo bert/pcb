@@ -281,14 +281,14 @@ pcbthermal
 		;
 
 pcbdrc
-		: pcbdrc1
+		: 
+		| pcbdrc1
 		| pcbdrc2
 		| pcbdrc3
 		;
 
 pcbdrc1
-                :
-		| T_DRC '[' NUMBER NUMBER NUMBER ']'
+                : T_DRC '[' NUMBER NUMBER NUMBER ']'
 		        {
 				yyPCB->Bloat = $3;
 				yyPCB->Shrink = $4;
@@ -297,8 +297,7 @@ pcbdrc1
 		;
 
 pcbdrc2
-                :
-		| T_DRC '[' NUMBER NUMBER NUMBER NUMBER ']'
+                : T_DRC '[' NUMBER NUMBER NUMBER NUMBER ']'
 		        {
 				yyPCB->Bloat = $3;
 				yyPCB->Shrink = $4;
@@ -308,8 +307,7 @@ pcbdrc2
 		;
 
 pcbdrc3
-                :
-		| T_DRC '[' NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER ']'
+                : T_DRC '[' NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER ']'
 		        {
 				yyPCB->Bloat = $3;
 				yyPCB->Shrink = $4;
