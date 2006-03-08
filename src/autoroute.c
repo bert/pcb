@@ -73,7 +73,7 @@
 #include "undo.h"
 #include "vector.h"
 
-RCSID("$Id$");
+RCSID ("$Id$");
 
 /* #defines to enable some debugging output */
 #define ROUTE_VERBOSE
@@ -458,7 +458,8 @@ RemoveFromNet (routebox_t * a, enum boxlist which)
 
 static void
 init_const_box (routebox_t * rb,
-		LocationType X1, LocationType Y1, LocationType X2, LocationType Y2)
+		LocationType X1, LocationType Y1, LocationType X2,
+		LocationType Y2)
 {
   BoxType *bp = (BoxType *) & rb->box;	/* note discarding const! */
   assert (!rb->flags.inited);
@@ -535,7 +536,7 @@ AddPad (PointerListType layergroupboxes[],
 {
   BDimension halfthick;
   routebox_t **rbpp;
-  int layergroup = TEST_FLAG (ONSOLDERFLAG, element) ? back : front;
+  int layergroup = TEST_FLAG (ONSOLDERFLAG, pad) ? back : front;
   assert (0 <= layergroup && layergroup < MAX_LAYER);
   assert (PCB->LayerGroups.Number[layergroup] > 0);
   rbpp = (routebox_t **) GetPointerMemory (&layergroupboxes[layergroup]);
@@ -604,7 +605,8 @@ AddLine (PointerListType layergroupboxes[], int layer, LineTypePtr line)
 static routebox_t *
 AddIrregularObstacle (PointerListType layergroupboxes[],
 		      LocationType X1, LocationType Y1,
-		      LocationType X2, LocationType Y2, Cardinal layer, void *parent)
+		      LocationType X2, LocationType Y2, Cardinal layer,
+		      void *parent)
 {
   routebox_t **rbpp;
   int layergroup;
@@ -617,7 +619,7 @@ AddIrregularObstacle (PointerListType layergroupboxes[],
   assert (PCB->LayerGroups.Number[layergroup] > 0);
 
   rbpp = (routebox_t **) GetPointerMemory (&layergroupboxes[layergroup]);
-  *rbpp = g_malloc0(sizeof (**rbpp));
+  *rbpp = g_malloc0 (sizeof (**rbpp));
   (*rbpp)->group = layergroup;
   init_const_box (*rbpp, X1, Y1, X2, Y2);
   (*rbpp)->flags.nonstraight = 1;
@@ -806,7 +808,7 @@ CreateRouteData ()
 	}
     }
   /* create routedata */
-  rd = g_malloc0(sizeof (*rd));
+  rd = g_malloc0 (sizeof (*rd));
   /* create default style */
   rd->defaultStyle.Thick = Settings.LineThickness;
   rd->defaultStyle.Diameter = Settings.ViaThickness;
@@ -1044,9 +1046,9 @@ ResetSubnet (routebox_t * net)
 
 static cost_t
 cost_to_point_on_layer (const CheapPointType * p1,
-	       const CheapPointType * p2, Cardinal point_layer)
+			const CheapPointType * p2, Cardinal point_layer)
 {
-  cost_t x_dist = ABS (p1->X - p2->X), y_dist = ABS (p1->Y - p2->Y), r=0;
+  cost_t x_dist = ABS (p1->X - p2->X), y_dist = ABS (p1->Y - p2->Y), r = 0;
   if (bad_x[point_layer])
     x_dist *= AutoRouteParameters.DirectionPenalty;
   else if (bad_y[point_layer])
@@ -1055,7 +1057,7 @@ cost_to_point_on_layer (const CheapPointType * p1,
   r = x_dist + y_dist;
   /* penalize the surface layers in order to minimize SMD pad congestion */
   if (point_layer == front || point_layer == back)
-      r *= AutoRouteParameters.SurfacePenalty;
+    r *= AutoRouteParameters.SurfacePenalty;
   return r;
 }
 
@@ -1128,9 +1130,9 @@ showbox (BoxType b, Dimension thickness, int group)
   LineTypePtr line;
   LayerTypePtr SLayer = LAYER_PTR (group);
 
-  gdk_gc_set_line_attributes(Output.fgGC, thickness,
-			GDK_LINE_SOLID, GDK_CAP_ROUND, GDK_JOIN_ROUND);
-  gdk_gc_set_foreground(Output.fgGC, SLayer->Color);
+  gdk_gc_set_line_attributes (Output.fgGC, thickness,
+			      GDK_LINE_SOLID, GDK_CAP_ROUND, GDK_JOIN_ROUND);
+  gdk_gc_set_foreground (Output.fgGC, SLayer->Color);
 
   XDrawCLine (Output.top_window->window, Output.fgGC, b.X1, b.Y1, b.X2, b.Y1);
   XDrawCLine (Output.top_window->window, Output.fgGC, b.X1, b.Y2, b.X2, b.Y2);
@@ -1180,9 +1182,9 @@ showedge (edge_t * e)
 {
   BoxType *b = (BoxType *) e->rb;
 
-  gdk_gc_set_line_attributes(Output.fgGC, 1,
-			GDK_LINE_SOLID, GDK_CAP_ROUND, GDK_JOIN_ROUND);
-  gdk_gc_set_foreground(Output.fgGC, &Settings.MaskColor);
+  gdk_gc_set_line_attributes (Output.fgGC, 1,
+			      GDK_LINE_SOLID, GDK_CAP_ROUND, GDK_JOIN_ROUND);
+  gdk_gc_set_foreground (Output.fgGC, &Settings.MaskColor);
 
   switch (e->expand_dir)
     {
@@ -1235,9 +1237,9 @@ EraseRouteBox (routebox_t * rb)
       X1 = rb->box.X1 + thick / 2;
       X2 = rb->box.X2 - thick / 2;
     }
-  gdk_gc_set_line_attributes(Output.fgGC, TO_SCREEN (thick),
-			GDK_LINE_SOLID, GDK_CAP_ROUND, GDK_JOIN_ROUND);
-  gdk_gc_set_foreground(Output.fgGC, &Settings.BackgroundColor);
+  gdk_gc_set_line_attributes (Output.fgGC, TO_SCREEN (thick),
+			      GDK_LINE_SOLID, GDK_CAP_ROUND, GDK_JOIN_ROUND);
+  gdk_gc_set_foreground (Output.fgGC, &Settings.BackgroundColor);
 
   XDrawCLine (Output.top_window->window, Output.fgGC, X1, Y1, X2, Y2);
 }
@@ -1340,7 +1342,7 @@ CreateEdge (routebox_t * rb,
 {
   edge_t *e;
   assert (__routebox_is_good (rb));
-  e = g_malloc0(sizeof (*e));
+  e = g_malloc0 (sizeof (*e));
   assert (e);
   e->rb = rb;
   if (rb->flags.orphan)
@@ -1452,7 +1454,7 @@ CreateViaEdge (const BoxType * area, Cardinal group,
       d =
 	(scale[to_site_conflict] *
 	 cost_to_point_on_layer (&costpoint, &previous_edge->cost_point,
-			previous_edge->rb->group)) +
+				 previous_edge->rb->group)) +
 	(scale[through_site_conflict] *
 	 cost_to_point (&costpoint, group, &costpoint,
 			previous_edge->rb->group));
@@ -1489,7 +1491,7 @@ CreateEdgeWithConflicts (const BoxType * interior_edge,
   rb->underlying = container;	/* crucial! */
   costpoint = closest_point_in_box (&previous_edge->cost_point, &b);
   d = cost_to_point_on_layer (&costpoint, &previous_edge->cost_point,
-                              previous_edge->rb->group);
+			      previous_edge->rb->group);
   d *= cost_penalty_to_box;
   ne = CreateEdge (rb, costpoint.X, costpoint.Y, previous_edge->cost_to_point + d, previous_edge->mincost_target, NORTH	/*arbitrary */
 		   , targets);
@@ -1702,7 +1704,7 @@ CreateExpansionArea (const BoxType * area, Cardinal group,
 		     edge_t * src_edge)
 {
   CheapPointType center;
-  routebox_t *rb = (routebox_t *) g_malloc0(sizeof (*rb));
+  routebox_t *rb = (routebox_t *) g_malloc0 (sizeof (*rb));
   assert (area && parent);
   init_const_box (rb, area->X1, area->Y1, area->X2, area->Y2);
   rb->group = group;
@@ -1721,7 +1723,7 @@ CreateExpansionArea (const BoxType * area, Cardinal group,
   center.Y = (area->Y1 + area->Y2) / 2;
   rb->cost =
     src_edge->cost_to_point + cost_to_point_on_layer (&src_edge->cost_point,
-					     &center, group);
+						      &center, group);
   InitLists (rb);
 #if defined(ROUTE_DEBUG) && defined(DEBUG_SHOW_EXPANSION_BOXES)
   showroutebox (rb);
@@ -2051,8 +2053,7 @@ ExpandAllEdges (edge_t * e, vector_t * result_vec,
 	  assert (0);
 	}
       cost = cost_penalty_in_box *
-	cost_to_point_on_layer (&e->cost_point, &costpoint,
-		       e->rb->group);
+	cost_to_point_on_layer (&e->cost_point, &costpoint, e->rb->group);
       vector_append (result_vec,
 		     CreateEdge (e->rb, costpoint.X, costpoint.Y,
 				 e->cost_to_point + cost, e->mincost_target,
@@ -2150,8 +2151,8 @@ BreakEdges (routedata_t * rd, vector_t * edge_vec, rtree_t * targets)
 						       e->rb->group, parent,
 						       False, e);
 		ne = CreateEdge2 (nrb, e->expand_dir, e, targets, NULL);
-	  if (!e->rb->flags.circular)
-	    nrb->flags.source = e->rb->flags.source;
+		if (!e->rb->flags.circular)
+		  nrb->flags.source = e->rb->flags.source;
 		nrb->flags.nobloat = e->rb->flags.nobloat;
 		/* adjust cost */
 		ne->cost_to_point = e->rb->flags.source ? e->cost_to_point :
@@ -2199,7 +2200,7 @@ RD_DrawThermal (routedata_t * rd, LocationType X, LocationType Y,
 		Boolean is_bad)
 {
   routebox_t *rb;
-  rb = (routebox_t *) g_malloc0(sizeof (*rb));
+  rb = (routebox_t *) g_malloc0 (sizeof (*rb));
   init_const_box (rb, X, Y, X + 1, Y + 1);
   rb->group = group;
   rb->layer = layer;
@@ -2229,7 +2230,7 @@ RD_DrawVia (routedata_t * rd, LocationType X, LocationType Y,
     {
       if (!is_layer_group_active (i))
 	continue;
-      rb = (routebox_t *) g_malloc0(sizeof (*rb));
+      rb = (routebox_t *) g_malloc0 (sizeof (*rb));
       init_const_box (rb,
 		      /*X1 */ X - radius, /*Y1 */ Y - radius,
 		      /*X2 */ X + radius, /*Y2 */ Y + radius);
@@ -2257,11 +2258,12 @@ RD_DrawVia (routedata_t * rd, LocationType X, LocationType Y,
       assert (__routebox_is_good (rb));
       /* and add it to the r-tree! */
       r_insert_entry (rd->layergrouptree[rb->group], &rb->box, 1);
-      if (TEST_FLAG(LIVEROUTEFLAG, PCB))
+      if (TEST_FLAG (LIVEROUTEFLAG, PCB))
 	{
-	  gdk_gc_set_line_attributes(Output.fgGC, TO_SCREEN (2 * radius),
-				GDK_LINE_SOLID, GDK_CAP_ROUND, GDK_JOIN_ROUND);
-	  gdk_gc_set_foreground(Output.fgGC, PCB->ViaColor);
+	  gdk_gc_set_line_attributes (Output.fgGC, TO_SCREEN (2 * radius),
+				      GDK_LINE_SOLID, GDK_CAP_ROUND,
+				      GDK_JOIN_ROUND);
+	  gdk_gc_set_foreground (Output.fgGC, PCB->ViaColor);
 
 	  XDrawCLine (Output.top_window->window, Output.fgGC, X, Y, X, Y);
 	}
@@ -2273,15 +2275,15 @@ RD_DrawVia (routedata_t * rd, LocationType X, LocationType Y,
 }
 static void
 RD_DrawLine (routedata_t * rd,
-	     LocationType X1, LocationType Y1, LocationType X2, LocationType Y2,
-	     BDimension halfthick, Cardinal group,
+	     LocationType X1, LocationType Y1, LocationType X2,
+	     LocationType Y2, BDimension halfthick, Cardinal group,
 	     routebox_t * subnet, Boolean is_bad, Boolean is_45)
 {
   routebox_t *rb;
   /* don't draw zero-length segments. */
   if (X1 == X2 && Y1 == Y2)
     return;
-  rb = (routebox_t *) g_malloc0(sizeof (*rb));
+  rb = (routebox_t *) g_malloc0 (sizeof (*rb));
   assert (is_45 ? (ABS (X2 - X1) == ABS (Y2 - Y1))	/* line must be 45-degrees */
 	  : (X1 == X2 || Y1 == Y2) /* line must be ortho */ );
   init_const_box (rb,
@@ -2305,13 +2307,14 @@ RD_DrawLine (routedata_t * rd,
   assert (__routebox_is_good (rb));
   /* and add it to the r-tree! */
   r_insert_entry (rd->layergrouptree[rb->group], &rb->box, 1);
-  if (TEST_FLAG(LIVEROUTEFLAG, PCB))
+  if (TEST_FLAG (LIVEROUTEFLAG, PCB))
     {
       LayerTypePtr layp = LAYER_PTR (PCB->LayerGroups.Entries[rb->group][0]);
 
-      gdk_gc_set_line_attributes(Output.fgGC, TO_SCREEN (2 * halfthick),
-			GDK_LINE_SOLID, GDK_CAP_ROUND, GDK_JOIN_ROUND);
-      gdk_gc_set_foreground(Output.fgGC, layp->Color);
+      gdk_gc_set_line_attributes (Output.fgGC, TO_SCREEN (2 * halfthick),
+				  GDK_LINE_SOLID, GDK_CAP_ROUND,
+				  GDK_JOIN_ROUND);
+      gdk_gc_set_foreground (Output.fgGC, layp->Color);
       XDrawCLine (Output.top_window->window, Output.fgGC, X1, Y1, X2, Y2);
     }
   /* and to the via space structures */
@@ -3245,8 +3248,7 @@ RouteOne (routedata_t * rd, routebox_t * from, routebox_t * to, int max_edges)
 	      center.X = (next->box.X1 + next->box.X2) / 2;
 	      center.Y = (next->box.Y1 + next->box.Y2) / 2;
 	      cost =
-		cost_to_point_on_layer (&e->cost_point, &center,
-			       next->group);
+		cost_to_point_on_layer (&e->cost_point, &center, next->group);
 	      /* don't expand this edge, but check if we found a cheaper way here */
 	      /*XXX prevent loops */
 	      if (next->cost >= e->cost_to_point + cost);
@@ -3461,7 +3463,7 @@ RouteAll (routedata_t * rd)
 		    mtspace_remove (rd->mtspace, &p->box,
 				    p->flags.is_odd ? ODD : EVEN,
 				    p->augStyle->style->Keepaway);
-		  if (TEST_FLAG(LIVEROUTEFLAG, PCB)
+		  if (TEST_FLAG (LIVEROUTEFLAG, PCB)
 		      && (p->type == LINE || p->type == VIA))
 		    EraseRouteBox (p);
 		  r_delete_entry (rd->layergrouptree[p->group], &p->box);
@@ -3678,7 +3680,7 @@ IronDownAllUnfixedPaths (routedata_t * rd)
 	      p->parent.line = CreateDrawnLineOnLayer
 		(layer, b.X1, b.Y1, b.X2, b.Y2,
 		 p->augStyle->style->Thick,
-		 p->augStyle->style->Keepaway, MakeFlags(AUTOFLAG));
+		 p->augStyle->style->Keepaway, MakeFlags (AUTOFLAG));
 	      if (p->parent.line)
 		{
 		  AddObjectToCreateUndoList (LINE_TYPE, layer,
@@ -3702,7 +3704,7 @@ IronDownAllUnfixedPaths (routedata_t * rd)
 				  pp->augStyle->style->Diameter,
 				  2 * pp->augStyle->style->Keepaway,
 				  0, pp->augStyle->style->Hole, NULL,
-				  MakeFlags(AUTOFLAG));
+				  MakeFlags (AUTOFLAG));
 		  assert (pp->parent.via);
 		  if (pp->parent.via)
 		    {
