@@ -4829,6 +4829,13 @@ ChangeFlag (char *what, char *flag_name, int value, char *cmd_name)
       set_object = value ? SetObjectThermal : ClrObjectThermal;
       set_selected = value ? SetSelectedThermals : ClrSelectedThermals;
     }
+  else if (NSTRCMP (flag_name, "join") == 0)
+    {
+      /* Note: these are backwards, because the flag is "clear" but
+	 the command is "join".  */
+      set_object = value ? ClrObjectJoin : SetObjectJoin;
+      set_selected = value ? ClrSelectedJoin : SetSelectedJoin;
+    }
   else
     {
       Message (_("%s():  Flag \"%s\" is not valid\n"), cmd_name, flag_name);

@@ -71,6 +71,8 @@ Boolean	ChangeSelectedClearSize(int, LocationType, Boolean);
 Boolean	ChangeSelected2ndSize(int, LocationType, Boolean);
 Boolean	ChangeSelectedMaskSize(int, LocationType, Boolean);
 Boolean	ChangeSelectedJoin(int); 
+Boolean	SetSelectedJoin(int); 
+Boolean	ClrSelectedJoin(int); 
 Boolean	ChangeSelectedSquare(int); 
 Boolean	SetSelectedSquare(int); 
 Boolean	ClrSelectedSquare(int); 
@@ -92,6 +94,8 @@ Boolean	ChangeObjectClearSize(int, void *, void *, void *, LocationType, Boolean
 Boolean	ChangeObject2ndSize(int, void *, void *, void *, LocationType, Boolean, Boolean);
 Boolean	ChangeObjectMaskSize(int, void *, void *, void *, LocationType, Boolean);
 Boolean	ChangeObjectJoin(int, void *, void *, void *);
+Boolean	SetObjectJoin(int, void *, void *, void *);
+Boolean	ClrObjectJoin(int, void *, void *, void *);
 Boolean	ChangeObjectSquare(int, void *, void *, void *);
 Boolean	SetObjectSquare(int, void *, void *, void *);
 Boolean	ClrObjectSquare(int, void *, void *, void *);

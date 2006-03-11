@@ -114,7 +114,11 @@ static void *ChangePinThermal (ElementTypePtr, PinTypePtr);
 static void *SetPinThermal (ElementTypePtr, PinTypePtr);
 static void *ClrPinThermal (ElementTypePtr, PinTypePtr);
 static void *ChangeLineJoin (LayerTypePtr, LineTypePtr);
+static void *SetLineJoin (LayerTypePtr, LineTypePtr);
+static void *ClrLineJoin (LayerTypePtr, LineTypePtr);
 static void *ChangeArcJoin (LayerTypePtr, ArcTypePtr);
+static void *SetArcJoin (LayerTypePtr, ArcTypePtr);
+static void *ClrArcJoin (LayerTypePtr, ArcTypePtr);
 static void *ChangePolyClear (LayerTypePtr, PolygonTypePtr);
 
 /* ---------------------------------------------------------------------------
@@ -281,6 +285,20 @@ static ObjectFunctionType SetSquareFunctions = {
   NULL,
   NULL
 };
+static ObjectFunctionType SetJoinFunctions = {
+  SetLineJoin,
+  NULL,
+  NULL,
+  NULL,
+  NULL,
+  NULL,
+  NULL,
+  NULL,
+  NULL,
+  NULL,
+  SetArcJoin,
+  NULL
+};
 static ObjectFunctionType SetOctagonFunctions = {
   NULL,
   NULL,
@@ -321,6 +339,20 @@ static ObjectFunctionType ClrSquareFunctions = {
   NULL,
   NULL,
   NULL,
+  NULL
+};
+static ObjectFunctionType ClrJoinFunctions = {
+  ClrLineJoin,
+  NULL,
+  NULL,
+  NULL,
+  NULL,
+  NULL,
+  NULL,
+  NULL,
+  NULL,
+  NULL,
+  ClrArcJoin,
   NULL
 };
 static ObjectFunctionType ClrOctagonFunctions = {
@@ -1113,6 +1145,36 @@ ChangeLineJoin (LayerTypePtr Layer, LineTypePtr Line)
 }
 
 /* ---------------------------------------------------------------------------
+ * changes the clearance flag of a line
+ */
+static void *
+SetLineJoin (LayerTypePtr Layer, LineTypePtr Line)
+{
+  if (TEST_FLAG (LOCKFLAG, Line))
+    return (NULL);
+  EraseLine (Line);
+  AddObjectToFlagUndoList (LINE_TYPE, Layer, Line, Line);
+  SET_FLAG (CLEARLINEFLAG, Line);
+  DrawLine (Layer, Line, 0);
+  return (Line);
+}
+
+/* ---------------------------------------------------------------------------
+ * changes the clearance flag of a line
+ */
+static void *
+ClrLineJoin (LayerTypePtr Layer, LineTypePtr Line)
+{
+  if (TEST_FLAG (LOCKFLAG, Line))
+    return (NULL);
+  EraseLine (Line);
+  AddObjectToFlagUndoList (LINE_TYPE, Layer, Line, Line);
+  CLEAR_FLAG (CLEARLINEFLAG, Line);
+  DrawLine (Layer, Line, 0);
+  return (Line);
+}
+
+/* ---------------------------------------------------------------------------
  * changes the clearance flag of an arc
  */
 static void *
@@ -1123,6 +1185,36 @@ ChangeArcJoin (LayerTypePtr Layer, ArcTypePtr Arc)
   EraseArc (Arc);
   AddObjectToFlagUndoList (ARC_TYPE, Layer, Arc, Arc);
   TOGGLE_FLAG (CLEARLINEFLAG, Arc);
+  DrawArc (Layer, Arc, 0);
+  return (Arc);
+}
+
+/* ---------------------------------------------------------------------------
+ * changes the clearance flag of an arc
+ */
+static void *
+SetArcJoin (LayerTypePtr Layer, ArcTypePtr Arc)
+{
+  if (TEST_FLAG (LOCKFLAG, Arc))
+    return (NULL);
+  EraseArc (Arc);
+  AddObjectToFlagUndoList (ARC_TYPE, Layer, Arc, Arc);
+  SET_FLAG (CLEARLINEFLAG, Arc);
+  DrawArc (Layer, Arc, 0);
+  return (Arc);
+}
+
+/* ---------------------------------------------------------------------------
+ * changes the clearance flag of an arc
+ */
+static void *
+ClrArcJoin (LayerTypePtr Layer, ArcTypePtr Arc)
+{
+  if (TEST_FLAG (LOCKFLAG, Arc))
+    return (NULL);
+  EraseArc (Arc);
+  AddObjectToFlagUndoList (ARC_TYPE, Layer, Arc, Arc);
+  CLEAR_FLAG (CLEARLINEFLAG, Arc);
   DrawArc (Layer, Arc, 0);
   return (Arc);
 }
@@ -1622,6 +1714,42 @@ ChangeSelectedJoin (int types)
 }
 
 /* ----------------------------------------------------------------------
+ * changes the clearance flag (join) of all selected and visible lines
+ * and/or arcs. Returns True if anything has changed
+ */
+Boolean
+SetSelectedJoin (int types)
+{
+  Boolean change = False;
+
+  change = SelectedOperation (&SetJoinFunctions, False, types);
+  if (change)
+    {
+      Draw ();
+      IncrementUndoSerialNumber ();
+    }
+  return (change);
+}
+
+/* ----------------------------------------------------------------------
+ * changes the clearance flag (join) of all selected and visible lines
+ * and/or arcs. Returns True if anything has changed
+ */
+Boolean
+ClrSelectedJoin (int types)
+{
+  Boolean change = False;
+
+  change = SelectedOperation (&ClrJoinFunctions, False, types);
+  if (change)
+    {
+      Draw ();
+      IncrementUndoSerialNumber ();
+    }
+  return (change);
+}
+
+/* ----------------------------------------------------------------------
  * changes the square-flag of all selected and visible pins or pads
  * returns True if anything has changed
  */
@@ -1940,6 +2068,38 @@ Boolean
 ChangeObjectJoin (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
 {
   if (ObjectOperation (&ChangeJoinFunctions, Type, Ptr1, Ptr2, Ptr3) != NULL)
+    {
+      Draw ();
+      IncrementUndoSerialNumber ();
+      return (True);
+    }
+  return (False);
+}
+
+/* ---------------------------------------------------------------------------
+ * sets the clearance-flag of the passed object
+ * Returns True if anything is changed
+ */
+Boolean
+SetObjectJoin (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
+{
+  if (ObjectOperation (&SetJoinFunctions, Type, Ptr1, Ptr2, Ptr3) != NULL)
+    {
+      Draw ();
+      IncrementUndoSerialNumber ();
+      return (True);
+    }
+  return (False);
+}
+
+/* ---------------------------------------------------------------------------
+ * clears the clearance-flag of the passed object
+ * Returns True if anything is changed
+ */
+Boolean
+ClrObjectJoin (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
+{
+  if (ObjectOperation (&ClrJoinFunctions, Type, Ptr1, Ptr2, Ptr3) != NULL)
     {
       Draw ();
       IncrementUndoSerialNumber ();
