@@ -101,6 +101,24 @@ parse
 		| parsefont
 		| error { YYABORT; }
 		;
+
+/* %start-doc pcbfile 00pcb
+
+A special note about units: Older versions of @code{pcb} used mils
+(1/1000 inch) as the base unit; a value of 500 in the file meant
+half an inch.  Newer versions uses a "high resolution" syntax,
+where the base unit is 1/100 of a mil (0.000010 inch); a value of 500 in
+the file means 5 mils.  As a general rule, the variants of each entry
+listed below which use square brackets are the high resolution formats
+and use the 1/100 mil units, and the ones with parentheses are the older
+variants and use 1 mil units.  Note that when multiple variants
+are listed, the most recent (and most preferred) format is the first
+listed.
+
+Symbolic and numeric flags (SFlags and NFlags) are described in
+@ref{Object Flags}.
+
+%end-doc */
 		
 parsepcb
 		:	{
@@ -177,6 +195,26 @@ parsefont
 			}
 		;
 
+/* %start-doc pcbfile pcb
+
+@syntax
+PCB ["Name" Width Height]
+PCB ("Name" Width Height]
+PCB ("Name")
+@end syntax
+
+@table @var
+@item Name
+Name of the PCB project
+@item Width Height
+Size of the board
+@end table
+
+If you don't specify the size of the board, a very large default is
+chosen.
+
+%end-doc */
+
 pcbname
 		: T_PCB '(' STRING ')'
 			{
@@ -197,6 +235,26 @@ pcbname
 				yyPCB->MaxHeight = $5;
 			}
 		;	
+
+/* %start-doc pcbfile grid
+
+@syntax
+Grid [Step OffsetX OffsetY Visible]
+Grid (Step OffsetX OffsetY Visible)
+Grid (Step OffsetX OffsetY)
+@end syntax
+
+@table @var
+@item Step
+Distance from one grid point to adjacent points.  This value may be a
+floating point number for the first two variants.
+@item OffsetX OffsetY
+The "origin" of the grid.  Normally zero.
+@item Visible
+If non-zero, the grid will be visible on the screen.
+@end table
+
+%end-doc */
 
 pcbgrid
 		: pcbgridold
@@ -250,6 +308,25 @@ pcbhigrid
 			}
 		;
 
+/* %start-doc pcbfile cursor
+
+@syntax
+Cursor [X Y Zoom]
+Cursor (X Y Zoom)
+@end syntax
+
+@table @var
+@item X Y
+Location of the cursor when the board was saved.
+@item Zoom
+The current zoom factor.  Note that a zoom factor of "0" means 1 mil
+per screen pixel, N means @math{2^N} mils per screen pixel, etc.  The
+first variant accepts floating point numbers.  The special value
+"1000" means "zoom to fit"
+@end table
+
+%end-doc */
+
 pcbcursor
 		: T_CURSOR '(' NUMBER NUMBER NUMBER ')'
 			{
@@ -272,6 +349,20 @@ pcbcursor
 		|
 		;
 
+/* %start-doc pcbfile thermal
+
+@syntax
+Thermal [Scale]
+@end syntax
+
+@table @var
+@item Scale
+Relative size of thermal fingers.  A value of 1.0 makes the finger width twice
+the annulus width (copper diameter minus drill diameter).  The normal value is 0.5.
+@end table
+
+%end-doc */
+
 pcbthermal
 		:
 		| T_THERMAL '[' FLOAT ']'
@@ -279,6 +370,31 @@ pcbthermal
 				yyPCB->ThermScale = $3;
 			}
 		;
+
+/* %start-doc pcbfile drc
+
+@syntax
+DRC [Bloat Shrink Line Silk Drill Ring]
+DRC [Bloat Shrink Line Silk]
+DRC [Bloat Shrink Line]
+@end syntax
+
+@table @var
+@item Bloat
+Minimum spacing between copper.
+@item Shrink
+Minimum copper overlap to guarantee connectivity.
+@item Line
+Minimum line thickness.
+@item Silk
+Minimum silk thickness.
+@item Drill
+Minimum drill size.
+@item Ring
+Minimum width of the annular ring around pins and vias.
+@end table
+
+%end-doc */
 
 pcbdrc
 		: 
@@ -318,6 +434,21 @@ pcbdrc3
 			}
 		;
 
+/* %start-doc pcbfile flags
+
+@syntax
+Flags(Number)
+@end syntax
+
+@table @var
+@item Number
+A number, whose value is normally given in hex, individual bits of which
+represent pcb-wide flags as defined in @ref{PCBFlags}.
+
+@end table
+
+%end-doc */
+
 pcbflags
 		: T_FLAGS '(' NUMBER ')'
 			{
@@ -325,6 +456,30 @@ pcbflags
 			}
 		|
 		;
+
+/* %start-doc pcbfile groups
+
+@syntax
+Groups("String")
+@end syntax
+
+@table @var
+@item String
+
+Encodes the layer grouping information.  Each group is separated by a
+colon, each member of each group is separated by a comma.  Group
+members are either numbers from @code{1}..@var{N} for each layer, and
+the letters @code{c} or @code{s} representing the component side and
+solder side of the board.  Including @code{c} or @code{s} marks that
+group as being the top or bottom side of the board.
+
+@example
+Groups("1,2,c:3:4:5,6,s:7,8")
+@end example
+
+@end table
+
+%end-doc */
 
 pcbgroups
 		: T_GROUPS '(' STRING ')'
@@ -337,6 +492,47 @@ pcbgroups
 			}
 		|
 		;
+
+/* %start-doc pcbfile styles
+
+@syntax
+Styles("String")
+@end syntax
+
+@table @var
+@item String
+
+Encodes the four routing styles @code{pcb} knows about.  The four styles
+are separated by colons.  Each style consists of five parameters as follows:
+
+@table @var
+@item Name
+The name of the style.
+@item Thickness
+Width of lines and arcs.
+@item Diameter
+Copper diameter of pins and vias.
+@item Drill
+Drill diameter of pins and vias.
+@item Keepaway
+Minimum spacing to other nets.  If omitted, 10 mils is the default.
+
+@end table
+
+@end table
+
+@example
+Styles("Signal,10,40,20:Power,25,60,35:Fat,40,60,35:Skinny,8,36,20")
+Styles["Logic,1000,3600,2000,1000:Power,2500,6000,3500,1000:
+@ @ @ Line,4000,6000,3500,1000:Breakout,600,2402,1181,600"]
+@end example
+
+@noindent
+Note that strings in actual files cannot span lines; the above example
+is split across lines only to make it readable.
+
+%end-doc */
+
 pcbstyles
 		: T_STYLES '(' STRING ')'
 			{
@@ -389,6 +585,37 @@ via
 		| via_newformat
 		| via_oldformat
 		;
+
+/* %start-doc pcbfile via
+
+@syntax
+Via [X Y Thickness Clearance Mask Drill "Name" SFlags]
+Via (X Y Thickness Clearance Mask Drill "Name" NFlags)
+Via (X Y Thickness Clearance Drill "Name" NFlags)
+Via (X Y Thickness Drill "Name" NFlags)
+Via (X Y Thickness "Name" NFlags)
+@end syntax
+
+@table @var
+@item X Y
+coordinates of center
+@item Thickness
+outer diameter of copper annulus
+@item Clearance
+add to thickness to get clearance diameter
+@item Mask
+diameter of solder mask opening
+@item Drill
+diameter of drill
+@item Name
+string, name of via (vias have names?)
+@item SFlags
+symbolic or numerical flags
+@item NFlags
+numerical flags only
+@end table
+
+%end-doc */
 
 via_hi_format
 			/* x, y, thickness, clearance, mask, drilling-hole, name, flags */
@@ -447,6 +674,26 @@ via_oldformat
 			}
 		;
 
+/* %start-doc pcbfile rat
+
+@syntax
+Rat [X1 Y1 Group1 X2 Y2 Group2 SFlags]
+Rat (X1 Y1 Group1 X2 Y2 Group2 NFlags)
+@end syntax
+
+@table @var
+@item X1 Y1 X2 Y2
+The endpoints of the rat line.
+@item Group1 Group2
+The layer group each end is connected on.
+@item SFlags
+Symbolic or numeric flags.
+@item NFlags
+Numeric flags.
+@end table
+
+%end-doc */
+
 rats
 		: T_RAT '[' NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER flags ']'
 			{
@@ -459,6 +706,28 @@ rats
 					Settings.RatThickness, OldFlags($9));
 			}
 		;
+
+/* %start-doc pcbfile layer
+
+@syntax
+Layer (LayerNum "Name") (
+@ @ @ @dots{} contents @dots{}
+)
+@end syntax
+
+@table @var
+@item LayerNum
+The layer number.  Layers are numbered sequentially, starting with 1.
+The last two layers (9 and 10 by default) are solder-side silk and
+component-side silk, in that order.
+@item Name
+The layer name.
+@item contents
+The contents of the layer, which may include lines, arcs, rectangles,
+text, and polygons.
+@end table
+
+%end-doc */
 
 layer
 			/* name */
@@ -535,6 +804,32 @@ layerdefinition
 			}
 		;
 
+/* %start-doc pcbfile line
+
+@syntax
+Line [X1 Y1 X2 Y2 Thickness Clearance SFlags]
+Line (X1 Y1 X2 Y2 Thickness Clearance NFlags)
+Line (X1 Y1 X2 Y2 Thickness NFlags)
+@end syntax
+
+@table @var
+@item X1 Y1 X2 Y2
+The end points of the line
+@item Thickness
+The width of the line
+@item Clearance
+The amount of space cleared around the line when the line passes
+through a polygon.  The clearance is added to the thickness to get the
+thickness of the clear; thus the space between the line and the
+polygon is @math{Clearance/2} wide.
+@item SFlags
+Symbolic or numeric flags
+@item NFlags
+Numeric flags.
+@end table
+
+%end-doc */
+
 line_hi_format
 			/* x1, y1, x2, y2, thickness, clearance, flags */
 		: T_LINE '[' NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER flags ']'
@@ -563,6 +858,43 @@ line_oldformat
 			}
 		;
 
+/* %start-doc pcbfile arc
+
+@syntax
+Arc [X Y Width Height Thickness Clearance StartAngle DeltaAngle SFlags]
+Arc (X Y Width Height Thickness Clearance StartAngle DeltaAngle NFlags)
+Arc (X Y Width Height Thickness StartAngle DeltaAngle NFlags)
+@end syntax
+
+@table @var
+@item X Y
+Coordinates of the center of the arc.
+@item Width Height
+The width and height, from the center to the edge.  The bounds of the
+circle of which this arc is a segment, is thus @math{2*Width} by
+@math{2*Height}.
+@item Thickness
+The width of the copper trace which forms the arc.
+@item Clearance
+The amount of space cleared around the arc when the line passes
+through a polygon.  The clearance is added to the thickness to get the
+thickness of the clear; thus the space between the arc and the polygon
+is @math{Clearance/2} wide.
+@item StartAngle
+The angle of one end of the arc, in degrees.  In PCB, an angle of zero
+points left (negative X direction), and 90 degrees points down
+(positive Y direction).
+@item DeltaAngle
+The sweep of the arc.  This may be negative.  Positive angles sweep
+counterclockwise.
+@item SFlags
+Symbolic or numeric flags.
+@item NFlags
+Numeric flags.
+@end table
+
+%end-doc */
+
 arc_hi_format
 			/* x, y, width, height, thickness, clearance, startangle, delta, flags */
 		: T_ARC '[' NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER flags ']'
@@ -588,6 +920,34 @@ arc_oldformat
 					$7*100, 200*GROUNDPLANEFRAME, OldFlags($10));
 			}
 		;
+
+/* %start-doc pcbfile text
+
+@syntax
+Text [X Y Direction Scale "String" SFlags]
+Text (X Y Direction Scale "String" NFlags)
+Text (X Y Direction "String" NFlags)
+@end syntax
+
+@table @var
+@item X Y
+The location of the upper left corner of the text.
+@item Direction
+0 means text is drawn left to right, 1 means up, 2 means right to left
+(i.e. upside down), and 3 means down.
+@item Scale
+Size of the text, as a percentage of the ``default'' size of of the
+font (the default font is about 40 mils high).  Default is 100 (40
+mils).
+@item String
+The string to draw.
+@item SFlags
+Symbolic or numeric flags.
+@item NFlags
+Numeric flags.
+@end table
+
+%end-doc */
 
 text_oldformat
 			/* x, y, direction, text, flags */
@@ -635,6 +995,24 @@ text_hi_format
 			}
 		;
 
+/* %start-doc pcbfile polygon
+
+@syntax
+Polygon (SFlags) (
+@ @ @ @dots{} (X Y) @dots{}
+@ @ @ @dots{} [X Y] @dots{}
+)
+@end syntax
+
+@table @var
+@item SFlags
+Symbolic or numeric flags.
+@item X Y
+Coordinates of each vertex.  You must list at least three coordinates.
+@end table
+
+%end-doc */
+
 polygonpoints
 		: polygonpoint
 		| polygonpoints polygonpoint
@@ -652,6 +1030,59 @@ polygonpoint
 			}
 		|
 		;
+
+/* %start-doc pcbfile element
+
+@syntax
+Element [SFlags "Desc" "Name" "Value" MX MY TX TY TDir TScale TSFlags] (
+Element (NFlags "Desc" "Name" "Value" MX MY TX TY TDir TScale TNFlags) (
+Element (NFlags "Desc" "Name" "Value" TX TY TDir TScale TNFlags) (
+Element (NFlags "Desc" "Name" TX TY TDir TScale TNFlags) (
+Element ("Desc" "Name" TX TY TDir TScale TNFlags) (
+@ @ @ @dots{} contents @dots{}
+)
+@end syntax
+
+@table @var
+@item SFlags
+Symbolic or numeric flags, for the element as a whole.
+@item NFlags
+Numeric flags, for the element as a whole.
+@item Desc
+The description of the element.  This is one of the three strings
+which can be displayed on the screen.
+@item Name
+The name of the element, usually the reference designator.
+@item Value
+The value of the element.
+@item MX MY
+The location of the element's mark.  This is the reference point
+for placing the element and its pins and pads.
+@item TX TY
+The upper left corner of the text (one of the three strings).
+@item TDir
+The relative direction of the text.  0 means left to right for
+an unrotated element, 1 means up, 2 left, 3 down.
+@item TScale
+Size of the text, as a percentage of the ``default'' size of of the
+font (the default font is about 40 mils high).  Default is 100 (40
+mils).
+@item TSFlags
+Symbolic or numeric flags, for the text.
+@item TNFlags
+Numeric flags, for the text.
+@end table
+
+Elements may contain pins, pads, element lines, element arcs, and (for
+older elements) an optional mark.  Note that element definitions that
+have the mark coordinates in the element line, only support pins and
+pads which use relative coordinates.  The pin and pad coordinates are
+relative to the mark.  Element definitions which do not include the
+mark coordinates in the element line, may have a Mark definition in
+their contents, and only use pin and pad definitions which use
+absolute coordinates.
+
+%end-doc */
 
 element
 		: element_oldformat
@@ -838,6 +1269,41 @@ relementdef
 			}
 		;
 
+/* %start-doc pcbfile pin
+
+@syntax
+Pin [rX rY Thickness Clearance Mask Drill "Name" "Number" SFlags]
+Pin (rX rY Thickness Clearance Mask Drill "Name" "Number" NFlags)
+Pin (aX aY Thickness Drill "Name" "Number" NFlags)
+Pin (aX aY Thickness Drill "Name" NFlags)
+Pin (aX aY Thickness "Name" NFlags)
+@end syntax
+
+@table @var
+@item rX rY
+coordinates of center, relative to the element's mark
+@item aX aY
+absolute coordinates of center.
+@item Thickness
+outer diameter of copper annulus
+@item Clearance
+add to thickness to get clearance diameter
+@item Mask
+diameter of solder mask opening
+@item Drill
+diameter of drill
+@item Name
+name of pin
+@item Number
+number of pin
+@item SFlags
+symbolic or numerical flags
+@item NFlags
+numerical flags only
+@end table
+
+%end-doc */
+
 pin_hi_format
 			/* x, y, thickness, clearance, mask, drilling hole, name,
 			   number, flags */
@@ -908,6 +1374,41 @@ pin_oldformat
 			}
 		;
 
+/* %start-doc pcbfile pad
+
+@syntax
+Pad [rX1 rY1 rX2 rY2 Thickness Clearance Mask "Name" "Number" SFlags]
+Pad (rX1 rY1 rX2 rY2 Thickness Clearance Mask "Name" "Number" NFlags)
+Pad (aX1 aY1 aX2 aY2 Thickness "Name" "Number" NFlags)
+Pad (aX1 aY1 aX2 aY2 Thickness "Name" NFlags)
+@end syntax
+
+@table @var
+@item rX1 rY1 rX2 rY2
+Coordinates of the enpoints of the pad, relative to the element's
+mark.  Note that the copper extends beyond these coordinates by half
+the thickness.  To make a square or round pad, specify the same
+coordinate twice.
+@item aX1 aY1 aX2 aY2
+Same, but absolute coordinates of the enpoints of the pad.
+@item Thickness
+width of the pad.
+@item Clearance
+add to thickness to get clearance width.
+@item Mask
+width of solder mask opening.
+@item Name
+name of pin
+@item Number
+number of pin
+@item SFlags
+symbolic or numerical flags
+@item NFlags
+numerical flags only
+@end table
+
+%end-doc */
+
 pad_hi_format
 			/* x1, y1, x2, y2, thickness, clearance, mask, name , pad number, flags */
 		: T_PAD '[' NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER STRING STRING flags ']'
@@ -968,6 +1469,25 @@ symbols
 		| symbols symbol
 		;
 
+/* %start-doc pcbfile symbol
+
+@syntax
+Symbol [Char Delta] (
+Symbol (Char Delta) (
+@ @ @ @dots{} symbol lines @dots{}
+)
+@end syntax
+
+@table @var
+@item Char
+The character or numerical character value this symbol represents.
+Characters must be in single quotes.
+@item Delta
+Additional space to allow after this character.
+@end table
+
+%end-doc */
+
 symbol
 		: T_SYMBOL '[' symbolid NUMBER ']' '('
 			{
@@ -1021,6 +1541,22 @@ symboldefinitions
 		|
 		;
 
+/* %start-doc pcbfile symbol2
+
+@syntax
+SymbolLine [X1 Y1 X2 Y1 Thickness]
+SymbolLine (X1 Y1 X2 Y1 Thickness)
+@end syntax
+
+@table @var
+@item X1 Y1 X2 Y2
+The endpoints of this line.
+@item Thickness
+The width of this line.
+@end table
+
+%end-doc */
+
 symboldefinition
 			/* x1, y1, x2, y2, thickness */
 		: T_SYMBOLLINE '(' NUMBER NUMBER NUMBER NUMBER NUMBER ')'
@@ -1035,6 +1571,16 @@ hiressymbol
 				CreateNewLineInSymbol(Symbol, $3, $4, $5, $6, $7);
 			}
 		;
+
+/* %start-doc pcbfile netlist
+
+@syntax
+Netlist ( ) (
+@ @ @ @dots{} nets @dots{}
+)
+@end syntax
+
+%end-doc */
 
 pcbnetlist	: pcbnetdef
 		|
@@ -1054,6 +1600,23 @@ netdefs
 		: net 
 		| netdefs net
 		;
+
+/* %start-doc pcbfile net
+
+@syntax
+Net ("Name" "Style") (
+@ @ @ @dots{} connects @dots{}
+)
+@end syntax
+
+@table @var
+@item Name
+The name of this net.
+@item Style
+The routing style that should be used when autorouting this net.
+@end table
+
+%end-doc */
 
 net
 			/* name style pin pin ... */
@@ -1075,6 +1638,21 @@ conndefs
 		: conn
 		| conndefs conn
 		;
+
+/* %start-doc pcbfile conn
+
+@syntax
+Connect ("PinPad")
+@end syntax
+
+@table @var
+@item PinPad
+The name of a pin or pad which is included in this net.  Pin and Pad
+names are named by the refdes and pin name, like @code{"U14-7"} for
+pin 7 of U14, or @code{"T4-E"} for pin E of T4.
+@end table
+
+%end-doc */
 
 conn
 		: T_CONN '(' STRING ')'

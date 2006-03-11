@@ -4211,7 +4211,6 @@ One thing common to all files is they may include comments, newlines,
 and carriage returns at any place except within quoted strings.
 
 @menu
-* Basic Types::            Basic types used by all data files.
 * Pad and Line Representation::
 * Layout File::
 * Element File::
@@ -4219,63 +4218,14 @@ and carriage returns at any place except within quoted strings.
 * Netlist File::
 * Library Contents File::
 * Library File::
+* File Syntax::
+* Object Flags::
+* PCBFlags::
 @end menu
 
 
-@node Basic Types, Pad and Line Representation, , File Formats
-@cindex basic types
-@cindex file formats, basic types
-@section Basic Types
-Here are the basic type definitions used in the other sections of this
-chapter.
 
-@example
-Description     = Name
-DeltaAngle      = Number
-DrillingHole    = Number
-Flags           = Number
-FontPosition    = Number
-Grid            = Number
-GridOffsetX     = Number
-GridOffsetY     = Number
-Group           = GroupMember [,GroupMember]...
-GroupMember     = decimal | [cs]
-GroupString     = """ Group [:Group]... """
-StyleString	= """ Style [:Style]... """
-Height          = Number
-LayerNumber     = Number
-LayoutName      = Name
-Name            = quoted_string
-Number          = decimal | hex
-PinNumber	= quoted_string
-Spacing         = Number
-StartAngle      = Number
-SymbolID        = Number | charconst
-Thickness       = Number
-TextData        = quoted_string
-TextFlags       = Flags
-TextScale       = scale
-TextX           = Number
-TextY           = Number
-Value           = Name
-Width           = Number
-X               = Number
-X1              = Number
-X2              = Number
-Y               = Number
-Y1              = Number
-Y2              = Number
-charconst       = "'" <any character> "'"
-comment         = "#" @{<any character up to a newline>@}...
-decimal         = [0-9]+
-direction       = [0-3]
-hex             = 0x[0-9a-fA-F]+
-scale           = [1-<positive integer>]
-quoted_string   = """ <anything except \n and \r> """
-zoom            = [0-MAX]
-@end example
-
-@node Pad and Line Representation, Layout File, Basic Types, File Formats
+@node Pad and Line Representation, Layout File, , File Formats
 @cindex pad specification
 @cindex file formats, pads and lines
 @section Pad and Line Representation
@@ -4286,8 +4236,7 @@ understand this when creating the pads for a new footprint.  The following figur
 illustrates a pad or line which is drawn using a square aperture.  The end
 points (X0,Y0), (X1,Y1) specify the center of the aperture.  The size parameter
 specifies the size of the aperture.
-@comment @image{pad, 6in, 4in, geda schematic, png}
-@image{pad,,,Pad Layout,}
+@center @image{pad,,,Pad Layout,png}
 Pads and lines are represented in this way because this is how lines are 
 specified in RS-274-X (Gerber) files which are used for creating
 the masks used in board manufacturing.  In fact, older mask making
@@ -4311,155 +4260,51 @@ format.
 
 In practice it is very common for footprint libraries to contain
 elements which have been defined in various versions of the @code{Pcb}
-file format.  When faced with trying to understand an element
-file or layout file, the best approach is to examine the file
-@file{src/parse_y.y} which is the definitive definition of the 
-file format.  Future versions of this manual may incorporate a more
-exhaustive file format specification.
+file format.  When faced with trying to understand an element file or
+layout file which includes syntax not defined here, the best approach
+is to examine the file @file{src/parse_y.y} which is the definitive
+definition of the file format.
 
-@example
-File            = Header Font PCBData
-Header          = PCBName [GridData] [CursorData] [PCBFlags] [Groups]
-PCBName         = "PCB(" Name Width Height ")"
-GridData        = "Grid(" Grid GridOffsetX GridOffsetY ")"
-CursorData      = "Cursor(" X Y zoom ")"
-PCBFlags        = "Flags(" Flags ")"
-Groups          = "Groups(" GroupString ")"
-Styles		= "Styles(" StyleString ")"
-Font            = @{FontData@}...
-FontData        = @{Symbol@}...
-Symbol          = "Symbol(" SymbolID Spacing ")"
-		      "(" @{SymbolData@}... ")"
-SymbolData      = @{SymbolLine@}...
-SymbolLine      = "SymbolLine(" X1 Y1 X2 Y2 Thickness ")"
-PCBData         = @{Via | Layer | Element@}...
+The PCB layout file contains the following contents, in this order (individual items
+are defined in @ref{File Syntax}:
 
-Via             = "Via(" X Y Thickness DrillingHole Name Flags ")"
+@table @code
 
-Element         = "Element(" Flags Description LayoutName Value \
-		      TextX TextY direction scale TextFlags")"
-		      "(" @{ElementData@}... [Mark] ")"
-ElementData     = @{ElementLine | Pad | Pin | ElementArc @}...
-ElementArc      = "ElementArc(" X Y Width Height
-		      StartAngle DeltaAngle Thickness ")"
-ElementLine     = "ElementLine(" X1 Y1 X2 Y2 Thickness ")"
-Mark            = "Mark(" X Y ")"
-Pad             = "Pad(" X1 Y1 X2 Y2 Thickness Name PinNumber Flags")"
-Pin             = "Pin(" X Y Thickness DrillingHole Name PinNumber Flags ")"
+@item PCB
+This names the board and sets its size
 
-Layer           = "Layer(" LayerNumber Name ")"
-		      "(" @{LayerData@}... ")"
-LayerData       = @{Line | Polygon | Text@}...
-Line            = "Line(" X1 Y1 X2 Y2 Thickness Flags")"
-Arc		= "Arc(" X Y Width Height StartAngle DeltaAngle Thickness Flags")"
-Polygon         = "Polygon(" Flags ")" \
-		      "(" @{Points@}... ")"
-Points          = "(" X Y ")"
-Text            = "Text(" X Y direction scale TextData Flags")"
-@end example
+@item Grid
+Optional.
 
-@table @samp
+@item Cursor
+Optional.
 
-@item PCBName
-is used to define the layout's name which is independent of its filename.
-It is displayed in the lower left corner of the main window.
-
-@item GridData
-is optional and is used to save the grid setting and offset which were set
-at the time the layout was saved.
-
-@item CursorData
-also is an optional parameter to save the last cursor location and zoom value.
-The real zoom factor is calculated by scale = 1:(2 power value).
-
-@item PCBFlags
-determine how to draw lines and which name of the elements should be
-displayed.
-@example
-    bit 4:  do rubberband moves and rotates if set
-    bit 5:  display description of elements if set
-    bit 6:  display unique name of an element if set
-    bit 7:  use absolute grid if set
-    bit 8:  don't clip lines to 45 degrees
-@end example
+@item Flags
+Optional.
 
 @item Groups
-Layergroups are saved by using this optional parameter. The only way of
-changing them is to use an editor and alter the appropriate line. The
-characters @emph{c,s} identify the component- and solder-side for SMD
-objects.
+Optional.
 
-@item Symbol
-See the description of font files in this chapter.
+@item Styles
+Optional.
 
-@item Via
-Vias are always connected to all layers which also means vias are one
-logical level ahead of layers. Vias are defined by position, size, name and
-by some flags.
-@example
-    bit 0:  always clear
-    bit 1:  always set
-    bit 2:  set if via was found during a connection search
-    bit 4:  set if via is a hole (has no copper annulus)
-    bit 5:  display the vias name
-    bit 6:  via has been selected
-    bit 12: set if via has octagonal shape
-    Other bits have special meaning and should not be changed
-    by the user.  See const.h for more information
-@end example
+@item Symbols
+Optional.
 
-@item Element
-See the description of element files in this chapter.
+@item Vias, Rats, Layers, and Elements
+These may occur in any order, at this point in the file.
 
-@item Layer
-A layer is the central object from the user's point of view. It holds all
-connections and all text objects. Up to 8 may be used individually.
-Its number, starting with one, and its name are read as arguments.
-
-@table @samp
-
-@item Line
-All lines are identified by their start and endpoints together with their
-thickness and some flags. They have to fit a 45 degree scheme.
-@example
-    bit 2:  set if line was found during a connection search
-    bit 4:  line is a rat-line
-    bit 6:  line has been selected
-@end example
-
-@item Polygon
-used to fill a larger area with @samp{copper}. The coordinates specify the
-corners. The flags are:
-@example
-    bit 2:  set if polygon was found during a connection search
-    bit 4:  polygon is a 1.5 style polygon that automatically clears pins
-    bit 6:  polygon has been selected
-@end example
-
-@item Text
-You may use text objects to add information to your board. An example would
-be naming a connector or marking pin one of it. The position marks the
-lower left corner of the string which is also a fix-point for rotations.
-Text directions are independent to those of lines. They are counted from
-zero to three with a meaning of zero to 270 degree rotations counter-clockwise.
-The scaling value is a positive integer which determines a zoom factor in
-percent.
-@example
-    bit 6:  the text has been selected
-    bit 7:  the text is on the solder (back) side of the board
-    bit 10: the text is on the silkscreen layer
-@end example
+@item Netlists
+Optional.
 
 @end table
-
-@end table
-
 
 @node Element File, Font File, Layout File, File Formats
 @cindex element, file format
 @cindex format of element files
 @cindex file format, element data
 @section Element File Format
+
 Element files are used to describe one component which then may be used
 several times within one or more layouts. You will normally split the
 file into two parts, one for the pinout and one for the package description.
@@ -4472,86 +4317,11 @@ pin 1 must be the first PIN(...) in the file.
 Doing things this way makes it possible to use one package file for several
 different circuits. See the sample files @file{dil*}.
 
-The lowest x and y coordinates of all sub-objects of an element are used
-as an attachment point for the cross hair cursor of the main window.
+The lowest x and y coordinates of all sub-objects of an element are
+used as an attachment point for the cross hair cursor of the main
+window, unless the element has a mark, in which case that's the
+attachment point.
 
-@example
-File            = @{Element@}...
-Element         = "Element(" Flags Description LayoutName Value \
-		      TextX TextY direction scale TextFlags")"
-		      "(" @{ElementData@}... [Mark] ")"
-ElementData     = @{ElementLine | Pad | Pin | ElementArc @}...
-ElementArc      = "ElementArc(" X Y Width Height
-		      StartAngle DeltaAngle Thickness ")"
-ElementLine     = "ElementLine(" X1 Y1 X2 Y2 Thickness ")"
-Mark            = "Mark(" X Y ")"
-Pad             = "Pad(" X1 Y1 X2 Y2 Thickness Name PinNumber Flags ")"
-Pin             = "Pin(" X Y Thickness DrillingHole Name PinNumber Flags ")"
-@end example
-
-@table @samp
-
-@item Element
-Objects of type element are determined by flags,  some names, a canonical
-and a layout name as well as a value. Additional fields are text position,
-their direction counted from zero to three (n * 90 degrees counter-clockwise)
-and element data.
-
-@table @samp
-
-@item Flags
-The flag field determines the state of an element.
-The bit values are:
-@display
-    bit 4:  the element name is hidden
-    bit 6:  element has been selected
-    bit 7:  element is located on the solder side
-@end display
-
-@item TextFlags
-@itemx scale
-@itemx direction
-See the description of text object earlier in this chapter.
-
-@item ElementLine
-A line is defined by its start and end points and by its size, or width.
-
-@item ElementArc
-Defines an arc by its center, width, height, start angle, its length in
-degrees and its size. Remember the y axis on the screen grows downwards.
-
-@item Mark
-is just a hint to make positioning easier. The cross hair will be positioned
-here. Its center is passed as the two arguments.
-
-@item Pad
-A pad is very similar to a line except it may not be disconnected from
-its element and it has an associated name.
-Is is defined by two end point position, size, name and by some flags.
-@example
-    bit 2:  set if pad was found during a connection search
-    bit 5:  display the pads name
-    bit 6:  pad has been selected
-    bit 7:  pad is located on the solder side
-@end example
-
-@item Pin
-A pin is very similar to a via except it may not be disconnected from
-its element.
-@example
-    bit 0:  always set
-    bit 1:  always clear
-    bit 2:  set if pin was found during a connection search
-    bit 3:  set if pin is only a mounting hole (no copper annulus)
-    bit 5:  display the pins name
-    bit 6:  pin has been selected
-    bit 8:  pin is drawn as a square
-    bit 12: set if pin is drawn with an octagonal shape
-@end example
-
-@end table
-
-@end table
 
 
 @node Font File, Netlist File, Element File, File Formats
@@ -4559,41 +4329,18 @@ its element.
 @cindex format of font files
 @cindex file format, font data
 @section Font File Format
-A number of user defined symbols are called a font. There is only one per
+
+A number of user defined Symbols are called a font. There is only one per
 layout. All symbols are made of lines. See the file @file{default_font}
 as an example.
 
 The lowest x and y coordinates of all lines of a font are transformed to (0,0).
 
-@example
-File            = Font
-Font            = @{FontData@}...
-FontData        = @{Symbol@}...
-Symbol          = "Symbol(" SymbolID FontPosition ")"
-		      "(" @{SymbolData@}... ")"
-SymbolData      = @{SymbolLine@}...
-@end example
-
-@table @samp
-
-@item Symbol
-The two arguments are the @code{ASCII} code of the symbol and its distance to
-the next symbol. Undefined symbols are drawn as filled rectangles.
-The @code{ASCII} code may be passed as a character constant or as a hexadecimal
-value.
-
-@table @samp
-@item SymbolLine
-The symbol data itself is made up of several entries
-of type @emph{SymbolLine}.
-@end table
-
-@end table
-
 @node Netlist File, Library Contents File, Font File, File Formats
 @cindex netlist, file format
 @cindex netlist, reading
 @section Netlist File Format
+
 Netlists read by @code{Pcb} must have this simple text form:
 
 @example
@@ -4653,7 +4400,7 @@ to the @emph{libraryContentsCommand} resource.
 The menu entry will appear in the selection menu at the top and of the
 library window.
 
-@node Library File, , Library Contents File, File Formats
+@node Library File, File Syntax, Library Contents File, File Formats
 @cindex library file, format of
 @cindex format of libraries
 @cindex file format, libraries
@@ -4726,6 +4473,12 @@ I know quite well that this description of the library implementation is
 not what some out there expect. But in my opinion it's much more useful to
 look at the comments and follow the macros step by step.
 
+@node File Syntax, Object Flags, Library File, File Formats
+@cindex File sytax
+@cindex Syntax, file
+@section File Syntax
+
+@include pcbfile.texi
 
 @c --------------------------- chapter 7 -------------------------------
 @node Library Creation, Schematic Frontends, File Formats, Top

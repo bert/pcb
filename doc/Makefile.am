@@ -31,8 +31,9 @@ pcb_TEXINFOS=	\
 	fractional_size.texi \
 	letter_size.texi \
 	metric_size.texi \
-	wire_size.texi
-	
+	wire_size.texi \
+	pcbfile.texi
+
 dist_pkgdata_DATA=	${html_docs} ${ps_docs} ${pdf_docs}
 
 dist_man_MANS=	pcb.1
@@ -41,8 +42,8 @@ html_docs=	${info_TEXINFOS:.texi=.html}
 ps_docs=	${info_TEXINFOS:.texi=.ps} refcard.ps
 pdf_docs=	${info_TEXINFOS:.texi=.pdf} refcard.pdf
 
-# put the html manual into 1 file instead of multiple files
-AM_MAKEINFOHTMLFLAGS=	--no-split
+# put the html manual into 1 file instead of multiple files?
+AM_MAKEINFOHTMLFLAGS=	--css-include=pcb.css
 
 # use this to avoid having the clean target delete pcb.{dvi,html,pdf,ps}
 # which unfortunately deletes files which are part of the distfile
@@ -57,6 +58,7 @@ EXTRA_DIST= \
 	pad.png \
 	pad.eps \
 	pcb.dvi \
+	pcb.css \
 	refcard.dvi \
 	wire_size.tab \
 	wire_size.texi \
@@ -65,7 +67,8 @@ EXTRA_DIST= \
 	metric_size.tab \
 	metric_size.texi \
 	fractional_size.tab \
-	fractional_size.texi
+	fractional_size.texi \
+	pcbfile.texi
 
 SUFFIXES=	.obj .tab
 
@@ -76,11 +79,13 @@ MAINTAINERCLEANFILES= \
 
 BUILT_SOURCES=	\
 	pad.eps \
+	pad.pdf \
 	pad.png \
 	wire_size.texi \
 	letter_size.texi \
 	metric_size.texi \
-	fractional_size.texi
+	fractional_size.texi \
+	pcbfile.texi
 
 ASCII2TEXI=	${AWK} -f $(srcdir)/ascii2texi.awk ncol=3
 
@@ -99,8 +104,17 @@ $(srcdir)/fractional_size.texi: $(srcdir)/fractional_size.tab $(srcdir)/ascii2te
 TGIF_X=		XENVIRONMENT=$(srcdir)/Xdefaults.tgif ${TGIF}
 TGIF_FLAGS=	-print -color
 
+pcbfile.texi : extracted-docs
+
+.PHONY : extracted-docs
+extracted-docs :
+	perl extract-docs $(srcdir)
+
 $(srcdir)/pad.eps: $(srcdir)/pad.obj
 	${TGIF_X} ${TGIF_FLAGS} -eps $(srcdir)/pad.obj
+
+$(srcdir)/pad.pdf: $(srcdir)/pad.eps
+	ps2pdf $(srcdir)/pad.eps $(srcdir)/pad.pdf
 
 $(srcdir)/pad.png: $(srcdir)/pad.obj
 	${TGIF_X} ${TGIF_FLAGS} -png $(srcdir)/pad.obj

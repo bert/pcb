@@ -96,6 +96,75 @@
 /* ---------------------------------------------------------------------------
  * object flags
  */
+
+/* %start-doc pcbfile ~objectflags
+@node Object Flags, PCBFlags, File Syntax, File Formats
+@section Object Flags
+
+Note that object flags can be given numerically (like @code{0x0147})
+or symbolically (like @code{"found,showname,square"}.  Some numeric
+values are reused for different object types.  The table below lists
+the numeric value followed by the symbolic name.
+
+@table @code
+@item 0x0001 pin
+If set, this object is a pin.  This flag is for internal use only.
+@item 0x0002 via
+Likewise, for vias.
+@item 0x0004 found
+If set, this object has been found by @code{FindConnection()}.
+@item 0x0008 hole
+For pins and vias, this flag means that the pin or via is a hole
+without a copper annulus.
+@item 0x0010 rat
+If set for a line, indicates that this line is a rat line instead of a
+copper trace.
+@item 0x0010 pininpoly
+For pins and pads, this flag is used internally to indicate that the
+pin or pad overlaps a polygon on some layer.
+@item 0x0010 clearpoly
+For polygons, this flag means that pins and vias will normally clear
+these polygons (thus, thermals are required for electrical
+connection).  When clear, polygons will solidly connect to pins and
+vias.
+@item 0x0010 hidename
+For elements, when set the name of the element is hidden.
+@item 0x0020 showname
+For elements, when set the names of pins are shown.
+@item 0x0020 clearline
+For lines and arcs, the line/arc will clear polygons instead of
+connecting to them.
+@item 0x0040 selected
+Set when the object is selected.
+@item 0x0080 onsolder
+For elements, indicates that the element is on the solder side.
+@item 0x0080 auto
+For lines and vias, indicates that these were created by the
+autorouter.
+@item 0x0100 square
+For pins and pads, indicates a square (vs round) pin/pad.
+@item 0x0200 rubberend
+For lines, used internally for rubber band moves.
+@item 0x0200 warn
+For pins, vias, and pads, set to indicate a warning.
+@item 0x0400 usetherm
+Obsolete, indicates that pins/vias should be drawn with thermal
+fingers.
+@item 0x0400
+Obsolete, old files used this to indicate lines drawn on silk.
+@item 0x0800 octagon
+Draw pins and vias as octagons.
+@item 0x1000 drc
+Set for objects that fail DRC.
+@item 0x2000 lock
+Set for locked objects.
+@item 0x4000 edge2
+For pads, indicates that the second point is closer to the edge.  For
+pins, indicates that the pin is closer to a horizontal edge and thus
+pinout text should be vertical.
+@end table
+%end-doc */
+
 #define	NOFLAG			0x0000
 #define	PINFLAG			0x0001	/* is a pin */
 #define	VIAFLAG			0x0002	/* is a via */
@@ -128,25 +197,70 @@
 /* ---------------------------------------------------------------------------
  * PCB flags
  */
+
+/* %start-doc pcbfile ~pcbflags
+@node PCBFlags, , Object Flags,  File Formats
+@section PCBFlags
+@table @code
+@item 0x00001
+Pinout displays pin numbers instead of pin names.
+@item 0x00002
+Use local reference for moves, by setting the mark at the beginning of
+each move.
+@item 0x00004
+When set, only polygons and their clearances are drawn, to see if
+polygons have isolated regions.
+@item 0x00008
+Display DRC region on crosshair.
+@item 0x00010
+Do all move, mirror, rotate with rubberband connections.
+@item 0x00020
+Display descriptions of elements, instead of refdes.
+@item 0x00040
+Display names of elements, instead of refdes.
+@item 0x00080
+Auto-DRC flag.  When set, PCB doesn't let you place copper that
+violates DRC.
+@item 0x00100
+Enable 'all-direction' lines.
+@item 0x00200
+Switch starting angle after each click.
+@item 0x00400
+Force unique names on board.
+@item 0x00800
+New lines/arc clear polygons.
+@item 0x01000
+Crosshair snaps to pins and pads.
+@item 0x02000
+Show the solder mask layer.
+@item 0x04000
+Draw with thin lines.
+@item 0x08000
+Move items orthogonally.
+@item 0x10000
+Draw autoroute paths real-time.
+@end table
+%end-doc */
+
 #define	PCB_FLAGS		0x1ffff	/* all used flags */
-#define SHOWNUMBERFLAG          0x0001  /* pinout displays pin numbers instead of names */
-#define LOCALREFFLAG            0x0002  /* use local reference for moves */
-#define CHECKPLANESFLAG         0x0004  /* see if polygons have isolated regions */
-#define SHOWDRCFLAG             0x0008  /* display drc region on crosshair */
-#define RUBBERBANDFLAG		0x0010	/* do all move, mirror, rotate with */
-					/* rubberband connections */
-#define	DESCRIPTIONFLAG		0x0020	/* display description of elements */
-#define	NAMEONPCBFLAG		0x0040	/* display name of an element */
-#define AUTODRCFLAG             0x0080
-#define	ALLDIRECTIONFLAG	0x0100	/* enable 'all-direction' lines */
-#define SWAPSTARTDIRFLAG        0x0200  /* switch starting angle after each click */
-#define UNIQUENAMEFLAG		0x0400	/* force unique names on board */
-#define CLEARNEWFLAG		0x0800  /* new lines/arc clear polygons */
-#define SNAPPINFLAG             0x1000  /* crosshair snaps to pins and pads */
-#define SHOWMASKFLAG            0x2000  /* show the solder mask layer */
-#define THINDRAWFLAG            0x4000  /* draw with thin lines */
-#define ORTHOMOVEFLAG           0x8000  /* move items orthogonally */
-#define LIVEROUTEFLAG           0x10000 /* draw autoroute paths real-time */
+
+#define SHOWNUMBERFLAG          0x00001
+#define LOCALREFFLAG            0x00002
+#define CHECKPLANESFLAG         0x00004
+#define SHOWDRCFLAG             0x00008
+#define RUBBERBANDFLAG		0x00010
+#define	DESCRIPTIONFLAG		0x00020
+#define	NAMEONPCBFLAG		0x00040
+#define AUTODRCFLAG             0x00080
+#define	ALLDIRECTIONFLAG	0x00100
+#define SWAPSTARTDIRFLAG        0x00200
+#define UNIQUENAMEFLAG		0x00400
+#define CLEARNEWFLAG		0x00800
+#define SNAPPINFLAG             0x01000
+#define SHOWMASKFLAG            0x02000
+#define THINDRAWFLAG            0x04000
+#define ORTHOMOVEFLAG           0x08000
+#define LIVEROUTEFLAG           0x10000
 
 /* ---------------------------------------------------------------------------
  * object types
