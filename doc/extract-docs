@@ -1,0 +1,67 @@
+#!/usr/bin/perl
+# -*- perl -*-
+
+$docdir = shift;
+$docdir = "." unless $docdir;
+$srcdir = "$docdir/../src";
+
+open(FIND, "find $srcdir -type f -name '*.[chly]' -print | sort |");
+while (<FIND>) {
+    s/[\r\n]+$//;
+    &scan_file($_);
+}
+close (FIND);
+
+for $cat (sort keys %text) {
+    print "$cat\n";
+    @k = sort keys %{$text{$cat}};
+    $new = '';
+    for $key (@k) {
+	$new .= $text{$cat}{$key};
+    }
+    $^A = "";
+    $line = join(' ', @k);
+    formline("    ^<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< ~~\n", $line);
+    print $^A;
+
+    $old = '';
+    if ( -f "$docdir/$cat.texi") {
+	open(CAT, "$docdir/$cat.texi");
+	$old = join('', <CAT>);
+	close CAT;
+    }
+    if ($old ne $new) {
+	open(CAT, ">$docdir/$cat.texi");
+	print CAT $new;
+	close CAT;
+    }
+}
+
+sub scan_file {
+    my ($name) = @_;
+
+    if ($name =~ /\.[ch]$/) {
+	$new = $name;
+	$new =~ s/\.[ch]$/\.y/;
+	return if -f $new;
+	$new =~ s/\.y$/\.l/;
+	return if -f $new;
+    }
+
+    open(F, $name);
+    while (<F>) {
+	if (/%start-doc\s+(\S+)\s+(\S+)/) {
+	    $cat = $1;
+	    $key = $2;
+	    while (<F>) {
+		next if /^\*\/$/;
+		next if /^\/\*$/;
+		last if /%end-doc/;
+		s/\@syntax/\@cartouche\n\@format/g;
+		s/\@end syntax/\@end format\n\@end cartouche/g;
+		$text{$cat}{$key} .= $_;
+	    }
+	}
+    }
+    close (F);
+}
