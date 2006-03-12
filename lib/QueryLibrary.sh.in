@@ -53,7 +53,8 @@ for dir in $SearchPath; do
 	name=$dir/$Library
 	if [ -r $name ]; then
 		echo "CreateObject(\`$Template', \`$Value', \`$Package')" |
-			PATH=${SearchPath}:$PATH $M4 -R $name -
+			PATH=${SearchPath}:$PATH $M4 -R $name - |
+			awk '/^[ \t]*$/ {next} {print}' 
 		exit
 	fi
 done
