@@ -120,7 +120,7 @@ while [ $# -ne 0 ]; do
 		while read mask package values; do
 			set -- $values
 			while [ $# -ne 0 ]; do
-				echo "\`$mask:$package:$1:'Description_$mask"
+				echo "\`$mask:$package:$1:'Description_$mask\` [$package'ifdef(\`Param1_$mask', \` Param1_$mask')\`'ifdef(\`Param2_$mask', \` Param2_$mask')]"
 				shift
 			done
 		done
