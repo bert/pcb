@@ -38,6 +38,13 @@ define(`CreateObject',
 	`PKG_$3(`Description_$1', ,``$2'', Param1_$1, Param2_$1)'
 )
 
+# this one is used to show the correct value for the footprint attribute
+# in a gschem (www.geda.seul.org) schematic.  See QueryLibrary.sh
+define(`QueryObject',
+	`ifdef(`PinList_$1', `DefinePinList(PinList_$1)')'
+`$3 ifdef(`Param1_$1', `Param1_$1') ifdef(`Param2_$1', `Param2_$1')'
+)
+
 # -------------------------------------------------------------------
 # define for-loops like the manual tells us
 #
@@ -79,7 +86,6 @@ include(connector.inc)
 include(cts.inc)
 include(dil.inc)
 include(geda.inc)
-include(genericsmt.inc)
 include(johnstech.inc)
 include(minicircuits.inc)
 include(misc.inc)

@@ -33,9 +33,17 @@ M4=@GNUM4@
 
 Usage()
 {
-	echo "usage: $0 [path] library template value package" >&2
+	echo "usage: $0 [-fp] [path] library template value package" >&2
+	echo "      If given, the -fp flag returns the correct value for" >&2
+	echo "      the gschem footprint= attribute" >&2
 	exit 1
 }
+
+Fn=CreateObject
+if test $1 = "-fp" ; then
+	Fn=QueryObject
+	shift
+fi
 
 SearchPath=.
 case $# in
@@ -47,12 +55,13 @@ Library="$1"
 Template="$2"
 Value="$3"
 Package="$4"
+
 PATH=$PATH:`dirname $0`
 
 for dir in $SearchPath; do
 	name=$dir/$Library
 	if [ -r $name ]; then
-		echo "CreateObject(\`$Template', \`$Value', \`$Package')" |
+		echo "${Fn}(\`$Template', \`$Value', \`$Package')" |
 			PATH=${SearchPath}:$PATH $M4 -R $name - |
 			awk '/^[ \t]*$/ {next} {print}' 
 		exit
