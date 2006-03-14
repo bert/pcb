@@ -1,4 +1,5 @@
 divert(-1)
+# $Id$
 #
 # Definitions for PCI boards
 # by D.J. Barrow dj_barrow@ariasoft.ie
@@ -30,6 +31,10 @@ define(`Description_PCI5V_MIN_HEIGHT',`PCI 5V Array Min Height')
 define(`Description_PCI5V_MAX_HEIGHT',`PCI 5V Array Max Height')
 define(`Description_PCI5V_SMALL_HEIGHT',`PCI 5V Array Small Height')
 define(`PinList_PCI5V',`PL_PCISideB1,PL_PCISideB2,PL_PCISideB3,PL_PCISideB5,PL_PCISideA1,PL_PCISideA2,PL_PCISideA3,PL_PCISideA5')
+define(`PinList_PCI5V_AVE_HEIGHT', `PinList_PCI5V')
+define(`PinList_PCI5V_MIN_HEIGHT', `PinList_PCI5V')
+define(`PinList_PCI5V_MAX_HEIGHT', `PinList_PCI5V')
+define(`PinList_PCI5V_SMALL_HEIGHT', `PinList_PCI5V')
 
 divert(0)dnl
 

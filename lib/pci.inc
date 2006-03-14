@@ -1,3 +1,4 @@
+# $Id$
 #
 # Definitions for PCI boards
 # by D.J. Barrow dj_barrow@ariasoft.ie
@@ -13,7 +14,7 @@ define(`GETNUMARRAYS',`eval(($#)/2)')
 define(`PKG_PCIPINARRAY',
 	`
         define(`cnt',`1')
-        define(`ARGS',$3)
+        define(`ARGS',`$4, $5, $6, $7')
 	args(ARGS)
 	define(`LEFTOFFSET',`100')
 	define(`EDGEGAP',`12')
@@ -125,6 +126,11 @@ Element(0x00  "$1" "$2" "$3" CENTERX 10 1 30 0x00)
 )')
 
 
+
+define(`PKG_PCI5V_AVE_HEIGHT',   `PKG_PCIPINARRAY(`$1', `$2', `$3', 2810,49,100,11)');
+define(`PKG_PCI5V_MIN_HEIGHT',   `PKG_PCIPINARRAY(`$1', `$2', `$3', 1420,49,100,11)');
+define(`PKG_PCI5V_MAX_HEIGHT',   `PKG_PCIPINARRAY(`$1', `$2', `$3', 4200,49,100,11)');
+define(`PKG_PCI5V_SMALL_HEIGHT', `PKG_PCIPINARRAY(`$1', `$2', `$3', 2063,49,100,11)');
 
 
 
