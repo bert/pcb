@@ -42,7 +42,6 @@ M4_DIST_FILES= \
 	connector.m4 \
 	crystal.m4 \
 	generic.m4 \
-	genericsmt.m4 \
 	gtag.m4 \
 	jerry.m4 \
 	linear.m4 \
@@ -64,7 +63,6 @@ LIST_DIST_FILES= \
 	connector.list \
 	crystal.list \
 	generic.list \
-	genericsmt.list \
 	gtag.list \
 	jerry.list \
 	linear.list \
@@ -89,7 +87,6 @@ INC_FILES= \
 	cts.inc \
 	dil.inc \
 	geda.inc \
-	genericsmt.inc \
 	johnstech.inc \
 	minicircuits.inc \
 	misc.inc \
