@@ -15,15 +15,15 @@ AC_PROG_AWK
 AM_PROG_LEX
 AC_PROG_YACC
 AC_PROG_INSTALL
-AC_CHECK_PROGS(M4, gm4 m4)
+AC_PATH_PROGS(M4, gm4 m4,[none])
 if test "X$M4" = "Xnone" ; then
-	AC_ERROR([Did not find a m4 executible.  You need to make sure
+	AC_MSG_ERROR([Did not find a m4 executible.  You need to make sure
 	that m4 is installed on your system and that m4 is in your path])
 fi
 
 AC_PATH_PROGS(WISH, wish wish83 wish8.3 wish80 wish8.0 cygwish83 cygwish80,[none])
 if test "X$WISH" = "Xnone" ; then
-	AC_ERROR([Did not find the wish executible.  You need to make sure
+	AC_MSG_ERROR([Did not find the wish executible.  You need to make sure
 	that tcl is installed on your system and that wish is in your path])
 fi
 
@@ -71,7 +71,7 @@ if test "X$gui_xaw" != "Xno" ; then
 
 AC_ARG_WITH([libstroke],
 [  --without-libstroke     disable libstroke support (default: enabled)],
-AC_CHECK_LIB(stroke, main, , AC_ERROR([libstroke not found.  Please specify its location or configure --without-libstroke]))
+AC_CHECK_LIB(stroke, main, , AC_MSG_ERROR([libstroke not found.  Please specify its location or configure --without-libstroke]))
 )
 AC_CHECK_LIB(ICE, main, , , $X_LIBS)
 AC_CHECK_LIB(SM, main, , , $X_LIBS)
@@ -86,7 +86,7 @@ AC_ARG_WITH([xaw],
                           [default = Xaw]],
 [
 if test "X$with_xaw" = "Xno" ; then
-	AC_ERROR([--without-xaw is not allowed])
+	AC_MSG_ERROR([--without-xaw is not allowed])
 fi
 ],
 [
@@ -94,7 +94,7 @@ with_xaw=Xaw
 ])
 
 AC_CHECK_LIB($with_xaw, XawInitializeWidgetSet, , 
-	AC_ERROR([You must have some version of Xaw installed on your system]), $X_LIBS)
+	AC_MSG_ERROR([You must have some version of Xaw installed on your system]), $X_LIBS)
 LIBXAW=$with_xaw
 XAWINC=$with_xaw
 
@@ -238,9 +238,9 @@ AC_ARG_ENABLE([dmalloc],
 if test "X$enable_dmalloc" != "Xno" ; then
 	AC_MSG_RESULT([yes])
 	AC_CHECK_HEADER(dmalloc.h,,
-		AC_ERROR([You have requested dmalloc debugging but dmalloc.h could not be found]))
+		AC_MSG_ERROR([You have requested dmalloc debugging but dmalloc.h could not be found]))
 	AC_CHECK_LIB(dmalloc,main,,
-		AC_ERROR([You have requested dmalloc debugging but -ldmalloc could not be found]), $X_LIBS)
+		AC_MSG_ERROR([You have requested dmalloc debugging but -ldmalloc could not be found]), $X_LIBS)
 	DMALLOC_LIBS="-ldmalloc"
 	with_dmalloc=yes
 else
@@ -263,7 +263,7 @@ AC_ARG_ENABLE([efence],
 if test "X$enable_efence" != "Xno" ; then
 	AC_MSG_RESULT([yes])
 	AC_CHECK_LIB(efence,main,,
-		AC_ERROR([You have requested ElectricFence debugging but -lefence could not be found]), $X_LIBS)
+		AC_MSG_ERROR([You have requested ElectricFence debugging but -lefence could not be found]), $X_LIBS)
 	with_efence=yes
 else
 	AC_MSG_RESULT([no])
