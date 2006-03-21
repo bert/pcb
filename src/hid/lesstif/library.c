@@ -73,7 +73,6 @@ libnode_select (Widget w, void *v, XmListCallbackStruct *cbs)
 {
   char *args;
   LibraryEntryType *e = Library.Menu[last_pick].Entry + cbs->item_position-1;
-  printf("Pick: %s\n", e->ListEntry);
 
   if (e->Template == (char *) -1)
     {
