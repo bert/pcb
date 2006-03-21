@@ -4,7 +4,7 @@
  *                            COPYRIGHT
  *
  *  PCB, interactive printed circuit board design
- *  Copyright (C) 1994,1995,1996,1997,1998 Thomas Nau
+ *  Copyright (C) 1994,1995,1996,1997,1998, 2005 Thomas Nau
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -70,8 +70,6 @@
 #include "set.h"
 #include "strflags.h"
 
-#include "gui.h"
-
 
 RCSID("$Id$");
 
@@ -105,6 +103,83 @@ static void ParseLibraryTree (void);
 
 #define F2S(OBJ, TYPE) flags_to_string ((OBJ)->Flags, TYPE)
 
+/* --------------------------------------------------------------------------- */
+
+static int
+string_cmp (const char *a, const char *b)
+{
+  while (*a && *b)
+    {
+      if (isdigit(*a) && isdigit(*b))
+      {
+	int ia = atoi(a);
+	int ib = atoi(b);
+	if (ia != ib)
+	  return ia - ib;
+	while (isdigit(*a))
+	  a++;
+	while (isdigit(*b))
+	  b++;
+      }
+      else if (tolower(*a) != tolower(*b))
+	return tolower(*a) - tolower(*b);
+      a++;
+      b++;
+    }
+  if (*a)
+    return 1;
+  if (*b)
+    return -1;
+  return 0;
+}
+
+static int netlist_sort_offset = 0;
+
+static int
+netlist_sort(const void *va, const void *vb)
+{
+  LibraryMenuType *am = (LibraryMenuType *)va;
+  LibraryMenuType *bm = (LibraryMenuType *)vb;
+  char *a = am->Name;
+  char *b = bm->Name;
+  if (*a == '~') a++;
+  if (*b == '~') b++;
+  return string_cmp (a, b);
+}
+
+static int
+netnode_sort(const void *va, const void *vb)
+{
+  LibraryEntryType *am = (LibraryEntryType *)va;
+  LibraryEntryType *bm = (LibraryEntryType *)vb;
+  char *a = am->ListEntry;
+  char *b = bm->ListEntry;
+  return string_cmp (a, b);
+}
+
+static void
+sort_library(LibraryTypePtr lib)
+{
+  int i;
+  qsort (lib->Menu,
+	 lib->MenuN,
+	 sizeof(lib->Menu[0]),
+	 netlist_sort);
+  for (i=0; i<lib->MenuN; i++)
+    qsort (lib->Menu[i].Entry,
+	   lib->Menu[i].EntryN,
+	   sizeof(lib->Menu[i].Entry[0]),
+	   netnode_sort);
+}
+
+static void
+sort_netlist()
+{
+  netlist_sort_offset = 2;
+  sort_library(&(PCB->NetlistLib));
+  netlist_sort_offset = 0;
+}
+
 /* ---------------------------------------------------------------------------
  * opens a file and check if it exists
  */
@@ -115,7 +190,7 @@ CheckAndOpenFile (char *Filename, Boolean Confirm, Boolean AllButton,
   FILE *fp = NULL;
   struct stat buffer;
   char message[MAXPATHLEN + 80];
-  gint response;
+  int response;
 
   if (Filename && *Filename)
     {
@@ -127,22 +202,19 @@ CheckAndOpenFile (char *Filename, Boolean Confirm, Boolean AllButton,
 	  if (WasCancelButton)
 	    *WasCancelButton = False;
 	  if (AllButton)
-	     response = gui_dialog_confirm_all(message);
+	     response = gui->confirm_dialog(message, "Cancel", "Ok", AllButton ? "Sequence OK" : 0);
 	  else
-		 response = gui_dialog_confirm(message)
-	            ? GTK_RESPONSE_OK : GTK_RESPONSE_CANCEL;
+	     response = gui->confirm_dialog(message, "Cancel", "Ok", "Sequence OK");
 
 	  switch (response)
 	    {
-	    case GUI_DIALOG_RESPONSE_ALL:
+	    case 2:
 	      if (WasAllButton)
 	        *WasAllButton = True;
 	      break;
-	    case GTK_RESPONSE_CANCEL:
+	    case 0:
 	      if (WasCancelButton)
 	        *WasCancelButton = True;
-	    case GTK_RESPONSE_NONE:
-	      return (NULL);
 	    }
 	}
       if ((fp = fopen (Filename, "w")) == NULL)
@@ -160,7 +232,7 @@ OpenConnectionDataFile (void)
   char *filename;
   Boolean result;		/* not used */
 
-  filename = gui_dialog_input(_("Enter filename for connection data"), "");
+  filename = gui->prompt_for(_("Enter filename for connection data"), "");
   /* XXX Memory leak */
   return (CheckAndOpenFile (filename, True, False, &result, NULL));
 }
@@ -213,19 +285,19 @@ int
 LoadPCB (char *Filename)
 {
   PCBTypePtr newPCB = CreateNewPCB (False);
-  gboolean	units_mm;
+  Boolean	units_mm;
 
   /* new data isn't added to the undo list */
   if (!ParsePCB (newPCB, Filename))
     {
       RemovePCB (PCB);
       PCB = newPCB;
-      gui_output_set_name_label(PCB->Name);
 
-      gui_netlist_window_show(&Output);
       ResetStackAndVisibility ();
+#if FIXME
       /* set the zoom first before the Xorig, Yorig */
       SetZoom (PCB->Zoom);
+#endif
 
       /* update cursor location */
       Crosshair.X = MAX (0, MIN (PCB->CursorX, (LocationType) PCB->MaxWidth));
@@ -233,7 +305,9 @@ LoadPCB (char *Filename)
 
       Xorig = Crosshair.X - TO_PCB (Output.Width / 2);
       Yorig = Crosshair.Y - TO_PCB (Output.Height / 2);
+#if FIXME
       RedrawZoom (Output.Width / 2, Output.Height / 2);
+#endif
 
       /* update cursor confinement and output area (scrollbars) */
       ChangePCBSize (PCB->MaxWidth, PCB->MaxHeight);
@@ -253,18 +327,21 @@ LoadPCB (char *Filename)
       UpdatePIPFlags (NULL, NULL, NULL, False);
       UpdateSettingsOnScreen ();
 
-      units_mm = (PCB->Grid != (gint) PCB->Grid) ? TRUE : FALSE;
+      units_mm = (PCB->Grid != (int) PCB->Grid) ? True : False;
 
+#ifdef FIXME
       if (units_mm != Settings.grid_units_mm)
         gui_config_handle_units_changed();
+#endif
       Settings.grid_units_mm = units_mm;
 
-      gui_sync_with_new_layout();
+      sort_netlist();
+
+      hid_action("PCBChanged");
 	
       return (0);
     }
-
-  gui_sync_with_new_layout();
+  hid_action("PCBChanged");
 
   /* release unused memory */
   RemovePCB (newPCB);
@@ -333,34 +410,8 @@ WritePCBDataHeader (FILE * FP)
   /* FIXME: This shouldn't know about .f, but we don't have a string
      converter for it yet.  */
   fprintf (FP, "Flags(0x%016x)\n", (int) PCB->Flags.f);
-  fputs ("Groups(\"", FP);
-  for (group = 0; group < MAX_LAYER; group++)
-    if (PCB->LayerGroups.Number[group])
-      {
-	for (entry = 0; entry < PCB->LayerGroups.Number[group]; entry++)
-	  {
-	    switch (PCB->LayerGroups.Entries[group][entry])
-	      {
-	      case MAX_LAYER + COMPONENT_LAYER:
-		fputc ('c', FP);
-		break;
-
-	      case MAX_LAYER + SOLDER_LAYER:
-		fputc ('s', FP);
-		break;
-
-	      default:
-		fprintf (FP, "%d",
-			 PCB->LayerGroups.Entries[group][entry] + 1);
-		break;
-	      }
-	    if (entry != PCB->LayerGroups.Number[group] - 1)
-	      fputc (',', FP);
-	  }
-	if (group != MAX_LAYER - 1)
-	  fputc (':', FP);
-      }
-  fputs ("\")\nStyles[\"", FP);
+  fprintf(FP, "Groups(\"%s\")\n", LayerGroupsToString(&PCB->LayerGroups));
+  fputs ("Styles[\"", FP);
   for (group = 0; group < NUM_STYLES - 1; group++)
     fprintf (FP, "%s,%i,%i,%i,%i:", PCB->RouteStyle[group].Name,
 	     PCB->RouteStyle[group].Thick,
@@ -701,6 +752,7 @@ WritePipe (char *Filename, Boolean thePcb)
     }
   DSAddCharacter (&command, '\0');
 
+  printf("write to pipe \"%s\"\n", command.Data);
   if ((fp = popen (command.Data, "w")) == NULL)
     {
       PopenErrorMessage (command.Data);
@@ -787,6 +839,15 @@ RemoveTMPData (void)
 /* ---------------------------------------------------------------------------
  * parse the directory tree where additional library elements are found
  */
+
+static char *pcb_basename (char *p)
+{
+  char *rv = strrchr(p, '/');
+  if (rv)
+    return rv + 1;
+  return p;
+}
+
 void
 ParseLibraryTree (void)
 {
@@ -846,7 +907,8 @@ ParseLibraryTree (void)
 	      /* add directory name into menu */
 	      menu = GetLibraryMenuMemory (&Library);
 	      menu->Name = MyStrdup (direntry->d_name, "ParseLibraryTree()");
-	      menu->directory = g_path_get_basename(path);
+	      /* FIXME ? */
+	      menu->directory = strdup(pcb_basename(path));
 	      subdir = opendir (direntry->d_name);
 	      chdir (direntry->d_name);
 	      while (subdir && (e2 = readdir (subdir)))
@@ -884,7 +946,7 @@ ParseLibraryTree (void)
 	}
       closedir (dir);
     }
-  g_free (libpaths);
+  free (libpaths);
 
   /* restore the original working directory */
   chdir (working);
@@ -897,7 +959,7 @@ ParseLibraryTree (void)
 int
 ReadLibraryContents (void)
 	{
-	static gchar		*command = NULL;
+	static char		*command = NULL;
 	char				inputline[MAX_LIBRARY_LINE_LENGTH + 1];
 	FILE				*resultFP = NULL;
 	LibraryMenuTypePtr	menu = NULL;
@@ -940,7 +1002,7 @@ ReadLibraryContents (void)
 	  menu = GetLibraryMenuMemory (&Library);
 	  menu->Name = MyStrdup (UNKNOWN (&inputline[5]),
 			"ReadLibraryDescription()");
-	  menu->directory = g_strdup(Settings.LibraryFilename);
+	  menu->directory = strdup(Settings.LibraryFilename);
 	}
       else
 	{
@@ -950,7 +1012,7 @@ ReadLibraryContents (void)
 	      menu = GetLibraryMenuMemory (&Library);
 	      menu->Name = MyStrdup (UNKNOWN ((char *) NULL),
 				     "ReadLibraryDescription()");
-	      menu->directory = g_strdup(Settings.LibraryFilename);
+	      menu->directory = strdup(Settings.LibraryFilename);
 	    }
 	  entry = GetLibraryEntryMemory (menu);
 	  entry->AllocatedMemory = MyStrdup (inputline,
@@ -976,6 +1038,7 @@ ReadLibraryContents (void)
   ParseLibraryTree ();
   if (resultFP)
 		{
+		  sort_library(&Library);
 		pclose(resultFP);
 		return 0;
 		}
@@ -1084,5 +1147,6 @@ ReadNetlist (char *filename)
       return (1);
     }
   pclose (fp);
+  sort_netlist();
   return (0);
 }

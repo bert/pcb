@@ -62,8 +62,6 @@
 #include "remove.h"
 #include "rotate.h"
 
-#include "gui.h"
-
 RCSID("$Id$");
 
 #define EXPANDRECTXY(r1, x1, y1, x2, y2) { \
@@ -528,7 +526,7 @@ ComputeCost (NetListTypePtr Nets, double T0, double T)
 	boxpp = (struct ebox **)
 	  GetPointerMemory (TEST_FLAG (ONSOLDERFLAG, element) ?
 			    &seboxes : &ceboxes);
-	*boxpp = g_malloc (sizeof (**boxpp));
+	*boxpp = malloc (sizeof (**boxpp));
 	(*boxpp)->box = element->VBox;
 	(*boxpp)->element = element;
       }

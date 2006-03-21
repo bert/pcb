@@ -49,7 +49,7 @@ B *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 #include <dmalloc.h>
 #endif
 
-RCSID ("$Id$");
+RCSID("$Id$");
 
 /* ---------------------------------------------------------------------------
  * local prototypes
@@ -622,14 +622,14 @@ MyCalloc (size_t Number, size_t Size, char *Text)
   fprintf (stderr, "MyCalloc %d by %d from %s ", Number, Size, Text);
 #endif
   /* InitComponentLookup() at least can ask for zero here, so return something
-     |  that can be freed.
-   */
+  |  that can be freed.
+  */
   if (Number == 0)
     Number = 1;
   if (Size == 0)
     Size = 1;
-  if ((p = g_malloc0 (Number * Size)) == NULL)
-    MyFatal ("out of memory during g_malloc0() in '%s'()\n",
+  if ((p = calloc (Number, Size)) == NULL)
+    MyFatal ("out of memory during malloc() in '%s'()\n",
 	     (Text ? Text : "(unknown)"));
 #ifdef MEM_DEBUG
   fprintf (stderr, "returned 0x%x\n", p);
@@ -650,7 +650,7 @@ MyRealloc (void *Ptr, size_t Size, char *Text)
 #ifdef MEM_DEBUG
   fprintf (stderr, "0x%x Realloc to %d from %s ", Ptr, Size, Text);
 #endif
-  p = Ptr ? g_realloc (Ptr, Size) : g_malloc (Size);
+  p = Ptr ? realloc (Ptr, Size) : malloc (Size);
   if (!p)
     MyFatal ("out of memory during realloc() in '%s'()\n",
 	     (Text ? Text : "(unknown)"));
@@ -669,7 +669,7 @@ MyStrdup (char *S, char *Text)
   char *p = NULL;
 
   /* bug-fix by Ulrich Pegelow (ulrpeg@bigcomm.gun.de) */
-  if (S && ((p = g_strdup (S)) == NULL))
+  if (S && ((p = strdup (S)) == NULL))
     MyFatal ("out of memory during g_strdup() in '%s'\n",
 	     (Text ? Text : "(unknown)"));
 #ifdef MEM_DEBUG
@@ -930,7 +930,7 @@ SaveFree (void *Ptr)
   fprintf (stderr, "Freeing 0x%x\n", Ptr);
 #endif
   if (Ptr)
-    g_free (Ptr);
+    free (Ptr);
 }
 
 /* ---------------------------------------------------------------------------
@@ -1023,3 +1023,4 @@ StripWhiteSpaceAndDup (char *S)
   else
     return (NULL);
 }
+

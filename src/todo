@@ -1,0 +1,71 @@
+-------------------- HID Validation Stuff --------------------
+
+[gtk]
+
+Do something with LayerGroupsChanged action.
+
+Test all menu actions.
+
+Verify all config items are saved/loaded properly.
+
+Review for additions to make to the Preferences window.
+
+Clean up popup: populate with common actions and remove select tool part.
+Evaluate its value given tearoff menus?
+
+
+-------------------- Lesstif Enhancements --------------------
+
+board flipping
+
+Pan(x, y, zoomfactor) - pans screen, zooms, sets crosshairs on coordinate.
+
+Translucent layers
+
+Layer/Group master control dialog
+
+Remember configuration and restore on startup?
+
+-------------------- HID Enhancements --------------------
+
+EPS: option to specify which layers and order to draw in.
+
+PS: Option for single or multi file.
+
+PNG: option to specify which layers and order to draw in.
+PNG: get clears right.
+PNG: add options for gif and jpeg.  Maybe this HID needs
+     a different name...
+PNG: add option to specify output image max dimension
+ 
+Add direct-to-pdf exporter?
+
+Put Xaw GUI back in?
+
+-------------------- Core Issues/Enhancements ---------------
+
+
+lots of #ifdef FIXME in the core code.  Some actions need fixing
+up in these areas.
+
+Adjust minimum symbol line size based on current layer; don't assume
+silk layer.
+
+-------------------- Action Enhancements --------------------
+
+Default functions for ":"
+ - tab expansion
+
+Generic "set hid attribute" action.
+
+-------------------- Long Term Projects --------------------
+
+Switch to topological autorouter.
+
+Global "puller" optimizer.
+
+Constrain all objects to have the same fields first in their data
+structures; convert most internal functions to use this AnyObject type
+instead of N functions for N object types.
+
+Win32 and MacOS HIDs.

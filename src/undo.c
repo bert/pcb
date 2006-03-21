@@ -63,12 +63,11 @@
 #include "mymem.h"
 #include "remove.h"
 #include "rotate.h"
+#include "rtree.h"
 #include "search.h"
 #include "set.h"
 #include "undo.h"
 #include "strflags.h"
-
-#include "gui.h"
 
 #ifdef HAVE_LIBDMALLOC
 #include <dmalloc.h>
@@ -165,6 +164,7 @@ static Boolean UndoFlag (UndoListTypePtr);
 static Boolean UndoMirror (UndoListTypePtr);
 static Boolean UndoChangeSize (UndoListTypePtr);
 static Boolean UndoChange2ndSize (UndoListTypePtr);
+static Boolean UndoChangeAngles (UndoListTypePtr);
 static Boolean UndoChangeClearSize (UndoListTypePtr);
 static Boolean UndoChangeMaskSize (UndoListTypePtr);
 static int PerformUndo (UndoListTypePtr);
@@ -327,6 +327,42 @@ UndoChange2ndSize (UndoListTypePtr Entry)
       ((PinTypePtr) ptr2)->DrillingHole = Entry->Data.Size;
       Entry->Data.Size = swap;
       DrawObject (type, ptr1, ptr2, 0);
+      return (True);
+    }
+  return (False);
+}
+
+/* ---------------------------------------------------------------------------
+ * recovers an object from a ChangeAngles change operation
+ */
+static Boolean
+UndoChangeAngles (UndoListTypePtr Entry)
+{
+  void *ptr1, *ptr2, *ptr3;
+  int type;
+  long int old_sa, old_da;
+
+  /* lookup entry by ID */
+  type =
+    SearchObjectByID (PCB->Data, &ptr1, &ptr2, &ptr3, Entry->ID, Entry->Kind);
+  if (type == ARC_TYPE)
+    {
+      LayerTypePtr Layer = (LayerTypePtr)ptr1;
+      ArcTypePtr a = (ArcTypePtr) ptr2;
+      if (TEST_FLAG (LOCKFLAG, a))
+	return (False);
+      r_delete_entry (Layer->arc_tree, (BoxTypePtr) a);
+      old_sa = a->StartAngle;
+      old_da = a->Delta;
+      if (andDraw)
+	EraseObject (type, a);
+      a->StartAngle = Entry->Data.Move.DX;
+      a->Delta = Entry->Data.Move.DY;
+      SetArcBoundingBox(a);
+      r_insert_entry (Layer->arc_tree, (BoxTypePtr) a, 0);
+      Entry->Data.Move.DX = old_sa;
+      Entry->Data.Move.DY = old_da;;
+      DrawObject (type, ptr1, a, 0);
       return (True);
     }
   return (False);
@@ -823,6 +859,11 @@ PerformUndo (UndoListTypePtr ptr)
 	return (UNDO_CHANGE2NDSIZE);
       break;
 
+    case UNDO_CHANGEANGLES:
+      if (UndoChangeAngles (ptr))
+	return (UNDO_CHANGEANGLES);
+      break;
+
     case UNDO_MIRROR:
       if (UndoMirror (ptr))
 	return (UNDO_MIRROR);
@@ -916,7 +957,7 @@ ClearUndoList (Boolean Force)
 {
   UndoListTypePtr undo;
 
-  if (UndoN && (Force || gui_dialog_confirm(_("OK to clear 'undo' buffer?"))))
+  if (UndoN && (Force || gui->confirm_dialog("OK to clear 'undo' buffer?", 0)))
     {
       /* release memory allocated by objects in undo list */
       for (undo = UndoList; UndoN; undo++, UndoN--)
@@ -1211,6 +1252,24 @@ AddObjectTo2ndSizeUndoList (int Type, void *ptr1, void *ptr2, void *ptr3)
       undo = GetUndoSlot (UNDO_CHANGE2NDSIZE, OBJECT_ID (ptr2), Type);
       if (Type == PIN_TYPE || Type == VIA_TYPE)
 	undo->Data.Size = ((PinTypePtr) ptr2)->DrillingHole;
+    }
+}
+
+/* ---------------------------------------------------------------------------
+ * adds an object to the list of changed angles.  Note that you must
+ * call this before changing the angles, passing the new start/delta.
+ */
+void
+AddObjectToChangeAnglesUndoList (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
+{
+  UndoListTypePtr undo;
+  ArcTypePtr a = (ArcTypePtr)Ptr3;
+
+  if (!Locked)
+    {
+      undo = GetUndoSlot (UNDO_CHANGEANGLES, OBJECT_ID (Ptr3), Type);
+      undo->Data.Move.DX = a->StartAngle;
+      undo->Data.Move.DY = a->Delta;
     }
 }
 

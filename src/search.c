@@ -52,7 +52,7 @@
 #include <dmalloc.h>
 #endif
 
-RCSID ("$Id$");
+RCSID("$Id$");
 
 
 /* ---------------------------------------------------------------------------
@@ -63,7 +63,6 @@ static float PosX,		/* search position for subroutines */
 static BDimension SearchRadius;
 static BoxType SearchBox;
 static LayerTypePtr SearchLayer;
-static Boolean ScreenOnly = False;
 
 /* ---------------------------------------------------------------------------
  * some local prototypes
@@ -399,15 +398,15 @@ SearchPolygonByLocation (LayerTypePtr * Layer,
 			 PolygonTypePtr * Polygon, PolygonTypePtr * Dummy)
 {
   struct ans_info info;
-
+ 
   *Layer = SearchLayer;
   info.ptr2 = (void **) Polygon;
   info.ptr3 = (void **) Dummy;
-
+ 
   if (setjmp (info.env) == 0)
     {
       r_search (SearchLayer->polygon_tree, &SearchBox, NULL, polygon_callback,
-		&info);
+ 		&info);
       return False;
     }
   return (True);
@@ -478,8 +477,6 @@ SearchPointByLocation (LayerTypePtr * Layer,
   *Layer = SearchLayer;
   POLYGON_LOOP (*Layer);
   {
-    if (ScreenOnly && !VPOLY (polygon))
-      continue;
     POLYGONPOINT_LOOP (polygon);
     {
       d = SQUARE (point->X - PosX) + SQUARE (point->Y - PosY);
@@ -720,7 +717,7 @@ IsLineInRectangle (LocationType X1, LocationType Y1,
     return (True);
   /* construct a set of dummy lines and check each of them */
   line.Thickness = 0;
-  line.Flags = NoFlags ();
+  line.Flags = NoFlags();
 
   /* upper-left to upper-right corner */
   line.Point1.Y = line.Point2.Y = Y1;
@@ -764,7 +761,7 @@ IsArcInRectangle (LocationType X1, LocationType Y1,
 
   /* construct a set of dummy lines and check each of them */
   line.Thickness = 0;
-  line.Flags = NoFlags ();
+  line.Flags = NoFlags();
 
   /* upper-left to upper-right corner */
   line.Point1.Y = line.Point2.Y = Y1;
@@ -802,8 +799,7 @@ IsArcInRectangle (LocationType X1, LocationType Y1,
  * fixed 10/30/98 - radius can't expand both edges of a square box
  */
 Boolean
-IsPointInSquarePad (LocationType X, LocationType Y, Cardinal Radius,
-		    PadTypePtr Pad)
+IsPointInSquarePad (LocationType X, LocationType Y, Cardinal Radius, PadTypePtr Pad)
 {
   register BDimension t2 = Pad->Thickness / 2;
   BoxType padbox;
@@ -823,7 +819,7 @@ IsPointInBox (LocationType X, LocationType Y, BoxTypePtr box, Cardinal Radius)
   if (POINT_IN_BOX (X, Y, box))
     return (True);
   line.Thickness = 0;
-  line.Flags = NoFlags ();
+  line.Flags = NoFlags();
 
   line.Point1.X = box->X1;
   line.Point1.Y = box->Y1;
@@ -896,7 +892,7 @@ IsPointInPolygon (float X, float Y, float Radius, PolygonTypePtr Polygon)
 
 	  line.Point1 = Polygon->Points[0];
 	  line.Thickness = 0;
-	  line.Flags = NoFlags ();
+	  line.Flags = NoFlags();
 
 	  /* POLYGONPOINT_LOOP decrements pointers !!! */
 	  POLYGONPOINT_LOOP (Polygon);
@@ -918,8 +914,7 @@ IsPointInPolygon (float X, float Y, float Radius, PolygonTypePtr Polygon)
  */
 Boolean
 IsRectangleInPolygon (LocationType X1, LocationType Y1,
-		      LocationType X2, LocationType Y2,
-		      PolygonTypePtr Polygon)
+		      LocationType X2, LocationType Y2, PolygonTypePtr Polygon)
 {
   PolygonType polygon;
   PointType points[4];
@@ -1040,15 +1035,6 @@ SearchObjectByLocation (int Type,
   SearchBox.Y1 = Y - Radius;
   SearchBox.X2 = X + Radius;
   SearchBox.Y2 = Y + Radius;
-  if (ScreenOnly)
-    {
-      MAKEMAX (SearchBox.X1, vxl);
-      MAKEMAX (SearchBox.Y1, vyl);
-      MAKEMIN (SearchBox.X2, vxh);
-      MAKEMIN (SearchBox.Y2, vyh);
-      if (SearchBox.X1 > SearchBox.X2 || SearchBox.Y1 > SearchBox.Y2)
-	return NO_TYPE;
-    }
 
   if (Type & RATLINE_TYPE && PCB->RatOn &&
       SearchRatLineByLocation ((RatTypePtr *) Result1,
@@ -1449,9 +1435,7 @@ SearchScreen (LocationType X, LocationType Y, int Type, void **Result1,
 {
   int ans;
 
-  ScreenOnly = True;
   ans = SearchObjectByLocation (Type, Result1, Result2, Result3,
-				X, Y, TO_PCB (SLOP));
-  ScreenOnly = False;
+				X, Y, SLOP * pixel_slop);
   return (ans);
 }

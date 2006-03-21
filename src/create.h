@@ -34,6 +34,7 @@
 #include "global.h"
 
 DataTypePtr		CreateNewBuffer(void);
+void			pcb_colors_from_settings(PCBTypePtr);
 PCBTypePtr		CreateNewPCB(Boolean);
 PinTypePtr		CreateNewVia(DataTypePtr, LocationType, LocationType, BDimension,
 				BDimension, BDimension, BDimension, char *, FlagType);

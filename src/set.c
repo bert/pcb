@@ -57,8 +57,6 @@
 #include "set.h"
 #include "undo.h"
 
-#include "gui.h"
-
 
 RCSID("$Id$");
 
@@ -67,108 +65,6 @@ RCSID("$Id$");
 
 static int mode_position = 0;
 static int mode_stack[MAX_MODESTACK_DEPTH];
-
-/* ---------------------------------------------------------------------------
- * output of cursor position
- */
-void
-set_cursor_position_labels(void)
-	{
-	char text[64];
-
-	if (Marked.status)
-		{
-		if (Settings.grid_units_mm)
-			snprintf(text, sizeof(text), " %-.3f  %-.3f ",
-					COOR_TO_MM * (Crosshair.X - Marked.X),
-					COOR_TO_MM * (Crosshair.Y - Marked.Y));
-				
-		else
-			snprintf(text, sizeof(text), " %-li.%02d  %-li.%02d ",
-				(Crosshair.X - Marked.X) / 100,
-						abs(Crosshair.X - Marked.X) % 100,
-				(Crosshair.Y - Marked.Y) / 100,
-						abs(Crosshair.Y - Marked.Y) % 100);
-		gui_cursor_position_relative_label_set_text(text);
-		}
-	else
-		gui_cursor_position_relative_label_set_text(" __.__  __.__ ");
-
-	if (Settings.grid_units_mm)
-		snprintf(text, sizeof(text), " %-.3f  %-.3f ",
-				COOR_TO_MM * Crosshair.X, COOR_TO_MM * Crosshair.Y);
-	else
-		snprintf(text, sizeof(text), " %-i.%02d  %-i.%02d ",
-				Crosshair.X / 100, abs(Crosshair.X % 100),
-				Crosshair.Y / 100, abs(Crosshair.Y % 100));
-
-	gui_cursor_position_label_set_text(text);
-	}
-
-/* ---------------------------------------------------------------------------
- * output of status line
- */
-void
-set_status_line_label(void)
-	{
-	char text[512];
-
-	if (!Settings.grid_units_mm)
-		snprintf (text, sizeof(text),
-			_("<b>%c  view</b>=%s  "
-			"<b>grid</b>=%.1f:%i  "
-			"%s%s  "
-			"<b>line</b>=%.1f  "
-			"<b>via</b>=%.1f(%.1f)  %s"
-	     	"<b>clearance</b>=%.1f  "
-			"<b>text</b>=%i%%  "
-			"<b>buffer</b>=#%i"),
-
-			PCB->Changed ? '*' : ' ',
-			Settings.ShowSolderSide ? _("solder") : _("component"),
-			PCB->Grid / 100.0,
-			(int) Settings.GridFactor,
-			TEST_FLAG (ALLDIRECTIONFLAG, PCB) ? "all" :
-				(PCB->Clipping == 0 ? "45" :
-					(PCB->Clipping == 1 ? "45_/" : "45\\_")),
-			TEST_FLAG (RUBBERBANDFLAG, PCB) ? ",R  " : "  ",
-			Settings.LineThickness / 100.0,
-			Settings.ViaThickness / 100.0,
-			Settings.ViaDrillingHole / 100.0,
-
-			Settings.gui_compact_horizontal ? "\n" : "",
-
-			Settings.Keepaway / 100.0,
-			Settings.TextScale, Settings.BufferNumber + 1);
-	else
-		snprintf (text, sizeof(text),
-			_("<b>%c  view</b>=%s  "
-			"<b>grid</b>=%5.3f:%i  "
-			"%s%s  "
-			"<b>line</b>=%5.3f  "
-			"<b>via</b>=%5.3f(%5.3f)  %s"
-			"<b>clearance</b>=%5.3f  "
-			"<b>text</b>=%i%%  "
-			"<b>buffer</b>=#%i"),
-
-			PCB->Changed ? '*' : ' ',
-			Settings.ShowSolderSide ? _("solder") : _("component"),
-			PCB->Grid * COOR_TO_MM, (int) Settings.GridFactor,
-			TEST_FLAG (ALLDIRECTIONFLAG, PCB) ? "all" :
-				(PCB->Clipping == 0 ? "45" :
-					(PCB->Clipping == 1 ? "45_/" : "45\\_")),
-			TEST_FLAG (RUBBERBANDFLAG, PCB) ? ",R  " : "  ",
-			Settings.LineThickness * COOR_TO_MM,
-			Settings.ViaThickness  * COOR_TO_MM,
-			Settings.ViaDrillingHole * COOR_TO_MM,
-
-			Settings.gui_compact_horizontal ? "\n" : "",
-
-			Settings.Keepaway * COOR_TO_MM,
-			Settings.TextScale, Settings.BufferNumber + 1);
-
-	gui_status_line_set_text(text);
-	}
 
 /* ---------------------------------------------------------------------------
  * sets cursor grid with respect to grid offset values
@@ -188,13 +84,13 @@ SetGrid (float Grid, Boolean align)
       PCB->Grid = Grid;
       if (Settings.DrawGrid)
 	UpdateAll ();
-      set_status_line_label();
     }
 }
 
 /* ---------------------------------------------------------------------------
 * sets new zoom factor, adapts size of viewport and centers the cursor
 */
+#ifdef FIXME
 void
 SetZoom (float Zoom)
 {
@@ -218,8 +114,8 @@ SetZoom (float Zoom)
     }
   else
     {
-      old_x = TO_SCREEN_X (Crosshair.X);
-      old_y = TO_SCREEN_Y (Crosshair.Y);
+      old_x = Crosshair.X;
+      old_y = Crosshair.Y;
     }
   Zoom = MAX (MIN_ZOOM, Zoom);
   Zoom = MIN (MAX_ZOOM, Zoom);
@@ -233,18 +129,7 @@ SetZoom (float Zoom)
       gui_zoom_display_update();
     }
 }
-
-void
-RedrawZoom (Position old_x, Position old_y)
-{
-  gui_output_positioners_scale();
-  if (CoalignScreen (old_x, old_y, Crosshair.X, Crosshair.Y))
-    warpNoWhere ();
-
-  UpdateAll ();
-  /* always redraw status line (used for init sequence) */
-  set_status_line_label();
-}
+#endif
 
 /* ---------------------------------------------------------------------------
  * sets a new line thickness
@@ -257,7 +142,6 @@ SetLineSize (BDimension Size)
       Settings.LineThickness = Size;
       if (TEST_FLAG (AUTODRCFLAG, PCB))
         FitCrosshairIntoGrid (Crosshair.X, Crosshair.Y);
-        set_status_line_label();
     }
 }
 
@@ -272,7 +156,6 @@ SetViaSize (BDimension Size, Boolean Force)
 		Size >= Settings.ViaDrillingHole + MIN_PINORVIACOPPER))
     {
       Settings.ViaThickness = Size;
-      set_status_line_label();
     }
 }
 
@@ -287,7 +170,6 @@ SetViaDrillingHole (BDimension Size, Boolean Force)
 		Size <= Settings.ViaThickness - MIN_PINORVIACOPPER))
     {
       Settings.ViaDrillingHole = Size;
-      set_status_line_label();
     }
 }
 
@@ -298,7 +180,6 @@ pcb_use_route_style(RouteStyleType *rst)
 	Settings.ViaThickness = rst->Diameter;
 	Settings.ViaDrillingHole = rst->Hole;
 	Settings.Keepaway = rst->Keepaway;
-	set_status_line_label();
 	}
 
 /* ---------------------------------------------------------------------------
@@ -310,7 +191,6 @@ SetKeepawayWidth (BDimension Width)
   if (Width <= MAX_LINESIZE && Width >= MIN_LINESIZE)
     {
       Settings.Keepaway = Width;
-      set_status_line_label ();
     }
 }
 
@@ -323,8 +203,9 @@ SetTextScale (Dimension Scale)
   if (Scale <= MAX_TEXTSCALE && Scale >= MIN_TEXTSCALE)
     {
       Settings.TextScale = Scale;
-      set_status_line_label ();
+#ifdef FIXME
       gui_config_text_scale_update();
+#endif
     }
 }
 
@@ -339,7 +220,6 @@ SetChangedFlag (Boolean New)
       PCB->Changed = New;
 
     }
-  set_status_line_label ();
 }
 
 /* ---------------------------------------------------------------------------
@@ -372,7 +252,6 @@ SetBufferNumber (int Number)
 
       /* do an update on the crosshair range */
       SetCrosshairRangeToBuffer ();
-      set_status_line_label();
     }
 }
 
@@ -382,9 +261,7 @@ SetBufferNumber (int Number)
 void
 UpdateSettingsOnScreen (void)
 {
-  set_status_line_label();
-  set_cursor_position_labels();
-  gui_layer_buttons_update();
+  hid_action("LayersChanged");
 }
 
 void
@@ -477,14 +354,18 @@ SetMode (int Mode)
     }
 
   Settings.Mode = Mode;
+#ifdef FIXME
   gui_mode_cursor (Mode);
+#endif
   if (Mode == PASTEBUFFER_MODE)
     /* do an update on the crosshair range */
     SetCrosshairRangeToBuffer ();
   else
     SetCrosshairRange (0, 0, PCB->MaxWidth, PCB->MaxHeight);
 
+#ifdef FIXME
   gui_mode_buttons_update();
+#endif
 
   recursing = False;
 
@@ -505,7 +386,7 @@ SetRouteStyle (char *name)
       if (name && NSTRCMP (name, style->Name) == 0)
 	{
 	  sprintf (num, "%d", n + 1);
-	  ActionRouteStyle(num);
+	  hid_actionl("RouteStyle", num, 0);
 	  break;
 	}
     }

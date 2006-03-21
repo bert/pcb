@@ -29,6 +29,7 @@ static Resource *parsed_res;
 static Resource *current_res;
 
 int reserror(char *);
+int reslex();
 
 #define f(x) current_res->flags |= x
 
@@ -63,6 +64,7 @@ res_item_zm : res_item res_item_zm | ;
 res_item
  : STRING		{ resource_add_val(current_res, 0, $1, 0); f(FLAG_V); }
  | STRING '=' STRING	{ resource_add_val(current_res, $1, $3, 0); f(FLAG_NV); }
+ | INCLUDE		{ resource_add_val(current_res, 0, $1, 0); f(FLAG_S); }
  | res			{ resource_add_val(current_res, 0, 0, $1); f(FLAG_S); }
  | STRING '=' res	{ resource_add_val(current_res, $1, 0, $3); f(FLAG_NS); }
  | error
@@ -140,18 +142,18 @@ resource_parse(char *filename, const char **strings)
 Resource *
 resource_create(Resource *parent)
 {
-  Resource *rv = (Resource *)g_malloc(sizeof(Resource));
+  Resource *rv = (Resource *)malloc(sizeof(Resource));
   rv->parent = parent;
   rv->flags = 0;
   rv->c = 0;
-  rv->v = (ResourceVal *)g_malloc(sizeof(ResourceVal));
+  rv->v = (ResourceVal *)malloc(sizeof(ResourceVal));
   return rv;
 }
 
 void
 resource_add_val(Resource *n, char *name, char *value, Resource *subres)
 {
-  n->v = (ResourceVal *)g_realloc(n->v, sizeof(ResourceVal)*(n->c+1));
+  n->v = (ResourceVal *)realloc(n->v, sizeof(ResourceVal)*(n->c+1));
   n->v[n->c].name = name;
   n->v[n->c].value = value;
   n->v[n->c].subres = subres;

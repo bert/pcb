@@ -52,9 +52,7 @@
 #include "set.h"
 #include "undo.h"
 
-#include "gui.h"
-
-RCSID ("$Id$");
+RCSID("$Id$");
 
 
 
@@ -98,7 +96,7 @@ InsertPointIntoRat (RatTypePtr Rat)
 
   new = CreateDrawnLineOnLayer (CURRENT, Rat->Point1.X, Rat->Point1.Y,
 				InsertX, InsertY, Settings.LineThickness,
-				2 * Settings.Keepaway, Rat->Flags);
+				2*Settings.Keepaway, Rat->Flags);
   if (!new)
     return new;
   AddObjectToCreateUndoList (LINE_TYPE, CURRENT, new, new);
@@ -106,7 +104,7 @@ InsertPointIntoRat (RatTypePtr Rat)
   DrawLine (CURRENT, new, 0);
   new = CreateDrawnLineOnLayer (CURRENT, Rat->Point2.X, Rat->Point2.Y,
 				InsertX, InsertY, Settings.LineThickness,
-				2 * Settings.Keepaway, Rat->Flags);
+				2*Settings.Keepaway, Rat->Flags);
   if (new)
     {
       AddObjectToCreateUndoList (LINE_TYPE, CURRENT, new, new);
@@ -132,17 +130,18 @@ InsertPointIntoLine (LayerTypePtr Layer, LineTypePtr Line)
   X = Line->Point2.X;
   Y = Line->Point2.Y;
   AddObjectToMoveUndoList (LINEPOINT_TYPE, Layer, Line, &Line->Point2,
-			   InsertX - X, InsertY - Y);
+			   InsertX - X,
+			   InsertY - Y);
   EraseLine (Line);
-  r_delete_entry (Layer->line_tree, (BoxTypePtr) Line);
+  r_delete_entry(Layer->line_tree, (BoxTypePtr)Line);
   Line->Point2.X = InsertX;
   Line->Point2.Y = InsertY;
-  SetLineBoundingBox (Line);
-  r_insert_entry (Layer->line_tree, (BoxTypePtr) Line, 0);
+  SetLineBoundingBox(Line);
+  r_insert_entry(Layer->line_tree, (BoxTypePtr)Line, 0);
   DrawLine (Layer, Line, 0);
-  /* we must create after playing with Line since creation may
-   * invalidate the line pointer
-   */
+   /* we must create after playing with Line since creation may
+    * invalidate the line pointer
+    */
   if ((line = CreateDrawnLineOnLayer (Layer, InsertX, InsertY,
 				      X, Y,
 				      Line->Thickness, Line->Clearance,
@@ -239,7 +238,7 @@ AdjustInsertPoint (void)
   if (Crosshair.AttachedObject.State == STATE_FIRST)
     return NULL;
   Crosshair.AttachedObject.Ptr3 = &InsertedPoint;
-  if (gui_shift_is_pressed ())
+  if (gui->shift_is_pressed())
     {
       AttachedLineType myline;
       dx = Crosshair.X - line->Point1.X;
@@ -316,3 +315,6 @@ AdjustInsertPoint (void)
   InsertedPoint.Y = y;
   return &InsertedPoint;
 }
+
+
+

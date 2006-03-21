@@ -48,33 +48,34 @@
 #include "mymem.h"
 #include "search.h"
 
-#include "gui.h"
-
 RCSID ("$Id$");
 
 #if !defined(ABS)
 #define ABS(x) (((x)<0)?-(x):(x))
 #endif
 
+typedef struct {
+  int x, y;
+} point;
+
 /* ---------------------------------------------------------------------------
  * some local identifiers
  */
-static gboolean CrosshairStack[MAX_CROSSHAIRSTACK_DEPTH];
-static int CrosshairStackLocation = 0;
-static GdkPoint *Points = NULL;	/* data of tmp polygon */
-static Cardinal MaxPoints = 0;	/* number of points */
+static Boolean	CrosshairStack[MAX_CROSSHAIRSTACK_DEPTH];
+static int		CrosshairStackLocation = 0;
+static point *Points = NULL;	/* data of tmp polygon */
+static int	MaxPoints = 0;	/* number of points */
 
 /* ---------------------------------------------------------------------------
  * some local prototypes
  */
-static void CreateTMPPolygon (PolygonTypePtr, LocationType, LocationType);
-static void DrawCrosshair (void);
+static void XORPolygon (PolygonTypePtr, LocationType, LocationType);
 static void XORDrawElement (ElementTypePtr, LocationType, LocationType);
 static void XORDrawBuffer (BufferTypePtr);
 static void XORDrawInsertPointObject (void);
 static void XORDrawMoveOrCopyObject (void);
-static void XORDrawAttachedLine (LocationType, LocationType, LocationType,
-				 LocationType, BDimension);
+static void XORDrawAttachedLine (LocationType, LocationType, LocationType, LocationType,
+				 BDimension);
 static void XORDrawAttachedArc (BDimension);
 static void DrawAttached (Boolean);
 
@@ -82,48 +83,17 @@ static void DrawAttached (Boolean);
  * creates a tmp polygon with coordinates converted to screen system
  */
 static void
-CreateTMPPolygon (PolygonTypePtr Polygon, LocationType DX, LocationType DY)
+XORPolygon (PolygonTypePtr polygon, LocationType dx, LocationType dy)
 {
-  /* allocate memory for data with screen coordinates */
-  if (Polygon->PointN >= MaxPoints)
-    {
-      /* allocate memory for one additional point */
-      MaxPoints = Polygon->PointN + 1;
-      Points = (GdkPoint *) MyRealloc (Points,
-				       MaxPoints * sizeof (GdkPoint),
-				       "CreateTMPPolygon()");
-    }
-
-  /* copy data to tmp array and convert it to screen coordinates */
-  POLYGONPOINT_LOOP (Polygon);
-  {
-    Points[n].x = TO_SCREEN_X (point->X + DX);
-    Points[n].y = TO_SCREEN_Y (point->Y + DY);
-  }
-  END_LOOP;
-
-  /* the last point is identical to the first one */
-  Points[Polygon->PointN].x = Points[0].x;
-  Points[Polygon->PointN].y = Points[0].y;
-}
-
-/* ---------------------------------------------------------------------------
- * draws the crosshair 
- * don't transform MAX_COORD to screen coordinates, it is
- * already the maximum of screen and pcb-coordinates
- */
-static void
-DrawCrosshair (void)
-{
-  gdk_gc_set_foreground (Crosshair.GC, &Settings.CrossColor);
-  gdk_draw_line (Output.drawing_area->window, Crosshair.GC,
-		 TO_SCREEN_X (Crosshair.X), 0,
-		 TO_SCREEN_X (Crosshair.X), MAX_COORD / 100);
-
-  gdk_draw_line (Output.drawing_area->window, Crosshair.GC,
-		 0, TO_SCREEN_Y (Crosshair.Y), MAX_COORD / 100,
-		 TO_SCREEN_Y (Crosshair.Y));
-  gdk_gc_set_foreground (Crosshair.GC, &Settings.CrosshairColor);
+  int i;
+  for (i=0; i<polygon->PointN-1; i++)
+    gui->draw_line(Crosshair.GC,
+		   polygon->Points[i].X+dx, polygon->Points[i].Y+dy,
+		   polygon->Points[i+1].X+dx, polygon->Points[i+1].Y+dy);
+  if (i > 1)
+    gui->draw_line(Crosshair.GC,
+		   polygon->Points[i].X+dx, polygon->Points[i].Y+dy,
+		   polygon->Points[0].X+dx, polygon->Points[0].Y+dy);
 }
 
 /*-----------------------------------------------------------
@@ -172,34 +142,21 @@ XORDrawAttachedArc (BDimension thick)
   arc.Delta = dir;
   arc.Width = arc.Height = wy;
   bx = GetArcEnds (&arc);
-  arc.X -= wy;
-  arc.Y -= TO_SCREEN_SIGN_Y (wy);
-  sa = (sa - 180) * 64;
-  dir *= 64;
-  gdk_draw_arc (Output.drawing_area->window, Crosshair.GC, FALSE,
-		TO_SCREEN_X (arc.X - wid),
-		TO_SCREEN_Y (arc.Y - TO_SCREEN_SIGN_Y (wid)),
-		TO_SCREEN (2 * wy + thick), TO_SCREEN (2 * wy + thick),
-		TO_SCREEN_ANGLE (sa), TO_SCREEN_DELTA (dir));
-  if (TO_SCREEN (wid) && (2 * wy - thick) > 0 && TO_SCREEN (2 * wy - thick))
+  /*  sa = sa - 180;*/
+  gui->draw_arc(Crosshair.GC, arc.X, arc.Y,
+		wy + wid, wy + wid,
+		sa, dir);
+  if (wid > pixel_slop)
     {
-      gdk_draw_arc (Output.drawing_area->window, Crosshair.GC, FALSE,
-		    TO_SCREEN_X (arc.X + wid),
-		    TO_SCREEN_Y (arc.Y + TO_SCREEN_SIGN_Y (wid)),
-		    TO_SCREEN (2 * wy - thick), TO_SCREEN (2 * wy - thick),
-		    TO_SCREEN_ANGLE (sa), TO_SCREEN_DELTA (dir));
-      gdk_draw_arc (Output.drawing_area->window, Crosshair.GC, FALSE,
-		    TO_SCREEN_X (bx->X1 - wid),
-		    TO_SCREEN_Y (bx->Y1 - TO_SCREEN_SIGN_Y (wid)),
-		    TO_SCREEN (thick), TO_SCREEN (thick),
-		    TO_SCREEN_ANGLE (sa),
-		    TO_SCREEN_DELTA (-11520 * SGN (dir)));
-      gdk_draw_arc (Output.drawing_area->window, Crosshair.GC, FALSE,
-		    TO_SCREEN_X (bx->X2 - wid),
-		    TO_SCREEN_Y (bx->Y2 - TO_SCREEN_SIGN_Y (wid)),
-		    TO_SCREEN (thick), TO_SCREEN (thick),
-		    TO_SCREEN_ANGLE (sa + dir),
-		    TO_SCREEN_DELTA (11520 * SGN (dir)));
+      gui->draw_arc(Crosshair.GC, arc.X, arc.Y,
+		    wy - wid, wy - wid,
+		    sa, dir);
+      gui->draw_arc(Crosshair.GC, bx->X1, bx->Y1,
+		    wid, wid,
+		    sa, - 180 * SGN(dir));
+      gui->draw_arc(Crosshair.GC, bx->X2, bx->Y2,
+		    wid, wid,
+		    sa + dir, 180 * SGN (dir));
     }
 }
 
@@ -222,26 +179,19 @@ XORDrawAttachedLine (LocationType x1, LocationType y1, LocationType x2,
     h = 0.0;
   ox = dy * h + 0.5 * SGN (dy);
   oy = -(dx * h + 0.5 * SGN (dx));
-  gdk_draw_line (Output.drawing_area->window, Crosshair.GC,
-		 TO_SCREEN_X (x1 + ox), TO_SCREEN_Y (y1 + oy),
-		 TO_SCREEN_X (x2 + ox), TO_SCREEN_Y (y2 + oy));
-  if (TO_SCREEN (abs (ox)) || TO_SCREEN (abs (oy)))
+  gui->draw_line(Crosshair.GC,
+	     x1 + ox, y1 + oy,
+	     x2 + ox, y2 + oy);
+  if (abs (ox) >= pixel_slop || abs (oy) >= pixel_slop)
     {
-      LocationType angle =
-	TO_SCREEN_ANGLE (atan2 ((float) dx, (float) dy) * 3666.9298888);
-      gdk_draw_line (Output.drawing_area->window, Crosshair.GC,
-		     TO_SCREEN_X (x1 - ox), TO_SCREEN_Y (y1 - oy),
-		     TO_SCREEN_X (x2 - ox), TO_SCREEN_Y (y2 - oy));
-      gdk_draw_arc (Output.drawing_area->window, Crosshair.GC, FALSE,
-		    TO_SCREEN_X (x1 - wid),
-		    TO_SCREEN_Y (y1 - TO_SCREEN_SIGN_Y (wid)),
-		    TO_SCREEN (thick), TO_SCREEN (thick), angle,
-		    TO_SCREEN_DELTA (11520));
-      gdk_draw_arc (Output.drawing_area->window, Crosshair.GC, FALSE,
-		    TO_SCREEN_X (x2 - wid),
-		    TO_SCREEN_Y (y2 - TO_SCREEN_SIGN_Y (wid)),
-		    TO_SCREEN (thick), TO_SCREEN (thick), angle,
-		    TO_SCREEN_DELTA (-11520));
+      LocationType angle = atan2 ((float) dx, (float) dy) * 57.295779;
+      gui->draw_line(Crosshair.GC, x1 - ox, y1 - oy, x2 - ox, y2 - oy);
+      gui->draw_arc(Crosshair.GC,
+		    x1, y1, thick/2, thick/2,
+		    angle-180, 180);
+      gui->draw_arc(Crosshair.GC,
+		    x2, y2, thick/2, thick/2,
+		    angle, 180);
     }
 }
 
@@ -254,62 +204,60 @@ XORDrawElement (ElementTypePtr Element, LocationType DX, LocationType DY)
   /* if no silkscreen, draw the bounding box */
   if (Element->ArcN == 0 && Element->LineN == 0)
     {
-      gdk_draw_line (Output.drawing_area->window, Crosshair.GC,
-		     TO_SCREEN_X (DX + Element->BoundingBox.X1),
-		     TO_SCREEN_Y (DY + Element->BoundingBox.Y1),
-		     TO_SCREEN_X (DX + Element->BoundingBox.X1),
-		     TO_SCREEN_Y (DY + Element->BoundingBox.Y2));
-      gdk_draw_line (Output.drawing_area->window, Crosshair.GC,
-		     TO_SCREEN_X (DX + Element->BoundingBox.X1),
-		     TO_SCREEN_Y (DY + Element->BoundingBox.Y2),
-		     TO_SCREEN_X (DX + Element->BoundingBox.X2),
-		     TO_SCREEN_Y (DY + Element->BoundingBox.Y2));
-      gdk_draw_line (Output.drawing_area->window, Crosshair.GC,
-		     TO_SCREEN_X (DX + Element->BoundingBox.X2),
-		     TO_SCREEN_Y (DY + Element->BoundingBox.Y2),
-		     TO_SCREEN_X (DX + Element->BoundingBox.X2),
-		     TO_SCREEN_Y (DY + Element->BoundingBox.Y1));
-      gdk_draw_line (Output.drawing_area->window, Crosshair.GC,
-		     TO_SCREEN_X (DX + Element->BoundingBox.X2),
-		     TO_SCREEN_Y (DY + Element->BoundingBox.Y1),
-		     TO_SCREEN_X (DX + Element->BoundingBox.X1),
-		     TO_SCREEN_Y (DY + Element->BoundingBox.Y1));
+      gui->draw_line(Crosshair.GC,
+		     DX + Element->BoundingBox.X1,
+		     DY + Element->BoundingBox.Y1,
+		     DX + Element->BoundingBox.X1,
+		     DY + Element->BoundingBox.Y2);
+      gui->draw_line(Crosshair.GC,
+		     DX + Element->BoundingBox.X1,
+		     DY + Element->BoundingBox.Y2,
+		     DX + Element->BoundingBox.X2,
+		     DY + Element->BoundingBox.Y2);
+      gui->draw_line(Crosshair.GC,
+		     DX + Element->BoundingBox.X2,
+		     DY + Element->BoundingBox.Y2,
+		     DX + Element->BoundingBox.X2,
+		     DY + Element->BoundingBox.Y1);
+      gui->draw_line(Crosshair.GC,
+		     DX + Element->BoundingBox.X2,
+		     DY + Element->BoundingBox.Y1,
+		     DX + Element->BoundingBox.X1,
+		     DY + Element->BoundingBox.Y1);
     }
   else
     {
       ELEMENTLINE_LOOP (Element);
       {
-	gdk_draw_line (Output.drawing_area->window, Crosshair.GC,
-		       TO_SCREEN_X (DX + line->Point1.X),
-		       TO_SCREEN_Y (DY + line->Point1.Y),
-		       TO_SCREEN_X (DX + line->Point2.X),
-		       TO_SCREEN_Y (DY + line->Point2.Y));
+	gui->draw_line(Crosshair.GC,
+		       DX + line->Point1.X,
+		       DY + line->Point1.Y,
+		       DX + line->Point2.X,
+		       DY + line->Point2.Y);
       }
       END_LOOP;
 
       /* arc coordinates and angles have to be converted to X11 notation */
       ARC_LOOP (Element);
       {
-	gdk_draw_arc (Output.drawing_area->window, Crosshair.GC, FALSE,
-		      TO_SCREEN_X (DX + arc->X) - TO_SCREEN (arc->Width),
-		      TO_SCREEN_Y (DY + arc->Y) - TO_SCREEN (arc->Height),
-		      TO_SCREEN (2 * arc->Width),
-		      TO_SCREEN (2 * arc->Height),
-		      (TO_SCREEN_ANGLE (arc->StartAngle) + 180) * 64,
-		      TO_SCREEN_DELTA (arc->Delta) * 64);
+	gui->draw_arc(Crosshair.GC,
+		      DX + arc->X,
+		      DY + arc->Y,
+		      arc->Width,
+		      arc->Height,
+		      arc->StartAngle,
+		      arc->Delta);
       }
       END_LOOP;
     }
   /* pin coordinates and angles have to be converted to X11 notation */
   PIN_LOOP (Element);
   {
-    gdk_draw_arc (Output.drawing_area->window, Crosshair.GC, FALSE,
-		  TO_SCREEN_X (DX + pin->X) -
-		  TO_SCREEN (pin->Thickness / 2),
-		  TO_SCREEN_Y (DY + pin->Y) -
-		  TO_SCREEN (pin->Thickness / 2),
-		  TO_SCREEN (pin->Thickness), TO_SCREEN (pin->Thickness),
-		  0, 360 * 64);
+    gui->draw_arc(Crosshair.GC,
+		  DX + pin->X,
+		  DY + pin->Y,
+		  pin->Thickness/2, pin->Thickness/2,
+		  0, 360);
   }
   END_LOOP;
 
@@ -318,34 +266,34 @@ XORDrawElement (ElementTypePtr Element, LocationType DX, LocationType DY)
   {
     if ((TEST_FLAG (ONSOLDERFLAG, pad) != 0) ==
 	Settings.ShowSolderSide || PCB->InvisibleObjectsOn)
-      gdk_draw_line (Output.drawing_area->window, Crosshair.GC,
-		     TO_SCREEN_X (DX + pad->Point1.X),
-		     TO_SCREEN_Y (DY + pad->Point1.Y),
-		     TO_SCREEN_X (DX + pad->Point2.X),
-		     TO_SCREEN_Y (DY + pad->Point2.Y));
+      gui->draw_line(Crosshair.GC,
+		     DX + pad->Point1.X,
+		     DY + pad->Point1.Y,
+		     DX + pad->Point2.X,
+		     DY + pad->Point2.Y);
   }
   END_LOOP;
   /* mark */
-  gdk_draw_line (Output.drawing_area->window, Crosshair.GC,
-		 TO_SCREEN_X (Element->MarkX + DX - EMARK_SIZE),
-		 TO_SCREEN_Y (Element->MarkY + DY),
-		 TO_SCREEN_X (Element->MarkX + DX),
-		 TO_SCREEN_Y (Element->MarkY + DY - EMARK_SIZE));
-  gdk_draw_line (Output.drawing_area->window, Crosshair.GC,
-		 TO_SCREEN_X (Element->MarkX + DX + EMARK_SIZE),
-		 TO_SCREEN_Y (Element->MarkY + DY),
-		 TO_SCREEN_X (Element->MarkX + DX),
-		 TO_SCREEN_Y (Element->MarkY + DY - EMARK_SIZE));
-  gdk_draw_line (Output.drawing_area->window, Crosshair.GC,
-		 TO_SCREEN_X (Element->MarkX + DX - EMARK_SIZE),
-		 TO_SCREEN_Y (Element->MarkY + DY),
-		 TO_SCREEN_X (Element->MarkX + DX),
-		 TO_SCREEN_Y (Element->MarkY + DY + EMARK_SIZE));
-  gdk_draw_line (Output.drawing_area->window, Crosshair.GC,
-		 TO_SCREEN_X (Element->MarkX + DX + EMARK_SIZE),
-		 TO_SCREEN_Y (Element->MarkY + DY),
-		 TO_SCREEN_X (Element->MarkX + DX),
-		 TO_SCREEN_Y (Element->MarkY + DY + EMARK_SIZE));
+  gui->draw_line(Crosshair.GC,
+		 Element->MarkX + DX - EMARK_SIZE,
+		 Element->MarkY + DY,
+		 Element->MarkX + DX,
+		 Element->MarkY + DY - EMARK_SIZE);
+  gui->draw_line(Crosshair.GC,
+		 Element->MarkX + DX + EMARK_SIZE,
+		 Element->MarkY + DY,
+		 Element->MarkX + DX,
+		 Element->MarkY + DY - EMARK_SIZE);
+  gui->draw_line(Crosshair.GC,
+		 Element->MarkX + DX - EMARK_SIZE,
+		 Element->MarkY + DY,
+		 Element->MarkX + DX,
+		 Element->MarkY + DY + EMARK_SIZE);
+  gui->draw_line(Crosshair.GC,
+		 Element->MarkX + DX + EMARK_SIZE,
+		 Element->MarkY + DY,
+		 Element->MarkX + DX,
+		 Element->MarkY + DY + EMARK_SIZE);
 }
 
 /* ---------------------------------------------------------------------------
@@ -374,35 +322,30 @@ XORDrawBuffer (BufferTypePtr Buffer)
 					y +line->Point1.Y, x +line->Point2.X,
 					y +line->Point2.Y, line->Thickness);
 */
-	  gdk_draw_line (Output.drawing_area->window, Crosshair.GC,
-			 TO_SCREEN_X (x + line->Point1.X),
-			 TO_SCREEN_Y (y + line->Point1.Y),
-			 TO_SCREEN_X (x + line->Point2.X),
-			 TO_SCREEN_Y (y + line->Point2.Y));
+	  gui->draw_line(Crosshair.GC,
+			 x + line->Point1.X, y + line->Point1.Y,
+			 x + line->Point2.X, y + line->Point2.Y);
 	}
 	END_LOOP;
 	ARC_LOOP (layer);
 	{
-	  gdk_draw_arc (Output.drawing_area->window, Crosshair.GC, FALSE,
-			TO_SCREEN_X (x + arc->X) - TO_SCREEN (arc->Width),
-			TO_SCREEN_Y (y + arc->Y) -
-			TO_SCREEN (arc->Height),
-			TO_SCREEN (2 * arc->Width),
-			TO_SCREEN (2 * arc->Height),
-			(TO_SCREEN_ANGLE (arc->StartAngle) - 180) * 64,
-			TO_SCREEN_DELTA (arc->Delta) * 64);
+	  gui->draw_arc(Crosshair.GC,
+		    x + arc->X,
+		    y + arc->Y,
+		    arc->Width,
+		    arc->Height,
+		    arc->StartAngle,
+		    arc->Delta);
 	}
 	END_LOOP;
 	TEXT_LOOP (layer);
 	{
 	  BoxTypePtr box = &text->BoundingBox;
-	  LocationType y0;
-	  y0 = Settings.ShowSolderSide ? box->Y2 : box->Y1;
-	  gdk_draw_rectangle (Output.drawing_area->window, Crosshair.GC,
-			      FALSE, TO_SCREEN_X (x + box->X1),
-			      TO_SCREEN_Y (y + y0),
-			      TO_SCREEN (box->X2 - box->X1),
-			      TO_SCREEN (box->Y2 - box->Y1));
+	  gui->draw_rect(Crosshair.GC,
+			 x + box->X1,
+			 y + box->Y1,
+			 box->X2 - box->X1,
+			 box->Y2 - box->Y1);
 	}
 	END_LOOP;
 	/* the tmp polygon has n+1 points because the first
@@ -410,9 +353,7 @@ XORDrawBuffer (BufferTypePtr Buffer)
 	 */
 	POLYGON_LOOP (layer);
 	{
-	  CreateTMPPolygon (polygon, x, y);
-	  gdk_draw_lines (Output.drawing_area->window, Crosshair.GC,
-			  Points, polygon->PointN + 1);
+	  XORPolygon(polygon, x, y);
 	}
 	END_LOOP;
       }
@@ -430,12 +371,10 @@ XORDrawBuffer (BufferTypePtr Buffer)
   if (PCB->ViaOn)
     VIA_LOOP (Buffer->Data);
   {
-    gdk_draw_arc (Output.drawing_area->window, Crosshair.GC, FALSE,
-		  TO_SCREEN_X (x + via->X - via->Thickness / 2),
-		  TO_SCREEN_Y (y + via->Y -
-			       TO_SCREEN_SIGN_Y (via->Thickness / 2)),
-		  TO_SCREEN (via->Thickness),
-		  TO_SCREEN (via->Thickness), 0, 360 * 64);
+    gui->draw_arc(Crosshair.GC,
+		  x + via->X, y + via->Y,
+		  via->Thickness/2, via->Thickness/2,
+		  0, 360);
   }
   END_LOOP;
 }
@@ -451,16 +390,13 @@ XORDrawInsertPointObject (void)
 
   if (Crosshair.AttachedObject.Type != NO_TYPE)
     {
-      gdk_draw_line (Output.drawing_area->window, Crosshair.GC,
-		     TO_SCREEN_X (point->X), TO_SCREEN_Y (point->Y),
-		     TO_SCREEN_X (line->Point1.X),
-		     TO_SCREEN_Y (line->Point1.Y));
-      gdk_draw_line (Output.drawing_area->window, Crosshair.GC,
-		     TO_SCREEN_X (point->X), TO_SCREEN_Y (point->Y),
-		     TO_SCREEN_X (line->Point2.X),
-		     TO_SCREEN_Y (line->Point2.Y));
+      gui->draw_line(Crosshair.GC,
+		     point->X, point->Y,
+		     line->Point1.X, line->Point1.Y);
+      gui->draw_line(Crosshair.GC,
+		     point->X, point->Y,
+		     line->Point2.X, line->Point2.Y);
     }
-
 }
 
 /* ---------------------------------------------------------------------------
@@ -480,12 +416,11 @@ XORDrawMoveOrCopyObject (void)
       {
 	PinTypePtr via = (PinTypePtr) Crosshair.AttachedObject.Ptr1;
 
-	gdk_draw_arc (Output.drawing_area->window, Crosshair.GC, FALSE,
-		      TO_SCREEN_X (via->X + dx - via->Thickness / 2),
-		      TO_SCREEN_Y (via->Y + dy) -
-		      TO_SCREEN (via->Thickness / 2),
-		      TO_SCREEN (via->Thickness), TO_SCREEN (via->Thickness),
-		      0, 360 * 64);
+	gui->draw_arc(Crosshair.GC,
+		  via->X + dx,
+		  via->Y + dy,
+		  via->Thickness/2,
+		  via->Thickness/2, 0, 360);
 	break;
       }
 
@@ -503,13 +438,13 @@ XORDrawMoveOrCopyObject (void)
       {
 	ArcTypePtr Arc = (ArcTypePtr) Crosshair.AttachedObject.Ptr2;
 
-	gdk_draw_arc (Output.drawing_area->window, Crosshair.GC, FALSE,
-		      TO_SCREEN_X (Arc->X + dx) - TO_SCREEN (Arc->Width),
-		      TO_SCREEN_Y (Arc->Y + dy) - TO_SCREEN (Arc->Height),
-		      TO_SCREEN (2 * Arc->Width),
-		      TO_SCREEN (2 * Arc->Height),
-		      (TO_SCREEN_ANGLE (Arc->StartAngle) - 180) * 64,
-		      TO_SCREEN_DELTA (Arc->Delta) * 64);
+	gui->draw_arc(Crosshair.GC,
+		      Arc->X + dx,
+		      Arc->Y + dy,
+		      Arc->Width,
+		      Arc->Height,
+		      Arc->StartAngle,
+		      Arc->Delta);
 	break;
       }
 
@@ -521,9 +456,7 @@ XORDrawMoveOrCopyObject (void)
 	/* the tmp polygon has n+1 points because the first
 	 * and the last one are set to the same coordinates
 	 */
-	CreateTMPPolygon (polygon, dx, dy);
-	gdk_draw_lines (Output.drawing_area->window, Crosshair.GC,
-			Points, polygon->PointN + 1);
+	XORPolygon (polygon, dx, dy);
 	break;
       }
 
@@ -571,16 +504,14 @@ XORDrawMoveOrCopyObject (void)
 	  }
 
 	/* draw the two segments */
-	gdk_draw_line (Output.drawing_area->window, Crosshair.GC,
-		       TO_SCREEN_X (previous->X),
-		       TO_SCREEN_Y (previous->Y),
-		       TO_SCREEN_X (point->X + dx),
-		       TO_SCREEN_Y (point->Y + dy));
-	gdk_draw_line (Output.drawing_area->window, Crosshair.GC,
-		       TO_SCREEN_X (point->X + dx),
-		       TO_SCREEN_Y (point->Y + dy),
-		       TO_SCREEN_X (following->X),
-		       TO_SCREEN_Y (following->Y));
+	gui->draw_line(Crosshair.GC,
+		   previous->X,
+		   previous->Y,
+		   point->X + dx, point->Y + dy);
+	gui->draw_line(Crosshair.GC,
+		   point->X + dx,
+		   point->Y + dy,
+		   following->X, following->Y);
 	break;
       }
 
@@ -590,10 +521,10 @@ XORDrawMoveOrCopyObject (void)
 	ElementTypePtr element =
 	  (ElementTypePtr) Crosshair.AttachedObject.Ptr1;
 
-	gdk_draw_line (Output.drawing_area->window, Crosshair.GC,
-		       TO_SCREEN_X (element->MarkX),
-		       TO_SCREEN_Y (element->MarkY),
-		       TO_SCREEN_X (Crosshair.X), TO_SCREEN_Y (Crosshair.Y));
+	gui->draw_line(Crosshair.GC,
+		       element->MarkX,
+		       element->MarkY,
+		       Crosshair.X, Crosshair.Y);
 	/* fall through to move the text as a box outline */
       }
     case TEXT_TYPE:
@@ -604,11 +535,11 @@ XORDrawMoveOrCopyObject (void)
 
 	x0 = box->X1;
 	y0 = Settings.ShowSolderSide ? box->Y2 : box->Y1;
-	gdk_draw_rectangle (Output.drawing_area->window, Crosshair.GC, FALSE,
-			    TO_SCREEN_X (x0 + dx),
-			    TO_SCREEN_Y (y0 + dy),
-			    TO_SCREEN (box->X2 - box->X1),
-			    TO_SCREEN (box->Y2 - box->Y1));
+	gui->draw_rect(Crosshair.GC,
+		       box->X1 + dx,
+		       box->Y1 + dy,
+		       box->X2 + dx,
+		       box->Y2 + dy);
 	break;
       }
 
@@ -662,26 +593,23 @@ static void
 DrawAttached (Boolean BlockToo)
 {
   BDimension s;
-  DrawCrosshair ();
   switch (Settings.Mode)
     {
     case VIA_MODE:
-      gdk_draw_arc (Output.drawing_area->window, Crosshair.GC, FALSE,
-		    TO_SCREEN_X (Crosshair.X - Settings.ViaThickness / 2),
-		    TO_SCREEN_Y (Crosshair.Y) -
-		    TO_SCREEN (Settings.ViaThickness / 2),
-		    TO_SCREEN (Settings.ViaThickness),
-		    TO_SCREEN (Settings.ViaThickness), 0, 360 * 64);
+      gui->draw_arc(Crosshair.GC,
+		    Crosshair.X,
+		    Crosshair.Y,
+		    Settings.ViaThickness / 2,
+		    Settings.ViaThickness / 2, 0, 360);
       if (TEST_FLAG (SHOWDRCFLAG, PCB))
 	{
-	  s = Settings.ViaThickness + 2 * (PCB->Bloat + 1);
-	  gdk_gc_set_foreground (Crosshair.GC, &Settings.CrossColor);
-	  gdk_draw_arc (Output.drawing_area->window, Crosshair.GC, FALSE,
-			TO_SCREEN_X (Crosshair.X - s / 2),
-			TO_SCREEN_Y (Crosshair.Y) -
-			TO_SCREEN (s / 2),
-			TO_SCREEN (s), TO_SCREEN (s), 0, 360 * 64);
-	  gdk_gc_set_foreground (Crosshair.GC, &Settings.CrosshairColor);
+	  s = Settings.ViaThickness/2 + PCB->Bloat + 1;
+	  gui->set_color(Crosshair.GC, Settings.CrossColor);
+	  gui->draw_arc(Crosshair.GC,
+		    Crosshair.X,
+		    Crosshair.Y,
+		    s, s, 0, 360 * 64);
+	  gui->set_color(Crosshair.GC, Settings.CrosshairColor);
 	}
       break;
 
@@ -689,18 +617,16 @@ DrawAttached (Boolean BlockToo)
     case POLYGON_MODE:
       /* draw only if starting point is set */
       if (Crosshair.AttachedLine.State != STATE_FIRST)
-	gdk_draw_line (Output.drawing_area->window, Crosshair.GC,
-		       TO_SCREEN_X (Crosshair.AttachedLine.Point1.X),
-		       TO_SCREEN_Y (Crosshair.AttachedLine.Point1.Y),
-		       TO_SCREEN_X (Crosshair.AttachedLine.Point2.X),
-		       TO_SCREEN_Y (Crosshair.AttachedLine.Point2.Y));
+	gui->draw_line(Crosshair.GC,
+		       Crosshair.AttachedLine.Point1.X,
+		       Crosshair.AttachedLine.Point1.Y,
+		       Crosshair.AttachedLine.Point2.X,
+		       Crosshair.AttachedLine.Point2.Y);
 
       /* draw attached polygon only if in POLYGON_MODE */
       if (Crosshair.AttachedPolygon.PointN > 1)
 	{
-	  CreateTMPPolygon (&Crosshair.AttachedPolygon, 0, 0);
-	  gdk_draw_lines (Output.drawing_area->window, Crosshair.GC,
-			  Points, Crosshair.AttachedPolygon.PointN);
+	  XORPolygon (&Crosshair.AttachedPolygon, 0, 0);
 	}
       break;
 
@@ -710,10 +636,10 @@ DrawAttached (Boolean BlockToo)
 	  XORDrawAttachedArc (Settings.LineThickness);
 	  if (TEST_FLAG (SHOWDRCFLAG, PCB))
 	    {
-	      gdk_gc_set_foreground (Crosshair.GC, &Settings.CrossColor);
+	      gui->set_color(Crosshair.GC, Settings.CrossColor);
 	      XORDrawAttachedArc (Settings.LineThickness +
 				  2 * (PCB->Bloat + 1));
-	      gdk_gc_set_foreground (Crosshair.GC, &Settings.CrosshairColor);
+	      gui->set_color(Crosshair.GC, Settings.CrosshairColor);
 	    }
 
 	}
@@ -737,7 +663,7 @@ DrawAttached (Boolean BlockToo)
 				 PCB->RatDraw ? 10 : Settings.LineThickness);
 	  if (TEST_FLAG (SHOWDRCFLAG, PCB))
 	    {
-	      gdk_gc_set_foreground (Crosshair.GC, &Settings.CrossColor);
+	      gui->set_color(Crosshair.GC, Settings.CrossColor);
 	      XORDrawAttachedLine (Crosshair.AttachedLine.Point1.X,
 				   Crosshair.AttachedLine.Point1.Y,
 				   Crosshair.AttachedLine.Point2.X,
@@ -749,8 +675,9 @@ DrawAttached (Boolean BlockToo)
 				     Crosshair.AttachedLine.Point2.Y,
 				     Crosshair.X, Crosshair.Y,
 				     PCB->RatDraw ? 10 : Settings.
-				     LineThickness + 2 * (PCB->Bloat + 1));
-	      gdk_gc_set_foreground (Crosshair.GC, &Settings.CrosshairColor);
+				     LineThickness + 2 * (PCB->Bloat +
+							  1));
+	      gui->set_color(Crosshair.GC, Settings.CrosshairColor);
 	    }
 	}
       break;
@@ -773,7 +700,7 @@ DrawAttached (Boolean BlockToo)
   if (Crosshair.AttachedBox.State == STATE_SECOND ||
       (BlockToo && Crosshair.AttachedBox.State == STATE_THIRD))
     {
-      LocationType x1, y1, x2, y2, y0;
+      LocationType x1, y1, x2, y2;
 
       x1 =
 	MIN (Crosshair.AttachedBox.Point1.X, Crosshair.AttachedBox.Point2.X);
@@ -783,11 +710,7 @@ DrawAttached (Boolean BlockToo)
 	MAX (Crosshair.AttachedBox.Point1.X, Crosshair.AttachedBox.Point2.X);
       y2 =
 	MAX (Crosshair.AttachedBox.Point1.Y, Crosshair.AttachedBox.Point2.Y);
-      y0 = Settings.ShowSolderSide ? y2 : y1;
-      gdk_draw_rectangle (Output.drawing_area->window, Crosshair.GC, FALSE,
-			  TO_SCREEN_X (x1),
-			  TO_SCREEN_Y (y0),
-			  TO_SCREEN (x2 - x1), TO_SCREEN (y2 - y1));
+      gui->draw_rect(Crosshair.GC, x1, y1, x2, y2);
     }
 }
 
@@ -800,8 +723,6 @@ CrosshairOn (Boolean BlockToo)
   if (!Crosshair.On)
     {
       Crosshair.On = True;
-      gdk_display_sync (gdk_drawable_get_display
-			(Output.drawing_area->window));
       DrawAttached (BlockToo);
       DrawMark (True);
     }
@@ -816,8 +737,6 @@ CrosshairOff (Boolean BlockToo)
   if (Crosshair.On)
     {
       Crosshair.On = False;
-      gdk_display_sync (gdk_drawable_get_display
-			(Output.drawing_area->window));
       DrawAttached (BlockToo);
       DrawMark (True);
     }
@@ -860,6 +779,7 @@ FitCrosshairIntoGrid (LocationType X, LocationType Y)
   void *ptr1, *ptr2, *ptr3;
   int ans;
 
+#if 0
   /* get PCB coordinates from visible display size.
    * If the bottom view mode is active, y2 might be less then y1
    */
@@ -871,17 +791,25 @@ FitCrosshairIntoGrid (LocationType X, LocationType Y)
       y0 = y2;
       y2 = x0;
     }
-  x0 = TO_PCB_X (0);
+  x0 = 0;
   x2 = TO_PCB_X (Output.Width - 1);
 
   /* check position agains window size and against valid
    * coordinates determined by the size of an attached
    * object or buffer
-   */
+an   */
   Crosshair.X = MIN (x2, MAX (x0, X));
   Crosshair.Y = MIN (y2, MAX (y0, Y));
   Crosshair.X = MIN (Crosshair.MaxX, MAX (Crosshair.MinX, Crosshair.X));
   Crosshair.Y = MIN (Crosshair.MaxY, MAX (Crosshair.MinY, Crosshair.Y));
+#else
+  x0 = 0;
+  y0 = 0;
+  x2 = PCB->MaxWidth;
+  y2 = PCB->MaxHeight;
+  Crosshair.X = MIN (Crosshair.MaxX, MAX (Crosshair.MinX, X));
+  Crosshair.Y = MIN (Crosshair.MaxY, MAX (Crosshair.MinY, Y));
+#endif
 
   if (PCB->RatDraw || TEST_FLAG (SNAPPINFLAG, PCB))
     {
@@ -966,6 +894,7 @@ FitCrosshairIntoGrid (LocationType X, LocationType Y)
 	  px = pad->Point2.X;
 	  py = pad->Point2.Y;
 	}
+      
       if (SQUARE (x0 - Crosshair.X) + SQUARE (y0 - Crosshair.Y) >
 	  SQUARE (px - Crosshair.X) + SQUARE (py - Crosshair.Y))
 	{
@@ -1016,6 +945,8 @@ FitCrosshairIntoGrid (LocationType X, LocationType Y)
       && Crosshair.AttachedLine.State != STATE_FIRST
       && TEST_FLAG (AUTODRCFLAG, PCB))
     EnforceLineDRC ();
+
+  gui->set_crosshair (Crosshair.X, Crosshair.Y);
 }
 
 /* ---------------------------------------------------------------------------
@@ -1059,8 +990,7 @@ MoveCrosshairAbsolute (LocationType X, LocationType Y)
  * sets the valid range for the crosshair cursor
  */
 void
-SetCrosshairRange (LocationType MinX, LocationType MinY, LocationType MaxX,
-		   LocationType MaxY)
+SetCrosshairRange (LocationType MinX, LocationType MinY, LocationType MaxX, LocationType MaxY)
 {
   Crosshair.MinX = MAX (0, MinX);
   Crosshair.MinY = MAX (0, MinY);
@@ -1076,24 +1006,22 @@ SetCrosshairRange (LocationType MinX, LocationType MinY, LocationType MaxX,
  * if argument is True, draw only if it is visible, otherwise draw it regardless
  */
 void
-DrawMark (gboolean ifvis)
-{
-  gdk_display_sync (gdk_drawable_get_display (Output.drawing_area->window));
-
-  if (Marked.status || !ifvis)
-    {
-      gdk_draw_line (Output.drawing_area->window, Crosshair.GC,
-		     TO_SCREEN_X (Marked.X - MARK_SIZE),
-		     TO_SCREEN_Y (Marked.Y - MARK_SIZE),
-		     TO_SCREEN_X (Marked.X + MARK_SIZE),
-		     TO_SCREEN_Y (Marked.Y + MARK_SIZE));
-      gdk_draw_line (Output.drawing_area->window, Crosshair.GC,
-		     TO_SCREEN_X (Marked.X + MARK_SIZE),
-		     TO_SCREEN_Y (Marked.Y - MARK_SIZE),
-		     TO_SCREEN_X (Marked.X - MARK_SIZE),
-		     TO_SCREEN_Y (Marked.Y + MARK_SIZE));
-    }
-}
+DrawMark (Boolean ifvis)
+	{
+	if (Marked.status || !ifvis)
+		{
+		  gui->draw_line(Crosshair.GC,
+				 Marked.X - MARK_SIZE,
+				 Marked.Y - MARK_SIZE,
+				 Marked.X + MARK_SIZE,
+				 Marked.Y + MARK_SIZE);
+		  gui->draw_line(Crosshair.GC,
+				 Marked.X + MARK_SIZE,
+				 Marked.Y - MARK_SIZE,
+				 Marked.X - MARK_SIZE,
+				 Marked.Y + MARK_SIZE);
+		}
+	}
 
 /* ---------------------------------------------------------------------------
  * initializes crosshair stuff
@@ -1103,20 +1031,13 @@ DrawMark (gboolean ifvis)
 void
 InitCrosshair (void)
 {
-  GdkGC *xGC;
+  Crosshair.GC = gui->make_gc();
 
-  xGC = Crosshair.GC = gdk_gc_new (Output.drawing_area->window);
-  gdk_gc_copy (xGC, Output.drawing_area->style->white_gc);
-
-  if (!xGC)
-    MyFatal ("can't create default crosshair GC\n");
-
-  gdk_gc_set_foreground (xGC, &Settings.CrosshairColor);
-  gdk_gc_set_background (xGC, &Settings.BackgroundColor);
-  gdk_gc_set_function (xGC, GDK_XOR);
-  gdk_gc_set_line_attributes (xGC, 1,
-			      GDK_LINE_SOLID, GDK_CAP_BUTT, GDK_JOIN_MITER);
-
+  gui->set_color(Crosshair.GC, Settings.CrosshairColor);
+  gui->set_draw_xor(Crosshair.GC, 1);
+  gui->set_line_cap(Crosshair.GC, Trace_Cap);
+  gui->set_line_width(Crosshair.GC, 1);
+	
   /* fake a crosshair off entry on stack */
   CrosshairStackLocation = 0;
   CrosshairStack[CrosshairStackLocation++] = True;
@@ -1139,5 +1060,5 @@ DestroyCrosshair (void)
 {
   CrosshairOff (True);
   FreePolygonMemory (&Crosshair.AttachedPolygon);
-  gdk_gc_unref (Crosshair.GC);
+  gui->destroy_gc(Crosshair.GC);
 }

@@ -35,8 +35,6 @@
 
 #include "global.h"
 
-int	Print(char *, float, Boolean, Boolean, Boolean,
-		Boolean, Boolean, Boolean, Boolean, Boolean,
-		PrintDeviceTypePtr, MediaTypePtr, LocationType, LocationType, Boolean);
+void PrintFab();
 
 #endif

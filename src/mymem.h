@@ -113,4 +113,6 @@ char				*StripWhiteSpaceAndDup(char *);
 char				*strdup(const char *);
 #endif
 
+#define malloc(x) calloc(1,(x))
+
 #endif

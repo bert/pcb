@@ -58,7 +58,7 @@
 #include "macro.h"
 #include "autoroute.h"
 #include "box.h"
-#include "clip.h"
+/*#include "clip.h"*/
 #include "create.h"
 #include "draw.h"
 #include "error.h"
@@ -73,10 +73,10 @@
 #include "undo.h"
 #include "vector.h"
 
-RCSID ("$Id$");
+RCSID("$Id$");
 
 /* #defines to enable some debugging output */
-#define ROUTE_VERBOSE
+/*#define ROUTE_VERBOSE*/
 
 /*
 #define ROUTE_DEBUG
@@ -497,7 +497,7 @@ AddPin (PointerListType layergroupboxes[], PinTypePtr pin, Boolean is_via)
   for (i = 0; i < MAX_LAYER; i++)
     {
       rbpp = (routebox_t **) GetPointerMemory (&layergroupboxes[i]);
-      *rbpp = g_malloc0 (sizeof (**rbpp));
+      *rbpp = malloc (sizeof (**rbpp));
       (*rbpp)->group = i;
       init_const_box (*rbpp,
 		      /*X1 */ pin->X - HALF_THICK (pin->Thickness),
@@ -541,7 +541,7 @@ AddPad (PointerListType layergroupboxes[],
   assert (PCB->LayerGroups.Number[layergroup] > 0);
   rbpp = (routebox_t **) GetPointerMemory (&layergroupboxes[layergroup]);
   assert (rbpp);
-  *rbpp = g_malloc0 (sizeof (**rbpp));
+  *rbpp = malloc (sizeof (**rbpp));
   assert (*rbpp);
   (*rbpp)->group = layergroup;
   halfthick = HALF_THICK (pad->Thickness);
@@ -574,7 +574,7 @@ AddLine (PointerListType layergroupboxes[], int layer, LineTypePtr line)
   assert (PCB->LayerGroups.Number[layergroup] > 0);
 
   rbpp = (routebox_t **) GetPointerMemory (&layergroupboxes[layergroup]);
-  *rbpp = g_malloc0 (sizeof (**rbpp));
+  *rbpp = malloc (sizeof (**rbpp));
   (*rbpp)->group = layergroup;
   init_const_box (*rbpp,
 		  /*X1 */ MIN (line->Point1.X,
@@ -619,7 +619,7 @@ AddIrregularObstacle (PointerListType layergroupboxes[],
   assert (PCB->LayerGroups.Number[layergroup] > 0);
 
   rbpp = (routebox_t **) GetPointerMemory (&layergroupboxes[layergroup]);
-  *rbpp = g_malloc0 (sizeof (**rbpp));
+  *rbpp = malloc (sizeof (**rbpp));
   (*rbpp)->group = layergroup;
   init_const_box (*rbpp, X1, Y1, X2, Y2);
   (*rbpp)->flags.nonstraight = 1;
@@ -808,7 +808,7 @@ CreateRouteData ()
 	}
     }
   /* create routedata */
-  rd = g_malloc0 (sizeof (*rd));
+  rd = malloc (sizeof (*rd));
   /* create default style */
   rd->defaultStyle.Thick = Settings.LineThickness;
   rd->defaultStyle.Diameter = Settings.ViaThickness;
@@ -996,7 +996,7 @@ DestroyRouteData (routedata_t ** rd)
   for (i = 0; i < MAX_LAYER; i++)
     r_destroy_tree (&(*rd)->layergrouptree[i]);
   mtspace_destroy (&(*rd)->mtspace);
-  g_free (*rd);
+  free (*rd);
   *rd = NULL;
 }
 
@@ -1026,7 +1026,7 @@ RB_down_count (routebox_t * rb)
       if (rb->type == EXPANSION_AREA
 	  && rb->parent.expansion_area->flags.orphan)
 	RB_down_count (rb->parent.expansion_area);
-      g_free (rb);
+      free (rb);
     }
 }
 
@@ -1134,10 +1134,10 @@ showbox (BoxType b, Dimension thickness, int group)
 			      GDK_LINE_SOLID, GDK_CAP_ROUND, GDK_JOIN_ROUND);
   gdk_gc_set_foreground (Output.fgGC, SLayer->Color);
 
-  XDrawCLine (Output.top_window->window, Output.fgGC, b.X1, b.Y1, b.X2, b.Y1);
-  XDrawCLine (Output.top_window->window, Output.fgGC, b.X1, b.Y2, b.X2, b.Y2);
-  XDrawCLine (Output.top_window->window, Output.fgGC, b.X1, b.Y1, b.X1, b.Y2);
-  XDrawCLine (Output.top_window->window, Output.fgGC, b.X2, b.Y1, b.X2, b.Y2);
+  XDrawLine (Output.top_window->window, Output.fgGC, b.X1, b.Y1, b.X2, b.Y1);
+  XDrawLine (Output.top_window->window, Output.fgGC, b.X1, b.Y2, b.X2, b.Y2);
+  XDrawLine (Output.top_window->window, Output.fgGC, b.X1, b.Y1, b.X1, b.Y2);
+  XDrawLine (Output.top_window->window, Output.fgGC, b.X2, b.Y1, b.X2, b.Y2);
 
 #if XXX
   if (XtAppPending (Context))
@@ -1237,11 +1237,13 @@ EraseRouteBox (routebox_t * rb)
       X1 = rb->box.X1 + thick / 2;
       X2 = rb->box.X2 - thick / 2;
     }
+#ifdef FIXME
   gdk_gc_set_line_attributes (Output.fgGC, TO_SCREEN (thick),
 			      GDK_LINE_SOLID, GDK_CAP_ROUND, GDK_JOIN_ROUND);
   gdk_gc_set_foreground (Output.fgGC, &Settings.BackgroundColor);
 
   XDrawCLine (Output.top_window->window, Output.fgGC, X1, Y1, X2, Y2);
+#endif
 }
 
 /* return a "parent" of this edge which immediately precedes it in the route.*/
@@ -1342,7 +1344,7 @@ CreateEdge (routebox_t * rb,
 {
   edge_t *e;
   assert (__routebox_is_good (rb));
-  e = g_malloc0 (sizeof (*e));
+  e = malloc (sizeof (*e));
   assert (e);
   e->rb = rb;
   if (rb->flags.orphan)
@@ -1491,7 +1493,7 @@ CreateEdgeWithConflicts (const BoxType * interior_edge,
   rb->underlying = container;	/* crucial! */
   costpoint = closest_point_in_box (&previous_edge->cost_point, &b);
   d = cost_to_point_on_layer (&costpoint, &previous_edge->cost_point,
-			      previous_edge->rb->group);
+                              previous_edge->rb->group);
   d *= cost_penalty_to_box;
   ne = CreateEdge (rb, costpoint.X, costpoint.Y, previous_edge->cost_to_point + d, previous_edge->mincost_target, NORTH	/*arbitrary */
 		   , targets);
@@ -1506,7 +1508,7 @@ DestroyEdge (edge_t ** e)
   assert (e && *e);
   if ((*e)->rb->flags.orphan)
     RB_down_count ((*e)->rb);	/* possibly free rb */
-  g_free (*e);
+  free (*e);
   *e = NULL;
 }
 
@@ -1704,7 +1706,7 @@ CreateExpansionArea (const BoxType * area, Cardinal group,
 		     edge_t * src_edge)
 {
   CheapPointType center;
-  routebox_t *rb = (routebox_t *) g_malloc0 (sizeof (*rb));
+  routebox_t *rb = (routebox_t *) malloc (sizeof (*rb));
   assert (area && parent);
   init_const_box (rb, area->X1, area->Y1, area->X2, area->Y2);
   rb->group = group;
@@ -2200,7 +2202,7 @@ RD_DrawThermal (routedata_t * rd, LocationType X, LocationType Y,
 		Boolean is_bad)
 {
   routebox_t *rb;
-  rb = (routebox_t *) g_malloc0 (sizeof (*rb));
+  rb = (routebox_t *) malloc (sizeof (*rb));
   init_const_box (rb, X, Y, X + 1, Y + 1);
   rb->group = group;
   rb->layer = layer;
@@ -2230,7 +2232,7 @@ RD_DrawVia (routedata_t * rd, LocationType X, LocationType Y,
     {
       if (!is_layer_group_active (i))
 	continue;
-      rb = (routebox_t *) g_malloc0 (sizeof (*rb));
+      rb = (routebox_t *) malloc(sizeof (*rb));
       init_const_box (rb,
 		      /*X1 */ X - radius, /*Y1 */ Y - radius,
 		      /*X2 */ X + radius, /*Y2 */ Y + radius);
@@ -2258,15 +2260,16 @@ RD_DrawVia (routedata_t * rd, LocationType X, LocationType Y,
       assert (__routebox_is_good (rb));
       /* and add it to the r-tree! */
       r_insert_entry (rd->layergrouptree[rb->group], &rb->box, 1);
+#ifdef FIXME
       if (TEST_FLAG (LIVEROUTEFLAG, PCB))
 	{
 	  gdk_gc_set_line_attributes (Output.fgGC, TO_SCREEN (2 * radius),
-				      GDK_LINE_SOLID, GDK_CAP_ROUND,
-				      GDK_JOIN_ROUND);
+				      GDK_LINE_SOLID, GDK_CAP_ROUND, GDK_JOIN_ROUND);
 	  gdk_gc_set_foreground (Output.fgGC, PCB->ViaColor);
 
 	  XDrawCLine (Output.top_window->window, Output.fgGC, X, Y, X, Y);
 	}
+#endif
       /* and to the via space structures */
       if (AutoRouteParameters.use_vias)
 	mtspace_add (rd->mtspace, &rb->box, rb->flags.is_odd ? ODD : EVEN,
@@ -2283,7 +2286,7 @@ RD_DrawLine (routedata_t * rd,
   /* don't draw zero-length segments. */
   if (X1 == X2 && Y1 == Y2)
     return;
-  rb = (routebox_t *) g_malloc0 (sizeof (*rb));
+  rb = (routebox_t *) malloc (sizeof (*rb));
   assert (is_45 ? (ABS (X2 - X1) == ABS (Y2 - Y1))	/* line must be 45-degrees */
 	  : (X1 == X2 || Y1 == Y2) /* line must be ortho */ );
   init_const_box (rb,
@@ -2307,16 +2310,17 @@ RD_DrawLine (routedata_t * rd,
   assert (__routebox_is_good (rb));
   /* and add it to the r-tree! */
   r_insert_entry (rd->layergrouptree[rb->group], &rb->box, 1);
+#ifdef FIXME
   if (TEST_FLAG (LIVEROUTEFLAG, PCB))
     {
       LayerTypePtr layp = LAYER_PTR (PCB->LayerGroups.Entries[rb->group][0]);
 
       gdk_gc_set_line_attributes (Output.fgGC, TO_SCREEN (2 * halfthick),
-				  GDK_LINE_SOLID, GDK_CAP_ROUND,
-				  GDK_JOIN_ROUND);
+				  GDK_LINE_SOLID, GDK_CAP_ROUND, GDK_JOIN_ROUND);
       gdk_gc_set_foreground (Output.fgGC, layp->Color);
       XDrawCLine (Output.top_window->window, Output.fgGC, X1, Y1, X2, Y2);
     }
+#endif
   /* and to the via space structures */
   if (AutoRouteParameters.use_vias)
     mtspace_add (rd->mtspace, &rb->box, rb->flags.is_odd ? ODD : EVEN,
@@ -2715,11 +2719,11 @@ add_via_sites (struct routeone_state *s,
 	  if (!box_intersect (area, &region) ||
 	      !(i == NO_CONFLICT || AutoRouteParameters.with_conflicts))
 	    {
-	      g_free (area);
+	      free (area);
 	      continue;
 	    }
 	  cliparea = clip_box (area, &region);
-	  g_free (area);
+	  free (area);
 	  assert (__box_is_good (&cliparea));
 	  count++;
 	  for (j = 0; j < MAX_LAYER; j++)
@@ -2842,7 +2846,7 @@ RouteOne (routedata_t * rd, routebox_t * from, routebox_t * to, int max_edges)
   assert (!from->flags.target);
   assert (num_targets > 0);
   /* create list of target pointers and from that a r-tree of targets */
-  target_list = g_malloc (num_targets * sizeof (*target_list));
+  target_list = malloc (num_targets * sizeof (*target_list));
   i = 0;
   LIST_LOOP (from, same_net, p);
   if (p->flags.target)
@@ -2852,7 +2856,7 @@ RouteOne (routedata_t * rd, routebox_t * from, routebox_t * to, int max_edges)
   END_LOOP;
   targets = r_create_tree (target_list, i, 0);
   assert (i <= num_targets);
-  g_free (target_list);
+  free (target_list);
 
   /* add all sources to a vector (since we need to BreakEdges) */
   source_vec = vector_create ();
@@ -3248,7 +3252,8 @@ RouteOne (routedata_t * rd, routebox_t * from, routebox_t * to, int max_edges)
 	      center.X = (next->box.X1 + next->box.X2) / 2;
 	      center.Y = (next->box.Y1 + next->box.Y2) / 2;
 	      cost =
-		cost_to_point_on_layer (&e->cost_point, &center, next->group);
+		cost_to_point_on_layer (&e->cost_point, &center,
+					next->group);
 	      /* don't expand this edge, but check if we found a cheaper way here */
 	      /*XXX prevent loops */
 	      if (next->cost >= e->cost_to_point + cost);

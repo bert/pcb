@@ -4,7 +4,7 @@
  *                            COPYRIGHT
  *
  *  PCB, interactive printed circuit board design
- *  Copyright (C) 1994,1995,1996 Thomas Nau
+ *  Copyright (C) 1994,1995,1996, 2005 Thomas Nau
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -53,408 +53,14 @@
 #include "set.h"
 #include "vendor.h"
 
-#include "gui.h"
-
 RCSID("$Id$");
-
-typedef int (*FunctionTypePtr) (void);
-
-/* ---------------------------------------------------------------------------
- * local prototypes
- */
-static int CommandCallAction (void);
-static int CommandLoadElementToBuffer (void);
-static int CommandLoadLayoutToBuffer (void);
-static int CommandLoadLayout (void);
-static int CommandLoadNetlist (void);
-static int CommandSaveLayout (void);
-static int CommandSaveLayoutAndQuit (void);
-static int CommandQuit (void);
-static int CommandHelp (void);
-static int SetArgcArgv (char *);
-
-
-typedef struct
-	{
-	char *Text;					/* commandstring */
-	FunctionTypePtr Function;	/* function pointer */
-	}
-	CommandType, *CommandTypePtr;
-
-
-typedef struct
-	{
-	gchar	*text;
-	void	(*function)();
-	gboolean        needs_params;
-	}
-	ActionType;
-
-
-/* ---------------------------------------------------------------------------
- * actions
- */
-static ActionType	action[] =
-	{
-	{"AutoPlaceSelected",	ActionAutoPlaceSelected, FALSE},
-	{"AutoRoute",			ActionAutoRoute, FALSE},
-	{"SetSame",				ActionSetSame, FALSE},
-	{"MovePointer",			ActionMovePointer, FALSE},
-	{"ToggleHideName",		ActionToggleHideName, FALSE},
-	{"ChangeHole",			ActionChangeHole, FALSE},
-	{"ToggleThermal",		ActionToggleThermal, FALSE},
-	{"Atomic",				ActionAtomic, FALSE},
-	{"RouteStyle",			ActionRouteStyle, FALSE},
-	{"DRC",					ActionDRCheck, FALSE},
-	{"Flip",				ActionFlip, FALSE},
-	{"SetValue",			ActionSetValue, FALSE},
-	{"Quit",				ActionQuit, FALSE},
-	{"Connection",			ActionConnection, FALSE},
-	{"Command",				ActionCommand, FALSE},
-	{"DisperseElements",	ActionDisperseElements, FALSE},
-	{"Display",				ActionDisplay, FALSE},
-	{"Report",				ActionReport, FALSE},
-	{"Mode",				ActionMode, FALSE},
-	{"RemoveSelected",		ActionRemoveSelected, FALSE},
-	{"DeleteRats",			ActionDeleteRats, FALSE},
-	{"AddRats",				ActionAddRats, FALSE},
-	{"MarkCrosshair",		ActionMarkCrosshair, FALSE},
-	{"ChangeSize",			ActionChangeSize, FALSE},
-	{"ChangeClearSize",		ActionChangeClearSize, FALSE},
-	{"ChangeDrillSize",		ActionChange2ndSize, FALSE},
-	{"ChangeName",			ActionChangeName, FALSE},
-	{"ChangePinName",		ActionChangePinName, FALSE},
-	{"ChangeSquare",		ActionChangeSquare, FALSE},
-	{"ChangeOctagon",		ActionChangeOctagon, FALSE},
-	{"ChangeJoin",			ActionChangeJoin, FALSE},
-	{"Select",				ActionSelect, FALSE},
-	{"Unselect",			ActionUnselect, FALSE},
-	{"Save",				ActionSave, FALSE},
-	{"Load",				ActionLoad, FALSE},
-	{"PrintDialog",				ActionPrintDialog, FALSE},
-	{"Print",				ActionPrint, TRUE},
-	{"New",					ActionNew, FALSE},
-	{"SwapSides",			ActionSwapSides, FALSE},
-	{"Bell",				ActionBell, FALSE},
-	{"PasteBuffer",			ActionPasteBuffer, FALSE},
-	{"Undo",				ActionUndo, FALSE},
-	{"Redo",				ActionRedo, FALSE},
-	{"RipUp",				ActionRipUp, FALSE},
-	{"Polygon",				ActionPolygon, FALSE},
-	{"MoveToCurrentLayer",	ActionMoveToCurrentLayer, FALSE},
-	{"SwitchDrawingLayer",	ActionSwitchDrawingLayer, FALSE},
-	{"ToggleVisibility",	ActionToggleVisibility, FALSE},
-	{"MoveObject",			ActionMoveObject, FALSE},
-	{"djopt",				ActionDJopt, FALSE},
-	{"GetLoc",				ActionGetXY, FALSE},
-	{"SetFlag",				ActionSetFlag, FALSE},
-	{"ClrFlag",				ActionClrFlag, FALSE},
-	{"ChangeFlag",			ActionChangeFlag, FALSE},
-
-	{"ExecuteFile",			ActionExecuteFile, FALSE},
-
-	{"LoadVendor",			ActionLoadVendor, FALSE},
-	{"UnloadVendor",		ActionUnloadVendor, FALSE},
-	{"ApplyVendor",			ActionApplyVendor, FALSE},
-	{"EnableVendor",		ActionEnableVendor, FALSE},
-	{"DisableVendor",		ActionDisableVendor, FALSE},
-	{"ToggleVendor",		ActionToggleVendor, FALSE},
-
-	};
-
-  /* All action procs invoked from the Gtk menus take 0 - 3 gchar * args,
-  |  so when "num" is <= 3, can just pass three args to the action proc.
-  |  Some command line action procs may want more than three args, and for
-  |  these have an argc/argv style calling convention.
-  */
-void
-CallActionProc(gchar *cmd, gchar **params, gint num)
-{
-  gchar	*arg1 = "", *arg2 = "", *arg3 = "";
-  gint	i;
-
-  /* scan command list */
-  for (i = 0; i < G_N_ELEMENTS(action); i++)
-    {
-      if (!g_strcasecmp(action[i].text, cmd))
-	{
-	  if (action[i].needs_params)
-	    action[i].function(params, num);
-	  else
-	    {
-	      if (num > 3)
-		{
-		  fprintf(stderr,
-			  "%s has too many args to CallActionProc()?\n", cmd);
-		  return;
-		}
-	      if (num > 0)
-		arg1 = params[0];
-	      if (num > 1)
-		arg2 = params[1];
-	      if (num > 2)
-		arg3 = params[2];
-	      action[i].function(arg1, arg2, arg3);
-	    }
-
-	  break;
-	}
-    }
-  if (i == G_N_ELEMENTS(action))
-    Message(_("Warning: action proc '%s' not found.\n"), cmd);
-}
-
-
-/* ---------------------------------------------------------------------------
- * some local identifiers
- */
-static CommandType Command[] = {
-  {"h", CommandHelp},
-  {"le", CommandLoadElementToBuffer},
-  {"m", CommandLoadLayoutToBuffer},
-  {"rn", CommandLoadNetlist},
-  {"s", CommandSaveLayout},
-  {"w", CommandSaveLayout},
-  {"wq", CommandSaveLayoutAndQuit},
-  {"q", CommandQuit},
-  {"q!", CommandQuit},
-  {"l", CommandLoadLayout}
-};
-
-static char **argv;		/* command-line of arguments */
-static int argc;
-
-/* ---------------------------------------------------------------------------
- * quits the application after confirming
- * syntax: q
- */
-static int
-CommandQuit (void)
-{
-  if (argc != 1)
-    {
-      Message (_("Usage: q\n  quits the application\n"
-	       "       q!\n"
-	       "quits without saving or warning for its need\n"));
-      return (1);
-    }
-  if (strcasecmp (argv[0], "q!") == 0)
-    QuitApplication ();
-  if (!PCB->Changed || gui_dialog_confirm(_("OK to lose data ?")))
-    QuitApplication ();
-
-  return (0);
-}
-
-/* ---------------------------------------------------------------------------
- * loads an element into the current buffer
- * syntax: le [name]
- */
-static int
-CommandLoadElementToBuffer (void)
-{
-  char *filename;
-  static gchar	*current_element_dir = NULL;
-
-  switch (argc)
-    {
-    case 1:			/* open fileselect box */
-	  filename = gui_dialog_file_select_open(_("Load element to buffer"),
-					&current_element_dir, Settings.ElementPath);
-
-      if (filename && LoadElementToBuffer (PASTEBUFFER, filename, True))
-	SetMode (PASTEBUFFER_MODE);
-      g_free(filename);
-      break;
-
-    case 2:			/* filename is passed in commandline */
-      filename = argv[1];
-      if (filename && LoadElementToBuffer (PASTEBUFFER, filename, True))
-	SetMode (PASTEBUFFER_MODE);
-      break;
-
-    default:			/* usage */
-      Message (False, "Usage: le [name]\n  loads element data to buffer\n");
-      return (1);
-    }
-  return (0);
-}
-
-/* ---------------------------------------------------------------------------
- * loads a layout into the current buffer
- * syntax: m [name]
- */
-static int
-CommandLoadLayoutToBuffer (void)
-{
-  char			*filename;
-  static gchar	*current_layout_dir = NULL;
-
-  switch (argc)
-    {
-    case 1:			/* open fileselect box */
-	  filename = gui_dialog_file_select_open(_("Load layout file to buffer"),
-						&current_layout_dir, Settings.FilePath);
-      if (filename && LoadLayoutToBuffer (PASTEBUFFER, filename))
-	SetMode (PASTEBUFFER_MODE);
-      g_free(filename);
-      break;
-
-    case 2:			/* filename is passed in commandline */
-      filename = argv[1];
-      if (filename && LoadLayoutToBuffer (PASTEBUFFER, filename))
-	SetMode (PASTEBUFFER_MODE);
-      break;
-
-    default:			/* usage */
-      Message ("Usage: m [name]\n  loads layout data to buffer\n");
-      return (1);
-    }
-  return (0);
-}
-
-/* ---------------------------------------------------------------------------
- * saves the layout data and quits
- */
-static int
-CommandSaveLayoutAndQuit (void)
-{
-  if (argc != 1 && argc != 2)
-    {
-      Message ("Usage: wq [name]\n  saves layout data and quits\n");
-      return (1);
-    }
-  if (!CommandSaveLayout ())
-    {
-      if (!PCB->Changed || gui_dialog_confirm(_("OK to lose data ?")))
-	QuitApplication ();
-      return (0);
-    }
-  return (1);
-}
-
-/* ----------------------------------------------------------------------
- * saves layout data
- * syntax: l name
- */
-static int
-CommandSaveLayout (void)
-{
-  char *filename;
-  static gchar	*current_save_path = NULL;
-
-  switch (argc)
-    {
-    case 1:			/* query name if necessary */
-      if (!PCB->Filename)
-	{
-	  filename = gui_dialog_file_select_save(_("Save layout as"),
-						&current_save_path, NULL,
-						Settings.FilePath);
-	  if (filename)
-	    SavePCB (filename);
-	  g_free(filename);
-	}
-      else
-	SavePCB (PCB->Filename);
-      break;
-
-    case 2:
-      SavePCB (argv[1]);
-      break;
-
-    default:
-      Message ("Usage: s [name] | w [name]\n  saves layout data\n");
-      return (1);
-    }
-  return (0);
-}
-
-/* ----------------------------------------------------------------------
- * loads layout data
- * syntax: l [name]
- */
-static int
-CommandLoadLayout (void)
-{
-  char			*filename, *name = NULL;
-  static gchar	*current_layout_dir = NULL;
-
-  switch (argc)
-    {
-    case 1:			/* open fileselect box */
-	  name = gui_dialog_file_select_open(_("Load layout file"),
-						&current_layout_dir, Settings.FilePath);
-      filename = name;
-      if (!name)
-	return (0);
-      break;
-
-    case 2:			/* filename is passed in commandline */
-      filename = argv[1];
-      break;
-
-    default:			/* usage */
-      Message ("Usage: l [name]\n  loads layout data\n");
-      return (1);
-    }
-
-  if (!PCB->Changed || gui_dialog_confirm("OK to override layout data?"))
-    LoadPCB (filename);
-  g_free(name);
-  return (0);
-}
-
-/* ----------------------------------------------------------------------
- * reads netlist 
- * syntax: rn [name]
- */
-static int
-CommandLoadNetlist (void)
-{
-  char *filename, *name = NULL;
-  static gchar	*current_netlist_dir = NULL;
-
-  switch (argc)
-    {
-    case 1:			/* open fileselect box */
-	  name = gui_dialog_file_select_open(_("Load netlist file"),
-						&current_netlist_dir, Settings.FilePath);
-	  filename = name;
-      if (!filename)
-	return (0);
-      break;
-
-    case 2:			/* filename is passed in commandline */
-      filename = argv[1];
-      break;
-
-    default:			/* usage */
-      Message ("Usage: rn [name]\n  reads in a netlist file\n");
-      return (1);
-    }
-  if (PCB->Netlistname)
-    SaveFree (PCB->Netlistname);
-  PCB->Netlistname = StripWhiteSpaceAndDup (filename);
-  g_free(name);
-  return (0);
-}
-
-/* ----------------------------------------------------------------------
- * Send an action command
- */
-static int
-CommandCallAction (void)
-{
-  CallActionProc (argv[0], &argv[1], argc - 1);
-  return (0);
-}
 
 /* ----------------------------------------------------------------------
  * print a help message for commands
  */
+
 static int
-CommandHelp ()
+CommandHelp (int argc, char **argv, int x, int y)
 {
   Message ("following commands are supported:\n"
 	   "  Command()   execute an action command (too numerous to list)\n"
@@ -473,50 +79,238 @@ CommandHelp ()
 }
 
 /* ----------------------------------------------------------------------
- * split commandline and fill argv/argc
+ * loads layout data
+ * syntax: l [name]
  */
-static int
-SetArgcArgv (char *Line)
-{
-  static int maxcount = 0;
-  char *p;
 
-  for (argc = 0, p = strtok (Line, " \t;,()"); p;
-       p = strtok (NULL, " \t;,()"))
+static int
+CommandLoadLayout (int argc, char **argv, int x, int y)
+{
+  char			*filename, *name = NULL;
+  static char	*current_layout_dir = NULL;
+
+  switch (argc)
     {
-      /* allocate more memory */
-      if (argc >= maxcount)
-	{
-	  maxcount += 20;
-	  argv = (char **) MyRealloc (argv, maxcount * sizeof (char *),
-				      "SetArgcArgv()");
-	}
-      argv[argc++] = p;
+#ifdef FIXME
+    case 0:			/* open fileselect box */
+	  name = gui_dialog_file_select_open(_("Load layout file"),
+						&current_layout_dir, Settings.FilePath);
+      filename = name;
+      if (!name)
+	return (0);
+      break;
+#endif
+
+    case 1:			/* filename is passed in commandline */
+      filename = argv[0];
+      break;
+
+    default:			/* usage */
+      Message ("Usage: l [name]\n  loads layout data\n");
+      return (1);
     }
-  return (argc);
+
+  if (!PCB->Changed || gui->confirm_dialog("OK to override layout data?", 0))
+    LoadPCB (filename);
+  free(name);
+  return (0);
 }
 
 /* ---------------------------------------------------------------------------
- * command is passed in, memory is already allocated
+ * loads an element into the current buffer
+ * syntax: le [name]
  */
-void
-ExecuteUserCommand (char *CommandLine)
-{
-  int i;
 
-  if (SetArgcArgv (CommandLine))
+static int
+CommandLoadElementToBuffer (int argc, char **argv, int x, int y)
+{
+  char *filename;
+  static char	*current_element_dir = NULL;
+
+  switch (argc)
     {
-      /* scan command list */
-      for (i = 0; i < ENTRIES (Command); i++)
-	if (!strcasecmp (Command[i].Text, argv[0]))
-	  break;
-      if (i == ENTRIES (Command))
-	/* it wasn't listed, it must have been an action command */
-	CommandCallAction ();
-      else if (Command[i].Function ())
-	gui_beep(Settings.Volume);
+#ifdef FIXME
+    case 0:			/* open fileselect box */
+	  filename = gui_dialog_file_select_open(_("Load element to buffer"),
+					&current_element_dir, Settings.ElementPath);
+
+      if (filename && LoadElementToBuffer (PASTEBUFFER, filename, True))
+	SetMode (PASTEBUFFER_MODE);
+      free(filename);
+      break;
+#endif
+
+    case 1:			/* filename is passed in commandline */
+      filename = argv[0];
+      if (filename && LoadElementToBuffer (PASTEBUFFER, filename, True))
+	SetMode (PASTEBUFFER_MODE);
+      break;
+
+    default:			/* usage */
+      Message (False, "Usage: le [name]\n  loads element data to buffer\n");
+      return (1);
     }
-  else
-    gui_beep(Settings.Volume);
+  return (0);
 }
 
+/* ---------------------------------------------------------------------------
+ * loads a layout into the current buffer
+ * syntax: m [name]
+ */
+
+static int
+CommandLoadLayoutToBuffer (int argc, char **argv, int x, int y)
+{
+  char			*filename;
+  static char	*current_layout_dir = NULL;
+
+  switch (argc)
+    {
+#ifdef FIXME
+    case 0:			/* open fileselect box */
+	  filename = gui_dialog_file_select_open(_("Load layout file to buffer"),
+						&current_layout_dir, Settings.FilePath);
+      if (filename && LoadLayoutToBuffer (PASTEBUFFER, filename))
+	SetMode (PASTEBUFFER_MODE);
+      free(filename);
+      break;
+#endif
+
+    case 1:			/* filename is passed in commandline */
+      filename = argv[0];
+      if (filename && LoadLayoutToBuffer (PASTEBUFFER, filename))
+	SetMode (PASTEBUFFER_MODE);
+      break;
+
+    default:			/* usage */
+      Message ("Usage: m [name]\n  loads layout data to buffer\n");
+      return (1);
+    }
+  return (0);
+}
+
+/* ---------------------------------------------------------------------------
+ * quits the application after confirming
+ * syntax: q
+ */
+
+static int
+CommandQuit (int argc, char **argv, int x, int y)
+{
+  if (!PCB->Changed || gui->confirm_dialog("OK to lose data ?", 0))
+    QuitApplication ();
+  return 0;
+}
+
+static int
+CommandReallyQuit (int argc, char **argv, int x, int y)
+{
+  QuitApplication ();
+  return 0;
+}
+
+/* ----------------------------------------------------------------------
+ * reads netlist 
+ * syntax: rn [name]
+ */
+
+static int
+CommandLoadNetlist (int argc, char **argv, int x, int y)
+{
+  char *filename, *name = NULL;
+  static char	*current_netlist_dir = NULL;
+
+  switch (argc)
+    {
+#ifdef FIXME
+    case 0:			/* open fileselect box */
+	  name = gui_dialog_file_select_open(_("Load netlist file"),
+						&current_netlist_dir, Settings.FilePath);
+	  filename = name;
+      if (!filename)
+	return (0);
+      break;
+#endif
+
+    case 1:			/* filename is passed in commandline */
+      filename = argv[0];
+      break;
+
+    default:			/* usage */
+      Message ("Usage: rn [name]\n  reads in a netlist file\n");
+      return (1);
+    }
+  if (PCB->Netlistname)
+    SaveFree (PCB->Netlistname);
+  PCB->Netlistname = StripWhiteSpaceAndDup (filename);
+  free(name);
+  return (0);
+}
+
+/* ----------------------------------------------------------------------
+ * saves layout data
+ * syntax: l name
+ */
+
+static int
+CommandSaveLayout (int argc, char **argv, int x, int y)
+{
+  char *filename;
+  static char	*current_save_path = NULL;
+
+  switch (argc)
+    {
+#ifdef FIXME
+    case 0:			/* query name if necessary */
+      if (!PCB->Filename)
+	{
+	  filename = gui_dialog_file_select_save(_("Save layout as"),
+						&current_save_path, NULL,
+						Settings.FilePath);
+	  if (filename)
+	    SavePCB (filename);
+	  free(filename);
+	}
+      else
+	SavePCB (PCB->Filename);
+      break;
+#endif
+
+    case 1:
+      SavePCB (argv[0]);
+      break;
+
+    default:
+      Message ("Usage: s [name] | w [name]\n  saves layout data\n");
+      return (1);
+    }
+  return (0);
+}
+
+/* ---------------------------------------------------------------------------
+ * saves the layout data and quits
+ */
+
+static int
+CommandSaveLayoutAndQuit (int argc, char **argv, int x, int y)
+{
+  if (!CommandSaveLayout (argc, argv, x, y))
+    return CommandQuit (0, 0, 0, 0);
+  return (1);
+}
+
+/* --------------------------------------------------------------------------- */
+
+HID_Action command_action_list[] = {
+  { "h",  0, 0, CommandHelp },
+  { "l",  0, 0, CommandLoadLayout },
+  { "le", 0, 0, CommandLoadElementToBuffer },
+  { "m",  0, 0, CommandLoadLayoutToBuffer },
+  { "q",  0, 0, CommandQuit },
+  { "q!", 0, 0, CommandReallyQuit },
+  { "rn", 0, 0, CommandLoadNetlist },
+  { "s",  0, 0, CommandSaveLayout },
+  { "w",  0, 0, CommandSaveLayout },
+  { "wq", 0, 0, CommandSaveLayoutAndQuit },
+};
+REGISTER_ACTIONS(command_action_list)

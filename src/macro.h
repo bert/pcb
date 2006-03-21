@@ -53,12 +53,14 @@
 #define	SWAP_Y(y)		(PCB->MaxHeight +SWAP_SIGN_Y(y))
 #define SATURATE(x)             ((x) > 32767 ? 32767 : ((x) < -32767 ? -32767 : (x)))
 
+#if 0
 #ifndef	TO_SCREEN
 #define	TO_SCREEN(x)		((Position)((x)*Zoom_Multiplier))
 #endif
 
 #define	TO_SCREEN_X(x)		TO_SCREEN((SWAP_IDENT ? SWAP_X(x) : (x)) - Xorig)
 #define	TO_SCREEN_Y(y)		TO_SCREEN((SWAP_IDENT ? SWAP_Y(y)  : (y)) - Yorig)
+#endif
 #define	TO_DRAW_X(x)		TO_SCREEN((SWAP_IDENT ? SWAP_X(x) : (x)) - XORIG)
 #define	TO_DRAWABS_X(x)		(TO_SCREEN((x) - XORIG))
 #define	TO_DRAW_Y(y)		TO_SCREEN((SWAP_IDENT ? SWAP_Y(y) : (y)) - YORIG)
@@ -77,6 +79,8 @@
 #define	TO_PCB_X(x)		TO_PCB(x) + Xorig
 #define	TO_PCB_Y(y)		(SWAP_IDENT ? \
 				PCB->MaxHeight - TO_PCB(y) - Yorig : TO_PCB(y) + Yorig)
+
+#pragma GCC poison TO_SCREEN TO_SCREEN_X TO_SCREEN_Y
 
 /* ---------------------------------------------------------------------------
  * misc macros, some might already be defined by <limits.h>
@@ -141,6 +145,23 @@
 			(v)->Y + (v)->Thickness + (v)->Thickness >= vyl && \
 			(v)->Y - (v)->Thickness - (v)->Clearance <= vyh)
 
+#undef VELEMENT
+#define VELEMENT(e) 1
+#undef VELTEXT
+#define VELTEXT(e) 1
+#undef VTEXT
+#define VTEXT(e) 1
+#undef VLINE
+#define VLINE(e) 1
+#undef VARC
+#define VARC(e) 1
+#undef VPOLY
+#define VPOLY(e) 1
+#undef VVIA
+#define VVIA(e) 1
+#undef VTHERM
+#define VTHERM(e) 1
+
 /* ---------------------------------------------------------------------------
  * layer macros
  */
@@ -172,22 +193,22 @@
  */
 #define	SET_FLAG(F,P)		((P)->Flags.f |= (F))
 #define	CLEAR_FLAG(F,P)		((P)->Flags.f &= (~(F)))
-#define	TEST_FLAG(F,P)		((P)->Flags.f & (F) ? TRUE : FALSE)
+#define	TEST_FLAG(F,P)		((P)->Flags.f & (F) ? 1 : 0)
 #define	TOGGLE_FLAG(F,P)	((P)->Flags.f ^= (F))
 #define	ASSIGN_FLAG(F,V,P)	((P)->Flags.f = ((P)->Flags.f & (~(F))) | ((V) ? (F) : 0))
-#define TEST_FLAGS(F,P)         (((P)->Flags.f & (F)) == (F) ? TRUE : FALSE)
+#define TEST_FLAGS(F,P)         (((P)->Flags.f & (F)) == (F) ? 1 : 0)
 
 #define FLAGS_EQUAL(F1,F2)	(memcmp (&F1, &F2, sizeof(FlagType)) == 0)
 
 #define THERMFLAG(L)		(1 << ((L) % 8))
 
-#define TEST_THERM(L,P)		((P)->Flags.t[(L)/8] & THERMFLAG(L) ? TRUE : FALSE)
+#define TEST_THERM(L,P)		((P)->Flags.t[(L)/8] & THERMFLAG(L) ? 1 : 0)
 #define SET_THERM(L,P)		(P)->Flags.t[(L)/8] |= THERMFLAG(L)
 #define CLEAR_THERM(L,P)	(P)->Flags.t[(L)/8] &= ~THERMFLAG(L)
 #define TOGGLE_THERM(L,P)	(P)->Flags.t[(L)/8] ^= THERMFLAG(L)
 #define ASSIGN_THERM(L,V,P)	(P)->Flags.t[(L)/8] = ((P)->Flags.t[(L)/8] & ~THERMFLAG(L)) | ((V) ? THERMFLAG(L) : 0)
 
-#define TEST_PIP(L,P)		((P)->Flags.p[(L)/8] & THERMFLAG(L) ? TRUE : FALSE)
+#define TEST_PIP(L,P)		((P)->Flags.p[(L)/8] & THERMFLAG(L) ? 1 : 0)
 #define SET_PIP(L,P)		(P)->Flags.p[(L)/8] |= THERMFLAG(L)
 #define CLEAR_PIP(L,P)		(P)->Flags.p[(L)/8] &= ~THERMFLAG(L)
 

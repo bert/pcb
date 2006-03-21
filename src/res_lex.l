@@ -49,7 +49,7 @@ COMMENT		#[^\n]*
 {COMMENT}\n	{ res_lineno++; }
 [ \t\r\n]	{ if (yytext[0] == '\n') res_lineno++; }
 
-{INCSTR}	{ reslval.sval = strdup(yytext+1);
+{INCSTR}	{ reslval.sval = strdup(yytext);
 		  	  return INCLUDE; }
 
 {PARENSTR}	{ reslval.sval = strdup(yytext);

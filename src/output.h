@@ -31,11 +31,11 @@
 #include "global.h"
 
 
-gboolean Pan(LocationType, LocationType, gboolean, gboolean);
-gboolean CoalignScreen(Position,
+Boolean Pan(LocationType, LocationType, Boolean, Boolean);
+Boolean CoalignScreen(Position,
 				Position, LocationType, LocationType);
 
-void	DrawClipped(GdkRegion *myRegion);
-gboolean ActiveDrag (void);
+/*void	DrawClipped(GdkRegion *myRegion);*/
+Boolean ActiveDrag (void);
 
 #endif

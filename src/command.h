@@ -33,7 +33,7 @@
 
 #include "global.h"
 
-void	ExecuteUserCommand(gchar *);
-void	CallActionProc(gchar *action, gchar **arg, gint argc);
+void	ExecuteUserCommand(char *);
+void	CallActionProc(char *action, char **arg, int argc);
 
 #endif

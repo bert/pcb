@@ -33,8 +33,10 @@
 #endif
 
 #include "data.h"
+#ifdef FIXME
 #include "dev_ps.h"
 #include "dev_rs274x.h"
+#endif
 
 #ifdef HAVE_LIBDMALLOC
 #include <dmalloc.h>
@@ -53,21 +55,22 @@ PCBTypePtr		PCB;				/* pointer to layout struct */
 
 char			*Progname;
 SettingType		Settings;
-gint			LayerStack[MAX_LAYER];	/* determines the layer draw order */
+int			LayerStack[MAX_LAYER];	/* determines the layer draw order */
 
 BufferType		Buffers[MAX_BUFFER];	/* my buffers */
 LibraryType		Library;		/* the library */
-GdkRegion		*FullRegion;	/* the full screen clip region */
-gboolean		Bumped;			/* if the undo serial number has changed */
-gboolean		render;			/* wether or not to re-render the pixmap */
+Boolean		Bumped;			/* if the undo serial number has changed */
+Boolean		render;			/* wether or not to re-render the pixmap */
 
 LocationType	Xorig, Yorig;	/* origin offset for drawing in pixmap */
+#ifdef FIXME
 GdkPixmap		**Stipples,
 				*XC_clock_source, *XC_clock_mask,
 				*XC_hand_source, *XC_hand_mask,
 				*XC_lock_source, *XC_lock_mask;
+#endif
 
-gint			addedLines;
+int			addedLines;
 
 LocationType	vxl, vxh,
 				vyl, vyh;		/* visible pcb coordinates */
@@ -75,7 +78,7 @@ LocationType	vxl, vxh,
 BoxType			theScreen;		/* box of screen in pcb coordinates */
 BoxType			clipBox;		/* box for clipping of drawing */
 
-gfloat			Zoom_Multiplier = 0.01;
+double			Zoom_Multiplier = 0.01;
 
 /*  { 1.5625, 2.2097, 3.125, 4.4194, 6.25, 8.8388,
       12.5, 17.6777, 25, 35.3553, 50, 70.7106, 100,
@@ -87,6 +90,7 @@ gfloat			Zoom_Multiplier = 0.01;
 /* ---------------------------------------------------------------------------
  * all known printing devices
  */
+#ifdef FIXME
 DeviceInfoType PrintingDevice[] =
 	{
 	{PS_Query,   NULL},
@@ -96,3 +100,4 @@ DeviceInfoType PrintingDevice[] =
 /*	{GBX_Query,  NULL }, */
 	{NULL,       NULL}
 	};
+#endif

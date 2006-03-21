@@ -45,7 +45,7 @@
 #include <assert.h>
 #include <setjmp.h>
 
-#define DRAWBOX
+/* #define DRAWBOX */
 
 #ifdef DRAWBOX
 #include "clip.h"
@@ -465,9 +465,9 @@ r_create_tree (const BoxType * boxlist[], int N, int manage)
   int i;
 
   assert (N >= 0);
-  rtree = g_malloc0(sizeof (*rtree));
+  rtree = calloc(1, sizeof (*rtree));
   /* start with a single empty leaf node */
-  node = g_malloc0(sizeof (*node));
+  node = calloc(1, sizeof (*node));
   node->flags.is_leaf = 1;
   node->parent = NULL;
   rtree->root = node;
@@ -494,7 +494,7 @@ __r_destroy_tree (struct rtree_node *node)
 	if (!node->u.rects[i].bptr)
 	  break;
 	if (node->flags.manage & flag)
-	  g_free ((void *) node->u.rects[i].bptr);
+	  free ((void *) node->u.rects[i].bptr);
 	flag = flag << 1;
       }
   else
@@ -504,7 +504,7 @@ __r_destroy_tree (struct rtree_node *node)
 	  break;
 	__r_destroy_tree (node->u.kids[i]);
       }
-  g_free (node);
+  free (node);
 }
 
 /* free the memory associated with an rtree. */
@@ -513,7 +513,7 @@ r_destroy_tree (rtree_t ** rtree)
 {
 
   __r_destroy_tree ((*rtree)->root);
-  g_free (*rtree);
+  free (*rtree);
   *rtree = NULL;
 }
 
@@ -719,7 +719,7 @@ find_clusters (struct rtree_node *node)
 	break;
     }
   /* Now 'belong' has the partition map */
-  new_node = g_malloc0(sizeof (*new_node));
+  new_node = calloc(1,sizeof (*new_node));
   new_node->parent = node->parent;
   new_node->flags.is_leaf = node->flags.is_leaf;
   clust_a = clust_b = 0;
@@ -792,7 +792,7 @@ split_node (struct rtree_node *node)
     {
       struct rtree_node *second;
 
-      second = g_malloc0(sizeof (*second));
+      second = calloc(1, sizeof (*second));
       *second = *node;
       if (!second->flags.is_leaf)
 	for (i = 0; i < M_SIZE; i++)
@@ -946,7 +946,7 @@ __r_insert_node (struct rtree_node * node, const BoxType * query, int manage,
       if (node->u.kids[0]->flags.is_leaf && i < M_SIZE)
 	{
 	      struct rtree_node *new_node;
-	      new_node = g_malloc0(sizeof (*new_node));
+	      new_node = calloc(1, sizeof (*new_node));
 	      new_node->parent = node;
 	      new_node->flags.is_leaf = True;
 	      node->u.kids[i] = new_node;
@@ -1000,7 +1000,7 @@ __r_delete (rtree_t * seed, struct rtree_node *node, const BoxType * query)
 	  /* if this is us being removed, free and copy over */
 	  if (node->u.kids[i] == (struct rtree_node *) query)
 	    {
-	      g_free ((void *) query);
+	      free ((void *) query);
 	      for (; i < M_SIZE; i++)
 		{
 		  node->u.kids[i] = node->u.kids[i + 1];
@@ -1061,7 +1061,7 @@ __r_delete (rtree_t * seed, struct rtree_node *node, const BoxType * query)
     return False;		/* not at this leaf */
   if (node->flags.manage & a)
     {
-      g_free ((void *) node->u.rects[i].bptr);
+      free ((void *) node->u.rects[i].bptr);
       node->u.rects[i].bptr = NULL;
     }
   /* squeeze the manage flags together */

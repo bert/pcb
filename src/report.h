@@ -35,8 +35,4 @@
 	 RATLINE_TYPE | PIN_TYPE | PAD_TYPE | ELEMENTNAME_TYPE | ARC_TYPE \
 	 | POLYGONPOINT_TYPE | LINEPOINT_TYPE)
 
-void ReportDialog(void);
-void ReportDrills(void);
-void ReportFoundPins(void);
-
 #endif

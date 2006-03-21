@@ -37,14 +37,8 @@
 #ifndef	__GLOBAL_INCLUDED__
 #define	__GLOBAL_INCLUDED__
 
-#include <gtk/gtk.h>
-
 #include "const.h"
 #include "macro.h"
-
-#if !GTK_CHECK_VERSION(2,4,0)
-#error ******** Gtk 2.4 is required to compile this PCB package. *********
-#endif
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -55,18 +49,23 @@
 #include <ctype.h>
 #include <sys/types.h>
 
+#include "hid.h"
+
+#define _(S) (S)
 
 typedef int		LocationType;
 typedef int		BDimension;		/* big dimension */
 
 
+#ifndef XtSpecificationRelease
 typedef unsigned int	Cardinal;
-typedef unsigned char	BYTE;
-typedef gboolean		Boolean;
+typedef char	Boolean;
 /*typedef unsigned int	Pixel;*/
 typedef char 			*String;
-typedef int				Position;
-typedef int				Dimension;
+typedef short				Position;
+typedef short				Dimension;
+#endif
+typedef unsigned char	BYTE;
 
 #define True	1
 #define False	0
@@ -80,6 +79,11 @@ typedef struct {
   unsigned char p[(MAX_LAYER+7)/8]; /* pip */
 } FlagType, *FlagTypePtr;
 
+#ifndef __GNUC__
+#define __FUNCTION1(a,b) a ":" #b
+#define __FUNCTION2(a,b) __FUNCTION1(a,b)
+#define __FUNCTION__ __FUNCTION2(__FILE__,__LINE__)
+#endif
 
 /* ---------------------------------------------------------------------------
  * do not change the following definition even if it's not very nice.
@@ -99,6 +103,7 @@ typedef struct {
  */
 typedef struct			/* holds information about output window */
 	{
+#if 0
 	GtkWidget	*top_window,		/* toplevel widget */
 				*drawing_area;		/* PCB drawing area */
 
@@ -107,21 +112,24 @@ typedef struct			/* holds information about output window */
 	PangoFontDescription
 				*font_desc;
 	PangoLayout	*layout;
-	gint		font_size;		/* pin name size levels depending on zoom */
+	int		font_size;		/* pin name size levels depending on zoom */
 
-	GdkGC		*bgGC,			/* background and foreground; */
-				*fgGC,			/* changed from some routines */
-				*pmGC,			/* depth 1 pixmap GC to store clip */
-				*GridGC;		/* for the grid */
+#endif
+	hidGC		bgGC,			/* background and foreground; */
+			fgGC,			/* changed from some routines */
+			pmGC,			/* depth 1 pixmap GC to store clip */
+			GridGC;			/* for the grid */
 
-	gint		Width,			/* sizes of output window (porthole) */
-				Height;
+	int		Width,			/* sizes of output window (porthole) */
+			Height;
+#if 0
 	GdkCursor 	*XCursor;		/* used X cursor */
 	GdkCursorType XCursorShape;	/* and its shape */
 	gboolean	VisibilityOK,	/* output is completely visible */
 				creating,
 				has_entered;
-	gint		oldObjState,	/* Helpers for GetLocation */
+#endif
+	int		oldObjState,	/* Helpers for GetLocation */
 				oldLineState,
 				oldBoxState;
 	}
@@ -137,11 +145,17 @@ typedef struct
     Entries[MAX_LAYER][MAX_LAYER + 2];
 } LayerGroupType, *LayerGroupTypePtr;
 
-typedef struct			/* a bounding box */
+typedef struct BoxType		/* a bounding box */
 {
   LocationType X1, Y1,		/* upper left */
     X2, Y2;			/* and lower right corner */
 } BoxType, *BoxTypePtr;
+
+typedef struct
+{
+  LocationType x, y;
+  int width, height;
+} RectangleType, *RectangleTypePtr;
 
 /* ---------------------------------------------------------------------------
  * the basic object types supported by PCB
@@ -225,9 +239,9 @@ typedef struct			/* holds information about one layer */
 				*text_tree,
 				*polygon_tree,
 				*arc_tree;
-	gboolean	On;				/* visible flag */
-	GdkColor	*Color,			/* color */
-				*SelectedColor;
+	Boolean	On;				/* visible flag */
+	char	*Color,			/* color */
+	  *SelectedColor;
 	}
 	LayerType, *LayerTypePtr;
 
@@ -346,7 +360,7 @@ typedef struct
     Hole,			/* via drill hole */
     Keepaway;			/* min. separation from other nets */
   char *Name;
-  gint	index;
+  int	index;
 } RouteStyleType, *RouteStyleTypePtr;
 
 /* ---------------------------------------------------------------------------
@@ -371,7 +385,7 @@ typedef struct
   Cardinal EntryN,		/* number of objects */
     EntryMax;			/* number of reserved memory locations */
   LibraryEntryTypePtr Entry;	/* the entries */
-  int flag;			/* used by the netlist window to enable/disable nets */
+  int flag;                     /* used by the netlist window to enable/disable nets */
 } LibraryMenuType, *LibraryMenuTypePtr;
 
 typedef struct
@@ -379,7 +393,9 @@ typedef struct
   Cardinal MenuN, MenuMax;
   LibraryMenuTypePtr Menu;
 /*Window Wind;*/
+#if 0
 	GtkWidget	*Wind;		/* wrong */
+#endif
 } LibraryType, *LibraryTypePtr;
 
 
@@ -391,13 +407,13 @@ typedef struct
   */
 typedef struct
 	{
-	glong		ID;			/* see macro.h */
+	long		ID;			/* see macro.h */
 	FlagType	Flags;
-	gchar		*Name,			/* name of board */
+	char		*Name,			/* name of board */
 				*Filename,			/* name of file (from load) */
 				*PrintFilename,		/* from print dialog */
 				*Netlistname;		/* name of netlist file */
-	gboolean	Changed,		/* layout has been changed */
+	Boolean	Changed,		/* layout has been changed */
 				ViaOn,			/* visibility flags */
 				ElementOn,
 				RatOn,
@@ -405,10 +421,11 @@ typedef struct
 				PinOn,
 				SilkActive,		/* active layer is actually silk */
 				RatDraw;			/* we're drawing rats */
-	GdkColor	*ViaColor,		/* some colors */
+	char	*ViaColor,		/* some colors */
    				*ViaSelectedColor,
 				*PinColor,
 				*PinSelectedColor,
+				*PinNameColor,
 				*ElementColor,
 				*RatColor,
 				*InvisibleObjectsColor,
@@ -418,21 +435,21 @@ typedef struct
 				*ConnectedColor,
 				*WarnColor,
 				*MaskColor;
-	glong		CursorX,		/* cursor position as saved with layout */
+	long		CursorX,		/* cursor position as saved with layout */
 				CursorY,
 				Clipping;
-	gint		Bloat,			/* drc sizes saved with layout */
+	int		Bloat,			/* drc sizes saved with layout */
 				Shrink,
 				minWid,
 				minSlk,
 				minDrill,
 				minRing;
-	gint		GridOffsetX,	/* as saved with layout */
+	int		GridOffsetX,	/* as saved with layout */
 				GridOffsetY,
 				MaxWidth,		/* allowed size */
 				MaxHeight;
 
-	gdouble			Grid,			/* used grid with offsets */
+	double			Grid,			/* used grid with offsets */
 					Zoom,			/* zoom factor */
 					ThermScale;			/* scale factor used with thermals */
 	FontType 		Font;
@@ -496,8 +513,8 @@ typedef struct			/* currently attached object */
 
 typedef struct			/* holds cursor information */
 {
-  GdkGC *GC,			/* GC for cursor drawing */
-    *AttachGC;			/* and for displaying buffer contents */
+  hidGC GC,			/* GC for cursor drawing */
+    AttachGC;			/* and for displaying buffer contents */
   LocationType X,			/* position in PCB coordinates */
     Y, MinX,			/* lowest and highest coordinates */
     MinY, MaxX, MaxY;
@@ -520,144 +537,126 @@ typedef struct
  */
 typedef struct			/* some resources... */
 {
-	gboolean	initialized,
-				config_modified,
-				grid_units_mm,
-				small_layer_enable_label_markup,
-				gui_compact_horizontal,
-				gui_title_window,
-				use_command_window,
-				verbose;
+	Boolean	grid_units_mm;
 
-	GdkColor	BlackColor,
-				WhiteColor,
-				BackgroundColor,		/* background and cursor color ... */
-				CrosshairColor,			/* different object colors */
-				CrossColor,
-				ViaColor,
-				ViaSelectedColor,
-				PinColor,
-				PinSelectedColor,
-				ElementColor,
-				RatColor,
-				InvisibleObjectsColor,
-				InvisibleMarkColor,
-				ElementSelectedColor,
-				RatSelectedColor,
-				ConnectedColor,
-				OffLimitColor,
-				GridColor,
-				LayerColor[MAX_LAYER],
-				LayerSelectedColor[MAX_LAYER], WarnColor, MaskColor;
-	gint		ViaThickness,	/* some preset values */
-				ViaDrillingHole,
-				LineThickness,
-				RatThickness,
-				Keepaway,
-				MaxWidth,		/* default size of a new layout */
-				MaxHeight,
-				TextScale,		/* text scaling in % */
-				AlignmentDistance,
-				Bloat,		/* default drc sizes */
-				Shrink,
-				minWid,
-				minSlk,
-				minDrill,
-				minRing;
-	gdouble		Grid,				/* grid 0.001'' */
-				grid_increment_mm,	/* key g and <shift>g value for mil units*/
-				grid_increment_mil,	/* key g and <shift>g value for mil units*/
-				size_increment_mm,	/* key s and <shift>s value for mil units*/
-				size_increment_mil,	/* key s and <shift>s value for mil units*/
-				line_increment_mm,
-				line_increment_mil,
-				clear_increment_mm,
-				clear_increment_mil,
-				Zoom,				/* number of shift operations for zooming */
-				PinoutZoom;			/* same for pinout windows */
-	gint		PinoutNameLength,	/* max displayed length of a pinname */
-				Volume,				/* the speakers volume -100..100 */
-				CharPerLine,		/* width of an output line in characters */
-				Mode,				/* currently active mode */
-				BufferNumber,		/* number of the current buffer */
-				GridFactor;			/* factor used for grid-drawing */
-	gint		BackupInterval;		/* time between two backups in seconds */
-	gchar		*DefaultLayerName[MAX_LAYER],
-				*FontCommand,		/* commands for file loading... */
-				*FileCommand,
-				*ElementCommand,
-				*PrintFile,
-				*LibraryCommand,
-				*LibraryContentsCommand,
-				*LibraryTree,		/* path to library tree */
-				*SaveCommand,
-				*LibraryFilename,
-				*FontFile,			/* name of default font file */
-				*Groups,			/* string with layergroups */
-				*Routes,			/* string with route styles */
-				*FilePath,
-				*RatPath,
-				*RatCommand,
-				*FontPath,
-				*PinoutFont,
-				*ElementPath,
-				*LibraryPath,
-				*Size,				/* geometry string for size */
-				*Media,				/* XXX not used in Gtk port */
-				*MenuFile,			/* file containing menu definitions */
-				*BackgroundImage,	/* PPM file for board background */
-				*ScriptFilename,	/* PCB Actions script to execute on startup */
-				*ActionString,		/* PCB Actions string to execute on startup */
-				*FabAuthor,			/* Full name of author for FAB drawings */
-				*color_file;
-	gboolean	DumpMenuFile;		/* dump internal menu definitions */
+	int verbose;
+
+	char	*BlackColor,
+		*WhiteColor,
+		*BackgroundColor,		/* background and cursor color ... */
+		*CrosshairColor,			/* different object colors */
+		*CrossColor,
+		*ViaColor,
+		*ViaSelectedColor,
+		*PinColor,
+		*PinSelectedColor,
+		*PinNameColor,
+		*ElementColor,
+		*RatColor,
+		*InvisibleObjectsColor,
+		*InvisibleMarkColor,
+		*ElementSelectedColor,
+		*RatSelectedColor,
+		*ConnectedColor,
+		*OffLimitColor,
+		*GridColor,
+		*LayerColor[MAX_LAYER],
+		*LayerSelectedColor[MAX_LAYER], *WarnColor, *MaskColor;
+	int		ViaThickness,	/* some preset values */
+		ViaDrillingHole,
+		LineThickness,
+		RatThickness,
+		Keepaway,
+		MaxWidth,		/* default size of a new layout */
+		MaxHeight,
+		TextScale,		/* text scaling in % */
+		AlignmentDistance,
+		Bloat,		/* default drc sizes */
+		Shrink,
+		minWid,
+		minSlk,
+		minDrill,
+		minRing;
+	double		Grid,				/* grid 0.001'' */
+		grid_increment_mm,	/* key g and <shift>g value for mil units*/
+		grid_increment_mil,	/* key g and <shift>g value for mil units*/
+		size_increment_mm,	/* key s and <shift>s value for mil units*/
+		size_increment_mil,	/* key s and <shift>s value for mil units*/
+		line_increment_mm,
+		line_increment_mil,
+		clear_increment_mm,
+		clear_increment_mil,
+		Zoom,				/* number of shift operations for zooming */
+		PinoutZoom;			/* same for pinout windows */
+	int		PinoutNameLength,	/* max displayed length of a pinname */
+		Volume,				/* the speakers volume -100..100 */
+		CharPerLine,		/* width of an output line in characters */
+		Mode,				/* currently active mode */
+		BufferNumber,		/* number of the current buffer */
+		GridFactor;			/* factor used for grid-drawing */
+	int		BackupInterval;		/* time between two backups in seconds */
+	char		*DefaultLayerName[MAX_LAYER],
+		*FontCommand,		/* commands for file loading... */
+		*FileCommand,
+		*ElementCommand,
+		*PrintFile,
+		*LibraryCommandDir,
+		*LibraryCommand,
+		*LibraryContentsCommand,
+		*LibraryTree,		/* path to library tree */
+		*SaveCommand,
+		*LibraryFilename,
+		*FontFile,			/* name of default font file */
+		*Groups,			/* string with layergroups */
+		*Routes,			/* string with route styles */
+		*FilePath,
+		*RatPath,
+		*RatCommand,
+		*FontPath,
+		*PinoutFont,
+		*ElementPath,
+		*LibraryPath,
+		*Size,				/* geometry string for size */
+		*Media,
+		*MenuFile,			/* file containing menu definitions */
+		*BackgroundImage,	/* PPM file for board background */
+		*ScriptFilename,	/* PCB Actions script to execute on startup */
+		*ActionString,		/* PCB Actions string to execute on startup */
+		*FabAuthor;			/* Full name of author for FAB drawings */
+	Boolean	DumpMenuFile;		/* dump internal menu definitions */
 	LocationType PinoutOffsetX,		/* offset of origin */
-				PinoutOffsetY;
-	Position	PinoutTextOffsetX,	/* offset of text from pin center */
-				PinoutTextOffsetY;
+		PinoutOffsetY;
+	int	PinoutTextOffsetX,	/* offset of text from pin center */
+		PinoutTextOffsetY;
 	RouteStyleType RouteStyle[NUM_STYLES];	/* default routing styles */
 	LayerGroupType LayerGroups;		/* default layer groups */
-	gboolean	ClearLine,
-				UniqueNames,		/* force unique names */
-				SnapPin,			/* snap to pins and pads */
-				UseLogWindow,		/* use log window instead of dialog box */
-				RaiseLogWindow,		/* raise log window if iconified */
-				ShowSolderSide,		/* mirror output */
-				SaveLastCommand,	/* save the last command entered by user */
-				SaveInTMP,			/* always save data in /tmp */
-				DrawGrid,			/* draw grid points */
-				RatWarn,			/* rats nest has set warnings */
-				StipplePolygons,	/* draw polygons with stipple */
-				AllDirectionLines,	/* enable lines to all directions */
-				RubberBandMode,		/* move, rotate use rubberband connections */
-				SwapStartDirection,	/* change starting direction after each click */
-				ShowDRC,			/* show drc region on crosshair */
-				AutoDRC,			/* */
-				ShowNumber,			/* pinout shows number */
-				OrthogonalMoves,	/* */
-				ResetAfterElement,	/* reset connections after each element */
-				liveRouting,		/* autorouter shows tracks in progress */
-				RingBellWhenFinished, /* flag if a signal should be */
-									/* produced when searching of */
-									/* connections is done */
+	Boolean	ClearLine,
+		UniqueNames,		/* force unique names */
+		SnapPin,			/* snap to pins and pads */
+		UseLogWindow,		/* FIXME? Used in hid/Xaw code only */
+		RaiseLogWindow,		/* raise log window if iconified */
+		ShowSolderSide,		/* mirror output */
+		SaveLastCommand,	/* save the last command entered by user */
+		SaveInTMP,			/* always save data in /tmp */
+		DrawGrid,			/* draw grid points */
+		RatWarn,			/* rats nest has set warnings */
+		StipplePolygons,	/* draw polygons with stipple */
+		AllDirectionLines,	/* enable lines to all directions */
+		RubberBandMode,		/* move, rotate use rubberband connections */
+		SwapStartDirection,	/* change starting direction after each click */
+		ShowDRC,			/* show drc region on crosshair */
+		AutoDRC,			/* */
+		ShowNumber,			/* pinout shows number */
+		OrthogonalMoves,	/* */
+		ResetAfterElement,	/* reset connections after each element */
+		liveRouting,		/* autorouter shows tracks in progress */
+		RingBellWhenFinished, /* flag if a signal should be */
+							/* produced when searching of */
+							/* connections is done */
   AutoPlace; /* flag which says we should force placement of the
 		windows on startup */
-	gint		HistorySize,
-				n_mode_button_columns,
-				selected_print_device,
-				selected_media,
-				pcb_width,			/* Top window width for startup sizing */
-				pcb_height,			/* Top window height ... */
-				log_window_width,
-				log_window_height,
-				keyref_window_width,
-				keyref_window_height,
-				library_window_height,
-				netlist_window_height,
-				w_display,		/* Not a setting... */
-				h_display,
-				init_done  /* flag which says it is ok to run gtk_main() */
-				;
+	int		HistorySize,	/* FIXME? Used in hid/xaw code only. */
+		init_done;
 	}
 	SettingType, *SettingTypePtr;
 
@@ -683,60 +682,6 @@ typedef struct
 /* ---------------------------------------------------------------------------
  * structure used by device drivers
  */
-typedef struct			/* media description */
-{
-  String Name;			/* name and size (in mil*100) */
-  BDimension Width, Height;
-  LocationType MarginX, MarginY;
-} MediaType, *MediaTypePtr;
-
-typedef struct			/* needs and abilities of a driver */
-{
-  MediaTypePtr SelectedMedia;	/* media to be used */
-  FILE *FP;			/* file pointers */
-  Boolean MirrorFlag,		/* several flags */
-    RotateFlag, InvertFlag;
-  BDimension OffsetX,		/* offset from lower/left corner */
-    OffsetY;
-  float Scale;			/* scaleing */
-  BoxType BoundingBox;		/* bounding box of output */
-} PrintInitType, *PrintInitTypePtr;
-
-typedef struct			/* functions of a print driver */
-{
-  char *Name,			/* name of driver */
-   *Suffix;			/* filename suffix */
-  void (*init) (PrintInitTypePtr);	/* initializes driver */
-  void (*Exit) (void);		/* exit code */
-  char *(*Preamble) (PrintInitTypePtr, char *);	/* initializes file */
-  void (*Postamble) (void);	/* exit code */
-  void (*SetColor) (GdkColor *);	/* set color */
-  void (*Polarity) (int);	/* control drawing polarity */
-  void (*Line) (LineTypePtr, Boolean);	/* draw a line (Thick/Clear) */
-  void (*Arc) (ArcTypePtr, Boolean);	/* draw an arc (Thick/Clear) */
-  void (*Poly) (PolygonTypePtr);	/* draw a polygon */
-  void (*Text) (TextTypePtr);	/* draw vector text */
-  void (*Pad) (PadTypePtr, int);	/* pad thick=0 clear=1 mask=2 */
-  void (*PinOrVia) (PinTypePtr, int);	/* pin diam=0 clear=1 mask=2 */
-  void (*ElementPackage) (ElementTypePtr);
-  void (*Drill) (PinTypePtr, Cardinal);	/* drilling information */
-  void (*Outline) (LocationType, LocationType, LocationType, LocationType);
-  void (*Alignment) (LocationType, LocationType, LocationType, LocationType);
-  void (*DrillHelper) (PinTypePtr, int);
-  void (*GroupID) (int);	/* comments group info */
-  Boolean HandlesColor,		/* colored output */
-    HandlesDrill,		/* able to produce drill info */
-    HandlesMedia,		/* able to handle different media */
-    HandlesMirror,		/* allows mirror flag to be set */
-    HandlesRotate,		/* allows the rotate flag to be set */
-    HandlesScale;
-} PrintDeviceType, *PrintDeviceTypePtr;
-
-typedef struct
-{
-  PrintDeviceTypePtr (*Query) (void);	/* query function */
-  PrintDeviceTypePtr Info;	/* data returned by Query() */
-} DeviceInfoType, *DeviceInfoTypePtr;
 
 typedef struct			/* holds a connection */
 {
@@ -803,6 +748,7 @@ typedef struct
 #define UNDO_MIRROR			0x0800	/* change side of board */
 #define UNDO_CHANGECLEARSIZE		0x1000	/* change clearance size */
 #define UNDO_CHANGEMASKSIZE		0x2000	/* change mask size */
+#define UNDO_CHANGEANGLES		0x4000	/* change arc angles */
 
 
 /* ---------------------------------------------------------------------------

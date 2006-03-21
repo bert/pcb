@@ -45,8 +45,6 @@
 #include "rats.h"
 #include "misc.h"
 
-#include "gui.h"
-
 #include <sys/types.h>
 #ifdef HAVE_REGEX_H
 #include <regex.h>
@@ -56,7 +54,7 @@
 #endif
 #endif
 
-RCSID ("$Id$");
+RCSID("$Id$");
 
 
 

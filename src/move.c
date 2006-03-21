@@ -53,13 +53,11 @@
 #include "select.h"
 #include "undo.h"
 
-#include "gui.h"
-
 #ifdef HAVE_LIBDMALLOC
 #include <dmalloc.h>
 #endif
 
-RCSID ("$Id$");
+RCSID("$Id$");
 
 
 
@@ -85,7 +83,7 @@ static void *MovePolygonToLayer (LayerTypePtr, PolygonTypePtr);
 /* ---------------------------------------------------------------------------
  * some local identifiers
  */
-static LocationType DeltaX,	/* used by local routines as offset */
+static LocationType DeltaX,		/* used by local routines as offset */
   DeltaY;
 static LayerTypePtr Dest;
 static Boolean MoreToCome;
@@ -114,8 +112,8 @@ MoveLineToLayer,
  * moves a element by +-X and +-Y
  */
 void
-MoveElementLowLevel (DataTypePtr Data, ElementTypePtr Element,
-		     LocationType DX, LocationType DY)
+MoveElementLowLevel (DataTypePtr Data, ElementTypePtr Element, LocationType DX,
+		     LocationType DY)
 {
   if (Data)
     r_delete_entry (Data->element_tree, (BoxType *) Element);
@@ -150,10 +148,10 @@ MoveElementLowLevel (DataTypePtr Data, ElementTypePtr Element,
   ELEMENTTEXT_LOOP (Element);
   {
     if (Data && Data->name_tree[n])
-      r_delete_entry (PCB->Data->name_tree[n], (BoxType *) text);
+      r_delete_entry (PCB->Data->name_tree[n], (BoxType *)text);
     MOVE_TEXT_LOWLEVEL (text, DX, DY);
     if (Data && Data->name_tree[n])
-      r_insert_entry (PCB->Data->name_tree[n], (BoxType *) text, 0);
+      r_insert_entry (PCB->Data->name_tree[n], (BoxType *)text, 0);
   }
   END_LOOP;
   MOVE_BOX_LOWLEVEL (&Element->BoundingBox, DX, DY);
@@ -174,11 +172,11 @@ MoveElementName (ElementTypePtr Element)
       EraseElementName (Element);
       ELEMENTTEXT_LOOP (Element);
       {
-	if (PCB->Data->name_tree[n])
-	  r_delete_entry (PCB->Data->name_tree[n], (BoxType *) text);
+        if (PCB->Data->name_tree[n])
+	  r_delete_entry (PCB->Data->name_tree[n], (BoxType *)text);
 	MOVE_TEXT_LOWLEVEL (text, DeltaX, DeltaY);
-	if (PCB->Data->name_tree[n])
-	  r_insert_entry (PCB->Data->name_tree[n], (BoxType *) text, 0);
+        if (PCB->Data->name_tree[n])
+	  r_insert_entry (PCB->Data->name_tree[n], (BoxType *)text, 0);
       }
       END_LOOP;
       DrawElementName (Element, 0);
@@ -188,11 +186,11 @@ MoveElementName (ElementTypePtr Element)
     {
       ELEMENTTEXT_LOOP (Element);
       {
-	if (PCB->Data->name_tree[n])
-	  r_delete_entry (PCB->Data->name_tree[n], (BoxType *) text);
+        if (PCB->Data->name_tree[n])
+	  r_delete_entry (PCB->Data->name_tree[n], (BoxType *)text);
 	MOVE_TEXT_LOWLEVEL (text, DeltaX, DeltaY);
-	if (PCB->Data->name_tree[n])
-	  r_insert_entry (PCB->Data->name_tree[n], (BoxType *) text, 0);
+        if (PCB->Data->name_tree[n])
+	  r_insert_entry (PCB->Data->name_tree[n], (BoxType *)text, 0);
       }
       END_LOOP;
     }
@@ -322,8 +320,7 @@ MoveText (LayerTypePtr Layer, TextTypePtr Text)
  * low level routine to move a polygon
  */
 void
-MovePolygonLowLevel (PolygonTypePtr Polygon, LocationType DeltaX,
-		     LocationType DeltaY)
+MovePolygonLowLevel (PolygonTypePtr Polygon, LocationType DeltaX, LocationType DeltaY)
 {
   POLYGONPOINT_LOOP (Polygon);
   {
@@ -364,13 +361,13 @@ MoveLinePoint (LayerTypePtr Layer, LineTypePtr Line, PointTypePtr Point)
   if (Layer)
     {
       if (Layer->On)
-	EraseLine (Line);
+        EraseLine (Line);
       r_delete_entry (Layer->line_tree, &Line->BoundingBox);
       MOVE (Point->X, Point->Y, DeltaX, DeltaY);
       SetLineBoundingBox (Line);
       r_insert_entry (Layer->line_tree, &Line->BoundingBox, 0);
       if (Layer->On)
-	{
+        {
 	  DrawLine (Layer, Line, 0);
 	  Draw ();
 	}
@@ -379,13 +376,13 @@ MoveLinePoint (LayerTypePtr Layer, LineTypePtr Line, PointTypePtr Point)
   else				/* must be a rat */
     {
       if (PCB->RatOn)
-	EraseRat ((RatTypePtr) Line);
+	  EraseRat ((RatTypePtr) Line);
       r_delete_entry (PCB->Data->rat_tree, &Line->BoundingBox);
       MOVE (Point->X, Point->Y, DeltaX, DeltaY);
       SetLineBoundingBox (Line);
       r_insert_entry (PCB->Data->rat_tree, &Line->BoundingBox, 0);
       if (PCB->RatOn)
-	{
+        {
 	  DrawRat ((RatTypePtr) Line, 0);
 	  Draw ();
 	}
@@ -538,7 +535,7 @@ moveline_callback (const BoxType * b, void *cl)
        CreateNewVia (PCB->Data, i->X, i->Y,
 		     Settings.ViaThickness, 2 * Settings.Keepaway,
 		     NOFLAG, Settings.ViaDrillingHole, NULL,
-		     NoFlags ())) != NULL)
+		     NoFlags())) != NULL)
     {
       UpdatePIPFlags (via, (ElementTypePtr) via, NULL, False);
       AddObjectToCreateUndoList (VIA_TYPE, via, via, via);

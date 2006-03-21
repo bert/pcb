@@ -56,8 +56,6 @@
 #include "set.h"
 #include "undo.h"
 
-#include "gui.h"
-
 #ifdef HAVE_LIBDMALLOC
 #include <dmalloc.h>
 #endif
@@ -784,7 +782,6 @@ CollectSubnets (Boolean SelectedOnly)
   return result;
 }
 
-
 /*
  * Check to see if a particular name is the name of an already existing rats
  * line
@@ -862,6 +859,7 @@ AddNet (void)
 	    GetLayerGroupNumberByNumber (MAX_LAYER + SOLDER_LAYER) :
 	    GetLayerGroupNumberByNumber (MAX_LAYER + COMPONENT_LAYER));
   name2 = ConnectionName (found, ptr1, ptr2);
+#ifdef FIXME
   menu = gui_get_net_from_node_name(name1, False);
   if (menu)
     {
@@ -884,9 +882,11 @@ AddNet (void)
       gui_get_net_from_node_name(name1, True);
       goto ratIt;
     }
-  /* neither belong to a net, so create a new one */
+#endif
 
   /*
+   * neither belong to a net, so create a new one.
+   *
    * before creating a new rats here, we need to search
    * for a unique name.
    */
@@ -895,17 +895,15 @@ AddNet (void)
   {
     sprintf (ratname, "  ratDrawn%i", ++ratDrawn);
   }
-
+  
   menu = GetLibraryMenuMemory (&PCB->NetlistLib);
   menu->Name = MyStrdup (ratname, "AddNet");
   entry = GetLibraryEntryMemory (menu);
   entry->ListEntry = MyStrdup (name1, "AddNet");
   entry = GetLibraryEntryMemory (menu);
   entry->ListEntry = MyStrdup (name2, "AddNet");
-  gui_netlist_window_update(FALSE);
-  gui_get_net_from_node_name(name2, True);
 ratIt:
-  gui_netlist_nodes_update(menu);
+  hid_action("NetlistChanged");
   return (CreateNewRat (PCB->Data, Crosshair.AttachedLine.Point1.X,
 			Crosshair.AttachedLine.Point1.Y,
 			Crosshair.AttachedLine.Point2.X,

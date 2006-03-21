@@ -226,7 +226,7 @@ ComputeUnionArea (BoxListTypePtr boxlist)
   yCoords = createSortedYList (boxlist);
   /* now create empty segment tree */
   segtree = createSegmentTree (yCoords.p, yCoords.size);
-  g_free (yCoords.p);
+  free (yCoords.p);
   /* create sorted list of left and right X coordinates of rectangles */
   rectLeft = MyCalloc (boxlist->BoxN, sizeof (*rectLeft),
 		       "ComputeUnionArea(1)");
@@ -276,9 +276,9 @@ ComputeUnionArea (BoxListTypePtr boxlist)
 	  insertSegment (&segtree, 1, b->Y1, b->Y2);
 	}
     }
-  g_free (rectLeft);
-  g_free (rectRight);
-  g_free (segtree.nodes);
+  free (rectLeft);
+  free (rectRight);
+  free (segtree.nodes);
   return area * 0.0001;
 }
 static int

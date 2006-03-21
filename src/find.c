@@ -5,7 +5,7 @@
  *                            COPYRIGHT
  *
  *  PCB, interactive printed circuit board design
- *  Copyright (C) 1994,1995,1996 Thomas Nau
+ *  Copyright (C) 1994,1995,1996, 2005 Thomas Nau
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -91,13 +91,11 @@
 #include "undo.h"
 #include "rats.h"
 
-#include "gui.h"
-
 #ifdef HAVE_LIBDMALLOC
 #include <dmalloc.h>
 #endif
 
-RCSID ("$Id$");
+RCSID("$Id$");
 
 
 
@@ -414,8 +412,8 @@ PadPadIntersect (PadTypePtr p1, PadTypePtr p2)
 }
 
 #ifndef __GNUC__
-#define __inline__		/* not inline on non-gcc platforms */
-#endif /* __GNUC__ */
+#define __inline__ /* not inline on non-gcc platforms */
+#endif /* __GNUC__ */ 
 
 static __inline__ Boolean
 PV_TOUCH_PV (PinTypePtr PV1, PinTypePtr PV2)
@@ -967,7 +965,8 @@ pv_poly_callback (const BoxType * b, void *cl)
 
   /* note that holes in polygons are ok */
   if (((TEST_THERM (i->layer, pv) && TEST_PIP (i->layer, pv))
-       || !TEST_FLAG (CLEARPOLYFLAG, i->polygon)) && !TEST_FLAG (TheFlag, pv))
+       || !TEST_FLAG (CLEARPOLYFLAG, i->polygon))
+      && !TEST_FLAG (TheFlag, pv))
     {
       if (TEST_FLAG (SQUAREFLAG, pv))
 	{
@@ -2233,11 +2232,11 @@ LookupLOConnectionsToPad (PadTypePtr Pad, Cardinal LayerGroup)
 	  else
 	    return True;
 	  /* add polygons */
-	  if (setjmp (info.env) == 0)
-	    r_search (LAYER_PTR (layer)->polygon_tree, &Pad->BoundingBox,
-		      NULL, LOCtoPadPoly_callback, &info);
-	  else
-	    return True;
+ 	  if (setjmp (info.env) == 0)
+ 	    r_search (LAYER_PTR (layer)->polygon_tree, &Pad->BoundingBox,
+ 		      NULL, LOCtoPadPoly_callback, &info);
+ 	  else
+ 	    return True;
 	}
       else
 	{
@@ -2451,7 +2450,7 @@ IsArcInPolygon (ArcTypePtr Arc, PolygonTypePtr Polygon)
 
       line.Point1 = Polygon->Points[0];
       line.Thickness = 0;
-      line.Flags = NoFlags ();
+      line.Flags = NoFlags();
 
       POLYGONPOINT_LOOP (Polygon);
       {
@@ -2509,7 +2508,7 @@ IsLineInPolygon (LineTypePtr Line, PolygonTypePtr Polygon)
 
       line.Point1 = Polygon->Points[0];
       line.Thickness = 0;
-      line.Flags = NoFlags ();
+      line.Flags = NoFlags();
 
       POLYGONPOINT_LOOP (Polygon);
       {
@@ -2582,7 +2581,7 @@ IsPolygonInPolygon (PolygonTypePtr P1, PolygonTypePtr P2)
       line.Point1.X = P1->Points[0].X;
       line.Point1.Y = P1->Points[0].Y;
       line.Thickness = 0;
-      line.Flags = NoFlags ();
+      line.Flags = NoFlags();
 
       POLYGONPOINT_LOOP (P1);
       {
@@ -2897,13 +2896,15 @@ PrepareNextLoop (FILE * FP)
   /* reset PVs */
   PVList.Number = PVList.Location = 0;
 
+#ifdef FIXME
   /* check if abort buttons has been pressed */
-  if (gui_check_abort ())
+  if (gui_check_abort())
     {
       if (FP)
 	fputs ("\n\nABORTED...\n", FP);
       return (True);
     }
+#endif
   return (False);
 }
 
@@ -3052,15 +3053,19 @@ void
 LookupElementConnections (ElementTypePtr Element, FILE * FP)
 {
   /* reset all currently marked connections */
-  gui_create_abort_dialog ("Press button to abort connection scan");
+#ifdef FIXME
+  gui_create_abort_dialog("Press button to abort connection scan");
+#endif
   User = True;
   ResetConnections (True);
   InitConnectionLookup ();
   PrintElementConnections (Element, FP, True);
   SetChangedFlag (True);
-  gui_end_abort ();
+#ifdef FIXME
+  gui_end_abort();
+#endif
   if (Settings.RingBellWhenFinished)
-    gui_beep (Settings.Volume);
+    gui->beep();
   FreeConnectionLookupMemory ();
   IncrementUndoSerialNumber ();
   User = False;
@@ -3075,7 +3080,9 @@ LookupConnectionsToAllElements (FILE * FP)
 {
   /* reset all currently marked connections */
   User = False;
-  gui_create_abort_dialog ("Press button to abort connection scan");
+#ifdef FIXME
+  gui_create_abort_dialog("Press button to abort connection scan");
+#endif
   ResetConnections (False);
   InitConnectionLookup ();
 
@@ -3089,9 +3096,11 @@ LookupConnectionsToAllElements (FILE * FP)
       ResetConnections (False);
   }
   END_LOOP;
-  gui_end_abort ();
+#ifdef FIXME
+  gui_end_abort();
+#endif
   if (Settings.RingBellWhenFinished)
-    gui_beep (Settings.Volume);
+    gui->beep();
   ResetConnections (False);
   FreeConnectionLookupMemory ();
   ClearAndRedrawOutput ();
@@ -3172,8 +3181,7 @@ ListStart (int type, void *ptr1, void *ptr2, void *ptr3)
  * also the action is marked as undoable if AndDraw is true
  */
 void
-LookupConnection (LocationType X, LocationType Y, Boolean AndDraw,
-		  BDimension Range)
+LookupConnection (LocationType X, LocationType Y, Boolean AndDraw, BDimension Range, int which_flag)
 {
   void *ptr1, *ptr2, *ptr3;
   char *name;
@@ -3204,11 +3212,11 @@ LookupConnection (LocationType X, LocationType Y, Boolean AndDraw,
     }
   else
     {
-      name = ConnectionName (type, ptr1, ptr2);
-      gui_netlist_highlight_node (name, True);
+      name = ConnectionName(type, ptr1, ptr2);
+      hid_actionl("NetlistShow", name, 0);
     }
 
-  TheFlag = FOUNDFLAG;
+  TheFlag = which_flag;
   User = AndDraw;
   InitConnectionLookup ();
 
@@ -3225,7 +3233,7 @@ LookupConnection (LocationType X, LocationType Y, Boolean AndDraw,
   if (AndDraw)
     Draw ();
   if (AndDraw && Settings.RingBellWhenFinished)
-    gui_beep (Settings.Volume);
+    gui->beep();
   FreeConnectionLookupMemory ();
 }
 
@@ -3254,7 +3262,9 @@ LookupUnusedPins (FILE * FP)
   /* reset all currently marked connections */
   User = True;
   SaveUndoSerialNumber ();
-  gui_create_abort_dialog ("Press button to abort unused pin scan");
+#ifdef FIXME
+  gui_create_abort_dialog("Press button to abort unused pin scan");
+#endif
   ResetConnections (True);
   RestoreUndoSerialNumber ();
   InitConnectionLookup ();
@@ -3268,10 +3278,12 @@ LookupUnusedPins (FILE * FP)
       break;
   }
   END_LOOP;
-  gui_end_abort ();
+#ifdef FIXME
+  gui_end_abort();
+#endif
 
   if (Settings.RingBellWhenFinished)
-    gui_beep (Settings.Volume);
+    gui->beep();
   FreeConnectionLookupMemory ();
   IncrementUndoSerialNumber ();
   User = False;
@@ -3509,7 +3521,7 @@ DRCFind (int What, void *ptr1, void *ptr2, void *ptr3)
       drc = False;
       drcerr_count++;
       GotoError ();
-      if (!gui_dialog_confirm (DRC_CONTINUE))
+      if (!gui->confirm_dialog(DRC_CONTINUE, 0))
 	return (True);
       IncrementUndoSerialNumber ();
       Undo (True);
@@ -3549,7 +3561,7 @@ DRCFind (int What, void *ptr1, void *ptr2, void *ptr3)
       GotoError ();
       User = False;
       drc = False;
-      if (!gui_dialog_confirm (DRC_CONTINUE))
+      if (!gui->confirm_dialog(DRC_CONTINUE, 0))
 	return (True);
       IncrementUndoSerialNumber ();
       Undo (True);
@@ -3665,7 +3677,7 @@ doIsBad:
   DrawObject (type, ptr1, ptr2, 0);
   drcerr_count++;
   GotoError ();
-  if (!gui_dialog_confirm (DRC_CONTINUE))
+  if (!gui->confirm_dialog(DRC_CONTINUE, 0))
     {
       IsBad = True;
       return 1;
@@ -3688,7 +3700,7 @@ DRCAll (void)
   drcerr_count = 0;
   SaveStackAndVisibility ();
   ResetStackAndVisibility ();
-  gui_layer_buttons_update ();
+  hid_action("LayersChanged");
   InitConnectionLookup ();
 
   TheFlag = FOUNDFLAG | DRCFLAG | SELECTEDFLAG;
@@ -3767,7 +3779,7 @@ DRCAll (void)
 	    drcerr_count++;
 	    SetThing (LINE_TYPE, layer, line, line);
 	    GotoError ();
-	    if (!gui_dialog_confirm (DRC_CONTINUE))
+	    if (!gui->confirm_dialog(DRC_CONTINUE, 0))
 	      {
 		IsBad = True;
 		break;
@@ -3791,7 +3803,7 @@ DRCAll (void)
 	    drcerr_count++;
 	    SetThing (ARC_TYPE, layer, arc, arc);
 	    GotoError ();
-	    if (!gui_dialog_confirm (DRC_CONTINUE))
+	    if (!gui->confirm_dialog(DRC_CONTINUE, 0))
 	      {
 		IsBad = True;
 		break;
@@ -3816,7 +3828,7 @@ DRCAll (void)
 	    drcerr_count++;
 	    SetThing (PIN_TYPE, element, pin, pin);
 	    GotoError ();
-	    if (!gui_dialog_confirm (DRC_CONTINUE))
+	    if (!gui->confirm_dialog(DRC_CONTINUE, 0))
 	      {
 		IsBad = True;
 		break;
@@ -3834,7 +3846,7 @@ DRCAll (void)
 	    drcerr_count++;
 	    SetThing (PIN_TYPE, element, pin, pin);
 	    GotoError ();
-	    if (!gui_dialog_confirm (DRC_CONTINUE))
+	    if (!gui->confirm_dialog(DRC_CONTINUE, 0))
 	      {
 		IsBad = True;
 		break;
@@ -3852,7 +3864,7 @@ DRCAll (void)
 	    drcerr_count++;
 	    SetThing (PIN_TYPE, element, pin, pin);
 	    GotoError ();
-	    if (!gui_dialog_confirm (DRC_CONTINUE))
+	    if (!gui->confirm_dialog(DRC_CONTINUE, 0))
 	      {
 		IsBad = True;
 		break;
@@ -3876,7 +3888,7 @@ DRCAll (void)
 	    drcerr_count++;
 	    SetThing (PAD_TYPE, element, pad, pad);
 	    GotoError ();
-	    if (!gui_dialog_confirm (DRC_CONTINUE))
+	    if (!gui->confirm_dialog(DRC_CONTINUE, 0))
 	      {
 		IsBad = True;
 		break;
@@ -3901,7 +3913,7 @@ DRCAll (void)
 	    drcerr_count++;
 	    SetThing (VIA_TYPE, via, via, via);
 	    GotoError ();
-	    if (!gui_dialog_confirm (DRC_CONTINUE))
+	    if (!gui->confirm_dialog(DRC_CONTINUE, 0))
 	      {
 		IsBad = True;
 		break;
@@ -3910,7 +3922,7 @@ DRCAll (void)
 	    Undo (False);
 	  }
 	if (!TEST_FLAG (HOLEFLAG, via) &&
-	    via->Thickness - via->DrillingHole < 2 * PCB->minRing)
+	    via->Thickness - via->DrillingHole < PCB->minRing)
 	  {
 	    AddObjectToFlagUndoList (VIA_TYPE, via, via, via);
 	    SET_FLAG (TheFlag, via);
@@ -3919,7 +3931,7 @@ DRCAll (void)
 	    drcerr_count++;
 	    SetThing (VIA_TYPE, via, via, via);
 	    GotoError ();
-	    if (!gui_dialog_confirm (DRC_CONTINUE))
+	    if (!gui->confirm_dialog(DRC_CONTINUE, 0))
 	      {
 		IsBad = True;
 		break;
@@ -3937,7 +3949,7 @@ DRCAll (void)
 	    drcerr_count++;
 	    SetThing (VIA_TYPE, via, via, via);
 	    GotoError ();
-	    if (!gui_dialog_confirm (DRC_CONTINUE))
+	    if (!gui->confirm_dialog(DRC_CONTINUE, 0))
 	      {
 		IsBad = True;
 		break;
@@ -3955,21 +3967,21 @@ DRCAll (void)
   fBloat = 0.0;
 
   /* check silkscreen minimum widths outside of elements */
-  /* FIXME - need to check text and polygons too! */
+  /* XXX - need to check text and polygons too! */
   TheFlag = SELECTEDFLAG;
   if (!IsBad)
     {
-      SILKLINE_LOOP (PCB->Data);
+      SILKLINE_LOOP(PCB->Data);
       {
 	if (line->Thickness < PCB->minSlk)
 	  {
-	    SET_FLAG (TheFlag, line);
-	    Message (_("Silk line is too thin\n"));
-	    DrawLine (layer, line, 0);
+	    SET_FLAG(TheFlag, line);
+	    Message(_("Silk line is too thin\n"));
+	    DrawLine(layer, line, 0);
 	    drcerr_count++;
-	    SetThing (LINE_TYPE, layer, line, line);
-	    GotoError ();
-	    if (!gui_dialog_confirm (DRC_CONTINUE))
+	    SetThing(LINE_TYPE, layer, line, line);
+	    GotoError();
+	    if (!gui->confirm_dialog(DRC_CONTINUE, 0))
 	      {
 		IsBad = True;
 		break;
@@ -3980,7 +3992,7 @@ DRCAll (void)
     }
 
   /* check silkscreen minimum widths inside of elements */
-  /* FIXME - need to check text and polygons too! */
+  /* XXX - need to check text and polygons too! */
   TheFlag = SELECTEDFLAG;
   if (!IsBad)
     {
@@ -3989,20 +4001,20 @@ DRCAll (void)
 	tmpcnt = 0;
 	ELEMENTLINE_LOOP (element);
 	{
-	  if (line->Thickness < PCB->minSlk)
+          if (line->Thickness < PCB->minSlk)
 	    tmpcnt++;
 	}
 	END_LOOP;
 	if (tmpcnt > 0)
 	  {
-	    SET_FLAG (TheFlag, element);
-	    Message (_("Element %s has %d silk lines which are too thin\n"),
-		     UNKNOWN (NAMEONPCB_NAME (element)), tmpcnt);
-	    DrawElement (element, 0);
+	    SET_FLAG(TheFlag, element);
+	    Message(_("Element %s has %d silk lines which are too thin\n"), 
+		    UNKNOWN (NAMEONPCB_NAME(element) ), tmpcnt);
+	    DrawElement(element, 0);
 	    drcerr_count++;
-	    SetThing (ELEMENT_TYPE, element, element, element);
-	    GotoError ();
-	    if (!gui_dialog_confirm (DRC_CONTINUE))
+	    SetThing(ELEMENT_TYPE, element, element, element);
+	    GotoError();
+	    if (!gui->confirm_dialog(DRC_CONTINUE, 0))
 	      {
 		IsBad = True;
 		break;
@@ -4020,7 +4032,7 @@ DRCAll (void)
 
 
   RestoreStackAndVisibility ();
-  gui_layer_buttons_update ();
+  hid_action("LayersChanged");
 
   return (drcerr_count);
 }
@@ -4073,7 +4085,7 @@ GotoError (void)
       }
     case ELEMENT_TYPE:
       {
-	ElementTypePtr element = (ElementTypePtr) thing_ptr3;
+        ElementTypePtr element = (ElementTypePtr) thing_ptr3;
 	X = element->MarkX;
 	Y = element->MarkY;
 	break;
@@ -4089,10 +4101,10 @@ GotoError (void)
     case ARC_TYPE:
     case POLYGON_TYPE:
       ChangeGroupVisibility (GetLayerNumber
-			     (PCB->Data, (LayerTypePtr) thing_ptr1), True,
-			     True);
+				(PCB->Data, (LayerTypePtr) thing_ptr1), True,
+				True);
     }
-  CenterDisplay (X, Y - TO_PCB (Output.Height / 4), False);
+  CenterDisplay (X, Y - TO_PCB(Output.Height / 4), False);
 }
 
 void

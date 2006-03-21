@@ -4,7 +4,7 @@
  *                            COPYRIGHT
  *
  *  PCB, interactive printed circuit board design
- *  Copyright (C) 1994,1995,1996 Thomas Nau
+ *  Copyright (C) 1994,1995,1996, 2005 Thomas Nau
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -55,8 +55,6 @@
 #include "select.h"
 #include "set.h"
 #include "undo.h"
-
-#include "gui.h"
 
 
 RCSID ("$Id$");
@@ -1098,7 +1096,7 @@ Boolean
 ChangeLayoutName (char *Name)
 {
   PCB->Name = Name;
-  gui_output_set_name_label(Name);
+  hid_action("PCBChanged");
   return (True);
 }
 
@@ -1125,7 +1123,7 @@ Boolean
 ChangeLayerName (LayerTypePtr Layer, char *Name)
 {
   CURRENT->Name = Name;
-  gui_layer_buttons_update();
+  hid_action("LayersChanged");
   return (True);
 }
 
@@ -2228,32 +2226,32 @@ QueryInputAndChangeObjectName (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
   switch (Type)
     {
     case LINE_TYPE:
-      name = gui_dialog_input(_("Linename:"),
+      name = gui->prompt_for(_("Linename:"),
 					EMPTY(((LineTypePtr) Ptr2)->Number));
       break;
 
     case VIA_TYPE:
-      name = gui_dialog_input(_("Vianame:"),
+      name = gui->prompt_for(_("Vianame:"),
 					EMPTY (((PinTypePtr) Ptr2)->Name));
       break;
 
     case PIN_TYPE:
       sprintf (msg, _("%s Pin Name:"), EMPTY (((PinTypePtr) Ptr2)->Number));
-      name = gui_dialog_input(msg, EMPTY (((PinTypePtr) Ptr2)->Name));
+      name = gui->prompt_for(msg, EMPTY (((PinTypePtr) Ptr2)->Name));
       break;
 
     case PAD_TYPE:
       sprintf (msg, _("%s Pad Name:"), EMPTY (((PadTypePtr) Ptr2)->Number));
-      name = gui_dialog_input(msg, EMPTY (((PadTypePtr) Ptr2)->Name));
+      name = gui->prompt_for(msg, EMPTY (((PadTypePtr) Ptr2)->Name));
       break;
 
     case TEXT_TYPE:
-      name = gui_dialog_input(_("Enter text:"),
+      name = gui->prompt_for(_("Enter text:"),
 			   EMPTY (((TextTypePtr) Ptr2)->TextString));
       break;
 
     case ELEMENT_TYPE:
-      name = gui_dialog_input(_("Elementname:"),
+      name = gui->prompt_for(_("Elementname:"),
 			   EMPTY (ELEMENT_NAME (PCB, (ElementTypePtr) Ptr2)));
       break;
     }
@@ -2300,8 +2298,10 @@ ChangePCBSize (BDimension Width, BDimension Height)
 							     Y)));
   else
     SetCrosshairRange (0, 0, (LocationType) Width, (LocationType) Height);
-  gui_output_positioners_scale();
+  hid_action("PCBChanged");
+#if 0
   UpdateAll ();
+#endif
 }
 
 /* ---------------------------------------------------------------------------

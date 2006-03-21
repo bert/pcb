@@ -60,8 +60,6 @@
 #include "undo.h"
 #include "vendor.h"
 
-#include "gui.h"
-
 static void add_to_drills(char *);
 static void apply_vendor_map(void);
 static void process_skips(Resource *);
@@ -94,66 +92,129 @@ static Boolean vendorMapEnable = False;
 #define ROUND_UP 0
 static int rounding_method = ROUND_UP;
 
-#define FREE(x) if((x) != NULL) { g_free (x) ; (x) = NULL; }
+#define FREE(x) if((x) != NULL) { free (x) ; (x) = NULL; }
 
-/* FLAG(VendorMapOn,vendor_get_enabled) */
+/* ************************************************************ */
+
+/* %start-doc actions ApplyVendor
+
+@syntax
+ApplyVendor()
+@end syntax
+@cindex vendor map 
+@cindex vendor drill table
+@findex ApplyVendor()
+
+Applies the currently loaded vendor drill table to the current design.
+This will modify all of your drill holes to match the list of allowed
+sizes for your vendor.
+
+%end-doc */
+
 int
-vendor_get_enabled(void)
+ActionApplyVendor(int argc, char **argv, int x, int y)
 {
-  return vendorMapEnable;
-}
-
-/* ************************************************************ */
-
-/* ACTION(ApplyVendor,ActionApplyVendor) */
-
-void
-ActionApplyVendor(void)
-{
-
   apply_vendor_map();
+  return 0;
 }
 
 /* ************************************************************ */
 
-/* ACTION(ToggleVendor,ActionToggleVendor) */
+/* %start-doc actions ToggleVendor
 
-void
-ActionToggleVendor(void)
+@syntax
+ToggleVendor()
+@end syntax
+@cindex vendor map 
+@cindex vendor drill table
+@findex ToggleVendor()
+
+Toggles the state of automatic drill size mapping.  When drill mapping is 
+enabled, new instances of pins and vias will have their drill
+holes mapped to one of the allowed drill sizes specified in the
+currently loaded vendor drill table.  To enable drill mapping, a
+vendor resource file containing a drill table must be loaded first.
+
+%end-doc */
+
+int
+ActionToggleVendor(int argc, char **argv, int x, int y)
 {
-
   if (vendorMapEnable)
     vendorMapEnable = False;
   else
     vendorMapEnable = True;
+  return 0;
 }
 
 /* ************************************************************ */
 
-/* ACTION(EnableVendor,ActionEnableVendor) */
+/* %start-doc actions EnableVendor
 
-void
-ActionEnableVendor(void)
+@syntax
+EnableVendor()
+@end syntax
+@cindex vendor map 
+@cindex vendor drill table
+@findex EnableVendor()
+
+Enables automatic drill size mapping.  When drill mapping is 
+enabled, new instances of pins and vias will have their drill
+holes mapped to one of the allowed drill sizes specified in the
+currently loaded vendor drill table.  To enable drill mapping, a
+vendor resource file containing a drill table must be loaded first.
+
+%end-doc */
+
+int
+ActionEnableVendor(int argc, char **argv, int x, int y)
 {
   vendorMapEnable = True;
+  return 0;
 }
 
 /* ************************************************************ */
 
-/* ACTION(DisableVendor,ActionDisableVendor) */
+/* %start-doc actions DisableVendor
 
-void
-ActionDisableVendor(void)
+@syntax
+DisableVendor()
+@end syntax
+@cindex vendor map 
+@cindex vendor drill table
+@findex DisableVendor()
+
+Disables automatic drill size mapping.  When drill mapping is 
+enabled, new instances of pins and vias will have their drill
+holes mapped to one of the allowed drill sizes specified in the
+currently loaded vendor drill table.
+
+%end-doc */
+
+int
+ActionDisableVendor(int argc, char **argv, int x, int y )
 {
   vendorMapEnable = False;
+  return 0;
 }
 
 /* ************************************************************ */
 
-/* ACTION(UnloadVendor,ActionUnloadVendor) */
+/* %start-doc actions UnloadVendor
 
-void
-ActionUnloadVendor(void)
+@syntax
+UnloadVendor()
+@end syntax
+@cindex vendor map 
+@cindex vendor drill table
+@findex UnloadVendor()
+
+Unloads the current vendor drill mapping table.
+
+%end-doc */
+
+int
+ActionUnloadVendor(int argc, char **argv, int x, int y)
 {
 
   /* Unload any vendor table we may have had */
@@ -165,41 +226,45 @@ ActionUnloadVendor(void)
   FREE (ignore_refdes);
   FREE (ignore_value);
   FREE (ignore_descr);
-
+  return 0;
 }
 
 /* ************************************************************ */
 
-/* ACTION(LoadVendor,ActionLoadVendor) */
+/* %start-doc actions LoadVendorFrom
 
-void
-ActionLoadVendor(gchar *filename)
+@syntax
+LoadVendorFrom(filename)
+@end syntax
+@cindex vendor map 
+@cindex vendor drill table
+@findex LoadVendorFrom()
+
+@table @var
+@item filename
+Name of the vendor resource file
+@end table
+
+Loads the specified vendor resource file.
+
+%end-doc */
+
+int
+ActionLoadVendorFrom(int argc, char **argv, int x, int y)
 {
+  char *filename;
   int i;
   char *fname = NULL, *name = NULL;
   char *sval;
   Resource *res, *drcres, *drlres;
   int type;
 
-  if (!filename || !*filename)
-  {
-    fname = gui_dialog_file_select_open(_("Load vendor resource file"),
-                        NULL, Settings.FilePath);
-    name = fname;
-  } else if ( filename && *filename)
-  {
-    /* resource file name */
-    fname = filename;
-  } else
+  fname = argc ? argv[0] : 0;
+
+  if (!fname || !*fname)
   {
     Message ("Usage:  LoadVendor([filename])\n");
-    return ;
-  }
-
-  if (fname == NULL) 
-  {
-    Message ("LoadVendor():  No vendor resource file specified\n");
-    return ;
+    return 1;
   }
 
   /* Unload any vendor table we may have had */
@@ -218,7 +283,7 @@ ActionLoadVendor(gchar *filename)
   if (res == NULL)
     {
       Message (_("Could not load vendor resource file \"%s\"\n"), fname);
-      return;
+      return 1;
     }
 
   /* figure out the vendor name, if specified */
@@ -348,7 +413,7 @@ ActionLoadVendor(gchar *filename)
   if (sval != NULL)
     {
       PCB->minRing = floor (sf * atof(sval) + 0.5);
-      Message (_("Set DRC minimum annular ring on drill holes to %.2f mils\n"), 
+      Message (_("Set DRC minimum annular ring to %.2f mils\n"), 
 	       0.01*PCB->minRing);
     }
 
@@ -358,7 +423,8 @@ ActionLoadVendor(gchar *filename)
 
   vendorMapEnable = True;
   apply_vendor_map();
-  g_free(name);
+  free(name);
+  return 0;
 }
 
 static void apply_vendor_map(void)
@@ -557,10 +623,10 @@ static void add_to_drills(char *sval)
 
   /* increment the count and make sure we have memory */
   n_vendor_drills++;
-  if ( (vendor_drills = g_realloc (vendor_drills, 
+  if ( (vendor_drills = realloc (vendor_drills, 
 				 n_vendor_drills*sizeof(int))) == NULL )
     {
-      fprintf (stderr, "g_realloc() failed to allocate %ld bytes\n", 
+      fprintf (stderr, "realloc() failed to allocate %ld bytes\n", 
 	       (unsigned long) n_vendor_drills*sizeof(int));
       return ; 
     }
@@ -652,12 +718,12 @@ static void process_skips(Resource *res)
 		    {
 		      sval = res->v[i].subres->v[k].value;
 		      (*cnt)++;
-		      if( (*lst = (char **) g_realloc(*lst, (*cnt)*sizeof(char *))) == NULL )
+		      if( (*lst = (char **) realloc(*lst, (*cnt)*sizeof(char *))) == NULL )
 			{
-			  fprintf(stderr, "g_realloc() failed\n");
+			  fprintf(stderr, "realloc() failed\n");
 			  exit(-1);
 			}
-		      (*lst)[*cnt - 1] = g_strdup(sval);
+		      (*lst)[*cnt - 1] = strdup(sval);
 		    }
 		}
 	    }
@@ -795,3 +861,25 @@ rematch( const char *re, const char *s)
 #endif
 
 }
+
+HID_Action vendor_action_list[] = {
+  { "LoadVendorFrom", 0, 0, ActionLoadVendorFrom },
+  { "UnloadVendor", 0, 0, ActionUnloadVendor },
+  { "ToggleVendor", 0, 0, ActionToggleVendor },
+  { "ApplyVendor", 0, 0, ActionApplyVendor },
+  { "EnableVendor", 0, 0, ActionEnableVendor },
+  { "DisableVendor", 0, 0, ActionDisableVendor },
+};
+
+REGISTER_ACTIONS(vendor_action_list)
+
+static int
+vendor_get_enabled(int unused)
+{
+  return vendorMapEnable;
+}
+
+HID_Flag vendor_flag_list[] = {
+  { "VendorMapOn", vendor_get_enabled, 0 },
+};
+REGISTER_FLAGS(vendor_flag_list);

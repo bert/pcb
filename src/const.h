@@ -137,7 +137,7 @@ connecting to them.
 @item 0x0040 selected
 Set when the object is selected.
 @item 0x0080 onsolder
-For elements, indicates that the element is on the solder side.
+For elements and pads, indicates that they are on the solder side.
 @item 0x0080 auto
 For lines and vias, indicates that these were created by the
 autorouter.

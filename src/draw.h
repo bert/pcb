@@ -33,7 +33,7 @@
 
 #include "global.h"
 
-gboolean	SwitchDrawingWindow(gfloat, GdkDrawable *, gboolean, gboolean);
+/*Boolean	SwitchDrawingWindow(double, GdkDrawable *, gboolean, gboolean);*/
 
 void	Draw(void);
 void	RedrawOutput(BoxTypePtr area);
@@ -49,6 +49,7 @@ void	DrawPadName(PadTypePtr, int);
 void	DrawLine(LayerTypePtr, LineTypePtr, int);
 void	DrawArc(LayerTypePtr, ArcTypePtr, int);
 void	DrawText(LayerTypePtr, TextTypePtr, int);
+void	DrawTextLowLevel(TextTypePtr);
 void	DrawPolygon(LayerTypePtr, PolygonTypePtr, int);
 void	DrawElement(ElementTypePtr, int);
 void	DrawElementName(ElementTypePtr, int);
@@ -73,6 +74,6 @@ void	EraseObject(int, void *);
 void	LoadBackgroundImage (char *);
 void	UpdateAll(void);
 
-GdkDrawable *draw_get_current_drawable(void);
+/*GdkDrawable *draw_get_current_drawable(void);*/
 
 #endif

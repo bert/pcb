@@ -42,8 +42,6 @@
 #include "misc.h"
 #include "rtree.h"
 
-#include "gui.h"
-
 RCSID("$Id$");
 
 static float drc_lines (PointTypePtr end, Boolean way);
@@ -60,7 +58,7 @@ AdjustAttachedLine (void)
   if (line->State == STATE_FIRST)
     return;
   /* don't draw outline when ctrl key is pressed */
-  if (Settings.Mode == LINE_MODE && gui_control_is_pressed())
+  if (Settings.Mode == LINE_MODE && gui->control_is_pressed())
     {
       line->draw = False;
       return;
@@ -172,7 +170,7 @@ AdjustTwoLine (int way)
   if (Crosshair.AttachedLine.State == STATE_FIRST)
     return;
   /* don't draw outline when ctrl key is pressed */
-  if (gui_control_is_pressed())
+  if (gui->control_is_pressed())
     {
       line->draw = False;
       return;
@@ -186,7 +184,7 @@ AdjustTwoLine (int way)
       return;
     }
   /* swap the modes if shift is held down */
-  if (gui_shift_is_pressed())
+  if (gui->shift_is_pressed())
     way = !way;
   dx = Crosshair.X - line->Point1.X;
   dy = Crosshair.Y - line->Point1.Y;
@@ -480,10 +478,10 @@ void
 EnforceLineDRC (void)
 {
   PointType r45, rs;
-  gboolean shift;
+  Boolean shift;
   float r1, r2;
 
-  if (gui_control_is_pressed() || PCB->RatDraw || INDEXOFCURRENT >= MAX_LAYER)
+  if (gui->control_is_pressed() || PCB->RatDraw || INDEXOFCURRENT >= MAX_LAYER)
     return;
   rs.X = r45.X = Crosshair.X;
   rs.Y = r45.Y = Crosshair.Y;
@@ -491,7 +489,7 @@ EnforceLineDRC (void)
   r1 = drc_lines (&rs, False);
   /* then try starting at 45 */
   r2 = drc_lines (&r45, True);
-  shift = gui_shift_is_pressed();
+  shift = gui->shift_is_pressed();
   if (XOR (r1 > r2, shift))
     {
       if (PCB->Clipping)

@@ -120,7 +120,7 @@ heap_create ()
     MIN_COST = -1e23;
   assert (MIN_COST < 0);
   /* okay, create empty heap */
-  heap = g_malloc0(sizeof (*heap));
+  heap = calloc(1, sizeof (*heap));
   assert (heap);
   assert (__heap_is_good (heap));
   return heap;
@@ -133,8 +133,8 @@ heap_destroy (heap_t ** heap)
   assert (heap && *heap);
   assert (__heap_is_good (*heap));
   if ((*heap)->element)
-    g_free ((*heap)->element);
-  g_free (*heap);
+    free ((*heap)->element);
+  free (*heap);
   *heap = NULL;
 }
 
@@ -167,7 +167,7 @@ heap_insert (heap_t * heap, cost_t cost, void *data)
       if (heap->max == 0)
 	heap->max = 32;		/* default initial heap size */
       heap->element =
-	g_realloc (heap->element, heap->max * sizeof (*heap->element));
+	realloc (heap->element, heap->max * sizeof (*heap->element));
     }
   heap->size++;
   assert (heap->size < heap->max);

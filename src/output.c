@@ -33,8 +33,8 @@
 #include "config.h"
 #endif
 
-#include "gui.h"
-
+#include "global.h"
+#include "data.h"
 #include "action.h"
 #include "crosshair.h"
 #include "draw.h"
@@ -44,12 +44,13 @@
 #include "set.h"
 
 
+#ifdef FIXME
 
 /* Pan the screen so that pcb coordinate xp, yp is displayed at screen
  * coordinates xs,ys.
  * Returns TRUE if that is not possible, FALSE otherwise.
  */
-gboolean
+Boolean
 CoalignScreen(Position xs, Position ys,
 			LocationType xp, LocationType yp)
 	{
@@ -64,7 +65,7 @@ CoalignScreen(Position xs, Position ys,
 	else
 		y = yp - TO_PCB (ys);
 
-	return Pan(x, y, FALSE, TRUE);
+	return Pan(x, y, False, True);
 	}
 
 void
@@ -130,12 +131,12 @@ DrawClipped(GdkRegion *myRegion)
  * If Update is TRUE, an update event is generated so the display
  * is redrawn.
  */
-gboolean
+Boolean
 Pan(LocationType X, LocationType Y,
-			gboolean Scroll, gboolean Update)
+			Boolean Scroll, Boolean Update)
 	{
 	OutputType		*out = &Output;
-	gboolean		clip = FALSE;
+	Boolean		clip = FALSE;
 	static Position	x, y;
 	GdkRegion		*myRegion;
 	GdkRectangle	rect;
@@ -269,41 +270,42 @@ Pan(LocationType X, LocationType Y,
 	y = Yorig;
 	return clip;
 	}
+#endif
 
-gboolean
+Boolean
 ActiveDrag (void)
 {
-  gboolean active = FALSE;
+  Boolean active = False;
 
   switch (Settings.Mode)
     {
     case POLYGON_MODE:
       if (Crosshair.AttachedLine.State != STATE_FIRST)
-	active = TRUE;
+	active = True;
       break;
 
     case ARC_MODE:
       if (Crosshair.AttachedBox.State != STATE_FIRST)
-	active = TRUE;
+	active = True;
       break;
 
     case LINE_MODE:
       if (Crosshair.AttachedLine.State != STATE_FIRST)
-	active = TRUE;
+	active = True;
       break;
 
     case COPY_MODE:
     case MOVE_MODE:
     case INSERTPOINT_MODE:
       if (Crosshair.AttachedObject.Type != NO_TYPE)
-	active = TRUE;
+	active = True;
       break;
     default:
       break;
     }
 
   if (Crosshair.AttachedBox.State == STATE_SECOND)
-    active = TRUE;
+    active = True;
 
   return (active);
 }

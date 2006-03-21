@@ -107,7 +107,7 @@ mtspace_create_box (const BoxType * box, int fixed, int even, int odd)
 {
   mtspacebox_t *mtsb;
   assert (__box_is_good (box));
-  mtsb = g_malloc0(sizeof (*mtsb));
+  mtsb = malloc(sizeof (*mtsb));
   *((BoxTypePtr) & mtsb->box) = *box;
   mtsb->fixed_count = fixed;
   mtsb->even_count = even;
@@ -132,7 +132,7 @@ mtspace_create (const BoxType * bounds, BDimension keepaway)
   mtsb = mtspace_create_box (&smaller_bounds, 0, 0, 0);
   mtsb->keepaway = keepaway;
   /* create mtspace data structure */
-  mtspace = g_malloc0(sizeof (*mtspace));
+  mtspace = malloc(sizeof (*mtspace));
   mtspace->rtree = r_create_tree ((const BoxType **) &mtsb, 1, 1);
   mtspace->bounds = smaller_bounds;
   /* done! */
@@ -146,7 +146,7 @@ mtspace_destroy (mtspace_t ** mtspacep)
 {
   assert (mtspacep && __mtspace_is_good (*mtspacep));
   r_destroy_tree (&(*mtspacep)->rtree);
-  g_free (*mtspacep);
+  free (*mtspacep);
   *mtspacep = NULL;
 }
 
@@ -304,7 +304,7 @@ mtspace_coalesce (mtspace_t * mtspace, struct coalesce_closure *cc)
 	{
 	  /* ----- found something to coalesce and added it to add_vec ---- */
 	  /* free old mtsb */
-	  g_free (cc->mtsb);
+	  free (cc->mtsb);
 	}
     }
   while (!vector_is_empty (cc->add_vec));
@@ -428,7 +428,7 @@ mtspace_mutate (mtspace_t * mtspace,
   assert (boxtype (cc.mtsb) != 0);
   /* take a chunk out of anything which intersects our clipped bloated box */
   mtspace_remove_chunk (mtspace, &cc);
-  g_free (cc.mtsb);
+  free (cc.mtsb);
   /* coalesce adjacent chunks */
   mtspace_coalesce (mtspace, &cc);
   /* clean up coalesce_closure */
@@ -478,13 +478,13 @@ query_one (const BoxType * box, void *cl)
   if (qc->keepaway > mtsb->keepaway)
     shrink = qc->keepaway - mtsb->keepaway;
   shrink += qc->radius;
-  shrunk = (BoxType *) g_malloc0(sizeof(*shrunk));
+  shrunk = (BoxType *) malloc(sizeof(*shrunk));
   *shrunk = shrink_box (box, shrink);
   if (shrunk->X2 <= shrunk->X1
       || shrunk->Y2 <= shrunk->Y1 ||
   !box_intersect (qc->region, shrunk))
     {
-      g_free (shrunk);
+      free (shrunk);
       return 0;
     }
   else if ((qc->is_odd ? mtsb->odd_count : mtsb->even_count) > 0)

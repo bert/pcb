@@ -4,7 +4,7 @@
  *                            COPYRIGHT
  *
  *  PCB, interactive printed circuit board design
- *  Copyright (C) 1994,1995,1996 Thomas Nau
+ *  Copyright (C) 1994,1995,1996, 2005 Thomas Nau
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -54,14 +54,13 @@
 #include "data.h"
 #include "error.h"
 #include "file.h"
-#include "gui.h"
 
 #include "misc.h"
 
 RCSID("$Id$");
 
 
-
+#define utf8_dup_string(a,b) *(a) = strdup(b)
 
 /* ----------------------------------------------------------------------
  * some external identifiers
@@ -85,24 +84,12 @@ extern char *sys_errlist[];	/* array of error messages */
  */
 void
 Message (char *Format, ...)
-	{
-	static int line = 1;
-	va_list args;
-	char s[1024];
-
-	sprintf(s,"%d: ",line++);
-	va_start (args, Format);
-	vsprintf (s + strlen(s), Format, args);
-	va_end (args);
-
-	if (Settings.UseLogWindow)
-		gui_log_append_string(s);
-	else
-		{
-		gui_beep(Settings.Volume);
-		gui_dialog_message(s);
-		}
-	}
+{
+  va_list args;
+  va_start (args, Format);
+  gui->logv(Format, args);
+  va_end (args);
+}
 
 
 /* ---------------------------------------------------------------------------
@@ -111,7 +98,7 @@ Message (char *Format, ...)
 void
 OpenErrorMessage (char *Filename)
 {
-gchar	*utf8	= NULL;
+char	*utf8	= NULL;
 
 utf8_dup_string(&utf8, Filename);
 #ifdef USE_SYS_ERRLIST
@@ -122,7 +109,7 @@ utf8_dup_string(&utf8, Filename);
   Message (_("Can't open file\n"
 	   "   '%s'\nfopen() returned: '%s'\n"), utf8, strerror (errno));
 #endif
-g_free(utf8);
+free(utf8);
 }
 
 /* ---------------------------------------------------------------------------
@@ -131,7 +118,7 @@ g_free(utf8);
 void
 PopenErrorMessage (char *Filename)
 {
-gchar	*utf8	= NULL;
+char	*utf8	= NULL;
 
 utf8_dup_string(&utf8, Filename);
 #ifdef USE_SYS_ERRLIST
@@ -142,7 +129,7 @@ utf8_dup_string(&utf8, Filename);
   Message (_("Can't execute command\n"
 	   "   '%s'\npopen() returned: '%s'\n"), utf8, strerror (errno));
 #endif
-g_free(utf8);
+free(utf8);
 }
 
 /* ---------------------------------------------------------------------------
@@ -151,7 +138,7 @@ g_free(utf8);
 void
 OpendirErrorMessage (char *DirName)
 {
-gchar	*utf8	= NULL;
+char	*utf8	= NULL;
 
 utf8_dup_string(&utf8, DirName);
 #ifdef USE_SYS_ERRLIST
@@ -162,7 +149,7 @@ utf8_dup_string(&utf8, DirName);
   Message (_("Can't scan directory\n"
 	   "   '%s'\nopendir() returned: '%s'\n"), utf8, strerror (errno));
 #endif
-g_free(utf8);
+free(utf8);
 }
 
 /* ---------------------------------------------------------------------------
@@ -171,7 +158,7 @@ g_free(utf8);
 void
 ChdirErrorMessage (char *DirName)
 {
-gchar	*utf8	= NULL;
+char	*utf8	= NULL;
 
 utf8_dup_string(&utf8, DirName);
 #ifdef USE_SYS_ERRLIST
@@ -182,7 +169,7 @@ utf8_dup_string(&utf8, DirName);
   Message (_("Can't change working directory to\n"
 	   "   '%s'\nchdir() returned: '%s'\n"), utf8, strerror (errno));
 #endif
-g_free(utf8);
+free(utf8);
 }
 
 /* ---------------------------------------------------------------------------

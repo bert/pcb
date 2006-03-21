@@ -49,6 +49,7 @@
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
+#include <pwd.h>
 
 #include "global.h"
 
@@ -69,8 +70,6 @@
 #include "search.h"
 #include "set.h"
 #include "action.h"
-
-#include "gui.h"
 
 
 RCSID ("$Id$");
@@ -113,7 +112,7 @@ GetValue (char *val, char *units, Boolean *absolute)
    */
   if (*val == '=')
     {
-      *absolute = TRUE;
+      *absolute = True;
       value = atof (val + 1);
     }
   else
@@ -303,19 +302,19 @@ SetElementBoundingBox (DataTypePtr Data, ElementTypePtr Element,
 	if (!Data->pad_tree)
 	  Data->pad_tree = r_create_tree (NULL, 0, 0);
 	r_insert_entry (Data->pad_tree, (BoxType *) pad, 0);
-	MAKEMIN (box->X1, pad->BoundingBox.X1);
-	MAKEMIN (box->Y1, pad->BoundingBox.Y1);
-	MAKEMAX (box->X2, pad->BoundingBox.X2);
-	MAKEMAX (box->Y2, pad->BoundingBox.Y2);
-	MAKEMIN (vbox->X1,
-		 MIN (pad->Point1.X, pad->Point2.X) - pad->Thickness / 2);
-	MAKEMIN (vbox->Y1,
-		 MIN (pad->Point1.Y, pad->Point2.Y) - pad->Thickness / 2);
-	MAKEMAX (vbox->X2,
-		 MAX (pad->Point1.X, pad->Point2.X) + pad->Thickness / 2);
-	MAKEMAX (vbox->Y2,
-		 MAX (pad->Point1.Y, pad->Point2.Y) + pad->Thickness / 2);
       }
+    MAKEMIN (box->X1, pad->BoundingBox.X1);
+    MAKEMIN (box->Y1, pad->BoundingBox.Y1);
+    MAKEMAX (box->X2, pad->BoundingBox.X2);
+    MAKEMAX (box->Y2, pad->BoundingBox.Y2);
+    MAKEMIN (vbox->X1,
+	     MIN (pad->Point1.X, pad->Point2.X) - pad->Thickness / 2);
+    MAKEMIN (vbox->Y1,
+	     MIN (pad->Point1.Y, pad->Point2.Y) - pad->Thickness / 2);
+    MAKEMAX (vbox->X2,
+	     MAX (pad->Point1.X, pad->Point2.X) + pad->Thickness / 2);
+    MAKEMAX (vbox->Y2,
+	     MAX (pad->Point1.Y, pad->Point2.Y) + pad->Thickness / 2);
   }
   END_LOOP;
   /* now we set the EDGE2FLAG of the pad if Point2
@@ -544,25 +543,13 @@ GetDataBoundingBox (DataTypePtr Data)
 void
 CenterDisplay (LocationType X, LocationType Y, Boolean Delta)
 {
-  LocationType x, y;
-
-#ifdef DEBUGDISP
-  Message ("CenterDisplay(%d, %d, %s)\n", X, Y, Delta ? "True" : "False");
-#endif
-  if (!Delta)
-    {
-      x = X - TO_PCB (Output.Width / 2);
-      if (SWAP_IDENT)
-	y = PCB->MaxHeight - Y - TO_PCB (Output.Height / 2);
-      else
-	y = Y - TO_PCB (Output.Height / 2);
-    }
+  int save_grid = PCB->Grid;
+  PCB->Grid = 1;
+  if (Delta)
+    MoveCrosshairRelative(X, Y);
   else
-    {
-      x = Xorig + TO_PCB (X);
-      y = Yorig + TO_PCB (Y);
-    }
-  Pan (x, y, True, True);
+    MoveCrosshairAbsolute(X, Y);
+  PCB->Grid = save_grid;
 }
 
 /* ---------------------------------------------------------------------------
@@ -644,13 +631,14 @@ GetNum (char **s, BDimension * num)
 }
 
 
-gchar *
+char *
 build_route_string(RouteStyleType *rs)
 	{
-	gchar	*str, *s, *t, *colon;
-	gint	i;
+#ifdef FIXME
+	char	*str, *s, *t, *colon;
+	int	i;
 
-	str = g_strdup("");
+	str = MyStrdup("", __FUNCTION__);
 	for (i = 0; i < NUM_STYLES; ++i, ++rs)
 		{
 		s = g_strdup_printf("%s,%d,%d,%d,%d", rs->Name,
@@ -658,9 +646,10 @@ build_route_string(RouteStyleType *rs)
 		colon = (i == NUM_STYLES - 1) ? NULL : ":";
 		t = str;
 		str = g_strconcat(str, s, colon, NULL);
-		g_free(t);
+		free(t);
 		}
 	return str;
+#endif
 	}
 
 /* ----------------------------------------------------------------------
@@ -683,7 +672,6 @@ ParseRouteString (char *s, RouteStyleTypePtr routeStyle, int scale)
 	Name[i] = *s++;
       Name[i] = '\0';
       routeStyle->Name = MyStrdup (Name, "ParseRouteString()");
-      gui_route_style_set_button_label(Name, style);
       if (!isdigit (*++s))
 	goto error;
       GetNum (&s, &routeStyle->Thick);
@@ -731,9 +719,10 @@ ParseRouteString (char *s, RouteStyleTypePtr routeStyle, int scale)
 	  if (*s++ != ':')
 	    goto error;
 	}
-	}
+    }
   return (0);
-error:
+
+ error:
   memset (routeStyle, 0, NUM_STYLES * sizeof (RouteStyleType));
   return (1);
 }
@@ -834,9 +823,9 @@ QuitApplication (void)
    * of calling gtk_main()
    */
   if( Settings.init_done > 0 )
-  	gtk_main_quit();
+    exit(0);
   else
-	Settings.init_done = -1;
+    Settings.init_done = -1;
 }
 
 /* ---------------------------------------------------------------------------
@@ -849,6 +838,15 @@ EvaluateFilename (char *Template, char *Path, char *Filename, char *Parameter)
 {
   static DynamicStringType command;
   char *p;
+
+  if (Settings.verbose)
+    {
+      printf("EvaluateFilename:\n");
+      printf("\tTemplate: \033[33m%s\033[0m\n", Template);
+      printf("\tPath: \033[33m%s\033[0m\n", Path);
+      printf("\tFilename: \033[33m%s\033[0m\n", Filename);
+      printf("\tParameter: \033[33m%s\033[0m\n", Parameter);
+    }
 
   DSClearString (&command);
 	
@@ -874,7 +872,7 @@ EvaluateFilename (char *Template, char *Path, char *Filename, char *Parameter)
     }
   DSAddCharacter (&command, '\0');
   if (Settings.verbose)
-    printf("EvaluateFilename: %s\n", command.Data);
+    printf("EvaluateFilename: \033[32m%s\033[0m\n", command.Data);
 
   return (MyStrdup (command.Data, "EvaluateFilename()"));
 }
@@ -984,6 +982,7 @@ ChangeGroupVisibility (int Layer, Boolean On, Boolean ChangeStackOrder)
 				Layer, On, ChangeStackOrder);
 
   /* special case of rat (netlist layer) */
+#ifdef FIXME
   if (Layer == GUI_RATS_LAYER)
     {
       PCB->RatOn = On;
@@ -1007,6 +1006,7 @@ ChangeGroupVisibility (int Layer, Boolean On, Boolean ChangeStackOrder)
       return (0);
     }
   PCB->SilkActive = (On && ChangeStackOrder) ? False : PCB->SilkActive;
+#endif
 
   /* decrement 'i' to keep stack in order of layergroup */
   if ((group = GetGroupOfLayer (Layer)) < MAX_LAYER)
@@ -1032,7 +1032,7 @@ ChangeGroupVisibility (int Layer, Boolean On, Boolean ChangeStackOrder)
     PushOnTopOfLayerStack (Layer);
 
   /* update control panel and exit */
-  gui_layer_buttons_update();
+  hid_action("LayersChanged");
   return (changed);
 }
 
@@ -1427,6 +1427,7 @@ CreateQuotedString (DynamicStringTypePtr DS, char *S)
 int
 GetGridFactor (void)
 {
+#ifdef FIXME
   static int factor[] = { 1, 2, 5, 10 };
   int i, delta;
 
@@ -1441,13 +1442,12 @@ GetGridFactor (void)
 	  if (Settings.GridFactor != factor[i])
 	    {
 	      Settings.GridFactor = factor[i];
-	      set_status_line_label();
 	    }
 	  return (factor[i]);
 	}
     }
   Settings.GridFactor = 0;
-  set_status_line_label();
+#endif
   return (0);
 }
 
@@ -1471,6 +1471,23 @@ GetArcEnds (ArcTypePtr Arc)
   box.X2 = Arc->X - Arc->Width * ca;
   box.Y2 = Arc->Y + Arc->Height * sa;
   return (&box);
+}
+
+void
+ChangeArcAngles(LayerTypePtr Layer, ArcTypePtr a,
+		long int new_sa, long int new_da)
+{
+  if (new_da >= 360)
+    {
+      new_da = 360;
+      new_sa = 0;
+    }
+  r_delete_entry (Layer->arc_tree, (BoxTypePtr) a);
+  AddObjectToChangeAnglesUndoList (ARC_TYPE, a, a, a);
+  a->StartAngle = new_sa;
+  a->Delta = new_da;
+  SetArcBoundingBox(a);
+  r_insert_entry (Layer->arc_tree, (BoxTypePtr) a, 0);
 }
 
 static char *
@@ -1657,7 +1674,7 @@ Concat (const char *first, ...)
   va_list a;
 
   len = strlen (first);
-  rv = (char *) g_malloc (len + 1);
+  rv = (char *) malloc (len + 1);
   strcpy (rv, first);
 
   va_start (a, first);
@@ -1667,7 +1684,7 @@ Concat (const char *first, ...)
       if (!s)
 	break;
       len += strlen (s);
-      rv = (char *) g_realloc (rv, len + 1);
+      rv = (char *) realloc (rv, len + 1);
       strcat (rv, s);
     }
   va_end (a);
@@ -1718,4 +1735,117 @@ MaskFlags (FlagType flag, unsigned int flags)
 {
   flag.f &= ~flags;
   return flag;
+}
+
+/***********************************************************************
+ * Layer Group Functions
+ */
+
+int
+MoveLayerToGroup (int layer, int group)
+{
+  int prev, i, j;
+
+  if (layer < 0 || layer > MAX_LAYER+1)
+    return -1;
+  prev = GetLayerGroupNumberByNumber(layer);
+  if ((layer == MAX_LAYER
+       && group == GetLayerGroupNumberByNumber(MAX_LAYER+1))
+      ||  (layer == MAX_LAYER+1
+	   && group == GetLayerGroupNumberByNumber(MAX_LAYER))
+      || (group < 0 || group >= MAX_LAYER)
+      || (prev == group))
+    return prev;
+
+  /* Remove layer from prev group */
+  printf("removing layer %d from group %d\n", layer, prev);
+  for (j=i=0; i<PCB->LayerGroups.Number[prev]; i++)
+    if (PCB->LayerGroups.Entries[prev][i] != layer)
+      PCB->LayerGroups.Entries[prev][j++] =
+	PCB->LayerGroups.Entries[prev][i];
+  PCB->LayerGroups.Number[prev] --;
+
+  /* Add layer to new group.  */
+  printf("adding layer %d to group %d\n", layer, group);
+  i = PCB->LayerGroups.Number[group] ++;
+  PCB->LayerGroups.Entries[group][i] = layer;
+
+  return group;
+}
+
+char *
+LayerGroupsToString(LayerGroupTypePtr lg)
+{
+#if MAX_LAYER < 9998
+  /* Allows for layer numbers 0..9999 */
+  static char buf[(MAX_LAYER+2)*5+1];
+#endif
+  char *cp = buf;
+  int group, entry;
+  for (group = 0; group < MAX_LAYER; group++)
+    if (PCB->LayerGroups.Number[group])
+      {
+	for (entry = 0; entry < PCB->LayerGroups.Number[group]; entry++)
+	  {
+	    switch (PCB->LayerGroups.Entries[group][entry])
+	      {
+	      case MAX_LAYER + COMPONENT_LAYER:
+		*cp++ = 'c';
+		break;
+
+	      case MAX_LAYER + SOLDER_LAYER:
+		*cp++ = 's';
+		break;
+
+	      default:
+		sprintf (cp, "%d",
+			 PCB->LayerGroups.Entries[group][entry] + 1);
+		while (*++cp)
+		  ;
+		break;
+	      }
+	    if (entry != PCB->LayerGroups.Number[group] - 1)
+	      *cp++ = ',';
+	  }
+	if (group != MAX_LAYER - 1)
+	  *cp++ = ':';
+      }
+  *cp++ = 0;
+  return buf;
+}
+
+char *
+pcb_author (void)
+{
+  static struct passwd *pwentry;
+  static char *fab_author = 0;
+
+  if (!fab_author)
+    {
+      if (Settings.FabAuthor && Settings.FabAuthor[0])
+	fab_author = Settings.FabAuthor;
+      else
+	{
+	  int len;
+	  unsigned char *comma, *gecos;
+
+	  /* ID the user. */
+	  pwentry = getpwuid (getuid ());
+	  gecos = pwentry->pw_gecos;
+	  comma = strchr (gecos,',');
+	  if (comma)
+	    len = comma-gecos;
+	  else
+	    len = strlen (gecos);
+	  fab_author = malloc (len+1);
+	  if (!fab_author)
+	    {
+	      perror ("pcb: out of memory.\n");
+	      exit (-1);
+	    }
+	  memcpy (fab_author, gecos, len);
+	  fab_author[len] = 0;
+	}
+    }
+  return fab_author;
 }

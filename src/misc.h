@@ -49,7 +49,7 @@ void		SetFontInfo(FontTypePtr);
 void		UpdateSettingsOnScreen(void);
 int		ParseGroupString(char *, LayerGroupTypePtr);
 int		ParseRouteString(char *, RouteStyleTypePtr, int);
-gchar	*build_route_string(RouteStyleType *);
+char		*build_route_string(RouteStyleType *);
 void		QuitApplication(void);
 char		*EvaluateFilename(char *, char *, char *, char *);
 char		*ExpandFilename(char *, char *);
@@ -71,11 +71,14 @@ char		*GetWorkingDirectory(char *);
 void		CreateQuotedString(DynamicStringTypePtr, char *);
 int		GetGridFactor(void);
 BoxTypePtr	GetArcEnds(ArcTypePtr);
+void		ChangeArcAngles(LayerTypePtr, ArcTypePtr, long int, long int);
 char		*UniqueElementName(DataTypePtr, char *);
 void		AttachForCopy(LocationType, LocationType);
 float		GetValue(char *, char *, Boolean *);
 int		FileExists(const char *);
 char *		Concat (const char *, ...); /* end with NULL */
+
+char *		pcb_author();
 
 /* For passing modified flags to other functions. */
 FlagType	MakeFlags(unsigned int);
@@ -83,5 +86,14 @@ FlagType	OldFlags(unsigned int);
 FlagType	AddFlags(FlagType, unsigned int);
 FlagType	MaskFlags(FlagType, unsigned int);
 #define		NoFlags() MakeFlags(0)
+
+/* Layer Group Functions */
+
+/* Returns group actually moved to (i.e. either group or previous) */
+int		MoveLayerToGroup(int layer, int group);
+/* returns pointer to private buffer */
+char *		LayerGroupsToString(LayerGroupTypePtr);
+/* Make the current layer groups the default.  */
+void		MakeLayerGroupsDefault();
 
 #endif

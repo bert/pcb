@@ -34,8 +34,6 @@
 #include "global.h"
 
 void		SetTextScale(Dimension);
-void		set_cursor_position_labels(void);
-void		set_status_line_label(void);
 void		SetGrid(float, Boolean);
 void		SetZoom(float);
 void		SetLineSize(BDimension);

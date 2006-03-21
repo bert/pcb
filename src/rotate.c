@@ -52,8 +52,6 @@
 #include "set.h"
 #include "undo.h"
 
-#include "gui.h"
-
 #ifdef HAVE_LIBDMALLOC
 #include <dmalloc.h>
 #endif

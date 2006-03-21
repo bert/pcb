@@ -6,6 +6,11 @@ SUBDIRS=	icons script
 pcbtreedir=	@PCBTREEDIR@
 pcblibdir=	@PCBLIBDIR@
 
+AUTOMAKE_OPTIONS = subdir-objects
+HIDLIST = @HIDLIST@
+noinst_LIBRARIES = @HIDLIBS@
+EXTRA_LIBRARIES = libgtk.a liblesstif.a liblpr.a libgerber.a libbom.a libpng.a libps.a
+
 pcblib_DATA=	\
 	default_font \
 	pcb-menu.res
@@ -28,8 +33,6 @@ pcb_bin_SOURCES = \
 	buffer.h \
 	change.c \
 	change.h \
-	clip.c \
-	clip.h \
 	command.c \
 	command.h \
 	compat.c \
@@ -43,10 +46,6 @@ pcb_bin_SOURCES = \
 	crosshair.h \
 	data.c \
 	data.h \
-	dev_ps.c \
-	dev_ps.h \
-	dev_rs274x.c \
-	dev_rs274x.h \
 	djopt.c \
 	djopt.h \
 	draw.c \
@@ -59,24 +58,11 @@ pcb_bin_SOURCES = \
 	file.h \
 	find.c \
 	find.h \
+	flags.c \
 	global.h \
-	gui-command-window.c \
-	gui-config.c \
-	gui-dialog-print.c \
-	gui-dialog-size.c \
-	gui-dialog.c \
-	gui-keyref-window.c \
-	gui-library-window.c \
-	gui-log-window.c \
-	gui-misc.c \
-	gui-netlist-window.c \
-	gui-output-events.c \
-	gui-pinout-window.c \
-	gui-top-window.c \
-	gui-utils.c \
-	gui.h \
 	heap.c \
 	heap.h \
+	hid.h \
 	insert.c \
 	insert.h \
 	intersect.c \
@@ -95,6 +81,7 @@ pcb_bin_SOURCES = \
 	mtspace.h \
 	mymem.c \
 	mymem.h \
+	netlist.c \
 	output.c \
 	output.h \
 	parse_l.h \
@@ -103,6 +90,7 @@ pcb_bin_SOURCES = \
 	parse_y.y \
 	polygon.c \
 	polygon.h \
+	puller.c \
 	print.c \
 	print.h \
 	rats.c \
@@ -133,12 +121,35 @@ pcb_bin_SOURCES = \
 	vector.c \
 	vector.h \
 	vendor.c \
-	vendor.h
+	vendor.h \
+	hid/common/actions.c \
+	hid/common/flags.c \
+	hid/common/hidinit.c \
+	hid/common/hidnogui.c \
+	hid/common/extents.c \
+	core_lists.h
+
+BUILT_SOURCES = \
+	core_lists.h \
+	hid/gtk/gtk_lists.h \
+	hid/lesstif/lesstif_lists.h \
+	hid/png/png_lists.h \
+	hid/ps/ps_lists.h \
+	parse_y.h \
+	pcb-menu.h \
+	res_parse.h
+
+pcb_bin_LDADD = @HIDLIBS@
+pcb_bin_DEPENDENCIES = @HIDLIBS@
+
+# Action, Attribute, and Flag lists.
+core_lists.h : ${pcb_bin_SOURCES} Makefile
+	true > $@
+	(for f in ${pcb_bin_SOURCES} ; do cat $(srcdir)/$$f ; done) | grep ^REGISTER > $@.tmp
+	mv $@.tmp $@
 
 # for globalconst.h
 INCLUDES=	-I$(top_srcdir) -I$(srcdir)/icons
-
-BUILT_SOURCES=	parse_y.h pcb-menu.h res_parse.h
 
 EXTRA_DIST= \
 	check_icon.data \
@@ -158,6 +169,85 @@ pcb-menu.h : pcb-menu.res
 	echo 'const char *pcb_menu_default[] = {' >> pcb-menu.h
 	sed 's/\\/\\\\/g; s/"/\\"/g; s/^/"/; s/$$/",/' < ${srcdir}/pcb-menu.res >> pcb-menu.h
 	echo '0};' >> pcb-menu.h
+
+hid/common/hidlist.h : Makefile
+	true > $@
+	for e in ${HIDLIST}; do \
+	  echo "HID_DEF($${e})" >> $@; \
+	done
+
+# Make needs to know this before automake builds the .deps file,
+# otherwise it won't exist the first time through.
+hid/common/hidinit.o : hid/common/hidlist.h
+
+libgtk_a_CPPFLAGS = -I./hid/gtk
+libgtk_a_SOURCES = \
+	hid/gtk/gtkhid-main.c \
+	hid/gtk/gui-command-window.c \
+	hid/gtk/gui-config.c \
+	hid/gtk/gui-dialog-print.c \
+	hid/gtk/gui-dialog-size.c \
+	hid/gtk/gui-dialog.c \
+	hid/gtk/gui-keyref-window.c \
+	hid/gtk/gui-library-window.c \
+	hid/gtk/gui-log-window.c \
+	hid/gtk/gui-misc.c \
+	hid/gtk/gui-netlist-window.c \
+	hid/gtk/gui-output-events.c \
+	hid/gtk/gui-pinout-window.c \
+	hid/gtk/gui-top-window.c \
+	hid/gtk/gui-utils.c \
+	hid/gtk/gtk_lists.h
+
+hid/gtk/gtk_lists.h : ${libgtk_a_SOURCES} Makefile
+	true > $@
+	(for f in ${libgtk_a_SOURCES} ; do cat $(srcdir)/$$f ; done) | grep ^REGISTER > $@.tmp
+	mv $@.tmp $@
+
+liblesstif_a_CPPFLAGS = -I./hid/lesstif
+liblesstif_a_SOURCES = \
+	hid/lesstif/dialogs.c \
+	hid/lesstif/library.c \
+	hid/lesstif/main.c \
+	hid/lesstif/menu.c \
+	hid/lesstif/netlist.c \
+	hid/lesstif/styles.c \
+	hid/lesstif/lesstif_lists.h
+
+hid/lesstif/lesstif_lists.h : ${liblesstif_a_SOURCES} Makefile
+	true > $@
+	(for f in ${liblesstif_a_SOURCES} ; do cat $(srcdir)/$$f ; done) | grep ^REGISTER > $@.tmp
+	mv $@.tmp $@
+
+libgerber_a_SOURCES = \
+	hid/gerber/gerber.c
+
+libbom_a_SOURCES = \
+	hid/bom/bom.c
+
+libps_a_CPPFLAGS = -I./hid/ps
+libps_a_SOURCES = \
+	hid/ps/ps.c \
+	hid/ps/eps.c \
+	hid/ps/ps_lists.h
+
+hid/ps/ps_lists.h : ${libps_a_SOURCES} Makefile
+	true > $@
+	(for f in ${libps_a_SOURCES} ; do cat $(srcdir)/$$f ; done) | grep ^REGISTER > $@.tmp
+	mv $@.tmp $@
+
+libpng_a_CPPFLAGS = -I./hid/png
+libpng_a_SOURCES = \
+	hid/png/png.c \
+	hid/png/png_lists.h
+
+hid/png/png_lists.h : ${libpng_a_SOURCES} Makefile
+	true > $@
+	(for f in ${libpng_a_SOURCES} ; do cat $(srcdir)/$$f ; done) | grep ^REGISTER > $@.tmp
+	mv $@.tmp $@
+
+liblpr_a_SOURCES = \
+	hid/lpr/lpr.c
 
 DISTCLEANFILES= pcbtest.sh Pcb .test/Pcb pcb-menu.h
 

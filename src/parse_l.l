@@ -56,7 +56,6 @@ RCSID("$Id$");
 #include "data.h"
 #include "error.h"
 #include "file.h"
-#include "gui.h"
 #include "mymem.h"
 #include "misc.h"
 #include "strflags.h"
@@ -199,7 +198,8 @@ static int Parse(char *Executable, char *Path, char *Filename, char *Parameter)
 #endif
 
 		/* release old command and create new from template */
-	MyFree(&command);
+	if (command)
+	  MyFree(&command);
 	command = EvaluateFilename(Executable, Path, Filename, Parameter);
 
 		/* open pipe to stdout of command */
@@ -225,10 +225,10 @@ static int Parse(char *Executable, char *Path, char *Filename, char *Parameter)
 		 * It's not necessary if the system supports the call of functions
 		 * on termination.
 		 */
-	gui_watch_cursor();
 
 #if !defined(HAS_ATEXIT) && !defined(HAS_ON_EXIT)
-	SaveTMPData();
+	if (PCB)
+	  SaveTMPData();
 	returncode = yyparse();
 	RemoveTMPData();
 #else
@@ -237,7 +237,6 @@ static int Parse(char *Executable, char *Path, char *Filename, char *Parameter)
 	/* clean up parse buffer */
 	yy_delete_buffer(YY_CURRENT_BUFFER);
 
-	gui_restore_cursor();
 	return(pclose(yyin) ? 1 : returncode);
 }
 
