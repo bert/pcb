@@ -4191,7 +4191,6 @@ ActionNew (int argc, char **argv, int x, int y)
 	  ResetStackAndVisibility ();
 	  CreateDefaultFont ();
 	  SetCrosshairRange (0, 0, PCB->MaxWidth, PCB->MaxHeight);
-	  UpdateSettingsOnScreen ();
 	  CenterDisplay (PCB->MaxWidth / 2, PCB->MaxHeight / 2, False);
 	  ClearAndRedrawOutput ();
 

@@ -41,7 +41,6 @@ void		SetViaSize(BDimension, Boolean);
 void		SetViaDrillingHole(BDimension, Boolean);
 void		SetKeepawayWidth(BDimension);
 void		SetChangedFlag(Boolean);
-void		UpdateSettingsOnScreen(void);
 void		SetBufferNumber(int);
 void		SetMode(int);
 void		SetCrosshairRangeToBuffer(void);

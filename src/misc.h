@@ -46,7 +46,6 @@ Boolean		IsDataEmpty(DataTypePtr);
 BoxTypePtr	GetDataBoundingBox(DataTypePtr);
 void		CenterDisplay(LocationType, LocationType, Boolean);
 void		SetFontInfo(FontTypePtr);
-void		UpdateSettingsOnScreen(void);
 int		ParseGroupString(char *, LayerGroupTypePtr);
 int		ParseRouteString(char *, RouteStyleTypePtr, int);
 char		*build_route_string(RouteStyleType *);

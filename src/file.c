@@ -325,7 +325,6 @@ LoadPCB (char *Filename)
       PCB->Filename = MyStrdup (Filename, "LoadPCB()");
       /* just in case a bad file saved file is loaded */
       UpdatePIPFlags (NULL, NULL, NULL, False);
-      UpdateSettingsOnScreen ();
 
       units_mm = (PCB->Grid != (int) PCB->Grid) ? True : False;
 

@@ -256,13 +256,7 @@ SetBufferNumber (int Number)
 }
 
 /* ---------------------------------------------------------------------------
- * updates all widgets like status, cursor position ... on screen
  */
-void
-UpdateSettingsOnScreen (void)
-{
-  hid_action("LayersChanged");
-}
 
 void
 SaveMode (void)
