@@ -16,7 +16,7 @@
 
 static HID_Attribute base_lpr_options[] = {
   {"lprcommand", "Command to print",
-   HID_String, 0, 0, {0, "cat > /tmp/dj.ps", 0}, 0, 0},
+   HID_String, 0, 0, {0, "lpr", 0}, 0, 0},
 #define HA_lprcommand 0
 };
 #define NUM_OPTIONS (sizeof(lpr_options)/sizeof(lpr_options[0]))
