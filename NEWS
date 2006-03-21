@@ -1,3 +1,47 @@
+========================================================================
+Release Notes for PCB snapshot 20060321
+========================================================================
+- Add internal support for more than 8 layers.  By default PCB is still
+  compiled for 8 copper layers.
+- Fixed several minor bugs in the GTK user interface including fixing
+  scrolling of the log window, fixed up some of the DRC reporting
+  and mm/mil units.
+- Fixed several key bindings.
+- Updated refcard.tex to reflect the current set of key bindings.
+- Fixed some minor bugs which caused compilation problems on some
+  systems.
+- Converted the QFN footprints to hi-res.
+- Added documentation to the manual for the centroid file format and
+  the algorithm used for finding the centroid and rotation.
+- Fixed a bug so that the initial layer named 'component' is actually
+  on the component side of the board and 'solder' is actually on the
+  solder side of the board.
+- Fixed the pin order in the bourns trim pots (~bourns library)
+- Added actions and a script to allow command line printing.
+- Added IPC-7351 recommended footprints for 0201, 0402, etc passives.
+- Fixed SME5 package.
+- Fixed a bug which prevented disabling nets from the ratsnest
+- Fixed a bug where clearances could be set 1 below the spacing
+- Fixed clearline flag so that arcs also have this property.
+- Speed up rtree searches and other autorouter speedups.
+- Fixed a bug in computation of the closest polygon point.
+- Use rtrees for polygon handling for speed improvements.
+- Add a ChangePinName() action.
+- Fix a bug which caused duplicate rats names when manually adding
+  rats lines.
+- Added DRC checks for minimum drill diameter and minimum annular ring.
+- Add a minimal glossary to the manual
+- Fix the author name in the fab drawing
+- Cause the crosshair to snap to pad ends instead of center for rat
+  drawing.
+- Add "join" to SetFlag, ClrFlag and ChangeFlag.
+- Added inline documentation for the pcb file syntax.  The manual now
+  is up to date and correctly documents the file format.  In addition
+  the inline documentation will make it much easier to maintain the
+  documentation.
+- Remove some broken m4lib footprints
+- Put the correct setting for the gschem footprint= attribute in []
+  in the library window for the m4 libraries.
 
 ========================================================================
 Release Notes for PCB snapshot 20050609
