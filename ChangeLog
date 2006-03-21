@@ -1,3 +1,487 @@
+2006-03-21 00:58  danmc
+
+	* Makefile.in, tutorial/Makefile.in: regen
+
+2006-03-20 21:33  danmc
+
+	* doc/version.texi: bump updated date
+
+2006-03-20 21:15  danmc
+
+	* doc/Makefile.in: regen
+
+2006-03-20 21:14  danmc
+
+	* doc/Makefile.am: Minor updates to fix the 'distcheck' target.
+	  Adds a missing file (extract-docs) to the list of distributed
+	  files, uses $(srcdir) in a couple of spots, etc.
+
+2006-03-20 17:50  danmc
+
+	* configure: regen
+
+2006-03-20 17:44  danmc
+
+	* configure.ac: - replace obsolete AC_ERROR with AC_MSG_ERROR -
+	  store the path to the m4 executible
+
+2006-03-16 00:05  djdelorie
+
+	* src/parse_y.y: Document ElementArc, ElementLine, and Mark.
+
+2006-03-14 08:04  danmc
+
+	* doc/pad.pcb: add drawing of soldermask opening around a pad
+
+2006-03-13 21:33  danmc
+
+	* lib/: QueryLibrary.sh.in, common.m4: add an optional -fp argument
+	  which will display the correct footprint= attribute for gschem.
+	  Generally useful for debugging.
+
+2006-03-13 21:33  danmc
+
+	* lib/: pci.inc, pci.list, pci.m4: Remove the abuse of the value
+	  field as a way of passing in multiple extra parameters.  While
+	  here fix the pinlists.  These footprints still have diagonal pads
+	  which are not allowed.
+
+2006-03-13 21:29  danmc
+
+	* src/Makefile.in, lib/Makefile.in: regen
+
+2006-03-13 21:03  danmc
+
+	* lib/: Makefile.am, genericsmt.inc, genericsmt.list,
+	  genericsmt.m4: garbage collect some footprints that were not at
+	  all conforming to the correct usage of the m4 library system.  In
+	  addition, they were rather redundant.
+
+2006-03-13 18:08  danmc
+
+	* lib/CreateLibraryContents.sh.in: put the correct gschem
+	  footprint= attribute in [] at the end of each description
+
+2006-03-11 20:55  djdelorie
+
+	* doc/extract-docs: New file, for extracting inline documentation.
+
+2006-03-11 20:43  danmc
+
+	* lib/QueryLibrary.sh.in: eat blank lines of which there can be
+	  many in the element output
+
+2006-03-11 16:28  djdelorie
+
+	* src/const.h, src/parse_y.y, doc/Makefile.am, doc/Makefile.in,
+	  doc/pcb.texi, doc/pcb.css: Inline documentation.
+
+2006-03-11 11:30  djdelorie
+
+	* src/: action.c, change.c, change.h: Add "join" to SetFlag,
+	  ClrFlag, and ChangeFlag actions.
+
+2006-03-08 01:41  haceaton
+
+	* src/autoroute.c: Fixed bug where pads were assumed to be on the
+	  same side as the element
+	  ----------------------------------------------------------------------
+
+2006-03-08 01:40  haceaton
+
+	* src/crosshair.c: Crosshair snap to pad ends instead of center -
+	  necessary for rat drawing because rats only connect at pad end
+	  points.
+	  ----------------------------------------------------------------------
+
+2006-03-05 19:35  djdelorie
+
+	* src/print.c: Fab author fixes from Karel.
+
+2006-03-05 19:07  danmc
+
+	* src/parse_y.y: Fix reduce-reduce conflicts (patch from DJ).
+
+2006-03-03 16:45  danmc
+
+	* doc/pcb.texi: - clarify that the manual does not currently
+	  document the very latest pcb	 output file format.
+
+	  - add a (sparsely populated) glossary appendix
+
+	  - add a note about how to change layers
+
+2006-03-03 16:33  danmc
+
+	* globalconst.h, src/action.c, src/create.c, src/file.c,
+	  src/find.c, src/global.h, src/gui-config.c, src/parse_y.y,
+	  src/rotate.c, src/sizedialog.c, src/vendor.c: add DRC checks for
+	  minimum drill diameter and minimum annular ring.
+
+2006-03-02 18:26  danmc
+
+	* src/rats.c: When manually adding nets, make sure we actually pick
+	  a unique name when a new net is created.  Fixes a bug noted by
+	  Vanessa Dannenberg.
+
+2006-02-27 19:05  danmc
+
+	* doc/pad.pcb: Add a pad drawing showing how a pad is drawn with a
+	  rectangular aperture.  Not used yet, but this will replace the
+	  tgif drawing at some point.
+
+2006-01-29 17:33  danmc
+
+	* src/error.c: apply some fixes for DragonFly BSD
+
+2006-01-17 23:11  danmc
+
+	* src/action.c: format cleanup of ActionChangePinName() to bring
+	  more in line with GNU coding standards for C code formatting.
+
+2006-01-16 21:47  danmc
+
+	* doc/pcb.texi: document ChangePinName action
+
+2006-01-16 21:47  danmc
+
+	* src/: action.c, action.h, command.c: add a ChangePinName() action
+	  which lets you change the name of a pin/pad on an element.  For
+	  example, ChangePinName(U1, 7, VCC) changes the name of pin #7 on
+	  U1 to "VCC".	This makes it simple to propagate pin names from a
+	  schematic capture tool to the layout without requiring the layout
+	  library to know the pin names for every component.
+
+2006-01-15 20:34  haceaton
+
+	* src/: buffer.c, copy.c, create.c, draw.c, find.c, insert.c,
+	  move.c, mymem.c, parse_y.y, polygon.c, print.c, remove.c,
+	  report.c, search.c, select.c: Updated to use rtrees for polygon
+	  handling
+
+2006-01-15 07:29  haceaton
+
+	* src/polygon.c: Fixed bugs in GetClosestPolygonPoint where (a) the
+	  passed point was not used, and (b) projection of the segment past
+	  the end was being used when it shouldn't.
+	  ----------------------------------------------------------------------
+
+2006-01-02 16:35  haceaton
+
+	* src/autoroute.c: Speed computation of route costs, it uses about
+	  13% of the CPU time during routing.
+	  ----------------------------------------------------------------------
+
+2006-01-02 14:49  haceaton
+
+	* src/rtree.c: Speed up the rtree searches by establishing better
+	  balance of the cluster size during a node split. This reduces the
+	  tree depth resulting in faster searching.
+	  ----------------------------------------------------------------------
+
+2006-01-02 10:51  haceaton
+
+	* src/strflags.c: Fixed clearline flag so that arcs also have this
+	  property
+	  ----------------------------------------------------------------------
+
+2006-01-02 10:12  haceaton
+
+	* src/change.c: Fixed bug where clearances could be set 1 below the
+	  spacing setting
+	  ----------------------------------------------------------------------
+
+2005-12-09 08:21  danmc
+
+	* doc/Makefile.in: regen [put the html manual in 1 file]
+
+2005-12-09 08:20  danmc
+
+	* doc/Makefile.am: put the html manual in 1 file.  Its a bit easier
+	  to manage
+
+2005-12-09 08:19  danmc
+
+	* doc/version.texi: bump date last touched
+
+2005-12-07 17:56  danmc
+
+	* lib/smt.inc: cause the missing ) in PKG_SMT_2PAD_MM100 to appear
+
+2005-12-05 20:01  danmc
+
+	* doc/pcb.texi: - added the pad drawing showing how a pad is drawn
+	  with an aperture.
+
+	  - added some comments about the evolving file format for layout
+	  files.
+
+2005-12-02 18:29  danmc
+
+	* src/: create.c, global.h, gui-netlist-window.c, rats.c: fix a bug
+	  which prevented disabling nets from the ratsnest
+
+2005-12-01 23:17  danmc
+
+	* lib/geda.inc: fix duplicate PKG_SME4 which should have been
+	  called SME5.	Reported by  Wojciech Kazubski in bug #1353304
+
+2005-12-01 23:15  danmc
+
+	* src/pcbtest.sh.in: Be sure to set the library path to the source
+	  tree.  Patch supplied by Wim Lewis in patch #1362564
+
+2005-10-10 21:15  danmc
+
+	* lib/geda.inc: redo the 0201, 0402, etc passives to bring them in
+	  line with the IPC recommendations.  The pads on, for example
+	  0603, were too small before.	They worked, were really not
+	  adequate.
+
+2005-10-10 21:14  danmc
+
+	* lib/smt.inc: add a PKG_SMT_2PAD_MM100 which directly takes
+	  dimensions for the pads, silk, and placement courtyard from
+	  IPC-7351 for things like 0402 capacitor and resistor footprints.
+
+2005-09-06 00:31  danmc
+
+	* autogen.sh: make this script a bit more verbose and also abort on
+	  errors
+
+2005-09-06 00:30  danmc
+
+	* configure: regen
+
+2005-09-06 00:16  danmc
+
+	* configure.ac: make sure to check for -lX11 even when we're using
+	  the gtk gui.	action.c still has a direct call to an X function
+	  (XWarpPointer) so on some systems (Solaris) you need to
+	  explicitly link -lX11 instead of getting it through the gtk
+	  dependencies
+
+2005-08-05 18:33  danmc
+
+	* configure: regen
+
+2005-08-05 18:31  danmc
+
+	* configure.ac: check for gtk+ >= 2.4.0 instead of 2.2.0 since we
+	  need >= 2.4.0
+
+2005-08-05 18:31  danmc
+
+	* src/script/: Makefile.am, Makefile.in: add pcb-print to the list
+	  of distributed files
+
+2005-08-05 18:31  danmc
+
+	* src/script/pcb-print: fix a bug in the --add-alignment option.
+	  Noted by David Baird
+
+2005-08-04 18:24  danmc
+
+	* src/gui-library-window.c: fix -auto-place for the library window
+
+2005-08-04 18:24  danmc
+
+	* src/script/pcb-print: add script to make it easier to print from
+	  the command line
+
+2005-08-03 23:23  danmc
+
+	* src/: action.c, action.h, command.c, global.h,
+	  gui-library-window.c, gui-log-window.c, gui-netlist-window.c,
+	  gui-pinout-window.c, gui-top-window.c, main.c, misc.c,
+	  script/Makefile.am, script/Makefile.in: - change the Print action
+	  to PrintDialog since it causes the print   dialog box to come up
+	  - add a new Print action provided by David Baird as patch #
+	  1212168.    Modified by me to work with the gtk version of pcb.
+	  - to let this action work, allow actions to take a parameter list
+	  and	# of parameters to allow large numbers of arguments.  -
+	  modify the Quit action and some of the initialization code so
+	  that	 you can use Quit() in a startup script.  - add a
+	  -auto-place command line option which causes the windows to be
+	  automatically placed rather than letting the window manager do
+	  it.	 This is useful when printing via the command line.  - add
+	  a command line shell script for printing.  This is a wrapper
+	  which   takes a whole bunch of flags relating to the print
+	  parameters and   translates that to the correct invocation of the
+	  Print() action.    Shell script provided by David Baird as part
+	  of patch #1212168 and    modified by me to make it portable.
+
+2005-07-31 14:48  danmc
+
+	* lib/geda.inc: add 1008 package
+
+2005-07-27 12:28  danmc
+
+	* lib/bourns.inc: fix the pin order.
+
+2005-07-24 12:19  haceaton
+
+	* src/gui-config.c: Fix initial layer groups so that layer named
+	  'component' is actually on the component side and layer named
+	  'solder' is actually on the solder side. Unfortunately the GTK
+	  version saves the old bug in the .pcb/preferences file so no
+	  patching will fix existing installations. They must manually edit
+	  the layer groups and check the "use as default" to fix their
+	  installation.
+	  ----------------------------------------------------------------------
+
+2005-07-23 10:58  danmc
+
+	* aclocal.m4, configure: regen (fix botched commit which was
+	  missing some M4 paths)
+
+2005-07-22 00:30  danmc
+
+	* doc/: pcb.texi, version.texi: add appendix describing the
+	  centroid file format along with the algorithm for finding the
+	  centroid and rotation.
+
+2005-07-22 00:08  danmc
+
+	* src/print.c: remove some redundant code to make things more clear
+
+2005-07-18 18:24  danmc
+
+	* lib/genericsmt.m4: fix typo
+
+2005-07-18 18:22  danmc
+
+	* configure, aclocal.m4: regen
+
+2005-07-18 18:19  danmc
+
+	* configure.ac, src/vendor.c: add a check for sys/types.h and then
+	  if found, include in vendor.c.  Needed to build on FreeBSD.
+	  Problem and fix reported in bug #1220963.
+
+2005-07-18 18:09  danmc
+
+	* lib/qfn.inc: hires-ify the QFN packages.  While here make sure we
+	  use an appropriate soldermask relief for this style of package.
+
+2005-07-18 17:14  danmc
+
+	* src/: gui-dialog-print.c, gui-dialog-size.c, set.c: remove the
+	  inclusion of menu.h.	We don't use that file anymore and the only
+	  reason we could still build on some systems is we'd find the
+	  /usr/include/menu.h from curses!  Problem noted in bug #1226924
+	  by Axeloide.
+
+2005-07-18 17:09  danmc
+
+	* doc/refcard.tex, src/gui-keyref-window.c,
+	  src/gui-output-events.c: apply patches provided by Bill Wilson in
+	  patch #1230708.   Fix key bindings for drill size changes to be
+	  <mod>s   and <shift><mod>s to agree with the Xaw default key
+	  bindings.
+
+	   Add missing key bindings '/' and '.' for cycle
+	   multiline mode and toggle 45 degree enforcement
+	   respectively.
+
+	   Fix refcard.tex to reflect the current set of key binding.
+
+	   Now the gtk key bindings and the refcard should be in
+	   sync and be the same as the default Xaw PCB bindings
+	   with one exception: the buffer selection binding is
+	   <control>1...5 instead of <shift>1...5. This can be
+	   fixed but at the cost of removing the shortcuts from
+	   the menus because gtk can't use <shift>digits as menu
+	   shortcuts.
+
+2005-07-18 17:06  danmc
+
+	* INSTALL, NEWS, README-GTK_PORT: apply patches provided by Bill
+	  Wilson in patch #1230704
+
+	   This patch adds a note to the README-GTK_PORT about
+	   runtime warnings if using early gtk+2.4.0 versions.
+
+	   It also makes small adjustments to the INSTALL file to
+	   remove an outdated Xt reference and a non-existent
+	   68HC11 file reference.
+
+	   In addition, note that gtk+2.4 is needed, not gtk+2.2.
+
+2005-07-18 17:01  danmc
+
+	* src/: global.h, gui-config.c, gui-top-window.c, gui.h: apply
+	  patches provided by Bill Wilson in patch #1227292
+
+	   As per a request on the gEDA list, this patch adds a
+	   Preferences option to make the layout name appear on
+	   the window title bar instead of on the main menu bar
+	   area. This is convenient when the layout name might be
+	   somewhat long and takes up too much horizontal space on
+	   the menu bar area.
+
+2005-07-18 17:00  danmc
+
+	* src/: file.c, gui-config.c, gui-top-window.c: apply patches
+	  provided by Bill Wilson in patch #1227205  When loading layouts
+	  using alternating mil/mm units,  the PCB units displaying can get
+	  out of sync. This  patch fixes it.
+
+2005-07-18 16:54  danmc
+
+	* src/: find.c, gui-utils.c: apply patches provided by Bill Wilson
+	  in patch #1215935 1) The DRC user interface issue has been
+	  reported on the gEDA mailing list and is listed on the PCB bugs
+	  page as request id 1206762 dated 2005-05-23 01:29 and is fixed in
+	  this patch.
+
+	  3) Fix a dangling DRC check g_message() which I overlooked fixing
+	  during the final Gtk port cleanup.
+
+	  4) Adjust the DRC draw centering to be 1/4 screen offset since
+	  the continue dialog is centered (under window manager control)
+	  and that was covering up the DRC highlighted portion of the draw
+	  which was previously also centered.
+
+	  2) The log window was not scrolling to keep most recent log items
+	  added in view and this patch fixes that.
+
+2005-07-18 16:50  danmc
+
+	* src/: const.h, global.h, gui-netlist-window.c: apply the patches
+	  provided by Wim Lewis in patch #1189989 to allow pcb to compile
+	  more cleanly on OpenBSD.
+
+2005-06-11 00:37  djdelorie
+
+	* src/: action.c, autoroute.c, buffer.c, change.c, const.h, copy.c,
+	  create.c, create.h, crosshair.c, data.h, dev_rs274x.c, djopt.c,
+	  draw.c, file.c, find.c, global.h, gui-top-window.c, insert.c,
+	  line.c, macro.h, misc.c, misc.h, move.c, mymem.c, parse_l.l,
+	  parse_y.y, polygon.c, print.c, rats.c, report.c, rotate.c,
+	  search.c, strflags.c, strflags.h, undo.c, undo.h: Update sources
+	  to support more than 8 layers.
+
+2005-06-08 18:20  danmc
+
+	* doc/version.texi: set version to 20050609
+
+2005-06-08 18:12  danmc
+
+	* configure: set version to 20050609
+
+2005-06-08 18:07  danmc
+
+	* configure.ac: set version to 20050609
+
+2005-06-08 18:03  danmc
+
+	* NEWS: add news for 20050609
+
+2005-06-08 18:03  danmc
+
+	* ChangeLog: add changes for 20050609
+
 2005-06-08 18:02  danmc
 
 	* globalconst.h: reduce minimum board size from 1.2 to 0.6 inches
