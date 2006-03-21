@@ -53,10 +53,12 @@ mostlyclean-aminfo:
 
 EXTRA_DIST= \
 	ascii2texi.awk \
+	extract-docs \
 	refcard.tex \
-	pad.obj \
-	pad.png \
 	pad.eps \
+	pad.obj \
+	pad.pdf \
+	pad.png \
 	pcb.dvi \
 	pcb.css \
 	refcard.dvi \
@@ -108,7 +110,7 @@ pcbfile.texi : extracted-docs
 
 .PHONY : extracted-docs
 extracted-docs :
-	perl extract-docs $(srcdir)
+	perl $(srcdir)/extract-docs $(srcdir)
 
 $(srcdir)/pad.eps: $(srcdir)/pad.obj
 	${TGIF_X} ${TGIF_FLAGS} -eps $(srcdir)/pad.obj
