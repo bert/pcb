@@ -3,9 +3,6 @@
 /* File for default font */
 #undef FONTFILENAME
 
-/* FUNCPROTO used by Xaw */
-#undef FUNCPROTO
-
 /* m4 program used by pcb */
 #undef GNUM4
 
@@ -14,12 +11,6 @@
 
 /* Define to 1 if you have the <inttypes.h> header file. */
 #undef HAVE_INTTYPES_H
-
-/* Define to 1 if you have the `dmalloc' library (-ldmalloc). */
-#undef HAVE_LIBDMALLOC
-
-/* Define to 1 if you have the `efence' library (-lefence). */
-#undef HAVE_LIBEFENCE
 
 /* Define to 1 if you have the `fl' library (-lfl). */
 #undef HAVE_LIBFL
@@ -32,9 +23,6 @@
 
 /* Define to 1 if you have the `SM' library (-lSM). */
 #undef HAVE_LIBSM
-
-/* Define to 1 if you have the `stroke' library (-lstroke). */
-#undef HAVE_LIBSTROKE
 
 /* Define to 1 if you have the `X11' library (-lX11). */
 #undef HAVE_LIBX11
@@ -113,9 +101,6 @@
 
 /* Define to 1 if your C compiler doesn't accept -c and -o together. */
 #undef NO_MINUS_C_MINUS_O
-
-/* NARROWPROTO used by Xaw */
-#undef NARROWPROTO
 
 /* Name of package */
 #undef PACKAGE
