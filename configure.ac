@@ -110,7 +110,8 @@ AC_SUBST(GNUM4)
 AC_DEFINE_UNQUOTED(GNUM4,"$M4",[m4 program used by pcb])
 AC_CHECK_PROGS(LATEX, latex)
 AC_CHECK_PROGS(DVIPS, dvips)
-AC_CHECK_PROGS(TGIF, tgif, true)
+AC_CHECK_PROGS(TGIF, tgif, notfound)
+AM_CONDITIONAL(MISSING_TGIF, test x$TGIF = xnotfound)
 AC_CHECK_PROGS(PS2PDF, ps2pdf)
 
 dnl Checks for libraries.

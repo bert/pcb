@@ -113,13 +113,27 @@ extracted-docs :
 	perl $(srcdir)/extract-docs $(srcdir)
 
 $(srcdir)/pad.eps: $(srcdir)/pad.obj
+if MISSING_TGIF
+	@echo "WARNING:  tgif was not found on your system but"
+	@echo "          $*.eps is out of date and needs to be"
+	@echo "          rebuilt from $*.obj.  Changes to $*.obj"
+	@echo "          will be ignored."
+else
 	${TGIF_X} ${TGIF_FLAGS} -eps $(srcdir)/pad.obj
+endif
 
 $(srcdir)/pad.pdf: $(srcdir)/pad.eps
 	ps2pdf $(srcdir)/pad.eps $(srcdir)/pad.pdf
 
 $(srcdir)/pad.png: $(srcdir)/pad.obj
+if MISSING_TGIF
+	@echo "WARNING:  tgif was not found on your system but"
+	@echo "          $*.png is out of date and needs to be"
+	@echo "          rebuilt from $*.obj.  Changes to $*.obj"
+	@echo "          will be ignored."
+else
 	${TGIF_X} ${TGIF_FLAGS} -png $(srcdir)/pad.obj
+endif
 
 refcard.dvi: $(srcdir)/refcard.tex
 	${LATEX} $(srcdir)/refcard.tex
