@@ -1,7 +1,6 @@
 # release: pcb-bin 1.99q
-# date:    Tue Mar 21 12:06:06 2006
+# date:    Tue Mar 21 18:28:39 2006
 # user:    mcmahill (Dan McMahill)
-# host:    offsides.mxim.com
 
 PCB["pad" 600000 500000]
 
@@ -799,10 +798,6 @@ Layer(1 "component")
 	Line[106000 144000 106000 84000 1000 2000 "clearline"]
 	Line[106000 84000 262000 84000 1000 2000 "clearline"]
 	Line[262000 84000 262000 144000 1000 2000 "clearline"]
-	Polygon("clearpoly")
-	(
-		[118000 132000] [250000 132000] [250000 96000] [118000 96000] 
-	)
 )
 Layer(2 "solder")
 (
@@ -819,6 +814,10 @@ Layer(4 "power")
 )
 Layer(5 "signal1")
 (
+	Polygon("clearpoly")
+	(
+		[118000 96000] [250000 96000] [250000 132000] [118000 132000] 
+	)
 )
 Layer(6 "signal2")
 (
@@ -893,12 +892,12 @@ Layer(10 "silk")
 	Line[192000 144000 188000 148000 500 1200 "clearline"]
 	Line[196000 148000 192000 144000 500 1200 "clearline"]
 	Line[192000 184000 192000 144000 500 1200 "clearline"]
-	Line[168000 138000 172000 134000 500 1200 "clearline"]
-	Line[168000 138000 164000 134000 500 1200 "clearline"]
-	Line[168000 126000 168000 138000 500 1200 "clearline"]
 	Line[168000 144000 164000 148000 500 1200 "clearline"]
 	Line[172000 148000 168000 144000 500 1200 "clearline"]
 	Line[168000 176000 168000 144000 500 1200 "clearline"]
+	Line[168000 132000 172000 128000 500 1200 "clearline"]
+	Line[168000 132000 164000 128000 500 1200 "clearline"]
+	Line[168000 120000 168000 132000 500 1200 "clearline"]
 	Text[106000 152000 0 200 "(X0,Y0)" ""]
 	Text[224000 150000 0 200 "(X1,Y1)" ""]
 	Text[226000 72000 1 200 "SIZE" ""]
