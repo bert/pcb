@@ -261,7 +261,7 @@ PrintBOM (void)
   fp = fopen(xy_filename, "w");
   if (!fp)
     {
-      gui->logv("Cannot open file %s for writing\n", xy_filename);
+      gui->log("Cannot open file %s for writing\n", xy_filename);
       return 1;
     }
 
