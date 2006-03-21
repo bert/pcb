@@ -1,3 +1,6 @@
 PCB was originally written by Thomas Nau
 Development was later taken over by harry eaton
-
+The port to GTK was done by Bill Wilson
+Dan McMahill converted the build system from imake to autoconf/automake.
+DJ Delorie wrote the trace optimizer, added symbolic flag support and
+many other improvements.
