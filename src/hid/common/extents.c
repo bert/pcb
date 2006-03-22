@@ -1,3 +1,9 @@
+/* $Id$ */
+
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -8,6 +14,12 @@
 
 #include "hid.h"
 #include "../hidint.h"
+
+#ifdef HAVE_LIBDMALLOC
+#include <dmalloc.h>
+#endif
+
+RCSID("$Id$");
 
 #ifndef MAXINT
 #define MAXINT (((unsigned int)(~0))>>1)
