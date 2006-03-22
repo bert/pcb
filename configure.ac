@@ -237,24 +237,24 @@ done
 AC_SUBST(TOPDIRS)
 
 AC_CONFIG_FILES(Makefile)
-if test -d README_FILES; then
+if test -d $srcdir/README_FILES; then
    AC_CONFIG_FILES(README_FILES/Makefile)
 fi
-if test -d doc; then
+if test -d $srcdir/doc; then
    AC_CONFIG_FILES(doc/Makefile)
 fi
-if test -d example; then
+if test -d $srcdir/example; then
    AC_CONFIG_FILES(example/Makefile)
    AC_CONFIG_FILES(example/libraries/Makefile)
 fi
-if test -d lib; then
+if test -d $srcdir/lib; then
    AC_CONFIG_FILES(lib/CreateLibraryContents.sh)
    AC_CONFIG_FILES(lib/CreateLibrary.sh)
    AC_CONFIG_FILES(lib/Makefile)
    AC_CONFIG_FILES(lib/QueryLibrary.sh)
    AC_CONFIG_FILES(lib/qfp-ui)
 fi
-if test -d newlib; then
+if test -d $srcdir/newlib; then
    AC_CONFIG_FILES(newlib/2_pin_thru-hole_packages/Makefile)
    AC_CONFIG_FILES(newlib/Makefile)
    AC_CONFIG_FILES(newlib/analog-devices/Makefile)
@@ -274,10 +274,10 @@ fi
 AC_CONFIG_FILES(src/Makefile)
 AC_CONFIG_FILES(src/script/Makefile)
 AC_CONFIG_FILES(src/icons/Makefile)
-if test -d tools; then
+if test -d $srcdir/tools; then
    AC_CONFIG_FILES(tools/Makefile)
 fi
-if test -d tutorial; then
+if test -d $srcdir/tutorial; then
    AC_CONFIG_FILES(tutorial/Makefile)
 fi
 
