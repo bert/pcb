@@ -69,6 +69,7 @@
 #include "rubberband.h"
 #include "search.h"
 #include "set.h"
+#include "undo.h"
 #include "action.h"
 
 
