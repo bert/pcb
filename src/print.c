@@ -50,6 +50,7 @@
 
 
 #include "data.h"
+#include "draw.h"
 #include "drill.h"
 #include "file.h"
 #include "find.h"
