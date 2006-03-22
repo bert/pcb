@@ -86,7 +86,7 @@ FlagSETTINGS(int ofs)
   return *(Boolean *)((char *)(&Settings) + ofs);
 }
 
-static int;
+static int
 FlagMode(int x)
 {
   if (x == -1)
