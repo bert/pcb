@@ -93,7 +93,7 @@ static int lastcolor = -1;
 static int print_group[MAX_LAYER];
 static int print_layer[MAX_LAYER];
 
-static char *filetypes[] = {
+static const char *filetypes[] = {
   "GIF", 
 #define FMT_gif 0
 
