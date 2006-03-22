@@ -1,4 +1,4 @@
-/* foo */
+/* $Id$ */
 
 #define app_context lesstif_app_context
 #define appwidget lesstif_appwidget
