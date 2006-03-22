@@ -56,7 +56,7 @@ EXTRA_DIST= \
 	extract-docs \
 	refcard.tex \
 	pad.eps \
-	pad.obj \
+	pad.pcb \
 	pad.pdf \
 	pad.png \
 	pcb.dvi \
@@ -71,8 +71,6 @@ EXTRA_DIST= \
 	fractional_size.tab \
 	fractional_size.texi \
 	pcbfile.texi
-
-SUFFIXES=	.obj .tab
 
 
 MAINTAINERCLEANFILES= \
@@ -99,10 +97,6 @@ $(srcdir)/metric_size.texi: $(srcdir)/metric_size.tab $(srcdir)/ascii2texi.awk
 
 $(srcdir)/fractional_size.texi: $(srcdir)/fractional_size.tab $(srcdir)/ascii2texi.awk
 
-.tab.texi:
-	${ASCII2TEXI} $< > $@
-
-
 TGIF_X=		XENVIRONMENT=$(srcdir)/Xdefaults.tgif ${TGIF}
 TGIF_FLAGS=	-print -color
 
@@ -112,29 +106,6 @@ pcbfile.texi : extracted-docs
 extracted-docs :
 	perl $(srcdir)/extract-docs $(srcdir)
 
-$(srcdir)/pad.eps: $(srcdir)/pad.obj
-if MISSING_TGIF
-	@echo "WARNING:  tgif was not found on your system but"
-	@echo "          $*.eps is out of date and needs to be"
-	@echo "          rebuilt from $*.obj.  Changes to $*.obj"
-	@echo "          will be ignored."
-else
-	${TGIF_X} ${TGIF_FLAGS} -eps $(srcdir)/pad.obj
-endif
-
-$(srcdir)/pad.pdf: $(srcdir)/pad.eps
-	ps2pdf $(srcdir)/pad.eps $(srcdir)/pad.pdf
-
-$(srcdir)/pad.png: $(srcdir)/pad.obj
-if MISSING_TGIF
-	@echo "WARNING:  tgif was not found on your system but"
-	@echo "          $*.png is out of date and needs to be"
-	@echo "          rebuilt from $*.obj.  Changes to $*.obj"
-	@echo "          will be ignored."
-else
-	${TGIF_X} ${TGIF_FLAGS} -png $(srcdir)/pad.obj
-endif
-
 refcard.dvi: $(srcdir)/refcard.tex
 	${LATEX} $(srcdir)/refcard.tex
 
@@ -143,4 +114,21 @@ refcard.ps: $(srcdir)/refcard.dvi
 
 refcard.pdf: refcard.ps
 	${PS2PDF} refcard.ps
+
+SUFFIXES = .eps .gif .pcb .pdf .png  .tab
+
+.pcb.eps :
+	../src/pcb-bin -x eps $*.pcb
+
+.pcb.gif :
+	../src/pcb-bin -x png --format GIF $*.pcb
+
+.pcb.png :
+	../src/pcb-bin -x png $*.pcb
+
+.eps.pdf :
+	${PS2PDF} $*.eps $*.pdf
+
+.tab.texi:
+	${ASCII2TEXI} $< > $@
 
