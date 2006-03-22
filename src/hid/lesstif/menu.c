@@ -1,3 +1,9 @@
+/* $Id$ */
+
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -28,6 +34,12 @@
 #include "mymem.h"
 
 #include "pcb-menu.h"
+
+#ifdef HAVE_LIBDMALLOC
+#include <dmalloc.h>
+#endif
+
+RCSID("$Id$");
 
 #ifndef R_OK
 /* Common value for systems that don't define it.  */

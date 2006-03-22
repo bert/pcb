@@ -1,3 +1,9 @@
+/* $Id$ */
+
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #include <stdio.h>
 #include <stdarg.h>
 #include <stdlib.h>
@@ -28,6 +34,12 @@
 #include "hid.h"
 #include "../hidint.h"
 #include "lesstif.h"
+
+#ifdef HAVE_LIBDMALLOC
+#include <dmalloc.h>
+#endif
+
+RCSID("$Id$");
 
 /* There are three places where styles are kept:
 
