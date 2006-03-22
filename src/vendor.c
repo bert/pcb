@@ -252,7 +252,6 @@ Loads the specified vendor resource file.
 int
 ActionLoadVendorFrom(int argc, char **argv, int x, int y)
 {
-  char *filename;
   int i;
   char *fname = NULL, *name = NULL;
   char *sval;
