@@ -7613,21 +7613,21 @@ done
 
           ac_config_files="$ac_config_files Makefile"
 
-if test -d README_FILES; then
+if test -d $srcdir/README_FILES; then
              ac_config_files="$ac_config_files README_FILES/Makefile"
 
 fi
-if test -d doc; then
+if test -d $srcdir/doc; then
              ac_config_files="$ac_config_files doc/Makefile"
 
 fi
-if test -d example; then
+if test -d $srcdir/example; then
              ac_config_files="$ac_config_files example/Makefile"
 
              ac_config_files="$ac_config_files example/libraries/Makefile"
 
 fi
-if test -d lib; then
+if test -d $srcdir/lib; then
              ac_config_files="$ac_config_files lib/CreateLibraryContents.sh"
 
              ac_config_files="$ac_config_files lib/CreateLibrary.sh"
@@ -7639,7 +7639,7 @@ if test -d lib; then
              ac_config_files="$ac_config_files lib/qfp-ui"
 
 fi
-if test -d newlib; then
+if test -d $srcdir/newlib; then
              ac_config_files="$ac_config_files newlib/2_pin_thru-hole_packages/Makefile"
 
              ac_config_files="$ac_config_files newlib/Makefile"
@@ -7677,11 +7677,11 @@ fi
 
           ac_config_files="$ac_config_files src/icons/Makefile"
 
-if test -d tools; then
+if test -d $srcdir/tools; then
              ac_config_files="$ac_config_files tools/Makefile"
 
 fi
-if test -d tutorial; then
+if test -d $srcdir/tutorial; then
              ac_config_files="$ac_config_files tutorial/Makefile"
 
 fi
