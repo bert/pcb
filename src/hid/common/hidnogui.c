@@ -30,7 +30,7 @@ typedef struct hid_gc_struct {
 } hid_gc_struct;
 
 static HID_Attribute *
-nogui_get_export_options (void)
+nogui_get_export_options (int *n_ret)
 {
   CRASH;
   return 0;
