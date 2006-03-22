@@ -149,7 +149,7 @@ HID_Attribute lesstif_attribute_list[] = {
 #define HA_colormap 0
 };
 
-REGISTER_ATTRIBUTES(lesstif_attribute_list)
+REGISTER_ATTRIBUTES(lesstif_attribute_list);
 
 static void lesstif_use_mask (int use_it);
 static void zoom_to (double factor, int x, int y);
@@ -541,7 +541,7 @@ HID_Action lesstif_main_action_list[] = {
   { "Benchmark", 0, 0, Benchmark },
 };
 
-REGISTER_ACTIONS(lesstif_main_action_list)
+REGISTER_ACTIONS(lesstif_main_action_list);
 
 /* ---------------------------------------------------------------------- */
 

@@ -279,4 +279,4 @@ HID_Action netlist_action_list[] = {
   { "net", 0, 0, Netlist },
   { "netlist", 0, 0, Netlist },
 };
-REGISTER_ACTIONS(netlist_action_list)
+REGISTER_ACTIONS(netlist_action_list);

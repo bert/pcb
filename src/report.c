@@ -527,5 +527,5 @@ HID_Action report_action_list[] = {
   { "ReportObject", 1, "Click on an object", ReportDialog },
   { "Report", 0, 0, Report }
 };
-REGISTER_ACTIONS(report_action_list)
+REGISTER_ACTIONS(report_action_list);
 

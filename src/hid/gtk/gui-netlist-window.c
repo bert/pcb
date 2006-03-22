@@ -817,4 +817,4 @@ HID_Action ghid_netlist_action_list[] = {
   { "NetlistChanged", 0, 0, NetlistChanged },
   { "NetlistShow", 0, 0, NetlistShow },
 };
-REGISTER_ACTIONS(ghid_netlist_action_list)
+REGISTER_ACTIONS(ghid_netlist_action_list);

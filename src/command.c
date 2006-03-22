@@ -323,4 +323,4 @@ HID_Action command_action_list[] = {
   { "w",  0, 0, CommandSaveLayout },
   { "wq", 0, 0, CommandSaveLayoutAndQuit },
 };
-REGISTER_ACTIONS(command_action_list)
+REGISTER_ACTIONS(command_action_list);

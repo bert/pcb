@@ -163,4 +163,4 @@ HID_Flag flags_flag_list[] = {
   { "resetafterelement", FlagSETTINGS, OffsetOf(SettingType,ResetAfterElement)},
   { "ringbellwhenfinished", FlagSETTINGS, OffsetOf(SettingType,RingBellWhenFinished)},
 };
-REGISTER_FLAGS(flags_flag_list)
+REGISTER_FLAGS(flags_flag_list);

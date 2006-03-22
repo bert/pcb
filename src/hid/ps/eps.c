@@ -62,7 +62,7 @@ static HID_Attribute eps_attribute_list[] = {
 };
 #define NUM_OPTIONS (sizeof(eps_attribute_list)/sizeof(eps_attribute_list[0]))
 
-REGISTER_ATTRIBUTES(eps_attribute_list)
+REGISTER_ATTRIBUTES(eps_attribute_list);
 
 static HID_Attr_Val eps_values[NUM_OPTIONS];
 

@@ -550,7 +550,7 @@ HID_Action lesstif_menu_action_list[] = {
   { "SelectLayer", 0, 0, SelectLayer }
 };
 
-REGISTER_ACTIONS(lesstif_menu_action_list)
+REGISTER_ACTIONS(lesstif_menu_action_list);
 
 static void
 do_color(char *value, char *which)

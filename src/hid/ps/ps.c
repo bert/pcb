@@ -109,7 +109,7 @@ HID_Attribute ps_attribute_list[] = {
 };
 #define NUM_OPTIONS (sizeof(ps_attribute_list)/sizeof(ps_attribute_list[0]))
 
-REGISTER_ATTRIBUTES(ps_attribute_list)
+REGISTER_ATTRIBUTES(ps_attribute_list);
 
 static HID_Attr_Val ps_values[NUM_OPTIONS];
 

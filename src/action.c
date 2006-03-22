@@ -5037,4 +5037,4 @@ HID_Action action_action_list[] = {
   { "MoveToCurrentLayer", 0, 0, ActionMoveToCurrentLayer },
   { "New", 0, 0, ActionNew },
 };
-REGISTER_ACTIONS(action_action_list)
+REGISTER_ACTIONS(action_action_list);

@@ -475,5 +475,5 @@ HID_Action lesstif_styles_action_list[] = {
   { "AdjustStyle", 0, 0, AdjustStyle },
   { "RouteStylesChanged", 0, 0, RouteStylesChanged },
 };
-REGISTER_ACTIONS(lesstif_styles_action_list)
+REGISTER_ACTIONS(lesstif_styles_action_list);
 

@@ -1152,5 +1152,5 @@ HID_Action lesstif_dialog_action_list[] = {
   { "AdjustSizes", 0, 0, AdjustSizes },
   { "EditLayerGroups", 0, 0, EditLayerGroups },
 };
-REGISTER_ACTIONS(lesstif_dialog_action_list)
+REGISTER_ACTIONS(lesstif_dialog_action_list);
 

@@ -1279,7 +1279,7 @@ HID_Action ghid_main_action_list[] = {
   { "Command", 0, 0, Command },
   { "Benchmark", 0, 0, Benchmark },
 };
-REGISTER_ACTIONS(ghid_main_action_list)
+REGISTER_ACTIONS(ghid_main_action_list);
 
 #include "dolists.h"
 

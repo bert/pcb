@@ -870,7 +870,7 @@ HID_Action vendor_action_list[] = {
   { "DisableVendor", 0, 0, ActionDisableVendor },
 };
 
-REGISTER_ACTIONS(vendor_action_list)
+REGISTER_ACTIONS(vendor_action_list);
 
 static int
 vendor_get_enabled(int unused)
