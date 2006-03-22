@@ -46,7 +46,7 @@
 /* ---------------------------------------------------------------------------
  * misc constants
  */
-#define	MARK_SIZE		5000		/* relative marker size */
+#define	MARK_SIZE		5000	/* relative marker size */
 #define	UNDO_WARNING_SIZE	(1024*1024)	/* warning limit of undo */
 #define	USERMEDIANAME		"user defined"	/* label of default media */
 
@@ -87,11 +87,11 @@
 #define	COPY_MODE		105	/* copy objects */
 #define	INSERTPOINT_MODE	106	/* insert point into line/polygon */
 #define	RUBBERBANDMOVE_MODE	107	/* move objects and attached lines */
-#define THERMAL_MODE            108     /* toggle thermal layer flag */
-#define ARC_MODE                109     /* draw arcs */
+#define THERMAL_MODE            108	/* toggle thermal layer flag */
+#define ARC_MODE                109	/* draw arcs */
 #define ARROW_MODE		110	/* selection with arrow mode */
-#define PAN_MODE                0       /* same as no mode */
-#define LOCK_MODE               111     /* lock/unlock objects */
+#define PAN_MODE                0	/* same as no mode */
+#define LOCK_MODE               111	/* lock/unlock objects */
 
 /* ---------------------------------------------------------------------------
  * object flags
@@ -169,11 +169,11 @@ pinout text should be vertical.
 #define	PINFLAG			0x0001	/* is a pin */
 #define	VIAFLAG			0x0002	/* is a via */
 #define	FOUNDFLAG		0x0004	/* used by 'FindConnection()' */
-#define HOLEFLAG		0x0008  /* pin or via is only a hole */
-#define RATFLAG                 0x0010          /* indicates line is a rat line */
-#define PININPOLYFLAG           0x0010          /* pin found inside poly - same as */
-                                                /* rat line since not used on lines */
-#define CLEARPOLYFLAG           0x0010          /* pins/vias clear these polygons */
+#define HOLEFLAG		0x0008	/* pin or via is only a hole */
+#define RATFLAG                 0x0010	/* indicates line is a rat line */
+#define PININPOLYFLAG           0x0010	/* pin found inside poly - same as */
+						/* rat line since not used on lines */
+#define CLEARPOLYFLAG           0x0010	/* pins/vias clear these polygons */
 #define HIDENAMEFLAG		0x0010	/* hide the element name */
 #define	DISPLAYNAMEFLAG		0x0020	/* display the names of pins/pads */
 					/* of an element */
@@ -183,15 +183,15 @@ pinout text should be vertical.
 #define AUTOFLAG		0x0080	/* line/via created by auto-router */
 #define	SQUAREFLAG		0x0100	/* pin is square, not round */
 #define RUBBERENDFLAG		0x0200	/* indicates one end already rubber */
-					/* banding same as warn flag*/
+					/* banding same as warn flag */
 					/* since pins/pads won't use it */
-#define WARNFLAG		0x0200          /* Warning for pin/via/pad */
-#define USETHERMALFLAG		0x0400          /* draw pin, via with thermal fingers */
-#define ONSILKFLAG              0x0400  /* old files use this to indicate silk */
-#define OCTAGONFLAG		0x0800		/* draw pin/via as octagon instead of round */
-#define DRCFLAG			0x1000		/* flag like FOUND flag for DRC checking */
-#define LOCKFLAG                0x2000  /* object locked in place */
-#define EDGE2FLAG               0x4000  /* Padr.Point2 is closer to outside edge */
+#define WARNFLAG		0x0200	/* Warning for pin/via/pad */
+#define USETHERMALFLAG		0x0400	/* draw pin, via with thermal fingers */
+#define ONSILKFLAG              0x0400	/* old files use this to indicate silk */
+#define OCTAGONFLAG		0x0800	/* draw pin/via as octagon instead of round */
+#define DRCFLAG			0x1000	/* flag like FOUND flag for DRC checking */
+#define LOCKFLAG                0x2000	/* object locked in place */
+#define EDGE2FLAG               0x4000	/* Padr.Point2 is closer to outside edge */
 					/* also pinout text for pins is vertical */
 
 /* ---------------------------------------------------------------------------

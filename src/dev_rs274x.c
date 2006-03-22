@@ -75,7 +75,7 @@
 #include <dmalloc.h>
 #endif
 
-RCSID("$Id$");
+RCSID ("$Id$");
 
 /*----------------------------------------------------------------------------*/
 /* Private data structures                                                    */
@@ -136,11 +136,14 @@ static void GBX_PrintPad (PadTypePtr, int);
 static void GBX_PrintPinOrVia (PinTypePtr, int);
 static void GBX_PrintElementPackage (ElementTypePtr);
 static void GBX_Drill (PinTypePtr, Cardinal);
-static void GBX_PrintOutline (LocationType, LocationType, LocationType, LocationType);
-static void GBX_PrintAlignment (LocationType, LocationType, LocationType, LocationType);
+static void GBX_PrintOutline (LocationType, LocationType, LocationType,
+			      LocationType);
+static void GBX_PrintAlignment (LocationType, LocationType, LocationType,
+				LocationType);
 static void GBX_GroupID (int);
 static void findTextApertures (TextTypePtr);
-static void GBX_PrintFilledRectangle (LocationType, LocationType, LocationType, LocationType);
+static void GBX_PrintFilledRectangle (LocationType, LocationType,
+				      LocationType, LocationType);
 static void setAperture (Apertures *, int, int, int, ApertureShape);
 static int findApertureCode (Apertures *, int, int, int, ApertureShape);
 
@@ -230,9 +233,9 @@ findApertureCode (Apertures * apertures, int width, int gap, int finger,
       ap = &apertures->aperture[i];
 
       if (ap->apertureSize == width && ap->apertureShape == shape)
-        if (shape == SQUARE || shape == ROUND ||
-	  (ap->finger == finger && ap->gap == gap))
-	return (ap->dCode);
+	if (shape == SQUARE || shape == ROUND ||
+	    (ap->finger == finger && ap->gap == gap))
+	  return (ap->dCode);
     }
   appMacro[0] = '\0';
 
@@ -259,7 +262,8 @@ findApertureCode (Apertures * apertures, int width, int gap, int finger,
 	case OCTAGON:
 	  sprintf (appMacro, "%%AMOCT%d*5,0,8,0,0,%.4f,22.5*%%\015\012"
 		   "%%ADD%dOCT%d*%%\015\012", lastTherm,
-		   width / (100000.0 * COS_22_5_DEGREE), ap->dCode, lastTherm);
+		   width / (100000.0 * COS_22_5_DEGREE), ap->dCode,
+		   lastTherm);
 	  lastTherm++;
 	  break;
 	case THERMAL:
@@ -274,8 +278,8 @@ findApertureCode (Apertures * apertures, int width, int gap, int finger,
 	  break;
 	case SQUARECLEAR:
 	  sprintf (appMacro, "%%ADD%dR,%.4fX%.4fX%.4fX%.4f*%%\015\012",
-		   ap->dCode, gap / 100000.0, gap / 100000.0, width / 100000.0,
-		   width / 100000.0);
+		   ap->dCode, gap / 100000.0, gap / 100000.0,
+		   width / 100000.0, width / 100000.0);
 	  break;
 	}
 
@@ -320,127 +324,122 @@ GBX_Init (PrintInitTypePtr Flags)
   initApertures (&GBX_Apertures);
   /* gather all aperture macros */
   ALLLINE_LOOP (PCB->Data);
-    {
-      findApertureCode (&GBX_Apertures, line->Thickness, 0, 0, ROUND);
-      if (TEST_FLAG (CLEARLINEFLAG, line))
-	findApertureCode (&GBX_Apertures,
-			  line->Thickness + line->Clearance, 0, 0, ROUND);
-    }
+  {
+    findApertureCode (&GBX_Apertures, line->Thickness, 0, 0, ROUND);
+    if (TEST_FLAG (CLEARLINEFLAG, line))
+      findApertureCode (&GBX_Apertures,
+			line->Thickness + line->Clearance, 0, 0, ROUND);
+  }
   ENDALL_LOOP;
   ALLARC_LOOP (PCB->Data);
-    {
-      findApertureCode (&GBX_Apertures, arc->Thickness, 0, 0, ROUND);
-      if (TEST_FLAG (CLEARLINEFLAG, arc))
-	findApertureCode (&GBX_Apertures,
-			  arc->Thickness + arc->Clearance, 0, 0, ROUND);
-    }
+  {
+    findApertureCode (&GBX_Apertures, arc->Thickness, 0, 0, ROUND);
+    if (TEST_FLAG (CLEARLINEFLAG, arc))
+      findApertureCode (&GBX_Apertures,
+			arc->Thickness + arc->Clearance, 0, 0, ROUND);
+  }
   ENDALL_LOOP;
   ELEMENT_LOOP (PCB->Data);
+  {
+    PIN_LOOP (element);
     {
-      PIN_LOOP (element);
-	{
-	  findApertureCode (&GBX_Apertures, pin->Thickness, 0, 0,
-			    TEST_FLAG (SQUAREFLAG,
-				       pin) ? SQUARE
-			    : (TEST_FLAG (OCTAGONFLAG, pin) ?
-			       OCTAGON : ROUND));
-	  /* mask layers need different sizes */
-	  findApertureCode (&GBX_Apertures, pin->Mask, 0, 0,
-			    TEST_FLAG (SQUAREFLAG, pin) ?
-			    SQUARE
-			    : (TEST_FLAG (OCTAGONFLAG, pin) ?
-			       OCTAGON : ROUND));
-	  /* check for thermal cross being used */
-	  if (TEST_ANY_THERMS (pin))
-	    {
-	      int finger = (pin->Thickness - pin->DrillingHole) * PCB->ThermScale;
-	      findApertureCode (&GBX_Apertures, finger, 0, 0, ROUND);
-	      findApertureCode (&GBX_Apertures, pin->Thickness,
-				pin->Thickness + pin->Clearance, finger,
-				THERMAL);
-	    }
-	  /* check for polygon clearance being used */
-	  if (TEST_ANY_PIPS (pin))
-	    {
-	      /* negative planes need clears */
-	      findApertureCode (&GBX_Apertures, pin->Thickness,
-				pin->Thickness + pin->Clearance, 0,
-				TEST_FLAG (SQUAREFLAG, pin) ?
-				SQUARECLEAR : ROUNDCLEAR);
-	      findApertureCode (&GBX_Apertures,
-				pin->Thickness + pin->Clearance, 0, 0,
-				TEST_FLAG (SQUAREFLAG,
-					   pin) ? SQUARE
-				: TEST_FLAG (OCTAGONFLAG, pin) ?
-				OCTAGON : ROUND);
-	    }
-	}
-      END_LOOP;
-      PAD_LOOP (element);
-	{
-	  findApertureCode (&GBX_Apertures, pad->Thickness, 0, 0,
-			    TEST_FLAG (SQUAREFLAG, pad) ? SQUARE : ROUND);
-	  /* pads need clearance in polygons */
-	  findApertureCode (&GBX_Apertures,
-			    pad->Thickness + pad->Clearance, 0, 0,
-			    TEST_FLAG (SQUAREFLAG, pad) ? SQUARE : ROUND);
-	  /* pads always need masks */
-	  findApertureCode (&GBX_Apertures, pad->Mask, 0, 0,
-			    TEST_FLAG (SQUAREFLAG, pad) ? SQUARE : ROUND);
-	}
-      END_LOOP;
-      ELEMENTLINE_LOOP (element);
-	{
-	  findApertureCode (&GBX_Apertures, line->Thickness, 0, 0, ROUND);
-	}
-      END_LOOP;
-      ARC_LOOP (element);
-	{
-	  findApertureCode (&GBX_Apertures, arc->Thickness, 0, 0, ROUND);
-	}
-      END_LOOP;
-      findTextApertures (&ELEMENT_TEXT (PCB, element));
-    }
-      END_LOOP;
-  ALLTEXT_LOOP (PCB->Data);
-    {
-      findTextApertures (text);
-    }
-  ENDALL_LOOP;
-  VIA_LOOP (PCB->Data);
-    {
-      findApertureCode (&GBX_Apertures, via->Thickness, 0, 0,
+      findApertureCode (&GBX_Apertures, pin->Thickness, 0, 0,
 			TEST_FLAG (SQUAREFLAG,
-				   via) ? SQUARE
-			: (TEST_FLAG (OCTAGONFLAG, via) ? OCTAGON : ROUND));
+				   pin) ? SQUARE
+			: (TEST_FLAG (OCTAGONFLAG, pin) ? OCTAGON : ROUND));
       /* mask layers need different sizes */
-      findApertureCode (&GBX_Apertures, via->Mask, 0, 0,
-			TEST_FLAG (SQUAREFLAG, via) ?
-			SQUARE : (TEST_FLAG (OCTAGONFLAG, via) ?
-				  OCTAGON : ROUND));
+      findApertureCode (&GBX_Apertures, pin->Mask, 0, 0,
+			TEST_FLAG (SQUAREFLAG, pin) ?
+			SQUARE
+			: (TEST_FLAG (OCTAGONFLAG, pin) ? OCTAGON : ROUND));
       /* check for thermal cross being used */
-      if (TEST_ANY_THERMS (via))
+      if (TEST_ANY_THERMS (pin))
 	{
-	  int finger = (via->Thickness - via->DrillingHole) * PCB->ThermScale;
+	  int finger = (pin->Thickness - pin->DrillingHole) * PCB->ThermScale;
 	  findApertureCode (&GBX_Apertures, finger, 0, 0, ROUND);
-	  findApertureCode (&GBX_Apertures, via->Thickness,
-			    via->Thickness + via->Clearance, finger, THERMAL);
+	  findApertureCode (&GBX_Apertures, pin->Thickness,
+			    pin->Thickness + pin->Clearance, finger, THERMAL);
 	}
       /* check for polygon clearance being used */
-      if (TEST_ANY_PIPS (via))
+      if (TEST_ANY_PIPS (pin))
 	{
-	  findApertureCode (&GBX_Apertures, via->Thickness + via->Clearance,
-			    0, 0, TEST_FLAG (SQUAREFLAG,
-					     via) ? SQUARE
-			    : (TEST_FLAG (OCTAGONFLAG, via) ? OCTAGON :
-			       ROUND));
-	  findApertureCode (&GBX_Apertures, via->Thickness,
-			    via->Thickness + via->Clearance, 0,
+	  /* negative planes need clears */
+	  findApertureCode (&GBX_Apertures, pin->Thickness,
+			    pin->Thickness + pin->Clearance, 0,
+			    TEST_FLAG (SQUAREFLAG, pin) ?
+			    SQUARECLEAR : ROUNDCLEAR);
+	  findApertureCode (&GBX_Apertures,
+			    pin->Thickness + pin->Clearance, 0, 0,
 			    TEST_FLAG (SQUAREFLAG,
-				       via) ? SQUARECLEAR : ROUNDCLEAR);
+				       pin) ? SQUARE
+			    : TEST_FLAG (OCTAGONFLAG, pin) ? OCTAGON : ROUND);
 	}
     }
-      END_LOOP;
+    END_LOOP;
+    PAD_LOOP (element);
+    {
+      findApertureCode (&GBX_Apertures, pad->Thickness, 0, 0,
+			TEST_FLAG (SQUAREFLAG, pad) ? SQUARE : ROUND);
+      /* pads need clearance in polygons */
+      findApertureCode (&GBX_Apertures,
+			pad->Thickness + pad->Clearance, 0, 0,
+			TEST_FLAG (SQUAREFLAG, pad) ? SQUARE : ROUND);
+      /* pads always need masks */
+      findApertureCode (&GBX_Apertures, pad->Mask, 0, 0,
+			TEST_FLAG (SQUAREFLAG, pad) ? SQUARE : ROUND);
+    }
+    END_LOOP;
+    ELEMENTLINE_LOOP (element);
+    {
+      findApertureCode (&GBX_Apertures, line->Thickness, 0, 0, ROUND);
+    }
+    END_LOOP;
+    ARC_LOOP (element);
+    {
+      findApertureCode (&GBX_Apertures, arc->Thickness, 0, 0, ROUND);
+    }
+    END_LOOP;
+    findTextApertures (&ELEMENT_TEXT (PCB, element));
+  }
+  END_LOOP;
+  ALLTEXT_LOOP (PCB->Data);
+  {
+    findTextApertures (text);
+  }
+  ENDALL_LOOP;
+  VIA_LOOP (PCB->Data);
+  {
+    findApertureCode (&GBX_Apertures, via->Thickness, 0, 0,
+		      TEST_FLAG (SQUAREFLAG,
+				 via) ? SQUARE
+		      : (TEST_FLAG (OCTAGONFLAG, via) ? OCTAGON : ROUND));
+    /* mask layers need different sizes */
+    findApertureCode (&GBX_Apertures, via->Mask, 0, 0,
+		      TEST_FLAG (SQUAREFLAG, via) ?
+		      SQUARE : (TEST_FLAG (OCTAGONFLAG, via) ?
+				OCTAGON : ROUND));
+    /* check for thermal cross being used */
+    if (TEST_ANY_THERMS (via))
+      {
+	int finger = (via->Thickness - via->DrillingHole) * PCB->ThermScale;
+	findApertureCode (&GBX_Apertures, finger, 0, 0, ROUND);
+	findApertureCode (&GBX_Apertures, via->Thickness,
+			  via->Thickness + via->Clearance, finger, THERMAL);
+      }
+    /* check for polygon clearance being used */
+    if (TEST_ANY_PIPS (via))
+      {
+	findApertureCode (&GBX_Apertures, via->Thickness + via->Clearance,
+			  0, 0, TEST_FLAG (SQUAREFLAG,
+					   via) ? SQUARE
+			  : (TEST_FLAG (OCTAGONFLAG, via) ? OCTAGON : ROUND));
+	findApertureCode (&GBX_Apertures, via->Thickness,
+			  via->Thickness + via->Clearance, 0,
+			  TEST_FLAG (SQUAREFLAG,
+				     via) ? SQUARECLEAR : ROUNDCLEAR);
+      }
+  }
+  END_LOOP;
 
   /* make sure the outline/alignment aperture exists should it be used */
   /* polygons use this aperture also  */
@@ -482,10 +481,10 @@ GBX_Preamble (PrintInitTypePtr Flags, char *Description)
       fprintf (GBX_Flags.FP, "M48\015\012" "INCH,TZ\015\012");
       usedDrills = GetDrillInfo (PCB->Data);
       DRILL_LOOP (usedDrills);
-	{
-	  fprintf (GBX_Flags.FP, "T%02dC%.3f\015\012",
-		   index++, drill->DrillSize / 100000.0);
-	}
+      {
+	fprintf (GBX_Flags.FP, "T%02dC%.3f\015\012",
+		 index++, drill->DrillSize / 100000.0);
+      }
       END_LOOP;
       FreeDrillInfo (usedDrills);
       fprintf (GBX_Flags.FP, "%%\015\012");
@@ -607,7 +606,7 @@ GBX_Postamble (void)
     }
   if (GBX_ErrorOccurred != False)
     Message (_("An error occurred.\n"
-	     "The Gerber output file(s) aren't correct.\n"));
+	       "The Gerber output file(s) aren't correct.\n"));
 }
 
 /* ----------------------------------------------------------------------
@@ -635,9 +634,9 @@ GBX_GroupID (int group)
   theGroup = group;
   fprintf (GBX_Flags.FP, "G04 contains layers ");
   GROUP_LOOP (group);
-    {
-      fprintf (GBX_Flags.FP, "%s (%i) ", UNKNOWN (layer->Name), number);
-    }
+  {
+    fprintf (GBX_Flags.FP, "%s (%i) ", UNKNOWN (layer->Name), number);
+  }
   END_LOOP;
   fprintf (GBX_Flags.FP, "*\015\012");
 }
@@ -752,31 +751,31 @@ GBX_PrintPolygon (PolygonTypePtr Ptr)
   setAperture (&GBX_Apertures, 1000, 0, 0, ROUND);
   fprintf (GBX_Flags.FP, "G36*\015\012");
   POLYGONPOINT_LOOP (Ptr);
-    {
-      if (point->X != lastX)
-	{
-	  m = True;
-	  lastX = point->X;
-	  fprintf (GBX_Flags.FP, "X%ld", gerberX (PCB, lastX));
-	}
-      if (point->Y != lastY)
-	{
-	  m = True;
-	  lastY = point->Y;
-	  fprintf (GBX_Flags.FP, "Y%ld", gerberY (PCB, lastY));
-	}
-      if (firstTime)
-	{
-	  firstTime = 0;
-	  startX = point->X;
-	  startY = point->Y;
-	  if (m)
-	    fprintf (GBX_Flags.FP, "D02*");
-	}
-      else if (m)
-	fprintf (GBX_Flags.FP, "D01*\015\012");
-      m = False;
-    }
+  {
+    if (point->X != lastX)
+      {
+	m = True;
+	lastX = point->X;
+	fprintf (GBX_Flags.FP, "X%ld", gerberX (PCB, lastX));
+      }
+    if (point->Y != lastY)
+      {
+	m = True;
+	lastY = point->Y;
+	fprintf (GBX_Flags.FP, "Y%ld", gerberY (PCB, lastY));
+      }
+    if (firstTime)
+      {
+	firstTime = 0;
+	startX = point->X;
+	startY = point->Y;
+	if (m)
+	  fprintf (GBX_Flags.FP, "D02*");
+      }
+    else if (m)
+      fprintf (GBX_Flags.FP, "D01*\015\012");
+    m = False;
+  }
   END_LOOP;
   if (startX != lastX)
     {
@@ -936,14 +935,14 @@ static void
 GBX_PrintElementPackage (ElementTypePtr Element)
 {
   ELEMENTLINE_LOOP (Element);
-    {
-      GBX_PrintLine (line, False);
-    }
+  {
+    GBX_PrintLine (line, False);
+  }
   END_LOOP;
   ARC_LOOP (Element);
-    {
-      GBX_PrintArc (arc, False);
-    }
+  {
+    GBX_PrintArc (arc, False);
+  }
   END_LOOP;
   if (!TEST_FLAG (HIDENAMEFLAG, Element))
     GBX_PrintText (&ELEMENT_TEXT (PCB, Element));
@@ -1038,7 +1037,9 @@ GBX_PrintPinOrVia (PinTypePtr Ptr, int mode)
       /* negative plane mode */
       if (TEST_FLAG (USETHERMALFLAG, Ptr))
 	setAperture (&GBX_Apertures, Ptr->Thickness,
-		     size, (Ptr->Thickness - Ptr->DrillingHole) * PCB->ThermScale, THERMAL);
+		     size,
+		     (Ptr->Thickness - Ptr->DrillingHole) * PCB->ThermScale,
+		     THERMAL);
       else
 	setAperture (&GBX_Apertures, Ptr->Thickness, size,
 		     0, TEST_FLAG (SQUAREFLAG,
@@ -1092,7 +1093,8 @@ GBX_PrintPinOrVia (PinTypePtr Ptr, int mode)
  * this is used by the text routine
  */
 static void
-GBX_PrintFilledRectangle (LocationType X1, LocationType Y1, LocationType X2, LocationType Y2)
+GBX_PrintFilledRectangle (LocationType X1, LocationType Y1, LocationType X2,
+			  LocationType Y2)
 {
   int j;
   long int X, Y;
@@ -1119,7 +1121,8 @@ GBX_PrintFilledRectangle (LocationType X1, LocationType Y1, LocationType X2, Loc
  *  This routine contributed by Andre M Hedrick
  */
 static void
-GBX_PrintOutline (LocationType X1, LocationType Y1, LocationType X2, LocationType Y2)
+GBX_PrintOutline (LocationType X1, LocationType Y1, LocationType X2,
+		  LocationType Y2)
 {
   int gx1, gy1, gx2, gy2;
 
@@ -1149,7 +1152,8 @@ GBX_PrintOutline (LocationType X1, LocationType Y1, LocationType X2, LocationTyp
  *  This routine contributed by Andre M Hedrick
  */
 static void
-GBX_PrintAlignment (LocationType X1, LocationType Y1, LocationType X2, LocationType Y2)
+GBX_PrintAlignment (LocationType X1, LocationType Y1, LocationType X2,
+		    LocationType Y2)
 {
   int gx1, gy1, gx2, gy2;
 

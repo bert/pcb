@@ -33,16 +33,15 @@
 
 #include "global.h"
 
-Cardinal	GetLowestDistancePolygonPoint(PolygonTypePtr,
+Cardinal GetLowestDistancePolygonPoint (PolygonTypePtr,
 					LocationType, LocationType);
-Boolean		RemoveExcessPolygonPoints(LayerTypePtr, PolygonTypePtr);
-void			GoToPreviousPoint(void);
-void			ClosePolygon(void);
-void			CopyAttachedPolygonToLayer(void);
-void			UpdatePIPFlags(PinTypePtr, ElementTypePtr,
-				       LayerTypePtr, Boolean);
-int PolygonPlows (int group, const BoxType *range,
-                  int (*callback)(int, void *, void *, void *,
-                  LayerTypePtr, PolygonTypePtr));
+Boolean RemoveExcessPolygonPoints (LayerTypePtr, PolygonTypePtr);
+void GoToPreviousPoint (void);
+void ClosePolygon (void);
+void CopyAttachedPolygonToLayer (void);
+void UpdatePIPFlags (PinTypePtr, ElementTypePtr, LayerTypePtr, Boolean);
+int PolygonPlows (int group, const BoxType * range,
+		  int (*callback) (int, void *, void *, void *,
+				   LayerTypePtr, PolygonTypePtr));
 
 #endif

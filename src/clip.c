@@ -49,7 +49,7 @@
 #include <dmalloc.h>
 #endif
 
-RCSID("$Id$");
+RCSID ("$Id$");
 
 LocationType dxo, dyo;
 Boolean SwapOutput;
@@ -59,22 +59,22 @@ float Local_Zoom;
  * false if the whole thing is clipped
  */
 static Boolean
-ClipLine (PointType *p)
+ClipLine (PointType * p)
 {
   float d, r;
-  Boolean ans = True; 
-  
+  Boolean ans = True;
+
   /* clip first point on left side */
   if (p[0].X < clipBox.X1)
     {
       if (p[1].X < clipBox.X1)
-        {
+	{
 	  ans = False;
 	  p[0].X = p[1].X = clipBox.X1;
 	  goto do_Y;
 	}
       d = p[1].X - p[0].X;
-      r = (clipBox.X1 - p[0].X)/d;
+      r = (clipBox.X1 - p[0].X) / d;
       p[0].X = clipBox.X1;
       p[0].Y += r * (p[1].Y - p[0].Y);
     }
@@ -82,7 +82,7 @@ ClipLine (PointType *p)
   if (p[1].X < clipBox.X1)
     {
       d = p[0].X - p[1].X;
-      r = (clipBox.X1 - p[1].X)/d;
+      r = (clipBox.X1 - p[1].X) / d;
       p[1].X = clipBox.X1;
       p[1].Y += r * (p[0].Y - p[1].Y);
     }
@@ -90,13 +90,13 @@ ClipLine (PointType *p)
   if (p[0].X > clipBox.X2)
     {
       if (p[1].X > clipBox.X2)
-        {
+	{
 	  ans = False;
 	  p[0].X = p[1].X = clipBox.X2;
 	  goto do_Y;
 	}
       d = p[1].X - p[0].X;
-      r = (clipBox.X2 - p[0].X)/d;
+      r = (clipBox.X2 - p[0].X) / d;
       p[0].X = clipBox.X2;
       p[0].Y += r * (p[1].Y - p[0].Y);
     }
@@ -104,7 +104,7 @@ ClipLine (PointType *p)
   if (p[1].X > clipBox.X2)
     {
       d = p[0].X - p[1].X;
-      r = (clipBox.X2 - p[1].X)/d;
+      r = (clipBox.X2 - p[1].X) / d;
       p[1].X = clipBox.X2;
       p[1].Y += r * (p[0].Y - p[1].Y);
     }
@@ -113,12 +113,12 @@ do_Y:
   if (p[0].Y < clipBox.Y1)
     {
       if (p[1].Y < clipBox.Y1)
-        {
+	{
 	  p[0].Y = p[1].Y = clipBox.Y1;
 	  return False;
 	}
       d = p[1].Y - p[0].Y;
-      r = (clipBox.Y1 - p[0].Y)/d;
+      r = (clipBox.Y1 - p[0].Y) / d;
       p[0].Y = clipBox.Y1;
       p[0].X += r * (p[1].X - p[0].X);
     }
@@ -126,7 +126,7 @@ do_Y:
   if (p[1].Y < clipBox.Y1)
     {
       d = p[0].Y - p[1].Y;
-      r = (clipBox.Y1 - p[1].Y)/d;
+      r = (clipBox.Y1 - p[1].Y) / d;
       p[1].Y = clipBox.Y1;
       p[1].X += r * (p[0].X - p[1].X);
     }
@@ -134,12 +134,12 @@ do_Y:
   if (p[0].Y > clipBox.Y2)
     {
       if (p[1].Y > clipBox.Y2)
-        {
+	{
 	  p[0].Y = p[1].Y = clipBox.Y2;
 	  return False;
 	}
       d = p[1].Y - p[0].Y;
-      r = (clipBox.Y2 - p[0].Y)/d;
+      r = (clipBox.Y2 - p[0].Y) / d;
       p[0].Y = clipBox.Y2;
       p[0].X += r * (p[1].X - p[0].X);
     }
@@ -147,7 +147,7 @@ do_Y:
   if (p[1].Y > clipBox.Y2)
     {
       d = p[0].Y - p[1].Y;
-      r = (clipBox.Y2 - p[1].Y)/d;
+      r = (clipBox.Y2 - p[1].Y) / d;
       p[1].Y = clipBox.Y2;
       p[1].X += r * (p[0].X - p[1].X);
     }
@@ -155,8 +155,8 @@ do_Y:
 }
 
 /* clip a line to the displayed area */
-void XDrawCLine (GdkDrawable *d, GdkGC *gc, int x1,
-                 int y1, int x2, int y2)
+void
+XDrawCLine (GdkDrawable * d, GdkGC * gc, int x1, int y1, int x2, int y2)
 {
   PointType pts[2];
 
@@ -166,133 +166,138 @@ void XDrawCLine (GdkDrawable *d, GdkGC *gc, int x1,
   pts[1].Y = y2;
 
   if (ClipLine (pts))
-    gdk_draw_line(d, gc, TO_DRAW_X (pts[0].X), TO_DRAW_Y (pts[0].Y),
-               TO_DRAW_X (pts[1].X), TO_DRAW_Y (pts[1].Y));
+    gdk_draw_line (d, gc, TO_DRAW_X (pts[0].X), TO_DRAW_Y (pts[0].Y),
+		   TO_DRAW_X (pts[1].X), TO_DRAW_Y (pts[1].Y));
 }
 
 /* clip an arc to the displayed area and draw it */
-void XDrawCArc (GdkDrawable *d, GdkGC *gc, int x, int y,
-                unsigned int width, unsigned int height, int angle,
-		int delta)
+void
+XDrawCArc (GdkDrawable * d, GdkGC * gc, int x, int y,
+	   unsigned int width, unsigned int height, int angle, int delta)
 {
-  int start = MIN(angle + delta, angle);
+  int start = MIN (angle + delta, angle);
   int end = MAX (angle + delta, angle);
-   /* force angles to standard range */
-  while (end > 180*64)
+  /* force angles to standard range */
+  while (end > 180 * 64)
     {
-      start -= 360*64;
-      end -= 360*64;
+      start -= 360 * 64;
+      end -= 360 * 64;
     }
-  while (start < -180*64)
+  while (start < -180 * 64)
     {
-      start += 360*64;
-      end += 360*64;
+      start += 360 * 64;
+      end += 360 * 64;
     }
-  if ((x + (LocationType)width) < clipBox.X1)
+  if ((x + (LocationType) width) < clipBox.X1)
     return;
-  if ((x - (LocationType)width) > clipBox.X2)
+  if ((x - (LocationType) width) > clipBox.X2)
     return;
-  if ((y + (LocationType)height) < clipBox.Y1)
+  if ((y + (LocationType) height) < clipBox.Y1)
     return;
-  if ((y - (LocationType)height) > clipBox.Y2)
-    return; /* nothing to draw */
-    /* clip left edge */
-  if (abs(2*(clipBox.X1 - x)) < width)
+  if ((y - (LocationType) height) > clipBox.Y2)
+    return;			/* nothing to draw */
+  /* clip left edge */
+  if (abs (2 * (clipBox.X1 - x)) < width)
     {
-      int theta = (64*RAD_TO_DEG) * acos (2.0*(clipBox.X1 - x)/(float)width);
+      int theta =
+	(64 * RAD_TO_DEG) * acos (2.0 * (clipBox.X1 - x) / (float) width);
       if (theta > start && theta < end)
-        {
+	{
 	  assert (start >= 0);
 	  end = theta;
 	}
       if ((-theta) > start && (-theta) < end)
-        {
+	{
 	  assert (start <= 0);
 	  start = -theta;
 	}
     }
-    /* clip right edge */
-  if (abs(2*(clipBox.X2 - x)) < width)
+  /* clip right edge */
+  if (abs (2 * (clipBox.X2 - x)) < width)
     {
-      int theta = (64*RAD_TO_DEG) * acos (2.0*(clipBox.X2 - x)/(float)width);
+      int theta =
+	(64 * RAD_TO_DEG) * acos (2.0 * (clipBox.X2 - x) / (float) width);
       if (theta > start && theta < end)
-        {
+	{
 	  assert (start >= 0);
 	  start = theta;
 	}
-      theta = - theta;
+      theta = -theta;
       if (theta > start && theta < end)
-        {
+	{
 	  assert (start <= 0);
 	  end = theta;
 	}
     }
-    /* clip top */
-  if (abs(2*(clipBox.Y1 - y)) < height)
+  /* clip top */
+  if (abs (2 * (clipBox.Y1 - y)) < height)
     {
-      int theta = (64*RAD_TO_DEG) * asin (2.0*( y - clipBox.Y1)/(float)height);
+      int theta =
+	(64 * RAD_TO_DEG) * asin (2.0 * (y - clipBox.Y1) / (float) height);
       if (theta > start && theta < end)
-        end = theta;
-      theta = SGN (theta) * 180*64 - theta;
+	end = theta;
+      theta = SGN (theta) * 180 * 64 - theta;
       if (theta > start && theta < end)
 	start = theta;
     }
-    /* clip bottom */
-  if (abs(2*(clipBox.Y2 - y)) < height)
+  /* clip bottom */
+  if (abs (2 * (clipBox.Y2 - y)) < height)
     {
-      int theta = (64*RAD_TO_DEG) * asin (2.0*(y - clipBox.Y2)/(float)height);
+      int theta =
+	(64 * RAD_TO_DEG) * asin (2.0 * (y - clipBox.Y2) / (float) height);
       if (theta > start && theta < end)
 	start = theta;
-      theta = SGN (theta) * 180*64 - theta;
+      theta = SGN (theta) * 180 * 64 - theta;
       if (theta > start && theta < end)
 	end = theta;
     }
-  gdk_draw_arc(d, gc, FALSE, TO_DRAW_X(x) - TO_SCREEN(width)/2,
-            TO_DRAW_Y(y) - TO_SCREEN(height)/2,
-            TO_SCREEN(width), TO_SCREEN(height), TO_SCREEN_ANGLE(start),
-	    TO_SCREEN_DELTA(end - start));
+  gdk_draw_arc (d, gc, FALSE, TO_DRAW_X (x) - TO_SCREEN (width) / 2,
+		TO_DRAW_Y (y) - TO_SCREEN (height) / 2,
+		TO_SCREEN (width), TO_SCREEN (height),
+		TO_SCREEN_ANGLE (start), TO_SCREEN_DELTA (end - start));
 }
 
 /* clip a polygon to the visible region and draw it */
-void DrawCPolygon (GdkDrawable *Window, PolygonTypePtr Polygon)
+void
+DrawCPolygon (GdkDrawable * Window, PolygonTypePtr Polygon)
 {
-  static gint		max = 0;
-  static PointType	*pts;
-  static GdkPoint	*data;
-  gint				i, j = 0;
+  static gint max = 0;
+  static PointType *pts;
+  static GdkPoint *data;
+  gint i, j = 0;
 
   /* allocate memory for data with screen coordinates */
-  if (2*Polygon->PointN > max)
+  if (2 * Polygon->PointN > max)
     {
-      max = 2*Polygon->PointN + 20;
+      max = 2 * Polygon->PointN + 20;
       pts = (PointType *) MyRealloc (pts, (max + 1) * sizeof (PointType),
-				   "DrawPolygonLowLevel()");
+				     "DrawPolygonLowLevel()");
       data = (GdkPoint *) MyRealloc (data, (max + 1) * sizeof (GdkPoint),
-				   "DrawPolygonLowLevel()");
+				     "DrawPolygonLowLevel()");
     }
 
   for (i = 0; i < Polygon->PointN - 1; i++)
     {
-      pts[2*i] = Polygon->Points[i];
-      pts[2*i+1] = Polygon->Points[i+1];
-      ClipLine (&pts[2*i]);
+      pts[2 * i] = Polygon->Points[i];
+      pts[2 * i + 1] = Polygon->Points[i + 1];
+      ClipLine (&pts[2 * i]);
     }
-  pts[2*i] = Polygon->Points[i];
-  pts[2*i+1] = Polygon->Points[0];
-  ClipLine (&pts[2*i]);
+  pts[2 * i] = Polygon->Points[i];
+  pts[2 * i + 1] = Polygon->Points[0];
+  ClipLine (&pts[2 * i]);
   /* copy data to tmp array and convert it to screen coordinates */
   data[j].x = TO_DRAW_X (pts[0].X);
   data[j++].y = TO_DRAW_Y (pts[0].Y);
   for (i = 1; i < 2 * Polygon->PointN; i++)
     {
-        /* skip duplicate points */
-      if (pts[i-1].X != pts[i].X || pts[i-1].Y != pts[i].Y)
-        {
+      /* skip duplicate points */
+      if (pts[i - 1].X != pts[i].X || pts[i - 1].Y != pts[i].Y)
+	{
 	  data[j].x = TO_DRAW_X (pts[i].X);
-          data[j++].y = TO_DRAW_Y (pts[i].Y);
+	  data[j++].y = TO_DRAW_Y (pts[i].Y);
 	}
     }
-  if (pts[i-1].X != pts[0].X || pts[i-1].Y != pts[0].Y)
+  if (pts[i - 1].X != pts[0].X || pts[i - 1].Y != pts[0].Y)
     {
       data[j].x = TO_DRAW_X (pts[0].X);
       data[j].y = TO_DRAW_Y (pts[0].Y);
@@ -302,10 +307,8 @@ void DrawCPolygon (GdkDrawable *Window, PolygonTypePtr Polygon)
   if (TEST_FLAG (THINDRAWFLAG, PCB))
     {
       data[Polygon->PointN] = data[0];
-      gdk_draw_lines(Window, Output.fgGC,
-    	         data, j + 1);
+      gdk_draw_lines (Window, Output.fgGC, data, j + 1);
     }
   else
-    gdk_draw_polygon(Window, Output.fgGC, TRUE,
-                 data, j);
+    gdk_draw_polygon (Window, Output.fgGC, TRUE, data, j);
 }

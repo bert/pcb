@@ -73,7 +73,7 @@
 #include "undo.h"
 #include "vector.h"
 
-RCSID("$Id$");
+RCSID ("$Id$");
 
 /* #defines to enable some debugging output */
 /*#define ROUTE_VERBOSE*/
@@ -1493,7 +1493,7 @@ CreateEdgeWithConflicts (const BoxType * interior_edge,
   rb->underlying = container;	/* crucial! */
   costpoint = closest_point_in_box (&previous_edge->cost_point, &b);
   d = cost_to_point_on_layer (&costpoint, &previous_edge->cost_point,
-                              previous_edge->rb->group);
+			      previous_edge->rb->group);
   d *= cost_penalty_to_box;
   ne = CreateEdge (rb, costpoint.X, costpoint.Y, previous_edge->cost_to_point + d, previous_edge->mincost_target, NORTH	/*arbitrary */
 		   , targets);
@@ -2232,7 +2232,7 @@ RD_DrawVia (routedata_t * rd, LocationType X, LocationType Y,
     {
       if (!is_layer_group_active (i))
 	continue;
-      rb = (routebox_t *) malloc(sizeof (*rb));
+      rb = (routebox_t *) malloc (sizeof (*rb));
       init_const_box (rb,
 		      /*X1 */ X - radius, /*Y1 */ Y - radius,
 		      /*X2 */ X + radius, /*Y2 */ Y + radius);
@@ -2264,7 +2264,8 @@ RD_DrawVia (routedata_t * rd, LocationType X, LocationType Y,
       if (TEST_FLAG (LIVEROUTEFLAG, PCB))
 	{
 	  gdk_gc_set_line_attributes (Output.fgGC, TO_SCREEN (2 * radius),
-				      GDK_LINE_SOLID, GDK_CAP_ROUND, GDK_JOIN_ROUND);
+				      GDK_LINE_SOLID, GDK_CAP_ROUND,
+				      GDK_JOIN_ROUND);
 	  gdk_gc_set_foreground (Output.fgGC, PCB->ViaColor);
 
 	  XDrawCLine (Output.top_window->window, Output.fgGC, X, Y, X, Y);
@@ -2316,7 +2317,8 @@ RD_DrawLine (routedata_t * rd,
       LayerTypePtr layp = LAYER_PTR (PCB->LayerGroups.Entries[rb->group][0]);
 
       gdk_gc_set_line_attributes (Output.fgGC, TO_SCREEN (2 * halfthick),
-				  GDK_LINE_SOLID, GDK_CAP_ROUND, GDK_JOIN_ROUND);
+				  GDK_LINE_SOLID, GDK_CAP_ROUND,
+				  GDK_JOIN_ROUND);
       gdk_gc_set_foreground (Output.fgGC, layp->Color);
       XDrawCLine (Output.top_window->window, Output.fgGC, X1, Y1, X2, Y2);
     }
@@ -3252,8 +3254,7 @@ RouteOne (routedata_t * rd, routebox_t * from, routebox_t * to, int max_edges)
 	      center.X = (next->box.X1 + next->box.X2) / 2;
 	      center.Y = (next->box.Y1 + next->box.Y2) / 2;
 	      cost =
-		cost_to_point_on_layer (&e->cost_point, &center,
-					next->group);
+		cost_to_point_on_layer (&e->cost_point, &center, next->group);
 	      /* don't expand this edge, but check if we found a cheaper way here */
 	      /*XXX prevent loops */
 	      if (next->cost >= e->cost_to_point + cost);

@@ -33,9 +33,9 @@
 
 #include "global.h"
 
-int		ParsePCB(PCBTypePtr, char *);
-int		ParseElementFile(DataTypePtr, char *);
-int		ParseLibraryEntry(DataTypePtr, char *);
-int		ParseFont(FontTypePtr, char *);
+int ParsePCB (PCBTypePtr, char *);
+int ParseElementFile (DataTypePtr, char *);
+int ParseLibraryEntry (DataTypePtr, char *);
+int ParseFont (FontTypePtr, char *);
 
 #endif

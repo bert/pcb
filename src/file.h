@@ -31,26 +31,26 @@
 #ifndef	__FILE_INCLUDED__
 #define	__FILE_INCLUDED__
 
-#include <stdio.h>			/* needed to define 'FILE *' */
+#include <stdio.h>		/* needed to define 'FILE *' */
 #include "global.h"
 
-FILE		*CheckAndOpenFile(char *, Boolean, Boolean, Boolean *, Boolean *);
-FILE		*OpenConnectionDataFile(void);
-int		SavePCB(char *);
-int		LoadPCB(char *);
-void		Backup(void);
-void		SaveInTMP(void);
-void		EmergencySave(void);
-int		ReadLibraryContents(void);
-int		ReadNetlist(char *);
-int		SaveBufferElements(char *);
+FILE *CheckAndOpenFile (char *, Boolean, Boolean, Boolean *, Boolean *);
+FILE *OpenConnectionDataFile (void);
+int SavePCB (char *);
+int LoadPCB (char *);
+void Backup (void);
+void SaveInTMP (void);
+void EmergencySave (void);
+int ReadLibraryContents (void);
+int ReadNetlist (char *);
+int SaveBufferElements (char *);
 
 #ifndef HAS_ATEXIT
 #ifdef HAS_ON_EXIT
-void		GlueEmergencySave(int, caddr_t);
+void GlueEmergencySave (int, caddr_t);
 #else
-void		SaveTMPData(void);
-void		RemoveTMPData(void);
+void SaveTMPData (void);
+void RemoveTMPData (void);
 #endif
 #endif
 

@@ -43,37 +43,37 @@ typedef struct vector_struct vector_t;
 typedef void *vector_element_t;
 
 /* create an empty vector */
-vector_t * vector_create();
+vector_t *vector_create ();
 /* destroy a vector */
-void vector_destroy(vector_t **vector);
+void vector_destroy (vector_t ** vector);
 
 /* -- interrogation -- */
-int vector_is_empty(vector_t *vector);
-int vector_size(vector_t *vector);
-vector_element_t vector_element(vector_t *vector, int N);
-vector_element_t vector_element_first(vector_t *vector);
-vector_element_t vector_element_last(vector_t *vector);
+int vector_is_empty (vector_t * vector);
+int vector_size (vector_t * vector);
+vector_element_t vector_element (vector_t * vector, int N);
+vector_element_t vector_element_first (vector_t * vector);
+vector_element_t vector_element_last (vector_t * vector);
 
 /* -- mutation -- */
 /* add data to end of vector */
-void vector_append(vector_t *vector, vector_element_t data);
+void vector_append (vector_t * vector, vector_element_t data);
 /* add multiple elements to end of vector */
-void vector_append_many(vector_t *vector,
-			vector_element_t data[], int count);
+void vector_append_many (vector_t * vector,
+			 vector_element_t data[], int count);
 /* add a vector of elements to the end of vector */
-void vector_append_vector(vector_t *vector, vector_t *other_vector);
+void vector_append_vector (vector_t * vector, vector_t * other_vector);
 /* add data at specified position of vector */
-void vector_insert(vector_t *vector, int N, vector_element_t data);
+void vector_insert (vector_t * vector, int N, vector_element_t data);
 /* add multiple elements at specified position of vector */
-void vector_insert_many(vector_t *vector, int N,
-			vector_element_t data[], int count);
+void vector_insert_many (vector_t * vector, int N,
+			 vector_element_t data[], int count);
 /* return and delete the *last* element of vector */
-vector_element_t vector_remove_last(vector_t *vector);
+vector_element_t vector_remove_last (vector_t * vector);
 /* return and delete data at specified position of vector */
-vector_element_t vector_remove(vector_t *vector, int N);
+vector_element_t vector_remove (vector_t * vector, int N);
 /* replace the data at the specified position with the given data.
  * returns the old data. */
-vector_element_t vector_replace(vector_t *vector,
-				vector_element_t data, int N);
+vector_element_t vector_replace (vector_t * vector,
+				 vector_element_t data, int N);
 
 #endif /* __VECTOR_INCLUDED__ */

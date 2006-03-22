@@ -57,7 +57,7 @@
 
 #include "misc.h"
 
-RCSID("$Id$");
+RCSID ("$Id$");
 
 
 #define utf8_dup_string(a,b) *(a) = strdup(b)
@@ -87,7 +87,7 @@ Message (char *Format, ...)
 {
   va_list args;
   va_start (args, Format);
-  gui->logv(Format, args);
+  gui->logv (Format, args);
   va_end (args);
 }
 
@@ -98,18 +98,18 @@ Message (char *Format, ...)
 void
 OpenErrorMessage (char *Filename)
 {
-char	*utf8	= NULL;
+  char *utf8 = NULL;
 
-utf8_dup_string(&utf8, Filename);
+  utf8_dup_string (&utf8, Filename);
 #ifdef USE_SYS_ERRLIST
   Message (_("Can't open file\n"
-	   "   '%s'\nfopen() returned: '%s'\n"),
+	     "   '%s'\nfopen() returned: '%s'\n"),
 	   utf8, errno <= sys_nerr ? sys_errlist[errno] : "???");
 #else
   Message (_("Can't open file\n"
-	   "   '%s'\nfopen() returned: '%s'\n"), utf8, strerror (errno));
+	     "   '%s'\nfopen() returned: '%s'\n"), utf8, strerror (errno));
 #endif
-free(utf8);
+  free (utf8);
 }
 
 /* ---------------------------------------------------------------------------
@@ -118,18 +118,18 @@ free(utf8);
 void
 PopenErrorMessage (char *Filename)
 {
-char	*utf8	= NULL;
+  char *utf8 = NULL;
 
-utf8_dup_string(&utf8, Filename);
+  utf8_dup_string (&utf8, Filename);
 #ifdef USE_SYS_ERRLIST
   Message (_("Can't execute command\n"
-	   "   '%s'\npopen() returned: '%s'\n"),
+	     "   '%s'\npopen() returned: '%s'\n"),
 	   utf8, errno <= sys_nerr ? sys_errlist[errno] : "???");
 #else
   Message (_("Can't execute command\n"
-	   "   '%s'\npopen() returned: '%s'\n"), utf8, strerror (errno));
+	     "   '%s'\npopen() returned: '%s'\n"), utf8, strerror (errno));
 #endif
-free(utf8);
+  free (utf8);
 }
 
 /* ---------------------------------------------------------------------------
@@ -138,18 +138,18 @@ free(utf8);
 void
 OpendirErrorMessage (char *DirName)
 {
-char	*utf8	= NULL;
+  char *utf8 = NULL;
 
-utf8_dup_string(&utf8, DirName);
+  utf8_dup_string (&utf8, DirName);
 #ifdef USE_SYS_ERRLIST
   Message (_("Can't scan directory\n"
-	   "   '%s'\nopendir() returned: '%s'\n"),
+	     "   '%s'\nopendir() returned: '%s'\n"),
 	   utf8, errno <= sys_nerr ? sys_errlist[errno] : "???");
 #else
   Message (_("Can't scan directory\n"
-	   "   '%s'\nopendir() returned: '%s'\n"), utf8, strerror (errno));
+	     "   '%s'\nopendir() returned: '%s'\n"), utf8, strerror (errno));
 #endif
-free(utf8);
+  free (utf8);
 }
 
 /* ---------------------------------------------------------------------------
@@ -158,18 +158,18 @@ free(utf8);
 void
 ChdirErrorMessage (char *DirName)
 {
-char	*utf8	= NULL;
+  char *utf8 = NULL;
 
-utf8_dup_string(&utf8, DirName);
+  utf8_dup_string (&utf8, DirName);
 #ifdef USE_SYS_ERRLIST
   Message (_("Can't change working directory to\n"
-	   "   '%s'\nchdir() returned: '%s'\n"),
+	     "   '%s'\nchdir() returned: '%s'\n"),
 	   utf8, errno <= sys_nerr ? sys_errlist[errno] : "???");
 #else
   Message (_("Can't change working directory to\n"
-	   "   '%s'\nchdir() returned: '%s'\n"), utf8, strerror (errno));
+	     "   '%s'\nchdir() returned: '%s'\n"), utf8, strerror (errno));
 #endif
-free(utf8);
+  free (utf8);
 }
 
 /* ---------------------------------------------------------------------------
@@ -225,4 +225,3 @@ CatchSignal (int Signal)
     }
   MyFatal ("aborted by %s signal\n", s);
 }
-

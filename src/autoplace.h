@@ -40,6 +40,6 @@
 
 #include "global.h"
 
-Boolean AutoPlaceSelected(void);
+Boolean AutoPlaceSelected (void);
 
 #endif

@@ -71,7 +71,7 @@
 #include "strflags.h"
 
 
-RCSID("$Id$");
+RCSID ("$Id$");
 
 #if !defined(HAS_ATEXIT) && !defined(HAS_ON_EXIT)
 /* ---------------------------------------------------------------------------
@@ -110,19 +110,19 @@ string_cmp (const char *a, const char *b)
 {
   while (*a && *b)
     {
-      if (isdigit(*a) && isdigit(*b))
-      {
-	int ia = atoi(a);
-	int ib = atoi(b);
-	if (ia != ib)
-	  return ia - ib;
-	while (isdigit(*a))
-	  a++;
-	while (isdigit(*b))
-	  b++;
-      }
-      else if (tolower(*a) != tolower(*b))
-	return tolower(*a) - tolower(*b);
+      if (isdigit (*a) && isdigit (*b))
+	{
+	  int ia = atoi (a);
+	  int ib = atoi (b);
+	  if (ia != ib)
+	    return ia - ib;
+	  while (isdigit (*a))
+	    a++;
+	  while (isdigit (*b))
+	    b++;
+	}
+      else if (tolower (*a) != tolower (*b))
+	return tolower (*a) - tolower (*b);
       a++;
       b++;
     }
@@ -136,47 +136,44 @@ string_cmp (const char *a, const char *b)
 static int netlist_sort_offset = 0;
 
 static int
-netlist_sort(const void *va, const void *vb)
+netlist_sort (const void *va, const void *vb)
 {
-  LibraryMenuType *am = (LibraryMenuType *)va;
-  LibraryMenuType *bm = (LibraryMenuType *)vb;
+  LibraryMenuType *am = (LibraryMenuType *) va;
+  LibraryMenuType *bm = (LibraryMenuType *) vb;
   char *a = am->Name;
   char *b = bm->Name;
-  if (*a == '~') a++;
-  if (*b == '~') b++;
+  if (*a == '~')
+    a++;
+  if (*b == '~')
+    b++;
   return string_cmp (a, b);
 }
 
 static int
-netnode_sort(const void *va, const void *vb)
+netnode_sort (const void *va, const void *vb)
 {
-  LibraryEntryType *am = (LibraryEntryType *)va;
-  LibraryEntryType *bm = (LibraryEntryType *)vb;
+  LibraryEntryType *am = (LibraryEntryType *) va;
+  LibraryEntryType *bm = (LibraryEntryType *) vb;
   char *a = am->ListEntry;
   char *b = bm->ListEntry;
   return string_cmp (a, b);
 }
 
 static void
-sort_library(LibraryTypePtr lib)
+sort_library (LibraryTypePtr lib)
 {
   int i;
-  qsort (lib->Menu,
-	 lib->MenuN,
-	 sizeof(lib->Menu[0]),
-	 netlist_sort);
-  for (i=0; i<lib->MenuN; i++)
+  qsort (lib->Menu, lib->MenuN, sizeof (lib->Menu[0]), netlist_sort);
+  for (i = 0; i < lib->MenuN; i++)
     qsort (lib->Menu[i].Entry,
-	   lib->Menu[i].EntryN,
-	   sizeof(lib->Menu[i].Entry[0]),
-	   netnode_sort);
+	   lib->Menu[i].EntryN, sizeof (lib->Menu[i].Entry[0]), netnode_sort);
 }
 
 static void
-sort_netlist()
+sort_netlist ()
 {
   netlist_sort_offset = 2;
-  sort_library(&(PCB->NetlistLib));
+  sort_library (&(PCB->NetlistLib));
   netlist_sort_offset = 0;
 }
 
@@ -185,7 +182,7 @@ sort_netlist()
  */
 FILE *
 CheckAndOpenFile (char *Filename, Boolean Confirm, Boolean AllButton,
-			Boolean *WasAllButton, Boolean *WasCancelButton)
+		  Boolean * WasAllButton, Boolean * WasCancelButton)
 {
   FILE *fp = NULL;
   struct stat buffer;
@@ -202,19 +199,22 @@ CheckAndOpenFile (char *Filename, Boolean Confirm, Boolean AllButton,
 	  if (WasCancelButton)
 	    *WasCancelButton = False;
 	  if (AllButton)
-	     response = gui->confirm_dialog(message, "Cancel", "Ok", AllButton ? "Sequence OK" : 0);
+	    response =
+	      gui->confirm_dialog (message, "Cancel", "Ok",
+				   AllButton ? "Sequence OK" : 0);
 	  else
-	     response = gui->confirm_dialog(message, "Cancel", "Ok", "Sequence OK");
+	    response =
+	      gui->confirm_dialog (message, "Cancel", "Ok", "Sequence OK");
 
 	  switch (response)
 	    {
 	    case 2:
 	      if (WasAllButton)
-	        *WasAllButton = True;
+		*WasAllButton = True;
 	      break;
 	    case 0:
 	      if (WasCancelButton)
-	        *WasCancelButton = True;
+		*WasCancelButton = True;
 	    }
 	}
       if ((fp = fopen (Filename, "w")) == NULL)
@@ -232,7 +232,7 @@ OpenConnectionDataFile (void)
   char *filename;
   Boolean result;		/* not used */
 
-  filename = gui->prompt_for(_("Enter filename for connection data"), "");
+  filename = gui->prompt_for (_("Enter filename for connection data"), "");
   /* XXX Memory leak */
   return (CheckAndOpenFile (filename, True, False, &result, NULL));
 }
@@ -285,7 +285,7 @@ int
 LoadPCB (char *Filename)
 {
   PCBTypePtr newPCB = CreateNewPCB (False);
-  Boolean	units_mm;
+  Boolean units_mm;
 
   /* new data isn't added to the undo list */
   if (!ParsePCB (newPCB, Filename))
@@ -301,7 +301,8 @@ LoadPCB (char *Filename)
 
       /* update cursor location */
       Crosshair.X = MAX (0, MIN (PCB->CursorX, (LocationType) PCB->MaxWidth));
-      Crosshair.Y = MAX (0, MIN (PCB->CursorY, (LocationType) PCB->MaxHeight));
+      Crosshair.Y =
+	MAX (0, MIN (PCB->CursorY, (LocationType) PCB->MaxHeight));
 
       Xorig = Crosshair.X - TO_PCB (Output.Width / 2);
       Yorig = Crosshair.Y - TO_PCB (Output.Height / 2);
@@ -315,8 +316,9 @@ LoadPCB (char *Filename)
       /* create default font if necessary */
       if (!PCB->Font.Valid)
 	{
-	  Message (_("File '%s' has no font information, using default font\n"),
-				Filename);
+	  Message (_
+		   ("File '%s' has no font information, using default font\n"),
+		   Filename);
 	  CreateDefaultFont ();
 	}
 
@@ -330,17 +332,17 @@ LoadPCB (char *Filename)
 
 #ifdef FIXME
       if (units_mm != Settings.grid_units_mm)
-        gui_config_handle_units_changed();
+	gui_config_handle_units_changed ();
 #endif
       Settings.grid_units_mm = units_mm;
 
-      sort_netlist();
+      sort_netlist ();
 
-      hid_action("PCBChanged");
-	
+      hid_action ("PCBChanged");
+
       return (0);
     }
-  hid_action("PCBChanged");
+  hid_action ("PCBChanged");
 
   /* release unused memory */
   RemovePCB (newPCB);
@@ -409,7 +411,7 @@ WritePCBDataHeader (FILE * FP)
   /* FIXME: This shouldn't know about .f, but we don't have a string
      converter for it yet.  */
   fprintf (FP, "Flags(0x%016x)\n", (int) PCB->Flags.f);
-  fprintf(FP, "Groups(\"%s\")\n", LayerGroupsToString(&PCB->LayerGroups));
+  fprintf (FP, "Groups(\"%s\")\n", LayerGroupsToString (&PCB->LayerGroups));
   fputs ("Styles[\"", FP);
   for (group = 0; group < NUM_STYLES - 1; group++)
     fprintf (FP, "%s,%i,%i,%i,%i:", PCB->RouteStyle[group].Name,
@@ -467,7 +469,7 @@ WriteViaData (FILE * FP, DataTypePtr Data)
 	       via->X, via->Y,
 	       via->Thickness, via->Clearance, via->Mask, via->DrillingHole);
       PrintQuotedString (FP, EMPTY (via->Name));
-      fprintf (FP, " %s]\n", F2S(via, VIA_TYPE));
+      fprintf (FP, " %s]\n", F2S (via, VIA_TYPE));
     }
 }
 
@@ -486,7 +488,7 @@ WritePCBRatData (FILE * FP)
 	       (int) line->Point1.X, (int) line->Point1.Y,
 	       (int) line->group1, (int) line->Point2.X,
 	       (int) line->Point2.Y, (int) line->group2);
-      fprintf (FP, " %s]\n", F2S(line, RATLINE_TYPE));
+      fprintf (FP, " %s]\n", F2S (line, RATLINE_TYPE));
     }
 }
 
@@ -535,7 +537,7 @@ WriteElementData (FILE * FP, DataTypePtr Data)
       /* the coordinates and text-flags are the same for
        * both names of an element
        */
-      fprintf (FP, "\nElement[%s ", F2S(element, ELEMENT_TYPE));
+      fprintf (FP, "\nElement[%s ", F2S (element, ELEMENT_TYPE));
       PrintQuotedString (FP, EMPTY (DESCRIPTION_NAME (element)));
       fputc (' ', FP);
       PrintQuotedString (FP, EMPTY (NAMEONPCB_NAME (element)));
@@ -549,7 +551,7 @@ WriteElementData (FILE * FP, DataTypePtr Data)
 		      element->MarkY),
 	       (int) DESCRIPTION_TEXT (element).Direction,
 	       (int) DESCRIPTION_TEXT (element).Scale,
-	       F2S(&(DESCRIPTION_TEXT (element)), ELEMENTNAME_TYPE));
+	       F2S (&(DESCRIPTION_TEXT (element)), ELEMENTNAME_TYPE));
       for (p = 0; p < element->PinN; p++)
 	{
 	  PinTypePtr pin = &element->Pin[p];
@@ -561,7 +563,7 @@ WriteElementData (FILE * FP, DataTypePtr Data)
 	  PrintQuotedString (FP, EMPTY (pin->Name));
 	  fprintf (FP, " ");
 	  PrintQuotedString (FP, EMPTY (pin->Number));
-	  fprintf (FP, " %s]\n", F2S(pin, PIN_TYPE));
+	  fprintf (FP, " %s]\n", F2S (pin, PIN_TYPE));
 	}
       for (p = 0; p < element->PadN; p++)
 	{
@@ -576,22 +578,22 @@ WriteElementData (FILE * FP, DataTypePtr Data)
 	  PrintQuotedString (FP, EMPTY (pad->Name));
 	  fprintf (FP, " ");
 	  PrintQuotedString (FP, EMPTY (pad->Number));
-	  fprintf (FP, " %s]\n", F2S(pad, PAD_TYPE));
+	  fprintf (FP, " %s]\n", F2S (pad, PAD_TYPE));
 	}
       for (p = 0; p < element->LineN; p++)
-      {
-	LineTypePtr line = &element->Line[p];
-	fprintf (FP,
-		 "\tElementLine [%i %i %i %i %i]\n",
-		 (int) (line->Point1.X -
-			element->MarkX),
-		 (int) (line->Point1.Y -
-			element->MarkY),
-		 (int) (line->Point2.X -
-			element->MarkX),
-		 (int) (line->Point2.Y -
-			element->MarkY), (int) line->Thickness);
-      }
+	{
+	  LineTypePtr line = &element->Line[p];
+	  fprintf (FP,
+		   "\tElementLine [%i %i %i %i %i]\n",
+		   (int) (line->Point1.X -
+			  element->MarkX),
+		   (int) (line->Point1.Y -
+			  element->MarkY),
+		   (int) (line->Point2.X -
+			  element->MarkX),
+		   (int) (line->Point2.Y -
+			  element->MarkY), (int) line->Thickness);
+	}
       for (p = 0; p < element->ArcN; p++)
 	{
 	  ArcTypePtr arc = &element->Arc[p];
@@ -629,7 +631,7 @@ WriteLayerData (FILE * FP, Cardinal Number, LayerTypePtr layer)
 		   (int) line->Point1.X, (int) line->Point1.Y,
 		   (int) line->Point2.X, (int) line->Point2.Y,
 		   (int) line->Thickness, (int) line->Clearance,
-		   F2S(line, LINE_TYPE));
+		   F2S (line, LINE_TYPE));
 	}
       for (n = 0; n < layer->ArcN; n++)
 	{
@@ -638,7 +640,7 @@ WriteLayerData (FILE * FP, Cardinal Number, LayerTypePtr layer)
 		   (int) arc->X, (int) arc->Y, (int) arc->Width,
 		   (int) arc->Height, (int) arc->Thickness,
 		   (int) arc->Clearance, (int) arc->StartAngle,
-		   (int) arc->Delta, F2S(arc, ARC_TYPE));
+		   (int) arc->Delta, F2S (arc, ARC_TYPE));
 	}
       for (n = 0; n < layer->TextN; n++)
 	{
@@ -647,13 +649,13 @@ WriteLayerData (FILE * FP, Cardinal Number, LayerTypePtr layer)
 		   (int) text->X, (int) text->Y,
 		   (int) text->Direction, (int) text->Scale);
 	  PrintQuotedString (FP, EMPTY (text->TextString));
-	  fprintf (FP, " %s]\n", F2S(text, TEXT_TYPE));
+	  fprintf (FP, " %s]\n", F2S (text, TEXT_TYPE));
 	}
       for (n = 0; n < layer->PolygonN; n++)
 	{
 	  PolygonTypePtr polygon = &layer->Polygon[n];
 	  int p, i = 0;
-	  fprintf (FP, "\tPolygon(%s)\n\t(", F2S(polygon, POLYGON_TYPE));
+	  fprintf (FP, "\tPolygon(%s)\n\t(", F2S (polygon, POLYGON_TYPE));
 	  for (p = 0; p < polygon->PointN; p++)
 	    {
 	      PointTypePtr point = &polygon->Points[p];
@@ -751,7 +753,7 @@ WritePipe (char *Filename, Boolean thePcb)
     }
   DSAddCharacter (&command, '\0');
 
-  printf("write to pipe \"%s\"\n", command.Data);
+  printf ("write to pipe \"%s\"\n", command.Data);
   if ((fp = popen (command.Data, "w")) == NULL)
     {
       PopenErrorMessage (command.Data);
@@ -839,9 +841,10 @@ RemoveTMPData (void)
  * parse the directory tree where additional library elements are found
  */
 
-static char *pcb_basename (char *p)
+static char *
+pcb_basename (char *p)
 {
-  char *rv = strrchr(p, '/');
+  char *rv = strrchr (p, '/');
   if (rv)
     return rv + 1;
   return p;
@@ -907,7 +910,7 @@ ParseLibraryTree (void)
 	      menu = GetLibraryMenuMemory (&Library);
 	      menu->Name = MyStrdup (direntry->d_name, "ParseLibraryTree()");
 	      /* FIXME ? */
-	      menu->directory = strdup(pcb_basename(path));
+	      menu->directory = strdup (pcb_basename (path));
 	      subdir = opendir (direntry->d_name);
 	      chdir (direntry->d_name);
 	      while (subdir && (e2 = readdir (subdir)))
@@ -917,8 +920,8 @@ ParseLibraryTree (void)
 		      && NSTRCMP (e2->d_name, "CVS") != 0
 		      && NSTRCMP (e2->d_name, "Makefile") != 0
 		      && NSTRCMP (e2->d_name, "Makefile.am") != 0
-		      && NSTRCMP (e2->d_name, "Makefile.in") != 0 )
-		{
+		      && NSTRCMP (e2->d_name, "Makefile.in") != 0)
+		    {
 		      long len = strlen (path) + strlen (e2->d_name) +
 			strlen (direntry->d_name) + 3;
 #if 0
@@ -957,12 +960,12 @@ ParseLibraryTree (void)
  */
 int
 ReadLibraryContents (void)
-	{
-	static char		*command = NULL;
-	char				inputline[MAX_LIBRARY_LINE_LENGTH + 1];
-	FILE				*resultFP = NULL;
-	LibraryMenuTypePtr	menu = NULL;
-	LibraryEntryTypePtr	entry;
+{
+  static char *command = NULL;
+  char inputline[MAX_LIBRARY_LINE_LENGTH + 1];
+  FILE *resultFP = NULL;
+  LibraryMenuTypePtr menu = NULL;
+  LibraryEntryTypePtr entry;
 
   MyFree (&command);
   command = EvaluateFilename (Settings.LibraryContentsCommand,
@@ -1000,8 +1003,8 @@ ReadLibraryContents (void)
 	{
 	  menu = GetLibraryMenuMemory (&Library);
 	  menu->Name = MyStrdup (UNKNOWN (&inputline[5]),
-			"ReadLibraryDescription()");
-	  menu->directory = strdup(Settings.LibraryFilename);
+				 "ReadLibraryDescription()");
+	  menu->directory = strdup (Settings.LibraryFilename);
 	}
       else
 	{
@@ -1011,7 +1014,7 @@ ReadLibraryContents (void)
 	      menu = GetLibraryMenuMemory (&Library);
 	      menu->Name = MyStrdup (UNKNOWN ((char *) NULL),
 				     "ReadLibraryDescription()");
-	      menu->directory = strdup(Settings.LibraryFilename);
+	      menu->directory = strdup (Settings.LibraryFilename);
 	    }
 	  entry = GetLibraryEntryMemory (menu);
 	  entry->AllocatedMemory = MyStrdup (inputline,
@@ -1036,11 +1039,11 @@ ReadLibraryContents (void)
     }
   ParseLibraryTree ();
   if (resultFP)
-		{
-		  sort_library(&Library);
-		pclose(resultFP);
-		return 0;
-		}
+    {
+      sort_library (&Library);
+      pclose (resultFP);
+      return 0;
+    }
   return (1);
 }
 
@@ -1089,7 +1092,7 @@ ReadNetlist (char *filename)
 	{
 	  if (inputline[--len] != '\n')
 	    Message (_("Line length (%i) exceeded in netlist file.\n"
-		     "additional characters will be ignored.\n"),
+		       "additional characters will be ignored.\n"),
 		     MAX_NETLIST_LINE_LENGTH);
 	  else
 	    inputline[len] = '\0';
@@ -1146,6 +1149,6 @@ ReadNetlist (char *filename)
       return (1);
     }
   pclose (fp);
-  sort_netlist();
+  sort_netlist ();
   return (0);
 }

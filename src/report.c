@@ -44,7 +44,7 @@
 #include "mymem.h"
 #include "strflags.h"
 
-RCSID("$Id$");
+RCSID ("$Id$");
 
 
 
@@ -67,9 +67,9 @@ ReportDrills (int argc, char **argv, int x, int y)
 
   stringlist = malloc (512L + AllDrills->DrillN * 64L);
 
-    /* Use tabs for formatting since can't count on a fixed font anymore.
-    |  And even that probably isn't going to work in all cases.
-    */
+  /* Use tabs for formatting since can't count on a fixed font anymore.
+     |  And even that probably isn't going to work in all cases.
+   */
   sprintf (stringlist,
 	   "There are %d different drill sizes used in this layout, %d holes total\n\n"
 	   "Drill Diam. (mils)\t# of Pins\t# of Vias\t# of Elements\t# Unplated\n",
@@ -90,7 +90,7 @@ ReportDrills (int argc, char **argv, int x, int y)
     }
   FreeDrillInfo (AllDrills);
   /* create dialog box */
-  gui->report_dialog("Drill Report", stringlist);
+  gui->report_dialog ("Drill Report", stringlist);
 
   SaveFree (stringlist);
   return 0;
@@ -103,14 +103,13 @@ ReportDialog (int argc, char **argv, int x, int y)
   int type;
   char report[2048];
 
-  switch (type = SearchScreen (x, y,
-			       REPORT_TYPES, &ptr1, &ptr2, &ptr3))
+  switch (type = SearchScreen (x, y, REPORT_TYPES, &ptr1, &ptr2, &ptr3))
     {
     case VIA_TYPE:
       {
 #ifdef FIXME
 #ifndef NDEBUG
-	if (gui_shift_is_pressed())
+	if (gui_shift_is_pressed ())
 	  {
 	    __r_dump_tree (PCB->Data->via_tree->root, 0);
 	    return 0;
@@ -123,9 +122,11 @@ ReportDialog (int argc, char **argv, int x, int y)
 		   "(X,Y) = (%d, %d)\n"
 		   "It is a pure hole of diameter %0.2f mils\n"
 		   "Name = \"%s\""
-		   "%s", via->ID, flags_to_string (via->Flags, VIA_TYPE), via->X,
-		   via->Y, via->DrillingHole / 100.0, EMPTY (via->Name),
-		   TEST_FLAG (LOCKFLAG, via) ? "It is LOCKED\n" : "");
+		   "%s", via->ID, flags_to_string (via->Flags, VIA_TYPE),
+		   via->X, via->Y, via->DrillingHole / 100.0,
+		   EMPTY (via->Name), TEST_FLAG (LOCKFLAG,
+						 via) ? "It is LOCKED\n" :
+		   "");
 	else
 	  sprintf (&report[0], "VIA ID# %ld   Flags:%s\n"
 		   "(X,Y) = (%d, %d)\n"
@@ -133,10 +134,11 @@ ReportDialog (int argc, char **argv, int x, int y)
 		   "Clearance width in polygons = %0.2f mils\n"
 		   "Solder mask hole = %0.2f mils\n"
 		   "Name = \"%s\""
-		   "%s", via->ID, flags_to_string (via->Flags, VIA_TYPE), via->X,
-		   via->Y, via->Thickness / 100., via->DrillingHole / 100.,
-		   via->Clearance / 200., via->Mask / 100.,
-		   EMPTY (via->Name), TEST_FLAG (LOCKFLAG, via) ?
+		   "%s", via->ID, flags_to_string (via->Flags, VIA_TYPE),
+		   via->X, via->Y, via->Thickness / 100.,
+		   via->DrillingHole / 100., via->Clearance / 200.,
+		   via->Mask / 100., EMPTY (via->Name), TEST_FLAG (LOCKFLAG,
+								   via) ?
 		   "It is LOCKED\n" : "");
 	break;
       }
@@ -144,7 +146,7 @@ ReportDialog (int argc, char **argv, int x, int y)
       {
 #ifdef FIXME
 #ifndef NDEBUG
-	if (gui_shift_is_pressed())
+	if (gui_shift_is_pressed ())
 	  {
 	    __r_dump_tree (PCB->Data->pin_tree->root, 0);
 	    return 0;
@@ -189,7 +191,7 @@ ReportDialog (int argc, char **argv, int x, int y)
       {
 #ifdef FIXME
 #ifndef NDEBUG
-	if (gui_shift_is_pressed())
+	if (gui_shift_is_pressed ())
 	  {
 	    LayerTypePtr layer = (LayerTypePtr) ptr1;
 	    __r_dump_tree (layer->line_tree->root, 0);
@@ -220,7 +222,7 @@ ReportDialog (int argc, char **argv, int x, int y)
       {
 #ifdef FIXME
 #ifndef NDEBUG
-	if (gui_shift_is_pressed())
+	if (gui_shift_is_pressed ())
 	  {
 	    __r_dump_tree (PCB->Data->rat_tree->root, 0);
 	    return 0;
@@ -244,7 +246,7 @@ ReportDialog (int argc, char **argv, int x, int y)
       {
 #ifdef FIXME
 #ifndef NDEBUG
-	if (gui_shift_is_pressed())
+	if (gui_shift_is_pressed ())
 	  {
 	    LayerTypePtr layer = (LayerTypePtr) ptr1;
 	    __r_dump_tree (layer->arc_tree->root, 0);
@@ -292,10 +294,10 @@ ReportDialog (int argc, char **argv, int x, int y)
 		 "without using more memory.\n"
 		 "It resides on layer %d\n"
 		 "%s", Polygon->ID,
-		 flags_to_string (Polygon->Flags, POLYGON_TYPE), Polygon->BoundingBox.X1,
-		 Polygon->BoundingBox.Y1, Polygon->BoundingBox.X2,
-		 Polygon->BoundingBox.Y2, Polygon->PointN,
-		 Polygon->PointMax - Polygon->PointN,
+		 flags_to_string (Polygon->Flags, POLYGON_TYPE),
+		 Polygon->BoundingBox.X1, Polygon->BoundingBox.Y1,
+		 Polygon->BoundingBox.X2, Polygon->BoundingBox.Y2,
+		 Polygon->PointN, Polygon->PointMax - Polygon->PointN,
 		 GetLayerNumber (PCB->Data, (LayerTypePtr) ptr1),
 		 TEST_FLAG (LOCKFLAG, Polygon) ? "It is LOCKED\n" : "");
 	break;
@@ -304,7 +306,7 @@ ReportDialog (int argc, char **argv, int x, int y)
       {
 #ifdef FIXME
 #ifndef NDEBUG
-	if (gui_shift_is_pressed())
+	if (gui_shift_is_pressed ())
 	  {
 	    __r_dump_tree (PCB->Data->pad_tree->root, 0);
 	    return 0;
@@ -346,7 +348,7 @@ ReportDialog (int argc, char **argv, int x, int y)
       {
 #ifdef FIXME
 #ifndef NDEBUG
-	if (gui_shift_is_pressed())
+	if (gui_shift_is_pressed ())
 	  {
 	    __r_dump_tree (PCB->Data->element_tree->root, 0);
 	    return 0;
@@ -382,7 +384,7 @@ ReportDialog (int argc, char **argv, int x, int y)
     case TEXT_TYPE:
 #ifdef FIXME
 #ifndef NDEBUG
-      if (gui_shift_is_pressed())
+      if (gui_shift_is_pressed ())
 	{
 	  LayerTypePtr layer = (LayerTypePtr) ptr1;
 	  __r_dump_tree (layer->text_tree->root, 0);
@@ -394,7 +396,7 @@ ReportDialog (int argc, char **argv, int x, int y)
       {
 #ifdef FIXME
 #ifndef NDEBUG
-	if (gui_shift_is_pressed())
+	if (gui_shift_is_pressed ())
 	  {
 	    __r_dump_tree (PCB->Data->name_tree[NAME_INDEX (PCB)]->root, 0);
 	    return 0;
@@ -451,7 +453,7 @@ ReportDialog (int argc, char **argv, int x, int y)
     }
   HideCrosshair (False);
   /* create dialog box */
-  gui->report_dialog("Report", &report[0]);
+  gui->report_dialog ("Report", &report[0]);
 
   RestoreCrosshair (False);
   return 0;
@@ -495,7 +497,7 @@ ReportFoundPins (int argc, char **argv, int x, int y)
   END_LOOP;
 
   HideCrosshair (False);
-  gui->report_dialog("Report", list.Data);
+  gui->report_dialog ("Report", list.Data);
   RestoreCrosshair (False);
   return 0;
 }
@@ -509,23 +511,24 @@ Report (int argc, char **argv, int x, int y)
 {
   if (argc != 1)
     Message ("Usage: Report(Object|DrillReport|FoundPins)\n");
-  else if (strcasecmp(argv[0], "Object") == 0)
+  else if (strcasecmp (argv[0], "Object") == 0)
     {
-      gui->get_coords("Click on an object", &x, &y);
-      return ReportDialog (argc-1, argv+1, x, y);
+      gui->get_coords ("Click on an object", &x, &y);
+      return ReportDialog (argc - 1, argv + 1, x, y);
     }
-  else if (strcasecmp(argv[0], "DrillReport") == 0)
-    return ReportDrills (argc-1, argv+1, x, y);
-  else if (strcasecmp(argv[0], "FoundPins") == 0)
-    return ReportFoundPins (argc-1, argv+1, x, y);
+  else if (strcasecmp (argv[0], "DrillReport") == 0)
+    return ReportDrills (argc - 1, argv + 1, x, y);
+  else if (strcasecmp (argv[0], "FoundPins") == 0)
+    return ReportFoundPins (argc - 1, argv + 1, x, y);
   else
     Message ("Usage: Report(Object|DrillReport|FoundPins)\n");
   return 1;
 }
 
 HID_Action report_action_list[] = {
-  { "ReportObject", 1, "Click on an object", ReportDialog },
-  { "Report", 0, 0, Report }
+  {"ReportObject", 1, "Click on an object", ReportDialog}
+  ,
+  {"Report", 0, 0, Report}
 };
-REGISTER_ACTIONS(report_action_list);
 
+REGISTER_ACTIONS (report_action_list);

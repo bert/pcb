@@ -25,8 +25,7 @@
 #ifndef __VENDOR_H__
 #define __VENDOR_H__
 
-int vendorDrillMap(int);
-Boolean vendorIsElementMappable(ElementTypePtr);
+int vendorDrillMap (int);
+Boolean vendorIsElementMappable (ElementTypePtr);
 
 #endif /* __VENDOR_H__ */
-

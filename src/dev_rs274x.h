@@ -40,6 +40,6 @@
 
 #include "global.h"
 
-PrintDeviceTypePtr	GBX_Queryh(void);
+PrintDeviceTypePtr GBX_Queryh (void);
 
 #endif

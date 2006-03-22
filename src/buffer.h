@@ -36,21 +36,21 @@
 /* ---------------------------------------------------------------------------
  * prototypes
  */
-void	SetBufferBoundingBox(BufferTypePtr);
-void	ClearBuffer(BufferTypePtr);
-void	AddSelectedToBuffer(BufferTypePtr, LocationType, LocationType, Boolean);
-Boolean	LoadElementToBuffer(BufferTypePtr, char *, Boolean);
-Boolean	ConvertBufferToElement(BufferTypePtr);
-Boolean	SmashBufferElement(BufferTypePtr);
-Boolean	LoadLayoutToBuffer(BufferTypePtr, char *);
-void	RotateBuffer(BufferTypePtr, BYTE);
-void	SelectPasteBuffer(int);
-void	SwapBuffers(void);
-void	MirrorBuffer(BufferTypePtr);
-void	InitBuffers(void);
-void	*MoveObjectToBuffer(DataTypePtr, DataTypePtr, int,
-			void *, void *, void *);
-void	*CopyObjectToBuffer(DataTypePtr, DataTypePtr, int,
-			void *, void *, void *);
+void SetBufferBoundingBox (BufferTypePtr);
+void ClearBuffer (BufferTypePtr);
+void AddSelectedToBuffer (BufferTypePtr, LocationType, LocationType, Boolean);
+Boolean LoadElementToBuffer (BufferTypePtr, char *, Boolean);
+Boolean ConvertBufferToElement (BufferTypePtr);
+Boolean SmashBufferElement (BufferTypePtr);
+Boolean LoadLayoutToBuffer (BufferTypePtr, char *);
+void RotateBuffer (BufferTypePtr, BYTE);
+void SelectPasteBuffer (int);
+void SwapBuffers (void);
+void MirrorBuffer (BufferTypePtr);
+void InitBuffers (void);
+void *MoveObjectToBuffer (DataTypePtr, DataTypePtr, int,
+			  void *, void *, void *);
+void *CopyObjectToBuffer (DataTypePtr, DataTypePtr, int,
+			  void *, void *, void *);
 
 #endif

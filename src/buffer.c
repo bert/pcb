@@ -56,7 +56,7 @@
 #include "select.h"
 #include "set.h"
 
-RCSID("$Id$");
+RCSID ("$Id$");
 
 /* ---------------------------------------------------------------------------
  * some local prototypes
@@ -115,7 +115,7 @@ AddViaToBuffer (PinTypePtr Via)
 {
   return (CreateNewVia (Dest, Via->X, Via->Y, Via->Thickness, Via->Clearance,
 			Via->Mask, Via->DrillingHole, Via->Name,
-			MaskFlags(Via->Flags, FOUNDFLAG | ExtraFlag)));
+			MaskFlags (Via->Flags, FOUNDFLAG | ExtraFlag)));
 }
 
 /* ---------------------------------------------------------------------------
@@ -127,7 +127,7 @@ AddRatToBuffer (RatTypePtr Rat)
   return (CreateNewRat (Dest, Rat->Point1.X, Rat->Point1.Y,
 			Rat->Point2.X, Rat->Point2.Y, Rat->group1,
 			Rat->group2, Rat->Thickness,
-			MaskFlags(Rat->Flags, FOUNDFLAG | ExtraFlag)));
+			MaskFlags (Rat->Flags, FOUNDFLAG | ExtraFlag)));
 }
 
 /* ---------------------------------------------------------------------------
@@ -142,7 +142,8 @@ AddLineToBuffer (LayerTypePtr Layer, LineTypePtr Line)
   line = CreateNewLineOnLayer (layer, Line->Point1.X, Line->Point1.Y,
 			       Line->Point2.X, Line->Point2.Y,
 			       Line->Thickness, Line->Clearance,
-			       MaskFlags(Line->Flags, FOUNDFLAG | ExtraFlag));
+			       MaskFlags (Line->Flags,
+					  FOUNDFLAG | ExtraFlag));
   if (line && Line->Number)
     line->Number = MyStrdup (Line->Number, "AddLineToBuffer");
   return (line);
@@ -159,7 +160,8 @@ AddArcToBuffer (LayerTypePtr Layer, ArcTypePtr Arc)
   return (CreateNewArcOnLayer (layer, Arc->X, Arc->Y,
 			       Arc->Width, Arc->StartAngle, Arc->Delta,
 			       Arc->Thickness, Arc->Clearance,
-			       MaskFlags(Arc->Flags, FOUNDFLAG | ExtraFlag)));
+			       MaskFlags (Arc->Flags,
+					  FOUNDFLAG | ExtraFlag)));
 }
 
 /* ---------------------------------------------------------------------------
@@ -172,7 +174,7 @@ AddTextToBuffer (LayerTypePtr Layer, TextTypePtr Text)
 
   return (CreateNewText (layer, &PCB->Font, Text->X, Text->Y,
 			 Text->Direction, Text->Scale, Text->TextString,
-			 MaskFlags(Text->Flags, ExtraFlag)));
+			 MaskFlags (Text->Flags, ExtraFlag)));
 }
 
 /* ---------------------------------------------------------------------------
@@ -413,10 +415,10 @@ MoveElementToBuffer (ElementTypePtr Element)
   r_substitute (Source->element_tree,
 		(BoxType *) & Source->Element[Source->ElementN],
 		(BoxType *) Element);
-  for (i=0; i<MAX_ELEMENTNAMES; i++)
+  for (i = 0; i < MAX_ELEMENTNAMES; i++)
     r_substitute (Source->name_tree[i],
 		  (BoxType *) & Source->Element[Source->ElementN].Name[i],
-		  (BoxType *) &Element->Name[i]);
+		  (BoxType *) & Element->Name[i]);
 
   PIN_LOOP (Element);
   {
@@ -599,7 +601,7 @@ SmashBufferElement (BufferTypePtr Buffer)
     CreateNewLineOnLayer (&Buffer->Data->SILKLAYER,
 			  line->Point1.X, line->Point1.Y,
 			  line->Point2.X, line->Point2.Y,
-			  line->Thickness, 0, NoFlags());
+			  line->Thickness, 0, NoFlags ());
     if (line)
       line->Number = MyStrdup (NAMEONPCB_NAME (element), "SmashBuffer");
   }
@@ -608,7 +610,7 @@ SmashBufferElement (BufferTypePtr Buffer)
   {
     CreateNewArcOnLayer (&Buffer->Data->SILKLAYER,
 			 arc->X, arc->Y, arc->Width, arc->StartAngle,
-			 arc->Delta, arc->Thickness, 0, NoFlags());
+			 arc->Delta, arc->Thickness, 0, NoFlags ());
   }
   END_LOOP;
   PIN_LOOP (element);
@@ -616,7 +618,7 @@ SmashBufferElement (BufferTypePtr Buffer)
     CreateNewVia (Buffer->Data, pin->X, pin->Y,
 		  pin->Thickness, pin->Clearance, pin->Mask,
 		  pin->DrillingHole, pin->Number,
-		  AddFlags(pin->Flags, HOLEFLAG));
+		  AddFlags (pin->Flags, HOLEFLAG));
   }
   END_LOOP;
   group =
@@ -629,7 +631,7 @@ SmashBufferElement (BufferTypePtr Buffer)
     LineTypePtr line;
     line = CreateNewLineOnLayer (layer, pad->Point1.X, pad->Point1.Y,
 				 pad->Point2.X, pad->Point2.Y,
-				 pad->Thickness, pad->Clearance, NoFlags());
+				 pad->Thickness, pad->Clearance, NoFlags ());
     if (line)
       line->Number = MyStrdup (pad->Number, "SmashBuffer");
   }
@@ -651,31 +653,32 @@ ConvertBufferToElement (BufferTypePtr Buffer)
   Cardinal pin_n = 1;
   Boolean hasParts = False;
 
-  Element = CreateNewElement (PCB->Data, NULL, &PCB->Font, NoFlags(),
+  Element = CreateNewElement (PCB->Data, NULL, &PCB->Font, NoFlags (),
 			      NULL, NULL, NULL, PASTEBUFFER->X,
 			      PASTEBUFFER->Y, 0, 100,
-			      MakeFlags(SWAP_IDENT ? ONSOLDERFLAG : NOFLAG), False);
+			      MakeFlags (SWAP_IDENT ? ONSOLDERFLAG : NOFLAG),
+			      False);
   if (!Element)
     return (False);
   VIA_LOOP (Buffer->Data);
   {
     char num[8];
     if (via->Mask < via->Thickness)
-      via->Mask = via->Thickness + 2 * MASKFRAME * 100;  /* MASKFRAME is in mils */
+      via->Mask = via->Thickness + 2 * MASKFRAME * 100;	/* MASKFRAME is in mils */
     if (via->Name)
       CreateNewPin (Element, via->X, via->Y, via->Thickness,
 		    via->Clearance, via->Mask, via->DrillingHole,
 		    NULL, via->Name, MaskFlags (via->Flags,
-				      VIAFLAG | FOUNDFLAG |
-					SELECTEDFLAG | WARNFLAG));
+						VIAFLAG | FOUNDFLAG |
+						SELECTEDFLAG | WARNFLAG));
     else
       {
 	sprintf (num, "%d", pin_n++);
 	CreateNewPin (Element, via->X, via->Y, via->Thickness,
 		      via->Clearance, via->Mask, via->DrillingHole,
-		      NULL, num, MaskFlags(via->Flags,
-					   VIAFLAG | FOUNDFLAG | SELECTEDFLAG
-					   | WARNFLAG));
+		      NULL, num, MaskFlags (via->Flags,
+					    VIAFLAG | FOUNDFLAG | SELECTEDFLAG
+					    | WARNFLAG));
       }
     hasParts = True;
   }
@@ -701,7 +704,7 @@ ConvertBufferToElement (BufferTypePtr Buffer)
 			line->Clearance,
 			line->Thickness + line->Clearance, NULL,
 			line->Number ? line->Number : num,
-			MakeFlags(SWAP_IDENT ? ONSOLDERFLAG : NOFLAG));
+			MakeFlags (SWAP_IDENT ? ONSOLDERFLAG : NOFLAG));
 	  hasParts = True;
 	}
     }
@@ -730,14 +733,14 @@ ConvertBufferToElement (BufferTypePtr Buffer)
 			line->Clearance,
 			line->Thickness + line->Clearance, NULL,
 			line->Number ? line->Number : num,
-			MakeFlags(SWAP_IDENT ? NOFLAG : ONSOLDERFLAG));
+			MakeFlags (SWAP_IDENT ? NOFLAG : ONSOLDERFLAG));
 	  if (!hasParts && !warned)
 	    {
 	      warned = True;
 	      Message
 		(_("Warning: All of the pads are on the opposite\n"
-		 "side from the component - that's probably not what\n"
-		 "you wanted\n"));
+		   "side from the component - that's probably not what\n"
+		   "you wanted\n"));
 	    }
 	  hasParts = True;
 	}
@@ -767,7 +770,7 @@ ConvertBufferToElement (BufferTypePtr Buffer)
     {
       DestroyObject (PCB->Data, ELEMENT_TYPE, Element, Element, Element);
       Message (_("There was nothing to convert!\n"
-	       "Elements must have some pads or pins.\n"));
+		 "Elements must have some pads or pins.\n"));
       return (False);
     }
   Element->MarkX = Buffer->X;

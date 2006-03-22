@@ -39,7 +39,7 @@
  */
 void XDrawCLine (GdkDrawable *, GdkGC *, int, int, int, int);
 void XDrawCArc (GdkDrawable *, GdkGC *, int, int, unsigned int, unsigned int,
-                int, int);
+		int, int);
 void DrawCPolygon (GdkDrawable *, PolygonTypePtr);
 extern LocationType dxo, dyo;
 extern Boolean SwapOutput;

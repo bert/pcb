@@ -40,13 +40,14 @@
 #include <dmalloc.h>
 #endif
 
-RCSID("$Id$");
+RCSID ("$Id$");
 
 #ifndef XtRDouble
 #define XtRDouble "Double"
 #endif
 
-typedef struct hid_gc_struct {
+typedef struct hid_gc_struct
+{
   HID *me_pointer;
   Pixel color;
   char *colorname;
@@ -77,23 +78,25 @@ static Pixmap mask_pixmap = 0;
 static Pixmap mask_bitmap = 0;
 static int use_mask = 0;
 
-static int pixmap_w=0, pixmap_h=0;
+static int pixmap_w = 0, pixmap_h = 0;
 Screen *screen_s;
 int screen;
 static Colormap colormap;
-static GC my_gc = 0, bg_gc, clip_gc=0, bset_gc=0, bclear_gc=0, mask_gc=0;
+static GC my_gc = 0, bg_gc, clip_gc = 0, bset_gc = 0, bclear_gc = 0, mask_gc =
+  0;
 static Pixel bgcolor, offlimit_color, grid_color;
 static int bgred, bggreen, bgblue;
 
 /* These are for the pinout windows. */
-typedef struct PinoutData {
+typedef struct PinoutData
+{
   struct PinoutData *prev, *next;
   Widget form;
   Window window;
-  int left, right, top, bottom; /* PCB extents of item */
-  int x, y; /* PCB coordinates of upper right corner of window*/
-  double zoom; /* PCB units per screen pixel */
-  int v_width, v_height; /* pixels */
+  int left, right, top, bottom;	/* PCB extents of item */
+  int x, y;			/* PCB coordinates of upper right corner of window */
+  double zoom;			/* PCB units per screen pixel */
+  int v_width, v_height;	/* pixels */
   void *item;
 } PinoutData;
 
@@ -102,7 +105,7 @@ static PinoutData *pinouts = 0;
 /* If set, we are currently updating this pinout window.  */
 static PinoutData *pinout = 0;
 
-static int crosshair_x=0, crosshair_y=0;
+static int crosshair_x = 0, crosshair_y = 0;
 static int in_move_event = 0;
 
 Widget work_area, messages, command, hscroll, vscroll;
@@ -115,7 +118,7 @@ static int view_width, view_height;
 /* This is the PCB location represented by the upper left corner of
    the viewport.  Note that PCB coordinates put 0,0 in the upper left,
    much like X does.  */
-static int view_left_x=0, view_top_y=0;
+static int view_left_x = 0, view_top_y = 0;
 /* Denotes PCB units per screen pixel.  Larger numbers mean zooming
    out - the largest value means you are looking at the whole
    board.  */
@@ -124,14 +127,24 @@ static int thindraw = 0;
 static int thindrawpoly = 0;
 static int autofade = 0;
 
-static int flag_thindraw(int x) { return thindraw; }
-static int flag_thindrawpoly(int x) { return thindrawpoly; }
+static int
+flag_thindraw (int x)
+{
+  return thindraw;
+}
+static int
+flag_thindrawpoly (int x)
+{
+  return thindrawpoly;
+}
 
 HID_Flag lesstif_main_flag_list[] = {
-  { "thindraw", flag_thindraw, 0 },
-  { "thindrawpoly", flag_thindrawpoly, 0 }
+  {"thindraw", flag_thindraw, 0}
+  ,
+  {"thindrawpoly", flag_thindrawpoly, 0}
 };
-REGISTER_FLAGS(lesstif_main_flag_list);
+
+REGISTER_FLAGS (lesstif_main_flag_list);
 
 /* This is the size of the current PCB work area.  */
 /* Use PCB->MaxWidth, PCB->MaxHeight.  */
@@ -149,12 +162,13 @@ HID_Attribute lesstif_attribute_list[] = {
 #define HA_colormap 0
 };
 
-REGISTER_ATTRIBUTES(lesstif_attribute_list);
+REGISTER_ATTRIBUTES (lesstif_attribute_list);
 
 static void lesstif_use_mask (int use_it);
 static void zoom_to (double factor, int x, int y);
 static void zoom_by (double factor, int x, int y);
-static void pinout_callback(Widget,PinoutData*,XmDrawingAreaCallbackStruct *);
+static void pinout_callback (Widget, PinoutData *,
+			     XmDrawingAreaCallbackStruct *);
 static void pinout_unmap (Widget, PinoutData *, void *);
 
 /* Px converts view->pcb, Vx converts pcb->view */
@@ -196,37 +210,38 @@ Pz (int z)
 }
 
 void
-lesstif_coords_to_pcb(int vx, int vy, int *px, int *py)
+lesstif_coords_to_pcb (int vx, int vy, int *px, int *py)
 {
-  *px = Px(vx);
-  *py = Py(vy);
+  *px = Px (vx);
+  *py = Py (vy);
 }
 
 Pixel
-lesstif_parse_color(char *value)
+lesstif_parse_color (char *value)
 {
   XColor color;
-  if (XParseColor(display, colormap, value, &color))
-    if (XAllocColor(display, colormap, &color))
+  if (XParseColor (display, colormap, value, &color))
+    if (XAllocColor (display, colormap, &color))
       return color.pixel;
   return 0;
 }
 
 static void
-do_color(char *value, char *which)
+do_color (char *value, char *which)
 {
   XColor color;
-  if (XParseColor(display, colormap, value, &color))
-    if (XAllocColor(display, colormap, &color))
+  if (XParseColor (display, colormap, value, &color))
+    if (XAllocColor (display, colormap, &color))
       {
-	stdarg(which, color.pixel);
+	stdarg (which, color.pixel);
       }
 }
 
 /* ------------------------------------------------------------ */
 
 static char *
-cur_clip () {
+cur_clip ()
+{
   if (TEST_FLAG (ORTHOMOVEFLAG, PCB))
     return "+";
   if (TEST_FLAG (ALLDIRECTIONFLAG, PCB))
@@ -247,33 +262,33 @@ PCBChanged (int argc, char **argv, int x, int y)
 {
   if (work_area == 0)
     return 0;
-  /*printf("PCB Changed! %d x %d\n", PCB->MaxWidth, PCB->MaxHeight);*/
+  /*printf("PCB Changed! %d x %d\n", PCB->MaxWidth, PCB->MaxHeight); */
   n = 0;
-  stdarg(XmNminimum, 0);
-  stdarg(XmNvalue, 0);
-  stdarg(XmNsliderSize, PCB->MaxWidth ? PCB->MaxWidth : 1);
-  stdarg(XmNmaximum, PCB->MaxWidth ? PCB->MaxWidth : 1);
-  XtSetValues(hscroll, args, n);
+  stdarg (XmNminimum, 0);
+  stdarg (XmNvalue, 0);
+  stdarg (XmNsliderSize, PCB->MaxWidth ? PCB->MaxWidth : 1);
+  stdarg (XmNmaximum, PCB->MaxWidth ? PCB->MaxWidth : 1);
+  XtSetValues (hscroll, args, n);
   n = 0;
-  stdarg(XmNminimum, 0);
-  stdarg(XmNvalue, 0);
-  stdarg(XmNsliderSize, PCB->MaxHeight ? PCB->MaxHeight : 1);
-  stdarg(XmNmaximum, PCB->MaxHeight ? PCB->MaxHeight : 1);
-  XtSetValues(vscroll, args, n);
-  zoom_by(1000000, 0, 0);
+  stdarg (XmNminimum, 0);
+  stdarg (XmNvalue, 0);
+  stdarg (XmNsliderSize, PCB->MaxHeight ? PCB->MaxHeight : 1);
+  stdarg (XmNmaximum, PCB->MaxHeight ? PCB->MaxHeight : 1);
+  XtSetValues (vscroll, args, n);
+  zoom_by (1000000, 0, 0);
 
-  hid_action("NetlistChanged");
-  hid_action("LayersChanged");
-  hid_action("RouteStylesChanged");
+  hid_action ("NetlistChanged");
+  hid_action ("LayersChanged");
+  hid_action ("RouteStylesChanged");
   lesstif_sizes_reset ();
   while (pinouts)
-    pinout_unmap(0, pinouts, 0);
+    pinout_unmap (0, pinouts, 0);
   if (PCB->Filename)
     {
-      char *cp = strrchr(PCB->Filename, '/');
+      char *cp = strrchr (PCB->Filename, '/');
       n = 0;
-      stdarg(XmNtitle, cp ? cp+1 : PCB->Filename);
-      XtSetValues(appwidget, args, n);
+      stdarg (XmNtitle, cp ? cp + 1 : PCB->Filename);
+      XtSetValues (appwidget, args, n);
     }
   return 0;
 }
@@ -287,8 +302,8 @@ SetUnits (int argc, char **argv, int x, int y)
     Settings.grid_units_mm = 0;
   if (strcmp (argv[0], "mm") == 0)
     Settings.grid_units_mm = 1;
-  lesstif_sizes_reset();
-  lesstif_styles_update_values();
+  lesstif_sizes_reset ();
+  lesstif_styles_update_values ();
   return 0;
 }
 
@@ -304,31 +319,31 @@ ZoomAction (int argc, char **argv, int x, int y)
     }
   else
     {
-      x = Vx(x);
-      y = Vy(y);
+      x = Vx (x);
+      y = Vy (y);
     }
   if (argc < 1)
     {
-      zoom_to(1000000, 0, 0);
+      zoom_to (1000000, 0, 0);
       return 0;
     }
   vp = argv[0];
   if (*vp == '+' || *vp == '-' || *vp == '=')
     vp++;
-  v = strtod(vp, 0);
+  v = strtod (vp, 0);
   if (v <= 0)
     return 1;
   switch (argv[0][0])
     {
     case '-':
-      zoom_by(1/v, x, y);
+      zoom_by (1 / v, x, y);
       break;
     default:
     case '+':
-      zoom_by(v, x, y);
+      zoom_by (v, x, y);
       break;
     case '=':
-      zoom_to(v, x, y);
+      zoom_to (v, x, y);
       break;
     }
   return 0;
@@ -345,8 +360,8 @@ ThinDraw (int argc, char **argv, int x, int y)
   else
     thindraw = 1;
   lesstif_invalidate_all ();
-  for (pd=pinouts; pd; pd=pd->next)
-    pinout_callback(0, pd, 0);
+  for (pd = pinouts; pd; pd = pd->next)
+    pinout_callback (0, pd, 0);
   return 0;
 }
 
@@ -361,41 +376,43 @@ ThinDrawPoly (int argc, char **argv, int x, int y)
   else
     thindrawpoly = 1;
   lesstif_invalidate_all ();
-  for (pd=pinouts; pd; pd=pd->next)
-    pinout_callback(0, pd, 0);
+  for (pd = pinouts; pd; pd = pd->next)
+    pinout_callback (0, pd, 0);
   return 0;
 }
 
 static int
 SwapSides (int argc, char **argv, int x, int y)
 {
-  int comp_group = GetLayerGroupNumberByNumber(MAX_LAYER+COMPONENT_LAYER);
-  int solder_group = GetLayerGroupNumberByNumber(MAX_LAYER+SOLDER_LAYER);
-  int active_group = GetLayerGroupNumberByNumber(LayerStack[0]);
-  int comp_showing = PCB->Data->Layer[PCB->LayerGroups.Entries[comp_group][0]].On;
-  int solder_showing = PCB->Data->Layer[PCB->LayerGroups.Entries[solder_group][0]].On;
+  int comp_group = GetLayerGroupNumberByNumber (MAX_LAYER + COMPONENT_LAYER);
+  int solder_group = GetLayerGroupNumberByNumber (MAX_LAYER + SOLDER_LAYER);
+  int active_group = GetLayerGroupNumberByNumber (LayerStack[0]);
+  int comp_showing =
+    PCB->Data->Layer[PCB->LayerGroups.Entries[comp_group][0]].On;
+  int solder_showing =
+    PCB->Data->Layer[PCB->LayerGroups.Entries[solder_group][0]].On;
 
-  if (argc && strcasecmp(argv[0], "lr") == 0)
+  if (argc && strcasecmp (argv[0], "lr") == 0)
     ;
   Settings.ShowSolderSide = !Settings.ShowSolderSide;
   if (Settings.ShowSolderSide)
     {
-      if (active_group == comp_group
-	  && comp_showing
-	  && ! solder_showing)
+      if (active_group == comp_group && comp_showing && !solder_showing)
 	{
-	  ChangeGroupVisibility(PCB->LayerGroups.Entries[comp_group][0], 0, 0);
-	  ChangeGroupVisibility(PCB->LayerGroups.Entries[solder_group][0], 1, 1);
+	  ChangeGroupVisibility (PCB->LayerGroups.Entries[comp_group][0], 0,
+				 0);
+	  ChangeGroupVisibility (PCB->LayerGroups.Entries[solder_group][0], 1,
+				 1);
 	}
     }
   else
     {
-      if (active_group == solder_group
-	  && solder_showing
-	  && ! comp_showing)
+      if (active_group == solder_group && solder_showing && !comp_showing)
 	{
-	  ChangeGroupVisibility(PCB->LayerGroups.Entries[solder_group][0], 0, 0);
-	  ChangeGroupVisibility(PCB->LayerGroups.Entries[comp_group][0], 1, 1);
+	  ChangeGroupVisibility (PCB->LayerGroups.Entries[solder_group][0], 0,
+				 0);
+	  ChangeGroupVisibility (PCB->LayerGroups.Entries[comp_group][0], 1,
+				 1);
 	}
     }
   lesstif_invalidate_all ();
@@ -405,15 +422,15 @@ SwapSides (int argc, char **argv, int x, int y)
 static Widget m_cmd = 0, m_cmd_label;
 
 static void
-command_parse(char *s)
+command_parse (char *s)
 {
   int n = 0, ws = 1;
   char *cp;
   char **argv;
 
-  for (cp=s; *cp; cp++)
+  for (cp = s; *cp; cp++)
     {
-      if (isspace(*cp))
+      if (isspace (*cp))
 	ws = 1;
       else
 	{
@@ -423,10 +440,11 @@ command_parse(char *s)
     }
   argv = (char **) malloc ((n + 1) * sizeof (char *));
 
-  n = 0; ws = 1;
-  for (cp=s; *cp; cp++)
+  n = 0;
+  ws = 1;
+  for (cp = s; *cp; cp++)
     {
-      if (isspace(*cp))
+      if (isspace (*cp))
 	{
 	  ws = 1;
 	  *cp = 0;
@@ -439,33 +457,33 @@ command_parse(char *s)
 	}
     }
   argv[n] = 0;
-  lesstif_call_action(argv[0], n-1, argv+1);
+  lesstif_call_action (argv[0], n - 1, argv + 1);
 }
 
 static void
-command_callback(Widget w, XtPointer uptr, XmTextVerifyCallbackStruct *cbs)
+command_callback (Widget w, XtPointer uptr, XmTextVerifyCallbackStruct * cbs)
 {
   char *s;
   switch (cbs->reason)
     {
     case XmCR_ACTIVATE:
-      s = XmTextGetString(w);
-      lesstif_show_crosshair(0);
-      if (strchr(s, '('))
-	hid_parse_actions(s, lesstif_call_action);
+      s = XmTextGetString (w);
+      lesstif_show_crosshair (0);
+      if (strchr (s, '('))
+	hid_parse_actions (s, lesstif_call_action);
       else
-	command_parse(s);
-      XtFree(s);
-      XmTextSetString(w, "");
+	command_parse (s);
+      XtFree (s);
+      XmTextSetString (w, "");
     case XmCR_LOSING_FOCUS:
-      XtUnmanageChild(m_cmd);
-      XtUnmanageChild(m_cmd_label);
+      XtUnmanageChild (m_cmd);
+      XtUnmanageChild (m_cmd_label);
       break;
     }
 }
 
 static void
-command_event_handler(Widget w, XtPointer p, XEvent *e, Boolean *cont)
+command_event_handler (Widget w, XtPointer p, XEvent * e, Boolean * cont)
 {
   char buf[10];
   KeySym sym;
@@ -474,13 +492,13 @@ command_event_handler(Widget w, XtPointer p, XEvent *e, Boolean *cont)
   switch (e->type)
     {
     case KeyPress:
-      slen = XLookupString (e, buf, sizeof(buf), &sym, NULL);
+      slen = XLookupString (e, buf, sizeof (buf), &sym, NULL);
       switch (sym)
 	{
 	case XK_Escape:
-	  XtUnmanageChild(m_cmd);
-	  XtUnmanageChild(m_cmd_label);
-	  XmTextSetString(w, "");
+	  XtUnmanageChild (m_cmd);
+	  XtUnmanageChild (m_cmd_label);
+	  XmTextSetString (w, "");
 	  *cont = False;
 	  break;
 	}
@@ -491,9 +509,9 @@ command_event_handler(Widget w, XtPointer p, XEvent *e, Boolean *cont)
 static int
 Command (int argc, char **argv, int x, int y)
 {
-  XtManageChild(m_cmd_label);
-  XtManageChild(m_cmd);
-  XmProcessTraversal(m_cmd, XmTRAVERSE_CURRENT);
+  XtManageChild (m_cmd_label);
+  XtManageChild (m_cmd);
+  XmProcessTraversal (m_cmd, XmTRAVERSE_CURRENT);
   return 0;
 }
 
@@ -514,34 +532,44 @@ Benchmark (int argc, char **argv, int x, int y)
   region.Y2 = PCB->MaxHeight;
 
   pixmap = window;
-  XSync(display, 0);
+  XSync (display, 0);
   time (&start);
-  do {
-    XFillRectangle(display, pixmap, bg_gc, 0, 0, view_width, view_height);
-    hid_expose_callback(&lesstif_gui, &region, 0);
-    XSync(display, 0);
-    time (&end);
-    i ++;
-  } while (end-start < 10);
+  do
+    {
+      XFillRectangle (display, pixmap, bg_gc, 0, 0, view_width, view_height);
+      hid_expose_callback (&lesstif_gui, &region, 0);
+      XSync (display, 0);
+      time (&end);
+      i++;
+    }
+  while (end - start < 10);
 
-  printf("%g redraws per second\n", i / 10.0);
+  printf ("%g redraws per second\n", i / 10.0);
 
   main_pixmap = save_main;
   return 0;
 }
 
 HID_Action lesstif_main_action_list[] = {
-  { "PCBChanged", 0, 0, PCBChanged },
-  { "SetUnits", 0, 0, SetUnits },
-  { "Zoom", 0, 0, ZoomAction },
-  { "Thindraw", 0, 0, ThinDraw },
-  { "ThindrawPoly", 0, 0, ThinDrawPoly },
-  { "SwapSides", 0, 0, SwapSides },
-  { "Command", 0, 0, Command },
-  { "Benchmark", 0, 0, Benchmark },
+  {"PCBChanged", 0, 0, PCBChanged}
+  ,
+  {"SetUnits", 0, 0, SetUnits}
+  ,
+  {"Zoom", 0, 0, ZoomAction}
+  ,
+  {"Thindraw", 0, 0, ThinDraw}
+  ,
+  {"ThindrawPoly", 0, 0, ThinDrawPoly}
+  ,
+  {"SwapSides", 0, 0, SwapSides}
+  ,
+  {"Command", 0, 0, Command}
+  ,
+  {"Benchmark", 0, 0, Benchmark}
+  ,
 };
 
-REGISTER_ACTIONS(lesstif_main_action_list);
+REGISTER_ACTIONS (lesstif_main_action_list);
 
 /* ---------------------------------------------------------------------- */
 
@@ -558,21 +586,21 @@ set_scroll (Widget s, int pos, int view, int pcb)
   if (sz > pcb)
     sz = pcb;
   n = 0;
-  stdarg(XmNvalue, pos);
-  stdarg(XmNsliderSize, sz);
-  stdarg(XmNincrement, view_zoom);
-  stdarg(XmNpageIncrement, sz);
-  stdarg(XmNmaximum, pcb);
-  XtSetValues(s, args, n);
+  stdarg (XmNvalue, pos);
+  stdarg (XmNsliderSize, sz);
+  stdarg (XmNincrement, view_zoom);
+  stdarg (XmNpageIncrement, sz);
+  stdarg (XmNmaximum, pcb);
+  XtSetValues (s, args, n);
 }
 
 void
 lesstif_pan_fixup ()
 {
-  if (view_left_x > PCB->MaxWidth - (view_width*view_zoom))
-    view_left_x = PCB->MaxWidth - (view_width*view_zoom);
-  if (view_top_y > PCB->MaxHeight - (view_height*view_zoom))
-    view_top_y = PCB->MaxHeight - (view_height*view_zoom);
+  if (view_left_x > PCB->MaxWidth - (view_width * view_zoom))
+    view_left_x = PCB->MaxWidth - (view_width * view_zoom);
+  if (view_top_y > PCB->MaxHeight - (view_height * view_zoom))
+    view_top_y = PCB->MaxHeight - (view_height * view_zoom);
   if (view_left_x < 0)
     view_left_x = 0;
   if (view_top_y < 0)
@@ -580,14 +608,14 @@ lesstif_pan_fixup ()
   if (view_width * view_zoom > PCB->MaxWidth
       && view_height * view_zoom > PCB->MaxHeight)
     {
-      zoom_by(1,0,0);
+      zoom_by (1, 0, 0);
       return;
     }
 
-  set_scroll(hscroll, view_left_x, view_width, PCB->MaxWidth);
-  set_scroll(vscroll, view_top_y, view_height, PCB->MaxHeight);
+  set_scroll (hscroll, view_left_x, view_width, PCB->MaxWidth);
+  set_scroll (vscroll, view_top_y, view_height, PCB->MaxHeight);
 
-  lesstif_invalidate_all();
+  lesstif_invalidate_all ();
 }
 
 static void
@@ -596,8 +624,8 @@ zoom_to (double new_zoom, int x, int y)
   double max_zoom, xfrac, yfrac;
   int cx, cy;
 
-  xfrac = (double)x / (double)view_width;
-  yfrac = (double)y / (double)view_height;
+  xfrac = (double) x / (double) view_width;
+  yfrac = (double) y / (double) view_height;
 
   max_zoom = PCB->MaxWidth / view_width;
   if (max_zoom < PCB->MaxHeight / view_height)
@@ -619,7 +647,7 @@ zoom_to (double new_zoom, int x, int y)
       view_left_x = cx - view_width * xfrac * view_zoom;
       view_top_y = cy - view_height * yfrac * view_zoom;
     }
-  lesstif_pan_fixup();
+  lesstif_pan_fixup ();
 }
 
 void
@@ -640,10 +668,10 @@ Pan (int mode, int x, int y)
   panning = mode;
   if (ctrl_pressed)
     {
-      opx = x * PCB->MaxWidth  / view_width;
+      opx = x * PCB->MaxWidth / view_width;
       opy = y * PCB->MaxHeight / view_height;
-      view_left_x = opx - view_width/2 * view_zoom;
-      view_top_y  = opy - view_height/2 * view_zoom;
+      view_left_x = opx - view_width / 2 * view_zoom;
+      view_top_y = opy - view_height / 2 * view_zoom;
       lesstif_pan_fixup ();
     }
   else if (mode == 1)
@@ -656,15 +684,15 @@ Pan (int mode, int x, int y)
   else
     {
       view_left_x = opx - (x - ox) * view_zoom;
-      view_top_y  = opy - (y - oy) * view_zoom;
+      view_top_y = opy - (y - oy) * view_zoom;
       lesstif_pan_fixup ();
     }
 }
 
 static int
-mod_changed(XKeyEvent *e, int set)
+mod_changed (XKeyEvent * e, int set)
 {
-  switch (XKeycodeToKeysym(display, e->keycode, 0))
+  switch (XKeycodeToKeysym (display, e->keycode, 0))
     {
     case XK_Shift_L:
     case XK_Shift_R:
@@ -678,21 +706,21 @@ mod_changed(XKeyEvent *e, int set)
       return;
     }
   in_move_event = 1;
-  HideCrosshair(1);
+  HideCrosshair (1);
   if (panning)
-    Pan(2, e->x, e->y);
-  EventMoveCrosshair(Px(e->x), Py(e->y));
-  AdjustAttachedObjects();
-  RestoreCrosshair(1);
+    Pan (2, e->x, e->y);
+  EventMoveCrosshair (Px (e->x), Py (e->y));
+  AdjustAttachedObjects ();
+  RestoreCrosshair (1);
   in_move_event = 0;
 }
 
 static void
-work_area_input (Widget w, XtPointer v, XEvent *e, Boolean *ctd)
+work_area_input (Widget w, XtPointer v, XEvent * e, Boolean * ctd)
 {
   static int pressed_button = 0;
   static int ignore_release = 0;
-  show_crosshair(0);
+  show_crosshair (0);
   switch (e->type)
     {
     case KeyPress:
@@ -706,7 +734,7 @@ work_area_input (Widget w, XtPointer v, XEvent *e, Boolean *ctd)
     case ButtonPress:
       if (pressed_button)
 	return;
-      /*printf("click %d\n", e->xbutton.button);*/
+      /*printf("click %d\n", e->xbutton.button); */
       if (lesstif_button_event (w, e))
 	{
 	  ignore_release = 1;
@@ -721,18 +749,18 @@ work_area_input (Widget w, XtPointer v, XEvent *e, Boolean *ctd)
       switch (e->xbutton.button)
 	{
 	case 1:
-	  hid_actionl("Mode", "Notify", 0);
+	  hid_actionl ("Mode", "Notify", 0);
 	  break;
 	case 2:
 	  break;
 	case 3:
-	  Pan(1, e->xbutton.x, e->xbutton.y);
+	  Pan (1, e->xbutton.x, e->xbutton.y);
 	  break;
 	case 4:
-	  zoom_by(0.8, e->xbutton.x, e->xbutton.y);
+	  zoom_by (0.8, e->xbutton.x, e->xbutton.y);
 	  break;
 	case 5:
-	  zoom_by(1.25, e->xbutton.x, e->xbutton.y);
+	  zoom_by (1.25, e->xbutton.x, e->xbutton.y);
 	  break;
 	}
       RestoreCrosshair (True);
@@ -742,16 +770,16 @@ work_area_input (Widget w, XtPointer v, XEvent *e, Boolean *ctd)
 	return;
       HideCrosshair (True);
       pressed_button = 0;
-      /*printf("release %d\n", e->xbutton.button);*/
+      /*printf("release %d\n", e->xbutton.button); */
       switch (e->xbutton.button)
 	{
 	case 1:
-	  hid_actionl("Mode", "Release", 0);
+	  hid_actionl ("Mode", "Release", 0);
 	  break;
 	case 2:
 	  break;
 	case 3:
-	  Pan(0, e->xbutton.x, e->xbutton.y);
+	  Pan (0, e->xbutton.x, e->xbutton.y);
 	  break;
 	case 4:
 	  break;
@@ -765,34 +793,33 @@ work_area_input (Widget w, XtPointer v, XEvent *e, Boolean *ctd)
 	Window root, child;
 	unsigned int keys_buttons;
 	int root_x, root_y, pos_x, pos_y;
-	while (XCheckMaskEvent (display, PointerMotionMask, e)) ;
+	while (XCheckMaskEvent (display, PointerMotionMask, e));
 	XQueryPointer (display, e->xmotion.window, &root, &child,
-		       &root_x, &root_y, &pos_x, &pos_y,
-		       &keys_buttons);
+		       &root_x, &root_y, &pos_x, &pos_y, &keys_buttons);
 	shift_pressed = (keys_buttons & ShiftMask);
 	ctrl_pressed = (keys_buttons & ControlMask);
-	/*printf("m %d %d\n", Px(e->xmotion.x), Py(e->xmotion.y));*/
+	/*printf("m %d %d\n", Px(e->xmotion.x), Py(e->xmotion.y)); */
 	in_move_event = 1;
 	if (panning)
-	  Pan(2, pos_x, pos_y);
-	EventMoveCrosshair(Px(pos_x), Py(pos_y));
+	  Pan (2, pos_x, pos_y);
+	EventMoveCrosshair (Px (pos_x), Py (pos_y));
 	in_move_event = 0;
       }
       break;
     case LeaveNotify:
       crosshair_x = crosshair_y = -1;
-      CrosshairOff(1);
+      CrosshairOff (1);
       need_idle_proc ();
       break;
     case EnterNotify:
       in_move_event = 1;
-      EventMoveCrosshair(Px(e->xcrossing.x), Py(e->xcrossing.y));
+      EventMoveCrosshair (Px (e->xcrossing.x), Py (e->xcrossing.y));
       in_move_event = 0;
-      CrosshairOn(1);
+      CrosshairOn (1);
       need_idle_proc ();
       break;
     default:
-      printf("work_area: unknown event %d\n", e->type);
+      printf ("work_area: unknown event %d\n", e->type);
       break;
     }
 }
@@ -815,52 +842,55 @@ lesstif_show_crosshair (int show)
     return;
   if (show)
     {
-      sx = Vx(crosshair_x);
-      sy = Vy(crosshair_y);
+      sx = Vx (crosshair_x);
+      sy = Vy (crosshair_y);
     }
   else
-    need_idle_proc();
-  XDrawLine(display, window, xor_gc, 0, sy, view_width, sy);
-  XDrawLine(display, window, xor_gc, sx, 0, sx, view_height);
+    need_idle_proc ();
+  XDrawLine (display, window, xor_gc, 0, sy, view_width, sy);
+  XDrawLine (display, window, xor_gc, sx, 0, sx, view_height);
   showing = show;
 }
 
 static void
-work_area_expose(Widget work_area, void *me, XmDrawingAreaCallbackStruct *cbs)
+work_area_expose (Widget work_area, void *me,
+		  XmDrawingAreaCallbackStruct * cbs)
 {
-  show_crosshair(0);
+  show_crosshair (0);
   XExposeEvent *e = &(cbs->event->xexpose);
   XSetFunction (display, my_gc, GXcopy);
-  XCopyArea(display, main_pixmap, window, my_gc,
-	    e->x, e->y, e->width, e->height, e->x, e->y);
-  show_crosshair(1);
+  XCopyArea (display, main_pixmap, window, my_gc,
+	     e->x, e->y, e->width, e->height, e->x, e->y);
+  show_crosshair (1);
 }
 
 static void
-scroll_callback(Widget scroll, int *view_dim, XmScrollBarCallbackStruct *cbs)
+scroll_callback (Widget scroll, int *view_dim,
+		 XmScrollBarCallbackStruct * cbs)
 {
   *view_dim = cbs->value;
-  lesstif_invalidate_all();
+  lesstif_invalidate_all ();
 }
 
 static void
-work_area_resize(Widget work_area, void *me, XmDrawingAreaCallbackStruct *cbs)
+work_area_resize (Widget work_area, void *me,
+		  XmDrawingAreaCallbackStruct * cbs)
 {
   XColor color;
   Dimension width, height;
 
-  show_crosshair(0);
+  show_crosshair (0);
 
   n = 0;
-  stdarg(XtNwidth, &width);
-  stdarg(XtNheight, &height);
-  stdarg(XmNbackground, &bgcolor);
-  XtGetValues(work_area, args, n);
+  stdarg (XtNwidth, &width);
+  stdarg (XtNheight, &height);
+  stdarg (XmNbackground, &bgcolor);
+  XtGetValues (work_area, args, n);
   view_width = width;
   view_height = height;
 
   color.pixel = bgcolor;
-  XQueryColor(display, colormap, &color);
+  XQueryColor (display, colormap, &color);
   bgred = color.red;
   bggreen = color.green;
   bgblue = color.blue;
@@ -880,241 +910,262 @@ work_area_resize(Widget work_area, void *me, XmDrawingAreaCallbackStruct *cbs)
 	pixmap_h = view_height;
 
       if (main_pixmap)
-	XFreePixmap(display, main_pixmap);
-      main_pixmap = XCreatePixmap(display, window, pixmap_w, pixmap_h, XDefaultDepth(display, screen));
+	XFreePixmap (display, main_pixmap);
+      main_pixmap =
+	XCreatePixmap (display, window, pixmap_w, pixmap_h,
+		       XDefaultDepth (display, screen));
 
       if (mask_pixmap)
-	XFreePixmap(display, mask_pixmap);
-      mask_pixmap = XCreatePixmap(display, window, pixmap_w, pixmap_h, XDefaultDepth(display, screen));
+	XFreePixmap (display, mask_pixmap);
+      mask_pixmap =
+	XCreatePixmap (display, window, pixmap_w, pixmap_h,
+		       XDefaultDepth (display, screen));
 
       if (mask_bitmap)
-	XFreePixmap(display, mask_bitmap);
-      mask_bitmap = XCreatePixmap(display, window, pixmap_w, pixmap_h, 1);
+	XFreePixmap (display, mask_bitmap);
+      mask_bitmap = XCreatePixmap (display, window, pixmap_w, pixmap_h, 1);
 
       pixmap = use_mask ? main_pixmap : mask_pixmap;
 #if 0
     }
 #endif
 
-  zoom_by(1, 0, 0);
+  zoom_by (1, 0, 0);
 }
 
 static void
-work_area_first_expose(Widget work_area, void *me, XmDrawingAreaCallbackStruct *cbs)
+work_area_first_expose (Widget work_area, void *me,
+			XmDrawingAreaCallbackStruct * cbs)
 {
   Dimension width, height;
 
-  window = XtWindow(work_area);
+  window = XtWindow (work_area);
   my_gc = XCreateGC (display, window, 0, 0);
 
   n = 0;
-  stdarg(XtNwidth, &width);
-  stdarg(XtNheight, &height);
-  stdarg(XmNbackground, &bgcolor);
-  XtGetValues(work_area, args, n);
+  stdarg (XtNwidth, &width);
+  stdarg (XtNheight, &height);
+  stdarg (XmNbackground, &bgcolor);
+  XtGetValues (work_area, args, n);
   view_width = width;
   view_height = height;
 
-  offlimit_color = lesstif_parse_color(Settings.OffLimitColor);
-  grid_color = lesstif_parse_color(Settings.GridColor);
+  offlimit_color = lesstif_parse_color (Settings.OffLimitColor);
+  grid_color = lesstif_parse_color (Settings.GridColor);
 
   bg_gc = XCreateGC (display, window, 0, 0);
-  XSetForeground(display, bg_gc, bgcolor);
+  XSetForeground (display, bg_gc, bgcolor);
 
-  main_pixmap = XCreatePixmap(display, window, width, height, XDefaultDepth(display, screen));
-  mask_pixmap = XCreatePixmap(display, window, width, height, XDefaultDepth(display, screen));
-  mask_bitmap = XCreatePixmap(display, window, width, height, 1);
+  main_pixmap =
+    XCreatePixmap (display, window, width, height,
+		   XDefaultDepth (display, screen));
+  mask_pixmap =
+    XCreatePixmap (display, window, width, height,
+		   XDefaultDepth (display, screen));
+  mask_bitmap = XCreatePixmap (display, window, width, height, 1);
   pixmap = main_pixmap;
   pixmap_w = width;
   pixmap_h = height;
 
   clip_gc = XCreateGC (display, window, 0, 0);
   bset_gc = XCreateGC (display, mask_bitmap, 0, 0);
-  XSetForeground(display, bset_gc, 1);
+  XSetForeground (display, bset_gc, 1);
   bclear_gc = XCreateGC (display, mask_bitmap, 0, 0);
-  XSetForeground(display, bclear_gc, 0);
+  XSetForeground (display, bclear_gc, 0);
 
-  XtRemoveCallback(work_area, XmNexposeCallback, (XtCallbackProc)work_area_first_expose, 0);
-  XtAddCallback(work_area, XmNexposeCallback, (XtCallbackProc)work_area_expose, 0);
-  lesstif_invalidate_all();
+  XtRemoveCallback (work_area, XmNexposeCallback,
+		    (XtCallbackProc) work_area_first_expose, 0);
+  XtAddCallback (work_area, XmNexposeCallback,
+		 (XtCallbackProc) work_area_expose, 0);
+  lesstif_invalidate_all ();
 }
 
-static Widget make_message(char *name, Widget left, int resizeable)
+static Widget
+make_message (char *name, Widget left, int resizeable)
 {
   Widget w, f;
   n = 0;
   if (left)
     {
-      stdarg(XmNleftAttachment, XmATTACH_WIDGET);
-      stdarg(XmNleftWidget, left);
+      stdarg (XmNleftAttachment, XmATTACH_WIDGET);
+      stdarg (XmNleftWidget, left);
     }
   else
     {
-      stdarg(XmNleftAttachment, XmATTACH_FORM);
+      stdarg (XmNleftAttachment, XmATTACH_FORM);
     }
-  stdarg(XmNtopAttachment, XmATTACH_FORM);
-  stdarg(XmNbottomAttachment, XmATTACH_FORM);
-  stdarg(XmNshadowType, XmSHADOW_IN);
-  stdarg(XmNshadowThickness, 1);
-  stdarg(XmNalignment, XmALIGNMENT_CENTER);
-  stdarg(XmNmarginWidth, 4);
-  stdarg(XmNmarginHeight, 1);
+  stdarg (XmNtopAttachment, XmATTACH_FORM);
+  stdarg (XmNbottomAttachment, XmATTACH_FORM);
+  stdarg (XmNshadowType, XmSHADOW_IN);
+  stdarg (XmNshadowThickness, 1);
+  stdarg (XmNalignment, XmALIGNMENT_CENTER);
+  stdarg (XmNmarginWidth, 4);
+  stdarg (XmNmarginHeight, 1);
   if (!resizeable)
-    stdarg(XmNresizePolicy, XmRESIZE_GROW);
-  f = XmCreateForm(messages, name, args, n);
-  XtManageChild(f);
+    stdarg (XmNresizePolicy, XmRESIZE_GROW);
+  f = XmCreateForm (messages, name, args, n);
+  XtManageChild (f);
   n = 0;
-  stdarg(XmNtopAttachment, XmATTACH_FORM);
-  stdarg(XmNbottomAttachment, XmATTACH_FORM);
-  stdarg(XmNleftAttachment, XmATTACH_FORM);
-  stdarg(XmNrightAttachment, XmATTACH_FORM);
-  w = XmCreateLabel(f, name, args, n);
-  XtManageChild(w);
+  stdarg (XmNtopAttachment, XmATTACH_FORM);
+  stdarg (XmNbottomAttachment, XmATTACH_FORM);
+  stdarg (XmNleftAttachment, XmATTACH_FORM);
+  stdarg (XmNrightAttachment, XmATTACH_FORM);
+  w = XmCreateLabel (f, name, args, n);
+  XtManageChild (w);
   return w;
 }
 
 static void
-lesstif_do_export (HID_Attr_Val *options)
+lesstif_do_export (HID_Attr_Val * options)
 {
   Dimension width, height;
 
   n = 0;
-  stdarg(XtNwidth, &width);
-  stdarg(XtNheight, &height);
-  XtGetValues(appwidget, args, n);
+  stdarg (XtNwidth, &width);
+  stdarg (XtNheight, &height);
+  XtGetValues (appwidget, args, n);
 
   if (width < 1)
     width = 400;
-  if (width > XDisplayWidth(display, screen))
-    width = XDisplayWidth(display, screen);
+  if (width > XDisplayWidth (display, screen))
+    width = XDisplayWidth (display, screen);
   if (height < 1)
     height = 300;
-  if (height > XDisplayHeight(display, screen))
-    height = XDisplayHeight(display, screen);
+  if (height > XDisplayHeight (display, screen))
+    height = XDisplayHeight (display, screen);
 
   n = 0;
-  stdarg(XmNwidth, width);
-  stdarg(XmNheight, height);
-  XtSetValues(appwidget, args, n);
+  stdarg (XmNwidth, width);
+  stdarg (XmNheight, height);
+  XtSetValues (appwidget, args, n);
 
-  stdarg(XmNspacing, 0);
-  mainwind = XmCreateMainWindow(appwidget, "mainWind", args, n);
-  XtManageChild(mainwind);
-
-  n = 0;
-  stdarg(XmNmarginWidth, 0);
-  stdarg(XmNmarginHeight, 0);
-  Widget menu = lesstif_menu(mainwind, "menubar", args, n);
-  XtManageChild(menu);
+  stdarg (XmNspacing, 0);
+  mainwind = XmCreateMainWindow (appwidget, "mainWind", args, n);
+  XtManageChild (mainwind);
 
   n = 0;
-  stdarg(XmNshadowType, XmSHADOW_IN);
-  Widget work_area_frame = XmCreateFrame(mainwind, "work_area_frame", args, n);
-  XtManageChild(work_area_frame);
+  stdarg (XmNmarginWidth, 0);
+  stdarg (XmNmarginHeight, 0);
+  Widget menu = lesstif_menu (mainwind, "menubar", args, n);
+  XtManageChild (menu);
 
   n = 0;
-  do_color(Settings.BackgroundColor, XmNbackground);
-  work_area = XmCreateDrawingArea(work_area_frame, "work_area", args, n);
-  XtManageChild(work_area);
-  XtAddCallback(work_area, XmNexposeCallback, (XtCallbackProc)work_area_first_expose, 0);
-  XtAddCallback(work_area, XmNresizeCallback, (XtCallbackProc)work_area_resize, 0);
+  stdarg (XmNshadowType, XmSHADOW_IN);
+  Widget work_area_frame =
+    XmCreateFrame (mainwind, "work_area_frame", args, n);
+  XtManageChild (work_area_frame);
+
+  n = 0;
+  do_color (Settings.BackgroundColor, XmNbackground);
+  work_area = XmCreateDrawingArea (work_area_frame, "work_area", args, n);
+  XtManageChild (work_area);
+  XtAddCallback (work_area, XmNexposeCallback,
+		 (XtCallbackProc) work_area_first_expose, 0);
+  XtAddCallback (work_area, XmNresizeCallback,
+		 (XtCallbackProc) work_area_resize, 0);
   /* A regular callback won't work here, because lesstif swallows any
      Ctrl<Button>1 event.  */
-  XtAddEventHandler(work_area,
-		    ButtonPressMask | ButtonReleaseMask
-		    | PointerMotionMask | PointerMotionHintMask
-		    | KeyPressMask | KeyReleaseMask
-		    | EnterWindowMask | LeaveWindowMask,
-		    0, work_area_input, 0);
+  XtAddEventHandler (work_area,
+		     ButtonPressMask | ButtonReleaseMask
+		     | PointerMotionMask | PointerMotionHintMask
+		     | KeyPressMask | KeyReleaseMask
+		     | EnterWindowMask | LeaveWindowMask,
+		     0, work_area_input, 0);
 
   n = 0;
-  stdarg(XmNorientation, XmVERTICAL);
-  stdarg(XmNprocessingDirection, XmMAX_ON_BOTTOM);
-  stdarg(XmNmaximum, PCB->MaxHeight ? PCB->MaxHeight : 1);
-  vscroll = XmCreateScrollBar(mainwind, "vscroll", args, n);
-  XtAddCallback(vscroll, XmNvalueChangedCallback, (XtCallbackProc)scroll_callback, (XtPointer)&view_top_y);
-  XtAddCallback(vscroll, XmNdragCallback, (XtCallbackProc)scroll_callback, (XtPointer)&view_top_y);
-  XtManageChild(vscroll);
+  stdarg (XmNorientation, XmVERTICAL);
+  stdarg (XmNprocessingDirection, XmMAX_ON_BOTTOM);
+  stdarg (XmNmaximum, PCB->MaxHeight ? PCB->MaxHeight : 1);
+  vscroll = XmCreateScrollBar (mainwind, "vscroll", args, n);
+  XtAddCallback (vscroll, XmNvalueChangedCallback,
+		 (XtCallbackProc) scroll_callback, (XtPointer) & view_top_y);
+  XtAddCallback (vscroll, XmNdragCallback, (XtCallbackProc) scroll_callback,
+		 (XtPointer) & view_top_y);
+  XtManageChild (vscroll);
 
   n = 0;
-  stdarg(XmNorientation, XmHORIZONTAL);
-  stdarg(XmNmaximum, PCB->MaxWidth ? PCB->MaxWidth : 1);
-  hscroll = XmCreateScrollBar(mainwind, "hscroll", args, n);
-  XtAddCallback(hscroll, XmNvalueChangedCallback, (XtCallbackProc)scroll_callback, (XtPointer)&view_left_x);
-  XtAddCallback(hscroll, XmNdragCallback, (XtCallbackProc)scroll_callback, (XtPointer)&view_left_x);
-  XtManageChild(hscroll);
+  stdarg (XmNorientation, XmHORIZONTAL);
+  stdarg (XmNmaximum, PCB->MaxWidth ? PCB->MaxWidth : 1);
+  hscroll = XmCreateScrollBar (mainwind, "hscroll", args, n);
+  XtAddCallback (hscroll, XmNvalueChangedCallback,
+		 (XtCallbackProc) scroll_callback, (XtPointer) & view_left_x);
+  XtAddCallback (hscroll, XmNdragCallback, (XtCallbackProc) scroll_callback,
+		 (XtPointer) & view_left_x);
+  XtManageChild (hscroll);
 
   n = 0;
-  stdarg(XmNresize, True);
-  stdarg(XmNresizePolicy, XmRESIZE_ANY);
-  messages = XmCreateForm(mainwind, "messages", args, n);
-  XtManageChild(messages);
+  stdarg (XmNresize, True);
+  stdarg (XmNresizePolicy, XmRESIZE_ANY);
+  messages = XmCreateForm (mainwind, "messages", args, n);
+  XtManageChild (messages);
 
   n = 0;
-  stdarg(XmNtopAttachment, XmATTACH_FORM);
-  stdarg(XmNbottomAttachment, XmATTACH_FORM);
-  stdarg(XmNleftAttachment, XmATTACH_FORM);
-  stdarg(XmNrightAttachment, XmATTACH_FORM);
-  stdarg(XmNalignment, XmALIGNMENT_CENTER);
-  stdarg(XmNshadowThickness, 2);
-  m_click = XmCreateLabel(messages, "click", args, n);
+  stdarg (XmNtopAttachment, XmATTACH_FORM);
+  stdarg (XmNbottomAttachment, XmATTACH_FORM);
+  stdarg (XmNleftAttachment, XmATTACH_FORM);
+  stdarg (XmNrightAttachment, XmATTACH_FORM);
+  stdarg (XmNalignment, XmALIGNMENT_CENTER);
+  stdarg (XmNshadowThickness, 2);
+  m_click = XmCreateLabel (messages, "click", args, n);
 
   n = 0;
-  stdarg(XmNtopAttachment, XmATTACH_FORM);
-  stdarg(XmNbottomAttachment, XmATTACH_FORM);
-  stdarg(XmNleftAttachment, XmATTACH_FORM);
-  stdarg(XmNlabelString, XmStringCreateLocalized("Command: "));
-  m_cmd_label = XmCreateLabel(messages, "command", args, n);
+  stdarg (XmNtopAttachment, XmATTACH_FORM);
+  stdarg (XmNbottomAttachment, XmATTACH_FORM);
+  stdarg (XmNleftAttachment, XmATTACH_FORM);
+  stdarg (XmNlabelString, XmStringCreateLocalized ("Command: "));
+  m_cmd_label = XmCreateLabel (messages, "command", args, n);
 
   n = 0;
-  stdarg(XmNtopAttachment, XmATTACH_FORM);
-  stdarg(XmNbottomAttachment, XmATTACH_FORM);
-  stdarg(XmNleftAttachment, XmATTACH_WIDGET);
-  stdarg(XmNleftWidget, m_cmd_label);
-  stdarg(XmNrightAttachment, XmATTACH_FORM);
-  stdarg(XmNshadowThickness, 1);
-  stdarg(XmNhighlightThickness, 0);
-  stdarg(XmNmarginWidth, 2);
-  stdarg(XmNmarginHeight, 2);
-  m_cmd = XmCreateTextField(messages, "command", args, n);
-  XtAddCallback(m_cmd, XmNactivateCallback, (XtCallbackProc)command_callback, 0);
-  XtAddCallback(m_cmd, XmNlosingFocusCallback, (XtCallbackProc)command_callback, 0);
-  XtAddEventHandler(m_cmd, KeyPressMask, 0, command_event_handler, 0);
+  stdarg (XmNtopAttachment, XmATTACH_FORM);
+  stdarg (XmNbottomAttachment, XmATTACH_FORM);
+  stdarg (XmNleftAttachment, XmATTACH_WIDGET);
+  stdarg (XmNleftWidget, m_cmd_label);
+  stdarg (XmNrightAttachment, XmATTACH_FORM);
+  stdarg (XmNshadowThickness, 1);
+  stdarg (XmNhighlightThickness, 0);
+  stdarg (XmNmarginWidth, 2);
+  stdarg (XmNmarginHeight, 2);
+  m_cmd = XmCreateTextField (messages, "command", args, n);
+  XtAddCallback (m_cmd, XmNactivateCallback,
+		 (XtCallbackProc) command_callback, 0);
+  XtAddCallback (m_cmd, XmNlosingFocusCallback,
+		 (XtCallbackProc) command_callback, 0);
+  XtAddEventHandler (m_cmd, KeyPressMask, 0, command_event_handler, 0);
 
-  m_mark = make_message("m_mark", 0, 0);
-  XtUnmanageChild(XtParent(m_mark));
-  m_crosshair = make_message("m_crosshair", m_mark, 0);
-  m_grid = make_message("m_grid", m_crosshair, 1);
-  m_zoom = make_message("m_zoom", m_grid, 1);
-  lesstif_m_layer = make_message("m_layer", m_zoom, 0);
-  m_mode = make_message("m_mode", lesstif_m_layer, 1);
-  m_status = make_message("m_status", m_mode, 1);
+  m_mark = make_message ("m_mark", 0, 0);
+  XtUnmanageChild (XtParent (m_mark));
+  m_crosshair = make_message ("m_crosshair", m_mark, 0);
+  m_grid = make_message ("m_grid", m_crosshair, 1);
+  m_zoom = make_message ("m_zoom", m_grid, 1);
+  lesstif_m_layer = make_message ("m_layer", m_zoom, 0);
+  m_mode = make_message ("m_mode", lesstif_m_layer, 1);
+  m_status = make_message ("m_status", m_mode, 1);
 
   n = 0;
-  stdarg(XmNrightAttachment, XmATTACH_FORM);
-  XtSetValues(XtParent(m_status), args, n);
+  stdarg (XmNrightAttachment, XmATTACH_FORM);
+  XtSetValues (XtParent (m_status), args, n);
 
   /* We'll use this later.  */
   n = 0;
-  stdarg(XmNleftWidget, XtParent(m_mark));
-  XtSetValues(XtParent(m_crosshair), args, n);
+  stdarg (XmNleftWidget, XtParent (m_mark));
+  XtSetValues (XtParent (m_crosshair), args, n);
 
   n = 0;
-  stdarg(XmNmessageWindow, messages);
-  XtSetValues(mainwind, args, n);
+  stdarg (XmNmessageWindow, messages);
+  XtSetValues (mainwind, args, n);
 
-  XtRealizeWidget(appwidget);
+  XtRealizeWidget (appwidget);
 
   while (!window)
     {
       XEvent e;
-      XtAppNextEvent(app_context, &e);
-      XtDispatchEvent(&e);
+      XtAppNextEvent (app_context, &e);
+      XtDispatchEvent (&e);
     }
 
-  PCBChanged(0, 0, 0, 0);
+  PCBChanged (0, 0, 0, 0);
 
-  XtAppMainLoop(app_context);
+  XtAppMainLoop (app_context);
 }
 
 XrmOptionDescRec lesstif_options[] = {
@@ -1123,30 +1174,32 @@ XrmOptionDescRec lesstif_options[] = {
 XtResource lesstif_resources[] = {
 };
 
-typedef union {
+typedef union
+{
   int i;
   double f;
   char *s;
 } val_union;
 
 static Boolean
-cvtres_string_to_double (Display *d, XrmValue *args, Cardinal *num_args,
-			 XrmValue *from, XrmValue *to, XtPointer *converter_data)
+cvtres_string_to_double (Display * d, XrmValue * args, Cardinal * num_args,
+			 XrmValue * from, XrmValue * to,
+			 XtPointer * converter_data)
 {
   static double rv;
-  rv = strtod((char *)from->addr, 0);
+  rv = strtod ((char *) from->addr, 0);
   if (to->addr)
-    *(double *)to->addr = rv;
+    *(double *) to->addr = rv;
   else
-    to->addr = (XPointer)&rv;
-  to->size = sizeof(rv);
+    to->addr = (XPointer) & rv;
+  to->size = sizeof (rv);
   return True;
 }
 
 static void
-mainwind_delete_cb()
+mainwind_delete_cb ()
 {
-  hid_action("Quit");
+  hid_action ("Quit");
 }
 
 static void
@@ -1161,18 +1214,14 @@ lesstif_parse_arguments (int *argc, char ***argv)
   XtResource *new_resources;
   val_union *new_values;
 
-  XtSetTypeConverter(XtRString,
-		     XtRDouble,
-		     cvtres_string_to_double,
-		     NULL,
-		     0,
-		     XtCacheAll,
-		     NULL);
+  XtSetTypeConverter (XtRString,
+		      XtRDouble,
+		      cvtres_string_to_double, NULL, 0, XtCacheAll, NULL);
 
-  for (ha=hid_attr_nodes; ha; ha=ha->next)
-    for (i=0; i<ha->n; i++)
+  for (ha = hid_attr_nodes; ha; ha = ha->next)
+    for (i = 0; i < ha->n; i++)
       {
-	HID_Attribute *a = ha->attributes+i;
+	HID_Attribute *a = ha->attributes + i;
 	switch (a->type)
 	  {
 	  case HID_Integer:
@@ -1180,40 +1229,41 @@ lesstif_parse_arguments (int *argc, char ***argv)
 	  case HID_String:
 	  case HID_Path:
 	  case HID_Boolean:
-	    acount ++;
-	    rcount ++;
+	    acount++;
+	    rcount++;
 	    break;
 	  default:
 	    break;
 	  }
       }
   amax = acount + XtNumber (lesstif_options);
-  new_options = malloc ((amax+1) * sizeof(XrmOptionDescRec));
-  memcpy (new_options+acount, lesstif_options, sizeof(lesstif_options));
+  new_options = malloc ((amax + 1) * sizeof (XrmOptionDescRec));
+  memcpy (new_options + acount, lesstif_options, sizeof (lesstif_options));
   acount = 0;
 
   rmax = rcount + XtNumber (lesstif_resources);
-  new_resources = malloc ((rmax+1) * sizeof(XtResource));
-  new_values = malloc ((rmax+1) * sizeof(val_union));
-  memcpy (new_resources+acount, lesstif_resources, sizeof(lesstif_resources));
+  new_resources = malloc ((rmax + 1) * sizeof (XtResource));
+  new_values = malloc ((rmax + 1) * sizeof (val_union));
+  memcpy (new_resources + acount, lesstif_resources,
+	  sizeof (lesstif_resources));
   rcount = 0;
 
-  for (ha=hid_attr_nodes; ha; ha=ha->next)
-    for (i=0; i<ha->n; i++)
+  for (ha = hid_attr_nodes; ha; ha = ha->next)
+    for (i = 0; i < ha->n; i++)
       {
-	HID_Attribute *a = ha->attributes+i;
+	HID_Attribute *a = ha->attributes + i;
 	XrmOptionDescRec *o = new_options + acount;
 	char *tmpopt, *tmpres;
 	XtResource *r = new_resources + rcount;
 
-	tmpopt = (char *) malloc (strlen(a->name) + 3);
+	tmpopt = (char *) malloc (strlen (a->name) + 3);
 	tmpopt[0] = tmpopt[1] = '-';
-	strcpy (tmpopt+2, a->name);
+	strcpy (tmpopt + 2, a->name);
 	o->option = tmpopt;
 
-	tmpres = (char *) malloc (strlen(a->name) + 2);
+	tmpres = (char *) malloc (strlen (a->name) + 2);
 	tmpres[0] = '*';
-	strcpy (tmpres+1, a->name);
+	strcpy (tmpres + 1, a->name);
 	o->specifier = tmpres;
 
 	switch (a->type)
@@ -1224,12 +1274,12 @@ lesstif_parse_arguments (int *argc, char ***argv)
 	  case HID_Path:
 	    o->argKind = XrmoptionSepArg;
 	    o->value = 0;
-	    acount ++;
+	    acount++;
 	    break;
 	  case HID_Boolean:
 	    o->argKind = XrmoptionNoArg;
 	    o->value = "True";
-	    acount ++;
+	    acount++;
 	    break;
 	  default:
 	    break;
@@ -1237,116 +1287,114 @@ lesstif_parse_arguments (int *argc, char ***argv)
 
 	r->resource_name = a->name;
 	r->resource_class = a->name;
-	r->resource_offset = sizeof(val_union) * rcount;
+	r->resource_offset = sizeof (val_union) * rcount;
 
 	switch (a->type)
 	  {
 	  case HID_Integer:
 	    r->resource_type = XtRInt;
 	    r->default_type = XtRInt;
-	    r->resource_size = sizeof(int);
+	    r->resource_size = sizeof (int);
 	    r->default_addr = &(a->default_val.int_value);
-	    rcount ++;
+	    rcount++;
 	    break;
 	  case HID_Real:
 	    r->resource_type = XtRDouble;
 	    r->default_type = XtRDouble;
-	    r->resource_size = sizeof(double);
+	    r->resource_size = sizeof (double);
 	    r->default_addr = &(a->default_val.real_value);
-	    rcount ++;
+	    rcount++;
 	    break;
 	  case HID_String:
 	  case HID_Path:
 	    r->resource_type = XtRString;
 	    r->default_type = XtRString;
-	    r->resource_size = sizeof(char *);
+	    r->resource_size = sizeof (char *);
 	    r->default_addr = a->default_val.str_value;
-	    rcount ++;
+	    rcount++;
 	    break;
 	  case HID_Boolean:
 	    r->resource_type = XtRBoolean;
 	    r->default_type = XtRInt;
-	    r->resource_size = sizeof(int);
+	    r->resource_size = sizeof (int);
 	    r->default_addr = &(a->default_val.int_value);
-	    rcount ++;
+	    rcount++;
 	    break;
 	  default:
 	    break;
 	  }
       }
-  for (i=0; i<XtNumber(lesstif_resources); i++)
+  for (i = 0; i < XtNumber (lesstif_resources); i++)
     {
       XtResource *r = new_resources + rcount;
-      r->resource_offset = sizeof(val_union) * rcount;
-      rcount ++;
+      r->resource_offset = sizeof (val_union) * rcount;
+      rcount++;
     }
 
   n = 0;
-  stdarg(XmNdeleteResponse, XmDO_NOTHING);
+  stdarg (XmNdeleteResponse, XmDO_NOTHING);
 
-  appwidget = XtAppInitialize(&app_context,
-			      "Pcb",
-			      new_options, amax,
-			      argc, *argv,
-			      0, args, n);
+  appwidget = XtAppInitialize (&app_context,
+			       "Pcb",
+			       new_options, amax, argc, *argv, 0, args, n);
 
-  display = XtDisplay(appwidget);
-  screen_s = XtScreen(appwidget);
-  screen = XScreenNumberOfScreen(screen_s);
-  colormap = XDefaultColormap(display, screen);
+  display = XtDisplay (appwidget);
+  screen_s = XtScreen (appwidget);
+  screen = XScreenNumberOfScreen (screen_s);
+  colormap = XDefaultColormap (display, screen);
 
-  close_atom = XmInternAtom(display, "WM_DELETE_WINDOW", 0);
-  XmAddWMProtocolCallback(appwidget, close_atom,
-			  (XtCallbackProc)mainwind_delete_cb, 0);
+  close_atom = XmInternAtom (display, "WM_DELETE_WINDOW", 0);
+  XmAddWMProtocolCallback (appwidget, close_atom,
+			   (XtCallbackProc) mainwind_delete_cb, 0);
 
   /*  XSynchronize(display, True); */
 
-  XtGetApplicationResources(appwidget, new_values, new_resources,
-			    rmax, 0, 0);
+  XtGetApplicationResources (appwidget, new_values, new_resources,
+			     rmax, 0, 0);
 
   /* redefine colormap, if requested via "-install" */
   if (use_private_colormap)
     {
       colormap = XCopyColormapAndFree (display, colormap);
       XtVaSetValues (appwidget, XtNcolormap, colormap, NULL);
-    } 
-    
+    }
+
   rcount = 0;
-  for (ha=hid_attr_nodes; ha; ha=ha->next)
-    for (i=0; i<ha->n; i++)
+  for (ha = hid_attr_nodes; ha; ha = ha->next)
+    for (i = 0; i < ha->n; i++)
       {
-	HID_Attribute *a = ha->attributes+i;
+	HID_Attribute *a = ha->attributes + i;
 	val_union *v = new_values + rcount;
 	switch (a->type)
 	  {
 	  case HID_Integer:
 	    if (a->value)
-	      *(int *)a->value = v->i;
+	      *(int *) a->value = v->i;
 	    else
 	      a->default_val.int_value = v->i;
-	    rcount ++;
+	    rcount++;
 	    break;
 	  case HID_Boolean:
 	    if (a->value)
-	      *(char *)a->value = v->i;
+	      *(char *) a->value = v->i;
 	    else
 	      a->default_val.int_value = v->i;
-	    rcount ++;
+	    rcount++;
 	    break;
 	  case HID_Real:
 	    if (a->value)
-	      *(double *)a->value = v->f;
+	      *(double *) a->value = v->f;
 	    else
 	      a->default_val.real_value = v->f;
-	    rcount ++;
+	    rcount++;
 	    break;
 	  case HID_String:
 	  case HID_Path:
 	    if (a->value)
-	      *(char **)a->value = v->s;
+	      *(char **) a->value = v->s;
 	    else
 	      a->default_val.str_value = v->s;
-	    rcount ++;
+	    rcount++;
 	    break;
 	  default:
 	    break;
@@ -1365,36 +1413,37 @@ draw_grid ()
 
   if (!Settings.DrawGrid)
     return;
-  if (Vz(PCB->Grid) < MIN_GRID_DISTANCE)
+  if (Vz (PCB->Grid) < MIN_GRID_DISTANCE)
     return;
   if (!grid_gc)
     {
       grid_gc = XCreateGC (display, window, 0, 0);
-      XSetFunction(display, grid_gc, GXxor);
-      XSetForeground(display, grid_gc, grid_color);
+      XSetFunction (display, grid_gc, GXxor);
+      XSetForeground (display, grid_gc, grid_color);
     }
-  x1 = GRIDFIT_X (Px(0), PCB->Grid);
-  y1 = GRIDFIT_Y (Py(0), PCB->Grid);
-  x2 = GRIDFIT_X (Px(view_width), PCB->Grid);
-  y2 = GRIDFIT_Y (Py(view_height), PCB->Grid);
-  if (Vx(x1) < 0)
+  x1 = GRIDFIT_X (Px (0), PCB->Grid);
+  y1 = GRIDFIT_Y (Py (0), PCB->Grid);
+  x2 = GRIDFIT_X (Px (view_width), PCB->Grid);
+  y2 = GRIDFIT_Y (Py (view_height), PCB->Grid);
+  if (Vx (x1) < 0)
     x1 += PCB->Grid;
-  if (Vy(y1) < 0)
+  if (Vy (y1) < 0)
     y1 += PCB->Grid;
-  if (Vx(x2) >= view_width)
+  if (Vx (x2) >= view_width)
     x2 -= PCB->Grid;
-  if (Vy(y2) >= view_height)
+  if (Vy (y2) >= view_height)
     y2 -= PCB->Grid;
-  n = (int)((x2 - x1)/PCB->Grid + 0.5) + 1;
+  n = (int) ((x2 - x1) / PCB->Grid + 0.5) + 1;
   if (n > npoints)
     {
       npoints = n + 10;
-      points = MyRealloc(points, npoints*sizeof(XPoint), "lesstif_draw_grid");
+      points =
+	MyRealloc (points, npoints * sizeof (XPoint), "lesstif_draw_grid");
     }
   n = 0;
   for (x = x1; x <= x2; x += PCB->Grid)
     {
-      int temp = Vx(x);
+      int temp = Vx (x);
       points[n].x = temp;
       if (n)
 	{
@@ -1406,9 +1455,9 @@ draw_grid ()
     }
   for (y = y1; y <= y2; y += PCB->Grid)
     {
-      int vy = Vy(y);
+      int vy = Vy (y);
       points[0].y = vy;
-      XDrawPoints(display, pixmap, grid_gc, points, n, CoordModePrevious);
+      XDrawPoints (display, pixmap, grid_gc, points, n, CoordModePrevious);
     }
 }
 
@@ -1423,52 +1472,54 @@ coords_to_widget (int x, int y, Widget w, int prev_state)
   if (Settings.grid_units_mm)
     {
       /* MM */
-      dx = PCB_TO_MM(x);
-      dy = PCB_TO_MM(y);
-      g = PCB_TO_MM(PCB->Grid);
-    } else {
+      dx = PCB_TO_MM (x);
+      dy = PCB_TO_MM (y);
+      g = PCB_TO_MM (PCB->Grid);
+    }
+  else
+    {
       /* Mils */
-      dx = PCB_TO_MIL(x);
-      dy = PCB_TO_MIL(y);
-      g = PCB_TO_MIL(PCB->Grid);
+      dx = PCB_TO_MIL (x);
+      dy = PCB_TO_MIL (y);
+      g = PCB_TO_MIL (PCB->Grid);
     }
   if (x < 0 && prev_state >= 0)
     buf[0] = 0;
-  else if (((int)(g*10000+0.5) % 10000) == 0)
+  else if (((int) (g * 10000 + 0.5) % 10000) == 0)
     {
       const char *fmt = prev_state < 0 ? "%+d, %+d" : "%d, %d";
-      sprintf(buf, fmt, (int)(dx+0.5), (int)(dy+0.5));
+      sprintf (buf, fmt, (int) (dx + 0.5), (int) (dy + 0.5));
       this_state = 2 + Settings.grid_units_mm;
       frac = 0;
     }
   else if (PCB->Grid <= 20 && Settings.grid_units_mm)
     {
       const char *fmt = prev_state < 0 ? "%+.3f, %+.3f" : "%.3f, %.3f";
-      sprintf(buf, fmt, dx, dy);
+      sprintf (buf, fmt, dx, dy);
       this_state = 4 + Settings.grid_units_mm;
       frac = 1;
     }
   else
     {
       const char *fmt = prev_state < 0 ? "%+.2f, %+.2f" : "%.2f, %.2f";
-      sprintf(buf, fmt, dx, dy);
+      sprintf (buf, fmt, dx, dy);
       this_state = 4 + Settings.grid_units_mm;
       frac = 1;
     }
   if (prev_state < 0 && (x || y))
     {
-      int angle = atan2(dy, -dx) * 180/M_PI;
-      double dist = sqrt(dx*dx+dy*dy);
+      int angle = atan2 (dy, -dx) * 180 / M_PI;
+      double dist = sqrt (dx * dx + dy * dy);
       if (frac)
-	sprintf(buf + strlen(buf), " (%.2f", dist);
+	sprintf (buf + strlen (buf), " (%.2f", dist);
       else
-	sprintf(buf + strlen(buf), " (%d", (int)(dist+0.5));
-      sprintf(buf + strlen(buf), ", %d\260)", angle);
+	sprintf (buf + strlen (buf), " (%d", (int) (dist + 0.5));
+      sprintf (buf + strlen (buf), ", %d\260)", angle);
     }
   XmString ms = XmStringCreateLocalized (buf);
   n = 0;
-  stdarg(XmNlabelString, ms);
-  XtSetValues(w, args, n);
+  stdarg (XmNlabelString, ms);
+  XtSetValues (w, args, n);
   return this_state;
 }
 
@@ -1479,16 +1530,16 @@ pcb2str (int pcbval)
   static int bufp = 0;
   double d;
 
-  bufp = (bufp+1) % 20;
+  bufp = (bufp + 1) % 20;
   if (Settings.grid_units_mm)
     d = PCB_TO_MM (pcbval);
   else
     d = PCB_TO_MIL (pcbval);
 
-  if ((int)(d*100+0.5) == (int)(d+0.005)*100)
-    sprintf(buf[bufp], "%d", (int)d);
+  if ((int) (d * 100 + 0.5) == (int) (d + 0.005) * 100)
+    sprintf (buf[bufp], "%d", (int) d);
   else
-    sprintf(buf[bufp], "%.2f", d);
+    sprintf (buf[bufp], "%.2f", d);
   return buf[bufp];
 }
 
@@ -1506,25 +1557,25 @@ lesstif_update_status_line ()
   switch (Settings.Mode)
     {
     case VIA_MODE:
-      sprintf(buf, "%s/%s \370=%s", u(S.ViaThickness),
-	      u(S.Keepaway), u(S.ViaDrillingHole));
+      sprintf (buf, "%s/%s \370=%s", u (S.ViaThickness),
+	       u (S.Keepaway), u (S.ViaDrillingHole));
       break;
     case LINE_MODE:
     case ARC_MODE:
-      sprintf(buf, "%s/%s %s", u(S.LineThickness), u(S.Keepaway), s45);
+      sprintf (buf, "%s/%s %s", u (S.LineThickness), u (S.Keepaway), s45);
       break;
     case RECTANGLE_MODE:
     case POLYGON_MODE:
-      sprintf(buf, "%s %s", u(S.Keepaway), s45);
+      sprintf (buf, "%s %s", u (S.Keepaway), s45);
       break;
     case TEXT_MODE:
-      sprintf(buf, "%s", u(S.TextScale));
+      sprintf (buf, "%s", u (S.TextScale));
       break;
     case MOVE_MODE:
     case COPY_MODE:
     case INSERTPOINT_MODE:
     case RUBBERBANDMOVE_MODE:
-      sprintf(buf, "%s", s45);
+      sprintf (buf, "%s", s45);
       break;
     case NO_MODE:
     case PASTEBUFFER_MODE:
@@ -1536,10 +1587,10 @@ lesstif_update_status_line ()
       break;
     }
 
-  xs = XmStringCreateLocalized(buf);
+  xs = XmStringCreateLocalized (buf);
   n = 0;
-  stdarg(XmNlabelString, xs);
-  XtSetValues(m_status, args, n);
+  stdarg (XmNlabelString, xs);
+  XtSetValues (m_status, args, n);
 }
 
 #undef u
@@ -1560,32 +1611,35 @@ idle_proc ()
       pixmap = main_pixmap;
       mx = view_width;
       my = view_height;
-      region.X1 = Px(0);
-      region.Y1 = Py(0);
-      region.X2 = Px(view_width);
-      region.Y2 = Py(view_height);
+      region.X1 = Px (0);
+      region.Y1 = Py (0);
+      region.X2 = Px (view_width);
+      region.Y2 = Py (view_height);
       if (region.X2 > PCB->MaxWidth || region.Y2 > PCB->MaxHeight)
 	{
-	  XSetForeground(display, bg_gc, offlimit_color);
+	  XSetForeground (display, bg_gc, offlimit_color);
 	  if (region.X2 > PCB->MaxWidth)
 	    {
-	      mx = Vx(PCB->MaxWidth) + 1;
-	      XFillRectangle(display, main_pixmap, bg_gc, mx, 0, view_width-mx+1, my);
-	      
+	      mx = Vx (PCB->MaxWidth) + 1;
+	      XFillRectangle (display, main_pixmap, bg_gc, mx, 0,
+			      view_width - mx + 1, my);
+
 	    }
 	  if (region.Y2 > PCB->MaxHeight)
 	    {
-	      my = Vy(PCB->MaxHeight) + 1;
-	      XFillRectangle(display, main_pixmap, bg_gc, 0, my, mx, view_height-my+1);
+	      my = Vy (PCB->MaxHeight) + 1;
+	      XFillRectangle (display, main_pixmap, bg_gc, 0, my, mx,
+			      view_height - my + 1);
 	    }
 	}
-      XSetForeground(display, bg_gc, bgcolor);
-      XFillRectangle(display, main_pixmap, bg_gc, 0, 0, mx, my);
-      hid_expose_callback(&lesstif_gui, &region, 0);
-      draw_grid();
+      XSetForeground (display, bg_gc, bgcolor);
+      XFillRectangle (display, main_pixmap, bg_gc, 0, 0, mx, my);
+      hid_expose_callback (&lesstif_gui, &region, 0);
+      draw_grid ();
       lesstif_use_mask (0);
       XSetFunction (display, my_gc, GXcopy);
-      XCopyArea(display, main_pixmap, window, my_gc, 0, 0, view_width, view_height, 0, 0);
+      XCopyArea (display, main_pixmap, window, my_gc, 0, 0, view_width,
+		 view_height, 0, 0);
       pixmap = window;
       CrosshairOn (0);
       need_redraw = 0;
@@ -1595,7 +1649,7 @@ idle_proc ()
     static int c_x = -2, c_y = -2;
     static MarkType saved_mark;
     if (crosshair_x != c_x || crosshair_y != c_y
-	|| memcmp (&saved_mark, &Marked, sizeof(MarkType)))
+	|| memcmp (&saved_mark, &Marked, sizeof (MarkType)))
       {
 	static int last_state = 0;
 	static int this_state = 0;
@@ -1605,31 +1659,34 @@ idle_proc ()
 	c_x = crosshair_x;
 	c_y = crosshair_y;
 
-	this_state = coords_to_widget(crosshair_x, crosshair_y, m_crosshair, this_state);
+	this_state =
+	  coords_to_widget (crosshair_x, crosshair_y, m_crosshair,
+			    this_state);
 	if (Marked.status)
-	  coords_to_widget(crosshair_x - Marked.X, crosshair_y - Marked.Y, m_mark, -1);
+	  coords_to_widget (crosshair_x - Marked.X, crosshair_y - Marked.Y,
+			    m_mark, -1);
 
 	if (Marked.status != saved_mark.status)
 	  {
 	    if (Marked.status)
 	      {
-		XtManageChild(XtParent(m_mark));
-		XtManageChild(m_mark);
+		XtManageChild (XtParent (m_mark));
+		XtManageChild (m_mark);
 		n = 0;
-		stdarg(XmNleftAttachment, XmATTACH_WIDGET);
-		stdarg(XmNleftWidget, XtParent (m_mark));
-		XtSetValues(XtParent(m_crosshair), args, n);
+		stdarg (XmNleftAttachment, XmATTACH_WIDGET);
+		stdarg (XmNleftWidget, XtParent (m_mark));
+		XtSetValues (XtParent (m_crosshair), args, n);
 	      }
 	    else
 	      {
 		n = 0;
-		stdarg(XmNleftAttachment, XmATTACH_FORM);
-		XtSetValues(XtParent(m_crosshair), args, n);
-		XtUnmanageChild(XtParent(m_mark));
+		stdarg (XmNleftAttachment, XmATTACH_FORM);
+		XtSetValues (XtParent (m_crosshair), args, n);
+		XtUnmanageChild (XtParent (m_mark));
 	      }
 	    last_state = this_state + 100;
 	  }
-	memcpy (&saved_mark, &Marked, sizeof(MarkType));
+	memcpy (&saved_mark, &Marked, sizeof (MarkType));
 
 	/* This is obtuse.  We want to enable XmRESIZE_ANY long enough
 	   to shrink to fit the new format (if any), then switch it
@@ -1645,29 +1702,28 @@ idle_proc ()
 	if (this_state != last_state && last_state)
 	  {
 	    n = 0;
-	    stdarg(XmNresizePolicy, XmRESIZE_ANY);
-	    XtSetValues(XtParent(m_mark), args, n);
-	    XtSetValues(XtParent(m_crosshair), args, n);
+	    stdarg (XmNresizePolicy, XmRESIZE_ANY);
+	    XtSetValues (XtParent (m_mark), args, n);
+	    XtSetValues (XtParent (m_crosshair), args, n);
 	    last_state = 0;
 	  }
 	else if (this_state != last_state)
 	  {
 	    n = 0;
-	    stdarg(XmNresizePolicy, XmRESIZE_GROW);
-	    XtSetValues(XtParent(m_mark), args, n);
-	    XtSetValues(XtParent(m_crosshair), args, n);
+	    stdarg (XmNresizePolicy, XmRESIZE_GROW);
+	    XtSetValues (XtParent (m_mark), args, n);
+	    XtSetValues (XtParent (m_crosshair), args, n);
 	    last_state = this_state;
 	  }
       }
   }
 
   {
-    static double old_grid=-1;
+    static double old_grid = -1;
     static int old_gx, old_gy, old_mm;
     if (PCB->Grid != old_grid
 	|| PCB->GridOffsetX != old_gx
-	|| PCB->GridOffsetY != old_gy
-	|| Settings.grid_units_mm != old_mm)
+	|| PCB->GridOffsetY != old_gy || Settings.grid_units_mm != old_mm)
       {
 	static char buf[100];
 	double g, x, y;
@@ -1684,35 +1740,34 @@ idle_proc ()
 	  {
 	    if (Settings.grid_units_mm)
 	      {
-		g = PCB_TO_MM(old_grid);
-		x = PCB_TO_MM(old_gx);
-		y = PCB_TO_MM(old_gy);
+		g = PCB_TO_MM (old_grid);
+		x = PCB_TO_MM (old_gx);
+		y = PCB_TO_MM (old_gy);
 		u = "mm";
 	      }
 	    else
 	      {
-		g = PCB_TO_MIL(old_grid);
-		x = PCB_TO_MIL(old_gx);
-		y = PCB_TO_MIL(old_gy);
+		g = PCB_TO_MIL (old_grid);
+		x = PCB_TO_MIL (old_gx);
+		y = PCB_TO_MIL (old_gy);
 		u = "mil";
 	      }
 	    if (x || y)
-	      sprintf(buf, "%g %s @%g,%g", g, u, x, y);
+	      sprintf (buf, "%g %s @%g,%g", g, u, x, y);
 	    else
-	      sprintf(buf, "%g %s", g, u);
+	      sprintf (buf, "%g %s", g, u);
 	  }
 	XmString ms = XmStringCreateLocalized (buf);
 	n = 0;
-	stdarg(XmNlabelString, ms);
-	XtSetValues(m_grid, args, n);
+	stdarg (XmNlabelString, ms);
+	XtSetValues (m_grid, args, n);
       }
   }
 
   {
     static double old_zoom = -1;
     static int old_zoom_units = -1;
-    if (view_zoom != old_zoom
-	|| Settings.grid_units_mm != old_zoom_units)
+    if (view_zoom != old_zoom || Settings.grid_units_mm != old_zoom_units)
       {
 	static char buf[100];
 	double g;
@@ -1724,22 +1779,22 @@ idle_proc ()
 
 	if (Settings.grid_units_mm)
 	  {
-	    g = PCB_TO_MM(view_zoom);
+	    g = PCB_TO_MM (view_zoom);
 	    units = "mm";
 	  }
 	else
 	  {
-	    g = PCB_TO_MIL(view_zoom);
+	    g = PCB_TO_MIL (view_zoom);
 	    units = "mil";
 	  }
-	if ((int)(g*100+0.5) == (int)(g+0.005)*100)
-	  sprintf(buf, "%d %s/pix", (int)(g+0.005), units);
+	if ((int) (g * 100 + 0.5) == (int) (g + 0.005) * 100)
+	  sprintf (buf, "%d %s/pix", (int) (g + 0.005), units);
 	else
-	  sprintf(buf, "%.2f %s/pix", g, units);
+	  sprintf (buf, "%.2f %s/pix", g, units);
 	ms = XmStringCreateLocalized (buf);
 	n = 0;
-	stdarg(XmNlabelString, ms);
-	XtSetValues(m_zoom, args, n);
+	stdarg (XmNlabelString, ms);
+	XtSetValues (m_zoom, args, n);
       }
   }
 
@@ -1826,12 +1881,12 @@ idle_proc ()
 	  }
 	ms = XmStringCreateLocalized (s);
 	n = 0;
-	stdarg(XmNlabelString, ms);
-	XtSetValues(m_mode, args, n);
+	stdarg (XmNlabelString, ms);
+	XtSetValues (m_mode, args, n);
 
 	if (free_cursor)
 	  {
-	    XFreeCursor(display, my_cursor);
+	    XFreeCursor (display, my_cursor);
 	    free_cursor = 0;
 	  }
 	if (cursor == -1)
@@ -1842,33 +1897,33 @@ idle_proc ()
 	    if (nocur_source == 0)
 	      {
 		XColor fg, bg;
-		nocur_source = XCreateBitmapFromData (display, window, "\0", 1, 1);
-		nocur_mask = XCreateBitmapFromData (display, window, "\0", 1, 1);
+		nocur_source =
+		  XCreateBitmapFromData (display, window, "\0", 1, 1);
+		nocur_mask =
+		  XCreateBitmapFromData (display, window, "\0", 1, 1);
 
 		fg.red = fg.green = fg.blue = 65535;
 		bg.red = bg.green = bg.blue = 0;
 		fg.flags = bg.flags = DoRed | DoGreen | DoBlue;
 		nocursor = XCreatePixmapCursor (display, nocur_source,
-						nocur_mask, &fg, &bg,
-						0, 0);
+						nocur_mask, &fg, &bg, 0, 0);
 	      }
 	    my_cursor = nocursor;
 	  }
 	else
 	  {
-	    my_cursor = XCreateFontCursor(display, cursor);
+	    my_cursor = XCreateFontCursor (display, cursor);
 	    free_cursor = 1;
 	  }
-	XDefineCursor(display, window, my_cursor);
+	XDefineCursor (display, window, my_cursor);
 	lesstif_update_status_line ();
       }
   }
   {
     static char *old_clip = 0;
     static int old_tscale = -1;
-    int new_clip = cur_clip();
-    if (new_clip != old_clip
-	|| Settings.TextScale != old_tscale)
+    int new_clip = cur_clip ();
+    if (new_clip != old_clip || Settings.TextScale != old_tscale)
       {
 	lesstif_update_status_line ();
 	old_clip = new_clip;
@@ -1876,9 +1931,9 @@ idle_proc ()
       }
   }
 
-  lesstif_update_widget_flags();
+  lesstif_update_widget_flags ();
 
-  show_crosshair(1);
+  show_crosshair (1);
   idle_proc_set = 0;
   return True;
 }
@@ -1905,7 +1960,7 @@ lesstif_invalidate_wh (int x, int y, int width, int height, int last)
 static void
 lesstif_invalidate_lr (int l, int r, int t, int b, int last)
 {
-  lesstif_invalidate_wh (l, t, r-l+1, b-t+1, last);
+  lesstif_invalidate_wh (l, t, r - l + 1, b - t + 1, last);
 }
 
 void
@@ -1923,7 +1978,8 @@ lesstif_set_layer (const char *name, int group)
       idx = PCB->LayerGroups.Entries[idx][0];
 #if 0
       if (idx == LayerStack[0]
-	  || GetLayerGroupNumberByNumber(idx) == GetLayerGroupNumberByNumber(LayerStack[0]))
+	  || GetLayerGroupNumberByNumber (idx) ==
+	  GetLayerGroupNumberByNumber (LayerStack[0]))
 	autofade = 0;
       else
 	autofade = 1;
@@ -1933,36 +1989,36 @@ lesstif_set_layer (const char *name, int group)
   else
     autofade = 0;
 #endif
-  if (idx >= 0 && idx < MAX_LAYER+2)
+  if (idx >= 0 && idx < MAX_LAYER + 2)
     return pinout ? 1 : PCB->Data->Layer[idx].On;
   if (idx < 0)
     {
-    switch (SL_TYPE (idx))
-      {
-      case SL_INVISIBLE:
-	return pinout ? 0 : PCB->InvisibleObjectsOn;
-      case SL_MASK:
-	if (SL_MYSIDE(idx) && !pinout)
-	  return TEST_FLAG (SHOWMASKFLAG, PCB);
-	return 0;
-      case SL_SILK:
-	if (SL_MYSIDE(idx) || pinout)
-	  return PCB->ElementOn;
-	return 0;
-      case SL_ASSY:
-	return 0;
-      case SL_DRILL:
-	return 1;
-      }
-  }
+      switch (SL_TYPE (idx))
+	{
+	case SL_INVISIBLE:
+	  return pinout ? 0 : PCB->InvisibleObjectsOn;
+	case SL_MASK:
+	  if (SL_MYSIDE (idx) && !pinout)
+	    return TEST_FLAG (SHOWMASKFLAG, PCB);
+	  return 0;
+	case SL_SILK:
+	  if (SL_MYSIDE (idx) || pinout)
+	    return PCB->ElementOn;
+	  return 0;
+	case SL_ASSY:
+	  return 0;
+	case SL_DRILL:
+	  return 1;
+	}
+    }
   return 0;
 }
 
 static hidGC
 lesstif_make_gc (void)
 {
-  hidGC rv = malloc (sizeof(hid_gc_struct));
-  memset (rv, 0, sizeof(hid_gc_struct));
+  hidGC rv = malloc (sizeof (hid_gc_struct));
+  memset (rv, 0, sizeof (hid_gc_struct));
   rv->me_pointer = &lesstif_gui;
   return rv;
 }
@@ -1970,7 +2026,7 @@ lesstif_make_gc (void)
 static void
 lesstif_destroy_gc (hidGC gc)
 {
-  free(gc);
+  free (gc);
 }
 
 static void
@@ -1978,35 +2034,37 @@ lesstif_use_mask (int use_it)
 {
   if (thindraw || thindrawpoly)
     use_it = 0;
-  if ((use_it==0) == (use_mask==0))
+  if ((use_it == 0) == (use_mask == 0))
     return;
   use_mask = use_it;
   if (pinout)
     return;
   if (!window)
     return;
-  /*  printf("use_mask(%d)\n", use_it);*/
+  /*  printf("use_mask(%d)\n", use_it); */
   if (!mask_pixmap)
     {
-      mask_pixmap = XCreatePixmap(display, window, pixmap_w, pixmap_h, XDefaultDepth(display, screen));
-      mask_bitmap = XCreatePixmap(display, window, pixmap_w, pixmap_h, 1);
+      mask_pixmap =
+	XCreatePixmap (display, window, pixmap_w, pixmap_h,
+		       XDefaultDepth (display, screen));
+      mask_bitmap = XCreatePixmap (display, window, pixmap_w, pixmap_h, 1);
     }
   if (use_it)
     {
       pixmap = mask_pixmap;
-      XSetForeground(display, my_gc, 0);
+      XSetForeground (display, my_gc, 0);
       XSetFunction (display, my_gc, GXcopy);
-      XFillRectangle(display, mask_pixmap, my_gc,
-		     0, 0, view_width, view_height);
-      XFillRectangle(display, mask_bitmap, bclear_gc,
-		     0, 0, view_width, view_height);
+      XFillRectangle (display, mask_pixmap, my_gc,
+		      0, 0, view_width, view_height);
+      XFillRectangle (display, mask_bitmap, bclear_gc,
+		      0, 0, view_width, view_height);
     }
   else
     {
-      XSetClipMask(display, clip_gc, mask_bitmap);
+      XSetClipMask (display, clip_gc, mask_bitmap);
       pixmap = main_pixmap;
-      XCopyArea(display, mask_pixmap, main_pixmap, clip_gc,
-		0, 0, view_width, view_height, 0, 0);
+      XCopyArea (display, mask_pixmap, main_pixmap, clip_gc,
+		 0, 0, view_width, view_height, 0, 0);
     }
 }
 
@@ -2043,8 +2101,8 @@ lesstif_set_color (hidGC gc, const char *name)
       if (!XAllocNamedColor (display, colormap, name, &color, &exact_color))
 	color.pixel = WhitePixel (display, screen);
 #if 0
-      printf("lesstif_set_color `%s' %08x rgb/%d/%d/%d\n",
-	     name, color.pixel, color.red, color.green, color.blue);
+      printf ("lesstif_set_color `%s' %08x rgb/%d/%d/%d\n",
+	      name, color.pixel, color.red, color.green, color.blue);
 #endif
       cval.lval = gc->color = color.pixel;
       hid_cache_color (1, name, &cval, &cache);
@@ -2052,71 +2110,85 @@ lesstif_set_color (hidGC gc, const char *name)
     }
   if (autofade)
     {
-      static int lastcolor=-1, lastfade=-1;
+      static int lastcolor = -1, lastfade = -1;
       if (gc->color == lastcolor)
 	gc->color = lastfade;
       else
 	{
 	  lastcolor = gc->color;
 	  color.pixel = gc->color;
- 
-	  XQueryColor(display, colormap, &color);
+
+	  XQueryColor (display, colormap, &color);
 	  color.red = (bgred + color.red) / 2;
 	  color.green = (bggreen + color.green) / 2;
 	  color.blue = (bgblue + color.blue) / 2;
-	  XAllocColor(display, colormap, &color);
+	  XAllocColor (display, colormap, &color);
 	  lastfade = gc->color = color.pixel;
 	}
     }
 }
 
 static void
-set_gc(hidGC gc)
+set_gc (hidGC gc)
 {
   int cap, join, width;
   if (gc->me_pointer != &lesstif_gui)
     {
-      fprintf(stderr, "Fatal: GC from another HID passed to lesstif HID\n");
-      abort();
+      fprintf (stderr, "Fatal: GC from another HID passed to lesstif HID\n");
+      abort ();
     }
 #if 0
-  printf("set_gc c%s %08lx w%d c%d x%d e%d\n",
-	 gc->colorname, gc->color, gc->width, gc->cap, gc->xor, gc->erase);
+  printf ("set_gc c%s %08lx w%d c%d x%d e%d\n",
+	  gc->colorname, gc->color, gc->width, gc->cap, gc->xor, gc->erase);
 #endif
   switch (gc->cap)
     {
-    case Square_Cap:  cap = CapProjecting; join = JoinMiter; break;
+    case Square_Cap:
+      cap = CapProjecting;
+      join = JoinMiter;
+      break;
     case Trace_Cap:
-    case Round_Cap:   cap = CapRound;      join = JoinRound; break;
-    case Beveled_Cap: cap = CapProjecting; join = JoinBevel; break;
-    default:          cap = CapProjecting; join = JoinBevel; break;
+    case Round_Cap:
+      cap = CapRound;
+      join = JoinRound;
+      break;
+    case Beveled_Cap:
+      cap = CapProjecting;
+      join = JoinBevel;
+      break;
+    default:
+      cap = CapProjecting;
+      join = JoinBevel;
+      break;
     }
   if (gc->xor)
     {
-      XSetFunction(display, my_gc, GXxor);
-      XSetForeground(display, my_gc, gc->color ^ bgcolor);
+      XSetFunction (display, my_gc, GXxor);
+      XSetForeground (display, my_gc, gc->color ^ bgcolor);
     }
   else if (gc->erase)
     {
-      XSetFunction(display, my_gc, GXcopy);
-      XSetForeground(display, my_gc, offlimit_color);
+      XSetFunction (display, my_gc, GXcopy);
+      XSetForeground (display, my_gc, offlimit_color);
     }
   else
     {
-      XSetFunction(display, my_gc, GXcopy);
-      XSetForeground(display, my_gc, gc->color);
+      XSetFunction (display, my_gc, GXcopy);
+      XSetForeground (display, my_gc, gc->color);
     }
-  width = Vz(gc->width);
+  width = Vz (gc->width);
   if (width < 0)
     width = 0;
-  XSetLineAttributes(display, my_gc, thindraw ? 1 : width, LineSolid, cap, join);
+  XSetLineAttributes (display, my_gc, thindraw ? 1 : width, LineSolid, cap,
+		      join);
   if (use_mask)
     {
       if (gc->erase)
 	mask_gc = bclear_gc;
       else
 	mask_gc = bset_gc;
-      XSetLineAttributes(display, mask_gc, Vz(gc->width), LineSolid, cap, join);
+      XSetLineAttributes (display, mask_gc, Vz (gc->width), LineSolid, cap,
+			  join);
     }
 }
 
@@ -2155,44 +2227,44 @@ lesstif_set_line_cap_angle (hidGC gc, int x1, int y1, int x2, int y2)
 static void
 lesstif_draw_line (hidGC gc, int x1, int y1, int x2, int y2)
 {
-  int vw = Vz(gc->width);
+  int vw = Vz (gc->width);
   if ((pinout || thindraw || thindrawpoly) && gc->erase)
     return;
 #if 0
-  printf("draw_line %d,%d %d,%d @%d", x1, y1, x2, y2, gc->width);
+  printf ("draw_line %d,%d %d,%d @%d", x1, y1, x2, y2, gc->width);
 #endif
-  x1 = Vx(x1);
-  y1 = Vy(y1);
-  x2 = Vx(x2);
-  y2 = Vy(y2);
+  x1 = Vx (x1);
+  y1 = Vy (y1);
+  x2 = Vx (x2);
+  y2 = Vy (y2);
   if (x1 < -vw && x2 < -vw)
     return;
   if (y1 < -vw && y2 < -vw)
     return;
-  if (x1 > view_width+vw && x2 > view_width+vw)
+  if (x1 > view_width + vw && x2 > view_width + vw)
     return;
-  if (y1 > view_height+vw && y2 > view_height+vw)
+  if (y1 > view_height + vw && y2 > view_height + vw)
     return;
 #if 0
-  printf(" = %d,%d %d,%d %s\n", x1, x2, y1, y2, gc->colorname);
+  printf (" = %d,%d %d,%d %s\n", x1, x2, y1, y2, gc->colorname);
 #endif
-  set_gc(gc);
+  set_gc (gc);
   if (thindraw)
     {
       switch (gc->cap)
 	{
 	case Trace_Cap:
 	default:
-	  XDrawLine(display, pixmap, my_gc, x1, y1, x2, y2);
+	  XDrawLine (display, pixmap, my_gc, x1, y1, x2, y2);
 	  break;
 	case Square_Cap:
-	  ISORT(x1, x2);
-	  ISORT(y1, y2);
-	  x1 -= vw/2;
-	  y1 -= vw/2;
-	  x2 += vw/2;
-	  y2 += vw/2;
-	  XDrawRectangle(display, pixmap, my_gc, x1, y1, x2-x1, y2-y1);
+	  ISORT (x1, x2);
+	  ISORT (y1, y2);
+	  x1 -= vw / 2;
+	  y1 -= vw / 2;
+	  x2 += vw / 2;
+	  y2 += vw / 2;
+	  XDrawRectangle (display, pixmap, my_gc, x1, y1, x2 - x1, y2 - y1);
 	  return;
 	case Round_Cap:
 	  {
@@ -2200,79 +2272,89 @@ lesstif_draw_line (hidGC gc, int x1, int y1, int x2, int y2)
 	    vw &= ~1;
 	    dx = x2 - x1;
 	    dy = y2 - y1;
-	    l = sqrt(dx*dx + dy*dy);
-	    dx *= vw/2 / l;
-	    dy *= vw/2 / l;
+	    l = sqrt (dx * dx + dy * dy);
+	    dx *= vw / 2 / l;
+	    dy *= vw / 2 / l;
 	    a = atan2 ((float) dx, (float) dy) * 57.295779;
 	    a = a * 64;
-	    XDrawLine(display, pixmap, my_gc, x1+dy, y1-dx, x2+dy, y2-dx);
-	    XDrawLine(display, pixmap, my_gc, x1-dy, y1+dx, x2-dy, y2+dx);
-	    XDrawArc(display, pixmap, my_gc, x1-vw/2, y1-vw/2, vw, vw, a, 180*64);
-	    XDrawArc(display, pixmap, my_gc, x2-vw/2, y2-vw/2, vw, vw, a+180*64, 180*64);
+	    XDrawLine (display, pixmap, my_gc, x1 + dy, y1 - dx, x2 + dy,
+		       y2 - dx);
+	    XDrawLine (display, pixmap, my_gc, x1 - dy, y1 + dx, x2 - dy,
+		       y2 + dx);
+	    XDrawArc (display, pixmap, my_gc, x1 - vw / 2, y1 - vw / 2, vw,
+		      vw, a, 180 * 64);
+	    XDrawArc (display, pixmap, my_gc, x2 - vw / 2, y2 - vw / 2, vw,
+		      vw, a + 180 * 64, 180 * 64);
 	  }
 	}
     }
   else if (gc->cap == Square_Cap && x1 == x2 && y1 == y2)
     {
-      XFillRectangle(display, pixmap, my_gc, x1-vw/2, y1-vw/2, vw, vw);
+      XFillRectangle (display, pixmap, my_gc, x1 - vw / 2, y1 - vw / 2, vw,
+		      vw);
       if (use_mask)
-	XFillRectangle(display, mask_bitmap, mask_gc, x1-vw/2, y1-vw/2, vw, vw);
+	XFillRectangle (display, mask_bitmap, mask_gc, x1 - vw / 2,
+			y1 - vw / 2, vw, vw);
     }
   else
     {
-      XDrawLine(display, pixmap, my_gc, x1, y1, x2, y2);
+      XDrawLine (display, pixmap, my_gc, x1, y1, x2, y2);
       if (use_mask)
-	XDrawLine(display, mask_bitmap, mask_gc, x1, y1, x2, y2);
+	XDrawLine (display, mask_bitmap, mask_gc, x1, y1, x2, y2);
     }
 }
 
 static void
 lesstif_draw_arc (hidGC gc, int cx, int cy, int width, int height,
-		int start_angle, int delta_angle)
+		  int start_angle, int delta_angle)
 {
   if ((pinout || thindraw) && gc->erase)
     return;
 #if 0
-  printf("draw_arc %d,%d %dx%d", cx, cy, width, height);
+  printf ("draw_arc %d,%d %dx%d", cx, cy, width, height);
 #endif
-  width = Vz(width);
-  height = Vz(height);
-  cx = Vx(cx) - width;
-  cy = Vy(cy) - height;
+  width = Vz (width);
+  height = Vz (height);
+  cx = Vx (cx) - width;
+  cy = Vy (cy) - height;
 #if 0
-  printf(" = %d,%d %dx%d %d %s\n", cx, cy, width, height, gc->width, gc->colorname);
-  printf("w %d\n", Vz(gc->width));
+  printf (" = %d,%d %dx%d %d %s\n", cx, cy, width, height, gc->width,
+	  gc->colorname);
+  printf ("w %d\n", Vz (gc->width));
 #endif
-  set_gc(gc);
-  XDrawArc(display, pixmap, my_gc, cx, cy,
-	   width*2, height*2, (start_angle+180)*64, delta_angle*64);
+  set_gc (gc);
+  XDrawArc (display, pixmap, my_gc, cx, cy,
+	    width * 2, height * 2, (start_angle + 180) * 64,
+	    delta_angle * 64);
   if (use_mask && !thindraw)
-    XDrawArc(display, mask_bitmap, mask_gc, cx, cy,
-	     width*2, height*2, (start_angle+180)*64, delta_angle*64);
+    XDrawArc (display, mask_bitmap, mask_gc, cx, cy,
+	      width * 2, height * 2, (start_angle + 180) * 64,
+	      delta_angle * 64);
 }
 
 static void
 lesstif_draw_rect (hidGC gc, int x1, int y1, int x2, int y2)
 {
-  int vw = Vz(gc->width);
+  int vw = Vz (gc->width);
   if ((pinout || thindraw) && gc->erase)
     return;
-  x1 = Vx(x1);
-  y1 = Vy(y1);
-  x2 = Vx(x2);
-  y2 = Vy(y2);
+  x1 = Vx (x1);
+  y1 = Vy (y1);
+  x2 = Vx (x2);
+  y2 = Vy (y2);
   if (x1 < -vw && x2 < -vw)
     return;
   if (y1 < -vw && y2 < -vw)
     return;
-  if (x1 > view_width+vw && x2 > view_width+vw)
+  if (x1 > view_width + vw && x2 > view_width + vw)
     return;
-  if (y1 > view_height+vw && y2 > view_height+vw)
+  if (y1 > view_height + vw && y2 > view_height + vw)
     return;
-  set_gc(gc);
-  XDrawRectangle(display, pixmap, my_gc, x1, y1, x2-x1+1, y2-y1+1);
+  set_gc (gc);
+  XDrawRectangle (display, pixmap, my_gc, x1, y1, x2 - x1 + 1, y2 - y1 + 1);
   if (use_mask)
-    XDrawRectangle(display, mask_bitmap, mask_gc, x1, y1, x2-x1+1, y2-y1+1);
+    XDrawRectangle (display, mask_bitmap, mask_gc, x1, y1, x2 - x1 + 1,
+		    y2 - y1 + 1);
 }
 
 static void
@@ -2283,31 +2365,31 @@ lesstif_fill_circle (hidGC gc, int cx, int cy, int radius)
   if ((thindraw || thindrawpoly) && gc->erase)
     return;
 #if 0
-  printf("fill_circle %d,%d %d", cx, cy, radius);
+  printf ("fill_circle %d,%d %d", cx, cy, radius);
 #endif
-  radius = Vz(radius);
-  cx = Vx(cx) - radius;
-  cy = Vy(cy) - radius;
-  if (cx < -2*radius || cx > view_width)
+  radius = Vz (radius);
+  cx = Vx (cx) - radius;
+  cy = Vy (cy) - radius;
+  if (cx < -2 * radius || cx > view_width)
     return;
-  if (cy < -2*radius || cy > view_height)
+  if (cy < -2 * radius || cy > view_height)
     return;
 #if 0
-  printf(" = %d,%d %d %lx %s\n", cx, cy, radius, gc->color, gc->colorname);
+  printf (" = %d,%d %d %lx %s\n", cx, cy, radius, gc->color, gc->colorname);
 #endif
-  set_gc(gc);
+  set_gc (gc);
   if (thindraw)
     {
-      XDrawArc(display, pixmap, my_gc, cx, cy,
-	       radius*2, radius*2, 0, 360*64);
+      XDrawArc (display, pixmap, my_gc, cx, cy,
+		radius * 2, radius * 2, 0, 360 * 64);
     }
   else
     {
-      XFillArc(display, pixmap, my_gc, cx, cy,
-	       radius*2, radius*2, 0, 360*64);
+      XFillArc (display, pixmap, my_gc, cx, cy,
+		radius * 2, radius * 2, 0, 360 * 64);
       if (use_mask)
-	XFillArc(display, mask_bitmap, mask_gc, cx, cy,
-		 radius*2, radius*2, 0, 360*64);
+	XFillArc (display, mask_bitmap, mask_gc, cx, cy,
+		  radius * 2, radius * 2, 0, 360 * 64);
     }
 }
 
@@ -2322,69 +2404,75 @@ lesstif_fill_polygon (hidGC gc, int n_coords, int *x, int *y)
     {
       maxp = n_coords + 10;
       if (p)
-	p = (XPoint *) realloc (p, maxp * sizeof(XPoint));
+	p = (XPoint *) realloc (p, maxp * sizeof (XPoint));
       else
-	p = (XPoint *) malloc (maxp * sizeof(XPoint));
+	p = (XPoint *) malloc (maxp * sizeof (XPoint));
     }
 
-  for (i=0; i<n_coords; i++)
+  for (i = 0; i < n_coords; i++)
     {
-      p[i].x = Vx(x[i]);
-      p[i].y = Vy(y[i]);
+      p[i].x = Vx (x[i]);
+      p[i].y = Vy (y[i]);
     }
 #if 0
-  printf("fill_polygon %d pts\n", n_coords);
+  printf ("fill_polygon %d pts\n", n_coords);
 #endif
   if (thindraw || thindrawpoly)
     {
       int save_thindraw = thindraw;
       thindraw = 1;
-      set_gc(gc);
-      XDrawLines(display, pixmap, my_gc, p, n_coords, CoordModeOrigin);
-      if (x[0] != x[n_coords-1]
-	  || y[0] != y[n_coords-1])
-	XDrawLine(display, pixmap, my_gc, p[n_coords-1].x, p[n_coords-1].y, p[0].x, p[0].y);
+      set_gc (gc);
+      XDrawLines (display, pixmap, my_gc, p, n_coords, CoordModeOrigin);
+      if (x[0] != x[n_coords - 1] || y[0] != y[n_coords - 1])
+	XDrawLine (display, pixmap, my_gc, p[n_coords - 1].x,
+		   p[n_coords - 1].y, p[0].x, p[0].y);
       thindraw = save_thindraw;
     }
   else
     {
-      set_gc(gc);
-      XFillPolygon(display, pixmap, my_gc, p, n_coords, Complex, CoordModeOrigin);
+      set_gc (gc);
+      XFillPolygon (display, pixmap, my_gc, p, n_coords, Complex,
+		    CoordModeOrigin);
       if (use_mask)
-	XFillPolygon(display, mask_bitmap, mask_gc, p, n_coords, Complex, CoordModeOrigin);
+	XFillPolygon (display, mask_bitmap, mask_gc, p, n_coords, Complex,
+		      CoordModeOrigin);
     }
 }
 
 static void
 lesstif_fill_rect (hidGC gc, int x1, int y1, int x2, int y2)
 {
-  int vw = Vz(gc->width);
+  int vw = Vz (gc->width);
   if ((pinout || thindraw) && gc->erase)
     return;
-  x1 = Vx(x1);
-  y1 = Vy(y1);
-  x2 = Vx(x2);
-  y2 = Vy(y2);
+  x1 = Vx (x1);
+  y1 = Vy (y1);
+  x2 = Vx (x2);
+  y2 = Vy (y2);
   if (x1 < -vw && x2 < -vw)
     return;
   if (y1 < -vw && y2 < -vw)
     return;
-  if (x1 > view_width+vw && x2 > view_width+vw)
+  if (x1 > view_width + vw && x2 > view_width + vw)
     return;
-  if (y1 > view_height+vw && y2 > view_height+vw)
+  if (y1 > view_height + vw && y2 > view_height + vw)
     return;
-  set_gc(gc);
+  set_gc (gc);
   if (thindraw)
     {
-      XDrawRectangle(display, pixmap, my_gc, x1, y1, x2-x1+1, y2-y1+1);
+      XDrawRectangle (display, pixmap, my_gc, x1, y1, x2 - x1 + 1,
+		      y2 - y1 + 1);
       if (use_mask)
-	XDrawRectangle(display, mask_bitmap, mask_gc, x1, y1, x2-x1+1, y2-y1+1);
+	XDrawRectangle (display, mask_bitmap, mask_gc, x1, y1, x2 - x1 + 1,
+			y2 - y1 + 1);
     }
   else
     {
-      XFillRectangle(display, pixmap, my_gc, x1, y1, x2-x1+1, y2-y1+1);
+      XFillRectangle (display, pixmap, my_gc, x1, y1, x2 - x1 + 1,
+		      y2 - y1 + 1);
       if (use_mask)
-	XFillRectangle(display, mask_bitmap, mask_gc, x1, y1, x2-x1+1, y2-y1+1);
+	XFillRectangle (display, mask_bitmap, mask_gc, x1, y1, x2 - x1 + 1,
+			y2 - y1 + 1);
     }
 }
 
@@ -2421,76 +2509,70 @@ lesstif_set_crosshair (int x, int y)
 	  && !in_move_event
 	  && (x < view_left_x
 	      || x > view_left_x + view_width * view_zoom
-	      || y < view_top_y
-	      || y > view_top_y + view_height * view_zoom))
+	      || y < view_top_y || y > view_top_y + view_height * view_zoom))
 	{
 	  view_left_x = x - (view_width * view_zoom) / 2;
 	  view_top_y = y - (view_height * view_zoom) / 2;
-	  lesstif_pan_fixup();
+	  lesstif_pan_fixup ();
 	}
 
     }
 }
 
-typedef struct {
-  void (*func)(hidval);
+typedef struct
+{
+  void (*func) (hidval);
   hidval user_data;
   XtIntervalId *id;
 } TimerStruct;
 
 static void
-lesstif_timer_cb (XtPointer *p, XtIntervalId *id)
+lesstif_timer_cb (XtPointer * p, XtIntervalId * id)
 {
-  TimerStruct *ts = (TimerStruct *)p;
-  ts->func(ts->user_data);
-  free(ts);
+  TimerStruct *ts = (TimerStruct *) p;
+  ts->func (ts->user_data);
+  free (ts);
 }
 
 static hidval
-lesstif_add_timer (void (*func)(hidval user_data),
-		 unsigned long milliseconds,
-		 hidval user_data)
+lesstif_add_timer (void (*func) (hidval user_data),
+		   unsigned long milliseconds, hidval user_data)
 {
   TimerStruct *t;
   hidval rv;
-  t = (TimerStruct *)malloc(sizeof(TimerStruct));
+  t = (TimerStruct *) malloc (sizeof (TimerStruct));
   rv.ptr = t;
   t->func = func;
   t->user_data = user_data;
-  t->id = XtAppAddTimeOut(app_context, milliseconds, lesstif_timer_cb, t);
+  t->id = XtAppAddTimeOut (app_context, milliseconds, lesstif_timer_cb, t);
   return rv;
 }
 
 static void
 lesstif_stop_timer (hidval hv)
 {
-  TimerStruct *ts = (TimerStruct *)hv.ptr;
-  XtRemoveTimeOut(ts->id);
-  free(ts);
+  TimerStruct *ts = (TimerStruct *) hv.ptr;
+  XtRemoveTimeOut (ts->id);
+  free (ts);
 }
 
-extern void
-lesstif_log (char *fmt, ...);
+extern void lesstif_log (char *fmt, ...);
 
-extern void
-lesstif_logv(char *fmt, va_list ap);
+extern void lesstif_logv (char *fmt, va_list ap);
 
-extern int
-lesstif_confirm_dialog (char *msg, ...);
+extern int lesstif_confirm_dialog (char *msg, ...);
 
-extern void
-lesstif_report_dialog (char *title, char *msg);
+extern void lesstif_report_dialog (char *title, char *msg);
 
-extern char *
-lesstif_prompt_for (char *msg, char *default_string);
+extern char *lesstif_prompt_for (char *msg, char *default_string);
 
 extern int
-lesstif_attribute_dialog (HID_Attribute *attrs,
-			  int n_attrs,
-			  HID_Attr_Val *results);
+lesstif_attribute_dialog (HID_Attribute * attrs,
+			  int n_attrs, HID_Attr_Val * results);
 
 static void
-pinout_callback (Widget da, PinoutData *pd, XmDrawingAreaCallbackStruct *cbs)
+pinout_callback (Widget da, PinoutData * pd,
+		 XmDrawingAreaCallbackStruct * cbs)
 {
   BoxType region;
   int save_vx, save_vy, save_vw, save_vh;
@@ -2506,20 +2588,20 @@ pinout_callback (Widget da, PinoutData *pd, XmDrawingAreaCallbackStruct *cbs)
       double z;
 
       n = 0;
-      stdarg(XmNwidth, &w);
-      stdarg(XmNheight, &h);
-      XtGetValues(da, args, n);
+      stdarg (XmNwidth, &w);
+      stdarg (XmNheight, &h);
+      XtGetValues (da, args, n);
 
       pd->window = XtWindow (da);
       pd->v_width = w;
       pd->v_height = h;
-      pd->zoom = (pd->right - pd->left + 1) / (double)w;
-      z = (pd->bottom - pd->top + 1) / (double)h;
+      pd->zoom = (pd->right - pd->left + 1) / (double) w;
+      z = (pd->bottom - pd->top + 1) / (double) h;
       if (pd->zoom < z)
 	pd->zoom = z;
 
-      pd->x = (pd->left + pd->right)/2 - pd->v_width * pd->zoom / 2;
-      pd->y = (pd->top + pd->bottom)/2 - pd->v_height * pd->zoom / 2;
+      pd->x = (pd->left + pd->right) / 2 - pd->v_width * pd->zoom / 2;
+      pd->y = (pd->top + pd->bottom) / 2 - pd->v_height * pd->zoom / 2;
     }
 
   save_vx = view_left_x;
@@ -2542,8 +2624,8 @@ pinout_callback (Widget da, PinoutData *pd, XmDrawingAreaCallbackStruct *cbs)
   region.X2 = PCB->MaxWidth;
   region.Y2 = PCB->MaxHeight;
 
-  XFillRectangle(display, pixmap, bg_gc, 0, 0, pd->v_width, pd->v_height);
-  hid_expose_callback(&lesstif_gui, &region, pd->item);
+  XFillRectangle (display, pixmap, bg_gc, 0, 0, pd->v_width, pd->v_height);
+  hid_expose_callback (&lesstif_gui, &region, pd->item);
 
   pinout = 0;
   view_left_x = save_vx;
@@ -2555,7 +2637,7 @@ pinout_callback (Widget da, PinoutData *pd, XmDrawingAreaCallbackStruct *cbs)
 }
 
 static void
-pinout_unmap (Widget w, PinoutData *pd, void *v)
+pinout_unmap (Widget w, PinoutData * pd, void *v)
 {
   if (pd->prev)
     pd->prev->next = pd->next;
@@ -2563,8 +2645,8 @@ pinout_unmap (Widget w, PinoutData *pd, void *v)
     pinouts = pd->next;
   if (pd->next)
     pd->next->prev = pd->prev;
-  XtDestroyWidget(XtParent(pd->form));
-  free(pd);
+  XtDestroyWidget (XtParent (pd->form));
+  free (pd);
 }
 
 static void
@@ -2576,17 +2658,17 @@ lesstif_show_item (void *item)
   BoxType region, *extents;
   PinoutData *pd;
 
-  for (pd=pinouts; pd; pd=pd->next)
+  for (pd = pinouts; pd; pd = pd->next)
     if (pd->item == item)
       return;
   if (!mainwind)
     return;
 
-  pd = (PinoutData *) MyCalloc (1, sizeof(PinoutData), "lesstif_show_item");
+  pd = (PinoutData *) MyCalloc (1, sizeof (PinoutData), "lesstif_show_item");
 
   pd->item = item;
 
-  extents = hid_get_extents(item);
+  extents = hid_get_extents (item);
   pd->left = extents->X1;
   pd->right = extents->X2;
   pd->top = extents->Y1;
@@ -2594,7 +2676,7 @@ lesstif_show_item (void *item)
 
   if (pd->left > pd->right)
     {
-      free(&pd);
+      free (&pd);
       return;
     }
   pd->prev = 0;
@@ -2607,42 +2689,47 @@ lesstif_show_item (void *item)
   n = 0;
   pd->form = XmCreateFormDialog (mainwind, "pinout", args, n);
   pd->window = 0;
-  XtAddCallback(pd->form, XmNunmapCallback, (XtCallbackProc)pinout_unmap, (XtPointer)pd);
+  XtAddCallback (pd->form, XmNunmapCallback, (XtCallbackProc) pinout_unmap,
+		 (XtPointer) pd);
 
-  scale = sqrt(200.0 * 200.0 / ((pd->right - pd->left + 1.0) * (pd->bottom - pd->top + 1.0)));
+  scale =
+    sqrt (200.0 * 200.0 /
+	  ((pd->right - pd->left + 1.0) * (pd->bottom - pd->top + 1.0)));
 
   n = 0;
-  stdarg(XmNwidth, (int)(scale * (pd->right - pd->left + 1)));
-  stdarg(XmNheight, (int)(scale * (pd->bottom - pd->top + 1)));
-  stdarg(XmNleftAttachment, XmATTACH_FORM);
-  stdarg(XmNrightAttachment, XmATTACH_FORM);
-  stdarg(XmNtopAttachment, XmATTACH_FORM);
-  stdarg(XmNbottomAttachment, XmATTACH_FORM);
+  stdarg (XmNwidth, (int) (scale * (pd->right - pd->left + 1)));
+  stdarg (XmNheight, (int) (scale * (pd->bottom - pd->top + 1)));
+  stdarg (XmNleftAttachment, XmATTACH_FORM);
+  stdarg (XmNrightAttachment, XmATTACH_FORM);
+  stdarg (XmNtopAttachment, XmATTACH_FORM);
+  stdarg (XmNbottomAttachment, XmATTACH_FORM);
   da = XmCreateDrawingArea (pd->form, "pinout", args, n);
-  XtManageChild(da);
+  XtManageChild (da);
 
-  XtAddCallback(da, XmNexposeCallback, (XtCallbackProc)pinout_callback, (XtPointer)pd);
-  XtAddCallback(da, XmNresizeCallback, (XtCallbackProc)pinout_callback, (XtPointer)pd);
+  XtAddCallback (da, XmNexposeCallback, (XtCallbackProc) pinout_callback,
+		 (XtPointer) pd);
+  XtAddCallback (da, XmNresizeCallback, (XtCallbackProc) pinout_callback,
+		 (XtPointer) pd);
 
-  XtManageChild(pd->form);
+  XtManageChild (pd->form);
   pinout = 0;
 }
 
 static void
 lesstif_beep (void)
 {
-  putchar(7);
-  fflush(stdout);
+  putchar (7);
+  fflush (stdout);
 }
 
 HID lesstif_gui = {
   "lesstif",
   "LessTif - a Motif clone for X/Unix",
-  1, /* gui */
-  0, /* printer */
-  0, /* exporter */
-  1, /* poly before */
-  0, /* poly after */
+  1,				/* gui */
+  0,				/* printer */
+  0,				/* exporter */
+  1,				/* poly before */
+  0,				/* poly after */
 
   lesstif_get_export_options,
   lesstif_do_export,
@@ -2689,7 +2776,7 @@ HID lesstif_gui = {
 #include "dolists.h"
 
 void
-hid_lesstif_init()
+hid_lesstif_init ()
 {
   hid_register_hid (&lesstif_gui);
 #include "lesstif_lists.h"

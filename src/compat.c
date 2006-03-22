@@ -34,20 +34,20 @@
 #include <dmalloc.h>
 #endif
 
-RCSID("$Id$");
+RCSID ("$Id$");
 
 #ifndef HAVE_EXPF
-float expf(float x)
+float
+expf (float x)
 {
-	return (float) exp((double) x);
+  return (float) exp ((double) x);
 }
 #endif
 
 #ifndef HAVE_LOGF
-float logf(float x)
+float
+logf (float x)
 {
-	return (float) log((double) x);
+  return (float) log ((double) x);
 }
 #endif
-
-

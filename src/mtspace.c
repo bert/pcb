@@ -50,7 +50,7 @@
 #include "vector.h"
 
 
-RCSID("$Id$");
+RCSID ("$Id$");
 
 
 /* define this for more thorough self-checking of data structures */
@@ -67,7 +67,7 @@ typedef struct mtspacebox
   int fixed_count;
   int even_count;
   int odd_count;
-  BDimension keepaway; /* the smallest keepaway around this box */
+  BDimension keepaway;		/* the smallest keepaway around this box */
 }
 mtspacebox_t;
 
@@ -107,12 +107,12 @@ mtspace_create_box (const BoxType * box, int fixed, int even, int odd)
 {
   mtspacebox_t *mtsb;
   assert (__box_is_good (box));
-  mtsb = malloc(sizeof (*mtsb));
+  mtsb = malloc (sizeof (*mtsb));
   *((BoxTypePtr) & mtsb->box) = *box;
   mtsb->fixed_count = fixed;
   mtsb->even_count = even;
   mtsb->odd_count = odd;
-  mtsb->keepaway = MAX_COORD; /* impossibly large start */
+  mtsb->keepaway = MAX_COORD;	/* impossibly large start */
   assert (__mtspace_box_is_good (mtsb));
   return mtsb;
 }
@@ -132,7 +132,7 @@ mtspace_create (const BoxType * bounds, BDimension keepaway)
   mtsb = mtspace_create_box (&smaller_bounds, 0, 0, 0);
   mtsb->keepaway = keepaway;
   /* create mtspace data structure */
-  mtspace = malloc(sizeof (*mtspace));
+  mtspace = malloc (sizeof (*mtspace));
   mtspace->rtree = r_create_tree ((const BoxType **) &mtsb, 1, 1);
   mtspace->bounds = smaller_bounds;
   /* done! */
@@ -296,7 +296,7 @@ mtspace_coalesce (mtspace_t * mtspace, struct coalesce_closure *cc)
 	  /* ----- didn't find anything to coalesce ----- */
 #ifndef NDEBUG
 	  r = r_region_is_empty (mtspace->rtree, &cc->mtsb->box);
-          assert(r);
+	  assert (r);
 #endif
 	  r_insert_entry (mtspace->rtree, &cc->mtsb->box, 1);
 	}
@@ -441,7 +441,7 @@ mtspace_mutate (mtspace_t * mtspace,
 /* add a space-filler to the empty space representation.  */
 void
 mtspace_add (mtspace_t * mtspace, const BoxType * box, mtspace_type_t which,
-             BDimension keepaway)
+	     BDimension keepaway)
 {
   mtspace_mutate (mtspace, box, which, keepaway, True);
 }
@@ -449,7 +449,8 @@ mtspace_add (mtspace_t * mtspace, const BoxType * box, mtspace_type_t which,
 /* remove a space-filler from the empty space representation. */
 void
 mtspace_remove (mtspace_t * mtspace,
-		const BoxType * box, mtspace_type_t which, BDimension keepaway)
+		const BoxType * box, mtspace_type_t which,
+		BDimension keepaway)
 {
   mtspace_mutate (mtspace, box, which, keepaway, False);
 }
@@ -478,11 +479,10 @@ query_one (const BoxType * box, void *cl)
   if (qc->keepaway > mtsb->keepaway)
     shrink = qc->keepaway - mtsb->keepaway;
   shrink += qc->radius;
-  shrunk = (BoxType *) malloc(sizeof(*shrunk));
+  shrunk = (BoxType *) malloc (sizeof (*shrunk));
   *shrunk = shrink_box (box, shrink);
   if (shrunk->X2 <= shrunk->X1
-      || shrunk->Y2 <= shrunk->Y1 ||
-  !box_intersect (qc->region, shrunk))
+      || shrunk->Y2 <= shrunk->Y1 || !box_intersect (qc->region, shrunk))
     {
       free (shrunk);
       return 0;

@@ -24,28 +24,28 @@ Widget m_click;
 
 extern Widget lesstif_menu (Widget, char *, Arg *, int);
 extern int lesstif_key_event (XKeyEvent *);
-extern int lesstif_button_event (Widget w, XEvent *e);
+extern int lesstif_button_event (Widget w, XEvent * e);
 
 /* Returns TRUE if the point mapped to the PCB region, FALSE (=0) if
    we're off-board.  Note that *pcbxy is always written to, even if
    out of range.  */
-extern int lesstif_winxy_to_pcbxy(int winx, int winy, int *pcbx, int *pcby);
+extern int lesstif_winxy_to_pcbxy (int winx, int winy, int *pcbx, int *pcby);
 
 /* Returns TRUE if the point is in the window, FALSE (=0) otherwise. */
-extern int lesstif_pcbxy_to_winxy(int pcbx, int pcby, int *winx, int *winy);
+extern int lesstif_pcbxy_to_winxy (int pcbx, int pcby, int *winx, int *winy);
 
-extern void lesstif_need_idle_proc(void);
-extern void lesstif_show_crosshair(int);
+extern void lesstif_need_idle_proc (void);
+extern void lesstif_show_crosshair (int);
 extern void lesstif_invalidate_all (void);
-extern void lesstif_coords_to_pcb (int, int, int*, int*);
+extern void lesstif_coords_to_pcb (int, int, int *, int *);
 extern void lesstif_get_xy (char *msg);
-extern void lesstif_update_widget_flags(void);
-extern int lesstif_call_action(const char *, int, char **);
+extern void lesstif_update_widget_flags (void);
+extern int lesstif_call_action (const char *, int, char **);
 extern void lesstif_sizes_reset (void);
 extern void lesstif_pan_fixup (void);
 extern void lesstif_show_library (void);
 extern void lesstif_show_netlist (void);
-extern Pixel lesstif_parse_color(char *value);
+extern Pixel lesstif_parse_color (char *value);
 extern void lesstif_insert_style_buttons (Widget menu);
 extern void lesstif_styles_update_values ();
 extern void lesstif_update_status_line ();

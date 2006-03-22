@@ -58,7 +58,7 @@
 #include <dmalloc.h>
 #endif
 
-RCSID("$Id$");
+RCSID ("$Id$");
 
 
 /* ---------------------------------------------------------------------------
@@ -108,10 +108,10 @@ rubber_callback (const BoxType * b, void *cl)
 	  && line->Point1.Y + t >= i->box.Y1
 	  && line->Point1.Y - t <= i->box.Y2)
 	{
-	  if ( ((i->box.X1 <= line->Point1.X) && 
+	  if (((i->box.X1 <= line->Point1.X) &&
 	       (line->Point1.X <= i->box.X2)) ||
-	      ((i->box.Y1 <= line->Point1.Y) && 
-	       (line->Point1.Y <= i->box.Y2)) )
+	      ((i->box.Y1 <= line->Point1.Y) &&
+	       (line->Point1.Y <= i->box.Y2)))
 	    {
 	      /* 
 	       * The circle is positioned such that the closest point
@@ -129,15 +129,15 @@ rubber_callback (const BoxType * b, void *cl)
 	       * circle to the corners of the rectangle since the
 	       * closest part of the rectangular region is the corner.
 	       */
-	      x = MIN (abs(i->box.X1 - line->Point1.X),
-		       abs(i->box.X2 - line->Point1.X) );
+	      x = MIN (abs (i->box.X1 - line->Point1.X),
+		       abs (i->box.X2 - line->Point1.X));
 	      x *= x;
-	      y = MIN (abs(i->box.Y1 - line->Point1.Y),
-		       abs(i->box.Y2 - line->Point1.Y));
+	      y = MIN (abs (i->box.Y1 - line->Point1.Y),
+		       abs (i->box.Y2 - line->Point1.Y));
 	      y *= y;
 	      x = x + y - (t * t);
 
-	      if ( x <= 0 )
+	      if (x <= 0)
 		touches = 1;
 	    }
 	  if (touches)
@@ -150,24 +150,24 @@ rubber_callback (const BoxType * b, void *cl)
 	  && line->Point2.Y + t >= i->box.Y1
 	  && line->Point2.Y - t <= i->box.Y2)
 	{
-	  if ( ((i->box.X1 <= line->Point2.X) && 
+	  if (((i->box.X1 <= line->Point2.X) &&
 	       (line->Point2.X <= i->box.X2)) ||
-	      ((i->box.Y1 <= line->Point2.Y) && 
-	       (line->Point2.Y <= i->box.Y2)) )
+	      ((i->box.Y1 <= line->Point2.Y) &&
+	       (line->Point2.Y <= i->box.Y2)))
 	    {
 	      touches = 1;
 	    }
 	  else
 	    {
-	      x = MIN (abs(i->box.X1 - line->Point2.X),
-		       abs(i->box.X2 - line->Point2.X) );
+	      x = MIN (abs (i->box.X1 - line->Point2.X),
+		       abs (i->box.X2 - line->Point2.X));
 	      x *= x;
-	      y = MIN (abs(i->box.Y1 - line->Point2.Y),
-		       abs(i->box.Y2 - line->Point2.Y));
+	      y = MIN (abs (i->box.Y1 - line->Point2.Y),
+		       abs (i->box.Y2 - line->Point2.Y));
 	      y *= y;
 	      x = x + y - (t * t);
 
-	      if ( x <= 0 )
+	      if (x <= 0)
 		touches = 1;
 	    }
 	  if (touches)

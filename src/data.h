@@ -34,12 +34,12 @@
 #include "global.h"
 
 #if 0
-extern	GdkPixmap		**Stipples;
-extern	GdkPixmap		*XC_hand_source, *XC_hand_mask;
-extern	GdkPixmap		*XC_lock_source, *XC_lock_mask;
-extern	GdkPixmap		*XC_clock_source, *XC_clock_mask;
+extern GdkPixmap **Stipples;
+extern GdkPixmap *XC_hand_source, *XC_hand_mask;
+extern GdkPixmap *XC_lock_source, *XC_lock_mask;
+extern GdkPixmap *XC_clock_source, *XC_clock_mask;
 
-extern	GdkRegion		*FullRegion;
+extern GdkRegion *FullRegion;
 #endif
 
 /* ---------------------------------------------------------------------------
@@ -47,38 +47,38 @@ extern	GdkRegion		*FullRegion;
  */
 
 
-extern	CrosshairType	Crosshair;
+extern CrosshairType Crosshair;
 
-extern  MarkType	Marked;
+extern MarkType Marked;
 
-extern	OutputType	Output;
+extern OutputType Output;
 
-extern	PCBTypePtr	PCB;
+extern PCBTypePtr PCB;
 
-extern	SettingType	Settings;
+extern SettingType Settings;
 
-extern	BufferType	Buffers[MAX_BUFFER];
+extern BufferType Buffers[MAX_BUFFER];
 
-extern	LibraryType	Library;
+extern LibraryType Library;
 
 /*extern	DeviceInfoType	PrintingDevice[];*/
 
-extern	LocationType Xorig, Yorig;
+extern LocationType Xorig, Yorig;
 
-extern  BoxType		theScreen, clipBox;
+extern BoxType theScreen, clipBox;
 
-extern	double		Zoom_Multiplier;
+extern double Zoom_Multiplier;
 
-extern	char		*Progname;
-extern	char		*InputTranslations;
+extern char *Progname;
+extern char *InputTranslations;
 
-extern	int		addedLines;
-extern	int		LayerStack[MAX_LAYER];
+extern int addedLines;
+extern int LayerStack[MAX_LAYER];
 
-extern	Boolean	RedrawOnEnter;
-extern	Boolean	render;
-extern	Boolean	Bumped;
+extern Boolean RedrawOnEnter;
+extern Boolean render;
+extern Boolean Bumped;
 
-extern	FlagType	no_flags;
+extern FlagType no_flags;
 
 #endif

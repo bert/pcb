@@ -81,8 +81,8 @@ RCSID ("$Id$");
 /*	forward declarations	*/
 static char *BumpName (char *);
 static void RightAngles (int, float *, float *);
-static void GetGridLockCoordinates (int, void *, void *, void *, LocationType *,
-				    LocationType *);
+static void GetGridLockCoordinates (int, void *, void *, void *,
+				    LocationType *, LocationType *);
 
 
 /* Local variables */
@@ -104,7 +104,7 @@ static struct
  * Boolean variable absolute to False if it leads with a +/- character
  */
 float
-GetValue (char *val, char *units, Boolean *absolute)
+GetValue (char *val, char *units, Boolean * absolute)
 {
   float value;
 
@@ -547,9 +547,9 @@ CenterDisplay (LocationType X, LocationType Y, Boolean Delta)
   int save_grid = PCB->Grid;
   PCB->Grid = 1;
   if (Delta)
-    MoveCrosshairRelative(X, Y);
+    MoveCrosshairRelative (X, Y);
   else
-    MoveCrosshairAbsolute(X, Y);
+    MoveCrosshairAbsolute (X, Y);
   PCB->Grid = save_grid;
 }
 
@@ -633,27 +633,27 @@ GetNum (char **s, BDimension * num)
 
 
 char *
-build_route_string(RouteStyleType *rs)
-	{
+build_route_string (RouteStyleType * rs)
+{
 #ifdef FIXME
-	char	*str, *s, *t, *colon;
-	int	i;
+  char *str, *s, *t, *colon;
+  int i;
 
-	str = MyStrdup("", __FUNCTION__);
-	for (i = 0; i < NUM_STYLES; ++i, ++rs)
-		{
-		s = g_strdup_printf("%s,%d,%d,%d,%d", rs->Name,
-				rs->Thick, rs->Diameter, rs->Hole, rs->Keepaway);
-		colon = (i == NUM_STYLES - 1) ? NULL : ":";
-		t = str;
-		str = g_strconcat(str, s, colon, NULL);
-		free(t);
-		}
-	return str;
+  str = MyStrdup ("", __FUNCTION__);
+  for (i = 0; i < NUM_STYLES; ++i, ++rs)
+    {
+      s = g_strdup_printf ("%s,%d,%d,%d,%d", rs->Name,
+			   rs->Thick, rs->Diameter, rs->Hole, rs->Keepaway);
+      colon = (i == NUM_STYLES - 1) ? NULL : ":";
+      t = str;
+      str = g_strconcat (str, s, colon, NULL);
+      free (t);
+    }
+  return str;
 #else
-	return "Please_fix_build_route_string";
+  return "Please_fix_build_route_string";
 #endif
-	}
+}
 
 /* ----------------------------------------------------------------------
  * parses the routes definition string which is a colon seperated list of
@@ -725,7 +725,7 @@ ParseRouteString (char *s, RouteStyleTypePtr routeStyle, int scale)
     }
   return (0);
 
- error:
+error:
   memset (routeStyle, 0, NUM_STYLES * sizeof (RouteStyleType));
   return (1);
 }
@@ -825,8 +825,8 @@ QuitApplication (void)
    * this case just set the flat to -1 and we will exit instead
    * of calling gtk_main()
    */
-  if( Settings.init_done > 0 )
-    exit(0);
+  if (Settings.init_done > 0)
+    exit (0);
   else
     Settings.init_done = -1;
 }
@@ -844,15 +844,15 @@ EvaluateFilename (char *Template, char *Path, char *Filename, char *Parameter)
 
   if (Settings.verbose)
     {
-      printf("EvaluateFilename:\n");
-      printf("\tTemplate: \033[33m%s\033[0m\n", Template);
-      printf("\tPath: \033[33m%s\033[0m\n", Path);
-      printf("\tFilename: \033[33m%s\033[0m\n", Filename);
-      printf("\tParameter: \033[33m%s\033[0m\n", Parameter);
+      printf ("EvaluateFilename:\n");
+      printf ("\tTemplate: \033[33m%s\033[0m\n", Template);
+      printf ("\tPath: \033[33m%s\033[0m\n", Path);
+      printf ("\tFilename: \033[33m%s\033[0m\n", Filename);
+      printf ("\tParameter: \033[33m%s\033[0m\n", Parameter);
     }
 
   DSClearString (&command);
-	
+
   for (p = Template; p && *p; p++)
     {
       /* copy character or add string to command */
@@ -875,7 +875,7 @@ EvaluateFilename (char *Template, char *Path, char *Filename, char *Parameter)
     }
   DSAddCharacter (&command, '\0');
   if (Settings.verbose)
-    printf("EvaluateFilename: \033[32m%s\033[0m\n", command.Data);
+    printf ("EvaluateFilename: \033[32m%s\033[0m\n", command.Data);
 
   return (MyStrdup (command.Data, "EvaluateFilename()"));
 }
@@ -977,12 +977,12 @@ ChangeGroupVisibility (int Layer, Boolean On, Boolean ChangeStackOrder)
   int group, i, changed = 1;	/* at least the current layer changes */
 
   /* Warning: these special case values must agree with what gui-top-window.c
-  |  thinks the are.
-  */
+     |  thinks the are.
+   */
 
-	if (Settings.verbose)
-		printf("ChangeGroupVisibility(Layer=%d, On=%d, ChangeStackOrder=%d)\n",
-				Layer, On, ChangeStackOrder);
+  if (Settings.verbose)
+    printf ("ChangeGroupVisibility(Layer=%d, On=%d, ChangeStackOrder=%d)\n",
+	    Layer, On, ChangeStackOrder);
 
   /* special case of rat (netlist layer) */
 #ifdef FIXME
@@ -992,7 +992,7 @@ ChangeGroupVisibility (int Layer, Boolean On, Boolean ChangeStackOrder)
       PCB->RatDraw = On && ChangeStackOrder;
       if (PCB->RatDraw)
 	SetMode (NO_MODE);
-      gui_layer_buttons_update();
+      gui_layer_buttons_update ();
       return (0);
     }
   else
@@ -1005,7 +1005,7 @@ ChangeGroupVisibility (int Layer, Boolean On, Boolean ChangeStackOrder)
       PCB->SilkActive = On && ChangeStackOrder;
       PCB->Data->SILKLAYER.On = On;
       PCB->Data->BACKSILKLAYER.On = (On && PCB->InvisibleObjectsOn);
-      gui_layer_buttons_update();
+      gui_layer_buttons_update ();
       return (0);
     }
   PCB->SilkActive = (On && ChangeStackOrder) ? False : PCB->SilkActive;
@@ -1035,7 +1035,7 @@ ChangeGroupVisibility (int Layer, Boolean On, Boolean ChangeStackOrder)
     PushOnTopOfLayerStack (Layer);
 
   /* update control panel and exit */
-  hid_action("LayersChanged");
+  hid_action ("LayersChanged");
   return (changed);
 }
 
@@ -1477,8 +1477,8 @@ GetArcEnds (ArcTypePtr Arc)
 }
 
 void
-ChangeArcAngles(LayerTypePtr Layer, ArcTypePtr a,
-		long int new_sa, long int new_da)
+ChangeArcAngles (LayerTypePtr Layer, ArcTypePtr a,
+		 long int new_sa, long int new_da)
 {
   if (new_da >= 360)
     {
@@ -1489,7 +1489,7 @@ ChangeArcAngles(LayerTypePtr Layer, ArcTypePtr a,
   AddObjectToChangeAnglesUndoList (ARC_TYPE, a, a, a);
   a->StartAngle = new_sa;
   a->Delta = new_da;
-  SetArcBoundingBox(a);
+  SetArcBoundingBox (a);
   r_insert_entry (Layer->arc_tree, (BoxTypePtr) a, 0);
 }
 
@@ -1553,7 +1553,8 @@ UniqueElementName (DataTypePtr Data, char *Name)
 
 static void
 GetGridLockCoordinates (int type, void *ptr1,
-			void *ptr2, void *ptr3, LocationType * x, LocationType * y)
+			void *ptr2, void *ptr3, LocationType * x,
+			LocationType * y)
 {
   switch (type)
     {
@@ -1708,7 +1709,7 @@ FlagType
 MakeFlags (unsigned int flags)
 {
   FlagType rv;
-  memset(&rv, 0, sizeof(rv));
+  memset (&rv, 0, sizeof (rv));
   rv.f = flags;
   return rv;
 }
@@ -1718,7 +1719,7 @@ FlagType
 OldFlags (unsigned int flags)
 {
   FlagType rv;
-  memset(&rv, 0, sizeof(rv));
+  memset (&rv, 0, sizeof (rv));
   /* If we move flag bits around, this is where we map old bits to them.  */
   rv.f = flags & 0xffff;
   rv.t[0] = (flags >> 16) & 0xff;
@@ -1749,39 +1750,37 @@ MoveLayerToGroup (int layer, int group)
 {
   int prev, i, j;
 
-  if (layer < 0 || layer > MAX_LAYER+1)
+  if (layer < 0 || layer > MAX_LAYER + 1)
     return -1;
-  prev = GetLayerGroupNumberByNumber(layer);
+  prev = GetLayerGroupNumberByNumber (layer);
   if ((layer == MAX_LAYER
-       && group == GetLayerGroupNumberByNumber(MAX_LAYER+1))
-      ||  (layer == MAX_LAYER+1
-	   && group == GetLayerGroupNumberByNumber(MAX_LAYER))
-      || (group < 0 || group >= MAX_LAYER)
-      || (prev == group))
+       && group == GetLayerGroupNumberByNumber (MAX_LAYER + 1))
+      || (layer == MAX_LAYER + 1
+	  && group == GetLayerGroupNumberByNumber (MAX_LAYER))
+      || (group < 0 || group >= MAX_LAYER) || (prev == group))
     return prev;
 
   /* Remove layer from prev group */
-  printf("removing layer %d from group %d\n", layer, prev);
-  for (j=i=0; i<PCB->LayerGroups.Number[prev]; i++)
+  printf ("removing layer %d from group %d\n", layer, prev);
+  for (j = i = 0; i < PCB->LayerGroups.Number[prev]; i++)
     if (PCB->LayerGroups.Entries[prev][i] != layer)
-      PCB->LayerGroups.Entries[prev][j++] =
-	PCB->LayerGroups.Entries[prev][i];
-  PCB->LayerGroups.Number[prev] --;
+      PCB->LayerGroups.Entries[prev][j++] = PCB->LayerGroups.Entries[prev][i];
+  PCB->LayerGroups.Number[prev]--;
 
   /* Add layer to new group.  */
-  printf("adding layer %d to group %d\n", layer, group);
-  i = PCB->LayerGroups.Number[group] ++;
+  printf ("adding layer %d to group %d\n", layer, group);
+  i = PCB->LayerGroups.Number[group]++;
   PCB->LayerGroups.Entries[group][i] = layer;
 
   return group;
 }
 
 char *
-LayerGroupsToString(LayerGroupTypePtr lg)
+LayerGroupsToString (LayerGroupTypePtr lg)
 {
 #if MAX_LAYER < 9998
   /* Allows for layer numbers 0..9999 */
-  static char buf[(MAX_LAYER+2)*5+1];
+  static char buf[(MAX_LAYER + 2) * 5 + 1];
 #endif
   char *cp = buf;
   int group, entry;
@@ -1835,12 +1834,12 @@ pcb_author (void)
 	  /* ID the user. */
 	  pwentry = getpwuid (getuid ());
 	  gecos = pwentry->pw_gecos;
-	  comma = strchr (gecos,',');
+	  comma = strchr (gecos, ',');
 	  if (comma)
-	    len = comma-gecos;
+	    len = comma - gecos;
 	  else
 	    len = strlen (gecos);
-	  fab_author = malloc (len+1);
+	  fab_author = malloc (len + 1);
 	  if (!fab_author)
 	    {
 	      perror ("pcb: out of memory.\n");

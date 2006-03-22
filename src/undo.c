@@ -73,7 +73,7 @@
 #include <dmalloc.h>
 #endif
 
-RCSID("$Id$");
+RCSID ("$Id$");
 
 /* ---------------------------------------------------------------------------
  * some local data types
@@ -86,7 +86,7 @@ ChangeNameType, *ChangeNameTypePtr;
 
 typedef struct			/* information about a move command */
 {
-  LocationType DX,			/* movement vector */
+  LocationType DX,		/* movement vector */
     DY;
 }
 MoveType, *MoveTypePtr;
@@ -347,7 +347,7 @@ UndoChangeAngles (UndoListTypePtr Entry)
     SearchObjectByID (PCB->Data, &ptr1, &ptr2, &ptr3, Entry->ID, Entry->Kind);
   if (type == ARC_TYPE)
     {
-      LayerTypePtr Layer = (LayerTypePtr)ptr1;
+      LayerTypePtr Layer = (LayerTypePtr) ptr1;
       ArcTypePtr a = (ArcTypePtr) ptr2;
       if (TEST_FLAG (LOCKFLAG, a))
 	return (False);
@@ -358,7 +358,7 @@ UndoChangeAngles (UndoListTypePtr Entry)
 	EraseObject (type, a);
       a->StartAngle = Entry->Data.Move.DX;
       a->Delta = Entry->Data.Move.DY;
-      SetArcBoundingBox(a);
+      SetArcBoundingBox (a);
       r_insert_entry (Layer->arc_tree, (BoxTypePtr) a, 0);
       Entry->Data.Move.DX = old_sa;
       Entry->Data.Move.DY = old_da;;
@@ -414,13 +414,15 @@ UndoChangeMaskSize (UndoListTypePtr Entry)
     {
       if (TEST_FLAG (LOCKFLAG, (PinTypePtr) ptr2))
 	return (False);
-      swap = (type == PAD_TYPE ? ((PadTypePtr) ptr2)->Mask : ((PinTypePtr) ptr2)->Mask);
+      swap =
+	(type ==
+	 PAD_TYPE ? ((PadTypePtr) ptr2)->Mask : ((PinTypePtr) ptr2)->Mask);
       if (andDraw)
 	EraseObject (type, ptr2);
       if (type == PAD_TYPE)
-        ((PadTypePtr) ptr2)->Mask = Entry->Data.Size;
+	((PadTypePtr) ptr2)->Mask = Entry->Data.Size;
       else
-        ((PinTypePtr) ptr2)->Mask = Entry->Data.Size;
+	((PinTypePtr) ptr2)->Mask = Entry->Data.Size;
       Entry->Data.Size = swap;
       if (andDraw)
 	DrawObject (type, ptr1, ptr2, 0);
@@ -447,7 +449,7 @@ UndoChangeSize (UndoListTypePtr Entry)
     {
       if (TEST_FLAG (LOCKFLAG, (PinTypePtr) ptr2))
 	return (False);
-        /* Wow! can any object be treated as a pin type for size change?? */
+      /* Wow! can any object be treated as a pin type for size change?? */
       swap = ((PinTypePtr) ptr2)->Thickness;
       if (andDraw)
 	EraseObject (type, ptr2);
@@ -488,7 +490,7 @@ UndoFlag (UndoListTypePtr Entry)
       f1 = MaskFlags (pin->Flags, ~DRAW_FLAGS);
       f2 = MaskFlags (Entry->Data.Flags, ~DRAW_FLAGS);
 
-      if (! FLAGS_EQUAL (f1, f2))
+      if (!FLAGS_EQUAL (f1, f2))
 	must_redraw = 1;
 
       if (andDraw && must_redraw)
@@ -722,13 +724,13 @@ UndoInsertPoint (UndoListTypePtr Entry)
 	Entry->Kind = POLYGON_TYPE;
 	Entry->Type = UNDO_REMOVE_POINT;
 	POLYGONPOINT_LOOP (polygon);
-	  {
-	    if (pnt == point)
-	      {
-		Entry->Data.RemovedPoint.Index = n;
-		break;
-	      }
-	  }
+	{
+	  if (pnt == point)
+	    {
+	      Entry->Data.RemovedPoint.Index = n;
+	      break;
+	    }
+	}
 	END_LOOP;
 	DestroyObject (PCB->Data, POLYGONPOINT_TYPE, layer, polygon, pnt);
 	if (andDraw && layer->On)
@@ -889,7 +891,8 @@ Redo (Boolean draw)
       if (!RedoN)
 	{
 	  Message
-	  (_("Nothing to redo. Perhaps changes have been made since last undo\n"));
+	    (_
+	     ("Nothing to redo. Perhaps changes have been made since last undo\n"));
 	  return (False);
 	}
 
@@ -940,9 +943,9 @@ IncrementUndoSerialNumber (void)
 {
   if (!Locked)
     {
-       /* don't increment if nothing was added */
+      /* don't increment if nothing was added */
       if (UndoN == 0 || UndoList[UndoN - 1].Serial != Serial)
-        return;
+	return;
       Serial++;
       Bumped = True;
       SetChangedFlag (True);
@@ -957,7 +960,8 @@ ClearUndoList (Boolean Force)
 {
   UndoListTypePtr undo;
 
-  if (UndoN && (Force || gui->confirm_dialog("OK to clear 'undo' buffer?", 0)))
+  if (UndoN
+      && (Force || gui->confirm_dialog ("OK to clear 'undo' buffer?", 0)))
     {
       /* release memory allocated by objects in undo list */
       for (undo = UndoList; UndoN; undo++, UndoN--)
@@ -997,7 +1001,8 @@ AddObjectToMirrorUndoList (int Type, void *Ptr1, void *Ptr2, void *Ptr3,
  */
 void
 AddObjectToRotateUndoList (int Type, void *Ptr1, void *Ptr2, void *Ptr3,
-			   LocationType CenterX, LocationType CenterY, BYTE Steps)
+			   LocationType CenterX, LocationType CenterY,
+			   BYTE Steps)
 {
   UndoListTypePtr undo;
 
@@ -1263,7 +1268,7 @@ void
 AddObjectToChangeAnglesUndoList (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
 {
   UndoListTypePtr undo;
-  ArcTypePtr a = (ArcTypePtr)Ptr3;
+  ArcTypePtr a = (ArcTypePtr) Ptr3;
 
   if (!Locked)
     {

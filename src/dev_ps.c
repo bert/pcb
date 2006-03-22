@@ -59,7 +59,7 @@
 #include <dmalloc.h>
 #endif
 
-RCSID("$Id$");
+RCSID ("$Id$");
 
 /* ---------------------------------------------------------------------------
  * some defines
@@ -91,8 +91,10 @@ static void PS_PrintTextLowLevel (TextTypePtr);
 static void PS_PrintElementPackage (ElementTypePtr);
 static void PS_PrintPad (PadTypePtr, int);
 static void PS_PrintPinOrVia (PinTypePtr, int);
-static void PS_Outline (LocationType, LocationType, LocationType, LocationType);
-static void PS_Alignment (LocationType, LocationType, LocationType, LocationType);
+static void PS_Outline (LocationType, LocationType, LocationType,
+			LocationType);
+static void PS_Alignment (LocationType, LocationType, LocationType,
+			  LocationType);
 static void PS_DrillHelper (PinTypePtr, int);
 
 /* ----------------------------------------------------------------------
@@ -560,8 +562,8 @@ PS_EPS_Init (PrintInitTypePtr Flags, char *Description, Boolean CreateEPS)
 	  fputs ("%%PageOrder: Ascend\n", PS_Flags.FP);
 	  fprintf (PS_Flags.FP, "%%%%DocumentMedia: %s %d %d\n",
 		   PS_Flags.SelectedMedia->Name,
-		   POST_SCALE(PS_Flags.SelectedMedia->Width),
-		   POST_SCALE(PS_Flags.SelectedMedia->Height));
+		   POST_SCALE (PS_Flags.SelectedMedia->Width),
+		   POST_SCALE (PS_Flags.SelectedMedia->Height));
 	}
 
       /* OK, continue with structured comments */
@@ -980,7 +982,8 @@ PS_PrintPinOrVia (PinTypePtr Ptr, int mode)
  * the upper/left and lower/right corner are passed
  */
 static void
-PS_Outline (LocationType X1, LocationType Y1, LocationType X2, LocationType Y2)
+PS_Outline (LocationType X1, LocationType Y1, LocationType X2,
+	    LocationType Y2)
 {
   fprintf (PS_Flags.FP, "%d %d %d %d Outline\n",
 	   (int) X1, (int) Y1, (int) X2, (int) Y2);
@@ -991,7 +994,8 @@ PS_Outline (LocationType X1, LocationType Y1, LocationType X2, LocationType Y2)
  * the upper/left and lower/right corner are passed
  */
 static void
-PS_Alignment (LocationType X1, LocationType Y1, LocationType X2, LocationType Y2)
+PS_Alignment (LocationType X1, LocationType Y1, LocationType X2,
+	      LocationType Y2)
 {
   fprintf (PS_Flags.FP, "%d %d %d %d %d Alignment\n",
 	   (int) X1,
@@ -1015,7 +1019,7 @@ PS_DrillHelper (PinTypePtr Ptr, int unused)
  * Convert GdkColor to postscript
  */
 static void
-PS_SetColor (GdkColor *RGB)
+PS_SetColor (GdkColor * RGB)
 {
   fprintf (PS_Flags.FP,
 	   "/Color {%.3f %.3f %.3f mysetrgbcolor} def Color\n",

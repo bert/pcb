@@ -37,7 +37,7 @@
 /* ---------------------------------------------------------------------------
  * number of additional objects that are allocated with one system call
  */
-#define	STEP_VIA			2000		/* block size for realloc() calls */
+#define	STEP_VIA			2000	/* block size for realloc() calls */
 #define	STEP_PIN			20
 #define	STEP_PAD			20
 #define	STEP_LINE			10000
@@ -64,53 +64,53 @@
  */
 typedef struct
 {
-	size_t	MaxLength;
-	char	*Data;
+  size_t MaxLength;
+  char *Data;
 } DynamicStringType, *DynamicStringTypePtr;
 
-RubberbandTypePtr	GetRubberbandMemory(void);
-PinTypePtr			GetPinMemory(ElementTypePtr);
-PadTypePtr			GetPadMemory(ElementTypePtr);
-PinTypePtr			GetViaMemory(DataTypePtr);
-LineTypePtr			GetLineMemory(LayerTypePtr);
-ArcTypePtr			GetArcMemory(LayerTypePtr);
-RatTypePtr			GetRatMemory(DataTypePtr);
-TextTypePtr			GetTextMemory(LayerTypePtr);
-PolygonTypePtr		GetPolygonMemory(LayerTypePtr);
-PointTypePtr		GetPointMemoryInPolygon(PolygonTypePtr);
-ElementTypePtr		GetElementMemory(DataTypePtr);
-BoxTypePtr		GetBoxMemory(BoxListTypePtr);
-ConnectionTypePtr	GetConnectionMemory(NetTypePtr);
-NetTypePtr		GetNetMemory(NetListTypePtr);
-NetListTypePtr		GetNetListMemory(NetListListTypePtr);
-LibraryMenuTypePtr	GetLibraryMenuMemory(LibraryTypePtr);
-LibraryEntryTypePtr	GetLibraryEntryMemory(LibraryMenuTypePtr);
-ElementTypeHandle	GetDrillElementMemory(DrillTypePtr);
-PinTypeHandle		GetDrillPinMemory(DrillTypePtr);
-DrillTypePtr		GetDrillInfoDrillMemory(DrillInfoTypePtr);
-void			**GetPointerMemory(PointerListTypePtr);
-void				*MyCalloc(size_t, size_t, char *);
-void				*MyRealloc(void *, size_t, char *);
-char				*MyStrdup(char *s, char *);
-void				MyFree(char **);
-void				FreePolygonMemory(PolygonTypePtr);
-void				FreeElementMemory(ElementTypePtr);
-void				FreePCBMemory(PCBTypePtr);
-void				FreeBoxListMemory(BoxListTypePtr);
-void				FreeNetListListMemory(NetListListTypePtr);
-void				FreeNetListMemory(NetListTypePtr);
-void				FreeNetMemory(NetTypePtr);
-void				FreeDataMemory(DataTypePtr);
-void				FreeLibraryMemory(LibraryTypePtr);
-void				FreePointerListMemory(PointerListTypePtr);
-void				SaveFree(void *);
-void				DSAddCharacter(DynamicStringTypePtr, char);
-void				DSAddString(DynamicStringTypePtr, char *);
-void				DSClearString(DynamicStringTypePtr);
-char				*StripWhiteSpaceAndDup(char *);
+RubberbandTypePtr GetRubberbandMemory (void);
+PinTypePtr GetPinMemory (ElementTypePtr);
+PadTypePtr GetPadMemory (ElementTypePtr);
+PinTypePtr GetViaMemory (DataTypePtr);
+LineTypePtr GetLineMemory (LayerTypePtr);
+ArcTypePtr GetArcMemory (LayerTypePtr);
+RatTypePtr GetRatMemory (DataTypePtr);
+TextTypePtr GetTextMemory (LayerTypePtr);
+PolygonTypePtr GetPolygonMemory (LayerTypePtr);
+PointTypePtr GetPointMemoryInPolygon (PolygonTypePtr);
+ElementTypePtr GetElementMemory (DataTypePtr);
+BoxTypePtr GetBoxMemory (BoxListTypePtr);
+ConnectionTypePtr GetConnectionMemory (NetTypePtr);
+NetTypePtr GetNetMemory (NetListTypePtr);
+NetListTypePtr GetNetListMemory (NetListListTypePtr);
+LibraryMenuTypePtr GetLibraryMenuMemory (LibraryTypePtr);
+LibraryEntryTypePtr GetLibraryEntryMemory (LibraryMenuTypePtr);
+ElementTypeHandle GetDrillElementMemory (DrillTypePtr);
+PinTypeHandle GetDrillPinMemory (DrillTypePtr);
+DrillTypePtr GetDrillInfoDrillMemory (DrillInfoTypePtr);
+void **GetPointerMemory (PointerListTypePtr);
+void *MyCalloc (size_t, size_t, char *);
+void *MyRealloc (void *, size_t, char *);
+char *MyStrdup (char *s, char *);
+void MyFree (char **);
+void FreePolygonMemory (PolygonTypePtr);
+void FreeElementMemory (ElementTypePtr);
+void FreePCBMemory (PCBTypePtr);
+void FreeBoxListMemory (BoxListTypePtr);
+void FreeNetListListMemory (NetListListTypePtr);
+void FreeNetListMemory (NetListTypePtr);
+void FreeNetMemory (NetTypePtr);
+void FreeDataMemory (DataTypePtr);
+void FreeLibraryMemory (LibraryTypePtr);
+void FreePointerListMemory (PointerListTypePtr);
+void SaveFree (void *);
+void DSAddCharacter (DynamicStringTypePtr, char);
+void DSAddString (DynamicStringTypePtr, char *);
+void DSClearString (DynamicStringTypePtr);
+char *StripWhiteSpaceAndDup (char *);
 
 #ifdef NEED_STRDUP
-char				*strdup(const char *);
+char *strdup (const char *);
 #endif
 
 #define malloc(x) calloc(1,(x))

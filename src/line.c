@@ -42,7 +42,7 @@
 #include "misc.h"
 #include "rtree.h"
 
-RCSID("$Id$");
+RCSID ("$Id$");
 
 static float drc_lines (PointTypePtr end, Boolean way);
 
@@ -58,7 +58,7 @@ AdjustAttachedLine (void)
   if (line->State == STATE_FIRST)
     return;
   /* don't draw outline when ctrl key is pressed */
-  if (Settings.Mode == LINE_MODE && gui->control_is_pressed())
+  if (Settings.Mode == LINE_MODE && gui->control_is_pressed ())
     {
       line->draw = False;
       return;
@@ -170,7 +170,7 @@ AdjustTwoLine (int way)
   if (Crosshair.AttachedLine.State == STATE_FIRST)
     return;
   /* don't draw outline when ctrl key is pressed */
-  if (gui->control_is_pressed())
+  if (gui->control_is_pressed ())
     {
       line->draw = False;
       return;
@@ -184,7 +184,7 @@ AdjustTwoLine (int way)
       return;
     }
   /* swap the modes if shift is held down */
-  if (gui->shift_is_pressed())
+  if (gui->shift_is_pressed ())
     way = !way;
   dx = Crosshair.X - line->Point1.X;
   dy = Crosshair.Y - line->Point1.Y;
@@ -293,7 +293,7 @@ drc_lines (PointTypePtr end, Boolean way)
   f = 1.0;
   s = 0.5;
   last = -1;
-  line1.Flags = line2.Flags = NoFlags();
+  line1.Flags = line2.Flags = NoFlags ();
   line1.Thickness = Settings.LineThickness + 2 * (PCB->Bloat + 1);
   line2.Thickness = line1.Thickness;
   line1.Clearance = line2.Clearance = 0;
@@ -416,22 +416,22 @@ drc_lines (PointTypePtr end, Boolean way)
 		    r_search (PCB->Data->pad_tree, &line2.BoundingBox, NULL,
 			      drcPad_callback, &info);
 		}
-	      GROUP_LOOP (group); 
-		{
-		  info.line = &line1;
-		  r_search (layer->line_tree, &line1.BoundingBox, NULL,
-			    drcLine_callback, &info);
-		  r_search (layer->arc_tree, &line1.BoundingBox, NULL,
-			    drcArc_callback, &info);
-		  if (two_lines)
-		    {
-		      info.line = &line2;
-		      r_search (layer->line_tree, &line2.BoundingBox,
-				NULL, drcLine_callback, &info);
-		      r_search (layer->arc_tree, &line2.BoundingBox,
-				NULL, drcArc_callback, &info);
-		    }
-		}
+	      GROUP_LOOP (group);
+	      {
+		info.line = &line1;
+		r_search (layer->line_tree, &line1.BoundingBox, NULL,
+			  drcLine_callback, &info);
+		r_search (layer->arc_tree, &line1.BoundingBox, NULL,
+			  drcArc_callback, &info);
+		if (two_lines)
+		  {
+		    info.line = &line2;
+		    r_search (layer->line_tree, &line2.BoundingBox,
+			      NULL, drcLine_callback, &info);
+		    r_search (layer->arc_tree, &line2.BoundingBox,
+			      NULL, drcArc_callback, &info);
+		  }
+	      }
 	      END_LOOP;
 	      /* no intersector! */
 	      blocker = False;
@@ -481,7 +481,8 @@ EnforceLineDRC (void)
   Boolean shift;
   float r1, r2;
 
-  if (gui->control_is_pressed() || PCB->RatDraw || INDEXOFCURRENT >= MAX_LAYER)
+  if (gui->control_is_pressed () || PCB->RatDraw
+      || INDEXOFCURRENT >= MAX_LAYER)
     return;
   rs.X = r45.X = Crosshair.X;
   rs.Y = r45.Y = Crosshair.Y;
@@ -489,7 +490,7 @@ EnforceLineDRC (void)
   r1 = drc_lines (&rs, False);
   /* then try starting at 45 */
   r2 = drc_lines (&r45, True);
-  shift = gui->shift_is_pressed();
+  shift = gui->shift_is_pressed ();
   if (XOR (r1 > r2, shift))
     {
       if (PCB->Clipping)

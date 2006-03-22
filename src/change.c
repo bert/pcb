@@ -1096,7 +1096,7 @@ Boolean
 ChangeLayoutName (char *Name)
 {
   PCB->Name = Name;
-  hid_action("PCBChanged");
+  hid_action ("PCBChanged");
   return (True);
 }
 
@@ -1123,7 +1123,7 @@ Boolean
 ChangeLayerName (LayerTypePtr Layer, char *Name)
 {
   CURRENT->Name = Name;
-  hid_action("LayersChanged");
+  hid_action ("LayersChanged");
   return (True);
 }
 
@@ -2226,38 +2226,39 @@ QueryInputAndChangeObjectName (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
   switch (Type)
     {
     case LINE_TYPE:
-      name = gui->prompt_for(_("Linename:"),
-					EMPTY(((LineTypePtr) Ptr2)->Number));
+      name = gui->prompt_for (_("Linename:"),
+			      EMPTY (((LineTypePtr) Ptr2)->Number));
       break;
 
     case VIA_TYPE:
-      name = gui->prompt_for(_("Vianame:"),
-					EMPTY (((PinTypePtr) Ptr2)->Name));
+      name = gui->prompt_for (_("Vianame:"),
+			      EMPTY (((PinTypePtr) Ptr2)->Name));
       break;
 
     case PIN_TYPE:
       sprintf (msg, _("%s Pin Name:"), EMPTY (((PinTypePtr) Ptr2)->Number));
-      name = gui->prompt_for(msg, EMPTY (((PinTypePtr) Ptr2)->Name));
+      name = gui->prompt_for (msg, EMPTY (((PinTypePtr) Ptr2)->Name));
       break;
 
     case PAD_TYPE:
       sprintf (msg, _("%s Pad Name:"), EMPTY (((PadTypePtr) Ptr2)->Number));
-      name = gui->prompt_for(msg, EMPTY (((PadTypePtr) Ptr2)->Name));
+      name = gui->prompt_for (msg, EMPTY (((PadTypePtr) Ptr2)->Name));
       break;
 
     case TEXT_TYPE:
-      name = gui->prompt_for(_("Enter text:"),
-			   EMPTY (((TextTypePtr) Ptr2)->TextString));
+      name = gui->prompt_for (_("Enter text:"),
+			      EMPTY (((TextTypePtr) Ptr2)->TextString));
       break;
 
     case ELEMENT_TYPE:
-      name = gui->prompt_for(_("Elementname:"),
-			   EMPTY (ELEMENT_NAME (PCB, (ElementTypePtr) Ptr2)));
+      name = gui->prompt_for (_("Elementname:"),
+			      EMPTY (ELEMENT_NAME
+				     (PCB, (ElementTypePtr) Ptr2)));
       break;
     }
   if (name)
     {
-	  /* XXX Memory leak!! */
+      /* XXX Memory leak!! */
       char *old = ChangeObjectName (Type, Ptr1, Ptr2, Ptr3, name);
       if (old != (char *) -1)
 	{
@@ -2298,7 +2299,7 @@ ChangePCBSize (BDimension Width, BDimension Height)
 							     Y)));
   else
     SetCrosshairRange (0, 0, (LocationType) Width, (LocationType) Height);
-  hid_action("PCBChanged");
+  hid_action ("PCBChanged");
 #if 0
   UpdateAll ();
 #endif

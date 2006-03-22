@@ -9,7 +9,7 @@
 #define SL_MYSIDE(x) ((((x) & SL_BOTTOM_SIDE)!=0) == (SWAP_IDENT != 0))
 
 /* Called by the init funcs, used to set up hid_list.  */
-extern void hid_register_hid(HID *hid);
+extern void hid_register_hid (HID * hid);
 
 /* NULL terminated list of all static HID structures.  Built by
    hid_register_hid, used by hid_find_*() and hid_enumerate().  The
@@ -24,10 +24,10 @@ extern int hid_num_hids;
    and if found sets val and returns nonzero.  If not found, it
    returns zero.  If set is nonzero, name/val is added to the
    cache.  */
-int hid_cache_color (int set, const char *name, hidval *val,
-		     void **cache);
+int hid_cache_color (int set, const char *name, hidval * val, void **cache);
 
-typedef struct HID_AttrNode {
+typedef struct HID_AttrNode
+{
   struct HID_AttrNode *next;
   HID_Attribute *attributes;
   int n;
@@ -35,13 +35,13 @@ typedef struct HID_AttrNode {
 
 extern HID_AttrNode *hid_attr_nodes;
 
-HID_Action *hid_find_action(const char *name);
+HID_Action *hid_find_action (const char *name);
 
-HID_Flag *hid_find_flag(const char *name);
+HID_Flag *hid_find_flag (const char *name);
 
 /* Any field that is NULL in "d" is copied from the matching field in
    "s".  If "s" is NULL, the nogui HID is used.  */
-void apply_default_hid (HID *d, HID *s);
+void apply_default_hid (HID * d, HID * s);
 
 /* A HID may use this if it does not need command line arguments in
    any special format; for example, the Lesstif HID needs to use the
@@ -59,6 +59,6 @@ void hid_restore_layer_ons (int *save_array);
 
 /* Convenience function that calls the expose callback for the item,
    and returns the extents of what was drawn.  */
-BoxType *hid_get_extents(void *item);
+BoxType *hid_get_extents (void *item);
 
 #endif

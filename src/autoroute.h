@@ -39,6 +39,6 @@
 
 #include "global.h"
 
-Boolean AutoRoute(Boolean);
+Boolean AutoRoute (Boolean);
 
 #endif

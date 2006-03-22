@@ -57,7 +57,7 @@
 #include <dmalloc.h>
 #endif
 
-RCSID("$Id$");
+RCSID ("$Id$");
 
 /* ---------------------------------------------------------------------------
  * some local identifiers
@@ -69,7 +69,8 @@ static int ID = 1;		/* current object ID; incremented after */
  * some local prototypes
  */
 static void AddTextToElement (TextTypePtr, FontTypePtr,
-			      LocationType, LocationType, BYTE, char *, int, FlagType);
+			      LocationType, LocationType, BYTE, char *, int,
+			      FlagType);
 
 /* ---------------------------------------------------------------------------
  * creates a new paste buffer
@@ -87,8 +88,8 @@ CreateNewBuffer (void)
  * use this to set PCB colors so the config can reassign PCB colors.
  */
 void
-pcb_colors_from_settings(PCBTypePtr ptr)
-  {
+pcb_colors_from_settings (PCBTypePtr ptr)
+{
   int i;
 
   /* copy default settings */
@@ -121,7 +122,7 @@ pcb_colors_from_settings(PCBTypePtr ptr)
     Settings.ElementColor : Settings.InvisibleObjectsColor;
   ptr->Data->Layer[MAX_LAYER + SOLDER_LAYER].SelectedColor =
     Settings.ElementSelectedColor;
-  }
+}
 
 /* ---------------------------------------------------------------------------
  * creates a new PCB
@@ -137,7 +138,7 @@ CreateNewPCB (Boolean SetDefaultNames)
   ptr->Data = CreateNewBuffer ();
 
   /* copy default settings */
-  pcb_colors_from_settings(ptr);
+  pcb_colors_from_settings (ptr);
 
   if (SetDefaultNames)
     for (i = 0; i < MAX_LAYER; i++)
@@ -182,7 +183,7 @@ CreateNewPCB (Boolean SetDefaultNames)
     style->index = n;
   }
   END_LOOP;
-  hid_action("RouteStylesChanged");
+  hid_action ("RouteStylesChanged");
   ptr->Zoom = Settings.Zoom;
   ptr->MaxWidth = Settings.MaxWidth;
   ptr->MaxHeight = Settings.MaxHeight;
@@ -228,12 +229,12 @@ CreateNewVia (DataTypePtr Data,
   Via->Thickness = Thickness;
   Via->Clearance = Clearance;
   Via->Mask = Mask;
-  Via->DrillingHole = vendorDrillMap(DrillingHole);
+  Via->DrillingHole = vendorDrillMap (DrillingHole);
   if (Via->DrillingHole != DrillingHole)
     {
-      Message (
-	_("Mapped via drill hole to %.2f mils from %.2f mils per vendor table\n"),
-	       0.01*Via->DrillingHole, 0.01*DrillingHole);
+      Message (_
+	       ("Mapped via drill hole to %.2f mils from %.2f mils per vendor table\n"),
+	       0.01 * Via->DrillingHole, 0.01 * DrillingHole);
     }
 
   Via->Name = MyStrdup (Name, "CreateNewVia()");
@@ -246,14 +247,14 @@ CreateNewVia (DataTypePtr Data,
    * don't complain about MIN_PINORVIACOPPER on a mounting hole (pure
    * hole)
    */
-  if ( !TEST_FLAG (HOLEFLAG, Via) && 
-       (Via->Thickness < Via->DrillingHole + MIN_PINORVIACOPPER) )
+  if (!TEST_FLAG (HOLEFLAG, Via) &&
+      (Via->Thickness < Via->DrillingHole + MIN_PINORVIACOPPER))
     {
       Via->Thickness = Via->DrillingHole + MIN_PINORVIACOPPER;
       Message (_("Increased via thickness to %.2f mils to allow enough copper"
-			          " at (%.2f,%.2f).\n"),
-			          0.01*Via->Thickness, 0.01*Via->X, 0.01*Via->Y);
-	}
+		 " at (%.2f,%.2f).\n"),
+	       0.01 * Via->Thickness, 0.01 * Via->X, 0.01 * Via->Y);
+    }
 
   SetPinBoundingBox (Via);
   if (!Data->via_tree)
@@ -361,7 +362,8 @@ LineTypePtr
 CreateDrawnLineOnLayer (LayerTypePtr Layer,
 			LocationType X1, LocationType Y1,
 			LocationType X2, LocationType Y2,
-			BDimension Thickness, BDimension Clearance, FlagType Flags)
+			BDimension Thickness, BDimension Clearance,
+			FlagType Flags)
 {
   struct line_info info;
   BoxType search;
@@ -376,7 +378,7 @@ CreateDrawnLineOnLayer (LayerTypePtr Layer,
   info.Y2 = Y2;
   info.Thickness = Thickness;
   info.test.Thickness = 0;
-  info.test.Flags = NoFlags();
+  info.test.Flags = NoFlags ();
   info.ans = NULL;
   /* prevent stacking of duplicate lines
    * and remove needless intermediate points
@@ -409,7 +411,8 @@ LineTypePtr
 CreateNewLineOnLayer (LayerTypePtr Layer,
 		      LocationType X1, LocationType Y1,
 		      LocationType X2, LocationType Y2,
-		      BDimension Thickness, BDimension Clearance, FlagType Flags)
+		      BDimension Thickness, BDimension Clearance,
+		      FlagType Flags)
 {
   LineTypePtr Line;
 
@@ -513,7 +516,8 @@ CreateNewArcOnLayer (LayerTypePtr Layer,
 PolygonTypePtr
 CreateNewPolygonFromRectangle (LayerTypePtr Layer,
 			       LocationType X1, LocationType Y1,
-			       LocationType X2, LocationType Y2, FlagType Flags)
+			       LocationType X2, LocationType Y2,
+			       FlagType Flags)
 {
   PolygonTypePtr polygon = CreateNewPolygon (Layer, Flags);
   if (!polygon)
@@ -579,7 +583,8 @@ CreateNewPolygon (LayerTypePtr Layer, FlagType Flags)
  * creates a new point in a polygon
  */
 PointTypePtr
-CreateNewPointInPolygon (PolygonTypePtr Polygon, LocationType X, LocationType Y)
+CreateNewPointInPolygon (PolygonTypePtr Polygon, LocationType X,
+			 LocationType Y)
 {
   PointTypePtr point = GetPointMemoryInPolygon (Polygon);
 
@@ -674,7 +679,8 @@ CreateNewArcInElement (ElementTypePtr Element,
 LineTypePtr
 CreateNewLineInElement (ElementTypePtr Element,
 			LocationType X1, LocationType Y1,
-			LocationType X2, LocationType Y2, BDimension Thickness)
+			LocationType X2, LocationType Y2,
+			BDimension Thickness)
 {
   LineTypePtr line = Element->Line;
 
@@ -697,7 +703,7 @@ CreateNewLineInElement (ElementTypePtr Element,
   line->Point2.X = X2;
   line->Point2.Y = Y2;
   line->Thickness = Thickness;
-  line->Flags = NoFlags();
+  line->Flags = NoFlags ();
   line->ID = ID++;
   return (line);
 }
@@ -709,7 +715,8 @@ PinTypePtr
 CreateNewPin (ElementTypePtr Element,
 	      LocationType X, LocationType Y,
 	      BDimension Thickness, BDimension Clearance, BDimension Mask,
-	      BDimension DrillingHole, char *Name, char *Number, FlagType Flags)
+	      BDimension DrillingHole, char *Name, char *Number,
+	      FlagType Flags)
 {
   PinTypePtr pin = GetPinMemory (Element);
 
@@ -731,28 +738,34 @@ CreateNewPin (ElementTypePtr Element,
    * If there is no vendor drill map installed, this will simply
    * return DrillingHole.
    */
-  pin->DrillingHole = vendorDrillMap(DrillingHole);
+  pin->DrillingHole = vendorDrillMap (DrillingHole);
 
   /* Unless we should not map drills on this element, map them! */
-  if ( vendorIsElementMappable(Element) ) 
+  if (vendorIsElementMappable (Element))
     {
       if (pin->DrillingHole < MIN_PINORVIASIZE)
 	{
-	  Message(
-_("Did not map pin #%s (%s) drill hole because %6.2f mil is below the minimum allowed size\n"),
-		  UNKNOWN (Number), UNKNOWN (Name), 0.01*pin->DrillingHole);
+	  Message (_
+		   ("Did not map pin #%s (%s) drill hole because %6.2f mil is below the minimum allowed size\n"),
+		   UNKNOWN (Number), UNKNOWN (Name),
+		   0.01 * pin->DrillingHole);
 	  pin->DrillingHole = DrillingHole;
 	}
       else if (pin->DrillingHole > MAX_PINORVIASIZE)
 	{
-	  Message(_("Did not map pin #%s (%s) drill hole because %6.2f mil is above the maximum allowed size\n"),
-		  UNKNOWN (Number), UNKNOWN (Name), 0.01*pin->DrillingHole);
+	  Message (_
+		   ("Did not map pin #%s (%s) drill hole because %6.2f mil is above the maximum allowed size\n"),
+		   UNKNOWN (Number), UNKNOWN (Name),
+		   0.01 * pin->DrillingHole);
 	  pin->DrillingHole = DrillingHole;
 	}
-      else if (!TEST_FLAG (HOLEFLAG, pin) && (pin->DrillingHole > pin->Thickness - MIN_PINORVIACOPPER) )
+      else if (!TEST_FLAG (HOLEFLAG, pin)
+	       && (pin->DrillingHole > pin->Thickness - MIN_PINORVIACOPPER))
 	{
-	  Message(_("Did not map pin #%s (%s) drill hole because %6.2f mil does not leave enough copper\n"),
-		  UNKNOWN (Number), UNKNOWN (Name), 0.01*pin->DrillingHole);
+	  Message (_
+		   ("Did not map pin #%s (%s) drill hole because %6.2f mil does not leave enough copper\n"),
+		   UNKNOWN (Number), UNKNOWN (Name),
+		   0.01 * pin->DrillingHole);
 	  pin->DrillingHole = DrillingHole;
 	}
     }
@@ -763,8 +776,9 @@ _("Did not map pin #%s (%s) drill hole because %6.2f mil is below the minimum al
 
   if (pin->DrillingHole != DrillingHole)
     {
-      Message (_("Mapped pin drill hole to %.2f mils from %.2f mils per vendor table\n"),
-	       0.01*pin->DrillingHole, 0.01*DrillingHole);
+      Message (_
+	       ("Mapped pin drill hole to %.2f mils from %.2f mils per vendor table\n"),
+	       0.01 * pin->DrillingHole, 0.01 * DrillingHole);
     }
 
   return (pin);
@@ -775,18 +789,18 @@ _("Did not map pin #%s (%s) drill hole because %6.2f mil is below the minimum al
  */
 PadTypePtr
 CreateNewPad (ElementTypePtr Element,
-	      LocationType X1, LocationType Y1, LocationType X2, LocationType Y2,
-	      BDimension Thickness, BDimension Clearance, BDimension Mask,
-	      char *Name, char *Number, FlagType Flags)
+	      LocationType X1, LocationType Y1, LocationType X2,
+	      LocationType Y2, BDimension Thickness, BDimension Clearance,
+	      BDimension Mask, char *Name, char *Number, FlagType Flags)
 {
   PadTypePtr pad = GetPadMemory (Element);
 
   /* copy values */
   if (X1 != X2 && Y1 != Y2)
-   {
-     Message (_("Diagonal pads are forbidden!\n"));
-     return NULL;
-   }
+    {
+      Message (_("Diagonal pads are forbidden!\n"));
+      return NULL;
+    }
   pad->Point1.X = MIN (X1, X2);	/* works since either X1 == X2 or Y1 == Y2 */
   pad->Point1.Y = MIN (Y1, Y2);
   pad->Point2.X = MAX (X1, X2);
@@ -899,7 +913,7 @@ CreateNewNet (LibraryTypePtr lib, char *name, char *style)
   sprintf (temp, "  %s", name);
   menu = GetLibraryMenuMemory (lib);
   menu->Name = MyStrdup (temp, "CreateNewNet()");
-  menu->flag = 1; /* net is enabled by default */
+  menu->flag = 1;		/* net is enabled by default */
   if (NSTRCMP ("(unknown)", style) == 0)
     menu->Style = NULL;
   else

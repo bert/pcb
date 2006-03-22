@@ -39,7 +39,8 @@
 
 #include "global.h"
 
-typedef enum { NORTH=0, EAST=1, SOUTH=2, WEST=3 } direction_t;
+typedef enum
+{ NORTH = 0, EAST = 1, SOUTH = 2, WEST = 3 } direction_t;
 
 /* rotates box 90-degrees cw */
 /* that's a strange rotation! */
@@ -82,7 +83,7 @@ typedef enum { NORTH=0, EAST=1, SOUTH=2, WEST=3 } direction_t;
  * when compiling with gcc these will be inlined.
  */
 #ifndef __GNUC__
-#define __inline__ /* not inline on non-gcc platforms */
+#define __inline__		/* not inline on non-gcc platforms */
 #endif /* __GNUC__ */
 
 typedef struct cheap_point
@@ -94,72 +95,87 @@ typedef struct cheap_point
 /* note that boxes are closed on top and left and open on bottom and right. */
 /* this means that top-left corner is in box, *but bottom-right corner is
  * not*.  */
-static __inline__
-Boolean point_in_box(const BoxType *box, LocationType X, LocationType Y) {
-  return (X>=box->X1) && (Y>=box->Y1) && (X<box->X2) && (Y<box->Y2);
+static __inline__ Boolean
+point_in_box (const BoxType * box, LocationType X, LocationType Y)
+{
+  return (X >= box->X1) && (Y >= box->Y1) && (X < box->X2) && (Y < box->Y2);
 }
 
 #ifndef NDEBUG
-static __inline__
-Boolean __box_is_good(const BoxType *b) {
+static __inline__ Boolean
+__box_is_good (const BoxType * b)
+{
   return (b->X1 < b->X2) && (b->Y1 < b->Y2);
 }
 #endif /* !NDEBUG */
 
-static __inline__
-Boolean box_intersect(const BoxType *a, const BoxType *b) {
+static __inline__ Boolean
+box_intersect (const BoxType * a, const BoxType * b)
+{
   return
-    (a->X1 < b->X2) && (b->X1 < a->X2) &&
-    (a->Y1 < b->Y2) && (b->Y1 < a->Y2);
+    (a->X1 < b->X2) && (b->X1 < a->X2) && (a->Y1 < b->Y2) && (b->Y1 < a->Y2);
 }
 
-static __inline__
-CheapPointType closest_point_in_box(const CheapPointType * from, const BoxType * box) {
+static __inline__ CheapPointType
+closest_point_in_box (const CheapPointType * from, const BoxType * box)
+{
   CheapPointType r;
-  assert(box->X1 < box->X2 && box->Y1 < box->Y2);
-  r.X= (from->X < box->X1)? box->X1: (from->X > box->X2-1)? box->X2-1: from->X;
-  r.Y= (from->Y < box->Y1)? box->Y1: (from->Y > box->Y2-1)? box->Y2-1: from->Y;
-  assert(point_in_box(box, r.X, r.Y));
+  assert (box->X1 < box->X2 && box->Y1 < box->Y2);
+  r.X =
+    (from->X < box->X1) ? box->X1 : (from->X >
+				     box->X2 - 1) ? box->X2 - 1 : from->X;
+  r.Y =
+    (from->Y < box->Y1) ? box->Y1 : (from->Y >
+				     box->Y2 - 1) ? box->Y2 - 1 : from->Y;
+  assert (point_in_box (box, r.X, r.Y));
   return r;
 }
 
-static __inline__
-Boolean box_in_box(const BoxType *outer, const BoxType *inner) {
+static __inline__ Boolean
+box_in_box (const BoxType * outer, const BoxType * inner)
+{
   return
     (outer->X1 <= inner->X1) && (inner->X2 <= outer->X2) &&
     (outer->Y1 <= inner->Y1) && (inner->Y2 <= outer->Y2);
 }
 
-static __inline__
-BoxType clip_box(const BoxType *box, const BoxType *clipbox) {
+static __inline__ BoxType
+clip_box (const BoxType * box, const BoxType * clipbox)
+{
   BoxType r;
-  assert(box_intersect(box, clipbox));
-  r.X1 = MAX(box->X1, clipbox->X1);
-  r.X2 = MIN(box->X2, clipbox->X2);
-  r.Y1 = MAX(box->Y1, clipbox->Y1);
-  r.Y2 = MIN(box->Y2, clipbox->Y2);
-  assert(box_in_box(clipbox, &r));
+  assert (box_intersect (box, clipbox));
+  r.X1 = MAX (box->X1, clipbox->X1);
+  r.X2 = MIN (box->X2, clipbox->X2);
+  r.Y1 = MAX (box->Y1, clipbox->Y1);
+  r.Y2 = MIN (box->Y2, clipbox->Y2);
+  assert (box_in_box (clipbox, &r));
   return r;
 }
 
-static __inline__
-BoxType shrink_box(const BoxType *box, LocationType amount) {
+static __inline__ BoxType
+shrink_box (const BoxType * box, LocationType amount)
+{
   BoxType r = *box;
-  r.X1 += amount; r.Y1 += amount; r.X2 -= amount; r.Y2 -= amount;
+  r.X1 += amount;
+  r.Y1 += amount;
+  r.X2 -= amount;
+  r.Y2 -= amount;
   return r;
 }
 
-static __inline__
-BoxType bloat_box(const BoxType *box, LocationType amount) {
-  return shrink_box(box, -amount);
+static __inline__ BoxType
+bloat_box (const BoxType * box, LocationType amount)
+{
+  return shrink_box (box, -amount);
 }
 
 /* return the square of the minimum distance from a point to some point
  * inside a box.  The box is half-closed!  That is, the top-left corner
  * is considered in the box, but the bottom-right corner is not. */
-static __inline__
-float dist2_to_box(const CheapPointType * p, const BoxType * b) {
-  CheapPointType r = closest_point_in_box(p, b);
+static __inline__ float
+dist2_to_box (const CheapPointType * p, const BoxType * b)
+{
+  CheapPointType r = closest_point_in_box (p, b);
   float x_dist = (r.X - p->X);
   float y_dist = (r.Y - p->Y);
   return (x_dist * x_dist) + (y_dist * y_dist);

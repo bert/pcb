@@ -35,6 +35,6 @@
 
 #include "global.h"
 
-void PrintFab();
+void PrintFab ();
 
 #endif

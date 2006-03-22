@@ -58,7 +58,7 @@
 #include "undo.h"
 
 
-RCSID("$Id$");
+RCSID ("$Id$");
 
 
 
@@ -103,9 +103,11 @@ SetZoom (float Zoom)
       if (!box)
 	return;
       Zoom =
-	logf (0.011 * (float) (box->X2 - box->X1) / Output.Width) / LN_2_OVER_2;
+	logf (0.011 * (float) (box->X2 - box->X1) / Output.Width) /
+	LN_2_OVER_2;
       Zoom =
-	MAX (Zoom, logf (0.011 * (float) (box->Y2 - box->Y1) / Output.Height) /
+	MAX (Zoom,
+	     logf (0.011 * (float) (box->Y2 - box->Y1) / Output.Height) /
 	     LN_2_OVER_2);
       Crosshair.X = (box->X1 + box->X2) / 2;
       Crosshair.Y = (box->Y1 + box->Y2) / 2;
@@ -119,14 +121,14 @@ SetZoom (float Zoom)
     }
   Zoom = MAX (MIN_ZOOM, Zoom);
   Zoom = MIN (MAX_ZOOM, Zoom);
-  Zoom_Multiplier = 0.01/expf(Zoom * LN_2_OVER_2);
+  Zoom_Multiplier = 0.01 / expf (Zoom * LN_2_OVER_2);
 
   /* redraw only if something changed */
   if (PCB->Zoom != Zoom)
     {
       PCB->Zoom = Zoom;
       RedrawZoom (old_x, old_y);
-      gui_zoom_display_update();
+      gui_zoom_display_update ();
     }
 }
 #endif
@@ -141,7 +143,7 @@ SetLineSize (BDimension Size)
     {
       Settings.LineThickness = Size;
       if (TEST_FLAG (AUTODRCFLAG, PCB))
-        FitCrosshairIntoGrid (Crosshair.X, Crosshair.Y);
+	FitCrosshairIntoGrid (Crosshair.X, Crosshair.Y);
     }
 }
 
@@ -174,13 +176,13 @@ SetViaDrillingHole (BDimension Size, Boolean Force)
 }
 
 void
-pcb_use_route_style(RouteStyleType *rst)
-	{
-	Settings.LineThickness = rst->Thick;
-	Settings.ViaThickness = rst->Diameter;
-	Settings.ViaDrillingHole = rst->Hole;
-	Settings.Keepaway = rst->Keepaway;
-	}
+pcb_use_route_style (RouteStyleType * rst)
+{
+  Settings.LineThickness = rst->Thick;
+  Settings.ViaThickness = rst->Diameter;
+  Settings.ViaDrillingHole = rst->Hole;
+  Settings.Keepaway = rst->Keepaway;
+}
 
 /* ---------------------------------------------------------------------------
  * sets a keepaway width
@@ -204,7 +206,7 @@ SetTextScale (Dimension Scale)
     {
       Settings.TextScale = Scale;
 #ifdef FIXME
-      gui_config_text_scale_update();
+      gui_config_text_scale_update ();
 #endif
     }
 }
@@ -262,7 +264,7 @@ void
 SaveMode (void)
 {
   mode_stack[mode_position] = Settings.Mode;
-  if (mode_position < MAX_MODESTACK_DEPTH -1)
+  if (mode_position < MAX_MODESTACK_DEPTH - 1)
     mode_position++;
 }
 
@@ -271,10 +273,10 @@ RestoreMode (void)
 {
   if (mode_position == 0)
     {
-      Message("hace: underflow of restore mode\n");
+      Message ("hace: underflow of restore mode\n");
       return;
     }
-  SetMode(mode_stack[--mode_position]);
+  SetMode (mode_stack[--mode_position]);
 }
 
 
@@ -334,16 +336,16 @@ SetMode (int Mode)
   else
     {
       if (Settings.Mode == ARC_MODE || Settings.Mode == LINE_MODE)
-        SetLocalRef(0, 0, False);
+	SetLocalRef (0, 0, False);
       Crosshair.AttachedBox.State = STATE_FIRST;
       Crosshair.AttachedLine.State = STATE_FIRST;
       if (Mode == LINE_MODE && TEST_FLAG (AUTODRCFLAG, PCB))
-        {
+	{
 	  SaveUndoSerialNumber ();
 	  ResetFoundPinsViasAndPads (True);
 	  RestoreUndoSerialNumber ();
 	  ResetFoundLinesAndPolygons (True);
-	  IncrementUndoSerialNumber();
+	  IncrementUndoSerialNumber ();
 	}
     }
 
@@ -358,7 +360,7 @@ SetMode (int Mode)
     SetCrosshairRange (0, 0, PCB->MaxWidth, PCB->MaxHeight);
 
 #ifdef FIXME
-  gui_mode_buttons_update();
+  gui_mode_buttons_update ();
 #endif
 
   recursing = False;
@@ -376,14 +378,14 @@ SetRouteStyle (char *name)
   char num[10];
 
   STYLE_LOOP (PCB);
-    {
-      if (name && NSTRCMP (name, style->Name) == 0)
-	{
-	  sprintf (num, "%d", n + 1);
-	  hid_actionl("RouteStyle", num, 0);
-	  break;
-	}
-    }
+  {
+    if (name && NSTRCMP (name, style->Name) == 0)
+      {
+	sprintf (num, "%d", n + 1);
+	hid_actionl ("RouteStyle", num, 0);
+	break;
+      }
+  }
   END_LOOP;
 }
 
@@ -397,7 +399,7 @@ SetLocalRef (LocationType X, LocationType Y, Boolean Showing)
     {
       HideCrosshair (True);
       if (count == 0)
-        old = Marked;
+	old = Marked;
       Marked.X = X;
       Marked.Y = Y;
       Marked.status = True;

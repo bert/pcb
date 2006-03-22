@@ -49,7 +49,7 @@ B *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 #include <dmalloc.h>
 #endif
 
-RCSID("$Id$");
+RCSID ("$Id$");
 
 /* ---------------------------------------------------------------------------
  * local prototypes
@@ -622,8 +622,8 @@ MyCalloc (size_t Number, size_t Size, char *Text)
   fprintf (stderr, "MyCalloc %d by %d from %s ", Number, Size, Text);
 #endif
   /* InitComponentLookup() at least can ask for zero here, so return something
-  |  that can be freed.
-  */
+     |  that can be freed.
+   */
   if (Number == 0)
     Number = 1;
   if (Size == 0)
@@ -1023,4 +1023,3 @@ StripWhiteSpaceAndDup (char *S)
   else
     return (NULL);
 }
-

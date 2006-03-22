@@ -51,7 +51,7 @@
 #include <dmalloc.h>
 #endif
 
-RCSID("$Id$");
+RCSID ("$Id$");
 
 #define CRASH fprintf(stderr, "HID error: pcb called unimplemented PNG function %s.\n", __FUNCTION__); abort()
 
@@ -62,16 +62,18 @@ int y_shift = 0;
 #define SCALE_X(x) (((x) - x_shift)/scale)
 #define SCALE_Y(x) (((x) - y_shift)/scale)
 
-typedef struct color_struct {
+typedef struct color_struct
+{
   /* the descriptor used by the gd library */
   int c;
 
- /* so I can figure out what rgb value c refers to */
+  /* so I can figure out what rgb value c refers to */
   unsigned int r, g, b;
 
 } color_struct;
 
-typedef struct hid_gc_struct {
+typedef struct hid_gc_struct
+{
   HID *me_pointer;
   EndCapStyle cap;
   int width;
@@ -94,7 +96,7 @@ static int print_group[MAX_LAYER];
 static int print_layer[MAX_LAYER];
 
 static const char *filetypes[] = {
-  "GIF", 
+  "GIF",
 #define FMT_gif 0
 
   "JPEG",
@@ -103,7 +105,8 @@ static const char *filetypes[] = {
   "PNG",
 #define FMT_png 2
 
- 0};
+  0
+};
 
 HID_Attribute png_attribute_list[] = {
   /* other HIDs expect this to be first.  */
@@ -143,9 +146,10 @@ HID_Attribute png_attribute_list[] = {
    HID_Enum, 0, 0, {2, 0, 0}, filetypes, 0},
 #define HA_filetype 8
 };
+
 #define NUM_OPTIONS (sizeof(png_attribute_list)/sizeof(png_attribute_list[0]))
 
-REGISTER_ATTRIBUTES(png_attribute_list);
+REGISTER_ATTRIBUTES (png_attribute_list);
 
 static HID_Attr_Val png_values[NUM_OPTIONS];
 
@@ -156,30 +160,30 @@ png_get_export_options (int *n)
 
   if (PCB && PCB->Filename)
     {
-      buf = (char *)malloc(strlen(PCB->Filename) + 4);
+      buf = (char *) malloc (strlen (PCB->Filename) + 4);
       if (buf)
 	{
-	  strcpy(buf, PCB->Filename);
-	  if (strcmp (buf + strlen(buf) - 4, ".pcb") == 0)
-	    buf[strlen(buf)-4] = 0;
+	  strcpy (buf, PCB->Filename);
+	  if (strcmp (buf + strlen (buf) - 4, ".pcb") == 0)
+	    buf[strlen (buf) - 4] = 0;
 
 	  switch (png_attribute_list[HA_filetype].default_val.int_value)
 	    {
 	    case FMT_gif:
-	      strcat(buf, ".gif");
+	      strcat (buf, ".gif");
 	      break;
-	      
+
 	    case FMT_jpg:
-	      strcat(buf, ".jpg");
+	      strcat (buf, ".jpg");
 	      break;
-	      
+
 	    case FMT_png:
-	      strcat(buf, ".png");
+	      strcat (buf, ".png");
 	      break;
-	      
+
 	    default:
 	      fprintf (stderr, "Error:  Invalid graphic file format\n");
-	      strcat(buf, ".???");
+	      strcat (buf, ".???");
 	      break;
 	    }
 
@@ -199,22 +203,22 @@ static int comp_layer, solder_layer;
 static int
 group_for_layer (int l)
 {
-  if (l < MAX_LAYER+2 && l >= 0)
-    return GetLayerGroupNumberByNumber(l);
+  if (l < MAX_LAYER + 2 && l >= 0)
+    return GetLayerGroupNumberByNumber (l);
   /* else something unique */
   return MAX_LAYER + 3 + l;
 }
 
 static int
-layer_sort(const void *va, const void *vb)
+layer_sort (const void *va, const void *vb)
 {
-  int a = *(int *)va;
-  int b = *(int *)vb;
-  int al = group_for_layer(a);
-  int bl = group_for_layer(b);
+  int a = *(int *) va;
+  int b = *(int *) vb;
+  int al = group_for_layer (a);
+  int bl = group_for_layer (b);
   int d = bl - al;
 
-  if (a >= 0 && a <= MAX_LAYER+1)
+  if (a >= 0 && a <= MAX_LAYER + 1)
     {
       int aside = (al == solder_layer ? 0 : al == comp_layer ? 2 : 1);
       int bside = (bl == solder_layer ? 0 : bl == comp_layer ? 2 : 1);
@@ -231,7 +235,7 @@ static BoxType *bounds;
 static int in_mono, as_shown;
 
 void
-png_hid_export_to_file(FILE *the_file, HID_Attr_Val *options)
+png_hid_export_to_file (FILE * the_file, HID_Attr_Val * options)
 {
   int i;
   static int saved_layer_stack[MAX_LAYER];
@@ -245,33 +249,32 @@ png_hid_export_to_file(FILE *the_file, HID_Attr_Val *options)
   region.Y2 = PCB->MaxHeight;
 
   if (options[HA_only_visible].int_value)
-    bounds = GetDataBoundingBox(PCB->Data);
+    bounds = GetDataBoundingBox (PCB->Data);
   else
     bounds = &region;
 
-  memset(print_group, 0, sizeof(print_group));
-  memset(print_layer, 0, sizeof(print_layer));
+  memset (print_group, 0, sizeof (print_group));
+  memset (print_layer, 0, sizeof (print_layer));
 
-  for (i=0; i<MAX_LAYER; i++)
+  for (i = 0; i < MAX_LAYER; i++)
     {
-      LayerType *layer = PCB->Data->Layer+i;
-      if (layer->LineN || layer->TextN || layer->ArcN
-	  || layer->PolygonN)
-	print_group[GetLayerGroupNumberByNumber(i)] = 1;
+      LayerType *layer = PCB->Data->Layer + i;
+      if (layer->LineN || layer->TextN || layer->ArcN || layer->PolygonN)
+	print_group[GetLayerGroupNumberByNumber (i)] = 1;
     }
-  print_group[GetLayerGroupNumberByNumber(MAX_LAYER)] = 1;
-  print_group[GetLayerGroupNumberByNumber(MAX_LAYER+1)] = 1;
-  for (i=0; i<MAX_LAYER; i++)
-    if (print_group[GetLayerGroupNumberByNumber(i)])
+  print_group[GetLayerGroupNumberByNumber (MAX_LAYER)] = 1;
+  print_group[GetLayerGroupNumberByNumber (MAX_LAYER + 1)] = 1;
+  for (i = 0; i < MAX_LAYER; i++)
+    if (print_group[GetLayerGroupNumberByNumber (i)])
       print_layer[i] = 1;
 
-  memcpy (saved_layer_stack, LayerStack, sizeof(LayerStack));
+  memcpy (saved_layer_stack, LayerStack, sizeof (LayerStack));
   as_shown = options[HA_as_shown].int_value;
-  if (! options[HA_as_shown].int_value)
+  if (!options[HA_as_shown].int_value)
     {
-      comp_layer = GetLayerGroupNumberByNumber(MAX_LAYER+COMPONENT_LAYER);
-      solder_layer = GetLayerGroupNumberByNumber(MAX_LAYER+SOLDER_LAYER);
-      qsort (LayerStack, MAX_LAYER, sizeof(LayerStack[0]), layer_sort);
+      comp_layer = GetLayerGroupNumberByNumber (MAX_LAYER + COMPONENT_LAYER);
+      solder_layer = GetLayerGroupNumberByNumber (MAX_LAYER + SOLDER_LAYER);
+      qsort (LayerStack, MAX_LAYER, sizeof (LayerStack[0]), layer_sort);
     }
   linewidth = -1;
   lastbrush = (void *) -1;
@@ -282,15 +285,15 @@ png_hid_export_to_file(FILE *the_file, HID_Attr_Val *options)
 
   in_mono = options[HA_mono].int_value;
 
-  hid_expose_callback(&png_hid, bounds, 0);
+  hid_expose_callback (&png_hid, bounds, 0);
 
-  memcpy (LayerStack, saved_layer_stack, sizeof(LayerStack));
+  memcpy (LayerStack, saved_layer_stack, sizeof (LayerStack));
 }
 
 static void
-png_do_export (HID_Attr_Val *options)
+png_do_export (HID_Attr_Val * options)
 {
-  int save_ons[MAX_LAYER+2];
+  int save_ons[MAX_LAYER + 2];
   int i;
   BoxType *bbox;
   int w, h;
@@ -298,7 +301,7 @@ png_do_export (HID_Attr_Val *options)
   if (!options)
     {
       png_get_export_options (0);
-      for (i=0; i<NUM_OPTIONS; i++)
+      for (i = 0; i < NUM_OPTIONS; i++)
 	png_values[i] = png_attribute_list[i].default_val;
       options = png_values;
     }
@@ -308,9 +311,9 @@ png_do_export (HID_Attr_Val *options)
     filename = "pcb-out.png";
 
   /* figure out width and height of the board */
-  if (options[HA_only_visible].int_value) 
+  if (options[HA_only_visible].int_value)
     {
-      bbox = GetDataBoundingBox(PCB->Data);
+      bbox = GetDataBoundingBox (PCB->Data);
       x_shift = bbox->X1;
       y_shift = bbox->Y1;
       h = bbox->Y2 - bbox->Y1;
@@ -337,15 +340,14 @@ png_do_export (HID_Attr_Val *options)
 	  fprintf (stderr, "ERROR:  dpi may not be < 0\n");
 	  return;
 	}
-    } 
-  else 
+    }
+  else
     {
       if (options[HA_xmax].int_value > 0)
 	xmax = options[HA_xmax].int_value;
       if (options[HA_xymax].int_value > 0)
 	{
-	  if (options[HA_xymax].int_value < xmax
-	      || xmax == 0)
+	  if (options[HA_xymax].int_value < xmax || xmax == 0)
 	    xmax = options[HA_xymax].int_value;
 	}
 
@@ -353,8 +355,7 @@ png_do_export (HID_Attr_Val *options)
 	ymax = options[HA_ymax].int_value;
       if (options[HA_xymax].int_value > 0)
 	{
-	  if (options[HA_xymax].int_value < ymax
-	      || ymax == 0)
+	  if (options[HA_xymax].int_value < ymax || ymax == 0)
 	    ymax = options[HA_xymax].int_value;
 	}
 
@@ -375,22 +376,22 @@ png_do_export (HID_Attr_Val *options)
       w = w / scale;
       h = h / scale;
     }
-  else 
+  else
     {
-      if ( (w/xmax) > (h/ymax) )
+      if ((w / xmax) > (h / ymax))
 	{
 	  h = (h * xmax) / w;
 	  scale = w / xmax;
 	  w = xmax;
 	}
-      else 
+      else
 	{
 	  w = (w * ymax) / h;
 	  scale = h / ymax;
 	  h = ymax;
 	}
     }
-  
+
   im = gdImageCreate (w, h);
 
   /* 
@@ -399,26 +400,26 @@ png_do_export (HID_Attr_Val *options)
    */
 
   white = (color_struct *) malloc (sizeof (color_struct));
-  white->r = white->g = white->b = 255; 
+  white->r = white->g = white->b = 255;
   white->c = gdImageColorAllocate (im, white->r, white->g, white->b);
-  
+
   black = (color_struct *) malloc (sizeof (color_struct));
-  black->r = black->g = black->b = 0; 
+  black->r = black->g = black->b = 0;
   black->c = gdImageColorAllocate (im, black->r, black->g, black->b);
 
-  f = fopen(filename, "wb");
+  f = fopen (filename, "wb");
   if (!f)
     {
       perror (filename);
       return;
     }
 
-  if (! options[HA_as_shown].int_value)
+  if (!options[HA_as_shown].int_value)
     hid_save_and_show_layer_ons (save_ons);
 
   png_hid_export_to_file (f, options);
 
-  if (! options[HA_as_shown].int_value)
+  if (!options[HA_as_shown].int_value)
     hid_restore_layer_ons (save_ons);
 
   /* actually write out the image */
@@ -432,7 +433,7 @@ png_do_export (HID_Attr_Val *options)
       /* JPEG with default JPEG quality */
       gdImageJpeg (im, f, -1);
       break;
-      
+
     case FMT_png:
       gdImagePng (im, f);
       break;
@@ -442,7 +443,7 @@ png_do_export (HID_Attr_Val *options)
       return;
       break;
     }
-  
+
   fclose (f);
 
   gdImageDestroy (im);
@@ -453,7 +454,9 @@ extern void hid_parse_command_line (int *argc, char ***argv);
 static void
 png_parse_arguments (int *argc, char ***argv)
 {
-  hid_register_attributes (png_attribute_list, sizeof(png_attribute_list)/sizeof(png_attribute_list[0]));
+  hid_register_attributes (png_attribute_list,
+			   sizeof (png_attribute_list) /
+			   sizeof (png_attribute_list[0]));
   hid_parse_command_line (argc, argv);
 }
 
@@ -464,21 +467,22 @@ static int is_drill;
 static int
 png_set_layer (const char *name, int group)
 {
-  int idx = (group >= 0 && group < MAX_LAYER) ? PCB->LayerGroups.Entries[group][0] : group;
+  int idx = (group >= 0
+	     && group <
+	     MAX_LAYER) ? PCB->LayerGroups.Entries[group][0] : group;
   if (name == 0)
     name = PCB->Data->Layer[idx].Name;
 
   if (idx >= 0 && idx < MAX_LAYER && !print_layer[idx])
     return 0;
-  if (SL_TYPE(idx) == SL_ASSY
-      || SL_TYPE(idx) == SL_FAB)
+  if (SL_TYPE (idx) == SL_ASSY || SL_TYPE (idx) == SL_FAB)
     return 0;
 
   if (strcmp (name, "invisible") == 0)
     return 0;
 
-  is_drill = (SL_TYPE(idx) == SL_DRILL);
-  is_mask = (SL_TYPE(idx) == SL_MASK);
+  is_drill = (SL_TYPE (idx) == SL_DRILL);
+  is_mask = (SL_TYPE (idx) == SL_MASK);
 
   if (is_mask)
     return 0;
@@ -487,9 +491,9 @@ png_set_layer (const char *name, int group)
     {
       switch (idx)
 	{
-	case SL(SILK,TOP):
-	case SL(SILK,BOTTOM):
-	  if (SL_MYSIDE(idx))
+	case SL (SILK, TOP):
+	case SL (SILK, BOTTOM):
+	  if (SL_MYSIDE (idx))
 	    return PCB->ElementOn;
 	}
     }
@@ -497,9 +501,9 @@ png_set_layer (const char *name, int group)
     {
       switch (idx)
 	{
-	case SL(SILK,TOP):
+	case SL (SILK, TOP):
 	  return 1;
-	case SL(SILK,BOTTOM):
+	case SL (SILK, BOTTOM):
 	  return 0;
 	}
     }
@@ -512,7 +516,7 @@ png_set_layer (const char *name, int group)
 static hidGC
 png_make_gc (void)
 {
-  hidGC rv = (hidGC) malloc (sizeof(hid_gc_struct));
+  hidGC rv = (hidGC) malloc (sizeof (hid_gc_struct));
   rv->me_pointer = &png_hid;
   rv->cap = Trace_Cap;
   rv->width = 1;
@@ -525,7 +529,7 @@ png_make_gc (void)
 static void
 png_destroy_gc (hidGC gc)
 {
-  free(gc);
+  free (gc);
 }
 
 static void
@@ -541,13 +545,12 @@ png_set_color (hidGC gc, const char *name)
   hidval cval;
 
   if (im == NULL)
-      return;
+    return;
 
   if (name == NULL)
-      name = "#ff0000";
+    name = "#ff0000";
 
-  if (strcmp (name, "erase") == 0
-      || strcmp (name, "drill") == 0)
+  if (strcmp (name, "erase") == 0 || strcmp (name, "drill") == 0)
     {
       /* FIXME -- should be background, not white */
       gc->color = white;
@@ -556,21 +559,23 @@ png_set_color (hidGC gc, const char *name)
     }
   gc->erase = 0;
 
-  if (in_mono || (strcmp (name, "#000000") == 0 ) )
+  if (in_mono || (strcmp (name, "#000000") == 0))
     {
       gc->color = black;
       return;
     }
 
-  if (hid_cache_color(0, name, &cval, &cache))
+  if (hid_cache_color (0, name, &cval, &cache))
     {
       gc->color = cval.ptr;
     }
   else if (name[0] == '#')
     {
       gc->color = (color_struct *) malloc (sizeof (color_struct));
-      sscanf (name+1, "%2x%2x%2x", &(gc->color->r), &(gc->color->g), &(gc->color->b));
-      gc->color->c = gdImageColorAllocate (im, gc->color->r, gc->color->g, gc->color->b);
+      sscanf (name + 1, "%2x%2x%2x", &(gc->color->r), &(gc->color->g),
+	      &(gc->color->b));
+      gc->color->c =
+	gdImageColorAllocate (im, gc->color->r, gc->color->g, gc->color->b);
       cval.ptr = gc->color;
       hid_cache_color (1, name, &cval, &cache);
     }
@@ -619,18 +624,18 @@ use_gc (hidGC gc)
 
   if (gc->me_pointer != &png_hid)
     {
-      fprintf(stderr, "Fatal: GC from another HID passed to png HID\n");
-      abort();
+      fprintf (stderr, "Fatal: GC from another HID passed to png HID\n");
+      abort ();
     }
 
   if (linewidth != gc->width)
     {
       /* Make sure the scaling doesn't erase lines completely */
-      if (SCALE (gc->width) == 0 && gc->width > 0) 
+      if (SCALE (gc->width) == 0 && gc->width > 0)
 	gdImageSetThickness (im, 1);
       else
 	gdImageSetThickness (im, SCALE (gc->width));
-	  linewidth = gc->width;
+      linewidth = gc->width;
       need_brush = 1;
     }
 
@@ -645,19 +650,20 @@ use_gc (hidGC gc)
       switch (gc->cap)
 	{
 	case Round_Cap:
-	case Trace_Cap: 
-	  type = 'C'; 
+	case Trace_Cap:
+	  type = 'C';
 	  r = SCALE (0.5 * gc->width);
 	  break;
 	default:
-	case Square_Cap: 
+	case Square_Cap:
 	  r = SCALE (gc->width);
 	  type = 'S';
 	  break;
 	}
-      sprintf (name, "#%.2x%.2x%.2x_%c_%d", gc->color->r, gc->color->g, gc->color->b, type, r);
-      
-      if (hid_cache_color(0, name, &bval, &bcache))
+      sprintf (name, "#%.2x%.2x%.2x_%c_%d", gc->color->r, gc->color->g,
+	       gc->color->b, type, r);
+
+      if (hid_cache_color (0, name, &bval, &bcache))
 	{
 	  gc->brush = bval.ptr;
 	}
@@ -665,11 +671,13 @@ use_gc (hidGC gc)
 	{
 	  int bg, fg;
 	  if (type == 'C')
-	    gc->brush = gdImageCreate (2*r+1, 2*r+1);
+	    gc->brush = gdImageCreate (2 * r + 1, 2 * r + 1);
 	  else
-	    gc->brush = gdImageCreate (r+1, r+1);
+	    gc->brush = gdImageCreate (r + 1, r + 1);
 	  bg = gdImageColorAllocate (gc->brush, 255, 255, 255);
-	  fg = gdImageColorAllocate (gc->brush, gc->color->r, gc->color->g, gc->color->b);
+	  fg =
+	    gdImageColorAllocate (gc->brush, gc->color->r, gc->color->g,
+				  gc->color->b);
 	  gdImageColorTransparent (gc->brush, bg);
 
 	  /*
@@ -681,7 +689,7 @@ use_gc (hidGC gc)
 	  else
 	    {
 	      if (type == 'C')
-		gdImageFilledEllipse (gc->brush, r, r, 2*r, 2*r, fg);
+		gdImageFilledEllipse (gc->brush, r, r, 2 * r, 2 * r, fg);
 	      else
 		gdImageFilledRectangle (gc->brush, 0, 0, r, r, fg);
 	    }
@@ -695,12 +703,12 @@ use_gc (hidGC gc)
     }
 
 #define CBLEND(gc) (((gc->r)<<24)|((gc->g)<<16)|((gc->b)<<8)|(gc->faded))
-  if (lastcolor != CBLEND(gc))
+  if (lastcolor != CBLEND (gc))
     {
       if (is_drill || is_mask)
 	{
 #ifdef FIXME
-	  fprintf(f, "%d gray\n", gc->erase ? 0 : 1);
+	  fprintf (f, "%d gray\n", gc->erase ? 0 : 1);
 #endif
 	  lastcolor = 0;
 	}
@@ -718,11 +726,11 @@ use_gc (hidGC gc)
 	    }
 #ifdef FIXME
 	  if (gc->r == gc->g && gc->g == gc->b)
-	    fprintf(f, "%g gray\n", r/255.0);
+	    fprintf (f, "%g gray\n", r / 255.0);
 	  else
-	    fprintf(f, "%g %g %g rgb\n", r/255.0, g/255.0, b/255.0);
+	    fprintf (f, "%g %g %g rgb\n", r / 255.0, g / 255.0, b / 255.0);
 #endif
-	  lastcolor = CBLEND(gc);
+	  lastcolor = CBLEND (gc);
 	}
     }
 }
@@ -731,10 +739,9 @@ static void
 png_draw_rect (hidGC gc, int x1, int y1, int x2, int y2)
 {
   use_gc (gc);
-  gdImageRectangle (im, 
-		    SCALE_X (x1), SCALE_Y (y1), 
-		    SCALE_X (x2), SCALE_Y (y2),
-		    gc->color->c);
+  gdImageRectangle (im,
+		    SCALE_X (x1), SCALE_Y (y1),
+		    SCALE_X (x2), SCALE_Y (y2), gc->color->c);
 }
 
 static void
@@ -743,7 +750,7 @@ png_fill_rect (hidGC gc, int x1, int y1, int x2, int y2)
   use_gc (gc);
   gdImageSetThickness (im, 0);
   linewidth = 0;
-  gdImageFilledRectangle (im, SCALE_X (x1), SCALE_Y (y1), 
+  gdImageFilledRectangle (im, SCALE_X (x1), SCALE_Y (y1),
 			  SCALE_X (x2), SCALE_Y (y2), gc->color->c);
 }
 
@@ -753,20 +760,20 @@ png_draw_line (hidGC gc, int x1, int y1, int x2, int y2)
   if (x1 == x2 && y1 == y2)
     {
       int w = gc->width / 2;
-      png_fill_rect (gc, x1-w, y1-w, x1+w, y1+w);
+      png_fill_rect (gc, x1 - w, y1 - w, x1 + w, y1 + w);
       return;
     }
   use_gc (gc);
 
   gdImageSetThickness (im, 0);
   linewidth = 0;
-  gdImageLine (im, SCALE_X (x1), SCALE_Y (y1), 
+  gdImageLine (im, SCALE_X (x1), SCALE_Y (y1),
 	       SCALE_X (x2), SCALE_Y (y2), gdBrushed);
 }
 
 static void
 png_draw_arc (hidGC gc, int cx, int cy, int width, int height,
-		int start_angle, int delta_angle)
+	      int start_angle, int delta_angle)
 {
   int sa, ea;
 
@@ -803,19 +810,17 @@ png_draw_arc (hidGC gc, int cx, int cy, int width, int height,
     }
 
 #if 0
-  printf("draw_arc %d,%d %dx%d %d..%d %d..%d\n",
-	 cx, cy, width, height, start_angle, delta_angle, sa, ea);
+  printf ("draw_arc %d,%d %dx%d %d..%d %d..%d\n",
+	  cx, cy, width, height, start_angle, delta_angle, sa, ea);
   printf ("gdImageArc (%p, %d, %d, %d, %d, %d, %d, %d)\n",
-	  im, SCALE_X (cx), SCALE_Y (cy), 
-	  SCALE (width), SCALE (height), 
-	  sa, ea, gc->color->c);
+	  im, SCALE_X (cx), SCALE_Y (cy),
+	  SCALE (width), SCALE (height), sa, ea, gc->color->c);
 #endif
   use_gc (gc);
   gdImageSetThickness (im, 0);
   linewidth = 0;
-  gdImageArc (im, SCALE_X (cx), SCALE_Y (cy), 
-	      SCALE (2*width), SCALE (2*height), 
-	      sa, ea, gdBrushed);
+  gdImageArc (im, SCALE_X (cx), SCALE_Y (cy),
+	      SCALE (2 * width), SCALE (2 * height), sa, ea, gdBrushed);
 }
 
 static void
@@ -825,9 +830,8 @@ png_fill_circle (hidGC gc, int cx, int cy, int radius)
 
   gdImageSetThickness (im, 0);
   linewidth = 0;
-  gdImageFilledEllipse (im, SCALE_X (cx), SCALE_Y (cy), 
-			SCALE (2*radius), SCALE (2*radius), 
-			gc->color->c);
+  gdImageFilledEllipse (im, SCALE_X (cx), SCALE_Y (cy),
+			SCALE (2 * radius), SCALE (2 * radius), gc->color->c);
 
 }
 
@@ -838,14 +842,14 @@ png_fill_polygon (hidGC gc, int n_coords, int *x, int *y)
   gdPoint *points;
 
   points = (gdPoint *) malloc (n_coords * sizeof (gdPoint));
-  if (points == NULL) 
+  if (points == NULL)
     {
       fprintf (stderr, "ERROR:  png_fill_polygon():  malloc failed\n");
       exit (1);
     }
 
   use_gc (gc);
-  for (i=0; i<n_coords; i++)
+  for (i = 0; i < n_coords; i++)
     {
       points[i].x = SCALE_X (x[i]);
       points[i].y = SCALE_Y (y[i]);
@@ -870,17 +874,17 @@ png_set_crosshair (int x, int y)
 HID png_hid = {
   "png",
   "GIF/JPEG/PNG export.",
-  0, /* gui */
-  0, /* printer */
-  1, /* exporter */
-  1, /* poly before */
-  0, /* poly after */
+  0,				/* gui */
+  0,				/* printer */
+  1,				/* exporter */
+  1,				/* poly before */
+  0,				/* poly after */
   png_get_export_options,
   png_do_export,
   png_parse_arguments,
-  0 /* png_invalidate_wh */,
-  0 /* png_invalidate_lr */,
-  0 /* png_invalidate_all */,
+  0 /* png_invalidate_wh */ ,
+  0 /* png_invalidate_lr */ ,
+  0 /* png_invalidate_all */ ,
   png_set_layer,
   png_make_gc,
   png_destroy_gc,
@@ -898,28 +902,28 @@ HID png_hid = {
   png_fill_polygon,
   png_fill_rect,
   png_calibrate,
-  0 /* png_shift_is_pressed */,
-  0 /* png_control_is_pressed */,
-  0 /* png_get_coords */,
+  0 /* png_shift_is_pressed */ ,
+  0 /* png_control_is_pressed */ ,
+  0 /* png_get_coords */ ,
   png_set_crosshair,
-  0 /* png_add_timer */,
-  0 /* png_stop_timer */,
-  0 /* png_log */,
-  0 /* png_logv */,
-  0 /* png_confirm_dialog */,
-  0 /* png_report_dialog */,
-  0 /* png_prompt_for */,
-  0 /* png_attribute_dialog */,
-  0 /* png_show_item */,
-  0 /* png_beep */
+  0 /* png_add_timer */ ,
+  0 /* png_stop_timer */ ,
+  0 /* png_log */ ,
+  0 /* png_logv */ ,
+  0 /* png_confirm_dialog */ ,
+  0 /* png_report_dialog */ ,
+  0 /* png_prompt_for */ ,
+  0 /* png_attribute_dialog */ ,
+  0 /* png_show_item */ ,
+  0				/* png_beep */
 };
 
 #include "dolists.h"
 
 void
-hid_png_init()
+hid_png_init ()
 {
-  apply_default_hid(&png_hid, 0);
+  apply_default_hid (&png_hid, 0);
   hid_register_hid (&png_hid);
 
 #include "png_lists.h"

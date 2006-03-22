@@ -35,12 +35,12 @@
 
 #include "global.h"
 
-RatTypePtr AddNet(void);
+RatTypePtr AddNet (void);
 char *ConnectionName (int, void *, void *);
 
-Boolean AddAllRats(Boolean, void (*)());
-Boolean SeekPad(LibraryEntryTypePtr, ConnectionTypePtr, Boolean);
+Boolean AddAllRats (Boolean, void (*)());
+Boolean SeekPad (LibraryEntryTypePtr, ConnectionTypePtr, Boolean);
 
-NetListTypePtr ProcNetlist(LibraryTypePtr);
-NetListListType CollectSubnets(Boolean);
+NetListTypePtr ProcNetlist (LibraryTypePtr);
+NetListListType CollectSubnets (Boolean);
 #endif

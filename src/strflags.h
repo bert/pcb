@@ -35,7 +35,8 @@
 /* When passed a string, parse it and return an appropriate set of
    flags.  Errors cause error() to be called with a suitable message;
    if error is NULL, errors are ignored.  */
-FlagType string_to_flags (const char *flagstring, void (*error)(const char *msg));
+FlagType string_to_flags (const char *flagstring,
+			  void (*error) (const char *msg));
 
 /* Given a set of flags for a given object type, return a string which
    can be output to a file.  The returned pointer must not be

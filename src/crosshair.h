@@ -42,21 +42,22 @@
 /* ---------------------------------------------------------------------------
  * all possible states of an attached object
  */
-#define	STATE_FIRST		0			/* initial state */
+#define	STATE_FIRST		0	/* initial state */
 #define	STATE_SECOND	1
 #define	STATE_THIRD		2
 
 
-void	CrosshairOn(Boolean);
-void	CrosshairOff(Boolean);
-void	HideCrosshair(Boolean);
-void	RestoreCrosshair(Boolean);
-void	MoveCrosshairRelative(LocationType, LocationType);
-Boolean	MoveCrosshairAbsolute(LocationType, LocationType);
-void	SetCrosshairRange(LocationType, LocationType, LocationType, LocationType);
-void	InitCrosshair(void);
-void	DestroyCrosshair(void);
-void	DrawMark(Boolean);
-void    FitCrosshairIntoGrid (LocationType, LocationType);
+void CrosshairOn (Boolean);
+void CrosshairOff (Boolean);
+void HideCrosshair (Boolean);
+void RestoreCrosshair (Boolean);
+void MoveCrosshairRelative (LocationType, LocationType);
+Boolean MoveCrosshairAbsolute (LocationType, LocationType);
+void SetCrosshairRange (LocationType, LocationType, LocationType,
+			LocationType);
+void InitCrosshair (void);
+void DestroyCrosshair (void);
+void DrawMark (Boolean);
+void FitCrosshairIntoGrid (LocationType, LocationType);
 
 #endif

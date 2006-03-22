@@ -31,9 +31,8 @@
 #include "global.h"
 
 
-Boolean Pan(LocationType, LocationType, Boolean, Boolean);
-Boolean CoalignScreen(Position,
-				Position, LocationType, LocationType);
+Boolean Pan (LocationType, LocationType, Boolean, Boolean);
+Boolean CoalignScreen (Position, Position, LocationType, LocationType);
 
 /*void	DrawClipped(GdkRegion *myRegion);*/
 Boolean ActiveDrag (void);

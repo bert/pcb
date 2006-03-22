@@ -53,7 +53,7 @@
 #include "set.h"
 #include "vendor.h"
 
-RCSID("$Id$");
+RCSID ("$Id$");
 
 /* ----------------------------------------------------------------------
  * print a help message for commands
@@ -86,17 +86,18 @@ CommandHelp (int argc, char **argv, int x, int y)
 static int
 CommandLoadLayout (int argc, char **argv, int x, int y)
 {
-  char			*filename, *name = NULL;
+  char *filename, *name = NULL;
 #ifdef FIXME
-  static char	*current_layout_dir = NULL;
+  static char *current_layout_dir = NULL;
 #endif
 
   switch (argc)
     {
 #ifdef FIXME
     case 0:			/* open fileselect box */
-	  name = gui_dialog_file_select_open(_("Load layout file"),
-						&current_layout_dir, Settings.FilePath);
+      name = gui_dialog_file_select_open (_("Load layout file"),
+					  &current_layout_dir,
+					  Settings.FilePath);
       filename = name;
       if (!name)
 	return (0);
@@ -112,9 +113,9 @@ CommandLoadLayout (int argc, char **argv, int x, int y)
       return (1);
     }
 
-  if (!PCB->Changed || gui->confirm_dialog("OK to override layout data?", 0))
+  if (!PCB->Changed || gui->confirm_dialog ("OK to override layout data?", 0))
     LoadPCB (filename);
-  free(name);
+  free (name);
   return (0);
 }
 
@@ -128,19 +129,20 @@ CommandLoadElementToBuffer (int argc, char **argv, int x, int y)
 {
   char *filename;
 #ifdef FIXME
-  static char	*current_element_dir = NULL;
+  static char *current_element_dir = NULL;
 #endif
 
   switch (argc)
     {
 #ifdef FIXME
     case 0:			/* open fileselect box */
-	  filename = gui_dialog_file_select_open(_("Load element to buffer"),
-					&current_element_dir, Settings.ElementPath);
+      filename = gui_dialog_file_select_open (_("Load element to buffer"),
+					      &current_element_dir,
+					      Settings.ElementPath);
 
       if (filename && LoadElementToBuffer (PASTEBUFFER, filename, True))
 	SetMode (PASTEBUFFER_MODE);
-      free(filename);
+      free (filename);
       break;
 #endif
 
@@ -165,20 +167,21 @@ CommandLoadElementToBuffer (int argc, char **argv, int x, int y)
 static int
 CommandLoadLayoutToBuffer (int argc, char **argv, int x, int y)
 {
-  char			*filename;
+  char *filename;
 #ifdef FIXME
-  static char	*current_layout_dir = NULL;
+  static char *current_layout_dir = NULL;
 #endif
 
   switch (argc)
     {
 #ifdef FIXME
     case 0:			/* open fileselect box */
-	  filename = gui_dialog_file_select_open(_("Load layout file to buffer"),
-						&current_layout_dir, Settings.FilePath);
+      filename = gui_dialog_file_select_open (_("Load layout file to buffer"),
+					      &current_layout_dir,
+					      Settings.FilePath);
       if (filename && LoadLayoutToBuffer (PASTEBUFFER, filename))
 	SetMode (PASTEBUFFER_MODE);
-      free(filename);
+      free (filename);
       break;
 #endif
 
@@ -203,7 +206,7 @@ CommandLoadLayoutToBuffer (int argc, char **argv, int x, int y)
 static int
 CommandQuit (int argc, char **argv, int x, int y)
 {
-  if (!PCB->Changed || gui->confirm_dialog("OK to lose data ?", 0))
+  if (!PCB->Changed || gui->confirm_dialog ("OK to lose data ?", 0))
     QuitApplication ();
   return 0;
 }
@@ -225,16 +228,17 @@ CommandLoadNetlist (int argc, char **argv, int x, int y)
 {
   char *filename, *name = NULL;
 #ifdef FIXME
-  static char	*current_netlist_dir = NULL;
+  static char *current_netlist_dir = NULL;
 #endif
 
   switch (argc)
     {
 #ifdef FIXME
     case 0:			/* open fileselect box */
-	  name = gui_dialog_file_select_open(_("Load netlist file"),
-						&current_netlist_dir, Settings.FilePath);
-	  filename = name;
+      name = gui_dialog_file_select_open (_("Load netlist file"),
+					  &current_netlist_dir,
+					  Settings.FilePath);
+      filename = name;
       if (!filename)
 	return (0);
       break;
@@ -251,7 +255,7 @@ CommandLoadNetlist (int argc, char **argv, int x, int y)
   if (PCB->Netlistname)
     SaveFree (PCB->Netlistname);
   PCB->Netlistname = StripWhiteSpaceAndDup (filename);
-  free(name);
+  free (name);
   return (0);
 }
 
@@ -265,7 +269,7 @@ CommandSaveLayout (int argc, char **argv, int x, int y)
 {
 #ifdef FIXME
   char *filename;
-  static char	*current_save_path = NULL;
+  static char *current_save_path = NULL;
 #endif
 
   switch (argc)
@@ -274,12 +278,12 @@ CommandSaveLayout (int argc, char **argv, int x, int y)
     case 0:			/* query name if necessary */
       if (!PCB->Filename)
 	{
-	  filename = gui_dialog_file_select_save(_("Save layout as"),
-						&current_save_path, NULL,
-						Settings.FilePath);
+	  filename = gui_dialog_file_select_save (_("Save layout as"),
+						  &current_save_path, NULL,
+						  Settings.FilePath);
 	  if (filename)
 	    SavePCB (filename);
-	  free(filename);
+	  free (filename);
 	}
       else
 	SavePCB (PCB->Filename);
@@ -312,15 +316,26 @@ CommandSaveLayoutAndQuit (int argc, char **argv, int x, int y)
 /* --------------------------------------------------------------------------- */
 
 HID_Action command_action_list[] = {
-  { "h",  0, 0, CommandHelp },
-  { "l",  0, 0, CommandLoadLayout },
-  { "le", 0, 0, CommandLoadElementToBuffer },
-  { "m",  0, 0, CommandLoadLayoutToBuffer },
-  { "q",  0, 0, CommandQuit },
-  { "q!", 0, 0, CommandReallyQuit },
-  { "rn", 0, 0, CommandLoadNetlist },
-  { "s",  0, 0, CommandSaveLayout },
-  { "w",  0, 0, CommandSaveLayout },
-  { "wq", 0, 0, CommandSaveLayoutAndQuit },
+  {"h", 0, 0, CommandHelp}
+  ,
+  {"l", 0, 0, CommandLoadLayout}
+  ,
+  {"le", 0, 0, CommandLoadElementToBuffer}
+  ,
+  {"m", 0, 0, CommandLoadLayoutToBuffer}
+  ,
+  {"q", 0, 0, CommandQuit}
+  ,
+  {"q!", 0, 0, CommandReallyQuit}
+  ,
+  {"rn", 0, 0, CommandLoadNetlist}
+  ,
+  {"s", 0, 0, CommandSaveLayout}
+  ,
+  {"w", 0, 0, CommandSaveLayout}
+  ,
+  {"wq", 0, 0, CommandSaveLayoutAndQuit}
+  ,
 };
-REGISTER_ACTIONS(command_action_list);
+
+REGISTER_ACTIONS (command_action_list);

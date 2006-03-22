@@ -33,7 +33,7 @@
 
 #include "global.h"
 
-void	LookupRubberbandLines(int, void *, void *, void *);
-void	LookupRatLines(int, void *, void *, void *);
+void LookupRubberbandLines (int, void *, void *, void *);
+void LookupRatLines (int, void *, void *, void *);
 
 #endif

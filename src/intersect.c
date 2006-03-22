@@ -46,7 +46,7 @@
 #include "intersect.h"
 #include "mymem.h"
 
-RCSID("$Id$");
+RCSID ("$Id$");
 
 
 /* ---------------------------------------------------------------------------
@@ -203,7 +203,7 @@ ComputeIntersectionArea (BoxListTypePtr boxlist)
   double area = 0.0;
   /* first get the aggregate area. */
   for (i = 0; i < boxlist->BoxN; i++)
-    area += (double)(boxlist->Box[i].X2 - boxlist->Box[i].X1) *
+    area += (double) (boxlist->Box[i].X2 - boxlist->Box[i].X1) *
       (double) (boxlist->Box[i].Y2 - boxlist->Box[i].Y1);
   /* intersection area is aggregate - union. */
   return area * 0.0001 - ComputeUnionArea (boxlist);
@@ -255,7 +255,7 @@ ComputeUnionArea (BoxListTypePtr boxlist)
 	  if (b->X2 != lastX)
 	    {
 	      assert (lastX < b->X2);
-	      area += (double)(b->X2 - lastX) * segtree.nodes[1].area;
+	      area += (double) (b->X2 - lastX) * segtree.nodes[1].area;
 	      lastX = b->X2;
 	    }
 	  /* remove a segment from the segment tree. */
@@ -269,7 +269,7 @@ ComputeUnionArea (BoxListTypePtr boxlist)
 	  if (b->X1 != lastX)
 	    {
 	      assert (lastX < b->X1);
-	      area += (double)(b->X1 - lastX) * segtree.nodes[1].area;
+	      area += (double) (b->X1 - lastX) * segtree.nodes[1].area;
 	      lastX = b->X1;
 	    }
 	  /* add a segment from the segment tree. */

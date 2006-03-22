@@ -42,43 +42,41 @@
 #include <dmalloc.h>
 #endif
 
-RCSID("$Id$");
+RCSID ("$Id$");
 
 /* ---------------------------------------------------------------------------
  * some shared identifiers
  */
 
-CrosshairType	Crosshair;			/* information about cursor settings */
-MarkType		Marked;				/* a cross-hair mark */
-OutputType		Output;				/* some widgets ... used for drawing */
-PCBTypePtr		PCB;				/* pointer to layout struct */
+CrosshairType Crosshair;	/* information about cursor settings */
+MarkType Marked;		/* a cross-hair mark */
+OutputType Output;		/* some widgets ... used for drawing */
+PCBTypePtr PCB;			/* pointer to layout struct */
 
-char			*Progname;
-SettingType		Settings;
-int			LayerStack[MAX_LAYER];	/* determines the layer draw order */
+char *Progname;
+SettingType Settings;
+int LayerStack[MAX_LAYER];	/* determines the layer draw order */
 
-BufferType		Buffers[MAX_BUFFER];	/* my buffers */
-LibraryType		Library;		/* the library */
-Boolean		Bumped;			/* if the undo serial number has changed */
-Boolean		render;			/* wether or not to re-render the pixmap */
+BufferType Buffers[MAX_BUFFER];	/* my buffers */
+LibraryType Library;		/* the library */
+Boolean Bumped;			/* if the undo serial number has changed */
+Boolean render;			/* wether or not to re-render the pixmap */
 
-LocationType	Xorig, Yorig;	/* origin offset for drawing in pixmap */
+LocationType Xorig, Yorig;	/* origin offset for drawing in pixmap */
 #ifdef FIXME
-GdkPixmap		**Stipples,
-				*XC_clock_source, *XC_clock_mask,
-				*XC_hand_source, *XC_hand_mask,
-				*XC_lock_source, *XC_lock_mask;
+GdkPixmap **Stipples,
+  *XC_clock_source, *XC_clock_mask,
+  *XC_hand_source, *XC_hand_mask, *XC_lock_source, *XC_lock_mask;
 #endif
 
-int			addedLines;
+int addedLines;
 
-LocationType	vxl, vxh,
-				vyl, vyh;		/* visible pcb coordinates */
+LocationType vxl, vxh, vyl, vyh;	/* visible pcb coordinates */
 
-BoxType			theScreen;		/* box of screen in pcb coordinates */
-BoxType			clipBox;		/* box for clipping of drawing */
+BoxType theScreen;		/* box of screen in pcb coordinates */
+BoxType clipBox;		/* box for clipping of drawing */
 
-double			Zoom_Multiplier = 0.01;
+double Zoom_Multiplier = 0.01;
 
 /*  { 1.5625, 2.2097, 3.125, 4.4194, 6.25, 8.8388,
       12.5, 17.6777, 25, 35.3553, 50, 70.7106, 100,
@@ -91,13 +89,12 @@ double			Zoom_Multiplier = 0.01;
  * all known printing devices
  */
 #ifdef FIXME
-DeviceInfoType PrintingDevice[] =
-	{
-	{PS_Query,   NULL},
-	{EPS_Query,  NULL},
+DeviceInfoType PrintingDevice[] = {
+  {PS_Query, NULL},
+  {EPS_Query, NULL},
 /*	{GB_Query,   NULL }, */
-	{GBX_Queryh, NULL},
+  {GBX_Queryh, NULL},
 /*	{GBX_Query,  NULL }, */
-	{NULL,       NULL}
-	};
+  {NULL, NULL}
+};
 #endif

@@ -56,7 +56,7 @@
 #include <dmalloc.h>
 #endif
 
-RCSID("$Id$");
+RCSID ("$Id$");
 
 
 
@@ -95,7 +95,8 @@ static ObjectFunctionType RotateFunctions = {
  * rotates a point in 90 degree steps
  */
 void
-RotatePointLowLevel (PointTypePtr Point, LocationType X, LocationType Y, BYTE Number)
+RotatePointLowLevel (PointTypePtr Point, LocationType X, LocationType Y,
+		     BYTE Number)
 {
   ROTATE (Point->X, Point->Y, X, Y, Number);
 }
@@ -104,7 +105,8 @@ RotatePointLowLevel (PointTypePtr Point, LocationType X, LocationType Y, BYTE Nu
  * rotates a line in 90 degree steps
  */
 void
-RotateLineLowLevel (LineTypePtr Line, LocationType X, LocationType Y, BYTE Number)
+RotateLineLowLevel (LineTypePtr Line, LocationType X, LocationType Y,
+		    BYTE Number)
 {
   ROTATE (Line->Point1.X, Line->Point1.Y, X, Y, Number);
   ROTATE (Line->Point2.X, Line->Point2.Y, X, Y, Number);
@@ -139,7 +141,8 @@ RotateLineLowLevel (LineTypePtr Line, LocationType X, LocationType Y, BYTE Numbe
  * is done by the drawing routines
  */
 void
-RotateTextLowLevel (TextTypePtr Text, LocationType X, LocationType Y, BYTE Number)
+RotateTextLowLevel (TextTypePtr Text, LocationType X, LocationType Y,
+		    BYTE Number)
 {
   BYTE number;
 
@@ -162,9 +165,9 @@ RotatePolygonLowLevel (PolygonTypePtr Polygon,
 		       LocationType X, LocationType Y, BYTE Number)
 {
   POLYGONPOINT_LOOP (Polygon);
-    {
-      ROTATE (point->X, point->Y, X, Y, Number);
-    }
+  {
+    ROTATE (point->X, point->Y, X, Y, Number);
+  }
   END_LOOP;
   RotateBoxLowLevel (&Polygon->BoundingBox, X, Y, Number);
 }
@@ -188,7 +191,8 @@ RotateText (LayerTypePtr Layer, TextTypePtr Text)
  * rotates an arc
  */
 void
-RotateArcLowLevel (ArcTypePtr Arc, LocationType X, LocationType Y, BYTE Number)
+RotateArcLowLevel (ArcTypePtr Arc, LocationType X, LocationType Y,
+		   BYTE Number)
 {
   BDimension save;
 
@@ -219,39 +223,39 @@ RotateElementLowLevel (DataTypePtr Data, ElementTypePtr Element,
    * is to be corrected
    */
   ELEMENTTEXT_LOOP (Element);
-    {
-      if (Data && Data->name_tree[n])
-        r_delete_entry (Data->name_tree[n], (BoxType *) text);
-      RotateTextLowLevel (text, X, Y, Number);
-    }
+  {
+    if (Data && Data->name_tree[n])
+      r_delete_entry (Data->name_tree[n], (BoxType *) text);
+    RotateTextLowLevel (text, X, Y, Number);
+  }
   END_LOOP;
   ELEMENTLINE_LOOP (Element);
-    {
-      RotateLineLowLevel (line, X, Y, Number);
-    }
+  {
+    RotateLineLowLevel (line, X, Y, Number);
+  }
   END_LOOP;
   PIN_LOOP (Element);
-    {
-      /* pre-delete the pins from the pin-tree before their coordinates change */
-      if (Data)
-	r_delete_entry (Data->pin_tree, (BoxType *) pin);
-      ROTATE_PIN_LOWLEVEL (pin, X, Y, Number);
-      if (PCB->Data == Data)
-	UpdatePIPFlags (pin, Element, NULL, True);
-    }
+  {
+    /* pre-delete the pins from the pin-tree before their coordinates change */
+    if (Data)
+      r_delete_entry (Data->pin_tree, (BoxType *) pin);
+    ROTATE_PIN_LOWLEVEL (pin, X, Y, Number);
+    if (PCB->Data == Data)
+      UpdatePIPFlags (pin, Element, NULL, True);
+  }
   END_LOOP;
   PAD_LOOP (Element);
-    {
-      /* pre-delete the pads before their coordinates change */
-      if (Data)
-	r_delete_entry (Data->pad_tree, (BoxType *) pad);
-      ROTATE_PAD_LOWLEVEL (pad, X, Y, Number);
-    }
+  {
+    /* pre-delete the pads before their coordinates change */
+    if (Data)
+      r_delete_entry (Data->pad_tree, (BoxType *) pad);
+    ROTATE_PAD_LOWLEVEL (pad, X, Y, Number);
+  }
   END_LOOP;
   ARC_LOOP (Element);
-    {
-      RotateArcLowLevel (arc, X, Y, Number);
-    }
+  {
+    RotateArcLowLevel (arc, X, Y, Number);
+  }
   END_LOOP;
   ROTATE (Element->MarkX, Element->MarkY, X, Y, Number);
   /* SetElementBoundingBox reenters the pins/pads into their trees */
@@ -279,7 +283,7 @@ RotateLinePoint (LayerTypePtr Layer, LineTypePtr Line, PointTypePtr Point)
   else
     {
       r_insert_entry (PCB->Data->rat_tree, (BoxTypePtr) Line, 0);
-      DrawRat ((RatTypePtr)Line, 0);
+      DrawRat ((RatTypePtr) Line, 0);
     }
   Draw ();
   return (Line);
@@ -321,11 +325,11 @@ RotateElementName (ElementTypePtr Element)
 {
   EraseElementName (Element);
   ELEMENTTEXT_LOOP (Element);
-    {
-      r_delete_entry (PCB->Data->name_tree[n], (BoxType *)text);
-      RotateTextLowLevel (text, CenterX, CenterY, Number);
-      r_insert_entry (PCB->Data->name_tree[n], (BoxType *)text, 0);
-    }
+  {
+    r_delete_entry (PCB->Data->name_tree[n], (BoxType *) text);
+    RotateTextLowLevel (text, CenterX, CenterY, Number);
+    r_insert_entry (PCB->Data->name_tree[n], (BoxType *) text, 0);
+  }
   END_LOOP;
   DrawElementName (Element, 0);
   Draw ();
@@ -336,7 +340,8 @@ RotateElementName (ElementTypePtr Element)
  * rotates a box in 90 degree steps 
  */
 void
-RotateBoxLowLevel (BoxTypePtr Box, LocationType X, LocationType Y, BYTE Number)
+RotateBoxLowLevel (BoxTypePtr Box, LocationType X, LocationType Y,
+		   BYTE Number)
 {
   LocationType x1 = Box->X1, y1 = Box->Y1, x2 = Box->X2, y2 = Box->Y2;
 

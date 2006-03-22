@@ -56,7 +56,7 @@
 #include "rtree.h"
 
 
-RCSID("$Id$");
+RCSID ("$Id$");
 
 
 #undef SLOW_ASSERTS
@@ -241,13 +241,14 @@ __r_dump_tree (struct rtree_node *node, int depth)
       printf ("p=0x%p node X(%d, %d) Y(%d, %d)\n", (void *) node,
 	      node->box.X1, node->box.X2, node->box.Y1, node->box.Y2);
 #ifdef DRAWBOX
-      gdk_gc_set_line_attributes(Output.fgGC, 4,
-				GDK_LINE_SOLID, GDK_CAP_ROUND, GDK_JOIN_ROUND);
+      gdk_gc_set_line_attributes (Output.fgGC, 4,
+				  GDK_LINE_SOLID, GDK_CAP_ROUND,
+				  GDK_JOIN_ROUND);
 
       if (depth < MAX_LAYER + 1)
-	gdk_gc_set_foreground(Output.fgGC, (LAYER_PTR (depth)->Color));
+	gdk_gc_set_foreground (Output.fgGC, (LAYER_PTR (depth)->Color));
       else
-	gdk_gc_set_foreground(Output.fgGC, PCB->WarnColor);
+	gdk_gc_set_foreground (Output.fgGC, PCB->WarnColor);
       XDrawCLine (Output.top_window->window, Output.fgGC,
 		  node->box.X1, node->box.Y1, node->box.X2, node->box.Y1);
       XDrawCLine (Output.top_window->window, Output.fgGC,
@@ -261,9 +262,10 @@ __r_dump_tree (struct rtree_node *node, int depth)
   else
     {
 #ifdef DRAWBOX
-      gdk_gc_set_line_attributes(Output.fgGC, 2,
-				GDK_LINE_SOLID, GDK_CAP_ROUND, GDK_JOIN_ROUND);
-	  gdk_gc_set_foreground(Output.fgGC, PCB->MaskColor);
+      gdk_gc_set_line_attributes (Output.fgGC, 2,
+				  GDK_LINE_SOLID, GDK_CAP_ROUND,
+				  GDK_JOIN_ROUND);
+      gdk_gc_set_foreground (Output.fgGC, PCB->MaskColor);
       XDrawCLine (Output.top_window->window, Output.fgGC,
 		  node->box.X1, node->box.Y1, node->box.X2, node->box.Y1);
       XDrawCLine (Output.top_window->window, Output.fgGC,
@@ -287,9 +289,10 @@ __r_dump_tree (struct rtree_node *node, int depth)
 		      node->u.rects[j].bounds.Y1);
 	  count++;
 #ifdef DRAWBOX
-      gdk_gc_set_line_attributes(Output.fgGC, 1,
-				GDK_LINE_SOLID, GDK_CAP_ROUND, GDK_JOIN_ROUND);
-	  gdk_gc_set_foreground(Output.fgGC, PCB->ViaSelectedColor);
+	  gdk_gc_set_line_attributes (Output.fgGC, 1,
+				      GDK_LINE_SOLID, GDK_CAP_ROUND,
+				      GDK_JOIN_ROUND);
+	  gdk_gc_set_foreground (Output.fgGC, PCB->ViaSelectedColor);
 	  XDrawCLine (Output.top_window->window, Output.fgGC,
 		      node->u.rects[j].bounds.X1, node->u.rects[j].bounds.Y1,
 		      node->u.rects[j].bounds.X2, node->u.rects[j].bounds.Y1);
@@ -305,10 +308,10 @@ __r_dump_tree (struct rtree_node *node, int depth)
 #endif
 	  for (i = 0; i < depth + 1; i++)
 	    printf ("  ");
-	  printf ("entry 0x%p X(%d, %d) Y(%d, %d)\n", (void *) (node->u.rects[j].bptr),
-		  node->u.rects[j].bounds.X1,
-		  node->u.rects[j].bounds.X2, node->u.rects[j].bounds.Y1,
-		  node->u.rects[j].bounds.Y2);
+	  printf ("entry 0x%p X(%d, %d) Y(%d, %d)\n",
+		  (void *) (node->u.rects[j].bptr),
+		  node->u.rects[j].bounds.X1, node->u.rects[j].bounds.X2,
+		  node->u.rects[j].bounds.Y1, node->u.rects[j].bounds.Y2);
 	}
       return;
     }
@@ -465,9 +468,9 @@ r_create_tree (const BoxType * boxlist[], int N, int manage)
   int i;
 
   assert (N >= 0);
-  rtree = calloc(1, sizeof (*rtree));
+  rtree = calloc (1, sizeof (*rtree));
   /* start with a single empty leaf node */
-  node = calloc(1, sizeof (*node));
+  node = calloc (1, sizeof (*node));
   node->flags.is_leaf = 1;
   node->parent = NULL;
   rtree->root = node;
@@ -676,7 +679,7 @@ find_clusters (struct rtree_node *node)
 
 	  dist1 = SQUARE (a_X - center[i].x) + SQUARE (a_Y - center[i].y);
 	  dist2 = SQUARE (b_X - center[i].x) + SQUARE (b_Y - center[i].y);
-	  if (dist1 * (clust_a + M_SIZE/2) < dist2 * (clust_b + M_SIZE/2))
+	  if (dist1 * (clust_a + M_SIZE / 2) < dist2 * (clust_b + M_SIZE / 2))
 	    {
 	      belong[i] = True;
 	      clust_a++;
@@ -719,7 +722,7 @@ find_clusters (struct rtree_node *node)
 	break;
     }
   /* Now 'belong' has the partition map */
-  new_node = calloc(1,sizeof (*new_node));
+  new_node = calloc (1, sizeof (*new_node));
   new_node->parent = node->parent;
   new_node->flags.is_leaf = node->flags.is_leaf;
   clust_a = clust_b = 0;
@@ -792,7 +795,7 @@ split_node (struct rtree_node *node)
     {
       struct rtree_node *second;
 
-      second = calloc(1, sizeof (*second));
+      second = calloc (1, sizeof (*second));
       *second = *node;
       if (!second->flags.is_leaf)
 	for (i = 0; i < M_SIZE; i++)
@@ -945,18 +948,18 @@ __r_insert_node (struct rtree_node * node, const BoxType * query, int manage,
       /* see if there is room for a new leaf node */
       if (node->u.kids[0]->flags.is_leaf && i < M_SIZE)
 	{
-	      struct rtree_node *new_node;
-	      new_node = calloc(1, sizeof (*new_node));
-	      new_node->parent = node;
-	      new_node->flags.is_leaf = True;
-	      node->u.kids[i] = new_node;
-	      new_node->u.rects[0].bptr = query;
-	      new_node->u.rects[0].bounds = *query;
-	      new_node->box = *query;
-	      if (manage)
-		new_node->flags.manage = 1;
-	      sort_node (node);
-	      return 0;
+	  struct rtree_node *new_node;
+	  new_node = calloc (1, sizeof (*new_node));
+	  new_node->parent = node;
+	  new_node->flags.is_leaf = True;
+	  node->u.kids[i] = new_node;
+	  new_node->u.rects[0].bptr = query;
+	  new_node->u.rects[0].bounds = *query;
+	  new_node->box = *query;
+	  if (manage)
+	    new_node->flags.manage = 1;
+	  sort_node (node);
+	  return 0;
 	}
 
       /* didn't find an enclosure, so use the best one */

@@ -44,8 +44,8 @@
 #include "undo.h"
 #include "strflags.h"
 
-     
-RCSID("$Id$");
+
+RCSID ("$Id$");
 
 #ifndef HAVE_RINT
 #define rint(x)  (ceil((x) - 0.5))
@@ -120,15 +120,16 @@ djopt_set_auto_only (void)
 }
 
 static int
-djopt_get_auto_only()
+djopt_get_auto_only ()
 {
   return autorouted_only;
 }
 
 HID_Flag djopt_flag_list[] = {
-  { "optautoonly", djopt_get_auto_only, 0 }
+  {"optautoonly", djopt_get_auto_only, 0}
 };
-REGISTER_FLAGS(djopt_flag_list);
+
+REGISTER_FLAGS (djopt_flag_list);
 
 #define line_is_pad(l) ((l)->line == (LineType *)(l)->s->pad)
 
@@ -310,7 +311,7 @@ dist (int x1, int y1, int x2, int y2)
   dy2 = (double) y2;
 
   d = sqrt ((dx1 - dx2) * (dx1 - dx2) + (dy1 - dy2) * (dy1 - dy2));
-  d = rint(d);
+  d = rint (d);
 
   return (int) d;
 }
@@ -559,13 +560,13 @@ new_line (corner_s * s, corner_s * e, int layer, LineType * example)
 #endif
     {
       LineType *nl;
-      dprintf ("New line \033[35m%d,%d to %d,%d from l%d t%d c%d f%s\033[0m\n",
-	       s->x, s->y, e->x, e->y, layer,
-	       example->Thickness, example->Clearance,
-	       flags_to_string (example->Flags, LINE_TYPE));
-      nl = create_pcb_line (layer, s->x, s->y, e->x, e->y,
-			    example->Thickness,
-			    example->Clearance, example->Flags);
+      dprintf
+	("New line \033[35m%d,%d to %d,%d from l%d t%d c%d f%s\033[0m\n",
+	 s->x, s->y, e->x, e->y, layer, example->Thickness,
+	 example->Clearance, flags_to_string (example->Flags, LINE_TYPE));
+      nl =
+	create_pcb_line (layer, s->x, s->y, e->x, e->y, example->Thickness,
+			 example->Clearance, example->Flags);
 
       if (!nl)
 	dj_abort ("can't create new line!");
@@ -877,7 +878,8 @@ move_corner (corner_s * c, int x, int y)
   check (c, 0);
   if (c->pad || c->pin)
     dj_abort ("move_corner: has pin or pad\n");
-  dprintf ("move_corner %p from %d,%d to %d,%d\n", (void *) c, c->x, c->y, x, y);
+  dprintf ("move_corner %p from %d,%d to %d,%d\n", (void *) c, c->x, c->y, x,
+	   y);
   pad = find_corner_if (x, y, c->layer);
   c->x = x;
   c->y = y;
@@ -929,7 +931,7 @@ move_corner (corner_s * c, int x, int y)
 	  }
       }
 #ifdef FIXME
-  gdk_display_sync(gdk_drawable_get_display(Output.drawing_area->window));
+  gdk_display_sync (gdk_drawable_get_display (Output.drawing_area->window));
 #endif
   check (c, 0);
 }
@@ -1099,7 +1101,7 @@ simple_optimize_corner (corner_s * c)
 		 c->lines[0]->layer, c->x, c->y, c->n_lines);
       for (i = 1; i < c->n_lines; i++)
 	{
-	  if (selected(c->via))
+	  if (selected (c->via))
 	    dprintf ("           line[%d] layer %d %d,%d to %d,%d\n",
 		     i, c->lines[i]->layer,
 		     c->lines[i]->s->x, c->lines[i]->s->y,
@@ -1610,9 +1612,9 @@ debumpify ()
 	continue;
       if (!l->line)
 	continue;
-      if (any_selected && ! selected (l->line))
+      if (any_selected && !selected (l->line))
 	continue;
-      if (!any_selected && autorouted_only && ! autorouted (l->line))
+      if (!any_selected && autorouted_only && !autorouted (l->line))
 	continue;
       if (l->s->pin || l->s->pad || l->e->pin || l->e->pad)
 	continue;
@@ -2007,15 +2009,15 @@ viatrim ()
 	continue;
       if (!l->e->via)
 	continue;
-      if (any_sel && ! selected (l->line))
+      if (any_sel && !selected (l->line))
 	continue;
-      if (!any_sel && autorouted_only && ! autorouted (l->line))
+      if (!any_sel && autorouted_only && !autorouted (l->line))
 	continue;
 
       my_layer = l->layer;
       other_layer = -1;
-      dprintf ("line %p on layer %d from %d,%d to %d,%d\n", (void *) l, l->layer,
-	       l->s->x, l->s->y, l->e->x, l->e->y);
+      dprintf ("line %p on layer %d from %d,%d to %d,%d\n", (void *) l,
+	       l->layer, l->s->x, l->s->y, l->e->x, l->e->y);
       for (i = 0; i < l->s->n_lines; i++)
 	if (l->s->lines[i] != l)
 	  {
@@ -2028,7 +2030,8 @@ viatrim ()
 	    else if (l->s->lines[i]->layer != other_layer)
 	      {
 		dprintf ("saw other line %p on layer %d (not %d)\n",
-			 (void *) (l->s->lines[i]), l->s->lines[i]->layer, my_layer);
+			 (void *) (l->s->lines[i]), l->s->lines[i]->layer,
+			 my_layer);
 		other_layer = -1;
 		goto viatrim_other_corner;
 	      }
@@ -2053,8 +2056,8 @@ viatrim ()
 	    }
 
       /* Now see if any other line intersects us.  We don't need to
-	 check corners, because they'd either be pins/vias and
-	 already conflict, or pads, which we'll check here anyway.  */
+         check corners, because they'd either be pins/vias and
+         already conflict, or pads, which we'll check here anyway.  */
       empty_rect (&r);
       add_point_to_rect (&r, l->s->x, l->s->y, l->line->Thickness);
       add_point_to_rect (&r, l->e->x, l->e->y, l->line->Thickness);
@@ -2355,7 +2358,7 @@ dump_all ()
     {
       if (DELETED (l))
 	continue;
-      printf ("%p line %p to %p layer %d\n", 
+      printf ("%p line %p to %p layer %d\n",
 	      (void *) l, (void *) (l->s), (void *) (l->e), l->layer);
     }
 }
@@ -2390,8 +2393,8 @@ choose_example_line (corner_s * c1, corner_s * c2)
   c[0] = c1;
   c[1] = c2;
   dprintf ("choose_example_line\n");
-  for (ci=0; ci<2; ci++)
-    for (li=0; li<c[ci]->n_lines; li++)
+  for (ci = 0; ci < 2; ci++)
+    for (li = 0; li < c[ci]->n_lines; li++)
       {
 	dprintf ("  try[%d,%d] \033[36m<%d,%d-%d,%d t%d c%d f%ld>\033[0m\n",
 		 ci, li,
@@ -2399,8 +2402,7 @@ choose_example_line (corner_s * c1, corner_s * c2)
 		 c[ci]->lines[li]->e->x, c[ci]->lines[li]->e->y,
 		 c[ci]->lines[li]->line->Thickness,
 		 c[ci]->lines[li]->line->Clearance,
-		 c[ci]->lines[li]->line->Flags
-		 );
+		 c[ci]->lines[li]->line->Flags);
 	/* Pads are disqualified, as we want to mimic a trace line. */
 	if (c[ci]->lines[li]->line == (LineTypePtr) c[ci]->pad)
 	  {
@@ -2408,7 +2410,7 @@ choose_example_line (corner_s * c1, corner_s * c2)
 	    continue;
 	  }
 	/* Lines on layers that don't connect to the other pad are bad too.  */
-	if (! intersecting_layers (c[ci]->lines[li]->layer, c[1-ci]->layer))
+	if (!intersecting_layers (c[ci]->lines[li]->layer, c[1 - ci]->layer))
 	  {
 	    dprintf ("  bad, layers\n");
 	    continue;
@@ -2427,9 +2429,10 @@ connect_corners (corner_s * c1, corner_s * c2)
   line_s *ex = choose_example_line (c1, c2);
   LineType *example = ex->line;
 
-  dprintf ("connect_corners \033[32m%d,%d to %d,%d, example line %d,%d to %d,%d l%d\033[0m\n",
-	   c1->x, c1->y, c2->x, c2->y,
-	   ex->s->x, ex->s->y, ex->e->x, ex->e->y, ex->layer);
+  dprintf
+    ("connect_corners \033[32m%d,%d to %d,%d, example line %d,%d to %d,%d l%d\033[0m\n",
+     c1->x, c1->y, c2->x, c2->y, ex->s->x, ex->s->y, ex->e->x, ex->e->y,
+     ex->layer);
 
   layer = ex->layer;
 
@@ -2916,11 +2919,12 @@ ActionDJopt (int argc, char **argv, int x, int y)
 }
 
 HID_Action djopt_action_list[] = {
-  { "djopt", 0, 0, ActionDJopt,
-    "Perform various optimizations on the current board",
-    "djopt(debumpify|unjaggy|simple|vianudge|viatrim|orthopull)\n"
-    "djopt(auto) - all of the above\n"
-    "djopt(miter)"},
-  { "OptAutoOnly", 0, 0, djopt_set_auto_only }
+  {"djopt", 0, 0, ActionDJopt,
+   "Perform various optimizations on the current board",
+   "djopt(debumpify|unjaggy|simple|vianudge|viatrim|orthopull)\n"
+   "djopt(auto) - all of the above\n" "djopt(miter)"}
+  ,
+  {"OptAutoOnly", 0, 0, djopt_set_auto_only}
 };
-REGISTER_ACTIONS(djopt_action_list);
+
+REGISTER_ACTIONS (djopt_action_list);

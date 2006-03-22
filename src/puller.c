@@ -47,7 +47,7 @@
 #include "strflags.h"
 #include "undo.h"
 
-RCSID("$Id$");
+RCSID ("$Id$");
 
 #define sqr(x) (1.0*(x)*(x))
 
@@ -59,9 +59,9 @@ static double arc_dist;
 /* We canonicalize the arc and line such that the point to be moved is
    always Point2 for the line, and at start+delta for the arc.  */
 
-static int x, y; /* the point we're moving */
-static int cx, cy; /* centerpoint of the arc */
-static int ex, ey; /* fixed end of the line */
+static int x, y;		/* the point we're moving */
+static int cx, cy;		/* centerpoint of the arc */
+static int ex, ey;		/* fixed end of the line */
 
 /* 0 is left (-x), 90 is down (+y), 180 is right (+x), 270 is up (-y) */
 
@@ -70,14 +70,14 @@ dist (int x1, int y1, int x2, int y2)
 {
   double dx = x1 - x2;
   double dy = y1 - y2;
-  double dist = sqrt(dx*dx+dy*dy);
+  double dist = sqrt (dx * dx + dy * dy);
   return dist;
 }
 
 static int
 within (int x1, int y1, int x2, int y2, int r)
 {
-  return dist(x1, y1, x2, y2) <= r/2;
+  return dist (x1, y1, x2, y2) <= r / 2;
 }
 
 static int
@@ -87,13 +87,21 @@ arc_endpoint_is (ArcTypePtr a, int angle, int x, int y)
 
   if (angle % 90 == 0)
     {
-      int ai = (int)(angle / 90) & 3;
+      int ai = (int) (angle / 90) & 3;
       switch (ai)
 	{
-	case 0: ax -= a->Width; break;
-	case 1: ay += a->Height; break;
-	case 2: ax += a->Width; break;
-	case 3: ay -= a->Height; break;
+	case 0:
+	  ax -= a->Width;
+	  break;
+	case 1:
+	  ay += a->Height;
+	  break;
+	case 2:
+	  ax += a->Width;
+	  break;
+	case 3:
+	  ay -= a->Height;
+	  break;
 	}
     }
   else
@@ -101,26 +109,25 @@ arc_endpoint_is (ArcTypePtr a, int angle, int x, int y)
       double rad = angle * M_PI / 180;
       ax -= a->Width * cos (rad);
       ay += a->Width * sin (rad);
-     }
+    }
 #if 0
-  printf(" - arc endpoint %d,%d\n", ax, ay);
+  printf (" - arc endpoint %d,%d\n", ax, ay);
 #endif
   arc_dist = dist (ax, ay, x, y);
   if (arc_exact)
     return arc_dist < 2;
-  return arc_dist < a->Thickness/2;
+  return arc_dist < a->Thickness / 2;
 }
 
 static int
 line_callback (const BoxType * b, void *cl)
 {
   /* LayerTypePtr layer = (LayerTypePtr)cl; */
-  LineTypePtr l = (LineTypePtr)b;
+  LineTypePtr l = (LineTypePtr) b;
   double d1, d2, t;
 #if 0
-  printf("line %d,%d .. %d,%d\n",
-	 l->Point1.X, l->Point1.Y,
-	 l->Point2.X, l->Point2.Y);
+  printf ("line %d,%d .. %d,%d\n",
+	  l->Point1.X, l->Point1.Y, l->Point2.X, l->Point2.Y);
 #endif
   d1 = dist (l->Point1.X, l->Point1.Y, x, y);
   d2 = dist (l->Point2.X, l->Point2.Y, x, y);
@@ -129,14 +136,14 @@ line_callback (const BoxType * b, void *cl)
       line_exact = 1;
       the_line = 0;
     }
-  t = line_exact ? 2 : l->Thickness/2;
+  t = line_exact ? 2 : l->Thickness / 2;
   if (d1 < t || d2 < t)
     {
       if (the_line)
 	multi = 1;
       the_line = l;
 #if 0
-      printf("picked, exact %d\n", line_exact);
+      printf ("picked, exact %d\n", line_exact);
 #endif
     }
   return 1;
@@ -149,14 +156,15 @@ arc_callback (const BoxType * b, void *cl)
   ArcTypePtr a = (ArcTypePtr) b;
 
 #if 0
-  printf("arc a %d,%d r %d sa %d d %d\n", a->X, a->Y, a->Width, a->StartAngle, a->Delta);
+  printf ("arc a %d,%d r %d sa %d d %d\n", a->X, a->Y, a->Width,
+	  a->StartAngle, a->Delta);
 #endif
   if (!arc_endpoint_is (a, a->StartAngle, x, y)
       && !arc_endpoint_is (a, a->StartAngle + a->Delta, x, y))
     return 1;
   if (arc_dist < 2)
     {
-      if (! arc_exact)
+      if (!arc_exact)
 	{
 	  arc_exact = 1;
 	  the_arc = 0;
@@ -165,7 +173,7 @@ arc_callback (const BoxType * b, void *cl)
 	multi = 1;
       the_arc = a;
 #if 0
-      printf("picked, exact %d\n", arc_exact);
+      printf ("picked, exact %d\n", arc_exact);
 #endif
     }
   else if (!arc_exact)
@@ -174,7 +182,7 @@ arc_callback (const BoxType * b, void *cl)
 	multi = 1;
       the_arc = a;
 #if 0
-      printf("picked, exact %d\n", arc_exact);
+      printf ("picked, exact %d\n", arc_exact);
 #endif
     }
   return 1;
@@ -186,7 +194,7 @@ find_pair (int Px, int Py)
   BoxType spot;
 
 #if 0
-  printf("\nPuller find_pair at %d,%d\n", Crosshair.X, Crosshair.Y);
+  printf ("\nPuller find_pair at %d,%d\n", Crosshair.X, Crosshair.Y);
 #endif
 
   x = Px;
@@ -215,8 +223,8 @@ Puller (int argc, char **argv, int Ux, int Uy)
   double tangent;
   int new_delta_angle;
 
-  if (!find_pair(Crosshair.X, Crosshair.Y))
-    if (!find_pair(Ux, Uy))
+  if (!find_pair (Crosshair.X, Crosshair.Y))
+    if (!find_pair (Ux, Uy))
       return 0;
 
   if (within (the_line->Point1.X, the_line->Point1.Y,
@@ -230,10 +238,10 @@ Puller (int argc, char **argv, int Ux, int Uy)
       the_line->Point1.Y = ey;
     }
   else if (!within (the_line->Point2.X, the_line->Point2.Y,
-		   x, y, the_line->Thickness))
+		    x, y, the_line->Thickness))
     {
 #if 0
-      printf("Line endpoint not at cursor\n");
+      printf ("Line endpoint not at cursor\n");
 #endif
       return 1;
     }
@@ -244,22 +252,22 @@ Puller (int argc, char **argv, int Ux, int Uy)
   cy = the_arc->Y;
   if (arc_endpoint_is (the_arc, the_arc->StartAngle, x, y))
     {
-      ChangeArcAngles(CURRENT, the_arc, the_arc->StartAngle + the_arc->Delta,
-		      -the_arc->Delta);
+      ChangeArcAngles (CURRENT, the_arc, the_arc->StartAngle + the_arc->Delta,
+		       -the_arc->Delta);
     }
-  else if (! arc_endpoint_is (the_arc, the_arc->StartAngle + the_arc->Delta,
-			      x, y))
+  else if (!arc_endpoint_is (the_arc, the_arc->StartAngle + the_arc->Delta,
+			     x, y))
     {
 #if 0
-      printf("arc not endpoints\n");
+      printf ("arc not endpoints\n");
 #endif
       return 1;
     }
 
-  if (within (cx, cy, ex, ey, the_arc->Width*2))
+  if (within (cx, cy, ex, ey, the_arc->Width * 2))
     {
 #if 0
-      printf("line ends inside arc\n");
+      printf ("line ends inside arc\n");
 #endif
       return 1;
     }
@@ -268,17 +276,19 @@ Puller (int argc, char **argv, int Ux, int Uy)
     arc_angle = the_arc->StartAngle + the_arc->Delta + 90;
   else
     arc_angle = the_arc->StartAngle + the_arc->Delta - 90;
-  line_angle = 180.0/M_PI * atan2(ey - y, x - ex);
+  line_angle = 180.0 / M_PI * atan2 (ey - y, x - ex);
   rel_angle = line_angle - arc_angle;
-  base_angle = 180.0/M_PI * atan2(ey - cy, cx - ex);
+  base_angle = 180.0 / M_PI * atan2 (ey - cy, cx - ex);
 
-  tangent = 180.0/M_PI * acos (the_arc->Width / dist(cx, cy, ex, ey));
+  tangent = 180.0 / M_PI * acos (the_arc->Width / dist (cx, cy, ex, ey));
 
 #if 0
-  printf("arc %g line %g rel %g base %g\n", arc_angle, line_angle, rel_angle, base_angle);
-  printf("tangent %g\n", tangent);
+  printf ("arc %g line %g rel %g base %g\n", arc_angle, line_angle, rel_angle,
+	  base_angle);
+  printf ("tangent %g\n", tangent);
 
-  printf("arc was start %ld end %ld\n", the_arc->StartAngle, the_arc->StartAngle + the_arc->Delta);
+  printf ("arc was start %ld end %ld\n", the_arc->StartAngle,
+	  the_arc->StartAngle + the_arc->Delta);
 #endif
 
   if (the_arc->Delta > 0)
@@ -286,7 +296,7 @@ Puller (int argc, char **argv, int Ux, int Uy)
   else
     arc_angle = base_angle + tangent;
 #if 0
-  printf("new end angle %g\n", arc_angle);
+  printf ("new end angle %g\n", arc_angle);
 #endif
 
   new_delta_angle = arc_angle - the_arc->StartAngle;
@@ -294,26 +304,28 @@ Puller (int argc, char **argv, int Ux, int Uy)
     new_delta_angle -= 360;
   if (new_delta_angle < -180)
     new_delta_angle += 360;
-  ChangeArcAngles(CURRENT, the_arc, the_arc->StartAngle, new_delta_angle);
+  ChangeArcAngles (CURRENT, the_arc, the_arc->StartAngle, new_delta_angle);
 
 #if 0
-  printf("arc now start %ld end %ld\n", the_arc->StartAngle, the_arc->StartAngle + new_delta_angle);
+  printf ("arc now start %ld end %ld\n", the_arc->StartAngle,
+	  the_arc->StartAngle + new_delta_angle);
 #endif
 
   arc_angle = the_arc->StartAngle + the_arc->Delta;
-  x = the_arc->X - the_arc->Width * cos(M_PI/180.0*arc_angle);
-  y = the_arc->Y + the_arc->Height * sin(M_PI/180.0*arc_angle);
+  x = the_arc->X - the_arc->Width * cos (M_PI / 180.0 * arc_angle);
+  y = the_arc->Y + the_arc->Height * sin (M_PI / 180.0 * arc_angle);
 
   MoveObject (LINEPOINT_TYPE, CURRENT, the_line, &(the_line->Point2),
 	      x - the_line->Point2.X, y - the_line->Point2.Y);
 
-  gui->invalidate_all();
-  IncrementUndoSerialNumber();
+  gui->invalidate_all ();
+  IncrementUndoSerialNumber ();
 
   return 1;
 }
 
 HID_Action puller_action_list[] = {
-  { "Puller", 1, "Click on a line-arc intersection or line segment", Puller }
+  {"Puller", 1, "Click on a line-arc intersection or line segment", Puller}
 };
-REGISTER_ACTIONS(puller_action_list);
+
+REGISTER_ACTIONS (puller_action_list);

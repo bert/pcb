@@ -32,12 +32,11 @@
 #include <math.h>
 
 #ifndef HAVE_EXPF
-float expf(float);
+float expf (float);
 #endif
 
 #ifndef HAVE_LOGF
-float logf(float);
+float logf (float);
 #endif
 
 #endif /* __COMPAT_H__ */
-

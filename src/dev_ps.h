@@ -33,7 +33,7 @@
 
 #include "global.h"
 
-PrintDeviceTypePtr	PS_Query(void);
-PrintDeviceTypePtr	EPS_Query(void);
+PrintDeviceTypePtr PS_Query (void);
+PrintDeviceTypePtr EPS_Query (void);
 
 #endif

@@ -48,7 +48,7 @@
 #include <dmalloc.h>
 #endif
 
-RCSID("$Id$");
+RCSID ("$Id$");
 
 
 /* define this for more thorough self-checking of data structures */
@@ -120,7 +120,7 @@ heap_create ()
     MIN_COST = -1e23;
   assert (MIN_COST < 0);
   /* okay, create empty heap */
-  heap = calloc(1, sizeof (*heap));
+  heap = calloc (1, sizeof (*heap));
   assert (heap);
   assert (__heap_is_good (heap));
   return heap;

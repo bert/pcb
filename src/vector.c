@@ -48,7 +48,7 @@
 #include "vector.h"
 
 
-RCSID("$Id$");
+RCSID ("$Id$");
 
 /* ---------------------------------------------------------------------------
  * some local prototypes
@@ -88,7 +88,7 @@ vector_create ()
 {
   vector_t *vector;
   /* okay, create empty vector */
-  vector = calloc(1, sizeof (*vector));
+  vector = calloc (1, sizeof (*vector));
   assert (vector);
   assert (__vector_is_good (vector));
   return vector;

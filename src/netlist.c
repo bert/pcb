@@ -65,7 +65,7 @@
 #define USE_RE
 #endif
 
-RCSID("$Id$");
+RCSID ("$Id$");
 
 /*
   int    PCB->NetlistLib.MenuN
@@ -78,23 +78,23 @@ RCSID("$Id$");
   char * PCB->NetlistLib.Menu[i].Entry[j].ListEntry
 */
 
-typedef void (*NFunc)(LibraryMenuType *, LibraryEntryType *);
+typedef void (*NFunc) (LibraryMenuType *, LibraryEntryType *);
 
 static int
-pin_name_to_xy(LibraryEntryType *pin, int *x, int *y)
+pin_name_to_xy (LibraryEntryType * pin, int *x, int *y)
 {
   ConnectionType conn;
-  if (!SeekPad(pin, &conn, False))
+  if (!SeekPad (pin, &conn, False))
     return 1;
   switch (conn.type)
     {
     case PIN_TYPE:
-      *x = ((PinType *)(conn.ptr2))->X;
-      *y = ((PinType *)(conn.ptr2))->Y;
+      *x = ((PinType *) (conn.ptr2))->X;
+      *y = ((PinType *) (conn.ptr2))->Y;
       return 0;
     case PAD_TYPE:
-      *x = ((PadType *)(conn.ptr2))->Point1.X;
-      *y = ((PadType *)(conn.ptr2))->Point1.Y;
+      *x = ((PadType *) (conn.ptr2))->Point1.X;
+      *y = ((PadType *) (conn.ptr2))->Point1.Y;
       return 0;
     }
   return 1;
@@ -103,43 +103,43 @@ pin_name_to_xy(LibraryEntryType *pin, int *x, int *y)
 static void
 netlist_help ()
 {
-      Message("Usage: Net(find|select|rats|norats[,net[,pin]])");
+  Message ("Usage: Net(find|select|rats|norats[,net[,pin]])");
 }
 
 static void
-netlist_find (LibraryMenuType *net, LibraryEntryType *pin)
+netlist_find (LibraryMenuType * net, LibraryEntryType * pin)
 {
   int x, y;
-  if (pin_name_to_xy(net->Entry, &x, &y))
+  if (pin_name_to_xy (net->Entry, &x, &y))
     return;
-  LookupConnection(x, y, 1, 1, FOUNDFLAG);
+  LookupConnection (x, y, 1, 1, FOUNDFLAG);
 }
 
 static void
-netlist_select (LibraryMenuType *net, LibraryEntryType *pin)
+netlist_select (LibraryMenuType * net, LibraryEntryType * pin)
 {
   int x, y;
-  if (pin_name_to_xy(net->Entry, &x, &y))
+  if (pin_name_to_xy (net->Entry, &x, &y))
     return;
-  LookupConnection(x, y, 1, 1, SELECTEDFLAG);
+  LookupConnection (x, y, 1, 1, SELECTEDFLAG);
 }
 
 static void
-netlist_rats (LibraryMenuType *net, LibraryEntryType *pin)
+netlist_rats (LibraryMenuType * net, LibraryEntryType * pin)
 {
   net->Name[0] = '*';
-  hid_action("NetlistChanged");
+  hid_action ("NetlistChanged");
 }
 
 static void
-netlist_norats (LibraryMenuType *net, LibraryEntryType *pin)
+netlist_norats (LibraryMenuType * net, LibraryEntryType * pin)
 {
   net->Name[0] = ' ';
-  hid_action("NetlistChanged");
+  hid_action ("NetlistChanged");
 }
 
 static int
-Netlist(int argc, char **argv, int x, int y)
+Netlist (int argc, char **argv, int x, int y)
 {
   NFunc func;
   int i, j;
@@ -162,7 +162,7 @@ Netlist(int argc, char **argv, int x, int y)
     return 1;
   if (argc == 0)
     {
-      netlist_help();
+      netlist_help ();
       return 1;
     }
   if (strcasecmp (argv[0], "find") == 0)
@@ -175,7 +175,7 @@ Netlist(int argc, char **argv, int x, int y)
     func = netlist_norats;
   else
     {
-      netlist_help();
+      netlist_help ();
       return 1;
     }
 
@@ -184,16 +184,18 @@ Netlist(int argc, char **argv, int x, int y)
     {
       int result;
       use_re = 1;
-      for (i=0; i<PCB->NetlistLib.MenuN; i++)
+      for (i = 0; i < PCB->NetlistLib.MenuN; i++)
 	{
-	  net = PCB->NetlistLib.Menu+i;
-	  if (strcasecmp(argv[1], net->Name+2) == 0)
+	  net = PCB->NetlistLib.Menu + i;
+	  if (strcasecmp (argv[1], net->Name + 2) == 0)
 	    use_re = 0;
 	}
       if (use_re)
 	{
 #if defined(HAVE_REGCOMP)
-	  result = regcomp (&elt_pattern, argv[1], REG_EXTENDED | REG_ICASE | REG_NOSUB);
+	  result =
+	    regcomp (&elt_pattern, argv[1],
+		     REG_EXTENDED | REG_ICASE | REG_NOSUB);
 	  if (result)
 	    {
 	      char errorstring[128];
@@ -214,10 +216,10 @@ Netlist(int argc, char **argv, int x, int y)
 	}
     }
 #endif
-	  
-  for (i=0; i<PCB->NetlistLib.MenuN; i++)
+
+  for (i = 0; i < PCB->NetlistLib.MenuN; i++)
     {
-      net = PCB->NetlistLib.Menu+i;
+      net = PCB->NetlistLib.Menu + i;
 
       if (argc > 1)
 	{
@@ -225,47 +227,47 @@ Netlist(int argc, char **argv, int x, int y)
 	  if (use_re)
 	    {
 #if defined(HAVE_REGCOMP)
-	      if (regexec (&elt_pattern, net->Name+2, 1, &match, 0) != 0)
+	      if (regexec (&elt_pattern, net->Name + 2, 1, &match, 0) != 0)
 		continue;
 #endif
 #if defined(HAVE_RE_COMP)
-	      if (re_exec (net->Name+2) != 1)
+	      if (re_exec (net->Name + 2) != 1)
 		continue;
 #endif
 	    }
 	  else
 #endif
-	    if (strcasecmp(net->Name+2, argv[1]))
-	      continue;
+	  if (strcasecmp (net->Name + 2, argv[1]))
+	    continue;
 	}
       net_found = 1;
 
       pin = 0;
       if (argc > 2)
 	{
-	  int l = strlen(argv[2]);
-	  for (j=0; j<net->EntryN; j++)
-	    if (strcasecmp(net->Entry[j].ListEntry, argv[2]) == 0
-		|| (strncasecmp(net->Entry[j].ListEntry, argv[2], l) == 0
+	  int l = strlen (argv[2]);
+	  for (j = 0; j < net->EntryN; j++)
+	    if (strcasecmp (net->Entry[j].ListEntry, argv[2]) == 0
+		|| (strncasecmp (net->Entry[j].ListEntry, argv[2], l) == 0
 		    && net->Entry[j].ListEntry[l] == '-'))
 	      {
-		pin = net->Entry+j;
+		pin = net->Entry + j;
 		pin_found = 1;
-		func(net, pin);
+		func (net, pin);
 	      }
 	}
       else
-	func(net, 0);
+	func (net, 0);
     }
 
   if (argc > 2 && !pin_found)
     {
-      gui->log("Net %s has no pin %s\n", argv[1], argv[2]);
+      gui->log ("Net %s has no pin %s\n", argv[1], argv[2]);
       return 1;
     }
   else if (!net_found)
     {
-      gui->log("No net named %s\n", argv[1]);
+      gui->log ("No net named %s\n", argv[1]);
     }
 #ifdef HAVE_REGCOMP
   if (use_re)
@@ -276,7 +278,10 @@ Netlist(int argc, char **argv, int x, int y)
 }
 
 HID_Action netlist_action_list[] = {
-  { "net", 0, 0, Netlist },
-  { "netlist", 0, 0, Netlist },
+  {"net", 0, 0, Netlist}
+  ,
+  {"netlist", 0, 0, Netlist}
+  ,
 };
-REGISTER_ACTIONS(netlist_action_list);
+
+REGISTER_ACTIONS (netlist_action_list);

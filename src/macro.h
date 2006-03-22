@@ -221,7 +221,7 @@
 #define TEST_ANY_THERMS(P)	(((P)->Flags.t[0] | (P)->Flags.t[1]) ? 1 : 0)
 #define TEST_ANY_PIPS(P)	(((P)->Flags.p[0] | (P)->Flags.p[1]) ? 1 : 0)
 #else
-extern int mem_any_set(unsigned char *, int);
+extern int mem_any_set (unsigned char *, int);
 #define TEST_ANY_THERMS(P)	mem_any_set((P)->Flags.t, sizeof((P)->Flags.t))
 #define TEST_ANY_PIPS(P)	mem_any_set((P)->Flags.p, sizeof((P)->Flags.p))
 #endif

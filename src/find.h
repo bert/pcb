@@ -44,31 +44,31 @@
 #define SILK_TYPE	\
 	(LINE_TYPE | ARC_TYPE | POLYGON_TYPE)
 
-Boolean	LineLineIntersect(LineTypePtr, LineTypePtr);
-Boolean LineArcIntersect(LineTypePtr, ArcTypePtr);
-Boolean PinLineIntersect(PinTypePtr, LineTypePtr);
-Boolean LinePadIntersect(LineTypePtr, PadTypePtr);
-Boolean ArcPadIntersect(ArcTypePtr, PadTypePtr);
-Boolean	IsPolygonInPolygon(PolygonTypePtr, PolygonTypePtr);
-void	LookupElementConnections(ElementTypePtr, FILE *);
-void	LookupConnectionsToAllElements(FILE *);
-void	LookupConnection(LocationType, LocationType, Boolean, BDimension, int);
-void	LookupUnusedPins(FILE *);
-void	ResetFoundLinesAndPolygons(Boolean);
-void	ResetFoundPinsViasAndPads(Boolean);
-void	InitConnectionLookup(void);
-void	InitComponentLookup(void);
-void	InitLayoutLookup(void);
-void	FreeConnectionLookupMemory(void);
-void	FreeComponentLookupMemory(void);
-void	FreeLayoutLookupMemory(void);
-void	RatFindHook(int, void *, void *, void *, Boolean, Boolean);
-void	SaveFindFlag(int);
-void	RestoreFindFlag(void);
-Cardinal DRCAll(void);
-Boolean lineClear(LineTypePtr, Cardinal);
-Boolean IsLineInPolygon(LineTypePtr, PolygonTypePtr);
-Boolean IsArcInPolygon(ArcTypePtr, PolygonTypePtr);
-Boolean IsPadInPolygon(PadTypePtr, PolygonTypePtr);
+Boolean LineLineIntersect (LineTypePtr, LineTypePtr);
+Boolean LineArcIntersect (LineTypePtr, ArcTypePtr);
+Boolean PinLineIntersect (PinTypePtr, LineTypePtr);
+Boolean LinePadIntersect (LineTypePtr, PadTypePtr);
+Boolean ArcPadIntersect (ArcTypePtr, PadTypePtr);
+Boolean IsPolygonInPolygon (PolygonTypePtr, PolygonTypePtr);
+void LookupElementConnections (ElementTypePtr, FILE *);
+void LookupConnectionsToAllElements (FILE *);
+void LookupConnection (LocationType, LocationType, Boolean, BDimension, int);
+void LookupUnusedPins (FILE *);
+void ResetFoundLinesAndPolygons (Boolean);
+void ResetFoundPinsViasAndPads (Boolean);
+void InitConnectionLookup (void);
+void InitComponentLookup (void);
+void InitLayoutLookup (void);
+void FreeConnectionLookupMemory (void);
+void FreeComponentLookupMemory (void);
+void FreeLayoutLookupMemory (void);
+void RatFindHook (int, void *, void *, void *, Boolean, Boolean);
+void SaveFindFlag (int);
+void RestoreFindFlag (void);
+Cardinal DRCAll (void);
+Boolean lineClear (LineTypePtr, Cardinal);
+Boolean IsLineInPolygon (LineTypePtr, PolygonTypePtr);
+Boolean IsArcInPolygon (ArcTypePtr, PolygonTypePtr);
+Boolean IsPadInPolygon (PadTypePtr, PolygonTypePtr);
 
 #endif
