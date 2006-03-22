@@ -37,6 +37,12 @@
 #include "global.h"
 #include "data.h"
 
+#ifdef HAVE_LIBDMALLOC
+#include <dmalloc.h>
+#endif
+
+RCSID("$Id$");
+
 static int
 FlagCurrentStyle()
 {
