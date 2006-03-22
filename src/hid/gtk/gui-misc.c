@@ -38,6 +38,11 @@
 #include "gui.h"
 #include <gdk/gdkkeysyms.h>
 
+#ifdef HAVE_LIBDMALLOC
+#include <dmalloc.h>
+#endif
+
+RCSID("$Id$");
 
 #define DEFAULT_CURSORSHAPE	GDK_CROSSHAIR
 
