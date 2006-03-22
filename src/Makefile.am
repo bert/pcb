@@ -48,6 +48,7 @@ pcb_bin_SOURCES = \
 	data.h \
 	djopt.c \
 	djopt.h \
+	dolists.h \
 	draw.c \
 	draw.h \
 	drill.c \
@@ -127,6 +128,7 @@ pcb_bin_SOURCES = \
 	hid/common/hidinit.c \
 	hid/common/hidnogui.c \
 	hid/common/extents.c \
+	hid/hidint.h \
 	core_lists.h
 
 BUILT_SOURCES = \
@@ -154,8 +156,15 @@ INCLUDES=	-I$(top_srcdir) -I$(srcdir)/icons
 EXTRA_DIST= \
 	check_icon.data \
 	default_font \
-	gui-icons-misc.data \
-	gui-icons-mode-buttons.data \
+	$(srcdir)/hid/bom/hid.conf \
+	$(srcdir)/hid/gerber/hid.conf \
+	$(srcdir)/hid/gtk/gui-icons-misc.data \
+	$(srcdir)/hid/gtk/gui-icons-mode-buttons.data \
+	$(srcdir)/hid/gtk/hid.conf \
+	$(srcdir)/hid/lesstif/hid.conf \
+	$(srcdir)/hid/lpr/hid.conf \
+	$(srcdir)/hid/png/hid.conf \
+	$(srcdir)/hid/ps/hid.conf \
 	Pcb.ad.in  \
 	pcb-menu.res \
 	pcbtest.sh.in
@@ -182,7 +191,11 @@ hid/common/hidinit.o : hid/common/hidlist.h
 
 libgtk_a_CPPFLAGS = -I./hid/gtk
 libgtk_a_SOURCES = \
+	dolists.h \
+	hid/hidint.h \
 	hid/gtk/gtkhid-main.c \
+	hid/gtk/gtkhid.h \
+	hid/gtk/gui.h \
 	hid/gtk/gui-command-window.c \
 	hid/gtk/gui-config.c \
 	hid/gtk/gui-dialog-print.c \
@@ -206,6 +219,8 @@ hid/gtk/gtk_lists.h : ${libgtk_a_SOURCES} Makefile
 
 liblesstif_a_CPPFLAGS = -I./hid/lesstif
 liblesstif_a_SOURCES = \
+	dolists.h \
+	hid/hidint.h \
 	hid/lesstif/dialogs.c \
 	hid/lesstif/library.c \
 	hid/lesstif/main.c \
@@ -220,14 +235,19 @@ hid/lesstif/lesstif_lists.h : ${liblesstif_a_SOURCES} Makefile
 	mv $@.tmp $@
 
 libgerber_a_SOURCES = \
+	hid/hidint.h \
 	hid/gerber/gerber.c
 
 libbom_a_SOURCES = \
+	hid/hidint.h \
 	hid/bom/bom.c
 
 libps_a_CPPFLAGS = -I./hid/ps
 libps_a_SOURCES = \
+	dolists.h \
+	hid/hidint.h \
 	hid/ps/ps.c \
+	hid/ps/ps.h \
 	hid/ps/eps.c \
 	hid/ps/ps_lists.h
 
@@ -238,7 +258,10 @@ hid/ps/ps_lists.h : ${libps_a_SOURCES} Makefile
 
 libpng_a_CPPFLAGS = -I./hid/png
 libpng_a_SOURCES = \
+	dolists.h \
+	hid/hidint.h \
 	hid/png/png.c \
+	hid/png/png.h \
 	hid/png/png_lists.h
 
 hid/png/png_lists.h : ${libpng_a_SOURCES} Makefile
@@ -247,9 +270,17 @@ hid/png/png_lists.h : ${libpng_a_SOURCES} Makefile
 	mv $@.tmp $@
 
 liblpr_a_SOURCES = \
+	hid/hidint.h \
 	hid/lpr/lpr.c
 
-DISTCLEANFILES= pcbtest.sh Pcb .test/Pcb pcb-menu.h
+DISTCLEANFILES= pcbtest.sh Pcb .test/Pcb pcb-menu.h \
+	hid/common/hidlist.h \
+	hid/gtk/gtk_lists.h \
+	hid/lesstif/lesstif_lists.h \
+	hid/png/png_lists.h \
+	hid/ps/ps_lists.h \
+	core_lists.h
+
 
 # create wrapper script that lets you test pcb prior to installation
 pcbtest.sh:	$(srcdir)/pcbtest.sh.in Makefile
