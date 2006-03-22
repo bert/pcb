@@ -218,7 +218,7 @@ static char *lock[] = {
 "XX   XX  XXX  X XX XX"
 };
 
-
+#if 0
 /* XPM */
 static char *pan[] = {
 /* columns rows colors chars-per-pixel */
@@ -250,7 +250,7 @@ static char *pan[] = {
 "XXXX XXXX XX X XXX XX"
 };
 
-
+#endif
 /* XPM */
 static char *poly[] = {
 /* columns rows colors chars-per-pixel */

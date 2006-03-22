@@ -87,6 +87,8 @@
 
 RCSID("$Id$");
 
+extern HID ghid_hid;
+
 GhidGui	_ghidgui,
 		*ghidgui = NULL;
 
@@ -3588,7 +3590,7 @@ ghid_make_gc(void)
 		fprintf (stderr, "gui-top-window.c: ghid_make_gc():  malloc failed\n");
 		exit (1);
 		}
-	rv->me_pointer = &ghidgui;
+	rv->me_pointer = &ghid_hid;
 	return rv;
 	}
 

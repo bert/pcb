@@ -492,8 +492,6 @@ eps_draw_line (hidGC gc, int x1, int y1, int x2, int y2)
       double deg = ang * 180.0 / M_PI;
       int vx1 = x1 + dx;
       int vy1 = y1 + dy;
-      int vx2 = x2 - dx;
-      int vy2 = y2 - dy;
 
       fprintf(f, "%d %d moveto ", vx1, vy1);
       fprintf(f, "%d %d %d %g %g arc\n", x2, y2, w, deg-90, deg+90);
