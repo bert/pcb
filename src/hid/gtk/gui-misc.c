@@ -61,12 +61,6 @@ GdkPixmap	*XC_clock_source, *XC_clock_mask,
 
 static GdkCursorType oldCursor;
 
-#ifdef HAVE_LIBDMALLOC
-#include <dmalloc.h>
-#endif
-
-RCSID("$Id$");
-
 void
 ghid_status_line_set_text(gchar *text)
 	{
