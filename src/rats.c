@@ -902,8 +902,10 @@ AddNet (void)
   entry->ListEntry = MyStrdup (name1, "AddNet");
   entry = GetLibraryEntryMemory (menu);
   entry->ListEntry = MyStrdup (name2, "AddNet");
+#ifdef FIXME
 ratIt:
-  hid_action("NetlistChanged");
+#endif
+hid_action("NetlistChanged");
   return (CreateNewRat (PCB->Data, Crosshair.AttachedLine.Point1.X,
 			Crosshair.AttachedLine.Point1.Y,
 			Crosshair.AttachedLine.Point2.X,

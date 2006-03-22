@@ -87,23 +87,6 @@ InitHandler (void)
   signal (SIGPIPE, SIG_IGN);
 }
 
-/* ---------------------------------------------------------------------------
- * init device drivers for printing
- */
-static void
-InitDeviceDriver (void)
-{
-#ifdef FIXME
-  DeviceInfoTypePtr ptr = PrintingDevice;
-
-  while (ptr->Query)
-    {
-      ptr->Info = ptr->Query ();
-      ptr++;
-    }
-#endif
-}
-
 
   /* ----------------------------------------------------------------------
   |  command line and rc file processing.
@@ -147,7 +130,6 @@ static void
 usage_attr (HID_Attribute *a)
 {
   int i;
-  char *help;
   static char buf[200];
   switch (a->type)
     {
@@ -275,7 +257,6 @@ print_defaults_1 (HID_Attribute *a, void *value)
   int i;
   double d;
   char *s;
-  HID_Attr_Val ha;
 
   /* Remember, at this point we've parsed the command line, so they
      may be in the global variable instead of the default_val.  */
@@ -306,6 +287,8 @@ print_defaults_1 (HID_Attribute *a, void *value)
       i = value ? *(int *)value : a->default_val.int_value;
       d = value ? *(double *)value : a->default_val.real_value;
       fprintf(stderr, "%s %g%s\n", a->name, d, a->enumerations[i]);
+      break;
+    case HID_Label:
       break;
     }
 }
@@ -343,6 +326,7 @@ print_defaults ()
 /* in hid/common/actions.c */
 extern void print_actions ();
 
+#ifdef FIXME
 static char	*lib_path_list,
 				*element_path_list,
 				*font_path_list,
@@ -354,6 +338,7 @@ static char	*library_command_dir,
 				*groups_override,
 				*routes_override,
 				*board_size_override;
+#endif
 
 #ifdef FIXME
 typedef struct
@@ -764,8 +749,6 @@ main (int argc, char *argv[])
     }
   if (Settings.ActionString)
     {
-      char	*param[1];
-
       Message(_("Executing startup action %s\n"), Settings.ActionString);
       hid_parse_actions(Settings.ActionString, 0);
     }

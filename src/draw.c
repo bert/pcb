@@ -95,9 +95,9 @@ static int doing_assy = False;
  */
 static void Redraw (Boolean, BoxTypePtr);
 static void DrawEverything (BoxTypePtr);
-static void DrawTop (BoxType *);
+static void DrawTop (const BoxType *);
 static void DrawLayer (LayerTypePtr, BoxType *);
-static void DrawLayerGroup (int, BoxType *);
+static void DrawLayerGroup (int, const BoxType *);
 #ifdef FIXME
 static void DrawSpecialPolygon (GdkDrawable *, GdkGC *, LocationType, LocationType, BDimension);
 #endif
@@ -199,8 +199,6 @@ UpdateAll (void)
 void
 Draw (void)
 {
-  OutputType		*out = &Output;
-  RectangleType	erased;
 
   render = True;
 
@@ -654,7 +652,7 @@ static void
 PrintAssembly(const BoxType *drawn_area, int side_group, int swap_ident)
 {
   int save_swap = SWAP_IDENT;
-  int i;
+ 
   gui->set_draw_faded(Output.fgGC, 1);
   SWAP_IDENT = swap_ident;
   DrawLayerGroup (side_group, drawn_area);
@@ -850,7 +848,7 @@ pad_callback (const BoxType * b, void *cl)
  * draws pins pads and vias
  */
 static void
-DrawTop (BoxType * screen)
+DrawTop (const BoxType * screen)
 {
   if (PCB->PinOn || doing_assy)
     {
@@ -913,7 +911,9 @@ clearPad_callback (const BoxType * b, void *cl)
 static void
 DrawSilk (int new_swap, int layer, BoxTypePtr drawn_area)
 {
+#if 0
   struct pin_info info;
+#endif
   int save_swap = SWAP_IDENT;
   SWAP_IDENT = new_swap;
 
@@ -1017,7 +1017,6 @@ clear_callback (int type, void *ptr1, void *ptr2, void *ptr3,
 static int
 line_callback (const BoxType * b, void *cl)
 {
-  LineTypePtr l = (LineTypePtr)b;
   DrawLine ((LayerTypePtr) cl, (LineTypePtr) b, 0);
   return 1;
 }
@@ -1079,7 +1078,7 @@ DrawLayer (LayerTypePtr Layer, BoxType * screen)
  * draws one layer group
  */
 static void
-DrawLayerGroup (int group, BoxType * screen)
+DrawLayerGroup (int group, const BoxType * screen)
 {
   int i;
   int			layernum;
@@ -1632,7 +1631,6 @@ DrawVText (int x, int y, int w, int h, char *str)
 static void
 DrawPinOrViaNameLowLevel (PinTypePtr Ptr)
 {
-  int		width, height;
   char		*name;
   BoxType	box;
   Boolean	vert;
@@ -1791,7 +1789,6 @@ DrawPadNameLowLevel (PadTypePtr Pad)
 {
   BoxType	box;
   char		*name;
-  int		width, height;
   Boolean	vert;
   TextType	text;
 
@@ -2822,8 +2819,6 @@ DrawObject (int type, void *ptr1, void *ptr2, int unused)
 void
 hid_expose_callback (HID *hid, BoxType *region, void *item)
 {
-  int i;
-  BoxType draw_area;
   HID *old_gui = gui;
   hidGC savebg = Output.bgGC;
   hidGC savefg = Output.fgGC;
@@ -2859,3 +2854,4 @@ hid_expose_callback (HID *hid, BoxType *region, void *item)
   Output.bgGC = savebg;
   Output.pmGC = savepm;
 }
+

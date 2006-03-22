@@ -650,6 +650,8 @@ build_route_string(RouteStyleType *rs)
 		free(t);
 		}
 	return str;
+#else
+	return "Please_fix_build_route_string";
 #endif
 	}
 

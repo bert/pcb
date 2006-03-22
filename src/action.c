@@ -2118,7 +2118,9 @@ ActionDisplay (int argc, char **argv, int childX, int childY)
 {
   char *function, *str_dir;
   int id;
+#ifdef FIXME
   static int saved = 0;
+#endif
   int err = 0;
 
   function = ARG(0);
@@ -2130,7 +2132,7 @@ ActionDisplay (int argc, char **argv, int childX, int childY)
       switch (id = GetFunctionID (function))
 	{
 
-#if FIXME
+#ifdef FIXME
 	case F_Save:
 	  saved = PCB->Zoom;
 	  break;
@@ -3938,9 +3940,8 @@ ActionUnselect (int argc, char **argv, int x, int y)
 static int
 ActionSaveTo (int argc, char **argv, int x, int y)
 {
-  char *function, *filename;
+  char *function;
   char *name;
-  static char	*current_save_path = NULL;
 
   function = argv[0];
   name = argv[1];
@@ -4023,9 +4024,6 @@ ActionLoadFrom (int argc, char **argv, int x, int y)
 {
   char *function;
   char *name;
-  static char	*current_element_dir = NULL,
-				*current_layout_dir = NULL,
-				*current_netlist_dir = NULL;
 
   if (argc < 2)
     {
@@ -4175,7 +4173,7 @@ ActionNew (int argc, char **argv, int x, int y)
 	{
 	  name = gui->prompt_for(_("Enter the layout name:"), "");
 	  if (!name)
-	    return;
+	    return 1;
 
 	  /* do emergency saving
 	   * clear the old struct and allocate memory for the new one
@@ -4251,7 +4249,6 @@ ActionPasteBuffer (int argc, char **argv, int x, int y)
   char *function = argc ? argv[0] : "";
   char *sbufnum = argc>1 ? argv[1] : "";
   char *name;
-  static char	*current_library_dir = NULL;
 
   HideCrosshair (True);
   if (function)
@@ -4745,7 +4742,7 @@ ActionSetSame (int argc, char **argv, int x, int y)
       hid_action("RouteStyleChanged");
       break;
     default:
-      return;
+      return 1;
     }
 #ifdef FIXME
   if (layer != CURRENT)
@@ -4823,7 +4820,7 @@ ActionChangeFlag (int argc, char **argv, int x, int y)
   if (value != 0 && value != 1)
     {
       Message (_("ChangeFlag():  Value %d is not valid\n"), value);
-      return;
+      return 1;
     }
 
   ChangeFlag (function, flag, value, "ChangeFlag");
@@ -4943,7 +4940,7 @@ ActionExecuteFile(int argc, char **argv, int x, int y)
   if (argc != 1)
   {
 	Message("Usage:  ExecuteFile(filename)");
-	return ;
+	return 1;
   }
 
   fname = argv[0];
@@ -4951,7 +4948,7 @@ ActionExecuteFile(int argc, char **argv, int x, int y)
   if ( (fp = fopen(fname, "r")) == NULL )
     {
       fprintf(stderr, "Could not open actions file \"%s\".\n", fname);
-      return ;
+      return 1;
     }
 
   while ( fgets(line, sizeof(line), fp) != NULL )
@@ -4983,6 +4980,7 @@ ActionExecuteFile(int argc, char **argv, int x, int y)
     }
   
   fclose(fp);
+  return 0;
 }
 
 /* ************************************************************ */

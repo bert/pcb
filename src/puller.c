@@ -114,7 +114,7 @@ arc_endpoint_is (ArcTypePtr a, int angle, int x, int y)
 static int
 line_callback (const BoxType * b, void *cl)
 {
-  LayerTypePtr layer = (LayerTypePtr)cl;
+  /* LayerTypePtr layer = (LayerTypePtr)cl; */
   LineTypePtr l = (LineTypePtr)b;
   double d1, d2, t;
 #if 0
@@ -145,7 +145,7 @@ line_callback (const BoxType * b, void *cl)
 static int
 arc_callback (const BoxType * b, void *cl)
 {
-  LayerTypePtr layer = (LayerTypePtr) cl;
+  /* LayerTypePtr layer = (LayerTypePtr) cl; */
   ArcTypePtr a = (ArcTypePtr) b;
 
 #if 0
@@ -213,7 +213,7 @@ Puller (int argc, char **argv, int Ux, int Uy)
 {
   double arc_angle, line_angle, rel_angle, base_angle;
   double tangent;
-  int new_start_angle, new_delta_angle;
+  int new_delta_angle;
 
   if (!find_pair(Crosshair.X, Crosshair.Y))
     if (!find_pair(Ux, Uy))
