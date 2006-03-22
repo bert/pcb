@@ -37,13 +37,17 @@
 #include <limits.h>
 
 
-#include "data.h"
 #include "create.h"
-#include "remove.h"
-#include "move.h"
+#include "data.h"
 #include "draw.h"
-#include "undo.h"
+#include "misc.h"
+#include "move.h"
+#include "remove.h"
+#include "rtree.h"
 #include "strflags.h"
+#include "undo.h"
+
+RCSID("$Id$");
 
 #define sqr(x) (1.0*(x)*(x))
 
