@@ -80,7 +80,7 @@ ReportDrills (int argc, char **argv, int x, int y)
   for (n = 0; n < AllDrills->DrillN; n++)
     {
       sprintf (thestring,
-	       "\t%d\t\t\t%d\t\t%d\t\t%td\t\t\t%d\n",
+	       "\t%d\t\t\t%d\t\t%d\t\t%d\t\t\t%d\n",
 	       AllDrills->Drill[n].DrillSize / 100,
 	       AllDrills->Drill[n].PinCount, AllDrills->Drill[n].ViaCount,
 	       AllDrills->Drill[n].ElementN,
