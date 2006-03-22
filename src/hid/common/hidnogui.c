@@ -16,7 +16,7 @@
 #include <dmalloc.h>
 #endif
 
-RCSID("$Id$");
+RCSID ("$Id$");
 
 /* This is the "gui" that is installed at startup, and is used when
    there is no other real GUI to use.  For the most part, it just
@@ -25,7 +25,8 @@ RCSID("$Id$");
 
 #define CRASH fprintf(stderr, "HID error: pcb called GUI function %s without having a GUI available.\n", __FUNCTION__); abort()
 
-typedef struct hid_gc_struct {
+typedef struct hid_gc_struct
+{
   int nothing_interesting_here;
 } hid_gc_struct;
 
@@ -37,7 +38,7 @@ nogui_get_export_options (int *n_ret)
 }
 
 static void
-nogui_do_export (HID_Attr_Val *options)
+nogui_do_export (HID_Attr_Val * options)
 {
   CRASH;
 }
@@ -195,9 +196,8 @@ nogui_set_crosshair (int x, int y)
 }
 
 static hidval
-nogui_add_timer (void (*func)(hidval user_data),
-		 unsigned long milliseconds,
-		 hidval user_data)
+nogui_add_timer (void (*func) (hidval user_data),
+		 unsigned long milliseconds, hidval user_data)
 {
   hidval rv;
   CRASH;
@@ -221,25 +221,25 @@ nogui_log (char *fmt, ...)
 }
 
 static void
-nogui_logv(char *fmt, va_list ap)
+nogui_logv (char *fmt, va_list ap)
 {
-  vprintf(fmt, ap);
+  vprintf (fmt, ap);
 }
 
 static int
 nogui_confirm_dialog (char *msg, ...)
 {
   int rv;
-  printf("%s ? 0=cancel 1=ok : ", msg);
-  fflush(stdout);
-  scanf("%d", &rv);
+  printf ("%s ? 0=cancel 1=ok : ", msg);
+  fflush (stdout);
+  scanf ("%d", &rv);
   return rv;
 }
 
 static void
 nogui_report_dialog (char *title, char *msg)
 {
-  printf("--- %s ---\n%s\n", title, msg);
+  printf ("--- %s ---\n%s\n", title, msg);
 }
 
 static char *
@@ -247,19 +247,18 @@ nogui_prompt_for (char *msg, char *default_string)
 {
   static char buf[1024];
   if (default_string)
-    printf("%s [%s] : ", msg, default_string);
+    printf ("%s [%s] : ", msg, default_string);
   else
-    printf("%s : ", msg);
-  fgets(buf, 1024, stdin);
+    printf ("%s : ", msg);
+  fgets (buf, 1024, stdin);
   if (buf[0] == 0 && default_string)
-    strcpy(buf, default_string);
+    strcpy (buf, default_string);
   return buf;
 }
 
 static int
-nogui_attribute_dialog (HID_Attribute *attrs,
-			int n_attrs,
-			HID_Attr_Val *results)
+nogui_attribute_dialog (HID_Attribute * attrs,
+			int n_attrs, HID_Attr_Val * results)
 {
   CRASH;
 }
@@ -273,8 +272,8 @@ nogui_show_item (void *item)
 static void
 nogui_beep (void)
 {
-  putchar(7);
-  fflush(stdout);
+  putchar (7);
+  fflush (stdout);
 }
 
 HID hid_nogui = {
@@ -323,42 +322,42 @@ HID hid_nogui = {
 #define AD(x) if (!d->x) d->x = s->x
 
 void
-apply_default_hid (HID *d, HID *s)
+apply_default_hid (HID * d, HID * s)
 {
   if (s == 0)
     s = &hid_nogui;
-  AD(get_export_options);
-  AD(do_export);
-  AD(parse_arguments);
-  AD(invalidate_wh);
-  AD(invalidate_lr);
-  AD(invalidate_all);
-  AD(set_layer);
-  AD(make_gc);
-  AD(destroy_gc);
-  AD(use_mask);
-  AD(set_color);
-  AD(set_line_cap);
-  AD(set_line_width);
-  AD(set_draw_xor);
-  AD(set_line_cap_angle);
-  AD(draw_line);
-  AD(draw_arc);
-  AD(fill_circle);
-  AD(fill_polygon);
-  AD(calibrate);
-  AD(shift_is_pressed);
-  AD(control_is_pressed);
-  AD(get_coords);
-  AD(set_crosshair);
-  AD(add_timer);
-  AD(stop_timer);
-  AD(log);
-  AD(logv);
-  AD(confirm_dialog);
-  AD(report_dialog);
-  AD(prompt_for);
-  AD(attribute_dialog);
-  AD(show_item);
-  AD(beep);
+  AD (get_export_options);
+  AD (do_export);
+  AD (parse_arguments);
+  AD (invalidate_wh);
+  AD (invalidate_lr);
+  AD (invalidate_all);
+  AD (set_layer);
+  AD (make_gc);
+  AD (destroy_gc);
+  AD (use_mask);
+  AD (set_color);
+  AD (set_line_cap);
+  AD (set_line_width);
+  AD (set_draw_xor);
+  AD (set_line_cap_angle);
+  AD (draw_line);
+  AD (draw_arc);
+  AD (fill_circle);
+  AD (fill_polygon);
+  AD (calibrate);
+  AD (shift_is_pressed);
+  AD (control_is_pressed);
+  AD (get_coords);
+  AD (set_crosshair);
+  AD (add_timer);
+  AD (stop_timer);
+  AD (log);
+  AD (logv);
+  AD (confirm_dialog);
+  AD (report_dialog);
+  AD (prompt_for);
+  AD (attribute_dialog);
+  AD (show_item);
+  AD (beep);
 }

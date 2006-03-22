@@ -39,21 +39,20 @@
 #include <dmalloc.h>
 #endif
 
-RCSID("$Id$");
+RCSID ("$Id$");
 
 static GtkWidget *log_window, *log_text;
 
 
 /* Remember user window resizes. */
 static gint
-log_window_configure_event_cb (GtkWidget *widget,
-			       GdkEventConfigure *ev,
-			       gpointer data)
+log_window_configure_event_cb (GtkWidget * widget,
+			       GdkEventConfigure * ev, gpointer data)
 {
   ghidgui->log_window_width = widget->allocation.width;
   ghidgui->log_window_height = widget->allocation.height;
   ghidgui->config_modified = TRUE;
-  
+
   return FALSE;
 }
 
@@ -65,7 +64,7 @@ log_close_cb (gpointer data)
 }
 
 static void
-log_destroy_cb( GtkWidget *widget, gpointer data )
+log_destroy_cb (GtkWidget * widget, gpointer data)
 {
   log_window = NULL;
 }
@@ -74,7 +73,7 @@ void
 ghid_log_window_show (void)
 {
   GtkWidget *vbox, *hbox, *button;
-  
+
   if (log_window)
     {
       /*
@@ -83,16 +82,14 @@ ghid_log_window_show (void)
       gdk_window_raise (log_window->window);
       return;
     }
-  
+
   log_window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
   g_signal_connect (G_OBJECT (log_window), "destroy",
 		    G_CALLBACK (log_destroy_cb), NULL);
   g_signal_connect (G_OBJECT (log_window), "configure_event",
 		    G_CALLBACK (log_window_configure_event_cb), NULL);
-  gtk_window_set_title (GTK_WINDOW (log_window),
-			_("PCB Log"));
-  gtk_window_set_wmclass (GTK_WINDOW(log_window),
-			 "PCB_Log", "PCB");
+  gtk_window_set_title (GTK_WINDOW (log_window), _("PCB Log"));
+  gtk_window_set_wmclass (GTK_WINDOW (log_window), "PCB_Log", "PCB");
   gtk_window_set_default_size (GTK_WINDOW (log_window),
 			       ghidgui->log_window_width,
 			       ghidgui->log_window_height);
@@ -102,8 +99,8 @@ ghid_log_window_show (void)
   gtk_container_add (GTK_CONTAINER (log_window), vbox);
 
   log_text = ghid_scrolled_text_view (vbox, NULL,
-				    GTK_POLICY_AUTOMATIC,
-				     GTK_POLICY_AUTOMATIC);
+				      GTK_POLICY_AUTOMATIC,
+				      GTK_POLICY_AUTOMATIC);
 
   hbox = gtk_hbutton_box_new ();
   gtk_button_box_set_layout (GTK_BUTTON_BOX (hbox), GTK_BUTTONBOX_END);
@@ -119,19 +116,20 @@ ghid_log_window_show (void)
    */
   gtk_widget_realize (log_window);
   gdk_window_set_accept_focus (log_window->window, FALSE);
-  if( Settings.AutoPlace )
+  if (Settings.AutoPlace)
     gtk_widget_set_uposition (GTK_WIDGET (log_window), 10, 10);
   gtk_widget_show_all (log_window);
 }
 
 static void
-ghid_log_append_string (gchar *s)
+ghid_log_append_string (gchar * s)
 {
   ghid_log_window_show ();
   ghid_text_view_append (log_text, s);
 }
 
-void ghid_log(char *fmt, ...)
+void
+ghid_log (char *fmt, ...)
 {
   va_list ap;
   va_start (ap, fmt);
@@ -142,21 +140,22 @@ void ghid_log(char *fmt, ...)
 static char *msg_buffer = 0;
 static int msg_buffer_size = 0;
 
-void ghid_logv(char *fmt, va_list args)
+void
+ghid_logv (char *fmt, va_list args)
 {
   int i;
 
   if (msg_buffer == NULL)
     {
-      msg_buffer = (char *)malloc(1002);
-      if (msg_buffer == NULL) 
+      msg_buffer = (char *) malloc (1002);
+      if (msg_buffer == NULL)
 	{
 	  fprintf (stderr, "ghid_logv():  malloc failed\n\n");
 	  exit (1);
 	}
       msg_buffer_size = 1000;
     }
-  
+
   /* 
    * FIXME -- fix check to see if the main window is up.  Is 
    * that needed here?  Lesstif does it.
@@ -181,20 +180,19 @@ void ghid_logv(char *fmt, va_list args)
   if (i >= msg_buffer_size)
     {
       msg_buffer_size = i + 100;
-      msg_buffer = (char *)realloc(msg_buffer, msg_buffer_size+2);
-      if (msg_buffer == NULL) 
+      msg_buffer = (char *) realloc (msg_buffer, msg_buffer_size + 2);
+      if (msg_buffer == NULL)
 	{
 	  fprintf (stderr, "ghid_logv():  malloc failed\n\n");
 	  exit (1);
 	}
-      vsnprintf(msg_buffer, msg_buffer_size, fmt, args);
+      vsnprintf (msg_buffer, msg_buffer_size, fmt, args);
     }
 
 #else
-  vsprintf(msg_buffer, fmt, args);
+  vsprintf (msg_buffer, fmt, args);
 #endif /* !HAVE_VSNPRINTF */
 
   ghid_log_append_string (msg_buffer);
 
 }
-

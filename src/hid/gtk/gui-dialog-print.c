@@ -42,19 +42,19 @@
 #include <dmalloc.h>
 #endif
 
-RCSID("$Id$");
+RCSID ("$Id$");
 
 static GtkWidget *export_dialog = NULL;
 
 static void
-set_flag_cb (GtkToggleButton *button, gboolean *flag)
+set_flag_cb (GtkToggleButton * button, gboolean * flag)
 {
   *flag = gtk_toggle_button_get_active (button);
 }
 
 
 static void
-intspinner_changed_cb (GtkWidget *spin_button, gpointer data)
+intspinner_changed_cb (GtkWidget * spin_button, gpointer data)
 {
   int *ival = data;
 
@@ -62,7 +62,7 @@ intspinner_changed_cb (GtkWidget *spin_button, gpointer data)
 }
 
 static void
-dblspinner_changed_cb (GtkWidget *spin_button, gpointer data)
+dblspinner_changed_cb (GtkWidget * spin_button, gpointer data)
 {
   double *dval = data;
 
@@ -71,7 +71,7 @@ dblspinner_changed_cb (GtkWidget *spin_button, gpointer data)
 
 
 static void
-entry_changed_cb (GtkEntry *entry, char **str)
+entry_changed_cb (GtkEntry * entry, char **str)
 {
   const gchar *s;
 
@@ -83,16 +83,16 @@ entry_changed_cb (GtkEntry *entry, char **str)
 }
 
 static void
-enum_changed_cb (GtkWidget *combo_box, int *val)
+enum_changed_cb (GtkWidget * combo_box, int *val)
 {
-	gint active;
+  gint active;
 
-	active = gtk_combo_box_get_active (GTK_COMBO_BOX (combo_box));
-	*val = active;
+  active = gtk_combo_box_get_active (GTK_COMBO_BOX (combo_box));
+  *val = active;
 }
 
 void
-ghid_dialog_print (HID *printer)
+ghid_dialog_print (HID * printer)
 {
   GtkWidget *dialog, *main_vbox, *vbox, *vbox1, *hbox, *entry;
   GtkWidget *combo;
@@ -105,35 +105,33 @@ ghid_dialog_print (HID *printer)
 
   if (printer == NULL)
     {
-      fprintf(stderr, "ERROR:  %s:  null printer\n", __FUNCTION__);
-      return ;
+      fprintf (stderr, "ERROR:  %s:  null printer\n", __FUNCTION__);
+      return;
     }
 
-  tips = gtk_tooltips_new();
+  tips = gtk_tooltips_new ();
 
   if (!PCB->PrintFilename)
     PCB->PrintFilename = EvaluateFilename (Settings.PrintFile,
-					   NULL, 
-					   PCB->Filename ? PCB->Filename : "noname", 
-					   NULL);
+					   NULL,
+					   PCB->Filename ? PCB->
+					   Filename : "noname", NULL);
 
-  dialog = gtk_dialog_new_with_buttons(_("PCB Print Layout"),
-				       GTK_WINDOW(out->top_window),
-				       GTK_DIALOG_MODAL 
-				       | GTK_DIALOG_DESTROY_WITH_PARENT,
-				       GTK_STOCK_CANCEL, GTK_RESPONSE_NONE,
-				       GTK_STOCK_OK, GTK_RESPONSE_OK,
-				       NULL);
-  gtk_window_set_wmclass (GTK_WINDOW (dialog),
-			  "PCB_Print", "PCB");
+  dialog = gtk_dialog_new_with_buttons (_("PCB Print Layout"),
+					GTK_WINDOW (out->top_window),
+					GTK_DIALOG_MODAL
+					| GTK_DIALOG_DESTROY_WITH_PARENT,
+					GTK_STOCK_CANCEL, GTK_RESPONSE_NONE,
+					GTK_STOCK_OK, GTK_RESPONSE_OK, NULL);
+  gtk_window_set_wmclass (GTK_WINDOW (dialog), "PCB_Print", "PCB");
 
   main_vbox = gtk_vbox_new (FALSE, 6);
   gtk_container_set_border_width (GTK_CONTAINER (main_vbox), 6);
   gtk_container_add (GTK_CONTAINER (GTK_DIALOG (dialog)->vbox), main_vbox);
 
 
-  vbox = ghid_category_vbox(main_vbox, printer->description, 
-			   4, 2, TRUE, TRUE);
+  vbox = ghid_category_vbox (main_vbox, printer->description,
+			     4, 2, TRUE, TRUE);
   /* 
    * Iterate over all the export options and build up a dialog box
    * that lets us control all of the options.  By doing things this
@@ -141,85 +139,83 @@ ghid_dialog_print (HID *printer)
    * reflected in this dialog box.
    */
   attr = printer->get_export_options (&n);
-  for (j=0; j<n; j++)
+  for (j = 0; j < n; j++)
     {
-      switch (attr[j].type) 
+      switch (attr[j].type)
 	{
 	case HID_Label:
 	  widget = gtk_label_new (attr[j].name);
 	  gtk_box_pack_start (GTK_BOX (vbox), widget, FALSE, FALSE, 0);
 	  gtk_tooltips_set_tip (tips, widget, attr[j].help_text, NULL);
 	  break;
-	  
+
 	case HID_Integer:
 	  hbox = gtk_hbox_new (FALSE, 4);
 	  gtk_box_pack_start (GTK_BOX (vbox), hbox, FALSE, FALSE, 0);
-	  
+
 	  /* 
 	   * FIXME 
 	   * need to pick the "digits" argument based on min/max
 	   * values
 	   */
 	  ghid_spin_button (hbox, &widget, attr[j].default_val.int_value,
-			   attr[j].min_val, attr[j].max_val, 1.0, 1.0, 0, 0,
-			   intspinner_changed_cb, 
-			   &(attr[j].default_val.int_value), 
-			   FALSE, NULL);
+			    attr[j].min_val, attr[j].max_val, 1.0, 1.0, 0, 0,
+			    intspinner_changed_cb,
+			    &(attr[j].default_val.int_value), FALSE, NULL);
 
-	  gtk_tooltips_set_tip (tips, widget, 
-				attr[j].help_text, NULL);
+	  gtk_tooltips_set_tip (tips, widget, attr[j].help_text, NULL);
 
 	  widget = gtk_label_new (attr[j].name);
 	  gtk_box_pack_start (GTK_BOX (hbox), widget, FALSE, FALSE, 0);
 	  break;
-	  
+
 	case HID_Real:
 	  hbox = gtk_hbox_new (FALSE, 4);
 	  gtk_box_pack_start (GTK_BOX (vbox), hbox, FALSE, FALSE, 0);
-	  
+
 	  /* 
 	   * FIXME 
 	   * need to pick the "digits" and step size argument more
 	   * intelligently
 	   */
-	  ghid_spin_button (hbox, &widget, attr[j].default_val.real_value, 
-			   attr[j].min_val, attr[j].max_val, 0.01, 0.01, 3, 0,
-			   dblspinner_changed_cb, 
-			   &(attr[j].default_val.real_value), 
-			   FALSE, NULL);
+	  ghid_spin_button (hbox, &widget, attr[j].default_val.real_value,
+			    attr[j].min_val, attr[j].max_val, 0.01, 0.01, 3,
+			    0, dblspinner_changed_cb,
+			    &(attr[j].default_val.real_value), FALSE, NULL);
 
-	  gtk_tooltips_set_tip (tips, widget,
-				attr[j].help_text, NULL);
+	  gtk_tooltips_set_tip (tips, widget, attr[j].help_text, NULL);
 
 	  widget = gtk_label_new (attr[j].name);
 	  gtk_box_pack_start (GTK_BOX (hbox), widget, FALSE, FALSE, 0);
 	  break;
-	  
+
 	case HID_String:
 	  hbox = gtk_hbox_new (FALSE, 4);
 	  gtk_box_pack_start (GTK_BOX (vbox), hbox, FALSE, FALSE, 0);
-	  
+
 	  entry = gtk_entry_new ();
 	  gtk_box_pack_start (GTK_BOX (hbox), entry, FALSE, FALSE, 0);
-	  gtk_entry_set_text (GTK_ENTRY (entry), attr[j].default_val.str_value);	  gtk_tooltips_set_tip (tips, entry, attr[j].help_text, NULL);
+	  gtk_entry_set_text (GTK_ENTRY (entry),
+			      attr[j].default_val.str_value);
+	  gtk_tooltips_set_tip (tips, entry, attr[j].help_text, NULL);
 	  g_signal_connect (G_OBJECT (entry), "changed",
 			    G_CALLBACK (entry_changed_cb),
 			    &(attr[j].default_val.str_value));
-	  
+
 	  widget = gtk_label_new (attr[j].name);
 	  gtk_box_pack_start (GTK_BOX (hbox), widget, FALSE, FALSE, 0);
 	  break;
-	  
+
 	case HID_Boolean:
 	  /* put this in a check button */
-	  ghid_check_button_connected(vbox, &widget, 
-				     attr[j].default_val.int_value,
-				     TRUE, FALSE, FALSE, 0, set_flag_cb, 
-				     &(attr[j].default_val.int_value), 
-				     attr[j].name);
+	  ghid_check_button_connected (vbox, &widget,
+				       attr[j].default_val.int_value,
+				       TRUE, FALSE, FALSE, 0, set_flag_cb,
+				       &(attr[j].default_val.int_value),
+				       attr[j].name);
 	  gtk_tooltips_set_tip (tips, widget, attr[j].help_text, NULL);
 	  break;
-	  
+
 	case HID_Enum:
 	  hbox = gtk_hbox_new (FALSE, 4);
 	  gtk_box_pack_start (GTK_BOX (vbox), hbox, FALSE, FALSE, 0);
@@ -237,7 +233,7 @@ ghid_dialog_print (HID *printer)
 	  g_signal_connect (G_OBJECT (combo), "changed",
 			    G_CALLBACK (enum_changed_cb),
 			    &(attr[j].default_val.int_value));
-	  
+
 
 	  /* 
 	   * Iterate through each value and add them to the
@@ -250,28 +246,29 @@ ghid_dialog_print (HID *printer)
 					 attr[j].enumerations[i]);
 	      i++;
 	    }
-	  gtk_combo_box_set_active ( GTK_COMBO_BOX (combo),
-				     attr[j].default_val.int_value);
- 	  widget = gtk_label_new (attr[j].name);
+	  gtk_combo_box_set_active (GTK_COMBO_BOX (combo),
+				    attr[j].default_val.int_value);
+	  widget = gtk_label_new (attr[j].name);
 	  gtk_box_pack_start (GTK_BOX (hbox), widget, FALSE, FALSE, 0);
 	  break;
-	  
+
 	case HID_Mixed:
 	  printf ("HID_Mixed\n");
 	  break;
-	  
+
 	case HID_Path:
 	  vbox1 = ghid_category_vbox (vbox, attr[j].name, 4, 2, TRUE, TRUE);
 	  entry = gtk_entry_new ();
 	  gtk_box_pack_start (GTK_BOX (vbox1), entry, FALSE, FALSE, 0);
-	  gtk_entry_set_text (GTK_ENTRY (entry), attr[j].default_val.str_value);
+	  gtk_entry_set_text (GTK_ENTRY (entry),
+			      attr[j].default_val.str_value);
 	  g_signal_connect (G_OBJECT (entry), "changed",
 			    G_CALLBACK (entry_changed_cb),
 			    &(attr[j].default_val.str_value));
-	  
+
 	  gtk_tooltips_set_tip (tips, entry, attr[j].help_text, NULL);
 	  break;
-	  
+
 	default:
 	  printf ("%s: unknown type of HID attribute\n", __FUNCTION__);
 	  break;
@@ -281,7 +278,7 @@ ghid_dialog_print (HID *printer)
 
   gtk_widget_show_all (dialog);
 
-  if (gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_OK)
+  if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_OK)
     {
 
       /* 
@@ -292,29 +289,29 @@ ghid_dialog_print (HID *printer)
        * be changed?
        */
       vals = (HID_Attr_Val *) calloc (n, sizeof (HID_Attr_Val));
-      for (i=0; i<n; i++)
+      for (i = 0; i < n; i++)
 	{
 	  vals[i] = attr[i].default_val;
 	  if (vals[i].str_value)
-	    vals[i].str_value = strdup(vals[i].str_value);
+	    vals[i].str_value = strdup (vals[i].str_value);
 	}
 
       printer->do_export (vals);
 
-      for (i=0; i<n; i++)
+      for (i = 0; i < n; i++)
 	{
 	  if (vals[i].str_value)
 	    free (vals[i].str_value);
 	}
       free (vals);
     }
-  
-  gtk_widget_destroy(dialog);
+
+  gtk_widget_destroy (dialog);
 }
 
 
 static void
-exporter_clicked_cb (GtkButton *button, HID *exporter)
+exporter_clicked_cb (GtkButton * button, HID * exporter)
 {
   if (export_dialog != NULL)
     gtk_widget_destroy (export_dialog);
@@ -332,17 +329,17 @@ ghid_dialog_export (void)
   HID *exporter = NULL;
   GtkTooltips *tips;
 
-  tips = gtk_tooltips_new();
+  tips = gtk_tooltips_new ();
 
   export_dialog = gtk_dialog_new_with_buttons (_("PCB Export Layout"),
 					       GTK_WINDOW (out->top_window),
-					       GTK_DIALOG_MODAL 
-					       | GTK_DIALOG_DESTROY_WITH_PARENT,
-					       GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-					       NULL);
-  gtk_window_set_wmclass (GTK_WINDOW (export_dialog),
-			  "PCB_Export", "PCB");
-  
+					       GTK_DIALOG_MODAL
+					       |
+					       GTK_DIALOG_DESTROY_WITH_PARENT,
+					       GTK_STOCK_CANCEL,
+					       GTK_RESPONSE_CANCEL, NULL);
+  gtk_window_set_wmclass (GTK_WINDOW (export_dialog), "PCB_Export", "PCB");
+
   vbox = gtk_vbox_new (FALSE, 6);
   gtk_container_set_border_width (GTK_CONTAINER (vbox), 6);
   gtk_container_add (GTK_CONTAINER (GTK_DIALOG (export_dialog)->vbox), vbox);
@@ -355,9 +352,9 @@ ghid_dialog_export (void)
    */
 
   hids = hid_enumerate ();
-  for (i=0; hids[i]; i++)
+  for (i = 0; hids[i]; i++)
     {
-      if (hids[i]->exporter) 
+      if (hids[i]->exporter)
 	{
 	  exporter = hids[i];
 	  button = gtk_button_new_with_label (hids[i]->name);
@@ -379,4 +376,3 @@ ghid_dialog_export (void)
     gtk_widget_destroy (export_dialog);
   export_dialog = NULL;
 }
-

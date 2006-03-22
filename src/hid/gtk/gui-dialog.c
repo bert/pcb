@@ -42,10 +42,10 @@
 #include <dmalloc.h>
 #endif
 
-RCSID("$Id$");
+RCSID ("$Id$");
 
 gchar *
-ghid_dialog_input (gchar *prompt, gchar *initial)
+ghid_dialog_input (gchar * prompt, gchar * initial)
 {
   GtkWidget *dialog, *vbox, *label, *entry;
   gchar *string;
@@ -56,15 +56,14 @@ ghid_dialog_input (gchar *prompt, gchar *initial)
 					GTK_WINDOW (out->top_window),
 					GTK_DIALOG_MODAL,
 					GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-					GTK_STOCK_OK, GTK_RESPONSE_OK,
-					NULL);
-  
+					GTK_STOCK_OK, GTK_RESPONSE_OK, NULL);
+
   gtk_dialog_set_default_response (GTK_DIALOG (dialog), GTK_RESPONSE_OK);
   vbox = gtk_vbox_new (FALSE, 4);
   gtk_container_set_border_width (GTK_CONTAINER (vbox), 4);
   label = gtk_label_new ("");
   gtk_box_pack_start (GTK_BOX (vbox), label, TRUE, TRUE, 0);
-  
+
   gtk_label_set_use_markup (GTK_LABEL (label), TRUE);
   gtk_label_set_markup (GTK_LABEL (label),
 			prompt ? prompt : "Enter something");
@@ -72,18 +71,18 @@ ghid_dialog_input (gchar *prompt, gchar *initial)
   entry = gtk_entry_new ();
   if (initial)
     gtk_entry_set_text (GTK_ENTRY (entry), initial);
-  
+
   gtk_entry_set_activates_default (GTK_ENTRY (entry), TRUE);
   gtk_box_pack_start_defaults (GTK_BOX (vbox), entry);
   gtk_container_add (GTK_CONTAINER (GTK_DIALOG (dialog)->vbox), vbox);
   gtk_widget_show_all (dialog);
-  
+
   response = gtk_dialog_run (GTK_DIALOG (dialog));
   if (response != GTK_RESPONSE_OK)
     string = g_strdup (initial ? initial : "");
   else
     string = gtk_editable_get_chars (GTK_EDITABLE (entry), 0, -1);
-  
+
   gtk_widget_destroy (dialog);
   return string;
 }
@@ -95,15 +94,15 @@ ghid_dialog_about (void)
   GHidPort *out = &ghid_port;
 
   dialog = gtk_message_dialog_new (GTK_WINDOW (out->top_window),
-				   GTK_DIALOG_MODAL 
+				   GTK_DIALOG_MODAL
 				   | GTK_DIALOG_DESTROY_WITH_PARENT,
 				   GTK_MESSAGE_INFO,
 				   GTK_BUTTONS_OK,
 				   "This is PCB, an interactive\n"
 				   "printed circuit board editor\n"
 				   "version " VERSION "\n\n"
-				   "Compiled on " __DATE__ " at " __TIME__ "\n\n"
-				   "by harry eaton\n\n"
+				   "Compiled on " __DATE__ " at " __TIME__
+				   "\n\n" "by harry eaton\n\n"
 				   "Copyright (C) Thomas Nau 1994, 1995, 1996, 1997\n"
 				   "Copyright (C) harry eaton 1998-2004\n"
 				   "Copyright (C) C. Scott Ananian 2001\n\n"
@@ -113,13 +112,13 @@ ghid_dialog_about (void)
 				   "If you have problems, hints or\n"
 				   "suggestions, send mail to:\n"
 				   "bumpelo at comcast dot net\n\n");
-  
+
   gtk_dialog_run (GTK_DIALOG (dialog));
   gtk_widget_destroy (dialog);
 }
 
 gint
-ghid_dialog_confirm_all (gchar *all_message)
+ghid_dialog_confirm_all (gchar * all_message)
 {
   GtkWidget *dialog, *label, *vbox;
   gint response;
@@ -127,14 +126,14 @@ ghid_dialog_confirm_all (gchar *all_message)
 
   dialog = gtk_dialog_new_with_buttons ("Confirm",
 					GTK_WINDOW (out->top_window),
-					GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
+					GTK_DIALOG_MODAL |
+					GTK_DIALOG_DESTROY_WITH_PARENT,
 					GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
 					GTK_STOCK_OK, GTK_RESPONSE_OK,
-					"Sequence OK", GUI_DIALOG_RESPONSE_ALL,
-					NULL);
-  
-  vbox = ghid_framed_vbox (GTK_DIALOG (dialog)->vbox,
-			 NULL, 6, FALSE, 4, 6);
+					"Sequence OK",
+					GUI_DIALOG_RESPONSE_ALL, NULL);
+
+  vbox = ghid_framed_vbox (GTK_DIALOG (dialog)->vbox, NULL, 6, FALSE, 4, 6);
 
   label = gtk_label_new (all_message);
   gtk_box_pack_start (GTK_BOX (vbox), label, FALSE, FALSE, 3);
@@ -147,33 +146,33 @@ ghid_dialog_confirm_all (gchar *all_message)
 }
 
 void
-ghid_dialog_message (gchar *message)
+ghid_dialog_message (gchar * message)
 {
   GtkWidget *dialog;
   GHidPort *out = &ghid_port;
 
   dialog = gtk_message_dialog_new (GTK_WINDOW (out->top_window),
-				   GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
-				   GTK_MESSAGE_WARNING,
-				   GTK_BUTTONS_OK,
+				   GTK_DIALOG_MODAL |
+				   GTK_DIALOG_DESTROY_WITH_PARENT,
+				   GTK_MESSAGE_WARNING, GTK_BUTTONS_OK,
 				   message);
-  
+
   gtk_dialog_run (GTK_DIALOG (dialog));
   gtk_widget_destroy (dialog);
 }
 
 gboolean
-ghid_dialog_confirm (gchar *message)
+ghid_dialog_confirm (gchar * message)
 {
   GtkWidget *dialog;
   gboolean confirm = FALSE;
   GHidPort *out = &ghid_port;
 
   dialog = gtk_message_dialog_new (GTK_WINDOW (out->top_window),
-				   GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
+				   GTK_DIALOG_MODAL |
+				   GTK_DIALOG_DESTROY_WITH_PARENT,
 				   GTK_MESSAGE_QUESTION,
-				   GTK_BUTTONS_OK_CANCEL,
-				   message);
+				   GTK_BUTTONS_OK_CANCEL, message);
   if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_OK)
     confirm = TRUE;
   gtk_widget_destroy (dialog);
@@ -182,7 +181,7 @@ ghid_dialog_confirm (gchar *message)
 
 /* Caller must g_free() the returned filename.*/
 gchar *
-ghid_dialog_file_select_open (gchar *title, gchar **path, gchar *shortcuts)
+ghid_dialog_file_select_open (gchar * title, gchar ** path, gchar * shortcuts)
 {
   GtkWidget *dialog;
   gchar *result = NULL, *folder, *seed;
@@ -192,7 +191,7 @@ ghid_dialog_file_select_open (gchar *title, gchar **path, gchar *shortcuts)
 					GTK_WINDOW (out->top_window),
 					GTK_FILE_CHOOSER_ACTION_OPEN,
 					GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-					GTK_STOCK_OPEN,   GTK_RESPONSE_OK,
+					GTK_STOCK_OPEN, GTK_RESPONSE_OK,
 					NULL);
 
   gtk_dialog_set_default_response (GTK_DIALOG (dialog), GTK_RESPONSE_OK);
@@ -216,7 +215,8 @@ ghid_dialog_file_select_open (gchar *title, gchar **path, gchar *shortcuts)
   if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_OK)
     {
       result = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (dialog));
-      folder = gtk_file_chooser_get_current_folder (GTK_FILE_CHOOSER (dialog));
+      folder =
+	gtk_file_chooser_get_current_folder (GTK_FILE_CHOOSER (dialog));
       if (folder && path)
 	{
 	  dup_string (path, folder);
@@ -231,20 +231,20 @@ ghid_dialog_file_select_open (gchar *title, gchar **path, gchar *shortcuts)
 
 /* Caller must g_free() the returned filename. */
 gchar *
-ghid_dialog_file_select_save (gchar *title, gchar **path, gchar *file,
-			     gchar *shortcuts)
+ghid_dialog_file_select_save (gchar * title, gchar ** path, gchar * file,
+			      gchar * shortcuts)
 {
   GtkWidget *dialog;
-  gchar	*result = NULL, *folder, *seed;
+  gchar *result = NULL, *folder, *seed;
   GHidPort *out = &ghid_port;
 
   dialog = gtk_file_chooser_dialog_new (title,
 					GTK_WINDOW (out->top_window),
 					GTK_FILE_CHOOSER_ACTION_SAVE,
 					GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-					GTK_STOCK_OPEN,   GTK_RESPONSE_OK,
+					GTK_STOCK_OPEN, GTK_RESPONSE_OK,
 					NULL);
-  
+
   gtk_dialog_set_default_response (GTK_DIALOG (dialog), GTK_RESPONSE_OK);
 
   if (path && *path && **path)
@@ -257,7 +257,7 @@ ghid_dialog_file_select_save (gchar *title, gchar **path, gchar *file,
     {
       folder = g_strdup (shortcuts);
       seed = folder;
-      while ((folder = strtok(seed, ":")) != NULL)
+      while ((folder = strtok (seed, ":")) != NULL)
 	{
 	  gtk_file_chooser_add_shortcut_folder (GTK_FILE_CHOOSER (dialog),
 						folder, NULL);
@@ -268,7 +268,8 @@ ghid_dialog_file_select_save (gchar *title, gchar **path, gchar *file,
   if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_OK)
     {
       result = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (dialog));
-      folder = gtk_file_chooser_get_current_folder (GTK_FILE_CHOOSER (dialog));
+      folder =
+	gtk_file_chooser_get_current_folder (GTK_FILE_CHOOSER (dialog));
       if (folder && path)
 	{
 	  dup_string (path, folder);
@@ -280,4 +281,3 @@ ghid_dialog_file_select_save (gchar *title, gchar **path, gchar *file,
 
   return result;
 }
-
