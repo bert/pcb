@@ -714,7 +714,6 @@ gerber_draw_arc (hidGC gc, int cx, int cy, int width, int height,
 		int start_angle, int delta_angle)
 {
   Boolean m = False;
-  int size;
   float arcStartX, arcStopX, arcStartY, arcStopY;
 
   if (gc->width == 1)
