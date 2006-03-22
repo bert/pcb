@@ -393,7 +393,7 @@ WritePCBInfoHeader (FILE * FP)
 static void
 WritePCBDataHeader (FILE * FP)
 {
-  Cardinal group, entry;
+  Cardinal group;
 
   fputs ("\nPCB[", FP);
   PrintQuotedString (FP, EMPTY (PCB->Name));
