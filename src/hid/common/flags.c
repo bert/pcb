@@ -99,7 +99,6 @@ hid_get_flag(const char *name)
   static char *buf = 0;
   static int nbuf = 0;
   const char *cp;
-  int v;
   HID_Flag *f;
   
   cp = strchr(name, ',');
