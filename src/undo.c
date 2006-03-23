@@ -969,7 +969,7 @@ ClearUndoList (Boolean Force)
 	  if (undo->Type == UNDO_CHANGENAME)
 	    SaveFree (undo->Data.ChangeName.Name);
 	}
-      MyFree ((char **) &UndoList);
+      MyFree ((void *) &UndoList);
       FreeDataMemory (RemoveList);
 
       /* reset some counters */
