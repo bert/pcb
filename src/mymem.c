@@ -614,7 +614,7 @@ GetDrillInfoDrillMemory (DrillInfoTypePtr DrillInfo)
  * allocates memory with error handling
  */
 void *
-MyCalloc (size_t Number, size_t Size, char *Text)
+MyCalloc (size_t Number, size_t Size, const char *Text)
 {
   void *p;
 
@@ -643,7 +643,7 @@ MyCalloc (size_t Number, size_t Size, char *Text)
  * handling of NULL pointers in realoc()
  */
 void *
-MyRealloc (void *Ptr, size_t Size, char *Text)
+MyRealloc (void *Ptr, size_t Size, const char *Text)
 {
   void *p;
 
@@ -664,7 +664,7 @@ MyRealloc (void *Ptr, size_t Size, char *Text)
  * allocates memory for a new string, does some error processing
  */
 char *
-MyStrdup (char *S, char *Text)
+MyStrdup (char *S, const char *Text)
 {
   char *p = NULL;
 
