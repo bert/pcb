@@ -1026,6 +1026,7 @@ SearchObjectByLocation (int Type,
 			LocationType X, LocationType Y, BDimension Radius)
 {
   void *r1, *r2, *r3;
+  void **pr1 = &r1, **pr2 = &r2, **pr3 = &r3;
   int i;
   float HigherBound = 0;
   int HigherAvail = NO_TYPE;
@@ -1050,18 +1051,18 @@ SearchObjectByLocation (int Type,
     return (VIA_TYPE);
 
   if (Type & PIN_TYPE &&
-      SearchPinByLocation ((ElementTypePtr *) & r1,
-			   (PinTypePtr *) & r2, (PinTypePtr *) & r3))
+      SearchPinByLocation ((ElementTypePtr *) pr1,
+			   (PinTypePtr *) pr2, (PinTypePtr *) pr3))
     HigherAvail = PIN_TYPE;
 
   if (!HigherAvail && Type & PAD_TYPE &&
-      SearchPadByLocation ((ElementTypePtr *) & r1,
-			   (PadTypePtr *) & r2, (PadTypePtr *) & r3, False))
+      SearchPadByLocation ((ElementTypePtr *) pr1,
+			   (PadTypePtr *) pr2, (PadTypePtr *) pr3, False))
     HigherAvail = PAD_TYPE;
 
   if (!HigherAvail && Type & ELEMENTNAME_TYPE &&
-      SearchElementNameByLocation ((ElementTypePtr *) & r1,
-				   (TextTypePtr *) & r2, (TextTypePtr *) & r3,
+      SearchElementNameByLocation ((ElementTypePtr *) pr1,
+				   (TextTypePtr *) pr2, (TextTypePtr *) pr3,
 				   False))
     {
       BoxTypePtr box = &((TextTypePtr) r2)->BoundingBox;
@@ -1070,9 +1071,9 @@ SearchObjectByLocation (int Type,
     }
 
   if (!HigherAvail && Type & ELEMENT_TYPE &&
-      SearchElementByLocation ((ElementTypePtr *) & r1,
-			       (ElementTypePtr *) & r2,
-			       (ElementTypePtr *) & r3, False))
+      SearchElementByLocation ((ElementTypePtr *) pr1,
+			       (ElementTypePtr *) pr2,
+			       (ElementTypePtr *) pr3, False))
     {
       BoxTypePtr box = &((ElementTypePtr) r1)->BoundingBox;
       HigherBound = (float) (box->X2 - box->X1) * (float) (box->Y2 - box->Y1);
