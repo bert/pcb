@@ -4803,7 +4803,7 @@ ActionChangeFlag (int argc, char **argv, int x, int y)
 {
   char *function = ARG (0);
   char *flag = ARG (1);
-  int value = ARG (2);
+  int value = atoi (ARG (2));
   if (value != 0 && value != 1)
     {
       Message (_("ChangeFlag():  Value %d is not valid\n"), value);
