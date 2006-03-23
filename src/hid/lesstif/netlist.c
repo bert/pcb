@@ -110,8 +110,8 @@ build_netlist_dialog ()
   stdarg (XmNvisibleItemCount, 10);
   netlist_list = XmCreateScrolledList (netlist_dialog, "nets", args, n);
   XtManageChild (netlist_list);
-  XtAddCallback (netlist_list, XmNbrowseSelectionCallback, netlist_browse, 0);
-  XtAddCallback (netlist_list, XmNdefaultActionCallback, netlist_select, 0);
+  XtAddCallback (netlist_list, XmNbrowseSelectionCallback, (XtCallbackProc)netlist_browse, 0);
+  XtAddCallback (netlist_list, XmNdefaultActionCallback, (XtCallbackProc)netlist_select, 0);
 
   n = 0;
   stdarg (XmNtopAttachment, XmATTACH_FORM);
@@ -130,7 +130,7 @@ NetlistChanged (int argc, char **argv, int x, int y)
 {
   int i;
   if (!PCB->NetlistLib.MenuN)
-    return;
+    return 0;
   if (build_netlist_dialog ())
     return 0;
   last_pick = -1;

@@ -126,7 +126,7 @@ LayersChanged (int argc, char **argv, int x, int y)
   int current_layer;
 
   if (!layer_button_list)
-    return;
+    return 0;
 
   if (!got_colors)
     {
@@ -358,6 +358,7 @@ SelectLayer (int argc, char **argv, int x, int y)
   else
     newl = atoi (argv[0]) - 1;
   layerpick_button_callback (0, newl, 0);
+  return 0;
 }
 
 static int
@@ -401,7 +402,7 @@ ToggleView (int argc, char **argv, int x, int y)
 }
 
 static void
-insert_layerview_buttons (Widget * menu)
+insert_layerview_buttons (Widget menu)
 {
   int i, s;
   LayerButtons *lb;
@@ -467,7 +468,7 @@ insert_layerview_buttons (Widget * menu)
 }
 
 static void
-insert_layerpick_buttons (Widget * menu)
+insert_layerpick_buttons (Widget menu)
 {
   int i, s;
   LayerButtons *lb;
@@ -540,7 +541,7 @@ typedef struct
   Widget w;
   const char *flagname;
   int oldval;
-  const char *xres;
+  char *xres;
 } WidgetFlagType;
 
 static WidgetFlagType *wflags = 0;
@@ -595,6 +596,7 @@ HID_Action lesstif_menu_action_list[] = {
 
 REGISTER_ACTIONS (lesstif_menu_action_list);
 
+#if 0
 static void
 do_color (char *value, char *which)
 {
@@ -605,6 +607,7 @@ do_color (char *value, char *which)
 	stdarg (which, color.pixel);
       }
 }
+#endif
 
 typedef struct ToggleItem
 {
@@ -653,9 +656,9 @@ lesstif_button_event (Widget w, XEvent * e)
 }
 
 void
-lesstif_get_xy (char *message)
+lesstif_get_xy (const char *message)
 {
-  XmString ls = XmStringCreateLocalized (message);
+  XmString ls = XmStringCreateLocalized ((char *)message);
 
   XtManageChild (m_click);
   n = 0;
@@ -695,12 +698,12 @@ lesstif_call_action (const char *aname, int argc, char **argv)
       for (i = 0; i < argc; i++)
 	printf ("%s%s", i ? ", " : "", argv[i]);
       printf (")\n");
-      return;
+      return 1;
     }
 
   if (a->needs_coords && !have_xy)
     {
-      char *msg;
+      const char *msg;
       if (strcmp (aname, "GetXY") == 0)
 	msg = argv[0];
       else
@@ -901,6 +904,8 @@ lesstif_key_event (XKeyEvent * e)
       e->state &= ~ShiftMask;
       slen2 = XLookupString (e, buf2, sizeof (buf2), &sym2, NULL);
     }
+  else
+    slen2 = slen;
 
   //printf("\nmods %x key %d str `%s'\n", mods, (int)sym, buf);
 
@@ -1138,6 +1143,8 @@ static HID_Attribute pcbmenu_attr[] = {
   {"pcb-menu", "Location of pcb-menu.res file",
    HID_String, 0, 0, {0, PCBLIBDIR "/pcb-menu.res", 0}, 0, &pcbmenu_path}
 };
+
+REGISTER_ATTRIBUTES(pcbmenu_attr)
 
 Widget
 lesstif_menu (Widget parent, char *name, Arg * margs, int mn)

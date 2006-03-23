@@ -38,7 +38,7 @@ extern void lesstif_need_idle_proc (void);
 extern void lesstif_show_crosshair (int);
 extern void lesstif_invalidate_all (void);
 extern void lesstif_coords_to_pcb (int, int, int *, int *);
-extern void lesstif_get_xy (char *msg);
+extern void lesstif_get_xy (const char *msg);
 extern void lesstif_update_widget_flags (void);
 extern int lesstif_call_action (const char *, int, char **);
 extern void lesstif_sizes_reset (void);
@@ -49,6 +49,7 @@ extern Pixel lesstif_parse_color (char *value);
 extern void lesstif_insert_style_buttons (Widget menu);
 extern void lesstif_styles_update_values ();
 extern void lesstif_update_status_line ();
+extern char *lesstif_prompt_for (char *, char *);
 
 #define need_idle_proc lesstif_need_idle_proc
 #define show_crosshair lesstif_show_crosshair

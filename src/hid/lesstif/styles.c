@@ -106,9 +106,6 @@ static int num_style_buttons = 0;
 static char *value_names[] = {
   "Thickness", "Diameter", "Hole", "Keepaway"
 };
-static int value_max[] = {
-  MAX_LINESIZE, MAX_PINORVIASIZE, MAX_PINORVIASIZE, MAX_LINESIZE
-};
 
 static int RouteStylesChanged (int argc, char **argv, int x, int y);
 
@@ -217,7 +214,7 @@ units_cb ()
 static Widget
 style_value (i)
 {
-  Widget w, f, l;
+  Widget w, l;
   n = 0;
   stdarg (XmNtopAttachment, XmATTACH_POSITION);
   stdarg (XmNtopPosition, i);
@@ -315,7 +312,6 @@ static Widget
 style_button (int i)
 {
   Widget pb, set;
-  char buf[10];
 
   n = 0;
   stdarg (XmNtopAttachment, XmATTACH_WIDGET);
@@ -428,7 +424,7 @@ RouteStylesChanged (int argc, char **argv, int x, int y)
     return 0;
   update_style_buttons ();
   if (!style_dialog)
-    return;
+    return 0;
   for (j = 0; j < NUM_STYLES; j++)
     {
       h = hash (PCB->RouteStyle[j].Name);
@@ -461,8 +457,6 @@ lesstif_insert_style_buttons (Widget menu)
 
   for (i = 0; i < NUM_STYLES; i++)
     {
-      char buf[20], av[30];
-
       n = 0;
       stdarg (XmNindicatorType, XmONE_OF_MANY);
       stdarg (XmNlabelString,

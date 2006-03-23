@@ -163,6 +163,9 @@ findApertureCode (int width, ApertureShape shape)
 		   ap->dCode, gap / 100000.0, gap / 100000.0,
 		   width / 100000.0, width / 100000.0);
 	  break;
+#else
+	default:
+	  break;
 #endif
 	}
 

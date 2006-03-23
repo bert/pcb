@@ -6,6 +6,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 #include <string.h>
 #include <math.h>
 
@@ -31,6 +32,7 @@
 #include "action.h"
 #include "crosshair.h"
 #include "mymem.h"
+#include "misc.h"
 
 #include "hid.h"
 #include "../hidint.h"
@@ -50,7 +52,7 @@ typedef struct hid_gc_struct
 {
   HID *me_pointer;
   Pixel color;
-  char *colorname;
+  const char *colorname;
   int width;
   EndCapStyle cap;
   char xor;
@@ -492,7 +494,7 @@ command_event_handler (Widget w, XtPointer p, XEvent * e, Boolean * cont)
   switch (e->type)
     {
     case KeyPress:
-      slen = XLookupString (e, buf, sizeof (buf), &sym, NULL);
+      slen = XLookupString ((XKeyEvent *)e, buf, sizeof (buf), &sym, NULL);
       switch (sym)
 	{
 	case XK_Escape:
@@ -689,7 +691,7 @@ Pan (int mode, int x, int y)
     }
 }
 
-static int
+static void
 mod_changed (XKeyEvent * e, int set)
 {
   switch (XKeycodeToKeysym (display, e->keycode, 0))
@@ -1238,14 +1240,18 @@ lesstif_parse_arguments (int *argc, char ***argv)
       }
   amax = acount + XtNumber (lesstif_options);
   new_options = malloc ((amax + 1) * sizeof (XrmOptionDescRec));
+#if 0
   memcpy (new_options + acount, lesstif_options, sizeof (lesstif_options));
+#endif
   acount = 0;
 
   rmax = rcount + XtNumber (lesstif_resources);
   new_resources = malloc ((rmax + 1) * sizeof (XtResource));
   new_values = malloc ((rmax + 1) * sizeof (val_union));
+#if 0
   memcpy (new_resources + acount, lesstif_resources,
 	  sizeof (lesstif_resources));
+#endif
   rcount = 0;
 
   for (ha = hid_attr_nodes; ha; ha = ha->next)
@@ -1407,7 +1413,7 @@ draw_grid ()
 {
   static XPoint *points = 0;
   static int npoints = 0;
-  int x1, y1, x2, y2, n, i, prevx;
+  int x1, y1, x2, y2, n, prevx;
   double x, y;
   static GC grid_gc = 0;
 
@@ -1441,6 +1447,7 @@ draw_grid ()
 	MyRealloc (points, npoints * sizeof (XPoint), "lesstif_draw_grid");
     }
   n = 0;
+  prevx = 0;
   for (x = x1; x <= x2; x += PCB->Grid)
     {
       int temp = Vx (x);
@@ -1467,7 +1474,7 @@ coords_to_widget (int x, int y, Widget w, int prev_state)
   int this_state = prev_state;
   static char buf[60];
   double dx, dy, g;
-  int frac;
+  int frac = 0;
 
   if (Settings.grid_units_mm)
     {
@@ -1551,7 +1558,7 @@ lesstif_update_status_line ()
 {
   char buf[100];
   char *s45 = cur_clip ();
-  XmString *xs;
+  XmString xs;
 
   buf[0] = 0;
   switch (Settings.Mode)
@@ -1653,8 +1660,6 @@ idle_proc ()
       {
 	static int last_state = 0;
 	static int this_state = 0;
-	static char buf[40];
-	double dx, dy, g;
 
 	c_x = crosshair_x;
 	c_y = crosshair_y;
@@ -1804,7 +1809,7 @@ idle_proc ()
       {
 	char *s = "None";
 	XmString ms;
-	int cursor;
+	int cursor = -1;
 	static int free_cursor = 0;
 
 	old_mode = Settings.Mode;
@@ -1922,7 +1927,8 @@ idle_proc ()
   {
     static char *old_clip = 0;
     static int old_tscale = -1;
-    int new_clip = cur_clip ();
+    char *new_clip = cur_clip ();
+
     if (new_clip != old_clip || Settings.TextScale != old_tscale)
       {
 	lesstif_update_status_line ();
@@ -2074,7 +2080,6 @@ lesstif_set_color (hidGC gc, const char *name)
   static void *cache = 0;
   hidval cval;
   static XColor color, exact_color;
-  static const char *prevname = 0;
 
   if (!display)
     return;
@@ -2523,7 +2528,7 @@ typedef struct
 {
   void (*func) (hidval);
   hidval user_data;
-  XtIntervalId *id;
+  XtIntervalId id;
 } TimerStruct;
 
 static void
@@ -2544,7 +2549,7 @@ lesstif_add_timer (void (*func) (hidval user_data),
   rv.ptr = t;
   t->func = func;
   t->user_data = user_data;
-  t->id = XtAppAddTimeOut (app_context, milliseconds, lesstif_timer_cb, t);
+  t->id = XtAppAddTimeOut (app_context, milliseconds, (XtTimerCallbackProc)lesstif_timer_cb, t);
   return rv;
 }
 
@@ -2563,8 +2568,6 @@ extern void lesstif_logv (char *fmt, va_list ap);
 extern int lesstif_confirm_dialog (char *msg, ...);
 
 extern void lesstif_report_dialog (char *title, char *msg);
-
-extern char *lesstif_prompt_for (char *msg, char *default_string);
 
 extern int
 lesstif_attribute_dialog (HID_Attribute * attrs,
@@ -2652,10 +2655,9 @@ pinout_unmap (Widget w, PinoutData * pd, void *v)
 static void
 lesstif_show_item (void *item)
 {
-  int iw, ih;
   double scale;
   Widget da;
-  BoxType region, *extents;
+  BoxType *extents;
   PinoutData *pd;
 
   for (pd = pinouts; pd; pd = pd->next)
