@@ -328,4 +328,4 @@ HID_Action puller_action_list[] = {
   {"Puller", 1, "Click on a line-arc intersection or line segment", Puller}
 };
 
-REGISTER_ACTIONS (puller_action_list);
+REGISTER_ACTIONS (puller_action_list)

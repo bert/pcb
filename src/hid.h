@@ -89,8 +89,7 @@ extern "C"
 
   extern void hid_register_actions (HID_Action *, int);
 #define REGISTER_ACTIONS(a) HIDCONCAT(void register_,a) ()\
-{ hid_register_actions(a, sizeof(a)/sizeof(a[0])); } \
-HIDCONCAT(void register_,a) (void)
+{ hid_register_actions(a, sizeof(a)/sizeof(a[0])); }
 
   /* Note that PCB expects the gui to provide the following actions:
 
@@ -123,8 +122,7 @@ HIDCONCAT(void register_,a) (void)
 
   extern void hid_register_flags (HID_Flag *, int);
 #define REGISTER_FLAGS(a) HIDCONCAT(void register_,a) ()\
-{ hid_register_flags(a, sizeof(a)/sizeof(a[0])); } \
-HIDCONCAT(void register_,a) (void);
+{ hid_register_flags(a, sizeof(a)/sizeof(a[0])); }
 
 /* Looks up one of the flags registered above.  If the flag is
    unknown, returns zero.  */
@@ -164,8 +162,7 @@ HIDCONCAT(void register_,a) (void);
 
   extern void hid_register_attributes (HID_Attribute *, int);
 #define REGISTER_ATTRIBUTES(a) HIDCONCAT(void register_,a) ()\
-{ hid_register_attributes(a, sizeof(a)/sizeof(a[0])); } \
-HIDCONCAT(void register_,a) (void)
+{ hid_register_attributes(a, sizeof(a)/sizeof(a[0])); }
 
 /* These three are set by hid_parse_command_line().  */
   extern char *program_name;

@@ -224,4 +224,4 @@ HID_Flag flags_flag_list[] = {
   ,
 };
 
-REGISTER_FLAGS (flags_flag_list);
+REGISTER_FLAGS (flags_flag_list)

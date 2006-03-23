@@ -565,7 +565,7 @@ HID_Attribute main_attribute_list[] = {
   BSET (RingBellWhenFinished, 0, "ring-bell-finished", 0),
 };
 
-REGISTER_ATTRIBUTES (main_attribute_list);
+REGISTER_ATTRIBUTES (main_attribute_list)
 
 /* ---------------------------------------------------------------------- 
  * post-process settings.

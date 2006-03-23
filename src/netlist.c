@@ -284,4 +284,4 @@ HID_Action netlist_action_list[] = {
   ,
 };
 
-REGISTER_ACTIONS (netlist_action_list);
+REGISTER_ACTIONS (netlist_action_list)

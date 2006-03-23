@@ -129,7 +129,7 @@ HID_Flag djopt_flag_list[] = {
   {"optautoonly", djopt_get_auto_only, 0}
 };
 
-REGISTER_FLAGS (djopt_flag_list);
+REGISTER_FLAGS (djopt_flag_list)
 
 #define line_is_pad(l) ((l)->line == (LineType *)(l)->s->pad)
 
@@ -2927,4 +2927,4 @@ HID_Action djopt_action_list[] = {
   {"OptAutoOnly", 0, 0, djopt_set_auto_only}
 };
 
-REGISTER_ACTIONS (djopt_action_list);
+REGISTER_ACTIONS (djopt_action_list)

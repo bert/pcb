@@ -3615,4 +3615,4 @@ HID_Action gtk_topwindow_action_list[] = {
   ,
 };
 
-REGISTER_ACTIONS (gtk_topwindow_action_list);
+REGISTER_ACTIONS (gtk_topwindow_action_list)

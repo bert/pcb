@@ -149,7 +149,7 @@ HID_Attribute png_attribute_list[] = {
 
 #define NUM_OPTIONS (sizeof(png_attribute_list)/sizeof(png_attribute_list[0]))
 
-REGISTER_ATTRIBUTES (png_attribute_list);
+REGISTER_ATTRIBUTES (png_attribute_list)
 
 static HID_Attr_Val png_values[NUM_OPTIONS];
 

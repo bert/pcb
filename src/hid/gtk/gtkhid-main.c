@@ -1319,7 +1319,7 @@ HID_Action ghid_main_action_list[] = {
   ,
 };
 
-REGISTER_ACTIONS (ghid_main_action_list);
+REGISTER_ACTIONS (ghid_main_action_list)
 
 #include "dolists.h"
 

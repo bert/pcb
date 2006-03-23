@@ -531,4 +531,4 @@ HID_Action report_action_list[] = {
   {"Report", 0, 0, Report}
 };
 
-REGISTER_ACTIONS (report_action_list);
+REGISTER_ACTIONS (report_action_list)

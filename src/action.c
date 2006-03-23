@@ -5075,4 +5075,4 @@ HID_Action action_action_list[] = {
   ,
 };
 
-REGISTER_ACTIONS (action_action_list);
+REGISTER_ACTIONS (action_action_list)

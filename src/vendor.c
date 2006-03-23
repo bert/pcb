@@ -902,7 +902,7 @@ HID_Action vendor_action_list[] = {
   ,
 };
 
-REGISTER_ACTIONS (vendor_action_list);
+REGISTER_ACTIONS (vendor_action_list)
 
 static int
 vendor_get_enabled (int unused)
@@ -915,4 +915,4 @@ HID_Flag vendor_flag_list[] = {
   ,
 };
 
-REGISTER_FLAGS (vendor_flag_list);
+REGISTER_FLAGS (vendor_flag_list)

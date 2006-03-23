@@ -1179,4 +1179,4 @@ HID_Action lesstif_dialog_action_list[] = {
   ,
 };
 
-REGISTER_ACTIONS (lesstif_dialog_action_list);
+REGISTER_ACTIONS (lesstif_dialog_action_list)
