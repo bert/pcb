@@ -189,6 +189,7 @@ PrintFab (void)
   char utcTime[64];
   tmp_pin.Flags = NoFlags ();
   AllDrills = GetDrillInfo (PCB->Data);
+  RoundDrillInfo (AllDrills, 100);
   yoff = -TEXT_LINE;
   for (n = AllDrills->DrillN - 1; n >= 0; n--)
     {

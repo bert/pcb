@@ -515,10 +515,12 @@ gerber_set_layer (const char *name, int group)
 	      curapp->nextAperture == 1 ? "" : "s", filename);
       if (is_drill)
 	{
+	  fprintf (f, "M48\015\012" "INCH,TZ\015\012");
 	  for (i = 0; i < curapp->nextAperture; i++)
 	    fprintf (f, "T%02dC%.3f\015\012",
 		     curapp->aperture[i].dCode,
 		     curapp->aperture[i].apertureSize / 100000.0);
+	  fprintf (f, "%%\015\012");
 	  /* FIXME */
 	  return 1;
 	}
@@ -800,6 +802,8 @@ gerber_draw_arc (hidGC gc, int cx, int cy, int width, int height,
   lastY = arcStopY;
 }
 
+#define ROUND(x) ((int)(((x)+50)/100)*100)
+
 static void
 gerber_fill_circle (hidGC gc, int cx, int cy, int radius)
 {
@@ -817,7 +821,7 @@ gerber_fill_circle (hidGC gc, int cx, int cy, int radius)
 	}
       pending_drills[n_pending_drills].x = cx;
       pending_drills[n_pending_drills].y = cy;
-      pending_drills[n_pending_drills].diam = radius * 2;
+      pending_drills[n_pending_drills].diam = ROUND(radius * 2);
       n_pending_drills++;
       return;
     }

@@ -30,3 +30,4 @@
 
 DrillInfoTypePtr GetDrillInfo (DataTypePtr);
 void FreeDrillInfo (DrillInfoTypePtr);
+void RoundDrillInfo (DrillInfoTypePtr, int);
