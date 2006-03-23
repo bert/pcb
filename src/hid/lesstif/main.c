@@ -1941,7 +1941,7 @@ idle_proc ()
 void
 lesstif_need_idle_proc ()
 {
-  if (idle_proc_set)
+  if (idle_proc_set || window == 0)
     return;
   XtAppAddWorkProc (app_context, idle_proc, 0);
   idle_proc_set = 1;
