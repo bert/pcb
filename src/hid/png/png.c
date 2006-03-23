@@ -156,11 +156,16 @@ static HID_Attr_Val png_values[NUM_OPTIONS];
 static HID_Attribute *
 png_get_export_options (int *n)
 {
+  static char *last_made_filename = 0;
   char *buf = 0;
 
-  if (PCB && PCB->Filename)
+  if (PCB && PCB->Filename
+      && png_attribute_list[HA_pngfile].default_val.str_value ==
+      last_made_filename)
     {
-      buf = (char *) malloc (strlen (PCB->Filename) + 4);
+      /* need 4 for the ".png" and 1 for the terminating \0 */
+      buf = (char *) malloc (strlen (PCB->Filename) + 5);
+      last_made_filename = buf;
       if (buf)
 	{
 	  strcpy (buf, PCB->Filename);
