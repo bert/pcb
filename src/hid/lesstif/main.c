@@ -1358,13 +1358,6 @@ lesstif_parse_arguments (int *argc, char ***argv)
   XtGetApplicationResources (appwidget, new_values, new_resources,
 			     rmax, 0, 0);
 
-  /* redefine colormap, if requested via "-install" */
-  if (use_private_colormap)
-    {
-      colormap = XCopyColormapAndFree (display, colormap);
-      XtVaSetValues (appwidget, XtNcolormap, colormap, NULL);
-    }
-
   rcount = 0;
   for (ha = hid_attr_nodes; ha; ha = ha->next)
     for (i = 0; i < ha->n; i++)
@@ -1406,6 +1399,13 @@ lesstif_parse_arguments (int *argc, char ***argv)
 	    break;
 	  }
       }
+
+  /* redefine colormap, if requested via "-install" */
+  if (use_private_colormap)
+    {
+      colormap = XCopyColormapAndFree (display, colormap);
+      XtVaSetValues (appwidget, XtNcolormap, colormap, NULL);
+    }
 }
 
 static void
