@@ -147,7 +147,7 @@ pcb_bin_DEPENDENCIES = @HIDLIBS@
 # Action, Attribute, and Flag lists.
 core_lists.h : ${pcb_bin_SOURCES} Makefile
 	true > $@
-	(for f in ${pcb_bin_SOURCES} ; do cat $(srcdir)/$$f ; done) | grep ^REGISTER > $@.tmp
+	(for f in ${pcb_bin_SOURCES} ; do cat $(srcdir)/$$f ; done) | grep "^REGISTER" > $@.tmp
 	mv $@.tmp $@
 
 # for globalconst.h
@@ -214,7 +214,7 @@ libgtk_a_SOURCES = \
 
 hid/gtk/gtk_lists.h : ${libgtk_a_SOURCES} Makefile
 	true > $@
-	(for f in ${libgtk_a_SOURCES} ; do cat $(srcdir)/$$f ; done) | grep ^REGISTER > $@.tmp
+	(for f in ${libgtk_a_SOURCES} ; do cat $(srcdir)/$$f ; done) | grep "^REGISTER" > $@.tmp
 	mv $@.tmp $@
 
 liblesstif_a_CPPFLAGS = -I./hid/lesstif
@@ -231,7 +231,7 @@ liblesstif_a_SOURCES = \
 
 hid/lesstif/lesstif_lists.h : ${liblesstif_a_SOURCES} Makefile
 	true > $@
-	(for f in ${liblesstif_a_SOURCES} ; do cat $(srcdir)/$$f ; done) | grep ^REGISTER > $@.tmp
+	(for f in ${liblesstif_a_SOURCES} ; do cat $(srcdir)/$$f ; done) | grep "^REGISTER" > $@.tmp
 	mv $@.tmp $@
 
 libgerber_a_SOURCES = \
@@ -253,7 +253,7 @@ libps_a_SOURCES = \
 
 hid/ps/ps_lists.h : ${libps_a_SOURCES} Makefile
 	true > $@
-	(for f in ${libps_a_SOURCES} ; do cat $(srcdir)/$$f ; done) | grep ^REGISTER > $@.tmp
+	(for f in ${libps_a_SOURCES} ; do cat $(srcdir)/$$f ; done) | grep "^REGISTER" > $@.tmp
 	mv $@.tmp $@
 
 libpng_a_CPPFLAGS = -I./hid/png
@@ -266,7 +266,7 @@ libpng_a_SOURCES = \
 
 hid/png/png_lists.h : ${libpng_a_SOURCES} Makefile
 	true > $@
-	(for f in ${libpng_a_SOURCES} ; do cat $(srcdir)/$$f ; done) | grep ^REGISTER > $@.tmp
+	(for f in ${libpng_a_SOURCES} ; do cat $(srcdir)/$$f ; done) | grep "^REGISTER" > $@.tmp
 	mv $@.tmp $@
 
 liblpr_a_SOURCES = \
