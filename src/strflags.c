@@ -236,7 +236,7 @@ parse_layer_list (const char *bp, void (*error) (const char *))
 	  l = 0;
 	}
 
-      else if (isdigit (*bp))
+      else if (isdigit ((int) *bp))
 	l = l * 10 + (*bp - '0');
 
       else if (error)
