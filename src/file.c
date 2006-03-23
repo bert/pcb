@@ -110,15 +110,15 @@ string_cmp (const char *a, const char *b)
 {
   while (*a && *b)
     {
-      if (isdigit (*a) && isdigit (*b))
+      if (isdigit ((int) *a) && isdigit ((int) *b))
 	{
 	  int ia = atoi (a);
 	  int ib = atoi (b);
 	  if (ia != ib)
 	    return ia - ib;
-	  while (isdigit (*a))
+	  while (isdigit ((int) *a))
 	    a++;
-	  while (isdigit (*b))
+	  while (isdigit ((int) *b))
 	    b++;
 	}
       else if (tolower (*a) != tolower (*b))
