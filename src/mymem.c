@@ -1006,11 +1006,11 @@ StripWhiteSpaceAndDup (char *S)
     return (NULL);
 
   /* strip leading blanks */
-  for (p1 = S; *p1 && isspace (*p1); p1++);
+  for (p1 = S; *p1 && isspace ((int) *p1); p1++);
 
   /* strip trailing blanksand get string length */
   length = strlen (p1);
-  for (p2 = p1 + length - 1; length && isspace (*p2); p2--, length--);
+  for (p2 = p1 + length - 1; length && isspace ((int) *p2); p2--, length--);
 
   /* string is not empty -> allocate memory */
   if (length)

@@ -118,7 +118,7 @@ GetValue (char *val, char *units, Boolean * absolute)
     }
   else
     {
-      if (isdigit (*val))
+      if (isdigit ((int) *val))
 	*absolute = True;
       else
 	*absolute = False;
@@ -627,7 +627,7 @@ static void
 GetNum (char **s, BDimension * num)
 {
   *num = atoi (*s);
-  while (isdigit (**s))
+  while (isdigit ((int) **s))
     (*s)++;
 }
 
@@ -669,33 +669,33 @@ ParseRouteString (char *s, RouteStyleTypePtr routeStyle, int scale)
   memset (routeStyle, 0, NUM_STYLES * sizeof (RouteStyleType));
   for (style = 0; style < NUM_STYLES; style++, routeStyle++)
     {
-      while (*s && isspace (*s))
+      while (*s && isspace ((int) *s))
 	s++;
       for (i = 0; *s && *s != ','; i++)
 	Name[i] = *s++;
       Name[i] = '\0';
       routeStyle->Name = MyStrdup (Name, "ParseRouteString()");
-      if (!isdigit (*++s))
+      if (!isdigit ((int) *++s))
 	goto error;
       GetNum (&s, &routeStyle->Thick);
       routeStyle->Thick *= scale;
-      while (*s && isspace (*s))
+      while (*s && isspace ((int) *s))
 	s++;
       if (*s++ != ',')
 	goto error;
-      while (*s && isspace (*s))
+      while (*s && isspace ((int) *s))
 	s++;
-      if (!isdigit (*s))
+      if (!isdigit ((int) *s))
 	goto error;
       GetNum (&s, &routeStyle->Diameter);
       routeStyle->Diameter *= scale;
-      while (*s && isspace (*s))
+      while (*s && isspace ((int) *s))
 	s++;
       if (*s++ != ',')
 	goto error;
-      while (*s && isspace (*s))
+      while (*s && isspace ((int) *s))
 	s++;
-      if (!isdigit (*s))
+      if (!isdigit ((int) *s))
 	goto error;
       GetNum (&s, &routeStyle->Hole);
       routeStyle->Hole *= scale;
@@ -706,18 +706,18 @@ ParseRouteString (char *s, RouteStyleTypePtr routeStyle, int scale)
       else
 	{
 	  s++;
-	  while (*s && isspace (*s))
+	  while (*s && isspace ((int) *s))
 	    s++;
-	  if (!isdigit (*s))
+	  if (!isdigit ((int) *s))
 	    goto error;
 	  GetNum (&s, &routeStyle->Keepaway);
 	  routeStyle->Keepaway *= scale;
-	  while (*s && isspace (*s))
+	  while (*s && isspace ((int) *s))
 	    s++;
 	}
       if (style < NUM_STYLES - 1)
 	{
-	  while (*s && isspace (*s))
+	  while (*s && isspace ((int) *s))
 	    s++;
 	  if (*s++ != ':')
 	    goto error;
@@ -747,14 +747,14 @@ ParseGroupString (char *s, LayerGroupTypePtr LayerGroup)
   /* loop over all groups */
   for (group = 0; s && *s && group < MAX_LAYER; group++)
     {
-      while (*s && isspace (*s))
+      while (*s && isspace ((int) *s))
 	s++;
 
       /* loop over all group members */
       for (member = 0; *s; s++)
 	{
 	  /* ignore white spaces and get layernumber */
-	  while (*s && isspace (*s))
+	  while (*s && isspace ((int) *s))
 	    s++;
 	  switch (*s)
 	    {
@@ -771,7 +771,7 @@ ParseGroupString (char *s, LayerGroupTypePtr LayerGroup)
 	      break;
 
 	    default:
-	      if (!isdigit (*s))
+	      if (!isdigit ((int) *s))
 		goto error;
 	      layer = atoi (s) - 1;
 	      break;
@@ -780,10 +780,10 @@ ParseGroupString (char *s, LayerGroupTypePtr LayerGroup)
 	      member >= MAX_LAYER + 1)
 	    goto error;
 	  LayerGroup->Entries[group][member++] = layer;
-	  while (*++s && isdigit (*s));
+	  while (*++s && isdigit ((int) *s));
 
 	  /* ignore white spaces and check for seperator */
-	  while (*s && isspace (*s))
+	  while (*s && isspace ((int) *s))
 	    s++;
 	  if (!*s || *s == ':')
 	    break;
@@ -1505,7 +1505,7 @@ BumpName (char *Name)
   while (*Name != 0)
     Name++;
   /* back up to potential number */
-  for (Name--; isdigit (*Name); Name--);
+  for (Name--; isdigit ((int) *Name); Name--);
   Name++;
   if (*Name)
     num = atoi (Name) + 1;
