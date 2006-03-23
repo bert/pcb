@@ -123,6 +123,7 @@ mtspace_create (const BoxType * bounds, BDimension keepaway)
 {
   BoxType smaller_bounds;
   mtspacebox_t *mtsb;
+  mtspacebox_t **pmtsb = &mtsb;
   mtspace_t *mtspace;
 
   assert (bounds);
@@ -133,7 +134,7 @@ mtspace_create (const BoxType * bounds, BDimension keepaway)
   mtsb->keepaway = keepaway;
   /* create mtspace data structure */
   mtspace = malloc (sizeof (*mtspace));
-  mtspace->rtree = r_create_tree ((const BoxType **) &mtsb, 1, 1);
+  mtspace->rtree = r_create_tree ((const BoxType **) pmtsb, 1, 1);
   mtspace->bounds = smaller_bounds;
   /* done! */
   assert (__mtspace_is_good (mtspace));
