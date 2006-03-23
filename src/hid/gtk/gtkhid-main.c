@@ -376,7 +376,8 @@ set_special_grid_color (void)
   gport->grid_color.green ^= gport->bg_color.green;
   gport->grid_color.blue ^= gport->bg_color.blue;
   gdk_color_alloc (gport->colormap, &gport->grid_color);
-  gdk_gc_set_foreground (gport->grid_gc, &gport->grid_color);
+  if (gport->grid_gc)
+    gdk_gc_set_foreground (gport->grid_gc, &gport->grid_color);
 }
 
 void

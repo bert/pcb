@@ -156,6 +156,7 @@ void
 ghid_port_ranges_zoom (gdouble zoom)
 {
   gdouble xtmp, ytmp;
+  gint		x0, y0;
 
   xtmp = (gdouble) PCB->MaxWidth / gport->width;
   ytmp = (gdouble) PCB->MaxHeight / gport->height;
@@ -167,15 +168,24 @@ ghid_port_ranges_zoom (gdouble zoom)
   ytmp = (gport->view_y - gport->view_y0) / (gdouble) gport->view_height;
 
   gport->zoom = zoom;
-  ghid_port_ranges_scale (FALSE);
+  ghid_port_ranges_scale(FALSE);
 
-  gport->view_x0 = gport->view_x - xtmp * gport->view_width;
+  x0 = gport->view_x - xtmp * gport->view_width;
+  if (x0 < 0)
+    x0 = 0;
+  gport->view_x0 = x0;
+
+  y0 = gport->view_y - ytmp * gport->view_height;
+  if (y0 < 0)
+    y0 = 0;
+  gport->view_y0 = y0;
+
   ghidgui->adjustment_changed_holdoff = TRUE;
   gtk_range_set_value (GTK_RANGE (ghidgui->h_range), gport->view_x0);
+  gtk_range_set_value (GTK_RANGE (ghidgui->v_range), gport->view_y0);
   ghidgui->adjustment_changed_holdoff = FALSE;
 
-  gport->view_y0 = gport->view_y - ytmp * gport->view_height;
-  gtk_range_set_value (GTK_RANGE (ghidgui->v_range), gport->view_y0);
+  ghid_port_ranges_changed();
 }
 
 
