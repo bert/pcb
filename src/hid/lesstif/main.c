@@ -432,7 +432,7 @@ command_parse (char *s)
 
   for (cp = s; *cp; cp++)
     {
-      if (isspace (*cp))
+      if (isspace ((int) *cp))
 	ws = 1;
       else
 	{
@@ -446,7 +446,7 @@ command_parse (char *s)
   ws = 1;
   for (cp = s; *cp; cp++)
     {
-      if (isspace (*cp))
+      if (isspace ((int) *cp))
 	{
 	  ws = 1;
 	  *cp = 0;

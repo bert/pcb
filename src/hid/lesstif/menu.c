@@ -368,7 +368,7 @@ ToggleView (int argc, char **argv, int x, int y)
 
   if (argc == 0)
     return 1;
-  if (isdigit (argv[0][0]))
+  if (isdigit ((int) argv[0][0]))
     {
       l = atoi (argv[0]) - 1;
       layer_button_callback (0, l, 0);
@@ -833,7 +833,7 @@ note_accelerator (char *acc, Resource * node)
 
   memset (a, 0, sizeof (*a));
 
-  while (isalpha (acc[0]))
+  while (isalpha ((int) acc[0]))
     {
       if (strncmp (acc, "Shift", 5) == 0)
 	{
