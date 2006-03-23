@@ -139,7 +139,8 @@ BUILT_SOURCES = \
 	hid/ps/ps_lists.h \
 	parse_y.h \
 	pcb-menu.h \
-	res_parse.h
+	res_parse.h \
+	hid/common/hidlist.h
 
 pcb_bin_LDADD = @HIDLIBS@
 pcb_bin_DEPENDENCIES = @HIDLIBS@
@@ -184,10 +185,6 @@ hid/common/hidlist.h : Makefile
 	for e in ${HIDLIST}; do \
 	  echo "HID_DEF($${e})" >> $@; \
 	done
-
-# Make needs to know this before automake builds the .deps file,
-# otherwise it won't exist the first time through.
-hid/common/hidinit.o : hid/common/hidlist.h
 
 libgtk_a_CPPFLAGS = -I./hid/gtk
 libgtk_a_SOURCES = \

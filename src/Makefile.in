@@ -245,6 +245,7 @@ YACC = @YACC@
 ac_ct_CC = @ac_ct_CC@
 ac_ct_RANLIB = @ac_ct_RANLIB@
 ac_ct_STRIP = @ac_ct_STRIP@
+ac_pt_PKG_CONFIG = @ac_pt_PKG_CONFIG@
 am__fastdepCC_FALSE = @am__fastdepCC_FALSE@
 am__fastdepCC_TRUE = @am__fastdepCC_TRUE@
 am__include = @am__include@
@@ -402,7 +403,8 @@ BUILT_SOURCES = \
 	hid/ps/ps_lists.h \
 	parse_y.h \
 	pcb-menu.h \
-	res_parse.h
+	res_parse.h \
+	hid/common/hidlist.h
 
 pcb_bin_LDADD = @HIDLIBS@
 pcb_bin_DEPENDENCIES = @HIDLIBS@
@@ -1552,10 +1554,6 @@ hid/common/hidlist.h : Makefile
 	for e in ${HIDLIST}; do \
 	  echo "HID_DEF($${e})" >> $@; \
 	done
-
-# Make needs to know this before automake builds the .deps file,
-# otherwise it won't exist the first time through.
-hid/common/hidinit.o : hid/common/hidlist.h
 
 hid/gtk/gtk_lists.h : ${libgtk_a_SOURCES} Makefile
 	true > $@
