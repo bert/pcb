@@ -34,7 +34,7 @@
 # If the first argument is "-gdb" then run PCB inside the gdb
 # debugger.  
 
-TEST_PATHS="--lib-path ../lib --lib-newlib @TOPSRCDIR@/newlib --element-path ../lib"
+TEST_PATHS="--lib-path ../lib --lib-newlib @TOPSRCDIR@/newlib --element-path ../lib --font-path @TOPSRCDIR@/src"
 TEST_CMDS="--lib-command-dir @TOPSRCDIR@/lib"
 
 unset XUSERFILESEARCHPATH
