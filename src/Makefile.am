@@ -219,6 +219,7 @@ liblesstif_a_SOURCES = \
 	dolists.h \
 	hid/hidint.h \
 	hid/lesstif/dialogs.c \
+	hid/lesstif/lesstif.h \
 	hid/lesstif/library.c \
 	hid/lesstif/main.c \
 	hid/lesstif/menu.c \
