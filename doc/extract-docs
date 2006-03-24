@@ -1,9 +1,13 @@
 #!/usr/bin/perl
 # -*- perl -*-
+#
+# $Id$
+#
 
 $docdir = shift;
 $docdir = "." unless $docdir;
 $srcdir = "$docdir/../src";
+$docdir = ".";
 
 open(FIND, "find $srcdir -type f -name '*.[chly]' -print | sort |");
 while (<FIND>) {
