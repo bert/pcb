@@ -27,12 +27,7 @@
 ##
 
 info_TEXINFOS=	pcb.texi
-pcb_TEXINFOS=	\
-	fractional_size.texi \
-	letter_size.texi \
-	metric_size.texi \
-	wire_size.texi \
-	pcbfile.texi
+pcb_TEXINFOS=	${inline_texi} ${pcb_output} ${tab_texi}
 
 dist_pkgdata_DATA=	${html_docs} ${ps_docs} ${pdf_docs}
 
@@ -43,7 +38,7 @@ ps_docs=	${info_TEXINFOS:.texi=.ps} refcard.ps
 pdf_docs=	${info_TEXINFOS:.texi=.pdf} refcard.pdf
 
 # put the html manual into 1 file instead of multiple files?
-AM_MAKEINFOHTMLFLAGS=	--css-include=pcb.css
+AM_MAKEINFOHTMLFLAGS=	--css-include=$(srcdir)/pcb.css
 
 # use this to avoid having the clean target delete pcb.{dvi,html,pdf,ps}
 # which unfortunately deletes files which are part of the distfile
@@ -55,80 +50,104 @@ EXTRA_DIST= \
 	ascii2texi.awk \
 	extract-docs \
 	refcard.tex \
-	pad.eps \
-	pad.pcb \
-	pad.pdf \
-	pad.png \
 	pcb.dvi \
 	pcb.css \
 	refcard.dvi \
-	wire_size.tab \
-	wire_size.texi \
-	letter_size.tab \
-	letter_size.texi \
-	metric_size.tab \
-	metric_size.texi \
-	fractional_size.tab \
-	fractional_size.texi \
-	pcbfile.texi
-
+	${inline_texi} \
+	${pcb_files} \
+	${pcb_output} \
+	${tab_files} \
+	${tab_texi}
 
 MAINTAINERCLEANFILES= \
 	refcard.aux refcard.dvi refcard.log refcard.pdf refcard.ps \
-	pcb.dvi pcb.html pcb.pdf pcb.ps
+	${pcb_output} ${tab_texi} ${inline_texi} pcb.dvi pcb.html pcb.pdf pcb.ps
 
-BUILT_SOURCES=	\
-	pad.eps \
-	pad.pdf \
-	pad.png \
-	wire_size.texi \
-	letter_size.texi \
-	metric_size.texi \
-	fractional_size.texi \
+BUILT_SOURCES=	${tab_texi} ${pcb_output} ${inline_texi}
+
+inline_texi=	\
 	pcbfile.texi
 
 ASCII2TEXI=	${AWK} -f $(srcdir)/ascii2texi.awk ncol=3
 
-$(srcdir)/wire_size.texi: $(srcdir)/wire_size.tab $(srcdir)/ascii2texi.awk
+# Tables
+tab_files=	\
+	fractional_size.tab \
+	letter_size.tab \
+	metric_size.tab \
+	wire_size.tab
+tab_texi=	${tab_files:.texi=.tab}
 
-$(srcdir)/letter_size.texi: $(srcdir)/letter_size.tab $(srcdir)/ascii2texi.awk
+# PCB Drawings
+pcb_files=	\
+	pad.pcb
 
-$(srcdir)/metric_size.texi: $(srcdir)/metric_size.tab $(srcdir)/ascii2texi.awk
+pcb_output=	\
+	${pcb_files:.pcb=.eps} \
+	${pcb_files:.pcb=.gif} \
+	${pcb_files:.pcb=.pdf} \
+	${pcb_files:.pcb=.png}
 
-$(srcdir)/fractional_size.texi: $(srcdir)/fractional_size.tab $(srcdir)/ascii2texi.awk
-
-TGIF_X=		XENVIRONMENT=$(srcdir)/Xdefaults.tgif ${TGIF}
-TGIF_FLAGS=	-print -color
-
-pcbfile.texi : extracted-docs
+${inline_texi} : extracted-docs
 
 .PHONY : extracted-docs
 extracted-docs :
 	perl $(srcdir)/extract-docs $(srcdir)
 
-refcard.dvi: $(srcdir)/refcard.tex
-	${LATEX} $(srcdir)/refcard.tex
-
-refcard.ps: $(srcdir)/refcard.dvi
-	${DVIPS} -Ppdf -j0 -D 300 -o $@ refcard.dvi
-
-refcard.pdf: refcard.ps
-	${PS2PDF} refcard.ps
-
-SUFFIXES = .eps .gif .pcb .pdf .png  .tab
+SUFFIXES = .dvi .eps .gif .pcb .pdf .png .ps .tab .tex
 
 .pcb.eps :
-	../src/pcb-bin -x eps $*.pcb
+	../src/pcb-bin -x eps --font-path $(top_srcdir)/src --eps-file $@ $<
 
 .pcb.gif :
-	../src/pcb-bin -x png --format GIF $*.pcb
+	../src/pcb-bin -x png --format GIF  --font-path $(top_srcdir)/src --outfile $@ $<
 
 .pcb.png :
-	../src/pcb-bin -x png $*.pcb
+	../src/pcb-bin -x png  --font-path $(top_srcdir)/src --outfile $@ $<
 
 .eps.pdf :
-	${PS2PDF} $*.eps $*.pdf
+if MISSING_PS2PDF
+	@echo "****************************************************"
+	@echo "WARNING:  ps2pdf is missing on your system but"
+	@echo "$@ is out of date and needs to rebuilt."
+	@echo "Changes to $< will be ignored"
+else
+	${PS2PDF} $< $@
+endif
 
 .tab.texi:
 	${ASCII2TEXI} $< > $@
 
+.tex.dvi:
+if MISSING_LATEX
+	@echo "****************************************************"
+	@echo "WARNING:  LaTeX is missing on your system but"
+	@echo "$@ is out of date and needs to rebuilt."
+	@echo "Changes to $< will be ignored"
+else
+	${LATEX} $<
+	${LATEX} $<
+	${LATEX} $<
+endif
+
+.dvi.ps:
+if MISSING_DVIPS
+	@echo "****************************************************"
+	@echo "WARNING:  dvips is missing on your system but"
+	@echo "$@ is out of date and needs to rebuilt."
+	@echo "Changes to $< will be ignored"
+else
+	${DVIPS} -Ppdf -j0 -D 300 -o $@ $<
+endif
+
+.tex.pdf:
+if MISSING_PDFLATEX
+	@echo "****************************************************"
+	@echo "WARNING:  pdflatex is missing on your system but"
+	@echo "$@ is out of date and needs to rebuilt."
+	@echo "Changes to $< will be ignored"
+else
+	${PDFLATEX} $<
+	${PDFLATEX} $<
+	${PDFLATEX} $<
+endif

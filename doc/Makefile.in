@@ -123,6 +123,14 @@ MAINT = @MAINT@
 MAINTAINER_MODE_FALSE = @MAINTAINER_MODE_FALSE@
 MAINTAINER_MODE_TRUE = @MAINTAINER_MODE_TRUE@
 MAKEINFO = @MAKEINFO@
+MISSING_DVIPS_FALSE = @MISSING_DVIPS_FALSE@
+MISSING_DVIPS_TRUE = @MISSING_DVIPS_TRUE@
+MISSING_LATEX_FALSE = @MISSING_LATEX_FALSE@
+MISSING_LATEX_TRUE = @MISSING_LATEX_TRUE@
+MISSING_PDFLATEX_FALSE = @MISSING_PDFLATEX_FALSE@
+MISSING_PDFLATEX_TRUE = @MISSING_PDFLATEX_TRUE@
+MISSING_PS2PDF_FALSE = @MISSING_PS2PDF_FALSE@
+MISSING_PS2PDF_TRUE = @MISSING_PS2PDF_TRUE@
 OBJEXT = @OBJEXT@
 PACKAGE = @PACKAGE@
 PACKAGE_BUGREPORT = @PACKAGE_BUGREPORT@
@@ -133,6 +141,7 @@ PACKAGE_VERSION = @PACKAGE_VERSION@
 PATH_SEPARATOR = @PATH_SEPARATOR@
 PCBLIBDIR = @PCBLIBDIR@
 PCBTREEDIR = @PCBTREEDIR@
+PDFLATEX = @PDFLATEX@
 PKG_CONFIG = @PKG_CONFIG@
 PS2PDF = @PS2PDF@
 RANLIB = @RANLIB@
@@ -178,13 +187,7 @@ sharedstatedir = @sharedstatedir@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 info_TEXINFOS = pcb.texi
-pcb_TEXINFOS = \
-	fractional_size.texi \
-	letter_size.texi \
-	metric_size.texi \
-	wire_size.texi \
-	pcbfile.texi
-
+pcb_TEXINFOS = ${inline_texi} ${pcb_output} ${tab_texi}
 dist_pkgdata_DATA = ${html_docs} ${ps_docs} ${pdf_docs}
 dist_man_MANS = pcb.1
 html_docs = ${info_TEXINFOS:.texi=.html}
@@ -192,51 +195,55 @@ ps_docs = ${info_TEXINFOS:.texi=.ps} refcard.ps
 pdf_docs = ${info_TEXINFOS:.texi=.pdf} refcard.pdf
 
 # put the html manual into 1 file instead of multiple files?
-AM_MAKEINFOHTMLFLAGS = --css-include=pcb.css
-EXTRA_DIST = \
+AM_MAKEINFOHTMLFLAGS = --css-include=$(srcdir)/pcb.css
+XXEXTRA_DIST = \
 	ascii2texi.awk \
 	extract-docs \
 	refcard.tex \
-	pad.eps \
-	pad.pcb \
-	pad.pdf \
-	pad.png \
 	pcb.dvi \
 	pcb.css \
 	refcard.dvi \
-	wire_size.tab \
-	wire_size.texi \
-	letter_size.tab \
-	letter_size.texi \
-	metric_size.tab \
-	metric_size.texi \
-	fractional_size.tab \
-	fractional_size.texi \
-	pcbfile.texi
+	${inline_texi} \
+	${pcb_files} \
+	${pcb_output} \
+	${tab_files} \
+	${tab_texi}
 
-MAINTAINERCLEANFILES = \
+XXMAINTAINERCLEANFILES = \
 	refcard.aux refcard.dvi refcard.log refcard.pdf refcard.ps \
-	pcb.dvi pcb.html pcb.pdf pcb.ps
+	${pcb_output} ${tab_texi} ${inline_texi} pcb.dvi pcb.html pcb.pdf pcb.ps
 
-BUILT_SOURCES = \
-	pad.eps \
-	pad.pdf \
-	pad.png \
-	wire_size.texi \
-	letter_size.texi \
-	metric_size.texi \
-	fractional_size.texi \
+
+#BUILT_SOURCES=	${tab_texi} ${pcb_output} ${inline_texi}
+inline_texi = \
 	pcbfile.texi
 
 ASCII2TEXI = ${AWK} -f $(srcdir)/ascii2texi.awk ncol=3
-TGIF_X = XENVIRONMENT=$(srcdir)/Xdefaults.tgif ${TGIF}
-TGIF_FLAGS = -print -color
-SUFFIXES = .eps .gif .pcb .pdf .png  .tab
-all: $(BUILT_SOURCES)
-	$(MAKE) $(AM_MAKEFLAGS) all-am
+
+# Tables
+tab_files = \
+	fractional_size.tab \
+	letter_size.tab \
+	metric_size.tab \
+	wire_size.tab
+
+tab_texi = ${tab_files:.texi=.tab}
+
+# PCB Drawings
+pcb_files = \
+	pad.pcb
+
+pcb_output = \
+	${pcb_files:.pcb=.eps} \
+	${pcb_files:.pcb=.gif} \
+	${pcb_files:.pcb=.pdf} \
+	${pcb_files:.pcb=.png}
+
+SUFFIXES = .dvi .eps .gif .pcb .pdf .png .ps .tab .tex
+all: all-am
 
 .SUFFIXES:
-.SUFFIXES: .eps .gif .pcb .pdf .png .tab .dvi .html .info .ps .texi
+.SUFFIXES: .dvi .eps .gif .pcb .pdf .png .ps .tab .tex .html .info .texi
 $(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ $(srcdir)/Makefile.am  $(am__configure_deps)
 	@for dep in $?; do \
 	  case '$(am__configure_deps)' in \
@@ -335,9 +342,6 @@ mostlyclean-vti:
 
 maintainer-clean-vti:
 @MAINTAINER_MODE_TRUE@	-rm -f $(srcdir)/stamp-vti $(srcdir)/version.texi
-.dvi.ps:
-	TEXINPUTS="$(am__TEXINFO_TEX_DIR)$(PATH_SEPARATOR)$$TEXINPUTS" \
-	$(DVIPS) -o $@ $<
 
 uninstall-info-am:
 	@$(PRE_UNINSTALL)
@@ -375,6 +379,11 @@ dist-info: $(INFO_DEPS)
 	      cp -p $$file $(distdir)/$$relfile; \
 	  done; \
 	done
+
+mostlyclean-aminfo:
+	-rm -rf pcb.aux pcb.cp pcb.cps pcb.fn pcb.fns pcb.ky pcb.kys pcb.log pcb.pg \
+	  pcb.pgs pcb.tmp pcb.toc pcb.tp pcb.tps pcb.vr pcb.vrs \
+	  pcb.dvi pcb.pdf pcb.ps pcb.html
 
 maintainer-clean-aminfo:
 	@list='$(INFO_DEPS)'; for i in $$list; do \
@@ -482,15 +491,13 @@ distdir: $(DISTFILES)
 	  top_distdir="$(top_distdir)" distdir="$(distdir)" \
 	  dist-info
 check-am: all-am
-check: $(BUILT_SOURCES)
-	$(MAKE) $(AM_MAKEFLAGS) check-am
+check: check-am
 all-am: Makefile $(INFO_DEPS) $(MANS) $(DATA)
 installdirs:
 	for dir in "$(DESTDIR)$(infodir)" "$(DESTDIR)$(man1dir)" "$(DESTDIR)$(pkgdatadir)"; do \
 	  test -z "$$dir" || $(mkdir_p) "$$dir"; \
 	done
-install: $(BUILT_SOURCES)
-	$(MAKE) $(AM_MAKEFLAGS) install-am
+install: install-am
 install-exec: install-exec-am
 install-data: install-data-am
 uninstall: uninstall-am
@@ -514,8 +521,6 @@ distclean-generic:
 maintainer-clean-generic:
 	@echo "This command is intended for maintainers to use"
 	@echo "it deletes files that may require special tools to rebuild."
-	-test -z "$(BUILT_SOURCES)" || rm -f $(BUILT_SOURCES)
-	-test -z "$(MAINTAINERCLEANFILES)" || rm -f $(MAINTAINERCLEANFILES)
 clean: clean-am
 
 clean-am: clean-generic mostlyclean-am
@@ -614,47 +619,59 @@ uninstall-man: uninstall-man1
 
 # use this to avoid having the clean target delete pcb.{dvi,html,pdf,ps}
 # which unfortunately deletes files which are part of the distfile
-mostlyclean-aminfo:
+XXmostlyclean-aminfo:
 	-rm -rf pcb.aux pcb.cp pcb.cps pcb.fn pcb.fns pcb.ky pcb.kys pcb.log pcb.pg \
 	pcb.pgs pcb.tmp pcb.toc pcb.tp pcb.tps pcb.vr pcb.vrs 
 
-$(srcdir)/wire_size.texi: $(srcdir)/wire_size.tab $(srcdir)/ascii2texi.awk
-
-$(srcdir)/letter_size.texi: $(srcdir)/letter_size.tab $(srcdir)/ascii2texi.awk
-
-$(srcdir)/metric_size.texi: $(srcdir)/metric_size.tab $(srcdir)/ascii2texi.awk
-
-$(srcdir)/fractional_size.texi: $(srcdir)/fractional_size.tab $(srcdir)/ascii2texi.awk
-
-pcbfile.texi : extracted-docs
+${inline_texi} : extracted-docs
 
 .PHONY : extracted-docs
 extracted-docs :
 	perl $(srcdir)/extract-docs $(srcdir)
 
-refcard.dvi: $(srcdir)/refcard.tex
-	${LATEX} $(srcdir)/refcard.tex
-
-refcard.ps: $(srcdir)/refcard.dvi
-	${DVIPS} -Ppdf -j0 -D 300 -o $@ refcard.dvi
-
-refcard.pdf: refcard.ps
-	${PS2PDF} refcard.ps
-
 .pcb.eps :
-	../src/pcb-bin -x eps $*.pcb
+	../src/pcb-bin -x eps --font-path $(top_srcdir)/src --eps-file $@ $<
 
 .pcb.gif :
-	../src/pcb-bin -x png --format GIF $*.pcb
+	../src/pcb-bin -x png --format GIF  --font-path $(top_srcdir)/src --outfile $@ $<
 
 .pcb.png :
-	../src/pcb-bin -x png $*.pcb
+	../src/pcb-bin -x png  --font-path $(top_srcdir)/src --outfile $@ $<
 
 .eps.pdf :
-	${PS2PDF} $*.eps $*.pdf
+@MISSING_PS2PDF_TRUE@	@echo "****************************************************"
+@MISSING_PS2PDF_TRUE@	@echo "WARNING:  ps2pdf is missing on your system but"
+@MISSING_PS2PDF_TRUE@	@echo "$@ is out of date and needs to rebuilt."
+@MISSING_PS2PDF_TRUE@	@echo "Changes to $< will be ignored"
+@MISSING_PS2PDF_FALSE@	${PS2PDF} $< $@
 
 .tab.texi:
 	${ASCII2TEXI} $< > $@
+
+.tex.dvi:
+@MISSING_LATEX_TRUE@	@echo "****************************************************"
+@MISSING_LATEX_TRUE@	@echo "WARNING:  LaTeX is missing on your system but"
+@MISSING_LATEX_TRUE@	@echo "$@ is out of date and needs to rebuilt."
+@MISSING_LATEX_TRUE@	@echo "Changes to $< will be ignored"
+@MISSING_LATEX_FALSE@	${LATEX} $<
+@MISSING_LATEX_FALSE@	${LATEX} $<
+@MISSING_LATEX_FALSE@	${LATEX} $<
+
+.dvi.ps:
+@MISSING_DVIPS_TRUE@	@echo "****************************************************"
+@MISSING_DVIPS_TRUE@	@echo "WARNING:  dvips is missing on your system but"
+@MISSING_DVIPS_TRUE@	@echo "$@ is out of date and needs to rebuilt."
+@MISSING_DVIPS_TRUE@	@echo "Changes to $< will be ignored"
+@MISSING_DVIPS_FALSE@	${DVIPS} -Ppdf -j0 -D 300 -o $@ $<
+
+.tex.pdf:
+@MISSING_PDFLATEX_TRUE@	@echo "****************************************************"
+@MISSING_PDFLATEX_TRUE@	@echo "WARNING:  pdflatex is missing on your system but"
+@MISSING_PDFLATEX_TRUE@	@echo "$@ is out of date and needs to rebuilt."
+@MISSING_PDFLATEX_TRUE@	@echo "Changes to $< will be ignored"
+@MISSING_PDFLATEX_FALSE@	${PDFLATEX} $<
+@MISSING_PDFLATEX_FALSE@	${PDFLATEX} $<
+@MISSING_PDFLATEX_FALSE@	${PDFLATEX} $<
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
 .NOEXPORT:
