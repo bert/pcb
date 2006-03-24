@@ -196,7 +196,7 @@ pdf_docs = ${info_TEXINFOS:.texi=.pdf} refcard.pdf
 
 # put the html manual into 1 file instead of multiple files?
 AM_MAKEINFOHTMLFLAGS = --css-include=$(srcdir)/pcb.css
-XXEXTRA_DIST = \
+EXTRA_DIST = \
 	ascii2texi.awk \
 	extract-docs \
 	refcard.tex \
@@ -209,12 +209,11 @@ XXEXTRA_DIST = \
 	${tab_files} \
 	${tab_texi}
 
-XXMAINTAINERCLEANFILES = \
+MAINTAINERCLEANFILES = \
 	refcard.aux refcard.dvi refcard.log refcard.pdf refcard.ps \
 	${pcb_output} ${tab_texi} ${inline_texi} pcb.dvi pcb.html pcb.pdf pcb.ps
 
-
-#BUILT_SOURCES=	${tab_texi} ${pcb_output} ${inline_texi}
+BUILT_SOURCES = ${tab_texi} ${pcb_output} ${inline_texi}
 inline_texi = \
 	pcbfile.texi
 
@@ -240,7 +239,8 @@ pcb_output = \
 	${pcb_files:.pcb=.png}
 
 SUFFIXES = .dvi .eps .gif .pcb .pdf .png .ps .tab .tex
-all: all-am
+all: $(BUILT_SOURCES)
+	$(MAKE) $(AM_MAKEFLAGS) all-am
 
 .SUFFIXES:
 .SUFFIXES: .dvi .eps .gif .pcb .pdf .png .ps .tab .tex .html .info .texi
@@ -380,11 +380,6 @@ dist-info: $(INFO_DEPS)
 	  done; \
 	done
 
-mostlyclean-aminfo:
-	-rm -rf pcb.aux pcb.cp pcb.cps pcb.fn pcb.fns pcb.ky pcb.kys pcb.log pcb.pg \
-	  pcb.pgs pcb.tmp pcb.toc pcb.tp pcb.tps pcb.vr pcb.vrs \
-	  pcb.dvi pcb.pdf pcb.ps pcb.html
-
 maintainer-clean-aminfo:
 	@list='$(INFO_DEPS)'; for i in $$list; do \
 	  i_i=`echo "$$i" | sed 's|\.info$$||;s|$$|.i|'`; \
@@ -491,13 +486,15 @@ distdir: $(DISTFILES)
 	  top_distdir="$(top_distdir)" distdir="$(distdir)" \
 	  dist-info
 check-am: all-am
-check: check-am
+check: $(BUILT_SOURCES)
+	$(MAKE) $(AM_MAKEFLAGS) check-am
 all-am: Makefile $(INFO_DEPS) $(MANS) $(DATA)
 installdirs:
 	for dir in "$(DESTDIR)$(infodir)" "$(DESTDIR)$(man1dir)" "$(DESTDIR)$(pkgdatadir)"; do \
 	  test -z "$$dir" || $(mkdir_p) "$$dir"; \
 	done
-install: install-am
+install: $(BUILT_SOURCES)
+	$(MAKE) $(AM_MAKEFLAGS) install-am
 install-exec: install-exec-am
 install-data: install-data-am
 uninstall: uninstall-am
@@ -521,6 +518,8 @@ distclean-generic:
 maintainer-clean-generic:
 	@echo "This command is intended for maintainers to use"
 	@echo "it deletes files that may require special tools to rebuild."
+	-test -z "$(BUILT_SOURCES)" || rm -f $(BUILT_SOURCES)
+	-test -z "$(MAINTAINERCLEANFILES)" || rm -f $(MAINTAINERCLEANFILES)
 clean: clean-am
 
 clean-am: clean-generic mostlyclean-am
@@ -619,7 +618,7 @@ uninstall-man: uninstall-man1
 
 # use this to avoid having the clean target delete pcb.{dvi,html,pdf,ps}
 # which unfortunately deletes files which are part of the distfile
-XXmostlyclean-aminfo:
+mostlyclean-aminfo:
 	-rm -rf pcb.aux pcb.cp pcb.cps pcb.fn pcb.fns pcb.ky pcb.kys pcb.log pcb.pg \
 	pcb.pgs pcb.tmp pcb.toc pcb.tp pcb.tps pcb.vr pcb.vrs 
 
