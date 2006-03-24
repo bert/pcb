@@ -10,6 +10,12 @@ for a branch rather than a tag is to make it easier to deal with setting
 the snapshot version number in the documentation, distfile, and the
 about dialog box.  
 
+NOTE:  Use the DISTCHECK_CONFIGURE_FLAGS to be able to run the distcheck
+target with lesstif as the built gui with
+DISTCHECK_CONFIGURE_FLAGS="--with-gui=lesstif" if you want to also verify
+that distcheck works with the lesstif HID.
+
+
 After following the steps below,
 upload the 'pcb-$VERSION.tar.gz' file to the sourceforge file release system
 
