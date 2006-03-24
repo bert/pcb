@@ -309,7 +309,7 @@ ac_includes_default="\
 # include <unistd.h>
 #endif"
 
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA CYGPATH_W PACKAGE VERSION ACLOCAL AUTOCONF AUTOMAKE AUTOHEADER MAKEINFO install_sh STRIP ac_ct_STRIP INSTALL_STRIP_PROGRAM mkdir_p AWK SET_MAKE am__leading_dot AMTAR am__tar am__untar MAINTAINER_MODE_TRUE MAINTAINER_MODE_FALSE MAINT CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT DEPDIR am__include am__quote AMDEP_TRUE AMDEP_FALSE AMDEPBACKSLASH CCDEPMODE am__fastdepCC_TRUE am__fastdepCC_FALSE CPP LEX LEXLIB LEX_OUTPUT_ROOT YACC RANLIB ac_ct_RANLIB HIDLIST HIDLIBS M4 WISH GNUM4 LATEX DVIPS PS2PDF EGREP X_CFLAGS X_PRE_LIBS X_LIBS X_EXTRA_LIBS PKG_CONFIG GTK_CFLAGS GTK_LIBS GLIB_CFLAGS GLIB_LIBS GDLIB_CONFIG FONTFILENAME PCBLIBDIR LIBRARYFILENAME PCBTREEDIR BTNMOD TOPDIRS LIBOBJS LTLIBOBJS'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA CYGPATH_W PACKAGE VERSION ACLOCAL AUTOCONF AUTOMAKE AUTOHEADER MAKEINFO install_sh STRIP ac_ct_STRIP INSTALL_STRIP_PROGRAM mkdir_p AWK SET_MAKE am__leading_dot AMTAR am__tar am__untar MAINTAINER_MODE_TRUE MAINTAINER_MODE_FALSE MAINT CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT DEPDIR am__include am__quote AMDEP_TRUE AMDEP_FALSE AMDEPBACKSLASH CCDEPMODE am__fastdepCC_TRUE am__fastdepCC_FALSE CPP LEX LEXLIB LEX_OUTPUT_ROOT YACC RANLIB ac_ct_RANLIB HIDLIST HIDLIBS M4 WISH GNUM4 LATEX MISSING_LATEX_TRUE MISSING_LATEX_FALSE PDFLATEX MISSING_PDFLATEX_TRUE MISSING_PDFLATEX_FALSE DVIPS MISSING_DVIPS_TRUE MISSING_DVIPS_FALSE PS2PDF MISSING_PS2PDF_TRUE MISSING_PS2PDF_FALSE EGREP X_CFLAGS X_PRE_LIBS X_LIBS X_EXTRA_LIBS PKG_CONFIG GTK_CFLAGS GTK_LIBS GLIB_CFLAGS GLIB_LIBS GDLIB_CONFIG FONTFILENAME PCBLIBDIR LIBRARYFILENAME PCBTREEDIR BTNMOD TOPDIRS LIBOBJS LTLIBOBJS'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -3813,8 +3813,8 @@ if test "${with_exporters+set}" = set; then
 else
   with_exporters=$hid_exporters
 fi;
-echo "$as_me:$LINENO: result: $with_exporter" >&5
-echo "${ECHO_T}$with_exporter" >&6
+echo "$as_me:$LINENO: result: $with_exporters" >&5
+echo "${ECHO_T}$with_exporters" >&6
 for e in `echo $with_exporters | sed 's/,/ /g'`; do
     case " $hid_exporters " in
       *\ $e\ * )
@@ -3953,6 +3953,7 @@ cat >>confdefs.h <<_ACEOF
 #define GNUM4 "$M4"
 _ACEOF
 
+
 for ac_prog in latex
 do
   # Extract the first word of "$ac_prog", so it can be a program name with args.
@@ -3992,6 +3993,70 @@ fi
 
   test -n "$LATEX" && break
 done
+test -n "$LATEX" || LATEX="notfound"
+
+
+
+if test x$LATEX = xnotfound; then
+  MISSING_LATEX_TRUE=
+  MISSING_LATEX_FALSE='#'
+else
+  MISSING_LATEX_TRUE='#'
+  MISSING_LATEX_FALSE=
+fi
+
+
+for ac_prog in pdflatex
+do
+  # Extract the first word of "$ac_prog", so it can be a program name with args.
+set dummy $ac_prog; ac_word=$2
+echo "$as_me:$LINENO: checking for $ac_word" >&5
+echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6
+if test "${ac_cv_prog_PDFLATEX+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  if test -n "$PDFLATEX"; then
+  ac_cv_prog_PDFLATEX="$PDFLATEX" # Let the user override the test.
+else
+as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+  for ac_exec_ext in '' $ac_executable_extensions; do
+  if $as_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
+    ac_cv_prog_PDFLATEX="$ac_prog"
+    echo "$as_me:$LINENO: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+done
+
+fi
+fi
+PDFLATEX=$ac_cv_prog_PDFLATEX
+if test -n "$PDFLATEX"; then
+  echo "$as_me:$LINENO: result: $PDFLATEX" >&5
+echo "${ECHO_T}$PDFLATEX" >&6
+else
+  echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6
+fi
+
+  test -n "$PDFLATEX" && break
+done
+test -n "$PDFLATEX" || PDFLATEX="notfound"
+
+
+
+if test x$PDFLATEX = xnotfound; then
+  MISSING_PDFLATEX_TRUE=
+  MISSING_PDFLATEX_FALSE='#'
+else
+  MISSING_PDFLATEX_TRUE='#'
+  MISSING_PDFLATEX_FALSE=
+fi
+
 
 for ac_prog in dvips
 do
@@ -4032,6 +4097,18 @@ fi
 
   test -n "$DVIPS" && break
 done
+test -n "$DVIPS" || DVIPS="notfound"
+
+
+
+if test x$DVIPS = xnotfound; then
+  MISSING_DVIPS_TRUE=
+  MISSING_DVIPS_FALSE='#'
+else
+  MISSING_DVIPS_TRUE='#'
+  MISSING_DVIPS_FALSE=
+fi
+
 
 for ac_prog in ps2pdf
 do
@@ -4072,6 +4149,17 @@ fi
 
   test -n "$PS2PDF" && break
 done
+test -n "$PS2PDF" || PS2PDF="notfound"
+
+
+
+if test x$PS2PDF = xnotfound; then
+  MISSING_PS2PDF_TRUE=
+  MISSING_PS2PDF_FALSE='#'
+else
+  MISSING_PS2PDF_TRUE='#'
+  MISSING_PS2PDF_FALSE=
+fi
 
 
 
@@ -7632,6 +7720,8 @@ if test -d $srcdir/lib; then
 
              ac_config_files="$ac_config_files lib/CreateLibrary.sh"
 
+             ac_config_files="$ac_config_files lib/ListLibraryContents.sh"
+
              ac_config_files="$ac_config_files lib/Makefile"
 
              ac_config_files="$ac_config_files lib/QueryLibrary.sh"
@@ -7795,6 +7885,34 @@ if test -z "${am__fastdepCC_TRUE}" && test -z "${am__fastdepCC_FALSE}"; then
   { { echo "$as_me:$LINENO: error: conditional \"am__fastdepCC\" was never defined.
 Usually this means the macro was only invoked conditionally." >&5
 echo "$as_me: error: conditional \"am__fastdepCC\" was never defined.
+Usually this means the macro was only invoked conditionally." >&2;}
+   { (exit 1); exit 1; }; }
+fi
+if test -z "${MISSING_LATEX_TRUE}" && test -z "${MISSING_LATEX_FALSE}"; then
+  { { echo "$as_me:$LINENO: error: conditional \"MISSING_LATEX\" was never defined.
+Usually this means the macro was only invoked conditionally." >&5
+echo "$as_me: error: conditional \"MISSING_LATEX\" was never defined.
+Usually this means the macro was only invoked conditionally." >&2;}
+   { (exit 1); exit 1; }; }
+fi
+if test -z "${MISSING_PDFLATEX_TRUE}" && test -z "${MISSING_PDFLATEX_FALSE}"; then
+  { { echo "$as_me:$LINENO: error: conditional \"MISSING_PDFLATEX\" was never defined.
+Usually this means the macro was only invoked conditionally." >&5
+echo "$as_me: error: conditional \"MISSING_PDFLATEX\" was never defined.
+Usually this means the macro was only invoked conditionally." >&2;}
+   { (exit 1); exit 1; }; }
+fi
+if test -z "${MISSING_DVIPS_TRUE}" && test -z "${MISSING_DVIPS_FALSE}"; then
+  { { echo "$as_me:$LINENO: error: conditional \"MISSING_DVIPS\" was never defined.
+Usually this means the macro was only invoked conditionally." >&5
+echo "$as_me: error: conditional \"MISSING_DVIPS\" was never defined.
+Usually this means the macro was only invoked conditionally." >&2;}
+   { (exit 1); exit 1; }; }
+fi
+if test -z "${MISSING_PS2PDF_TRUE}" && test -z "${MISSING_PS2PDF_FALSE}"; then
+  { { echo "$as_me:$LINENO: error: conditional \"MISSING_PS2PDF\" was never defined.
+Usually this means the macro was only invoked conditionally." >&5
+echo "$as_me: error: conditional \"MISSING_PS2PDF\" was never defined.
 Usually this means the macro was only invoked conditionally." >&2;}
    { (exit 1); exit 1; }; }
 fi
@@ -8249,6 +8367,7 @@ do
   "example/libraries/Makefile" ) CONFIG_FILES="$CONFIG_FILES example/libraries/Makefile" ;;
   "lib/CreateLibraryContents.sh" ) CONFIG_FILES="$CONFIG_FILES lib/CreateLibraryContents.sh" ;;
   "lib/CreateLibrary.sh" ) CONFIG_FILES="$CONFIG_FILES lib/CreateLibrary.sh" ;;
+  "lib/ListLibraryContents.sh" ) CONFIG_FILES="$CONFIG_FILES lib/ListLibraryContents.sh" ;;
   "lib/Makefile" ) CONFIG_FILES="$CONFIG_FILES lib/Makefile" ;;
   "lib/QueryLibrary.sh" ) CONFIG_FILES="$CONFIG_FILES lib/QueryLibrary.sh" ;;
   "lib/qfp-ui" ) CONFIG_FILES="$CONFIG_FILES lib/qfp-ui" ;;
@@ -8413,8 +8532,17 @@ s,@M4@,$M4,;t t
 s,@WISH@,$WISH,;t t
 s,@GNUM4@,$GNUM4,;t t
 s,@LATEX@,$LATEX,;t t
+s,@MISSING_LATEX_TRUE@,$MISSING_LATEX_TRUE,;t t
+s,@MISSING_LATEX_FALSE@,$MISSING_LATEX_FALSE,;t t
+s,@PDFLATEX@,$PDFLATEX,;t t
+s,@MISSING_PDFLATEX_TRUE@,$MISSING_PDFLATEX_TRUE,;t t
+s,@MISSING_PDFLATEX_FALSE@,$MISSING_PDFLATEX_FALSE,;t t
 s,@DVIPS@,$DVIPS,;t t
+s,@MISSING_DVIPS_TRUE@,$MISSING_DVIPS_TRUE,;t t
+s,@MISSING_DVIPS_FALSE@,$MISSING_DVIPS_FALSE,;t t
 s,@PS2PDF@,$PS2PDF,;t t
+s,@MISSING_PS2PDF_TRUE@,$MISSING_PS2PDF_TRUE,;t t
+s,@MISSING_PS2PDF_FALSE@,$MISSING_PS2PDF_FALSE,;t t
 s,@EGREP@,$EGREP,;t t
 s,@X_CFLAGS@,$X_CFLAGS,;t t
 s,@X_PRE_LIBS@,$X_PRE_LIBS,;t t

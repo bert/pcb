@@ -73,7 +73,7 @@ AC_MSG_CHECKING([for which exporters to use])
 AC_ARG_WITH([exporters],
 [  --with-exporters=		Enable export devices:] $hid_exporters,
 [],[with_exporters=$hid_exporters])
-AC_MSG_RESULT([$with_exporter])
+AC_MSG_RESULT([$with_exporters])
 for e in `echo $with_exporters | sed 's/,/ /g'`; do
     case " $hid_exporters " in
       *\ $e\ * )
@@ -108,9 +108,18 @@ AC_DEFINE_UNQUOTED(M4,$M4,[m4 executible])
 GNUM4=$M4
 AC_SUBST(GNUM4)
 AC_DEFINE_UNQUOTED(GNUM4,"$M4",[m4 program used by pcb])
-AC_CHECK_PROGS(LATEX, latex)
-AC_CHECK_PROGS(DVIPS, dvips)
-AC_CHECK_PROGS(PS2PDF, ps2pdf)
+
+AC_CHECK_PROGS(LATEX, latex, notfound)
+AM_CONDITIONAL(MISSING_LATEX, test x$LATEX = xnotfound)
+
+AC_CHECK_PROGS(PDFLATEX, pdflatex, notfound)
+AM_CONDITIONAL(MISSING_PDFLATEX, test x$PDFLATEX = xnotfound)
+
+AC_CHECK_PROGS(DVIPS, dvips, notfound)
+AM_CONDITIONAL(MISSING_DVIPS, test x$DVIPS = xnotfound)
+
+AC_CHECK_PROGS(PS2PDF, ps2pdf, notfound)
+AM_CONDITIONAL(MISSING_PS2PDF, test x$PS2PDF = xnotfound)
 
 dnl Checks for libraries.
 AC_CHECK_LIB(m, sqrt)
@@ -250,6 +259,7 @@ fi
 if test -d $srcdir/lib; then
    AC_CONFIG_FILES(lib/CreateLibraryContents.sh)
    AC_CONFIG_FILES(lib/CreateLibrary.sh)
+   AC_CONFIG_FILES(lib/ListLibraryContents.sh)
    AC_CONFIG_FILES(lib/Makefile)
    AC_CONFIG_FILES(lib/QueryLibrary.sh)
    AC_CONFIG_FILES(lib/qfp-ui)
