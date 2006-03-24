@@ -2530,7 +2530,7 @@ layer_enable_button_cb (GtkWidget * widget, gpointer data)
       break;
     }
   if (redraw)
-    UpdateAll ();
+    ghid_invalidate_all();
 }
 
 static void
@@ -3586,12 +3586,8 @@ ghid_make_gc (void)
   hidGC rv;
 
   rv = g_new0 (hid_gc_struct, 1);
-  if (rv == NULL)
-    {
-      fprintf (stderr, "gui-top-window.c: ghid_make_gc():  malloc failed\n");
-      exit (1);
-    }
   rv->me_pointer = &ghid_hid;
+  rv->colorname = Settings.BackgroundColor;
   return rv;
 }
 
