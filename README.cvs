@@ -26,12 +26,27 @@ In addition, if you make any edits to configure.ac or any of the
 Makefile.am's, you will need recent versions of:
 
 autoconf  -- ftp://ftp.gnu.org/pub/gnu/autoconf/
-             Please note that version 2.13 is too old.
-automake  -- ftp://ftp.gnu.org/pub/gnu/automake/
-texinfo   -- ftp://ftp.gnu.org/pub/gnu/texinfo/
+             Please note that version 2.13 is too old.  Current development
+             is done with 2.59.
 
-You can find the version of autoconf and automake by running them with the 
+automake  -- ftp://ftp.gnu.org/pub/gnu/automake/
+             The developers use the 1.9.* versions of automake.  Older versions
+             have not been as well tested (or tested at all).
+
+texinfo   -- ftp://ftp.gnu.org/pub/gnu/texinfo/
+             You will need at least version 4.6 to be able to build
+             the documentation.
+
+You can find the version of autoconf, automake, and makeinfo by running them with the 
 --version flag.
+
+If you do not wish to build the documentation, use --disable-doc when you run
+configure.  If you do wish to build the documentation, you should enable
+maintainer-mode (--enable-maintainer-mode) which will turn on various
+dependency rules for documentation building.  Please note that maintainer-mode
+is only needed when building documentation from cvs sources.  If you are
+building from a distfile that is not needed (and neither is this document).
+
 
 Finally, if you edit any of the actions identified by 
 /* ACTION(Foo,ActionFoo) */

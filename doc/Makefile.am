@@ -27,9 +27,21 @@
 ##
 
 info_TEXINFOS=	pcb.texi
-pcb_TEXINFOS=	${inline_texi} ${pcb_output} ${tab_texi}
 
-dist_pkgdata_DATA=	${html_docs} ${ps_docs} ${pdf_docs}
+# We avoid adding all the dependencies except in maintainer mode.  This is
+# because the automake team feels that you should not require the user
+# to have makeinfo and friends installed just to build the package.
+# This seems reasonable.  Because of that, the documentation must be
+# built in the source directory so it can be found when creating a distfile
+# and this means you can't build outside the source tree with a read-only
+# source.  So, ignore the dependencies unless we're in maintainer mode
+# but be sure and put the generated files in the distfile via EXTRA_DIST
+# and dist_pkgdata_DATA.  Also this helps us avoid problem with users
+# having various out of date versions of the texinfo package installed
+# which can have all sorts of issues.
+pcb_TEXINFOS=	@MAINTAINER_MODE_TRUE@ ${inline_texi} ${pcb_output} ${tab_texi}
+
+dist_pkgdata_DATA=	${html_docs} ${ps_docs} ${pdf_docs} ${pcb_output}
 
 dist_man_MANS=	pcb.1
 
@@ -55,7 +67,6 @@ EXTRA_DIST= \
 	refcard.dvi \
 	${inline_texi} \
 	${pcb_files} \
-	${pcb_output} \
 	${tab_files} \
 	${tab_texi}
 
@@ -63,7 +74,7 @@ MAINTAINERCLEANFILES= \
 	refcard.aux refcard.dvi refcard.log refcard.pdf refcard.ps \
 	${pcb_output} ${tab_texi} ${inline_texi} pcb.dvi pcb.html pcb.pdf pcb.ps
 
-BUILT_SOURCES=	${tab_texi} ${pcb_output} ${inline_texi}
+BUILT_SOURCES=	@MAINTAINER_MODE_TRUE@ ${tab_texi} ${pcb_output} ${inline_texi}
 
 inline_texi=	\
 	pcbfile.texi
@@ -90,9 +101,12 @@ pcb_output=	\
 
 ${inline_texi} : extracted-docs
 
+# no need to build these when not in maintainer mode.  They're not used then
+# anyway.
 .PHONY : extracted-docs
 extracted-docs :
-	perl $(srcdir)/extract-docs $(srcdir)
+	@MAINTAINER_MODE_TRUE@perl $(srcdir)/extract-docs $(srcdir)
+	@MAINTAINER_MODE_FALSE@@echo "Skipping documentation extraction since you are not in maintainer-mode"
 
 SUFFIXES = .dvi .eps .gif .pcb .pdf .png .ps .tab .tex
 

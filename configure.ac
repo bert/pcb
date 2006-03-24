@@ -18,6 +18,61 @@ AC_PROG_YACC
 AC_PROG_INSTALL
 AC_PROG_RANLIB
 
+docs_yesno=yes
+
+AC_MSG_CHECKING([if the documentation should be built])
+AC_ARG_ENABLE([doc],
+[  --enable-doc            Build and install the documentation [[default=yes]]],
+[
+if test "X$enable_doc" = "Xno" ; then
+        DOC=""
+        AC_MSG_RESULT([no])
+        docs_yesno=no
+else
+        DOC=doc
+        AC_MSG_RESULT([yes])
+        docs_yesno=yes
+fi
+],
+[
+DOC=doc
+AC_MSG_RESULT([yes])
+docs_yesno=yes
+])
+AC_SUBST(DOC)
+
+if test "X$docs_yesno" = "Xyes" -a "X$USE_MAINTAINER_MODE" = "Xyes" ; then
+	AC_CHECK_PROGS(MKINFO, makeinfo, notfound)
+	if test "X$MKINFO" = "Xnotfound"; then
+			AC_MSG_ERROR([You have requested a maintainer-mode build and a build
+of the documentation.  For this to work, you must have version 4.6 or newer of
+the GNU texinfo package.
+])
+	fi
+   AC_MSG_CHECKING([for makeinfo version 4.6 or newer])
+   v=`$MKINFO --version | grep "GNU texinfo"`
+   if test $? -ne 0 ; then
+		v=notfound
+   fi
+
+	case " $v " in
+		*\ 4.[[6-9]]\ *)
+			AC_MSG_RESULT([yes])
+			;;
+
+		*)
+			AC_MSG_RESULT([no])
+			AC_MSG_ERROR([You have requested a maintainer-mode build and a build
+of the documentation.  For this to work, you must have version 4.6 or newer of
+the GNU texinfo package.  You seem to have
+
+$v
+
+])
+			;;
+	esac
+fi
+
 # ------------- HID config -------------------
 
 hid_guis=""
@@ -42,7 +97,7 @@ done
 
 AC_MSG_CHECKING([for which gui to use])
 AC_ARG_WITH([gui],
-[  --with-gui=	Specify the GUI to use: $hid_guis],
+[  --with-gui=	          Specify the GUI to use: $hid_guis],
 [],
 [with_gui=gtk]
 )
@@ -59,7 +114,7 @@ fi
 
 AC_MSG_CHECKING([for which printer to use])
 AC_ARG_WITH([printer],
-[  --with-printer=	Specify the printer: $hid_printers],
+[  --with-printer= 	  Specify the printer: $hid_printers],
 [],[with_printer=lpr])
 AC_MSG_RESULT([$with_printer])
 case " $hid_printers " in
@@ -71,7 +126,7 @@ esac
 
 AC_MSG_CHECKING([for which exporters to use])
 AC_ARG_WITH([exporters],
-[  --with-exporters=		Enable export devices:] $hid_exporters,
+[  --with-exporters=       Enable export devices:] $hid_exporters,
 [],[with_exporters=$hid_exporters])
 AC_MSG_RESULT([$with_exporters])
 for e in `echo $with_exporters | sed 's/,/ /g'`; do
@@ -195,7 +250,21 @@ This is needed for the png HID.
 	AC_MSG_CHECKING([for libgd libs])
 	GD_LIBS="`$GDLIB_CONFIG --ldflags` `$GDLIB_CONFIG --libs` -lgd"
 	AC_MSG_RESULT([$GD_LIBS])
-	;;
+   
+	# since some linux systems evidently install gdlib-config but fail to
+	# install the headers (nice), check for the header too and fail if it
+	# is not there.
+	AC_CHECK_HEADERS(gd.h)
+	case $ac_cv_header_gd_h in
+	     no )
+		AC_MSG_ERROR([
+You evidentally do not have a complete installation of the GD library available from www.boutell.com/gd.
+This is needed for the png HID.
+])
+		;;
+	     * ) ;;
+	esac
+
     esac
 done
 
@@ -301,8 +370,9 @@ AC_MSG_RESULT([
 ** Configuration summary for $PACKAGE $VERSION:
 
    GUI:                      $with_gui
-   Printer:		     $with_printer
-   Exporters:		     $with_exporters
+   Printer:                  $with_printer
+   Exporters:                $with_exporters
+   Build documentation:      $docs_yesno
    CPPFLAGS:                 $CPPFLAGS
    CFLAGS:                   $CFLAGS
    LIBS:                     $LIBS
