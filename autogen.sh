@@ -25,9 +25,7 @@ echo "Running autoconf..."
 autoconf || exit 1
 echo "Done with autoconf"
 
-echo "Running ./configure $@"
-./configure $@ || exit 1
-echo "Done with configure"
+echo "You must now run configure"
 
 echo "All done with autogen.sh"
 
