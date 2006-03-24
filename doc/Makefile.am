@@ -76,7 +76,7 @@ tab_files=	\
 	letter_size.tab \
 	metric_size.tab \
 	wire_size.tab
-tab_texi=	${tab_files:.texi=.tab}
+tab_texi=	${tab_files:.tab=.texi}
 
 # PCB Drawings
 pcb_files=	\
