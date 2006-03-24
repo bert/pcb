@@ -858,9 +858,9 @@ Optional Features:
 Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
   --without-PACKAGE       do not use PACKAGE (same as --with-PACKAGE=no)
-  --with-gui=	          Specify the GUI to use: $hid_guis
-  --with-printer= 	  Specify the printer: $hid_printers
-  --with-exporters=       Enable export devices: $hid_exporters
+  --with-gui=	          Specify the GUI to use: gtk lesstif [default=gtk]
+  --with-printer= 	  Specify the printer: lpr [default=lpr]
+  --with-exporters=       Enable export devices: bom gerber png ps [default=bom gerber png ps]
   --with-x                use the X Window System
 
 Some influential environment variables:

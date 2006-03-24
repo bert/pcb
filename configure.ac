@@ -97,7 +97,7 @@ done
 
 AC_MSG_CHECKING([for which gui to use])
 AC_ARG_WITH([gui],
-[  --with-gui=	          Specify the GUI to use: $hid_guis],
+[  --with-gui=	          Specify the GUI to use: gtk lesstif [[default=gtk]]],
 [],
 [with_gui=gtk]
 )
@@ -114,7 +114,7 @@ fi
 
 AC_MSG_CHECKING([for which printer to use])
 AC_ARG_WITH([printer],
-[  --with-printer= 	  Specify the printer: $hid_printers],
+[  --with-printer= 	  Specify the printer: lpr [[default=lpr]]],
 [],[with_printer=lpr])
 AC_MSG_RESULT([$with_printer])
 case " $hid_printers " in
@@ -126,7 +126,7 @@ esac
 
 AC_MSG_CHECKING([for which exporters to use])
 AC_ARG_WITH([exporters],
-[  --with-exporters=       Enable export devices:] $hid_exporters,
+[  --with-exporters=       Enable export devices: bom gerber png ps [[default=bom gerber png ps]]],
 [],[with_exporters=$hid_exporters])
 AC_MSG_RESULT([$with_exporters])
 for e in `echo $with_exporters | sed 's/,/ /g'`; do
