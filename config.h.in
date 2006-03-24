@@ -9,6 +9,9 @@
 /* Define to 1 if you have the `expf' function. */
 #undef HAVE_EXPF
 
+/* Define to 1 if you have the <gd.h> header file. */
+#undef HAVE_GD_H
+
 /* Define to 1 if you have the <inttypes.h> header file. */
 #undef HAVE_INTTYPES_H
 
