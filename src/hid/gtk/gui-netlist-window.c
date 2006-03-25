@@ -63,7 +63,8 @@
 
 RCSID ("$Id$");
 
-static GtkWidget *netlist_window;
+static GtkWidget	*netlist_window;
+static GtkWidget	*disable_all_button;
 
 static GtkTreeModel *node_model;
 static GtkTreeView *node_treeview;
@@ -609,7 +610,7 @@ ghid_netlist_window_show (GHidPort * out)
   g_signal_connect (G_OBJECT (button), "clicked",
 		    G_CALLBACK (netlist_select_cb), GINT_TO_POINTER (0));
 
-  ghid_check_button_connected (vbox, NULL, FALSE, TRUE, FALSE,
+  ghid_check_button_connected (vbox, &disable_all_button, FALSE, TRUE, FALSE,
 			       FALSE, 0, netlist_disable_all_cb, NULL,
 			       _("Disable all nets for adding rats"));
 
@@ -800,6 +801,7 @@ NetlistChanged (int argc, char **argv, int x, int y)
 {
 	loading_new_netlist = TRUE;
   ghid_netlist_window_update (TRUE);
+	gtk_toggle_button_set_active(disable_all_button, FALSE);
 	loading_new_netlist = FALSE;
   return 0;
 }
