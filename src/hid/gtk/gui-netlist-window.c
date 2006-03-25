@@ -799,10 +799,11 @@ ghid_netlist_window_update (gboolean init_nodes)
 static gint
 NetlistChanged (int argc, char **argv, int x, int y)
 {
-	loading_new_netlist = TRUE;
+  loading_new_netlist = TRUE;
   ghid_netlist_window_update (TRUE);
-	gtk_toggle_button_set_active(disable_all_button, FALSE);
-	loading_new_netlist = FALSE;
+  gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (disable_all_button),
+				FALSE);
+  loading_new_netlist = FALSE;
   return 0;
 }
 
