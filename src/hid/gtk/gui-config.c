@@ -611,7 +611,8 @@ parse_optionv (gint * argc, gchar *** argv, gboolean from_cmd_line)
 		}
 	      (*argc)--;
 	      (*argv)++;
-	      break;
+	      ha = 0;
+	      goto got_match;
 	    }
 	  if (a < ha->attributes + ha->n)
 	    matched = TRUE;
@@ -627,6 +628,7 @@ parse_optionv (gint * argc, gchar *** argv, gboolean from_cmd_line)
 //                              ghid_log("unrecognized option: %s\n", (*argv)[0]);
 	    fprintf (stderr, "unrecognized option: %s\n", (*argv)[0]);
 	}
+    got_match:;
     }
   (*argc)++;
   (*argv)--;
