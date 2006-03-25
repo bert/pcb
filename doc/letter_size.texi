@@ -1,0 +1,16 @@
+@c Generated file.  Do not edit directly
+@c $Id$
+@multitable @columnfractions 0.167 0.167 0.167 0.167 0.167 0.167 
+@item Drill @tab Diameter @tab Drill @tab Diameter @tab Drill @tab Diameter 
+@item Size @tab (inches) @tab Size @tab (inches) @tab Size @tab (inches) 
+
+@item A @tab .2340 @tab B @tab .2380 @tab C @tab .2420 
+@item D @tab .2460 @tab E @tab .2500 @tab F @tab .2570 
+@item G @tab .2610 @tab H @tab .2660 @tab I @tab .2720 
+@item J @tab .2770 @tab K @tab .2810 @tab L @tab .2900 
+@item M @tab .2950 @tab N @tab .3020 @tab O @tab .3160 
+@item P @tab .3230 @tab Q @tab .3320 @tab R @tab .3390 
+@item S @tab .3480 @tab T @tab .3580 @tab U @tab .3680 
+@item V @tab .3770 @tab W @tab .3860 @tab X @tab .3970 
+@item Y @tab .4040 @tab Z @tab .4130 @tab @tab @end multitable
+

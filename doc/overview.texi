@@ -1,0 +1,16 @@
+Pcb is a printed circuit board layout editor.  
+
+- Up to 8 copper layer designs
+- RS-274-X (Gerber) output
+- NC Drill output
+- Centroid (X-Y) data output
+- Postscript and Encapsulated Postscript output
+- Autorouter
+- Trace optimizer
+- Rats nest
+- Design Rule Checker (DRC)
+- Connectivity verification 
+- Free Software
+- Can interoperate with free schematic capture tools such as gEDA and
+  xcircuit
+

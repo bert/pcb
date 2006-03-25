@@ -1,0 +1,716 @@
+
+A special note about units: Older versions of @code{pcb} used mils
+(1/1000 inch) as the base unit; a value of 500 in the file meant
+half an inch.  Newer versions uses a "high resolution" syntax,
+where the base unit is 1/100 of a mil (0.000010 inch); a value of 500 in
+the file means 5 mils.  As a general rule, the variants of each entry
+listed below which use square brackets are the high resolution formats
+and use the 1/100 mil units, and the ones with parentheses are the older
+variants and use 1 mil units.  Note that when multiple variants
+are listed, the most recent (and most preferred) format is the first
+listed.
+
+Symbolic and numeric flags (SFlags and NFlags) are described in
+@ref{Object Flags}.
+
+
+@cartouche
+@format
+Arc [X Y Width Height Thickness Clearance StartAngle DeltaAngle SFlags]
+Arc (X Y Width Height Thickness Clearance StartAngle DeltaAngle NFlags)
+Arc (X Y Width Height Thickness StartAngle DeltaAngle NFlags)
+@end format
+@end cartouche
+
+@table @var
+@item X Y
+Coordinates of the center of the arc.
+@item Width Height
+The width and height, from the center to the edge.  The bounds of the
+circle of which this arc is a segment, is thus @math{2*Width} by
+@math{2*Height}.
+@item Thickness
+The width of the copper trace which forms the arc.
+@item Clearance
+The amount of space cleared around the arc when the line passes
+through a polygon.  The clearance is added to the thickness to get the
+thickness of the clear; thus the space between the arc and the polygon
+is @math{Clearance/2} wide.
+@item StartAngle
+The angle of one end of the arc, in degrees.  In PCB, an angle of zero
+points left (negative X direction), and 90 degrees points down
+(positive Y direction).
+@item DeltaAngle
+The sweep of the arc.  This may be negative.  Positive angles sweep
+counterclockwise.
+@item SFlags
+Symbolic or numeric flags.
+@item NFlags
+Numeric flags.
+@end table
+
+
+@cartouche
+@format
+Connect ("PinPad")
+@end format
+@end cartouche
+
+@table @var
+@item PinPad
+The name of a pin or pad which is included in this net.  Pin and Pad
+names are named by the refdes and pin name, like @code{"U14-7"} for
+pin 7 of U14, or @code{"T4-E"} for pin E of T4.
+@end table
+
+
+@cartouche
+@format
+Cursor [X Y Zoom]
+Cursor (X Y Zoom)
+@end format
+@end cartouche
+
+@table @var
+@item X Y
+Location of the cursor when the board was saved.
+@item Zoom
+The current zoom factor.  Note that a zoom factor of "0" means 1 mil
+per screen pixel, N means @math{2^N} mils per screen pixel, etc.  The
+first variant accepts floating point numbers.  The special value
+"1000" means "zoom to fit"
+@end table
+
+
+@cartouche
+@format
+DRC [Bloat Shrink Line Silk Drill Ring]
+DRC [Bloat Shrink Line Silk]
+DRC [Bloat Shrink Line]
+@end format
+@end cartouche
+
+@table @var
+@item Bloat
+Minimum spacing between copper.
+@item Shrink
+Minimum copper overlap to guarantee connectivity.
+@item Line
+Minimum line thickness.
+@item Silk
+Minimum silk thickness.
+@item Drill
+Minimum drill size.
+@item Ring
+Minimum width of the annular ring around pins and vias.
+@end table
+
+
+@cartouche
+@format
+Element [SFlags "Desc" "Name" "Value" MX MY TX TY TDir TScale TSFlags] (
+Element (NFlags "Desc" "Name" "Value" MX MY TX TY TDir TScale TNFlags) (
+Element (NFlags "Desc" "Name" "Value" TX TY TDir TScale TNFlags) (
+Element (NFlags "Desc" "Name" TX TY TDir TScale TNFlags) (
+Element ("Desc" "Name" TX TY TDir TScale TNFlags) (
+@ @ @ @dots{} contents @dots{}
+)
+@end format
+@end cartouche
+
+@table @var
+@item SFlags
+Symbolic or numeric flags, for the element as a whole.
+@item NFlags
+Numeric flags, for the element as a whole.
+@item Desc
+The description of the element.  This is one of the three strings
+which can be displayed on the screen.
+@item Name
+The name of the element, usually the reference designator.
+@item Value
+The value of the element.
+@item MX MY
+The location of the element's mark.  This is the reference point
+for placing the element and its pins and pads.
+@item TX TY
+The upper left corner of the text (one of the three strings).
+@item TDir
+The relative direction of the text.  0 means left to right for
+an unrotated element, 1 means up, 2 left, 3 down.
+@item TScale
+Size of the text, as a percentage of the ``default'' size of of the
+font (the default font is about 40 mils high).  Default is 100 (40
+mils).
+@item TSFlags
+Symbolic or numeric flags, for the text.
+@item TNFlags
+Numeric flags, for the text.
+@end table
+
+Elements may contain pins, pads, element lines, element arcs, and (for
+older elements) an optional mark.  Note that element definitions that
+have the mark coordinates in the element line, only support pins and
+pads which use relative coordinates.  The pin and pad coordinates are
+relative to the mark.  Element definitions which do not include the
+mark coordinates in the element line, may have a Mark definition in
+their contents, and only use pin and pad definitions which use
+absolute coordinates.
+
+
+@cartouche
+@format
+ElementArc [X Y Width Height StartAngle DeltaAngle Thickness]
+ElementArc (X Y Width Height StartAngle DeltaAngle Thickness)
+@end format
+@end cartouche
+
+@table @var
+@item X Y
+Coordinates of the center of the arc.  These are relative to the
+Element's mark point for new element formats, or absolute for older
+formats.
+@item Width Height
+The width and height, from the center to the edge.  The bounds of the
+circle of which this arc is a segment, is thus @math{2*Width} by
+@math{2*Height}.
+@item StartAngle
+The angle of one end of the arc, in degrees.  In PCB, an angle of zero
+points left (negative X direction), and 90 degrees points down
+(positive Y direction).
+@item DeltaAngle
+The sweep of the arc.  This may be negative.  Positive angles sweep
+counterclockwise.
+@item Thickness
+The width of the silk line which forms the arc.
+@end table
+
+
+@cartouche
+@format
+ElementLine [X1 Y1 X2 Y2 Thickness]
+ElementLine (X1 Y1 X2 Y2 Thickness)
+@end format
+@end cartouche
+
+@table @var
+@item X1 Y1 X2 Y2
+Coordinates of the endpoints of the line.  These are relative to the
+Element's mark point for new element formats, or absolute for older
+formats.
+@item Thickness
+The width of the silk for this line.
+@end table
+
+
+@cartouche
+@format
+Flags(Number)
+@end format
+@end cartouche
+
+@table @var
+@item Number
+A number, whose value is normally given in hex, individual bits of which
+represent pcb-wide flags as defined in @ref{PCBFlags}.
+
+@end table
+
+
+@cartouche
+@format
+Grid [Step OffsetX OffsetY Visible]
+Grid (Step OffsetX OffsetY Visible)
+Grid (Step OffsetX OffsetY)
+@end format
+@end cartouche
+
+@table @var
+@item Step
+Distance from one grid point to adjacent points.  This value may be a
+floating point number for the first two variants.
+@item OffsetX OffsetY
+The "origin" of the grid.  Normally zero.
+@item Visible
+If non-zero, the grid will be visible on the screen.
+@end table
+
+
+@cartouche
+@format
+Groups("String")
+@end format
+@end cartouche
+
+@table @var
+@item String
+
+Encodes the layer grouping information.  Each group is separated by a
+colon, each member of each group is separated by a comma.  Group
+members are either numbers from @code{1}..@var{N} for each layer, and
+the letters @code{c} or @code{s} representing the component side and
+solder side of the board.  Including @code{c} or @code{s} marks that
+group as being the top or bottom side of the board.
+
+@example
+Groups("1,2,c:3:4:5,6,s:7,8")
+@end example
+
+@end table
+
+
+@cartouche
+@format
+Layer (LayerNum "Name") (
+@ @ @ @dots{} contents @dots{}
+)
+@end format
+@end cartouche
+
+@table @var
+@item LayerNum
+The layer number.  Layers are numbered sequentially, starting with 1.
+The last two layers (9 and 10 by default) are solder-side silk and
+component-side silk, in that order.
+@item Name
+The layer name.
+@item contents
+The contents of the layer, which may include lines, arcs, rectangles,
+text, and polygons.
+@end table
+
+
+@cartouche
+@format
+Line [X1 Y1 X2 Y2 Thickness Clearance SFlags]
+Line (X1 Y1 X2 Y2 Thickness Clearance NFlags)
+Line (X1 Y1 X2 Y2 Thickness NFlags)
+@end format
+@end cartouche
+
+@table @var
+@item X1 Y1 X2 Y2
+The end points of the line
+@item Thickness
+The width of the line
+@item Clearance
+The amount of space cleared around the line when the line passes
+through a polygon.  The clearance is added to the thickness to get the
+thickness of the clear; thus the space between the line and the
+polygon is @math{Clearance/2} wide.
+@item SFlags
+Symbolic or numeric flags
+@item NFlags
+Numeric flags.
+@end table
+
+
+@cartouche
+@format
+Mark [X Y]
+Mark (X Y)
+@end format
+@end cartouche
+
+@table @var
+@item X Y
+Coordinates of the Mark, for older element formats that don't have
+the mark as part of the Element line.
+@end table
+
+
+@cartouche
+@format
+Net ("Name" "Style") (
+@ @ @ @dots{} connects @dots{}
+)
+@end format
+@end cartouche
+
+@table @var
+@item Name
+The name of this net.
+@item Style
+The routing style that should be used when autorouting this net.
+@end table
+
+
+@cartouche
+@format
+Netlist ( ) (
+@ @ @ @dots{} nets @dots{}
+)
+@end format
+@end cartouche
+
+
+@cartouche
+@format
+Pad [rX1 rY1 rX2 rY2 Thickness Clearance Mask "Name" "Number" SFlags]
+Pad (rX1 rY1 rX2 rY2 Thickness Clearance Mask "Name" "Number" NFlags)
+Pad (aX1 aY1 aX2 aY2 Thickness "Name" "Number" NFlags)
+Pad (aX1 aY1 aX2 aY2 Thickness "Name" NFlags)
+@end format
+@end cartouche
+
+@table @var
+@item rX1 rY1 rX2 rY2
+Coordinates of the enpoints of the pad, relative to the element's
+mark.  Note that the copper extends beyond these coordinates by half
+the thickness.  To make a square or round pad, specify the same
+coordinate twice.
+@item aX1 aY1 aX2 aY2
+Same, but absolute coordinates of the enpoints of the pad.
+@item Thickness
+width of the pad.
+@item Clearance
+add to thickness to get clearance width.
+@item Mask
+width of solder mask opening.
+@item Name
+name of pin
+@item Number
+number of pin
+@item SFlags
+symbolic or numerical flags
+@item NFlags
+numerical flags only
+@end table
+
+
+@cartouche
+@format
+PCB ["Name" Width Height]
+PCB ("Name" Width Height]
+PCB ("Name")
+@end format
+@end cartouche
+
+@table @var
+@item Name
+Name of the PCB project
+@item Width Height
+Size of the board
+@end table
+
+If you don't specify the size of the board, a very large default is
+chosen.
+
+
+@cartouche
+@format
+Pin [rX rY Thickness Clearance Mask Drill "Name" "Number" SFlags]
+Pin (rX rY Thickness Clearance Mask Drill "Name" "Number" NFlags)
+Pin (aX aY Thickness Drill "Name" "Number" NFlags)
+Pin (aX aY Thickness Drill "Name" NFlags)
+Pin (aX aY Thickness "Name" NFlags)
+@end format
+@end cartouche
+
+@table @var
+@item rX rY
+coordinates of center, relative to the element's mark
+@item aX aY
+absolute coordinates of center.
+@item Thickness
+outer diameter of copper annulus
+@item Clearance
+add to thickness to get clearance diameter
+@item Mask
+diameter of solder mask opening
+@item Drill
+diameter of drill
+@item Name
+name of pin
+@item Number
+number of pin
+@item SFlags
+symbolic or numerical flags
+@item NFlags
+numerical flags only
+@end table
+
+
+@cartouche
+@format
+Polygon (SFlags) (
+@ @ @ @dots{} (X Y) @dots{}
+@ @ @ @dots{} [X Y] @dots{}
+)
+@end format
+@end cartouche
+
+@table @var
+@item SFlags
+Symbolic or numeric flags.
+@item X Y
+Coordinates of each vertex.  You must list at least three coordinates.
+@end table
+
+
+@cartouche
+@format
+Rat [X1 Y1 Group1 X2 Y2 Group2 SFlags]
+Rat (X1 Y1 Group1 X2 Y2 Group2 NFlags)
+@end format
+@end cartouche
+
+@table @var
+@item X1 Y1 X2 Y2
+The endpoints of the rat line.
+@item Group1 Group2
+The layer group each end is connected on.
+@item SFlags
+Symbolic or numeric flags.
+@item NFlags
+Numeric flags.
+@end table
+
+
+@cartouche
+@format
+Styles("String")
+@end format
+@end cartouche
+
+@table @var
+@item String
+
+Encodes the four routing styles @code{pcb} knows about.  The four styles
+are separated by colons.  Each style consists of five parameters as follows:
+
+@table @var
+@item Name
+The name of the style.
+@item Thickness
+Width of lines and arcs.
+@item Diameter
+Copper diameter of pins and vias.
+@item Drill
+Drill diameter of pins and vias.
+@item Keepaway
+Minimum spacing to other nets.  If omitted, 10 mils is the default.
+
+@end table
+
+@end table
+
+@example
+Styles("Signal,10,40,20:Power,25,60,35:Fat,40,60,35:Skinny,8,36,20")
+Styles["Logic,1000,3600,2000,1000:Power,2500,6000,3500,1000:
+@ @ @ Line,4000,6000,3500,1000:Breakout,600,2402,1181,600"]
+@end example
+
+@noindent
+Note that strings in actual files cannot span lines; the above example
+is split across lines only to make it readable.
+
+
+@cartouche
+@format
+Symbol [Char Delta] (
+Symbol (Char Delta) (
+@ @ @ @dots{} symbol lines @dots{}
+)
+@end format
+@end cartouche
+
+@table @var
+@item Char
+The character or numerical character value this symbol represents.
+Characters must be in single quotes.
+@item Delta
+Additional space to allow after this character.
+@end table
+
+
+@cartouche
+@format
+SymbolLine [X1 Y1 X2 Y1 Thickness]
+SymbolLine (X1 Y1 X2 Y1 Thickness)
+@end format
+@end cartouche
+
+@table @var
+@item X1 Y1 X2 Y2
+The endpoints of this line.
+@item Thickness
+The width of this line.
+@end table
+
+
+@cartouche
+@format
+Text [X Y Direction Scale "String" SFlags]
+Text (X Y Direction Scale "String" NFlags)
+Text (X Y Direction "String" NFlags)
+@end format
+@end cartouche
+
+@table @var
+@item X Y
+The location of the upper left corner of the text.
+@item Direction
+0 means text is drawn left to right, 1 means up, 2 means right to left
+(i.e. upside down), and 3 means down.
+@item Scale
+Size of the text, as a percentage of the ``default'' size of of the
+font (the default font is about 40 mils high).  Default is 100 (40
+mils).
+@item String
+The string to draw.
+@item SFlags
+Symbolic or numeric flags.
+@item NFlags
+Numeric flags.
+@end table
+
+
+@cartouche
+@format
+Thermal [Scale]
+@end format
+@end cartouche
+
+@table @var
+@item Scale
+Relative size of thermal fingers.  A value of 1.0 makes the finger width twice
+the annulus width (copper diameter minus drill diameter).  The normal value is 0.5.
+@end table
+
+
+@cartouche
+@format
+Via [X Y Thickness Clearance Mask Drill "Name" SFlags]
+Via (X Y Thickness Clearance Mask Drill "Name" NFlags)
+Via (X Y Thickness Clearance Drill "Name" NFlags)
+Via (X Y Thickness Drill "Name" NFlags)
+Via (X Y Thickness "Name" NFlags)
+@end format
+@end cartouche
+
+@table @var
+@item X Y
+coordinates of center
+@item Thickness
+outer diameter of copper annulus
+@item Clearance
+add to thickness to get clearance diameter
+@item Mask
+diameter of solder mask opening
+@item Drill
+diameter of drill
+@item Name
+string, name of via (vias have names?)
+@item SFlags
+symbolic or numerical flags
+@item NFlags
+numerical flags only
+@end table
+
+@node Object Flags, PCBFlags, File Syntax, File Formats
+@section Object Flags
+
+Note that object flags can be given numerically (like @code{0x0147})
+or symbolically (like @code{"found,showname,square"}.  Some numeric
+values are reused for different object types.  The table below lists
+the numeric value followed by the symbolic name.
+
+@table @code
+@item 0x0001 pin
+If set, this object is a pin.  This flag is for internal use only.
+@item 0x0002 via
+Likewise, for vias.
+@item 0x0004 found
+If set, this object has been found by @code{FindConnection()}.
+@item 0x0008 hole
+For pins and vias, this flag means that the pin or via is a hole
+without a copper annulus.
+@item 0x0010 rat
+If set for a line, indicates that this line is a rat line instead of a
+copper trace.
+@item 0x0010 pininpoly
+For pins and pads, this flag is used internally to indicate that the
+pin or pad overlaps a polygon on some layer.
+@item 0x0010 clearpoly
+For polygons, this flag means that pins and vias will normally clear
+these polygons (thus, thermals are required for electrical
+connection).  When clear, polygons will solidly connect to pins and
+vias.
+@item 0x0010 hidename
+For elements, when set the name of the element is hidden.
+@item 0x0020 showname
+For elements, when set the names of pins are shown.
+@item 0x0020 clearline
+For lines and arcs, the line/arc will clear polygons instead of
+connecting to them.
+@item 0x0040 selected
+Set when the object is selected.
+@item 0x0080 onsolder
+For elements and pads, indicates that they are on the solder side.
+@item 0x0080 auto
+For lines and vias, indicates that these were created by the
+autorouter.
+@item 0x0100 square
+For pins and pads, indicates a square (vs round) pin/pad.
+@item 0x0200 rubberend
+For lines, used internally for rubber band moves.
+@item 0x0200 warn
+For pins, vias, and pads, set to indicate a warning.
+@item 0x0400 usetherm
+Obsolete, indicates that pins/vias should be drawn with thermal
+fingers.
+@item 0x0400
+Obsolete, old files used this to indicate lines drawn on silk.
+@item 0x0800 octagon
+Draw pins and vias as octagons.
+@item 0x1000 drc
+Set for objects that fail DRC.
+@item 0x2000 lock
+Set for locked objects.
+@item 0x4000 edge2
+For pads, indicates that the second point is closer to the edge.  For
+pins, indicates that the pin is closer to a horizontal edge and thus
+pinout text should be vertical.
+@end table
+@node PCBFlags, , Object Flags,  File Formats
+@section PCBFlags
+@table @code
+@item 0x00001
+Pinout displays pin numbers instead of pin names.
+@item 0x00002
+Use local reference for moves, by setting the mark at the beginning of
+each move.
+@item 0x00004
+When set, only polygons and their clearances are drawn, to see if
+polygons have isolated regions.
+@item 0x00008
+Display DRC region on crosshair.
+@item 0x00010
+Do all move, mirror, rotate with rubberband connections.
+@item 0x00020
+Display descriptions of elements, instead of refdes.
+@item 0x00040
+Display names of elements, instead of refdes.
+@item 0x00080
+Auto-DRC flag.  When set, PCB doesn't let you place copper that
+violates DRC.
+@item 0x00100
+Enable 'all-direction' lines.
+@item 0x00200
+Switch starting angle after each click.
+@item 0x00400
+Force unique names on board.
+@item 0x00800
+New lines/arc clear polygons.
+@item 0x01000
+Crosshair snaps to pins and pads.
+@item 0x02000
+Show the solder mask layer.
+@item 0x04000
+Draw with thin lines.
+@item 0x08000
+Move items orthogonally.
+@item 0x10000
+Draw autoroute paths real-time.
+@end table

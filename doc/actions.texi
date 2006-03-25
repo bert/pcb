@@ -1,0 +1,90 @@
+
+@cartouche
+@format
+ApplyVendor()
+@end format
+@end cartouche
+@cindex vendor map 
+@cindex vendor drill table
+@findex ApplyVendor()
+
+Applies the currently loaded vendor drill table to the current design.
+This will modify all of your drill holes to match the list of allowed
+sizes for your vendor.
+
+
+@cartouche
+@format
+DisableVendor()
+@end format
+@end cartouche
+@cindex vendor map 
+@cindex vendor drill table
+@findex DisableVendor()
+
+Disables automatic drill size mapping.  When drill mapping is 
+enabled, new instances of pins and vias will have their drill
+holes mapped to one of the allowed drill sizes specified in the
+currently loaded vendor drill table.
+
+
+@cartouche
+@format
+EnableVendor()
+@end format
+@end cartouche
+@cindex vendor map 
+@cindex vendor drill table
+@findex EnableVendor()
+
+Enables automatic drill size mapping.  When drill mapping is 
+enabled, new instances of pins and vias will have their drill
+holes mapped to one of the allowed drill sizes specified in the
+currently loaded vendor drill table.  To enable drill mapping, a
+vendor resource file containing a drill table must be loaded first.
+
+
+@cartouche
+@format
+LoadVendorFrom(filename)
+@end format
+@end cartouche
+@cindex vendor map 
+@cindex vendor drill table
+@findex LoadVendorFrom()
+
+@table @var
+@item filename
+Name of the vendor resource file
+@end table
+
+Loads the specified vendor resource file.
+
+
+@cartouche
+@format
+ToggleVendor()
+@end format
+@end cartouche
+@cindex vendor map 
+@cindex vendor drill table
+@findex ToggleVendor()
+
+Toggles the state of automatic drill size mapping.  When drill mapping is 
+enabled, new instances of pins and vias will have their drill
+holes mapped to one of the allowed drill sizes specified in the
+currently loaded vendor drill table.  To enable drill mapping, a
+vendor resource file containing a drill table must be loaded first.
+
+
+@cartouche
+@format
+UnloadVendor()
+@end format
+@end cartouche
+@cindex vendor map 
+@cindex vendor drill table
+@findex UnloadVendor()
+
+Unloads the current vendor drill mapping table.
+
