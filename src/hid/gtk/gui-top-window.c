@@ -3503,6 +3503,65 @@ ghid_create_pcb_widgets (void)
   ghid_mode_buttons_update ();
 }
 
+static gboolean
+ghid_listener_cb (GIOChannel *source,
+		  GIOCondition condition,
+		  gpointer data)
+{
+  GIOStatus status;
+  gchar *str;
+  gsize len;
+  gsize term;
+  GError *err = NULL;
+
+
+  if (condition & G_IO_HUP)
+    {
+      g_error ("Read end of pipe died!\n");
+      return FALSE;
+    }
+
+  if (condition == G_IO_IN)
+    {
+      status = g_io_channel_read_line (source, &str, &len, &term, &err);
+      if (status == G_IO_STATUS_NORMAL)
+	{
+	  hid_parse_actions (str, NULL);
+	  g_free (str);
+	}
+      else
+	{
+	  g_error ("Bad status from g_io_channel_read_line\n");
+	}
+    }
+  else
+    printf ("Unknown condition\n");
+
+  return TRUE;
+}
+
+static void
+ghid_create_listener (void)
+{
+  guint tag;
+  GIOChannel *channel;
+  int fd = 1;
+
+  channel = g_io_channel_unix_new (fd);
+  tag = g_io_add_watch (channel, G_IO_IN, ghid_listener_cb, NULL);
+}
+
+
+/* ------------------------------------------------------------ */
+static int stdin_listen = 0;
+HID_Attribute ghid_attribute_list[] = {
+  {"listen", "Listen for actions on stdin",
+   HID_Boolean, 0, 0, {0, 0, 0}, 0, &stdin_listen},
+#define HA_listen 0
+};
+
+REGISTER_ATTRIBUTES (ghid_attribute_list)
+
   /* Create top level window for routines that will need top_window
      |  before ghid_create_pcb_widgets() is called.
    */
@@ -3595,6 +3654,10 @@ void
 ghid_do_export (HID_Attr_Val * options)
 {
   ghid_create_pcb_widgets ();
+
+  if (stdin_listen)
+    ghid_create_listener ();
+
   gtk_main ();
   ghid_config_files_write ();
 }
