@@ -8,6 +8,7 @@ MainMenu =
    {"About..." About()}
    {"Save layout" Save(Layout)}
    {"Save layout as..." Save(LayoutAs)}
+	{"Revert" Load(Revert,none)}
    {"Load layout" Load(Layout)}
    {"Load element data to paste-buffer" PasteBuffer(Clear) Load(ElementTobuffer)}
    {"Load layout data to paste-buffer" PasteBuffer(Clear) Load(LayoutTobuffer)}

@@ -237,6 +237,13 @@ save_layout_as_cb (GtkAction * action, GHidPort * port)
   hid_actionl ("Save", "LayoutAs", 0);
 }
 
+static void revert_cb(GtkAction *action, GHidPort *port)
+	{
+	hid_actionl ("LoadFrom", "Revert", "none", 0);
+	}
+
+
+
 static void
 load_layout_cb (GtkAction * action, GHidPort * port)
 {
@@ -1152,6 +1159,7 @@ static GtkActionEntry entries[] = {
    G_CALLBACK (save_layout_cb)},
   {"SaveLayoutAs", NULL, N_("Save layout as"), NULL, NULL,
    G_CALLBACK (save_layout_as_cb)},
+	{ "Revert", NULL, N_("Revert"), NULL, NULL, G_CALLBACK(revert_cb)},
   {"LoadLayout", NULL, N_("Load layout"), NULL, NULL,
    G_CALLBACK (load_layout_cb)},
   {"LoadElementData", NULL, N_("Load element data to paste-buffer"),
@@ -1604,6 +1612,8 @@ static const gchar *ui_info =
   "		<menu action='FileMenu'>"
   "			<menuitem action='SaveLayout'/>"
   "			<menuitem action='SaveLayoutAs'/>"
+  "			<separator/>"
+  "			<menuitem action='Revert'/>"
   "			<separator/>"
   "			<menuitem action='LoadLayout'/>"
   "			<menuitem action='LoadElementData'/>"
