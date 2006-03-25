@@ -3545,7 +3545,7 @@ ghid_create_listener (void)
 {
   guint tag;
   GIOChannel *channel;
-  int fd = 1;
+  int fd = fileno (stdin);
 
   channel = g_io_channel_unix_new (fd);
   tag = g_io_add_watch (channel, G_IO_IN, ghid_listener_cb, NULL);
