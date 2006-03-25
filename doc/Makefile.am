@@ -106,7 +106,7 @@ ${inline_texi} : extracted-docs
 .PHONY : extracted-docs
 extracted-docs :
 	@MAINTAINER_MODE_TRUE@perl $(srcdir)/extract-docs $(srcdir)
-	@MAINTAINER_MODE_FALSE@@echo "Skipping documentation extraction since you are not in maintainer-mode"
+	@@MAINTAINER_MODE_FALSE@echo "Skipping documentation extraction since you are not in maintainer-mode"
 
 SUFFIXES = .dvi .eps .gif .pcb .pdf .png .ps .tab .tex
 
