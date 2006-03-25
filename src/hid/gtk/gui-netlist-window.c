@@ -283,6 +283,7 @@ enum
 static GtkTreeModel *net_model;
 static GtkTreeView *net_treeview;
 
+static gboolean		loading_new_netlist;
 
 static GtkTreeModel *
 net_model_create (void)
@@ -297,6 +298,10 @@ net_model_create (void)
   {
     if (!menu->Name)
       continue;
+
+		if (loading_new_netlist)
+			menu->flag = TRUE;
+
     gtk_list_store_append (store, &iter);
     gtk_list_store_set (store, &iter,
 			NET_ENABLED_COLUMN, "",
@@ -793,7 +798,9 @@ ghid_netlist_window_update (gboolean init_nodes)
 static gint
 NetlistChanged (int argc, char **argv, int x, int y)
 {
+	loading_new_netlist = TRUE;
   ghid_netlist_window_update (TRUE);
+	loading_new_netlist = FALSE;
   return 0;
 }
 
