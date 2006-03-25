@@ -220,9 +220,9 @@ GetDrillInfo (DataTypePtr top)
 void
 RoundDrillInfo (DrillInfoTypePtr d, int roundto)
 {
-  int i = 0;
+  unsigned int i = 0;
 
-  while (i<d->DrillN-1)
+  while ( (d->DrillN > 0) && (i < d->DrillN - 1))
     {
       int diam1 = ROUND (d->Drill[i].DrillSize, roundto);
       int diam2 = ROUND (d->Drill[i+1].DrillSize, roundto);
