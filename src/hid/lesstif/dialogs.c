@@ -197,9 +197,7 @@ Save (int argc, char **argv, int x, int y)
     hid_actionv ("SaveTo", argc, argv);
 
   function = argc ? argv[0] : "Layout";
-
-  printf ("save: filename is `%s'\n", PCB->Filename);
-
+  
   if (strcasecmp (function, "Layout") == 0)
     if (PCB->Filename)
       return hid_actionl ("SaveTo", "Layout", PCB->Filename, 0);
@@ -232,8 +230,18 @@ Save (int argc, char **argv, int x, int y)
   if (strcasecmp (function, "PasteBuffer") == 0)
     hid_actionl ("PasteBuffer", "Save", name, 0);
   else
-    hid_actionl ("SaveTo", function, name, 0);
-
+    {
+      /* 
+       * if we got this far and the function is Layout, then
+       * we really needed it to be a LayoutAs.  Otherwise 
+       * ActionSaveTo() will ignore the new file name we
+       * just obtained.
+       */
+      if (strcasecmp (function, "Layout") == 0)
+	hid_actionl ("SaveTo", "LayoutAs", name, 0);
+      else
+	hid_actionl ("SaveTo", function, name, 0);
+    }
   XtFree (name);
 
   return 0;
