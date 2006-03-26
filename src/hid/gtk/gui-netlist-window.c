@@ -215,20 +215,21 @@ node_selection_changed_cb (GtkTreeSelection * selection, gpointer data)
   LibraryMenuType *node_net;
   LibraryEntryType *node;
   static gchar *node_name;
+	gint		x0, y0, margin;
 
   if (selection_holdoff)	/* PCB is highlighting, user is not selecting */
     return;
 
   /* Toggle off the previous selection.  Look up node_name to make sure
-     |  it still exists.  This toggling can get out of sync if a node is
-     |  toggled selected, then the net that includes the node is selected
-     |  then unselected.
-   */
+  |  it still exists.  This toggling can get out of sync if a node is
+  |  toggled selected, then the net that includes the node is selected
+  |  then unselected.
+  */
   if ((node = node_get_node_from_name (node_name, &node_net)) != NULL)
     {
       /* If net node belongs to has been highlighted/unhighighed, toggling
-         |  if off here will get our on/off toggling out of sync.
-       */
+      |  if off here will get our on/off toggling out of sync.
+      */
       if (node_net == node_selected_net)
 	SelectPin (node, TRUE);
       g_free (node_name);
@@ -245,21 +246,30 @@ node_selection_changed_cb (GtkTreeSelection * selection, gpointer data)
     }
 
   /* From the treeview row, extract the node pointer stored there and
-     |  we've got a pointer to the LibraryEntryType (node) the row
-     |  represents.
-   */
+  |  we've got a pointer to the LibraryEntryType (node) the row
+  |  represents.
+  */
   gtk_tree_model_get (model, &iter, NODE_LIBRARY_COLUMN, &node, -1);
 
   dup_string (&node_name, node->ListEntry);
   node_selected_net = selected_net;
 
-  /* Original Xt checks CallData for "Kill".  How can that happen? XXX */
-
-  /* Now just toggle a select of the node on the layout and redraw.
+  /* Now just toggle a select of the node on the layout and pan.
    */
-  SelectPin (node, TRUE);	/* Also centers the display on the node */
+  SelectPin (node, TRUE);
   IncrementUndoSerialNumber ();
-  Draw ();
+	margin = gport->view_width / 20;
+	if (   Crosshair.X < gport->view_x0 + margin
+	    || Crosshair.X > gport->view_x0 + gport->view_width - margin
+	    || Crosshair.Y < gport->view_y0 + margin
+	    || Crosshair.Y > gport->view_y0 + gport->view_height - margin
+	   )
+		{
+		x0 = Crosshair.X - gport->view_width / 2;
+		y0 = Crosshair.Y - gport->view_height / 2;
+		ghid_port_ranges_pan(x0, y0, FALSE);
+		}
+	ghid_screen_update();
 }
 
 

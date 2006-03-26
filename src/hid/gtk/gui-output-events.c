@@ -101,12 +101,12 @@ ghid_port_ranges_pan (gdouble x, gdouble y, gboolean relative)
   if (x1 < h_adj->lower)
     x1 = h_adj->lower;
   if (x1 > h_adj->upper - h_adj->page_size)
-    x1 = x0;
+    x1 = h_adj->upper - h_adj->page_size;
 
   if (y1 < v_adj->lower)
-    y1 = y0;
+    y1 = v_adj->lower;
   if (y1 > v_adj->upper - v_adj->page_size)
-    y1 = y0;
+    y1 = v_adj->upper - v_adj->page_size;
 
   if (x0 != x1 && y0 != y1)
     ghidgui->combine_adjustments = TRUE;
