@@ -258,7 +258,7 @@ ghid_get_color_name (GdkColor * color)
 void
 ghid_map_color_string (char *color_string, GdkColor * color)
 {
-  static GdkColormap *colormap;
+  static GdkColormap *colormap = NULL;
   GHidPort *out = &ghid_port;
 
   if (!color || !out->top_window)

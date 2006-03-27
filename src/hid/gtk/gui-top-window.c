@@ -2550,7 +2550,8 @@ layer_button_set_color (LayerButtonSet * lb, gchar * color_string)
 
   if (!lb->layer_enable_ebox)
     return;
-
+  
+  color.red = color.green = color.blue = 0;
   ghid_map_color_string (color_string, &color);
   gtk_widget_modify_bg (lb->layer_enable_ebox, GTK_STATE_ACTIVE, &color);
   gtk_widget_modify_bg (lb->layer_enable_ebox, GTK_STATE_PRELIGHT, &color);
