@@ -2968,6 +2968,11 @@ ActionChangeSize (int argc, char **argv, int x, int y)
 	    SetChangedFlag (True);
 	  break;
 
+	case F_SelectedArcs:
+	  if (ChangeSelectedSize (ARC_TYPE, value, r))
+	    SetChangedFlag (True);
+	  break;
+
 	case F_SelectedLines:
 	  if (ChangeSelectedSize (LINE_TYPE, value, r))
 	    SetChangedFlag (True);

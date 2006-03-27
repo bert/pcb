@@ -770,6 +770,7 @@ selected_lines_size_change_cb (GtkAction * action, GHidPort * port)
   ghid_size_increment_get_value (gtk_action_get_name (action), &value,
 				 &units);
   hid_actionl ("ChangeSize", "SelectedLines", value, units, 0);
+  hid_actionl ("ChangeSize", "SelectedArcs", value, units, 0);
 }
 
 static void

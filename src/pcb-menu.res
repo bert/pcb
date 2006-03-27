@@ -192,8 +192,8 @@ MainMenu =
    {"Rip-up selected auto-routed tracks" RipUp(Selected)}
    -
    {"Change size of selected objects" foreground=grey50 sensitive=false}
-   {"Lines -10 mil" ChangeSize(SelectedLines,-10,mil)}
-   {"Lines +10 mil" ChangeSize(SelectedLines,+10,mil)}
+   {"Lines -10 mil" ChangeSize(SelectedLines,-10,mil) ChangeSize(SelectedArcs,-10,mil)}
+   {"Lines +10 mil" ChangeSize(SelectedLines,+10,mil) ChangeSize(SelectedArcs,+10,mil)}
    {"Pads -10 mil" ChangeSize(SelectedPads,-10,mil)}
    {"Pads +10 mil" ChangeSize(SelectedPads,+10,mil)}
    {"Pins -10 mil" ChangeSize(SelectedPins,-10,mil)}
