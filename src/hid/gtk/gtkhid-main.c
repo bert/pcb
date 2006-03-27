@@ -1307,34 +1307,20 @@ Benchmark (int argc, char **argv, int x, int y)
 }
 
 HID_Action ghid_main_action_list[] = {
-  {"Export", 0, 0, Export}
-  ,
-  {"Load", 0, 0, Load}
-  ,
-  {"LoadVendor", 0, 0, LoadVendor}
-  ,
-  {"PCBChanged", 0, 0, PCBChanged}
-  ,
-  {"RouteStylesChanged", 0, 0, RouteStylesChanged}
-  ,
-  {"NetlistChanged", 0, 0, NetlistChanged}
-  ,
-  {"LayerGroupsChanged", 0, 0, LayerGroupsChanged}
-  ,
-  {"LibraryChanged", 0, 0, LibraryChanged}
-  ,
-  {"Print", 0, 0, Print}
-  ,
-  {"Save", 0, 0, Save}
-  ,
-  {"SwapSides", 0, 0, SwapSides}
-  ,
-  {"Zoom", 1, "Click on zoom focus", Zoom}
-  ,
-  {"Command", 0, 0, Command}
-  ,
-  {"Benchmark", 0, 0, Benchmark}
-  ,
+  {"Export", 0, Export},
+  {"Load", 0, Load},
+  {"LoadVendor", 0, LoadVendor},
+  {"PCBChanged", 0, PCBChanged},
+  {"RouteStylesChanged", 0, RouteStylesChanged},
+  {"NetlistChanged", 0, NetlistChanged},
+  {"LayerGroupsChanged", 0, LayerGroupsChanged},
+  {"LibraryChanged", 0, LibraryChanged},
+  {"Print", 0, Print},
+  {"Save", 0, Save},
+  {"SwapSides", 0, SwapSides},
+  {"Zoom", "Click on zoom focus", Zoom},
+  {"Command", 0, Command},
+  {"Benchmark", 0, Benchmark},
 };
 
 REGISTER_ACTIONS (ghid_main_action_list)

@@ -3681,8 +3681,7 @@ LayersChanged (int argc, char **argv, int px, int py)
 }
 
 HID_Action gtk_topwindow_action_list[] = {
-  {"LayersChanged", 0, 0, LayersChanged}
-  ,
+  {"LayersChanged", 0, LayersChanged}
 };
 
 REGISTER_ACTIONS (gtk_topwindow_action_list)

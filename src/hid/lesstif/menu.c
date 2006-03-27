@@ -583,15 +583,15 @@ lesstif_update_widget_flags ()
 /*-----------------------------------------------------------------------------*/
 
 HID_Action lesstif_menu_action_list[] = {
-  {"DumpKeys", 0, 0, DumpKeys},
-  {"Debug", 0, 0, Debug},
-  {"DebugXY", 1, "Click X,Y for Debug", Debug},
-  {"GetXY", 1, "", GetXY},
-  {"CheckWhen", 0, 0, CheckWhen},
-  {"Return", 0, 0, Return},
-  {"LayersChanged", 0, 0, LayersChanged},
-  {"ToggleView", 0, 0, ToggleView},
-  {"SelectLayer", 0, 0, SelectLayer}
+  {"DumpKeys", 0, DumpKeys},
+  {"Debug", 0, Debug},
+  {"DebugXY", "Click X,Y for Debug", Debug},
+  {"GetXY", "", GetXY},
+  {"CheckWhen", 0, CheckWhen},
+  {"Return", 0, Return},
+  {"LayersChanged", 0, LayersChanged},
+  {"ToggleView", 0, ToggleView},
+  {"SelectLayer", 0, SelectLayer}
 };
 
 REGISTER_ACTIONS (lesstif_menu_action_list);
@@ -701,7 +701,7 @@ lesstif_call_action (const char *aname, int argc, char **argv)
       return 1;
     }
 
-  if (a->needs_coords && !have_xy)
+  if (a->need_coord_msg && !have_xy)
     {
       const char *msg;
       if (strcmp (aname, "GetXY") == 0)

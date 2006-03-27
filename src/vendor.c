@@ -888,18 +888,12 @@ rematch (const char *re, const char *s)
 }
 
 HID_Action vendor_action_list[] = {
-  {"LoadVendorFrom", 0, 0, ActionLoadVendorFrom}
-  ,
-  {"UnloadVendor", 0, 0, ActionUnloadVendor}
-  ,
-  {"ToggleVendor", 0, 0, ActionToggleVendor}
-  ,
-  {"ApplyVendor", 0, 0, ActionApplyVendor}
-  ,
-  {"EnableVendor", 0, 0, ActionEnableVendor}
-  ,
-  {"DisableVendor", 0, 0, ActionDisableVendor}
-  ,
+  {"LoadVendorFrom", 0, ActionLoadVendorFrom},
+  {"UnloadVendor", 0, ActionUnloadVendor},
+  {"ToggleVendor", 0, ActionToggleVendor},
+  {"ApplyVendor", 0, ActionApplyVendor},
+  {"EnableVendor", 0, ActionEnableVendor},
+  {"DisableVendor", 0, ActionDisableVendor}
 };
 
 REGISTER_ACTIONS (vendor_action_list)
@@ -912,7 +906,6 @@ vendor_get_enabled (int unused)
 
 HID_Flag vendor_flag_list[] = {
   {"VendorMapOn", vendor_get_enabled, 0}
-  ,
 };
 
 REGISTER_FLAGS (vendor_flag_list)

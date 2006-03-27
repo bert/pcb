@@ -526,9 +526,8 @@ Report (int argc, char **argv, int x, int y)
 }
 
 HID_Action report_action_list[] = {
-  {"ReportObject", 1, "Click on an object", ReportDialog}
-  ,
-  {"Report", 0, 0, Report}
+  {"ReportObject", "Click on an object", ReportDialog},
+  {"Report", 0, Report}
 };
 
 REGISTER_ACTIONS (report_action_list)

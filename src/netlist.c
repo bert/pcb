@@ -278,10 +278,8 @@ Netlist (int argc, char **argv, int x, int y)
 }
 
 HID_Action netlist_action_list[] = {
-  {"net", 0, 0, Netlist}
-  ,
-  {"netlist", 0, 0, Netlist}
-  ,
+  {"net", 0, Netlist},
+  {"netlist", 0, Netlist}
 };
 
 REGISTER_ACTIONS (netlist_action_list)

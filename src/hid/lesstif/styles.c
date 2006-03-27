@@ -471,8 +471,8 @@ lesstif_insert_style_buttons (Widget menu)
 }
 
 HID_Action lesstif_styles_action_list[] = {
-  {"AdjustStyle", 0, 0, AdjustStyle},
-  {"RouteStylesChanged", 0, 0, RouteStylesChanged},
+  {"AdjustStyle", 0, AdjustStyle},
+  {"RouteStylesChanged", 0, RouteStylesChanged}
 };
 
 REGISTER_ACTIONS (lesstif_styles_action_list)

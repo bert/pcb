@@ -165,8 +165,8 @@ lesstif_show_netlist ()
 }
 
 HID_Action lesstif_netlist_action_list[] = {
-  {"NetlistChanged", 0, 0, NetlistChanged},
-  {"NetlistShow", 0, 0, NetlistShow},
+  {"NetlistChanged", 0, NetlistChanged},
+  {"NetlistShow", 0, NetlistShow}
 };
 
 REGISTER_ACTIONS (lesstif_netlist_action_list)

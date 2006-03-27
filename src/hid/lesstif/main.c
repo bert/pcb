@@ -560,22 +560,14 @@ Benchmark (int argc, char **argv, int x, int y)
 }
 
 HID_Action lesstif_main_action_list[] = {
-  {"PCBChanged", 0, 0, PCBChanged}
-  ,
-  {"SetUnits", 0, 0, SetUnits}
-  ,
-  {"Zoom", 0, 0, ZoomAction}
-  ,
-  {"Thindraw", 0, 0, ThinDraw}
-  ,
-  {"ThindrawPoly", 0, 0, ThinDrawPoly}
-  ,
-  {"SwapSides", 0, 0, SwapSides}
-  ,
-  {"Command", 0, 0, Command}
-  ,
-  {"Benchmark", 0, 0, Benchmark}
-  ,
+  {"PCBChanged", 0, PCBChanged},
+  {"SetUnits", 0, SetUnits},
+  {"Zoom", 0, ZoomAction},
+  {"Thindraw", 0, ThinDraw},
+  {"ThindrawPoly", 0, ThinDrawPoly},
+  {"SwapSides", 0, SwapSides},
+  {"Command", 0, Command},
+  {"Benchmark", 0, Benchmark}
 };
 
 REGISTER_ACTIONS (lesstif_main_action_list)

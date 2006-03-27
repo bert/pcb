@@ -4982,106 +4982,56 @@ ActionExecuteFile (int argc, char **argv, int x, int y)
 /* ************************************************************ */
 
 HID_Action action_action_list[] = {
-  {"AddRats", 0, 0, ActionAddRats}
-  ,
-  {"Atomic", 0, 0, ActionAtomic}
-  ,
-  {"AutoPlaceSelected", 0, 0, ActionAutoPlaceSelected}
-  ,
-  {"AutoRoute", 0, 0, ActionAutoRoute}
-  ,
-  {"ChangeClearSize", 0, 0, ActionChangeClearSize}
-  ,
-  {"ChangeDrillSize", 0, 0, ActionChange2ndSize}
-  ,
-  {"ChangeHole", 0, 0, ActionChangeHole}
-  ,
-  {"ChangeJoin", 0, 0, ActionChangeJoin}
-  ,
-  {"ChangeName", 0, 0, ActionChangeName}
-  ,
-  {"ChangePinName", 0, 0, ActionChangePinName}
-  ,
-  {"ChangeSize", 0, 0, ActionChangeSize}
-  ,
-  {"ChangeSquare", 0, 0, ActionChangeSquare}
-  ,
-  {"ChangeOctagon", 0, 0, ActionChangeOctagon}
-  ,
-  {"ClearSquare", 0, 0, ActionClearSquare}
-  ,
-  {"ClearOctagon", 0, 0, ActionClearOctagon}
-  ,
-  {"ClearThermal", 0, 0, ActionClearThermal}
-  ,
-  {"Connection", 0, 0, ActionConnection}
-  ,
-  {"DRC", 0, 0, ActionDRCheck}
-  ,
-  {"DeleteRats", 0, 0, ActionDeleteRats}
-  ,
-  {"DisperseElements", 0, 0, ActionDisperseElements}
-  ,
-  {"Display", 0, 0, ActionDisplay}
-  ,
-  {"ExecuteFile", 0, 0, ActionExecuteFile}
-  ,
-  {"Flip", 1, "Click on Object or Flip Point", ActionFlip}
-  ,
-  {"LoadFrom", 0, 0, ActionLoadFrom}
-  ,
-  {"MarkCrosshair", 0, 0, ActionMarkCrosshair}
-  ,
-  {"Mode", 0, 0, ActionMode}
-  ,
-  {"PasteBuffer", 0, 0, ActionPasteBuffer}
-  ,
-  {"Quit", 0, 0, ActionQuit}
-  ,
-  {"RemoveSelected", 0, 0, ActionRemoveSelected}
-  ,
-  {"RipUp", 0, 0, ActionRipUp}
-  ,
-  {"Select", 0, 0, ActionSelect}
-  ,
-  {"Unselect", 0, 0, ActionUnselect}
-  ,
-  {"SaveTo", 0, 0, ActionSaveTo}
-  ,
-  {"SetSquare", 0, 0, ActionSetSquare}
-  ,
-  {"SetOctagon", 0, 0, ActionSetOctagon}
-  ,
-  {"SetThermal", 0, 0, ActionSetThermal}
-  ,
-  {"SetValue", 0, 0, ActionSetValue}
-  ,
-  {"ToggleHideName", 0, 0, ActionToggleHideName}
-  ,
-  {"ToggleThermal", 0, 0, ActionToggleThermal}
-  ,
-  {"Undo", 0, 0, ActionUndo}
-  ,
-  {"Redo", 0, 0, ActionRedo}
-  ,
-  {"SetSame", 0, 0, ActionSetSame}
-  ,
-  {"SetFlag", 0, 0, ActionSetFlag}
-  ,
-  {"ClrFlag", 0, 0, ActionClrFlag}
-  ,
-  {"ChangeFlag", 0, 0, ActionChangeFlag}
-  ,
-  {"Polygon", 0, 0, ActionPolygon}
-  ,
-  {"RouteStyle", 0, 0, ActionRouteStyle}
-  ,
-  {"MoveObject", 1, "Select an Object", ActionMoveObject}
-  ,
-  {"MoveToCurrentLayer", 0, 0, ActionMoveToCurrentLayer}
-  ,
-  {"New", 0, 0, ActionNew}
-  ,
+  {"AddRats", 0, ActionAddRats},
+  {"Atomic", 0, ActionAtomic},
+  {"AutoPlaceSelected", 0, ActionAutoPlaceSelected},
+  {"AutoRoute", 0, ActionAutoRoute},
+  {"ChangeClearSize", 0, ActionChangeClearSize},
+  {"ChangeDrillSize", 0, ActionChange2ndSize},
+  {"ChangeHole", 0, ActionChangeHole},
+  {"ChangeJoin", 0, ActionChangeJoin},
+  {"ChangeName", 0, ActionChangeName},
+  {"ChangePinName", 0, ActionChangePinName},
+  {"ChangeSize", 0, ActionChangeSize},
+  {"ChangeSquare", 0, ActionChangeSquare},
+  {"ChangeOctagon", 0, ActionChangeOctagon},
+  {"ClearSquare", 0, ActionClearSquare},
+  {"ClearOctagon", 0, ActionClearOctagon},
+  {"ClearThermal", 0, ActionClearThermal},
+  {"Connection", 0, ActionConnection},
+  {"DRC", 0, ActionDRCheck},
+  {"DeleteRats", 0, ActionDeleteRats},
+  {"DisperseElements", 0, ActionDisperseElements},
+  {"Display", 0, ActionDisplay},
+  {"ExecuteFile", 0, ActionExecuteFile},
+  {"Flip", "Click on Object or Flip Point", ActionFlip},
+  {"LoadFrom", 0, ActionLoadFrom},
+  {"MarkCrosshair", 0, ActionMarkCrosshair},
+  {"Mode", 0, ActionMode},
+  {"PasteBuffer", 0, ActionPasteBuffer},
+  {"Quit", 0, ActionQuit},
+  {"RemoveSelected", 0, ActionRemoveSelected},
+  {"RipUp", 0, ActionRipUp},
+  {"Select", 0, ActionSelect},
+  {"Unselect", 0, ActionUnselect},
+  {"SaveTo", 0, ActionSaveTo},
+  {"SetSquare", 0, ActionSetSquare},
+  {"SetOctagon", 0, ActionSetOctagon},
+  {"SetThermal", 0, ActionSetThermal},
+  {"SetValue", 0, ActionSetValue},
+  {"ToggleHideName", 0, ActionToggleHideName},
+  {"ToggleThermal", 0, ActionToggleThermal},
+  {"Undo", 0, ActionUndo},
+  {"Redo", 0, ActionRedo},
+  {"SetSame", 0, ActionSetSame},
+  {"SetFlag", 0, ActionSetFlag},
+  {"ClrFlag", 0, ActionClrFlag},
+  {"ChangeFlag", 0, ActionChangeFlag},
+  {"Polygon", 0, ActionPolygon},
+  {"RouteStyle", 0, ActionRouteStyle},
+  {"MoveObject", "Select an Object", ActionMoveObject},
+  {"MoveToCurrentLayer", 0, ActionMoveToCurrentLayer},
+  {"New", 0, ActionNew},
 };
 
 REGISTER_ACTIONS (action_action_list)

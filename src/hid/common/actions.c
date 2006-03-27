@@ -171,7 +171,7 @@ hid_actionv (const char *name, int argc, char **argv)
   a = hid_find_action (name);
   if (!a)
     return 1;
-  if (a->needs_coords)
+  if (a->need_coord_msg)
     gui->get_coords (a->need_coord_msg, &x, &y);
   return a->trigger_cb (argc, argv, x, y);
 }

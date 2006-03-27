@@ -825,9 +825,8 @@ NetlistShow (int argc, char **argv, int x, int y)
 }
 
 HID_Action ghid_netlist_action_list[] = {
-  {"NetlistChanged", 0, 0, NetlistChanged}
-  ,
-  {"NetlistShow", 0, 0, NetlistShow}
+  {"NetlistChanged", 0, NetlistChanged},
+  {"NetlistShow", 0, NetlistShow}
   ,
 };
 
