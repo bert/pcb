@@ -578,15 +578,13 @@ settings_post_process ()
   if (Settings.LibraryCommand[0] != '/' && Settings.LibraryCommand[0] != '.')
     {
       Settings.LibraryCommand
-	= strdup (Concat (Settings.LibraryCommandDir, "/",
-			  Settings.LibraryCommand, 0));
+	= Concat (Settings.LibraryCommandDir, "/", Settings.LibraryCommand, 0);
     }
   if (Settings.LibraryContentsCommand[0] != '/'
       && Settings.LibraryContentsCommand[0] != '.')
     {
       Settings.LibraryContentsCommand
-	= strdup (Concat (Settings.LibraryCommandDir, "/",
-			  Settings.LibraryContentsCommand, 0));
+	= Concat (Settings.LibraryCommandDir, "/", Settings.LibraryContentsCommand, 0);
     }
 
   if (Settings.LineThickness > MAX_LINESIZE
