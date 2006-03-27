@@ -1092,10 +1092,11 @@ Load (int argc, char **argv, int x, int y)
 #endif
     }
 
-  if (name && Settings.verbose)
+  if (name)
     {
-      fprintf (stderr, "%s:  Calling LoadFrom(%s, %s)\n", __FUNCTION__,
-	       function, name);
+			if (Settings.verbose)
+      	fprintf (stderr, "%s:  Calling LoadFrom(%s, %s)\n", __FUNCTION__,
+	       	function, name);
       hid_actionl ("LoadFrom", function, name, 0);
       g_free (name);
     }
@@ -1116,10 +1117,11 @@ LoadVendor (int argc, char **argv, int x, int y)
 				       &current_vendor_dir,
 				       Settings.FilePath);
 
-  if (name && Settings.verbose)
+  if (name)
     {
-      fprintf (stderr, "%s:  Calling LoadVendorFrom(%s)\n", __FUNCTION__,
-	       name);
+			if (Settings.verbose)
+      	fprintf (stderr, "%s:  Calling LoadVendorFrom(%s)\n", __FUNCTION__,
+	       	name);
       hid_actionl ("LoadVendorFrom", name, 0);
       g_free (name);
     }
