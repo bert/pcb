@@ -922,8 +922,17 @@ ParseLibraryTree (void)
 		      && NSTRCMP (e2->d_name, "Makefile.am") != 0
 		      && NSTRCMP (e2->d_name, "Makefile.in") != 0)
 		    {
+
+		      /* 
+		       * Besides the length for the 3 strings listed, 
+		       * we have two "/" added in below, and also we 
+		       * have 2 '\0' characters since
+		       * entry->AllocatedMemory actually will contain
+		       * 2 null terminated strings.  Thats why we 
+		       * add 4
+		       */
 		      long len = strlen (path) + strlen (e2->d_name) +
-			strlen (direntry->d_name) + 3;
+			strlen (direntry->d_name) + 4;
 #if 0
 		      if (NSTRCMP
 			  (e2->d_name + strlen (e2->d_name) - 4, ".lel") != 0)
