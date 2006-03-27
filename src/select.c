@@ -638,6 +638,7 @@ SelectedOperation (ObjectFunctionTypePtr F, Boolean Reset, int type)
       }
   }
   END_LOOP;
+
   if (type & PIN_TYPE && PCB->PinOn && F->Pin)
     ELEMENT_LOOP (PCB->Data);
   {
@@ -655,8 +656,13 @@ SelectedOperation (ObjectFunctionTypePtr F, Boolean Reset, int type)
 	}
     }
     END_LOOP;
-    if (F->Pad)
-      PAD_LOOP (element);
+  }
+  END_LOOP;
+  
+  if (type & PAD_TYPE && PCB->PinOn && F->Pad)
+    ELEMENT_LOOP (PCB->Data);
+  {
+    PAD_LOOP (element);
     {
       if (TEST_FLAG (SELECTEDFLAG, pad))
 	{
