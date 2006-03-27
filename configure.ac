@@ -269,6 +269,62 @@ This is needed for the png HID.
 done
 
 
+# ------------- dmalloc -------------------
+dnl dmalloc checks
+with_dmalloc=no
+AC_MSG_CHECKING([if dmalloc debugging should be enabled])
+AC_ARG_ENABLE([dmalloc],
+[  --enable-dmalloc        Compile and link with dmalloc for malloc debugging [default=no]],
+[
+if test "X$enable_dmalloc" != "Xno" ; then
+	AC_MSG_RESULT([yes])
+	AC_CHECK_HEADER(dmalloc.h,,
+		AC_MSG_ERROR([You have requested dmalloc debugging but dmalloc.h could not be found]))
+	AC_CHECK_LIB(dmalloc,main,,
+		AC_MSG_ERROR([You have requested dmalloc debugging but -ldmalloc could not be found]))
+	DMALLOC_LIBS="-ldmalloc"
+	with_dmalloc=yes
+else
+	AC_MSG_RESULT([no])
+	DMALLOC_LIBS=""
+fi
+],
+[
+	AC_MSG_RESULT([no])
+	DMALLOC_LIBS=""
+])
+
+# ------------- ElectricFence -------------------
+dnl ElectricFence checks
+with_efence=no
+AC_MSG_CHECKING([if ElectricFence debugging should be enabled])
+AC_ARG_ENABLE([efence],
+[  --enable-efence         Link with ElectricFence for malloc debugging [default=no]],
+[
+if test "X$enable_efence" != "Xno" ; then
+	AC_MSG_RESULT([yes])
+	AC_CHECK_LIB(efence,main,,
+		AC_MSG_ERROR([You have requested ElectricFence debugging but -lefence could not be found]))
+	with_efence=yes
+else
+	AC_MSG_RESULT([no])
+fi
+],
+[
+AC_MSG_RESULT([no])
+])
+
+CFLAGS="$CFLAGS $X_CFLAGS $GTK_CFLAGS $GD_CFLAGS"
+LIBS="$LIBS $XM_LIBS $X_LIBS $GTK_LIBS $DMALLOC_LIBS $GD_LIBS"
+
+
+# if we have gcc then add -Wall
+if test "x$GCC" = "xyes"; then
+	if test -z "`echo "$CFLAGS" | grep "\-Wall" 2> /dev/null`" ; then
+		CFLAGS="$CFLAGS -Wall"
+	fi
+fi
+
 
 # font filename
 FONTFILENAME=${FONTFILENAME:-"default_font"}
@@ -293,16 +349,6 @@ PCBTREEDIR=${PCBTREEDIR:-"$PCBTREEDIR"}
 AC_SUBST(PCBTREEDIR)
 #AC_DEFINE_UNQUOTED(PCBTREEDIR,"$PCBLIB",[top directory for new style pcb library])
 CPPFLAGS="$CPPFLAGS -DPCBTREEDIR=\\\"$PCBTREEDIR\\\""
-
-# if we have gcc then add -Wall
-if test "x$GCC" = "xyes"; then
-	if test -z "`echo "$CFLAGS" | grep "\-Wall" 2> /dev/null`" ; then
-		CFLAGS="$CFLAGS -Wall"
-	fi
-fi
-
-CFLAGS="$CFLAGS $X_CFLAGS $GTK_CFLAGS $GD_CFLAGS"
-LIBS="$LIBS $XM_LIBS $X_LIBS $GTK_LIBS $DMALLOC_LIBS $GD_LIBS"
 
 BTNMOD=${BTNMOD:-"Mod1"}
 AC_SUBST(BTNMOD)
@@ -373,6 +419,8 @@ AC_MSG_RESULT([
    Printer:                  $with_printer
    Exporters:                $with_exporters
    Build documentation:      $docs_yesno
+   dmalloc debugging:        $with_dmalloc
+   ElectricFence debugging:  $with_efence
    CPPFLAGS:                 $CPPFLAGS
    CFLAGS:                   $CFLAGS
    LIBS:                     $LIBS
