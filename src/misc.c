@@ -651,6 +651,7 @@ build_route_string (RouteStyleType * rs)
     }
   return str;
 #else
+  fprintf (stderr, "WARNING:  build_route_string() not fixed yet\n");
   return "Please_fix_build_route_string";
 #endif
 }
