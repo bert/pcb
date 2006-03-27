@@ -175,7 +175,7 @@ grow_layer_list (int num)
 {
   if (layers == 0)
     {
-      layers = (char *) calloc (num, 1);
+      layers = (char *) calloc (num > 0 ? num : 1, 1);
       max_layers = num;
     }
   else if (num > max_layers)
