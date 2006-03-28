@@ -31,6 +31,10 @@
 #ifndef	__MYMEM_INCLUDED__
 #define	__MYMEM_INCLUDED__
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #include <stdlib.h>
 #include "global.h"
 
@@ -113,6 +117,8 @@ char *StripWhiteSpaceAndDup (char *);
 char *strdup (const char *);
 #endif
 
+#ifndef HAVE_LIBDMALLOC
 #define malloc(x) calloc(1,(x))
+#endif
 
 #endif
