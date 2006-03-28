@@ -27,6 +27,10 @@
  *
  */
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #define NUDGE (TO_PCB (6))
 
 #include <math.h>
@@ -41,6 +45,10 @@
 #include "line.h"
 #include "misc.h"
 #include "rtree.h"
+
+#ifdef HAVE_LIBDMALLOC
+#include <dmalloc.h>
+#endif
 
 RCSID ("$Id$");
 

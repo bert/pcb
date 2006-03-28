@@ -60,6 +60,12 @@
 #include "undo.h"
 #include "vendor.h"
 
+#ifdef HAVE_LIBDMALLOC
+#include <dmalloc.h>
+#endif
+
+RCSID ("$Id$");
+
 static void add_to_drills (char *);
 static void apply_vendor_map (void);
 static void process_skips (Resource *);

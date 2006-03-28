@@ -62,6 +62,10 @@
 #include "remove.h"
 #include "rotate.h"
 
+#ifdef HAVE_LIBDMALLOC
+#include <dmalloc.h>
+#endif
+
 RCSID ("$Id$");
 
 #define EXPANDRECTXY(r1, x1, y1, x2, y2) { \

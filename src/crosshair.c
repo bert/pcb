@@ -48,6 +48,10 @@
 #include "mymem.h"
 #include "search.h"
 
+#ifdef HAVE_LIBDMALLOC
+#include <dmalloc.h>
+#endif
+
 RCSID ("$Id$");
 
 #if !defined(ABS)

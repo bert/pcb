@@ -55,6 +55,10 @@
 /* This next one is so we can print the help messages. */
 #include "hid/hidint.h"
 
+#ifdef HAVE_LIBDMALLOC
+#include <dmalloc.h>
+#endif
+
 RCSID ("$Id$");
 
 

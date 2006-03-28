@@ -44,6 +44,10 @@
 #include "mymem.h"
 #include "strflags.h"
 
+#ifdef HAVE_LIBDMALLOC
+#include <dmalloc.h>
+#endif
+
 RCSID ("$Id$");
 
 

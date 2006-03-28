@@ -47,6 +47,10 @@
 #include "strflags.h"
 #include "undo.h"
 
+#ifdef HAVE_LIBDMALLOC
+#include <dmalloc.h>
+#endif
+
 RCSID ("$Id$");
 
 #define sqr(x) (1.0*(x)*(x))

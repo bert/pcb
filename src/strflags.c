@@ -49,6 +49,12 @@
 #include "const.h"
 #include "strflags.h"
 
+#ifdef HAVE_LIBDMALLOC
+#include <dmalloc.h>
+#endif
+
+RCSID ("$Id$");
+
 /* Because all the macros expect it, that's why.  */
 typedef struct
 {
