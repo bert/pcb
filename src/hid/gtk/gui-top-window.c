@@ -55,7 +55,6 @@
 #include "copy.h"
 #include "create.h"
 #include "crosshair.h"
-#include "djopt.h"
 #include "draw.h"
 #include "error.h"
 #include "file.h"
@@ -1052,7 +1051,7 @@ static void
 toggle_only_auto_routed_cb (GtkAction * action, GHidPort * port)
 {
   /* Transient setting, not saved in Settings. Not a PCB flag */
-  djopt_set_auto_only ();
+  hid_action ("OptAutoOnly");
 }
 
 static void
