@@ -457,11 +457,12 @@ lesstif_insert_style_buttons (Widget menu)
 
   for (i = 0; i < NUM_STYLES; i++)
     {
+      Widget btn;
       n = 0;
       stdarg (XmNindicatorType, XmONE_OF_MANY);
       stdarg (XmNlabelString,
 	      XmStringCreateLocalized (PCB->RouteStyle[i].Name));
-      Widget btn = XmCreateToggleButton (menu, "style", args, n);
+      btn = XmCreateToggleButton (menu, "style", args, n);
       XtManageChild (btn);
       XtAddCallback (btn, XmNvalueChangedCallback,
 		     (XtCallbackProc) style_selected, (XtPointer) i);

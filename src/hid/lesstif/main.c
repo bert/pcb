@@ -857,8 +857,10 @@ static void
 work_area_expose (Widget work_area, void *me,
 		  XmDrawingAreaCallbackStruct * cbs)
 {
+  XExposeEvent *e;
+
   show_crosshair (0);
-  XExposeEvent *e = &(cbs->event->xexpose);
+  e = &(cbs->event->xexpose);
   XSetFunction (display, my_gc, GXcopy);
   XCopyArea (display, main_pixmap, window, my_gc,
 	     e->x, e->y, e->width, e->height, e->x, e->y);
@@ -1020,6 +1022,8 @@ static void
 lesstif_do_export (HID_Attr_Val * options)
 {
   Dimension width, height;
+  Widget menu;
+  Widget work_area_frame;
 
   n = 0;
   stdarg (XtNwidth, &width);
@@ -1047,12 +1051,12 @@ lesstif_do_export (HID_Attr_Val * options)
   n = 0;
   stdarg (XmNmarginWidth, 0);
   stdarg (XmNmarginHeight, 0);
-  Widget menu = lesstif_menu (mainwind, "menubar", args, n);
+  menu = lesstif_menu (mainwind, "menubar", args, n);
   XtManageChild (menu);
 
   n = 0;
   stdarg (XmNshadowType, XmSHADOW_IN);
-  Widget work_area_frame =
+  work_area_frame =
     XmCreateFrame (mainwind, "work_area_frame", args, n);
   XtManageChild (work_area_frame);
 
@@ -1208,7 +1212,6 @@ lesstif_listener_cb (XtPointer client_data, int *fid, XtInputId *id)
 {
   char buf[BUFSIZ];
   int nbytes;
-  int i;
 
   if ((nbytes = read (*fid, buf, BUFSIZ)) == -1)
     perror ("lesstif_listener_cb");
@@ -1500,6 +1503,7 @@ coords_to_widget (int x, int y, Widget w, int prev_state)
   static char buf[60];
   double dx, dy, g;
   int frac = 0;
+  XmString ms;
 
   if (Settings.grid_units_mm)
     {
@@ -1548,7 +1552,7 @@ coords_to_widget (int x, int y, Widget w, int prev_state)
 	sprintf (buf + strlen (buf), " (%d", (int) (dist + 0.5));
       sprintf (buf + strlen (buf), ", %d\260)", angle);
     }
-  XmString ms = XmStringCreateLocalized (buf);
+  ms = XmStringCreateLocalized (buf);
   n = 0;
   stdarg (XmNlabelString, ms);
   XtSetValues (w, args, n);
@@ -1751,6 +1755,7 @@ idle_proc ()
   {
     static double old_grid = -1;
     static int old_gx, old_gy, old_mm;
+	 XmString ms;
     if (PCB->Grid != old_grid
 	|| PCB->GridOffsetX != old_gx
 	|| PCB->GridOffsetY != old_gy || Settings.grid_units_mm != old_mm)
@@ -1787,7 +1792,7 @@ idle_proc ()
 	    else
 	      sprintf (buf, "%g %s", g, u);
 	  }
-	XmString ms = XmStringCreateLocalized (buf);
+	ms = XmStringCreateLocalized (buf);
 	n = 0;
 	stdarg (XmNlabelString, ms);
 	XtSetValues (m_grid, args, n);
