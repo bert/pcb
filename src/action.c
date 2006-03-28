@@ -989,7 +989,7 @@ NotifyMode (void)
 	     */
 	    DrawElement (element, 0);
 	    Draw ();
-	    hid_actionl ("Report", "Object", 0);
+	    hid_actionl ("Report", "Object", NULL);
 	  }
 	else if (type != NO_TYPE)
 	  {
@@ -1003,7 +1003,7 @@ NotifyMode (void)
 		DrawObject (type, ptr1, ptr2, 0);
 		Draw ();
 	      }
-	    hid_actionl ("Report", "Object", 0);
+	    hid_actionl ("Report", "Object", NULL);
 	  }
 	break;
       }

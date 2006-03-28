@@ -3213,7 +3213,7 @@ LookupConnection (LocationType X, LocationType Y, Boolean AndDraw,
   else
     {
       name = ConnectionName (type, ptr1, ptr2);
-      hid_actionl ("NetlistShow", name, 0);
+      hid_actionl ("NetlistShow", name, NULL);
     }
 
   TheFlag = which_flag;

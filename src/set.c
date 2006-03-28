@@ -382,7 +382,7 @@ SetRouteStyle (char *name)
     if (name && NSTRCMP (name, style->Name) == 0)
       {
 	sprintf (num, "%d", n + 1);
-	hid_actionl ("RouteStyle", num, 0);
+	hid_actionl ("RouteStyle", num, NULL);
 	break;
       }
   }

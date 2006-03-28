@@ -227,13 +227,13 @@ top_window_configure_event_cb (GtkWidget * widget, GdkEventConfigure * ev,
 static void
 save_layout_cb (GtkAction * action, GHidPort * port)
 {
-  hid_actionl ("Save", "Layout", 0);
+  hid_actionl ("Save", "Layout", NULL);
 }
 
 static void
 save_layout_as_cb (GtkAction * action, GHidPort * port)
 {
-  hid_actionl ("Save", "LayoutAs", 0);
+  hid_actionl ("Save", "LayoutAs", NULL);
 }
 
 static void revert_cb(GtkAction *action, GHidPort *port)
@@ -246,27 +246,27 @@ static void revert_cb(GtkAction *action, GHidPort *port)
 static void
 load_layout_cb (GtkAction * action, GHidPort * port)
 {
-  hid_actionl ("Load", "Layout", 0);
+  hid_actionl ("Load", "Layout", NULL);
 }
 
 static void
 load_element_data_cb (GtkAction * action, GHidPort * port)
 {
-  hid_actionl ("PasteBuffer", "Clear", "", 0);
-  hid_actionl ("Load", "ElementTobuffer", 0);
+  hid_actionl ("PasteBuffer", "Clear", "", NULL);
+  hid_actionl ("Load", "ElementTobuffer", NULL);
 }
 
 static void
 load_layout_data_cb (GtkAction * action, GHidPort * port)
 {
-  hid_actionl ("PasteBuffer", "Clear", "", 0);
-  hid_actionl ("Load", "LayoutTobuffer", 0);
+  hid_actionl ("PasteBuffer", "Clear", "", NULL);
+  hid_actionl ("Load", "LayoutTobuffer", NULL);
 }
 
 static void
 load_netlist_file_cb (GtkAction * action, GHidPort * port)
 {
-  hid_actionl ("Load", "Netlist", 0);
+  hid_actionl ("Load", "Netlist", NULL);
 }
 
 static void
@@ -292,19 +292,19 @@ connections_single_element_cb (GtkAction * action, GHidPort * port)
 {
   int x, y;
   gui->get_coords ("Press a button at the element's location", &x, &y);
-  hid_actionl ("Save", "ElementConnections", 0);
+  hid_actionl ("Save", "ElementConnections", NULL);
 }
 
 static void
 connections_all_elements_cb (GtkAction * action, GHidPort * port)
 {
-  hid_actionl ("Save", "AllConnections", 0);
+  hid_actionl ("Save", "AllConnections", NULL);
 }
 
 static void
 connections_unused_pins_cb (GtkAction * action, GHidPort * port)
 {
-  hid_actionl ("Save", "AllUnusedPins", 0);
+  hid_actionl ("Save", "AllUnusedPins", NULL);
 }
 
 static void
@@ -338,26 +338,26 @@ redo_cb (GtkAction * action, GHidPort * port)
 static void
 clear_undo_cb (GtkAction * action, GHidPort * port)
 {
-  hid_actionl ("Undo", "ClearList", 0);
+  hid_actionl ("Undo", "ClearList", NULL);
 }
 
 
 static void
 edit_text_on_layout_cb (GtkAction * action, GHidPort * port)
 {
-  hid_actionl ("ChangeName", "Object", 0);
+  hid_actionl ("ChangeName", "Object", NULL);
 }
 
 static void
 edit_name_of_layout_cb (GtkAction * action, GHidPort * port)
 {
-  hid_actionl ("ChangeName", "Layout", 0);
+  hid_actionl ("ChangeName", "Layout", NULL);
 }
 
 static void
 edit_name_of_active_layer_cb (GtkAction * action, GHidPort * port)
 {
-  hid_actionl ("ChangeName", "Layer", 0);
+  hid_actionl ("ChangeName", "Layer", NULL);
 }
 
 
@@ -372,7 +372,7 @@ toggle_draw_grid_cb (GtkToggleAction * action, GHidPort * port)
   /* Set to ! because ActionDisplay toggles it */
   Settings.DrawGrid = !gtk_toggle_action_get_active (action);
   ghidgui->config_modified = TRUE;
-  hid_actionl ("Display", "Grid", "", 0);
+  hid_actionl ("Display", "Grid", "", NULL);
   ghid_set_status_line_label ();
 }
 
@@ -381,7 +381,7 @@ realign_grid_cb (GtkAction * action, GHidPort * port)
 {
   int x, y;
   gui->get_coords ("Press a button at a grid point", &x, &y);
-  hid_actionl ("Display", "ToggleGrid", "", 0);
+  hid_actionl ("Display", "ToggleGrid", "", NULL);
   ghid_set_status_line_label ();
 }
 
@@ -422,7 +422,7 @@ toggle_pinout_shows_number_cb (GtkToggleAction * action, GHidPort * port)
   Settings.ShowNumber = gtk_toggle_action_get_active (action);
   ghidgui->config_modified = TRUE;
   if (!ghidgui->toggle_holdoff)
-    hid_actionl ("Display", "ToggleName", "", 0);
+    hid_actionl ("Display", "ToggleName", "", NULL);
 }
 
 static void
@@ -433,7 +433,7 @@ pinout_menu_cb (GtkAction * action, GHidPort * port)
       int x, y;
       gui->get_coords ("Select an element", &x, &y);
     }
-  hid_actionl ("Display", "Pinout", "", 0);
+  hid_actionl ("Display", "Pinout", "", NULL);
 }
 
   /* Do grid units handling common to a grid units change from the menu or
@@ -452,7 +452,7 @@ handle_grid_units_change (gboolean active)
   ghid_grid_setting_update_menu_actions ();
 
   grid = g_strdup_printf ("%f", PCB->Grid);
-  hid_actionl ("SetValue", "Grid", grid, "", 0);
+  hid_actionl ("SetValue", "Grid", grid, "", NULL);
   g_free (grid);
 
   ghid_config_handle_units_changed ();
@@ -481,7 +481,7 @@ radio_grid_mil_setting_cb (GtkAction * action, GtkRadioAction * current)
   index = gtk_radio_action_get_current_value (current);
   value = grid_mil_values[index];
   grid = g_strdup_printf ("%f", value);
-  hid_actionl ("SetValue", "Grid", grid, "", 0);
+  hid_actionl ("SetValue", "Grid", grid, "", NULL);
   g_free (grid);
   ghid_set_status_line_label ();
 }
@@ -498,7 +498,7 @@ radio_grid_mm_setting_cb (GtkAction * action, GtkRadioAction * current)
   index = gtk_radio_action_get_current_value (current);
   value = grid_mm_values[index];
   grid = g_strdup_printf ("%f", value);
-  hid_actionl ("SetValue", "Grid", grid, "", 0);
+  hid_actionl ("SetValue", "Grid", grid, "", NULL);
   g_free (grid);
   ghid_set_status_line_label ();
 }
@@ -511,7 +511,7 @@ radio_displayed_element_name_cb (GtkAction * action, GtkRadioAction * current)
 
   value = gtk_radio_action_get_current_value (current);
   if (value >= 0 && value < 4)
-    hid_actionl ("Display", doit[value], "", 0);
+    hid_actionl ("Display", doit[value], "", NULL);
 }
 
 
@@ -524,7 +524,7 @@ toggle_45_degree_cb (GtkToggleAction * action, GHidPort * port)
   Settings.AllDirectionLines = gtk_toggle_action_get_active (action);
   ghidgui->config_modified = TRUE;
   if (!ghidgui->toggle_holdoff)
-    hid_actionl ("Display", "Toggle45Degree", "", 0);
+    hid_actionl ("Display", "Toggle45Degree", "", NULL);
   ghid_set_status_line_label ();
 }
 
@@ -535,7 +535,7 @@ toggle_start_direction_cb (GtkToggleAction * action, GHidPort * port)
   Settings.SwapStartDirection = gtk_toggle_action_get_active (action);
   ghidgui->config_modified = TRUE;
   if (!ghidgui->toggle_holdoff)
-    hid_actionl ("Display", "ToggleStartDirection", "", 0);
+    hid_actionl ("Display", "ToggleStartDirection", "", NULL);
   ghid_set_status_line_label ();
 }
 
@@ -546,7 +546,7 @@ toggle_orthogonal_moves_cb (GtkToggleAction * action, GHidPort * port)
   Settings.OrthogonalMoves = gtk_toggle_action_get_active (action);
   ghidgui->config_modified = TRUE;
   if (!ghidgui->toggle_holdoff)
-    hid_actionl ("Display", "ToggleOrthoMove", "", 0);
+    hid_actionl ("Display", "ToggleOrthoMove", "", NULL);
   ghid_set_status_line_label ();
 }
 
@@ -557,7 +557,7 @@ toggle_snap_pin_cb (GtkToggleAction * action, GHidPort * port)
   Settings.SnapPin = gtk_toggle_action_get_active (action);
   ghidgui->config_modified = TRUE;
   if (!ghidgui->toggle_holdoff)
-    hid_actionl ("Display", "ToggleSnapPin", "", 0);
+    hid_actionl ("Display", "ToggleSnapPin", "", NULL);
 }
 
 static void
@@ -567,7 +567,7 @@ toggle_show_DRC_cb (GtkToggleAction * action, GHidPort * port)
   Settings.ShowDRC = gtk_toggle_action_get_active (action);
   ghidgui->config_modified = TRUE;
   if (!ghidgui->toggle_holdoff)
-    hid_actionl ("Display", "ToggleShowDRC", "", 0);
+    hid_actionl ("Display", "ToggleShowDRC", "", NULL);
 }
 
 static void
@@ -577,7 +577,7 @@ toggle_auto_DRC_cb (GtkToggleAction * action, GHidPort * port)
   Settings.AutoDRC = gtk_toggle_action_get_active (action);
   ghidgui->config_modified = TRUE;
   if (!ghidgui->toggle_holdoff)
-    hid_actionl ("Display", "ToggleAutoDRC", "", 0);
+    hid_actionl ("Display", "ToggleAutoDRC", "", NULL);
 }
 
 static void
@@ -587,7 +587,7 @@ toggle_rubber_band_cb (GtkToggleAction * action, GHidPort * port)
   Settings.RubberBandMode = gtk_toggle_action_get_active (action);
   ghidgui->config_modified = TRUE;
   if (!ghidgui->toggle_holdoff)
-    hid_actionl ("Display", "ToggleRubberBandMode", "", 0);
+    hid_actionl ("Display", "ToggleRubberBandMode", "", NULL);
 }
 
 static void
@@ -597,14 +597,14 @@ toggle_unique_names_cb (GtkToggleAction * action, GHidPort * port)
   Settings.UniqueNames = gtk_toggle_action_get_active (action);
   ghidgui->config_modified = TRUE;
   if (!ghidgui->toggle_holdoff)
-    hid_actionl ("Display", "ToggleUniqueNames", "", 0);
+    hid_actionl ("Display", "ToggleUniqueNames", "", NULL);
 }
 
 static void
 toggle_local_ref_cb (GtkAction * action, GHidPort * port)
 {
   /* Transient setting, not saved in Settings & not used for new PCB flag. */
-  hid_actionl ("Display", "ToggleLocalRef", "", 0);
+  hid_actionl ("Display", "ToggleLocalRef", "", NULL);
 }
 
 static void
@@ -614,7 +614,7 @@ toggle_clear_line_cb (GtkToggleAction * action, GHidPort * port)
   Settings.ClearLine = gtk_toggle_action_get_active (action);
   ghidgui->config_modified = TRUE;
   if (!ghidgui->toggle_holdoff)
-    hid_actionl ("Display", "ToggleClearLine", "", 0);
+    hid_actionl ("Display", "ToggleClearLine", "", NULL);
 }
 
 static void
@@ -624,7 +624,7 @@ toggle_live_route_cb (GtkToggleAction * action, GHidPort * port)
   Settings.liveRouting = gtk_toggle_action_get_active (action);
   ghidgui->config_modified = TRUE;
   if (!ghidgui->toggle_holdoff)
-    hid_actionl ("Display", "ToggleLiveRoute", "", 0);
+    hid_actionl ("Display", "ToggleLiveRoute", "", NULL);
 }
 
 static void
@@ -632,14 +632,14 @@ toggle_thin_draw_cb (GtkAction * action, GHidPort * port)
 {
   /* Transient setting, not saved in Settings & not used for new PCB flag. */
   if (!ghidgui->toggle_holdoff)
-    hid_actionl ("Display", "ToggleThindraw", "", 0);
+    hid_actionl ("Display", "ToggleThindraw", "", NULL);
 }
 
 static void
 toggle_check_planes_cb (GtkAction * action, GHidPort * port)
 {
   /* Transient setting, not saved in Settings & not used for new PCB flag. */
-  hid_actionl ("Display", "ToggleCheckPlanes", "", 0);
+  hid_actionl ("Display", "ToggleCheckPlanes", "", NULL);
 }
 
 static void
@@ -653,61 +653,61 @@ toggle_vendor_drill_mapping_cb (GtkAction * action, GHidPort * port)
 static void
 select_all_cb (GtkAction * action, GHidPort * port)
 {
-  hid_actionl ("Select", "All", 0);
+  hid_actionl ("Select", "All", NULL);
 }
 
 static void
 select_all_connected_cb (GtkAction * action, GHidPort * port)
 {
-  hid_actionl ("Select", "Connection", 0);
+  hid_actionl ("Select", "Connection", NULL);
 }
 
 static void
 unselect_all_cb (GtkAction * action, GHidPort * port)
 {
-  hid_actionl ("Unselect", "All", 0);
+  hid_actionl ("Unselect", "All", NULL);
 }
 
 static void
 unselect_all_connected_cb (GtkAction * action, GHidPort * port)
 {
-  hid_actionl ("Unselect", "Connection", 0);
+  hid_actionl ("Unselect", "Connection", NULL);
 }
 
 static void
 select_objects_by_name_cb (GtkAction * action, GHidPort * port)
 {
-  hid_actionl ("Select", "ObjectByName", 0);
+  hid_actionl ("Select", "ObjectByName", NULL);
 }
 
 static void
 select_elements_by_name_cb (GtkAction * action, GHidPort * port)
 {
-  hid_actionl ("Select", "ElementByName", 0);
+  hid_actionl ("Select", "ElementByName", NULL);
 }
 
 static void
 select_pads_by_name_cb (GtkAction * action, GHidPort * port)
 {
-  hid_actionl ("Select", "PadByName", 0);
+  hid_actionl ("Select", "PadByName", NULL);
 }
 
 static void
 select_pins_by_name_cb (GtkAction * action, GHidPort * port)
 {
-  hid_actionl ("Select", "PinByName", 0);
+  hid_actionl ("Select", "PinByName", NULL);
 }
 
 static void
 select_text_by_name_cb (GtkAction * action, GHidPort * port)
 {
-  hid_actionl ("Select", "TextByName", 0);
+  hid_actionl ("Select", "TextByName", NULL);
 }
 
 static void
 select_vias_by_name_cb (GtkAction * action, GHidPort * port)
 {
-  hid_actionl ("Select", "ViaByName", 0);
+  hid_actionl ("Select", "ViaByName", NULL);
 }
 
 static void
@@ -719,19 +719,19 @@ auto_place_selected_cb (GtkAction * action, GHidPort * port)
 static void
 disperse_all_elements_cb (GtkAction * action, GHidPort * port)
 {
-  hid_actionl ("DisperseElements", "All", 0);
+  hid_actionl ("DisperseElements", "All", NULL);
 }
 
 static void
 disperse_selected_elements_cb (GtkAction * action, GHidPort * port)
 {
-  hid_actionl ("DisperseElements", "Selected", 0);
+  hid_actionl ("DisperseElements", "Selected", NULL);
 }
 
 static void
 move_selected_other_side_cb (GtkAction * action, GHidPort * port)
 {
-  hid_actionl ("Flip", "SelectedElements", 0);
+  hid_actionl ("Flip", "SelectedElements", NULL);
 }
 
 static void
@@ -743,21 +743,21 @@ remove_selected_cb (GtkAction * action, GHidPort * port)
 static void
 convert_selected_to_element_cb (GtkAction * action, GHidPort * port)
 {
-  hid_actionl ("Select", "Convert", 0);
+  hid_actionl ("Select", "Convert", NULL);
 }
 
 static void
 optimize_selected_rats_cb (GtkAction * action, GHidPort * port)
 {
-  hid_actionl ("DeleteRats", "SelectedRats", 0);
-  hid_actionl ("AddRats", "SelectedRats", 0);
+  hid_actionl ("DeleteRats", "SelectedRats", NULL);
+  hid_actionl ("AddRats", "SelectedRats", NULL);
 }
 
 
 static void
 rip_up_selected_tracks_cb (GtkAction * action, GHidPort * port)
 {
-  hid_actionl ("RipUp", "Selected", 0);
+  hid_actionl ("RipUp", "Selected", NULL);
 }
 
 
@@ -768,8 +768,8 @@ selected_lines_size_change_cb (GtkAction * action, GHidPort * port)
 
   ghid_size_increment_get_value (gtk_action_get_name (action), &value,
 				 &units);
-  hid_actionl ("ChangeSize", "SelectedLines", value, units, 0);
-  hid_actionl ("ChangeSize", "SelectedArcs", value, units, 0);
+  hid_actionl ("ChangeSize", "SelectedLines", value, units, NULL);
+  hid_actionl ("ChangeSize", "SelectedArcs", value, units, NULL);
 }
 
 static void
@@ -779,7 +779,7 @@ selected_pads_size_change_cb (GtkAction * action, GHidPort * port)
 
   ghid_size_increment_get_value (gtk_action_get_name (action), &value,
 				 &units);
-  hid_actionl ("ChangeSize", "SelectedPads", value, units, 0);
+  hid_actionl ("ChangeSize", "SelectedPads", value, units, NULL);
 }
 
 static void
@@ -789,7 +789,7 @@ selected_pins_size_change_cb (GtkAction * action, GHidPort * port)
 
   ghid_size_increment_get_value (gtk_action_get_name (action), &value,
 				 &units);
-  hid_actionl ("ChangeSize", "SelectedPins", value, units, 0);
+  hid_actionl ("ChangeSize", "SelectedPins", value, units, NULL);
 }
 
 static void
@@ -799,7 +799,7 @@ selected_text_size_change_cb (GtkAction * action, GHidPort * port)
 
   ghid_size_increment_get_value (gtk_action_get_name (action), &value,
 				 &units);
-  hid_actionl ("ChangeSize", "SelectedText", value, units, 0);
+  hid_actionl ("ChangeSize", "SelectedText", value, units, NULL);
 }
 
 static void
@@ -809,7 +809,7 @@ selected_vias_size_change_cb (GtkAction * action, GHidPort * port)
 
   ghid_size_increment_get_value (gtk_action_get_name (action), &value,
 				 &units);
-  hid_actionl ("ChangeSize", "SelectedVias", value, units, 0);
+  hid_actionl ("ChangeSize", "SelectedVias", value, units, NULL);
 }
 
 static void
@@ -819,7 +819,7 @@ selected_vias_drill_change_cb (GtkAction * action, GHidPort * port)
 
   ghid_size_increment_get_value (gtk_action_get_name (action), &value,
 				 &units);
-  hid_actionl ("Change2ndSize", "SelectedVias", value, units, 0);
+  hid_actionl ("Change2ndSize", "SelectedVias", value, units, NULL);
 }
 
 static void
@@ -829,19 +829,19 @@ selected_pins_drill_change_cb (GtkAction * action, GHidPort * port)
 
   ghid_size_increment_get_value (gtk_action_get_name (action), &value,
 				 &units);
-  hid_actionl ("Change2ndSize", "SelectedPins", value, units, 0);
+  hid_actionl ("Change2ndSize", "SelectedPins", value, units, NULL);
 }
 
 static void
 selected_change_square_elements_cb (GtkAction * action, GHidPort * port)
 {
-  hid_actionl ("ChangeSquare", "SelectedElements", 0);
+  hid_actionl ("ChangeSquare", "SelectedElements", NULL);
 }
 
 static void
 selected_change_square_pins_cb (GtkAction * action, GHidPort * port)
 {
-  hid_actionl ("ChangeSquare", "SelectedPins", 0);
+  hid_actionl ("ChangeSquare", "SelectedPins", NULL);
 }
 
 
@@ -857,9 +857,9 @@ copy_selection_to_buffer_cb (GtkAction * action, GHidPort * port)
       int x, y;
       gui->get_coords (PRESS_BUTTON_ELEMENT_PROMPT, &x, &y);
     }
-  hid_actionl ("PasteBuffer", "Clear", "", 0);
-  hid_actionl ("PasteBuffer", "AddSelected", "", 0);
-  hid_actionl ("Mode", "PasteBuffer", 0);
+  hid_actionl ("PasteBuffer", "Clear", "", NULL);
+  hid_actionl ("PasteBuffer", "AddSelected", "", NULL);
+  hid_actionl ("Mode", "PasteBuffer", NULL);
 }
 
 
@@ -871,71 +871,71 @@ cut_selection_to_buffer_cb (GtkAction * action, GHidPort * port)
       int x, y;
       gui->get_coords (PRESS_BUTTON_ELEMENT_PROMPT, &x, &y);
     }
-  hid_actionl ("PasteBuffer", "Clear", "", 0);
-  hid_actionl ("PasteBuffer", "AddSelected", "", 0);
+  hid_actionl ("PasteBuffer", "Clear", "", NULL);
+  hid_actionl ("PasteBuffer", "AddSelected", "", NULL);
   hid_action ("RemoveSelected");
-  hid_actionl ("Mode", "PasteBuffer", 0);
+  hid_actionl ("Mode", "PasteBuffer", NULL);
 }
 
 static void
 paste_buffer_to_layout_cb (GtkAction * action, GHidPort * port)
 {
-  hid_actionl ("Mode", "PasteBuffer", 0);
+  hid_actionl ("Mode", "PasteBuffer", NULL);
 }
 
 static void
 rotate_buffer_CCW_cb (GtkAction * action, GHidPort * port)
 {
-  hid_actionl ("Mode", "PasteBuffer", 0);
-  hid_actionl ("PasteBuffer", "Rotate", "1", 0);
+  hid_actionl ("Mode", "PasteBuffer", NULL);
+  hid_actionl ("PasteBuffer", "Rotate", "1", NULL);
 }
 
 static void
 rotate_buffer_CW_cb (GtkAction * action, GHidPort * port)
 {
-  hid_actionl ("Mode", "PasteBuffer", 0);
-  hid_actionl ("PasteBuffer", "Rotate", "3", 0);
+  hid_actionl ("Mode", "PasteBuffer", NULL);
+  hid_actionl ("PasteBuffer", "Rotate", "3", NULL);
 }
 
 static void
 mirror_buffer_up_down_cb (GtkAction * action, GHidPort * port)
 {
-  hid_actionl ("Mode", "PasteBuffer", 0);
-  hid_actionl ("PasteBuffer", "Mirror", "", 0);
+  hid_actionl ("Mode", "PasteBuffer", NULL);
+  hid_actionl ("PasteBuffer", "Mirror", "", NULL);
 }
 
 static void
 mirror_buffer_left_right_cb (GtkAction * action, GHidPort * port)
 {
-  hid_actionl ("Mode", "PasteBuffer", 0);
-  hid_actionl ("PasteBuffer", "Rotate", "1", 0);
-  hid_actionl ("PasteBuffer", "Mirror", "", 0);
-  hid_actionl ("PasteBuffer", "Rotate", "3", 0);
+  hid_actionl ("Mode", "PasteBuffer", NULL);
+  hid_actionl ("PasteBuffer", "Rotate", "1", NULL);
+  hid_actionl ("PasteBuffer", "Mirror", "", NULL);
+  hid_actionl ("PasteBuffer", "Rotate", "3", NULL);
 }
 
 /* ============== ConnectsMenu callbacks =============== */
 static void
 clear_buffer_cb (GtkAction * action, GHidPort * port)
 {
-  hid_actionl ("PasteBuffer", "Clear", "", 0);
+  hid_actionl ("PasteBuffer", "Clear", "", NULL);
 }
 
 static void
 convert_buffer_to_element_cb (GtkAction * action, GHidPort * port)
 {
-  hid_actionl ("PasteBuffer", "Convert", "", 0);
+  hid_actionl ("PasteBuffer", "Convert", "", NULL);
 }
 
 static void
 break_buffer_elements_cb (GtkAction * action, GHidPort * port)
 {
-  hid_actionl ("PasteBuffer", "Restore", "", 0);
+  hid_actionl ("PasteBuffer", "Restore", "", NULL);
 }
 
 static void
 save_buffer_elements_cb (GtkAction * action, GHidPort * port)
 {
-  hid_actionl ("PasteBuffer", "Save", "", 0);
+  hid_actionl ("PasteBuffer", "Save", "", NULL);
 }
 
 static void
@@ -948,7 +948,7 @@ radio_select_current_buffer_cb (GtkAction * action, GtkRadioAction * current)
   if (value >= 1 && value <= 5)
     {
       sprintf (buf, "%d", value);
-      hid_actionl ("PasteBuffer", buf, "", 0);
+      hid_actionl ("PasteBuffer", buf, "", NULL);
     }
   ghid_set_status_line_label ();
 }
@@ -963,62 +963,62 @@ lookup_connection_cb (GtkAction * action, GHidPort * port)
       int x, y;
       gui->get_coords ("Select the object", &x, &y);
     }
-  hid_actionl ("Connection", "Find", 0);
+  hid_actionl ("Connection", "Find", NULL);
 }
 
 static void
 reset_scanned_pads_cb (GtkAction * action, GHidPort * port)
 {
-  hid_actionl ("Connection", "ResetPinsViasAndPads", 0);
+  hid_actionl ("Connection", "ResetPinsViasAndPads", NULL);
   ghid_invalidate_all();
 }
 
 static void
 reset_scanned_lines_cb (GtkAction * action, GHidPort * port)
 {
-  hid_actionl ("Connection", "ResetLinesAndPolygons", 0);
+  hid_actionl ("Connection", "ResetLinesAndPolygons", NULL);
   ghid_invalidate_all();
 }
 
 static void
 reset_all_connections_cb (GtkAction * action, GHidPort * port)
 {
-  hid_actionl ("Connection", "Reset", 0);
+  hid_actionl ("Connection", "Reset", NULL);
   ghid_invalidate_all();
 }
 
 static void
 optimize_rats_nest_cb (GtkAction * action, GHidPort * port)
 {
-  hid_actionl ("Atomic", "Save", 0);
-  hid_actionl ("DeleteRats", "AllRats", 0);
-  hid_actionl ("Atomic", "Restore", 0);
-  hid_actionl ("AddRats", "AllRats", 0);
-  hid_actionl ("Atomic", "Block", 0);
+  hid_actionl ("Atomic", "Save", NULL);
+  hid_actionl ("DeleteRats", "AllRats", NULL);
+  hid_actionl ("Atomic", "Restore", NULL);
+  hid_actionl ("AddRats", "AllRats", NULL);
+  hid_actionl ("Atomic", "Block", NULL);
 }
 
 static void
 erase_rats_nest_cb (GtkAction * action, GHidPort * port)
 {
-  hid_actionl ("DeleteRats", "AllRats", 0);
+  hid_actionl ("DeleteRats", "AllRats", NULL);
 }
 
 static void
 auto_route_selected_rats_cb (GtkAction * action, GHidPort * port)
 {
-  hid_actionl ("AutoRoute", "Selected", 0);
+  hid_actionl ("AutoRoute", "Selected", NULL);
 }
 
 static void
 auto_route_all_rats_cb (GtkAction * action, GHidPort * port)
 {
-  hid_actionl ("AutoRoute", "AllRats", 0);
+  hid_actionl ("AutoRoute", "AllRats", NULL);
 }
 
 static void
 rip_up_auto_routed_cb (GtkAction * action, GHidPort * port)
 {
-  hid_actionl ("RipUp", "All", 0);
+  hid_actionl ("RipUp", "All", NULL);
 }
 
 static void
@@ -1028,21 +1028,21 @@ optimize_routes_cb (GtkAction * action, GHidPort * port)
 
   saction = gtk_action_get_name (action);
   if (!strcmp (saction, "AutoOptimize"))
-    hid_actionl ("DJopt", "auto", 0);
+    hid_actionl ("DJopt", "auto", NULL);
   else if (!strcmp (saction, "Debumpify"))
-    hid_actionl ("DJopt", "debumpify", 0);
+    hid_actionl ("DJopt", "debumpify", NULL);
   else if (!strcmp (saction, "Unjaggy"))
-    hid_actionl ("DJopt", "unjaggy", 0);
+    hid_actionl ("DJopt", "unjaggy", NULL);
   else if (!strcmp (saction, "ViaNudge"))
-    hid_actionl ("DJopt", "vianudge", 0);
+    hid_actionl ("DJopt", "vianudge", NULL);
   else if (!strcmp (saction, "ViaTrim"))
-    hid_actionl ("DJopt", "viatrim", 0);
+    hid_actionl ("DJopt", "viatrim", NULL);
   else if (!strcmp (saction, "OrthoPull"))
-    hid_actionl ("DJopt", "orthopull", 0);
+    hid_actionl ("DJopt", "orthopull", NULL);
   else if (!strcmp (saction, "SimpleOpts"))
-    hid_actionl ("DJopt", "simple", 0);
+    hid_actionl ("DJopt", "simple", NULL);
   else if (!strcmp (saction, "Miter"))
-    hid_actionl ("DJopt", "miter", 0);
+    hid_actionl ("DJopt", "miter", NULL);
 
   ghid_invalidate_all();
 }
@@ -1077,19 +1077,19 @@ object_report_cb (GtkAction * action, GHidPort * port)
       int x, y;
       gui->get_coords ("Select the object", &x, &y);
     }
-  hid_actionl ("Report", "Object", 0);
+  hid_actionl ("Report", "Object", NULL);
 }
 
 static void
 drill_summary_cb (GtkAction * action, GHidPort * port)
 {
-  hid_actionl ("Report", "DrillReport", 0);
+  hid_actionl ("Report", "DrillReport", NULL);
 }
 
 static void
 found_pins_pads_cb (GtkAction * action, GHidPort * port)
 {
-  hid_actionl ("Report", "FoundPins", 0);
+  hid_actionl ("Report", "FoundPins", NULL);
 }
 
 
@@ -2900,7 +2900,7 @@ route_style_select_button_cb (GtkToggleButton * button, gpointer data)
     {
       snprintf (buf, sizeof (buf), "%d", index + 1);
       if (gtk_toggle_button_get_active (button))
-	hid_actionl ("RouteStyle", buf, 0);
+	hid_actionl ("RouteStyle", buf, NULL);
     }
   else if (index < NUM_STYLES + 2)
     {

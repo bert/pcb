@@ -416,7 +416,7 @@ ghid_port_key_press_cb (GtkWidget * drawing_area,
     case GDK_b:
     case GDK_B:
       if (mk == NONE_PRESSED)
-	hid_actionl ("Flip", "Object", 0);
+	hid_actionl ("Flip", "Object", NULL);
       else
 	handled = FALSE;
       break;
@@ -425,10 +425,10 @@ ghid_port_key_press_cb (GtkWidget * drawing_area,
     case GDK_C:
       if (mk == CONTROL_PRESSED)
 	{
-	  hid_actionl ("PasteBuffer", "Clear", 0);
-	  hid_actionl ("PasteBuffer", "AddSelected", 0);
-	  hid_actionl ("Unselect", "All", 0);
-	  hid_actionl ("Mode", "PasteBuffer", 0);
+	  hid_actionl ("PasteBuffer", "Clear", NULL);
+	  hid_actionl ("PasteBuffer", "AddSelected", NULL);
+	  hid_actionl ("Unselect", "All", NULL);
+	  hid_actionl ("Mode", "PasteBuffer", NULL);
 	}
       else
 	handled = FALSE;
@@ -437,7 +437,7 @@ ghid_port_key_press_cb (GtkWidget * drawing_area,
     case GDK_d:
     case GDK_D:
       if (mk == NONE_PRESSED)
-	hid_actionl ("Display", "PinOrPadName", 0);
+	hid_actionl ("Display", "PinOrPadName", NULL);
       else
 	handled = FALSE;
       break;
@@ -445,9 +445,9 @@ ghid_port_key_press_cb (GtkWidget * drawing_area,
     case GDK_e:
     case GDK_E:
       if (mk == NONE_PRESSED)	/* XXX handled in menu */
-	hid_actionl ("DeleteRats", "AllRats", 0);
+	hid_actionl ("DeleteRats", "AllRats", NULL);
       else if (mk == SHIFT_PRESSED)
-	hid_actionl ("DeleteRats", "SelectedRats", 0);
+	hid_actionl ("DeleteRats", "SelectedRats", NULL);
       else
 	handled = FALSE;
       break;
@@ -456,13 +456,13 @@ ghid_port_key_press_cb (GtkWidget * drawing_area,
     case GDK_F:
       if (mk == NONE_PRESSED)
 	{
-	  hid_actionl ("Connection", "Reset", 0);
-	  hid_actionl ("Connection", "Find", 0);
+	  hid_actionl ("Connection", "Reset", NULL);
+	  hid_actionl ("Connection", "Find", NULL);
 	}
       else if (mk == SHIFT_PRESSED)
-	hid_actionl ("Connection", "Reset", 0);
+	hid_actionl ("Connection", "Reset", NULL);
       else if (mk == CONTROL_PRESSED)
-	hid_actionl ("Connection", "Find", 0);
+	hid_actionl ("Connection", "Find", NULL);
       else
 	handled = FALSE;
       break;
@@ -492,11 +492,11 @@ ghid_port_key_press_cb (GtkWidget * drawing_area,
     case GDK_h:
     case GDK_H:
       if (mk == CONTROL_PRESSED)
-	hid_actionl ("ChangeHole", "Object", 0);
+	hid_actionl ("ChangeHole", "Object", NULL);
       else if (mk == SHIFT_PRESSED)
-	hid_actionl ("ToggleHideName", "SelectedElements", 0);
+	hid_actionl ("ToggleHideName", "SelectedElements", NULL);
       else if (mk == NONE_PRESSED)
-	hid_actionl ("ToggleHideName", "Object", 0);
+	hid_actionl ("ToggleHideName", "Object", NULL);
       else
 	handled = FALSE;
       break;
@@ -504,9 +504,9 @@ ghid_port_key_press_cb (GtkWidget * drawing_area,
     case GDK_j:
     case GDK_J:
       if (mk == SHIFT_PRESSED)
-	hid_actionl ("ChangeJoin", "SelectedObjects", 0);
+	hid_actionl ("ChangeJoin", "SelectedObjects", NULL);
       else if (mk == NONE_PRESSED)
-	hid_actionl ("ChangeJoin", "Object", 0);
+	hid_actionl ("ChangeJoin", "Object", NULL);
       else
 	handled = FALSE;
       break;
@@ -517,13 +517,13 @@ ghid_port_key_press_cb (GtkWidget * drawing_area,
 	{
 	  ghid_clear_increment_get_value ((mk == CONTROL_PRESSED) ? "+" : "-",
 					  &arg, &units);
-	  hid_actionl ("ChangeClearSize", "SelectedObjects", arg, units, 0);
+	  hid_actionl ("ChangeClearSize", "SelectedObjects", arg, units, NULL);
 	}
       else
 	{
 	  ghid_clear_increment_get_value ((mk == NONE_PRESSED) ? "+" : "-",
 					  &arg, &units);
-	  hid_actionl ("ChangeClearSize", "Object", arg, units, 0);
+	  hid_actionl ("ChangeClearSize", "Object", arg, units, NULL);
 	}
       break;
 
@@ -532,12 +532,12 @@ ghid_port_key_press_cb (GtkWidget * drawing_area,
       if (mk == SHIFT_PRESSED)
 	{
 	  ghid_line_increment_get_value ("-", &arg, &units);
-	  hid_actionl ("SetValue", "LineSize", arg, units, 0);
+	  hid_actionl ("SetValue", "LineSize", arg, units, NULL);
 	}
       else if (mk == NONE_PRESSED)
 	{
 	  ghid_line_increment_get_value ("+", &arg, &units);
-	  hid_actionl ("SetValue", "LineSize", arg, units, 0);
+	  hid_actionl ("SetValue", "LineSize", arg, units, NULL);
 	}
       else
 	handled = FALSE;
@@ -548,9 +548,9 @@ ghid_port_key_press_cb (GtkWidget * drawing_area,
       if (mk == CONTROL_PRESSED)
 	hid_action ("MarkCrosshair");
       else if (mk == SHIFT_PRESSED)
-	hid_actionl ("MoveToCurrentLayer", "SelectedObjects", 0);
+	hid_actionl ("MoveToCurrentLayer", "SelectedObjects", NULL);
       else if (mk == NONE_PRESSED)
-	hid_actionl ("MoveToCurrentLayer", "Object", 0);
+	hid_actionl ("MoveToCurrentLayer", "Object", NULL);
       else
 	handled = FALSE;
       break;
@@ -558,7 +558,7 @@ ghid_port_key_press_cb (GtkWidget * drawing_area,
     case GDK_n:
     case GDK_N:
       if (mk == SHIFT_PRESSED)
-	hid_actionl ("AddRats", "Close", 0);
+	hid_actionl ("AddRats", "Close", NULL);
       else
 	handled = FALSE;
       break;
@@ -567,21 +567,21 @@ ghid_port_key_press_cb (GtkWidget * drawing_area,
     case GDK_O:
       if (mk == NONE_PRESSED)	/* XXX handled in menu */
 	{
-	  hid_actionl ("Atomic", "Save", 0);
-	  hid_actionl ("DeleteRats", "AllRats", 0);
-	  hid_actionl ("Atomic", "Restore", 0);
-	  hid_actionl ("AddRats", "AllRats", 0);
-	  hid_actionl ("Atomic", "Block", 0);
+	  hid_actionl ("Atomic", "Save", NULL);
+	  hid_actionl ("DeleteRats", "AllRats", NULL);
+	  hid_actionl ("Atomic", "Restore", NULL);
+	  hid_actionl ("AddRats", "AllRats", NULL);
+	  hid_actionl ("Atomic", "Block", NULL);
 	}
       else if (mk == CONTROL_PRESSED)
-	hid_actionl ("ChangeOctagon", "Object", 0);
+	hid_actionl ("ChangeOctagon", "Object", NULL);
       else if (mk == SHIFT_PRESSED)
 	{
-	  hid_actionl ("Atomic", "Save", 0);
-	  hid_actionl ("DeleteRats", "AllRats", 0);
-	  hid_actionl ("Atomic", "Restore", 0);
-	  hid_actionl ("AddRats", "SelectedRats", 0);
-	  hid_actionl ("Atomic", "Block", 0);
+	  hid_actionl ("Atomic", "Save", NULL);
+	  hid_actionl ("DeleteRats", "AllRats", NULL);
+	  hid_actionl ("Atomic", "Restore", NULL);
+	  hid_actionl ("AddRats", "SelectedRats", NULL);
+	  hid_actionl ("Atomic", "Block", NULL);
 	}
       else
 	handled = FALSE;
@@ -590,9 +590,9 @@ ghid_port_key_press_cb (GtkWidget * drawing_area,
     case GDK_p:
     case GDK_P:
       if (mk == SHIFT_PRESSED)
-	hid_actionl ("Polygon", "Close", 0);
+	hid_actionl ("Polygon", "Close", NULL);
       else if (mk == NONE_PRESSED)
-	hid_actionl ("Polygon", "PreviousPoint", 0);
+	hid_actionl ("Polygon", "PreviousPoint", NULL);
       else
 	handled = FALSE;
       break;
@@ -600,7 +600,7 @@ ghid_port_key_press_cb (GtkWidget * drawing_area,
     case GDK_q:
     case GDK_Q:
       if (mk == NONE_PRESSED)
-	hid_actionl ("ChangeSquare", "ToggleObject", 0);
+	hid_actionl ("ChangeSquare", "ToggleObject", NULL);
       else
 	handled = FALSE;
       break;
@@ -611,13 +611,13 @@ ghid_port_key_press_cb (GtkWidget * drawing_area,
 	{
 	  ghid_size_increment_get_value ((mk == MOD1_PRESSED) ? "+" : "-",
 					 &arg, &units);
-	  hid_actionl ("ChangeDrillSize", "Object", arg, units, 0);
+	  hid_actionl ("ChangeDrillSize", "Object", arg, units, NULL);
 	}
       else
 	{
 	  ghid_size_increment_get_value ((mk == NONE_PRESSED) ? "+" : "-",
 					 &arg, &units);
-	  hid_actionl ("ChangeSize", "Object", arg, units, 0);
+	  hid_actionl ("ChangeSize", "Object", arg, units, NULL);
 	}
       break;
 
@@ -626,12 +626,12 @@ ghid_port_key_press_cb (GtkWidget * drawing_area,
       if (mk == SHIFT_PRESSED)
 	{
 	  ghid_size_increment_get_value ("-", &arg, &units);
-	  hid_actionl ("SetValue", "TextScale", arg, units, 0);
+	  hid_actionl ("SetValue", "TextScale", arg, units, NULL);
 	}
       else if (mk == NONE_PRESSED)
 	{
 	  ghid_size_increment_get_value ("+", &arg, &units);
-	  hid_actionl ("SetValue", "TextScale", arg, units, 0);
+	  hid_actionl ("SetValue", "TextScale", arg, units, NULL);
 	}
       else
 	handled = FALSE;
@@ -653,13 +653,13 @@ ghid_port_key_press_cb (GtkWidget * drawing_area,
 	{
 	  ghid_size_increment_get_value ((mk == MOD1_PRESSED) ? "+" : "-",
 					 &arg, &units);
-	  hid_actionl ("SetValue", "ViaDrillingHole", arg, units, 0);
+	  hid_actionl ("SetValue", "ViaDrillingHole", arg, units, NULL);
 	}
       else if (mk == CONTROL_PRESSED || mk == SHIFT_CONTROL_PRESSED)
 	{
 	  ghid_size_increment_get_value ((mk == CONTROL_PRESSED) ? "+" : "-",
 					 &arg, &units);
-	  hid_actionl ("SetValue", "ViaSize", arg, units, 0);
+	  hid_actionl ("SetValue", "ViaSize", arg, units, NULL);
 	}
       else
 	handled = FALSE;
@@ -668,9 +668,9 @@ ghid_port_key_press_cb (GtkWidget * drawing_area,
     case GDK_w:
     case GDK_W:
       if (mk == SHIFT_PRESSED)
-	hid_actionl ("AddRats", "SelectedRats", 0);
+	hid_actionl ("AddRats", "SelectedRats", NULL);
       else if (mk == NONE_PRESSED)
-	hid_actionl ("AddRats", "AllRats", 0);
+	hid_actionl ("AddRats", "AllRats", NULL);
       else
 	handled = FALSE;
       break;
@@ -678,14 +678,14 @@ ghid_port_key_press_cb (GtkWidget * drawing_area,
     case GDK_z:
     case GDK_Z:
       if (mk == NONE_PRESSED)	/* XXX handled in menu */
-	hid_actionl ("SetValue", "Zoom", "-1", 0);
+	hid_actionl ("SetValue", "Zoom", "-1", NULL);
       else			/* <shift>z handled in menu shortcut */
 	handled = FALSE;
       break;
 
     case GDK_bar:
     case GDK_backslash:
-      hid_actionl ("Display", "ToggleThindraw", 0);
+      hid_actionl ("Display", "ToggleThindraw", NULL);
       ghid_set_menu_toggle_button (ghidgui->main_actions,
 				   "ToggleThinDraw", TEST_FLAG (THINDRAWFLAG,
 								PCB));
@@ -709,21 +709,21 @@ ghid_port_key_press_cb (GtkWidget * drawing_area,
 	      && Crosshair.AttachedLine.State != STATE_FIRST))
 	{
 	  if (Settings.Mode == LINE_MODE)
-	    hid_actionl ("Mode", "Line", 0);
+	    hid_actionl ("Mode", "Line", NULL);
 	  else if (Settings.Mode == ARC_MODE)
-	    hid_actionl ("Mode", "Arc", 0);
+	    hid_actionl ("Mode", "Arc", NULL);
 	  else if (Settings.Mode == RECTANGLE_MODE)
-	    hid_actionl ("Mode", "Rectangle", 0);
+	    hid_actionl ("Mode", "Rectangle", NULL);
 	  else if (Settings.Mode == POLYGON_MODE)
-	    hid_actionl ("Mode", "Polygon", 0);
+	    hid_actionl ("Mode", "Polygon", NULL);
 
-	  hid_actionl ("Mode", "Notify", 0);
+	  hid_actionl ("Mode", "Notify", NULL);
 	}
-      hid_actionl ("Mode", "Cancel", 0);
+      hid_actionl ("Mode", "Cancel", NULL);
       break;
 
     case GDK_space:
-      hid_actionl ("Mode", "Arrow", 0);
+      hid_actionl ("Mode", "Arrow", NULL);
       break;
 
     case GDK_colon:
@@ -731,96 +731,96 @@ ghid_port_key_press_cb (GtkWidget * drawing_area,
       break;
 
     case GDK_period:
-      hid_actionl ("Display", "Toggle45Degree", 0);
+      hid_actionl ("Display", "Toggle45Degree", NULL);
       ghid_set_menu_toggle_button (ghidgui->main_actions,
 				   "Toggle45degree",
 				   TEST_FLAG (ALLDIRECTIONFLAG, PCB));
       break;
 
     case GDK_slash:
-      hid_actionl ("Display", "CycleClip", 0);
+      hid_actionl ("Display", "CycleClip", NULL);
       break;
 
     case GDK_Up:
       if (mk == CONTROL_PRESSED)
 	{
-	  hid_actionl ("Display", "Scroll", "8", 0);
-	  hid_actionl ("Display", "Scroll", "0", 0);
+	  hid_actionl ("Display", "Scroll", "8", NULL);
+	  hid_actionl ("Display", "Scroll", "0", NULL);
 	}
       else if (mk == SHIFT_PRESSED)
-	hid_actionl ("MovePointer", "0", "-10", 0);
+	hid_actionl ("MovePointer", "0", "-10", NULL);
       else if (mk == NONE_PRESSED)
-	hid_actionl ("MovePointer", "0", "-1", 0);
+	hid_actionl ("MovePointer", "0", "-1", NULL);
       break;
 
     case GDK_Down:
       if (mk == CONTROL_PRESSED)
 	{
-	  hid_actionl ("Display", "Scroll", "2", 0);
-	  hid_actionl ("Display", "Scroll", "0", 0);
+	  hid_actionl ("Display", "Scroll", "2", NULL);
+	  hid_actionl ("Display", "Scroll", "0", NULL);
 	}
       else if (mk == SHIFT_PRESSED)
-	hid_actionl ("MovePointer", "0", "10", 0);
+	hid_actionl ("MovePointer", "0", "10", NULL);
       else if (mk == NONE_PRESSED)
-	hid_actionl ("MovePointer", "0", "1", 0);
+	hid_actionl ("MovePointer", "0", "1", NULL);
       break;
 
     case GDK_Left:
       if (mk == CONTROL_PRESSED)
 	{
-	  hid_actionl ("Display", "Scroll", "4", 0);
-	  hid_actionl ("Display", "Scroll", "0", 0);
+	  hid_actionl ("Display", "Scroll", "4", NULL);
+	  hid_actionl ("Display", "Scroll", "0", NULL);
 	}
       else if (mk == SHIFT_PRESSED)
-	hid_actionl ("MovePointer", "-10", "0", 0);
+	hid_actionl ("MovePointer", "-10", "0", NULL);
       else if (mk == NONE_PRESSED)
-	hid_actionl ("MovePointer", "-1", "0", 0);
+	hid_actionl ("MovePointer", "-1", "0", NULL);
       break;
 
     case GDK_Right:
       if (mk == CONTROL_PRESSED)
 	{
-	  hid_actionl ("Display", "Scroll", "6", 0);
-	  hid_actionl ("Display", "Scroll", "0", 0);
+	  hid_actionl ("Display", "Scroll", "6", NULL);
+	  hid_actionl ("Display", "Scroll", "0", NULL);
 	}
       else if (mk == SHIFT_PRESSED)
-	hid_actionl ("MovePointer", "10", "0", 0);
+	hid_actionl ("MovePointer", "10", "0", NULL);
       else if (mk == NONE_PRESSED)
-	hid_actionl ("MovePointer", "1", "0", 0);
+	hid_actionl ("MovePointer", "1", "0", NULL);
       break;
 
     case GDK_BackSpace:
     case GDK_Delete:
       if (mk == SHIFT_PRESSED)
 	{
-	  hid_actionl ("Atomic", "Save", 0);
-	  hid_actionl ("Connection", "Reset", 0);
-	  hid_actionl ("Atomic", "Restore", 0);
-	  hid_actionl ("Unselect", "All", 0);
-	  hid_actionl ("Atomic", "Restore", 0);
-	  hid_actionl ("Connection", "Find", 0);
-	  hid_actionl ("Atomic", "Restore", 0);
-	  hid_actionl ("Select", "Connection", 0);
-	  hid_actionl ("Atomic", "Restore", 0);
+	  hid_actionl ("Atomic", "Save", NULL);
+	  hid_actionl ("Connection", "Reset", NULL);
+	  hid_actionl ("Atomic", "Restore", NULL);
+	  hid_actionl ("Unselect", "All", NULL);
+	  hid_actionl ("Atomic", "Restore", NULL);
+	  hid_actionl ("Connection", "Find", NULL);
+	  hid_actionl ("Atomic", "Restore", NULL);
+	  hid_actionl ("Select", "Connection", NULL);
+	  hid_actionl ("Atomic", "Restore", NULL);
 	  hid_action ("RemoveSelected");
-	  hid_actionl ("Atomic", "Restore", 0);
-	  hid_actionl ("Connection", "Reset", 0);
-	  hid_actionl ("Atomic", "Restore", 0);
-	  hid_actionl ("Unselect", "All", 0);
-	  hid_actionl ("Atomic", "Block", 0);
+	  hid_actionl ("Atomic", "Restore", NULL);
+	  hid_actionl ("Connection", "Reset", NULL);
+	  hid_actionl ("Atomic", "Restore", NULL);
+	  hid_actionl ("Unselect", "All", NULL);
+	  hid_actionl ("Atomic", "Block", NULL);
 	}
       else if (mk == NONE_PRESSED)
 	{
-	  hid_actionl ("Mode", "Save", 0);
-	  hid_actionl ("Mode", "Remove", 0);
-	  hid_actionl ("Mode", "Notify", 0);
-	  hid_actionl ("Mode", "Restore", 0);
+	  hid_actionl ("Mode", "Save", NULL);
+	  hid_actionl ("Mode", "Remove", NULL);
+	  hid_actionl ("Mode", "Notify", NULL);
+	  hid_actionl ("Mode", "Restore", NULL);
 	}
       break;
 
     case GDK_Insert:
       if (mk == NONE_PRESSED)
-	hid_actionl ("Mode", "InsertPoint", 0);
+	hid_actionl ("Mode", "InsertPoint", NULL);
 
     case GDK_1:
     case GDK_2:
@@ -839,58 +839,58 @@ ghid_port_key_press_cb (GtkWidget * drawing_area,
       break;
 
     case GDK_F1:
-      hid_actionl ("Mode", "Via", 0);
+      hid_actionl ("Mode", "Via", NULL);
       break;
 
     case GDK_F2:
-      hid_actionl ("Mode", "Line", 0);
+      hid_actionl ("Mode", "Line", NULL);
       break;
 
     case GDK_F3:
-      hid_actionl ("Mode", "Arc", 0);
+      hid_actionl ("Mode", "Arc", NULL);
       break;
 
     case GDK_F4:
-      hid_actionl ("Mode", "Text", 0);
+      hid_actionl ("Mode", "Text", NULL);
       break;
 
     case GDK_F5:
-      hid_actionl ("Mode", "Rectangle", 0);
+      hid_actionl ("Mode", "Rectangle", NULL);
       break;
 
     case GDK_F6:
-      hid_actionl ("Mode", "Polygon", 0);
+      hid_actionl ("Mode", "Polygon", NULL);
       break;
 
     case GDK_F7:
-      hid_actionl ("Mode", "PasteBuffer", 0);
+      hid_actionl ("Mode", "PasteBuffer", NULL);
       break;
 
     case GDK_F8:
-      hid_actionl ("Mode", "Remove", 0);
+      hid_actionl ("Mode", "Remove", NULL);
       break;
 
     case GDK_F9:
-      hid_actionl ("Mode", "Rotate", 0);
+      hid_actionl ("Mode", "Rotate", NULL);
       break;
 
     case GDK_F10:
-      hid_actionl ("Mode", "Thermal", 0);
+      hid_actionl ("Mode", "Thermal", NULL);
       break;
 
     case GDK_F11:
-      hid_actionl ("Mode", "Arrow", 0);
+      hid_actionl ("Mode", "Arrow", NULL);
       break;
 
     case GDK_bracketleft:
-      hid_actionl ("Mode", "Save", 0);
-      hid_actionl ("Mode", "Arrow", 0);
-      hid_actionl ("Mode", "Notify", 0);
+      hid_actionl ("Mode", "Save", NULL);
+      hid_actionl ("Mode", "Arrow", NULL);
+      hid_actionl ("Mode", "Notify", NULL);
       break;
 
     case GDK_bracketright:
-      hid_actionl ("Mode", "Release", 0);
-      hid_actionl ("Mode", "Restore", 0);
+      hid_actionl ("Mode", "Release", NULL);
+      hid_actionl ("Mode", "Restore", NULL);
       break;
     default:
       handled = FALSE;
@@ -947,20 +947,20 @@ ghid_port_button_press_cb (GtkWidget * drawing_area,
     {
     case 1:
       if (mk == NONE_PRESSED || mk == SHIFT_PRESSED)
-	hid_actionl ("Mode", "Notify", 0);
+	hid_actionl ("Mode", "Notify", NULL);
       else if (mk == CONTROL_PRESSED)
 	{
-	  hid_actionl ("Mode", "Save", 0);
-	  hid_actionl ("Mode", "None", 0);
-	  hid_actionl ("Mode", "Restore", 0);
-	  hid_actionl ("Mode", "Notify", 0);
+	  hid_actionl ("Mode", "Save", NULL);
+	  hid_actionl ("Mode", "None", NULL);
+	  hid_actionl ("Mode", "Restore", NULL);
+	  hid_actionl ("Mode", "Notify", NULL);
 	}
       else if (mk == SHIFT_CONTROL_PRESSED)
 	{
-	  hid_actionl ("Mode", "Save", 0);
-	  hid_actionl ("Mode", "Remove", 0);
-	  hid_actionl ("Mode", "Notify", 0);
-	  hid_actionl ("Mode", "Restore", 0);
+	  hid_actionl ("Mode", "Save", NULL);
+	  hid_actionl ("Mode", "Remove", NULL);
+	  hid_actionl ("Mode", "Notify", NULL);
+	  hid_actionl ("Mode", "Restore", NULL);
 	}
       break;
 
@@ -968,34 +968,34 @@ ghid_port_button_press_cb (GtkWidget * drawing_area,
       if (mk == NONE_PRESSED && in_draw_state ())
 	{
 	  if (Settings.Mode == LINE_MODE)
-	    hid_actionl ("Mode", "Line", 0);
+	    hid_actionl ("Mode", "Line", NULL);
 	  else if (Settings.Mode == ARC_MODE)
-	    hid_actionl ("Mode", "Arc", 0);
+	    hid_actionl ("Mode", "Arc", NULL);
 	  else if (Settings.Mode == RECTANGLE_MODE)
-	    hid_actionl ("Mode", "Rectangle", 0);
+	    hid_actionl ("Mode", "Rectangle", NULL);
 	  else if (Settings.Mode == POLYGON_MODE)
-	    hid_actionl ("Mode", "Polygon", 0);
+	    hid_actionl ("Mode", "Polygon", NULL);
 
-	  hid_actionl ("Mode", "Notify", 0);
+	  hid_actionl ("Mode", "Notify", NULL);
 	  draw_state_reset = TRUE;
 	}
       else if (mk == NONE_PRESSED)
 	{
-	  hid_actionl ("Mode", "Save", 0);
-	  hid_actionl ("Mode", "Stroke", 0);
+	  hid_actionl ("Mode", "Save", NULL);
+	  hid_actionl ("Mode", "Stroke", NULL);
 	}
       else if (mk == CONTROL_PRESSED)
 	{
-	  hid_actionl ("Mode", "Save", 0);
-	  hid_actionl ("Mode", "Copy", 0);
-	  hid_actionl ("Mode", "Notify", 0);
+	  hid_actionl ("Mode", "Save", NULL);
+	  hid_actionl ("Mode", "Copy", NULL);
+	  hid_actionl ("Mode", "Notify", NULL);
 	}
       else if (mk == SHIFT_CONTROL_PRESSED)
 	{
-	  hid_actionl ("Display", "ToggleRubberbandMode", 0);
-	  hid_actionl ("Mode", "Save", 0);
-	  hid_actionl ("Mode", "Move", 0);
-	  hid_actionl ("Mode", "Notify", 0);
+	  hid_actionl ("Display", "ToggleRubberbandMode", NULL);
+	  hid_actionl ("Mode", "Save", NULL);
+	  hid_actionl ("Mode", "Move", NULL);
+	  hid_actionl ("Mode", "Notify", NULL);
 	}
       break;
 
@@ -1044,33 +1044,33 @@ ghid_port_button_release_cb (GtkWidget * drawing_area,
   switch (ev->button)
     {
     case 1:
-      hid_actionl ("Mode", "Release", 0);	/* For all modifier states */
+      hid_actionl ("Mode", "Release", NULL);	/* For all modifier states */
       break;
 
     case 2:
       if (mk == NONE_PRESSED && !draw_state_reset)
 	{
-	  hid_actionl ("Mode", "Release", 0);
-	  hid_actionl ("Mode", "Restore", 0);
+	  hid_actionl ("Mode", "Release", NULL);
+	  hid_actionl ("Mode", "Restore", NULL);
 	}
       else if (mk == CONTROL_PRESSED)
 	{
-	  hid_actionl ("Mode", "Notify", 0);
-	  hid_actionl ("Mode", "Restore", 0);
+	  hid_actionl ("Mode", "Notify", NULL);
+	  hid_actionl ("Mode", "Restore", NULL);
 	}
       else if (mk == SHIFT_CONTROL_PRESSED)
 	{
-	  hid_actionl ("Mode", "Notify", 0);
-	  hid_actionl ("Mode", "Restore", 0);
-	  hid_actionl ("Display", "ToggleRubberbandMode", 0);
+	  hid_actionl ("Mode", "Notify", NULL);
+	  hid_actionl ("Mode", "Restore", NULL);
+	  hid_actionl ("Display", "ToggleRubberbandMode", NULL);
 	}
       break;
 
     case 3:
       if (mk == SHIFT_PRESSED)
 	{
-	  hid_actionl ("Display", "Center", 0);
-	  hid_actionl ("Display", "Restore", 0);
+	  hid_actionl ("Display", "Center", NULL);
+	  hid_actionl ("Display", "Restore", NULL);
 	}
       else if (ev->x == x_press && ev->y == y_press)
 	{

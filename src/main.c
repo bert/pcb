@@ -578,13 +578,13 @@ settings_post_process ()
   if (Settings.LibraryCommand[0] != '/' && Settings.LibraryCommand[0] != '.')
     {
       Settings.LibraryCommand
-	= Concat (Settings.LibraryCommandDir, "/", Settings.LibraryCommand, 0);
+	= Concat (Settings.LibraryCommandDir, "/", Settings.LibraryCommand, NULL);
     }
   if (Settings.LibraryContentsCommand[0] != '/'
       && Settings.LibraryContentsCommand[0] != '.')
     {
       Settings.LibraryContentsCommand
-	= Concat (Settings.LibraryCommandDir, "/", Settings.LibraryContentsCommand, 0);
+	= Concat (Settings.LibraryCommandDir, "/", Settings.LibraryContentsCommand, NULL);
     }
 
   if (Settings.LineThickness > MAX_LINESIZE
@@ -766,7 +766,7 @@ main (int argc, char *argv[])
     {
       Message (_("Executing startup script file %s\n"),
 	       Settings.ScriptFilename);
-      hid_actionl ("ExecuteFile", Settings.ScriptFilename, 0);
+      hid_actionl ("ExecuteFile", Settings.ScriptFilename, NULL);
     }
   if (Settings.ActionString)
     {

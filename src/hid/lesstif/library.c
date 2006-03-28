@@ -93,8 +93,8 @@ libnode_select (Widget w, void *v, XmListCallbackStruct * cbs)
 	SetMode (PASTEBUFFER_MODE);
       return;
     }
-  args = Concat ("'", EMPTY (e->Template), "' '",
-		 EMPTY (e->Value), "' '", EMPTY (e->Package), "'", 0);
+  args = Concat("'", EMPTY (e->Template), "' '",
+		EMPTY (e->Value), "' '", EMPTY (e->Package), "'", NULL);
   if (LoadElementToBuffer (PASTEBUFFER, args, False))
     SetMode (PASTEBUFFER_MODE);
 }

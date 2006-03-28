@@ -750,7 +750,7 @@ work_area_input (Widget w, XtPointer v, XEvent * e, Boolean * ctd)
       switch (e->xbutton.button)
 	{
 	case 1:
-	  hid_actionl ("Mode", "Notify", 0);
+	  hid_actionl ("Mode", "Notify", NULL);
 	  break;
 	case 2:
 	  break;
@@ -775,7 +775,7 @@ work_area_input (Widget w, XtPointer v, XEvent * e, Boolean * ctd)
       switch (e->xbutton.button)
 	{
 	case 1:
-	  hid_actionl ("Mode", "Release", 0);
+	  hid_actionl ("Mode", "Release", NULL);
 	  break;
 	case 2:
 	  break;
