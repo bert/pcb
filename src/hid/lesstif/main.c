@@ -1428,7 +1428,7 @@ lesstif_parse_arguments (int *argc, char ***argv)
   if (stdin_listen)
     {
       printf ("Listening on stdin for actions!!\n");
-      XtAppAddInput (app_context, fileno (stdin), XtInputReadMask,
+      XtAppAddInput (app_context, fileno (stdin), (XtPointer) XtInputReadMask,
 		     lesstif_listener_cb, NULL);
     }
 }
