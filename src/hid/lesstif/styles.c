@@ -212,7 +212,7 @@ units_cb ()
 }
 
 static Widget
-style_value (i)
+style_value (int i)
 {
   Widget w, l;
   n = 0;
