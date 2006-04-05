@@ -94,6 +94,7 @@ PinTypeHandle GetDrillPinMemory (DrillTypePtr);
 DrillTypePtr GetDrillInfoDrillMemory (DrillInfoTypePtr);
 void **GetPointerMemory (PointerListTypePtr);
 void *MyCalloc (size_t, size_t, const char *);
+void *MyMalloc (size_t, const char *);
 void *MyRealloc (void *, size_t, const char *);
 char *MyStrdup (char *s, const char *);
 void MyFree (char **);

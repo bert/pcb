@@ -628,7 +628,28 @@ MyCalloc (size_t Number, size_t Size, const char *Text)
     Number = 1;
   if (Size == 0)
     Size = 1;
+
   if ((p = calloc (Number, Size)) == NULL)
+    MyFatal ("out of memory during malloc() in '%s'()\n",
+	     (Text ? Text : "(unknown)"));
+#ifdef MEM_DEBUG
+  fprintf (stderr, "returned 0x%x\n", p);
+#endif
+  return (p);
+}
+
+void *
+MyMalloc (size_t Size, const char *Text)
+{
+  void *p;
+
+#ifdef MEM_DEBUG
+  fprintf (stderr, "MyMalloc %d by %d from %s ", Number, Size, Text);
+#endif
+  /* avoid malloc of 0 bytes */
+  if (Size == 0)
+    Size = 1;
+  if ((p = malloc (Size)) == NULL)
     MyFatal ("out of memory during malloc() in '%s'()\n",
 	     (Text ? Text : "(unknown)"));
 #ifdef MEM_DEBUG
