@@ -81,7 +81,7 @@
 								((v) * 0.000254) : ((v) * 0.01))
 
 #define TO_PCB_UNITS(v)		(Settings.grid_units_mm ? \
-								((v) / 0.000254) : ((v) / 0.01))
+								((v) / 0.000254 + 0.5) : ((v) * 100.0 + 0.5))
 
 #define SIDE_X(x)   ((Settings.ShowSolderSide ? PCB->MaxWidth - (x) : (x)))
 
