@@ -1,54 +1,683 @@
 
+Many actions take a @code{delta} parameter as the last parameter,
+which is an amount to change something.  That @code{delta} may include
+units, as an additional parameter, such as @code{Action(Object,5,mm)}.
+If no units are specified, the default is PCB's native units
+(currently 1/100 mil).  Also, if the delta is prefixed by @code{+} or
+@code{-}, the size is increased or decreased by that amount.
+Otherwise, the size size is set to the given amount.
+
+@example
+Action(Object,5,mil)
+Action(Object,+0.5,mm)
+Action(Object,-1)
+@end example
+
+Actions which take a @code{delta} parameter which do not accept all
+these options will specify what they do take.
+
+
+
+@macro pinshapes
+
+Pins, pads, and vias can have various shapes.  All may be round.  Pins
+and pads may be square (obviously "square" pads are usually
+rectangular).  Pins and vias may be octagonal.  When you change a
+shape flag of an element, you actually change all of its pins and
+pads.
+
+Note that the square flag takes precedence over the octagon flag,
+thus, if both the square and octagon flags are set, the object is
+square.  When the square flag is cleared, the pins and pads will be
+either round or, if the octagon flag is set, octagonal.
+
+@end macro
+
+
+
+Many actions act on indicated objects on the board.  They will have
+parameters like @code{ToggleObject} or @code{SelectedVias} to indicate
+what group of objects they act on.  Unless otherwise specified, these
+parameters are defined as follows:
+
+@table @code
+
+@item Object
+@itemx ToggleObject
+Affects the object under the mouse pointer.  If this action is invoked
+from a menu or script, the user will be prompted to click on an
+object, which is then the object affected.
+
+@item Selected
+@itemx SelectedObjects
+
+Affects all objects which are currently selected.  At least, all
+selected objects for which the given action makes sense.
+
+@item SelectedPins
+@itemx SelectedVias
+@itemx Selected@var{Type}
+@itemx @i{etc}
+Affects all objects which are both selected and of the @var{Type} specified.
+
+@end table
+
+
 @cartouche
 @format
-ApplyVendor()
-@end format
+About()@end format
 @end cartouche
+
+Tell the user about this version of PCB.
+
+This just pops up a dialog telling the user which version of
+@code{pcb} they're running.
+
+
+@cartouche
+@format
+AddRats(AllRats|SelectedRats|Close)@end format
+@end cartouche
+
+Add one or more rat lines to the board.
+
+@table @code
+
+@item AllRats
+Create rat lines for all loaded nets that aren't already connected on
+with copper.
+
+@item SelectedRats
+Similarly, but only add rat lines for nets connected to selected pins
+and pads.
+
+@item Close
+Selects the shortest unselected rat on the board.
+
+@end table
+
+
+@cartouche
+@format
+ApplyVendor()@end format
+@end cartouche
+
+Applies the currently loaded vendor drill table to the current design.
 @cindex vendor map 
 @cindex vendor drill table
 @findex ApplyVendor()
 
-Applies the currently loaded vendor drill table to the current design.
 This will modify all of your drill holes to match the list of allowed
 sizes for your vendor.
+
+@cartouche
+@format
+ Atomic(Save|Restore|Close|Block)@end format
+@end cartouche
+
+Save or restore the undo serial number.
+
+This action allows making multiple-action bindings into an atomic
+operation that will be undone by a single Undo command.  For example,
+to optimize rat lines, you'd delete the rats and re-add them.  To
+group these into a single undo, you'd want the deletions and the
+additions to have the same undo serial number.  So, you @code{Save},
+delete the rats, @code{Restore}, add the rats - using the same serial
+number as the deletes, then @code{Block}, which checks to see if the
+deletions or additions actually did anything.  If not, the serial
+number is set to the saved number, as there's nothing to undo.  If
+something did happen, the serial number is incremented so that these
+actions are counted as a single undo step.
+
+@table @code
+
+@item Save
+Saves the undo serial number.
+
+@item Restore
+Returns it to the last saved number.
+
+@item Close
+Sets it to 1 greater than the last save.
+
+@item Block
+Does a Restore if there was nothing to undo, else does a Close.
+
+@end table
 
 
 @cartouche
 @format
-DisableVendor()
-@end format
+AutoPlaceSelected()@end format
 @end cartouche
+
+Auto-place selected components.
+
+Attempts to re-arrange the selected components such that the nets
+connecting them are minimized.  Note that you cannot undo this.
+
+
+@cartouche
+@format
+AutoRoute(AllRats|SelectedRats)@end format
+@end cartouche
+
+Auto-route some or all rat lines.
+
+@table @code
+
+@item AllRats
+Attempt to autoroute all rats.
+
+@item SelectedRats
+Attempt to autoroute the selected rats.
+
+@end table
+
+Before autorouting, it's important to set up a few things.  First,
+make sure any layers you aren't using are disabled, else the
+autorouter may use them.  Next, make sure the current line and via
+styles are set accordingly.  Last, make sure "new lines clear
+polygons" is set, in case you eventually want to add a copper pour.
+
+Autorouting takes a while.  During this time, the program may not be
+responsive.
+
+
+@cartouche
+@format
+ChangeClearSize(Object, delta)
+ChangeClearSize(SelectedPins|SelectedPads|SelectedVias, delta)
+ChangeClearSize(SelectedLines|SelectedArcs, delta
+ChangeClearSize(Selected|SelectedObjects, delta)@end format
+@end cartouche
+
+Changes the clearance size of objects.
+
+If the solder mask is currently showing, this action changes the
+solder mask clearance.  If the mask is not showing, this action
+changes the polygon clearance.
+
+
+@cartouche
+@format
+ChangeDrillSize(Object, delta)
+ChangeDrillSize(SelectedPins|SelectedVias|Selected|SelectedObjects, delta)@end format
+@end cartouche
+
+Changes the drilling hole size of objects.
+
+
+@cartouche
+@format
+ChangeHole(ToggleObject|Object|SelectedVias|Selected)@end format
+@end cartouche
+
+Changes the hole flag of objects.
+
+The "hole flag" of a via determines whether the via is a
+plated-through hole (not set), or an unplated hole (set).
+
+
+@cartouche
+@format
+ChangeJoin(ToggleObject|SelectedLines|SelectedArcs|Selected)@end format
+@end cartouche
+
+Changes the join (clearance through polygons) of objects.
+
+The join flag determines whether a line or arc, drawn to intersect a
+polygon, electrically connects to the polygon or not.  When joined,
+the line/arc is simply drawn over the polygon, making an electrical
+connection.  When not joined, a gap is drawn between the line and the
+polygon, insulating them from each other.
+
+
+@cartouche
+@format
+ChangeName(Object)
+ChangeName(Layout|Layer)@end format
+@end cartouche
+
+Sets the name of objects.
+
+@table @code
+
+@item Object
+Changes the name of the element under the cursor.
+
+@item Layout
+Changes the name of the layout.  This is printed on the fab drawings.
+
+@item Layer
+Changes the name of the currently active layer.
+
+@end table
+
+
+@cartouche
+@format
+ChangeOctagon(Object|ToggleObject|SelectedObjects|Selected)
+ChangeOctagon(SelectedElements|SelectedPins|SelectedVias)@end format
+@end cartouche
+
+Changes the octagon-flag of pins and vias.
+
+@pinshapes
+
+
+@cartouche
+@format
+ChangePinName(ElementName,PinNumber,PinName)@end format
+@end cartouche
+
+Sets the name of a specific pin on a specific element.
+
+This can be especially useful for annotating pin names from a
+schematic to the layout without requiring knowledge of the pcb file
+format.
+
+@example
+ChangePinName(U3, 7, VCC)
+@end example
+
+
+@cartouche
+@format
+ChangeSize(Object, delta)
+ChangeSize(SelectedObjects|Selected, delta)
+ChangeSize(SelectedLines|SelectedPins|SelectedVias, delta)
+ChangeSize(SelectedPads|SelectedTexts|SelectedNames, delta)
+ChangeSize(SelectedElements, delta)@end format
+@end cartouche
+
+Changes the size of objects.
+
+For lines and arcs, this changes the width.  For pins and vias, this
+changes the overall diameter of the copper annulus.  For pads, this
+changes the width and, indirectly, the length.  For texts and names,
+this changes the scaling factor.  For elements, this changes the width
+of the silk layer lines and arcs for this element.
+
+
+@cartouche
+@format
+ChangeSquare(ToggleObject)
+ChangeSquare(SelectedElements|SelectedPins)
+ChangeSquare(Selected|SelectedObjects)@end format
+@end cartouche
+
+Changes the square flag of pins and pads.
+
+Note that @code{Pins} means both pins and pads.
+
+@pinshapes
+
+
+@cartouche
+@format
+ClearOctagon(ToggleObject|Object|SelectedObjects|Selected)
+ClearOctagon(SelectedElements|SelectedPins|SelectedVias)@end format
+@end cartouche
+
+Clears the octagon-flag of pins and vias.
+
+@pinshapes
+
+
+@cartouche
+@format
+ClearSquare(ToggleObject|SelectedElements|SelectedPins)@end format
+@end cartouche
+
+Clears the square-flag of pins and pads.
+
+Note that @code{Pins} means pins and pads.
+
+@pinshapes
+
+
+@cartouche
+@format
+ClearThermal(Object|SelectePins|SelectedVias|Selected|SelectedElements)@end format
+@end cartouche
+
+Clear a thermal (on the current layer) to pins or vias.
+
+This removes any electrical connection.  Pins and vias that do not
+already have thermals are not changed.
+
+
+@cartouche
+@format
+Connection(Find|ResetLinesAndPolygons|ResetPinsAndVias|Reset)@end format
+@end cartouche
+
+Searches connections of the object at the cursor position.
+
+Connections found with this action will be highlighted in the
+``connected-color'' color and will have the ``found'' flag set.
+
+@table @code
+
+@item Find
+The net under the cursor is ``found''.
+
+@item ResetLinesAndPolygons
+Any ``found'' lines and polygons are marked ``not found''.
+
+@item ResetPinsAndVias
+Any ``found'' pins and vias are marked ``not found''.
+
+@item Reset
+All ``found'' objects are marked ``not found''.
+
+@end table
+
+
+@cartouche
+@format
+DeleteRats(AllRats|Selected|SelectedRats)@end format
+@end cartouche
+
+Delete rat lines.
+
+
+@cartouche
+@format
+DisableVendor()@end format
+@end cartouche
+
+Disables automatic drill size mapping.
+
 @cindex vendor map 
 @cindex vendor drill table
 @findex DisableVendor()
 
-Disables automatic drill size mapping.  When drill mapping is 
-enabled, new instances of pins and vias will have their drill
-holes mapped to one of the allowed drill sizes specified in the
-currently loaded vendor drill table.
+When drill mapping is enabled, new instances of pins and vias will
+have their drill holes mapped to one of the allowed drill sizes
+specified in the currently loaded vendor drill table.
 
 
 @cartouche
 @format
-EnableVendor()
-@end format
+DisperseElements(All|Selected)@end format
 @end cartouche
+
+Disperses elements.
+
+Normally this is used when starting a board, by selecting all elements
+and then dispersing them.  This scatters the elements around the board
+so that you can pick individual ones, rather than have all the
+elements at the same 0,0 coordinate and thus impossible to choose
+from.
+
+
+@cartouche
+@format
+Display(NameOnPCB|Description|Value)
+Display(Grid|Redraw)
+Display(CycleClip|Toggle45Degree|ToggleStartDirection)
+Display(ToggleGrid|ToggleRubberBandMode|ToggleUniqueNames)
+Display(ToggleMask|ToggleName|ToggleClearLine|ToggleSnapPin)
+Display(ToggleThindraw|ToggleOrthoMove|ToggleLocalRef)
+Display(ToggleCheckPlanes|ToggleShowDRC|ToggleAutoDRC)
+Display(ToggleLiveRoute)
+Display(Pinout|PinOrPadName)
+Display(Scroll, Direction)@end format
+@end cartouche
+
+Several display-related actions.
+
+@table @code
+
+@item NameOnPCB
+@item Description
+@item Value
+Specify whether all elements show their name, description, or value.
+
+@item Redraw
+Redraw the whole board.
+
+@item Toggle45Degree
+When clear, lines can be drawn at any angle.  When set, lines are
+restricted to multiples of 45 degrees and requested lines may be
+broken up according to the clip setting.
+
+@item CycleClip
+Changes the way lines are restricted to 45 degree increments.  The
+varous settings are: straight only, orthogonal then angled, and angled
+then orthogonal.  If AllDirections is set, this action disables it.
+
+@item ToggleRubberBandMode
+If set, moving an object moves all the lines attached to it too.
+
+@item ToggleStartDirection
+If set, each time you set a point in a line, the Clip toggles between
+orth-angle and angle-ortho.
+
+@item ToggleUniqueNames
+If set, you will not be permitted to change the name of an element to
+match that of another element.
+
+@item ToggleSnapPin
+If set, pin centers and pad end points are treated as additional grid
+points that the cursor can snap to.
+
+@item ToggleLocalRef
+If set, the mark is automatically set to the beginning of any move, so
+you can see the relative distance you've moved.
+
+@item ToggleThindraw
+If set, objects on the screen are drawn as outlines (lines are drawn
+as center-lines).  This lets you see line endpoints hidden under pins,
+for example.
+
+@item ToggleShowDRC
+If set, pending objects (i.e. lines you're in the process of drawing)
+will be drawn with an outline showing how far away from other copper
+you need to be.
+
+@item ToggleLiveRoute
+If set, the progress of the autorouter will be visible on the screen.
+
+@item ToggleAutoDRC
+If set, you will not be permitted to make connections which violate
+the current DRC and netlist settings.
+
+@item ToggleCheckPlanes
+If set, lines and arcs aren't drawn, which usually leaves just the
+polygons.  If you also disable all but the layer you're interested in,
+this allows you to check for isolated regions.
+
+@item ToggleOrthoMove
+If set, the crosshair is only allowed to move orthogonally from its
+previous position.  I.e. you can move an element or line up, down,
+left, or right, but not up+left or down+right.
+
+@item ToggleName
+Selects whether the pinouts show the pin names or the pin numbers.
+
+@item ToggleMask
+Turns the solder mask on or off.
+
+@item ToggleClearLine
+When set, the clear-line flag causes new lines and arcs to have their
+``clear polygons'' flag set, so they won't be electrically connected
+to any polygons they overlap.
+
+@item ToggleGrid
+Resets the origin of the current grid to be wherever the mouse pointer
+is (not where the crosshair currently is).  If you provide two numbers
+after this, the origin is set to that coordinate.  The numbers are in
+PCB internal units, currently 1/100 mil.
+
+@item Grid
+Toggles whether the grid is displayed or not.
+
+@item Pinout
+Causes the pinout of the element indicated by the cursor to be
+displayed, usually in a separate window.
+
+@item PinOrPadName
+Toggles whether the names of pins, pads, or (yes) vias will be
+displayed.  If the cursor is over an element, all of its pins and pads
+are affected.
+
+@item Scroll <direction>
+Scrolls the viewport in the given direction, with 1=down/left, 2=down,
+etc, according to the numeric keypad layout.
+
+@end table
+
+
+@cartouche
+@format
+djopt(debumpify|unjaggy|simple|vianudge|viatrim|orthopull)
+djopt(auto) - all of the above
+djopt(miter)@end format
+@end cartouche
+
+Perform various optimizations on the current board
+
+The different types of optimizations change your board in order to
+reduce the total trace length and via count.
+
+@table @code
+
+@item debumpify
+Looks for U-shaped traces that can be shortened or eliminated.
+
+@item unjaggy
+Looks for corners which could be flipped to eliminate one or more
+corners (i.e. jaggy lines become simpler).
+
+@item simple
+Removing uneeded vias, replacing two or more trace segments in a row
+with a single segment.  This is usually performed automatically after
+other optimizations.
+
+@item vianudge
+Looks for vias where all traces leave in the same direction.  Tries to
+move via in that direction to eliminate one of the traces (and thus a
+corner).
+
+@item viatrim
+Looks for traces that go from via to via, where moving that trace to a
+different layer eliminates one or both vias.
+
+@item orthopull
+Looks for chains of traces all going in one direction, with more
+traces orthagonal on one side than on the other.  Moves the chain in
+that direction, causing a net reduction in trace length, possibly
+eliminating traces and/or corners.
+
+@item auto
+Performs the above options, repeating until no further optimizations
+can be made.
+
+@item miter
+Replaces 90 degree corners with a pair of 45 degree corners, to reduce
+RF losses and trace length.
+
+@end table
+
+
+@cartouche
+@format
+DRC()@end format
+@end cartouche
+
+Invoke the DRC check.
+
+Note that the design rule check uses the current board rule settings,
+not the current style settings.
+
+
+@cartouche
+@format
+EnableVendor()@end format
+@end cartouche
+
+Enables automatic drill size mapping.
+
 @cindex vendor map 
 @cindex vendor drill table
 @findex EnableVendor()
 
-Enables automatic drill size mapping.  When drill mapping is 
-enabled, new instances of pins and vias will have their drill
-holes mapped to one of the allowed drill sizes specified in the
-currently loaded vendor drill table.  To enable drill mapping, a
-vendor resource file containing a drill table must be loaded first.
+When drill mapping is enabled, new instances of pins and vias will
+have their drill holes mapped to one of the allowed drill sizes
+specified in the currently loaded vendor drill table.  To enable drill
+mapping, a vendor resource file containing a drill table must be
+loaded first.
 
 
 @cartouche
 @format
-LoadVendorFrom(filename)
-@end format
+ExecuteFile(filename)@end format
 @end cartouche
+
+Run actions from the given file.
+
+Lines starting with @code{#} are ignored.
+
+
+@cartouche
+@format
+Flip(Object|Selected|SelectedElements)@end format
+@end cartouche
+
+Flip an element to the opposite side of the board.
+
+Note that the location of the element will be symmetric about the
+cursor location; i.e. if the part you are pointing at will still be at
+the same spot once the element is on the other side.  When flipping
+multiple elements, this retains their positions relative to each
+other, not their absolute positions on the board.
+
+
+@cartouche
+@format
+LoadFrom(Layout|LayoutToBuffer|ElementToBuffer|Netlist|Revert,filename)@end format
+@end cartouche
+
+Load layout data from a file.
+
+This action assumes you know what the filename is.  The various GUIs
+should have a similar @code{Load} action where the filename is
+optional, and will provide their own file selection mechanism to let
+you choose the file name.
+
+@table @code
+
+@item Layout
+Loads an entire PCB layout, replacing the current one.
+
+@item LayoutToBuffer
+Loads an entire PCB layout to the paste buffer.
+
+@item ElementToBuffer
+Loads the given element file into the paste buffer.  Element files
+contain only a single @code{Element} definition, such as the
+``newlib'' library uses.
+
+@item Netlist
+Loads a new netlist, replacing any current netlist.
+
+@item Revert
+Re-loads the current layout from its disk file, reverting any changes
+you may have made.
+
+@end table
+
+
+@cartouche
+@format
+LoadVendorFrom(filename)@end format
+@end cartouche
+
+Loads the specified vendor resource file.
+
 @cindex vendor map 
 @cindex vendor drill table
 @findex LoadVendorFrom()
@@ -58,33 +687,422 @@ LoadVendorFrom(filename)
 Name of the vendor resource file
 @end table
 
-Loads the specified vendor resource file.
+
+@cartouche
+@format
+MarkCrosshair()
+MarkCrosshair(Center)@end format
+@end cartouche
+
+Set/Reset the Crosshair mark
+
+The ``mark'' is a small X-shaped target on the display which is
+treated like a second origin (the normal origin is the upper let
+corner of the board).  The GUI will display a second set of
+coordinates for this mark, which tells you how far you are from it.
+
+If no argument is given, the mark is toggled - disabled if it was
+enabled, or enabled at the current cursor position of disabled.  If
+the @code{Center} argument is given, the mark is moved to the current
+cursor location.
 
 
 @cartouche
 @format
-ToggleVendor()
-@end format
+Mode(Arc|Arrow|Copy|InsertPoint|Line|Lock|Move|None|PasteBuffer)
+Mode(Polygon|Rectangle|Remove|Rotate|Text|Thermal|Via)
+Mode(Notify|Release|Cancel|Stroke)
+Mode(Save|Restore)@end format
 @end cartouche
+
+Change or use the tool mode.
+
+@table @code
+
+@item Arc
+@itemx Arrow
+@itemx Copy
+@itemx InsertPoint
+@itemx Line
+@itemx Lock
+@itemx Move
+@itemx None
+@itemx PasteBuffer
+@itemx Polygon
+@itemx Rectangle
+@itemx Remove
+@itemx Rotate
+@itemx Text
+@itemx Thermal
+@itemx Via
+Select the indicated tool.
+
+@item Notify
+Called when you press the mouse button, or move the mouse.
+
+@item Release
+Called when you release the mouse button.
+
+@item Cancel
+Cancels any pending tool activity, allowing you to restart elsewhere.
+For example, this allows you to start a new line rather than attach a
+line to the previous line.
+
+@item Stroke
+If your @code{pcb} was built with libstroke, this invokes the stroke
+input method.  If not, this will restart a drawing mode if you were
+drawing, else it will select objects.
+
+@item Save
+Remembers the current tool.
+
+@item Restore
+Restores the tool to the last saved tool.
+
+@end table
+
+
+@cartouche
+@format
+OptAutoOnly()@end format
+@end cartouche
+
+Toggles the optimize-only-autorouted flag.
+
+The original purpose of the trace optimizer was to clean up the traces
+created by the various autorouters that have been used with PCB.  When
+a board has a mix of autorouted and carefully hand-routed traces, you
+don't normally want the optimizer to move your hand-routed traces.
+But, sometimes you do.  By default, the optimizer only optimizes
+autorouted traces.  This action toggles that setting, so that you can
+optimize hand-routed traces also.
+
+
+@cartouche
+@format
+PasteBuffer(AddSelected|Clear|1..MAX_BUFFER)
+PasteBuffer(Rotate, 1..3)
+PasteBuffer(Convert|Save|Restore|Mirror)@end format
+@end cartouche
+
+Various operations on the paste buffer.
+
+There are a number of paste buffers; the actual limit is a
+compile-time constant @code{MAX_BUFFER} in @file{globalconst.h}.  It
+is currently @code{5}.  One of these is the ``current'' paste buffer,
+often referred to as ``the'' paste buffer.
+
+@table @code
+
+@item AddSelected
+Copies the selected objects to the current paste buffer.
+
+@item Clear
+Remove all objects from the current paste buffer.
+
+@item Convert
+Convert the current paste buffer to an element.  Vias are converted to
+pins, lines are converted to pads.
+
+@item Restore
+Convert any elements in the paste buffer back to vias and lines.
+
+@item Mirror
+Flip all objects in the paste buffer vertically (up/down flip).  To mirror
+horizonally, combine this with rotations.
+
+@item Rotate
+Rotates the current buffer.  The number to pass is 1..3, where 1 means
+90 degrees counter clockwise, 2 means 180 degrees, and 3 means 90
+degrees clockwise (270 CCW).
+
+@item Save
+Saves any elements in the current buffer to the indicated file.
+
+@item 1..MAX_BUFFER
+Selects the given buffer to be the current paste buffer.
+
+@end table
+
+
+@cartouche
+@format
+Quit()@end format
+@end cartouche
+
+Quits the application.
+
+If you have unsaved changes, you will be prompted to confirm before
+quitting.
+
+
+@cartouche
+@format
+RemoveSelected()@end format
+@end cartouche
+
+Removes any selected objects.
+
+
+@cartouche
+@format
+RipUp(All|Selected|Element)@end format
+@end cartouche
+
+Ripup auto-routed tracks, or convert an element to parts.
+
+@table @code
+
+@item All
+Removes all lines and vias which were created by the autorouter.
+
+@item Selected
+Removes all selected lines and vias which were created by the
+autorouter.
+
+@item Element
+Converts the element under the cursor to parts (vias and lines).  Note
+that this uses the highest numbered paste buffer.
+
+@end table
+
+
+@cartouche
+@format
+SaveTo(Layout|LayoutAs,filename)
+SaveTo(AllConnections|AllUnusedPins|ElementConnections,filename)@end format
+@end cartouche
+
+Saves data to a file.
+
+@table @code
+
+@item Layout
+Saves the current layout.
+
+@item LayoutAs
+Saves the current layout, and remembers the filename used.
+
+@item AllConnections
+Save all connections to a file.
+
+@item AllUnusedPins
+List all unused pins to a file.
+
+@item ElementConnections
+Save connections to the element at the cursor to a file.
+
+@end table
+
+
+@cartouche
+@format
+Select(ToggleObject)
+Select(All|Block|Connection)
+Select(ElementByName|ObjectByName|PadByName|PinByName)
+Select(TextByName|ViaByName)
+Select(Convert)@end format
+@end cartouche
+
+Toggles or sets the selection
+
+@table @code
+
+@item ElementByName
+@item ObjectByName
+@item PadByName
+@item PinByName
+@item TextByName
+@item ViaByName
+
+These all rely on having a regular expression parser built into
+@code{pcb}.  The user is prompted for a pattern, and all object that
+match the pattern and are of the type specified are selected.
+
+@item Object
+@item ToggleObject
+Selects the object under the cursor.
+
+@item Block
+Selects all objects in a rectangle indicated by the cursor.
+
+@item All
+Selects all objects on the board.
+
+@item Connection
+Selects all connections with the ``found'' flag set.
+
+@item Convert
+Converts the selected objects to an element.  This uses the highest
+numbered paste buffer.
+
+@end table
+
+
+@cartouche
+@format
+SetOctagon(Object|ToggleObject|SelectedElements|Selected)@end format
+@end cartouche
+
+Sets the octagon-flag of objects.
+
+@pinshapes
+
+
+@cartouche
+@format
+SetSquare(ToggleObject|SelectedElements|SelectedPins)@end format
+@end cartouche
+
+sets the square-flag of objects.
+
+Note that @code{Pins} means pins and pads.
+
+@pinshapes
+
+
+@cartouche
+@format
+SetThermal(Object|SelectePins|SelectedVias|Selected|SelectedElements)@end format
+@end cartouche
+
+Set a thermal (on the current layer) to pins or vias.
+
+This adds an electrical connection between the pins or vias, and any
+rectangle or polygon on the current layer.
+
+
+@cartouche
+@format
+SetValue(Grid|Line|LineSize|Text|TextScale|ViaDrillingHole|Via|ViaSize, delta)@end format
+@end cartouche
+
+Change various board-wide values and sizes.
+
+@table @code
+
+@item ViaDrillingHole
+Changes the diameter of the drill for new vias.
+
+@item Grid
+Sets the grid spacing.
+
+@item Line
+@item LineSize
+Changes the thickness of new lines.
+
+@item Via
+@item ViaSize
+Changes the diameter of new vias.
+
+@item Text
+@item TextScale
+Changes the size of new text.
+
+@end table
+
+
+@cartouche
+@format
+ToggleVendor()@end format
+@end cartouche
+
+Toggles the state of automatic drill size mapping.
+
 @cindex vendor map 
 @cindex vendor drill table
 @findex ToggleVendor()
 
-Toggles the state of automatic drill size mapping.  When drill mapping is 
-enabled, new instances of pins and vias will have their drill
-holes mapped to one of the allowed drill sizes specified in the
-currently loaded vendor drill table.  To enable drill mapping, a
-vendor resource file containing a drill table must be loaded first.
+When drill mapping is enabled, new instances of pins and vias will
+have their drill holes mapped to one of the allowed drill sizes
+specified in the currently loaded vendor drill table.  To enable drill
+mapping, a vendor resource file containing a drill table must be
+loaded first.
 
 
 @cartouche
 @format
-UnloadVendor()
-@end format
+UnloadVendor()@end format
 @end cartouche
+
+Unloads the current vendor drill mapping table.
+
 @cindex vendor map 
 @cindex vendor drill table
 @findex UnloadVendor()
 
-Unloads the current vendor drill mapping table.
+
+@cartouche
+@format
+Unselect(All|Block|Connection)@end format
+@end cartouche
+
+unselects the object at the pointer location
+
+@table @code
+
+@item All
+Unselect all objects.
+
+@item Block
+Unselect all objects in a rectangle given by the cursor.
+
+@item Connection
+Unselect all connections with the ``found'' flag set.
+
+@end table
+
+
+@cartouche
+@format
+Zoom(gtk)@end format
+@end cartouche
+
+this is the gtk zoom
+
+This is for the gtk zoom.
+
+
+@cartouche
+@format
+Zoom(lesstif)@end format
+@end cartouche
+
+this is the lesstif zoom
+
+This is for the lesstif zoom.
+
+
+@section gtk actions
+@cartouche
+@format
+Zoom(gtk)@end format
+@end cartouche
+
+this is the gtk zoom
+
+This is for the gtk zoom.
+
+
+@section lesstif actions
+@cartouche
+@format
+About()@end format
+@end cartouche
+
+Tell the user about this version of PCB.
+
+This just pops up a dialog telling the user which version of
+@code{pcb} they're running.
+
+
+@cartouche
+@format
+Zoom(lesstif)@end format
+@end cartouche
+
+this is the lesstif zoom
+
+This is for the lesstif zoom.
+
 

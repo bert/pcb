@@ -81,6 +81,7 @@ board layout system for @code{X11}.
 * Regular Expressions::    Searching for elements with regular expressions
 * Standard Drill Sizes::   Tables of standard drill sizes
 * Centroid File Format::   Details of the centroid (x-y) output file
+* Action Reference::       Documentation for all available actions
 * Glossary::               Glossary
 * Index::                  The Index.
 @end menu
@@ -4236,7 +4237,9 @@ understand this when creating the pads for a new footprint.  The following figur
 illustrates a pad or line which is drawn using a square aperture.  The end
 points (X0,Y0), (X1,Y1) specify the center of the aperture.  The size parameter
 specifies the size of the aperture.
+
 @center @image{pad,,,Pad Layout,png}
+
 Pads and lines are represented in this way because this is how lines are 
 specified in RS-274-X (Gerber) files which are used for creating
 the masks used in board manufacturing.  In fact, older mask making
@@ -5624,7 +5627,7 @@ Enter "R128+".
 @include metric_size.texi
 
 @c --------------------------- Appendix -- Centroid File Format ----------------------
-@node Centroid File Format, Glossary, Standard Drill Sizes, Top
+@node Centroid File Format, Action Reference, Standard Drill Sizes, Top
 @cindex centroid file format
 @cindex x-y file format
 @appendix Centroid (X-Y) File Format
@@ -5690,8 +5693,15 @@ for the definitions of rotation.  In other words, when pin #1 is at
 the centroid of the part and pin #2 is in the upper left quadrant, the
 rotation is declared to be zero degrees.
 
+@c --------------------------- Appendix -- Actions ----------------------
+@node Action Reference, Glossary, Centroid File Format, Top
+@cindex action reference
+@appendix Action Reference
+
+@include actions.texi
+
 @c --------------------------- Appendix -- Glossary ----------------------
-@node Glossary, Index, Centroid File Format, Top
+@node Glossary, Index, Action Reference, Top
 @cindex glossary
 @cindex terminology
 @cindex index of terms

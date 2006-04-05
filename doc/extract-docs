@@ -4,10 +4,42 @@
 # $Id$
 #
 
+# The general format of what this script looks for is thusly:
+#
+#  %start-doc category sort-key
+#  texi stuff goes here
+#  %end-doc
+#
+# The lines with the %start-doc and %end-doc are not included in the
+# texi extraction; only the lines between them.  The category is used
+# to determine the file that's created; a category of "foo" causes a
+# file "foo.texi" to be created.  The sort-keys are case insensitive.
+# The text extracted is sorte according to the key and put into the
+# file according to the category.
+
+# Note that we synthesize a special @syntax command, which should be
+# used for all things syntax.  We change those to whatever the current
+# desired style is for syntaxes (currently, a cartouche box of
+# non-wrapped but variable-pitch font).
+
+# For extracting actions, this script expects a very specific syntax
+# to be used.  It looks like this, with one or more lines
+# (continuations are like this example):
+#
+# static const char some_string_help[] =
+# "some text\n"
+# "some text";
+#
+# Repeat for some_string_syntax[], then follow those with the usual
+# %start-doc.  Note that the %start-doc for actions must use the
+# category "actions" and the sort key must match the action name.
+
+
 $docdir = shift;
 $docdir = "." unless $docdir;
 $srcdir = "$docdir/../src";
 $docdir = ".";
+
 
 open(FIND, "find $srcdir -type f -name '*.[chly]' -print | sort |");
 while (<FIND>) {
@@ -16,12 +48,45 @@ while (<FIND>) {
 }
 close (FIND);
 
+sub dsort {
+    my ($a, $b) = @_;
+    $a =~ tr/A-Z/a-z/;
+    $b =~ tr/A-Z/a-z/;
+    return $a cmp $b;
+}
+
 for $cat (sort keys %text) {
     print "$cat\n";
-    @k = sort keys %{$text{$cat}};
+    @k = sort {&dsort($a,$b)} keys %{$text{$cat}};
     $new = '';
-    for $key (@k) {
-	$new .= $text{$cat}{$key};
+    if ($cat eq "actions") {
+	for $hid (sort keys %{$hids{$cat}}) {
+	    if ($hid =~ /../) {
+		$new .= "\@section $hid actions\n";
+	    }
+	    for $key (@k) {
+		#print "key $key in hid $hid\n";
+		next unless $key =~ m@$hid$@;
+		#print "  - print\n";
+		if ($synt{$key}) {
+		    $new .= "\@cartouche\n\@format\n";
+		    $new .= $synt{$key};
+		    $new .= "\@end format\n\@end cartouche\n\n";
+		}
+		if ($desc{$key}) {
+		    $new .= $desc{$key} . "\n";
+		}
+		$new .= $text{$cat}{$key};
+		if (! $desc{$key} && ! $text{$cat}{$key} ) {
+		    $new .= "No documentation yet.\n";
+		}
+		$new .= "\n";
+	    }
+	}
+    } else {
+	for $key (@k) {
+	    $new .= $text{$cat}{$key};
+	}
     }
     $^A = "";
     $line = join(' ', @k);
@@ -43,6 +108,11 @@ for $cat (sort keys %text) {
 
 sub scan_file {
     my ($name) = @_;
+    if ($name =~ m@hid/([^/]+)/@) {
+	$hid = "$1";
+    } else {
+	$hid = "";
+    }
 
     if ($name =~ /\.[ch]$/) {
 	$new = $name;
@@ -54,16 +124,38 @@ sub scan_file {
 
     open(F, $name);
     while (<F>) {
+	if (/^static const char .*_(help|syntax)\[\] =/) {
+	    $tag = $1;
+	    $last = 0;
+	    $pending{$tag} = '';
+	    while (<F>) {
+		s/[\r\n\s]+$//;
+		$last = 1 if /;$/;
+		s/^[\s]*\"//;
+		s/\\n/\n/g;
+		s/\";?$//;
+		$pending{$tag} .= $_;
+		last if $last;
+	    }
+	    next;
+	}
+
 	if (/%start-doc\s+(\S+)\s+(\S+)/) {
 	    $cat = $1;
 	    $key = $2;
+	    $hids{$cat}{$hid} = 1;
+	    if ($cat =~ /^(.*_)?actions/) {
+		$desc{"$key\0$hid"} = $pending{'help'};
+		$synt{"$key\0$hid"} = $pending{'syntax'};
+		%pending = ();
+	    }
 	    while (<F>) {
 		next if /^\*\/$/;
 		next if /^\/\*$/;
 		last if /%end-doc/;
 		s/\@syntax/\@cartouche\n\@format/g;
 		s/\@end syntax/\@end format\n\@end cartouche/g;
-		$text{$cat}{$key} .= $_;
+		$text{$cat}{"$key\0$hid"} .= $_;
 	    }
 	}
     }
