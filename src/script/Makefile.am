@@ -1,3 +1,4 @@
+## -*- Makefile -*-
 ## $Id$
 ##
 
@@ -5,9 +6,9 @@
 ## app-defaults file because certain platforms like cygwin don't have 
 ## case sensitive file systems.
 
-bin_SCRIPTS=	pcb pcb-print
+bin_SCRIPTS=	pcb
 
-EXTRA_DIST= pcb.in pcb-print
+EXTRA_DIST= pcb.in
 
 DISTCLEANFILES= pcb
 
