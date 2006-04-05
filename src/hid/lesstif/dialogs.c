@@ -751,7 +751,10 @@ About (int argc, char **argv, int x, int y)
   if (!about)
     {
       static char *msg = "This is " PACKAGE " " VERSION "\n"
-	"http://pcb.sourceforge.net";
+	"http://pcb.sourceforge.net\n\n"
+	"Also see:\n\n"
+	"   gEDA homepage:  http://www.geda.seul.org\n"
+	"   gEDA Wiki:      http://geda.seul.org/dokuwiki/doku.php?id=geda\n";
       Cardinal n = 0;
       XmString xs = XmStringCreateLocalized (msg);
       stdarg (XmNmessageString, xs);

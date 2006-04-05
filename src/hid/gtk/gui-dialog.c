@@ -104,14 +104,18 @@ ghid_dialog_about (void)
 				   "Compiled on " __DATE__ " at " __TIME__
 				   "\n\n" "by harry eaton\n\n"
 				   "Copyright (C) Thomas Nau 1994, 1995, 1996, 1997\n"
-				   "Copyright (C) harry eaton 1998-2004\n"
-				   "Copyright (C) C. Scott Ananian 2001\n\n"
+				   "Copyright (C) harry eaton 1998-2006\n"
+				   "Copyright (C) C. Scott Ananian 2001\n"
+				   "Copyright (C) DJ Delorie 2003, 2004, 2005, 2006\n"
+				   "Copyright (C) Dan McMahill 2003, 2004, 2005, 2006\n\n"
 				   "It is licensed under the terms of the GNU\n"
 				   "General Public License version 2\n"
 				   "See the LICENSE file for more information\n\n"
-				   "If you have problems, hints or\n"
-				   "suggestions, send mail to:\n"
-				   "bumpelo at comcast dot net\n\n");
+				   "For more information see:\n\n"
+				   "PCB homepage: http://pcb.sf.net\n"
+				   "gEDA homepage: http://www.geda.seul.org\n"
+				   "gEDA Wiki: http://geda.seul.org/dokuwiki/doku.php?id=geda\n\n"
+				   );
 
   gtk_dialog_run (GTK_DIALOG (dialog));
   gtk_widget_destroy (dialog);
