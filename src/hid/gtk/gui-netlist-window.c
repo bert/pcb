@@ -241,7 +241,7 @@ node_selection_changed_cb (GtkTreeSelection * selection, gpointer data)
   if (!gtk_tree_selection_get_selected (selection, &model, &iter))
     {
       if (node)
-	Draw ();
+        ghid_invalidate_all ();
       return;
     }
 
@@ -433,7 +433,7 @@ netlist_select_cb (GtkWidget * widget, gpointer data)
   ResetFoundLinesAndPolygons (False);
   FreeConnectionLookupMemory ();
   IncrementUndoSerialNumber ();
-  Draw ();
+  ghid_invalidate_all ();
 }
 
 LibraryEntryType *
@@ -719,7 +719,7 @@ ghid_get_net_from_node_name (gchar * node_name, gboolean enabled_only)
    |  and its net highlighted.
 */
 void
-ghid_netlist_highlight_node (gchar * node_name, gboolean change_style)
+ghid_netlist_highlight_node (gchar * node_name)
 {
   GtkTreePath *path;
   GtkTreeIter iter;
@@ -729,19 +729,9 @@ ghid_netlist_highlight_node (gchar * node_name, gboolean change_style)
   if (!node_name)
     return;
 
-  if ((net = ghid_get_net_from_node_name (node_name, change_style)) == NULL)
+  if ((net = ghid_get_net_from_node_name (node_name, TRUE)) == NULL)
     return;
 
-  /* Original PCB code changes the route style here.  Is that really
-     |  what the user wants if he just looks up connections to an object?
-   */
-#ifdef FIXME
-  if (change_style)
-    {
-      SetRouteStyle (net->Style);
-      ghid_route_style_buttons_update ();
-    }
-#endif
   /* We've found the net containing the node, so update the node treeview
      |  to contain the nodes from the net.  Then we have to find the node
      |  in the new node model so we can highlight it.
@@ -821,6 +811,8 @@ static gint
 NetlistShow (int argc, char **argv, int x, int y)
 {
   ghid_netlist_window_show (gport);
+  if (argc > 0)
+    ghid_netlist_highlight_node(argv[0]);
   return 0;
 }
 

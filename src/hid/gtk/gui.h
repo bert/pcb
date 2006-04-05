@@ -465,7 +465,7 @@ void ghid_netlist_window_update (gboolean init_nodes);
 void ghid_netlist_nodes_update (LibraryMenuType * net);
 
 LibraryMenuType *ghid_get_net_from_node_name (gchar * name, gboolean);
-void ghid_netlist_highlight_node (gchar * name, gboolean change_style);
+void ghid_netlist_highlight_node (gchar * name);
 
 
 /* gui-command-window.c */
