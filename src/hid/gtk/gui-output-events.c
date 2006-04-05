@@ -699,27 +699,58 @@ ghid_port_key_press_cb (GtkWidget * drawing_area,
       break;
 
     case GDK_Escape:
-      if ((Settings.Mode == LINE_MODE
-	   && Crosshair.AttachedLine.State != STATE_FIRST)
-	  || (Settings.Mode == ARC_MODE
-	      && Crosshair.AttachedBox.State != STATE_FIRST)
-	  || (Settings.Mode == RECTANGLE_MODE
-	      && Crosshair.AttachedBox.State != STATE_FIRST)
-	  || (Settings.Mode == POLYGON_MODE
-	      && Crosshair.AttachedLine.State != STATE_FIRST))
+      switch (Settings.Mode)
 	{
-	  if (Settings.Mode == LINE_MODE)
-	    hid_actionl ("Mode", "Line", NULL);
-	  else if (Settings.Mode == ARC_MODE)
-	    hid_actionl ("Mode", "Arc", NULL);
-	  else if (Settings.Mode == RECTANGLE_MODE)
-	    hid_actionl ("Mode", "Rectangle", NULL);
-	  else if (Settings.Mode == POLYGON_MODE)
-	    hid_actionl ("Mode", "Polygon", NULL);
+	case VIA_MODE:
+	case PASTEBUFFER_MODE:
+	case TEXT_MODE:
+	case ROTATE_MODE:
+	case REMOVE_MODE:
+	case MOVE_MODE:
+	case COPY_MODE:
+	case INSERTPOINT_MODE:
+	case RUBBERBANDMOVE_MODE:
+	case THERMAL_MODE:
+	case LOCK_MODE:
+	  hid_actionl ("Mode", "Arrow", NULL);
+	  break;
 
-	  hid_actionl ("Mode", "Notify", NULL);
+	case LINE_MODE:
+	  if (Crosshair.AttachedLine.State == STATE_FIRST)
+	    hid_actionl ("Mode", "Arrow", NULL);
+	  else
+	    hid_actionl ("Mode", "Line", NULL);
+	  break;
+
+	case RECTANGLE_MODE:
+	  if (Crosshair.AttachedBox.State == STATE_FIRST)
+	    hid_actionl ("Mode", "Arrow", NULL);
+	  else
+	    hid_actionl ("Mode", "Rectangle", NULL);
+	  break;
+
+	case POLYGON_MODE:
+	  if (Crosshair.AttachedLine.State == STATE_FIRST)
+	    hid_actionl ("Mode", "Arrow", NULL);
+	  else
+	    hid_actionl ("Mode", "Polygon", NULL);
+	  break;
+
+	case ARC_MODE:
+	  if (Crosshair.AttachedBox.State == STATE_FIRST)
+	    hid_actionl ("Mode", "Arrow", NULL);
+	  else
+	    hid_actionl ("Mode", "Arc", NULL);
+	  break;
+
+	case ARROW_MODE:
+	  break;
+
+	default:
+	  gui->log ("Mode %d not handled by ESC\n", Settings.Mode);
+	  break;
 	}
-      hid_actionl ("Mode", "Cancel", NULL);
+
       break;
 
     case GDK_space:
@@ -900,7 +931,7 @@ ghid_port_key_press_cb (GtkWidget * drawing_area,
   AdjustAttachedObjects ();
   ghid_invalidate_all ();
   RestoreCrosshair (TRUE);
-//      ghid_show_crosshair(TRUE);
+  /*      ghid_show_crosshair(TRUE); */
   ghid_screen_update ();
   ghid_set_status_line_label ();
   g_idle_add (ghid_idle_cb, NULL);
