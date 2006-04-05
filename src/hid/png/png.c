@@ -95,17 +95,24 @@ static int lastcolor = -1;
 static int print_group[MAX_LAYER];
 static int print_layer[MAX_LAYER];
 
+#define FMT_gif "GIF"
+#define FMT_jpg "JPEG"
+#define FMT_png "PNG"
+
 static const char *filetypes[] = {
-  "GIF",
-#define FMT_gif 0
+#ifdef HAVE_GDIMAGEGIF
+  FMT_gif,
+#endif
 
-  "JPEG",
-#define FMT_jpg 1
+#ifdef HAVE_GDIMAGEJPEG
+  FMT_jpg,
+#endif
 
-  "PNG",
-#define FMT_png 2
+#ifdef HAVE_GDIMAGEPNG
+  FMT_png,
+#endif
 
-  0
+  NULL
 };
 
 HID_Attribute png_attribute_list[] = {
@@ -158,6 +165,7 @@ png_get_export_options (int *n)
 {
   static char *last_made_filename = 0;
   char *buf = 0;
+  char *fmt;
 
   if (PCB && PCB->Filename
       && png_attribute_list[HA_pngfile].default_val.str_value ==
@@ -172,25 +180,19 @@ png_get_export_options (int *n)
 	  if (strcmp (buf + strlen (buf) - 4, ".pcb") == 0)
 	    buf[strlen (buf) - 4] = 0;
 
-	  switch (png_attribute_list[HA_filetype].default_val.int_value)
-	    {
-	    case FMT_gif:
+  fmt = filetypes[png_attribute_list[HA_filetype].default_val.int_value];
+  
+  if (strcmp (fmt, FMT_gif) == 0)
 	      strcat (buf, ".gif");
-	      break;
-
-	    case FMT_jpg:
+  else if (strcmp (fmt, FMT_jpg) == 0)
 	      strcat (buf, ".jpg");
-	      break;
-
-	    case FMT_png:
+  else if (strcmp (fmt, FMT_png) == 0)
 	      strcat (buf, ".png");
-	      break;
-
-	    default:
+  else
+  {
 	      fprintf (stderr, "Error:  Invalid graphic file format\n");
 	      strcat (buf, ".???");
-	      break;
-	    }
+  }
 
 	  if (png_attribute_list[HA_pngfile].default_val.str_value)
 	    free (png_attribute_list[HA_pngfile].default_val.str_value);
@@ -303,6 +305,8 @@ png_do_export (HID_Attr_Val * options)
   BoxType *bbox;
   int w, h;
   int xmax, ymax, dpi;
+  char *fmt;
+
   if (!options)
     {
       png_get_export_options (0);
@@ -428,26 +432,17 @@ png_do_export (HID_Attr_Val * options)
     hid_restore_layer_ons (save_ons);
 
   /* actually write out the image */
-  switch (options[HA_filetype].int_value)
-    {
-    case FMT_gif:
-      gdImageGif (im, f);
-      break;
-
-    case FMT_jpg:
-      /* JPEG with default JPEG quality */
-      gdImageJpeg (im, f, -1);
-      break;
-
-    case FMT_png:
-      gdImagePng (im, f);
-      break;
-
-    default:
-      fprintf (stderr, "Error:  Invalid graphic file format\n");
-      return;
-      break;
-    }
+  fmt = filetypes[options[HA_filetype].int_value];
+  
+  if (strcmp (fmt, FMT_gif) == 0)
+    gdImageGif (im, f);
+  else if (strcmp (fmt, FMT_jpg) == 0)
+    gdImageJpeg (im, f, -1);
+  else if (strcmp (fmt, FMT_png) == 0)
+    gdImagePng (im, f);
+  else
+    fprintf (stderr, "Error:  Invalid graphic file format."
+	     "  This is a bug.  Please report it.\n");
 
   fclose (f);
 

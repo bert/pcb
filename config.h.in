@@ -9,11 +9,26 @@
 /* Define to 1 if you have the `expf' function. */
 #undef HAVE_EXPF
 
+/* Define to 1 if you have the `gdImageGif' function. */
+#undef HAVE_GDIMAGEGIF
+
+/* Define to 1 if you have the `gdImageJpeg' function. */
+#undef HAVE_GDIMAGEJPEG
+
+/* Define to 1 if you have the `gdImagePng' function. */
+#undef HAVE_GDIMAGEPNG
+
 /* Define to 1 if you have the <gd.h> header file. */
 #undef HAVE_GD_H
 
 /* Define to 1 if you have the <inttypes.h> header file. */
 #undef HAVE_INTTYPES_H
+
+/* Define to 1 if you have the `dmalloc' library (-ldmalloc). */
+#undef HAVE_LIBDMALLOC
+
+/* Define to 1 if you have the `efence' library (-lefence). */
+#undef HAVE_LIBEFENCE
 
 /* Define to 1 if you have the `fl' library (-lfl). */
 #undef HAVE_LIBFL

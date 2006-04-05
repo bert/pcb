@@ -254,6 +254,7 @@ This is needed for the png HID.
 	# since some linux systems evidently install gdlib-config but fail to
 	# install the headers (nice), check for the header too and fail if it
 	# is not there.
+	CFLAGS="$CFLAGS $GD_CFLAGS"
 	AC_CHECK_HEADERS(gd.h)
 	case $ac_cv_header_gd_h in
 	     no )
@@ -264,6 +265,88 @@ This is needed for the png HID.
 		;;
 	     * ) ;;
 	esac
+	
+	# Some versions of gd (prior to the expiration of the
+	# patent related to gif compression) do not support
+	# gif output.  Check for that here.
+	LIBS="$LIBS $GD_LIBS"
+
+	AC_MSG_CHECKING([if GIF output from the png HID is desired])
+	AC_ARG_ENABLE([gif],
+		[  --disable-gif           Disable support for gif output when the png HID is used [[default=include gif support]]],
+		[
+		if test "X$enable_gif" != "Xno" ; then
+			AC_MSG_RESULT([yes])
+			with_gif=yes
+		else
+			AC_MSG_RESULT([no])
+			with_gif=no
+		fi
+		],
+		[
+		AC_MSG_RESULT([yes])
+		with_gif=yes
+		])
+	if test "X$with_gif" = "Xyes" ; then
+		AC_CHECK_FUNCS(gdImageGif)
+		if test "$ac_cv_func_gdImageGif" != "yes"; then
+			AC_MSG_ERROR([Your gd installation does not appear to include gif support.
+You may need to update your installation of gd or disable
+gif export with --disable-gif])
+		fi
+	fi
+
+	AC_MSG_CHECKING([if JPEG output from the png HID is desired])
+	AC_ARG_ENABLE([jpeg],
+		[  --disable-jpeg          Disable support for JPEG output when the png HID is used [[default=include JPEG support]]],
+		[
+		if test "X$enable_jpeg" != "Xno" ; then
+			AC_MSG_RESULT([yes])
+			with_jpeg=yes
+		else
+			AC_MSG_RESULT([no])
+			with_jpeg=no
+		fi
+		],
+		[
+		AC_MSG_RESULT([yes])
+		with_jpeg=yes
+		])
+	if test "X$with_jpeg" = "Xyes" ; then
+		AC_CHECK_FUNCS(gdImageJpeg)
+		if test "$ac_cv_func_gdImageJpeg" != "yes"; then
+			AC_MSG_ERROR([Your gd installation does not appear to include JPEG support.
+You may need to update your installation of gd or disable
+JPEG export with --disable-jpeg])
+		fi
+	fi
+
+
+	AC_MSG_CHECKING([if PNG output from the png HID is desired])
+	AC_ARG_ENABLE([png],
+		[  --disable-png           Disable support for PNG output when the png HID is used [[default=include PNG support]]],
+		[
+		if test "X$enable_png" != "Xno" ; then
+			AC_MSG_RESULT([yes])
+			with_png=yes
+		else
+			AC_MSG_RESULT([no])
+			with_png=no
+		fi
+		],
+		[
+		AC_MSG_RESULT([yes])
+		with_png=yes
+		])
+	if test "X$with_png" = "Xyes" ; then
+		AC_CHECK_FUNCS(gdImagePng)
+		if test "$ac_cv_func_gdImagePng" != "yes"; then
+			AC_MSG_ERROR([Your gd installation does not appear to include PNG support.
+You may need to update your installation of gd or disable
+PNG export with --disable-png])
+		fi
+	fi
+
 
     esac
 done
@@ -314,7 +397,7 @@ fi
 AC_MSG_RESULT([no])
 ])
 
-CFLAGS="$CFLAGS $X_CFLAGS $GTK_CFLAGS $GD_CFLAGS"
+CFLAGS="$CFLAGS $X_CFLAGS $GTK_CFLAGS"
 LIBS="$LIBS $XM_LIBS $X_LIBS $GTK_LIBS $DMALLOC_LIBS $GD_LIBS"
 
 
