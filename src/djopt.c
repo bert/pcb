@@ -116,6 +116,24 @@ static char layer_type[MAX_LAYER];
 
 static int autorouted_only = 1;
 
+static const char djopt_sao_syntax[] =
+"OptAutoOnly()";
+
+static const char djopt_sao_help[] =
+"Toggles the optimize-only-autorouted flag.";
+
+/* %start-doc actions OptAutoOnly
+
+The original purpose of the trace optimizer was to clean up the traces
+created by the various autorouters that have been used with PCB.  When
+a board has a mix of autorouted and carefully hand-routed traces, you
+don't normally want the optimizer to move your hand-routed traces.
+But, sometimes you do.  By default, the optimizer only optimizes
+autorouted traces.  This action toggles that setting, so that you can
+optimize hand-routed traces also.
+
+%end-doc */
+
 int
 djopt_set_auto_only (int argc, char **argv, int x, int y)
 {
@@ -2793,6 +2811,60 @@ grok_layer_groups ()
     }
 }
 
+static const char djopt_syntax[] =
+"djopt(debumpify|unjaggy|simple|vianudge|viatrim|orthopull)\n"
+"djopt(auto) - all of the above\n"
+"djopt(miter)";
+
+static const char djopt_help[] =
+"Perform various optimizations on the current board";
+
+/* %start-doc actions djopt
+
+The different types of optimizations change your board in order to
+reduce the total trace length and via count.
+
+@table @code
+
+@item debumpify
+Looks for U-shaped traces that can be shortened or eliminated.
+
+@item unjaggy
+Looks for corners which could be flipped to eliminate one or more
+corners (i.e. jaggy lines become simpler).
+
+@item simple
+Removing uneeded vias, replacing two or more trace segments in a row
+with a single segment.  This is usually performed automatically after
+other optimizations.
+
+@item vianudge
+Looks for vias where all traces leave in the same direction.  Tries to
+move via in that direction to eliminate one of the traces (and thus a
+corner).
+
+@item viatrim
+Looks for traces that go from via to via, where moving that trace to a
+different layer eliminates one or both vias.
+
+@item orthopull
+Looks for chains of traces all going in one direction, with more
+traces orthagonal on one side than on the other.  Moves the chain in
+that direction, causing a net reduction in trace length, possibly
+eliminating traces and/or corners.
+
+@item auto
+Performs the above options, repeating until no further optimizations
+can be made.
+
+@item miter
+Replaces 90 degree corners with a pair of 45 degree corners, to reduce
+RF losses and trace length.
+
+@end table
+
+%end-doc */
+
 static int
 ActionDJopt (int argc, char **argv, int x, int y)
 {
@@ -2924,11 +2996,9 @@ ActionDJopt (int argc, char **argv, int x, int y)
 
 HID_Action djopt_action_list[] = {
   {"djopt", 0, ActionDJopt,
-   "Perform various optimizations on the current board",
-   "djopt(debumpify|unjaggy|simple|vianudge|viatrim|orthopull)\n"
-   "djopt(auto) - all of the above\n" "djopt(miter)"}
-  ,
-  {"OptAutoOnly", 0, djopt_set_auto_only, 0}
+   djopt_help, djopt_syntax},
+  {"OptAutoOnly", 0, djopt_set_auto_only,
+   djopt_sao_help, djopt_sao_syntax}
 };
 
 REGISTER_ACTIONS (djopt_action_list)

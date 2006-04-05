@@ -196,6 +196,79 @@ typedef struct			/* used to identify subfunctions */
 }
 FunctionType, *FunctionTypePtr;
 
+/* --------------------------------------------------------------------------- */
+
+/* %start-doc actions 00delta
+
+Many actions take a @code{delta} parameter as the last parameter,
+which is an amount to change something.  That @code{delta} may include
+units, as an additional parameter, such as @code{Action(Object,5,mm)}.
+If no units are specified, the default is PCB's native units
+(currently 1/100 mil).  Also, if the delta is prefixed by @code{+} or
+@code{-}, the size is increased or decreased by that amount.
+Otherwise, the size size is set to the given amount.
+
+@example
+Action(Object,5,mil)
+Action(Object,+0.5,mm)
+Action(Object,-1)
+@end example
+
+Actions which take a @code{delta} parameter which do not accept all
+these options will specify what they do take.
+
+%end-doc */
+
+/* %start-doc actions 00objects
+
+Many actions act on indicated objects on the board.  They will have
+parameters like @code{ToggleObject} or @code{SelectedVias} to indicate
+what group of objects they act on.  Unless otherwise specified, these
+parameters are defined as follows:
+
+@table @code
+
+@item Object
+@itemx ToggleObject
+Affects the object under the mouse pointer.  If this action is invoked
+from a menu or script, the user will be prompted to click on an
+object, which is then the object affected.
+
+@item Selected
+@itemx SelectedObjects
+
+Affects all objects which are currently selected.  At least, all
+selected objects for which the given action makes sense.
+
+@item SelectedPins
+@itemx SelectedVias
+@itemx Selected@var{Type}
+@itemx @i{etc}
+Affects all objects which are both selected and of the @var{Type} specified.
+
+@end table
+
+%end-doc */
+
+/*  %start-doc actions 00macros
+
+@macro pinshapes
+
+Pins, pads, and vias can have various shapes.  All may be round.  Pins
+and pads may be square (obviously "square" pads are usually
+rectangular).  Pins and vias may be octagonal.  When you change a
+shape flag of an element, you actually change all of its pins and
+pads.
+
+Note that the square flag takes precedence over the octagon flag,
+thus, if both the square and octagon flags are set, the object is
+square.  When the square flag is cleared, the pins and pads will be
+either round or, if the octagon flag is set, octagonal.
+
+@end macro
+
+%end-doc */
+
 /* ---------------------------------------------------------------------------
  * some local identifiers
  */
@@ -1489,18 +1562,46 @@ WarpPointer (Boolean ignore)
 }
 
 
-/* ---------------------------------------------------------------------------
- * action routine to save and restore the undo serial number
- * this allows making multiple-action bindings into an atomic operation
- * that will be undone by a single Undo command
- *
- * syntax: Atomic(Save|Restore|Close|Block)
- * Save saves the undo serial number
- * Restore returns it to the last saved number
- * Close sets it to 1 greater than the last save
- * Block increments it only if was actually incremented
- * 	since the last save
- */
+/* --------------------------------------------------------------------------- */
+
+static const char atomic_syntax[] =
+" Atomic(Save|Restore|Close|Block)";
+
+static const char atomic_help[] =
+"Save or restore the undo serial number.";
+
+/* %start-doc actions Atomic
+
+This action allows making multiple-action bindings into an atomic
+operation that will be undone by a single Undo command.  For example,
+to optimize rat lines, you'd delete the rats and re-add them.  To
+group these into a single undo, you'd want the deletions and the
+additions to have the same undo serial number.  So, you @code{Save},
+delete the rats, @code{Restore}, add the rats - using the same serial
+number as the deletes, then @code{Block}, which checks to see if the
+deletions or additions actually did anything.  If not, the serial
+number is set to the saved number, as there's nothing to undo.  If
+something did happen, the serial number is incremented so that these
+actions are counted as a single undo step.
+
+@table @code
+
+@item Save
+Saves the undo serial number.
+
+@item Restore
+Returns it to the last saved number.
+
+@item Close
+Sets it to 1 greater than the last save.
+
+@item Block
+Does a Restore if there was nothing to undo, else does a Close.
+
+@end table
+
+%end-doc */
+
 static int
 ActionAtomic (int argc, char **argv, int x, int y)
 {
@@ -1530,11 +1631,21 @@ ActionAtomic (int argc, char **argv, int x, int y)
   return 0;
 }
 
-/* --------------------------------------------------------------------------
- * action routine to invoke the DRC check
- * needs more work
- * syntax: DRC();
- */
+/* -------------------------------------------------------------------------- */
+
+static const char drc_syntax[] =
+"DRC()";
+
+static const char drc_help[] =
+"Invoke the DRC check.";
+
+/* %start-doc actions DRC
+
+Note that the design rule check uses the current board rule settings,
+not the current style settings.
+
+%end-doc */
+
 static int
 ActionDRCheck (int argc, char **argv, int x, int y)
 {
@@ -1559,10 +1670,23 @@ ActionDRCheck (int argc, char **argv, int x, int y)
   return 0;
 }
 
-/* --------------------------------------------------------------------------
- * action routine to flip an element to the opposite side of the board 
- * syntax: Flip(SelectedElements|Object);
- */
+/* -------------------------------------------------------------------------- */
+static const char flip_syntax[] =
+"Flip(Object|Selected|SelectedElements)";
+
+static const char flip_help[] =
+"Flip an element to the opposite side of the board.";
+
+/* %start-doc actions Flip
+
+Note that the location of the element will be symmetric about the
+cursor location; i.e. if the part you are pointing at will still be at
+the same spot once the element is on the other side.  When flipping
+multiple elements, this retains their positions relative to each
+other, not their absolute positions on the board.
+
+%end-doc */
+
 static int
 ActionFlip (int argc, char **argv, int x, int y)
 {
@@ -1658,8 +1782,21 @@ ActionToggleThermal (int argc, char **argv, int x, int y)
 
 /* --------------------------------------------------------------------------
  * action routine to set a thermal (on the current layer) to pins or vias
- * syntax: SetThermal(Object|SelectePins|SelectedVias|Selected);
+ * syntax: ;
  */
+static const char setthermal_syntax[] =
+"SetThermal(Object|SelectePins|SelectedVias|Selected|SelectedElements)";
+
+static const char setthermal_help[] =
+"Set a thermal (on the current layer) to pins or vias.";
+
+/* %start-doc actions SetThermal
+
+This adds an electrical connection between the pins or vias, and any
+rectangle or polygon on the current layer.
+
+%end-doc */
+
 static int
 ActionSetThermal (int argc, char **argv, int x, int y)
 {
@@ -1711,6 +1848,20 @@ ActionSetThermal (int argc, char **argv, int x, int y)
  * action routine to clear a thermal (on the current layer) to pins or vias
  * syntax: ClearThermal(Object|SelectePins|SelectedVias|Selected);
  */
+
+static const char clearthermal_syntax[] =
+"ClearThermal(Object|SelectePins|SelectedVias|Selected|SelectedElements)";
+
+static const char clearthermal_help[] =
+"Clear a thermal (on the current layer) to pins or vias.";
+
+/* %start-doc actions ClearThermal
+
+This removes any electrical connection.  Pins and vias that do not
+already have thermals are not changed.
+
+%end-doc */
+
 static int
 ActionClearThermal (int argc, char **argv, int x, int y)
 {
@@ -1854,8 +2005,40 @@ EventMoveCrosshair (int ev_x, int ev_y)
  * the specific routine
  * the value of the second determines also if it is absolute (without a sign)
  * or relative to the current one (with sign + or -)
- * syntax: SetValue(Grid|Zoom|LineSize|TextScale|ViaDrillingHole|ViaSize, value)
+ * syntax: 
  */
+static const char setvalue_syntax[] =
+"SetValue(Grid|Line|LineSize|Text|TextScale|ViaDrillingHole|Via|ViaSize, delta)";
+
+static const char setvalue_help[] =
+"Change various board-wide values and sizes.";
+
+/* %start-doc actions SetValue
+
+@table @code
+
+@item ViaDrillingHole
+Changes the diameter of the drill for new vias.
+
+@item Grid
+Sets the grid spacing.
+
+@item Line
+@item LineSize
+Changes the thickness of new lines.
+
+@item Via
+@item ViaSize
+Changes the diameter of new vias.
+
+@item Text
+@item TextScale
+Changes the size of new text.
+
+@end table
+
+%end-doc */
+
 static int
 ActionSetValue (int argc, char **argv, int x, int y)
 {
@@ -1932,10 +2115,20 @@ ActionSetValue (int argc, char **argv, int x, int y)
 }
 
 
-/* ---------------------------------------------------------------------------
- * quits application
- * syntax: Quit()
- */
+/* --------------------------------------------------------------------------- */
+static const char quit_syntax[] =
+"Quit()";
+
+static const char quit_help[] =
+"Quits the application.";
+
+/* %start-doc actions Quit
+
+If you have unsaved changes, you will be prompted to confirm before
+quitting.
+
+%end-doc */
+
 static int
 ActionQuit (int argc, char **argv, int x, int y)
 {
@@ -1950,10 +2143,37 @@ ActionQuit (int argc, char **argv, int x, int y)
   return 1;
 }
 
-/* ---------------------------------------------------------------------------
- * searches connections of the object at the cursor position
- * syntax: Connection(Find|ResetLinesAndPolygons|ResetPinsAndVias|Reset)
- */
+/* --------------------------------------------------------------------------- */
+
+static const char connection_syntax[] =
+"Connection(Find|ResetLinesAndPolygons|ResetPinsAndVias|Reset)";
+
+static const char connection_help[] =
+"Searches connections of the object at the cursor position.";
+
+/* %start-doc actions Connection
+
+Connections found with this action will be highlighted in the
+``connected-color'' color and will have the ``found'' flag set.
+
+@table @code
+
+@item Find
+The net under the cursor is ``found''.
+
+@item ResetLinesAndPolygons
+Any ``found'' lines and polygons are marked ``not found''.
+
+@item ResetPinsAndVias
+Any ``found'' pins and vias are marked ``not found''.
+
+@item Reset
+All ``found'' objects are marked ``not found''.
+
+@end table
+
+%end-doc */
+
 static int
 ActionConnection (int argc, char **argv, int x, int y)
 {
@@ -1997,6 +2217,23 @@ ActionConnection (int argc, char **argv, int x, int y)
  * disperses all elements
  * syntax: DisperseElements(All|Selected)
  */
+
+static const char disperseelements_syntax[] =
+"DisperseElements(All|Selected)";
+
+static const char disperseelements_help[] =
+"Disperses elements.";
+
+/* %start-doc actions DisperseElements
+
+Normally this is used when starting a board, by selecting all elements
+and then dispersing them.  This scatters the elements around the board
+so that you can pick individual ones, rather than have all the
+elements at the same 0,0 coordinate and thus impossible to choose
+from.
+
+%end-doc */
+
 #define GAP 10000
 
 static int
@@ -2108,20 +2345,128 @@ ActionDisperseElements (int argc, char **argv, int x, int y)
 
 #undef GAP
 
-/* ---------------------------------------------------------------------------
- * several display related actions
- * syntax: Display(NameOnPCB|Description|Value)
- *         Display(Grid|Center|ClearAndRedraw|Redraw)
- *         Display(CycleClip|Toggle45Degree|ToggleStartDirection)
- *         Display(ToggleGrid|ToggleRubberBandMode|ToggleUniqueNames)
- *         Display(ToggleMask|ToggleName|ToggleClearLine|ToggleSnapPin)
- *         Display(ToggleThindraw|ToggleOrthoMove|ToggleLocalRef)
- *         Display(ToggleCheckPlanes|ToggleShowDRC|ToggleAutoDRC)
- *         Display(ToggleLiveRoute)
- *         Display(Pinout|PinOrPadName)
- *	   Display(Save|Restore)
- *	   Display(Scroll, Direction)
- */
+/* --------------------------------------------------------------------------- */
+
+static const char display_syntax[] =
+"Display(NameOnPCB|Description|Value)\n"
+"Display(Grid|Redraw)\n"
+"Display(CycleClip|Toggle45Degree|ToggleStartDirection)\n"
+"Display(ToggleGrid|ToggleRubberBandMode|ToggleUniqueNames)\n"
+"Display(ToggleMask|ToggleName|ToggleClearLine|ToggleSnapPin)\n"
+"Display(ToggleThindraw|ToggleOrthoMove|ToggleLocalRef)\n"
+"Display(ToggleCheckPlanes|ToggleShowDRC|ToggleAutoDRC)\n"
+"Display(ToggleLiveRoute)\n"
+"Display(Pinout|PinOrPadName)\n"
+"Display(Scroll, Direction)";
+
+static const char display_help[] =
+"Several display-related actions.";
+
+/* %start-doc actions Display
+
+@table @code
+
+@item NameOnPCB
+@item Description
+@item Value
+Specify whether all elements show their name, description, or value.
+
+@item Redraw
+Redraw the whole board.
+
+@item Toggle45Degree
+When clear, lines can be drawn at any angle.  When set, lines are
+restricted to multiples of 45 degrees and requested lines may be
+broken up according to the clip setting.
+
+@item CycleClip
+Changes the way lines are restricted to 45 degree increments.  The
+varous settings are: straight only, orthogonal then angled, and angled
+then orthogonal.  If AllDirections is set, this action disables it.
+
+@item ToggleRubberBandMode
+If set, moving an object moves all the lines attached to it too.
+
+@item ToggleStartDirection
+If set, each time you set a point in a line, the Clip toggles between
+orth-angle and angle-ortho.
+
+@item ToggleUniqueNames
+If set, you will not be permitted to change the name of an element to
+match that of another element.
+
+@item ToggleSnapPin
+If set, pin centers and pad end points are treated as additional grid
+points that the cursor can snap to.
+
+@item ToggleLocalRef
+If set, the mark is automatically set to the beginning of any move, so
+you can see the relative distance you've moved.
+
+@item ToggleThindraw
+If set, objects on the screen are drawn as outlines (lines are drawn
+as center-lines).  This lets you see line endpoints hidden under pins,
+for example.
+
+@item ToggleShowDRC
+If set, pending objects (i.e. lines you're in the process of drawing)
+will be drawn with an outline showing how far away from other copper
+you need to be.
+
+@item ToggleLiveRoute
+If set, the progress of the autorouter will be visible on the screen.
+
+@item ToggleAutoDRC
+If set, you will not be permitted to make connections which violate
+the current DRC and netlist settings.
+
+@item ToggleCheckPlanes
+If set, lines and arcs aren't drawn, which usually leaves just the
+polygons.  If you also disable all but the layer you're interested in,
+this allows you to check for isolated regions.
+
+@item ToggleOrthoMove
+If set, the crosshair is only allowed to move orthogonally from its
+previous position.  I.e. you can move an element or line up, down,
+left, or right, but not up+left or down+right.
+
+@item ToggleName
+Selects whether the pinouts show the pin names or the pin numbers.
+
+@item ToggleMask
+Turns the solder mask on or off.
+
+@item ToggleClearLine
+When set, the clear-line flag causes new lines and arcs to have their
+``clear polygons'' flag set, so they won't be electrically connected
+to any polygons they overlap.
+
+@item ToggleGrid
+Resets the origin of the current grid to be wherever the mouse pointer
+is (not where the crosshair currently is).  If you provide two numbers
+after this, the origin is set to that coordinate.  The numbers are in
+PCB internal units, currently 1/100 mil.
+
+@item Grid
+Toggles whether the grid is displayed or not.
+
+@item Pinout
+Causes the pinout of the element indicated by the cursor to be
+displayed, usually in a separate window.
+
+@item PinOrPadName
+Toggles whether the names of pins, pads, or (yes) vias will be
+displayed.  If the cursor is over an element, all of its pins and pads
+are affected.
+
+@item Scroll <direction>
+Scrolls the viewport in the given direction, with 1=down/left, 2=down,
+etc, according to the numeric keypad layout.
+
+@end table
+
+%end-doc */
+
 static int
 ActionDisplay (int argc, char **argv, int childX, int childY)
 {
@@ -2503,6 +2848,63 @@ ActionDisplay (int argc, char **argv, int childX, int childY)
  *         Mode(Notify|Release)
  *         Mode(Save|Restore)
  */
+static const char mode_syntax[] =
+"Mode(Arc|Arrow|Copy|InsertPoint|Line|Lock|Move|None|PasteBuffer)\n"
+"Mode(Polygon|Rectangle|Remove|Rotate|Text|Thermal|Via)\n"
+"Mode(Notify|Release|Cancel|Stroke)\n"
+"Mode(Save|Restore)";
+
+static const char mode_help[] =
+"Change or use the tool mode.";
+
+/* %start-doc actions Mode
+
+@table @code
+
+@item Arc
+@itemx Arrow
+@itemx Copy
+@itemx InsertPoint
+@itemx Line
+@itemx Lock
+@itemx Move
+@itemx None
+@itemx PasteBuffer
+@itemx Polygon
+@itemx Rectangle
+@itemx Remove
+@itemx Rotate
+@itemx Text
+@itemx Thermal
+@itemx Via
+Select the indicated tool.
+
+@item Notify
+Called when you press the mouse button, or move the mouse.
+
+@item Release
+Called when you release the mouse button.
+
+@item Cancel
+Cancels any pending tool activity, allowing you to restart elsewhere.
+For example, this allows you to start a new line rather than attach a
+line to the previous line.
+
+@item Stroke
+If your @code{pcb} was built with libstroke, this invokes the stroke
+input method.  If not, this will restart a drawing mode if you were
+drawing, else it will select objects.
+
+@item Save
+Remembers the current tool.
+
+@item Restore
+Restores the tool to the last saved tool.
+
+@end table
+
+%end-doc */
+
 static int
 ActionMode (int argc, char **argv, int x, int y)
 {
@@ -2637,10 +3039,17 @@ ActionMode (int argc, char **argv, int x, int y)
   return 1;
 }
 
-/* ---------------------------------------------------------------------------
- * action routine to remove objects
- * syntax: RemoveSelected()
- */
+/* --------------------------------------------------------------------------- */
+static const char removeselected_syntax[] =
+"RemoveSelected()";
+
+static const char removeselected_help[] =
+"Removes any selected objects.";
+
+/* %start-doc actions RemoveSelected
+
+%end-doc */
+
 static int
 ActionRemoveSelected (int argc, char **argv, int x, int y)
 {
@@ -2656,6 +3065,31 @@ ActionRemoveSelected (int argc, char **argv, int x, int y)
  * or smash an element to pieces on the layout
  * syntax: RipUp(All|Selected|Element)
  */
+static const char ripup_syntax[] =
+"RipUp(All|Selected|Element)";
+
+static const char ripup_help[] =
+"Ripup auto-routed tracks, or convert an element to parts.";
+
+/* %start-doc actions RipUp
+
+@table @code
+
+@item All
+Removes all lines and vias which were created by the autorouter.
+
+@item Selected
+Removes all selected lines and vias which were created by the
+autorouter.
+
+@item Element
+Converts the element under the cursor to parts (vias and lines).  Note
+that this uses the highest numbered paste buffer.
+
+@end table
+
+%end-doc */
+
 static int
 ActionRipUp (int argc, char **argv, int x, int y)
 {
@@ -2752,11 +3186,33 @@ ActionRipUp (int argc, char **argv, int x, int y)
   return 0;
 }
 
-/* ---------------------------------------------------------------------------
- * action routine to add rat lines
- * syntax: AddRats(AllRats|SelectedRats|Close)
- * The Close argument selects the shortest unselect rat on the board
- */
+/* --------------------------------------------------------------------------- */
+
+static const char addrats_syntax[] =
+"AddRats(AllRats|SelectedRats|Close)";
+
+static const char addrats_help[] =
+"Add one or more rat lines to the board.";
+
+/* %start-doc actions AddRats
+
+@table @code
+
+@item AllRats
+Create rat lines for all loaded nets that aren't already connected on
+with copper.
+
+@item SelectedRats
+Similarly, but only add rat lines for nets connected to selected pins
+and pads.
+
+@item Close
+Selects the shortest unselected rat on the board.
+
+@end table
+
+%end-doc */
+
 static int
 ActionAddRats (int argc, char **argv, int x, int y)
 {
@@ -2811,10 +3267,18 @@ ActionAddRats (int argc, char **argv, int x, int y)
   return 0;
 }
 
-/* ---------------------------------------------------------------------------
- * action routine to delete rat lines
- * syntax: DeleteRats(AllRats|SelectedRats)
- */
+/* --------------------------------------------------------------------------- */
+
+static const char deleterats_syntax[] =
+"DeleteRats(AllRats|Selected|SelectedRats)";
+
+static const char deleterats_help[] =
+"Delete rat lines.";
+
+/* %start-doc actions DeleteRats
+
+%end-doc */
+
 static int
 ActionDeleteRats (int argc, char **argv, int x, int y)
 {
@@ -2841,8 +3305,22 @@ ActionDeleteRats (int argc, char **argv, int x, int y)
 
 /* ---------------------------------------------------------------------------
  * action routine to auto-place selected components.
- * syntax: AutoPlaceSelected()
+ * syntax: 
  */
+
+static const char autoplace_syntax[] =
+"AutoPlaceSelected()";
+
+static const char autoplace_help[] =
+"Auto-place selected components.";
+
+/* %start-doc actions AutoPlaceSelected
+
+Attempts to re-arrange the selected components such that the nets
+connecting them are minimized.  Note that you cannot undo this.
+
+%end-doc */
+
 static int
 ActionAutoPlaceSelected (int argc, char **argv, int x, int y)
 {
@@ -2858,9 +3336,39 @@ ActionAutoPlaceSelected (int argc, char **argv, int x, int y)
 }
 
 /* ---------------------------------------------------------------------------
- * action routine to auto-route rat lines.
- * syntax: AutoRoute(AllRats|SelectedRats)
+ * action routine to 
+ * syntax: 
  */
+
+static const char autoroute_syntax[] =
+"AutoRoute(AllRats|SelectedRats)";
+
+static const char autoroute_help[] =
+"Auto-route some or all rat lines.";
+
+/* %start-doc actions AutoRoute
+
+@table @code
+
+@item AllRats
+Attempt to autoroute all rats.
+
+@item SelectedRats
+Attempt to autoroute the selected rats.
+
+@end table
+
+Before autorouting, it's important to set up a few things.  First,
+make sure any layers you aren't using are disabled, else the
+autorouter may use them.  Next, make sure the current line and via
+styles are set accordingly.  Last, make sure "new lines clear
+polygons" is set, in case you eventually want to add a copper pour.
+
+Autorouting takes a while.  During this time, the program may not be
+responsive.
+
+%end-doc */
+
 static int
 ActionAutoRoute (int argc, char **argv, int x, int y)
 {
@@ -2885,10 +3393,28 @@ ActionAutoRoute (int argc, char **argv, int x, int y)
   return 0;
 }
 
-/* ---------------------------------------------------------------------------
- * Set/Reset the Crosshair mark
- * syntax: MarkCrosshair(|Center)
- */
+/* --------------------------------------------------------------------------- */
+static const char markcrosshair_syntax[] =
+"MarkCrosshair()\n"
+"MarkCrosshair(Center)";
+
+static const char markcrosshair_help[] =
+"Set/Reset the Crosshair mark";
+
+/* %start-doc actions MarkCrosshair
+
+The ``mark'' is a small X-shaped target on the display which is
+treated like a second origin (the normal origin is the upper let
+corner of the board).  The GUI will display a second set of
+coordinates for this mark, which tells you how far you are from it.
+
+If no argument is given, the mark is toggled - disabled if it was
+enabled, or enabled at the current cursor position of disabled.  If
+the @code{Center} argument is given, the mark is moved to the current
+cursor location.
+
+%end-doc */
+
 static int
 ActionMarkCrosshair (int argc, char **argv, int x, int y)
 {
@@ -2919,13 +3445,28 @@ ActionMarkCrosshair (int argc, char **argv, int x, int y)
   return 0;
 }
 
-/* ---------------------------------------------------------------------------
- * changes the size of objects
- * syntax: ChangeSize(Object, delta)
- *         ChangeSize(SelectedLines|SelectedPins|SelectedVias, delta)
- *         ChangeSize(SelectedPads|SelectedTexts|SelectedNames, delta)
- *	   ChangeSize(SelectedElements, delta)
- */
+/* --------------------------------------------------------------------------- */
+
+static const char changesize_syntax[] =
+"ChangeSize(Object, delta)\n"
+"ChangeSize(SelectedObjects|Selected, delta)\n"
+"ChangeSize(SelectedLines|SelectedPins|SelectedVias, delta)\n"
+"ChangeSize(SelectedPads|SelectedTexts|SelectedNames, delta)\n"
+"ChangeSize(SelectedElements, delta)";
+
+static const char changesize_help[] =
+"Changes the size of objects.";
+
+/* %start-doc actions ChangeSize
+
+For lines and arcs, this changes the width.  For pins and vias, this
+changes the overall diameter of the copper annulus.  For pads, this
+changes the width and, indirectly, the length.  For texts and names,
+this changes the scaling factor.  For elements, this changes the width
+of the silk layer lines and arcs for this element.
+
+%end-doc */
+
 static int
 ActionChangeSize (int argc, char **argv, int x, int y)
 {
@@ -3007,11 +3548,19 @@ ActionChangeSize (int argc, char **argv, int x, int y)
   return 0;
 }
 
-/* ---------------------------------------------------------------------------
- * changes the drilling hole size of objects
- * syntax: ChangeDrillSize(Object, delta)
- *         ChangeDrillSize(SelectedPins|SelectedVias|Selected|SelectedObjects, delta)
- */
+/* --------------------------------------------------------------------------- */
+
+static const char changedrillsize_syntax[] =
+"ChangeDrillSize(Object, delta)\n"
+"ChangeDrillSize(SelectedPins|SelectedVias|Selected|SelectedObjects, delta)";
+
+static const char changedrillsize_help[] =
+"Changes the drilling hole size of objects.";
+
+/* %start-doc actions ChangeDrillSize
+
+%end-doc */
+
 static int
 ActionChange2ndSize (int argc, char **argv, int x, int y)
 {
@@ -3062,13 +3611,25 @@ ActionChange2ndSize (int argc, char **argv, int x, int y)
   return 0;
 }
 
-/* ---------------------------------------------------------------------------
- * changes the clearance size of objects
- * syntax: ChangeClearSize(Object, delta)
- *         ChangeClearSize(SelectedPins|SelectedPads|SelectedVias, delta)
- *	   ChangeClearSize(SelectedLines|SelectedArcs, delta
- *	   ChangeClearSize(Selected|SelectedObjects, delta)
- */
+/* --------------------------------------------------------------------------- */
+
+static const char changeclearsize_syntax[] =
+"ChangeClearSize(Object, delta)\n"
+"ChangeClearSize(SelectedPins|SelectedPads|SelectedVias, delta)\n"
+"ChangeClearSize(SelectedLines|SelectedArcs, delta\n"
+"ChangeClearSize(Selected|SelectedObjects, delta)";
+
+static const char changeclearsize_help[] =
+"Changes the clearance size of objects.";
+
+/* %start-doc actions ChangeClearSize
+
+If the solder mask is currently showing, this action changes the
+solder mask clearance.  If the mask is not showing, this action
+changes the polygon clearance.
+
+%end-doc */
+
 static int
 ActionChangeClearSize (int argc, char **argv, int x, int y)
 {
@@ -3138,6 +3699,25 @@ ActionChangeClearSize (int argc, char **argv, int x, int y)
   * a schematic to the layout without requiring knowledge of
   * the pcb file format.
   */
+
+static const char changepinname_syntax[] =
+"ChangePinName(ElementName,PinNumber,PinName)";
+
+static const char changepinname_help[] =
+"Sets the name of a specific pin on a specific element.";
+
+/* %start-doc actions ChangePinName
+
+This can be especially useful for annotating pin names from a
+schematic to the layout without requiring knowledge of the pcb file
+format.
+
+@example
+ChangePinName(U3, 7, VCC)
+@end example
+
+%end-doc */
+
 static int
 ActionChangePinName (int argc, char **argv, int x, int y)
 {
@@ -3207,12 +3787,33 @@ ActionChangePinName (int argc, char **argv, int x, int y)
   return 0;
 }
 
-/* ---------------------------------------------------------------------------
- * sets the name of objects
- * syntax: ChangeName(Object)
- *         ChangeName(Layout|Layer)
- */
-static int
+/* --------------------------------------------------------------------------- */
+
+static const char changename_syntax[] =
+"ChangeName(Object)\n"
+"ChangeName(Layout|Layer)";
+
+static const char changename_help[] =
+"Sets the name of objects.";
+
+/* %start-doc actions ChangeName
+
+@table @code
+
+@item Object
+Changes the name of the element under the cursor.
+
+@item Layout
+Changes the name of the layout.  This is printed on the fab drawings.
+
+@item Layer
+Changes the name of the currently active layer.
+
+@end table
+
+%end-doc */
+
+int
 ActionChangeName (int argc, char **argv, int x, int y)
 {
   char *function = ARG (0);
@@ -3349,10 +3950,24 @@ ActionToggleHideName (int argc, char **argv, int x, int y)
   return 0;
 }
 
-/* ---------------------------------------------------------------------------
- * changes the join (clearance through polygons) of objects
- * syntax: ChangeJoin(ToggleObject|SelectedLines|SelectedArcs|Selected)
- */
+/* --------------------------------------------------------------------------- */
+
+static const char changejoin_syntax[] =
+"ChangeJoin(ToggleObject|SelectedLines|SelectedArcs|Selected)";
+
+static const char changejoin_help[] =
+"Changes the join (clearance through polygons) of objects.";
+
+/* %start-doc actions ChangeJoin
+
+The join flag determines whether a line or arc, drawn to intersect a
+polygon, electrically connects to the polygon or not.  When joined,
+the line/arc is simply drawn over the polygon, making an electrical
+connection.  When not joined, a gap is drawn between the line and the
+polygon, insulating them from each other.
+
+%end-doc */
+
 static int
 ActionChangeJoin (int argc, char **argv, int x, int y)
 {
@@ -3398,10 +4013,24 @@ ActionChangeJoin (int argc, char **argv, int x, int y)
   return 0;
 }
 
-/* ---------------------------------------------------------------------------
- * changes the square-flag of objects
- * syntax: ChangeSquare(ToggleObject|SelectedElements|SelectedPins)
- */
+/* --------------------------------------------------------------------------- */
+
+static const char changesquare_syntax[] =
+"ChangeSquare(ToggleObject)\n"
+"ChangeSquare(SelectedElements|SelectedPins)\n"
+"ChangeSquare(Selected|SelectedObjects)";
+
+static const char changesquare_help[] =
+"Changes the square flag of pins and pads.";
+
+/* %start-doc actions ChangeSquare
+
+Note that @code{Pins} means both pins and pads.
+
+@pinshapes
+
+%end-doc */
+
 static int
 ActionChangeSquare (int argc, char **argv, int x, int y)
 {
@@ -3447,10 +4076,21 @@ ActionChangeSquare (int argc, char **argv, int x, int y)
   return 0;
 }
 
-/* ---------------------------------------------------------------------------
- * sets the square-flag of objects
- * syntax: SetSquare(ToggleObject|SelectedElements|SelectedPins)
- */
+/* --------------------------------------------------------------------------- */
+static const char setsquare_syntax[] =
+"SetSquare(ToggleObject|SelectedElements|SelectedPins)";
+
+static const char setsquare_help[] =
+"sets the square-flag of objects.";
+
+/* %start-doc actions SetSquare
+
+Note that @code{Pins} means pins and pads.
+
+@pinshapes
+
+%end-doc */
+
 static int
 ActionSetSquare (int argc, char **argv, int x, int y)
 {
@@ -3496,10 +4136,22 @@ ActionSetSquare (int argc, char **argv, int x, int y)
   return 0;
 }
 
-/* ---------------------------------------------------------------------------
- * clears the square-flag of objects
- * syntax: ClearSquare(ToggleObject|SelectedElements|SelectedPins)
- */
+/* --------------------------------------------------------------------------- */
+
+static const char clearsquare_syntax[] =
+"ClearSquare(ToggleObject|SelectedElements|SelectedPins)";
+
+static const char clearsquare_help[] =
+"Clears the square-flag of pins and pads.";
+
+/* %start-doc actions ClearSquare
+
+Note that @code{Pins} means pins and pads.
+
+@pinshapes
+
+%end-doc */
+
 static int
 ActionClearSquare (int argc, char **argv, int x, int y)
 {
@@ -3546,9 +4198,23 @@ ActionClearSquare (int argc, char **argv, int x, int y)
 }
 
 /* ---------------------------------------------------------------------------
- * changes the octagon-flag of objects
- * syntax: ChangeOctagon(ToggleObject|SelectedElements|Selected)
+ * 
+ * syntax: 
  */
+
+static const char changeoctagon_syntax[] =
+"ChangeOctagon(Object|ToggleObject|SelectedObjects|Selected)\n"
+"ChangeOctagon(SelectedElements|SelectedPins|SelectedVias)";
+
+static const char changeoctagon_help[] =
+"Changes the octagon-flag of pins and vias.";
+
+/* %start-doc actions ChangeOctagon
+
+@pinshapes
+
+%end-doc */
+
 static int
 ActionChangeOctagon (int argc, char **argv, int x, int y)
 {
@@ -3599,10 +4265,19 @@ ActionChangeOctagon (int argc, char **argv, int x, int y)
   return 0;
 }
 
-/* ---------------------------------------------------------------------------
- * sets the octagon-flag of objects
- * syntax: ChangeOctagon(ToggleObject|SelectedElements|Selected)
- */
+/* --------------------------------------------------------------------------- */
+static const char setoctagon_syntax[] =
+"SetOctagon(Object|ToggleObject|SelectedElements|Selected)";
+
+static const char setoctagon_help[] =
+"Sets the octagon-flag of objects.";
+
+/* %start-doc actions SetOctagon
+
+@pinshapes
+
+%end-doc */
+
 static int
 ActionSetOctagon (int argc, char **argv, int x, int y)
 {
@@ -3653,10 +4328,21 @@ ActionSetOctagon (int argc, char **argv, int x, int y)
   return 0;
 }
 
-/* ---------------------------------------------------------------------------
- * clears the octagon-flag of objects
- * syntax: ClearOctagon(ToggleObject|SelectedElements|Selected)
- */
+/* --------------------------------------------------------------------------- */
+
+static const char clearoctagon_syntax[] =
+"ClearOctagon(ToggleObject|Object|SelectedObjects|Selected)\n"
+"ClearOctagon(SelectedElements|SelectedPins|SelectedVias)";
+
+static const char clearoctagon_help[] =
+"Clears the octagon-flag of pins and vias.";
+
+/* %start-doc actions ClearOctagon
+
+@pinshapes
+
+%end-doc */
+
 static int
 ActionClearOctagon (int argc, char **argv, int x, int y)
 {
@@ -3707,10 +4393,21 @@ ActionClearOctagon (int argc, char **argv, int x, int y)
   return 0;
 }
 
-/* ---------------------------------------------------------------------------
- * changes the hole-flag of objects
- * syntax: ChangeHole(ToggleObject|SelectedVias|Selected)
- */
+/* --------------------------------------------------------------------------- */
+
+static const char changehold_syntax[] =
+"ChangeHole(ToggleObject|Object|SelectedVias|Selected)";
+
+static const char changehold_help[] =
+"Changes the hole flag of objects.";
+
+/* %start-doc actions ChangeHole
+
+The "hole flag" of a via determines whether the via is a
+plated-through hole (not set), or an unplated hole (set).
+
+%end-doc */
+
 static int
 ActionChangeHole (int argc, char **argv, int x, int y)
 {
@@ -3754,6 +4451,52 @@ ActionChangeHole (int argc, char **argv, int x, int y)
  *         Select(TextByName|ViaByName)
  *         Select(Convert)
  */
+static const char select_syntax[] =
+"Select(ToggleObject)\n"
+"Select(All|Block|Connection)\n"
+"Select(ElementByName|ObjectByName|PadByName|PinByName)\n"
+"Select(TextByName|ViaByName)\n"
+"Select(Convert)";
+
+static const char select_help[] =
+"Toggles or sets the selection";
+
+/* %start-doc actions Select
+
+@table @code
+
+@item ElementByName
+@item ObjectByName
+@item PadByName
+@item PinByName
+@item TextByName
+@item ViaByName
+
+These all rely on having a regular expression parser built into
+@code{pcb}.  The user is prompted for a pattern, and all object that
+match the pattern and are of the type specified are selected.
+
+@item Object
+@item ToggleObject
+Selects the object under the cursor.
+
+@item Block
+Selects all objects in a rectangle indicated by the cursor.
+
+@item All
+Selects all objects on the board.
+
+@item Connection
+Selects all connections with the ``found'' flag set.
+
+@item Convert
+Converts the selected objects to an element.  This uses the highest
+numbered paste buffer.
+
+@end table
+
+%end-doc */
+
 static int
 ActionSelect (int argc, char **argv, int x, int y)
 {
@@ -3882,10 +4625,30 @@ FlagHaveRegex (int parm)
 #endif
 }
 
-/* ---------------------------------------------------------------------------
- * unselects the object at the pointer location
- * syntax: Unselect(All|Block|Connection)
- */
+/* --------------------------------------------------------------------------- */
+static const char unselect_syntax[] =
+"Unselect(All|Block|Connection)";
+
+static const char unselect_help[] =
+"unselects the object at the pointer location";
+
+/* %start-doc actions Unselect
+
+@table @code
+
+@item All
+Unselect all objects.
+
+@item Block
+Unselect all objects in a rectangle given by the cursor.
+
+@item Connection
+Unselect all connections with the ``found'' flag set.
+
+@end table
+
+%end-doc */
+
 static int
 ActionUnselect (int argc, char **argv, int x, int y)
 {
@@ -3946,11 +4709,37 @@ ActionUnselect (int argc, char **argv, int x, int y)
   return 0;
 }
 
-/* ---------------------------------------------------------------------------
- * saves data to file
- * syntax: Save(Layout|LayoutAs)
- *         Save(AllConnections|AllUnusedPins|ElementConnections)
- */
+/* --------------------------------------------------------------------------- */
+static const char saveto_syntax[] =
+"SaveTo(Layout|LayoutAs,filename)\n"
+"SaveTo(AllConnections|AllUnusedPins|ElementConnections,filename)";
+
+static const char saveto_help[] =
+"Saves data to a file.";
+
+/* %start-doc actions SaveTo
+
+@table @code
+
+@item Layout
+Saves the current layout.
+
+@item LayoutAs
+Saves the current layout, and remembers the filename used.
+
+@item AllConnections
+Save all connections to a file.
+
+@item AllUnusedPins
+List all unused pins to a file.
+
+@item ElementConnections
+Save connections to the element at the cursor to a file.
+
+@end table
+
+%end-doc */
+
 static int
 ActionSaveTo (int argc, char **argv, int x, int y)
 {
@@ -4032,6 +4821,44 @@ ActionSaveTo (int argc, char **argv, int x, int y)
  * load data
  * syntax: Load(ElementToBuffer|Layout|LayoutToBuffer|Netlist|Revert)
  */
+
+static const char loadfrom_syntax[] =
+"LoadFrom(Layout|LayoutToBuffer|ElementToBuffer|Netlist|Revert,filename)";
+
+static const char loadfrom_help[] =
+"Load layout data from a file.";
+
+/* %start-doc actions LoadFrom
+
+This action assumes you know what the filename is.  The various GUIs
+should have a similar @code{Load} action where the filename is
+optional, and will provide their own file selection mechanism to let
+you choose the file name.
+
+@table @code
+
+@item Layout
+Loads an entire PCB layout, replacing the current one.
+
+@item LayoutToBuffer
+Loads an entire PCB layout to the paste buffer.
+
+@item ElementToBuffer
+Loads the given element file into the paste buffer.  Element files
+contain only a single @code{Element} definition, such as the
+``newlib'' library uses.
+
+@item Netlist
+Loads a new netlist, replacing any current netlist.
+
+@item Revert
+Re-loads the current layout from its disk file, reverting any changes
+you may have made.
+
+@end table
+
+%end-doc */
+
 static int
 ActionLoadFrom (int argc, char **argv, int x, int y)
 {
@@ -4248,6 +5075,55 @@ ActionBell (char *volume)
  *         PasteBuffer(Rotate, 1..3)
  *         PasteBuffer(Convert|Save|Restore|Mirror)
  */
+static const char pastebuffer_syntax[] =
+"PasteBuffer(AddSelected|Clear|1..MAX_BUFFER)\n"
+"PasteBuffer(Rotate, 1..3)\n"
+"PasteBuffer(Convert|Save|Restore|Mirror)";
+
+static const char pastebuffer_help[] =
+"Various operations on the paste buffer.";
+
+/* %start-doc actions PasteBuffer
+
+There are a number of paste buffers; the actual limit is a
+compile-time constant @code{MAX_BUFFER} in @file{globalconst.h}.  It
+is currently @code{5}.  One of these is the ``current'' paste buffer,
+often referred to as ``the'' paste buffer.
+
+@table @code
+
+@item AddSelected
+Copies the selected objects to the current paste buffer.
+
+@item Clear
+Remove all objects from the current paste buffer.
+
+@item Convert
+Convert the current paste buffer to an element.  Vias are converted to
+pins, lines are converted to pads.
+
+@item Restore
+Convert any elements in the paste buffer back to vias and lines.
+
+@item Mirror
+Flip all objects in the paste buffer vertically (up/down flip).  To mirror
+horizonally, combine this with rotations.
+
+@item Rotate
+Rotates the current buffer.  The number to pass is 1..3, where 1 means
+90 degrees counter clockwise, 2 means 180 degrees, and 3 means 90
+degrees clockwise (270 CCW).
+
+@item Save
+Saves any elements in the current buffer to the indicated file.
+
+@item 1..MAX_BUFFER
+Selects the given buffer to be the current paste buffer.
+
+@end table
+
+%end-doc */
+
 static int
 ActionPasteBuffer (int argc, char **argv, int x, int y)
 {
@@ -4820,7 +5696,7 @@ ActionChangeFlag (int argc, char **argv, int x, int y)
 {
   char *function = ARG (0);
   char *flag = ARG (1);
-  int value = atoi (ARG (2));
+  int value = argc > 2 ? atoi (argv[2]) : -1;
   if (value != 0 && value != 1)
     {
       Message (_("ChangeFlag():  Value %d is not valid\n"), value);
@@ -4932,6 +5808,18 @@ ChangeFlag (char *what, char *flag_name, int value, char *cmd_name)
 
 /* ************************************************************ */
 
+static const char executefile_syntax[] =
+"ExecuteFile(filename)";
+
+static const char executefile_help[] =
+"Run actions from the given file.";
+
+/* %start-doc actions ExecuteFile
+
+Lines starting with @code{#} are ignored.
+
+%end-doc */
+
 static int
 ActionExecuteFile (int argc, char **argv, int x, int y)
 {
@@ -4990,43 +5878,80 @@ ActionExecuteFile (int argc, char **argv, int x, int y)
 /* ************************************************************ */
 
 HID_Action action_action_list[] = {
-  {"AddRats", 0, ActionAddRats},
-  {"Atomic", 0, ActionAtomic},
-  {"AutoPlaceSelected", 0, ActionAutoPlaceSelected},
-  {"AutoRoute", 0, ActionAutoRoute},
-  {"ChangeClearSize", 0, ActionChangeClearSize},
-  {"ChangeDrillSize", 0, ActionChange2ndSize},
-  {"ChangeHole", 0, ActionChangeHole},
-  {"ChangeJoin", 0, ActionChangeJoin},
-  {"ChangeName", 0, ActionChangeName},
-  {"ChangePinName", 0, ActionChangePinName},
-  {"ChangeSize", 0, ActionChangeSize},
-  {"ChangeSquare", 0, ActionChangeSquare},
-  {"ChangeOctagon", 0, ActionChangeOctagon},
-  {"ClearSquare", 0, ActionClearSquare},
-  {"ClearOctagon", 0, ActionClearOctagon},
-  {"ClearThermal", 0, ActionClearThermal},
-  {"Connection", 0, ActionConnection},
-  {"DRC", 0, ActionDRCheck},
-  {"DeleteRats", 0, ActionDeleteRats},
-  {"DisperseElements", 0, ActionDisperseElements},
-  {"Display", 0, ActionDisplay},
-  {"ExecuteFile", 0, ActionExecuteFile},
-  {"Flip", "Click on Object or Flip Point", ActionFlip},
-  {"LoadFrom", 0, ActionLoadFrom},
-  {"MarkCrosshair", 0, ActionMarkCrosshair},
-  {"Mode", 0, ActionMode},
-  {"PasteBuffer", 0, ActionPasteBuffer},
-  {"Quit", 0, ActionQuit},
-  {"RemoveSelected", 0, ActionRemoveSelected},
-  {"RipUp", 0, ActionRipUp},
-  {"Select", 0, ActionSelect},
-  {"Unselect", 0, ActionUnselect},
-  {"SaveTo", 0, ActionSaveTo},
-  {"SetSquare", 0, ActionSetSquare},
-  {"SetOctagon", 0, ActionSetOctagon},
-  {"SetThermal", 0, ActionSetThermal},
-  {"SetValue", 0, ActionSetValue},
+  {"AddRats", 0, ActionAddRats,
+   addrats_help, addrats_syntax},
+  {"Atomic", 0, ActionAtomic,
+   atomic_help, atomic_syntax},
+  {"AutoPlaceSelected", 0, ActionAutoPlaceSelected,
+   autoplace_help, autoplace_syntax},
+  {"AutoRoute", 0, ActionAutoRoute,
+   autoroute_help, autoroute_syntax},
+  {"ChangeClearSize", 0, ActionChangeClearSize,
+   changeclearsize_help, changeclearsize_syntax},
+  {"ChangeDrillSize", 0, ActionChange2ndSize,
+   changedrillsize_help, changedrillsize_syntax},
+  {"ChangeHole", 0, ActionChangeHole,
+   changehold_help, changehold_syntax},
+  {"ChangeJoin", 0, ActionChangeJoin,
+   changejoin_help, changejoin_syntax},
+  {"ChangeName", 0, ActionChangeName,
+   changename_help, changename_syntax},
+  {"ChangePinName", 0, ActionChangePinName,
+   changepinname_help, changepinname_syntax},
+  {"ChangeSize", 0, ActionChangeSize,
+   changesize_help, changesize_syntax},
+  {"ChangeSquare", 0, ActionChangeSquare,
+   changesquare_help, changesquare_syntax},
+  {"ChangeOctagon", 0, ActionChangeOctagon,
+   changeoctagon_help, changeoctagon_syntax},
+  {"ClearSquare", 0, ActionClearSquare,
+   clearsquare_help, clearsquare_syntax},
+  {"ClearOctagon", 0, ActionClearOctagon,
+   clearoctagon_help, clearoctagon_syntax},
+  {"ClearThermal", 0, ActionClearThermal,
+   clearthermal_help, clearthermal_syntax},
+  {"Connection", 0, ActionConnection,
+   connection_help, connection_syntax},
+  {"DeleteRats", 0, ActionDeleteRats,
+   deleterats_help, deleterats_syntax},
+  {"DisperseElements", 0, ActionDisperseElements,
+   disperseelements_help, disperseelements_syntax},
+  {"Display", 0, ActionDisplay,
+   display_help, display_syntax},
+  {"DRC", 0, ActionDRCheck,
+   drc_help, drc_syntax},
+  {"ExecuteFile", 0, ActionExecuteFile,
+   executefile_help, executefile_syntax},
+  {"Flip", "Click on Object or Flip Point", ActionFlip,
+   flip_help, flip_syntax},
+  {"LoadFrom", 0, ActionLoadFrom,
+   loadfrom_help, loadfrom_syntax},
+  {"MarkCrosshair", 0, ActionMarkCrosshair,
+   markcrosshair_help, markcrosshair_syntax},
+  {"Mode", 0, ActionMode,
+   mode_help, mode_syntax},
+  {"PasteBuffer", 0, ActionPasteBuffer,
+   pastebuffer_help, pastebuffer_syntax},
+  {"Quit", 0, ActionQuit,
+   quit_help, quit_syntax},
+  {"RemoveSelected", 0, ActionRemoveSelected,
+   removeselected_help, removeselected_syntax},
+  {"RipUp", 0, ActionRipUp,
+   ripup_help, ripup_syntax},
+  {"Select", 0, ActionSelect,
+   select_help, select_syntax},
+  {"Unselect", 0, ActionUnselect,
+   unselect_help, unselect_syntax},
+  {"SaveTo", 0, ActionSaveTo,
+   saveto_help, saveto_syntax},
+  {"SetSquare", 0, ActionSetSquare,
+   setsquare_help, setsquare_syntax},
+  {"SetOctagon", 0, ActionSetOctagon,
+   setoctagon_help, setoctagon_syntax},
+  {"SetThermal", 0, ActionSetThermal,
+   setthermal_help, setthermal_syntax},
+  {"SetValue", 0, ActionSetValue,
+   setvalue_help, setvalue_syntax},
   {"ToggleHideName", 0, ActionToggleHideName},
   {"ToggleThermal", 0, ActionToggleThermal},
   {"Undo", 0, ActionUndo},

@@ -81,9 +81,9 @@ extern "C"
        event.  */
     int (*trigger_cb) (int argc, char **argv, int x, int y);
     /* Short description that sometimes accompanies the name.  */
-    char *description;
+    const char *description;
     /* Full allowed syntax; use \n to separate lines.  */
-    char *syntax;
+    const char *syntax;
   } HID_Action;
 
   extern void hid_register_actions (HID_Action *, int);

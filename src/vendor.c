@@ -102,19 +102,19 @@ static int rounding_method = ROUND_UP;
 
 /* ************************************************************ */
 
-/* %start-doc actions ApplyVendor
+static const char apply_vendor_syntax[] =
+"ApplyVendor()";
 
-@syntax
-ApplyVendor()
-@end syntax
+static const char apply_vendor_help[] =
+"Applies the currently loaded vendor drill table to the current design.";
+
+/* %start-doc actions ApplyVendor
 @cindex vendor map 
 @cindex vendor drill table
 @findex ApplyVendor()
 
-Applies the currently loaded vendor drill table to the current design.
 This will modify all of your drill holes to match the list of allowed
 sizes for your vendor.
-
 %end-doc */
 
 int
@@ -126,20 +126,23 @@ ActionApplyVendor (int argc, char **argv, int x, int y)
 
 /* ************************************************************ */
 
+static const char toggle_vendor_syntax[] =
+"ToggleVendor()";
+
+static const char toggle_vendor_help[] =
+"Toggles the state of automatic drill size mapping.";
+
 /* %start-doc actions ToggleVendor
 
-@syntax
-ToggleVendor()
-@end syntax
 @cindex vendor map 
 @cindex vendor drill table
 @findex ToggleVendor()
 
-Toggles the state of automatic drill size mapping.  When drill mapping is 
-enabled, new instances of pins and vias will have their drill
-holes mapped to one of the allowed drill sizes specified in the
-currently loaded vendor drill table.  To enable drill mapping, a
-vendor resource file containing a drill table must be loaded first.
+When drill mapping is enabled, new instances of pins and vias will
+have their drill holes mapped to one of the allowed drill sizes
+specified in the currently loaded vendor drill table.  To enable drill
+mapping, a vendor resource file containing a drill table must be
+loaded first.
 
 %end-doc */
 
@@ -155,20 +158,23 @@ ActionToggleVendor (int argc, char **argv, int x, int y)
 
 /* ************************************************************ */
 
+static const char enable_vendor_syntax[] =
+"EnableVendor()";
+
+static const char enable_vendor_help[] =
+"Enables automatic drill size mapping.";
+
 /* %start-doc actions EnableVendor
 
-@syntax
-EnableVendor()
-@end syntax
 @cindex vendor map 
 @cindex vendor drill table
 @findex EnableVendor()
 
-Enables automatic drill size mapping.  When drill mapping is 
-enabled, new instances of pins and vias will have their drill
-holes mapped to one of the allowed drill sizes specified in the
-currently loaded vendor drill table.  To enable drill mapping, a
-vendor resource file containing a drill table must be loaded first.
+When drill mapping is enabled, new instances of pins and vias will
+have their drill holes mapped to one of the allowed drill sizes
+specified in the currently loaded vendor drill table.  To enable drill
+mapping, a vendor resource file containing a drill table must be
+loaded first.
 
 %end-doc */
 
@@ -181,19 +187,21 @@ ActionEnableVendor (int argc, char **argv, int x, int y)
 
 /* ************************************************************ */
 
+static const char disable_vendor_syntax[] =
+"DisableVendor()";
+
+static const char disable_vendor_help[] =
+"Disables automatic drill size mapping.";
+
 /* %start-doc actions DisableVendor
 
-@syntax
-DisableVendor()
-@end syntax
 @cindex vendor map 
 @cindex vendor drill table
 @findex DisableVendor()
 
-Disables automatic drill size mapping.  When drill mapping is 
-enabled, new instances of pins and vias will have their drill
-holes mapped to one of the allowed drill sizes specified in the
-currently loaded vendor drill table.
+When drill mapping is enabled, new instances of pins and vias will
+have their drill holes mapped to one of the allowed drill sizes
+specified in the currently loaded vendor drill table.
 
 %end-doc */
 
@@ -206,16 +214,17 @@ ActionDisableVendor (int argc, char **argv, int x, int y)
 
 /* ************************************************************ */
 
+static const char unload_vendor_syntax[] =
+"UnloadVendor()";
+
+static const char unload_vendor_help[] =
+"Unloads the current vendor drill mapping table.";
+
 /* %start-doc actions UnloadVendor
 
-@syntax
-UnloadVendor()
-@end syntax
 @cindex vendor map 
 @cindex vendor drill table
 @findex UnloadVendor()
-
-Unloads the current vendor drill mapping table.
 
 %end-doc */
 
@@ -237,11 +246,14 @@ ActionUnloadVendor (int argc, char **argv, int x, int y)
 
 /* ************************************************************ */
 
+static const char load_vendor_syntax[] =
+"LoadVendorFrom(filename)";
+
+static const char load_vendor_help[] =
+"Loads the specified vendor resource file.";
+
 /* %start-doc actions LoadVendorFrom
 
-@syntax
-LoadVendorFrom(filename)
-@end syntax
 @cindex vendor map 
 @cindex vendor drill table
 @findex LoadVendorFrom()
@@ -250,8 +262,6 @@ LoadVendorFrom(filename)
 @item filename
 Name of the vendor resource file
 @end table
-
-Loads the specified vendor resource file.
 
 %end-doc */
 
@@ -894,12 +904,18 @@ rematch (const char *re, const char *s)
 }
 
 HID_Action vendor_action_list[] = {
-  {"LoadVendorFrom", 0, ActionLoadVendorFrom},
-  {"UnloadVendor", 0, ActionUnloadVendor},
-  {"ToggleVendor", 0, ActionToggleVendor},
-  {"ApplyVendor", 0, ActionApplyVendor},
-  {"EnableVendor", 0, ActionEnableVendor},
-  {"DisableVendor", 0, ActionDisableVendor}
+  {"ApplyVendor", 0, ActionApplyVendor,
+   apply_vendor_help, apply_vendor_syntax},
+  {"ToggleVendor", 0, ActionToggleVendor,
+   toggle_vendor_help, toggle_vendor_syntax},
+  {"EnableVendor", 0, ActionEnableVendor,
+   enable_vendor_help, enable_vendor_syntax},
+  {"DisableVendor", 0, ActionDisableVendor,
+   disable_vendor_help, disable_vendor_syntax},
+  {"UnloadVendor", 0, ActionUnloadVendor,
+   unload_vendor_help, unload_vendor_syntax},
+  {"LoadVendorFrom", 0, ActionLoadVendorFrom,
+   load_vendor_help, load_vendor_syntax}
 };
 
 REGISTER_ACTIONS (vendor_action_list)

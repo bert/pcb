@@ -418,6 +418,7 @@ static int show_version = 0;
 static int show_copyright = 0;
 static int show_defaults = 0;
 static int show_actions = 0;
+static int do_dump_actions = 0;
 
 HID_Attribute main_attribute_list[] = {
   {"help", "Show Help", HID_Boolean, 0, 0, {0, 0, 0}, 0, &show_help},
@@ -428,8 +429,10 @@ HID_Attribute main_attribute_list[] = {
    &show_copyright},
   {"show-defaults", "Show option defaults", HID_Boolean, 0, 0, {0, 0, 0}, 0,
    &show_defaults},
-  {"show-actions", "Show option defaults", HID_Boolean, 0, 0, {0, 0, 0}, 0,
+  {"show-actions", "Show actions", HID_Boolean, 0, 0, {0, 0, 0}, 0,
    &show_actions},
+  {"dump-actions", "Dump actions (for documentation)", HID_Boolean, 0, 0, {0, 0, 0}, 0,
+   &do_dump_actions},
 
   BSET (grid_units_mm, 0, "grid-units-mm", 0),
 
@@ -709,6 +712,12 @@ main (int argc, char *argv[])
   if (show_actions)
     {
       print_actions ();
+      exit (0);
+    }
+
+  if (do_dump_actions)
+    {
+      dump_actions ();
       exit (0);
     }
 

@@ -730,6 +730,19 @@ DoWindows (int argc, char **argv, int x, int y)
 }
 
 /* ------------------------------------------------------------ */
+static const char about_syntax[] =
+"About()";
+
+static const char about_help[] =
+"Tell the user about this version of PCB.";
+
+/* %start-doc actions About
+
+This just pops up a dialog telling the user which version of
+@code{pcb} they're running.
+
+%end-doc */
+
 
 static int
 About (int argc, char **argv, int x, int y)
@@ -1174,7 +1187,8 @@ HID_Action lesstif_dialog_action_list[] = {
   {"DoWindows", 0, DoWindows},
   {"PromptFor", 0, PromptFor},
   {"Confirm", 0, ConfirmAction},
-  {"About", 0, About},
+  {"About", 0, About,
+   about_help, about_syntax},
   {"Print", 0, Print},
   {"Export", 0, Export},
   {"AdjustSizes", 0, AdjustSizes},

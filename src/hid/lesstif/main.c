@@ -316,6 +316,18 @@ SetUnits (int argc, char **argv, int x, int y)
   return 0;
 }
 
+static const char zoom_syntax[] =
+"Zoom(lesstif)";
+
+static const char zoom_help[] =
+"this is the lesstif zoom";
+
+/* %start-doc actions Zoom
+
+This is for the lesstif zoom.
+
+%end-doc */
+
 static int
 ZoomAction (int argc, char **argv, int x, int y)
 {
@@ -562,7 +574,8 @@ Benchmark (int argc, char **argv, int x, int y)
 HID_Action lesstif_main_action_list[] = {
   {"PCBChanged", 0, PCBChanged},
   {"SetUnits", 0, SetUnits},
-  {"Zoom", 0, ZoomAction},
+  {"Zoom", 0, ZoomAction,
+   zoom_help, zoom_syntax},
   {"Thindraw", 0, ThinDraw},
   {"ThindrawPoly", 0, ThinDrawPoly},
   {"SwapSides", 0, SwapSides},

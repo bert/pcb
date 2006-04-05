@@ -42,6 +42,18 @@ static int cur_mask = -1;
 static int mask_seq = 0;
 
 
+static const char zoom_syntax[] =
+"Zoom(gtk)";
+
+static const char zoom_help[] =
+"this is the gtk zoom";
+
+/* %start-doc actions Zoom
+
+This is for the gtk zoom.
+
+%end-doc */
+
 /* FIXME */
 static int
 Zoom (int argc, char **argv, int x, int y)
@@ -1318,7 +1330,8 @@ HID_Action ghid_main_action_list[] = {
   {"Print", 0, Print},
   {"Save", 0, Save},
   {"SwapSides", 0, SwapSides},
-  {"Zoom", "Click on zoom focus", Zoom},
+  {"Zoom", "Click on zoom focus", Zoom,
+   zoom_help, zoom_syntax},
   {"Command", 0, Command},
   {"Benchmark", 0, Benchmark},
 };

@@ -133,6 +133,46 @@ print_actions ()
     }
 }
 
+static void
+dump_string (char prefix, const char *str)
+{
+  int eol = 1;
+  while (*str)
+    {
+      if (eol)
+	{
+	  putchar (prefix);
+	  eol = 0;
+	}
+      putchar (*str);
+      if (*str == '\n')
+	eol = 1;
+      str ++;
+    }
+  if (!eol)
+    putchar ('\n');
+}
+
+void
+dump_actions ()
+{
+  int i;
+  /* Forces them to be sorted in all_actions */
+  hid_find_action (hid_action_nodes->actions[0].name);
+  for (i = 0; i < n_actions; i++)
+    {
+      const char *desc = all_actions[i].description;
+      const char *synt = all_actions[i].syntax;
+
+      desc = desc ? desc : "";
+      synt = synt ? synt : "";
+
+      printf ("A%s\n", all_actions[i].name);
+      dump_string ('D', desc);
+      dump_string ('S', synt);
+    }
+}
+
 int
 hid_action (const char *name)
 {
