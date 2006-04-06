@@ -3088,12 +3088,6 @@ mode_button_toggled_cb (GtkWidget * widget, ModeButton * mb)
   if (active)
     SetMode (mb->mode);
   ghid_mode_cursor (mb->mode);
-  
-  if (ghidgui->settings_mode != mb->mode)
-    {
-      ghid_mode_buttons_update ();
-    }
-  ghidgui->settings_mode = mb->mode;
 }
 
 void
