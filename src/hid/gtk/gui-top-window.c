@@ -3086,8 +3086,11 @@ mode_button_toggled_cb (GtkWidget * widget, ModeButton * mb)
   gboolean active = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget));
 
   if (active)
+    {
     SetMode (mb->mode);
-  ghid_mode_cursor (mb->mode);
+    ghid_mode_cursor (mb->mode);
+    ghidgui->settings_mode = mb->mode;
+	}
 }
 
 void
