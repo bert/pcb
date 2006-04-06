@@ -717,6 +717,7 @@ main (int argc, char *argv[])
 
   if (do_dump_actions)
     {
+      extern void dump_actions (void);
       dump_actions ();
       exit (0);
     }
