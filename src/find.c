@@ -500,12 +500,12 @@ InitComponentLookup (void)
       PadList[i].Data =
 	(void **) MyCalloc (NumberOfPads[i], sizeof (PadTypePtr),
 			    "InitComponentLookup()");
-    }
 
-  /* clear some struct members */
-  PadList[i].Location = 0;
-  PadList[i].DrawLocation = 0;
-  PadList[i].Number = 0;
+      /* clear some struct members */
+      PadList[i].Location = 0;
+      PadList[i].DrawLocation = 0;
+      PadList[i].Number = 0;
+    }
 }
 
 /* ---------------------------------------------------------------------------
