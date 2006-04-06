@@ -165,7 +165,7 @@ png_get_export_options (int *n)
 {
   static char *last_made_filename = 0;
   char *buf = 0;
-  char *fmt;
+  const char *fmt;
 
   if (PCB && PCB->Filename
       && png_attribute_list[HA_pngfile].default_val.str_value ==
@@ -305,7 +305,7 @@ png_do_export (HID_Attr_Val * options)
   BoxType *bbox;
   int w, h;
   int xmax, ymax, dpi;
-  char *fmt;
+  const char *fmt;
 
   if (!options)
     {
