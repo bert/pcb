@@ -1671,6 +1671,7 @@ ActionDRCheck (int argc, char **argv, int x, int y)
 }
 
 /* -------------------------------------------------------------------------- */
+
 static const char flip_syntax[] =
 "Flip(Object|Selected|SelectedElements)";
 
@@ -1729,10 +1730,21 @@ ActionFlip (int argc, char **argv, int x, int y)
 }
 
 
-/* --------------------------------------------------------------------------
- * action routine to toggle a thermal (on the current layer) to pins or vias
- * syntax: ToggleThermal(Object|SelectePins|SelectedVias|Selected);
- */
+/* -------------------------------------------------------------------------- */
+
+static const char togglethermal_syntax[] =
+"ToggleThermal(Object|SelectePins|SelectedVias|Selected)";
+
+static const char togglethermal_help[] =
+"Toggle a thermal (on the current layer) to pins or vias.";
+
+/* %start-doc actions ToggleThermal
+
+This changes the electrical connection between the pins or vias, and
+any rectangle or polygon on the current layer.
+
+%end-doc */
+
 static int
 ActionToggleThermal (int argc, char **argv, int x, int y)
 {
@@ -1780,10 +1792,8 @@ ActionToggleThermal (int argc, char **argv, int x, int y)
   return 1;
 }
 
-/* --------------------------------------------------------------------------
- * action routine to set a thermal (on the current layer) to pins or vias
- * syntax: ;
- */
+/* -------------------------------------------------------------------------- */
+
 static const char setthermal_syntax[] =
 "SetThermal(Object|SelectePins|SelectedVias|Selected|SelectedElements)";
 
@@ -1844,10 +1854,7 @@ ActionSetThermal (int argc, char **argv, int x, int y)
   return 1;
 }
 
-/* --------------------------------------------------------------------------
- * action routine to clear a thermal (on the current layer) to pins or vias
- * syntax: ClearThermal(Object|SelectePins|SelectedVias|Selected);
- */
+/* -------------------------------------------------------------------------- */
 
 static const char clearthermal_syntax[] =
 "ClearThermal(Object|SelectePins|SelectedVias|Selected|SelectedElements)";
@@ -1999,14 +2006,8 @@ EventMoveCrosshair (int ev_x, int ev_y)
     IgnoreMotionEvents = False;
 }
 
-/* ---------------------------------------------------------------------------
- * action routine to change the grid, zoom and sizes
- * the first the type of object and the second is passed to
- * the specific routine
- * the value of the second determines also if it is absolute (without a sign)
- * or relative to the current one (with sign + or -)
- * syntax: 
- */
+/* --------------------------------------------------------------------------- */
+
 static const char setvalue_syntax[] =
 "SetValue(Grid|Line|LineSize|Text|TextScale|ViaDrillingHole|Via|ViaSize, delta)";
 
@@ -2116,6 +2117,7 @@ ActionSetValue (int argc, char **argv, int x, int y)
 
 
 /* --------------------------------------------------------------------------- */
+
 static const char quit_syntax[] =
 "Quit()";
 
@@ -2213,10 +2215,7 @@ ActionConnection (int argc, char **argv, int x, int y)
   return 1;
 }
 
-/* ---------------------------------------------------------------------------
- * disperses all elements
- * syntax: DisperseElements(All|Selected)
- */
+/* --------------------------------------------------------------------------- */
 
 static const char disperseelements_syntax[] =
 "DisperseElements(All|Selected)";
@@ -2838,16 +2837,8 @@ ActionDisplay (int argc, char **argv, int childX, int childY)
   return 1;
 }
 
-/* ---------------------------------------------------------------------------
- * action routine to
- *   set a new mode
- *   save the current one or restore the last saved mode
- *   call an appropriate action for the current mode
- * syntax: Mode(Copy|InsertPoint|Line|Move|None|PasteBuffer|Polygon)
- *         Mode(Remove|Rectangle|Text|Via|Arrow|Thermal)
- *         Mode(Notify|Release)
- *         Mode(Save|Restore)
- */
+/* --------------------------------------------------------------------------- */
+
 static const char mode_syntax[] =
 "Mode(Arc|Arrow|Copy|InsertPoint|Line|Lock|Move|None|PasteBuffer)\n"
 "Mode(Polygon|Rectangle|Remove|Rotate|Text|Thermal|Via)\n"
@@ -3040,6 +3031,7 @@ ActionMode (int argc, char **argv, int x, int y)
 }
 
 /* --------------------------------------------------------------------------- */
+
 static const char removeselected_syntax[] =
 "RemoveSelected()";
 
@@ -3060,11 +3052,8 @@ ActionRemoveSelected (int argc, char **argv, int x, int y)
   return 0;
 }
 
-/* ---------------------------------------------------------------------------
- * action routine to ripup auto-routed tracks (All|Selected)
- * or smash an element to pieces on the layout
- * syntax: RipUp(All|Selected|Element)
- */
+/* --------------------------------------------------------------------------- */
+
 static const char ripup_syntax[] =
 "RipUp(All|Selected|Element)";
 
@@ -3303,10 +3292,7 @@ ActionDeleteRats (int argc, char **argv, int x, int y)
   return 0;
 }
 
-/* ---------------------------------------------------------------------------
- * action routine to auto-place selected components.
- * syntax: 
- */
+/* --------------------------------------------------------------------------- */
 
 static const char autoplace_syntax[] =
 "AutoPlaceSelected()";
@@ -3335,10 +3321,7 @@ ActionAutoPlaceSelected (int argc, char **argv, int x, int y)
   return 0;
 }
 
-/* ---------------------------------------------------------------------------
- * action routine to 
- * syntax: 
- */
+/* --------------------------------------------------------------------------- */
 
 static const char autoroute_syntax[] =
 "AutoRoute(AllRats|SelectedRats)";
@@ -3394,6 +3377,7 @@ ActionAutoRoute (int argc, char **argv, int x, int y)
 }
 
 /* --------------------------------------------------------------------------- */
+
 static const char markcrosshair_syntax[] =
 "MarkCrosshair()\n"
 "MarkCrosshair(Center)";
@@ -3690,15 +3674,7 @@ ActionChangeClearSize (int argc, char **argv, int x, int y)
   return 0;
 }
 
- /* ---------------------------------------------------------------------------
-  * sets the name of a specific pin on a specific instance
-  * syntax: ChangePinName(ElementName, PinNumber, PinName)
-  * example: ChangePinName(U3, 7, VCC)
-  *
-  * This can be especially useful for annotating pin names from
-  * a schematic to the layout without requiring knowledge of
-  * the pcb file format.
-  */
+ /* ---------------------------------------------------------------------------  */
 
 static const char changepinname_syntax[] =
 "ChangePinName(ElementName,PinNumber,PinName)";
@@ -3887,10 +3863,21 @@ ActionChangeName (int argc, char **argv, int x, int y)
 }
 
 
-/* ---------------------------------------------------------------------------
- * toggles the visibility of element names 
- * syntax: ToggleHideName(Object|SelectedElements)
- */
+/* --------------------------------------------------------------------------- */
+
+static const char togglehidename_syntax[] =
+"ToggleHideName(Object|SelectedElements)";
+
+static const char togglehidename_help[] =
+"Toggles the visibility of element names.";
+
+/* %start-doc actions ToggleHideName
+
+If names are hidden you won't see them on the screen and they will not
+appear on the silk layer when you print the layout.
+
+%end-doc */
+
 static int
 ActionToggleHideName (int argc, char **argv, int x, int y)
 {
@@ -4077,6 +4064,7 @@ ActionChangeSquare (int argc, char **argv, int x, int y)
 }
 
 /* --------------------------------------------------------------------------- */
+
 static const char setsquare_syntax[] =
 "SetSquare(ToggleObject|SelectedElements|SelectedPins)";
 
@@ -4197,10 +4185,7 @@ ActionClearSquare (int argc, char **argv, int x, int y)
   return 0;
 }
 
-/* ---------------------------------------------------------------------------
- * 
- * syntax: 
- */
+/* --------------------------------------------------------------------------- */
 
 static const char changeoctagon_syntax[] =
 "ChangeOctagon(Object|ToggleObject|SelectedObjects|Selected)\n"
@@ -4266,6 +4251,7 @@ ActionChangeOctagon (int argc, char **argv, int x, int y)
 }
 
 /* --------------------------------------------------------------------------- */
+
 static const char setoctagon_syntax[] =
 "SetOctagon(Object|ToggleObject|SelectedElements|Selected)";
 
@@ -4442,15 +4428,8 @@ ActionChangeHole (int argc, char **argv, int x, int y)
   return 0;
 }
 
-/* ---------------------------------------------------------------------------
- * toggles the selection of the object at the pointer location
- * or sets it if 'All', 'Block' or 'Connection' is passed
- * syntax: Select(ToggleObject)
- *         Select(All|Block|Connection)
- *         Select(ElementByName|ObjectByName|PadByName|PinByName)
- *         Select(TextByName|ViaByName)
- *         Select(Convert)
- */
+/* --------------------------------------------------------------------------- */
+
 static const char select_syntax[] =
 "Select(ToggleObject)\n"
 "Select(All|Block|Connection)\n"
@@ -4626,6 +4605,7 @@ FlagHaveRegex (int parm)
 }
 
 /* --------------------------------------------------------------------------- */
+
 static const char unselect_syntax[] =
 "Unselect(All|Block|Connection)";
 
@@ -4710,6 +4690,7 @@ ActionUnselect (int argc, char **argv, int x, int y)
 }
 
 /* --------------------------------------------------------------------------- */
+
 static const char saveto_syntax[] =
 "SaveTo(Layout|LayoutAs,filename)\n"
 "SaveTo(AllConnections|AllUnusedPins|ElementConnections,filename)";
@@ -4817,10 +4798,7 @@ ActionSaveTo (int argc, char **argv, int x, int y)
   return 1;
 }
 
-/* ---------------------------------------------------------------------------
- * load data
- * syntax: Load(ElementToBuffer|Layout|LayoutToBuffer|Netlist|Revert)
- */
+/* --------------------------------------------------------------------------- */
 
 static const char loadfrom_syntax[] =
 "LoadFrom(Layout|LayoutToBuffer|ElementToBuffer|Netlist|Revert,filename)";
@@ -4991,10 +4969,18 @@ ActionPrint (char **Params, int num)
 }
 
 
-/* ---------------------------------------------------------------------------
- * starts a new layout
- * syntax: New()
- */
+/* --------------------------------------------------------------------------- */
+
+static const char new_syntax[] =
+"New()";
+
+static const char new_help[] =
+"Starts a new layout.";
+
+/* %start-doc actions New
+
+%end-doc */
+
 static int
 ActionNew (int argc, char **argv, int x, int y)
 {
@@ -5069,12 +5055,8 @@ ActionBell (char *volume)
   gui->beep ();
 }
 
-/* ---------------------------------------------------------------------------
- * paste buffer operations
- * syntax: PasteBuffer(AddSelected|Clear|1..MAX_BUFFER)
- *         PasteBuffer(Rotate, 1..3)
- *         PasteBuffer(Convert|Save|Restore|Mirror)
- */
+/* --------------------------------------------------------------------------- */
+
 static const char pastebuffer_syntax[] =
 "PasteBuffer(AddSelected|Clear|1..MAX_BUFFER)\n"
 "PasteBuffer(Rotate, 1..3)\n"
@@ -5210,14 +5192,30 @@ ActionPasteBuffer (int argc, char **argv, int x, int y)
   return 0;
 }
 
-/* ---------------------------------------------------------------------------
- * action routine to 'undo' operations
- * The serial number indicates the operation. This makes it possible
- * to group undo requests.
- * syntax: Undo(ClearList)
- *         Undo()
- */
-/* XXX */
+/* --------------------------------------------------------------------------- */
+
+static const char undo_syntax[] =
+"Undo()\n"
+"Undo(ClearList)";
+
+static const char undo_help[] =
+"Undo recent changes.";
+
+/* %start-doc actions Undo
+
+The unlimited undo feature of @code{Pcb} allows you to recover from
+most operations that materially affect you work.  Calling
+@code{Undo()} without any parameter recovers from the last (non-undo)
+operation. @code{ClearList} is used to release the allocated
+memory. @code{ClearList} is called whenever a new layout is started or
+loaded. See also @code{Redo} and @code{Atomic}.
+
+Note that undo groups operations by serial number; changes with the
+same serial number will be undone (or redone) as a group.  See
+@code{Atomic}.
+
+%end-doc */
+
 static int
 ActionUndo (int argc, char **argv, int x, int y)
 {
@@ -5362,12 +5360,29 @@ ActionUndo (int argc, char **argv, int x, int y)
   return 0;
 }
 
-/* ---------------------------------------------------------------------------
- * action routine to 'redo' operations
- * The serial number indicates the operation. This makes it possible
- * to group redo requests.
- * syntax: Redo()
- */
+/* --------------------------------------------------------------------------- */
+
+static const char redo_syntax[] =
+"Redo()";
+
+static const char redo_help[] =
+"Redo recent \"undo\" operations.";
+
+/* %start-doc actions Redo
+
+This routine allows you to recover from the last undo command.  You
+might want to do this if you thought that undo was going to revert
+something other than what it actually did (in case you are confused
+about which operations are un-doable), or if you have been backing up
+through a long undo list and over-shoot your stopping point.  Any
+change that is made since the undo in question will trim the redo
+list.  For example if you add ten lines, then undo three of them you
+could use redo to put them back, but if you move a line on the board
+before performing the redo, you will lose the ability to "redo" the
+three "undone" lines.
+
+%end-doc */
+
 static int
 ActionRedo (int argc, char **argv, int x, int y)
 {
@@ -5394,10 +5409,32 @@ ActionRedo (int argc, char **argv, int x, int y)
   return 0;
 }
 
-/* ---------------------------------------------------------------------------
- * some polygon related stuff
- * syntax: Polygon(Close|PreviousPoint)
- */
+/* --------------------------------------------------------------------------- */
+
+static const char polygon_syntax[] =
+"Polygon(Close|PreviousPoint)";
+
+static const char polygon_help[] =
+"Some polygon related stuff.";
+
+/* %start-doc actions Polygon
+
+Polygons need a special action routine to make life easier.
+
+@table @code
+
+@item Close
+Creates the final segment of the polygon.  This may fail if clipping
+to 45 degree lines is switched on, in which case a warning is issued.
+
+@item PreviousPoint
+Resets the newly entered corner to the previous one. The Undo action
+will call Polygon(PreviousPoint) when appropriate to do so.
+
+@end table
+
+%end-doc */
+
 static int
 ActionPolygon (int argc, char **argv, int x, int y)
 {
@@ -5422,10 +5459,18 @@ ActionPolygon (int argc, char **argv, int x, int y)
   return 0;
 }
 
-/* ---------------------------------------------------------------------------
- * copies a routing style into the current sizes
- * syntax: RouteStyle()
- */
+/* --------------------------------------------------------------------------- */
+
+static const char routestyle_syntax[] =
+"RouteStyle(1|2|3|4)";
+
+static const char routestyle_help[] =
+"Copies the indicated routing style into the current sizes.";
+
+/* %start-doc actions RouteStyle
+
+%end-doc */
+
 static int
 ActionRouteStyle (int argc, char **argv, int x, int y)
 {
@@ -5500,10 +5545,24 @@ ActionSwitchDrawingLayer (char *str)
 #endif
 
 
-/* ---------------------------------------------------------------------------
- * MoveObject
- * syntax: MoveObject(X,Y,dim)
- */
+/* --------------------------------------------------------------------------- */
+
+static const char moveobject_syntax[] =
+"MoveObject(X,Y,dim)";
+
+static const char moveobject_help[] =
+"Moves the object under the crosshair.";
+
+/* %start-doc actions MoveObject
+
+The @code{X} and @code{Y} are treated like @code{delta} is for many
+other objects.  For each, if it's prefixed by @code{+} or @code{-},
+then that amount is relative.  Otherwise, it's absolute.  Units can be
+@code{mil} or @code{mm}; if unspecified, units are PCB's internal
+units, currently 1/100 mil.
+
+%end-doc */
+
 static int
 ActionMoveObject (int argc, char **argv, int x, int y)
 {
@@ -5538,10 +5597,22 @@ ActionMoveObject (int argc, char **argv, int x, int y)
   return 0;
 }
 
-/* ---------------------------------------------------------------------------
- * moves objects to the current layer
- * syntax: MoveToCurrentLayer(Object|SelectedObjects)
- */
+/* --------------------------------------------------------------------------- */
+
+static const char movetocurrentlayer_syntax[] =
+"MoveToCurrentLayer(Object|SelectedObjects)";
+
+static const char movetocurrentlayer_help[] =
+"Moves objects to the current layer.";
+
+/* %start-doc actions MoveToCurrentLayer
+
+Note that moving an element from a component layer to a solder layer,
+or from solder to component, won't automatically flip it.  Use the
+@code{Flip()} action to do that.
+
+%end-doc */
+
 static int
 ActionMoveToCurrentLayer (int argc, char **argv, int x, int y)
 {
@@ -5576,6 +5647,20 @@ ActionMoveToCurrentLayer (int argc, char **argv, int x, int y)
   return 0;
 }
 
+
+static const char setsame_syntax[] =
+"SetSame()";
+
+static const char setsame_help[] =
+"Sets current layer and sizes to match indicated item.";
+
+/* %start-doc actions SetSame
+
+When invoked over any line, arc, polygon, or via, this changes the
+current layer to be the layer that item is on, and changes the current
+sizes (thickness, keepaway, drill, etc) according to that item.
+
+%end-doc */
 
 static int
 ActionSetSame (int argc, char **argv, int x, int y)
@@ -5636,19 +5721,28 @@ ActionSetSame (int argc, char **argv, int x, int y)
 }
 
 
-/* ---------------------------------------------------------------------------
- * sets flags on object
- * syntax: SetFlag(Object, flag)
- *         SetFlag(SelectedLines|SelectedPins|SelectedVias, flag)
- *         SetFlag(SelectedPads|SelectedTexts|SelectedNames, flag)
- *	   SetFlag(SelectedElements, flag)
- *
- *	   flag = square | octagon | thermal
- *
- * examples:
- * :SetFlag(SelectedVias,thermal) 
- * :SetFlag(SelectedElements,square)
- */
+/* --------------------------------------------------------------------------- */
+
+static const char setflag_syntax[] =
+"SetFlag(Object|Selected|SelectedObjects, flag)\n"
+"SetFlag(SelectedLines|SelectedPins|SelectedVias, flag)\n"
+"SetFlag(SelectedPads|SelectedTexts|SelectedNames, flag)\n"
+"SetFlag(SelectedElements, flag)\n"
+"flag = square | octagon | thermal | join";
+
+static const char setflag_help[] =
+"Sets flags on objects.";
+
+/* %start-doc actions SetFlag
+
+Turns the given flag on, regardless of its previous setting.  See
+@code{ChangeFlag}.
+
+@example
+SetFlag(SelectedPins,thermal)
+@end example
+
+%end-doc */
 
 static int
 ActionSetFlag (int argc, char **argv, int x, int y)
@@ -5659,16 +5753,28 @@ ActionSetFlag (int argc, char **argv, int x, int y)
   return 0;
 }
 
-/* ---------------------------------------------------------------------------
- * clears flags on object
- * syntax: ClrFlag(Object, flag)
- *         ClrFlag(SelectedLines|SelectedPins|SelectedVias, flag)
- *         ClrFlag(SelectedPads|SelectedTexts|SelectedNames, flag)
- *	   ClrFlag(SelectedElements, flag)
- * examples:
- * :ClrFlag(SelectedVias,thermal) 
- * :ClrFlag(SelectedElements,square)
- */
+/* --------------------------------------------------------------------------- */
+
+static const char clrflag_syntax[] =
+"ClrFlag(Object|Selected|SelectedObjects, flag)\n"
+"ClrFlag(SelectedLines|SelectedPins|SelectedVias, flag)\n"
+"ClrFlag(SelectedPads|SelectedTexts|SelectedNames, flag)\n"
+"ClrFlag(SelectedElements, flag)\n"
+"flag = square | octagon | thermal | join";
+
+static const char clrflag_help[] =
+"Clears flags on objects.";
+
+/* %start-doc actions ClrFlag
+
+Turns the given flag off, regardless of its previous setting.  See
+@code{ChangeFlag}.
+
+@example
+ClrFlag(SelectedLines,join)
+@end example
+
+%end-doc */
 
 static int
 ActionClrFlag (int argc, char **argv, int x, int y)
@@ -5679,18 +5785,27 @@ ActionClrFlag (int argc, char **argv, int x, int y)
   return 0;
 }
 
-/* ---------------------------------------------------------------------------
- * sets or clears flags on object
- * syntax: ChangeFlag(Object, flag, value)
- *         ChangeFlag(SelectedLines|SelectedPins|SelectedVias, flag, value)
- *         ChangeFlag(SelectedPads|SelectedTexts|SelectedNames, flag, value)
- *	   ChangeFlag(SelectedElements, flag, value)
- *
- * examples:
- *
- * :ChangeFlag(SelectedVias,thermal,0) 
- * :ChangeFlag(SelectedElements,square,1)
- */
+/* --------------------------------------------------------------------------- */
+
+static const char changeflag_syntax[] =
+"ChangeFlag(Object|Selected|SelectedObjects, flag, value)\n"
+"ChangeFlag(SelectedLines|SelectedPins|SelectedVias, flag, value)\n"
+"ChangeFlag(SelectedPads|SelectedTexts|SelectedNames, flag, value)\n"
+"ChangeFlag(SelectedElements, flag, value)\n"
+"flag = square | octagon | thermal | join";
+
+static const char changeflag_help[] =
+"Sets or clears flags on objects.";
+
+/* %start-doc actions ChangeFlag
+
+Toggles the given flag on the indicated object(s).  The flag may be
+one of the flags listed above (square, octagon, thermal, join).  The
+value may be the number 0 or 1.  If the value is 0, the flag is
+cleared.  If the value is 1, the flag is set.
+
+%end-doc */
+
 static int
 ActionChangeFlag (int argc, char **argv, int x, int y)
 {
@@ -5805,8 +5920,7 @@ ChangeFlag (char *what, char *flag_name, int value, char *cmd_name)
 
 }
 
-
-/* ************************************************************ */
+/* --------------------------------------------------------------------------- */
 
 static const char executefile_syntax[] =
 "ExecuteFile(filename)";
@@ -5875,7 +5989,7 @@ ActionExecuteFile (int argc, char **argv, int x, int y)
   return 0;
 }
 
-/* ************************************************************ */
+/* --------------------------------------------------------------------------- */
 
 HID_Action action_action_list[] = {
   {"AddRats", 0, ActionAddRats,
@@ -5952,19 +6066,32 @@ HID_Action action_action_list[] = {
    setthermal_help, setthermal_syntax},
   {"SetValue", 0, ActionSetValue,
    setvalue_help, setvalue_syntax},
-  {"ToggleHideName", 0, ActionToggleHideName},
-  {"ToggleThermal", 0, ActionToggleThermal},
-  {"Undo", 0, ActionUndo},
-  {"Redo", 0, ActionRedo},
-  {"SetSame", 0, ActionSetSame},
-  {"SetFlag", 0, ActionSetFlag},
-  {"ClrFlag", 0, ActionClrFlag},
-  {"ChangeFlag", 0, ActionChangeFlag},
-  {"Polygon", 0, ActionPolygon},
-  {"RouteStyle", 0, ActionRouteStyle},
-  {"MoveObject", "Select an Object", ActionMoveObject},
-  {"MoveToCurrentLayer", 0, ActionMoveToCurrentLayer},
-  {"New", 0, ActionNew},
+  {"ToggleHideName", 0, ActionToggleHideName,
+   togglehidename_help, togglehidename_syntax},
+  {"ToggleThermal", 0, ActionToggleThermal,
+   togglethermal_help, togglethermal_syntax},
+  {"Undo", 0, ActionUndo,
+   undo_help, undo_syntax},
+  {"Redo", 0, ActionRedo,
+   redo_help, redo_syntax},
+  {"SetSame", 0, ActionSetSame,
+   setsame_help, setsame_syntax},
+  {"SetFlag", 0, ActionSetFlag,
+  setflag_help, setflag_syntax},
+  {"ClrFlag", 0, ActionClrFlag,
+   clrflag_help, clrflag_syntax},
+  {"ChangeFlag", 0, ActionChangeFlag,
+   changeflag_help, changeflag_syntax},
+  {"Polygon", 0, ActionPolygon,
+   polygon_help, polygon_syntax},
+  {"RouteStyle", 0, ActionRouteStyle,
+   routestyle_help, routestyle_syntax},
+  {"MoveObject", "Select an Object", ActionMoveObject,
+   moveobject_help, moveobject_syntax},
+  {"MoveToCurrentLayer", 0, ActionMoveToCurrentLayer,
+   movetocurrentlayer_help, movetocurrentlayer_syntax},
+  {"New", 0, ActionNew,
+   new_help, new_syntax},
 };
 
 REGISTER_ACTIONS (action_action_list)

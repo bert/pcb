@@ -210,6 +210,23 @@ Changes the drilling hole size of objects.
 
 @cartouche
 @format
+ChangeFlag(Object|Selected|SelectedObjects, flag, value)
+ChangeFlag(SelectedLines|SelectedPins|SelectedVias, flag, value)
+ChangeFlag(SelectedPads|SelectedTexts|SelectedNames, flag, value)
+ChangeFlag(SelectedElements, flag, value)
+flag = square | octagon | thermal | join@end format
+@end cartouche
+
+Sets or clears flags on objects.
+
+Toggles the given flag on the indicated object(s).  The flag may be
+one of the flags listed above (square, octagon, thermal, join).  The
+value may be the number 0 or 1.  If the value is 0, the flag is
+cleared.  If the value is 1, the flag is set.
+
+
+@cartouche
+@format
 ChangeHole(ToggleObject|Object|SelectedVias|Selected)@end format
 @end cartouche
 
@@ -346,6 +363,25 @@ Clear a thermal (on the current layer) to pins or vias.
 
 This removes any electrical connection.  Pins and vias that do not
 already have thermals are not changed.
+
+
+@cartouche
+@format
+ClrFlag(Object|Selected|SelectedObjects, flag)
+ClrFlag(SelectedLines|SelectedPins|SelectedVias, flag)
+ClrFlag(SelectedPads|SelectedTexts|SelectedNames, flag)
+ClrFlag(SelectedElements, flag)
+flag = square | octagon | thermal | join@end format
+@end cartouche
+
+Clears flags on objects.
+
+Turns the given flag off, regardless of its previous setting.  See
+@code{ChangeFlag}.
+
+@example
+ClrFlag(SelectedLines,join)
+@end example
 
 
 @cartouche
@@ -764,6 +800,40 @@ Restores the tool to the last saved tool.
 
 @cartouche
 @format
+MoveObject(X,Y,dim)@end format
+@end cartouche
+
+Moves the object under the crosshair.
+
+The @code{X} and @code{Y} are treated like @code{delta} is for many
+other objects.  For each, if it's prefixed by @code{+} or @code{-},
+then that amount is relative.  Otherwise, it's absolute.  Units can be
+@code{mil} or @code{mm}; if unspecified, units are PCB's internal
+units, currently 1/100 mil.
+
+
+@cartouche
+@format
+MoveToCurrentLayer(Object|SelectedObjects)@end format
+@end cartouche
+
+Moves objects to the current layer.
+
+Note that moving an element from a component layer to a solder layer,
+or from solder to component, won't automatically flip it.  Use the
+@code{Flip()} action to do that.
+
+
+@cartouche
+@format
+New()@end format
+@end cartouche
+
+Starts a new layout.
+
+
+@cartouche
+@format
 OptAutoOnly()@end format
 @end cartouche
 
@@ -827,6 +897,28 @@ Selects the given buffer to be the current paste buffer.
 
 @cartouche
 @format
+Polygon(Close|PreviousPoint)@end format
+@end cartouche
+
+Some polygon related stuff.
+
+Polygons need a special action routine to make life easier.
+
+@table @code
+
+@item Close
+Creates the final segment of the polygon.  This may fail if clipping
+to 45 degree lines is switched on, in which case a warning is issued.
+
+@item PreviousPoint
+Resets the newly entered corner to the previous one. The Undo action
+will call Polygon(PreviousPoint) when appropriate to do so.
+
+@end table
+
+
+@cartouche
+@format
 Quit()@end format
 @end cartouche
 
@@ -834,6 +926,25 @@ Quits the application.
 
 If you have unsaved changes, you will be prompted to confirm before
 quitting.
+
+
+@cartouche
+@format
+Redo()@end format
+@end cartouche
+
+Redo recent \"undo\" operations.
+
+This routine allows you to recover from the last undo command.  You
+might want to do this if you thought that undo was going to revert
+something other than what it actually did (in case you are confused
+about which operations are un-doable), or if you have been backing up
+through a long undo list and over-shoot your stopping point.  Any
+change that is made since the undo in question will trim the redo
+list.  For example if you add ten lines, then undo three of them you
+could use redo to put them back, but if you move a line on the board
+before performing the redo, you will lose the ability to "redo" the
+three "undone" lines.
 
 
 @cartouche
@@ -865,6 +976,14 @@ Converts the element under the cursor to parts (vias and lines).  Note
 that this uses the highest numbered paste buffer.
 
 @end table
+
+
+@cartouche
+@format
+RouteStyle(1|2|3|4)@end format
+@end cartouche
+
+Copies the indicated routing style into the current sizes.
 
 
 @cartouche
@@ -941,12 +1060,43 @@ numbered paste buffer.
 
 @cartouche
 @format
+SetFlag(Object|Selected|SelectedObjects, flag)
+SetFlag(SelectedLines|SelectedPins|SelectedVias, flag)
+SetFlag(SelectedPads|SelectedTexts|SelectedNames, flag)
+SetFlag(SelectedElements, flag)
+flag = square | octagon | thermal | join@end format
+@end cartouche
+
+Sets flags on objects.
+
+Turns the given flag on, regardless of its previous setting.  See
+@code{ChangeFlag}.
+
+@example
+SetFlag(SelectedPins,thermal)
+@end example
+
+
+@cartouche
+@format
 SetOctagon(Object|ToggleObject|SelectedElements|Selected)@end format
 @end cartouche
 
 Sets the octagon-flag of objects.
 
 @pinshapes
+
+
+@cartouche
+@format
+SetSame()@end format
+@end cartouche
+
+Sets current layer and sizes to match indicated item.
+
+When invoked over any line, arc, polygon, or via, this changes the
+current layer to be the layer that item is on, and changes the current
+sizes (thickness, keepaway, drill, etc) according to that item.
 
 
 @cartouche
@@ -1004,6 +1154,28 @@ Changes the size of new text.
 
 @cartouche
 @format
+ToggleHideName(Object|SelectedElements)@end format
+@end cartouche
+
+Toggles the visibility of element names.
+
+If names are hidden you won't see them on the screen and they will not
+appear on the silk layer when you print the layout.
+
+
+@cartouche
+@format
+ToggleThermal(Object|SelectePins|SelectedVias|Selected)@end format
+@end cartouche
+
+Toggle a thermal (on the current layer) to pins or vias.
+
+This changes the electrical connection between the pins or vias, and
+any rectangle or polygon on the current layer.
+
+
+@cartouche
+@format
 ToggleVendor()@end format
 @end cartouche
 
@@ -1018,6 +1190,26 @@ have their drill holes mapped to one of the allowed drill sizes
 specified in the currently loaded vendor drill table.  To enable drill
 mapping, a vendor resource file containing a drill table must be
 loaded first.
+
+
+@cartouche
+@format
+Undo()
+Undo(ClearList)@end format
+@end cartouche
+
+Undo recent changes.
+
+The unlimited undo feature of @code{Pcb} allows you to recover from
+most operations that materially affect you work.  Calling
+@code{Undo()} without any parameter recovers from the last (non-undo)
+operation. @code{ClearList} is used to release the allocated
+memory. @code{ClearList} is called whenever a new layout is started or
+loaded. See also @code{Redo} and @code{Atomic}.
+
+Note that undo groups operations by serial number; changes with the
+same serial number will be undone (or redone) as a group.  See
+@code{Atomic}.
 
 
 @cartouche
