@@ -1019,7 +1019,9 @@ Save connections to the element at the cursor to a file.
 Select(ToggleObject)
 Select(All|Block|Connection)
 Select(ElementByName|ObjectByName|PadByName|PinByName)
+Select(ElementByName|ObjectByName|PadByName|PinByName, Name)
 Select(TextByName|ViaByName)
+Select(TextByName|ViaByName, Name)
 Select(Convert)@end format
 @end cartouche
 
@@ -1035,8 +1037,9 @@ Toggles or sets the selection
 @item ViaByName
 
 These all rely on having a regular expression parser built into
-@code{pcb}.  The user is prompted for a pattern, and all object that
-match the pattern and are of the type specified are selected.
+@code{pcb}.  If the name is not specified then the user is prompted
+for a pattern, and all objects that match the pattern and are of the
+type specified are selected.
 
 @item Object
 @item ToggleObject
@@ -1226,10 +1229,15 @@ Unloads the current vendor drill mapping table.
 
 @cartouche
 @format
-Unselect(All|Block|Connection)@end format
+Unselect(All|Block|Connection)
+Unselect(ElementByName|ObjectByName|PadByName|PinByName)
+Unselect(ElementByName|ObjectByName|PadByName|PinByName, Name)
+Unselect(TextByName|ViaByName)
+Unselect(TextByName|ViaByName, Name)
+@end format
 @end cartouche
 
-unselects the object at the pointer location
+unselects the object at the pointer location or the specified objects
 
 @table @code
 
@@ -1241,6 +1249,19 @@ Unselect all objects in a rectangle given by the cursor.
 
 @item Connection
 Unselect all connections with the ``found'' flag set.
+
+@item ElementByName
+@item ObjectByName
+@item PadByName
+@item PinByName
+@item TextByName
+@item ViaByName
+
+These all rely on having a regular expression parser built into
+@code{pcb}.  If the name is not specified then the user is prompted
+for a pattern, and all objects that match the pattern and are of the
+type specified are unselected.
+
 
 @end table
 

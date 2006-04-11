@@ -4434,7 +4434,9 @@ static const char select_syntax[] =
 "Select(ToggleObject)\n"
 "Select(All|Block|Connection)\n"
 "Select(ElementByName|ObjectByName|PadByName|PinByName)\n"
+"Select(ElementByName|ObjectByName|PadByName|PinByName, Name)\n"
 "Select(TextByName|ViaByName)\n"
+"Select(TextByName|ViaByName, Name)\n"
 "Select(Convert)";
 
 static const char select_help[] =
@@ -4452,8 +4454,9 @@ static const char select_help[] =
 @item ViaByName
 
 These all rely on having a regular expression parser built into
-@code{pcb}.  The user is prompted for a pattern, and all object that
-match the pattern and are of the type specified are selected.
+@code{pcb}.  If the name is not specified then the user is prompted
+for a pattern, and all objects that match the pattern and are of the
+type specified are selected.
 
 @item Object
 @item ToggleObject
@@ -4510,13 +4513,15 @@ ActionSelect (int argc, char **argv, int x, int y)
 
 	commonByName:
 	  {
-	    char *pattern;
+	    char *pattern = ARG (1);
 
-	    if ((pattern = gui->prompt_for (_("Enter pattern:"), "")) != NULL)
+	    if (pattern
+		|| (pattern = gui->prompt_for (_("Enter pattern:"), "")) != NULL )
 	      {
-		if (SelectObjectByName (type, pattern))
+		if (SelectObjectByName (type, pattern, True))
 		  SetChangedFlag (True);
-		free (pattern);
+		if (ARG (1) == 0)
+		  free (pattern);
 	      }
 	    break;
 	  }
@@ -4587,6 +4592,10 @@ ActionSelect (int argc, char **argv, int x, int y)
 	  CopyPastebufferToLayout (Crosshair.X, Crosshair.Y);
 	  SetBufferNumber (Note.Buffer);
 	  break;
+
+	default:
+	  Message("Syntax error\nUsage:\n%s\n", select_syntax);
+	  break;
 	}
       RestoreCrosshair (True);
     }
@@ -4607,10 +4616,14 @@ FlagHaveRegex (int parm)
 /* --------------------------------------------------------------------------- */
 
 static const char unselect_syntax[] =
-"Unselect(All|Block|Connection)";
+"Unselect(All|Block|Connection)\n"
+"Unselect(ElementByName|ObjectByName|PadByName|PinByName)\n"
+"Unselect(ElementByName|ObjectByName|PadByName|PinByName, Name)\n"
+"Unselect(TextByName|ViaByName)\n"
+"Unselect(TextByName|ViaByName, Name)\n";
 
 static const char unselect_help[] =
-"unselects the object at the pointer location";
+"unselects the object at the pointer location or the specified objects";
 
 /* %start-doc actions Unselect
 
@@ -4625,6 +4638,19 @@ Unselect all objects in a rectangle given by the cursor.
 @item Connection
 Unselect all connections with the ``found'' flag set.
 
+@item ElementByName
+@item ObjectByName
+@item PadByName
+@item PinByName
+@item TextByName
+@item ViaByName
+
+These all rely on having a regular expression parser built into
+@code{pcb}.  If the name is not specified then the user is prompted
+for a pattern, and all objects that match the pattern and are of the
+type specified are unselected.
+
+
 @end table
 
 %end-doc */
@@ -4633,11 +4659,50 @@ static int
 ActionUnselect (int argc, char **argv, int x, int y)
 {
   char *function = ARG (0);
+
   if (function)
     {
       HideCrosshair (True);
       switch (GetFunctionID (function))
 	{
+#if defined(HAVE_REGCOMP) || defined(HAVE_RE_COMP)
+	  int type;
+	  /* select objects by their names */
+	case F_ElementByName:
+	  type = ELEMENT_TYPE;
+	  goto commonByName;
+	case F_ObjectByName:
+	  type = ALL_TYPES;
+	  goto commonByName;
+	case F_PadByName:
+	  type = PAD_TYPE;
+	  goto commonByName;
+	case F_PinByName:
+	  type = PIN_TYPE;
+	  goto commonByName;
+	case F_TextByName:
+	  type = TEXT_TYPE;
+	  goto commonByName;
+	case F_ViaByName:
+	  type = VIA_TYPE;
+	  goto commonByName;
+
+	commonByName:
+	  {
+	    char *pattern = ARG (1);
+
+	    if (pattern
+		|| (pattern = gui->prompt_for (_("Enter pattern:"), "")) != NULL )
+	      {
+		if (SelectObjectByName (type, pattern, False))
+		  SetChangedFlag (True);
+		if (ARG (1) == 0)
+		  free (pattern);
+	      }
+	    break;
+	  }
+#endif /* defined(HAVE_REGCOMP) || defined(HAVE_RE_COMP) */
+
 	  /* all objects in block */
 	case F_Block:
 	  {
@@ -4683,6 +4748,11 @@ ActionUnselect (int argc, char **argv, int x, int y)
 	      SetChangedFlag (True);
 	    }
 	  break;
+
+	default:
+	  Message("Syntax error\nUsage:\n%s\n", unselect_syntax);
+	  break;
+
 	}
       RestoreCrosshair (True);
     }
@@ -4734,7 +4804,6 @@ ActionSaveTo (int argc, char **argv, int x, int y)
       Message ("SaveTo(function,filename)");
       return 1;
     }
-  printf ("SaveTo(%s,%s)\n", function, name);
 
   if (strcasecmp (function, "LayoutAs") == 0)
     {
@@ -5980,7 +6049,6 @@ ActionExecuteFile (int argc, char **argv, int x, int y)
       if (*sp && *sp != '#')
 	{
 	  Message ("%s : line %-3d : \"%s\"\n", fname, n, sp);
-	  /* printf ("%s : line %-3d : \"%s\"\n", fname, n, sp); */
 	  hid_parse_actions (sp, 0);
 	}
     }

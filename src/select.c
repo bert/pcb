@@ -828,7 +828,7 @@ SelectConnection (Boolean Flag)
  * returns True if any object has been selected
  */
 Boolean
-SelectObjectByName (int Type, char *Pattern)
+SelectObjectByName (int Type, char *Pattern, Boolean Flag)
 {
   Boolean changed = False;
 
@@ -844,7 +844,7 @@ SelectObjectByName (int Type, char *Pattern)
   if (result)
     {
       char errorstring[128];
-
+      
       regerror (result, &compiled, errorstring, 128);
       Message (_("regexp error: %s\n"), errorstring);
       regfree (&compiled);
@@ -852,9 +852,9 @@ SelectObjectByName (int Type, char *Pattern)
     }
 #else
 #define	REGEXEC(arg)	(re_exec((arg)) == 1)
-
+  
   char *compiled;
-
+  
   /* compile the regular expression */
   if ((compiled = re_comp (Pattern)) != NULL)
     {
@@ -862,17 +862,19 @@ SelectObjectByName (int Type, char *Pattern)
       return (False);
     }
 #endif
-
+  
   /* loop over all visible objects with names */
   if (Type & TEXT_TYPE)
     ALLTEXT_LOOP (PCB->Data);
   {
     if (!TEST_FLAG (LOCKFLAG, text)
-	&& TEXT_IS_VISIBLE (PCB, layer, text) &&
-	text->TextString && REGEXEC (text->TextString))
+	&& TEXT_IS_VISIBLE (PCB, layer, text) 
+	&& text->TextString 
+	&& REGEXEC (text->TextString)
+	&& TEST_FLAG (SELECTEDFLAG, text) != Flag)
       {
 	AddObjectToFlagUndoList (TEXT_TYPE, layer, text, text);
-	SET_FLAG (SELECTEDFLAG, text);
+	ASSIGN_FLAG (SELECTEDFLAG, Flag, text);
 	DrawText (layer, text, 0);
 	changed = True;
       }
@@ -882,31 +884,32 @@ SelectObjectByName (int Type, char *Pattern)
   if (PCB->ElementOn && (Type & ELEMENT_TYPE))
     ELEMENT_LOOP (PCB->Data);
   {
-    if (!TEST_FLAG (LOCKFLAG, element) &&
-	((TEST_FLAG (ONSOLDERFLAG, element) != 0) == SWAP_IDENT
-	 || PCB->InvisibleObjectsOn))
+    if (!TEST_FLAG (LOCKFLAG, element) 
+	&& ((TEST_FLAG (ONSOLDERFLAG, element) != 0) == SWAP_IDENT
+	    || PCB->InvisibleObjectsOn)
+	&& TEST_FLAG (SELECTEDFLAG, element) != Flag )
       {
 	String name = ELEMENT_NAME (PCB, element);
 	if (name && REGEXEC (name))
 	  {
 	    AddObjectToFlagUndoList (ELEMENT_TYPE, element, element, element);
-	    SET_FLAG (SELECTEDFLAG, element);
+	    ASSIGN_FLAG (SELECTEDFLAG, Flag, element);
 	    PIN_LOOP (element);
 	    {
 	      AddObjectToFlagUndoList (PIN_TYPE, element, pin, pin);
-	      SET_FLAG (SELECTEDFLAG, pin);
+	      ASSIGN_FLAG (SELECTEDFLAG, Flag, pin);
 	    }
 	    END_LOOP;
 	    PAD_LOOP (element);
 	    {
 	      AddObjectToFlagUndoList (PAD_TYPE, element, pad, pad);
-	      SET_FLAG (SELECTEDFLAG, pad);
+	      ASSIGN_FLAG (SELECTEDFLAG, Flag, pad);
 	    }
 	    END_LOOP;
 	    ELEMENTTEXT_LOOP (element);
 	    {
 	      AddObjectToFlagUndoList (ELEMENTNAME_TYPE, element, text, text);
-	      TOGGLE_FLAG (SELECTEDFLAG, text);
+	      ASSIGN_FLAG (SELECTEDFLAG, Flag, text);
 	    }
 	    END_LOOP;
 	    DrawElementName (element, 0);
@@ -919,25 +922,28 @@ SelectObjectByName (int Type, char *Pattern)
   if (PCB->PinOn && (Type & PIN_TYPE))
     ALLPIN_LOOP (PCB->Data);
   {
-    if (!TEST_FLAG (LOCKFLAG, element) && pin->Name && REGEXEC (pin->Name))
+    if (!TEST_FLAG (LOCKFLAG, element) 
+	&& pin->Name && REGEXEC (pin->Name)
+	&& TEST_FLAG (SELECTEDFLAG, pin) != Flag )
       {
 	AddObjectToFlagUndoList (PIN_TYPE, element, pin, pin);
-	SET_FLAG (SELECTEDFLAG, pin);
+	ASSIGN_FLAG (SELECTEDFLAG, Flag, pin);
 	DrawPin (pin, 0);
 	changed = True;
-      }
+	}
   }
   ENDALL_LOOP;
   if (PCB->PinOn && (Type & PAD_TYPE))
     ALLPAD_LOOP (PCB->Data);
   {
-    if (!TEST_FLAG (LOCKFLAG, element) &&
-	((TEST_FLAG (ONSOLDERFLAG, pad) != 0) == SWAP_IDENT ||
-	 PCB->InvisibleObjectsOn))
+    if (!TEST_FLAG (LOCKFLAG, element) 
+	&& ((TEST_FLAG (ONSOLDERFLAG, pad) != 0) == SWAP_IDENT 
+	    || PCB->InvisibleObjectsOn)
+	&& TEST_FLAG (SELECTEDFLAG, pad) != Flag )
       if (pad->Name && REGEXEC (pad->Name))
 	{
 	  AddObjectToFlagUndoList (PAD_TYPE, element, pad, pad);
-	  SET_FLAG (SELECTEDFLAG, pad);
+	  ASSIGN_FLAG (SELECTEDFLAG, Flag, pad);
 	  DrawPad (pad, 0);
 	  changed = True;
 	}
@@ -946,10 +952,13 @@ SelectObjectByName (int Type, char *Pattern)
   if (PCB->ViaOn && (Type & VIA_TYPE))
     VIA_LOOP (PCB->Data);
   {
-    if (!TEST_FLAG (LOCKFLAG, via) && via->Name && REGEXEC (via->Name))
+    if (!TEST_FLAG (LOCKFLAG, via) 
+	&& via->Name 
+	&& REGEXEC (via->Name)
+	&& TEST_FLAG (SELECTEDFLAG, via) != Flag )
       {
 	AddObjectToFlagUndoList (VIA_TYPE, via, via, via);
-	SET_FLAG (SELECTEDFLAG, via);
+	ASSIGN_FLAG (SELECTEDFLAG, Flag, via);
 	DrawVia (via, 0);
 	changed = True;
       }
