@@ -71,6 +71,13 @@ $v
 ])
 			;;
 	esac
+
+	AC_PATH_PROG(PERL, perl, notfound)
+	if test "X$PERL" = "Xnotfound"; then
+			AC_MSG_ERROR([You have requested a maintainer-mode build and a build
+of the documentation.  For this to work, you must have perl installed.
+])
+	fi
 fi
 
 # ------------- HID config -------------------

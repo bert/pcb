@@ -99,7 +99,11 @@ EGREP = @EGREP@
 EXEEXT = @EXEEXT@
 FONTFILENAME = @FONTFILENAME@
 GDLIB_CONFIG = @GDLIB_CONFIG@
+GLIB_CFLAGS = @GLIB_CFLAGS@
+GLIB_LIBS = @GLIB_LIBS@
 GNUM4 = @GNUM4@
+GTK_CFLAGS = @GTK_CFLAGS@
+GTK_LIBS = @GTK_LIBS@
 HIDLIBS = @HIDLIBS@
 HIDLIST = @HIDLIST@
 INSTALL_DATA = @INSTALL_DATA@
@@ -140,6 +144,7 @@ PATH_SEPARATOR = @PATH_SEPARATOR@
 PCBLIBDIR = @PCBLIBDIR@
 PCBTREEDIR = @PCBTREEDIR@
 PDFLATEX = @PDFLATEX@
+PERL = @PERL@
 PKG_CONFIG = @PKG_CONFIG@
 PS2PDF = @PS2PDF@
 RANLIB = @RANLIB@
@@ -205,7 +210,7 @@ ps_docs = ${info_TEXINFOS:.texi=.ps} refcard.ps
 pdf_docs = ${info_TEXINFOS:.texi=.pdf} refcard.pdf
 
 # put the html manual into 1 file instead of multiple files?
-AM_MAKEINFOHTMLFLAGS = --css-include=$(srcdir)/pcb.css
+AM_MAKEINFOHTMLFLAGS = --css-include=$(srcdir)/pcb.css --no-split
 EXTRA_DIST = \
 	ascii2texi.awk \
 	extract-docs \
@@ -638,7 +643,7 @@ ${inline_texi} : extracted-docs
 # anyway.
 .PHONY : extracted-docs
 extracted-docs :
-	@MAINTAINER_MODE_TRUE@perl $(srcdir)/extract-docs $(srcdir)
+	@MAINTAINER_MODE_TRUE@${PERL} $(srcdir)/extract-docs $(srcdir)
 	@@MAINTAINER_MODE_FALSE@echo "Skipping documentation extraction since you are not in maintainer-mode"
 
 .pcb.eps :

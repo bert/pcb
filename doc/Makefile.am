@@ -50,7 +50,7 @@ ps_docs=	${info_TEXINFOS:.texi=.ps} refcard.ps
 pdf_docs=	${info_TEXINFOS:.texi=.pdf} refcard.pdf
 
 # put the html manual into 1 file instead of multiple files?
-AM_MAKEINFOHTMLFLAGS=	--css-include=$(srcdir)/pcb.css
+AM_MAKEINFOHTMLFLAGS=	--css-include=$(srcdir)/pcb.css --no-split
 
 # use this to avoid having the clean target delete pcb.{dvi,html,pdf,ps}
 # which unfortunately deletes files which are part of the distfile
@@ -106,7 +106,7 @@ ${inline_texi} : extracted-docs
 # anyway.
 .PHONY : extracted-docs
 extracted-docs :
-	@MAINTAINER_MODE_TRUE@perl $(srcdir)/extract-docs $(srcdir)
+	@MAINTAINER_MODE_TRUE@${PERL} $(srcdir)/extract-docs $(srcdir)
 	@@MAINTAINER_MODE_FALSE@echo "Skipping documentation extraction since you are not in maintainer-mode"
 
 SUFFIXES = .dvi .eps .gif .pcb .pdf .png .ps .tab .tex
