@@ -2947,6 +2947,7 @@ PrepareNextLoop (FILE * FP)
   for (layer = 0; layer < MAX_LAYER; layer++)
     {
       LineList[layer].Location = LineList[layer].Number = 0;
+      ArcList[layer].Location = ArcList[layer].Number = 0;
       PolygonList[layer].Location = PolygonList[layer].Number = 0;
     }
 
@@ -2956,6 +2957,7 @@ PrepareNextLoop (FILE * FP)
 
   /* reset PVs */
   PVList.Number = PVList.Location = 0;
+  RatList.Number = RatList.Location = 0;
 
 #ifdef FIXME
   /* check if abort buttons has been pressed */
@@ -3118,6 +3120,7 @@ LookupElementConnections (ElementTypePtr Element, FILE * FP)
   gui_create_abort_dialog ("Press button to abort connection scan");
 #endif
   User = True;
+  TheFlag = FOUNDFLAG;
   ResetConnections (True);
   InitConnectionLookup ();
   PrintElementConnections (Element, FP, True);
@@ -3144,6 +3147,7 @@ LookupConnectionsToAllElements (FILE * FP)
 #ifdef FIXME
   gui_create_abort_dialog ("Press button to abort connection scan");
 #endif
+  TheFlag = FOUNDFLAG;
   ResetConnections (False);
   InitConnectionLookup ();
 
