@@ -95,7 +95,7 @@
 #include <dmalloc.h>
 #endif
 
-#define DEBUG 1
+#undef DEBUG
 
 RCSID ("$Id$");
 
