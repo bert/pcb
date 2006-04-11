@@ -232,7 +232,8 @@ PrintFab (void)
 	{
 	  drill_sym (plated_sym, 100 * TEXT_SIZE, yoff + 100 * TEXT_SIZE / 4);
 	  text_at (135000, yoff, 200, "YES");
-	  text_at (98000, yoff, 200, "%d", drill->PinCount + drill->ViaCount);
+	  text_at (98000, yoff, 200, "%d",
+		   drill->PinCount + drill->ViaCount - drill->UnplatedCount);
 
 	  if (unplated_sym != -1)
 	    yoff -= TEXT_LINE;
