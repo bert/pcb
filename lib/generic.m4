@@ -459,4 +459,11 @@ define(`Description_smd_diode_1206', ``chip_diode'')
 define(`Param1_smd_diode_1206', 120)
 define(`Param2_smd_diode_1206', 60)
 
+define(`Description_sot_23', ``SOT-23 package'')
+define(`Description_sot_323', ``SOT-323 package'')
+define(`Description_sot_nec19', ``NEC SOT-NE19 package'')
+
+define(`Description_crystal_300', `crystal 300mil')  
+define(`Param1_crystal_300', 300)
+
 divert(0)

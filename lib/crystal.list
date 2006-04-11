@@ -27,3 +27,4 @@
 # mask package values...
 #
 crystal_300:CRYSTAL:1MHz:8MHZ
+crystal_300:CRYSTAL:crystal

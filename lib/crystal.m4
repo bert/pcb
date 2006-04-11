@@ -25,7 +25,7 @@ divert(-1)
 # 
 #   RCS: $Id$
 #
-define(`Description_crystal_300', ``crystal 300mil'')
+define(`Description_crystal_300', `crystal 300mil')
 define(`Param1_crystal_300', 300)
 
 divert(0)

@@ -75,17 +75,6 @@ generic_diode_500:DIODE_LAY:500
 generic_diode_600:DIODE_LAY:600
 generic_diode_800:DIODE_LAY:800
 
-r_025:R025:resistor 0.25W
-
-r_025_csil_4:CSIL:4xR-array-common 0.25W
-r_025_csil_6:CSIL:6xR-array-common 0.25W
-r_025_csil_7:CSIL:7xR-array-common 0.25W
-r_025_csil_8:CSIL:8xR-array-common 0.25W
-r_025_sil_4:SIL:2xR-array 0.25W
-r_025_sil_6:SIL:3xR-array 0.25W
-r_025_sil_8:SIL:4xR-array 0.25W
-#
-crystal_300:CRYSTAL:crystal
 #
 oscillator_1:OSC:1 MHz OSC
 oscillator_2:OSC:2 MHz OSC

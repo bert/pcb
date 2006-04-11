@@ -45,6 +45,9 @@ define(`PinList_BC160', ``E',`B',`C'')
 define(`Description_BC237', `bipolar-N transistor')
 define(`PinList_BC237', ``E',`B',`C'')
 
+define(`Description_BC307', `PNP general purpose transistor')
+define(`PinList_BC307', ``E',`B',`C'')
+
 define(`Description_BC327', `bipolar-P transistor')
 define(`PinList_BC327', ``E',`B',`C'')
 
