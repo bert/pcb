@@ -95,6 +95,8 @@
 #include <dmalloc.h>
 #endif
 
+#define DEBUG 1
+
 RCSID ("$Id$");
 
 
@@ -169,7 +171,8 @@ typedef struct
 {
   void **Data;			/* pointer to index data */
   Cardinal Location,		/* currently used position */
-    DrawLocation, Number;	/* number of objects in list */
+    DrawLocation, Number,	/* number of objects in list */
+    Size;
 }
 ListType, *ListTypePtr;
 
@@ -271,6 +274,10 @@ ADD_PV_TO_LIST (PinTypePtr Pin)
   SET_FLAG (TheFlag, Pin);
   PVLIST_ENTRY (PVList.Number) = Pin;
   PVList.Number++;
+#ifdef DEBUG
+  if (PVList.Number > PVList.Size)
+    printf("ADD_PV_TO_LIST overflow! num=%d size=%d\n", PVList.Number, PVList.Size);
+#endif
   if (drc && !TEST_FLAG (SELECTEDFLAG, Pin))
     return (SetThing (PIN_TYPE, Pin->Element, Pin, Pin));
   return False;
@@ -284,6 +291,11 @@ ADD_PAD_TO_LIST (Cardinal L, PadTypePtr Pad)
   SET_FLAG (TheFlag, Pad);
   PADLIST_ENTRY ((L), PadList[(L)].Number) = Pad;
   PadList[(L)].Number++;
+#ifdef DEBUG
+  if (PadList[(L)].Number > PadList[(L)].Size)
+    printf("ADD_PAD_TO_LIST overflow! lay=%d, num=%d size=%d\n",L,
+    	PadList[(L)].Number, PadList[(L)].Size);
+#endif
   if (drc && !TEST_FLAG (SELECTEDFLAG, Pad))
     return (SetThing (PAD_TYPE, Pad->Element, Pad, Pad));
   return False;
@@ -297,6 +309,11 @@ ADD_LINE_TO_LIST (Cardinal L, LineTypePtr Ptr)
   SET_FLAG (TheFlag, (Ptr));
   LINELIST_ENTRY ((L), LineList[(L)].Number) = (Ptr);
   LineList[(L)].Number++;
+#ifdef DEBUG
+  if (LineList[(L)].Number > LineList[(L)].Size)
+    printf("ADD_LINE_TO_LIST overflow! lay=%d, num=%d size=%d\n",L,
+    	LineList[(L)].Number, LineList[(L)].Size);
+#endif
   if (drc && !TEST_FLAG (SELECTEDFLAG, (Ptr)))
     return (SetThing (LINE_TYPE, LAYER_PTR (L), (Ptr), (Ptr)));
   return False;
@@ -310,6 +327,11 @@ ADD_ARC_TO_LIST (Cardinal L, ArcTypePtr Ptr)
   SET_FLAG (TheFlag, (Ptr));
   ARCLIST_ENTRY ((L), ArcList[(L)].Number) = (Ptr);
   ArcList[(L)].Number++;
+#ifdef DEBUG
+  if (ArcList[(L)].Number > ArcList[(L)].Size)
+    printf("ADD_ARC_TO_LIST overflow! lay=%d, num=%d size=%d\n",L,
+    	ArcList[(L)].Number, ArcList[(L)].Size);
+#endif
   if (drc && !TEST_FLAG (SELECTEDFLAG, (Ptr)))
     return (SetThing (ARC_TYPE, LAYER_PTR (L), (Ptr), (Ptr)));
   return False;
@@ -323,6 +345,11 @@ ADD_RAT_TO_LIST (RatTypePtr Ptr)
   SET_FLAG (TheFlag, (Ptr));
   RATLIST_ENTRY (RatList.Number) = (Ptr);
   RatList.Number++;
+#ifdef DEBUG
+  if (RatList.Number > RatList.Size)
+    printf("ADD_RAT_TO_LIST overflow! num=%d size=%d\n",
+    	RatList.Number, RatList.Size);
+#endif
   if (drc && !TEST_FLAG (SELECTEDFLAG, (Ptr)))
     return (SetThing (RATLINE_TYPE, (Ptr), (Ptr), (Ptr)));
   return False;
@@ -336,6 +363,11 @@ ADD_POLYGON_TO_LIST (Cardinal L, PolygonTypePtr Ptr)
   SET_FLAG (TheFlag, (Ptr));
   POLYGONLIST_ENTRY ((L), PolygonList[(L)].Number) = (Ptr);
   PolygonList[(L)].Number++;
+#ifdef DEBUG
+  if (PolygonList[(L)].Number > PolygonList[(L)].Size)
+    printf("ADD_ARC_TO_LIST overflow! lay=%d, num=%d size=%d\n",L,
+    	PolygonList[(L)].Number, PolygonList[(L)].Size);
+#endif
   if (drc && !TEST_FLAG (SELECTEDFLAG, (Ptr)))
     return (SetThing (POLYGON_TYPE, LAYER_PTR (L), (Ptr), (Ptr)));
   return False;
@@ -505,6 +537,7 @@ InitComponentLookup (void)
       PadList[i].Location = 0;
       PadList[i].DrawLocation = 0;
       PadList[i].Number = 0;
+      PadList[i].Size = NumberOfPads[i];
     }
 }
 
@@ -528,20 +561,25 @@ InitLayoutLookup (void)
 	  LineList[i].Data =
 	    (void **) MyCalloc (layer->LineN, sizeof (LineTypePtr),
 				"InitLayoutLookup()");
+	  LineList[i].Size = layer->LineN;
 	}
       if (layer->ArcN)
 	{
 	  ArcList[i].Data =
 	    (void **) MyCalloc (layer->ArcN, sizeof (ArcTypePtr),
 				"InitLayoutLookup()");
+	  ArcList[i].Size = layer->ArcN;
 	}
 
 
       /* allocate memory for polygon list */
       if (layer->PolygonN)
-	PolygonList[i].Data = (void **) MyCalloc (layer->PolygonN,
+        {
+	  PolygonList[i].Data = (void **) MyCalloc (layer->PolygonN,
 						  sizeof (PolygonTypePtr),
 						  "InitLayoutLookup()");
+	  PolygonList[i].Size = layer->PolygonN;
+	}
 
       /* clear some struct members */
       LineList[i].Location = 0;
@@ -566,12 +604,14 @@ InitLayoutLookup (void)
   /* allocate memory for 'new PV to check' list and clear struct */
   PVList.Data = (void **) MyCalloc (TotalP + TotalV, sizeof (PinTypePtr),
 				    "InitLayoutLookup()");
+  PVList.Size = TotalP + TotalV;
   PVList.Location = 0;
   PVList.DrawLocation = 0;
   PVList.Number = 0;
   /* Initialize ratline data */
   RatList.Data = (void **) MyCalloc (PCB->Data->RatN, sizeof (RatTypePtr),
 				     "InitLayoutLookup()");
+  RatList.Size = PCB->Data->RatN;
   RatList.Location = 0;
   RatList.DrawLocation = 0;
   RatList.Number = 0;
