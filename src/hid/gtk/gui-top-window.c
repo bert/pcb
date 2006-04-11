@@ -917,25 +917,25 @@ mirror_buffer_left_right_cb (GtkAction * action, GHidPort * port)
 static void
 clear_buffer_cb (GtkAction * action, GHidPort * port)
 {
-  hid_actionl ("PasteBuffer", "Clear", "", NULL);
+  hid_actionl ("PasteBuffer", "Clear", NULL);
 }
 
 static void
 convert_buffer_to_element_cb (GtkAction * action, GHidPort * port)
 {
-  hid_actionl ("PasteBuffer", "Convert", "", NULL);
+  hid_actionl ("PasteBuffer", "Convert", NULL);
 }
 
 static void
 break_buffer_elements_cb (GtkAction * action, GHidPort * port)
 {
-  hid_actionl ("PasteBuffer", "Restore", "", NULL);
+  hid_actionl ("PasteBuffer", "Restore", NULL);
 }
 
 static void
 save_buffer_elements_cb (GtkAction * action, GHidPort * port)
 {
-  hid_actionl ("PasteBuffer", "Save", "", NULL);
+  hid_actionl ("PasteBuffer", "Save", NULL);
 }
 
 static void
