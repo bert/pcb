@@ -1565,7 +1565,7 @@ WarpPointer (Boolean ignore)
 /* --------------------------------------------------------------------------- */
 
 static const char atomic_syntax[] =
-" Atomic(Save|Restore|Close|Block)";
+"Atomic(Save|Restore|Close|Block)";
 
 static const char atomic_help[] =
 "Save or restore the undo serial number.";

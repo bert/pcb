@@ -130,6 +130,9 @@ sub scan_file {
 	    $pending{$tag} = '';
 	    while (<F>) {
 		s/[\r\n\s]+$//;
+		s/\\\"/\"/g;
+		s/ "/``/g;
+		s/" /''/g;
 		$last = 1 if /;$/;
 		s/^[\s]*\"//;
 		s/\\n/\n/g;

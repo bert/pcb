@@ -59,9 +59,34 @@
 
 RCSID ("$Id$");
 
-/* ----------------------------------------------------------------------
- * print a help message for commands
- */
+/* ---------------------------------------------------------------------- */
+
+/*  %start-doc actions 00macros
+
+@macro colonaction
+
+This is one of the command box helper actions.  While it is a regular
+action and can be used like any other action, its name and syntax are
+optimized for use with the command box (@code{:}) and thus the syntax
+is documented for that purpose.
+
+@end macro
+
+%end-doc */
+
+/* ---------------------------------------------------------------------- */
+
+static const char h_syntax[] =
+"h";
+
+static const char h_help[] =
+"Print a help message for commands.";
+
+/* %start-doc actions h
+
+@colonaction
+
+%end-doc */
 
 static int
 CommandHelp (int argc, char **argv, int x, int y)
@@ -82,10 +107,25 @@ CommandHelp (int argc, char **argv, int x, int y)
   return (0);
 }
 
-/* ----------------------------------------------------------------------
- * loads layout data
- * syntax: l [name]
- */
+/* ---------------------------------------------------------------------- */
+
+static const char l_syntax[] =
+"l [name]";
+
+static const char l_help[] =
+"Loads layout data.";
+
+/* %start-doc actions l
+
+Loads a new datafile (layout) and, if confirmed, overwrites any
+existing unsaved data.  The filename and the searchpath
+(@emph{filePath}) are passed to the command defined by
+@emph{fileCommand}.  If no filename is specified a file select box
+will popup.
+
+@colonaction
+
+%end-doc */
 
 static int
 CommandLoadLayout (int argc, char **argv, int x, int y)
@@ -123,10 +163,23 @@ CommandLoadLayout (int argc, char **argv, int x, int y)
   return (0);
 }
 
-/* ---------------------------------------------------------------------------
- * loads an element into the current buffer
- * syntax: le [name]
- */
+/* --------------------------------------------------------------------------- */
+
+static const char le_syntax[] =
+"le [name]";
+
+static const char le_help[] =
+"Loads an element into the current buffer.";
+
+/* %start-doc actions le
+
+The filename and the searchpath (@emph{elementPath}) are passed to the
+command defined by @emph{elementCommand}.  If no filename is specified
+a file select box will popup.
+
+@colonaction
+
+%end-doc */
 
 static int
 CommandLoadElementToBuffer (int argc, char **argv, int x, int y)
@@ -163,10 +216,23 @@ CommandLoadElementToBuffer (int argc, char **argv, int x, int y)
   return (0);
 }
 
-/* ---------------------------------------------------------------------------
- * loads a layout into the current buffer
- * syntax: m [name]
- */
+/* --------------------------------------------------------------------------- */
+
+static const char m_syntax[] =
+"m [name]";
+
+static const char m_help[] =
+"Loads a layout into the current buffer.";
+
+/* %start-doc actions m
+
+The filename and the searchpath (@emph{filePath}) are passed to the
+command defined by @emph{fileCommand}.
+If no filename is specified a file select box will popup.
+
+@colonaction
+
+%end-doc */
 
 static int
 CommandLoadLayoutToBuffer (int argc, char **argv, int x, int y)
@@ -202,10 +268,21 @@ CommandLoadLayoutToBuffer (int argc, char **argv, int x, int y)
   return (0);
 }
 
-/* ---------------------------------------------------------------------------
- * quits the application after confirming
- * syntax: q
- */
+/* --------------------------------------------------------------------------- */
+
+static const char q_syntax[] =
+"q";
+
+static const char q_help[] =
+"Quits the application after confirming.";
+
+/* %start-doc actions q
+
+Note that this command doesn't save your layout.
+
+@colonaction
+
+%end-doc */
 
 static int
 CommandQuit (int argc, char **argv, int x, int y)
@@ -215,6 +292,21 @@ CommandQuit (int argc, char **argv, int x, int y)
   return 0;
 }
 
+static const char qreally_syntax[] =
+"q!";
+
+static const char qreally_help[] =
+"Quits the application without confirming.";
+
+/* %start-doc actions q!
+
+Note that this command neither saves your data nor prompts for
+confirmation.
+
+@colonaction
+
+%end-doc */
+
 static int
 CommandReallyQuit (int argc, char **argv, int x, int y)
 {
@@ -222,10 +314,27 @@ CommandReallyQuit (int argc, char **argv, int x, int y)
   return 0;
 }
 
-/* ----------------------------------------------------------------------
- * reads netlist 
- * syntax: rn [name]
- */
+/* ---------------------------------------------------------------------- */
+
+static const char rn_syntax[] =
+"rn [name]";
+
+static const char rn_help[] =
+"Reads netlist.";
+
+/* %start-doc actions rn
+
+If no filename is given a file select box will pop up.  The file is
+read via the command defined by the @emph{RatCommand} resource. The
+command must send its output to @emph{stdout}.
+
+Netlists are used for generating rat's nests (see @ref{Rats Nest}) and
+for verifying the board layout (which is also accomplished by the
+@emph{Ratsnest} command).
+
+@colonaction
+
+%end-doc */
 
 static int
 CommandLoadNetlist (int argc, char **argv, int x, int y)
@@ -263,10 +372,39 @@ CommandLoadNetlist (int argc, char **argv, int x, int y)
   return (0);
 }
 
-/* ----------------------------------------------------------------------
- * saves layout data
- * syntax: l name
- */
+/* ---------------------------------------------------------------------- */
+
+static const char s_syntax[] =
+"s [name]";
+
+static const char s_help[] =
+"Saves layout data.";
+
+/* %start-doc actions s
+
+Data and the filename are passed to the command defined by the
+resource @emph{saveCommand}. It must read the layout data from
+@emph{stdin}.  If no filename is entered, either the last one is used
+again or, if it is not available, a file select box will pop up.
+
+@colonaction
+
+%end-doc */
+
+static const char w_syntax[] =
+"w [name]";
+
+static const char w_help[] =
+"Saves layout data.";
+
+/* %start-doc actions w
+
+This commands has been added for the convenience of @code{vi} users
+and has the same functionality as @code{s}.
+
+@colonaction
+
+%end-doc */
 
 static int
 CommandSaveLayout (int argc, char **argv, int x, int y)
@@ -305,9 +443,22 @@ CommandSaveLayout (int argc, char **argv, int x, int y)
   return (0);
 }
 
-/* ---------------------------------------------------------------------------
- * saves the layout data and quits
- */
+/* --------------------------------------------------------------------------- */
+
+static const char wq_syntax[] =
+"wq";
+
+static const char wq_help[] =
+"Saves the layout data and quits.";
+
+/* %start-doc actions wq
+
+This command has been added for the convenience of @code{vi} users and
+has the same functionality as @code{s} combined with @code{q}.
+
+@colonaction
+
+%end-doc */
 
 static int
 CommandSaveLayoutAndQuit (int argc, char **argv, int x, int y)
@@ -320,16 +471,26 @@ CommandSaveLayoutAndQuit (int argc, char **argv, int x, int y)
 /* --------------------------------------------------------------------------- */
 
 HID_Action command_action_list[] = {
-  {"h", 0, CommandHelp},
-  {"l", 0, CommandLoadLayout},
-  {"le", 0, CommandLoadElementToBuffer},
-  {"m", 0, CommandLoadLayoutToBuffer},
-  {"q", 0, CommandQuit},
-  {"q!", 0, CommandReallyQuit},
-  {"rn", 0, CommandLoadNetlist},
-  {"s", 0, CommandSaveLayout},
-  {"w", 0, CommandSaveLayout},
-  {"wq", 0, CommandSaveLayoutAndQuit},
+  {"h", 0, CommandHelp,
+   h_help, h_syntax},
+  {"l", 0, CommandLoadLayout,
+   l_help, l_syntax},
+  {"le", 0, CommandLoadElementToBuffer,
+   le_help, le_syntax},
+  {"m", 0, CommandLoadLayoutToBuffer,
+   m_help, m_syntax},
+  {"q", 0, CommandQuit,
+   q_help, q_syntax},
+  {"q!", 0, CommandReallyQuit,
+   qreally_help, qreally_syntax},
+  {"rn", 0, CommandLoadNetlist,
+   rn_help, rn_syntax},
+  {"s", 0, CommandSaveLayout,
+   s_help, s_syntax},
+  {"w", 0, CommandSaveLayout,
+   w_help, w_syntax},
+  {"wq", 0, CommandSaveLayoutAndQuit,
+   wq_help, wq_syntax},
 };
 
 REGISTER_ACTIONS (command_action_list)

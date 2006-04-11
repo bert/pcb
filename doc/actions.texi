@@ -34,6 +34,16 @@ either round or, if the octagon flag is set, octagonal.
 @end macro
 
 
+@macro colonaction
+
+This is one of the command box helper actions.  While it is a regular
+action and can be used like any other action, its name and syntax are
+optimized for use with the command box (@code{:}) and thus the syntax
+is documented for that purpose.
+
+@end macro
+
+
 
 Many actions act on indicated objects on the board.  They will have
 parameters like @code{ToggleObject} or @code{SelectedVias} to indicate
@@ -112,7 +122,7 @@ sizes for your vendor.
 
 @cartouche
 @format
- Atomic(Save|Restore|Close|Block)@end format
+''Atomic(Save|Restore|Close|Block)@end format
 @end cartouche
 
 Save or restore the undo serial number.
@@ -674,6 +684,46 @@ other, not their absolute positions on the board.
 
 @cartouche
 @format
+h@end format
+@end cartouche
+
+Print a help message for commands.
+
+@colonaction
+
+
+@cartouche
+@format
+l [name]@end format
+@end cartouche
+
+Loads layout data.
+
+Loads a new datafile (layout) and, if confirmed, overwrites any
+existing unsaved data.  The filename and the searchpath
+(@emph{filePath}) are passed to the command defined by
+@emph{fileCommand}.  If no filename is specified a file select box
+will popup.
+
+@colonaction
+
+
+@cartouche
+@format
+le [name]@end format
+@end cartouche
+
+Loads an element into the current buffer.
+
+The filename and the searchpath (@emph{elementPath}) are passed to the
+command defined by @emph{elementCommand}.  If no filename is specified
+a file select box will popup.
+
+@colonaction
+
+
+@cartouche
+@format
 LoadFrom(Layout|LayoutToBuffer|ElementToBuffer|Netlist|Revert,filename)@end format
 @end cartouche
 
@@ -722,6 +772,20 @@ Loads the specified vendor resource file.
 @item filename
 Name of the vendor resource file
 @end table
+
+
+@cartouche
+@format
+m [name]@end format
+@end cartouche
+
+Loads a layout into the current buffer.
+
+The filename and the searchpath (@emph{filePath}) are passed to the
+command defined by @emph{fileCommand}.
+If no filename is specified a file select box will popup.
+
+@colonaction
 
 
 @cartouche
@@ -919,6 +983,31 @@ will call Polygon(PreviousPoint) when appropriate to do so.
 
 @cartouche
 @format
+q@end format
+@end cartouche
+
+Quits the application after confirming.
+
+Note that this command doesn't save your layout.
+
+@colonaction
+
+
+@cartouche
+@format
+q!@end format
+@end cartouche
+
+Quits the application without confirming.
+
+Note that this command neither saves your data nor prompts for
+confirmation.
+
+@colonaction
+
+
+@cartouche
+@format
 Quit()@end format
 @end cartouche
 
@@ -933,7 +1022,7 @@ quitting.
 Redo()@end format
 @end cartouche
 
-Redo recent \"undo\" operations.
+Redo recent``undo''operations.
 
 This routine allows you to recover from the last undo command.  You
 might want to do this if you thought that undo was going to revert
@@ -980,10 +1069,43 @@ that this uses the highest numbered paste buffer.
 
 @cartouche
 @format
+rn [name]@end format
+@end cartouche
+
+Reads netlist.
+
+If no filename is given a file select box will pop up.  The file is
+read via the command defined by the @emph{RatCommand} resource. The
+command must send its output to @emph{stdout}.
+
+Netlists are used for generating rat's nests (see @ref{Rats Nest}) and
+for verifying the board layout (which is also accomplished by the
+@emph{Ratsnest} command).
+
+@colonaction
+
+
+@cartouche
+@format
 RouteStyle(1|2|3|4)@end format
 @end cartouche
 
 Copies the indicated routing style into the current sizes.
+
+
+@cartouche
+@format
+s [name]@end format
+@end cartouche
+
+Saves layout data.
+
+Data and the filename are passed to the command defined by the
+resource @emph{saveCommand}. It must read the layout data from
+@emph{stdin}.  If no filename is entered, either the last one is used
+again or, if it is not available, a file select box will pop up.
+
+@colonaction
 
 
 @cartouche
@@ -1264,6 +1386,32 @@ type specified are unselected.
 
 
 @end table
+
+
+@cartouche
+@format
+w [name]@end format
+@end cartouche
+
+Saves layout data.
+
+This commands has been added for the convenience of @code{vi} users
+and has the same functionality as @code{s}.
+
+@colonaction
+
+
+@cartouche
+@format
+wq@end format
+@end cartouche
+
+Saves the layout data and quits.
+
+This command has been added for the convenience of @code{vi} users and
+has the same functionality as @emph{s} combined with @emph{q}.
+
+@colonaction
 
 
 @cartouche
