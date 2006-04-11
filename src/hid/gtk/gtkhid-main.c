@@ -166,7 +166,6 @@ ghid_invalidate_all ()
 {
   int eleft, eright, etop, ebottom;
   BoxType region;
-  /*printf("ghid_invalidate_all()\n"); */
 
   if (!gport->pixmap)
     return;
@@ -282,7 +281,7 @@ ghid_set_layer (const char *name, int group)
   int idx = (group >= 0
 	     && group <
 	     MAX_LAYER) ? PCB->LayerGroups.Entries[group][0] : group;
-  /*  printf("ghid_set_layer(\"%s\", %d)\n", name, idx); */
+
   if (idx >= 0 && idx < MAX_LAYER + 2)
     return /*pinout ? 1 : */ PCB->Data->Layer[idx].On;
   if (idx < 0)
@@ -427,7 +426,7 @@ ghid_set_color (hidGC gc, const char *name)
 	       __FUNCTION__);
       name = "magenta";
     }
-  /*printf("ghid_set_color(%p, \"%s\")\n", gc, name); */
+
   gc->colorname = (char *) name;
   if (!gc->gc)
     return;
@@ -489,7 +488,7 @@ ghid_set_color (hidGC gc, const char *name)
 void
 ghid_set_line_cap (hidGC gc, EndCapStyle style)
 {
-  /*  printf("ghid_set_line_cap(%p,%d)\n", gc, style); */
+
   switch (style)
     {
     case Trace_Cap:
@@ -512,7 +511,7 @@ ghid_set_line_cap (hidGC gc, EndCapStyle style)
 void
 ghid_set_line_width (hidGC gc, int width)
 {
-  /*printf("ghid_set_line_width(%p,%d,%d)\n", gc, width, DRAW_Z(width)); */
+
   gc->width = width;
   if (gc->gc)
     gdk_gc_set_line_attributes (WHICH_GC (gc),
@@ -533,13 +532,13 @@ ghid_set_draw_xor (hidGC gc, int xor)
 void
 ghid_set_draw_faded (hidGC gc, int faded)
 {
-  printf ("ghid_set_draw_faded(%p,%d)\n", gc, faded);
+  printf ("ghid_set_draw_faded(%p,%d) -- not implemented\n", gc, faded);
 }
 
 void
 ghid_set_line_cap_angle (hidGC gc, int x1, int y1, int x2, int y2)
 {
-  printf ("ghid_set_line_cap_angle()\n");
+  printf ("ghid_set_line_cap_angle() -- not implemented\n");
 }
 
 static int
@@ -720,7 +719,7 @@ ghid_fill_rect (hidGC gc, int x1, int y1, int x2, int y2)
 void
 ghid_extents_draw_line (hidGC gc, int x1, int y1, int x2, int y2)
 {
-  printf ("ghid_extents_draw_line()\n");
+  printf ("ghid_extents_draw_line() -- not implemented\n");
 }
 
 void
@@ -728,37 +727,37 @@ ghid_extents_draw_arc (hidGC gc, int cx, int cy,
 		       int xradius, int yradius,
 		       int start_angle, int delta_angle)
 {
-  printf ("ghid_extents_draw_arc()\n");
+  printf ("ghid_extents_draw_arc() -- not implemented\n");
 }
 
 void
 ghid_extents_draw_rect (hidGC gc, int x1, int y1, int x2, int y2)
 {
-  printf ("ghid_extents_draw_rect()\n");
+  printf ("ghid_extents_draw_rect() -- not implemented\n");
 }
 
 void
 ghid_extents_fill_circle (hidGC gc, int cx, int cy, int radius)
 {
-  printf ("ghid_extents_fill_circle()\n");
+  printf ("ghid_extents_fill_circle() -- not implemented\n");
 }
 
 void
 ghid_extents_fill_polygon (hidGC gc, int n_coords, int *x, int *y)
 {
-  printf ("ghid_extents_fill_polygon()\n");
+  printf ("ghid_extents_fill_polygon() -- not implemented\n");
 }
 
 void
 ghid_extents_fill_rect (hidGC gc, int x1, int y1, int x2, int y2)
 {
-  printf ("ghid_extents_fill_rect()\n");
+  printf ("ghid_extents_fill_rect() -- not implemented\n");
 }
 
 void
 ghid_calibrate (double xval, double yval)
 {
-  printf ("ghid_calibrate()\n");
+  printf ("ghid_calibrate() -- not implemented\n");
 }
 
 int
@@ -852,10 +851,7 @@ ghid_prompt_for (char *msg, char *default_string)
 {
   char *rv;
 
-  printf ("%s(%s, %s)\n", __FUNCTION__, msg, default_string);
   rv = ghid_dialog_input (msg, default_string);
-  printf ("%s:  returning %s\n", __FUNCTION__, rv);
-
   return rv;
 }
 
@@ -863,7 +859,7 @@ int
 ghid_attribute_dialog (HID_Attribute * attrs,
 		       int n_attrs, HID_Attr_Val * results)
 {
-  printf ("ghid_attribute_dialog()\n");
+  printf ("ghid_attribute_dialog() -- not implemented yet\n");
   return 0;
 }
 
@@ -1025,7 +1021,7 @@ NetlistChanged (int argc, char **argv, int x, int y)
 static int
 LayerGroupsChanged (int argc, char **argv, int x, int y)
 {
-  printf ("LayerGroupsChanged\n");
+  printf ("LayerGroupsChanged -- not implemented\n");
   return 0;
 }
 
