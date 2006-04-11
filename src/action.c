@@ -163,6 +163,7 @@ typedef enum
   F_TextByName,
   F_TextScale,
   F_Thermal,
+  F_ToLayout,
   F_ToggleAllDirections,
   F_ToggleAutoDRC,
   F_ToggleClearLine,
@@ -387,6 +388,7 @@ static FunctionType Functions[] = {
   {"TextByName", F_TextByName},
   {"TextScale", F_TextScale},
   {"Thermal", F_Thermal},
+  {"ToLayout", F_ToLayout},
   {"Toggle45Degree", F_ToggleAllDirections},
   {"ToggleClearLine", F_ToggleClearLine},
   {"ToggleGrid", F_ToggleGrid},
@@ -1667,6 +1669,59 @@ ActionDRCheck (int argc, char **argv, int x, int y)
   else
     Message (_("Found %d design rule errors\n"), count);
   RestoreCrosshair (True);
+  return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+
+static const char dumplibrary_syntax[] =
+"DumpLibrary()";
+
+static const char dumplibrary_help[] =
+"Display the entire contents of the libraries.";
+
+/* %start-doc actions DumpLibrary
+
+
+%end-doc */
+
+static int
+ActionDumpLibrary (int argc, char **argv, int x, int y)
+{
+  int i, j;
+
+  printf ("**** Do not count on this format.  It will change ****\n\n");
+  printf ("MenuN   = %d\n", Library.MenuN);
+  printf ("MenuMax = %d\n", Library.MenuMax);
+  for (i = 0; i < Library.MenuN; i++) 
+    {
+      printf ("Library #%d:\n", i);
+      printf ("    EntryN    = %d\n", Library.Menu[i].EntryN);
+      printf ("    EntryMax  = %d\n", Library.Menu[i].EntryMax);
+      printf ("    Name      = \"%s\"\n", UNKNOWN (Library.Menu[i].Name));
+      printf ("    directory = \"%s\"\n", UNKNOWN (Library.Menu[i].directory));
+      printf ("    Style     = \"%s\"\n", UNKNOWN (Library.Menu[i].Style));
+      printf ("    flag      = %d\n", Library.Menu[i].flag);
+
+      for (j = 0; j < Library.Menu[i].EntryN; j++) 
+	{
+	  printf ("    #%4d: ", j);
+	  if (Library.Menu[i].Entry[j].Template == (char *) -1)
+	    {
+	      printf ("newlib: \"%s\"\n", UNKNOWN (Library.Menu[i].Entry[j].ListEntry));
+	    }
+	  else 
+	    {
+	      printf ("\"%s\", \"%s\", \"%s\", \"%s\", \"%s\"\n",
+		      UNKNOWN (Library.Menu[i].Entry[j].ListEntry),
+		      UNKNOWN (Library.Menu[i].Entry[j].Template),
+		      UNKNOWN (Library.Menu[i].Entry[j].Package),
+		      UNKNOWN (Library.Menu[i].Entry[j].Value),
+		      UNKNOWN (Library.Menu[i].Entry[j].Description));
+	    }
+	}
+    }
+
   return 0;
 }
 
@@ -5129,7 +5184,8 @@ ActionBell (char *volume)
 static const char pastebuffer_syntax[] =
 "PasteBuffer(AddSelected|Clear|1..MAX_BUFFER)\n"
 "PasteBuffer(Rotate, 1..3)\n"
-"PasteBuffer(Convert|Save|Restore|Mirror)";
+"PasteBuffer(Convert|Save|Restore|Mirror)\n"
+"PasteBuffer(ToLayout, X, Y)";
 
 static const char pastebuffer_help[] =
 "Various operations on the paste buffer.";
@@ -5167,6 +5223,10 @@ degrees clockwise (270 CCW).
 
 @item Save
 Saves any elements in the current buffer to the indicated file.
+
+@item ToLayout
+Pastes any elements in the current buffer to the indicated X, Y
+coordinates in the layout.
 
 @item 1..MAX_BUFFER
 Selects the given buffer to be the current paste buffer.
@@ -5243,6 +5303,23 @@ ActionPasteBuffer (int argc, char **argv, int x, int y)
 	      }
 	    else
 	      SaveBufferElements (name);
+	  }
+	  break;
+
+	case F_ToLayout:
+	  {
+	    int x, y;
+	    if (argc == 3) 
+	      {
+		x = atoi (argv[1]);
+		y = atoi (argv[2]);
+	      }
+	    else
+	      {
+		x = y = 0;
+	      }
+	    if (CopyPastebufferToLayout (x, y))
+	      SetChangedFlag (True);
 	  }
 	  break;
 
@@ -6102,6 +6179,8 @@ HID_Action action_action_list[] = {
    display_help, display_syntax},
   {"DRC", 0, ActionDRCheck,
    drc_help, drc_syntax},
+  {"DumpLibrary", 0, ActionDumpLibrary,
+   dumplibrary_help, dumplibrary_syntax},
   {"ExecuteFile", 0, ActionExecuteFile,
    executefile_help, executefile_syntax},
   {"Flip", "Click on Object or Flip Point", ActionFlip,

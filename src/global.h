@@ -382,12 +382,9 @@ typedef struct
 
 typedef struct
 {
-  Cardinal MenuN, MenuMax;
-  LibraryMenuTypePtr Menu;
-/*Window Wind;*/
-#if 0
-  GtkWidget *Wind;		/* wrong */
-#endif
+  Cardinal MenuN;               /* number of objects */
+  Cardinal MenuMax;             /* number of reserved memory locations */
+  LibraryMenuTypePtr Menu;      /* the entries */
 } LibraryType, *LibraryTypePtr;
 
 

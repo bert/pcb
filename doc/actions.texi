@@ -122,7 +122,7 @@ sizes for your vendor.
 
 @cartouche
 @format
-''Atomic(Save|Restore|Close|Block)@end format
+Atomic(Save|Restore|Close|Block)@end format
 @end cartouche
 
 Save or restore the undo serial number.
@@ -642,6 +642,15 @@ not the current style settings.
 
 @cartouche
 @format
+DumpLibrary()@end format
+@end cartouche
+
+Display the entire contents of the libraries.
+
+
+
+@cartouche
+@format
 EnableVendor()@end format
 @end cartouche
 
@@ -916,7 +925,8 @@ optimize hand-routed traces also.
 @format
 PasteBuffer(AddSelected|Clear|1..MAX_BUFFER)
 PasteBuffer(Rotate, 1..3)
-PasteBuffer(Convert|Save|Restore|Mirror)@end format
+PasteBuffer(Convert|Save|Restore|Mirror)
+PasteBuffer(ToLayout, X, Y)@end format
 @end cartouche
 
 Various operations on the paste buffer.
@@ -952,6 +962,10 @@ degrees clockwise (270 CCW).
 
 @item Save
 Saves any elements in the current buffer to the indicated file.
+
+@item ToLayout
+Pastes any elements in the current buffer to the indicated X, Y
+coordinates in the layout.
 
 @item 1..MAX_BUFFER
 Selects the given buffer to be the current paste buffer.
@@ -1409,7 +1423,7 @@ wq@end format
 Saves the layout data and quits.
 
 This command has been added for the convenience of @code{vi} users and
-has the same functionality as @emph{s} combined with @emph{q}.
+has the same functionality as @code{s} combined with @code{q}.
 
 @colonaction
 
