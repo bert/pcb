@@ -3,7 +3,7 @@
 # user:    Dan
 # host:    none
 
-PCB["pad" 300000 300000]
+PCB["thermal" 300000 300000]
 
 Grid[5000.00000000 0 0 1]
 Cursor[88600 72400 2.000000]
