@@ -1,0 +1,124 @@
+# $Id$
+#
+#
+
+Please note that this document is a work in progress and
+currently represents a proposal for a future enhancement.
+The goal of this document is to define what the keepout
+regions will achieve.  Hopefully with sufficient up front
+thought and review, the implementation will correctly address
+some of the issues faced in production oriented PCB design.
+
+Once the functionality describen in this document have been
+implemented, this document will be replaced by a corresponding section
+in the manual.
+
+==========
+Motivation
+==========
+
+There are several areas in PCB design which could benefit from a
+keepout layer of one sort or another.  For example, a component
+keepout layer would be useful to prevent components from being placed
+too close to each other or in an area which needs to be free of
+components for mechanical compatibility with an enclosure.
+
+A copper keepout area can help protect a microstrip filter or antenna
+from copper being placed to close.  Copper keepouts could also be used
+to constrain the autorouter.
+
+=====
+Types
+=====
+
+Component keepout
+-----------------
+ 
+A component keep out layer will have 2 attributes.
+
+  1) side.  Indicates keepouts on the top side vs. bottom side of the
+     board.
+
+
+  2) height.  The default is zero which will indicate that no other
+     components may intersect the area defined by the keepout.  If the
+     element allows parts which are shorter than some value in a
+     region, then the maximum height is given.
+
+A zero height keep out area is analogous to the placement courtyard
+defined by IPC-7351
+
+Component Height
+----------------
+
+This layer can be used to define the height of a component.  This will
+be used in conjunction with component keepouts to see if it is ok to
+place this component in a particular region.  A component height layer
+will have 2 attributes.
+
+  1) side.  Indicates which side of the board the dimension is for.
+     Choices are component side or opposite side.  This means that if
+     the component is placed on the bottom of the board, the component
+     height layer still indicates the height on the proper side of the
+     board.
+
+  2) height.
+
+
+Q:  When checking to see if two elements are placed too close to 
+each other, do we compare component keepouts and look for overlap or
+do we check component height layer from one to component keep out
+of the other and vice versa?
+
+Copper keepout
+--------------
+
+No copper is allowed in the specified region.  This layer has one
+attribute which specifies which copper layer.
+
+  **** what should the notation be if you want to build a footprint
+       which specifies a keepout on all internal layers  ****
+
+
+Q:  Ultimately I'd like to allow a layout which includes some elements
+and lines to be converted to an element (for example for a microstrip
+filter).  Does this mean we need a way to draw a copper keepout rectangle
+(or polygon) around the whole thing and indicate that the keepout is only
+for copper at the next level up in hierarchy?  Or maybe we need to have
+something where you draw a polygon, tell it to fill and have it accept
+only the copper which is enclosed in it at the time when you told it to 
+fill.  In otherwords, select a polygon and run some function which
+breaks it into individual polygons which enclose the non-copper space.
+
+
+General comments
+----------------
+
+The layers described in this document may be specified inside of an
+element or outside of an element.
+
+
+
+Random Notes
+----------------
+
+Dan:
+>after the HID conversion, keepouts are high on my hit list.  Reminds
+>> me... I should check in my document I plan to work from.
+
+
+DJ:
+One of the things I was thinking was adding a "layer flag" to each
+layer.  I think I've mentioned this before, but the hid's set_layer()
+api makes it a lot easier to design.  Each layer's flags have a bit
+for "component side", one for "solder side" (none or both mean "inner"
+or "all", like for keep-outs), and a bit for "copper" (non-copper top
+might be, for example, mask or silk).
+
+Most of the code would only need to test the "copper" bit, and ignore
+non-copper layers (atm everything is copper anyway, so this should be
+straight-forward).  Then, we can have an enum field for special layer
+type (copper, anticopper, outline, keepout, silk, mask, antimask, etc)
+that corresponds to the set_layer enums.
+
+

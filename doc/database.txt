@@ -1,0 +1,90 @@
+# $Id$
+#
+#
+
+Please note that this document is a work in progress and
+currently represents a proposal for a future enhancement.
+The goal of this document is to define what changes need
+to be made to the .pcb file and library handling.
+Hopefully with sufficient up front
+thought and review, the implementation will correctly address
+some of the issues faced in real printed circuit board design
+work.
+
+Once the functionality describen in this document have been
+implemented, this document will be replaced by a corresponding section
+in the manual.
+
+==========
+Motivation
+==========
+
+Currently the elements in the pcb database are stored with the
+following features/limitations.
+
+- rotated elements have their internal contents all rotated as opposed
+  to the element as a group having a parameter specifying a rotation.
+  This causes two main problems.  The first issue is that there is no
+  way to determine the rotation of a part without resorting to
+  looking for which quadrant pin 1 is in relative to the center of the
+  part.  This algorithm may not be correct for all footprints and
+  will cause issues with the XY manufacturing file.
+
+  The second problem is that it makes it harder to globally update a
+  particular footprint in a design.  Suppose you find a problem with
+  your 0402 footprint and you want to update all of them in your
+  layout.  Your .pcb file currently may have up to 8 versions (4
+  rotations, 2 sides) of the 0402.
+
+  proposal:  store a board side and rotation flag for the element as a
+  whole.  The internal contents of the element will show top layer
+  and 0 rotation.
+
+- footprints largely don't have a concept of where they came from.
+  This means there is not a convenient way to tell pcb "update all of
+  the 0402's on this board".  In addition, there is not a good way of
+  telling if an element has been modified after placement.  For
+  example, place an element and move the silk location or change the
+  soldermask clearance.  It would be good to be able to distinguish
+  these "post-instantiation" changes from the original footprint.
+
+  proposal:  store the elements in two parts:  the unmodified
+  footprint followed by a list of changes (move silk by (+10,+25)
+  mils, change square flag on pin 1, etc.).
+
+  proposal:  store the 'newlib' name for the footprint (note that we
+  plan on adding a step to the build system which extracts a newlib
+  style library from the m4 libraries so that the core of pcb will
+  only deal in newlib libraries).
+
+  This should allow the implementation of a feature which reports all
+  elements whose unmodified definitions do not match the library.  In
+  addition it should allow the implementation of the following
+  footprint update options:
+
+    - update selected instance
+    - update all instances of the same master
+    - update all instances of any master
+
+    - preserve user changes when doing the update
+    - clear user changes when doing the update
+    - preserve a selected set of user changes (like maybe keep the silk
+      changes but not the square flag change)
+
+    - provide a "dry run" report of what would change if the selected
+      updates actually were applied
+
+
+- the issue of updating footprints brings up a few other considerations.
+
+  When refering to the library search path to see if any footprints are
+  out of date, how does one deal with multiple footprints with the same
+  name in different directories?   One thought, based on an idea by 
+  Ales, is to locate all footprints in the library with the same name
+  and compute a hash on a canonicalized version of the footprint.  This
+  hash could be compared to a hash for the footprint in question in the
+  layout.  If none match, the user would probably need to be prompted to
+  pick which one he/she wants to update to.  If a match is found, then
+  we know which footprint the master was.
+
+
