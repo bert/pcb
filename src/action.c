@@ -5185,7 +5185,7 @@ static const char pastebuffer_syntax[] =
 "PasteBuffer(AddSelected|Clear|1..MAX_BUFFER)\n"
 "PasteBuffer(Rotate, 1..3)\n"
 "PasteBuffer(Convert|Save|Restore|Mirror)\n"
-"PasteBuffer(ToLayout, X, Y)";
+"PasteBuffer(ToLayout, X, Y, units)";
 
 static const char pastebuffer_help[] =
 "Various operations on the paste buffer.";
@@ -5226,7 +5226,13 @@ Saves any elements in the current buffer to the indicated file.
 
 @item ToLayout
 Pastes any elements in the current buffer to the indicated X, Y
-coordinates in the layout.
+coordinates in the layout.  The @code{X} and @code{Y} are treated like
+@code{delta} is for many other objects.  For each, if it's prefixed by
+@code{+} or @code{-}, then that amount is relative to the last
+location.  Otherwise, it's absolute.  Units can be
+@code{mil} or @code{mm}; if unspecified, units are PCB's internal
+units, currently 1/100 mil.
+
 
 @item 1..MAX_BUFFER
 Selects the given buffer to be the current paste buffer.
@@ -5308,16 +5314,32 @@ ActionPasteBuffer (int argc, char **argv, int x, int y)
 
 	case F_ToLayout:
 	  {
+	    static int oldx = 0, oldy = 0;
 	    int x, y;
-	    if (argc == 3) 
-	      {
-		x = atoi (argv[1]);
-		y = atoi (argv[2]);
-	      }
-	    else
+	    Boolean r;
+
+	    if (argc == 1)
 	      {
 		x = y = 0;
 	      }
+	    else if (argc == 3 || argc == 4) 
+	      {
+		x = GetValue(ARG (1), ARG (3), &r);
+		if (!r)
+		  x += oldx;
+		y = GetValue(ARG (2), ARG (3), &r);
+		if (!r)
+		  y += oldy;
+	      }
+	    else
+	      {
+		Message("Syntax error\nUsage:\n%s\n", pastebuffer_syntax);
+		RestoreCrosshair (True);
+		return 1;
+	      }
+
+	    oldx = x;
+	    oldy = y;
 	    if (CopyPastebufferToLayout (x, y))
 	      SetChangedFlag (True);
 	  }
@@ -5334,6 +5356,7 @@ ActionPasteBuffer (int argc, char **argv, int x, int y)
 	  }
 	}
     }
+
   RestoreCrosshair (True);
   return 0;
 }

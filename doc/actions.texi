@@ -926,7 +926,7 @@ optimize hand-routed traces also.
 PasteBuffer(AddSelected|Clear|1..MAX_BUFFER)
 PasteBuffer(Rotate, 1..3)
 PasteBuffer(Convert|Save|Restore|Mirror)
-PasteBuffer(ToLayout, X, Y)@end format
+PasteBuffer(ToLayout, X, Y, units)@end format
 @end cartouche
 
 Various operations on the paste buffer.
@@ -965,7 +965,13 @@ Saves any elements in the current buffer to the indicated file.
 
 @item ToLayout
 Pastes any elements in the current buffer to the indicated X, Y
-coordinates in the layout.
+coordinates in the layout.  The @code{X} and @code{Y} are treated like
+@code{delta} is for many other objects.  For each, if it's prefixed by
+@code{+} or @code{-}, then that amount is relative to the last
+location.  Otherwise, it's absolute.  Units can be
+@code{mil} or @code{mm}; if unspecified, units are PCB's internal
+units, currently 1/100 mil.
+
 
 @item 1..MAX_BUFFER
 Selects the given buffer to be the current paste buffer.
