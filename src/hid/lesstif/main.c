@@ -2604,9 +2604,9 @@ lesstif_stop_timer (hidval hv)
   free (ts);
 }
 
-extern void lesstif_log (char *fmt, ...);
+extern void lesstif_log (const char *fmt, ...);
 
-extern void lesstif_logv (char *fmt, va_list ap);
+extern void lesstif_logv (const char *fmt, va_list ap);
 
 extern int lesstif_confirm_dialog (char *msg, ...);
 

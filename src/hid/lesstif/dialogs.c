@@ -264,7 +264,7 @@ log_clear (Widget w, void *up, void *cbp)
 }
 
 void
-lesstif_logv (char *fmt, va_list ap)
+lesstif_logv (const char *fmt, va_list ap)
 {
   int i;
   char *bp;
@@ -337,7 +337,7 @@ lesstif_logv (char *fmt, va_list ap)
 }
 
 void
-lesstif_log (char *fmt, ...)
+lesstif_log (const char *fmt, ...)
 {
   va_list ap;
   va_start (ap, fmt);

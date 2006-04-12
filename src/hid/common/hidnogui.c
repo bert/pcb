@@ -212,7 +212,7 @@ nogui_stop_timer (hidval timer)
 }
 
 static void
-nogui_log (char *fmt, ...)
+nogui_log (const char *fmt, ...)
 {
   va_list ap;
   va_start (ap, fmt);
@@ -221,7 +221,7 @@ nogui_log (char *fmt, ...)
 }
 
 static void
-nogui_logv (char *fmt, va_list ap)
+nogui_logv (const char *fmt, va_list ap)
 {
   vprintf (fmt, ap);
 }

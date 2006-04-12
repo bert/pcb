@@ -360,8 +360,8 @@ extern "C"
     /* Various dialogs */
 
     /* Log a message to the log window.  */
-    void (*log) (char *fmt, ...);
-    void (*logv) (char *fmt, va_list args);
+    void (*log) (const char *fmt, ...);
+    void (*logv) (const char *fmt, va_list args);
 
     /* A generic yes/no dialog.  Returns zero if the cancel button is
        pressed, one for the ok button.  If you specify alternate labels

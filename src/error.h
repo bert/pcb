@@ -36,7 +36,7 @@
 #define	STATUS_BREAK	1
 #define	STATUS_ERROR	-1
 
-void Message (char *Format, ...);
+void Message (const char *Format, ...);
 void MyFatal (char *Format, ...);
 void OpenErrorMessage (char *);
 void PopenErrorMessage (char *);

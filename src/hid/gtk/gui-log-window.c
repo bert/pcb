@@ -129,7 +129,7 @@ ghid_log_append_string (gchar * s)
 }
 
 void
-ghid_log (char *fmt, ...)
+ghid_log (const char *fmt, ...)
 {
   va_list ap;
   va_start (ap, fmt);
@@ -141,7 +141,7 @@ static char *msg_buffer = 0;
 static int msg_buffer_size = 0;
 
 void
-ghid_logv (char *fmt, va_list args)
+ghid_logv (const char *fmt, va_list args)
 {
   int i;
 

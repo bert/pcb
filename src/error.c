@@ -87,7 +87,7 @@ extern char *sys_errlist[];	/* array of error messages */
  * output of message in a dialog window or log window
  */
 void
-Message (char *Format, ...)
+Message (const char *Format, ...)
 {
   va_list args;
   va_start (args, Format);

@@ -482,8 +482,8 @@ void ghid_library_window_show (GHidPort * out);
 
 /* gui-log-window.c */
 void ghid_log_window_show (void);
-void ghid_log (char *fmt, ...);
-void ghid_logv (char *fmt, va_list args);
+void ghid_log (const char *fmt, ...);
+void ghid_logv (const char *fmt, va_list args);
 
 /* gui-pinout-window.c */
 void ghid_pinout_window_show (GHidPort * out, ElementTypePtr Element);
