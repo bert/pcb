@@ -92,7 +92,8 @@ tab_texi=	${tab_files:.tab=.texi}
 
 # PCB Drawings
 pcb_files=	\
-	pad.pcb
+	pad.pcb \
+	thermal.pcb
 
 pcb_output=	\
 	${pcb_files:.pcb=.eps} \
