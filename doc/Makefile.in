@@ -661,7 +661,7 @@ extracted-docs :
 @MISSING_PS2PDF_TRUE@	@echo "WARNING:  ps2pdf is missing on your system but"
 @MISSING_PS2PDF_TRUE@	@echo "$@ is out of date and needs to rebuilt."
 @MISSING_PS2PDF_TRUE@	@echo "Changes to $< will be ignored"
-@MISSING_PS2PDF_FALSE@	${PS2PDF} -r72 `sed -n '/BoundingBox:/ s/.* \([0-9][0-9]*\) \([0-9][0-9]*\)/-g\1x\2/ p' $<` $< $@
+@MISSING_PS2PDF_FALSE@	${PS2PDF} `${AWK} 'BEGIN{s=8}; /BoundingBox/ {printf("-r%d -g%dx%d", s*72, s*$$4, s*$$5);}' $<` $< $@
 
 .tab.texi:
 	${ASCII2TEXI} $< > $@
