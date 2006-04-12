@@ -1,0 +1,98 @@
+#!/bin/sh
+#
+# $Id$
+#
+
+# Run this under cygwin to build pcb and create a windows installer for
+# it.  Thanks to Bob Paddock for pointing me to NSIS and answering some 
+# beginner windows questions.
+
+# where gtk_win32 is installed
+gtk_win32=c:\\cygwin\\home\\${USER}\\gtk_win32
+
+# where only the runtime components are installed
+gtk_win32_runtime=c:\\\\cygwin\\\\home\\\\${USER}\\\\gtk_win32_runtime
+
+# pcb version
+pcb_version=1.99r
+
+# location of the NSIS makensis executible (see http://nsis.sourceforge.net)
+makensis="/cygdrive/c/Program Files/NSIS/makensis.exe"
+
+do_config=${DO_CONFIG:-yes}
+do_build=${DO_BUILD:-yes}
+
+# ########################################################################
+#
+# The rest should be ok without editing
+#
+# ########################################################################
+
+
+# source directory
+srcdir=`pwd.exe`/win32
+top_srcdir=${srcdir}/..
+
+src_dir=c:\\\\cygwin`echo ${srcdir} | sed 's;/;\\\\\\\\;g'`
+top_src_dir=c:\\\\cygwin`echo ${top_srcdir} | sed 's;/;\\\\\\\\;g'`
+
+
+# where to install pcb
+pcb_inst=`pwd`/pcb_inst
+
+# DOS version
+pcb_inst_dir=c:\\\\cygwin`echo ${pcb_inst} | sed 's;/;\\\\\\\\;g'`
+
+PKG_CONFIG_PATH=${gtk_win32}\\lib\\pkgconfig
+export PKG_CONFIG_PATH
+
+PATH=${gtk_win32}\\bin:${PATH}
+export PATH
+
+echo "Showing packages known to pkg-config:"
+pkg-config --list-all
+
+WISH=/usr/bin/true
+export WISH
+
+if test "$do_config" = "yes" ; then
+echo "Configuring for cygwin"
+env CFLAGS="-mms-bitfields -mwindows -mno-cygwin" CPPFLAGS="-mms-bitfields -mwindows -mno-cygwin" ./configure \
+	--prefix=${pcb_inst} \
+	--disable-nls \
+	--with-exporters="bom gerber ps" \
+	--with-printer="" \
+	2>&1 | tee c.log
+
+fi
+
+if test "$do_build" = "yes" ; then
+echo "Building for cygwin"
+make 2>&1 | tee m.log
+
+echo "Installing for cygwin"
+make install 2>&1 | tee -a m.log
+
+fi
+
+echo "Creating NSIS script"
+echo "srcdir = ${srcdir}"
+echo "src_dir = ${src_dir}"
+echo "top_srcdir = ${top_srcdir}"
+echo "top_src_dir = ${top_src_dir}"
+
+sed \
+	-e "s;@pcb_version@;${pcb_version};g" \
+	-e "s;@pcb_prefix@;${pcb_inst_dir};g" \
+	-e "s;@pcb_srcdir@;${top_src_dir};g" \
+	-e "s;@gtk_win32_runtime@;${gtk_win32_runtime};g" \
+	${srcdir}/pcb.nsi.in > ${srcdir}/pcb.nsi
+
+echo "Creating windows installer"
+"${makensis}" ${src_dir}/pcb.nsi
+
+
+echo "Windows installer left in ${srcdir}:"
+ls -l ${srcdir}/*.exe
+
+
