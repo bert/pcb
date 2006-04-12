@@ -899,6 +899,42 @@ or from solder to component, won't automatically flip it.  Use the
 
 @cartouche
 @format
+Net(find|select|rats|norats[,net[,pin]])@end format
+@end cartouche
+
+Perform various actions on netlists.
+
+Each of these actions apply to a specified set of nets.  @var{net} and
+@var{pin} are patterns which match one or more nets or pins; these
+patterns may be full names or regular expressions.  If an exact match
+is found, it is the only match; if no exact match is found,
+@emph{then} the pattern is tried as a regular expression.
+
+If neither @var{net} nor @var{pin} are specified, all nets apply.  If
+@var{net} is specified but not @var{pin}, all nets matching @var{net}
+apply.  If both are specified, nets which match @var{net} and contain
+a pin matching @var{pin} apply.
+
+@table @code
+
+@item find
+Nets which apply are marked @emph{found} and are drawin in the
+@code{connected-color} color.
+
+@item select
+Nets which apply are selected.
+
+@item rats
+Nets which apply are marked as available for the rats nest.
+
+@item norats
+Nets which apply are marked as not available for the rats nest.
+
+@end table
+
+
+@cartouche
+@format
 New()@end format
 @end cartouche
 

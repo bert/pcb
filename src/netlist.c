@@ -105,12 +105,6 @@ pin_name_to_xy (LibraryEntryType * pin, int *x, int *y)
 }
 
 static void
-netlist_help ()
-{
-  Message ("Usage: Net(find|select|rats|norats[,net[,pin]])");
-}
-
-static void
 netlist_find (LibraryMenuType * net, LibraryEntryType * pin)
 {
   int x, y;
@@ -142,6 +136,45 @@ netlist_norats (LibraryMenuType * net, LibraryEntryType * pin)
   hid_action ("NetlistChanged");
 }
 
+
+static const char netlist_syntax[] =
+"Net(find|select|rats|norats[,net[,pin]])";
+
+static const char netlist_help[] =
+"Perform various actions on netlists.";
+
+/* %start-doc actions Netlist
+
+Each of these actions apply to a specified set of nets.  @var{net} and
+@var{pin} are patterns which match one or more nets or pins; these
+patterns may be full names or regular expressions.  If an exact match
+is found, it is the only match; if no exact match is found,
+@emph{then} the pattern is tried as a regular expression.
+
+If neither @var{net} nor @var{pin} are specified, all nets apply.  If
+@var{net} is specified but not @var{pin}, all nets matching @var{net}
+apply.  If both are specified, nets which match @var{net} and contain
+a pin matching @var{pin} apply.
+
+@table @code
+
+@item find
+Nets which apply are marked @emph{found} and are drawin in the
+@code{connected-color} color.
+
+@item select
+Nets which apply are selected.
+
+@item rats
+Nets which apply are marked as available for the rats nest.
+
+@item norats
+Nets which apply are marked as not available for the rats nest.
+
+@end table
+
+%end-doc */
+
 static int
 Netlist (int argc, char **argv, int x, int y)
 {
@@ -166,7 +199,7 @@ Netlist (int argc, char **argv, int x, int y)
     return 1;
   if (argc == 0)
     {
-      netlist_help ();
+      Message(netlist_syntax);
       return 1;
     }
   if (strcasecmp (argv[0], "find") == 0)
@@ -179,7 +212,7 @@ Netlist (int argc, char **argv, int x, int y)
     func = netlist_norats;
   else
     {
-      netlist_help ();
+      Message(netlist_syntax);
       return 1;
     }
 
@@ -282,8 +315,10 @@ Netlist (int argc, char **argv, int x, int y)
 }
 
 HID_Action netlist_action_list[] = {
-  {"net", 0, Netlist},
-  {"netlist", 0, Netlist}
+  {"net", 0, Netlist,
+   netlist_help, netlist_syntax},
+  {"netlist", 0, Netlist,
+   netlist_help, netlist_syntax}
 };
 
 REGISTER_ACTIONS (netlist_action_list)
