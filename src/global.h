@@ -710,4 +710,11 @@ typedef struct
 
 #define RCSID(x) static char *rcsid  ATTRIBUTE_UNUSED = x
 
+/* ---------------------------------------------------------------------------
+ * Macros called by various action routines to show usage or to report
+ * a syntax error and fail
+ */
+#define AUSAGE(x) Message ("Usage:\n%s\n", (x##_syntax))
+#define AFAIL(x) Message ("Syntax error.  Usage:\n%s\n", (x##_syntax)); return 1
+
 #endif /* __GLOBAL_INCLUDED__  */

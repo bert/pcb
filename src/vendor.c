@@ -260,7 +260,8 @@ static const char load_vendor_help[] =
 
 @table @var
 @item filename
-Name of the vendor resource file
+Name of the vendor resource file.  If not specified, the user will
+be prompted to enter one.
 @end table
 
 %end-doc */
@@ -278,8 +279,9 @@ ActionLoadVendorFrom (int argc, char **argv, int x, int y)
 
   if (!fname || !*fname)
     {
-      Message ("Usage:  LoadVendor([filename])\n");
-      return 1;
+      fname = gui->prompt_for (_("Enter vendor resource file name:"), "");
+      if (fname == NULL)
+	AFAIL (load_vendor);
     }
 
   /* Unload any vendor table we may have had */

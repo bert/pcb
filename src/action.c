@@ -1608,10 +1608,8 @@ static int
 ActionAtomic (int argc, char **argv, int x, int y)
 {
   if (argc != 1)
-    {
-      Message ("Atomic(Save|Restore|Close|Block)");
-      return 1;
-    }
+    AFAIL (atomic);
+
   switch (GetFunctionID (argv[0]))
     {
     case F_Save:
@@ -1780,8 +1778,7 @@ ActionFlip (int argc, char **argv, int x, int y)
 	return 0;
     }
 
-  Message ("Usage:  \n" "Flip(Object|Selected|SelectedElements)\n");
-  return 1;
+  AFAIL (flip);
 }
 
 
@@ -1841,10 +1838,8 @@ ActionToggleThermal (int argc, char **argv, int x, int y)
       if (!err)
 	return 0;
     }
-  Message ("Usage:  \n"
-	   "ToggleThermal(Object|Selected|SelectedElements|"
-	   "SelectedPins|SelectedVias)\n");
-  return 1;
+  
+  AFAIL (togglethermal);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -1903,10 +1898,8 @@ ActionSetThermal (int argc, char **argv, int x, int y)
       if (!err)
 	return 0;
     }
-  Message ("Usage:  \n"
-	   "SetThermal(Object|Selected|SelectedElements|"
-	   "SelectedPins|SelectedVias)\n");
-  return 1;
+
+  AFAIL (setthermal);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -1965,10 +1958,8 @@ ActionClearThermal (int argc, char **argv, int x, int y)
       if (!err)
 	return 0;
     }
-  Message ("Usage:  \n"
-	   "ClearThermal(Object|Selected|SelectedElements"
-	   "|SelectedPins|SelectedVias)\n");
-  return 1;
+
+  AFAIL (clearthermal);
 }
 
 
@@ -2162,12 +2153,8 @@ ActionSetValue (int argc, char **argv, int x, int y)
       if (!err)
 	return 0;
     }
-  Message ("Usage:  \n"
-	   "SetValue(Grid|Zoom|LineSize|TextScale|"
-	   "ViaDrillingHole|ViaSize, value)\n"
-	   "SetValue(Grid|Zoom|LineSize|TextScale|"
-	   "ViaDrillingHole|ViaSize, value, mil|mm)\n");
-  return 1;
+
+  AFAIL (setvalue);
 }
 
 
@@ -2265,9 +2252,8 @@ ActionConnection (int argc, char **argv, int x, int y)
       RestoreCrosshair (True);
       return 0;
     }
-  Message ("Usage:  \n"
-	   "Connection(Find|ResetLinesAndPolygons|ResetPinsAndVias|Reset)\n");
-  return 1;
+
+  AFAIL (connection);
 }
 
 /* --------------------------------------------------------------------------- */
@@ -2325,8 +2311,7 @@ ActionDisperseElements (int argc, char **argv, int x, int y)
 
   if (bad)
     {
-      Message ("Usage:  \n" "DisperseElements(Selected|All)\n");
-      return 1;
+      AFAIL (disperseelements);
     }
 
 
@@ -2878,18 +2863,7 @@ ActionDisplay (int argc, char **argv, int childX, int childY)
   if (!err)
     return 0;
 
-  Message ("Usage\n"
-	   "Display(NameOnPCB|Description|Value)\n"
-	   "Display(Grid|Center|ClearAndRedraw|Redraw)\n"
-	   "Display(CycleClip|Toggle45Degree|ToggleStartDirection)\n"
-	   "Display(ToggleGrid|ToggleRubberBandMode|ToggleUniqueNames)\n"
-	   "Display(ToggleMask|ToggleName|ToggleClearLine|ToggleSnapPin)\n"
-	   "Display(ToggleThindraw|ToggleOrthoMove|ToggleLocalRef)\n"
-	   "Display(ToggleCheckPlanes|ToggleShowDRC|ToggleAutoDRC)\n"
-	   "Display(ToggleLiveRoute)\n"
-	   "Display(Pinout|PinOrPadName)\n"
-	   "Display(Save|Restore)\n" "Display(Scroll, Direction)\n");
-  return 1;
+  AFAIL (display);
 }
 
 /* --------------------------------------------------------------------------- */
@@ -3078,11 +3052,7 @@ ActionMode (int argc, char **argv, int x, int y)
       return 0;
     }
 
-  Message ("Usage\n"
-	   "Mode(Copy|InsertPoint|Line|Move|None|PasteBuffer|Polygon)\n"
-	   "Mode(Remove|Rectangle|Text|Via|Arrow|Thermal)\n"
-	   "Mode(Notify|Release)\n" "Mode(Save|Restore)\n");
-  return 1;
+  AFAIL (mode);
 }
 
 /* --------------------------------------------------------------------------- */
@@ -3757,8 +3727,7 @@ ActionChangePinName (int argc, char **argv, int x, int y)
 
   if (argc != 3)
     {
-      Message ("Usage:  ChangePinName(RefDes, PinNumber, PinName)\n");
-      return 1;
+      AFAIL (changepinname);
     }
 
   refdes = argv[0];
@@ -4649,7 +4618,8 @@ ActionSelect (int argc, char **argv, int x, int y)
 	  break;
 
 	default:
-	  Message("Syntax error\nUsage:\n%s\n", select_syntax);
+	  RestoreCrosshair (True);
+	  AFAIL (select);
 	  break;
 	}
       RestoreCrosshair (True);
@@ -4805,7 +4775,8 @@ ActionUnselect (int argc, char **argv, int x, int y)
 	  break;
 
 	default:
-	  Message("Syntax error\nUsage:\n%s\n", unselect_syntax);
+	  RestoreCrosshair (True);
+	  AFAIL (unselect);
 	  break;
 
 	}
@@ -4855,10 +4826,7 @@ ActionSaveTo (int argc, char **argv, int x, int y)
   function = argv[0];
   name = argv[1];
   if (argc != 2)
-    {
-      Message ("SaveTo(function,filename)");
-      return 1;
-    }
+    AFAIL (saveto);
 
   if (strcasecmp (function, "LayoutAs") == 0)
     {
@@ -4919,7 +4887,8 @@ ActionSaveTo (int argc, char **argv, int x, int y)
 	}
       return 0;
     }
-  return 1;
+
+  AFAIL (saveto);
 }
 
 /* --------------------------------------------------------------------------- */
@@ -4969,10 +4938,8 @@ ActionLoadFrom (int argc, char **argv, int x, int y)
   char fname[256];
 
   if (argc < 2)
-    {
-      gui->confirm_dialog ("Usage: LoadFrom(function, filename)", "Ok", 0);
-      return 1;
-    }
+    AFAIL (loadfrom);
+
   function = argv[0];
   name = argv[1];
 
@@ -5333,9 +5300,8 @@ ActionPasteBuffer (int argc, char **argv, int x, int y)
 	      }
 	    else
 	      {
-		Message("Syntax error\nUsage:\n%s\n", pastebuffer_syntax);
 		RestoreCrosshair (True);
-		return 1;
+		AFAIL (pastebuffer);
 	      }
 
 	    oldx = x;
@@ -5961,7 +5927,8 @@ static const char changeflag_syntax[] =
 "ChangeFlag(SelectedLines|SelectedPins|SelectedVias, flag, value)\n"
 "ChangeFlag(SelectedPads|SelectedTexts|SelectedNames, flag, value)\n"
 "ChangeFlag(SelectedElements, flag, value)\n"
-"flag = square | octagon | thermal | join";
+"flag = square | octagon | thermal | join\n"
+"value = 0 | 1";
 
 static const char changeflag_help[] =
 "Sets or clears flags on objects.";
@@ -5982,10 +5949,7 @@ ActionChangeFlag (int argc, char **argv, int x, int y)
   char *flag = ARG (1);
   int value = argc > 2 ? atoi (argv[2]) : -1;
   if (value != 0 && value != 1)
-    {
-      Message (_("ChangeFlag():  Value %d is not valid\n"), value);
-      return 1;
-    }
+    AFAIL (changeflag);
 
   ChangeFlag (function, flag, value, "ChangeFlag");
   return 0;
@@ -6113,10 +6077,7 @@ ActionExecuteFile (int argc, char **argv, int x, int y)
   char *sp;
 
   if (argc != 1)
-    {
-      Message ("Usage:  ExecuteFile(filename)");
-      return 1;
-    }
+    AFAIL (executefile);
 
   fname = argv[0];
 
