@@ -5722,6 +5722,16 @@ format).  This file format was originally developed by Gerber for
 their photo plotters and thus RS-274-D and RS-274-X format files 
 are often times refered to as ``Gerber'' files.
 
+@item Thermal, Thermal Relief
+A thermal relief is a way of connecting a pin to a ground
+or power plane.  Instead of directly connecting to the plane, small "spokes"
+are used to increase the thermal resistance between the pin and the plane.
+Often times these connections are refered to as simply a thermal.  By increasing
+the thermal resistance to the plane, it becomes easier to solder to the
+pin.  The drawing below shows an example of a thermal relief.
+
+@center @image{thermal,,,Example of a thermal relief,png}
+
 @end table
 
 @c ---------------------------------------------------------------------
