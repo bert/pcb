@@ -42,6 +42,7 @@ static int lastcap = -1;
 static int lastcolor = -1;
 static int print_group[MAX_LAYER];
 static int print_layer[MAX_LAYER];
+static int fast_erase = -1;
 
 static HID_Attribute eps_attribute_list[] = {
   /* other HIDs expect this to be first.  */
@@ -155,17 +156,46 @@ eps_hid_export_to_file (FILE * the_file, HID_Attr_Val * options)
   memset (print_group, 0, sizeof (print_group));
   memset (print_layer, 0, sizeof (print_layer));
 
+  /* Figure out which layers actually have stuff on them.  */
   for (i = 0; i < MAX_LAYER; i++)
     {
       LayerType *layer = PCB->Data->Layer + i;
       if (layer->LineN || layer->TextN || layer->ArcN || layer->PolygonN)
 	print_group[GetLayerGroupNumberByNumber (i)] = 1;
     }
-  print_group[GetLayerGroupNumberByNumber (MAX_LAYER)] = 1;
-  print_group[GetLayerGroupNumberByNumber (MAX_LAYER + 1)] = 1;
+
+  /* Now, if only one layer has real stuff on it, we can use the fast
+     erase logic.  Otherwise, we have to use the expensive multi-mask
+     erase.  */
+  fast_erase = 0;
+  for (i = 0; i < MAX_LAYER; i++)
+    if (print_group[i])
+      fast_erase ++;
+
+  /* If NO layers had anything on them, at least print the component
+     layer to get the pins.  */
+  if (fast_erase == 0)
+    {
+      print_group[GetLayerGroupNumberByNumber (MAX_LAYER + COMPONENT_LAYER)] = 1;
+      fast_erase = 1;
+    }
+
+  /* "fast_erase" is 1 if we can just paint white to erase.  */
+  fast_erase = fast_erase == 1 ? 1 : 0;
+
+  /* Now, for each group we're printing, mark its layers for
+     printing.  */
   for (i = 0; i < MAX_LAYER; i++)
     if (print_group[GetLayerGroupNumberByNumber (i)])
       print_layer[i] = 1;
+
+  if (fast_erase) {
+    eps_hid.poly_before = 1;
+    eps_hid.poly_after = 0;
+  } else {
+    eps_hid.poly_before = 0;
+    eps_hid.poly_after = 1;
+  }
 
   memcpy (saved_layer_stack, LayerStack, sizeof (LayerStack));
   as_shown = options[HA_as_shown].int_value;
@@ -383,7 +413,7 @@ eps_set_color (hidGC gc, const char *name)
   if (strcmp (name, "erase") == 0)
     {
       gc->color = 0xffffff;
-      gc->erase = 1;
+      gc->erase = fast_erase ? 0 : 1;
       return;
     }
   if (strcmp (name, "drill") == 0)
