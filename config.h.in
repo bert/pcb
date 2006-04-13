@@ -21,6 +21,9 @@
 /* Define to 1 if you have the <gd.h> header file. */
 #undef HAVE_GD_H
 
+/* Define to 1 if you have the `getcwd' function. */
+#undef HAVE_GETCWD
+
 /* Define to 1 if you have the `gethostname' function. */
 #undef HAVE_GETHOSTNAME
 
