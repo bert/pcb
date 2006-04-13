@@ -1333,6 +1333,7 @@ static int
 About (int argc, char **argv, int x, int y)
 {
   ghid_dialog_about ();
+  return 0;
 }
 
 HID_Action ghid_main_action_list[] = {
