@@ -39,6 +39,7 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 bin_PROGRAMS = pcb-bin$(EXEEXT)
+@WIN32_TRUE@am__append_1 = pcb_icon.o
 subdir = src
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in parse_l.c \
 	parse_y.c parse_y.h res_lex.c res_parse.c res_parse.h
@@ -126,6 +127,7 @@ am_pcb_bin_OBJECTS = action.$(OBJEXT) autoplace.$(OBJEXT) \
 	hid/common/hidinit.$(OBJEXT) hid/common/hidnogui.$(OBJEXT) \
 	hid/common/extents.$(OBJEXT)
 pcb_bin_OBJECTS = $(am_pcb_bin_OBJECTS)
+@WIN32_TRUE@am__DEPENDENCIES_1 = pcb_icon.o
 DEFAULT_INCLUDES = -I. -I$(srcdir) -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
@@ -428,7 +430,7 @@ BUILT_SOURCES = \
 	res_parse.h \
 	hid/common/hidlist.h
 
-pcb_bin_LDADD = @HIDLIBS@
+pcb_bin_LDADD = @HIDLIBS@ $(am__append_1)
 pcb_bin_DEPENDENCIES = @HIDLIBS@
 
 # for globalconst.h
@@ -1582,6 +1584,14 @@ hid/gtk/gtk_lists.h : ${libgtk_a_SOURCES} Makefile
 	true > $@
 	(for f in ${libgtk_a_SOURCES} ; do cat $(srcdir)/$$f ; done) | grep "^REGISTER" > $@.tmp
 	mv $@.tmp $@
+
+# If we are building on win32, then compile in some icons for the
+# desktop and application toolbar
+@WIN32_TRUE@pcb_icon.o : pcb_icon.ico $(srcdir)/hid/gtk/pcb.rc
+@WIN32_TRUE@	windres $(srcdir)/hid/gtk/pcb.rc $@
+
+@WIN32_TRUE@pcb_icon.ico: $(top_srcdir)/win32/pcb_icon.ico
+@WIN32_TRUE@	cp $(top_srcdir)/win32/pcb_icon.ico $@
 
 hid/lesstif/lesstif_lists.h : ${liblesstif_a_SOURCES} Makefile
 	true > $@
