@@ -309,7 +309,7 @@ ac_includes_default="\
 # include <unistd.h>
 #endif"
 
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA CYGPATH_W PACKAGE VERSION ACLOCAL AUTOCONF AUTOMAKE AUTOHEADER MAKEINFO install_sh STRIP ac_ct_STRIP INSTALL_STRIP_PROGRAM mkdir_p AWK SET_MAKE am__leading_dot AMTAR am__tar am__untar MAINTAINER_MODE_TRUE MAINTAINER_MODE_FALSE MAINT build build_cpu build_vendor build_os host host_cpu host_vendor host_os WIN32 WIN32_TRUE WIN32_FALSE CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT DEPDIR am__include am__quote AMDEP_TRUE AMDEP_FALSE AMDEPBACKSLASH CCDEPMODE am__fastdepCC_TRUE am__fastdepCC_FALSE CPP LEX LEXLIB LEX_OUTPUT_ROOT YACC RANLIB ac_ct_RANLIB DOC MKINFO PERL HIDLIST HIDLIBS M4 WISH GNUM4 LATEX MISSING_LATEX_TRUE MISSING_LATEX_FALSE PDFLATEX MISSING_PDFLATEX_TRUE MISSING_PDFLATEX_FALSE DVIPS MISSING_DVIPS_TRUE MISSING_DVIPS_FALSE PS2PDF MISSING_PS2PDF_TRUE MISSING_PS2PDF_FALSE EGREP X_CFLAGS X_PRE_LIBS X_LIBS X_EXTRA_LIBS PKG_CONFIG GTK_CFLAGS GTK_LIBS GLIB_CFLAGS GLIB_LIBS GDLIB_CONFIG FONTFILENAME PCBLIBDIR LIBRARYFILENAME PCBTREEDIR BTNMOD TOPDIRS LIBOBJS LTLIBOBJS'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA CYGPATH_W PACKAGE VERSION ACLOCAL AUTOCONF AUTOMAKE AUTOHEADER MAKEINFO install_sh STRIP ac_ct_STRIP INSTALL_STRIP_PROGRAM mkdir_p AWK SET_MAKE am__leading_dot AMTAR am__tar am__untar MAINTAINER_MODE_TRUE MAINTAINER_MODE_FALSE MAINT build build_cpu build_vendor build_os host host_cpu host_vendor host_os WIN32 WIN32_TRUE WIN32_FALSE CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT DEPDIR am__include am__quote AMDEP_TRUE AMDEP_FALSE AMDEPBACKSLASH CCDEPMODE am__fastdepCC_TRUE am__fastdepCC_FALSE CPP LEX LEXLIB LEX_OUTPUT_ROOT YACC RANLIB ac_ct_RANLIB TGIF MISSING_TGIF_TRUE MISSING_TGIF_FALSE XPMTOPPM PPMTOWINICON MISSING_XPMTOPPM_TRUE MISSING_XPMTOPPM_FALSE CONVERT MISSING_CONVERT_TRUE MISSING_CONVERT_FALSE DOC MKINFO PERL HIDLIST HIDLIBS M4 WISH GNUM4 LATEX MISSING_LATEX_TRUE MISSING_LATEX_FALSE PDFLATEX MISSING_PDFLATEX_TRUE MISSING_PDFLATEX_FALSE DVIPS MISSING_DVIPS_TRUE MISSING_DVIPS_FALSE PS2PDF MISSING_PS2PDF_TRUE MISSING_PS2PDF_FALSE EGREP X_CFLAGS X_PRE_LIBS X_LIBS X_EXTRA_LIBS PKG_CONFIG GTK_CFLAGS GTK_LIBS GLIB_CFLAGS GLIB_LIBS GDLIB_CONFIG FONTFILENAME PCBLIBDIR LIBRARYFILENAME PCBTREEDIR BTNMOD TOPDIRS LIBOBJS LTLIBOBJS'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -3830,6 +3830,200 @@ fi
   RANLIB=$ac_ct_RANLIB
 else
   RANLIB="$ac_cv_prog_RANLIB"
+fi
+
+
+#
+# Used for building the win32 icons.
+#
+# Extract the first word of "tgif", so it can be a program name with args.
+set dummy tgif; ac_word=$2
+echo "$as_me:$LINENO: checking for $ac_word" >&5
+echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6
+if test "${ac_cv_path_TGIF+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  case $TGIF in
+  [\\/]* | ?:[\\/]*)
+  ac_cv_path_TGIF="$TGIF" # Let the user override the test with a path.
+  ;;
+  *)
+  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+  for ac_exec_ext in '' $ac_executable_extensions; do
+  if $as_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
+    ac_cv_path_TGIF="$as_dir/$ac_word$ac_exec_ext"
+    echo "$as_me:$LINENO: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+done
+
+  test -z "$ac_cv_path_TGIF" && ac_cv_path_TGIF="notfound"
+  ;;
+esac
+fi
+TGIF=$ac_cv_path_TGIF
+
+if test -n "$TGIF"; then
+  echo "$as_me:$LINENO: result: $TGIF" >&5
+echo "${ECHO_T}$TGIF" >&6
+else
+  echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6
+fi
+
+
+
+if test x$TGIF = xnotfound; then
+  MISSING_TGIF_TRUE=
+  MISSING_TGIF_FALSE='#'
+else
+  MISSING_TGIF_TRUE='#'
+  MISSING_TGIF_FALSE=
+fi
+
+# Extract the first word of "xpmtoppm", so it can be a program name with args.
+set dummy xpmtoppm; ac_word=$2
+echo "$as_me:$LINENO: checking for $ac_word" >&5
+echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6
+if test "${ac_cv_path_XPMTOPPM+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  case $XPMTOPPM in
+  [\\/]* | ?:[\\/]*)
+  ac_cv_path_XPMTOPPM="$XPMTOPPM" # Let the user override the test with a path.
+  ;;
+  *)
+  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+  for ac_exec_ext in '' $ac_executable_extensions; do
+  if $as_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
+    ac_cv_path_XPMTOPPM="$as_dir/$ac_word$ac_exec_ext"
+    echo "$as_me:$LINENO: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+done
+
+  test -z "$ac_cv_path_XPMTOPPM" && ac_cv_path_XPMTOPPM="notfound"
+  ;;
+esac
+fi
+XPMTOPPM=$ac_cv_path_XPMTOPPM
+
+if test -n "$XPMTOPPM"; then
+  echo "$as_me:$LINENO: result: $XPMTOPPM" >&5
+echo "${ECHO_T}$XPMTOPPM" >&6
+else
+  echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6
+fi
+
+# Extract the first word of "ppmtowinicon", so it can be a program name with args.
+set dummy ppmtowinicon; ac_word=$2
+echo "$as_me:$LINENO: checking for $ac_word" >&5
+echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6
+if test "${ac_cv_path_PPMTOWINICON+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  case $PPMTOWINICON in
+  [\\/]* | ?:[\\/]*)
+  ac_cv_path_PPMTOWINICON="$PPMTOWINICON" # Let the user override the test with a path.
+  ;;
+  *)
+  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+  for ac_exec_ext in '' $ac_executable_extensions; do
+  if $as_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
+    ac_cv_path_PPMTOWINICON="$as_dir/$ac_word$ac_exec_ext"
+    echo "$as_me:$LINENO: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+done
+
+  test -z "$ac_cv_path_PPMTOWINICON" && ac_cv_path_PPMTOWINICON="notfound"
+  ;;
+esac
+fi
+PPMTOWINICON=$ac_cv_path_PPMTOWINICON
+
+if test -n "$PPMTOWINICON"; then
+  echo "$as_me:$LINENO: result: $PPMTOWINICON" >&5
+echo "${ECHO_T}$PPMTOWINICON" >&6
+else
+  echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6
+fi
+
+
+
+if test x$PPMTOWINICON = xnotfound -o x$XPMTOPPM = xnotfound; then
+  MISSING_XPMTOPPM_TRUE=
+  MISSING_XPMTOPPM_FALSE='#'
+else
+  MISSING_XPMTOPPM_TRUE='#'
+  MISSING_XPMTOPPM_FALSE=
+fi
+
+# Extract the first word of "convert", so it can be a program name with args.
+set dummy convert; ac_word=$2
+echo "$as_me:$LINENO: checking for $ac_word" >&5
+echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6
+if test "${ac_cv_path_CONVERT+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  case $CONVERT in
+  [\\/]* | ?:[\\/]*)
+  ac_cv_path_CONVERT="$CONVERT" # Let the user override the test with a path.
+  ;;
+  *)
+  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+  for ac_exec_ext in '' $ac_executable_extensions; do
+  if $as_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
+    ac_cv_path_CONVERT="$as_dir/$ac_word$ac_exec_ext"
+    echo "$as_me:$LINENO: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+done
+
+  test -z "$ac_cv_path_CONVERT" && ac_cv_path_CONVERT="notfound"
+  ;;
+esac
+fi
+CONVERT=$ac_cv_path_CONVERT
+
+if test -n "$CONVERT"; then
+  echo "$as_me:$LINENO: result: $CONVERT" >&5
+echo "${ECHO_T}$CONVERT" >&6
+else
+  echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6
+fi
+
+
+
+if test x$CONVERT = xnotfound; then
+  MISSING_CONVERT_TRUE=
+  MISSING_CONVERT_FALSE='#'
+else
+  MISSING_CONVERT_TRUE='#'
+  MISSING_CONVERT_FALSE=
 fi
 
 
@@ -9331,7 +9525,8 @@ if test -d $srcdir/tutorial; then
 
 fi
 
-##AC_CONFIG_FILES(win32/Makefile)
+          ac_config_files="$ac_config_files win32/Makefile"
+
 
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
@@ -9449,6 +9644,27 @@ if test -z "${am__fastdepCC_TRUE}" && test -z "${am__fastdepCC_FALSE}"; then
   { { echo "$as_me:$LINENO: error: conditional \"am__fastdepCC\" was never defined.
 Usually this means the macro was only invoked conditionally." >&5
 echo "$as_me: error: conditional \"am__fastdepCC\" was never defined.
+Usually this means the macro was only invoked conditionally." >&2;}
+   { (exit 1); exit 1; }; }
+fi
+if test -z "${MISSING_TGIF_TRUE}" && test -z "${MISSING_TGIF_FALSE}"; then
+  { { echo "$as_me:$LINENO: error: conditional \"MISSING_TGIF\" was never defined.
+Usually this means the macro was only invoked conditionally." >&5
+echo "$as_me: error: conditional \"MISSING_TGIF\" was never defined.
+Usually this means the macro was only invoked conditionally." >&2;}
+   { (exit 1); exit 1; }; }
+fi
+if test -z "${MISSING_XPMTOPPM_TRUE}" && test -z "${MISSING_XPMTOPPM_FALSE}"; then
+  { { echo "$as_me:$LINENO: error: conditional \"MISSING_XPMTOPPM\" was never defined.
+Usually this means the macro was only invoked conditionally." >&5
+echo "$as_me: error: conditional \"MISSING_XPMTOPPM\" was never defined.
+Usually this means the macro was only invoked conditionally." >&2;}
+   { (exit 1); exit 1; }; }
+fi
+if test -z "${MISSING_CONVERT_TRUE}" && test -z "${MISSING_CONVERT_FALSE}"; then
+  { { echo "$as_me:$LINENO: error: conditional \"MISSING_CONVERT\" was never defined.
+Usually this means the macro was only invoked conditionally." >&5
+echo "$as_me: error: conditional \"MISSING_CONVERT\" was never defined.
 Usually this means the macro was only invoked conditionally." >&2;}
    { (exit 1); exit 1; }; }
 fi
@@ -9955,6 +10171,7 @@ do
   "src/icons/Makefile" ) CONFIG_FILES="$CONFIG_FILES src/icons/Makefile" ;;
   "tools/Makefile" ) CONFIG_FILES="$CONFIG_FILES tools/Makefile" ;;
   "tutorial/Makefile" ) CONFIG_FILES="$CONFIG_FILES tutorial/Makefile" ;;
+  "win32/Makefile" ) CONFIG_FILES="$CONFIG_FILES win32/Makefile" ;;
   "depfiles" ) CONFIG_COMMANDS="$CONFIG_COMMANDS depfiles" ;;
   "config.h" ) CONFIG_HEADERS="$CONFIG_HEADERS config.h" ;;
   *) { { echo "$as_me:$LINENO: error: invalid argument: $ac_config_target" >&5
@@ -10101,6 +10318,16 @@ s,@LEX_OUTPUT_ROOT@,$LEX_OUTPUT_ROOT,;t t
 s,@YACC@,$YACC,;t t
 s,@RANLIB@,$RANLIB,;t t
 s,@ac_ct_RANLIB@,$ac_ct_RANLIB,;t t
+s,@TGIF@,$TGIF,;t t
+s,@MISSING_TGIF_TRUE@,$MISSING_TGIF_TRUE,;t t
+s,@MISSING_TGIF_FALSE@,$MISSING_TGIF_FALSE,;t t
+s,@XPMTOPPM@,$XPMTOPPM,;t t
+s,@PPMTOWINICON@,$PPMTOWINICON,;t t
+s,@MISSING_XPMTOPPM_TRUE@,$MISSING_XPMTOPPM_TRUE,;t t
+s,@MISSING_XPMTOPPM_FALSE@,$MISSING_XPMTOPPM_FALSE,;t t
+s,@CONVERT@,$CONVERT,;t t
+s,@MISSING_CONVERT_TRUE@,$MISSING_CONVERT_TRUE,;t t
+s,@MISSING_CONVERT_FALSE@,$MISSING_CONVERT_FALSE,;t t
 s,@DOC@,$DOC,;t t
 s,@MKINFO@,$MKINFO,;t t
 s,@PERL@,$PERL,;t t

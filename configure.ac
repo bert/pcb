@@ -43,6 +43,17 @@ AC_PROG_YACC
 AC_PROG_INSTALL
 AC_PROG_RANLIB
 
+#
+# Used for building the win32 icons.
+#
+AC_PATH_PROG(TGIF, tgif, notfound)
+AM_CONDITIONAL(MISSING_TGIF, test x$TGIF = xnotfound)
+AC_PATH_PROG(XPMTOPPM, xpmtoppm, notfound)
+AC_PATH_PROG(PPMTOWINICON, ppmtowinicon, notfound)
+AM_CONDITIONAL(MISSING_XPMTOPPM, test x$PPMTOWINICON = xnotfound -o x$XPMTOPPM = xnotfound)
+AC_PATH_PROG(CONVERT, convert, notfound)
+AM_CONDITIONAL(MISSING_CONVERT, test x$CONVERT = xnotfound)
+
 docs_yesno=yes
 
 AC_MSG_CHECKING([if the documentation should be built])
@@ -524,7 +535,7 @@ if test -d $srcdir/tutorial; then
    AC_CONFIG_FILES(tutorial/Makefile)
 fi
 
-##AC_CONFIG_FILES(win32/Makefile)
+AC_CONFIG_FILES(win32/Makefile)
 
 AC_OUTPUT
 
