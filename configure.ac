@@ -220,7 +220,7 @@ AC_CHECK_FUNCS(getpwuid gethostname)
 AC_CHECK_FUNCS(random)
 AC_HEADER_STDC
 AC_CHECK_HEADERS(string.h sys/types.h regex.h pwd.h)
-AC_CHECK_HEADERS(sys/socket.h netinet/in.h netdb.h)
+AC_CHECK_HEADERS(sys/socket.h netinet/in.h netdb.h sys/times.h)
 
 AC_PATH_XTRA
 
