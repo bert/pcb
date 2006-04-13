@@ -48,6 +48,7 @@
 
 #include "autoplace.h"
 #include "box.h"
+#include "compat.h"
 #include "data.h"
 #include "draw.h"
 #include "error.h"
