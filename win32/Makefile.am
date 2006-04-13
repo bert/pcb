@@ -4,7 +4,7 @@
 ##
 
 
-EXTRA_DIST= build_pcb pcb.nsi.in Readme.txt \
+EXTRA_DIST= build_pcb pcb.nsi.in Readme.txt Xdefaults.tgif \
 	${TGIF_OBJS} ${XPMS} ${PPMS_16} ${PPMS_256} ${ICONS}
 
 TGIF_OBJS=	pcb_icon_big.obj pcb_icon_med.obj pcb_icon_sml.obj
@@ -13,7 +13,7 @@ PPMS_16=	${TGIF_OBJS:.obj=_16.ppm}
 PPMS_256=	${TGIF_OBJS:.obj=_256.ppm}
 ICONS=		pcb_icon.ico
 
-TGIF_PROG=	XENVIRONMENT=$(top_srcdir)/pixmaps/Xdefaults.tgif @TGIF@ -print -color -xpm
+TGIF_PROG=	XENVIRONMENT=$(srcdir)/Xdefaults.tgif @TGIF@ -print -color -xpm
 
 pkgdatadir=     ${datadir}/${PACKAGE}-${VERSION}
 
