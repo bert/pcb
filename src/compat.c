@@ -4,7 +4,7 @@
  *                            COPYRIGHT
  *
  *  PCB, interactive printed circuit board design
- *  Copyright (C) 2004 Dan McMahill
+ *  Copyright (C) 2004, 2006 Dan McMahill
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -49,5 +49,14 @@ float
 logf (float x)
 {
   return (float) log ((double) x);
+}
+#endif
+
+#ifndef HAVE_RANDOM
+long
+random (void)
+{
+  /* FIXME */
+  return 12345;
 }
 #endif

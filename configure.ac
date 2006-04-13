@@ -7,6 +7,31 @@ AM_CONFIG_HEADER(config.h)
 
 AM_MAINTAINER_MODE
 
+dnl determine host type
+AC_CANONICAL_HOST
+AC_MSG_CHECKING(for windows)
+case $host in
+	*-*-cygwin* )
+		WIN32=yes
+		CFLAGS="$CFLAGS ${CYGWIN_CFLAGS:--mms-bitfields -mno-cygwin -mwindows}"
+		CPPFLAGS="$CPPFLAGS ${CYGWIN_CPPFLAGS:--mms-bitfields -mno-cygwin -mwindows}"
+		;;
+
+	*-*-mingw* )
+		WIN32=yes
+		CFLAGS="$CFLAGS ${MINGW_CFLAGS:--mms-bitfields -mwindows}"
+		CPPFLAGS="$CPPFLAGS ${MINGW_CPPFLAGS:--mms-bitfields -mwindows}"
+		;;
+
+	* )
+		WIN32=no
+		;;
+esac
+
+AC_MSG_RESULT($WIN32)
+AC_SUBST(WIN32)
+AM_CONDITIONAL(WIN32, test x$WIN32 = xyes)
+
 dnl Checks for programs.
 AC_PROG_CC
 AC_PROG_CC_STDC
@@ -191,8 +216,11 @@ AC_CHECK_FUNCS(strerror)
 AC_CHECK_FUNCS(regcomp re_comp)
 AC_CHECK_FUNCS(logf expf rint)
 AC_CHECK_FUNCS(vsnprintf)
+AC_CHECK_FUNCS(getpwuid gethostname)
+AC_CHECK_FUNCS(random)
 AC_HEADER_STDC
-AC_CHECK_HEADERS(string.h sys/types.h regex.h)
+AC_CHECK_HEADERS(string.h sys/types.h regex.h pwd.h)
+AC_CHECK_HEADERS(sys/socket.h netinet/in.h netdb.h)
 
 AC_PATH_XTRA
 
@@ -495,6 +523,8 @@ fi
 if test -d $srcdir/tutorial; then
    AC_CONFIG_FILES(tutorial/Makefile)
 fi
+
+##AC_CONFIG_FILES(win32/Makefile)
 
 AC_OUTPUT
 

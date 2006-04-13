@@ -45,7 +45,6 @@
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
-#include <pwd.h>
 #include <setjmp.h>
 
 

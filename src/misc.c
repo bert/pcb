@@ -49,7 +49,9 @@
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
+#ifdef HAVE_PWD_H
 #include <pwd.h>
+#endif
 
 #include "global.h"
 
@@ -1824,6 +1826,7 @@ LayerGroupsToString (LayerGroupTypePtr lg)
 char *
 pcb_author (void)
 {
+#ifdef HAVE_GETPWUID
   static struct passwd *pwentry;
   static char *fab_author = 0;
 
@@ -1855,4 +1858,7 @@ pcb_author (void)
 	}
     }
   return fab_author;
+#else
+  return "Unknown";
+#endif
 }

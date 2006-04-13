@@ -11,7 +11,11 @@
 #include <sys/types.h>
 #include <string.h>
 #include <assert.h>
+
+#ifdef HAVE_PWD_H
 #include <pwd.h>
+#endif
+
 #include <time.h>
 
 #include "config.h"
@@ -452,7 +456,9 @@ gerber_set_layer (const char *name, int group)
     {
       time_t currenttime;
       char utcTime[64];
+#ifdef HAVE_GETPWUID
       struct passwd *pwentry;
+#endif
       char *spat;
       int i;
 
@@ -532,15 +538,18 @@ gerber_set_layer (const char *name, int group)
       currenttime = time (NULL);
       strftime (utcTime, sizeof utcTime, "%c UTC", gmtime (&currenttime));
 
-      /* ID the user. */
-      pwentry = getpwuid (getuid ());
-
       /* Print a cute file header at the beginning of each file. */
       fprintf (f, "G04 Title: %s, %s *\015\012", UNKNOWN (PCB->Name),
 	       UNKNOWN (name));
       fprintf (f, "G04 Creator: %s " VERSION " *\015\012", Progname);
       fprintf (f, "G04 CreationDate: %s *\015\012", utcTime);
+
+#ifdef HAVE_GETPWUID
+      /* ID the user. */
+      pwentry = getpwuid (getuid ());
       fprintf (f, "G04 For: %s *\015\012", pwentry->pw_name);
+#endif
+
       fprintf (f, "G04 Format: Gerber/RS-274X *\015\012");
       fprintf (f, "G04 PCB-Dimensions: %d %d *\015\012",
 	       PCB->MaxWidth, PCB->MaxHeight);

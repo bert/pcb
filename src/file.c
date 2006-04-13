@@ -38,13 +38,24 @@
 #include "global.h"
 
 #include <dirent.h>
+#ifdef HAVE_PWD_H
 #include <pwd.h>
+#endif
 #include <time.h>
 
+#ifdef HAVE_SYS_SOCKET_H
 #include <sys/socket.h>
+#endif
+
 #include <sys/stat.h>
+
+#ifdef HAVE_NETINET_IN_H
 #include <netinet/in.h>
+#endif
+
+#ifdef HAVE_NETDB_H
 #include <netdb.h>
+#endif
 
 #ifdef HAVE_STRING_H
 #include <string.h>
@@ -371,23 +382,38 @@ PrintQuotedString (FILE * FP, char *S)
 static void
 WritePCBInfoHeader (FILE * FP)
 {
+#ifdef HAVE_GETPWUID
   struct passwd *pwentry;
+#endif
+
+#ifdef HAVE_GETHOSTNAME
   struct hostent *hostentry;
-  time_t currenttime;
   char hostname[256];
+#endif
+  time_t currenttime;
 
   /* write some useful comments */
   currenttime = time (NULL);
-  pwentry = getpwuid (getuid ());
   fprintf (FP, "# release: %s " VERSION "\n", Progname);
   fprintf (FP, "# date:    %s", asctime (localtime (&currenttime)));
+
+#ifdef HAVE_GETPWUID
+  pwentry = getpwuid (getuid ());
   fprintf (FP, "# user:    %s (%s)\n", pwentry->pw_name, pwentry->pw_gecos);
+#else
+  fprintf (FP, "# user:    Unknown\n");
+#endif
+
+#ifdef HAVE_GETHOSTNAME
   if (gethostname (hostname, 255) != -1)
     {
       hostentry = gethostbyname (hostname);
       fprintf (FP, "# host:    %s\n",
 	       hostentry ? hostentry->h_name : hostname);
     }
+#else
+  fprintf (FP, "# host:    Unknown\n",
+#endif
 }
 
 /* ---------------------------------------------------------------------------
