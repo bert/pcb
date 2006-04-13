@@ -56,7 +56,6 @@ logf (float x)
 long
 random (void)
 {
-  /* FIXME */
-  return 12345;
+  return (long) rand();
 }
 #endif
