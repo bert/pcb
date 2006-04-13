@@ -40,6 +40,7 @@ build_triplet = @build@
 host_triplet = @host@
 bin_PROGRAMS = pcb-bin$(EXEEXT)
 @WIN32_TRUE@am__append_1 = pcb_icon.o
+@WIN32_TRUE@am__append_2 = pcb_icon.o
 subdir = src
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in parse_l.c \
 	parse_y.c parse_y.h res_lex.c res_parse.c res_parse.h
@@ -441,7 +442,7 @@ BUILT_SOURCES = \
 	hid/common/hidlist.h
 
 pcb_bin_LDADD = @HIDLIBS@ $(am__append_1)
-pcb_bin_DEPENDENCIES = @HIDLIBS@
+pcb_bin_DEPENDENCIES = @HIDLIBS@ $(am__append_2)
 
 # for globalconst.h
 INCLUDES = -I$(top_srcdir) -I$(srcdir)/icons

@@ -224,7 +224,8 @@ pcb_icon.o : pcb_icon.ico $(srcdir)/hid/gtk/pcb.rc
 pcb_icon.ico: $(top_srcdir)/win32/pcb_icon.ico
 	cp $(top_srcdir)/win32/pcb_icon.ico $@
 
-pcb_bin_LDADD+=	pcb_icon.o
+pcb_bin_LDADD+=			pcb_icon.o
+pcb_bin_DEPENDENCIES+=	pcb_icon.o
 
 endif
 
