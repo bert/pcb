@@ -205,15 +205,19 @@ CatchSignal (int Signal)
 
   switch (Signal)
     {
+#ifdef SIGHUP
     case SIGHUP:
       s = "SIGHUP";
       break;
+#endif
     case SIGINT:
       s = "SIGINT";
       break;
+#ifdef SIGQUIT
     case SIGQUIT:
       s = "SIGQUIT";
       break;
+#endif
     case SIGABRT:
       s = "SIGABRT";
       break;

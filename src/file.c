@@ -412,7 +412,7 @@ WritePCBInfoHeader (FILE * FP)
 	       hostentry ? hostentry->h_name : hostname);
     }
 #else
-  fprintf (FP, "# host:    Unknown\n",
+  fprintf (FP, "# host:    Unknown\n");
 #endif
 }
 

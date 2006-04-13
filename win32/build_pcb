@@ -57,7 +57,7 @@ export WISH
 
 if test "$do_config" = "yes" ; then
 echo "Configuring for cygwin"
-env CFLAGS="-mms-bitfields -mwindows -mno-cygwin" CPPFLAGS="-mms-bitfields -mwindows -mno-cygwin" ./configure \
+./configure \
 	--prefix=${pcb_inst} \
 	--disable-nls \
 	--with-exporters="bom gerber ps" \

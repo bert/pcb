@@ -1404,7 +1404,7 @@ RestoreStackAndVisibility (void)
 char *
 GetWorkingDirectory (char *path)
 {
-#if defined(SYSV) || defined(linux) || defined(__NetBSD__)
+#ifdef HAVE_GETCWD
   return getcwd (path, MAXPATHLEN);
 #else
   /* seems that some BSD releases lack of a prototype for getwd() */

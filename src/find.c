@@ -73,7 +73,10 @@
 #endif
 #include <math.h>
 #include <setjmp.h>
+
+#ifdef HAVE_SYS_TIMES_H
 #include <sys/times.h>
+#endif
 
 #include "global.h"
 

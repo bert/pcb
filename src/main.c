@@ -88,7 +88,9 @@ InitHandler (void)
   /* calling external program by popen() may cause a PIPE signal,
    * so we ignore it
    */
+#ifdef SIGPIPE
   signal (SIGPIPE, SIG_IGN);
+#endif
 }
 
 
