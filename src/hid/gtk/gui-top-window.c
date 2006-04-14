@@ -3471,11 +3471,6 @@ ghid_interface_set_sensitive (gboolean sensitive)
 static void
 ghid_init_icons (GHidPort * port)
 {
-  GdkPixbuf *icon;
-
-  icon = gdk_pixbuf_new_from_xpm_data ((const gchar **) icon_bits);
-  gtk_window_set_default_icon (icon);
-
   XC_clock_source = gdk_bitmap_create_from_data (gport->top_window->window,
 						 rotateIcon_bits,
 						 rotateIcon_width,
@@ -3584,6 +3579,7 @@ ghid_parse_arguments (int *argc, char ***argv)
 {
   GtkWidget *window;
   gint i;
+  GdkPixbuf *icon;
 
   /* on windows we need to figure out the installation directory */
 #ifdef WIN32
@@ -3649,6 +3645,9 @@ ghid_parse_arguments (int *argc, char ***argv)
   textdomain (PACKAGE);
   bind_textdomain_codeset (PACKAGE, "UTF-8");
 #endif /* ENABLE_NLS */
+
+  icon = gdk_pixbuf_new_from_xpm_data ((const gchar **) icon_bits);
+  gtk_window_set_default_icon (icon);
 
   window = gport->top_window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
   gtk_window_set_title (GTK_WINDOW (window), "PCB");
