@@ -1,3 +1,1242 @@
+2006-04-14 08:35  danmc
+
+	* README.snapshots: update the instructions a bit
+
+2006-04-14 08:33  danmc
+
+	* doc/actions.texi: regen
+
+2006-04-14 08:32  danmc
+
+	* Makefile.am, Makefile.in: fix a distcheck problem
+
+2006-04-13 21:16  djdelorie
+
+	* src/hid/lesstif/main.c: Add --bg-image option to lesstif hid to
+	  load a background image.
+
+2006-04-13 19:47  danmc
+
+	* src/hid/gtk/gui-top-window.c: on win32, figure out the path to
+	  the installed package so we can set the newlib directory.
+
+2006-04-13 19:46  danmc
+
+	* src/hid/gtk/gtkhid-main.c: add missing return value
+
+2006-04-13 19:46  danmc
+
+	* src/compat.c: add a (lame) random() replacement
+
+2006-04-13 19:45  danmc
+
+	* src/: autoplace.c, strflags.c: add compat.h header for missing
+	  system functions
+
+2006-04-13 10:12  danmc
+
+	* Makefile.am, Makefile.in, README.win32: add a win32 README file
+
+2006-04-13 09:54  danmc
+
+	* src/: Makefile.am, Makefile.in: add a dependency on the icon
+	  resource object if this is win32
+
+2006-04-13 09:33  danmc
+
+	* win32/Makefile.in: add missing file
+
+2006-04-13 09:30  danmc
+
+	* win32/pcb_icon.ico: add generated icon file
+
+2006-04-13 09:26  danmc
+
+	* Makefile.am, Makefile.in: add win32 to SUBDIRS
+
+2006-04-13 09:24  danmc
+
+	* win32/: Makefile.am, Xdefaults.tgif: add a tgif Xdefaults file
+	  needed for generating the correct XPM version
+
+2006-04-13 09:22  danmc
+
+	* win32/: pcb_icon_big.obj, pcb_icon_med.obj, pcb_icon_sml.obj:
+	  replace wcalc icons with placeholder pcb icons
+
+2006-04-13 09:15  danmc
+
+	* Makefile.in, configure, configure.ac, README_FILES/Makefile.in,
+	  doc/Makefile.in, example/Makefile.in,
+	  example/libraries/Makefile.in, lib/Makefile.in,
+	  newlib/Makefile.in, newlib/2_pin_thru-hole_packages/Makefile.in,
+	  newlib/analog-devices/Makefile.in, newlib/burr-brown/Makefile.in,
+	  newlib/connectors/Makefile.in, newlib/crystal/Makefile.in,
+	  newlib/cypress/Makefile.in, newlib/electro-optics/Makefile.in,
+	  newlib/generic_SMD_packages/Makefile.in,
+	  newlib/headers/Makefile.in, newlib/msp430/Makefile.in,
+	  newlib/not_vetted_ingo/Makefile.in, newlib/sockets/Makefile.in,
+	  newlib/tests/Makefile.in, newlib/toko/Makefile.in,
+	  src/Makefile.am, src/Makefile.in, src/icons/Makefile.in,
+	  src/script/Makefile.in, tools/Makefile.in, tutorial/Makefile.in:
+	  check for a few tools used to regenerate windows icons
+
+2006-04-13 09:04  danmc
+
+	* src/error.c, src/file.c, src/find.c, src/main.c, src/misc.c,
+	  win32/build_pcb: add a few more checks to let this build under
+	  cygwin/mingw
+
+2006-04-13 09:01  danmc
+
+	* config.h.in, configure, configure.ac: check for getcwd()
+
+2006-04-13 08:59  danmc
+
+	* src/hid/gtk/pcb.rc: add windres file for win32 icons
+
+2006-04-13 08:55  danmc
+
+	* config.h.in, configure, configure.ac: one more header check
+
+2006-04-13 07:47  danmc
+
+	* config.guess, config.sub: add some new configure related files
+
+2006-04-12 23:45  danmc
+
+	* src/: Makefile.am, Makefile.in: add stuff to compile in icons for
+	  win32
+
+2006-04-12 23:33  danmc
+
+	* Makefile.in, config.h.in, configure, configure.ac,
+	  README_FILES/Makefile.in, doc/Makefile.in, example/Makefile.in,
+	  example/libraries/Makefile.in, lib/Makefile.in,
+	  newlib/Makefile.in, newlib/2_pin_thru-hole_packages/Makefile.in,
+	  newlib/analog-devices/Makefile.in, newlib/burr-brown/Makefile.in,
+	  newlib/connectors/Makefile.in, newlib/crystal/Makefile.in,
+	  newlib/cypress/Makefile.in, newlib/electro-optics/Makefile.in,
+	  newlib/generic_SMD_packages/Makefile.in,
+	  newlib/headers/Makefile.in, newlib/msp430/Makefile.in,
+	  newlib/not_vetted_ingo/Makefile.in, newlib/sockets/Makefile.in,
+	  newlib/tests/Makefile.in, newlib/toko/Makefile.in,
+	  src/Makefile.in, src/compat.c, src/compat.h, src/file.c,
+	  src/misc.c, src/print.c, src/hid/gerber/gerber.c,
+	  src/icons/Makefile.in, src/script/Makefile.in, tools/Makefile.in,
+	  tutorial/Makefile.in: Add a couple more configure checks for
+	  functions (gethostname and password related functions) and
+	  headers which may not be present on win32.  This should be enough
+	  to get things to compile under cygwin although there are still
+	  runtime issues.
+
+2006-04-12 18:58  danmc
+
+	* win32/: Makefile.am, Readme.txt, build_pcb, pcb.nsi.in,
+	  pcb_icon_big.obj, pcb_icon_med.obj, pcb_icon_sml.obj: Add some
+	  stuff to help build under win32.  Note:  win32 support is not
+	  finished and PCB does not yet work correctly under win32, but
+	  this is some progress.
+
+2006-04-12 18:55  danmc
+
+	* src/: error.c, error.h, hid.h, hid/common/hidnogui.c,
+	  hid/gtk/gui-log-window.c, hid/gtk/gui.h, hid/lesstif/dialogs.c,
+	  hid/lesstif/main.c: const-ify the log message functions
+
+2006-04-12 18:55  danmc
+
+	* src/hid/gtk/gtkhid-main.c: add the About action
+
+2006-04-12 18:51  danmc
+
+	* src/: action.c, global.h, vendor.c: use AFAIL() when an action
+	  fails due to a syntax error
+
+2006-04-12 09:16  djdelorie
+
+	* src/hid/ps/eps.c: Determine when we need to use the complex erase
+	  logic, and when we can just paint white.  Painting white is a LOT
+	  faster, and avoids rasterization in ps2pdf.
+
+2006-04-12 08:44  danmc
+
+	* doc/version.texi: add thermals to glossary
+
+2006-04-12 08:44  danmc
+
+	* doc/pcb.texi: add thermal to the glossary
+
+2006-04-12 08:44  danmc
+
+	* doc/: Makefile.am, Makefile.in: increase resolution of PDFs of
+	  drawings.  72dpi looked pretty bad on the thermal drawing
+
+2006-04-12 08:23  danmc
+
+	* doc/: Makefile.am, Makefile.in: add thermal drawing
+
+2006-04-12 08:23  danmc
+
+	* doc/thermal.pcb: change name of board
+
+2006-04-12 08:22  danmc
+
+	* doc/thermal.pcb: add a drawing showing what a thermal relief
+	  looks like
+
+2006-04-12 08:21  danmc
+
+	* doc/: database.txt, keepouts.txt, ideas/database.txt,
+	  ideas/keepouts.txt: move these to an ideas subdirectory to
+	  hopefully more clearly indicate that not only are these not
+	  implemented yet but that they are not even certain to ever be
+	  implemented.
+
+2006-04-12 00:24  djdelorie
+
+	* doc/actions.texi, doc/version.texi, src/netlist.c: Document
+	  actions in netlist.c
+
+2006-04-11 23:29  danmc
+
+	* doc/actions.texi, src/action.c: add support for units and
+	  relative coordinates in PasteBuffer(ToLayout)
+
+2006-04-11 23:17  danmc
+
+	* doc/: database.txt, keepouts.txt: add two documents in progress
+	  describing a plan for future work
+
+2006-04-11 19:24  danmc
+
+	* doc/actions.texi, src/action.c, src/global.h: Add a "ToLayout"
+	  option for the PasteBuffer() action.	You can now do things like
+	  PasteBuffer(ToLayout, 10000, 200000) to paste from the current
+	  buffer Also add a DumpLibrary() action.
+
+2006-04-11 18:12  djdelorie
+
+	* doc/actions.texi, doc/extract-docs, src/action.c, src/command.c:
+	  Document actions in command.c.
+
+2006-04-11 17:52  danmc
+
+	* lib/: crystal.list, crystal.m4, generic.list, generic.m4,
+	  resistor_0.25W.list, resistor_array.list,
+	  texas_inst_voltage_reg.m4, transistor.m4: - add a missing
+	  description and move some footprints from the wrong .list file to
+	  the correct .list file to be able to pick up the descriptions and
+	  parameters from the corresponding .m4 file.
+
+	  - all of the m4 libs should at least be correct in the sense that
+	  the pieces are all there and they all run through m4 correctly.
+	  They have not been verified any more for correctness, but this is
+	  progress.
+
+2006-04-11 16:54  djdelorie
+
+	* src/: print.c, report.c: Print correct symbol counts for drills
+	  on fab drawing.
+
+2006-04-11 13:00  danmc
+
+	* Makefile.in, README_FILES/Makefile.in, example/Makefile.in,
+	  example/libraries/Makefile.in, lib/Makefile.in,
+	  newlib/Makefile.in, newlib/2_pin_thru-hole_packages/Makefile.in,
+	  newlib/analog-devices/Makefile.in, newlib/burr-brown/Makefile.in,
+	  newlib/connectors/Makefile.in, newlib/crystal/Makefile.in,
+	  newlib/cypress/Makefile.in, newlib/electro-optics/Makefile.in,
+	  newlib/generic_SMD_packages/Makefile.in,
+	  newlib/headers/Makefile.in, newlib/msp430/Makefile.in,
+	  newlib/not_vetted_ingo/Makefile.in, newlib/sockets/Makefile.in,
+	  newlib/tests/Makefile.in, newlib/toko/Makefile.in,
+	  src/Makefile.in, src/icons/Makefile.in, src/script/Makefile.in,
+	  tools/Makefile.in, tutorial/Makefile.in: regen (after checking
+	  for perl)
+
+2006-04-11 12:59  danmc
+
+	* doc/actions.texi, doc/version.texi, src/action.c, src/select.c,
+	  src/select.h: - for the Select(*ByName) action, allow a 2nd
+	  argument to specify the name and only use the gui dialog box if
+	  the 2nd argument is not specified.
+
+	  - Add *ByName options for the Unselect() action.
+
+2006-04-11 12:58  danmc
+
+	* src/hid/gtk/gtkhid-main.c: garbage collect some printf output
+
+2006-04-11 12:55  danmc
+
+	* src/hid/gtk/gui-top-window.c: Fix bug [ 1462380 ] saving buffer
+	  elemnts to file does nothing.
+
+2006-04-11 12:54  danmc
+
+	* configure, configure.ac, doc/Makefile.am, doc/Makefile.in: When
+	  building docs, look for a perl to use.  This will let the user
+	  set PERL in their environment and have configure pick it up.
+
+2006-04-10 22:01  haceaton
+
+	* src/find.c: turn off debugging by default
+	  ----------------------------------------------------------------------
+
+2006-04-10 21:48  haceaton
+
+	* src/find.c: fixed list overflow with element connection listing
+	  ----------------------------------------------------------------------
+
+2006-04-10 20:19  haceaton
+
+	* src/find.c: added overflow error reporting to the ADD* routines
+	  ----------------------------------------------------------------------
+
+2006-04-10 18:32  haceaton
+
+	* src/find.c: fixed bug using in LookupLOConnectionsToPVList where
+	  the wrong variable was used.
+	  ----------------------------------------------------------------------
+
+2006-04-10 01:18  djdelorie
+
+	* doc/actions.texi, doc/version.texi, src/action.c: Document the
+	  rest of the registered actions in action.c.
+
+2006-04-05 22:34  danmc
+
+	* src/find.c: move some initializations inside a loop so they don't
+	  get missed
+
+2006-04-05 22:33  danmc
+
+	* src/main.c: declare dump_actions() right before using it
+
+2006-04-05 20:58  danmc
+
+	* src/hid/png/png.c: add some missing const-s
+
+2006-04-05 20:54  billw2
+
+	* src/hid/gtk/gui-top-window.c:
+
+	  mode_button_toggled_cb() didn't sync ghidgui->settings_mode with
+	  current mode button state.
+
+2006-04-05 20:19  danmc
+
+	* src/hid/gtk/gui-top-window.c: revert the previous, this part
+	  wasn't quite right.
+
+2006-04-05 19:03  danmc
+
+	* src/: mymem.c, mymem.h: add a MyMalloc to go along with MyCalloc
+
+2006-04-05 17:43  billw2
+
+	* src/hid/gtk/: gui-netlist-window.c, gui.h:
+
+	  Fix netlist window to scroll to net/node when user lookups
+	  connection.
+
+2006-04-05 17:32  danmc
+
+	* src/hid/gtk/: gui-output-events.c, gui-top-window.c: - make the
+	  ESC key return you to the arrow tool if you are in via, thermal,
+	   lock, etc modes.
+
+	  - in line, poly, arc, etc. modes, the first ESC press returns you
+	  to "tool   neutral" and the 2nd ESC press returns you to the
+	  arrow tool.
+
+2006-04-05 17:30  danmc
+
+	* src/hid/: gtk/gui-dialog.c, lesstif/dialogs.c: add pointer to the
+	  geda homepage and wiki as well as the pcb home page in the about
+	  dialog
+
+2006-04-05 00:22  danmc
+
+	* src/hid/gtk/gui-dialog-print.c: fix a bug which prevented the
+	  File->Export menu from working more than once in a pcb session.
+
+2006-04-04 23:21  djdelorie
+
+	* src/: action.c, djopt.c, hid.h, main.c, vendor.c,
+	  hid/common/actions.c, hid/gtk/gtkhid-main.c,
+	  hid/lesstif/dialogs.c, hid/lesstif/main.c: Initial chunk of
+	  inline action docs.
+
+2006-04-04 23:17  djdelorie
+
+	* doc/: Makefile.am, Makefile.in, actions.texi, extract-docs,
+	  pad.gif, pad.png, pcb.texi, version.texi: Fix eps->pdf rule to
+	  set size and resolution right.  Limit pcb->* to visible areas.
+	  Add support for action extraction from sources.
+
+2006-04-04 23:09  danmc
+
+	* src/script/: Makefile.am, Makefile.in, pcb-print: remove the
+	  pcb-print script.  It is obsolete now that the HID version
+	  directly supports command line export/print through the export
+	  HID's.
+
+2006-04-04 23:05  haceaton
+
+	* src/find.c: Expand search box during bloat in case the box
+	  overlap would otherwise prevent checking.  This repairs a really
+	  bad bug introduced when the rtrees were used to speed the find
+	  tracing.
+	  ----------------------------------------------------------------------
+
+2006-04-04 23:03  haceaton
+
+	* src/misc.c: fixed pin/via bounding box to include thermal tails;
+	  bug reported by CL
+	  ----------------------------------------------------------------------
+
+2006-04-04 23:01  danmc
+
+	* src/hid/gtk/gui.h: Be a bit more careful with rouding issues when
+	  converting to pcb units.  Hopefully this will help with the issue
+	  reported on the geda lists about 23.99 mil vias when the user
+	  thought they picked 24 mil ones.
+
+	  Patch posted on geda-user by DJ.
+
+2006-04-04 22:37  danmc
+
+	* config.h.in, configure, configure.ac, src/hid/png/png.c: check to
+	  see which graphic file formats are supported by the installed GD.
+	  If the desired list is not found, abort and tell the user they
+	  can explicitly disable certain file types.  Should deal with
+	  installed versions of gd which do not support GIF output.
+
+2006-04-04 22:36  danmc
+
+	* src/hid/lesstif/styles.c: fix a prototype
+
+2006-03-28 18:25  danmc
+
+	* src/: dolists.h, hid/lesstif/dialogs.c, hid/lesstif/main.c,
+	  hid/lesstif/menu.c, hid/lesstif/styles.c: move variable
+	  declarations to the beginning of blocks to make gcc-2.95 and
+	  probably other non-gcc compilers happy.
+
+2006-03-28 18:25  danmc
+
+	* src/find.c: Check to make sure a pointer is not NULL before
+	  dereferencing it.  This seems to be the place where the segfault
+	  was happening sometimes when saving connection data.	For now,
+	  spit out a warning message because I think there may be some
+	  other underlying bug which causes the NULL pointer in the first
+	  place.
+
+2006-03-27 23:37  danmc
+
+	* src/mymem.h: do not redefine malloc if we are using dmalloc
+
+2006-03-27 23:29  danmc
+
+	* src/: action.c, autoplace.c, autoroute.c, buffer.c, change.c,
+	  command.c, crosshair.c, djopt.c, draw.c, error.c, file.c,
+	  insert.c, intersect.c, line.c, main.c, misc.c, mtspace.c,
+	  netlist.c, output.c, print.c, puller.c, report.c, res_parse.y,
+	  rtree.c, select.c, set.c, strflags.c, vector.c, vendor.c: put
+	  back dmalloc support
+
+2006-03-27 22:42  djdelorie
+
+	* src/: action.c, find.c, main.c, set.c, hid/gtk/gtkhid-main.c,
+	  hid/gtk/gui-misc.c, hid/gtk/gui-output-events.c,
+	  hid/gtk/gui-top-window.c, hid/lesstif/dialogs.c,
+	  hid/lesstif/library.c, hid/lesstif/main.c, hid/lesstif/netlist.c:
+	  hid_actionl must be terminated with NULL, not a plain 0, in case
+	  integers and pointers are different sizes.
+
+2006-03-27 22:00  danmc
+
+	* src/hid/gtk/gui-top-window.c: access djopt_set_auto_only() via
+	  the associated action instead of directly
+
+2006-03-27 21:59  danmc
+
+	* src/: djopt.c, djopt.h: fix prototype for an action.	kills one
+	  more compiler warning
+
+2006-03-27 21:57  danmc
+
+	* src/hid/lesstif/main.c: add a missing typecase
+
+2006-03-27 18:05  danmc
+
+	* src/: action.c, pcb-menu.res, hid/gtk/gui-top-window.c: - When
+	  changing selected line size from the menu, do it to the selected
+	  arcs to.
+
+	  - Add a SelectedArcs option to the ChangeSize action.
+
+2006-03-27 17:52  danmc
+
+	* src/select.c: Fix a bug where actions using SelectedPads did
+	  nothing and SelectedPins picked up both pins and pads.  Noted by
+	  bug #1438523
+
+2006-03-27 17:16  danmc
+
+	* src/strflags.c: avoid allocating 0 bytes
+
+2006-03-27 17:16  danmc
+
+	* src/misc.c: fix a typo in a comment
+
+2006-03-27 17:15  danmc
+
+	* src/main.c: No need to use strdup(Concat()) as Concat already
+	  gives us allocated memory that is not referenced anywhere else.
+
+2006-03-27 17:13  danmc
+
+	* src/file.c: Fix an off by one overflow of a malloc'ed buffer.
+	  Found with ElectricFence.
+
+2006-03-27 08:28  danmc
+
+	* src/misc.c: in a function which is supposed to return a string
+	  but is commented out with #ifdef FIXME, return a big warning
+	  string rather than no return value until I/we figure out how to
+	  fix it.  Hopefully if this triggers bugs it will be easier to
+	  locate.
+
+2006-03-27 07:28  danmc
+
+	* configure, configure.ac: add back in the --enable-efence and
+	  --enable-dmalloc configure flags to turn on ElectricFence and
+	  dmalloc debugging respectively.
+
+2006-03-26 23:16  djdelorie
+
+	* src/: action.c, command.c, djopt.c, hid.h, netlist.c, puller.c,
+	  report.c, vendor.c, hid/common/actions.c, hid/gtk/gtkhid-main.c,
+	  hid/gtk/gui-netlist-window.c, hid/gtk/gui-top-window.c,
+	  hid/lesstif/dialogs.c, hid/lesstif/library.c, hid/lesstif/main.c,
+	  hid/lesstif/menu.c, hid/lesstif/netlist.c, hid/lesstif/styles.c:
+	  hid actions: remove needs_coords, use need_coord_msg to determine
+	  when to get coords.
+
+2006-03-26 22:18  danmc
+
+	* src/hid/gtk/: gui-top-window.c, gui-utils.c: Make sure we
+	  initialize some variables before using them.	Fixes a segfault on
+	  startup problem noted on NetBSD/alpha when displaying to an 8-bit
+	  Xvnc.
+
+2006-03-26 21:24  billw2
+
+	* src/hid/gtk/gtkhid-main.c:
+
+	  I wrapped too much into the verbose option so the file load
+	  stopped working - fixed.
+
+2006-03-26 12:39  danmc
+
+	* configure, configure.ac: bump the rev letter to help identify
+	  this as the HID version if someone pulls up the "about" dialog
+	  box.
+
+2006-03-26 09:45  danmc
+
+	* src/hid/gtk/gtkhid-main.c: - Remove a debug printf which tried to
+	  print a NULL string.	Avoids a segfault bug.	- When chosing
+	  "Save Layout" on a new layout (that hadn't already been given a
+	  name or filename), correctly use the new file name that is
+	  selected with the dialog box.
+
+2006-03-26 01:45  danmc
+
+	* src/hid/lesstif/dialogs.c: - remove a debug printf which was
+	  trying to print a NULL string.  Fixes   a segfault bug on
+	  solaris-2.9/sparc.  - Fix the behaviour when doing "Save Layout"
+	  on a new board that	didn't have a file name yet.
+
+2006-03-26 01:07  danmc
+
+	* src/hid/lesstif/main.c: add a --listen option for the lesstif HID
+	  too (works the same as the gtk one -- listens on stdin for
+	  actions).
+
+2006-03-25 20:35  billw2
+
+	* src/hid/gtk/: gui-netlist-window.c, gui-output-events.c:
+
+	  Pan to a netlist window selected node if it's not visible.
+
+	  Fix a pan bug.
+
+2006-03-25 18:04  danmc
+
+	* src/hid/gtk/gui-netlist-window.c: add cast to avoid compiler
+	  warnings
+
+2006-03-25 17:32  djdelorie
+
+	* src/: action.c, pcb-menu.res, hid/gtk/gui-top-window.c: Add
+	  File->Revert.
+
+2006-03-25 16:51  billw2
+
+	* src/hid/gtk/: gtkhid-main.c, gui-netlist-window.c:
+
+	  Turn of Disable all nets button when NetlistChanged.
+
+	  Make some diagnostic output only if verbose.
+
+2006-03-25 16:38  billw2
+
+	* src/hid/gtk/gui-netlist-window.c:
+
+	  Set netlist nodes enabled by default when NetlistChanged.
+
+2006-03-25 15:59  billw2
+
+	* src/hid/gtk/gtkhid-main.c:
+
+	  Fix draw arc when flipped.
+
+2006-03-25 15:22  danmc
+
+	* doc/: actions.texi, fractional_size.texi, letter_size.texi,
+	  metric_size.texi, overview.texi, pad.gif, pad.png, pcbfile.texi,
+	  wire_size.texi: add some of the generated files to see if that
+	  will help with those who don't read the README.cvs file...
+
+2006-03-25 10:45  danmc
+
+	* src/hid/gtk/gui-top-window.c: use fileno(stdin) instead of 1 to
+	  get the stdin file descriptor.
+
+2006-03-25 10:13  danmc
+
+	* src/drill.c: fix a segfault when printing a board with no drill
+	  holes at all.
+
+2006-03-24 23:53  danmc
+
+	* src/hid/gtk/gui-top-window.c: add a --listen option which causes
+	  pcb to listen on the standard input for actions.  This should
+	  open the door to experimenting with having gschem interact
+	  directly with pcb.
+
+2006-03-24 23:48  danmc
+
+	* src/hid/gtk/gui-config.c: Fix a bug in options parsing where the
+	  loop looking for matches continued after a match had already been
+	  found.
+
+2006-03-24 22:17  danmc
+
+	* src/main.c: add a help string for --lib-newlib
+
+2006-03-24 19:54  danmc
+
+	* doc/: Makefile.am, Makefile.in: minor cleanup of status output
+
+2006-03-24 17:47  djdelorie
+
+	* src/hid/lesstif/menu.c: Also look for ~/.pcb/pcb-menu.res.
+	  Actually use the path we found ;-)
+
+2006-03-24 17:42  danmc
+
+	* configure, configure.ac: List the available HID's in the
+	  ./configure --help output.  Ideally, we'd have the help text be
+	  automatic, but until we figure out how, just statically list the
+	  HID (in the help text)
+
+2006-03-24 17:38  danmc
+
+	* Makefile.in, config.h.in, configure, README_FILES/Makefile.in,
+	  doc/Makefile.in, example/Makefile.in,
+	  example/libraries/Makefile.in, lib/Makefile.in,
+	  newlib/Makefile.in, newlib/2_pin_thru-hole_packages/Makefile.in,
+	  newlib/analog-devices/Makefile.in, newlib/burr-brown/Makefile.in,
+	  newlib/connectors/Makefile.in, newlib/crystal/Makefile.in,
+	  newlib/cypress/Makefile.in, newlib/electro-optics/Makefile.in,
+	  newlib/generic_SMD_packages/Makefile.in,
+	  newlib/headers/Makefile.in, newlib/msp430/Makefile.in,
+	  newlib/not_vetted_ingo/Makefile.in, newlib/sockets/Makefile.in,
+	  newlib/tests/Makefile.in, newlib/toko/Makefile.in,
+	  src/Makefile.in, src/icons/Makefile.in, src/script/Makefile.in,
+	  tools/Makefile.in, tutorial/Makefile.in: regen
+
+2006-03-24 17:27  danmc
+
+	* Makefile.am, README.cvs, configure.ac, doc/Makefile.am: - when
+	  not in maintainer mode, do not list all the dependencies for the
+	   manual.  This allows regular users who are building from a
+	  tarball to   avoid having to rebuild the manual and lets them
+	  simply take the preformatted	 one.  This avoids recently noted
+	  issues with incompatibility with older   versions of texinfo
+	  which seem somewhat common.  It also removes the   requirement
+	  for having latex installed and for building the png HID for
+	  pcb.
+
+	  - add a --disable-doc flag which allows users who are building
+	  from CVS to	skip the doc directory and thus avoid the need for
+	  the documentation   formatting tools.
+
+2006-03-24 17:21  danmc
+
+	* README.snapshots: note the DISTCHECK_CONFIGURE_FLAGS variable
+
+2006-03-24 16:21  billw2
+
+	* src/hid/gtk/gui-top-window.c:
+
+	  Fix gtk magenta color messages -> initialize all new hidGC
+	  colornames to Settings.BackgroundColor because bgGC color outside
+	  of ghid_expose_callback() is never initialized and it's used to
+	  draw outside of the callback when an object is selected.
+
+2006-03-23 21:24  danmc
+
+	* doc/: Makefile.am, Makefile.in: Fix the calculation of the names
+	  of the generated .texi tables for the drill sizes.
+
+2006-03-23 21:05  danmc
+
+	* Makefile.in, aclocal.m4, README_FILES/Makefile.in,
+	  doc/Makefile.in, doc/pad.eps, doc/pad.png, example/Makefile.in,
+	  example/libraries/Makefile.in, lib/Makefile.in,
+	  newlib/Makefile.in, newlib/2_pin_thru-hole_packages/Makefile.in,
+	  newlib/analog-devices/Makefile.in, newlib/burr-brown/Makefile.in,
+	  newlib/connectors/Makefile.in, newlib/crystal/Makefile.in,
+	  newlib/cypress/Makefile.in, newlib/electro-optics/Makefile.in,
+	  newlib/generic_SMD_packages/Makefile.in,
+	  newlib/headers/Makefile.in, newlib/msp430/Makefile.in,
+	  newlib/not_vetted_ingo/Makefile.in, newlib/sockets/Makefile.in,
+	  newlib/tests/Makefile.in, newlib/toko/Makefile.in,
+	  src/icons/Makefile.in, src/script/Makefile.in, tools/Makefile.in,
+	  tutorial/Makefile.in: regen after configure.ac changes
+
+2006-03-23 19:32  danmc
+
+	* autogen.sh: don't automatically run ./configure.  Simplifies
+	  things a bit when trying to have several different builds share
+	  the same source tree.
+
+2006-03-23 19:30  danmc
+
+	* doc/extract-docs: put the generated files in the build directory
+	  instead of the source directory (in case they are not the same)
+
+2006-03-23 19:28  danmc
+
+	* doc/: Makefile.am, Makefile.in: Rework the dependencies on the
+	  various generated files a bit to hopefully correctly include all
+	  dependencies.  Also allow this to continue and just use the
+	  shipped preformatted docs in the case where latex and friends are
+	  not available.
+
+2006-03-23 19:27  danmc
+
+	* src/pcbtest.sh.in: correctly find the font file correctly find
+	  the m4lib stuff when building outside the source tree.
+
+2006-03-23 19:25  danmc
+
+	* configure, configure.ac, lib/ListLibraryContents.sh,
+	  lib/ListLibraryContents.sh.in: move ListLibraryContents.sh to
+	  being something created at configure time like the rest of the
+	  m4lib stuff.	This puts it in the build directory and allows you
+	  to run pcb out of the build directory prior to installation even
+	  in the case of a read only source tree.  While here add some
+	  AM_CONDITIONALS to indicate when latex and friends are not
+	  available for formating the reference card.
+
+2006-03-23 19:21  danmc
+
+	* src/: Makefile.am, Makefile.in: add missing lesstif header to get
+	  it in the distfile
+
+2006-03-23 12:32  danmc
+
+	* src/hid/png/png.c: fix a bug when specifying the output file name
+
+2006-03-23 07:23  danmc
+
+	* src/pcbtest.sh.in: also set the font path
+
+2006-03-23 01:04  danmc
+
+	* src/pcbtest.sh.in: fix a couple of paths when building outside
+	  the source directory
+
+2006-03-23 00:53  danmc
+
+	* src/hid/lesstif/: main.c, menu.c: avoid some compiler warnings on
+	  solaris-2.9/sparc (gcc-3.3.5)
+
+2006-03-23 00:46  danmc
+
+	* src/hid/lesstif/main.c: check the result of the --install options
+	  _after_ the options have been processed.  Thanks to DJ for
+	  finding this one.
+
+2006-03-23 00:17  djdelorie
+
+	* src/: Makefile.am, Makefile.in: Change the way we handle built
+	  include files.
+
+2006-03-23 00:15  danmc
+
+	* src/strflags.c: avoid some compiler warnings on solaris-2.9/sparc
+	  (gcc-3.3.5)
+
+2006-03-23 00:11  billw2
+
+	* src/hid/gtk/: gui-config.c, gui-top-window.c:
+
+	  ghid_invalidate_all() when colors change.
+
+2006-03-22 23:59  danmc
+
+	* src/misc.c: avoid some compiler warnings on solaris-2.9/sparc
+	  (gcc-3.3.5)
+
+2006-03-22 23:56  danmc
+
+	* src/: mymem.c, hid/common/actions.c: avoid some compiler warnings
+	  on solaris-2.9/sparc (gcc-3.3.5)
+
+2006-03-22 23:55  billw2
+
+	* src/hid/gtk/: gtkhid-main.c, gui-output-events.c:
+
+	  Fix a zoom glitch.
+
+2006-03-22 23:54  danmc
+
+	* src/file.c: avoid some complier warnings on solaris-2.9/sparc
+	  (gcc-3.3.5)
+
+2006-03-22 23:28  djdelorie
+
+	* src/: drill.c, drill.h, print.c, hid/gerber/gerber.c: Round drill
+	  sizes to nearest mil for fab drawings and gerber drill file.
+
+2006-03-22 23:27  djdelorie
+
+	* src/mtspace.c: Avoid aliasing problems.
+
+2006-03-22 23:21  danmc
+
+	* src/pcbtest.sh.in: add some missing arguments when running in gdb
+
+2006-03-22 23:21  danmc
+
+	* src/main.c: don't include the full path for the default value of
+	  the LibraryCommand and LibraryContentsCommand.  That prevented
+	  --lib-command-dir from working.
+
+2006-03-22 22:00  djdelorie
+
+	* src/undo.c: Use void * pointers to avoid aliasing problems.
+
+2006-03-22 21:57  djdelorie
+
+	* src/search.c: Use explicit void** pointers to avoid aliasing
+	  problems.
+
+2006-03-22 21:51  djdelorie
+
+	* src/hid/: gerber/gerber.c, lesstif/dialogs.c, lesstif/lesstif.h,
+	  lesstif/main.c, lesstif/menu.c, lesstif/netlist.c,
+	  lesstif/styles.c: Misc bugfixes and changes, to silence compiler
+	  warnings.
+
+2006-03-22 21:47  djdelorie
+
+	* src/: mymem.c, mymem.h: MyCalloc, MyRealloc, MyStrdup: make final
+	  parameter (tag string) const, to avoid compiler warnings.
+
+2006-03-22 21:19  danmc
+
+	* src/action.c: fix the ChangeFlag action (compiler warning pointed
+	  to the bug)
+
+2006-03-22 20:46  danmc
+
+	* src/: Makefile.am, Makefile.in: quote the regexp passed to grep
+	  to keep solaris-2.9 happy
+
+2006-03-22 19:32  djdelorie
+
+	* src/hid/lesstif/main.c: Don't try to run the idle proc until the
+	  GUI is created.
+
+2006-03-22 19:23  danmc
+
+	* src/: action.c, command.c, djopt.c, dolists.h, flags.c, hid.h,
+	  main.c, netlist.c, puller.c, report.c, vendor.c,
+	  hid/gtk/gtkhid-main.c, hid/gtk/gui-netlist-window.c,
+	  hid/gtk/gui-top-window.c, hid/lesstif/dialogs.c,
+	  hid/lesstif/library.c, hid/lesstif/main.c, hid/lesstif/netlist.c,
+	  hid/lesstif/styles.c, hid/png/png.c, hid/ps/eps.c, hid/ps/ps.c:
+	  Revert the ";" thing.  The REGISTER_* macros now contain ";"
+	  where needed and a ";" should not be used when the macros are
+	  called.   This is because the REGISTER_* macros in hid.h expand
+	  to a function like int foo(){/* code here */} where no ";" should
+	  be used at the end.  gcc ignores the resulting empty declaration
+	  but the sunpro c compiler doesn't like it.
+
+2006-03-22 18:14  danmc
+
+	* src/: hid/lesstif/dialogs.c, hid/lesstif/lesstif.h,
+	  hid/lesstif/library.c, hid/lesstif/main.c, hid/lesstif/menu.c,
+	  hid/lesstif/netlist.c, hid/lesstif/styles.c, hid/lpr/lpr.c,
+	  hid/png/png.c, hid/png/png.h, hid/ps/eps.c, hid/ps/ps.c,
+	  hid/ps/ps.h, hid/hidint.h, action.c, action.h, actionlist.c,
+	  autoplace.c, autoplace.h, autoroute.c, autoroute.h, box.h,
+	  buffer.c, buffer.h, change.c, change.h, clip.c, clip.h,
+	  command.c, command.h, compat.c, compat.h, const.h, copy.c,
+	  copy.h, create.c, create.h, crosshair.c, crosshair.h, data.c,
+	  data.h, dev_ps.c, dev_ps.h, dev_rs274x.c, dev_rs274x.h, djopt.c,
+	  djopt.h, dolists.h, draw.c, draw.h, drill.c, drill.h, error.c,
+	  error.h, file.c, file.h, find.c, find.h, flags.c, global.h,
+	  heap.c, heap.h, hid.h, insert.c, insert.h, intersect.c,
+	  intersect.h, line.c, macro.h, main.c, mirror.c, mirror.h, misc.c,
+	  misc.h, move.c, move.h, mtspace.c, mtspace.h, mymem.c, mymem.h,
+	  netlist.c, output.c, output.h, parse_l.h, polygon.c, polygon.h,
+	  print.c, print.h, puller.c, rats.c, rats.h, remove.h, report.c,
+	  resource.h, rotate.c, rotate.h, rtree.c, rtree.h, rubberband.c,
+	  rubberband.h, search.c, search.h, select.c, select.h, set.c,
+	  set.h, strflags.c, strflags.h, undo.c, undo.h, vector.c,
+	  vector.h, vendor.c, vendor.h, icons/Makefile.in,
+	  script/Makefile.in: indent
+
+2006-03-22 18:05  danmc
+
+	* src/hid/gtk/: gtkhid-main.c, gtkhid.h, gui-command-window.c,
+	  gui-config.c, gui-dialog-print.c, gui-dialog-size.c,
+	  gui-dialog.c, gui-keyref-window.c, gui-library-window.c,
+	  gui-log-window.c, gui-misc.c, gui-netlist-window.c,
+	  gui-output-events.c, gui-pinout-window.c, gui-top-window.c,
+	  gui-utils.c, gui.h: indent
+
+2006-03-22 18:02  danmc
+
+	* src/hid/: bom/bom.c, common/actions.c, common/extents.c,
+	  common/flags.c, common/hidinit.c, common/hidnogui.c,
+	  gerber/gerber.c: indent
+
+2006-03-22 17:49  danmc
+
+	* src/: action.c, command.c, djopt.c, dolists.h, flags.c, hid.h,
+	  main.c, netlist.c, puller.c, report.c, vendor.c,
+	  hid/gtk/gtkhid-main.c, hid/gtk/gui-netlist-window.c,
+	  hid/gtk/gui-top-window.c, hid/lesstif/dialogs.c,
+	  hid/lesstif/library.c, hid/lesstif/main.c, hid/lesstif/menu.c,
+	  hid/lesstif/netlist.c, hid/lesstif/styles.c, hid/png/png.c,
+	  hid/ps/eps.c, hid/ps/ps.c: Take the ";" out of the REGISTER_*
+	  defines and put them in the invocations.  This will let indent
+	  work correctly.
+
+2006-03-22 12:18  danmc
+
+	* src/: action.c, command.c, crosshair.c, draw.c, main.c, misc.c,
+	  polygon.c, polygon.h, puller.c, rats.c: fix several more compiler
+	  warnings by removing some unused variables and adding/removing
+	  return values where appropriate.
+
+2006-03-22 12:10  danmc
+
+	* src/hid/: gtk/gui-icons-mode-buttons.data, gtk/gui-top-window.c,
+	  ps/eps.c: remove more compiler warnings
+
+2006-03-22 12:10  danmc
+
+	* src/hid/lpr/lpr.c: add missing member to the lpr_hid
+	  initialization
+
+2006-03-22 08:47  danmc
+
+	* src/file.c: remove unused variable
+
+2006-03-22 08:44  danmc
+
+	* src/misc.c: add missing header
+
+2006-03-22 08:33  danmc
+
+	* src/hid/common/flags.c: remove an unused variable
+
+2006-03-22 08:31  danmc
+
+	* src/hid/common/hidnogui.c: remove compiler warning
+
+2006-03-22 08:28  danmc
+
+	* src/vendor.c: remove unused variable
+
+2006-03-22 08:27  danmc
+
+	* src/report.c: format string fix
+
+2006-03-22 08:13  danmc
+
+	* src/puller.c: add a couple of missing headers
+
+2006-03-22 08:08  danmc
+
+	* src/print.c: add missing draw.h header
+
+2006-03-22 08:07  danmc
+
+	* src/flags.c: add RCSID and dmalloc.h
+
+2006-03-22 08:04  danmc
+
+	* src/flags.c: remove a spurious ";"
+
+2006-03-22 07:40  danmc
+
+	* src/hid/gerber/gerber.c: remove unused variable
+
+2006-03-22 06:57  danmc
+
+	* src/hid/gtk/gui-misc.c: remove a duplicate header and Id
+
+2006-03-22 06:51  danmc
+
+	* src/hid/lesstif/lesstif.h: add RCS Id
+
+2006-03-22 06:50  danmc
+
+	* src/hid/lesstif/: dialogs.c, library.c, main.c, menu.c,
+	  netlist.c, styles.c: add config.h, dmalloc.h, and RCS Id
+
+2006-03-22 06:48  danmc
+
+	* src/hid/gtk/gui-misc.c: add dmalloc.h
+
+2006-03-22 06:45  danmc
+
+	* src/hid/hidint.h: add RCS Id
+
+2006-03-22 06:43  danmc
+
+	* src/hid/: common/actions.c, common/extents.c, common/flags.c,
+	  common/hidinit.c, common/hidnogui.c, gerber/gerber.c, lpr/lpr.c:
+	  add config.h, dmalloc.h, and RCS Id
+
+2006-03-22 06:39  danmc
+
+	* src/hid/ps/: eps.c, ps.c, ps.h: remove compiler warning and add
+	  config.h, dmalloc.h, and RCS Id
+
+2006-03-22 06:33  danmc
+
+	* src/hid/png/png.c: remove a compiler warning
+
+2006-03-22 06:31  danmc
+
+	* src/hid/bom/bom.c: add missing header
+
+2006-03-21 22:49  danmc
+
+	* src/: Makefile.am, Makefile.in: add the generated headers to
+	  DISTCLEANFILES and add a bunch of missing headers to the various
+	  *_SOURCES.  With this change, the 'distcheck' target works again.
+
+2006-03-21 22:47  danmc
+
+	* configure: regen
+
+2006-03-21 22:47  danmc
+
+	* configure.ac: add $srcdir in a couple of places for configuring
+	  outside of the source directory.
+
+2006-03-21 22:34  danmc
+
+	* src/dolists.h: add missing RCS Id
+
+2006-03-21 19:19  danmc
+
+	* configure.ac, configure, doc/Makefile.am, doc/Makefile.in,
+	  doc/pad.eps, doc/pad.obj, doc/pad.png: Replace the tgif drawing
+	  with a pcb drawing.  The suffix rules are now in place to use
+	  .pcb files as part of the manual.
+
+2006-03-21 18:47  djdelorie
+
+	* src/hid/lpr/lpr.c: Call lpr, don't just save the file.
+
+2006-03-21 18:46  djdelorie
+
+	* src/hid/lesstif/library.c: Remove a debug printf.
+
+2006-03-21 18:45  djdelorie
+
+	* src/: action.c, file.c, main.c, misc.h, set.c, set.h: Remove
+	  UpdateSettingsOnScreen.  Call InitCrosshair only for GUIs.
+
+2006-03-21 18:31  danmc
+
+	* doc/pad.pcb: correctly identify the poly clearance
+
+2006-03-21 18:29  danmc
+
+	* configure, doc/Makefile.in: regen
+
+2006-03-21 18:26  danmc
+
+	* configure.ac, doc/Makefile.am: detect when tgif is not found and
+	  give a warning instead of crashing the build
+
+2006-03-21 17:43  danmc
+
+	* doc/: pad.eps, pad.png: include the tgif output here until I
+	  replace the drawings with pcb drawings
+
+2006-03-21 17:41  danmc
+
+	* doc/pad.pcb: improve this drawing a bit
+
+2006-03-21 17:40  danmc
+
+	* src/hid/bom/bom.c: Use log() instead of logv().  Fixes
+	  compilation on NetBSD/alpha, gcc-3.3.3
+
+2006-03-21 16:27  djdelorie
+
+	* compile: New file, from automake 1.9.
+
+2006-03-21 16:25  djdelorie
+
+	* depcomp, install-sh, missing, mkinstalldirs, ylwrap,
+	  doc/mdate-sh, doc/texinfo.tex: Update to automake 1.9 files.
+
+2006-03-21 12:59  djdelorie
+
+	* Makefile.in, aclocal.m4, config.h.in, configure,
+	  README_FILES/Makefile.in, doc/Makefile.in, example/Makefile.in,
+	  example/libraries/Makefile.in, lib/Makefile.in,
+	  newlib/Makefile.in, newlib/2_pin_thru-hole_packages/Makefile.in,
+	  newlib/analog-devices/Makefile.in, newlib/burr-brown/Makefile.in,
+	  newlib/connectors/Makefile.in, newlib/crystal/Makefile.in,
+	  newlib/cypress/Makefile.in, newlib/electro-optics/Makefile.in,
+	  newlib/generic_SMD_packages/Makefile.in,
+	  newlib/headers/Makefile.in, newlib/msp430/Makefile.in,
+	  newlib/not_vetted_ingo/Makefile.in, newlib/sockets/Makefile.in,
+	  newlib/tests/Makefile.in, newlib/toko/Makefile.in,
+	  src/Makefile.in, src/icons/Makefile.in, src/script/Makefile.in,
+	  tools/Makefile.in, tutorial/Makefile.in: regenerate everything
+	  with FC4.
+
+2006-03-21 12:34  djdelorie
+
+	* config.h.in, configure, configure.ac, src/Makefile.am,
+	  src/Makefile.in, src/Pcb.ad.in, src/action.c, src/action.h,
+	  src/autoplace.c, src/autoroute.c, src/buffer.c, src/change.c,
+	  src/command.c, src/command.h, src/const.h, src/control.c,
+	  src/control.h, src/copy.c, src/create.c, src/create.h,
+	  src/crosshair.c, src/data.c, src/data.h, src/dialog.c,
+	  src/dialog.h, src/djopt.c, src/djopt.h, src/dolists.h,
+	  src/draw.c, src/draw.h, src/error.c, src/file.c,
+	  src/fileselect.c, src/fileselect.h, src/find.c, src/find.h,
+	  src/flags.c, src/global.h, src/gui-command-window.c,
+	  src/gui-config.c, src/gui-dialog-print.c, src/gui-dialog-size.c,
+	  src/gui-dialog.c, src/gui-icons-misc.data,
+	  src/gui-icons-mode-buttons.data, src/gui-keyref-window.c,
+	  src/gui-library-window.c, src/gui-log-window.c, src/gui-misc.c,
+	  src/gui-netlist-window.c, src/gui-output-events.c,
+	  src/gui-pinout-window.c, src/gui-top-window.c, src/gui-utils.c,
+	  src/gui.c, src/gui.h, src/heap.c, src/hid.h, src/insert.c,
+	  src/intersect.c, src/lgdialog.c, src/lgdialog.h, src/library.c,
+	  src/library.h, src/line.c, src/log.c, src/log.h, src/macro.h,
+	  src/main.c, src/menu.c, src/menu.h, src/misc.c, src/misc.h,
+	  src/move.c, src/mtspace.c, src/mymem.c, src/mymem.h,
+	  src/netlist.c, src/netlist.h, src/output.c, src/output.h,
+	  src/parse_l.l, src/parse_y.y, src/pcb-menu.res,
+	  src/pcbtest.sh.in, src/pinout.c, src/pinout.h, src/polygon.c,
+	  src/print.c, src/print.h, src/printdialog.c, src/printdialog.h,
+	  src/printpanner.c, src/printpanner.h, src/puller.c, src/rats.c,
+	  src/report.c, src/report.h, src/res_lex.l, src/res_parse.y,
+	  src/resmenu.c, src/resmenu.h, src/rotate.c, src/rtree.c,
+	  src/search.c, src/select.c, src/selector.c, src/selector.h,
+	  src/set.c, src/set.h, src/sizedialog.c, src/sizedialog.h,
+	  src/strflags.c, src/todo, src/undo.c, src/undo.h, src/vector.c,
+	  src/vendor.c, src/vendor.h, src/hid/hidint.h, src/hid/bom/bom.c,
+	  src/hid/bom/hid.conf, src/hid/common/actions.c,
+	  src/hid/common/extents.c, src/hid/common/flags.c,
+	  src/hid/common/hidinit.c, src/hid/common/hidnogui.c,
+	  src/hid/gerber/gerber.c, src/hid/gerber/hid.conf,
+	  src/hid/gtk/gtkhid-main.c, src/hid/gtk/gtkhid.h,
+	  src/hid/gtk/gui-command-window.c, src/hid/gtk/gui-config.c,
+	  src/hid/gtk/gui-dialog-print.c, src/hid/gtk/gui-dialog-size.c,
+	  src/hid/gtk/gui-dialog.c, src/hid/gtk/gui-icons-misc.data,
+	  src/hid/gtk/gui-icons-mode-buttons.data,
+	  src/hid/gtk/gui-keyref-window.c,
+	  src/hid/gtk/gui-library-window.c, src/hid/gtk/gui-log-window.c,
+	  src/hid/gtk/gui-misc.c, src/hid/gtk/gui-netlist-window.c,
+	  src/hid/gtk/gui-output-events.c, src/hid/gtk/gui-pinout-window.c,
+	  src/hid/gtk/gui-top-window.c, src/hid/gtk/gui-utils.c,
+	  src/hid/gtk/gui.h, src/hid/gtk/hid.conf,
+	  src/hid/lesstif/dialogs.c, src/hid/lesstif/hid.conf,
+	  src/hid/lesstif/lesstif.h, src/hid/lesstif/library.c,
+	  src/hid/lesstif/main.c, src/hid/lesstif/menu.c,
+	  src/hid/lesstif/netlist.c, src/hid/lesstif/styles.c,
+	  src/hid/lpr/hid.conf, src/hid/lpr/lpr.c, src/hid/png/hid.conf,
+	  src/hid/png/png.c, src/hid/png/png.h, src/hid/ps/eps.c,
+	  src/hid/ps/hid.conf, src/hid/ps/ps.c, src/hid/ps/ps.h: HID merge.
+
+2006-03-21 09:05  danmc
+
+	* README.cvs_branches: note what some of the branches are
+
+2006-03-21 08:59  danmc
+
+	* README.snapshots: add a few more notes about the snapshot process
+
+2006-03-21 01:33  danmc
+
+	* configure, doc/version.texi: regen for 20060321
+
+2006-03-21 01:25  danmc
+
+	* configure.ac: set version for 20060321 snapshot
+
+2006-03-21 01:17  danmc
+
+	* aclocal.m4, README_FILES/Makefile.in, example/Makefile.in,
+	  example/libraries/Makefile.in, newlib/Makefile.in,
+	  newlib/2_pin_thru-hole_packages/Makefile.in,
+	  newlib/analog-devices/Makefile.in, newlib/burr-brown/Makefile.in,
+	  newlib/connectors/Makefile.in, newlib/crystal/Makefile.in,
+	  newlib/cypress/Makefile.in, newlib/electro-optics/Makefile.in,
+	  newlib/generic_SMD_packages/Makefile.in,
+	  newlib/headers/Makefile.in, newlib/msp430/Makefile.in,
+	  newlib/not_vetted_ingo/Makefile.in, newlib/sockets/Makefile.in,
+	  newlib/tests/Makefile.in, newlib/toko/Makefile.in,
+	  src/icons/Makefile.in, src/script/Makefile.in, tools/Makefile.in:
+	  regen
+
+2006-03-21 01:16  danmc
+
+	* NEWS: add news for the 20060321 snapshot
+
+2006-03-21 01:16  danmc
+
+	* AUTHORS: update authors a bit
+
+2006-03-21 00:59  danmc
+
+	* ChangeLog: update with changes for 20060321 snapshot.
+
 2006-03-21 00:58  danmc
 
 	* Makefile.in, tutorial/Makefile.in: regen
