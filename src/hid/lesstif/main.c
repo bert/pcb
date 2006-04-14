@@ -160,6 +160,8 @@ static int n;
 
 static int use_private_colormap = 0;
 static int stdin_listen = 0;
+static char *background_image_file = 0;
+
 HID_Attribute lesstif_attribute_list[] = {
   {"install", "Install private colormap",
    HID_Boolean, 0, 0, {0, 0, 0}, 0, &use_private_colormap},
@@ -168,6 +170,10 @@ HID_Attribute lesstif_attribute_list[] = {
   {"listen", "Listen on standard input for actions",
    HID_Boolean, 0, 0, {0, 0, 0}, 0, &stdin_listen},
 #define HA_listen 1
+
+  {"bg-image", "Background Image",
+   HID_String, 0, 0, {0, 0, 0}, 0, &background_image_file},
+#define HA_bg_image 1
 
 };
 
@@ -585,6 +591,194 @@ HID_Action lesstif_main_action_list[] = {
 
 REGISTER_ACTIONS (lesstif_main_action_list)
 
+
+/* ---------------------------------------------------------------------- 
+ * redraws the background image
+ */
+
+static int bg_w, bg_h, bgi_w, bgi_h;
+static Pixel **bg = 0;
+static XImage *bgi = 0;
+static enum {
+  PT_unknown,
+  PT_RGB565,
+  PT_RGB888
+} pixel_type = PT_unknown;
+
+static void
+LoadBackgroundFile (FILE *f, char *filename)
+{
+  XVisualInfo vinfot, *vinfo;
+  Visual *vis;
+  int c, r, b;
+  int i, nret;
+  int p[3], rows, cols, maxval;
+
+  if (fgetc(f) != 'P')
+    {
+      printf("bgimage: %s signature not P6\n", filename);
+      return;
+    }
+  if (fgetc(f) != '6')
+    {
+      printf("bgimage: %s signature not P6\n", filename);
+      return;
+    }
+  for (i=0; i<3; i++)
+    {
+      do {
+	b = fgetc(f);
+	if (feof(f))
+	  return;
+	if (b == '#')
+	  while (!feof(f) && b != '\n')
+	    b = fgetc(f);
+      } while (!isdigit(b));
+      p[i] = b - '0';
+      while (isdigit(b = fgetc(f)))
+	p[i] = p[i]*10 + b - '0';
+    }
+  bg_w = cols = p[0];
+  bg_h = rows = p[1];
+  maxval = p[2];
+
+  setbuf(stdout, 0);
+  bg = (Pixel **) malloc (rows * sizeof (Pixel *));
+  if (!bg)
+    {
+      printf("Out of memory loading %s\n", filename);
+      return;
+    }
+  for (i=0; i<rows; i++)
+    {
+      bg[i] = (Pixel *) malloc (cols * sizeof (Pixel));
+      if (!bg[i])
+	{
+	  printf("Out of memory loading %s\n", filename);
+	  while (--i >= 0)
+	    free (bg[i]);
+	  free (bg);
+	  bg = 0;
+	  return;
+	}
+    }
+
+  vis = DefaultVisual (display, DefaultScreen(display));
+
+  vinfot.visualid = XVisualIDFromVisual(vis);
+  vinfo = XGetVisualInfo (display, VisualIDMask, &vinfot, &nret);
+
+#if 0
+  /* If you want to support more visuals below, you'll probably need
+     this. */
+  printf("vinfo: rm %04x gm %04x bm %04x depth %d class %d\n",
+	 vinfo->red_mask, vinfo->green_mask, vinfo->blue_mask,
+	 vinfo->depth, vinfo->class);
+#endif
+
+  if (vinfo->class == TrueColor
+      && vinfo->depth == 16
+      && vinfo->red_mask == 0xf800
+      && vinfo->green_mask == 0x07e0
+      && vinfo->blue_mask == 0x001f)
+    pixel_type = PT_RGB565;
+
+  if (vinfo->class == TrueColor
+      && vinfo->depth == 24
+      && vinfo->red_mask == 0xff0000
+      && vinfo->green_mask == 0x00ff00
+      && vinfo->blue_mask == 0x0000ff)
+    pixel_type = PT_RGB888;
+
+  for (r=0; r<rows; r++)
+    {
+      for (c=0; c<cols; c++)
+	{
+	  XColor pix;
+	  unsigned int pr = (unsigned)fgetc(f);
+	  unsigned int pg = (unsigned)fgetc(f);
+	  unsigned int pb = (unsigned)fgetc(f);
+
+	  switch (pixel_type)
+	    {
+	    case PT_unknown:
+	      pix.red = pr * 65535 / maxval;
+	      pix.green = pg * 65535 / maxval;
+	      pix.blue = pb * 65535 / maxval;
+	      pix.flags = DoRed | DoGreen | DoBlue;
+	      XAllocColor (display, colormap, &pix);
+	      bg[r][c] = pix.pixel;
+	      break;
+	    case PT_RGB565:
+	      bg[r][c] = (pr>>3)<<11 | (pg>>2)<<5 | (pb>>3);
+	      break;
+	    case PT_RGB888:
+	      bg[r][c] = (pr << 16) | (pg << 8) | (pb);
+	      break;
+	    }
+	}
+    }
+}
+
+void
+LoadBackgroundImage (char *filename)
+{
+  FILE *f = fopen(filename, "rb");
+  if (!f)
+    {
+      if (NSTRCMP (filename, "pcb-background.ppm"))
+	perror(filename);
+      return;
+    }
+  LoadBackgroundFile (f, filename);
+  fclose(f);
+}
+
+static void
+DrawBackgroundImage ()
+{
+  int x, y, w, h;
+  double xscale, yscale;
+  int pcbwidth = PCB->MaxWidth / view_zoom;
+  int pcbheight = PCB->MaxHeight / view_zoom;
+
+  if (!window || !bg)
+    return;
+
+  if (!bgi || view_width != bgi_w || view_height != bgi_h)
+    {
+      if (bgi)
+	XDestroyImage (bgi);
+      /* Cheat - get the image, which sets up the format too.  */
+      bgi = XGetImage (XtDisplay(work_area),
+		       window,
+		       0, 0, view_width, view_height,
+		       -1, ZPixmap);
+      bgi_w = view_width;
+      bgi_h = view_height;
+    }
+
+  w = MIN (view_width, pcbwidth);
+  h = MIN (view_height, pcbheight);
+
+  xscale = (double)bg_w / PCB->MaxWidth;
+  yscale = (double)bg_h / PCB->MaxHeight;
+
+  for (y=0; y<h; y++)
+    {
+      int pr = Py(y);
+      int ir = pr * yscale;
+      for (x=0; x<w; x++)
+	{
+	  int pc = Px(x);
+	  int ic = pc * xscale;
+	  XPutPixel (bgi, x, y, bg[ir][ic]);
+	}
+    }
+  XPutImage(display, main_pixmap, bg_gc,
+	    bgi,
+	    0, 0, 0, 0, w, h);
+}
 /* ---------------------------------------------------------------------- */
 
 static HID_Attribute *
@@ -1172,6 +1366,9 @@ lesstif_do_export (HID_Attr_Val * options)
   stdarg (XmNmessageWindow, messages);
   XtSetValues (mainwind, args, n);
 
+  if (background_image_file)
+    LoadBackgroundImage (background_image_file);
+
   XtRealizeWidget (appwidget);
 
   while (!window)
@@ -1683,6 +1880,7 @@ idle_proc ()
 	}
       XSetForeground (display, bg_gc, bgcolor);
       XFillRectangle (display, main_pixmap, bg_gc, 0, 0, mx, my);
+      DrawBackgroundImage();
       hid_expose_callback (&lesstif_gui, &region, 0);
       draw_grid ();
       lesstif_use_mask (0);
