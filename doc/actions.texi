@@ -86,6 +86,17 @@ This just pops up a dialog telling the user which version of
 
 @cartouche
 @format
+About()@end format
+@end cartouche
+
+Tell the user about this version of PCB.
+
+This just pops up a dialog telling the user which version of
+@code{pcb} they're running.
+
+
+@cartouche
+@format
 AddRats(AllRats|SelectedRats|Close)@end format
 @end cartouche
 
@@ -224,7 +235,8 @@ ChangeFlag(Object|Selected|SelectedObjects, flag, value)
 ChangeFlag(SelectedLines|SelectedPins|SelectedVias, flag, value)
 ChangeFlag(SelectedPads|SelectedTexts|SelectedNames, flag, value)
 ChangeFlag(SelectedElements, flag, value)
-flag = square | octagon | thermal | join@end format
+flag = square | octagon | thermal | join
+value = 0 | 1@end format
 @end cartouche
 
 Sets or clears flags on objects.
@@ -779,7 +791,8 @@ Loads the specified vendor resource file.
 
 @table @var
 @item filename
-Name of the vendor resource file
+Name of the vendor resource file.  If not specified, the user will
+be prompted to enter one.
 @end table
 
 
@@ -1491,6 +1504,17 @@ This is for the lesstif zoom.
 
 
 @section gtk actions
+@cartouche
+@format
+About()@end format
+@end cartouche
+
+Tell the user about this version of PCB.
+
+This just pops up a dialog telling the user which version of
+@code{pcb} they're running.
+
+
 @cartouche
 @format
 Zoom(gtk)@end format
