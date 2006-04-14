@@ -1,4 +1,35 @@
 ========================================================================
+Release Notes for PCB snapshot 20060414
+========================================================================
+- This is the first snapshot of the new HID version of PCB.  HID, which
+  stands for Human Interface Device is the abstraction created by
+  DJ Delorie which seperates the core PCB code from the graphical user
+  interface.  In this release, two GUI HID's are supported, gtk and lesstif.
+  In addition, there are HID exporters for postscript and encapsulated
+  postscript, RS-274-X (gerber), bill of materials, centroid file, and
+  png/gif/jpeg.  This represents a major restructuring of the code and
+  many months of work.
+
+- PCB's actions (the commands which drive the core of the program and
+  may be directly accessed by the user) now have the documentation in-line
+  in the code and the actions reference section of the manual is 
+  extracted from the in-line documentation.  The goal it to provide more
+  complete and accurate documentation.  As always the manual is still
+  a work in progress but it is getting more complete and up to date.
+
+- Fixed a long standing segfault when saving connection data
+
+- Fixed a DRC bug
+
+- Fix some rounding issues when setting sizes.  Hopefully this will address
+  the issue with 23.99 mil drills and related problems.
+
+- The html manual is now in one file instead of many files
+
+- The lesstif HID now supports loading of background images to help
+  recover a layout which may exist in hardcopy form only.
+
+========================================================================
 Release Notes for PCB snapshot 20060321
 ========================================================================
 - Add internal support for more than 8 layers.  By default PCB is still
