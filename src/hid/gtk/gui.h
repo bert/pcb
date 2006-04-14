@@ -134,6 +134,8 @@ typedef struct
   GtkWidget *h_range, *v_range;
   GtkObject *h_adjustment, *v_adjustment;
 
+  GdkPixbuf *bg_pixbuf;
+
   gchar *name_label_string;
 
   gboolean adjustment_changed_holdoff,

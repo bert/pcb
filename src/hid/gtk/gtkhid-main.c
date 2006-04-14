@@ -161,6 +161,44 @@ ghid_invalidate_lr (int left, int right, int top, int bottom, int last)
   ghid_invalidate_all ();
 }
 
+static void
+ghid_draw_bg_image(void)
+{
+	static GdkPixbuf	*pixbuf;
+	GdkInterpType	interp_type;
+	gint	x, y, w, h, w_src, h_src;
+	static gint	w_scaled, h_scaled;
+
+	if (!ghidgui->bg_pixbuf)
+		return;
+
+	w = PCB->MaxWidth / gport->zoom;
+	h = PCB->MaxHeight / gport->zoom;
+	x = gport->view_x0 / gport->zoom;
+	y = gport->view_y0 / gport->zoom;
+
+	if (w_scaled != w || h_scaled != h)
+		{
+		if (pixbuf)
+			g_object_unref(G_OBJECT(pixbuf));
+
+		w_src = gdk_pixbuf_get_width(ghidgui->bg_pixbuf);
+		h_src = gdk_pixbuf_get_height(ghidgui->bg_pixbuf);
+		if (w > w_src && h > h_src)
+			interp_type = GDK_INTERP_NEAREST;
+		else
+			interp_type = GDK_INTERP_BILINEAR;
+
+		pixbuf = gdk_pixbuf_scale_simple(ghidgui->bg_pixbuf, w, h, interp_type);
+		w_scaled = w;
+		h_scaled = h;
+		}
+	if (pixbuf)
+		gdk_pixbuf_render_to_drawable(pixbuf, gport->drawable, gport->bg_gc,
+            x, y, 0, 0,
+            w - x, h - y, GDK_RGB_DITHER_NORMAL, 0, 0);
+	}
+
 void
 ghid_invalidate_all ()
 {
@@ -216,6 +254,8 @@ ghid_invalidate_all ()
 
   gdk_draw_rectangle (gport->drawable, gport->bg_gc, 1,
 		      eleft, etop, eright - eleft + 1, ebottom - etop + 1);
+
+  ghid_draw_bg_image();
 
   hid_expose_callback (&ghid_hid, &region, 0);
   draw_grid ();

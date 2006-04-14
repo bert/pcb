@@ -95,6 +95,8 @@ GHidPort ghid_port, *gport;
 
 static GdkColor WhitePixel, BlackPixel;
 
+static gchar		*bg_image_file;
+
 #define	N_GRID_SETTINGS		11
 
 #define	MM_TO_PCB(mm)	((mm) * 100000 / 25.4)
@@ -3496,15 +3498,22 @@ ghid_init_icons (GHidPort * port)
 				 lockMask_width, lockMask_height);
 }
 
-
 void
 ghid_create_pcb_widgets (void)
 {
   GHidPort *port = &ghid_port;
+  GError	*err = NULL;
 
   gdk_color_parse ("white", &WhitePixel);
   gdk_color_parse ("black", &BlackPixel);
 
+  if (bg_image_file)
+    ghidgui->bg_pixbuf = gdk_pixbuf_new_from_file(bg_image_file, &err);
+  if (err)
+    {
+    g_error(err->message);
+    g_error_free(err);
+    }
   ghid_build_pcb_top_window ();
   ghid_init_toggle_states ();
   ghid_init_icons (port);
@@ -3567,6 +3576,11 @@ HID_Attribute ghid_attribute_list[] = {
   {"listen", "Listen for actions on stdin",
    HID_Boolean, 0, 0, {0, 0, 0}, 0, &stdin_listen},
 #define HA_listen 0
+
+  {"bg-image", "Bacground Image",
+   HID_String, 0, 0, {0, 0, 0}, 0, &bg_image_file},
+#define HA_bg_image 1
+
 };
 
 REGISTER_ATTRIBUTES (ghid_attribute_list)
