@@ -100,6 +100,19 @@ ReportDrills (int argc, char **argv, int x, int y)
   return 0;
 }
 
+
+static const char reportdialog_syntax[] =
+"ReportDialog()";
+
+static const char reportdialog_help[] =
+"Report on the object under the crosshair";
+
+/* %start-doc actions ReportDialog
+
+This is a shortcut for @code{Report(Object)}.
+
+%end-doc */
+
 static int
 ReportDialog (int argc, char **argv, int x, int y)
 {
@@ -508,13 +521,40 @@ ReportFoundPins (int argc, char **argv, int x, int y)
 
 /* ---------------------------------------------------------------------------
  * reports on an object 
- * syntax: Report(Object|DrillReport|FoundPins)
+ * syntax: 
  */
+
+static const char report_syntax[] =
+"Report(Object|DrillReport|FoundPins)";
+
+static const char report_help[] =
+"Produce various report.";
+
+/* %start-doc actions Report
+
+@table @code
+
+@item Object
+The object under the crosshair will be reported, describing various
+aspects of the object.
+
+@item DrillReport
+A report summarizing the number of drill sizes used, and how many of
+each, will be produced.
+
+@item FoundPins
+A report listing all pins and pads which are marked as ``found'' will
+be produced.
+
+@end table
+
+%end-doc */
+
 static int
 Report (int argc, char **argv, int x, int y)
 {
   if (argc != 1)
-    Message ("Usage: Report(Object|DrillReport|FoundPins)\n");
+    AUSAGE (report);
   else if (strcasecmp (argv[0], "Object") == 0)
     {
       gui->get_coords ("Click on an object", &x, &y);
@@ -525,13 +565,15 @@ Report (int argc, char **argv, int x, int y)
   else if (strcasecmp (argv[0], "FoundPins") == 0)
     return ReportFoundPins (argc - 1, argv + 1, x, y);
   else
-    Message ("Usage: Report(Object|DrillReport|FoundPins)\n");
+    AFAIL (report);
   return 1;
 }
 
 HID_Action report_action_list[] = {
-  {"ReportObject", "Click on an object", ReportDialog},
-  {"Report", 0, Report}
+  {"ReportObject", "Click on an object", ReportDialog,
+   reportdialog_help, reportdialog_syntax},
+  {"Report", 0, Report,
+   report_help, report_syntax}
 };
 
 REGISTER_ACTIONS (report_action_list)

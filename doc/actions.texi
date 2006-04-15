@@ -1135,6 +1135,40 @@ Removes any selected objects.
 
 @cartouche
 @format
+Report(Object|DrillReport|FoundPins)@end format
+@end cartouche
+
+Produce various report.
+
+@table @code
+
+@item Object
+The object under the crosshair will be reported, describing various
+aspects of the object.
+
+@item DrillReport
+A report summarizing the number of drill sizes used, and how many of
+each, will be produced.
+
+@item FoundPins
+A report listing all pins and pads which are marked as ``found'' will
+be produced.
+
+@end table
+
+
+@cartouche
+@format
+ReportDialog()@end format
+@end cartouche
+
+Report on the object under the crosshair
+
+This is a shortcut for @code{Report(Object)}.
+
+
+@cartouche
+@format
 RipUp(All|Selected|Element)@end format
 @end cartouche
 
