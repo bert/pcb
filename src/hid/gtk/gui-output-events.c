@@ -200,7 +200,7 @@ ghid_get_coords (const char *msg, int *x, int *y)
 {
   if (!ghid_port.has_entered)
     ghid_get_user_xy (msg);
-  *x = gport->view_x;
+  *x = SIDE_X(gport->view_x);
   *y = gport->view_y;
 }
 
