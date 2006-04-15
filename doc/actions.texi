@@ -1052,6 +1052,26 @@ will call Polygon(PreviousPoint) when appropriate to do so.
 
 @cartouche
 @format
+Puller()@end format
+@end cartouche
+
+Pull an arc-line junction tight.
+
+The @code{Puller()} action is a special-purpose optimization.  When
+invoked while the crosshair is over the junction of an arc and a line,
+it will adjust the arc's angle and the connecting line's enpoint such
+that the line intersects the arc at a tangent.  In the example below,
+the left side is ``before'' with the black target marking where to put
+the crosshair:
+
+@center @image{puller,,,Example of how puller works,png}
+
+The right side is ``after'' with the black target marking where the
+arc-line intersection was moved to.
+
+
+@cartouche
+@format
 q@end format
 @end cartouche
 

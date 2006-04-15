@@ -93,6 +93,7 @@ tab_texi=	${tab_files:.tab=.texi}
 # PCB Drawings
 pcb_files=	\
 	pad.pcb \
+	puller.pcb \
 	thermal.pcb
 
 pcb_output=	\
