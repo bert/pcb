@@ -122,7 +122,7 @@ HID_Attribute png_attribute_list[] = {
 #define HA_pngfile 0
 
   {"dpi", "Scale factor (pixels/inch). 0 to scale to fix specified size",
-   HID_Integer, 0, 1000, {0, 0, 0}, 0, 0},
+   HID_Integer, 0, 1000, {100, 0, 0}, 0, 0},
 #define HA_dpi 1
 
   {"x-max", "Maximum width (pixels).  0 to not constrain.",
@@ -134,7 +134,7 @@ HID_Attribute png_attribute_list[] = {
 #define HA_ymax 3
 
   {"xy-max", "Maximum width and height (pixels).  0 to not constrain.",
-   HID_Integer, 0, 10000, {800, 0, 0}, 0, 0},
+   HID_Integer, 0, 10000, {0, 0, 0}, 0, 0},
 #define HA_xymax 4
 
   {"as-shown", "Export layers as shown on screen",
@@ -350,44 +350,58 @@ png_do_export (HID_Attr_Val * options)
 	  return;
 	}
     }
-  else
+
+  if (options[HA_xmax].int_value > 0)
     {
-      if (options[HA_xmax].int_value > 0)
-	xmax = options[HA_xmax].int_value;
-      if (options[HA_xymax].int_value > 0)
-	{
-	  if (options[HA_xymax].int_value < xmax || xmax == 0)
-	    xmax = options[HA_xymax].int_value;
-	}
-
-      if (options[HA_ymax].int_value > 0)
-	ymax = options[HA_ymax].int_value;
-      if (options[HA_xymax].int_value > 0)
-	{
-	  if (options[HA_xymax].int_value < ymax || ymax == 0)
-	    ymax = options[HA_xymax].int_value;
-	}
-
-      if (xmax <= 0 || ymax <= 0)
-	{
-	  fprintf (stderr, "ERROR:  xmax and ymax may not be <= 0\n");
-	  return;
-	}
+      xmax = options[HA_xmax].int_value;
+      dpi = 0;
     }
 
+  if (options[HA_ymax].int_value > 0)
+    {
+      ymax = options[HA_ymax].int_value;
+      dpi = 0;
+    }
+
+  if (options[HA_xymax].int_value > 0)
+    {
+      dpi = 0;
+      if (options[HA_xymax].int_value < xmax || xmax == 0)
+	xmax = options[HA_xymax].int_value;
+      if (options[HA_xymax].int_value < ymax || ymax == 0)
+	ymax = options[HA_xymax].int_value;
+    }
+
+  if (xmax < 0 || ymax < 0)
+    {
+      fprintf (stderr, "ERROR:  xmax and ymax may not be < 0\n");
+      return;
+    }
+    
   if (dpi > 0)
     {
       /*
        * a scale of 1 means 1 pixel is 1/100 mil 
        * a scale of 100,000 means 1 pixel is 1 inch
+       * FIXME -- need to use a macro to go from PCB units
+       * so if we ever change pcb's internal units, this 
+       * will get updated.
        */
       scale = 100000 / dpi;
       w = w / scale;
       h = h / scale;
     }
+  else if( xmax == 0 && ymax == 0)
+    {
+      fprintf(stderr, "ERROR:  You may not set both xmax, ymax,"
+	      "and xy-max to zero\n");
+      return;
+    }
   else
     {
-      if ((w / xmax) > (h / ymax))
+      if (ymax == 0 
+	  || ( (xmax > 0) 
+	       && ((w / xmax) > (h / ymax)) ) )
 	{
 	  h = (h * xmax) / w;
 	  scale = w / xmax;
