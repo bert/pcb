@@ -301,14 +301,15 @@ ghid_command_use_command_window_sync (void)
      |  ActionCommand() to show the command window.
    */
 void
-ghid_command_window_show (void)
+ghid_command_window_show (gboolean raise)
 {
   GtkWidget *vbox, *vbox1, *hbox, *button, *expander, *text;
   gint i;
 
   if (command_window)
     {
-      gdk_window_raise (command_window->window);
+      if (raise)
+        gtk_window_present (GTK_WINDOW(command_window));
       return;
     }
   command_window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
@@ -452,13 +453,13 @@ ghid_command_entry_get (gchar * prompt, gchar * command)
 
 
 void
-ghid_handle_user_command (void)
+ghid_handle_user_command (gboolean raise)
 {
   char *command;
   static char *previous = NULL;
 
   if (ghidgui->use_command_window)
-    ghid_command_window_show ();
+    ghid_command_window_show (raise);
   else
     {
       HideCrosshair (True);

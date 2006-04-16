@@ -451,7 +451,7 @@ node_get_node_from_name (gchar * node_name, LibraryMenuType ** node_net)
      |  models constructed to do the search.
    */
   if (!netlist_window)
-    ghid_netlist_window_show (gport);
+    ghid_netlist_window_show (gport, FALSE);
 
   while (gtk_events_pending ())	/* Make sure everything gets built */
     gtk_main_iteration ();
@@ -506,8 +506,9 @@ netlist_destroy_cb (GtkWidget * widget, GHidPort * out)
   netlist_window = NULL;
 }
 
+
 void
-ghid_netlist_window_show (GHidPort * out)
+ghid_netlist_window_show (GHidPort * out, gboolean raise)
 {
   GtkWidget *vbox, *hbox, *button, *label, *sep;
   GtkTreeView *treeview;
@@ -522,9 +523,8 @@ ghid_netlist_window_show (GHidPort * out)
 
   if (netlist_window)
     {
-      /* gtk_window_present() grabs focus which we don't want
-       */
-      gdk_window_raise (netlist_window->window);
+      if (raise)
+        gtk_window_present(GTK_WINDOW(netlist_window));
       ghid_netlist_window_update (TRUE);
       return;
     }
@@ -667,7 +667,7 @@ ghid_get_net_from_node_name (gchar * node_name, gboolean enabled_only)
      |  caller wants.
    */
   if (!netlist_window)
-    ghid_netlist_window_show (gport);
+    ghid_netlist_window_show (gport, FALSE);
 
   while (gtk_events_pending ())	/* Make sure everything gets built */
     gtk_main_iteration ();
@@ -775,7 +775,7 @@ ghid_netlist_window_update (gboolean init_nodes)
 
   if (!netlist_window)
     {
-      ghid_netlist_window_show (gport);
+      ghid_netlist_window_show (gport, FALSE);
       return;
     }
   model = net_model;
@@ -810,7 +810,7 @@ NetlistChanged (int argc, char **argv, int x, int y)
 static gint
 NetlistShow (int argc, char **argv, int x, int y)
 {
-  ghid_netlist_window_show (gport);
+  ghid_netlist_window_show (gport, FALSE);
   if (argc > 0)
     ghid_netlist_highlight_node(argv[0]);
   return 0;

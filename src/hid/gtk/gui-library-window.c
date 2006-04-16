@@ -248,7 +248,7 @@ library_destroy_cb (GtkWidget * widget, GHidPort * out)
 }
 
 void
-ghid_library_window_show (GHidPort * out)
+ghid_library_window_show (GHidPort * out, gboolean raise)
 {
   GtkWidget *vbox, *hbox, *button;
   GtkTreeView *treeview;
@@ -258,8 +258,8 @@ ghid_library_window_show (GHidPort * out)
 
   if (library_window)
     {
-      /* gtk_window_present() grabs focus which we don't want */
-      gdk_window_raise (library_window->window);
+      if (raise)
+        gtk_window_present(GTK_WINDOW(library_window));
       return;
     }
   library_window = gtk_window_new (GTK_WINDOW_TOPLEVEL);

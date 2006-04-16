@@ -1105,31 +1105,31 @@ about_dialog_cb (GtkAction * action, GHidPort * port)
 static void
 keyref_window_cb (GtkAction * action, GHidPort * port)
 {
-  ghid_keyref_window_show ();
+  ghid_keyref_window_show (TRUE);
 }
 
 static void
 library_window_cb (GtkAction * action, GHidPort * port)
 {
-  ghid_library_window_show (port);
+  ghid_library_window_show (port, TRUE);
 }
 
 static void
 message_window_cb (GtkAction * action, GHidPort * port)
 {
-  ghid_log_window_show ();
+  ghid_log_window_show (TRUE);
 }
 
 static void
 netlist_window_cb (GtkAction * action, GHidPort * port)
 {
-  ghid_netlist_window_show (gport);
+  ghid_netlist_window_show (gport, TRUE);
 }
 
 static void
 command_entry_cb (GtkAction * action, GHidPort * port)
 {
-  ghid_handle_user_command ();
+  ghid_handle_user_command (TRUE);
 }
 
 

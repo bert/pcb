@@ -732,7 +732,7 @@ ghid_fill_polygon (hidGC gc, int n_coords, int *x, int *y)
 void
 ghid_fill_rect (hidGC gc, int x1, int y1, int x2, int y2)
 {
-  gint w, h, lw;
+  gint w, h, lw, xx;
 
   lw = gc->width;
   w = gport->width * gport->zoom;
@@ -750,7 +750,12 @@ ghid_fill_rect (hidGC gc, int x1, int y1, int x2, int y2)
   y1 = DRAW_Y (y1);
   x2 = DRAW_X (x2);
   y2 = DRAW_Y (y2);
-
+  if (x2 < x1)
+    {
+    xx = x1;
+    x1 = x2;
+    x2 = xx;
+		}
   USE_GC (gc);
   gdk_draw_rectangle (gport->drawable, gport->u_gc, TRUE,
 		      x1, y1, x2 - x1 + 1, y2 - y1 + 1);
@@ -1052,13 +1057,6 @@ PCBChanged (int argc, char **argv, int x, int y)
 }
 
 static int
-NetlistChanged (int argc, char **argv, int x, int y)
-{
-  ghid_netlist_window_show (&ghid_port);
-  return 0;
-}
-
-static int
 LayerGroupsChanged (int argc, char **argv, int x, int y)
 {
   printf ("LayerGroupsChanged -- not implemented\n");
@@ -1068,14 +1066,14 @@ LayerGroupsChanged (int argc, char **argv, int x, int y)
 static int
 LibraryChanged (int argc, char **argv, int x, int y)
 {
-  ghid_library_window_show (&ghid_port);
+  ghid_library_window_show (&ghid_port, FALSE);
   return 0;
 }
 
 static int
 Command (int argc, char **argv, int x, int y)
 {
-  ghid_handle_user_command ();
+  ghid_handle_user_command (FALSE);
   return 0;
 }
 
@@ -1100,19 +1098,6 @@ Load (int argc, char **argv, int x, int y)
       name = ghid_dialog_file_select_open (_("Load netlist file"),
 					   &current_netlist_dir,
 					   Settings.FilePath);
-#ifdef FIXME
-      if (name)
-	{
-	  if (PCB->Netlistname)
-	    SaveFree (PCB->Netlistname);
-	  PCB->Netlistname = StripWhiteSpaceAndDup (name);
-	  FreeLibraryMemory (&PCB->NetlistLib);
-	  if (!ReadNetlist (PCB->Netlistname))
-	    ghid_netlist_window_show (&Output);
-
-	  g_free (name);
-	}
-#endif
     }
   else if (strcasecmp (function, "ElementToBuffer") == 0)
     {
@@ -1131,13 +1116,6 @@ Load (int argc, char **argv, int x, int y)
       name = ghid_dialog_file_select_open (_("Load layout file"),
 					   &current_layout_dir,
 					   Settings.FilePath);
-#ifdef FIXME
-      if (name)
-	if (!PCB->Changed ||
-	    ghid_dialog_confirm (_("OK to override layout data?")))
-	  LoadPCB (name);
-      g_free (name);
-#endif
     }
 
   if (name)
@@ -1384,7 +1362,6 @@ HID_Action ghid_main_action_list[] = {
   {"LoadVendor", 0, LoadVendor},
   {"PCBChanged", 0, PCBChanged},
   {"RouteStylesChanged", 0, RouteStylesChanged},
-  {"NetlistChanged", 0, NetlistChanged},
   {"LayerGroupsChanged", 0, LayerGroupsChanged},
   {"LibraryChanged", 0, LibraryChanged},
   {"Print", 0, Print},
