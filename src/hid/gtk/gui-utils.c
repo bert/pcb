@@ -510,7 +510,7 @@ ghid_scrolled_vbox (GtkWidget * box, GtkWidget ** scr,
   gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrolled),
 				  h_policy, v_policy);
   gtk_box_pack_start (GTK_BOX (box), scrolled, TRUE, TRUE, 0);
-  vbox = gtk_vbox_new (FALSE, 2);
+  vbox = gtk_vbox_new (FALSE, 0);
   gtk_scrolled_window_add_with_viewport (GTK_SCROLLED_WINDOW (scrolled),
 					 vbox);
   if (scr)

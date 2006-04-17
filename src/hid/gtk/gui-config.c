@@ -116,6 +116,7 @@ static gchar *config_dir, *color_dir;
 
 static ConfigAttribute config_attributes[] = {
   {"gui-compact-horizontal", CONFIG_Boolean, &_ghidgui.compact_horizontal},
+  {"gui-compact-vertical", CONFIG_Boolean, &_ghidgui.compact_vertical},
   {"gui-title-window", CONFIG_Boolean, &_ghidgui.ghid_title_window},
   {"use-command-window", CONFIG_Boolean, &_ghidgui.use_command_window},
   {"save-in-tmp", CONFIG_Unused, NULL},
@@ -123,6 +124,8 @@ static ConfigAttribute config_attributes[] = {
 
   {"history-size", CONFIG_Integer, &_ghidgui.history_size},
   {"auto-pan-speed", CONFIG_Integer, &_ghidgui.auto_pan_speed},
+  {"top-window-width", CONFIG_Integer, &_ghidgui.top_window_width},
+  {"top-window-height", CONFIG_Integer, &_ghidgui.top_window_height},
   {"log-window-width", CONFIG_Integer, &_ghidgui.log_window_width},
   {"log-window-height", CONFIG_Integer, &_ghidgui.log_window_height},
   {"library-window-height", CONFIG_Integer, &_ghidgui.library_window_height},
@@ -801,26 +804,36 @@ config_command_window_toggle_cb (GtkToggleButton * button, gpointer data)
 
 
 static void
-config_compact_toggle_cb (GtkToggleButton * button, gpointer data)
+config_compact_horizontal_toggle_cb (GtkToggleButton * button, gpointer data)
 {
   gboolean active = gtk_toggle_button_get_active (button);
 
   ghidgui->compact_horizontal = active;
   if (active)
     {
-      gtk_container_remove (GTK_CONTAINER (ghidgui->top_hbox),
+      gtk_container_remove (GTK_CONTAINER (ghidgui->compact_hbox),
 			    ghidgui->position_hbox);
       gtk_box_pack_end (GTK_BOX (ghidgui->compact_vbox),
-			ghidgui->position_hbox, FALSE, FALSE, 0);
+			ghidgui->position_hbox, TRUE, FALSE, 0);
     }
   else
     {
       gtk_container_remove (GTK_CONTAINER (ghidgui->compact_vbox),
 			    ghidgui->position_hbox);
-      gtk_box_pack_end (GTK_BOX (ghidgui->top_hbox), ghidgui->position_hbox,
-			FALSE, FALSE, 0);
+      gtk_box_pack_end(GTK_BOX(ghidgui->compact_hbox), ghidgui->position_hbox,
+			FALSE, FALSE, 4);
     }
   ghid_set_status_line_label ();
+  ghidgui->config_modified = TRUE;
+}
+
+static void
+config_compact_vertical_toggle_cb (GtkToggleButton * button, gpointer data)
+{
+  gboolean active = gtk_toggle_button_get_active (button);
+
+  ghidgui->compact_vertical = active;
+  ghid_pack_mode_buttons();
   ghidgui->config_modified = TRUE;
 }
 
@@ -881,9 +894,13 @@ config_general_tab_create (GtkWidget * tab_vbox)
 
   ghid_check_button_connected (vbox, NULL, ghidgui->compact_horizontal,
 			       TRUE, FALSE, FALSE, 2,
-			       config_compact_toggle_cb, NULL,
-			       _
-			       ("Compact horizontal top window for narrow screens"));
+			       config_compact_horizontal_toggle_cb, NULL,
+			       _("Alternate window layout to allow smaller horizontal size"));
+
+  ghid_check_button_connected (vbox, NULL, ghidgui->compact_vertical,
+			       TRUE, FALSE, FALSE, 2,
+			       config_compact_vertical_toggle_cb, NULL,
+			       _("Alternate window layout to allow smaller vertical size"));
 
   ghid_check_button_connected (vbox, NULL, ghidgui->ghid_title_window,
 			       TRUE, FALSE, FALSE, 2,
@@ -894,8 +911,7 @@ config_general_tab_create (GtkWidget * tab_vbox)
   ghid_check_button_connected (vbox, NULL, Settings.SaveInTMP,
 			       TRUE, FALSE, FALSE, 2,
 			       config_general_toggle_cb, &Settings.SaveInTMP,
-			       _
-			       ("If layout is modified at exit, save into /tmp/PCB.%i.save"));
+			       _("If layout is modified at exit, save into /tmp/PCB.%i.save"));
   ghid_spin_button (vbox, NULL, Settings.BackupInterval, 0.0, 60 * 60, 60.0,
 		    600.0, 0, 0, config_backup_spin_button_cb, NULL, FALSE,
 		    _("Seconds between auto backups to /tmp/PCB.%i.save\n"
