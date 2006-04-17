@@ -38,6 +38,7 @@
 #include <string.h>
 #endif
 #include <ctype.h>
+#include <sys/types.h>
 #ifdef HAVE_REGEX_H
 #include <regex.h>
 #endif
