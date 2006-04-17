@@ -578,7 +578,8 @@ Benchmark (int argc, char **argv, int x, int y)
 }
 
 HID_Action lesstif_main_action_list[] = {
-  {"PCBChanged", 0, PCBChanged},
+  {"PCBChanged", 0, PCBChanged,
+   pcbchanged_help, pcbchanged_syntax},
   {"SetUnits", 0, SetUnits},
   {"Zoom", 0, ZoomAction,
    zoom_help, zoom_syntax},

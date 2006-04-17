@@ -1,3 +1,5 @@
+@c key actions
+@c ./../src/action.c 202
 
 Many actions take a @code{delta} parameter as the last parameter,
 which is an amount to change something.  That @code{delta} may include
@@ -16,7 +18,7 @@ Action(Object,-1)
 Actions which take a @code{delta} parameter which do not accept all
 these options will specify what they do take.
 
-
+@c ./../src/action.c 206
 
 @macro pinshapes
 
@@ -33,6 +35,7 @@ either round or, if the octagon flag is set, octagonal.
 
 @end macro
 
+@c ./../src/command.c 64
 
 @macro colonaction
 
@@ -43,7 +46,7 @@ is documented for that purpose.
 
 @end macro
 
-
+@c ./../src/action.c 204
 
 Many actions act on indicated objects on the board.  They will have
 parameters like @code{ToggleObject} or @code{SelectedVias} to indicate
@@ -73,34 +76,100 @@ Affects all objects which are both selected and of the @var{Type} specified.
 @end table
 
 
-@cartouche
-@format
-About()@end format
-@end cartouche
+@menu
+* core actions::
+* common actions::
+* gtk actions::
+* lesstif actions::
+@end menu
 
-Tell the user about this version of PCB.
-
-This just pops up a dialog telling the user which version of
-@code{pcb} they're running.
-
-
-@cartouche
-@format
-About()@end format
-@end cartouche
-
-Tell the user about this version of PCB.
-
-This just pops up a dialog telling the user which version of
-@code{pcb} they're running.
-
-
+@node core actions
+@section Core actions
+@menu
+* AddRats Action:: Add one or more rat lines to the board.
+* ApplyVendor Action:: Applies the currently loaded vendor drill table to the current design.
+* Atomic Action:: Save or restore the undo serial number.
+* AutoPlaceSelected Action:: Auto-place selected components.
+* AutoRoute Action:: Auto-route some or all rat lines.
+* ChangeClearSize Action:: Changes the clearance size of objects.
+* ChangeDrillSize Action:: Changes the drilling hole size of objects.
+* ChangeFlag Action:: Sets or clears flags on objects.
+* ChangeHole Action:: Changes the hole flag of objects.
+* ChangeJoin Action:: Changes the join (clearance through polygons) of objects.
+* ChangeName Action:: Sets the name of objects.
+* ChangeOctagon Action:: Changes the octagon-flag of pins and vias.
+* ChangePinName Action:: Sets the name of a specific pin on a specific element.
+* ChangeSize Action:: Changes the size of objects.
+* ChangeSquare Action:: Changes the square flag of pins and pads.
+* ClearOctagon Action:: Clears the octagon-flag of pins and vias.
+* ClearSquare Action:: Clears the square-flag of pins and pads.
+* ClearThermal Action:: Clear a thermal (on the current layer) to pins or vias.
+* ClrFlag Action:: Clears flags on objects.
+* Connection Action:: Searches connections of the object at the cursor position.
+* DeleteRats Action:: Delete rat lines.
+* DisableVendor Action:: Disables automatic drill size mapping.
+* DisperseElements Action:: Disperses elements.
+* Display Action:: Several display-related actions.
+* djopt Action:: Perform various optimizations on the current board
+* DRC Action:: Invoke the DRC check.
+* DumpLibrary Action:: Display the entire contents of the libraries.
+* EnableVendor Action:: Enables automatic drill size mapping.
+* ExecuteFile Action:: Run actions from the given file.
+* Flip Action:: Flip an element to the opposite side of the board.
+* h Action:: Print a help message for commands.
+* l Action:: Loads layout data.
+* le Action:: Loads an element into the current buffer.
+* LoadFrom Action:: Load layout data from a file.
+* LoadVendorFrom Action:: Loads the specified vendor resource file.
+* m Action:: Loads a layout into the current buffer.
+* MarkCrosshair Action:: Set/Reset the Crosshair mark
+* Mode Action:: Change or use the tool mode.
+* MoveObject Action:: Moves the object under the crosshair.
+* MoveToCurrentLayer Action:: Moves objects to the current layer.
+* Netlist Action:: Perform various actions on netlists.
+* New Action:: Starts a new layout.
+* OptAutoOnly Action:: Toggles the optimize-only-autorouted flag.
+* PasteBuffer Action:: Various operations on the paste buffer.
+* Polygon Action:: Some polygon related stuff.
+* Puller Action:: Pull an arc-line junction tight.
+* q Action:: Quits the application after confirming.
+* q! Action:: Quits the application without confirming.
+* Quit Action:: Quits the application.
+* Redo Action:: Redo recent``undo''operations.
+* RemoveSelected Action:: Removes any selected objects.
+* Report Action:: Produce various report.
+* ReportDialog Action:: Report on the object under the crosshair
+* RipUp Action:: Ripup auto-routed tracks, or convert an element to parts.
+* rn Action:: Reads netlist.
+* RouteStyle Action:: Copies the indicated routing style into the current sizes.
+* s Action:: Saves layout data.
+* SaveTo Action:: Saves data to a file.
+* Select Action:: Toggles or sets the selection
+* SetFlag Action:: Sets flags on objects.
+* SetOctagon Action:: Sets the octagon-flag of objects.
+* SetSame Action:: Sets current layer and sizes to match indicated item.
+* SetSquare Action:: sets the square-flag of objects.
+* SetThermal Action:: Set a thermal (on the current layer) to pins or vias.
+* SetValue Action:: Change various board-wide values and sizes.
+* ToggleHideName Action:: Toggles the visibility of element names.
+* ToggleThermal Action:: Toggle a thermal (on the current layer) to pins or vias.
+* ToggleVendor Action:: Toggles the state of automatic drill size mapping.
+* Undo Action:: Undo recent changes.
+* UnloadVendor Action:: Unloads the current vendor drill mapping table.
+* Unselect Action:: unselects the object at the pointer location or the specified objects
+* w Action:: Saves layout data.
+* wq Action:: Saves the layout data and quits.
+@end menu
+@node AddRats Action
+@subsection AddRats
+@c key AddRats in hid 
 @cartouche
 @format
 AddRats(AllRats|SelectedRats|Close)@end format
 @end cartouche
 
 Add one or more rat lines to the board.
+@c ./../src/action.c 2815
 
 @table @code
 
@@ -118,12 +187,16 @@ Selects the shortest unselected rat on the board.
 @end table
 
 
+@node ApplyVendor Action
+@subsection ApplyVendor
+@c key ApplyVendor in hid 
 @cartouche
 @format
 ApplyVendor()@end format
 @end cartouche
 
 Applies the currently loaded vendor drill table to the current design.
+@c ./../src/vendor.c 109
 @cindex vendor map 
 @cindex vendor drill table
 @findex ApplyVendor()
@@ -131,12 +204,16 @@ Applies the currently loaded vendor drill table to the current design.
 This will modify all of your drill holes to match the list of allowed
 sizes for your vendor.
 
+@node Atomic Action
+@subsection Atomic
+@c key Atomic in hid 
 @cartouche
 @format
 Atomic(Save|Restore|Close|Block)@end format
 @end cartouche
 
 Save or restore the undo serial number.
+@c ./../src/action.c 1508
 
 This action allows making multiple-action bindings into an atomic
 operation that will be undone by a single Undo command.  For example,
@@ -167,23 +244,31 @@ Does a Restore if there was nothing to undo, else does a Close.
 @end table
 
 
+@node AutoPlaceSelected Action
+@subsection AutoPlaceSelected
+@c key AutoPlaceSelected in hid 
 @cartouche
 @format
 AutoPlaceSelected()@end format
 @end cartouche
 
 Auto-place selected components.
+@c ./../src/action.c 2909
 
 Attempts to re-arrange the selected components such that the nets
 connecting them are minimized.  Note that you cannot undo this.
 
 
+@node AutoRoute Action
+@subsection AutoRoute
+@c key AutoRoute in hid 
 @cartouche
 @format
 AutoRoute(AllRats|SelectedRats)@end format
 @end cartouche
 
 Auto-route some or all rat lines.
+@c ./../src/action.c 2931
 
 @table @code
 
@@ -205,6 +290,9 @@ Autorouting takes a while.  During this time, the program may not be
 responsive.
 
 
+@node ChangeClearSize Action
+@subsection ChangeClearSize
+@c key ChangeClearSize in hid 
 @cartouche
 @format
 ChangeClearSize(Object, delta)
@@ -214,12 +302,16 @@ ChangeClearSize(Selected|SelectedObjects, delta)@end format
 @end cartouche
 
 Changes the clearance size of objects.
+@c ./../src/action.c 3148
 
 If the solder mask is currently showing, this action changes the
 solder mask clearance.  If the mask is not showing, this action
 changes the polygon clearance.
 
 
+@node ChangeDrillSize Action
+@subsection ChangeDrillSize
+@c key ChangeDrillSize in hid 
 @cartouche
 @format
 ChangeDrillSize(Object, delta)
@@ -227,8 +319,12 @@ ChangeDrillSize(SelectedPins|SelectedVias|Selected|SelectedObjects, delta)@end f
 @end cartouche
 
 Changes the drilling hole size of objects.
+@c ./../src/action.c 3090
 
 
+@node ChangeFlag Action
+@subsection ChangeFlag
+@c key ChangeFlag in hid 
 @cartouche
 @format
 ChangeFlag(Object|Selected|SelectedObjects, flag, value)
@@ -240,6 +336,7 @@ value = 0 | 1@end format
 @end cartouche
 
 Sets or clears flags on objects.
+@c ./../src/action.c 5038
 
 Toggles the given flag on the indicated object(s).  The flag may be
 one of the flags listed above (square, octagon, thermal, join).  The
@@ -247,23 +344,31 @@ value may be the number 0 or 1.  If the value is 0, the flag is
 cleared.  If the value is 1, the flag is set.
 
 
+@node ChangeHole Action
+@subsection ChangeHole
+@c key ChangeHole in hid 
 @cartouche
 @format
 ChangeHole(ToggleObject|Object|SelectedVias|Selected)@end format
 @end cartouche
 
 Changes the hole flag of objects.
+@c ./../src/action.c 3827
 
 The "hole flag" of a via determines whether the via is a
 plated-through hole (not set), or an unplated hole (set).
 
 
+@node ChangeJoin Action
+@subsection ChangeJoin
+@c key ChangeJoin in hid 
 @cartouche
 @format
 ChangeJoin(ToggleObject|SelectedLines|SelectedArcs|Selected)@end format
 @end cartouche
 
 Changes the join (clearance through polygons) of objects.
+@c ./../src/action.c 3441
 
 The join flag determines whether a line or arc, drawn to intersect a
 polygon, electrically connects to the polygon or not.  When joined,
@@ -272,6 +377,9 @@ connection.  When not joined, a gap is drawn between the line and the
 polygon, insulating them from each other.
 
 
+@node ChangeName Action
+@subsection ChangeName
+@c key ChangeName in hid 
 @cartouche
 @format
 ChangeName(Object)
@@ -279,6 +387,7 @@ ChangeName(Layout|Layer)@end format
 @end cartouche
 
 Sets the name of objects.
+@c ./../src/action.c 3292
 
 @table @code
 
@@ -294,6 +403,9 @@ Changes the name of the currently active layer.
 @end table
 
 
+@node ChangeOctagon Action
+@subsection ChangeOctagon
+@c key ChangeOctagon in hid 
 @cartouche
 @format
 ChangeOctagon(Object|ToggleObject|SelectedObjects|Selected)
@@ -301,16 +413,21 @@ ChangeOctagon(SelectedElements|SelectedPins|SelectedVias)@end format
 @end cartouche
 
 Changes the octagon-flag of pins and vias.
+@c ./../src/action.c 3653
 
 @pinshapes
 
 
+@node ChangePinName Action
+@subsection ChangePinName
+@c key ChangePinName in hid 
 @cartouche
 @format
 ChangePinName(ElementName,PinNumber,PinName)@end format
 @end cartouche
 
 Sets the name of a specific pin on a specific element.
+@c ./../src/action.c 3216
 
 This can be especially useful for annotating pin names from a
 schematic to the layout without requiring knowledge of the pcb file
@@ -321,6 +438,9 @@ ChangePinName(U3, 7, VCC)
 @end example
 
 
+@node ChangeSize Action
+@subsection ChangeSize
+@c key ChangeSize in hid 
 @cartouche
 @format
 ChangeSize(Object, delta)
@@ -331,6 +451,7 @@ ChangeSize(SelectedElements, delta)@end format
 @end cartouche
 
 Changes the size of objects.
+@c ./../src/action.c 3001
 
 For lines and arcs, this changes the width.  For pins and vias, this
 changes the overall diameter of the copper annulus.  For pads, this
@@ -339,6 +460,9 @@ this changes the scaling factor.  For elements, this changes the width
 of the silk layer lines and arcs for this element.
 
 
+@node ChangeSquare Action
+@subsection ChangeSquare
+@c key ChangeSquare in hid 
 @cartouche
 @format
 ChangeSquare(ToggleObject)
@@ -347,12 +471,16 @@ ChangeSquare(Selected|SelectedObjects)@end format
 @end cartouche
 
 Changes the square flag of pins and pads.
+@c ./../src/action.c 3494
 
 Note that @code{Pins} means both pins and pads.
 
 @pinshapes
 
 
+@node ClearOctagon Action
+@subsection ClearOctagon
+@c key ClearOctagon in hid 
 @cartouche
 @format
 ClearOctagon(ToggleObject|Object|SelectedObjects|Selected)
@@ -360,33 +488,45 @@ ClearOctagon(SelectedElements|SelectedPins|SelectedVias)@end format
 @end cartouche
 
 Clears the octagon-flag of pins and vias.
+@c ./../src/action.c 3769
 
 @pinshapes
 
 
+@node ClearSquare Action
+@subsection ClearSquare
+@c key ClearSquare in hid 
 @cartouche
 @format
 ClearSquare(ToggleObject|SelectedElements|SelectedPins)@end format
 @end cartouche
 
 Clears the square-flag of pins and pads.
+@c ./../src/action.c 3600
 
 Note that @code{Pins} means pins and pads.
 
 @pinshapes
 
 
+@node ClearThermal Action
+@subsection ClearThermal
+@c key ClearThermal in hid 
 @cartouche
 @format
 ClearThermal(Object|SelectePins|SelectedVias|Selected|SelectedElements)@end format
 @end cartouche
 
 Clear a thermal (on the current layer) to pins or vias.
+@c ./../src/action.c 1778
 
 This removes any electrical connection.  Pins and vias that do not
 already have thermals are not changed.
 
 
+@node ClrFlag Action
+@subsection ClrFlag
+@c key ClrFlag in hid 
 @cartouche
 @format
 ClrFlag(Object|Selected|SelectedObjects, flag)
@@ -397,6 +537,7 @@ flag = square | octagon | thermal | join@end format
 @end cartouche
 
 Clears flags on objects.
+@c ./../src/action.c 5021
 
 Turns the given flag off, regardless of its previous setting.  See
 @code{ChangeFlag}.
@@ -406,12 +547,16 @@ ClrFlag(SelectedLines,join)
 @end example
 
 
+@node Connection Action
+@subsection Connection
+@c key Connection in hid 
 @cartouche
 @format
 Connection(Find|ResetLinesAndPolygons|ResetPinsAndVias|Reset)@end format
 @end cartouche
 
 Searches connections of the object at the cursor position.
+@c ./../src/action.c 2023
 
 Connections found with this action will be highlighted in the
 ``connected-color'' color and will have the ``found'' flag set.
@@ -433,20 +578,28 @@ All ``found'' objects are marked ``not found''.
 @end table
 
 
+@node DeleteRats Action
+@subsection DeleteRats
+@c key DeleteRats in hid 
 @cartouche
 @format
 DeleteRats(AllRats|Selected|SelectedRats)@end format
 @end cartouche
 
 Delete rat lines.
+@c ./../src/action.c 2877
 
 
+@node DisableVendor Action
+@subsection DisableVendor
+@c key DisableVendor in hid 
 @cartouche
 @format
 DisableVendor()@end format
 @end cartouche
 
 Disables automatic drill size mapping.
+@c ./../src/vendor.c 157
 
 @cindex vendor map 
 @cindex vendor drill table
@@ -457,12 +610,16 @@ have their drill holes mapped to one of the allowed drill sizes
 specified in the currently loaded vendor drill table.
 
 
+@node DisperseElements Action
+@subsection DisperseElements
+@c key DisperseElements in hid 
 @cartouche
 @format
 DisperseElements(All|Selected)@end format
 @end cartouche
 
 Disperses elements.
+@c ./../src/action.c 2069
 
 Normally this is used when starting a board, by selecting all elements
 and then dispersing them.  This scatters the elements around the board
@@ -471,6 +628,9 @@ elements at the same 0,0 coordinate and thus impossible to choose
 from.
 
 
+@node Display Action
+@subsection Display
+@c key Display in hid 
 @cartouche
 @format
 Display(NameOnPCB|Description|Value)
@@ -486,6 +646,7 @@ Display(Scroll, Direction)@end format
 @end cartouche
 
 Several display-related actions.
+@c ./../src/action.c 2187
 
 @table @code
 
@@ -589,6 +750,9 @@ etc, according to the numeric keypad layout.
 @end table
 
 
+@node djopt Action
+@subsection djopt
+@c key djopt in hid 
 @cartouche
 @format
 djopt(debumpify|unjaggy|simple|vianudge|viatrim|orthopull)
@@ -597,6 +761,7 @@ djopt(miter)@end format
 @end cartouche
 
 Perform various optimizations on the current board
+@c ./../src/djopt.c 2806
 
 The different types of optimizations change your board in order to
 reduce the total trace length and via count.
@@ -641,32 +806,44 @@ RF losses and trace length.
 @end table
 
 
+@node DRC Action
+@subsection DRC
+@c key DRC in hid 
 @cartouche
 @format
 DRC()@end format
 @end cartouche
 
 Invoke the DRC check.
+@c ./../src/action.c 1543
 
 Note that the design rule check uses the current board rule settings,
 not the current style settings.
 
 
+@node DumpLibrary Action
+@subsection DumpLibrary
+@c key DumpLibrary in hid 
 @cartouche
 @format
 DumpLibrary()@end format
 @end cartouche
 
 Display the entire contents of the libraries.
+@c ./../src/action.c 1575
 
 
 
+@node EnableVendor Action
+@subsection EnableVendor
+@c key EnableVendor in hid 
 @cartouche
 @format
 EnableVendor()@end format
 @end cartouche
 
 Enables automatic drill size mapping.
+@c ./../src/vendor.c 142
 
 @cindex vendor map 
 @cindex vendor drill table
@@ -679,22 +856,30 @@ mapping, a vendor resource file containing a drill table must be
 loaded first.
 
 
+@node ExecuteFile Action
+@subsection ExecuteFile
+@c key ExecuteFile in hid 
 @cartouche
 @format
 ExecuteFile(filename)@end format
 @end cartouche
 
 Run actions from the given file.
+@c ./../src/action.c 5157
 
 Lines starting with @code{#} are ignored.
 
 
+@node Flip Action
+@subsection Flip
+@c key Flip in hid 
 @cartouche
 @format
 Flip(Object|Selected|SelectedElements)@end format
 @end cartouche
 
 Flip an element to the opposite side of the board.
+@c ./../src/action.c 1623
 
 Note that the location of the element will be symmetric about the
 cursor location; i.e. if the part you are pointing at will still be at
@@ -703,22 +888,30 @@ multiple elements, this retains their positions relative to each
 other, not their absolute positions on the board.
 
 
+@node h Action
+@subsection h
+@c key h in hid 
 @cartouche
 @format
 h@end format
 @end cartouche
 
 Print a help message for commands.
+@c ./../src/command.c 72
 
 @colonaction
 
 
+@node l Action
+@subsection l
+@c key l in hid 
 @cartouche
 @format
 l [name]@end format
 @end cartouche
 
 Loads layout data.
+@c ./../src/command.c 99
 
 Loads a new datafile (layout) and, if confirmed, overwrites any
 existing unsaved data.  The filename and the searchpath
@@ -729,12 +922,16 @@ will popup.
 @colonaction
 
 
+@node le Action
+@subsection le
+@c key le in hid 
 @cartouche
 @format
 le [name]@end format
 @end cartouche
 
 Loads an element into the current buffer.
+@c ./../src/command.c 143
 
 The filename and the searchpath (@emph{elementPath}) are passed to the
 command defined by @emph{elementCommand}.  If no filename is specified
@@ -743,12 +940,16 @@ a file select box will popup.
 @colonaction
 
 
+@node LoadFrom Action
+@subsection LoadFrom
+@c key LoadFrom in hid 
 @cartouche
 @format
 LoadFrom(Layout|LayoutToBuffer|ElementToBuffer|Netlist|Revert,filename)@end format
 @end cartouche
 
 Load layout data from a file.
+@c ./../src/action.c 4207
 
 This action assumes you know what the filename is.  The various GUIs
 should have a similar @code{Load} action where the filename is
@@ -778,12 +979,16 @@ you may have made.
 @end table
 
 
+@node LoadVendorFrom Action
+@subsection LoadVendorFrom
+@c key LoadVendorFrom in hid 
 @cartouche
 @format
 LoadVendorFrom(filename)@end format
 @end cartouche
 
 Loads the specified vendor resource file.
+@c ./../src/vendor.c 196
 
 @cindex vendor map 
 @cindex vendor drill table
@@ -796,12 +1001,16 @@ be prompted to enter one.
 @end table
 
 
+@node m Action
+@subsection m
+@c key m in hid 
 @cartouche
 @format
 m [name]@end format
 @end cartouche
 
 Loads a layout into the current buffer.
+@c ./../src/command.c 186
 
 The filename and the searchpath (@emph{filePath}) are passed to the
 command defined by @emph{fileCommand}.
@@ -810,6 +1019,9 @@ If no filename is specified a file select box will popup.
 @colonaction
 
 
+@node MarkCrosshair Action
+@subsection MarkCrosshair
+@c key MarkCrosshair in hid 
 @cartouche
 @format
 MarkCrosshair()
@@ -817,6 +1029,7 @@ MarkCrosshair(Center)@end format
 @end cartouche
 
 Set/Reset the Crosshair mark
+@c ./../src/action.c 2963
 
 The ``mark'' is a small X-shaped target on the display which is
 treated like a second origin (the normal origin is the upper let
@@ -829,6 +1042,9 @@ the @code{Center} argument is given, the mark is moved to the current
 cursor location.
 
 
+@node Mode Action
+@subsection Mode
+@c key Mode in hid 
 @cartouche
 @format
 Mode(Arc|Arrow|Copy|InsertPoint|Line|Lock|Move|None|PasteBuffer)
@@ -838,6 +1054,7 @@ Mode(Save|Restore)@end format
 @end cartouche
 
 Change or use the tool mode.
+@c ./../src/action.c 2555
 
 @table @code
 
@@ -884,12 +1101,16 @@ Restores the tool to the last saved tool.
 @end table
 
 
+@node MoveObject Action
+@subsection MoveObject
+@c key MoveObject in hid 
 @cartouche
 @format
 MoveObject(X,Y,dim)@end format
 @end cartouche
 
 Moves the object under the crosshair.
+@c ./../src/action.c 4854
 
 The @code{X} and @code{Y} are treated like @code{delta} is for many
 other objects.  For each, if it's prefixed by @code{+} or @code{-},
@@ -898,24 +1119,32 @@ then that amount is relative.  Otherwise, it's absolute.  Units can be
 units, currently 1/100 mil.
 
 
+@node MoveToCurrentLayer Action
+@subsection MoveToCurrentLayer
+@c key MoveToCurrentLayer in hid 
 @cartouche
 @format
 MoveToCurrentLayer(Object|SelectedObjects)@end format
 @end cartouche
 
 Moves objects to the current layer.
+@c ./../src/action.c 4896
 
 Note that moving an element from a component layer to a solder layer,
 or from solder to component, won't automatically flip it.  Use the
 @code{Flip()} action to do that.
 
 
+@node Netlist Action
+@subsection Netlist
+@c key Netlist in hid 
 @cartouche
 @format
 Net(find|select|rats|norats[,net[,pin]])@end format
 @end cartouche
 
 Perform various actions on netlists.
+@c ./../src/netlist.c 145
 
 Each of these actions apply to a specified set of nets.  @var{net} and
 @var{pin} are patterns which match one or more nets or pins; these
@@ -946,20 +1175,28 @@ Nets which apply are marked as not available for the rats nest.
 @end table
 
 
+@node New Action
+@subsection New
+@c key New in hid 
 @cartouche
 @format
 New()@end format
 @end cartouche
 
 Starts a new layout.
+@c ./../src/action.c 4345
 
 
+@node OptAutoOnly Action
+@subsection OptAutoOnly
+@c key OptAutoOnly in hid 
 @cartouche
 @format
 OptAutoOnly()@end format
 @end cartouche
 
 Toggles the optimize-only-autorouted flag.
+@c ./../src/djopt.c 123
 
 The original purpose of the trace optimizer was to clean up the traces
 created by the various autorouters that have been used with PCB.  When
@@ -970,6 +1207,9 @@ autorouted traces.  This action toggles that setting, so that you can
 optimize hand-routed traces also.
 
 
+@node PasteBuffer Action
+@subsection PasteBuffer
+@c key PasteBuffer in hid 
 @cartouche
 @format
 PasteBuffer(AddSelected|Clear|1..MAX_BUFFER)
@@ -979,6 +1219,7 @@ PasteBuffer(ToLayout, X, Y, units)@end format
 @end cartouche
 
 Various operations on the paste buffer.
+@c ./../src/action.c 4427
 
 There are a number of paste buffers; the actual limit is a
 compile-time constant @code{MAX_BUFFER} in @file{globalconst.h}.  It
@@ -1028,12 +1269,16 @@ Selects the given buffer to be the current paste buffer.
 @end table
 
 
+@node Polygon Action
+@subsection Polygon
+@c key Polygon in hid 
 @cartouche
 @format
 Polygon(Close|PreviousPoint)@end format
 @end cartouche
 
 Some polygon related stuff.
+@c ./../src/action.c 4740
 
 Polygons need a special action routine to make life easier.
 
@@ -1050,12 +1295,16 @@ will call Polygon(PreviousPoint) when appropriate to do so.
 @end table
 
 
+@node Puller Action
+@subsection Puller
+@c key Puller in hid 
 @cartouche
 @format
 Puller()@end format
 @end cartouche
 
 Pull an arc-line junction tight.
+@c ./../src/puller.c 228
 
 The @code{Puller()} action is a special-purpose optimization.  When
 invoked while the crosshair is over the junction of an arc and a line,
@@ -1070,24 +1319,32 @@ The right side is ``after'' with the black target marking where the
 arc-line intersection was moved to.
 
 
+@node q Action
+@subsection q
+@c key q in hid 
 @cartouche
 @format
 q@end format
 @end cartouche
 
 Quits the application after confirming.
+@c ./../src/command.c 228
 
 Note that this command doesn't save your layout.
 
 @colonaction
 
 
+@node q! Action
+@subsection q!
+@c key q! in hid 
 @cartouche
 @format
 q!@end format
 @end cartouche
 
 Quits the application without confirming.
+@c ./../src/command.c 242
 
 Note that this command neither saves your data nor prompts for
 confirmation.
@@ -1095,23 +1352,31 @@ confirmation.
 @colonaction
 
 
+@node Quit Action
+@subsection Quit
+@c key Quit in hid 
 @cartouche
 @format
 Quit()@end format
 @end cartouche
 
 Quits the application.
+@c ./../src/action.c 2001
 
 If you have unsaved changes, you will be prompted to confirm before
 quitting.
 
 
+@node Redo Action
+@subsection Redo
+@c key Redo in hid 
 @cartouche
 @format
 Redo()@end format
 @end cartouche
 
 Redo recent``undo''operations.
+@c ./../src/action.c 4706
 
 This routine allows you to recover from the last undo command.  You
 might want to do this if you thought that undo was going to revert
@@ -1125,20 +1390,28 @@ before performing the redo, you will lose the ability to "redo" the
 three "undone" lines.
 
 
+@node RemoveSelected Action
+@subsection RemoveSelected
+@c key RemoveSelected in hid 
 @cartouche
 @format
 RemoveSelected()@end format
 @end cartouche
 
 Removes any selected objects.
+@c ./../src/action.c 2693
 
 
+@node Report Action
+@subsection Report
+@c key Report in hid 
 @cartouche
 @format
 Report(Object|DrillReport|FoundPins)@end format
 @end cartouche
 
 Produce various report.
+@c ./../src/report.c 525
 
 @table @code
 
@@ -1157,22 +1430,30 @@ be produced.
 @end table
 
 
+@node ReportDialog Action
+@subsection ReportDialog
+@c key ReportDialog in hid 
 @cartouche
 @format
 ReportDialog()@end format
 @end cartouche
 
 Report on the object under the crosshair
+@c ./../src/report.c 108
 
 This is a shortcut for @code{Report(Object)}.
 
 
+@node RipUp Action
+@subsection RipUp
+@c key RipUp in hid 
 @cartouche
 @format
 RipUp(All|Selected|Element)@end format
 @end cartouche
 
 Ripup auto-routed tracks, or convert an element to parts.
+@c ./../src/action.c 2711
 
 @table @code
 
@@ -1190,12 +1471,16 @@ that this uses the highest numbered paste buffer.
 @end table
 
 
+@node rn Action
+@subsection rn
+@c key rn in hid 
 @cartouche
 @format
 rn [name]@end format
 @end cartouche
 
 Reads netlist.
+@c ./../src/command.c 257
 
 If no filename is given a file select box will pop up.  The file is
 read via the command defined by the @emph{RatCommand} resource. The
@@ -1208,20 +1493,28 @@ for verifying the board layout (which is also accomplished by the
 @colonaction
 
 
+@node RouteStyle Action
+@subsection RouteStyle
+@c key RouteStyle in hid 
 @cartouche
 @format
 RouteStyle(1|2|3|4)@end format
 @end cartouche
 
 Copies the indicated routing style into the current sizes.
+@c ./../src/action.c 4772
 
 
+@node s Action
+@subsection s
+@c key s in hid 
 @cartouche
 @format
 s [name]@end format
 @end cartouche
 
 Saves layout data.
+@c ./../src/command.c 301
 
 Data and the filename are passed to the command defined by the
 resource @emph{saveCommand}. It must read the layout data from
@@ -1231,6 +1524,9 @@ again or, if it is not available, a file select box will pop up.
 @colonaction
 
 
+@node SaveTo Action
+@subsection SaveTo
+@c key SaveTo in hid 
 @cartouche
 @format
 SaveTo(Layout|LayoutAs,filename)
@@ -1238,6 +1534,7 @@ SaveTo(AllConnections|AllUnusedPins|ElementConnections,filename)@end format
 @end cartouche
 
 Saves data to a file.
+@c ./../src/action.c 4125
 
 @table @code
 
@@ -1259,6 +1556,9 @@ Save connections to the element at the cursor to a file.
 @end table
 
 
+@node Select Action
+@subsection Select
+@c key Select in hid 
 @cartouche
 @format
 Select(ToggleObject)
@@ -1271,6 +1571,7 @@ Select(Convert)@end format
 @end cartouche
 
 Toggles or sets the selection
+@c ./../src/action.c 3869
 
 @table @code
 
@@ -1306,6 +1607,9 @@ numbered paste buffer.
 @end table
 
 
+@node SetFlag Action
+@subsection SetFlag
+@c key SetFlag in hid 
 @cartouche
 @format
 SetFlag(Object|Selected|SelectedObjects, flag)
@@ -1316,6 +1620,7 @@ flag = square | octagon | thermal | join@end format
 @end cartouche
 
 Sets flags on objects.
+@c ./../src/action.c 5004
 
 Turns the given flag on, regardless of its previous setting.  See
 @code{ChangeFlag}.
@@ -1325,57 +1630,77 @@ SetFlag(SelectedPins,thermal)
 @end example
 
 
+@node SetOctagon Action
+@subsection SetOctagon
+@c key SetOctagon in hid 
 @cartouche
 @format
 SetOctagon(Object|ToggleObject|SelectedElements|Selected)@end format
 @end cartouche
 
 Sets the octagon-flag of objects.
+@c ./../src/action.c 3711
 
 @pinshapes
 
 
+@node SetSame Action
+@subsection SetSame
+@c key SetSame in hid 
 @cartouche
 @format
 SetSame()@end format
 @end cartouche
 
 Sets current layer and sizes to match indicated item.
+@c ./../src/action.c 4937
 
 When invoked over any line, arc, polygon, or via, this changes the
 current layer to be the layer that item is on, and changes the current
 sizes (thickness, keepaway, drill, etc) according to that item.
 
 
+@node SetSquare Action
+@subsection SetSquare
+@c key SetSquare in hid 
 @cartouche
 @format
 SetSquare(ToggleObject|SelectedElements|SelectedPins)@end format
 @end cartouche
 
 sets the square-flag of objects.
+@c ./../src/action.c 3547
 
 Note that @code{Pins} means pins and pads.
 
 @pinshapes
 
 
+@node SetThermal Action
+@subsection SetThermal
+@c key SetThermal in hid 
 @cartouche
 @format
 SetThermal(Object|SelectePins|SelectedVias|Selected|SelectedElements)@end format
 @end cartouche
 
 Set a thermal (on the current layer) to pins or vias.
+@c ./../src/action.c 1725
 
 This adds an electrical connection between the pins or vias, and any
 rectangle or polygon on the current layer.
 
 
+@node SetValue Action
+@subsection SetValue
+@c key SetValue in hid 
 @cartouche
 @format
 SetValue(Grid|Line|LineSize|Text|TextScale|ViaDrillingHole|Via|ViaSize, delta)@end format
 @end cartouche
 
 Change various board-wide values and sizes.
+@c ./../src/action.c 1921
 
 @table @code
 
@@ -1400,34 +1725,46 @@ Changes the size of new text.
 @end table
 
 
+@node ToggleHideName Action
+@subsection ToggleHideName
+@c key ToggleHideName in hid 
 @cartouche
 @format
 ToggleHideName(Object|SelectedElements)@end format
 @end cartouche
 
 Toggles the visibility of element names.
+@c ./../src/action.c 3374
 
 If names are hidden you won't see them on the screen and they will not
 appear on the silk layer when you print the layout.
 
 
+@node ToggleThermal Action
+@subsection ToggleThermal
+@c key ToggleThermal in hid 
 @cartouche
 @format
 ToggleThermal(Object|SelectePins|SelectedVias|Selected)@end format
 @end cartouche
 
 Toggle a thermal (on the current layer) to pins or vias.
+@c ./../src/action.c 1672
 
 This changes the electrical connection between the pins or vias, and
 any rectangle or polygon on the current layer.
 
 
+@node ToggleVendor Action
+@subsection ToggleVendor
+@c key ToggleVendor in hid 
 @cartouche
 @format
 ToggleVendor()@end format
 @end cartouche
 
 Toggles the state of automatic drill size mapping.
+@c ./../src/vendor.c 124
 
 @cindex vendor map 
 @cindex vendor drill table
@@ -1440,6 +1777,9 @@ mapping, a vendor resource file containing a drill table must be
 loaded first.
 
 
+@node Undo Action
+@subsection Undo
+@c key Undo in hid 
 @cartouche
 @format
 Undo()
@@ -1447,6 +1787,7 @@ Undo(ClearList)@end format
 @end cartouche
 
 Undo recent changes.
+@c ./../src/action.c 4554
 
 The unlimited undo feature of @code{Pcb} allows you to recover from
 most operations that materially affect you work.  Calling
@@ -1460,18 +1801,25 @@ same serial number will be undone (or redone) as a group.  See
 @code{Atomic}.
 
 
+@node UnloadVendor Action
+@subsection UnloadVendor
+@c key UnloadVendor in hid 
 @cartouche
 @format
 UnloadVendor()@end format
 @end cartouche
 
 Unloads the current vendor drill mapping table.
+@c ./../src/vendor.c 172
 
 @cindex vendor map 
 @cindex vendor drill table
 @findex UnloadVendor()
 
 
+@node Unselect Action
+@subsection Unselect
+@c key Unselect in hid 
 @cartouche
 @format
 Unselect(All|Block|Connection)
@@ -1483,6 +1831,7 @@ Unselect(TextByName|ViaByName, Name)
 @end cartouche
 
 unselects the object at the pointer location or the specified objects
+@c ./../src/action.c 4012
 
 @table @code
 
@@ -1511,12 +1860,16 @@ type specified are unselected.
 @end table
 
 
+@node w Action
+@subsection w
+@c key w in hid 
 @cartouche
 @format
 w [name]@end format
 @end cartouche
 
 Saves layout data.
+@c ./../src/command.c 307
 
 This commands has been added for the convenience of @code{vi} users
 and has the same functionality as @code{s}.
@@ -1524,12 +1877,16 @@ and has the same functionality as @code{s}.
 @colonaction
 
 
+@node wq Action
+@subsection wq
+@c key wq in hid 
 @cartouche
 @format
 wq@end format
 @end cartouche
 
 Saves the layout data and quits.
+@c ./../src/command.c 352
 
 This command has been added for the convenience of @code{vi} users and
 has the same functionality as @code{s} combined with @code{q}.
@@ -1537,66 +1894,163 @@ has the same functionality as @code{s} combined with @code{q}.
 @colonaction
 
 
+@node common actions
+@section common actions
+@c ./../src/hid/common/actions.c 329
+
+@macro hidaction
+
+This is one of a number of actions which are part of the HID
+interface.  The core functions use these actions to tell the current
+GUI when to change the presented information in response to changes
+that the GUI may not know about.  The user normally does not invoke
+these directly.
+
+@end macro
+
+@menu
+* LayerGroupsChanged Action:: Tells the GUI that the layer groups have changed.
+* LibraryChanged Action:: Tells the GUI that the libraries have changed.
+* NetlistChanged Action:: Tells the GUI that the netlist has changed.
+* PCBChanged Action:: Tells the GUI that the whole PCB has changed.
+* RouteStylesChanged Action:: Tells the GUI that the routing styles have changed.
+@end menu
+@node LayerGroupsChanged Action
+@subsection LayerGroupsChanged
+@c key LayerGroupsChanged in hid common
 @cartouche
 @format
-Zoom(gtk)@end format
+LayerGroupsChanged()@end format
 @end cartouche
 
-this is the gtk zoom
+Tells the GUI that the layer groups have changed.
+@c ./../src/hid/common/actions.c 350
 
-This is for the gtk zoom.
+@hidaction
 
 
+@node LibraryChanged Action
+@subsection LibraryChanged
+@c key LibraryChanged in hid common
 @cartouche
 @format
-Zoom(lesstif)@end format
+LibraryChanged()@end format
 @end cartouche
 
-this is the lesstif zoom
+Tells the GUI that the libraries have changed.
+@c ./../src/hid/common/actions.c 355
 
-This is for the lesstif zoom.
+@hidaction
 
 
+@node NetlistChanged Action
+@subsection NetlistChanged
+@c key NetlistChanged in hid common
+@cartouche
+@format
+NetlistChanged()@end format
+@end cartouche
+
+Tells the GUI that the netlist has changed.
+@c ./../src/hid/common/actions.c 345
+
+@hidaction
+
+
+@node PCBChanged Action
+@subsection PCBChanged
+@c key PCBChanged in hid common
+@cartouche
+@format
+PCBChanged()@end format
+@end cartouche
+
+Tells the GUI that the whole PCB has changed.
+@c ./../src/hid/common/actions.c 335
+
+@hidaction
+
+
+@node RouteStylesChanged Action
+@subsection RouteStylesChanged
+@c key RouteStylesChanged in hid common
+@cartouche
+@format
+RouteStylesChanged()@end format
+@end cartouche
+
+Tells the GUI that the routing styles have changed.
+@c ./../src/hid/common/actions.c 340
+
+@hidaction
+
+
+@node gtk actions
 @section gtk actions
+@menu
+* gtk About Action:: Tell the user about this version of PCB.
+* gtk Zoom Action:: this is the gtk zoom
+@end menu
+@node gtk About Action
+@subsection gtk About
+@c key gtk About in hid gtk
 @cartouche
 @format
 About()@end format
 @end cartouche
 
 Tell the user about this version of PCB.
+@c ./../src/hid/gtk/gtkhid-main.c 1334
 
 This just pops up a dialog telling the user which version of
 @code{pcb} they're running.
 
 
+@node gtk Zoom Action
+@subsection gtk Zoom
+@c key gtk Zoom in hid gtk
 @cartouche
 @format
 Zoom(gtk)@end format
 @end cartouche
 
 this is the gtk zoom
+@c ./../src/hid/gtk/gtkhid-main.c 49
 
 This is for the gtk zoom.
 
 
+@node lesstif actions
 @section lesstif actions
+@menu
+* lesstif About Action:: Tell the user about this version of PCB.
+* lesstif Zoom Action:: this is the lesstif zoom
+@end menu
+@node lesstif About Action
+@subsection lesstif About
+@c key lesstif About in hid lesstif
 @cartouche
 @format
 About()@end format
 @end cartouche
 
 Tell the user about this version of PCB.
+@c ./../src/hid/lesstif/dialogs.c 737
 
 This just pops up a dialog telling the user which version of
 @code{pcb} they're running.
 
 
+@node lesstif Zoom Action
+@subsection lesstif Zoom
+@c key lesstif Zoom in hid lesstif
 @cartouche
 @format
 Zoom(lesstif)@end format
 @end cartouche
 
 this is the lesstif zoom
+@c ./../src/hid/lesstif/main.c 329
 
 This is for the lesstif zoom.
 

@@ -57,7 +57,7 @@ MERCHANT-ABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 @end titlepage
 
 @ifnottex
-@node Top, Copying, (dir), (dir)
+@node Top
 @top Pcb
 
 This document is a manual for @code{Pcb}, the interactive printed circuit
@@ -87,8 +87,9 @@ board layout system for @code{X11}.
 @end menu
 
 @c ---------------------------------------------------------------------
-@node Copying, History, Top, Top
+@node Copying
 @unnumbered Copying
+
 Copyright @copyright{} 1994,1995,1996,1997 Thomas Nau
 
 Copyright @copyright{} 1998,1999,2000,2001,2002 harry eaton
@@ -105,8 +106,9 @@ MERCHANT-ABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 
 
 @c --------------------------- chapter 0 -------------------------------
-@node History, Overview ,Copying, Top
+@node History
 @unnumbered History
+
 @cindex Atari version
 @code{Pcb} is a handy tool for laying out printed circuit
 boards.
@@ -203,9 +205,9 @@ apologize; please send me an e-mail and I'll try to correct the omission.
 
 
 @c --------------------------- overview chapter -------------------------------
-@node Overview, Intro, History, Top
-@cindex PCB, an overview
+@node Overview
 @chapter Overview
+@cindex PCB, an overview
 
 Pcb is a printed circuit board editor for the X11 window system.
 Pcb includes many professional features such as:
@@ -226,9 +228,9 @@ Pcb includes many professional features such as:
 @end itemize
 
 @c --------------------------- chapter 1 -------------------------------
-@node Intro, Getting Started, Overview, Top
-@cindex layout objects, an overview
+@node Intro
 @chapter Introduction
+@cindex layout objects, an overview
 
 Each layout consists of several, mostly independent, objects. This chapter
 gives an overview of the object types and their relationship to each other.
@@ -259,10 +261,11 @@ order of appearance of the objects within a layout file.
 * Net Objects::            Describes the desired connections on the board.
 @end menu
 
-@node Symbol Objects, Via Objects, , Intro
+@node Symbol Objects
+@section Symbols
 @cindex symbols, an overview
 @cindex font, an overview
-@section Symbols
+
 The top object is the layout itself. It uses a set of symbols
 that resides at the first logical level. Each symbol is uniquely identified
 by a seven bit @code{ASCII} code. All layout objects share the same set of
@@ -273,9 +276,10 @@ Every font file is preprocessed by a user-defined command when it is loaded.
 For details see @samp{fontCommand}, @ref{Resources}.
 
 
-@node Via Objects, Element Objects, Symbol Objects, Intro
-@cindex vias, an overview
+@node Via Objects
 @section Vias
+@cindex vias, an overview
+
 Vias provide through-hole connectivity across all layers.
 While vias look a lot like element pins, don't use vias
 for adding elements to the layout, even if that seems
@@ -294,10 +298,11 @@ Each via exists on all copper layers. (@emph{i.e.}
 blind and buried vias are not supported)
 
 
-@node Element Objects, Layer Objects, Via Objects, Intro
+@node Element Objects
+@section Elements
 @cindex element, an overview
 @cindex layout-name
-@section Elements
+
 Elements represent the components on a board.
 Elements are loaded from @code{ASCII} coded files in a
 similar manner to the layout file itself, or from the
@@ -435,9 +440,10 @@ can save it to a file in order to have easy access to it the next
 time you run @code{Pcb}.
 
 
-@node Layer Objects, Line Objects, Element Objects, Intro
-@cindex layers, an overview
+@node Layer Objects
 @section Layers
+@cindex layers, an overview
+
 Every layout consists of several layers that can be used independently
 or treated as a group.
 Layer groups can be used to logically separate (and color-code)
@@ -493,9 +499,10 @@ going to the trouble of modifying the schematic, which is why this
 facility is provided.
 
 
-@node Line Objects, Arc Objects, Layer Objects, Intro
-@cindex lines, an overview
+@node Line Objects
 @section Lines
+@cindex lines, an overview
+
 Lines are used to draw tracks on the pc board.
 When in the line mode, each @emph{Btn1}
 press establishes one end of a line.
@@ -553,9 +560,10 @@ If the connection is too tenuous, running the design rule checker will report
 that the connection may break if the line width shrinks slightly.
 
 
-@node Arc Objects, Polygon Objects, Line Objects, Intro
-@cindex arc
+@node Arc Objects
 @section Arcs
+@cindex arc
+
 @code{Pcb} can handle arcs of any angular extent, but when you
 create an arc with the Arc tool, it will
 be a quarter circle (this means they always bend a right angle).  Arcs are very similar
@@ -578,9 +586,10 @@ clear polygons just like lines do. Of course connection
 searches, undo and all the other features you'd expect work with arcs too.
 
 
-@node Polygon Objects, Text Objects, Arc Objects, Intro
-@cindex polygon, an overview
+@node Polygon Objects
 @section Polygons
+@cindex polygon, an overview
+
 Sometimes it's useful to fill large areas with solid copper.
 The way to do this is with polygons.
 Polygons can be created in either the polygon mode or the rectangle mode.
@@ -624,10 +633,11 @@ operation (@emph{S} key) toggles a polygon between the new and old polygon/pin
 behavior.
 
 
-@node Text Objects, Net Objects, Polygon Objects, Intro
+@node Text Objects
+@section Text
 @cindex text, an overview
 @cindex strings, an overview
-@section Text
+
 Text objects should be used to label a layout or to put additional
 information on the board. Elements have their @samp{layout-name} labels on the
 silk-screen layer. If you are making a board without a silkscreen,
@@ -642,10 +652,11 @@ Text on the far side of the board will automatically appear mirror-imaged.
 CONNECTIONS OR TESTED FOR CREATING SHORTS VS. THE NETLIST. NEITHER ARE TEXT OBJECTS TESTED AGAINST ANY DESIGN RULES}.
 
 
-@node Net Objects, , Text Objects, Intro
+@node Net Objects
+@section Nets
 @cindex rats-nest
 @cindex netlist
-@section Nets
+
 Layout files also contain the netlist that describes how the elements
 are supposed to be interconnected. This list of connections can be
 loaded from a netlist file (see @ref{Netlist File}), or
@@ -662,9 +673,10 @@ the rat's-nest will automatically follow the movements, but they won't
 necessarily show the shortest paths until you optimize them again.
 
 @c --------------------------- chapter 2 -------------------------------
-@node Getting Started, User Commands, Intro, Top
-@cindex how to start
+@node Getting Started
 @chapter Getting Started
+@cindex how to start
+
 The goal of this chapter is to give you enough information to learn how
 @code{Pcb} works and how to develop your layouts to make the best use of @code{Pcb}'s
 features. All event translations (@emph{i.e.} the buttons and keys you
@@ -712,8 +724,9 @@ if that works, then @code{Pcb} hasn't been installed properly.
 @end menu
 
 
-@node Application Window, Log Window, , Getting Started
+@node Application Window
 @section The Application Window
+
 The main window consists of six areas:
 the menu at the top, the panner control in the upper left corner, the layer
 controls located below the panner, the tool buttons
@@ -729,10 +742,11 @@ status line at the bottom of the window.
 * Layout Area::		         Where the layout is drawn.
 @end menu
 
-@node Menu, Status-line and Input-field, Layout Area, Application Window
+@node Menu
+@subsection Menus
 @cindex menus
 @cindex popping up menus
-@subsection Menus
+
 The menus are located at the top of the Layout area. Most, but not all,
 of their functions are also available from the keyboard. Similarly, some
 functions are only achievable through the keyboard or command entry.
@@ -935,11 +949,12 @@ to try some things out. From the @b{File} menu choose
 load the file @samp{tut1.pcb}.
 
 
-@node Status-line and Input-field, Panner Control, Menu, Application Window
+@node Status-line and Input-field
+@subsection The Status-line and Input-field
 @cindex status information
 @cindex displaying status information
 @cindex input-field, position of
-@subsection The Status-line and Input-field
+
 The status-line is located at the bottom edge of the main window.
 During normal operation the status information is visible there.
 When a selected menu operation requires an additional button click, the
@@ -992,10 +1007,11 @@ are the distance and angle from the mark to the cross hair. The values displayed
 are always in units of 0.001 inch (1 mil).
 Pressing @emph{Ctrl-M} again turns the marker off.
 
-@node Panner Control, Layer Controls, Status-line and Input-field, Application Window
+@node Panner Control
+@subsection The Panner Control
 @cindex Panner control
 @cindex View, adjusting
-@subsection The Panner Control
+
 The panner control, located at the upper left side of the window, is used to
 adjust what portion of the layout is seen in the Layout area. The outer
 rectangle of the panner represents the whole layout (extended to have the
@@ -1038,12 +1054,13 @@ the middle of drawing an object. Try it now to center near
 U7.
 
 
-@node Layer Controls, Tool Selectors, Panner Control, Application Window
+@node Layer Controls
+@subsection The Layer Controls
 @cindex layer controls
 @cindex layers, switching on/off
 @cindex layers, changing which is active
 @cindex change active layer
-@subsection The Layer Controls
+
 The layer control panel, located below the panner control, is used to turn on
 and off the display of layer groups and to select the active drawing layer.
 If a layer hasn't been named, the label "@emph{(unknown)}" is used as the default.
@@ -1105,11 +1122,12 @@ way to add to the netlist, but occasionally may be convenient.
 To learn how to use the netlist layer see @ref{Net Objects}.
 
 
-@node Tool Selectors, Layout Area, Layer Controls, Application Window
+@node Tool Selectors
+@subsection The Tool Selectors
 @cindex mode selection
 @cindex tool selection
 @cindex selecting a new tool
-@subsection The Tool Selectors
+
 The tool selector buttons reside below the layer controls.
 They are used to select which layout tool to use in the drawing
 area. Each tool performs its function when @emph{Btn1} is pressed.
@@ -1230,9 +1248,10 @@ way to tell an object is locked is with a report from the @b{Info}
 menu. Use the Lock tool sparingly.
 
 
-@node Layout Area, Menu, Tool Selectors, Application Window
-@cindex grid
+@node Layout Area
 @subsection Layout Area
+@cindex grid
+
 The layout area is where you see the layout. The cursor shape depends
 on the active tool when the pointer is moved into the layout area.
 A cross hair follows the X11 pointer with respect to the grid setting.
@@ -1247,10 +1266,11 @@ The cursor can also be moved in the layout area with the cursor (arrow) keys or,
 distances, by pressing the @emph{Shift} modifier together with a cursor key.
 
 
-@node Log Window, Library Window, Application Window, Getting Started
+@node Log Window
+@section Log Window
 @cindex log window
 @cindex messages
-@section Log Window
+
 This optional window is used to display all kind of messages including
 the ones written to @emph{stderr} by external commands. The main advantage
 of using it is
@@ -1265,9 +1285,10 @@ the window will deiconify and raise itself whenever new messages are to be
 displayed.
 
 
-@node Library Window, Netlist Window, Log Window, Getting Started
-@cindex library window
+@node Library Window
 @section Library Window
+@cindex library window
+
 The library window makes loading elements (or even partial layouts) easy.
 Just click the appropriate library from the list on the left. A list
 of its elements then appears on the right. Select an element
@@ -1288,9 +1309,10 @@ details on the format of an element file used for the new libraries,
 see @ref{Element File}.
 
 
-@node Netlist Window, Drawing and Removing, Library Window, Getting Started
-@cindex Netlist Window
+@node Netlist Window
 @section Netlist Window
+@cindex Netlist Window
+
 The netlist window is very similar to the library window. On the left
 is a list of all of the nets, on the right is the list of connections
 belonging to the chosen net. The chosen net is highlighted in the
@@ -1318,12 +1340,12 @@ appear. You can load a netlist from a file from the @b{File} menu. The
 format for netlist files is described in @ref{Netlist File}.
 
 
-@node Drawing and Removing, Moving and Copying, Netlist Window, Getting Started
+@node Drawing and Removing
+@section Drawing and Removing Basic Objects
 @cindex drawing objects
 @cindex removing objects
 @cindex erasing objects
 @cindex object, drawing and removing
-@section Drawing and Removing Basic Objects
 
 hace begging gutting here, and do a real-world tutorial example.
 
@@ -1367,13 +1389,15 @@ that are visible when the command is executed.
 * Pastebuffer::      A multi-purpose buffer.
 @end menu
 
-@node Common, Lines, , Drawing and Removing
+@node Common
+@subsection Common Drawing and Removing Methods
 @cindex creating objects
 @cindex object, creating an
 @cindex removing objects
 @cindex object, removing an
 @cindex thickness of objects
 @cindex object, changing the size of an
+
 There are several keystrokes and button events referring to an @emph{object}
 without identifying its type. Here's a list of them:
 
@@ -1412,10 +1436,11 @@ changes have been made since the undo was performed.
 For a complete list of keystrokes and button events see @ref{Translations}.
 
 
-@node Lines, Arcs, Common, Drawing and Removing
+@node Lines
+@subsection Lines
 @cindex lines, an example
 @cindex example of line handling
-@subsection Lines
+
 To draw new lines you have to be in @emph{line-mode}. Get there either by
 selecting it from the @emph{Tool palette} or by pressing @emph{<Key>F2}.
 Each successive @emph{notify} event creates a new line. The
@@ -1440,9 +1465,10 @@ Press @emph{<Key>Escape} to leave line-mode.
 displayed in the status line.
 
 
-@node Arcs, Polygons, Lines, Drawing and Removing
-@cindex arc, an example
+@node Arcs
 @subsection Arcs
+@cindex arc, an example
+
 An Arc is drawn  with the @emph{arc-tool}. Get there either by selecting it
 from the @emph{Tool palette} or by pressing @emph{<Key>F8}. Press @emph{Btn1} to
 define the starting point for the arc.  Drag the mouse towards the desired
@@ -1460,12 +1486,13 @@ is thwarting your desires, reduce the grid spacing (@emph{!Shift<Key>G}) and
 try again.
 
 
-@node Polygons, Text, Arcs, Drawing and Removing
+@node Polygons
+@subsection Polygons and Rectangles
 @cindex polygon, an example
 @cindex example of polygon handling
 @cindex rectangle, an example
 @cindex example of rectangle handling
-@subsection Polygons and Rectangles
+
 A polygon is drawn by defining all of its segments as a series of
 consecutive line segments. If the first point matches a new one and if
 the number of points is greater than two, then the polygon is closed.
@@ -1496,11 +1523,12 @@ special color. Increasing the distance between them will remove the warning
 color.
 
 
-@node Text, Vias, Polygons, Drawing and Removing
+@node Text
 @subsection Text
 @cindex text, an example
 @cindex strings, an example
 @cindex example of text handling
+
 Pressing @emph{<Key>F5} or clicking one of the text selector buttons
 changes to @emph{text-mode}.
 Each successive notify event (@emph{<Btn1>})
@@ -1524,10 +1552,11 @@ CONNECTIONS}. If they are moved to the silkscreen layer, they
 no longer create copper.
 
 
-@node Vias, Elements, Text, Drawing and Removing
+@node Vias
+@subsection Vias
 @cindex vias, an example
 @cindex example of via handling
-@subsection Vias
+
 The initial size of new vias may be changed by @emph{<Key>v} and
 @emph{Shift<Key>v} or by selecting the appropriate entry from the
 @emph{Sizes} menu. @emph{Mod1<Key>v} and @emph{Mod1 Shift<Key>v} do
@@ -1549,10 +1578,11 @@ the layers and so place them where they won't interfere with connectivity.
 You can convert a hole back into a normal via with the same keystroke used
 to convert it in the first place.
 
-@node Elements, Pastebuffer, Vias, Drawing and Removing
+@node Elements
+@subsection Elements
 @cindex element, an example
 @cindex example of element handling
-@subsection Elements
+
 Some of the functions related to elements only work if both the package
 layer and the pin layer are switched on.
 
@@ -1666,12 +1696,13 @@ color if they are located on the opposite side of the board.
 For information on element connections refer to @ref{Connection Lists}.
 
 
-@node Pastebuffer, , Elements, Drawing and Removing
+@node Pastebuffer
+@subsection Pastebuffer
 @cindex pastebuffer, an example
 @cindex example of pastebuffer handling
 @cindex buffer, an example
 @cindex example of buffer handling
-@subsection Pastebuffer
+
 The line-stack and element-buffer of former releases have been replaced
 by 5 (possibly more or less if changed at compile time
 with the @code{MAX_BUFFER} variable in @file{globalconfig.h})
@@ -1702,12 +1733,13 @@ Element data or PCB data may be merged into an existing layout by loading
 the datafiles into the pastebuffer. Both operations are available from
 the @emph{File} menu or as user commands.
 
-@node Moving and Copying, Loading and Saving, Drawing and Removing, Getting Started
+@node Moving and Copying
 @section Moving and Copying
 @cindex moving, an example
 @cindex copying, an example
 @cindex example of moving
 @cindex example of copying
+
 All objects can be moved including element-names, by
 @emph{<Btn2Down>}, dragging the pointer while holding the button down
 and releasing it at the new location of the object. If you use
@@ -1732,12 +1764,13 @@ Now set the current layer to be the new layer.
 Press Shift-M to move all the selected tracks to the current layer.
 See the @emph{MoveToCurrentLayer} action for more details.
 
-@node Loading and Saving, Printing, Moving and Copying, Getting Started
+@node Loading and Saving
 @section Loading and Saving
 @cindex loading, an example
 @cindex saving, an example
 @cindex example of saving
 @cindex example of loading
+
 After your first experience with @code{Pcb} you will probably want to save
 your work. @kbd{:s name} passes the data to an external program which
 is responsible for saving it. For details see @emph{saveCommand} in
@@ -1770,10 +1803,11 @@ with the @code{DEFAULT_MEDIASIZE} variable in @file{globalconfig.h}.
 @emph{%i} is replaced by the process ID.
 
 
-@node Printing, Connection Lists, Loading and Saving, Getting Started
+@node Printing
+@section Printing
 @cindex printing, an example
 @cindex example of printing
-@section Printing
+
 @code{Pcb} now has support for device drivers,
 @code{PostScript}, @emph{encapsulated PostScript},
 and @emph{Gerber RS-274-X} drivers are
@@ -1903,10 +1937,11 @@ Note, the normal @code{PostScript} units are 1/72 inch.
 @end table
 
 
-@node Connection Lists, Arrow Tool, Printing, Getting Started
+@node Connection Lists
+@section Connection Lists
 @cindex example of connection lists
 @cindex connections, creating list of
-@section Connection Lists
+
 After completing parts of your layout you may want to check if all drawn
 connections match the ones you have in mind. This is probably best done
 in conjunction with a net-list file: see @ref{Rats Nest}.
@@ -1944,12 +1979,13 @@ To scan for unconnected pins select @emph{unused pins} from the same
 menu.
 
 
-@node Arrow Tool, Rats Nest , Connection Lists, Getting Started
+@node Arrow Tool
+@section Arrow Tool
 @cindex selecting, using the arrow tool
 @cindex moving objects
 @cindex arrow tool
 @cindex tool, arrow
-@section Arrow Tool
+
 Some commands mentioned earlier in this chapter also are able to operate on all
 selected and visible objects. The Arrow tool is used to select/deselect
 objects and also to move objects or selections.  If you click and release
@@ -1986,11 +2022,12 @@ The entries of the @emph{Selection} menu are hopefully self-explanatory.
 Many of the @emph{Action Commands} can take various key words that make
 them function on all or some of the selected items.
 
-@node Rats Nest, Design Rule Checking , Arrow Tool, Getting Started
+@node Rats Nest
+@section Rats Nest
 @cindex rats nest
 @cindex netlist
 @cindex rat-line
-@section Rats Nest
+
 If you have a netlist that corresponds to the layout you are working on, you
 can use the rats-nest feature to add rat-lines to the layout.
 First you will need to load a netlist file (see @emph{:rn},
@@ -2069,12 +2106,13 @@ out a sub-section of the board before going further. This is easy to accomplish 
 new rat-lines are never added where routed connectivity already makes the necessary
 connections.
 
-@node Design Rule Checking, Trace Optimizer, Rats Nest, Getting Started
+@node Design Rule Checking
+@section Design Rule Checking
 @cindex design rule checking
 @cindex drc
 @cindex spacing, minimum
 @cindex overlap, minimum
-@section Design Rule Checking
+
 After you've finished laying out a board, you may want to check
 to be certain that none of your interconnections are too closely
 spaced or too tenuously touching to be reliably fabricated. The design
@@ -2108,10 +2146,11 @@ undo (assuming no other changes have been made).  To restore the highlighting,
 use redo.  The redo will restore the highlighting quickly without re-running
 the DRC checker.
 
-@node Trace Optimizer, Searching for elements, Design Rule Checking , Getting Started
+@node Trace Optimizer
+@section Trace Optimizer
 @cindex trace optimizer
 @cindex optimizer
-@section Trace Optimizer
+
 PCB includes a flexible trace optimizer.  The trace optimizer can be run
 after auto routing or hand routing to clean up the traces.
 
@@ -2153,20 +2192,22 @@ RF losses and trace length.
 
 @end table
 
-@node Searching for elements , Measuring distances, Trace Optimizer, Getting Started
+@node Searching for elements 
+@section Searching for elements
 @cindex Searching for elements
 @vindex Searching for elements
-@section Searching for elements
+
 To locate text or a specific element or grouping of similar elements
 choose @samp{Select by name} from the @b{Select} menu, then choose the
 appropriate subsection.  At the bottom of the screen the prompt
 @emph{pattern:} appears.  Enter the text or @ref{Regular Expressions}
 of the text to be found.  Found text will be highlighted.
 
-@node Measuring distances, Vendor drill mapping, Searching for elements, Getting Started
+@node Measuring distances
+@section Measuring distances
 @cindex Measuring distances
 @vindex Measuring distances
-@section Measuring distances
+
 To measure distances, for example the pin-to-pin pitch of a part to
 validate a footprint, place the cursor at the starting
 measurement point, then press @emph{!Ctrl<Key>m}.  This marks the
@@ -2177,12 +2218,12 @@ the mouse is moved away from the mark.  If a mark is already present,
 the mark is removed and the cursor display stops displaying relative
 cursor coordinates.
 
-@node Vendor drill mapping, , Measuring distances, Getting Started
+@node Vendor drill mapping
+@section Vendor Drill Mapping
 @cindex Vendor rules
 @cindex Vendor mapping
 @cindex Drill table
 @cindex Vendor drill table
-@section Vendor Drill Mapping
 
 @code{Pcb} includes support for mapping drill holes to a specified set
 of sizes used by a particular vendor.  Many PCB manufacturers have a
@@ -2271,10 +2312,11 @@ expressions.  See @ref{Regular Expressions} for an introduction to
 regular expressions.  
 
 @c --------------------------- chapter 3 -------------------------------
-@node User Commands, Command-Line Options, Getting Started, Top
+@node User Commands
+@chapter User Commands
+
 @cindex user commands
 @cindex entering user commands
-@chapter User Commands
 The entering of user-commands is initiated by the action routine
 @emph{Command()} (the @code{(":")} character) and finished by either
 @emph{<Key>Return}
@@ -2378,10 +2420,11 @@ see what actions are available.
 
 
 @c --------------------------- chapter 4 -------------------------------
-@node Command-Line Options, X11 Interface, User Commands, Top
+@node Command-Line Options
+@chapter Command-Line Options
 @cindex starting @code{Pcb}
 @cindex command-line options
-@chapter Command-Line Options
+
 There are several resources which may be set or reset in addition to the
 standard toolkit command-line options. For a complete list refer to
 @ref{Resources}.
@@ -2399,8 +2442,9 @@ or
 * Special Options::        Version and copyright information.
 @end menu
 
-@node Options, Special Options, , Command-Line Options
+@node Options
 @section Options
+
 @table @samp
 
 @vindex allDirectionLines
@@ -2644,8 +2688,9 @@ must be in the range -100..100.
 @end table
 
 
-@node Special Options, , Options, Command-Line Options
+@node Special Options
 @section Special Options
+
 There are some special options available in addition to normal command line
 options. Each of these must be the only option specified on a command line.
 The available special options are:
@@ -2672,9 +2717,10 @@ Prints out the usage message and terminates.
 
 
 @c --------------------------- chapter 5 -------------------------------
-@node X11 Interface, File Formats, Command-Line Options, Top
-@cindex X11
+@node X11 Interface
 @chapter X11 Interface
+@cindex X11
+
 This chapter gives an overview about the additional @code{X11} resources which
 are defined by @code{Pcb} as well as the defined action routines.
 
@@ -2685,10 +2731,11 @@ are defined by @code{Pcb} as well as the defined action routines.
 @end menu
 
 
-@node Resources, Actions, , X11 Interface
+@node Resources
+@section Non-Standard X11 Application Resources
 @cindex resources
 @cindex X11 resources
-@section Non-Standard X11 Application Resources
+
 In addition to the toolkit resources, @code{Pcb} defines the
 following resources:
 
@@ -3259,13 +3306,14 @@ in an output scale of @emph{1:8}.
 
 Refer also to @ref{Command-Line Options}.
 
-@node Actions, Translations , Resources, X11 Interface
+@node Actions
+@section Actions
 @cindex actions
 @cindex translations
 @cindex key translations
 @cindex button translations
 @cindex X11 translations
-@section Actions
+
 All user accessible commands may be bound to almost any @code{X} event. Almost
 no default binding for commands is done in the binaries, so it is vital for the
 application that at least a system-wide application resource file exists.
@@ -4114,11 +4162,12 @@ Default:
 @end table
 
 
-@node Translations, ,Actions, X11 Interface
+@node Translations
+@section Default Translations
 @cindex translations
 @cindex default translations
 @cindex X11 default translations
-@section Default Translations
+
 This section covers some default translations of key and button events as
 defined in the shipped default application resource file. Most of them have
 already been listed in @ref{Actions}. @code{Pcb} makes use of a nice @code{X11}
@@ -4176,10 +4225,11 @@ element names.
 
 
 @c --------------------------- chapter 6 -------------------------------
-@node File Formats, Library Creation, X11 Interface, Top
+@node File Formats
+@chapter File Formats
 @cindex file formats
 @cindex ASCII files, format of
-@chapter File Formats
+
 All files used by @code{Pcb} are read from the standard output of a command
 or written to the standard input of one as plain seven bit @code{ASCII}. This
 makes it possible to use any editor to change the contents of a layout file.
@@ -4226,10 +4276,10 @@ and carriage returns at any place except within quoted strings.
 
 
 
-@node Pad and Line Representation, Layout File, , File Formats
+@node Pad and Line Representation
+@section Pad and Line Representation
 @cindex pad specification
 @cindex file formats, pads and lines
-@section Pad and Line Representation
 
 Pads and lines (copper traces, silk screen lines, etc) are represented by the
 line end points and the aperture used to draw the line.  It is important to 
@@ -4246,11 +4296,12 @@ the masks used in board manufacturing.  In fact, older mask making
 equipment created lines in precisely this fashion.  A physical aperture was
 used to pass light through onto a photosensitive film.
 
-@node Layout File, Element File, Pad and Line Representation, File Formats
+@node Layout File
+@section Layout File Format
 @cindex layout files, format of
 @cindex format of layout files
 @cindex file format, layout data
-@section Layout File Format
+
 The layout file describes a complete layout including symbols, vias,
 elements and layers with lines, rectangles and text. This is the most
 complex file of all.  As @code{Pcb} has evolved, the file format has
@@ -4302,11 +4353,11 @@ Optional.
 
 @end table
 
-@node Element File, Font File, Layout File, File Formats
+@node Element File
+@section Element File Format
 @cindex element, file format
 @cindex format of element files
 @cindex file format, element data
-@section Element File Format
 
 Element files are used to describe one component which then may be used
 several times within one or more layouts. You will normally split the
@@ -4327,11 +4378,11 @@ attachment point.
 
 
 
-@node Font File, Netlist File, Element File, File Formats
+@node Font File
+@section Font File Format
 @cindex font file, format of
 @cindex format of font files
 @cindex file format, font data
-@section Font File Format
 
 A number of user defined Symbols are called a font. There is only one per
 layout. All symbols are made of lines. See the file @file{default_font}
@@ -4339,10 +4390,10 @@ as an example.
 
 The lowest x and y coordinates of all lines of a font are transformed to (0,0).
 
-@node Netlist File, Library Contents File, Font File, File Formats
+@node Netlist File
+@section Netlist File Format
 @cindex netlist, file format
 @cindex netlist, reading
-@section Netlist File Format
 
 Netlists read by @code{Pcb} must have this simple text form:
 
@@ -4375,11 +4426,12 @@ pin number strings are case-sensitive.
 It is up to you to name the elements so that their layout-name names
 agrees with the netlist.
 
-@node Library Contents File, Library File, Netlist File, File Formats
+@node Library Contents File
+@section Library Contents File Format
 @cindex library contents file, format of
 @cindex format of library contents
 @cindex file format, library contents
-@section Library Contents File Format
+
 There is nothing like a special library format. The ones that have been
 introduced in 1.4.1 just use some nice (and time consuming) features of GNU
 @code{m4}. The only predefined format is the one of the contents file
@@ -4403,11 +4455,12 @@ to the @emph{libraryContentsCommand} resource.
 The menu entry will appear in the selection menu at the top and of the
 library window.
 
-@node Library File, File Syntax, Library Contents File, File Formats
+@node Library File
+@section Library File Format
 @cindex library file, format of
 @cindex format of libraries
 @cindex file format, libraries
-@section Library File Format
+
 This section provides an overview about the existing @code{m4} definitions
 of the elements. There are basically two different types of files. One
 to define element specific data like the pinout, package and so on, the
@@ -4476,17 +4529,18 @@ I know quite well that this description of the library implementation is
 not what some out there expect. But in my opinion it's much more useful to
 look at the comments and follow the macros step by step.
 
-@node File Syntax, Object Flags, Library File, File Formats
+@node File Syntax
+@section File Syntax
 @cindex File sytax
 @cindex Syntax, file
-@section File Syntax
 
 @include pcbfile.texi
 
 @c --------------------------- chapter 7 -------------------------------
-@node Library Creation, Schematic Frontends, File Formats, Top
-@cindex library creation
+@node Library Creation
 @chapter Library Creation
+@cindex library creation
+
 This chapter provides a detailed look at how footprint libraries are
 created and used.  The chapter is split into two section, the first
 section covers the "old" style libraries which use the @code{m4} macro
@@ -4918,10 +4972,11 @@ from scratch on a new footprint.
 
 
 @c --------------------------- chapter 8 -------------------------------
-@node Schematic Frontends, Installation, Library Creation, Top
+@node Schematic Frontends
+@chapter Schematic Capture for PCB
 @cindex schematic capture
 @cindex schematic frontend
-@chapter Schematic Capture for PCB
+
 When designing a circuit board of any complexity, a schematic capture
 front-end for the design is highly desired.  Any schematic capture
 program which is able to generate a netlist in a user defined format as
@@ -4936,10 +4991,11 @@ and PCB for layout.
 * xcircuit::      Interfacing with xcircuit.
 @end menu
 
-@node gEDA, xcircuit, , Schematic Frontends
+@node gEDA
+@section gEDA
 @cindex gschem, how to interface with
 @cindex gEDA, how to interface with
-@section gEDA
+
 This section shows how to use gEDA as the schematic capture front-end for
 a PCB design.  This section is not intended to be complete documentation
 on gEDA and it is assumed that the user has at least some familiarity
@@ -5132,10 +5188,11 @@ Centroid (X-Y) data for driving automated assembly equipment.
 @comment to include an image:
 @comment @image{geda1, 6in, 4in, geda schematic, png}
 
-@node xcircuit, , gEDA, Schematic Frontends
-@cindex xcircuit, how to interface with
-@cindex xcircuit, how to interface with
+@node xcircuit
 @section xcircuit
+@cindex xcircuit, how to interface with
+@cindex xcircuit, how to interface with
+
 If anyone cares to contribute this section, it will get added.  Please
 submit changes to the bug tracking system at the sourceforge project
 page for PCB which can be found from the PCB homepage at
@@ -5143,8 +5200,9 @@ page for PCB which can be found from the PCB homepage at
 
 @c --------------------------- Appendix A -------------------------------
 
-@node Installation, Custom Menus, Schematic Frontends, Top
+@node Installation
 @appendix Installation and Troubleshooting
+
 Compiling and installing the package should be straightforward. If any problems
 occur, please contact the author @email{Thomas.Nau@@rz.uni-ulm.de}, or the
 current maintainer @email{haceaton@@aplcomm.jhuapl.edu} to find
@@ -5156,10 +5214,11 @@ a solution and include it into the next release.
 @end menu
 
 
-@node compiling, problems, , Installation
+@node compiling
+@section Compiling and Installing
 @cindex install, how to
 @cindex compile, how to
-@section Compiling and Installing
+
 This section covers the steps which are necessary to compile the package.
 
 @menu
@@ -5167,9 +5226,10 @@ This section covers the steps which are necessary to compile the package.
 * running configure::          Customizing Pcb with Configure
 @end menu
 
-@node quickstart, running configure, , compiling
-@cindex GNU build system
+@node quickstart
 @subsection Quick Start
+@cindex GNU build system
+
 Starting with version 2.0, @code{Pcb} has switched to a GNU
 autoconf/automake build system.  Installation of @code{Pcb} consists of
 three steps:  configuration, building, and installing.
@@ -5180,10 +5240,11 @@ make
 make install
 @end example
 
-@node running configure, , quickstart, compiling
+@node running configure
+@subsection Running the configure Script
 @cindex GNU configure script
 @cindex configure
-@subsection Running the configure Script
+
 The @code{configure} script accepts all of the standard GNU configure
 options.  For a complete list of configuration options, run
 @code{./configure --help}.
@@ -5229,10 +5290,11 @@ If you do not have the appropriate permissions you should run
 the installation directory.
 
 
-@node problems, , compiling, Installation
+@node problems
+@section Troubleshooting
 @cindex problems
 @cindex troubleshooting
-@section Troubleshooting
+
 There are some known problems. Most of them are related to
 missing parts of a standard @code{X11} distribution. Some others are caused by
 third party applications such as @code{X} servers. To make this list more
@@ -5264,11 +5326,12 @@ all @code{Pcb} releases on all platforms.
 * TeX and Manuals:: Problems creating the @file{pcb.dvi}
 @end menu
 
-@node HP, Sun, , problems
+@node HP
+@subsection HP Series 700 and 800
 @cindex architecture
 @cindex HP
 @cindex Hewlett Packard
-@subsection HP Series 700 and 800
+
 You have to install several @code{X11} include files
 or, better, install a complete @code{X11R5} release. Hewlett-Packard doesn't
 support the Athena Widgets. So the header files and libraries are missing
@@ -5281,23 +5344,25 @@ In addition, @code{Pcb} has been successfully tested on these platforms with
 @code{HPUX 9.*, 10.*} running self-compiled @code{X11R5}.
 
 
-@node Sun, SGI, HP, problems
+@node Sun
+@subsection Sun SPARC architecture
 @cindex architecture
 @cindex Sun
 @cindex Solaris
 @cindex OpenWindows
-@subsection Sun SPARC architecture
+
 There are no known problems with Sun machines if they use @code{X11R5} instead
 of @code{OpenWindows}. @code{Pcb} compiled successfully with all kinds of
 SPARCstations @code{Solaris-2.[345]}.
 
 For problems with @code{OpenWindows} refer to @ref{X11}.
 
-@node SGI, DEC Alpha, Sun, problems
+@node SGI
+@subsection Silicon Graphics
 @cindex architecture
 @cindex Silicon Graphics
 @cindex SGI
-@subsection Silicon Graphics
+
 @code{Pcb} has been tested on some boxes running either @code{IRIX-4.0.5} or
 @code{IRIX-5.3}. The former one uses a @code{X11R4} server.
 There are no problems.
@@ -5305,19 +5370,21 @@ For known problems
 with @code{X11R4}, see @ref{X11}.
 
 
-@node DEC Alpha, SCO, SGI, problems
+@node DEC Alpha
+@subsection DEC Alpha
 @cindex architecture
 @cindex DEC
 @cindex Alpha
-@subsection DEC Alpha
+
 @code{Pcb} compiled and runs without problems on @code{DEC UNIX V3.2c}.
 
 
-@node SCO, Linux, DEC Alpha, problems
+@node SCO
+@subsection SCO Unix
 @cindex architecture
 @cindex SCO
 @cindex PC UNIX
-@subsection SCO Unix
+
 John DuBois <spcecdt@@deeptht.armory.com> wrote:
 @example
 @code{SCO-ODT-3.0} requires the latest version of tls003, the Athena
@@ -5328,29 +5395,32 @@ while loading/dropping elements...
 I'll see what I am able to do as soon as I have access to an @code{SCO} system.
 
 
-@node Linux, BSD , SCO, problems
+@node Linux
+@subsection Linux
 @cindex architecture
 @cindex Linux
 @cindex PC UNIX
-@subsection Linux
+
 Since the @code{X11} version of @code{Pcb} has been developed on a Linux
 system here are no known problems.
 
 
-@node BSD, X11 , Linux, problems
+@node BSD
+@subsection FreeBSD and NetBSD
 @cindex FreeBSD
 @cindex NetBSD
 @cindex PC UNIX
-@subsection FreeBSD and NetBSD
+
 @code{Pcb} has been tested on NetBSD and works without any problems.
 You may also be able to find a NetBSD package at
 @url{ftp://ftp.netbsd.org/pub/NetBSD/packages/cad/pcb/README.html} or a
 FreeBSD port at
 @url{http://www.freebsd.org/cgi/url.cgi?ports/cad/pcb/pkg-descr}.
 
-@node X11, TeX and Manuals, BSD, problems
-@cindex X11, problems
+@node X11
 @subsection Problems related to X11
+@cindex X11, problems
+
 There are a some problems related to @code{X11R4} or systems derived from
 @code{X11} such as @code{OpenWindows}. @xref{Sun}. You at least have to change
 all occurances of @emph{baseTranslations} in the resource files to
@@ -5369,9 +5439,10 @@ environment.
 and later.
 
 
-@node TeX and Manuals, , X11, problems
-@cindex TeX, problems
+@node TeX and Manuals
 @subsection Problems related to TeX
+@cindex TeX, problems
+
 If your @code{TeX} installation complains about a missing @file{texinfo.tex}
 file copy the one included in this release (directory @file{doc}
 to your @code{TeX} macro directory.
@@ -5383,7 +5454,7 @@ FTP sites.
 
 @c --------------------------- Appendix B -------------------------------
 
-@node Custom Menus, Regular Expressions, Installation, Top
+@node Custom Menus
 @appendix Customizing the Menus
 
 The menu system is driven off a data file that contains
@@ -5397,7 +5468,7 @@ Pcb.
 * Menu Files and Defaults::  Where Pcb looks for its menu resource.
 @end menu
 
-@node Resource Syntax, Menu Definitions, , Custom Menus
+@node Resource Syntax
 @section Resource Syntax
 
 A resource file is a simple text file.  It contains curly braces to
@@ -5475,7 +5546,7 @@ text on the line:
 MainMenu = @{ # This is also a comment
 @end example
 
-@node Menu Definitions, Menu Files and Defaults, Resource Syntax, Custom Menus
+@node Menu Definitions
 @section Menu Definitions
 
 To best understand this section, you should find the
@@ -5531,7 +5602,7 @@ the actions, flags, menu hooks, and whatnot that Pcb offers.  Read the
 file @file{src/gather-actions} in the Pcb source tree for
 documentation for these comments.
 
-@node Menu Files and Defaults, , Menu Definitions, Custom Menus
+@node Menu Files and Defaults
 @section Menu Files and Defaults
 
 Pcb will look for a file which defines its menus, trying the following
@@ -5560,12 +5631,13 @@ pcb -dumpmenu
 @end example
 
 @c --------------------------- Appendix C -------------------------------
-@node Regular Expressions, Standard Drill Sizes, Custom Menus, Top
+@node Regular Expressions
+@appendix Element Search/Regular Expressions
 @cindex Element Search
 @cindex Regular Expressions
 @vindex Element Search
 @vindex Regular Expressions
-@appendix Element Search/Regular Expressions
+
 @section Element Search/Regular Expressions
 @code{Pcb}'s search is based on POSIX 1003.2 Regular Expressions.  Full POSIX
 Regular Expressions are supported by @code{Pcb} if the regex library was
@@ -5609,10 +5681,10 @@ Enter "R128+".
 
 
 @c --------------------------- Appendix -- drill sizes -------------------------------
-@node Standard Drill Sizes, Centroid File Format, Regular Expressions, Top
+@node Standard Drill Sizes
+@appendix Standard Drill Size Tables
 @cindex drill sizes, list of standard
 @cindex standard drill sizes
-@appendix Standard Drill Size Tables
 
 @section American Standard Wire Size Drills
 @include wire_size.texi
@@ -5627,10 +5699,10 @@ Enter "R128+".
 @include metric_size.texi
 
 @c --------------------------- Appendix -- Centroid File Format ----------------------
-@node Centroid File Format, Action Reference, Standard Drill Sizes, Top
+@node Centroid File Format
+@appendix Centroid (X-Y) File Format
 @cindex centroid file format
 @cindex x-y file format
-@appendix Centroid (X-Y) File Format
 
 @section Overview
 
@@ -5694,18 +5766,18 @@ the centroid of the part and pin #2 is in the upper left quadrant, the
 rotation is declared to be zero degrees.
 
 @c --------------------------- Appendix -- Actions ----------------------
-@node Action Reference, Glossary, Centroid File Format, Top
-@cindex action reference
+@node Action Reference
 @appendix Action Reference
+@cindex action reference
 
 @include actions.texi
 
 @c --------------------------- Appendix -- Glossary ----------------------
-@node Glossary, Index, Action Reference, Top
+@node Glossary
+@appendix Glossary
 @cindex glossary
 @cindex terminology
 @cindex index of terms
-@appendix Glossary
 
 @table @asis
 
@@ -5735,7 +5807,7 @@ pin.  The drawing below shows an example of a thermal relief.
 @end table
 
 @c ---------------------------------------------------------------------
-@node Index, , Glossary, Top
+@node Index
 @unnumbered Index of Resources
 @printindex vr
 

@@ -15,13 +15,15 @@
 # to determine the file that's created; a category of "foo" causes a
 # file "foo.texi" to be created.  The sort-keys are case insensitive.
 # The text extracted is sorte according to the key and put into the
-# file according to the category.
-
+# file according to the category.  Each unique sort-key causes a @node
+# to be created, unless that sort-key's text already has a @node in
+# it.
+#
 # Note that we synthesize a special @syntax command, which should be
 # used for all things syntax.  We change those to whatever the current
 # desired style is for syntaxes (currently, a cartouche box of
 # non-wrapped but variable-pitch font).
-
+#
 # For extracting actions, this script expects a very specific syntax
 # to be used.  It looks like this, with one or more lines
 # (continuations are like this example):
@@ -33,7 +35,20 @@
 # Repeat for some_string_syntax[], then follow those with the usual
 # %start-doc.  Note that the %start-doc for actions must use the
 # category "actions" and the sort key must match the action name.
-
+#
+# Within start-doc/end-doc pairs, you can use two special @-lines
+# to control the generated node names and document structure.
+#
+# @nodetype section
+#   You can specify section, subsection, unnumberedsubsec, etc.  Each
+#   unique sort key within each category is assigned one of these.
+# @nodename pattern
+#   A sprintf-like pattern to use to modify the sort-key to make a
+#   node name.  Since node names must be unique and have various
+#   restrictions as to what characters you can use in them, this
+#   allows you to use a pattern for various categories which will help
+#   keep node names unique without requiring lots of repetetive typing
+#   in the source files.
 
 $docdir = shift;
 $docdir = "." unless $docdir;
@@ -59,15 +74,50 @@ for $cat (sort keys %text) {
     print "$cat\n";
     @k = sort {&dsort($a,$b)} keys %{$text{$cat}};
     $new = '';
+    $new .= "\@c key $cat\n";
     if ($cat eq "actions") {
+	&dump_00_keys($cat, "\0\$");
+	$new .= "\n\@menu\n";
 	for $hid (sort keys %{$hids{$cat}}) {
 	    if ($hid =~ /../) {
-		$new .= "\@section $hid actions\n";
+		$new .= "* ${hid} actions::\n";
+	    } else {
+		$new .= "* core actions::\n";
 	    }
+	}
+	$new .= "\@end menu\n\n";
+	for $hid (sort keys %{$hids{$cat}}) {
+	    if ($hid =~ /../) {
+		$new .= "\@node $hid actions\n";
+		$new .= "\@section $hid actions\n";
+		&dump_00_keys($cat, "\0$hid\$");
+	    } else {
+		$new .= "\@node core actions\n";
+		$new .= "\@section Core actions\n";
+	    }
+	    $new .= "\@menu\n";
 	    for $key (@k) {
-		#print "key $key in hid $hid\n";
-		next unless $key =~ m@$hid$@;
-		#print "  - print\n";
+		next unless $key =~ /\0$hid$/;
+		next if $key =~ /^00/;
+		$k2 = $title{$cat}{$key};
+		if ($hid =~ /\S/ && $hid !~ /common/) {
+		    $k2 = "$hid $k2";
+		}
+		$new .= "* ${k2} Action:: $desc{$key}\n";
+	    }
+	    $new .= "\@end menu\n";
+	    for $key (@k) {
+		next unless $key =~ /\0$hid$/;
+		next if $key =~ /^00/;
+		$k2 = $title{$cat}{$key};
+		if ($hid =~ /\S/ && $hid !~ /common/) {
+		    $k2 = "$hid $k2";
+		}
+		if ($key !~ /^00/) {
+		    $new .= "\@node $k2 Action\n";
+		    $new .= "\@subsection $k2\n";
+		}
+		$new .= "\@c key $k2 in hid $hid\n";
 		if ($synt{$key}) {
 		    $new .= "\@cartouche\n\@format\n";
 		    $new .= $synt{$key};
@@ -84,7 +134,38 @@ for $cat (sort keys %text) {
 	    }
 	}
     } else {
+	$nodetype = "section";
+	&dump_00_keys($cat, "");
+	$new .= "\@menu\n";
+	$nodename = "%s";
 	for $key (@k) {
+	    if ($nodename{$cat}{$key}) {
+		$nodename = $nodename{$cat}{$key};
+	    }
+	    next if $key =~ /^00/;
+	    $k2 = $title{$cat}{$key};
+	    $k2 = sprintf($nodename, $k2);
+	    if ($text{$cat}{$key} !~ /\@node/) {
+		$new .="* ${k2}::\n";
+	    }
+	}
+	$new .= "\@end menu\n";
+	$nodename = "%s";
+	for $key (@k) {
+	    if ($nodetype{$cat}{$key}) {
+		$nodetype = $nodetype{$cat}{$key};
+	    }
+	    if ($nodename{$cat}{$key}) {
+		$nodename = $nodename{$cat}{$key};
+	    }
+	    next if $key =~ /^00/;
+	    $k2 = $title{$cat}{$key};
+	    $k2n = sprintf($nodename, $k2);
+	    $new .= "\@c $cat $k2\n";
+	    if ($text{$cat}{$key} !~ /\@node/) {
+		$new .= "\@node $k2n\n";
+		$new .= "\@$nodetype $k2\n";
+	    }
 	    $new .= $text{$cat}{$key};
 	}
     }
@@ -106,6 +187,14 @@ for $cat (sort keys %text) {
     }
 }
 
+sub dump_00_keys {
+    my($cat, $regex) = @_;
+    for $k (@k) {
+	next unless $k =~ /00.*$regex/;
+	$new .= $text{$cat}{$k};
+    }
+}
+
 sub scan_file {
     my ($name) = @_;
     if ($name =~ m@hid/([^/]+)/@) {
@@ -113,6 +202,7 @@ sub scan_file {
     } else {
 	$hid = "";
     }
+    $lineno = 0;
 
     if ($name =~ /\.[ch]$/) {
 	$new = $name;
@@ -124,28 +214,36 @@ sub scan_file {
 
     open(F, $name);
     while (<F>) {
+	$lineno ++;
 	if (/^static const char .*_(help|syntax)\[\] =/) {
 	    $tag = $1;
 	    $last = 0;
 	    $pending{$tag} = '';
 	    while (<F>) {
 		s/[\r\n\s]+$//;
-		s/\\\"/\"/g;
+		$last = 1 if /;$/;
+		s/^[\s]*\"//; #"
+		s/\\n/\n/g;
+		s/\";?$//; #"
+		s/\\\"/\"/g; #"
 		s/ "/``/g;
 		s/" /''/g;
-		$last = 1 if /;$/;
-		s/^[\s]*\"//;
-		s/\\n/\n/g;
-		s/\";?$//;
 		$pending{$tag} .= $_;
 		last if $last;
 	    }
 	    next;
 	}
 
-	if (/%start-doc\s+(\S+)\s+(\S+)/) {
+	if (/%start-doc\s+(\S+)\s+(\S+)(\s+(.*))?/) {
 	    $cat = $1;
 	    $key = $2;
+	    $title = $4;
+	    if ($title) {
+		$title{$cat}{"$key\0$hid"} = $title;
+	    } else {
+		$title{$cat}{"$key\0$hid"} = $key;
+	    }
+	    $text{$cat}{"$key\0$hid"} .= "\@c $name $lineno\n";
 	    $hids{$cat}{$hid} = 1;
 	    if ($cat =~ /^(.*_)?actions/) {
 		$desc{"$key\0$hid"} = $pending{'help'};
@@ -158,6 +256,14 @@ sub scan_file {
 		last if /%end-doc/;
 		s/\@syntax/\@cartouche\n\@format/g;
 		s/\@end syntax/\@end format\n\@end cartouche/g;
+		if (/^\@nodetype\s*(\S+)/) {
+		    $nodetype{$cat}{"$key\0$hid"} = $1;
+		    next;
+		}
+		if (/^\@nodename\s*(.+)/) {
+		    $nodename{$cat}{"$key\0$hid"} = $1;
+		    next;
+		}
 		$text{$cat}{"$key\0$hid"} .= $_;
 	    }
 	}

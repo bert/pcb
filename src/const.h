@@ -98,7 +98,7 @@
  */
 
 /* %start-doc pcbfile ~objectflags
-@node Object Flags, PCBFlags, File Syntax, File Formats
+@node Object Flags
 @section Object Flags
 
 Note that object flags can be given numerically (like @code{0x0147})
@@ -199,7 +199,7 @@ pinout text should be vertical.
  */
 
 /* %start-doc pcbfile ~pcbflags
-@node PCBFlags, , Object Flags,  File Formats
+@node PCBFlags
 @section PCBFlags
 @table @code
 @item 0x00001

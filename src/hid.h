@@ -99,6 +99,17 @@ extern "C"
      LibraryChanged()
    */
 
+  extern const char pcbchanged_help[];
+  extern const char pcbchanged_syntax[];
+  extern const char routestyleschanged_help[];
+  extern const char routestyleschanged_syntax[];
+  extern const char netlistchanged_help[];
+  extern const char netlistchanged_syntax[];
+  extern const char layergroupschanged_help[];
+  extern const char layergroupschanged_syntax[];
+  extern const char library_help[];
+  extern const char library_syntax[];
+
   int hid_action (const char *action);
   int hid_actionl (const char *action, ...);	/* NULL terminated */
   int hid_actionv (const char *action, int argc, char **argv);

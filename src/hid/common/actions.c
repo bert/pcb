@@ -322,3 +322,76 @@ another:
 
   return 0;
 }
+
+/* trick for the doc extractor */
+#define static
+
+/* %start-doc actions 00macros
+
+@macro hidaction
+
+This is one of a number of actions which are part of the HID
+interface.  The core functions use these actions to tell the current
+GUI when to change the presented information in response to changes
+that the GUI may not know about.  The user normally does not invoke
+these directly.
+
+@end macro
+
+%end-doc */
+
+
+static const char pcbchanged_syntax[] =
+  "PCBChanged()";
+static const char pcbchanged_help[] =
+  "Tells the GUI that the whole PCB has changed.";
+
+/* %start-doc actions PCBChanged
+
+@hidaction
+
+%end-doc */
+
+static const char routestyleschanged_syntax[] = 
+  "RouteStylesChanged()";
+static const char routestyleschanged_help[] = 
+  "Tells the GUI that the routing styles have changed.";
+
+/* %start-doc actions RouteStylesChanged
+
+@hidaction
+
+%end-doc */
+
+static const char netlistchanged_syntax[] = 
+  "NetlistChanged()";
+static const char netlistchanged_help[] = 
+  "Tells the GUI that the netlist has changed.";
+
+/* %start-doc actions NetlistChanged
+
+@hidaction
+
+%end-doc */
+
+static const char layergroupschanged_syntax[] = 
+  "LayerGroupsChanged()";
+static const char layergroupschanged_help[] = 
+  "Tells the GUI that the layer groups have changed.";
+
+/* %start-doc actions LayerGroupsChanged
+
+@hidaction
+
+%end-doc */
+
+static const char librarychanged_syntax[] = 
+  "LibraryChanged()";
+static const char librarychanged_help[] = 
+  "Tells the GUI that the libraries have changed.";
+
+/* %start-doc actions LibraryChanged
+
+@hidaction
+
+%end-doc */

@@ -103,6 +103,8 @@ parse
 		;
 
 /* %start-doc pcbfile 00pcb
+@nodetype subsection
+@nodename %s syntax
 
 A special note about units: Older versions of @code{pcb} used mils
 (1/1000 inch) as the base unit; a value of 500 in the file meant
@@ -195,7 +197,7 @@ parsefont
 			}
 		;
 
-/* %start-doc pcbfile pcb
+/* %start-doc pcbfile PCB
 
 @syntax
 PCB ["Name" Width Height]
@@ -236,7 +238,7 @@ pcbname
 			}
 		;	
 
-/* %start-doc pcbfile grid
+/* %start-doc pcbfile Grid
 
 @syntax
 Grid [Step OffsetX OffsetY Visible]
@@ -308,7 +310,7 @@ pcbhigrid
 			}
 		;
 
-/* %start-doc pcbfile cursor
+/* %start-doc pcbfile Cursor
 
 @syntax
 Cursor [X Y Zoom]
@@ -349,7 +351,7 @@ pcbcursor
 		|
 		;
 
-/* %start-doc pcbfile thermal
+/* %start-doc pcbfile Thermal
 
 @syntax
 Thermal [Scale]
@@ -371,7 +373,7 @@ pcbthermal
 			}
 		;
 
-/* %start-doc pcbfile drc
+/* %start-doc pcbfile DRC
 
 @syntax
 DRC [Bloat Shrink Line Silk Drill Ring]
@@ -434,7 +436,7 @@ pcbdrc3
 			}
 		;
 
-/* %start-doc pcbfile flags
+/* %start-doc pcbfile Flags
 
 @syntax
 Flags(Number)
@@ -457,7 +459,7 @@ pcbflags
 		|
 		;
 
-/* %start-doc pcbfile groups
+/* %start-doc pcbfile Groups
 
 @syntax
 Groups("String")
@@ -493,7 +495,7 @@ pcbgroups
 		|
 		;
 
-/* %start-doc pcbfile styles
+/* %start-doc pcbfile Styles
 
 @syntax
 Styles("String")
@@ -586,7 +588,7 @@ via
 		| via_oldformat
 		;
 
-/* %start-doc pcbfile via
+/* %start-doc pcbfile Via
 
 @syntax
 Via [X Y Thickness Clearance Mask Drill "Name" SFlags]
@@ -674,7 +676,7 @@ via_oldformat
 			}
 		;
 
-/* %start-doc pcbfile rat
+/* %start-doc pcbfile Rat
 
 @syntax
 Rat [X1 Y1 Group1 X2 Y2 Group2 SFlags]
@@ -707,7 +709,7 @@ rats
 			}
 		;
 
-/* %start-doc pcbfile layer
+/* %start-doc pcbfile Layer
 
 @syntax
 Layer (LayerNum "Name") (
@@ -804,7 +806,7 @@ layerdefinition
 			}
 		;
 
-/* %start-doc pcbfile line
+/* %start-doc pcbfile Line
 
 @syntax
 Line [X1 Y1 X2 Y2 Thickness Clearance SFlags]
@@ -858,7 +860,7 @@ line_oldformat
 			}
 		;
 
-/* %start-doc pcbfile arc
+/* %start-doc pcbfile Arc
 
 @syntax
 Arc [X Y Width Height Thickness Clearance StartAngle DeltaAngle SFlags]
@@ -921,7 +923,7 @@ arc_oldformat
 			}
 		;
 
-/* %start-doc pcbfile text
+/* %start-doc pcbfile Text
 
 @syntax
 Text [X Y Direction Scale "String" SFlags]
@@ -995,7 +997,7 @@ text_hi_format
 			}
 		;
 
-/* %start-doc pcbfile polygon
+/* %start-doc pcbfile Polygon
 
 @syntax
 Polygon (SFlags) (
@@ -1031,7 +1033,7 @@ polygonpoint
 		|
 		;
 
-/* %start-doc pcbfile element
+/* %start-doc pcbfile Element
 
 @syntax
 Element [SFlags "Desc" "Name" "Value" MX MY TX TY TDir TScale TSFlags] (
@@ -1189,7 +1191,7 @@ element_hi_format
 			}
 		;
 
-/* %start-doc pcbfile elementline
+/* %start-doc pcbfile ElementLine
 
 @syntax
 ElementLine [X1 Y1 X2 Y2 Thickness]
@@ -1207,7 +1209,7 @@ The width of the silk for this line.
 
 %end-doc */
 
-/* %start-doc pcbfile elementarc
+/* %start-doc pcbfile ElementArc
 
 @syntax
 ElementArc [X Y Width Height StartAngle DeltaAngle Thickness]
@@ -1236,7 +1238,7 @@ The width of the silk line which forms the arc.
 
 %end-doc */
 
-/* %start-doc pcbfile mark
+/* %start-doc pcbfile Mark
 
 @syntax
 Mark [X Y]
@@ -1331,7 +1333,7 @@ relementdef
 			}
 		;
 
-/* %start-doc pcbfile pin
+/* %start-doc pcbfile Pin
 
 @syntax
 Pin [rX rY Thickness Clearance Mask Drill "Name" "Number" SFlags]
@@ -1436,7 +1438,7 @@ pin_oldformat
 			}
 		;
 
-/* %start-doc pcbfile pad
+/* %start-doc pcbfile Pad
 
 @syntax
 Pad [rX1 rY1 rX2 rY2 Thickness Clearance Mask "Name" "Number" SFlags]
@@ -1531,7 +1533,7 @@ symbols
 		| symbols symbol
 		;
 
-/* %start-doc pcbfile symbol
+/* %start-doc pcbfile Symbol
 
 @syntax
 Symbol [Char Delta] (
@@ -1603,7 +1605,7 @@ symboldefinitions
 		|
 		;
 
-/* %start-doc pcbfile symbol2
+/* %start-doc pcbfile SymbolLine
 
 @syntax
 SymbolLine [X1 Y1 X2 Y1 Thickness]
@@ -1634,7 +1636,7 @@ hiressymbol
 			}
 		;
 
-/* %start-doc pcbfile netlist
+/* %start-doc pcbfile Netlist
 
 @syntax
 Netlist ( ) (
@@ -1663,7 +1665,7 @@ netdefs
 		| netdefs net
 		;
 
-/* %start-doc pcbfile net
+/* %start-doc pcbfile Net
 
 @syntax
 Net ("Name" "Style") (
@@ -1701,7 +1703,7 @@ conndefs
 		| conndefs conn
 		;
 
-/* %start-doc pcbfile conn
+/* %start-doc pcbfile Connect
 
 @syntax
 Connect ("PinPad")
