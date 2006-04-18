@@ -48,7 +48,6 @@ void CenterDisplay (LocationType, LocationType, Boolean);
 void SetFontInfo (FontTypePtr);
 int ParseGroupString (char *, LayerGroupTypePtr);
 int ParseRouteString (char *, RouteStyleTypePtr, int);
-char *build_route_string (RouteStyleType *);
 void QuitApplication (void);
 char *EvaluateFilename (char *, char *, char *, char *);
 char *ExpandFilename (char *, char *);

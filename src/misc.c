@@ -638,30 +638,6 @@ GetNum (char **s, BDimension * num)
 }
 
 
-char *
-build_route_string (RouteStyleType * rs)
-{
-#ifdef FIXME
-  char *str, *s, *t, *colon;
-  int i;
-
-  str = MyStrdup ("", __FUNCTION__);
-  for (i = 0; i < NUM_STYLES; ++i, ++rs)
-    {
-      s = g_strdup_printf ("%s,%d,%d,%d,%d", rs->Name,
-			   rs->Thick, rs->Diameter, rs->Hole, rs->Keepaway);
-      colon = (i == NUM_STYLES - 1) ? NULL : ":";
-      t = str;
-      str = g_strconcat (str, s, colon, NULL);
-      free (t);
-    }
-  return str;
-#else
-  fprintf (stderr, "WARNING:  build_route_string() not fixed yet\n");
-  return "Please_fix_build_route_string";
-#endif
-}
-
 /* ----------------------------------------------------------------------
  * parses the routes definition string which is a colon seperated list of
  * comma seperated Name, Dimension, Dimension, Dimension, Dimension
