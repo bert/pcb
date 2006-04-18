@@ -335,67 +335,6 @@ print_defaults ()
 /* in hid/common/actions.c */
 extern void print_actions ();
 
-#ifdef FIXME
-static char *lib_path_list,
-  *element_path_list, *font_path_list, *lib_newlib_list;
-
-static char *library_command_dir,
-  *library_command,
-  *library_contents_command,
-  *groups_override, *routes_override, *board_size_override;
-#endif
-
-#ifdef FIXME
-typedef struct
-{
-  char *option;
-  char **string_arg;		/* Only one of these next 4 must be non NULL */
-  int *value;
-  gboolean *flag;
-  GList **list;
-}
-PcbOption;
-
-static PcbOption pcb_options[] = {
-  /* option  string_arg  value  boolean  list */
-
-  /* These have no default and are used only if rc file or command line set.
-   */
-  {"action-string", &Settings.ActionString, NULL, NULL, NULL},
-  {"action-script", &Settings.ScriptFilename, NULL, NULL, NULL},
-  {"auto-place", NULL, NULL, &Settings.AutoPlace, NULL},
-  {"background", &Settings.BackgroundImage, NULL, NULL, NULL},
-
-  {"lib-command-dir", &library_command_dir, NULL, NULL, NULL},
-  {"lib-command", &library_command, NULL, NULL, NULL},
-  {"lib-contents-command", &library_contents_command, NULL, NULL, NULL},
-  {"lib-path", NULL, NULL, NULL, &lib_path_list},
-  {"lib-name", &Settings.LibraryFilename, NULL, NULL, NULL},
-
-  {"lib-newlib", NULL, NULL, NULL, &lib_newlib_list},
-
-  /* These are m4 based options.  The commands are the m4 commands and
-     |  the paths are a ':' separated list of search directories that will
-     |  be passed to the m4 command via the '%p' parameter.
-   */
-  {"font-command", &Settings.FontCommand, NULL, NULL, NULL},
-  {"font-path", NULL, NULL, NULL, &font_path_list},
-  {"font-file", &Settings.FontFile, NULL, NULL, NULL},
-  {"element-command", &Settings.ElementCommand, NULL, NULL, NULL},
-  {"element-path", NULL, NULL, NULL, &element_path_list},
-
-  {"file-command", &Settings.FileCommand, NULL, NULL, NULL},
-
-  {"save-command", &Settings.SaveCommand, NULL, NULL, NULL},
-  {"print-file", &Settings.PrintFile, NULL, NULL, NULL},
-
-  /* rc file or command line setting these overrides users gui config.
-   */
-  {"groups", &groups_override, NULL, NULL, NULL},
-  {"routes", &routes_override, NULL, NULL, NULL},
-  {"board-size", &board_size_override, NULL, NULL, NULL},
-};
-#endif
 
 #define SSET(F,D,N,H) { N, H, \
 	HID_String,  0, 0, { 0, D, 0 }, 0, &Settings.F }
@@ -796,9 +735,5 @@ main (int argc, char *argv[])
       gui->do_export (0);
     }
 
-#ifdef FIXME
-  if (Settings.config_modified)
-    config_file_write ();
-#endif
   return (0);
 }

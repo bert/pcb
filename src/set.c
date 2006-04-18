@@ -208,9 +208,6 @@ SetTextScale (Dimension Scale)
   if (Scale <= MAX_TEXTSCALE && Scale >= MIN_TEXTSCALE)
     {
       Settings.TextScale = Scale;
-#ifdef FIXME
-      gui_config_text_scale_update ();
-#endif
     }
 }
 
@@ -353,18 +350,12 @@ SetMode (int Mode)
     }
 
   Settings.Mode = Mode;
-#ifdef FIXME
-  gui_mode_cursor (Mode);
-#endif
+
   if (Mode == PASTEBUFFER_MODE)
     /* do an update on the crosshair range */
     SetCrosshairRangeToBuffer ();
   else
     SetCrosshairRange (0, 0, PCB->MaxWidth, PCB->MaxHeight);
-
-#ifdef FIXME
-  gui_mode_buttons_update ();
-#endif
 
   recursing = False;
 
