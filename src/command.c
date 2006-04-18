@@ -131,23 +131,9 @@ static int
 CommandLoadLayout (int argc, char **argv, int x, int y)
 {
   char *filename, *name = NULL;
-#ifdef FIXME
-  static char *current_layout_dir = NULL;
-#endif
 
   switch (argc)
     {
-#ifdef FIXME
-    case 0:			/* open fileselect box */
-      name = gui_dialog_file_select_open (_("Load layout file"),
-					  &current_layout_dir,
-					  Settings.FilePath);
-      filename = name;
-      if (!name)
-	return (0);
-      break;
-#endif
-
     case 1:			/* filename is passed in commandline */
       filename = argv[0];
       break;
@@ -185,24 +171,9 @@ static int
 CommandLoadElementToBuffer (int argc, char **argv, int x, int y)
 {
   char *filename;
-#ifdef FIXME
-  static char *current_element_dir = NULL;
-#endif
 
   switch (argc)
     {
-#ifdef FIXME
-    case 0:			/* open fileselect box */
-      filename = gui_dialog_file_select_open (_("Load element to buffer"),
-					      &current_element_dir,
-					      Settings.ElementPath);
-
-      if (filename && LoadElementToBuffer (PASTEBUFFER, filename, True))
-	SetMode (PASTEBUFFER_MODE);
-      free (filename);
-      break;
-#endif
-
     case 1:			/* filename is passed in commandline */
       filename = argv[0];
       if (filename && LoadElementToBuffer (PASTEBUFFER, filename, True))
@@ -238,23 +209,9 @@ static int
 CommandLoadLayoutToBuffer (int argc, char **argv, int x, int y)
 {
   char *filename;
-#ifdef FIXME
-  static char *current_layout_dir = NULL;
-#endif
 
   switch (argc)
     {
-#ifdef FIXME
-    case 0:			/* open fileselect box */
-      filename = gui_dialog_file_select_open (_("Load layout file to buffer"),
-					      &current_layout_dir,
-					      Settings.FilePath);
-      if (filename && LoadLayoutToBuffer (PASTEBUFFER, filename))
-	SetMode (PASTEBUFFER_MODE);
-      free (filename);
-      break;
-#endif
-
     case 1:			/* filename is passed in commandline */
       filename = argv[0];
       if (filename && LoadLayoutToBuffer (PASTEBUFFER, filename))
@@ -340,23 +297,9 @@ static int
 CommandLoadNetlist (int argc, char **argv, int x, int y)
 {
   char *filename, *name = NULL;
-#ifdef FIXME
-  static char *current_netlist_dir = NULL;
-#endif
 
   switch (argc)
     {
-#ifdef FIXME
-    case 0:			/* open fileselect box */
-      name = gui_dialog_file_select_open (_("Load netlist file"),
-					  &current_netlist_dir,
-					  Settings.FilePath);
-      filename = name;
-      if (!filename)
-	return (0);
-      break;
-#endif
-
     case 1:			/* filename is passed in commandline */
       filename = argv[0];
       break;
@@ -409,29 +352,8 @@ and has the same functionality as @code{s}.
 static int
 CommandSaveLayout (int argc, char **argv, int x, int y)
 {
-#ifdef FIXME
-  char *filename;
-  static char *current_save_path = NULL;
-#endif
-
   switch (argc)
     {
-#ifdef FIXME
-    case 0:			/* query name if necessary */
-      if (!PCB->Filename)
-	{
-	  filename = gui_dialog_file_select_save (_("Save layout as"),
-						  &current_save_path, NULL,
-						  Settings.FilePath);
-	  if (filename)
-	    SavePCB (filename);
-	  free (filename);
-	}
-      else
-	SavePCB (PCB->Filename);
-      break;
-#endif
-
     case 1:
       SavePCB (argv[0]);
       break;

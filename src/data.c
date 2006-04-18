@@ -63,11 +63,6 @@ Boolean Bumped;			/* if the undo serial number has changed */
 Boolean render;			/* wether or not to re-render the pixmap */
 
 LocationType Xorig, Yorig;	/* origin offset for drawing in pixmap */
-#ifdef FIXME
-GdkPixmap **Stipples,
-  *XC_clock_source, *XC_clock_mask,
-  *XC_hand_source, *XC_hand_mask, *XC_lock_source, *XC_lock_mask;
-#endif
 
 int addedLines;
 
