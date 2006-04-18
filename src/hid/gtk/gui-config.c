@@ -92,9 +92,7 @@ ConfigColor;
 
 static GList *config_color_list, *lib_newlib_list;
 
-static gchar *lib_newlib_config, *groups_config,	/* Saved in the config  */
- *routes_config, *groups_override,	/* Overrides from command line  */
- *routes_override, *board_size_override;
+static gchar *lib_newlib_config, *board_size_override;
 
 
 static gchar *color_file;
@@ -154,9 +152,8 @@ static ConfigAttribute config_attributes[] = {
   {"clear-increment-mil", CONFIG_Unused, NULL},
   {"clear-increment-mm", CONFIG_Unused, NULL},
 
-  {"groups", CONFIG_String, &groups_config},
-/* FIXME */
-  {"route-styles", CONFIG_String, &Settings.Routes},
+  {"groups", CONFIG_Unused, NULL},
+  {"route-styles", CONFIG_Unused, NULL},
   {"library-newlib", CONFIG_String, &lib_newlib_config},
   {"color-file", CONFIG_String, &color_file},
 /* FIXME: construct layer-names- in a list */
@@ -322,8 +319,8 @@ ghid_config_init (void)
 	    default:
 	      abort ();
 	    }
-	}
-    }
+	  }
+  }
 }
 
 static gint
@@ -567,9 +564,9 @@ parse_optionv (gint * argc, gchar *** argv, gboolean from_cmd_line)
 		  break;
 		case HID_String:
 		  if (a->value)
-		    *(char **) a->value = (*argv)[1];
+		    *(char **) a->value = g_strdup((*argv)[1]);
 		  else
-		    a->default_val.str_value = (*argv)[1];
+		    a->default_val.str_value = g_strdup((*argv)[1]);
 		  (*argc)--;
 		  (*argv)++;
 		  break;
@@ -697,16 +694,6 @@ ghid_config_files_read (gint * argc, gchar *** argv)
   (*argc)--;
   (*argv)++;
   parse_optionv (argc, argv, TRUE);
-
-  if (groups_override)
-    dup_string (&Settings.Groups, groups_override);
-  else if (groups_config)
-    dup_string (&Settings.Groups, groups_config);
-
-  if (routes_override)
-    dup_string (&Settings.Routes, routes_override);
-  else if (routes_config)
-    dup_string (&Settings.Routes, routes_config);
 
   if (board_size_override
       && sscanf (board_size_override, "%dx%d", &width, &height) == 2)
@@ -1549,9 +1536,9 @@ config_layers_apply (void)
   if (use_as_default)
     {
       s = make_layer_group_string (&PCB->LayerGroups);
-      if (dup_string (&groups_config, s))
+      if (dup_string (&Settings.Groups, s))
 	{
-	  ParseGroupString (groups_config, &Settings.LayerGroups);
+	  ParseGroupString (Settings.Groups, &Settings.LayerGroups);
 	  ghidgui->config_modified = TRUE;
 	}
       g_free (s);

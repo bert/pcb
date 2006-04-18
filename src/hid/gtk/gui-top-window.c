@@ -2912,6 +2912,7 @@ route_style_select_button_cb (GtkToggleButton * button, gpointer data)
       SetKeepawayWidth (rst->Keepaway);
     }
   gtk_widget_set_sensitive (route_style_edit_button, TRUE);
+  ghid_set_status_line_label();
 }
 
 static void
