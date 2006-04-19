@@ -931,7 +931,7 @@ le [name]@end format
 @end cartouche
 
 Loads an element into the current buffer.
-@c ./../src/command.c 143
+@c ./../src/command.c 129
 
 The filename and the searchpath (@emph{elementPath}) are passed to the
 command defined by @emph{elementCommand}.  If no filename is specified
@@ -1010,7 +1010,7 @@ m [name]@end format
 @end cartouche
 
 Loads a layout into the current buffer.
-@c ./../src/command.c 186
+@c ./../src/command.c 157
 
 The filename and the searchpath (@emph{filePath}) are passed to the
 command defined by @emph{fileCommand}.
@@ -1328,7 +1328,7 @@ q@end format
 @end cartouche
 
 Quits the application after confirming.
-@c ./../src/command.c 228
+@c ./../src/command.c 185
 
 Note that this command doesn't save your layout.
 
@@ -1344,7 +1344,7 @@ q!@end format
 @end cartouche
 
 Quits the application without confirming.
-@c ./../src/command.c 242
+@c ./../src/command.c 199
 
 Note that this command neither saves your data nor prompts for
 confirmation.
@@ -1480,7 +1480,7 @@ rn [name]@end format
 @end cartouche
 
 Reads netlist.
-@c ./../src/command.c 257
+@c ./../src/command.c 214
 
 If no filename is given a file select box will pop up.  The file is
 read via the command defined by the @emph{RatCommand} resource. The
@@ -1514,7 +1514,7 @@ s [name]@end format
 @end cartouche
 
 Saves layout data.
-@c ./../src/command.c 301
+@c ./../src/command.c 244
 
 Data and the filename are passed to the command defined by the
 resource @emph{saveCommand}. It must read the layout data from
@@ -1869,7 +1869,7 @@ w [name]@end format
 @end cartouche
 
 Saves layout data.
-@c ./../src/command.c 307
+@c ./../src/command.c 250
 
 This commands has been added for the convenience of @code{vi} users
 and has the same functionality as @code{s}.
@@ -1886,7 +1886,7 @@ wq@end format
 @end cartouche
 
 Saves the layout data and quits.
-@c ./../src/command.c 352
+@c ./../src/command.c 274
 
 This command has been added for the convenience of @code{vi} users and
 has the same functionality as @code{s} combined with @code{q}.
@@ -2035,7 +2035,7 @@ About()@end format
 @end cartouche
 
 Tell the user about this version of PCB.
-@c ./../src/hid/lesstif/dialogs.c 737
+@c ./../src/hid/lesstif/dialogs.c 722
 
 This just pops up a dialog telling the user which version of
 @code{pcb} they're running.
@@ -2050,7 +2050,7 @@ Zoom(lesstif)@end format
 @end cartouche
 
 this is the lesstif zoom
-@c ./../src/hid/lesstif/main.c 329
+@c ./../src/hid/lesstif/main.c 314
 
 This is for the lesstif zoom.
 

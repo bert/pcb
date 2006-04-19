@@ -35,6 +35,10 @@
 #include "config.h"
 #endif
 
+#ifdef HAVE_SYS_PARAM_H
+#include <sys/param.h>
+#endif
+
 #include "global.h"
 
 #include <dirent.h>

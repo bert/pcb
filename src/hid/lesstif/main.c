@@ -11,22 +11,7 @@
 #include <math.h>
 #include <unistd.h>
 
-#include <X11/Intrinsic.h>
-#include <X11/X.h>
-#include <X11/Xlib.h>
-#include <X11/keysym.h>
-#include <X11/cursorfont.h>
-
-#include <Xm/Xm.h>
-#include <Xm/Protocols.h>
-#include <Xm/MainW.h>
-#include <Xm/Frame.h>
-#include <Xm/Form.h>
-#include <Xm/DrawingA.h>
-#include <Xm/Label.h>
-#include <Xm/ScrollBar.h>
-#include <Xm/Text.h>
-#include <Xm/TextF.h>
+#include "xincludes.h"
 
 #include "global.h"
 #include "data.h"
@@ -1847,7 +1832,7 @@ static int idle_proc_set = 0;
 static int need_redraw = 0;
 
 static Boolean
-idle_proc ()
+idle_proc (XtPointer dummy)
 {
   if (need_redraw)
     {

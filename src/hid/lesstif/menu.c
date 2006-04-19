@@ -10,18 +10,7 @@
 #include <ctype.h>
 #include <unistd.h>
 
-#include <X11/Intrinsic.h>
-#include <X11/X.h>
-#include <X11/Xlib.h>
-
-#include <Xm/Xm.h>
-#include <Xm/RowColumn.h>
-#include <Xm/PushB.h>
-#include <Xm/Label.h>
-#include <Xm/ToggleB.h>
-#include <Xm/CascadeB.h>
-#include <Xm/MenuShell.h>
-#include <Xm/Separator.h>
+#include "xincludes.h"
 
 #include "global.h"
 #include "data.h"
@@ -596,7 +585,7 @@ HID_Action lesstif_menu_action_list[] = {
   {"SelectLayer", 0, SelectLayer}
 };
 
-REGISTER_ACTIONS (lesstif_menu_action_list);
+REGISTER_ACTIONS (lesstif_menu_action_list)
 
 #if 0
 static void

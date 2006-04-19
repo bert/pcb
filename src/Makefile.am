@@ -241,6 +241,7 @@ liblesstif_a_SOURCES = \
 	hid/lesstif/menu.c \
 	hid/lesstif/netlist.c \
 	hid/lesstif/styles.c \
+	hid/lesstif/xincludes.h \
 	hid/lesstif/lesstif_lists.h
 
 hid/lesstif/lesstif_lists.h : ${liblesstif_a_SOURCES} Makefile

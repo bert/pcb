@@ -142,7 +142,7 @@ djopt_set_auto_only (int argc, char **argv, int x, int y)
 }
 
 static int
-djopt_get_auto_only ()
+djopt_get_auto_only (int dummy)
 {
   return autorouted_only;
 }

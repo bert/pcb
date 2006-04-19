@@ -498,6 +498,7 @@ liblesstif_a_SOURCES = \
 	hid/lesstif/menu.c \
 	hid/lesstif/netlist.c \
 	hid/lesstif/styles.c \
+	hid/lesstif/xincludes.h \
 	hid/lesstif/lesstif_lists.h
 
 libgerber_a_SOURCES = \

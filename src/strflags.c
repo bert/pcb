@@ -222,7 +222,7 @@ set_layer_list (int layer, int v)
 
 /* Returns a pointer to the first character past the list. */
 static const char *
-parse_layer_list (const char *bp, void (*error) (const char *))
+parse_layer_list (const char *bp, int (*error) (const char *))
 {
   const char *orig_bp = bp;
   int l = 0, range = -1;
@@ -335,14 +335,15 @@ print_layer_list ()
  * Currently, there is no error handling :-P
  */
 
-static void
+static int
 error_ignore (const char *msg)
 {				/* do nothing */
+  return 0;
 }
 static FlagType empty_flags;
 
 FlagType
-string_to_flags (const char *flagstring, void (*error) (const char *msg))
+string_to_flags (const char *flagstring, int (*error) (const char *msg))
 {
   const char *fp, *ep;
   int flen;

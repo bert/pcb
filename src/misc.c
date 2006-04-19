@@ -1813,7 +1813,7 @@ pcb_author (void)
       else
 	{
 	  int len;
-	  unsigned char *comma, *gecos;
+	  char *comma, *gecos;
 
 	  /* ID the user. */
 	  pwentry = getpwuid (getuid ());

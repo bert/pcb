@@ -9,22 +9,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <X11/Intrinsic.h>
-#include <X11/X.h>
-#include <X11/Xlib.h>
-
-#include <Xm/Xm.h>
-#include <Xm/FileSB.h>
-#include <Xm/RowColumn.h>
-#include <Xm/Form.h>
-#include <Xm/PushB.h>
-#include <Xm/ToggleB.h>
-#include <Xm/Text.h>
-#include <Xm/TextF.h>
-#include <Xm/Label.h>
-#include <Xm/MessageB.h>
-#include <Xm/Scale.h>
-#include <Xm/Separator.h>
+#include "xincludes.h"
 
 #include "compat.h"
 #include "global.h"

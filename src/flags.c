@@ -44,7 +44,7 @@
 RCSID ("$Id$");
 
 static int
-FlagCurrentStyle ()
+FlagCurrentStyle (int dummy)
 {
   STYLE_LOOP (PCB);
   {
@@ -59,19 +59,19 @@ FlagCurrentStyle ()
 }
 
 static int
-FlagGrid ()
+FlagGrid (int dummy)
 {
   return PCB->Grid > 1.0;
 }
 
 static int
-FlagGridSize ()
+FlagGridSize (int dummy)
 {
   return (int) (PCB->Grid + 0.5);
 }
 
 static int
-FlagElementName ()
+FlagElementName (int dummy)
 {
   if (TEST_FLAG (NAMEONPCBFLAG, PCB))
     return 2;

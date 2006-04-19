@@ -67,7 +67,7 @@ extern	FontTypePtr		yyFont;
 extern	int				yylineno;		/* linenumber */
 extern	char			*yyfilename;	/* in this file */
 
-int yyerror(char *s);
+int yyerror(const char *s);
 int yylex();
 
 %}
@@ -1731,7 +1731,7 @@ conn
  * error routine called by parser library
  */
 int yyerror(s)
-char *s;
+const char *s;
 {
 	Message("ERROR parsing file '%s'\n"
 		"    line:        %i\n"

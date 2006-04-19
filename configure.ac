@@ -34,6 +34,7 @@ AM_CONDITIONAL(WIN32, test x$WIN32 = xyes)
 
 dnl Checks for programs.
 AC_PROG_CC
+AC_C_INLINE
 AC_PROG_CC_STDC
 AM_PROG_CC_C_O
 AC_PROG_CPP
@@ -231,7 +232,7 @@ AC_CHECK_FUNCS(getpwuid gethostname getcwd)
 AC_CHECK_FUNCS(random)
 AC_HEADER_STDC
 AC_CHECK_HEADERS(string.h sys/types.h regex.h pwd.h)
-AC_CHECK_HEADERS(sys/socket.h netinet/in.h netdb.h sys/times.h)
+AC_CHECK_HEADERS(sys/socket.h netinet/in.h netdb.h sys/param.h sys/times.h)
 
 AC_PATH_XTRA
 
@@ -301,6 +302,7 @@ This is needed for the png HID.
 	# install the headers (nice), check for the header too and fail if it
 	# is not there.
 	CFLAGS="$CFLAGS $GD_CFLAGS"
+	CPPFLAGS="$CPPFLAGS $GD_CFLAGS"
 	AC_CHECK_HEADERS(gd.h)
 	case $ac_cv_header_gd_h in
 	     no )

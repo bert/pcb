@@ -840,7 +840,7 @@ DrawLayerGroup (int group, const BoxType * screen)
   int need_mask = 0;
   LayerTypePtr Layer;
   int n_entries = PCB->LayerGroups.Number[group];
-  int *layers = PCB->LayerGroups.Entries[group];
+  Cardinal *layers = PCB->LayerGroups.Entries[group];
 
   for (i = n_entries - 1; i >= 0; i--)
     if (layers[i] < MAX_LAYER)
