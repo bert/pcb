@@ -44,7 +44,8 @@ static int lastcap = -1;
 static int lastcolor = -1;
 static int print_group[MAX_LAYER];
 static int print_layer[MAX_LAYER];
-
+static double fade_ratio = 0.4;
+static double antifade_ratio = 0.6;
 
 static const char *medias[] = { "A3", "A4", "A5",
   "Letter", "11x17", "Ledger",
@@ -108,6 +109,9 @@ HID_Attribute ps_attribute_list[] = {
   {"media", "media type",
    HID_Enum, 0, 0, {3, 0, 0}, medias, 0},
 #define HA_media 10
+  {"psfade", "Fade amount for assembly drawings (0.0=missing, 1.0=solid)",
+   HID_Real, 0, 1, {0, 0, 0.40}, 0, 0},
+#define HA_psfade 11
 };
 
 #define NUM_OPTIONS (sizeof(ps_attribute_list)/sizeof(ps_attribute_list[0]))
@@ -194,6 +198,13 @@ ps_hid_export_to_file (FILE * the_file, HID_Attr_Val * options)
   incolor = options[HA_color].int_value;
   bloat = options[HA_psbloat].int_value;
   invert = options[HA_psinvert].int_value;
+  fade_ratio = options[HA_psfade].real_value;
+
+  if (fade_ratio < 0)
+    fade_ratio = 0;
+  if (fade_ratio > 1)
+    fade_ratio = 1;
+  antifade_ratio = 1.0 - fade_ratio;
 
   if (fillpage)
     {
@@ -581,9 +592,9 @@ use_gc (hidGC gc)
 	  b = gc->b;
 	  if (gc->faded)
 	    {
-	      r = 0.8 * 255 + 0.2 * r;
-	      g = 0.8 * 255 + 0.2 * g;
-	      b = 0.8 * 255 + 0.2 * b;
+	      r = antifade_ratio * 255 + fade_ratio * r;
+	      g = antifade_ratio * 255 + fade_ratio * g;
+	      b = antifade_ratio * 255 + fade_ratio * b;
 	    }
 	  if (gc->r == gc->g && gc->g == gc->b)
 	    fprintf (f, "%g gray\n", r / 255.0);
