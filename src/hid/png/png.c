@@ -449,11 +449,32 @@ png_do_export (HID_Attr_Val * options)
   fmt = filetypes[options[HA_filetype].int_value];
   
   if (strcmp (fmt, FMT_gif) == 0)
+#ifdef HAVE_GDIMAGEGIF
     gdImageGif (im, f);
+#else
+    {
+      gdImageDestroy (im);
+      return;
+    }
+#endif
   else if (strcmp (fmt, FMT_jpg) == 0)
+#ifdef HAVE_GDIMAGEJPEG
     gdImageJpeg (im, f, -1);
+#else
+    {
+      gdImageDestroy (im);
+      return;
+    }
+#endif
   else if (strcmp (fmt, FMT_png) == 0)
+#ifdef HAVE_GDIMAGEPNG
     gdImagePng (im, f);
+#else
+    {
+      gdImageDestroy (im);
+      return;
+    }
+#endif
   else
     fprintf (stderr, "Error:  Invalid graphic file format."
 	     "  This is a bug.  Please report it.\n");
