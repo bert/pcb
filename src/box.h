@@ -79,12 +79,7 @@ typedef enum
   }\
   } while (0)
 
-/* some useful box utilities.
- * when compiling with gcc these will be inlined.
- */
-#ifndef __GNUC__
-#define __inline__		/* not inline on non-gcc platforms */
-#endif /* __GNUC__ */
+/* some useful box utilities. */
 
 typedef struct cheap_point
 {
@@ -95,28 +90,28 @@ typedef struct cheap_point
 /* note that boxes are closed on top and left and open on bottom and right. */
 /* this means that top-left corner is in box, *but bottom-right corner is
  * not*.  */
-static __inline__ Boolean
+static inline Boolean
 point_in_box (const BoxType * box, LocationType X, LocationType Y)
 {
   return (X >= box->X1) && (Y >= box->Y1) && (X < box->X2) && (Y < box->Y2);
 }
 
 #ifndef NDEBUG
-static __inline__ Boolean
+static inline Boolean
 __box_is_good (const BoxType * b)
 {
   return (b->X1 < b->X2) && (b->Y1 < b->Y2);
 }
 #endif /* !NDEBUG */
 
-static __inline__ Boolean
+static inline Boolean
 box_intersect (const BoxType * a, const BoxType * b)
 {
   return
     (a->X1 < b->X2) && (b->X1 < a->X2) && (a->Y1 < b->Y2) && (b->Y1 < a->Y2);
 }
 
-static __inline__ CheapPointType
+static inline CheapPointType
 closest_point_in_box (const CheapPointType * from, const BoxType * box)
 {
   CheapPointType r;
@@ -131,7 +126,7 @@ closest_point_in_box (const CheapPointType * from, const BoxType * box)
   return r;
 }
 
-static __inline__ Boolean
+static inline Boolean
 box_in_box (const BoxType * outer, const BoxType * inner)
 {
   return
@@ -139,7 +134,7 @@ box_in_box (const BoxType * outer, const BoxType * inner)
     (outer->Y1 <= inner->Y1) && (inner->Y2 <= outer->Y2);
 }
 
-static __inline__ BoxType
+static inline BoxType
 clip_box (const BoxType * box, const BoxType * clipbox)
 {
   BoxType r;
@@ -152,7 +147,7 @@ clip_box (const BoxType * box, const BoxType * clipbox)
   return r;
 }
 
-static __inline__ BoxType
+static inline BoxType
 shrink_box (const BoxType * box, LocationType amount)
 {
   BoxType r = *box;
@@ -163,7 +158,7 @@ shrink_box (const BoxType * box, LocationType amount)
   return r;
 }
 
-static __inline__ BoxType
+static inline BoxType
 bloat_box (const BoxType * box, LocationType amount)
 {
   return shrink_box (box, -amount);
@@ -172,7 +167,7 @@ bloat_box (const BoxType * box, LocationType amount)
 /* return the square of the minimum distance from a point to some point
  * inside a box.  The box is half-closed!  That is, the top-left corner
  * is considered in the box, but the bottom-right corner is not. */
-static __inline__ float
+static inline float
 dist2_to_box (const CheapPointType * p, const BoxType * b)
 {
   CheapPointType r = closest_point_in_box (p, b);

@@ -453,11 +453,7 @@ PadPadIntersect (PadTypePtr p1, PadTypePtr p2)
   return LinePadIntersect ((LineTypePtr) p1, p2);
 }
 
-#ifndef __GNUC__
-#define __inline__		/* not inline on non-gcc platforms */
-#endif /* __GNUC__ */
-
-static __inline__ Boolean
+static inline Boolean
 PV_TOUCH_PV (PinTypePtr PV1, PinTypePtr PV2)
 {
   float t1, t2;
