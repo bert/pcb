@@ -374,12 +374,14 @@ static const char netlistchanged_help[] =
 
 %end-doc */
 
-static const char layergroupschanged_syntax[] = 
-  "LayerGroupsChanged()";
-static const char layergroupschanged_help[] = 
-  "Tells the GUI that the layer groups have changed.";
+static const char layerschanged_syntax[] = 
+  "LayersChanged()";
+static const char layerschanged_help[] = 
+  "Tells the GUI that the layers have changed.";
 
-/* %start-doc actions LayerGroupsChanged
+/* %start-doc actions LayersChanged
+
+This includes layer names, colors, stacking order, visibility, etc.
 
 @hidaction
 

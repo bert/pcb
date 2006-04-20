@@ -144,6 +144,16 @@ LibraryChanged (int argc, char **argv, int x, int y)
   return 0;
 }
 
+static const char libraryshow_syntax[] =
+"LibraryShow()";
+
+static const char libraryshow_help[] =
+"Displays the library window.";
+
+/* %start-doc actions LibraryShow
+
+%end-doc */
+
 static int
 LibraryShow (int argc, char **argv, int x, int y)
 {
@@ -160,8 +170,10 @@ lesstif_show_library ()
 }
 
 HID_Action lesstif_library_action_list[] = {
-  {"LibraryChanged", 0, LibraryChanged},
-  {"LibraryShow", 0, LibraryShow},
+  {"LibraryChanged", 0, LibraryChanged,
+   librarychanged_help, librarychanged_syntax},
+  {"LibraryShow", 0, LibraryShow,
+   libraryshow_help, libraryshow_syntax},
 };
 
 REGISTER_ACTIONS (lesstif_library_action_list)

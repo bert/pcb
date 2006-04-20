@@ -293,6 +293,27 @@ PCBChanged (int argc, char **argv, int x, int y)
   return 0;
 }
 
+
+static const char setunits_syntax[] =
+"SetUnits(mm|mil)";
+
+static const char setunits_help[] =
+"Set the default measurement units.";
+
+/* %start-doc actions SetUnits
+
+@table @code
+
+@item mil
+Sets the display units to mils (1/1000 inch).
+
+@item mm
+Sets the display units to millimeters.
+
+@end table
+
+%end-doc */
+
 static int
 SetUnits (int argc, char **argv, int x, int y)
 {
@@ -308,14 +329,46 @@ SetUnits (int argc, char **argv, int x, int y)
 }
 
 static const char zoom_syntax[] =
-"Zoom(lesstif)";
+"Zoom()\n"
+"Zoom(factor)";
 
 static const char zoom_help[] =
-"this is the lesstif zoom";
+"Various zoom factor changes.";
 
 /* %start-doc actions Zoom
 
-This is for the lesstif zoom.
+Changes the zoom (magnification) of the view of the board.  If no
+arguments are passed, the view is scaled such that the board just fits
+inside the visible window (i.e. ``view all'').  Otherwise,
+@var{factor} specifies a change in zoom factor.  It may be prefixed by
+@code{+}, @code{-}, or @code{=} to change how the zoom factor is
+modified.  The @var{factor} is a floating point number, such as
+@code{1.5} or @code{0.75}.
+
+@table @code
+
+@item +@var{factor}
+Values greater than 1.0 cause the board to be drawn smaller; more of
+the board will be visible.  Values between 0.0 and 1.0 cause the board
+to be drawn bigger; less of the board will be visible.
+
+@item -@var{factor}
+Values greater than 1.0 cause the board to be drawn bigger; less of
+the board will be visible.  Values between 0.0 and 1.0 cause the board
+to be drawn smaller; more of the board will be visible.
+
+@item =@var{factor}
+
+The @var{factor} is an absolute zoom factor; the unit for this value
+is "PCB units per screen pixel".  Since PCB units are 0.01 mil, a
+@var{factor} of 1000 means 10 mils (0.01 in) per pixel, or 100 DPI,
+about the actual resolution of most screens - resulting in an "actual
+size" board.  Similarly, a @var{factor} of 100 gives you a 10x actual
+size.
+
+@end table
+
+Note that zoom factors of zero are silently ignored.
 
 %end-doc */
 
@@ -361,6 +414,24 @@ ZoomAction (int argc, char **argv, int x, int y)
   return 0;
 }
 
+
+static const char thindraw_syntax[] =
+"ThinDraw()\n"
+"ThinDraw(1|0)";
+
+static const char thindraw_help[] =
+"Sets the global thin-draw flag.";
+
+/* %start-doc actions ThinDraw
+
+When the thindraw flag is set, all board objects are drawin using
+``thin'' lines.  Traces are drawn as single lines along their
+centerlines, other objects are drawn as outlines.  If you pass
+@code{0}, thin draw is disabled.  If you pass @code{1}, thin draw is
+enabled.  If you pass nothing, thin draw is toggled.
+
+%end-doc */
+
 static int
 ThinDraw (int argc, char **argv, int x, int y)
 {
@@ -377,6 +448,22 @@ ThinDraw (int argc, char **argv, int x, int y)
   return 0;
 }
 
+static const char thindrawpoly_syntax[] =
+"ThinDrawPoly()\n"
+"ThinDrawPoly(0|1)";
+
+static const char thindrawpoly_help[] =
+"Sets the thin-draw flag for polygons.";
+
+/* %start-doc actions ThinDrawPoly
+
+When the polygon thindraw flag is set, all polygonss are drawin using
+``thin'' lines along their outlines.  If you pass @code{0}, polygon
+thin draw is disabled.  If you pass @code{1}, polygon thin draw is
+enabled.  If you pass nothing, polygon thin draw is toggled.
+
+%end-doc */
+
 static int
 ThinDrawPoly (int argc, char **argv, int x, int y)
 {
@@ -392,6 +479,26 @@ ThinDrawPoly (int argc, char **argv, int x, int y)
     pinout_callback (0, pd, 0);
   return 0;
 }
+
+static const char swapsides_syntax[] =
+"SwapSides()";
+
+static const char swapsides_help[] =
+"Swaps the side of the board you're looking at.";
+
+/* %start-doc actions SwapSides
+
+Normally, this action changes which pads and silk layer are drawn as
+true silk, and which are drawn as the "invisible" layer.  It also
+determines which solder mask you see.
+
+As a special case, if the layer group for the side you're looking at
+is visible and currently active, and the layer group for the opposite
+is not visible (i.e. disabled), then this action will also swap which
+layer group is visible and active, effectively swapping the ``working
+side'' of the board.
+
+%end-doc */
 
 static int
 SwapSides (int argc, char **argv, int x, int y)
@@ -518,6 +625,48 @@ command_event_handler (Widget w, XtPointer p, XEvent * e, Boolean * cont)
     }
 }
 
+static const char command_syntax[] =
+"Command()";
+
+static const char command_help[] =
+"Displays the command line input window.";
+
+/* %start-doc actions Command
+
+The command window allows the user to manually enter actions to be
+executed.  Action syntax can be done one of two ways:
+
+@table @code
+
+@item
+Follow the action name by an open parenthesis, arguments separated by
+commas, end with a close parenthesis.  Example: @code{Abc(1,2,3)}
+
+@item
+Separate the action name and arguments by spaces.  Example: @code{Abc
+1 2 3}.
+
+@end table
+
+The first option allows you to have arguments with spaces in them,
+but the second is more ``natural'' to type for most people.
+
+Note that action names are not case sensitive, but arguments normally
+are.  However, most actions will check for ``keywords'' in a case
+insensitive way.
+
+There are three ways to finish with the command window.  If you press
+the @code{Enter} key, the command is invoked, the window goes away,
+and the next time you bring up the command window it's empty.  If you
+press the @code{Esc} key, the window goes away without invoking
+anything, and the next time you bring up the command window it's
+empty.  If you change focus away from the command window (i.e. click
+on some other window), the command window goes away but the next time
+you bring it up it resumes entering the command you were entering
+before.
+
+%end-doc */
+
 static int
 Command (int argc, char **argv, int x, int y)
 {
@@ -526,6 +675,20 @@ Command (int argc, char **argv, int x, int y)
   XmProcessTraversal (m_cmd, XmTRAVERSE_CURRENT);
   return 0;
 }
+
+static const char benchmark_syntax[] =
+"Benchmark()";
+
+static const char benchmark_help[] =
+"Benchmark the GUI speed.";
+
+/* %start-doc actions Benchmark
+
+This action is used to speed-test the Lesstif graphics subsystem.  It
+redraws the current screen as many times as possible in ten seconds.
+It reports the amount of time needed to draw the screen once.
+
+%end-doc */
 
 static int
 Benchmark (int argc, char **argv, int x, int y)
@@ -565,14 +728,20 @@ Benchmark (int argc, char **argv, int x, int y)
 HID_Action lesstif_main_action_list[] = {
   {"PCBChanged", 0, PCBChanged,
    pcbchanged_help, pcbchanged_syntax},
-  {"SetUnits", 0, SetUnits},
+  {"SetUnits", 0, SetUnits,
+   setunits_help, setunits_syntax},
   {"Zoom", 0, ZoomAction,
    zoom_help, zoom_syntax},
-  {"Thindraw", 0, ThinDraw},
-  {"ThindrawPoly", 0, ThinDrawPoly},
-  {"SwapSides", 0, SwapSides},
-  {"Command", 0, Command},
-  {"Benchmark", 0, Benchmark}
+  {"Thindraw", 0, ThinDraw,
+   thindraw_help, thindraw_syntax},
+  {"ThindrawPoly", 0, ThinDrawPoly,
+   thindrawpoly_help, thindrawpoly_syntax},
+  {"SwapSides", 0, SwapSides,
+   swapsides_help, swapsides_syntax},
+  {"Command", 0, Command,
+   command_help, command_syntax},
+  {"Benchmark", 0, Benchmark,
+   benchmark_help, benchmark_syntax}
 };
 
 REGISTER_ACTIONS (lesstif_main_action_list)

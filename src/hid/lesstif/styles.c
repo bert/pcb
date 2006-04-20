@@ -336,6 +336,16 @@ style_button (int i)
   return pb;
 }
 
+static const char adjuststyle_syntax[] =
+"AdjustStyle()";
+
+static const char adjuststyle_help[] =
+"Displays the route style adjustment window.";
+
+/* %start-doc actions AdjustStyle
+
+%end-doc */
+
 static int
 AdjustStyle (int argc, char **argv, int x, int y)
 {
@@ -458,8 +468,10 @@ lesstif_insert_style_buttons (Widget menu)
 }
 
 HID_Action lesstif_styles_action_list[] = {
-  {"AdjustStyle", 0, AdjustStyle},
-  {"RouteStylesChanged", 0, RouteStylesChanged}
+  {"AdjustStyle", 0, AdjustStyle,
+   adjuststyle_help, adjuststyle_syntax},
+  {"RouteStylesChanged", 0, RouteStylesChanged,
+   routestyleschanged_help, routestyleschanged_syntax}
 };
 
 REGISTER_ACTIONS (lesstif_styles_action_list)

@@ -95,7 +95,7 @@ extern "C"
      PCBChanged();
      RouteStylesChanged()
      NetlistChanged()
-     LayerGroupsChanged()
+     LayersChanged()
      LibraryChanged()
    */
 
@@ -105,10 +105,10 @@ extern "C"
   extern const char routestyleschanged_syntax[];
   extern const char netlistchanged_help[];
   extern const char netlistchanged_syntax[];
-  extern const char layergroupschanged_help[];
-  extern const char layergroupschanged_syntax[];
-  extern const char library_help[];
-  extern const char library_syntax[];
+  extern const char layerschanged_help[];
+  extern const char layerschanged_syntax[];
+  extern const char librarychanged_help[];
+  extern const char librarychanged_syntax[];
 
   int hid_action (const char *action);
   int hid_actionl (const char *action, ...);	/* NULL terminated */

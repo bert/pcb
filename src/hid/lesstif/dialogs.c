@@ -87,6 +87,23 @@ setup_fsb_dialog ()
 		 (XtPointer) 0);
 }
 
+static const char load_syntax[] =
+"Load()\n"
+"Load(Layout|LayoutToBuffer|ElementToBuffer|Netlist|Revert)";
+
+static const char load_help[] =
+"Load layout data from a user-selected file.";
+
+/* %start-doc actions Load
+
+This action is a GUI front-end to the core's @code{LoadFrom} action
+(@pxref{LoadFrom Action}).  If you happen to pass a filename, like
+@code{LoadFrom}, then @code{LoadFrom} is called directly.  Else, the
+user is prompted for a filename to load, and then @code{LoadFrom} is
+called with that filename.
+
+%end-doc */
+
 static int
 Load (int argc, char **argv, int x, int y)
 {
@@ -132,6 +149,20 @@ Load (int argc, char **argv, int x, int y)
   return 0;
 }
 
+static const char loadvendor_syntax[] =
+"LoadVendor()";
+
+static const char loadvendor_help[] =
+"Loads a user-selected vendor resource file.";
+
+/* %start-doc actions LoadVendor
+
+The user is prompted for a file to load, and then
+@code{LoadVendorFrom} is called (@pxref{LoadVendorFrom Action}) to
+load that vendor file.
+
+%end-doc */
+
 static int
 LoadVendor (int argc, char **argv, int x, int y)
 {
@@ -170,6 +201,24 @@ LoadVendor (int argc, char **argv, int x, int y)
 
   return 0;
 }
+
+static const char save_syntax[] =
+"Save()\n"
+"Save(Layout|LayoutAs)\n"
+"Save(AllConnections|AllUnusedPins|ElementConnections)";
+
+static const char save_help[] =
+"Save layout data to a user-selected file.";
+
+/* %start-doc actions Save
+
+This action is a GUI front-end to the core's @code{SaveTo} action
+(@pxref{SaveTo Action}).  If you happen to pass a filename, like
+@code{SaveTo}, then @code{SaveTo} is called directly.  Else, the
+user is prompted for a filename to save, and then @code{SaveTo} is
+called with that filename.
+
+%end-doc */
 
 static int
 Save (int argc, char **argv, int x, int y)
@@ -503,6 +552,21 @@ lesstif_prompt_for (char *msg, char *default_string)
   return rv;
 }
 
+static const char promptfor_syntax[] =
+"PromptFor([message[,default]])";
+
+static const char promptfor_help[] =
+"Prompt for a response.";
+
+/* %start-doc actions PromptFor
+
+This is mostly for testing the lesstif HID interface.  The parameters
+are passed to the @code{prompt_for()} HID function, causing the user
+to be prompted for a response.  The respose is simply printed to the
+user's stdout.
+
+%end-doc */
+
 static int
 PromptFor (int argc, char **argv, int x, int y)
 {
@@ -685,6 +749,38 @@ lesstif_attribute_dialog (HID_Attribute * attrs,
 
 /* ------------------------------------------------------------ */
 
+static const char dowindows_syntax[] =
+"DoWindows(1|2|3|4)\n"
+"DoWindows(Layout|Library|Log|Netlist)";
+
+static const char dowindows_help[] =
+"Open various GUI windows.";
+
+/* %start-doc actions DoWindows
+
+@table @code
+
+@item 1
+@itemx Layout
+Open the layout window.  Since the layout window is always shown
+anyway, this has no effect.
+
+@item 2
+@itemx Library
+Open the library window.
+
+@item 3
+@itemx Log
+Open the log window.
+
+@item 4
+@itemx Netlist
+Open the netlist window.
+
+@end table
+
+%end-doc */
+
 static int
 DoWindows (int argc, char **argv, int x, int y)
 {
@@ -754,6 +850,19 @@ About (int argc, char **argv, int x, int y)
 
 /* ------------------------------------------------------------ */
 
+static const char print_syntax[] =
+"Print()";
+
+static const char print_help[] =
+"Print the layout.";
+
+/* %start-doc actions Print
+
+This will find the default printing HID, prompt the user for its
+options, and print the layout.
+
+%end-doc */
+
 static int
 Print (int argc, char **argv, int x, int y)
 {
@@ -779,6 +888,19 @@ Print (int argc, char **argv, int x, int y)
   free (vals);
   return 0;
 }
+
+static const char export_syntax[] =
+"Export()";
+
+static const char export_help[] =
+"Export the layout.";
+
+/* %start-doc actions Export
+
+Prompts the user for an exporter to use.  Then, prompts the user for
+that exporter's options, and exports the layout.
+
+%end-doc */
 
 static int
 Export (int argc, char **argv, int x, int y)
@@ -965,6 +1087,21 @@ size_field (Widget parent, char *label, int posn)
   return w;
 }
 
+static const char adjustsizes_syntax[] =
+"AdjustSizes()";
+
+static const char adjustsizes_help[] =
+"Let the user change the board size, DRC parameters, etc";
+
+/* %start-doc actions AdjustSizes
+
+Displays a dialog box that lets the user change the board
+size, DRC parameters, and text scale.
+
+The units are determined by the default display units.
+
+%end-doc */
+
 static int
 AdjustSizes (int argc, char **argv, int x, int y)
 {
@@ -1098,6 +1235,24 @@ lesstif_update_layer_groups ()
     }
 }
 
+static const char editlayergroups_syntax[] =
+"EditLayerGroups()";
+
+static const char editlayergroups_help[] =
+"Let the user change the layer groupings";
+
+/* %start-doc actions EditLayerGroups
+
+Displays a dialog that lets the user view and change the layer
+groupings.  Each layer (row) can be a member of any one layer group
+(column).  Note the special layers @code{solder} and @code{component}
+allow you to specify which groups represent the top and bottom of the
+board.
+
+See @ref{ChangeName Action}.
+
+%end-doc */
+
 static int
 EditLayerGroups (int argc, char **argv, int x, int y)
 {
@@ -1169,18 +1324,27 @@ EditLayerGroups (int argc, char **argv, int x, int y)
 /* ------------------------------------------------------------ */
 
 HID_Action lesstif_dialog_action_list[] = {
-  {"Load", 0, Load},
-  {"LoadVendor", 0, LoadVendor},
-  {"Save", 0, Save},
-  {"DoWindows", 0, DoWindows},
-  {"PromptFor", 0, PromptFor},
+  {"Load", 0, Load,
+   load_help, load_syntax},
+  {"LoadVendor", 0, LoadVendor,
+   loadvendor_help, loadvendor_syntax},
+  {"Save", 0, Save,
+   save_help, save_syntax},
+  {"DoWindows", 0, DoWindows,
+   dowindows_help, dowindows_syntax},
+  {"PromptFor", 0, PromptFor,
+   promptfor_help, promptfor_syntax},
   {"Confirm", 0, ConfirmAction},
   {"About", 0, About,
    about_help, about_syntax},
-  {"Print", 0, Print},
-  {"Export", 0, Export},
-  {"AdjustSizes", 0, AdjustSizes},
-  {"EditLayerGroups", 0, EditLayerGroups},
+  {"Print", 0, Print,
+   print_help, print_syntax},
+  {"Export", 0, Export,
+   export_help, export_syntax},
+  {"AdjustSizes", 0, AdjustSizes,
+   adjustsizes_help, adjustsizes_syntax},
+  {"EditLayerGroups", 0, EditLayerGroups,
+   editlayergroups_help, editlayergroups_syntax},
 };
 
 REGISTER_ACTIONS (lesstif_dialog_action_list)

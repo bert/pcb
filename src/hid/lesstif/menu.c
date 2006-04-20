@@ -44,17 +44,50 @@ static int n;
 
 static void note_accelerator (char *acc, Resource * node);
 
+static const char getxy_syntax[] =
+"GetXY()";
+
+static const char getxy_help[] =
+"Get a coordinate.";
+
+/* %start-doc actions GetXY
+
+Prompts the user for a coordinate, if one is not already selected.
+
+%end-doc */
+
 static int
 GetXY (int argc, char **argv, int x, int y)
 {
   return 0;
 }
 
-static int
-CheckWhen (int argc, char **argv, int x, int y)
-{
-  return 0;
-}
+static const char debug_syntax[] =
+"Debug(...)";
+
+static const char debug_help[] =
+"Debug action.";
+
+/* %start-doc actions Debug
+
+This action exists to help debug scripts; it simply prints all its
+arguments to stdout.
+
+%end-doc */
+
+static const char debugxy_syntax[] =
+"DebugXY(...)";
+
+static const char debugxy_help[] =
+"Debug action, with coordinates";
+
+/* %start-doc actions DebugXY
+
+Like @code{Debug}, but requires a coordinate.  If the user hasn't yet
+indicated a location on the board, the user will be prompted to click
+on one.
+
+%end-doc */
 
 static int
 Debug (int argc, char **argv, int x, int y)
@@ -67,11 +100,42 @@ Debug (int argc, char **argv, int x, int y)
   return 0;
 }
 
+static const char return_syntax[] =
+"Return(0|1)";
+
+static const char return_help[] =
+"Simulate a passing or failing action.";
+
+/* %start-doc actions Return
+
+This is for testing.  If passed a 0, does nothing and succeeds.  If
+passed a 1, does nothing but pretends to fail.
+
+%end-doc */
+
 static int
 Return (int argc, char **argv, int x, int y)
 {
   return atoi (argv[0]);
 }
+
+static const char dumpkeys_syntax[] =
+"DumpKeys()";
+
+static const char dumpkeys_help[] =
+"Dump Lesstif key bindings.";
+
+/* %start-doc actions DumpKeys
+
+Causes the list of key bindings (from @code{pcb-menu.res}) to be
+dumped to stdout.  This is most useful when invoked from the command
+line like this:
+
+@example
+pcb --action-string DumpKeys
+@end example
+
+%end-doc */
 
 static int do_dump_keys = 0;
 static int
@@ -334,6 +398,19 @@ layerpick_button_callback (Widget w, int layer,
   lesstif_invalidate_all ();
 }
 
+static const char selectlayer_syntax[] =
+"SelectLayer(1..MAXLAYER|Silk|Rats)";
+
+static const char selectlayer_help[] =
+"Select which layer is the current layer.";
+
+/* %start-doc actions SelectLayer
+
+The specified layer becomes the currently active layer.  It is made
+visible if it is not already visible
+
+%end-doc */
+
 static int
 SelectLayer (int argc, char **argv, int x, int y)
 {
@@ -349,6 +426,27 @@ SelectLayer (int argc, char **argv, int x, int y)
   layerpick_button_callback (0, newl, 0);
   return 0;
 }
+
+static const char toggleview_syntax[] =
+"ToggleView(1..MAXLAYER)\n"
+"ToggleView(layername)\n"
+"ToggleView(Silk|Rats|Pins|Vias|Mask|BackSide)";
+
+static const char toggleview_help[] =
+"Toggle the visibility of the specified layer or layer group.";
+
+/* %start-doc actions ToggleView
+
+If you pass an integer, that layer is specified by index (the first
+layer is @code{1}, etc).  If you pass a layer name, that layer is
+specified by name.  When a layer is specified, the visibility of the
+layer group containing that layer is toggled.
+
+If you pass a special layer name, the visibility of those components
+(silk, rats, etc) is toggled.  Note that if you have a layer named
+the same as a special layer, the layer is chosen over the special layer.
+
+%end-doc */
 
 static int
 ToggleView (int argc, char **argv, int x, int y)
@@ -574,15 +672,22 @@ lesstif_update_widget_flags ()
 /*-----------------------------------------------------------------------------*/
 
 HID_Action lesstif_menu_action_list[] = {
-  {"DumpKeys", 0, DumpKeys},
-  {"Debug", 0, Debug},
-  {"DebugXY", "Click X,Y for Debug", Debug},
-  {"GetXY", "", GetXY},
-  {"CheckWhen", 0, CheckWhen},
-  {"Return", 0, Return},
-  {"LayersChanged", 0, LayersChanged},
-  {"ToggleView", 0, ToggleView},
-  {"SelectLayer", 0, SelectLayer}
+  {"DumpKeys", 0, DumpKeys,
+   dumpkeys_help, dumpkeys_syntax},
+  {"Debug", 0, Debug,
+   debug_help, debug_syntax},
+  {"DebugXY", "Click X,Y for Debug", Debug,
+   debugxy_help, debugxy_syntax},
+  {"GetXY", "", GetXY,
+   getxy_help, getxy_syntax},
+  {"Return", 0, Return,
+   return_help, return_syntax},
+  {"LayersChanged", 0, LayersChanged,
+   layerschanged_help, layerschanged_syntax},
+  {"ToggleView", 0, ToggleView,
+   toggleview_help, toggleview_syntax},
+  {"SelectLayer", 0, SelectLayer,
+   selectlayer_help, selectlayer_syntax}
 };
 
 REGISTER_ACTIONS (lesstif_menu_action_list)

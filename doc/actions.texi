@@ -1909,22 +1909,24 @@ these directly.
 @end macro
 
 @menu
-* LayerGroupsChanged Action:: Tells the GUI that the layer groups have changed.
+* LayersChanged Action:: Tells the GUI that the layers have changed.
 * LibraryChanged Action:: Tells the GUI that the libraries have changed.
 * NetlistChanged Action:: Tells the GUI that the netlist has changed.
 * PCBChanged Action:: Tells the GUI that the whole PCB has changed.
 * RouteStylesChanged Action:: Tells the GUI that the routing styles have changed.
 @end menu
-@node LayerGroupsChanged Action
-@subsection LayerGroupsChanged
-@c key LayerGroupsChanged in hid common
+@node LayersChanged Action
+@subsection LayersChanged
+@c key LayersChanged in hid common
 @cartouche
 @format
-LayerGroupsChanged()@end format
+LayersChanged()@end format
 @end cartouche
 
-Tells the GUI that the layer groups have changed.
+Tells the GUI that the layers have changed.
 @c ./../src/hid/common/actions.c 350
+
+This includes layer names, colors, stacking order, visibility, etc.
 
 @hidaction
 
@@ -2024,7 +2026,32 @@ This is for the gtk zoom.
 @section lesstif actions
 @menu
 * lesstif About Action:: Tell the user about this version of PCB.
-* lesstif Zoom Action:: this is the lesstif zoom
+* lesstif AdjustSizes Action:: Let the user change the board size, DRC parameters, etc
+* lesstif AdjustStyle Action:: Displays the route style adjustment window.
+* lesstif Benchmark Action:: Benchmark the GUI speed.
+* lesstif Command Action:: Displays the command line input window.
+* lesstif Debug Action:: Debug action.
+* lesstif DebugXY Action:: Debug action, with coordinates
+* lesstif DoWindows Action:: Open various GUI windows.
+* lesstif DumpKeys Action:: Dump Lesstif key bindings.
+* lesstif EditLayerGroups Action:: Let the user change the layer groupings
+* lesstif Export Action:: Export the layout.
+* lesstif GetXY Action:: Get a coordinate.
+* lesstif LibraryShow Action:: Displays the library window.
+* lesstif Load Action:: Load layout data from a user-selected file.
+* lesstif LoadVendor Action:: Loads a user-selected vendor resource file.
+* lesstif NetlistShow Action:: Displays the netlist window.
+* lesstif Print Action:: Print the layout.
+* lesstif PromptFor Action:: Prompt for a response.
+* lesstif Return Action:: Simulate a passing or failing action.
+* lesstif Save Action:: Save layout data to a user-selected file.
+* lesstif SelectLayer Action:: Select which layer is the current layer.
+* lesstif SetUnits Action:: Set the default measurement units.
+* lesstif SwapSides Action:: Swaps the side of the board you're looking at.
+* lesstif ThinDraw Action:: Sets the global thin-draw flag.
+* lesstif ThinDrawPoly Action:: Sets the thin-draw flag for polygons.
+* lesstif ToggleView Action:: Toggle the visibility of the specified layer or layer group.
+* lesstif Zoom Action:: Various zoom factor changes.
 @end menu
 @node lesstif About Action
 @subsection lesstif About
@@ -2035,10 +2062,478 @@ About()@end format
 @end cartouche
 
 Tell the user about this version of PCB.
-@c ./../src/hid/lesstif/dialogs.c 722
+@c ./../src/hid/lesstif/dialogs.c 752
 
 This just pops up a dialog telling the user which version of
 @code{pcb} they're running.
+
+
+@node lesstif AdjustSizes Action
+@subsection lesstif AdjustSizes
+@c key lesstif AdjustSizes in hid lesstif
+@cartouche
+@format
+AdjustSizes()@end format
+@end cartouche
+
+Let the user change the board size, DRC parameters, etc
+@c ./../src/hid/lesstif/dialogs.c 1007
+
+Displays a dialog box that lets the user change the board
+size, DRC parameters, and text scale.
+
+The units are determined by the default display units.
+
+
+@node lesstif AdjustStyle Action
+@subsection lesstif AdjustStyle
+@c key lesstif AdjustStyle in hid lesstif
+@cartouche
+@format
+AdjustStyle()@end format
+@end cartouche
+
+Displays the route style adjustment window.
+@c ./../src/hid/lesstif/styles.c 343
+
+
+@node lesstif Benchmark Action
+@subsection lesstif Benchmark
+@c key lesstif Benchmark in hid lesstif
+@cartouche
+@format
+Benchmark()@end format
+@end cartouche
+
+Benchmark the GUI speed.
+@c ./../src/hid/lesstif/main.c 560
+
+This action is used to speed-test the Lesstif graphics subsystem.  It
+redraws the current screen as many times as possible in ten seconds.
+It reports the amount of time needed to draw the screen once.
+
+
+@node lesstif Command Action
+@subsection lesstif Command
+@c key lesstif Command in hid lesstif
+@cartouche
+@format
+Command()@end format
+@end cartouche
+
+Displays the command line input window.
+@c ./../src/hid/lesstif/main.c 545
+
+The command window allows the user to manually enter actions to be
+executed.  Action syntax can be done one of two ways:
+
+@table @code
+
+@item
+Follow the action name by an open parenthesis, arguments separated by
+commas, end with a close parenthesis.  Example: @code{Abc(1,2,3)}
+
+@item
+Separate the action name and arguments by spaces.  Example: @code{Abc
+1 2 3}.
+
+@end table
+
+The first option allows you to have arguments with spaces in them,
+but the second is more ``natural'' to type for most people.
+
+Note that action names are not case sensitive, but arguments normally
+are.  However, most actions will check for ``keywords'' in a case
+insensitive way.
+
+There are three ways to finish with the command window.  If you press
+the @code{Enter} key, the command is invoked, the window goes away,
+and the next time you bring up the command window it's empty.  If you
+press the @code{Esc} key, the window goes away without invoking
+anything, and the next time you bring up the command window it's
+empty.  If you change focus away from the command window (i.e. click
+on some other window), the command window goes away but the next time
+you bring it up it resumes entering the command you were entering
+before.
+
+
+@node lesstif Debug Action
+@subsection lesstif Debug
+@c key lesstif Debug in hid lesstif
+@cartouche
+@format
+Debug(...)@end format
+@end cartouche
+
+Debug action.
+@c ./../src/hid/lesstif/menu.c 63
+
+This action exists to help debug scripts; it simply prints all its
+arguments to stdout.
+
+
+@node lesstif DebugXY Action
+@subsection lesstif DebugXY
+@c key lesstif DebugXY in hid lesstif
+@cartouche
+@format
+DebugXY(...)@end format
+@end cartouche
+
+Debug action, with coordinates
+@c ./../src/hid/lesstif/menu.c 69
+
+Like @code{Debug}, but requires a coordinate.  If the user hasn't yet
+indicated a location on the board, the user will be prompted to click
+on one.
+
+
+@node lesstif DoWindows Action
+@subsection lesstif DoWindows
+@c key lesstif DoWindows in hid lesstif
+@cartouche
+@format
+DoWindows(1|2|3|4)
+DoWindows(Layout|Library|Log|Netlist)@end format
+@end cartouche
+
+Open various GUI windows.
+@c ./../src/hid/lesstif/dialogs.c 716
+
+@table @code
+
+@item 1
+@itemx Layout
+Open the layout window.  Since the layout window is always shown
+anyway, this has no effect.
+
+@item 2
+@itemx Library
+Open the library window.
+
+@item 3
+@itemx Log
+Open the log window.
+
+@item 4
+@itemx Netlist
+Open the netlist window.
+
+@end table
+
+
+@node lesstif DumpKeys Action
+@subsection lesstif DumpKeys
+@c key lesstif DumpKeys in hid lesstif
+@cartouche
+@format
+DumpKeys()@end format
+@end cartouche
+
+Dump Lesstif key bindings.
+@c ./../src/hid/lesstif/menu.c 98
+
+Causes the list of key bindings (from @code{pcb-menu.res}) to be
+dumped to stdout.  This is most useful when invoked from the command
+line like this:
+
+@example
+pcb --action-string DumpKeys
+@end example
+
+
+@node lesstif EditLayerGroups Action
+@subsection lesstif EditLayerGroups
+@c key lesstif EditLayerGroups in hid lesstif
+@cartouche
+@format
+EditLayerGroups()@end format
+@end cartouche
+
+Let the user change the layer groupings
+@c ./../src/hid/lesstif/dialogs.c 1146
+
+Displays a dialog that lets the user view and change the layer
+groupings.  Each layer (row) can be a member of any one layer group
+(column).  Note the special layers @code{solder} and @code{component}
+allow you to specify which groups represent the top and bottom of the
+board.
+
+See @ref{ChangeName Action}.
+
+
+@node lesstif Export Action
+@subsection lesstif Export
+@c key lesstif Export in hid lesstif
+@cartouche
+@format
+Export()@end format
+@end cartouche
+
+Export the layout.
+@c ./../src/hid/lesstif/dialogs.c 816
+
+Prompts the user for an exporter to use.  Then, prompts the user for
+that exporter's options, and exports the layout.
+
+
+@node lesstif GetXY Action
+@subsection lesstif GetXY
+@c key lesstif GetXY in hid lesstif
+@cartouche
+@format
+GetXY()@end format
+@end cartouche
+
+Get a coordinate.
+@c ./../src/hid/lesstif/menu.c 51
+
+Prompts the user for a coordinate, if one is not already selected.
+
+
+@node lesstif LibraryShow Action
+@subsection lesstif LibraryShow
+@c key lesstif LibraryShow in hid lesstif
+@cartouche
+@format
+LibraryShow()@end format
+@end cartouche
+
+Displays the library window.
+@c ./../src/hid/lesstif/library.c 151
+
+
+@node lesstif Load Action
+@subsection lesstif Load
+@c key lesstif Load in hid lesstif
+@cartouche
+@format
+Load()
+Load(Layout|LayoutToBuffer|ElementToBuffer|Netlist|Revert)@end format
+@end cartouche
+
+Load layout data from a user-selected file.
+@c ./../src/hid/lesstif/dialogs.c 94
+
+This action is a GUI front-end to the core's @code{LoadFrom} action
+(@pxref{LoadFrom Action}).  If you happen to pass a filename, like
+@code{LoadFrom}, then @code{LoadFrom} is called directly.  Else, the
+user is prompted for a filename to load, and then @code{LoadFrom} is
+called with that filename.
+
+
+@node lesstif LoadVendor Action
+@subsection lesstif LoadVendor
+@c key lesstif LoadVendor in hid lesstif
+@cartouche
+@format
+LoadVendor()@end format
+@end cartouche
+
+Loads a user-selected vendor resource file.
+@c ./../src/hid/lesstif/dialogs.c 145
+
+The user is prompted for a file to load, and then
+@code{LoadVendorFrom} is called (@pxref{LoadVendorFrom Action}) to
+load that vendor file.
+
+
+@node lesstif NetlistShow Action
+@subsection lesstif NetlistShow
+@c key lesstif NetlistShow in hid lesstif
+@cartouche
+@format
+NetlistShow()@end format
+@end cartouche
+
+Displays the netlist window.
+@c ./../src/hid/lesstif/netlist.c 142
+
+
+@node lesstif Print Action
+@subsection lesstif Print
+@c key lesstif Print in hid lesstif
+@cartouche
+@format
+Print()@end format
+@end cartouche
+
+Print the layout.
+@c ./../src/hid/lesstif/dialogs.c 784
+
+This will find the default printing HID, prompt the user for its
+options, and print the layout.
+
+
+@node lesstif PromptFor Action
+@subsection lesstif PromptFor
+@c key lesstif PromptFor in hid lesstif
+@cartouche
+@format
+PromptFor([message[,default]])@end format
+@end cartouche
+
+Prompt for a response.
+@c ./../src/hid/lesstif/dialogs.c 528
+
+This is mostly for testing the lesstif HID interface.  The parameters
+are passed to the @code{prompt_for()} HID function, causing the user
+to be prompted for a response.  The respose is simply printed to the
+user's stdout.
+
+
+@node lesstif Return Action
+@subsection lesstif Return
+@c key lesstif Return in hid lesstif
+@cartouche
+@format
+Return(0|1)@end format
+@end cartouche
+
+Simulate a passing or failing action.
+@c ./../src/hid/lesstif/menu.c 86
+
+This is for testing.  If passed a 0, does nothing and succeeds.  If
+passed a 1, does nothing but pretends to fail.
+
+
+@node lesstif Save Action
+@subsection lesstif Save
+@c key lesstif Save in hid lesstif
+@cartouche
+@format
+Save()
+Save(Layout|LayoutAs)
+Save(AllConnections|AllUnusedPins|ElementConnections)@end format
+@end cartouche
+
+Save layout data to a user-selected file.
+@c ./../src/hid/lesstif/dialogs.c 190
+
+This action is a GUI front-end to the core's @code{SaveTo} action
+(@pxref{SaveTo Action}).  If you happen to pass a filename, like
+@code{SaveTo}, then @code{SaveTo} is called directly.  Else, the
+user is prompted for a filename to save, and then @code{SaveTo} is
+called with that filename.
+
+
+@node lesstif SelectLayer Action
+@subsection lesstif SelectLayer
+@c key lesstif SelectLayer in hid lesstif
+@cartouche
+@format
+SelectLayer(1..MAXLAYER|Silk|Rats)@end format
+@end cartouche
+
+Select which layer is the current layer.
+@c ./../src/hid/lesstif/menu.c 365
+
+The specified layer becomes the currently active layer.  It is made
+visible if it is not already visible
+
+
+@node lesstif SetUnits Action
+@subsection lesstif SetUnits
+@c key lesstif SetUnits in hid lesstif
+@cartouche
+@format
+SetUnits(mm|mil)@end format
+@end cartouche
+
+Set the default measurement units.
+@c ./../src/hid/lesstif/main.c 301
+
+@table @code
+
+@item mil
+Sets the display units to mils (1/1000 inch).
+
+@item mm
+Sets the display units to millimeters.
+
+@end table
+
+
+@node lesstif SwapSides Action
+@subsection lesstif SwapSides
+@c key lesstif SwapSides in hid lesstif
+@cartouche
+@format
+SwapSides()@end format
+@end cartouche
+
+Swaps the side of the board you're looking at.
+@c ./../src/hid/lesstif/main.c 414
+
+Normally, this action changes which pads and silk layer are drawn as
+true silk, and which are drawn as the "invisible" layer.  It also
+determines which solder mask you see.
+
+As a special case, if the layer group for the side you're looking at
+is visible and currently active, and the layer group for the opposite
+is not visible (i.e. disabled), then this action will also swap which
+layer group is visible and active, effectively swapping the ``working
+side'' of the board.
+
+
+@node lesstif ThinDraw Action
+@subsection lesstif ThinDraw
+@c key lesstif ThinDraw in hid lesstif
+@cartouche
+@format
+ThinDraw()
+ThinDraw(1|0)@end format
+@end cartouche
+
+Sets the global thin-draw flag.
+@c ./../src/hid/lesstif/main.c 370
+
+When the thindraw flag is set, all board objects are drawin using
+``thin'' lines.  Traces are drawn as single lines along their
+centerlines, other objects are drawn as outlines.  If you pass
+@code{0}, thin draw is disabled.  If you pass @code{1}, thin draw is
+enabled.  If you pass nothing, thin draw is toggled.
+
+
+@node lesstif ThinDrawPoly Action
+@subsection lesstif ThinDrawPoly
+@c key lesstif ThinDrawPoly in hid lesstif
+@cartouche
+@format
+ThinDrawPoly()
+ThinDrawPoly(0|1)@end format
+@end cartouche
+
+Sets the thin-draw flag for polygons.
+@c ./../src/hid/lesstif/main.c 392
+
+When the polygon thindraw flag is set, all polygonss are drawin using
+``thin'' lines along their outlines.  If you pass @code{0}, polygon
+thin draw is disabled.  If you pass @code{1}, polygon thin draw is
+enabled.  If you pass nothing, polygon thin draw is toggled.
+
+
+@node lesstif ToggleView Action
+@subsection lesstif ToggleView
+@c key lesstif ToggleView in hid lesstif
+@cartouche
+@format
+ToggleView(1..MAXLAYER)
+ToggleView(layername)
+ToggleView(Silk|Rats|Pins|Vias|Mask|BackSide)@end format
+@end cartouche
+
+Toggle the visibility of the specified layer or layer group.
+@c ./../src/hid/lesstif/menu.c 387
+
+If you pass an integer, that layer is specified by index (the first
+layer is @code{1}, etc).  If you pass a layer name, that layer is
+specified by name.  When a layer is specified, the visibility of the
+layer group containing that layer is toggled.
+
+If you pass a special layer name, the visibility of those components
+(silk, rats, etc) is toggled.  Note that if you have a layer named
+the same as a special layer, the layer is chosen over the special layer.
 
 
 @node lesstif Zoom Action
@@ -2046,12 +2541,44 @@ This just pops up a dialog telling the user which version of
 @c key lesstif Zoom in hid lesstif
 @cartouche
 @format
-Zoom(lesstif)@end format
+Zoom()
+Zoom(factor)@end format
 @end cartouche
 
-this is the lesstif zoom
-@c ./../src/hid/lesstif/main.c 314
+Various zoom factor changes.
+@c ./../src/hid/lesstif/main.c 321
 
-This is for the lesstif zoom.
+Changes the zoom (magnification) of the view of the board.  If no
+arguments are passed, the view is scaled such that the board just fits
+inside the visible window (i.e. ``view all'').  Otherwise,
+@var{factor} specifies a change in zoom factor.  It may be prefixed by
+@code{+}, @code{-}, or @code{=} to change how the zoom factor is
+modified.  The @var{factor} is a floating point number, such as
+@code{1.5} or @code{0.75}.
+
+@table @code
+
+@item +@var{factor}
+Values greater than 1.0 cause the board to be drawn smaller; more of
+the board will be visible.  Values between 0.0 and 1.0 cause the board
+to be drawn bigger; less of the board will be visible.
+
+@item -@var{factor}
+Values greater than 1.0 cause the board to be drawn bigger; less of
+the board will be visible.  Values between 0.0 and 1.0 cause the board
+to be drawn smaller; more of the board will be visible.
+
+@item =@var{factor}
+
+The @var{factor} is an absolute zoom factor; the unit for this value
+is "PCB units per screen pixel".  Since PCB units are 0.01 mil, a
+@var{factor} of 1000 means 10 mils (0.01 in) per pixel, or 100 DPI,
+about the actual resolution of most screens - resulting in an "actual
+size" board.  Similarly, a @var{factor} of 100 gives you a 10x actual
+size.
+
+@end table
+
+Note that zoom factors of zero are silently ignored.
 
 
