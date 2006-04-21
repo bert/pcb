@@ -167,7 +167,7 @@ ghid_button_state (GdkModifierType * state)
   else if (button3)
     bs = BUTTON3_PRESSED;
   else
-    bs = NONE_PRESSED;
+    bs = NO_BUTTON_PRESSED;
 
   return bs;
 }
