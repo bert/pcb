@@ -1538,11 +1538,13 @@ lesstif_do_export (HID_Attr_Val * options)
   XtAppMainLoop (app_context);
 }
 
+#if 0
 XrmOptionDescRec lesstif_options[] = {
 };
 
 XtResource lesstif_resources[] = {
 };
+#endif
 
 typedef union
 {
@@ -1623,14 +1625,26 @@ lesstif_parse_arguments (int *argc, char ***argv)
 	    break;
 	  }
       }
+
+#if 0
   amax = acount + XtNumber (lesstif_options);
+#else
+  amax = acount;
+#endif
+
   new_options = malloc ((amax + 1) * sizeof (XrmOptionDescRec));
+
 #if 0
   memcpy (new_options + acount, lesstif_options, sizeof (lesstif_options));
 #endif
   acount = 0;
 
+#if 0
   rmax = rcount + XtNumber (lesstif_resources);
+#else
+  rmax = rcount;
+#endif
+
   new_resources = malloc ((rmax + 1) * sizeof (XtResource));
   new_values = malloc ((rmax + 1) * sizeof (val_union));
 #if 0
@@ -1715,12 +1729,14 @@ lesstif_parse_arguments (int *argc, char ***argv)
 	    break;
 	  }
       }
+#if 0
   for (i = 0; i < XtNumber (lesstif_resources); i++)
     {
       XtResource *r = new_resources + rcount;
       r->resource_offset = sizeof (val_union) * rcount;
       rcount++;
     }
+#endif
 
   n = 0;
   stdarg (XmNdeleteResponse, XmDO_NOTHING);
