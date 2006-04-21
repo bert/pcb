@@ -79,8 +79,9 @@
 #define	TO_PCB_X(x)		TO_PCB(x) + Xorig
 #define	TO_PCB_Y(y)		(SWAP_IDENT ? \
 				PCB->MaxHeight - TO_PCB(y) - Yorig : TO_PCB(y) + Yorig)
-
+#ifdef __GNUC__
 #pragma GCC poison TO_SCREEN TO_SCREEN_X TO_SCREEN_Y
+#endif
 
 /* ---------------------------------------------------------------------------
  * misc macros, some might already be defined by <limits.h>
