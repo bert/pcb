@@ -1,3 +1,202 @@
+2006-04-21 17:05  danmc
+
+	* src/hid/gtk/gui-config.c: Comment out locale.h since the code
+	  which needed that was also commented out.  Fixes builds on
+	  solaris with sunpro and the gtk HID.
+
+2006-04-21 17:04  danmc
+
+	* src/macro.h: protect some GNU C specific stuff with #ifdef
+	  __GNUC__
+
+2006-04-21 17:03  danmc
+
+	* src/hid/gtk/gui-utils.c: change from NONE_PRESSED to
+	  NO_BUTTON_PRESSED since the former is not part of the ButtonState
+	  enum while the latter is.
+
+2006-04-20 22:12  danmc
+
+	* src/hid/lesstif/main.c: comment out with #if 0 the code related
+	  to lesstif_options and lesstif_resources since those were both
+	  empty.  With this change pcb should build correctly on 64-bit
+	  Irix-6.5 with version 7.41 of the MIPSpro compilers.	There are
+	  still a handful of compiler warnings to investigate.
+
+2006-04-19 23:23  djdelorie
+
+	* doc/actions.texi, src/hid.h, src/hid/common/actions.c,
+	  src/hid/lesstif/dialogs.c, src/hid/lesstif/library.c,
+	  src/hid/lesstif/main.c, src/hid/lesstif/menu.c,
+	  src/hid/lesstif/netlist.c, src/hid/lesstif/styles.c: Document
+	  lesstif hid actions.
+
+2006-04-19 20:39  danmc
+
+	* src/: box.h, find.c: rely on the autoconf test for inline instead
+	  of using our own based on __GNUC__.  This will let other non-gcc
+	  C99 compilers take advantage of inline.
+
+2006-04-19 18:36  danmc
+
+	* config.h.in, configure, configure.ac, doc/actions.texi,
+	  doc/version.texi, src/Makefile.am, src/Makefile.in, src/djopt.c,
+	  src/draw.c, src/file.c, src/flags.c, src/misc.c, src/parse_y.y,
+	  src/strflags.c, src/strflags.h, src/hid/lesstif/dialogs.c,
+	  src/hid/lesstif/library.c, src/hid/lesstif/main.c,
+	  src/hid/lesstif/menu.c, src/hid/lesstif/netlist.c,
+	  src/hid/lesstif/styles.c, src/hid/lesstif/xincludes.h: - add
+	  checks for sys/param.h and compiler understanding of 'inline'.  -
+	  remove a handful of warnings which showed up with the sunpro
+	  compiler.  - move the X11 includes into a header where they can
+	  be included in a   way which keeps them from messing up the
+	  namespace of the rest of   pcb.  Fixes some obscure warnings from
+	  sunpro.
+
+2006-04-19 18:34  danmc
+
+	* src/hid/png/png.c: get this to properly link when --disable-gif
+	  is used and the installed libgd does not have gif support.
+
+2006-04-19 18:33  djdelorie
+
+	* src/hid/ps/ps.c: Add --psfade option.
+
+2006-04-18 12:54  billw2
+
+	* src/: command.c, data.c:
+
+	  Clean out Gtk HID related FIXMEs
+
+2006-04-18 12:49  billw2
+
+	* src/draw.c:
+
+	  Clean out Gtk HID related FIXMEs.  Also old background image code
+	  which is now done in the Gtk and Lesstif HIDs.
+
+2006-04-18 12:40  billw2
+
+	* src/: main.c, set.c:
+
+	  Clean out FIXMEs specific to the Gtk HID.
+
+2006-04-18 12:20  billw2
+
+	* src/: misc.c, misc.h:
+
+	  Remove Gtk HID specific build_route_string() function.
+
+2006-04-18 12:16  billw2
+
+	* src/hid/gtk/: gui-config.c, gui-dialog-size.c, gui-top-window.c:
+
+	  Fix route style "Save as default" bug.
+
+	  Update status line when new route style selected.
+
+2006-04-17 01:04  djdelorie
+
+	* doc/actions.texi, doc/extract-docs, doc/pcb.texi,
+	  doc/pcbfile.texi, doc/version.texi, src/const.h, src/hid.h,
+	  src/parse_y.y, src/hid/common/actions.c, src/hid/lesstif/main.c:
+	  Remove all the prev-next-up links, reformat all the texi files to
+	  allow for automatic structure generation.  Add helper hooks in
+	  the extractor to let the source files control what types of nodes
+	  and document structure is used for each category.  Auto-create
+	  nodes and document substructure for each key within each
+	  category.
+
+2006-04-16 21:49  billw2
+
+	* src/hid/gtk/: gui-config.c, gui-top-window.c, gui-utils.c, gui.h:
+
+
+	  For the Gtk HID, add an alternate vertical window layout mode to
+	  help on lower vertical resolution displays.
+
+2006-04-16 21:04  djdelorie
+
+	* src/netlist.c: Include sys/types.h so that regex compiles on more
+	  hosts.
+
+2006-04-15 23:36  billw2
+
+	* src/hid/gtk/: gtkhid-main.c, gui-command-window.c,
+	  gui-keyref-window.c, gui-library-window.c, gui-log-window.c,
+	  gui-netlist-window.c, gui-top-window.c, gui.h:
+
+	  Fix soldermask draw while TAB view from solder side.
+
+	  Don't raise windows if already shown so library & netlist window
+	  won't grab focus.  Focus can still be grabbed if an already shown
+	  window is reshown via the top menu bar.  Not sure yet how to
+	  handle this case.
+
+2006-04-15 21:28  danmc
+
+	* src/hid/png/png.c: switch the output scaling to default to 100
+	  dpi instead of fixing the max dimension at 800 pixels.  This at
+	  makes the default be a sort of to scale (for 100 dpi monitors it
+	  will be to scale) image.
+
+2006-04-15 00:00  djdelorie
+
+	* doc/actions.texi, src/report.c: Document actions in report.c.
+
+2006-04-14 23:32  djdelorie
+
+	* src/puller.c, doc/Makefile.am, doc/Makefile.in, doc/actions.texi,
+	  doc/puller.pcb, doc/version.texi: Document the puller action.
+
+2006-04-14 20:09  billw2
+
+	* src/hid/gtk/gui-output-events.c:
+
+	  Make ghid_get_coords() x value account for side viewed (when
+	  using TAB).
+
+2006-04-14 19:48  billw2
+
+	* src/hid/gtk/: gtkhid-main.c, gui-top-window.c, gui.h:
+
+	  Support --bg-image in the Gtk HID.  Images can be jpg, png, gif,
+	  etc. as supported by the Gdk installation.
+
+	  Zooming gets slow at higher zoom levels, but I can address that
+	  later when I have more time.
+
+2006-04-14 18:30  danmc
+
+	* src/global.h: pullup rev 1.43 from the head: Make sure the
+	  Message and return are in the same scope.
+
+2006-04-14 17:33  djdelorie
+
+	* src/global.h: Make sure the Message and return are in the same
+	  scope.
+
+2006-04-14 12:24  danmc
+
+	* src/hid/gtk/gui-top-window.c: make sure we set the default icon
+	  _before_ any windows are created
+
+2006-04-14 09:14  danmc
+
+	* configure, configure.ac: set version for 20060414 snapshot
+
+2006-04-14 09:14  danmc
+
+	* configure, configure.ac: bump rev after 20060414 branch
+
+2006-04-14 09:11  danmc
+
+	* NEWS: 20060414 release notes
+
+2006-04-14 09:00  danmc
+
+	* ChangeLog, win32/pcb_icon.ico: update for 20060414 snapshot
+
 2006-04-14 08:35  danmc
 
 	* README.snapshots: update the instructions a bit
