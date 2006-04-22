@@ -37,10 +37,10 @@ To make a pcb release do the following:
 =)	if this is a major release, then tag and branch:
 
 	1. Tag the base of the release branch
-		cvs tag pcb-20060414-base 
+		cvs tag pcb-20060422-base 
 
 	2. Create the release branch
-		cvs tag -R -b -r pcb-20060414-base pcb-20060414
+		cvs tag -R -b -r pcb-20060422-base pcb-20060422
 
 	3. FIX_ME [fix up this step.  what shall we do with the version
 	   on the trunk?]
@@ -51,37 +51,37 @@ To make a pcb release do the following:
 		cvs ci configure.ac
 
 	4. On the release branch, update configure.ac to update the version
-		for example 20060414_ALPHA.  Now pre-release snapshots can be made.
-		cvs update -PdA -r pcb-20060414
+		for example 20060422_ALPHA.  Now pre-release snapshots can be made.
+		cvs update -PdA -r pcb-20060422
 
 	5. If desired tag an alpha release:
-		cvs update -PdA -r pcb-20060414
+		cvs update -PdA -r pcb-20060422
 		./autogen.sh
-		cvs tag -R -r pcb-20060414 pcb-20060414-ALPHA
-		cvs update -PdA -r pcb-20060414-ALPHA
+		cvs tag -R -r pcb-20060422 pcb-20060422-ALPHA
+		cvs update -PdA -r pcb-20060422-ALPHA
 		./autogen.sh && ./configure --enable-maintainer-mode && gmake && gmake distcheck
 
 	6. When the release branch is ready to go,  update configure.ac to
 	   set the final release version.  Then tag the release.
-		cvs update -PdA -r pcb-20060414
+		cvs update -PdA -r pcb-20060422
 		vi configure.ac
 		cvs ci configure.ac
 		./autogen.sh
 		cvs ci
-		cvs tag -R -r pcb-20060414 pcb-20060414-RELEASE
-		cvs update -PdA -r pcb-20060414-RELEASE
+		cvs tag -R -r pcb-20060422 pcb-20060422-RELEASE
+		cvs update -PdA -r pcb-20060422-RELEASE
 		./autogen.sh --enable-maintainer-mode && gmake clean && gmake && gmake distcheck
 	
 	7. Create checksums
 
-		digest sha1 pcb-20060414.tar.gz > pcb-20060414.SHA1
-		digest md5 pcb-20060414.tar.gz > pcb-20060414.MD5
+		digest sha1 pcb-20060422.tar.gz > pcb-20060422.SHA1
+		digest md5 pcb-20060422.tar.gz > pcb-20060422.MD5
 
 	8. Upload the .tar.gz, .MD5, and .SHA1 files to
 	   ftp://upload.sourceforge.net/incoming/
 
 	9. Create a new file release for pcb with a release name of
-	   "pcb-20060414" (for pcb-20060414).
+	   "pcb-20060422" (for pcb-20060422).
 
 		For file types:
 			.tar.gz      -  any / source .gz
@@ -93,7 +93,7 @@ To make a pcb release do the following:
 =) 	if this is a patch release, then simply make desired changes to the branch, and
 		./autogen.sh 
 		cvs ci
-		cvs tag -R -r pcb-20060414 pcb-20060414-PATCH001
+		cvs tag -R -r pcb-20060422 pcb-20060422-PATCH001
 
 =)	gmake distclean ; ./autogen.sh && gmake distcheck
 
