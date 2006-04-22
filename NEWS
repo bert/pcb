@@ -1,4 +1,33 @@
 ========================================================================
+Release Notes for PCB snapshot 20060422
+========================================================================
+- Several minor portability fixes for Solaris and the SunPRO compiler and
+  for Irix and the MIPSpro compiler.
+
+- Added --psfade option for the postscript HID.
+
+- Fixed a bug where the "load layout" and some other menu choices
+  didn't do anything.
+
+- Added remaining actions to the actions reference section of the manual.
+
+- Worked around X11 polluting the name space with some of the X header files.
+
+- Fix route style "Save as default" bug.
+
+- For the Gtk HID, add an alternate vertical window layout mode to
+  help on lower vertical resolution displays.
+
+- Fix soldermask draw while TAB view from solder side.
+
+- Change default PNG output scaling to be 100 dpi instead of fixing
+  the max dimension at 800 pixels.
+
+- Added background image support for the GTK HID (lesstif one has it too).
+
+- Fix missing window icons for the main GTK window and log window.
+
+========================================================================
 Release Notes for PCB snapshot 20060414
 ========================================================================
 - This is the first snapshot of the new HID version of PCB.  HID, which
