@@ -4928,17 +4928,16 @@ pads for the part should go.  For surface mount pads, draw line
 segments.  Note that until the footprint is completed, the surface
 mount pads will remain rounded.  Currently a rectangle or polygon
 may not be used as a pad.
-@item For each via and line segment which will become a pad, select it,
-right-click to bring up the popup menu and choose "edit name".  Enter
-the pin number and press enter.  Alternatively, you can use the "n"
-hotkey to activate the rename command.
+@item For each via and line segment which will become a pad, select it
+and press 'n' to be able to enter a name.  Enter
+the pin number and press enter.
 @item Make the silk layer active.
 @item Using the line and arc tools, draw a silk screen outline for the
 part.
 @item Using the selection tool, select all of the pins and silk screen
 for the part.
 @item Place the pointer above the reference point for the part.  This is
-typically the common centroid.  Keeping the pointer there, right-click
+typically the common centroid.  Keeping the pointer there, shift-right-click
 to bring up the popup menu and choose "convert
 selection to element".
 @item At this point, the vias, line segments, and silk screen will have
@@ -4947,7 +4946,7 @@ have square ends rather than round ends, select the pads by holding
 down the shift key and clicking each pad with the center mouse button.
 Now under the Select menu, "Change square-flag of selected objects"
 section, choose "Pins".
-@item Select the element, right-click to bring up the popup menu, and
+@item Select the element, shift-right-click to bring up the popup menu, and
 choose "Copy Selection to Buffer".  Now left-click on the center of 
 the new element.
 @item Under the buffer menu, choose "save buffer elements to file" to
