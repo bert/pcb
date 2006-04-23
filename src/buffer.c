@@ -619,10 +619,15 @@ SmashBufferElement (BufferTypePtr Buffer)
   END_LOOP;
   PIN_LOOP (element);
   {
+    FlagType f = NoFlags ();
+    AddFlags(f, VIAFLAG);
+    if (TEST_FLAG (HOLEFLAG, pin))
+      AddFlags (f, HOLEFLAG);
+
     CreateNewVia (Buffer->Data, pin->X, pin->Y,
 		  pin->Thickness, pin->Clearance, pin->Mask,
 		  pin->DrillingHole, pin->Number,
-		  AddFlags (pin->Flags, HOLEFLAG));
+		  f);
   }
   END_LOOP;
   group =
