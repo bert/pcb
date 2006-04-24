@@ -3622,26 +3622,46 @@ ghid_listener_cb (GIOChannel *source,
 
   if (condition & G_IO_HUP)
     {
-      g_error ("Read end of pipe died!\n");
+      gui->log ("Read end of pipe died!\n");
       return FALSE;
     }
 
   if (condition == G_IO_IN)
     {
       status = g_io_channel_read_line (source, &str, &len, &term, &err);
-      if (status == G_IO_STATUS_NORMAL)
+      switch (status)
 	{
+	case G_IO_STATUS_NORMAL:
 	  hid_parse_actions (str, NULL);
 	  g_free (str);
+	  break;
+
+	case G_IO_STATUS_ERROR:
+	  gui->log ("ERROR status from g_io_channel_read_line\n");
+	  return FALSE;
+	  break;
+
+	case G_IO_STATUS_EOF:
+	  gui->log ("Input pipe returned EOF.  The --listen option is \n"
+		    "probably not running anymore in this session.\n");
+	  return FALSE;
+	  break;
+
+	case G_IO_STATUS_AGAIN:
+	  gui->log ("AGAIN status from g_io_channel_read_line\n");
+	  return FALSE;
+	  break;
+
+	default:
+	  fprintf (stderr, "ERROR:  unhandled case in ghid_listener_cb\n");
+	  return FALSE;
+	  break;
 	}
-      else
-	{
-	  g_error ("Bad status from g_io_channel_read_line\n");
-	}
+
     }
   else
-    printf ("Unknown condition\n");
-
+    fprintf (stderr, "Unknown condition in ghid_listener_cb\n");
+  
   return TRUE;
 }
 
