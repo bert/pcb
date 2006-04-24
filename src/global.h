@@ -92,9 +92,9 @@ typedef struct
  * not need to know what kind of actual object they're working on.
  */
 
-/* Any object that uses the "object flags" defined in const.h MUST be
-   defined using this as the first fields, either directly or through
-   ANYLINEFIELDS.  */
+/* Any object that uses the "object flags" defined in const.h, or
+   exists as an object on the pcb, MUST be defined using this as the
+   first fields, either directly or through ANYLINEFIELDS.  */
 #define ANYOBJECTFIELDS			\
 	BoxType		BoundingBox;	\
 	long int	ID;		\
