@@ -87,17 +87,26 @@ typedef struct
 #endif
 
 /* ---------------------------------------------------------------------------
- * do not change the following definition even if it's not very nice.
- * It allows us to cast PadTypePtr and RatTypePtr to LineTypePtr and access
- * their coordinates as a line.
+ * Do not change the following definitions even if they're not very
+ * nice.  It allows us to have functions act on these "base types" and
+ * not need to know what kind of actual object they're working on.
  */
-#define	LINESTRUCT			\
+
+/* Any object that uses the "object flags" defined in const.h MUST be
+   defined using this as the first fields, either directly or through
+   ANYLINEFIELDS.  */
+#define ANYOBJECTFIELDS			\
+	BoxType		BoundingBox;	\
 	long int	ID;		\
-	FlagType	Flags;		\
+	FlagType	Flags
+
+/* Lines, pads, and rats all use this so they can be cross-cast.  */
+#define	ANYLINEFIELDS			\
+	ANYOBJECTFIELDS;		\
 	BDimension	Thickness,      \
                         Clearance;      \
 	PointType	Point1,		\
-			Point2;
+			Point2
 
 /* ---------------------------------------------------------------------------
  * some useful values of our widgets
@@ -157,10 +166,11 @@ typedef struct
 /* ---------------------------------------------------------------------------
  * the basic object types supported by PCB
  */
-typedef struct			/* all objects start with a Bounding box and ID */
-{
-  BoxType BoundingBox;
-  long int ID;
+
+/* All on-pcb objects (elements, lines, pads, vias, rats, etc) are
+   based on this. */
+typedef struct {
+  ANYOBJECTFIELDS;
 } AnyObjectType, *AnyObjectTypePtr;
 
 typedef struct			/* a line/polygon point */
@@ -169,17 +179,20 @@ typedef struct			/* a line/polygon point */
   long int ID;
 } PointType, *PointTypePtr;
 
+/* Lines, rats, pads, etc.  */
+typedef struct {
+  ANYLINEFIELDS;
+} AnyLineObjectType, *AnyLineObjectTypePtr;
+
 typedef struct			/* holds information about one line */
 {
-  BoxType BoundingBox;
-  LINESTRUCT char *Number;
+  ANYLINEFIELDS;
+  char *Number;
 } LineType, *LineTypePtr;
 
 typedef struct
 {
-  BoxType BoundingBox;
-  long int ID;
-  FlagType Flags;
+  ANYOBJECTFIELDS;
   BDimension Scale;		/* text scaling in percent */
   LocationType X,		/* origin */
     Y;
@@ -190,9 +203,7 @@ typedef struct
 
 typedef struct			/* holds information about a polygon */
 {
-  BoxType BoundingBox;
-  long int ID;
-  FlagType Flags;
+  ANYOBJECTFIELDS;
   Cardinal PointN,		/* number of points in polygon */
     PointMax;			/* max number from malloc() */
   PointTypePtr Points;		/* data */
@@ -200,9 +211,7 @@ typedef struct			/* holds information about a polygon */
 
 typedef struct			/* holds information about arcs */
 {
-  BoxType BoundingBox;
-  long int ID;			/* these fields are unused when contained in elements */
-  FlagType Flags;
+  ANYOBJECTFIELDS;
   BDimension Thickness, Clearance;
   LocationType Width,		/* length of axis */
     Height, X,			/* center coordinates */
@@ -239,14 +248,14 @@ LayerType, *LayerTypePtr;
 
 typedef struct			/* a rat-line */
 {
-  BoxType BoundingBox;
-  LINESTRUCT Cardinal group1, group2;	/* the layer group each point is on */
+  ANYLINEFIELDS;
+  Cardinal group1, group2;	/* the layer group each point is on */
 } RatType, *RatTypePtr;
 
 typedef struct			/* a SMD pad */
 {
-  BoxType BoundingBox;
-  LINESTRUCT BDimension Mask;
+  ANYLINEFIELDS;
+  BDimension Mask;
   char *Name, *Number;		/* 'Line' */
   void *Element;
   void *Spare;
@@ -254,9 +263,7 @@ typedef struct			/* a SMD pad */
 
 typedef struct
 {
-  BoxType BoundingBox;
-  long int ID;
-  FlagType Flags;
+  ANYOBJECTFIELDS;
   BDimension Thickness, Clearance, Mask, DrillingHole;
   LocationType X,		/* center and diameter */
     Y;
@@ -267,9 +274,7 @@ typedef struct
 
 typedef struct
 {
-  BoxType BoundingBox;
-  long int ID;
-  FlagType Flags;
+  ANYOBJECTFIELDS;
   TextType Name[MAX_ELEMENTNAMES];	/* the elements names; */
   /* description text */
   /* name on PCB second, */
