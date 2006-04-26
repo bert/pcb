@@ -187,7 +187,6 @@ sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 EXTRA_DIST = \
 	CHANGES \
-	INSTALL \
 	Tools \
 	Whats_new_in_2.0 
 
