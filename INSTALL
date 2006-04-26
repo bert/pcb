@@ -1,155 +1,225 @@
+$Id$
 
-                            COPYRIGHT
+PCB uses a standard GNU autoconf/automake based build
+system which should make compilation go smoothly on most unix-like
+systems.  Please do read this first section however.
 
-  PCB, interactive printed circuit board design
-  Copyright (C) 1994, 1995, 1996, 1997 Thomas Nau
-  Copyright (C) 1998, 1999, 2000, 2001, 2002 harry eaton
-  Copyright (C) 2001 C. Scott Ananian
+PCB is organized into a core program that deals with all of the
+internal database procedures and a collection of Human Interface
+Devices (HID's).  The HID's provide exporting/printing capability
+as well as a graphical user interface.  At the time of writing
+this document PCB includes the following HIDs:
 
-  This program is free software; you can redistribute it and/or modify
-  it under the terms of the GNU General Public License as published by
-  the Free Software Foundation; either version 2 of the License, or
-  (at your option) any later version.
+GUI HID's:
+     gtk      -- GTK based GUI.  This is the default GUI.  You will
+		 need gtk-2.4 or newer installed (both the runtime
+		 files as well as the developer headers).  You only
+		 need gtk if you want the gtk HID.
 
-  This program is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  GNU General Public License for more details.
+     lesstif  -- motif/lesstif based GUI.  To use the lesstif HID
+		 you will need Motif, OpenMotif, or Lesstif installed.
+		 Again you need both libraries and headers.
 
-  You should have received a copy of the GNU General Public License
-  along with this program; if not, write to the Free Software
-  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+     The choice of which gui to use (if you want something other than 
+     the default of GTK) is indicated with the --with-gui configure
+     option.  Examples are:
+       --with-gui=lesstif  = picks the lesstif HID
+       --with-gui=gtk      = picks the GTK HID
+       --without-gui       = specifies that no GUI will be built.  This
+			     option is primarily intended for use in a
+			     web server environment where you may wish
+			     to export .pcb files to graphical files on
+			     the fly but you do not want to install
+			     X11 or any GUI tooliks on the server.
 
-  Contact addresses for paper mail and Email:
-  harry eaton
-  6697 Buttonhole Court
-  Columbia, MD 21044 USA
-  haceaton@aplcomm.jhuapl.edu
+Export HID's:
+     ps       -- Postscript and Encapsulated Postscript output.  No
+		 additional libraries are needed for this.
 
+     gerber   -- RS-274-X (Gerber) and Excellon drill output.  No
+		 additional libraries are needed for this.
 
+     bom      -- Bill of materials (BOM) and Centroid (X-Y) output.
+		 No additional libraries are needed for this.
 
------------------------------------------------------------------------------
+     png      -- png/gif/jpeg output.  This HID used gdlib to do
+		 the majority of the work.  gdlib may be obtained
+		 from http://www.boutell.com/gd.  At the time of
+		 writing this document, I have tested with 
+		 gd-2.0.33.  Other versions may work as well.
+		 Since some installations of gdlib may not support
+		 all three of the formats mentioned here (png, gif,
+		 and jpeg), PCB has configure options to individually
+		 turn off each of these output formats.  These options
+		 are:
+		   --disable-gif, --disable-jpeg, and --disable-png
 
-Previous releases have been successfully compiled on the following platforms:
+    The choice of which export HID's to compile is indicated with:
 
-X11R4
-	Check the GNU info file for problems.
-	The dynamic offset for printouts is not supported because of the
-	missing panner widget. This version NOW REQUIRES X11R6
+      --with-exporters="ps gerber bom png"
 
+    By default all available exporters will be configured in if --with-exporters
+    is not given.  
 
-HP-UX 10.10
-	All HP machines require the MIT release of X11R6
-	HP does not ship the Athena Widgets with its release nor
-	necessary tools like imake... but you can get them as a patch.
-	You will also have to get yourself an ANSI compiler if you are stuck
-	with HPs cc.
+Printer HID's:
+     lpr     -- Unix line printer support.  No additional libraries are
+		needed for this.
 
-Sun Solaris 2.5.1
-	You won't have any problems if you use X11R5 or later. 
-	Using OpenWindows will cause some of them. See the GNU info file for
-	details about it.
+     The choice of which printer HID's to compile is indicated with:
 
-Silicon Graphics IRIX 5.3, 6.2 and 6.4
-	No problems beside additional CFLAGS in Imakefile. Check if you are
-	using a R4 server and, if you do, read the GNU info file of pcb.
+       --with-printers="lpr"
 
-Linux 0.99pl14 and later, XFree 2.1.1 and later
-	No problems; it's the developement platform.
+     By default all available printers will be configured in if --with-printers
+     is not given.
 
-SCO ODT 3.0 (probably, couldn't check the current release)
-	Needs tls003 of the Athena Widget library from sosco.sco.com
-	(mailed by John DuBois <spcecdt@deeptht.armory.com>).
+In addition to the libraries listed above, there is a graphical QFP footprint
+creator which uses TCL/TK.  If you do not wish to use this feature, and you
+do not have TCL/TK installed on your system, you may simply set WISH to
+/usr/bin/true in your configure environment.  For example:
 
-FreeBSD (probably, couldn't check the current release)
-
-NetBSD 
-	No problems
-
-DEC UNIX V3.2, V4.0
-
-This specific release has been installed and tested on GNU/Linux 2.4.10, X11R6,
-specifically linux-pmac! based on the 2.4.10 kernel. This is a
-redhat 7 based derivative, but few of the changes should materially
-affect the other platforms described above. The special caveats to
-those machines still apply.
-
------------------------------------------------------------------------------
-
-Quick install for the sloppy:
-
-# ./configure
-# make
-# cd src
-# ./pcbtest.sh
+  env WISH=/usr/bin/true ./configure
 
 
-if everything is working good, quit then:
-# cd ..
-# make install
+Please refer to the output of
 
-Do that last step as root.
+  ./configure --help
 
-More formal installation instructions:
+for the most up to date details on the options.
 
-     ***** YOU MUST HAVE AN ANSI COMPILER TO COMPILE THESE SOURCES *****
+After running ./configure with your selected options, run
 
-Here's how to install:
+  make
 
-1. Run the configure script.  This is a standard GNU configure script.
-   In the simplest case you just run
+to build PCB.  You can try out the program by running
 
-     ./configure
-   
-   This will configure PCB to install to /usr/local 
-   To change the installation prefix to /opt/pcb , use
+  cd src
+  ./pcbtest.sh
 
-     ./configure --prefix=/opt/pcb
+prior to installation.
 
-   See
+To install PCB after it has been built run:
 
-     ./configure --help 
+  make install
 
-   for a full list of options
+from the top level directory.
 
-2. Run make to compile the software
+-------- Standard GNU INSTALL Instructions Follow --------------------
 
-     make
+This is a generic INSTALL file for utilities distributions.
+If this package does not come with, e.g., installable documentation or
+data files, please ignore the references to them below.
 
-3. Get yourself a printed copy of the documentation (available in
-   ./doc/).
-   Read 'Whats_new*' to see if old file have to be updated.
+To compile this package:
 
+1.  Configure the package for your system.  In the directory that this
+file is in, type `./configure'.  If you're using `csh' on an old
+version of System V, you might need to type `sh configure' instead to
+prevent `csh' from trying to execute `configure' itself.
 
-4. Test the program before you install it to see if the application defaults
-   match your window environment.
-       cd src
-       ./pcbtest.sh
-   does the trick.
-   
-5. Take the printed copies from (3) and check if the translations work
-   (see chapter 'Getting Started') by running
-       ./pcbtest.sh ../example/LED2
-   It comes up with a LED board layout you can play with.
+The `configure' shell script attempts to guess correct values for
+various system-dependent variables used during compilation, and
+creates the Makefile(s) (one in each subdirectory of the source
+directory).  In some packages it creates a C header file containing
+system-dependent definitions.  It also creates a file `config.status'
+that you can run in the future to recreate the current configuration.
 
-   Take special care on the resources related to functions keys and the
-   pointer buttons because most of the window managers use them too.
- 
-6. When you're satisfied with the defaults and the program run:
-       cd ..
-       make install
-   as a user with the appropriate rights. Depending on the filemodes set
-   by your X11 environment you must remove existing copies of fonts,
-   manpage and program before you are able to install successfully.
-   Set umask to 022 else the new created directories wont be world
-   readable; the fonts cannot be found.
+Running `configure' takes a minute or two.  While it is running, it
+prints some messages that tell what it is doing.  If you don't want to
+see the messages, run `configure' with its standard output redirected
+to `/dev/null'; for example, `./configure >/dev/null'.
 
-6. Read 'MAILING' in this directory.
+To compile the package in a different directory from the one
+containing the source code, you must use a version of `make' that
+supports the VPATH variable, such as GNU `make'.  `cd' to the directory
+where you want the object files and executables to go and run
+`configure'.  `configure' automatically checks for the source code in
+the directory that `configure' is in and in `..'.  If for some reason
+`configure' is not in the source code directory that you are
+configuring, then it will report that it can't find the source code.
+In that case, run `configure' with the option `--srcdir=DIR', where
+DIR is the directory that contains the source code.
 
+By default, `make install' will install the package's files in
+/usr/local/bin, /usr/local/lib, /usr/local/man, etc.  You can specify an
+installation prefix other than /usr/local by giving `configure' the option
+`--prefix=PATH'.  Alternately, you can do so by consistently giving a value
+for the `prefix' variable when you run `make', e.g.,
+	make prefix=/usr/gnu
+	make prefix=/usr/gnu install
 
-If you create any element files or package description files I would be glad
-to get a copy to include them into the next release or an additional archive.
+You can specify separate installation prefixes for
+architecture-specific files and architecture-independent files.  If
+you give `configure' the option `--exec-prefix=PATH' or set the
+`make' variable `exec_prefix' to PATH, the package will use PATH as
+the prefix for installing programs and libraries.  Data files and
+documentation will still use the regular prefix.  Normally, all files
+are installed using the regular prefix.
 
-Have fun with it.
+Another `configure' option is useful mainly in `Makefile' rules for
+updating `config.status' and `Makefile'.  The `--no-create' option
+figures out the configuration for your system and records it in
+`config.status', without actually configuring the package (creating
+`Makefile's and perhaps a configuration header file).  Later, you can
+run `./config.status' to actually configure the package.  You can also
+give `config.status' the `--recheck' option, which makes it re-run
+`configure' with the same arguments you used before.  This option is
+useful if you change `configure'.
 
-harry
+Some packages pay attention to `--with-PACKAGE' options to `configure',
+where PACKAGE is something like `gnu-libc' or `x' (for the X Window System).
+The README should mention any --with- options that the package recognizes.
+
+`configure' ignores any other arguments that you give it.
+
+If your system requires unusual options for compilation or linking
+that `configure' doesn't know about, you can give `configure' initial
+values for some variables by setting them in the environment.  In
+Bourne-compatible shells, you can do that on the command line like
+this:
+	CC='gcc -traditional' DEFS=-D_POSIX_SOURCE ./configure
+
+The `make' variables that you might want to override with environment
+variables when running `configure' are:
+
+(For these variables, any value given in the environment overrides the
+value that `configure' would choose:)
+CC		C compiler program.
+		Default is `cc', or `gcc' if `gcc' is in your PATH.
+INSTALL		Program to use to install files.
+		Default is `install' if you have it, `cp' otherwise.
+
+(For these variables, any value given in the environment is added to
+the value that `configure' chooses:)
+DEFS		Configuration options, in the form `-Dfoo -Dbar ...'
+		Do not use this variable in packages that create a
+		configuration header file.
+LIBS		Libraries to link with, in the form `-lfoo -lbar ...'
+
+If you need to do unusual things to compile the package, we encourage
+you to figure out how `configure' could check whether to do them, and
+mail diffs or instructions to the address given in the README so we
+can include them in the next release.
+
+2.  Type `make' to compile the package.  If you want, you can override
+the `make' variables CFLAGS and LDFLAGS like this:
+
+	make CFLAGS=-O2 LDFLAGS=-s
+
+3.  If the package comes with self-tests and you want to run them,
+type `make check'.  If you're not sure whether there are any, try it;
+if `make' responds with something like
+	make: *** No way to make target `check'.  Stop.
+then the package does not come with self-tests.
+
+4.  Type `make install' to install programs, data files, and
+documentation.
+
+5.  You can remove the program binaries and object files from the
+source directory by typing `make clean'.  To also remove the
+Makefile(s), the header file containing system-dependent definitions
+(if the package uses one), and `config.status' (all the files that
+`configure' created), type `make distclean'.
+
+The file `configure.in' is used as a template to create `configure' by
+a program called `autoconf'.  You will only need it if you want to
+regenerate `configure' using a newer version of `autoconf'.
