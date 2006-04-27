@@ -46,13 +46,18 @@ Export HID's:
 		 the majority of the work.  gdlib may be obtained
 		 from http://www.boutell.com/gd.  At the time of
 		 writing this document, I have tested with 
-		 gd-2.0.33.  Other versions may work as well.
+		 gd-2.0.23 and gd-2.0.33.  Other versions may
+		 work as well.
+
 		 Since some installations of gdlib may not support
 		 all three of the formats mentioned here (png, gif,
-		 and jpeg), PCB has configure options to individually
+		 and jpeg), PCB provides configure options to individually
 		 turn off each of these output formats.  These options
 		 are:
 		   --disable-gif, --disable-jpeg, and --disable-png
+		 By having you, the user, explicitly turn off the different
+		 formats hopefully it will avoid suprises when the
+		 disabled formats are not available at runtime.
 
     The choice of which export HID's to compile is indicated with:
 
