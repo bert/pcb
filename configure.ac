@@ -298,18 +298,22 @@ for e in $HIDLIST; do
 	# Check for gdlib-config for gd (www.boutell.com/gd)
 	AC_PATH_PROG(GDLIB_CONFIG, gdlib-config, no)
 	if test "$GDLIB_CONFIG" = "no"; then
-		AC_MSG_ERROR([Cannot find gdlib-config.
+		AC_MSG_RESULT([Cannot find gdlib-config.
 Make sure it is installed and in your PATH.
 gdlib-config is part of the GD library available from www.boutell.com/gd.
-This is needed for the png HID.
+This is needed for the png HID.  I will look for libgd anyway and maybe
+you will get lucky.
 ])
+		AC_CHECK_LIB(gd,main,,
+			AC_MSG_ERROR([You have requested the png HID  but -lgd could not be found]))
+	else
+		AC_MSG_CHECKING([for libgd cflags])
+		GD_CFLAGS="`$GDLIB_CONFIG --cflags`"
+		AC_MSG_RESULT([$GD_CFLAGS])
+		AC_MSG_CHECKING([for libgd libs])
+		GD_LIBS="`$GDLIB_CONFIG --ldflags` `$GDLIB_CONFIG --libs` -lgd"
+		AC_MSG_RESULT([$GD_LIBS])
 	fi
-	AC_MSG_CHECKING([for libgd cflags])
-	GD_CFLAGS="`$GDLIB_CONFIG --cflags`"
-	AC_MSG_RESULT([$GD_CFLAGS])
-	AC_MSG_CHECKING([for libgd libs])
-	GD_LIBS="`$GDLIB_CONFIG --ldflags` `$GDLIB_CONFIG --libs` -lgd"
-	AC_MSG_RESULT([$GD_LIBS])
    
 	# since some linux systems evidently install gdlib-config but fail to
 	# install the headers (nice), check for the header too and fail if it
