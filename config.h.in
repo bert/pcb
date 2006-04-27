@@ -42,6 +42,9 @@
 /* Define to 1 if you have the `fl' library (-lfl). */
 #undef HAVE_LIBFL
 
+/* Define to 1 if you have the `gd' library (-lgd). */
+#undef HAVE_LIBGD
+
 /* Define to 1 if you have the `ICE' library (-lICE). */
 #undef HAVE_LIBICE
 
