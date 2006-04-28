@@ -1127,6 +1127,7 @@ NotifyMode (void)
 	  RatTypePtr line;
 	  if ((line = AddNet ()))
 	    {
+	      addedLines++;
 	      AddObjectToCreateUndoList (RATLINE_TYPE, line, line, line);
 	      IncrementUndoSerialNumber ();
 	      DrawRat (line, 0);
@@ -5390,7 +5391,7 @@ ActionUndo (int argc, char **argv, int x, int y)
 	      void *ptr1, *ptr3, *ptrtmp;
 	      LineTypePtr ptr2;
 	      /* this search is guranteed to succeed */
-	      SearchObjectByLocation (LINE_TYPE, &ptr1, &ptrtmp,
+	      SearchObjectByLocation (LINE_TYPE | RATLINE_TYPE, &ptr1, &ptrtmp,
 				      &ptr3, Crosshair.AttachedLine.Point1.X,
 				      Crosshair.AttachedLine.Point1.Y, 0);
 	      ptr2 = (LineTypePtr) ptrtmp;
@@ -5420,7 +5421,8 @@ ActionUndo (int argc, char **argv, int x, int y)
 	      if (type & UNDO_REMOVE)
 		{
 		  /* this search should find the restored line */
-		  SearchObjectByLocation (LINE_TYPE, &ptr1, &ptrtmp,
+		  SearchObjectByLocation (LINE_TYPE | RATLINE_TYPE, &ptr1, 
+					  &ptrtmp,
 					  &ptr3,
 					  Crosshair.AttachedLine.Point2.X,
 					  Crosshair.AttachedLine.Point2.Y, 0);
@@ -5440,7 +5442,8 @@ ActionUndo (int argc, char **argv, int x, int y)
 	      else
 		{
 		  /* this search is guranteed to succeed too */
-		  SearchObjectByLocation (LINE_TYPE, &ptr1, &ptrtmp,
+		  SearchObjectByLocation (LINE_TYPE | RATLINE_TYPE, &ptr1, 
+					  &ptrtmp,
 					  &ptr3,
 					  Crosshair.AttachedLine.Point1.X,
 					  Crosshair.AttachedLine.Point1.Y, 0);
