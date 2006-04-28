@@ -4,7 +4,7 @@
  *                            COPYRIGHT
  *
  *  PCB, interactive printed circuit board design
- *  Copyright (C) 1994,1995,1996,1997,1998, 2005 Thomas Nau
+ *  Copyright (C) 1994,1995,1996,1997,1998,2005,2006 Thomas Nau
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -433,12 +433,12 @@ WritePCBDataHeader (FILE * FP)
   fputs ("\nPCB[", FP);
   PrintQuotedString (FP, EMPTY (PCB->Name));
   fprintf (FP, " %i %i]\n\n", (int) PCB->MaxWidth, (int) PCB->MaxHeight);
-  fprintf (FP, "Grid[%2.8f %i %i %i]\n",
-	   PCB->Grid, (int) PCB->GridOffsetX, (int) PCB->GridOffsetY,
+  fprintf (FP, "Grid[%s %i %i %i]\n",
+	   c_dtostr(PCB->Grid), (int) PCB->GridOffsetX, (int) PCB->GridOffsetY,
 	   (int) Settings.DrawGrid);
-  fprintf (FP, "Cursor[%i %i %f]\n", (int) TO_PCB_X (Output.Width / 2),
-	   (int) TO_PCB_Y (Output.Height / 2), PCB->Zoom);
-  fprintf (FP, "Thermal[%f]\n", PCB->ThermScale);
+  fprintf (FP, "Cursor[%i %i %s]\n", (int) TO_PCB_X (Output.Width / 2),
+	   (int) TO_PCB_Y (Output.Height / 2), c_dtostr(PCB->Zoom));
+  fprintf (FP, "Thermal[%s]\n", c_dtostr(PCB->ThermScale));
   fprintf (FP, "DRC[%i %i %i %i %i %i]\n", PCB->Bloat, PCB->Shrink,
 	   PCB->minWid, PCB->minSlk, PCB->minDrill, PCB->minRing);
   /* FIXME: This shouldn't know about .f, but we don't have a string

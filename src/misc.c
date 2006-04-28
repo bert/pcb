@@ -4,7 +4,7 @@
  *                            COPYRIGHT
  *
  *  PCB, interactive printed circuit board design
- *  Copyright (C) 1994,1995,1996, 2004 Thomas Nau
+ *  Copyright (C) 1994,1995,1996,2004,2006 Thomas Nau
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -1837,4 +1837,93 @@ pcb_author (void)
 #else
   return "Unknown";
 #endif
+}
+
+
+const char *
+c_dtostr(double d)
+{
+  static char buf[100];
+  int i, f;
+  char *bufp = buf;
+
+  if (d < 0)
+    {
+      *bufp++ = '-';
+      d = -d;
+    }
+  i = floor(d);
+  d -= i;
+  sprintf(bufp, "%d", i);
+  bufp += strlen(bufp);
+  *bufp++ = '.';
+
+  f = floor(d*1000000.0 + 0.5);
+  sprintf(bufp, "%06d", f);
+  return buf;
+}
+
+double
+c_strtod(const char *s)
+{
+  double rv = 0;
+  double sign = 1.0;
+  double scale;
+
+  /* leading whitespace */
+  while (*s && (*s == ' ' || *s == '\t'))
+    s++;
+
+  /* optional sign */
+  if (*s == '-')
+    {
+      sign = -1.0;
+      s++;
+    }
+  else if (*s == '+')
+    s++;
+
+  /* integer portion */
+  while (*s >= '0' && *s <= '9')
+    {
+      rv *= 10.0;
+      rv += *s - '0';
+      s++;
+    }
+
+  /* fractional portion */
+  if (*s == '.')
+    {
+      s++;
+      scale = 0.1;
+      while (*s >= '0' && *s <= '9')
+	{
+	  rv += (*s - '0') * scale;
+	  scale *= 0.1;
+	  s++;
+	}
+    }
+
+  /* exponent */
+  if (*s == 'E' || *s == 'e')
+    {
+      int e;
+      if (sscanf(s+1, "%d", &e) == 1)
+	{
+	  scale = 1.0;
+	  while (e > 0)
+	    {
+	      scale *= 10.0;
+	      e --;
+	    }
+	  while (e < 0)
+	    {
+	      scale *= 0.1;
+	      e ++;
+	    }
+	  rv *= scale;
+	}
+    }
+
+  return rv * sign;
 }

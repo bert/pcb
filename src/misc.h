@@ -2,7 +2,7 @@
  *                            COPYRIGHT
  *
  *  PCB, interactive printed circuit board design
- *  Copyright (C) 1994,1995,1996 Thomas Nau
+ *  Copyright (C) 1994,1995,1996,2006 Thomas Nau
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -93,5 +93,9 @@ int MoveLayerToGroup (int layer, int group);
 char *LayerGroupsToString (LayerGroupTypePtr);
 /* Make the current layer groups the default.  */
 void MakeLayerGroupsDefault ();
+
+/* These act like you'd expect, except always in the C locale.  */
+extern double c_strtod(const char *s);
+extern const char *c_dtostr(double d);
 
 #endif
