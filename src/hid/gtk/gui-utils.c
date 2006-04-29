@@ -376,7 +376,7 @@ ghid_spin_button (GtkWidget * box, GtkWidget ** spin_button, gfloat value,
   if (spin_button)
     *spin_button = spin_but;
   if (width > 0)
-    gtk_widget_set_size_request (spin_but, width, 0);
+    gtk_widget_set_size_request (spin_but, width, -1);
   spin = GTK_SPIN_BUTTON (spin_but);
   gtk_spin_button_set_numeric (spin, TRUE);
   if (data == NULL)
@@ -423,7 +423,7 @@ ghid_table_spin_button (GtkWidget * table, gint row, gint column,
   if (spin_button)
     *spin_button = spin_but;
   if (width > 0)
-    gtk_widget_set_size_request (spin_but, width, 0);
+    gtk_widget_set_size_request (spin_but, width, -1);
   spin = GTK_SPIN_BUTTON (spin_but);
   gtk_spin_button_set_numeric (spin, TRUE);
   if (data == NULL)

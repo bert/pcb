@@ -852,6 +852,7 @@ ghid_port_key_press_cb (GtkWidget * drawing_area,
     case GDK_Insert:
       if (mk == NONE_PRESSED)
 	hid_actionl ("Mode", "InsertPoint", NULL);
+      break;
 
     case GDK_1:
     case GDK_2:
