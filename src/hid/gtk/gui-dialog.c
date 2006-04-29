@@ -195,7 +195,7 @@ ghid_dialog_file_select_open (gchar * title, gchar ** path, gchar * shortcuts)
 					GTK_WINDOW (out->top_window),
 					GTK_FILE_CHOOSER_ACTION_OPEN,
 					GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-					GTK_STOCK_OPEN, GTK_RESPONSE_OK,
+					GTK_STOCK_OK, GTK_RESPONSE_OK,
 					NULL);
 
   gtk_dialog_set_default_response (GTK_DIALOG (dialog), GTK_RESPONSE_OK);
@@ -246,7 +246,7 @@ ghid_dialog_file_select_save (gchar * title, gchar ** path, gchar * file,
 					GTK_WINDOW (out->top_window),
 					GTK_FILE_CHOOSER_ACTION_SAVE,
 					GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-					GTK_STOCK_OPEN, GTK_RESPONSE_OK,
+					GTK_STOCK_OK, GTK_RESPONSE_OK,
 					NULL);
 
   gtk_dialog_set_default_response (GTK_DIALOG (dialog), GTK_RESPONSE_OK);

@@ -230,17 +230,20 @@ static void
 save_layout_cb (GtkAction * action, GHidPort * port)
 {
   hid_actionl ("Save", "Layout", NULL);
+  ghid_set_status_line_label ();
 }
 
 static void
 save_layout_as_cb (GtkAction * action, GHidPort * port)
 {
   hid_actionl ("Save", "LayoutAs", NULL);
+  ghid_set_status_line_label ();
 }
 
 static void revert_cb(GtkAction *action, GHidPort *port)
 	{
 	hid_actionl ("LoadFrom", "Revert", "none", 0);
+	ghid_set_status_line_label ();
 	}
 
 
