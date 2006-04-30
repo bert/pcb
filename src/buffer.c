@@ -916,7 +916,7 @@ MirrorBuffer (BufferTypePtr Buffer)
     }
   for (i = 0; i < MAX_LAYER + 2; i++)
     {
-      LayerTypePtr layer = LAYER_PTR (i);
+      LayerTypePtr layer = Buffer->Data->Layer + i;
       if (layer->TextN)
 	{
 	  Message (_("You can't mirror a buffer that has text!\n"));
