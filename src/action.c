@@ -1782,6 +1782,40 @@ ActionFlip (int argc, char **argv, int x, int y)
   AFAIL (flip);
 }
 
+/* -------------------------------------------------------------------------- */
+
+static const char message_syntax[] =
+"Message(message)";
+
+static const char message_help[] =
+"Writes a message to the log window.";
+
+/* %start-doc actions Message
+
+This action displays a message to the log window.  This action is primarily
+provided for use by other programs which may interface with PCB.  If
+multiple arguments are given, each one is sent to the log window
+followed by a newline.
+
+%end-doc */
+
+static int
+ActionMessage (int argc, char **argv, int x, int y)
+{
+  int i;
+
+  if (argc < 1)
+    AFAIL (message);
+
+  for (i = 0; i < argc; i++)
+    {
+      Message (argv[i]);
+      Message ("\n");
+    }
+
+  return 0;
+}
+
 
 /* -------------------------------------------------------------------------- */
 
@@ -6176,6 +6210,8 @@ HID_Action action_action_list[] = {
    loadfrom_help, loadfrom_syntax},
   {"MarkCrosshair", 0, ActionMarkCrosshair,
    markcrosshair_help, markcrosshair_syntax},
+  {"Message", 0, ActionMessage,
+   message_help, message_syntax},
   {"Mode", 0, ActionMode,
    mode_help, mode_syntax},
   {"PasteBuffer", 0, ActionPasteBuffer,
