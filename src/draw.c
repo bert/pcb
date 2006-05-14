@@ -422,7 +422,7 @@ PrintAssembly (const BoxType * drawn_area, int side_group, int swap_ident)
 static void
 DrawEverything (BoxTypePtr drawn_area)
 {
-  int i, ngroups;
+  int i, ngroups, side;
   int component, solder;
   /* This is the list of layer groups we will draw.  */
   int do_group[MAX_LAYER];
@@ -539,6 +539,42 @@ DrawEverything (BoxTypePtr drawn_area)
 	r_search (PCB->Data->rat_tree, drawn_area, NULL, rat_callback, NULL);
       if (Settings.DrawGrid)
 	DrawGrid ();
+    }
+
+  for (side=0; side<=1; side++)
+    {
+      int doit;
+      Boolean NoData = True;
+      ALLPAD_LOOP (PCB->Data);
+      {
+	if ((TEST_FLAG (ONSOLDERFLAG, pad) && side == SOLDER_LAYER)
+	    || (!TEST_FLAG (ONSOLDERFLAG, pad) && side == COMPONENT_LAYER))
+          {
+            NoData = False;
+            break;
+          }
+      }
+      ENDALL_LOOP;
+
+      /* skip empty files */
+      if (NoData)
+        continue;
+
+      if (side == SOLDER_LAYER)
+	doit = gui->set_layer ("bottompaste", SL(PASTE, BOTTOM));
+      else
+	doit = gui->set_layer ("toppaste", SL(PASTE, TOP));
+      if (doit)
+	{
+	  gui->set_color (Output.fgGC, PCB->ElementColor);
+	  ALLPAD_LOOP (PCB->Data);
+	  {
+	    if ((TEST_FLAG (ONSOLDERFLAG, pad) && side == SOLDER_LAYER)
+		|| (!TEST_FLAG (ONSOLDERFLAG, pad) && side == COMPONENT_LAYER))
+	      DrawPadLowLevel (pad);
+	  }
+	  ENDALL_LOOP;
+	}
     }
 
   doing_assy = True;
