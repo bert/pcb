@@ -8,8 +8,6 @@
 #include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/types.h>
-#include <sys/stat.h>
 
 #include "global.h"
 #include "hid.h"
@@ -156,15 +154,13 @@ command_parse (char *s)
 static void
 batch_do_export (HID_Attr_Val * options)
 {
-  struct stat st;
   int interactive;
   char line[1000];
 
-  fstat (fileno (stdin), &st);
-  if (S_ISREG(st.st_mode))
-    interactive = 0;
-  else
+  if (isatty (0))
     interactive = 1;
+  else
+    interactive = 0;
 
   if (interactive)
     {
