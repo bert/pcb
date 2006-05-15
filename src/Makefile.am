@@ -9,7 +9,9 @@ pcblibdir=	@PCBLIBDIR@
 AUTOMAKE_OPTIONS = subdir-objects
 HIDLIST = @HIDLIST@
 noinst_LIBRARIES = @HIDLIBS@
-EXTRA_LIBRARIES = libgtk.a liblesstif.a liblpr.a libgerber.a libbom.a libpng.a libps.a
+EXTRA_LIBRARIES = \
+	libgtk.a liblesstif.a libbatch.a \
+	liblpr.a libgerber.a libbom.a libpng.a libps.a
 
 pcblib_DATA=	\
 	default_font \
@@ -135,6 +137,7 @@ BUILT_SOURCES = \
 	core_lists.h \
 	hid/gtk/gtk_lists.h \
 	hid/lesstif/lesstif_lists.h \
+	hid/batch/batch_lists.h \
 	hid/png/png_lists.h \
 	hid/ps/ps_lists.h \
 	parse_y.h \
@@ -247,6 +250,17 @@ liblesstif_a_SOURCES = \
 hid/lesstif/lesstif_lists.h : ${liblesstif_a_SOURCES} Makefile
 	true > $@
 	(for f in ${liblesstif_a_SOURCES} ; do cat $(srcdir)/$$f ; done) | grep "^REGISTER" > $@.tmp
+	mv $@.tmp $@
+
+libbatch_a_CPPFLAGS = -I./hid/batch
+libbatch_a_SOURCES = \
+	hid/hidint.h \
+	hid/batch/batch.c \
+	hid/batch/batch_lists.h
+
+hid/batch/batch_lists.h : ${libbatch_a_SOURCES} Makefile
+	true > $@
+	(for f in ${libbatch_a_SOURCES} ; do cat $(srcdir)/$$f ; done) | grep "^REGISTER" > $@.tmp
 	mv $@.tmp $@
 
 libgerber_a_SOURCES = \
