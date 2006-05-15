@@ -824,7 +824,7 @@ selected_vias_drill_change_cb (GtkAction * action, GHidPort * port)
 
   ghid_size_increment_get_value (gtk_action_get_name (action), &value,
 				 &units);
-  hid_actionl ("Change2ndSize", "SelectedVias", value, units, NULL);
+  hid_actionl ("ChangeDrillSize", "SelectedVias", value, units, NULL);
 }
 
 static void
@@ -834,7 +834,7 @@ selected_pins_drill_change_cb (GtkAction * action, GHidPort * port)
 
   ghid_size_increment_get_value (gtk_action_get_name (action), &value,
 				 &units);
-  hid_actionl ("Change2ndSize", "SelectedPins", value, units, NULL);
+  hid_actionl ("ChangeDrillSize", "SelectedPins", value, units, NULL);
 }
 
 static void
