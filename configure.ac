@@ -141,7 +141,7 @@ done
 
 AC_MSG_CHECKING([for which gui to use])
 AC_ARG_WITH([gui],
-[  --with-gui=	          Specify the GUI to use: gtk lesstif [[default=gtk]]],
+[  --with-gui=	          Specify the GUI to use: batch gtk lesstif [[default=gtk]]],
 [],
 [with_gui=gtk]
 )
