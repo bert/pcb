@@ -11,6 +11,7 @@
 #include <sys/types.h>
 #include <string.h>
 #include <assert.h>
+#include <ctype.h>
 
 #ifdef HAVE_PWD_H
 #include <pwd.h>
@@ -228,6 +229,8 @@ typedef struct hid_gc_struct
 static FILE *f = 0;
 static char *filename = 0;
 static char *filesuff;
+static char *layername = 0;
+static int lncount = 0;
 
 static int finding_apertures = 0;
 static int pagecount = 0;
@@ -407,6 +410,7 @@ drill_sort (const void *va, const void *vb)
 static int
 gerber_set_layer (const char *name, int group)
 {
+  char *cp;
   int idx = (group >= 0
 	     && group <
 	     MAX_LAYER) ? PCB->LayerGroups.Entries[group][0] : group;
@@ -567,6 +571,21 @@ gerber_set_layer (const char *name, int group)
       /* Signal Leading zero suppression, Absolute Data, 2.3 format */
       fprintf (f, "%%FSLAX24Y24*%%\015\012");
 
+      /* build a legal identifier. */
+      if (layername)
+	free (layername);
+      layername = strdup (filesuff);
+      layername[strlen(layername) - strlen(sext)] = 0;
+      for (cp=layername; *cp; cp++)
+	{
+	  if (isalnum(*cp))
+	    *cp = toupper(*cp);
+	  else
+	    *cp = '_';
+	}
+      fprintf (f, "%%LN%s*%%\015\012", layername);
+      lncount = 1;
+
       fprintf (f, "%s", curapp->appList.Data);
 
       lastX = -1;
@@ -711,9 +730,15 @@ use_gc (hidGC gc, int radius)
       if (f)
 	{
 	  if (c)
-	    fprintf (f, "%%LPC*%%\015\012");
+	    {
+	      fprintf (f, "%%LN%s_C%d*%%\015\012", layername, lncount++);
+	      fprintf (f, "%%LPC*%%\015\012");
+	    }
 	  else
-	    fprintf (f, "%%LPD*%%\015\012");
+	    {
+	      fprintf (f, "%%LN%s_D%d*%%\015\012", layername, lncount++);
+	      fprintf (f, "%%LPD*%%\015\012");
+	    }
 	}
     }
 }
