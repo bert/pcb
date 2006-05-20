@@ -52,7 +52,8 @@ extents_set_layer (const char *name, int group)
 	case SL_ASSY:
 	  return 0;
 	case SL_SILK:
-	case SL_DRILL:
+	case SL_PDRILL:
+	case SL_UDRILL:
 	  return 1;
 	}
     }

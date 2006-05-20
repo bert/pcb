@@ -184,11 +184,12 @@ extern "C"
 #define SL_BOTTOM_SIDE	0x0002
 #define SL_SILK		0x0010
 #define SL_MASK		0x0020
-#define SL_DRILL	0x0030
-#define SL_PASTE	0x0040
-#define SL_INVISIBLE	0x0050
-#define SL_FAB		0x0060
-#define SL_ASSY		0x0070
+#define SL_PDRILL	0x0030
+#define SL_UDRILL	0x0040
+#define SL_PASTE	0x0050
+#define SL_INVISIBLE	0x0060
+#define SL_FAB		0x0070
+#define SL_ASSY		0x0080
 /* Callers should use this.  */
 #define SL(type,side) (~0xfff | SL_##type | SL_##side##_SIDE)
 

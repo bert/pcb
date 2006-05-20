@@ -2424,7 +2424,8 @@ lesstif_set_layer (const char *name, int group)
 	  return 0;
 	case SL_ASSY:
 	  return 0;
-	case SL_DRILL:
+	case SL_UDRILL:
+	case SL_PDRILL:
 	  return 1;
 	}
     }

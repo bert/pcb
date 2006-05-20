@@ -374,9 +374,41 @@ frontN_callback (const BoxType * b, void *cl)
 static int
 hole_callback (const BoxType * b, void *cl)
 {
+  PinTypePtr pin = (PinTypePtr) b;
+  int plated = cl ? *(int *)cl : -1;
+  switch (plated)
+    {
+    case -1:
+      break;
+    case 0:
+      if (! TEST_FLAG (HOLEFLAG, pin))
+	return 1;
+      break;
+    case 1:
+      if (TEST_FLAG (HOLEFLAG, pin))
+	return 1;
+      break;
+    }
   DrawHole ((PinTypePtr) b);
   return 1;
 }
+
+typedef struct {
+  int nplated;
+  int nunplated;
+} HoleCountStruct;
+
+static int
+hole_counting_callback (const BoxType * b, void *cl)
+{
+  PinTypePtr pin = (PinTypePtr) b;
+  HoleCountStruct *hcs = (HoleCountStruct *) cl;
+  if (TEST_FLAG (HOLEFLAG, pin))
+    hcs->nunplated ++;
+  else
+    hcs->nplated ++;
+  return 1;
+  }
 
 static int
 rat_callback (const BoxType * b, void *cl)
@@ -518,10 +550,25 @@ DrawEverything (BoxTypePtr drawn_area)
   /* Draw pins, pads, vias below silk */
   if (gui->gui)
     DrawTop (drawn_area);
-  else if (gui->set_layer ("drill", SL (DRILL, 0)))
+  else
     {
-      r_search (PCB->Data->pin_tree, drawn_area, NULL, hole_callback, NULL);
-      r_search (PCB->Data->via_tree, drawn_area, NULL, hole_callback, NULL);
+      int plated;
+      HoleCountStruct hcs;
+      hcs.nplated = hcs.nunplated = 0;
+      r_search (PCB->Data->pin_tree, drawn_area, NULL, hole_counting_callback, &hcs);
+      r_search (PCB->Data->via_tree, drawn_area, NULL, hole_counting_callback, &hcs);
+      if (hcs.nplated && gui->set_layer ("plated-drill", SL (PDRILL, 0)))
+	{
+	  plated = 1;
+	  r_search (PCB->Data->pin_tree, drawn_area, NULL, hole_callback, &plated);
+	  r_search (PCB->Data->via_tree, drawn_area, NULL, hole_callback, &plated);
+	}
+      if (hcs.nunplated && gui->set_layer ("unplated-drill", SL (UDRILL, 0)))
+	{
+	  plated = 0;
+	  r_search (PCB->Data->pin_tree, drawn_area, NULL, hole_callback, &plated);
+	  r_search (PCB->Data->via_tree, drawn_area, NULL, hole_callback, &plated);
+	}
     }
   /* Draw top silkscreen */
   if (gui->set_layer ("topsilk", SL (SILK, TOP)))

@@ -448,10 +448,10 @@ gerber_set_layer (const char *name, int group)
       pending_drills = 0;
     }
 
-  is_drill = (SL_TYPE (idx) == SL_DRILL);
+  is_drill = (SL_TYPE (idx) == SL_PDRILL || SL_TYPE (idx) == SL_UDRILL);
   is_mask = (SL_TYPE (idx) == SL_MASK);
   current_mask = 0;
-#if 0
+#if 1
   printf ("Layer %s group %d drill %d mask %d\n", name, group, is_drill,
 	  is_mask);
 #endif
@@ -500,8 +500,12 @@ gerber_set_layer (const char *name, int group)
 	case SL (PASTE, BOTTOM):
 	  spat = "backpaste";
 	  break;
-	case SL (DRILL, 0):
-	  spat = "drill";
+	case SL (PDRILL, 0):
+	  spat = "plated-drill";
+	  sext = ".cnc";
+	  break;
+	case SL (UDRILL, 0):
+	  spat = "unplated-drill";
 	  sext = ".cnc";
 	  break;
 	case SL (FAB, 0):
