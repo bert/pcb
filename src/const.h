@@ -265,26 +265,28 @@ Draw autoroute paths real-time.
 /* ---------------------------------------------------------------------------
  * object types
  */
-#define	NO_TYPE			0x0000	/* no object */
-#define	VIA_TYPE		0x0001
-#define	ELEMENT_TYPE		0x0002
-#define	LINE_TYPE		0x0004
-#define	POLYGON_TYPE		0x0008
-#define	TEXT_TYPE		0x0010
-#define RATLINE_TYPE		0x0020
+#define	NO_TYPE			0x00000	/* no object */
+#define	VIA_TYPE		0x00001
+#define	ELEMENT_TYPE		0x00002
+#define	LINE_TYPE		0x00004
+#define	POLYGON_TYPE		0x00008
+#define	TEXT_TYPE		0x00010
+#define RATLINE_TYPE		0x00020
 
-#define	PIN_TYPE		0x0100	/* objects that are part */
-#define	PAD_TYPE		0x0200	/* 'pin' of SMD element */
-#define	ELEMENTNAME_TYPE	0x0400	/* of others */
-#define	POLYGONPOINT_TYPE	0x0800
-#define	LINEPOINT_TYPE		0x1000
-#define ELEMENTLINE_TYPE        0x2000
-#define ARC_TYPE                0x4000
-#define ELEMENTARC_TYPE		0x8000
+#define	PIN_TYPE		0x00100	/* objects that are part */
+#define	PAD_TYPE		0x00200	/* 'pin' of SMD element */
+#define	ELEMENTNAME_TYPE	0x00400	/* of others */
+#define	POLYGONPOINT_TYPE	0x00800
+#define	LINEPOINT_TYPE		0x01000
+#define ELEMENTLINE_TYPE        0x02000
+#define ARC_TYPE                0x04000
+#define ELEMENTARC_TYPE		0x08000
+
+#define LOCKED_TYPE 		0x10000	/* used to tell search to include locked items. */
 
 #define PIN_TYPES     (VIA_TYPE | PIN_TYPE)
 #define LOCK_TYPES    (VIA_TYPE | LINE_TYPE | ARC_TYPE | POLYGON_TYPE | ELEMENT_TYPE \
-                      | TEXT_TYPE | ELEMENTNAME_TYPE)
+                      | TEXT_TYPE | ELEMENTNAME_TYPE | LOCKED_TYPE)
 
 #define	ALL_TYPES		(~0)	/* all bits set */
 
