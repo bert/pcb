@@ -459,7 +459,7 @@ gerber_set_layer (const char *name, int group)
 #ifdef HAVE_GETPWUID
       struct passwd *pwentry;
 #endif
-      char *spat;
+      char *spat, *sext=".gbr";
       int i;
 
       lastgroup = group;
@@ -479,41 +479,47 @@ gerber_set_layer (const char *name, int group)
       switch (idx)
 	{
 	case SL (SILK, TOP):
-	  spat = "topsilk";
+	  spat = "frontsilk";
 	  break;
 	case SL (SILK, BOTTOM):
-	  spat = "bottomsilk";
+	  spat = "backsilk";
 	  break;
 	case SL (MASK, TOP):
-	  spat = "topmask";
+	  spat = "frontmask";
 	  break;
 	case SL (MASK, BOTTOM):
-	  spat = "bottommask";
+	  spat = "backmask";
 	  break;
 	case SL (PASTE, TOP):
-	  spat = "toppaste";
+	  spat = "frontpaste";
 	  break;
 	case SL (PASTE, BOTTOM):
-	  spat = "bottompaste";
+	  spat = "backpaste";
 	  break;
 	case SL (DRILL, 0):
 	  spat = "drill";
+	  sext = ".cnc";
 	  break;
 	case SL (FAB, 0):
 	  spat = "fab";
 	  break;
 	case SL (ASSY, TOP):
-	  spat = "topassembly";
+	  spat = "frontassembly";
 	  break;
 	case SL (ASSY, BOTTOM):
-	  spat = "bottomassembly";
+	  spat = "backassembly";
 	  break;
 	default:
-	  spat = "copper%d";
+	  if (group == GetLayerGroupNumberByNumber(MAX_LAYER+COMPONENT_LAYER))
+	    spat = "front";
+	  else if (group == GetLayerGroupNumberByNumber(MAX_LAYER+SOLDER_LAYER))
+	    spat = "back";
+	  else
+	    spat = "group%d";
 	  break;
 	}
       sprintf (filesuff, spat, group);
-      strcat (filesuff, ".gbr");
+      strcat (filesuff, sext);
       f = fopen (filename, "w");
       was_drill = is_drill;
 
