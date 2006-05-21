@@ -451,7 +451,7 @@ gerber_set_layer (const char *name, int group)
   is_drill = (SL_TYPE (idx) == SL_PDRILL || SL_TYPE (idx) == SL_UDRILL);
   is_mask = (SL_TYPE (idx) == SL_MASK);
   current_mask = 0;
-#if 1
+#if 0
   printf ("Layer %s group %d drill %d mask %d\n", name, group, is_drill,
 	  is_mask);
 #endif
@@ -467,6 +467,11 @@ gerber_set_layer (const char *name, int group)
       int i;
 
       lastgroup = group;
+      lastX = -1;
+      lastY = -1;
+      lastcolor = 0;
+      linewidth = -1;
+      lastcap = -1;
 
       SetAppLayer (c_layerapps);
       c_layerapps++;
@@ -531,8 +536,10 @@ gerber_set_layer (const char *name, int group)
       f = fopen (filename, "w");
       was_drill = is_drill;
 
+#if 0
       printf ("Gerber: %d aperture%s in %s\n", curapp->nextAperture,
 	      curapp->nextAperture == 1 ? "" : "s", filename);
+#endif
       if (is_drill)
 	{
 	  fprintf (f, "M48\015\012" "INCH,TZ\015\012");
@@ -591,12 +598,6 @@ gerber_set_layer (const char *name, int group)
       lncount = 1;
 
       fprintf (f, "%s", curapp->appList.Data);
-
-      lastX = -1;
-      lastY = -1;
-      lastcolor = 0;
-      linewidth = -1;
-      lastcap = -1;
     }
 
   return 1;
