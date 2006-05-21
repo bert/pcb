@@ -120,7 +120,11 @@ ReportDialog (int argc, char **argv, int x, int y)
   int type;
   char report[2048];
 
-  switch (type = SearchScreen (x, y, REPORT_TYPES, &ptr1, &ptr2, &ptr3))
+  type = SearchScreen (x, y, REPORT_TYPES, &ptr1, &ptr2, &ptr3);
+  if (type == NO_TYPE)
+    type = SearchScreen (x, y, REPORT_TYPES | LOCKED_TYPE, &ptr1, &ptr2, &ptr3);
+
+  switch (type)
     {
     case VIA_TYPE:
       {

@@ -741,13 +741,13 @@ radio_callback (Widget toggle, ToggleItem * me,
 int
 lesstif_button_event (Widget w, XEvent * e)
 {
+  have_xy = 1;
+  action_x = e->xbutton.x;
+  action_y = e->xbutton.y;
   if (!need_xy)
     return 0;
   if (w != work_area)
     return 1;
-  have_xy = 1;
-  action_x = e->xbutton.x;
-  action_y = e->xbutton.y;
   return 0;
 }
 
