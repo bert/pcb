@@ -27,7 +27,9 @@ MainMenu =
    {"Quit Program" Quit() m=Q a={"Ctrl-Q" "Ctrl<Key>q"}}
   }
   {View
-   {"View solder side" checked=showsolderside SwapSides() a={"Tab" "<Key>Tab"}}
+   {"Flip up/down" checked=flip_y Flip(V) a={"Tab" "<Key>Tab"}}
+   {"Flip left/right" checked=flip_x Flip(H) a={"Shift-Tab" "Shift<Key>Tab"}}
+   {"Spin 180°" Flip(H) Flip(V) a={"Ctrl-Tab" "Ctrl<Key>Tab"}}
    {"Show soldermask" checked=showmask Display(ToggleMask)}
    -
    {"Displayed element-name..." foreground=grey50 sensitive=false}

@@ -111,6 +111,7 @@ static int view_left_x = 0, view_top_y = 0;
    out - the largest value means you are looking at the whole
    board.  */
 static double view_zoom = 1000;
+static int flip_x = 0, flip_y = 0;
 static int thindraw = 0;
 static int thindrawpoly = 0;
 static int autofade = 0;
@@ -125,11 +126,22 @@ flag_thindrawpoly (int x)
 {
   return thindrawpoly;
 }
+static int
+flag_flipx (int x)
+{
+  return flip_x;
+}
+static int
+flag_flipy (int x)
+{
+  return flip_y;
+}
 
 HID_Flag lesstif_main_flag_list[] = {
-  {"thindraw", flag_thindraw, 0}
-  ,
-  {"thindrawpoly", flag_thindrawpoly, 0}
+  {"thindraw", flag_thindraw, 0},
+  {"thindrawpoly", flag_thindrawpoly, 0},
+  {"flip_x", flag_flipx, 0},
+  {"flip_y", flag_flipy, 0}
 };
 
 REGISTER_FLAGS (lesstif_main_flag_list)
@@ -176,13 +188,19 @@ static void pinout_unmap (Widget, PinoutData *, void *);
 static inline int
 Vx (int x)
 {
-  return (x - view_left_x) / view_zoom + 0.5;
+  int rv = (x - view_left_x) / view_zoom + 0.5;
+  if (flip_x)
+    rv = view_width - rv;
+  return rv;
 }
 
 static inline int
 Vy (int y)
 {
-  return (y - view_top_y) / view_zoom + 0.5;
+  int rv = (y - view_top_y) / view_zoom + 0.5;
+  if (flip_y)
+    rv = view_height - rv;
+  return rv;
 }
 
 static inline int
@@ -194,12 +212,16 @@ Vz (int z)
 static inline int
 Px (int x)
 {
+  if (flip_x)
+    x = view_width - x;
   return x * view_zoom + view_left_x;
 }
 
 static inline int
 Py (int y)
 {
+  if (flip_y)
+    y = view_height - y;
   return y * view_zoom + view_top_y;
 }
 
@@ -725,6 +747,33 @@ Benchmark (int argc, char **argv, int x, int y)
   return 0;
 }
 
+static const char flip_syntax[] =
+"Flip(V|H)";
+
+static const char flip_help[] =
+"Flip the board over.";
+
+/* %start-doc actions Flip
+
+This action flips the board over, either vertically (up-down, V) or
+horizontally (left-right, H).
+
+%end-doc */
+
+static int
+Flip (int argc, char **argv, int x, int y)
+{
+  if (argc > 0
+      && (argv[0][0] == 'h'
+	  || argv[0][0] == 'H'))
+    flip_x = ! flip_x;
+  else
+    flip_y = ! flip_y;
+  /* SwapSides will swap this */
+  Settings.ShowSolderSide = (flip_x == flip_y);
+  return SwapSides(0, 0, x, y);
+}
+
 HID_Action lesstif_main_action_list[] = {
   {"PCBChanged", 0, PCBChanged,
    pcbchanged_help, pcbchanged_syntax},
@@ -741,7 +790,9 @@ HID_Action lesstif_main_action_list[] = {
   {"Command", 0, Command,
    command_help, command_syntax},
   {"Benchmark", 0, Benchmark,
-   benchmark_help, benchmark_syntax}
+   benchmark_help, benchmark_syntax},
+  {"Flip", 0, Flip,
+   flip_help, flip_syntax}
 };
 
 REGISTER_ACTIONS (lesstif_main_action_list)
@@ -1835,18 +1886,42 @@ draw_grid ()
       XSetFunction (display, grid_gc, GXxor);
       XSetForeground (display, grid_gc, grid_color);
     }
-  x1 = GRIDFIT_X (Px (0), PCB->Grid);
-  y1 = GRIDFIT_Y (Py (0), PCB->Grid);
-  x2 = GRIDFIT_X (Px (view_width), PCB->Grid);
-  y2 = GRIDFIT_Y (Py (view_height), PCB->Grid);
-  if (Vx (x1) < 0)
-    x1 += PCB->Grid;
-  if (Vy (y1) < 0)
-    y1 += PCB->Grid;
-  if (Vx (x2) >= view_width)
-    x2 -= PCB->Grid;
-  if (Vy (y2) >= view_height)
-    y2 -= PCB->Grid;
+  if (flip_x)
+    {
+      x2 = GRIDFIT_X (Px (0), PCB->Grid);
+      x1 = GRIDFIT_X (Px (view_width), PCB->Grid);
+      if (Vx (x2) < 0)
+	x2 -= PCB->Grid;
+      if (Vx (x1) >= view_width)
+	x1 += PCB->Grid;
+    }
+  else
+    {
+      x1 = GRIDFIT_X (Px (0), PCB->Grid);
+      x2 = GRIDFIT_X (Px (view_width), PCB->Grid);
+      if (Vx (x1) < 0)
+	x1 += PCB->Grid;
+      if (Vx (x2) >= view_width)
+	x2 -= PCB->Grid;
+    }
+  if (flip_y)
+    {
+      y2 = GRIDFIT_Y (Py (0), PCB->Grid);
+      y1 = GRIDFIT_Y (Py (view_height), PCB->Grid);
+      if (Vy (y2) < 0)
+	y2 -= PCB->Grid;
+      if (Vy (y1) >= view_height)
+	y1 += PCB->Grid;
+    }
+  else
+    {
+      y1 = GRIDFIT_Y (Py (0), PCB->Grid);
+      y2 = GRIDFIT_Y (Py (view_height), PCB->Grid);
+      if (Vy (y1) < 0)
+	y1 += PCB->Grid;
+      if (Vy (y2) >= view_height)
+	y2 -= PCB->Grid;
+    }
   n = (int) ((x2 - x1) / PCB->Grid + 0.5) + 1;
   if (n > npoints)
     {
@@ -1870,6 +1945,7 @@ draw_grid ()
     }
   for (y = y1; y <= y2; y += PCB->Grid)
     {
+      int i;
       int vy = Vy (y);
       points[0].y = vy;
       XDrawPoints (display, pixmap, grid_gc, points, n, CoordModePrevious);
@@ -2031,25 +2107,45 @@ idle_proc (XtPointer dummy)
       region.Y1 = Py (0);
       region.X2 = Px (view_width);
       region.Y2 = Py (view_height);
+      if (flip_x)
+	{
+	  int tmp = region.X1;
+	  region.X1 = region.X2;
+	  region.X2 = tmp;
+	}
+      if (flip_y)
+	{
+	  int tmp = region.Y1;
+	  region.Y1 = region.Y2;
+	  region.Y2 = tmp;
+	}
+      XSetForeground (display, bg_gc, bgcolor);
+      XFillRectangle (display, main_pixmap, bg_gc, 0, 0, mx, my);
       if (region.X2 > PCB->MaxWidth || region.Y2 > PCB->MaxHeight)
 	{
 	  XSetForeground (display, bg_gc, offlimit_color);
 	  if (region.X2 > PCB->MaxWidth)
 	    {
-	      mx = Vx (PCB->MaxWidth) + 1;
-	      XFillRectangle (display, main_pixmap, bg_gc, mx, 0,
-			      view_width - mx + 1, my);
+	      mx = Vx (PCB->MaxWidth);
+	      if (flip_x)
+		XFillRectangle (display, main_pixmap, bg_gc, 0, 0,
+				mx-1, my);
+	      else
+		XFillRectangle (display, main_pixmap, bg_gc, mx+1, 0,
+				view_width - mx + 1, my);
 
 	    }
 	  if (region.Y2 > PCB->MaxHeight)
 	    {
 	      my = Vy (PCB->MaxHeight) + 1;
-	      XFillRectangle (display, main_pixmap, bg_gc, 0, my, mx,
-			      view_height - my + 1);
+	      if (flip_y)
+		XFillRectangle (display, main_pixmap, bg_gc, 0, 0, mx,
+				my-1);
+	      else
+		XFillRectangle (display, main_pixmap, bg_gc, 0, my, mx,
+				view_height - my + 1);
 	    }
 	}
-      XSetForeground (display, bg_gc, bgcolor);
-      XFillRectangle (display, main_pixmap, bg_gc, 0, 0, mx, my);
       DrawBackgroundImage();
       hid_expose_callback (&lesstif_gui, &region, 0);
       draw_grid ();
@@ -2654,6 +2750,9 @@ lesstif_draw_line (hidGC gc, int x1, int y1, int x2, int y2)
   y1 = Vy (y1);
   x2 = Vx (x2);
   y2 = Vy (y2);
+#if 0
+  printf (" = %d,%d %d,%d %s\n", x1, y1, x2, y2, gc->colorname);
+#endif
   if (x1 < -vw && x2 < -vw)
     return;
   if (y1 < -vw && y2 < -vw)
@@ -2662,9 +2761,6 @@ lesstif_draw_line (hidGC gc, int x1, int y1, int x2, int y2)
     return;
   if (y1 > view_height + vw && y2 > view_height + vw)
     return;
-#if 0
-  printf (" = %d,%d %d,%d %s\n", x1, x2, y1, y2, gc->colorname);
-#endif
   set_gc (gc);
   if (thindraw)
     {
@@ -2734,10 +2830,19 @@ lesstif_draw_arc (hidGC gc, int cx, int cy, int width, int height,
   height = Vz (height);
   cx = Vx (cx) - width;
   cy = Vy (cy) - height;
+  if (flip_x)
+    {
+      start_angle = 180 - start_angle;
+      delta_angle = - delta_angle;
+    }
+  if (flip_y)
+    {
+      start_angle = - start_angle;
+      delta_angle = - delta_angle;					
+    }
 #if 0
   printf (" = %d,%d %dx%d %d %s\n", cx, cy, width, height, gc->width,
 	  gc->colorname);
-  printf ("w %d\n", Vz (gc->width));
 #endif
   set_gc (gc);
   XDrawArc (display, pixmap, my_gc, cx, cy,
@@ -2991,6 +3096,7 @@ pinout_callback (Widget da, PinoutData * pd,
 {
   BoxType region;
   int save_vx, save_vy, save_vw, save_vh;
+  int save_fx, save_fy;
   double save_vz;
   Pixmap save_px;
   int reason = cbs ? cbs->reason : 0;
@@ -3024,6 +3130,8 @@ pinout_callback (Widget da, PinoutData * pd,
   save_vz = view_zoom;
   save_vw = view_width;
   save_vh = view_height;
+  save_fx = flip_x;
+  save_fy = flip_y;
   save_px = pixmap;
   pinout = pd;
   pixmap = pd->window;
@@ -3033,6 +3141,7 @@ pinout_callback (Widget da, PinoutData * pd,
   view_width = pd->v_width;
   view_height = pd->v_height;
   use_mask = 0;
+  flip_x = flip_y = 0;
 
   region.X1 = 0;
   region.Y1 = 0;
@@ -3049,6 +3158,8 @@ pinout_callback (Widget da, PinoutData * pd,
   view_width = save_vw;
   view_height = save_vh;
   pixmap = save_px;
+  flip_x = save_fx;
+  flip_y = save_fy;
 }
 
 static void
