@@ -1048,6 +1048,8 @@ canonicalize_line (line_s * l)
     {
       int y1 = l->s->y;
       int y2 = l->e->y;
+      int x1 = l->s->x - l->line->Thickness/2;
+      int x2 = l->s->x + l->line->Thickness/2;
       if (y1 > y2)
 	{
 	  int t = y1;
@@ -1058,14 +1060,22 @@ canonicalize_line (line_s * l)
 	{
 	  if (DELETED (c))
 	    continue;
-	  if (c->x == l->s->x
-	      && (y1 < c->y && c->y < y2)
+	  if ((y1 < c->y && c->y < y2)
 	      && intersecting_layers (l->layer, c->layer))
 	    {
-	      /* FIXME: if the line is split, we have to re-canonicalize
-	         both segments. */
-	      split_line (l, c);
-	      return;
+	      if (c->x != l->s->x
+		  && c->x < x2
+		  && c->y > x2)
+		{
+		  move_corner (c, l->s->x, c->y);
+		}
+	      if (c->x == l->s->x)
+		{
+		  /* FIXME: if the line is split, we have to re-canonicalize
+		     both segments. */
+		  split_line (l, c);
+		  return;
+		}
 	    }
 	}
     }
@@ -1073,6 +1083,8 @@ canonicalize_line (line_s * l)
     {
       int x1 = l->s->x;
       int x2 = l->e->x;
+      int y1 = l->s->y - l->line->Thickness/2;
+      int y2 = l->s->y + l->line->Thickness/2;
       if (x1 > x2)
 	{
 	  int t = x1;
@@ -1083,13 +1095,21 @@ canonicalize_line (line_s * l)
 	{
 	  if (DELETED (c))
 	    continue;
-	  if (c->y == l->s->y
-	      && (x1 < c->x && c->x < x2)
+	  if ((x1 < c->x && c->x < x2)
 	      && intersecting_layers (l->layer, c->layer))
 	    {
-	      /* FIXME: Likewise.  */
-	      split_line (l, c);
-	      return;
+	      if (c->y != l->s->y
+		  && c->y < y2
+		  && c->y > y2)
+		{
+		  move_corner (c, c->x, l->s->x);
+		}
+	      if (c->y == l->s->y)
+		{
+		  /* FIXME: Likewise.  */
+		  split_line (l, c);
+		  return;
+		}
 	    }
 	}
     }
@@ -2871,8 +2891,6 @@ ActionDJopt (int argc, char **argv, int x, int y)
   char *arg = argc > 0 ? argv[0] : 0;
   int layn, saved = 0;
   corner_s *c;
-
-  printf ("djopt: %s\n", arg);
 
 #ifdef ENDIF
   SwitchDrawingWindow (PCB->Zoom, Output.drawing_area->window,
