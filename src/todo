@@ -16,8 +16,6 @@ Evaluate its value given tearoff menus?
 
 -------------------- Lesstif Enhancements --------------------
 
-board flipping
-
 Pan(x, y, zoomfactor) - pans screen, zooms, sets crosshairs on coordinate.
 
 Translucent layers
