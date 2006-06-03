@@ -1065,7 +1065,8 @@ canonicalize_line (line_s * l)
 	    {
 	      if (c->x != l->s->x
 		  && c->x < x2
-		  && c->y > x2)
+		  && c->x > x1
+		  && !(c->pad || c->pin))
 		{
 		  move_corner (c, l->s->x, c->y);
 		}
@@ -1100,9 +1101,10 @@ canonicalize_line (line_s * l)
 	    {
 	      if (c->y != l->s->y
 		  && c->y < y2
-		  && c->y > y2)
+		  && c->y > y1
+		  && !(c->pad || c->pin))
 		{
-		  move_corner (c, c->x, l->s->x);
+		  move_corner (c, c->x, l->s->y);
 		}
 	      if (c->y == l->s->y)
 		{
