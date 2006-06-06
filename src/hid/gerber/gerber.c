@@ -852,6 +852,8 @@ gerber_draw_arc (hidGC gc, int cx, int cy, int width, int height,
 static void
 gerber_fill_circle (hidGC gc, int cx, int cy, int radius)
 {
+  if (is_drill)
+    radius = ROUND(radius*2)/2;
   use_gc (gc, radius);
   if (!f)
     return;
@@ -866,7 +868,7 @@ gerber_fill_circle (hidGC gc, int cx, int cy, int radius)
 	}
       pending_drills[n_pending_drills].x = cx;
       pending_drills[n_pending_drills].y = cy;
-      pending_drills[n_pending_drills].diam = ROUND(radius * 2);
+      pending_drills[n_pending_drills].diam = radius * 2;
       n_pending_drills++;
       return;
     }
