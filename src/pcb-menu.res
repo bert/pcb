@@ -89,6 +89,11 @@ MainMenu =
    }
    {"Current Layer"
     @layerpick
+    -
+    {"Delete current layer" MoveLayer(c,-1)}
+    {"Add new layer" MoveLayer(-1,c)}
+    {"Move current layer up" MoveLayer(c,up)}
+    {"Move current layer down" MoveLayer(c,down)}
    }
   }
   {Edit

@@ -487,7 +487,7 @@ FreeLayoutLookupMemory (void)
 {
   Cardinal i;
 
-  for (i = 0; i < MAX_LAYER; i++)
+  for (i = 0; i < max_layer; i++)
     {
       MyFree ((char **) &LineList[i].Data);
       MyFree ((char **) &ArcList[i].Data);
@@ -550,7 +550,7 @@ InitLayoutLookup (void)
   Cardinal i;
 
   /* initialize line arc and polygon data */
-  for (i = 0; i < MAX_LAYER; i++)
+  for (i = 0; i < max_layer; i++)
     {
       LayerTypePtr layer = LAYER_PTR (i);
 
@@ -701,7 +701,7 @@ LookupLOConnectionsToPVList (Boolean AndRats)
 	return True;
 
       /* now all lines, arcs and polygons of the several layers */
-      for (layer = 0; layer < MAX_LAYER; layer++)
+      for (layer = 0; layer < max_layer; layer++)
 	{
 	  PolygonTypePtr polygon = PCB->Data->Layer[layer].Polygon;
 	  Cardinal i;
@@ -780,7 +780,7 @@ LookupLOConnectionsToLOList (Boolean AndRats)
    * by 'LookupPVConnectionsToLOList()' which has to check the same
    * list entries plus the new ones
    */
-  for (i = 0; i < MAX_LAYER; i++)
+  for (i = 0; i < max_layer; i++)
     {
       lineposition[i] = LineList[i].Location;
       polyposition[i] = PolygonList[i].Location;
@@ -813,7 +813,7 @@ LookupLOConnectionsToLOList (Boolean AndRats)
 	    }
 	}
       /* loop over all layergroups */
-      for (group = 0; group < MAX_LAYER; group++)
+      for (group = 0; group < max_layer; group++)
 	{
 	  Cardinal entry;
 
@@ -821,10 +821,10 @@ LookupLOConnectionsToLOList (Boolean AndRats)
 	    {
 	      layer = PCB->LayerGroups.Entries[group][entry];
 
-	      /* be aware that the layer number equal MAX_LAYER
-	       * and MAX_LAYER+1 have a special meaning for pads
+	      /* be aware that the layer number equal max_layer
+	       * and max_layer+1 have a special meaning for pads
 	       */
-	      if (layer < MAX_LAYER)
+	      if (layer < max_layer)
 		{
 		  /* try all new lines */
 		  position = &lineposition[layer];
@@ -850,7 +850,7 @@ LookupLOConnectionsToLOList (Boolean AndRats)
 	      else
 		{
 		  /* try all new pads */
-		  layer -= MAX_LAYER;
+		  layer -= max_layer;
 		  position = &padposition[layer];
 		  for (; *position < PadList[layer].Number; (*position)++)
 		    if (LookupLOConnectionsToPad
@@ -864,17 +864,17 @@ LookupLOConnectionsToLOList (Boolean AndRats)
        * may have changed the prior lists
        */
       done = !AndRats || ratposition >= RatList.Number;
-      for (layer = 0; layer < MAX_LAYER + 2; layer++)
+      for (layer = 0; layer < max_layer + 2; layer++)
 	{
-	  if (layer < MAX_LAYER)
+	  if (layer < max_layer)
 	    done = done &&
 	      lineposition[layer] >= LineList[layer].Number
 	      && arcposition[layer] >= ArcList[layer].Number
 	      && polyposition[layer] >= PolygonList[layer].Number;
 	  else
 	    done = done
-	      && padposition[layer - MAX_LAYER] >=
-	      PadList[layer - MAX_LAYER].Number;
+	      && padposition[layer - max_layer] >=
+	      PadList[layer - max_layer].Number;
 	}
     }
   while (!done);
@@ -1064,7 +1064,7 @@ LookupPVConnectionsToLOList (Boolean AndRats)
   struct lo_info info;
 
   /* loop over all layers */
-  for (layer = 0; layer < MAX_LAYER; layer++)
+  for (layer = 0; layer < max_layer; layer++)
     {
       /* do nothing if there are no PV's */
       if (TotalP + TotalV == 0)
@@ -1774,7 +1774,7 @@ LookupLOConnectionsToArc (ArcTypePtr Arc, Cardinal LayerGroup)
       layer = PCB->LayerGroups.Entries[LayerGroup][entry];
 
       /* handle normal layers */
-      if (layer < MAX_LAYER)
+      if (layer < max_layer)
 	{
 	  PolygonTypePtr polygon;
 
@@ -1802,7 +1802,7 @@ LookupLOConnectionsToArc (ArcTypePtr Arc, Cardinal LayerGroup)
 	}
       else
 	{
-	  info.layer = layer - MAX_LAYER;
+	  info.layer = layer - max_layer;
 	  if (setjmp (info.env) == 0)
 	    r_search (PCB->Data->pad_tree, &info.arc.BoundingBox, NULL,
 		      LOCtoArcPad_callback, &info);
@@ -1910,7 +1910,7 @@ LookupLOConnectionsToLine (LineTypePtr Line, Cardinal LayerGroup,
       layer = PCB->LayerGroups.Entries[LayerGroup][entry];
 
       /* handle normal layers */
-      if (layer < MAX_LAYER)
+      if (layer < max_layer)
 	{
 	  PolygonTypePtr polygon;
 
@@ -1942,7 +1942,7 @@ LookupLOConnectionsToLine (LineTypePtr Line, Cardinal LayerGroup,
       else
 	{
 	  /* handle special 'pad' layers */
-	  info.layer = layer - MAX_LAYER;
+	  info.layer = layer - max_layer;
 	  if (setjmp (info.env) == 0)
 	    r_search (PCB->Data->pad_tree, &info.line.BoundingBox, NULL,
 		      LOCtoLinePad_callback, &info);
@@ -2007,7 +2007,7 @@ LOTouchesLine (LineTypePtr Line, Cardinal LayerGroup)
       Cardinal layer = PCB->LayerGroups.Entries[LayerGroup][entry];
 
       /* handle normal layers */
-      if (layer < MAX_LAYER)
+      if (layer < max_layer)
 	{
 	  PolygonTypePtr polygon;
 
@@ -2035,7 +2035,7 @@ LOTouchesLine (LineTypePtr Line, Cardinal LayerGroup)
       else
 	{
 	  /* handle special 'pad' layers */
-	  info.layer = layer - MAX_LAYER;
+	  info.layer = layer - max_layer;
 	  if (setjmp (info.env) == 0)
 	    r_search (PCB->Data->pad_tree, &info.line.BoundingBox, NULL,
 		      LOT_Padcallback, &info);
@@ -2125,7 +2125,7 @@ LookupLOConnectionsToRatEnd (PointTypePtr Point, Cardinal LayerGroup)
          arcs by definition
        */
 
-      if (layer < MAX_LAYER)
+      if (layer < max_layer)
 	{
 	  info.layer = layer;
 	  if (setjmp (info.env) == 0)
@@ -2140,7 +2140,7 @@ LookupLOConnectionsToRatEnd (PointTypePtr Point, Cardinal LayerGroup)
       else
 	{
 	  /* handle special 'pad' layers */
-	  info.layer = layer - MAX_LAYER;
+	  info.layer = layer - max_layer;
 	  if (setjmp (info.env) == 0)
 	    r_search (PCB->Data->pad_tree, (BoxType *) Point, NULL,
 		      LOCtoPad_callback, &info);
@@ -2268,7 +2268,7 @@ LookupLOConnectionsToPad (PadTypePtr Pad, Cardinal LayerGroup)
 
       layer = PCB->LayerGroups.Entries[LayerGroup][entry];
       /* handle normal layers */
-      if (layer < MAX_LAYER)
+      if (layer < max_layer)
 	{
 	  info.layer = layer;
 	  /* add lines */
@@ -2293,7 +2293,7 @@ LookupLOConnectionsToPad (PadTypePtr Pad, Cardinal LayerGroup)
       else
 	{
 	  /* handle special 'pad' layers */
-	  info.layer = layer - MAX_LAYER;
+	  info.layer = layer - max_layer;
 	  if (setjmp (info.env) == 0)
 	    r_search (PCB->Data->pad_tree, (BoxType *) & info.pad, NULL,
 		      LOCtoPadPad_callback, &info);
@@ -2388,7 +2388,7 @@ LookupLOConnectionsToPolygon (PolygonTypePtr Polygon, Cardinal LayerGroup)
       layer = PCB->LayerGroups.Entries[LayerGroup][entry];
 
       /* handle normal layers */
-      if (layer < MAX_LAYER)
+      if (layer < max_layer)
 	{
 	  PolygonTypePtr polygon;
 
@@ -2426,7 +2426,7 @@ LookupLOConnectionsToPolygon (PolygonTypePtr Polygon, Cardinal LayerGroup)
 	{
 	  if (!TEST_FLAG (CLEARPOLYFLAG, Polygon))
 	    {
-	      info.layer = layer - MAX_LAYER;
+	      info.layer = layer - max_layer;
 	      if (setjmp (info.env) == 0)
 		r_search (PCB->Data->pad_tree, (BoxType *) & info.polygon,
 			  NULL, LOCtoPolyPad_callback, &info);
@@ -2777,7 +2777,7 @@ ListsEmpty (Boolean AndRats)
   empty = (PVList.Location >= PVList.Number);
   if (AndRats)
     empty = empty && (RatList.Location >= RatList.Number);
-  for (i = 0; i < MAX_LAYER && empty; i++)
+  for (i = 0; i < max_layer && empty; i++)
     empty = empty && LineList[i].Location >= LineList[i].Number
       && ArcList[i].Location >= ArcList[i].Number
       && PolygonList[i].Location >= PolygonList[i].Number;
@@ -2943,7 +2943,7 @@ PrepareNextLoop (FILE * FP)
   Cardinal layer;
 
   /* reset found LOs for the next pin */
-  for (layer = 0; layer < MAX_LAYER; layer++)
+  for (layer = 0; layer < max_layer; layer++)
     {
       LineList[layer].Location = LineList[layer].Number = 0;
       ArcList[layer].Location = ArcList[layer].Number = 0;
@@ -3044,7 +3044,7 @@ DrawNewConnections (void)
   Cardinal position;
 
   /* decrement 'i' to keep layerstack order */
-  for (i = MAX_LAYER - 1; i != -1; i--)
+  for (i = max_layer - 1; i != -1; i--)
     {
       Cardinal layer = LayerStack[i];
 
@@ -3271,7 +3271,7 @@ LookupConnection (LocationType X, LocationType Y, Boolean AndDraw,
 				       (LayerTypePtr) ptr1);
 
 	  /* don't mess with silk objects! */
-	  if (laynum >= MAX_LAYER)
+	  if (laynum >= max_layer)
 	    return;
 	}
     }
@@ -3522,7 +3522,7 @@ DumpList (void)
   PVList.Number = 0;
   PVList.Location = 0;
 
-  for (i = 0; i < MAX_LAYER; i++)
+  for (i = 0; i < max_layer; i++)
     {
       LineList[i].Location = 0;
       LineList[i].DrawLocation = 0;
@@ -3827,7 +3827,7 @@ DRCAll (void)
       all.X2 = MAX_COORD;
       all.Y1 = -MAX_COORD;
       all.Y2 = MAX_COORD;
-      for (group = 0; group < MAX_LAYER; group++)
+      for (group = 0; group < max_layer; group++)
 	PolygonPlows (group, &all, drc_callback);
     }
   /* check minimum widths */

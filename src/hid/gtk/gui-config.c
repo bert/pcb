@@ -54,6 +54,9 @@
 #include <dmalloc.h>
 #endif
 
+extern int	MoveLayerAction(int argc, char **argv, int x, int y);
+
+
 RCSID ("$Id$");
 
 enum ConfigType
@@ -256,7 +259,6 @@ ghid_config_init (void)
   ghidgui->small_label_markup = TRUE;
   ghidgui->auto_pan_on = TRUE;
   ghidgui->auto_pan_speed = 3;
-
   dup_string (&color_file, "");
 
   for (ha = hid_attr_nodes; ha; ha = ha->next)
@@ -1346,9 +1348,14 @@ config_library_tab_create (GtkWidget * tab_vbox)
 
   /* -------------- The Layers Group config page ----------------
    */
+static GtkWidget	*config_groups_table, *config_groups_vbox;
+
 static GtkWidget *layer_entry[MAX_LAYER];
 static GtkWidget *group_button[MAX_LAYER + 2][MAX_LAYER];
+
+#if FIXME
 static GtkWidget *use_layer_default_button;
+#endif
 
 static gint config_layer_group[MAX_LAYER + 2];
 
@@ -1435,16 +1442,16 @@ make_layer_group_string (LayerGroupType * lg)
 
   string = g_string_new ("");
 
-  for (group = 0; group < MAX_LAYER; group++)
+  for (group = 0; group < max_layer; group++)
     {
       if (lg->Number[group] == 0)
 	continue;
       for (entry = 0; entry < lg->Number[group]; entry++)
 	{
 	  layer = lg->Entries[group][entry];
-	  if (layer == MAX_LAYER + COMPONENT_LAYER)
+	  if (layer == max_layer + COMPONENT_LAYER)
 	    string = g_string_append (string, "c");
-	  else if (layer == MAX_LAYER + SOLDER_LAYER)
+	  else if (layer == max_layer + SOLDER_LAYER)
 	    string = g_string_append (string, "s");
 	  else
 	    g_string_append_printf (string, "%d", layer + 1);
@@ -1452,7 +1459,7 @@ make_layer_group_string (LayerGroupType * lg)
 	  if (entry != lg->Number[group] - 1)
 	    string = g_string_append (string, ",");
 	}
-      if (group != MAX_LAYER - 1)
+      if (group != max_layer - 1)
 	string = g_string_append (string, ":");
     }
   return g_string_free (string, FALSE);	/* Don't free string->str */
@@ -1465,16 +1472,18 @@ config_layers_apply (void)
   gchar *s;
   gint group, i;
   gint componentgroup = 0, soldergroup = 0;
-  gboolean use_as_default, layers_modified = FALSE;
+  gboolean use_as_default = FALSE, layers_modified = FALSE;
 
+#if FIXME
   use_as_default =
     gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON
 				  (use_layer_default_button));
+#endif
 
   /* Get each layer name entry and dup if modified into the PCB layer names
      |  and, if to use as default, the Settings layer names.
    */
-  for (i = 0; i < MAX_LAYER; ++i)
+  for (i = 0; i < max_layer; ++i)
     {
       layer = &PCB->Data->Layer[i];
       s = ghid_entry_get_text (layer_entry[i]);
@@ -1497,17 +1506,17 @@ config_layers_apply (void)
     {
       /* clear all entries and read layer by layer
        */
-      for (group = 0; group < MAX_LAYER; group++)
+      for (group = 0; group < max_layer; group++)
 	layer_groups.Number[group] = 0;
 
-      for (i = 0; i < MAX_LAYER + 2; i++)
+      for (i = 0; i < max_layer + 2; i++)
 	{
 	  group = config_layer_group[i] - 1;
 	  layer_groups.Entries[group][layer_groups.Number[group]++] = i;
 
-	  if (i == MAX_LAYER + COMPONENT_LAYER)
+	  if (i == max_layer + COMPONENT_LAYER)
 	    componentgroup = group;
-	  else if (i == MAX_LAYER + SOLDER_LAYER)
+	  else if (i == max_layer + SOLDER_LAYER)
 	    soldergroup = group;
 	}
 
@@ -1539,7 +1548,7 @@ config_layers_apply (void)
       s = make_layer_group_string (&PCB->LayerGroups);
       if (dup_string (&Settings.Groups, s))
 	{
-	  ParseGroupString (Settings.Groups, &Settings.LayerGroups);
+	  ParseGroupString (Settings.Groups, &Settings.LayerGroups, max_layer);
 	  ghidgui->config_modified = TRUE;
 	}
       g_free (s);
@@ -1554,7 +1563,7 @@ config_layer_group_button_state_update (void)
   /* Set button active corresponding to layer group state.
    */
   groups_holdoff = TRUE;
-  for (g = 0; g < MAX_LAYER; g++)
+  for (g = 0; g < max_layer; g++)
     for (i = 0; i < layer_groups.Number[g]; i++)
       {
 /*			printf("layer %d in group %d\n", layer_groups.Entries[g][i], g +1); */
@@ -1565,104 +1574,6 @@ config_layer_group_button_state_update (void)
 				      TRUE);
       }
   groups_holdoff = FALSE;
-}
-
-static void
-config_layers_tab_create (GtkWidget * tab_vbox)
-{
-  GtkWidget *tabs, *vbox, *table, *button, *label, *text, *sep;
-  GSList *group;
-  gchar buf[32], *name;
-  gint layer, i;
-
-  tabs = gtk_notebook_new ();
-  gtk_box_pack_start (GTK_BOX (tab_vbox), tabs, TRUE, TRUE, 0);
-
-/* -- Setup tab */
-  vbox = ghid_notebook_page (tabs, _("Setup"), 0, 6);
-
-  table = gtk_table_new (MAX_LAYER + 3, MAX_LAYER + 1, FALSE);
-  gtk_table_set_row_spacings (GTK_TABLE (table), 3);
-
-  gtk_box_pack_start (GTK_BOX (vbox), table, FALSE, FALSE, 0);
-
-  layer_groups = PCB->LayerGroups;	/* working copy */
-  lg_monitor = &PCB->LayerGroups;	/* So can know if PCB changes on us */
-
-  label = gtk_label_new (_("Group #"));
-  gtk_table_attach_defaults (GTK_TABLE (table), label, 0, 1, 0, 1);
-  gtk_misc_set_alignment (GTK_MISC (label), 1.0, 0.5);
-
-  for (i = 1; i < MAX_LAYER + 1; ++i)
-    {
-      snprintf (buf, sizeof (buf), "%d", i);
-      label = gtk_label_new (buf);
-      gtk_table_attach_defaults (GTK_TABLE (table), label, i, i + 1, 0, 1);
-    }
-
-  /* Create a row of radio toggle buttons for layer.  So each layer
-     |  can have an active radio button set for the group it needs to be in.
-   */
-  for (layer = 0; layer < MAX_LAYER + 2; ++layer)
-    {
-      if (layer == MAX_LAYER + COMPONENT_LAYER)
-	name = _("component side");
-      else if (layer == MAX_LAYER + SOLDER_LAYER)
-	name = _("solder side");
-      else
-	name = UNKNOWN (PCB->Data->Layer[layer].Name);
-
-      if (layer >= MAX_LAYER)
-	{
-	  label = gtk_label_new (name);
-	  gtk_misc_set_alignment (GTK_MISC (label), 0.0, 0.5);
-	  gtk_table_attach_defaults (GTK_TABLE (table), label,
-				     0, 1, layer + 1, layer + 2);
-	}
-      else
-	{
-	  layer_entry[layer] = gtk_entry_new ();
-	  gtk_entry_set_text (GTK_ENTRY (layer_entry[layer]), name);
-	  gtk_table_attach_defaults (GTK_TABLE (table), layer_entry[layer],
-				     0, 1, layer + 1, layer + 2);
-	}
-
-      group = NULL;
-      for (i = 0; i < MAX_LAYER; ++i)
-	{
-	  if (layer < MAX_LAYER || i > 0)
-	    button = gtk_radio_button_new (group);
-	  else			/* See layer button fixup below */
-	    button = gtk_radio_button_new_with_label (group, "8");
-
-	  gtk_toggle_button_set_mode (GTK_TOGGLE_BUTTON (button), FALSE);
-	  group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (button));
-	  gtk_table_attach_defaults (GTK_TABLE (table), button,
-				     i + 1, i + 2, layer + 1, layer + 2);
-	  g_signal_connect (G_OBJECT (button), "toggled",
-			    G_CALLBACK (config_layer_groups_radio_button_cb),
-			    GINT_TO_POINTER ((layer << 8) | (i + 1)));
-	  group_button[layer][i] = button;
-	}
-    }
-  config_layer_group_button_state_update ();
-
-  sep = gtk_hseparator_new ();
-  gtk_box_pack_start (GTK_BOX (vbox), sep, FALSE, FALSE, 4);
-
-  ghid_check_button_connected (vbox, &use_layer_default_button, FALSE,
-			       TRUE, FALSE, FALSE, 8, NULL, NULL,
-			       _
-			       ("Use these layer settings as the default for new layouts"));
-
-
-/* -- Info tab */
-  vbox = ghid_notebook_page (tabs, _("Info"), 0, 6);
-
-  text = ghid_scrolled_text_view (vbox, NULL,
-				  GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
-  for (i = 0; i < sizeof (layer_info_text) / sizeof (gchar *); ++i)
-    ghid_text_view_append (text, _(layer_info_text[i]));
 }
 
   /* All the radio buttons should have no label, but the component and solder
@@ -1676,9 +1587,207 @@ layer_button_post_show_fixup (void)
 {
   gint l;
 
-  for (l = MAX_LAYER; l < MAX_LAYER + 2; ++l)
+  for (l = max_layer; l < max_layer + 2; ++l)
     gtk_button_set_label (GTK_BUTTON (group_button[l][0]), "");
 }
+
+static void
+layer_name_entry_cb(GtkWidget *entry, gpointer data)
+{
+	gint		i = GPOINTER_TO_INT(data);
+	LayerType	*layer;
+	gchar		*name;
+
+	layer = &PCB->Data->Layer[i];
+	name = ghid_entry_get_text(entry);
+	if (dup_string (&layer->Name, name))
+		ghid_layer_buttons_update();
+}
+
+void
+ghid_config_groups_changed(void)
+{
+  GtkWidget *vbox, *table, *button, *label;
+  GSList *group;
+  gchar buf[32], *name;
+  gint layer, i;
+  gboolean	need_fixup = FALSE;
+
+  if (!config_groups_vbox)
+	return;
+  vbox = config_groups_vbox;
+
+  if (config_groups_table)
+	{
+	gtk_widget_destroy(config_groups_table);
+	need_fixup = TRUE;
+	}
+  table = gtk_table_new (max_layer + 3, max_layer + 1, FALSE);
+  config_groups_table = table;
+  gtk_table_set_row_spacings (GTK_TABLE (table), 3);
+
+  gtk_box_pack_start (GTK_BOX (vbox), table, FALSE, FALSE, 0);
+
+  layer_groups = PCB->LayerGroups;	/* working copy */
+  lg_monitor = &PCB->LayerGroups;	/* So can know if PCB changes on us */
+
+  label = gtk_label_new (_("Group #"));
+  gtk_table_attach_defaults (GTK_TABLE (table), label, 0, 1, 0, 1);
+  gtk_misc_set_alignment (GTK_MISC (label), 1.0, 0.5);
+
+  for (i = 1; i < max_layer + 1; ++i)
+    {
+	if (i < 10)
+		snprintf (buf, sizeof (buf), "  %d", i);
+	else
+		snprintf (buf, sizeof (buf), "%d", i);
+      label = gtk_label_new (buf);
+      gtk_table_attach_defaults (GTK_TABLE (table), label, i, i + 1, 0, 1);
+    }
+
+  /* Create a row of radio toggle buttons for layer.  So each layer
+     |  can have an active radio button set for the group it needs to be in.
+   */
+  for (layer = 0; layer < max_layer + 2; ++layer)
+    {
+      if (layer == max_layer + COMPONENT_LAYER)
+	name = _("component side");
+      else if (layer == max_layer + SOLDER_LAYER)
+	name = _("solder side");
+      else
+	name = UNKNOWN (PCB->Data->Layer[layer].Name);
+
+      if (layer >= max_layer)
+	{
+	  label = gtk_label_new (name);
+	  gtk_misc_set_alignment (GTK_MISC (label), 0.0, 0.5);
+	  gtk_table_attach_defaults (GTK_TABLE (table), label,
+				     0, 1, layer + 1, layer + 2);
+	}
+      else
+	{
+	  layer_entry[layer] = gtk_entry_new ();
+	  gtk_entry_set_text (GTK_ENTRY (layer_entry[layer]), name);
+	  gtk_table_attach_defaults (GTK_TABLE (table), layer_entry[layer],
+				     0, 1, layer + 1, layer + 2);
+	  g_signal_connect(G_OBJECT(layer_entry[layer]), "activate",
+				G_CALLBACK(layer_name_entry_cb), GINT_TO_POINTER(layer));
+	}
+
+      group = NULL;
+      for (i = 0; i < max_layer; ++i)
+	{
+	  if (layer < max_layer || i > 0)
+	    button = gtk_radio_button_new (group);
+	  else			/* See layer button fixup above */
+	    button = gtk_radio_button_new_with_label (group, "8");
+
+	  gtk_toggle_button_set_mode (GTK_TOGGLE_BUTTON (button), FALSE);
+	  group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (button));
+	  gtk_table_attach_defaults (GTK_TABLE (table), button,
+				     i + 1, i + 2, layer + 1, layer + 2);
+	  g_signal_connect (G_OBJECT (button), "toggled",
+			    G_CALLBACK (config_layer_groups_radio_button_cb),
+			    GINT_TO_POINTER ((layer << 8) | (i + 1)));
+	  group_button[layer][i] = button;
+	}
+    }
+  gtk_widget_show_all(config_groups_vbox);
+  if (need_fixup)
+	layer_button_post_show_fixup();
+  config_layer_group_button_state_update ();
+}
+
+
+static void
+edit_layer_button_cb(GtkWidget *widget, gchar *data)
+{
+	gchar	**argv;
+
+	if (PCB->RatDraw || PCB->SilkActive)
+		return;
+
+	argv = g_strsplit(data, ",", -1);
+	MoveLayerAction(2, argv, 0, 0);
+	g_strfreev(argv);
+}
+
+static void
+config_layers_tab_create (GtkWidget * tab_vbox)
+{
+  GtkWidget *tabs, *vbox, *vbox1, *button, *text, *sep;
+  GtkWidget *hbox, *arrow;
+  gint i;
+
+  tabs = gtk_notebook_new ();
+  gtk_box_pack_start (GTK_BOX (tab_vbox), tabs, TRUE, TRUE, 0);
+
+/* -- Change tab */
+  vbox = ghid_notebook_page(tabs, _("Change"), 0, 6);
+  vbox1 = ghid_category_vbox(vbox,
+			_("Operations on currently selected layer:"),
+			4, 2, TRUE, TRUE);
+
+  button = gtk_button_new();
+  arrow = gtk_arrow_new(GTK_ARROW_UP, GTK_SHADOW_ETCHED_IN);
+  gtk_container_add(GTK_CONTAINER(button), arrow);
+  g_signal_connect(G_OBJECT(button), "clicked",
+		G_CALLBACK(edit_layer_button_cb), "c,up");
+  hbox = gtk_hbox_new(FALSE, 0);
+  gtk_box_pack_start(GTK_BOX(vbox1), hbox, TRUE, TRUE, 0);
+  gtk_box_pack_start(GTK_BOX(hbox), button, FALSE, FALSE, 0);
+
+  button = gtk_button_new();
+  arrow = gtk_arrow_new(GTK_ARROW_DOWN, GTK_SHADOW_ETCHED_IN);
+  gtk_container_add(GTK_CONTAINER(button), arrow);
+  g_signal_connect(G_OBJECT(button), "clicked",
+		G_CALLBACK(edit_layer_button_cb), "c,down");
+  hbox = gtk_hbox_new(FALSE, 0);
+  gtk_box_pack_start(GTK_BOX(vbox1), hbox, TRUE, TRUE, 0);
+  gtk_box_pack_start(GTK_BOX(hbox), button, FALSE, FALSE, 0);
+
+  button = gtk_button_new_from_stock(GTK_STOCK_DELETE);
+  g_signal_connect(G_OBJECT(button), "clicked",
+		G_CALLBACK(edit_layer_button_cb), "c,-1");
+  hbox = gtk_hbox_new(FALSE, 0);
+  gtk_box_pack_start(GTK_BOX(vbox1), hbox, TRUE, TRUE, 0);
+  gtk_box_pack_start(GTK_BOX(hbox), button, FALSE, FALSE, 0);
+
+  vbox1 = ghid_category_vbox(vbox,
+			_("Add new layer above currently selected layer:"),
+			4, 2, TRUE, TRUE);
+  button = gtk_button_new_from_stock(GTK_STOCK_ADD);
+  g_signal_connect(G_OBJECT(button), "clicked",
+		G_CALLBACK(edit_layer_button_cb), "-1,c");
+  hbox = gtk_hbox_new(FALSE, 0);
+  gtk_box_pack_start(GTK_BOX(vbox1), hbox, TRUE, TRUE, 0);
+  gtk_box_pack_start(GTK_BOX(hbox), button, FALSE, FALSE, 0);
+
+/* -- Groups tab */
+  vbox = ghid_notebook_page (tabs, _("Groups"), 0, 6);
+  config_groups_vbox = gtk_vbox_new(FALSE, 0);
+  gtk_box_pack_start(GTK_BOX(vbox), config_groups_vbox, FALSE, FALSE, 0);
+  ghid_config_groups_changed();
+  
+  sep = gtk_hseparator_new ();
+  gtk_box_pack_start (GTK_BOX (vbox), sep, FALSE, FALSE, 4);
+
+#if FIXME
+  ghid_check_button_connected (vbox, &use_layer_default_button, FALSE,
+			       TRUE, FALSE, FALSE, 8, NULL, NULL,
+			       ("Use these layer settings as the default for new layouts"));
+#endif
+
+
+/* -- Info tab */
+  vbox = ghid_notebook_page (tabs, _("Info"), 0, 6);
+
+  text = ghid_scrolled_text_view (vbox, NULL,
+				  GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
+  for (i = 0; i < sizeof (layer_info_text) / sizeof (gchar *); ++i)
+    ghid_text_view_append (text, _(layer_info_text[i]));
+}
+
 
 void
 ghid_config_layer_name_update (gchar * name, gint layer)
@@ -2036,6 +2145,9 @@ config_close_cb (gpointer data)
 
   config_sizes_vbox = NULL;
   config_increments_vbox = NULL;
+
+  config_groups_vbox = config_groups_table = NULL;
+
   gtk_widget_destroy (config_window);
   config_window = NULL;
 }
@@ -2045,6 +2157,7 @@ config_destroy_cb (gpointer data)
 {
   config_sizes_vbox = NULL;
   config_increments_vbox = NULL;
+  config_groups_vbox = config_groups_table = NULL;
   config_window = NULL;
 }
 

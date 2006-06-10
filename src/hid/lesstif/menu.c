@@ -181,9 +181,22 @@ LayersChanged (int argc, char **argv, int x, int y)
   if (!layer_button_list)
     return 0;
 
-  if (!got_colors)
+  if (PCB && PCB->Data)
     {
-      got_colors = 1;
+      DataType *d = PCB->Data;
+      for (i = 0; i < MAX_LAYER; i++)
+	fg_colors[i] = lesstif_parse_color (d->Layer[i].Color);
+      fg_colors[LB_SILK] = lesstif_parse_color (PCB->ElementColor);
+      fg_colors[LB_RATS] = lesstif_parse_color (PCB->RatColor);
+      fg_colors[LB_PINS] = lesstif_parse_color (PCB->PinColor);
+      fg_colors[LB_VIAS] = lesstif_parse_color (PCB->ViaColor);
+      fg_colors[LB_BACK] =
+	lesstif_parse_color (PCB->InvisibleObjectsColor);
+      fg_colors[LB_MASK] = lesstif_parse_color (PCB->MaskColor);
+      bg_color = lesstif_parse_color (Settings.BackgroundColor);
+    }
+  else
+    {
       for (i = 0; i < MAX_LAYER; i++)
 	fg_colors[i] = lesstif_parse_color (Settings.LayerColor[i]);
       fg_colors[LB_SILK] = lesstif_parse_color (Settings.ElementColor);
@@ -260,6 +273,11 @@ LayersChanged (int argc, char **argv, int x, int y)
 	      stdarg (XmNset, current_layer == i ? True : False);
 	    }
 	  XtSetValues (lb->w[i], args, n);
+
+	  if (i >= max_layer && i < MAX_LAYER)
+	    XtUnmanageChild(lb->w[i]);
+	  else
+	    XtManageChild(lb->w[i]);
 	}
     }
 
@@ -283,6 +301,8 @@ LayersChanged (int argc, char **argv, int x, int y)
       stdarg (XmNlabelString, XmStringCreateLocalized (name));
       XtSetValues (lesstif_m_layer, args, n);
     }
+
+  lesstif_update_layer_groups ();
 
   return 0;
 }
@@ -343,14 +363,14 @@ layer_button_callback (Widget w, int layer, XmPushButtonCallbackStruct * pbcs)
     }
 
   show_one_layer_button (layer, set);
-  if (layer < MAX_LAYER)
+  if (layer < max_layer)
     {
       int i;
       int group = GetLayerGroupNumberByNumber (layer);
       for (i = 0; i < PCB->LayerGroups.Number[group]; i++)
 	{
 	  l = PCB->LayerGroups.Entries[group][i];
-	  if (l != layer && l < MAX_LAYER)
+	  if (l != layer && l < max_layer)
 	    {
 	      show_one_layer_button (l, set);
 	      PCB->Data->Layer[l].On = set;
@@ -368,7 +388,7 @@ layerpick_button_callback (Widget w, int layer,
   char *name;
   PCB->RatDraw = (layer == LB_RATS);
   PCB->SilkActive = (layer == LB_SILK);
-  if (layer < MAX_LAYER)
+  if (layer < max_layer)
     ChangeGroupVisibility (layer, 1, 1);
   for (l = 0; l < num_layer_buttons; l++)
     {
@@ -475,7 +495,7 @@ ToggleView (int argc, char **argv, int x, int y)
   else
     {
       l = -1;
-      for (i = 0; i < MAX_LAYER + 2; i++)
+      for (i = 0; i < max_layer + 2; i++)
 	if (strcmp (argv[0], PCB->Data->Layer[i].Name) == 0)
 	  {
 	    l = i;
@@ -528,7 +548,7 @@ insert_layerview_buttons (Widget menu)
 	  break;
 	}
       n = 0;
-      if (i < MAX_LAYER)
+      if (i < MAX_LAYER && i < 9)
 	{
 	  char buf[20], av[30];
 	  Resource *ar;
@@ -583,7 +603,7 @@ insert_layerpick_buttons (Widget menu)
 	  break;
 	}
       n = 0;
-      if (i < MAX_LAYER)
+      if (i < MAX_LAYER && i < 9)
 	{
 	  char buf[20], av[30];
 	  Resource *ar;

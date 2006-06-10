@@ -303,6 +303,7 @@ PCBChanged (int argc, char **argv, int x, int y)
   hid_action ("LayersChanged");
   hid_action ("RouteStylesChanged");
   lesstif_sizes_reset ();
+  lesstif_update_layer_groups ();
   while (pinouts)
     pinout_unmap (0, pinouts, 0);
   if (PCB->Filename)
@@ -525,8 +526,8 @@ side'' of the board.
 static int
 SwapSides (int argc, char **argv, int x, int y)
 {
-  int comp_group = GetLayerGroupNumberByNumber (MAX_LAYER + COMPONENT_LAYER);
-  int solder_group = GetLayerGroupNumberByNumber (MAX_LAYER + SOLDER_LAYER);
+  int comp_group = GetLayerGroupNumberByNumber (max_layer + COMPONENT_LAYER);
+  int solder_group = GetLayerGroupNumberByNumber (max_layer + SOLDER_LAYER);
   int active_group = GetLayerGroupNumberByNumber (LayerStack[0]);
   int comp_showing =
     PCB->Data->Layer[PCB->LayerGroups.Entries[comp_group][0]].On;
@@ -2496,9 +2497,11 @@ static int
 lesstif_set_layer (const char *name, int group)
 {
   int idx = group;
-  if (idx >= 0 && idx < MAX_LAYER)
+  if (idx >= 0 && idx < max_layer)
     {
+  printf("set_layer (group=%d) = ", group);
       idx = PCB->LayerGroups.Entries[idx][0];
+  printf("layer %d\n", idx);
 #if 0
       if (idx == LayerStack[0]
 	  || GetLayerGroupNumberByNumber (idx) ==
@@ -2512,7 +2515,7 @@ lesstif_set_layer (const char *name, int group)
   else
     autofade = 0;
 #endif
-  if (idx >= 0 && idx < MAX_LAYER + 2)
+  if (idx >= 0 && idx < max_layer + 2)
     return pinout ? 1 : PCB->Data->Layer[idx].On;
   if (idx < 0)
     {

@@ -320,9 +320,9 @@ ghid_set_layer (const char *name, int group)
 {
   int idx = (group >= 0
 	     && group <
-	     MAX_LAYER) ? PCB->LayerGroups.Entries[group][0] : group;
+	     max_layer) ? PCB->LayerGroups.Entries[group][0] : group;
 
-  if (idx >= 0 && idx < MAX_LAYER + 2)
+  if (idx >= 0 && idx < max_layer + 2)
     return /*pinout ? 1 : */ PCB->Data->Layer[idx].On;
   if (idx < 0)
     {
@@ -1220,8 +1220,8 @@ SwapSides (int argc, char **argv, int x, int y)
 {
   gint dx;
 
-  int comp_group = GetLayerGroupNumberByNumber (MAX_LAYER + COMPONENT_LAYER);
-  int solder_group = GetLayerGroupNumberByNumber (MAX_LAYER + SOLDER_LAYER);
+  int comp_group = GetLayerGroupNumberByNumber (max_layer + COMPONENT_LAYER);
+  int solder_group = GetLayerGroupNumberByNumber (max_layer + SOLDER_LAYER);
   int active_group = GetLayerGroupNumberByNumber (LayerStack[0]);
   int comp_showing =
     PCB->Data->Layer[PCB->LayerGroups.Entries[comp_group][0]].On;

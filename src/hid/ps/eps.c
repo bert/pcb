@@ -103,10 +103,10 @@ static int comp_layer, solder_layer;
 static int
 group_for_layer (int l)
 {
-  if (l < MAX_LAYER + 2 && l >= 0)
+  if (l < max_layer + 2 && l >= 0)
     return GetLayerGroupNumberByNumber (l);
   /* else something unique */
-  return MAX_LAYER + 3 + l;
+  return max_layer + 3 + l;
 }
 
 static int
@@ -118,7 +118,7 @@ layer_sort (const void *va, const void *vb)
   int bl = group_for_layer (b);
   int d = bl - al;
 
-  if (a >= 0 && a <= MAX_LAYER + 1)
+  if (a >= 0 && a <= max_layer + 1)
     {
       int aside = (al == solder_layer ? 0 : al == comp_layer ? 2 : 1);
       int bside = (bl == solder_layer ? 0 : bl == comp_layer ? 2 : 1);
@@ -157,7 +157,7 @@ eps_hid_export_to_file (FILE * the_file, HID_Attr_Val * options)
   memset (print_layer, 0, sizeof (print_layer));
 
   /* Figure out which layers actually have stuff on them.  */
-  for (i = 0; i < MAX_LAYER; i++)
+  for (i = 0; i < max_layer; i++)
     {
       LayerType *layer = PCB->Data->Layer + i;
       if (layer->LineN || layer->TextN || layer->ArcN || layer->PolygonN)
@@ -168,7 +168,7 @@ eps_hid_export_to_file (FILE * the_file, HID_Attr_Val * options)
      erase logic.  Otherwise, we have to use the expensive multi-mask
      erase.  */
   fast_erase = 0;
-  for (i = 0; i < MAX_LAYER; i++)
+  for (i = 0; i < max_layer; i++)
     if (print_group[i])
       fast_erase ++;
 
@@ -176,7 +176,7 @@ eps_hid_export_to_file (FILE * the_file, HID_Attr_Val * options)
      layer to get the pins.  */
   if (fast_erase == 0)
     {
-      print_group[GetLayerGroupNumberByNumber (MAX_LAYER + COMPONENT_LAYER)] = 1;
+      print_group[GetLayerGroupNumberByNumber (max_layer + COMPONENT_LAYER)] = 1;
       fast_erase = 1;
     }
 
@@ -185,7 +185,7 @@ eps_hid_export_to_file (FILE * the_file, HID_Attr_Val * options)
 
   /* Now, for each group we're printing, mark its layers for
      printing.  */
-  for (i = 0; i < MAX_LAYER; i++)
+  for (i = 0; i < max_layer; i++)
     if (print_group[GetLayerGroupNumberByNumber (i)])
       print_layer[i] = 1;
 
@@ -201,9 +201,9 @@ eps_hid_export_to_file (FILE * the_file, HID_Attr_Val * options)
   as_shown = options[HA_as_shown].int_value;
   if (!options[HA_as_shown].int_value)
     {
-      comp_layer = GetLayerGroupNumberByNumber (MAX_LAYER + COMPONENT_LAYER);
-      solder_layer = GetLayerGroupNumberByNumber (MAX_LAYER + SOLDER_LAYER);
-      qsort (LayerStack, MAX_LAYER, sizeof (LayerStack[0]), layer_sort);
+      comp_layer = GetLayerGroupNumberByNumber (max_layer + COMPONENT_LAYER);
+      solder_layer = GetLayerGroupNumberByNumber (max_layer + SOLDER_LAYER);
+      qsort (LayerStack, max_layer, sizeof (LayerStack[0]), layer_sort);
     }
   fprintf (f, "%%!PS-Adobe-3.0 EPSF-3.0\n");
   linewidth = -1;
@@ -314,11 +314,11 @@ eps_set_layer (const char *name, int group)
 {
   int idx = (group >= 0
 	     && group <
-	     MAX_LAYER) ? PCB->LayerGroups.Entries[group][0] : group;
+	     max_layer) ? PCB->LayerGroups.Entries[group][0] : group;
   if (name == 0)
     name = PCB->Data->Layer[idx].Name;
 
-  if (idx >= 0 && idx < MAX_LAYER && !print_layer[idx])
+  if (idx >= 0 && idx < max_layer && !print_layer[idx])
     return 0;
   if (SL_TYPE (idx) == SL_ASSY || SL_TYPE (idx) == SL_FAB)
     return 0;

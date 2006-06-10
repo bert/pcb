@@ -292,7 +292,7 @@ XORDrawBuffer (BufferTypePtr Buffer)
   y = Crosshair.Y - Buffer->Y;
 
   /* draw all visible layers */
-  for (i = 0; i < MAX_LAYER + 2; i++)
+  for (i = 0; i < max_layer + 2; i++)
     if (PCB->Data->Layer[i].On)
       {
 	LayerTypePtr layer = &Buffer->Data->Layer[i];

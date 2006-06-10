@@ -36,6 +36,9 @@
 DataTypePtr CreateNewBuffer (void);
 void pcb_colors_from_settings (PCBTypePtr);
 PCBTypePtr CreateNewPCB (Boolean);
+/* Called after PCB->Data->LayerN is set.  Returns zero if no errors,
+   else nonzero.  */
+int CreateNewPCBPost (PCBTypePtr, int /* set defaults */);
 PinTypePtr CreateNewVia (DataTypePtr, LocationType, LocationType, BDimension,
 			 BDimension, BDimension, BDimension, char *,
 			 FlagType);

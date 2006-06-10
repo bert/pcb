@@ -113,6 +113,13 @@ typedef struct			/* information about moves between layers */
 }
 MoveToLayerType, *MoveToLayerTypePtr;
 
+typedef struct			/* information about layer changes */
+{
+  int old_index;
+  int new_index;
+}
+LayerChangeType, *LayerChangeTypePtr;
+
 typedef struct			/* holds information about an operation */
 {
   int Serial,			/* serial number of operation */
@@ -128,6 +135,7 @@ typedef struct			/* holds information about an operation */
     MoveToLayerType MoveToLayer;
     FlagType Flags;
     BDimension Size;
+    LayerChangeType LayerChange;
   }
   Data;
 }
@@ -744,6 +752,26 @@ UndoInsertPoint (UndoListTypePtr Entry)
 }
 
 /* ---------------------------------------------------------------------------
+ * undo a layer change
+ * returns true on success
+ */
+static Boolean
+UndoLayerChange (UndoListTypePtr Entry)
+{
+  LayerChangeTypePtr l = & Entry->Data.LayerChange;
+  int tmp;
+
+  tmp = l->new_index;
+  l->new_index = l->old_index;
+  l->old_index = tmp;
+
+  if (MoveLayer (l->old_index, l->new_index))
+    return False;
+  else
+    return True;
+}
+
+/* ---------------------------------------------------------------------------
  * undo of any 'hard to recover' operation
  *
  * returns the bitfield for the types of operations that were undone
@@ -864,6 +892,11 @@ PerformUndo (UndoListTypePtr ptr)
     case UNDO_CHANGEANGLES:
       if (UndoChangeAngles (ptr))
 	return (UNDO_CHANGEANGLES);
+      break;
+
+    case UNDO_LAYERCHANGE:
+      if (UndoLayerChange (ptr))
+	return (UNDO_LAYERCHANGE);
       break;
 
     case UNDO_MIRROR:
@@ -1275,6 +1308,22 @@ AddObjectToChangeAnglesUndoList (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
       undo = GetUndoSlot (UNDO_CHANGEANGLES, OBJECT_ID (Ptr3), Type);
       undo->Data.Move.DX = a->StartAngle;
       undo->Data.Move.DY = a->Delta;
+    }
+}
+
+/* ---------------------------------------------------------------------------
+ * adds a layer change (new, delete, move) to the undo list.
+ */
+void
+AddLayerChangeToUndoList (int old_index, int new_index)
+{
+  UndoListTypePtr undo;
+
+  if (!Locked)
+    {
+      undo = GetUndoSlot (UNDO_LAYERCHANGE, 0, 0);
+      undo->Data.LayerChange.old_index = old_index;
+      undo->Data.LayerChange.new_index = new_index;
     }
 }
 

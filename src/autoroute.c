@@ -336,7 +336,7 @@ static Boolean bad_x[MAX_LAYER], bad_y[MAX_LAYER];
 static int
 __routebox_is_good (routebox_t * rb)
 {
-  assert (rb && (0 <= rb->group) && (rb->group < MAX_LAYER) &&
+  assert (rb && (0 <= rb->group) && (rb->group < max_layer) &&
 	  (rb->box.X1 <= rb->box.X2) && (rb->box.Y1 <= rb->box.Y2) &&
 	  (rb->flags.orphan ?
 	   (rb->box.X1 != rb->box.X2) || (rb->box.Y1 != rb->box.Y2) :
@@ -483,10 +483,10 @@ static Boolean
 is_layer_group_active (Cardinal group)
 {
   int i;
-  assert (0 <= group && group < MAX_LAYER);
+  assert (0 <= group && group < max_layer);
   for (i = 0; i < PCB->LayerGroups.Number[group]; i++)
-    /* layer must be 1) not silk (ie, < MAX_LAYER) and 2) on */
-    if ((PCB->LayerGroups.Entries[group][i] < MAX_LAYER) &&
+    /* layer must be 1) not silk (ie, < max_layer) and 2) on */
+    if ((PCB->LayerGroups.Entries[group][i] < max_layer) &&
 	PCB->Data->Layer[PCB->LayerGroups.Entries[group][i]].On)
       return True;		/* this layer group is active. */
   return False;
@@ -498,7 +498,7 @@ AddPin (PointerListType layergroupboxes[], PinTypePtr pin, Boolean is_via)
   routebox_t **rbpp, *lastrb = NULL;
   int i;
   /* a pin cuts through every layer group */
-  for (i = 0; i < MAX_LAYER; i++)
+  for (i = 0; i < max_layer; i++)
     {
       rbpp = (routebox_t **) GetPointerMemory (&layergroupboxes[i]);
       *rbpp = malloc (sizeof (**rbpp));
@@ -541,7 +541,7 @@ AddPad (PointerListType layergroupboxes[],
   BDimension halfthick;
   routebox_t **rbpp;
   int layergroup = TEST_FLAG (ONSOLDERFLAG, pad) ? back : front;
-  assert (0 <= layergroup && layergroup < MAX_LAYER);
+  assert (0 <= layergroup && layergroup < max_layer);
   assert (PCB->LayerGroups.Number[layergroup] > 0);
   rbpp = (routebox_t **) GetPointerMemory (&layergroupboxes[layergroup]);
   assert (rbpp);
@@ -571,10 +571,10 @@ AddLine (PointerListType layergroupboxes[], int layer, LineTypePtr line)
   routebox_t **rbpp;
   int layergroup;
   assert (layergroupboxes && line);
-  assert (0 <= layer && layer < MAX_LAYER);
+  assert (0 <= layer && layer < max_layer);
 
   layergroup = GetLayerGroupNumberByNumber (layer);
-  assert (0 <= layergroup && layergroup < MAX_LAYER);
+  assert (0 <= layergroup && layergroup < max_layer);
   assert (PCB->LayerGroups.Number[layergroup] > 0);
 
   rbpp = (routebox_t **) GetPointerMemory (&layergroupboxes[layergroup]);
@@ -615,11 +615,11 @@ AddIrregularObstacle (PointerListType layergroupboxes[],
   routebox_t **rbpp;
   int layergroup;
   assert (layergroupboxes && parent);
-  assert (0 <= layer && layer < MAX_LAYER);
+  assert (0 <= layer && layer < max_layer);
   assert (X1 <= X2 && Y1 <= Y2);
 
   layergroup = GetLayerGroupNumberByNumber (layer);
-  assert (0 <= layergroup && layergroup < MAX_LAYER);
+  assert (0 <= layergroup && layergroup < max_layer);
   assert (PCB->LayerGroups.Number[layergroup] > 0);
 
   rbpp = (routebox_t **) GetPointerMemory (&layergroupboxes[layergroup]);
@@ -710,7 +710,7 @@ FindRouteBox (routedata_t * rd, LocationType X, LocationType Y, void *matches)
   fc.key = matches;
   region.X1 = region.X2 = X;
   region.Y1 = region.Y2 = Y;
-  for (group = 0; group < MAX_LAYER; group++)
+  for (group = 0; group < max_layer; group++)
     if (r_search (rd->layergrouptree[group], &region, NULL, __found_one, &fc))
       return fc.match;
   return NULL;			/* no match found */
@@ -794,10 +794,10 @@ CreateRouteData ()
   Boolean other = True;
   int i;
 
-  front = GetLayerGroupNumberByNumber (MAX_LAYER + COMPONENT_LAYER);
-  back = GetLayerGroupNumberByNumber (MAX_LAYER + SOLDER_LAYER);
+  front = GetLayerGroupNumberByNumber (max_layer + COMPONENT_LAYER);
+  back = GetLayerGroupNumberByNumber (max_layer + SOLDER_LAYER);
   /* determine prefered routing direction on each group */
-  for (i = 0; i < MAX_LAYER; i++)
+  for (i = 0; i < max_layer; i++)
     {
       if (i != back && i != front)
 	{
@@ -832,7 +832,7 @@ CreateRouteData ()
     }
 
   /* initialize pointerlisttype */
-  for (i = 0; i < MAX_LAYER; i++)
+  for (i = 0; i < max_layer; i++)
     {
       layergroupboxes[i].Ptr = NULL;
       layergroupboxes[i].PtrN = 0;
@@ -857,7 +857,7 @@ CreateRouteData ()
   }
   END_LOOP;
 
-  for (i = 0; i < MAX_LAYER; i++)
+  for (i = 0; i < max_layer; i++)
     {
       /* add all (non-rat) lines */
       LINE_LOOP (LAYER_PTR (i));
@@ -886,7 +886,7 @@ CreateRouteData ()
     }
 
   /* create r-trees from pointer lists */
-  for (i = 0; i < MAX_LAYER; i++)
+  for (i = 0; i < max_layer; i++)
     {
       /* initialize style (we'll fill in a "real" style later, when we add
        * the connectivity information) */
@@ -975,7 +975,7 @@ CreateRouteData ()
 
   /* create "empty-space" structures for via placement (now that we know
    * appropriate keepaways for all the fixed elements) */
-  for (i = 0; i < MAX_LAYER; i++)
+  for (i = 0; i < max_layer; i++)
     {
       POINTER_LOOP (&layergroupboxes[i]);
       {
@@ -987,7 +987,7 @@ CreateRouteData ()
       END_LOOP;
     }
   /* free pointer lists */
-  for (i = 0; i < MAX_LAYER; i++)
+  for (i = 0; i < max_layer; i++)
     FreePointerListMemory (&layergroupboxes[i]);
   /* done! */
   return rd;
@@ -997,7 +997,7 @@ void
 DestroyRouteData (routedata_t ** rd)
 {
   int i;
-  for (i = 0; i < MAX_LAYER; i++)
+  for (i = 0; i < max_layer; i++)
     r_destroy_tree (&(*rd)->layergrouptree[i]);
   mtspace_destroy (&(*rd)->mtspace);
   free (*rd);
@@ -1151,30 +1151,30 @@ showbox (BoxType b, Dimension thickness, int group)
 
   if (b.Y1 == b.Y2 || b.X1 == b.X2)
     thickness = 5;
-  line = CreateNewLineOnLayer (LAYER_PTR (MAX_LAYER + COMPONENT_LAYER),
+  line = CreateNewLineOnLayer (LAYER_PTR (max_layer + COMPONENT_LAYER),
 			       b.X1, b.Y1, b.X2, b.Y1, thickness, 0, 0);
   AddObjectToCreateUndoList (LINE_TYPE,
-			     LAYER_PTR (MAX_LAYER + COMPONENT_LAYER), line,
+			     LAYER_PTR (max_layer + COMPONENT_LAYER), line,
 			     line);
   if (b.Y1 != b.Y2)
     {
-      line = CreateNewLineOnLayer (LAYER_PTR (MAX_LAYER + COMPONENT_LAYER),
+      line = CreateNewLineOnLayer (LAYER_PTR (max_layer + COMPONENT_LAYER),
 				   b.X1, b.Y2, b.X2, b.Y2, thickness, 0, 0);
       AddObjectToCreateUndoList (LINE_TYPE,
-				 LAYER_PTR (MAX_LAYER + COMPONENT_LAYER),
+				 LAYER_PTR (max_layer + COMPONENT_LAYER),
 				 line, line);
     }
-  line = CreateNewLineOnLayer (LAYER_PTR (MAX_LAYER + COMPONENT_LAYER),
+  line = CreateNewLineOnLayer (LAYER_PTR (max_layer + COMPONENT_LAYER),
 			       b.X1, b.Y1, b.X1, b.Y2, thickness, 0, 0);
   AddObjectToCreateUndoList (LINE_TYPE,
-			     LAYER_PTR (MAX_LAYER + COMPONENT_LAYER), line,
+			     LAYER_PTR (max_layer + COMPONENT_LAYER), line,
 			     line);
   if (b.X1 != b.X2)
     {
-      line = CreateNewLineOnLayer (LAYER_PTR (MAX_LAYER + COMPONENT_LAYER),
+      line = CreateNewLineOnLayer (LAYER_PTR (max_layer + COMPONENT_LAYER),
 				   b.X2, b.Y1, b.X2, b.Y2, thickness, 0, 0);
       AddObjectToCreateUndoList (LINE_TYPE,
-				 LAYER_PTR (MAX_LAYER + COMPONENT_LAYER),
+				 LAYER_PTR (max_layer + COMPONENT_LAYER),
 				 line, line);
     }
 }
@@ -1217,7 +1217,7 @@ static void
 showroutebox (routebox_t * rb)
 {
   showbox (rb->box, rb->flags.source ? 5 : 3,
-	   rb->flags.is_via ? MAX_LAYER + COMPONENT_LAYER : rb->group);
+	   rb->flags.is_via ? max_layer + COMPONENT_LAYER : rb->group);
 }
 #endif
 
@@ -2232,7 +2232,7 @@ RD_DrawVia (routedata_t * rd, LocationType X, LocationType Y,
   routebox_t *rb, *first_via = NULL;
   int i;
   /* a via cuts through every layer group */
-  for (i = 0; i < MAX_LAYER; i++)
+  for (i = 0; i < max_layer; i++)
     {
       if (!is_layer_group_active (i))
 	continue;
@@ -2732,7 +2732,7 @@ add_via_sites (struct routeone_state *s,
 	  free (area);
 	  assert (__box_is_good (&cliparea));
 	  count++;
-	  for (j = 0; j < MAX_LAYER; j++)
+	  for (j = 0; j < max_layer; j++)
 	    {
 	      edge_t *ne;
 	      if (j == within->group)

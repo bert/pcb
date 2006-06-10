@@ -55,6 +55,8 @@ extern OutputType Output;
 
 extern PCBTypePtr PCB;
 
+#define max_layer (PCB->Data->LayerN)
+
 extern SettingType Settings;
 
 extern BufferType Buffers[MAX_BUFFER];

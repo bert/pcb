@@ -300,7 +300,7 @@ UpdatePIPFlags (PinTypePtr Pin, ElementTypePtr Element,
   else if (Layer == NULL)
     {
       Cardinal l;
-      for (l = 0; l < MAX_LAYER; l++)
+      for (l = 0; l < max_layer; l++)
 	UpdatePIPFlags (Pin, Element, LAYER_PTR (l), AddUndo);
     }
   else
@@ -521,8 +521,8 @@ PolygonPlows (int group, const BoxType * range,
   struct plow_info info;
 
   info.group = group;
-  info.component = GetLayerGroupNumberByNumber (MAX_LAYER + COMPONENT_LAYER);
-  info.solder = GetLayerGroupNumberByNumber (MAX_LAYER + SOLDER_LAYER);
+  info.component = GetLayerGroupNumberByNumber (max_layer + COMPONENT_LAYER);
+  info.solder = GetLayerGroupNumberByNumber (max_layer + SOLDER_LAYER);
   info.callback = any_call;
   info.range = range;
   GROUP_LOOP (group);

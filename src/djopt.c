@@ -555,7 +555,7 @@ new_line (corner_s * s, corner_s * e, int layer, LineType * example)
 {
   line_s *ls;
 
-  if (layer >= MAX_LAYER)
+  if (layer >= max_layer)
     dj_abort ("layer %d\n", layer);
 
   if (example == NULL)
@@ -1947,7 +1947,7 @@ vianudge ()
 	  counts[c->lines[i]->layer]++;
 	  directions[c->lines[i]->layer] |= o;
 	}
-      for (o = 0, i = 0; i < MAX_LAYER; i++)
+      for (o = 0, i = 0; i < max_layer; i++)
 	if (counts[i] == 1)
 	  {
 	    o = directions[i];
@@ -1966,7 +1966,7 @@ vianudge ()
 	default:
 	  continue;
 	}
-      for (i = 0; i < MAX_LAYER; i++)
+      for (i = 0; i < max_layer; i++)
 	if (counts[i] && directions[i] != o && directions[i] != oboth)
 	  goto vianudge_continue;
 
@@ -2582,7 +2582,7 @@ pinsnap ()
 
 	  dprintf ("%s x %d-%d y %d-%d\n", corner_name (c), left, right,
 		   bottom, top);
-	  for (l = 0; l <= MAX_LAYER; l++)
+	  for (l = 0; l <= max_layer; l++)
 	    {
 	      best_dist[l] = close * 2;
 	      best_c[l] = 0;
@@ -2628,10 +2628,10 @@ pinsnap ()
 		}
 	      if (!got_one && c->n_lines == (c->pad ? 1 : 0))
 		{
-		  for (l = 0; l <= MAX_LAYER; l++)
+		  for (l = 0; l <= max_layer; l++)
 		    if (best_c[l])
 		      dprintf ("best[%d] = %s\n", l, corner_name (best_c[l]));
-		  for (l = 0; l <= MAX_LAYER; l++)
+		  for (l = 0; l <= max_layer; l++)
 		    if (best_c[l])
 		      {
 			dprintf ("move %s to %s\n", corner_name (best_c[l]),
@@ -2803,24 +2803,24 @@ grok_layer_groups ()
   LayerGroupType *l = &(PCB->LayerGroups);
 
   solder_layer = component_layer = -1;
-  for (i = 0; i < MAX_LAYER; i++)
+  for (i = 0; i < max_layer; i++)
     {
       layer_type[i] = 0;
       layer_groupings[i] = 0;
     }
-  for (i = 0; i < MAX_LAYER; i++)
+  for (i = 0; i < max_layer; i++)
     {
       f = 0;
       for (j = 0; j < l->Number[i]; j++)
 	{
-	  if (l->Entries[i][j] == MAX_LAYER + SOLDER_LAYER)
+	  if (l->Entries[i][j] == max_layer + SOLDER_LAYER)
 	    f |= LT_SOLDER;
-	  if (l->Entries[i][j] == MAX_LAYER + COMPONENT_LAYER)
+	  if (l->Entries[i][j] == max_layer + COMPONENT_LAYER)
 	    f |= LT_COMPONENT;
 	}
       for (j = 0; j < l->Number[i]; j++)
 	{
-	  if (l->Entries[i][j] >= 0 && l->Entries[i][j] < MAX_LAYER)
+	  if (l->Entries[i][j] >= 0 && l->Entries[i][j] < max_layer)
 	    {
 	      layer_type[l->Entries[i][j]] |= f;
 	      layer_groupings[l->Entries[i][j]] = i;
@@ -2945,7 +2945,7 @@ ActionDJopt (int argc, char **argv, int x, int y)
   END_LOOP;
   check (0, 0);
 
-  for (layn = 0; layn < MAX_LAYER; layn++)
+  for (layn = 0; layn < max_layer; layn++)
     {
       LayerType *layer = LAYER_PTR (layn);
       int ln;

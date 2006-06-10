@@ -297,6 +297,12 @@ log_clear (Widget w, void *up, void *cbp)
   pending_newline = 0;
 }
 
+static void
+log_dismiss (Widget w, void *up, void *cbp)
+{
+  XtUnmanageChild (log_form);
+}
+
 void
 lesstif_logv (const char *fmt, va_list ap)
 {
@@ -309,7 +315,7 @@ lesstif_logv (const char *fmt, va_list ap)
     }
   if (!log_form)
     {
-      Widget clear_button;
+      Widget clear_button, dismiss_button;
 
       n = 0;
       stdarg (XmNautoUnmanage, False);
@@ -325,6 +331,15 @@ lesstif_logv (const char *fmt, va_list ap)
       XtManageChild (clear_button);
       XtAddCallback (clear_button, XmNactivateCallback,
 		     (XtCallbackProc) log_clear, 0);
+
+      n = 0;
+      stdarg (XmNrightAttachment, XmATTACH_WIDGET);
+      stdarg (XmNrightWidget, clear_button);
+      stdarg (XmNbottomAttachment, XmATTACH_FORM);
+      dismiss_button = XmCreatePushButton (log_form, "dismiss", args, n);
+      XtManageChild (dismiss_button);
+      XtAddCallback (dismiss_button, XmNactivateCallback,
+		     (XtCallbackProc) log_dismiss, 0);
 
       n = 0;
       stdarg (XmNeditable, False);
@@ -1179,25 +1194,141 @@ AdjustSizes (int argc, char **argv, int x, int y)
 /* ------------------------------------------------------------ */
 
 static Widget layer_groups_form = 0;
+static Widget lg_buttonform = 0;
 
+static int lg_setcol[MAX_LAYER+2];
+static int lg_width, lg_height;
+static int lg_r[MAX_LAYER+3];
+static int lg_c[MAX_LAYER+1];
+static int lg_label_width, lg_fa, lg_fd;
+static GC lg_gc = 0;
+
+#if 0
 static Widget lglabels[MAX_LAYER + 2];
 static Widget lgbuttons[MAX_LAYER + 2][MAX_LAYER];
+#endif
 
+typedef struct {
+  XFontStruct *font;
+  Pixel fg, bg, sel;
+} LgResource;
+
+static LgResource lgr;
+
+static XtResource lg_resources[] = {
+  { "font", "Font", XtRFontStruct, sizeof(XFontStruct*), XtOffset(LgResource*, font), XtRString, "fixed" },
+  { "foreground", "Foreground", XtRPixel, sizeof(Pixel), XtOffset(LgResource*, fg), XtRString, "black" },
+  { "selectColor", "Foreground", XtRPixel, sizeof(Pixel), XtOffset(LgResource*, sel), XtRString, "blue" },
+  { "background", "Background", XtRPixel, sizeof(Pixel), XtOffset(LgResource*, bg), XtRString, "white" }
+};
+
+#if 0
 static void
 lgbutton_cb (Widget w, int ij, void *cbs)
 {
   int layer, group, k;
 
-  layer = ij / MAX_LAYER;
-  group = ij % MAX_LAYER;
+  layer = ij / max_layer;
+  group = ij % max_layer;
   group = MoveLayerToGroup (layer, group);
-  for (k = 0; k < MAX_LAYER; k++)
+  for (k = 0; k < max_layer; k++)
     {
       if (k == group)
 	XmToggleButtonSetState (lgbuttons[layer][k], 1, 0);
       else
 	XmToggleButtonSetState (lgbuttons[layer][k], 0, 0);
     }
+}
+#endif
+
+static void
+lgbutton_expose (Widget w, XtPointer u, XmDrawingAreaCallbackStruct *cbs)
+{
+  int i;
+  Window win = XtWindow(w);
+
+  if (cbs && cbs->event->xexpose.count)
+    return;
+  if (lg_gc == 0 && !cbs)
+    return;
+  if (lg_gc == 0 && cbs)
+    {
+      lg_gc = XCreateGC (display, win, 0, 0);
+      XSetFont (display, lg_gc, lgr.font->fid);
+    }
+
+  XSetForeground (display, lg_gc, lgr.bg);
+  XFillRectangle (display, win, lg_gc, 0, 0, lg_width, lg_height);
+  XSetForeground (display, lg_gc, lgr.fg);
+  for (i=0; i<max_layer; i++)
+    XDrawLine(display, win, lg_gc, lg_c[i], 0, lg_c[i], lg_height);
+  for (i=1; i<max_layer+2; i++)
+    XDrawLine(display, win, lg_gc, lg_label_width, lg_r[i], lg_width, lg_r[i]);
+  for (i=0; i<max_layer+2; i++)
+    {
+      int dir;
+      XCharStruct size;
+      int swidth;
+      const char *name;
+
+      if (i == max_layer)
+	name = "solder";
+      else if (i == max_layer + 1)
+	name = "component";
+      else
+	name = PCB->Data->Layer[i].Name;
+      XTextExtents (lgr.font, name, strlen(name), &dir, &lg_fa, &lg_fd, &size);
+      swidth = size.rbearing - size.lbearing;
+      XDrawString(display, win, lg_gc,
+		  (lg_label_width - swidth)/2 - size.lbearing,
+		  (lg_r[i] + lg_r[i+1] + lg_fd + lg_fa)/2 - 1,
+		  name, strlen(name));
+    }
+  XSetForeground (display, lg_gc, lgr.sel);
+  for (i=0; i<max_layer+2; i++)
+    {
+      int c = lg_setcol[i];
+      int x1 = lg_c[c] + 2;
+      int x2 = lg_c[c+1] - 2;
+      int y1 = lg_r[i] + 2;
+      int y2 = lg_r[i+1] - 2;
+      XFillRectangle (display, win, lg_gc, x1, y1, x2-x1+1, y2-y1+1);
+    }
+}
+
+static void
+lgbutton_input (Widget w, XtPointer u, XmDrawingAreaCallbackStruct *cbs)
+{
+  int i;
+  int layer, group;
+  if (cbs->event->type != ButtonPress)
+    return;
+  layer = cbs->event->xbutton.y * (max_layer+2) / lg_height;
+  group = (cbs->event->xbutton.x - lg_label_width) * max_layer / (lg_width - lg_label_width);
+  group = MoveLayerToGroup (layer, group);
+  lg_setcol[layer] = group;
+  lgbutton_expose (w, 0, 0);
+  gui->invalidate_all ();
+}
+
+static void
+lgbutton_resize (Widget w, XtPointer u, XmDrawingAreaCallbackStruct *cbs)
+{
+  int i, label_width = 0;
+  int fa, fd;
+  Dimension width, height;
+  n = 0;
+  stdarg(XmNwidth, &width);
+  stdarg(XmNheight, &height);
+  XtGetValues(w, args, n);
+  lg_width = width;
+  lg_height = height;
+
+  for (i=0; i<=max_layer; i++)
+    lg_c[i] = lg_label_width + (lg_width - lg_label_width) * i / max_layer;
+  for (i=0; i<=max_layer+2; i++)
+    lg_r[i] = lg_height * i / (max_layer+2);
+  lgbutton_expose (w, 0, 0);
 }
 
 void
@@ -1207,25 +1338,59 @@ lesstif_update_layer_groups ()
   int i, j, n;
   LayerGroupType *l = &(PCB->LayerGroups);
 
+  if (!layer_groups_form)
+    return;
+
   memset (sets, 0, sizeof (sets));
 
-  for (i = 0; i < MAX_LAYER; i++)
+  for (i = 0; i < max_layer; i++)
     for (j = 0; j < l->Number[i]; j++)
-      sets[l->Entries[i][j]][i] = 1;
+      {
+	sets[l->Entries[i][j]][i] = 1;
+	lg_setcol[l->Entries[i][j]] = i;
+      }
 
-  for (i = 0; i < MAX_LAYER + 2; i++)
+  lg_label_width = 0;
+  for (i=0; i<max_layer+2; i++)
+    {
+      int dir;
+      XCharStruct size;
+      int swidth;
+      const char *name;
+
+      if (i == max_layer)
+	name = "solder";
+      else if (i == max_layer + 1)
+	name = "component";
+      else
+	name = PCB->Data->Layer[i].Name;
+      XTextExtents (lgr.font, name, strlen(name), &dir, &lg_fa, &lg_fd, &size);
+      swidth = size.rbearing - size.lbearing;
+      if (lg_label_width < swidth)
+	lg_label_width = swidth;
+    }
+  lg_label_width += 4;
+
+  n = 0;
+  stdarg(XmNwidth, lg_label_width + (lg_fa+lg_fd) * max_layer);
+  stdarg(XmNheight, (lg_fa+lg_fd) * (max_layer + 2));
+  XtSetValues(lg_buttonform, args, n);
+  lgbutton_expose (lg_buttonform, 0, 0);
+
+#if 0
+  for (i = 0; i < max_layer + 2; i++)
     {
       char *name = "unknown";
       n = 0;
-      if (i < MAX_LAYER)
+      if (i < max_layer)
 	name = PCB->Data->Layer[i].Name;
-      else if (i == MAX_LAYER)
+      else if (i == max_layer)
 	name = "solder";
-      else if (i == MAX_LAYER + 1)
+      else if (i == max_layer + 1)
 	name = "component";
       stdarg (XmNlabelString, XmStringCreateLocalized (name));
       XtSetValues (lglabels[i], args, n);
-      for (j = 0; j < MAX_LAYER; j++)
+      for (j = 0; j < max_layer; j++)
 	{
 	  if (sets[i][j] != XmToggleButtonGetState (lgbuttons[i][j]))
 	    {
@@ -1233,6 +1398,31 @@ lesstif_update_layer_groups ()
 	    }
 	}
     }
+  XtUnmanageChild(lg_buttonform);
+  for (i = 0; i < MAX_LAYER + 2; i++)
+    for (j = 0; j < MAX_LAYER; j++)
+      {
+	if (i < max_layer + 2 && j < max_layer)
+	  {
+	    XtManageChild(lgbuttons[i][j]);
+	    n = 0;
+	    stdarg (XmNleftPosition, j * (max_layer + 2));
+	    stdarg (XmNrightPosition, (j + 1) * (max_layer + 2));
+	    stdarg (XmNtopPosition, i * max_layer);
+	    stdarg (XmNbottomPosition, (i + 1) * max_layer);
+	    XtSetValues(lgbuttons[i][j], args, n);
+	  }
+	else
+	  XtUnmanageChild(lgbuttons[i][j]);
+      }
+  n = 0;
+  stdarg (XmNfractionBase, max_layer + 2);
+  XtSetValues (layer_groups_form, args, n);
+  n = 0;
+  stdarg (XmNfractionBase, max_layer * (max_layer + 2));
+  XtSetValues (lg_buttonform, args, n);
+  XtManageChild(lg_buttonform);
+#endif
 }
 
 static const char editlayergroups_syntax[] =
@@ -1258,21 +1448,35 @@ EditLayerGroups (int argc, char **argv, int x, int y)
 {
   if (!layer_groups_form)
     {
+      Widget lb;
       int i, j;
-      Widget buttonform;
 
       n = 0;
-      stdarg (XmNfractionBase, MAX_LAYER + 2);
+      stdarg (XmNfractionBase, max_layer + 2);
       stdarg (XmNtitle, "Layer Groups");
       layer_groups_form = XmCreateFormDialog (mainwind, "layers", args, n);
 
       n = 0;
-      stdarg (XmNtopAttachment, XmATTACH_WIDGET);
-      stdarg (XmNbottomAttachment, XmATTACH_WIDGET);
-      stdarg (XmNrightAttachment, XmATTACH_WIDGET);
-      stdarg (XmNfractionBase, MAX_LAYER * (MAX_LAYER + 2));
-      buttonform = XmCreateForm (layer_groups_form, "layers", args, n);
-      XtManageChild (buttonform);
+      stdarg (XmNtopAttachment, XmATTACH_FORM);
+      stdarg (XmNbottomAttachment, XmATTACH_FORM);
+      stdarg (XmNrightAttachment, XmATTACH_FORM);
+      stdarg (XmNleftAttachment, XmATTACH_FORM);
+      lg_buttonform = XmCreateDrawingArea (layer_groups_form, "layers", args, n);
+      XtManageChild (lg_buttonform);
+
+      XtAddCallback (lg_buttonform, XmNexposeCallback,
+		     (XtCallbackProc) lgbutton_expose, 0);
+      XtAddCallback (lg_buttonform, XmNinputCallback,
+		     (XtCallbackProc) lgbutton_input, 0);
+      XtAddCallback (lg_buttonform, XmNresizeCallback,
+		     (XtCallbackProc) lgbutton_resize, 0);
+
+      XtGetSubresources (layer_groups_form, &lgr,
+			 "layergroups", "LayerGroups",
+			 &lg_resources, XtNumber(lg_resources), 0, 0);
+#if 0
+      stdarg (XmNfractionBase, max_layer * (MAX_LAYER + 2));
+      lg_buttonform = XmCreateForm (layer_groups_form, "lgbutton", args, n);
 
       for (i = 0; i < MAX_LAYER + 2; i++)
 	{
@@ -1283,7 +1487,7 @@ EditLayerGroups (int argc, char **argv, int x, int y)
 	  stdarg (XmNbottomAttachment, XmATTACH_POSITION);
 	  stdarg (XmNbottomPosition, i + 1);
 	  stdarg (XmNrightAttachment, XmATTACH_WIDGET);
-	  stdarg (XmNrightWidget, buttonform);
+	  stdarg (XmNrightWidget, lg_buttonform);
 	  lglabels[i] = XmCreateLabel (layer_groups_form, "layer", args, n);
 	  XtManageChild (lglabels[i]);
 
@@ -1307,14 +1511,15 @@ EditLayerGroups (int argc, char **argv, int x, int y)
 	      stdarg (XmNmarginHeight, 0);
 	      stdarg (XmNhighlightThickness, 0);
 	      lgbuttons[i][j] =
-		XmCreateToggleButton (buttonform, "label", args, n);
+		XmCreateToggleButton (lg_buttonform, "label", args, n);
 	      XtManageChild (lgbuttons[i][j]);
 
 	      XtAddCallback (lgbuttons[i][j], XmNvalueChangedCallback,
 			     (XtCallbackProc) lgbutton_cb,
-			     (XtPointer) (i * MAX_LAYER + j));
+			     (XtPointer) (i * max_layer + j));
 	    }
 	}
+#endif
     }
   lesstif_update_layer_groups ();
   XtManageChild (layer_groups_form);

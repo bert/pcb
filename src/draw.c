@@ -465,7 +465,7 @@ DrawEverything (BoxTypePtr drawn_area)
   PCB->Data->BACKSILKLAYER.Color = PCB->InvisibleObjectsColor;
 
   memset (do_group, 0, sizeof (do_group));
-  for (ngroups = 0, i = 0; i < MAX_LAYER; i++)
+  for (ngroups = 0, i = 0; i < max_layer; i++)
     {
       LayerType *l = LAYER_ON_STACK (i);
       int group = GetLayerGroupNumberByNumber (LayerStack[i]);
@@ -476,8 +476,8 @@ DrawEverything (BoxTypePtr drawn_area)
 	}
     }
 
-  component = GetLayerGroupNumberByNumber (MAX_LAYER + COMPONENT_LAYER);
-  solder = GetLayerGroupNumberByNumber (MAX_LAYER + SOLDER_LAYER);
+  component = GetLayerGroupNumberByNumber (max_layer + COMPONENT_LAYER);
+  solder = GetLayerGroupNumberByNumber (max_layer + SOLDER_LAYER);
 
   /*
    * first draw all 'invisible' stuff
@@ -760,7 +760,7 @@ DrawSilk (int new_swap, int layer, BoxTypePtr drawn_area)
     {
       gui->use_mask (HID_MASK_BEFORE);
 #endif
-      DrawLayer (LAYER_PTR (MAX_LAYER + layer), drawn_area);
+      DrawLayer (LAYER_PTR (max_layer + layer), drawn_area);
       /* draw package */
       r_search (PCB->Data->element_tree, drawn_area, NULL, frontE_callback,
 		NULL);
@@ -778,7 +778,7 @@ DrawSilk (int new_swap, int layer, BoxTypePtr drawn_area)
   if (gui->poly_after)
     {
       gui->use_mask (HID_MASK_AFTER);
-      DrawLayer (LAYER_PTR (MAX_LAYER + layer), drawn_area);
+      DrawLayer (LAYER_PTR (max_layer + layer), drawn_area);
       /* draw package */
       r_search (PCB->Data->element_tree, drawn_area, NULL, frontE_callback,
 		NULL);
@@ -926,7 +926,7 @@ DrawLayerGroup (int group, const BoxType * screen)
   Cardinal *layers = PCB->LayerGroups.Entries[group];
 
   for (i = n_entries - 1; i >= 0; i--)
-    if (layers[i] < MAX_LAYER)
+    if (layers[i] < max_layer)
       {
 	Layer = PCB->Data->Layer + layers[i];
 	if (Layer->On && Layer->PolygonN)
@@ -952,7 +952,7 @@ got_mask:
 	{
 	  gui->use_mask (HID_MASK_BEFORE);
 	  for (i = n_entries - 1; i >= 0; i--)
-	    if (layers[i] < MAX_LAYER)
+	    if (layers[i] < max_layer)
 	      {
 		Layer = PCB->Data->Layer + layers[i];
 		info.PIPFlag = layers[i];
@@ -970,7 +970,7 @@ got_mask:
 
       gui->use_mask (HID_MASK_CLEAR);
       for (i = n_entries - 1; i >= 0; i--)
-	if (layers[i] < MAX_LAYER)
+	if (layers[i] < max_layer)
 	  {
 	    /* Make clearances around lines, arcs, pins and vias
 	     */
@@ -982,7 +982,7 @@ got_mask:
 	{
 	  gui->use_mask (HID_MASK_AFTER);
 	  for (i = n_entries - 1; i >= 0; i--)
-	    if (layers[i] < MAX_LAYER)
+	    if (layers[i] < max_layer)
 	      {
 		Layer = PCB->Data->Layer + layers[i];
 		info.PIPFlag = layers[i];
@@ -1006,7 +1006,7 @@ got_mask:
     {
       layernum = layers[i];
       Layer = PCB->Data->Layer + layers[i];
-      if (layernum < MAX_LAYER && Layer->On && Layer->PolygonN)
+      if (layernum < max_layer && Layer->On && Layer->PolygonN)
 	{
 	  /* print the non-clearing polys */
 	  info.PIPFlag = layernum;
@@ -1029,7 +1029,7 @@ got_mask:
     {
       layernum = layers[i];
       Layer = PCB->Data->Layer + layers[i];
-      if (layernum < MAX_LAYER && Layer->On)
+      if (layernum < max_layer && Layer->On)
 	{
 	  /* draw all visible lines this layer */
 	  r_search (Layer->line_tree, screen, NULL, line_callback, Layer);
@@ -1359,7 +1359,7 @@ ClearPin (PinTypePtr Pin, int Type, int unused)
       gui->fill_circle (Output.pmGC, Pin->X, Pin->Y, half);
     }
   /* draw all the thermal(s) */
-  for (i = MAX_LAYER; i; i--)
+  for (i = max_layer; i; i--)
     {
       layer = LAYER_ON_STACK (i - 1);
       if (!layer->On)

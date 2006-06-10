@@ -712,7 +712,7 @@ WriteBuffer (FILE * FP)
 
   WriteViaData (FP, PASTEBUFFER->Data);
   WriteElementData (FP, PASTEBUFFER->Data);
-  for (i = 0; i < MAX_LAYER + 2; i++)
+  for (i = 0; i < max_layer + 2; i++)
     WriteLayerData (FP, i, &(PASTEBUFFER->Data->Layer[i]));
   return (STATUS_OK);
 }
@@ -731,7 +731,7 @@ WritePCB (FILE * FP)
   WriteViaData (FP, PCB->Data);
   WriteElementData (FP, PCB->Data);
   WritePCBRatData (FP);
-  for (i = 0; i < MAX_LAYER + 2; i++)
+  for (i = 0; i < max_layer + 2; i++)
     WriteLayerData (FP, i, &(PCB->Data->Layer[i]));
   WritePCBNetlistData (FP);
 

@@ -279,10 +279,10 @@ gerber_get_export_options (int *n)
 static int
 group_for_layer (int l)
 {
-  if (l < MAX_LAYER + 2 && l >= 0)
+  if (l < max_layer + 2 && l >= 0)
     return GetLayerGroupNumberByNumber (l);
   /* else something unique */
-  return MAX_LAYER + 3 + l;
+  return max_layer + 3 + l;
 }
 
 static int
@@ -341,20 +341,20 @@ gerber_do_export (HID_Attr_Val * options)
   memset (print_layer, 0, sizeof (print_layer));
 
   hid_save_and_show_layer_ons (save_ons);
-  for (i = 0; i < MAX_LAYER; i++)
+  for (i = 0; i < max_layer; i++)
     {
       LayerType *layer = PCB->Data->Layer + i;
       if (layer->LineN || layer->TextN || layer->ArcN || layer->PolygonN)
 	print_group[GetLayerGroupNumberByNumber (i)] = 1;
     }
-  print_group[GetLayerGroupNumberByNumber (MAX_LAYER)] = 1;
-  print_group[GetLayerGroupNumberByNumber (MAX_LAYER + 1)] = 1;
-  for (i = 0; i < MAX_LAYER; i++)
+  print_group[GetLayerGroupNumberByNumber (max_layer)] = 1;
+  print_group[GetLayerGroupNumberByNumber (max_layer + 1)] = 1;
+  for (i = 0; i < max_layer; i++)
     if (print_group[GetLayerGroupNumberByNumber (i)])
       print_layer[i] = 1;
 
   memcpy (saved_layer_stack, LayerStack, sizeof (LayerStack));
-  qsort (LayerStack, MAX_LAYER, sizeof (LayerStack[0]), layer_sort);
+  qsort (LayerStack, max_layer, sizeof (LayerStack[0]), layer_sort);
   linewidth = -1;
   lastcap = -1;
   lastgroup = -1;
@@ -413,11 +413,11 @@ gerber_set_layer (const char *name, int group)
   char *cp;
   int idx = (group >= 0
 	     && group <
-	     MAX_LAYER) ? PCB->LayerGroups.Entries[group][0] : group;
+	     max_layer) ? PCB->LayerGroups.Entries[group][0] : group;
   if (name == 0)
     name = PCB->Data->Layer[idx].Name;
 
-  if (idx >= 0 && idx < MAX_LAYER && !print_layer[idx])
+  if (idx >= 0 && idx < max_layer && !print_layer[idx])
     return 0;
 
   if (strcmp (name, "invisible") == 0)

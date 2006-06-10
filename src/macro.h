@@ -168,15 +168,15 @@
  */
 #define	LAYER_ON_STACK(n)	(&PCB->Data->Layer[LayerStack[(n)]])
 #define LAYER_PTR(n)            (&PCB->Data->Layer[(n)])
-#define	CURRENT			(PCB->SilkActive ? &PCB->Data->Layer[MAX_LAYER + \
+#define	CURRENT			(PCB->SilkActive ? &PCB->Data->Layer[max_layer + \
 				(Settings.ShowSolderSide ? SOLDER_LAYER : COMPONENT_LAYER)] \
 				: LAYER_ON_STACK(0))
-#define	INDEXOFCURRENT		(PCB->SilkActive ? MAX_LAYER + \
+#define	INDEXOFCURRENT		(PCB->SilkActive ? max_layer + \
 				(Settings.ShowSolderSide ? SOLDER_LAYER : COMPONENT_LAYER) \
 				: LayerStack[0])
-#define SILKLAYER		Layer[MAX_LAYER + \
+#define SILKLAYER		Layer[max_layer + \
 				(Settings.ShowSolderSide ? SOLDER_LAYER : COMPONENT_LAYER)]
-#define BACKSILKLAYER		Layer[MAX_LAYER + \
+#define BACKSILKLAYER		Layer[max_layer + \
 				(Settings.ShowSolderSide ? COMPONENT_LAYER : SOLDER_LAYER)]
 
 /* ---------------------------------------------------------------------------
@@ -432,49 +432,49 @@ extern int mem_any_set (unsigned char *, int);
 #define	ALLLINE_LOOP(top) do	{		\
 	Cardinal		l;			\
 	LayerTypePtr	layer = (top)->Layer;		\
-	for (l = 0; l < MAX_LAYER + 2; l++, layer++)	\
+	for (l = 0; l < max_layer + 2; l++, layer++)	\
 	{ \
 		LINE_LOOP(layer)
 
 #define ALLARC_LOOP(top) do {		\
 	Cardinal		l;			\
 	LayerTypePtr	layer = (top)->Layer;		\
-	for (l =0; l < MAX_LAYER + 2; l++, layer++)		\
+	for (l =0; l < max_layer + 2; l++, layer++)		\
 	{ \
 		ARC_LOOP(layer)
 
 #define	ALLPOLYGON_LOOP(top)	do {		\
 	Cardinal		l;			\
 	LayerTypePtr	layer = (top)->Layer;		\
-	for (l = 0; l < MAX_LAYER + 2; l++, layer++)	\
+	for (l = 0; l < max_layer + 2; l++, layer++)	\
 	{ \
 		POLYGON_LOOP(layer)
 
 #define	COPPERLINE_LOOP(top) do	{		\
 	Cardinal		l;			\
 	LayerTypePtr	layer = (top)->Layer;		\
-	for (l = 0; l < MAX_LAYER; l++, layer++)	\
+	for (l = 0; l < max_layer; l++, layer++)	\
 	{ \
 		LINE_LOOP(layer)
 
 #define COPPERARC_LOOP(top) do	{		\
 	Cardinal		l;			\
 	LayerTypePtr	layer = (top)->Layer;		\
-	for (l =0; l < MAX_LAYER; l++, layer++)		\
+	for (l =0; l < max_layer; l++, layer++)		\
 	{ \
 		ARC_LOOP(layer)
 
 #define	COPPERPOLYGON_LOOP(top) do	{		\
 	Cardinal		l;			\
 	LayerTypePtr	layer = (top)->Layer;		\
-	for (l = 0; l < MAX_LAYER; l++, layer++)	\
+	for (l = 0; l < max_layer; l++, layer++)	\
 	{ \
 		POLYGON_LOOP(layer)
 
 #define	SILKLINE_LOOP(top) do	{		\
 	Cardinal		l;			\
 	LayerTypePtr	layer = (top)->Layer;		\
-	layer += MAX_LAYER;				\
+	layer += max_layer;				\
 	for (l = 0; l < 2; l++, layer++)		\
 	{ \
 		LINE_LOOP(layer)
@@ -482,7 +482,7 @@ extern int mem_any_set (unsigned char *, int);
 #define SILKARC_LOOP(top) do	{		\
 	Cardinal		l;			\
 	LayerTypePtr	layer = (top)->Layer;		\
-	layer += MAX_LAYER;				\
+	layer += max_layer;				\
 	for (l = 0; l < 2; l++, layer++)		\
 	{ \
 		ARC_LOOP(layer)
@@ -490,7 +490,7 @@ extern int mem_any_set (unsigned char *, int);
 #define	SILKPOLYGON_LOOP(top) do	{		\
 	Cardinal		l;			\
 	LayerTypePtr	layer = (top)->Layer;		\
-	layer += MAX_LAYER;				\
+	layer += max_layer;				\
 	for (l = 0; l < 2; l++, layer++)		\
 	{ \
 		POLYGON_LOOP(layer)
@@ -498,14 +498,14 @@ extern int mem_any_set (unsigned char *, int);
 #define	ALLTEXT_LOOP(top)	do {		\
 	Cardinal		l;			\
 	LayerTypePtr	layer = (top)->Layer;		\
-	for (l = 0; l < MAX_LAYER + 2; l++, layer++)	\
+	for (l = 0; l < max_layer + 2; l++, layer++)	\
 	{ \
 		TEXT_LOOP(layer)
 
 #define	VISIBLELINE_LOOP(top) do	{		\
 	Cardinal		l;			\
 	LayerTypePtr	layer = (top)->Layer;		\
-	for (l = 0; l < MAX_LAYER + 2; l++, layer++)	\
+	for (l = 0; l < max_layer + 2; l++, layer++)	\
 	{ \
 		if (layer->On)				\
 			LINE_LOOP(layer)
@@ -513,7 +513,7 @@ extern int mem_any_set (unsigned char *, int);
 #define	VISIBLEARC_LOOP(top) do	{		\
 	Cardinal		l;			\
 	LayerTypePtr	layer = (top)->Layer;		\
-	for (l = 0; l < MAX_LAYER + 2; l++, layer++)	\
+	for (l = 0; l < max_layer + 2; l++, layer++)	\
 	{ \
 		if (layer->On)				\
 			ARC_LOOP(layer)
@@ -521,7 +521,7 @@ extern int mem_any_set (unsigned char *, int);
 #define	VISIBLETEXT_LOOP(board) do	{		\
 	Cardinal		l;			\
 	LayerTypePtr	layer = (board)->Data->Layer;		\
-	for (l = 0; l < MAX_LAYER + 2; l++, layer++)	\
+	for (l = 0; l < max_layer + 2; l++, layer++)	\
 	{ \
                 TEXT_LOOP(layer);                                      \
                   if (TEXT_IS_VISIBLE((board), layer, text))
@@ -529,7 +529,7 @@ extern int mem_any_set (unsigned char *, int);
 #define	VISIBLEPOLYGON_LOOP(top) do	{	\
 	Cardinal		l;			\
 	LayerTypePtr	layer = (top)->Layer;		\
-	for (l = 0; l < MAX_LAYER + 2; l++, layer++)	\
+	for (l = 0; l < max_layer + 2; l++, layer++)	\
 	{ \
 		if (layer->On)				\
 			POLYGON_LOOP(layer)
@@ -562,7 +562,7 @@ extern int mem_any_set (unsigned char *, int);
 		LayerTypePtr layer;		\
 		Cardinal number; 		\
 		number = PCB->LayerGroups.Entries[(group)][entry]; \
-		if (number >= MAX_LAYER)	\
+		if (number >= max_layer)	\
 		  continue;			\
 		layer = LAYER_PTR (number)
 #endif

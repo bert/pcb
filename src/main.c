@@ -523,6 +523,7 @@ REGISTER_ATTRIBUTES (main_attribute_list)
 static void
 settings_post_process ()
 {
+  int i;
   if (Settings.LibraryCommand[0] != '/' && Settings.LibraryCommand[0] != '.')
     {
       Settings.LibraryCommand
@@ -550,8 +551,8 @@ settings_post_process ()
   Settings.MaxWidth = MIN (MAX_COORD, MAX (Settings.MaxWidth, MIN_SIZE));
   Settings.MaxHeight = MIN (MAX_COORD, MAX (Settings.MaxHeight, MIN_SIZE));
 
-  ParseGroupString (Settings.Groups, &Settings.LayerGroups);
   ParseRouteString (Settings.Routes, &Settings.RouteStyle[0], 1);
+
 }
 
 /* ---------------------------------------------------------------------- 
@@ -578,7 +579,7 @@ char *program_directory = 0;
 int
 main (int argc, char *argv[])
 {
-  /*    GdkRectangle    Big; */
+  int i;
 
   /* init application:
    * - make program name available for error handlers
@@ -632,6 +633,15 @@ main (int argc, char *argv[])
   if (!gui)
     exit (1);
 
+  for (i=0; i<MAX_LAYER; i++)
+    {
+      char buf[20];
+      sprintf(buf, "signal%d", i+1);
+      Settings.DefaultLayerName[i] = MyStrdup(buf, "DefaultLayerNames");
+      Settings.LayerColor[i] = "#c49350";
+      Settings.LayerSelectedColor[i] = "#00ffff";
+    }
+
   gui->parse_arguments (&argc, &argv);
 
   if (show_help || (argc > 1 && argv[1][0] == '-'))
@@ -664,6 +674,9 @@ main (int argc, char *argv[])
     }
 
   PCB = CreateNewPCB (True);
+  PCB->Data->LayerN = DEF_LAYER;
+  ParseGroupString(Settings.Groups, &PCB->LayerGroups, DEF_LAYER);
+  CreateNewPCBPost (PCB, 1);
   if (argc > 1)
     command_line_pcb = argv[1];
 

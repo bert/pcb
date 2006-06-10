@@ -2458,7 +2458,7 @@ layer_select_button_cb (GtkWidget * widget, LayerButtonSet * lb)
   PCB->SilkActive = (lb->index == LAYER_BUTTON_SILK);
   PCB->RatDraw = (lb->index == LAYER_BUTTON_RATS);
 
-  if (lb->index < MAX_LAYER)
+  if (lb->index < max_layer)
     ChangeGroupVisibility (lb->index, True, True);
 
   layer_select_button_index = lb->index;
@@ -2521,10 +2521,10 @@ layer_enable_button_cb (GtkWidget * widget, gpointer data)
          |  Xt PCB code.
        */
       if ((group = GetGroupOfLayer (layer)) ==
-	  GetGroupOfLayer (MIN (MAX_LAYER, INDEXOFCURRENT)))
+	  GetGroupOfLayer (MIN (max_layer, INDEXOFCURRENT)))
 	{
-	  for (i = (layer + 1) % (MAX_LAYER + 1); i != layer;
-	       i = (i + 1) % (MAX_LAYER + 1))
+	  for (i = (layer + 1) % (max_layer + 1); i != layer;
+	       i = (i + 1) % (max_layer + 1))
 	    if (PCB->Data->Layer[i].On == True &&
 		GetGroupOfLayer (i) != group)
 	      break;
@@ -2575,6 +2575,28 @@ layer_enable_button_set_label (GtkWidget * label, gchar * text)
     s = g_strdup (text);
   gtk_label_set_markup (GTK_LABEL (label), s);
   g_free (s);
+}
+
+static void
+ghid_show_layer_buttons(void)
+{
+	LayerButtonSet *lb;
+	gint	i;
+
+	for (i = 0; i < MAX_LAYER; ++i)
+	{
+		lb = &layer_buttons[i];
+		if (i < max_layer)
+		  {
+			gtk_widget_show(lb->layer_enable_button);
+			gtk_widget_show(lb->radio_select_button);
+		  }
+		else
+		  {
+			gtk_widget_hide(lb->layer_enable_button);
+			gtk_widget_hide(lb->radio_select_button);
+		  }
+	}
 }
 
   /* After layers comes some special cases.  Since silk and netlist (rats)
@@ -2742,7 +2764,7 @@ ghid_layer_enable_buttons_update (void)
   /* Update layer button labels and active state to state inside of PCB
    */
   layer_enable_button_cb_hold_off = TRUE;
-  for (i = 0; i < MAX_LAYER; ++i)
+  for (i = 0; i < max_layer; ++i)
     {
       lb = &layer_buttons[i];
       s = UNKNOWN (PCB->Data->Layer[i].Name);
@@ -2827,7 +2849,7 @@ ghid_layer_buttons_update (void)
   else
     layer = PCB->SilkActive ? LAYER_BUTTON_SILK : LayerStack[0];
 
-  if (layer < MAX_LAYER)
+  if (layer < max_layer)
     active = PCB->Data->Layer[layer].On;
   else if (layer == LAYER_BUTTON_SILK)
     active = PCB->ElementOn;
@@ -3486,6 +3508,7 @@ ghid_build_pcb_top_window (void)
   gdk_window_set_back_pixmap (gport->drawing_area->window, NULL, FALSE);
 
   ghid_route_style_temp_buttons_hide ();
+  ghid_show_layer_buttons();
 }
 
 
@@ -3822,7 +3845,16 @@ ghid_do_export (HID_Attr_Val * options)
 gint
 LayersChanged (int argc, char **argv, int px, int py)
 {
+  ghid_config_groups_changed();
   ghid_layer_buttons_update ();
+  ghid_show_layer_buttons();
+
+  /* FIXME - if a layer is moved it should retain its color.  But layers
+  |  currently can't do that because color info is not saved in the
+  |  pcb file.  So this makes a moved layer change its color to reflect
+  |  the way it will be when the pcb is reloaded.
+  */
+  pcb_colors_from_settings (PCB);
   return 0;
 }
 

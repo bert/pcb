@@ -60,8 +60,9 @@
 /* ---------------------------------------------------------------------------
  * some limit specifications
  */
-#define	MAX_LAYER		8	/* max number of layer, check source */
+#define	MAX_LAYER		16	/* max number of layer, check source */
 					/* code for more changes, a *lot* more changes */
+#define DEF_LAYER		8	/* default number of layers for new boards */
 #define NUM_STYLES		4
 #define	MIN_LINESIZE		1	/* thickness of lines in 1/100000'' */
 #define	MAX_LINESIZE		25000

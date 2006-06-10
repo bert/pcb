@@ -46,7 +46,7 @@ Boolean IsDataEmpty (DataTypePtr);
 BoxTypePtr GetDataBoundingBox (DataTypePtr);
 void CenterDisplay (LocationType, LocationType, Boolean);
 void SetFontInfo (FontTypePtr);
-int ParseGroupString (char *, LayerGroupTypePtr);
+int ParseGroupString (char *, LayerGroupTypePtr, int /* LayerN */);
 int ParseRouteString (char *, RouteStyleTypePtr, int);
 void QuitApplication (void);
 char *EvaluateFilename (char *, char *, char *, char *);

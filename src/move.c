@@ -829,3 +829,199 @@ MoveSelectedObjectsToLayer (LayerTypePtr Target)
   /* passing True to above operation causes Undoserial to auto-increment */
   return (changed);
 }
+
+/* ---------------------------------------------------------------------------
+ * moves the selected layers to a new index in the layer list.
+ */
+
+int
+MoveLayer (int old_index, int new_index)
+{
+  int groups[MAX_LAYER+2], l, g;
+  LayerType saved_layer;
+  int saved_group;
+
+  AddLayerChangeToUndoList (old_index, new_index);
+  IncrementUndoSerialNumber ();
+
+  if (old_index < -1 || old_index >= max_layer)
+    {
+      Message("Invalid old layer %d for move: must be -1..%d\n",
+	      old_index, max_layer-1);
+      return 1;
+    }
+  if (new_index < -1 || new_index > max_layer || new_index >= MAX_LAYER)
+    {
+      Message("Invalid new layer %d for move: must be -1..%d\n",
+	      new_index, max_layer);
+      return 1;
+    }
+  if (old_index == new_index)
+    return 0;
+
+  for (g=0; g<MAX_LAYER; g++)
+    for (l=0; l<PCB->LayerGroups.Number[g]; l++)
+      groups[PCB->LayerGroups.Entries[g][l]] = g;
+
+  if (old_index == -1)
+    {
+      LayerTypePtr lp;
+      if (max_layer == MAX_LAYER)
+	{
+	  Message("No room for new layers\n");
+	  return 1;
+	}
+      /* Create a new layer at new_index. */
+      lp = &PCB->Data->Layer[new_index];
+      memmove (&PCB->Data->Layer[new_index+1],
+	       &PCB->Data->Layer[new_index],
+	       (max_layer-new_index+2) * sizeof(LayerType));
+      memmove (&groups[new_index+1],
+	       &groups[new_index],
+	       (max_layer-new_index+2) * sizeof(int));
+      max_layer ++;
+      memset (lp, 0, sizeof(LayerType));
+      lp->On = 1;
+      lp->Name = MyStrdup("New Layer", "MoveLayer");
+      lp->Color = Settings.LayerColor[new_index];
+      lp->SelectedColor = Settings.LayerSelectedColor[new_index];
+      for (l=0; l<max_layer; l++)
+	if (LayerStack[l] >= new_index)
+	  LayerStack[l] ++;
+      LayerStack[max_layer-1] = new_index;
+    }
+  else if (new_index == -1)
+    {
+      /* Delete the layer at old_index */
+      memmove (&PCB->Data->Layer[old_index],
+	       &PCB->Data->Layer[old_index+1],
+	       (max_layer-old_index+2-1) * sizeof(LayerType));
+      memmove (&groups[old_index],
+	       &groups[old_index+1],
+	       (max_layer-old_index+2-1) * sizeof(int));
+      for (l=0; l<max_layer; l++)
+	if (LayerStack[l] == old_index)
+	  memmove (LayerStack + l,
+		   LayerStack + l + 1,
+		   (max_layer - l - 1) * sizeof(LayerStack[0]));
+      max_layer --;
+      for (l=0; l<max_layer; l++)
+	if (LayerStack[l] > old_index)
+	  LayerStack[l] --;
+    }
+  else
+    {
+      /* Move an existing layer */
+      memcpy (&saved_layer, &PCB->Data->Layer[old_index], sizeof(LayerType));
+      saved_group = groups[old_index];
+      if (old_index < new_index)
+	{
+	  memmove (&PCB->Data->Layer[old_index],
+		   &PCB->Data->Layer[old_index+1],
+		   (new_index - old_index) * sizeof(LayerType));
+	  memmove (&groups[old_index],
+		   &groups[old_index+1],
+		   (new_index - old_index) * sizeof(int));
+	}
+      else
+	{
+	  memmove (&PCB->Data->Layer[new_index+1],
+		   &PCB->Data->Layer[new_index],
+		   (old_index - new_index) * sizeof(LayerType));
+	  memmove (&groups[new_index+1],
+		   &groups[new_index],
+		   (old_index - new_index) * sizeof(int));
+	}
+      memcpy (&PCB->Data->Layer[new_index], &saved_layer, sizeof(LayerType));
+      groups[new_index] = saved_group;
+    }
+
+  for (g=0; g<MAX_LAYER+1; g++)
+    PCB->LayerGroups.Number[g] = 0;
+  for (l=0; l<max_layer+2; l++)
+    {
+      int i;
+      g = groups[l];
+      i = PCB->LayerGroups.Number[g] ++;
+      PCB->LayerGroups.Entries[g][i] = l;
+    }
+
+  for (g=0; g<MAX_LAYER; g++)
+    if (PCB->LayerGroups.Number[g] == 0)
+      {
+	memmove (&PCB->LayerGroups.Number[g],
+		 &PCB->LayerGroups.Number[g+1],
+		 (MAX_LAYER - g - 1) * sizeof(PCB->LayerGroups.Number[g]));
+	memmove (&PCB->LayerGroups.Entries[g],
+		 &PCB->LayerGroups.Entries[g+1],
+		 (MAX_LAYER - g - 1) * sizeof(PCB->LayerGroups.Entries[g]));
+      }
+
+  hid_action ("LayersChanged");
+  gui->invalidate_all ();
+  return 0;
+}
+
+int
+MoveLayerAction (int argc, char **argv, int x, int y)
+{
+  int old_index, new_index;
+  int new_top = -1;
+  int rv;
+
+  if (argc != 2)
+    {
+      Message("Usage; MoveLayer(old,new)");
+      return 1;
+    }
+
+  if (strcmp (argv[0], "c") == 0)
+    old_index = INDEXOFCURRENT;
+  else
+    old_index = atoi (argv[0]);
+
+  if (strcmp (argv[1], "c") == 0)
+    {
+      new_index = INDEXOFCURRENT;
+      if (new_index < 0)
+	new_index = 0;
+    }
+  else if (strcmp (argv[1], "up") == 0)
+    {
+      new_index = INDEXOFCURRENT - 1;
+      if (new_index < 0)
+	return 1;
+      new_top = new_index;
+    }
+  else if (strcmp (argv[1], "down") == 0)
+    {
+      new_index = INDEXOFCURRENT + 1;
+      if (new_index >= max_layer)
+	return 1;
+      new_top = new_index;
+    }
+  else
+    new_index = atoi (argv[1]);
+
+  if (MoveLayer (old_index, new_index))
+    return 1;
+
+  if (new_index == -1)
+    {
+      new_top = old_index;
+      if (new_top >= max_layer)
+	new_top --;
+      new_index = new_top;
+    }
+  if (old_index == -1)
+    new_top = new_index;
+
+  if (new_top != -1)
+    ChangeGroupVisibility (new_index, 1, 1);
+}
+
+HID_Action move_action_list[] = {
+  { "MoveLayer", 0, MoveLayerAction }
+};
+
+REGISTER_ACTIONS (move_action_list)

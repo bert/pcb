@@ -112,15 +112,15 @@ pcb_colors_from_settings (PCBTypePtr ptr)
       ptr->Data->Layer[i].Color = Settings.LayerColor[i];
       ptr->Data->Layer[i].SelectedColor = Settings.LayerSelectedColor[i];
     }
-  ptr->Data->Layer[MAX_LAYER + COMPONENT_LAYER].Color =
+  ptr->Data->Layer[max_layer + COMPONENT_LAYER].Color =
     Settings.ShowSolderSide ?
     Settings.InvisibleObjectsColor : Settings.ElementColor;
-  ptr->Data->Layer[MAX_LAYER + COMPONENT_LAYER].SelectedColor =
+  ptr->Data->Layer[max_layer + COMPONENT_LAYER].SelectedColor =
     Settings.ElementSelectedColor;
-  ptr->Data->Layer[MAX_LAYER + SOLDER_LAYER].Color =
+  ptr->Data->Layer[max_layer + SOLDER_LAYER].Color =
     Settings.ShowSolderSide ?
     Settings.ElementColor : Settings.InvisibleObjectsColor;
-  ptr->Data->Layer[MAX_LAYER + SOLDER_LAYER].SelectedColor =
+  ptr->Data->Layer[max_layer + SOLDER_LAYER].SelectedColor =
     Settings.ElementSelectedColor;
 }
 
@@ -136,18 +136,6 @@ CreateNewPCB (Boolean SetDefaultNames)
   /* allocate memory, switch all layers on and copy resources */
   ptr = MyCalloc (1, sizeof (PCBType), "CreateNewPCB()");
   ptr->Data = CreateNewBuffer ();
-
-  /* copy default settings */
-  pcb_colors_from_settings (ptr);
-
-  if (SetDefaultNames)
-    for (i = 0; i < MAX_LAYER; i++)
-      ptr->Data->Layer[i].Name = MyStrdup (Settings.DefaultLayerName[i],
-					   "CreateNewPCB()");
-  ptr->Data->Layer[MAX_LAYER + COMPONENT_LAYER].Name =
-    MyStrdup ("silk", "CreateNewPCB()");
-  ptr->Data->Layer[MAX_LAYER + SOLDER_LAYER].Name =
-    MyStrdup ("silk", "CreateNewPCB()");
 
   ptr->SilkActive = False;
   ptr->RatDraw = False;
@@ -198,6 +186,29 @@ CreateNewPCB (Boolean SetDefaultNames)
   ptr->minRing = Settings.minRing;
 
   return (ptr);
+}
+
+int
+CreateNewPCBPost(PCBTypePtr pcb, int use_defaults)
+{
+  /* copy default settings */
+  pcb_colors_from_settings (pcb);
+
+  if (use_defaults)
+    {
+      int i;
+      if (ParseGroupString(Settings.Groups, &pcb->LayerGroups, DEF_LAYER))
+	return 1;
+
+      for (i = 0; i < max_layer; i++)
+	pcb->Data->Layer[i].Name = MyStrdup (Settings.DefaultLayerName[i],
+					     "CreateNewPCB()");
+      pcb->Data->Layer[max_layer + COMPONENT_LAYER].Name =
+	MyStrdup ("silk", "CreateNewPCB()");
+      pcb->Data->Layer[max_layer + SOLDER_LAYER].Name =
+	MyStrdup ("silk", "CreateNewPCB()");
+    }
+  return 0;
 }
 
 /* ---------------------------------------------------------------------------

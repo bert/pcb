@@ -67,6 +67,8 @@ extern	FontTypePtr		yyFont;
 extern	int				yylineno;		/* linenumber */
 extern	char			*yyfilename;	/* in this file */
 
+static char *layer_group_string; 
+
 int yyerror(const char *s);
 int yylex();
 
@@ -138,6 +140,8 @@ parsepcb
 					LayerFlag[i] = False;
 				yyFont = &yyPCB->Font;
 				yyData = yyPCB->Data;
+				yyData->LayerN = 0;
+				layer_group_string = NULL;
 			}
 		  pcbname 
 		  pcbgrid
@@ -150,6 +154,16 @@ parsepcb
 		  pcbfont
 		  pcbdata
 		  pcbnetlist
+			{
+			  if (layer_group_string == NULL)
+			    layer_group_string = Settings.Groups;
+			  CreateNewPCBPost (yyPCB, 0);
+			  if (ParseGroupString(layer_group_string, &yyPCB->LayerGroups, yyData->LayerN))
+			    {
+			      Message("illegal layer-group string\n");
+			      YYABORT;
+			    }
+			}
 		;
 
 parsedata
@@ -166,6 +180,7 @@ parsedata
 				}
 				for (i = 0; i < MAX_LAYER + 2; i++)
 					LayerFlag[i] = False;
+				yyData->LayerN = 0;
 			}
 		 pcbdata
 		;
@@ -486,11 +501,7 @@ Groups("1,2,c:3:4:5,6,s:7,8")
 pcbgroups
 		: T_GROUPS '(' STRING ')'
 			{
-				if (ParseGroupString($3, &yyPCB->LayerGroups))
-				{
-					Message("illegal layer-group string\n");
-					YYABORT;
-				}
+			  layer_group_string = $3;
 			}
 		|
 		;
@@ -750,6 +761,8 @@ layer
 					/* memory for name is alread allocated */
 				Layer->Name = $4;
 				LayerFlag[$3-1] = True;
+				if (yyData->LayerN + 2 < $3)
+				  yyData->LayerN = $3 - 2;
 			}
 		  layerdata ')'
 		;
@@ -967,7 +980,7 @@ text_newformat
 			{
 				if ($8 & ONSILKFLAG)
 				{
-					LayerTypePtr lay = &yyData->Layer[MAX_LAYER +
+					LayerTypePtr lay = &yyData->Layer[max_layer +
 						(($8 & ONSOLDERFLAG) ? SOLDER_LAYER : COMPONENT_LAYER)];
 
 					CreateNewText(lay ,yyFont, $3*100, $4*100, $5, $6, $7,
@@ -986,7 +999,7 @@ text_hi_format
 				/* FIXME: shouldn't know about .f */
 				if ($8.f & ONSILKFLAG)
 				{
-					LayerTypePtr lay = &yyData->Layer[MAX_LAYER +
+					LayerTypePtr lay = &yyData->Layer[max_layer +
 						(($8.f & ONSOLDERFLAG) ? SOLDER_LAYER : COMPONENT_LAYER)];
 
 					CreateNewText(lay, yyFont, $3, $4, $5, $6, $7, $8);

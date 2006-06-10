@@ -1300,7 +1300,7 @@ NotifyMode (void)
 	    int flag = NOFLAG;
 
 	    if (GetLayerGroupNumberByNumber (INDEXOFCURRENT) ==
-		GetLayerGroupNumberByNumber (MAX_LAYER + SOLDER_LAYER))
+		GetLayerGroupNumberByNumber (max_layer + SOLDER_LAYER))
 	      flag = ONSOLDERFLAG;
 	    if ((text = CreateNewText (CURRENT, &PCB->Font, Note.X,
 				       Note.Y, 0, Settings.TextScale,
@@ -5126,6 +5126,8 @@ ActionNew (int argc, char **argv, int x, int y)
 	SaveInTMP ();
       RemovePCB (PCB);
       PCB = CreateNewPCB (True);
+      PCB->Data->LayerN = DEF_LAYER;
+      CreateNewPCBPost (PCB, 1);
 
       /* setup the new name and reset some values to default */
       PCB->Name = name;		/* XXX memory leak */
@@ -5678,7 +5680,7 @@ ActionToggleVisibility (char *str)
   if (str)
     {
       number = atoi (str) - 1;
-      if (number >= 0 && number < MAX_LAYER + 2)
+      if (number >= 0 && number < max_layer + 2)
 	{
 	  if (PCB->Data->Layer[number].On == False)
 	    g_message ("ChangeGroupVisibility (number, True, False)");
@@ -5706,7 +5708,7 @@ ActionSwitchDrawingLayer (char *str)
   if (str)
     {
       number = atoi (str) - 1;
-      if (number >= 0 && number < MAX_LAYER + 2)
+      if (number >= 0 && number < max_layer + 2)
 	{
 	  ChangeGroupVisibility (number, True, True);
 	  gui_layer_buttons_update ();

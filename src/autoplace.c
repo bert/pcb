@@ -158,8 +158,8 @@ UpdateXY (NetListTypePtr Nets)
   Cardinal SLayer, CLayer;
   Cardinal i, j;
   /* find layer groups of the component side and solder side */
-  SLayer = GetLayerGroupNumberByNumber (MAX_LAYER + SOLDER_LAYER);
-  CLayer = GetLayerGroupNumberByNumber (MAX_LAYER + COMPONENT_LAYER);
+  SLayer = GetLayerGroupNumberByNumber (max_layer + SOLDER_LAYER);
+  CLayer = GetLayerGroupNumberByNumber (max_layer + COMPONENT_LAYER);
   /* update all nets */
   for (i = 0; i < Nets->NetN; i++)
     {
@@ -214,7 +214,7 @@ static void
 showboxes (BoxListTypePtr blist)
 {
   Cardinal i;
-  LayerTypePtr SLayer = &(PCB->Data->Layer[MAX_LAYER + SOLDER_LAYER]);
+  LayerTypePtr SLayer = &(PCB->Data->Layer[max_layer + SOLDER_LAYER]);
   for (i = 0; i < blist->BoxN; i++)
     {
       CreateNewLineOnLayer (SLayer, blist->Box[i].X1, blist->Box[i].Y1,
