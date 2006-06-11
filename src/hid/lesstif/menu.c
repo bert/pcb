@@ -827,6 +827,15 @@ lesstif_call_action (const char *aname, int argc, char **argv)
       lesstif_get_xy (msg);
     }
   lesstif_coords_to_pcb (action_x, action_y, &px, &py);
+
+  if (Settings.verbose)
+    {
+      int i;
+      printf ("Action: \033[34m%s(", aname);
+      for (i = 0; i < argc; i++)
+	printf ("%s%s", i ? "," : "", argv[i]);
+      printf (")\033[0m\n");
+    }
   return a->trigger_cb (argc, argv, px, py);
 }
 
