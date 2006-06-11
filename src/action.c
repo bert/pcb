@@ -5145,35 +5145,6 @@ ActionNew (int argc, char **argv, int x, int y)
 }
 
 /* ---------------------------------------------------------------------------
- * swap visible sides
- */
-static int
-ActionSwapSides (int argc, char **argv, int x, int y)
-{
-#ifdef FIXME
-  LocationType x, y;
-
-  x = TO_SCREEN_X (Crosshair.X);
-  y = TO_SCREEN_Y (Crosshair.Y);
-  SwapBuffers ();
-  Settings.ShowSolderSide = !Settings.ShowSolderSide;
-  /* set silk colors as needed */
-#ifdef FIXME
-  PCB->Data->SILKLAYER.Color = PCB->ElementColor;
-  PCB->Data->BACKSILKLAYER.Color = PCB->InvisibleObjectsColor;
-#endif
-  /* change the display */
-  if (CoalignScreen (x, y, Crosshair.X, Crosshair.Y))
-    warpNoWhere ();
-
-  /* update object position and cursor location */
-  AdjustAttachedObjects ();
-  ClearAndRedrawOutput ();
-#endif
-  return 1;
-}
-
-/* ---------------------------------------------------------------------------
  * no operation, just for testing purposes
  * syntax: Bell(volume)
  */
