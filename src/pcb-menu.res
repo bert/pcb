@@ -27,9 +27,10 @@ MainMenu =
    {"Quit Program" Quit() m=Q a={"Ctrl-Q" "Ctrl<Key>q"}}
   }
   {View
-   {"Flip up/down" checked=flip_y Flip(V) a={"Tab" "<Key>Tab"}}
-   {"Flip left/right" checked=flip_x Flip(H) a={"Shift-Tab" "Shift<Key>Tab"}}
-   {"Spin 180°" Flip(H) Flip(V) a={"Ctrl-Tab" "Ctrl<Key>Tab"}}
+   {"Flip up/down" checked=flip_y SwapSides(V) a={"Tab" "<Key>Tab"}}
+   {"Flip left/right" checked=flip_x SwapSides(H) a={"Shift-Tab" "Shift<Key>Tab"}}
+   {"Spin 180°" SwapSides(R) a={"Ctrl-Tab" "Ctrl<Key>Tab"}}
+   {"Swap Sides" SwapSides() a={"Ctrl-Shift-Tab" "Ctrl Shift<Key>Tab"}}
    {"Show soldermask" checked=showmask Display(ToggleMask)}
    -
    {"Displayed element-name..." foreground=grey50 sensitive=false}

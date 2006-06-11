@@ -504,12 +504,31 @@ ThinDrawPoly (int argc, char **argv, int x, int y)
 }
 
 static const char swapsides_syntax[] =
-"SwapSides()";
+"SwapSides(|v|h|r)";
 
 static const char swapsides_help[] =
 "Swaps the side of the board you're looking at.";
 
 /* %start-doc actions SwapSides
+
+This action changes the way you view the board.
+
+@table @code
+
+@item v
+Flips the board over vertically (up/down).
+
+@item h
+Flips the board over horizontally (left/right), like flipping pages in
+a book.
+
+@item r
+Rotates the board 180 degrees without changing sides.
+
+@end table
+
+If no argument is given, the board isn't moved but the opposite side
+is shown.
 
 Normally, this action changes which pads and silk layer are drawn as
 true silk, and which are drawn as the "invisible" layer.  It also
@@ -534,8 +553,29 @@ SwapSides (int argc, char **argv, int x, int y)
   int solder_showing =
     PCB->Data->Layer[PCB->LayerGroups.Entries[solder_group][0]].On;
 
-  if (argc && strcasecmp (argv[0], "lr") == 0)
-    ;
+  if (argc > 0)
+    {
+      switch (argv[0][0]) {
+      case 'h':
+      case 'H':
+	flip_x = ! flip_x;
+	break;
+      case 'v':
+      case 'V':
+	flip_y = ! flip_y;
+	break;
+      case 'r':
+      case 'R':
+	flip_x = ! flip_x;
+	flip_y = ! flip_y;
+	break;
+      default:
+	return 1;
+      }
+      /* SwapSides will swap this */
+      Settings.ShowSolderSide = (flip_x == flip_y);
+    }
+
   Settings.ShowSolderSide = !Settings.ShowSolderSide;
   if (Settings.ShowSolderSide)
     {
@@ -748,33 +788,6 @@ Benchmark (int argc, char **argv, int x, int y)
   return 0;
 }
 
-static const char flip_syntax[] =
-"Flip(V|H)";
-
-static const char flip_help[] =
-"Flip the board over.";
-
-/* %start-doc actions Flip
-
-This action flips the board over, either vertically (up-down, V) or
-horizontally (left-right, H).
-
-%end-doc */
-
-static int
-Flip (int argc, char **argv, int x, int y)
-{
-  if (argc > 0
-      && (argv[0][0] == 'h'
-	  || argv[0][0] == 'H'))
-    flip_x = ! flip_x;
-  else
-    flip_y = ! flip_y;
-  /* SwapSides will swap this */
-  Settings.ShowSolderSide = (flip_x == flip_y);
-  return SwapSides(0, 0, x, y);
-}
-
 HID_Action lesstif_main_action_list[] = {
   {"PCBChanged", 0, PCBChanged,
    pcbchanged_help, pcbchanged_syntax},
@@ -791,9 +804,7 @@ HID_Action lesstif_main_action_list[] = {
   {"Command", 0, Command,
    command_help, command_syntax},
   {"Benchmark", 0, Benchmark,
-   benchmark_help, benchmark_syntax},
-  {"Flip", 0, Flip,
-   flip_help, flip_syntax}
+   benchmark_help, benchmark_syntax}
 };
 
 REGISTER_ACTIONS (lesstif_main_action_list)
@@ -2499,9 +2510,7 @@ lesstif_set_layer (const char *name, int group)
   int idx = group;
   if (idx >= 0 && idx < max_layer)
     {
-  printf("set_layer (group=%d) = ", group);
       idx = PCB->LayerGroups.Entries[idx][0];
-  printf("layer %d\n", idx);
 #if 0
       if (idx == LayerStack[0]
 	  || GetLayerGroupNumberByNumber (idx) ==
