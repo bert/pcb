@@ -1053,6 +1053,11 @@ zoom_to (double new_zoom, int x, int y)
   xfrac = (double) x / (double) view_width;
   yfrac = (double) y / (double) view_height;
 
+  if (flip_x)
+    xfrac = 1-xfrac;
+  if (flip_y)
+    yfrac = 1-yfrac;
+
   max_zoom = PCB->MaxWidth / view_width;
   if (max_zoom < PCB->MaxHeight / view_height)
     max_zoom = PCB->MaxHeight / view_height;
