@@ -3,7 +3,8 @@
 
 This file describes how to build from CVS sources.  If you are building from a
 released version or snapshot, please refer to the 'INSTALL' document instead.
-
+Take the time to read this file, it's not that long and it addresses some 
+questions which come up with some frequency.
 
 -------------
 Prerequisites
@@ -43,10 +44,13 @@ You can find the version of autoconf, automake, and makeinfo by running them wit
 If you do not wish to build the documentation, use --disable-doc when you run
 configure.  If you do wish to build the documentation, you should enable
 maintainer-mode (--enable-maintainer-mode) which will turn on various
-dependency rules for documentation building.  Please note that maintainer-mode
-is only needed when building documentation from cvs sources.  If you are
-building from a distfile that is not needed (and neither is this document).
+dependency rules for documentation building.  In addition you must build
+pcb with the png export HID enabled (it is enabled by default) because some
+of the figures in the manual are drawn with pcb.
 
+Please note that maintainer-mode and the png HID are only needed when building
+documentation from cvs sources.  If you are building pcb from a distfile you 
+do not need maintainer-mode and the png export HID is optional.
 
 Finally, if you edit any of the actions identified by 
 /* ACTION(Foo,ActionFoo) */
