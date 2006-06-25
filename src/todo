@@ -1,3 +1,6 @@
+MoveLayers - need to move thermal and PIP flags too, plus undo of
+deleting a layer with stuff on it.
+
 -------------------- HID Validation Stuff --------------------
 
 [gtk]
