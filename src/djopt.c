@@ -1115,6 +1115,48 @@ canonicalize_line (line_s * l)
 	    }
 	}
     }
+  else
+    {
+      /* diagonal lines.  Let's try to split them at pins/vias
+	 anyway.  */
+      int x1 = l->s->x;
+      int x2 = l->e->x;
+      int y1 = l->s->y;
+      int y2 = l->e->y;
+      if (x1 > x2)
+	{
+	  int t = x1;
+	  x1 = x2;
+	  x2 = t;
+	}
+      if (y1 > y2)
+	{
+	  int t = y1;
+	  y1 = y2;
+	  y2 = t;
+	}
+      for (c = corners; c; c = c->next)
+	{
+	  if (DELETED (c))
+	    continue;
+	  if (!c->via && !c->pin)
+	    continue;
+	  if ((x1 < c->x && c->x < x2)
+	      && (y1 < c->y && c->y < y2)
+	      && intersecting_layers (l->layer, c->layer))
+	    {
+	      int th = c->pin ? c->pin->Thickness : c->via->Thickness;
+	      th /= 2;
+	      if (dist (l->s->x, l->s->y, c->x, c->y) > th
+		  && dist (l->e->x, l->e->y, c->x, c->y) > th
+		  && PinLineIntersect (c->pin ? c->pin : c->via, l->line))
+		{
+		  split_line (l, c);
+		  return;
+		}
+	    }
+	}
+    }
 }
 
 /* Make sure all vias are at line end points */
@@ -1143,22 +1185,25 @@ simple_optimize_corner (corner_s * c)
       if (selected (c->via))
 	dprintf ("via check: line[0] layer %d at %d,%d nl %d\n",
 		 c->lines[0]->layer, c->x, c->y, c->n_lines);
-      for (i = 1; i < c->n_lines; i++)
+      if (! TEST_ANY_THERMS (c->via))
 	{
-	  if (selected (c->via))
-	    dprintf ("           line[%d] layer %d %d,%d to %d,%d\n",
-		     i, c->lines[i]->layer,
-		     c->lines[i]->s->x, c->lines[i]->s->y,
-		     c->lines[i]->e->x, c->lines[i]->e->y);
-	  if (c->lines[i]->layer != c->lines[0]->layer)
-	    break;
-	}
-      if (i == c->n_lines)
-	{
-	  if (selected (c->via))
-	    dprintf ("           remove it\n");
-	  remove_via_at (c);
-	  rv++;
+	  for (i = 1; i < c->n_lines; i++)
+	    {
+	      if (selected (c->via))
+		dprintf ("           line[%d] layer %d %d,%d to %d,%d\n",
+			 i, c->lines[i]->layer,
+			 c->lines[i]->s->x, c->lines[i]->s->y,
+			 c->lines[i]->e->x, c->lines[i]->e->y);
+	      if (c->lines[i]->layer != c->lines[0]->layer)
+		break;
+	    }
+	  if (i == c->n_lines)
+	    {
+	      if (selected (c->via))
+		dprintf ("           remove it\n");
+	      remove_via_at (c);
+	      rv++;
+	    }
 	}
     }
 
