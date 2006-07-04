@@ -73,25 +73,8 @@ static HID_Attribute *
 eps_get_export_options (int *n)
 {
   static char *last_made_filename = 0;
-  char *buf = 0;
 
-  if (PCB && PCB->Filename
-      && eps_attribute_list[HA_psfile].default_val.str_value ==
-      last_made_filename)
-    {
-      buf = (char *) malloc (strlen (PCB->Filename) + 5);
-      last_made_filename = buf;
-      if (buf)
-	{
-	  strcpy (buf, PCB->Filename);
-	  if (strcmp (buf + strlen (buf) - 4, ".pcb") == 0)
-	    buf[strlen (buf) - 4] = 0;
-	  strcat (buf, ".eps");
-	  if (eps_attribute_list[HA_psfile].default_val.str_value)
-	    free (eps_attribute_list[HA_psfile].default_val.str_value);
-	  eps_attribute_list[HA_psfile].default_val.str_value = buf;
-	}
-    }
+  if (PCB) derive_default_filename(PCB->Filename, &eps_attribute_list[HA_psfile], ".eps", &last_made_filename);
 
   if (n)
     *n = NUM_OPTIONS;

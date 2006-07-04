@@ -3710,7 +3710,7 @@ HID_Attribute ghid_attribute_list[] = {
    HID_Boolean, 0, 0, {0, 0, 0}, 0, &stdin_listen},
 #define HA_listen 0
 
-  {"bg-image", "Bacground Image",
+  {"bg-image", "Background Image",
    HID_String, 0, 0, {0, 0, 0}, 0, &bg_image_file},
 #define HA_bg_image 1
 

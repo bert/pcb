@@ -160,45 +160,29 @@ REGISTER_ATTRIBUTES (png_attribute_list)
 
 static HID_Attr_Val png_values[NUM_OPTIONS];
 
+static const char *get_file_suffix(void)
+{
+	const char *fmt;
+	const char *result;
+	fmt = filetypes[png_attribute_list[HA_filetype].default_val.int_value];
+	/* or is it filetypes[png_attribute_list[HA_filetype].default_val.int_value]; ? */
+	     if (strcmp (fmt, FMT_gif) == 0)  result=".gif";
+	else if (strcmp (fmt, FMT_jpg) == 0)  result=".jpg";
+	else if (strcmp (fmt, FMT_png) == 0)  result=".png";
+	else {
+		fprintf (stderr, "Error:  Invalid graphic file format\n");
+		result=".???";
+	}
+	return result;
+}
+
 static HID_Attribute *
 png_get_export_options (int *n)
 {
   static char *last_made_filename = 0;
-  char *buf = 0;
-  const char *fmt;
+  const char *suffix = get_file_suffix();
 
-  if (PCB && PCB->Filename
-      && png_attribute_list[HA_pngfile].default_val.str_value ==
-      last_made_filename)
-    {
-      /* need 4 for the ".png" and 1 for the terminating \0 */
-      buf = (char *) malloc (strlen (PCB->Filename) + 5);
-      last_made_filename = buf;
-      if (buf)
-	{
-	  strcpy (buf, PCB->Filename);
-	  if (strcmp (buf + strlen (buf) - 4, ".pcb") == 0)
-	    buf[strlen (buf) - 4] = 0;
-
-  fmt = filetypes[png_attribute_list[HA_filetype].default_val.int_value];
-  
-  if (strcmp (fmt, FMT_gif) == 0)
-	      strcat (buf, ".gif");
-  else if (strcmp (fmt, FMT_jpg) == 0)
-	      strcat (buf, ".jpg");
-  else if (strcmp (fmt, FMT_png) == 0)
-	      strcat (buf, ".png");
-  else
-  {
-	      fprintf (stderr, "Error:  Invalid graphic file format\n");
-	      strcat (buf, ".???");
-  }
-
-	  if (png_attribute_list[HA_pngfile].default_val.str_value)
-	    free (png_attribute_list[HA_pngfile].default_val.str_value);
-	  png_attribute_list[HA_pngfile].default_val.str_value = buf;
-	}
-    }
+  if (PCB) derive_default_filename(PCB->Filename, &png_attribute_list[HA_pngfile], suffix, &last_made_filename);
 
   if (n)
     *n = NUM_OPTIONS;

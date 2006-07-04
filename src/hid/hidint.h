@@ -62,3 +62,5 @@ void hid_restore_layer_ons (int *save_array);
 BoxType *hid_get_extents (void *item);
 
 #endif
+
+void derive_default_filename(const char *pcbfile, HID_Attribute *filename_attrib, const char *suffix, char **memory);
