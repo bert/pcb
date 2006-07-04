@@ -246,7 +246,7 @@ RoundDrillInfo (DrillInfoTypePtr d, int roundto)
 		d->Drill[i].Element[d->Drill[i].ElementN++]
 		  = d->Drill[i+1].Element[ei];
 	    }
-	  MyFree ((char **)&d->Drill[i+1].Element);
+	  MYFREE (d->Drill[i+1].Element);
 
 	  d->Drill[i].PinMax
 	    = d->Drill[i].PinN + d->Drill[i+1].PinN;
@@ -257,7 +257,7 @@ RoundDrillInfo (DrillInfoTypePtr d, int roundto)
 		  d->Drill[i+1].Pin,
 		  d->Drill[i+1].PinN * sizeof(PinTypePtr));
 	  d->Drill[i].PinN += d->Drill[i+1].PinN;
-	  MyFree ((char **)&d->Drill[i+1].Pin);
+	  MYFREE (d->Drill[i+1].Pin);
 
 	  d->Drill[i].PinCount += d->Drill[i+1].PinCount;
 	  d->Drill[i].ViaCount += d->Drill[i+1].ViaCount;
@@ -283,10 +283,10 @@ FreeDrillInfo (DrillInfoTypePtr Drills)
 {
   DRILL_LOOP (Drills);
   {
-    MyFree ((char **) &drill->Element);
-    MyFree ((char **) &drill->Pin);
+    MYFREE (drill->Element);
+    MYFREE (drill->Pin);
   }
   END_LOOP;
-  MyFree ((char **) &Drills->Drill);
+  MYFREE (Drills->Drill);
   SaveFree (Drills);
 }

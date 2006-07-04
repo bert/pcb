@@ -1002,7 +1002,7 @@ ClearUndoList (Boolean Force)
 	  if (undo->Type == UNDO_CHANGENAME)
 	    SaveFree (undo->Data.ChangeName.Name);
 	}
-      MyFree ((void *) &UndoList);
+      MYFREE (UndoList);
       FreeDataMemory (RemoveList);
 
       /* reset some counters */

@@ -837,7 +837,7 @@ AddTextToElement (TextTypePtr Text, FontTypePtr PCBFont,
 		  LocationType X, LocationType Y,
 		  BYTE Direction, char *TextString, int Scale, FlagType Flags)
 {
-  MyFree (&Text->TextString);
+  MYFREE (Text->TextString);
   Text->X = X;
   Text->Y = Y;
   Text->Direction = Direction;

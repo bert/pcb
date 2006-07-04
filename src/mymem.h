@@ -97,7 +97,8 @@ void *MyCalloc (size_t, size_t, const char *);
 void *MyMalloc (size_t, const char *);
 void *MyRealloc (void *, size_t, const char *);
 char *MyStrdup (char *s, const char *);
-void MyFree (char **);
+/* void MyFree (void **); */
+#define MYFREE(x) do { SaveFree(x); (x)=NULL; } while (0)
 void FreePolygonMemory (PolygonTypePtr);
 void FreeElementMemory (ElementTypePtr);
 void FreePCBMemory (PCBTypePtr);

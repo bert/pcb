@@ -455,7 +455,7 @@ GBX_Exit ()
      Sure, none of the other Dynamic strings ever do,
      even so .....
    */
-  MyFree ((char **) &appList.Data);
+  MYFREE (appList.Data);
   appList.MaxLength = 0;
 }
 

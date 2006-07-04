@@ -100,7 +100,7 @@ GetPointerMemory (PointerListTypePtr list)
 void
 FreePointerListMemory (PointerListTypePtr list)
 {
-  MyFree ((char **) &list->Ptr);
+  MYFREE (list->Ptr);
   memset (list, 0, sizeof (PointerListType));
 }
 
@@ -503,7 +503,7 @@ GetElementMemory (DataTypePtr Data)
 }
 
 /* ---------------------------------------------------------------------------
- * get next slot for an library menu, allocates memory if necessary
+ * get next slot for a library menu, allocates memory if necessary
  */
 LibraryMenuTypePtr
 GetLibraryMenuMemory (LibraryTypePtr lib)
@@ -661,7 +661,7 @@ MyMalloc (size_t Size, const char *Text)
 /* ---------------------------------------------------------------------------
  * allocates memory with error handling
  * this is a save version because BSD doesn't support the
- * handling of NULL pointers in realoc()
+ * handling of NULL pointers in realloc()
  */
 void *
 MyRealloc (void *Ptr, size_t Size, const char *Text)
@@ -701,13 +701,18 @@ MyStrdup (char *S, const char *Text)
 
 /* ---------------------------------------------------------------------------
  * frees memory and sets pointer to NULL
+ * too troublesome for modern C compiler,
+ * warning: dereferencing type-punned pointer will break strict-aliasing rules
+ * Use MYFREE() macro instead
  */
+#if 0
 void
 MyFree (char **Ptr)
 {
   SaveFree (*Ptr);
   *Ptr = NULL;
 }
+#endif
 
 /* ---------------------------------------------------------------------------
  * frees memory used by a polygon
@@ -717,7 +722,7 @@ FreePolygonMemory (PolygonTypePtr Polygon)
 {
   if (Polygon)
     {
-      MyFree ((char **) &Polygon->Points);
+      MYFREE (Polygon->Points);
       memset (Polygon, 0, sizeof (PolygonType));
     }
 }
@@ -730,7 +735,7 @@ FreeBoxListMemory (BoxListTypePtr Boxlist)
 {
   if (Boxlist)
     {
-      MyFree ((char **) &Boxlist->Box);
+      MYFREE (Boxlist->Box);
       memset (Boxlist, 0, sizeof (BoxListType));
     }
 }
@@ -748,7 +753,7 @@ FreeNetListMemory (NetListTypePtr Netlist)
 	FreeNetMemory (net);
       }
       END_LOOP;
-      MyFree ((char **) &Netlist->Net);
+      MYFREE (Netlist->Net);
       memset (Netlist, 0, sizeof (NetListType));
     }
 }
@@ -766,7 +771,7 @@ FreeNetListListMemory (NetListListTypePtr Netlistlist)
 	FreeNetListMemory (netlist);
       }
       END_LOOP;
-      MyFree ((char **) &Netlistlist->NetList);
+      MYFREE (Netlistlist->NetList);
       memset (Netlistlist, 0, sizeof (NetListListType));
     }
 }
@@ -779,7 +784,7 @@ FreeNetMemory (NetTypePtr Net)
 {
   if (Net)
     {
-      MyFree ((char **) &Net->Connection);
+      MYFREE (Net->Connection);
       memset (Net, 0, sizeof (NetType));
     }
 }
@@ -794,25 +799,25 @@ FreeElementMemory (ElementTypePtr Element)
     {
       ELEMENTNAME_LOOP (Element);
       {
-	MyFree (&textstring);
+	MYFREE (textstring);
       }
       END_LOOP;
       PIN_LOOP (Element);
       {
-	MyFree (&pin->Name);
-	MyFree (&pin->Number);
+	MYFREE (pin->Name);
+	MYFREE (pin->Number);
       }
       END_LOOP;
       PAD_LOOP (Element);
       {
-	MyFree (&pad->Name);
-	MyFree (&pad->Number);
+	MYFREE (pad->Name);
+	MYFREE (pad->Number);
       }
       END_LOOP;
-      MyFree ((char **) &Element->Pin);
-      MyFree ((char **) &Element->Pad);
-      MyFree ((char **) &Element->Line);
-      MyFree ((char **) &Element->Arc);
+      MYFREE (Element->Pin);
+      MYFREE (Element->Pad);
+      MYFREE (Element->Line);
+      MYFREE (Element->Arc);
       memset (Element, 0, sizeof (ElementType));
     }
 }
@@ -827,14 +832,14 @@ FreePCBMemory (PCBTypePtr PCBPtr)
 
   if (PCBPtr)
     {
-      MyFree (&PCBPtr->Name);
-      MyFree (&PCBPtr->Filename);
-      MyFree (&PCBPtr->PrintFilename);
+      MYFREE (PCBPtr->Name);
+      MYFREE (PCBPtr->Filename);
+      MYFREE (PCBPtr->PrintFilename);
       FreeDataMemory (PCBPtr->Data);
-      MyFree ((char **) &PCBPtr->Data);
+      MYFREE (PCBPtr->Data);
       /* release font symbols */
       for (i = 0; i <= MAX_FONTPOSITION; i++)
-	MyFree ((char **) &PCBPtr->Font.Symbol[i].Line);
+	MYFREE (PCBPtr->Font.Symbol[i].Line);
       FreeLibraryMemory (&PCBPtr->NetlistLib);
       /* clear struct */
       memset (PCBPtr, 0, sizeof (PCBType));
@@ -854,7 +859,7 @@ FreeDataMemory (DataTypePtr Data)
     {
       VIA_LOOP (Data);
       {
-	MyFree (&via->Name);
+	MYFREE (via->Name);
       }
       END_LOOP;
       ELEMENT_LOOP (Data);
@@ -867,26 +872,26 @@ FreeDataMemory (DataTypePtr Data)
 	{
 	  TEXT_LOOP (layer);
 	  {
-	    MyFree (&text->TextString);
+	    MYFREE (text->TextString);
 	  }
 	  END_LOOP;
 	  if (layer->Name)
-	    MyFree (&layer->Name);
+	    MYFREE (layer->Name);
 	  LINE_LOOP (layer);
 	  {
 	    if (line->Number)
-	      MyFree (&line->Number);
+	      MYFREE (line->Number);
 	  }
 	  END_LOOP;
-	  MyFree ((char **) &layer->Line);
-	  MyFree ((char **) &layer->Arc);
-	  MyFree ((char **) &layer->Text);
+	  MYFREE (layer->Line);
+	  MYFREE (layer->Arc);
+	  MYFREE (layer->Text);
 	  POLYGON_LOOP (layer);
 	  {
 	    FreePolygonMemory (polygon);
 	  }
 	  END_LOOP;
-	  MyFree ((char **) &layer->Polygon);
+	  MYFREE (layer->Polygon);
 	  if (layer->line_tree)
 	    r_destroy_tree (&layer->line_tree);
 	  if (layer->arc_tree)
@@ -960,17 +965,12 @@ SaveFree (void *Ptr)
 static void
 DSRealloc (DynamicStringTypePtr Ptr, size_t Length)
 {
-  if (Ptr->Data == NULL)
+  int input_null = (Ptr->Data == NULL);
+  if (input_null || Length >= Ptr->MaxLength)
     {
       Ptr->MaxLength = Length + 512;
       Ptr->Data = MyRealloc (Ptr->Data, Ptr->MaxLength, "ReallocDS()");
-      Ptr->Data[0] = '\0';
-      return;
-    }
-  if (Length >= Ptr->MaxLength)
-    {
-      Ptr->MaxLength = Length + 512;
-      Ptr->Data = MyRealloc (Ptr->Data, Ptr->MaxLength, "ReallocDS()");
+      if (input_null) Ptr->Data[0] = '\0';
     }
 }
 

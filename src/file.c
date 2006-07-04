@@ -1009,7 +1009,7 @@ ReadLibraryContents (void)
   LibraryMenuTypePtr menu = NULL;
   LibraryEntryTypePtr entry;
 
-  MyFree (&command);
+  MYFREE (command);
   command = EvaluateFilename (Settings.LibraryContentsCommand,
 			      Settings.LibraryPath, Settings.LibraryFilename,
 			      NULL);
@@ -1110,7 +1110,7 @@ ReadNetlist (char *filename)
 
   if (!filename)
     return (1);			/* nothing to do */
-  MyFree (&command);
+  MYFREE (command);
   command = EvaluateFilename (Settings.RatCommand,
 			      Settings.RatPath, filename, NULL);
 

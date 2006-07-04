@@ -199,7 +199,7 @@ static int Parse(char *Executable, char *Path, char *Filename, char *Parameter)
 
 		/* release old command and create new from template */
 	if (command)
-	  MyFree(&command);
+	  MYFREE (command);
 	command = EvaluateFilename(Executable, Path, Filename, Parameter);
 
 		/* open pipe to stdout of command */

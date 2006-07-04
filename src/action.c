@@ -4865,7 +4865,7 @@ ActionSaveTo (int argc, char **argv, int x, int y)
 
   if (strcasecmp (function, "LayoutAs") == 0)
     {
-      MyFree (&(PCB->Filename));
+      MYFREE (PCB->Filename);
       PCB->Filename = MyStrdup (name, __FUNCTION__);
       function = "Layout";
     }

@@ -228,7 +228,7 @@ ProcNetlist (LibraryTypePtr net_menu)
     return (NULL);
   FreeNetListMemory (Wantlist);
   SaveFree (Wantlist);
-  /*  MyFree ((char **) &Wantlist); *//* awkward */
+  /*  MYFREE (Wantlist); *//* awkward */
   badnet = False;
 
   /* find layer groups of the component side and solder side */
