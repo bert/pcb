@@ -1864,13 +1864,14 @@ c_dtostr(double d)
       *bufp++ = '-';
       d = -d;
     }
+  d += 0.0000005; /* rounding */
   i = floor(d);
   d -= i;
   sprintf(bufp, "%d", i);
   bufp += strlen(bufp);
   *bufp++ = '.';
 
-  f = floor(d*1000000.0 + 0.5);
+  f = floor(d*1000000.0);
   sprintf(bufp, "%06d", f);
   return buf;
 }
