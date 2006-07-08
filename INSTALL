@@ -42,7 +42,7 @@ Export HID's:
      bom      -- Bill of materials (BOM) and Centroid (X-Y) output.
 		 No additional libraries are needed for this.
 
-     png      -- png/gif/jpeg output.  This HID used gdlib to do
+     png      -- png/gif/jpeg output.  This HID uses gdlib to do
 		 the majority of the work.  gdlib may be obtained
 		 from http://www.boutell.com/gd.  At the time of
 		 writing this document, I have tested with 
