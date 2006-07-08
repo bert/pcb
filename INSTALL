@@ -108,6 +108,26 @@ To install PCB after it has been built run:
 
 from the top level directory.
 
+-------- Summary of dependencies --------------------
+
+- GNU m4.  In particular your m4 must support -F for frozen files.
+
+- wish (part of tcl/tk).  If not installed, set WISH=/bin/false in
+  your configure environment and you just won't get the graphical
+  QFP footprint builder
+
+- gtk if you are using the gtk frontend
+
+- motif or lesstif if you are using the lesstif frontend
+
+- gdlib if you are using the png HID
+
+- GNU make for building
+
+- flex
+
+- bison
+
 -------- Standard GNU INSTALL Instructions Follow --------------------
 
 This is a generic INSTALL file for utilities distributions.
