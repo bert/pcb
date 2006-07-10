@@ -23,7 +23,7 @@ bin_PROGRAMS=	pcb-bin
 
 AM_CFLAGS = -DNDEBUG
 
-pcb_bin_SOURCES = \
+PCB_SRCS = \
 	action.c \
 	action.h \
 	autoplace.c \
@@ -130,8 +130,8 @@ pcb_bin_SOURCES = \
 	hid/common/hidinit.c \
 	hid/common/hidnogui.c \
 	hid/common/extents.c \
-	hid/hidint.h \
-	core_lists.h
+	hid/hidint.h 
+pcb_bin_SOURCES = ${PCB_SRCS} core_lists.h
 
 BUILT_SOURCES = \
 	core_lists.h \
@@ -149,9 +149,9 @@ pcb_bin_LDADD = @HIDLIBS@
 pcb_bin_DEPENDENCIES = @HIDLIBS@
 
 # Action, Attribute, and Flag lists.
-core_lists.h : ${pcb_bin_SOURCES} Makefile
+core_lists.h : ${PCB_SRCS} Makefile
 	true > $@
-	(for f in ${pcb_bin_SOURCES} ; do cat $(srcdir)/$$f ; done) | grep "^REGISTER" > $@.tmp
+	(for f in ${PCB_SRCS} ; do cat $(srcdir)/$$f ; done) | grep "^REGISTER" > $@.tmp
 	mv $@.tmp $@
 
 # for globalconst.h
@@ -191,7 +191,7 @@ hid/common/hidlist.h : Makefile
 	done
 
 libgtk_a_CPPFLAGS = -I./hid/gtk
-libgtk_a_SOURCES = \
+LIBGTK_SRCS = \
 	dolists.h \
 	hid/hidint.h \
 	hid/gtk/gtkhid-main.c \
@@ -210,12 +210,12 @@ libgtk_a_SOURCES = \
 	hid/gtk/gui-output-events.c \
 	hid/gtk/gui-pinout-window.c \
 	hid/gtk/gui-top-window.c \
-	hid/gtk/gui-utils.c \
-	hid/gtk/gtk_lists.h
+	hid/gtk/gui-utils.c
+libgtk_a_SOURCES = ${LIBGTK_SRCS} hid/gtk/gtk_lists.h
 
-hid/gtk/gtk_lists.h : ${libgtk_a_SOURCES} Makefile
+hid/gtk/gtk_lists.h : ${LIBGTK_SRCS} Makefile
 	true > $@
-	(for f in ${libgtk_a_SOURCES} ; do cat $(srcdir)/$$f ; done) | grep "^REGISTER" > $@.tmp
+	(for f in ${LIBGTK_SRCS} ; do cat $(srcdir)/$$f ; done) | grep "^REGISTER" > $@.tmp
 	mv $@.tmp $@
 
 # If we are building on win32, then compile in some icons for the
@@ -234,7 +234,7 @@ endif
 
 
 liblesstif_a_CPPFLAGS = -I./hid/lesstif
-liblesstif_a_SOURCES = \
+LIBLESSTIF_SRCS = \
 	dolists.h \
 	hid/hidint.h \
 	hid/lesstif/dialogs.c \
@@ -244,23 +244,23 @@ liblesstif_a_SOURCES = \
 	hid/lesstif/menu.c \
 	hid/lesstif/netlist.c \
 	hid/lesstif/styles.c \
-	hid/lesstif/xincludes.h \
-	hid/lesstif/lesstif_lists.h
+	hid/lesstif/xincludes.h 
+liblesstif_a_SOURCES = ${LIBLESSTIF_SRCS} hid/lesstif/lesstif_lists.h
 
-hid/lesstif/lesstif_lists.h : ${liblesstif_a_SOURCES} Makefile
+hid/lesstif/lesstif_lists.h : ${LIBLESSTIF_SRCS} Makefile
 	true > $@
-	(for f in ${liblesstif_a_SOURCES} ; do cat $(srcdir)/$$f ; done) | grep "^REGISTER" > $@.tmp
+	(for f in ${LIBLESSTIF_SRCS} ; do cat $(srcdir)/$$f ; done) | grep "^REGISTER" > $@.tmp
 	mv $@.tmp $@
 
 libbatch_a_CPPFLAGS = -I./hid/batch
-libbatch_a_SOURCES = \
+LIBBATCH_SRCS = \
 	hid/hidint.h \
-	hid/batch/batch.c \
-	hid/batch/batch_lists.h
+	hid/batch/batch.c 
+libbatch_a_SOURCES = ${LIBBATCH_SRCS} hid/batch/batch_lists.h
 
-hid/batch/batch_lists.h : ${libbatch_a_SOURCES} Makefile
+hid/batch/batch_lists.h : ${LIBBATCH_SRCS} Makefile
 	true > $@
-	(for f in ${libbatch_a_SOURCES} ; do cat $(srcdir)/$$f ; done) | grep "^REGISTER" > $@.tmp
+	(for f in ${LIBBATCH_SRCS} ; do cat $(srcdir)/$$f ; done) | grep "^REGISTER" > $@.tmp
 	mv $@.tmp $@
 
 libgerber_a_SOURCES = \
@@ -272,30 +272,30 @@ libbom_a_SOURCES = \
 	hid/bom/bom.c
 
 libps_a_CPPFLAGS = -I./hid/ps
-libps_a_SOURCES = \
+LIBPS_SRCS = \
 	dolists.h \
 	hid/hidint.h \
 	hid/ps/ps.c \
 	hid/ps/ps.h \
-	hid/ps/eps.c \
-	hid/ps/ps_lists.h
+	hid/ps/eps.c 
+libps_a_SOURCES = ${LIBPS_SRCS} hid/ps/ps_lists.h
 
-hid/ps/ps_lists.h : ${libps_a_SOURCES} Makefile
+hid/ps/ps_lists.h : ${LIBPS_SRCS} Makefile
 	true > $@
-	(for f in ${libps_a_SOURCES} ; do cat $(srcdir)/$$f ; done) | grep "^REGISTER" > $@.tmp
+	(for f in ${LIBPS_SRCS} ; do cat $(srcdir)/$$f ; done) | grep "^REGISTER" > $@.tmp
 	mv $@.tmp $@
 
 libpng_a_CPPFLAGS = -I./hid/png
-libpng_a_SOURCES = \
+LIBPNG_SRCS = \
 	dolists.h \
 	hid/hidint.h \
 	hid/png/png.c \
-	hid/png/png.h \
-	hid/png/png_lists.h
+	hid/png/png.h 
+libpng_a_SOURCES = ${LIBPNG_SRCS} hid/png/png_lists.h
 
-hid/png/png_lists.h : ${libpng_a_SOURCES} Makefile
+hid/png/png_lists.h : ${LIBPNG_SRCS} Makefile
 	true > $@
-	(for f in ${libpng_a_SOURCES} ; do cat $(srcdir)/$$f ; done) | grep "^REGISTER" > $@.tmp
+	(for f in ${LIBPNG_SRCS} ; do cat $(srcdir)/$$f ; done) | grep "^REGISTER" > $@.tmp
 	mv $@.tmp $@
 
 liblpr_a_SOURCES = \

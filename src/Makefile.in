@@ -58,7 +58,8 @@ ARFLAGS = cru
 libbatch_a_AR = $(AR) $(ARFLAGS)
 libbatch_a_LIBADD =
 am__dirstamp = $(am__leading_dot)dirstamp
-am_libbatch_a_OBJECTS = hid/batch/libbatch_a-batch.$(OBJEXT)
+am__objects_1 = hid/batch/libbatch_a-batch.$(OBJEXT)
+am_libbatch_a_OBJECTS = $(am__objects_1)
 libbatch_a_OBJECTS = $(am_libbatch_a_OBJECTS)
 libbom_a_AR = $(AR) $(ARFLAGS)
 libbom_a_LIBADD =
@@ -70,7 +71,7 @@ am_libgerber_a_OBJECTS = hid/gerber/gerber.$(OBJEXT)
 libgerber_a_OBJECTS = $(am_libgerber_a_OBJECTS)
 libgtk_a_AR = $(AR) $(ARFLAGS)
 libgtk_a_LIBADD =
-am_libgtk_a_OBJECTS = hid/gtk/libgtk_a-gtkhid-main.$(OBJEXT) \
+am__objects_2 = hid/gtk/libgtk_a-gtkhid-main.$(OBJEXT) \
 	hid/gtk/libgtk_a-gui-command-window.$(OBJEXT) \
 	hid/gtk/libgtk_a-gui-config.$(OBJEXT) \
 	hid/gtk/libgtk_a-gui-dialog-print.$(OBJEXT) \
@@ -85,15 +86,17 @@ am_libgtk_a_OBJECTS = hid/gtk/libgtk_a-gtkhid-main.$(OBJEXT) \
 	hid/gtk/libgtk_a-gui-pinout-window.$(OBJEXT) \
 	hid/gtk/libgtk_a-gui-top-window.$(OBJEXT) \
 	hid/gtk/libgtk_a-gui-utils.$(OBJEXT)
+am_libgtk_a_OBJECTS = $(am__objects_2)
 libgtk_a_OBJECTS = $(am_libgtk_a_OBJECTS)
 liblesstif_a_AR = $(AR) $(ARFLAGS)
 liblesstif_a_LIBADD =
-am_liblesstif_a_OBJECTS = hid/lesstif/liblesstif_a-dialogs.$(OBJEXT) \
+am__objects_3 = hid/lesstif/liblesstif_a-dialogs.$(OBJEXT) \
 	hid/lesstif/liblesstif_a-library.$(OBJEXT) \
 	hid/lesstif/liblesstif_a-main.$(OBJEXT) \
 	hid/lesstif/liblesstif_a-menu.$(OBJEXT) \
 	hid/lesstif/liblesstif_a-netlist.$(OBJEXT) \
 	hid/lesstif/liblesstif_a-styles.$(OBJEXT)
+am_liblesstif_a_OBJECTS = $(am__objects_3)
 liblesstif_a_OBJECTS = $(am_liblesstif_a_OBJECTS)
 liblpr_a_AR = $(AR) $(ARFLAGS)
 liblpr_a_LIBADD =
@@ -101,18 +104,20 @@ am_liblpr_a_OBJECTS = hid/lpr/lpr.$(OBJEXT)
 liblpr_a_OBJECTS = $(am_liblpr_a_OBJECTS)
 libpng_a_AR = $(AR) $(ARFLAGS)
 libpng_a_LIBADD =
-am_libpng_a_OBJECTS = hid/png/libpng_a-png.$(OBJEXT)
+am__objects_4 = hid/png/libpng_a-png.$(OBJEXT)
+am_libpng_a_OBJECTS = $(am__objects_4)
 libpng_a_OBJECTS = $(am_libpng_a_OBJECTS)
 libps_a_AR = $(AR) $(ARFLAGS)
 libps_a_LIBADD =
-am_libps_a_OBJECTS = hid/ps/libps_a-ps.$(OBJEXT) \
+am__objects_5 = hid/ps/libps_a-ps.$(OBJEXT) \
 	hid/ps/libps_a-eps.$(OBJEXT)
+am_libps_a_OBJECTS = $(am__objects_5)
 libps_a_OBJECTS = $(am_libps_a_OBJECTS)
 am__installdirs = "$(DESTDIR)$(bindir)" "$(DESTDIR)$(pcblibdir)" \
 	"$(DESTDIR)$(pkgdatadir)"
 binPROGRAMS_INSTALL = $(INSTALL_PROGRAM)
 PROGRAMS = $(bin_PROGRAMS)
-am_pcb_bin_OBJECTS = action.$(OBJEXT) autoplace.$(OBJEXT) \
+am__objects_6 = action.$(OBJEXT) autoplace.$(OBJEXT) \
 	autoroute.$(OBJEXT) buffer.$(OBJEXT) change.$(OBJEXT) \
 	command.$(OBJEXT) compat.$(OBJEXT) copy.$(OBJEXT) \
 	create.$(OBJEXT) crosshair.$(OBJEXT) data.$(OBJEXT) \
@@ -131,6 +136,7 @@ am_pcb_bin_OBJECTS = action.$(OBJEXT) autoplace.$(OBJEXT) \
 	hid/common/actions.$(OBJEXT) hid/common/flags.$(OBJEXT) \
 	hid/common/hidinit.$(OBJEXT) hid/common/hidnogui.$(OBJEXT) \
 	hid/common/extents.$(OBJEXT)
+am_pcb_bin_OBJECTS = $(am__objects_6)
 pcb_bin_OBJECTS = $(am_pcb_bin_OBJECTS)
 @WIN32_TRUE@am__DEPENDENCIES_1 = pcb_icon.o
 DEFAULT_INCLUDES = -I. -I$(srcdir) -I$(top_builddir)
@@ -327,7 +333,7 @@ pcblib_DATA = \
 
 pkgdata_DATA = Pcb
 AM_CFLAGS = -DNDEBUG
-pcb_bin_SOURCES = \
+PCB_SRCS = \
 	action.c \
 	action.h \
 	autoplace.c \
@@ -434,9 +440,9 @@ pcb_bin_SOURCES = \
 	hid/common/hidinit.c \
 	hid/common/hidnogui.c \
 	hid/common/extents.c \
-	hid/hidint.h \
-	core_lists.h
+	hid/hidint.h 
 
+pcb_bin_SOURCES = ${PCB_SRCS} core_lists.h
 BUILT_SOURCES = \
 	core_lists.h \
 	hid/gtk/gtk_lists.h \
@@ -473,7 +479,7 @@ EXTRA_DIST = \
 
 AM_YFLAGS = -d
 libgtk_a_CPPFLAGS = -I./hid/gtk
-libgtk_a_SOURCES = \
+LIBGTK_SRCS = \
 	dolists.h \
 	hid/hidint.h \
 	hid/gtk/gtkhid-main.c \
@@ -492,11 +498,11 @@ libgtk_a_SOURCES = \
 	hid/gtk/gui-output-events.c \
 	hid/gtk/gui-pinout-window.c \
 	hid/gtk/gui-top-window.c \
-	hid/gtk/gui-utils.c \
-	hid/gtk/gtk_lists.h
+	hid/gtk/gui-utils.c
 
+libgtk_a_SOURCES = ${LIBGTK_SRCS} hid/gtk/gtk_lists.h
 liblesstif_a_CPPFLAGS = -I./hid/lesstif
-liblesstif_a_SOURCES = \
+LIBLESSTIF_SRCS = \
 	dolists.h \
 	hid/hidint.h \
 	hid/lesstif/dialogs.c \
@@ -506,15 +512,15 @@ liblesstif_a_SOURCES = \
 	hid/lesstif/menu.c \
 	hid/lesstif/netlist.c \
 	hid/lesstif/styles.c \
-	hid/lesstif/xincludes.h \
-	hid/lesstif/lesstif_lists.h
+	hid/lesstif/xincludes.h 
 
+liblesstif_a_SOURCES = ${LIBLESSTIF_SRCS} hid/lesstif/lesstif_lists.h
 libbatch_a_CPPFLAGS = -I./hid/batch
-libbatch_a_SOURCES = \
+LIBBATCH_SRCS = \
 	hid/hidint.h \
-	hid/batch/batch.c \
-	hid/batch/batch_lists.h
+	hid/batch/batch.c 
 
+libbatch_a_SOURCES = ${LIBBATCH_SRCS} hid/batch/batch_lists.h
 libgerber_a_SOURCES = \
 	hid/hidint.h \
 	hid/gerber/gerber.c
@@ -524,22 +530,22 @@ libbom_a_SOURCES = \
 	hid/bom/bom.c
 
 libps_a_CPPFLAGS = -I./hid/ps
-libps_a_SOURCES = \
+LIBPS_SRCS = \
 	dolists.h \
 	hid/hidint.h \
 	hid/ps/ps.c \
 	hid/ps/ps.h \
-	hid/ps/eps.c \
-	hid/ps/ps_lists.h
+	hid/ps/eps.c 
 
+libps_a_SOURCES = ${LIBPS_SRCS} hid/ps/ps_lists.h
 libpng_a_CPPFLAGS = -I./hid/png
-libpng_a_SOURCES = \
+LIBPNG_SRCS = \
 	dolists.h \
 	hid/hidint.h \
 	hid/png/png.c \
-	hid/png/png.h \
-	hid/png/png_lists.h
+	hid/png/png.h 
 
+libpng_a_SOURCES = ${LIBPNG_SRCS} hid/png/png_lists.h
 liblpr_a_SOURCES = \
 	hid/hidint.h \
 	hid/lpr/lpr.c
@@ -1618,9 +1624,9 @@ uninstall-info: uninstall-info-recursive
 
 
 # Action, Attribute, and Flag lists.
-core_lists.h : ${pcb_bin_SOURCES} Makefile
+core_lists.h : ${PCB_SRCS} Makefile
 	true > $@
-	(for f in ${pcb_bin_SOURCES} ; do cat $(srcdir)/$$f ; done) | grep "^REGISTER" > $@.tmp
+	(for f in ${PCB_SRCS} ; do cat $(srcdir)/$$f ; done) | grep "^REGISTER" > $@.tmp
 	mv $@.tmp $@
 
 all-local: pcbtest.sh .test/Pcb
@@ -1637,9 +1643,9 @@ hid/common/hidlist.h : Makefile
 	  echo "HID_DEF($${e})" >> $@; \
 	done
 
-hid/gtk/gtk_lists.h : ${libgtk_a_SOURCES} Makefile
+hid/gtk/gtk_lists.h : ${LIBGTK_SRCS} Makefile
 	true > $@
-	(for f in ${libgtk_a_SOURCES} ; do cat $(srcdir)/$$f ; done) | grep "^REGISTER" > $@.tmp
+	(for f in ${LIBGTK_SRCS} ; do cat $(srcdir)/$$f ; done) | grep "^REGISTER" > $@.tmp
 	mv $@.tmp $@
 
 # If we are building on win32, then compile in some icons for the
@@ -1650,24 +1656,24 @@ hid/gtk/gtk_lists.h : ${libgtk_a_SOURCES} Makefile
 @WIN32_TRUE@pcb_icon.ico: $(top_srcdir)/win32/pcb_icon.ico
 @WIN32_TRUE@	cp $(top_srcdir)/win32/pcb_icon.ico $@
 
-hid/lesstif/lesstif_lists.h : ${liblesstif_a_SOURCES} Makefile
+hid/lesstif/lesstif_lists.h : ${LIBLESSTIF_SRCS} Makefile
 	true > $@
-	(for f in ${liblesstif_a_SOURCES} ; do cat $(srcdir)/$$f ; done) | grep "^REGISTER" > $@.tmp
+	(for f in ${LIBLESSTIF_SRCS} ; do cat $(srcdir)/$$f ; done) | grep "^REGISTER" > $@.tmp
 	mv $@.tmp $@
 
-hid/batch/batch_lists.h : ${libbatch_a_SOURCES} Makefile
+hid/batch/batch_lists.h : ${LIBBATCH_SRCS} Makefile
 	true > $@
-	(for f in ${libbatch_a_SOURCES} ; do cat $(srcdir)/$$f ; done) | grep "^REGISTER" > $@.tmp
+	(for f in ${LIBBATCH_SRCS} ; do cat $(srcdir)/$$f ; done) | grep "^REGISTER" > $@.tmp
 	mv $@.tmp $@
 
-hid/ps/ps_lists.h : ${libps_a_SOURCES} Makefile
+hid/ps/ps_lists.h : ${LIBPS_SRCS} Makefile
 	true > $@
-	(for f in ${libps_a_SOURCES} ; do cat $(srcdir)/$$f ; done) | grep "^REGISTER" > $@.tmp
+	(for f in ${LIBPS_SRCS} ; do cat $(srcdir)/$$f ; done) | grep "^REGISTER" > $@.tmp
 	mv $@.tmp $@
 
-hid/png/png_lists.h : ${libpng_a_SOURCES} Makefile
+hid/png/png_lists.h : ${LIBPNG_SRCS} Makefile
 	true > $@
-	(for f in ${libpng_a_SOURCES} ; do cat $(srcdir)/$$f ; done) | grep "^REGISTER" > $@.tmp
+	(for f in ${LIBPNG_SRCS} ; do cat $(srcdir)/$$f ; done) | grep "^REGISTER" > $@.tmp
 	mv $@.tmp $@
 
 # create wrapper script that lets you test pcb prior to installation
