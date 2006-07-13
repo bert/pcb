@@ -62,6 +62,7 @@
 #include "create.h"
 #include "draw.h"
 #include "error.h"
+#include "find.h"
 #include "heap.h"
 #include "rtree.h"
 #include "misc.h"
@@ -82,11 +83,14 @@ RCSID ("$Id$");
 /* #defines to enable some debugging output */
 /*#define ROUTE_VERBOSE*/
 
+
 /*
 #define ROUTE_DEBUG
+#define DEBUG_SHOW_TARGETS
 #define DEBUG_SHOW_ROUTE_BOXES
 #define DEBUG_SHOW_VIA_BOXES
 #define DEBUG_SHOW_EXPANSION_BOXES
+#define DEBUG_SHOW_ZIGZAG
 */
 /* round up "half" thicknesses */
 #define HALF_THICK(x) (((x)+1)/2)
@@ -323,6 +327,9 @@ static cost_t edge_cost (const edge_t * e);
 static BoxType edge_to_box (const BoxType * box, direction_t expand_dir);
 
 static void ResetSubnet (routebox_t * net);
+#ifdef ROUTE_DEBUG
+static void showroutebox (routebox_t * rb);
+#endif
 
 /* ---------------------------------------------------------------------------
  * some local identifiers
@@ -492,7 +499,7 @@ is_layer_group_active (Cardinal group)
   return False;
 }
 
-static void
+static routebox_t *
 AddPin (PointerListType layergroupboxes[], PinTypePtr pin, Boolean is_via)
 {
   routebox_t **rbpp, *lastrb = NULL;
@@ -532,15 +539,15 @@ AddPin (PointerListType layergroupboxes[], PinTypePtr pin, Boolean is_via)
 	}
       lastrb = *rbpp;
     }
-  return;
+  return lastrb;
 }
-static void
+static routebox_t *
 AddPad (PointerListType layergroupboxes[],
 	ElementTypePtr element, PadTypePtr pad)
 {
   BDimension halfthick;
   routebox_t **rbpp;
-  int layergroup = TEST_FLAG (ONSOLDERFLAG, pad) ? back : front;
+  int layergroup = (TEST_FLAG (ONSOLDERFLAG, pad) ? back : front);
   assert (0 <= layergroup && layergroup < max_layer);
   assert (PCB->LayerGroups.Number[layergroup] > 0);
   rbpp = (routebox_t **) GetPointerMemory (&layergroupboxes[layergroup]);
@@ -554,7 +561,7 @@ AddPad (PointerListType layergroupboxes[],
 		  /*Y1 */ MIN (pad->Point1.Y, pad->Point2.Y) - halfthick,
 		  /*X2 */ MAX (pad->Point1.X, pad->Point2.X) + halfthick,
 		  /*Y2 */ MAX (pad->Point1.Y, pad->Point2.Y) + halfthick);
-  /* kludge for non-manhattan pads */
+  /* kludge for non-manhattan pads (which are not allowed at present) */
   if (pad->Point1.X != pad->Point2.X && pad->Point1.Y != pad->Point2.Y)
     (*rbpp)->flags.nonstraight = 1;
   /* set aux. properties */
@@ -563,17 +570,14 @@ AddPad (PointerListType layergroupboxes[],
   (*rbpp)->flags.fixed = 1;
   /* circular lists */
   InitLists (*rbpp);
-  return;
+  return *rbpp;
 }
-static void
-AddLine (PointerListType layergroupboxes[], int layer, LineTypePtr line)
+static routebox_t *
+AddLine (PointerListType layergroupboxes[], int layergroup, LineTypePtr line,
+	 LineTypePtr ptr)
 {
   routebox_t **rbpp;
-  int layergroup;
   assert (layergroupboxes && line);
-  assert (0 <= layer && layer < max_layer);
-
-  layergroup = GetLayerGroupNumberByNumber (layer);
   assert (0 <= layergroup && layergroup < max_layer);
   assert (PCB->LayerGroups.Number[layergroup] > 0);
 
@@ -597,28 +601,28 @@ AddLine (PointerListType layergroupboxes[], int layer, LineTypePtr line)
       (*rbpp)->flags.bl_to_ur =
 	(MIN (line->Point1.X, line->Point2.X) == line->Point1.X) !=
 	(MIN (line->Point1.Y, line->Point2.Y) == line->Point1.Y);
+#if defined(ROUTE_DEBUG) && defined(DEBUG_SHOW_ZIGZAG)
+      showroutebox (*rbpp);
+#endif
     }
   /* set aux. properties */
   (*rbpp)->type = LINE;
-  (*rbpp)->parent.line = line;
+  (*rbpp)->parent.line = ptr;
   (*rbpp)->flags.fixed = 1;
   /* circular lists */
   InitLists (*rbpp);
-  return;
+  return *rbpp;
 }
 static routebox_t *
 AddIrregularObstacle (PointerListType layergroupboxes[],
 		      LocationType X1, LocationType Y1,
-		      LocationType X2, LocationType Y2, Cardinal layer,
+		      LocationType X2, LocationType Y2, Cardinal layergroup,
 		      void *parent)
 {
   routebox_t **rbpp;
-  int layergroup;
   assert (layergroupboxes && parent);
   assert (0 <= layer && layer < max_layer);
   assert (X1 <= X2 && Y1 <= Y2);
-
-  layergroup = GetLayerGroupNumberByNumber (layer);
   assert (0 <= layergroup && layergroup < max_layer);
   assert (PCB->LayerGroups.Number[layergroup] > 0);
 
@@ -635,17 +639,19 @@ AddIrregularObstacle (PointerListType layergroupboxes[],
   return *rbpp;
 }
 
-static void
+static routebox_t *
 AddPolygon (PointerListType layergroupboxes[], Cardinal layer,
 	    PolygonTypePtr polygon)
 {
   int is_not_rectangle = 1;
+  int layergroup = GetLayerGroupNumberByNumber (layer);
+  assert (0 <= layergroup && layergroup < max_layer);
   routebox_t *rb = AddIrregularObstacle (layergroupboxes,
 					 polygon->BoundingBox.X1,
 					 polygon->BoundingBox.Y1,
 					 polygon->BoundingBox.X2,
 					 polygon->BoundingBox.Y2,
-					 layer, polygon);
+					 layergroup, polygon);
   if (polygon->PointN == 4 &&
       (polygon->Points[0].X == polygon->Points[1].X ||
        polygon->Points[0].Y == polygon->Points[1].Y) &&
@@ -664,77 +670,57 @@ AddPolygon (PointerListType layergroupboxes[], Cardinal layer,
       if (!is_not_rectangle)
 	rb->type = PLANE;
     }
+  return rb;
 }
 static void
-AddText (PointerListType layergroupboxes[], Cardinal layer, TextTypePtr text)
+AddText (PointerListType layergroupboxes[], Cardinal layergroup,
+	 TextTypePtr text)
 {
   AddIrregularObstacle (layergroupboxes,
 			text->BoundingBox.X1, text->BoundingBox.Y1,
 			text->BoundingBox.X2, text->BoundingBox.Y2,
-			layer, text);
-}
-static void
-AddArc (PointerListType layergroupboxes[], Cardinal layer, ArcTypePtr arc)
-{
-  AddIrregularObstacle (layergroupboxes,
-			arc->BoundingBox.X1, arc->BoundingBox.Y1,
-			arc->BoundingBox.X2, arc->BoundingBox.Y2, layer, arc);
-}
-
-struct find_closure
-{
-  routebox_t *match;
-  void *key;
-};
-static int
-__found_one (const BoxType * box, void *cl)
-{
-  struct find_closure *fc = (struct find_closure *) cl;
-  routebox_t *rb = (routebox_t *) box;
-  if (fc->key == rb->parent.generic)
-    {
-      fc->match = rb;
-      return 1;
-    }
-  else
-    return 0;
+			layergroup, text);
 }
 static routebox_t *
-FindRouteBox (routedata_t * rd, LocationType X, LocationType Y, void *matches)
+AddArc (PointerListType layergroupboxes[], Cardinal layergroup,
+	ArcTypePtr arc)
 {
-  struct find_closure fc;
-  BoxType region;
-  int group;
-
-  fc.match = NULL;
-  fc.key = matches;
-  region.X1 = region.X2 = X;
-  region.Y1 = region.Y2 = Y;
-  for (group = 0; group < max_layer; group++)
-    if (r_search (rd->layergrouptree[group], &region, NULL, __found_one, &fc))
-      return fc.match;
-  return NULL;			/* no match found */
+  return AddIrregularObstacle (layergroupboxes,
+			       arc->BoundingBox.X1, arc->BoundingBox.Y1,
+			       arc->BoundingBox.X2, arc->BoundingBox.Y2,
+			       layergroup, arc);
 }
+
+struct rb_info
+{
+  routebox_t *winner;
+  jmp_buf env;
+};
 
 static int
 __found_one_on_lg (const BoxType * box, void *cl)
 {
-  routebox_t **rb = (routebox_t **) cl;
-  *rb = (routebox_t *) box;
-  return 1;
+  struct rb_info *inf = (struct rb_info *) cl;
+  routebox_t *rb = (routebox_t *) box;
+  if (rb->flags.nonstraight)
+    return 1;
+  inf->winner = rb;
+  longjmp (inf->env, 1);
+  return 0;
 }
 static routebox_t *
 FindRouteBoxOnLayerGroup (routedata_t * rd,
 			  LocationType X, LocationType Y, Cardinal layergroup)
 {
-  routebox_t *rb;
+  struct rb_info info;
   BoxType region;
+  info.winner = NULL;
   region.X1 = region.X2 = X;
   region.Y1 = region.Y2 = Y;
-  if (r_search (rd->layergrouptree[layergroup], &region, NULL,
-		__found_one_on_lg, &rb))
-    return rb;
-  return NULL;			/* no match found */
+  if (setjmp (info.env) == 0)
+    r_search (rd->layergrouptree[layergroup], &region, NULL,
+	      __found_one_on_lg, &info);
+  return info.winner;
 }
 
 #ifdef ROUTE_DEBUG
@@ -839,48 +825,222 @@ CreateRouteData ()
       layergroupboxes[i].PtrMax = 0;
     }
 
+  /* add the objects in the netlist first.
+   * then go and add all other objects that weren't already added
+   *
+   * this saves on searching the trees to find the nets
+   */
+  SaveFindFlag (DRCFLAG);
+  /* use the DRCFLAG to mark objects as their entered */
+  ResetFoundPinsViasAndPads (False);
+  ResetFoundLinesAndPolygons (False);
+  Nets = CollectSubnets (False);
+  {
+    routebox_t *last_net = NULL;
+    NETLIST_LOOP (&Nets);
+    {
+      routebox_t *last_in_net = NULL;
+      NET_LOOP (netlist);
+      {
+	routebox_t *last_in_subnet = NULL;
+	int j;
+
+	for (j = 0; j < NUM_STYLES; j++)
+	  if (net->Style == rd->augStyles[j].style)
+	    break;
+	CONNECTION_LOOP (net);
+	{
+	  routebox_t *rb = NULL;
+	  SET_FLAG (DRCFLAG, (PinTypePtr) connection->ptr2);
+	  if (connection->type == LINE_TYPE)
+	    {
+	      LineType *line = (LineType *) connection->ptr2;
+
+	      /* lines are listed at each end, so skip one */
+	      /* this should probably by a macro named "BUMP_LOOP" */
+	      n--;
+
+	      /* dice up non-straight lines into many tiny obstacles */
+	      if (line->Point1.X != line->Point2.X
+		  || line->Point1.Y != line->Point2.Y)
+		{
+		  LineType fake_line = *line;
+		  int dx = (line->Point2.X - line->Point1.X);
+		  int dy = (line->Point2.Y - line->Point1.Y);
+		  int segs =
+		    MAX (ABS (dx), ABS (dy)) / (4 * BLOAT (rd->augStyles[j].style) + 1);
+		  int qq;
+		  segs = MAX (1, MIN (segs, 32));	/* don't go too crazy */
+		  dx /= segs;
+		  dy /= segs;
+		  for (qq = 0; qq < segs - 1; qq++)
+		    {
+		      fake_line.Point2.X = fake_line.Point1.X + dx;
+		      fake_line.Point2.Y = fake_line.Point1.Y + dy;
+		      if (fake_line.Point2.X == line->Point2.X
+			  && fake_line.Point2.Y == line->Point2.Y)
+			break;
+		      rb =
+			AddLine (layergroupboxes, connection->group,
+				 &fake_line, line);
+		      rb->augStyle = &rd->augStyles[j];
+		      if (last_in_subnet && rb != last_in_subnet)
+			MergeNets (last_in_subnet, rb, ORIGINAL);
+		      if (last_in_net && rb != last_in_net)
+			MergeNets (last_in_net, rb, NET);
+		      last_in_subnet = last_in_net = rb;
+		      fake_line.Point1 = fake_line.Point2;
+		    }
+		  fake_line.Point2 = line->Point2;
+		  rb =
+		    AddLine (layergroupboxes, connection->group, &fake_line,
+			     line);
+		}
+	      else
+		{
+		  rb =
+		    AddLine (layergroupboxes, connection->group, line, line);
+		}
+	    }
+	  else
+	    switch (connection->type)
+	      {
+	      case PAD_TYPE:
+		rb = AddPad (layergroupboxes, connection->ptr1, connection->ptr2);
+		break;
+	      case PIN_TYPE:
+		rb = AddPin (layergroupboxes, connection->ptr2, False);
+		break;
+	      case VIA_TYPE:
+		rb = AddPin (layergroupboxes, connection->ptr2, True);
+		break;
+	      case POLYGON_TYPE:
+		rb =
+		  AddPolygon (layergroupboxes,
+			      GetLayerNumber (PCB->Data, connection->ptr1),
+			      connection->ptr2);
+		break;
+	      }
+	  assert(rb);
+	  /* set rb->augStyle! */
+	  rb->augStyle = &rd->augStyles[j];
+	  rb->augStyle->Used = True;
+	  /* update circular connectivity lists */
+	  if (last_in_subnet && rb != last_in_subnet)
+	    MergeNets (last_in_subnet, rb, ORIGINAL);
+	  if (last_in_net && rb != last_in_net)
+	    MergeNets (last_in_net, rb, NET);
+	  last_in_subnet = last_in_net = rb;
+	  rd->max_bloat = MAX (rd->max_bloat, BLOAT (rb->augStyle->style));
+	}
+	END_LOOP;
+      }
+      END_LOOP;
+      if (last_net && last_in_net)
+	MergeNets (last_net, last_in_net, DIFFERENT_NET);
+      last_net = last_in_net;
+    }
+    END_LOOP;
+    rd->first_net = last_net;
+  }
+  FreeNetListListMemory (&Nets);
+
+  /* reset all nets to "original" connectivity (which we just set) */
+  {
+    routebox_t *net;
+    LIST_LOOP (rd->first_net, different_net, net);
+    ResetSubnet (net);
+    END_LOOP;
+  }
+
   /* add pins and pads of elements */
   ALLPIN_LOOP (PCB->Data);
   {
-    AddPin (layergroupboxes, pin, False);
+    if (TEST_FLAG (DRCFLAG, pin))
+      CLEAR_FLAG (DRCFLAG, pin);
+    else
+      AddPin (layergroupboxes, pin, False);
   }
   ENDALL_LOOP;
   ALLPAD_LOOP (PCB->Data);
   {
-    AddPad (layergroupboxes, element, pad);
+    if (TEST_FLAG (DRCFLAG, pad))
+      CLEAR_FLAG (DRCFLAG, pad);
+    else
+      AddPad (layergroupboxes, element, pad);
   }
   ENDALL_LOOP;
   /* add all vias */
   VIA_LOOP (PCB->Data);
   {
-    AddPin (layergroupboxes, via, True);
+    if (TEST_FLAG (DRCFLAG, via))
+      CLEAR_FLAG (DRCFLAG, via);
+    else
+      AddPin (layergroupboxes, via, True);
   }
   END_LOOP;
 
   for (i = 0; i < max_layer; i++)
     {
+      int layergroup = GetLayerGroupNumberByNumber (i);
       /* add all (non-rat) lines */
       LINE_LOOP (LAYER_PTR (i));
       {
-	AddLine (layergroupboxes, i, line);
+	if (TEST_FLAG (DRCFLAG, line))
+	  {
+	    CLEAR_FLAG (DRCFLAG, line);
+	    continue;
+	  }
+	/* dice up non-straight lines into many tiny obstacles */
+	if (line->Point1.X != line->Point2.X
+	    || line->Point1.Y != line->Point2.Y)
+	  {
+	    LineType fake_line = *line;
+	    int dx = (line->Point2.X - line->Point1.X);
+	    int dy = (line->Point2.Y - line->Point1.Y);
+	    int segs = MAX (ABS (dx), ABS (dy)) / (4 * rd->max_bloat + 1);
+	    int qq;
+	    segs = MAX (1, MIN (segs, 32));	/* don't go too crazy */
+	    dx /= segs;
+	    dy /= segs;
+	    for (qq = 0; qq < segs - 1; qq++)
+	      {
+		fake_line.Point2.X = fake_line.Point1.X + dx;
+		fake_line.Point2.Y = fake_line.Point1.Y + dy;
+		if (fake_line.Point2.X == line->Point2.X
+		    && fake_line.Point2.Y == line->Point2.Y)
+		  break;
+		AddLine (layergroupboxes, layergroup, &fake_line, line);
+		fake_line.Point1 = fake_line.Point2;
+	      }
+	    fake_line.Point2 = line->Point2;
+	    AddLine (layergroupboxes, layergroup, &fake_line, line);
+	  }
+	else
+	  {
+	    AddLine (layergroupboxes, layergroup, line, line);
+	  }
       }
       END_LOOP;
-      /* add all "should-avoid" polygons */
+      /* add all polygons */
       POLYGON_LOOP (LAYER_PTR (i));
       {
-	AddPolygon (layergroupboxes, i, polygon);
+	if (TEST_FLAG (DRCFLAG, polygon))
+	  CLEAR_FLAG (DRCFLAG, polygon);
+	else
+	  AddPolygon (layergroupboxes, i, polygon);
       }
       END_LOOP;
       /* add all copper text */
       TEXT_LOOP (LAYER_PTR (i));
       {
-	AddText (layergroupboxes, i, text);
+	AddText (layergroupboxes, layergroup, text);
       }
       END_LOOP;
       /* add all arcs */
       ARC_LOOP (LAYER_PTR (i));
       {
-	AddArc (layergroupboxes, i, arc);
+	AddArc (layergroupboxes, layergroup, arc);
       }
       END_LOOP;
     }
@@ -902,68 +1062,6 @@ CreateRouteData ()
 		       layergroupboxes[i].PtrN, 1);
     }
 
-  /* now add connectivity/style information */
-  Nets = CollectSubnets (False);
-  {
-    routebox_t *last_net = NULL;
-    NETLIST_LOOP (&Nets);
-    {
-      routebox_t *last_in_net = NULL;
-      NET_LOOP (netlist);
-      {
-	routebox_t *last_in_subnet = NULL;
-	CONNECTION_LOOP (net);
-	{
-	  routebox_t *rb, *tmp;
-	  int j;
-
-	  for (j = 0; j < NUM_STYLES; j++)
-	    if (net->Style == rd->augStyles[j].style)
-	      break;
-	  rb =
-	    FindRouteBox (rd, connection->X, connection->Y, connection->ptr2);
-	  if (!rb)
-	    continue;
-	  /* XXX: set rb->augStyle! */
-	  rb->augStyle = &rd->augStyles[j];
-	  rb->augStyle->Used = True;
-	  /* traces are listed twice, at start point and at end point */
-	  if (rb != last_in_subnet)
-	    {
-	      /* update circular connectivity lists */
-	      if (last_in_subnet)
-		MergeNets (last_in_subnet, rb, ORIGINAL);
-	      if (last_in_net)
-		MergeNets (last_in_net, rb, NET);
-	      last_in_subnet = last_in_net = rb;
-	      rd->max_bloat =
-		MAX (rd->max_bloat, BLOAT (rb->augStyle->style));
-	    }
-	  LIST_LOOP (rb, same_net, tmp);
-	  {
-	    tmp->augStyle = &rd->augStyles[j];
-	  }
-	  END_LOOP;
-	}
-	END_LOOP;
-      }
-      END_LOOP;
-      if (last_net && last_in_net)
-	MergeNets (last_net, last_in_net, DIFFERENT_NET);
-      last_net = last_in_net;
-    }
-    END_LOOP;
-    rd->first_net = last_net;
-  }
-  FreeNetListListMemory (&Nets);
-
-  /* reset all nets to "original" connectivity (which we just set) */
-  {
-    routebox_t *net;
-    LIST_LOOP (rd->first_net, different_net, net);
-    ResetSubnet (net);
-    END_LOOP;
-  }
   /* find smallest keepaway for mtspace */
   for (i = 0; i < NUM_STYLES + 1; i++)
     {
@@ -1134,14 +1232,14 @@ showbox (BoxType b, Dimension thickness, int group)
   LineTypePtr line;
   LayerTypePtr SLayer = LAYER_PTR (group);
 
-  gdk_gc_set_line_attributes (Output.fgGC, thickness,
-			      GDK_LINE_SOLID, GDK_CAP_ROUND, GDK_JOIN_ROUND);
-  gdk_gc_set_foreground (Output.fgGC, SLayer->Color);
+  gui->set_line_width (Output.fgGC, thickness);
+  gui->set_line_cap (Output.fgGC, Trace_Cap);
+  gui->set_color (Output.fgGC, SLayer->Color);
 
-  XDrawLine (Output.top_window->window, Output.fgGC, b.X1, b.Y1, b.X2, b.Y1);
-  XDrawLine (Output.top_window->window, Output.fgGC, b.X1, b.Y2, b.X2, b.Y2);
-  XDrawLine (Output.top_window->window, Output.fgGC, b.X1, b.Y1, b.X1, b.Y2);
-  XDrawLine (Output.top_window->window, Output.fgGC, b.X2, b.Y1, b.X2, b.Y2);
+  gui->draw_line (Output.fgGC, b.X1, b.Y1, b.X2, b.Y1);
+  gui->draw_line (Output.fgGC, b.X1, b.Y2, b.X2, b.Y2);
+  gui->draw_line (Output.fgGC, b.X1, b.Y1, b.X1, b.Y2);
+  gui->draw_line (Output.fgGC, b.X2, b.Y1, b.X2, b.Y2);
 
 #if XXX
   if (XtAppPending (Context))
@@ -1152,27 +1250,31 @@ showbox (BoxType b, Dimension thickness, int group)
   if (b.Y1 == b.Y2 || b.X1 == b.X2)
     thickness = 5;
   line = CreateNewLineOnLayer (LAYER_PTR (max_layer + COMPONENT_LAYER),
-			       b.X1, b.Y1, b.X2, b.Y1, thickness, 0, 0);
+			       b.X1, b.Y1, b.X2, b.Y1, thickness, 0,
+			       MakeFlags (0));
   AddObjectToCreateUndoList (LINE_TYPE,
 			     LAYER_PTR (max_layer + COMPONENT_LAYER), line,
 			     line);
   if (b.Y1 != b.Y2)
     {
       line = CreateNewLineOnLayer (LAYER_PTR (max_layer + COMPONENT_LAYER),
-				   b.X1, b.Y2, b.X2, b.Y2, thickness, 0, 0);
+				   b.X1, b.Y2, b.X2, b.Y2, thickness, 0,
+				   MakeFlags (0));
       AddObjectToCreateUndoList (LINE_TYPE,
 				 LAYER_PTR (max_layer + COMPONENT_LAYER),
 				 line, line);
     }
   line = CreateNewLineOnLayer (LAYER_PTR (max_layer + COMPONENT_LAYER),
-			       b.X1, b.Y1, b.X1, b.Y2, thickness, 0, 0);
+			       b.X1, b.Y1, b.X1, b.Y2, thickness, 0,
+			       MakeFlags (0));
   AddObjectToCreateUndoList (LINE_TYPE,
 			     LAYER_PTR (max_layer + COMPONENT_LAYER), line,
 			     line);
   if (b.X1 != b.X2)
     {
       line = CreateNewLineOnLayer (LAYER_PTR (max_layer + COMPONENT_LAYER),
-				   b.X2, b.Y1, b.X2, b.Y2, thickness, 0, 0);
+				   b.X2, b.Y1, b.X2, b.Y2, thickness, 0,
+				   MakeFlags (0));
       AddObjectToCreateUndoList (LINE_TYPE,
 				 LAYER_PTR (max_layer + COMPONENT_LAYER),
 				 line, line);
@@ -1186,27 +1288,23 @@ showedge (edge_t * e)
 {
   BoxType *b = (BoxType *) e->rb;
 
-  gdk_gc_set_line_attributes (Output.fgGC, 1,
-			      GDK_LINE_SOLID, GDK_CAP_ROUND, GDK_JOIN_ROUND);
-  gdk_gc_set_foreground (Output.fgGC, &Settings.MaskColor);
+  gui->set_line_cap (Output.fgGC, Trace_Cap);
+  gui->set_line_width (Output.fgGC, 1);
+  gui->set_color (Output.fgGC, Settings.MaskColor);
 
   switch (e->expand_dir)
     {
     case NORTH:
-      XDrawCLine (Output.top_window->window, Output.fgGC, b->X1, b->Y1, b->X2,
-		  b->Y1);
+      gui->draw_line (Output.fgGC, b->X1, b->Y1, b->X2, b->Y1);
       break;
     case SOUTH:
-      XDrawCLine (Output.top_window->window, Output.fgGC, b->X1, b->Y2, b->X2,
-		  b->Y2);
+      gui->draw_line (Output.fgGC, b->X1, b->Y2, b->X2, b->Y2);
       break;
     case WEST:
-      XDrawCLine (Output.top_window->window, Output.fgGC, b->X1, b->Y1, b->X1,
-		  b->Y2);
+      gui->draw_line (Output.fgGC, b->X1, b->Y1, b->X1, b->Y2);
       break;
     case EAST:
-      XDrawCLine (Output.top_window->window, Output.fgGC, b->X2, b->Y1, b->X2,
-		  b->Y2);
+      gui->draw_line (Output.fgGC, b->X2, b->Y1, b->X2, b->Y2);
       break;
     }
 }
@@ -1216,7 +1314,7 @@ showedge (edge_t * e)
 static void
 showroutebox (routebox_t * rb)
 {
-  showbox (rb->box, rb->flags.source ? 5 : 3,
+  showbox (rb->box, rb->flags.source ? 8 : (rb->flags.target ? 4 : 1),
 	   rb->flags.is_via ? max_layer + COMPONENT_LAYER : rb->group);
 }
 #endif
@@ -1706,8 +1804,8 @@ edge_intersect (const BoxType * child, const BoxType * parent)
  * so we can remove them all easily at the end. */
 static routebox_t *
 CreateExpansionArea (const BoxType * area, Cardinal group,
-		     routebox_t * parent, Boolean relax_edge_requirements,
-		     edge_t * src_edge)
+		     routebox_t * parent,
+		     Boolean relax_edge_requirements, edge_t * src_edge)
 {
   CheapPointType center;
   routebox_t *rb = (routebox_t *) malloc (sizeof (*rb));
@@ -1993,16 +2091,11 @@ FindOneInBox (rtree_t * rtree, const BoxType * box, BDimension maxbloat)
   return foib.intersect;
 }
 
-struct therm_info
-{
-  routebox_t *winner;
-  jmp_buf env;
-};
 static int
 ftherm_rect_in_reg (const BoxType * box, void *cl)
 {
   routebox_t *rbox = (routebox_t *) box;
-  struct therm_info *ti = (struct therm_info *) cl;
+  struct rb_info *ti = (struct rb_info *) cl;
 
   if (rbox->type == PIN || rbox->type == VIA || rbox->type == VIA_SHADOW)
     {
@@ -2016,7 +2109,7 @@ ftherm_rect_in_reg (const BoxType * box, void *cl)
 static routebox_t *
 FindThermable (rtree_t * rtree, const BoxType * box)
 {
-  struct therm_info info;
+  struct rb_info info;
 
   info.winner = NULL;
   if (setjmp (info.env) == 0)
@@ -2858,6 +2951,9 @@ RouteOne (routedata_t * rd, routebox_t * from, routebox_t * to, int max_edges)
   if (p->flags.target)
     {
       target_list[i++] = &p->box;
+#if defined(ROUTE_DEBUG) && defined(DEBUG_SHOW_TARGETS)
+      showroutebox (p);
+#endif
     }
   END_LOOP;
   targets = r_create_tree (target_list, i, 0);
@@ -2886,18 +2982,16 @@ RouteOne (routedata_t * rd, routebox_t * from, routebox_t * to, int max_edges)
 	if (p->type != PLANE)
 	  {
 	    e = CreateEdge (p, (p->box.X1 + p->box.X2) / 2,
-			    p->box.Y1, ns_penalty, NULL,
-			    p->type == PLANE ? SOUTH : NORTH, targets);
+			    p->box.Y1, ns_penalty, NULL, NORTH, targets);
 	    e->cost = edge_cost (e);
 	    vector_append (source_vec, e);
 	    e = CreateEdge (p, (p->box.X1 + p->box.X2) / 2,
-			    p->box.Y2, ns_penalty, NULL,
-			    p->type == PLANE ? NORTH : SOUTH, targets);
+			    p->box.Y2, ns_penalty, NULL, SOUTH, targets);
+	    e->cost = edge_cost (e);
 	    vector_append (source_vec, e);
 	    e = CreateEdge (p, p->box.X2,
 			    (p->box.Y1 + p->box.Y2) / 2,
-			    ew_penalty, NULL,
-			    p->type == PLANE ? WEST : EAST, targets);
+			    ew_penalty, NULL, EAST, targets);
 	    e->cost = edge_cost (e);
 	    vector_append (source_vec, e);
 	  }
