@@ -683,6 +683,9 @@ ghid_draw_rect (hidGC gc, int x1, int y1, int x2, int y2)
   x2 = DRAW_X (x2);
   y2 = DRAW_Y (y2);
 
+  if (x1 > x2) { gint xt = x1; x1 = x2; x2 = xt; }
+  if (y1 > y2) { gint yt = y1; y1 = y2; y2 = yt; }
+
   USE_GC (gc);
   gdk_draw_rectangle (gport->drawable, gport->u_gc, FALSE,
 		      x1, y1, x2 - x1 + 1, y2 - y1 + 1);

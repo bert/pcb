@@ -499,10 +499,6 @@ XORDrawMoveOrCopyObject (void)
       {
 	TextTypePtr text = (TextTypePtr) Crosshair.AttachedObject.Ptr2;
 	BoxTypePtr box = &text->BoundingBox;
-	int x0, y0;
-
-	x0 = box->X1;
-	y0 = Settings.ShowSolderSide ? box->Y2 : box->Y1;
 	gui->draw_rect (Crosshair.GC,
 			box->X1 + dx,
 			box->Y1 + dy, box->X2 + dx, box->Y2 + dy);
@@ -665,14 +661,10 @@ DrawAttached (Boolean BlockToo)
     {
       LocationType x1, y1, x2, y2;
 
-      x1 =
-	MIN (Crosshair.AttachedBox.Point1.X, Crosshair.AttachedBox.Point2.X);
-      y1 =
-	MIN (Crosshair.AttachedBox.Point1.Y, Crosshair.AttachedBox.Point2.Y);
-      x2 =
-	MAX (Crosshair.AttachedBox.Point1.X, Crosshair.AttachedBox.Point2.X);
-      y2 =
-	MAX (Crosshair.AttachedBox.Point1.Y, Crosshair.AttachedBox.Point2.Y);
+      x1 = Crosshair.AttachedBox.Point1.X;
+      y1 = Crosshair.AttachedBox.Point1.Y;
+      x2 = Crosshair.AttachedBox.Point2.X;
+      y2 = Crosshair.AttachedBox.Point2.Y;
       gui->draw_rect (Crosshair.GC, x1, y1, x2, y2);
     }
 }
