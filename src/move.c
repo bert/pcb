@@ -967,7 +967,6 @@ MoveLayerAction (int argc, char **argv, int x, int y)
 {
   int old_index, new_index;
   int new_top = -1;
-  int rv;
 
   if (argc != 2)
     {
@@ -1018,6 +1017,8 @@ MoveLayerAction (int argc, char **argv, int x, int y)
 
   if (new_top != -1)
     ChangeGroupVisibility (new_index, 1, 1);
+
+  return 0;
 }
 
 HID_Action move_action_list[] = {
