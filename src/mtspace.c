@@ -476,6 +476,7 @@ query_one (const BoxType * box, void *cl)
   mtspacebox_t *mtsb = (mtspacebox_t *) box;
   BDimension shrink = 0;
   BoxTypePtr shrunk;
+  BoxType sb;
   assert (box_intersect (qc->region, &mtsb->box));
   if (mtsb->fixed_count > 0)
     /* ignore fixed boxes */
@@ -483,31 +484,38 @@ query_one (const BoxType * box, void *cl)
   if (qc->keepaway > mtsb->keepaway)
     shrink = qc->keepaway - mtsb->keepaway;
   shrink += qc->radius;
-  shrunk = (BoxType *) malloc (sizeof (*shrunk));
-  *shrunk = shrink_box (box, shrink);
-  if (shrunk->X2 <= shrunk->X1
-      || shrunk->Y2 <= shrunk->Y1 || !box_intersect (qc->region, shrunk))
-    {
-      free (shrunk);
-      return 0;
-    }
-  else if ((qc->is_odd ? mtsb->odd_count : mtsb->even_count) > 0)
-    {
-      /* this is a hi_conflict */
-      vector_append (qc->hi_conflict_space_vec, shrunk);
-    }
-  else if (mtsb->odd_count > 0 || mtsb->even_count > 0)
-    {
-      /* this is a lo_conflict */
-      vector_append (qc->lo_conflict_space_vec, shrunk);
-    }
+  sb.X1 = box->X1 + shrink;
+  sb.X2 = box->X2 - shrink;
+  if (sb.X2 <= sb.X1)
+    return 0;
+  sb.Y1 = box->Y1 + shrink;
+  sb.Y2 = box->Y2 - shrink;
+  if (sb.Y2 <= sb.Y1)
+    return 0;
+  if (!box_intersect (qc->region, &sb))
+    return 0;
   else
     {
-      /* no conflict! */
-      assert (boxtype (mtsb) == 0);
-      vector_append (qc->free_space_vec, shrunk);
+      shrunk = (BoxType *) malloc (sizeof (*shrunk));
+      *shrunk = sb;
+      if ((qc->is_odd ? mtsb->odd_count : mtsb->even_count) > 0)
+	{
+	  /* this is a hi_conflict */
+	  vector_append (qc->hi_conflict_space_vec, shrunk);
+	}
+      else if (mtsb->odd_count > 0 || mtsb->even_count > 0)
+	{
+	  /* this is a lo_conflict */
+	  vector_append (qc->lo_conflict_space_vec, shrunk);
+	}
+      else
+	{
+	  /* no conflict! */
+	  assert (boxtype (mtsb) == 0);
+	  vector_append (qc->free_space_vec, shrunk);
+	}
+      return 1;
     }
-  return 1;
 }
 
 /* returns all empty spaces in 'region' which may hold a feature with the

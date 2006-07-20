@@ -76,10 +76,8 @@ RCSID ("$Id$");
 /* it seems that sorting the leaf order slows us down
  * but sometimes gives better routes
  */
-#undef SORT
+#define SORT
 #define SORT_NONLEAF
-#define SORT_BY_AREA
-#define SORT_HIGH
 
 #define DELETE_BY_POINTER
 typedef long long bigun;
@@ -330,15 +328,34 @@ __r_dump_tree (struct rtree_node *node, int depth)
  * according to the largest side.
  */
 #ifdef SORT
+static int
+cmp_box (const BoxType * a, const BoxType * b)
+{
+  /* compare two box coordinates so that the __r_search
+   * will fail at the earliest comparison possible.
+   * It needs to see the biggest X1 first, then the
+   * smallest X2, the biggest Y1 and smallest Y2
+   */
+  if (a->X1 < b->X1)
+    return 0;
+  if (a->X1 > b->X1)
+    return 1;
+  if (a->X2 > b->X2)
+    return 0;
+  if (a->X2 < b->X2)
+    return 1;
+  if (a->Y1 < b->Y1)
+    return 0;
+  if (a->Y1 > b->Y1)
+    return 1;
+  if (a->Y2 > b->Y2)
+    return 0;
+  return 1;
+}
+
 static void
 sort_node (struct rtree_node *node)
 {
-#ifdef SORT_BY_LENGTH
-  int size, ref;
-#else
-  long long size, ref;
-#endif
-
   if (node->flags.is_leaf)
     {
       register Rentry *r, *i, temp;
@@ -346,29 +363,10 @@ sort_node (struct rtree_node *node)
       for (r = &node->u.rects[1]; r->bptr; r++)
 	{
 	  temp = *r;
-#ifdef SORT_BY_LENGTH
-	  ref =
-	    MAX (r->bounds.X2 - r->bounds.X1, r->bounds.Y2 - r->bounds.Y1);
-#else
-	  ref = (r->bounds.X1 - r->bounds.X1);
-	  ref *= (r->bounds.Y2 - r->bounds.Y1);
-#endif
 	  i = r - 1;
 	  while (i >= &node->u.rects[0])
 	    {
-#ifdef SORT_BY_LENGTH
-	      size =
-		MAX (i->bounds.X2 - i->bounds.X1,
-		     i->bounds.Y2 - i->bounds.Y1);
-#else
-	      size = (i->bounds.X1 - i->bounds.X1);
-	      size *= (i->bounds.Y2 - i->bounds.Y1);
-#endif
-#ifdef SORT_LOW
-	      if (size <= ref)
-#else
-	      if (size >= ref)
-#endif
+	      if (cmp_box (&i->bounds, &r->bounds))
 		break;
 	      *(i + 1) = *i;
 	      i--;
@@ -384,29 +382,10 @@ sort_node (struct rtree_node *node)
       for (r = &node->u.kids[1]; *r; r++)
 	{
 	  temp = *r;
-#ifdef SORT_BY_LENGTH
-	  ref =
-	    MAX ((*r)->box.X2 - (*r)->box.X1, (*r)->box.Y2 - (*r)->box.Y1);
-#else
-	  ref = ((*r)->box.X2 - (*r)->box.X1);
-	  ref *= ((*r)->box.Y2 - (*r)->box.Y1);
-#endif
 	  i = r - 1;
 	  while (i >= &node->u.kids[0])
 	    {
-#ifdef SORT_BY_LENGTH
-	      size =
-		MAX ((*i)->box.X2 - (*i)->box.X1,
-		     (*i)->box.Y2 - (*i)->box.Y1);
-#else
-	      size = ((*i)->box.X2 - (*i)->box.X1);
-	      size *= ((*i)->box.Y2 - (*i)->box.Y1);
-#endif
-#ifdef SORT_LOW
-	      if (size <= ref)
-#else
-	      if (size >= ref)
-#endif
+	      if (cmp_box (&(*i)->box, &(*r)->box))
 		break;
 	      *(i + 1) = *i;
 	      i--;
@@ -526,7 +505,6 @@ r_destroy_tree (rtree_t ** rtree)
 /* most of the auto-routing time is spent in this routine
  * so some careful thought has been given to minimizing it
  *
- * the query rectangle is a global variable 
  */
 int
 __r_search (struct rtree_node *node, const BoxType * query,
@@ -552,28 +530,58 @@ __r_search (struct rtree_node *node, const BoxType * query,
   /* maybe something is here, check them */
   if (node->flags.is_leaf)
     {
-      for (i = 0; i < M_SIZE; i++)
+      if (found_it)		/* test this once outside of loop */
 	{
-	  if (!node->u.rects[i].bptr)
-	    return seen;
-	  if ((node->u.rects[i].bounds.X1 < query->X2) &&
-	      (node->u.rects[i].bounds.X2 > query->X1) &&
-	      (node->u.rects[i].bounds.Y1 < query->Y2) &&
-	      (node->u.rects[i].bounds.Y2 > query->Y1) &&
-	      (!found_it || found_it (node->u.rects[i].bptr, closure)))
-	    seen++;
+	  for (i = 0; i < M_SIZE; i++)
+	    {
+	      if (!node->u.rects[i].bptr)
+		return seen;
+	      if ((node->u.rects[i].bounds.X1 < query->X2) &&
+		  (node->u.rects[i].bounds.X2 > query->X1) &&
+		  (node->u.rects[i].bounds.Y1 < query->Y2) &&
+		  (node->u.rects[i].bounds.Y2 > query->Y1) &&
+		  found_it (node->u.rects[i].bptr, closure))
+		seen++;
+	    }
+	}
+      else
+	{
+	  for (i = 0; i < M_SIZE; i++)
+	    {
+	      if (!node->u.rects[i].bptr)
+		return seen;
+	      if ((node->u.rects[i].bounds.X1 < query->X2) &&
+		  (node->u.rects[i].bounds.X2 > query->X1) &&
+		  (node->u.rects[i].bounds.Y1 < query->Y2) &&
+		  (node->u.rects[i].bounds.Y2 > query->Y1))
+		seen++;
+	    }
 	}
       return seen;
     }
 
   /* not a leaf, recurse on lower nodes */
-  for (i = 0; i < M_SIZE; i++)
+  if (check_it)
     {
-      if (!node->u.kids[i])
-	return seen;
-      if (!check_it || check_it (&(node->box), closure))
-	seen +=
-	  __r_search (node->u.kids[i], query, check_it, found_it, closure);
+      for (i = 0; i < M_SIZE; i++)
+	{
+	  if (!node->u.kids[i])
+	    return seen;
+	  if (check_it (&(node->box), closure))
+	    seen +=
+	      __r_search (node->u.kids[i], query, check_it, found_it,
+			  closure);
+	}
+    }
+  else
+    {
+      for (i = 0; i < M_SIZE; i++)
+	{
+	  if (!node->u.kids[i])
+	    return seen;
+	  seen +=
+	    __r_search (node->u.kids[i], query, check_it, found_it, closure);
+	}
     }
   return seen;
 }
@@ -828,18 +836,18 @@ split_node (struct rtree_node *node)
 #endif
   if (i < M_SIZE)
     {
-      sort_node (node->parent);
 #ifdef SLOW_ASSERTS
       assert (__r_node_is_good (node->parent));
 #endif
+      sort_node (node->parent);
       return;
     }
   split_node (node->parent);
 }
 
 bigun
-__r_insert_node (struct rtree_node * node, const BoxType * query, int manage,
-		 Boolean force)
+__r_insert_node (struct rtree_node * node, const BoxType * query,
+		 int manage, Boolean force)
 {
   int i;
 
@@ -925,7 +933,7 @@ __r_insert_node (struct rtree_node * node, const BoxType * query, int manage,
 	}
       /* this node encloses it, but it's not a leaf, so decend the tree */
       assert (node->u.kids[0]);
-      best_score = __r_insert_node (node->u.kids[0], query, manage, force);
+      best_score = __r_insert_node (node->u.kids[0], query, manage, False);
       if (best_score == 0)
 	{
 	  sort_node (node);
@@ -936,7 +944,7 @@ __r_insert_node (struct rtree_node * node, const BoxType * query, int manage,
 	{
 	  if (!node->u.kids[i])
 	    break;
-	  score = __r_insert_node (node->u.kids[i], query, manage, force);
+	  score = __r_insert_node (node->u.kids[i], query, manage, False);
 	  if (score == 0)
 	    {
 	      sort_node (node);

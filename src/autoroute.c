@@ -300,7 +300,8 @@ static struct
     LastConflictPenalty,	/* length mult. for routing over last pass' trace */
     ConflictPenalty,		/* length multiplier for routing over another trace */
     JogPenalty,			/* additional "length" cost for changing direction */
-    DirectionPenalty;		/* (rational) length multiplier for routing in */
+    DirectionPenalty,		/* (rational) length multiplier for routing in */
+    MinPenalty;			/* smallest of Surface, Direction Penalty */
   /* are vias allowed? */
   Boolean use_vias;
   /* is this an odd or even pass? */
@@ -503,18 +504,19 @@ static routebox_t *
 AddPin (PointerListType layergroupboxes[], PinTypePtr pin, Boolean is_via)
 {
   routebox_t **rbpp, *lastrb = NULL;
-  int i;
+  int i, ht;
   /* a pin cuts through every layer group */
   for (i = 0; i < max_layer; i++)
     {
       rbpp = (routebox_t **) GetPointerMemory (&layergroupboxes[i]);
       *rbpp = malloc (sizeof (**rbpp));
       (*rbpp)->group = i;
+      ht = HALF_THICK (MAX (pin->Thickness, pin->DrillingHole));
       init_const_box (*rbpp,
-		      /*X1 */ pin->X - HALF_THICK (pin->Thickness),
-		      /*Y1 */ pin->Y - HALF_THICK (pin->Thickness),
-		      /*X2 */ pin->X + HALF_THICK (pin->Thickness),
-		      /*Y2 */ pin->Y + HALF_THICK (pin->Thickness));
+		      /*X1 */ pin->X - ht,
+		      /*Y1 */ pin->Y - ht,
+		      /*X2 */ pin->X + ht,
+		      /*Y2 */ pin->Y + ht);
       /* set aux. properties */
       if (is_via)
 	{
@@ -868,7 +870,8 @@ CreateRouteData ()
 		  int dx = (line->Point2.X - line->Point1.X);
 		  int dy = (line->Point2.Y - line->Point1.Y);
 		  int segs =
-		    MAX (ABS (dx), ABS (dy)) / (4 * BLOAT (rd->augStyles[j].style) + 1);
+		    MAX (ABS (dx),
+			 ABS (dy)) / (4 * BLOAT (rd->augStyles[j].style) + 1);
 		  int qq;
 		  segs = MAX (1, MIN (segs, 32));	/* don't go too crazy */
 		  dx /= segs;
@@ -906,7 +909,9 @@ CreateRouteData ()
 	    switch (connection->type)
 	      {
 	      case PAD_TYPE:
-		rb = AddPad (layergroupboxes, connection->ptr1, connection->ptr2);
+		rb =
+		  AddPad (layergroupboxes, connection->ptr1,
+			  connection->ptr2);
 		break;
 	      case PIN_TYPE:
 		rb = AddPin (layergroupboxes, connection->ptr2, False);
@@ -921,7 +926,7 @@ CreateRouteData ()
 			      connection->ptr2);
 		break;
 	      }
-	  assert(rb);
+	  assert (rb);
 	  /* set rb->augStyle! */
 	  rb->augStyle = &rd->augStyles[j];
 	  rb->augStyle->Used = True;
@@ -1146,17 +1151,17 @@ ResetSubnet (routebox_t * net)
   END_LOOP;
 }
 
-static cost_t
+static inline cost_t
 cost_to_point_on_layer (const CheapPointType * p1,
 			const CheapPointType * p2, Cardinal point_layer)
 {
-  cost_t x_dist = ABS (p1->X - p2->X), y_dist = ABS (p1->Y - p2->Y), r = 0;
+  cost_t x_dist = p1->X - p2->X, y_dist = p1->Y - p2->Y, r;
   if (bad_x[point_layer])
     x_dist *= AutoRouteParameters.DirectionPenalty;
   else if (bad_y[point_layer])
     y_dist *= AutoRouteParameters.DirectionPenalty;
   /* cost is proportional to orthogonal distance. */
-  r = x_dist + y_dist;
+  r = ABS (x_dist) + ABS (y_dist);
   /* penalize the surface layers in order to minimize SMD pad congestion */
   if (point_layer == front || point_layer == back)
     r *= AutoRouteParameters.SurfacePenalty;
@@ -1182,8 +1187,17 @@ cost_to_layerless_box (const CheapPointType * p, Cardinal point_layer,
 		       const BoxType * b)
 {
   CheapPointType p2 = closest_point_in_box (p, b);
-  /* front layer has no prefered direction so it's cheapest */
-  return ABS (p2.X - p->X) + ABS (p2.Y - p->Y);
+  register cost_t c1, c2;
+
+  c1 = p2.X - p->X;
+  c2 = p2.Y - p->Y;
+
+  c1 = ABS (c1);
+  c2 = ABS (c2);
+  if (c1 < c2)
+    return c1 * AutoRouteParameters.MinPenalty + c2;
+  else
+    return c2 * AutoRouteParameters.MinPenalty + c1;
 }
 
 /* return the minimum *cost* from a point to a route box, including possible
@@ -1192,13 +1206,14 @@ static cost_t
 cost_to_routebox (const CheapPointType * p, Cardinal point_layer,
 		  const routebox_t * rb)
 {
-  cost_t trial;
+  register cost_t trial, c1, c2;
   CheapPointType p2 = closest_point_in_box (p, &rb->box);
   if (point_layer == rb->group)
-    return cost_to_point_on_layer (p, &p2, rb->group);
+    return cost_to_point_on_layer (p, &p2, point_layer);
   trial = AutoRouteParameters.ViaCost;
-  trial += MIN (cost_to_point_on_layer (p, &p2, point_layer),
-		cost_to_point_on_layer (p, &p2, rb->group));
+  c1 = cost_to_point_on_layer (p, &p2, point_layer);
+  c2 = cost_to_point_on_layer (p, &p2, rb->group);
+  trial += MIN (c1, c2);
   return trial;
 }
 
@@ -1403,8 +1418,8 @@ __found_new_guess (const BoxType * box, void *cl)
   cost_t cost_to_guess =
     cost_to_routebox (mtc->CostPoint, mtc->CostPointLayer, guess);
   assert (cost_to_guess >= 0);
-  /* if we don't have a guess yet, or this is cheaper than previous guess... */
-  if (mtc->nearest == NULL || cost_to_guess < mtc->nearest_cost)
+  /* if this is cheaper than previous guess... */
+  if (cost_to_guess < mtc->nearest_cost)
     {
       mtc->nearest = guess;
       mtc->nearest_cost = cost_to_guess;	/* this is our new guess! */
@@ -1429,6 +1444,8 @@ mincost_target_to_point (const CheapPointType * CostPoint,
   if (mtc.nearest)
     mtc.nearest_cost =
       cost_to_routebox (mtc.CostPoint, mtc.CostPointLayer, mtc.nearest);
+  else
+    mtc.nearest_cost = 3e38;
   r_search (targets, NULL, __region_within_guess, __found_new_guess, &mtc);
   assert (mtc.nearest != NULL && mtc.nearest_cost >= 0);
   assert (mtc.nearest->flags.target);	/* this is a target, right? */
@@ -3476,6 +3493,7 @@ InitAutoRouteParameters (int pass,
 			 AugmentedRouteStyleType * augStyle,
 			 Boolean with_conflicts, Boolean is_smoothing)
 {
+  int i, lays = 0;
   /* routing style */
   AutoRouteParameters.augStyle = augStyle;
   /* costs */
@@ -3487,8 +3505,13 @@ InitAutoRouteParameters (int pass,
   AutoRouteParameters.JogPenalty = 2000;
   AutoRouteParameters.DirectionPenalty = 2;
   AutoRouteParameters.SurfacePenalty = 1.5;
+  AutoRouteParameters.MinPenalty = MIN (AutoRouteParameters.DirectionPenalty,
+					AutoRouteParameters.SurfacePenalty);
   /* other */
-  AutoRouteParameters.use_vias = True;
+  for (i = 0; i < max_layer; i++)
+    if (is_layer_group_active (i))
+      lays++;
+  AutoRouteParameters.use_vias = ((lays > 1) ? True : False);
   AutoRouteParameters.is_odd = (pass & 1);
   AutoRouteParameters.with_conflicts = with_conflicts;
   AutoRouteParameters.is_smoothing = is_smoothing;
