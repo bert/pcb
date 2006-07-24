@@ -50,6 +50,7 @@ extern void lesstif_insert_style_buttons (Widget menu);
 extern void lesstif_styles_update_values ();
 extern void lesstif_update_status_line ();
 extern char *lesstif_prompt_for (char *, char *);
+extern void lesstif_log (const char *fmt, ...);
 
 #define need_idle_proc lesstif_need_idle_proc
 #define show_crosshair lesstif_show_crosshair

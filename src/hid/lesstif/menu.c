@@ -880,17 +880,30 @@ callback (Widget w, Resource * node, XmPushButtonCallbackStruct * pbcs)
 #define M_Shift 1
 #define M_Ctrl 2
 #define M_Alt 4
+#define M_Multi 8
 
-typedef struct
+typedef struct acc_table_t
 {
   char mods;
   char key_char;
-  KeySym key;
-  Resource *node;
+  union {
+    /* If M_Multi is set in mods, these are used to chain to the next
+       attribute table for multi-key accelerators.  */
+    struct {
+      int n_chain;
+      struct acc_table_t *chain;
+    } c;
+    /* If M_Multi isn't set, these are used to map a single key to an
+       event.  */
+    struct {
+      KeySym key;
+      Resource *node;
+    } a;
+  } u;
 } acc_table_t;
 
 static acc_table_t *acc_table;
-static int acc_max = 0, acc_num = 0;
+static int acc_num = 0;
 
 static int
 acc_sort (const void *va, const void *vb)
@@ -899,8 +912,9 @@ acc_sort (const void *va, const void *vb)
   acc_table_t *b = (acc_table_t *) vb;
   if (a->key_char != b->key_char)
     return a->key_char - b->key_char;
-  if (a->key != b->key)
-    return a->key - b->key;
+  if (!(a->mods & M_Multi))
+    if (a->u.a.key != b->u.a.key)
+      return a->u.a.key - b->u.a.key;
   return a->mods - b->mods;
 }
 
@@ -925,12 +939,12 @@ DumpKeys2 ()
       ch[0] = toupper (acc_table[i].key_char);
       printf ("%16s%s\t", mod,
 	      acc_table[i].key_char ? ch : XKeysymToString (acc_table[i].
-							    key));
+							    u.a.key));
 
-      for (vi = 1; vi < acc_table[i].node->c; vi++)
-	if (resource_type (acc_table[i].node->v[vi]) == 10)
+      for (vi = 1; vi < acc_table[i].u.a.node->c; vi++)
+	if (resource_type (acc_table[i].u.a.node->v[vi]) == 10)
 	  {
-	    printf ("%s%s", tabs, acc_table[i].node->v[vi].value);
+	    printf ("%s%s", tabs, acc_table[i].u.a.node->v[vi].value);
 	    tabs = "\n\t\t\t  ";
 	  }
 
@@ -939,71 +953,155 @@ DumpKeys2 ()
   exit (0);
 }
 
+static acc_table_t *
+find_or_create_acc (char mods, char key, KeySym sym,
+		    acc_table_t **table, int *n_ents)
+{
+  int i, max;
+  acc_table_t *a;
+
+  if (*table)
+    for (i=*n_ents; i>=0; i--)
+      {
+	a = & (*table)[i];
+	if (a->mods == mods
+	    && a->key_char == key
+	    && (mods & M_Multi || a->u.a.key == sym))
+	  return a;
+      }
+
+  (*n_ents) ++;
+  max = (*n_ents + 16) & ~15;
+
+  if (*table)
+    *table = (acc_table_t *) realloc (*table, max * sizeof (acc_table_t));
+  else
+    *table = (acc_table_t *) malloc (max * sizeof (acc_table_t));
+
+  a = & ((*table)[*n_ents-1]);
+  memset (a, 0, sizeof(acc_table_t));
+
+  a->mods = mods;
+  a->key_char = key;
+  if (!(mods & M_Multi))
+    a->u.a.key = sym;
+
+  return a;
+}
+
 static void
 note_accelerator (char *acc, Resource * node)
 {
+  char *orig_acc = acc;
+  int mods = 0;
   acc_table_t *a;
-  if (acc_num == acc_max)
-    {
-      acc_max += 20;
-      if (acc_table)
-	acc_table =
-	  (acc_table_t *) realloc (acc_table, acc_max * sizeof (acc_table_t));
-      else
-	acc_table = (acc_table_t *) malloc (acc_max * sizeof (acc_table_t));
-    }
-  a = acc_table + acc_num;
-  acc_num++;
-  /*printf("acc `%s' res `%s'\n", acc, node->v[0].value); */
-
-  memset (a, 0, sizeof (*a));
+  char key_char = 0;
+  KeySym key = 0;
+  int multi_key = 0;
 
   while (isalpha ((int) acc[0]))
     {
       if (strncmp (acc, "Shift", 5) == 0)
 	{
-	  a->mods |= M_Shift;
+	  mods |= M_Shift;
 	  acc += 5;
 	}
       else if (strncmp (acc, "Ctrl", 4) == 0)
 	{
-	  a->mods |= M_Ctrl;
+	  mods |= M_Ctrl;
 	  acc += 4;
 	}
       else if (strncmp (acc, "Alt", 3) == 0)
 	{
-	  a->mods |= M_Alt;
+	  mods |= M_Alt;
 	  acc += 3;
 	}
       else
 	{
 	  printf ("Must be Shift/Ctrl/Alt: %s\n", acc);
-	  acc_num--;
 	  return;
 	}
       while (*acc == ' ')
 	acc++;
     }
-  if (strncmp (acc, "<Key>", 5))
+  if (strncmp (acc, "<Keys>", 6) == 0)
     {
-      printf ("not <Key>\n");
-      acc_num--;
+      multi_key = 1;
+      acc ++;
+    }
+  else if (strncmp (acc, "<Key>", 5))
+    {
+      fprintf (stderr, "accelerator \"%s\" not <Key> or <Keys>\n", orig_acc);
       return;
     }
+
   acc += 5;
   if (acc[0] && acc[1] == 0)
-    a->key_char = acc[0];
-  a->key = XStringToKeysym (acc);
-  if (a->key == NoSymbol && !a->key_char)
     {
-      printf ("no symbol for %s\n", acc);
-      acc_num--;
-      return;
+      key_char = acc[0];
+      a = find_or_create_acc (mods, key_char, 0, &acc_table, &acc_num);
     }
-  a->node = node;
-  //printf("acc[%d] mods %x char %c key %d node `%s'\n",
-  //acc_num-1, a->mods, a->key_char, (int)(a->key), a->node->v[0].value);
+  else if (multi_key)
+    {
+      acc_table_t *ap = &acc_table;
+      int *np = &acc_num;
+
+      mods |= M_Multi;
+      while (acc[0] && acc[1])
+	{
+	  a = find_or_create_acc (mods, acc[0], 0, ap, np);
+	  ap = & (a->u.c.chain);
+	  np = & (a->u.c.n_chain);
+	  acc ++;
+	}
+      a = find_or_create_acc (mods & ~M_Multi, acc[0], 0, ap, np);
+    }
+  else
+    {
+      key = XStringToKeysym (acc);
+      if (key == NoSymbol && !key_char)
+	{
+	  printf ("no symbol for %s\n", acc);
+	  return;
+	}
+      a = find_or_create_acc (mods, 0, key, &acc_table, &acc_num);
+    }
+
+  a->u.a.node = node;
 }
+
+#if 0
+static void
+dump_multi (int ix, int ind, acc_table_t *a, int n)
+{
+  int i = ix;
+  while (n--)
+    {
+      if (a->mods & M_Multi)
+	{
+	  printf("%*cacc[%d] mods %x char %c multi %p/%d\n",
+		 ind, ' ',
+		 i, a->mods, a->key_char,
+		 a->u.c.chain, a->u.c.n_chain);
+	  dump_multi(0, ind+4, a->u.c.chain, a->u.c.n_chain);
+	}
+      else
+	{
+	  printf("%*cacc[%d] mods %x char %c key %d node `%s'\n",
+		 ind, ' ',
+		 i, a->mods, a->key_char,
+		 a->u.a.key, a->u.a.node->v[0].value);
+	}
+      a++;
+      i++;
+    }
+}
+#else
+#define dump_multi(x,a,b,c)
+#endif
+
+static acc_table_t *cur_table = 0;
+static int cur_ntable = 0;
 
 int
 lesstif_key_event (XKeyEvent * e)
@@ -1032,31 +1130,72 @@ lesstif_key_event (XKeyEvent * e)
   else
     slen2 = slen;
 
-  //printf("\nmods %x key %d str `%s'\n", mods, (int)sym, buf);
-
-  for (i = 0; i < acc_num; i++)
+  /* Ignore these.  */
+  switch (sym)
     {
-      //printf("acc[%d] mods %x char %c key %d node `%s'\n",
-      //i, acc_table[i].mods, acc_table[i].key_char, acc_table[i].key, acc_table[i].node->v[0].value);
-      if (acc_table[i].mods == (mods & ~M_Shift))
+    case XK_Shift_L:
+    case XK_Shift_R:
+    case XK_Control_L:
+    case XK_Control_R:
+    case XK_Caps_Lock:
+    case XK_Shift_Lock:
+    case XK_Meta_L:
+    case XK_Meta_R:
+    case XK_Alt_L:
+    case XK_Alt_R:
+    case XK_Super_L:
+    case XK_Super_R:
+    case XK_Hyper_L:
+    case XK_Hyper_R:
+      return 1;
+    }
+
+  if (cur_table == 0)
+    {
+      cur_table  = acc_table;
+      cur_ntable = acc_num;
+    }
+
+  //printf("\nmods %x key %d str `%s' in %p/%d\n", mods, (int)sym, buf, cur_table, cur_ntable);
+
+#define KM(m) ((m) & ~M_Multi)
+  for (i = 0; i < cur_ntable; i++)
+    {
+      dump_multi (i, 0, cur_table+i, 1);
+      if (KM(cur_table[i].mods) == (mods & ~M_Shift))
 	{
-	  //printf("mods match 1\n");
-	  if (slen == 1 && buf[0] == acc_table[i].key_char)
+	  if (slen == 1 && buf[0] == cur_table[i].key_char)
 	    break;
-	  if (sym == acc_table[i].key)
+	  if (sym == cur_table[i].u.a.key)
 	    break;
 	}
-      if (mods & M_Shift && acc_table[i].mods == mods)
+      if (mods & M_Shift && KM(cur_table[i].mods) == mods)
 	{
-	  //printf("mods match 2\n");
-	  if (slen2 == 1 && buf2[0] == acc_table[i].key_char)
+	  if (slen2 == 1 && buf2[0] == cur_table[i].key_char)
 	    break;
-	  if (sym2 == acc_table[i].key)
+	  if (sym2 == acc_table[i].u.a.key)
 	    break;
 	}
     }
-  if (i == acc_num)
-    return 0;
+  //printf("i == %d\n", i);
+
+  if (i == cur_ntable)
+    {
+      if (cur_table == acc_table)
+	lesstif_log ("Key \"%s\" not tied to an action\n", buf);
+      else
+	lesstif_log ("Key \"%s\" not tied to a multi-key action\n", buf);
+      cur_table = 0;
+      return 0;
+    }
+  if (cur_table[i].mods & M_Multi)
+    {
+      cur_ntable = cur_table[i].u.c.n_chain;
+      cur_table = cur_table[i].u.c.chain;
+      dump_multi (0, 0, cur_table, cur_ntable);
+      return 1;
+    }
+
   if (e->window == XtWindow (work_area))
     {
       have_xy = 1;
@@ -1066,11 +1205,12 @@ lesstif_key_event (XKeyEvent * e)
   else
     have_xy = 0;
 
-  for (vi = 1; vi < acc_table[i].node->c; vi++)
-    if (resource_type (acc_table[i].node->v[vi]) == 10)
+  for (vi = 1; vi < cur_table[i].u.a.node->c; vi++)
+    if (resource_type (cur_table[i].u.a.node->v[vi]) == 10)
       if (hid_parse_actions
-	  (acc_table[i].node->v[vi].value, lesstif_call_action))
+	  (cur_table[i].u.a.node->v[vi].value, lesstif_call_action))
 	break;
+  cur_table = 0;
   return 1;
 }
 
