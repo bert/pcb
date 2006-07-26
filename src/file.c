@@ -1165,6 +1165,7 @@ ReadNetlist (char *filename)
 	    {
 	      menu = GetLibraryMenuMemory (&PCB->NetlistLib);
 	      menu->Name = MyStrdup (temp, "ReadNetlist()");
+	      menu->flag = 1;
 	      kind++;
 	    }
 	  else
