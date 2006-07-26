@@ -2,6 +2,24 @@
 # Note - pcb-menu.res is used to build pcb-menu.h
 # Note - parameters are sensitive to extra spaces around the commas
 
+Mouse =
+{
+  Left = {
+    Mode(Notify)
+    up = Mode(Release)
+  }
+  Right = {
+  }
+  Middle = {
+    Pan(1)
+    up = Pan(0)
+    ctrl = Pan(thumb,1)
+    ctrl-up = Pan(thumb,0)
+  }
+  Up = Zoom(0.8)
+  Down = Zoom(1.25)
+}
+
 MainMenu =
 {
   {File

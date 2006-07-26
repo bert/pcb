@@ -877,11 +877,6 @@ callback (Widget w, Resource * node, XmPushButtonCallbackStruct * pbcs)
 	return;
 }
 
-#define M_Shift 1
-#define M_Ctrl 2
-#define M_Alt 4
-#define M_Multi 8
-
 typedef struct acc_table_t
 {
   char mods;
@@ -1416,9 +1411,10 @@ lesstif_menu (Widget parent, char *name, Arg * margs, int mn)
 {
   Widget mb = XmCreateMenuBar (parent, name, margs, mn);
   char *filename;
-  Resource *r;
+  Resource *r = 0, *bir;
   char *home_pcbmenu;
   int screen;
+  Resource *mr;
 
   display = XtDisplay (mb);
   screen = DefaultScreen (display);
@@ -1435,18 +1431,31 @@ lesstif_menu (Widget parent, char *name, Arg * margs, int mn)
   else
     filename = 0;
 
+  bir = resource_parse (0, pcb_menu_default);
+  if (!bir)
+    {
+      fprintf (stderr, "Error: internal menu resource didn't parse\n");
+      exit(1);
+    }
+
   if (filename)
     r = resource_parse (filename, 0);
-  else
-    r = resource_parse (0, pcb_menu_default);
 
-  if (r)
-    {
-      Resource *mr = resource_subres (r, "MainMenu");
+  if (!r)
+    r = bir;
 
-      if (mr)
-	add_resource_to_menu (mb, mr, (XtCallbackProc) callback);
-    }
+  mr = resource_subres (r, "MainMenu");
+  if (!mr)
+    mr = resource_subres (bir, "MainMenu");
+  if (mr)
+    add_resource_to_menu (mb, mr, (XtCallbackProc) callback);
+
+  mr = resource_subres (r, "Mouse");
+  if (!mr)
+    mr = resource_subres (bir, "Mouse");
+  if (mr)
+    lesstif_note_mouse_resource (mr);
+
 
   if (do_dump_keys)
     DumpKeys2 ();

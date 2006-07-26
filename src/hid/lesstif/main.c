@@ -19,6 +19,7 @@
 #include "crosshair.h"
 #include "mymem.h"
 #include "misc.h"
+#include "resource.h"
 
 #include "hid.h"
 #include "../hidint.h"
@@ -182,6 +183,7 @@ static void zoom_by (double factor, int x, int y);
 static void pinout_callback (Widget, PinoutData *,
 			     XmDrawingAreaCallbackStruct *);
 static void pinout_unmap (Widget, PinoutData *, void *);
+static void Pan (int mode, int x, int y);
 
 /* Px converts view->pcb, Vx converts pcb->view */
 
@@ -437,6 +439,25 @@ ZoomAction (int argc, char **argv, int x, int y)
   return 0;
 }
 
+static int pan_thumb_mode;
+
+static int
+PanAction (int argc, char **argv, int x, int y)
+{
+  int mode;
+
+  if (argc == 2)
+    {
+      pan_thumb_mode = (strcasecmp (argv[0], "thumb") == 0) ? 1 : 0;
+      mode = atoi (argv[1]);
+    }
+  else
+    {
+      pan_thumb_mode = 0;
+      mode = atoi (argv[0]);
+    }
+  Pan (mode, Vx(x), Vy(y));
+}
 
 static const char thindraw_syntax[] =
 "ThinDraw()\n"
@@ -795,6 +816,8 @@ HID_Action lesstif_main_action_list[] = {
    setunits_help, setunits_syntax},
   {"Zoom", 0, ZoomAction,
    zoom_help, zoom_syntax},
+  {"Pan", 0, PanAction,
+   zoom_help, zoom_syntax},
   {"Thindraw", 0, ThinDraw,
    thindraw_help, thindraw_syntax},
   {"ThindrawPoly", 0, ThinDrawPoly,
@@ -1090,14 +1113,17 @@ zoom_by (double factor, int x, int y)
 static int panning = 0;
 static int shift_pressed;
 static int ctrl_pressed;
+static int alt_pressed;
 
+/* X and Y are in screen coordinates.  */
 static void
 Pan (int mode, int x, int y)
 {
   static int ox, oy;
   static int opx, opy;
+
   panning = mode;
-  if (ctrl_pressed)
+  if (pan_thumb_mode)
     {
       opx = x * PCB->MaxWidth / view_width;
       opy = y * PCB->MaxHeight / view_height;
@@ -1156,11 +1182,36 @@ mod_changed (XKeyEvent * e, int set)
   in_move_event = 0;
 }
 
+#define M_Release 8
+#define MAX_MOUSE_BUTTON 5
+Resource *mouse_actions[MAX_MOUSE_BUTTON+2][16];
+
+static void
+do_mouse_action (int button, int rel_mask)
+{
+  int i;
+  int mods = (shift_pressed ? M_Shift : 0)
+    + (ctrl_pressed ? M_Ctrl : 0)
+    + (alt_pressed ? M_Alt : 0)
+    + rel_mask;
+  Resource *node = mouse_actions[button][mods];
+
+  if (!node)
+    return;
+
+  for (i = 0; i < node->c; i++)
+    if (node->v[i].value)
+      if (hid_parse_actions (node->v[i].value, lesstif_call_action))
+	return;
+}
+
 static void
 work_area_input (Widget w, XtPointer v, XEvent * e, Boolean * ctd)
 {
+  Resource *r;
   static int pressed_button = 0;
   static int ignore_release = 0;
+
   show_crosshair (0);
   switch (e->type)
     {
@@ -1169,9 +1220,11 @@ work_area_input (Widget w, XtPointer v, XEvent * e, Boolean * ctd)
       if (lesstif_key_event (&(e->xkey)))
 	return;
       break;
+
     case KeyRelease:
       mod_changed (&(e->xkey), 0);
       break;
+
     case ButtonPress:
       if (pressed_button)
 	return;
@@ -1187,48 +1240,22 @@ work_area_input (Widget w, XtPointer v, XEvent * e, Boolean * ctd)
       pressed_button = e->xbutton.button;
       shift_pressed = (e->xbutton.state & ShiftMask);
       ctrl_pressed = (e->xbutton.state & ControlMask);
-      switch (e->xbutton.button)
-	{
-	case 1:
-	  hid_actionl ("Mode", "Notify", NULL);
-	  break;
-	case 2:
-	  break;
-	case 3:
-	  Pan (1, e->xbutton.x, e->xbutton.y);
-	  break;
-	case 4:
-	  zoom_by (0.8, e->xbutton.x, e->xbutton.y);
-	  break;
-	case 5:
-	  zoom_by (1.25, e->xbutton.x, e->xbutton.y);
-	  break;
-	}
+      alt_pressed = (e->xbutton.state & Mod1Mask);
+
+      do_mouse_action(e->xbutton.button, 0);
       RestoreCrosshair (True);
       break;
+
     case ButtonRelease:
       if (e->xbutton.button != pressed_button)
 	return;
+      lesstif_button_event (w, e);
       HideCrosshair (True);
       pressed_button = 0;
-      /*printf("release %d\n", e->xbutton.button); */
-      switch (e->xbutton.button)
-	{
-	case 1:
-	  hid_actionl ("Mode", "Release", NULL);
-	  break;
-	case 2:
-	  break;
-	case 3:
-	  Pan (0, e->xbutton.x, e->xbutton.y);
-	  break;
-	case 4:
-	  break;
-	case 5:
-	  break;
-	}
+      do_mouse_action (e->xbutton.button, M_Release);
       RestoreCrosshair (True);
       break;
+
     case MotionNotify:
       {
 	Window root, child;
@@ -1247,11 +1274,13 @@ work_area_input (Widget w, XtPointer v, XEvent * e, Boolean * ctd)
 	in_move_event = 0;
       }
       break;
+
     case LeaveNotify:
       crosshair_x = crosshair_y = -1;
       CrosshairOff (1);
       need_idle_proc ();
       break;
+
     case EnterNotify:
       in_move_event = 1;
       EventMoveCrosshair (Px (e->xcrossing.x), Py (e->xcrossing.y));
@@ -1259,10 +1288,158 @@ work_area_input (Widget w, XtPointer v, XEvent * e, Boolean * ctd)
       CrosshairOn (1);
       need_idle_proc ();
       break;
+
     default:
       printf ("work_area: unknown event %d\n", e->type);
       break;
     }
+}
+
+static Resource *
+res_wrap (char *value)
+{
+  Resource *tmp;
+  tmp = resource_create (0);
+  resource_add_val (tmp, 0, value, 0);
+  return tmp;
+}
+
+static int
+parse_mods (char *value)
+{
+  int m = 0;
+  /* This works because "shift" and "alt" have no 'c' in them,
+     etc.  */
+  if (strchr(value, 's') || strchr(value, 'S'))
+    m |= M_Shift;
+  if (strchr(value, 'c') || strchr(value, 'C'))
+    m |= M_Ctrl;
+  if (strchr(value, 'a') || strchr(value, 'A'))
+    m |= M_Alt;
+  if (strchr(value, 'u') || strchr(value, 'U'))
+    m |= M_Release;
+  return m;
+}
+
+void
+lesstif_note_mouse_resource (Resource *res)
+{
+  int bi, mi;
+#if 0
+  Resource *orig_actions[MAX_MOUSE_BUTTON+2][16];
+
+  fprintf(stderr, "note mouse resource:\n");
+  resource_dump (res);
+#endif
+
+  for (bi=0; bi<res->c; bi++)
+    {
+      int button_num;
+      Resource *button;
+
+      /* All mouse-related resources must be named.  The name is the
+	 mouse button number.  */
+      if (!res->v[bi].name)
+	continue;
+      else if (strcasecmp (res->v[bi].name, "left") == 0)
+	button_num = 1;
+      else if (strcasecmp (res->v[bi].name, "middle") == 0)
+	button_num = 2;
+      else if (strcasecmp (res->v[bi].name, "right") == 0)
+	button_num = 3;
+      else if (strcasecmp (res->v[bi].name, "up") == 0)
+	button_num = 4;
+      else if (strcasecmp (res->v[bi].name, "down") == 0)
+	button_num = 5;
+      else
+	button_num = atoi (res->v[bi].name);
+
+      if (button_num < 1 || button_num > MAX_MOUSE_BUTTON)
+	continue;
+
+      if (res->v[bi].value)
+	mouse_actions[button_num][0] = res_wrap (res->v[bi].value);
+
+      if (res->v[bi].subres)
+	{
+	  Resource *m = res->v[bi].subres;
+	  int mods;
+
+	  for (mi=0; mi<m->c; mi++)
+	    {
+	      switch (resource_type (m->v[mi]))
+		{
+		case 1: /* subres only */
+		  mouse_actions[button_num][0] = m->v[mi].subres;
+		  break;
+
+		case 10: /* value only */
+		  mouse_actions[button_num][0] = res_wrap (m->v[mi].value);
+		  break;
+
+		case 101: /* name = subres */
+		  mods = parse_mods (m->v[mi].name);
+		  mouse_actions[button_num][mods] = m->v[mi].subres;
+		  break;
+
+		case 110: /* name = value */
+		  mods = parse_mods (m->v[mi].name);
+		  mouse_actions[button_num][mods] = res_wrap (m->v[mi].value);
+		  break;
+		}
+	    }
+	}
+    }
+
+#if 0
+  printf("Configured mouse actions:\n");
+  for (bi=1; bi<=MAX_MOUSE_BUTTON; bi++)
+    for (mi=0; mi<16; mi++)
+      if (mouse_actions[bi][mi])
+	{
+	  printf("\033[32m===  %c %c %c %c %d  ===\033[0m\n",
+		 mi & M_Release ? 'R' : '-',
+		 mi & M_Alt ? 'A' : '-',
+		 mi & M_Ctrl ? 'C' : '-',
+		 mi & M_Shift ? 'S' : '-',
+		 bi);
+	  resource_dump (mouse_actions[bi][mi]);
+	}
+  memcpy (orig_actions, mouse_actions, sizeof(mouse_actions));
+#endif
+
+  for (bi=0; bi<=MAX_MOUSE_BUTTON; bi++)
+    {
+      int i, j;
+      for (i=15; i>0; i--)
+	if (!mouse_actions[bi][i])
+	  for (j=i-1; j>=(i&M_Release?8:0); j--)
+	    if (((i & j) == j) && mouse_actions[bi][j])
+	      {
+		mouse_actions[bi][i] = mouse_actions[bi][j];
+		break;
+	      }
+    }
+
+#if 0
+  printf("Active mouse actions:\n");
+  for (bi=1; bi<=MAX_MOUSE_BUTTON; bi++)
+    for (mi=0; mi<16; mi++)
+      if (mouse_actions[bi][mi])
+	{
+	  printf("\033[31m===  %c %c %c %c %d  ===\033[0m",
+		 mi & M_Release ? 'R' : '-',
+		 mi & M_Alt ? 'A' : '-',
+		 mi & M_Ctrl ? 'C' : '-',
+		 mi & M_Shift ? 'S' : '-',
+		 bi);
+	  if (!orig_actions[bi][mi])
+	    printf("\033[34m");
+	  resource_dump (mouse_actions[bi][mi]);
+	  if (!orig_actions[bi][mi])
+	    printf("\033[0m");
+	}
+#endif
 }
 
 void
