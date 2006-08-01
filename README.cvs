@@ -32,7 +32,8 @@ autoconf  -- ftp://ftp.gnu.org/pub/gnu/autoconf/
 
 automake  -- ftp://ftp.gnu.org/pub/gnu/automake/
              The developers use the 1.9.* versions of automake.  Older versions
-             have not been as well tested (or tested at all).
+             have not been as well tested (or tested at all).  Versions 1.7 and
+             older are too old and will not work.
 
 texinfo   -- ftp://ftp.gnu.org/pub/gnu/texinfo/
              You will need at least version 4.6 to be able to build
@@ -61,7 +62,7 @@ the --enable-maintainer-mode flag to the configure script.
 Check out
 ---------
 
-If you already have a checked PCB source tree, please proceed to the
+If you already have a checked out PCB source tree, please proceed to the
 'Updating' section.
 
 To check out sources from the anonymous CVS server, run the following:
@@ -102,3 +103,13 @@ comments, you may want to enable maintainer mode by passing the
 
 At this point you can proceed to configure and build PCB as outlined in
 the INSTALL document.
+
+-------------------
+Building a Snapshot
+-------------------
+The file README.snapshots documents what is currently done to create a
+snapshot release for PCB.  Most of what is in there has to do with the
+cvs repository and how we tag and branch the sources.  If you are interested
+in building your own .tar.gz file from CVS sources, you can still use
+the information in README.snapshots as a guide.
+
