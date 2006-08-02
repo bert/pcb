@@ -267,7 +267,7 @@ CopyAttachedPolygonToLayer (void)
 
 /* ---------------------------------------------------------------------------
  *  Updates the pin-in-polygon flags
- *  if called with Element == NULL, seach all pins
+ *  if called with Element == NULL, search all pins
  *  if called with Pin == NULL, search all pins on element
  *  if called with Layer == NULL, search all layers
  */

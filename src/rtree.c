@@ -931,7 +931,7 @@ __r_insert_node (struct rtree_node * node, const BoxType * query,
 	  MAKEMIN (node->box.Y1, query->Y1);
 	  MAKEMAX (node->box.Y2, query->Y2);
 	}
-      /* this node encloses it, but it's not a leaf, so decend the tree */
+      /* this node encloses it, but it's not a leaf, so descend the tree */
       assert (node->u.kids[0]);
       best_score = __r_insert_node (node->u.kids[0], query, manage, False);
       if (best_score == 0)
@@ -1003,7 +1003,7 @@ __r_delete (rtree_t * seed, struct rtree_node *node, const BoxType * query)
 {
   int i, flag, mask, a;
 
-  /* the tree might be inconsistant during delete */
+  /* the tree might be inconsistent during delete */
   if (query->X1 < node->box.X1 || query->Y1 < node->box.Y1
       || query->X2 > node->box.X2 || query->Y2 > node->box.Y2)
     return False;
@@ -1036,7 +1036,7 @@ __r_delete (rtree_t * seed, struct rtree_node *node, const BoxType * query)
 		  return (__r_delete (seed, node->parent, &node->box));
 		}
 	      else
-		/* propegate boundry adjust upward */
+		/* propegate boundary adjust upward */
 		while (node)
 		  {
 		    adjust_bounds (node);
@@ -1096,7 +1096,7 @@ __r_delete (rtree_t * seed, struct rtree_node *node, const BoxType * query)
       return True;
     }
   else
-    /* propagate boundry adjustment upward */
+    /* propagate boundary adjustment upward */
     while (node)
       {
 	adjust_bounds (node);

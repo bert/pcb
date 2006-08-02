@@ -546,10 +546,10 @@ GBX_Invert (int mode)
       /* indicate straight lines and set our initial position (0,0) */
       fprintf (GBX_Flags.FP, "G01X0Y0D02*\015\012");
 
-      /* initalize our current x,y location.  Note that in PCB,
+      /* initialize our current x,y location.  Note that in PCB,
        * the upper left corner is 0,0 and positive Y extents
        * downwards, however in photoplotterland 0,0 is lower left with 
-       * positive Y extending updards.  lastX,lastY are in PCB
+       * positive Y extending upwards.  lastX,lastY are in PCB
        * coordinates.
        */
       lastX = 0;
@@ -568,10 +568,10 @@ GBX_Invert (int mode)
       /* indicate straight lines */
       fprintf (GBX_Flags.FP, "G01X0Y0D02*\015\012");
 
-      /* initalize our current x,y location.  Note that in PCB,
+      /* initialize our current x,y location.  Note that in PCB,
        * the upper left corner is 0,0 and positive Y extents
        * downwards, however in photoplotterland 0,0 is lower left with 
-       * positive Y extending updards.  lastX,lastY are in PCB
+       * positive Y extending upwards.  lastX,lastY are in PCB
        * coordinates.
        */
       lastX = 0;

@@ -461,7 +461,7 @@ drc_lines (PointTypePtr end, Boolean way)
 	    }
 	  else
 	    {
-	      /* bumpped into something, back off */
+	      /* bumped into something, back off */
 	      f2 -= s2;
 	    }
 	  s2 *= 0.5;

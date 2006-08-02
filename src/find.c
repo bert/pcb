@@ -115,7 +115,7 @@ RCSID ("$Id$");
        (p)->BoundingBox.Y1 -= Bloat; \
        (p)->BoundingBox.Y2 += Bloat;}
 
-#define	SEPERATE(FP)							\
+#define	SEPARATE(FP)							\
 	{											\
 		int	i;									\
 		fputc('#', (FP));						\
@@ -168,7 +168,7 @@ RCSID ("$Id$");
  * some local types
  *
  * the two 'dummy' structs for PVs and Pads are necessary for creating
- * connection lists which include the elments name
+ * connection lists which include the element's name
  */
 typedef struct
 {
@@ -1629,7 +1629,7 @@ LineLineIntersect (LineTypePtr Line1, LineTypePtr Line2)
  * to find the actual points of intersection with the
  * circle, and see if they are on the arc.
  *
- * To do this, we tranlate along the line from the point Q
+ * To do this, we translate along the line from the point Q
  * plus or minus a distance delta = sqrt(Radius^2 - d^2)
  * but it's handy to normalize with respect to l, the line
  * length so a single projection is done (e.g. we don't first
@@ -2605,7 +2605,7 @@ IsPadInPolygon (PadTypePtr pad, PolygonTypePtr polygon)
  * checks if a polygon has a connection to a second one
  *
  * First check all points out of P1 against P2 and vice versa.
- * If both fail check all lines of P1 agains the ones of P2
+ * If both fail check all lines of P1 against the ones of P2
  */
 Boolean
 IsPolygonInPolygon (PolygonTypePtr P1, PolygonTypePtr P2)
@@ -2627,7 +2627,7 @@ IsPolygonInPolygon (PolygonTypePtr P1, PolygonTypePtr P2)
       }
       END_LOOP;
 
-      /* check all lines of P1 agains P2;
+      /* check all lines of P1 against P2;
        * POLYGONPOINT_LOOP decrements the pointer !!!
        */
 
@@ -2925,11 +2925,11 @@ PrintAndSelectUnusedPinsAndPadsOfElement (ElementTypePtr Element, FILE * FP)
   }
   END_LOOP;
 
-  /* print seperator if element has unused pins or pads */
+  /* print separator if element has unused pins or pads */
   if (!first)
     {
       fputs ("}\n\n", FP);
-      SEPERATE (FP);
+      SEPARATE (FP);
     }
   return (False);
 }
@@ -3155,7 +3155,7 @@ LookupConnectionsToAllElements (FILE * FP)
     /* break if abort dialog returned True */
     if (PrintElementConnections (element, FP, False))
       break;
-    SEPERATE (FP);
+    SEPARATE (FP);
     if (Settings.ResetAfterElement && n != 1)
       ResetConnections (False);
   }
@@ -3630,7 +3630,7 @@ DRCFind (int What, void *ptr1, void *ptr2, void *ptr3)
 	return (True);
       IncrementUndoSerialNumber ();
       Undo (True);
-      /* highlest the rest of the encroaching net so it's not reported it again */
+      /* highlight the rest of the encroaching net so it's not reported again */
       TheFlag |= SELECTEDFLAG;
       Bloat = 0;
       fBloat = 0.0;
@@ -3690,7 +3690,7 @@ drc_callback (int type, void *ptr1, void *ptr2, void *ptr3,
 	{
 	  AddObjectToFlagUndoList (type, ptr1, ptr2, ptr3);
 	  SET_FLAG (TheFlag, line);
-	  Message (_("Line with insuficient clearance inside polygon\n"));
+	  Message (_("Line with insufficient clearance inside polygon\n"));
 	  goto doIsBad;
 	}
       break;
@@ -3699,7 +3699,7 @@ drc_callback (int type, void *ptr1, void *ptr2, void *ptr3,
 	{
 	  AddObjectToFlagUndoList (type, ptr1, ptr2, ptr3);
 	  SET_FLAG (TheFlag, arc);
-	  Message (_("Arc with insuficient clearance inside polygon\n"));
+	  Message (_("Arc with insufficient clearance inside polygon\n"));
 	  goto doIsBad;
 	}
       break;
@@ -3708,7 +3708,7 @@ drc_callback (int type, void *ptr1, void *ptr2, void *ptr3,
 	{
 	  AddObjectToFlagUndoList (type, ptr1, ptr2, ptr3);
 	  SET_FLAG (TheFlag, pad);
-	  Message (_("Pad with insuficient clearance inside polygon\n"));
+	  Message (_("Pad with insufficient clearance inside polygon\n"));
 	  goto doIsBad;
 	}
       break;
@@ -3717,7 +3717,7 @@ drc_callback (int type, void *ptr1, void *ptr2, void *ptr3,
 	{
 	  AddObjectToFlagUndoList (type, ptr1, ptr2, ptr3);
 	  SET_FLAG (TheFlag, pin);
-	  Message (_("Pin with insuficient clearance inside polygon\n"));
+	  Message (_("Pin with insufficient clearance inside polygon\n"));
 	  goto doIsBad;
 	}
       break;
@@ -3726,7 +3726,7 @@ drc_callback (int type, void *ptr1, void *ptr2, void *ptr3,
 	{
 	  AddObjectToFlagUndoList (type, ptr1, ptr2, ptr3);
 	  SET_FLAG (TheFlag, pin);
-	  Message (_("Via with insuficient clearance inside polygon\n"));
+	  Message (_("Via with insufficient clearance inside polygon\n"));
 	  goto doIsBad;
 	}
       break;

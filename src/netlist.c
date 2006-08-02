@@ -160,7 +160,7 @@ a pin matching @var{pin} apply.
 @table @code
 
 @item find
-Nets which apply are marked @emph{found} and are drawin in the
+Nets which apply are marked @emph{found} and are drawn in the
 @code{connected-color} color.
 
 @item select

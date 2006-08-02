@@ -220,7 +220,7 @@ static int Parse(char *Executable, char *Path, char *Filename, char *Parameter)
 	yylineno = 1;
 	yyfilename = Filename;
 
-		/* We need to save the data temorarily because lex-yacc are able
+		/* We need to save the data temporarily because lex-yacc are able
 		 * to break the application if the input file has an illegal format.
 		 * It's not necessary if the system supports the call of functions
 		 * on termination.

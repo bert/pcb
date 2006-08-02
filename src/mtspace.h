@@ -46,7 +46,7 @@ typedef struct mtspace mtspace_t;
 typedef enum
 { FIXED, ODD, EVEN } mtspace_type_t;
 
-/* create an "empty space" representation with a shrunken boundry */
+/* create an "empty space" representation with a shrunken boundary */
 mtspace_t *mtspace_create (const BoxType * bounds, BDimension keepaway);
 /* destroy an "empty space" representation. */
 void mtspace_destroy (mtspace_t ** mtspacep);

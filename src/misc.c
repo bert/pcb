@@ -249,7 +249,7 @@ SetElementBoundingBox (DataTypePtr Data, ElementTypePtr Element,
   END_LOOP;
 
   /* do not include the elementnames bounding box which
-   * is handles seperatly
+   * is handles separately
    */
   box = &Element->BoundingBox;
   vbox = &Element->VBox;
@@ -478,7 +478,7 @@ GetDataBoundingBox (DataTypePtr Data)
   box.X1 = box.Y1 = MAX_COORD;
   box.X2 = box.Y2 = -MAX_COORD;
 
-  /* now scan for the lowest/highest X and Y coodinate */
+  /* now scan for the lowest/highest X and Y coordinate */
   VIA_LOOP (Data);
   {
     box.X1 = MIN (box.X1, via->X - via->Thickness / 2);
@@ -639,8 +639,8 @@ GetNum (char **s, BDimension * num)
 
 
 /* ----------------------------------------------------------------------
- * parses the routes definition string which is a colon seperated list of
- * comma seperated Name, Dimension, Dimension, Dimension, Dimension
+ * parses the routes definition string which is a colon separated list of
+ * comma separated Name, Dimension, Dimension, Dimension, Dimension
  * e.g. Signal,20,40,20,10:Power,40,60,28,10:...
  */
 int
@@ -682,7 +682,7 @@ ParseRouteString (char *s, RouteStyleTypePtr routeStyle, int scale)
 	goto error;
       GetNum (&s, &routeStyle->Hole);
       routeStyle->Hole *= scale;
-      /* for backwards-compatibilty, we use a 10-mil default
+      /* for backwards-compatibility, we use a 10-mil default
        * for styles which omit the keepaway specification. */
       if (*s != ',')
 	routeStyle->Keepaway = 1000;
@@ -714,8 +714,8 @@ error:
 }
 
 /* ----------------------------------------------------------------------
- * parses the group definition string which is a colon seperated list of
- * comma seperated layer numbers (1,2,b:4,6,8,t)
+ * parses the group definition string which is a colon separated list of
+ * comma separated layer numbers (1,2,b:4,6,8,t)
  */
 int
 ParseGroupString (char *s, LayerGroupTypePtr LayerGroup, int LayerN)
@@ -771,7 +771,7 @@ ParseGroupString (char *s, LayerGroupTypePtr LayerGroup, int LayerN)
 	  LayerGroup->Entries[group][member++] = layer;
 	  while (*++s && isdigit ((int) *s));
 
-	  /* ignore white spaces and check for seperator */
+	  /* ignore white spaces and check for separator */
 	  while (*s && isspace ((int) *s))
 	    s++;
 	  if (!*s || *s == ':')
@@ -1014,7 +1014,7 @@ ChangeGroupVisibility (int Layer, Boolean On, Boolean ChangeStackOrder)
       {
 	int layer = PCB->LayerGroups.Entries[group][--i];
 
-	/* dont count the passed member of the group */
+	/* don't count the passed member of the group */
 	if (layer != Layer && layer < max_layer)
 	  {
 	    PCB->Data->Layer[layer].On = On;
@@ -1193,7 +1193,7 @@ GetObjectBoundingBox (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
       }
 
     default:
-      Message ("Request for bounding box of unsupported typ %d\n", Type);
+      Message ("Request for bounding box of unsupported type %d\n", Type);
       box.X1 = box.X2 = box.Y1 = box.Y2 = 0;
       break;
     }

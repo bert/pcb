@@ -763,7 +763,7 @@ remove_line (line_s * l)
 
   if (l->line)
     {
-      /* compenstate for having line pointers rearranged */
+      /* compensate for having line pointers rearranged */
       from = &(layer->Line[layer->LineN - 1]);
       to = l->line;
       RemoveLine (layer, l->line);
@@ -2917,7 +2917,7 @@ different layer eliminates one or both vias.
 
 @item orthopull
 Looks for chains of traces all going in one direction, with more
-traces orthagonal on one side than on the other.  Moves the chain in
+traces orthogonal on one side than on the other.  Moves the chain in
 that direction, causing a net reduction in trace length, possibly
 eliminating traces and/or corners.
 

@@ -146,7 +146,7 @@ RCSID ("$Id$");
  * corner but don't include their bottom-right corner.
  *
  * Obstacles, however, are thought of to be closed on all sides,
- * and exclusion zone *open* on all sides.  We will ignore the infintesimal
+ * and exclusion zone *open* on all sides.  We will ignore the infinitesimal
  * difference w.r.t. obstacles, but exclusion zones will be consistently
  * bumped in one unit on the top and left in order to exclose the same
  * integer coordinates as their open-rectangle equivalents.
@@ -224,7 +224,7 @@ typedef struct routebox
      * vias through the polygon will automatically be given a keepaway
      * and will not electrically connect to the polygon. */
     unsigned clear_poly:1;
-    /* this markes "conflicting" routes that must be torn up to obtain
+    /* this marks "conflicting" routes that must be torn up to obtain
      * a correct routing.  This flag allows us to return a correct routing
      * even if the user cancels auto-route after a non-final pass. */
     unsigned is_bad:1;
@@ -784,7 +784,7 @@ CreateRouteData ()
 
   front = GetLayerGroupNumberByNumber (max_layer + COMPONENT_LAYER);
   back = GetLayerGroupNumberByNumber (max_layer + SOLDER_LAYER);
-  /* determine prefered routing direction on each group */
+  /* determine preferred routing direction on each group */
   for (i = 0; i < max_layer; i++)
     {
       if (i != back && i != front)
@@ -1228,7 +1228,7 @@ bloat_routebox (routebox_t * rb)
 
   /* obstacle exclusion zones get bloated, and then shrunk on their
    * top and left sides so that they approximate their "open"
-   * brethern. */
+   * brethren. */
   keepaway = MAX (AutoRouteParameters.augStyle->style->Keepaway,
 		  rb->augStyle->style->Keepaway);
   r = bloat_box (&rb->box, keepaway +
@@ -2522,7 +2522,7 @@ TracePath (routedata_t * rd, routebox_t * path, routebox_t * target,
   if (target->flags.circular)
     b = shrink_box (&b, MIN (b.X2 - b.X1, b.Y2 - b.Y1) / 5);
   nextpoint = closest_point_in_box (&nextpoint, &b);
-  /* hace route to actual pins/pads */
+  /* hace - route to actual pins/pads */
   if (target->type == PIN)
     {
       nextpoint.X = target->parent.pin->X;
@@ -3907,7 +3907,7 @@ AutoRoute (Boolean selected)
     {
       routebox_t *net, *rb, *last;
       int i = 0;
-      /* count numberof rats selected */
+      /* count number of rats selected */
       RAT_LOOP (PCB->Data);
       {
 	if (!selected || TEST_FLAG (SELECTEDFLAG, line))

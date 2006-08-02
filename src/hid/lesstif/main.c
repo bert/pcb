@@ -468,7 +468,7 @@ static const char thindraw_help[] =
 
 /* %start-doc actions ThinDraw
 
-When the thindraw flag is set, all board objects are drawin using
+When the thindraw flag is set, all board objects are drawn using
 ``thin'' lines.  Traces are drawn as single lines along their
 centerlines, other objects are drawn as outlines.  If you pass
 @code{0}, thin draw is disabled.  If you pass @code{1}, thin draw is
@@ -501,7 +501,7 @@ static const char thindrawpoly_help[] =
 
 /* %start-doc actions ThinDrawPoly
 
-When the polygon thindraw flag is set, all polygonss are drawin using
+When the polygon thindraw flag is set, all polygons are drawn using
 ``thin'' lines along their outlines.  If you pass @code{0}, polygon
 thin draw is disabled.  If you pass @code{1}, polygon thin draw is
 enabled.  If you pass nothing, polygon thin draw is toggled.

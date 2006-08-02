@@ -758,7 +758,7 @@ layer
 				}
 				Layer = &yyData->Layer[$3-1];
 
-					/* memory for name is alread allocated */
+					/* memory for name is already allocated */
 				Layer->Name = $4;
 				LayerFlag[$3-1] = True;
 				if (yyData->LayerN + 2 < $3)
@@ -866,7 +866,7 @@ line_oldformat
 			/* x1, y1, x2, y2, thickness, flags */
 		: T_LINE '(' NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER ')'
 			{
-				/* elliminate old-style rat-lines */
+				/* eliminate old-style rat-lines */
 			if (($8 & RATFLAG) == 0)
 				CreateNewLineOnLayer(Layer, $3*100, $4*100, $5*100, $6*100, $7*100,
 					200*GROUNDPLANEFRAME, OldFlags($8));
@@ -1462,12 +1462,12 @@ Pad (aX1 aY1 aX2 aY2 Thickness "Name" NFlags)
 
 @table @var
 @item rX1 rY1 rX2 rY2
-Coordinates of the enpoints of the pad, relative to the element's
+Coordinates of the endpoints of the pad, relative to the element's
 mark.  Note that the copper extends beyond these coordinates by half
 the thickness.  To make a square or round pad, specify the same
 coordinate twice.
 @item aX1 aY1 aX2 aY2
-Same, but absolute coordinates of the enpoints of the pad.
+Same, but absolute coordinates of the endpoints of the pad.
 @item Thickness
 width of the pad.
 @item Clearance

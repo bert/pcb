@@ -123,7 +123,7 @@ draw_grid ()
     {
       npoints = n + 10;
       points =
-	MyRealloc (points, npoints * sizeof (GdkPoint), "lesstif_draw_grid");
+	MyRealloc (points, npoints * sizeof (GdkPoint), "gtk_draw_grid");
     }
   n = 0;
   for (x = x1; x <= x2; x += PCB->Grid)

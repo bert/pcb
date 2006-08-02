@@ -290,7 +290,7 @@ pcb*pinoutMasterForm.viewport.vertical.accelerators: #override \
 ! resources used by the menu buttons
 ! Note that these overrides plus those of the menus below make the menus
 ! behave as "sticky" menus.
-! The next two lines elliminate the menu button borders
+! The next two lines eliminate the menu button borders
 ! but there is no convenient way to underline the first characters.
 pcb.masterForm*MenuButton.shadowWidth:	0
 pcb.masterForm*MenuButton.BorderWidth: 0

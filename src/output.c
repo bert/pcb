@@ -129,7 +129,7 @@ DrawClipped (GdkRegion * myRegion)
 
 /* Pan shifts the origin of the output window to PCB coordinates X,Y if
  * possible. if X,Y is out of range, it goes as far as possible and
- * returns TRUE. Otherwise it goest to X,Y and returns false.
+ * returns TRUE. Otherwise it goes to X,Y and returns false.
  * If Scroll is TRUE and there is no offscreen pixmap, the display
  * is scrolled and only the newly visible part gets updated.
  * If Update is TRUE, an update event is generated so the display
@@ -174,7 +174,7 @@ Pan (LocationType X, LocationType Y, Boolean Scroll, Boolean Update)
   Yorig = Y;
   render = TRUE;
 
-  /* calculate the visbile bounds in pcb coordinates
+  /* calculate the visible bounds in pcb coordinates
    */
   theScreen.X1 = vxl = TO_PCB_X (0);
   theScreen.X2 = vxh = TO_PCB_X (Output.Width);

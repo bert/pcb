@@ -39,7 +39,7 @@
  * E.g.: removing all selected objects is one operation with exactly one
  * serial number even if the remove function is called several times.
  *
- * a lock flag ensures that no infinite loops occure
+ * a lock flag ensures that no infinite loops occur
  */
 
 #ifdef HAVE_CONFIG_H
@@ -99,7 +99,7 @@ typedef struct			/* information about removed polygon points */
 }
 RemovedPointType, *RemovedPointTypePtr;
 
-typedef struct			/* informstion about rotation */
+typedef struct			/* information about rotation */
 {
   LocationType CenterX,		/* center of rotation */
     CenterY;

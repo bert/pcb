@@ -1245,7 +1245,7 @@ DrawHole (PinTypePtr Ptr)
 }
 
 /*******************************************************************
- * draw clearance in pixmask arround pins and vias that pierce polygons
+ * draw clearance in pixmask around pins and vias that pierce polygons
  */
 static void
 ClearOnlyPin (PinTypePtr Pin, Boolean mask)

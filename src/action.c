@@ -883,7 +883,7 @@ NotifyBlock (void)
 
 /* ---------------------------------------------------------------------------
  *
- * does what's appropriate for the current mode setting. This normaly
+ * does what's appropriate for the current mode setting. This normally
  * means creation of an object at the current crosshair location.
  *
  * new created objects are added to the create undo list of course
@@ -1820,7 +1820,7 @@ ActionMessage (int argc, char **argv, int x, int y)
 /* -------------------------------------------------------------------------- */
 
 static const char togglethermal_syntax[] =
-"ToggleThermal(Object|SelectePins|SelectedVias|Selected)";
+"ToggleThermal(Object|SelectedPins|SelectedVias|Selected)";
 
 static const char togglethermal_help[] =
 "Toggle a thermal (on the current layer) to pins or vias.";
@@ -1880,7 +1880,7 @@ ActionToggleThermal (int argc, char **argv, int x, int y)
 /* -------------------------------------------------------------------------- */
 
 static const char setthermal_syntax[] =
-"SetThermal(Object|SelectePins|SelectedVias|Selected|SelectedElements)";
+"SetThermal(Object|SelectedPins|SelectedVias|Selected|SelectedElements)";
 
 static const char setthermal_help[] =
 "Set a thermal (on the current layer) to pins or vias.";
@@ -1940,7 +1940,7 @@ ActionSetThermal (int argc, char **argv, int x, int y)
 /* -------------------------------------------------------------------------- */
 
 static const char clearthermal_syntax[] =
-"ClearThermal(Object|SelectePins|SelectedVias|Selected|SelectedElements)";
+"ClearThermal(Object|SelectedPins|SelectedVias|Selected|SelectedElements)";
 
 static const char clearthermal_help[] =
 "Clear a thermal (on the current layer) to pins or vias.";
@@ -2455,7 +2455,7 @@ broken up according to the clip setting.
 
 @item CycleClip
 Changes the way lines are restricted to 45 degree increments.  The
-varous settings are: straight only, orthogonal then angled, and angled
+various settings are: straight only, orthogonal then angled, and angled
 then orthogonal.  If AllDirections is set, this action disables it.
 
 @item ToggleRubberBandMode
@@ -3900,7 +3900,7 @@ ActionChangeName (int argc, char **argv, int x, int y)
 	    break;
 	  }
 
-	  /* change the layouts name */
+	  /* change the layout's name */
 	case F_Layout:
 	  name =
 	    gui->prompt_for (_("Enter the layout name:"), EMPTY (PCB->Name));
@@ -3908,7 +3908,7 @@ ActionChangeName (int argc, char **argv, int x, int y)
 	    SetChangedFlag (True);
 	  break;
 
-	  /* change the name of the activ layer */
+	  /* change the name of the active layer */
 	case F_Layer:
 	  name = gui->prompt_for (_("Enter the layer name:"),
 				  EMPTY (CURRENT->Name));
@@ -5189,7 +5189,7 @@ Convert any elements in the paste buffer back to vias and lines.
 
 @item Mirror
 Flip all objects in the paste buffer vertically (up/down flip).  To mirror
-horizonally, combine this with rotations.
+horizontally, combine this with rotations.
 
 @item Rotate
 Rotates the current buffer.  The number to pass is 1..3, where 1 means
@@ -5397,7 +5397,7 @@ ActionUndo (int argc, char **argv, int x, int y)
 	      int type;
 	      void *ptr1, *ptr3, *ptrtmp;
 	      LineTypePtr ptr2;
-	      /* this search is guranteed to succeed */
+	      /* this search is guaranteed to succeed */
 	      SearchObjectByLocation (LINE_TYPE | RATLINE_TYPE, &ptr1, &ptrtmp,
 				      &ptr3, Crosshair.AttachedLine.Point1.X,
 				      Crosshair.AttachedLine.Point1.Y, 0);
@@ -5448,7 +5448,7 @@ ActionUndo (int argc, char **argv, int x, int y)
 		}
 	      else
 		{
-		  /* this search is guranteed to succeed too */
+		  /* this search is guaranteed to succeed too */
 		  SearchObjectByLocation (LINE_TYPE | RATLINE_TYPE, &ptr1, 
 					  &ptrtmp,
 					  &ptr3,
@@ -5473,7 +5473,7 @@ ActionUndo (int argc, char **argv, int x, int y)
 	    {
 	      void *ptr1, *ptr2, *ptr3;
 	      BoxTypePtr bx;
-	      /* guranteed to succeed */
+	      /* guaranteed to succeed */
 	      SearchObjectByLocation (ARC_TYPE, &ptr1, &ptr2, &ptr3,
 				      Crosshair.AttachedBox.Point1.X,
 				      Crosshair.AttachedBox.Point1.Y, 0);

@@ -375,7 +375,7 @@ XORDrawInsertPointObject (void)
 }
 
 /* ---------------------------------------------------------------------------
- * draws the attched object while in MOVE_MODE or COPY_MODE
+ * draws the attached object while in MOVE_MODE or COPY_MODE
  */
 static void
 XORDrawMoveOrCopyObject (void)
@@ -749,7 +749,7 @@ FitCrosshairIntoGrid (LocationType X, LocationType Y)
   x0 = 0;
   x2 = TO_PCB_X (Output.Width - 1);
 
-  /* check position agains window size and against valid
+  /* check position against window size and against valid
    * coordinates determined by the size of an attached
    * object or buffer
    an   */

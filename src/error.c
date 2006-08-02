@@ -27,7 +27,7 @@
  */
 
 
-/* error and debug funtions
+/* error and debug functions
  * getpid() needs a cast to (int) to get rid of compiler warnings
  * on several architectures
  */

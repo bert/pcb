@@ -310,7 +310,7 @@ line_callback (const BoxType * b, void *cl)
       i->ans = (LineTypePtr) - 1;
       longjmp (i->env, 1);
     }
-  /* remove unncessary line points */
+  /* remove unnecessary line points */
   if (line->Thickness == i->Thickness)
     {
       if (line->Point1.X == i->X1 && line->Point1.Y == i->Y1)
@@ -404,7 +404,7 @@ CreateDrawnLineOnLayer (LayerTypePtr Layer,
 
   if ((void *) info.ans == (void *) (-1))
     return NULL;		/* stacked line */
-  /* remove unneccessary points */
+  /* remove unnecessary points */
   if (info.ans)
     {
       /* must do this BEFORE getting new line memory */
@@ -558,7 +558,7 @@ CreateNewText (LayerTypePtr Layer, FontTypePtr PCBFont,
     return (text);
 
   /* copy values, width and height are set by drawing routine
-   * because at ths point we don't know which symbols are available
+   * because at this point we don't know which symbols are available
    */
   text->X = X;
   text->Y = Y;
@@ -883,7 +883,7 @@ CreateNewLineInSymbol (SymbolTypePtr Symbol,
 
 /* ---------------------------------------------------------------------------
  * parses a file with font information and installs it
- * checks directories given as colon seperated list by resource fontPath
+ * checks directories given as colon separated list by resource fontPath
  * if the fonts filename doesn't contain a directory component
  */
 void

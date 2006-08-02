@@ -175,7 +175,7 @@ FindPad (char *ElementName, char *PinNum, ConnectionType * conn, Boolean Same)
 }
 
 /*--------------------------------------------------------------------------
- * parse a netlist menu entry and locate the cooresponding pad
+ * parse a netlist menu entry and locate the corresponding pad
  * returns True if found, and fills in Connection information
  */
 Boolean

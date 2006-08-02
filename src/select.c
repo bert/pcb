@@ -531,7 +531,7 @@ ObjectOperation (ObjectFunctionTypePtr F,
 
 /* ----------------------------------------------------------------------
  * performs several operations on selected objects which are also visible
- * The lowlevel procdures are passed together with additional information
+ * The lowlevel procedures are passed together with additional information
  * resets the selected flag if requested
  * returns True if anything has changed
  */

@@ -802,7 +802,7 @@ WritePipe (char *Filename, Boolean thePcb)
 /* ---------------------------------------------------------------------------
  * saves the layout in a temporary file
  * this is used for fatal errors and does not call the program specified
- * in 'saveCommand' for savety reasons
+ * in 'saveCommand' for safety reasons
  */
 void
 SaveInTMP (void)
@@ -820,7 +820,7 @@ SaveInTMP (void)
 
 /* ---------------------------------------------------------------------------
  * front-end for 'SaveInTMP()'
- * justs makes sure that the routine is only called once
+ * just makes sure that the routine is only called once
  */
 void
 EmergencySave (void)
@@ -1021,7 +1021,7 @@ ReadLibraryContents (void)
       return (1);
     }
 
-  /* the library contents are seperated by colons;
+  /* the library contents are separated by colons;
    * template : package : name : description
    */
   while (resultFP && fgets (inputline, MAX_LIBRARY_LINE_LENGTH, resultFP))

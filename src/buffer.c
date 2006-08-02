@@ -575,7 +575,7 @@ LoadElementToBuffer (BufferTypePtr Buffer, char *Name, Boolean FromFile)
 	  return (True);
 	}
     }
-  /* release memory which might have been aquired */
+  /* release memory which might have been acquired */
   ClearBuffer (Buffer);
   return (False);
 }
