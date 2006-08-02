@@ -334,7 +334,8 @@ This is needed for the png HID.
 	# Some versions of gd (prior to the expiration of the
 	# patent related to gif compression) do not support
 	# gif output.  Check for that here.
-	LIBS="$LIBS $GD_LIBS"
+	save_LIBS="$LIBS"
+	LIBS="$save_LIBS $GD_LIBS $X_LIBS"
 
 	AC_MSG_CHECKING([if GIF output from the png HID is desired])
 	AC_ARG_ENABLE([gif],
@@ -411,7 +412,8 @@ You may need to update your installation of gd or disable
 PNG export with --disable-png])
 		fi
 	fi
-
+	LIBS="$save_LIBS"
+	;;
 
     esac
 done

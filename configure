@@ -8798,7 +8798,8 @@ This is needed for the png HID.
 	# Some versions of gd (prior to the expiration of the
 	# patent related to gif compression) do not support
 	# gif output.  Check for that here.
-	LIBS="$LIBS $GD_LIBS"
+	save_LIBS="$LIBS"
+	LIBS="$save_LIBS $GD_LIBS $X_LIBS"
 
 	echo "$as_me:$LINENO: checking if GIF output from the png HID is desired" >&5
 echo $ECHO_N "checking if GIF output from the png HID is desired... $ECHO_C" >&6
@@ -9211,7 +9212,8 @@ PNG export with --disable-png" >&2;}
    { (exit 1); exit 1; }; }
 		fi
 	fi
-
+	LIBS="$save_LIBS"
+	;;
 
     esac
 done
