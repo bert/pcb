@@ -74,6 +74,19 @@ netlist_select (Widget w, void *v, XmListCallbackStruct * cbs)
   hid_actionl ("netlist", "find", name, NULL);
 }
 
+static void
+netlist_extend (Widget w, void *v, XmListCallbackStruct * cbs)
+{
+  char *name;
+  int i;
+  hid_actionl ("connection", "reset", NULL);
+  for (i=0; i<cbs->selected_item_count; i++)
+    {
+      name = PCB->NetlistLib.Menu[cbs->selected_item_positions[i]-1].Name + 2;
+      hid_actionl ("netlist", "select", name, NULL);
+    }
+}
+
 static int
 build_netlist_dialog ()
 {
@@ -94,10 +107,12 @@ build_netlist_dialog ()
   stdarg (XmNrightAttachment, XmATTACH_POSITION);
   stdarg (XmNrightPosition, 50);
   stdarg (XmNvisibleItemCount, 10);
+  stdarg (XmNselectionPolicy, XmEXTENDED_SELECT);
   netlist_list = XmCreateScrolledList (netlist_dialog, "nets", args, n);
   XtManageChild (netlist_list);
   XtAddCallback (netlist_list, XmNbrowseSelectionCallback, (XtCallbackProc)netlist_browse, 0);
   XtAddCallback (netlist_list, XmNdefaultActionCallback, (XtCallbackProc)netlist_select, 0);
+  XtAddCallback (netlist_list, XmNextendedSelectionCallback, (XtCallbackProc)netlist_extend, 0);
 
   n = 0;
   stdarg (XmNtopAttachment, XmATTACH_FORM);
