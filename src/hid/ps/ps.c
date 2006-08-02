@@ -399,9 +399,17 @@ ps_set_layer (const char *name, int group)
       fprintf (f, "%d %d translate\n",
 	       -PCB->MaxWidth / 2, -PCB->MaxHeight / 2);
 
-      if (SL_TYPE (idx) == SL_FAB)
-	fprintf (f, "0 %d translate\n",
-		 (int) ((boffset - 0.5) * 100000) - PCB->MaxHeight / 2);
+      /* Keep the drill list from falling off the left edge of the paper,
+       * even if it means some of the board falls off the right edge.
+       * If users don't want to make smaller boards, or use fewer drill
+       * sizes, they can always ignore this sheet. */
+      if (SL_TYPE (idx) == SL_FAB) {
+        int natural = (int) ((boffset - 0.5) * 100000) - PCB->MaxHeight / 2;
+	int needed  = PrintFab_overhang();
+        fprintf (f, "%% PrintFab overhang natural %d, needed %d\n", natural, needed);
+	if (needed > natural)
+	  fprintf (f, "0 %d translate\n", needed - natural);
+      }
 
       if (invert)
 	{
@@ -449,10 +457,14 @@ ps_set_layer (const char *name, int group)
 		 "/dh { gsave %d setlinewidth 0 gray %d 0 360 arc stroke grestore} bind def\n",
 		 MIN_PINORVIAHOLE, MIN_PINORVIAHOLE * 3 / 2);
     }
+  /* Try to outsmart ps2pdf's heuristics for page rotation, by putting
+   * text on all pages -- even if that text is blank */
   if (SL_TYPE (idx) != SL_FAB)
     fprintf (f,
 	     "gsave tx ty translate 1 -1 scale 0 0 moveto (Layer %s) show grestore newpath /ty ty ts sub def\n",
 	     name);
+  else
+    fprintf (f, "gsave tx ty translate 1 -1 scale 0 0 moveto ( ) show grestore newpath /ty ty ts sub def\n");
   return 1;
 }
 

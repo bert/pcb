@@ -181,6 +181,31 @@ drill_sym (int idx, int x, int y)
     }
 }
 
+static int
+count_drill_lines(DrillInfoTypePtr AllDrills)
+{
+  int n, ds = 0;
+  for (n = AllDrills->DrillN - 1; n >= 0; n--)
+    {
+      DrillTypePtr drill = &(AllDrills->Drill[n]);
+      if (drill->PinCount + drill->ViaCount > drill->UnplatedCount)
+	ds++;
+      if (drill->UnplatedCount)
+	ds++;
+    }
+  return ds;
+}
+
+
+int
+PrintFab_overhang(void)
+{
+  DrillInfoTypePtr AllDrills = GetDrillInfo (PCB->Data);
+  int ds = count_drill_lines(AllDrills);
+  if (ds < 4) ds = 4;
+  return (ds+2) * TEXT_LINE;
+}
+
 void
 PrintFab (void)
 {
@@ -193,23 +218,18 @@ PrintFab (void)
   AllDrills = GetDrillInfo (PCB->Data);
   RoundDrillInfo (AllDrills, 100);
   yoff = -TEXT_LINE;
-  for (n = AllDrills->DrillN - 1; n >= 0; n--)
-    {
-      DrillTypePtr drill = &(AllDrills->Drill[n]);
-      if (drill->PinCount + drill->ViaCount > drill->UnplatedCount)
-	ds++;
-      if (drill->UnplatedCount)
-	ds++;
-    }
+
+  /* count how many drill description lines will be needed */
+  ds = count_drill_lines(AllDrills);
 
   /*
    * When we only have a few drill sizes we need to make sure the
    * drill table header doesn't fall on top of the board info
    * section.
    */
-  if (AllDrills->DrillN < 4)
+  if (ds < 4)
     {
-      yoff -= (4 - AllDrills->DrillN) * TEXT_LINE;
+      yoff -= (4 - ds) * TEXT_LINE;
     }
 
   gui->set_line_width (Output.fgGC, FAB_LINE_W);
