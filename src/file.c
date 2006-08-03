@@ -472,7 +472,10 @@ WritePCBFontData (FILE * FP)
       if (!font->Symbol[i].Valid)
 	continue;
 
-      if (isprint (i))
+      if (isprint (i) && font->Symbol[i].Delta % 100 == 0)
+	fprintf (FP, "Symbol('%c' %i)\n(\n",
+		 (char) i, (int) font->Symbol[i].Delta / 100);
+      else if (isprint (i))
 	fprintf (FP, "Symbol['%c' %i]\n(\n",
 		 (char) i, (int) font->Symbol[i].Delta);
       else
@@ -480,9 +483,20 @@ WritePCBFontData (FILE * FP)
 
       line = font->Symbol[i].Line;
       for (j = font->Symbol[i].LineN; j; j--, line++)
-	fprintf (FP, "\tSymbolLine[%i %i %i %i %i]\n",
-		 line->Point1.X, line->Point1.Y,
-		 line->Point2.X, line->Point2.Y, line->Thickness);
+	{
+	  if (line->Point1.X % 100 == 0
+	      && line->Point1.Y % 100 == 0
+	      && line->Point2.X % 100 == 0
+	      && line->Point2.Y % 100 == 0
+	      && line->Thickness % 100 == 0)
+	    fprintf (FP, "\tSymbolLine(%i %i %i %i %i)\n",
+		     line->Point1.X/100, line->Point1.Y/100,
+		     line->Point2.X/100, line->Point2.Y/100, line->Thickness/100);
+	  else
+	    fprintf (FP, "\tSymbolLine[%i %i %i %i %i]\n",
+		     line->Point1.X, line->Point1.Y,
+		     line->Point2.X, line->Point2.Y, line->Thickness);
+	}
       fputs (")\n", FP);
     }
 }
