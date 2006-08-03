@@ -896,6 +896,8 @@ MoveLayer (int old_index, int new_index)
       memmove (&PCB->Data->Layer[old_index],
 	       &PCB->Data->Layer[old_index+1],
 	       (max_layer-old_index+2-1) * sizeof(LayerType));
+      memset (&PCB->Data->Layer[max_layer+1], 0,
+	      sizeof(LayerType));
       memmove (&groups[old_index],
 	       &groups[old_index+1],
 	       (max_layer-old_index+2-1) * sizeof(int));
