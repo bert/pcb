@@ -187,7 +187,6 @@ CopyVia (PinTypePtr Via)
     return (via);
   UpdatePIPFlags (via, (ElementTypePtr) via, NULL, False);
   DrawVia (via, 0);
-  Draw ();
   AddObjectToCreateUndoList (VIA_TYPE, via, via, via);
   return (via);
 }
@@ -211,7 +210,6 @@ CopyLine (LayerTypePtr Layer, LineTypePtr Line)
   if (Line->Number)
     line->Number = MyStrdup (Line->Number, "CopyLine");
   DrawLine (Layer, line, 0);
-  Draw ();
   AddObjectToCreateUndoList (LINE_TYPE, Layer, line, line);
   return (line);
 }
@@ -231,7 +229,6 @@ CopyArc (LayerTypePtr Layer, ArcTypePtr Arc)
   if (!arc)
     return (arc);
   DrawArc (Layer, arc, 0);
-  Draw ();
   AddObjectToCreateUndoList (ARC_TYPE, Layer, arc, arc);
   return (arc);
 }
@@ -249,7 +246,6 @@ CopyText (LayerTypePtr Layer, TextTypePtr Text)
 			Text->Scale, Text->TextString,
 			MaskFlags (Text->Flags, FOUNDFLAG));
   DrawText (Layer, text, 0);
-  Draw ();
   AddObjectToCreateUndoList (TEXT_TYPE, Layer, text, text);
   return (text);
 }
@@ -269,7 +265,6 @@ CopyPolygon (LayerTypePtr Layer, PolygonTypePtr Polygon)
     Layer->polygon_tree = r_create_tree (NULL, 0, 0);
   r_insert_entry (Layer->polygon_tree, (BoxTypePtr) polygon, 0);
   DrawPolygon (Layer, polygon, 0);
-  Draw ();
   UpdatePIPFlags (NULL, NULL, Layer, True);
   AddObjectToCreateUndoList (POLYGON_TYPE, Layer, polygon, polygon);
   return (polygon);
@@ -301,8 +296,6 @@ CopyElement (ElementTypePtr Element)
       DrawElementPinsAndPads (element, 0);
       didDraw = True;
     }
-  if (didDraw)
-    Draw ();
   return (element);
 }
 
