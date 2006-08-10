@@ -304,6 +304,7 @@ liblpr_a_SOURCES = \
 	hid/lpr/lpr.c
 
 DISTCLEANFILES= pcbtest.sh Pcb .test/Pcb pcb-menu.h \
+	hid/batch/batch_lists.h \
 	hid/common/hidlist.h \
 	hid/gtk/gtk_lists.h \
 	hid/lesstif/lesstif_lists.h \
