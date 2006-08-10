@@ -824,6 +824,49 @@ define(`PKG_2706',      `PKG_SMT_2PAD_MIL(  `$1', `$2', `$3', 270,   60)');
 # $9:  length of silk screen line [1/100 mm] (R1)
 # $10: spacing of silk screen line [1/100 mm] (R2)
 
+# 01005
+# See for example Murata GRM02 series.
+# package X is 0.2 mm +/- 0.02 mm
+# package Y is 0.07 to 0.14 mm
+# package inner pad edge to pad edge is 0.13 min
+# package outer pad edge to outer pad edge is 0.4 mm +/- 0.02 mm
+# package height is 0.2mm +/- 0.02 mm
+
+# From page 10 of IPC-7351, Feb 2005,
+# Zmax = length of pattern = Lmin (overall length of the component) + 2*Jt + sqrt(Cl^2 + F^2 + P^2)
+# Gmin = Distance between lands of the pattern = Smax (distance between terminals) - 2*Jh - sqrt(Cs^2 + F^2 + P^2)
+# Xmax = Width of pattern = Wmin (width of lead) + 2*Js + sqrt(Cw^2 + F^2 + P^2)
+#
+# C = component tolerance = *max - *min
+# F = PCB tolerance - used 0.05
+# P = placement tolerance - used 0.05
+#
+# X = Xmax = 0.18/0.18/0.23 round to get 0.20/0.20/0.25
+# Y = 0.5 * (Zmax - Gmin)  
+# center to center = 0.5 * (Zmax + Gmin)
+# 
+#
+# Jt = 0.00/0.10/0.20
+# Jh = -0.05/-0.05/-0.05
+# Js = 0.00/0.00/0.05
+# Round to nearest 0.05
+# Courtyard excess 0.10/0.15/0.20
+#
+
+define(`PKG_CAPC0402L', `PKG_SMT_2PAD_MM100(  `$1', `$2', `$3',  25,   15,  30,  55,  30,   0,   0)');
+define(`PKG_CAPC0402N', `PKG_SMT_2PAD_MM100(  `$1', `$2', `$3',  25,   25,  40,  80,  35,   0,   0)');
+define(`PKG_CAPC0402M', `PKG_SMT_2PAD_MM100(  `$1', `$2', `$3',  35,   35,  50, 105,  40,   0,   0)');
+
+define(`PKG_INDC0402L', `PKG_SMT_2PAD_MM100(  `$1', `$2', `$3',  25,   15,  30,  55,  30,   0,   0)');
+define(`PKG_INDC0402N', `PKG_SMT_2PAD_MM100(  `$1', `$2', `$3',  25,   25,  40,  80,  35,   0,   0)');
+define(`PKG_INDC0402M', `PKG_SMT_2PAD_MM100(  `$1', `$2', `$3',  35,   35,  50, 105,  40,   0,   0)');
+
+define(`PKG_RESC0402L', `PKG_SMT_2PAD_MM100(  `$1', `$2', `$3',  25,   15,  30,  55,  30,   0,   0)');
+define(`PKG_RESC0402N', `PKG_SMT_2PAD_MM100(  `$1', `$2', `$3',  25,   25,  40,  80,  35,   0,   0)');
+define(`PKG_RESC0402M', `PKG_SMT_2PAD_MM100(  `$1', `$2', `$3',  35,   35,  50, 105,  40,   0,   0)');
+
+define(`PKG_01005',     `PKG_SMT_2PAD_MM100(  `$1', `$2', `$3',  25,   25,  40,  80,  35,   0,   0)');
+
 # 0201
 define(`PKG_CAPC0603L', `PKG_SMT_2PAD_MM100(  `$1', `$2', `$3',  30,   30,  50, 100,  60,   0,   0)');
 define(`PKG_CAPC0603N', `PKG_SMT_2PAD_MM100(  `$1', `$2', `$3',  40,   40,  60, 130,  80,   0,   0)');
