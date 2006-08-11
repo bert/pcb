@@ -28,7 +28,7 @@ RCSID ("$Id$");
 
 static HID_Attribute base_lpr_options[] = {
   {"lprcommand", "Command to print",
-   HID_String, 0, 0, {0, "lpr", 0}, 0, 0},
+   HID_String, 0, 0, {0, 0, 0}, 0, 0},
 #define HA_lprcommand 0
 };
 
@@ -41,6 +41,16 @@ static HID_Attr_Val *lpr_values;
 static HID_Attribute *
 lpr_get_export_options (int *n)
 {
+  /*
+   * We initialize the default value in this manner because the GUI
+   * HID's may want to free() this string value and replace it with a
+   * new one based on how a user fills out a print dialog.
+   */
+  if (base_lpr_options[HA_lprcommand].default_val.str_value == NULL)
+    {
+      base_lpr_options[HA_lprcommand].default_val.str_value = strdup("lpr");
+    }
+
   if (lpr_options == 0)
     {
       HID_Attribute *ps_opts = ps_hid.get_export_options (&num_lpr_options);
