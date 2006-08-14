@@ -8374,8 +8374,12 @@ echo "${ECHO_T}$GTK_LIBS" >&6
   if test $succeeded = yes; then
      :
   else
-     { { echo "$as_me:$LINENO: error: Cannot find gtk+ >= 2.4.0, install it and rerun ./configure" >&5
-echo "$as_me: error: Cannot find gtk+ >= 2.4.0, install it and rerun ./configure" >&2;}
+     { { echo "$as_me:$LINENO: error: Cannot find gtk+ >= 2.4.0, install it and rerun ./configure
+Please review the following errors:
+$GTK_PKG_ERRORS" >&5
+echo "$as_me: error: Cannot find gtk+ >= 2.4.0, install it and rerun ./configure
+Please review the following errors:
+$GTK_PKG_ERRORS" >&2;}
    { (exit 1); exit 1; }; }
 
   fi
@@ -8476,8 +8480,12 @@ echo "${ECHO_T}$GLIB_LIBS" >&6
   if test $succeeded = yes; then
      :
   else
-     { { echo "$as_me:$LINENO: error: Cannot find glib >= 2.4.0, install it and rerun ./configure." >&5
-echo "$as_me: error: Cannot find glib >= 2.4.0, install it and rerun ./configure." >&2;}
+     { { echo "$as_me:$LINENO: error: Cannot find glib >= 2.4.0, install it and rerun ./configure.
+Please review the following errors:
+$GLIB_PKG_ERRORS" >&5
+echo "$as_me: error: Cannot find glib >= 2.4.0, install it and rerun ./configure.
+Please review the following errors:
+$GLIB_PKG_ERRORS" >&2;}
    { (exit 1); exit 1; }; }
 
   fi

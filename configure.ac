@@ -283,13 +283,17 @@ for e in $HIDLIST; do
 	fi
 
 	PKG_CHECK_MODULES(GTK, gtk+-2.0 >= 2.4.0, , 
-		[AC_MSG_ERROR([Cannot find gtk+ >= 2.4.0, install it and rerun ./configure])]
+		[AC_MSG_ERROR([Cannot find gtk+ >= 2.4.0, install it and rerun ./configure
+Please review the following errors:
+$GTK_PKG_ERRORS])]
 	)
 	GTK_VERSION=`$PKG_CONFIG gtk+-2.0 --modversion`
 
 	# Search for glib
 	PKG_CHECK_MODULES(GLIB, glib-2.0 >= 2.4.0, , 
-		[AC_MSG_ERROR([Cannot find glib >= 2.4.0, install it and rerun ./configure.])]
+		[AC_MSG_ERROR([Cannot find glib >= 2.4.0, install it and rerun ./configure.
+Please review the following errors:
+$GLIB_PKG_ERRORS])]
 	)
 	GLIB_VERSION=`$PKG_CONFIG glib-2.0 --modversion`
 	;;
