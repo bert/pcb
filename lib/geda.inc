@@ -852,20 +852,22 @@ define(`PKG_2706',      `PKG_SMT_2PAD_MIL(  `$1', `$2', `$3', 270,   60)');
 # Round to nearest 0.05
 # Courtyard excess 0.10/0.15/0.20
 #
+#
+# Note that rounding to 0.05 mm produces a roundoff error of up to +/- 1 mil.  This can be significant
+# when we're talking about gaps on the order of 6 mils.  So for this really tiny part, round to 0.01 mm
+define(`PKG_CAPC0402L', `PKG_SMT_2PAD_MM100(  `$1', `$2', `$3',  26,   15,  31,  56,  28,   0,   0)');
+define(`PKG_CAPC0402N', `PKG_SMT_2PAD_MM100(  `$1', `$2', `$3',  26,   25,  41,  81,  33,   0,   0)');
+define(`PKG_CAPC0402M', `PKG_SMT_2PAD_MM100(  `$1', `$2', `$3',  36,   35,  51, 106,  38,   0,   0)');
 
-define(`PKG_CAPC0402L', `PKG_SMT_2PAD_MM100(  `$1', `$2', `$3',  25,   15,  30,  55,  30,   0,   0)');
-define(`PKG_CAPC0402N', `PKG_SMT_2PAD_MM100(  `$1', `$2', `$3',  25,   25,  40,  80,  35,   0,   0)');
-define(`PKG_CAPC0402M', `PKG_SMT_2PAD_MM100(  `$1', `$2', `$3',  35,   35,  50, 105,  40,   0,   0)');
+define(`PKG_INDC0402L', `PKG_SMT_2PAD_MM100(  `$1', `$2', `$3',  26,   15,  31,  56,  28,   0,   0)');
+define(`PKG_INDC0402N', `PKG_SMT_2PAD_MM100(  `$1', `$2', `$3',  26,   25,  41,  81,  33,   0,   0)');
+define(`PKG_INDC0402M', `PKG_SMT_2PAD_MM100(  `$1', `$2', `$3',  36,   35,  51, 106,  38,   0,   0)');
 
-define(`PKG_INDC0402L', `PKG_SMT_2PAD_MM100(  `$1', `$2', `$3',  25,   15,  30,  55,  30,   0,   0)');
-define(`PKG_INDC0402N', `PKG_SMT_2PAD_MM100(  `$1', `$2', `$3',  25,   25,  40,  80,  35,   0,   0)');
-define(`PKG_INDC0402M', `PKG_SMT_2PAD_MM100(  `$1', `$2', `$3',  35,   35,  50, 105,  40,   0,   0)');
+define(`PKG_RESC0402L', `PKG_SMT_2PAD_MM100(  `$1', `$2', `$3',  26,   15,  31,  56,  28,   0,   0)');
+define(`PKG_RESC0402N', `PKG_SMT_2PAD_MM100(  `$1', `$2', `$3',  26,   25,  41,  81,  33,   0,   0)');
+define(`PKG_RESC0402M', `PKG_SMT_2PAD_MM100(  `$1', `$2', `$3',  36,   35,  51, 106,  38,   0,   0)');
 
-define(`PKG_RESC0402L', `PKG_SMT_2PAD_MM100(  `$1', `$2', `$3',  25,   15,  30,  55,  30,   0,   0)');
-define(`PKG_RESC0402N', `PKG_SMT_2PAD_MM100(  `$1', `$2', `$3',  25,   25,  40,  80,  35,   0,   0)');
-define(`PKG_RESC0402M', `PKG_SMT_2PAD_MM100(  `$1', `$2', `$3',  35,   35,  50, 105,  40,   0,   0)');
-
-define(`PKG_01005',     `PKG_SMT_2PAD_MM100(  `$1', `$2', `$3',  25,   25,  40,  80,  35,   0,   0)');
+define(`PKG_01005',     `PKG_SMT_2PAD_MM100(  `$1', `$2', `$3',  26,   25,  41,  81,  33,   0,   0)');
 
 # 0201
 define(`PKG_CAPC0603L', `PKG_SMT_2PAD_MM100(  `$1', `$2', `$3',  30,   30,  50, 100,  60,   0,   0)');
