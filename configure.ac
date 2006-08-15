@@ -248,6 +248,7 @@ AC_CHECK_HEADERS(string.h sys/types.h regex.h pwd.h)
 AC_CHECK_HEADERS(sys/socket.h netinet/in.h netdb.h sys/param.h sys/times.h)
 
 AC_PATH_XTRA
+CPPFLAGS="$CFLAGS $X_CFLAGS"
 
 for e in $HIDLIST; do
     case $e in
