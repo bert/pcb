@@ -17,6 +17,7 @@
 #include "hid.h"
 #include "../hidint.h"
 #include "../ps/ps.h"
+#include "../../print.h"
 
 #ifdef HAVE_LIBDMALLOC
 #include <dmalloc.h>
