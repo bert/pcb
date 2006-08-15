@@ -5830,33 +5830,37 @@ ActionSetSame (int argc, char **argv, int x, int y)
       Settings.Keepaway = ((LineTypePtr) ptr2)->Clearance / 2;
       layer = (LayerTypePtr) ptr1;
       if (Settings.Mode != LINE_MODE)
-	SetMode (LINE_MODE);
+        SetMode (LINE_MODE);
       RestoreCrosshair (True);
       hid_action ("RouteStyleChanged");
       break;
+
     case ARC_TYPE:
       HideCrosshair (True);
       Settings.LineThickness = ((ArcTypePtr) ptr2)->Thickness;
       Settings.Keepaway = ((ArcTypePtr) ptr2)->Clearance / 2;
       layer = (LayerTypePtr) ptr1;
       if (Settings.Mode != ARC_MODE)
-	SetMode (ARC_MODE);
+        SetMode (ARC_MODE);
       RestoreCrosshair (True);
       hid_action ("RouteStyleChanged");
       break;
+
     case POLYGON_TYPE:
       layer = (LayerTypePtr) ptr1;
       break;
+
     case VIA_TYPE:
       HideCrosshair (True);
       Settings.ViaThickness = ((PinTypePtr) ptr2)->Thickness;
       Settings.ViaDrillingHole = ((PinTypePtr) ptr2)->DrillingHole;
       Settings.Keepaway = ((PinTypePtr) ptr2)->Clearance / 2;
       if (Settings.Mode != VIA_MODE)
-	SetMode (VIA_MODE);
+        SetMode (VIA_MODE);
       RestoreCrosshair (True);
       hid_action ("RouteStyleChanged");
       break;
+
     default:
       return 1;
     }
@@ -6223,7 +6227,7 @@ HID_Action action_action_list[] = {
    undo_help, undo_syntax},
   {"Redo", 0, ActionRedo,
    redo_help, redo_syntax},
-  {"SetSame", 0, ActionSetSame,
+  {"SetSame", "Select item to use attributes from", ActionSetSame,
    setsame_help, setsame_syntax},
   {"SetFlag", 0, ActionSetFlag,
   setflag_help, setflag_syntax},
