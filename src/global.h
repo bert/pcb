@@ -698,6 +698,7 @@ typedef struct
 #define UNDO_CHANGEMASKSIZE		0x2000	/* change mask size */
 #define UNDO_CHANGEANGLES		0x4000	/* change arc angles */
 #define UNDO_LAYERCHANGE		0x8000	/* layer new/delete/move */
+#define UNDO_NETLISTCHANGE		0x10000	/* netlist change */
 
 
 /* ---------------------------------------------------------------------------

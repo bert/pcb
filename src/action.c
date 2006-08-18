@@ -3114,6 +3114,308 @@ ActionRemoveSelected (int argc, char **argv, int x, int y)
 
 /* --------------------------------------------------------------------------- */
 
+static const char renumber_syntax[] =
+"Renumber()\n"
+"Renumber(filename)";
+
+static const char renumber_help[] =
+"Renumber all elements.  The changes will be recorded to filename\n"
+"for use in backannotating these changes to the schematic.";
+
+/* %start-doc actions Renumber
+
+%end-doc */
+
+static int
+ActionRenumber (int argc, char **argv, int x, int y)
+{
+  Boolean changed = False;
+  ElementTypePtr *element_list;
+  ElementTypePtr *locked_element_list;
+  unsigned int i, j, k, cnt, lock_cnt;
+  unsigned int tmpi;
+  size_t sz;
+  char *tmps;
+  char *name;
+  FILE *out;
+  size_t cnt_list_sz = 100;
+  struct _cnt_list {char *name; unsigned int cnt;} *cnt_list;
+  char **was, **is, *pin;
+  unsigned int c_cnt = 0;
+  int unique, ok;
+
+  if (argc < 1)
+    name = gui->prompt_for ("Renumber annotation file:", 0);
+  else
+    name = argv[0];
+
+  if ((out = fopen (name, "r")))
+    {
+      fclose (out);
+      if (! gui->
+	  confirm_dialog (_("File exists!  Ok to overwrite?"), 0))
+	return 0;
+    }
+  if ((out = fopen (name, "w")) == NULL)
+    {
+      Message ("Could not open %s\n", name);
+      return 1;
+    }
+
+  fprintf (out, "*COMMENT* PCB Annotation File\n");
+  fprintf (out, "*VERSION* 20060814\n");
+
+  /*
+   * Make a first pass through all of the elements and sort them out
+   * by location on the board.  While here we also collect a list of
+   * locked elements.
+   *
+   * We'll actually renumber things in the 2nd pass.
+   */
+  element_list = calloc (PCB->Data->ElementN, sizeof (ElementTypePtr));
+  locked_element_list = calloc (PCB->Data->ElementN, sizeof (ElementTypePtr));
+  was = calloc (PCB->Data->ElementN, sizeof (char *));
+  is = calloc (PCB->Data->ElementN, sizeof (char *));
+  if (element_list == NULL || locked_element_list == NULL || was == NULL || is == NULL)
+    {
+      fprintf (stderr, "calloc() failed in %s\n", __FUNCTION__);
+      exit (1);
+    }
+  
+
+  cnt = 0;
+  lock_cnt = 0;
+  ELEMENT_LOOP (PCB->Data);
+  {
+    if (TEST_FLAG (LOCKFLAG, element->Name) || TEST_FLAG (LOCKFLAG, element))
+      {
+	/* 
+	 * add to the list of locked elements which we won't try to
+	 * renumber and whose reference designators are now reserved.
+	 */
+	fprintf (out, "*WARN* Element \"%s\" at (%d,%d) is locked and will not be renumbered.\n", 
+		 UNKNOWN ( NAMEONPCB_NAME (element) ), element->MarkX, element->MarkY);
+	locked_element_list[lock_cnt] = element;
+	lock_cnt++;
+      }
+
+    else
+      {
+	/* count of devices which will be renumbered */
+	cnt++;
+
+	/* search for correct position in the list */
+	i = 0;
+	while (element_list[i] && element->MarkY > element_list[i]->MarkY ) 
+	  i++;
+	
+	/* 
+	 * We have found the position where we have the first element that
+	 * has the same Y value or a lower Y value.  Now move forward if
+	 * needed through the X values
+	 */
+	while (element_list[i] 
+	       && element->MarkY == element_list[i]->MarkY 
+	       && element->MarkX > element_list[i]->MarkX) 
+	  i++;
+	
+	for (j = cnt-1; j > i ; j--)
+	  {
+	    element_list[j] = element_list[j - 1];
+	  }
+	element_list[i] = element;
+      }
+  }
+  END_LOOP;
+  
+
+  /* 
+   * Now that the elements are sorted by board position, we go through
+   * and renumber them.
+   */
+
+  /* 
+   * turn off the flag which requires unique names so it doesn't get
+   * in our way.  When we're done with the renumber we will have unique
+   * names.
+   */
+  unique = TEST_FLAG (UNIQUENAMEFLAG, PCB);
+  CLEAR_FLAG (UNIQUENAMEFLAG, PCB);
+
+  cnt_list = calloc (cnt_list_sz, sizeof (struct _cnt_list));
+  for (i = 0; i < cnt; i++)
+    {
+      /* If there is no refdes, maybe just spit out a warning */
+      if (NAMEONPCB_NAME (element_list[i]))
+	{
+	  /* figure out the prefix */
+	  tmps = strdup (NAMEONPCB_NAME (element_list[i]));
+	  j = 0;
+	  while (tmps[j] && (tmps[j] < '0' || tmps[j] > '9') && tmps[j] != '?') 
+	    j++;
+	  tmps[j] = '\0';
+	  
+	  /* check the counter for this prefix */
+	  for (j = 0; cnt_list[j].name  && (strcmp (cnt_list[j].name, tmps) != 0) && j < cnt_list_sz; j++);
+
+	  /* grow the list if needed */
+	  if (j == cnt_list_sz) 
+	    {
+	      cnt_list_sz += 100;
+	      cnt_list = realloc (cnt_list, cnt_list_sz);
+	      if (cnt_list == NULL)
+		{
+		  fprintf (stderr, "realloc failed() in %s\n", __FUNCTION__);
+		  exit (1);
+		}
+	      /* zero out the memory that we added */
+	      for (tmpi = j; tmpi < cnt_list_sz; tmpi++)
+		{
+		  cnt_list[tmpi].name = NULL;
+		  cnt_list[tmpi].cnt = 0;
+		}
+	    }
+
+	  /* 
+	   * start a new counter if we don't have a counter for this
+	   * prefix 
+	   */
+	  if ( ! cnt_list[j].name)
+	    {
+	      cnt_list[j].name = strdup (tmps);
+	      cnt_list[j].cnt = 0;
+	    }
+
+	  /*
+	   * check to see if the new refdes is already used by a
+	   * locked element
+	   */
+	  do 
+	    {
+	      ok = 1;
+	      cnt_list[j].cnt++;
+	      free (tmps);
+	      
+	      /* space for the prefix plus 1 digit plus the '\0' */
+	      sz = strlen (cnt_list[j].name) + 2;
+	      
+	      /* and 1 more per extra digit needed to hold the number */
+	      tmpi = cnt_list[j].cnt;
+	      while (tmpi > 10)
+		{
+		  sz++;
+		  tmpi = tmpi / 10;
+		}
+	      tmps = malloc (sz * sizeof (char));
+	      sprintf (tmps, "%s%d", cnt_list[j].name, cnt_list[j].cnt);
+
+	      /* 
+	       * now compare to the list of reserved (by locked
+	       * elements) names 
+	       */
+	      for (k = 0; k < lock_cnt ; k++)
+		{
+		  if (strcmp (UNKNOWN ( NAMEONPCB_NAME (locked_element_list[k])), tmps) == 0)
+		    {
+		      ok = 0;
+		      break;
+		    }
+		}
+
+	    } while ( ! ok);
+
+	  if (strcmp (tmps, NAMEONPCB_NAME (element_list[i])) != 0)
+	    {
+	      fprintf (out, "*RENAME* \"%s\" \"%s\"\n", NAMEONPCB_NAME (element_list[i]), tmps);
+
+	      /* add this rename to our table of renames so we can update the netlist */
+	      was[c_cnt] = strdup (NAMEONPCB_NAME (element_list[i]));
+	      is[c_cnt] = strdup (tmps);
+	      c_cnt++;
+
+	      AddObjectToChangeNameUndoList (ELEMENT_TYPE, NULL, NULL,
+					     element_list[i], NAMEONPCB_NAME (element_list[i]));
+
+	      ChangeObjectName (ELEMENT_TYPE, element_list[i], NULL, NULL, tmps);
+	      changed = True;
+
+	      /* we don't free tmps in this case because it is used */
+	    }
+	  else
+	    free (tmps);
+	}
+      else 
+	{
+	  fprintf (out, "*WARN* Element at (%d,%d) has no name.\n", 
+		   element_list[i]->MarkX, element_list[i]->MarkY);
+	}
+
+    }
+
+  fclose (out);
+
+  /* restore the unique flag setting */
+  if (unique)
+    SET_FLAG (UNIQUENAMEFLAG, PCB);
+
+  if (changed)
+    {
+
+      /* update the netlist */
+      AddNetlistLibToUndoList ( &(PCB->NetlistLib) );
+
+      /* iterate over each net */
+      for (i = 0 ; i < PCB->NetlistLib.MenuN; i++)
+	{
+
+	  /* iterate over each pin on the net */
+	  for (j = 0; j < PCB->NetlistLib.Menu[i].EntryN; j++) {
+
+	    /* figure out the pin number part from strings like U3-21 */
+	    tmps = strdup (PCB->NetlistLib.Menu[i].Entry[j].ListEntry);
+	    for (k = 0; tmps[k] && tmps[k] != '-' ; k++);
+	    tmps[k] = '\0';
+	    pin = tmps + k + 1;
+
+	    /* iterate over the list of changed reference designators */
+	    for (k = 0; k < c_cnt; k++)
+	      {
+		/*
+		 * if the pin needs to change, change it and quit
+		 * searching in the list. 
+		 */
+		if (strcmp (tmps, was[k]) == 0) {
+		  free (PCB->NetlistLib.Menu[i].Entry[j].ListEntry);
+		  PCB->NetlistLib.Menu[i].Entry[j].ListEntry = 
+		    malloc ((strlen (is[k]) + strlen (pin) + 2)*sizeof (char));
+		  sprintf (PCB->NetlistLib.Menu[i].Entry[j].ListEntry, "%s-%s", is[k], pin);
+		  k = c_cnt;
+		}
+
+	      }
+	    free (tmps);
+	  }
+	}
+      for (k=0; k<c_cnt; k++)
+	{
+	  free(was[k]);
+	  free(is[k]);
+	}
+
+      hid_action ("NetlistChanged");
+      IncrementUndoSerialNumber ();
+      SetChangedFlag (True);
+    }
+
+  free (locked_element_list);
+  free (element_list);
+  free (cnt_list);
+  return 0;
+}
+
+
+/* --------------------------------------------------------------------------- */
+
 static const char ripup_syntax[] =
 "RipUp(All|Selected|Element)";
 
@@ -6203,6 +6505,8 @@ HID_Action action_action_list[] = {
    quit_help, quit_syntax},
   {"RemoveSelected", 0, ActionRemoveSelected,
    removeselected_help, removeselected_syntax},
+  {"Renumber", 0, ActionRenumber,
+   renumber_help, renumber_syntax},
   {"RipUp", 0, ActionRipUp,
    ripup_help, ripup_syntax},
   {"Select", 0, ActionSelect,

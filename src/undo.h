@@ -62,6 +62,7 @@ void AddObjectToClearSizeUndoList (int, void *, void *, void *);
 void AddObjectToMaskSizeUndoList (int, void *, void *, void *);
 void AddObjectToChangeAnglesUndoList (int, void *, void *, void *);
 void AddLayerChangeToUndoList (int, int);
+void AddNetlistLibToUndoList (LibraryTypePtr);
 void LockUndo (void);
 void UnlockUndo (void);
 Boolean Undoing (void);
