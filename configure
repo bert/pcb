@@ -7498,6 +7498,7 @@ fi
   LDFLAGS=$ac_save_LDFLAGS
 
 fi
+
 CPPFLAGS="$CFLAGS $X_CFLAGS"
 
 for e in $HIDLIST; do

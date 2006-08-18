@@ -449,12 +449,12 @@ Pad (aX1 aY1 aX2 aY2 Thickness "Name" NFlags)
 
 @table @var
 @item rX1 rY1 rX2 rY2
-Coordinates of the enpoints of the pad, relative to the element's
+Coordinates of the endpoints of the pad, relative to the element's
 mark.  Note that the copper extends beyond these coordinates by half
 the thickness.  To make a square or round pad, specify the same
 coordinate twice.
 @item aX1 aY1 aX2 aY2
-Same, but absolute coordinates of the enpoints of the pad.
+Same, but absolute coordinates of the endpoints of the pad.
 @item Thickness
 width of the pad.
 @item Clearance
