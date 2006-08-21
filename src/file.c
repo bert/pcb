@@ -311,6 +311,7 @@ LoadPCB (char *Filename)
       RemovePCB (PCB);
       PCB = newPCB;
 
+      CreateNewPCBPost(PCB, 0);
       ResetStackAndVisibility ();
 #if FIXME
       /* set the zoom first before the Xorig, Yorig */
