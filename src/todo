@@ -50,7 +50,10 @@ lots of #ifdef FIXME in the core code.  Some actions need fixing
 up in these areas.
 
 Adjust minimum symbol line size based on current layer; don't assume
-silk layer.
+silk layer.  Note: need "thin" lines for pinout windows still.
+
+SearchObjectByLocation() needs to search front side silk, elements,
+etc, before back side ones.
 
 -------------------- Action Enhancements --------------------
 

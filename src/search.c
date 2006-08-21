@@ -1145,7 +1145,11 @@ SearchObjectByLocation (int Type,
       else if (i < max_layer)
 	SearchLayer = LAYER_ON_STACK (i);
       else
-	SearchLayer = &PCB->Data->BACKSILKLAYER;
+	{
+	  SearchLayer = &PCB->Data->BACKSILKLAYER;
+	  if (!PCB->InvisibleObjectsOn)
+	    continue;
+	}
       if (SearchLayer->On)
 	{
 	  if ((HigherAvail & (PIN_TYPE | PAD_TYPE)) == 0 &&
