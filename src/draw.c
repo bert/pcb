@@ -438,6 +438,7 @@ PrintAssembly (const BoxType * drawn_area, int side_group, int swap_ident)
   gui->set_draw_faded (Output.fgGC, 1);
   SWAP_IDENT = swap_ident;
   DrawLayerGroup (side_group, drawn_area);
+  r_search (PCB->Data->via_tree, drawn_area, NULL, lowvia_callback, NULL);
   DrawTop (drawn_area);
   gui->set_draw_faded (Output.fgGC, 0);
 
