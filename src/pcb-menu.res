@@ -9,6 +9,7 @@ Mouse =
     up = Mode(Release)
   }
   Right = {
+    { Mode(Save) Mode(Rotate) Mode(Notify) Mode(Release) Mode(Restore) }
   }
   Middle = {
     Pan(1)
