@@ -1258,6 +1258,8 @@ ClearOnlyPin (PinTypePtr Pin, Boolean mask)
     return;
   if (half == 0)
     return;
+  if (!mask && Pin->Clearance <= 0)
+    return;
 
   /* Clear the area around the pin */
   if (TEST_FLAG (SQUAREFLAG, Pin))
