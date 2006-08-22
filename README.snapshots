@@ -26,6 +26,9 @@ To make a pcb release do the following:
 =)	# make sure it makes distfiles ok: (have to build before doing distcheck so
 	pcb gets built so it can create some of the images in the doc directory)
 	gmake distclean ; ./autogen.sh  && ./configure --enable-maintainer-mode && gmake && gmake distcheck
+	setenv DISTCHECK_CONFIGURE_FLAGS '--with-gui=lesstif CPPFLAGS=-I/usr/pkg/include CFLAGS=-I/usr/pkg/include LDFLAGS="-L/usr/pkg/lib -R/usr/pkg/lib"'
+	gmake distcheck
+	unsetenv DISTCHECK_CONFIGURE_FLAGS
 
 =)	cvs ci
 
