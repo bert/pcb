@@ -3722,7 +3722,7 @@ drc_callback (int type, void *ptr1, void *ptr2, void *ptr3,
 	}
       break;
     case VIA_TYPE:
-      if (pin->Clearance <= 2 * PCB->Bloat)
+      if (pin->Clearance && pin->Clearance <= 2 * PCB->Bloat)
 	{
 	  AddObjectToFlagUndoList (type, ptr1, ptr2, ptr3);
 	  SET_FLAG (TheFlag, pin);
