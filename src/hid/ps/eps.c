@@ -329,6 +329,8 @@ eps_set_layer (const char *name, int group)
 	case SL (SILK, BOTTOM):
 	  if (SL_MYSIDE (idx))
 	    return PCB->ElementOn;
+	  else
+	    return 0;
 	}
     }
   else
