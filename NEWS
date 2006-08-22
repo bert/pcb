@@ -1,4 +1,40 @@
 ========================================================================
+Release Notes for PCB snapshot 20060822
+========================================================================
+- various manual updates
+- update the INSTALL documentation
+- fix a bug where pins turned into pure holes when an element
+  was smashed.
+- use locale-independent strtod and dtostr functions to avoid problems
+  loading files saved in some locales.
+- fixed various bugs which caused pcb to crash
+- update the gtk status line after save/save as
+- make the gerber file names be compatible with pre-HID versions
+- split plated and unplated drill output
+- fix various typos in menus and comments
+- add a batch mode HID.
+- fix drawing of box around text in the buffer
+- various fixes and improvements to the trace optimizer and the
+  autorouter
+- fix board flipping code
+- fix rounding bug when creating list of drill sizes
+- add support for > 8 copper layers
+- avoid strict aliasing violations encountered with gcc4
+- refactor code related to handling the filenames in the export
+  HID's
+- fix layer group parsing code
+- add the ability to user-configure mouse actions in the lesstif GUI.
+- enable loaded netlists by default
+- improve the positioning of the drill list in the postscript output
+- various improvements to the configure script to improve robustness
+  and improve error messages when thing don't go well.
+- add IPC style footprints for 01005 passives.
+- added a Renumber() action which will renumber all reference designators
+  and produced an annotation file for backannotating to schematics.
+- Draw via annulii on assembly drawings
+- various other bug fixes and improvements.
+
+========================================================================
 Release Notes for PCB snapshot 20060422
 ========================================================================
 - Several minor portability fixes for Solaris and the SunPRO compiler and

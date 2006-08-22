@@ -1,3 +1,503 @@
+2006-08-21 19:18  djdelorie
+
+	* src/main.c: Add default colors for layers 9..16
+
+2006-08-21 19:18  djdelorie
+
+	* src/file.c: post-initialize PCBs loaded from files.
+
+2006-08-21 13:27  djdelorie
+
+	* src/pcb-menu.res: Let right-mouse do "rotate" for now.
+
+2006-08-21 13:19  djdelorie
+
+	* src/: search.c, todo: Don't let search find backsilk if invisible
+	  objects are off.
+
+2006-08-20 20:23  djdelorie
+
+	* src/draw.c: Draw via annulii on assembly drawings.
+
+2006-08-17 23:44  danmc
+
+	* configure, doc/actions.texi, doc/pcbfile.texi: regen
+
+2006-08-17 23:30  danmc
+
+	* src/: action.c, global.h, undo.c, undo.h: add a Renumber() action
+	  which renumbers reference designators and outputs a "was/is" sort
+	  of file which can be used for back annotation if someone writes a
+	  utility to apply those changes to a schematic.
+
+	  For now Renumber() is still considered somewhat experimental and
+	  hence is not hooked up to the menus yet.
+
+2006-08-14 23:36  djdelorie
+
+	* configure, configure.ac: Add X_CFLAGS to CFLAGS so that Xm/Xm.h
+	  can be found.
+
+2006-08-14 23:01  danmc
+
+	* src/hid/ps/ps.c: add header for a missing prototype
+
+2006-08-14 22:50  danmc
+
+	* src/action.c: Apply patch from patch [ 1496742 ] Make 'a' key
+	  (SetSame) work again submitted by Wim Lewis.
+
+2006-08-14 09:23  danmc
+
+	* configure, configure.ac: when pkg-config fails to find the
+	  desired version of gtk or glib, then print the pkg-config output
+	  as part of the error message.  Suggested in bug # 1507555 by Mark
+	  Whitis.
+
+2006-08-14 08:53  danmc
+
+	* lib/geda.inc: use 0.01 mm instead of 0.05 mm for the roundoff for
+	  01005 footprints because they are so small.  This bumps the gap
+	  between pads just over 6 mils instead of just under 6 mils.
+
+2006-08-11 12:22  danmc
+
+	* src/hid/lpr/lpr.c: Fix bug [ 1534098 ] Segmentation fault in GTK
+	  print dialog reported by Mark Rages.	Symptom was changing the
+	  lpr command in the gtk dialog box gave an instant crash.
+
+2006-08-10 12:27  danmc
+
+	* src/: Makefile.am, Makefile.in: add hid/batch/batch_lists.h to
+	  DISTCLEANFILES
+
+2006-08-09 21:34  danmc
+
+	* lib/geda.inc: Add 01005 footprints.
+
+2006-08-04 08:40  danmc
+
+	* src/copy.c: Remove extra calls to Draw().  This greatly speeds up
+	  copy operations.  This is especially true when pasting large
+	  blocks of layout.  Patch supplied by	Tibor Palinkas as patch
+	  #1532922.
+
+2006-08-03 01:25  djdelorie
+
+	* src/: Makefile.am, Makefile.in, fontmode.c: Add font editing mode
+	  (FontEdit() and FontSave())
+
+2006-08-03 01:24  djdelorie
+
+	* src/file.c: Use the old style (mil) syntax when saving font info,
+	  if the values permit it, for readability and to save file space.
+
+2006-08-03 01:19  djdelorie
+
+	* src/action.c: Allow New() to take a name, so that the user need
+	  not be prompted during scripts and such.
+
+2006-08-03 01:18  djdelorie
+
+	* src/move.c: When deleting a layer, make sure to zero out the
+	  now-unused slot at the end.
+
+2006-08-02 14:32  danmc
+
+	* configure, configure.ac: After running PATH_XTRA and checking for
+	  various X libs (Xpm, etc), we need to use $X_LIBS as part of LIBS
+	  in subsequent library tests or we'll have a failure.	This should
+	  address some issues noted recently on one of the gEDA lists and
+	  configuring with lesstif and the png HID's.
+
+2006-08-02 11:55  djdelorie
+
+	* src/: Pcb.ad.in, Pcb.ad.raw, Pcb.ad.small, action.c, autoroute.c,
+	  buffer.c, create.c, crosshair.c, data.c, dev_rs274x.c, djopt.c,
+	  draw.c, error.c, file.c, find.c, line.c, misc.c, mtspace.h,
+	  mymem.c, netlist.c, output.c, parse_l.l, parse_y.y, polygon.c,
+	  puller.c, rats.c, rtree.c, rubberband.c, search.c, select.c,
+	  undo.c, hid/gtk/gtkhid-main.c, hid/lesstif/main.c: spelling fixes
+	  from Larry.
+
+2006-08-02 11:47  djdelorie
+
+	* src/: print.c, print.h, hid/ps/ps.c: When the drill list fits
+	  "naturally", no offset is added, which makes me happy.  When the
+	  drill list would otherwise fall off the left edge of the paper,
+	  just enough offset is added to keep that from happening.
+
+2006-08-02 11:41  djdelorie
+
+	* src/hid/lesstif/netlist.c: Allow extended selections.
+
+2006-08-01 08:33  danmc
+
+	* README.cvs: - Note that automake-1.7 and older are too old.  -
+	  Add a pointer to the README.snapshot document
+
+2006-07-26 14:13  djdelorie
+
+	* src/file.c: Enable loaded netlists by default.
+
+2006-07-26 00:58  djdelorie
+
+	* src/: pcb-menu.res, hid/lesstif/lesstif.h, hid/lesstif/main.c,
+	  hid/lesstif/menu.c: Add the ability to user-configure mouse
+	  actions.
+
+2006-07-24 02:42  djdelorie
+
+	* src/hid/lesstif/: lesstif.h, main.c, menu.c: Add support for
+	  multi-key hotkeys, via <Keys>abc syntax for a/b/c sequence.
+
+2006-07-23 17:01  djdelorie
+
+	* src/hid/lesstif/dialogs.c: use "top" and "bottom" to describe the
+	  side flags, instead of using "solder" and "component", which are
+	  common layer names.
+
+2006-07-19 22:51  haceaton
+
+	* src/: autoroute.c, mtspace.c, rtree.c: Various improvements to
+	  speed up auto-routing. Mainly optimizing the r-tree searching
+	  even more.
+	  ----------------------------------------------------------------------
+
+2006-07-14 15:52  djdelorie
+
+	* src/: crosshair.c, hid/gtk/gtkhid-main.c, hid/lesstif/main.c: Fix
+	  draw_rect vs board flipping bug.
+
+2006-07-14 15:47  djdelorie
+
+	* src/: autoplace.c, djopt.c, main.c, move.c, mymem.c: Minor
+	  patches from Larry.
+
+2006-07-13 08:05  haceaton
+
+	* src/: autoroute.c, rats.c: fix some autorouter bugs and improve
+	  ability to round around non-manhattan lines
+	  ----------------------------------------------------------------------
+
+2006-07-10 07:38  danmc
+
+	* src/: Makefile.am, Makefile.in: remove circular dependency which
+	  breaks non-GNU make programs.
+
+2006-07-08 15:23  danmc
+
+	* INSTALL: summarize the dependencies for building pcb
+
+2006-07-08 15:17  danmc
+
+	* INSTALL: fix a typo
+
+2006-07-08 15:16  danmc
+
+	* README: remove some redundant and out of date notes
+
+2006-07-07 00:01  djdelorie
+
+	* src/misc.c: Fix minor rounding bug in c_dtostr().
+
+2006-07-06 22:15  djdelorie
+
+	* src/misc.c: Fix layer group parsing code.  Avoid trailing colon
+	  in group string.
+
+2006-07-04 08:42  danmc
+
+	* src/hid/: hidint.h, bom/bom.c, common/hidinit.c, gerber/gerber.c,
+	  gtk/gui-top-window.c, png/png.c, ps/eps.c, ps/ps.c: Apply a patch
+	  from Larry Doolittle.
+
+	  Refactors filename handling code common to the file export HIDs
+	  (bom, gerber, png, eps, ps).
+
+	  The png code had one feature (last_made_filename) that was
+	  missing in the others.  This refactoring brings all the HIDs to
+	  feature parity, which lets
+
+	  pcb -x bom --bomfile=foo.txt bar.pcb
+
+	  work as expected.  The old code ignores the command line flag,
+	  and writes the bom to bar.bom.  Likewise for .xy, .gbr, .eps, and
+	  .ps files.
+
+	  Also fixes a couple of spelling errors.
+
+2006-07-04 08:16  danmc
+
+	* doc/actions.texi, doc/pcbfile.texi, src/Makefile.in,
+	  src/action.c, src/create.c, src/dev_rs274x.c, src/drill.c,
+	  src/file.c, src/find.c, src/mymem.c, src/mymem.h, src/parse_l.l,
+	  src/rats.c, src/remove.c, src/undo.c: Apply a patch from Larry
+	  Doolittle that switches from the MyFree() function to the new
+	  MYFREE() macro to avoid strict aliasing violations.
+
+2006-06-25 23:22  djdelorie
+
+	* src/djopt.c: Don't delete vias with thermals.  Try to split
+	  diagonal lines at pins and vias.
+
+2006-06-25 19:21  djdelorie
+
+	* src/todo: MoveLayers cleanup tasks - thermals, pips, undo
+
+2006-06-22 09:46  danmc
+
+	* README.cvs: add a comment about needing the png HID for building
+	  docs from cvs
+
+2006-06-20 22:51  djdelorie
+
+	* src/hid/lesstif/main.c: Account for board flipping when zooming.
+
+2006-06-10 22:27  djdelorie
+
+	* src/action.c: Remove obsolete ActionSwapSides()
+
+2006-06-10 22:25  djdelorie
+
+	* src/: pcb-menu.res, hid/lesstif/main.c: Merge lesstif's Flip()
+	  action into SwapSides to avoid conflict with core Flip().
+
+2006-06-10 22:24  djdelorie
+
+	* src/hid/lesstif/menu.c: Print actions called when verbose.
+
+2006-06-09 23:07  djdelorie
+
+	* globalconst.h, src/action.c, src/autoplace.c, src/autoroute.c,
+	  src/buffer.c, src/copy.c, src/create.c, src/create.h,
+	  src/crosshair.c, src/data.h, src/djopt.c, src/draw.c, src/file.c,
+	  src/find.c, src/global.h, src/line.c, src/macro.h, src/main.c,
+	  src/misc.c, src/misc.h, src/move.c, src/move.h, src/parse_y.y,
+	  src/pcb-menu.res, src/polygon.c, src/print.c, src/rats.c,
+	  src/rtree.c, src/rubberband.c, src/search.c, src/undo.c,
+	  src/undo.h, src/hid/common/extents.c, src/hid/common/flags.c,
+	  src/hid/gerber/gerber.c, src/hid/gtk/gtkhid-main.c,
+	  src/hid/gtk/gui-config.c, src/hid/gtk/gui-top-window.c,
+	  src/hid/gtk/gui.h, src/hid/lesstif/dialogs.c,
+	  src/hid/lesstif/main.c, src/hid/lesstif/menu.c,
+	  src/hid/png/png.c, src/hid/ps/eps.c, src/hid/ps/ps.c: flexible
+	  max_layers
+
+2006-06-08 23:31  djdelorie
+
+	* src/hid/lesstif/main.c: Compensate for board flipping in the
+	  panning code.
+
+2006-06-05 23:32  djdelorie
+
+	* src/hid/gerber/gerber.c: Fix rounding bug when collecting drill
+	  sizes.
+
+2006-06-02 23:33  djdelorie
+
+	* src/djopt.c: Fix logic a bit, don't try to move pins.
+
+2006-06-02 23:32  djdelorie
+
+	* src/pcb-menu.res: Syntax fix for DisperseElements()
+
+2006-05-29 00:09  djdelorie
+
+	* src/todo: Remove lesstif board flipping item.
+
+2006-05-29 00:03  djdelorie
+
+	* src/: pcb-menu.res, hid/lesstif/main.c: Add Flip action, both
+	  vertical and horizontal.
+
+2006-05-28 22:33  djdelorie
+
+	* src/djopt.c: Adjust endpoints of lines that don't quite reach
+	  adjoining lines.
+
+2006-05-21 00:36  djdelorie
+
+	* src/: report.c, hid/lesstif/menu.c: Report on locked objects if
+	  there are no unlocked objects under the cursor.  Save the cursor
+	  position even if we don't initially need it, in case we call an
+	  action that does.
+
+2006-05-20 23:52  djdelorie
+
+	* src/hid/gerber/gerber.c: Reset layer value cache before we
+	  shortcut for counting apertures.
+
+2006-05-20 16:04  djdelorie
+
+	* src/: draw.c, hid.h, hid/common/extents.c, hid/gerber/gerber.c,
+	  hid/gtk/gtkhid-main.c, hid/lesstif/main.c, hid/png/png.c,
+	  hid/ps/eps.c, hid/ps/ps.c: Split plated and unplated drills in
+	  gerber output.
+
+2006-05-20 15:20  djdelorie
+
+	* src/hid/gerber/gerber.c: Name internal gerber layers sanely.
+
+2006-05-20 14:37  djdelorie
+
+	* src/hid/gerber/gerber.c: Change gerber names to be compatible
+	  with pre-hid.
+
+2006-05-20 13:41  djdelorie
+
+	* src/: const.h, search.c: Ignore locked objects unless LOCKED_TYPE
+	  is passed (lock tool).
+
+2006-05-16 18:15  danmc
+
+	* configure, configure.ac: add the batch HID to the list of gui
+	  HIDs in the help output
+
+2006-05-15 00:48  djdelorie
+
+	* src/hid/gtk/gui-top-window.c: Fig typo in ChangeDrillSize menu.
+
+2006-05-14 21:08  djdelorie
+
+	* src/hid/batch/batch.c: Fix test for interactiveness.
+
+2006-05-14 20:54  djdelorie
+
+	* src/: Makefile.am, Makefile.in, hid/batch/batch.c,
+	  hid/batch/hid.conf: Add batch-mode HID.
+
+2006-05-14 19:22  djdelorie
+
+	* src/crosshair.c: Fix drawing of box around text items in buffer.
+
+2006-05-13 22:08  djdelorie
+
+	* src/draw.c: Add support for drawing/exporting paste layers.
+
+2006-05-01 17:47  danmc
+
+	* doc/actions.texi, doc/version.texi, src/action.c: add Message()
+	  action
+
+2006-04-30 00:28  danmc
+
+	* src/buffer.c: fix a bug where mirroring a buffer with only traces
+	  triggered the "can't mirror a buffer with text" if there was text
+	  anywhere in the layout.  Patch provided as part of bug #1467446.
+
+2006-04-29 14:43  billw2
+
+	* src/hid/gtk/: gtkhid-main.c, gui-dialog.c, gui-top-window.c:
+
+	  Update status line after menu Save layout and Save layout as.
+
+	  Change file select response button from "Open" to "Ok".
+
+	  Don't try to Save layout when user hits Cancel and file name is
+	  NULL.
+
+2006-04-29 13:05  billw2
+
+	* src/hid/gtk/: gui-output-events.c, gui-utils.c:
+
+	  Couple of small typo bugs: a missing "break" and needed -1 arg to
+	  size request.
+
+2006-04-28 19:44  danmc
+
+	* src/action.c: prevent segfaults when trying to undo in the middle
+	  of drawing ratlines.	Problem noted by Daniel Wisehart, fixed by
+	  me.
+
+2006-04-27 23:09  djdelorie
+
+	* src/: file.c, misc.c, misc.h, parse_l.l: Use locale-independent
+	  strtod and dtostr functions.
+
+2006-04-26 23:22  danmc
+
+	* config.h.in: regen
+
+2006-04-26 23:22  danmc
+
+	* INSTALL: minor updates, mention gd-2.0.23 as having been used
+
+2006-04-26 22:34  danmc
+
+	* configure, configure.ac: if gdlib-config is not found, try and
+	  just check for -lgd on the off chance that it works.	The user in
+	  this case may have to add things like -lpng to their LDFLAGS
+	  variable in the environment or just update to a newer version of
+	  gdlib.  gdlib-config has been around for at least a few years
+	  anyway.
+
+2006-04-26 18:00  danmc
+
+	* README_FILES/Makefile.in: remove obsolete README file
+
+2006-04-26 17:47  danmc
+
+	* INSTALL: bring the install docs up to date
+
+2006-04-26 17:47  danmc
+
+	* README-GTK_PORT, README_FILES/INSTALL, README_FILES/Makefile.am,
+	  README_FILES/Makefile.in: remove obsolete README file
+
+2006-04-25 18:40  danmc
+
+	* configure, configure.ac: complain if the png HID has been
+	  requested but all formats disabled
+
+2006-04-24 18:02  danmc
+
+	* src/hid/gtk/gui-top-window.c: do not crash if the input pipe
+	  terminates when using --listen
+
+2006-04-24 18:02  danmc
+
+	* src/hid/lesstif/main.c: remove a debugging printf
+
+2006-04-24 01:10  djdelorie
+
+	* src/global.h: Comment tweak.
+
+2006-04-24 01:05  djdelorie
+
+	* src/global.h: Define on-board objects in terms of base types.
+
+2006-04-23 16:41  danmc
+
+	* src/buffer.c: when smashing the pastebuffer, don't set the pure
+	  hole flag on the vias unless is was set on the original pin.
+	  Reported by Levente Kovacs on geda-user.
+
+2006-04-23 12:57  danmc
+
+	* doc/pcb.texi: update newlib creation section for the latest GTK
+	  HID.	Addresses bug 1473640.
+
+2006-04-22 15:05  danmc
+
+	* configure, doc/version.texi: set version for snapshot
+
+2006-04-22 14:37  danmc
+
+	* NEWS: add 20060422 release notes
+
+2006-04-22 14:31  danmc
+
+	* configure.ac: set version for snapshot
+
+2006-04-22 14:09  danmc
+
+	* README.snapshots: update for 20060422
+
+2006-04-22 14:09  danmc
+
+	* ChangeLog: update for 20060422 snapshot
+
 2006-04-21 17:05  danmc
 
 	* src/hid/gtk/gui-config.c: Comment out locale.h since the code
