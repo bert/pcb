@@ -309,7 +309,7 @@ ac_includes_default="\
 # include <unistd.h>
 #endif"
 
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA CYGPATH_W PACKAGE VERSION ACLOCAL AUTOCONF AUTOMAKE AUTOHEADER MAKEINFO install_sh STRIP ac_ct_STRIP INSTALL_STRIP_PROGRAM mkdir_p AWK SET_MAKE am__leading_dot AMTAR am__tar am__untar MAINTAINER_MODE_TRUE MAINTAINER_MODE_FALSE MAINT build build_cpu build_vendor build_os host host_cpu host_vendor host_os WIN32 WIN32_TRUE WIN32_FALSE CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT DEPDIR am__include am__quote AMDEP_TRUE AMDEP_FALSE AMDEPBACKSLASH CCDEPMODE am__fastdepCC_TRUE am__fastdepCC_FALSE CPP LEX LEXLIB LEX_OUTPUT_ROOT YACC RANLIB ac_ct_RANLIB TGIF MISSING_TGIF_TRUE MISSING_TGIF_FALSE XPMTOPPM PPMTOWINICON MISSING_XPMTOPPM_TRUE MISSING_XPMTOPPM_FALSE CONVERT MISSING_CONVERT_TRUE MISSING_CONVERT_FALSE DOC MKINFO PERL HIDLIST HIDLIBS M4 WISH GNUM4 LATEX MISSING_LATEX_TRUE MISSING_LATEX_FALSE PDFLATEX MISSING_PDFLATEX_TRUE MISSING_PDFLATEX_FALSE DVIPS MISSING_DVIPS_TRUE MISSING_DVIPS_FALSE PS2PDF MISSING_PS2PDF_TRUE MISSING_PS2PDF_FALSE EGREP X_CFLAGS X_PRE_LIBS X_LIBS X_EXTRA_LIBS PKG_CONFIG GTK_CFLAGS GTK_LIBS GLIB_CFLAGS GLIB_LIBS GDLIB_CONFIG FONTFILENAME PCBLIBDIR LIBRARYFILENAME PCBTREEDIR BTNMOD TOPDIRS LIBOBJS LTLIBOBJS'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA CYGPATH_W PACKAGE VERSION ACLOCAL AUTOCONF AUTOMAKE AUTOHEADER MAKEINFO install_sh STRIP ac_ct_STRIP INSTALL_STRIP_PROGRAM mkdir_p AWK SET_MAKE am__leading_dot AMTAR am__tar am__untar MAINTAINER_MODE_TRUE MAINTAINER_MODE_FALSE MAINT build build_cpu build_vendor build_os host host_cpu host_vendor host_os WIN32 WIN32_TRUE WIN32_FALSE CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT DEPDIR am__include am__quote AMDEP_TRUE AMDEP_FALSE AMDEPBACKSLASH CCDEPMODE am__fastdepCC_TRUE am__fastdepCC_FALSE CPP LEX LEXLIB LEX_OUTPUT_ROOT LEX_PATH YACC YACC_PATH RANLIB ac_ct_RANLIB TGIF MISSING_TGIF_TRUE MISSING_TGIF_FALSE XPMTOPPM PPMTOWINICON MISSING_XPMTOPPM_TRUE MISSING_XPMTOPPM_FALSE CONVERT MISSING_CONVERT_TRUE MISSING_CONVERT_FALSE DOC MKINFO PERL HIDLIST HIDLIBS M4 WISH GNUM4 LATEX MISSING_LATEX_TRUE MISSING_LATEX_FALSE PDFLATEX MISSING_PDFLATEX_TRUE MISSING_PDFLATEX_FALSE DVIPS MISSING_DVIPS_TRUE MISSING_DVIPS_FALSE PS2PDF MISSING_PS2PDF_TRUE MISSING_PS2PDF_FALSE EGREP X_CFLAGS X_PRE_LIBS X_LIBS X_EXTRA_LIBS PKG_CONFIG GTK_CFLAGS GTK_LIBS GLIB_CFLAGS GLIB_LIBS GDLIB_CONFIG FONTFILENAME PCBLIBDIR LIBRARYFILENAME PCBTREEDIR BTNMOD TOPDIRS LIBOBJS LTLIBOBJS'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -3426,6 +3426,7 @@ fi
   test -n "$AWK" && break
 done
 
+
 for ac_prog in flex lex
 do
   # Extract the first word of "$ac_prog", so it can be a program name with args.
@@ -3703,6 +3704,59 @@ fi
 if test "$LEX" = :; then
   LEX=${am_missing_run}flex
 fi
+# Extract the first word of "$LEX", so it can be a program name with args.
+set dummy $LEX; ac_word=$2
+echo "$as_me:$LINENO: checking for $ac_word" >&5
+echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6
+if test "${ac_cv_path_LEX_PATH+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  case $LEX_PATH in
+  [\\/]* | ?:[\\/]*)
+  ac_cv_path_LEX_PATH="$LEX_PATH" # Let the user override the test with a path.
+  ;;
+  *)
+  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+  for ac_exec_ext in '' $ac_executable_extensions; do
+  if $as_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
+    ac_cv_path_LEX_PATH="$as_dir/$ac_word$ac_exec_ext"
+    echo "$as_me:$LINENO: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+done
+
+  test -z "$ac_cv_path_LEX_PATH" && ac_cv_path_LEX_PATH="notfound"
+  ;;
+esac
+fi
+LEX_PATH=$ac_cv_path_LEX_PATH
+
+if test -n "$LEX_PATH"; then
+  echo "$as_me:$LINENO: result: $LEX_PATH" >&5
+echo "${ECHO_T}$LEX_PATH" >&6
+else
+  echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6
+fi
+
+if test "$LEX_PATH" = "notfound" ; then
+	{ { echo "$as_me:$LINENO: error: Couldn't find a usable lex program.
+Please install flex which is available from
+ftp://ftp.gnu.org/pub/non-gnu/flex/
+" >&5
+echo "$as_me: error: Couldn't find a usable lex program.
+Please install flex which is available from
+ftp://ftp.gnu.org/pub/non-gnu/flex/
+" >&2;}
+   { (exit 1); exit 1; }; }
+fi
+
+
 for ac_prog in 'bison -y' byacc
 do
   # Extract the first word of "$ac_prog", so it can be a program name with args.
@@ -3743,6 +3797,58 @@ fi
   test -n "$YACC" && break
 done
 test -n "$YACC" || YACC="yacc"
+
+# Extract the first word of "$YACC", so it can be a program name with args.
+set dummy $YACC; ac_word=$2
+echo "$as_me:$LINENO: checking for $ac_word" >&5
+echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6
+if test "${ac_cv_path_YACC_PATH+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  case $YACC_PATH in
+  [\\/]* | ?:[\\/]*)
+  ac_cv_path_YACC_PATH="$YACC_PATH" # Let the user override the test with a path.
+  ;;
+  *)
+  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+  for ac_exec_ext in '' $ac_executable_extensions; do
+  if $as_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
+    ac_cv_path_YACC_PATH="$as_dir/$ac_word$ac_exec_ext"
+    echo "$as_me:$LINENO: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+done
+
+  test -z "$ac_cv_path_YACC_PATH" && ac_cv_path_YACC_PATH="notfound"
+  ;;
+esac
+fi
+YACC_PATH=$ac_cv_path_YACC_PATH
+
+if test -n "$YACC_PATH"; then
+  echo "$as_me:$LINENO: result: $YACC_PATH" >&5
+echo "${ECHO_T}$YACC_PATH" >&6
+else
+  echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6
+fi
+
+if test "$YACC_PATH" = "notfound" ; then
+	{ { echo "$as_me:$LINENO: error: Couldn't find a usable yacc program.
+Please install bison which is available from
+ftp://ftp.gnu.org/pub/gnu/bison/
+" >&5
+echo "$as_me: error: Couldn't find a usable yacc program.
+Please install bison which is available from
+ftp://ftp.gnu.org/pub/gnu/bison/
+" >&2;}
+   { (exit 1); exit 1; }; }
+fi
 
 # Find a good install program.  We prefer a C program (faster),
 # so one script is as good as another.  But avoid the broken or
@@ -10490,7 +10596,9 @@ s,@CPP@,$CPP,;t t
 s,@LEX@,$LEX,;t t
 s,@LEXLIB@,$LEXLIB,;t t
 s,@LEX_OUTPUT_ROOT@,$LEX_OUTPUT_ROOT,;t t
+s,@LEX_PATH@,$LEX_PATH,;t t
 s,@YACC@,$YACC,;t t
+s,@YACC_PATH@,$YACC_PATH,;t t
 s,@RANLIB@,$RANLIB,;t t
 s,@ac_ct_RANLIB@,$ac_ct_RANLIB,;t t
 s,@TGIF@,$TGIF,;t t
