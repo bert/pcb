@@ -143,8 +143,9 @@ eps_hid_export_to_file (FILE * the_file, HID_Attr_Val * options)
   for (i = 0; i < max_layer; i++)
     {
       LayerType *layer = PCB->Data->Layer + i;
-      if (layer->LineN || layer->TextN || layer->ArcN || layer->PolygonN)
-	print_group[GetLayerGroupNumberByNumber (i)] = 1;
+      if (layer->On)
+	if (layer->LineN || layer->TextN || layer->ArcN || layer->PolygonN)
+	  print_group[GetLayerGroupNumberByNumber (i)] = 1;
     }
 
   /* Now, if only one layer has real stuff on it, we can use the fast
@@ -290,6 +291,7 @@ eps_parse_arguments (int *argc, char ***argv)
 }
 
 static int is_mask;
+static int is_paste;
 static int is_drill;
 
 static int
@@ -311,8 +313,9 @@ eps_set_layer (const char *name, int group)
 
   is_drill = (SL_TYPE (idx) == SL_PDRILL || SL_TYPE (idx) == SL_UDRILL);
   is_mask = (SL_TYPE (idx) == SL_MASK);
+  is_paste = (SL_TYPE (idx) == SL_PASTE);
 
-  if (is_mask)
+  if (is_mask || is_paste)
     return 0;
 #if 0
   printf ("Layer %s group %d drill %d mask %d\n", name, group, is_drill,
