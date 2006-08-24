@@ -126,14 +126,16 @@ netlist_select (LibraryMenuType * net, LibraryEntryType * pin)
 static void
 netlist_rats (LibraryMenuType * net, LibraryEntryType * pin)
 {
-  net->Name[0] = '*';
+  net->Name[0] = ' ';
+  net->flag = 1;
   hid_action ("NetlistChanged");
 }
 
 static void
 netlist_norats (LibraryMenuType * net, LibraryEntryType * pin)
 {
-  net->Name[0] = ' ';
+  net->Name[0] = '*';
+  net->flag = 0;
   hid_action ("NetlistChanged");
 }
 
