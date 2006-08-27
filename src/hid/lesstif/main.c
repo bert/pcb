@@ -3028,12 +3028,13 @@ lesstif_draw_arc (hidGC gc, int cx, int cy, int width, int height,
   if ((pinout || thindraw) && gc->erase)
     return;
 #if 0
-  printf ("draw_arc %d,%d %dx%d", cx, cy, width, height);
+  printf ("draw_arc %d,%d %dx%d s %d d %d", cx, cy, width, height, start_angle, delta_angle);
 #endif
   width = Vz (width);
   height = Vz (height);
   cx = Vx (cx) - width;
   cy = Vy (cy) - height;
+  start_angle = (start_angle + 360 + 180) % 360 - 180;
   if (flip_x)
     {
       start_angle = 180 - start_angle;
