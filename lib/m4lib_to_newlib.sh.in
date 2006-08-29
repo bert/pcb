@@ -1,0 +1,228 @@
+#!/bin/sh
+#
+# $Id$
+#
+
+# This script is used to extract all elements from an "oldlib" (M4)
+# style library and place them in individual "newlib" style files.
+
+outd=/tmp/newlib
+contents=pcblib.contents
+AWK=gawk
+
+usage() {
+cat << EOF
+Usage:
+	$0 [-h | --help]
+	$0 [-v | --version]
+	$0 [-c|--contents contents_file] [-o|--output output_directory] [-p|--png]
+
+Extracts all footprints from an m4 library and creates a "newlib" style
+library.
+
+The following options are supported:
+
+    -c | --contents file : Specifies the contents file to be use as an input.
+                           Default is "${contents}".
+
+    -h | --help          : Outputs this message and exits.
+
+    -o | --output dir    : Specifies the directory that the newlib library will be
+                           written to.  This directory must exist and be empty.
+                           Default is "${outd}".
+
+    -p | --png           : Generates png previews for all the footprints.
+
+    -v | --version       : Displays the version of this script and exits.
+
+EOF
+}
+
+version() {
+	$AWK '/# [\$]Id:.*$/ {sub(/,v/,""); \
+		print $3 " Version "$4", "$5}' $0
+}
+
+do_png=no
+while test $# -gt 0 ; do
+	case $1 in
+		-c|--contents )
+			contents=$2
+			shift 2
+			;;
+
+		-h|--help )
+			usage
+			exit 0
+			;;
+
+		-o|--output )
+			outd=$2
+			shift 2
+			;;
+
+		-p|--png )
+			do_png=yes
+			shift
+			;;
+
+		-v|--version )
+			version
+			exit 0
+			;;
+
+		-* )
+			echo "ERROR:  $0: Unknown option $1"
+			usage
+			exit 1
+			;;
+
+		* )
+			break
+			;;
+	esac
+done
+
+
+if test -d ${outd} ; then
+	echo "Output directory ${outd} already exists"
+	exit 1
+else
+	mkdir -p ${outd}
+fi
+
+
+$AWK '
+
+BEGIN {
+	broken = "/tmp/broken.txt";
+	print "" > broken;
+	ind = "/tmp/index.html";
+	print "" > ind;
+
+	print "<HTML><BODY>" >> ind;
+	print "<TABLE>" >> ind;
+	print "<TR><TD><EM>Library</EM></TD>" >> ind;
+	print "    <TD><EM>Comment</EM></TD>" >> ind;
+	print "    <TD><EM>Footprint Name</EM></TD>" >> ind;
+	print "</TR>" >> ind;
+	print "" >> ind;
+}
+
+# we are starting a new library
+/^TYPE=/ {
+	lib=$0;
+	gsub(/TYPE=~/, "", lib);
+	url=lib;
+	gsub(/ /, "%20", url); 
+
+	libind =  "/tmp/" lib ".html";
+	gsub(/ /, "\\ ", libind);
+
+	dir = outd "/" lib ;
+	gsub(/ /,"\\ ", dir); 
+	print "Processing library: " lib " and creating " libind;
+	system("mkdir -p " dir); next;
+}
+
+{
+	line=$0;
+	split(line, a, "[:]");
+
+	# pick out the name of the footprint
+	comp = a[3];
+	txtcomp = comp;
+	urlcomp = comp;
+
+	# escape the spaces in for URLs and also filenames
+	gsub(/ /, "%20", urlcomp);
+	gsub(/ /, "\\ ", comp);
+
+	comment = a[4];
+
+	# extract the footprint
+	# path library template value package
+	templ = a[1];
+	gsub(/ /, "\\ ", templ);
+
+	pkg = a[2];
+	gsub(/ /, "\\ ", pkg);
+
+
+	# skip the QFP builder menu
+	if( templ == "menu_qfp" ) {
+		cmd1 = "Skipping QFP builder menu";
+		rc = 1;
+	} else {
+		cmd1 = "sh " cmd_path "/QueryLibrary.sh . pcblib " templ " " comp " " pkg;
+		cmd = cmd1 " > " dir "/" comp ;
+ 		rc = system( cmd );
+	}
+
+	if( rc != 0) {
+		print cmd1 >> broken;
+	} else {
+		# generate the web index
+		printf("\t<TR>\n\t\t<TD>~%s</TD>\n\t\t<TD>%s</TD>\n", lib, comment) >> ind;
+		printf("\t\t<TD><A HREF=\"%s/%s\">%s</A>", url, urlcomp, txtcomp) >> ind;
+		printf("(<A HREF=\"%s/%s.png\">preview</A>)", url, urlcomp) >> ind;
+		printf("</TD>\n\t</TR>\n") >> ind;
+	}
+
+	# Now create a layout with that element and print it.
+	layout = "/tmp/foo.pcb" ;
+	laytmpl = "footprint.pcb" ;
+	compfile = dir "/" comp ;
+	compfile2 = compfile;
+	gsub(/\\/, "", compfile2);
+
+	printf(" compfile = %s\n", compfile);
+	printf("") > layout;
+	pok = 1;
+	while ( (getline < laytmpl) == 1 ) {
+		if( $0 ~ /ELEMENT/ ) {
+			pok = 0;
+		}
+		if( pok ) {
+			print >> layout ;
+		}
+	}
+	close( laytmpl );
+
+	while( (x = getline < compfile2) == 1 ) {
+		print >> layout;
+	}
+	close( compfile2 );
+
+	pok = 0;
+	while( (getline < laytmpl) == 1 ) {
+		if( pok ) {
+			print >> layout;
+		}
+		if( $0 ~ /ELEMENT/ ) {
+			pok = 1;
+		}
+	}
+	close( laytmpl );
+	close( layout );
+
+	cmd = "env LD_LIBRARY_PATH=/usr/X11R6/lib:/usr/pkg/lib ../src/pcb-bin -x png --outfile " compfile ".png --xy-max 200 --only-visible " layout " 2>&1 > /dev/null" ;
+	rc = system( cmd );
+	if( rc != 0) {
+		print cmd >> broken;
+	}
+
+}
+
+END {
+	print "" >> ind;
+	print "</TABLE>" >> ind;
+	print "" >> ind;
+	print "</BODY></HTML>" >> ind;
+	close( ind );
+	close( broken );
+}
+' cmd_path=./ outd=$outd awk=$AWK $contents
+
+
+
