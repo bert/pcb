@@ -69,6 +69,8 @@ extern	char			*yyfilename;	/* in this file */
 
 static char *layer_group_string; 
 
+static AttributeListTypePtr attr_list; 
+
 int yyerror(const char *s);
 int yylex();
 
@@ -89,10 +91,10 @@ int yylex();
 %token	T_PCB T_LAYER T_VIA T_RAT T_LINE T_ARC T_RECTANGLE T_TEXT T_ELEMENTLINE
 %token	T_ELEMENT T_PIN T_PAD T_GRID T_FLAGS T_SYMBOL T_SYMBOLLINE T_CURSOR
 %token	T_ELEMENTARC T_MARK T_GROUPS T_STYLES T_POLYGON T_NETLIST T_NET T_CONN
-%token	T_THERMAL T_DRC
+%token	T_THERMAL T_DRC T_ATTRIBUTE
 
 %type	<number>	symbolid
-
+%type	<string>	opt_string
 %type	<flagtype>	flags
 
 %%
@@ -578,6 +580,7 @@ pcbdefinitions
 
 pcbdefinition
 		: via
+		| { attr_list = & yyPCB->Attributes; } attributes
 		| rats
 		| layer
 		|
@@ -744,7 +747,7 @@ text, and polygons.
 
 layer
 			/* name */
-		: T_LAYER '(' NUMBER STRING ')' '('
+		: T_LAYER '(' NUMBER STRING opt_string ')' '('
 			{
 				if ($3 <= 0 || $3 > MAX_LAYER + 2)
 				{
@@ -1088,14 +1091,14 @@ Symbolic or numeric flags, for the text.
 Numeric flags, for the text.
 @end table
 
-Elements may contain pins, pads, element lines, element arcs, and (for
-older elements) an optional mark.  Note that element definitions that
-have the mark coordinates in the element line, only support pins and
-pads which use relative coordinates.  The pin and pad coordinates are
-relative to the mark.  Element definitions which do not include the
-mark coordinates in the element line, may have a Mark definition in
-their contents, and only use pin and pad definitions which use
-absolute coordinates.
+Elements may contain pins, pads, element lines, element arcs,
+attributes, and (for older elements) an optional mark.  Note that
+element definitions that have the mark coordinates in the element
+line, only support pins and pads which use relative coordinates.  The
+pin and pad coordinates are relative to the mark.  Element definitions
+which do not include the mark coordinates in the element line, may
+have a Mark definition in their contents, and only use pin and pad
+definitions which use absolute coordinates.
 
 %end-doc */
 
@@ -1344,6 +1347,7 @@ relementdef
 				CreateNewArcInElement(yyElement, $3*100 + yyElement->MarkX,
 					$4*100 + yyElement->MarkY, $5*100, $6*100, $7, $8, $9*100);
 			}
+		| { attr_list = & yyElement->Attributes; } attributes
 		;
 
 /* %start-doc pcbfile Pin
@@ -1738,6 +1742,43 @@ conn
 				SaveFree($3);
 			}
 		;
+
+/* %start-doc pcbfile Attribute
+
+@syntax
+Attribute ("Name" "Value")
+@end syntax
+
+Attributes allow boards and elements to have arbitrary data attached
+to them, which is not directly used by PCB itself but may be of use by
+other programs or users.
+
+@table @var
+@item Name
+The name of the attribute
+
+@item Value
+The value of the attribute.  Values are always stored as strings, even
+if the value is interpreted as, for example, a number.
+
+%end-doc */
+
+attributes	: attribute
+		| attributes attribute
+		;
+attribute
+		: T_ATTRIBUTE '(' STRING STRING ')'
+			{
+				CreateNewAttribute (attr_list, $3, $4);
+				SaveFree ($3);
+				SaveFree ($4);
+			}
+		;
+
+opt_string	: STRING { $$ = $1; }
+		| /* empty */ { $$ = 0; }
+		;
+
 %%
 
 /* ---------------------------------------------------------------------------

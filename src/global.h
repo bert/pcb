@@ -163,6 +163,18 @@ typedef struct
   int width, height;
 } RectangleType, *RectangleTypePtr;
 
+typedef struct
+{
+  char *name;
+  char *value;
+} AttributeType, *AttributeTypePtr;
+
+typedef struct
+{
+  int Number, Max;
+  AttributeType *List;
+} AttributeListType, *AttributeListTypePtr;
+
 /* ---------------------------------------------------------------------------
  * the basic object types supported by PCB
  */
@@ -289,6 +301,7 @@ typedef struct
   LineTypePtr Line;
   ArcTypePtr Arc;
   BoxType VBox;
+  AttributeListType Attributes;
 } ElementType, *ElementTypePtr, **ElementTypeHandle;
 
 /* ---------------------------------------------------------------------------
@@ -438,6 +451,7 @@ typedef struct
   LayerGroupType LayerGroups;
   RouteStyleType RouteStyle[NUM_STYLES];
   LibraryType NetlistLib;
+  AttributeListType Attributes;
   DataTypePtr Data;		/* entire database */
 }
 PCBType, *PCBTypePtr;

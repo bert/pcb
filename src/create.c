@@ -943,3 +943,22 @@ CreateNewConnection (LibraryMenuTypePtr net, char *conn)
   entry->ListEntry = MyStrdup (conn, "CreateNewConnection()");
   return (entry);
 }
+
+/* ---------------------------------------------------------------------------
+ * Add an attribute to a list.
+ */
+AttributeTypePtr
+CreateNewAttribute (AttributeListTypePtr list, char *name, char *value)
+{
+  if (list->Number >= list->Max)
+    {
+      list->Max += 10;
+      list->List = MyRealloc (list->List,
+			      list->Max * sizeof (AttributeType),
+			      "CreateNewAttribute");
+    }
+  list->List[list->Number].name = MyStrdup (name, "CreateNewAttribute");
+  list->List[list->Number].value = MyStrdup (value, "CreateNewAttribute");
+  list->Number ++;
+  return & list->List[list->Number-1];
+}

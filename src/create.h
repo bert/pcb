@@ -86,4 +86,6 @@ RubberbandTypePtr CreateNewRubberbandEntry (LayerTypePtr,
 LibraryMenuTypePtr CreateNewNet (LibraryTypePtr, char *, char *);
 LibraryEntryTypePtr CreateNewConnection (LibraryMenuTypePtr, char *);
 
+AttributeTypePtr CreateNewAttribute (AttributeListTypePtr list, char *name, char *value);
+
 #endif
