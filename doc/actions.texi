@@ -1190,7 +1190,7 @@ Net(find|select|rats|norats[,net[,pin]])@end format
 @end cartouche
 
 Perform various actions on netlists.
-@c ./../src/netlist.c 145
+@c ./../src/netlist.c 147
 
 Each of these actions apply to a specified set of nets.  @var{net} and
 @var{pin} are patterns which match one or more nets or pins; these
