@@ -1761,6 +1761,8 @@ The name of the attribute
 The value of the attribute.  Values are always stored as strings, even
 if the value is interpreted as, for example, a number.
 
+@end table
+
 %end-doc */
 
 attributes	: attribute
