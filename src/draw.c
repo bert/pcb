@@ -1909,7 +1909,7 @@ DrawArcLowLevel (ArcTypePtr Arc)
       AddPart (Arc);
       return;
     }
-  /* angles have to be converted to X11 notation */
+
   if (TEST_FLAG (THINDRAWFLAG, PCB))
     gui->set_line_width (Output.fgGC, 1);
   else
