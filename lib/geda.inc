@@ -493,12 +493,12 @@ define(`PKG_ACY1000', `PKG_AXIAL_LAY(`$1', `$2', `$3', 1000)');
 ##  Axial polar component (typically capacitor),
 #   300 through 1000 mil between pins
 #
-define(`PKG_ACY300P',  `PKG_AXIAL_LAY_POLAR(`$1', `$2', `$3', 300)')
-define(`PKG_ACY400P',  `PKG_AXIAL_LAY_POLAR(`$1', `$2', `$3', 400)')
-define(`PKG_ACY500P',  `PKG_AXIAL_LAY_POLAR(`$1', `$2', `$3', 500)')
-define(`PKG_ACY600P',  `PKG_AXIAL_LAY_POLAR(`$1', `$2', `$3', 600)')
-define(`PKG_ACY800P',  `PKG_AXIAL_LAY_POLAR(`$1', `$2', `$3', 800)')
-define(`PKG_ACY1000P', `PKG_AXIAL_LAY_POLAR(`$1', `$2', `$3', 1000)')
+define(`PKG_ACY300P',  `PKG_AXIAL_LAY(`$1', `$2', `$3', 300, 1)')
+define(`PKG_ACY400P',  `PKG_AXIAL_LAY(`$1', `$2', `$3', 400, 1)')
+define(`PKG_ACY500P',  `PKG_AXIAL_LAY(`$1', `$2', `$3', 500, 1)')
+define(`PKG_ACY600P',  `PKG_AXIAL_LAY(`$1', `$2', `$3', 600, 1)')
+define(`PKG_ACY800P',  `PKG_AXIAL_LAY(`$1', `$2', `$3', 800, 1)')
+define(`PKG_ACY1000P', `PKG_AXIAL_LAY(`$1', `$2', `$3', 1000, 1)')
 
 #
 ##  Axial diode (pin 1 is cathode)
@@ -530,33 +530,14 @@ define(`PKG_RCY1000', `PKG_RADIAL_CAN(`$1', `$2', `$3', 2000)');
 ##  Bottom lead polar circular component (typically capacitor)
 #   pin spacing 100 mil and up
 #
-define(`PKG_RCY100P',  `PKG_RADIAL_CAN_POLAR(`$1', `$2', `$3', 200)');
-define(`PKG_RCY200P',  `PKG_RADIAL_CAN_POLAR(`$1', `$2', `$3', 400)');
-define(`PKG_RCY300P',  `PKG_RADIAL_CAN_POLAR(`$1', `$2', `$3', 600)');
-define(`PKG_RCY400P',  `PKG_RADIAL_CAN_POLAR(`$1', `$2', `$3', 800)');
-define(`PKG_RCY500P',  `PKG_RADIAL_CAN_POLAR(`$1', `$2', `$3', 1000)');
-define(`PKG_RCY600P',  `PKG_RADIAL_CAN_POLAR(`$1', `$2', `$3', 1200)');
-define(`PKG_RCY800P',  `PKG_RADIAL_CAN_POLAR(`$1', `$2', `$3', 1600)');
-define(`PKG_RCY1000P', `PKG_RADIAL_CAN_POLAR(`$1', `$2', `$3', 2000)');
-
-
-#
-##  Bottom lead rectangular non-polar component (typically capacitor)
-#   pin spacing 100 mil and up
-#   BRE100 .. BRE1200
-#
-define(`PKG_BRE100',  `PKG_RECTANGULAR2N(`$1', `$2', `$3',  200, 100)');
-define(`PKG_BRE200',  `PKG_RECTANGULAR2N(`$1', `$2', `$3',  400, 100)');
-define(`PKG_BRE300',  `PKG_RECTANGULAR2N(`$1', `$2', `$3',  600, 150)');
-define(`PKG_BRE400',  `PKG_RECTANGULAR2( `$1', `$2', `$3',  600, 200)');
-define(`PKG_BRE500',  `PKG_RECTANGULAR2( `$1', `$2', `$3',  750, 250)');
-define(`PKG_BRE600',  `PKG_RECTANGULAR2( `$1', `$2', `$3', 1200, 300)');
-define(`PKG_BRE700',  `PKG_RECTANGULAR2( `$1', `$2', `$3', 1050, 350)');
-define(`PKG_BRE800',  `PKG_RECTANGULAR2( `$1', `$2', `$3', 1200, 400)');
-define(`PKG_BRE900',  `PKG_RECTANGULAR2( `$1', `$2', `$3', 1350, 450)');
-define(`PKG_BRE1000', `PKG_RECTANGULAR2( `$1', `$2', `$3', 1500, 500)');
-define(`PKG_BRE1100', `PKG_RECTANGULAR2( `$1', `$2', `$3', 1650, 550)');
-define(`PKG_BRE1200', `PKG_RECTANGULAR2( `$1', `$2', `$3', 1800, 600)');
+define(`PKG_RCY100P',  `PKG_RADIAL_CAN(`$1', `$2', `$3', 200, 1)');
+define(`PKG_RCY200P',  `PKG_RADIAL_CAN(`$1', `$2', `$3', 400, 1)');
+define(`PKG_RCY300P',  `PKG_RADIAL_CAN(`$1', `$2', `$3', 600, 1)');
+define(`PKG_RCY400P',  `PKG_RADIAL_CAN(`$1', `$2', `$3', 800, 1)');
+define(`PKG_RCY500P',  `PKG_RADIAL_CAN(`$1', `$2', `$3', 1000, 1)');
+define(`PKG_RCY600P',  `PKG_RADIAL_CAN(`$1', `$2', `$3', 1200, 1)');
+define(`PKG_RCY800P',  `PKG_RADIAL_CAN(`$1', `$2', `$3', 1600, 1)');
+define(`PKG_RCY1000P', `PKG_RADIAL_CAN(`$1', `$2', `$3', 2000, 1)');
 
 #
 ##  Crystal
