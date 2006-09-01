@@ -67,6 +67,7 @@
 #include "select.h"
 #include "set.h"
 #include "undo.h"
+#include "rtree.h"
 
 #ifdef HAVE_LIBDMALLOC
 #include <dmalloc.h>
@@ -1356,8 +1357,51 @@ NotifyMode (void)
 
     case PASTEBUFFER_MODE:
       {
+	TextType estr[MAX_ELEMENTNAMES];
+	ElementTypePtr e = 0;
+
+	if (gui->shift_is_pressed ())
+	  {
+	    int type = SearchScreen (Note.X, Note.Y, ELEMENT_TYPE, &ptr1, &ptr2, &ptr3);
+	    if (type == ELEMENT_TYPE)
+	      {
+		e = (ElementTypePtr) ptr1;
+		if (e)
+		  {
+		    memcpy (estr, e->Name, MAX_ELEMENTNAMES * sizeof(TextType));
+		    memset (e->Name, 0, MAX_ELEMENTNAMES * sizeof(TextType));
+		    RemoveElement (e);
+		  }
+	      }
+	  }
 	if (CopyPastebufferToLayout (Note.X, Note.Y))
 	  SetChangedFlag (True);
+	if (e)
+	  {
+	    int type = SearchScreen (Note.X, Note.Y, ELEMENT_TYPE, &ptr1, &ptr2, &ptr3);
+	    if (type == ELEMENT_TYPE && ptr1)
+	      {
+		int i, save_n;
+		e = (ElementTypePtr) ptr1;
+
+		save_n = NAME_INDEX (PCB);
+
+	        for (i=0; i<MAX_ELEMENTNAMES; i++)
+		  {
+		    if (i == save_n)
+		      EraseElementName (e);
+		    r_delete_entry (PCB->Data->name_tree[i],
+				    (BoxType *) & (e->Name[i]));
+		    memcpy (&(e->Name[i]), &(estr[i]), sizeof(TextType));
+		    e->Name[i].Element = e;
+		    SetTextBoundingBox (&PCB->Font, &(e->Name[i]));
+		    r_insert_entry (PCB->Data->name_tree[i],
+				    (BoxType *) & (e->Name[i]), 0);
+		    if (i == save_n)
+		      DrawElementName (e, 0);
+		  }
+	      }
+	  }
 	break;
       }
 
