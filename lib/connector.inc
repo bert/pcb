@@ -40,7 +40,7 @@ define(`PKG_CONNECTOR',
 Element(0x00 "$1" "$2" "$3" eval(MAXX + 60) 0 3 100 0x00)
 (
 	forloop(`row', 1, $4, `forloop(`col', 1, $5,
-		`PIN(eval(col * 100 -50), eval(row * 100 -50), 60, 30, eval((row-1)*$5+col))
+		`PIN(eval(col * 100 -50), eval(row * 100 -50), 60, 38, eval((row-1)*$5+col))
 	') ')
 	ElementLine(0 0 0 MAXY 20)
 	ElementLine(0 MAXY MAXX MAXY 20)
@@ -66,7 +66,7 @@ define(`PKG_CONNECTOR_DIL',
 Element(0x00 "$1" "$2" "$3" eval(MAXX + 60) 0 3 100 0x00)
 (
 	forloop(`row', 1, eval(`$4'),
-		`PIN(50, eval(row * 100 -50), 60, 30, eval(row))
+		`PIN(50, eval(row * 100 -50), 60, 38, eval(row))
 	')
 	forloop(`row', 1, eval(`$4'),
 		`PIN(150, eval(($4 + 1 - row) * 100 -50), 60, 30, eval($4 + row))
