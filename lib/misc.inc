@@ -311,16 +311,21 @@ Element(0x00 "$1" "$2" "$3" eval(X2+20) eval(Y-DELTA) 0 100 0x00)
 # $2: name on PCB
 # $3: value
 # $4: distance in mil
+# $5: 1 for polarized, 0 for non polarized
 define(`PKG_AXIAL_LAY',
 	`define(`X1', `eval(`$4' /4)')
 	define(`X2', `eval(`$4' -X1)')
 	define(`Y1', `eval(X1 /3)')
 	define(`Y2', `eval(Y1 *2)')
-	define(`PINSIZE', `ifelse(eval($4 >= 600), 1, 80, 50)')
+	define(`PINSIZE', `ifelse(eval($4 >= 600), 1, 80, 55)')
+	define(`DRILLSIZE', `ifelse(eval($4 >= 600), 1, 50, 30)')
+	define(`YPT', `eval(Y1 - PINSIZE/2 - 10)')
+	define(`YPC', `eval(YPT - 20)')
+	define(`YPB', `eval(YPT - 40)')
 Element(0x00 "$1" "$2" "$3" eval(X2+20) eval(Y2+20) 0 100 0x00)
 (
-	PIN(0, Y1, PINSIZE, 20, 1)
-	PIN($4, Y1, PINSIZE, 20, 2)
+	PIN(0, Y1, PINSIZE, DRILLSIZE, 1)
+	PIN($4, Y1, PINSIZE, DRILLSIZE, 2)
 
 	ElementLine(0 Y1 X1 Y1 10)
 	ElementLine(X2 Y1 $4 Y1 10)
@@ -329,6 +334,12 @@ Element(0x00 "$1" "$2" "$3" eval(X2+20) eval(Y2+20) 0 100 0x00)
 	ElementLine(X2 0 X2 Y2 10)
 	ElementLine(X2 Y2 X1 Y2 10)
 	ElementLine(X1 Y2 X1 0 10)
+
+	ifelse(1, $5,
+	ElementLine(0 YPB 0 YPT 10)
+	ElementLine(-20 YPC 20 YPC 10)
+	ElementLine(`eval($4 - 20)' YPC `eval($4 + 20)' YPC 10)
+	)
 
 #	ElementArc(X1 Y 50 50 270 180 10)
 #	ElementArc(X2 Y 50 50 90 180 10)
@@ -540,19 +551,27 @@ define(`PKG_OVEN_OSC',
 # $2: name on PCB
 # $3: value
 # $4: package width in MIL
-#
+# $5: set to 1 if a polarized part
 define(`PKG_RADIAL_CAN',
 	`define(`X1', `eval(`$4' /4)')
 	define(`X2', `eval(`$4' -X1)')
 	define(`X3', `eval(`$4' /2)')
 	define(`Y', `eval(`$4' /2)')
 	define(`R', `eval(`$4' /2)')
-	define(`PINSIZE', `ifelse(eval($4 >= 600), 1, 80, 50)')
+	define(`PINSIZE', `ifelse(eval($4 >= 600), 1, 80, 55)')
+	define(`DRILLSIZE', `ifelse(eval($4 >= 600), 1, 50, 30)')
 Element(0x00 "$1" "$2" "$3" eval(`$4') 0 0 100 0x00)
 (
-	PIN(X1, Y, 60, 20, 1)
-	PIN(X2, Y, 60, 20, 2)
+	PIN(X1, Y, 60, DRILLSIZE, 1)
+	PIN(X2, Y, 60, DRILLSIZE, 2)
 	ElementArc(X3 Y R R 0 360 10)
+
+	ifelse( 1, $5,
+	ElementLine(-60 Y            -20 Y 10)
+	ElementLine(-40 `eval(Y-20)' -40 `eval(Y+20)' 10)
+	ElementLine(`eval($4 + 20)' Y `eval($4 + 60)'  Y 10)
+	)
+
 	Mark (X1 Y)
 )')
 
