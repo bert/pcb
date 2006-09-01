@@ -96,6 +96,7 @@ $AWK '
 
 BEGIN {
 	first = 1;
+	libind = "";
 }
 
 # we have to use this trick because variables like 'outd' are not yet defined
@@ -105,18 +106,16 @@ first == 1 {
 	broken = outd "/" brokenurl;
 	print "" > broken;
 	ind = outd "/index.html";
-	print "" > ind;
 
-	print "<HTML><BODY>" >> ind;
-	print "<TABLE>" >> ind;
-	print "<TR><TD><EM>Library</EM></TD>" >> ind;
-	print "    <TD><EM>Comment</EM></TD>" >> ind;
-	print "    <TD><EM>Footprint Name</EM></TD>" >> ind;
-	print "</TR>" >> ind;
+	print "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 3.2 Final//EN\">" > ind;
+	print "<HTML><HEAD><TITLE>PCB Footprint Library</TITLE></HEAD>" >> ind;
+	print "<BODY bgcolor=\"#FFFFFF\" text=\"#000000\">" >> ind;
+	print "<H1>PCB Footprint Library</H1>" >> ind;
+	print "<UL>" >> ind;
 	print "" >> ind;
 
 	print "<HTML><BODY>" >> broken;
-	print "<TABLE>" >> broken;
+	print "<TABLE BORDER=2>" >> broken;
 	print "<TR><TD><EM>Library</EM></TD>" >> broken;
 	print "    <TD><EM>Comment</EM></TD>" >> broken;
 	print "    <TD><EM>Footprint Name</EM></TD>" >> broken;
@@ -129,19 +128,36 @@ first == 1 {
 
 # we are starting a new library
 /^TYPE=/ {
+	finish_libind();
 	lib=$0;
 	gsub(/TYPE=~/, "", lib);
 	txtdir = lib;
 	urldir = lib;
 	gsub(/ /, "%20", urldir); 
 
-	libind =  "/tmp/" lib ".html";
-	gsub(/ /, "\\ ", libind);
+	libind =  outd "/" lib "/index.html";
+	#gsub(/ /, "\\ ", libind);
 
 	dir = outd "/" lib ;
 	gsub(/ /,"\\ ", dir); 
 	print "Processing library: " lib " and creating " libind;
-	system("mkdir -p " dir); next;
+	system("mkdir -p " dir);
+
+	print "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 3.2 Final//EN\">" > libind;
+	print "<HTML><HEAD><TITLE>PCB " lib " Footprint Library</TITLE></HEAD>" >> libind;
+	print "<BODY bgcolor=\"#FFFFFF\" text=\"#000000\">" >> libind;
+	print "<H1>PCB " lib " Footprint Library</H1>" >> libind;
+
+	print "<TABLE BORDER=2>" >> libind;
+	print "<TR>" >> libind;
+	print "    <TD><EM>Comment</EM></TD>" >> libind;
+	print "    <TD><EM>Footprint Name</EM></TD>" >> libind;
+	print "</TR>" >> libind;
+	print "" >> libind;
+
+	print "<LI><A HREF=\"" txtdir "/index.html\">~" lib "</A></LI>" >> ind;
+
+	next;
 }
 
 {
@@ -190,10 +206,10 @@ first == 1 {
 		next;
 	} else {
 		# generate the web index
-		printf("\t<TR>\n\t\t<TD>~%s</TD>\n\t\t<TD>%s</TD>\n", lib, comment) >> ind;
-		printf("\t\t<TD><A HREF=\"%s/%s.fp\">%s</A>", txtdir, txtcomp, txtcomp) >> ind;
-		printf("(<A HREF=\"%s/%s.png\">preview</A>)", txtdir, txtcomp) >> ind;
-		printf("</TD>\n\t</TR>\n") >> ind;
+		printf("  <TR>\n    <TD>%s</TD>\n", comment) >> libind;
+		printf("    <TD><A HREF=\"%s.fp\">%s</A>", txtcomp, txtcomp) >> libind;
+		printf("(<A HREF=\"%s.png\">preview</A>)", txtcomp) >> libind;
+		printf("</TD>\n  </TR>\n") >> libind;
 	}
 
 	# Now create a layout with that element and print it.
@@ -248,7 +264,7 @@ first == 1 {
 
 END {
 	print "" >> ind;
-	print "</TABLE>" >> ind;
+	print "</UL>" >> ind;
 	print "" >> ind;
 	print "<P>For a list of footprints with either m4 syntax errors" >> ind;
 	print "or PCB syntax errors see <A HREF=\"" brokenurl "\">the broken log file.</A>" >> ind;
@@ -260,7 +276,20 @@ END {
 	print "" >> broken;
 	print "</BODY></HTML>" >> broken;
 	close( broken );
+
+	finish_libind();
 }
+
+function finish_libind() {
+	if(libind != "") {
+		print "" >> libind;
+		print "</TABLE>" >> libind;
+		print "" >> libind;
+		print "</BODY></HTML>" >> libind;
+		close( libind );
+	}
+}
+
 ' cmd_path=./ outd=$outd awk=$AWK $contents
 
 
