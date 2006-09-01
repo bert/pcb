@@ -1082,7 +1082,3 @@ define(`PKG_SC70_6',   `PKG_SMT_TRANSISTOR6( `$1', `$2', `$3', 13, 18)');
 ## Pressure transducer
 define(`PKG_MPAK',     `COMMON_SMT_TRANSISTORX_MIL(`$1', `$2', `$3', 150, 437, 20, `12345')');
 
-#
-## Virtual component, no footprint
-#
-define(`PKG_DUMMY');
