@@ -95,9 +95,16 @@ fi
 $AWK '
 
 BEGIN {
-	broken = "/tmp/broken.txt";
+	first = 1;
+}
+
+# we have to use this trick because variables like 'outd' are not yet defined
+# in BEGIN.
+first == 1 {
+	brokenurl = "broken.html";
+	broken = outd "/" brokenurl;
 	print "" > broken;
-	ind = "/tmp/index.html";
+	ind = outd "/index.html";
 	print "" > ind;
 
 	print "<HTML><BODY>" >> ind;
@@ -107,14 +114,26 @@ BEGIN {
 	print "    <TD><EM>Footprint Name</EM></TD>" >> ind;
 	print "</TR>" >> ind;
 	print "" >> ind;
+
+	print "<HTML><BODY>" >> broken;
+	print "<TABLE>" >> broken;
+	print "<TR><TD><EM>Library</EM></TD>" >> broken;
+	print "    <TD><EM>Comment</EM></TD>" >> broken;
+	print "    <TD><EM>Footprint Name</EM></TD>" >> broken;
+	print "    <TD><EM>Broken Command</EM></TD>" >> broken;
+	print "</TR>" >> broken;
+	print "" >> broken;
+
+	first = 0;
 }
 
 # we are starting a new library
 /^TYPE=/ {
 	lib=$0;
 	gsub(/TYPE=~/, "", lib);
-	url=lib;
-	gsub(/ /, "%20", url); 
+	txtdir = lib;
+	urldir = lib;
+	gsub(/ /, "%20", urldir); 
 
 	libind =  "/tmp/" lib ".html";
 	gsub(/ /, "\\ ", libind);
@@ -150,33 +169,42 @@ BEGIN {
 
 
 	# skip the QFP builder menu
+	skip = 0;
 	if( templ == "menu_qfp" ) {
 		cmd1 = "Skipping QFP builder menu";
 		rc = 1;
 	} else {
 		cmd1 = "sh " cmd_path "/QueryLibrary.sh . pcblib " templ " " comp " " pkg;
-		cmd = cmd1 " > " dir "/" comp ;
+		cmd = cmd1 " > " dir "/" comp ".fp";
  		rc = system( cmd );
 	}
 
 	if( rc != 0) {
-		print cmd1 >> broken;
+		printf("<TR><TD>~%s</TD>\n", lib) >> broken;
+		printf("    <TD>%s</TD>\n", comp) >> broken;
+		printf("    <TD>%s</TD>\n", comment) >> broken;
+		printf("    <TD>%s</TD>\n", cmd1) >> broken;
+		printf("</TR>\n") >> broken;
+
+		# no need to go further with this footprint.  It is broken.
+		next;
 	} else {
 		# generate the web index
 		printf("\t<TR>\n\t\t<TD>~%s</TD>\n\t\t<TD>%s</TD>\n", lib, comment) >> ind;
-		printf("\t\t<TD><A HREF=\"%s/%s\">%s</A>", url, urlcomp, txtcomp) >> ind;
-		printf("(<A HREF=\"%s/%s.png\">preview</A>)", url, urlcomp) >> ind;
+		printf("\t\t<TD><A HREF=\"%s/%s.fp\">%s</A>", txtdir, txtcomp, txtcomp) >> ind;
+		printf("(<A HREF=\"%s/%s.png\">preview</A>)", txtdir, txtcomp) >> ind;
 		printf("</TD>\n\t</TR>\n") >> ind;
 	}
 
 	# Now create a layout with that element and print it.
-	layout = "/tmp/foo.pcb" ;
+	layout = outd "/foo.pcb" ;
 	laytmpl = "footprint.pcb" ;
-	compfile = dir "/" comp ;
+	compfile = dir "/" comp ".fp";
+	pngfile = dir "/" comp ".png";
 	compfile2 = compfile;
 	gsub(/\\/, "", compfile2);
 
-	printf(" compfile = %s\n", compfile);
+	printf("   ===> %s\n", compfile);
 	printf("") > layout;
 	pok = 1;
 	while ( (getline < laytmpl) == 1 ) {
@@ -206,10 +234,14 @@ BEGIN {
 	close( laytmpl );
 	close( layout );
 
-	cmd = "env LD_LIBRARY_PATH=/usr/X11R6/lib:/usr/pkg/lib ../src/pcb-bin -x png --outfile " compfile ".png --xy-max 200 --only-visible " layout " 2>&1 > /dev/null" ;
+	cmd = "cd ../src && env LD_LIBRARY_PATH=/usr/X11R6/lib:/usr/pkg/lib ./pcb-bin -x png --outfile " pngfile " --xy-max 200 --only-visible " layout " 2>&1 > /dev/null" ;
 	rc = system( cmd );
 	if( rc != 0) {
-		print cmd >> broken;
+		printf("<TR><TD>~%s</TD>\n", lib) >> broken;
+		printf("    <TD>%s</TD>\n", comp) >> broken;
+		printf("    <TD>%s</TD>\n", comment) >> broken;
+		printf("    <TD>%s</TD>\n", cmd) >> broken;
+		printf("</TR>\n") >> broken;
 	}
 
 }
@@ -218,8 +250,15 @@ END {
 	print "" >> ind;
 	print "</TABLE>" >> ind;
 	print "" >> ind;
+	print "<P>For a list of footprints with either m4 syntax errors" >> ind;
+	print "or PCB syntax errors see <A HREF=\"" brokenurl "\">the broken log file.</A>" >> ind;
 	print "</BODY></HTML>" >> ind;
 	close( ind );
+
+	print "" >> broken;
+	print "</TABLE>" >> broken;
+	print "" >> broken;
+	print "</BODY></HTML>" >> broken;
 	close( broken );
 }
 ' cmd_path=./ outd=$outd awk=$AWK $contents
