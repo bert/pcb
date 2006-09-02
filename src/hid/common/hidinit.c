@@ -333,12 +333,20 @@ hid_cache_color (int set, const char *name, hidval * val, void **vcache)
 void derive_default_filename(const char *pcbfile, HID_Attribute *filename_attrib, const char *suffix, char **memory)
 {
 	char *buf;
-	if (!pcbfile || (memory && filename_attrib->default_val.str_value != *memory)) return;
-	buf = malloc (strlen (pcbfile) + strlen(suffix) + 1);
+	char *pf;
+
+	if (pcbfile == NULL)
+	  pf = strdup ("unknown.pcb");
+	else
+	  pf = strdup (pcbfile);
+
+	if (!pf || (memory && filename_attrib->default_val.str_value != *memory)) return;
+
+	buf = malloc (strlen (pf) + strlen(suffix) + 1);
 	if (memory) *memory = buf;
 	if (buf) {
 		size_t bl;
-		strcpy (buf, pcbfile);
+		strcpy (buf, pf);
 		bl = strlen(buf);
 		if (bl > 4 && strcmp (buf + bl - 4, ".pcb") == 0)
 			buf[bl - 4] = 0;
@@ -347,4 +355,6 @@ void derive_default_filename(const char *pcbfile, HID_Attribute *filename_attrib
 			free(filename_attrib->default_val.str_value);
 		filename_attrib->default_val.str_value = buf;
 	}
+
+	free (pf);
 }
