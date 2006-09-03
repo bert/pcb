@@ -37,10 +37,22 @@
 define(`PKG_TO3_90',
 `Element(0x00 "$1" "$2" "$3" 400 800 0 100 0x00)
 (
-	PIN(650, 1000, 120, 40, 1)
-	PIN(650, 550, 120, 40, 2)
-	PIN(1320, 775, 250, 120, 3)
-	PIN(125, 775, 250, 120, 4)
+
+# The JEDEC drawing specifies that pins #1
+# and #2 have a diameter from 38 to 43 mils.
+# The mounting holes (pins 3 and 4 here) are
+# 151 to 161 mils.  Increasing by 15 mils would
+# give a drill diameter of 58 and 176 mils.  
+# 55 and 177 are close in standard drill sizes.
+# a #4 machine screw is 110 mils, a #6 is 140 mils and a 
+# #8 is 160 mils in diameter.  Looks like you can't count
+# on using a #8 for a TO3, but a #6 is fair.
+# This would give something like a 90 pad size for a 
+# 35 mil annular ring for pins 1 and 2.  
+	PIN(650, 1000, 90, 55, 1)
+	PIN(650, 550, 90, 55, 2)
+	PIN(1320, 775, 250, 177, 3)
+	PIN(125, 775, 250, 177, 4)
 
 	ElementArc(700 775 500 500 70 40 20)
 	ElementArc(700 775 500 500 250 40 20)
@@ -58,10 +70,10 @@ define(`PKG_TO3_90',
 define(`PKG_TO3_45',
 `Element(0x00 "$1" "$2" "$3" 480 510 0 100 0x00)
 (
-	PIN(750, 750, 120, 30, 1)
-	PIN(960, 380, 120, 30, 2)
-	PIN(1300, 830, 250, 120, 3)
-	PIN(280, 210, 250, 120, 4)
+	PIN(750, 750, 90, 55, 1)
+	PIN(960, 380, 90, 55, 2)
+	PIN(1300, 830, 250, 177, 3)
+	PIN(280, 210, 250, 177, 4)
 
 	ElementLine(660 1010 1300 1010 20)
 	ElementLine(1210 230 1470 770 20)
@@ -89,9 +101,14 @@ define(`PKG_TO3_45',
 define(`PKG_TO5',
 `Element(0x00 "$1" "$2" "$3" 110 110 0 100 0x00)
 (
-	PIN(100, 200, 80, 20, 1)
-	PIN(200, 300, 80, 20, 2)
-	PIN(300, 200, 80, 20, 3)
+
+#
+# The JEDEC drawing specifies a pin diameter of 16 to 21 mils
+# This suggests a minimum drill size of 36 mils.  42 is a common
+# standard drill (#58).  A 72 mil pad gives a 15 mil annular ring.
+	PIN(100, 200, 72, 42, 1)
+	PIN(200, 300, 72, 42, 2)
+	PIN(300, 200, 72, 42, 3)
 
 	ElementArc(200 200 150 150 0 360 10)
 	ElementArc(200 200 170 170 0 360 20)
@@ -114,9 +131,13 @@ define(`PKG_TO5',
 define(`PKG_TO92',
 `Element(0x00 "$1" "$2" "$3" 60 70 0 100 0x00)
 (
-	PIN(50, 200, 80, 20, 1)
-	PIN(150, 200, 80, 20, 2)
-	PIN(250, 200, 80, 20, 3)
+
+# The JEDEC drawing shows a pin diameter of 16-21 mils
+#
+# The pin to pin spacing is 100 mils.
+	PIN(50, 200, 72, 42, 1)
+	PIN(150, 200, 72, 42, 2)
+	PIN(250, 200, 72, 42, 3)
 
 	ElementArc(150 200 100 100 315 270 10)
 	ElementLine( 80 130 220 130 10)
@@ -135,9 +156,22 @@ define(`PKG_TO92',
 define(`PKG_TO126LAY',
 `Element(0x00 "$1" "$2" "$3" 80 480 1 100 0x00)
 (
-	PIN(110, 600, 75, 50, 1)
-	PIN(200, 600, 75, 50, 2)
-	PIN(290, 600, 75, 50, 3) 
+
+# From the JEDEC drawing, the pins are rectangular with dimensions
+# 25-35 mil X 15-25 mil
+#
+# This gives a diagonal dimension of 29.2 to 43.0 mils.
+# Pin pitch is 80 to 100 mils.
+# 
+# For a minimum clearance of 10 mils (probably not unreasonable if
+# you are doing a design with leaded parts, this gives a max pad size
+# of 80 mils.  A 52 mil drill will give 14 mil annular ring which should
+# be plenty.
+#
+# The mounting hole is 100 to 130 mils diameter
+	PIN(110, 600, 80, 52, 1)
+	PIN(200, 600, 80, 52, 2)
+	PIN(290, 600, 80, 52, 3) 
 
 	# Befestigungsbohrung
 	PIN(200, 170, 130, 110, 4)
@@ -159,9 +193,9 @@ define(`PKG_TO126LAY',
 define(`PKG_TO126LAY_WIDE',
 `Element(0x00 "$1" "$2" "$3" 80 480 1 100 0x00)
 (
-	PIN(110, 600, 75, 50, 1)
-	PIN(200, 700, 75, 50, 2)
-	PIN(290, 600, 75, 50, 3)
+	PIN(110, 600, 80, 52, 1)
+	PIN(200, 700, 80, 52, 2)
+	PIN(290, 600, 80, 52, 3)
 
 	# Befestigungsbohrung
 	PIN(200, 170, 130, 110, 4)
@@ -183,9 +217,9 @@ define(`PKG_TO126LAY_WIDE',
 define(`PKG_TO126STAND',
 `Element(0x00 "$1" "$2" "$3" 60 170 0 100 0x00)
 (
-	PIN(110, 100, 75, 50, 1)
-	PIN(200, 100, 75, 50, 2)
-	PIN(290, 100, 75, 50, 3)
+	PIN(110, 100, 80, 52, 1)
+	PIN(200, 100, 80, 52, 2)
+	PIN(290, 100, 80, 52, 3)
 
 	ElementLine(50 50 350 50 20)
 	ElementLine(350 50 350 150 20)
@@ -198,9 +232,9 @@ define(`PKG_TO126STAND',
 define(`PKG_TO126STAND_WIDE',
 `Element(0x00 "$1" "$2" "$3" 270 170 0 100 0x00)
 (
-	PIN(110, 100, 75, 50, 1)
-	PIN(200, 200, 75, 50, 2)
-	PIN(290, 100, 75, 50, 3)
+	PIN(110, 100, 80, 52, 1)
+	PIN(200, 200, 80, 52, 2)
+	PIN(290, 100, 80, 52, 3)
 
 	# Gehaeuse
 	ElementLine(200 200 200 150 30)
@@ -227,6 +261,17 @@ define(`PKG_TO126STAND_WIDE',
 define(`PKG_TO220LAY',
 `Element(0x00 "$1" "$2" "$3" 50 570 1 100 0x00)
 (
+
+# I have been unable to locate the JEDEC drawing.  However, refering
+# to  http://www.zetex.com/3.0/pdf/TO220.pdf which claims to be JEDEC
+# compliant, I see that the pins are rectangular with dimensions:
+#
+# 15-40 mils X 16-20 mils which gives a diagonal of
+# 21.9 to 44.7 mils
+#
+# The pin pitch is 90 to 110 mils.
+#
+# The mounting hole is 139 to 160 mils diameter
 	PIN(100, 800, 90, 60, 1)
 	PIN(200, 800, 90, 60, 2)
 	PIN(300, 800, 90, 60, 3)
