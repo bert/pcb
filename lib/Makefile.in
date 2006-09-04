@@ -42,7 +42,7 @@ DIST_COMMON = $(srcdir)/CreateLibrary.sh.in \
 	$(srcdir)/CreateLibraryContents.sh.in \
 	$(srcdir)/ListLibraryContents.sh.in $(srcdir)/Makefile.am \
 	$(srcdir)/Makefile.in $(srcdir)/QueryLibrary.sh.in \
-	$(srcdir)/qfp-ui.in
+	$(srcdir)/m4lib_to_newlib.sh.in $(srcdir)/qfp-ui.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/acinclude.m4 \
 	$(top_srcdir)/configure.ac
@@ -51,11 +51,12 @@ am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_HEADER = $(top_builddir)/config.h
 CONFIG_CLEAN_FILES = CreateLibraryContents.sh CreateLibrary.sh \
-	ListLibraryContents.sh QueryLibrary.sh qfp-ui
+	ListLibraryContents.sh QueryLibrary.sh m4lib_to_newlib.sh \
+	qfp-ui
 am__installdirs = "$(DESTDIR)$(pcblibdir)" "$(DESTDIR)$(pcblibdir)" \
 	"$(DESTDIR)$(pcblibm4dir)"
 pcblibSCRIPT_INSTALL = $(INSTALL_SCRIPT)
-SCRIPTS = $(pcblib_SCRIPTS)
+SCRIPTS = $(noinst_SCRIPTS) $(pcblib_SCRIPTS)
 SOURCES =
 DIST_SOURCES =
 am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
@@ -216,6 +217,9 @@ LIBSCRIPTS = \
 	QueryLibrary.sh \
 	qfp-ui
 
+noinst_SCRIPTS = \
+	m4lib_to_newlib.sh
+
 pcblib_DATA = ${LIBCONTENTS} ${DAT_FILES}
 LIBCONTENTS = \
 	${LIBRARYFILENAME} \
@@ -344,6 +348,8 @@ CreateLibrary.sh: $(top_builddir)/config.status $(srcdir)/CreateLibrary.sh.in
 ListLibraryContents.sh: $(top_builddir)/config.status $(srcdir)/ListLibraryContents.sh.in
 	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
 QueryLibrary.sh: $(top_builddir)/config.status $(srcdir)/QueryLibrary.sh.in
+	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
+m4lib_to_newlib.sh: $(top_builddir)/config.status $(srcdir)/m4lib_to_newlib.sh.in
 	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
 qfp-ui: $(top_builddir)/config.status $(srcdir)/qfp-ui.in
 	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
@@ -533,7 +539,7 @@ uninstall-am: uninstall-info-am uninstall-pcblibDATA \
 # is just one of the distribution files and thus will not exist in the build
 # directory if the build is not done in the source directory
 all-local:
-	for f in ${LIBSCRIPTS} ; do if test -f $$f ; then chmod 755 $$f ; fi ; done
+	for f in ${LIBSCRIPTS} ${noinst_SCRIPTS}; do if test -f $$f ; then chmod 755 $$f ; fi ; done
 
 ${LIBRARYFILENAME}: ${COMMON_FILE} ${INC_FILES} ${DAT_FILES} ${M4_FILES} CreateLibrary.sh
 	${SHELL} ./CreateLibrary.sh -I $(srcdir) $@ $(srcdir)/${COMMON_FILE} ${M4_FILES}

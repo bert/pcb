@@ -14,6 +14,9 @@ LIBSCRIPTS= \
 	QueryLibrary.sh \
 	qfp-ui
 
+noinst_SCRIPTS= \
+	m4lib_to_newlib.sh
+
 pcblib_DATA= ${LIBCONTENTS} ${DAT_FILES}
 
 LIBCONTENTS= \
@@ -32,7 +35,7 @@ pcblibm4_DATA=	$(LIB_FILES)
 # is just one of the distribution files and thus will not exist in the build
 # directory if the build is not done in the source directory
 all-local:
-	for f in ${LIBSCRIPTS} ; do if test -f $$f ; then chmod 755 $$f ; fi ; done
+	for f in ${LIBSCRIPTS} ${noinst_SCRIPTS}; do if test -f $$f ; then chmod 755 $$f ; fi ; done
 
 COMMON_FILE= common.m4
 

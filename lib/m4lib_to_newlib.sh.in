@@ -8,7 +8,7 @@
 
 outd=/tmp/newlib
 contents=pcblib.contents
-AWK=gawk
+AWK=@AWK@
 
 usage() {
 cat << EOF
@@ -250,7 +250,7 @@ first == 1 {
 	close( laytmpl );
 	close( layout );
 
-	cmd = "cd ../src && env LD_LIBRARY_PATH=/usr/X11R6/lib:/usr/pkg/lib ./pcb-bin -x png --outfile " pngfile " --xy-max 200 --only-visible " layout " 2>&1 > /dev/null" ;
+	cmd = "cd ../src && ./pcb-bin -x png --outfile " pngfile " --xy-max 200 --only-visible " layout " 2>&1 > /dev/null" ;
 	rc = system( cmd );
 	if( rc != 0) {
 		printf("<TR><TD>~%s</TD>\n", lib) >> broken;

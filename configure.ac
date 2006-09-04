@@ -550,6 +550,7 @@ if test -d $srcdir/lib; then
    AC_CONFIG_FILES(lib/ListLibraryContents.sh)
    AC_CONFIG_FILES(lib/Makefile)
    AC_CONFIG_FILES(lib/QueryLibrary.sh)
+   AC_CONFIG_FILES(lib/m4lib_to_newlib.sh)
    AC_CONFIG_FILES(lib/qfp-ui)
 fi
 if test -d $srcdir/newlib; then

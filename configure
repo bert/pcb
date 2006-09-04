@@ -9756,6 +9756,8 @@ if test -d $srcdir/lib; then
 
              ac_config_files="$ac_config_files lib/QueryLibrary.sh"
 
+             ac_config_files="$ac_config_files lib/m4lib_to_newlib.sh"
+
              ac_config_files="$ac_config_files lib/qfp-ui"
 
 fi
@@ -10431,6 +10433,7 @@ do
   "lib/ListLibraryContents.sh" ) CONFIG_FILES="$CONFIG_FILES lib/ListLibraryContents.sh" ;;
   "lib/Makefile" ) CONFIG_FILES="$CONFIG_FILES lib/Makefile" ;;
   "lib/QueryLibrary.sh" ) CONFIG_FILES="$CONFIG_FILES lib/QueryLibrary.sh" ;;
+  "lib/m4lib_to_newlib.sh" ) CONFIG_FILES="$CONFIG_FILES lib/m4lib_to_newlib.sh" ;;
   "lib/qfp-ui" ) CONFIG_FILES="$CONFIG_FILES lib/qfp-ui" ;;
   "newlib/2_pin_thru-hole_packages/Makefile" ) CONFIG_FILES="$CONFIG_FILES newlib/2_pin_thru-hole_packages/Makefile" ;;
   "newlib/Makefile" ) CONFIG_FILES="$CONFIG_FILES newlib/Makefile" ;;
