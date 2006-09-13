@@ -115,7 +115,7 @@ static void DrawPlainPolygon (LayerTypePtr Layer, PolygonTypePtr Polygon);
 static void AddPart (void *);
 static void SetPVColor (PinTypePtr, int);
 static void DrawGrid (void);
-static void DrawEMark (LocationType, LocationType, Boolean);
+static void DrawEMark (ElementTypePtr, LocationType, LocationType, Boolean);
 static void ClearLine (LineTypePtr);
 static void ClearArc (ArcTypePtr);
 static void ClearPad (PadTypePtr, Boolean);
@@ -356,7 +356,7 @@ EMark_callback (const BoxType * b, void *cl)
 {
   ElementTypePtr element = (ElementTypePtr) b;
 
-  DrawEMark (element->MarkX, element->MarkY, !FRONT (element));
+  DrawEMark (element, element->MarkX, element->MarkY, !FRONT (element));
   return 1;
 }
 
@@ -638,24 +638,29 @@ DrawEverything (BoxTypePtr drawn_area)
 }
 
 static void
-DrawEMark (LocationType X, LocationType Y, Boolean invisible)
+DrawEMark (ElementTypePtr e, LocationType X, LocationType Y, Boolean invisible)
 {
+  int mark_size = EMARK_SIZE;
   if (!PCB->InvisibleObjectsOn && invisible)
     return;
-#if 0
+
+  if (e->PinN && mark_size > e->Pin[0].Thickness/2)
+    mark_size = e->Pin[0].Thickness/2;
+  if (e->PadN && mark_size > e->Pad[0].Thickness/2)
+    mark_size = e->Pad[0].Thickness/2;
+
   gui->set_color (Output.fgGC,
 		  invisible ? PCB->InvisibleMarkColor : PCB->ElementColor);
-  gdk_gc_set_line_attributes (Output.fgGC, 1,
-			      GDK_LINE_SOLID, GDK_CAP_ROUND, GDK_JOIN_ROUND);
-  XDrawCLine (DrawingWindow, Output.fgGC, X - EMARK_SIZE,
-	      Y, X, Y - EMARK_SIZE);
-  XDrawCLine (DrawingWindow, Output.fgGC, X + EMARK_SIZE,
-	      Y, X, Y - EMARK_SIZE);
-  XDrawCLine (DrawingWindow, Output.fgGC, X - EMARK_SIZE,
-	      Y, X, Y + EMARK_SIZE);
-  XDrawCLine (DrawingWindow, Output.fgGC, X + EMARK_SIZE,
-	      Y, X, Y + EMARK_SIZE);
-#endif
+  gui->set_line_cap (Output.fgGC, Trace_Cap);
+  gui->set_line_width (Output.fgGC, 1);
+  gui->draw_line (Output.fgGC, X - mark_size,
+	      Y, X, Y - mark_size);
+  gui->draw_line (Output.fgGC, X + mark_size,
+	      Y, X, Y - mark_size);
+  gui->draw_line (Output.fgGC, X - mark_size,
+	      Y, X, Y + mark_size);
+  gui->draw_line (Output.fgGC, X + mark_size,
+	      Y, X, Y + mark_size);
 }
 
 static int
