@@ -46,7 +46,7 @@ define(`PKG_PCIPINARRAY',
     	define(`LMAXY',`eval(MAXY+ARCRADIUS)')
 	define(`BOARDTOP',`eval(LMAXY-arg1)')
 	define(`SCREWBORDER',275)
-Element(0x00  "$1" "$2" "$3" CENTERX 10 1 30 0x00)
+Element(0x00  "$1" "`$2'" "$3" CENTERX 10 1 30 0x00)
 (
 	Mark(CENTERX 135)
 	define(`ADDSIDE',0)

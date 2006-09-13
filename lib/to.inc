@@ -35,7 +35,7 @@
 #
 # by Olaf Kaluza <criseis!olaf@ruhrgebiet.individual.net>
 define(`PKG_TO3_90',
-`Element(0x00 "$1" "$2" "$3" 400 800 0 100 0x00)
+`Element(0x00 "$1" "`$2'" "$3" 400 800 0 100 0x00)
 (
 
 # The JEDEC drawing specifies that pins #1
@@ -68,7 +68,7 @@ define(`PKG_TO3_90',
 
 # by Volker Bosch, 45 degree, TO3
 define(`PKG_TO3_45',
-`Element(0x00 "$1" "$2" "$3" 480 510 0 100 0x00)
+`Element(0x00 "$1" "`$2'" "$3" 480 510 0 100 0x00)
 (
 	PIN(750, 750, 90, 55, 1)
 	PIN(960, 380, 90, 55, 2)
@@ -99,7 +99,7 @@ define(`PKG_TO3_45',
 #
 # by Volker Bosch (bosch@iema.e-technik.uni-stuttgart.de)
 define(`PKG_TO5',
-`Element(0x00 "$1" "$2" "$3" 110 110 0 100 0x00)
+`Element(0x00 "$1" "`$2'" "$3" 110 110 0 100 0x00)
 (
 
 #
@@ -129,7 +129,7 @@ define(`PKG_TO5',
 # by Volker Bosch (bosch@iema.e-technik.uni-stuttgart.de)
 # lineare Anordnung der Pins
 define(`PKG_TO92',
-`Element(0x00 "$1" "$2" "$3" 60 70 0 100 0x00)
+`Element(0x00 "$1" "`$2'" "$3" 60 70 0 100 0x00)
 (
 
 # The JEDEC drawing shows a pin diameter of 16-21 mils
@@ -154,7 +154,7 @@ define(`PKG_TO92',
 #
 # by Volker Bosch (bosch@iema.e-technik.uni-stuttgart.de)
 define(`PKG_TO126LAY',
-`Element(0x00 "$1" "$2" "$3" 80 480 1 100 0x00)
+`Element(0x00 "$1" "`$2'" "$3" 80 480 1 100 0x00)
 (
 
 # From the JEDEC drawing, the pins are rectangular with dimensions
@@ -191,7 +191,7 @@ define(`PKG_TO126LAY',
 )')
 
 define(`PKG_TO126LAY_WIDE',
-`Element(0x00 "$1" "$2" "$3" 80 480 1 100 0x00)
+`Element(0x00 "$1" "`$2'" "$3" 80 480 1 100 0x00)
 (
 	PIN(110, 600, 80, 52, 1)
 	PIN(200, 700, 80, 52, 2)
@@ -215,7 +215,7 @@ define(`PKG_TO126LAY_WIDE',
 )')
 
 define(`PKG_TO126STAND',
-`Element(0x00 "$1" "$2" "$3" 60 170 0 100 0x00)
+`Element(0x00 "$1" "`$2'" "$3" 60 170 0 100 0x00)
 (
 	PIN(110, 100, 80, 52, 1)
 	PIN(200, 100, 80, 52, 2)
@@ -230,7 +230,7 @@ define(`PKG_TO126STAND',
 )')
 
 define(`PKG_TO126STAND_WIDE',
-`Element(0x00 "$1" "$2" "$3" 270 170 0 100 0x00)
+`Element(0x00 "$1" "`$2'" "$3" 270 170 0 100 0x00)
 (
 	PIN(110, 100, 80, 52, 1)
 	PIN(200, 200, 80, 52, 2)
@@ -259,7 +259,7 @@ define(`PKG_TO126STAND_WIDE',
 #
 # by Volker Bosch (bosch@iema.e-technik.uni-stuttgart.de)
 define(`PKG_TO220LAY',
-`Element(0x00 "$1" "$2" "$3" 50 570 1 100 0x00)
+`Element(0x00 "$1" "`$2'" "$3" 50 570 1 100 0x00)
 (
 
 # I have been unable to locate the JEDEC drawing.  However, refering
@@ -308,7 +308,7 @@ define(`PKG_TO220LAY',
 )')
 
 define(`PKG_TO220LAY_WIDE',
-`Element(0x00 "$1" "$2" "$3" 50 570 1 100 0x00)
+`Element(0x00 "$1" "`$2'" "$3" 50 570 1 100 0x00)
 (
 	PIN(100, 800, 90, 60, 1)
 	PIN(200, 900, 90, 60, 2)
@@ -346,7 +346,7 @@ define(`PKG_TO220LAY_WIDE',
 )')
 
 define(`PKG_TO220STAND',
-`Element(0x00 "$1" "$2" "$3" 0 10 0 100 0x00)
+`Element(0x00 "$1" "`$2'" "$3" 0 10 0 100 0x00)
 (
 	PIN(100, 200, 90, 60, 1)
 	PIN(200, 200, 90, 60, 2)
@@ -371,7 +371,7 @@ define(`PKG_TO220STAND',
 )')
 
 define(`PKG_TO220STAND_WIDE',
-`Element(0x00 "$1" "$2" "$3" 0 10 0 100 0x00)
+`Element(0x00 "$1" "`$2'" "$3" 0 10 0 100 0x00)
 (
 	PIN(100, 200, 90, 60, 1)
 	PIN(200, 300, 90, 60, 2)
@@ -410,7 +410,7 @@ define(`PKG_TO220STAND_WIDE',
 # Status: Untested, but looks pretty :-)
 
 define(`PKG_BASE_SOT',
-`Element(0x00 "$1" "$2" "$3" 0 eval(DY+WY/2+10) 0 100 0x00)
+`Element(0x00 "$1" "`$2'" "$3" 0 eval(DY+WY/2+10) 0 100 0x00)
 (
 	define(`WID', WY)
 	define(`RX',  `eval((WX-WID)/2)')

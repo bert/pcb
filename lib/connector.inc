@@ -37,7 +37,7 @@
 define(`PKG_CONNECTOR',
 	`define(`MAXY', `eval(`$4' * 100)')
 	define(`MAXX', `eval(`$5' * 100)')
-Element(0x00 "$1" "$2" "$3" eval(MAXX + 60) 0 3 100 0x00)
+Element(0x00 "$1" "`$2'" "$3" eval(MAXX + 60) 0 3 100 0x00)
 (
 	forloop(`row', 1, $4, `forloop(`col', 1, $5,
 		`PIN(eval(col * 100 -50), eval(row * 100 -50), 60, 38, eval((row-1)*$5+col))
@@ -63,7 +63,7 @@ Element(0x00 "$1" "$2" "$3" eval(MAXX + 60) 0 3 100 0x00)
 define(`PKG_CONNECTOR_DIL',
 	`define(`MAXY', `eval(`$4' * 100)')
 	define(`MAXX', `200')
-Element(0x00 "$1" "$2" "$3" eval(MAXX + 60) 0 3 100 0x00)
+Element(0x00 "$1" "`$2'" "$3" eval(MAXX + 60) 0 3 100 0x00)
 (
 	forloop(`row', 1, eval(`$4'),
 		`PIN(50, eval(row * 100 -50), 60, 38, eval(row))
@@ -98,7 +98,7 @@ Element(0x00 "$1" "$2" "$3" eval(MAXX + 60) 0 3 100 0x00)
 define(`PKG_DIN41_612MALE_SMALL',
 	`define(`XPOS', `eval(300 + 100 * i)')
 	define(`MINY', 300)
-Element(0x00 "$1" "$2" "$3" 520 550 0 200 0x00)
+Element(0x00 "$1" "`$2'" "$3" 520 550 0 200 0x00)
 (
 	# Reihe a
 	ifelse(index(`$4', `a'), `-1', ,
@@ -153,7 +153,7 @@ define(`PKG_DIN41_612FEMALE_SMALL',
 	`define(`MAXX', 420)
 	define(`MAXX1', `eval(MAXX -170)')
 	define(`MAXX2', `eval(MAXX -40)')
-Element(0x00 "$1" "$2" "$3" 50 100 3 200 0x00)
+Element(0x00 "$1" "`$2'" "$3" 50 100 3 200 0x00)
 (
 	# Reihe a
 	ifelse(index(`$4', `a'), `-1', ,
@@ -208,7 +208,7 @@ Element(0x00 "$1" "$2" "$3" 50 100 3 200 0x00)
 define(`PKG_DIN41_612MALE',
 	`define(`XPOS', `eval(300 + 100 * i)')
 	define(`MINY', 300)
-Element(0x00 "$1" "$2" "$3" 520 550 0 200 0x00)
+Element(0x00 "$1" "`$2'" "$3" 520 550 0 200 0x00)
 (
 	# Reihe a
 	ifelse(index(`$4', `a'), `-1', ,
@@ -263,7 +263,7 @@ define(`PKG_DIN41_612FEMALE',
 	`define(`MAXX', 420)
 	define(`MAXX1', `eval(MAXX -170)')
 	define(`MAXX2', `eval(MAXX -40)')
-Element(0x00 "$1" "$2" "$3" 50 100 3 200 0x00)
+Element(0x00 "$1" "`$2'" "$3" 50 100 3 200 0x00)
 (
 	# Reihe a
 	ifelse(index(`$4', `a'), `-1', ,
@@ -318,7 +318,7 @@ Element(0x00 "$1" "$2" "$3" 50 100 3 200 0x00)
 define(`PKG_DIN41_651LAY',
 	`define(`MAXY', `eval($4/2 *100 +400)')
 	define(`CENTERY', `eval($4/2 *50 +425)')
-Element(0x00 "$1" "$2" "$3" 400 250 3 200 0x00)
+Element(0x00 "$1" "`$2'" "$3" 400 250 3 200 0x00)
 (
 	forloop(`i', 1, eval($4 / 2),
 		`PIN(100,  eval(100*i +400), 60, 28, eval(2*i-1))
@@ -357,7 +357,7 @@ Element(0x00 "$1" "$2" "$3" 400 250 3 200 0x00)
 define(`PKG_DIN41_651STAND',
 	`define(`MAXY', `eval($4/2 *100 +400)')
 	define(`CENTERY', `eval($4/2 *50 +425)')
-Element(0x00 "$1" "$2" "$3" 50 100 3 200 0x00)
+Element(0x00 "$1" "`$2'" "$3" 50 100 3 200 0x00)
 (
 	forloop(`i', 1, eval($4 / 2),
 		`PIN(200,  eval(100*i +400), 60, 28, eval(2*i-1))
@@ -431,7 +431,7 @@ define(`PKG_SUBD_LAY_BASE',
 	define(`PY2', `eval(PY1 +($4-1)/2*108)')
 	define(`OFFSET', `eval(($4+1)/2)')
 	define(`PANEL_DISTANCE', 365)
-Element(0x00 "$1" "$2" "$3" eval(BASEX-0) eval(PY2-0) 1 150 0x00)
+Element(0x00 "$1" "`$2'" "$3" eval(BASEX-0) eval(PY2-0) 1 150 0x00)
 (
 	# Gehaeuse (schmaler Kasten incl. Bohrungen)
 	define(`X1', `eval(BASEX-PANEL_DISTANCE)')
@@ -549,7 +549,7 @@ define(`PKG_SUBD_FEMALE_LAY',
 define(`PKG_BNC_LAY',
 	`define(`BASEX', 200)
 	define(`BASEY', -200)
-Element(0x00 "$1" "$2" "$3" BASEX eval(BASEY+200) 3 100 0x00)
+Element(0x00 "$1" "`$2'" "$3" BASEX eval(BASEY+200) 3 100 0x00)
 (
 	define(`X1', `eval(BASEX-260)')
 	define(`Y1', `eval(BASEY-90)')
@@ -593,7 +593,7 @@ define(`PKG_MTA_100',
         define(`SILKY2', `SILKYOFS')
         define(`SILKY3', `eval(SILKYOFS+2*SILKW)')
 
-Element(0x00 "$1" "$2" "$3" 0  140 0 150 0x00)
+Element(0x00 "$1" "`$2'" "$3" 0  140 0 150 0x00)
 (
         forloop(`i', 1, `$4',
                 `PIN(eval((i-1)*100), 0, 60, 38, `i')
@@ -630,7 +630,7 @@ Element(0x00 "$1" "$2" "$3" 0  140 0 150 0x00)
 #
 define(`PKG_MTA_156',
 	`
-Element(0x00 "$1" "$2" "$3" 0  140 0 150 0x00)
+Element(0x00 "$1" "`$2'" "$3" 0  140 0 150 0x00)
 (
 	forloop(`i', 1, `$4',
 		`PIN(eval((i-1)*156), 0, 100, 70, `i')
@@ -658,7 +658,7 @@ Element(0x00 "$1" "$2" "$3" 0  140 0 150 0x00)
 define(`PKG_SMA_VERT',
 	`define(`BASEX', 0)
 	define(`BASEY', 0)
-Element(0x00 "$1" "$2" "$3" BASEX eval(BASEY+150) 3 100 0x00)
+Element(0x00 "$1" "`$2'" "$3" BASEX eval(BASEY+150) 3 100 0x00)
 (
 	define(`X1', `eval(BASEX-160)')
 	define(`Y1', `eval(BASEY-160)')
@@ -690,7 +690,7 @@ Element(0x00 "$1" "$2" "$3" BASEX eval(BASEY+150) 3 100 0x00)
 #
 define(`PKG_MOLEX_025',
 	`define(`PINPAIRS',`eval($4/2)')
-Element(0x00 "$1" "$2" "$3" 0 0 3 100 0x00)
+Element(0x00 "$1" "`$2'" "$3" 0 0 3 100 0x00)
 (
 	forloop(`i', 1, PINPAIRS,
 		`define(`Y', eval(25*(i-1)) )'
@@ -756,7 +756,7 @@ define(`PKG_TP',
 	define(`SILK',  `eval($5/2)')
 	define(`PADDIA', `eval(DRILL + 20)')
 	define(`SILKW', `10')
-Element(0x00 "$1" "$2" "$3" -20 eval(-SILK - 60) 0 100 0x00)
+Element(0x00 "$1" "`$2'" "$3" -20 eval(-SILK - 60) 0 100 0x00)
 (
 	Pin( 0 0 PADDIA DRILL "1" "1" 0x0)
 	ElementArc(0 0 SILK SILK 0 360 SILKW)

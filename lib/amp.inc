@@ -82,7 +82,7 @@ define(`COMMON_AMP_MICTOR_MIL',
 	,
 		`define(`CURPIN', `1')'
 	)	
-Element(0x00 "$1" "$2" "$3" -20 -60 0 100 0x00)
+Element(0x00 "$1" "`$2'" "$3" -20 -60 0 100 0x00)
 (
 	define(`SEG', `1')
 	define(`YOFS', eval((1-NSEG)*25000/2))

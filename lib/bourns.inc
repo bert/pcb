@@ -75,7 +75,7 @@ define(`PKG_BOURNS_GENERIC_POT',
 	define(`TEXTX', -SILKX)
 	define(`TEXTY', `eval(-SILKY - 10 - TEXTSIZE/2)')
 
-Element(0x00 "$1" "$2" "$3" TEXTX TEXTY 0 TEXTSIZE 0x00)
+Element(0x00 "$1" "`$2'" "$3" TEXTX TEXTY 0 TEXTSIZE 0x00)
 (
 
 # pin 1

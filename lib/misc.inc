@@ -45,7 +45,7 @@
 #
 define(`PKG_SD',
 	`define(`MAXY', `eval(`$4' / 2 * 100 + 50)')
-Element(0x00 "$1" "$2" "$3" 275 50 3 100 0x00)
+Element(0x00 "$1" "`$2'" "$3" 275 50 3 100 0x00)
 (
 	forloop(`i', 1, eval($4 / 2),
 		`PIN(50,  eval(100*(i-1)+50), 60, 35, eval(2*i-1))
@@ -80,7 +80,7 @@ Element(0x00 "$1" "$2" "$3" 275 50 3 100 0x00)
 
 define(`GENERIC_PL_POWER',
     `define(`pin1X', `eval((`$6' - (`$4' - 1) * `$5')/2)')
-Element(0x00 "$1" "$2" "$3" eval(`$6'+60) 50 3 100 0x00)
+Element(0x00 "$1" "`$2'" "$3" eval(`$6'+60) 50 3 100 0x00)
 (
        forloop(`i', 1, `$4',
                `PIN(eval(pin1X + (i-1)*`$5'), ifelse(eval(i % 2 == 0), 0, eval(`$8'+`$11'), `$8'), `$9', `$10', i)
@@ -101,7 +101,7 @@ Element(0x00 "$1" "$2" "$3" eval(`$6'+60) 50 3 100 0x00)
 # $2: name on PCB
 # $3: value
 define(`PKG_R025',
-`Element(0x00 "$1" "$2" "$3" 120 30 0 100 0x00)
+`Element(0x00 "$1" "`$2'" "$3" 120 30 0 100 0x00)
 (
 	PIN(0, 50, 68, 38, 1)
 	PIN(400, 50, 68, 38, 2)
@@ -122,7 +122,7 @@ define(`PKG_R025',
 # $4: number of pins
 define(`PKG_SIL',
 	`define(`MAXY', `eval(`$4' * 100 -50)')
-Element(0x00 "$1" "$2" "$3" 160 10 3 100 0x00)
+Element(0x00 "$1" "`$2'" "$3" 160 10 3 100 0x00)
 (
 	forloop(`i', 1, $4,
 		`PIN(50, eval(i * 100 -50), 60, 28, i)
@@ -145,7 +145,7 @@ Element(0x00 "$1" "$2" "$3" 160 10 3 100 0x00)
 # $4: number of pins
 define(`PKG_CSIL',
 	`define(`MAXY', `eval(`$4' * 100 -50)')
-Element(0x00 "$1" "$2" "$3" 160 10 3 100 0x00)
+Element(0x00 "$1" "`$2'" "$3" 160 10 3 100 0x00)
 (
 	forloop(`i', 1, $4,
 		`PIN(50, eval(i * 100 -50), 60, 28, i)
@@ -167,7 +167,7 @@ Element(0x00 "$1" "$2" "$3" 160 10 3 100 0x00)
 #
 # based on mail by Volker Bosch (bosch@iema.e-technik.uni-stuttgart.de)
 define(`PKG_QFP132',
-`Element(0x00 "$1" "$2" "$3" 250 200 0 150 0x00)
+`Element(0x00 "$1" "`$2'" "$3" 250 200 0 150 0x00)
 (
 	forloop(`i', 1, 17,
 		`define(`XPOS', eval(625 -i*25))'
@@ -250,7 +250,7 @@ define(`PKG_QFP132',
 define(`PKG_LED',
 	`define(`RADIUS1', `eval(`$4' /2)')
 	define(`RADIUS2', `eval(`$4' /2 +20)')
-Element(0x00 "$1" "$2" "$3" 100 70 0 100 0x00)
+Element(0x00 "$1" "`$2'" "$3" 100 70 0 100 0x00)
 (
 # typical LED is 0.5 mm or 0.020" square pin.  See for example
 # http://www.lumex.com and part number SSL-LX3054LGD.
@@ -290,7 +290,7 @@ define(`PKG_DIODE_LAY',
 	define(`Y', `eval(`$4' /2)')
 	define(`DELTA', `eval(X1 /2)')
 	define(`PINSIZE', `ifelse(eval($4 >= 500), 1, 80, 50)')
-Element(0x00 "$1" "$2" "$3" eval(X2+20) eval(Y-DELTA) 0 100 0x00)
+Element(0x00 "$1" "`$2'" "$3" eval(X2+20) eval(Y-DELTA) 0 100 0x00)
 (
 	PIN(0, Y, PINSIZE, 20, 1)
 	PIN($4, Y, PINSIZE, 20, 2)
@@ -322,7 +322,7 @@ define(`PKG_AXIAL_LAY',
 	define(`YPT', `eval(Y1 - PINSIZE/2 - 10)')
 	define(`YPC', `eval(YPT - 20)')
 	define(`YPB', `eval(YPT - 40)')
-Element(0x00 "$1" "$2" "$3" eval(X2+20) eval(Y2+20) 0 100 0x00)
+Element(0x00 "$1" "`$2'" "$3" eval(X2+20) eval(Y2+20) 0 100 0x00)
 (
 	PIN(0, Y1, PINSIZE, DRILLSIZE, 1)
 	PIN($4, Y1, PINSIZE, DRILLSIZE, 2)
@@ -381,7 +381,7 @@ Element(0x00 "$1" "`$2'" "$3" X1 eval(Y2+20) 0 100 0x00)
 # $3: value
 #
 define(`PKG_OSC',
-`Element(0x00 "$1" "$2" "$3" 270 300 3 100 0x00)
+`Element(0x00 "$1" "`$2'" "$3" 270 300 3 100 0x00)
 (
 	Pin(100 100 50 28 "NC" 0x01)
 	Pin(100 700 50 28 "GND" 0x01)
@@ -418,7 +418,7 @@ define(`PKG_OSC',
 # $3: value
 #
 define(`PKG_ISA8',
-`Element(0x00 "$1" "$2" "$3" 4000 0 0 100 0x00)
+`Element(0x00 "$1" "`$2'" "$3" 4000 0 0 100 0x00)
 (
     # Pins, entspr. Anschl. auf Loetseite (b31..b1)
 	Pin( 200 3850 60 35 "Gnd (b31)" 0x01)
@@ -515,7 +515,7 @@ define(`PKG_ISA8',
 # Text(620 920 0 100 "711-04-006" 0x0001)
 # Text(620 1680 0 100 "+12 -> 15 VOLTS DC" 0x0001) 
 define(`PKG_OVEN_OSC',
-`Element(0x00 "$1" "$2" "$3" 580 280 0 100 0x00)
+`Element(0x00 "$1" "`$2'" "$3" 580 280 0 100 0x00)
 (
 	Pin(320 320 150 35 "NC" 0x01)
 	Pin(320 1000 150 35 "VCC" 0x01)
@@ -560,7 +560,7 @@ define(`PKG_RADIAL_CAN',
 	define(`R', `eval(`$4' /2)')
 	define(`PINSIZE', `ifelse(eval($4 >= 600), 1, 80, 55)')
 	define(`DRILLSIZE', `ifelse(eval($4 >= 600), 1, 50, 30)')
-Element(0x00 "$1" "$2" "$3" eval(`$4') 0 0 100 0x00)
+Element(0x00 "$1" "`$2'" "$3" eval(`$4') 0 0 100 0x00)
 (
 	PIN(X1, Y, 60, DRILLSIZE, 1)
 	PIN(X2, Y, 60, DRILLSIZE, 2)
@@ -606,7 +606,7 @@ define(`PKG_SMD_BASE',
 	define(`X2L', `eval(X2+W)')
 	define(`Y1L', `eval(Y1-W)')
 	define(`Y2L', `eval(Y2+W)')
-Element(0x00 "$1" "$2" "$3" eval(10+T/2) eval(Y2L+15) 0 100 0x00)
+Element(0x00 "$1" "`$2'" "$3" eval(10+T/2) eval(Y2L+15) 0 100 0x00)
 (
 	# PAD(X1, Y1, X1, Y2, T, 1)
 	# PAD(X2, Y1, X2, Y2, T, 2)
@@ -660,7 +660,7 @@ define(`PKG_SMD_CHIP',
 	define(`Y1', `eval(eval(`$4'- X1 *10) *10)')
 # line radius (LR) depicts offset to pads lines and pad "band width"
 	define(`LR', `ifelse(eval(Y1 < 40), 1, eval(Y1/4), 10)')
-Element(0x00 "$1" "$2" "$3" 0 0 0 25 0x00)
+Element(0x00 "$1" "`$2'" "$3" 0 0 0 25 0x00)
 (
         PAD(LR LR LR eval(Y1-LR) eval(LR*2) )
         PAD(eval(X1-LR) LR eval(X1-LR) eval(Y1-LR) eval(LR*2) )

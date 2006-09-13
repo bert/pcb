@@ -13,7 +13,7 @@ define(`PKG_BGA',
 	define(`PITCH', `50')
 	define(`DIAMETER', `25')
 	define(`NUMPINS', `eval(4*(XBLOCK-4)*YBLOCK)')
-Element(0x00 "$1" "$2" "$3" 100 0 0 100 0x00)
+Element(0x00 "$1" "`$2'" "$3" 100 0 0 100 0x00)
 (
 	forloop(`i', 0, eval(XBLOCK-1),
 		`forloop(`j', 0, eval(YBLOCK-1),

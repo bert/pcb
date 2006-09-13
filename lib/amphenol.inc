@@ -40,7 +40,7 @@ define(`PKG_AMPHENOL_ARFX1229',
 	define(`XMAX', `eval(PAD_SPACE+SILK)')
 	define(`YMIN', `eval(-1*SILK)')
 	define(`YMAX', `eval(PAD_SPACE+SILK)')
-Element(0x00 "$1" "$2" "$3" eval(XMIN+20) eval(YMAX+20) 0 100 0x00)
+Element(0x00 "$1" "`$2'" "$3" eval(XMIN+20) eval(YMAX+20) 0 100 0x00)
 (
 
 	Pin(CENTER     CENTER     CPAD_SIZE  CHOLE_SIZE  "1" 0x01)

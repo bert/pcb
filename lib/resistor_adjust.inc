@@ -27,7 +27,7 @@
 # ma librairie --- C. PETER 14 11 99
 #
 # l'origine 0 0 est en haut a gauche (x vers la droite, y vers le bas)
-# Element(0x00 "$1" "$2" "$3" pos_x_text pos_y_text ? taille_text 0x00)
+# Element(0x00 "$1" "`$2'" "$3" pos_x_text pos_y_text ? taille_text 0x00)
 # PIN(pos_x, pos_y, diametre, percage, type?) type : 1 carre, 2 ronde
 # ElementLine(debut_x debut_y fin_x fin_y epaisseur-trait)
 # ElementArc(centre_x centre_y rayon_x rayon_y debut_arc fin_arc ep-trait)
@@ -42,7 +42,7 @@
 # $3: value
 #
 define(`PKG_R_AJ_H',
-`Element(0x00 "$1" "$2" "$3" 100 325 0 100 0x00)
+`Element(0x00 "$1" "`$2'" "$3" 100 325 0 100 0x00)
 (
         PIN(50, 450, 80, 30, 1)
         PIN(250, 450, 80, 30, 3)
@@ -65,7 +65,7 @@ define(`PKG_R_AJ_H',
 # $3: value
 #
 define(`PKG_R_AJ_V',
-`Element(0x00 "$1" "$2" "$3" 100 45 0 100 0x00)
+`Element(0x00 "$1" "`$2'" "$3" 100 45 0 100 0x00)
 (
         PIN(50, 50, 80, 30, 1)
         PIN(250, 50, 80, 30, 3)

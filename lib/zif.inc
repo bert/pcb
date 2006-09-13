@@ -1,7 +1,7 @@
 define(`PKG_ZIF',
 	`define(`NUMPINS', `$4')
 	define(`CENTER', eval(NUMPINS*19))
-Element(0x00 "$1" "$2" "$3" 100 CENTER 0 100 0x00)
+Element(0x00 "$1" "`$2'" "$3" 100 CENTER 0 100 0x00)
 (
 
 define(`X', 0)

@@ -59,7 +59,7 @@ define(`PKG_GENERIC_QFP',
 	define(`EDGECUT',`ifelse(1,eval(PIN1INMIDDLE),`0',`28')')
 	define(`STARTPIN',`ifelse(1,eval(PIN1INMIDDLE),`eval(((QUARTER+1)/2)+1)',`1')')
 	define(`CIRCLECENTRE',`ifelse(1,eval(PIN1INMIDDLE),`eval(WIDTH/2)',35)')
-Element(0x00 "$1" "$2" "$3" 100 CENTER 0 100 0x00)
+Element(0x00 "$1" "`$2'" "$3" 100 CENTER 0 100 0x00)
 (
 
 	# left row

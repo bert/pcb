@@ -60,7 +60,7 @@ define(`PKG_DIL',
 	define(`MAXY', `eval(`$4' / 2 * PINSPACE)')
 	define(`MAXX', `eval(`$5' + 100)')
 	define(`CENTERX', `eval(MAXX / 2)')
-Element(0x00 "$1" "$2" "$3" eval(CENTERX + 20) 100 3 100 0x00)
+Element(0x00 "$1" "`$2'" "$3" eval(CENTERX + 20) 100 3 100 0x00)
 (
 	forloop(`i', 1, eval($4 / 2),
 		`PIN(50, eval((2*i-1) * PINSPACE/2), 
@@ -103,7 +103,7 @@ define(`COMMON_D_DW',
 	define(`XLOW', `50')
 	define(`XHIGH', `eval(MAXX - 50)')
 	define(`CENTERX', `eval(MAXX / 2)')
-Element(0x00 "$1" "$2" "$3" eval(CENTERX + 20) 50 3 100 0x00)
+Element(0x00 "$1" "`$2'" "$3" eval(CENTERX + 20) 50 3 100 0x00)
 (
 	forloop(`i', 1, eval($4 / 2),
 		`PAD(0, eval(i * 50 -25), XLOW, eval(i * 50 -25), 20, i)
