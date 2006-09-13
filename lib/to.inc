@@ -45,7 +45,7 @@ define(`PKG_TO3_90',
 # give a drill diameter of 58 and 176 mils.  
 # 55 and 177 are close in standard drill sizes.
 # a #4 machine screw is 110 mils, a #6 is 140 mils and a 
-# #8 is 160 mils in diameter.  Looks like you can't count
+# #8 is 160 mils in diameter.  Looks like you can not count
 # on using a #8 for a TO3, but a #6 is fair.
 # This would give something like a 90 pad size for a 
 # 35 mil annular ring for pins 1 and 2.  
