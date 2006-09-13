@@ -120,13 +120,6 @@ typedef struct			/* information about layer changes */
 }
 LayerChangeType, *LayerChangeTypePtr;
 
-typedef struct			/* information about netlist lib changes */
-{
-  LibraryTypePtr old;
-  LibraryTypePtr lib;
-}
-NetlistChangeType, *NetlistChangeTypePtr;
-
 typedef struct			/* holds information about an operation */
 {
   int Serial,			/* serial number of operation */
@@ -143,7 +136,6 @@ typedef struct			/* holds information about an operation */
     FlagType Flags;
     BDimension Size;
     LayerChangeType LayerChange;
-    NetlistChangeType NetlistChange;
   }
   Data;
 }
@@ -563,6 +555,7 @@ UndoMirror (UndoListTypePtr Entry)
 static Boolean
 UndoCopyOrCreate (UndoListTypePtr Entry)
 {
+  ObjectArgType object;
   void *ptr1, *ptr2, *ptr3;
   int type;
 
@@ -578,7 +571,11 @@ UndoCopyOrCreate (UndoListTypePtr Entry)
       if (andDraw)
 	EraseObject (type, ptr2);
       /* in order to make this re-doable we move it to the RemoveList */
-      MoveObjectToBuffer (RemoveList, PCB->Data, type, ptr1, ptr2, ptr3);
+      object.type = type;
+      object.ptr1 = ptr1;
+      object.ptr2 = ptr2;
+      object.ptr3 = ptr3;
+      MoveObjectToBuffer (RemoveList, PCB->Data, object);
       Entry->Type = UNDO_REMOVE;
       return (True);
     }
@@ -618,6 +615,7 @@ UndoMove (UndoListTypePtr Entry)
 static Boolean
 UndoRemove (UndoListTypePtr Entry)
 {
+  ObjectArgType object;
   void *ptr1, *ptr2, *ptr3;
   int type;
 
@@ -627,9 +625,13 @@ UndoRemove (UndoListTypePtr Entry)
 		      Entry->Kind);
   if (type != NO_TYPE)
     {
+      object.type = type;
+      object.ptr1 = ptr1;
+      object.ptr2 = ptr2;
+      object.ptr3 = ptr3;
       if (andDraw)
 	DrawRecoveredObject (type, ptr1, ptr2, ptr3);
-      MoveObjectToBuffer (PCB->Data, RemoveList, type, ptr1, ptr2, ptr3);
+      MoveObjectToBuffer (PCB->Data, RemoveList, object);
       Entry->Type = UNDO_CREATE;
       return (True);
     }
@@ -766,7 +768,7 @@ UndoInsertPoint (UndoListTypePtr Entry)
 static Boolean
 UndoLayerChange (UndoListTypePtr Entry)
 {
-  LayerChangeTypePtr l = & Entry->Data.LayerChange;
+  LayerChangeTypePtr l = &Entry->Data.LayerChange;
   int tmp;
 
   tmp = l->new_index;
@@ -780,65 +782,6 @@ UndoLayerChange (UndoListTypePtr Entry)
 }
 
 /* ---------------------------------------------------------------------------
- * undo a netlist change
- * returns true on success
- */
-static Boolean
-UndoNetlistChange (UndoListTypePtr Entry)
-{
-  NetlistChangeTypePtr l = & Entry->Data.NetlistChange;
-  unsigned int i, j;
-  LibraryTypePtr lib, saved;
-
-  lib = l->lib;
-  saved = l->old;
-
-  /* iterate over each net */
-  for (i = 0 ; i < lib->MenuN; i++)
-    {
-      if (lib->Menu[i].Name)
-	free (lib->Menu[i].Name);
-
-      if (lib->Menu[i].directory)
-	free (lib->Menu[i].directory);
-
-      if (lib->Menu[i].Style)
-	free (lib->Menu[i].Style);
-
-      /* iterate over each pin on the net */
-      for (j = 0; j < lib->Menu[i].EntryN; j++) {
-	
-	if (lib->Menu[i].Entry[j].ListEntry)
-	  free (lib->Menu[i].Entry[j].ListEntry);
-	
-	if (lib->Menu[i].Entry[j].AllocatedMemory)
-	  free (lib->Menu[i].Entry[j].AllocatedMemory);
-	
-	if (lib->Menu[i].Entry[j].Template)
-	  free (lib->Menu[i].Entry[j].Template);
-	
-	if (lib->Menu[i].Entry[j].Package)
-	  free (lib->Menu[i].Entry[j].Package);
-	
-	if (lib->Menu[i].Entry[j].Value)
-	  free (lib->Menu[i].Entry[j].Value);
-	
-	if (lib->Menu[i].Entry[j].Description)
-	  free (lib->Menu[i].Entry[j].Description);
-	
-      }
-    }
-
-  if (lib->Menu)
-    free (lib->Menu);
-
-  *lib = *saved;
-
-  hid_action ("NetlistChanged");
-  return True;
-}
-
-/* ---------------------------------------------------------------------------
  * undo of any 'hard to recover' operation
  *
  * returns the bitfield for the types of operations that were undone
@@ -848,10 +791,6 @@ Undo (Boolean draw)
 {
   UndoListTypePtr ptr;
   int Types = 0;
-  int unique;
-
-  unique = TEST_FLAG (UNIQUENAMEFLAG, PCB);
-  CLEAR_FLAG (UNIQUENAMEFLAG, PCB);
 
   andDraw = draw;
 
@@ -887,11 +826,6 @@ Undo (Boolean draw)
   while (Types == 0);
   if (Types && andDraw)
     Draw ();
-
-  /* restore the unique flag setting */
-  if (unique)
-    SET_FLAG (UNIQUENAMEFLAG, PCB);
-  
   return (Types);
 }
 
@@ -973,11 +907,6 @@ PerformUndo (UndoListTypePtr ptr)
     case UNDO_LAYERCHANGE:
       if (UndoLayerChange (ptr))
 	return (UNDO_LAYERCHANGE);
-      break;
-
-    case UNDO_NETLISTCHANGE:
-      if (UndoNetlistChange (ptr))
-	return (UNDO_NETLISTCHANGE);
       break;
 
     case UNDO_MIRROR:
@@ -1137,6 +1066,7 @@ void
 MoveObjectToRemoveUndoList (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
 {
   UndoListTypePtr undo;
+  ObjectArgType obj;
 
   if (!Locked)
     {
@@ -1144,7 +1074,11 @@ MoveObjectToRemoveUndoList (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
 	RemoveList = CreateNewBuffer ();
 
       undo = GetUndoSlot (UNDO_REMOVE, OBJECT_ID (Ptr3), Type);
-      MoveObjectToBuffer (RemoveList, PCB->Data, Type, Ptr1, Ptr2, Ptr3);
+      obj.type = Type;
+      obj.ptr1 = Ptr1;
+      obj.ptr2 = Ptr2;
+      obj.ptr3 = Ptr3;
+      MoveObjectToBuffer (RemoveList, PCB->Data, obj);
     }
 }
 
@@ -1248,9 +1182,15 @@ void
 AddObjectToCreateUndoList (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
 {
   UndoListTypePtr undo;
+  ObjectArgType obj;
 
   if (!Locked)
     undo = GetUndoSlot (UNDO_CREATE, OBJECT_ID (Ptr3), Type);
+  obj.type = Type;
+  obj.ptr1 = Ptr1;
+  obj.ptr2 = Ptr2;
+  obj.ptr3 = Ptr3;
+  ClearFromPolygon (&obj);
 }
 
 /* ---------------------------------------------------------------------------
@@ -1405,98 +1345,6 @@ AddLayerChangeToUndoList (int old_index, int new_index)
       undo = GetUndoSlot (UNDO_LAYERCHANGE, 0, 0);
       undo->Data.LayerChange.old_index = old_index;
       undo->Data.LayerChange.new_index = new_index;
-    }
-}
-
-/* ---------------------------------------------------------------------------
- * adds a netlist change to the undo list
- */
-void
-AddNetlistLibToUndoList (LibraryTypePtr lib)
-{
-  UndoListTypePtr undo;
-  unsigned int i, j;
-  LibraryTypePtr old;
-  
-  if (!Locked)
-    {
-      undo = GetUndoSlot (UNDO_NETLISTCHANGE, 0, 0);
-      /* keep track of where the data needs to go */
-      undo->Data.NetlistChange.lib = lib;
-
-      /* and what the old data is that we'll need to restore */
-      undo->Data.NetlistChange.old = malloc (sizeof (LibraryTypePtr));
-      old = undo->Data.NetlistChange.old;
-      old->MenuN = lib->MenuN;
-      old->MenuMax = lib->MenuMax;
-      old->Menu = malloc (old->MenuMax * sizeof (LibraryMenuType));
-      if (old->Menu == NULL)
-	{
-	  fprintf (stderr, "malloc() failed in %s\n", __FUNCTION__);
-	  exit (1);
-	}
-
-      /* iterate over each net */
-      for (i = 0 ; i < lib->MenuN; i++)
-	{
-	  old->Menu[i].EntryN = lib->Menu[i].EntryN;
-	  old->Menu[i].EntryMax = lib->Menu[i].EntryMax;
-
-	  old->Menu[i].Name = 
-	    lib->Menu[i].Name ? strdup (lib->Menu[i].Name) : NULL;
-	  
-	  old->Menu[i].directory = 
-	    lib->Menu[i].directory ? strdup (lib->Menu[i].directory) : NULL;
-	  
-	  old->Menu[i].Style = 
-	    lib->Menu[i].Style ? strdup (lib->Menu[i].Style) : NULL;
-
-      
-	  old->Menu[i].Entry = 
-	    malloc (old->Menu[i].EntryMax * sizeof (LibraryEntryType));
-	  if (old->Menu[i].Entry == NULL)
-	    {
-	      fprintf (stderr, "malloc() failed in %s\n", __FUNCTION__);
-	      exit (1);
-	    }
-	  
-	  /* iterate over each pin on the net */
-	  for (j = 0; j < lib->Menu[i].EntryN; j++) {
-
-	    old->Menu[i].Entry[j].ListEntry = 
-	      lib->Menu[i].Entry[j].ListEntry ? 
-	      strdup (lib->Menu[i].Entry[j].ListEntry) :
-	      NULL;
-
-	    old->Menu[i].Entry[j].AllocatedMemory = 
-	      lib->Menu[i].Entry[j].AllocatedMemory ? 
-	      strdup (lib->Menu[i].Entry[j].AllocatedMemory) :
-	      NULL;
-
-	    old->Menu[i].Entry[j].Template = 
-	      lib->Menu[i].Entry[j].Template ? 
-	      strdup (lib->Menu[i].Entry[j].Template) :
-	      NULL;
-
-	    old->Menu[i].Entry[j].Package = 
-	      lib->Menu[i].Entry[j].Package ? 
-	      strdup (lib->Menu[i].Entry[j].Package) :
-	      NULL;
-
-	    old->Menu[i].Entry[j].Value = 
-	      lib->Menu[i].Entry[j].Value ? 
-	      strdup (lib->Menu[i].Entry[j].Value) :
-	      NULL;
-
-	    old->Menu[i].Entry[j].Description = 
-	      lib->Menu[i].Entry[j].Description ? 
-	      strdup (lib->Menu[i].Entry[j].Description) :
-	      NULL;
-	    
-
-	  }
-	}
-
     }
 }
 

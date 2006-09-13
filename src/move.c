@@ -236,6 +236,12 @@ MoveElement (ElementTypePtr Element)
 static void *
 MoveVia (PinTypePtr Via)
 {
+  ObjectArgType obj;
+
+  obj.type = VIA_TYPE;
+  obj.ptr1 = obj.ptr2 = obj.ptr3 = Via;
+
+  RestoreToPolygon (&obj);
   r_delete_entry (PCB->Data->via_tree, (BoxTypePtr) Via);
   if (PCB->ViaOn)
     {
@@ -244,8 +250,8 @@ MoveVia (PinTypePtr Via)
     }
   else
     MOVE_VIA_LOWLEVEL (Via, DeltaX, DeltaY);
-  UpdatePIPFlags (Via, (ElementTypePtr) Via, NULL, True);
   r_insert_entry (PCB->Data->via_tree, (BoxTypePtr) Via, 0);
+  ClearFromPolygon (&obj);
   if (PCB->ViaOn)
     {
       DrawVia (Via, 0);
@@ -260,6 +266,12 @@ MoveVia (PinTypePtr Via)
 static void *
 MoveLine (LayerTypePtr Layer, LineTypePtr Line)
 {
+  ObjectArgType obj;
+
+  obj.type = LINE_TYPE;
+  obj.ptr1 = Layer;
+  obj.ptr2 = obj.ptr3 = Line;
+  RestoreToPolygon (&obj);
   r_delete_entry (Layer->line_tree, (BoxTypePtr) Line);
   if (Layer->On)
     {
@@ -271,6 +283,7 @@ MoveLine (LayerTypePtr Layer, LineTypePtr Line)
   else
     MOVE_LINE_LOWLEVEL (Line, DeltaX, DeltaY);
   r_insert_entry (Layer->line_tree, (BoxTypePtr) Line, 0);
+  ClearFromPolygon (&obj);
   return (Line);
 }
 
@@ -344,7 +357,7 @@ MovePolygon (LayerTypePtr Layer, PolygonTypePtr Polygon)
   r_delete_entry (Layer->polygon_tree, (BoxType *) Polygon);
   MovePolygonLowLevel (Polygon, DeltaX, DeltaY);
   r_insert_entry (Layer->polygon_tree, (BoxType *) Polygon, 0);
-  UpdatePIPFlags (NULL, NULL, Layer, True);
+  InitClip (Layer, Polygon);
   if (Layer->On)
     {
       DrawPolygon (Layer, Polygon, 0);
@@ -359,14 +372,20 @@ MovePolygon (LayerTypePtr Layer, PolygonTypePtr Polygon)
 static void *
 MoveLinePoint (LayerTypePtr Layer, LineTypePtr Line, PointTypePtr Point)
 {
+  ObjectArgType obj;
   if (Layer)
     {
+      obj.type = LINE_TYPE;
+      obj.ptr1 = Layer;
+      obj.ptr2 = obj.ptr3 = Line;
       if (Layer->On)
 	EraseLine (Line);
+      RestoreToPolygon (&obj);
       r_delete_entry (Layer->line_tree, &Line->BoundingBox);
       MOVE (Point->X, Point->Y, DeltaX, DeltaY);
       SetLineBoundingBox (Line);
       r_insert_entry (Layer->line_tree, &Line->BoundingBox, 0);
+      ClearFromPolygon (&obj);
       if (Layer->On)
 	{
 	  DrawLine (Layer, Line, 0);
@@ -837,7 +856,7 @@ MoveSelectedObjectsToLayer (LayerTypePtr Target)
 int
 MoveLayer (int old_index, int new_index)
 {
-  int groups[MAX_LAYER+2], l, g;
+  int groups[MAX_LAYER + 2], l, g;
   LayerType saved_layer;
   int saved_group;
 
@@ -846,21 +865,21 @@ MoveLayer (int old_index, int new_index)
 
   if (old_index < -1 || old_index >= max_layer)
     {
-      Message("Invalid old layer %d for move: must be -1..%d\n",
-	      old_index, max_layer-1);
+      Message ("Invalid old layer %d for move: must be -1..%d\n",
+	       old_index, max_layer - 1);
       return 1;
     }
   if (new_index < -1 || new_index > max_layer || new_index >= MAX_LAYER)
     {
-      Message("Invalid new layer %d for move: must be -1..%d\n",
-	      new_index, max_layer);
+      Message ("Invalid new layer %d for move: must be -1..%d\n",
+	       new_index, max_layer);
       return 1;
     }
   if (old_index == new_index)
     return 0;
 
-  for (g=0; g<MAX_LAYER; g++)
-    for (l=0; l<PCB->LayerGroups.Number[g]; l++)
+  for (g = 0; g < MAX_LAYER; g++)
+    for (l = 0; l < PCB->LayerGroups.Number[g]; l++)
       groups[PCB->LayerGroups.Entries[g][l]] = g;
 
   if (old_index == -1)
@@ -868,95 +887,94 @@ MoveLayer (int old_index, int new_index)
       LayerTypePtr lp;
       if (max_layer == MAX_LAYER)
 	{
-	  Message("No room for new layers\n");
+	  Message ("No room for new layers\n");
 	  return 1;
 	}
       /* Create a new layer at new_index. */
       lp = &PCB->Data->Layer[new_index];
-      memmove (&PCB->Data->Layer[new_index+1],
+      memmove (&PCB->Data->Layer[new_index + 1],
 	       &PCB->Data->Layer[new_index],
-	       (max_layer-new_index+2) * sizeof(LayerType));
-      memmove (&groups[new_index+1],
+	       (max_layer - new_index + 2) * sizeof (LayerType));
+      memmove (&groups[new_index + 1],
 	       &groups[new_index],
-	       (max_layer-new_index+2) * sizeof(int));
-      max_layer ++;
-      memset (lp, 0, sizeof(LayerType));
+	       (max_layer - new_index + 2) * sizeof (int));
+      max_layer++;
+      memset (lp, 0, sizeof (LayerType));
       lp->On = 1;
-      lp->Name = MyStrdup("New Layer", "MoveLayer");
+      lp->Name = MyStrdup ("New Layer", "MoveLayer");
       lp->Color = Settings.LayerColor[new_index];
       lp->SelectedColor = Settings.LayerSelectedColor[new_index];
-      for (l=0; l<max_layer; l++)
+      for (l = 0; l < max_layer; l++)
 	if (LayerStack[l] >= new_index)
-	  LayerStack[l] ++;
-      LayerStack[max_layer-1] = new_index;
+	  LayerStack[l]++;
+      LayerStack[max_layer - 1] = new_index;
     }
   else if (new_index == -1)
     {
       /* Delete the layer at old_index */
       memmove (&PCB->Data->Layer[old_index],
-	       &PCB->Data->Layer[old_index+1],
-	       (max_layer-old_index+2-1) * sizeof(LayerType));
-      memset (&PCB->Data->Layer[max_layer+1], 0,
-	      sizeof(LayerType));
+	       &PCB->Data->Layer[old_index + 1],
+	       (max_layer - old_index + 2 - 1) * sizeof (LayerType));
+      memset (&PCB->Data->Layer[max_layer + 1], 0, sizeof (LayerType));
       memmove (&groups[old_index],
-	       &groups[old_index+1],
-	       (max_layer-old_index+2-1) * sizeof(int));
-      for (l=0; l<max_layer; l++)
+	       &groups[old_index + 1],
+	       (max_layer - old_index + 2 - 1) * sizeof (int));
+      for (l = 0; l < max_layer; l++)
 	if (LayerStack[l] == old_index)
 	  memmove (LayerStack + l,
 		   LayerStack + l + 1,
-		   (max_layer - l - 1) * sizeof(LayerStack[0]));
-      max_layer --;
-      for (l=0; l<max_layer; l++)
+		   (max_layer - l - 1) * sizeof (LayerStack[0]));
+      max_layer--;
+      for (l = 0; l < max_layer; l++)
 	if (LayerStack[l] > old_index)
-	  LayerStack[l] --;
+	  LayerStack[l]--;
     }
   else
     {
       /* Move an existing layer */
-      memcpy (&saved_layer, &PCB->Data->Layer[old_index], sizeof(LayerType));
+      memcpy (&saved_layer, &PCB->Data->Layer[old_index], sizeof (LayerType));
       saved_group = groups[old_index];
       if (old_index < new_index)
 	{
 	  memmove (&PCB->Data->Layer[old_index],
-		   &PCB->Data->Layer[old_index+1],
-		   (new_index - old_index) * sizeof(LayerType));
+		   &PCB->Data->Layer[old_index + 1],
+		   (new_index - old_index) * sizeof (LayerType));
 	  memmove (&groups[old_index],
-		   &groups[old_index+1],
-		   (new_index - old_index) * sizeof(int));
+		   &groups[old_index + 1],
+		   (new_index - old_index) * sizeof (int));
 	}
       else
 	{
-	  memmove (&PCB->Data->Layer[new_index+1],
+	  memmove (&PCB->Data->Layer[new_index + 1],
 		   &PCB->Data->Layer[new_index],
-		   (old_index - new_index) * sizeof(LayerType));
-	  memmove (&groups[new_index+1],
+		   (old_index - new_index) * sizeof (LayerType));
+	  memmove (&groups[new_index + 1],
 		   &groups[new_index],
-		   (old_index - new_index) * sizeof(int));
+		   (old_index - new_index) * sizeof (int));
 	}
-      memcpy (&PCB->Data->Layer[new_index], &saved_layer, sizeof(LayerType));
+      memcpy (&PCB->Data->Layer[new_index], &saved_layer, sizeof (LayerType));
       groups[new_index] = saved_group;
     }
 
-  for (g=0; g<MAX_LAYER+1; g++)
+  for (g = 0; g < MAX_LAYER + 1; g++)
     PCB->LayerGroups.Number[g] = 0;
-  for (l=0; l<max_layer+2; l++)
+  for (l = 0; l < max_layer + 2; l++)
     {
       int i;
       g = groups[l];
-      i = PCB->LayerGroups.Number[g] ++;
+      i = PCB->LayerGroups.Number[g]++;
       PCB->LayerGroups.Entries[g][i] = l;
     }
 
-  for (g=0; g<MAX_LAYER; g++)
+  for (g = 0; g < MAX_LAYER; g++)
     if (PCB->LayerGroups.Number[g] == 0)
       {
 	memmove (&PCB->LayerGroups.Number[g],
-		 &PCB->LayerGroups.Number[g+1],
-		 (MAX_LAYER - g - 1) * sizeof(PCB->LayerGroups.Number[g]));
+		 &PCB->LayerGroups.Number[g + 1],
+		 (MAX_LAYER - g - 1) * sizeof (PCB->LayerGroups.Number[g]));
 	memmove (&PCB->LayerGroups.Entries[g],
-		 &PCB->LayerGroups.Entries[g+1],
-		 (MAX_LAYER - g - 1) * sizeof(PCB->LayerGroups.Entries[g]));
+		 &PCB->LayerGroups.Entries[g + 1],
+		 (MAX_LAYER - g - 1) * sizeof (PCB->LayerGroups.Entries[g]));
       }
 
   hid_action ("LayersChanged");
@@ -972,7 +990,7 @@ MoveLayerAction (int argc, char **argv, int x, int y)
 
   if (argc != 2)
     {
-      Message("Usage; MoveLayer(old,new)");
+      Message ("Usage; MoveLayer(old,new)");
       return 1;
     }
 
@@ -1011,7 +1029,7 @@ MoveLayerAction (int argc, char **argv, int x, int y)
     {
       new_top = old_index;
       if (new_top >= max_layer)
-	new_top --;
+	new_top--;
       new_index = new_top;
     }
   if (old_index == -1)
@@ -1024,7 +1042,7 @@ MoveLayerAction (int argc, char **argv, int x, int y)
 }
 
 HID_Action move_action_list[] = {
-  { "MoveLayer", 0, MoveLayerAction }
+  {"MoveLayer", 0, MoveLayerAction}
 };
 
 REGISTER_ACTIONS (move_action_list)

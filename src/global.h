@@ -39,6 +39,7 @@
 
 #include "const.h"
 #include "macro.h"
+#include "polyarea.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -206,6 +207,7 @@ typedef struct			/* holds information about a polygon */
   ANYOBJECTFIELDS;
   Cardinal PointN,		/* number of points in polygon */
     PointMax;			/* max number from malloc() */
+  POLYAREA *Clipped;		/* the clipped region of this polygon */
   PointTypePtr Points;		/* data */
 } PolygonType, *PolygonTypePtr;
 
@@ -290,6 +292,14 @@ typedef struct
   ArcTypePtr Arc;
   BoxType VBox;
 } ElementType, *ElementTypePtr, **ElementTypeHandle;
+
+typedef struct
+{
+   int type;
+   void *ptr1;
+   void *ptr2;
+   void *ptr3;
+} ObjectArgType, *ObjectArgTypePtr;
 
 /* ---------------------------------------------------------------------------
  * symbol and font related stuff
@@ -698,7 +708,6 @@ typedef struct
 #define UNDO_CHANGEMASKSIZE		0x2000	/* change mask size */
 #define UNDO_CHANGEANGLES		0x4000	/* change arc angles */
 #define UNDO_LAYERCHANGE		0x8000	/* layer new/delete/move */
-#define UNDO_NETLISTCHANGE		0x10000	/* netlist change */
 
 
 /* ---------------------------------------------------------------------------

@@ -723,6 +723,8 @@ FreePolygonMemory (PolygonTypePtr Polygon)
   if (Polygon)
     {
       MYFREE (Polygon->Points);
+      if (Polygon->Clipped)
+	poly_Free (&Polygon->Clipped);
       memset (Polygon, 0, sizeof (PolygonType));
     }
 }
@@ -970,7 +972,8 @@ DSRealloc (DynamicStringTypePtr Ptr, size_t Length)
     {
       Ptr->MaxLength = Length + 512;
       Ptr->Data = MyRealloc (Ptr->Data, Ptr->MaxLength, "ReallocDS()");
-      if (input_null) Ptr->Data[0] = '\0';
+      if (input_null)
+	Ptr->Data[0] = '\0';
     }
 }
 

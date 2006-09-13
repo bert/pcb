@@ -48,6 +48,7 @@
 #include "mirror.h"
 #include "misc.h"
 #include "parse_l.h"
+#include "polygon.h"
 #include "rats.h"
 #include "rotate.h"
 #include "remove.h"
@@ -235,7 +236,14 @@ static void *
 MoveViaToBuffer (PinTypePtr Via)
 {
   PinTypePtr via;
+  ObjectArgType obj;
 
+  obj.type = VIA_TYPE;
+  if (Source == PCB->Data)
+    {
+      obj.ptr1 = obj.ptr2 = obj.ptr3 = Via;
+      RestoreToPolygon (&obj);
+    }
   r_delete_entry (Source->via_tree, (BoxType *) Via);
   via = GetViaMemory (Dest);
   *via = *Via;
@@ -247,6 +255,11 @@ MoveViaToBuffer (PinTypePtr Via)
   if (!Dest->via_tree)
     Dest->via_tree = r_create_tree (NULL, 0, 0);
   r_insert_entry (Dest->via_tree, (BoxType *) via, 0);
+  if (Dest == PCB->Data)
+    {
+      obj.ptr1 = obj.ptr2 = obj.ptr3 = via;
+      ClearFromPolygon (&obj);
+    }
   return (via);
 }
 
@@ -280,7 +293,15 @@ MoveLineToBuffer (LayerTypePtr Layer, LineTypePtr Line)
 {
   LayerTypePtr lay;
   LineTypePtr line;
+  ObjectArgType obj;
 
+  obj.type = LINE_TYPE;
+  if (Source == PCB->Data)
+    {
+      obj.ptr1 = Layer;
+      obj.ptr2 = obj.ptr3 = Line;
+      RestoreToPolygon (&obj);
+    }
   r_delete_entry (Layer->line_tree, (BoxTypePtr) Line);
   lay = &Dest->Layer[GetLayerNumber (Source, Layer)];
   line = GetLineMemory (lay);
@@ -294,6 +315,12 @@ MoveLineToBuffer (LayerTypePtr Layer, LineTypePtr Line)
   if (!lay->line_tree)
     lay->line_tree = r_create_tree (NULL, 0, 0);
   r_insert_entry (lay->line_tree, (BoxTypePtr) line, 0);
+  if (Dest == PCB->Data)
+    {
+      obj.ptr1 = lay;
+      obj.ptr2 = obj.ptr3 = line;
+      ClearFromPolygon (&obj);
+    }
   return (line);
 }
 
@@ -620,14 +647,13 @@ SmashBufferElement (BufferTypePtr Buffer)
   PIN_LOOP (element);
   {
     FlagType f = NoFlags ();
-    AddFlags(f, VIAFLAG);
+    AddFlags (f, VIAFLAG);
     if (TEST_FLAG (HOLEFLAG, pin))
       AddFlags (f, HOLEFLAG);
 
     CreateNewVia (Buffer->Data, pin->X, pin->Y,
 		  pin->Thickness, pin->Clearance, pin->Mask,
-		  pin->DrillingHole, pin->Number,
-		  f);
+		  pin->DrillingHole, pin->Number, f);
   }
   END_LOOP;
   group =
@@ -657,6 +683,7 @@ SmashBufferElement (BufferTypePtr Buffer)
 Boolean
 ConvertBufferToElement (BufferTypePtr Buffer)
 {
+  ObjectArgType object;
   ElementTypePtr Element;
   Cardinal group;
   Cardinal pin_n = 1;
@@ -788,8 +815,9 @@ ConvertBufferToElement (BufferTypePtr Buffer)
     SET_FLAG (ONSOLDERFLAG, Element);
   SetElementBoundingBox (PCB->Data, Element, &PCB->Font);
   ClearBuffer (Buffer);
-  MoveObjectToBuffer (Buffer->Data, PCB->Data, ELEMENT_TYPE, Element, Element,
-		      Element);
+  object.type = ELEMENT_TYPE;
+  object.ptr1 = object.ptr2 = object.ptr3 = Element;
+  MoveObjectToBuffer (Buffer->Data, PCB->Data, object);
   SetBufferBoundingBox (Buffer);
   return (True);
 }
@@ -1093,12 +1121,13 @@ SwapBuffer (BufferTypePtr Buffer)
  */
 void *
 MoveObjectToBuffer (DataTypePtr Destination, DataTypePtr Src,
-		    int Type, void *Ptr1, void *Ptr2, void *Ptr3)
+		    ObjectArgType object)
 {
   /* setup local identifiers used by move operations */
   Dest = Destination;
   Source = Src;
-  return (ObjectOperation (&MoveBufferFunctions, Type, Ptr1, Ptr2, Ptr3));
+  return (ObjectOperation (&MoveBufferFunctions, object.type, object.ptr1,
+			   object.ptr2, object.ptr3));
 }
 
 /* ----------------------------------------------------------------------

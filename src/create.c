@@ -189,7 +189,7 @@ CreateNewPCB (Boolean SetDefaultNames)
 }
 
 int
-CreateNewPCBPost(PCBTypePtr pcb, int use_defaults)
+CreateNewPCBPost (PCBTypePtr pcb, int use_defaults)
 {
   /* copy default settings */
   pcb_colors_from_settings (pcb);
@@ -197,7 +197,7 @@ CreateNewPCBPost(PCBTypePtr pcb, int use_defaults)
   if (use_defaults)
     {
       int i;
-      if (ParseGroupString(Settings.Groups, &pcb->LayerGroups, DEF_LAYER))
+      if (ParseGroupString (Settings.Groups, &pcb->LayerGroups, DEF_LAYER))
 	return 1;
 
       for (i = 0; i < max_layer; i++)
@@ -539,6 +539,7 @@ CreateNewPolygonFromRectangle (LayerTypePtr Layer,
   CreateNewPointInPolygon (polygon, X2, Y2);
   CreateNewPointInPolygon (polygon, X1, Y2);
   SetPolygonBoundingBox (polygon);
+  InitClip (Layer, polygon);
   if (!Layer->polygon_tree)
     Layer->polygon_tree = r_create_tree (NULL, 0, 0);
   r_insert_entry (Layer->polygon_tree, (BoxTypePtr) polygon, 0);

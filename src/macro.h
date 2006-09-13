@@ -565,4 +565,11 @@ extern int mem_any_set (unsigned char *, int);
 		if (number >= max_layer)	\
 		  continue;			\
 		layer = LAYER_PTR (number)
+
+#define LAYER_LOOP(ml) do { \
+        Cardinal n; \
+	for (n = 0; n < ml; n++) \
+	{ \
+	   LayerTypePtr layer; \
+	   layer = LAYER_PTR (n);
 #endif

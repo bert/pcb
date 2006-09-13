@@ -46,7 +46,6 @@
 #include	<math.h>
 #include	<string.h>
 
-#include "polyarea.h"
 #include "rtree.h"
 #define ROUND(a) (long)((a) > 0 ? ((a) + 0.5) : ((a) - 0.5))
 
@@ -62,7 +61,7 @@
 
 int vect_equal (Vector v1, Vector v2);
 void vect_copy (Vector des, Vector sou);
-void vect_init (Vector v, double x, double y, double z);
+void vect_init (Vector v, double x, double y);
 void vect_sub (Vector res, Vector v2, Vector v3);
 
 void vect_min (Vector res, Vector v2, Vector v3);
@@ -82,7 +81,7 @@ int vect_inters2 (Vector A, Vector B, Vector C, Vector D, Vector S1,
 #define SHARED  ISECTED
 #define INSIDE  1
 #define OUTSIDE 2
-#define UNKNOWN 3
+#define UNKNWN 3
 #define SHARED2 4
 
 #define NODE_LABEL(n)  ((n)->Flags.status)
@@ -158,7 +157,7 @@ node_add (VNODE * dest, Vector po, int *new_point)
   p->prev = dest;
   p->next = dest->next;
   p->cvc_prev = p->cvc_next = NULL;
-  p->Flags.status = UNKNOWN;
+  p->Flags.status = UNKNWN;
   return (dest->next = dest->next->prev = p);
 }				/* node_add */
 
@@ -192,17 +191,17 @@ new_descriptor (VNODE * a, char poly, char side)
    * It still has the same monotonic sort result
    * and is far less expensive to compute than the real angle.
    */
-  if (vect_equal(v, vect_zero))
+  if (vect_equal (v, vect_zero))
     {
       if (side == 'P')
-        {
-          poly_ExclVertex(a->prev);
-	  vect_sub(v, a->prev->point, a->point);
+	{
+	  poly_ExclVertex (a->prev);
+	  vect_sub (v, a->prev->point, a->point);
 	}
       else
-        {
-          poly_ExclVertex(a->next);
-	  vect_sub(v, a->next->point, a->point);
+	{
+	  poly_ExclVertex (a->next);
+	  vect_sub (v, a->next->point, a->point);
 	}
     }
   assert (!vect_equal (v, vect_zero));
@@ -217,7 +216,7 @@ new_descriptor (VNODE * a, char poly, char side)
   else if (v[0] >= 0 && v[1] < 0)
     ang = 4.0 - ang;		/* 4th quadrant */
   l->angle = ang;
-  assert(ang >= 0.0 && ang <= 4.0);
+  assert (ang >= 0.0 && ang <= 4.0);
   DEBUGP ("node on %c at (%ld,%ld) assigned angle %g on side %c\n", poly,
 	  a->point[0], a->point[1], ang, side);
   return l;
@@ -275,21 +274,22 @@ insert_descriptor (VNODE * a, char poly, char side, CVCList * start)
   l = big = small = start;
   do
     {
-    if (l->next->angle < l->angle) /* find start/end of list */
-      {
-        small = l->next;
-	big = l;
-      }
-    else if (new->angle >= l->angle && new->angle <= l->next->angle)
-      {
-        /* insert new cvc if it lies between existing points */
-        new->prev =l;
-	new->next = l->next;
-	l->next = l->next->prev = new;
-        return new;
-      }
-    } while ((l=l->next) != start);
-   /* didn't find it between points, it must go on an end */
+      if (l->next->angle < l->angle)	/* find start/end of list */
+	{
+	  small = l->next;
+	  big = l;
+	}
+      else if (new->angle >= l->angle && new->angle <= l->next->angle)
+	{
+	  /* insert new cvc if it lies between existing points */
+	  new->prev = l;
+	  new->next = l->next;
+	  l->next = l->next->prev = new;
+	  return new;
+	}
+    }
+  while ((l = l->next) != start);
+  /* didn't find it between points, it must go on an end */
   if (big->angle <= new->angle)
     {
       new->prev = big;
@@ -339,8 +339,7 @@ node_label (VNODE * pn)
 {
   CVCList *l;
   char this_poly;
-  int region = UNKNOWN;
-  double ang = -1;
+  int region = UNKNWN;
 
   assert (pn);
   assert (pn->cvc_prev);
@@ -354,20 +353,21 @@ node_label (VNODE * pn)
   /* first find whether we're starting inside or outside */
   for (l = pn->cvc_prev->prev; l != pn->cvc_prev; l = l->prev)
     {
-    DEBUGP ("  checking poly %c side %c angle = %g\n", l->poly, l->side, l->angle);
-    if (l->poly != this_poly)
-      {
-	 if (l->side == 'P')
+      DEBUGP ("  checking poly %c side %c angle = %g\n", l->poly, l->side,
+	      l->angle);
+      if (l->poly != this_poly)
+	{
+	  if (l->side == 'P')
 	    region = INSIDE;
-	 else
+	  else
 	    region = OUTSIDE;
-      }
+	}
     }
   DEBUGP ("\n");
   l = pn->cvc_prev;
   do
     {
-      assert(l->angle >=0 && l->angle <= 4.0);
+      assert (l->angle >= 0 && l->angle <= 4.0);
       DEBUGP ("  poly %c side %c angle = %g\n", l->poly, l->side, l->angle);
       if (l->poly != this_poly)
 	{
@@ -375,15 +375,15 @@ node_label (VNODE * pn)
 	    {
 	      region = INSIDE;
 	      if (l->parent->prev->point[0] == pn->prev->point[0] &&
-	          l->parent->prev->point[1] == pn->prev->point[1])
+		  l->parent->prev->point[1] == pn->prev->point[1])
 		{
 		  LABEL_NODE (pn->prev, SHARED);	/* incoming is shared */
 		  pn->prev->shared = l->parent->prev;
 		}
-	       else if (l->parent->prev->point[0] == pn->next->point[0] &&
-	                l->parent->prev->point[1] == pn->next->point[1])
-	        {
-		  LABEL_NODE (pn, SHARED2);   /* outgoing is shared2 */
+	      else if (l->parent->prev->point[0] == pn->next->point[0] &&
+		       l->parent->prev->point[1] == pn->next->point[1])
+		{
+		  LABEL_NODE (pn, SHARED2);	/* outgoing is shared2 */
 		  pn->shared = l->parent->prev;
 		}
 	    }
@@ -391,18 +391,18 @@ node_label (VNODE * pn)
 	    {
 	      region = OUTSIDE;
 	      if (l->parent->next->point[0] == pn->next->point[0] &&
-	          l->parent->next->point[1] == pn->next->point[1])
+		  l->parent->next->point[1] == pn->next->point[1])
 		{
-		  LABEL_NODE(pn, SHARED);
+		  LABEL_NODE (pn, SHARED);
 		  pn->shared = l->parent;
 		}
-	       else if (l->parent->next->point[0] == pn->prev->point[0] &&
-	                l->parent->next->point[1] == pn->prev->point[1])
-	        {
-		  LABEL_NODE (pn->prev, SHARED2);   /* outgoing is shared2 */
+	      else if (l->parent->next->point[0] == pn->prev->point[0] &&
+		       l->parent->next->point[1] == pn->prev->point[1])
+		{
+		  LABEL_NODE (pn->prev, SHARED2);	/* outgoing is shared2 */
 		  pn->prev->shared = l->parent;
 		}
-             }
+	    }
 	}
       else
 	{
@@ -413,17 +413,17 @@ node_label (VNODE * pn)
 	    v = l->parent;
 	  if (NODE_LABEL (v) != SHARED && NODE_LABEL (v) != SHARED2)
 	    {
-	      assert (NODE_LABEL (v) == UNKNOWN || NODE_LABEL (v) == region);
+	      assert (NODE_LABEL (v) == UNKNWN || NODE_LABEL (v) == region);
 	      LABEL_NODE (v, region);
 	    }
 	}
     }
   while ((l = l->prev) != pn->cvc_prev);
   DEBUGP ("\n");
-  assert (NODE_LABEL (pn) != UNKNOWN && NODE_LABEL (pn->prev) != UNKNOWN);
+  assert (NODE_LABEL (pn) != UNKNWN && NODE_LABEL (pn->prev) != UNKNWN);
   if (NODE_LABEL (pn) == INSIDE || NODE_LABEL (pn) == OUTSIDE)
     return NODE_LABEL (pn);
-  return UNKNOWN;
+  return UNKNWN;
 }				/* node_label */
 
 /*
@@ -435,8 +435,10 @@ add_descriptors (PLINE * pl, char poly, CVCList * list)
 {
   VNODE *node = &pl->head;
 
+  DEBUGP ("contour:\n");
   do
     {
+      DEBUGP ("(%ld, %ld) ", node->point[0], node->point[1]);
       if (node->cvc_prev)
 	{
 	  assert (node->cvc_prev == (CVCList *) - 1
@@ -448,101 +450,142 @@ add_descriptors (PLINE * pl, char poly, CVCList * list)
 	  if (!node->cvc_next)
 	    return NULL;
 	}
+      else
+	DEBUGP ("\n");
     }
   while ((node = node->next) != &pl->head);
   return list;
 }
 
-struct seg
+/* some structures for handling segment intersections using the rtrees */
+
+typedef struct seg
 {
-  const BoxType box;
+  BoxType box;
   VNODE *v;
   PLINE *p;
-}
+} seg;
 
-struct info
+typedef struct info
 {
   double m, b;
   VNODE *v;
   PLINE *p;
   rtree_t *tree;
   jmp_buf env;
-}
+} info;
 
-static int 
-adjust_tree(struct info *i, struct seg *s)
+/*
+ * adjust_tree()
+ * (C) 2006 harry eaton
+ * This replaces the segment in the tree with the two new segments after
+ * a vertex has been added
+ */
+static int
+adjust_tree (struct info *i, struct seg *s)
 {
   struct seg *q;
 
-  r_delete_entry(i->tree, s);
-  q = malloc(sizeof(struct seg));
-  if (!q) return 1;
-  q->v = s->v->next
-  q->box.X1 = min(s->v->point[0], q->v->point[0]);
-  q->box.X2 = max(s->v->point[0], q->v->point[0]);
-  q->box.Y1 = min(s->v->point[1], q->v->point[1]);
-  q->box.Y2 = max(s->v->point[1], q->v->point[1]);
-  r_insert_entry(i->tree, q, 1);
-  q = malloc(sizeof(struct seg));
-  if (!q) return 1;
-  q->v = s->v->next
-  q->box.X1 = min(q->v->next->point[0], q->v->point[0]);
-  q->box.X2 = max(q->v->next->point[0], q->v->point[0]);
-  q->box.Y1 = min(q->v->next->point[1], q->v->point[1]);
-  q->box.Y2 = max(q->v->next->point[1], q->v->point[1]);
-  long_jmp(i->env);
-  s->p->Flags.status = ISECTED;
-  return 0; /* not reached */
+  r_delete_entry (i->tree, (const BoxType *) s);
+  q = malloc (sizeof (struct seg));
+  if (!q)
+    return 1;
+  q->v = s->v;
+  q->p = s->p;
+  q->box.X1 = min (q->v->point[0], q->v->next->point[0]);
+  q->box.X2 = max (q->v->point[0], q->v->next->point[0]) + 1;
+  q->box.Y1 = min (q->v->point[1], q->v->next->point[1]);
+  q->box.Y2 = max (q->v->point[1], q->v->next->point[1]) + 1;
+  r_insert_entry (i->tree, (const BoxType *) q, 1);
+  q = malloc (sizeof (struct seg));
+  if (!q)
+    return 1;
+  q->v = s->v->next;
+  q->p = s->p;
+  q->box.X1 = min (q->v->point[0], q->v->next->point[0]);
+  q->box.X2 = max (q->v->point[0], q->v->next->point[0]) + 1;
+  q->box.Y1 = min (q->v->point[1], q->v->next->point[1]);
+  q->box.Y2 = max (q->v->point[1], q->v->next->point[1]) + 1;
+  r_insert_entry (i->tree, (const BoxType *) q, 1);
+  longjmp (i->env, 1);
+  return 0;			/* not reached */
 }
 
+/*
+ * seg_in_region()
+ * (C) 2006, harry eaton
+ * This prunes the search for boxes that don't intersect the segment.
+ */
 static int
-seg_in_region (const BoxType *b, void *cl)
+seg_in_region (const BoxType * b, void *cl)
 {
-  struct info *i = (struct info *)cl;
+  struct info *i = (struct info *) cl;
   double y1, y2;
+  /* for zero slope the search is aligned on the axis so it is already pruned */
   if (i->m == 0.)
     return 1;
   y1 = i->m * b->X1 + i->b;
   y2 = i->m * b->X2 + i->b;
-  if (min(y1,y2) > b->Y2)
+  if (min (y1, y2) >= b->Y2)
     return 0;
-  if (max(y1,y2) < b->Y1)
+  if (max (y1, y2) <= b->Y1)
     return 0;
-  return 1;
+  return 1;			/* might intersect */
 }
 
+/*
+ * seg_in_seg()
+ * (C) 2006 harry eaton
+ * This routine checks if the segment in the tree intersect the search segment.
+ * If it does, the plines are marked as intersected and the point is marked for
+ * the cvclist. If the point is not already a vertex, a new vertex is inserted
+ * and the search for intersections starts over at the beginning.
+ * That is potentially a significant time penalty, but it does solve the snap rounding
+ * problem. There are efficient algorithms for finding intersections with snap
+ * rounding, but I don't have time to implement them right now.
+ */
 static int
-seg_in_seg (const BoxType *b, void *cl)
+seg_in_seg (const BoxType * b, void *cl)
 {
-  struct info *i = (struct info *)cl;
-  struct seg *s = (struct seg *)b;
+  struct info *i = (struct info *) cl;
+  struct seg *s = (struct seg *) b;
   Vector s1, s2;
   int cnt, res;
 
-  cnt = vect_inters2(s->v->point, s->v->next->point,
-                    i->v->point, i->v->next->point, s1, s2);
+  cnt = vect_inters2 (s->v->point, s->v->next->point,
+		      i->v->point, i->v->next->point, s1, s2);
   if (!cnt)
     return 0;
-  for ( ; cnt; cnt--, s1 = s2)
+  i->p->Flags.status = ISECTED;
+  s->p->Flags.status = ISECTED;
+  for (; cnt; cnt--)
     {
-      res = node_add_point (i->v, s->v, s1);
+      res = node_add_point (i->v, s->v, cnt > 1 ? s2 : s1);
       if (res < 0)
-        return 1; /* error */
-      if (res & 2)
-        i->p->Flags.status = ISECTED;
+	return 1;		/* error */
       /* if we added a node in the tree we need to change the tree */
-      if ((res & 1) && adjust_tree(i, s))
-        return 1;
+      if ((res & 1) && adjust_tree (i, s))
+	return 1;
+      if (res & 2)		/* if a point was inserted in A we need to start over too */
+	longjmp (i->env, 1);
     }
   return 0;
 }
 
+/*
+ * intersect()
+ * (C) 2006, harry eaton
+ * This uses an rtree to find A-B intersections. Whenever a new vertex is
+ * added, the search for intersections is re-started because the rounding
+ * could alter the topology otherwise. Can take O(n^2) where n is the number
+ * of segments that hit hot pixels (new verticies)
+ */
 static int
 intersect (POLYAREA * a, POLYAREA * b)
 {
   POLYAREA *t;
-  PLINE *pa, *pb; /* pline iterators */
-  VNODE *av, *bv;	/* node iterators */
+  PLINE *pa, *pb;		/* pline iterators */
+  VNODE *av, *bv;		/* node iterators */
   struct info info;
   BoxType box;
   struct seg *s;
@@ -560,154 +603,57 @@ intersect (POLYAREA * a, POLYAREA * b)
       b = a;
       a = t;
     }
-  info.tree = r_create_tree(NULL, 0, 0);
+  info.tree = r_create_tree (NULL, 0, 0);
   for (pb = b->contours; pb; pb = pb->next)
     {
-      bv = &b->head;
-      do
-       {
-         s = malloc(sizeof(struct seg));
-	 s->box.X1 = min(bv->point[0], bv->next->point[0]);
-	 s->box.X2 = max(bv->point[0], bv->next->point[0]);
-	 s->box.Y1 = min(bv->point[1], bv->next->point[1]);
-	 s->box.Y2 = max(bv->point[1], bv->next->point[1]);
-	 s->v = bv;
-	 r_insert_entry(info.tree, s, 1);
-       } while ((bv = bv->next) != &b->head);
-    }
-  /* ok, tree of edges in b is built */
-    setjmp(info.env); /* we loop back here whenever a vertex is inserted */
-      {
-      for (pa = a->contours; pa; pa = pa->next)
-        {
-	  av = &a->head;
-	  do
-	   {
-	     /* check this edge for any insertions */
-	     double dx;
-	     info.v = av;
-	     dx = av->next->point[0] - av->point[0];
-	     if (dx = 0)
-	       info.m = 0;
-	     else
-	       {
-	         info.m = (av->next->point[1] - av->point[1])/dx;
-		 info.b = av->point[1] - info.m * av->point[0];
-	       }
-	     box.X1 = min(av->next->point[0], av->point[0]);
-	     box.X2 = max(av->next->point[0], av->point[0]);
-	     box.Y1 = min(av->next->point[1], av->point[1]);
-	     box.Y2 = max(av->next->point[1], av->point[1]);
-	     if (r_search(info.tree, &box, seg_in_region, seg_in_seg, &info))
-	       return -1; /* error */
-           } while ((av = av->next) != &a->head);
-	 }
-       } /* end of setjmp loop */
-     /* now all of the new intersections have been added */
-	     
-
-
-
-
-
-  
-/*
-intersect
- (C) 1993 Klamer Schutte
- (C) 1997 Alexey Nikitin, Michael Leonov
- (C) 2006 harry eaton
-
- calculate all the intersections between a and b. Add the intersection points
- to a and b.
- returns total number of intersections found.
-*/
-static int
-intersect (PLINE * a, PLINE * b)
-{
-  VNODE *a_iter, *b_iter;	/* pline node iterators */
-  VNODE *a_ph, *b_ph;		/* nodes of physical insertion */
-  int res = 0, res2 = 0, cnt, i, j, errc;
-  Vector intersect1, intersect2;
-
-  assert (a != NULL);
-  assert (b != NULL);
-
-  /* if their boxes do not isect return 0 intersections */
-  if ((a->xmin > b->xmax) || (a->xmax < b->xmin) ||
-      (a->ymin > b->ymax) || (a->ymax < b->ymin))
-    return 0;
-
-  a_iter = &a->head;
-  do
-    {
-#if 0
-      if (min (a_iter->point[0], a_iter->next->point[0]) > b->xmax ||
-	  max (a_iter->point[0], a_iter->next->point[0]) < b->xmin ||
-	  min (a_iter->point[1], a_iter->next->point[1]) > b->ymax ||
-	  max (a_iter->point[1], a_iter->next->point[1]) < b->ymin)
-	continue;		/* this segment doesn't intersect the other poly */
-#endif
-      b_iter = &b->head;
+      bv = &pb->head;
       do
 	{
-	  cnt = vect_inters2 (a_iter->point, a_iter->next->point,
-			      b_iter->point, b_iter->next->point,
-			      intersect1, intersect2);
-	  res += cnt;
-	  if (cnt > 0)
-	    {
-	      i = (errc = node_add_point (a_iter, b_iter, intersect1));
-	      if (errc < 0)
-		return errc;
-	      a_ph = a_iter;
-	      b_ph = b_iter;
-	      if (i & 2)
-		a_ph = a_ph->next;
-	      if (i & 1)
-		b_ph = b_ph->next;
-	      j = (i & 1);
-	      if (cnt >= 2)
-		{
-		  errc = 0;	/* not really the error, we're just reusing the variable */
-		  if (vect_dist2 (a_iter->point, intersect2) <
-		      vect_dist2 (a_iter->point, intersect1))
-		    errc += 1;
-		  if (vect_dist2 (b_iter->point, intersect2) <
-		      vect_dist2 (b_iter->point, intersect1))
-		    errc += 2;
-		  switch (errc)	/* what order did the intersections occur ? */
-		    {
-		    case 0:	/* i1 closer to both a_iter and b_iter */
-		      /* it seems we know this is a SHARED edge */
-		      i = (errc = node_add_point (a_ph, b_ph, intersect2));
-		      break;
-		    case 1:	/* i1 closer to b_iter, i2 closer to a_iter */
-		      /* must be a SHARED2 edge */
-		      i = (errc = node_add_point (a_iter, b_ph, intersect2));
-		      break;
-		    case 2:	/* i1 closer to a_iter, i2 closer to b_iter */
-		      /* another SHARED 2 condition */
-		      i = (errc = node_add_point (a_ph, b_iter, intersect2));
-		      break;
-		    case 3:	/* i2 closer to both a_iter and b_iter */
-		      i = (errc =
-			   node_add_point (a_iter, b_iter, intersect2));
-		      break;
-		    }
-	          j += (i & 1);
-	          if (errc < 0)
-	            return errc;
-		}
-	     /* skip the newly entered points - we already know they intersect */
-	     for (res2 += j; j > 0; j--)
-	       b_iter = b_iter->next;
-	    }
+	  s = malloc (sizeof (struct seg));
+	  s->box.X1 = min (bv->point[0], bv->next->point[0]);
+	  s->box.X2 = max (bv->point[0], bv->next->point[0]) + 1;
+	  s->box.Y1 = min (bv->point[1], bv->next->point[1]);
+	  s->box.Y2 = max (bv->point[1], bv->next->point[1]) + 1;
+	  s->v = bv;
+	  s->p = pb;
+	  r_insert_entry (info.tree, (const BoxType *) s, 1);
 	}
-      while ((b_iter = b_iter->next) != &b->head);
+      while ((bv = bv->next) != &pb->head);
     }
-  while ((a_iter = a_iter->next) != &a->head);
-  return res;
-}				/* intersect */
+  /* ok, tree of edges in b is built */
+  setjmp (info.env);		/* we loop back here whenever a vertex is inserted */
+  {
+    for (pa = a->contours; pa; pa = pa->next)
+      {
+	info.p = pa;
+	av = &pa->head;
+	do
+	  {
+	    /* check this edge for any insertions */
+	    double dx;
+	    info.v = av;
+	    dx = av->next->point[0] - av->point[0];
+	    if (dx == 0)
+	      info.m = 0;
+	    else
+	      {
+		info.m = (av->next->point[1] - av->point[1]) / dx;
+		info.b = av->point[1] - info.m * av->point[0];
+	      }
+	    box.X1 = min (av->next->point[0], av->point[0]);
+	    box.X2 = max (av->next->point[0], av->point[0]) + 1;
+	    box.Y1 = min (av->next->point[1], av->point[1]);
+	    box.Y2 = max (av->next->point[1], av->point[1]) + 1;
+	    if (r_search (info.tree, &box, seg_in_region, seg_in_seg, &info))
+	      return -1;	/* error */
+	  }
+	while ((av = av->next) != &pa->head);
+      }
+  }				/* end of setjmp loop */
+  /* now all of the new intersections have been added */
+  r_destroy_tree (&info.tree);
+  return 0;
+}
 
 static void
 M_POLYAREA_intersect (jmp_buf * e, POLYAREA * afst, POLYAREA * bfst)
@@ -715,7 +661,6 @@ M_POLYAREA_intersect (jmp_buf * e, POLYAREA * afst, POLYAREA * bfst)
   POLYAREA *a = afst, *b = bfst;
   PLINE *curcA, *curcB;
   CVCList *the_list = NULL;
-  int locisect;
 
   if (a == NULL || b == NULL)
     error (err_bad_parm);
@@ -723,17 +668,8 @@ M_POLYAREA_intersect (jmp_buf * e, POLYAREA * afst, POLYAREA * bfst)
     {
       do
 	{
-	  for (curcA = a->contours; curcA != NULL; curcA = curcA->next)
-	    for (curcB = b->contours; curcB != NULL; curcB = curcB->next)
-	      if ((locisect = intersect (curcA, curcB)) > 0)
-		{
-		  curcA->Flags.status = ISECTED;
-		  curcB->Flags.status = ISECTED;
-		}
-	      else if (locisect == ISECT_BAD_PARAM)
-		error (err_bad_parm);
-	      else if (locisect == ISECT_NO_MEMORY)
-		error (err_no_memory);
+	  if (intersect (a, b))
+	    error (err_no_memory);
 	}
       while ((a = a->f) != afst);
       for (curcB = b->contours; curcB != NULL; curcB = curcB->next)
@@ -785,7 +721,7 @@ cntr_in_M_POLYAREA (PLINE * poly, POLYAREA * outfst)
 static char *
 theState (VNODE * v)
 {
-  static char u[] = "UNKNOWN";
+  static char u[] = "UNKNWN";
   static char i[] = "INSIDE";
   static char o[] = "OUTSIDE";
   static char s[] = "SHARED";
@@ -830,13 +766,13 @@ static void
 label_contour (PLINE * a)
 {
   VNODE *cur = &a->head;
-  int did_label, label = UNKNOWN;
+  int did_label, label = UNKNWN;
 
   do
     {
       if (cur == &a->head)
 	did_label = FALSE;
-      if (NODE_LABEL (cur) != UNKNOWN)
+      if (NODE_LABEL (cur) != UNKNWN)
 	{
 	  label = NODE_LABEL (cur);
 	  continue;
@@ -1088,10 +1024,10 @@ jump (VNODE ** cur, DIRECTION * cdir, J_Rule rule)
   VNODE *e;
   DIRECTION new;
 
-  if (!(*cur)->cvc_prev)  /* not a cross-vertex */
+  if (!(*cur)->cvc_prev)	/* not a cross-vertex */
     {
       if (*cdir == FORW ? (*cur)->Flags.mark : (*cur)->prev->Flags.mark)
-        return FALSE;
+	return FALSE;
       return TRUE;
     }
   DEBUGP ("jump entering node at (%ld, %ld)\n", (*cur)->point[0],
@@ -1134,26 +1070,26 @@ Gather (VNODE * start, PLINE ** result, J_Rule v_rule, DIRECTION initdir)
   VNODE *cur = start, *newn;
   DIRECTION dir = initdir;
   DEBUGP ("gather direction = %d\n", dir);
-  assert(*result == NULL);
+  assert (*result == NULL);
   do
     {
       /* see where to go next */
-       if (!jump (&cur, &dir, v_rule))
-          break;
+      if (!jump (&cur, &dir, v_rule))
+	break;
       /* add edge to polygon */
       if (!*result)
-        {
+	{
 	  *result = poly_NewContour (cur->point);
-          if (*result == NULL)
-            return err_no_memory;
+	  if (*result == NULL)
+	    return err_no_memory;
 	}
       else
-        {
-           if ((newn = poly_CreateNode (cur->point)) == NULL)
-	      return err_no_memory;
-           poly_InclVertex ((*result)->head.prev, newn);
+	{
+	  if ((newn = poly_CreateNode (cur->point)) == NULL)
+	    return err_no_memory;
+	  poly_InclVertex ((*result)->head.prev, newn);
 	}
-      DEBUGP("gather vertex at (%ld, %ld)\n", cur->point[0], cur->point[1]);
+      DEBUGP ("gather vertex at (%ld, %ld)\n", cur->point[0], cur->point[1]);
       /* Now mark the edge as included.  */
       newn = (dir == FORW ? cur : cur->prev);
       newn->Flags.mark = 1;
@@ -1162,7 +1098,7 @@ Gather (VNODE * start, PLINE ** result, J_Rule v_rule, DIRECTION initdir)
 	newn->shared->Flags.mark = 1;
 
       /* Advance to the next edge.  */
-       cur = (dir == FORW ? cur->next : cur->prev);
+      cur = (dir == FORW ? cur->next : cur->prev);
     }
   while (1);
   return err_ok;
@@ -1333,7 +1269,7 @@ M_POLYAREA_Collect (jmp_buf * e, POLYAREA * afst, POLYAREA ** contours,
 }
 
 /************************************************************************/
-/* prepares polygon for algorithm, sets UNKNOWN labels and clears MARK bits */
+/* prepares polygon for algorithm, sets UNKNWN labels and clears MARK bits */
 static void
 M_InitPolygon (POLYAREA * afst)
 {
@@ -1347,12 +1283,12 @@ M_InitPolygon (POLYAREA * afst)
       for (curc = a->contours; curc != NULL; curc = curc->next)
 	{
 	  poly_PreContour (curc, TRUE);
-	  curc->Flags.status = UNKNOWN;
+	  curc->Flags.status = UNKNWN;
 	  curn = &curc->head;
 	  do
 	    {
 	      curn->Flags.mark = 0;
-	      curn->Flags.status = UNKNOWN;
+	      curn->Flags.status = UNKNWN;
 	      curn->cvc_prev = curn->cvc_next = NULL;
 	    }
 	  while ((curn = curn->next) != &curc->head);
@@ -1382,10 +1318,10 @@ poly_Boolean (const POLYAREA * a_org, const POLYAREA * b_org, POLYAREA ** res,
       M_InitPolygon (a);
       M_InitPolygon (b);
 #ifdef DEBUG
-      if (!poly_Valid(a))
-        return -1;
-      if (!poly_Valid(b))
-        return -1;
+      if (!poly_Valid (a))
+	return -1;
+      if (!poly_Valid (b))
+	return -1;
 #endif
       M_POLYAREA_intersect (&e, a, b);
 
@@ -1409,9 +1345,8 @@ poly_Boolean (const POLYAREA * a_org, const POLYAREA * b_org, POLYAREA ** res,
   if (code)
     poly_Free (res);
 #ifdef DEBUG
-  else
-    if (!poly_Valid(*res))
-      return -1;
+  else if (!poly_Valid (*res))
+    return -1;
 #endif
   return code;
 }				/* poly_Boolean */
@@ -1459,7 +1394,7 @@ poly_CreateNode (Vector v)
   res = (VNODE *) malloc (sizeof (VNODE));
   if (res == NULL)
     return NULL;
-  res->Flags.status = UNKNOWN;
+  res->Flags.status = UNKNWN;
   res->Flags.mark = 0;
   res->cvc_prev = res->cvc_next = NULL;
   res->shared = NULL;
@@ -1474,7 +1409,7 @@ poly_IniContour (PLINE * c)
   if (c == NULL)
     return;
   c->next = NULL;
-  c->Flags.status = UNKNOWN;
+  c->Flags.status = UNKNWN;
   c->Flags.orient = 0;
   c->Flags.cyclink = 0;
   c->Count = 0;
@@ -1549,21 +1484,21 @@ poly_PreContour (PLINE * C, BOOLp optimize)
 	      free (c);
 	      c = p;
 	    }
-            /* if the previous node is on the same line with this one, we should remove it */
-            Vsub2 (p1, c->point, p->point);
-            Vsub2 (p2, c->next->point, c->point);
-  /* If the product below is zero then
-   * the points on either side of c 
-   * are on the same line!
-   * So, remove the point c
-   */
+	  /* if the previous node is on the same line with this one, we should remove it */
+	  Vsub2 (p1, c->point, p->point);
+	  Vsub2 (p2, c->next->point, c->point);
+	  /* If the product below is zero then
+	   * the points on either side of c 
+	   * are on the same line!
+	   * So, remove the point c
+	   */
 
-  if (vect_det2 (p1, p2) == 0)
-    {
-      poly_ExclVertex (c);
-      free (c);
-      c = p;
-    }
+	  if (vect_det2 (p1, p2) == 0)
+	    {
+	      poly_ExclVertex (c);
+	      free (c);
+	      c = p;
+	    }
 	}
     }
   C->Count = 0;
@@ -1630,21 +1565,21 @@ poly_InclVertex (VNODE * after, VNODE * node)
   node->next = after->next;
   after->next = after->next->prev = node;
   /* hace */
-  node->point[0] = (long)(node->point[0]);
-  node->point[1] = (long)(node->point[1]);
+  node->point[0] = (long) (node->point[0]);
+  node->point[1] = (long) (node->point[1]);
   /* remove points on same line */
   if (node->prev->prev == node)
-    return; /* we don't have 3 points in the poly yet */
+    return;			/* we don't have 3 points in the poly yet */
   a = (node->point[1] - node->prev->prev->point[1]);
   a *= (node->prev->point[0] - node->prev->prev->point[0]);
   b = (node->point[0] - node->prev->prev->point[0]);
   b *= (node->prev->point[1] - node->prev->prev->point[1]);
-  if (fabs(a - b) < EPSILON)
+  if (fabs (a - b) < EPSILON)
     {
       VNODE *t = node->prev;
       t->prev->next = node;
       node->prev = t->prev;
-      free(t);
+      free (t);
     }
 }
 
@@ -2055,47 +1990,43 @@ poly_Valid (POLYAREA * p)
     {
       if (c->Flags.orient == PLF_DIR ||
 	  poly_ChkContour (c) || !poly_ContourInContour (p->contours, c))
-       {
-          DEBUGP ("Invalid Polygon\n");
-          return FALSE;
-       }
+	{
+	  DEBUGP ("Invalid Polygon\n");
+	  return FALSE;
+	}
     }
   return TRUE;
 }
 
 
-Vector vect_zero = { (long) 0, (long) 0, (long) 0 };
+Vector vect_zero = { (long) 0, (long) 0 };
 
 /*********************************************************************/
 /*             L o n g   V e c t o r   S t u f f                     */
 /*********************************************************************/
 
 void
-vect_init (Vector v, double x, double y, double z)
+vect_init (Vector v, double x, double y)
 {
   v[0] = (long) x;
   v[1] = (long) y;
-  v[2] = (long) z;
 }				/* vect_init */
 
-#define Vcopy(a,b) {(a)[0]=(b)[0];(a)[1]=(b)[1];(a)[2]=(b)[2];}
-#define Vzero(a)   ((a)[0] == 0. && (a)[1] == 0. && (a)[2] == 0.)
+#define Vcopy(a,b) {(a)[0]=(b)[0];(a)[1]=(b)[1];}
+#define Vzero(a)   ((a)[0] == 0. && (a)[1] == 0.)
 
-#define Vsub(a,b,c) {(a)[0]=(b)[0]-(c)[0];(a)[1]=(b)[1]-(c)[1];(a)[2]=(b)[2]-(c)[2];}
+#define Vsub(a,b,c) {(a)[0]=(b)[0]-(c)[0];(a)[1]=(b)[1]-(c)[1];}
 
 void
 vect_copy (Vector des, Vector sou)
 {
 Vcopy (des, sou)}		/* vect_copy */
-/* int
+
+int
 vect_equal (Vector v1, Vector v2)
 {
-  return (v1[0] == v2[0] && v1[1] == v2[1] && v1[2] == v2[2]);
-}*/				/* vect_equal */
-int vect_equal (Vector v1, Vector v2)
-{
-  return (fabs(v1[0] - v2[0]) < EPSILON && fabs(v1[1] - v2[1]) < EPSILON);
-}
+  return (v1[0] == v2[0] && v1[1] == v2[1]);
+}				/* vect_equal */
 
 
 void
@@ -2108,7 +2039,6 @@ vect_min (Vector v1, Vector v2, Vector v3)
 {
   v1[0] = (v2[0] < v3[0]) ? v2[0] : v3[0];
   v1[1] = (v2[1] < v3[1]) ? v2[1] : v3[1];
-  v1[2] = (v2[2] < v3[2]) ? v2[2] : v3[2];
 }				/* vect_min */
 
 void
@@ -2116,7 +2046,6 @@ vect_max (Vector v1, Vector v2, Vector v3)
 {
   v1[0] = (v2[0] > v3[0]) ? v2[0] : v3[0];
   v1[1] = (v2[1] > v3[1]) ? v2[1] : v3[1];
-  v1[2] = (v2[2] > v3[2]) ? v2[2] : v3[2];
 }				/* vect_max */
 
 double
@@ -2167,7 +2096,7 @@ int
 vect_inters2 (Vector p1, Vector p2, Vector q1, Vector q2,
 	      Vector S1, Vector S2)
 {
-  double l, s, t, deel;
+  double s, t, deel;
   double rpx, rpy, rqx, rqy;
 
   if (max (p1[0], p2[0]) < min (q1[0], q2[0]) ||
@@ -2176,7 +2105,6 @@ vect_inters2 (Vector p1, Vector p2, Vector q1, Vector q2,
       max (q1[1], q2[1]) < min (p1[1], p2[1]))
     return 0;
 
-  S1[2] = S2[2] = 0;
   rpx = p2[0] - p1[0];
   rpy = p2[1] - p1[1];
   rqx = q2[0] - q1[0];
@@ -2288,10 +2216,10 @@ vect_inters2 (Vector p1, Vector p2, Vector q1, Vector q2,
 	{
 	  s = (rqy * (p1[0] - q1[0]) + rqx * (q1[1] - p1[1])) / deel;
 	  if (s < 0 || s > 1.)
-	     return 0;
+	    return 0;
 	  t = (rpy * (p1[0] - q1[0]) + rpx * (q1[1] - p1[1])) / deel;
-	  if (t < 0|| t > 1.)
-	     return 0;
+	  if (t < 0 || t > 1.)
+	    return 0;
 
 	  S1[0] = q1[0] + ROUND (t * rqx);
 	  S1[1] = q1[1] + ROUND (t * rqy);

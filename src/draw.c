@@ -116,8 +116,6 @@ static void AddPart (void *);
 static void SetPVColor (PinTypePtr, int);
 static void DrawGrid (void);
 static void DrawEMark (LocationType, LocationType, Boolean);
-static void ClearLine (LineTypePtr);
-static void ClearArc (ArcTypePtr);
 static void ClearPad (PadTypePtr, Boolean);
 static void DrawHole (PinTypePtr);
 static void DrawMask (BoxType *);
@@ -375,13 +373,13 @@ static int
 hole_callback (const BoxType * b, void *cl)
 {
   PinTypePtr pin = (PinTypePtr) b;
-  int plated = cl ? *(int *)cl : -1;
+  int plated = cl ? *(int *) cl : -1;
   switch (plated)
     {
     case -1:
       break;
     case 0:
-      if (! TEST_FLAG (HOLEFLAG, pin))
+      if (!TEST_FLAG (HOLEFLAG, pin))
 	return 1;
       break;
     case 1:
@@ -393,7 +391,8 @@ hole_callback (const BoxType * b, void *cl)
   return 1;
 }
 
-typedef struct {
+typedef struct
+{
   int nplated;
   int nunplated;
 } HoleCountStruct;
@@ -404,11 +403,11 @@ hole_counting_callback (const BoxType * b, void *cl)
   PinTypePtr pin = (PinTypePtr) b;
   HoleCountStruct *hcs = (HoleCountStruct *) cl;
   if (TEST_FLAG (HOLEFLAG, pin))
-    hcs->nunplated ++;
+    hcs->nunplated++;
   else
-    hcs->nplated ++;
+    hcs->nplated++;
   return 1;
-  }
+}
 
 static int
 rat_callback (const BoxType * b, void *cl)
@@ -438,7 +437,6 @@ PrintAssembly (const BoxType * drawn_area, int side_group, int swap_ident)
   gui->set_draw_faded (Output.fgGC, 1);
   SWAP_IDENT = swap_ident;
   DrawLayerGroup (side_group, drawn_area);
-  r_search (PCB->Data->via_tree, drawn_area, NULL, lowvia_callback, NULL);
   DrawTop (drawn_area);
   gui->set_draw_faded (Output.fgGC, 0);
 
@@ -556,19 +554,25 @@ DrawEverything (BoxTypePtr drawn_area)
       int plated;
       HoleCountStruct hcs;
       hcs.nplated = hcs.nunplated = 0;
-      r_search (PCB->Data->pin_tree, drawn_area, NULL, hole_counting_callback, &hcs);
-      r_search (PCB->Data->via_tree, drawn_area, NULL, hole_counting_callback, &hcs);
+      r_search (PCB->Data->pin_tree, drawn_area, NULL, hole_counting_callback,
+		&hcs);
+      r_search (PCB->Data->via_tree, drawn_area, NULL, hole_counting_callback,
+		&hcs);
       if (hcs.nplated && gui->set_layer ("plated-drill", SL (PDRILL, 0)))
 	{
 	  plated = 1;
-	  r_search (PCB->Data->pin_tree, drawn_area, NULL, hole_callback, &plated);
-	  r_search (PCB->Data->via_tree, drawn_area, NULL, hole_callback, &plated);
+	  r_search (PCB->Data->pin_tree, drawn_area, NULL, hole_callback,
+		    &plated);
+	  r_search (PCB->Data->via_tree, drawn_area, NULL, hole_callback,
+		    &plated);
 	}
       if (hcs.nunplated && gui->set_layer ("unplated-drill", SL (UDRILL, 0)))
 	{
 	  plated = 0;
-	  r_search (PCB->Data->pin_tree, drawn_area, NULL, hole_callback, &plated);
-	  r_search (PCB->Data->via_tree, drawn_area, NULL, hole_callback, &plated);
+	  r_search (PCB->Data->pin_tree, drawn_area, NULL, hole_callback,
+		    &plated);
+	  r_search (PCB->Data->via_tree, drawn_area, NULL, hole_callback,
+		    &plated);
 	}
     }
   /* Draw top silkscreen */
@@ -589,7 +593,7 @@ DrawEverything (BoxTypePtr drawn_area)
 	DrawGrid ();
     }
 
-  for (side=0; side<=1; side++)
+  for (side = 0; side <= 1; side++)
     {
       int doit;
       Boolean NoData = True;
@@ -597,28 +601,29 @@ DrawEverything (BoxTypePtr drawn_area)
       {
 	if ((TEST_FLAG (ONSOLDERFLAG, pad) && side == SOLDER_LAYER)
 	    || (!TEST_FLAG (ONSOLDERFLAG, pad) && side == COMPONENT_LAYER))
-          {
-            NoData = False;
-            break;
-          }
+	  {
+	    NoData = False;
+	    break;
+	  }
       }
       ENDALL_LOOP;
 
       /* skip empty files */
       if (NoData)
-        continue;
+	continue;
 
       if (side == SOLDER_LAYER)
-	doit = gui->set_layer ("bottompaste", SL(PASTE, BOTTOM));
+	doit = gui->set_layer ("bottompaste", SL (PASTE, BOTTOM));
       else
-	doit = gui->set_layer ("toppaste", SL(PASTE, TOP));
+	doit = gui->set_layer ("toppaste", SL (PASTE, TOP));
       if (doit)
 	{
 	  gui->set_color (Output.fgGC, PCB->ElementColor);
 	  ALLPAD_LOOP (PCB->Data);
 	  {
 	    if ((TEST_FLAG (ONSOLDERFLAG, pad) && side == SOLDER_LAYER)
-		|| (!TEST_FLAG (ONSOLDERFLAG, pad) && side == COMPONENT_LAYER))
+		|| (!TEST_FLAG (ONSOLDERFLAG, pad)
+		    && side == COMPONENT_LAYER))
 	      DrawPadLowLevel (pad);
 	  }
 	  ENDALL_LOOP;
@@ -826,30 +831,22 @@ DrawMask (BoxType * screen)
 }
 
 static int
-clear_callback (int type, void *ptr1, void *ptr2, void *ptr3,
-		LayerTypePtr lay, PolygonTypePtr poly)
+clear_callback (PLINE * pl, LayerTypePtr lay, PolygonTypePtr poly)
 {
-  LineTypePtr l = (LineTypePtr) ptr2;
-  ArcTypePtr a = (ArcTypePtr) ptr2;
+  int i, *x, *y;
+  VNODE *v;
 
-  switch (type)
+  i = 0;
+  x = (int *) malloc (pl->Count * sizeof (int));
+  y = (int *) malloc (pl->Count * sizeof (int));
+  for (v = &pl->head; i < pl->Count; v = v->next)
     {
-    case LINE_TYPE:
-      ClearLine (l);
-      break;
-    case ARC_TYPE:
-      ClearArc (a);
-      break;
-    case PIN_TYPE:
-    case VIA_TYPE:
-      ClearOnlyPin ((PinTypePtr) ptr2, False);
-      break;
-    case PAD_TYPE:
-      ClearPad ((PadTypePtr) ptr2, False);
-      break;
-    default:
-      Message ("Bad clear callback\n");
+      x[i] = v->point[0];
+      y[i++] = v->point[1];
     }
+  gui->fill_polygon (Output.pmGC, i, x, y);
+  free (x);
+  free (y);
   return 0;
 }
 
@@ -976,7 +973,7 @@ got_mask:
 	    /* Make clearances around lines, arcs, pins and vias
 	     */
 	    gui->set_color (Output.pmGC, "erase");
-	    PolygonPlows (group, screen, clear_callback);
+	    PolygonHoles (group, screen, clear_callback);
 	  }
 
       if (gui->poly_after)
@@ -1023,8 +1020,6 @@ got_mask:
 	}
     }
 
-  if (TEST_FLAG (CHECKPLANESFLAG, PCB))
-    return;
 
   for (i = n_entries - 1; i >= 0; i--)
     {
@@ -1257,8 +1252,6 @@ ClearOnlyPin (PinTypePtr Pin, Boolean mask)
   if (!mask && TEST_FLAG (HOLEFLAG, Pin))
     return;
   if (half == 0)
-    return;
-  if (!mask && Pin->Clearance <= 0)
     return;
 
   /* Clear the area around the pin */
@@ -1717,32 +1710,6 @@ ClearPad (PadTypePtr Pad, Boolean mask)
 }
 
 /* ---------------------------------------------------------------------------
- * clearance for lines
- */
-static void
-ClearLine (LineTypePtr Line)
-{
-  gui->set_line_cap (Output.pmGC, Round_Cap);
-  gui->set_line_width (Output.pmGC, Line->Clearance + Line->Thickness);
-  gui->draw_line (Output.pmGC,
-		  Line->Point1.X, Line->Point1.Y,
-		  Line->Point2.X, Line->Point2.Y);
-}
-
-/* ---------------------------------------------------------------------------
- * clearance for arcs 
- */
-static void
-ClearArc (ArcTypePtr Arc)
-{
-  gui->set_line_cap (Output.pmGC, Round_Cap);
-  gui->set_line_width (Output.pmGC, Arc->Clearance + Arc->Thickness);
-
-  gui->draw_arc (Output.pmGC, Arc->X, Arc->Y,
-		 Arc->Width, Arc->Height, Arc->StartAngle, Arc->Delta);
-}
-
-/* ---------------------------------------------------------------------------
  * lowlevel drawing routine for lines
  */
 static void
@@ -1872,30 +1839,62 @@ DrawTextLowLevel (TextTypePtr Text)
 static void
 DrawPolygonLowLevel (PolygonTypePtr Polygon)
 {
-  int *x, *y, n, i;
+  int *x, *y, n, i = 0;
+  PLINE *pl;
+  VNODE *v;
   if (Gathering)
     {
       AddPart (Polygon);
       return;
     }
-  n = Polygon->PointN;
+  pl = Polygon->Clipped->contours;
+  n = pl->Count;
   x = (int *) malloc (n * sizeof (int));
   y = (int *) malloc (n * sizeof (int));
-  for (i = 0; i < n; i++)
+  for (v = &pl->head; i < n; v = v->next)
     {
-      x[i] = Polygon->Points[i].X;
-      y[i] = Polygon->Points[i].Y;
+      x[i] = v->point[0];
+      y[i++] = v->point[1];
     }
   if (TEST_FLAG (THINDRAWFLAG, PCB))
     {
       for (i = 0; i < n - 1; i++)
-	gui->draw_line (Output.fgGC, x[i], y[i], x[i + 1], y[i + 1]);
+	{
+	  gui->draw_line (Output.fgGC, x[i], y[i], x[i + 1], y[i + 1]);
+	  gui->fill_circle (Output.fgGC, x[i], y[i], 30);
+	}
       gui->draw_line (Output.fgGC, x[n - 1], y[n - 1], x[0], y[0]);
     }
   else
     gui->fill_polygon (Output.fgGC, n, x, y);
   free (x);
   free (y);
+  if (!TEST_FLAG (CHECKPLANESFLAG, PCB))
+    return;
+  {
+    POLYAREA *pg;
+    for (pg = Polygon->Clipped->f; pg != Polygon->Clipped; pg = pg->f)
+      {
+	pl = pg->contours;
+	i = 0;
+	n = pl->Count;
+	x = (int *) malloc (n * sizeof (int));
+	y = (int *) malloc (n * sizeof (int));
+	for (v = &pl->head; i < n; v = v->next)
+	  {
+	    x[i] = v->point[0];
+	    y[i++] = v->point[1];
+	  }
+	for (i = 0; i < n - 1; i++)
+	  {
+	    gui->draw_line (Output.fgGC, x[i], y[i], x[i + 1], y[i + 1]);
+	    gui->fill_circle (Output.bgGC, x[i], y[i], 10);
+	  }
+	gui->draw_line (Output.fgGC, x[n - 1], y[n - 1], x[0], y[0]);
+	free (x);
+	free (y);
+      }
+  }
 }
 
 /* ---------------------------------------------------------------------------

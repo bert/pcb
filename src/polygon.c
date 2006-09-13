@@ -34,12 +34,13 @@
 #include "config.h"
 #endif
 
+#include <assert.h>
 #include <math.h>
 #include <memory.h>
 #include <setjmp.h>
 
 #include "global.h"
-
+#include "box.h"
 #include "create.h"
 #include "crosshair.h"
 #include "data.h"
@@ -61,12 +62,465 @@
 
 RCSID ("$Id$");
 
-
 /* ---------------------------------------------------------------------------
  * local prototypes
  */
-static Boolean DoPIPFlags (PinTypePtr, ElementTypePtr,
-			   LayerTypePtr, PolygonTypePtr, int);
+
+static double circleVerticies[] = {
+  1.0, 0.0,
+  0.98480775301221, 0.17364817766693,
+  0.93969262978591, 0.34202014332567,
+  0.86602540478444, 0.5,
+  0.76604444311898, 0.64278760968654,
+  0.64278760968654, 0.76604444311898,
+  0.5, 0.86602540478444,
+  0.34202014332567, 0.93969262978591,
+  0.17364817766693, 0.98480775301221,
+  0.0, 1.0
+};
+
+static POLYAREA *
+biggest (POLYAREA * p)
+{
+  POLYAREA *n, *top;
+  PLINE *pl;
+  double big = 0;
+  n = p;
+  do
+    {
+      if (n->contours->area > big)
+	{
+	  top = n;
+	  big = n->contours->area;
+	}
+    }
+  while ((n = n->f) != p);
+  if (top == p)
+    return p;
+  pl = top->contours;
+  top->contours = p->contours;
+  p->contours = pl;
+  return p;
+}
+
+static POLYAREA *
+ContourToPoly (PLINE * contour)
+{
+  POLYAREA *p;
+  poly_PreContour (contour, TRUE);
+  assert (contour->Flags.orient == PLF_DIR);
+  if (!(p = poly_Create ()))
+    return NULL;
+  poly_InclContour (p, contour);
+  assert (poly_Valid (p));
+  return p;
+}
+
+
+static POLYAREA *
+original_poly (PolygonType * p)
+{
+  PLINE *contour = NULL;
+  POLYAREA *np = NULL;
+  Vector v;
+
+  /* first make initial polygon contour */
+  *(v + 2) = 0;
+  POLYGONPOINT_LOOP (p);
+  {
+    *v = point->X;
+    *(v + 1) = point->Y;
+    if (contour == NULL)
+      {
+	if ((contour = poly_NewContour (v)) == NULL)
+	  return NULL;
+      }
+    else
+      {
+	poly_InclVertex (contour->head.prev, poly_CreateNode (v));
+      }
+  }
+  END_LOOP;
+  poly_PreContour (contour, TRUE);
+  /* make sure it is a positive contour */
+  if ((contour->Flags.orient) != PLF_DIR)
+    poly_InvContour (contour);
+  assert ((contour->Flags.orient) == PLF_DIR);
+  if ((np = poly_Create ()) == NULL)
+    return NULL;
+  poly_InclContour (np, contour);
+  assert (poly_Valid (np));
+  return np;
+}
+
+static int
+ClipOriginal (PolygonType * poly)
+{
+  POLYAREA *p, *result;
+  int r;
+
+  p = original_poly (poly);
+  r = poly_Boolean (p, poly->Clipped, &result, PBO_ISECT);
+  poly_Free (&p);
+  if (r != err_ok)
+    {
+      fprintf (stderr, "Error while clipping PBO_ISECT\n");
+      poly_Free (&result);
+      return 0;
+    }
+  poly_Free (&poly->Clipped);
+  poly->Clipped = biggest (result);
+  assert (poly_Valid (poly->Clipped));
+  return 1;
+}
+
+POLYAREA *
+RectPoly (LocationType x1, LocationType x2, LocationType y1, LocationType y2)
+{
+  PLINE *contour = NULL;
+  Vector v;
+
+  assert (x2 > x1);
+  assert (y2 > y1);
+  *(v) = x1;
+  *(v + 1) = y1;
+  *(v + 2) = 0;
+  if ((contour = poly_NewContour (v)) == NULL)
+    return NULL;
+  *(v) = x2;
+  *(v + 1) = y1;
+  poly_InclVertex (contour->head.prev, poly_CreateNode (v));
+  *(v) = x2;
+  *(v + 1) = y2;
+  poly_InclVertex (contour->head.prev, poly_CreateNode (v));
+  *(v) = x1;
+  *(v + 1) = y2;
+  poly_InclVertex (contour->head.prev, poly_CreateNode (v));
+  return ContourToPoly (contour);
+}
+
+#define COARSE_CIRCLE 0
+/* create a 35-vertex circle approximation */
+POLYAREA *
+CirclePoly (LocationType x, LocationType y, BDimension radius)
+{
+  PLINE *contour;
+  Vector v;
+  int i;
+
+  *(v) = x + radius;
+  *(v + 1) = y;
+  *(v + 2) = 0;
+  if ((contour = poly_NewContour (v)) == NULL)
+    return NULL;
+  for (i = 2; i < 20;)
+    {
+      *v = x + circleVerticies[i++] * radius;
+      *(v + 1) = y + circleVerticies[i++] * radius;
+      poly_InclVertex (contour->head.prev, poly_CreateNode (v));
+      i += COARSE_CIRCLE;
+    }
+  for (i = 17; i > 0;)
+    {
+      *(v + 1) = y + circleVerticies[i--] * radius;
+      *(v) = x - circleVerticies[i--] * radius;
+      poly_InclVertex (contour->head.prev, poly_CreateNode (v));
+      i -= COARSE_CIRCLE;
+    }
+  for (i = 2; i < 20;)
+    {
+      *(v) = x - circleVerticies[i++] * radius;
+      *(v + 1) = y - circleVerticies[i++] * radius;
+      poly_InclVertex (contour->head.prev, poly_CreateNode (v));
+      i += COARSE_CIRCLE;
+    }
+  for (i = 17; i > 2;)
+    {
+      *(v + 1) = y - circleVerticies[i--] * radius;
+      *(v) = x + circleVerticies[i--] * radius;
+      poly_InclVertex (contour->head.prev, poly_CreateNode (v));
+      i -= COARSE_CIRCLE;;
+    }
+  return ContourToPoly (contour);
+}
+
+POLYAREA *
+LinePoly (LineType * l, BDimension thick)
+{
+  PLINE *contour = NULL;
+  POLYAREA *np = NULL, *ep = NULL, *merged = NULL;
+  Vector v;
+  double d, dx, dy;
+  long x, half;
+
+  half = (thick + 1) / 2;
+  d =
+    sqrt (SQUARE (l->Point1.X - l->Point2.X) +
+	  SQUARE (l->Point1.Y - l->Point2.Y));
+  if (d == 0)			/* line is a point */
+    return CirclePoly (l->Point1.X, l->Point1.Y, half);
+  d = half / d;
+  dx = (l->Point1.Y - l->Point2.Y) * d;
+  dy = (l->Point2.X - l->Point1.X) * d;
+  *(v + 2) = 0;
+  *v = l->Point1.X + dx;
+  *(v + 1) = l->Point1.Y + dy;
+  if ((contour = poly_NewContour (v)) == NULL)
+    return 0;
+  *v = l->Point1.X - dx;
+  *(v + 1) = l->Point1.Y - dy;
+  poly_InclVertex (contour->head.prev, poly_CreateNode (v));
+  *v = l->Point2.X - dx;
+  *(v + 1) = l->Point2.Y - dy;
+  poly_InclVertex (contour->head.prev, poly_CreateNode (v));
+  *v = l->Point2.X + dx;
+  *(v + 1) = l->Point2.Y + dy;
+  poly_InclVertex (contour->head.prev, poly_CreateNode (v));
+  /* now we have the line squared-end contour */
+  if (!(np = ContourToPoly (contour)))
+    return NULL;
+  /* now add the rounded ends */
+  if ((ep = CirclePoly (l->Point1.X, l->Point1.Y, half)))
+    {
+      x = poly_Boolean (np, ep, &merged, PBO_UNITE);
+      poly_Free (&np);
+      poly_Free (&ep);
+      if (x != err_ok)
+	{
+	  fprintf (stderr, "Error while clipping PBO_UNITE!\n");
+	  poly_Free (&merged);
+	  return NULL;
+	}
+      np = merged;
+      merged = NULL;
+    }
+  if ((ep = CirclePoly (l->Point2.X, l->Point2.Y, half)))
+    {
+      x = poly_Boolean (np, ep, &merged, PBO_UNITE);
+      poly_Free (&np);
+      poly_Free (&ep);
+      if (x != err_ok)
+	{
+	  fprintf (stderr, "Error while clipping a PBO_UNITE\n");
+	  poly_Free (&merged);
+	  return NULL;
+	}
+    }
+  return merged;
+}
+
+/* clear np1 from the polygon */
+static int
+Subtract (POLYAREA * np1, PolygonType * p)
+{
+  POLYAREA *merged = NULL, *np = np1;;
+  int x;
+  assert (np);
+  assert (p && p->Clipped);
+  assert (poly_Valid (p->Clipped));
+  assert (poly_Valid (np));
+  x = poly_Boolean (p->Clipped, np, &merged, PBO_SUB);
+#if 0
+  if (!poly_Valid (merged))
+    {
+      SavePOLYAREA (p->Clipped, "bad_poly_a.wrl");
+      SavePOLYAREA (np, "bad_poly_b.wrl");
+    }
+#endif
+  assert (poly_Valid (merged));
+  poly_Free (&np);
+  if (x != err_ok)
+    {
+      fprintf (stderr, "Error while clipping PBO_SUB\n");
+      poly_Free (&merged);
+      return 0;
+    }
+  poly_Free (&p->Clipped);
+  p->Clipped = biggest (merged);
+  assert (poly_Valid (p->Clipped));
+  return 1;
+}
+
+/* create a polygon of the pin clearance */
+POLYAREA *
+PinPoly (PinType * pin, BDimension thick)
+{
+  int size = (thick + 1) / 2;
+
+  if (TEST_FLAG (SQUAREFLAG, pin))
+    {
+      return RectPoly (pin->X - size, pin->X + size, pin->Y - size,
+		       pin->Y + size);
+    }
+  /* fix me need to handle octagonal pins */
+  return CirclePoly (pin->X, pin->Y, size);
+}
+
+/* remove the pin clearance from the polygon */
+static int
+SubtractPin (PinType * pin, PolygonType * p)
+{
+  POLYAREA *np;
+
+  if (pin->Clearance == 0)
+    return 0;
+  if (!(np = PinPoly (pin, pin->Thickness + pin->Clearance)))
+    return 0;
+  return Subtract (np, p);
+}
+
+static int
+SubtractLine (LineType * line, PolygonType * p)
+{
+  POLYAREA *np;
+
+  if (!TEST_FLAG (CLEARLINEFLAG, line))
+    return 0;
+  if (!(np = LinePoly (line, line->Thickness + line->Clearance)))
+    return 0;
+  return Subtract (np, p);
+}
+
+struct cpInfo
+{
+  const BoxType *other;
+  PolygonType *polygon;
+};
+
+static int
+pin_sub_callback (const BoxType * b, void *cl)
+{
+  PinTypePtr pin = (PinTypePtr) b;
+  struct cpInfo *info = (struct cpInfo *) cl;
+  PolygonTypePtr polygon;
+
+  /* don't subtract the object that was put back! */
+  if (b == info->other)
+    return 0;
+  polygon = info->polygon;
+  return SubtractPin (pin, polygon);
+}
+
+static int
+line_sub_callback (const BoxType * b, void *cl)
+{
+  LineTypePtr line = (LineTypePtr) b;
+  struct cpInfo *info = (struct cpInfo *) cl;
+  PolygonTypePtr polygon;
+
+  /* don't subtract the object that was put back! */
+  if (b == info->other)
+    return 0;
+  if (!TEST_FLAG (CLEARLINEFLAG, line))
+    return 0;
+  polygon = info->polygon;
+  /* enable the line to touch the poly */
+  CLEAR_FLAG (CLEARLINEFLAG, line);
+  line->Thickness += line->Clearance;
+  /* now see if it would touch the polygon */
+  if (IsLineInPolygon (line, polygon))
+    {
+      line->Thickness -= line->Clearance;
+      SET_FLAG (CLEARLINEFLAG, line);
+      return SubtractLine (line, polygon);
+    }
+  else
+    {
+      line->Thickness -= line->Clearance;
+      SET_FLAG (CLEARLINEFLAG, line);
+      return 0;
+    }
+}
+
+int
+clearPoly (LayerTypePtr layer, PolygonType * polygon, const BoxType * here)
+{
+  int r = 0;
+  BoxType region;
+  struct cpInfo info;
+
+  if (!TEST_FLAG (CLEARPOLYFLAG, polygon))
+    return 0;
+  info.other = here;
+  info.polygon = polygon;
+  if (here)
+    region = clip_box (here, &polygon->BoundingBox);
+  else
+    region = polygon->BoundingBox;
+
+  r = r_search (PCB->Data->via_tree, &region, NULL, pin_sub_callback, &info);
+  r += r_search (PCB->Data->pin_tree, &region, NULL, pin_sub_callback, &info);
+  GROUP_LOOP (GetLayerGroupNumberByPointer (layer));
+  {
+    r += r_search (layer->line_tree, &region, NULL, line_sub_callback, &info);
+  }
+  END_LOOP;
+  return r;
+}
+
+static int
+Unsubstract (POLYAREA * np1, PolygonType * p)
+{
+  POLYAREA *merged = NULL, *np = np1;;
+  int x;
+  assert (np);
+  assert (p && p->Clipped);
+  x = poly_Boolean (p->Clipped, np, &merged, PBO_UNITE);
+  poly_Free (&np);
+  if (x != err_ok)
+    {
+      fprintf (stderr, "Error while clipping PBO_UNITE\n");
+      poly_Free (&merged);
+      return 0;
+    }
+  poly_Free (&p->Clipped);
+  p->Clipped = biggest (merged);
+  assert (poly_Valid (p->Clipped));
+  return ClipOriginal (p);
+}
+
+static int
+UnsubtractPin (PinType * pin, LayerType * l, PolygonType * p)
+{
+  POLYAREA *np;
+
+  /* overlap a bit to prevent gaps from rounding errors */
+  np = PinPoly (pin, pin->Thickness + pin->Clearance + 10);
+
+  if (!np)
+    return 0;
+  if (!Unsubstract (np, p))
+    return 0;
+  clearPoly (l, p, (const BoxType *) pin);
+  return 1;
+}
+
+static int
+UnsubtractLine (LineType * line, LayerType * l, PolygonType * p)
+{
+  POLYAREA *np = NULL;
+
+  /* overlap a bit to prevent notches from rounding errors */
+  if (!(np = LinePoly (line, line->Thickness + line->Clearance + 10)))
+    return 0;
+  if (!Unsubstract (np, p))
+    return 0;
+  clearPoly (l, p, (const BoxType *) line);
+  return 1;
+}
+
+int
+InitClip (LayerTypePtr layer, PolygonType * p)
+{
+  if (p->Clipped)
+    poly_Free (&p->Clipped);
+  p->Clipped = original_poly (p);
+  if (!p->Clipped)
+    return 0;
+  assert (poly_Valid (p->Clipped));
+  clearPoly (layer, p, NULL);
+  return 1;
+}
 
 /* --------------------------------------------------------------------------
  * remove redundant polygon points. Any point that lies on the straight
@@ -252,7 +706,7 @@ CopyAttachedPolygonToLayer (void)
   if (!CURRENT->polygon_tree)
     CURRENT->polygon_tree = r_create_tree (NULL, 0, 0);
   r_insert_entry (CURRENT->polygon_tree, (BoxType *) polygon, 0);
-  UpdatePIPFlags (NULL, NULL, CURRENT, True);
+  InitClip (CURRENT, polygon);
   DrawPolygon (CURRENT, polygon, 0);
   SetChangedFlag (True);
 
@@ -275,267 +729,219 @@ void
 UpdatePIPFlags (PinTypePtr Pin, ElementTypePtr Element,
 		LayerTypePtr Layer, Boolean AddUndo)
 {
-
-  if (Element == NULL)
-    {
-      ALLPIN_LOOP (PCB->Data);
-      {
-	UpdatePIPFlags (pin, element, Layer, AddUndo);
-      }
-      ENDALL_LOOP;
-      VIA_LOOP (PCB->Data);
-      {
-	UpdatePIPFlags (via, (ElementTypePtr) via, Layer, AddUndo);
-      }
-      END_LOOP;
-    }
-  else if (Pin == NULL)
-    {
-      PIN_LOOP (Element);
-      {
-	UpdatePIPFlags (pin, Element, Layer, AddUndo);
-      }
-      END_LOOP;
-    }
-  else if (Layer == NULL)
-    {
-      Cardinal l;
-      for (l = 0; l < max_layer; l++)
-	UpdatePIPFlags (Pin, Element, LAYER_PTR (l), AddUndo);
-    }
-  else
-    {
-      FlagType old_flags = Pin->Flags, new_flags;
-      int layer = GetLayerNumber (PCB->Data, Layer);
-      /* assume no pierce on this layer */
-      CLEAR_FLAG (WARNFLAG, Pin);
-      CLEAR_PIP (layer, Pin);
-
-      POLYGON_LOOP (Layer);
-      {
-	if (TEST_FLAG (CLEARPOLYFLAG, polygon) &&
-	    DoPIPFlags (Pin, Element, Layer, polygon, layer))
-	  break;
-      }
-      END_LOOP;
-      new_flags = Pin->Flags;
-      if (!FLAGS_EQUAL (new_flags, old_flags))
-	{
-	  Pin->Flags = old_flags;
-	  if (AddUndo)
-	    {
-	      if (Pin == (PinTypePtr) Element)
-		AddObjectToFlagUndoList (VIA_TYPE, Pin, Pin, Pin);
-	      else
-		AddObjectToFlagUndoList (PIN_TYPE, Element, Pin, Pin);
-	    }
-	  Pin->Flags = new_flags;
-	}
-    }
 }
 
-static Boolean
-DoPIPFlags (PinTypePtr Pin, ElementTypePtr Element,
-	    LayerTypePtr Layer, PolygonTypePtr Polygon, int LayerPIP)
+struct hole_info
 {
-  float wide;
-
-  if (TEST_FLAG (SQUAREFLAG, Pin))
-    wide = (Pin->Thickness + Pin->Clearance) * M_SQRT1_2;
-  else
-    wide = (Pin->Thickness + Pin->Clearance) * 0.5;
-  if (IsPointInPolygon (Pin->X, Pin->Y, wide, Polygon))
-    {
-      if (TEST_FLAG (HOLEFLAG, Pin) && !TEST_FLAG (WARNFLAG, Pin))
-	{
-	  Message
-	    (_("Warning! Unplated hole piercing or too close to polygon\n"));
-	  SET_FLAG (WARNFLAG, Pin);
-	}
-      if (!TEST_FLAG (CLEARPOLYFLAG, Polygon))
-	return False;
-      SET_PIP (LayerPIP, Pin);
-      return True;
-    }
-  return False;
-}
-
-struct plow_info
-{
-  int type, PIPflag;
   LayerTypePtr layer;
-  Cardinal group, component, solder;
-  PolygonTypePtr polygon;
   const BoxType *range;
-  int (*callback) (int, void *, void *, void *, LayerTypePtr, PolygonTypePtr);
+  int (*callback) (PLINE *, LayerTypePtr, PolygonTypePtr);
   jmp_buf env, env0;
 };
 
 static int
-plow_callback (const BoxType * b, void *cl)
+hole_callback (const BoxType * b, void *cl)
 {
-  struct plow_info *plow = (struct plow_info *) cl;
-  int r = 0;
-
-  switch (plow->type)
-    {
-    case LINE_TYPE:
-      {
-	LineTypePtr line = (LineTypePtr) b;
-	if (!TEST_FLAG (CLEARLINEFLAG, line))
-	  return 0;
-	CLEAR_FLAG (CLEARLINEFLAG, line);
-	line->Thickness += line->Clearance;
-	if (IsLineInPolygon (line, plow->polygon))
-	  {
-	    line->Thickness -= line->Clearance;
-	    SET_FLAG (CLEARLINEFLAG, line);
-	    r = plow->callback (LINE_TYPE, plow->layer, line, line,
-				plow->layer, plow->polygon);
-	    line->Thickness += line->Clearance;
-	  }
-	SET_FLAG (CLEARLINEFLAG, line);
-	line->Thickness -= line->Clearance;
-	break;
-      }
-    case ARC_TYPE:
-      {
-	ArcTypePtr arc = (ArcTypePtr) b;
-	if (!TEST_FLAG (CLEARLINEFLAG, arc))
-	  return 0;
-	CLEAR_FLAG (CLEARLINEFLAG, arc);
-	arc->Thickness += arc->Clearance;
-	if (IsArcInPolygon (arc, plow->polygon))
-	  {
-	    arc->Thickness -= arc->Clearance;
-	    SET_FLAG (CLEARLINEFLAG, arc);
-	    r = plow->callback (ARC_TYPE, plow->layer, arc, arc,
-				plow->layer, plow->polygon);
-	    arc->Thickness += arc->Clearance;
-	  }
-	SET_FLAG (CLEARLINEFLAG, arc);
-	arc->Thickness -= arc->Clearance;
-	break;
-      }
-    case VIA_TYPE:
-    case PIN_TYPE:
-      {
-	PinTypePtr pin = (PinTypePtr) b;
-	if (!TEST_FLAG (HOLEFLAG, pin) && TEST_PIP (plow->PIPflag, pin))
-	  {
-	    r = plow->callback (plow->type, plow->type == PIN_TYPE ?
-				pin->Element : pin, pin, pin, plow->layer,
-				plow->polygon);
-	  }
-	break;
-      }
-    case PAD_TYPE:
-      {
-	PadTypePtr pad = (PadTypePtr) b;
-	if ((TEST_FLAG (ONSOLDERFLAG, pad)) ==
-	    (plow->group == plow->solder ? True : False))
-	  {
-	    pad->Thickness += pad->Clearance;
-	    if (IsPadInPolygon (pad, plow->polygon))
-	      {
-		pad->Thickness -= pad->Clearance;
-		r = plow->callback (PAD_TYPE, pad->Element, pad, pad,
-				    plow->layer, plow->polygon);
-		pad->Thickness += pad->Clearance;
-	      }
-	    pad->Thickness -= pad->Clearance;
-	  }
-	break;
-      }
-    default:
-      Message ("hace: bad plow tree callback\n");
-      return 0;
-    }
-  if (r)
-    {
-      longjmp (plow->env, 1);
-    }
-  return 0;
-}
-
-
-static int
-poly_plows_callback (const BoxType * b, void *cl)
-{
+  struct hole_info *hole = (struct hole_info *) cl;
   PolygonTypePtr polygon = (PolygonTypePtr) b;
-  struct plow_info *info = (struct plow_info *) cl;
-  BoxType sb;
+  POLYAREA *pa;
+  PLINE *pl;
 
-  if (!TEST_FLAG (CLEARPOLYFLAG, polygon))
-    return 0;
-  /* minimize the search box */
-  sb = polygon->BoundingBox;
-  MAKEMAX (sb.X1, info->range->X1);
-  MAKEMIN (sb.X2, info->range->X2);
-  MAKEMAX (sb.Y1, info->range->Y1);
-  MAKEMIN (sb.Y2, info->range->Y2);
-  info->polygon = polygon;
-  GROUP_LOOP (info->group);
-  {
-    info->type = LINE_TYPE;
-    if (setjmp (info->env) == 0)
-      r_search (layer->line_tree, &sb, NULL, plow_callback, info);
-    else
-      longjmp (info->env0, 1);
-    info->type = ARC_TYPE;
-    if (setjmp (info->env) == 0)
-      r_search (layer->arc_tree, &sb, NULL, plow_callback, info);
-    else
-      longjmp (info->env0, 1);
-  }
-  END_LOOP;
-  info->type = VIA_TYPE;
-  if (setjmp (info->env) == 0)
-    r_search (PCB->Data->via_tree, &sb, NULL, plow_callback, info);
-  else
-    longjmp (info->env0, 1);
-  info->type = PIN_TYPE;
-  if (setjmp (info->env) == 0)
-    r_search (PCB->Data->pin_tree, &sb, NULL, plow_callback, info);
-  else
-    longjmp (info->env0, 1);
-  if (info->group != info->solder && info->group != info->component)
-    return 0;
-  info->type = PAD_TYPE;
-  if (setjmp (info->env) == 0)
-    r_search (PCB->Data->pad_tree, &sb, NULL, plow_callback, info);
-  else
-    return 1;
+  pa = polygon->Clipped;
+  do
+    {
+      for (pl = pa->contours->next; pl; pl = pl->next)
+	{
+	  if (pl->xmin > hole->range->X2 || pl->xmax < hole->range->X1 ||
+	      pl->ymin > hole->range->Y2 || pl->ymax < hole->range->Y1)
+	    continue;
+	  if (hole->callback (pl, hole->layer, polygon))
+	    {
+	      longjmp (hole->env, 1);
+	    }
+	}
+    }
+  while ((pa = pa->f) != polygon->Clipped);
   return 0;
 }
 
-/* find everything within range clearing an actual polygon 
- * then call the callback function for it. If the callback
- * returns non-zero, stop the search.
+/* find polygon holes in range, then call the callback function for
+ * each hole. If the callback returns non-zero, stop
+ * the search.
  */
 int
-PolygonPlows (int group, const BoxType * range,
-	      int (*any_call) (int type, void *ptr1, void *ptr2, void *ptr3,
+PolygonHoles (int group, const BoxType * range,
+	      int (*any_call) (PLINE * contour,
 			       LayerTypePtr lay, PolygonTypePtr poly))
 {
-  struct plow_info info;
+  struct hole_info info;
 
-  info.group = group;
-  info.component = GetLayerGroupNumberByNumber (max_layer + COMPONENT_LAYER);
-  info.solder = GetLayerGroupNumberByNumber (max_layer + SOLDER_LAYER);
   info.callback = any_call;
   info.range = range;
   GROUP_LOOP (group);
   {
     if (!layer->PolygonN)
       continue;
-    info.PIPflag = number;
     info.layer = layer;
     if (setjmp (info.env0) == 0)
-      r_search (layer->polygon_tree, range, NULL, poly_plows_callback, &info);
+      r_search (layer->polygon_tree, range, NULL, hole_callback, &info);
     else
       return 1;
   }
   END_LOOP;
   return 0;
+}
+
+struct plow_info
+{
+  ObjectArgType *object;
+  LayerTypePtr layer;
+  int (*callback) (LayerTypePtr, PolygonTypePtr, ObjectArgType *);
+};
+
+static int
+subtract_plow (LayerTypePtr Layer, PolygonTypePtr Polygon,
+	       ObjectArgType * Object)
+{
+#if BUGS
+  InitClip (Layer, Polygon);
+#else
+  switch (Object->type)
+    {
+    case PIN_TYPE:
+    case VIA_TYPE:
+      SubtractPin ((PinTypePtr) (Object->ptr2), Polygon);
+      return 1;
+    case LINE_TYPE:
+      SubtractLine ((LineTypePtr) (Object->ptr2), Polygon);
+      return 1;
+    }
+  return 0;
+#endif
+}
+
+static int
+add_plow (LayerTypePtr Layer, PolygonTypePtr Polygon, ObjectArgType * Object)
+{
+#if BUGS
+  if (Polygon->Clipped)
+    poly_Free (&Polygon->Clipped);
+  return 1;
+#else
+  switch (Object->type)
+    {
+    case PIN_TYPE:
+    case VIA_TYPE:
+      UnsubtractPin ((PinTypePtr) (Object->ptr2), Layer, Polygon);
+      return 1;
+    case LINE_TYPE:
+      UnsubtractLine ((LineTypePtr) (Object->ptr2), Layer, Polygon);
+      return 1;
+    }
+  return 0;
+#endif
+}
+
+static int
+plow_callback (const BoxType * b, void *cl)
+{
+  struct plow_info *plow = (struct plow_info *) cl;
+  PolygonTypePtr polygon = (PolygonTypePtr) b;
+
+  return plow->callback (plow->layer, polygon, plow->object);
+}
+
+int
+PlowsPolygon (ObjectArgType * object,
+	      int (*call_back) (LayerTypePtr lay, PolygonTypePtr poly,
+				ObjectArgType * object))
+{
+  BoxType sb = ((PinTypePtr) (object->ptr2))->BoundingBox;
+  int r = 0;
+  struct plow_info info;
+
+  info.object = object;
+  info.callback = call_back;
+  switch (object->type)
+    {
+    case PIN_TYPE:
+    case VIA_TYPE:
+      if (((PinTypePtr) (object->ptr2))->Clearance == 0)
+	return 0;
+      LAYER_LOOP (max_layer);
+      {
+	info.layer = layer;
+	r += r_search (layer->polygon_tree, &sb, NULL, plow_callback, &info);
+      }
+      END_LOOP;
+      break;
+    case LINE_TYPE:
+      if (!TEST_FLAG (CLEARLINEFLAG, (LineTypePtr) (object->ptr2)))
+	return 0;
+      GROUP_LOOP (GetLayerGroupNumberByPointer
+		  ((LayerTypePtr) (object->ptr1)));
+      {
+	info.layer = layer;
+	r += r_search (layer->polygon_tree, &sb, NULL, plow_callback, &info);
+      }
+      END_LOOP;
+      break;
+    }
+  return r;
+}
+
+void
+RestoreToPolygon (ObjectArgType * object)
+{
+  PlowsPolygon (object, add_plow);
+}
+
+void
+ClearFromPolygon (ObjectArgType * object)
+{
+  PlowsPolygon (object, subtract_plow);
+}
+
+Boolean
+isects (POLYAREA * a, PolygonTypePtr p)
+{
+  POLYAREA *r, *x;
+  Boolean ans;
+  x = p->Clipped->f;		/* save "extra" polygons */
+  p->Clipped->f = p->Clipped;	/* consider only "big" polygon */
+  poly_Boolean (a, p->Clipped, &r, PBO_ISECT);
+  p->Clipped->f = x;		/* restore "extra" polygons */
+  if (r)
+    {
+      ans = TRUE;
+      poly_Free (&r);
+    }
+  else
+    ans = FALSE;
+  /* argument may be register, so we must copy it */
+  x = a;
+  poly_Free (&x);
+  return ans;
+}
+
+
+Boolean
+IsPointInPolygon (LocationType X, LocationType Y, BDimension r,
+		  PolygonTypePtr p)
+{
+  POLYAREA *c;
+  r = max (r, 1);
+  if (!(c = CirclePoly (X, Y, r)))
+    return False;
+  return isects (c, p);
+}
+
+Boolean
+IsRectangleInPolygon (LocationType X1, LocationType Y1, LocationType X2,
+		      LocationType Y2, PolygonTypePtr p)
+{
+  POLYAREA *s;
+  if (!(s = RectPoly (X1, X2, Y1, Y2)))
+    return False;
+  return isects (s, p);
 }

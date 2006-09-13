@@ -23,7 +23,7 @@
 */
 
 #ifndef	_POLYBOOL_H
-#define	_POLYBOLL_H
+#define	_POLYBOOL_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -51,7 +51,7 @@ enum {
 #endif
 
 
-typedef long vertex[3];  /* longing point representation of
+typedef long vertex[2];  /* longing point representation of
                              coordinates */
 typedef vertex Vector;
 
@@ -75,7 +75,7 @@ struct CVCList
 {
     double angle;
     VNODE *parent;
-    CVCList *prev, *next;
+    CVCList *prev, *next, *head;
     char poly, side;
 };
 struct VNODE
@@ -168,7 +168,7 @@ enum PolygonBooleanOperation {
 };
 
 int poly_Boolean(const POLYAREA * a, const POLYAREA * b, POLYAREA ** res, int action);
-
+int SavePOLYAREA( POLYAREA *PA, char * fname);
 #ifdef __cplusplus
 }
 #endif

@@ -556,23 +556,24 @@ ChangeVia2ndSize (PinTypePtr Via)
 static void *
 ChangeViaClearSize (PinTypePtr Via)
 {
+  ObjectArgType obj;
   BDimension value = (Absolute) ? Absolute : Via->Clearance + Delta;
 
   if (TEST_FLAG (LOCKFLAG, Via))
     return (NULL);
-  value = MIN (MAX_LINESIZE, value);
-  if (value < 0)
-    value = 0;
-  if (Delta < 0 && value < PCB->Bloat * 2)
-    value = 0;
-  if ((Delta > 0 || Absolute) && value < PCB->Bloat * 2)
-    value = PCB->Bloat * 2 + 2;
+  value = MIN (MAX_LINESIZE, MAX (value, PCB->Bloat * 2 + 2));
+  if (Via->Clearance == value)
+    return NULL;
+  obj.type = PIN_TYPE;
+  obj.ptr1 = obj.ptr2 = obj.ptr3 = Via;
+  RestoreToPolygon (&obj);
   AddObjectToClearSizeUndoList (VIA_TYPE, Via, Via, Via);
   EraseVia (Via);
   r_delete_entry (PCB->Data->via_tree, (BoxType *) Via);
   Via->Clearance = value;
   SetPinBoundingBox (Via);
   r_insert_entry (PCB->Data->via_tree, (BoxType *) Via, 0);
+  ClearFromPolygon (&obj);
   DrawVia (Via, 0);
   Via->Element = NULL;
   return (Via);
@@ -616,17 +617,25 @@ ChangePinSize (ElementTypePtr Element, PinTypePtr Pin)
 static void *
 ChangePinClearSize (ElementTypePtr Element, PinTypePtr Pin)
 {
+  ObjectArgType obj;
   BDimension value = (Absolute) ? Absolute : Pin->Clearance + Delta;
 
   if (TEST_FLAG (LOCKFLAG, Pin))
     return (NULL);
   value = MIN (MAX_LINESIZE, MAX (value, PCB->Bloat * 2 + 2));
+  if (Pin->Clearance == value)
+    return NULL;
+  obj.type = PIN_TYPE;
+  obj.ptr1 = Element;
+  obj.ptr2 = obj.ptr3 = Pin;
+  RestoreToPolygon (&obj);
   AddObjectToClearSizeUndoList (PIN_TYPE, Element, Pin, Pin);
   ErasePin (Pin);
   r_delete_entry (PCB->Data->pin_tree, &Pin->BoundingBox);
   Pin->Clearance = value;
   /* SetElementBB updates all associated rtrees */
   SetElementBoundingBox (PCB->Data, Element, &PCB->Font);
+  ClearFromPolygon (&obj);
   DrawPin (Pin, 0);
   return (Pin);
 }
@@ -789,14 +798,19 @@ ChangeLineSize (LayerTypePtr Layer, LineTypePtr Line)
 static void *
 ChangeLineClearSize (LayerTypePtr Layer, LineTypePtr Line)
 {
+  ObjectArgType obj;
   BDimension value = (Absolute) ? Absolute : Line->Clearance + Delta;
 
   if (TEST_FLAG (LOCKFLAG, Line) || !TEST_FLAG (CLEARLINEFLAG, Line))
     return (NULL);
+  obj.type = LINE_TYPE;
+  obj.ptr1 = Layer;
+  obj.ptr2 = obj.ptr3 = Line;
   value = MIN (MAX_LINESIZE, MAX (value, PCB->Bloat * 2 + 2));
   if (value != Line->Clearance)
     {
       AddObjectToClearSizeUndoList (LINE_TYPE, Layer, Line, Line);
+      RestoreToPolygon (&obj);
       EraseLine (Line);
       r_delete_entry (Layer->line_tree, (BoxTypePtr) Line);
       Line->Clearance = value;
@@ -807,6 +821,7 @@ ChangeLineClearSize (LayerTypePtr Layer, LineTypePtr Line)
 	}
       SetLineBoundingBox (Line);
       r_insert_entry (Layer->line_tree, (BoxTypePtr) Line, 0);
+      ClearFromPolygon (&obj);
       DrawLine (Layer, Line, 0);
       return (Line);
     }
@@ -1142,11 +1157,18 @@ ChangeLayerName (LayerTypePtr Layer, char *Name)
 static void *
 ChangeLineJoin (LayerTypePtr Layer, LineTypePtr Line)
 {
+  ObjectArgType obj;
+
   if (TEST_FLAG (LOCKFLAG, Line))
     return (NULL);
   EraseLine (Line);
   AddObjectToFlagUndoList (LINE_TYPE, Layer, Line, Line);
+  obj.type = LINE_TYPE;
+  obj.ptr1 = Layer;
+  obj.ptr2 = obj.ptr3 = Line;
+  RestoreToPolygon (&obj);
   TOGGLE_FLAG (CLEARLINEFLAG, Line);
+  ClearFromPolygon (&obj);
   DrawLine (Layer, Line, 0);
   return (Line);
 }
@@ -1157,9 +1179,14 @@ ChangeLineJoin (LayerTypePtr Layer, LineTypePtr Line)
 static void *
 SetLineJoin (LayerTypePtr Layer, LineTypePtr Line)
 {
+  ObjectArgType obj;
   if (TEST_FLAG (LOCKFLAG, Line))
     return (NULL);
   EraseLine (Line);
+  obj.type = LINE_TYPE;
+  obj.ptr1 = Layer;
+  obj.ptr2 = obj.ptr3 = Line;
+  RestoreToPolygon (&obj);
   AddObjectToFlagUndoList (LINE_TYPE, Layer, Line, Line);
   SET_FLAG (CLEARLINEFLAG, Line);
   DrawLine (Layer, Line, 0);
@@ -1172,11 +1199,16 @@ SetLineJoin (LayerTypePtr Layer, LineTypePtr Line)
 static void *
 ClrLineJoin (LayerTypePtr Layer, LineTypePtr Line)
 {
+  ObjectArgType obj;
   if (TEST_FLAG (LOCKFLAG, Line))
     return (NULL);
   EraseLine (Line);
   AddObjectToFlagUndoList (LINE_TYPE, Layer, Line, Line);
   CLEAR_FLAG (CLEARLINEFLAG, Line);
+  obj.type = LINE_TYPE;
+  obj.ptr1 = Layer;
+  obj.ptr2 = obj.ptr3 = Line;
+  ClearFromPolygon (&obj);
   DrawLine (Layer, Line, 0);
   return (Line);
 }

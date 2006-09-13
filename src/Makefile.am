@@ -94,6 +94,10 @@ PCB_SRCS = \
 	parse_y.y \
 	polygon.c \
 	polygon.h \
+	polygon1.c \
+	polyarea.h \
+	polys.c \
+	polys.h \
 	puller.c \
 	print.c \
 	print.h \

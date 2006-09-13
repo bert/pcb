@@ -40,8 +40,20 @@ void GoToPreviousPoint (void);
 void ClosePolygon (void);
 void CopyAttachedPolygonToLayer (void);
 void UpdatePIPFlags (PinTypePtr, ElementTypePtr, LayerTypePtr, Boolean);
-int PolygonPlows (int group, const BoxType * range,
-		  int (*callback) (int, void *, void *, void *,
-				   LayerTypePtr, PolygonTypePtr));
+int PolygonHoles (int group, const BoxType * range,
+		  int (*callback) (PLINE *, LayerTypePtr, PolygonTypePtr));
+int PlowsPolygon (ObjectArgType *,
+		  int (*callback) (LayerTypePtr, PolygonTypePtr, ObjectArgType *));
 
+POLYAREA * CirclePoly(LocationType x, LocationType y, BDimension radius);
+POLYAREA * LinePoly(LineType *l, BDimension thick);
+POLYAREA * PinPoly(PinType *l, BDimension thick);
+int InitClip(LayerType *l, PolygonType *p);
+void RestoreToPolygon(ObjectArgType *);
+void ClearFromPolygon(ObjectArgType *);
+
+Boolean IsPointInPolygon (LocationType, LocationType, BDimension, PolygonTypePtr);
+Boolean IsRectangleInPolygon (LocationType, LocationType, LocationType,
+			      LocationType, PolygonTypePtr);
+Boolean isects (POLYAREA *, PolygonTypePtr);
 #endif
