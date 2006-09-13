@@ -42,6 +42,7 @@
 #include "mymem.h"
 #include "misc.h"
 #include "parse_l.h"
+#include "polys.h"
 #include "remove.h"
 #include "rtree.h"
 #include "strflags.h"
@@ -804,6 +805,7 @@ layerdefinition
 				if (Polygon->PointN >= 3)
 				  {
 				    SetPolygonBoundingBox (Polygon);
+				    InitClip (Layer, Polygon);
 				    if (!Layer->polygon_tree)
 				      Layer->polygon_tree = r_create_tree (NULL, 0, 0);
 				    r_insert_entry (Layer->polygon_tree, (BoxType *) Polygon, 0);
