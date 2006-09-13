@@ -220,21 +220,16 @@ int
 hid_parse_actions (const char *rstr,
 		   int (*function) (const char *, int, char **))
 {
-  static char **list = 0;
-  static int max = 0;
+  char **list = NULL;
+  int max = 0;
   int num = 0;
-  static char *str = NULL;
+  char *str = NULL;
   char *sp, *aname, *sp2;
   int maybe_empty = 0;
+  int retcode = 0;
 
   if (function == NULL)
     function = hid_actionv;
-
-  if (str != NULL)
-    {
-      free (str);
-      str = NULL;
-    }
 
   /*fprintf(stderr, "invoke: `%s'\n", rstr); */
 
@@ -244,12 +239,15 @@ another:
   /* eat leading spaces and tabs */
   while (*sp && isspace ((int) *sp))
     sp++;
-
+  
   if (!*sp)
-    return 0;
-
+    {
+      retcode = 0;
+      goto cleanup;
+    }
+  
   aname = sp;
-
+  
   /* search for the leading ( */
   while (*sp && *sp != '(')
     sp++;
@@ -261,10 +259,13 @@ another:
   if (!*sp)
     {
       if (function (aname, 0, 0))
-	return 1;
+        {
+          retcode = 1;
+          goto cleanup;
+        }
       goto another;
     }
-
+  
   /* 
    * we found a leading ( so see if we have parameters to pass to the
    * action 
@@ -280,7 +281,10 @@ another:
 	{
 	  *sp++ = 0;
 	  if (function (aname, num, list))
-	    return 1;
+	    {
+	      retcode = 1;
+	      goto cleanup;
+	    }
 	  goto another;
 	}
       else if (*sp == 0 && !maybe_empty)
@@ -304,7 +308,7 @@ another:
 	  while (*sp && isspace ((int) *sp))
 	    sp++;
 	  list[num++] = sp;
-
+	  
 	  /* search for a "," or a ")" */
 	  while (*sp && *sp != ',' && *sp != ')')
 	    sp++;
@@ -319,8 +323,16 @@ another:
 	    *sp2 = 0;
 	}
     }
-
-  return 0;
+  
+ cleanup:
+  
+  if (list != NULL)
+    free(list);
+  
+  if (str != NULL)
+    free (str);
+  
+  return retcode;
 }
 
 /* trick for the doc extractor */
