@@ -521,6 +521,12 @@ gerber_set_layer (const char *name, int group)
       sprintf (filesuff, spat, group);
       strcat (filesuff, sext);
       f = fopen (filename, "w");
+      if (f == NULL) 
+	{
+	  Message ( "Error:  Could not open %s for writing.\n", filename);
+	  return 1;
+	}
+
       was_drill = is_drill;
 
 #if 0
