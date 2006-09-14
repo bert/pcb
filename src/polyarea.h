@@ -143,6 +143,7 @@ BOOLp poly_ExclContour(POLYAREA * p, PLINE * c);
 BOOLp poly_ChkContour(PLINE * a);
 
 BOOLp poly_CheckInside(POLYAREA * c, Vector v0);
+BOOLp Touching(POLYAREA *p1, POLYAREA *p2);
 
 /**********************************************************************/
 

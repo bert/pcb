@@ -757,8 +757,8 @@ label_contour
  (C) 1997 Alexey Nikitin, Michael Leonov
 */
 
-static void
-label_contour (PLINE * a)
+static BOOLp 
+label_contour (PLINE * a, BOOLp test)
 {
   VNODE *cur = &a->head;
   int did_label, label = UNKNWN;
@@ -782,28 +782,39 @@ label_contour (PLINE * a)
 	  LABEL_NODE (cur, label);
 	  did_label = TRUE;
 	}
+	/* if testing for existence of intersection, report when found */
+      if (test && (label == INSIDE || label == SHARED))
+        return TRUE;
     }
   while ((cur = cur->next) != &a->head || did_label);
 #ifdef DEBUG
   print_labels (a);
   DEBUGP ("\n\n");
 #endif
+  return FALSE;
 }				/* label_contour */
 
-static void
-cntr_label_POLYAREA (PLINE * poly, POLYAREA * ppl)
+static BOOLp 
+cntr_label_POLYAREA (PLINE * poly, POLYAREA * ppl, BOOLp test)
 {
   assert (ppl != NULL && ppl->contours != NULL);
   if (poly->Flags.status == ISECTED)
-    label_contour (poly);
+   {
+    if (label_contour (poly, test))
+      return TRUE;
+   }
   else if (cntr_in_M_POLYAREA (poly, ppl))
-    poly->Flags.status = INSIDE;
+    {
+      poly->Flags.status = INSIDE;
+      if (test) return TRUE;
+    }
   else
     poly->Flags.status = OUTSIDE;
+  return FALSE;
 }				/* cntr_label_POLYAREA */
 
-static void
-M_POLYAREA_label (POLYAREA * afst, POLYAREA * b)
+static BOOLp 
+M_POLYAREA_label (POLYAREA * afst, POLYAREA * b, BOOLp test)
 {
   POLYAREA *a = afst;
   PLINE *curc;
@@ -812,9 +823,11 @@ M_POLYAREA_label (POLYAREA * afst, POLYAREA * b)
   do
     {
       for (curc = a->contours; curc != NULL; curc = curc->next)
-	cntr_label_POLYAREA (curc, b);
+	if (cntr_label_POLYAREA (curc, b, test))
+	  return TRUE;
     }
   while ((a = a->f) != afst);
+  return FALSE;
 }
 
 /****************************************************************/
@@ -1129,6 +1142,7 @@ Collect (jmp_buf * e, PLINE * a, POLYAREA ** contours, PLINE ** holes,
   while ((cur = cur->next) != &a->head);
 }				/* Collect */
 
+
 static void
 cntr_Collect (jmp_buf * e, PLINE * A, POLYAREA ** contours, PLINE ** holes,
 	      int action)
@@ -1292,6 +1306,49 @@ M_InitPolygon (POLYAREA * afst)
   while ((a = a->f) != afst);
 }				/* M_InitPolygon */
 
+BOOLp
+Touching (POLYAREA *p1, POLYAREA *p2)
+{
+  POLYAREA *a = NULL, *b = NULL;
+  PLINE *p = NULL;
+  jmp_buf e;
+  int code;
+
+  if ((code = setjmp (e)) == 0)
+    {
+      /* only the first polys are tested */
+      if (!poly_Copy0 (&a, p1) || !poly_Copy0 (&b, p2))
+	longjmp (e, err_no_memory);
+
+      /* prepare polygons */
+      M_InitPolygon (a);
+      M_InitPolygon (b);
+#ifdef DEBUG
+      if (!poly_Valid (a))
+	return -1;
+      if (!poly_Valid (b))
+	return -1;
+#endif
+      M_POLYAREA_intersect (&e, a, b);
+
+      if (M_POLYAREA_label (a, b, TRUE))
+      {
+        poly_Free (&a);
+        poly_Free (&b);
+        return TRUE;
+      }
+      if (M_POLYAREA_label (b, a, TRUE))
+      {
+        poly_Free (&a);
+        poly_Free (&b);
+        return TRUE;
+      }
+    }
+      poly_Free (&a);
+      poly_Free (&b);
+      return FALSE;
+}
+
 /* the main clipping routine */
 int
 poly_Boolean (const POLYAREA * a_org, const POLYAREA * b_org, POLYAREA ** res,
@@ -1320,8 +1377,8 @@ poly_Boolean (const POLYAREA * a_org, const POLYAREA * b_org, POLYAREA ** res,
 #endif
       M_POLYAREA_intersect (&e, a, b);
 
-      M_POLYAREA_label (a, b);
-      M_POLYAREA_label (b, a);
+      M_POLYAREA_label (a, b, FALSE);
+      M_POLYAREA_label (b, a, FALSE);
 
       M_POLYAREA_Collect (&e, a, res, &holes, action);
       M_B_AREA_Collect (&e, b, res, &holes, action);
