@@ -96,8 +96,6 @@ PCB_SRCS = \
 	polygon.h \
 	polygon1.c \
 	polyarea.h \
-	polys.c \
-	polys.h \
 	puller.c \
 	print.c \
 	print.h \
