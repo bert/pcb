@@ -1,4 +1,3 @@
-#include <stdio.h>
 /*
        polygon clipping functions. harry eaton implemented the algorithm
        described in "A Closed Set of Algorithms for Performing Set
@@ -42,11 +41,13 @@
 
 #include	<assert.h>
 #include	<stdlib.h>
+#include	<stdio.h>
 #include	<setjmp.h>
 #include	<math.h>
 #include	<string.h>
-
+#include "polyarea.h"
 #include "rtree.h"
+
 #define ROUND(a) (long)((a) > 0 ? ((a) + 0.5) : ((a) - 0.5))
 
 #define EPSILON (1E-8)
@@ -85,18 +86,9 @@ int vect_inters2 (Vector A, Vector B, Vector C, Vector D, Vector S1,
 #define SHARED2 4
 
 #define NODE_LABEL(n)  ((n)->Flags.status)
+#define LABEL_NODE(n,l) ((n)->Flags.status = (l))
 
 #define error(code) longjmp(*(e), code)
-//#define LABEL_NODE(n,l) ((n)->Flags.status = (l))
-static int
-LABEL_NODE (VNODE * n, int l)
-{
-  n->Flags.status = l;
-  return l;
-}
-
-#define NODE_LABEL(n) ((n)->Flags.status)
-
 
 #define MemGet(ptr, type) \
 if (((ptr) = malloc(sizeof(type))) == NULL) \
@@ -261,8 +253,11 @@ insert_descriptor (VNODE * a, char poly, char side, CVCList * start)
 	    }
 	  if (l->head->parent->point[0] == start->parent->point[0]
 	      && l->head->parent->point[1] == start->parent->point[1])
-	    {			/* this seems to be a new point */
-	      l->head = new;	/* link this cvc to the list of all cvcs */
+	    {
+        /* this seems to be a new point */
+	/* link this cvclist to the list of all cvclists */
+	      for ( ; l->head != new; l = l->next)
+                l->head = new;
 	      new->head = start;
 	      return new;
 	    }
@@ -528,7 +523,7 @@ seg_in_region (const BoxType * b, void *cl)
   y2 = i->m * b->X2 + i->b;
   if (min (y1, y2) >= b->Y2)
     return 0;
-  if (max (y1, y2) <= b->Y1)
+  if (max (y1, y2) < b->Y1)
     return 0;
   return 1;			/* might intersect */
 }
@@ -565,8 +560,8 @@ seg_in_seg (const BoxType * b, void *cl)
 	return 1;		/* error */
       /* if we added a node in the tree we need to change the tree */
       if ((res & 1) && adjust_tree (i, s))
-	return 1;
-      if (res & 2)		/* if a point was inserted in A we need to start over too */
+        return 1;
+      if (res & 2) /* if a point was inserted in A, start over too */ 
 	longjmp (i->env, 1);
     }
   return 0;
@@ -645,7 +640,7 @@ intersect (POLYAREA * a, POLYAREA * b)
 	    box.Y1 = min (av->next->point[1], av->point[1]);
 	    box.Y2 = max (av->next->point[1], av->point[1]) + 1;
 	    if (r_search (info.tree, &box, seg_in_region, seg_in_seg, &info))
-	      return -1;	/* error */
+	      return err_no_memory;	/* error */
 	  }
 	while ((av = av->next) != &pa->head);
       }
