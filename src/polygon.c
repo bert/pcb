@@ -128,8 +128,8 @@ original_poly (PolygonType * p)
   *(v + 2) = 0;
   POLYGONPOINT_LOOP (p);
   {
-    *v = point->X;
-    *(v + 1) = point->Y;
+    v[0] = point->X;
+    v[1] = point->Y;
     if (contour == NULL)
       {
 	if ((contour = poly_NewContour (v)) == NULL)
@@ -182,19 +182,18 @@ RectPoly (LocationType x1, LocationType x2, LocationType y1, LocationType y2)
 
   assert (x2 > x1);
   assert (y2 > y1);
-  *(v) = x1;
-  *(v + 1) = y1;
-  *(v + 2) = 0;
+  v[0] = x1;
+  v[1] = y1;
   if ((contour = poly_NewContour (v)) == NULL)
     return NULL;
-  *(v) = x2;
-  *(v + 1) = y1;
+  v[0] = x2;
+  v[1] = y1;
   poly_InclVertex (contour->head.prev, poly_CreateNode (v));
-  *(v) = x2;
-  *(v + 1) = y2;
+  v[0] = x2;
+  v[1] = y2;
   poly_InclVertex (contour->head.prev, poly_CreateNode (v));
-  *(v) = x1;
-  *(v + 1) = y2;
+  v[0] = x1;
+  v[1] = y2;
   poly_InclVertex (contour->head.prev, poly_CreateNode (v));
   return ContourToPoly (contour);
 }
@@ -208,36 +207,35 @@ CirclePoly (LocationType x, LocationType y, BDimension radius)
   Vector v;
   int i;
 
-  *(v) = x + radius;
-  *(v + 1) = y;
-  *(v + 2) = 0;
+  v[0] = x + radius;
+  v[1] = y;
   if ((contour = poly_NewContour (v)) == NULL)
     return NULL;
   for (i = 2; i < 20;)
     {
-      *v = x + circleVerticies[i++] * radius;
-      *(v + 1) = y + circleVerticies[i++] * radius;
+      v[0] = x + circleVerticies[i++] * radius;
+      v[1] = y + circleVerticies[i++] * radius;
       poly_InclVertex (contour->head.prev, poly_CreateNode (v));
       i += COARSE_CIRCLE;
     }
   for (i = 17; i > 0;)
     {
-      *(v + 1) = y + circleVerticies[i--] * radius;
-      *(v) = x - circleVerticies[i--] * radius;
+      v[1] = y + circleVerticies[i--] * radius;
+      v[0] = x - circleVerticies[i--] * radius;
       poly_InclVertex (contour->head.prev, poly_CreateNode (v));
       i -= COARSE_CIRCLE;
     }
   for (i = 2; i < 20;)
     {
-      *(v) = x - circleVerticies[i++] * radius;
-      *(v + 1) = y - circleVerticies[i++] * radius;
+      v[0] = x - circleVerticies[i++] * radius;
+      v[1] = y - circleVerticies[i++] * radius;
       poly_InclVertex (contour->head.prev, poly_CreateNode (v));
       i += COARSE_CIRCLE;
     }
   for (i = 17; i > 2;)
     {
-      *(v + 1) = y - circleVerticies[i--] * radius;
-      *(v) = x + circleVerticies[i--] * radius;
+      v[1] = y - circleVerticies[i--] * radius;
+      v[0] = x + circleVerticies[i--] * radius;
       poly_InclVertex (contour->head.prev, poly_CreateNode (v));
       i -= COARSE_CIRCLE;;
     }
@@ -262,19 +260,18 @@ LinePoly (LineType * l, BDimension thick)
   d = half / d;
   dx = (l->Point1.Y - l->Point2.Y) * d;
   dy = (l->Point2.X - l->Point1.X) * d;
-  *(v + 2) = 0;
-  *v = l->Point1.X + dx;
-  *(v + 1) = l->Point1.Y + dy;
+  v[0] = l->Point1.X + dx;
+  v[1] = l->Point1.Y + dy;
   if ((contour = poly_NewContour (v)) == NULL)
     return 0;
-  *v = l->Point1.X - dx;
-  *(v + 1) = l->Point1.Y - dy;
+  v[0] = l->Point1.X - dx;
+  v[1] = l->Point1.Y - dy;
   poly_InclVertex (contour->head.prev, poly_CreateNode (v));
-  *v = l->Point2.X - dx;
-  *(v + 1) = l->Point2.Y - dy;
+  v[0] = l->Point2.X - dx;
+  v[1] = l->Point2.Y - dy;
   poly_InclVertex (contour->head.prev, poly_CreateNode (v));
-  *v = l->Point2.X + dx;
-  *(v + 1) = l->Point2.Y + dy;
+  v[0] = l->Point2.X + dx;
+  v[1] = l->Point2.Y + dy;
   poly_InclVertex (contour->head.prev, poly_CreateNode (v));
   /* now we have the line squared-end contour */
   if (!(np = ContourToPoly (contour)))
