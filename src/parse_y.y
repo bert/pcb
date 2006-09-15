@@ -42,7 +42,7 @@
 #include "mymem.h"
 #include "misc.h"
 #include "parse_l.h"
-#include "polys.h"
+#include "polygon.h"
 #include "remove.h"
 #include "rtree.h"
 #include "strflags.h"
