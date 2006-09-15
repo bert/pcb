@@ -1017,3 +1017,91 @@ IsRectangleInPolygon (LocationType X1, LocationType Y1, LocationType X2,
     return False;
   return isects (s, p);
 }
+
+void
+NoHolesPolygonDicer (PLINE *p, void (*emit) (PolygonTypePtr))
+{
+  POLYAREA pa;
+
+  pa.f = pa.b = &pa;
+  pa.contours = p;
+  if (!p->next) /* no holes */
+  {
+    PolygonType poly;
+    PointType pts[4];
+
+    poly.BoundingBox.X1 = p->xmin;
+    poly.BoundingBox.X2 = p->xmax;
+    poly.BoundingBox.Y1 = p->ymin;
+    poly.BoundingBox.Y2 = p->ymax;
+    poly.PointN = poly.PointMax = 4;
+    poly.Clipped = &pa;
+    poly.Points = pts;
+    pts[0].X = pts[0].X2 = p->xmin;
+    pts[0].Y = pts[0].Y2 = p->ymin;
+    pts[1].X = pts[1].X2 = p->xmax;
+    pts[1].Y = pts[1].Y2 = p->ymin;
+    pts[2].X = pts[2].X2 = p->xmax;
+    pts[2].Y = pts[2].Y2 = p->ymax;
+    pts[3].X = pts[3].X2 = p->xmin;
+    pts[3].Y = pts[3].Y2 = p->ymax;
+    poly.Flags = MakeFlags (CLEARPOLYFLAG);
+    emit(&poly);
+    return;
+  }
+  else
+  {
+    POLYAREA poly2, *res;
+    PLINE slice;
+    VNODE v[3];
+
+    poly_IniContour (&slice);
+    slice.head.next = v[1].prev = &v[0];
+    v[0].next = v[2].prev = &v[1];
+    v[1].next = slice.head.prev = &v[2];
+    v[2].next = v[0].prev = &slice.head;
+    /* make a rectangle of the left region slicing through the middle of the first hole */
+    slice.head.point[0] = slice.xmax = (p->next->xmin + p->next->xmax)/2;
+    slice.head.point[1] = slice.ymax = p->ymax;
+    v[0].point[0] = slice.xmin = p->xmin;
+    v[0].point[1] = slice.ymax;
+    v[1].point[0] = slice.xmin;
+    v[1].point[1] = slice.ymin = p->ymin;
+    v[2].point[0] = slice.xmax;
+    v[2].point[1] = slice.ymin;
+    slice.Count = 4;
+    slice.Flags.orient = PLF_DIR;
+    poly2.f = poly2.b = &poly2;
+    poly2.contours = &slice;
+    res = NULL;
+    poly_Boolean(&poly2, &pa, &res, PBO_ISECT);
+    if (res)
+      {
+	POLYAREA *x;
+	x = res;
+	do
+	  {
+             PLINE *pl = x->contours;
+             NoHolesPolygonDicer(pl, emit);
+	  } while ((x = x->f) != res);
+	poly_Free(&res);
+      }
+    /* make a rectangle of the right region slicing through the middle of the first hole */
+    slice.head.point[0] = slice.xmax = p->xmax;
+    v[0].point[0] = slice.xmin = (p->next->xmin + p->next->xmax)/2;
+    v[1].point[0] = slice.xmin;
+    v[2].point[0] = slice.xmax;
+    poly_Boolean(&poly2, &pa, &res, PBO_ISECT);
+    if (res)
+      {
+	POLYAREA *x;
+	x = res;
+	do
+	  {
+             PLINE *pl = x->contours;
+             NoHolesPolygonDicer(pl, emit);
+	  } while ((x = x->f) != res);
+	poly_Free(&res);
+      }
+  }
+}
