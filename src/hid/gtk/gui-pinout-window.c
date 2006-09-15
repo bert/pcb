@@ -89,7 +89,7 @@ pinout_new (ElementType * element)
      |  move element to a 5% offset from zero position
      |  set all package lines/arcs to zero with
    */
-  CopyElementLowLevel (NULL, &pinout->element, element, FALSE);
+  CopyElementLowLevel (NULL, &pinout->element, element, FALSE, 0, 0);
   PIN_LOOP (&pinout->element);
   {
     tx = abs (pinout->element.Pin[0].X - pin->X);
