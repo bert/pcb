@@ -589,6 +589,7 @@ CreateNewPolygon (LayerTypePtr Layer, FlagType Flags)
   /* copy values */
   polygon->Flags = Flags;
   polygon->ID = ID++;
+  polygon->Clipped = NULL;
   return (polygon);
 }
 
