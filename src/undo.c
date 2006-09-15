@@ -1190,7 +1190,7 @@ AddObjectToCreateUndoList (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
   obj.ptr1 = Ptr1;
   obj.ptr2 = Ptr2;
   obj.ptr3 = Ptr3;
-  ClearFromPolygon (&obj);
+  ClearFromPolygon (PCB->Data, &obj);
 }
 
 /* ---------------------------------------------------------------------------

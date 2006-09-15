@@ -161,7 +161,7 @@ SetPinBoundingBox (PinTypePtr Pin)
    * so it must include the clearance values too
    */
   width = (Pin->Clearance + Pin->Thickness + 1 +
-  (Pin->Thickness - Pin->DrillingHole)*PCB->ThermScale)/2;
+	   (Pin->Thickness - Pin->DrillingHole) * PCB->ThermScale) / 2;
   width = MAX (width, (Pin->Mask + 1) / 2);
   Pin->BoundingBox.X1 = Pin->X - width;
   Pin->BoundingBox.Y1 = Pin->Y - width;
@@ -249,7 +249,7 @@ SetElementBoundingBox (DataTypePtr Data, ElementTypePtr Element,
   END_LOOP;
 
   /* do not include the elementnames bounding box which
-   * is handles separately
+   * is handled separately
    */
   box = &Element->BoundingBox;
   vbox = &Element->VBox;
@@ -723,13 +723,13 @@ ParseGroupString (char *s, LayerGroupTypePtr LayerGroup, int LayerN)
   int group, member, layer;
   Boolean c_set = False,	/* flags for the two special layers to */
     s_set = False;		/* provide a default setting for old formats */
-  int groupnum[MAX_LAYER+2];
+  int groupnum[MAX_LAYER + 2];
 
   /* clear struct */
   memset (LayerGroup, 0, sizeof (LayerGroupType));
 
   /* Clear assignments */
-  for (layer=0; layer<MAX_LAYER+2; layer++)
+  for (layer = 0; layer < MAX_LAYER + 2; layer++)
     groupnum[layer] = -1;
 
   /* loop over all groups */
@@ -791,12 +791,12 @@ ParseGroupString (char *s, LayerGroupTypePtr LayerGroup, int LayerN)
       Entries[COMPONENT_LAYER][LayerGroup->Number[COMPONENT_LAYER]++] =
       LayerN + COMPONENT_LAYER;
 
-  for (layer=0; layer<LayerN && group < LayerN; layer++)
+  for (layer = 0; layer < LayerN && group < LayerN; layer++)
     if (groupnum[layer] == -1)
       {
 	LayerGroup->Entries[group][0] = layer;
 	LayerGroup->Number[group] = 1;
-	group ++;
+	group++;
       }
   return (0);
 
@@ -1853,7 +1853,7 @@ pcb_author (void)
 
 
 const char *
-c_dtostr(double d)
+c_dtostr (double d)
 {
   static char buf[100];
   int i, f;
@@ -1864,20 +1864,20 @@ c_dtostr(double d)
       *bufp++ = '-';
       d = -d;
     }
-  d += 0.0000005; /* rounding */
-  i = floor(d);
+  d += 0.0000005;		/* rounding */
+  i = floor (d);
   d -= i;
-  sprintf(bufp, "%d", i);
-  bufp += strlen(bufp);
+  sprintf (bufp, "%d", i);
+  bufp += strlen (bufp);
   *bufp++ = '.';
 
-  f = floor(d*1000000.0);
-  sprintf(bufp, "%06d", f);
+  f = floor (d * 1000000.0);
+  sprintf (bufp, "%06d", f);
   return buf;
 }
 
 double
-c_strtod(const char *s)
+c_strtod (const char *s)
 {
   double rv = 0;
   double sign = 1.0;
@@ -1921,22 +1921,43 @@ c_strtod(const char *s)
   if (*s == 'E' || *s == 'e')
     {
       int e;
-      if (sscanf(s+1, "%d", &e) == 1)
+      if (sscanf (s + 1, "%d", &e) == 1)
 	{
 	  scale = 1.0;
 	  while (e > 0)
 	    {
 	      scale *= 10.0;
-	      e --;
+	      e--;
 	    }
 	  while (e < 0)
 	    {
 	      scale *= 0.1;
-	      e ++;
+	      e++;
 	    }
 	  rv *= scale;
 	}
     }
 
   return rv * sign;
+}
+
+void
+r_delete_element (DataType * data, ElementType * element)
+{
+  r_delete_entry (data->element_tree, (BoxType *) element);
+  PIN_LOOP (element);
+  {
+    r_delete_entry (data->pin_tree, (BoxType *) pin);
+  }
+  END_LOOP;
+  PAD_LOOP (element);
+  {
+    r_delete_entry (data->pad_tree, (BoxType *) pad);
+  }
+  END_LOOP;
+  ELEMENTTEXT_LOOP (element);
+  {
+    r_delete_entry (data->name_tree[n], (BoxType *) text);
+  }
+  END_LOOP;
 }

@@ -555,7 +555,7 @@ extern int mem_any_set (unsigned char *, int);
 	{					\
 		entry = &(top)->Entry[n]
 
-#define GROUP_LOOP(group) do { 	\
+#define GROUP_LOOP(data, group) do { 	\
 	Cardinal entry; \
         for (entry = 0; entry < PCB->LayerGroups.Number[(group)]; entry++) \
         { \
@@ -564,12 +564,11 @@ extern int mem_any_set (unsigned char *, int);
 		number = PCB->LayerGroups.Entries[(group)][entry]; \
 		if (number >= max_layer)	\
 		  continue;			\
-		layer = LAYER_PTR (number)
+		layer = &data->Layer[number];
 
-#define LAYER_LOOP(ml) do { \
+#define LAYER_LOOP(data, ml) do { \
         Cardinal n; \
 	for (n = 0; n < ml; n++) \
 	{ \
-	   LayerTypePtr layer; \
-	   layer = LAYER_PTR (n);
+	   LayerTypePtr layer = (&data->Layer[(n)]);
 #endif

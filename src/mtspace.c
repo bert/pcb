@@ -164,18 +164,6 @@ struct coalesce_closure
   jmp_buf env;
 };
 
-#if 0
-/* not used */
-static int
-boxtype (mtspacebox_t * mtsb)
-{
-  assert (__mtspace_box_is_good (mtsb));
-  return
-    ((mtsb->fixed_count > 0) ? 1 : 0) |
-    ((mtsb->even_count > 0) ? 2 : 0) | ((mtsb->odd_count > 0) ? 4 : 0);
-}
-#endif
-
 /* look at last element in add_vec to see if it can be coalesced with
  * adjacent rectangles.  If it can, add the adjacent rectangle to the
  * remove_vec and replace the item in add_vec with the coalesced rect.
@@ -429,7 +417,6 @@ mtspace_mutate (mtspace_t * mtspace,
     (&bloated, which == FIXED ? 1 : 0, which == EVEN ? 1 : 0,
      which == ODD ? 1 : 0);
   cc.mtsb->keepaway = keepaway;
-  assert (boxtype (cc.mtsb) != 0);
   /* take a chunk out of anything which intersects our clipped bloated box */
   mtspace_remove_chunk (mtspace, &cc);
   free (cc.mtsb);
@@ -511,7 +498,6 @@ query_one (const BoxType * box, void *cl)
       else
 	{
 	  /* no conflict! */
-	  assert (boxtype (mtsb) == 0);
 	  vector_append (qc->free_space_vec, shrunk);
 	}
       return 1;

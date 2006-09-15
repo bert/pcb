@@ -47,6 +47,7 @@
 #include "mymem.h"
 #include "misc.h"
 #include "parse_l.h"
+#include "polygon.h"
 #include "rtree.h"
 #include "search.h"
 #include "set.h"

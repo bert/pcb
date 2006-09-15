@@ -424,7 +424,7 @@ drc_lines (PointTypePtr end, Boolean way)
 		    r_search (PCB->Data->pad_tree, &line2.BoundingBox, NULL,
 			      drcPad_callback, &info);
 		}
-	      GROUP_LOOP (group);
+	      GROUP_LOOP (PCB->Data, group);
 	      {
 		info.line = &line1;
 		r_search (layer->line_tree, &line1.BoundingBox, NULL,

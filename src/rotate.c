@@ -217,6 +217,7 @@ void
 RotateElementLowLevel (DataTypePtr Data, ElementTypePtr Element,
 		       LocationType X, LocationType Y, BYTE Number)
 {
+  ObjectArgType obj;
   /* solder side objects need a different orientation */
 
   /* the text subroutine decides by itself if the direction
@@ -234,14 +235,16 @@ RotateElementLowLevel (DataTypePtr Data, ElementTypePtr Element,
     RotateLineLowLevel (line, X, Y, Number);
   }
   END_LOOP;
+  obj.type = PIN_TYPE;
+  obj.ptr1 = Element;
   PIN_LOOP (Element);
   {
     /* pre-delete the pins from the pin-tree before their coordinates change */
     if (Data)
       r_delete_entry (Data->pin_tree, (BoxType *) pin);
+    obj.ptr2 = obj.ptr3 = pin;
+    RestoreToPolygon (Data, &obj);
     ROTATE_PIN_LOWLEVEL (pin, X, Y, Number);
-    if (PCB->Data == Data)
-      UpdatePIPFlags (pin, Element, NULL, True);
   }
   END_LOOP;
   PAD_LOOP (Element);
@@ -249,6 +252,8 @@ RotateElementLowLevel (DataTypePtr Data, ElementTypePtr Element,
     /* pre-delete the pads before their coordinates change */
     if (Data)
       r_delete_entry (Data->pad_tree, (BoxType *) pad);
+    obj.ptr2 = obj.ptr3 = pad;
+    RestoreToPolygon (Data, &obj);
     ROTATE_PAD_LOWLEVEL (pad, X, Y, Number);
   }
   END_LOOP;
@@ -258,8 +263,11 @@ RotateElementLowLevel (DataTypePtr Data, ElementTypePtr Element,
   }
   END_LOOP;
   ROTATE (Element->MarkX, Element->MarkY, X, Y, Number);
-  /* SetElementBoundingBox reenters the pins/pads into their trees */
+  /* SetElementBoundingBox reenters the rtree data */
   SetElementBoundingBox (Data, Element, &PCB->Font);
+  obj.type = ELEMENT_TYPE;
+  obj.ptr1 = obj.ptr2 = obj.ptr3 = Element;
+  ClearFromPolygon (Data, &obj);
 }
 
 /* ---------------------------------------------------------------------------

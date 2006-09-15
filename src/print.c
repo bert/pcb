@@ -182,7 +182,7 @@ drill_sym (int idx, int x, int y)
 }
 
 static int
-count_drill_lines(DrillInfoTypePtr AllDrills)
+count_drill_lines (DrillInfoTypePtr AllDrills)
 {
   int n, ds = 0;
   for (n = AllDrills->DrillN - 1; n >= 0; n--)
@@ -198,12 +198,13 @@ count_drill_lines(DrillInfoTypePtr AllDrills)
 
 
 int
-PrintFab_overhang(void)
+PrintFab_overhang (void)
 {
   DrillInfoTypePtr AllDrills = GetDrillInfo (PCB->Data);
-  int ds = count_drill_lines(AllDrills);
-  if (ds < 4) ds = 4;
-  return (ds+2) * TEXT_LINE;
+  int ds = count_drill_lines (AllDrills);
+  if (ds < 4)
+    ds = 4;
+  return (ds + 2) * TEXT_LINE;
 }
 
 void
@@ -220,7 +221,7 @@ PrintFab (void)
   yoff = -TEXT_LINE;
 
   /* count how many drill description lines will be needed */
-  ds = count_drill_lines(AllDrills);
+  ds = count_drill_lines (AllDrills);
 
   /*
    * When we only have a few drill sizes we need to make sure the

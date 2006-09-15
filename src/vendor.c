@@ -102,11 +102,10 @@ static int rounding_method = ROUND_UP;
 
 /* ************************************************************ */
 
-static const char apply_vendor_syntax[] =
-"ApplyVendor()";
+static const char apply_vendor_syntax[] = "ApplyVendor()";
 
 static const char apply_vendor_help[] =
-"Applies the currently loaded vendor drill table to the current design.";
+  "Applies the currently loaded vendor drill table to the current design.";
 
 /* %start-doc actions ApplyVendor
 @cindex vendor map 
@@ -126,11 +125,10 @@ ActionApplyVendor (int argc, char **argv, int x, int y)
 
 /* ************************************************************ */
 
-static const char toggle_vendor_syntax[] =
-"ToggleVendor()";
+static const char toggle_vendor_syntax[] = "ToggleVendor()";
 
 static const char toggle_vendor_help[] =
-"Toggles the state of automatic drill size mapping.";
+  "Toggles the state of automatic drill size mapping.";
 
 /* %start-doc actions ToggleVendor
 
@@ -158,11 +156,10 @@ ActionToggleVendor (int argc, char **argv, int x, int y)
 
 /* ************************************************************ */
 
-static const char enable_vendor_syntax[] =
-"EnableVendor()";
+static const char enable_vendor_syntax[] = "EnableVendor()";
 
 static const char enable_vendor_help[] =
-"Enables automatic drill size mapping.";
+  "Enables automatic drill size mapping.";
 
 /* %start-doc actions EnableVendor
 
@@ -187,11 +184,10 @@ ActionEnableVendor (int argc, char **argv, int x, int y)
 
 /* ************************************************************ */
 
-static const char disable_vendor_syntax[] =
-"DisableVendor()";
+static const char disable_vendor_syntax[] = "DisableVendor()";
 
 static const char disable_vendor_help[] =
-"Disables automatic drill size mapping.";
+  "Disables automatic drill size mapping.";
 
 /* %start-doc actions DisableVendor
 
@@ -214,11 +210,10 @@ ActionDisableVendor (int argc, char **argv, int x, int y)
 
 /* ************************************************************ */
 
-static const char unload_vendor_syntax[] =
-"UnloadVendor()";
+static const char unload_vendor_syntax[] = "UnloadVendor()";
 
 static const char unload_vendor_help[] =
-"Unloads the current vendor drill mapping table.";
+  "Unloads the current vendor drill mapping table.";
 
 /* %start-doc actions UnloadVendor
 
@@ -246,11 +241,10 @@ ActionUnloadVendor (int argc, char **argv, int x, int y)
 
 /* ************************************************************ */
 
-static const char load_vendor_syntax[] =
-"LoadVendorFrom(filename)";
+static const char load_vendor_syntax[] = "LoadVendorFrom(filename)";
 
 static const char load_vendor_help[] =
-"Loads the specified vendor resource file.";
+  "Loads the specified vendor resource file.";
 
 /* %start-doc actions LoadVendorFrom
 
@@ -907,23 +901,26 @@ rematch (const char *re, const char *s)
 
 HID_Action vendor_action_list[] = {
   {"ApplyVendor", 0, ActionApplyVendor,
-   apply_vendor_help, apply_vendor_syntax},
+   apply_vendor_help, apply_vendor_syntax}
+  ,
   {"ToggleVendor", 0, ActionToggleVendor,
-   toggle_vendor_help, toggle_vendor_syntax},
+   toggle_vendor_help, toggle_vendor_syntax}
+  ,
   {"EnableVendor", 0, ActionEnableVendor,
-   enable_vendor_help, enable_vendor_syntax},
+   enable_vendor_help, enable_vendor_syntax}
+  ,
   {"DisableVendor", 0, ActionDisableVendor,
-   disable_vendor_help, disable_vendor_syntax},
+   disable_vendor_help, disable_vendor_syntax}
+  ,
   {"UnloadVendor", 0, ActionUnloadVendor,
-   unload_vendor_help, unload_vendor_syntax},
+   unload_vendor_help, unload_vendor_syntax}
+  ,
   {"LoadVendorFrom", 0, ActionLoadVendorFrom,
    load_vendor_help, load_vendor_syntax}
 };
 
 REGISTER_ACTIONS (vendor_action_list)
-
-static int
-vendor_get_enabled (int unused)
+     static int vendor_get_enabled (int unused)
 {
   return vendorMapEnable;
 }

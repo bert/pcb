@@ -633,7 +633,7 @@ GBX_GroupID (int group)
 {
   theGroup = group;
   fprintf (GBX_Flags.FP, "G04 contains layers ");
-  GROUP_LOOP (group);
+  GROUP_LOOP (PCB->Data, group);
   {
     fprintf (GBX_Flags.FP, "%s (%i) ", UNKNOWN (layer->Name), number);
   }

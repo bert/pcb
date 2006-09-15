@@ -381,6 +381,32 @@ SubtractLine (LineType * line, PolygonType * p)
   return Subtract (np, p);
 }
 
+static int
+SubtractPad (PadType * pad, PolygonType * p)
+{
+  POLYAREA *np = NULL;
+
+  if (TEST_FLAG (SQUAREFLAG, pad))
+    {
+      BDimension t = (pad->Thickness + pad->Clearance) / 2;
+      LocationType x1, x2, y1, y2;
+      x1 = MIN (pad->Point1.X, pad->Point2.X) - t;
+      x2 = MAX (pad->Point1.X, pad->Point2.X) + t;
+      y1 = MIN (pad->Point1.Y, pad->Point2.Y) - t;
+      y2 = MAX (pad->Point1.Y, pad->Point2.Y) + t;
+      if (!(np = RectPoly (x1, x2, y1, y2)))
+	return 0;
+    }
+  else
+    {
+      /* overlap a bit to prevent notches from rounding errors */
+      if (!
+	  (np = LinePoly ((LineType *) pad, pad->Thickness + pad->Clearance)))
+	return 0;
+    }
+  return Subtract (np, p);
+}
+
 struct cpInfo
 {
   const BoxType *other;
@@ -450,7 +476,7 @@ clearPoly (LayerTypePtr layer, PolygonType * polygon, const BoxType * here)
 
   r = r_search (PCB->Data->via_tree, &region, NULL, pin_sub_callback, &info);
   r += r_search (PCB->Data->pin_tree, &region, NULL, pin_sub_callback, &info);
-  GROUP_LOOP (GetLayerGroupNumberByPointer (layer));
+  GROUP_LOOP (PCB->Data, GetLayerGroupNumberByPointer (layer));
   {
     r += r_search (layer->line_tree, &region, NULL, line_sub_callback, &info);
   }
@@ -459,7 +485,7 @@ clearPoly (LayerTypePtr layer, PolygonType * polygon, const BoxType * here)
 }
 
 static int
-Unsubstract (POLYAREA * np1, PolygonType * p)
+Unsubtract (POLYAREA * np1, PolygonType * p)
 {
   POLYAREA *merged = NULL, *np = np1;;
   int x;
@@ -489,7 +515,7 @@ UnsubtractPin (PinType * pin, LayerType * l, PolygonType * p)
 
   if (!np)
     return 0;
-  if (!Unsubstract (np, p))
+  if (!Unsubtract (np, p))
     return 0;
   clearPoly (l, p, (const BoxType *) pin);
   return 1;
@@ -503,9 +529,39 @@ UnsubtractLine (LineType * line, LayerType * l, PolygonType * p)
   /* overlap a bit to prevent notches from rounding errors */
   if (!(np = LinePoly (line, line->Thickness + line->Clearance + 10)))
     return 0;
-  if (!Unsubstract (np, p))
+  if (!Unsubtract (np, p))
     return 0;
   clearPoly (l, p, (const BoxType *) line);
+  return 1;
+}
+
+static int
+UnsubtractPad (PadType * pad, LayerType * l, PolygonType * p)
+{
+  POLYAREA *np = NULL;
+
+  if (TEST_FLAG (SQUAREFLAG, pad))
+    {
+      BDimension t = ((pad->Thickness + pad->Clearance) >> 1) + 10;
+      LocationType x1, x2, y1, y2;
+      x1 = MIN (pad->Point1.X, pad->Point2.X) - t;
+      x2 = MAX (pad->Point1.X, pad->Point2.X) + t;
+      y1 = MIN (pad->Point1.Y, pad->Point2.Y) - t;
+      y2 = MAX (pad->Point1.Y, pad->Point2.Y) + t;
+      if (!(np = RectPoly (x1, x2, y1, y2)))
+	return 0;
+    }
+  else
+    {
+      /* overlap a bit to prevent notches from rounding errors */
+      if (!
+	  (np =
+	   LinePoly ((LineType *) pad, pad->Thickness + pad->Clearance + 10)))
+	return 0;
+    }
+  if (!Unsubtract (np, p))
+    return 0;
+  clearPoly (l, p, (const BoxType *) pad);
   return 1;
 }
 
@@ -719,12 +775,6 @@ CopyAttachedPolygonToLayer (void)
   IncrementUndoSerialNumber ();
 }
 
-/* ---------------------------------------------------------------------------
- *  Updates the pin-in-polygon flags
- *  if called with Element == NULL, search all pins
- *  if called with Pin == NULL, search all pins on element
- *  if called with Layer == NULL, search all layers
- */
 void
 UpdatePIPFlags (PinTypePtr Pin, ElementTypePtr Element,
 		LayerTypePtr Layer, Boolean AddUndo)
@@ -778,7 +828,7 @@ PolygonHoles (int group, const BoxType * range,
 
   info.callback = any_call;
   info.range = range;
-  GROUP_LOOP (group);
+  GROUP_LOOP (PCB->Data, group);
   {
     if (!layer->PolygonN)
       continue;
@@ -803,9 +853,6 @@ static int
 subtract_plow (LayerTypePtr Layer, PolygonTypePtr Polygon,
 	       ObjectArgType * Object)
 {
-#if BUGS
-  InitClip (Layer, Polygon);
-#else
   switch (Object->type)
     {
     case PIN_TYPE:
@@ -815,19 +862,16 @@ subtract_plow (LayerTypePtr Layer, PolygonTypePtr Polygon,
     case LINE_TYPE:
       SubtractLine ((LineTypePtr) (Object->ptr2), Polygon);
       return 1;
+    case PAD_TYPE:
+      SubtractPad ((PadTypePtr) (Object->ptr2), Polygon);
+      return 1;
     }
   return 0;
-#endif
 }
 
 static int
 add_plow (LayerTypePtr Layer, PolygonTypePtr Polygon, ObjectArgType * Object)
 {
-#if BUGS
-  if (Polygon->Clipped)
-    poly_Free (&Polygon->Clipped);
-  return 1;
-#else
   switch (Object->type)
     {
     case PIN_TYPE:
@@ -837,9 +881,11 @@ add_plow (LayerTypePtr Layer, PolygonTypePtr Polygon, ObjectArgType * Object)
     case LINE_TYPE:
       UnsubtractLine ((LineTypePtr) (Object->ptr2), Layer, Polygon);
       return 1;
+    case PAD_TYPE:
+      UnsubtractPad ((PadTypePtr) (Object->ptr2), Layer, Polygon);
+      return 1;
     }
   return 0;
-#endif
 }
 
 static int
@@ -852,7 +898,7 @@ plow_callback (const BoxType * b, void *cl)
 }
 
 int
-PlowsPolygon (ObjectArgType * object,
+PlowsPolygon (DataType * Data, ObjectArgType * object,
 	      int (*call_back) (LayerTypePtr lay, PolygonTypePtr poly,
 				ObjectArgType * object))
 {
@@ -868,7 +914,7 @@ PlowsPolygon (ObjectArgType * object,
     case VIA_TYPE:
       if (((PinTypePtr) (object->ptr2))->Clearance == 0)
 	return 0;
-      LAYER_LOOP (max_layer);
+      LAYER_LOOP (Data, max_layer);
       {
 	info.layer = layer;
 	r += r_search (layer->polygon_tree, &sb, NULL, plow_callback, &info);
@@ -878,46 +924,73 @@ PlowsPolygon (ObjectArgType * object,
     case LINE_TYPE:
       if (!TEST_FLAG (CLEARLINEFLAG, (LineTypePtr) (object->ptr2)))
 	return 0;
-      GROUP_LOOP (GetLayerGroupNumberByPointer
-		  ((LayerTypePtr) (object->ptr1)));
+      GROUP_LOOP (Data, GetLayerGroupNumberByNumber (GetLayerNumber (Data,
+								     ((LayerTypePtr) (object->ptr1)))));
       {
 	info.layer = layer;
 	r += r_search (layer->polygon_tree, &sb, NULL, plow_callback, &info);
       }
       END_LOOP;
       break;
+    case PAD_TYPE:
+      {
+	Cardinal group =
+	  TEST_FLAG (ONSOLDERFLAG,
+		     (PadType *) (object->
+				  ptr2)) ? SOLDER_LAYER : COMPONENT_LAYER;
+	group = GetLayerGroupNumberByNumber (max_layer + group);
+	GROUP_LOOP (Data, group);
+	{
+	  info.layer = layer;
+	  r +=
+	    r_search (layer->polygon_tree, &sb, NULL, plow_callback, &info);
+	}
+	END_LOOP;
+      }
+      break;
+
+    case ELEMENT_TYPE:
+      {
+	ObjectArgType obj;
+	obj.type = PIN_TYPE;
+	obj.ptr1 = (ElementType *) object->ptr1;
+	PIN_LOOP ((ElementType *) (object->ptr1));
+	{
+	  obj.ptr2 = obj.ptr3 = pin;
+	  PlowsPolygon (Data, &obj, call_back);
+	}
+	END_LOOP;
+	obj.type = PAD_TYPE;
+	PAD_LOOP ((ElementType *) (object->ptr1));
+	{
+	  obj.ptr2 = obj.ptr3 = pad;
+	  PlowsPolygon (Data, &obj, call_back);
+	}
+	END_LOOP;
+      }
+      break;
     }
   return r;
 }
 
 void
-RestoreToPolygon (ObjectArgType * object)
+RestoreToPolygon (DataType * Data, ObjectArgType * object)
 {
-  PlowsPolygon (object, add_plow);
+  PlowsPolygon (Data, object, add_plow);
 }
 
 void
-ClearFromPolygon (ObjectArgType * object)
+ClearFromPolygon (DataType * Data, ObjectArgType * object)
 {
-  PlowsPolygon (object, subtract_plow);
+  PlowsPolygon (Data, object, subtract_plow);
 }
 
 Boolean
 isects (POLYAREA * a, PolygonTypePtr p)
 {
-  POLYAREA *r, *x;
+  POLYAREA *x;
   Boolean ans;
-  x = p->Clipped->f;		/* save "extra" polygons */
-  p->Clipped->f = p->Clipped;	/* consider only "big" polygon */
-  poly_Boolean (a, p->Clipped, &r, PBO_ISECT);
-  p->Clipped->f = x;		/* restore "extra" polygons */
-  if (r)
-    {
-      ans = TRUE;
-      poly_Free (&r);
-    }
-  else
-    ans = FALSE;
+  ans = Touching (a, p->Clipped);
   /* argument may be register, so we must copy it */
   x = a;
   poly_Free (&x);
@@ -941,7 +1014,8 @@ IsRectangleInPolygon (LocationType X1, LocationType Y1, LocationType X2,
 		      LocationType Y2, PolygonTypePtr p)
 {
   POLYAREA *s;
-  if (!(s = RectPoly (X1, X2, Y1, Y2)))
+  if (!
+      (s = RectPoly (min (X1, X2), max (X1, X2), min (Y1, Y2), max (Y1, Y2))))
     return False;
   return isects (s, p);
 }

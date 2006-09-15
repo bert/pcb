@@ -115,6 +115,8 @@ void
 MoveElementLowLevel (DataTypePtr Data, ElementTypePtr Element,
 		     LocationType DX, LocationType DY)
 {
+  ObjectArgType obj;
+
   if (Data)
     r_delete_entry (Data->element_tree, (BoxType *) Element);
   ELEMENTLINE_LOOP (Element);
@@ -122,22 +124,39 @@ MoveElementLowLevel (DataTypePtr Data, ElementTypePtr Element,
     MOVE_LINE_LOWLEVEL (line, DX, DY);
   }
   END_LOOP;
+  obj.type = PIN_TYPE;
+  obj.ptr1 = Element;
   PIN_LOOP (Element);
   {
+    obj.ptr2 = obj.ptr3 = pin;
     if (Data)
-      r_delete_entry (Data->pin_tree, (BoxType *) pin);
+      {
+	r_delete_entry (Data->pin_tree, (BoxType *) pin);
+	RestoreToPolygon (Data, &obj);
+      }
     MOVE_PIN_LOWLEVEL (pin, DX, DY);
     if (Data)
-      r_insert_entry (Data->pin_tree, (BoxType *) pin, 0);
+      {
+	r_insert_entry (Data->pin_tree, (BoxType *) pin, 0);
+	ClearFromPolygon (Data, &obj);
+      }
   }
   END_LOOP;
+  obj.type = PAD_TYPE;
   PAD_LOOP (Element);
   {
+    obj.ptr2 = obj.ptr3 = pad;
     if (Data)
-      r_delete_entry (Data->pad_tree, (BoxType *) pad);
+      {
+	r_delete_entry (Data->pad_tree, (BoxType *) pad);
+	RestoreToPolygon (Data, &obj);
+      }
     MOVE_PAD_LOWLEVEL (pad, DX, DY);
     if (Data)
-      r_insert_entry (Data->pad_tree, (BoxType *) pad, 0);
+      {
+	r_insert_entry (Data->pad_tree, (BoxType *) pad, 0);
+	ClearFromPolygon (Data, &obj);
+      }
   }
   END_LOOP;
   ARC_LOOP (Element);
@@ -241,17 +260,13 @@ MoveVia (PinTypePtr Via)
   obj.type = VIA_TYPE;
   obj.ptr1 = obj.ptr2 = obj.ptr3 = Via;
 
-  RestoreToPolygon (&obj);
   r_delete_entry (PCB->Data->via_tree, (BoxTypePtr) Via);
+  RestoreToPolygon (PCB->Data, &obj);
+  MOVE_VIA_LOWLEVEL (Via, DeltaX, DeltaY);
   if (PCB->ViaOn)
-    {
-      EraseVia (Via);
-      MOVE_VIA_LOWLEVEL (Via, DeltaX, DeltaY);
-    }
-  else
-    MOVE_VIA_LOWLEVEL (Via, DeltaX, DeltaY);
+    EraseVia (Via);
   r_insert_entry (PCB->Data->via_tree, (BoxTypePtr) Via, 0);
-  ClearFromPolygon (&obj);
+  ClearFromPolygon (PCB->Data, &obj);
   if (PCB->ViaOn)
     {
       DrawVia (Via, 0);
@@ -271,19 +286,18 @@ MoveLine (LayerTypePtr Layer, LineTypePtr Line)
   obj.type = LINE_TYPE;
   obj.ptr1 = Layer;
   obj.ptr2 = obj.ptr3 = Line;
-  RestoreToPolygon (&obj);
+  if (Layer->On)
+    EraseLine (Line);
+  RestoreToPolygon (PCB->Data, &obj);
   r_delete_entry (Layer->line_tree, (BoxTypePtr) Line);
+  MOVE_LINE_LOWLEVEL (Line, DeltaX, DeltaY);
+  r_insert_entry (Layer->line_tree, (BoxTypePtr) Line, 0);
+  ClearFromPolygon (PCB->Data, &obj);
   if (Layer->On)
     {
-      EraseLine (Line);
-      MOVE_LINE_LOWLEVEL (Line, DeltaX, DeltaY);
       DrawLine (Layer, Line, 0);
       Draw ();
     }
-  else
-    MOVE_LINE_LOWLEVEL (Line, DeltaX, DeltaY);
-  r_insert_entry (Layer->line_tree, (BoxTypePtr) Line, 0);
-  ClearFromPolygon (&obj);
   return (Line);
 }
 
@@ -380,12 +394,12 @@ MoveLinePoint (LayerTypePtr Layer, LineTypePtr Line, PointTypePtr Point)
       obj.ptr2 = obj.ptr3 = Line;
       if (Layer->On)
 	EraseLine (Line);
-      RestoreToPolygon (&obj);
+      RestoreToPolygon (PCB->Data, &obj);
       r_delete_entry (Layer->line_tree, &Line->BoundingBox);
       MOVE (Point->X, Point->Y, DeltaX, DeltaY);
       SetLineBoundingBox (Line);
       r_insert_entry (Layer->line_tree, &Line->BoundingBox, 0);
-      ClearFromPolygon (&obj);
+      ClearFromPolygon (PCB->Data, &obj);
       if (Layer->On)
 	{
 	  DrawLine (Layer, Line, 0);

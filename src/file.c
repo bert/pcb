@@ -311,7 +311,6 @@ LoadPCB (char *Filename)
       RemovePCB (PCB);
       PCB = newPCB;
 
-      CreateNewPCBPost(PCB, 0);
       ResetStackAndVisibility ();
 #if FIXME
       /* set the zoom first before the Xorig, Yorig */
@@ -392,7 +391,7 @@ WritePCBInfoHeader (FILE * FP)
 #endif
 
 #ifdef HAVE_GETHOSTNAME
-  struct hostent *hostentry;
+  static struct hostent *hostentry = -1;
   char hostname[256];
 #endif
   time_t currenttime;
@@ -412,7 +411,8 @@ WritePCBInfoHeader (FILE * FP)
 #ifdef HAVE_GETHOSTNAME
   if (gethostname (hostname, 255) != -1)
     {
-      hostentry = gethostbyname (hostname);
+      if (hostentry == -1)
+	hostentry = gethostbyname (hostname);
       fprintf (FP, "# host:    %s\n",
 	       hostentry ? hostentry->h_name : hostname);
     }
@@ -435,11 +435,11 @@ WritePCBDataHeader (FILE * FP)
   PrintQuotedString (FP, EMPTY (PCB->Name));
   fprintf (FP, " %i %i]\n\n", (int) PCB->MaxWidth, (int) PCB->MaxHeight);
   fprintf (FP, "Grid[%s %i %i %i]\n",
-	   c_dtostr(PCB->Grid), (int) PCB->GridOffsetX, (int) PCB->GridOffsetY,
-	   (int) Settings.DrawGrid);
+	   c_dtostr (PCB->Grid), (int) PCB->GridOffsetX,
+	   (int) PCB->GridOffsetY, (int) Settings.DrawGrid);
   fprintf (FP, "Cursor[%i %i %s]\n", (int) TO_PCB_X (Output.Width / 2),
-	   (int) TO_PCB_Y (Output.Height / 2), c_dtostr(PCB->Zoom));
-  fprintf (FP, "Thermal[%s]\n", c_dtostr(PCB->ThermScale));
+	   (int) TO_PCB_Y (Output.Height / 2), c_dtostr (PCB->Zoom));
+  fprintf (FP, "Thermal[%s]\n", c_dtostr (PCB->ThermScale));
   fprintf (FP, "DRC[%i %i %i %i %i %i]\n", PCB->Bloat, PCB->Shrink,
 	   PCB->minWid, PCB->minSlk, PCB->minDrill, PCB->minRing);
   /* FIXME: This shouldn't know about .f, but we don't have a string
@@ -488,11 +488,11 @@ WritePCBFontData (FILE * FP)
 	  if (line->Point1.X % 100 == 0
 	      && line->Point1.Y % 100 == 0
 	      && line->Point2.X % 100 == 0
-	      && line->Point2.Y % 100 == 0
-	      && line->Thickness % 100 == 0)
+	      && line->Point2.Y % 100 == 0 && line->Thickness % 100 == 0)
 	    fprintf (FP, "\tSymbolLine(%i %i %i %i %i)\n",
-		     line->Point1.X/100, line->Point1.Y/100,
-		     line->Point2.X/100, line->Point2.Y/100, line->Thickness/100);
+		     line->Point1.X / 100, line->Point1.Y / 100,
+		     line->Point2.X / 100, line->Point2.Y / 100,
+		     line->Thickness / 100);
 	  else
 	    fprintf (FP, "\tSymbolLine[%i %i %i %i %i]\n",
 		     line->Point1.X, line->Point1.Y,

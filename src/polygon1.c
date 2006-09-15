@@ -254,10 +254,10 @@ insert_descriptor (VNODE * a, char poly, char side, CVCList * start)
 	  if (l->head->parent->point[0] == start->parent->point[0]
 	      && l->head->parent->point[1] == start->parent->point[1])
 	    {
-        /* this seems to be a new point */
-	/* link this cvclist to the list of all cvclists */
-	      for ( ; l->head != new; l = l->next)
-                l->head = new;
+	      /* this seems to be a new point */
+	      /* link this cvclist to the list of all cvclists */
+	      for (; l->head != new; l = l->next)
+		l->head = new;
 	      new->head = start;
 	      return new;
 	    }
@@ -560,8 +560,8 @@ seg_in_seg (const BoxType * b, void *cl)
 	return 1;		/* error */
       /* if we added a node in the tree we need to change the tree */
       if ((res & 1) && adjust_tree (i, s))
-        return 1;
-      if (res & 2) /* if a point was inserted in A, start over too */ 
+	return 1;
+      if (res & 2)		/* if a point was inserted in A, start over too */
 	longjmp (i->env, 1);
     }
   return 0;
@@ -713,6 +713,7 @@ cntr_in_M_POLYAREA (PLINE * poly, POLYAREA * outfst)
 }				/* cntr_in_M_POLYAREA */
 
 
+#ifdef DEBUG
 static char *
 theState (VNODE * v)
 {
@@ -736,6 +737,7 @@ theState (VNODE * v)
       return u;
     }
 }
+#endif
 
 static void
 print_labels (PLINE * a)
@@ -757,7 +759,7 @@ label_contour
  (C) 1997 Alexey Nikitin, Michael Leonov
 */
 
-static BOOLp 
+static BOOLp
 label_contour (PLINE * a, BOOLp test)
 {
   VNODE *cur = &a->head;
@@ -782,9 +784,9 @@ label_contour (PLINE * a, BOOLp test)
 	  LABEL_NODE (cur, label);
 	  did_label = TRUE;
 	}
-	/* if testing for existence of intersection, report when found */
+      /* if testing for existence of intersection, report when found */
       if (test && (label == INSIDE || label == SHARED))
-        return TRUE;
+	return TRUE;
     }
   while ((cur = cur->next) != &a->head || did_label);
 #ifdef DEBUG
@@ -794,26 +796,27 @@ label_contour (PLINE * a, BOOLp test)
   return FALSE;
 }				/* label_contour */
 
-static BOOLp 
+static BOOLp
 cntr_label_POLYAREA (PLINE * poly, POLYAREA * ppl, BOOLp test)
 {
   assert (ppl != NULL && ppl->contours != NULL);
   if (poly->Flags.status == ISECTED)
-   {
-    if (label_contour (poly, test))
-      return TRUE;
-   }
+    {
+      if (label_contour (poly, test))
+	return TRUE;
+    }
   else if (cntr_in_M_POLYAREA (poly, ppl))
     {
       poly->Flags.status = INSIDE;
-      if (test) return TRUE;
+      if (test)
+	return TRUE;
     }
   else
     poly->Flags.status = OUTSIDE;
   return FALSE;
 }				/* cntr_label_POLYAREA */
 
-static BOOLp 
+static BOOLp
 M_POLYAREA_label (POLYAREA * afst, POLYAREA * b, BOOLp test)
 {
   POLYAREA *a = afst;
@@ -1307,10 +1310,9 @@ M_InitPolygon (POLYAREA * afst)
 }				/* M_InitPolygon */
 
 BOOLp
-Touching (POLYAREA *p1, POLYAREA *p2)
+Touching (POLYAREA * p1, POLYAREA * p2)
 {
   POLYAREA *a = NULL, *b = NULL;
-  PLINE *p = NULL;
   jmp_buf e;
   int code;
 
@@ -1332,21 +1334,21 @@ Touching (POLYAREA *p1, POLYAREA *p2)
       M_POLYAREA_intersect (&e, a, b);
 
       if (M_POLYAREA_label (a, b, TRUE))
-      {
-        poly_Free (&a);
-        poly_Free (&b);
-        return TRUE;
-      }
+	{
+	  poly_Free (&a);
+	  poly_Free (&b);
+	  return TRUE;
+	}
       if (M_POLYAREA_label (b, a, TRUE))
-      {
-        poly_Free (&a);
-        poly_Free (&b);
-        return TRUE;
-      }
+	{
+	  poly_Free (&a);
+	  poly_Free (&b);
+	  return TRUE;
+	}
     }
-      poly_Free (&a);
-      poly_Free (&b);
-      return FALSE;
+  poly_Free (&a);
+  poly_Free (&b);
+  return FALSE;
 }
 
 /* the main clipping routine */
@@ -1519,7 +1521,7 @@ poly_PreContour (PLINE * C, BOOLp optimize)
 {
   double area = 0;
   VNODE *p, *c;
-  Vector q1, q2, p1, p2;
+  Vector p1, p2;
 
   assert (C != NULL);
 
@@ -2170,7 +2172,7 @@ vect_inters2 (Vector p1, Vector p2, Vector q1, Vector q2,
 
   if (deel == 0)		/* parallel */
     {
-      double dc1, dc2, d1, d2, h;	/* Check too see whether p1-p2 and q1-q2 are on the same line */
+      double dc1, dc2, d1, d2, h;	/* Check to see whether p1-p2 and q1-q2 are on the same line */
       Vector hp1, hq1, hp2, hq2, q1p1, q1q2;
 
       Vsub2 (q1p1, q1, p1);
@@ -2186,7 +2188,7 @@ vect_inters2 (Vector p1, Vector p2, Vector q1, Vector q2,
       d1 = vect_m_dist (p1, q1);
       d2 = vect_m_dist (p1, q2);
 
-/* Sorting the independent points from small to large: */
+/* Sorting the independent points from small to large */
       Vcpy2 (hp1, p1);
       Vcpy2 (hp2, p2);
       Vcpy2 (hq1, q1);
@@ -2202,7 +2204,7 @@ vect_inters2 (Vector p1, Vector p2, Vector q1, Vector q2,
 	  h = d1, d1 = d2, d2 = h;
 	}
 
-/* Now the line-pieces are compared: */
+/* Now the line-pieces are compared */
 
       if (dc1 < d1)
 	{
@@ -2260,11 +2262,16 @@ vect_inters2 (Vector p1, Vector p2, Vector q1, Vector q2,
        */
 
       if (Vequ2 (q1, p1) || Vequ2 (q1, p2))
-	Vcpy2 (S1, q1)
-	else
-      if (Vequ2 (q2, p1) || Vequ2 (q2, p2))
-	Vcpy2 (S1, q2)
-	else
+	{
+	  S1[0] = q1[0];
+	  S1[1] = q1[1];
+	}
+      else if (Vequ2 (q2, p1) || Vequ2 (q2, p2))
+	{
+	  S1[0] = q2[0];
+	  S1[1] = q2[1];
+	}
+      else
 	{
 	  s = (rqy * (p1[0] - q1[0]) + rqx * (q1[1] - p1[1])) / deel;
 	  if (s < 0 || s > 1.)

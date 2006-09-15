@@ -566,14 +566,14 @@ ChangeViaClearSize (PinTypePtr Via)
     return NULL;
   obj.type = PIN_TYPE;
   obj.ptr1 = obj.ptr2 = obj.ptr3 = Via;
-  RestoreToPolygon (&obj);
+  RestoreToPolygon (PCB->Data, &obj);
   AddObjectToClearSizeUndoList (VIA_TYPE, Via, Via, Via);
   EraseVia (Via);
   r_delete_entry (PCB->Data->via_tree, (BoxType *) Via);
   Via->Clearance = value;
   SetPinBoundingBox (Via);
   r_insert_entry (PCB->Data->via_tree, (BoxType *) Via, 0);
-  ClearFromPolygon (&obj);
+  ClearFromPolygon (PCB->Data, &obj);
   DrawVia (Via, 0);
   Via->Element = NULL;
   return (Via);
@@ -628,14 +628,14 @@ ChangePinClearSize (ElementTypePtr Element, PinTypePtr Pin)
   obj.type = PIN_TYPE;
   obj.ptr1 = Element;
   obj.ptr2 = obj.ptr3 = Pin;
-  RestoreToPolygon (&obj);
+  RestoreToPolygon (PCB->Data, &obj);
   AddObjectToClearSizeUndoList (PIN_TYPE, Element, Pin, Pin);
   ErasePin (Pin);
   r_delete_entry (PCB->Data->pin_tree, &Pin->BoundingBox);
   Pin->Clearance = value;
   /* SetElementBB updates all associated rtrees */
   SetElementBoundingBox (PCB->Data, Element, &PCB->Font);
-  ClearFromPolygon (&obj);
+  ClearFromPolygon (PCB->Data, &obj);
   DrawPin (Pin, 0);
   return (Pin);
 }
@@ -810,7 +810,7 @@ ChangeLineClearSize (LayerTypePtr Layer, LineTypePtr Line)
   if (value != Line->Clearance)
     {
       AddObjectToClearSizeUndoList (LINE_TYPE, Layer, Line, Line);
-      RestoreToPolygon (&obj);
+      RestoreToPolygon (PCB->Data, &obj);
       EraseLine (Line);
       r_delete_entry (Layer->line_tree, (BoxTypePtr) Line);
       Line->Clearance = value;
@@ -821,7 +821,7 @@ ChangeLineClearSize (LayerTypePtr Layer, LineTypePtr Line)
 	}
       SetLineBoundingBox (Line);
       r_insert_entry (Layer->line_tree, (BoxTypePtr) Line, 0);
-      ClearFromPolygon (&obj);
+      ClearFromPolygon (PCB->Data, &obj);
       DrawLine (Layer, Line, 0);
       return (Line);
     }
@@ -1166,9 +1166,9 @@ ChangeLineJoin (LayerTypePtr Layer, LineTypePtr Line)
   obj.type = LINE_TYPE;
   obj.ptr1 = Layer;
   obj.ptr2 = obj.ptr3 = Line;
-  RestoreToPolygon (&obj);
+  RestoreToPolygon (PCB->Data, &obj);
   TOGGLE_FLAG (CLEARLINEFLAG, Line);
-  ClearFromPolygon (&obj);
+  ClearFromPolygon (PCB->Data, &obj);
   DrawLine (Layer, Line, 0);
   return (Line);
 }
@@ -1186,7 +1186,7 @@ SetLineJoin (LayerTypePtr Layer, LineTypePtr Line)
   obj.type = LINE_TYPE;
   obj.ptr1 = Layer;
   obj.ptr2 = obj.ptr3 = Line;
-  RestoreToPolygon (&obj);
+  RestoreToPolygon (PCB->Data, &obj);
   AddObjectToFlagUndoList (LINE_TYPE, Layer, Line, Line);
   SET_FLAG (CLEARLINEFLAG, Line);
   DrawLine (Layer, Line, 0);
@@ -1208,7 +1208,7 @@ ClrLineJoin (LayerTypePtr Layer, LineTypePtr Line)
   obj.type = LINE_TYPE;
   obj.ptr1 = Layer;
   obj.ptr2 = obj.ptr3 = Line;
-  ClearFromPolygon (&obj);
+  ClearFromPolygon (PCB->Data, &obj);
   DrawLine (Layer, Line, 0);
   return (Line);
 }
@@ -1390,11 +1390,18 @@ ClrElementOctagon (ElementTypePtr Element)
 static void *
 ChangePadSquare (ElementTypePtr Element, PadTypePtr Pad)
 {
+  ObjectArgType obj;
+
   if (TEST_FLAG (LOCKFLAG, Pad))
     return (NULL);
+  obj.type = PAD_TYPE;
+  obj.ptr1 = Element;
+  obj.ptr2 = obj.ptr3 = Pad;
   ErasePad (Pad);
+  RestoreToPolygon (PCB->Data, &obj);
   AddObjectToFlagUndoList (PAD_TYPE, Element, Pad, Pad);
   TOGGLE_FLAG (SQUAREFLAG, Pad);
+  ClearFromPolygon (PCB->Data, &obj);
   DrawPad (Pad, 0);
   return (Pad);
 }
@@ -1433,11 +1440,17 @@ ClrPadSquare (ElementTypePtr Element, PadTypePtr Pad)
 static void *
 ChangePinSquare (ElementTypePtr Element, PinTypePtr Pin)
 {
+  ObjectArgType obj;
   if (TEST_FLAG (LOCKFLAG, Pin))
     return (NULL);
+  obj.type = PIN_TYPE;
+  obj.ptr1 = Element;
+  obj.ptr2 = obj.ptr3 = Pin;
   ErasePin (Pin);
   AddObjectToFlagUndoList (PIN_TYPE, Element, Pin, Pin);
+  RestoreToPolygon (PCB->Data, &obj);
   TOGGLE_FLAG (SQUAREFLAG, Pin);
+  ClearFromPolygon (PCB->Data, &obj);
   DrawPin (Pin, 0);
   return (Pin);
 }

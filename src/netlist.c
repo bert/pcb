@@ -126,25 +126,22 @@ netlist_select (LibraryMenuType * net, LibraryEntryType * pin)
 static void
 netlist_rats (LibraryMenuType * net, LibraryEntryType * pin)
 {
-  net->Name[0] = ' ';
-  net->flag = 1;
+  net->Name[0] = '*';
   hid_action ("NetlistChanged");
 }
 
 static void
 netlist_norats (LibraryMenuType * net, LibraryEntryType * pin)
 {
-  net->Name[0] = '*';
-  net->flag = 0;
+  net->Name[0] = ' ';
   hid_action ("NetlistChanged");
 }
 
 
 static const char netlist_syntax[] =
-"Net(find|select|rats|norats[,net[,pin]])";
+  "Net(find|select|rats|norats[,net[,pin]])";
 
-static const char netlist_help[] =
-"Perform various actions on netlists.";
+static const char netlist_help[] = "Perform various actions on netlists.";
 
 /* %start-doc actions Netlist
 
@@ -202,7 +199,7 @@ Netlist (int argc, char **argv, int x, int y)
     return 1;
   if (argc == 0)
     {
-      Message(netlist_syntax);
+      Message (netlist_syntax);
       return 1;
     }
   if (strcasecmp (argv[0], "find") == 0)
@@ -215,7 +212,7 @@ Netlist (int argc, char **argv, int x, int y)
     func = netlist_norats;
   else
     {
-      Message(netlist_syntax);
+      Message (netlist_syntax);
       return 1;
     }
 
@@ -319,7 +316,8 @@ Netlist (int argc, char **argv, int x, int y)
 
 HID_Action netlist_action_list[] = {
   {"net", 0, Netlist,
-   netlist_help, netlist_syntax},
+   netlist_help, netlist_syntax}
+  ,
   {"netlist", 0, Netlist,
    netlist_help, netlist_syntax}
 };

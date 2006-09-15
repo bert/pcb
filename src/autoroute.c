@@ -92,6 +92,8 @@ RCSID ("$Id$");
 #define DEBUG_SHOW_EXPANSION_BOXES
 #define DEBUG_SHOW_ZIGZAG
 */
+
+#define EXPENSIVE 3e38
 /* round up "half" thicknesses */
 #define HALF_THICK(x) (((x)+1)/2)
 /* a styles maximum bloat is its keepaway plus the larger of its via radius
@@ -623,7 +625,6 @@ AddIrregularObstacle (PointerListType layergroupboxes[],
 {
   routebox_t **rbpp;
   assert (layergroupboxes && parent);
-  assert (0 <= layer && layer < max_layer);
   assert (X1 <= X2 && Y1 <= Y2);
   assert (0 <= layergroup && layergroup < max_layer);
   assert (PCB->LayerGroups.Number[layergroup] > 0);
@@ -869,9 +870,10 @@ CreateRouteData ()
 		  LineType fake_line = *line;
 		  int dx = (line->Point2.X - line->Point1.X);
 		  int dy = (line->Point2.Y - line->Point1.Y);
-		  int segs =
-		    MAX (ABS (dx),
-			 ABS (dy)) / (4 * BLOAT (rd->augStyles[j].style) + 1);
+		  int segs = MAX (ABS (dx),
+				  ABS (dy)) / (4 *
+					       BLOAT (rd->augStyles[j].
+						      style) + 1);
 		  int qq;
 		  segs = MAX (1, MIN (segs, 32));	/* don't go too crazy */
 		  dx /= segs;
@@ -1445,7 +1447,7 @@ mincost_target_to_point (const CheapPointType * CostPoint,
     mtc.nearest_cost =
       cost_to_routebox (mtc.CostPoint, mtc.CostPointLayer, mtc.nearest);
   else
-    mtc.nearest_cost = 3e38;
+    mtc.nearest_cost = EXPENSIVE;
   r_search (targets, NULL, __region_within_guess, __found_new_guess, &mtc);
   assert (mtc.nearest != NULL && mtc.nearest_cost >= 0);
   assert (mtc.nearest->flags.target);	/* this is a target, right? */
@@ -3038,6 +3040,7 @@ RouteOne (routedata_t * rd, routebox_t * from, routebox_t * to, int max_edges)
   vector_destroy (&source_vec);
   /* okay, process items from heap until it is empty! */
   s.best_path = NULL;
+  s.best_cost = EXPENSIVE;
   area_vec = vector_create ();
   edge_vec = vector_create ();
   touched_vec = vector_create ();
@@ -3366,10 +3369,14 @@ RouteOne (routedata_t * rd, routebox_t * from, routebox_t * to, int max_edges)
 	    {
 	      CheapPointType center;
 	      cost_t cost;
-	      center.X = (next->box.X1 + next->box.X2) / 2;
-	      center.Y = (next->box.Y1 + next->box.Y2) / 2;
+	      /*
+	         center.X = (next->box.X1 + next->box.X2) / 2;
+	         center.Y = (next->box.Y1 + next->box.Y2) / 2;
+	       */
+	      center = closest_point_in_box (&e->cost_point, &next->box);
 	      cost =
-		cost_to_point_on_layer (&e->cost_point, &center, next->group);
+		cost_to_point_on_layer (&e->cost_point, &center,
+					top_parent->group);
 	      /* don't expand this edge, but check if we found a cheaper way here */
 	      /*XXX prevent loops */
 	      if (next->cost >= e->cost_to_point + cost);
@@ -3386,7 +3393,9 @@ RouteOne (routedata_t * rd, routebox_t * from, routebox_t * to, int max_edges)
 			 rb = rb->parent.expansion_area)
 		      if (rb == top_parent)
 			break;
-		    if (rb != top_parent)
+		    if (rb != top_parent && (!next->flags.is_via ||
+					     top_parent->group !=
+					     next->group))
 		      {
 			next->parent.expansion_area = top_parent;
 			next->cost = e->cost_to_point + cost;
@@ -3634,7 +3643,7 @@ RouteAll (routedata_t * rd)
 		    {
 		      do
 			{
-			  ros = RouteOne (rd, p, NULL, 3000);
+			  ros = RouteOne (rd, p, NULL, 4000);
 			  if (ros.found_route)
 			    {
 			      total_net_cost += ros.best_route_cost;

@@ -322,8 +322,7 @@ XORDrawBuffer (BufferTypePtr Buffer)
 	{
 	  BoxTypePtr box = &text->BoundingBox;
 	  gui->draw_rect (Crosshair.GC,
-			  x + box->X1, y + box->Y1,
-			  x + box->X2, y + box->Y2);
+			  x + box->X1, y + box->Y1, x + box->X2, y + box->Y2);
 	}
 	END_LOOP;
 	/* the tmp polygon has n+1 points because the first
