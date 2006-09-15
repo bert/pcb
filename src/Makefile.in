@@ -128,15 +128,15 @@ am__objects_6 = action.$(OBJEXT) autoplace.$(OBJEXT) \
 	mirror.$(OBJEXT) misc.$(OBJEXT) move.$(OBJEXT) \
 	mtspace.$(OBJEXT) mymem.$(OBJEXT) netlist.$(OBJEXT) \
 	output.$(OBJEXT) parse_l.$(OBJEXT) parse_y.$(OBJEXT) \
-	polygon.$(OBJEXT) puller.$(OBJEXT) print.$(OBJEXT) \
-	rats.$(OBJEXT) remove.$(OBJEXT) report.$(OBJEXT) \
-	res_parse.$(OBJEXT) res_lex.$(OBJEXT) rotate.$(OBJEXT) \
-	rtree.$(OBJEXT) rubberband.$(OBJEXT) search.$(OBJEXT) \
-	select.$(OBJEXT) set.$(OBJEXT) strflags.$(OBJEXT) \
-	undo.$(OBJEXT) vector.$(OBJEXT) vendor.$(OBJEXT) \
-	hid/common/actions.$(OBJEXT) hid/common/flags.$(OBJEXT) \
-	hid/common/hidinit.$(OBJEXT) hid/common/hidnogui.$(OBJEXT) \
-	hid/common/extents.$(OBJEXT)
+	polygon.$(OBJEXT) polygon1.$(OBJEXT) puller.$(OBJEXT) \
+	print.$(OBJEXT) rats.$(OBJEXT) remove.$(OBJEXT) \
+	report.$(OBJEXT) res_parse.$(OBJEXT) res_lex.$(OBJEXT) \
+	rotate.$(OBJEXT) rtree.$(OBJEXT) rubberband.$(OBJEXT) \
+	search.$(OBJEXT) select.$(OBJEXT) set.$(OBJEXT) \
+	strflags.$(OBJEXT) undo.$(OBJEXT) vector.$(OBJEXT) \
+	vendor.$(OBJEXT) hid/common/actions.$(OBJEXT) \
+	hid/common/flags.$(OBJEXT) hid/common/hidinit.$(OBJEXT) \
+	hid/common/hidnogui.$(OBJEXT) hid/common/extents.$(OBJEXT)
 am_pcb_bin_OBJECTS = $(am__objects_6)
 pcb_bin_OBJECTS = $(am_pcb_bin_OBJECTS)
 @WIN32_TRUE@am__DEPENDENCIES_1 = pcb_icon.o
@@ -405,6 +405,8 @@ PCB_SRCS = \
 	parse_y.y \
 	polygon.c \
 	polygon.h \
+	polygon1.c \
+	polyarea.h \
 	puller.c \
 	print.c \
 	print.h \
@@ -864,6 +866,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/parse_l.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/parse_y.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/polygon.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/polygon1.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/print.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/puller.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/rats.Po@am__quote@
