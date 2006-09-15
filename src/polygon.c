@@ -125,7 +125,6 @@ original_poly (PolygonType * p)
   Vector v;
 
   /* first make initial polygon contour */
-  *(v + 2) = 0;
   POLYGONPOINT_LOOP (p);
   {
     v[0] = point->X;
