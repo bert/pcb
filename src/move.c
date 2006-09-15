@@ -238,7 +238,6 @@ MoveElement (ElementTypePtr Element)
 	EraseElementPinsAndPads (Element);
       MoveElementLowLevel (PCB->Data, Element, DeltaX, DeltaY);
     }
-  UpdatePIPFlags (NULL, Element, NULL, True);
   if (PCB->PinOn)
     {
       DrawElementPinsAndPads (Element, 0);
@@ -440,7 +439,7 @@ MovePolygonPoint (LayerTypePtr Layer, PolygonTypePtr Polygon,
   SetPolygonBoundingBox (Polygon);
   r_insert_entry (Layer->polygon_tree, (BoxType *) Polygon, 0);
   RemoveExcessPolygonPoints (Layer, Polygon);
-  UpdatePIPFlags (NULL, NULL, Layer, True);
+  InitClip(Layer, Polygon);
   if (Layer->On)
     {
       DrawPolygon (Layer, Polygon, 0);
@@ -571,7 +570,6 @@ moveline_callback (const BoxType * b, void *cl)
 		     NOFLAG, Settings.ViaDrillingHole, NULL,
 		     NoFlags ())) != NULL)
     {
-      UpdatePIPFlags (via, (ElementTypePtr) via, NULL, False);
       AddObjectToCreateUndoList (VIA_TYPE, via, via, via);
       DrawVia (via, 0);
     }
@@ -744,7 +742,7 @@ MovePolygonToLayer (LayerTypePtr Layer, PolygonTypePtr Polygon)
   ALLPIN_LOOP (PCB->Data);
   {
     if (TEST_THERM (GetLayerNumber (PCB->Data, Layer), pin) &&
-	IsPointInPolygon (pin->X, pin->Y, 0, Polygon))
+	IsPointInPolygon (pin->X, pin->Y, pin->Thickness + pin->Clearance + 2, Polygon))
       {
 	AddObjectToFlagUndoList (PIN_TYPE, Layer, pin, pin);
 	CLEAR_THERM (GetLayerNumber (PCB->Data, Layer), pin);
@@ -755,7 +753,7 @@ MovePolygonToLayer (LayerTypePtr Layer, PolygonTypePtr Polygon)
   VIA_LOOP (PCB->Data);
   {
     if (TEST_THERM (GetLayerNumber (PCB->Data, Layer), via) &&
-	IsPointInPolygon (via->X, via->Y, 0, Polygon))
+	IsPointInPolygon (via->X, via->Y, via->Thickness + via->Clearance + 2, Polygon))
       {
 	AddObjectToFlagUndoList (VIA_TYPE, Layer, via, via);
 	CLEAR_THERM (GetLayerNumber (PCB->Data, Layer), via);
@@ -764,8 +762,7 @@ MovePolygonToLayer (LayerTypePtr Layer, PolygonTypePtr Polygon)
   }
   END_LOOP;
   new = MovePolygonToLayerLowLevel (Layer, Polygon, Dest);
-  UpdatePIPFlags (NULL, NULL, Layer, True);
-  UpdatePIPFlags (NULL, NULL, Dest, True);
+  InitClip(Dest, Polygon);
   if (Dest->On)
     {
       DrawPolygon (Dest, new, 0);

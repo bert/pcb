@@ -68,7 +68,7 @@
 #include "misc.h"
 #include "mtspace.h"
 #include "mymem.h"
-#include "polygon.h"		/* for UpdatePIPFlags */
+#include "polygon.h"
 #include "rats.h"
 #include "remove.h"
 #include "undo.h"
@@ -3844,9 +3844,6 @@ IronDownAllUnfixedPaths (routedata_t * rd)
 		  assert (pp->parent.via);
 		  if (pp->parent.via)
 		    {
-		      UpdatePIPFlags (pp->parent.via,
-				      (ElementTypePtr) pp->parent.via,
-				      NULL, False);
 		      AddObjectToCreateUndoList (VIA_TYPE,
 						 pp->parent.via,
 						 pp->parent.via,

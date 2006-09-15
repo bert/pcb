@@ -39,7 +39,6 @@ Boolean RemoveExcessPolygonPoints (LayerTypePtr, PolygonTypePtr);
 void GoToPreviousPoint (void);
 void ClosePolygon (void);
 void CopyAttachedPolygonToLayer (void);
-void UpdatePIPFlags (PinTypePtr, ElementTypePtr, LayerTypePtr, Boolean);
 int PolygonHoles (int group, const BoxType * range,
 		  int (*callback) (PLINE *, LayerTypePtr, PolygonTypePtr));
 int PlowsPolygon (DataType *, ObjectArgType *,

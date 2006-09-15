@@ -201,7 +201,7 @@ DestroyPolygonPoint (LayerTypePtr Layer,
   Polygon->PointN--;
   SetPolygonBoundingBox (Polygon);
   r_insert_entry (Layer->polygon_tree, (BoxType *) Polygon, 0);
-  UpdatePIPFlags (NULL, NULL, Layer, True);
+  InitClip(Layer, Polygon);
   return (Polygon);
 }
 
@@ -429,7 +429,6 @@ RemovePolygon (LayerTypePtr Layer, PolygonTypePtr Polygon)
 	Draw ();
     }
   MoveObjectToRemoveUndoList (POLYGON_TYPE, Layer, Polygon, Polygon);
-  UpdatePIPFlags (NULL, NULL, Layer, True);
   return (NULL);
 }
 
@@ -469,7 +468,7 @@ RemovePolygonPoint (LayerTypePtr Layer,
   SetPolygonBoundingBox (Polygon);
   r_insert_entry (Layer->polygon_tree, (BoxType *) Polygon, 0);
   RemoveExcessPolygonPoints (Layer, Polygon);
-  UpdatePIPFlags (NULL, NULL, Layer, True);
+  InitClip(Layer, Polygon);
   /* redraw polygon if necessary */
   if (Layer->On)
     {

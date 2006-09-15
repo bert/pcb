@@ -574,7 +574,8 @@ InitClip (LayerTypePtr layer, PolygonType * p)
   if (!p->Clipped)
     return 0;
   assert (poly_Valid (p->Clipped));
-  clearPoly (layer, p, NULL);
+  if (TEST_FLAG(CLEARPOLYFLAG, p))
+    clearPoly (layer, p, NULL);
   return 1;
 }
 
@@ -773,12 +774,6 @@ CopyAttachedPolygonToLayer (void)
   /* add to undo list */
   AddObjectToCreateUndoList (POLYGON_TYPE, CURRENT, polygon, polygon);
   IncrementUndoSerialNumber ();
-}
-
-void
-UpdatePIPFlags (PinTypePtr Pin, ElementTypePtr Element,
-		LayerTypePtr Layer, Boolean AddUndo)
-{
 }
 
 struct hole_info
@@ -982,7 +977,10 @@ RestoreToPolygon (DataType * Data, ObjectArgType * object)
 void
 ClearFromPolygon (DataType * Data, ObjectArgType * object)
 {
-  PlowsPolygon (Data, object, subtract_plow);
+  if (object->type == POLYGON_TYPE)
+    InitClip((LayerTypePtr)(object->ptr1), (PolygonTypePtr)(object->ptr2));
+  else
+    PlowsPolygon (Data, object, subtract_plow);
 }
 
 Boolean

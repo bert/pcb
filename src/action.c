@@ -566,7 +566,6 @@ ClearWarnings ()
       }
   }
   ENDALL_LOOP;
-  UpdatePIPFlags (NULL, NULL, NULL, False);
   Draw ();
 }
 
@@ -947,7 +946,6 @@ NotifyMode (void)
 				 0, Settings.ViaDrillingHole, NULL,
 				 NoFlags ())) != NULL)
 	  {
-	    UpdatePIPFlags (via, (ElementTypePtr) via, NULL, False);
 	    AddObjectToCreateUndoList (VIA_TYPE, via, via, via);
 	    IncrementUndoSerialNumber ();
 	    DrawVia (via, 0);
@@ -1203,7 +1201,6 @@ NotifyMode (void)
 				    Settings.ViaDrillingHole, NULL,
 				    NoFlags ())) != NULL)
 		{
-		  UpdatePIPFlags (via, (ElementTypePtr) via, NULL, False);
 		  AddObjectToCreateUndoList (VIA_TYPE, via, via, via);
 		  DrawVia (via, 0);
 		}
@@ -1279,7 +1276,6 @@ NotifyMode (void)
 	    {
 	      AddObjectToCreateUndoList (POLYGON_TYPE, CURRENT,
 					 polygon, polygon);
-	      UpdatePIPFlags (NULL, NULL, CURRENT, True);
 	      IncrementUndoSerialNumber ();
 	      DrawPolygon (CURRENT, polygon, 0);
 	      Draw ();
@@ -1757,7 +1753,6 @@ ActionFlip (int argc, char **argv, int x, int y)
 	    {
 	      element = (ElementTypePtr) ptrtmp;
 	      ChangeElementSide (element, 2 * Crosshair.Y - PCB->MaxHeight);
-	      UpdatePIPFlags (NULL, element, NULL, True);
 	      IncrementUndoSerialNumber ();
 	      Draw ();
 	    }
