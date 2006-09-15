@@ -218,7 +218,8 @@ __r_tree_is_good (struct rtree_node *node)
     }
   return 1;
 }
-
+#endif
+#ifndef NDEBUG
 /* print out the tree */
 void
 __r_dump_tree (struct rtree_node *node, int depth)
