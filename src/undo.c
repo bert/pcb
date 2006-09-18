@@ -61,6 +61,7 @@
 #include "mirror.h"
 #include "move.h"
 #include "mymem.h"
+#include "polygon.h"
 #include "remove.h"
 #include "rotate.h"
 #include "rtree.h"
@@ -555,7 +556,6 @@ UndoMirror (UndoListTypePtr Entry)
 static Boolean
 UndoCopyOrCreate (UndoListTypePtr Entry)
 {
-  ObjectArgType object;
   void *ptr1, *ptr2, *ptr3;
   int type;
 
@@ -571,11 +571,7 @@ UndoCopyOrCreate (UndoListTypePtr Entry)
       if (andDraw)
 	EraseObject (type, ptr2);
       /* in order to make this re-doable we move it to the RemoveList */
-      object.type = type;
-      object.ptr1 = ptr1;
-      object.ptr2 = ptr2;
-      object.ptr3 = ptr3;
-      MoveObjectToBuffer (RemoveList, PCB->Data, object);
+      MoveObjectToBuffer (RemoveList, PCB->Data, type, ptr1, ptr2, ptr3);
       Entry->Type = UNDO_REMOVE;
       return (True);
     }
@@ -615,7 +611,6 @@ UndoMove (UndoListTypePtr Entry)
 static Boolean
 UndoRemove (UndoListTypePtr Entry)
 {
-  ObjectArgType object;
   void *ptr1, *ptr2, *ptr3;
   int type;
 
@@ -625,13 +620,9 @@ UndoRemove (UndoListTypePtr Entry)
 		      Entry->Kind);
   if (type != NO_TYPE)
     {
-      object.type = type;
-      object.ptr1 = ptr1;
-      object.ptr2 = ptr2;
-      object.ptr3 = ptr3;
       if (andDraw)
 	DrawRecoveredObject (type, ptr1, ptr2, ptr3);
-      MoveObjectToBuffer (PCB->Data, RemoveList, object);
+      MoveObjectToBuffer (PCB->Data, RemoveList, type, ptr1, ptr2, ptr3);
       Entry->Type = UNDO_CREATE;
       return (True);
     }
@@ -1066,7 +1057,6 @@ void
 MoveObjectToRemoveUndoList (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
 {
   UndoListTypePtr undo;
-  ObjectArgType obj;
 
   if (!Locked)
     {
@@ -1074,11 +1064,7 @@ MoveObjectToRemoveUndoList (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
 	RemoveList = CreateNewBuffer ();
 
       undo = GetUndoSlot (UNDO_REMOVE, OBJECT_ID (Ptr3), Type);
-      obj.type = Type;
-      obj.ptr1 = Ptr1;
-      obj.ptr2 = Ptr2;
-      obj.ptr3 = Ptr3;
-      MoveObjectToBuffer (RemoveList, PCB->Data, obj);
+      MoveObjectToBuffer (RemoveList, PCB->Data, Type, Ptr1, Ptr2, Ptr3);
     }
 }
 
@@ -1182,15 +1168,10 @@ void
 AddObjectToCreateUndoList (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
 {
   UndoListTypePtr undo;
-  ObjectArgType obj;
 
   if (!Locked)
     undo = GetUndoSlot (UNDO_CREATE, OBJECT_ID (Ptr3), Type);
-  obj.type = Type;
-  obj.ptr1 = Ptr1;
-  obj.ptr2 = Ptr2;
-  obj.ptr3 = Ptr3;
-  ClearFromPolygon (PCB->Data, &obj);
+  ClearFromPolygon (PCB->Data, Type, Ptr1, Ptr2);
 }
 
 /* ---------------------------------------------------------------------------

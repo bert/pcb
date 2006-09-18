@@ -35,6 +35,7 @@
 #include "global.h"
 #include "mymem.h"
 
+void thermal_backward_compat (PCBTypePtr, PinTypePtr);
 void r_delete_element (DataTypePtr, ElementTypePtr);
 void SetLineBoundingBox (LineTypePtr);
 void SetArcBoundingBox (ArcTypePtr);

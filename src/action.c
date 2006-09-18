@@ -1089,14 +1089,10 @@ NotifyMode (void)
 	      =
 	      SearchScreen (Note.X, Note.Y, PIN_TYPES, &ptr1, &ptr2,
 			    &ptr3)) != NO_TYPE)
-	    && TEST_PIP (INDEXOFCURRENT, (PinTypePtr) ptr3)
 	    && !TEST_FLAG (HOLEFLAG, (PinTypePtr) ptr3))
 	  {
-	    AddObjectToFlagUndoList (type, ptr1, ptr2, ptr3);
-	    TOGGLE_THERM (INDEXOFCURRENT, (PinTypePtr) ptr3);
-	    IncrementUndoSerialNumber ();
-	    ClearPin ((PinTypePtr) ptr3, type, 0);
-	    Draw ();
+	    /* fix me - check that there is a polygon here to therm */
+	    ChangeObjectThermal (type, ptr1, ptr2, ptr3);
 	  }
 	break;
       }

@@ -264,7 +264,7 @@ CopyPolygon (LayerTypePtr Layer, PolygonTypePtr Polygon)
   if (!Layer->polygon_tree)
     Layer->polygon_tree = r_create_tree (NULL, 0, 0);
   r_insert_entry (Layer->polygon_tree, (BoxTypePtr) polygon, 0);
-  InitClip (Layer, polygon);
+  InitClip (PCB->Data, Layer, polygon);
   DrawPolygon (Layer, polygon, 0);
   AddObjectToCreateUndoList (POLYGON_TYPE, Layer, polygon, polygon);
   return (polygon);

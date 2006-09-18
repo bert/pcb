@@ -293,14 +293,6 @@ typedef struct
   BoxType VBox;
 } ElementType, *ElementTypePtr, **ElementTypeHandle;
 
-typedef struct
-{
-   int type;
-   void *ptr1;
-   void *ptr2;
-   void *ptr3;
-} ObjectArgType, *ObjectArgTypePtr;
-
 /* ---------------------------------------------------------------------------
  * symbol and font related stuff
  */

@@ -132,7 +132,6 @@ PCBTypePtr
 CreateNewPCB (Boolean SetDefaultNames)
 {
   PCBTypePtr ptr;
-  int i;
 
   /* allocate memory, switch all layers on and copy resources */
   ptr = MyCalloc (1, sizeof (PCBType), "CreateNewPCB()");
@@ -540,7 +539,7 @@ CreateNewPolygonFromRectangle (LayerTypePtr Layer,
   CreateNewPointInPolygon (polygon, X2, Y2);
   CreateNewPointInPolygon (polygon, X1, Y2);
   SetPolygonBoundingBox (polygon);
-  InitClip (Layer, polygon);
+  InitClip (PCB->Data, Layer, polygon);
   if (!Layer->polygon_tree)
     Layer->polygon_tree = r_create_tree (NULL, 0, 0);
   r_insert_entry (Layer->polygon_tree, (BoxTypePtr) polygon, 0);

@@ -236,11 +236,8 @@ static void *
 MoveViaToBuffer (PinTypePtr Via)
 {
   PinTypePtr via;
-  ObjectArgType obj;
 
-  obj.type = VIA_TYPE;
-  obj.ptr1 = obj.ptr2 = obj.ptr3 = Via;
-  RestoreToPolygon (Source, &obj);
+  RestoreToPolygon (Source, VIA_TYPE, Via, Via);
   r_delete_entry (Source->via_tree, (BoxType *) Via);
   via = GetViaMemory (Dest);
   *via = *Via;
@@ -252,8 +249,7 @@ MoveViaToBuffer (PinTypePtr Via)
   if (!Dest->via_tree)
     Dest->via_tree = r_create_tree (NULL, 0, 0);
   r_insert_entry (Dest->via_tree, (BoxType *) via, 0);
-  obj.ptr1 = obj.ptr2 = obj.ptr3 = via;
-  ClearFromPolygon (Dest, &obj);
+  ClearFromPolygon (Dest, VIA_TYPE, via, via);
   return (via);
 }
 
@@ -287,12 +283,8 @@ MoveLineToBuffer (LayerTypePtr Layer, LineTypePtr Line)
 {
   LayerTypePtr lay;
   LineTypePtr line;
-  ObjectArgType obj;
 
-  obj.type = LINE_TYPE;
-  obj.ptr1 = Layer;
-  obj.ptr2 = obj.ptr3 = Line;
-  RestoreToPolygon (Source, &obj);
+  RestoreToPolygon (Source, LINE_TYPE, Layer, Line);
   r_delete_entry (Layer->line_tree, (BoxTypePtr) Line);
   lay = &Dest->Layer[GetLayerNumber (Source, Layer)];
   line = GetLineMemory (lay);
@@ -306,9 +298,7 @@ MoveLineToBuffer (LayerTypePtr Layer, LineTypePtr Line)
   if (!lay->line_tree)
     lay->line_tree = r_create_tree (NULL, 0, 0);
   r_insert_entry (lay->line_tree, (BoxTypePtr) line, 0);
-  obj.ptr1 = lay;
-  obj.ptr2 = obj.ptr3 = line;
-  ClearFromPolygon (Dest, &obj);
+  ClearFromPolygon (Dest, LINE_TYPE, lay, line);
   return (line);
 }
 
@@ -632,7 +622,6 @@ SmashBufferElement (BufferTypePtr Buffer)
 Boolean
 ConvertBufferToElement (BufferTypePtr Buffer)
 {
-  ObjectArgType object;
   ElementTypePtr Element;
   Cardinal group;
   Cardinal pin_n = 1;
@@ -760,9 +749,8 @@ ConvertBufferToElement (BufferTypePtr Buffer)
     SET_FLAG (ONSOLDERFLAG, Element);
   SetElementBoundingBox (PCB->Data, Element, &PCB->Font);
   ClearBuffer (Buffer);
-  object.type = ELEMENT_TYPE;
-  object.ptr1 = object.ptr2 = object.ptr3 = Element;
-  MoveObjectToBuffer (Buffer->Data, PCB->Data, object);
+  MoveObjectToBuffer (Buffer->Data, PCB->Data, ELEMENT_TYPE, Element, Element,
+		      Element);
   SetBufferBoundingBox (Buffer);
   return (True);
 }
@@ -1068,13 +1056,12 @@ SwapBuffer (BufferTypePtr Buffer)
  */
 void *
 MoveObjectToBuffer (DataTypePtr Destination, DataTypePtr Src,
-		    ObjectArgType object)
+		    int Type, void *Ptr1, void *Ptr2, void *Ptr3)
 {
   /* setup local identifiers used by move operations */
   Dest = Destination;
   Source = Src;
-  return (ObjectOperation (&MoveBufferFunctions, object.type, object.ptr1,
-			   object.ptr2, object.ptr3));
+  return (ObjectOperation (&MoveBufferFunctions, Type, Ptr1, Ptr2, Ptr3));
 }
 
 /* ----------------------------------------------------------------------

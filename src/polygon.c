@@ -85,6 +85,8 @@ biggest (POLYAREA * p)
   POLYAREA *n, *top;
   PLINE *pl;
   double big = 0;
+  if (!p)
+    return NULL;
   n = p;
   do
     {
@@ -169,7 +171,7 @@ ClipOriginal (PolygonType * poly)
     }
   poly_Free (&poly->Clipped);
   poly->Clipped = biggest (result);
-  assert (poly_Valid (poly->Clipped));
+  assert (!poly->Clipped || poly_Valid (poly->Clipped));
   return 1;
 }
 
@@ -312,7 +314,12 @@ Subtract (POLYAREA * np1, PolygonType * p)
   POLYAREA *merged = NULL, *np = np1;;
   int x;
   assert (np);
-  assert (p && p->Clipped);
+  assert (p);
+  if (!p->Clipped)
+    {
+      poly_Free (&np);
+      return 1;
+    }
   assert (poly_Valid (p->Clipped));
   assert (poly_Valid (np));
   x = poly_Boolean (p->Clipped, np, &merged, PBO_SUB);
@@ -323,7 +330,7 @@ Subtract (POLYAREA * np1, PolygonType * p)
       SavePOLYAREA (np, "bad_poly_b.wrl");
     }
 #endif
-  assert (poly_Valid (merged));
+  assert (!merged || poly_Valid (merged));
   poly_Free (&np);
   if (x != err_ok)
     {
@@ -333,7 +340,11 @@ Subtract (POLYAREA * np1, PolygonType * p)
     }
   poly_Free (&p->Clipped);
   p->Clipped = biggest (merged);
-  assert (poly_Valid (p->Clipped));
+  assert (!p->Clipped || poly_Valid (p->Clipped));
+  if (!p->Clipped)
+    Message ("Polygon cleared out of existence near (%d, %d)\n",
+	     (p->BoundingBox.X1 + p->BoundingBox.X2) / 2,
+	     (p->BoundingBox.Y1 + p->BoundingBox.Y2) / 2);
   return 1;
 }
 
@@ -454,8 +465,8 @@ line_sub_callback (const BoxType * b, void *cl)
     }
 }
 
-int
-clearPoly (LayerTypePtr layer, PolygonType * polygon, const BoxType * here)
+static int
+clearPoly (DataTypePtr Data, LayerTypePtr layer, PolygonType * polygon, const BoxType * here)
 {
   int r = 0;
   BoxType region;
@@ -470,9 +481,9 @@ clearPoly (LayerTypePtr layer, PolygonType * polygon, const BoxType * here)
   else
     region = polygon->BoundingBox;
 
-  r = r_search (PCB->Data->via_tree, &region, NULL, pin_sub_callback, &info);
-  r += r_search (PCB->Data->pin_tree, &region, NULL, pin_sub_callback, &info);
-  GROUP_LOOP (PCB->Data, GetLayerGroupNumberByPointer (layer));
+  r = r_search (Data->via_tree, &region, NULL, pin_sub_callback, &info);
+  r += r_search (Data->pin_tree, &region, NULL, pin_sub_callback, &info);
+  GROUP_LOOP (Data, GetLayerGroupNumberByNumber (GetLayerNumber (Data, layer)));
   {
     r += r_search (layer->line_tree, &region, NULL, line_sub_callback, &info);
   }
@@ -497,7 +508,7 @@ Unsubtract (POLYAREA * np1, PolygonType * p)
     }
   poly_Free (&p->Clipped);
   p->Clipped = biggest (merged);
-  assert (poly_Valid (p->Clipped));
+  assert (!p->Clipped || poly_Valid (p->Clipped));
   return ClipOriginal (p);
 }
 
@@ -513,7 +524,7 @@ UnsubtractPin (PinType * pin, LayerType * l, PolygonType * p)
     return 0;
   if (!Unsubtract (np, p))
     return 0;
-  clearPoly (l, p, (const BoxType *) pin);
+  clearPoly (PCB->Data, l, p, (const BoxType *) pin);
   return 1;
 }
 
@@ -527,7 +538,7 @@ UnsubtractLine (LineType * line, LayerType * l, PolygonType * p)
     return 0;
   if (!Unsubtract (np, p))
     return 0;
-  clearPoly (l, p, (const BoxType *) line);
+  clearPoly (PCB->Data, l, p, (const BoxType *) line);
   return 1;
 }
 
@@ -557,12 +568,12 @@ UnsubtractPad (PadType * pad, LayerType * l, PolygonType * p)
     }
   if (!Unsubtract (np, p))
     return 0;
-  clearPoly (l, p, (const BoxType *) pad);
+  clearPoly (PCB->Data, l, p, (const BoxType *) pad);
   return 1;
 }
 
 int
-InitClip (LayerTypePtr layer, PolygonType * p)
+InitClip (DataTypePtr Data, LayerTypePtr layer, PolygonType * p)
 {
   if (p->Clipped)
     poly_Free (&p->Clipped);
@@ -570,8 +581,8 @@ InitClip (LayerTypePtr layer, PolygonType * p)
   if (!p->Clipped)
     return 0;
   assert (poly_Valid (p->Clipped));
-  if (TEST_FLAG(CLEARPOLYFLAG, p))
-    clearPoly (layer, p, NULL);
+  if (TEST_FLAG (CLEARPOLYFLAG, p))
+    clearPoly (Data, layer, p, NULL);
   return 1;
 }
 
@@ -759,7 +770,7 @@ CopyAttachedPolygonToLayer (void)
   if (!CURRENT->polygon_tree)
     CURRENT->polygon_tree = r_create_tree (NULL, 0, 0);
   r_insert_entry (CURRENT->polygon_tree, (BoxType *) polygon, 0);
-  InitClip (CURRENT, polygon);
+  InitClip (PCB->Data, CURRENT, polygon);
   DrawPolygon (CURRENT, polygon, 0);
   SetChangedFlag (True);
 
@@ -789,6 +800,11 @@ hole_callback (const BoxType * b, void *cl)
   PLINE *pl;
 
   pa = polygon->Clipped;
+  /* If this hole is so big the polygon doesn't exist, then it's not
+   * really a hole.
+   */
+  if (!pa)
+    return 0;
   do
     {
       for (pl = pa->contours->next; pl; pl = pl->next)
@@ -835,45 +851,47 @@ PolygonHoles (int group, const BoxType * range,
 
 struct plow_info
 {
-  ObjectArgType *object;
+  int type;
+  void *ptr1, *ptr2;
   LayerTypePtr layer;
-  int (*callback) (LayerTypePtr, PolygonTypePtr, ObjectArgType *);
+  int (*callback) (LayerTypePtr, PolygonTypePtr, int, void *, void *);
 };
 
 static int
 subtract_plow (LayerTypePtr Layer, PolygonTypePtr Polygon,
-	       ObjectArgType * Object)
+	       int type, void *ptr1, void *ptr2)
 {
-  switch (Object->type)
+  switch (type)
     {
     case PIN_TYPE:
     case VIA_TYPE:
-      SubtractPin ((PinTypePtr) (Object->ptr2), Polygon);
+      SubtractPin ((PinTypePtr) ptr2, Polygon);
       return 1;
     case LINE_TYPE:
-      SubtractLine ((LineTypePtr) (Object->ptr2), Polygon);
+      SubtractLine ((LineTypePtr) ptr2, Polygon);
       return 1;
     case PAD_TYPE:
-      SubtractPad ((PadTypePtr) (Object->ptr2), Polygon);
+      SubtractPad ((PadTypePtr) ptr2, Polygon);
       return 1;
     }
   return 0;
 }
 
 static int
-add_plow (LayerTypePtr Layer, PolygonTypePtr Polygon, ObjectArgType * Object)
+add_plow (LayerTypePtr Layer, PolygonTypePtr Polygon, int type, void *ptr1,
+	  void *ptr2)
 {
-  switch (Object->type)
+  switch (type)
     {
     case PIN_TYPE:
     case VIA_TYPE:
-      UnsubtractPin ((PinTypePtr) (Object->ptr2), Layer, Polygon);
+      UnsubtractPin ((PinTypePtr) ptr2, Layer, Polygon);
       return 1;
     case LINE_TYPE:
-      UnsubtractLine ((LineTypePtr) (Object->ptr2), Layer, Polygon);
+      UnsubtractLine ((LineTypePtr) ptr2, Layer, Polygon);
       return 1;
     case PAD_TYPE:
-      UnsubtractPad ((PadTypePtr) (Object->ptr2), Layer, Polygon);
+      UnsubtractPad ((PadTypePtr) ptr2, Layer, Polygon);
       return 1;
     }
   return 0;
@@ -885,25 +903,28 @@ plow_callback (const BoxType * b, void *cl)
   struct plow_info *plow = (struct plow_info *) cl;
   PolygonTypePtr polygon = (PolygonTypePtr) b;
 
-  return plow->callback (plow->layer, polygon, plow->object);
+  return plow->callback (plow->layer, polygon, plow->type, plow->ptr1,
+			 plow->ptr2);
 }
 
 int
-PlowsPolygon (DataType * Data, ObjectArgType * object,
+PlowsPolygon (DataType * Data, int type, void *ptr1, void *ptr2,
 	      int (*call_back) (LayerTypePtr lay, PolygonTypePtr poly,
-				ObjectArgType * object))
+				int type, void *ptr1, void *ptr2))
 {
-  BoxType sb = ((PinTypePtr) (object->ptr2))->BoundingBox;
+  BoxType sb = ((PinTypePtr) ptr2)->BoundingBox;
   int r = 0;
   struct plow_info info;
 
-  info.object = object;
+  info.type = type;
+  info.ptr1 = ptr1;
+  info.ptr2 = ptr2;
   info.callback = call_back;
-  switch (object->type)
+  switch (type)
     {
     case PIN_TYPE:
     case VIA_TYPE:
-      if (((PinTypePtr) (object->ptr2))->Clearance == 0)
+      if (((PinTypePtr) ptr2)->Clearance == 0)
 	return 0;
       LAYER_LOOP (Data, max_layer);
       {
@@ -913,10 +934,10 @@ PlowsPolygon (DataType * Data, ObjectArgType * object,
       END_LOOP;
       break;
     case LINE_TYPE:
-      if (!TEST_FLAG (CLEARLINEFLAG, (LineTypePtr) (object->ptr2)))
+      if (!TEST_FLAG (CLEARLINEFLAG, (LineTypePtr) ptr2))
 	return 0;
       GROUP_LOOP (Data, GetLayerGroupNumberByNumber (GetLayerNumber (Data,
-								     ((LayerTypePtr) (object->ptr1)))));
+								     ((LayerTypePtr) ptr1))));
       {
 	info.layer = layer;
 	r += r_search (layer->polygon_tree, &sb, NULL, plow_callback, &info);
@@ -925,10 +946,9 @@ PlowsPolygon (DataType * Data, ObjectArgType * object,
       break;
     case PAD_TYPE:
       {
-	Cardinal group =
-	  TEST_FLAG (ONSOLDERFLAG,
-		     (PadType *) (object->
-				  ptr2)) ? SOLDER_LAYER : COMPONENT_LAYER;
+	Cardinal group = TEST_FLAG (ONSOLDERFLAG,
+				    (PadType *) ptr2) ? SOLDER_LAYER :
+	  COMPONENT_LAYER;
 	group = GetLayerGroupNumberByNumber (max_layer + group);
 	GROUP_LOOP (Data, group);
 	{
@@ -942,20 +962,14 @@ PlowsPolygon (DataType * Data, ObjectArgType * object,
 
     case ELEMENT_TYPE:
       {
-	ObjectArgType obj;
-	obj.type = PIN_TYPE;
-	obj.ptr1 = (ElementType *) object->ptr1;
-	PIN_LOOP ((ElementType *) (object->ptr1));
+	PIN_LOOP ((ElementType *) ptr1);
 	{
-	  obj.ptr2 = obj.ptr3 = pin;
-	  PlowsPolygon (Data, &obj, call_back);
+	  PlowsPolygon (Data, PIN_TYPE, ptr1, pin, call_back);
 	}
 	END_LOOP;
-	obj.type = PAD_TYPE;
-	PAD_LOOP ((ElementType *) (object->ptr1));
+	PAD_LOOP ((ElementType *) ptr1);
 	{
-	  obj.ptr2 = obj.ptr3 = pad;
-	  PlowsPolygon (Data, &obj, call_back);
+	  PlowsPolygon (Data, PAD_TYPE, ptr1, pad, call_back);
 	}
 	END_LOOP;
       }
@@ -965,18 +979,18 @@ PlowsPolygon (DataType * Data, ObjectArgType * object,
 }
 
 void
-RestoreToPolygon (DataType * Data, ObjectArgType * object)
+RestoreToPolygon (DataType * Data, int type, void *ptr1, void *ptr2)
 {
-  PlowsPolygon (Data, object, add_plow);
+  PlowsPolygon (Data, type, ptr1, ptr2, add_plow);
 }
 
 void
-ClearFromPolygon (DataType * Data, ObjectArgType * object)
+ClearFromPolygon (DataType * Data, int type, void *ptr1, void *ptr2)
 {
-  if (object->type == POLYGON_TYPE)
-    InitClip((LayerTypePtr)(object->ptr1), (PolygonTypePtr)(object->ptr2));
+  if (type == POLYGON_TYPE)
+    InitClip (PCB->Data, (LayerTypePtr) ptr1, (PolygonTypePtr) ptr2);
   else
-    PlowsPolygon (Data, object, subtract_plow);
+    PlowsPolygon (Data, type, ptr1, ptr2, subtract_plow);
 }
 
 Boolean
@@ -1015,89 +1029,91 @@ IsRectangleInPolygon (LocationType X1, LocationType Y1, LocationType X2,
 }
 
 void
-NoHolesPolygonDicer (PLINE *p, void (*emit) (PolygonTypePtr))
+NoHolesPolygonDicer (PLINE * p, void (*emit) (PolygonTypePtr))
 {
   POLYAREA pa;
 
   pa.f = pa.b = &pa;
   pa.contours = p;
-  if (!p->next) /* no holes */
-  {
-    PolygonType poly;
-    PointType pts[4];
+  if (!p->next)			/* no holes */
+    {
+      PolygonType poly;
+      PointType pts[4];
 
-    poly.BoundingBox.X1 = p->xmin;
-    poly.BoundingBox.X2 = p->xmax;
-    poly.BoundingBox.Y1 = p->ymin;
-    poly.BoundingBox.Y2 = p->ymax;
-    poly.PointN = poly.PointMax = 4;
-    poly.Clipped = &pa;
-    poly.Points = pts;
-    pts[0].X = pts[0].X2 = p->xmin;
-    pts[0].Y = pts[0].Y2 = p->ymin;
-    pts[1].X = pts[1].X2 = p->xmax;
-    pts[1].Y = pts[1].Y2 = p->ymin;
-    pts[2].X = pts[2].X2 = p->xmax;
-    pts[2].Y = pts[2].Y2 = p->ymax;
-    pts[3].X = pts[3].X2 = p->xmin;
-    pts[3].Y = pts[3].Y2 = p->ymax;
-    poly.Flags = MakeFlags (CLEARPOLYFLAG);
-    emit(&poly);
-    return;
-  }
+      poly.BoundingBox.X1 = p->xmin;
+      poly.BoundingBox.X2 = p->xmax;
+      poly.BoundingBox.Y1 = p->ymin;
+      poly.BoundingBox.Y2 = p->ymax;
+      poly.PointN = poly.PointMax = 4;
+      poly.Clipped = &pa;
+      poly.Points = pts;
+      pts[0].X = pts[0].X2 = p->xmin;
+      pts[0].Y = pts[0].Y2 = p->ymin;
+      pts[1].X = pts[1].X2 = p->xmax;
+      pts[1].Y = pts[1].Y2 = p->ymin;
+      pts[2].X = pts[2].X2 = p->xmax;
+      pts[2].Y = pts[2].Y2 = p->ymax;
+      pts[3].X = pts[3].X2 = p->xmin;
+      pts[3].Y = pts[3].Y2 = p->ymax;
+      poly.Flags = MakeFlags (CLEARPOLYFLAG);
+      emit (&poly);
+      return;
+    }
   else
-  {
-    POLYAREA poly2, *res;
-    PLINE slice;
-    VNODE v[3];
+    {
+      POLYAREA poly2, *res;
+      PLINE slice;
+      VNODE v[3];
 
-    poly_IniContour (&slice);
-    slice.head.next = v[1].prev = &v[0];
-    v[0].next = v[2].prev = &v[1];
-    v[1].next = slice.head.prev = &v[2];
-    v[2].next = v[0].prev = &slice.head;
-    /* make a rectangle of the left region slicing through the middle of the first hole */
-    slice.head.point[0] = slice.xmax = (p->next->xmin + p->next->xmax)/2;
-    slice.head.point[1] = slice.ymax = p->ymax;
-    v[0].point[0] = slice.xmin = p->xmin;
-    v[0].point[1] = slice.ymax;
-    v[1].point[0] = slice.xmin;
-    v[1].point[1] = slice.ymin = p->ymin;
-    v[2].point[0] = slice.xmax;
-    v[2].point[1] = slice.ymin;
-    slice.Count = 4;
-    slice.Flags.orient = PLF_DIR;
-    poly2.f = poly2.b = &poly2;
-    poly2.contours = &slice;
-    res = NULL;
-    poly_Boolean(&poly2, &pa, &res, PBO_ISECT);
-    if (res)
-      {
-	POLYAREA *x;
-	x = res;
-	do
-	  {
-             PLINE *pl = x->contours;
-             NoHolesPolygonDicer(pl, emit);
-	  } while ((x = x->f) != res);
-	poly_Free(&res);
-      }
-    /* make a rectangle of the right region slicing through the middle of the first hole */
-    slice.head.point[0] = slice.xmax = p->xmax;
-    v[0].point[0] = slice.xmin = (p->next->xmin + p->next->xmax)/2;
-    v[1].point[0] = slice.xmin;
-    v[2].point[0] = slice.xmax;
-    poly_Boolean(&poly2, &pa, &res, PBO_ISECT);
-    if (res)
-      {
-	POLYAREA *x;
-	x = res;
-	do
-	  {
-             PLINE *pl = x->contours;
-             NoHolesPolygonDicer(pl, emit);
-	  } while ((x = x->f) != res);
-	poly_Free(&res);
-      }
-  }
+      poly_IniContour (&slice);
+      slice.head.next = v[1].prev = &v[0];
+      v[0].next = v[2].prev = &v[1];
+      v[1].next = slice.head.prev = &v[2];
+      v[2].next = v[0].prev = &slice.head;
+      /* make a rectangle of the left region slicing through the middle of the first hole */
+      slice.head.point[0] = slice.xmax = (p->next->xmin + p->next->xmax) / 2;
+      slice.head.point[1] = slice.ymax = p->ymax;
+      v[0].point[0] = slice.xmin = p->xmin;
+      v[0].point[1] = slice.ymax;
+      v[1].point[0] = slice.xmin;
+      v[1].point[1] = slice.ymin = p->ymin;
+      v[2].point[0] = slice.xmax;
+      v[2].point[1] = slice.ymin;
+      slice.Count = 4;
+      slice.Flags.orient = PLF_DIR;
+      poly2.f = poly2.b = &poly2;
+      poly2.contours = &slice;
+      res = NULL;
+      poly_Boolean (&poly2, &pa, &res, PBO_ISECT);
+      if (res)
+	{
+	  POLYAREA *x;
+	  x = res;
+	  do
+	    {
+	      PLINE *pl = x->contours;
+	      NoHolesPolygonDicer (pl, emit);
+	    }
+	  while ((x = x->f) != res);
+	  poly_Free (&res);
+	}
+      /* make a rectangle of the right region slicing through the middle of the first hole */
+      slice.head.point[0] = slice.xmax = p->xmax;
+      v[0].point[0] = slice.xmin = (p->next->xmin + p->next->xmax) / 2;
+      v[1].point[0] = slice.xmin;
+      v[2].point[0] = slice.xmax;
+      poly_Boolean (&poly2, &pa, &res, PBO_ISECT);
+      if (res)
+	{
+	  POLYAREA *x;
+	  x = res;
+	  do
+	    {
+	      PLINE *pl = x->contours;
+	      NoHolesPolygonDicer (pl, emit);
+	    }
+	  while ((x = x->f) != res);
+	  poly_Free (&res);
+	}
+    }
 }

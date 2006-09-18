@@ -201,7 +201,7 @@ DestroyPolygonPoint (LayerTypePtr Layer,
   Polygon->PointN--;
   SetPolygonBoundingBox (Polygon);
   r_insert_entry (Layer->polygon_tree, (BoxType *) Polygon, 0);
-  InitClip(Layer, Polygon);
+  InitClip (PCB->Data, Layer, Polygon);
   return (Polygon);
 }
 
@@ -468,7 +468,7 @@ RemovePolygonPoint (LayerTypePtr Layer,
   SetPolygonBoundingBox (Polygon);
   r_insert_entry (Layer->polygon_tree, (BoxType *) Polygon, 0);
   RemoveExcessPolygonPoints (Layer, Polygon);
-  InitClip(Layer, Polygon);
+  InitClip (PCB->Data, Layer, Polygon);
   /* redraw polygon if necessary */
   if (Layer->On)
     {

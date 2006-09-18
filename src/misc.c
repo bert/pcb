@@ -1942,6 +1942,36 @@ c_strtod (const char *s)
 }
 
 void
+thermal_backward_compat (PCBTypePtr pcb, PinTypePtr Pin)
+{
+  LAYER_LOOP (pcb->Data, max_layer);
+  {
+    if (TEST_THERM (n, Pin))
+      {
+	LineTypePtr Line;
+	BDimension half = (Pin->Thickness + Pin->Clearance + 1) / 2;
+
+	if (!TEST_FLAG (SQUAREFLAG, Pin))
+	  half = (half * M_SQRT1_2 + 1);
+	Line = CreateNewLineOnLayer (layer, Pin->X - half, Pin->Y - half,
+				     Pin->X + half, Pin->Y + half,
+				     (Pin->Thickness -
+				      Pin->DrillingHole) * pcb->ThermScale, 0,
+				     MakeFlags (USETHERMALFLAG));
+	Line =
+	  CreateNewLineOnLayer (layer, Pin->X - half, Pin->Y + half,
+				Pin->X + half, Pin->Y - half,
+				(Pin->Thickness -
+				 Pin->DrillingHole) * pcb->ThermScale, 0,
+				MakeFlags (USETHERMALFLAG));
+      }
+  }
+  END_LOOP;
+}
+
+
+
+void
 r_delete_element (DataType * data, ElementType * element)
 {
   r_delete_entry (data->element_tree, (BoxType *) element);

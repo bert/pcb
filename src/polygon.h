@@ -41,15 +41,15 @@ void ClosePolygon (void);
 void CopyAttachedPolygonToLayer (void);
 int PolygonHoles (int group, const BoxType * range,
 		  int (*callback) (PLINE *, LayerTypePtr, PolygonTypePtr));
-int PlowsPolygon (DataType *, ObjectArgType *,
-		  int (*callback) (LayerTypePtr, PolygonTypePtr, ObjectArgType *));
+int PlowsPolygon (DataType *, int, void *, void *,
+		  int (*callback) (LayerTypePtr, PolygonTypePtr, int, void *, void *));
 
 POLYAREA * CirclePoly(LocationType x, LocationType y, BDimension radius);
 POLYAREA * LinePoly(LineType *l, BDimension thick);
 POLYAREA * PinPoly(PinType *l, BDimension thick);
-int InitClip(LayerType *l, PolygonType *p);
-void RestoreToPolygon(DataType *, ObjectArgType *);
-void ClearFromPolygon(DataType *, ObjectArgType *);
+int InitClip(DataType *d, LayerType *l, PolygonType *p);
+void RestoreToPolygon(DataType *, int, void *, void *);
+void ClearFromPolygon(DataType *, int, void *, void *);
 
 Boolean IsPointInPolygon (LocationType, LocationType, BDimension, PolygonTypePtr);
 Boolean IsRectangleInPolygon (LocationType, LocationType, LocationType,

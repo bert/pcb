@@ -100,7 +100,6 @@ static void DrawLayer (LayerTypePtr, BoxType *);
 static void DrawLayerGroup (int, const BoxType *);
 static void DrawPinOrViaLowLevel (PinTypePtr, Boolean);
 static void ClearOnlyPin (PinTypePtr, Boolean);
-static void ThermPin (LayerTypePtr, PinTypePtr);
 static void DrawPlainPin (PinTypePtr, Boolean);
 static void DrawPlainVia (PinTypePtr, Boolean);
 static void DrawPinOrViaNameLowLevel (PinTypePtr);
@@ -734,7 +733,9 @@ poly_callback (const BoxType * b, void *cl)
 {
   struct pin_info *i = (struct pin_info *) cl;
 
+#ifndef DICE_SCREEN
   if (XOR (i->arg, TEST_FLAG (CLEARPOLYFLAG, (PolygonTypePtr) b)))
+#endif
     DrawPlainPolygon (i->Layer, (PolygonTypePtr) b);
   return 1;
 }
@@ -871,20 +872,6 @@ text_callback (const BoxType * b, void *cl)
   return 1;
 }
 
-static int
-therm_callback (const BoxType * b, void *cl)
-{
-  PinTypePtr pin = (PinTypePtr) b;
-  struct pin_info *i = (struct pin_info *) cl;
-
-  if (TEST_THERM (i->PIPFlag, pin) && TEST_PIP (i->PIPFlag, pin))
-    {
-      ThermPin (i->Layer, pin);
-      return 1;
-    }
-  return 0;
-}
-
 
 /* ---------------------------------------------------------------------------
  * draws one non-copper layer
@@ -923,6 +910,7 @@ DrawLayerGroup (int group, const BoxType * screen)
   int n_entries = PCB->LayerGroups.Number[group];
   Cardinal *layers = PCB->LayerGroups.Entries[group];
 
+#ifndef DICE_SCREEN
   for (i = n_entries - 1; i >= 0; i--)
     if (layers[i] < max_layer)
       {
@@ -999,6 +987,7 @@ got_mask:
 
       gui->use_mask (HID_MASK_OFF);
     }
+#endif
 
   for (i = n_entries - 1; i >= 0; i--)
     {
@@ -1013,10 +1002,6 @@ got_mask:
 	  r_search (Layer->polygon_tree, screen, NULL, poly_callback, &info);
 	  info.arg = False;
 
-	  info.Layer = Layer;
-	  info.PIPFlag = layernum;
-	  r_search (PCB->Data->pin_tree, screen, NULL, therm_callback, &info);
-	  r_search (PCB->Data->via_tree, screen, NULL, therm_callback, &info);
 	}
     }
 
@@ -1275,59 +1260,12 @@ ClearOnlyPin (PinTypePtr Pin, Boolean mask)
     }
 }
 
-/**************************************************************************
- * draw thermals on pin
- */
-static void
-ThermPin (LayerTypePtr layer, PinTypePtr Pin)
-{
-  BDimension half = (Pin->Thickness + Pin->Clearance) / 2;
-  BDimension finger;
-
-  if (TEST_FLAG (SELECTEDFLAG | FOUNDFLAG, Pin))
-    {
-      if (TEST_FLAG (SELECTEDFLAG, Pin))
-	gui->set_color (Output.fgGC, layer->SelectedColor);
-      else
-	gui->set_color (Output.fgGC, PCB->ConnectedColor);
-    }
-  else
-    gui->set_color (Output.fgGC, layer->Color);
-
-  finger = (Pin->Thickness - Pin->DrillingHole) * PCB->ThermScale;
-  gui->set_line_cap (Output.fgGC, Round_Cap);
-  gui->set_line_width (Output.fgGC,
-		       TEST_FLAG (THINDRAWFLAG, PCB) ? 1 : finger);
-  if (TEST_FLAG (SQUAREFLAG, Pin))
-    {
-
-      gui->draw_line (Output.fgGC,
-		      Pin->X - half, Pin->Y - half, Pin->X + half,
-		      Pin->Y + half);
-      gui->draw_line (Output.fgGC, Pin->X - half, Pin->Y + half,
-		      Pin->X + half, Pin->Y - half);
-    }
-  else
-    {
-      BDimension halfs = (half * M_SQRT1_2 + 1);
-
-      gui->draw_line (Output.fgGC,
-		      Pin->X - halfs, Pin->Y - halfs,
-		      Pin->X + halfs, Pin->Y + halfs);
-      gui->draw_line (Output.fgGC,
-		      Pin->X - halfs, Pin->Y + halfs,
-		      Pin->X + halfs, Pin->Y - halfs);
-    }
-}
-
 /* ---------------------------------------------------------------------------
  * lowlevel drawing routine for pins and vias that pierce polygons
  */
 void
 ClearPin (PinTypePtr Pin, int Type, int unused)
 {
-  LayerTypePtr layer;
-  Cardinal i;
   BDimension half = (Pin->Thickness + Pin->Clearance) / 2;
 
   if (Gathering)
@@ -1353,57 +1291,6 @@ ClearPin (PinTypePtr Pin, int Type, int unused)
   else
     {
       gui->fill_circle (Output.pmGC, Pin->X, Pin->Y, half);
-    }
-  /* draw all the thermal(s) */
-  for (i = max_layer; i; i--)
-    {
-      layer = LAYER_ON_STACK (i - 1);
-      if (!layer->On)
-	continue;
-      if (TEST_THERM (GetLayerNumber (PCB->Data, layer), Pin)
-	  && TEST_PIP (GetLayerNumber (PCB->Data, layer), Pin))
-	{
-	  if (!Erasing)
-	    {
-	      if (TEST_FLAG (SELECTEDFLAG | FOUNDFLAG, Pin))
-		{
-		  if (TEST_FLAG (SELECTEDFLAG, Pin))
-		    gui->set_color (Output.fgGC, layer->SelectedColor);
-		  else
-		    gui->set_color (Output.fgGC, PCB->ConnectedColor);
-		}
-	      else
-		gui->set_color (Output.fgGC, layer->Color);
-	    }
-	  if (TEST_FLAG (SQUAREFLAG, Pin))
-	    {
-	      gui->set_line_cap (Output.fgGC, Round_Cap);
-	      gui->set_line_width (Output.fgGC,
-				   TEST_FLAG (THINDRAWFLAG, PCB) ? 1
-				   : Pin->Clearance / 2);
-
-	      gui->draw_line (Output.fgGC,
-			      Pin->X - half, Pin->Y - half,
-			      Pin->X + half, Pin->Y + half);
-	      gui->draw_line (Output.fgGC,
-			      Pin->X - half, Pin->Y + half,
-			      Pin->X + half, Pin->Y - half);
-	    }
-	  else
-	    {
-	      BDimension halfs = (half * M_SQRT1_2 + 1);
-
-	      gui->set_line_cap (Output.fgGC, Round_Cap);
-	      gui->set_line_width (Output.fgGC, Pin->Clearance / 2);
-
-	      gui->draw_line (Output.fgGC,
-			      Pin->X - halfs, Pin->Y - halfs,
-			      Pin->X + halfs, Pin->Y + halfs);
-	      gui->draw_line (Output.fgGC,
-			      Pin->X - halfs, Pin->Y + halfs,
-			      Pin->X + halfs, Pin->Y - halfs);
-	    }
-	}
     }
   if ((!TEST_FLAG (PINFLAG, Pin) && !PCB->ViaOn)
       || (TEST_FLAG (PINFLAG, Pin) && !PCB->PinOn))
@@ -1842,6 +1729,8 @@ DrawPolygonLowLevel (PolygonTypePtr Polygon)
   int *x, *y, n, i = 0;
   PLINE *pl;
   VNODE *v;
+  if (!Polygon->Clipped)
+    return;
   if (Gathering)
     {
       AddPart (Polygon);
@@ -2230,7 +2119,12 @@ DrawPlainPolygon (LayerTypePtr Layer, PolygonTypePtr Polygon)
     }
   else
     gui->set_color (Output.fgGC, Layer->Color);
+#if DICE_SCREEN
+  if (Polygon->Clipped)
+    NoHolesPolygonDicer (Polygon->Clipped->contours, DrawPolygonLowLevel);
+#else
   DrawPolygonLowLevel (Polygon);
+#endif
 }
 
 /* ---------------------------------------------------------------------------

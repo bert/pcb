@@ -36,10 +36,12 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <setjmp.h>
 
 #include "global.h"
 
 #include "change.h"
+#include "create.h"
 #include "crosshair.h"
 #include "data.h"
 #include "draw.h"
@@ -371,6 +373,96 @@ static ObjectFunctionType ClrOctagonFunctions = {
   NULL
 };
 
+struct therm_info
+{
+  LineTypePtr line;
+  jmp_buf env;
+};
+
+static int
+pin_therm (const BoxType * b, void *cl)
+{
+  LineType *line = (LineType *) b;
+  struct therm_info *info = (struct therm_info *) cl;
+
+  if (!TEST_FLAG (USETHERMALFLAG, line))
+    return 0;
+  if (TEST_FLAG (CLEARLINEFLAG, line))
+    return 0;
+  info->line = line;
+  longjmp(info->env, 1);
+  return 1;
+}
+
+
+/* ---------------------------------------------------------------------------
+ * changes the thermal on a via or pin
+ * returns TRUE if changed
+ */
+static void *
+ChangePinOrViaThermal (int type, void *ptr1, PinTypePtr Via)
+{
+  if (!TEST_FLAG (HOLEFLAG, Via))
+    {
+      struct therm_info info;
+      BoxType sb;
+
+      info.line = NULL;
+      if (type == VIA_TYPE)
+        AddObjectToFlagUndoList (VIA_TYPE, Via, Via, Via);
+      else
+        AddObjectToFlagUndoList (PIN_TYPE, ptr1, Via, Via);
+      sb.X1 = sb.X2 = Via->X;
+      sb.Y1 = sb.Y2 = Via->Y;
+      sb.X2 += 1;
+      sb.Y2 += 1;
+      if (setjmp(info.env) != 1)
+        {
+	  r_search (CURRENT->line_tree, &sb, NULL, pin_therm, &info);
+	  if (info.line) /* if this was filled in, then we removed therms */
+	    return Via;
+	  /* nothing found in the search */
+	  BDimension half = (Via->Thickness + Via->Clearance + 1) / 2;
+
+	  SET_THERM (INDEXOFCURRENT, Via);
+	  SET_FLAG (USETHERMALFLAG, Via);
+	  if (!TEST_FLAG (SQUAREFLAG, Via))
+	    half = (half * M_SQRT1_2 + 1);
+	  info.line =
+	    CreateNewLineOnLayer (CURRENT, Via->X - half, Via->Y - half,
+				  Via->X + half, Via->Y + half,
+				  (Via->Thickness -
+				   Via->DrillingHole) * PCB->ThermScale, 0,
+				  MakeFlags (USETHERMALFLAG));
+	  AddObjectToCreateUndoList (LINE_TYPE, CURRENT, info.line, info.line);
+	  DrawLine (CURRENT, info.line, 0);
+	  info.line =
+	    CreateNewLineOnLayer (CURRENT, Via->X - half, Via->Y + half,
+				  Via->X + half, Via->Y - half,
+				  (Via->Thickness -
+				   Via->DrillingHole) * PCB->ThermScale, 0,
+				  MakeFlags (USETHERMALFLAG));
+	  AddObjectToCreateUndoList (LINE_TYPE, CURRENT, info.line, info.line);
+	  DrawLine (CURRENT, info.line, 0);
+	}
+      else
+	{
+	  CLEAR_THERM (INDEXOFCURRENT, Via);
+	  if (!TEST_ANY_THERMS(Via))
+	    CLEAR_FLAG(USETHERMALFLAG, Via);
+	  if (info.line)
+	  {
+            EraseLine (info.line);
+            MoveObjectToRemoveUndoList (LINE_TYPE, CURRENT, info.line, info.line);
+	    /* Find the rest of them. */
+	    longjmp(info.env, 2);
+	  }
+	}
+      return (Via);
+    }
+  return (NULL);
+}
+
 /* ---------------------------------------------------------------------------
  * changes the thermal on a via
  * returns TRUE if changed
@@ -378,14 +470,7 @@ static ObjectFunctionType ClrOctagonFunctions = {
 static void *
 ChangeViaThermal (PinTypePtr Via)
 {
-  if (TEST_PIP (INDEXOFCURRENT, Via) && !TEST_FLAG (HOLEFLAG, Via))
-    {
-      AddObjectToFlagUndoList (VIA_TYPE, Via, Via, Via);
-      TOGGLE_THERM (INDEXOFCURRENT, Via);
-      ClearPin (Via, VIA_TYPE, 0);
-      return (Via);
-    }
-  return (NULL);
+  return ChangePinOrViaThermal (VIA_TYPE, Via, Via);
 }
 
 /* ---------------------------------------------------------------------------
@@ -395,14 +480,7 @@ ChangeViaThermal (PinTypePtr Via)
 static void *
 ChangePinThermal (ElementTypePtr element, PinTypePtr Pin)
 {
-  if (TEST_PIP (INDEXOFCURRENT, Pin) && !TEST_FLAG (HOLEFLAG, Pin))
-    {
-      AddObjectToFlagUndoList (VIA_TYPE, element, Pin, Pin);
-      TOGGLE_THERM (INDEXOFCURRENT, Pin);
-      ClearPin (Pin, PIN_TYPE, 0);
-      return (Pin);
-    }
-  return (NULL);
+  return ChangePinOrViaThermal (PIN_TYPE, element, Pin);
 }
 
 /* ---------------------------------------------------------------------------
@@ -412,14 +490,11 @@ ChangePinThermal (ElementTypePtr element, PinTypePtr Pin)
 static void *
 SetViaThermal (PinTypePtr Via)
 {
-  if (TEST_PIP (INDEXOFCURRENT, Via) && !TEST_FLAG (HOLEFLAG, Via))
+  if (!TEST_FLAG (HOLEFLAG, Via))
     {
       if (TEST_THERM (INDEXOFCURRENT, Via) == False)
 	{
-	  AddObjectToFlagUndoList (VIA_TYPE, Via, Via, Via);
-	  SET_THERM (INDEXOFCURRENT, Via);
-	  ClearPin (Via, VIA_TYPE, 0);
-	  return (Via);
+	  return ChangeViaThermal (Via);
 	}
     }
   return (NULL);
@@ -432,14 +507,11 @@ SetViaThermal (PinTypePtr Via)
 static void *
 SetPinThermal (ElementTypePtr element, PinTypePtr Pin)
 {
-  if (TEST_PIP (INDEXOFCURRENT, Pin) && !TEST_FLAG (HOLEFLAG, Pin))
+  if (!TEST_FLAG (HOLEFLAG, Pin))
     {
       if (TEST_THERM (INDEXOFCURRENT, Pin) == False)
 	{
-	  AddObjectToFlagUndoList (VIA_TYPE, element, Pin, Pin);
-	  SET_THERM (INDEXOFCURRENT, Pin);
-	  ClearPin (Pin, PIN_TYPE, 0);
-	  return (Pin);
+	  return ChangePinOrViaThermal (PIN_TYPE, element, Pin);
 	}
     }
   return (NULL);
@@ -452,14 +524,11 @@ SetPinThermal (ElementTypePtr element, PinTypePtr Pin)
 static void *
 ClrViaThermal (PinTypePtr Via)
 {
-  if (TEST_PIP (INDEXOFCURRENT, Via) && !TEST_FLAG (HOLEFLAG, Via))
+  if (!TEST_FLAG (HOLEFLAG, Via))
     {
       if (TEST_THERM (INDEXOFCURRENT, Via) == True)
 	{
-	  AddObjectToFlagUndoList (VIA_TYPE, Via, Via, Via);
-	  CLEAR_THERM (INDEXOFCURRENT, Via);
-	  ClearPin (Via, VIA_TYPE, 0);
-	  return (Via);
+	  return ChangeViaThermal (Via);
 	}
     }
   return (NULL);
@@ -472,14 +541,11 @@ ClrViaThermal (PinTypePtr Via)
 static void *
 ClrPinThermal (ElementTypePtr element, PinTypePtr Pin)
 {
-  if (TEST_PIP (INDEXOFCURRENT, Pin) && !TEST_FLAG (HOLEFLAG, Pin))
+  if (!TEST_FLAG (HOLEFLAG, Pin))
     {
       if (TEST_THERM (INDEXOFCURRENT, Pin) == True)
 	{
-	  AddObjectToFlagUndoList (VIA_TYPE, element, Pin, Pin);
-	  CLEAR_THERM (INDEXOFCURRENT, Pin);
-	  ClearPin (Pin, PIN_TYPE, 0);
-	  return (Pin);
+	  return ChangePinOrViaThermal (PIN_TYPE, element, Pin);
 	}
     }
   return (NULL);
@@ -556,7 +622,6 @@ ChangeVia2ndSize (PinTypePtr Via)
 static void *
 ChangeViaClearSize (PinTypePtr Via)
 {
-  ObjectArgType obj;
   BDimension value = (Absolute) ? Absolute : Via->Clearance + Delta;
 
   if (TEST_FLAG (LOCKFLAG, Via))
@@ -564,16 +629,14 @@ ChangeViaClearSize (PinTypePtr Via)
   value = MIN (MAX_LINESIZE, MAX (value, PCB->Bloat * 2 + 2));
   if (Via->Clearance == value)
     return NULL;
-  obj.type = PIN_TYPE;
-  obj.ptr1 = obj.ptr2 = obj.ptr3 = Via;
-  RestoreToPolygon (PCB->Data, &obj);
+  RestoreToPolygon (PCB->Data, PIN_TYPE, Via, Via);
   AddObjectToClearSizeUndoList (VIA_TYPE, Via, Via, Via);
   EraseVia (Via);
   r_delete_entry (PCB->Data->via_tree, (BoxType *) Via);
   Via->Clearance = value;
   SetPinBoundingBox (Via);
   r_insert_entry (PCB->Data->via_tree, (BoxType *) Via, 0);
-  ClearFromPolygon (PCB->Data, &obj);
+  ClearFromPolygon (PCB->Data, PIN_TYPE, Via, Via);
   DrawVia (Via, 0);
   Via->Element = NULL;
   return (Via);
@@ -617,7 +680,6 @@ ChangePinSize (ElementTypePtr Element, PinTypePtr Pin)
 static void *
 ChangePinClearSize (ElementTypePtr Element, PinTypePtr Pin)
 {
-  ObjectArgType obj;
   BDimension value = (Absolute) ? Absolute : Pin->Clearance + Delta;
 
   if (TEST_FLAG (LOCKFLAG, Pin))
@@ -625,17 +687,14 @@ ChangePinClearSize (ElementTypePtr Element, PinTypePtr Pin)
   value = MIN (MAX_LINESIZE, MAX (value, PCB->Bloat * 2 + 2));
   if (Pin->Clearance == value)
     return NULL;
-  obj.type = PIN_TYPE;
-  obj.ptr1 = Element;
-  obj.ptr2 = obj.ptr3 = Pin;
-  RestoreToPolygon (PCB->Data, &obj);
+  RestoreToPolygon (PCB->Data, PIN_TYPE, Element, Pin);
   AddObjectToClearSizeUndoList (PIN_TYPE, Element, Pin, Pin);
   ErasePin (Pin);
   r_delete_entry (PCB->Data->pin_tree, &Pin->BoundingBox);
   Pin->Clearance = value;
   /* SetElementBB updates all associated rtrees */
   SetElementBoundingBox (PCB->Data, Element, &PCB->Font);
-  ClearFromPolygon (PCB->Data, &obj);
+  ClearFromPolygon (PCB->Data, PIN_TYPE, Element, Pin);
   DrawPin (Pin, 0);
   return (Pin);
 }
@@ -798,19 +857,15 @@ ChangeLineSize (LayerTypePtr Layer, LineTypePtr Line)
 static void *
 ChangeLineClearSize (LayerTypePtr Layer, LineTypePtr Line)
 {
-  ObjectArgType obj;
   BDimension value = (Absolute) ? Absolute : Line->Clearance + Delta;
 
   if (TEST_FLAG (LOCKFLAG, Line) || !TEST_FLAG (CLEARLINEFLAG, Line))
     return (NULL);
-  obj.type = LINE_TYPE;
-  obj.ptr1 = Layer;
-  obj.ptr2 = obj.ptr3 = Line;
   value = MIN (MAX_LINESIZE, MAX (value, PCB->Bloat * 2 + 2));
   if (value != Line->Clearance)
     {
       AddObjectToClearSizeUndoList (LINE_TYPE, Layer, Line, Line);
-      RestoreToPolygon (PCB->Data, &obj);
+      RestoreToPolygon (PCB->Data, LINE_TYPE, Layer, Line);
       EraseLine (Line);
       r_delete_entry (Layer->line_tree, (BoxTypePtr) Line);
       Line->Clearance = value;
@@ -821,7 +876,7 @@ ChangeLineClearSize (LayerTypePtr Layer, LineTypePtr Line)
 	}
       SetLineBoundingBox (Line);
       r_insert_entry (Layer->line_tree, (BoxTypePtr) Line, 0);
-      ClearFromPolygon (PCB->Data, &obj);
+      ClearFromPolygon (PCB->Data, LINE_TYPE, Layer, Line);
       DrawLine (Layer, Line, 0);
       return (Line);
     }
@@ -1157,18 +1212,13 @@ ChangeLayerName (LayerTypePtr Layer, char *Name)
 static void *
 ChangeLineJoin (LayerTypePtr Layer, LineTypePtr Line)
 {
-  ObjectArgType obj;
-
   if (TEST_FLAG (LOCKFLAG, Line))
     return (NULL);
   EraseLine (Line);
   AddObjectToFlagUndoList (LINE_TYPE, Layer, Line, Line);
-  obj.type = LINE_TYPE;
-  obj.ptr1 = Layer;
-  obj.ptr2 = obj.ptr3 = Line;
-  RestoreToPolygon (PCB->Data, &obj);
+  RestoreToPolygon (PCB->Data, LINE_TYPE, Layer, Line);
   TOGGLE_FLAG (CLEARLINEFLAG, Line);
-  ClearFromPolygon (PCB->Data, &obj);
+  ClearFromPolygon (PCB->Data, LINE_TYPE, Layer, Line);
   DrawLine (Layer, Line, 0);
   return (Line);
 }
@@ -1179,14 +1229,10 @@ ChangeLineJoin (LayerTypePtr Layer, LineTypePtr Line)
 static void *
 SetLineJoin (LayerTypePtr Layer, LineTypePtr Line)
 {
-  ObjectArgType obj;
   if (TEST_FLAG (LOCKFLAG, Line))
     return (NULL);
   EraseLine (Line);
-  obj.type = LINE_TYPE;
-  obj.ptr1 = Layer;
-  obj.ptr2 = obj.ptr3 = Line;
-  RestoreToPolygon (PCB->Data, &obj);
+  RestoreToPolygon (PCB->Data, LINE_TYPE, Layer, Line);
   AddObjectToFlagUndoList (LINE_TYPE, Layer, Line, Line);
   SET_FLAG (CLEARLINEFLAG, Line);
   DrawLine (Layer, Line, 0);
@@ -1199,16 +1245,12 @@ SetLineJoin (LayerTypePtr Layer, LineTypePtr Line)
 static void *
 ClrLineJoin (LayerTypePtr Layer, LineTypePtr Line)
 {
-  ObjectArgType obj;
   if (TEST_FLAG (LOCKFLAG, Line))
     return (NULL);
   EraseLine (Line);
   AddObjectToFlagUndoList (LINE_TYPE, Layer, Line, Line);
   CLEAR_FLAG (CLEARLINEFLAG, Line);
-  obj.type = LINE_TYPE;
-  obj.ptr1 = Layer;
-  obj.ptr2 = obj.ptr3 = Line;
-  ClearFromPolygon (PCB->Data, &obj);
+  ClearFromPolygon (PCB->Data, LINE_TYPE, Layer, Line);
   DrawLine (Layer, Line, 0);
   return (Line);
 }
@@ -1390,18 +1432,13 @@ ClrElementOctagon (ElementTypePtr Element)
 static void *
 ChangePadSquare (ElementTypePtr Element, PadTypePtr Pad)
 {
-  ObjectArgType obj;
-
   if (TEST_FLAG (LOCKFLAG, Pad))
     return (NULL);
-  obj.type = PAD_TYPE;
-  obj.ptr1 = Element;
-  obj.ptr2 = obj.ptr3 = Pad;
   ErasePad (Pad);
-  RestoreToPolygon (PCB->Data, &obj);
+  RestoreToPolygon (PCB->Data, PAD_TYPE, Element, Pad);
   AddObjectToFlagUndoList (PAD_TYPE, Element, Pad, Pad);
   TOGGLE_FLAG (SQUAREFLAG, Pad);
-  ClearFromPolygon (PCB->Data, &obj);
+  ClearFromPolygon (PCB->Data, PAD_TYPE, Element, Pad);
   DrawPad (Pad, 0);
   return (Pad);
 }
@@ -1440,17 +1477,13 @@ ClrPadSquare (ElementTypePtr Element, PadTypePtr Pad)
 static void *
 ChangePinSquare (ElementTypePtr Element, PinTypePtr Pin)
 {
-  ObjectArgType obj;
   if (TEST_FLAG (LOCKFLAG, Pin))
     return (NULL);
-  obj.type = PIN_TYPE;
-  obj.ptr1 = Element;
-  obj.ptr2 = obj.ptr3 = Pin;
   ErasePin (Pin);
   AddObjectToFlagUndoList (PIN_TYPE, Element, Pin, Pin);
-  RestoreToPolygon (PCB->Data, &obj);
+  RestoreToPolygon (PCB->Data, PIN_TYPE, Element, Pin);
   TOGGLE_FLAG (SQUAREFLAG, Pin);
-  ClearFromPolygon (PCB->Data, &obj);
+  ClearFromPolygon (PCB->Data, PIN_TYPE, Element, Pin);
   DrawPin (Pin, 0);
   return (Pin);
 }
@@ -1593,7 +1626,7 @@ ChangePolyClear (LayerTypePtr Layer, PolygonTypePtr Polygon)
     return (NULL);
   AddObjectToFlagUndoList (POLYGON_TYPE, Layer, Polygon, Polygon);
   TOGGLE_FLAG (CLEARPOLYFLAG, Polygon);
-  InitClip(Layer, Polygon);
+  InitClip (PCB->Data, Layer, Polygon);
   DrawPolygon (Layer, Polygon, 0);
   return (Polygon);
 }

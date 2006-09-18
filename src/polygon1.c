@@ -348,8 +348,6 @@ node_label (VNODE * pn)
   /* first find whether we're starting inside or outside */
   for (l = pn->cvc_prev->prev; l != pn->cvc_prev; l = l->prev)
     {
-      DEBUGP ("  checking poly %c side %c angle = %g\n", l->poly, l->side,
-	      l->angle);
       if (l->poly != this_poly)
 	{
 	  if (l->side == 'P')
@@ -358,7 +356,6 @@ node_label (VNODE * pn)
 	    region = OUTSIDE;
 	}
     }
-  DEBUGP ("\n");
   l = pn->cvc_prev;
   do
     {
@@ -481,7 +478,6 @@ adjust_tree (struct info *i, struct seg *s)
 {
   struct seg *q;
 
-  r_delete_entry (i->tree, (const BoxType *) s);
   q = malloc (sizeof (struct seg));
   if (!q)
     return 1;
@@ -502,6 +498,7 @@ adjust_tree (struct info *i, struct seg *s)
   q->box.Y1 = min (q->v->point[1], q->v->next->point[1]);
   q->box.Y2 = max (q->v->point[1], q->v->next->point[1]) + 1;
   r_insert_entry (i->tree, (const BoxType *) q, 1);
+  r_delete_entry (i->tree, (const BoxType *) s);
   longjmp (i->env, 1);
   return 0;			/* not reached */
 }
@@ -591,8 +588,8 @@ intersect (POLYAREA * a, POLYAREA * b)
     ca += pa->Count;
   for (pb = b->contours; pb; pb = pb->next)
     cb += pb->Count;
-  /* build the tree with the larger number of verticies */
-  if (ca > cb)
+  /* build the tree with the fewer number of verticies */
+  if (ca < cb)
     {
       t = b;
       b = a;
@@ -1399,7 +1396,7 @@ poly_Boolean (const POLYAREA * a_org, const POLYAREA * b_org, POLYAREA ** res,
   if (code)
     poly_Free (res);
 #ifdef DEBUG
-  else if (!poly_Valid (*res))
+  else if (*res && !poly_Valid (*res))
     return -1;
 #endif
   return code;
