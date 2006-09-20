@@ -47,6 +47,7 @@ static int print_group[MAX_LAYER];
 static int print_layer[MAX_LAYER];
 static double fade_ratio = 0.4;
 static double antifade_ratio = 0.6;
+static int multi_file = 0;
 
 static const char *medias[] = { "A3", "A4", "A5",
   "Letter", "11x17", "Ledger",
@@ -113,6 +114,9 @@ HID_Attribute ps_attribute_list[] = {
   {"psfade", "Fade amount for assembly drawings (0.0=missing, 1.0=solid)",
    HID_Real, 0, 1, {0, 0, 0.40}, 0, 0},
 #define HA_psfade 11
+  {"multi-file", "Produce multiple files, one per page, instead of a single file.",
+   HID_Boolean, 0, 0, {0, 0, 0.40}, 0, 0},
+#define HA_multifile 12
 };
 
 #define NUM_OPTIONS (sizeof(ps_attribute_list)/sizeof(ps_attribute_list[0]))
@@ -125,7 +129,8 @@ static HID_Attribute *
 ps_get_export_options (int *n)
 {
   static char *last_made_filename = 0;
-  if (PCB) derive_default_filename(PCB->Filename, &ps_attribute_list[HA_psfile], ".ps", &last_made_filename);
+  if (PCB)
+    derive_default_filename(PCB->Filename, &ps_attribute_list[HA_psfile], ".ps", &last_made_filename);
 
   if (n)
     *n = NUM_OPTIONS;
@@ -165,6 +170,30 @@ static int bloat;
 static int invert;
 
 static double fill_zoom;
+
+static void
+ps_start_file (FILE *f)
+{
+  fprintf (f, "%%!PS-Adobe-3.0\n\n");
+}
+
+static FILE *
+psopen (const char *base, const char *suff)
+{
+  FILE *f;
+  char *buf;
+  if (!multi_file)
+    {
+      printf("PS: open %s\n", base);
+      return fopen (base, "w");
+    }
+  buf = malloc (strlen (base) + strlen (suff) + 5);
+  sprintf(buf, "%s.%s.ps", base, suff);
+  printf("PS: open %s\n", buf);
+  f = fopen(buf, "w");
+  free (buf);
+  return f;
+}
 
 /* This is used by other HIDs that use a postscript format, like lpr
    or eps.  */
@@ -231,10 +260,10 @@ ps_hid_export_to_file (FILE * the_file, HID_Attr_Val * options)
 
   memcpy (saved_layer_stack, LayerStack, sizeof (LayerStack));
   qsort (LayerStack, max_layer, sizeof (LayerStack[0]), layer_sort);
-  fprintf (f, "%%!PS-Adobe-3.0\n\n");
+
+  lastgroup = -1;
   linewidth = -1;
   lastcap = -1;
-  lastgroup = -1;
   lastcolor = -1;
 
   region.X1 = 0;
@@ -242,16 +271,19 @@ ps_hid_export_to_file (FILE * the_file, HID_Attr_Val * options)
   region.X2 = PCB->MaxWidth;
   region.Y2 = PCB->MaxHeight;
 
-  pagecount = 1;
-  fprintf (f, "%%%%Page: 1\n");
-  fprintf (f, "/Times-Roman findfont 24 scalefont setfont\n");
-  fprintf (f,
-	   "/rightshow { /s exch def s stringwidth pop -1 mul 0 rmoveto s show } def\n");
-  fprintf (f,
-	   "/y 72 9 mul def /toc { 100 y moveto show /y y 24 sub def } bind def\n");
-  fprintf (f, "/tocp { /y y 12 sub def 90 y moveto rightshow } bind def\n");
-  doing_toc = 1;
-  hid_expose_callback (&ps_hid, &region, 0);
+  if (! multi_file)
+    {
+      pagecount = 1;
+      fprintf (f, "%%%%Page: 1\n");
+      fprintf (f, "/Times-Roman findfont 24 scalefont setfont\n");
+      fprintf (f,
+	       "/rightshow { /s exch def s stringwidth pop -1 mul 0 rmoveto s show } def\n");
+      fprintf (f,
+	       "/y 72 9 mul def /toc { 100 y moveto show /y y 24 sub def } bind def\n");
+      fprintf (f, "/tocp { /y y 12 sub def 90 y moveto rightshow } bind def\n");
+      doing_toc = 1;
+      hid_expose_callback (&ps_hid, &region, 0);
+    }
 
   pagecount = 1;
   doing_toc = 0;
@@ -281,18 +313,26 @@ ps_do_export (HID_Attr_Val * options)
   if (!filename)
     filename = "pcb-out.ps";
 
-  printf ("PS: open %s\n", filename);
-  f = fopen (filename, "w");
-  if (!f)
+  multi_file = options[HA_multifile].int_value;
+
+  if (multi_file)
+    f = 0;
+  else
     {
-      perror (filename);
-      return;
+      f = psopen (filename, "toc");
+      if (!f)
+	{
+	  perror (filename);
+	  return;
+	}
+      ps_start_file (f);
     }
 
   hid_save_and_show_layer_ons (save_ons);
   ps_hid_export_to_file (f, options);
   hid_restore_layer_ons (save_ons);
 
+  multi_file = 0;
   fclose (f);
 }
 
@@ -373,11 +413,18 @@ ps_set_layer (const char *name, int group)
       double boffset;
       lastgroup = group;
 
-      if (pagecount)
+      if (f && pagecount)
 	{
 	  fprintf (f, "showpage\n");
 	}
       pagecount++;
+      if (multi_file)
+	{
+	  if (f)
+	    fclose (f);
+	  f = psopen (filename, layer_type_to_file_name (idx));
+	  ps_start_file (f);
+	}
       fprintf (f, "%%%%Page: %d\n", pagecount);
       fprintf (f, "72 72 scale 4.25 5.5 translate\n");
 
