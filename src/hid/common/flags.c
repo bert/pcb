@@ -146,3 +146,50 @@ hid_restore_layer_ons (int *save_array)
   for (i = 0; i < max_layer + 2; i++)
     PCB->Data->Layer[i].On = save_array[i];
 }
+
+const char *
+layer_type_to_file_name (int idx)
+{
+  int group;
+
+  switch (idx)
+    {
+    case SL (SILK, TOP):
+      return "frontsilk";
+    case SL (SILK, BOTTOM):
+      return "backsilk";
+    case SL (MASK, TOP):
+      return "frontmask";
+    case SL (MASK, BOTTOM):
+      return "backmask";
+    case SL (PDRILL, 0):
+      return "plated-drill";
+    case SL (UDRILL, 0):
+      return "unplated-drill";
+    case SL (PASTE, TOP):
+      return "frontpaste";
+    case SL (PASTE, BOTTOM):
+      return "backpaste";
+    case SL (INVISIBLE, 0):
+      return "invisible";
+    case SL (FAB, 0):
+      return "fab";
+    case SL (ASSY, TOP):
+      return "frontassembly";
+    case SL (ASSY, BOTTOM):
+      return "backassembly";
+    default:
+      group = GetLayerGroupNumberByNumber(idx);
+      if (group == GetLayerGroupNumberByNumber(max_layer+COMPONENT_LAYER))
+	return "front";
+      else if (group == GetLayerGroupNumberByNumber(max_layer+SOLDER_LAYER))
+	return "back";
+      else
+	{
+	  static char buf[20];
+	  sprintf (buf, "group%d", group);
+	  return buf;
+	}
+      break;
+    }
+}
