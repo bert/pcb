@@ -4128,8 +4128,11 @@ ActionMinMaskGap (int argc, char **argv, int x, int y)
 	if (!TEST_FLAGS (flags, pin))
 	  continue;
 	if (pin->Mask < pin->Thickness + value)
-	  ChangeObjectMaskSize (PIN_TYPE, element, pin, 0, 
-				pin->Thickness + value, 1);
+	  {
+	    ChangeObjectMaskSize (PIN_TYPE, element, pin, 0, 
+				  pin->Thickness + value, 1);
+	    RestoreUndoSerialNumber ();
+	  }
       }
       END_LOOP;
       PAD_LOOP (element);
@@ -4137,8 +4140,11 @@ ActionMinMaskGap (int argc, char **argv, int x, int y)
 	if (!TEST_FLAGS (flags, pad))
 	  continue;
 	if (pad->Mask < pad->Thickness + value)
-	  ChangeObjectMaskSize (PAD_TYPE, element, pad, 0,
-				pad->Thickness + value, 1);
+	  {
+	    ChangeObjectMaskSize (PAD_TYPE, element, pad, 0,
+				  pad->Thickness + value, 1);
+	    RestoreUndoSerialNumber ();
+	  }
       }
       END_LOOP;
     }
@@ -4148,8 +4154,11 @@ ActionMinMaskGap (int argc, char **argv, int x, int y)
     if (!TEST_FLAGS (flags, via))
       continue;
     if (via->Mask && via->Mask < via->Thickness + value)
-      ChangeObjectMaskSize (VIA_TYPE, via, 0, 0, 
-			    via->Thickness + value, 1);
+      {
+	ChangeObjectMaskSize (VIA_TYPE, via, 0, 0, 
+			      via->Thickness + value, 1);
+	RestoreUndoSerialNumber ();
+      }
   }
   END_LOOP;
   RestoreUndoSerialNumber ();
