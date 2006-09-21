@@ -671,6 +671,8 @@ MyRealloc (void *Ptr, size_t Size, const char *Text)
 #ifdef MEM_DEBUG
   fprintf (stderr, "0x%x Realloc to %d from %s ", Ptr, Size, Text);
 #endif
+  if (Size == 0)
+    Size = 1;
   p = Ptr ? realloc (Ptr, Size) : malloc (Size);
   if (!p)
     MyFatal ("out of memory during realloc() in '%s'()\n",

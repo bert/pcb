@@ -233,30 +233,36 @@ RoundDrillInfo (DrillInfoTypePtr d, int roundto)
 
 	  d->Drill[i].ElementMax
 	    = d->Drill[i].ElementN + d->Drill[i+1].ElementN;
-	  d->Drill[i].Element = MyRealloc (d->Drill[i].Element,
-					   d->Drill[i].ElementMax * sizeof(ElementTypePtr),
-					   "RoundDrillInfo");
-
-	  for (ei=0; ei<d->Drill[i+1].ElementN; ei++)
+	  if (d->Drill[i].ElementMax)
 	    {
-	      for (ej=0; ej<d->Drill[i].ElementN; ej++)
-		if (d->Drill[i].Element[ej] == d->Drill[i+1].Element[ei])
-		  break;
-	      if (ej == d->Drill[i].ElementN)
-		d->Drill[i].Element[d->Drill[i].ElementN++]
-		  = d->Drill[i+1].Element[ei];
+	      d->Drill[i].Element = MyRealloc (d->Drill[i].Element,
+					       d->Drill[i].ElementMax * sizeof(ElementTypePtr),
+					       "RoundDrillInfo");
+
+	      for (ei=0; ei<d->Drill[i+1].ElementN; ei++)
+		{
+		  for (ej=0; ej<d->Drill[i].ElementN; ej++)
+		    if (d->Drill[i].Element[ej] == d->Drill[i+1].Element[ei])
+		      break;
+		  if (ej == d->Drill[i].ElementN)
+		    d->Drill[i].Element[d->Drill[i].ElementN++]
+		      = d->Drill[i+1].Element[ei];
+		}
 	    }
 	  MYFREE (d->Drill[i+1].Element);
 
 	  d->Drill[i].PinMax
 	    = d->Drill[i].PinN + d->Drill[i+1].PinN;
-	  d->Drill[i].Pin = MyRealloc (d->Drill[i].Pin,
-				       d->Drill[i].PinMax * sizeof(PinTypePtr),
-				       "RoundDrillInfo");
-	  memcpy (d->Drill[i].Pin + d->Drill[i].PinN,
-		  d->Drill[i+1].Pin,
-		  d->Drill[i+1].PinN * sizeof(PinTypePtr));
-	  d->Drill[i].PinN += d->Drill[i+1].PinN;
+	  if (d->Drill[i].PinMax)
+	    {
+	      d->Drill[i].Pin = MyRealloc (d->Drill[i].Pin,
+					   d->Drill[i].PinMax * sizeof(PinTypePtr),
+					   "RoundDrillInfo");
+	      memcpy (d->Drill[i].Pin + d->Drill[i].PinN,
+		      d->Drill[i+1].Pin,
+		      d->Drill[i+1].PinN * sizeof(PinTypePtr));
+	      d->Drill[i].PinN += d->Drill[i+1].PinN;
+	    }
 	  MYFREE (d->Drill[i+1].Pin);
 
 	  d->Drill[i].PinCount += d->Drill[i+1].PinCount;
