@@ -4080,7 +4080,84 @@ ActionChangeClearSize (int argc, char **argv, int x, int y)
   return 0;
 }
 
- /* ---------------------------------------------------------------------------  */
+/* ---------------------------------------------------------------------------  */
+
+static const char minmaskgap_syntax[] =
+"MinMaskGap(delta)\n"
+"MinMaskGap(Selected, delta)";
+
+static const char minmaskgap_help[] =
+"Ensures the mask is a minimum distance from pins and pads.";
+
+/* %start-doc actions MinMaskGap
+
+Checks all specified pins and/or pads, and increases the mask if
+needed to ensure a minimum distance between the pin or pad edge and
+the mask edge.
+
+%end-doc */
+
+static int
+ActionMinMaskGap (int argc, char **argv, int x, int y)
+{
+  char *function = ARG (0);
+  char *delta = ARG (1);
+  char *units = ARG (2);
+  Boolean r;
+  int value;
+  int flags;
+
+  if (!function)
+    return 1;
+  if (strcasecmp (function, "Selected") == 0)
+    flags = SELECTEDFLAG;
+  else
+    {
+      units = delta;
+      delta = function;
+      flags = 0;
+    }
+  value = 2 * GetValue (delta, units, &r);
+
+  HideCrosshair (True);
+  SaveUndoSerialNumber ();
+  ELEMENT_LOOP (PCB->Data);
+    {
+      PIN_LOOP (element);
+      {
+	if (!TEST_FLAGS (flags, pin))
+	  continue;
+	if (pin->Mask < pin->Thickness + value)
+	  ChangeObjectMaskSize (PIN_TYPE, element, pin, 0, 
+				pin->Thickness + value, 1);
+      }
+      END_LOOP;
+      PAD_LOOP (element);
+      {
+	if (!TEST_FLAGS (flags, pad))
+	  continue;
+	if (pad->Mask < pad->Thickness + value)
+	  ChangeObjectMaskSize (PAD_TYPE, element, pad, 0,
+				pad->Thickness + value, 1);
+      }
+      END_LOOP;
+    }
+  END_LOOP;
+  VIA_LOOP (PCB->Data);
+  {
+    if (!TEST_FLAGS (flags, via))
+      continue;
+    if (via->Mask && via->Mask < via->Thickness + value)
+      ChangeObjectMaskSize (VIA_TYPE, via, 0, 0, 
+			    via->Thickness + value, 1);
+  }
+  END_LOOP;
+  RestoreUndoSerialNumber ();
+  IncrementUndoSerialNumber ();
+  return 0;
+}
+
+/* ---------------------------------------------------------------------------  */
 
 static const char changepinname_syntax[] =
 "ChangePinName(ElementName,PinNumber,PinName)";
@@ -6541,6 +6618,8 @@ HID_Action action_action_list[] = {
    markcrosshair_help, markcrosshair_syntax},
   {"Message", 0, ActionMessage,
    message_help, message_syntax},
+  {"MinMaskGap", 0, ActionMinMaskGap,
+   minmaskgap_help, minmaskgap_syntax},
   {"Mode", 0, ActionMode,
    mode_help, mode_syntax},
   {"PasteBuffer", 0, ActionPasteBuffer,
