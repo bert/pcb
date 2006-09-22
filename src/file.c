@@ -445,7 +445,6 @@ static void
 WritePCBDataHeader (FILE * FP)
 {
   Cardinal group;
-  int p;
 
   fputs ("\nPCB[", FP);
   PrintQuotedString (FP, EMPTY (PCB->Name));

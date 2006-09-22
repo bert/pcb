@@ -131,7 +131,6 @@ PCBTypePtr
 CreateNewPCB (Boolean SetDefaultNames)
 {
   PCBTypePtr ptr;
-  int i;
 
   /* allocate memory, switch all layers on and copy resources */
   ptr = MyCalloc (1, sizeof (PCBType), "CreateNewPCB()");
