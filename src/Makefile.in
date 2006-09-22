@@ -133,8 +133,8 @@ am__objects_6 = action.$(OBJEXT) autoplace.$(OBJEXT) \
 	report.$(OBJEXT) res_parse.$(OBJEXT) res_lex.$(OBJEXT) \
 	rotate.$(OBJEXT) rtree.$(OBJEXT) rubberband.$(OBJEXT) \
 	search.$(OBJEXT) select.$(OBJEXT) set.$(OBJEXT) \
-	strflags.$(OBJEXT) undo.$(OBJEXT) vector.$(OBJEXT) \
-	vendor.$(OBJEXT) hid/common/actions.$(OBJEXT) \
+	strflags.$(OBJEXT) thermal.$(OBJEXT) undo.$(OBJEXT) \
+	vector.$(OBJEXT) vendor.$(OBJEXT) hid/common/actions.$(OBJEXT) \
 	hid/common/flags.$(OBJEXT) hid/common/hidinit.$(OBJEXT) \
 	hid/common/hidnogui.$(OBJEXT) hid/common/extents.$(OBJEXT)
 am_pcb_bin_OBJECTS = $(am__objects_6)
@@ -433,6 +433,8 @@ PCB_SRCS = \
 	set.h \
 	strflags.c \
 	strflags.h \
+	thermal.c \
+	thermal.h \
 	undo.c \
 	undo.h \
 	vector.c \
@@ -881,6 +883,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/select.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/set.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/strflags.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/thermal.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/undo.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vector.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vendor.Po@am__quote@
