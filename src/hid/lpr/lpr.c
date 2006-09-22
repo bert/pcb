@@ -115,7 +115,7 @@ lpr_calibrate (double xval, double yval)
 HID lpr_hid = {
   "lpr",
   "Postscript print.",
-  0, 1, 0, 1, 0,
+  0, 1, 0, 1, 0, 0,
   lpr_get_export_options,
   lpr_do_export,
   lpr_parse_arguments,

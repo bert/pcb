@@ -486,7 +486,7 @@ bom_parse_arguments (int *argc, char ***argv)
 HID bom_hid = {
   "bom",
   "Exports a Bill of Materials",
-  0, 0, 1, 0, 0,
+  0, 0, 1, 0, 0, 0,
   bom_get_export_options,
   bom_do_export,
   bom_parse_arguments,

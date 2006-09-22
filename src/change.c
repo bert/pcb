@@ -52,10 +52,12 @@
 #include "output.h"
 #include "polygon.h"
 #include "rats.h"
+#include "remove.h"
 #include "rtree.h"
 #include "search.h"
 #include "select.h"
 #include "set.h"
+#include "thermal.h"
 #include "undo.h"
 
 #ifdef HAVE_LIBDMALLOC
@@ -111,11 +113,7 @@ static void *ChangePadSquare (ElementTypePtr, PadTypePtr);
 static void *SetPadSquare (ElementTypePtr, PadTypePtr);
 static void *ClrPadSquare (ElementTypePtr, PadTypePtr);
 static void *ChangeViaThermal (PinTypePtr);
-static void *SetViaThermal (PinTypePtr);
-static void *ClrViaThermal (PinTypePtr);
 static void *ChangePinThermal (ElementTypePtr, PinTypePtr);
-static void *SetPinThermal (ElementTypePtr, PinTypePtr);
-static void *ClrPinThermal (ElementTypePtr, PinTypePtr);
 static void *ChangeLineJoin (LayerTypePtr, LineTypePtr);
 static void *SetLineJoin (LayerTypePtr, LineTypePtr);
 static void *ClrLineJoin (LayerTypePtr, LineTypePtr);
@@ -129,6 +127,7 @@ static void *ChangePolyClear (LayerTypePtr, PolygonTypePtr);
  */
 static int Delta;		/* change of size */
 static int Absolute;		/* Absolute size */
+static double rescale;
 static char *NewName;		/* new name */
 static ObjectFunctionType ChangeSizeFunctions = {
   ChangeLineSize,
@@ -260,20 +259,6 @@ static ObjectFunctionType ChangeMaskSizeFunctions = {
   NULL,
   NULL
 };
-static ObjectFunctionType SetThermalFunctions = {
-  NULL,
-  NULL,
-  NULL,
-  SetViaThermal,
-  NULL,
-  NULL,
-  SetPinThermal,
-  NULL,
-  NULL,
-  NULL,
-  NULL,
-  NULL
-};
 static ObjectFunctionType SetSquareFunctions = {
   NULL,
   NULL,
@@ -310,20 +295,6 @@ static ObjectFunctionType SetOctagonFunctions = {
   SetElementOctagon,
   NULL,
   SetPinOctagon,
-  NULL,
-  NULL,
-  NULL,
-  NULL,
-  NULL
-};
-static ObjectFunctionType ClrThermalFunctions = {
-  NULL,
-  NULL,
-  NULL,
-  ClrViaThermal,
-  NULL,
-  NULL,
-  ClrPinThermal,
   NULL,
   NULL,
   NULL,
@@ -373,94 +344,12 @@ static ObjectFunctionType ClrOctagonFunctions = {
   NULL
 };
 
-struct therm_info
-{
-  LineTypePtr line;
-  jmp_buf env;
-};
 
-static int
-pin_therm (const BoxType * b, void *cl)
-{
-  LineType *line = (LineType *) b;
-  struct therm_info *info = (struct therm_info *) cl;
-
-  if (!TEST_FLAG (USETHERMALFLAG, line))
-    return 0;
-  if (TEST_FLAG (CLEARLINEFLAG, line))
-    return 0;
-  info->line = line;
-  longjmp(info->env, 1);
-  return 1;
-}
-
-
-/* ---------------------------------------------------------------------------
- * changes the thermal on a via or pin
- * returns TRUE if changed
- */
 static void *
-ChangePinOrViaThermal (int type, void *ptr1, PinTypePtr Via)
+kill_therms (LayerTypePtr lay, LineTypePtr l)
 {
-  if (!TEST_FLAG (HOLEFLAG, Via))
-    {
-      struct therm_info info;
-      BoxType sb;
-
-      info.line = NULL;
-      if (type == VIA_TYPE)
-        AddObjectToFlagUndoList (VIA_TYPE, Via, Via, Via);
-      else
-        AddObjectToFlagUndoList (PIN_TYPE, ptr1, Via, Via);
-      sb.X1 = sb.X2 = Via->X;
-      sb.Y1 = sb.Y2 = Via->Y;
-      sb.X2 += 1;
-      sb.Y2 += 1;
-      if (setjmp(info.env) != 1)
-        {
-	  r_search (CURRENT->line_tree, &sb, NULL, pin_therm, &info);
-	  if (info.line) /* if this was filled in, then we removed therms */
-	    return Via;
-	  /* nothing found in the search */
-	  BDimension half = (Via->Thickness + Via->Clearance + 1) / 2;
-
-	  SET_THERM (INDEXOFCURRENT, Via);
-	  SET_FLAG (USETHERMALFLAG, Via);
-	  if (!TEST_FLAG (SQUAREFLAG, Via))
-	    half = (half * M_SQRT1_2 + 1);
-	  info.line =
-	    CreateNewLineOnLayer (CURRENT, Via->X - half, Via->Y - half,
-				  Via->X + half, Via->Y + half,
-				  (Via->Thickness -
-				   Via->DrillingHole) * PCB->ThermScale, 0,
-				  MakeFlags (USETHERMALFLAG));
-	  AddObjectToCreateUndoList (LINE_TYPE, CURRENT, info.line, info.line);
-	  DrawLine (CURRENT, info.line, 0);
-	  info.line =
-	    CreateNewLineOnLayer (CURRENT, Via->X - half, Via->Y + half,
-				  Via->X + half, Via->Y - half,
-				  (Via->Thickness -
-				   Via->DrillingHole) * PCB->ThermScale, 0,
-				  MakeFlags (USETHERMALFLAG));
-	  AddObjectToCreateUndoList (LINE_TYPE, CURRENT, info.line, info.line);
-	  DrawLine (CURRENT, info.line, 0);
-	}
-      else
-	{
-	  CLEAR_THERM (INDEXOFCURRENT, Via);
-	  if (!TEST_ANY_THERMS(Via))
-	    CLEAR_FLAG(USETHERMALFLAG, Via);
-	  if (info.line)
-	  {
-            EraseLine (info.line);
-            MoveObjectToRemoveUndoList (LINE_TYPE, CURRENT, info.line, info.line);
-	    /* Find the rest of them. */
-	    longjmp(info.env, 2);
-	  }
-	}
-      return (Via);
-    }
-  return (NULL);
+  RemoveLine (lay, l);
+  return l;
 }
 
 /* ---------------------------------------------------------------------------
@@ -470,7 +359,30 @@ ChangePinOrViaThermal (int type, void *ptr1, PinTypePtr Via)
 static void *
 ChangeViaThermal (PinTypePtr Via)
 {
-  return ChangePinOrViaThermal (VIA_TYPE, Via, Via);
+  int therms = ModifyThermals (CURRENT, Via, kill_therms);
+
+  if (therms == 1)
+    {
+      ClearFromPolygon (PCB->Data, VIA_TYPE, CURRENT, Via);
+      AddObjectToClearPolyUndoList (VIA_TYPE, CURRENT, Via, Via, True);
+    }
+  AddObjectToFlagUndoList (VIA_TYPE, Via, Via, Via);
+  if (!Delta)			/* remove the thermals */
+    {
+      CLEAR_THERM (INDEXOFCURRENT, Via);
+      CLEAR_FLAG (USETHERMALFLAG, Via);
+      if (therms)
+	return Via;
+      else
+	return NULL;
+    }
+  else
+    {
+      PlaceThermal (CURRENT, Via, Delta);
+      SET_THERM (INDEXOFCURRENT, Via);
+      SET_FLAG (USETHERMALFLAG, Via);
+    }
+  return Via;
 }
 
 /* ---------------------------------------------------------------------------
@@ -480,75 +392,28 @@ ChangeViaThermal (PinTypePtr Via)
 static void *
 ChangePinThermal (ElementTypePtr element, PinTypePtr Pin)
 {
-  return ChangePinOrViaThermal (PIN_TYPE, element, Pin);
-}
+  int therms = ModifyThermals (CURRENT, Pin, RemoveLine);
 
-/* ---------------------------------------------------------------------------
- * sets the thermal on a via
- * returns TRUE if changed
- */
-static void *
-SetViaThermal (PinTypePtr Via)
-{
-  if (!TEST_FLAG (HOLEFLAG, Via))
+  if (therms == 1)
     {
-      if (TEST_THERM (INDEXOFCURRENT, Via) == False)
-	{
-	  return ChangeViaThermal (Via);
-	}
+      ClearFromPolygon (PCB->Data, PIN_TYPE, CURRENT, Pin);
+      AddObjectToClearPolyUndoList (PIN_TYPE, CURRENT, Pin, Pin, True);
     }
-  return (NULL);
-}
-
-/* ---------------------------------------------------------------------------
- * sets the thermal on a pin 
- * returns TRUE if changed
- */
-static void *
-SetPinThermal (ElementTypePtr element, PinTypePtr Pin)
-{
-  if (!TEST_FLAG (HOLEFLAG, Pin))
+  AddObjectToFlagUndoList (PIN_TYPE, element, Pin, Pin);
+  if (!Delta)			/* remove the thermals */
     {
-      if (TEST_THERM (INDEXOFCURRENT, Pin) == False)
-	{
-	  return ChangePinOrViaThermal (PIN_TYPE, element, Pin);
-	}
+      CLEAR_THERM (INDEXOFCURRENT, Pin);
+      if (therms)
+	return Pin;
+      else
+	return NULL;
     }
-  return (NULL);
-}
-
-/* ---------------------------------------------------------------------------
- * clears the thermal on a via
- * returns TRUE if changed
- */
-static void *
-ClrViaThermal (PinTypePtr Via)
-{
-  if (!TEST_FLAG (HOLEFLAG, Via))
+  else
     {
-      if (TEST_THERM (INDEXOFCURRENT, Via) == True)
-	{
-	  return ChangeViaThermal (Via);
-	}
+      PlaceThermal (CURRENT, Pin, Delta);
+      SET_THERM (INDEXOFCURRENT, Pin);
     }
-  return (NULL);
-}
-
-/* ---------------------------------------------------------------------------
- * clears the thermal on a pin 
- * returns TRUE if changed
- */
-static void *
-ClrPinThermal (ElementTypePtr element, PinTypePtr Pin)
-{
-  if (!TEST_FLAG (HOLEFLAG, Pin))
-    {
-      if (TEST_THERM (INDEXOFCURRENT, Pin) == True)
-	{
-	  return ChangePinOrViaThermal (PIN_TYPE, element, Pin);
-	}
-    }
-  return (NULL);
+  return Pin;
 }
 
 /* ---------------------------------------------------------------------------
@@ -615,6 +480,27 @@ ChangeVia2ndSize (PinTypePtr Via)
   return (NULL);
 }
 
+
+static void *
+adjust_thermal (LayerTypePtr lay, LineTypePtr line)
+{
+  LocationType X1, Y1, X2, Y2;
+  BDimension t = line->Thickness;
+  X1 = line->Point1.X;
+  X2 = line->Point2.X;
+  Y1 = line->Point1.Y;
+  Y2 = line->Point2.Y;
+  RemoveLine (lay, line);
+  line =
+    CreateNewLineOnLayer (lay, X2 + (X1 - X2) * rescale,
+			  Y2 + (Y1 - Y2) * rescale, X1 + (X2 - X1) * rescale,
+			  Y1 + (Y2 - Y1) * rescale, t, 0,
+			  MakeFlags (USETHERMALFLAG | VISITFLAG));
+  AddObjectToCreateUndoList (LINE_TYPE, lay, line, line);
+  DrawLine (lay, line, 0);
+  return line;
+}
+
 /* ---------------------------------------------------------------------------
  * changes the clearance size of a via 
  * returns TRUE if changed
@@ -629,6 +515,9 @@ ChangeViaClearSize (PinTypePtr Via)
   value = MIN (MAX_LINESIZE, MAX (value, PCB->Bloat * 2 + 2));
   if (Via->Clearance == value)
     return NULL;
+  rescale =
+    (Via->Thickness + value) / ((double) (Via->Clearance) + Via->Thickness);
+  rescale = (rescale - 1.0) * 0.5 + 1.0;
   RestoreToPolygon (PCB->Data, PIN_TYPE, Via, Via);
   AddObjectToClearSizeUndoList (VIA_TYPE, Via, Via, Via);
   EraseVia (Via);
@@ -637,6 +526,12 @@ ChangeViaClearSize (PinTypePtr Via)
   SetPinBoundingBox (Via);
   r_insert_entry (PCB->Data->via_tree, (BoxType *) Via, 0);
   ClearFromPolygon (PCB->Data, PIN_TYPE, Via, Via);
+  LAYER_LOOP (PCB->Data, max_layer);
+  {
+    ModifyThermals (layer, Via, adjust_thermal);
+  }
+  END_LOOP;
+
   DrawVia (Via, 0);
   Via->Element = NULL;
   return (Via);
@@ -1663,47 +1558,12 @@ ChangeSelectedElementSide (void)
  * and/or vias. Returns True if anything has changed
  */
 Boolean
-ChangeSelectedThermals (int types)
+ChangeSelectedThermals (int types, int therm_style)
 {
   Boolean change = False;
 
+  Delta = therm_style;
   change = SelectedOperation (&ChangeThermalFunctions, False, types);
-  if (change)
-    {
-      Draw ();
-      IncrementUndoSerialNumber ();
-    }
-  return (change);
-}
-
-/* ----------------------------------------------------------------------
- * sets the thermals on all selected and visible pins
- * and/or vias. Returns True if anything has changed
- */
-Boolean
-SetSelectedThermals (int types)
-{
-  Boolean change = False;
-
-  change = SelectedOperation (&SetThermalFunctions, False, types);
-  if (change)
-    {
-      Draw ();
-      IncrementUndoSerialNumber ();
-    }
-  return (change);
-}
-
-/* ----------------------------------------------------------------------
- * clears the thermals on all selected and visible pins
- * and/or vias. Returns True if anything has changed
- */
-Boolean
-ClrSelectedThermals (int types)
-{
-  Boolean change = False;
-
-  change = SelectedOperation (&ClrThermalFunctions, False, types);
   if (change)
     {
       Draw ();
@@ -2021,53 +1881,23 @@ ChangeObjectClearSize (int Type, void *Ptr1, void *Ptr2, void *Ptr3,
 /* ---------------------------------------------------------------------------
  * changes the thermal of the passed object
  * Returns True if anything is changed
+ *
+ * therm_type = 0 means no thermsl
+ *            = 1 means 45 degree lines
+ *            = 2 means horizontal and vertical lines
+ *            = 3 means 4 lines
+ *            = 4 means solid connection to plane
  */
 Boolean
-ChangeObjectThermal (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
+ChangeObjectThermal (int Type, void *Ptr1, void *Ptr2, void *Ptr3,
+		     int therm_type)
 {
   Boolean change;
 
+  Delta = Absolute = therm_type;
   change =
     (ObjectOperation (&ChangeThermalFunctions, Type, Ptr1, Ptr2, Ptr3) !=
      NULL);
-  if (change)
-    {
-      Draw ();
-      IncrementUndoSerialNumber ();
-    }
-  return (change);
-}
-
-/* ---------------------------------------------------------------------------
- * sets the thermal of the passed object
- * Returns True if anything is changed
- */
-Boolean
-SetObjectThermal (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
-{
-  Boolean change;
-
-  change =
-    (ObjectOperation (&SetThermalFunctions, Type, Ptr1, Ptr2, Ptr3) != NULL);
-  if (change)
-    {
-      Draw ();
-      IncrementUndoSerialNumber ();
-    }
-  return (change);
-}
-
-/* ---------------------------------------------------------------------------
- * clears the thermal of the passed object
- * Returns True if anything is changed
- */
-Boolean
-ClrObjectThermal (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
-{
-  Boolean change;
-
-  change =
-    (ObjectOperation (&ClrThermalFunctions, Type, Ptr1, Ptr2, Ptr3) != NULL);
   if (change)
     {
       Draw ();

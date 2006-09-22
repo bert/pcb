@@ -466,7 +466,8 @@ line_sub_callback (const BoxType * b, void *cl)
 }
 
 static int
-clearPoly (DataTypePtr Data, LayerTypePtr layer, PolygonType * polygon, const BoxType * here)
+clearPoly (DataTypePtr Data, LayerTypePtr layer, PolygonType * polygon,
+	   const BoxType * here)
 {
   int r = 0;
   BoxType region;
@@ -483,7 +484,8 @@ clearPoly (DataTypePtr Data, LayerTypePtr layer, PolygonType * polygon, const Bo
 
   r = r_search (Data->via_tree, &region, NULL, pin_sub_callback, &info);
   r += r_search (Data->pin_tree, &region, NULL, pin_sub_callback, &info);
-  GROUP_LOOP (Data, GetLayerGroupNumberByNumber (GetLayerNumber (Data, layer)));
+  GROUP_LOOP (Data,
+	      GetLayerGroupNumberByNumber (GetLayerNumber (Data, layer)));
   {
     r += r_search (layer->line_tree, &region, NULL, line_sub_callback, &info);
   }
@@ -924,14 +926,27 @@ PlowsPolygon (DataType * Data, int type, void *ptr1, void *ptr2,
     {
     case PIN_TYPE:
     case VIA_TYPE:
-      if (((PinTypePtr) ptr2)->Clearance == 0)
-	return 0;
-      LAYER_LOOP (Data, max_layer);
-      {
-	info.layer = layer;
-	r += r_search (layer->polygon_tree, &sb, NULL, plow_callback, &info);
-      }
-      END_LOOP;
+      if (type == PIN_TYPE || ptr1 == ptr2 || ptr1 == NULL)
+	{
+	  LAYER_LOOP (Data, max_layer);
+	  {
+	    info.layer = layer;
+	    r +=
+	      r_search (layer->polygon_tree, &sb, NULL, plow_callback, &info);
+	  }
+	  END_LOOP;
+	}
+      else
+	{
+	  GROUP_LOOP (Data, GetLayerGroupNumberByNumber (GetLayerNumber (Data,
+									 ((LayerTypePtr) ptr1))));
+	  {
+	    info.layer = layer;
+	    r +=
+	      r_search (layer->polygon_tree, &sb, NULL, plow_callback, &info);
+	  }
+	  END_LOOP;
+	}
       break;
     case LINE_TYPE:
       if (!TEST_FLAG (CLEARLINEFLAG, (LineTypePtr) ptr2))

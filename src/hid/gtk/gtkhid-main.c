@@ -934,6 +934,7 @@ HID ghid_hid = {
   0,				/* exporter */
   0,				/* poly before */
   1,				/* poly after */
+  0,				/* poly dicer */
 
   ghid_get_export_options,
   ghid_do_export,

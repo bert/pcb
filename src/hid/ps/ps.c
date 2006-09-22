@@ -696,7 +696,7 @@ ps_set_crosshair (int x, int y)
 HID ps_hid = {
   "ps",
   "Postscript export.",
-  0, 0, 1, 1, 0,
+  0, 0, 1, 1, 0, 0,
   ps_get_export_options,
   ps_do_export,
   ps_parse_arguments,

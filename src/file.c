@@ -344,17 +344,6 @@ LoadPCB (char *Filename)
       SetChangedFlag (False);
       PCB->Filename = MyStrdup (Filename, "LoadPCB()");
       /* just in case a bad file saved file is loaded */
-#if 0
-      LAYER_LOOP (PCB->Data, max_layer);
-      {
-	POLYGON_LOOP (layer);
-	{
-	  InitClip (layer, polygon);
-	}
-	END_LOOP;
-      }
-      END_LOOP;
-#endif
 
       units_mm = (PCB->Grid != (int) PCB->Grid) ? True : False;
 

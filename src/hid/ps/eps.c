@@ -143,9 +143,8 @@ eps_hid_export_to_file (FILE * the_file, HID_Attr_Val * options)
   for (i = 0; i < max_layer; i++)
     {
       LayerType *layer = PCB->Data->Layer + i;
-      if (layer->On)
-	if (layer->LineN || layer->TextN || layer->ArcN || layer->PolygonN)
-	  print_group[GetLayerGroupNumberByNumber (i)] = 1;
+      if (layer->LineN || layer->TextN || layer->ArcN || layer->PolygonN)
+	print_group[GetLayerGroupNumberByNumber (i)] = 1;
     }
 
   /* Now, if only one layer has real stuff on it, we can use the fast
@@ -212,12 +211,6 @@ eps_hid_export_to_file (FILE * the_file, HID_Attr_Val * options)
   fprintf (f, "0.00001 dup neg scale\n");
   fprintf (f, "%g dup scale\n", options[HA_scale].real_value);
   fprintf (f, "%d %d translate\n", -bounds->X1, -bounds->Y2);
-  if (options[HA_as_shown].int_value
-      && Settings.ShowSolderSide)
-    {
-      fprintf (f, "-1 1 scale %d 0 translate\n",
-	       bounds->X1 - bounds->X2);
-    }
   linewidth = -1;
   lastcap = -1;
   lastcolor = -1;
@@ -297,7 +290,6 @@ eps_parse_arguments (int *argc, char ***argv)
 }
 
 static int is_mask;
-static int is_paste;
 static int is_drill;
 
 static int
@@ -319,9 +311,8 @@ eps_set_layer (const char *name, int group)
 
   is_drill = (SL_TYPE (idx) == SL_PDRILL || SL_TYPE (idx) == SL_UDRILL);
   is_mask = (SL_TYPE (idx) == SL_MASK);
-  is_paste = (SL_TYPE (idx) == SL_PASTE);
 
-  if (is_mask || is_paste)
+  if (is_mask)
     return 0;
 #if 0
   printf ("Layer %s group %d drill %d mask %d\n", name, group, is_drill,
@@ -338,8 +329,6 @@ eps_set_layer (const char *name, int group)
 	case SL (SILK, BOTTOM):
 	  if (SL_MYSIDE (idx))
 	    return PCB->ElementOn;
-	  else
-	    return 0;
 	}
     }
   else
@@ -607,7 +596,7 @@ eps_set_crosshair (int x, int y)
 static HID eps_hid = {
   "eps",
   "Encapsulated Postscript",
-  0, 0, 1, 0, 1,
+  0, 0, 1, 0, 1, 0,
   eps_get_export_options,
   eps_do_export,
   eps_parse_arguments,

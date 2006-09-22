@@ -66,6 +66,7 @@
 #include "search.h"
 #include "select.h"
 #include "set.h"
+#include "thermal.h"
 #include "undo.h"
 
 #ifdef HAVE_LIBDMALLOC
@@ -1085,14 +1086,26 @@ NotifyMode (void)
       }
     case THERMAL_MODE:
       {
+	static int therm_style = 1;
 	if (((type
 	      =
 	      SearchScreen (Note.X, Note.Y, PIN_TYPES, &ptr1, &ptr2,
 			    &ptr3)) != NO_TYPE)
 	    && !TEST_FLAG (HOLEFLAG, (PinTypePtr) ptr3))
 	  {
-	    /* fix me - check that there is a polygon here to therm */
-	    ChangeObjectThermal (type, ptr1, ptr2, ptr3);
+	    if (gui->shift_is_pressed ())
+	      {
+		therm_style++;
+		if (therm_style > 4)
+		  therm_style = 1;
+		ChangeObjectThermal (type, ptr1, ptr2, ptr3, therm_style);
+	      }
+	    else
+	      /* fix me - check that there is a polygon here to therm */
+	    if (ModifyThermals (CURRENT, (PinTypePtr) ptr2, NULL))
+	      ChangeObjectThermal (type, ptr1, ptr2, ptr3, 0);
+	    else
+	      ChangeObjectThermal (type, ptr1, ptr2, ptr3, 1);
 	  }
 	break;
       }
@@ -1804,76 +1817,22 @@ ActionMessage (int argc, char **argv, int x, int y)
 
 /* -------------------------------------------------------------------------- */
 
-static const char togglethermal_syntax[] =
-  "ToggleThermal(Object|SelectedPins|SelectedVias|Selected)";
-
-static const char togglethermal_help[] =
-  "Toggle a thermal (on the current layer) to pins or vias.";
-
-/* %start-doc actions ToggleThermal
-
-This changes the electrical connection between the pins or vias, and
-any rectangle or polygon on the current layer.
-
-%end-doc */
-
-static int
-ActionToggleThermal (int argc, char **argv, int x, int y)
-{
-  char *function = ARG (0);
-  void *ptr1, *ptr2, *ptr3;
-  int type;
-  int err = 0;
-
-  if (function && *function)
-    {
-      HideCrosshair (True);
-      switch (GetFunctionID (function))
-	{
-	case F_Object:
-	  if ((type =
-	       SearchScreen (Crosshair.X, Crosshair.Y, CHANGETHERMAL_TYPES,
-			     &ptr1, &ptr2, &ptr3)) != NO_TYPE)
-	    {
-	      ChangeObjectThermal (type, ptr1, ptr2, ptr3);
-	      IncrementUndoSerialNumber ();
-	      Draw ();
-	    }
-	  break;
-	case F_SelectedPins:
-	  ChangeSelectedThermals (PIN_TYPE);
-	  break;
-	case F_SelectedVias:
-	  ChangeSelectedThermals (VIA_TYPE);
-	  break;
-	case F_Selected:
-	case F_SelectedElements:
-	  ChangeSelectedThermals (CHANGETHERMAL_TYPES);
-	  break;
-	default:
-	  err = 1;
-	  break;
-	}
-      RestoreCrosshair (True);
-      if (!err)
-	return 0;
-    }
-
-  AFAIL (togglethermal);
-}
-
-/* -------------------------------------------------------------------------- */
-
 static const char setthermal_syntax[] =
-  "SetThermal(Object|SelectedPins|SelectedVias|Selected|SelectedElements)";
+  "SetThermal(Object|SelectedPins|SelectedVias|Selected, Style)";
 
 static const char setthermal_help[] =
-  "Set a thermal (on the current layer) to pins or vias.";
+  "Set the thermal (on the current layer) to pins or vias to the given style.\n"
+  "Style = 0 means no thermal, style = 1 is a pair of 45 degree fingers.\n"
+  "Style = 1 means horizontal and vertical fingers.\n"
+  "Style = 2 means four fingers (combined 1 and 2 styles).\n"
+  "Style = 3 means a solid connection to the plane.";
 
 /* %start-doc actions SetThermal
 
-This adds an electrical connection between the pins or vias, and any
-rectangle or polygon on the current layer.
+This changes how/whether pins or vias connect to any rectangle or polygon
+on the current layer. There are 4 possibilities: 0 - no connection,
+1 - 45 degree fingers, 2 - horizontal & vertical fingers, 3 - four fingers,
+4 - solid connection.
 
 %end-doc */
 
@@ -1881,12 +1840,14 @@ static int
 ActionSetThermal (int argc, char **argv, int x, int y)
 {
   char *function = ARG (0);
+  char *style = ARG (1);
   void *ptr1, *ptr2, *ptr3;
-  int type;
+  int type, kind;
   int err = 0;
 
-  if (function && *function)
+  if (function && *function && style && *style)
     {
+      kind = GetValue (style, NULL, NULL);
       HideCrosshair (True);
       switch (GetFunctionID (function))
 	{
@@ -1895,20 +1856,20 @@ ActionSetThermal (int argc, char **argv, int x, int y)
 	       SearchScreen (Crosshair.X, Crosshair.Y, CHANGETHERMAL_TYPES,
 			     &ptr1, &ptr2, &ptr3)) != NO_TYPE)
 	    {
-	      SetObjectThermal (type, ptr1, ptr2, ptr3);
+	      ChangeObjectThermal (type, ptr1, ptr2, ptr3, kind);
 	      IncrementUndoSerialNumber ();
 	      Draw ();
 	    }
 	  break;
 	case F_SelectedPins:
-	  SetSelectedThermals (PIN_TYPE);
+	  ChangeSelectedThermals (PIN_TYPE, kind);
 	  break;
 	case F_SelectedVias:
-	  SetSelectedThermals (VIA_TYPE);
+	  ChangeSelectedThermals (VIA_TYPE, kind);
 	  break;
 	case F_Selected:
 	case F_SelectedElements:
-	  SetSelectedThermals (CHANGETHERMAL_TYPES);
+	  ChangeSelectedThermals (CHANGETHERMAL_TYPES, kind);
 	  break;
 	default:
 	  err = 1;
@@ -1921,67 +1882,6 @@ ActionSetThermal (int argc, char **argv, int x, int y)
 
   AFAIL (setthermal);
 }
-
-/* -------------------------------------------------------------------------- */
-
-static const char clearthermal_syntax[] =
-  "ClearThermal(Object|SelectedPins|SelectedVias|Selected|SelectedElements)";
-
-static const char clearthermal_help[] =
-  "Clear a thermal (on the current layer) to pins or vias.";
-
-/* %start-doc actions ClearThermal
-
-This removes any electrical connection.  Pins and vias that do not
-already have thermals are not changed.
-
-%end-doc */
-
-static int
-ActionClearThermal (int argc, char **argv, int x, int y)
-{
-  char *function = ARG (0);
-  void *ptr1, *ptr2, *ptr3;
-  int type;
-  int err = 0;
-
-  if (function && *function)
-    {
-      HideCrosshair (True);
-      switch (GetFunctionID (function))
-	{
-	case F_Object:
-	  if ((type =
-	       SearchScreen (Crosshair.X, Crosshair.Y, CHANGETHERMAL_TYPES,
-			     &ptr1, &ptr2, &ptr3)) != NO_TYPE)
-	    {
-	      ClrObjectThermal (type, ptr1, ptr2, ptr3);
-	      IncrementUndoSerialNumber ();
-	      Draw ();
-	    }
-	  break;
-	case F_SelectedPins:
-	  ClrSelectedThermals (PIN_TYPE);
-	  break;
-	case F_SelectedVias:
-	  ClrSelectedThermals (VIA_TYPE);
-	  break;
-	case F_Selected:
-	case F_SelectedElements:
-	  ClrSelectedThermals (CHANGETHERMAL_TYPES);
-	  break;
-	default:
-	  err = 1;
-	  break;
-	}
-      RestoreCrosshair (True);
-      if (!err)
-	return 0;
-    }
-
-  AFAIL (clearthermal);
-}
-
 
 /* ---------------------------------------------------------------------------
  * action routine to move the X pointer relative to the current position
@@ -5935,11 +5835,6 @@ ChangeFlag (char *what, char *flag_name, int value, char *cmd_name)
       set_object = value ? SetObjectOctagon : ClrObjectOctagon;
       set_selected = value ? SetSelectedOctagon : ClrSelectedOctagon;
     }
-  else if (NSTRCMP (flag_name, "thermal") == 0)
-    {
-      set_object = value ? SetObjectThermal : ClrObjectThermal;
-      set_selected = value ? SetSelectedThermals : ClrSelectedThermals;
-    }
   else if (NSTRCMP (flag_name, "join") == 0)
     {
       /* Note: these are backwards, because the flag is "clear" but
@@ -6127,9 +6022,6 @@ HID_Action action_action_list[] = {
   {"ClearOctagon", 0, ActionClearOctagon,
    clearoctagon_help, clearoctagon_syntax}
   ,
-  {"ClearThermal", 0, ActionClearThermal,
-   clearthermal_help, clearthermal_syntax}
-  ,
   {"Connection", 0, ActionConnection,
    connection_help, connection_syntax}
   ,
@@ -6201,9 +6093,6 @@ HID_Action action_action_list[] = {
   ,
   {"ToggleHideName", 0, ActionToggleHideName,
    togglehidename_help, togglehidename_syntax}
-  ,
-  {"ToggleThermal", 0, ActionToggleThermal,
-   togglethermal_help, togglethermal_syntax}
   ,
   {"Undo", 0, ActionUndo,
    undo_help, undo_syntax}

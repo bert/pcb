@@ -710,7 +710,7 @@ use_gc (hidGC gc, int radius)
       if (f)
 	fprintf (f, "G54D%d*", ap);
     }
-
+#if 0
   if (lastcolor != gc->color)
     {
       c = gc->color;
@@ -733,6 +733,7 @@ use_gc (hidGC gc, int radius)
 	    }
 	}
     }
+#endif
 }
 
 static void
@@ -962,7 +963,7 @@ gerber_set_crosshair (int x, int y)
 static HID gerber_hid = {
   "gerber",
   "RS-274X (Gerber) export.",
-  0, 0, 1, 1, 0,
+  0, 0, 1, 0, 0, 1,
   gerber_get_export_options,
   gerber_do_export,
   gerber_parse_arguments,

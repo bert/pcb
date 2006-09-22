@@ -279,7 +279,7 @@ nogui_beep (void)
 HID hid_nogui = {
   "nogui",
   "Default GUI when no other GUI is present.  Does nothing.",
-  0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0,
   nogui_get_export_options,
   nogui_do_export,
   nogui_parse_arguments,

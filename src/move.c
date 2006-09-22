@@ -51,6 +51,7 @@
 #include "rtree.h"
 #include "search.h"
 #include "select.h"
+#include "thermal.h"
 #include "undo.h"
 
 #ifdef HAVE_LIBDMALLOC
@@ -124,16 +125,27 @@ MoveElementLowLevel (DataTypePtr Data, ElementTypePtr Element,
   END_LOOP;
   PIN_LOOP (Element);
   {
+    int therms[max_layer];
     if (Data)
       {
 	r_delete_entry (Data->pin_tree, (BoxType *) pin);
 	RestoreToPolygon (Data, PIN_TYPE, Element, pin);
+	LAYER_LOOP (Data, max_layer);
+	{
+	  therms[n] = ModifyThermals (layer, pin, MoveLine);
+	}
+	END_LOOP;
       }
     MOVE_PIN_LOWLEVEL (pin, DX, DY);
     if (Data)
       {
 	r_insert_entry (Data->pin_tree, (BoxType *) pin, 0);
-	ClearFromPolygon (Data, PIN_TYPE, Element, pin);
+	LAYER_LOOP (Data, max_layer);
+	{
+	  if (therms[n] != 1)
+	    ClearFromPolygon (Data, VIA_TYPE, layer, pin);
+	}
+	END_LOOP;
       }
   }
   END_LOOP;
@@ -247,13 +259,25 @@ MoveElement (ElementTypePtr Element)
 static void *
 MoveVia (PinTypePtr Via)
 {
+  int therms[max_layer];
+
   r_delete_entry (PCB->Data->via_tree, (BoxTypePtr) Via);
   RestoreToPolygon (PCB->Data, VIA_TYPE, Via, Via);
+  LAYER_LOOP (PCB->Data, max_layer);
+  {
+    therms[n] = ModifyThermals (layer, Via, MoveLine);
+  }
+  END_LOOP;
   MOVE_VIA_LOWLEVEL (Via, DeltaX, DeltaY);
   if (PCB->ViaOn)
     EraseVia (Via);
   r_insert_entry (PCB->Data->via_tree, (BoxTypePtr) Via, 0);
-  ClearFromPolygon (PCB->Data, VIA_TYPE, Via, Via);
+  LAYER_LOOP (PCB->Data, max_layer);
+  {
+    if (therms[n] != 1)
+      ClearFromPolygon (PCB->Data, VIA_TYPE, layer, Via);
+  }
+  END_LOOP;
   if (PCB->ViaOn)
     {
       DrawVia (Via, 0);

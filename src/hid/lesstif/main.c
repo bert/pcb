@@ -3185,8 +3185,6 @@ lesstif_fill_rect (hidGC gc, int x1, int y1, int x2, int y2)
     return;
   if (y1 > view_height + vw && y2 > view_height + vw)
     return;
-  if (x1 > x2) { int xt = x1; x1 = x2; x2 = xt; }
-  if (y1 > y2) { int yt = y1; y1 = y2; y2 = yt; }
   set_gc (gc);
   if (thindraw)
     {
@@ -3461,6 +3459,7 @@ HID lesstif_gui = {
   0,				/* exporter */
   1,				/* poly before */
   0,				/* poly after */
+  0,				/* poly dicer */
 
   lesstif_get_export_options,
   lesstif_do_export,

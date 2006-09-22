@@ -404,6 +404,7 @@ MoveElementToBuffer (ElementTypePtr Element)
     text->Element = element;
   }
   END_LOOP;
+  SetElementBoundingBox (Dest, element, &PCB->Font);
   *Element = Source->Element[--Source->ElementN];
   /* deal with element pointer changing */
   r_substitute (Source->element_tree,
@@ -430,7 +431,6 @@ MoveElementToBuffer (ElementTypePtr Element)
   }
   END_LOOP;
   memset (&Source->Element[Source->ElementN], 0, sizeof (ElementType));
-  SetElementBoundingBox (Dest, Element, &PCB->Font);
   return (element);
 }
 

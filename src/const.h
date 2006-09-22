@@ -193,6 +193,7 @@ pinout text should be vertical.
 #define LOCKFLAG                0x2000	/* object locked in place */
 #define EDGE2FLAG               0x4000	/* Padr.Point2 is closer to outside edge */
 					/* also pinout text for pins is vertical */
+#define VISITFLAG		0x8000  /* marker to avoid re-visiting an object */
 
 /* ---------------------------------------------------------------------------
  * PCB flags

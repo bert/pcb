@@ -1,5 +1,4 @@
 /* $Id$ */
-
 /*
  *                            COPYRIGHT
  *
@@ -733,9 +732,8 @@ poly_callback (const BoxType * b, void *cl)
 {
   struct pin_info *i = (struct pin_info *) cl;
 
-#ifndef DICE_SCREEN
-  if (XOR (i->arg, TEST_FLAG (CLEARPOLYFLAG, (PolygonTypePtr) b)))
-#endif
+  if (gui->poly_dicer
+      || XOR (i->arg, TEST_FLAG (CLEARPOLYFLAG, (PolygonTypePtr) b)))
     DrawPlainPolygon (i->Layer, (PolygonTypePtr) b);
   return 1;
 }
@@ -910,84 +908,85 @@ DrawLayerGroup (int group, const BoxType * screen)
   int n_entries = PCB->LayerGroups.Number[group];
   Cardinal *layers = PCB->LayerGroups.Entries[group];
 
-#ifndef DICE_SCREEN
-  for (i = n_entries - 1; i >= 0; i--)
-    if (layers[i] < max_layer)
-      {
-	Layer = PCB->Data->Layer + layers[i];
-	if (Layer->On && Layer->PolygonN)
-	  {
-	    POLYGON_LOOP (Layer);
-	    {
-	      if (VPOLY (polygon) && TEST_FLAG (CLEARPOLYFLAG, polygon))
-		{
-		  need_mask = 1;
-		  /* No point looping any more */
-		  goto got_mask;
-		}
-	    }
-	    END_LOOP;
-	  }
-      }
-got_mask:
-
-  if (need_mask)
+  if (!gui->poly_dicer)
     {
-
-      if (gui->poly_before)
-	{
-	  gui->use_mask (HID_MASK_BEFORE);
-	  for (i = n_entries - 1; i >= 0; i--)
-	    if (layers[i] < max_layer)
-	      {
-		Layer = PCB->Data->Layer + layers[i];
-		info.PIPFlag = layers[i];
-		info.Layer = Layer;
-
-		if (Layer->On && Layer->PolygonN)
-		  {
-		    /* print the clearing polys */
-		    info.arg = False;
-		    r_search (Layer->polygon_tree, screen, NULL,
-			      poly_callback, &info);
-		  }
-	      }
-	}
-
-      gui->use_mask (HID_MASK_CLEAR);
       for (i = n_entries - 1; i >= 0; i--)
 	if (layers[i] < max_layer)
 	  {
-	    /* Make clearances around lines, arcs, pins and vias
-	     */
-	    gui->set_color (Output.pmGC, "erase");
-	    PolygonHoles (group, screen, clear_callback);
+	    Layer = PCB->Data->Layer + layers[i];
+	    if (Layer->On && Layer->PolygonN)
+	      {
+		POLYGON_LOOP (Layer);
+		{
+		  if (VPOLY (polygon) && TEST_FLAG (CLEARPOLYFLAG, polygon))
+		    {
+		      need_mask = 1;
+		      /* No point looping any more */
+		      goto got_mask;
+		    }
+		}
+		END_LOOP;
+	      }
 	  }
+    got_mask:
 
-      if (gui->poly_after)
+      if (need_mask)
 	{
-	  gui->use_mask (HID_MASK_AFTER);
+
+	  if (gui->poly_before)
+	    {
+	      gui->use_mask (HID_MASK_BEFORE);
+	      for (i = n_entries - 1; i >= 0; i--)
+		if (layers[i] < max_layer)
+		  {
+		    Layer = PCB->Data->Layer + layers[i];
+		    info.PIPFlag = layers[i];
+		    info.Layer = Layer;
+
+		    if (Layer->On && Layer->PolygonN)
+		      {
+			/* print the clearing polys */
+			info.arg = False;
+			r_search (Layer->polygon_tree, screen, NULL,
+				  poly_callback, &info);
+		      }
+		  }
+	    }
+
+	  gui->use_mask (HID_MASK_CLEAR);
 	  for (i = n_entries - 1; i >= 0; i--)
 	    if (layers[i] < max_layer)
 	      {
-		Layer = PCB->Data->Layer + layers[i];
-		info.PIPFlag = layers[i];
-		info.Layer = Layer;
-
-		if (Layer->On && Layer->PolygonN)
-		  {
-		    /* print the clearing polys */
-		    info.arg = False;
-		    r_search (Layer->polygon_tree, screen, NULL,
-			      poly_callback, &info);
-		  }
+		/* Make clearances around lines, arcs, pins and vias
+		 */
+		gui->set_color (Output.pmGC, "erase");
+		PolygonHoles (group, screen, clear_callback);
 	      }
+
+	  if (gui->poly_after)
+	    {
+	      gui->use_mask (HID_MASK_AFTER);
+	      for (i = n_entries - 1; i >= 0; i--)
+		if (layers[i] < max_layer)
+		  {
+		    Layer = PCB->Data->Layer + layers[i];
+		    info.PIPFlag = layers[i];
+		    info.Layer = Layer;
+
+		    if (Layer->On && Layer->PolygonN)
+		      {
+			/* print the clearing polys */
+			info.arg = False;
+			r_search (Layer->polygon_tree, screen, NULL,
+				  poly_callback, &info);
+		      }
+		  }
+	    }
+
+
+	  gui->use_mask (HID_MASK_OFF);
 	}
-
-
-      gui->use_mask (HID_MASK_OFF);
     }
-#endif
 
   for (i = n_entries - 1; i >= 0; i--)
     {
@@ -2119,12 +2118,15 @@ DrawPlainPolygon (LayerTypePtr Layer, PolygonTypePtr Polygon)
     }
   else
     gui->set_color (Output.fgGC, Layer->Color);
-#if DICE_SCREEN
-  if (Polygon->Clipped)
-    NoHolesPolygonDicer (Polygon->Clipped->contours, DrawPolygonLowLevel);
-#else
-  DrawPolygonLowLevel (Polygon);
-#endif
+  if (gui->poly_dicer)
+    {
+      if (Polygon->Clipped)
+	NoHolesPolygonDicer (Polygon->Clipped->contours, DrawPolygonLowLevel);
+    }
+  else
+    {
+      DrawPolygonLowLevel (Polygon);
+    }
 }
 
 /* ---------------------------------------------------------------------------

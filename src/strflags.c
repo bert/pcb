@@ -122,7 +122,7 @@ static struct
   {
   WARNFLAG, N ("warn"), PIN_TYPES | PAD_TYPE},
   {
-  USETHERMALFLAG, N ("usetherm"), PIN_TYPES | PAD_TYPE},
+  USETHERMALFLAG, N ("usetherm"), PIN_TYPES | LINE_TYPE},
   {
   OCTAGONFLAG, N ("octagon"), PIN_TYPES | PAD_TYPE},
   {

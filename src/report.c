@@ -130,7 +130,7 @@ ReportDialog (int argc, char **argv, int x, int y)
       {
 #ifdef FIXME
 #ifndef NDEBUG
-	if (gui_shift_is_pressed ())
+	if (gui->shift_is_pressed ())
 	  {
 	    __r_dump_tree (PCB->Data->via_tree->root, 0);
 	    return 0;

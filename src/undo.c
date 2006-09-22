@@ -121,6 +121,13 @@ typedef struct			/* information about layer changes */
 }
 LayerChangeType, *LayerChangeTypePtr;
 
+typedef struct			/* information about poly clear/restore */
+{
+  Boolean Clear;		/* true was clear, false was restore */
+  LayerTypePtr Layer;
+}
+ClearPolyType, *ClearPolyTypePtr;
+
 typedef struct			/* holds information about an operation */
 {
   int Serial,			/* serial number of operation */
@@ -137,6 +144,7 @@ typedef struct			/* holds information about an operation */
     FlagType Flags;
     BDimension Size;
     LayerChangeType LayerChange;
+    ClearPolyType ClearPoly;
   }
   Data;
 }
@@ -176,6 +184,7 @@ static Boolean UndoChange2ndSize (UndoListTypePtr);
 static Boolean UndoChangeAngles (UndoListTypePtr);
 static Boolean UndoChangeClearSize (UndoListTypePtr);
 static Boolean UndoChangeMaskSize (UndoListTypePtr);
+static Boolean UndoClearPoly (UndoListTypePtr);
 static int PerformUndo (UndoListTypePtr);
 
 /* ---------------------------------------------------------------------------
@@ -286,6 +295,30 @@ UndoRotate (UndoListTypePtr Entry)
       return (True);
     }
   return (False);
+}
+
+/* ---------------------------------------------------------------------------
+ * recovers an object from a clear/restore poly operation
+ * returns True if anything has been recovered
+ */
+static Boolean
+UndoClearPoly (UndoListTypePtr Entry)
+{
+  void *ptr1, *ptr2, *ptr3;
+  int type;
+
+  type =
+    SearchObjectByID (PCB->Data, &ptr1, &ptr2, &ptr3, Entry->ID, Entry->Kind);
+  if (type != NO_TYPE)
+    {
+      if (Entry->Data.ClearPoly.Clear)
+        RestoreToPolygon (PCB->Data, type, Entry->Data.ClearPoly.Layer, ptr3);
+      else
+        ClearFromPolygon (PCB->Data, type, Entry->Data.ClearPoly.Layer, ptr3);
+      Entry->Data.ClearPoly.Clear = !Entry->Data.ClearPoly.Clear;
+      return True;
+    }
+  return False;
 }
 
 /* ---------------------------------------------------------------------------
@@ -860,6 +893,11 @@ PerformUndo (UndoListTypePtr ptr)
 	return (UNDO_ROTATE);
       break;
 
+    case UNDO_CLEAR:
+      if (UndoClearPoly (ptr))
+        return (UNDO_CLEAR);
+      break;
+
     case UNDO_MOVETOLAYER:
       if (UndoMoveToLayer (ptr))
 	return (UNDO_MOVETOLAYER);
@@ -1012,6 +1050,23 @@ ClearUndoList (Boolean Force)
 
   /* reset counter in any case */
   Serial = 1;
+}
+
+/* ---------------------------------------------------------------------------
+ * adds an object to the list of clearpoly objects
+ */
+void
+AddObjectToClearPolyUndoList (int Type, void *Ptr1, void *Ptr2, void *Ptr3,
+			   Boolean clear)
+{
+  UndoListTypePtr undo;
+
+  if (!Locked)
+    {
+      undo = GetUndoSlot (UNDO_CLEAR, OBJECT_ID (Ptr3), Type);
+      undo->Data.ClearPoly.Clear = clear;
+      undo->Data.ClearPoly.Layer = (LayerTypePtr) Ptr1;
+    }
 }
 
 /* ---------------------------------------------------------------------------
