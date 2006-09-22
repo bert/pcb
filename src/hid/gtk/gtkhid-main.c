@@ -986,6 +986,7 @@ HID ghid_extents = {
   0,				/* exporter */
   0,				/* poly before */
   1,				/* poly after */
+  0,				/* poly dicer */
 
   0 /* ghid_get_export_options */ ,
   0 /* ghid_do_export */ ,
