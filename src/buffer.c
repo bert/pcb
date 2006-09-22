@@ -662,7 +662,7 @@ polygon_is_rectangle (PolygonTypePtr poly)
   PointType temp[4];
   if (poly->PointN != 4)
     return 0;
-  best = 1;
+  best = 0;
   for (i=1; i<4; i++)
     if (poly->Points[i].X < poly->Points[best].X
 	|| poly->Points[i].Y < poly->Points[best].Y)
