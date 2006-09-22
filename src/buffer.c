@@ -652,6 +652,43 @@ SmashBufferElement (BufferTypePtr Buffer)
 
 /*---------------------------------------------------------------------------
  *
+ * see if a polygon is a rectangle.  If so, canonicalize it.
+ */
+
+static int
+polygon_is_rectangle (PolygonTypePtr poly)
+{
+  int i, best;
+  PointType temp[4];
+  if (poly->PointN != 4)
+    return 0;
+  best = 1;
+  for (i=1; i<4; i++)
+    if (poly->Points[i].X < poly->Points[best].X
+	|| poly->Points[i].Y < poly->Points[best].Y)
+      best = i;
+  for (i=0; i<4; i++)
+    temp[i] = poly->Points[(i+best)%4];
+  if (temp[0].X == temp[1].X)
+    memcpy (poly->Points, temp, sizeof(temp));
+  else
+    {
+      /* reverse them */
+      poly->Points[0] = temp[0];
+      poly->Points[1] = temp[3];
+      poly->Points[2] = temp[2];
+      poly->Points[3] = temp[1];
+    }
+  if (poly->Points[0].X == poly->Points[1].X
+      && poly->Points[1].Y == poly->Points[2].Y
+      && poly->Points[2].X == poly->Points[3].X
+      && poly->Points[3].Y == poly->Points[0].Y)
+    return 1;
+  return 0;
+}
+
+/*---------------------------------------------------------------------------
+ *
  * convert buffer contents into an element
  */
 Boolean
@@ -716,6 +753,31 @@ ConvertBufferToElement (BufferTypePtr Buffer)
 			MakeFlags (SWAP_IDENT ? ONSOLDERFLAG : NOFLAG));
 	  hasParts = True;
 	}
+    }
+    END_LOOP;
+    POLYGON_LOOP (layer);
+    {
+      int x1, y1, x2, y2, w, h, t;
+
+      if (! polygon_is_rectangle (polygon))
+	continue;
+
+      w = polygon->Points[2].X - polygon->Points[0].X;
+      h = polygon->Points[1].Y - polygon->Points[0].Y;
+      t = (w < h) ? w : h;
+      x1 = polygon->Points[0].X + t/2;
+      y1 = polygon->Points[0].Y + t/2;
+      x2 = x1 + (w-t);
+      y2 = y1 + (h-t);
+
+      sprintf (num, "%d", pin_n++);
+      CreateNewPad (Element,
+		    x1, y1, x2, y2, t,
+		    2 * Settings.Keepaway,
+		    t + Settings.Keepaway,
+		    NULL, num,
+		    MakeFlags (SQUAREFLAG | (SWAP_IDENT ? ONSOLDERFLAG : NOFLAG)));
+      hasParts = True;
     }
     END_LOOP;
   }
