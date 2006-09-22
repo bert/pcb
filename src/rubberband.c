@@ -50,6 +50,7 @@
 #include "data.h"
 #include "error.h"
 #include "misc.h"
+#include "polygon.h"
 #include "rubberband.h"
 #include "rtree.h"
 #include "search.h"
