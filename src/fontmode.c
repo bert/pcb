@@ -232,6 +232,8 @@ FontSave (int argc, char **argv, int Ux, int Uy)
     }
 
   SetFontInfo (font);
+  
+  return 0;
 }
 
 HID_Action fontmode_action_list[] = {
