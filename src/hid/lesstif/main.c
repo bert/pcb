@@ -99,6 +99,7 @@ static int in_move_event = 0;
 
 Widget work_area, messages, command, hscroll, vscroll;
 static Widget m_mark, m_crosshair, m_grid, m_zoom, m_mode, m_status;
+static Widget m_rats;
 Widget lesstif_m_layer;
 Widget m_click;
 
@@ -1761,6 +1762,8 @@ lesstif_do_export (HID_Attr_Val * options)
   m_zoom = make_message ("m_zoom", m_grid, 1);
   lesstif_m_layer = make_message ("m_layer", m_zoom, 0);
   m_mode = make_message ("m_mode", lesstif_m_layer, 1);
+  m_rats = make_message ("m_rats", m_mode, 1);
+  XtUnmanageChild (XtParent (m_rats));
   m_status = make_message ("m_status", m_mode, 1);
 
   n = 0;
@@ -2645,6 +2648,38 @@ idle_proc (XtPointer dummy)
 	lesstif_update_status_line ();
 	old_clip = new_clip;
 	old_tscale = Settings.TextScale;
+      }
+  }
+
+  {
+    static int old_nrats = -1;
+    static char buf[20];
+
+    if (old_nrats != PCB->Data->RatN)
+      {
+	Widget w;
+	old_nrats = PCB->Data->RatN;
+	sprintf(buf, "%d rat%s", PCB->Data->RatN, PCB->Data->RatN == 1 ? "" : "s");
+	if (PCB->Data->RatN)
+	  {
+	    XtManageChild(XtParent(m_rats));
+	    XtManageChild(m_rats);
+	    n = 0;
+	    stdarg (XmNleftWidget, m_rats);
+	    XtSetValues (XtParent (m_status), args, n);
+	  }
+
+	n = 0;
+	stdarg (XmNlabelString, XmStringCreateLocalized (buf));
+	XtSetValues (m_rats, args, n);
+
+	if (!PCB->Data->RatN)
+	  {
+	    n = 0;
+	    stdarg (XmNleftWidget, m_mode);
+	    XtSetValues (XtParent (m_status), args, n);
+	    XtUnmanageChild(XtParent(m_rats));
+	  }
       }
   }
 
