@@ -3775,6 +3775,7 @@ ghid_parse_arguments (int *argc, char ***argv)
 
   gport = &ghid_port;
   gport->zoom = 300.0;
+  pixel_slop = 300;
 
   ghid_config_files_read (argc, argv);
 
