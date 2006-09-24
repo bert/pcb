@@ -2123,6 +2123,8 @@ DrawRat (RatTypePtr Line, int unused)
       else
 	gui->set_color (Output.fgGC, PCB->RatColor);
     }
+  if (Settings.RatThickness < 20)
+    Line->Thickness = pixel_slop * Settings.RatThickness;
   DrawLineLowLevel ((LineTypePtr) Line, False);
 }
 
