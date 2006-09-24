@@ -703,13 +703,21 @@ AddAllRats (Boolean SelectedOnly, void (*funcp) ())
   RestoreFindFlag ();
   if (funcp)
     return (True);
+
   if (Warned || changed)
     Draw ();
+
   if (Warned)
     Settings.RatWarn = True;
+
   if (changed)
     {
       IncrementUndoSerialNumber ();
+      if (PCB->Data->RatN > 0) 
+	{
+	  Message ("%d rat line%s remaining\n", PCB->Data->RatN,
+		   PCB->Data->RatN > 1 ? "s" : "");
+	}
       return (True);
     }
   if (!SelectedOnly && !Warned)
