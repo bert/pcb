@@ -184,6 +184,10 @@ layer_type_to_file_name (int idx)
 	return "front";
       else if (group == GetLayerGroupNumberByNumber(max_layer+SOLDER_LAYER))
 	return "back";
+      else if (PCB->LayerGroups.Number[group] == 1
+	       && (strcasecmp (PCB->Data->Layer[idx].Name, "route") == 0
+		   || strcasecmp (PCB->Data->Layer[idx].Name, "outline") == 0))
+	return "outline";
       else
 	{
 	  static char buf[20];
