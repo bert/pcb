@@ -97,7 +97,7 @@ static void Redraw (Boolean, BoxTypePtr);
 static void DrawEverything (BoxTypePtr);
 static void DrawTop (const BoxType *);
 static void DrawLayer (LayerTypePtr, BoxType *);
-static void DrawLayerGroup (int, const BoxType *);
+static int  DrawLayerGroup (int, const BoxType *);
 static void DrawPinOrViaLowLevel (PinTypePtr, Boolean);
 static void ClearOnlyPin (PinTypePtr, Boolean);
 static void ThermPin (LayerTypePtr, PinTypePtr);
@@ -504,8 +504,8 @@ DrawEverything (BoxTypePtr drawn_area)
 
       if (gui->set_layer (0, group))
 	{
-	  DrawLayerGroup (group, drawn_area);
-	  if (!gui->gui)
+	  if (DrawLayerGroup (group, drawn_area)
+	      && !gui->gui)
 	    {
 	      int save_swap = SWAP_IDENT;
 
@@ -918,12 +918,13 @@ DrawLayer (LayerTypePtr Layer, BoxType * screen)
 }
 
 /* ---------------------------------------------------------------------------
- * draws one layer group
+ * draws one layer group.  Returns non-zero if pins and pads should be
+ * drawn with this group.
  */
-static void
+static int
 DrawLayerGroup (int group, const BoxType * screen)
 {
-  int i;
+  int i, rv=1;
   int layernum;
   struct pin_info info;
   int need_mask = 0;
@@ -935,6 +936,9 @@ DrawLayerGroup (int group, const BoxType * screen)
     if (layers[i] < max_layer)
       {
 	Layer = PCB->Data->Layer + layers[i];
+	if (strcasecmp (Layer->Name, "route") == 0
+	    || strcasecmp (Layer->Name, "outline") == 0)
+	  rv = 0;
 	if (Layer->On && Layer->PolygonN)
 	  {
 	    POLYGON_LOOP (Layer);
@@ -1029,7 +1033,7 @@ got_mask:
     }
 
   if (TEST_FLAG (CHECKPLANESFLAG, PCB))
-    return;
+    return rv;
 
   for (i = n_entries - 1; i >= 0; i--)
     {
@@ -1047,6 +1051,7 @@ got_mask:
 	  r_search (Layer->text_tree, screen, NULL, text_callback, Layer);
 	}
     }
+  return rv;
 }
 
 /* ---------------------------------------------------------------------------
