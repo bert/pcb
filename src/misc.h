@@ -98,4 +98,7 @@ void MakeLayerGroupsDefault ();
 extern double c_strtod(const char *s);
 extern const char *c_dtostr(double d);
 
+/* Returns a string with info about this copy of pcb. */
+char * GetInfoString (void);
+
 #endif
