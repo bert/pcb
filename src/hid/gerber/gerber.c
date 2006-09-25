@@ -53,6 +53,7 @@ static void gerber_fill_polygon (hidGC gc, int n_coords, int *x, int *y);
 /* Private data structures                                                    */
 /*----------------------------------------------------------------------------*/
 
+static int verbose;
 static int is_mask, was_drill;
 static int is_drill;
 static int current_mask;
@@ -246,6 +247,9 @@ static HID_Attribute gerber_options[] = {
   {"gerberfile", "Gerber output file base",
    HID_String, 0, 0, {0, 0, 0}, 0, 0},
 #define HA_gerberfile 0
+  {"verbose", "print file names and aperture counts",
+   HID_Boolean, 0, 0, {0, 0, 0}, 0, 0},
+#define HA_verbose 1
 };
 
 #define NUM_OPTIONS (sizeof(gerber_options)/sizeof(gerber_options[0]))
@@ -317,6 +321,8 @@ gerber_do_export (HID_Attr_Val * options)
   fnbase = options[HA_gerberfile].str_value;
   if (!fnbase)
     fnbase = "pcb-out";
+
+  verbose = options[HA_verbose].int_value;
 
   i = strlen (fnbase);
   filename = MyRealloc (filename, i + 40, "gerber");
@@ -492,10 +498,10 @@ gerber_set_layer (const char *name, int group)
 
       was_drill = is_drill;
 
-#if 0
-      printf ("Gerber: %d aperture%s in %s\n", curapp->nextAperture,
-	      curapp->nextAperture == 1 ? "" : "s", filename);
-#endif
+      if (verbose)
+	printf ("Gerber: %d aperture%s in %s\n", curapp->nextAperture,
+		curapp->nextAperture == 1 ? "" : "s", filename);
+
       if (is_drill)
 	{
 	  fprintf (f, "M48\015\012" "INCH,TZ\015\012");
