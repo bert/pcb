@@ -1474,6 +1474,8 @@ GetArcEnds (ArcTypePtr Arc)
   return (&box);
 }
 
+
+/* doesn't this belong in change.c ?? */
 void
 ChangeArcAngles (LayerTypePtr Layer, ArcTypePtr a,
 		 long int new_sa, long int new_da)
@@ -1483,12 +1485,14 @@ ChangeArcAngles (LayerTypePtr Layer, ArcTypePtr a,
       new_da = 360;
       new_sa = 0;
     }
+  RestoreToPolygon (PCB->Data, ARC_TYPE, Layer, a);
   r_delete_entry (Layer->arc_tree, (BoxTypePtr) a);
   AddObjectToChangeAnglesUndoList (ARC_TYPE, a, a, a);
   a->StartAngle = new_sa;
   a->Delta = new_da;
   SetArcBoundingBox (a);
   r_insert_entry (Layer->arc_tree, (BoxTypePtr) a, 0);
+  ClearFromPolygon (PCB->Data, ARC_TYPE, Layer, a);
 }
 
 static char *

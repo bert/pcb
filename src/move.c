@@ -313,6 +313,7 @@ MoveLine (LayerTypePtr Layer, LineTypePtr Line)
 static void *
 MoveArc (LayerTypePtr Layer, ArcTypePtr Arc)
 {
+  RestoreToPolygon (PCB->Data, ARC_TYPE, Layer, Arc);
   r_delete_entry (Layer->arc_tree, (BoxTypePtr) Arc);
   if (Layer->On)
     {
@@ -326,6 +327,7 @@ MoveArc (LayerTypePtr Layer, ArcTypePtr Arc)
       MOVE_ARC_LOWLEVEL (Arc, DeltaX, DeltaY);
     }
   r_insert_entry (Layer->arc_tree, (BoxTypePtr) Arc, 0);
+  ClearFromPolygon (PCB->Data, ARC_TYPE, Layer, Arc);
   return (Arc);
 }
 
@@ -517,9 +519,11 @@ MoveArcToLayer (LayerTypePtr Layer, ArcTypePtr Arc)
   if (((long int) Dest == -1) || Dest == Layer)
     return (Arc);
   AddObjectToMoveToLayerUndoList (ARC_TYPE, Layer, Arc, Arc);
+  RestoreToPolygon (PCB->Data, ARC_TYPE, Layer, Arc);
   if (Layer->On)
     EraseArc (Arc);
   new = MoveArcToLayerLowLevel (Layer, Arc, Dest);
+  ClearFromPolygon (PCB->Data, ARC_TYPE, Dest, Arc);
   if (Dest->On)
     DrawArc (Dest, new, 0);
   Draw ();
@@ -732,6 +736,7 @@ static void *
 MovePolygonToLayer (LayerTypePtr Layer, PolygonTypePtr Polygon)
 {
   PolygonTypePtr new;
+  Boolean sv;
 
   if (TEST_FLAG (LOCKFLAG, Polygon))
     {
@@ -744,6 +749,8 @@ MovePolygonToLayer (LayerTypePtr Layer, PolygonTypePtr Polygon)
   if (Layer->On)
     ErasePolygon (Polygon);
   /* Move all of the thermals with the polygon */
+  sv = MoreToCome;
+  MoreToCome = True;
   ALLPIN_LOOP (PCB->Data);
   {
     if (TEST_THERM (GetLayerNumber (PCB->Data, Layer), pin) &&
@@ -753,6 +760,7 @@ MovePolygonToLayer (LayerTypePtr Layer, PolygonTypePtr Polygon)
 	AddObjectToFlagUndoList (PIN_TYPE, Layer, pin, pin);
 	CLEAR_THERM (GetLayerNumber (PCB->Data, Layer), pin);
 	SET_THERM (GetLayerNumber (PCB->Data, Dest), pin);
+	ModifyThermals (Layer, pin, MoveLineToLayer);
       }
   }
   ENDALL_LOOP;
@@ -765,9 +773,11 @@ MovePolygonToLayer (LayerTypePtr Layer, PolygonTypePtr Polygon)
 	AddObjectToFlagUndoList (VIA_TYPE, Layer, via, via);
 	CLEAR_THERM (GetLayerNumber (PCB->Data, Layer), via);
 	SET_THERM (GetLayerNumber (PCB->Data, Dest), via);
+	ModifyThermals (Layer, via, MoveLineToLayer);
       }
   }
   END_LOOP;
+  MoreToCome = sv;
   new = MovePolygonToLayerLowLevel (Layer, Polygon, Dest);
   InitClip (PCB->Data, Dest, Polygon);
   if (Dest->On)

@@ -2991,7 +2991,8 @@ ActionDJopt (int argc, char **argv, int x, int y)
 	  LineType *l = &(layer->Line[ln]);
 	  line_s *ls;
 
-	  if (TEST_FLAG (RATFLAG, l))
+	  /* don't mess with thermals */
+	  if (TEST_FLAG (USETHERMALFLAG, l))
 	    continue;
 
 	  if (l->Point1.X == l->Point2.X && l->Point1.Y == l->Point2.Y)

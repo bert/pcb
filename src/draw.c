@@ -1749,7 +1749,7 @@ DrawPolygonLowLevel (PolygonTypePtr Polygon)
       for (i = 0; i < n - 1; i++)
 	{
 	  gui->draw_line (Output.fgGC, x[i], y[i], x[i + 1], y[i + 1]);
-	  gui->fill_circle (Output.fgGC, x[i], y[i], 30);
+	  //  gui->fill_circle (Output.fgGC, x[i], y[i], 30);
 	}
       gui->draw_line (Output.fgGC, x[n - 1], y[n - 1], x[0], y[0]);
     }

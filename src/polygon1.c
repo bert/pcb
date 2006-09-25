@@ -760,7 +760,7 @@ static BOOLp
 label_contour (PLINE * a, BOOLp test)
 {
   VNODE *cur = &a->head;
-  int did_label, label = UNKNWN;
+  int did_label = FALSE, label = UNKNWN;
 
   do
     {
@@ -2034,7 +2034,18 @@ poly_Valid (POLYAREA * p)
 
   if (p->contours->Flags.orient == PLF_INV || poly_ChkContour (p->contours))
     {
-      DEBUGP ("Invalid Polygon\n");
+#ifndef NDEBUG
+      VNODE *v;
+      DEBUGP ("Invalid PLINE\n");
+      v = &p->contours->head;
+      do
+	{
+	  fprintf (stderr, "%ld %ld 100 100 \"\"]\n", v->point[0],
+		   v->point[1]);
+	  fprintf (stderr, "Line [%ld %ld ", v->point[0], v->point[1]);
+	}
+      while ((v = v->next) != &p->contours->head);
+#endif
       return FALSE;
     }
   for (c = p->contours->next; c != NULL; c = c->next)
@@ -2042,7 +2053,18 @@ poly_Valid (POLYAREA * p)
       if (c->Flags.orient == PLF_DIR ||
 	  poly_ChkContour (c) || !poly_ContourInContour (p->contours, c))
 	{
-	  DEBUGP ("Invalid Polygon\n");
+#ifndef NDEBUG
+	  VNODE *v;
+	  DEBUGP ("Invalid PLINE\n");
+	  v = &c->head;
+	  do
+	    {
+	      fprintf (stderr, "%ld %ld 100 100 \"\"]\n", v->point[0],
+		       v->point[1]);
+	      fprintf (stderr, "Line [%ld %ld ", v->point[0], v->point[1]);
+	    }
+	  while ((v = v->next) != &c->head);
+#endif
 	  return FALSE;
 	}
     }

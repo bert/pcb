@@ -820,6 +820,7 @@ ChangeArcClearSize (LayerTypePtr Layer, ArcTypePtr Arc)
     {
       AddObjectToClearSizeUndoList (ARC_TYPE, Layer, Arc, Arc);
       EraseArc (Arc);
+      RestoreToPolygon (PCB->Data, ARC_TYPE, Layer, Arc);
       r_delete_entry (Layer->arc_tree, (BoxTypePtr) Arc);
       Arc->Clearance = value;
       if (Arc->Clearance == 0)
@@ -829,6 +830,7 @@ ChangeArcClearSize (LayerTypePtr Layer, ArcTypePtr Arc)
 	}
       SetArcBoundingBox (Arc);
       r_insert_entry (Layer->arc_tree, (BoxTypePtr) Arc, 0);
+      ClearFromPolygon (PCB->Data, ARC_TYPE, Layer, Arc);
       DrawArc (Layer, Arc, 0);
       return (Arc);
     }
@@ -1159,8 +1161,12 @@ ChangeArcJoin (LayerTypePtr Layer, ArcTypePtr Arc)
   if (TEST_FLAG (LOCKFLAG, Arc))
     return (NULL);
   EraseArc (Arc);
+  if (TEST_FLAG (CLEARLINEFLAG, Arc))
+    RestoreToPolygon (PCB->Data, ARC_TYPE, Layer, Arc);
   AddObjectToFlagUndoList (ARC_TYPE, Layer, Arc, Arc);
   TOGGLE_FLAG (CLEARLINEFLAG, Arc);
+  if (TEST_FLAG (CLEARLINEFLAG, Arc))
+    ClearFromPolygon (PCB->Data, ARC_TYPE, Layer, Arc);
   DrawArc (Layer, Arc, 0);
   return (Arc);
 }
@@ -1176,6 +1182,7 @@ SetArcJoin (LayerTypePtr Layer, ArcTypePtr Arc)
   EraseArc (Arc);
   AddObjectToFlagUndoList (ARC_TYPE, Layer, Arc, Arc);
   SET_FLAG (CLEARLINEFLAG, Arc);
+  ClearFromPolygon (PCB->Data, ARC_TYPE, Layer, Arc);
   DrawArc (Layer, Arc, 0);
   return (Arc);
 }
@@ -1189,6 +1196,7 @@ ClrArcJoin (LayerTypePtr Layer, ArcTypePtr Arc)
   if (TEST_FLAG (LOCKFLAG, Arc))
     return (NULL);
   EraseArc (Arc);
+  RestoreToPolygon (PCB->Data, ARC_TYPE, Layer, Arc);
   AddObjectToFlagUndoList (ARC_TYPE, Layer, Arc, Arc);
   CLEAR_FLAG (CLEARLINEFLAG, Arc);
   DrawArc (Layer, Arc, 0);
@@ -1416,8 +1424,10 @@ ChangeViaOctagon (PinTypePtr Via)
   if (TEST_FLAG (LOCKFLAG, Via))
     return (NULL);
   EraseVia (Via);
+  RestoreToPolygon (PCB->Data, VIA_TYPE, Via, Via);
   AddObjectToFlagUndoList (VIA_TYPE, Via, Via, Via);
   TOGGLE_FLAG (OCTAGONFLAG, Via);
+  ClearFromPolygon (PCB->Data, VIA_TYPE, Via, Via);
   DrawVia (Via, 0);
   return (Via);
 }
@@ -1456,7 +1466,9 @@ ChangePinOctagon (ElementTypePtr Element, PinTypePtr Pin)
     return (NULL);
   ErasePin (Pin);
   AddObjectToFlagUndoList (PIN_TYPE, Element, Pin, Pin);
+  RestoreToPolygon (PCB->Data, PIN_TYPE, Element, Pin);
   TOGGLE_FLAG (OCTAGONFLAG, Pin);
+  ClearFromPolygon (PCB->Data, PIN_TYPE, Element, Pin);
   DrawPin (Pin, 0);
   return (Pin);
 }

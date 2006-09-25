@@ -152,7 +152,7 @@ pin_therm (const BoxType * b, void *cl)
  */
 int
 ModifyThermals (LayerTypePtr layer, PinTypePtr Pin,
-	       void *(*callback) (LayerTypePtr lay, LineTypePtr line))
+		void *(*callback) (LayerTypePtr lay, LineTypePtr line))
 {
   if (!TEST_FLAG (HOLEFLAG, Pin))
     {
@@ -304,7 +304,7 @@ PlaceThermal (LayerTypePtr layer, PinTypePtr Via, int style)
       /* not necessary, but the screen has glitches otherwise */
       /* it is problematic for undo however */
       RestoreToPolygon (PCB->Data, VIA_TYPE, layer, Via);
-      AddObjectToClearPolyUndoList(VIA_TYPE, layer, Via, Via, False);
+      AddObjectToClearPolyUndoList (VIA_TYPE, layer, Via, Via, False);
       DrawLine (layer, line, 0);
     }
 }

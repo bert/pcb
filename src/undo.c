@@ -312,9 +312,9 @@ UndoClearPoly (UndoListTypePtr Entry)
   if (type != NO_TYPE)
     {
       if (Entry->Data.ClearPoly.Clear)
-        RestoreToPolygon (PCB->Data, type, Entry->Data.ClearPoly.Layer, ptr3);
+	RestoreToPolygon (PCB->Data, type, Entry->Data.ClearPoly.Layer, ptr3);
       else
-        ClearFromPolygon (PCB->Data, type, Entry->Data.ClearPoly.Layer, ptr3);
+	ClearFromPolygon (PCB->Data, type, Entry->Data.ClearPoly.Layer, ptr3);
       Entry->Data.ClearPoly.Clear = !Entry->Data.ClearPoly.Clear;
       return True;
     }
@@ -895,7 +895,7 @@ PerformUndo (UndoListTypePtr ptr)
 
     case UNDO_CLEAR:
       if (UndoClearPoly (ptr))
-        return (UNDO_CLEAR);
+	return (UNDO_CLEAR);
       break;
 
     case UNDO_MOVETOLAYER:
@@ -1057,7 +1057,7 @@ ClearUndoList (Boolean Force)
  */
 void
 AddObjectToClearPolyUndoList (int Type, void *Ptr1, void *Ptr2, void *Ptr3,
-			   Boolean clear)
+			      Boolean clear)
 {
   UndoListTypePtr undo;
 

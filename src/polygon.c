@@ -62,11 +62,14 @@
 
 RCSID ("$Id$");
 
+#define ROUND(x) ((long)(((x) >= 0 ? (x) + 0.5  : (x) - 0.5)))
+
 /* ---------------------------------------------------------------------------
  * local prototypes
  */
 
-static double circleVerticies[] = {
+#define CIRC_SEGS 36
+static double circleVerticies[(CIRC_SEGS / 4 + 1) * 2] = {
   1.0, 0.0,
   0.98480775301221, 0.17364817766693,
   0.93969262978591, 0.34202014332567,
@@ -79,10 +82,14 @@ static double circleVerticies[] = {
   0.0, 1.0
 };
 
+static double octagonBig = 0.9238795325113;
+static double octagonSmall = 0.3826834323651;
+
+
 static POLYAREA *
 biggest (POLYAREA * p)
 {
-  POLYAREA *n, *top;
+  POLYAREA *n, *top = NULL;
   PLINE *pl;
   double big = 0;
   if (!p)
@@ -97,6 +104,7 @@ biggest (POLYAREA * p)
 	}
     }
   while ((n = n->f) != p);
+  assert (top);
   if (top == p)
     return p;
   pl = top->contours;
@@ -199,6 +207,63 @@ RectPoly (LocationType x1, LocationType x2, LocationType y1, LocationType y2)
   return ContourToPoly (contour);
 }
 
+POLYAREA *
+OctagonPoly (LocationType x, LocationType y, BDimension radius)
+{
+  PLINE *contour = NULL;
+  Vector v;
+
+  v[0] = x + ROUND (radius * octagonBig);
+  v[1] = y + ROUND (radius * octagonSmall);
+  if ((contour = poly_NewContour (v)) == NULL)
+    return NULL;
+  v[0] = x + ROUND (radius * octagonSmall);
+  v[1] = y + ROUND (radius * octagonBig);
+  poly_InclVertex (contour->head.prev, poly_CreateNode (v));
+  v[0] = x - (v[0] - x);
+  poly_InclVertex (contour->head.prev, poly_CreateNode (v));
+  v[0] = x - ROUND (radius * octagonBig);
+  v[1] = y + ROUND (radius * octagonSmall);
+  poly_InclVertex (contour->head.prev, poly_CreateNode (v));
+  v[1] = y - (v[1] - y);
+  poly_InclVertex (contour->head.prev, poly_CreateNode (v));
+  v[0] = x - ROUND (radius * octagonSmall);
+  v[1] = y - ROUND (radius * octagonBig);
+  poly_InclVertex (contour->head.prev, poly_CreateNode (v));
+  v[0] = x - (v[0] - x);
+  poly_InclVertex (contour->head.prev, poly_CreateNode (v));
+  v[0] = x + ROUND (radius * octagonBig);
+  v[1] = y - ROUND (radius * octagonSmall);
+  poly_InclVertex (contour->head.prev, poly_CreateNode (v));
+  return ContourToPoly (contour);
+}
+
+/* add verticies in a half-circle starting from v 
+ * centered at X, Y and going counter-clockwise
+ * does not include the last point in the half circle
+ */
+static void
+half_circle (PLINE * c, LocationType X, LocationType Y, Vector v)
+{
+  double e1, e2, t1;
+  int i;
+
+  poly_InclVertex (c->head.prev, poly_CreateNode (v));
+  /* move vector to origin */
+  e1 = v[0] - X;
+  e2 = v[1] - Y;
+  for (i = 0; i < (CIRC_SEGS - 1) / 2; i++)
+    {
+      /* rotate the vector */
+      t1 = e1 * circleVerticies[2] - e2 * circleVerticies[3];
+      e2 = e1 * circleVerticies[3] + e2 * circleVerticies[2];
+      e1 = t1;
+      v[0] = X + ROUND (e1);
+      v[1] = Y + ROUND (e2);
+      poly_InclVertex (c->head.prev, poly_CreateNode (v));
+    }
+}
+
 #define COARSE_CIRCLE 0
 /* create a 35-vertex circle approximation */
 POLYAREA *
@@ -243,14 +308,79 @@ CirclePoly (LocationType x, LocationType y, BDimension radius)
   return ContourToPoly (contour);
 }
 
+#define BIG_CORD 100000
+POLYAREA *
+ArcPoly (ArcType * a, BDimension thick)
+{
+  PLINE *contour = NULL;
+  POLYAREA *np = NULL;
+  Vector v;
+  BoxType *ends;
+  int i, segs;
+  double ang, da, rx, ry;
+  long half;
+
+  if (a->Delta < 0)
+    {
+      a->StartAngle += a->Delta;
+      a->Delta = -a->Delta;
+    }
+  half = (thick + 1) / 2;
+  ends = GetArcEnds (a);
+  /* start with inner radius */
+  rx = MAX(a->Width - half, 0);
+  ry = MAX(a->Height - half, 0);
+  segs = (MAX (rx, ry) * a->Delta) / BIG_CORD;
+  ang = a->StartAngle;
+  da = (1.0 * a->Delta) / segs;
+  v[0] = a->X - rx * cos (ang * M180);
+  v[1] = a->Y + ry * sin (ang * M180);
+  if ((contour = poly_NewContour (v)) == NULL)
+    return 0;
+  for (i = 0; i < segs - 1; i++)
+    {
+      ang += da;
+      v[0] = a->X - rx * cos (ang * M180);
+      v[1] = a->Y + ry * sin (ang * M180);
+      poly_InclVertex (contour->head.prev, poly_CreateNode (v));
+    }
+  /* find last point */
+  ang = a->StartAngle + a->Delta;
+  v[0] = a->X - rx * cos (ang * M180);
+  v[1] = a->Y + ry * sin (ang * M180);
+  /* add the round cap at the end */
+  half_circle (contour, ends->X2, ends->Y2, v);
+  /* and now do the outer arc (going backwards) */
+  rx = a->Width + half;
+  ry = a->Width + half;
+  segs = (MAX (rx, ry) * a->Delta) / BIG_CORD;
+  da = -(1.0 * a->Delta) / segs;
+  for (i = 0; i < segs; i++)
+    {
+      v[0] = a->X - rx * cos (ang * M180);
+      v[1] = a->Y + ry * sin (ang * M180);
+      poly_InclVertex (contour->head.prev, poly_CreateNode (v));
+      ang += da;
+    }
+  /* now add other round cap */
+  ang = a->StartAngle;
+  v[0] = a->X - rx * cos (ang * M180);
+  v[1] = a->Y + ry * sin (ang * M180);
+  half_circle (contour, ends->X1, ends->Y1, v);
+  /* now we have the whole contour */
+  if (!(np = ContourToPoly (contour)))
+    return NULL;
+  return np;
+}
+
 POLYAREA *
 LinePoly (LineType * l, BDimension thick)
 {
   PLINE *contour = NULL;
-  POLYAREA *np = NULL, *ep = NULL, *merged = NULL;
+  POLYAREA *np = NULL;
   Vector v;
   double d, dx, dy;
-  long x, half;
+  long half;
 
   half = (thick + 1) / 2;
   d =
@@ -261,50 +391,23 @@ LinePoly (LineType * l, BDimension thick)
   d = half / d;
   dx = (l->Point1.Y - l->Point2.Y) * d;
   dy = (l->Point2.X - l->Point1.X) * d;
-  v[0] = l->Point1.X + dx;
-  v[1] = l->Point1.Y + dy;
-  if ((contour = poly_NewContour (v)) == NULL)
-    return 0;
   v[0] = l->Point1.X - dx;
   v[1] = l->Point1.Y - dy;
-  poly_InclVertex (contour->head.prev, poly_CreateNode (v));
+  if ((contour = poly_NewContour (v)) == NULL)
+    return 0;
   v[0] = l->Point2.X - dx;
   v[1] = l->Point2.Y - dy;
-  poly_InclVertex (contour->head.prev, poly_CreateNode (v));
+  half_circle (contour, l->Point2.X, l->Point2.Y, v);
   v[0] = l->Point2.X + dx;
   v[1] = l->Point2.Y + dy;
   poly_InclVertex (contour->head.prev, poly_CreateNode (v));
-  /* now we have the line squared-end contour */
+  v[0] = l->Point1.X + dx;
+  v[1] = l->Point1.Y + dy;
+  half_circle (contour, l->Point1.X, l->Point1.Y, v);
+  /* now we have the line contour */
   if (!(np = ContourToPoly (contour)))
     return NULL;
-  /* now add the rounded ends */
-  if ((ep = CirclePoly (l->Point1.X, l->Point1.Y, half)))
-    {
-      x = poly_Boolean (np, ep, &merged, PBO_UNITE);
-      poly_Free (&np);
-      poly_Free (&ep);
-      if (x != err_ok)
-	{
-	  fprintf (stderr, "Error while clipping PBO_UNITE!\n");
-	  poly_Free (&merged);
-	  return NULL;
-	}
-      np = merged;
-      merged = NULL;
-    }
-  if ((ep = CirclePoly (l->Point2.X, l->Point2.Y, half)))
-    {
-      x = poly_Boolean (np, ep, &merged, PBO_UNITE);
-      poly_Free (&np);
-      poly_Free (&ep);
-      if (x != err_ok)
-	{
-	  fprintf (stderr, "Error while clipping a PBO_UNITE\n");
-	  poly_Free (&merged);
-	  return NULL;
-	}
-    }
-  return merged;
+  return np;
 }
 
 /* clear np1 from the polygon */
@@ -359,7 +462,10 @@ PinPoly (PinType * pin, BDimension thick)
       return RectPoly (pin->X - size, pin->X + size, pin->Y - size,
 		       pin->Y + size);
     }
-  /* fix me need to handle octagonal pins */
+  else if (TEST_FLAG (OCTAGONFLAG, pin))
+    {
+      return OctagonPoly (pin->X, pin->Y, size);
+    }
   return CirclePoly (pin->X, pin->Y, size);
 }
 
@@ -384,6 +490,18 @@ SubtractLine (LineType * line, PolygonType * p)
   if (!TEST_FLAG (CLEARLINEFLAG, line))
     return 0;
   if (!(np = LinePoly (line, line->Thickness + line->Clearance)))
+    return 0;
+  return Subtract (np, p);
+}
+
+static int
+SubtractArc (ArcType * arc, PolygonType * p)
+{
+  POLYAREA *np;
+
+  if (!TEST_FLAG (CLEARLINEFLAG, arc))
+    return 0;
+  if (!(np = ArcPoly (arc, arc->Thickness + arc->Clearance)))
     return 0;
   return Subtract (np, p);
 }
@@ -435,6 +553,37 @@ pin_sub_callback (const BoxType * b, void *cl)
 }
 
 static int
+arc_sub_callback (const BoxType * b, void *cl)
+{
+  ArcTypePtr arc = (ArcTypePtr) b;
+  struct cpInfo *info = (struct cpInfo *) cl;
+  PolygonTypePtr polygon;
+
+  /* don't subtract the object that was put back! */
+  if (b == info->other)
+    return 0;
+  if (!TEST_FLAG (CLEARLINEFLAG, arc))
+    return 0;
+  polygon = info->polygon;
+  /* enable the arc to touch the poly */
+  CLEAR_FLAG (CLEARLINEFLAG, arc);
+  arc->Thickness += arc->Clearance;
+  /* now see if it would touch the polygon */
+  if (IsArcInPolygon (arc, polygon))
+    {
+      arc->Thickness -= arc->Clearance;
+      SET_FLAG (CLEARLINEFLAG, arc);
+      return SubtractArc (arc, polygon);
+    }
+  else
+    {
+      arc->Thickness -= arc->Clearance;
+      SET_FLAG (CLEARLINEFLAG, arc);
+      return 0;
+    }
+}
+
+static int
 line_sub_callback (const BoxType * b, void *cl)
 {
   LineTypePtr line = (LineTypePtr) b;
@@ -466,8 +615,8 @@ line_sub_callback (const BoxType * b, void *cl)
 }
 
 static int
-clearPoly (DataTypePtr Data, LayerTypePtr layer, PolygonType * polygon,
-	   const BoxType * here)
+clearPoly (DataTypePtr Data, LayerTypePtr Layer, PolygonType * polygon,
+	   const BoxType * here, BDimension expand)
 {
   int r = 0;
   BoxType region;
@@ -481,13 +630,15 @@ clearPoly (DataTypePtr Data, LayerTypePtr layer, PolygonType * polygon,
     region = clip_box (here, &polygon->BoundingBox);
   else
     region = polygon->BoundingBox;
+  shrink_box (&region, -expand);
 
   r = r_search (Data->via_tree, &region, NULL, pin_sub_callback, &info);
   r += r_search (Data->pin_tree, &region, NULL, pin_sub_callback, &info);
   GROUP_LOOP (Data,
-	      GetLayerGroupNumberByNumber (GetLayerNumber (Data, layer)));
+	      GetLayerGroupNumberByNumber (GetLayerNumber (Data, Layer)));
   {
     r += r_search (layer->line_tree, &region, NULL, line_sub_callback, &info);
+    r += r_search (layer->arc_tree, &region, NULL, arc_sub_callback, &info);
   }
   END_LOOP;
   return r;
@@ -520,13 +671,29 @@ UnsubtractPin (PinType * pin, LayerType * l, PolygonType * p)
   POLYAREA *np;
 
   /* overlap a bit to prevent gaps from rounding errors */
-  np = PinPoly (pin, pin->Thickness + pin->Clearance + 10);
+  np = PinPoly (pin, pin->Thickness + pin->Clearance + 100);
 
   if (!np)
     return 0;
   if (!Unsubtract (np, p))
     return 0;
-  clearPoly (PCB->Data, l, p, (const BoxType *) pin);
+  clearPoly (PCB->Data, l, p, (const BoxType *) pin, 50);
+  return 1;
+}
+
+static int
+UnsubtractArc (ArcType * arc, LayerType * l, PolygonType * p)
+{
+  POLYAREA *np = NULL;
+
+  if (!TEST_FLAG (CLEARLINEFLAG, arc))
+    return 0;
+  /* overlap a bit to prevent notches from rounding errors */
+  if (!(np = ArcPoly (arc, arc->Thickness + arc->Clearance + BIG_CORD)))
+    return 0;
+  if (!Unsubtract (np, p))
+    return 0;
+  clearPoly (PCB->Data, l, p, (const BoxType *) arc, BIG_CORD / 2);
   return 1;
 }
 
@@ -535,12 +702,14 @@ UnsubtractLine (LineType * line, LayerType * l, PolygonType * p)
 {
   POLYAREA *np = NULL;
 
+  if (!TEST_FLAG (CLEARLINEFLAG, line))
+    return 0;
   /* overlap a bit to prevent notches from rounding errors */
-  if (!(np = LinePoly (line, line->Thickness + line->Clearance + 10)))
+  if (!(np = LinePoly (line, line->Thickness + line->Clearance + 100)))
     return 0;
   if (!Unsubtract (np, p))
     return 0;
-  clearPoly (PCB->Data, l, p, (const BoxType *) line);
+  clearPoly (PCB->Data, l, p, (const BoxType *) line, 50);
   return 1;
 }
 
@@ -551,7 +720,7 @@ UnsubtractPad (PadType * pad, LayerType * l, PolygonType * p)
 
   if (TEST_FLAG (SQUAREFLAG, pad))
     {
-      BDimension t = ((pad->Thickness + pad->Clearance) >> 1) + 10;
+      BDimension t = ((pad->Thickness + pad->Clearance) >> 1) + 100;
       LocationType x1, x2, y1, y2;
       x1 = MIN (pad->Point1.X, pad->Point2.X) - t;
       x2 = MAX (pad->Point1.X, pad->Point2.X) + t;
@@ -565,12 +734,13 @@ UnsubtractPad (PadType * pad, LayerType * l, PolygonType * p)
       /* overlap a bit to prevent notches from rounding errors */
       if (!
 	  (np =
-	   LinePoly ((LineType *) pad, pad->Thickness + pad->Clearance + 10)))
+	   LinePoly ((LineType *) pad,
+		     pad->Thickness + pad->Clearance + 100)))
 	return 0;
     }
   if (!Unsubtract (np, p))
     return 0;
-  clearPoly (PCB->Data, l, p, (const BoxType *) pad);
+  clearPoly (PCB->Data, l, p, (const BoxType *) pad, 50);
   return 1;
 }
 
@@ -584,7 +754,7 @@ InitClip (DataTypePtr Data, LayerTypePtr layer, PolygonType * p)
     return 0;
   assert (poly_Valid (p->Clipped));
   if (TEST_FLAG (CLEARPOLYFLAG, p))
-    clearPoly (Data, layer, p, NULL);
+    clearPoly (Data, layer, p, NULL, 0);
   return 1;
 }
 
@@ -872,6 +1042,9 @@ subtract_plow (LayerTypePtr Layer, PolygonTypePtr Polygon,
     case LINE_TYPE:
       SubtractLine ((LineTypePtr) ptr2, Polygon);
       return 1;
+    case ARC_TYPE:
+      SubtractArc ((ArcTypePtr) ptr2, Polygon);
+      return 1;
     case PAD_TYPE:
       SubtractPad ((PadTypePtr) ptr2, Polygon);
       return 1;
@@ -891,6 +1064,9 @@ add_plow (LayerTypePtr Layer, PolygonTypePtr Polygon, int type, void *ptr1,
       return 1;
     case LINE_TYPE:
       UnsubtractLine ((LineTypePtr) ptr2, Layer, Polygon);
+      return 1;
+    case ARC_TYPE:
+      UnsubtractArc ((ArcTypePtr) ptr2, Layer, Polygon);
       return 1;
     case PAD_TYPE:
       UnsubtractPad ((PadTypePtr) ptr2, Layer, Polygon);
@@ -949,6 +1125,8 @@ PlowsPolygon (DataType * Data, int type, void *ptr1, void *ptr2,
 	}
       break;
     case LINE_TYPE:
+    case ARC_TYPE:
+      /* the cast works equally well for lines and arcs */
       if (!TEST_FLAG (CLEARLINEFLAG, (LineTypePtr) ptr2))
 	return 0;
       GROUP_LOOP (Data, GetLayerGroupNumberByNumber (GetLayerNumber (Data,
