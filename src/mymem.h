@@ -111,7 +111,7 @@ void FreeLibraryMemory (LibraryTypePtr);
 void FreePointerListMemory (PointerListTypePtr);
 void SaveFree (void *);
 void DSAddCharacter (DynamicStringTypePtr, char);
-void DSAddString (DynamicStringTypePtr, char *);
+void DSAddString (DynamicStringTypePtr, const char *);
 void DSClearString (DynamicStringTypePtr);
 char *StripWhiteSpaceAndDup (char *);
 

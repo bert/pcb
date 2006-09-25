@@ -993,7 +993,7 @@ DSAddCharacter (DynamicStringTypePtr Ptr, char Char)
  * add a string to a dynamic string
  */
 void
-DSAddString (DynamicStringTypePtr Ptr, char *S)
+DSAddString (DynamicStringTypePtr Ptr, const char *S)
 {
   size_t position = Ptr->Data ? strlen (Ptr->Data) : 0;
 
