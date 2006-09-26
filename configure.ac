@@ -265,12 +265,12 @@ AC_HEADER_STDC
 AC_CHECK_HEADERS(string.h sys/types.h regex.h pwd.h)
 AC_CHECK_HEADERS(sys/socket.h netinet/in.h netdb.h sys/param.h sys/times.h)
 
-AC_PATH_XTRA
-CPPFLAGS="$CFLAGS $X_CFLAGS"
 
 for e in $HIDLIST; do
     case $e in
       lesstif )
+	AC_PATH_XTRA
+	CPPFLAGS="$CFLAGS $X_CFLAGS"
 	AC_CHECK_LIB(X11, XOpenDisplay, , , $X_LIBS)
 	AC_CHECK_LIB(ICE, main, , , $X_LIBS)
 	AC_CHECK_LIB(SM, main, , , $X_LIBS)
