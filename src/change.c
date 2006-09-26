@@ -352,6 +352,26 @@ kill_therms (LayerTypePtr lay, LineTypePtr l)
   return l;
 }
 
+static void *
+adjust_thermal (LayerTypePtr lay, LineTypePtr line)
+{
+  LocationType X1, Y1, X2, Y2;
+  BDimension t = line->Thickness;
+  X1 = line->Point1.X;
+  X2 = line->Point2.X;
+  Y1 = line->Point1.Y;
+  Y2 = line->Point2.Y;
+  RemoveLine (lay, line);
+  line =
+    CreateNewLineOnLayer (lay, X2 + (X1 - X2) * rescale,
+			  Y2 + (Y1 - Y2) * rescale, X1 + (X2 - X1) * rescale,
+			  Y1 + (Y2 - Y1) * rescale, t, 0,
+			  MakeFlags (USETHERMALFLAG | VISITFLAG));
+  AddObjectToCreateUndoList (LINE_TYPE, lay, line, line);
+  DrawLine (lay, line, 0);
+  return line;
+}
+
 /* ---------------------------------------------------------------------------
  * changes the thermal on a via
  * returns TRUE if changed
@@ -435,6 +455,11 @@ ChangeViaSize (PinTypePtr Via)
       AddObjectToSizeUndoList (VIA_TYPE, Via, Via, Via);
       EraseVia (Via);
       r_delete_entry (PCB->Data->via_tree, (BoxType *) Via);
+      rescale =
+	(Via->Clearance + value) / ((double) (Via->Clearance) +
+				    Via->Thickness);
+      rescale = (rescale - 1.0) * 0.5 + 1.0;
+      RestoreToPolygon (PCB->Data, PIN_TYPE, Via, Via);
       if (Via->Mask)
 	{
 	  AddObjectToMaskSizeUndoList (VIA_TYPE, Via, Via, Via);
@@ -443,6 +468,12 @@ ChangeViaSize (PinTypePtr Via)
       Via->Thickness = value;
       SetPinBoundingBox (Via);
       r_insert_entry (PCB->Data->via_tree, (BoxType *) Via, 0);
+      ClearFromPolygon (PCB->Data, PIN_TYPE, Via, Via);
+      LAYER_LOOP (PCB->Data, max_layer);
+      {
+	ModifyThermals (layer, Via, adjust_thermal);
+      }
+      END_LOOP;
       DrawVia (Via, 0);
       return (Via);
     }
@@ -480,26 +511,6 @@ ChangeVia2ndSize (PinTypePtr Via)
   return (NULL);
 }
 
-
-static void *
-adjust_thermal (LayerTypePtr lay, LineTypePtr line)
-{
-  LocationType X1, Y1, X2, Y2;
-  BDimension t = line->Thickness;
-  X1 = line->Point1.X;
-  X2 = line->Point2.X;
-  Y1 = line->Point1.Y;
-  Y2 = line->Point2.Y;
-  RemoveLine (lay, line);
-  line =
-    CreateNewLineOnLayer (lay, X2 + (X1 - X2) * rescale,
-			  Y2 + (Y1 - Y2) * rescale, X1 + (X2 - X1) * rescale,
-			  Y1 + (Y2 - Y1) * rescale, t, 0,
-			  MakeFlags (USETHERMALFLAG | VISITFLAG));
-  AddObjectToCreateUndoList (LINE_TYPE, lay, line, line);
-  DrawLine (lay, line, 0);
-  return line;
-}
 
 /* ---------------------------------------------------------------------------
  * changes the clearance size of a via 
@@ -558,10 +569,21 @@ ChangePinSize (ElementTypePtr Element, PinTypePtr Pin)
       AddObjectToMaskSizeUndoList (PIN_TYPE, Element, Pin, Pin);
       ErasePin (Pin);
       r_delete_entry (PCB->Data->pin_tree, &Pin->BoundingBox);
+      rescale =
+	(Pin->Clearance + value) / ((double) (Pin->Clearance) +
+				    Pin->Thickness);
+      rescale = (rescale - 1.0) * 0.5 + 1.0;
+      RestoreToPolygon (PCB->Data, PIN_TYPE, Element, Pin);
       Pin->Mask += value - Pin->Thickness;
       Pin->Thickness = value;
       /* SetElementBB updates all associated rtrees */
       SetElementBoundingBox (PCB->Data, Element, &PCB->Font);
+      ClearFromPolygon (PCB->Data, PIN_TYPE, Element, Pin);
+      LAYER_LOOP (PCB->Data, max_layer);
+      {
+	ModifyThermals (layer, Pin, adjust_thermal);
+      }
+      END_LOOP;
       DrawPin (Pin, 0);
       return (Pin);
     }
@@ -582,6 +604,9 @@ ChangePinClearSize (ElementTypePtr Element, PinTypePtr Pin)
   value = MIN (MAX_LINESIZE, MAX (value, PCB->Bloat * 2 + 2));
   if (Pin->Clearance == value)
     return NULL;
+  rescale =
+    (Pin->Thickness + value) / ((double) (Pin->Clearance) + Pin->Thickness);
+  rescale = (rescale - 1.0) * 0.5 + 1.0;
   RestoreToPolygon (PCB->Data, PIN_TYPE, Element, Pin);
   AddObjectToClearSizeUndoList (PIN_TYPE, Element, Pin, Pin);
   ErasePin (Pin);
@@ -590,6 +615,11 @@ ChangePinClearSize (ElementTypePtr Element, PinTypePtr Pin)
   /* SetElementBB updates all associated rtrees */
   SetElementBoundingBox (PCB->Data, Element, &PCB->Font);
   ClearFromPolygon (PCB->Data, PIN_TYPE, Element, Pin);
+  LAYER_LOOP (PCB->Data, max_layer);
+  {
+    ModifyThermals (layer, Pin, adjust_thermal);
+  }
+  END_LOOP;
   DrawPin (Pin, 0);
   return (Pin);
 }
@@ -736,9 +766,11 @@ ChangeLineSize (LayerTypePtr Layer, LineTypePtr Line)
       AddObjectToSizeUndoList (LINE_TYPE, Layer, Line, Line);
       EraseLine (Line);
       r_delete_entry (Layer->line_tree, (BoxTypePtr) Line);
+      RestoreToPolygon (PCB->Data, LINE_TYPE, Layer, Line);
       Line->Thickness = value;
       SetLineBoundingBox (Line);
       r_insert_entry (Layer->line_tree, (BoxTypePtr) Line, 0);
+      ClearFromPolygon (PCB->Data, LINE_TYPE, Layer, Line);
       DrawLine (Layer, Line, 0);
       return (Line);
     }
@@ -795,9 +827,11 @@ ChangeArcSize (LayerTypePtr Layer, ArcTypePtr Arc)
       AddObjectToSizeUndoList (ARC_TYPE, Layer, Arc, Arc);
       EraseArc (Arc);
       r_delete_entry (Layer->arc_tree, (BoxTypePtr) Arc);
+      RestoreToPolygon (PCB->Data, ARC_TYPE, Layer, Arc);
       Arc->Thickness = value;
       SetArcBoundingBox (Arc);
       r_insert_entry (Layer->arc_tree, (BoxTypePtr) Arc, 0);
+      ClearFromPolygon (PCB->Data, ARC_TYPE, Layer, Arc);
       DrawArc (Layer, Arc, 0);
       return (Arc);
     }
@@ -820,8 +854,8 @@ ChangeArcClearSize (LayerTypePtr Layer, ArcTypePtr Arc)
     {
       AddObjectToClearSizeUndoList (ARC_TYPE, Layer, Arc, Arc);
       EraseArc (Arc);
-      RestoreToPolygon (PCB->Data, ARC_TYPE, Layer, Arc);
       r_delete_entry (Layer->arc_tree, (BoxTypePtr) Arc);
+      RestoreToPolygon (PCB->Data, ARC_TYPE, Layer, Arc);
       Arc->Clearance = value;
       if (Arc->Clearance == 0)
 	{
