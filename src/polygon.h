@@ -46,6 +46,7 @@ int PlowsPolygon (DataType *, int, void *, void *,
 
 POLYAREA * CirclePoly(LocationType x, LocationType y, BDimension radius);
 POLYAREA * LinePoly(LineType *l, BDimension thick);
+POLYAREA * ArcPoly(ArcType *l, BDimension thick);
 POLYAREA * PinPoly(PinType *l, BDimension thick);
 int InitClip(DataType *d, LayerType *l, PolygonType *p);
 void RestoreToPolygon(DataType *, int, void *, void *);

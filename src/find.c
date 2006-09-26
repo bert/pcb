@@ -2485,49 +2485,25 @@ ArcPolyCandidate (ArcTypePtr Arc, PolygonTypePtr Polygon)
 Boolean
 IsArcInPolygon (ArcTypePtr Arc, PolygonTypePtr Polygon)
 {
-  BoxTypePtr Box;
+  BoxTypePtr Box = (BoxType *) Arc;
 
   /* arcs with clearance never touch polys */
   if (TEST_FLAG (CLEARPOLYFLAG, Polygon) && TEST_FLAG (CLEARLINEFLAG, Arc))
-    return (False);
-
-  Box =
-    GetObjectBoundingBox (ARC_TYPE, (void *) Arc, (void *) Arc, (void *) Arc);
-  if (Box->X1 <= Polygon->BoundingBox.X2 && Box->X2 >= Polygon->BoundingBox.X1
-      && Box->Y1 <= Polygon->BoundingBox.Y2
-      && Box->Y2 >= Polygon->BoundingBox.Y1)
+    return False;
+  if (!Polygon->Clipped)
+    return False;
+  if (Box->X1 <= Polygon->Clipped->contours->xmax + Bloat
+      && Box->X2 >= Polygon->Clipped->contours->xmin - Bloat
+      && Box->Y1 <= Polygon->Clipped->contours->ymax + Bloat
+      && Box->Y2 >= Polygon->Clipped->contours->ymin - Bloat)
     {
-      LineType line;
+      POLYAREA *ap;
 
-      Box = GetArcEnds (Arc);
-      if (IsPointInPolygon
-	  (Box->X1, Box->Y1, MAX (0.5 * Arc->Thickness + fBloat, 0.0),
-	   Polygon)
-	  || IsPointInPolygon (Box->X2, Box->Y2,
-			       MAX (0.5 * Arc->Thickness + fBloat, 0.0),
-			       Polygon))
-	return ArcPolyCandidate (Arc, Polygon);
-
-      /* check all lines, start with the connection of the first-last
-       * polygon point; POLYGONPOINT_LOOP decrements the pointers !!!
-       */
-
-      line.Point1 = Polygon->Points[0];
-      line.Thickness = 0;
-      line.Flags = NoFlags ();
-
-      POLYGONPOINT_LOOP (Polygon);
-      {
-	line.Point2.X = point->X;
-	line.Point2.Y = point->Y;
-	if (LineArcIntersect (&line, Arc))
-	  return ArcPolyCandidate (Arc, Polygon);
-	line.Point1.X = line.Point2.X;
-	line.Point1.Y = line.Point2.Y;
-      }
-      END_LOOP;
+      if (!(ap = ArcPoly (Arc, Arc->Thickness + Bloat)))
+        return False; /* error */
+      return isects (ap, Polygon);
     }
-  return (False);
+  return False;
 }
 
 /* ---------------------------------------------------------------------------
@@ -2541,30 +2517,22 @@ IsArcInPolygon (ArcTypePtr Arc, PolygonTypePtr Polygon)
 Boolean
 IsLineInPolygon (LineTypePtr Line, PolygonTypePtr Polygon)
 {
-  LocationType minx, maxx, miny, maxy;
+  BoxTypePtr Box = (BoxType *) Line;
   POLYAREA *lp;
 
   /* lines with clearance never touch polygons */
   if (TEST_FLAG (CLEARPOLYFLAG, Polygon) && TEST_FLAG (CLEARLINEFLAG, Line))
     return (False);
-  minx = MIN (Line->Point1.X, Line->Point2.X)
-    - MAX (Line->Thickness + Bloat, 0);
-  maxx = MAX (Line->Point1.X, Line->Point2.X)
-    + MAX (Line->Thickness + Bloat, 0);
-  miny = MIN (Line->Point1.Y, Line->Point2.Y)
-    - MAX (Line->Thickness + Bloat, 0);
-  maxy = MAX (Line->Point1.Y, Line->Point2.Y)
-    + MAX (Line->Thickness + Bloat, 0);
-  if (minx <= Polygon->BoundingBox.X2 && maxx >= Polygon->BoundingBox.X1
-      && miny <= Polygon->BoundingBox.Y2 && maxy >= Polygon->BoundingBox.Y1)
+  if (Box->X1 <= Polygon->Clipped->contours->xmax + Bloat
+      && Box->X2 >= Polygon->Clipped->contours->xmin - Bloat
+      && Box->Y1 <= Polygon->Clipped->contours->ymax + Bloat
+      && Box->Y2 >= Polygon->Clipped->contours->ymin - Bloat)
     {
       if (!(lp = LinePoly (Line, Line->Thickness + Bloat)))
-	{
-	  return FALSE;		/* error */
-	}
+	return FALSE;		/* error */
       return isects (lp, Polygon);
     }
-  return (False);
+  return False;
 }
 
 /* ---------------------------------------------------------------------------

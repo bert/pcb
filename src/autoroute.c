@@ -71,6 +71,7 @@
 #include "polygon.h"
 #include "rats.h"
 #include "remove.h"
+#include "thermal.h"
 #include "undo.h"
 #include "vector.h"
 
@@ -190,8 +191,8 @@ typedef struct routebox
     struct routebox *expansion_area;	/* previous expansion area in search */
   }
   parent;
-  unsigned char group;
-  unsigned char layer;
+  unsigned short group;
+  unsigned short layer;
   enum
   { PAD, PIN, VIA, VIA_SHADOW, LINE, OTHER, EXPANSION_AREA, PLANE }
   type;
@@ -346,7 +347,7 @@ static Boolean bad_x[MAX_LAYER], bad_y[MAX_LAYER];
 static int
 __routebox_is_good (routebox_t * rb)
 {
-  assert (rb && (0 <= rb->group) && (rb->group < max_layer) &&
+  assert (rb && (rb->group < max_layer) &&
 	  (rb->box.X1 <= rb->box.X2) && (rb->box.Y1 <= rb->box.Y2) &&
 	  (rb->flags.orphan ?
 	   (rb->box.X1 != rb->box.X2) || (rb->box.Y1 != rb->box.Y2) :
@@ -3878,7 +3879,7 @@ IronDownAllUnfixedPaths (routedata_t * rd)
 				       pin->Element ? pin->Element : pin,
 				       pin, pin);
 	      SET_THERM (p->layer, pin);
-	      PlaceThermal (p->layer, pin, 1);
+	      PlaceThermal (LAYER_PTR(p->layer), pin, 1);
 	    }
 	}
     }

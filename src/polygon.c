@@ -273,6 +273,8 @@ CirclePoly (LocationType x, LocationType y, BDimension radius)
   Vector v;
   int i;
 
+  if (radius <= 0)
+    return NULL;
   v[0] = x + radius;
   v[1] = y;
   if ((contour = poly_NewContour (v)) == NULL)
@@ -320,6 +322,8 @@ ArcPoly (ArcType * a, BDimension thick)
   double ang, da, rx, ry;
   long half;
 
+  if (thick <= 0)
+    return NULL;
   if (a->Delta < 0)
     {
       a->StartAngle += a->Delta;
@@ -328,8 +332,8 @@ ArcPoly (ArcType * a, BDimension thick)
   half = (thick + 1) / 2;
   ends = GetArcEnds (a);
   /* start with inner radius */
-  rx = MAX(a->Width - half, 0);
-  ry = MAX(a->Height - half, 0);
+  rx = MAX (a->Width - half, 0);
+  ry = MAX (a->Height - half, 0);
   segs = (MAX (rx, ry) * a->Delta) / BIG_CORD;
   ang = a->StartAngle;
   da = (1.0 * a->Delta) / segs;
@@ -382,6 +386,8 @@ LinePoly (LineType * l, BDimension thick)
   double d, dx, dy;
   long half;
 
+  if (thick <= 0)
+    return NULL;
   half = (thick + 1) / 2;
   d =
     sqrt (SQUARE (l->Point1.X - l->Point2.X) +
@@ -565,22 +571,7 @@ arc_sub_callback (const BoxType * b, void *cl)
   if (!TEST_FLAG (CLEARLINEFLAG, arc))
     return 0;
   polygon = info->polygon;
-  /* enable the arc to touch the poly */
-  CLEAR_FLAG (CLEARLINEFLAG, arc);
-  arc->Thickness += arc->Clearance;
-  /* now see if it would touch the polygon */
-  if (IsArcInPolygon (arc, polygon))
-    {
-      arc->Thickness -= arc->Clearance;
-      SET_FLAG (CLEARLINEFLAG, arc);
-      return SubtractArc (arc, polygon);
-    }
-  else
-    {
-      arc->Thickness -= arc->Clearance;
-      SET_FLAG (CLEARLINEFLAG, arc);
-      return 0;
-    }
+  return SubtractArc (arc, polygon);
 }
 
 static int
@@ -596,22 +587,7 @@ line_sub_callback (const BoxType * b, void *cl)
   if (!TEST_FLAG (CLEARLINEFLAG, line))
     return 0;
   polygon = info->polygon;
-  /* enable the line to touch the poly */
-  CLEAR_FLAG (CLEARLINEFLAG, line);
-  line->Thickness += line->Clearance;
-  /* now see if it would touch the polygon */
-  if (IsLineInPolygon (line, polygon))
-    {
-      line->Thickness -= line->Clearance;
-      SET_FLAG (CLEARLINEFLAG, line);
-      return SubtractLine (line, polygon);
-    }
-  else
-    {
-      line->Thickness -= line->Clearance;
-      SET_FLAG (CLEARLINEFLAG, line);
-      return 0;
-    }
+  return SubtractLine (line, polygon);
 }
 
 static int
@@ -689,11 +665,11 @@ UnsubtractArc (ArcType * arc, LayerType * l, PolygonType * p)
   if (!TEST_FLAG (CLEARLINEFLAG, arc))
     return 0;
   /* overlap a bit to prevent notches from rounding errors */
-  if (!(np = ArcPoly (arc, arc->Thickness + arc->Clearance + BIG_CORD)))
+  if (!(np = ArcPoly (arc, arc->Thickness + arc->Clearance + 100)))
     return 0;
   if (!Unsubtract (np, p))
     return 0;
-  clearPoly (PCB->Data, l, p, (const BoxType *) arc, BIG_CORD / 2);
+  clearPoly (PCB->Data, l, p, (const BoxType *) arc, 50);
   return 1;
 }
 
@@ -720,7 +696,7 @@ UnsubtractPad (PadType * pad, LayerType * l, PolygonType * p)
 
   if (TEST_FLAG (SQUAREFLAG, pad))
     {
-      BDimension t = ((pad->Thickness + pad->Clearance) >> 1) + 100;
+      BDimension t = ((pad->Thickness + pad->Clearance)/2) + 100;
       LocationType x1, x2, y1, y2;
       x1 = MIN (pad->Point1.X, pad->Point2.X) - t;
       x2 = MAX (pad->Point1.X, pad->Point2.X) + t;
