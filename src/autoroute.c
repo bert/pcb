@@ -3879,7 +3879,7 @@ IronDownAllUnfixedPaths (routedata_t * rd)
 				       pin->Element ? pin->Element : pin,
 				       pin, pin);
 	      SET_THERM (p->layer, pin);
-	      PlaceThermal (LAYER_PTR(p->layer), pin, 1);
+	      PlaceThermal (LAYER_PTR (p->layer), pin, 1);
 	    }
 	}
     }

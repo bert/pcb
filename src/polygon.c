@@ -696,7 +696,7 @@ UnsubtractPad (PadType * pad, LayerType * l, PolygonType * p)
 
   if (TEST_FLAG (SQUAREFLAG, pad))
     {
-      BDimension t = ((pad->Thickness + pad->Clearance)/2) + 100;
+      BDimension t = ((pad->Thickness + pad->Clearance) / 2) + 100;
       LocationType x1, x2, y1, y2;
       x1 = MIN (pad->Point1.X, pad->Point2.X) - t;
       x2 = MAX (pad->Point1.X, pad->Point2.X) + t;

@@ -2500,7 +2500,7 @@ IsArcInPolygon (ArcTypePtr Arc, PolygonTypePtr Polygon)
       POLYAREA *ap;
 
       if (!(ap = ArcPoly (Arc, Arc->Thickness + Bloat)))
-        return False; /* error */
+	return False;		/* error */
       return isects (ap, Polygon);
     }
   return False;

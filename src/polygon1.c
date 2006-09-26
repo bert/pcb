@@ -2036,7 +2036,11 @@ poly_Valid (POLYAREA * p)
     {
 #ifndef NDEBUG
       VNODE *v;
-      DEBUGP ("Invalid PLINE\n");
+      DEBUGP ("Invalid Outer PLINE\n");
+      if (p->contours->Flags.orient == PLF_INV)
+         DEBUGP ("failed orient\n");
+      if (poly_ChkContour (p->contours))
+         DEBUGP ("failed self-intersection\n");
       v = &p->contours->head;
       do
 	{
@@ -2055,7 +2059,13 @@ poly_Valid (POLYAREA * p)
 	{
 #ifndef NDEBUG
 	  VNODE *v;
-	  DEBUGP ("Invalid PLINE\n");
+	  DEBUGP ("Invalid Inner PLINE orient = %d\n", c->Flags.orient);
+          if (c->Flags.orient == PLF_DIR)
+	    DEBUGP ("failed orient\n");
+	  if (poly_ChkContour (c))
+            DEBUGP ("failed self-intersection\n");
+	  if (!poly_ContourInContour (p->contours, c))
+            DEBUGP ("failed containment\n");
 	  v = &c->head;
 	  do
 	    {

@@ -46,6 +46,7 @@
 #include "remove.h"
 #include "rtree.h"
 #include "strflags.h"
+#include "thermal.h"
 
 #ifdef HAVE_LIBDMALLOC
 # include <dmalloc.h> /* see http://dmalloc.com */
