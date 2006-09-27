@@ -800,8 +800,8 @@ split_node (struct rtree_node *node)
   struct rtree_node *new_node;
 
   assert (node);
-  assert (node->flags.is_leaf ? (void *)node->u.rects[M_SIZE].bptr : (void *)node->u.
-	  kids[M_SIZE]);
+  assert (node->flags.is_leaf ? (void *) node->u.rects[M_SIZE].
+	  bptr : (void *) node->u.kids[M_SIZE]);
   new_node = find_clusters (node);
   if (node->parent == NULL)	/* split root node */
     {
