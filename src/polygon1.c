@@ -1394,11 +1394,11 @@ poly_Boolean (const POLYAREA * a_org, const POLYAREA * b_org, POLYAREA ** res,
   poly_Free (&b);
 
   if (code)
+  {
     poly_Free (res);
-#ifdef DEBUG
-  else if (*res && !poly_Valid (*res))
-    return -1;
-#endif
+    return code;
+  }
+  assert (!*res || poly_Valid (*res));
   return code;
 }				/* poly_Boolean */
 

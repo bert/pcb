@@ -55,6 +55,6 @@ void ClearFromPolygon(DataType *, int, void *, void *);
 Boolean IsPointInPolygon (LocationType, LocationType, BDimension, PolygonTypePtr);
 Boolean IsRectangleInPolygon (LocationType, LocationType, LocationType,
 			      LocationType, PolygonTypePtr);
-Boolean isects (POLYAREA *, PolygonTypePtr);
+Boolean isects (POLYAREA *, PolygonTypePtr, Boolean);
 void NoHolesPolygonDicer (PLINE *p, void (*emit) (PolygonTypePtr));
 #endif

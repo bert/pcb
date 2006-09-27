@@ -1,4 +1,4 @@
-/* $Id$ */
+/* $id: find.c,v 1.53.2.3 2006/09/26 03:41:43 haceaton exp $ */
 
 /*
  *
@@ -73,6 +73,7 @@
 #endif
 #include <math.h>
 #include <setjmp.h>
+#include <assert.h>
 
 #ifdef HAVE_SYS_TIMES_H
 #include <sys/times.h>
@@ -725,10 +726,10 @@ LookupLOConnectionsToPVList (Boolean AndRats)
 	    {
 	      float wide = 0.5 * info.pv.Thickness + fBloat;
 	      wide = MAX (wide, 0);
-	      if (((TEST_THERM (layer, &info.pv)
-		    && TEST_PIP (layer, &info.pv))
-		   || !TEST_FLAG (CLEARPOLYFLAG, polygon))
-		  && !TEST_FLAG (TheFlag, polygon))
+	      /* pins and vias can never directly touch clearing polygons
+	       * there are thermal finger that they connect through
+	       */
+	      if (!TEST_FLAG (CLEARPOLYFLAG, polygon) && !TEST_FLAG (TheFlag, polygon))
 		{
 		  if (!TEST_FLAG (SQUAREFLAG, &info.pv)
 		      && IsPointInPolygon (info.pv.X, info.pv.Y, wide,
@@ -738,13 +739,13 @@ LookupLOConnectionsToPVList (Boolean AndRats)
 		  if (TEST_FLAG (SQUAREFLAG, &info.pv))
 		    {
 		      LocationType x1 =
-			info.pv.X - (info.pv.Thickness + 1) / 2;
+			info.pv.X - (info.pv.Thickness + 1 + Bloat) / 2;
 		      LocationType x2 =
-			info.pv.X + (info.pv.Thickness + 1) / 2;
+			info.pv.X + (info.pv.Thickness + 1 + Bloat) / 2;
 		      LocationType y1 =
-			info.pv.Y - (info.pv.Thickness + 1) / 2;
+			info.pv.Y - (info.pv.Thickness + 1 + Bloat) / 2;
 		      LocationType y2 =
-			info.pv.Y + (info.pv.Thickness + 1) / 2;
+			info.pv.Y + (info.pv.Thickness + 1 + Bloat) / 2;
 		      if (IsRectangleInPolygon (x1, y1, x2, y2, polygon)
 			  && ADD_POLYGON_TO_LIST (layer, polygon))
 			return True;
@@ -1022,17 +1023,15 @@ pv_poly_callback (const BoxType * b, void *cl)
   struct lo_info *i = (struct lo_info *) cl;
 
   /* note that holes in polygons are ok */
-  if (((TEST_THERM (i->layer, pv) && TEST_PIP (i->layer, pv))
-       || !TEST_FLAG (CLEARPOLYFLAG, &i->polygon))
-      && !TEST_FLAG (TheFlag, pv))
+  if (!TEST_FLAG (CLEARPOLYFLAG, &i->polygon) && !TEST_FLAG (TheFlag, pv))
     {
       if (TEST_FLAG (SQUAREFLAG, pv))
 	{
 	  LocationType x1, x2, y1, y2;
-	  x1 = pv->X - (pv->Thickness + 1) / 2;
-	  x2 = pv->X + (pv->Thickness + 1) / 2;
-	  y1 = pv->Y - (pv->Thickness + 1) / 2;
-	  y2 = pv->Y + (pv->Thickness + 1) / 2;
+	  x1 = pv->X - (pv->Thickness + 1 + Bloat) / 2;
+	  x2 = pv->X + (pv->Thickness + 1 + Bloat) / 2;
+	  y1 = pv->Y - (pv->Thickness + 1 + Bloat) / 2;
+	  y2 = pv->Y + (pv->Thickness + 1 + Bloat) / 2;
 	  if (IsRectangleInPolygon (x1, y1, x2, y2, &i->polygon)
 	      && ADD_PV_TO_LIST (pv))
 	    longjmp (i->env, 1);
@@ -2501,7 +2500,7 @@ IsArcInPolygon (ArcTypePtr Arc, PolygonTypePtr Polygon)
 
       if (!(ap = ArcPoly (Arc, Arc->Thickness + Bloat)))
 	return False;		/* error */
-      return isects (ap, Polygon);
+      return isects (ap, Polygon, True);
     }
   return False;
 }
@@ -2522,7 +2521,9 @@ IsLineInPolygon (LineTypePtr Line, PolygonTypePtr Polygon)
 
   /* lines with clearance never touch polygons */
   if (TEST_FLAG (CLEARPOLYFLAG, Polygon) && TEST_FLAG (CLEARLINEFLAG, Line))
-    return (False);
+    return False;
+  if (!Polygon->Clipped)
+    return False;
   if (Box->X1 <= Polygon->Clipped->contours->xmax + Bloat
       && Box->X2 >= Polygon->Clipped->contours->xmin - Bloat
       && Box->Y1 <= Polygon->Clipped->contours->ymax + Bloat
@@ -2530,7 +2531,7 @@ IsLineInPolygon (LineTypePtr Line, PolygonTypePtr Polygon)
     {
       if (!(lp = LinePoly (Line, Line->Thickness + Bloat)))
 	return FALSE;		/* error */
-      return isects (lp, Polygon);
+      return isects (lp, Polygon, True);
     }
   return False;
 }
@@ -2545,7 +2546,7 @@ IsPadInPolygon (PadTypePtr pad, PolygonTypePtr polygon)
 {
   if (TEST_FLAG (SQUAREFLAG, pad))
     {
-      BDimension wid = pad->Thickness / 2;
+      BDimension wid = (pad->Thickness + Bloat + 1) / 2;
       LocationType x1, x2, y1, y2;
 
       x1 = MIN (pad->Point1.X, pad->Point2.X) - wid;
@@ -2567,43 +2568,47 @@ IsPadInPolygon (PadTypePtr pad, PolygonTypePtr polygon)
 Boolean
 IsPolygonInPolygon (PolygonTypePtr P1, PolygonTypePtr P2)
 {
+  if (!P1->Clipped || !P2->Clipped)
+    return False;
+  assert (P1->Clipped->contours);
+  assert (P2->Clipped->contours);
   /* first check if both bounding boxes intersect */
-  if (P1->BoundingBox.X1 - Bloat <= P2->BoundingBox.X2 &&
-      P1->BoundingBox.X2 + Bloat >= P2->BoundingBox.X1 &&
-      P1->BoundingBox.Y1 - Bloat <= P2->BoundingBox.Y2 &&
-      P1->BoundingBox.Y2 + Bloat >= P2->BoundingBox.Y1)
+  if (P1->Clipped->contours->xmin - Bloat <= P2->Clipped->contours->xmax &&
+      P1->Clipped->contours->xmax + Bloat >= P2->Clipped->contours->xmin &&
+      P1->Clipped->contours->ymin - Bloat <= P2->Clipped->contours->ymax &&
+      P1->Clipped->contours->ymax + Bloat >= P2->Clipped->contours->ymin)
     {
-      LineType line;
+      PLINE *c;
 
-      POLYGONPOINT_LOOP (P2);
-      {
-	if (IsPointInPolygon (point->X, point->Y, 0, P1))
-	  return (True);
-	else
-	  break;		/* only one point need be tested */
-      }
-      END_LOOP;
+      /* first check un-bloated case */
+      if (isects (P1->Clipped, P2, False))
+	return TRUE;
+      /* now the difficult case of bloated */
+      for (c = P1->Clipped->contours; c; c = c->next)
+	{
+	  LineType line;
+	  VNODE *v = &c->head;
+	  if (c->xmin - Bloat <= P2->Clipped->contours->xmax &&
+	      c->xmax + Bloat >= P2->Clipped->contours->xmin &&
+	      c->ymin - Bloat <= P2->Clipped->contours->ymax &&
+	      c->ymax + Bloat >= P2->Clipped->contours->ymin)
+	    {
 
-      /* check all lines of P1 against P2;
-       * POLYGONPOINT_LOOP decrements the pointer !!!
-       */
-
-
-      line.Point1.X = P1->Points[0].X;
-      line.Point1.Y = P1->Points[0].Y;
-      line.Thickness = 0;
-      line.Flags = NoFlags ();
-
-      POLYGONPOINT_LOOP (P1);
-      {
-	line.Point2.X = point->X;
-	line.Point2.Y = point->Y;
-	if (IsLineInPolygon (&line, P2))
-	  return (True);
-	line.Point1.X = line.Point2.X;
-	line.Point1.Y = line.Point2.Y;
-      }
-      END_LOOP;
+	      line.Point1.X = v->point[0];
+	      line.Point1.Y = v->point[1];
+	      line.Thickness = 2 * Bloat;
+	      line.Flags = NoFlags ();
+	      for (v = v->next; v != &c->head; v = v->next)
+		{
+		  line.Point2.X = v->point[0];
+		  line.Point2.Y = v->point[1];
+		  if (IsLineInPolygon (&line, P2))
+		    return (True);
+		  line.Point1.X = line.Point2.X;
+		  line.Point1.Y = line.Point2.Y;
+		}
+	    }
+	}
     }
   return (False);
 }

@@ -110,6 +110,9 @@ biggest (POLYAREA * p)
   pl = top->contours;
   top->contours = p->contours;
   p->contours = pl;
+  assert(pl);
+  assert(p->f);
+  assert(p->b);
   return p;
 }
 
@@ -125,7 +128,6 @@ ContourToPoly (PLINE * contour)
   assert (poly_Valid (p));
   return p;
 }
-
 
 static POLYAREA *
 original_poly (PolygonType * p)
@@ -159,7 +161,7 @@ original_poly (PolygonType * p)
     return NULL;
   poly_InclContour (np, contour);
   assert (poly_Valid (np));
-  return np;
+  return biggest(np);
 }
 
 static int
@@ -1163,14 +1165,15 @@ ClearFromPolygon (DataType * Data, int type, void *ptr1, void *ptr2)
 }
 
 Boolean
-isects (POLYAREA * a, PolygonTypePtr p)
+isects (POLYAREA * a, PolygonTypePtr p, Boolean fr)
 {
   POLYAREA *x;
   Boolean ans;
   ans = Touching (a, p->Clipped);
   /* argument may be register, so we must copy it */
   x = a;
-  poly_Free (&x);
+  if (fr)
+    poly_Free (&x);
   return ans;
 }
 
@@ -1183,7 +1186,7 @@ IsPointInPolygon (LocationType X, LocationType Y, BDimension r,
   r = max (r, 1);
   if (!(c = CirclePoly (X, Y, r)))
     return False;
-  return isects (c, p);
+  return isects (c, p, True);
 }
 
 Boolean
@@ -1194,7 +1197,7 @@ IsRectangleInPolygon (LocationType X1, LocationType Y1, LocationType X2,
   if (!
       (s = RectPoly (min (X1, X2), max (X1, X2), min (Y1, Y2), max (Y1, Y2))))
     return False;
-  return isects (s, p);
+  return isects (s, p, True);
 }
 
 void
