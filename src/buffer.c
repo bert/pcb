@@ -384,7 +384,7 @@ MoveElementToBuffer (ElementTypePtr Element)
   ElementTypePtr element;
   int i;
 
-  r_delete_element (Source, (BoxType *) Element);
+  r_delete_element (Source, Element);
   element = GetElementMemory (Dest);
   *element = *Element;
   PIN_LOOP (element);
