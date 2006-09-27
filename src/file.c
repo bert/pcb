@@ -390,7 +390,7 @@ WritePCBInfoHeader (FILE * FP)
 #endif
 
 #ifdef HAVE_GETHOSTNAME
-  static struct hostent *hostentry = -1;
+  static struct hostent *hostentry = NULL;
   char hostname[256];
 #endif
   time_t currenttime;
@@ -410,7 +410,7 @@ WritePCBInfoHeader (FILE * FP)
 #ifdef HAVE_GETHOSTNAME
   if (gethostname (hostname, 255) != -1)
     {
-      if (hostentry == -1)
+      if (hostentry == NULL)
 	hostentry = gethostbyname (hostname);
       fprintf (FP, "# host:    %s\n",
 	       hostentry ? hostentry->h_name : hostname);
