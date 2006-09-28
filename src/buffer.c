@@ -311,6 +311,7 @@ MoveArcToBuffer (LayerTypePtr Layer, ArcTypePtr Arc)
   LayerTypePtr lay;
   ArcTypePtr arc;
 
+  RestoreToPolygon (Source, ARC_TYPE, Layer, Arc);
   r_delete_entry (Layer->arc_tree, (BoxTypePtr) Arc);
   lay = &Dest->Layer[GetLayerNumber (Source, Layer)];
   arc = GetArcMemory (lay);
@@ -324,6 +325,7 @@ MoveArcToBuffer (LayerTypePtr Layer, ArcTypePtr Arc)
   if (!lay->arc_tree)
     lay->arc_tree = r_create_tree (NULL, 0, 0);
   r_insert_entry (lay->arc_tree, (BoxTypePtr) arc, 0);
+  RestoreToPolygon (Dest, ARC_TYPE, lay, arc);
   return (arc);
 }
 
