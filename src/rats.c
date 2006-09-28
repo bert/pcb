@@ -530,7 +530,7 @@ GatherSubnets (NetListTypePtr Netl, Boolean NoWarn, Boolean AndRats)
 		polygon->Points[0].Y != polygon->Points[3].Y)
 	      continue;
 	    conn = GetConnectionMemory (a);
-	    /* make point on a vertex*/
+	    /* make point on a vertex */
 	    conn->X = polygon->Clipped->contours->head.point[0];
 	    conn->Y = polygon->Clipped->contours->head.point[1];
 	    conn->type = POLYGON_TYPE;

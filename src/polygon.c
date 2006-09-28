@@ -54,6 +54,7 @@
 #include "rtree.h"
 #include "search.h"
 #include "set.h"
+#include "thermal.h"
 #include "undo.h"
 
 #ifdef HAVE_LIBDMALLOC
@@ -110,9 +111,9 @@ biggest (POLYAREA * p)
   pl = top->contours;
   top->contours = p->contours;
   p->contours = pl;
-  assert(pl);
-  assert(p->f);
-  assert(p->b);
+  assert (pl);
+  assert (p->f);
+  assert (p->b);
   return p;
 }
 
@@ -161,7 +162,7 @@ original_poly (PolygonType * p)
     return NULL;
   poly_InclContour (np, contour);
   assert (poly_Valid (np));
-  return biggest(np);
+  return biggest (np);
 }
 
 static int
@@ -312,7 +313,7 @@ CirclePoly (LocationType x, LocationType y, BDimension radius)
   return ContourToPoly (contour);
 }
 
-#define BIG_CORD 100000
+#define ARC_ANGLE 5
 POLYAREA *
 ArcPoly (ArcType * a, BDimension thick)
 {
@@ -336,7 +337,7 @@ ArcPoly (ArcType * a, BDimension thick)
   /* start with inner radius */
   rx = MAX (a->Width - half, 0);
   ry = MAX (a->Height - half, 0);
-  segs = (MAX (rx, ry) * a->Delta) / BIG_CORD;
+  segs = a->Delta / ARC_ANGLE;
   ang = a->StartAngle;
   da = (1.0 * a->Delta) / segs;
   v[0] = a->X - rx * cos (ang * M180);
@@ -359,8 +360,7 @@ ArcPoly (ArcType * a, BDimension thick)
   /* and now do the outer arc (going backwards) */
   rx = a->Width + half;
   ry = a->Width + half;
-  segs = (MAX (rx, ry) * a->Delta) / BIG_CORD;
-  da = -(1.0 * a->Delta) / segs;
+  da = -da;
   for (i = 0; i < segs; i++)
     {
       v[0] = a->X - rx * cos (ang * M180);
@@ -543,6 +543,7 @@ SubtractPad (PadType * pad, PolygonType * p)
 struct cpInfo
 {
   const BoxType *other;
+  LayerType *layer;
   PolygonType *polygon;
 };
 
@@ -555,6 +556,8 @@ pin_sub_callback (const BoxType * b, void *cl)
 
   /* don't subtract the object that was put back! */
   if (b == info->other)
+    return 0;
+  if (ModifyThermals(info->layer, pin, NULL, NULL) == 1)
     return 0;
   polygon = info->polygon;
   return SubtractPin (pin, polygon);
@@ -603,6 +606,7 @@ clearPoly (DataTypePtr Data, LayerTypePtr Layer, PolygonType * polygon,
   if (!TEST_FLAG (CLEARPOLYFLAG, polygon))
     return 0;
   info.other = here;
+  info.layer = Layer;
   info.polygon = polygon;
   if (here)
     region = clip_box (here, &polygon->BoundingBox);
@@ -1158,9 +1162,9 @@ RestoreToPolygon (DataType * Data, int type, void *ptr1, void *ptr2)
 void
 ClearFromPolygon (DataType * Data, int type, void *ptr1, void *ptr2)
 {
-  if (type == POLYGON_TYPE)
-    InitClip (PCB->Data, (LayerTypePtr) ptr1, (PolygonTypePtr) ptr2);
-  else
+  if (type != POLYGON_TYPE)
+    // InitClip (PCB->Data, (LayerTypePtr) ptr1, (PolygonTypePtr) ptr2);
+    //else
     PlowsPolygon (Data, type, ptr1, ptr2, subtract_plow);
 }
 
@@ -1288,4 +1292,53 @@ NoHolesPolygonDicer (PLINE * p, void (*emit) (PolygonTypePtr))
 	  poly_Free (&res);
 	}
     }
+}
+
+
+/* make a polygon split into multiple parts into multiple polygons */
+Boolean
+MorphPolygon (LayerTypePtr layer, PolygonTypePtr poly)
+{
+  POLYAREA *p;
+  Boolean many = False;
+
+  if (!poly->Clipped || TEST_FLAG (LOCKFLAG, poly))
+    return False;
+  ErasePolygon (poly);
+  p = poly->Clipped;
+  do
+    {
+      VNODE *v;
+      PolygonTypePtr new;
+
+      if (p->contours->area > M_PI * PCB->Bloat * 0.5 * PCB->Bloat)
+	{
+	  new = CreateNewPolygon (layer, poly->Flags);
+	  if (!new)
+	    return False;
+	  many = True;
+	  v = &p->contours->head;
+	  CreateNewPointInPolygon (new, v->point[0], v->point[1]);
+	  for (v = v->next; v != &p->contours->head; v = v->next)
+	    CreateNewPointInPolygon (new, v->point[0], v->point[1]);
+	  SetPolygonBoundingBox (new);
+	  AddObjectToCreateUndoList (POLYGON_TYPE, layer, new, new);
+	  new->Clipped = p;
+	  p = p->f;		/* go to next pline */
+	  new->Clipped->b = new->Clipped->f = new->Clipped;	/* unlink from others */
+	  r_insert_entry (layer->polygon_tree, (BoxType *) new, 0);
+	  DrawPolygon (layer, new, 0);
+	}
+      else
+	{
+	  POLYAREA *t = p;
+
+	  p = p->f;
+	  poly_DelContour (&t->contours);
+	  free (t);
+	}
+    }
+  while (p != poly->Clipped);
+  RemovePolygon (layer, poly);
+  return many;
 }

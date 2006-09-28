@@ -1096,13 +1096,13 @@ NotifyMode (void)
 	    if (gui->shift_is_pressed ())
 	      {
 		therm_style++;
-		if (therm_style > 4)
+		if (therm_style > 5)
 		  therm_style = 1;
 		ChangeObjectThermal (type, ptr1, ptr2, ptr3, therm_style);
 	      }
 	    else
 	      /* fix me - check that there is a polygon here to therm */
-	    if (ModifyThermals (CURRENT, (PinTypePtr) ptr2, NULL))
+	    if (ModifyThermals (CURRENT, (PinTypePtr) ptr2, NULL, NULL))
 	      ChangeObjectThermal (type, ptr1, ptr2, ptr3, 0);
 	    else
 	      ChangeObjectThermal (type, ptr1, ptr2, ptr3, 1);
@@ -3787,6 +3787,50 @@ ActionChangeName (int argc, char **argv, int x, int y)
 
 /* --------------------------------------------------------------------------- */
 
+static const char morphpolygon_syntax[] = "MorphPolygon(Object)";
+
+static const char morphpolygon_help[] =
+  "Converts dead polygon islands into separate polygons.";
+
+/* %start-doc actions MorphPolygon 
+
+If a polygon is divided into unconnected "islands", you can use
+this command to convert the otherwise disappeared islands into
+separate polygons.
+
+%end-doc */
+
+static int
+ActionMorphPolygon (int argc, char **argv, int x, int y)
+{
+  char *function = ARG (0);
+  if (function)
+    {
+      HideCrosshair (True);
+      switch (GetFunctionID (function))
+	{
+	case F_Object:
+	  {
+	    int type;
+	    void *ptr1, *ptr2, *ptr3;
+
+	    gui->get_coords ("Select an Object", &x, &y);
+	    if ((type = SearchScreen (x, y, POLYGON_TYPE,
+				      &ptr1, &ptr2, &ptr3)) != NO_TYPE)
+	      {
+		MorphPolygon ((LayerType *) ptr1, (PolygonType *) ptr3);
+		Draw ();
+		IncrementUndoSerialNumber ();
+	      }
+	    break;
+	  }
+	}
+    }
+  return 0;
+}
+
+/* --------------------------------------------------------------------------- */
+
 static const char togglehidename_syntax[] =
   "ToggleHideName(Object|SelectedElements)";
 
@@ -6057,6 +6101,9 @@ HID_Action action_action_list[] = {
   ,
   {"Mode", 0, ActionMode,
    mode_help, mode_syntax}
+  ,
+  {"MorphPolygon", 0, ActionMorphPolygon,
+   morphpolygon_help, morphpolygon_syntax}
   ,
   {"PasteBuffer", 0, ActionPasteBuffer,
    pastebuffer_help, pastebuffer_syntax}

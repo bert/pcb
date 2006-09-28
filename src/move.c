@@ -132,7 +132,7 @@ MoveElementLowLevel (DataTypePtr Data, ElementTypePtr Element,
 	RestoreToPolygon (Data, PIN_TYPE, Element, pin);
 	LAYER_LOOP (Data, max_layer);
 	{
-	  therms[n] = ModifyThermals (layer, pin, MoveLine);
+	  therms[n] = ModifyThermals (layer, pin, MoveLine, MoveArc);
 	}
 	END_LOOP;
       }
@@ -265,7 +265,7 @@ MoveVia (PinTypePtr Via)
   RestoreToPolygon (PCB->Data, VIA_TYPE, Via, Via);
   LAYER_LOOP (PCB->Data, max_layer);
   {
-    therms[n] = ModifyThermals (layer, Via, MoveLine);
+    therms[n] = ModifyThermals (layer, Via, MoveLine, MoveArc);
   }
   END_LOOP;
   MOVE_VIA_LOWLEVEL (Via, DeltaX, DeltaY);
@@ -760,7 +760,7 @@ MovePolygonToLayer (LayerTypePtr Layer, PolygonTypePtr Polygon)
 	AddObjectToFlagUndoList (PIN_TYPE, Layer, pin, pin);
 	CLEAR_THERM (GetLayerNumber (PCB->Data, Layer), pin);
 	SET_THERM (GetLayerNumber (PCB->Data, Dest), pin);
-	ModifyThermals (Layer, pin, MoveLineToLayer);
+	ModifyThermals (Layer, pin, MoveLineToLayer, MoveArcToLayer);
       }
   }
   ENDALL_LOOP;
@@ -773,7 +773,7 @@ MovePolygonToLayer (LayerTypePtr Layer, PolygonTypePtr Polygon)
 	AddObjectToFlagUndoList (VIA_TYPE, Layer, via, via);
 	CLEAR_THERM (GetLayerNumber (PCB->Data, Layer), via);
 	SET_THERM (GetLayerNumber (PCB->Data, Dest), via);
-	ModifyThermals (Layer, via, MoveLineToLayer);
+	ModifyThermals (Layer, via, MoveLineToLayer, MoveArcToLayer);
       }
   }
   END_LOOP;

@@ -256,6 +256,8 @@ LinePadIntersect (LineTypePtr Line, PadTypePtr Pad)
 Boolean
 ArcPadIntersect (ArcTypePtr Arc, PadTypePtr Pad)
 {
+  if (!Arc->Thickness)
+    return False;
   return TEST_FLAG (SQUAREFLAG, Pad) ?
 /* IsArcInRectangle already applies Bloat */
     IsArcInRectangle (MIN ((Pad)->Point1.X, (Pad)->Point2.X) -
@@ -729,7 +731,8 @@ LookupLOConnectionsToPVList (Boolean AndRats)
 	      /* pins and vias can never directly touch clearing polygons
 	       * there are thermal finger that they connect through
 	       */
-	      if (!TEST_FLAG (CLEARPOLYFLAG, polygon) && !TEST_FLAG (TheFlag, polygon))
+	      if (!TEST_FLAG (CLEARPOLYFLAG, polygon)
+		  && !TEST_FLAG (TheFlag, polygon))
 		{
 		  if (!TEST_FLAG (SQUAREFLAG, &info.pv)
 		      && IsPointInPolygon (info.pv.X, info.pv.Y, wide,
@@ -1658,6 +1661,8 @@ LineArcIntersect (LineTypePtr Line, ArcTypePtr Arc)
   register float dx, dy, dx1, dy1, l, d, r, r2, Radius;
   BoxTypePtr box;
 
+  if (!Arc->Thickness)
+    return False;
   dx = (float) (Line->Point2.X - Line->Point1.X);
   dy = (float) (Line->Point2.Y - Line->Point1.Y);
   dx1 = (float) (Line->Point1.X - Arc->X);
@@ -1729,6 +1734,8 @@ LOCtoArcArc_callback (const BoxType * b, void *cl)
   ArcTypePtr arc = (ArcTypePtr) b;
   struct lo_info *i = (struct lo_info *) cl;
 
+  if (!arc->Thickness)
+    return 0;
   if (!TEST_FLAG (TheFlag, arc) && ArcArcIntersect (&i->arc, arc))
     {
       if (ADD_ARC_TO_LIST (i->layer, arc))
@@ -1764,9 +1771,9 @@ LookupLOConnectionsToArc (ArcTypePtr Arc, Cardinal LayerGroup)
   LocationType xlow, xhigh;
   struct lo_info info;
 
+  if (!Arc->Thickness)
+    return 0;
   /* the maximum possible distance */
-
-
   xlow = Arc->BoundingBox.X1 - MAX (MAX_PADSIZE, MAX_LINESIZE) / 2;
   xhigh = Arc->BoundingBox.X2 + MAX (MAX_PADSIZE, MAX_LINESIZE) / 2;
 
@@ -1839,6 +1846,8 @@ LOCtoLineArc_callback (const BoxType * b, void *cl)
   ArcTypePtr arc = (ArcTypePtr) b;
   struct lo_info *i = (struct lo_info *) cl;
 
+  if (!arc->Thickness)
+    return 0;
   if (!TEST_FLAG (TheFlag, arc) && LineArcIntersect (&i->line, arc))
     {
       if (ADD_ARC_TO_LIST (i->layer, arc))
@@ -1976,6 +1985,8 @@ LOT_Arccallback (const BoxType * b, void *cl)
   ArcTypePtr arc = (ArcTypePtr) b;
   struct lo_info *i = (struct lo_info *) cl;
 
+  if (!arc->Thickness)
+    return 0;
   if (!TEST_FLAG (TheFlag, arc) && LineArcIntersect (&i->line, arc))
     longjmp (i->env, 1);
   return 0;
@@ -2177,6 +2188,8 @@ LOCtoPadArc_callback (const BoxType * b, void *cl)
   ArcTypePtr arc = (ArcTypePtr) b;
   struct lo_info *i = (struct lo_info *) cl;
 
+  if (!arc->Thickness)
+    return 0;
   if (!TEST_FLAG (TheFlag, arc) && ArcPadIntersect (arc, &i->pad))
     {
       if (ADD_ARC_TO_LIST (i->layer, arc))
@@ -2331,6 +2344,8 @@ LOCtoPolyArc_callback (const BoxType * b, void *cl)
   ArcTypePtr arc = (ArcTypePtr) b;
   struct lo_info *i = (struct lo_info *) cl;
 
+  if (!arc->Thickness)
+    return 0;
   if (!TEST_FLAG (TheFlag, arc) && IsArcInPolygon (arc, &i->polygon))
     {
       if (ADD_ARC_TO_LIST (i->layer, arc))
@@ -2447,32 +2462,6 @@ LookupLOConnectionsToPolygon (PolygonTypePtr Polygon, Cardinal LayerGroup)
   return (False);
 }
 
-/* LinePolyCandidate returns True if any point on the Line that
- * is inside the polygon is outside the clearance zone of
- * all clearances inside the polygon.
- * Unfortunately, it's a really hard thing to do. We don't
- * know what layer the polygon is on at the moment so it's
- * impossible.
- */
-Boolean
-LinePolyCandidate (LineTypePtr Line, PolygonTypePtr Polygon)
-{
-  return True;
-}
-
-/* ArcPolyCandidate returns True if any point on the Arc that
- * is inside the polygon is outside the clearance zone of
- * all clearances inside the polygon.
- * Unfortunately, it's a really hard thing to do. We don't
- * know what layer the polygon is on at the moment so it's
- * impossible.
- */
-Boolean
-ArcPolyCandidate (ArcTypePtr Arc, PolygonTypePtr Polygon)
-{
-  return True;
-}
-
 /* ---------------------------------------------------------------------------
  * checks if an arc has a connection to a polygon
  *
@@ -2486,6 +2475,8 @@ IsArcInPolygon (ArcTypePtr Arc, PolygonTypePtr Polygon)
 {
   BoxTypePtr Box = (BoxType *) Arc;
 
+  if (!Arc->Thickness)
+    return 0;
   /* arcs with clearance never touch polys */
   if (TEST_FLAG (CLEARPOLYFLAG, Polygon) && TEST_FLAG (CLEARLINEFLAG, Arc))
     return False;

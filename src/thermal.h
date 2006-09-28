@@ -41,7 +41,8 @@
 #include "global.h"
 #include "mymem.h"
 
-int ModifyThermals (LayerTypePtr, PinTypePtr, void * (*cb) (LayerTypePtr, LineTypePtr));
+int ModifyThermals (LayerTypePtr, PinTypePtr, void * (*cb) (LayerTypePtr, LineTypePtr),
+                    void * (*cb2) (LayerTypePtr, ArcTypePtr));
 void PlaceThermal (LayerTypePtr, PinTypePtr, int);
 void thermal_backward_compat (PCBTypePtr, PinTypePtr);
 

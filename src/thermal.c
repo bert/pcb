@@ -132,7 +132,7 @@ pin_therm (const BoxType * b, void *cl)
 
   if (!TEST_FLAG (USETHERMALFLAG, line))
     return 0;
-  if (TEST_FLAG (VISITFLAG | CLEARLINEFLAG, line))
+  if (TEST_FLAG (VISITFLAG, line))
     return 0;
   SET_FLAG (VISITFLAG, line);
   info->line = line;
@@ -152,7 +152,8 @@ pin_therm (const BoxType * b, void *cl)
  */
 int
 ModifyThermals (LayerTypePtr layer, PinTypePtr Pin,
-		void *(*callback) (LayerTypePtr lay, LineTypePtr line))
+		void *(*callback) (LayerTypePtr lay, LineTypePtr line),
+		void *(*cb2) (LayerTypePtr lay, ArcTypePtr arc))
 {
   if (!TEST_FLAG (HOLEFLAG, Pin))
     {
@@ -172,7 +173,7 @@ ModifyThermals (LayerTypePtr layer, PinTypePtr Pin,
       sb.Y2 += 1;
       /* mark all as unvisited */
       if (!r_search (layer->line_tree, &sb, NULL, visit_therm, NULL))
-	return 0;		/* nothing to see here */
+	goto chk_arcs;		/* nothing to see here */
       if (setjmp (info.env) != 1)
 	{
 	  r_search (layer->line_tree, &sb, NULL, pin_therm, &info);
@@ -184,13 +185,36 @@ ModifyThermals (LayerTypePtr layer, PinTypePtr Pin,
 	   * it is allowed to modify the tree by deleting the line
 	   * for example. So we call it after the longjmp.
 	   */
+	  count++;
 	  if (callback)
-	    {
-	      if (callback (layer, info.line))
-		count++;
-	    }
-	  else
-	    count++;
+	    callback (layer, info.line);
+	  /* loop finding all thermals */
+	  longjmp (info.env, 2);
+	}
+    chk_arcs:
+      info.line = NULL;		/* really used for arcs here */
+      /* the search box for arc thermals is the whole cleared area */
+      sb.X1 = Pin->X - (Pin->Thickness + Pin->Clearance + 1) / 2;
+      sb.X2 = Pin->X + (Pin->Thickness + Pin->Clearance + 1) / 2;
+      sb.Y1 = Pin->Y - (Pin->Thickness + Pin->Clearance + 1) / 2;
+      sb.Y2 = Pin->Y + (Pin->Thickness + Pin->Clearance + 1) / 2;
+      /* mark all as unvisited */
+      if (!r_search (layer->arc_tree, &sb, NULL, visit_therm, NULL))
+	return 0;		/* nothing to see here */
+      if (setjmp (info.env) != 1)
+	{
+	  r_search (layer->arc_tree, &sb, NULL, pin_therm, &info);
+	  return count;
+	}
+      else
+	{
+	  /* Can't call the callback within the r_search because
+	   * it is allowed to modify the tree by deleting the arc 
+	   * for example. So we call it after the longjmp.
+	   */
+	  count = 1;
+	  if (cb2)
+	    cb2 (layer, (ArcTypePtr) info.line);
 	  /* loop finding all thermals */
 	  longjmp (info.env, 2);
 	}
@@ -206,8 +230,9 @@ ModifyThermals (LayerTypePtr layer, PinTypePtr Pin,
  * appropriate argument to this function.
  * style = 1 means original style dual 45 degree lines.
  * style = 2 means horizontal and vertical fingers.
- * style = 3 means both styles 1 & 2 (i.e. 4 fingers).
- * style = 4 means solid join to plane.
+ * style = 3 means clear 4 arc segments leaving fingers at 45.
+ * style = 4 means clear 4 arc segments leaving fingers at hz vt.
+ * style = 5 means solid join to plane.
  * More styles may be added in the future.
  */
 
@@ -259,40 +284,66 @@ PlaceThermal (LayerTypePtr layer, PinTypePtr Via, int style)
       DrawLine (layer, line, 0);
       break;
     case 2:
-      line =
-	CreateNewLineOnLayer (layer, Via->X - half, Via->Y,
-			      Via->X + half, Via->Y,
-			      (Via->Thickness -
-			       Via->DrillingHole) * PCB->ThermScale, 0,
-			      MakeFlags (USETHERMALFLAG));
-      AddObjectToCreateUndoList (LINE_TYPE, layer, line, line);
-      DrawLine (layer, line, 0);
-      line =
-	CreateNewLineOnLayer (layer, Via->X, Via->Y - half,
-			      Via->X, Via->Y + half,
-			      (Via->Thickness -
-			       Via->DrillingHole) * PCB->ThermScale, 0,
-			      MakeFlags (USETHERMALFLAG));
-      AddObjectToCreateUndoList (LINE_TYPE, layer, line, line);
-      DrawLine (layer, line, 0);
-      if (!TEST_FLAG (SQUAREFLAG, Via))
-	half = (half * M_SQRT1_2 + 1);
-      line =
-	CreateNewLineOnLayer (layer, Via->X - half, Via->Y - half,
-			      Via->X + half, Via->Y + half,
-			      (Via->Thickness -
-			       Via->DrillingHole) * PCB->ThermScale, 0,
-			      MakeFlags (USETHERMALFLAG));
-      AddObjectToCreateUndoList (LINE_TYPE, layer, line, line);
-      DrawLine (layer, line, 0);
-      line =
-	CreateNewLineOnLayer (layer, Via->X - half, Via->Y + half,
-			      Via->X + half, Via->Y - half,
-			      (Via->Thickness -
-			       Via->DrillingHole) * PCB->ThermScale, 0,
-			      MakeFlags (USETHERMALFLAG));
-      AddObjectToCreateUndoList (LINE_TYPE, layer, line, line);
-      DrawLine (layer, line, 0);
+      {
+	ArcTypePtr arc;
+	RestoreToPolygon (PCB->Data, VIA_TYPE, layer, Via);
+	AddObjectToClearPolyUndoList (VIA_TYPE, layer, Via, Via, False);
+	arc = CreateNewArcOnLayer (layer, Via->X, Via->Y,
+				   Via->Thickness / 2 + Via->Clearance / 4,
+				   65, 50, 0, Via->Clearance / 2,
+				   MakeFlags (CLEARLINEFLAG |
+					      USETHERMALFLAG));
+	AddObjectToCreateUndoList (ARC_TYPE, layer, arc, arc);
+	arc = CreateNewArcOnLayer (layer, Via->X, Via->Y,
+				   Via->Thickness / 2 + Via->Clearance / 4,
+				   155, 50, 0, Via->Clearance / 2,
+				   MakeFlags (CLEARLINEFLAG |
+					      USETHERMALFLAG));
+	AddObjectToCreateUndoList (ARC_TYPE, layer, arc, arc);
+	arc = CreateNewArcOnLayer (layer, Via->X, Via->Y,
+				   Via->Thickness / 2 + Via->Clearance / 4,
+				   245, 50, 0, Via->Clearance / 2,
+				   MakeFlags (CLEARLINEFLAG |
+					      USETHERMALFLAG));
+	AddObjectToCreateUndoList (ARC_TYPE, layer, arc, arc);
+	arc = CreateNewArcOnLayer (layer, Via->X, Via->Y,
+				   Via->Thickness / 2 + Via->Clearance / 4,
+				   335, 50, 0, Via->Clearance / 2,
+				   MakeFlags (CLEARLINEFLAG |
+					      USETHERMALFLAG));
+	AddObjectToCreateUndoList (ARC_TYPE, layer, arc, arc);
+      }
+      break;
+    case 3:
+      {
+	ArcTypePtr arc;
+	RestoreToPolygon (PCB->Data, VIA_TYPE, layer, Via);
+	AddObjectToClearPolyUndoList (VIA_TYPE, layer, Via, Via, False);
+	arc = CreateNewArcOnLayer (layer, Via->X, Via->Y,
+				   Via->Thickness / 2 + Via->Clearance / 4,
+				   20, 50, 0, Via->Clearance / 2,
+				   MakeFlags (CLEARLINEFLAG |
+					      USETHERMALFLAG));
+	AddObjectToCreateUndoList (ARC_TYPE, layer, arc, arc);
+	arc = CreateNewArcOnLayer (layer, Via->X, Via->Y,
+				   Via->Thickness / 2 + Via->Clearance / 4,
+				   110, 50, 0, Via->Clearance / 2,
+				   MakeFlags (CLEARLINEFLAG |
+					      USETHERMALFLAG));
+	AddObjectToCreateUndoList (ARC_TYPE, layer, arc, arc);
+	arc = CreateNewArcOnLayer (layer, Via->X, Via->Y,
+				   Via->Thickness / 2 + Via->Clearance / 4,
+				   200, 50, 0, Via->Clearance / 2,
+				   MakeFlags (CLEARLINEFLAG |
+					      USETHERMALFLAG));
+	AddObjectToCreateUndoList (ARC_TYPE, layer, arc, arc);
+	arc = CreateNewArcOnLayer (layer, Via->X, Via->Y,
+				   Via->Thickness / 2 + Via->Clearance / 4,
+				   290, 50, 0, Via->Clearance / 2,
+				   MakeFlags (CLEARLINEFLAG |
+					      USETHERMALFLAG));
+	AddObjectToCreateUndoList (ARC_TYPE, layer, arc, arc);
+      }
       break;
     default:
       line =

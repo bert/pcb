@@ -1791,6 +1791,8 @@ DrawPolygonLowLevel (PolygonTypePtr Polygon)
 static void
 DrawArcLowLevel (ArcTypePtr Arc)
 {
+  if (!Arc->Thickness)
+    return;
   if (Gathering)
     {
       AddPart (Arc);
@@ -2014,6 +2016,8 @@ DrawRat (RatTypePtr Line, int unused)
 void
 DrawArc (LayerTypePtr Layer, ArcTypePtr Arc, int unused)
 {
+  if (!Arc->Thickness)
+    return;
   if (!Gathering)
     {
       if (TEST_FLAG (SELECTEDFLAG | FOUNDFLAG, Arc))
@@ -2309,6 +2313,8 @@ EraseLine (LineTypePtr Line)
 void
 EraseArc (ArcTypePtr Arc)
 {
+  if (!Arc->Thickness)
+    return;
   Erasing++;
   gui->set_color (Output.fgGC, Settings.BackgroundColor);
   DrawArcLowLevel (Arc);
