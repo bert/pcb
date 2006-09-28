@@ -55,6 +55,7 @@ $docdir = "." unless $docdir;
 $srcdir = "$docdir/../src";
 $docdir = ".";
 
+my $debug = 0;
 
 open(FIND, "find $srcdir -type f -name '*.[chly]' -print | sort |");
 while (<FIND>) {
@@ -197,6 +198,10 @@ sub dump_00_keys {
 
 sub scan_file {
     my ($name) = @_;
+    print "DEBUG:  sub_scan($name)\n" if ($debug);
+
+    # if the source file was in $(srcdir)/hid/<hidname>/ then
+    # pick out the name of the hid and put it into $srcdir.
     if ($name =~ m@hid/([^/]+)/@) {
 	$hid = "$1";
     } else {
@@ -204,6 +209,7 @@ sub scan_file {
     }
     $lineno = 0;
 
+    # skip processing of lex/yacc output files
     if ($name =~ /\.[ch]$/) {
 	$new = $name;
 	$new =~ s/\.[ch]$/\.y/;
@@ -215,21 +221,42 @@ sub scan_file {
     open(F, $name);
     while (<F>) {
 	$lineno ++;
-	if (/^static const char .*_(help|syntax)\[\] =/) {
+	if (/^static\s+const\s+char\s+.*_(help|syntax)\[\]\s*=(.*)/) {
 	    $tag = $1;
 	    $last = 0;
 	    $pending{$tag} = '';
-	    while (<F>) {
-		s/[\r\n\s]+$//;
-		$last = 1 if /;$/;
-		s/^[\s]*\"//; #"
-		s/\\n/\n/g;
-		s/\";?$//; #"
-		s/\\\"/\"/g; #"
-		s/ "/``/g;
+	    
+	    # note that the help/syntax string may start on the same line
+	    # as the "static const char"... bit so we pick out that part and
+	    # process it first.
+	    $_ = $2;
+	  LOOP: {
+	      do {
+		  # eat trailing whitespace, new-lines, and carriage returns
+		  s/[\r\n\s]+$//;
+		  
+		  # we're done if we found the terminating ";"
+		  $last = 1 if /;$/;
+		  
+		  # otherwise we need to eat leading whitespace and the leading quote
+		  s/^[\s]*\"//; #"
+		  
+		  # convert \n to a newline
+		  s/\\n/\n/g;
+		  
+		  # eat trailing quotes
+		  s/\";?$//; #"
+		  s/\\\"/\"/g; #"
+		  s/ "/``/g;
 		s/" /''/g;
-		$pending{$tag} .= $_;
-		last if $last;
+		  $pending{$tag} .= $_;
+		  last if $last;
+	      } while (<F>);
+	  }
+	    # spit out a warning in case we have a malformed help
+	    if ($pending{$tag}  =~ /%(start|end)-doc/) {
+		print "WARNING:  $name line $lineno has a $1 string that includes a %start-doc or %end-doc\n";
+		print "          tag:\n$pending{$tag}\n\n";
 	    }
 	    next;
 	}
