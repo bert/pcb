@@ -55,9 +55,19 @@ pkg-config --list-all
 WISH=/usr/bin/true
 export WISH
 
+# add the gcc options to produce a native windows binary that
+# does not need cygwin to run
+CYGWIN_CFLAGS="--mms-bitfields -mno-cygwin -mwindows"
+export CYGWIN_CFLAGS
+
+CYGWIN_CPPFLAGS="--mms-bitfields -mno-cygwin -mwindows"
+export CYGWIN_CPPFLAGS
+
+# setting WIN32=yes will make sure that the desktop icon
+# gets compiled in
 if test "$do_config" = "yes" ; then
 echo "Configuring for cygwin"
-./configure \
+env WIN32=yes ./configure \
 	--prefix=${pcb_inst} \
 	--disable-nls \
 	--with-exporters="bom gerber ps" \

@@ -12,9 +12,8 @@ AC_CANONICAL_HOST
 AC_MSG_CHECKING(for windows)
 case $host in
 	*-*-cygwin* )
-		WIN32=yes
-		CFLAGS="$CFLAGS ${CYGWIN_CFLAGS:--mms-bitfields -mno-cygwin -mwindows}"
-		CPPFLAGS="$CPPFLAGS ${CYGWIN_CPPFLAGS:--mms-bitfields -mno-cygwin -mwindows}"
+		CFLAGS="$CFLAGS ${CYGWIN_CFLAGS}"
+		CPPFLAGS="$CPPFLAGS ${CYGWIN_CPPFLAGS}"
 		;;
 
 	*-*-mingw* )
