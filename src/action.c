@@ -1086,7 +1086,6 @@ NotifyMode (void)
       }
     case THERMAL_MODE:
       {
-	static int therm_style = 1;
 	if (((type
 	      =
 	      SearchScreen (Note.X, Note.Y, PIN_TYPES, &ptr1, &ptr2,
@@ -1095,17 +1094,18 @@ NotifyMode (void)
 	  {
 	    if (gui->shift_is_pressed ())
 	      {
-		therm_style++;
-		if (therm_style > 5)
-		  therm_style = 1;
-		ChangeObjectThermal (type, ptr1, ptr2, ptr3, therm_style);
+		int tstyle = GET_THERM (INDEXOFCURRENT, (PinTypePtr) ptr3);
+		tstyle++;
+		if (tstyle > 5)
+		  tstyle = 1;
+		ChangeObjectThermal (type, ptr1, ptr2, ptr3, tstyle);
 	      }
 	    else
 	      /* fix me - check that there is a polygon here to therm */
-	    if (ModifyThermals (CURRENT, (PinTypePtr) ptr2, NULL, NULL))
+	    if (GET_THERM (INDEXOFCURRENT, (PinTypePtr) ptr3))
 	      ChangeObjectThermal (type, ptr1, ptr2, ptr3, 0);
 	    else
-	      ChangeObjectThermal (type, ptr1, ptr2, ptr3, 1);
+	      ChangeObjectThermal (type, ptr1, ptr2, ptr3, PCB->ThermStyle);
 	  }
 	break;
       }

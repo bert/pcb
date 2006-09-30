@@ -728,11 +728,7 @@ LookupLOConnectionsToPVList (Boolean AndRats)
 	    {
 	      float wide = 0.5 * info.pv.Thickness + fBloat;
 	      wide = MAX (wide, 0);
-	      /* pins and vias can never directly touch clearing polygons
-	       * there are thermal finger that they connect through
-	       */
-	      if (!TEST_FLAG (CLEARPOLYFLAG, polygon)
-		  && !TEST_FLAG (TheFlag, polygon))
+	      if (!TEST_FLAG (TheFlag, polygon))
 		{
 		  if (!TEST_FLAG (SQUAREFLAG, &info.pv)
 		      && IsPointInPolygon (info.pv.X, info.pv.Y, wide,
@@ -1026,7 +1022,7 @@ pv_poly_callback (const BoxType * b, void *cl)
   struct lo_info *i = (struct lo_info *) cl;
 
   /* note that holes in polygons are ok */
-  if (!TEST_FLAG (CLEARPOLYFLAG, &i->polygon) && !TEST_FLAG (TheFlag, pv))
+  if (!TEST_FLAG (TheFlag, pv))
     {
       if (TEST_FLAG (SQUAREFLAG, pv))
 	{

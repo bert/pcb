@@ -3817,7 +3817,11 @@ IronDownAllUnfixedPaths (routedata_t * rd)
 	      p->parent.line = CreateDrawnLineOnLayer
 		(layer, b.X1, b.Y1, b.X2, b.Y2,
 		 p->augStyle->style->Thick,
-		 p->augStyle->style->Keepaway, MakeFlags (AUTOFLAG));
+		 p->augStyle->style->Keepaway * 2,
+		 MakeFlags (AUTOFLAG |
+			    (TEST_FLAG (CLEARNEWFLAG, PCB) ? CLEARLINEFLAG :
+			     0)));
+
 	      if (p->parent.line)
 		{
 		  AddObjectToCreateUndoList (LINE_TYPE, layer,
@@ -3878,8 +3882,7 @@ IronDownAllUnfixedPaths (routedata_t * rd)
 	      AddObjectToFlagUndoList (type,
 				       pin->Element ? pin->Element : pin,
 				       pin, pin);
-	      SET_THERM (p->layer, pin);
-	      PlaceThermal (LAYER_PTR (p->layer), pin, 1);
+	      ASSIGN_THERM (p->layer, PCB->ThermStyle, pin);
 	    }
 	}
     }

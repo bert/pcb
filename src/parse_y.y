@@ -636,10 +636,7 @@ via_hi_format
 			/* x, y, thickness, clearance, mask, drilling-hole, name, flags */
 		: T_VIA '[' NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER STRING flags ']'
 			{
-			        PinTypePtr pin =
 				CreateNewVia(yyData, $3, $4, $5, $6, $7, $8, $9, $10);
-				if (!TEST_FLAG(USETHERMALFLAG, pin))
-				  thermal_backward_compat (yyPCB, pin);
 				SaveFree($9);
 			}
 		;
@@ -648,11 +645,8 @@ via_2.0_format
 			/* x, y, thickness, clearance, mask, drilling-hole, name, flags */
 		: T_VIA '(' NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER STRING NUMBER ')'
 			{
-			        PinTypePtr pin =
 				CreateNewVia(yyData, $3*100, $4*100, $5*100, $6*100, $7*100, $8*100, $9,
 					OldFlags($10));
-				if (!TEST_FLAG(USETHERMALFLAG, pin))
-				  thermal_backward_compat (yyPCB, pin);
 				SaveFree($9);
 			}
 		;
@@ -662,11 +656,8 @@ via_1.7_format
 			/* x, y, thickness, clearance, drilling-hole, name, flags */
 		: T_VIA '(' NUMBER NUMBER NUMBER NUMBER NUMBER STRING NUMBER ')'
 			{
-			        PinTypePtr pin =
 				CreateNewVia(yyData, $3*100, $4*100, $5*100, $6*100,
 					     ($5 + $6)*100, $7*100, $8, OldFlags($9));
-				if (!TEST_FLAG(USETHERMALFLAG, pin))
-				  thermal_backward_compat (yyPCB, pin);
 				SaveFree($8);
 			}
 		;
@@ -675,11 +666,8 @@ via_newformat
 			/* x, y, thickness, drilling-hole, name, flags */
 		: T_VIA '(' NUMBER NUMBER NUMBER NUMBER STRING NUMBER ')'
 			{
-			        PinTypePtr pin =
 				CreateNewVia(yyData, $3*100, $4*100, $5*100, 200*GROUNDPLANEFRAME,
 					($5 + 2*MASKFRAME)*100,  $6*100, $7, OldFlags($8));
-				if (!TEST_FLAG(USETHERMALFLAG, pin))
-				  thermal_backward_compat (yyPCB, pin);
 				SaveFree($7);
 			}
 		;
@@ -688,7 +676,6 @@ via_oldformat
 			/* old format: x, y, thickness, name, flags */
 		: T_VIA '(' NUMBER NUMBER NUMBER STRING NUMBER ')'
 			{
-			        PinTypePtr pin;
 				BDimension	hole = ($5 *DEFAULT_DRILLINGHOLE);
 
 					/* make sure that there's enough copper left */
@@ -696,10 +683,8 @@ via_oldformat
 					$5 > MIN_PINORVIACOPPER)
 					hole = $5 -MIN_PINORVIACOPPER;
 
-				pin = CreateNewVia(yyData, $3*100, $4*100, $5*100, 200*GROUNDPLANEFRAME,
+				CreateNewVia(yyData, $3*100, $4*100, $5*100, 200*GROUNDPLANEFRAME,
 					($5 + 2*MASKFRAME)*100, hole, $6, OldFlags($7));
-				if (!TEST_FLAG(USETHERMALFLAG, pin))
-				  thermal_backward_compat (yyPCB, pin);
 				SaveFree($6);
 			}
 		;
@@ -1404,12 +1389,9 @@ pin_hi_format
 			   number, flags */
 		: T_PIN '[' NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER STRING STRING flags ']'
 			{
-			        PinTypePtr pin =
 				CreateNewPin(yyElement, $3 + yyElement->MarkX,
 					$4 + yyElement->MarkY, $5, $6, $7, $8, $9,
 					$10, $11);
-				if (!TEST_FLAG(USETHERMALFLAG, pin))
-				  thermal_backward_compat (yyPCB, pin);
 				SaveFree($9);
 				SaveFree($10);
 			}
@@ -1419,12 +1401,9 @@ pin_1.7_format
 			   number, flags */
 		: T_PIN '(' NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER STRING STRING NUMBER ')'
 			{
-			        PinTypePtr pin =
 				CreateNewPin(yyElement, $3*100 + yyElement->MarkX,
 					$4*100 + yyElement->MarkY, $5*100, $6*100, $7*100, $8*100, $9,
 					$10, OldFlags($11));
-				if (!TEST_FLAG(USETHERMALFLAG, pin))
-				  thermal_backward_compat (yyPCB, pin);
 				SaveFree($9);
 				SaveFree($10);
 			}
@@ -1434,11 +1413,8 @@ pin_1.6.3_format
 			/* x, y, thickness, drilling hole, name, number, flags */
 		: T_PIN '(' NUMBER NUMBER NUMBER NUMBER STRING STRING NUMBER ')'
 			{
-			        PinTypePtr pin =
 				CreateNewPin(yyElement, $3*100, $4*100, $5*100, 200*GROUNDPLANEFRAME,
 					($5 + 2*MASKFRAME)*100, $6*100, $7, $8, OldFlags($9));
-				if (!TEST_FLAG(USETHERMALFLAG, pin))
-				  thermal_backward_compat (yyPCB, pin);
 				SaveFree($7);
 				SaveFree($8);
 			}
@@ -1448,14 +1424,11 @@ pin_newformat
 			/* x, y, thickness, drilling hole, name, flags */
 		: T_PIN '(' NUMBER NUMBER NUMBER NUMBER STRING NUMBER ')'
 			{
-			        PinTypePtr pin;
 				char	p_number[8];
 
 				sprintf(p_number, "%d", pin_num++);
-				pin = CreateNewPin(yyElement, $3*100, $4*100, $5*100, 200*GROUNDPLANEFRAME,
+				CreateNewPin(yyElement, $3*100, $4*100, $5*100, 200*GROUNDPLANEFRAME,
 					($5 + 2*MASKFRAME)*100, $6*100, $7, p_number, OldFlags($8));
-				if (!TEST_FLAG(USETHERMALFLAG, pin))
-				  thermal_backward_compat (yyPCB, pin);
 
 				SaveFree($7);
 			}
@@ -1467,7 +1440,6 @@ pin_oldformat
 			 */
 		: T_PIN '(' NUMBER NUMBER NUMBER STRING NUMBER ')'
 			{
-			        PinTypePtr pin;
 				BDimension	hole = ($5 *DEFAULT_DRILLINGHOLE);
 				char		p_number[8];
 
@@ -1477,10 +1449,8 @@ pin_oldformat
 					hole = $5 -MIN_PINORVIACOPPER;
 
 				sprintf(p_number, "%d", pin_num++);
-				pin = CreateNewPin(yyElement, $3*100, $4*100, $5*100, 200*GROUNDPLANEFRAME,
+				CreateNewPin(yyElement, $3*100, $4*100, $5*100, 200*GROUNDPLANEFRAME,
 					($5 + 2*MASKFRAME)*100, hole, $6, p_number, OldFlags($7));
-				if (!TEST_FLAG(USETHERMALFLAG, pin))
-				  thermal_backward_compat (yyPCB, pin);
 				SaveFree($6);
 			}
 		;

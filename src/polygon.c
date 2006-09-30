@@ -83,9 +83,6 @@ static double circleVerticies[(CIRC_SEGS / 4 + 1) * 2] = {
   0.0, 1.0
 };
 
-static double octagonBig = 0.9238795325113;
-static double octagonSmall = 0.3826834323651;
-
 
 static POLYAREA *
 biggest (POLYAREA * p)
@@ -117,7 +114,7 @@ biggest (POLYAREA * p)
   return p;
 }
 
-static POLYAREA *
+POLYAREA *
 ContourToPoly (PLINE * contour)
 {
   POLYAREA *p;
@@ -216,27 +213,27 @@ OctagonPoly (LocationType x, LocationType y, BDimension radius)
   PLINE *contour = NULL;
   Vector v;
 
-  v[0] = x + ROUND (radius * octagonBig);
-  v[1] = y + ROUND (radius * octagonSmall);
+  v[0] = x + ROUND (radius * 0.5);
+  v[1] = y + ROUND (radius * TAN_22_5_DEGREE_2);
   if ((contour = poly_NewContour (v)) == NULL)
     return NULL;
-  v[0] = x + ROUND (radius * octagonSmall);
-  v[1] = y + ROUND (radius * octagonBig);
+  v[0] = x + ROUND (radius * TAN_22_5_DEGREE_2);
+  v[1] = y + ROUND (radius * 0.5);
   poly_InclVertex (contour->head.prev, poly_CreateNode (v));
   v[0] = x - (v[0] - x);
   poly_InclVertex (contour->head.prev, poly_CreateNode (v));
-  v[0] = x - ROUND (radius * octagonBig);
-  v[1] = y + ROUND (radius * octagonSmall);
+  v[0] = x - ROUND (radius * 0.5);
+  v[1] = y + ROUND (radius * TAN_22_5_DEGREE_2);
   poly_InclVertex (contour->head.prev, poly_CreateNode (v));
   v[1] = y - (v[1] - y);
   poly_InclVertex (contour->head.prev, poly_CreateNode (v));
-  v[0] = x - ROUND (radius * octagonSmall);
-  v[1] = y - ROUND (radius * octagonBig);
+  v[0] = x - ROUND (radius * TAN_22_5_DEGREE_2);
+  v[1] = y - ROUND (radius * 0.5);
   poly_InclVertex (contour->head.prev, poly_CreateNode (v));
   v[0] = x - (v[0] - x);
   poly_InclVertex (contour->head.prev, poly_CreateNode (v));
-  v[0] = x + ROUND (radius * octagonBig);
-  v[1] = y - ROUND (radius * octagonSmall);
+  v[0] = x + ROUND (radius * 0.5);
+  v[1] = y - ROUND (radius * TAN_22_5_DEGREE_2);
   poly_InclVertex (contour->head.prev, poly_CreateNode (v));
   return ContourToPoly (contour);
 }
@@ -245,7 +242,7 @@ OctagonPoly (LocationType x, LocationType y, BDimension radius)
  * centered at X, Y and going counter-clockwise
  * does not include the last point in the half circle
  */
-static void
+void
 half_circle (PLINE * c, LocationType X, LocationType Y, Vector v)
 {
   double e1, e2, t1;
@@ -464,7 +461,6 @@ POLYAREA *
 PinPoly (PinType * pin, BDimension thick)
 {
   int size = (thick + 1) / 2;
-
   if (TEST_FLAG (SQUAREFLAG, pin))
     {
       return RectPoly (pin->X - size, pin->X + size, pin->Y - size,
@@ -472,20 +468,26 @@ PinPoly (PinType * pin, BDimension thick)
     }
   else if (TEST_FLAG (OCTAGONFLAG, pin))
     {
-      return OctagonPoly (pin->X, pin->Y, size);
+      return OctagonPoly (pin->X, pin->Y, size + size);
     }
   return CirclePoly (pin->X, pin->Y, size);
 }
 
 /* remove the pin clearance from the polygon */
 static int
-SubtractPin (PinType * pin, PolygonType * p)
+SubtractPin (DataType * d, PinType * pin, LayerType * l, PolygonType * p)
 {
   POLYAREA *np;
+  Cardinal i;
 
   if (pin->Clearance == 0)
     return 0;
-  if (!(np = PinPoly (pin, pin->Thickness + pin->Clearance)))
+  i = GetLayerNumber (d, l);
+  if (TEST_THERM (i, pin))
+    np = ThermPoly (pin, i);
+  else
+    np = PinPoly (pin, pin->Thickness + pin->Clearance);
+  if (!np)
     return 0;
   return Subtract (np, p);
 }
@@ -543,6 +545,7 @@ SubtractPad (PadType * pad, PolygonType * p)
 struct cpInfo
 {
   const BoxType *other;
+  DataType *data;
   LayerType *layer;
   PolygonType *polygon;
 };
@@ -557,10 +560,8 @@ pin_sub_callback (const BoxType * b, void *cl)
   /* don't subtract the object that was put back! */
   if (b == info->other)
     return 0;
-  if (ModifyThermals(info->layer, pin, NULL, NULL) == 1)
-    return 0;
   polygon = info->polygon;
-  return SubtractPin (pin, polygon);
+  return SubtractPin (info->data, pin, info->layer, polygon);
 }
 
 static int
@@ -605,6 +606,7 @@ clearPoly (DataTypePtr Data, LayerTypePtr Layer, PolygonType * polygon,
 
   if (!TEST_FLAG (CLEARPOLYFLAG, polygon))
     return 0;
+  info.data = Data;
   info.other = here;
   info.layer = Layer;
   info.polygon = polygon;
@@ -653,13 +655,13 @@ UnsubtractPin (PinType * pin, LayerType * l, PolygonType * p)
   POLYAREA *np;
 
   /* overlap a bit to prevent gaps from rounding errors */
-  np = PinPoly (pin, pin->Thickness + pin->Clearance + 100);
+  np = PinPoly (pin, (pin->Thickness + pin->Clearance) * 1.1);
 
   if (!np)
     return 0;
   if (!Unsubtract (np, p))
     return 0;
-  clearPoly (PCB->Data, l, p, (const BoxType *) pin, 50);
+  clearPoly (PCB->Data, l, p, (const BoxType *) pin, 0.1 * (pin->Thickness + pin->Clearance));
   return 1;
 }
 
@@ -1008,18 +1010,20 @@ struct plow_info
   int type;
   void *ptr1, *ptr2;
   LayerTypePtr layer;
-  int (*callback) (LayerTypePtr, PolygonTypePtr, int, void *, void *);
+  DataTypePtr data;
+  int (*callback) (DataTypePtr, LayerTypePtr, PolygonTypePtr, int, void *,
+		   void *);
 };
 
 static int
-subtract_plow (LayerTypePtr Layer, PolygonTypePtr Polygon,
+subtract_plow (DataTypePtr Data, LayerTypePtr Layer, PolygonTypePtr Polygon,
 	       int type, void *ptr1, void *ptr2)
 {
   switch (type)
     {
     case PIN_TYPE:
     case VIA_TYPE:
-      SubtractPin ((PinTypePtr) ptr2, Polygon);
+      SubtractPin (Data, (PinTypePtr) ptr2, Layer, Polygon);
       return 1;
     case LINE_TYPE:
       SubtractLine ((LineTypePtr) ptr2, Polygon);
@@ -1035,8 +1039,8 @@ subtract_plow (LayerTypePtr Layer, PolygonTypePtr Polygon,
 }
 
 static int
-add_plow (LayerTypePtr Layer, PolygonTypePtr Polygon, int type, void *ptr1,
-	  void *ptr2)
+add_plow (DataTypePtr Data, LayerTypePtr Layer, PolygonTypePtr Polygon,
+	  int type, void *ptr1, void *ptr2)
 {
   switch (type)
     {
@@ -1063,14 +1067,15 @@ plow_callback (const BoxType * b, void *cl)
   struct plow_info *plow = (struct plow_info *) cl;
   PolygonTypePtr polygon = (PolygonTypePtr) b;
 
-  return plow->callback (plow->layer, polygon, plow->type, plow->ptr1,
-			 plow->ptr2);
+  return plow->callback (plow->data, plow->layer, polygon, plow->type,
+			 plow->ptr1, plow->ptr2);
 }
 
 int
 PlowsPolygon (DataType * Data, int type, void *ptr1, void *ptr2,
-	      int (*call_back) (LayerTypePtr lay, PolygonTypePtr poly,
-				int type, void *ptr1, void *ptr2))
+	      int (*call_back) (DataTypePtr data, LayerTypePtr lay,
+				PolygonTypePtr poly, int type, void *ptr1,
+				void *ptr2))
 {
   BoxType sb = ((PinTypePtr) ptr2)->BoundingBox;
   int r = 0;
@@ -1079,6 +1084,7 @@ PlowsPolygon (DataType * Data, int type, void *ptr1, void *ptr2,
   info.type = type;
   info.ptr1 = ptr1;
   info.ptr2 = ptr2;
+  info.data = Data;
   info.callback = call_back;
   switch (type)
     {

@@ -42,12 +42,15 @@ void CopyAttachedPolygonToLayer (void);
 int PolygonHoles (int group, const BoxType * range,
 		  int (*callback) (PLINE *, LayerTypePtr, PolygonTypePtr));
 int PlowsPolygon (DataType *, int, void *, void *,
-		  int (*callback) (LayerTypePtr, PolygonTypePtr, int, void *, void *));
-
+		  int (*callback) (DataTypePtr, LayerTypePtr, PolygonTypePtr, int, void *, void *));
+POLYAREA * ContourToPoly (PLINE *);
+POLYAREA * RectPoly (LocationType x1, LocationType x2, LocationType y1, LocationType y2);
 POLYAREA * CirclePoly(LocationType x, LocationType y, BDimension radius);
+POLYAREA * OctagonPoly(LocationType x, LocationType y, BDimension radius);
 POLYAREA * LinePoly(LineType *l, BDimension thick);
 POLYAREA * ArcPoly(ArcType *l, BDimension thick);
 POLYAREA * PinPoly(PinType *l, BDimension thick);
+void half_circle (PLINE *, LocationType, LocationType, Vector);
 int InitClip(DataType *d, LayerType *l, PolygonType *p);
 void RestoreToPolygon(DataType *, int, void *, void *);
 void ClearFromPolygon(DataType *, int, void *, void *);

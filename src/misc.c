@@ -1721,11 +1721,17 @@ FlagType
 OldFlags (unsigned int flags)
 {
   FlagType rv;
+  int i, f;
   memset (&rv, 0, sizeof (rv));
   /* If we move flag bits around, this is where we map old bits to them.  */
   rv.f = flags & 0xffff;
-  rv.t[0] = (flags >> 16) & 0xff;
-  rv.p[0] = (flags >> 24) & 0xff;
+  f = 0x10000;
+  for (i = 0; i < 8; i++)
+    {
+    if (flags & f)
+      rv.t[i/2] = (1 << (i % 2));
+    f <<= 1;
+   }
   return rv;
 }
 

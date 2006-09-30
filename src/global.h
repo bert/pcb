@@ -77,8 +77,7 @@ typedef unsigned char BYTE;
 typedef struct
 {
   unsigned short f;		/* generic flags */
-  unsigned char t[(MAX_LAYER + 7) / 8];	/* thermals */
-  unsigned char p[(MAX_LAYER + 7) / 8];	/* pip */
+  unsigned char t[(MAX_LAYER + 1) / 2];	/* thermals */
 } FlagType, *FlagTypePtr;
 
 #ifndef __GNUC__
@@ -409,11 +408,12 @@ typedef struct
   char *Name,			/* name of board */
    *Filename,			/* name of file (from load) */
    *PrintFilename,		/* from print dialog */
-   *Netlistname;		/* name of netlist file */
+   *Netlistname,		/* name of netlist file */
+    ThermStyle;			/* type of thermal to place with thermal tool */
   Boolean Changed,		/* layout has been changed */
     ViaOn,			/* visibility flags */
     ElementOn, RatOn, InvisibleObjectsOn, PinOn, SilkActive,	/* active layer is actually silk */
-    RatDraw;			/* we're drawing rats */
+    RatDraw;			 /* we're drawing rats */
   char *ViaColor,		/* some colors */
    *ViaSelectedColor,
     *PinColor,

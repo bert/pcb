@@ -1,6 +1,5 @@
 /* $Id$ */
 
-#include "rtree.h"
 /*
  *                            COPYRIGHT
  *
@@ -42,6 +41,7 @@
 #include "search.h"
 #include "misc.h"
 #include "mymem.h"
+#include "rtree.h"
 #include "strflags.h"
 
 #ifdef HAVE_LIBDMALLOC

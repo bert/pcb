@@ -712,19 +712,15 @@ DrawTop (const BoxType * screen)
 struct pin_info
 {
   Boolean arg;
-  int PIPFlag;
   LayerTypePtr Layer;
 };
 
-static int
 clearPin_callback (const BoxType * b, void *cl)
 {
   PinTypePtr pin = (PinTypePtr) b;
   struct pin_info *i = (struct pin_info *) cl;
   if (i->arg)
     ClearOnlyPin (pin, True);
-  else if (TEST_PIP (i->PIPFlag, pin))
-    ClearOnlyPin (pin, False);
   return 1;
 }
 static int
@@ -940,7 +936,6 @@ DrawLayerGroup (int group, const BoxType * screen)
 		if (layers[i] < max_layer)
 		  {
 		    Layer = PCB->Data->Layer + layers[i];
-		    info.PIPFlag = layers[i];
 		    info.Layer = Layer;
 
 		    if (Layer->On && Layer->PolygonN)
@@ -970,7 +965,6 @@ DrawLayerGroup (int group, const BoxType * screen)
 		if (layers[i] < max_layer)
 		  {
 		    Layer = PCB->Data->Layer + layers[i];
-		    info.PIPFlag = layers[i];
 		    info.Layer = Layer;
 
 		    if (Layer->On && Layer->PolygonN)
@@ -995,7 +989,6 @@ DrawLayerGroup (int group, const BoxType * screen)
       if (layernum < max_layer && Layer->On && Layer->PolygonN)
 	{
 	  /* print the non-clearing polys */
-	  info.PIPFlag = layernum;
 	  info.Layer = Layer;
 	  info.arg = True;
 	  r_search (Layer->polygon_tree, screen, NULL, poly_callback, &info);
@@ -1836,10 +1829,10 @@ DrawVia (PinTypePtr Via, int unused)
 {
   if (!Gathering)
     SetPVColor (Via, VIA_TYPE);
-  if (!doing_pinout && !TEST_FLAG (HOLEFLAG, Via) && TEST_ANY_PIPS (Via))
-    ClearPin (Via, VIA_TYPE, 0);
-  else
-    DrawPinOrViaLowLevel (Via, True);
+  //if (!doing_pinout && !TEST_FLAG (HOLEFLAG, Via) && TEST_ANY_PIPS (Via))
+  // ClearPin (Via, VIA_TYPE, 0);
+  //else
+  DrawPinOrViaLowLevel (Via, True);
   if (!TEST_FLAG (HOLEFLAG, Via) && TEST_FLAG (DISPLAYNAMEFLAG, Via))
     DrawPinOrViaNameLowLevel (Via);
 }
@@ -1879,14 +1872,14 @@ DrawViaName (PinTypePtr Via, int unused)
 void
 DrawPin (PinTypePtr Pin, int unused)
 {
-  if (!doing_pinout && !TEST_FLAG (HOLEFLAG, Pin) && TEST_ANY_PIPS (Pin))
-    ClearPin (Pin, PIN_TYPE, 0);
-  else
-    {
-      if (!Gathering)
-	SetPVColor (Pin, PIN_TYPE);
-      DrawPinOrViaLowLevel (Pin, True);
-    }
+  //if (!doing_pinout && !TEST_FLAG (HOLEFLAG, Pin) && TEST_ANY_PIPS (Pin))
+  //  ClearPin (Pin, PIN_TYPE, 0);
+  //else
+  {
+    if (!Gathering)
+      SetPVColor (Pin, PIN_TYPE);
+    DrawPinOrViaLowLevel (Pin, True);
+  }
   if ((!TEST_FLAG (HOLEFLAG, Pin) && TEST_FLAG (DISPLAYNAMEFLAG, Pin))
       || doing_pinout)
     DrawPinOrViaNameLowLevel (Pin);
@@ -2207,8 +2200,6 @@ void
 EraseVia (PinTypePtr Via)
 {
   Erasing++;
-  if (TEST_ANY_PIPS (Via))
-    ClearPin (Via, NO_TYPE, 0);
   gui->set_color (Output.fgGC, Settings.BackgroundColor);
   DrawPinOrViaLowLevel (Via, False);
   if (TEST_FLAG (DISPLAYNAMEFLAG, Via))
@@ -2274,8 +2265,6 @@ void
 ErasePin (PinTypePtr Pin)
 {
   Erasing++;
-  if (TEST_ANY_PIPS (Pin))
-    ClearPin (Pin, NO_TYPE, 0);
   gui->set_color (Output.fgGC, Settings.BackgroundColor);
   DrawPinOrViaLowLevel (Pin, False);
   if (TEST_FLAG (DISPLAYNAMEFLAG, Pin))
@@ -2380,11 +2369,12 @@ EraseElementPinsAndPads (ElementTypePtr Element)
   gui->set_color (Output.fgGC, Settings.BackgroundColor);
   PIN_LOOP (Element);
   {
-    if (TEST_ANY_PIPS (pin))
-      {
-	ClearPin (pin, NO_TYPE, 0);
-	gui->set_color (Output.fgGC, Settings.BackgroundColor);
-      }
+    /* if (TEST_ANY_PIPS (pin))
+       {
+       ClearPin (pin, NO_TYPE, 0);
+       gui->set_color (Output.fgGC, Settings.BackgroundColor);
+       }
+     */
     DrawPinOrViaLowLevel (pin, False);
     if (TEST_FLAG (DISPLAYNAMEFLAG, pin))
       DrawPinOrViaNameLowLevel (pin);

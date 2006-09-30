@@ -137,6 +137,7 @@ CreateNewPCB (Boolean SetDefaultNames)
   ptr = MyCalloc (1, sizeof (PCBType), "CreateNewPCB()");
   ptr->Data = CreateNewBuffer ();
 
+  ptr->ThermStyle = 1;
   ptr->SilkActive = False;
   ptr->RatDraw = False;
   SET_FLAG (NAMEONPCBFLAG, ptr);

@@ -127,8 +127,6 @@ static void *ChangePolyClear (LayerTypePtr, PolygonTypePtr);
  */
 static int Delta;		/* change of size */
 static int Absolute;		/* Absolute size */
-static int new_clearance;	/* clearance size */
-static double rescale;
 static char *NewName;		/* new name */
 static ObjectFunctionType ChangeSizeFunctions = {
   ChangeLineSize,
@@ -345,41 +343,6 @@ static ObjectFunctionType ClrOctagonFunctions = {
   NULL
 };
 
-
-static void *
-adjust_thermal (LayerTypePtr lay, LineTypePtr line)
-{
-  LocationType X1, Y1, X2, Y2;
-  BDimension t = line->Thickness;
-  X1 = line->Point1.X;
-  X2 = line->Point2.X;
-  Y1 = line->Point1.Y;
-  Y2 = line->Point2.Y;
-  RemoveLine (lay, line);
-  line =
-    CreateNewLineOnLayer (lay, X2 + (X1 - X2) * rescale,
-			  Y2 + (Y1 - Y2) * rescale, X1 + (X2 - X1) * rescale,
-			  Y1 + (Y2 - Y1) * rescale, t, 0,
-			  MakeFlags (USETHERMALFLAG | VISITFLAG));
-  AddObjectToCreateUndoList (LINE_TYPE, lay, line, line);
-  DrawLine (lay, line, 0);
-  return line;
-}
-
-static void *
-adjust_arc_thermal (LayerTypePtr lay, ArcTypePtr arc)
-{
-  ArcTypePtr a;
-
-  a = CreateNewArcOnLayer (lay, arc->X, arc->Y, arc->Width * rescale,
-			   arc->StartAngle, arc->Delta, 0, new_clearance / 2,
-			   arc->Flags);
-  AddObjectToCreateUndoList (ARC_TYPE, lay, a, a);
-  RemoveArc (lay, arc);
-  DrawArc (lay, a, 0);
-  return a;
-}
-
 /* ---------------------------------------------------------------------------
  * changes the thermal on a via
  * returns TRUE if changed
@@ -387,29 +350,14 @@ adjust_arc_thermal (LayerTypePtr lay, ArcTypePtr arc)
 static void *
 ChangeViaThermal (PinTypePtr Via)
 {
-  int therms = ModifyThermals (CURRENT, Via, RemoveLine, RemoveArc);
-
-  if (therms == 1)
-    {
-      ClearFromPolygon (PCB->Data, VIA_TYPE, CURRENT, Via);
-      AddObjectToClearPolyUndoList (VIA_TYPE, CURRENT, Via, Via, True);
-    }
   AddObjectToFlagUndoList (VIA_TYPE, Via, Via, Via);
+  RestoreToPolygon (PCB->Data, VIA_TYPE, CURRENT, Via);
   if (!Delta)			/* remove the thermals */
-    {
-      CLEAR_THERM (INDEXOFCURRENT, Via);
-      CLEAR_FLAG (USETHERMALFLAG, Via);
-      if (therms)
-	return Via;
-      else
-	return NULL;
-    }
+    CLEAR_THERM (INDEXOFCURRENT, Via);
   else
-    {
-      PlaceThermal (CURRENT, Via, Delta);
-      SET_THERM (INDEXOFCURRENT, Via);
-      SET_FLAG (USETHERMALFLAG, Via);
-    }
+    ASSIGN_THERM (INDEXOFCURRENT, Delta, Via);
+  ClearFromPolygon (PCB->Data, VIA_TYPE, CURRENT, Via);
+  DrawVia (Via, 0);
   return Via;
 }
 
@@ -420,27 +368,14 @@ ChangeViaThermal (PinTypePtr Via)
 static void *
 ChangePinThermal (ElementTypePtr element, PinTypePtr Pin)
 {
-  int therms = ModifyThermals (CURRENT, Pin, RemoveLine, RemoveArc);
-
-  if (therms == 1)
-    {
-      ClearFromPolygon (PCB->Data, PIN_TYPE, CURRENT, Pin);
-      AddObjectToClearPolyUndoList (PIN_TYPE, CURRENT, Pin, Pin, True);
-    }
   AddObjectToFlagUndoList (PIN_TYPE, element, Pin, Pin);
+  RestoreToPolygon (PCB->Data, VIA_TYPE, CURRENT, Pin);
   if (!Delta)			/* remove the thermals */
-    {
-      CLEAR_THERM (INDEXOFCURRENT, Pin);
-      if (therms)
-	return Pin;
-      else
-	return NULL;
-    }
+    CLEAR_THERM (INDEXOFCURRENT, Pin);
   else
-    {
-      PlaceThermal (CURRENT, Pin, Delta);
-      SET_THERM (INDEXOFCURRENT, Pin);
-    }
+    ASSIGN_THERM (INDEXOFCURRENT, Delta, Pin);
+  ClearFromPolygon (PCB->Data, VIA_TYPE, CURRENT, Pin);
+  DrawPin (Pin, 0);
   return Pin;
 }
 
@@ -452,7 +387,6 @@ static void *
 ChangeViaSize (PinTypePtr Via)
 {
   BDimension value = Absolute ? Absolute : Via->Thickness + Delta;
-  int therms[max_layer];
 
   if (TEST_FLAG (LOCKFLAG, Via))
     return (NULL);
@@ -464,10 +398,6 @@ ChangeViaSize (PinTypePtr Via)
       AddObjectToSizeUndoList (VIA_TYPE, Via, Via, Via);
       EraseVia (Via);
       r_delete_entry (PCB->Data->via_tree, (BoxType *) Via);
-      rescale =
-	(Via->Clearance + value) / ((double) (Via->Clearance) +
-				    Via->Thickness);
-      rescale = (rescale - 1.0) * 0.5 + 1.0;
       RestoreToPolygon (PCB->Data, PIN_TYPE, Via, Via);
       if (Via->Mask)
 	{
@@ -477,19 +407,7 @@ ChangeViaSize (PinTypePtr Via)
       Via->Thickness = value;
       SetPinBoundingBox (Via);
       r_insert_entry (PCB->Data->via_tree, (BoxType *) Via, 0);
-      new_clearance = Via->Clearance;
-      LAYER_LOOP (PCB->Data, max_layer);
-      {
-	therms[n] =
-	  ModifyThermals (layer, Via, adjust_thermal, adjust_arc_thermal);
-      }
-      END_LOOP;
-      LAYER_LOOP (PCB->Data, max_layer);
-      {
-	if (therms[n] != 1)
-	  ClearFromPolygon (PCB->Data, VIA_TYPE, layer, Via);
-      }
-      END_LOOP;
+      ClearFromPolygon (PCB->Data, VIA_TYPE, Via, Via);
       DrawVia (Via, 0);
       return (Via);
     }
@@ -535,7 +453,6 @@ ChangeVia2ndSize (PinTypePtr Via)
 static void *
 ChangeViaClearSize (PinTypePtr Via)
 {
-  int therms[max_layer];
   BDimension value = (Absolute) ? Absolute : Via->Clearance + Delta;
 
   if (TEST_FLAG (LOCKFLAG, Via))
@@ -543,30 +460,14 @@ ChangeViaClearSize (PinTypePtr Via)
   value = MIN (MAX_LINESIZE, MAX (value, PCB->Bloat * 2 + 2));
   if (Via->Clearance == value)
     return NULL;
-  rescale =
-    (Via->Thickness + value) / ((double) (Via->Clearance) + Via->Thickness);
-  rescale = (rescale - 1.0) * 0.5 + 1.0;
-  RestoreToPolygon (PCB->Data, PIN_TYPE, Via, Via);
+  RestoreToPolygon (PCB->Data, VIA_TYPE, Via, Via);
   AddObjectToClearSizeUndoList (VIA_TYPE, Via, Via, Via);
   EraseVia (Via);
   r_delete_entry (PCB->Data->via_tree, (BoxType *) Via);
   Via->Clearance = value;
   SetPinBoundingBox (Via);
   r_insert_entry (PCB->Data->via_tree, (BoxType *) Via, 0);
-  new_clearance = Via->Clearance;
-  LAYER_LOOP (PCB->Data, max_layer);
-  {
-    therms[n] =
-      ModifyThermals (layer, Via, adjust_thermal, adjust_arc_thermal);
-  }
-  END_LOOP;
-  LAYER_LOOP (PCB->Data, max_layer);
-  {
-    if (therms[n] != 1)
-      ClearFromPolygon (PCB->Data, VIA_TYPE, layer, Via);
-  }
-  END_LOOP;
-
+  ClearFromPolygon (PCB->Data, VIA_TYPE, Via, Via);
   DrawVia (Via, 0);
   Via->Element = NULL;
   return (Via);
@@ -580,7 +481,6 @@ ChangeViaClearSize (PinTypePtr Via)
 static void *
 ChangePinSize (ElementTypePtr Element, PinTypePtr Pin)
 {
-  int therms[max_layer];
   BDimension value = (Absolute) ? Absolute : Pin->Thickness + Delta;
 
   if (TEST_FLAG (LOCKFLAG, Pin))
@@ -594,28 +494,12 @@ ChangePinSize (ElementTypePtr Element, PinTypePtr Pin)
       AddObjectToMaskSizeUndoList (PIN_TYPE, Element, Pin, Pin);
       ErasePin (Pin);
       r_delete_entry (PCB->Data->pin_tree, &Pin->BoundingBox);
-      rescale =
-	(Pin->Clearance + value) / ((double) (Pin->Clearance) +
-				    Pin->Thickness);
-      rescale = (rescale - 1.0) * 0.5 + 1.0;
       RestoreToPolygon (PCB->Data, PIN_TYPE, Element, Pin);
       Pin->Mask += value - Pin->Thickness;
       Pin->Thickness = value;
       /* SetElementBB updates all associated rtrees */
       SetElementBoundingBox (PCB->Data, Element, &PCB->Font);
-      new_clearance = Pin->Clearance;
-      LAYER_LOOP (PCB->Data, max_layer);
-      {
-	therms[n] =
-	  ModifyThermals (layer, Pin, adjust_thermal, adjust_arc_thermal);
-      }
-      END_LOOP;
-      LAYER_LOOP (PCB->Data, max_layer);
-      {
-	if (therms[n] != 1)
-	  ClearFromPolygon (PCB->Data, VIA_TYPE, layer, Pin);
-      }
-      END_LOOP;
+      ClearFromPolygon (PCB->Data, PIN_TYPE, Element, Pin);
       DrawPin (Pin, 0);
       return (Pin);
     }
@@ -629,7 +513,6 @@ ChangePinSize (ElementTypePtr Element, PinTypePtr Pin)
 static void *
 ChangePinClearSize (ElementTypePtr Element, PinTypePtr Pin)
 {
-  int therms[max_layer];
   BDimension value = (Absolute) ? Absolute : Pin->Clearance + Delta;
 
   if (TEST_FLAG (LOCKFLAG, Pin))
@@ -637,9 +520,6 @@ ChangePinClearSize (ElementTypePtr Element, PinTypePtr Pin)
   value = MIN (MAX_LINESIZE, MAX (value, PCB->Bloat * 2 + 2));
   if (Pin->Clearance == value)
     return NULL;
-  rescale =
-    (Pin->Thickness + value) / ((double) (Pin->Clearance) + Pin->Thickness);
-  rescale = (rescale - 1.0) * 0.5 + 1.0;
   RestoreToPolygon (PCB->Data, PIN_TYPE, Element, Pin);
   AddObjectToClearSizeUndoList (PIN_TYPE, Element, Pin, Pin);
   ErasePin (Pin);
@@ -647,19 +527,7 @@ ChangePinClearSize (ElementTypePtr Element, PinTypePtr Pin)
   Pin->Clearance = value;
   /* SetElementBB updates all associated rtrees */
   SetElementBoundingBox (PCB->Data, Element, &PCB->Font);
-  new_clearance = Pin->Clearance;
-  LAYER_LOOP (PCB->Data, max_layer);
-  {
-    therms[n] =
-      ModifyThermals (layer, Pin, adjust_thermal, adjust_arc_thermal);
-  }
-  END_LOOP;
-  LAYER_LOOP (PCB->Data, max_layer);
-  {
-    if (therms[n] != 1)
-      ClearFromPolygon (PCB->Data, VIA_TYPE, layer, Pin);
-  }
-  END_LOOP;
+  ClearFromPolygon (PCB->Data, PIN_TYPE, Element, Pin);
   DrawPin (Pin, 0);
   return (Pin);
 }

@@ -26,8 +26,11 @@
  *
  */
 
+/* this file, thermal.c was written by and is
+ * (C) Copyright 2006, harry eaton
+ */
 
-/* thermal manipulation functions
+/* negative thermal finger polygons
  */
 
 #ifdef HAVE_CONFIG_H
@@ -75,287 +78,374 @@
 
 RCSID ("$Id$");
 
-/* thermal_backward_compat is used to handle the creation
- * of thermal lines needed by old format files where thermals
- * exisited only in the form of flags
- */
-
-void
-thermal_backward_compat (PCBTypePtr pcb, PinTypePtr Pin)
+static POLYAREA *
+square_therm (PinTypePtr pin, Cardinal style)
 {
-  if (!pcb || !pcb->Data)
-    return;
-  LAYER_LOOP (pcb->Data, max_layer);
-  {
-    if (TEST_THERM (n, Pin))
-      {
-	LineTypePtr Line;
-	BDimension half = (Pin->Thickness + Pin->Clearance + 1) / 2;
+  POLYAREA *p, *p2;
+  PLINE *c;
+  Vector v;
+  BDimension d, in, out;
 
-	if (!TEST_FLAG (SQUAREFLAG, Pin))
-	  half = (half * M_SQRT1_2 + 1);
-	Line = CreateNewLineOnLayer (layer, Pin->X - half, Pin->Y - half,
-				     Pin->X + half, Pin->Y + half,
-				     (Pin->Thickness -
-				      Pin->DrillingHole) * pcb->ThermScale, 0,
-				     MakeFlags (USETHERMALFLAG));
-	Line =
-	  CreateNewLineOnLayer (layer, Pin->X - half, Pin->Y + half,
-				Pin->X + half, Pin->Y - half,
-				(Pin->Thickness -
-				 Pin->DrillingHole) * pcb->ThermScale, 0,
-				MakeFlags (USETHERMALFLAG));
-      }
-  }
-  END_LOOP;
-}
-
-struct therm_info
-{
-  LineTypePtr line;
-  jmp_buf env;
-};
-
-static int
-visit_therm (const BoxType * b, void *cl)
-{
-  LineType *line = (LineType *) b;
-  CLEAR_FLAG (VISITFLAG, line);
-  return 1;
-}
-
-static int
-pin_therm (const BoxType * b, void *cl)
-{
-  LineType *line = (LineType *) b;
-  struct therm_info *info = (struct therm_info *) cl;
-
-  if (!TEST_FLAG (USETHERMALFLAG, line))
-    return 0;
-  if (TEST_FLAG (VISITFLAG, line))
-    return 0;
-  SET_FLAG (VISITFLAG, line);
-  info->line = line;
-  longjmp (info->env, 1);
-  return 1;
-}
-
-
-/* ---------------------------------------------------------------------------
- * Loops through all thermal fingers on the given layer found on a pin
- * and calls the callback function for it. Returns a count of how many
- * fingers were found.
- *
- * the longjmp loop is a bit ugly, but we need to call a function from outside
- * the search because that function could modify the tree and/or the
- * line pointers.
- */
-int
-ModifyThermals (LayerTypePtr layer, PinTypePtr Pin,
-		void *(*callback) (LayerTypePtr lay, LineTypePtr line),
-		void *(*cb2) (LayerTypePtr lay, ArcTypePtr arc))
-{
-  if (!TEST_FLAG (HOLEFLAG, Pin))
+  switch (style)
     {
-      struct therm_info info;
-      BoxType sb;
-      /* this variable needs to be static so it's not on the stack
-       * otherwise the longjmp loop could reset it.
-       */
-      static int count;
-
-      count = 0;
-      info.line = NULL;
-      /* the search box for thermals is the center point of the pin only */
-      sb.X1 = sb.X2 = Pin->X;
-      sb.Y1 = sb.Y2 = Pin->Y;
-      sb.X2 += 1;
-      sb.Y2 += 1;
-      /* mark all as unvisited */
-      if (!r_search (layer->line_tree, &sb, NULL, visit_therm, NULL))
-	goto chk_arcs;		/* nothing to see here */
-      if (setjmp (info.env) != 1)
-	{
-	  r_search (layer->line_tree, &sb, NULL, pin_therm, &info);
-	  return count;
-	}
-      else
-	{
-	  /* Can't call the callback within the r_search because
-	   * it is allowed to modify the tree by deleting the line
-	   * for example. So we call it after the longjmp.
-	   */
-	  count++;
-	  if (callback)
-	    callback (layer, info.line);
-	  /* loop finding all thermals */
-	  longjmp (info.env, 2);
-	}
-    chk_arcs:
-      info.line = NULL;		/* really used for arcs here */
-      /* the search box for arc thermals is the whole cleared area */
-      sb.X1 = Pin->X - (Pin->Thickness + Pin->Clearance + 1) / 2;
-      sb.X2 = Pin->X + (Pin->Thickness + Pin->Clearance + 1) / 2;
-      sb.Y1 = Pin->Y - (Pin->Thickness + Pin->Clearance + 1) / 2;
-      sb.Y2 = Pin->Y + (Pin->Thickness + Pin->Clearance + 1) / 2;
-      /* mark all as unvisited */
-      if (!r_search (layer->arc_tree, &sb, NULL, visit_therm, NULL))
-	return 0;		/* nothing to see here */
-      if (setjmp (info.env) != 1)
-	{
-	  r_search (layer->arc_tree, &sb, NULL, pin_therm, &info);
-	  return count;
-	}
-      else
-	{
-	  /* Can't call the callback within the r_search because
-	   * it is allowed to modify the tree by deleting the arc 
-	   * for example. So we call it after the longjmp.
-	   */
-	  count = 1;
-	  if (cb2)
-	    cb2 (layer, (ArcTypePtr) info.line);
-	  /* loop finding all thermals */
-	  longjmp (info.env, 2);
-	}
-    }
-  /* no thermals on hole */
-  return 0;
-}
-
-/* PlaceThermal will put thermal fingers on the active layout.
- * It takes a style argument as to what type of fingers you want.
- * style = 0 means no thermal (i.e. don't connect to the plane)
- * but this routine does not remove thermals, so that is not an
- * appropriate argument to this function.
- * style = 1 means original style dual 45 degree lines.
- * style = 2 means horizontal and vertical fingers.
- * style = 3 means clear 4 arc segments leaving fingers at 45.
- * style = 4 means clear 4 arc segments leaving fingers at hz vt.
- * style = 5 means solid join to plane.
- * More styles may be added in the future.
- */
-
-void
-PlaceThermal (LayerTypePtr layer, PinTypePtr Via, int style)
-{
-  LineTypePtr line;
-  BDimension half = (Via->Thickness + Via->Clearance + 1) / 2;
-
-  assert (style != 0);
-  switch (style - 1)
-    {
-    case 0:
-      if (!TEST_FLAG (SQUAREFLAG, Via))
-	half = (half * M_SQRT1_2 + 1);
-      line =
-	CreateNewLineOnLayer (layer, Via->X - half, Via->Y - half,
-			      Via->X + half, Via->Y + half,
-			      (Via->Thickness -
-			       Via->DrillingHole) * PCB->ThermScale, 0,
-			      MakeFlags (USETHERMALFLAG));
-      AddObjectToCreateUndoList (LINE_TYPE, CURRENT, line, line);
-      DrawLine (layer, line, 0);
-      line =
-	CreateNewLineOnLayer (layer, Via->X - half, Via->Y + half,
-			      Via->X + half, Via->Y - half,
-			      (Via->Thickness -
-			       Via->DrillingHole) * PCB->ThermScale, 0,
-			      MakeFlags (USETHERMALFLAG));
-      AddObjectToCreateUndoList (LINE_TYPE, CURRENT, line, line);
-      DrawLine (layer, line, 0);
-      break;
     case 1:
-      line =
-	CreateNewLineOnLayer (layer, Via->X - half, Via->Y,
-			      Via->X + half, Via->Y,
-			      (Via->Thickness -
-			       Via->DrillingHole) * PCB->ThermScale, 0,
-			      MakeFlags (USETHERMALFLAG));
-      AddObjectToCreateUndoList (LINE_TYPE, layer, line, line);
-      DrawLine (layer, line, 0);
-      line =
-	CreateNewLineOnLayer (layer, Via->X, Via->Y - half,
-			      Via->X, Via->Y + half,
-			      (Via->Thickness -
-			       Via->DrillingHole) * PCB->ThermScale, 0,
-			      MakeFlags (USETHERMALFLAG));
-      AddObjectToCreateUndoList (LINE_TYPE, layer, line, line);
-      DrawLine (layer, line, 0);
-      break;
-    case 2:
+      d = PCB->ThermScale * pin->Clearance * M_SQRT1_2;
+      out = (pin->Thickness + pin->Clearance) / 2;
+      in = pin->Thickness / 2;
+      /* top (actually bottom since +y is down) */
+      v[0] = pin->X - in + d;
+      v[1] = pin->Y + in;
+      if ((c = poly_NewContour (v)) == NULL)
+	return NULL;
+      v[0] = pin->X + in - d;
+      poly_InclVertex (c->head.prev, poly_CreateNode (v));
+      v[0] = pin->X + out - d;
+      v[1] = pin->Y + out;
+      poly_InclVertex (c->head.prev, poly_CreateNode (v));
+      v[0] = pin->X - out + d;
+      poly_InclVertex (c->head.prev, poly_CreateNode (v));
+      p = ContourToPoly (c);
+      /* right */
+      v[0] = pin->X + in;
+      v[1] = pin->Y + in - d;
+      if ((c = poly_NewContour (v)) == NULL)
+	return NULL;
+      v[1] = pin->Y - in + d;
+      poly_InclVertex (c->head.prev, poly_CreateNode (v));
+      v[0] = pin->X + out;
+      v[1] = pin->Y - out + d;
+      poly_InclVertex (c->head.prev, poly_CreateNode (v));
+      v[1] = pin->Y + out - d;
+      poly_InclVertex (c->head.prev, poly_CreateNode (v));
+      p2 = ContourToPoly (c);
+      p->f = p2;
+      p2->b = p;
+      /* left */
+      v[0] = pin->X - in;
+      v[1] = pin->Y - in + d;
+      if ((c = poly_NewContour (v)) == NULL)
+	return NULL;
+      v[1] = pin->Y + in - d;
+      poly_InclVertex (c->head.prev, poly_CreateNode (v));
+      v[0] = pin->X - out;
+      v[1] = pin->Y + out - d;
+      poly_InclVertex (c->head.prev, poly_CreateNode (v));
+      v[1] = pin->Y - out + d;
+      poly_InclVertex (c->head.prev, poly_CreateNode (v));
+      p2 = ContourToPoly (c);
+      p->f->f = p2;
+      p2->b = p->f;
+      /* bottom (actually top since +y is down) */
+      v[0] = pin->X + in - d;
+      v[1] = pin->Y - in;
+      if ((c = poly_NewContour (v)) == NULL)
+	return NULL;
+      v[0] = pin->X - in + d;
+      poly_InclVertex (c->head.prev, poly_CreateNode (v));
+      v[0] = pin->X - out + d;
+      v[1] = pin->Y - out;
+      poly_InclVertex (c->head.prev, poly_CreateNode (v));
+      v[0] = pin->X + out - d;
+      poly_InclVertex (c->head.prev, poly_CreateNode (v));
+      p2 = ContourToPoly (c);
+      p->f->f->f = p2;
+      p2->f = p;
+      p2->b = p->f->f;
+      p->b = p2;
+      return p;
+    case 4:
       {
-	ArcTypePtr arc;
-	RestoreToPolygon (PCB->Data, VIA_TYPE, layer, Via);
-	AddObjectToClearPolyUndoList (VIA_TYPE, layer, Via, Via, False);
-	arc = CreateNewArcOnLayer (layer, Via->X, Via->Y,
-				   Via->Thickness / 2 + Via->Clearance / 4,
-				   65, 50, 0, Via->Clearance / 2,
-				   MakeFlags (CLEARLINEFLAG |
-					      USETHERMALFLAG));
-	AddObjectToCreateUndoList (ARC_TYPE, layer, arc, arc);
-	arc = CreateNewArcOnLayer (layer, Via->X, Via->Y,
-				   Via->Thickness / 2 + Via->Clearance / 4,
-				   155, 50, 0, Via->Clearance / 2,
-				   MakeFlags (CLEARLINEFLAG |
-					      USETHERMALFLAG));
-	AddObjectToCreateUndoList (ARC_TYPE, layer, arc, arc);
-	arc = CreateNewArcOnLayer (layer, Via->X, Via->Y,
-				   Via->Thickness / 2 + Via->Clearance / 4,
-				   245, 50, 0, Via->Clearance / 2,
-				   MakeFlags (CLEARLINEFLAG |
-					      USETHERMALFLAG));
-	AddObjectToCreateUndoList (ARC_TYPE, layer, arc, arc);
-	arc = CreateNewArcOnLayer (layer, Via->X, Via->Y,
-				   Via->Thickness / 2 + Via->Clearance / 4,
-				   335, 50, 0, Via->Clearance / 2,
-				   MakeFlags (CLEARLINEFLAG |
-					      USETHERMALFLAG));
-	AddObjectToCreateUndoList (ARC_TYPE, layer, arc, arc);
+        LineType l;
+        d = pin->Thickness/2 - PCB->ThermScale*pin->Clearance;	
+	out = pin->Thickness/2 + pin->Clearance/4;
+	in = pin->Clearance/2;
+	/* top */
+	l.Point1.X = pin->X - d;
+	l.Point2.Y = l.Point1.Y = pin->Y + out;
+	l.Point2.X = pin->X + d;
+	p = LinePoly (&l, in);
+	/* right */
+	l.Point1.X = l.Point2.X = pin->X + out;
+	l.Point1.Y = pin->Y - d;
+	l.Point2.Y = pin->Y + d;
+	p2 = LinePoly (&l, in);
+	p->f = p2;
+	p2->b = p;
+	/* bottom */
+	l.Point1.X = pin->X - d;
+	l.Point2.Y = l.Point1.Y = pin->Y - out;
+	l.Point2.X = pin->X + d;
+	p2 = LinePoly (&l, in);
+	p->f->f = p2;
+	p2->b = p->f;
+	/* left */
+	l.Point1.X = l.Point2.X = pin->X - out;
+	l.Point1.Y = pin->Y - d;
+	l.Point2.Y = pin->Y + d;
+	p2 = LinePoly (&l, in);
+	p->f->f->f = p2;
+	p2->b = p->f->f;
+	p->b = p2;
+	p2->f = p;
+	return p;
       }
-      break;
-    case 3:
-      {
-	ArcTypePtr arc;
-	RestoreToPolygon (PCB->Data, VIA_TYPE, layer, Via);
-	AddObjectToClearPolyUndoList (VIA_TYPE, layer, Via, Via, False);
-	arc = CreateNewArcOnLayer (layer, Via->X, Via->Y,
-				   Via->Thickness / 2 + Via->Clearance / 4,
-				   20, 50, 0, Via->Clearance / 2,
-				   MakeFlags (CLEARLINEFLAG |
-					      USETHERMALFLAG));
-	AddObjectToCreateUndoList (ARC_TYPE, layer, arc, arc);
-	arc = CreateNewArcOnLayer (layer, Via->X, Via->Y,
-				   Via->Thickness / 2 + Via->Clearance / 4,
-				   110, 50, 0, Via->Clearance / 2,
-				   MakeFlags (CLEARLINEFLAG |
-					      USETHERMALFLAG));
-	AddObjectToCreateUndoList (ARC_TYPE, layer, arc, arc);
-	arc = CreateNewArcOnLayer (layer, Via->X, Via->Y,
-				   Via->Thickness / 2 + Via->Clearance / 4,
-				   200, 50, 0, Via->Clearance / 2,
-				   MakeFlags (CLEARLINEFLAG |
-					      USETHERMALFLAG));
-	AddObjectToCreateUndoList (ARC_TYPE, layer, arc, arc);
-	arc = CreateNewArcOnLayer (layer, Via->X, Via->Y,
-				   Via->Thickness / 2 + Via->Clearance / 4,
-				   290, 50, 0, Via->Clearance / 2,
-				   MakeFlags (CLEARLINEFLAG |
-					      USETHERMALFLAG));
-	AddObjectToCreateUndoList (ARC_TYPE, layer, arc, arc);
-      }
-      break;
+    case 5:
+     {
+       POLYAREA *m;
+       LineType l;
+       in = pin->Clearance/2;
+       d = PCB->ThermScale * pin->Clearance;
+       out = pin->Thickness/2 + in/2;
+       /* top right */
+       l.Point1.Y = l.Point2.Y = pin->Y + out;
+       l.Point1.X = pin->X + d;
+       l.Point2.X = pin->X + out;
+       p = LinePoly (&l, in);
+       /* right upper */
+       l.Point1.Y = pin->Y + d;
+       l.Point1.X = l.Point2.X;
+       p2 = LinePoly (&l, in);
+       poly_Boolean (p, p2, &m, PBO_UNITE);
+       poly_Free(&p);
+       poly_Free(&p2);
+       /* right lower */
+       l.Point1.Y = pin->Y - d;
+       l.Point2.Y = pin->Y - out;
+       p = LinePoly (&l, in);
+       poly_Boolean (p, m, &p2, PBO_UNITE);
+       poly_Free(&p);
+       poly_Free(&m);
+       /* bottom right */
+       l.Point1.Y = l.Point2.Y;
+       l.Point1.X = pin->X + d;
+       l.Point2.X = pin->X + out;
+       p = LinePoly (&l, in);
+       poly_Boolean (p, p2, &m, PBO_UNITE);
+       poly_Free(&p);
+       poly_Free(&p2);
+       /* bottom left */
+       l.Point1.X = pin->X - d;
+       l.Point2.X = pin->X - out;
+       p = LinePoly (&l, in);
+       poly_Boolean (p, m, &p2, PBO_UNITE);
+       poly_Free(&p);
+       poly_Free(&m);
+       /* left lower */
+       l.Point1.Y = pin->Y - d;
+       l.Point1.X = l.Point2.X;
+       p = LinePoly (&l, in);
+       poly_Boolean (p, p2, &m, PBO_UNITE);
+       poly_Free(&p);
+       poly_Free(&p2);
+       /* left upper */
+       l.Point1.Y = pin->Y + d;
+       l.Point2.Y = pin->Y + out;
+       p = LinePoly (&l, in);
+       poly_Boolean (p, m, &p2, PBO_UNITE);
+       poly_Free(&p);
+       poly_Free(&m);
+       /* top left */
+       l.Point1.Y = l.Point2.Y;
+       l.Point1.X = pin->X - d;
+       p = LinePoly (&l, in);
+       poly_Boolean (p, p2, &m, PBO_UNITE);
+       poly_Free(&p);
+       poly_Free(&p2);
+       return m;
+     }
     default:
-      line =
-	CreateNewLineOnLayer (layer, Via->X, Via->Y,
-			      Via->X, Via->Y, Via->Thickness + Via->Clearance,
-			      0, MakeFlags (USETHERMALFLAG));
-      AddObjectToCreateUndoList (LINE_TYPE, layer, line, line);
-      /* fill in the polygon hole while we're at it */
-      /* not necessary, but the screen has glitches otherwise */
-      /* it is problematic for undo however */
-      RestoreToPolygon (PCB->Data, VIA_TYPE, layer, Via);
-      AddObjectToClearPolyUndoList (VIA_TYPE, layer, Via, Via, False);
-      DrawLine (layer, line, 0);
+      d = 0.5 * PCB->ThermScale * pin->Clearance;
+      out = (pin->Thickness + pin->Clearance) / 2;
+      in = pin->Thickness / 2;
+      /* topright */
+      v[0] = pin->X + d;
+      v[1] = pin->Y + in;
+      if ((c = poly_NewContour (v)) == NULL)
+	return NULL;
+      v[0] = pin->X + in;
+        poly_InclVertex (c->head.prev, poly_CreateNode (v));
+      v[1] = pin->Y + d;
+        poly_InclVertex (c->head.prev, poly_CreateNode (v));
+      v[0] = pin->X + out;
+      poly_InclVertex (c->head.prev, poly_CreateNode (v));
+      v[1] = pin->Y + out;
+      poly_InclVertex (c->head.prev, poly_CreateNode (v));
+      v[0] = pin->X + d;
+        poly_InclVertex (c->head.prev, poly_CreateNode (v));
+      p = ContourToPoly (c);
+      /* bottom right */
+      v[0] = pin->X + in;
+      v[1] = pin->Y - d;
+      if ((c = poly_NewContour (v)) == NULL)
+	return NULL;
+      v[1] = pin->Y - in;
+      poly_InclVertex (c->head.prev, poly_CreateNode (v));
+      v[0] = pin->X + d;
+        poly_InclVertex (c->head.prev, poly_CreateNode (v));
+      v[1] = pin->Y - out;
+      poly_InclVertex (c->head.prev, poly_CreateNode (v));
+      v[0] = pin->X + out;
+      poly_InclVertex (c->head.prev, poly_CreateNode (v));
+      v[1] = pin->Y - d;
+      poly_InclVertex (c->head.prev, poly_CreateNode (v));
+      p2 = ContourToPoly (c);
+      p->f = p2;
+      p2->b = p;
+      /* bottom left */
+      v[0] = pin->X - d;
+      v[1] = pin->Y - in;
+      if ((c = poly_NewContour (v)) == NULL)
+	return NULL;
+      v[0] = pin->X - in;
+      poly_InclVertex (c->head.prev, poly_CreateNode (v));
+      v[1] = pin->Y - d;
+        poly_InclVertex (c->head.prev, poly_CreateNode (v));
+      v[0] = pin->X - out;
+      poly_InclVertex (c->head.prev, poly_CreateNode (v));
+      v[1] = pin->Y - out;
+      poly_InclVertex (c->head.prev, poly_CreateNode (v));
+      v[0] = pin->X - d;
+        poly_InclVertex (c->head.prev, poly_CreateNode (v));
+      p2 = ContourToPoly (c);
+      p->f->f = p2;
+      p2->b = p->f;
+      /* top left */
+      v[0] = pin->X - d;
+      v[1] = pin->Y + out;
+      if ((c = poly_NewContour (v)) == NULL)
+	return NULL;
+      v[0] = pin->X - out;
+      poly_InclVertex (c->head.prev, poly_CreateNode (v));
+      v[1] = pin->Y + d;
+        poly_InclVertex (c->head.prev, poly_CreateNode (v));
+      v[0] = pin->X - in;
+      poly_InclVertex (c->head.prev, poly_CreateNode (v));
+      v[1] = pin->Y + in;
+      poly_InclVertex (c->head.prev, poly_CreateNode (v));
+      v[0] = pin->X - d;
+        poly_InclVertex (c->head.prev, poly_CreateNode (v));
+      p2 = ContourToPoly (c);
+      p->f->f->f = p2;
+      p2->f = p;
+      p2->b = p->f->f;
+      p->b = p2;
+      return p;
     }
+}
+
+static POLYAREA *
+oct_therm (PinTypePtr pin, Cardinal style)
+{
+  POLYAREA *p, *p2, *m;
+  BDimension t = 0.5 * PCB->ThermScale * pin->Clearance;
+  BDimension w = pin->Thickness + pin->Clearance;
+
+  p = OctagonPoly (pin->X, pin->Y, w);
+  p2 = OctagonPoly (pin->X, pin->Y, pin->Thickness);
+  /* make full clearance ring */
+  poly_Boolean (p, p2, &m, PBO_SUB);
+  poly_Free(&p);
+  poly_Free(&p2);
+  switch (style)
+  {
+  case 1:
+  p = RectPoly (pin->X - t, pin->X + t, pin->Y - w, pin->Y + w);
+  poly_Boolean (m, p, &p2, PBO_SUB);
+  poly_Free(&p);
+  poly_Free(&m);
+  p = RectPoly (pin->X - w, pin->X + w, pin->Y - t, pin->Y + t);
+  poly_Boolean (p2, p, &m, PBO_SUB);
+  poly_Free(&p);
+  poly_Free(&p2);
+  return m;
+  case 5:
+   {
+     BDimension t = pin->Thickness/2;
+     POLYAREA *q;
+    /* cheat by using the square therm's rounded parts */
+    p = square_therm (pin, style);
+    q = RectPoly (pin->X - t, pin->X + t, pin->Y - t, pin->Y + t);
+    poly_Boolean (p, q, &p2, PBO_UNITE);
+    poly_Free(&p);
+    poly_Free(&q);
+    poly_Boolean (m, p2, &p, PBO_ISECT);
+    poly_Free (&m);
+    poly_Free (&p2);
+    return p;
+   }
+
+  default:
+  case 2:
+  p = RectPoly (pin->X - t, pin->X + t, pin->Y - w, pin->Y + w);
+  poly_Boolean (m, p, &p2, PBO_SUB);
+  poly_Free(&p);
+  poly_Free(&m);
+  p = RectPoly (pin->X - w, pin->X + w, pin->Y - t, pin->Y + t);
+  poly_Boolean (p2, p, &m, PBO_SUB);
+  poly_Free(&p);
+  poly_Free(&p2);
+  return m;
+  }
+}
+
+/* ThermPoly returns a POLYAREA have all of the clearance that when
+ * subtracted from the plane create the desired thermal fingers.
+ * Usually this is 4 disjoint regions.
+ */
+POLYAREA *
+ThermPoly (PinTypePtr pin, Cardinal laynum)
+{
+  ArcType a;
+  POLYAREA *pa, *arc;
+  Cardinal style = GET_THERM (laynum, pin);
+
+  if (style == 3)
+    return NULL;		/* solid connection no clearance */
+  if (TEST_FLAG (SQUAREFLAG, pin))
+    return square_therm (pin, style);
+  if (TEST_FLAG (OCTAGONFLAG, pin))
+    return oct_therm (pin, style);
+  /* must be circular */
+  switch (style)
+  {
+  /* fix me create thermal styles 1 and 2 */
+  case 1:
+  case 2:
+
+  default:
+  a.X = pin->X;
+  a.Y = pin->Y;
+  a.Height = a.Width = pin->Thickness / 2 + pin->Clearance / 4;
+  a.Thickness = 1;
+  a.Clearance = pin->Clearance / 2;
+  a.Flags = NoFlags ();
+  a.Delta =
+    90 - (a.Clearance * (1. + 2. * PCB->ThermScale) * 180) / (M_PI * a.Width);
+  a.StartAngle = 90 - a.Delta / 2 + (style == 1 ? 0 : 45);
+  pa = ArcPoly (&a, a.Clearance);
+  if (!pa)
+    return NULL;
+  a.StartAngle += 90;
+  arc = ArcPoly (&a, a.Clearance);
+  if (!arc)
+    return NULL;
+  pa->f = arc;
+  arc->b = pa;
+  a.StartAngle += 90;
+  arc = ArcPoly (&a, a.Clearance);
+  if (!arc)
+    return NULL;
+  pa->f->f = arc;
+  arc->b = pa->f;
+  a.StartAngle += 90;
+  arc = ArcPoly (&a, a.Clearance);
+  if (!arc)
+    return NULL;
+  pa->b = arc;
+  pa->f->f->f = arc;
+  arc->b = pa->f->f;
+  arc->f = pa;
+  pa->b = arc;
+  return pa;
+  }
 }

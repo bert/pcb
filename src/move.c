@@ -125,27 +125,16 @@ MoveElementLowLevel (DataTypePtr Data, ElementTypePtr Element,
   END_LOOP;
   PIN_LOOP (Element);
   {
-    int therms[max_layer];
     if (Data)
       {
 	r_delete_entry (Data->pin_tree, (BoxType *) pin);
 	RestoreToPolygon (Data, PIN_TYPE, Element, pin);
-	LAYER_LOOP (Data, max_layer);
-	{
-	  therms[n] = ModifyThermals (layer, pin, MoveLine, MoveArc);
-	}
-	END_LOOP;
       }
     MOVE_PIN_LOWLEVEL (pin, DX, DY);
     if (Data)
       {
 	r_insert_entry (Data->pin_tree, (BoxType *) pin, 0);
-	LAYER_LOOP (Data, max_layer);
-	{
-	  if (therms[n] != 1)
-	    ClearFromPolygon (Data, VIA_TYPE, layer, pin);
-	}
-	END_LOOP;
+	ClearFromPolygon (Data, PIN_TYPE, Element, pin);
       }
   }
   END_LOOP;
@@ -259,25 +248,13 @@ MoveElement (ElementTypePtr Element)
 static void *
 MoveVia (PinTypePtr Via)
 {
-  int therms[max_layer];
-
   r_delete_entry (PCB->Data->via_tree, (BoxTypePtr) Via);
   RestoreToPolygon (PCB->Data, VIA_TYPE, Via, Via);
-  LAYER_LOOP (PCB->Data, max_layer);
-  {
-    therms[n] = ModifyThermals (layer, Via, MoveLine, MoveArc);
-  }
-  END_LOOP;
   MOVE_VIA_LOWLEVEL (Via, DeltaX, DeltaY);
   if (PCB->ViaOn)
     EraseVia (Via);
   r_insert_entry (PCB->Data->via_tree, (BoxTypePtr) Via, 0);
-  LAYER_LOOP (PCB->Data, max_layer);
-  {
-    if (therms[n] != 1)
-      ClearFromPolygon (PCB->Data, VIA_TYPE, layer, Via);
-  }
-  END_LOOP;
+  ClearFromPolygon (PCB->Data, VIA_TYPE, Via, Via);
   if (PCB->ViaOn)
     {
       DrawVia (Via, 0);
@@ -737,6 +714,7 @@ MovePolygonToLayer (LayerTypePtr Layer, PolygonTypePtr Polygon)
 {
   PolygonTypePtr new;
   Boolean sv;
+  Cardinal snum, dnum;
 
   if (TEST_FLAG (LOCKFLAG, Polygon))
     {
@@ -751,29 +729,30 @@ MovePolygonToLayer (LayerTypePtr Layer, PolygonTypePtr Polygon)
   /* Move all of the thermals with the polygon */
   sv = MoreToCome;
   MoreToCome = True;
+  snum = GetLayerNumber (PCB->Data, Layer);
+  dnum = GetLayerNumber (PCB->Data, Dest);
+  /* fixme should use r_search */
   ALLPIN_LOOP (PCB->Data);
   {
-    if (TEST_THERM (GetLayerNumber (PCB->Data, Layer), pin) &&
+    if (TEST_THERM (snum, pin) &&
 	IsPointInPolygon (pin->X, pin->Y, pin->Thickness + pin->Clearance + 2,
 			  Polygon))
       {
 	AddObjectToFlagUndoList (PIN_TYPE, Layer, pin, pin);
-	CLEAR_THERM (GetLayerNumber (PCB->Data, Layer), pin);
-	SET_THERM (GetLayerNumber (PCB->Data, Dest), pin);
-	ModifyThermals (Layer, pin, MoveLineToLayer, MoveArcToLayer);
+	ASSIGN_THERM (dnum, GET_THERM (snum, pin), pin);
+	CLEAR_THERM (snum, pin);
       }
   }
   ENDALL_LOOP;
   VIA_LOOP (PCB->Data);
   {
-    if (TEST_THERM (GetLayerNumber (PCB->Data, Layer), via) &&
+    if (TEST_THERM (snum, via) &&
 	IsPointInPolygon (via->X, via->Y, via->Thickness + via->Clearance + 2,
 			  Polygon))
       {
 	AddObjectToFlagUndoList (VIA_TYPE, Layer, via, via);
-	CLEAR_THERM (GetLayerNumber (PCB->Data, Layer), via);
-	SET_THERM (GetLayerNumber (PCB->Data, Dest), via);
-	ModifyThermals (Layer, via, MoveLineToLayer, MoveArcToLayer);
+	ASSIGN_THERM (dnum, GET_THERM (snum, via), via);
+	CLEAR_THERM (snum, via);
       }
   }
   END_LOOP;
