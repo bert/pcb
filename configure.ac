@@ -134,6 +134,10 @@ of the documentation.  For this to work, you must have perl installed.
 	fi
 fi
 
+old_LDFLAGS="$LDFLAGS"
+LDFLAGS="$LDFLAGS -rdynamic"
+AC_LINK_IFELSE([int main(){}],[],[LDFLAGS="$old_LDFLAGS"])
+
 # ------------- HID config -------------------
 
 hid_guis=""
