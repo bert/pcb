@@ -79,6 +79,45 @@
 RCSID ("$Id$");
 
 static POLYAREA *
+diag_line (LocationType X, LocationType Y, BDimension l, BDimension w,
+	   Boolean rt)
+{
+  PLINE *c;
+  Vector v;
+  BDimension x1, x2, y1, y2;
+
+  if (rt)
+  {
+    x1 = (l - w) * M_SQRT1_2;
+    x2 = (l + w) * M_SQRT1_2;
+    y1 = x1;
+    y2 = x2;
+  }
+  else
+  {
+    x2 = -(l - w) * M_SQRT1_2;
+    x1 = -(l + w) * M_SQRT1_2;
+    y1 = -x1;
+    y2 = -x2;
+  }
+   
+  v[0] = X + x1;
+  v[1] = Y + y2;
+  if ((c = poly_NewContour (v)) == NULL)
+    return NULL;
+  v[0] = X - x2;
+  v[1] = Y - y1;
+  poly_InclVertex (c->head.prev, poly_CreateNode (v));
+  v[0] = X - x1;
+  v[1] = Y - y2;
+  poly_InclVertex (c->head.prev, poly_CreateNode (v));
+  v[0] = X + x2;
+  v[1] = Y + y1;
+  poly_InclVertex (c->head.prev, poly_CreateNode (v));
+  return ContourToPoly (c);
+}
+
+static POLYAREA *
 square_therm (PinTypePtr pin, Cardinal style)
 {
   POLYAREA *p, *p2;
@@ -155,10 +194,10 @@ square_therm (PinTypePtr pin, Cardinal style)
       return p;
     case 4:
       {
-        LineType l;
-        d = pin->Thickness/2 - PCB->ThermScale*pin->Clearance;	
-	out = pin->Thickness/2 + pin->Clearance/4;
-	in = pin->Clearance/2;
+	LineType l;
+	d = pin->Thickness / 2 - PCB->ThermScale * pin->Clearance;
+	out = pin->Thickness / 2 + pin->Clearance / 4;
+	in = pin->Clearance / 2;
 	/* top */
 	l.Point1.X = pin->X - d;
 	l.Point2.Y = l.Point1.Y = pin->Y + out;
@@ -190,69 +229,69 @@ square_therm (PinTypePtr pin, Cardinal style)
 	return p;
       }
     case 5:
-     {
-       POLYAREA *m;
-       LineType l;
-       in = pin->Clearance/2;
-       d = PCB->ThermScale * pin->Clearance;
-       out = pin->Thickness/2 + in/2;
-       /* top right */
-       l.Point1.Y = l.Point2.Y = pin->Y + out;
-       l.Point1.X = pin->X + d;
-       l.Point2.X = pin->X + out;
-       p = LinePoly (&l, in);
-       /* right upper */
-       l.Point1.Y = pin->Y + d;
-       l.Point1.X = l.Point2.X;
-       p2 = LinePoly (&l, in);
-       poly_Boolean (p, p2, &m, PBO_UNITE);
-       poly_Free(&p);
-       poly_Free(&p2);
-       /* right lower */
-       l.Point1.Y = pin->Y - d;
-       l.Point2.Y = pin->Y - out;
-       p = LinePoly (&l, in);
-       poly_Boolean (p, m, &p2, PBO_UNITE);
-       poly_Free(&p);
-       poly_Free(&m);
-       /* bottom right */
-       l.Point1.Y = l.Point2.Y;
-       l.Point1.X = pin->X + d;
-       l.Point2.X = pin->X + out;
-       p = LinePoly (&l, in);
-       poly_Boolean (p, p2, &m, PBO_UNITE);
-       poly_Free(&p);
-       poly_Free(&p2);
-       /* bottom left */
-       l.Point1.X = pin->X - d;
-       l.Point2.X = pin->X - out;
-       p = LinePoly (&l, in);
-       poly_Boolean (p, m, &p2, PBO_UNITE);
-       poly_Free(&p);
-       poly_Free(&m);
-       /* left lower */
-       l.Point1.Y = pin->Y - d;
-       l.Point1.X = l.Point2.X;
-       p = LinePoly (&l, in);
-       poly_Boolean (p, p2, &m, PBO_UNITE);
-       poly_Free(&p);
-       poly_Free(&p2);
-       /* left upper */
-       l.Point1.Y = pin->Y + d;
-       l.Point2.Y = pin->Y + out;
-       p = LinePoly (&l, in);
-       poly_Boolean (p, m, &p2, PBO_UNITE);
-       poly_Free(&p);
-       poly_Free(&m);
-       /* top left */
-       l.Point1.Y = l.Point2.Y;
-       l.Point1.X = pin->X - d;
-       p = LinePoly (&l, in);
-       poly_Boolean (p, p2, &m, PBO_UNITE);
-       poly_Free(&p);
-       poly_Free(&p2);
-       return m;
-     }
+      {
+	POLYAREA *m;
+	LineType l;
+	in = pin->Clearance / 2;
+	d = PCB->ThermScale * pin->Clearance;
+	out = pin->Thickness / 2 + in / 2;
+	/* top right */
+	l.Point1.Y = l.Point2.Y = pin->Y + out;
+	l.Point1.X = pin->X + d;
+	l.Point2.X = pin->X + out;
+	p = LinePoly (&l, in);
+	/* right upper */
+	l.Point1.Y = pin->Y + d;
+	l.Point1.X = l.Point2.X;
+	p2 = LinePoly (&l, in);
+	poly_Boolean (p, p2, &m, PBO_UNITE);
+	poly_Free (&p);
+	poly_Free (&p2);
+	/* right lower */
+	l.Point1.Y = pin->Y - d;
+	l.Point2.Y = pin->Y - out;
+	p = LinePoly (&l, in);
+	poly_Boolean (p, m, &p2, PBO_UNITE);
+	poly_Free (&p);
+	poly_Free (&m);
+	/* bottom right */
+	l.Point1.Y = l.Point2.Y;
+	l.Point1.X = pin->X + d;
+	l.Point2.X = pin->X + out;
+	p = LinePoly (&l, in);
+	poly_Boolean (p, p2, &m, PBO_UNITE);
+	poly_Free (&p);
+	poly_Free (&p2);
+	/* bottom left */
+	l.Point1.X = pin->X - d;
+	l.Point2.X = pin->X - out;
+	p = LinePoly (&l, in);
+	poly_Boolean (p, m, &p2, PBO_UNITE);
+	poly_Free (&p);
+	poly_Free (&m);
+	/* left lower */
+	l.Point1.Y = pin->Y - d;
+	l.Point1.X = l.Point2.X;
+	p = LinePoly (&l, in);
+	poly_Boolean (p, p2, &m, PBO_UNITE);
+	poly_Free (&p);
+	poly_Free (&p2);
+	/* left upper */
+	l.Point1.Y = pin->Y + d;
+	l.Point2.Y = pin->Y + out;
+	p = LinePoly (&l, in);
+	poly_Boolean (p, m, &p2, PBO_UNITE);
+	poly_Free (&p);
+	poly_Free (&m);
+	/* top left */
+	l.Point1.Y = l.Point2.Y;
+	l.Point1.X = pin->X - d;
+	p = LinePoly (&l, in);
+	poly_Boolean (p, p2, &m, PBO_UNITE);
+	poly_Free (&p);
+	poly_Free (&p2);
+	return m;
+      }
     default:
       d = 0.5 * PCB->ThermScale * pin->Clearance;
       out = (pin->Thickness + pin->Clearance) / 2;
@@ -263,15 +302,15 @@ square_therm (PinTypePtr pin, Cardinal style)
       if ((c = poly_NewContour (v)) == NULL)
 	return NULL;
       v[0] = pin->X + in;
-        poly_InclVertex (c->head.prev, poly_CreateNode (v));
+      poly_InclVertex (c->head.prev, poly_CreateNode (v));
       v[1] = pin->Y + d;
-        poly_InclVertex (c->head.prev, poly_CreateNode (v));
+      poly_InclVertex (c->head.prev, poly_CreateNode (v));
       v[0] = pin->X + out;
       poly_InclVertex (c->head.prev, poly_CreateNode (v));
       v[1] = pin->Y + out;
       poly_InclVertex (c->head.prev, poly_CreateNode (v));
       v[0] = pin->X + d;
-        poly_InclVertex (c->head.prev, poly_CreateNode (v));
+      poly_InclVertex (c->head.prev, poly_CreateNode (v));
       p = ContourToPoly (c);
       /* bottom right */
       v[0] = pin->X + in;
@@ -281,7 +320,7 @@ square_therm (PinTypePtr pin, Cardinal style)
       v[1] = pin->Y - in;
       poly_InclVertex (c->head.prev, poly_CreateNode (v));
       v[0] = pin->X + d;
-        poly_InclVertex (c->head.prev, poly_CreateNode (v));
+      poly_InclVertex (c->head.prev, poly_CreateNode (v));
       v[1] = pin->Y - out;
       poly_InclVertex (c->head.prev, poly_CreateNode (v));
       v[0] = pin->X + out;
@@ -299,13 +338,13 @@ square_therm (PinTypePtr pin, Cardinal style)
       v[0] = pin->X - in;
       poly_InclVertex (c->head.prev, poly_CreateNode (v));
       v[1] = pin->Y - d;
-        poly_InclVertex (c->head.prev, poly_CreateNode (v));
+      poly_InclVertex (c->head.prev, poly_CreateNode (v));
       v[0] = pin->X - out;
       poly_InclVertex (c->head.prev, poly_CreateNode (v));
       v[1] = pin->Y - out;
       poly_InclVertex (c->head.prev, poly_CreateNode (v));
       v[0] = pin->X - d;
-        poly_InclVertex (c->head.prev, poly_CreateNode (v));
+      poly_InclVertex (c->head.prev, poly_CreateNode (v));
       p2 = ContourToPoly (c);
       p->f->f = p2;
       p2->b = p->f;
@@ -317,13 +356,13 @@ square_therm (PinTypePtr pin, Cardinal style)
       v[0] = pin->X - out;
       poly_InclVertex (c->head.prev, poly_CreateNode (v));
       v[1] = pin->Y + d;
-        poly_InclVertex (c->head.prev, poly_CreateNode (v));
+      poly_InclVertex (c->head.prev, poly_CreateNode (v));
       v[0] = pin->X - in;
       poly_InclVertex (c->head.prev, poly_CreateNode (v));
       v[1] = pin->Y + in;
       poly_InclVertex (c->head.prev, poly_CreateNode (v));
       v[0] = pin->X - d;
-        poly_InclVertex (c->head.prev, poly_CreateNode (v));
+      poly_InclVertex (c->head.prev, poly_CreateNode (v));
       p2 = ContourToPoly (c);
       p->f->f->f = p2;
       p2->f = p;
@@ -344,48 +383,48 @@ oct_therm (PinTypePtr pin, Cardinal style)
   p2 = OctagonPoly (pin->X, pin->Y, pin->Thickness);
   /* make full clearance ring */
   poly_Boolean (p, p2, &m, PBO_SUB);
-  poly_Free(&p);
-  poly_Free(&p2);
+  poly_Free (&p);
+  poly_Free (&p2);
   switch (style)
-  {
-  case 1:
-  p = RectPoly (pin->X - t, pin->X + t, pin->Y - w, pin->Y + w);
-  poly_Boolean (m, p, &p2, PBO_SUB);
-  poly_Free(&p);
-  poly_Free(&m);
-  p = RectPoly (pin->X - w, pin->X + w, pin->Y - t, pin->Y + t);
-  poly_Boolean (p2, p, &m, PBO_SUB);
-  poly_Free(&p);
-  poly_Free(&p2);
-  return m;
-  case 5:
-   {
-     BDimension t = pin->Thickness/2;
-     POLYAREA *q;
-    /* cheat by using the square therm's rounded parts */
-    p = square_therm (pin, style);
-    q = RectPoly (pin->X - t, pin->X + t, pin->Y - t, pin->Y + t);
-    poly_Boolean (p, q, &p2, PBO_UNITE);
-    poly_Free(&p);
-    poly_Free(&q);
-    poly_Boolean (m, p2, &p, PBO_ISECT);
-    poly_Free (&m);
-    poly_Free (&p2);
-    return p;
-   }
-
-  default:
-  case 2:
-  p = RectPoly (pin->X - t, pin->X + t, pin->Y - w, pin->Y + w);
-  poly_Boolean (m, p, &p2, PBO_SUB);
-  poly_Free(&p);
-  poly_Free(&m);
-  p = RectPoly (pin->X - w, pin->X + w, pin->Y - t, pin->Y + t);
-  poly_Boolean (p2, p, &m, PBO_SUB);
-  poly_Free(&p);
-  poly_Free(&p2);
-  return m;
-  }
+    {
+    default:
+    case 1:
+      p = RectPoly (pin->X - t, pin->X + t, pin->Y - w, pin->Y + w);
+      poly_Boolean (m, p, &p2, PBO_SUB);
+      poly_Free (&p);
+      poly_Free (&m);
+      p = RectPoly (pin->X - w, pin->X + w, pin->Y - t, pin->Y + t);
+      poly_Boolean (p2, p, &m, PBO_SUB);
+      poly_Free (&p);
+      poly_Free (&p2);
+      return m;
+    case 2:
+      p = diag_line (pin->X, pin->Y, w, t, True);
+      poly_Boolean (m, p, &p2, PBO_SUB);
+      poly_Free (&p);
+      poly_Free (&m);
+      p = diag_line (pin->X, pin->Y, w, t, False);
+      poly_Boolean (p2, p, &m, PBO_SUB);
+      poly_Free (&p);
+      poly_Free (&p2);
+      return m;
+      /* fix me add thermal style 4 */
+    case 5:
+      {
+	BDimension t = pin->Thickness / 2;
+	POLYAREA *q;
+	/* cheat by using the square therm's rounded parts */
+	p = square_therm (pin, style);
+	q = RectPoly (pin->X - t, pin->X + t, pin->Y - t, pin->Y + t);
+	poly_Boolean (p, q, &p2, PBO_UNITE);
+	poly_Free (&p);
+	poly_Free (&q);
+	poly_Boolean (m, p2, &p, PBO_ISECT);
+	poly_Free (&m);
+	poly_Free (&p2);
+	return p;
+      }
+    }
 }
 
 /* ThermPoly returns a POLYAREA have all of the clearance that when
@@ -407,45 +446,78 @@ ThermPoly (PinTypePtr pin, Cardinal laynum)
     return oct_therm (pin, style);
   /* must be circular */
   switch (style)
-  {
-  /* fix me create thermal styles 1 and 2 */
-  case 1:
-  case 2:
+    {
+    case 1:
+    case 2:
+      {
+	POLYAREA *m;
+	BDimension t = (pin->Thickness + pin->Clearance) / 2;
+	BDimension w = 0.5 * PCB->ThermScale * pin->Clearance;
+	pa = CirclePoly (pin->X, pin->Y, t);
+	arc = CirclePoly (pin->X, pin->Y, pin->Thickness / 2);
+	/* create a thin ring */
+	poly_Boolean (pa, arc, &m, PBO_SUB);
+	poly_Free (&pa);
+	poly_Free (&arc);
+	/* fix me needs error checking */
+	if (style == 2)
+	  {
+	    pa = RectPoly (pin->X - t, pin->X + t, pin->Y - w, pin->Y + w);
+	    poly_Boolean (m, pa, &arc, PBO_SUB);
+	    poly_Free (&m);
+	    poly_Free (&pa);
+	    pa = RectPoly (pin->X - w, pin->X + w, pin->Y - t, pin->Y + t);
+	  }
+	else
+	  {
+	    pa = diag_line (pin->X, pin->Y, t, w, True);
+	    poly_Boolean (m, pa, &arc, PBO_SUB);
+	    poly_Free (&m);
+	    poly_Free (&pa);
+	    pa = diag_line (pin->X, pin->Y, t, w, False);
+	  }
+	poly_Boolean (arc, pa, &m, PBO_SUB);
+	poly_Free (&arc);
+	poly_Free (&pa);
+	return m;
+      }
 
-  default:
-  a.X = pin->X;
-  a.Y = pin->Y;
-  a.Height = a.Width = pin->Thickness / 2 + pin->Clearance / 4;
-  a.Thickness = 1;
-  a.Clearance = pin->Clearance / 2;
-  a.Flags = NoFlags ();
-  a.Delta =
-    90 - (a.Clearance * (1. + 2. * PCB->ThermScale) * 180) / (M_PI * a.Width);
-  a.StartAngle = 90 - a.Delta / 2 + (style == 1 ? 0 : 45);
-  pa = ArcPoly (&a, a.Clearance);
-  if (!pa)
-    return NULL;
-  a.StartAngle += 90;
-  arc = ArcPoly (&a, a.Clearance);
-  if (!arc)
-    return NULL;
-  pa->f = arc;
-  arc->b = pa;
-  a.StartAngle += 90;
-  arc = ArcPoly (&a, a.Clearance);
-  if (!arc)
-    return NULL;
-  pa->f->f = arc;
-  arc->b = pa->f;
-  a.StartAngle += 90;
-  arc = ArcPoly (&a, a.Clearance);
-  if (!arc)
-    return NULL;
-  pa->b = arc;
-  pa->f->f->f = arc;
-  arc->b = pa->f->f;
-  arc->f = pa;
-  pa->b = arc;
-  return pa;
-  }
+
+    default:
+      a.X = pin->X;
+      a.Y = pin->Y;
+      a.Height = a.Width = pin->Thickness / 2 + pin->Clearance / 4;
+      a.Thickness = 1;
+      a.Clearance = pin->Clearance / 2;
+      a.Flags = NoFlags ();
+      a.Delta =
+	90 -
+	(a.Clearance * (1. + 2. * PCB->ThermScale) * 180) / (M_PI * a.Width);
+      a.StartAngle = 90 - a.Delta / 2 + (style == 4 ? 0 : 45);
+      pa = ArcPoly (&a, a.Clearance);
+      if (!pa)
+	return NULL;
+      a.StartAngle += 90;
+      arc = ArcPoly (&a, a.Clearance);
+      if (!arc)
+	return NULL;
+      pa->f = arc;
+      arc->b = pa;
+      a.StartAngle += 90;
+      arc = ArcPoly (&a, a.Clearance);
+      if (!arc)
+	return NULL;
+      pa->f->f = arc;
+      arc->b = pa->f;
+      a.StartAngle += 90;
+      arc = ArcPoly (&a, a.Clearance);
+      if (!arc)
+	return NULL;
+      pa->b = arc;
+      pa->f->f->f = arc;
+      arc->b = pa->f->f;
+      arc->f = pa;
+      pa->b = arc;
+      return pa;
+    }
 }
