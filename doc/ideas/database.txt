@@ -40,6 +40,15 @@ following features/limitations.
   whole.  The internal contents of the element will show top layer
   and 0 rotation.
 
+harry: comment
+  The internal contents should remain rotated and on the layer they are on.
+  This avoids constantly re-computing these values for every re-draw for
+  example. The flags can inform the system how to transform the component
+  back (or transform a replacement version forward) to the "standard"
+  format. Presumably this would be an uncommon operation in which the
+  computations take place.
+end-comment harry
+
 - footprints largely don't have a concept of where they came from.
   This means there is not a convenient way to tell pcb "update all of
   the 0402's on this board".  In addition, there is not a good way of
@@ -51,6 +60,15 @@ following features/limitations.
   proposal:  store the elements in two parts:  the unmodified
   footprint followed by a list of changes (move silk by (+10,+25)
   mils, change square flag on pin 1, etc.).
+
+harry: comment
+  better to again store the modified footprint followed by a list
+  of how it was modified (thus making the modifications reversible).
+  Again this saves constantly re-computing with highly repetitive
+  operations like drawing compared to seldom done operations like
+  figuring out the un-modified version (which at the moment is not
+  possible so it is as seldom done as can be imagined.
+end-comment harry
 
   proposal:  store the 'newlib' name for the footprint (note that we
   plan on adding a step to the build system which extracts a newlib
