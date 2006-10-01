@@ -1307,8 +1307,11 @@ MorphPolygon (LayerTypePtr layer, PolygonTypePtr poly)
 {
   POLYAREA *p, *start;
   Boolean many = False;
+  FlagType flags;
 
   if (!poly->Clipped || TEST_FLAG (LOCKFLAG, poly))
+    return False;
+  if (poly->Clipped->f == poly->Clipped)
     return False;
   ErasePolygon (poly);
   start = p = poly->Clipped;
@@ -1321,6 +1324,7 @@ MorphPolygon (LayerTypePtr layer, PolygonTypePtr poly)
    * we do this dirty work.
    */
   poly->Clipped = NULL;
+  flags = poly->Flags;
   RemovePolygon (layer, poly);
   do
     {
@@ -1329,7 +1333,7 @@ MorphPolygon (LayerTypePtr layer, PolygonTypePtr poly)
 
       if (p->contours->area > M_PI * PCB->Bloat * 0.5 * PCB->Bloat)
 	{
-	  new = CreateNewPolygon (layer, poly->Flags);
+	  new = CreateNewPolygon (layer, flags);
 	  if (!new)
 	    return False;
 	  many = True;
