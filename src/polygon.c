@@ -534,7 +534,6 @@ SubtractPad (PadType * pad, PolygonType * p)
     }
   else
     {
-      /* overlap a bit to prevent notches from rounding errors */
       if (!
 	  (np = LinePoly ((LineType *) pad, pad->Thickness + pad->Clearance)))
 	return 0;
@@ -548,6 +547,7 @@ struct cpInfo
   DataType *data;
   LayerType *layer;
   PolygonType *polygon;
+  Boolean solder;
 };
 
 static int
@@ -581,6 +581,22 @@ arc_sub_callback (const BoxType * b, void *cl)
 }
 
 static int
+pad_sub_callback (const BoxType * b, void *cl)
+{
+  PadTypePtr pad = (PadTypePtr) b;
+  struct cpInfo *info = (struct cpInfo *) cl;
+  PolygonTypePtr polygon;
+
+  /* don't subtract the object that was put back! */
+  if (b == info->other)
+    return 0;
+  polygon = info->polygon;
+  if (XOR (TEST_FLAG (ONSOLDERFLAG, pad), !info->solder))
+    return SubtractPad (pad, polygon);
+  return 0;
+}
+
+static int
 line_sub_callback (const BoxType * b, void *cl)
 {
   LineTypePtr line = (LineTypePtr) b;
@@ -603,9 +619,12 @@ clearPoly (DataTypePtr Data, LayerTypePtr Layer, PolygonType * polygon,
   int r = 0;
   BoxType region;
   struct cpInfo info;
+  int group;
 
   if (!TEST_FLAG (CLEARPOLYFLAG, polygon))
     return 0;
+  group = GetLayerGroupNumberByNumber (GetLayerNumber (Data, Layer));
+  info.solder = (group == GetLayerGroupNumberByNumber (max_layer + SOLDER_LAYER));
   info.data = Data;
   info.other = here;
   info.layer = Layer;
@@ -618,11 +637,12 @@ clearPoly (DataTypePtr Data, LayerTypePtr Layer, PolygonType * polygon,
 
   r = r_search (Data->via_tree, &region, NULL, pin_sub_callback, &info);
   r += r_search (Data->pin_tree, &region, NULL, pin_sub_callback, &info);
-  GROUP_LOOP (Data,
-	      GetLayerGroupNumberByNumber (GetLayerNumber (Data, Layer)));
+  GROUP_LOOP (Data, group);
   {
     r += r_search (layer->line_tree, &region, NULL, line_sub_callback, &info);
     r += r_search (layer->arc_tree, &region, NULL, arc_sub_callback, &info);
+    if (info.solder || group == GetLayerGroupNumberByNumber (max_layer + COMPONENT_LAYER))
+      r += r_search (Data->pad_tree, &region, NULL, pad_sub_callback, &info);
   }
   END_LOOP;
   return r;

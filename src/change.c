@@ -551,12 +551,14 @@ ChangePadSize (ElementTypePtr Element, PadTypePtr Pad)
     {
       AddObjectToSizeUndoList (PAD_TYPE, Element, Pad, Pad);
       AddObjectToMaskSizeUndoList (PAD_TYPE, Element, Pad, Pad);
+      RestoreToPolygon (PCB->Data, PAD_TYPE, Element, Pad);
       ErasePad (Pad);
       r_delete_entry (PCB->Data->pad_tree, &Pad->BoundingBox);
       Pad->Mask += value - Pad->Thickness;
       Pad->Thickness = value;
       /* SetElementBB updates all associated rtrees */
       SetElementBoundingBox (PCB->Data, Element, &PCB->Font);
+      ClearFromPolygon (PCB->Data, PAD_TYPE, Element, Pad);
       DrawPad (Pad, 0);
       return (Pad);
     }
@@ -578,11 +580,13 @@ ChangePadClearSize (ElementTypePtr Element, PadTypePtr Pad)
   if (value <= MAX_PADSIZE && value >= MIN_PADSIZE && value != Pad->Clearance)
     {
       AddObjectToClearSizeUndoList (PAD_TYPE, Element, Pad, Pad);
+      RestoreToPolygon (PCB->Data, PAD_TYPE, Element, Pad);
       ErasePad (Pad);
       r_delete_entry (PCB->Data->pad_tree, &Pad->BoundingBox);
       Pad->Clearance = value;
       /* SetElementBB updates all associated rtrees */
       SetElementBoundingBox (PCB->Data, Element, &PCB->Font);
+      ClearFromPolygon (PCB->Data, PAD_TYPE, Element, Pad);
       DrawPad (Pad, 0);
       return (Pad);
     }
