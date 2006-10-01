@@ -1305,13 +1305,23 @@ NoHolesPolygonDicer (PLINE * p, void (*emit) (PolygonTypePtr))
 Boolean
 MorphPolygon (LayerTypePtr layer, PolygonTypePtr poly)
 {
-  POLYAREA *p;
+  POLYAREA *p, *start;
   Boolean many = False;
 
   if (!poly->Clipped || TEST_FLAG (LOCKFLAG, poly))
     return False;
   ErasePolygon (poly);
-  p = poly->Clipped;
+  start = p = poly->Clipped;
+  /* This is ugly. The creation of the new polygons can cause
+   * all of the polygon pointers (including the one we're called
+   * with to change if there is a realloc in GetPolygonMemory().
+   * That will invalidate our original "poly" argument, potentially
+   * inside the loop. We need to steal the Clipped pointer and
+   * hide it from the Remove call so that it still exists while
+   * we do this dirty work.
+   */
+  poly->Clipped = NULL;
+  RemovePolygon (layer, poly);
   do
     {
       VNODE *v;
@@ -1344,7 +1354,6 @@ MorphPolygon (LayerTypePtr layer, PolygonTypePtr poly)
 	  free (t);
 	}
     }
-  while (p != poly->Clipped);
-  RemovePolygon (layer, poly);
+  while (p != start);
   return many;
 }
