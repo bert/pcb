@@ -391,12 +391,14 @@ MoveElementToBuffer (ElementTypePtr Element)
   *element = *Element;
   PIN_LOOP (element);
   {
+    RestoreToPolygon(Source, PIN_TYPE, Element, pin);
     CLEAR_FLAG (WARNFLAG | FOUNDFLAG, pin);
     pin->Element = element;
   }
   END_LOOP;
   PAD_LOOP (element);
   {
+    RestoreToPolygon(Source, PAD_TYPE, Element, pad);
     CLEAR_FLAG (WARNFLAG | FOUNDFLAG, pad);
     pad->Element = element;
   }
@@ -420,11 +422,13 @@ MoveElementToBuffer (ElementTypePtr Element)
   PIN_LOOP (Element);
   {
     pin->Element = Element;
+    ClearFromPolygon (Dest, PIN_TYPE, Element, pin);
   }
   END_LOOP;
   PAD_LOOP (Element);
   {
     pad->Element = Element;
+    ClearFromPolygon (Dest, PAD_TYPE, Element, pad);
   }
   END_LOOP;
   ELEMENTTEXT_LOOP (Element);
