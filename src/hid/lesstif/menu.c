@@ -956,7 +956,7 @@ find_or_create_acc (char mods, char key, KeySym sym,
   acc_table_t *a;
 
   if (*table)
-    for (i=*n_ents; i>=0; i--)
+    for (i=(*n_ents)-1; i>=0; i--)
       {
 	a = & (*table)[i];
 	if (a->mods == mods
@@ -973,7 +973,7 @@ find_or_create_acc (char mods, char key, KeySym sym,
   else
     *table = (acc_table_t *) malloc (max * sizeof (acc_table_t));
 
-  a = & ((*table)[*n_ents-1]);
+  a = & ((*table)[(*n_ents)-1]);
   memset (a, 0, sizeof(acc_table_t));
 
   a->mods = mods;
