@@ -1085,7 +1085,7 @@ ReadLibraryContents (void)
 
 	  /* create the list entry */
 	  len = strlen (EMPTY (entry->Value)) +
-	    strlen (EMPTY (entry->Description)) + 3;
+	    strlen (EMPTY (entry->Description)) + 4;
 	  entry->ListEntry = MyCalloc (len, sizeof (char),
 				       "ReadLibraryDescription()");
 	  sprintf (entry->ListEntry,
