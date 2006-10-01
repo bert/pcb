@@ -2584,11 +2584,13 @@ IsPolygonInPolygon (PolygonTypePtr P1, PolygonTypePtr P2)
 	      line.Point1.X = v->point[0];
 	      line.Point1.Y = v->point[1];
 	      line.Thickness = 2 * Bloat;
+	      line.Clearance = 0;
 	      line.Flags = NoFlags ();
 	      for (v = v->next; v != &c->head; v = v->next)
 		{
 		  line.Point2.X = v->point[0];
 		  line.Point2.Y = v->point[1];
+		  SetLineBoundingBox (&line);
 		  if (IsLineInPolygon (&line, P2))
 		    return (True);
 		  line.Point1.X = line.Point2.X;
