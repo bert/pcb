@@ -57,10 +57,10 @@ export WISH
 
 # add the gcc options to produce a native windows binary that
 # does not need cygwin to run
-CYGWIN_CFLAGS="--mms-bitfields -mno-cygwin -mwindows"
+CYGWIN_CFLAGS="-mms-bitfields -mno-cygwin -mwindows"
 export CYGWIN_CFLAGS
 
-CYGWIN_CPPFLAGS="--mms-bitfields -mno-cygwin -mwindows"
+CYGWIN_CPPFLAGS="-mms-bitfields -mno-cygwin -mwindows"
 export CYGWIN_CPPFLAGS
 
 # setting WIN32=yes will make sure that the desktop icon
