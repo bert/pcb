@@ -60,8 +60,8 @@
 /*              L o n g   V e c t o r   S t u f f                    */
 /*********************************************************************/
 
+#define Vcopy(a,b) {(a)[0]=(b)[0];(a)[1]=(b)[1];}
 int vect_equal (Vector v1, Vector v2);
-void vect_copy (Vector des, Vector sou);
 void vect_init (Vector v, double x, double y);
 void vect_sub (Vector res, Vector v2, Vector v3);
 
@@ -660,8 +660,14 @@ M_POLYAREA_intersect (jmp_buf * e, POLYAREA * afst, POLYAREA * bfst)
     {
       do
 	{
-	  if (intersect (a, b))
-	    error (err_no_memory);
+	  if (a->contours->xmax >= b->contours->xmin &&
+	      a->contours->ymax >= b->contours->ymin &&
+	      a->contours->xmin <= b->contours->xmax &&
+	      a->contours->ymin <= b->contours->ymax)
+	    {
+	      if (intersect (a, b))
+		error (err_no_memory);
+	    }
 	}
       while ((a = a->f) != afst);
       for (curcB = b->contours; curcB != NULL; curcB = curcB->next)
@@ -1291,7 +1297,7 @@ M_InitPolygon (POLYAREA * afst)
     {
       for (curc = a->contours; curc != NULL; curc = curc->next)
 	{
-	  poly_PreContour (curc, TRUE);
+	  poly_PreContour (curc, False);
 	  curc->Flags.status = UNKNWN;
 	  curn = &curc->head;
 	  do
@@ -1449,7 +1455,7 @@ poly_CreateNode (Vector v)
   res->Flags.mark = 0;
   res->cvc_prev = res->cvc_next = NULL;
   res->shared = NULL;
-  vect_copy (res->point, v);
+  Vcopy (res->point, v);
   res->prev = res->next = res;
   return res;
 }
@@ -1464,7 +1470,7 @@ poly_IniContour (PLINE * c)
   c->Flags.orient = 0;
   c->Flags.cyclink = 0;
   c->Count = 0;
-  vect_copy (c->head.point, vect_zero);
+  Vcopy (c->head.point, vect_zero);
   c->head.next = c->head.prev = &c->head;
   c->xmin = c->ymin = 0x7fffffff;
   c->xmax = c->ymax = 0x80000000;
@@ -1483,7 +1489,7 @@ poly_NewContour (Vector v)
 
   if (v != NULL)
     {
-      vect_copy (res->head.point, v);
+      Vcopy (res->head.point, v);
       cntrbox_adjust (res, v);
     }
 
@@ -2095,15 +2101,9 @@ vect_init (Vector v, double x, double y)
   v[1] = (long) y;
 }				/* vect_init */
 
-#define Vcopy(a,b) {(a)[0]=(b)[0];(a)[1]=(b)[1];}
 #define Vzero(a)   ((a)[0] == 0. && (a)[1] == 0.)
 
 #define Vsub(a,b,c) {(a)[0]=(b)[0]-(c)[0];(a)[1]=(b)[1]-(c)[1];}
-
-void
-vect_copy (Vector des, Vector sou)
-{
-Vcopy (des, sou)}		/* vect_copy */
 
 int
 vect_equal (Vector v1, Vector v2)
