@@ -1100,9 +1100,7 @@ NotifyMode (void)
 		  tstyle = 1;
 		ChangeObjectThermal (type, ptr1, ptr2, ptr3, tstyle);
 	      }
-	    else
-	      /* fix me - check that there is a polygon here to therm */
-	    if (GET_THERM (INDEXOFCURRENT, (PinTypePtr) ptr3))
+	    else if (GET_THERM (INDEXOFCURRENT, (PinTypePtr) ptr3))
 	      ChangeObjectThermal (type, ptr1, ptr2, ptr3, 0);
 	    else
 	      ChangeObjectThermal (type, ptr1, ptr2, ptr3, PCB->ThermStyle);
