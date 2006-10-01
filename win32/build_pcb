@@ -3,6 +3,10 @@
 # $Id$
 #
 
+# error out on failed commands whose return code wasn't explicitly
+# checked
+set -e
+
 # Run this under cygwin to build pcb and create a windows installer for
 # it.  Thanks to Bob Paddock for pointing me to NSIS and answering some 
 # beginner windows questions.
@@ -14,7 +18,9 @@ gtk_win32=c:\\cygwin\\home\\${USER}\\gtk_win32
 gtk_win32_runtime=c:\\\\cygwin\\\\home\\\\${USER}\\\\gtk_win32_runtime
 
 # pcb version
-pcb_version=1.99r
+
+pcb_version=`awk '/AM_INIT_AUTOMAKE/ {gsub(/.*,[ \t]*/, ""); gsub(/\).*/, ""); print}' configure.ac `
+echo "pcb_version=${pcb_version}"
 
 # location of the NSIS makensis executible (see http://nsis.sourceforge.net)
 makensis="/cygdrive/c/Program Files/NSIS/makensis.exe"
