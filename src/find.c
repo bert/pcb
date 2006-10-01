@@ -679,6 +679,48 @@ LOCtoPVrat_callback (const BoxType * b, void *cl)
     longjmp (i->env, 1);
   return 0;
 }
+static int
+LOCtoPVpoly_callback (const BoxType * b, void *cl)
+{
+  PolygonTypePtr polygon = (PolygonTypePtr) b;
+  struct pv_info *i = (struct pv_info *) cl;
+
+  /* if the pin doesn't have a therm and polygon is clearing
+   * then it can't touch due to clearance, so skip the expensive
+   * test. If it does have a therm, you still need to test
+   * because it might not be inside the polygon, or it could
+   * be on an edge such that it doesn't actually touch.
+   */
+  if (!TEST_FLAG (TheFlag, polygon) && (TEST_THERM (i->layer, &i->pv)
+					|| !TEST_FLAG (CLEARPOLYFLAG,
+						       polygon)))
+    {
+      float wide = 0.5 * i->pv.Thickness + fBloat;
+      wide = MAX (wide, 0);
+      if (TEST_FLAG (SQUAREFLAG, &i->pv))
+	{
+	  LocationType x1 = i->pv.X - (i->pv.Thickness + 1 + Bloat) / 2;
+	  LocationType x2 = i->pv.X + (i->pv.Thickness + 1 + Bloat) / 2;
+	  LocationType y1 = i->pv.Y - (i->pv.Thickness + 1 + Bloat) / 2;
+	  LocationType y2 = i->pv.Y + (i->pv.Thickness + 1 + Bloat) / 2;
+	  if (IsRectangleInPolygon (x1, y1, x2, y2, polygon)
+	      && ADD_POLYGON_TO_LIST (i->layer, polygon))
+	    longjmp (i->env, 1);
+	}
+      else if (TEST_FLAG (OCTAGONFLAG, &i->pv))
+	{
+	  POLYAREA *oct = OctagonPoly (i->pv.X, i->pv.Y, i->pv.Thickness / 2);
+	  if (isects (oct, polygon, True)
+	      && ADD_POLYGON_TO_LIST (i->layer, polygon))
+	    longjmp (i->env, 1);
+	}
+      else if (IsPointInPolygon (i->pv.X, i->pv.Y, wide,
+				 polygon)
+	       && ADD_POLYGON_TO_LIST (i->layer, polygon))
+	longjmp (i->env, 1);
+    }
+  return 0;
+}
 
 /* ---------------------------------------------------------------------------
  * checks if a PV is connected to LOs, if it is, the LO is added to
@@ -707,9 +749,6 @@ LookupLOConnectionsToPVList (Boolean AndRats)
       /* now all lines, arcs and polygons of the several layers */
       for (layer = 0; layer < max_layer; layer++)
 	{
-	  PolygonTypePtr polygon = PCB->Data->Layer[layer].Polygon;
-	  Cardinal i;
-
 	  info.layer = layer;
 	  /* add touching lines */
 	  if (setjmp (info.env) == 0)
@@ -724,33 +763,11 @@ LookupLOConnectionsToPVList (Boolean AndRats)
 	  else
 	    return True;
 	  /* check all polygons */
-	  for (i = 0; i < PCB->Data->Layer[layer].PolygonN; i++, polygon++)
-	    {
-	      float wide = 0.5 * info.pv.Thickness + fBloat;
-	      wide = MAX (wide, 0);
-	      if (!TEST_FLAG (TheFlag, polygon))
-		{
-		  if (!TEST_FLAG (SQUAREFLAG, &info.pv)
-		      && IsPointInPolygon (info.pv.X, info.pv.Y, wide,
-					   polygon)
-		      && ADD_POLYGON_TO_LIST (layer, polygon))
-		    return True;
-		  if (TEST_FLAG (SQUAREFLAG, &info.pv))
-		    {
-		      LocationType x1 =
-			info.pv.X - (info.pv.Thickness + 1 + Bloat) / 2;
-		      LocationType x2 =
-			info.pv.X + (info.pv.Thickness + 1 + Bloat) / 2;
-		      LocationType y1 =
-			info.pv.Y - (info.pv.Thickness + 1 + Bloat) / 2;
-		      LocationType y2 =
-			info.pv.Y + (info.pv.Thickness + 1 + Bloat) / 2;
-		      if (IsRectangleInPolygon (x1, y1, x2, y2, polygon)
-			  && ADD_POLYGON_TO_LIST (layer, polygon))
-			return True;
-		    }
-		}
-	    }
+	  if (setjmp (info.env) == 0)
+	    r_search (LAYER_PTR (layer)->polygon_tree, (BoxType *) & info.pv,
+		      NULL, LOCtoPVpoly_callback, &info);
+	  else
+	    return True;
 	}
       /* Check for rat-lines that may intersect the PV */
       if (AndRats)
@@ -763,7 +780,7 @@ LookupLOConnectionsToPVList (Boolean AndRats)
 	}
       PVList.Location++;
     }
-  return (False);
+  return False;
 }
 
 /* ---------------------------------------------------------------------------
@@ -1022,7 +1039,8 @@ pv_poly_callback (const BoxType * b, void *cl)
   struct lo_info *i = (struct lo_info *) cl;
 
   /* note that holes in polygons are ok */
-  if (!TEST_FLAG (TheFlag, pv))
+  if (!TEST_FLAG (TheFlag, pv) && (TEST_THERM (i->layer, pv) ||
+				   !TEST_FLAG (CLEARPOLYFLAG, &i->polygon)))
     {
       if (TEST_FLAG (SQUAREFLAG, pv))
 	{
@@ -1033,6 +1051,12 @@ pv_poly_callback (const BoxType * b, void *cl)
 	  y2 = pv->Y + (pv->Thickness + 1 + Bloat) / 2;
 	  if (IsRectangleInPolygon (x1, y1, x2, y2, &i->polygon)
 	      && ADD_PV_TO_LIST (pv))
+	    longjmp (i->env, 1);
+	}
+      else if (TEST_FLAG (OCTAGONFLAG, pv))
+	{
+	  POLYAREA *oct = OctagonPoly (pv->X, pv->Y, pv->Thickness / 2);
+	  if (isects (oct, &i->polygon, True) && ADD_PV_TO_LIST (pv))
 	    longjmp (i->env, 1);
 	}
       else
@@ -2570,31 +2594,34 @@ IsPolygonInPolygon (PolygonTypePtr P1, PolygonTypePtr P2)
       /* first check un-bloated case */
       if (isects (P1->Clipped, P2, False))
 	return TRUE;
-      /* now the difficult case of bloated */
-      for (c = P1->Clipped->contours; c; c = c->next)
+      if (Bloat > 0)
 	{
-	  LineType line;
-	  VNODE *v = &c->head;
-	  if (c->xmin - Bloat <= P2->Clipped->contours->xmax &&
-	      c->xmax + Bloat >= P2->Clipped->contours->xmin &&
-	      c->ymin - Bloat <= P2->Clipped->contours->ymax &&
-	      c->ymax + Bloat >= P2->Clipped->contours->ymin)
+	  /* now the difficult case of bloated */
+	  for (c = P1->Clipped->contours; c; c = c->next)
 	    {
-
-	      line.Point1.X = v->point[0];
-	      line.Point1.Y = v->point[1];
-	      line.Thickness = 2 * Bloat;
-	      line.Clearance = 0;
-	      line.Flags = NoFlags ();
-	      for (v = v->next; v != &c->head; v = v->next)
+	      LineType line;
+	      VNODE *v = &c->head;
+	      if (c->xmin - Bloat <= P2->Clipped->contours->xmax &&
+		  c->xmax + Bloat >= P2->Clipped->contours->xmin &&
+		  c->ymin - Bloat <= P2->Clipped->contours->ymax &&
+		  c->ymax + Bloat >= P2->Clipped->contours->ymin)
 		{
-		  line.Point2.X = v->point[0];
-		  line.Point2.Y = v->point[1];
-		  SetLineBoundingBox (&line);
-		  if (IsLineInPolygon (&line, P2))
-		    return (True);
-		  line.Point1.X = line.Point2.X;
-		  line.Point1.Y = line.Point2.Y;
+
+		  line.Point1.X = v->point[0];
+		  line.Point1.Y = v->point[1];
+		  line.Thickness = 2 * Bloat;
+		  line.Clearance = 0;
+		  line.Flags = NoFlags ();
+		  for (v = v->next; v != &c->head; v = v->next)
+		    {
+		      line.Point2.X = v->point[0];
+		      line.Point2.Y = v->point[1];
+		      SetLineBoundingBox (&line);
+		      if (IsLineInPolygon (&line, P2))
+			return (True);
+		      line.Point1.X = line.Point2.X;
+		      line.Point1.Y = line.Point2.Y;
+		    }
 		}
 	    }
 	}
