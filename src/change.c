@@ -350,12 +350,14 @@ static ObjectFunctionType ClrOctagonFunctions = {
 static void *
 ChangeViaThermal (PinTypePtr Via)
 {
-  AddObjectToFlagUndoList (VIA_TYPE, Via, Via, Via);
   RestoreToPolygon (PCB->Data, VIA_TYPE, CURRENT, Via);
+  AddObjectToClearPolyUndoList (VIA_TYPE, Via, Via, Via, False);
+  AddObjectToFlagUndoList (VIA_TYPE, Via, Via, Via);
   if (!Delta)			/* remove the thermals */
     CLEAR_THERM (INDEXOFCURRENT, Via);
   else
     ASSIGN_THERM (INDEXOFCURRENT, Delta, Via);
+  AddObjectToClearPolyUndoList (VIA_TYPE, Via, Via, Via, True);
   ClearFromPolygon (PCB->Data, VIA_TYPE, CURRENT, Via);
   DrawVia (Via, 0);
   return Via;
@@ -368,13 +370,15 @@ ChangeViaThermal (PinTypePtr Via)
 static void *
 ChangePinThermal (ElementTypePtr element, PinTypePtr Pin)
 {
-  AddObjectToFlagUndoList (PIN_TYPE, element, Pin, Pin);
   RestoreToPolygon (PCB->Data, VIA_TYPE, CURRENT, Pin);
+  AddObjectToClearPolyUndoList (PIN_TYPE, element, Pin, Pin, False);
+  AddObjectToFlagUndoList (PIN_TYPE, element, Pin, Pin);
   if (!Delta)			/* remove the thermals */
     CLEAR_THERM (INDEXOFCURRENT, Pin);
   else
     ASSIGN_THERM (INDEXOFCURRENT, Delta, Pin);
   ClearFromPolygon (PCB->Data, VIA_TYPE, CURRENT, Pin);
+  AddObjectToClearPolyUndoList (PIN_TYPE, element, Pin, Pin, True);
   DrawPin (Pin, 0);
   return Pin;
 }
