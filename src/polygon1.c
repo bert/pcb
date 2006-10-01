@@ -1409,7 +1409,7 @@ poly_Boolean (const POLYAREA * a_org, const POLYAREA * b_org, POLYAREA ** res,
 }				/* poly_Boolean */
 
 
-static void
+static inline void
 cntrbox_adjust (PLINE * c, Vector p)
 {
   c->xmin = min (c->xmin, p[0]);
@@ -1418,7 +1418,7 @@ cntrbox_adjust (PLINE * c, Vector p)
   c->ymax = max (c->ymax, p[1]);
 }
 
-static int
+static inline int
 cntrbox_pointin (PLINE * c, Vector p)
 {
   return (p[0] >= c->xmin && p[1] >= c->ymin &&
@@ -1426,7 +1426,7 @@ cntrbox_pointin (PLINE * c, Vector p)
 
 }
 
-static int
+static inline int
 cntrbox_inside (PLINE * c1, PLINE * c2)
 {
   assert (c1 != NULL && c2 != NULL);
@@ -1435,7 +1435,7 @@ cntrbox_inside (PLINE * c1, PLINE * c2)
 	  (c1->xmax <= c2->xmax) && (c1->ymax <= c2->ymax));
 }
 
-static int
+static inline int
 node_neighbours (VNODE * a, VNODE * b)
 {
   return (a == b) || (a->next == b) || (b->next == a) || (a->next == b->next);
