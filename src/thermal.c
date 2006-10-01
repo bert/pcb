@@ -389,21 +389,21 @@ oct_therm (PinTypePtr pin, Cardinal style)
     {
     default:
     case 1:
-      p = RectPoly (pin->X - t, pin->X + t, pin->Y - w, pin->Y + w);
-      poly_Boolean (m, p, &p2, PBO_SUB);
-      poly_Free (&p);
-      poly_Free (&m);
-      p = RectPoly (pin->X - w, pin->X + w, pin->Y - t, pin->Y + t);
-      poly_Boolean (p2, p, &m, PBO_SUB);
-      poly_Free (&p);
-      poly_Free (&p2);
-      return m;
-    case 2:
       p = diag_line (pin->X, pin->Y, w, t, True);
       poly_Boolean (m, p, &p2, PBO_SUB);
       poly_Free (&p);
       poly_Free (&m);
       p = diag_line (pin->X, pin->Y, w, t, False);
+      poly_Boolean (p2, p, &m, PBO_SUB);
+      poly_Free (&p);
+      poly_Free (&p2);
+      return m;
+    case 2:
+      p = RectPoly (pin->X - t, pin->X + t, pin->Y - w, pin->Y + w);
+      poly_Boolean (m, p, &p2, PBO_SUB);
+      poly_Free (&p);
+      poly_Free (&m);
+      p = RectPoly (pin->X - w, pin->X + w, pin->Y - t, pin->Y + t);
       poly_Boolean (p2, p, &m, PBO_SUB);
       poly_Free (&p);
       poly_Free (&p2);
