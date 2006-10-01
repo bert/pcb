@@ -1821,19 +1821,30 @@ static const char setthermal_syntax[] =
   "SetThermal(Object|SelectedPins|SelectedVias|Selected, Style)";
 
 static const char setthermal_help[] =
-  "Set the thermal (on the current layer) to pins or vias to the given style.\n"
-  "Style = 0 means no thermal, style = 1 is a pair of 45 degree fingers.\n"
-  "Style = 1 means horizontal and vertical fingers.\n"
-  "Style = 2 means four fingers (combined 1 and 2 styles).\n"
-  "Style = 3 means a solid connection to the plane.";
+  "Set the thermal (on the current layer) of pins or vias to the given style.\n"
+  "Style = 0 means no thermal.\n"
+  "Style = 1 has diagonal fingers with sharp edges.\n"
+  "Style = 2 has horizontal and vertical fingers with sharp edges.\n"
+  "Style = 3 is a solid connection to the plane."
+  "Style = 4 has diagonal fingers with rounded edges.\n"
+  "Style = 5 has horizontal and vertical fingers with rounded edges.\n";
 
 /* %start-doc actions SetThermal
 
 This changes how/whether pins or vias connect to any rectangle or polygon
-on the current layer. There are 4 possibilities: 0 - no connection,
-1 - 45 degree fingers, 2 - horizontal & vertical fingers, 3 - four fingers,
-4 - solid connection.
+on the current layer. The first argument can specify one object, or all
+selected pins, or all selected vias, or all selected pins and vias.
+The second argument specifies the style of connection.
+There are 5 possibilities:
+0 - no connection,
+1 - 45 degree fingers with sharp edges,
+2 - horizontal & vertical fingers with sharp edges,
+3 - solid connection,
+4 - 45 degree fingers with rounded corners,
+5 - horizontal & vertical fingers with rounded corners.
 
+Pins and Vias may have thermals whether or not there is a polygon available 
+to connect with. However, they will have no effect without the polygon.
 %end-doc */
 
 static int
