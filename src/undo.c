@@ -428,9 +428,11 @@ UndoChangeClearSize (UndoListTypePtr Entry)
       if (TEST_FLAG (LOCKFLAG, (LineTypePtr) ptr2))
 	return (False);
       swap = ((PinTypePtr) ptr2)->Clearance;
+      RestoreToPolygon (PCB->Data, type, ptr1, ptr2);
       if (andDraw)
 	EraseObject (type, ptr2);
       ((PinTypePtr) ptr2)->Clearance = Entry->Data.Size;
+      ClearFromPolygon (PCB->Data, type, ptr1, ptr2);
       Entry->Data.Size = swap;
       if (andDraw)
 	DrawObject (type, ptr1, ptr2, 0);
@@ -492,11 +494,14 @@ UndoChangeSize (UndoListTypePtr Entry)
       if (TEST_FLAG (LOCKFLAG, (PinTypePtr) ptr2))
 	return (False);
       /* Wow! can any object be treated as a pin type for size change?? */
+      /* pins, vias, lines, and arcs can. Text can't but it has it's own mechanism */
       swap = ((PinTypePtr) ptr2)->Thickness;
+      RestoreToPolygon (PCB->Data, type, ptr1, ptr2);
       if (andDraw)
 	EraseObject (type, ptr2);
       ((PinTypePtr) ptr2)->Thickness = Entry->Data.Size;
       Entry->Data.Size = swap;
+      ClearFromPolygon (PCB->Data, type, ptr1, ptr2);
       if (andDraw)
 	DrawObject (type, ptr1, ptr2, 0);
       return (True);
