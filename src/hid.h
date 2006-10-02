@@ -168,6 +168,7 @@ extern "C"
        "char *" so the value should be initialized to zero, and may be
        set to non-zero (not always one).  */
     void *value;
+    int hash; /* for detecting changes. */
   } HID_Attribute;
 
   extern void hid_register_attributes (HID_Attribute *, int);

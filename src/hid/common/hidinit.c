@@ -353,6 +353,216 @@ hid_parse_command_line (int *argc, char ***argv)
   (*argv)--;
 }
 
+static int
+attr_hash (HID_Attribute *a)
+{
+  unsigned char *cp = (unsigned char *)a;
+  int i, rv=0;
+  for (i=0; i<(int)((char *)&(a->hash) - (char *)a); i++)
+    rv = (rv * 13) ^ (rv >> 16) ^ cp[i];
+  return rv;
+}
+
+void
+hid_save_settings (int locally)
+{
+  char *home, *fname;
+  struct stat st;
+  FILE *f;
+  HID_AttrNode *ha;
+  int i;
+
+  if (locally)
+    {
+      fname = Concat ("pcb.settings", NULL);
+    }
+  else
+    {
+      home = getenv ("HOME");
+      if (! home)
+	return;
+      fname = Concat (home, "/.pcb", NULL);
+
+      if (stat (fname, &st))
+	if (mkdir (fname, 0777))
+	  {
+	    free (fname);
+	    return;
+	  }
+      free (fname);
+
+      fname = Concat (home, "/.pcb/settings", NULL);
+    }
+
+  f = fopen (fname, "w");
+  if (!f)
+    {
+      Message ("Can't open %s", fname);
+      free (fname);
+      return;
+    }
+
+  for (ha = hid_attr_nodes; ha; ha = ha->next)
+    {
+      for (i = 0; i < ha->n; i++)
+	{
+	  char *str;
+	  HID_Attribute *a = ha->attributes + i;
+
+	  if (a->hash == attr_hash (a))
+	    fprintf (f, "# ");
+	  switch (a->type)
+	    {
+	    case HID_Label:
+	      break;
+	    case HID_Integer:
+	      fprintf (f, "%s = %d\n",
+		       a->name,
+		       a->value ? *(int *)a->value : a->default_val.int_value);
+	      break;
+	    case HID_Boolean:
+	      fprintf (f, "%s = %d\n",
+		       a->name,
+		       a->value ? *(char *)a->value : a->default_val.int_value);
+	      break;
+	    case HID_Real:
+	      fprintf (f, "%s = %f\n",
+		       a->name,
+		       a->value ? *(double *)a->value : a->default_val.real_value);
+	      break;
+	    case HID_String:
+	    case HID_Path:
+	      str = a->value ? *(char **)a->value : a->default_val.str_value;
+	      fprintf (f, "%s = %s\n",
+		       a->name,
+		       str ? str : "");
+	      break;
+	    case HID_Enum:
+	      fprintf (f, "%s = %s\n",
+		       a->name,
+		       a->enumerations[a->value ? *(int *)a->value : a->default_val.int_value]);
+	      break;
+	    }
+	}
+      fprintf (f, "\n");
+    }
+  fclose (f);
+  free (fname);
+}
+
+static void
+hid_set_attribute (char *name, char *value)
+{
+  HID_AttrNode *ha;
+  int i, e, ok;
+
+  for (ha = hid_attr_nodes; ha; ha = ha->next)
+    for (i = 0; i < ha->n; i++)
+      if (strcmp (name, ha->attributes[i].name) == 0)
+	{
+	  HID_Attribute *a = ha->attributes + i;
+	  char *ep;
+	  switch (ha->attributes[i].type)
+	    {
+	    case HID_Label:
+	      break;
+	    case HID_Integer:
+	      a->default_val.int_value = strtol (value, 0, 0);
+	      break;
+	    case HID_Real:
+	      a->default_val.real_value = strtod (value, 0);
+	      break;
+	    case HID_String:
+	      a->default_val.str_value = strdup (value);
+	      break;
+	    case HID_Boolean:
+	      a->default_val.int_value = 1;
+	      break;
+	    case HID_Mixed:
+	      abort ();
+	      a->default_val.real_value = strtod (value, &value);
+	      /* fall through */
+	    case HID_Enum:
+	      ok = 0;
+	      for (e = 0; a->enumerations[e]; e++)
+		if (strcmp (a->enumerations[e], value) == 0)
+		  {
+		    ok = 1;
+		    a->default_val.int_value = e;
+		    a->default_val.str_value = value;
+		    break;
+		  }
+	      if (!ok)
+		{
+		  fprintf (stderr,
+			   "ERROR:  \"%s\" is an unknown value for the %s option\n",
+			   value, a->name);
+		  exit (1);
+		}
+	      break;
+	    case HID_Path:
+	      a->default_val.str_value = value;
+	      break;
+	    }
+	}
+}
+
+static void
+hid_load_settings_1 (char *fname)
+{
+  char line[1024], *namep, *valp, *cp;
+  FILE *f;
+
+  f = fopen (fname, "r");
+  if (!f)
+    {
+      free (fname);
+      return;
+    }
+
+  free (fname);
+  while (fgets (line, sizeof(line), f) != NULL)
+    {
+      for (namep=line; *namep && isspace (*namep); namep++)
+	;
+      if (*namep == '#')
+	continue;
+      for (valp=namep; *valp && !isspace(*valp); valp++)
+	;
+      if (! *valp)
+	continue;
+      *valp++ = 0;
+      while (*valp && (isspace (*valp) || *valp == '='))
+	valp ++;
+      if (! *valp)
+	continue;
+      cp = valp + strlen(valp) - 1;
+      while (cp >= valp && isspace (*cp))
+	*cp-- = 0;
+      hid_set_attribute (namep, valp);
+    }
+
+  fclose (f);
+}
+
+void
+hid_load_settings ()
+{
+  char *home, *fname;
+  HID_AttrNode *ha;
+  int i;
+
+  for (ha = hid_attr_nodes; ha; ha = ha->next)
+    for (i = 0; i < ha->n; i++)
+      ha->attributes[i].hash = attr_hash (ha->attributes+i);
+
+  hid_load_settings_1 (Concat (PCBLIBDIR, "/settings", NULL));
+  home = getenv("HOME");
+  if (home)
+    hid_load_settings_1 (Concat (home, "/.pcb/settings", NULL));
+  hid_load_settings_1 (Concat ("pcb.settings", NULL));
+}
+
 #define HASH_SIZE 32
 
 typedef struct ecache
@@ -418,7 +628,8 @@ hid_cache_color (int set, const char *name, hidval * val, void **vcache)
 }
 
 /* otherwise homeless function, refactored out of the five export HIDs */
-void derive_default_filename(const char *pcbfile, HID_Attribute *filename_attrib, const char *suffix, char **memory)
+void
+derive_default_filename(const char *pcbfile, HID_Attribute *filename_attrib, const char *suffix, char **memory)
 {
 	char *buf;
 	char *pf;

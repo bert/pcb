@@ -611,6 +611,8 @@ main (int argc, char *argv[])
   setbuf (stdout, 0);
   hid_init ();
 
+  hid_load_settings ();
+
   program_name = argv[0];
   program_basename = strrchr (program_name, '/');
   if (program_basename)
