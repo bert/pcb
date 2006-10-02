@@ -83,7 +83,7 @@ hid_load_dir (char *dirname)
 	      symv = (void (*)()) sym;
 	      symv();
 	    }
-	  else if ((sym = dlsym (so, "init")) != NULL)
+	  else if ((sym = dlsym (so, "pcb_plugin_init")) != NULL)
 	    {
 	      symv = (void (*)()) sym;
 	      symv();
