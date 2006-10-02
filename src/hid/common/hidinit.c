@@ -44,7 +44,6 @@ hid_load_dir (char *dirname)
   DIR *dir;
   struct dirent *de;
 
-  printf("dir [%s]\n", dirname);
   dir = opendir (dirname);
   if (!dir)
     {
