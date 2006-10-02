@@ -392,6 +392,7 @@ batch_beep (void)
 }
 
 HID batch_gui = {
+  sizeof (HID),
   "batch",
   "Batch-mode GUI for non-interactive use.",
   1, 0, 0, 0, 0,

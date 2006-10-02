@@ -484,6 +484,7 @@ bom_parse_arguments (int *argc, char ***argv)
 }
 
 HID bom_hid = {
+  sizeof (HID),
   "bom",
   "Exports a Bill of Materials",
   0, 0, 1, 0, 0,

@@ -3490,6 +3490,7 @@ lesstif_beep (void)
 }
 
 HID lesstif_gui = {
+  sizeof (HID),
   "lesstif",
   "LessTif - a Motif clone for X/Unix",
   1,				/* gui */

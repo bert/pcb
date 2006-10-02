@@ -277,6 +277,7 @@ nogui_beep (void)
 }
 
 HID hid_nogui = {
+  sizeof (HID),
   "nogui",
   "Default GUI when no other GUI is present.  Does nothing.",
   0, 0, 0, 0, 0,

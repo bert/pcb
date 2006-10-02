@@ -741,6 +741,7 @@ ps_set_crosshair (int x, int y)
 }
 
 HID ps_hid = {
+  sizeof (HID),
   "ps",
   "Postscript export.",
   0, 0, 1, 1, 0,

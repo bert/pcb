@@ -605,6 +605,7 @@ eps_set_crosshair (int x, int y)
 }
 
 static HID eps_hid = {
+  sizeof (HID),
   "eps",
   "Encapsulated Postscript",
   0, 0, 1, 0, 1,

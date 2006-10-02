@@ -935,6 +935,7 @@ gerber_set_crosshair (int x, int y)
 }
 
 static HID gerber_hid = {
+  sizeof (HID),
   "gerber",
   "RS-274X (Gerber) export.",
   0, 0, 1, 1, 0,

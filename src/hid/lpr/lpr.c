@@ -113,6 +113,7 @@ lpr_calibrate (double xval, double yval)
 }
 
 HID lpr_hid = {
+  sizeof (HID),
   "lpr",
   "Postscript print.",
   0, 1, 0, 1, 0,

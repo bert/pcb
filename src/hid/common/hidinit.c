@@ -7,11 +7,17 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <dlfcn.h>
+#include <dirent.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
 
 #include "hid.h"
 #include "../hidint.h"
 
 #include "global.h"
+#include "misc.h"
 
 #ifdef HAVE_LIBDMALLOC
 #include <dmalloc.h>
@@ -32,19 +38,102 @@ HID *gui = &hid_nogui;
 
 int pixel_slop = 1;
 
+static void
+hid_load_dir (char *dirname)
+{
+  DIR *dir;
+  struct dirent *de;
+
+  printf("dir [%s]\n", dirname);
+  dir = opendir (dirname);
+  if (!dir)
+    {
+      free (dirname);
+      return;
+    }
+
+  while ((de = readdir (dir)) != NULL)
+    {
+      void *sym;
+      void (*symv)();
+      void *so;
+      char *basename, *path, *symname;
+      struct stat st;
+
+      basename = strdup (de->d_name);
+      if (strcasecmp (basename+strlen(basename)-3, ".so") == 0)
+	basename[strlen(basename)-3] = 0;
+      else if (strcasecmp (basename+strlen(basename)-4, ".dll") == 0)
+	basename[strlen(basename)-4] = 0;
+      path = Concat (dirname, "/", de->d_name, NULL);
+
+      if (stat (path, &st) == 0
+	  && (st.st_mode & (S_IXUSR | S_IXGRP | S_IXOTH))
+	  && S_ISREG (st.st_mode))
+	{
+	  if ((so = dlopen (path, RTLD_NOW)) == NULL)
+	    {
+	      fprintf(stderr, "dl_error: %s\n", dlerror ());
+	      continue;
+	    }
+
+	  symname = Concat ("hid_", basename, "_init", NULL);
+	  if ((sym = dlsym (so, symname)) != NULL)
+	    {
+	      symv = (void (*)()) sym;
+	      symv();
+	    }
+	  else if ((sym = dlsym (so, "init")) != NULL)
+	    {
+	      symv = (void (*)()) sym;
+	      symv();
+	    }
+	  free (symname);
+	}
+      free (basename);
+      free (path);
+    }
+  free (dirname);
+}
+
 void
 hid_init ()
 {
+  char *home;
+
   gui = &hid_nogui;
 #define HID_DEF(x) hid_ ## x ## _init();
 #include "hid/common/hidlist.h"
 #undef HID_DEF
+
+  hid_load_dir (Concat (EXECPREFIXDIR, "/lib/pcb/plugins/", HOST, NULL));
+  hid_load_dir (Concat (EXECPREFIXDIR, "/lib/pcb/plugins", NULL));
+  home = getenv("HOME");
+  if (home)
+    {
+      hid_load_dir (Concat (home, "/.pcb/plugins/", HOST, NULL));
+      hid_load_dir (Concat (home, "/.pcb/plugins", NULL));
+    }
+  hid_load_dir (Concat ("plugins/", HOST, NULL));
+  hid_load_dir (Concat ("plugins", NULL));
 }
 
 void
 hid_register_hid (HID * hid)
 {
+  int i;
   int sz = (hid_num_hids + 2) * sizeof (HID *);
+
+  if (hid->struct_size != sizeof (HID))
+    {
+      fprintf (stderr, "Warning: hid \"%s\" has an incompatible ABI.\n",
+	       hid->name);
+      return;
+    }
+
+  for (i=0; i<hid_num_hids; i++)
+    if (hid == hid_list[i])
+      return;
 
   hid_num_hids++;
   if (hid_list)

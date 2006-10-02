@@ -511,6 +511,11 @@ FONTFILENAME=${FONTFILENAME:-"default_font"}
 AC_SUBST(FONTFILENAME)
 AC_DEFINE_UNQUOTED(FONTFILENAME,"$FONTFILENAME",[File for default font])
 
+# standard autoconf variables
+CPPFLAGS="$CPPFLAGS -DPREFIXDIR=\\\"\${prefix}\\\""
+CPPFLAGS="$CPPFLAGS -DEXECPREFIXDIR=\\\"\${exec_prefix}\\\""
+CPPFLAGS="$CPPFLAGS -DHOST=\\\"\${host}\\\""
+
 # directory for old-style library and for fonts
 PCBLIBDIR=${datadir}/pcb
 AC_SUBST(PCBLIBDIR)
