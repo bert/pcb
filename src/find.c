@@ -256,8 +256,6 @@ LinePadIntersect (LineTypePtr Line, PadTypePtr Pad)
 Boolean
 ArcPadIntersect (ArcTypePtr Arc, PadTypePtr Pad)
 {
-  if (!Arc->Thickness)
-    return False;
   return TEST_FLAG (SQUAREFLAG, Pad) ?
 /* IsArcInRectangle already applies Bloat */
     IsArcInRectangle (MIN ((Pad)->Point1.X, (Pad)->Point2.X) -
@@ -1681,8 +1679,6 @@ LineArcIntersect (LineTypePtr Line, ArcTypePtr Arc)
   register float dx, dy, dx1, dy1, l, d, r, r2, Radius;
   BoxTypePtr box;
 
-  if (!Arc->Thickness)
-    return False;
   dx = (float) (Line->Point2.X - Line->Point1.X);
   dy = (float) (Line->Point2.Y - Line->Point1.Y);
   dx1 = (float) (Line->Point1.X - Arc->X);
@@ -1791,8 +1787,6 @@ LookupLOConnectionsToArc (ArcTypePtr Arc, Cardinal LayerGroup)
   LocationType xlow, xhigh;
   struct lo_info info;
 
-  if (!Arc->Thickness)
-    return 0;
   /* the maximum possible distance */
   xlow = Arc->BoundingBox.X1 - MAX (MAX_PADSIZE, MAX_LINESIZE) / 2;
   xhigh = Arc->BoundingBox.X2 + MAX (MAX_PADSIZE, MAX_LINESIZE) / 2;
@@ -2495,8 +2489,6 @@ IsArcInPolygon (ArcTypePtr Arc, PolygonTypePtr Polygon)
 {
   BoxTypePtr Box = (BoxType *) Arc;
 
-  if (!Arc->Thickness)
-    return 0;
   /* arcs with clearance never touch polys */
   if (TEST_FLAG (CLEARPOLYFLAG, Polygon) && TEST_FLAG (CLEARLINEFLAG, Arc))
     return False;
@@ -3806,7 +3798,7 @@ DRCAll (void)
       all.Y1 = -MAX_COORD;
       all.Y2 = MAX_COORD;
       for (group = 0; group < max_layer; group++)
-	// PolygonPlows (group, &all, drc_callback)
+	PolygonPlows (group, &all, drc_callback)
 	;
     }
   /* check minimum widths */
