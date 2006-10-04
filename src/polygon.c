@@ -417,7 +417,7 @@ LinePoly (LineType * l, BDimension thick)
 
 /* clear np1 from the polygon */
 static int
-Subtract (POLYAREA * np1, PolygonType * p)
+Subtract (POLYAREA * np1, PolygonType * p, Boolean fnp)
 {
   POLYAREA *merged = NULL, *np = np1;;
   int x;
@@ -425,7 +425,8 @@ Subtract (POLYAREA * np1, PolygonType * p)
   assert (p);
   if (!p->Clipped)
     {
-      poly_Free (&np);
+      if (fnp)
+        poly_Free (&np);
       return 1;
     }
   assert (poly_Valid (p->Clipped));
@@ -439,7 +440,8 @@ Subtract (POLYAREA * np1, PolygonType * p)
     }
 #endif
   assert (!merged || poly_Valid (merged));
-  poly_Free (&np);
+  if (fnp)
+    poly_Free (&np);
   if (x != err_ok)
     {
       fprintf (stderr, "Error while clipping PBO_SUB\n");
@@ -489,7 +491,7 @@ SubtractPin (DataType * d, PinType * pin, LayerType * l, PolygonType * p)
     np = PinPoly (pin, pin->Thickness + pin->Clearance);
   if (!np)
     return 0;
-  return Subtract (np, p);
+  return Subtract (np, p, !TEST_THERM (i, pin));
 }
 
 static int
@@ -501,7 +503,7 @@ SubtractLine (LineType * line, PolygonType * p)
     return 0;
   if (!(np = LinePoly (line, line->Thickness + line->Clearance)))
     return 0;
-  return Subtract (np, p);
+  return Subtract (np, p, True);
 }
 
 static int
@@ -513,7 +515,7 @@ SubtractArc (ArcType * arc, PolygonType * p)
     return 0;
   if (!(np = ArcPoly (arc, arc->Thickness + arc->Clearance)))
     return 0;
-  return Subtract (np, p);
+  return Subtract (np, p, True);
 }
 
 static int
@@ -538,7 +540,7 @@ SubtractPad (PadType * pad, PolygonType * p)
 	  (np = LinePoly ((LineType *) pad, pad->Thickness + pad->Clearance)))
 	return 0;
     }
-  return Subtract (np, p);
+  return Subtract (np, p, True);
 }
 
 struct cpInfo

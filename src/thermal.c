@@ -78,6 +78,22 @@
 
 RCSID ("$Id$");
 
+struct cent
+{
+  LocationType x, y;
+  BDimension s, c;
+  char style;
+  POLYAREA *p;
+};
+
+#define MAX_CACHE 4
+static struct cent entries[MAX_CACHE];
+static int cache_size = 0;
+static LocationType inx, iny;
+static BDimension ins, inc;
+static int instyle;
+static int list = 0;
+
 static POLYAREA *
 diag_line (LocationType X, LocationType Y, BDimension l, BDimension w,
 	   Boolean rt)
@@ -87,20 +103,20 @@ diag_line (LocationType X, LocationType Y, BDimension l, BDimension w,
   BDimension x1, x2, y1, y2;
 
   if (rt)
-  {
-    x1 = (l - w) * M_SQRT1_2;
-    x2 = (l + w) * M_SQRT1_2;
-    y1 = x1;
-    y2 = x2;
-  }
+    {
+      x1 = (l - w) * M_SQRT1_2;
+      x2 = (l + w) * M_SQRT1_2;
+      y1 = x1;
+      y2 = x2;
+    }
   else
-  {
-    x2 = -(l - w) * M_SQRT1_2;
-    x1 = -(l + w) * M_SQRT1_2;
-    y1 = -x1;
-    y2 = -x2;
-  }
-   
+    {
+      x2 = -(l - w) * M_SQRT1_2;
+      x1 = -(l + w) * M_SQRT1_2;
+      y1 = -x1;
+      y2 = -x2;
+    }
+
   v[0] = X + x1;
   v[1] = Y + y2;
   if ((c = poly_NewContour (v)) == NULL)
@@ -427,9 +443,80 @@ oct_therm (PinTypePtr pin, Cardinal style)
     }
 }
 
-/* ThermPoly returns a POLYAREA have all of the clearance that when
+static POLYAREA *
+cache (POLYAREA * p)
+{
+  if (cache_size == MAX_CACHE)
+    {
+      cache_size--;
+      poly_Free (&entries[list].p);
+    }
+  entries[list].style = instyle;
+  entries[list].x = inx;
+  entries[list].y = iny;
+  entries[list].s = ins;
+  entries[list].c = inc;
+  entries[list].p = p;
+  list = (list + 1) % MAX_CACHE;
+  cache_size++;
+  return p;
+}
+
+static POLYAREA *
+in_cache (PinTypePtr pin, Cardinal style)
+{
+  POLYAREA *p;
+  int i, q;
+
+  instyle = style + (pin->Flags.f & (SQUAREFLAG | OCTAGONFLAG));
+  for (i = 0; i < cache_size; i++)
+    {
+      int dx, dy;
+      q = (list + i) % MAX_CACHE;
+      if (entries[q].style != instyle || entries[q].s != pin->Thickness ||
+	  entries[q].style != pin->Clearance)
+	continue;
+      /* we have a match - now shift it to the current location */
+      p = entries[q].p;
+      dx = pin->X - entries[q].x;
+      dy = pin->Y - entries[q].y;
+      do
+	{
+	  PLINE *c;
+	  for (c = p->contours; c; c = c->next)
+	    {
+	      int j;
+	      VNODE *v = &c->head;
+
+	      c->xmax += dx;
+	      c->xmin += dx;
+	      c->ymax += dy;
+	      c->ymin += dy;
+	      for (j = 0; j < c->Count; j++, v = v->next)
+		{
+		  v->point[0] += pin->X - entries[q].x;
+		  v->point[1] += pin->Y - entries[q].y;
+		}
+	    }
+	}
+      while ((p = p->f) != entries[q].p);
+      entries[q].x = pin->X;
+      entries[q].y = pin->Y;
+      return p;
+    }
+  inx = pin->X;
+  iny = pin->Y;
+  ins = pin->Thickness;
+  inc = pin->Clearance;
+  return NULL;
+}
+
+/* ThermPoly returns a POLYAREA having all of the clearance that when
  * subtracted from the plane create the desired thermal fingers.
  * Usually this is 4 disjoint regions.
+ *
+ * since calculating the POLYAREA can be expensive, the most recent several
+ * are saved in a small cache
  */
 POLYAREA *
 ThermPoly (PinTypePtr pin, Cardinal laynum)
@@ -440,10 +527,12 @@ ThermPoly (PinTypePtr pin, Cardinal laynum)
 
   if (style == 3)
     return NULL;		/* solid connection no clearance */
+  if ((pa = in_cache (pin, style)))
+    return pa;
   if (TEST_FLAG (SQUAREFLAG, pin))
-    return square_therm (pin, style);
+    return cache (square_therm (pin, style));
   if (TEST_FLAG (OCTAGONFLAG, pin))
-    return oct_therm (pin, style);
+    return cache (oct_therm (pin, style));
   /* must be circular */
   switch (style)
     {
@@ -479,7 +568,7 @@ ThermPoly (PinTypePtr pin, Cardinal laynum)
 	poly_Boolean (arc, pa, &m, PBO_SUB);
 	poly_Free (&arc);
 	poly_Free (&pa);
-	return m;
+	return cache (m);
       }
 
 
@@ -518,6 +607,6 @@ ThermPoly (PinTypePtr pin, Cardinal laynum)
       arc->b = pa->f->f;
       arc->f = pa;
       pa->b = arc;
-      return pa;
+      return cache (pa);
     }
 }
