@@ -3641,8 +3641,8 @@ RestoreFindFlag (void)
 /* DRC clearance callback */
 
 static int
-drc_callback (int type, void *ptr1, void *ptr2, void *ptr3,
-	      LayerTypePtr layer, PolygonTypePtr polygon)
+drc_callback (DataTypePtr data, LayerTypePtr layer, PolygonTypePtr polygon,
+             int type, void *ptr1, void *ptr2)
 {
   LineTypePtr line = (LineTypePtr) ptr2;
   ArcTypePtr arc = (ArcTypePtr) ptr2;
@@ -3652,49 +3652,49 @@ drc_callback (int type, void *ptr1, void *ptr2, void *ptr3,
   thing_type = type;
   thing_ptr1 = ptr1;
   thing_ptr2 = ptr2;
-  thing_ptr3 = ptr3;
+  thing_ptr3 = ptr2;
   switch (type)
     {
     case LINE_TYPE:
-      if (line->Clearance <= 2 * PCB->Bloat)
+      if (line->Clearance < 2 * PCB->Bloat)
 	{
-	  AddObjectToFlagUndoList (type, ptr1, ptr2, ptr3);
+	  AddObjectToFlagUndoList (type, ptr1, ptr2, ptr2);
 	  SET_FLAG (TheFlag, line);
 	  Message (_("Line with insufficient clearance inside polygon\n"));
 	  goto doIsBad;
 	}
       break;
     case ARC_TYPE:
-      if (arc->Clearance <= 2 * PCB->Bloat)
+      if (arc->Clearance < 2 * PCB->Bloat)
 	{
-	  AddObjectToFlagUndoList (type, ptr1, ptr2, ptr3);
+	  AddObjectToFlagUndoList (type, ptr1, ptr2, ptr2);
 	  SET_FLAG (TheFlag, arc);
 	  Message (_("Arc with insufficient clearance inside polygon\n"));
 	  goto doIsBad;
 	}
       break;
     case PAD_TYPE:
-      if (pad->Clearance <= 2 * PCB->Bloat)
+      if (pad->Clearance < 2 * PCB->Bloat)
 	{
-	  AddObjectToFlagUndoList (type, ptr1, ptr2, ptr3);
+	  AddObjectToFlagUndoList (type, ptr1, ptr2, ptr2);
 	  SET_FLAG (TheFlag, pad);
 	  Message (_("Pad with insufficient clearance inside polygon\n"));
 	  goto doIsBad;
 	}
       break;
     case PIN_TYPE:
-      if (pin->Clearance <= 2 * PCB->Bloat)
+      if (pin->Clearance < 2 * PCB->Bloat)
 	{
-	  AddObjectToFlagUndoList (type, ptr1, ptr2, ptr3);
+	  AddObjectToFlagUndoList (type, ptr1, ptr2, ptr2);
 	  SET_FLAG (TheFlag, pin);
 	  Message (_("Pin with insufficient clearance inside polygon\n"));
 	  goto doIsBad;
 	}
       break;
     case VIA_TYPE:
-      if (pin->Clearance <= 2 * PCB->Bloat)
+      if (pin->Clearance < 2 * PCB->Bloat)
 	{
-	  AddObjectToFlagUndoList (type, ptr1, ptr2, ptr3);
+	  AddObjectToFlagUndoList (type, ptr1, ptr2, ptr2);
 	  SET_FLAG (TheFlag, pin);
 	  Message (_("Via with insufficient clearance inside polygon\n"));
 	  goto doIsBad;
@@ -3787,25 +3787,15 @@ DRCAll (void)
   TheFlag = (IsBad) ? DRCFLAG : (FOUNDFLAG | DRCFLAG | SELECTEDFLAG);
   ResetConnections (False);
   TheFlag = SELECTEDFLAG;
-  /* check polygon clearances */
-  if (!IsBad)
-    {
-      Cardinal group;
-      BoxType all;
-
-      all.X1 = -MAX_COORD;
-      all.X2 = MAX_COORD;
-      all.Y1 = -MAX_COORD;
-      all.Y2 = MAX_COORD;
-      for (group = 0; group < max_layer; group++)
-	PolygonPlows (group, &all, drc_callback)
-	;
-    }
-  /* check minimum widths */
+  /* check minimum widths and polygon clearances */
   if (!IsBad)
     {
       COPPERLINE_LOOP (PCB->Data);
       {
+        /* check line clearances in polygons */
+        PlowsPolygon (PCB->Data, LINE_TYPE, layer, line, drc_callback);
+	if (IsBad)
+	  break;
 	if (line->Thickness < PCB->minWid)
 	  {
 	    AddObjectToFlagUndoList (LINE_TYPE, layer, line, line);
@@ -3830,6 +3820,9 @@ DRCAll (void)
     {
       COPPERARC_LOOP (PCB->Data);
       {
+        PlowsPolygon (PCB->Data, ARC_TYPE, layer, arc, drc_callback);
+	if (IsBad)
+	  break;
 	if (arc->Thickness < PCB->minWid)
 	  {
 	    AddObjectToFlagUndoList (ARC_TYPE, layer, arc, arc);
@@ -3854,6 +3847,9 @@ DRCAll (void)
     {
       ALLPIN_LOOP (PCB->Data);
       {
+        PlowsPolygon (PCB->Data, PIN_TYPE, element, pin, drc_callback);
+	if (IsBad)
+	  break;
 	if (!TEST_FLAG (HOLEFLAG, pin) &&
 	    pin->Thickness - pin->DrillingHole < 2 * PCB->minWid)
 	  {
@@ -3892,7 +3888,7 @@ DRCAll (void)
 	    IncrementUndoSerialNumber ();
 	    Undo (False);
 	  }
-	if (!TEST_FLAG (HOLEFLAG, pin) && pin->DrillingHole < PCB->minDrill)
+	if (pin->DrillingHole < PCB->minDrill)
 	  {
 	    AddObjectToFlagUndoList (PIN_TYPE, element, pin, pin);
 	    SET_FLAG (TheFlag, pin);
@@ -3915,7 +3911,10 @@ DRCAll (void)
   if (!IsBad)
     {
       ALLPAD_LOOP (PCB->Data);
-      {
+      { 
+        PlowsPolygon (PCB->Data, PAD_TYPE, element, pad, drc_callback);
+	if (IsBad)
+	  break;
 	if (pad->Thickness < PCB->minWid)
 	  {
 	    AddObjectToFlagUndoList (PAD_TYPE, element, pad, pad);
@@ -3940,6 +3939,9 @@ DRCAll (void)
     {
       VIA_LOOP (PCB->Data);
       {
+        PlowsPolygon (PCB->Data, VIA_TYPE, via, via, drc_callback);
+	if (IsBad)
+	  break;
 	if (!TEST_FLAG (HOLEFLAG, via) &&
 	    via->Thickness - via->DrillingHole < 2 * PCB->minWid)
 	  {
@@ -3978,7 +3980,7 @@ DRCAll (void)
 	    IncrementUndoSerialNumber ();
 	    Undo (False);
 	  }
-	if (!TEST_FLAG (HOLEFLAG, via) && via->DrillingHole < PCB->minDrill)
+	if (via->DrillingHole < PCB->minDrill)
 	  {
 	    AddObjectToFlagUndoList (VIA_TYPE, via, via, via);
 	    SET_FLAG (TheFlag, via);
