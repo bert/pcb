@@ -3805,7 +3805,9 @@ static const char morphpolygon_help[] =
 
 If a polygon is divided into unconnected "islands", you can use
 this command to convert the otherwise disappeared islands into
-separate polygons.
+separate polygons. Be sure the cursor is over a portion of the
+polygon that remains visible. Very small islands that may flake
+off are automatically deleted.
 
 %end-doc */
 
