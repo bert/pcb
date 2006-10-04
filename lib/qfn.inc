@@ -91,7 +91,7 @@ define(`PKG_GENERIC_QFN',
 
 # element_flags, description, pcb-name, value, mark_x, mark_y,
 # text_x, text_y, text_direction, text_scale, text_flags
-Element[0x00000000 "$1" "$2" "$3" 0 0 TEXTX TEXTY 0 TEXTSIZE 0x00000000]
+Element[0x00000000 "$1" "`$2'" "$3" 0 0 TEXTX TEXTY 0 TEXTSIZE 0x00000000]
 (
 
 

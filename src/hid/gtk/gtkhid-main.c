@@ -927,6 +927,7 @@ ghid_beep ()
 /* ---------------------------------------------------------------------- */
 
 HID ghid_hid = {
+  sizeof (HID),
   "gtk",
   "Gtk - The Gimp Toolkit",
   1,				/* gui */
@@ -979,6 +980,7 @@ HID ghid_hid = {
 };
 
 HID ghid_extents = {
+  sizeof (HID),
   "ghid_extents",
   "used to calculate extents",
   1,				/* gui */

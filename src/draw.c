@@ -1,4 +1,5 @@
 /* $Id$ */
+
 /*
  *                            COPYRIGHT
  *
@@ -96,7 +97,7 @@ static void Redraw (Boolean, BoxTypePtr);
 static void DrawEverything (BoxTypePtr);
 static void DrawTop (const BoxType *);
 static void DrawLayer (LayerTypePtr, BoxType *);
-static void DrawLayerGroup (int, const BoxType *);
+static int  DrawLayerGroup (int, const BoxType *);
 static void DrawPinOrViaLowLevel (PinTypePtr, Boolean);
 static void ClearOnlyPin (PinTypePtr, Boolean);
 static void DrawPlainPin (PinTypePtr, Boolean);
@@ -113,7 +114,7 @@ static void DrawPlainPolygon (LayerTypePtr Layer, PolygonTypePtr Polygon);
 static void AddPart (void *);
 static void SetPVColor (PinTypePtr, int);
 static void DrawGrid (void);
-static void DrawEMark (LocationType, LocationType, Boolean);
+static void DrawEMark (ElementTypePtr, LocationType, LocationType, Boolean);
 static void ClearPad (PadTypePtr, Boolean);
 static void DrawHole (PinTypePtr);
 static void DrawMask (BoxType *);
@@ -352,7 +353,7 @@ EMark_callback (const BoxType * b, void *cl)
 {
   ElementTypePtr element = (ElementTypePtr) b;
 
-  DrawEMark (element->MarkX, element->MarkY, !FRONT (element));
+  DrawEMark (element, element->MarkX, element->MarkY, !FRONT (element));
   return 1;
 }
 
@@ -435,6 +436,7 @@ PrintAssembly (const BoxType * drawn_area, int side_group, int swap_ident)
   gui->set_draw_faded (Output.fgGC, 1);
   SWAP_IDENT = swap_ident;
   DrawLayerGroup (side_group, drawn_area);
+  r_search (PCB->Data->via_tree, drawn_area, NULL, lowvia_callback, NULL);
   DrawTop (drawn_area);
   gui->set_draw_faded (Output.fgGC, 0);
 
@@ -500,8 +502,8 @@ DrawEverything (BoxTypePtr drawn_area)
 
       if (gui->set_layer (0, group))
 	{
-	  DrawLayerGroup (group, drawn_area);
-	  if (!gui->gui)
+	  if (DrawLayerGroup (group, drawn_area)
+	      && !gui->gui)
 	    {
 	      int save_swap = SWAP_IDENT;
 
@@ -641,24 +643,29 @@ DrawEverything (BoxTypePtr drawn_area)
 }
 
 static void
-DrawEMark (LocationType X, LocationType Y, Boolean invisible)
+DrawEMark (ElementTypePtr e, LocationType X, LocationType Y, Boolean invisible)
 {
+  int mark_size = EMARK_SIZE;
   if (!PCB->InvisibleObjectsOn && invisible)
     return;
-#if 0
+
+  if (e->PinN && mark_size > e->Pin[0].Thickness/2)
+    mark_size = e->Pin[0].Thickness/2;
+  if (e->PadN && mark_size > e->Pad[0].Thickness/2)
+    mark_size = e->Pad[0].Thickness/2;
+
   gui->set_color (Output.fgGC,
 		  invisible ? PCB->InvisibleMarkColor : PCB->ElementColor);
-  gdk_gc_set_line_attributes (Output.fgGC, 1,
-			      GDK_LINE_SOLID, GDK_CAP_ROUND, GDK_JOIN_ROUND);
-  XDrawCLine (DrawingWindow, Output.fgGC, X - EMARK_SIZE,
-	      Y, X, Y - EMARK_SIZE);
-  XDrawCLine (DrawingWindow, Output.fgGC, X + EMARK_SIZE,
-	      Y, X, Y - EMARK_SIZE);
-  XDrawCLine (DrawingWindow, Output.fgGC, X - EMARK_SIZE,
-	      Y, X, Y + EMARK_SIZE);
-  XDrawCLine (DrawingWindow, Output.fgGC, X + EMARK_SIZE,
-	      Y, X, Y + EMARK_SIZE);
-#endif
+  gui->set_line_cap (Output.fgGC, Trace_Cap);
+  gui->set_line_width (Output.fgGC, 1);
+  gui->draw_line (Output.fgGC, X - mark_size,
+	      Y, X, Y - mark_size);
+  gui->draw_line (Output.fgGC, X + mark_size,
+	      Y, X, Y - mark_size);
+  gui->draw_line (Output.fgGC, X - mark_size,
+	      Y, X, Y + mark_size);
+  gui->draw_line (Output.fgGC, X + mark_size,
+	      Y, X, Y + mark_size);
 }
 
 static int
@@ -891,12 +898,13 @@ DrawLayer (LayerTypePtr Layer, BoxType * screen)
 }
 
 /* ---------------------------------------------------------------------------
- * draws one layer group
+ * draws one layer group.  Returns non-zero if pins and pads should be
+ * drawn with this group.
  */
-static void
+static int
 DrawLayerGroup (int group, const BoxType * screen)
 {
-  int i;
+  int i, rv=1;
   int layernum;
   struct pin_info info;
   int need_mask = 0;
@@ -904,12 +912,16 @@ DrawLayerGroup (int group, const BoxType * screen)
   int n_entries = PCB->LayerGroups.Number[group];
   Cardinal *layers = PCB->LayerGroups.Entries[group];
 
+
   if (!gui->poly_dicer)
     {
       for (i = n_entries - 1; i >= 0; i--)
 	if (layers[i] < max_layer)
 	  {
 	    Layer = PCB->Data->Layer + layers[i];
+	    if (strcasecmp (Layer->Name, "route") == 0
+		|| strcasecmp (Layer->Name, "outline") == 0)
+	      rv = 0;
 	    if (Layer->On && Layer->PolygonN)
 	      {
 		POLYGON_LOOP (Layer);
@@ -1014,6 +1026,7 @@ DrawLayerGroup (int group, const BoxType * screen)
 	  r_search (Layer->text_tree, screen, NULL, text_callback, Layer);
 	}
     }
+  return rv;
 }
 
 /* ---------------------------------------------------------------------------
@@ -1229,6 +1242,8 @@ ClearOnlyPin (PinTypePtr Pin, Boolean mask)
   if (!mask && TEST_FLAG (HOLEFLAG, Pin))
     return;
   if (half == 0)
+    return;
+  if (!mask && Pin->Clearance <= 0)
     return;
 
   /* Clear the area around the pin */
@@ -1791,7 +1806,7 @@ DrawArcLowLevel (ArcTypePtr Arc)
       AddPart (Arc);
       return;
     }
-  /* angles have to be converted to X11 notation */
+
   if (TEST_FLAG (THINDRAWFLAG, PCB))
     gui->set_line_width (Output.fgGC, 1);
   else
@@ -2000,6 +2015,8 @@ DrawRat (RatTypePtr Line, int unused)
       else
 	gui->set_color (Output.fgGC, PCB->RatColor);
     }
+  if (Settings.RatThickness < 20)
+    Line->Thickness = pixel_slop * Settings.RatThickness;
   DrawLineLowLevel ((LineTypePtr) Line, False);
 }
 

@@ -116,6 +116,7 @@ CopyElementLowLevel (DataTypePtr Data, ElementTypePtr Dest,
 		     ElementTypePtr Src, Boolean uniqueName, LocationType dx,
 		     LocationType dy)
 {
+  int i;
   /* release old memory if necessary */
   if (Dest)
     FreeElementMemory (Dest);
@@ -164,6 +165,11 @@ CopyElementLowLevel (DataTypePtr Data, ElementTypePtr Dest,
 			   arc->Thickness);
   }
   END_LOOP;
+
+  for (i=0; i<Src->Attributes.Number; i++)
+    CreateNewAttribute (& Dest->Attributes,
+			Src->Attributes.List[i].name,
+			Src->Attributes.List[i].value);
 
   Dest->MarkX = Src->MarkX + dx;
   Dest->MarkY = Src->MarkY + dy;

@@ -47,7 +47,7 @@ define(`PKG_QFP2',
 	define(`WIDTH', `eval((QUARTER-1) *25 +2*50)')
 	define(`CENTER', `eval(WIDTH / 2)')
 	define(`NUMPINS', `$4')
-Element(0x00 "$1" "$2" "$3" 100 CENTER 0 100 0x00)
+Element(0x00 "$1" "`$2'" "$3" 100 CENTER 0 100 0x00)
 (
 
 	# left row

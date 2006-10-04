@@ -124,6 +124,7 @@ Arc		{ return(T_ARC); }
 NetList		{ return(T_NETLIST); }
 Net		{ return(T_NET); }
 Connect		{ return(T_CONN); }
+Attribute	{ return(T_ATTRIBUTE); }
 
 \'.\'				{
 						yylval.number = (unsigned) *(yytext+1);

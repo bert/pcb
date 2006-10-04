@@ -31,8 +31,6 @@ Remember configuration and restore on startup?
 
 EPS: option to specify which layers and order to draw in.
 
-PS: Option for single or multi file.
-
 PNG: option to specify which layers and order to draw in.
 PNG: get clears right.
 PNG: add options for gif and jpeg.  Maybe this HID needs

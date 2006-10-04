@@ -232,20 +232,23 @@ RoundDrillInfo (DrillInfoTypePtr d, int roundto)
 	  int ei, ej;
 
 	  d->Drill[i].ElementMax
-	    = d->Drill[i].ElementN + d->Drill[i + 1].ElementN;
-	  d->Drill[i].Element = MyRealloc (d->Drill[i].Element,
-					   d->Drill[i].ElementMax *
-					   sizeof (ElementTypePtr),
-					   "RoundDrillInfo");
-
-	  for (ei = 0; ei < d->Drill[i + 1].ElementN; ei++)
+	    = d->Drill[i].ElementN + d->Drill[i+1].ElementN;
+	  if (d->Drill[i].ElementMax)
 	    {
-	      for (ej = 0; ej < d->Drill[i].ElementN; ej++)
-		if (d->Drill[i].Element[ej] == d->Drill[i + 1].Element[ei])
-		  break;
-	      if (ej == d->Drill[i].ElementN)
-		d->Drill[i].Element[d->Drill[i].ElementN++]
-		  = d->Drill[i + 1].Element[ei];
+	      d->Drill[i].Element = MyRealloc (d->Drill[i].Element,
+					       d->Drill[i].ElementMax *
+					       sizeof(ElementTypePtr),
+					       "RoundDrillInfo");
+
+	      for (ei = 0; ei < d->Drill[i+1].ElementN; ei++)
+		{
+		  for (ej = 0; ej < d->Drill[i].ElementN; ej++)
+		    if (d->Drill[i].Element[ej] == d->Drill[i + 1].Element[ei])
+		      break;
+		  if (ej == d->Drill[i].ElementN)
+		    d->Drill[i].Element[d->Drill[i].ElementN++]
+		      = d->Drill[i + 1].Element[ei];
+		}
 	    }
 	  MYFREE (d->Drill[i + 1].Element);
 

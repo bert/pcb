@@ -671,6 +671,8 @@ MyRealloc (void *Ptr, size_t Size, const char *Text)
 #ifdef MEM_DEBUG
   fprintf (stderr, "0x%x Realloc to %d from %s ", Ptr, Size, Text);
 #endif
+  if (Size == 0)
+    Size = 1;
   p = Ptr ? realloc (Ptr, Size) : malloc (Size);
   if (!p)
     MyFatal ("out of memory during realloc() in '%s'()\n",
@@ -994,7 +996,7 @@ DSAddCharacter (DynamicStringTypePtr Ptr, char Char)
  * add a string to a dynamic string
  */
 void
-DSAddString (DynamicStringTypePtr Ptr, char *S)
+DSAddString (DynamicStringTypePtr Ptr, const char *S)
 {
   size_t position = Ptr->Data ? strlen (Ptr->Data) : 0;
 

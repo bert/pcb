@@ -92,29 +92,12 @@ ghid_dialog_about (void)
 {
   GtkWidget *dialog;
   GHidPort *out = &ghid_port;
-
   dialog = gtk_message_dialog_new (GTK_WINDOW (out->top_window),
 				   GTK_DIALOG_MODAL
 				   | GTK_DIALOG_DESTROY_WITH_PARENT,
 				   GTK_MESSAGE_INFO,
 				   GTK_BUTTONS_OK,
-				   "This is PCB, an interactive\n"
-				   "printed circuit board editor\n"
-				   "version " VERSION "\n\n"
-				   "Compiled on " __DATE__ " at " __TIME__
-				   "\n\n" "by harry eaton\n\n"
-				   "Copyright (C) Thomas Nau 1994, 1995, 1996, 1997\n"
-				   "Copyright (C) harry eaton 1998-2006\n"
-				   "Copyright (C) C. Scott Ananian 2001\n"
-				   "Copyright (C) DJ Delorie 2003, 2004, 2005, 2006\n"
-				   "Copyright (C) Dan McMahill 2003, 2004, 2005, 2006\n\n"
-				   "It is licensed under the terms of the GNU\n"
-				   "General Public License version 2\n"
-				   "See the LICENSE file for more information\n\n"
-				   "For more information see:\n\n"
-				   "PCB homepage: http://pcb.sf.net\n"
-				   "gEDA homepage: http://www.geda.seul.org\n"
-				   "gEDA Wiki: http://geda.seul.org/dokuwiki/doku.php?id=geda\n\n"
+				   GetInfoString ()
 				   );
 
   gtk_dialog_run (GTK_DIALOG (dialog));

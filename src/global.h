@@ -163,6 +163,18 @@ typedef struct
   int width, height;
 } RectangleType, *RectangleTypePtr;
 
+typedef struct
+{
+  char *name;
+  char *value;
+} AttributeType, *AttributeTypePtr;
+
+typedef struct
+{
+  int Number, Max;
+  AttributeType *List;
+} AttributeListType, *AttributeListTypePtr;
+
 /* ---------------------------------------------------------------------------
  * the basic object types supported by PCB
  */
@@ -290,6 +302,7 @@ typedef struct
   LineTypePtr Line;
   ArcTypePtr Arc;
   BoxType VBox;
+  AttributeListType Attributes;
 } ElementType, *ElementTypePtr, **ElementTypeHandle;
 
 /* ---------------------------------------------------------------------------
@@ -440,6 +453,7 @@ typedef struct
   LayerGroupType LayerGroups;
   RouteStyleType RouteStyle[NUM_STYLES];
   LibraryType NetlistLib;
+  AttributeListType Attributes;
   DataTypePtr Data;		/* entire database */
 }
 PCBType, *PCBTypePtr;
@@ -701,6 +715,7 @@ typedef struct
 #define UNDO_CHANGEANGLES		0x4000	/* change arc angles */
 #define UNDO_LAYERCHANGE		0x8000	/* layer new/delete/move */
 #define UNDO_CLEAR		       0x10000  /* clear/restore to polygons */
+#define UNDO_NETLISTCHANGE     	       0x20000	/* netlist change */
 
 
 /* ---------------------------------------------------------------------------

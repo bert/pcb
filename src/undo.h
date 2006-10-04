@@ -63,6 +63,7 @@ void AddObjectToMaskSizeUndoList (int, void *, void *, void *);
 void AddObjectToChangeAnglesUndoList (int, void *, void *, void *);
 void AddObjectToClearPolyUndoList (int, void *, void *, void *, Boolean);
 void AddLayerChangeToUndoList (int, int);
+void AddNetlistLibToUndoList (LibraryTypePtr);
 void LockUndo (void);
 void UnlockUndo (void);
 Boolean Undoing (void);

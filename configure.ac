@@ -12,9 +12,8 @@ AC_CANONICAL_HOST
 AC_MSG_CHECKING(for windows)
 case $host in
 	*-*-cygwin* )
-		WIN32=yes
-		CFLAGS="$CFLAGS ${CYGWIN_CFLAGS:--mms-bitfields -mno-cygwin -mwindows}"
-		CPPFLAGS="$CPPFLAGS ${CYGWIN_CPPFLAGS:--mms-bitfields -mno-cygwin -mwindows}"
+		CFLAGS="$CFLAGS ${CYGWIN_CFLAGS}"
+		CPPFLAGS="$CPPFLAGS ${CYGWIN_CPPFLAGS}"
 		;;
 
 	*-*-mingw* )
@@ -134,6 +133,10 @@ of the documentation.  For this to work, you must have perl installed.
 ])
 	fi
 fi
+
+old_LDFLAGS="$LDFLAGS"
+LDFLAGS="$LDFLAGS -rdynamic"
+AC_LINK_IFELSE([int main(){}],[],[LDFLAGS="$old_LDFLAGS"])
 
 # ------------- HID config -------------------
 
@@ -261,16 +264,20 @@ AC_CHECK_FUNCS(logf expf rint)
 AC_CHECK_FUNCS(vsnprintf)
 AC_CHECK_FUNCS(getpwuid gethostname getcwd)
 AC_CHECK_FUNCS(random)
+
+# normally used for all file i/o
+AC_CHECK_FUNCS(popen)
+
 AC_HEADER_STDC
 AC_CHECK_HEADERS(string.h sys/types.h regex.h pwd.h)
 AC_CHECK_HEADERS(sys/socket.h netinet/in.h netdb.h sys/param.h sys/times.h)
 
-AC_PATH_XTRA
-CPPFLAGS="$CFLAGS $X_CFLAGS"
 
 for e in $HIDLIST; do
     case $e in
       lesstif )
+	AC_PATH_XTRA
+	CPPFLAGS="$CFLAGS $X_CFLAGS"
 	AC_CHECK_LIB(X11, XOpenDisplay, , , $X_LIBS)
 	AC_CHECK_LIB(ICE, main, , , $X_LIBS)
 	AC_CHECK_LIB(SM, main, , , $X_LIBS)
@@ -504,6 +511,11 @@ FONTFILENAME=${FONTFILENAME:-"default_font"}
 AC_SUBST(FONTFILENAME)
 AC_DEFINE_UNQUOTED(FONTFILENAME,"$FONTFILENAME",[File for default font])
 
+# standard autoconf variables
+CPPFLAGS="$CPPFLAGS -DPREFIXDIR=\\\"\${prefix}\\\""
+CPPFLAGS="$CPPFLAGS -DEXECPREFIXDIR=\\\"\${exec_prefix}\\\""
+CPPFLAGS="$CPPFLAGS -DHOST=\\\"\${host}\\\""
+
 # directory for old-style library and for fonts
 PCBLIBDIR=${datadir}/pcb
 AC_SUBST(PCBLIBDIR)
@@ -550,6 +562,7 @@ if test -d $srcdir/lib; then
    AC_CONFIG_FILES(lib/ListLibraryContents.sh)
    AC_CONFIG_FILES(lib/Makefile)
    AC_CONFIG_FILES(lib/QueryLibrary.sh)
+   AC_CONFIG_FILES(lib/m4lib_to_newlib.sh)
    AC_CONFIG_FILES(lib/qfp-ui)
 fi
 if test -d $srcdir/newlib; then

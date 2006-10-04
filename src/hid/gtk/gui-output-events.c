@@ -168,6 +168,7 @@ ghid_port_ranges_zoom (gdouble zoom)
   ytmp = (gport->view_y - gport->view_y0) / (gdouble) gport->view_height;
 
   gport->zoom = zoom;
+  pixel_slop = zoom;
   ghid_port_ranges_scale(FALSE);
 
   x0 = gport->view_x - xtmp * gport->view_width;

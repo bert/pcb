@@ -461,7 +461,13 @@ ChangeViaClearSize (PinTypePtr Via)
 
   if (TEST_FLAG (LOCKFLAG, Via))
     return (NULL);
-  value = MIN (MAX_LINESIZE, MAX (value, PCB->Bloat * 2 + 2));
+  value = MIN (MAX_LINESIZE, value);
+  if (value < 0)
+    value = 0;
+  if (Delta < 0 && value < PCB->Bloat * 2)
+    value = 0;
+  if ((Delta > 0 || Absolute) && value < PCB->Bloat * 2)
+    value = PCB->Bloat * 2 + 2;
   if (Via->Clearance == value)
     return NULL;
   RestoreToPolygon (PCB->Data, VIA_TYPE, Via, Via);

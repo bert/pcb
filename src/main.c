@@ -416,6 +416,14 @@ HID_Attribute main_attribute_list[] = {
   LAYERCOLOR (6, "#8b7355"),
   LAYERCOLOR (7, "#00868b"),
   LAYERCOLOR (8, "#228b22"),
+  LAYERCOLOR (9, "#8b2323"),
+  LAYERCOLOR (10, "#3a5fcd"),
+  LAYERCOLOR (11, "#104e8b"),
+  LAYERCOLOR (12, "#cd3700"),
+  LAYERCOLOR (13, "#548b54"),
+  LAYERCOLOR (14, "#8b7355"),
+  LAYERCOLOR (15, "#00868b"),
+  LAYERCOLOR (16, "#228b22"),
   LAYERSELCOLOR (1),
   LAYERSELCOLOR (2),
   LAYERSELCOLOR (3),
@@ -424,6 +432,14 @@ HID_Attribute main_attribute_list[] = {
   LAYERSELCOLOR (6),
   LAYERSELCOLOR (7),
   LAYERSELCOLOR (8),
+  LAYERSELCOLOR (9),
+  LAYERSELCOLOR (10),
+  LAYERSELCOLOR (11),
+  LAYERSELCOLOR (12),
+  LAYERSELCOLOR (13),
+  LAYERSELCOLOR (14),
+  LAYERSELCOLOR (15),
+  LAYERSELCOLOR (16),
   COLOR (WarnColor, "#ff8000", "warn-color", "color for warnings"),
   COLOR (MaskColor, "#ff0000", "mask-color", "color for solder mask"),
 
@@ -596,6 +612,8 @@ main (int argc, char *argv[])
 #include "core_lists.h"
   setbuf (stdout, 0);
   hid_init ();
+
+  hid_load_settings ();
 
   program_name = argv[0];
   program_basename = strrchr (program_name, '/');

@@ -129,7 +129,7 @@ define(`PinList_WD33C93A_dil', ``I/O',`/MSG',`GND',`C/D',`/BSY',`/SEL',`CLK',`/D
 #
 define(`Description_MC68030_pga', `CPU')
 define(`PKG_MC68030_pga',
-	`Element(0x00 "$1" "$2" "$3" 450 650 0 100 0x00)
+	`Element(0x00 "$1" "`$2'" "$3" 450 650 0 100 0x00)
 	(
 	Pin(50 50 50 20 "/BR" 0x201)
 	Pin(150 50 50 20 "A0" 0x01)
@@ -272,7 +272,7 @@ define(`PKG_MC68030_pga',
 
 define(`Description_MC68881_pga', `FPU')
 define(`PKG_MC68881_pga',
-	`Element(0x00 "$1" "$2" "$3" 350 450 0 100 0x00)
+	`Element(0x00 "$1" "`$2'" "$3" 350 450 0 100 0x00)
 	(
 	Pin(50 50 50 20 "VCC" 0x201)
 	Pin(150 50 50 20 "GND" 0x01)

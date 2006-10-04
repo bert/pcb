@@ -87,6 +87,9 @@
 /* Define to 1 if you have the <netinet/in.h> header file. */
 #undef HAVE_NETINET_IN_H
 
+/* Define to 1 if you have the `popen' function. */
+#undef HAVE_POPEN
+
 /* Define to 1 if you have the <pwd.h> header file. */
 #undef HAVE_PWD_H
 

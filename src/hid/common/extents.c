@@ -170,6 +170,7 @@ extents_fill_rect (hidGC gc, int x1, int y1, int x2, int y2)
 }
 
 static HID extents_hid = {
+  sizeof (HID),
   "extents-extents",
   "used to calculate extents",
   0,				/* gui */

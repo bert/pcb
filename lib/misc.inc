@@ -1,4 +1,4 @@
-#
+.#
 #                             COPYRIGHT
 # 
 #   PCB, interactive printed circuit board design
@@ -45,7 +45,7 @@
 #
 define(`PKG_SD',
 	`define(`MAXY', `eval(`$4' / 2 * 100 + 50)')
-Element(0x00 "$1" "$2" "$3" 275 50 3 100 0x00)
+Element(0x00 "$1" "`$2'" "$3" 275 50 3 100 0x00)
 (
 	forloop(`i', 1, eval($4 / 2),
 		`PIN(50,  eval(100*(i-1)+50), 60, 35, eval(2*i-1))
@@ -80,7 +80,7 @@ Element(0x00 "$1" "$2" "$3" 275 50 3 100 0x00)
 
 define(`GENERIC_PL_POWER',
     `define(`pin1X', `eval((`$6' - (`$4' - 1) * `$5')/2)')
-Element(0x00 "$1" "$2" "$3" eval(`$6'+60) 50 3 100 0x00)
+Element(0x00 "$1" "`$2'" "$3" eval(`$6'+60) 50 3 100 0x00)
 (
        forloop(`i', 1, `$4',
                `PIN(eval(pin1X + (i-1)*`$5'), ifelse(eval(i % 2 == 0), 0, eval(`$8'+`$11'), `$8'), `$9', `$10', i)
@@ -101,10 +101,10 @@ Element(0x00 "$1" "$2" "$3" eval(`$6'+60) 50 3 100 0x00)
 # $2: name on PCB
 # $3: value
 define(`PKG_R025',
-`Element(0x00 "$1" "$2" "$3" 120 30 0 100 0x00)
+`Element(0x00 "$1" "`$2'" "$3" 120 30 0 100 0x00)
 (
-	PIN(0, 50, 50, 20, 1)
-	PIN(400, 50, 50, 20, 2)
+	PIN(0, 50, 68, 38, 1)
+	PIN(400, 50, 68, 38, 2)
 	ElementLine(100 0 300 0 20)
 	ElementLine(300 0 300 100 20)
 	ElementLine(300 100 100 100 20)
@@ -122,10 +122,10 @@ define(`PKG_R025',
 # $4: number of pins
 define(`PKG_SIL',
 	`define(`MAXY', `eval(`$4' * 100 -50)')
-Element(0x00 "$1" "$2" "$3" 160 10 3 100 0x00)
+Element(0x00 "$1" "`$2'" "$3" 160 10 3 100 0x00)
 (
 	forloop(`i', 1, $4,
-		`PIN(50, eval(i * 100 -50), 50, 20, i)
+		`PIN(50, eval(i * 100 -50), 60, 28, i)
 	')
 	ElementLine(  0 50   0 MAXY 20)
 	ElementLine(100 50 100 MAXY 20)
@@ -145,10 +145,10 @@ Element(0x00 "$1" "$2" "$3" 160 10 3 100 0x00)
 # $4: number of pins
 define(`PKG_CSIL',
 	`define(`MAXY', `eval(`$4' * 100 -50)')
-Element(0x00 "$1" "$2" "$3" 160 10 3 100 0x00)
+Element(0x00 "$1" "`$2'" "$3" 160 10 3 100 0x00)
 (
 	forloop(`i', 1, $4,
-		`PIN(50, eval(i * 100 -50), 50, 20, i)
+		`PIN(50, eval(i * 100 -50), 60, 28, i)
 	')
 	ElementLine(  0 50   0 MAXY 20)
 	ElementLine(100 50 100 MAXY 20)
@@ -167,7 +167,7 @@ Element(0x00 "$1" "$2" "$3" 160 10 3 100 0x00)
 #
 # based on mail by Volker Bosch (bosch@iema.e-technik.uni-stuttgart.de)
 define(`PKG_QFP132',
-`Element(0x00 "$1" "$2" "$3" 250 200 0 150 0x00)
+`Element(0x00 "$1" "`$2'" "$3" 250 200 0 150 0x00)
 (
 	forloop(`i', 1, 17,
 		`define(`XPOS', eval(625 -i*25))'
@@ -250,7 +250,7 @@ define(`PKG_QFP132',
 define(`PKG_LED',
 	`define(`RADIUS1', `eval(`$4' /2)')
 	define(`RADIUS2', `eval(`$4' /2 +20)')
-Element(0x00 "$1" "$2" "$3" 100 70 0 100 0x00)
+Element(0x00 "$1" "`$2'" "$3" 100 70 0 100 0x00)
 (
 # typical LED is 0.5 mm or 0.020" square pin.  See for example
 # http://www.lumex.com and part number SSL-LX3054LGD.
@@ -290,7 +290,7 @@ define(`PKG_DIODE_LAY',
 	define(`Y', `eval(`$4' /2)')
 	define(`DELTA', `eval(X1 /2)')
 	define(`PINSIZE', `ifelse(eval($4 >= 500), 1, 80, 50)')
-Element(0x00 "$1" "$2" "$3" eval(X2+20) eval(Y-DELTA) 0 100 0x00)
+Element(0x00 "$1" "`$2'" "$3" eval(X2+20) eval(Y-DELTA) 0 100 0x00)
 (
 	PIN(0, Y, PINSIZE, 20, 1)
 	PIN($4, Y, PINSIZE, 20, 2)
@@ -311,16 +311,21 @@ Element(0x00 "$1" "$2" "$3" eval(X2+20) eval(Y-DELTA) 0 100 0x00)
 # $2: name on PCB
 # $3: value
 # $4: distance in mil
+# $5: 1 for polarized, 0 for non polarized
 define(`PKG_AXIAL_LAY',
 	`define(`X1', `eval(`$4' /4)')
 	define(`X2', `eval(`$4' -X1)')
 	define(`Y1', `eval(X1 /3)')
 	define(`Y2', `eval(Y1 *2)')
-	define(`PINSIZE', `ifelse(eval($4 >= 600), 1, 80, 50)')
-Element(0x00 "$1" "$2" "$3" eval(X2+20) eval(Y2+20) 0 100 0x00)
+	define(`PINSIZE', `ifelse(eval($4 >= 600), 1, 80, 55)')
+	define(`DRILLSIZE', `ifelse(eval($4 >= 600), 1, 50, 30)')
+	define(`YPT', `eval(Y1 - PINSIZE/2 - 10)')
+	define(`YPC', `eval(YPT - 20)')
+	define(`YPB', `eval(YPT - 40)')
+Element(0x00 "$1" "`$2'" "$3" eval(X2+20) eval(Y2+20) 0 100 0x00)
 (
-	PIN(0, Y1, PINSIZE, 20, 1)
-	PIN($4, Y1, PINSIZE, 20, 2)
+	PIN(0, Y1, PINSIZE, DRILLSIZE, 1)
+	PIN($4, Y1, PINSIZE, DRILLSIZE, 2)
 
 	ElementLine(0 Y1 X1 Y1 10)
 	ElementLine(X2 Y1 $4 Y1 10)
@@ -329,6 +334,12 @@ Element(0x00 "$1" "$2" "$3" eval(X2+20) eval(Y2+20) 0 100 0x00)
 	ElementLine(X2 0 X2 Y2 10)
 	ElementLine(X2 Y2 X1 Y2 10)
 	ElementLine(X1 Y2 X1 0 10)
+
+	ifelse(1, $5,
+	ElementLine(0 YPB 0 YPT 10)
+	ElementLine(-20 YPC 20 YPC 10)
+	ElementLine(`eval($4 - 20)' YPC `eval($4 + 20)' YPC 10)
+	)
 
 #	ElementArc(X1 Y 50 50 270 180 10)
 #	ElementArc(X2 Y 50 50 90 180 10)
@@ -353,8 +364,8 @@ define(`PKG_CRYSTAL',
 	define(`Y2', `eval(Y +50)')
 Element(0x00 "$1" "`$2'" "$3" X1 eval(Y2+20) 0 100 0x00)
 (
-	PIN(X1, Y, 60, 20, 1)
-	PIN(X2, Y, 60, 20, 2)
+	PIN(X1, Y, 60, 28, 1)
+	PIN(X2, Y, 60, 28, 2)
 	ElementLine(X1 Y1 X2 Y1 10)
 	ElementLine(X1 Y2 X2 Y2 10)
 	ElementArc(X1 Y 50 50 270 180 10)
@@ -370,12 +381,12 @@ Element(0x00 "$1" "`$2'" "$3" X1 eval(Y2+20) 0 100 0x00)
 # $3: value
 #
 define(`PKG_OSC',
-`Element(0x00 "$1" "$2" "$3" 270 300 3 100 0x00)
+`Element(0x00 "$1" "`$2'" "$3" 270 300 3 100 0x00)
 (
-	Pin(100 100 50 20 "NC" 0x01)
-	Pin(100 700 50 20 "GND" 0x01)
-	Pin(400 700 50 20 "CLK" 0x01)
-	Pin(400 100 50 20 "VCC" 0x01)
+	Pin(100 100 50 28 "NC" 0x01)
+	Pin(100 700 50 28 "GND" 0x01)
+	Pin(400 700 50 28 "CLK" 0x01)
+	Pin(400 100 50 28 "VCC" 0x01)
 
 	ElementLine(5 5 400 5 10)
 	ElementArc(400 100 95 95 180 90 10)
@@ -407,73 +418,73 @@ define(`PKG_OSC',
 # $3: value
 #
 define(`PKG_ISA8',
-`Element(0x00 "$1" "$2" "$3" 4000 0 0 100 0x00)
+`Element(0x00 "$1" "`$2'" "$3" 4000 0 0 100 0x00)
 (
     # Pins, entspr. Anschl. auf Loetseite (b31..b1)
-	Pin( 200 3850 60 20 "Gnd (b31)" 0x01)
-	Pin( 300 3850 60 20 "Osc" 0x01)
-	Pin( 400 3850 60 20 "+5V" 0x01)
-	Pin( 500 3850 60 20 "BALE" 0x01)
-	Pin( 600 3850 60 20 "TC" 0x01)
-	Pin( 700 3850 60 20 "/DAck2" 0x01)
-	Pin( 800 3850 60 20 "IRq3" 0x01)
-	Pin( 900 3850 60 20 "IRq4" 0x01)
-	Pin(1000 3850 60 20 "IRq5" 0x01)
-	Pin(1100 3850 60 20 "IRq6" 0x01)
-	Pin(1200 3850 60 20 "IRq7" 0x01)
-	Pin(1300 3850 60 20 "Clock" 0x01)
-	Pin(1400 3850 60 20 "/Ref" 0x01)
-	Pin(1500 3850 60 20 "DRq1" 0x01)
-	Pin(1600 3850 60 20 "/DAck1" 0x01)
-	Pin(1700 3850 60 20 "DRq3" 0x01)
-	Pin(1800 3850 60 20 "/DAck3" 0x01)
-	Pin(1900 3850 60 20 "/IOR" 0x01)
-	Pin(2000 3850 60 20 "/IOW" 0x01)
-	Pin(2100 3850 60 20 "/SMEMR" 0x01)
-	Pin(2200 3850 60 20 "/SMEMW" 0x01)
-	Pin(2300 3850 60 20 "Gnd" 0x01)
-	Pin(2400 3850 60 20 "+12V" 0x01)
-	Pin(2500 3850 60 20 "/0WS" 0x01)
-	Pin(2600 3850 60 20 "-12V" 0x01)
-	Pin(2700 3850 60 20 "DRq2" 0x01)
-	Pin(2800 3850 60 20 "-5V" 0x01)
-	Pin(2900 3850 60 20 "IEQ2" 0x01)
-	Pin(3000 3850 60 20 "+5V" 0x01)
-	Pin(3100 3850 60 20 "ResDrv" 0x01)
-	Pin(3200 3850 60 20 "Gnd (b1)" 0x01)
+	Pin( 200 3850 60 35 "Gnd (b31)" 0x01)
+	Pin( 300 3850 60 35 "Osc" 0x01)
+	Pin( 400 3850 60 35 "+5V" 0x01)
+	Pin( 500 3850 60 35 "BALE" 0x01)
+	Pin( 600 3850 60 35 "TC" 0x01)
+	Pin( 700 3850 60 35 "/DAck2" 0x01)
+	Pin( 800 3850 60 35 "IRq3" 0x01)
+	Pin( 900 3850 60 35 "IRq4" 0x01)
+	Pin(1000 3850 60 35 "IRq5" 0x01)
+	Pin(1100 3850 60 35 "IRq6" 0x01)
+	Pin(1200 3850 60 35 "IRq7" 0x01)
+	Pin(1300 3850 60 35 "Clock" 0x01)
+	Pin(1400 3850 60 35 "/Ref" 0x01)
+	Pin(1500 3850 60 35 "DRq1" 0x01)
+	Pin(1600 3850 60 35 "/DAck1" 0x01)
+	Pin(1700 3850 60 35 "DRq3" 0x01)
+	Pin(1800 3850 60 35 "/DAck3" 0x01)
+	Pin(1900 3850 60 35 "/IOR" 0x01)
+	Pin(2000 3850 60 35 "/IOW" 0x01)
+	Pin(2100 3850 60 35 "/SMEMR" 0x01)
+	Pin(2200 3850 60 35 "/SMEMW" 0x01)
+	Pin(2300 3850 60 35 "Gnd" 0x01)
+	Pin(2400 3850 60 35 "+12V" 0x01)
+	Pin(2500 3850 60 35 "/0WS" 0x01)
+	Pin(2600 3850 60 35 "-12V" 0x01)
+	Pin(2700 3850 60 35 "DRq2" 0x01)
+	Pin(2800 3850 60 35 "-5V" 0x01)
+	Pin(2900 3850 60 35 "IEQ2" 0x01)
+	Pin(3000 3850 60 35 "+5V" 0x01)
+	Pin(3100 3850 60 35 "ResDrv" 0x01)
+	Pin(3200 3850 60 35 "Gnd (b1)" 0x01)
 
       # Pins, entspr. Anschl. auf Bestueckseite
-	Pin( 200 3950 60 20 "SA0 (a31)" 0x01)
-	Pin( 300 3950 60 20 "SA1" 0x01)
-	Pin( 400 3950 60 20 "SA2" 0x01)
-	Pin( 500 3950 60 20 "SA3" 0x01)
-	Pin( 600 3950 60 20 "SA4" 0x01)
-	Pin( 700 3950 60 20 "SA5" 0x01)
-	Pin( 800 3950 60 20 "SA6" 0x01)
-	Pin( 900 3950 60 20 "SA7" 0x01)
-	Pin(1000 3950 60 20 "SA8" 0x01)
-	Pin(1100 3950 60 20 "SA9" 0x01)
-	Pin(1200 3950 60 20 "SA10" 0x01)
-	Pin(1300 3950 60 20 "SA11" 0x01)
-	Pin(1400 3950 60 20 "SA12" 0x01)
-	Pin(1500 3950 60 20 "SA13" 0x01)
-	Pin(1600 3950 60 20 "SA14" 0x01)
-	Pin(1700 3950 60 20 "SA15" 0x01)
-	Pin(1800 3950 60 20 "SA16" 0x01)
-	Pin(1900 3950 60 20 "SA17" 0x01)
-	Pin(2000 3950 60 20 "SA18" 0x01)
-	Pin(2100 3950 60 20 "SA19" 0x01)
-	Pin(2200 3950 60 20 "AEN" 0x01)
-	Pin(2300 3950 60 20 "IOChRdy" 0x01)
-	Pin(2400 3950 60 20 "SD0" 0x01)
-	Pin(2500 3950 60 20 "SD1" 0x01)
-	Pin(2600 3950 60 20 "SD2" 0x01)
-	Pin(2700 3950 60 20 "SD3" 0x01)
-	Pin(2800 3950 60 20 "SD4" 0x01)
-	Pin(2900 3950 60 20 "SD5" 0x01)
-	Pin(3000 3950 60 20 "SD6" 0x01)
-	Pin(3100 3950 60 20 "SD7" 0x01)
-	Pin(3200 3950 60 20 "/IOChCk (a1)" 0x01)
+	Pin( 200 3950 60 35 "SA0 (a31)" 0x01)
+	Pin( 300 3950 60 35 "SA1" 0x01)
+	Pin( 400 3950 60 35 "SA2" 0x01)
+	Pin( 500 3950 60 35 "SA3" 0x01)
+	Pin( 600 3950 60 35 "SA4" 0x01)
+	Pin( 700 3950 60 35 "SA5" 0x01)
+	Pin( 800 3950 60 35 "SA6" 0x01)
+	Pin( 900 3950 60 35 "SA7" 0x01)
+	Pin(1000 3950 60 35 "SA8" 0x01)
+	Pin(1100 3950 60 35 "SA9" 0x01)
+	Pin(1200 3950 60 35 "SA10" 0x01)
+	Pin(1300 3950 60 35 "SA11" 0x01)
+	Pin(1400 3950 60 35 "SA12" 0x01)
+	Pin(1500 3950 60 35 "SA13" 0x01)
+	Pin(1600 3950 60 35 "SA14" 0x01)
+	Pin(1700 3950 60 35 "SA15" 0x01)
+	Pin(1800 3950 60 35 "SA16" 0x01)
+	Pin(1900 3950 60 35 "SA17" 0x01)
+	Pin(2000 3950 60 35 "SA18" 0x01)
+	Pin(2100 3950 60 35 "SA19" 0x01)
+	Pin(2200 3950 60 35 "AEN" 0x01)
+	Pin(2300 3950 60 35 "IOChRdy" 0x01)
+	Pin(2400 3950 60 35 "SD0" 0x01)
+	Pin(2500 3950 60 35 "SD1" 0x01)
+	Pin(2600 3950 60 35 "SD2" 0x01)
+	Pin(2700 3950 60 35 "SD3" 0x01)
+	Pin(2800 3950 60 35 "SD4" 0x01)
+	Pin(2900 3950 60 35 "SD5" 0x01)
+	Pin(3000 3950 60 35 "SD6" 0x01)
+	Pin(3100 3950 60 35 "SD7" 0x01)
+	Pin(3200 3950 60 35 "/IOChCk (a1)" 0x01)
 
       # Umrahmung
 	ElementLine(   0  100  100  100 2)
@@ -504,7 +515,7 @@ define(`PKG_ISA8',
 # Text(620 920 0 100 "711-04-006" 0x0001)
 # Text(620 1680 0 100 "+12 -> 15 VOLTS DC" 0x0001) 
 define(`PKG_OVEN_OSC',
-`Element(0x00 "$1" "$2" "$3" 580 280 0 100 0x00)
+`Element(0x00 "$1" "`$2'" "$3" 580 280 0 100 0x00)
 (
 	Pin(320 320 150 35 "NC" 0x01)
 	Pin(320 1000 150 35 "VCC" 0x01)
@@ -540,19 +551,27 @@ define(`PKG_OVEN_OSC',
 # $2: name on PCB
 # $3: value
 # $4: package width in MIL
-#
+# $5: set to 1 if a polarized part
 define(`PKG_RADIAL_CAN',
 	`define(`X1', `eval(`$4' /4)')
 	define(`X2', `eval(`$4' -X1)')
 	define(`X3', `eval(`$4' /2)')
 	define(`Y', `eval(`$4' /2)')
 	define(`R', `eval(`$4' /2)')
-	define(`PINSIZE', `ifelse(eval($4 >= 600), 1, 80, 50)')
-Element(0x00 "$1" "$2" "$3" eval(`$4') 0 0 100 0x00)
+	define(`PINSIZE', `ifelse(eval($4 >= 600), 1, 80, 55)')
+	define(`DRILLSIZE', `ifelse(eval($4 >= 600), 1, 50, 30)')
+Element(0x00 "$1" "`$2'" "$3" eval(`$4') 0 0 100 0x00)
 (
-	PIN(X1, Y, 60, 20, 1)
-	PIN(X2, Y, 60, 20, 2)
+	PIN(X1, Y, 60, DRILLSIZE, 1)
+	PIN(X2, Y, 60, DRILLSIZE, 2)
 	ElementArc(X3 Y R R 0 360 10)
+
+	ifelse( 1, $5,
+	ElementLine(-60 Y            -20 Y 10)
+	ElementLine(-40 `eval(Y-20)' -40 `eval(Y+20)' 10)
+	ElementLine(`eval($4 + 20)' Y `eval($4 + 60)'  Y 10)
+	)
+
 	Mark (X1 Y)
 )')
 
@@ -587,7 +606,7 @@ define(`PKG_SMD_BASE',
 	define(`X2L', `eval(X2+W)')
 	define(`Y1L', `eval(Y1-W)')
 	define(`Y2L', `eval(Y2+W)')
-Element(0x00 "$1" "$2" "$3" eval(10+T/2) eval(Y2L+15) 0 100 0x00)
+Element(0x00 "$1" "`$2'" "$3" eval(10+T/2) eval(Y2L+15) 0 100 0x00)
 (
 	# PAD(X1, Y1, X1, Y2, T, 1)
 	# PAD(X2, Y1, X2, Y2, T, 2)
@@ -641,7 +660,7 @@ define(`PKG_SMD_CHIP',
 	define(`Y1', `eval(eval(`$4'- X1 *10) *10)')
 # line radius (LR) depicts offset to pads lines and pad "band width"
 	define(`LR', `ifelse(eval(Y1 < 40), 1, eval(Y1/4), 10)')
-Element(0x00 "$1" "$2" "$3" 0 0 0 25 0x00)
+Element(0x00 "$1" "`$2'" "$3" 0 0 0 25 0x00)
 (
         PAD(LR LR LR eval(Y1-LR) eval(LR*2) )
         PAD(eval(X1-LR) LR eval(X1-LR) eval(Y1-LR) eval(LR*2) )

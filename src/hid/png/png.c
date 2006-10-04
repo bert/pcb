@@ -891,6 +891,7 @@ png_set_crosshair (int x, int y)
 }
 
 HID png_hid = {
+  sizeof (HID),
   "png",
   "GIF/JPEG/PNG export.",
   0,				/* gui */

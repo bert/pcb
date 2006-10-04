@@ -53,6 +53,7 @@ static void gerber_fill_polygon (hidGC gc, int n_coords, int *x, int *y);
 /* Private data structures                                                    */
 /*----------------------------------------------------------------------------*/
 
+static int verbose;
 static int is_mask, was_drill;
 static int is_drill;
 static int current_mask;
@@ -246,6 +247,9 @@ static HID_Attribute gerber_options[] = {
   {"gerberfile", "Gerber output file base",
    HID_String, 0, 0, {0, 0, 0}, 0, 0},
 #define HA_gerberfile 0
+  {"verbose", "print file names and aperture counts",
+   HID_Boolean, 0, 0, {0, 0, 0}, 0, 0},
+#define HA_verbose 1
 };
 
 #define NUM_OPTIONS (sizeof(gerber_options)/sizeof(gerber_options[0]))
@@ -317,6 +321,8 @@ gerber_do_export (HID_Attr_Val * options)
   fnbase = options[HA_gerberfile].str_value;
   if (!fnbase)
     fnbase = "pcb-out";
+
+  verbose = options[HA_verbose].int_value;
 
   i = strlen (fnbase);
   filename = MyRealloc (filename, i + 40, "gerber");
@@ -450,7 +456,7 @@ gerber_set_layer (const char *name, int group)
 #ifdef HAVE_GETPWUID
       struct passwd *pwentry;
 #endif
-      char *spat, *sext=".gbr";
+      char *sext=".gbr";
       int i;
 
       lastgroup = group;
@@ -474,59 +480,28 @@ gerber_set_layer (const char *name, int group)
       pagecount++;
       switch (idx)
 	{
-	case SL (SILK, TOP):
-	  spat = "frontsilk";
-	  break;
-	case SL (SILK, BOTTOM):
-	  spat = "backsilk";
-	  break;
-	case SL (MASK, TOP):
-	  spat = "frontmask";
-	  break;
-	case SL (MASK, BOTTOM):
-	  spat = "backmask";
-	  break;
-	case SL (PASTE, TOP):
-	  spat = "frontpaste";
-	  break;
-	case SL (PASTE, BOTTOM):
-	  spat = "backpaste";
-	  break;
 	case SL (PDRILL, 0):
-	  spat = "plated-drill";
 	  sext = ".cnc";
 	  break;
 	case SL (UDRILL, 0):
-	  spat = "unplated-drill";
 	  sext = ".cnc";
 	  break;
-	case SL (FAB, 0):
-	  spat = "fab";
-	  break;
-	case SL (ASSY, TOP):
-	  spat = "frontassembly";
-	  break;
-	case SL (ASSY, BOTTOM):
-	  spat = "backassembly";
-	  break;
-	default:
-	  if (group == GetLayerGroupNumberByNumber(MAX_LAYER+COMPONENT_LAYER))
-	    spat = "front";
-	  else if (group == GetLayerGroupNumberByNumber(MAX_LAYER+SOLDER_LAYER))
-	    spat = "back";
-	  else
-	    spat = "group%d";
-	  break;
 	}
-      sprintf (filesuff, spat, group);
+      strcpy (filesuff, layer_type_to_file_name (idx));
       strcat (filesuff, sext);
       f = fopen (filename, "w");
+      if (f == NULL) 
+	{
+	  Message ( "Error:  Could not open %s for writing.\n", filename);
+	  return 1;
+	}
+
       was_drill = is_drill;
 
-#if 0
-      printf ("Gerber: %d aperture%s in %s\n", curapp->nextAperture,
-	      curapp->nextAperture == 1 ? "" : "s", filename);
-#endif
+      if (verbose)
+	printf ("Gerber: %d aperture%s in %s\n", curapp->nextAperture,
+		curapp->nextAperture == 1 ? "" : "s", filename);
+
       if (is_drill)
 	{
 	  fprintf (f, "M48\015\012" "INCH,TZ\015\012");
@@ -961,6 +936,7 @@ gerber_set_crosshair (int x, int y)
 }
 
 static HID gerber_hid = {
+  sizeof (HID),
   "gerber",
   "RS-274X (Gerber) export.",
   0, 0, 1, 0, 0, 1,

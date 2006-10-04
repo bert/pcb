@@ -1,4 +1,4 @@
-/* $id: find.c,v 1.53.2.3 2006/09/26 03:41:43 haceaton exp $ */
+/* $Id$ */
 
 /*
  *
@@ -3692,7 +3692,7 @@ drc_callback (DataTypePtr data, LayerTypePtr layer, PolygonTypePtr polygon,
 	}
       break;
     case VIA_TYPE:
-      if (pin->Clearance < 2 * PCB->Bloat)
+      if (pin->Clearance && pin->Clearance < 2 * PCB->Bloat)
 	{
 	  AddObjectToFlagUndoList (type, ptr1, ptr2, ptr2);
 	  SET_FLAG (TheFlag, pin);

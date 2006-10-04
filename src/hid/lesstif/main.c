@@ -99,6 +99,7 @@ static int in_move_event = 0;
 
 Widget work_area, messages, command, hscroll, vscroll;
 static Widget m_mark, m_crosshair, m_grid, m_zoom, m_mode, m_status;
+static Widget m_rats;
 Widget lesstif_m_layer;
 Widget m_click;
 
@@ -1761,6 +1762,8 @@ lesstif_do_export (HID_Attr_Val * options)
   m_zoom = make_message ("m_zoom", m_grid, 1);
   lesstif_m_layer = make_message ("m_layer", m_zoom, 0);
   m_mode = make_message ("m_mode", lesstif_m_layer, 1);
+  m_rats = make_message ("m_rats", m_mode, 1);
+  XtUnmanageChild (XtParent (m_rats));
   m_status = make_message ("m_status", m_mode, 1);
 
   n = 0;
@@ -2648,6 +2651,38 @@ idle_proc (XtPointer dummy)
       }
   }
 
+  {
+    static int old_nrats = -1;
+    static char buf[20];
+
+    if (old_nrats != PCB->Data->RatN)
+      {
+	Widget w;
+	old_nrats = PCB->Data->RatN;
+	sprintf(buf, "%d rat%s", PCB->Data->RatN, PCB->Data->RatN == 1 ? "" : "s");
+	if (PCB->Data->RatN)
+	  {
+	    XtManageChild(XtParent(m_rats));
+	    XtManageChild(m_rats);
+	    n = 0;
+	    stdarg (XmNleftWidget, m_rats);
+	    XtSetValues (XtParent (m_status), args, n);
+	  }
+
+	n = 0;
+	stdarg (XmNlabelString, XmStringCreateLocalized (buf));
+	XtSetValues (m_rats, args, n);
+
+	if (!PCB->Data->RatN)
+	  {
+	    n = 0;
+	    stdarg (XmNleftWidget, m_mode);
+	    XtSetValues (XtParent (m_status), args, n);
+	    XtUnmanageChild(XtParent(m_rats));
+	  }
+      }
+  }
+
   lesstif_update_widget_flags ();
 
   show_crosshair (1);
@@ -3028,12 +3063,13 @@ lesstif_draw_arc (hidGC gc, int cx, int cy, int width, int height,
   if ((pinout || thindraw) && gc->erase)
     return;
 #if 0
-  printf ("draw_arc %d,%d %dx%d", cx, cy, width, height);
+  printf ("draw_arc %d,%d %dx%d s %d d %d", cx, cy, width, height, start_angle, delta_angle);
 #endif
   width = Vz (width);
   height = Vz (height);
   cx = Vx (cx) - width;
   cy = Vy (cy) - height;
+  start_angle = (start_angle + 360 + 180) % 360 - 180;
   if (flip_x)
     {
       start_angle = 180 - start_angle;
@@ -3185,6 +3221,8 @@ lesstif_fill_rect (hidGC gc, int x1, int y1, int x2, int y2)
     return;
   if (y1 > view_height + vw && y2 > view_height + vw)
     return;
+  if (x1 > x2) { int xt = x1; x1 = x2; x2 = xt; }
+  if (y1 > y2) { int yt = y1; y1 = y2; y2 = yt; }
   set_gc (gc);
   if (thindraw)
     {
@@ -3452,6 +3490,7 @@ lesstif_beep (void)
 }
 
 HID lesstif_gui = {
+  sizeof (HID),
   "lesstif",
   "LessTif - a Motif clone for X/Unix",
   1,				/* gui */

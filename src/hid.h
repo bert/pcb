@@ -168,6 +168,7 @@ extern "C"
        "char *" so the value should be initialized to zero, and may be
        set to non-zero (not always one).  */
     void *value;
+    int hash; /* for detecting changes. */
   } HID_Attribute;
 
   extern void hid_register_attributes (HID_Attribute *, int);
@@ -196,6 +197,11 @@ extern "C"
 /* This is the main HID structure.  */
   typedef struct
   {
+    /* The size of this structure.  We use this as a compatibility
+       check; a HID built with a different hid.h than we're expecting
+       should have a different size here.  */
+    int struct_size;
+
     /* The name of this HID.  This should be suitable for
        command line options, multi-selection menus, file names,
        etc. */
