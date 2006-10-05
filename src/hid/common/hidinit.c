@@ -35,6 +35,7 @@ int hid_num_hids = 0;
 extern HID hid_nogui;
 
 HID *gui = &hid_nogui;
+HID *exporter = NULL;
 
 int pixel_slop = 1;
 

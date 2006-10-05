@@ -206,11 +206,13 @@ usage_hid (HID * h)
       return;
     }
   fprintf (stderr, "\n%s options:\n", h->name);
+	exporter = h;
   e = h->get_export_options (&n);
   if (!e)
     return;
   for (i = 0; i < n; i++)
     usage_attr (e + i);
+	exporter = NULL;
 }
 
 static void
@@ -634,13 +636,13 @@ main (int argc, char *argv[])
     print_version ();
   if (argc > 1 && strcmp (argv[1], "-p") == 0)
     {
-      gui = hid_find_printer ();
+      exporter = gui = hid_find_printer ();
       argc--;
       argv++;
     }
   else if (argc > 2 && strcmp (argv[1], "-x") == 0)
     {
-      gui = hid_find_exporter (argv[2]);
+      exporter = gui = hid_find_exporter (argv[2]);
       argc -= 2;
       argv += 2;
     }

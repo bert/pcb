@@ -455,6 +455,10 @@ extern "C"
    hid_start_gui.  */
   extern HID *gui;
 
+/* This is either NULL or points to the current HID that is being called to
+	do the exporting. The gui HIDs set and unset this var.*/
+  extern HID *exporter;
+
 /* The GUI may set this to be approximately the PCB size of a pixel,
    to allow for near-misses in selection and changes in drawing items
    smaller than a screen pixel.  */
