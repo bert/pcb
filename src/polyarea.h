@@ -100,7 +100,6 @@ struct PLINE
     long xmin, ymin, xmax, ymax;
     struct {
       unsigned int status:3;
-      unsigned int cyclink:1;
       unsigned int orient:1;
     } Flags;
 };

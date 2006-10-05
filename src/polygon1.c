@@ -78,11 +78,11 @@ int vect_inters2 (Vector A, Vector B, Vector C, Vector D, Vector S1,
 /* note that a vertex v's Flags.status represents the edge defined by
  * v to v->next (i.e. the edge is forward of v)
  */
-#define ISECTED 0
-#define SHARED  ISECTED
+#define ISECTED 3
+#define UNKNWN  0 
 #define INSIDE  1
 #define OUTSIDE 2
-#define UNKNWN 3
+#define SHARED 3
 #define SHARED2 4
 
 #define NODE_LABEL(n)  ((n)->Flags.status)
@@ -602,17 +602,33 @@ intersect (POLYAREA * a, POLYAREA * b)
       do
 	{
 	  s = malloc (sizeof (struct seg));
-	  s->box.X1 = min (bv->point[0], bv->next->point[0]);
-	  s->box.X2 = max (bv->point[0], bv->next->point[0]) + 1;
-	  s->box.Y1 = min (bv->point[1], bv->next->point[1]);
-	  s->box.Y2 = max (bv->point[1], bv->next->point[1]) + 1;
+	  if (bv->point[0] < bv->next->point[0])
+	    {
+	      s->box.X1 = bv->point[0];
+	      s->box.X2 = bv->next->point[0] + 1;
+	    }
+	  else
+	    {
+	      s->box.X2 = bv->point[0] + 1;
+	      s->box.X1 = bv->next->point[0];
+	    }
+	  if (bv->point[1] < bv->next->point[1])
+	    {
+	      s->box.Y1 = bv->point[1];
+	      s->box.Y2 = bv->next->point[1] + 1;
+	    }
+	  else
+	    {
+	      s->box.Y2 = bv->point[1] + 1;
+	      s->box.Y1 = bv->next->point[1];
+	    }
 	  s->v = bv;
 	  s->p = pb;
 	  r_insert_entry (info.tree, (const BoxType *) s, 1);
 	}
       while ((bv = bv->next) != &pb->head);
     }
-  /* ok, tree of edges in b is built */
+  /* ok, tree of edges in b is ready */
   setjmp (info.env);		/* we loop back here whenever a vertex is inserted */
   {
     for (pa = a->contours; pa; pa = pa->next)
@@ -632,17 +648,32 @@ intersect (POLYAREA * a, POLYAREA * b)
 		info.m = (av->next->point[1] - av->point[1]) / dx;
 		info.b = av->point[1] - info.m * av->point[0];
 	      }
-	    box.X1 = min (av->next->point[0], av->point[0]);
-	    box.X2 = max (av->next->point[0], av->point[0]) + 1;
-	    box.Y1 = min (av->next->point[1], av->point[1]);
-	    box.Y2 = max (av->next->point[1], av->point[1]) + 1;
+	    if (av->next->point[0] < av->point[0])
+	      {
+		box.X1 = av->next->point[0];
+		box.X2 = av->point[0] + 1;
+	      }
+	    else
+	      {
+		box.X2 = av->next->point[0] + 1;
+		box.X1 = av->point[0];
+	      }
+	    if (av->next->point[1] < av->point[1])
+	      {
+		box.Y1 = av->next->point[1];
+		box.Y2 = av->point[1] + 1;
+	      }
+	    else
+	      {
+		box.Y2 = av->next->point[1] + 1;
+		box.Y1 = av->point[1];
+	      }
 	    if (r_search (info.tree, &box, seg_in_region, seg_in_seg, &info))
 	      return err_no_memory;	/* error */
 	  }
 	while ((av = av->next) != &pa->head);
       }
   }				/* end of setjmp loop */
-  /* now all of the new intersections have been added */
   r_destroy_tree (&info.tree);
   return 0;
 }
@@ -1326,8 +1357,8 @@ Touching (POLYAREA * p1, POLYAREA * p2)
 	longjmp (e, err_no_memory);
 
       /* prepare polygons */
-      M_InitPolygon (a);
-      M_InitPolygon (b);
+      //M_InitPolygon (a);
+      //M_InitPolygon (b);
 #ifdef DEBUG
       if (!poly_Valid (a))
 	return -1;
@@ -1372,8 +1403,8 @@ poly_Boolean (const POLYAREA * a_org, const POLYAREA * b_org, POLYAREA ** res,
 	longjmp (e, err_no_memory);
 
       /* prepare polygons */
-      M_InitPolygon (a);
-      M_InitPolygon (b);
+     // M_InitPolygon (a);
+     // M_InitPolygon (b);
 #ifdef DEBUG
       if (!poly_Valid (a))
 	return -1;
@@ -1446,17 +1477,18 @@ poly_CreateNode (Vector v)
 {
   VNODE *res;
 
-  if (v == NULL)
-    return NULL;
-  res = (VNODE *) malloc (sizeof (VNODE));
+  assert (v);
+  res = (VNODE *) calloc (1, sizeof (VNODE));
   if (res == NULL)
     return NULL;
+#if 0
   res->Flags.status = UNKNWN;
   res->Flags.mark = 0;
   res->cvc_prev = res->cvc_next = NULL;
   res->shared = NULL;
-  Vcopy (res->point, v);
   res->prev = res->next = res;
+#endif
+  Vcopy (res->point, v);
   return res;
 }
 
@@ -1465,12 +1497,18 @@ poly_IniContour (PLINE * c)
 {
   if (c == NULL)
     return;
+#if 0
   c->next = NULL;
   c->Flags.status = UNKNWN;
   c->Flags.orient = 0;
-  c->Flags.cyclink = 0;
   c->Count = 0;
+  c->area = 0;
   Vcopy (c->head.point, vect_zero);
+  c->head.Flags.status = UNKNWN;
+  c->head.Flags.mark = 0;
+  c->head.shared = NULL;
+  c->head.cvc_prev = c->head.cvc_next = NULL;
+#endif
   c->head.next = c->head.prev = &c->head;
   c->xmin = c->ymin = 0x7fffffff;
   c->xmax = c->ymax = 0x80000000;
@@ -1513,9 +1551,12 @@ poly_ClrContour (PLINE * c)
 void
 poly_DelContour (PLINE ** c)
 {
+  VNODE *cur;
+
   if (*c == NULL)
     return;
-  poly_ClrContour (*c);
+  for (cur = (*c)->head.prev; cur != &(*c)->head; free (cur->next))
+    cur = cur->prev;
   free (*c), *c = NULL;
 }
 
@@ -1652,15 +1693,16 @@ poly_CopyContour (PLINE ** dst, PLINE * src)
     return FALSE;
 
   (*dst)->Count = src->Count;
-  (*dst)->Flags = src->Flags;
+  (*dst)->Flags.orient = src->Flags.orient;
   (*dst)->xmin = src->xmin, (*dst)->xmax = src->xmax;
   (*dst)->ymin = src->ymin, (*dst)->ymax = src->ymax;
+  (*dst)->area = src->area;
 
   for (cur = src->head.next; cur != &src->head; cur = cur->next)
     {
       if ((newnode = poly_CreateNode (cur->point)) == NULL)
 	return FALSE;
-      newnode->Flags = cur->Flags;
+      // newnode->Flags = cur->Flags;
       poly_InclVertex ((*dst)->head.prev, newnode);
     }
   return TRUE;

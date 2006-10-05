@@ -1215,6 +1215,11 @@ IsPointInPolygon (LocationType X, LocationType Y, BDimension r,
 		  PolygonTypePtr p)
 {
   POLYAREA *c;
+  Vector v;
+  v[0] = X;
+  v[1] = Y;
+  if (poly_CheckInside( p->Clipped, v))
+    return True;
   r = max (r, 1);
   if (!(c = CirclePoly (X, Y, r)))
     return False;
