@@ -85,6 +85,8 @@ int vect_inters2 (Vector A, Vector B, Vector C, Vector D, Vector S1,
 #define SHARED 3
 #define SHARED2 4
 
+#define TOUCHES 99
+
 #define NODE_LABEL(n)  ((n)->Flags.status)
 #define LABEL_NODE(n,l) ((n)->Flags.status = (l))
 
@@ -473,7 +475,7 @@ typedef struct info
   VNODE *v;
   PLINE *p;
   rtree_t *tree;
-  jmp_buf env;
+  jmp_buf env, *touch;
 } info;
 
 /*
@@ -557,6 +559,8 @@ seg_in_seg (const BoxType * b, void *cl)
 		      i->v->point, i->v->next->point, s1, s2);
   if (!cnt)
     return 0;
+  if (i->touch) /* if checking touches one find and we're done */
+    longjmp (*i->touch, TOUCHES);
   i->p->Flags.status = ISECTED;
   s->p->Flags.status = ISECTED;
   for (; cnt; cnt--)
@@ -604,7 +608,7 @@ curtail (const BoxType * b, void *cl)
  *
  */
 static int
-intersect (POLYAREA * a, POLYAREA * b)
+intersect (jmp_buf *jb, POLYAREA * a, POLYAREA * b, int add)
 {
   POLYAREA *t;
   PLINE *pa, *pb;		/* pline iterators */
@@ -659,6 +663,10 @@ intersect (POLYAREA * a, POLYAREA * b)
 	}
       while ((bv = bv->next) != &pb->head);
     }
+  if (add)
+    info.touch = NULL;
+  else
+    info.touch = jb;
   /* ok, tree of edges in b is ready */
   setjmp (info.env);		/* we loop back here whenever a vertex is inserted */
   {
@@ -721,7 +729,7 @@ intersect (POLYAREA * a, POLYAREA * b)
 }
 
 static void
-M_POLYAREA_intersect (jmp_buf * e, POLYAREA * afst, POLYAREA * bfst)
+M_POLYAREA_intersect (jmp_buf * e, POLYAREA * afst, POLYAREA * bfst, int add)
 {
   POLYAREA *a = afst, *b = bfst;
   PLINE *curcA, *curcB;
@@ -738,17 +746,17 @@ M_POLYAREA_intersect (jmp_buf * e, POLYAREA * afst, POLYAREA * bfst)
 	      a->contours->xmin <= b->contours->xmax &&
 	      a->contours->ymin <= b->contours->ymax)
 	    {
-	      if (intersect (a, b))
+	      if (intersect (e, a, b, add))
 		error (err_no_memory);
 	    }
 	}
-      while ((a = a->f) != afst);
+      while (add && (a = a->f) != afst);
       for (curcB = b->contours; curcB != NULL; curcB = curcB->next)
 	if (curcB->Flags.status == ISECTED)
 	  if (!(the_list = add_descriptors (curcB, 'B', the_list)))
 	    error (err_no_memory);
     }
-  while ((b = b->f) != bfst);
+  while (add && (b = b->f) != bfst);
   do
     {
       for (curcA = a->contours; curcA != NULL; curcA = curcA->next)
@@ -756,7 +764,7 @@ M_POLYAREA_intersect (jmp_buf * e, POLYAREA * afst, POLYAREA * bfst)
 	  if (!(the_list = add_descriptors (curcA, 'A', the_list)))
 	    error (err_no_memory);
     }
-  while ((a = a->f) != afst);
+  while (add && (a = a->f) != afst);
 }				/* M_POLYAREA_intersect */
 
 /*****************************************************************/
@@ -813,7 +821,6 @@ theState (VNODE * v)
       return u;
     }
 }
-#endif
 
 static void
 print_labels (PLINE * a)
@@ -827,6 +834,7 @@ print_labels (PLINE * a)
     }
   while ((c = c->next) != &a->head);
 }
+#endif
 
 /*
 label_contour
@@ -934,24 +942,20 @@ InsCntr (jmp_buf * e, PLINE * c, POLYAREA ** dst)
   c->next = NULL;
 }				/* InsCntr */
 
-static void
+static void 
 PutContour (jmp_buf * e, PLINE * cntr, POLYAREA ** contours, PLINE ** holes)
 {
-  PLINE *cur;
-
   assert (cntr != NULL);
   cntr->next = NULL;
   if (cntr->Flags.orient == PLF_DIR)
     InsCntr (e, cntr, contours);
-
   /* put hole into temporary list */
-  else if (*holes == NULL)
-    *holes = cntr;		/* let cntr be 1st hole in list */
   else
-    {
-      for (cur = *holes; cur->next != NULL; cur = cur->next);
-      cur->next = cntr;
-    }
+  {
+    assert (!cntr->next);
+    cntr->next = *holes;
+    *holes = cntr;		 /* let cntr be 1st hole in list */
+  }
 }				/* PutContour */
 
 static void
@@ -1191,7 +1195,7 @@ Gather (VNODE * start, PLINE ** result, J_Rule v_rule, DIRECTION initdir)
   return err_ok;
 }				/* Gather */
 
-static void
+static void 
 Collect (jmp_buf * e, PLINE * a, POLYAREA ** contours, PLINE ** holes,
 	 S_Rule s_rule, J_Rule j_rule)
 {
@@ -1222,7 +1226,7 @@ Collect (jmp_buf * e, PLINE * a, POLYAREA ** contours, PLINE ** holes,
 }				/* Collect */
 
 
-static void
+static void 
 cntr_Collect (jmp_buf * e, PLINE * A, POLYAREA ** contours, PLINE ** holes,
 	      int action)
 {
@@ -1340,7 +1344,7 @@ M_B_AREA_Collect (jmp_buf * e, POLYAREA * bfst, POLYAREA ** contours,
 }
 
 
-static void
+static void 
 M_POLYAREA_Collect (jmp_buf * e, POLYAREA * afst, POLYAREA ** contours,
 		    PLINE ** holes, int action)
 {
@@ -1356,74 +1360,30 @@ M_POLYAREA_Collect (jmp_buf * e, POLYAREA * afst, POLYAREA ** contours,
   while ((a = a->f) != afst);
 }
 
-/************************************************************************/
-/* prepares polygon for algorithm, sets UNKNWN labels and clears MARK bits */
-static void
-M_InitPolygon (POLYAREA * afst)
-{
-  PLINE *curc;
-  VNODE *curn;
-  POLYAREA *a = afst;
-
-  assert (a != NULL);
-  do
-    {
-      for (curc = a->contours; curc != NULL; curc = curc->next)
-	{
-	  poly_PreContour (curc, False);
-	  curc->Flags.status = UNKNWN;
-	  curn = &curc->head;
-	  do
-	    {
-	      curn->Flags.mark = 0;
-	      curn->Flags.status = UNKNWN;
-	      curn->cvc_prev = curn->cvc_next = NULL;
-	    }
-	  while ((curn = curn->next) != &curc->head);
-	}
-    }
-  while ((a = a->f) != afst);
-}				/* M_InitPolygon */
-
+/* determine if two polygons touch or overlap */
 BOOLp
-Touching (POLYAREA * p1, POLYAREA * p2)
+Touching (POLYAREA * a, POLYAREA * b)
 {
-  POLYAREA *a = NULL, *b = NULL;
   jmp_buf e;
   int code;
 
   if ((code = setjmp (e)) == 0)
     {
-      /* only the first polys are tested */
-      if (!poly_Copy0 (&a, p1) || !poly_Copy0 (&b, p2))
-	longjmp (e, err_no_memory);
-
-      /* prepare polygons */
-      //M_InitPolygon (a);
-      //M_InitPolygon (b);
 #ifdef DEBUG
       if (!poly_Valid (a))
 	return -1;
       if (!poly_Valid (b))
 	return -1;
 #endif
-      M_POLYAREA_intersect (&e, a, b);
+      M_POLYAREA_intersect (&e, a, b, False);
 
       if (M_POLYAREA_label (a, b, TRUE))
-	{
-	  poly_Free (&a);
-	  poly_Free (&b);
 	  return TRUE;
-	}
       if (M_POLYAREA_label (b, a, TRUE))
-	{
-	  poly_Free (&a);
-	  poly_Free (&b);
 	  return TRUE;
-	}
     }
-  poly_Free (&a);
-  poly_Free (&b);
+  else if (code == TOUCHES)
+    return TRUE;
   return FALSE;
 }
 
@@ -1444,16 +1404,13 @@ poly_Boolean (const POLYAREA * a_org, const POLYAREA * b_org, POLYAREA ** res,
       if (!poly_M_Copy0 (&a, a_org) || !poly_M_Copy0 (&b, b_org))
 	longjmp (e, err_no_memory);
 
-      /* prepare polygons */
-      // M_InitPolygon (a);
-      // M_InitPolygon (b);
 #ifdef DEBUG
       if (!poly_Valid (a))
 	return -1;
       if (!poly_Valid (b))
 	return -1;
 #endif
-      M_POLYAREA_intersect (&e, a, b);
+      M_POLYAREA_intersect (&e, a, b, TRUE);
 
       M_POLYAREA_label (a, b, FALSE);
       M_POLYAREA_label (b, a, FALSE);
@@ -1501,7 +1458,7 @@ poly_Boolean_free (POLYAREA * a, POLYAREA * b, POLYAREA ** res,
       if (!poly_Valid (b))
 	return -1;
 #endif
-      M_POLYAREA_intersect (&e, a, b);
+      M_POLYAREA_intersect (&e, a, b, TRUE);
 
       M_POLYAREA_label (a, b, FALSE);
       M_POLYAREA_label (b, a, FALSE);
@@ -1864,9 +1821,10 @@ poly_InclContour (POLYAREA * p, PLINE * c)
     {
       if (p->contours == NULL)
 	return FALSE;
-      for (tmp = p->contours; tmp->next != NULL; tmp = tmp->next);
-      tmp->next = c;
-      c->next = NULL;
+      /* link at front of hole list */
+      tmp = p->contours->next;
+      p->contours->next = c;
+      c->next = tmp;
     }
   return TRUE;
 }
@@ -2167,9 +2125,9 @@ poly_Valid (POLYAREA * p)
       v = &p->contours->head;
       do
 	{
-	  fprintf (stderr, "%ld %ld 100 100 \"\"]\n", v->point[0],
+	  fprintf (stderr, "%d %d 100 100 \"\"]\n", v->point[0],
 		   v->point[1]);
-	  fprintf (stderr, "Line [%ld %ld ", v->point[0], v->point[1]);
+	  fprintf (stderr, "Line [%d %d ", v->point[0], v->point[1]);
 	}
       while ((v = v->next) != &p->contours->head);
 #endif
@@ -2192,9 +2150,9 @@ poly_Valid (POLYAREA * p)
 	  v = &c->head;
 	  do
 	    {
-	      fprintf (stderr, "%ld %ld 100 100 \"\"]\n", v->point[0],
+	      fprintf (stderr, "%d %d 100 100 \"\"]\n", v->point[0],
 		       v->point[1]);
-	      fprintf (stderr, "Line [%ld %ld ", v->point[0], v->point[1]);
+	      fprintf (stderr, "Line [%d %d ", v->point[0], v->point[1]);
 	    }
 	  while ((v = v->next) != &c->head);
 #endif
