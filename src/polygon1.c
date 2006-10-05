@@ -79,7 +79,7 @@ int vect_inters2 (Vector A, Vector B, Vector C, Vector D, Vector S1,
  * v to v->next (i.e. the edge is forward of v)
  */
 #define ISECTED 3
-#define UNKNWN  0 
+#define UNKNWN  0
 #define INSIDE  1
 #define OUTSIDE 2
 #define SHARED 3
@@ -449,6 +449,15 @@ add_descriptors (PLINE * pl, char poly, CVCList * list)
   return list;
 }
 
+static inline void
+cntrbox_adjust (PLINE * c, Vector p)
+{
+  c->xmin = min (c->xmin, p[0]);
+  c->xmax = max (c->xmax, p[0]);
+  c->ymin = min (c->ymin, p[1]);
+  c->ymax = max (c->ymax, p[1]);
+}
+
 /* some structures for handling segment intersections using the rtrees */
 
 typedef struct seg
@@ -555,13 +564,26 @@ seg_in_seg (const BoxType * b, void *cl)
       res = node_add_point (i->v, s->v, cnt > 1 ? s2 : s1);
       if (res < 0)
 	return 1;		/* error */
+	/* adjust the bounding box if necessary */
+      if (res & 2)
+        cntrbox_adjust (i->p, cnt > 1 ? s2 : s1);
       /* if we added a node in the tree we need to change the tree */
-      if ((res & 1) && adjust_tree (i, s))
-	return 1;
+      if (res & 1)
+      {
+        cntrbox_adjust (s->p, cnt > 1 ? s2 : s1);
+       if (adjust_tree (i, s))
+	 return 1;
+      }
       if (res & 2)		/* if a point was inserted in A, start over too */
 	longjmp (i->env, 1);
     }
   return 0;
+}
+
+static int
+curtail (const BoxType * b, void *cl)
+{
+  longjmp (*(jmp_buf *) cl, 1);
 }
 
 /*
@@ -569,8 +591,17 @@ seg_in_seg (const BoxType * b, void *cl)
  * (C) 2006, harry eaton
  * This uses an rtree to find A-B intersections. Whenever a new vertex is
  * added, the search for intersections is re-started because the rounding
- * could alter the topology otherwise. Can take O(n^2) where n is the number
- * of segments that hit hot pixels (new verticies)
+ * could alter the topology otherwise. 
+ * This should use a faster algorithm for snap rounding intersection finding.
+ * The best algorthim is probably found in:
+ *
+ * "Improved output-sensitive snap rounding," John Hershberger, Proceedings
+ * of the 22nd annual symposium on Computational geomerty, 2006, pp 357-366.
+ * http://doi.acm.org/10.1145/1137856.1137909
+ *
+ * Algorithms described by de Berg, or Goodrich or Halperin, or Hobby would
+ * probably work as well.
+ *
  */
 static int
 intersect (POLYAREA * a, POLYAREA * b)
@@ -633,45 +664,56 @@ intersect (POLYAREA * a, POLYAREA * b)
   {
     for (pa = a->contours; pa; pa = pa->next)
       {
-	info.p = pa;
-	av = &pa->head;
-	do
+	jmp_buf env;
+	  /* skip the whole contour if it's bounding box doesn't intersect */
+	if (setjmp (env) == 0)
 	  {
-	    /* check this edge for any insertions */
-	    double dx;
-	    info.v = av;
-	    dx = av->next->point[0] - av->point[0];
-	    if (dx == 0)
-	      info.m = 0;
-	    else
-	      {
-		info.m = (av->next->point[1] - av->point[1]) / dx;
-		info.b = av->point[1] - info.m * av->point[0];
-	      }
-	    if (av->next->point[0] < av->point[0])
-	      {
-		box.X1 = av->next->point[0];
-		box.X2 = av->point[0] + 1;
-	      }
-	    else
-	      {
-		box.X2 = av->next->point[0] + 1;
-		box.X1 = av->point[0];
-	      }
-	    if (av->next->point[1] < av->point[1])
-	      {
-		box.Y1 = av->next->point[1];
-		box.Y2 = av->point[1] + 1;
-	      }
-	    else
-	      {
-		box.Y2 = av->next->point[1] + 1;
-		box.Y1 = av->point[1];
-	      }
-	    if (r_search (info.tree, &box, seg_in_region, seg_in_seg, &info))
-	      return err_no_memory;	/* error */
+	    r_search (info.tree, (BoxType *) pa, NULL, curtail, &env);
+	    continue;
 	  }
-	while ((av = av->next) != &pa->head);
+	else /* something intersects so check the edges of the contour */
+	  {
+	    info.p = pa;
+	    av = &pa->head;
+	    do
+	      {
+		/* check this edge for any insertions */
+		double dx;
+		info.v = av;
+		dx = av->next->point[0] - av->point[0];
+		if (dx == 0)
+		  info.m = 0;
+		else
+		  {
+		    info.m = (av->next->point[1] - av->point[1]) / dx;
+		    info.b = av->point[1] - info.m * av->point[0];
+		  }
+		if (av->next->point[0] < av->point[0])
+		  {
+		    box.X1 = av->next->point[0];
+		    box.X2 = av->point[0] + 1;
+		  }
+		else
+		  {
+		    box.X2 = av->next->point[0] + 1;
+		    box.X1 = av->point[0];
+		  }
+		if (av->next->point[1] < av->point[1])
+		  {
+		    box.Y1 = av->next->point[1];
+		    box.Y2 = av->point[1] + 1;
+		  }
+		else
+		  {
+		    box.Y2 = av->next->point[1] + 1;
+		    box.Y1 = av->point[1];
+		  }
+		if (r_search
+		    (info.tree, &box, seg_in_region, seg_in_seg, &info))
+		  return err_no_memory;	/* error */
+	      }
+	    while ((av = av->next) != &pa->head);
+	  }
       }
   }				/* end of setjmp loop */
   r_destroy_tree (&info.tree);
@@ -1403,8 +1445,8 @@ poly_Boolean (const POLYAREA * a_org, const POLYAREA * b_org, POLYAREA ** res,
 	longjmp (e, err_no_memory);
 
       /* prepare polygons */
-     // M_InitPolygon (a);
-     // M_InitPolygon (b);
+      // M_InitPolygon (a);
+      // M_InitPolygon (b);
 #ifdef DEBUG
       if (!poly_Valid (a))
 	return -1;
@@ -1439,15 +1481,6 @@ poly_Boolean (const POLYAREA * a_org, const POLYAREA * b_org, POLYAREA ** res,
   return code;
 }				/* poly_Boolean */
 
-
-static inline void
-cntrbox_adjust (PLINE * c, Vector p)
-{
-  c->xmin = min (c->xmin, p[0]);
-  c->xmax = max (c->xmax, p[0]);
-  c->ymin = min (c->ymin, p[1]);
-  c->ymax = max (c->ymax, p[1]);
-}
 
 static inline int
 cntrbox_pointin (PLINE * c, Vector p)

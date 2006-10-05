@@ -93,11 +93,11 @@ struct VNODE
 typedef struct PLINE PLINE;
 struct PLINE
 {
+    long xmin, ymin, xmax, ymax;
     PLINE *next;
     VNODE head;
     unsigned int Count;
     double area;
-    long xmin, ymin, xmax, ymax;
     struct {
       unsigned int status:3;
       unsigned int orient:1;
