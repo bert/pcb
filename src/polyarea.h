@@ -51,7 +51,7 @@ enum {
 #endif
 
 
-typedef long vertex[2];  /* longing point representation of
+typedef int vertex[2];  /* longing point representation of
                              coordinates */
 typedef vertex Vector;
 
@@ -85,15 +85,15 @@ struct VNODE
       unsigned int status:3;
       unsigned int mark:1;
     } Flags;
-    Vector point;
     CVCList *cvc_prev;
     CVCList *cvc_next;
+    Vector point;
 };
 
 typedef struct PLINE PLINE;
 struct PLINE
 {
-    long xmin, ymin, xmax, ymax;
+    int xmin, ymin, xmax, ymax;
     PLINE *next;
     VNODE head;
     unsigned int Count;
@@ -168,6 +168,7 @@ enum PolygonBooleanOperation {
 };
 
 int poly_Boolean(const POLYAREA * a, const POLYAREA * b, POLYAREA ** res, int action);
+int poly_Boolean_free(POLYAREA * a, POLYAREA * b, POLYAREA ** res, int action);
 int SavePOLYAREA( POLYAREA *PA, char * fname);
 #ifdef __cplusplus
 }

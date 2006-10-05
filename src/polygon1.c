@@ -1427,7 +1427,7 @@ Touching (POLYAREA * p1, POLYAREA * p2)
   return FALSE;
 }
 
-/* the main clipping routine */
+/* the main clipping routines */
 int
 poly_Boolean (const POLYAREA * a_org, const POLYAREA * b_org, POLYAREA ** res,
 	      int action)
@@ -1481,6 +1481,54 @@ poly_Boolean (const POLYAREA * a_org, const POLYAREA * b_org, POLYAREA ** res,
   return code;
 }				/* poly_Boolean */
 
+/* just like poly_Boolean put frees the input polys */
+int
+poly_Boolean_free (POLYAREA * a, POLYAREA * b, POLYAREA ** res,
+	      int action)
+{
+  PLINE *p, *holes = NULL;
+  jmp_buf e;
+  int code;
+
+  *res = NULL;
+
+  if ((code = setjmp (e)) == 0)
+    {
+
+#ifdef DEBUG
+      if (!poly_Valid (a))
+	return -1;
+      if (!poly_Valid (b))
+	return -1;
+#endif
+      M_POLYAREA_intersect (&e, a, b);
+
+      M_POLYAREA_label (a, b, FALSE);
+      M_POLYAREA_label (b, a, FALSE);
+
+      M_POLYAREA_Collect (&e, a, res, &holes, action);
+      M_B_AREA_Collect (&e, b, res, &holes, action);
+
+      InsertHoles (&e, *res, &holes);
+    }
+  /* delete holes if any left*/
+  while ((p = holes) != NULL)
+    {
+      holes = p->next;
+      poly_DelContour (&p);
+    }
+  poly_Free (&a);
+  poly_Free (&b);
+
+  if (code)
+    {
+      poly_Free (res);
+      return code;
+    }
+  assert (!*res || poly_Valid (*res));
+  return code;
+}				/* poly_Boolean */
+
 
 static inline int
 cntrbox_pointin (PLINE * c, Vector p)
@@ -1509,19 +1557,16 @@ VNODE *
 poly_CreateNode (Vector v)
 {
   VNODE *res;
+  register int *c;
 
   assert (v);
   res = (VNODE *) calloc (1, sizeof (VNODE));
   if (res == NULL)
     return NULL;
-#if 0
-  res->Flags.status = UNKNWN;
-  res->Flags.mark = 0;
-  res->cvc_prev = res->cvc_next = NULL;
-  res->shared = NULL;
-  res->prev = res->next = res;
-#endif
-  Vcopy (res->point, v);
+  // bzero (res, sizeof (VNODE) - sizeof(Vector));
+  c = res->point;
+  *c++ = *v++;
+  *c = *v;
   return res;
 }
 
@@ -1695,9 +1740,6 @@ poly_InclVertex (VNODE * after, VNODE * node)
   node->prev = after;
   node->next = after->next;
   after->next = after->next->prev = node;
-  /* hace */
-  node->point[0] = (long) (node->point[0]);
-  node->point[1] = (long) (node->point[1]);
   /* remove points on same line */
   if (node->prev->prev == node)
     return;			/* we don't have 3 points in the poly yet */

@@ -169,15 +169,14 @@ ClipOriginal (PolygonType * poly)
   int r;
 
   p = original_poly (poly);
-  r = poly_Boolean (p, poly->Clipped, &result, PBO_ISECT);
-  poly_Free (&p);
+  r = poly_Boolean_free (poly->Clipped, p, &result, PBO_ISECT);
   if (r != err_ok)
     {
       fprintf (stderr, "Error while clipping PBO_ISECT\n");
       poly_Free (&result);
+      poly->Clipped = NULL;
       return 0;
     }
-  poly_Free (&poly->Clipped);
   poly->Clipped = biggest (result);
   assert (!poly->Clipped || poly_Valid (poly->Clipped));
   return 1;
@@ -431,24 +430,21 @@ Subtract (POLYAREA * np1, PolygonType * p, Boolean fnp)
     }
   assert (poly_Valid (p->Clipped));
   assert (poly_Valid (np));
-  x = poly_Boolean (p->Clipped, np, &merged, PBO_SUB);
-#if 0
-  if (!poly_Valid (merged))
-    {
-      SavePOLYAREA (p->Clipped, "bad_poly_a.wrl");
-      SavePOLYAREA (np, "bad_poly_b.wrl");
-    }
-#endif
-  assert (!merged || poly_Valid (merged));
   if (fnp)
-    poly_Free (&np);
+  x = poly_Boolean_free (p->Clipped, np, &merged, PBO_SUB);
+  else
+  {
+  x = poly_Boolean (p->Clipped, np, &merged, PBO_SUB);
+  poly_Free (&p->Clipped);
+  }
+  assert (!merged || poly_Valid (merged));
   if (x != err_ok)
     {
       fprintf (stderr, "Error while clipping PBO_SUB\n");
       poly_Free (&merged);
+      p->Clipped = NULL;
       return 0;
     }
-  poly_Free (&p->Clipped);
   p->Clipped = biggest (merged);
   assert (!p->Clipped || poly_Valid (p->Clipped));
   if (!p->Clipped)
@@ -491,7 +487,7 @@ SubtractPin (DataType * d, PinType * pin, LayerType * l, PolygonType * p)
     np = PinPoly (pin, pin->Thickness + pin->Clearance);
   if (!np)
     return 0;
-  return Subtract (np, p, !TEST_THERM (i, pin));
+  return Subtract (np, p, TRUE); //!TEST_THERM (i, pin));
 }
 
 static int
@@ -657,15 +653,14 @@ Unsubtract (POLYAREA * np1, PolygonType * p)
   int x;
   assert (np);
   assert (p && p->Clipped);
-  x = poly_Boolean (p->Clipped, np, &merged, PBO_UNITE);
-  poly_Free (&np);
+  x = poly_Boolean_free (p->Clipped, np, &merged, PBO_UNITE);
   if (x != err_ok)
     {
       fprintf (stderr, "Error while clipping PBO_UNITE\n");
       poly_Free (&merged);
+      p->Clipped = NULL;
       return 0;
     }
-  poly_Free (&p->Clipped);
   p->Clipped = biggest (merged);
   assert (!p->Clipped || poly_Valid (p->Clipped));
   return ClipOriginal (p);

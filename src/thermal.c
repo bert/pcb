@@ -86,14 +86,6 @@ struct cent
   POLYAREA *p;
 };
 
-#define MAX_CACHE 4
-static struct cent entries[MAX_CACHE];
-static int cache_size = 0;
-static LocationType inx, iny;
-static BDimension ins, inc;
-static int instyle;
-static int list = 0;
-
 static POLYAREA *
 diag_line (LocationType X, LocationType Y, BDimension l, BDimension w,
 	   Boolean rt)
@@ -260,52 +252,38 @@ square_therm (PinTypePtr pin, Cardinal style)
 	l.Point1.Y = pin->Y + d;
 	l.Point1.X = l.Point2.X;
 	p2 = LinePoly (&l, in);
-	poly_Boolean (p, p2, &m, PBO_UNITE);
-	poly_Free (&p);
-	poly_Free (&p2);
+	poly_Boolean_free (p, p2, &m, PBO_UNITE);
 	/* right lower */
 	l.Point1.Y = pin->Y - d;
 	l.Point2.Y = pin->Y - out;
 	p = LinePoly (&l, in);
-	poly_Boolean (p, m, &p2, PBO_UNITE);
-	poly_Free (&p);
-	poly_Free (&m);
+	poly_Boolean_free (p, m, &p2, PBO_UNITE);
 	/* bottom right */
 	l.Point1.Y = l.Point2.Y;
 	l.Point1.X = pin->X + d;
 	l.Point2.X = pin->X + out;
 	p = LinePoly (&l, in);
-	poly_Boolean (p, p2, &m, PBO_UNITE);
-	poly_Free (&p);
-	poly_Free (&p2);
+	poly_Boolean_free (p, p2, &m, PBO_UNITE);
 	/* bottom left */
 	l.Point1.X = pin->X - d;
 	l.Point2.X = pin->X - out;
 	p = LinePoly (&l, in);
-	poly_Boolean (p, m, &p2, PBO_UNITE);
-	poly_Free (&p);
-	poly_Free (&m);
+	poly_Boolean_free (p, m, &p2, PBO_UNITE);
 	/* left lower */
 	l.Point1.Y = pin->Y - d;
 	l.Point1.X = l.Point2.X;
 	p = LinePoly (&l, in);
-	poly_Boolean (p, p2, &m, PBO_UNITE);
-	poly_Free (&p);
-	poly_Free (&p2);
+	poly_Boolean_free (p, p2, &m, PBO_UNITE);
 	/* left upper */
 	l.Point1.Y = pin->Y + d;
 	l.Point2.Y = pin->Y + out;
 	p = LinePoly (&l, in);
-	poly_Boolean (p, m, &p2, PBO_UNITE);
-	poly_Free (&p);
-	poly_Free (&m);
+	poly_Boolean_free (p, m, &p2, PBO_UNITE);
 	/* top left */
 	l.Point1.Y = l.Point2.Y;
 	l.Point1.X = pin->X - d;
 	p = LinePoly (&l, in);
-	poly_Boolean (p, p2, &m, PBO_UNITE);
-	poly_Free (&p);
-	poly_Free (&p2);
+	poly_Boolean_free (p, p2, &m, PBO_UNITE);
 	return m;
       }
     default:
@@ -398,31 +376,21 @@ oct_therm (PinTypePtr pin, Cardinal style)
   p = OctagonPoly (pin->X, pin->Y, w);
   p2 = OctagonPoly (pin->X, pin->Y, pin->Thickness);
   /* make full clearance ring */
-  poly_Boolean (p, p2, &m, PBO_SUB);
-  poly_Free (&p);
-  poly_Free (&p2);
+  poly_Boolean_free (p, p2, &m, PBO_SUB);
   switch (style)
     {
     default:
     case 1:
       p = diag_line (pin->X, pin->Y, w, t, True);
-      poly_Boolean (m, p, &p2, PBO_SUB);
-      poly_Free (&p);
-      poly_Free (&m);
+      poly_Boolean_free (m, p, &p2, PBO_SUB);
       p = diag_line (pin->X, pin->Y, w, t, False);
-      poly_Boolean (p2, p, &m, PBO_SUB);
-      poly_Free (&p);
-      poly_Free (&p2);
+      poly_Boolean_free (p2, p, &m, PBO_SUB);
       return m;
     case 2:
       p = RectPoly (pin->X - t, pin->X + t, pin->Y - w, pin->Y + w);
-      poly_Boolean (m, p, &p2, PBO_SUB);
-      poly_Free (&p);
-      poly_Free (&m);
+      poly_Boolean_free (m, p, &p2, PBO_SUB);
       p = RectPoly (pin->X - w, pin->X + w, pin->Y - t, pin->Y + t);
-      poly_Boolean (p2, p, &m, PBO_SUB);
-      poly_Free (&p);
-      poly_Free (&p2);
+      poly_Boolean_free (p2, p, &m, PBO_SUB);
       return m;
       /* fix me add thermal style 4 */
     case 5:
@@ -432,83 +400,11 @@ oct_therm (PinTypePtr pin, Cardinal style)
 	/* cheat by using the square therm's rounded parts */
 	p = square_therm (pin, style);
 	q = RectPoly (pin->X - t, pin->X + t, pin->Y - t, pin->Y + t);
-	poly_Boolean (p, q, &p2, PBO_UNITE);
-	poly_Free (&p);
-	poly_Free (&q);
-	poly_Boolean (m, p2, &p, PBO_ISECT);
-	poly_Free (&m);
-	poly_Free (&p2);
+	poly_Boolean_free (p, q, &p2, PBO_UNITE);
+	poly_Boolean_free (m, p2, &p, PBO_ISECT);
 	return p;
       }
     }
-}
-
-static POLYAREA *
-cache (POLYAREA * p)
-{
-  if (cache_size == MAX_CACHE)
-    {
-      cache_size--;
-      poly_Free (&entries[list].p);
-    }
-  entries[list].style = instyle;
-  entries[list].x = inx;
-  entries[list].y = iny;
-  entries[list].s = ins;
-  entries[list].c = inc;
-  entries[list].p = p;
-  list = (list + 1) % MAX_CACHE;
-  cache_size++;
-  return p;
-}
-
-static POLYAREA *
-in_cache (PinTypePtr pin, Cardinal style)
-{
-  POLYAREA *p;
-  int i, q;
-
-  instyle = style + (pin->Flags.f & (SQUAREFLAG | OCTAGONFLAG));
-  for (i = 0; i < cache_size; i++)
-    {
-      int dx, dy;
-      q = (list + i) % MAX_CACHE;
-      if (entries[q].style != instyle || entries[q].s != pin->Thickness ||
-	  entries[q].style != pin->Clearance)
-	continue;
-      /* we have a match - now shift it to the current location */
-      p = entries[q].p;
-      dx = pin->X - entries[q].x;
-      dy = pin->Y - entries[q].y;
-      do
-	{
-	  PLINE *c;
-	  for (c = p->contours; c; c = c->next)
-	    {
-	      int j;
-	      VNODE *v = &c->head;
-
-	      c->xmax += dx;
-	      c->xmin += dx;
-	      c->ymax += dy;
-	      c->ymin += dy;
-	      for (j = 0; j < c->Count; j++, v = v->next)
-		{
-		  v->point[0] += pin->X - entries[q].x;
-		  v->point[1] += pin->Y - entries[q].y;
-		}
-	    }
-	}
-      while ((p = p->f) != entries[q].p);
-      entries[q].x = pin->X;
-      entries[q].y = pin->Y;
-      return p;
-    }
-  inx = pin->X;
-  iny = pin->Y;
-  ins = pin->Thickness;
-  inc = pin->Clearance;
-  return NULL;
 }
 
 /* ThermPoly returns a POLYAREA having all of the clearance that when
@@ -527,12 +423,10 @@ ThermPoly (PinTypePtr pin, Cardinal laynum)
 
   if (style == 3)
     return NULL;		/* solid connection no clearance */
-  if ((pa = in_cache (pin, style)))
-    return pa;
   if (TEST_FLAG (SQUAREFLAG, pin))
-    return cache (square_therm (pin, style));
+    return square_therm (pin, style);
   if (TEST_FLAG (OCTAGONFLAG, pin))
-    return cache (oct_therm (pin, style));
+    return oct_therm (pin, style);
   /* must be circular */
   switch (style)
     {
@@ -545,30 +439,22 @@ ThermPoly (PinTypePtr pin, Cardinal laynum)
 	pa = CirclePoly (pin->X, pin->Y, t);
 	arc = CirclePoly (pin->X, pin->Y, pin->Thickness / 2);
 	/* create a thin ring */
-	poly_Boolean (pa, arc, &m, PBO_SUB);
-	poly_Free (&pa);
-	poly_Free (&arc);
+	poly_Boolean_free (pa, arc, &m, PBO_SUB);
 	/* fix me needs error checking */
 	if (style == 2)
 	  {
 	    pa = RectPoly (pin->X - t, pin->X + t, pin->Y - w, pin->Y + w);
-	    poly_Boolean (m, pa, &arc, PBO_SUB);
-	    poly_Free (&m);
-	    poly_Free (&pa);
+	    poly_Boolean_free (m, pa, &arc, PBO_SUB);
 	    pa = RectPoly (pin->X - w, pin->X + w, pin->Y - t, pin->Y + t);
 	  }
 	else
 	  {
 	    pa = diag_line (pin->X, pin->Y, t, w, True);
-	    poly_Boolean (m, pa, &arc, PBO_SUB);
-	    poly_Free (&m);
-	    poly_Free (&pa);
+	    poly_Boolean_free (m, pa, &arc, PBO_SUB);
 	    pa = diag_line (pin->X, pin->Y, t, w, False);
 	  }
-	poly_Boolean (arc, pa, &m, PBO_SUB);
-	poly_Free (&arc);
-	poly_Free (&pa);
-	return cache (m);
+	poly_Boolean_free (arc, pa, &m, PBO_SUB);
+	return m;
       }
 
 
@@ -607,6 +493,6 @@ ThermPoly (PinTypePtr pin, Cardinal laynum)
       arc->b = pa->f->f;
       arc->f = pa;
       pa->b = arc;
-      return cache (pa);
+      return pa;
     }
 }
