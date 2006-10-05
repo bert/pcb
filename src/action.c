@@ -1365,14 +1365,17 @@ NotifyMode (void)
 
 	if (gui->shift_is_pressed ())
 	  {
-	    int type = SearchScreen (Note.X, Note.Y, ELEMENT_TYPE, &ptr1, &ptr2, &ptr3);
+	    int type =
+	      SearchScreen (Note.X, Note.Y, ELEMENT_TYPE, &ptr1, &ptr2,
+			    &ptr3);
 	    if (type == ELEMENT_TYPE)
 	      {
 		e = (ElementTypePtr) ptr1;
 		if (e)
 		  {
-		    memcpy (estr, e->Name, MAX_ELEMENTNAMES * sizeof(TextType));
-		    memset (e->Name, 0, MAX_ELEMENTNAMES * sizeof(TextType));
+		    memcpy (estr, e->Name,
+			    MAX_ELEMENTNAMES * sizeof (TextType));
+		    memset (e->Name, 0, MAX_ELEMENTNAMES * sizeof (TextType));
 		    RemoveElement (e);
 		  }
 	      }
@@ -1381,7 +1384,9 @@ NotifyMode (void)
 	  SetChangedFlag (True);
 	if (e)
 	  {
-	    int type = SearchScreen (Note.X, Note.Y, ELEMENT_TYPE, &ptr1, &ptr2, &ptr3);
+	    int type =
+	      SearchScreen (Note.X, Note.Y, ELEMENT_TYPE, &ptr1, &ptr2,
+			    &ptr3);
 	    if (type == ELEMENT_TYPE && ptr1)
 	      {
 		int i, save_n;
@@ -1389,13 +1394,13 @@ NotifyMode (void)
 
 		save_n = NAME_INDEX (PCB);
 
-	        for (i=0; i<MAX_ELEMENTNAMES; i++)
+		for (i = 0; i < MAX_ELEMENTNAMES; i++)
 		  {
 		    if (i == save_n)
 		      EraseElementName (e);
 		    r_delete_entry (PCB->Data->name_tree[i],
 				    (BoxType *) & (e->Name[i]));
-		    memcpy (&(e->Name[i]), &(estr[i]), sizeof(TextType));
+		    memcpy (&(e->Name[i]), &(estr[i]), sizeof (TextType));
 		    e->Name[i].Element = e;
 		    SetTextBoundingBox (&PCB->Font, &(e->Name[i]));
 		    r_insert_entry (PCB->Data->name_tree[i],
@@ -1900,34 +1905,39 @@ ActionSetThermal (int argc, char **argv, int x, int y)
 
   if (function && *function && style && *style)
     {
-      kind = GetValue (style, NULL, NULL);
+      Boolean absolute;
+
+      kind = GetValue (style, NULL, &absolute);
       HideCrosshair (True);
-      switch (GetFunctionID (function))
-	{
-	case F_Object:
-	  if ((type =
-	       SearchScreen (Crosshair.X, Crosshair.Y, CHANGETHERMAL_TYPES,
-			     &ptr1, &ptr2, &ptr3)) != NO_TYPE)
-	    {
-	      ChangeObjectThermal (type, ptr1, ptr2, ptr3, kind);
-	      IncrementUndoSerialNumber ();
-	      Draw ();
-	    }
-	  break;
-	case F_SelectedPins:
-	  ChangeSelectedThermals (PIN_TYPE, kind);
-	  break;
-	case F_SelectedVias:
-	  ChangeSelectedThermals (VIA_TYPE, kind);
-	  break;
-	case F_Selected:
-	case F_SelectedElements:
-	  ChangeSelectedThermals (CHANGETHERMAL_TYPES, kind);
-	  break;
-	default:
-	  err = 1;
-	  break;
-	}
+      if (absolute)
+	switch (GetFunctionID (function))
+	  {
+	  case F_Object:
+	    if ((type =
+		 SearchScreen (Crosshair.X, Crosshair.Y, CHANGETHERMAL_TYPES,
+			       &ptr1, &ptr2, &ptr3)) != NO_TYPE)
+	      {
+		ChangeObjectThermal (type, ptr1, ptr2, ptr3, kind);
+		IncrementUndoSerialNumber ();
+		Draw ();
+	      }
+	    break;
+	  case F_SelectedPins:
+	    ChangeSelectedThermals (PIN_TYPE, kind);
+	    break;
+	  case F_SelectedVias:
+	    ChangeSelectedThermals (VIA_TYPE, kind);
+	    break;
+	  case F_Selected:
+	  case F_SelectedElements:
+	    ChangeSelectedThermals (CHANGETHERMAL_TYPES, kind);
+	    break;
+	  default:
+	    err = 1;
+	    break;
+	  }
+      else
+	err = 1;
       RestoreCrosshair (True);
       if (!err)
 	return 0;
@@ -3043,13 +3053,11 @@ ActionRemoveSelected (int argc, char **argv, int x, int y)
 
 /* --------------------------------------------------------------------------- */
 
-static const char renumber_syntax[] =
-"Renumber()\n"
-"Renumber(filename)";
+static const char renumber_syntax[] = "Renumber()\n" "Renumber(filename)";
 
 static const char renumber_help[] =
-"Renumber all elements.  The changes will be recorded to filename\n"
-"for use in backannotating these changes to the schematic.";
+  "Renumber all elements.  The changes will be recorded to filename\n"
+  "for use in backannotating these changes to the schematic.";
 
 /* %start-doc actions Renumber
 
@@ -3068,7 +3076,11 @@ ActionRenumber (int argc, char **argv, int x, int y)
   char *name;
   FILE *out;
   size_t cnt_list_sz = 100;
-  struct _cnt_list {char *name; unsigned int cnt;} *cnt_list;
+  struct _cnt_list
+  {
+    char *name;
+    unsigned int cnt;
+  } *cnt_list;
   char **was, **is, *pin;
   unsigned int c_cnt = 0;
   int unique, ok;
@@ -3081,8 +3093,7 @@ ActionRenumber (int argc, char **argv, int x, int y)
   if ((out = fopen (name, "r")))
     {
       fclose (out);
-      if (! gui->
-	  confirm_dialog (_("File exists!  Ok to overwrite?"), 0))
+      if (!gui->confirm_dialog (_("File exists!  Ok to overwrite?"), 0))
 	return 0;
     }
   if ((out = fopen (name, "w")) == NULL)
@@ -3105,12 +3116,13 @@ ActionRenumber (int argc, char **argv, int x, int y)
   locked_element_list = calloc (PCB->Data->ElementN, sizeof (ElementTypePtr));
   was = calloc (PCB->Data->ElementN, sizeof (char *));
   is = calloc (PCB->Data->ElementN, sizeof (char *));
-  if (element_list == NULL || locked_element_list == NULL || was == NULL || is == NULL)
+  if (element_list == NULL || locked_element_list == NULL || was == NULL
+      || is == NULL)
     {
       fprintf (stderr, "calloc() failed in %s\n", __FUNCTION__);
       exit (1);
     }
-  
+
 
   cnt = 0;
   lock_cnt = 0;
@@ -3122,8 +3134,10 @@ ActionRenumber (int argc, char **argv, int x, int y)
 	 * add to the list of locked elements which we won't try to
 	 * renumber and whose reference designators are now reserved.
 	 */
-	fprintf (out, "*WARN* Element \"%s\" at (%d,%d) is locked and will not be renumbered.\n", 
-		 UNKNOWN ( NAMEONPCB_NAME (element) ), element->MarkX, element->MarkY);
+	fprintf (out,
+		 "*WARN* Element \"%s\" at (%d,%d) is locked and will not be renumbered.\n",
+		 UNKNOWN (NAMEONPCB_NAME (element)), element->MarkX,
+		 element->MarkY);
 	locked_element_list[lock_cnt] = element;
 	lock_cnt++;
       }
@@ -3135,20 +3149,20 @@ ActionRenumber (int argc, char **argv, int x, int y)
 
 	/* search for correct position in the list */
 	i = 0;
-	while (element_list[i] && element->MarkY > element_list[i]->MarkY ) 
+	while (element_list[i] && element->MarkY > element_list[i]->MarkY)
 	  i++;
-	
+
 	/* 
 	 * We have found the position where we have the first element that
 	 * has the same Y value or a lower Y value.  Now move forward if
 	 * needed through the X values
 	 */
-	while (element_list[i] 
-	       && element->MarkY == element_list[i]->MarkY 
-	       && element->MarkX > element_list[i]->MarkX) 
+	while (element_list[i]
+	       && element->MarkY == element_list[i]->MarkY
+	       && element->MarkX > element_list[i]->MarkX)
 	  i++;
-	
-	for (j = cnt-1; j > i ; j--)
+
+	for (j = cnt - 1; j > i; j--)
 	  {
 	    element_list[j] = element_list[j - 1];
 	  }
@@ -3156,7 +3170,7 @@ ActionRenumber (int argc, char **argv, int x, int y)
       }
   }
   END_LOOP;
-  
+
 
   /* 
    * Now that the elements are sorted by board position, we go through
@@ -3180,15 +3194,18 @@ ActionRenumber (int argc, char **argv, int x, int y)
 	  /* figure out the prefix */
 	  tmps = strdup (NAMEONPCB_NAME (element_list[i]));
 	  j = 0;
-	  while (tmps[j] && (tmps[j] < '0' || tmps[j] > '9') && tmps[j] != '?') 
+	  while (tmps[j] && (tmps[j] < '0' || tmps[j] > '9')
+		 && tmps[j] != '?')
 	    j++;
 	  tmps[j] = '\0';
-	  
+
 	  /* check the counter for this prefix */
-	  for (j = 0; cnt_list[j].name  && (strcmp (cnt_list[j].name, tmps) != 0) && j < cnt_list_sz; j++);
+	  for (j = 0;
+	       cnt_list[j].name && (strcmp (cnt_list[j].name, tmps) != 0)
+	       && j < cnt_list_sz; j++);
 
 	  /* grow the list if needed */
-	  if (j == cnt_list_sz) 
+	  if (j == cnt_list_sz)
 	    {
 	      cnt_list_sz += 100;
 	      cnt_list = realloc (cnt_list, cnt_list_sz);
@@ -3209,7 +3226,7 @@ ActionRenumber (int argc, char **argv, int x, int y)
 	   * start a new counter if we don't have a counter for this
 	   * prefix 
 	   */
-	  if ( ! cnt_list[j].name)
+	  if (!cnt_list[j].name)
 	    {
 	      cnt_list[j].name = strdup (tmps);
 	      cnt_list[j].cnt = 0;
@@ -3219,15 +3236,15 @@ ActionRenumber (int argc, char **argv, int x, int y)
 	   * check to see if the new refdes is already used by a
 	   * locked element
 	   */
-	  do 
+	  do
 	    {
 	      ok = 1;
 	      cnt_list[j].cnt++;
 	      free (tmps);
-	      
+
 	      /* space for the prefix plus 1 digit plus the '\0' */
 	      sz = strlen (cnt_list[j].name) + 2;
-	      
+
 	      /* and 1 more per extra digit needed to hold the number */
 	      tmpi = cnt_list[j].cnt;
 	      while (tmpi > 10)
@@ -3242,20 +3259,24 @@ ActionRenumber (int argc, char **argv, int x, int y)
 	       * now compare to the list of reserved (by locked
 	       * elements) names 
 	       */
-	      for (k = 0; k < lock_cnt ; k++)
+	      for (k = 0; k < lock_cnt; k++)
 		{
-		  if (strcmp (UNKNOWN ( NAMEONPCB_NAME (locked_element_list[k])), tmps) == 0)
+		  if (strcmp
+		      (UNKNOWN (NAMEONPCB_NAME (locked_element_list[k])),
+		       tmps) == 0)
 		    {
 		      ok = 0;
 		      break;
 		    }
 		}
 
-	    } while ( ! ok);
+	    }
+	  while (!ok);
 
 	  if (strcmp (tmps, NAMEONPCB_NAME (element_list[i])) != 0)
 	    {
-	      fprintf (out, "*RENAME* \"%s\" \"%s\"\n", NAMEONPCB_NAME (element_list[i]), tmps);
+	      fprintf (out, "*RENAME* \"%s\" \"%s\"\n",
+		       NAMEONPCB_NAME (element_list[i]), tmps);
 
 	      /* add this rename to our table of renames so we can update the netlist */
 	      was[c_cnt] = strdup (NAMEONPCB_NAME (element_list[i]));
@@ -3263,9 +3284,12 @@ ActionRenumber (int argc, char **argv, int x, int y)
 	      c_cnt++;
 
 	      AddObjectToChangeNameUndoList (ELEMENT_TYPE, NULL, NULL,
-					     element_list[i], NAMEONPCB_NAME (element_list[i]));
+					     element_list[i],
+					     NAMEONPCB_NAME (element_list
+							     [i]));
 
-	      ChangeObjectName (ELEMENT_TYPE, element_list[i], NULL, NULL, tmps);
+	      ChangeObjectName (ELEMENT_TYPE, element_list[i], NULL, NULL,
+				tmps);
 	      changed = True;
 
 	      /* we don't free tmps in this case because it is used */
@@ -3273,9 +3297,9 @@ ActionRenumber (int argc, char **argv, int x, int y)
 	  else
 	    free (tmps);
 	}
-      else 
+      else
 	{
-	  fprintf (out, "*WARN* Element at (%d,%d) has no name.\n", 
+	  fprintf (out, "*WARN* Element at (%d,%d) has no name.\n",
 		   element_list[i]->MarkX, element_list[i]->MarkY);
 	}
 
@@ -3291,44 +3315,48 @@ ActionRenumber (int argc, char **argv, int x, int y)
     {
 
       /* update the netlist */
-      AddNetlistLibToUndoList ( &(PCB->NetlistLib) );
+      AddNetlistLibToUndoList (&(PCB->NetlistLib));
 
       /* iterate over each net */
-      for (i = 0 ; i < PCB->NetlistLib.MenuN; i++)
+      for (i = 0; i < PCB->NetlistLib.MenuN; i++)
 	{
 
 	  /* iterate over each pin on the net */
-	  for (j = 0; j < PCB->NetlistLib.Menu[i].EntryN; j++) {
+	  for (j = 0; j < PCB->NetlistLib.Menu[i].EntryN; j++)
+	    {
 
-	    /* figure out the pin number part from strings like U3-21 */
-	    tmps = strdup (PCB->NetlistLib.Menu[i].Entry[j].ListEntry);
-	    for (k = 0; tmps[k] && tmps[k] != '-' ; k++);
-	    tmps[k] = '\0';
-	    pin = tmps + k + 1;
+	      /* figure out the pin number part from strings like U3-21 */
+	      tmps = strdup (PCB->NetlistLib.Menu[i].Entry[j].ListEntry);
+	      for (k = 0; tmps[k] && tmps[k] != '-'; k++);
+	      tmps[k] = '\0';
+	      pin = tmps + k + 1;
 
-	    /* iterate over the list of changed reference designators */
-	    for (k = 0; k < c_cnt; k++)
-	      {
-		/*
-		 * if the pin needs to change, change it and quit
-		 * searching in the list. 
-		 */
-		if (strcmp (tmps, was[k]) == 0) {
-		  free (PCB->NetlistLib.Menu[i].Entry[j].ListEntry);
-		  PCB->NetlistLib.Menu[i].Entry[j].ListEntry = 
-		    malloc ((strlen (is[k]) + strlen (pin) + 2)*sizeof (char));
-		  sprintf (PCB->NetlistLib.Menu[i].Entry[j].ListEntry, "%s-%s", is[k], pin);
-		  k = c_cnt;
+	      /* iterate over the list of changed reference designators */
+	      for (k = 0; k < c_cnt; k++)
+		{
+		  /*
+		   * if the pin needs to change, change it and quit
+		   * searching in the list. 
+		   */
+		  if (strcmp (tmps, was[k]) == 0)
+		    {
+		      free (PCB->NetlistLib.Menu[i].Entry[j].ListEntry);
+		      PCB->NetlistLib.Menu[i].Entry[j].ListEntry =
+			malloc ((strlen (is[k]) + strlen (pin) +
+				 2) * sizeof (char));
+		      sprintf (PCB->NetlistLib.Menu[i].Entry[j].ListEntry,
+			       "%s-%s", is[k], pin);
+		      k = c_cnt;
+		    }
+
 		}
-
-	      }
-	    free (tmps);
-	  }
+	      free (tmps);
+	    }
 	}
-      for (k=0; k<c_cnt; k++)
+      for (k = 0; k < c_cnt; k++)
 	{
-	  free(was[k]);
-	  free(is[k]);
+	  free (was[k]);
+	  free (is[k]);
 	}
 
       hid_action ("NetlistChanged");
@@ -3957,11 +3985,10 @@ ActionChangeClearSize (int argc, char **argv, int x, int y)
 /* ---------------------------------------------------------------------------  */
 
 static const char minmaskgap_syntax[] =
-"MinMaskGap(delta)\n"
-"MinMaskGap(Selected, delta)";
+  "MinMaskGap(delta)\n" "MinMaskGap(Selected, delta)";
 
 static const char minmaskgap_help[] =
-"Ensures the mask is a minimum distance from pins and pads.";
+  "Ensures the mask is a minimum distance from pins and pads.";
 
 /* %start-doc actions MinMaskGap
 
@@ -3996,32 +4023,32 @@ ActionMinMaskGap (int argc, char **argv, int x, int y)
   HideCrosshair (True);
   SaveUndoSerialNumber ();
   ELEMENT_LOOP (PCB->Data);
+  {
+    PIN_LOOP (element);
     {
-      PIN_LOOP (element);
-      {
-	if (!TEST_FLAGS (flags, pin))
-	  continue;
-	if (pin->Mask < pin->Thickness + value)
-	  {
-	    ChangeObjectMaskSize (PIN_TYPE, element, pin, 0, 
-				  pin->Thickness + value, 1);
-	    RestoreUndoSerialNumber ();
-	  }
-      }
-      END_LOOP;
-      PAD_LOOP (element);
-      {
-	if (!TEST_FLAGS (flags, pad))
-	  continue;
-	if (pad->Mask < pad->Thickness + value)
-	  {
-	    ChangeObjectMaskSize (PAD_TYPE, element, pad, 0,
-				  pad->Thickness + value, 1);
-	    RestoreUndoSerialNumber ();
-	  }
-      }
-      END_LOOP;
+      if (!TEST_FLAGS (flags, pin))
+	continue;
+      if (pin->Mask < pin->Thickness + value)
+	{
+	  ChangeObjectMaskSize (PIN_TYPE, element, pin, 0,
+				pin->Thickness + value, 1);
+	  RestoreUndoSerialNumber ();
+	}
     }
+    END_LOOP;
+    PAD_LOOP (element);
+    {
+      if (!TEST_FLAGS (flags, pad))
+	continue;
+      if (pad->Mask < pad->Thickness + value)
+	{
+	  ChangeObjectMaskSize (PAD_TYPE, element, pad, 0,
+				pad->Thickness + value, 1);
+	  RestoreUndoSerialNumber ();
+	}
+    }
+    END_LOOP;
+  }
   END_LOOP;
   VIA_LOOP (PCB->Data);
   {
@@ -4029,8 +4056,7 @@ ActionMinMaskGap (int argc, char **argv, int x, int y)
       continue;
     if (via->Mask && via->Mask < via->Thickness + value)
       {
-	ChangeObjectMaskSize (VIA_TYPE, via, 0, 0, 
-			      via->Thickness + value, 1);
+	ChangeObjectMaskSize (VIA_TYPE, via, 0, 0, via->Thickness + value, 1);
 	RestoreUndoSerialNumber ();
       }
   }
@@ -5274,11 +5300,9 @@ ActionSaveTo (int argc, char **argv, int x, int y)
 /* --------------------------------------------------------------------------- */
 
 static const char savesettings_syntax[] =
-"SaveSettings()\n"
-"SaveSettings(local)";
+  "SaveSettings()\n" "SaveSettings(local)";
 
-static const char savesettings_help[] =
-"Saves settings.";
+static const char savesettings_help[] = "Saves settings.";
 
 /* %start-doc actions SaveSettings
 
