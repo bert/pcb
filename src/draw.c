@@ -722,6 +722,7 @@ struct pin_info
   LayerTypePtr Layer;
 };
 
+static int
 clearPin_callback (const BoxType * b, void *cl)
 {
   PinTypePtr pin = (PinTypePtr) b;
