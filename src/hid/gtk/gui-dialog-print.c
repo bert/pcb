@@ -109,6 +109,7 @@ ghid_dialog_print (HID * printer)
       return;
     }
 
+  exporter = printer;
   tips = gtk_tooltips_new ();
 
   if (!PCB->PrintFilename)
