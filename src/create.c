@@ -81,6 +81,7 @@ CreateNewBuffer (void)
 {
   DataTypePtr data;
   data = (DataTypePtr) MyCalloc (1, sizeof (DataType), "CreateNewBuffer()");
+  data->pcb = (void *)PCB;
   return data;
 }
 
