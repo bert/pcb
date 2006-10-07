@@ -1226,27 +1226,27 @@ Collect (jmp_buf * e, PLINE * a, POLYAREA ** contours, PLINE ** holes,
 }				/* Collect */
 
 
-static void 
-cntr_Collect (jmp_buf * e, PLINE * A, POLYAREA ** contours, PLINE ** holes,
+static int 
+cntr_Collect (jmp_buf * e, PLINE ** A, POLYAREA ** contours, PLINE ** holes,
 	      int action)
 {
   PLINE *tmprev;
 
-  if (A->Flags.status == ISECTED)
+  if ((*A)->Flags.status == ISECTED)
     {
       switch (action)
 	{
 	case PBO_UNITE:
-	  Collect (e, A, contours, holes, UniteS_Rule, UniteJ_Rule);
+	  Collect (e, *A, contours, holes, UniteS_Rule, UniteJ_Rule);
 	  break;
 	case PBO_ISECT:
-	  Collect (e, A, contours, holes, IsectS_Rule, IsectJ_Rule);
+	  Collect (e, *A, contours, holes, IsectS_Rule, IsectJ_Rule);
 	  break;
 	case PBO_XOR:
-	  Collect (e, A, contours, holes, XorS_Rule, XorJ_Rule);
+	  Collect (e, *A, contours, holes, XorS_Rule, XorJ_Rule);
 	  break;
 	case PBO_SUB:
-	  Collect (e, A, contours, holes, SubS_Rule, SubJ_Rule);
+	  Collect (e, *A, contours, holes, SubS_Rule, SubJ_Rule);
 	  break;
 	};
     }
@@ -1255,71 +1255,77 @@ cntr_Collect (jmp_buf * e, PLINE * A, POLYAREA ** contours, PLINE ** holes,
       switch (action)
 	{
 	case PBO_ISECT:
-	  if (A->Flags.status == INSIDE)
+	  if ((*A)->Flags.status == INSIDE)
 	    {
-	      if (!poly_CopyContour (&tmprev, A))
-		error (err_no_memory);
-	      poly_PreContour (tmprev, TRUE);
+	      tmprev = *A;
+	      /* disappear this contour */
+	      *A = tmprev->next;
+	      tmprev->next = NULL;
 	      PutContour (e, tmprev, contours, holes);
+	      return TRUE;
 	    }
 	  break;
 	case PBO_XOR:
-	  if (A->Flags.status == INSIDE)
+	  if ((*A)->Flags.status == INSIDE)
 	    {
-	      if (!poly_CopyContour (&tmprev, A))
-		error (err_no_memory);
-	      poly_PreContour (tmprev, TRUE);
+	      tmprev = *A;
+	      /* disappear this contour */
+	      *A = tmprev->next;
+	      tmprev->next = NULL;
 	      poly_InvContour (tmprev);
 	      PutContour (e, tmprev, contours, holes);
+	      return TRUE;
 	    }
+	  break;
 	case PBO_UNITE:
 	case PBO_SUB:
-	  if (A->Flags.status == OUTSIDE)
+	  if ((*A)->Flags.status == OUTSIDE)
 	    {
-	      if (!poly_CopyContour (&tmprev, A))
-		error (err_no_memory);
-	      poly_PreContour (tmprev, TRUE);
+	      tmprev = *A;
+	      /* disappear this contour */
+	      *A = tmprev->next;
+	      tmprev->next = NULL;
 	      PutContour (e, tmprev, contours, holes);
+	      return TRUE;
 	    }
 	  break;
 	}
     }
+    return FALSE;
 }				/* cntr_Collect */
 
 static void
 M_B_AREA_Collect (jmp_buf * e, POLYAREA * bfst, POLYAREA ** contours,
 		  PLINE ** holes, int action)
 {
-  POLYAREA *b = bfst;
-  PLINE *cur, *tmprev;
+  POLYAREA *b = bfst, *bf;
+  PLINE *cur, *next;
 
   assert (b != NULL);
   do
     {
-      for (cur = b->contours; cur != NULL; cur = cur->next)
+      for (cur = b->contours; cur != NULL; cur = next)
 	{
+	  next = cur->next;
 	  if (cur->Flags.status == ISECTED)
+	  {
+	    poly_DelContour(&cur);
 	    continue;
+	  }
+
 	  if (cur->Flags.status == INSIDE)
 	    switch (action)
 	      {
 	      case PBO_XOR:
 	      case PBO_SUB:
-		/* invert and include */
-		if (!poly_CopyContour (&tmprev, cur))
-		  error (err_no_memory);
-		poly_PreContour (tmprev, TRUE);
-		poly_InvContour (tmprev);
-		PutContour (e, tmprev, contours, holes);
-		break;
+		poly_InvContour (cur);
 	      case PBO_ISECT:
-		if (!poly_CopyContour (&tmprev, cur))
-		  error (err_no_memory);
-		poly_PreContour (tmprev, TRUE);
-		PutContour (e, tmprev, contours, holes);
-		/* include */
+		cur->next = NULL;
+		cur->Flags.status = UNKNWN;
+		PutContour (e, cur, contours, holes);
 		break;
 	      case PBO_UNITE:
+	        poly_DelContour(&cur);
 		break;		/* nothing to do - already included */
 	      }
 	  else if (cur->Flags.status == OUTSIDE)
@@ -1328,19 +1334,20 @@ M_B_AREA_Collect (jmp_buf * e, POLYAREA * bfst, POLYAREA ** contours,
 	      case PBO_XOR:
 	      case PBO_UNITE:
 		/* include */
-		if (!poly_CopyContour (&tmprev, cur))
-		  error (err_no_memory);
-		poly_PreContour (tmprev, TRUE);
-		PutContour (e, tmprev, contours, holes);
+		cur->next = NULL;
+		cur->Flags.status = UNKNWN;
+		PutContour (e, cur, contours, holes);
 		break;
 	      case PBO_ISECT:
 	      case PBO_SUB:
+	        poly_DelContour(&cur);
 		break;		/* do nothing, not included */
 	      }
 	}
-
+	bf = b->f;
+	free (b);
     }
-  while ((b = b->f) != bfst);
+  while ((b = bf) != bfst);
 }
 
 
@@ -1349,13 +1356,18 @@ M_POLYAREA_Collect (jmp_buf * e, POLYAREA * afst, POLYAREA ** contours,
 		    PLINE ** holes, int action)
 {
   POLYAREA *a = afst;
-  PLINE *cur;
+  PLINE **cur, **next;
 
   assert (a != NULL);
   do
     {
-      for (cur = a->contours; cur != NULL; cur = cur->next)
-	cntr_Collect (e, cur, contours, holes, action);
+      for (cur = &a->contours; *cur != NULL; cur = next)
+      {
+        next = &((*cur)->next);
+	  /* if we disappear a contour, don't advance twice */
+	if (cntr_Collect (e, cur, contours, holes, action))
+	  next = cur;
+      }
     }
   while ((a = a->f) != afst);
 }
@@ -1416,6 +1428,7 @@ poly_Boolean (const POLYAREA * a_org, const POLYAREA * b_org, POLYAREA ** res,
       M_POLYAREA_label (b, a, FALSE);
 
       M_POLYAREA_Collect (&e, a, res, &holes, action);
+      poly_Free (&a);
       M_B_AREA_Collect (&e, b, res, &holes, action);
 
       InsertHoles (&e, *res, &holes);
@@ -1426,8 +1439,6 @@ poly_Boolean (const POLYAREA * a_org, const POLYAREA * b_org, POLYAREA ** res,
       holes = p->next;
       poly_DelContour (&p);
     }
-  poly_Free (&a);
-  poly_Free (&b);
 
   if (code)
     {
@@ -1464,6 +1475,7 @@ poly_Boolean_free (POLYAREA * a, POLYAREA * b, POLYAREA ** res,
       M_POLYAREA_label (b, a, FALSE);
 
       M_POLYAREA_Collect (&e, a, res, &holes, action);
+      poly_Free (&a);
       M_B_AREA_Collect (&e, b, res, &holes, action);
 
       InsertHoles (&e, *res, &holes);
@@ -1474,8 +1486,6 @@ poly_Boolean_free (POLYAREA * a, POLYAREA * b, POLYAREA ** res,
       holes = p->next;
       poly_DelContour (&p);
     }
-  poly_Free (&a);
-  poly_Free (&b);
 
   if (code)
     {
