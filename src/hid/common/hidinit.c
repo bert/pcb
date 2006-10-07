@@ -16,6 +16,7 @@
 #include "hid.h"
 #include "../hidint.h"
 
+#include "error.h"
 #include "global.h"
 #include "misc.h"
 
@@ -462,7 +463,6 @@ hid_set_attribute (char *name, char *value)
       if (strcmp (name, ha->attributes[i].name) == 0)
 	{
 	  HID_Attribute *a = ha->attributes + i;
-	  char *ep;
 	  switch (ha->attributes[i].type)
 	    {
 	    case HID_Label:
@@ -549,7 +549,7 @@ hid_load_settings_1 (char *fname)
 void
 hid_load_settings ()
 {
-  char *home, *fname;
+  char *home;
   HID_AttrNode *ha;
   int i;
 
