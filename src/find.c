@@ -4144,7 +4144,7 @@ GotoError (void)
 			     (PCB->Data, (LayerTypePtr) thing_ptr1), True,
 			     True);
     }
-  CenterDisplay (X, Y - TO_PCB (Output.Height / 4), False);
+  CenterDisplay (X, Y, False);
 }
 
 void
