@@ -113,6 +113,8 @@ extern "C"
   int hid_action (const char *action);
   int hid_actionl (const char *action, ...);	/* NULL terminated */
   int hid_actionv (const char *action, int argc, char **argv);
+  void hid_save_settings (int);
+  void hid_load_settings (void);
 
 /* Parse the given string into action calls, and call `f' for each
    action found.  Returns nonzero if the action handler(s) return
