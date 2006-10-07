@@ -144,6 +144,7 @@ parsepcb
 					LayerFlag[i] = False;
 				yyFont = &yyPCB->Font;
 				yyData = yyPCB->Data;
+				yyData->pcb = (void *)yyPCB;
 				yyData->LayerN = 0;
 				layer_group_string = NULL;
 			}

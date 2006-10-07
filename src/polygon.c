@@ -610,6 +610,16 @@ line_sub_callback (const BoxType * b, void *cl)
   return SubtractLine (line, polygon);
 }
 
+static int Group (DataTypePtr Data, Cardinal layer)
+{
+  Cardinal i, j;
+  for (i =0; i < max_layer; i++)
+    for (j = 0; j < ((PCBType *)(Data->pcb))->LayerGroups.Number[i]; j++)
+      if (layer == ((PCBType *)(Data->pcb))->LayerGroups.Entries[i][j])
+        return i;
+  return i;
+}
+
 static int
 clearPoly (DataTypePtr Data, LayerTypePtr Layer, PolygonType * polygon,
 	   const BoxType * here, BDimension expand)
@@ -617,12 +627,12 @@ clearPoly (DataTypePtr Data, LayerTypePtr Layer, PolygonType * polygon,
   int r = 0;
   BoxType region;
   struct cpInfo info;
-  int group;
+  Cardinal group;
 
   if (!TEST_FLAG (CLEARPOLYFLAG, polygon))
     return 0;
-  group = GetLayerGroupNumberByNumber (GetLayerNumber (Data, Layer));
-  info.solder = (group == GetLayerGroupNumberByNumber (max_layer + SOLDER_LAYER));
+  group = Group (Data, GetLayerNumber (Data, Layer));
+  info.solder = (group == Group (Data, max_layer + SOLDER_LAYER));
   info.data = Data;
   info.other = here;
   info.layer = Layer;

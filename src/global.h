@@ -341,6 +341,7 @@ typedef struct			/* holds all objects */
   RatTypePtr Rat;
   rtree_t *via_tree, *element_tree, *pin_tree, *pad_tree, *name_tree[3],	/* for element names */
    *rat_tree;
+  void *pcb;
   LayerType Layer[MAX_LAYER + 2];	/* add 2 silkscreen layers */
 } DataType, *DataTypePtr;
 
