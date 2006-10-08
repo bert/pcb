@@ -1275,30 +1275,12 @@ NoHolesPolygonDicer (PLINE * p, void (*emit) (PolygonTypePtr))
     }
   else
     {
-      POLYAREA poly2, *res;
-      PLINE slice;
-      VNODE v[3];
+      POLYAREA *poly2, *res = NULL;
 
-      poly_IniContour (&slice);
-      slice.head.next = v[1].prev = &v[0];
-      v[0].next = v[2].prev = &v[1];
-      v[1].next = slice.head.prev = &v[2];
-      v[2].next = v[0].prev = &slice.head;
       /* make a rectangle of the left region slicing through the middle of the first hole */
-      slice.head.point[0] = slice.xmax = (p->next->xmin + p->next->xmax) / 2;
-      slice.head.point[1] = slice.ymax = p->ymax;
-      v[0].point[0] = slice.xmin = p->xmin;
-      v[0].point[1] = slice.ymax;
-      v[1].point[0] = slice.xmin;
-      v[1].point[1] = slice.ymin = p->ymin;
-      v[2].point[0] = slice.xmax;
-      v[2].point[1] = slice.ymin;
-      slice.Count = 4;
-      slice.Flags.orient = PLF_DIR;
-      poly2.f = poly2.b = &poly2;
-      poly2.contours = &slice;
-      res = NULL;
-      poly_Boolean (&poly2, &pa, &res, PBO_ISECT);
+      poly2 = RectPoly (p->xmin, (p->next->xmin + p->next->xmax) / 2, p->ymin, p->ymax);
+      poly_Boolean (poly2, &pa, &res, PBO_ISECT);
+      poly_Free (&poly2);
       if (res)
 	{
 	  POLYAREA *x;
@@ -1312,11 +1294,9 @@ NoHolesPolygonDicer (PLINE * p, void (*emit) (PolygonTypePtr))
 	  poly_Free (&res);
 	}
       /* make a rectangle of the right region slicing through the middle of the first hole */
-      slice.head.point[0] = slice.xmax = p->xmax;
-      v[0].point[0] = slice.xmin = (p->next->xmin + p->next->xmax) / 2;
-      v[1].point[0] = slice.xmin;
-      v[2].point[0] = slice.xmax;
-      poly_Boolean (&poly2, &pa, &res, PBO_ISECT);
+      poly2 = RectPoly ((p->next->xmin + p->next->xmax) / 2, p->xmax, p->ymin, p->ymax);
+      poly_Boolean (poly2, &pa, &res, PBO_ISECT);
+      poly_Free (&poly2);
       if (res)
 	{
 	  POLYAREA *x;
