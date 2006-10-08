@@ -559,7 +559,7 @@ seg_in_seg (const BoxType * b, void *cl)
 		      i->v->point, i->v->next->point, s1, s2);
   if (!cnt)
     return 0;
-  if (i->touch) /* if checking touches one find and we're done */
+  if (i->touch)			/* if checking touches one find and we're done */
     longjmp (*i->touch, TOUCHES);
   i->p->Flags.status = ISECTED;
   s->p->Flags.status = ISECTED;
@@ -568,16 +568,16 @@ seg_in_seg (const BoxType * b, void *cl)
       res = node_add_point (i->v, s->v, cnt > 1 ? s2 : s1);
       if (res < 0)
 	return 1;		/* error */
-	/* adjust the bounding box if necessary */
+      /* adjust the bounding box if necessary */
       if (res & 2)
-        cntrbox_adjust (i->p, cnt > 1 ? s2 : s1);
+	cntrbox_adjust (i->p, cnt > 1 ? s2 : s1);
       /* if we added a node in the tree we need to change the tree */
       if (res & 1)
-      {
-        cntrbox_adjust (s->p, cnt > 1 ? s2 : s1);
-       if (adjust_tree (i, s))
-	 return 1;
-      }
+	{
+	  cntrbox_adjust (s->p, cnt > 1 ? s2 : s1);
+	  if (adjust_tree (i, s))
+	    return 1;
+	}
       if (res & 2)		/* if a point was inserted in A, start over too */
 	longjmp (i->env, 1);
     }
@@ -608,7 +608,7 @@ curtail (const BoxType * b, void *cl)
  *
  */
 static int
-intersect (jmp_buf *jb, POLYAREA * a, POLYAREA * b, int add)
+intersect (jmp_buf * jb, POLYAREA * a, POLYAREA * b, int add)
 {
   POLYAREA *t;
   PLINE *pa, *pb;		/* pline iterators */
@@ -673,13 +673,19 @@ intersect (jmp_buf *jb, POLYAREA * a, POLYAREA * b, int add)
     for (pa = a->contours; pa; pa = pa->next)
       {
 	jmp_buf env;
-	  /* skip the whole contour if it's bounding box doesn't intersect */
+	/* skip the whole contour if it's bounding box doesn't intersect */
 	if (setjmp (env) == 0)
 	  {
-	    r_search (info.tree, (BoxType *) pa, NULL, curtail, &env);
+	    /* expand the box by 1 to include rounding region */
+	    BoxType sb;
+	    sb.X1 = pa->xmin - 1;
+	    sb.X2 = pa->xmax + 1;
+	    sb.Y1 = pa->ymin - 1;
+	    sb.Y2 = pa->ymax + 1;
+	    r_search (info.tree, &sb, NULL, curtail, &env);
 	    continue;
 	  }
-	else /* something intersects so check the edges of the contour */
+	else			/* something intersects so check the edges of the contour */
 	  {
 	    info.p = pa;
 	    av = &pa->head;
@@ -942,7 +948,7 @@ InsCntr (jmp_buf * e, PLINE * c, POLYAREA ** dst)
   c->next = NULL;
 }				/* InsCntr */
 
-static void 
+static void
 PutContour (jmp_buf * e, PLINE * cntr, POLYAREA ** contours, PLINE ** holes)
 {
   assert (cntr != NULL);
@@ -951,11 +957,11 @@ PutContour (jmp_buf * e, PLINE * cntr, POLYAREA ** contours, PLINE ** holes)
     InsCntr (e, cntr, contours);
   /* put hole into temporary list */
   else
-  {
-    assert (!cntr->next);
-    cntr->next = *holes;
-    *holes = cntr;		 /* let cntr be 1st hole in list */
-  }
+    {
+      assert (!cntr->next);
+      cntr->next = *holes;
+      *holes = cntr;		/* let cntr be 1st hole in list */
+    }
 }				/* PutContour */
 
 static void
@@ -1195,7 +1201,7 @@ Gather (VNODE * start, PLINE ** result, J_Rule v_rule, DIRECTION initdir)
   return err_ok;
 }				/* Gather */
 
-static void 
+static void
 Collect (jmp_buf * e, PLINE * a, POLYAREA ** contours, PLINE ** holes,
 	 S_Rule s_rule, J_Rule j_rule)
 {
@@ -1226,7 +1232,7 @@ Collect (jmp_buf * e, PLINE * a, POLYAREA ** contours, PLINE ** holes,
 }				/* Collect */
 
 
-static int 
+static int
 cntr_Collect (jmp_buf * e, PLINE ** A, POLYAREA ** contours, PLINE ** holes,
 	      int action)
 {
@@ -1291,7 +1297,7 @@ cntr_Collect (jmp_buf * e, PLINE ** A, POLYAREA ** contours, PLINE ** holes,
 	  break;
 	}
     }
-    return FALSE;
+  return FALSE;
 }				/* cntr_Collect */
 
 static void
@@ -1308,10 +1314,10 @@ M_B_AREA_Collect (jmp_buf * e, POLYAREA * bfst, POLYAREA ** contours,
 	{
 	  next = cur->next;
 	  if (cur->Flags.status == ISECTED)
-	  {
-	    poly_DelContour(&cur);
-	    continue;
-	  }
+	    {
+	      poly_DelContour (&cur);
+	      continue;
+	    }
 
 	  if (cur->Flags.status == INSIDE)
 	    switch (action)
@@ -1325,7 +1331,7 @@ M_B_AREA_Collect (jmp_buf * e, POLYAREA * bfst, POLYAREA ** contours,
 		PutContour (e, cur, contours, holes);
 		break;
 	      case PBO_UNITE:
-	        poly_DelContour(&cur);
+		poly_DelContour (&cur);
 		break;		/* nothing to do - already included */
 	      }
 	  else if (cur->Flags.status == OUTSIDE)
@@ -1340,18 +1346,18 @@ M_B_AREA_Collect (jmp_buf * e, POLYAREA * bfst, POLYAREA ** contours,
 		break;
 	      case PBO_ISECT:
 	      case PBO_SUB:
-	        poly_DelContour(&cur);
+		poly_DelContour (&cur);
 		break;		/* do nothing, not included */
 	      }
 	}
-	bf = b->f;
-	free (b);
+      bf = b->f;
+      free (b);
     }
   while ((b = bf) != bfst);
 }
 
 
-static void 
+static void
 M_POLYAREA_Collect (jmp_buf * e, POLYAREA * afst, POLYAREA ** contours,
 		    PLINE ** holes, int action)
 {
@@ -1362,12 +1368,12 @@ M_POLYAREA_Collect (jmp_buf * e, POLYAREA * afst, POLYAREA ** contours,
   do
     {
       for (cur = &a->contours; *cur != NULL; cur = next)
-      {
-        next = &((*cur)->next);
+	{
+	  next = &((*cur)->next);
 	  /* if we disappear a contour, don't advance twice */
-	if (cntr_Collect (e, cur, contours, holes, action))
-	  next = cur;
-      }
+	  if (cntr_Collect (e, cur, contours, holes, action))
+	    next = cur;
+	}
     }
   while ((a = a->f) != afst);
 }
@@ -1390,9 +1396,9 @@ Touching (POLYAREA * a, POLYAREA * b)
       M_POLYAREA_intersect (&e, a, b, False);
 
       if (M_POLYAREA_label (a, b, TRUE))
-	  return TRUE;
+	return TRUE;
       if (M_POLYAREA_label (b, a, TRUE))
-	  return TRUE;
+	return TRUE;
     }
   else if (code == TOUCHES)
     return TRUE;
@@ -1451,8 +1457,7 @@ poly_Boolean (const POLYAREA * a_org, const POLYAREA * b_org, POLYAREA ** res,
 
 /* just like poly_Boolean put frees the input polys */
 int
-poly_Boolean_free (POLYAREA * a, POLYAREA * b, POLYAREA ** res,
-	      int action)
+poly_Boolean_free (POLYAREA * a, POLYAREA * b, POLYAREA ** res, int action)
 {
   PLINE *p, *holes = NULL;
   jmp_buf e;
@@ -1480,7 +1485,7 @@ poly_Boolean_free (POLYAREA * a, POLYAREA * b, POLYAREA ** res,
 
       InsertHoles (&e, *res, &holes);
     }
-  /* delete holes if any left*/
+  /* delete holes if any left */
   while ((p = holes) != NULL)
     {
       holes = p->next;
@@ -2135,8 +2140,7 @@ poly_Valid (POLYAREA * p)
       v = &p->contours->head;
       do
 	{
-	  fprintf (stderr, "%d %d 100 100 \"\"]\n", v->point[0],
-		   v->point[1]);
+	  fprintf (stderr, "%d %d 100 100 \"\"]\n", v->point[0], v->point[1]);
 	  fprintf (stderr, "Line [%d %d ", v->point[0], v->point[1]);
 	}
       while ((v = v->next) != &p->contours->head);
