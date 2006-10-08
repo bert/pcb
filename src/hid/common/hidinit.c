@@ -72,7 +72,7 @@ hid_load_dir (char *dirname)
 	  && (st.st_mode & (S_IXUSR | S_IXGRP | S_IXOTH))
 	  && S_ISREG (st.st_mode))
 	{
-	  if ((so = dlopen (path, RTLD_NOW)) == NULL)
+	  if ((so = dlopen (path, RTLD_NOW | RTLD_GLOBAL)) == NULL)
 	    {
 	      fprintf(stderr, "dl_error: %s\n", dlerror ());
 	      continue;
