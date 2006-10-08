@@ -175,7 +175,6 @@ parsepcb
 			 */
 			for (i = 0; i < max_layer; i++)
 			  for (j = 0; j < yyData->Layer[i].PolygonN; j++)
-			    if (TEST_FLAG (CLEARPOLYFLAG, &yyData->Layer[i].Polygon[j]))
 			      InitClip (yyData, &yyData->Layer[i], &yyData->Layer[i].Polygon[j]);
 			}
 			   
