@@ -160,6 +160,8 @@ parsepcb
 		  pcbdata
 		  pcbnetlist
 			{
+			  int i, j;
+
 			  if (layer_group_string == NULL)
 			    layer_group_string = Settings.Groups;
 			  CreateNewPCBPost (yyPCB, 0);
@@ -168,7 +170,15 @@ parsepcb
 			      Message("illegal layer-group string\n");
 			      YYABORT;
 			    }
+			/* initialize the polygon clipping now since
+			 * we didn't know the layer grouping before.
+			 */
+			for (i = 0; i < max_layer; i++)
+			  for (j = 0; j < yyData->Layer[i].PolygonN; j++)
+			    if (TEST_FLAG (CLEARPOLYFLAG, &yyData->Layer[i].Polygon[j]))
+			      InitClip (yyData, &yyData->Layer[i], &yyData->Layer[i].Polygon[j]);
 			}
+			   
 		;
 
 parsedata
@@ -810,7 +820,6 @@ layerdefinition
 				if (Polygon->PointN >= 3)
 				  {
 				    SetPolygonBoundingBox (Polygon);
-				    InitClip (yyData, Layer, Polygon);
 				    if (!Layer->polygon_tree)
 				      Layer->polygon_tree = r_create_tree (NULL, 0, 0);
 				    r_insert_entry (Layer->polygon_tree, (BoxType *) Polygon, 0);

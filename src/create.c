@@ -137,6 +137,7 @@ CreateNewPCB (Boolean SetDefaultNames)
   /* allocate memory, switch all layers on and copy resources */
   ptr = MyCalloc (1, sizeof (PCBType), "CreateNewPCB()");
   ptr->Data = CreateNewBuffer ();
+  ptr->Data->pcb = (void *)ptr;
 
   ptr->ThermStyle = 4;
   ptr->SilkActive = False;
