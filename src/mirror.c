@@ -45,6 +45,7 @@
 #include "draw.h"
 #include "mirror.h"
 #include "misc.h"
+#include "polygon.h"
 #include "search.h"
 #include "select.h"
 #include "set.h"
@@ -66,6 +67,7 @@ void
 MirrorElementCoordinates (DataTypePtr Data, ElementTypePtr Element,
 			  LocationType yoff)
 {
+  r_delete_element (Data, Element);
   ELEMENTLINE_LOOP (Element);
   {
     line->Point1.X = SWAP_X (line->Point1.X);
@@ -76,12 +78,14 @@ MirrorElementCoordinates (DataTypePtr Data, ElementTypePtr Element,
   END_LOOP;
   PIN_LOOP (Element);
   {
+    RestoreToPolygon (Data, PIN_TYPE, Element, pin);
     pin->X = SWAP_X (pin->X);
     pin->Y = SWAP_Y (pin->Y) + yoff;
   }
   END_LOOP;
   PAD_LOOP (Element);
   {
+    RestoreToPolygon (Data, PAD_TYPE, Element, pad);
     pad->Point1.X = SWAP_X (pad->Point1.X);
     pad->Point1.Y = SWAP_Y (pad->Point1.Y) + yoff;
     pad->Point2.X = SWAP_X (pad->Point2.X);
@@ -109,5 +113,7 @@ MirrorElementCoordinates (DataTypePtr Data, ElementTypePtr Element,
 
   /* now toggle the solder-side flag */
   TOGGLE_FLAG (ONSOLDERFLAG, Element);
+  /* this inserts all of the rtree data too */
   SetElementBoundingBox (Data, Element, &PCB->Font);
+  ClearFromPolygon (Data, ELEMENT_TYPE, Element, Element);
 }

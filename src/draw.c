@@ -100,7 +100,6 @@ static void DrawLayer (LayerTypePtr, BoxType *);
 static int  DrawLayerGroup (int, const BoxType *);
 static void DrawPinOrViaLowLevel (PinTypePtr, Boolean);
 static void ClearOnlyPin (PinTypePtr, Boolean);
-static void ThermPin (LayerTypePtr, PinTypePtr);
 static void DrawPlainPin (PinTypePtr, Boolean);
 static void DrawPlainVia (PinTypePtr, Boolean);
 static void DrawPinOrViaNameLowLevel (PinTypePtr);
@@ -116,8 +115,6 @@ static void AddPart (void *);
 static void SetPVColor (PinTypePtr, int);
 static void DrawGrid (void);
 static void DrawEMark (ElementTypePtr, LocationType, LocationType, Boolean);
-static void ClearLine (LineTypePtr);
-static void ClearArc (ArcTypePtr);
 static void ClearPad (PadTypePtr, Boolean);
 static void DrawHole (PinTypePtr);
 static void DrawMask (BoxType *);
@@ -375,13 +372,13 @@ static int
 hole_callback (const BoxType * b, void *cl)
 {
   PinTypePtr pin = (PinTypePtr) b;
-  int plated = cl ? *(int *)cl : -1;
+  int plated = cl ? *(int *) cl : -1;
   switch (plated)
     {
     case -1:
       break;
     case 0:
-      if (! TEST_FLAG (HOLEFLAG, pin))
+      if (!TEST_FLAG (HOLEFLAG, pin))
 	return 1;
       break;
     case 1:
@@ -393,7 +390,8 @@ hole_callback (const BoxType * b, void *cl)
   return 1;
 }
 
-typedef struct {
+typedef struct
+{
   int nplated;
   int nunplated;
 } HoleCountStruct;
@@ -404,11 +402,11 @@ hole_counting_callback (const BoxType * b, void *cl)
   PinTypePtr pin = (PinTypePtr) b;
   HoleCountStruct *hcs = (HoleCountStruct *) cl;
   if (TEST_FLAG (HOLEFLAG, pin))
-    hcs->nunplated ++;
+    hcs->nunplated++;
   else
-    hcs->nplated ++;
+    hcs->nplated++;
   return 1;
-  }
+}
 
 static int
 rat_callback (const BoxType * b, void *cl)
@@ -556,19 +554,25 @@ DrawEverything (BoxTypePtr drawn_area)
       int plated;
       HoleCountStruct hcs;
       hcs.nplated = hcs.nunplated = 0;
-      r_search (PCB->Data->pin_tree, drawn_area, NULL, hole_counting_callback, &hcs);
-      r_search (PCB->Data->via_tree, drawn_area, NULL, hole_counting_callback, &hcs);
+      r_search (PCB->Data->pin_tree, drawn_area, NULL, hole_counting_callback,
+		&hcs);
+      r_search (PCB->Data->via_tree, drawn_area, NULL, hole_counting_callback,
+		&hcs);
       if (hcs.nplated && gui->set_layer ("plated-drill", SL (PDRILL, 0)))
 	{
 	  plated = 1;
-	  r_search (PCB->Data->pin_tree, drawn_area, NULL, hole_callback, &plated);
-	  r_search (PCB->Data->via_tree, drawn_area, NULL, hole_callback, &plated);
+	  r_search (PCB->Data->pin_tree, drawn_area, NULL, hole_callback,
+		    &plated);
+	  r_search (PCB->Data->via_tree, drawn_area, NULL, hole_callback,
+		    &plated);
 	}
       if (hcs.nunplated && gui->set_layer ("unplated-drill", SL (UDRILL, 0)))
 	{
 	  plated = 0;
-	  r_search (PCB->Data->pin_tree, drawn_area, NULL, hole_callback, &plated);
-	  r_search (PCB->Data->via_tree, drawn_area, NULL, hole_callback, &plated);
+	  r_search (PCB->Data->pin_tree, drawn_area, NULL, hole_callback,
+		    &plated);
+	  r_search (PCB->Data->via_tree, drawn_area, NULL, hole_callback,
+		    &plated);
 	}
     }
   /* Draw top silkscreen */
@@ -589,7 +593,7 @@ DrawEverything (BoxTypePtr drawn_area)
 	DrawGrid ();
     }
 
-  for (side=0; side<=1; side++)
+  for (side = 0; side <= 1; side++)
     {
       int doit;
       Boolean NoData = True;
@@ -597,28 +601,29 @@ DrawEverything (BoxTypePtr drawn_area)
       {
 	if ((TEST_FLAG (ONSOLDERFLAG, pad) && side == SOLDER_LAYER)
 	    || (!TEST_FLAG (ONSOLDERFLAG, pad) && side == COMPONENT_LAYER))
-          {
-            NoData = False;
-            break;
-          }
+	  {
+	    NoData = False;
+	    break;
+	  }
       }
       ENDALL_LOOP;
 
       /* skip empty files */
       if (NoData)
-        continue;
+	continue;
 
       if (side == SOLDER_LAYER)
-	doit = gui->set_layer ("bottompaste", SL(PASTE, BOTTOM));
+	doit = gui->set_layer ("bottompaste", SL (PASTE, BOTTOM));
       else
-	doit = gui->set_layer ("toppaste", SL(PASTE, TOP));
+	doit = gui->set_layer ("toppaste", SL (PASTE, TOP));
       if (doit)
 	{
 	  gui->set_color (Output.fgGC, PCB->ElementColor);
 	  ALLPAD_LOOP (PCB->Data);
 	  {
 	    if ((TEST_FLAG (ONSOLDERFLAG, pad) && side == SOLDER_LAYER)
-		|| (!TEST_FLAG (ONSOLDERFLAG, pad) && side == COMPONENT_LAYER))
+		|| (!TEST_FLAG (ONSOLDERFLAG, pad)
+		    && side == COMPONENT_LAYER))
 	      DrawPadLowLevel (pad);
 	  }
 	  ENDALL_LOOP;
@@ -714,7 +719,6 @@ DrawTop (const BoxType * screen)
 struct pin_info
 {
   Boolean arg;
-  int PIPFlag;
   LayerTypePtr Layer;
 };
 
@@ -725,8 +729,6 @@ clearPin_callback (const BoxType * b, void *cl)
   struct pin_info *i = (struct pin_info *) cl;
   if (i->arg)
     ClearOnlyPin (pin, True);
-  else if (TEST_PIP (i->PIPFlag, pin))
-    ClearOnlyPin (pin, False);
   return 1;
 }
 static int
@@ -734,7 +736,8 @@ poly_callback (const BoxType * b, void *cl)
 {
   struct pin_info *i = (struct pin_info *) cl;
 
-  if (XOR (i->arg, TEST_FLAG (CLEARPOLYFLAG, (PolygonTypePtr) b)))
+  if (gui->poly_dicer
+      || XOR (i->arg, TEST_FLAG (CLEARPOLYFLAG, (PolygonTypePtr) b)))
     DrawPlainPolygon (i->Layer, (PolygonTypePtr) b);
   return 1;
 }
@@ -831,30 +834,22 @@ DrawMask (BoxType * screen)
 }
 
 static int
-clear_callback (int type, void *ptr1, void *ptr2, void *ptr3,
-		LayerTypePtr lay, PolygonTypePtr poly)
+clear_callback (PLINE * pl, LayerTypePtr lay, PolygonTypePtr poly)
 {
-  LineTypePtr l = (LineTypePtr) ptr2;
-  ArcTypePtr a = (ArcTypePtr) ptr2;
+  int i, *x, *y;
+  VNODE *v;
 
-  switch (type)
+  i = 0;
+  x = (int *) malloc (pl->Count * sizeof (int));
+  y = (int *) malloc (pl->Count * sizeof (int));
+  for (v = &pl->head; i < pl->Count; v = v->next)
     {
-    case LINE_TYPE:
-      ClearLine (l);
-      break;
-    case ARC_TYPE:
-      ClearArc (a);
-      break;
-    case PIN_TYPE:
-    case VIA_TYPE:
-      ClearOnlyPin ((PinTypePtr) ptr2, False);
-      break;
-    case PAD_TYPE:
-      ClearPad ((PadTypePtr) ptr2, False);
-      break;
-    default:
-      Message ("Bad clear callback\n");
+      x[i] = v->point[0];
+      y[i++] = v->point[1];
     }
+  gui->fill_polygon (Output.pmGC, i, x, y);
+  free (x);
+  free (y);
   return 0;
 }
 
@@ -877,20 +872,6 @@ text_callback (const BoxType * b, void *cl)
 {
   DrawRegularText ((LayerTypePtr) cl, (TextTypePtr) b, 0);
   return 1;
-}
-
-static int
-therm_callback (const BoxType * b, void *cl)
-{
-  PinTypePtr pin = (PinTypePtr) b;
-  struct pin_info *i = (struct pin_info *) cl;
-
-  if (TEST_THERM (i->PIPFlag, pin) && TEST_PIP (i->PIPFlag, pin))
-    {
-      ThermPin (i->Layer, pin);
-      return 1;
-    }
-  return 0;
 }
 
 
@@ -932,84 +913,86 @@ DrawLayerGroup (int group, const BoxType * screen)
   int n_entries = PCB->LayerGroups.Number[group];
   Cardinal *layers = PCB->LayerGroups.Entries[group];
 
-  for (i = n_entries - 1; i >= 0; i--)
-    if (layers[i] < max_layer)
-      {
-	Layer = PCB->Data->Layer + layers[i];
-	if (strcasecmp (Layer->Name, "route") == 0
-	    || strcasecmp (Layer->Name, "outline") == 0)
-	  rv = 0;
-	if (Layer->On && Layer->PolygonN)
-	  {
-	    POLYGON_LOOP (Layer);
-	    {
-	      if (VPOLY (polygon) && TEST_FLAG (CLEARPOLYFLAG, polygon))
-		{
-		  need_mask = 1;
-		  /* No point looping any more */
-		  goto got_mask;
-		}
-	    }
-	    END_LOOP;
-	  }
-      }
-got_mask:
 
-  if (need_mask)
+  if (!gui->poly_dicer)
     {
-
-      if (gui->poly_before)
-	{
-	  gui->use_mask (HID_MASK_BEFORE);
-	  for (i = n_entries - 1; i >= 0; i--)
-	    if (layers[i] < max_layer)
-	      {
-		Layer = PCB->Data->Layer + layers[i];
-		info.PIPFlag = layers[i];
-		info.Layer = Layer;
-
-		if (Layer->On && Layer->PolygonN)
-		  {
-		    /* print the clearing polys */
-		    info.arg = False;
-		    r_search (Layer->polygon_tree, screen, NULL,
-			      poly_callback, &info);
-		  }
-	      }
-	}
-
-      gui->use_mask (HID_MASK_CLEAR);
       for (i = n_entries - 1; i >= 0; i--)
 	if (layers[i] < max_layer)
 	  {
-	    /* Make clearances around lines, arcs, pins and vias
-	     */
-	    gui->set_color (Output.pmGC, "erase");
-	    PolygonPlows (group, screen, clear_callback);
+	    Layer = PCB->Data->Layer + layers[i];
+	    if (strcasecmp (Layer->Name, "route") == 0
+		|| strcasecmp (Layer->Name, "outline") == 0)
+	      rv = 0;
+	    if (Layer->On && Layer->PolygonN)
+	      {
+		POLYGON_LOOP (Layer);
+		{
+		  if (VPOLY (polygon) && TEST_FLAG (CLEARPOLYFLAG, polygon))
+		    {
+		      need_mask = 1;
+		      /* No point looping any more */
+		      goto got_mask;
+		    }
+		}
+		END_LOOP;
+	      }
 	  }
+    got_mask:
 
-      if (gui->poly_after)
+      if (need_mask)
 	{
-	  gui->use_mask (HID_MASK_AFTER);
+
+	  if (gui->poly_before)
+	    {
+	      gui->use_mask (HID_MASK_BEFORE);
+	      for (i = n_entries - 1; i >= 0; i--)
+		if (layers[i] < max_layer)
+		  {
+		    Layer = PCB->Data->Layer + layers[i];
+		    info.Layer = Layer;
+
+		    if (Layer->On && Layer->PolygonN)
+		      {
+			/* print the clearing polys */
+			info.arg = False;
+			r_search (Layer->polygon_tree, screen, NULL,
+				  poly_callback, &info);
+		      }
+		  }
+	    }
+
+	  gui->use_mask (HID_MASK_CLEAR);
 	  for (i = n_entries - 1; i >= 0; i--)
 	    if (layers[i] < max_layer)
 	      {
-		Layer = PCB->Data->Layer + layers[i];
-		info.PIPFlag = layers[i];
-		info.Layer = Layer;
-
-		if (Layer->On && Layer->PolygonN)
-		  {
-		    /* print the clearing polys */
-		    info.arg = False;
-		    r_search (Layer->polygon_tree, screen, NULL,
-			      poly_callback, &info);
-		  }
+		/* Make clearances around lines, arcs, pins and vias
+		 */
+		gui->set_color (Output.pmGC, "erase");
+		PolygonHoles (group, screen, clear_callback);
 	      }
+
+	  if (gui->poly_after)
+	    {
+	      gui->use_mask (HID_MASK_AFTER);
+	      for (i = n_entries - 1; i >= 0; i--)
+		if (layers[i] < max_layer)
+		  {
+		    Layer = PCB->Data->Layer + layers[i];
+		    info.Layer = Layer;
+
+		    if (Layer->On && Layer->PolygonN)
+		      {
+			/* print the clearing polys */
+			info.arg = False;
+			r_search (Layer->polygon_tree, screen, NULL,
+				  poly_callback, &info);
+		      }
+		  }
+	    }
+
+
+	  gui->use_mask (HID_MASK_OFF);
 	}
-
-
-      gui->use_mask (HID_MASK_OFF);
     }
 
   for (i = n_entries - 1; i >= 0; i--)
@@ -1019,21 +1002,14 @@ got_mask:
       if (layernum < max_layer && Layer->On && Layer->PolygonN)
 	{
 	  /* print the non-clearing polys */
-	  info.PIPFlag = layernum;
 	  info.Layer = Layer;
 	  info.arg = True;
 	  r_search (Layer->polygon_tree, screen, NULL, poly_callback, &info);
 	  info.arg = False;
 
-	  info.Layer = Layer;
-	  info.PIPFlag = layernum;
-	  r_search (PCB->Data->pin_tree, screen, NULL, therm_callback, &info);
-	  r_search (PCB->Data->via_tree, screen, NULL, therm_callback, &info);
 	}
     }
 
-  if (TEST_FLAG (CHECKPLANESFLAG, PCB))
-    return rv;
 
   for (i = n_entries - 1; i >= 0; i--)
     {
@@ -1292,59 +1268,12 @@ ClearOnlyPin (PinTypePtr Pin, Boolean mask)
     }
 }
 
-/**************************************************************************
- * draw thermals on pin
- */
-static void
-ThermPin (LayerTypePtr layer, PinTypePtr Pin)
-{
-  BDimension half = (Pin->Thickness + Pin->Clearance) / 2;
-  BDimension finger;
-
-  if (TEST_FLAG (SELECTEDFLAG | FOUNDFLAG, Pin))
-    {
-      if (TEST_FLAG (SELECTEDFLAG, Pin))
-	gui->set_color (Output.fgGC, layer->SelectedColor);
-      else
-	gui->set_color (Output.fgGC, PCB->ConnectedColor);
-    }
-  else
-    gui->set_color (Output.fgGC, layer->Color);
-
-  finger = (Pin->Thickness - Pin->DrillingHole) * PCB->ThermScale;
-  gui->set_line_cap (Output.fgGC, Round_Cap);
-  gui->set_line_width (Output.fgGC,
-		       TEST_FLAG (THINDRAWFLAG, PCB) ? 1 : finger);
-  if (TEST_FLAG (SQUAREFLAG, Pin))
-    {
-
-      gui->draw_line (Output.fgGC,
-		      Pin->X - half, Pin->Y - half, Pin->X + half,
-		      Pin->Y + half);
-      gui->draw_line (Output.fgGC, Pin->X - half, Pin->Y + half,
-		      Pin->X + half, Pin->Y - half);
-    }
-  else
-    {
-      BDimension halfs = (half * M_SQRT1_2 + 1);
-
-      gui->draw_line (Output.fgGC,
-		      Pin->X - halfs, Pin->Y - halfs,
-		      Pin->X + halfs, Pin->Y + halfs);
-      gui->draw_line (Output.fgGC,
-		      Pin->X - halfs, Pin->Y + halfs,
-		      Pin->X + halfs, Pin->Y - halfs);
-    }
-}
-
 /* ---------------------------------------------------------------------------
  * lowlevel drawing routine for pins and vias that pierce polygons
  */
 void
 ClearPin (PinTypePtr Pin, int Type, int unused)
 {
-  LayerTypePtr layer;
-  Cardinal i;
   BDimension half = (Pin->Thickness + Pin->Clearance) / 2;
 
   if (Gathering)
@@ -1370,57 +1299,6 @@ ClearPin (PinTypePtr Pin, int Type, int unused)
   else
     {
       gui->fill_circle (Output.pmGC, Pin->X, Pin->Y, half);
-    }
-  /* draw all the thermal(s) */
-  for (i = max_layer; i; i--)
-    {
-      layer = LAYER_ON_STACK (i - 1);
-      if (!layer->On)
-	continue;
-      if (TEST_THERM (GetLayerNumber (PCB->Data, layer), Pin)
-	  && TEST_PIP (GetLayerNumber (PCB->Data, layer), Pin))
-	{
-	  if (!Erasing)
-	    {
-	      if (TEST_FLAG (SELECTEDFLAG | FOUNDFLAG, Pin))
-		{
-		  if (TEST_FLAG (SELECTEDFLAG, Pin))
-		    gui->set_color (Output.fgGC, layer->SelectedColor);
-		  else
-		    gui->set_color (Output.fgGC, PCB->ConnectedColor);
-		}
-	      else
-		gui->set_color (Output.fgGC, layer->Color);
-	    }
-	  if (TEST_FLAG (SQUAREFLAG, Pin))
-	    {
-	      gui->set_line_cap (Output.fgGC, Round_Cap);
-	      gui->set_line_width (Output.fgGC,
-				   TEST_FLAG (THINDRAWFLAG, PCB) ? 1
-				   : Pin->Clearance / 2);
-
-	      gui->draw_line (Output.fgGC,
-			      Pin->X - half, Pin->Y - half,
-			      Pin->X + half, Pin->Y + half);
-	      gui->draw_line (Output.fgGC,
-			      Pin->X - half, Pin->Y + half,
-			      Pin->X + half, Pin->Y - half);
-	    }
-	  else
-	    {
-	      BDimension halfs = (half * M_SQRT1_2 + 1);
-
-	      gui->set_line_cap (Output.fgGC, Round_Cap);
-	      gui->set_line_width (Output.fgGC, Pin->Clearance / 2);
-
-	      gui->draw_line (Output.fgGC,
-			      Pin->X - halfs, Pin->Y - halfs,
-			      Pin->X + halfs, Pin->Y + halfs);
-	      gui->draw_line (Output.fgGC,
-			      Pin->X - halfs, Pin->Y + halfs,
-			      Pin->X + halfs, Pin->Y - halfs);
-	    }
-	}
     }
   if ((!TEST_FLAG (PINFLAG, Pin) && !PCB->ViaOn)
       || (TEST_FLAG (PINFLAG, Pin) && !PCB->PinOn))
@@ -1727,32 +1605,6 @@ ClearPad (PadTypePtr Pad, Boolean mask)
 }
 
 /* ---------------------------------------------------------------------------
- * clearance for lines
- */
-static void
-ClearLine (LineTypePtr Line)
-{
-  gui->set_line_cap (Output.pmGC, Round_Cap);
-  gui->set_line_width (Output.pmGC, Line->Clearance + Line->Thickness);
-  gui->draw_line (Output.pmGC,
-		  Line->Point1.X, Line->Point1.Y,
-		  Line->Point2.X, Line->Point2.Y);
-}
-
-/* ---------------------------------------------------------------------------
- * clearance for arcs 
- */
-static void
-ClearArc (ArcTypePtr Arc)
-{
-  gui->set_line_cap (Output.pmGC, Round_Cap);
-  gui->set_line_width (Output.pmGC, Arc->Clearance + Arc->Thickness);
-
-  gui->draw_arc (Output.pmGC, Arc->X, Arc->Y,
-		 Arc->Width, Arc->Height, Arc->StartAngle, Arc->Delta);
-}
-
-/* ---------------------------------------------------------------------------
  * lowlevel drawing routine for lines
  */
 static void
@@ -1882,30 +1734,64 @@ DrawTextLowLevel (TextTypePtr Text)
 static void
 DrawPolygonLowLevel (PolygonTypePtr Polygon)
 {
-  int *x, *y, n, i;
+  int *x, *y, n, i = 0;
+  PLINE *pl;
+  VNODE *v;
+  if (!Polygon->Clipped)
+    return;
   if (Gathering)
     {
       AddPart (Polygon);
       return;
     }
-  n = Polygon->PointN;
+  pl = Polygon->Clipped->contours;
+  n = pl->Count;
   x = (int *) malloc (n * sizeof (int));
   y = (int *) malloc (n * sizeof (int));
-  for (i = 0; i < n; i++)
+  for (v = &pl->head; i < n; v = v->next)
     {
-      x[i] = Polygon->Points[i].X;
-      y[i] = Polygon->Points[i].Y;
+      x[i] = v->point[0];
+      y[i++] = v->point[1];
     }
   if (TEST_FLAG (THINDRAWFLAG, PCB))
     {
       for (i = 0; i < n - 1; i++)
-	gui->draw_line (Output.fgGC, x[i], y[i], x[i + 1], y[i + 1]);
+	{
+	  gui->draw_line (Output.fgGC, x[i], y[i], x[i + 1], y[i + 1]);
+	  //  gui->fill_circle (Output.fgGC, x[i], y[i], 30);
+	}
       gui->draw_line (Output.fgGC, x[n - 1], y[n - 1], x[0], y[0]);
     }
   else
     gui->fill_polygon (Output.fgGC, n, x, y);
   free (x);
   free (y);
+  if (!TEST_FLAG (CHECKPLANESFLAG, PCB))
+    return;
+  {
+    POLYAREA *pg;
+    for (pg = Polygon->Clipped->f; pg != Polygon->Clipped; pg = pg->f)
+      {
+	pl = pg->contours;
+	i = 0;
+	n = pl->Count;
+	x = (int *) malloc (n * sizeof (int));
+	y = (int *) malloc (n * sizeof (int));
+	for (v = &pl->head; i < n; v = v->next)
+	  {
+	    x[i] = v->point[0];
+	    y[i++] = v->point[1];
+	  }
+	for (i = 0; i < n - 1; i++)
+	  {
+	    gui->draw_line (Output.fgGC, x[i], y[i], x[i + 1], y[i + 1]);
+	    gui->fill_circle (Output.bgGC, x[i], y[i], 10);
+	  }
+	gui->draw_line (Output.fgGC, x[n - 1], y[n - 1], x[0], y[0]);
+	free (x);
+	free (y);
+      }
+  }
 }
 
 /* ---------------------------------------------------------------------------
@@ -1914,6 +1800,8 @@ DrawPolygonLowLevel (PolygonTypePtr Polygon)
 static void
 DrawArcLowLevel (ArcTypePtr Arc)
 {
+  if (!Arc->Thickness)
+    return;
   if (Gathering)
     {
       AddPart (Arc);
@@ -1957,10 +1845,10 @@ DrawVia (PinTypePtr Via, int unused)
 {
   if (!Gathering)
     SetPVColor (Via, VIA_TYPE);
-  if (!doing_pinout && !TEST_FLAG (HOLEFLAG, Via) && TEST_ANY_PIPS (Via))
-    ClearPin (Via, VIA_TYPE, 0);
-  else
-    DrawPinOrViaLowLevel (Via, True);
+  //if (!doing_pinout && !TEST_FLAG (HOLEFLAG, Via) && TEST_ANY_PIPS (Via))
+  // ClearPin (Via, VIA_TYPE, 0);
+  //else
+  DrawPinOrViaLowLevel (Via, True);
   if (!TEST_FLAG (HOLEFLAG, Via) && TEST_FLAG (DISPLAYNAMEFLAG, Via))
     DrawPinOrViaNameLowLevel (Via);
 }
@@ -2000,14 +1888,14 @@ DrawViaName (PinTypePtr Via, int unused)
 void
 DrawPin (PinTypePtr Pin, int unused)
 {
-  if (!doing_pinout && !TEST_FLAG (HOLEFLAG, Pin) && TEST_ANY_PIPS (Pin))
-    ClearPin (Pin, PIN_TYPE, 0);
-  else
-    {
-      if (!Gathering)
-	SetPVColor (Pin, PIN_TYPE);
-      DrawPinOrViaLowLevel (Pin, True);
-    }
+  //if (!doing_pinout && !TEST_FLAG (HOLEFLAG, Pin) && TEST_ANY_PIPS (Pin))
+  //  ClearPin (Pin, PIN_TYPE, 0);
+  //else
+  {
+    if (!Gathering)
+      SetPVColor (Pin, PIN_TYPE);
+    DrawPinOrViaLowLevel (Pin, True);
+  }
   if ((!TEST_FLAG (HOLEFLAG, Pin) && TEST_FLAG (DISPLAYNAMEFLAG, Pin))
       || doing_pinout)
     DrawPinOrViaNameLowLevel (Pin);
@@ -2139,6 +2027,8 @@ DrawRat (RatTypePtr Line, int unused)
 void
 DrawArc (LayerTypePtr Layer, ArcTypePtr Arc, int unused)
 {
+  if (!Arc->Thickness)
+    return;
   if (!Gathering)
     {
       if (TEST_FLAG (SELECTEDFLAG | FOUNDFLAG, Arc))
@@ -2243,7 +2133,15 @@ DrawPlainPolygon (LayerTypePtr Layer, PolygonTypePtr Polygon)
     }
   else
     gui->set_color (Output.fgGC, Layer->Color);
-  DrawPolygonLowLevel (Polygon);
+  if (gui->poly_dicer)
+    {
+      if (Polygon->Clipped)
+	NoHolesPolygonDicer (Polygon->Clipped->contours, DrawPolygonLowLevel);
+    }
+  else
+    {
+      DrawPolygonLowLevel (Polygon);
+    }
 }
 
 /* ---------------------------------------------------------------------------
@@ -2320,8 +2218,6 @@ void
 EraseVia (PinTypePtr Via)
 {
   Erasing++;
-  if (TEST_ANY_PIPS (Via))
-    ClearPin (Via, NO_TYPE, 0);
   gui->set_color (Output.fgGC, Settings.BackgroundColor);
   DrawPinOrViaLowLevel (Via, False);
   if (TEST_FLAG (DISPLAYNAMEFLAG, Via))
@@ -2387,8 +2283,6 @@ void
 ErasePin (PinTypePtr Pin)
 {
   Erasing++;
-  if (TEST_ANY_PIPS (Pin))
-    ClearPin (Pin, NO_TYPE, 0);
   gui->set_color (Output.fgGC, Settings.BackgroundColor);
   DrawPinOrViaLowLevel (Pin, False);
   if (TEST_FLAG (DISPLAYNAMEFLAG, Pin))
@@ -2426,6 +2320,8 @@ EraseLine (LineTypePtr Line)
 void
 EraseArc (ArcTypePtr Arc)
 {
+  if (!Arc->Thickness)
+    return;
   Erasing++;
   gui->set_color (Output.fgGC, Settings.BackgroundColor);
   DrawArcLowLevel (Arc);
@@ -2491,11 +2387,12 @@ EraseElementPinsAndPads (ElementTypePtr Element)
   gui->set_color (Output.fgGC, Settings.BackgroundColor);
   PIN_LOOP (Element);
   {
-    if (TEST_ANY_PIPS (pin))
-      {
-	ClearPin (pin, NO_TYPE, 0);
-	gui->set_color (Output.fgGC, Settings.BackgroundColor);
-      }
+    /* if (TEST_ANY_PIPS (pin))
+       {
+       ClearPin (pin, NO_TYPE, 0);
+       gui->set_color (Output.fgGC, Settings.BackgroundColor);
+       }
+     */
     DrawPinOrViaLowLevel (pin, False);
     if (TEST_FLAG (DISPLAYNAMEFLAG, pin))
       DrawPinOrViaNameLowLevel (pin);

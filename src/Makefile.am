@@ -94,6 +94,8 @@ PCB_SRCS = \
 	parse_y.y \
 	polygon.c \
 	polygon.h \
+	polygon1.c \
+	polyarea.h \
 	puller.c \
 	print.c \
 	print.h \
@@ -120,6 +122,8 @@ PCB_SRCS = \
 	set.h \
 	strflags.c \
 	strflags.h \
+	thermal.c \
+	thermal.h \
 	undo.c \
 	undo.h \
 	vector.c \

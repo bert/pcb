@@ -1,5 +1,5 @@
 @c key actions
-@c ./../src/action.c 203
+@c ./../src/action.c 204
 
 Many actions take a @code{delta} parameter as the last parameter,
 which is an amount to change something.  That @code{delta} may include
@@ -18,7 +18,7 @@ Action(Object,-1)
 Actions which take a @code{delta} parameter which do not accept all
 these options will specify what they do take.
 
-@c ./../src/action.c 207
+@c ./../src/action.c 208
 
 @macro pinshapes
 
@@ -46,7 +46,7 @@ is documented for that purpose.
 
 @end macro
 
-@c ./../src/action.c 205
+@c ./../src/action.c 206
 
 Many actions act on indicated objects on the board.  They will have
 parameters like @code{ToggleObject} or @code{SelectedVias} to indicate
@@ -103,7 +103,6 @@ Affects all objects which are both selected and of the @var{Type} specified.
 * ChangeSquare Action:: Changes the square flag of pins and pads.
 * ClearOctagon Action:: Clears the octagon-flag of pins and vias.
 * ClearSquare Action:: Clears the square-flag of pins and pads.
-* ClearThermal Action:: Clear a thermal (on the current layer) to pins or vias.
 * ClrFlag Action:: Clears flags on objects.
 * Connection Action:: Searches connections of the object at the cursor position.
 * DeleteRats Action:: Delete rat lines.
@@ -128,6 +127,7 @@ Affects all objects which are both selected and of the @var{Type} specified.
 * Message Action:: Writes a message to the log window.
 * MinMaskGap Action:: Ensures the mask is a minimum distance from pins and pads.
 * Mode Action:: Change or use the tool mode.
+* MorphPolygon Action:: Converts dead polygon islands into separate polygons.
 * MoveObject Action:: Moves the object under the crosshair.
 * MoveToCurrentLayer Action:: Moves objects to the current layer.
 * Netlist Action:: Perform various actions on netlists.
@@ -156,10 +156,15 @@ for use in backannotating these changes to the schematic.
 * SetOctagon Action:: Sets the octagon-flag of objects.
 * SetSame Action:: Sets current layer and sizes to match indicated item.
 * SetSquare Action:: sets the square-flag of objects.
-* SetThermal Action:: Set a thermal (on the current layer) to pins or vias.
+* SetThermal Action:: Set the thermal (on the current layer) of pins or vias to the given style.
+Style = 0 means no thermal.
+Style = 1 has diagonal fingers with sharp edges.
+Style = 2 has horizontal and vertical fingers with sharp edges.
+Style = 3 is a solid connection to the plane.Style = 4 has diagonal fingers with rounded edges.
+Style = 5 has horizontal and vertical fingers with rounded edges.
+
 * SetValue Action:: Change various board-wide values and sizes.
 * ToggleHideName Action:: Toggles the visibility of element names.
-* ToggleThermal Action:: Toggle a thermal (on the current layer) to pins or vias.
 * ToggleVendor Action:: Toggles the state of automatic drill size mapping.
 * Undo Action:: Undo recent changes.
 * UnloadVendor Action:: Unloads the current vendor drill mapping table.
@@ -176,7 +181,7 @@ AddRats(AllRats|SelectedRats|Close)@end format
 @end cartouche
 
 Add one or more rat lines to the board.
-@c ./../src/action.c 3181
+@c ./../src/action.c 3110
 
 @table @code
 
@@ -220,7 +225,7 @@ Atomic(Save|Restore|Close|Block)@end format
 @end cartouche
 
 Save or restore the undo serial number.
-@c ./../src/action.c 1553
+@c ./../src/action.c 1561
 
 This action allows making multiple-action bindings into an atomic
 operation that will be undone by a single Undo command.  For example,
@@ -260,7 +265,7 @@ AutoPlaceSelected()@end format
 @end cartouche
 
 Auto-place selected components.
-@c ./../src/action.c 3275
+@c ./../src/action.c 3204
 
 Attempts to re-arrange the selected components such that the nets
 connecting them are minimized.  Note that you cannot undo this.
@@ -275,7 +280,7 @@ AutoRoute(AllRats|SelectedRats)@end format
 @end cartouche
 
 Auto-route some or all rat lines.
-@c ./../src/action.c 3297
+@c ./../src/action.c 3226
 
 @table @code
 
@@ -309,7 +314,7 @@ ChangeClearSize(Selected|SelectedObjects, delta)@end format
 @end cartouche
 
 Changes the clearance size of objects.
-@c ./../src/action.c 3514
+@c ./../src/action.c 3443
 
 If the solder mask is currently showing, this action changes the
 solder mask clearance.  If the mask is not showing, this action
@@ -326,7 +331,7 @@ ChangeDrillSize(SelectedPins|SelectedVias|Selected|SelectedObjects, delta)@end f
 @end cartouche
 
 Changes the drilling hole size of objects.
-@c ./../src/action.c 3456
+@c ./../src/action.c 3385
 
 
 @node ChangeFlag Action
@@ -339,11 +344,11 @@ ChangeFlag(SelectedLines|SelectedPins|SelectedVias, flag, value)
 ChangeFlag(SelectedPads|SelectedTexts|SelectedNames, flag, value)
 ChangeFlag(SelectedElements, flag, value)
 flag = square | octagon | thermal | join
-value = 0 | 1@end format
+"``value = 0 | 1@end format
 @end cartouche
 
 Sets or clears flags on objects.
-@c ./../src/action.c 5480
+@c ./../src/action.c 5450
 
 Toggles the given flag on the indicated object(s).  The flag may be
 one of the flags listed above (square, octagon, thermal, join).  The
@@ -360,7 +365,7 @@ ChangeHole(ToggleObject|Object|SelectedVias|Selected)@end format
 @end cartouche
 
 Changes the hole flag of objects.
-@c ./../src/action.c 4270
+@c ./../src/action.c 4235
 
 The "hole flag" of a via determines whether the via is a
 plated-through hole (not set), or an unplated hole (set).
@@ -375,7 +380,7 @@ ChangeJoin(ToggleObject|SelectedLines|SelectedArcs|Selected)@end format
 @end cartouche
 
 Changes the join (clearance through polygons) of objects.
-@c ./../src/action.c 3884
+@c ./../src/action.c 3849
 
 The join flag determines whether a line or arc, drawn to intersect a
 polygon, electrically connects to the polygon or not.  When joined,
@@ -390,11 +395,11 @@ polygon, insulating them from each other.
 @cartouche
 @format
 ChangeName(Object)
-ChangeName(Layout|Layer)@end format
+"``ChangeName(Layout|Layer)@end format
 @end cartouche
 
 Sets the name of objects.
-@c ./../src/action.c 3735
+@c ./../src/action.c 3663
 
 @table @code
 
@@ -420,7 +425,7 @@ ChangeOctagon(SelectedElements|SelectedPins|SelectedVias)@end format
 @end cartouche
 
 Changes the octagon-flag of pins and vias.
-@c ./../src/action.c 4096
+@c ./../src/action.c 4061
 
 @pinshapes
 
@@ -434,7 +439,7 @@ ChangePinName(ElementName,PinNumber,PinName)@end format
 @end cartouche
 
 Sets the name of a specific pin on a specific element.
-@c ./../src/action.c 3659
+@c ./../src/action.c 3587
 
 This can be especially useful for annotating pin names from a
 schematic to the layout without requiring knowledge of the pcb file
@@ -458,7 +463,7 @@ ChangeSize(SelectedElements, delta)@end format
 @end cartouche
 
 Changes the size of objects.
-@c ./../src/action.c 3367
+@c ./../src/action.c 3296
 
 For lines and arcs, this changes the width.  For pins and vias, this
 changes the overall diameter of the copper annulus.  For pads, this
@@ -478,7 +483,7 @@ ChangeSquare(Selected|SelectedObjects)@end format
 @end cartouche
 
 Changes the square flag of pins and pads.
-@c ./../src/action.c 3937
+@c ./../src/action.c 3902
 
 Note that @code{Pins} means both pins and pads.
 
@@ -495,7 +500,7 @@ ClearOctagon(SelectedElements|SelectedPins|SelectedVias)@end format
 @end cartouche
 
 Clears the octagon-flag of pins and vias.
-@c ./../src/action.c 4212
+@c ./../src/action.c 4177
 
 @pinshapes
 
@@ -509,26 +514,11 @@ ClearSquare(ToggleObject|SelectedElements|SelectedPins)@end format
 @end cartouche
 
 Clears the square-flag of pins and pads.
-@c ./../src/action.c 4043
+@c ./../src/action.c 4008
 
 Note that @code{Pins} means pins and pads.
 
 @pinshapes
-
-
-@node ClearThermal Action
-@subsection ClearThermal
-@c key ClearThermal in hid 
-@cartouche
-@format
-ClearThermal(Object|SelectedPins|SelectedVias|Selected|SelectedElements)@end format
-@end cartouche
-
-Clear a thermal (on the current layer) to pins or vias.
-@c ./../src/action.c 1848
-
-This removes any electrical connection.  Pins and vias that do not
-already have thermals are not changed.
 
 
 @node ClrFlag Action
@@ -544,7 +534,7 @@ flag = square | octagon | thermal | join@end format
 @end cartouche
 
 Clears flags on objects.
-@c ./../src/action.c 5463
+@c ./../src/action.c 5433
 
 Turns the given flag off, regardless of its previous setting.  See
 @code{ChangeFlag}.
@@ -563,7 +553,7 @@ Connection(Find|ResetLinesAndPolygons|ResetPinsAndVias|Reset)@end format
 @end cartouche
 
 Searches connections of the object at the cursor position.
-@c ./../src/action.c 2093
+@c ./../src/action.c 2002
 
 Connections found with this action will be highlighted in the
 ``connected-color'' color and will have the ``found'' flag set.
@@ -594,7 +584,7 @@ DeleteRats(AllRats|Selected|SelectedRats)@end format
 @end cartouche
 
 Delete rat lines.
-@c ./../src/action.c 3243
+@c ./../src/action.c 3172
 
 
 @node DisableVendor Action
@@ -626,7 +616,7 @@ DisperseElements(All|Selected)@end format
 @end cartouche
 
 Disperses elements.
-@c ./../src/action.c 2139
+@c ./../src/action.c 2048
 
 Normally this is used when starting a board, by selecting all elements
 and then dispersing them.  This scatters the elements around the board
@@ -649,11 +639,11 @@ Display(ToggleThindraw|ToggleOrthoMove|ToggleLocalRef)
 Display(ToggleCheckPlanes|ToggleShowDRC|ToggleAutoDRC)
 Display(ToggleLiveRoute)
 Display(Pinout|PinOrPadName)
-Display(Scroll, Direction)@end format
+"``Display(Scroll, Direction)@end format
 @end cartouche
 
 Several display-related actions.
-@c ./../src/action.c 2257
+@c ./../src/action.c 2166
 
 @table @code
 
@@ -764,11 +754,11 @@ etc, according to the numeric keypad layout.
 @format
 djopt(debumpify|unjaggy|simple|vianudge|viatrim|orthopull)
 djopt(auto) - all of the above
-djopt(miter)@end format
+"``djopt(miter)@end format
 @end cartouche
 
 Perform various optimizations on the current board
-@c ./../src/djopt.c 2874
+@c ./../src/djopt.c 2867
 
 The different types of optimizations change your board in order to
 reduce the total trace length and via count.
@@ -822,7 +812,7 @@ DRC()@end format
 @end cartouche
 
 Invoke the DRC check.
-@c ./../src/action.c 1588
+@c ./../src/action.c 1596
 
 Note that the design rule check uses the current board rule settings,
 not the current style settings.
@@ -837,7 +827,7 @@ DumpLibrary()@end format
 @end cartouche
 
 Display the entire contents of the libraries.
-@c ./../src/action.c 1620
+@c ./../src/action.c 1628
 
 
 
@@ -872,7 +862,7 @@ ExecuteFile(filename)@end format
 @end cartouche
 
 Run actions from the given file.
-@c ./../src/action.c 5599
+@c ./../src/action.c 5564
 
 Lines starting with @code{#} are ignored.
 
@@ -886,7 +876,7 @@ Flip(Object|Selected|SelectedElements)@end format
 @end cartouche
 
 Flip an element to the opposite side of the board.
-@c ./../src/action.c 1668
+@c ./../src/action.c 1678
 
 Note that the location of the element will be symmetric about the
 cursor location; i.e. if the part you are pointing at will still be at
@@ -916,7 +906,7 @@ FontSave()@end format
 @end cartouche
 
 Convert the current PCB back to a font
-@c ./../src/fontmode.c 159
+@c ./../src/fontmode.c 163
 
 
 @node h Action
@@ -980,7 +970,7 @@ LoadFrom(Layout|LayoutToBuffer|ElementToBuffer|Netlist|Revert,filename)@end form
 @end cartouche
 
 Load layout data from a file.
-@c ./../src/action.c 4666
+@c ./../src/action.c 4633
 
 This action assumes you know what the filename is.  The various GUIs
 should have a similar @code{Load} action where the filename is
@@ -1056,11 +1046,11 @@ If no filename is specified a file select box will popup.
 @cartouche
 @format
 MarkCrosshair()
-MarkCrosshair(Center)@end format
+"``MarkCrosshair(Center)@end format
 @end cartouche
 
 Set/Reset the Crosshair mark
-@c ./../src/action.c 3329
+@c ./../src/action.c 3258
 
 The ``mark'' is a small X-shaped target on the display which is
 treated like a second origin (the normal origin is the upper let
@@ -1082,7 +1072,7 @@ Message(message)@end format
 @end cartouche
 
 Writes a message to the log window.
-@c ./../src/action.c 1716
+@c ./../src/action.c 1725
 
 This action displays a message to the log window.  This action is primarily
 provided for use by other programs which may interface with PCB.  If
@@ -1096,11 +1086,11 @@ followed by a newline.
 @cartouche
 @format
 MinMaskGap(delta)
-MinMaskGap(Selected, delta)@end format
+"``MinMaskGap(Selected, delta)@end format
 @end cartouche
 
 Ensures the mask is a minimum distance from pins and pads.
-@c ./../src/action.c 3582
+@c ./../src/action.c 3511
 
 Checks all specified pins and/or pads, and increases the mask if
 needed to ensure a minimum distance between the pin or pad edge and
@@ -1115,11 +1105,11 @@ the mask edge.
 Mode(Arc|Arrow|Copy|InsertPoint|Line|Lock|Move|None|PasteBuffer)
 Mode(Polygon|Rectangle|Remove|Rotate|Text|Thermal|Via)
 Mode(Notify|Release|Cancel|Stroke)
-Mode(Save|Restore)@end format
+"``Mode(Save|Restore)@end format
 @end cartouche
 
 Change or use the tool mode.
-@c ./../src/action.c 2625
+@c ./../src/action.c 2534
 
 @table @code
 
@@ -1166,6 +1156,24 @@ Restores the tool to the last saved tool.
 @end table
 
 
+@node MorphPolygon Action
+@subsection MorphPolygon
+@c key MorphPolygon in hid 
+@cartouche
+@format
+MorphPolygon(Object)@end format
+@end cartouche
+
+Converts dead polygon islands into separate polygons.
+@c ./../src/action.c 3745
+
+If a polygon is divided into unconnected "islands", you can use
+this command to convert the otherwise disappeared islands into
+separate polygons. Be sure the cursor is over a portion of the
+polygon that remains visible. Very small islands that may flake
+off are automatically deleted.
+
+
 @node MoveObject Action
 @subsection MoveObject
 @c key MoveObject in hid 
@@ -1175,7 +1183,7 @@ MoveObject(X,Y,dim)@end format
 @end cartouche
 
 Moves the object under the crosshair.
-@c ./../src/action.c 5292
+@c ./../src/action.c 5262
 
 The @code{X} and @code{Y} are treated like @code{delta} is for many
 other objects.  For each, if it's prefixed by @code{+} or @code{-},
@@ -1193,7 +1201,7 @@ MoveToCurrentLayer(Object|SelectedObjects)@end format
 @end cartouche
 
 Moves objects to the current layer.
-@c ./../src/action.c 5334
+@c ./../src/action.c 5304
 
 Note that moving an element from a component layer to a solder layer,
 or from solder to component, won't automatically flip it.  Use the
@@ -1249,7 +1257,7 @@ New([name])@end format
 @end cartouche
 
 Starts a new layout.
-@c ./../src/action.c 4804
+@c ./../src/action.c 4773
 
 If a name is not given, one is prompted for.
 
@@ -1286,7 +1294,7 @@ PasteBuffer(ToLayout, X, Y, units)@end format
 @end cartouche
 
 Various operations on the paste buffer.
-@c ./../src/action.c 4863
+@c ./../src/action.c 4832
 
 There are a number of paste buffers; the actual limit is a
 compile-time constant @code{MAX_BUFFER} in @file{globalconst.h}.  It
@@ -1345,7 +1353,7 @@ Polygon(Close|PreviousPoint)@end format
 @end cartouche
 
 Some polygon related stuff.
-@c ./../src/action.c 5178
+@c ./../src/action.c 5148
 
 Polygons need a special action routine to make life easier.
 
@@ -1428,7 +1436,7 @@ Quit()@end format
 @end cartouche
 
 Quits the application.
-@c ./../src/action.c 2071
+@c ./../src/action.c 1980
 
 If you have unsaved changes, you will be prompted to confirm before
 quitting.
@@ -1443,7 +1451,7 @@ Redo()@end format
 @end cartouche
 
 Redo recent``undo''operations.
-@c ./../src/action.c 5144
+@c ./../src/action.c 5114
 
 This routine allows you to recover from the last undo command.  You
 might want to do this if you thought that undo was going to revert
@@ -1466,7 +1474,7 @@ RemoveSelected()@end format
 @end cartouche
 
 Removes any selected objects.
-@c ./../src/action.c 2763
+@c ./../src/action.c 2672
 
 
 @node Renumber Action
@@ -1475,12 +1483,12 @@ Removes any selected objects.
 @cartouche
 @format
 Renumber()
-Renumber(filename)@end format
+"``Renumber(filename)@end format
 @end cartouche
 
 Renumber all elements.  The changes will be recorded to filename
 for use in backannotating these changes to the schematic.
-@c ./../src/action.c 2781
+@c ./../src/action.c 2690
 
 
 @node Report Action
@@ -1492,7 +1500,7 @@ Report(Object|DrillReport|FoundPins)@end format
 @end cartouche
 
 Produce various report.
-@c ./../src/report.c 529
+@c ./../src/report.c 530
 
 @table @code
 
@@ -1534,7 +1542,7 @@ RipUp(All|Selected|Element)@end format
 @end cartouche
 
 Ripup auto-routed tracks, or convert an element to parts.
-@c ./../src/action.c 3077
+@c ./../src/action.c 3006
 
 @table @code
 
@@ -1583,7 +1591,7 @@ RouteStyle(1|2|3|4)@end format
 @end cartouche
 
 Copies the indicated routing style into the current sizes.
-@c ./../src/action.c 5210
+@c ./../src/action.c 5180
 
 
 @node s Action
@@ -1611,11 +1619,11 @@ again or, if it is not available, a file select box will pop up.
 @cartouche
 @format
 SaveSettings()
-SaveSettings(local)@end format
+"``SaveSettings(local)@end format
 @end cartouche
 
 Saves settings.
-@c ./../src/action.c 4650
+@c ./../src/action.c 4617
 
 If you pass no arguments, the settings are stored in
 @code{$HOME/.pcb/settings}.  If you pass the word @code{local} they're
@@ -1632,7 +1640,7 @@ SaveTo(AllConnections|AllUnusedPins|ElementConnections,filename)@end format
 @end cartouche
 
 Saves data to a file.
-@c ./../src/action.c 4568
+@c ./../src/action.c 4535
 
 @table @code
 
@@ -1665,11 +1673,11 @@ Select(ElementByName|ObjectByName|PadByName|PinByName)
 Select(ElementByName|ObjectByName|PadByName|PinByName, Name)
 Select(TextByName|ViaByName)
 Select(TextByName|ViaByName, Name)
-Select(Convert)@end format
+"``Select(Convert)@end format
 @end cartouche
 
 Toggles or sets the selection
-@c ./../src/action.c 4312
+@c ./../src/action.c 4277
 
 @table @code
 
@@ -1718,7 +1726,7 @@ flag = square | octagon | thermal | join@end format
 @end cartouche
 
 Sets flags on objects.
-@c ./../src/action.c 5446
+@c ./../src/action.c 5416
 
 Turns the given flag on, regardless of its previous setting.  See
 @code{ChangeFlag}.
@@ -1737,7 +1745,7 @@ SetOctagon(Object|ToggleObject|SelectedElements|Selected)@end format
 @end cartouche
 
 Sets the octagon-flag of objects.
-@c ./../src/action.c 4154
+@c ./../src/action.c 4119
 
 @pinshapes
 
@@ -1751,7 +1759,7 @@ SetSame()@end format
 @end cartouche
 
 Sets current layer and sizes to match indicated item.
-@c ./../src/action.c 5375
+@c ./../src/action.c 5345
 
 When invoked over any line, arc, polygon, or via, this changes the
 current layer to be the layer that item is on, and changes the current
@@ -1767,7 +1775,7 @@ SetSquare(ToggleObject|SelectedElements|SelectedPins)@end format
 @end cartouche
 
 sets the square-flag of objects.
-@c ./../src/action.c 3990
+@c ./../src/action.c 3955
 
 Note that @code{Pins} means pins and pads.
 
@@ -1779,15 +1787,32 @@ Note that @code{Pins} means pins and pads.
 @c key SetThermal in hid 
 @cartouche
 @format
-SetThermal(Object|SelectedPins|SelectedVias|Selected|SelectedElements)@end format
+SetThermal(Object|SelectedPins|SelectedVias|Selected, Style)@end format
 @end cartouche
 
-Set a thermal (on the current layer) to pins or vias.
-@c ./../src/action.c 1795
+Set the thermal (on the current layer) of pins or vias to the given style.
+Style = 0 means no thermal.
+Style = 1 has diagonal fingers with sharp edges.
+Style = 2 has horizontal and vertical fingers with sharp edges.
+Style = 3 is a solid connection to the plane.Style = 4 has diagonal fingers with rounded edges.
+Style = 5 has horizontal and vertical fingers with rounded edges.
 
-This adds an electrical connection between the pins or vias, and any
-rectangle or polygon on the current layer.
+@c ./../src/action.c 1751
 
+This changes how/whether pins or vias connect to any rectangle or polygon
+on the current layer. The first argument can specify one object, or all
+selected pins, or all selected vias, or all selected pins and vias.
+The second argument specifies the style of connection.
+There are 5 possibilities:
+0 - no connection,
+1 - 45 degree fingers with sharp edges,
+2 - horizontal & vertical fingers with sharp edges,
+3 - solid connection,
+4 - 45 degree fingers with rounded corners,
+5 - horizontal & vertical fingers with rounded corners.
+
+Pins and Vias may have thermals whether or not there is a polygon available 
+to connect with. However, they will have no effect without the polygon.
 
 @node SetValue Action
 @subsection SetValue
@@ -1798,7 +1823,7 @@ SetValue(Grid|Line|LineSize|Text|TextScale|ViaDrillingHole|Via|ViaSize, delta)@e
 @end cartouche
 
 Change various board-wide values and sizes.
-@c ./../src/action.c 1991
+@c ./../src/action.c 1900
 
 @table @code
 
@@ -1832,25 +1857,10 @@ ToggleHideName(Object|SelectedElements)@end format
 @end cartouche
 
 Toggles the visibility of element names.
-@c ./../src/action.c 3817
+@c ./../src/action.c 3782
 
 If names are hidden you won't see them on the screen and they will not
 appear on the silk layer when you print the layout.
-
-
-@node ToggleThermal Action
-@subsection ToggleThermal
-@c key ToggleThermal in hid 
-@cartouche
-@format
-ToggleThermal(Object|SelectedPins|SelectedVias|Selected)@end format
-@end cartouche
-
-Toggle a thermal (on the current layer) to pins or vias.
-@c ./../src/action.c 1742
-
-This changes the electrical connection between the pins or vias, and
-any rectangle or polygon on the current layer.
 
 
 @node ToggleVendor Action
@@ -1881,11 +1891,11 @@ loaded first.
 @cartouche
 @format
 Undo()
-Undo(ClearList)@end format
+"``Undo(ClearList)@end format
 @end cartouche
 
 Undo recent changes.
-@c ./../src/action.c 4990
+@c ./../src/action.c 4959
 
 The unlimited undo feature of @code{Pcb} allows you to recover from
 most operations that materially affect you work.  Calling
@@ -1924,12 +1934,12 @@ Unselect(All|Block|Connection)
 Unselect(ElementByName|ObjectByName|PadByName|PinByName)
 Unselect(ElementByName|ObjectByName|PadByName|PinByName, Name)
 Unselect(TextByName|ViaByName)
-Unselect(TextByName|ViaByName, Name)
+"``Unselect(TextByName|ViaByName, Name)
 @end format
 @end cartouche
 
 unselects the object at the pointer location or the specified objects
-@c ./../src/action.c 4455
+@c ./../src/action.c 4421
 
 @table @code
 
@@ -2100,7 +2110,7 @@ About()@end format
 @end cartouche
 
 Tell the user about this version of PCB.
-@c ./../src/hid/gtk/gtkhid-main.c 1340
+@c ./../src/hid/gtk/gtkhid-main.c 1342
 
 This just pops up a dialog telling the user which version of
 @code{pcb} they're running.
@@ -2175,7 +2185,7 @@ AdjustSizes()@end format
 @end cartouche
 
 Let the user change the board size, DRC parameters, etc
-@c ./../src/hid/lesstif/dialogs.c 1020
+@c ./../src/hid/lesstif/dialogs.c 1023
 
 Displays a dialog box that lets the user change the board
 size, DRC parameters, and text scale.
@@ -2349,7 +2359,7 @@ EditLayerGroups()@end format
 @end cartouche
 
 Let the user change the layer groupings
-@c ./../src/hid/lesstif/dialogs.c 1334
+@c ./../src/hid/lesstif/dialogs.c 1337
 
 Displays a dialog that lets the user view and change the layer
 groupings.  Each layer (row) can be a member of any one layer group

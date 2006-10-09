@@ -45,6 +45,7 @@
 #include "error.h"
 #include "find.h"
 #include "misc.h"
+#include "polygon.h"
 #include "rtree.h"
 #include "search.h"
 
@@ -82,15 +83,18 @@ static Boolean SearchPinByLocation (int, ElementTypePtr *, PinTypePtr *,
 				    PinTypePtr *);
 static Boolean SearchPadByLocation (int, ElementTypePtr *, PadTypePtr *,
 				    PadTypePtr *, Boolean);
-static Boolean SearchViaByLocation (int, PinTypePtr *, PinTypePtr *, PinTypePtr *);
-static Boolean SearchElementNameByLocation (int, ElementTypePtr *, TextTypePtr *,
-					    TextTypePtr *, Boolean);
+static Boolean SearchViaByLocation (int, PinTypePtr *, PinTypePtr *,
+				    PinTypePtr *);
+static Boolean SearchElementNameByLocation (int, ElementTypePtr *,
+					    TextTypePtr *, TextTypePtr *,
+					    Boolean);
 static Boolean SearchLinePointByLocation (int, LayerTypePtr *, LineTypePtr *,
 					  PointTypePtr *);
 static Boolean SearchPointByLocation (int, LayerTypePtr *, PolygonTypePtr *,
 				      PointTypePtr *);
-static Boolean SearchElementByLocation (int, ElementTypePtr *, ElementTypePtr *,
-					ElementTypePtr *, Boolean);
+static Boolean SearchElementByLocation (int, ElementTypePtr *,
+					ElementTypePtr *, ElementTypePtr *,
+					Boolean);
 
 /* ---------------------------------------------------------------------------
  * searches a via
@@ -101,7 +105,7 @@ struct ans_info
   Boolean BackToo;
   float area;
   jmp_buf env;
-  int locked;  /* This will be zero or LOCKFLAG */
+  int locked;			/* This will be zero or LOCKFLAG */
 };
 
 static int
@@ -483,8 +487,8 @@ linepoint_callback (const BoxType * b, void *cl)
  * searches a line-point on all the search layer
  */
 static Boolean
-SearchLinePointByLocation (int locked, LayerTypePtr * Layer, LineTypePtr * Line,
-			   PointTypePtr * Point)
+SearchLinePointByLocation (int locked, LayerTypePtr * Layer,
+			   LineTypePtr * Line, PointTypePtr * Point)
 {
   struct line_info info;
   *Layer = SearchLayer;
@@ -887,96 +891,6 @@ IsPointInBox (LocationType X, LocationType Y, BoxTypePtr box, Cardinal Radius)
   line.Point2.X = box->X2;
   line.Point2.Y = box->Y1;
   return (IsPointOnLine (X, Y, Radius, &line));
-}
-
-/* ---------------------------------------------------------------------------
- * checks if a point lies inside a polygon
- * the code assumes that the last point isn't equal to the first one
- * The algorithm fails if the point is equal to a corner
- * from news FAQ:
- *   This code is from Wm. Randolph Franklin, wrf@ecse.rpi.edu, a
- *   professor at RPI.
- *
- * extensions:
- * check if the distance between the polygon lines and the point is less
- * or equal to the radius.
- */
-Boolean
-IsPointInPolygon (float X, float Y, float Radius, PolygonTypePtr Polygon)
-{
-  Boolean inside = False;
-  BoxType boundingbox = Polygon->BoundingBox;
-
-  /* increment the size of the bounding box by the radius */
-  boundingbox.X1 -= (LocationType) Radius;
-  boundingbox.Y1 -= (LocationType) Radius;
-  boundingbox.X2 += (LocationType) Radius;
-  boundingbox.Y2 += (LocationType) Radius;
-
-  /* quick check if the point may lay inside */
-  if (POINT_IN_BOX (X, Y, &boundingbox))
-    {
-      PointTypePtr ptr = &Polygon->Points[0];
-
-      /* POLYGONPOINT_LOOP decrements pointers !!! */
-      POLYGONPOINT_LOOP (Polygon);
-      {
-	if ((((ptr->Y <= Y) && (Y < point->Y)) ||
-	     ((point->Y <= Y) && (Y < ptr->Y))) &&
-	    (X <
-	     ((float) (point->X - ptr->X) *
-	      (float) (Y - ptr->Y) / (float) (point->Y - ptr->Y) + ptr->X)))
-	  inside = !inside;
-	ptr = point;
-      }
-      END_LOOP;
-      /* check the distance between the lines of the
-       * polygon and the point itself
-       *
-       * check is done by constructing a dummy line
-       */
-      if (!inside)
-	{
-	  LineType line;
-
-	  line.Point1 = Polygon->Points[0];
-	  line.Thickness = 0;
-	  line.Flags = NoFlags ();
-
-	  /* POLYGONPOINT_LOOP decrements pointers !!! */
-	  POLYGONPOINT_LOOP (Polygon);
-	  {
-	    line.Point2 = *point;
-	    if (IsPointOnLine (X, Y, Radius, &line))
-	      return (True);
-	    line.Point1 = *point;
-	  }
-	  END_LOOP;
-
-	}
-    }
-  return (inside);
-}
-
-/* ---------------------------------------------------------------------------
- * checks if a polygon intersects with a square
- */
-Boolean
-IsRectangleInPolygon (LocationType X1, LocationType Y1,
-		      LocationType X2, LocationType Y2,
-		      PolygonTypePtr Polygon)
-{
-  PolygonType polygon;
-  PointType points[4];
-
-  /* construct a dummy polygon and check it */
-  polygon.BoundingBox.X1 = points[0].X = points[3].X = X1;
-  polygon.BoundingBox.X2 = points[1].X = points[2].X = X2;
-  polygon.BoundingBox.Y1 = points[0].Y = points[1].Y = Y1;
-  polygon.BoundingBox.Y2 = points[2].Y = points[3].Y = Y2;
-  polygon.Points = points;
-  polygon.PointN = 4;
-  return (IsPolygonInPolygon (&polygon, Polygon));
 }
 
 Boolean

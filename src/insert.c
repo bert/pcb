@@ -196,7 +196,7 @@ InsertPointIntoPolygon (LayerTypePtr Layer, PolygonTypePtr Polygon)
 				  &Polygon->Points[InsertAt]);
   SetPolygonBoundingBox (Polygon);
   r_insert_entry (Layer->polygon_tree, (BoxType *) Polygon, 0);
-  UpdatePIPFlags (NULL, NULL, Layer, True);
+  InitClip (PCB->Data, Layer, Polygon);
   if (Forcible || !RemoveExcessPolygonPoints (Layer, Polygon))
     {
       DrawPolygon (Layer, Polygon, 0);

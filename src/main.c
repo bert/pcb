@@ -374,7 +374,8 @@ HID_Attribute main_attribute_list[] = {
    &show_defaults},
   {"show-actions", "Show actions", HID_Boolean, 0, 0, {0, 0, 0}, 0,
    &show_actions},
-  {"dump-actions", "Dump actions (for documentation)", HID_Boolean, 0, 0, {0, 0, 0}, 0,
+  {"dump-actions", "Dump actions (for documentation)", HID_Boolean, 0, 0,
+   {0, 0, 0}, 0,
    &do_dump_actions},
 
   BSET (grid_units_mm, 0, "grid-units-mm", 0),
@@ -494,7 +495,7 @@ HID_Attribute main_attribute_list[] = {
 	"lib-command", 0),
   SSET (LibraryContentsCommand, "ListLibraryContents.sh '%p' '%f'",
 	"lib-contents-command", 0),
-  SSET (LibraryTree, PCBTREEDIR, "lib-newlib", 
+  SSET (LibraryTree, PCBTREEDIR, "lib-newlib",
 	"Top level directory for the newlib style library"),
   SSET (SaveCommand, "cat - > '%f'", "save-command", 0),
   SSET (LibraryFilename, LIBRARYFILENAME, "lib-name", 0),
@@ -533,24 +534,25 @@ HID_Attribute main_attribute_list[] = {
 };
 
 REGISTER_ATTRIBUTES (main_attribute_list)
-
 /* ---------------------------------------------------------------------- 
  * post-process settings.
  */
-
-static void
-settings_post_process ()
+     static void settings_post_process ()
 {
   if (Settings.LibraryCommand[0] != '/' && Settings.LibraryCommand[0] != '.')
     {
       Settings.LibraryCommand
-	= Concat (Settings.LibraryCommandDir, "/", Settings.LibraryCommand, NULL);
+	=
+	Concat (Settings.LibraryCommandDir, "/", Settings.LibraryCommand,
+		NULL);
     }
   if (Settings.LibraryContentsCommand[0] != '/'
       && Settings.LibraryContentsCommand[0] != '.')
     {
       Settings.LibraryContentsCommand
-	= Concat (Settings.LibraryCommandDir, "/", Settings.LibraryContentsCommand, NULL);
+	=
+	Concat (Settings.LibraryCommandDir, "/",
+		Settings.LibraryContentsCommand, NULL);
     }
 
   if (Settings.LineThickness > MAX_LINESIZE
@@ -652,11 +654,11 @@ main (int argc, char *argv[])
   if (!gui)
     exit (1);
 
-  for (i=0; i<MAX_LAYER; i++)
+  for (i = 0; i < MAX_LAYER; i++)
     {
       char buf[20];
-      sprintf(buf, "signal%d", i+1);
-      Settings.DefaultLayerName[i] = MyStrdup(buf, "DefaultLayerNames");
+      sprintf (buf, "signal%d", i + 1);
+      Settings.DefaultLayerName[i] = MyStrdup (buf, "DefaultLayerNames");
       Settings.LayerColor[i] = "#c49350";
       Settings.LayerSelectedColor[i] = "#00ffff";
     }
@@ -694,7 +696,7 @@ main (int argc, char *argv[])
 
   PCB = CreateNewPCB (True);
   PCB->Data->LayerN = DEF_LAYER;
-  ParseGroupString(Settings.Groups, &PCB->LayerGroups, DEF_LAYER);
+  ParseGroupString (Settings.Groups, &PCB->LayerGroups, DEF_LAYER);
   CreateNewPCBPost (PCB, 1);
   if (argc > 1)
     command_line_pcb = argv[1];

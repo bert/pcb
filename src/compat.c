@@ -56,6 +56,6 @@ logf (float x)
 long
 random (void)
 {
-  return (long) rand();
+  return (long) rand ();
 }
 #endif

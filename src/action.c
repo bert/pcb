@@ -66,6 +66,7 @@
 #include "search.h"
 #include "select.h"
 #include "set.h"
+#include "thermal.h"
 #include "undo.h"
 #include "rtree.h"
 
@@ -567,7 +568,6 @@ ClearWarnings ()
       }
   }
   ENDALL_LOOP;
-  UpdatePIPFlags (NULL, NULL, NULL, False);
   Draw ();
 }
 
@@ -948,7 +948,6 @@ NotifyMode (void)
 				 0, Settings.ViaDrillingHole, NULL,
 				 NoFlags ())) != NULL)
 	  {
-	    UpdatePIPFlags (via, (ElementTypePtr) via, NULL, False);
 	    AddObjectToCreateUndoList (VIA_TYPE, via, via, via);
 	    IncrementUndoSerialNumber ();
 	    DrawVia (via, 0);
@@ -1092,14 +1091,20 @@ NotifyMode (void)
 	      =
 	      SearchScreen (Note.X, Note.Y, PIN_TYPES, &ptr1, &ptr2,
 			    &ptr3)) != NO_TYPE)
-	    && TEST_PIP (INDEXOFCURRENT, (PinTypePtr) ptr3)
 	    && !TEST_FLAG (HOLEFLAG, (PinTypePtr) ptr3))
 	  {
-	    AddObjectToFlagUndoList (type, ptr1, ptr2, ptr3);
-	    TOGGLE_THERM (INDEXOFCURRENT, (PinTypePtr) ptr3);
-	    IncrementUndoSerialNumber ();
-	    ClearPin ((PinTypePtr) ptr3, type, 0);
-	    Draw ();
+	    if (gui->shift_is_pressed ())
+	      {
+		int tstyle = GET_THERM (INDEXOFCURRENT, (PinTypePtr) ptr3);
+		tstyle++;
+		if (tstyle > 5)
+		  tstyle = 1;
+		ChangeObjectThermal (type, ptr1, ptr2, ptr3, tstyle);
+	      }
+	    else if (GET_THERM (INDEXOFCURRENT, (PinTypePtr) ptr3))
+	      ChangeObjectThermal (type, ptr1, ptr2, ptr3, 0);
+	    else
+	      ChangeObjectThermal (type, ptr1, ptr2, ptr3, PCB->ThermStyle);
 	  }
 	break;
       }
@@ -1204,7 +1209,6 @@ NotifyMode (void)
 				    Settings.ViaDrillingHole, NULL,
 				    NoFlags ())) != NULL)
 		{
-		  UpdatePIPFlags (via, (ElementTypePtr) via, NULL, False);
 		  AddObjectToCreateUndoList (VIA_TYPE, via, via, via);
 		  DrawVia (via, 0);
 		}
@@ -1280,7 +1284,6 @@ NotifyMode (void)
 	    {
 	      AddObjectToCreateUndoList (POLYGON_TYPE, CURRENT,
 					 polygon, polygon);
-	      UpdatePIPFlags (NULL, NULL, CURRENT, True);
 	      IncrementUndoSerialNumber ();
 	      DrawPolygon (CURRENT, polygon, 0);
 	      Draw ();
@@ -1362,14 +1365,17 @@ NotifyMode (void)
 
 	if (gui->shift_is_pressed ())
 	  {
-	    int type = SearchScreen (Note.X, Note.Y, ELEMENT_TYPE, &ptr1, &ptr2, &ptr3);
+	    int type =
+	      SearchScreen (Note.X, Note.Y, ELEMENT_TYPE, &ptr1, &ptr2,
+			    &ptr3);
 	    if (type == ELEMENT_TYPE)
 	      {
 		e = (ElementTypePtr) ptr1;
 		if (e)
 		  {
-		    memcpy (estr, e->Name, MAX_ELEMENTNAMES * sizeof(TextType));
-		    memset (e->Name, 0, MAX_ELEMENTNAMES * sizeof(TextType));
+		    memcpy (estr, e->Name,
+			    MAX_ELEMENTNAMES * sizeof (TextType));
+		    memset (e->Name, 0, MAX_ELEMENTNAMES * sizeof (TextType));
 		    RemoveElement (e);
 		  }
 	      }
@@ -1378,7 +1384,9 @@ NotifyMode (void)
 	  SetChangedFlag (True);
 	if (e)
 	  {
-	    int type = SearchScreen (Note.X, Note.Y, ELEMENT_TYPE, &ptr1, &ptr2, &ptr3);
+	    int type =
+	      SearchScreen (Note.X, Note.Y, ELEMENT_TYPE, &ptr1, &ptr2,
+			    &ptr3);
 	    if (type == ELEMENT_TYPE && ptr1)
 	      {
 		int i, save_n;
@@ -1386,13 +1394,13 @@ NotifyMode (void)
 
 		save_n = NAME_INDEX (PCB);
 
-	        for (i=0; i<MAX_ELEMENTNAMES; i++)
+		for (i = 0; i < MAX_ELEMENTNAMES; i++)
 		  {
 		    if (i == save_n)
 		      EraseElementName (e);
 		    r_delete_entry (PCB->Data->name_tree[i],
 				    (BoxType *) & (e->Name[i]));
-		    memcpy (&(e->Name[i]), &(estr[i]), sizeof(TextType));
+		    memcpy (&(e->Name[i]), &(estr[i]), sizeof (TextType));
 		    e->Name[i].Element = e;
 		    SetTextBoundingBox (&PCB->Font, &(e->Name[i]));
 		    r_insert_entry (PCB->Data->name_tree[i],
@@ -1611,11 +1619,9 @@ WarpPointer (Boolean ignore)
 
 /* --------------------------------------------------------------------------- */
 
-static const char atomic_syntax[] =
-"Atomic(Save|Restore|Close|Block)";
+static const char atomic_syntax[] = "Atomic(Save|Restore|Close|Block)";
 
-static const char atomic_help[] =
-"Save or restore the undo serial number.";
+static const char atomic_help[] = "Save or restore the undo serial number.";
 
 /* %start-doc actions Atomic
 
@@ -1678,11 +1684,9 @@ ActionAtomic (int argc, char **argv, int x, int y)
 
 /* -------------------------------------------------------------------------- */
 
-static const char drc_syntax[] =
-"DRC()";
+static const char drc_syntax[] = "DRC()";
 
-static const char drc_help[] =
-"Invoke the DRC check.";
+static const char drc_help[] = "Invoke the DRC check.";
 
 /* %start-doc actions DRC
 
@@ -1717,11 +1721,10 @@ ActionDRCheck (int argc, char **argv, int x, int y)
 
 /* -------------------------------------------------------------------------- */
 
-static const char dumplibrary_syntax[] =
-"DumpLibrary()";
+static const char dumplibrary_syntax[] = "DumpLibrary()";
 
 static const char dumplibrary_help[] =
-"Display the entire contents of the libraries.";
+  "Display the entire contents of the libraries.";
 
 /* %start-doc actions DumpLibrary
 
@@ -1736,24 +1739,26 @@ ActionDumpLibrary (int argc, char **argv, int x, int y)
   printf ("**** Do not count on this format.  It will change ****\n\n");
   printf ("MenuN   = %d\n", Library.MenuN);
   printf ("MenuMax = %d\n", Library.MenuMax);
-  for (i = 0; i < Library.MenuN; i++) 
+  for (i = 0; i < Library.MenuN; i++)
     {
       printf ("Library #%d:\n", i);
       printf ("    EntryN    = %d\n", Library.Menu[i].EntryN);
       printf ("    EntryMax  = %d\n", Library.Menu[i].EntryMax);
       printf ("    Name      = \"%s\"\n", UNKNOWN (Library.Menu[i].Name));
-      printf ("    directory = \"%s\"\n", UNKNOWN (Library.Menu[i].directory));
+      printf ("    directory = \"%s\"\n",
+	      UNKNOWN (Library.Menu[i].directory));
       printf ("    Style     = \"%s\"\n", UNKNOWN (Library.Menu[i].Style));
       printf ("    flag      = %d\n", Library.Menu[i].flag);
 
-      for (j = 0; j < Library.Menu[i].EntryN; j++) 
+      for (j = 0; j < Library.Menu[i].EntryN; j++)
 	{
 	  printf ("    #%4d: ", j);
 	  if (Library.Menu[i].Entry[j].Template == (char *) -1)
 	    {
-	      printf ("newlib: \"%s\"\n", UNKNOWN (Library.Menu[i].Entry[j].ListEntry));
+	      printf ("newlib: \"%s\"\n",
+		      UNKNOWN (Library.Menu[i].Entry[j].ListEntry));
 	    }
-	  else 
+	  else
 	    {
 	      printf ("\"%s\", \"%s\", \"%s\", \"%s\", \"%s\"\n",
 		      UNKNOWN (Library.Menu[i].Entry[j].ListEntry),
@@ -1770,11 +1775,10 @@ ActionDumpLibrary (int argc, char **argv, int x, int y)
 
 /* -------------------------------------------------------------------------- */
 
-static const char flip_syntax[] =
-"Flip(Object|Selected|SelectedElements)";
+static const char flip_syntax[] = "Flip(Object|Selected|SelectedElements)";
 
 static const char flip_help[] =
-"Flip an element to the opposite side of the board.";
+  "Flip an element to the opposite side of the board.";
 
 /* %start-doc actions Flip
 
@@ -1805,7 +1809,6 @@ ActionFlip (int argc, char **argv, int x, int y)
 	    {
 	      element = (ElementTypePtr) ptrtmp;
 	      ChangeElementSide (element, 2 * Crosshair.Y - PCB->MaxHeight);
-	      UpdatePIPFlags (NULL, element, NULL, True);
 	      IncrementUndoSerialNumber ();
 	      Draw ();
 	    }
@@ -1828,11 +1831,9 @@ ActionFlip (int argc, char **argv, int x, int y)
 
 /* -------------------------------------------------------------------------- */
 
-static const char message_syntax[] =
-"Message(message)";
+static const char message_syntax[] = "Message(message)";
 
-static const char message_help[] =
-"Writes a message to the log window.";
+static const char message_help[] = "Writes a message to the log window.";
 
 /* %start-doc actions Message
 
@@ -1863,116 +1864,80 @@ ActionMessage (int argc, char **argv, int x, int y)
 
 /* -------------------------------------------------------------------------- */
 
-static const char togglethermal_syntax[] =
-"ToggleThermal(Object|SelectedPins|SelectedVias|Selected)";
-
-static const char togglethermal_help[] =
-"Toggle a thermal (on the current layer) to pins or vias.";
-
-/* %start-doc actions ToggleThermal
-
-This changes the electrical connection between the pins or vias, and
-any rectangle or polygon on the current layer.
-
-%end-doc */
-
-static int
-ActionToggleThermal (int argc, char **argv, int x, int y)
-{
-  char *function = ARG (0);
-  void *ptr1, *ptr2, *ptr3;
-  int type;
-  int err = 0;
-
-  if (function && *function)
-    {
-      HideCrosshair (True);
-      switch (GetFunctionID (function))
-	{
-	case F_Object:
-	  if ((type =
-	       SearchScreen (Crosshair.X, Crosshair.Y, CHANGETHERMAL_TYPES,
-			     &ptr1, &ptr2, &ptr3)) != NO_TYPE)
-	    {
-	      ChangeObjectThermal (type, ptr1, ptr2, ptr3);
-	      IncrementUndoSerialNumber ();
-	      Draw ();
-	    }
-	  break;
-	case F_SelectedPins:
-	  ChangeSelectedThermals (PIN_TYPE);
-	  break;
-	case F_SelectedVias:
-	  ChangeSelectedThermals (VIA_TYPE);
-	  break;
-	case F_Selected:
-	case F_SelectedElements:
-	  ChangeSelectedThermals (CHANGETHERMAL_TYPES);
-	  break;
-	default:
-	  err = 1;
-	  break;
-	}
-      RestoreCrosshair (True);
-      if (!err)
-	return 0;
-    }
-  
-  AFAIL (togglethermal);
-}
-
-/* -------------------------------------------------------------------------- */
-
 static const char setthermal_syntax[] =
-"SetThermal(Object|SelectedPins|SelectedVias|Selected|SelectedElements)";
+  "SetThermal(Object|SelectedPins|SelectedVias|Selected, Style)";
 
 static const char setthermal_help[] =
-"Set a thermal (on the current layer) to pins or vias.";
+  "Set the thermal (on the current layer) of pins or vias to the given style.\n"
+  "Style = 0 means no thermal.\n"
+  "Style = 1 has diagonal fingers with sharp edges.\n"
+  "Style = 2 has horizontal and vertical fingers with sharp edges.\n"
+  "Style = 3 is a solid connection to the plane."
+  "Style = 4 has diagonal fingers with rounded edges.\n"
+  "Style = 5 has horizontal and vertical fingers with rounded edges.\n";
 
 /* %start-doc actions SetThermal
 
-This adds an electrical connection between the pins or vias, and any
-rectangle or polygon on the current layer.
+This changes how/whether pins or vias connect to any rectangle or polygon
+on the current layer. The first argument can specify one object, or all
+selected pins, or all selected vias, or all selected pins and vias.
+The second argument specifies the style of connection.
+There are 5 possibilities:
+0 - no connection,
+1 - 45 degree fingers with sharp edges,
+2 - horizontal & vertical fingers with sharp edges,
+3 - solid connection,
+4 - 45 degree fingers with rounded corners,
+5 - horizontal & vertical fingers with rounded corners.
 
+Pins and Vias may have thermals whether or not there is a polygon available 
+to connect with. However, they will have no effect without the polygon.
 %end-doc */
 
 static int
 ActionSetThermal (int argc, char **argv, int x, int y)
 {
   char *function = ARG (0);
+  char *style = ARG (1);
   void *ptr1, *ptr2, *ptr3;
-  int type;
+  int type, kind;
   int err = 0;
 
-  if (function && *function)
+  if (function && *function && style && *style)
     {
+      Boolean absolute;
+
+      kind = GetValue (style, NULL, &absolute);
       HideCrosshair (True);
-      switch (GetFunctionID (function))
-	{
-	case F_Object:
-	  if ((type =
-	       SearchScreen (Crosshair.X, Crosshair.Y, CHANGETHERMAL_TYPES,
-			     &ptr1, &ptr2, &ptr3)) != NO_TYPE)
-	    {
-	      SetObjectThermal (type, ptr1, ptr2, ptr3);
-	      IncrementUndoSerialNumber ();
-	      Draw ();
-	    }
-	  break;
-	case F_SelectedPins:
-	  SetSelectedThermals (PIN_TYPE);
-	  break;
-	case F_SelectedVias:
-	  SetSelectedThermals (VIA_TYPE);
-	  break;
-	case F_Selected:
-	case F_SelectedElements:
-	  SetSelectedThermals (CHANGETHERMAL_TYPES);
-	  break;
-	default:
-	  err = 1;
-	  break;
-	}
+      if (absolute)
+	switch (GetFunctionID (function))
+	  {
+	  case F_Object:
+	    if ((type =
+		 SearchScreen (Crosshair.X, Crosshair.Y, CHANGETHERMAL_TYPES,
+			       &ptr1, &ptr2, &ptr3)) != NO_TYPE)
+	      {
+		ChangeObjectThermal (type, ptr1, ptr2, ptr3, kind);
+		IncrementUndoSerialNumber ();
+		Draw ();
+	      }
+	    break;
+	  case F_SelectedPins:
+	    ChangeSelectedThermals (PIN_TYPE, kind);
+	    break;
+	  case F_SelectedVias:
+	    ChangeSelectedThermals (VIA_TYPE, kind);
+	    break;
+	  case F_Selected:
+	  case F_SelectedElements:
+	    ChangeSelectedThermals (CHANGETHERMAL_TYPES, kind);
+	    break;
+	  default:
+	    err = 1;
+	    break;
+	  }
+      else
+	err = 1;
       RestoreCrosshair (True);
       if (!err)
 	return 0;
@@ -1980,67 +1945,6 @@ ActionSetThermal (int argc, char **argv, int x, int y)
 
   AFAIL (setthermal);
 }
-
-/* -------------------------------------------------------------------------- */
-
-static const char clearthermal_syntax[] =
-"ClearThermal(Object|SelectedPins|SelectedVias|Selected|SelectedElements)";
-
-static const char clearthermal_help[] =
-"Clear a thermal (on the current layer) to pins or vias.";
-
-/* %start-doc actions ClearThermal
-
-This removes any electrical connection.  Pins and vias that do not
-already have thermals are not changed.
-
-%end-doc */
-
-static int
-ActionClearThermal (int argc, char **argv, int x, int y)
-{
-  char *function = ARG (0);
-  void *ptr1, *ptr2, *ptr3;
-  int type;
-  int err = 0;
-
-  if (function && *function)
-    {
-      HideCrosshair (True);
-      switch (GetFunctionID (function))
-	{
-	case F_Object:
-	  if ((type =
-	       SearchScreen (Crosshair.X, Crosshair.Y, CHANGETHERMAL_TYPES,
-			     &ptr1, &ptr2, &ptr3)) != NO_TYPE)
-	    {
-	      ClrObjectThermal (type, ptr1, ptr2, ptr3);
-	      IncrementUndoSerialNumber ();
-	      Draw ();
-	    }
-	  break;
-	case F_SelectedPins:
-	  ClrSelectedThermals (PIN_TYPE);
-	  break;
-	case F_SelectedVias:
-	  ClrSelectedThermals (VIA_TYPE);
-	  break;
-	case F_Selected:
-	case F_SelectedElements:
-	  ClrSelectedThermals (CHANGETHERMAL_TYPES);
-	  break;
-	default:
-	  err = 1;
-	  break;
-	}
-      RestoreCrosshair (True);
-      if (!err)
-	return 0;
-    }
-
-  AFAIL (clearthermal);
-}
-
 
 /* ---------------------------------------------------------------------------
  * action routine to move the X pointer relative to the current position
@@ -2134,10 +2038,10 @@ EventMoveCrosshair (int ev_x, int ev_y)
 /* --------------------------------------------------------------------------- */
 
 static const char setvalue_syntax[] =
-"SetValue(Grid|Line|LineSize|Text|TextScale|ViaDrillingHole|Via|ViaSize, delta)";
+  "SetValue(Grid|Line|LineSize|Text|TextScale|ViaDrillingHole|Via|ViaSize, delta)";
 
 static const char setvalue_help[] =
-"Change various board-wide values and sizes.";
+  "Change various board-wide values and sizes.";
 
 /* %start-doc actions SetValue
 
@@ -2239,11 +2143,9 @@ ActionSetValue (int argc, char **argv, int x, int y)
 
 /* --------------------------------------------------------------------------- */
 
-static const char quit_syntax[] =
-"Quit()";
+static const char quit_syntax[] = "Quit()";
 
-static const char quit_help[] =
-"Quits the application.";
+static const char quit_help[] = "Quits the application.";
 
 /* %start-doc actions Quit
 
@@ -2269,10 +2171,10 @@ ActionQuit (int argc, char **argv, int x, int y)
 /* --------------------------------------------------------------------------- */
 
 static const char connection_syntax[] =
-"Connection(Find|ResetLinesAndPolygons|ResetPinsAndVias|Reset)";
+  "Connection(Find|ResetLinesAndPolygons|ResetPinsAndVias|Reset)";
 
 static const char connection_help[] =
-"Searches connections of the object at the cursor position.";
+  "Searches connections of the object at the cursor position.";
 
 /* %start-doc actions Connection
 
@@ -2338,10 +2240,9 @@ ActionConnection (int argc, char **argv, int x, int y)
 /* --------------------------------------------------------------------------- */
 
 static const char disperseelements_syntax[] =
-"DisperseElements(All|Selected)";
+  "DisperseElements(All|Selected)";
 
-static const char disperseelements_help[] =
-"Disperses elements.";
+static const char disperseelements_help[] = "Disperses elements.";
 
 /* %start-doc actions DisperseElements
 
@@ -2466,19 +2367,17 @@ ActionDisperseElements (int argc, char **argv, int x, int y)
 /* --------------------------------------------------------------------------- */
 
 static const char display_syntax[] =
-"Display(NameOnPCB|Description|Value)\n"
-"Display(Grid|Redraw)\n"
-"Display(CycleClip|Toggle45Degree|ToggleStartDirection)\n"
-"Display(ToggleGrid|ToggleRubberBandMode|ToggleUniqueNames)\n"
-"Display(ToggleMask|ToggleName|ToggleClearLine|ToggleSnapPin)\n"
-"Display(ToggleThindraw|ToggleOrthoMove|ToggleLocalRef)\n"
-"Display(ToggleCheckPlanes|ToggleShowDRC|ToggleAutoDRC)\n"
-"Display(ToggleLiveRoute)\n"
-"Display(Pinout|PinOrPadName)\n"
-"Display(Scroll, Direction)";
+  "Display(NameOnPCB|Description|Value)\n"
+  "Display(Grid|Redraw)\n"
+  "Display(CycleClip|Toggle45Degree|ToggleStartDirection)\n"
+  "Display(ToggleGrid|ToggleRubberBandMode|ToggleUniqueNames)\n"
+  "Display(ToggleMask|ToggleName|ToggleClearLine|ToggleSnapPin)\n"
+  "Display(ToggleThindraw|ToggleOrthoMove|ToggleLocalRef)\n"
+  "Display(ToggleCheckPlanes|ToggleShowDRC|ToggleAutoDRC)\n"
+  "Display(ToggleLiveRoute)\n"
+  "Display(Pinout|PinOrPadName)\n" "Display(Scroll, Direction)";
 
-static const char display_help[] =
-"Several display-related actions.";
+static const char display_help[] = "Several display-related actions.";
 
 /* %start-doc actions Display
 
@@ -2948,13 +2847,11 @@ ActionDisplay (int argc, char **argv, int childX, int childY)
 /* --------------------------------------------------------------------------- */
 
 static const char mode_syntax[] =
-"Mode(Arc|Arrow|Copy|InsertPoint|Line|Lock|Move|None|PasteBuffer)\n"
-"Mode(Polygon|Rectangle|Remove|Rotate|Text|Thermal|Via)\n"
-"Mode(Notify|Release|Cancel|Stroke)\n"
-"Mode(Save|Restore)";
+  "Mode(Arc|Arrow|Copy|InsertPoint|Line|Lock|Move|None|PasteBuffer)\n"
+  "Mode(Polygon|Rectangle|Remove|Rotate|Text|Thermal|Via)\n"
+  "Mode(Notify|Release|Cancel|Stroke)\n" "Mode(Save|Restore)";
 
-static const char mode_help[] =
-"Change or use the tool mode.";
+static const char mode_help[] = "Change or use the tool mode.";
 
 /* %start-doc actions Mode
 
@@ -3136,11 +3033,9 @@ ActionMode (int argc, char **argv, int x, int y)
 
 /* --------------------------------------------------------------------------- */
 
-static const char removeselected_syntax[] =
-"RemoveSelected()";
+static const char removeselected_syntax[] = "RemoveSelected()";
 
-static const char removeselected_help[] =
-"Removes any selected objects.";
+static const char removeselected_help[] = "Removes any selected objects.";
 
 /* %start-doc actions RemoveSelected
 
@@ -3158,13 +3053,11 @@ ActionRemoveSelected (int argc, char **argv, int x, int y)
 
 /* --------------------------------------------------------------------------- */
 
-static const char renumber_syntax[] =
-"Renumber()\n"
-"Renumber(filename)";
+static const char renumber_syntax[] = "Renumber()\n" "Renumber(filename)";
 
 static const char renumber_help[] =
-"Renumber all elements.  The changes will be recorded to filename\n"
-"for use in backannotating these changes to the schematic.";
+  "Renumber all elements.  The changes will be recorded to filename\n"
+  "for use in backannotating these changes to the schematic.";
 
 /* %start-doc actions Renumber
 
@@ -3183,7 +3076,11 @@ ActionRenumber (int argc, char **argv, int x, int y)
   char *name;
   FILE *out;
   size_t cnt_list_sz = 100;
-  struct _cnt_list {char *name; unsigned int cnt;} *cnt_list;
+  struct _cnt_list
+  {
+    char *name;
+    unsigned int cnt;
+  } *cnt_list;
   char **was, **is, *pin;
   unsigned int c_cnt = 0;
   int unique, ok;
@@ -3196,8 +3093,7 @@ ActionRenumber (int argc, char **argv, int x, int y)
   if ((out = fopen (name, "r")))
     {
       fclose (out);
-      if (! gui->
-	  confirm_dialog (_("File exists!  Ok to overwrite?"), 0))
+      if (!gui->confirm_dialog (_("File exists!  Ok to overwrite?"), 0))
 	return 0;
     }
   if ((out = fopen (name, "w")) == NULL)
@@ -3220,12 +3116,13 @@ ActionRenumber (int argc, char **argv, int x, int y)
   locked_element_list = calloc (PCB->Data->ElementN, sizeof (ElementTypePtr));
   was = calloc (PCB->Data->ElementN, sizeof (char *));
   is = calloc (PCB->Data->ElementN, sizeof (char *));
-  if (element_list == NULL || locked_element_list == NULL || was == NULL || is == NULL)
+  if (element_list == NULL || locked_element_list == NULL || was == NULL
+      || is == NULL)
     {
       fprintf (stderr, "calloc() failed in %s\n", __FUNCTION__);
       exit (1);
     }
-  
+
 
   cnt = 0;
   lock_cnt = 0;
@@ -3237,8 +3134,10 @@ ActionRenumber (int argc, char **argv, int x, int y)
 	 * add to the list of locked elements which we won't try to
 	 * renumber and whose reference designators are now reserved.
 	 */
-	fprintf (out, "*WARN* Element \"%s\" at (%d,%d) is locked and will not be renumbered.\n", 
-		 UNKNOWN ( NAMEONPCB_NAME (element) ), element->MarkX, element->MarkY);
+	fprintf (out,
+		 "*WARN* Element \"%s\" at (%d,%d) is locked and will not be renumbered.\n",
+		 UNKNOWN (NAMEONPCB_NAME (element)), element->MarkX,
+		 element->MarkY);
 	locked_element_list[lock_cnt] = element;
 	lock_cnt++;
       }
@@ -3250,20 +3149,20 @@ ActionRenumber (int argc, char **argv, int x, int y)
 
 	/* search for correct position in the list */
 	i = 0;
-	while (element_list[i] && element->MarkY > element_list[i]->MarkY ) 
+	while (element_list[i] && element->MarkY > element_list[i]->MarkY)
 	  i++;
-	
+
 	/* 
 	 * We have found the position where we have the first element that
 	 * has the same Y value or a lower Y value.  Now move forward if
 	 * needed through the X values
 	 */
-	while (element_list[i] 
-	       && element->MarkY == element_list[i]->MarkY 
-	       && element->MarkX > element_list[i]->MarkX) 
+	while (element_list[i]
+	       && element->MarkY == element_list[i]->MarkY
+	       && element->MarkX > element_list[i]->MarkX)
 	  i++;
-	
-	for (j = cnt-1; j > i ; j--)
+
+	for (j = cnt - 1; j > i; j--)
 	  {
 	    element_list[j] = element_list[j - 1];
 	  }
@@ -3271,7 +3170,7 @@ ActionRenumber (int argc, char **argv, int x, int y)
       }
   }
   END_LOOP;
-  
+
 
   /* 
    * Now that the elements are sorted by board position, we go through
@@ -3295,15 +3194,18 @@ ActionRenumber (int argc, char **argv, int x, int y)
 	  /* figure out the prefix */
 	  tmps = strdup (NAMEONPCB_NAME (element_list[i]));
 	  j = 0;
-	  while (tmps[j] && (tmps[j] < '0' || tmps[j] > '9') && tmps[j] != '?') 
+	  while (tmps[j] && (tmps[j] < '0' || tmps[j] > '9')
+		 && tmps[j] != '?')
 	    j++;
 	  tmps[j] = '\0';
-	  
+
 	  /* check the counter for this prefix */
-	  for (j = 0; cnt_list[j].name  && (strcmp (cnt_list[j].name, tmps) != 0) && j < cnt_list_sz; j++);
+	  for (j = 0;
+	       cnt_list[j].name && (strcmp (cnt_list[j].name, tmps) != 0)
+	       && j < cnt_list_sz; j++);
 
 	  /* grow the list if needed */
-	  if (j == cnt_list_sz) 
+	  if (j == cnt_list_sz)
 	    {
 	      cnt_list_sz += 100;
 	      cnt_list = realloc (cnt_list, cnt_list_sz);
@@ -3324,7 +3226,7 @@ ActionRenumber (int argc, char **argv, int x, int y)
 	   * start a new counter if we don't have a counter for this
 	   * prefix 
 	   */
-	  if ( ! cnt_list[j].name)
+	  if (!cnt_list[j].name)
 	    {
 	      cnt_list[j].name = strdup (tmps);
 	      cnt_list[j].cnt = 0;
@@ -3334,15 +3236,15 @@ ActionRenumber (int argc, char **argv, int x, int y)
 	   * check to see if the new refdes is already used by a
 	   * locked element
 	   */
-	  do 
+	  do
 	    {
 	      ok = 1;
 	      cnt_list[j].cnt++;
 	      free (tmps);
-	      
+
 	      /* space for the prefix plus 1 digit plus the '\0' */
 	      sz = strlen (cnt_list[j].name) + 2;
-	      
+
 	      /* and 1 more per extra digit needed to hold the number */
 	      tmpi = cnt_list[j].cnt;
 	      while (tmpi > 10)
@@ -3357,20 +3259,24 @@ ActionRenumber (int argc, char **argv, int x, int y)
 	       * now compare to the list of reserved (by locked
 	       * elements) names 
 	       */
-	      for (k = 0; k < lock_cnt ; k++)
+	      for (k = 0; k < lock_cnt; k++)
 		{
-		  if (strcmp (UNKNOWN ( NAMEONPCB_NAME (locked_element_list[k])), tmps) == 0)
+		  if (strcmp
+		      (UNKNOWN (NAMEONPCB_NAME (locked_element_list[k])),
+		       tmps) == 0)
 		    {
 		      ok = 0;
 		      break;
 		    }
 		}
 
-	    } while ( ! ok);
+	    }
+	  while (!ok);
 
 	  if (strcmp (tmps, NAMEONPCB_NAME (element_list[i])) != 0)
 	    {
-	      fprintf (out, "*RENAME* \"%s\" \"%s\"\n", NAMEONPCB_NAME (element_list[i]), tmps);
+	      fprintf (out, "*RENAME* \"%s\" \"%s\"\n",
+		       NAMEONPCB_NAME (element_list[i]), tmps);
 
 	      /* add this rename to our table of renames so we can update the netlist */
 	      was[c_cnt] = strdup (NAMEONPCB_NAME (element_list[i]));
@@ -3378,9 +3284,12 @@ ActionRenumber (int argc, char **argv, int x, int y)
 	      c_cnt++;
 
 	      AddObjectToChangeNameUndoList (ELEMENT_TYPE, NULL, NULL,
-					     element_list[i], NAMEONPCB_NAME (element_list[i]));
+					     element_list[i],
+					     NAMEONPCB_NAME (element_list
+							     [i]));
 
-	      ChangeObjectName (ELEMENT_TYPE, element_list[i], NULL, NULL, tmps);
+	      ChangeObjectName (ELEMENT_TYPE, element_list[i], NULL, NULL,
+				tmps);
 	      changed = True;
 
 	      /* we don't free tmps in this case because it is used */
@@ -3388,9 +3297,9 @@ ActionRenumber (int argc, char **argv, int x, int y)
 	  else
 	    free (tmps);
 	}
-      else 
+      else
 	{
-	  fprintf (out, "*WARN* Element at (%d,%d) has no name.\n", 
+	  fprintf (out, "*WARN* Element at (%d,%d) has no name.\n",
 		   element_list[i]->MarkX, element_list[i]->MarkY);
 	}
 
@@ -3406,44 +3315,48 @@ ActionRenumber (int argc, char **argv, int x, int y)
     {
 
       /* update the netlist */
-      AddNetlistLibToUndoList ( &(PCB->NetlistLib) );
+      AddNetlistLibToUndoList (&(PCB->NetlistLib));
 
       /* iterate over each net */
-      for (i = 0 ; i < PCB->NetlistLib.MenuN; i++)
+      for (i = 0; i < PCB->NetlistLib.MenuN; i++)
 	{
 
 	  /* iterate over each pin on the net */
-	  for (j = 0; j < PCB->NetlistLib.Menu[i].EntryN; j++) {
+	  for (j = 0; j < PCB->NetlistLib.Menu[i].EntryN; j++)
+	    {
 
-	    /* figure out the pin number part from strings like U3-21 */
-	    tmps = strdup (PCB->NetlistLib.Menu[i].Entry[j].ListEntry);
-	    for (k = 0; tmps[k] && tmps[k] != '-' ; k++);
-	    tmps[k] = '\0';
-	    pin = tmps + k + 1;
+	      /* figure out the pin number part from strings like U3-21 */
+	      tmps = strdup (PCB->NetlistLib.Menu[i].Entry[j].ListEntry);
+	      for (k = 0; tmps[k] && tmps[k] != '-'; k++);
+	      tmps[k] = '\0';
+	      pin = tmps + k + 1;
 
-	    /* iterate over the list of changed reference designators */
-	    for (k = 0; k < c_cnt; k++)
-	      {
-		/*
-		 * if the pin needs to change, change it and quit
-		 * searching in the list. 
-		 */
-		if (strcmp (tmps, was[k]) == 0) {
-		  free (PCB->NetlistLib.Menu[i].Entry[j].ListEntry);
-		  PCB->NetlistLib.Menu[i].Entry[j].ListEntry = 
-		    malloc ((strlen (is[k]) + strlen (pin) + 2)*sizeof (char));
-		  sprintf (PCB->NetlistLib.Menu[i].Entry[j].ListEntry, "%s-%s", is[k], pin);
-		  k = c_cnt;
+	      /* iterate over the list of changed reference designators */
+	      for (k = 0; k < c_cnt; k++)
+		{
+		  /*
+		   * if the pin needs to change, change it and quit
+		   * searching in the list. 
+		   */
+		  if (strcmp (tmps, was[k]) == 0)
+		    {
+		      free (PCB->NetlistLib.Menu[i].Entry[j].ListEntry);
+		      PCB->NetlistLib.Menu[i].Entry[j].ListEntry =
+			malloc ((strlen (is[k]) + strlen (pin) +
+				 2) * sizeof (char));
+		      sprintf (PCB->NetlistLib.Menu[i].Entry[j].ListEntry,
+			       "%s-%s", is[k], pin);
+		      k = c_cnt;
+		    }
+
 		}
-
-	      }
-	    free (tmps);
-	  }
+	      free (tmps);
+	    }
 	}
-      for (k=0; k<c_cnt; k++)
+      for (k = 0; k < c_cnt; k++)
 	{
-	  free(was[k]);
-	  free(is[k]);
+	  free (was[k]);
+	  free (is[k]);
 	}
 
       hid_action ("NetlistChanged");
@@ -3460,11 +3373,10 @@ ActionRenumber (int argc, char **argv, int x, int y)
 
 /* --------------------------------------------------------------------------- */
 
-static const char ripup_syntax[] =
-"RipUp(All|Selected|Element)";
+static const char ripup_syntax[] = "RipUp(All|Selected|Element)";
 
 static const char ripup_help[] =
-"Ripup auto-routed tracks, or convert an element to parts.";
+  "Ripup auto-routed tracks, or convert an element to parts.";
 
 /* %start-doc actions RipUp
 
@@ -3583,11 +3495,9 @@ ActionRipUp (int argc, char **argv, int x, int y)
 
 /* --------------------------------------------------------------------------- */
 
-static const char addrats_syntax[] =
-"AddRats(AllRats|SelectedRats|Close)";
+static const char addrats_syntax[] = "AddRats(AllRats|SelectedRats|Close)";
 
-static const char addrats_help[] =
-"Add one or more rat lines to the board.";
+static const char addrats_help[] = "Add one or more rat lines to the board.";
 
 /* %start-doc actions AddRats
 
@@ -3665,10 +3575,9 @@ ActionAddRats (int argc, char **argv, int x, int y)
 /* --------------------------------------------------------------------------- */
 
 static const char deleterats_syntax[] =
-"DeleteRats(AllRats|Selected|SelectedRats)";
+  "DeleteRats(AllRats|Selected|SelectedRats)";
 
-static const char deleterats_help[] =
-"Delete rat lines.";
+static const char deleterats_help[] = "Delete rat lines.";
 
 /* %start-doc actions DeleteRats
 
@@ -3700,11 +3609,9 @@ ActionDeleteRats (int argc, char **argv, int x, int y)
 
 /* --------------------------------------------------------------------------- */
 
-static const char autoplace_syntax[] =
-"AutoPlaceSelected()";
+static const char autoplace_syntax[] = "AutoPlaceSelected()";
 
-static const char autoplace_help[] =
-"Auto-place selected components.";
+static const char autoplace_help[] = "Auto-place selected components.";
 
 /* %start-doc actions AutoPlaceSelected
 
@@ -3729,11 +3636,9 @@ ActionAutoPlaceSelected (int argc, char **argv, int x, int y)
 
 /* --------------------------------------------------------------------------- */
 
-static const char autoroute_syntax[] =
-"AutoRoute(AllRats|SelectedRats)";
+static const char autoroute_syntax[] = "AutoRoute(AllRats|SelectedRats)";
 
-static const char autoroute_help[] =
-"Auto-route some or all rat lines.";
+static const char autoroute_help[] = "Auto-route some or all rat lines.";
 
 /* %start-doc actions AutoRoute
 
@@ -3785,11 +3690,9 @@ ActionAutoRoute (int argc, char **argv, int x, int y)
 /* --------------------------------------------------------------------------- */
 
 static const char markcrosshair_syntax[] =
-"MarkCrosshair()\n"
-"MarkCrosshair(Center)";
+  "MarkCrosshair()\n" "MarkCrosshair(Center)";
 
-static const char markcrosshair_help[] =
-"Set/Reset the Crosshair mark";
+static const char markcrosshair_help[] = "Set/Reset the Crosshair mark";
 
 /* %start-doc actions MarkCrosshair
 
@@ -3838,14 +3741,13 @@ ActionMarkCrosshair (int argc, char **argv, int x, int y)
 /* --------------------------------------------------------------------------- */
 
 static const char changesize_syntax[] =
-"ChangeSize(Object, delta)\n"
-"ChangeSize(SelectedObjects|Selected, delta)\n"
-"ChangeSize(SelectedLines|SelectedPins|SelectedVias, delta)\n"
-"ChangeSize(SelectedPads|SelectedTexts|SelectedNames, delta)\n"
-"ChangeSize(SelectedElements, delta)";
+  "ChangeSize(Object, delta)\n"
+  "ChangeSize(SelectedObjects|Selected, delta)\n"
+  "ChangeSize(SelectedLines|SelectedPins|SelectedVias, delta)\n"
+  "ChangeSize(SelectedPads|SelectedTexts|SelectedNames, delta)\n"
+  "ChangeSize(SelectedElements, delta)";
 
-static const char changesize_help[] =
-"Changes the size of objects.";
+static const char changesize_help[] = "Changes the size of objects.";
 
 /* %start-doc actions ChangeSize
 
@@ -3941,11 +3843,11 @@ ActionChangeSize (int argc, char **argv, int x, int y)
 /* --------------------------------------------------------------------------- */
 
 static const char changedrillsize_syntax[] =
-"ChangeDrillSize(Object, delta)\n"
-"ChangeDrillSize(SelectedPins|SelectedVias|Selected|SelectedObjects, delta)";
+  "ChangeDrillSize(Object, delta)\n"
+  "ChangeDrillSize(SelectedPins|SelectedVias|Selected|SelectedObjects, delta)";
 
 static const char changedrillsize_help[] =
-"Changes the drilling hole size of objects.";
+  "Changes the drilling hole size of objects.";
 
 /* %start-doc actions ChangeDrillSize
 
@@ -4004,13 +3906,13 @@ ActionChange2ndSize (int argc, char **argv, int x, int y)
 /* --------------------------------------------------------------------------- */
 
 static const char changeclearsize_syntax[] =
-"ChangeClearSize(Object, delta)\n"
-"ChangeClearSize(SelectedPins|SelectedPads|SelectedVias, delta)\n"
-"ChangeClearSize(SelectedLines|SelectedArcs, delta\n"
-"ChangeClearSize(Selected|SelectedObjects, delta)";
+  "ChangeClearSize(Object, delta)\n"
+  "ChangeClearSize(SelectedPins|SelectedPads|SelectedVias, delta)\n"
+  "ChangeClearSize(SelectedLines|SelectedArcs, delta\n"
+  "ChangeClearSize(Selected|SelectedObjects, delta)";
 
 static const char changeclearsize_help[] =
-"Changes the clearance size of objects.";
+  "Changes the clearance size of objects.";
 
 /* %start-doc actions ChangeClearSize
 
@@ -4083,11 +3985,10 @@ ActionChangeClearSize (int argc, char **argv, int x, int y)
 /* ---------------------------------------------------------------------------  */
 
 static const char minmaskgap_syntax[] =
-"MinMaskGap(delta)\n"
-"MinMaskGap(Selected, delta)";
+  "MinMaskGap(delta)\n" "MinMaskGap(Selected, delta)";
 
 static const char minmaskgap_help[] =
-"Ensures the mask is a minimum distance from pins and pads.";
+  "Ensures the mask is a minimum distance from pins and pads.";
 
 /* %start-doc actions MinMaskGap
 
@@ -4122,32 +4023,32 @@ ActionMinMaskGap (int argc, char **argv, int x, int y)
   HideCrosshair (True);
   SaveUndoSerialNumber ();
   ELEMENT_LOOP (PCB->Data);
+  {
+    PIN_LOOP (element);
     {
-      PIN_LOOP (element);
-      {
-	if (!TEST_FLAGS (flags, pin))
-	  continue;
-	if (pin->Mask < pin->Thickness + value)
-	  {
-	    ChangeObjectMaskSize (PIN_TYPE, element, pin, 0, 
-				  pin->Thickness + value, 1);
-	    RestoreUndoSerialNumber ();
-	  }
-      }
-      END_LOOP;
-      PAD_LOOP (element);
-      {
-	if (!TEST_FLAGS (flags, pad))
-	  continue;
-	if (pad->Mask < pad->Thickness + value)
-	  {
-	    ChangeObjectMaskSize (PAD_TYPE, element, pad, 0,
-				  pad->Thickness + value, 1);
-	    RestoreUndoSerialNumber ();
-	  }
-      }
-      END_LOOP;
+      if (!TEST_FLAGS (flags, pin))
+	continue;
+      if (pin->Mask < pin->Thickness + value)
+	{
+	  ChangeObjectMaskSize (PIN_TYPE, element, pin, 0,
+				pin->Thickness + value, 1);
+	  RestoreUndoSerialNumber ();
+	}
     }
+    END_LOOP;
+    PAD_LOOP (element);
+    {
+      if (!TEST_FLAGS (flags, pad))
+	continue;
+      if (pad->Mask < pad->Thickness + value)
+	{
+	  ChangeObjectMaskSize (PAD_TYPE, element, pad, 0,
+				pad->Thickness + value, 1);
+	  RestoreUndoSerialNumber ();
+	}
+    }
+    END_LOOP;
+  }
   END_LOOP;
   VIA_LOOP (PCB->Data);
   {
@@ -4155,8 +4056,7 @@ ActionMinMaskGap (int argc, char **argv, int x, int y)
       continue;
     if (via->Mask && via->Mask < via->Thickness + value)
       {
-	ChangeObjectMaskSize (VIA_TYPE, via, 0, 0, 
-			      via->Thickness + value, 1);
+	ChangeObjectMaskSize (VIA_TYPE, via, 0, 0, via->Thickness + value, 1);
 	RestoreUndoSerialNumber ();
       }
   }
@@ -4169,10 +4069,10 @@ ActionMinMaskGap (int argc, char **argv, int x, int y)
 /* ---------------------------------------------------------------------------  */
 
 static const char changepinname_syntax[] =
-"ChangePinName(ElementName,PinNumber,PinName)";
+  "ChangePinName(ElementName,PinNumber,PinName)";
 
 static const char changepinname_help[] =
-"Sets the name of a specific pin on a specific element.";
+  "Sets the name of a specific pin on a specific element.";
 
 /* %start-doc actions ChangePinName
 
@@ -4257,11 +4157,9 @@ ActionChangePinName (int argc, char **argv, int x, int y)
 /* --------------------------------------------------------------------------- */
 
 static const char changename_syntax[] =
-"ChangeName(Object)\n"
-"ChangeName(Layout|Layer)";
+  "ChangeName(Object)\n" "ChangeName(Layout|Layer)";
 
-static const char changename_help[] =
-"Sets the name of objects.";
+static const char changename_help[] = "Sets the name of objects.";
 
 /* %start-doc actions ChangeName
 
@@ -4356,11 +4254,57 @@ ActionChangeName (int argc, char **argv, int x, int y)
 
 /* --------------------------------------------------------------------------- */
 
+static const char morphpolygon_syntax[] = "MorphPolygon(Object)";
+
+static const char morphpolygon_help[] =
+  "Converts dead polygon islands into separate polygons.";
+
+/* %start-doc actions MorphPolygon 
+
+If a polygon is divided into unconnected "islands", you can use
+this command to convert the otherwise disappeared islands into
+separate polygons. Be sure the cursor is over a portion of the
+polygon that remains visible. Very small islands that may flake
+off are automatically deleted.
+
+%end-doc */
+
+static int
+ActionMorphPolygon (int argc, char **argv, int x, int y)
+{
+  char *function = ARG (0);
+  if (function)
+    {
+      HideCrosshair (True);
+      switch (GetFunctionID (function))
+	{
+	case F_Object:
+	  {
+	    int type;
+	    void *ptr1, *ptr2, *ptr3;
+
+	    gui->get_coords ("Select an Object", &x, &y);
+	    if ((type = SearchScreen (x, y, POLYGON_TYPE,
+				      &ptr1, &ptr2, &ptr3)) != NO_TYPE)
+	      {
+		MorphPolygon ((LayerType *) ptr1, (PolygonType *) ptr3);
+		Draw ();
+		IncrementUndoSerialNumber ();
+	      }
+	    break;
+	  }
+	}
+    }
+  return 0;
+}
+
+/* --------------------------------------------------------------------------- */
+
 static const char togglehidename_syntax[] =
-"ToggleHideName(Object|SelectedElements)";
+  "ToggleHideName(Object|SelectedElements)";
 
 static const char togglehidename_help[] =
-"Toggles the visibility of element names.";
+  "Toggles the visibility of element names.";
 
 /* %start-doc actions ToggleHideName
 
@@ -4431,10 +4375,10 @@ ActionToggleHideName (int argc, char **argv, int x, int y)
 /* --------------------------------------------------------------------------- */
 
 static const char changejoin_syntax[] =
-"ChangeJoin(ToggleObject|SelectedLines|SelectedArcs|Selected)";
+  "ChangeJoin(ToggleObject|SelectedLines|SelectedArcs|Selected)";
 
 static const char changejoin_help[] =
-"Changes the join (clearance through polygons) of objects.";
+  "Changes the join (clearance through polygons) of objects.";
 
 /* %start-doc actions ChangeJoin
 
@@ -4494,12 +4438,12 @@ ActionChangeJoin (int argc, char **argv, int x, int y)
 /* --------------------------------------------------------------------------- */
 
 static const char changesquare_syntax[] =
-"ChangeSquare(ToggleObject)\n"
-"ChangeSquare(SelectedElements|SelectedPins)\n"
-"ChangeSquare(Selected|SelectedObjects)";
+  "ChangeSquare(ToggleObject)\n"
+  "ChangeSquare(SelectedElements|SelectedPins)\n"
+  "ChangeSquare(Selected|SelectedObjects)";
 
 static const char changesquare_help[] =
-"Changes the square flag of pins and pads.";
+  "Changes the square flag of pins and pads.";
 
 /* %start-doc actions ChangeSquare
 
@@ -4557,10 +4501,9 @@ ActionChangeSquare (int argc, char **argv, int x, int y)
 /* --------------------------------------------------------------------------- */
 
 static const char setsquare_syntax[] =
-"SetSquare(ToggleObject|SelectedElements|SelectedPins)";
+  "SetSquare(ToggleObject|SelectedElements|SelectedPins)";
 
-static const char setsquare_help[] =
-"sets the square-flag of objects.";
+static const char setsquare_help[] = "sets the square-flag of objects.";
 
 /* %start-doc actions SetSquare
 
@@ -4618,10 +4561,10 @@ ActionSetSquare (int argc, char **argv, int x, int y)
 /* --------------------------------------------------------------------------- */
 
 static const char clearsquare_syntax[] =
-"ClearSquare(ToggleObject|SelectedElements|SelectedPins)";
+  "ClearSquare(ToggleObject|SelectedElements|SelectedPins)";
 
 static const char clearsquare_help[] =
-"Clears the square-flag of pins and pads.";
+  "Clears the square-flag of pins and pads.";
 
 /* %start-doc actions ClearSquare
 
@@ -4679,11 +4622,11 @@ ActionClearSquare (int argc, char **argv, int x, int y)
 /* --------------------------------------------------------------------------- */
 
 static const char changeoctagon_syntax[] =
-"ChangeOctagon(Object|ToggleObject|SelectedObjects|Selected)\n"
-"ChangeOctagon(SelectedElements|SelectedPins|SelectedVias)";
+  "ChangeOctagon(Object|ToggleObject|SelectedObjects|Selected)\n"
+  "ChangeOctagon(SelectedElements|SelectedPins|SelectedVias)";
 
 static const char changeoctagon_help[] =
-"Changes the octagon-flag of pins and vias.";
+  "Changes the octagon-flag of pins and vias.";
 
 /* %start-doc actions ChangeOctagon
 
@@ -4744,10 +4687,9 @@ ActionChangeOctagon (int argc, char **argv, int x, int y)
 /* --------------------------------------------------------------------------- */
 
 static const char setoctagon_syntax[] =
-"SetOctagon(Object|ToggleObject|SelectedElements|Selected)";
+  "SetOctagon(Object|ToggleObject|SelectedElements|Selected)";
 
-static const char setoctagon_help[] =
-"Sets the octagon-flag of objects.";
+static const char setoctagon_help[] = "Sets the octagon-flag of objects.";
 
 /* %start-doc actions SetOctagon
 
@@ -4808,11 +4750,11 @@ ActionSetOctagon (int argc, char **argv, int x, int y)
 /* --------------------------------------------------------------------------- */
 
 static const char clearoctagon_syntax[] =
-"ClearOctagon(ToggleObject|Object|SelectedObjects|Selected)\n"
-"ClearOctagon(SelectedElements|SelectedPins|SelectedVias)";
+  "ClearOctagon(ToggleObject|Object|SelectedObjects|Selected)\n"
+  "ClearOctagon(SelectedElements|SelectedPins|SelectedVias)";
 
 static const char clearoctagon_help[] =
-"Clears the octagon-flag of pins and vias.";
+  "Clears the octagon-flag of pins and vias.";
 
 /* %start-doc actions ClearOctagon
 
@@ -4873,10 +4815,9 @@ ActionClearOctagon (int argc, char **argv, int x, int y)
 /* --------------------------------------------------------------------------- */
 
 static const char changehold_syntax[] =
-"ChangeHole(ToggleObject|Object|SelectedVias|Selected)";
+  "ChangeHole(ToggleObject|Object|SelectedVias|Selected)";
 
-static const char changehold_help[] =
-"Changes the hole flag of objects.";
+static const char changehold_help[] = "Changes the hole flag of objects.";
 
 /* %start-doc actions ChangeHole
 
@@ -4922,16 +4863,14 @@ ActionChangeHole (int argc, char **argv, int x, int y)
 /* --------------------------------------------------------------------------- */
 
 static const char select_syntax[] =
-"Select(ToggleObject)\n"
-"Select(All|Block|Connection)\n"
-"Select(ElementByName|ObjectByName|PadByName|PinByName)\n"
-"Select(ElementByName|ObjectByName|PadByName|PinByName, Name)\n"
-"Select(TextByName|ViaByName)\n"
-"Select(TextByName|ViaByName, Name)\n"
-"Select(Convert)";
+  "Select(ToggleObject)\n"
+  "Select(All|Block|Connection)\n"
+  "Select(ElementByName|ObjectByName|PadByName|PinByName)\n"
+  "Select(ElementByName|ObjectByName|PadByName|PinByName, Name)\n"
+  "Select(TextByName|ViaByName)\n"
+  "Select(TextByName|ViaByName, Name)\n" "Select(Convert)";
 
-static const char select_help[] =
-"Toggles or sets the selection";
+static const char select_help[] = "Toggles or sets the selection";
 
 /* %start-doc actions Select
 
@@ -5007,7 +4946,8 @@ ActionSelect (int argc, char **argv, int x, int y)
 	    char *pattern = ARG (1);
 
 	    if (pattern
-		|| (pattern = gui->prompt_for (_("Enter pattern:"), "")) != NULL )
+		|| (pattern =
+		    gui->prompt_for (_("Enter pattern:"), "")) != NULL)
 	      {
 		if (SelectObjectByName (type, pattern, True))
 		  SetChangedFlag (True);
@@ -5108,14 +5048,13 @@ FlagHaveRegex (int parm)
 /* --------------------------------------------------------------------------- */
 
 static const char unselect_syntax[] =
-"Unselect(All|Block|Connection)\n"
-"Unselect(ElementByName|ObjectByName|PadByName|PinByName)\n"
-"Unselect(ElementByName|ObjectByName|PadByName|PinByName, Name)\n"
-"Unselect(TextByName|ViaByName)\n"
-"Unselect(TextByName|ViaByName, Name)\n";
+  "Unselect(All|Block|Connection)\n"
+  "Unselect(ElementByName|ObjectByName|PadByName|PinByName)\n"
+  "Unselect(ElementByName|ObjectByName|PadByName|PinByName, Name)\n"
+  "Unselect(TextByName|ViaByName)\n" "Unselect(TextByName|ViaByName, Name)\n";
 
 static const char unselect_help[] =
-"unselects the object at the pointer location or the specified objects";
+  "unselects the object at the pointer location or the specified objects";
 
 /* %start-doc actions Unselect
 
@@ -5184,7 +5123,8 @@ ActionUnselect (int argc, char **argv, int x, int y)
 	    char *pattern = ARG (1);
 
 	    if (pattern
-		|| (pattern = gui->prompt_for (_("Enter pattern:"), "")) != NULL )
+		|| (pattern =
+		    gui->prompt_for (_("Enter pattern:"), "")) != NULL)
 	      {
 		if (SelectObjectByName (type, pattern, False))
 		  SetChangedFlag (True);
@@ -5255,11 +5195,10 @@ ActionUnselect (int argc, char **argv, int x, int y)
 /* --------------------------------------------------------------------------- */
 
 static const char saveto_syntax[] =
-"SaveTo(Layout|LayoutAs,filename)\n"
-"SaveTo(AllConnections|AllUnusedPins|ElementConnections,filename)";
+  "SaveTo(Layout|LayoutAs,filename)\n"
+  "SaveTo(AllConnections|AllUnusedPins|ElementConnections,filename)";
 
-static const char saveto_help[] =
-"Saves data to a file.";
+static const char saveto_help[] = "Saves data to a file.";
 
 /* %start-doc actions SaveTo
 
@@ -5361,11 +5300,9 @@ ActionSaveTo (int argc, char **argv, int x, int y)
 /* --------------------------------------------------------------------------- */
 
 static const char savesettings_syntax[] =
-"SaveSettings()\n"
-"SaveSettings(local)";
+  "SaveSettings()\n" "SaveSettings(local)";
 
-static const char savesettings_help[] =
-"Saves settings.";
+static const char savesettings_help[] = "Saves settings.";
 
 /* %start-doc actions SaveSettings
 
@@ -5386,10 +5323,9 @@ ActionSaveSettings (int argc, char **argv, int x, int y)
 /* --------------------------------------------------------------------------- */
 
 static const char loadfrom_syntax[] =
-"LoadFrom(Layout|LayoutToBuffer|ElementToBuffer|Netlist|Revert,filename)";
+  "LoadFrom(Layout|LayoutToBuffer|ElementToBuffer|Netlist|Revert,filename)";
 
-static const char loadfrom_help[] =
-"Load layout data from a file.";
+static const char loadfrom_help[] = "Load layout data from a file.";
 
 /* %start-doc actions LoadFrom
 
@@ -5465,11 +5401,13 @@ ActionLoadFrom (int argc, char **argv, int x, int y)
       if (!ReadNetlist (PCB->Netlistname))
 	hid_action ("NetlistChanged");
     }
-   else if (strcasecmp (function, "Revert") == 0 && PCB->Filename && (!PCB->Changed || gui->confirm_dialog(_("OK to override changes?"), 0)))
-		{
-		strcpy(fname,PCB->Filename);  /*Calling LoadPCB(PCB->Filename) changes the content of PCB->Filename.*/
-		LoadPCB(fname);
-		}
+  else if (strcasecmp (function, "Revert") == 0 && PCB->Filename
+	   && (!PCB->Changed
+	       || gui->confirm_dialog (_("OK to override changes?"), 0)))
+    {
+      strcpy (fname, PCB->Filename);	/*Calling LoadPCB(PCB->Filename) changes the content of PCB->Filename. */
+      LoadPCB (fname);
+    }
 
   RestoreCrosshair (True);
   return 0;
@@ -5554,11 +5492,9 @@ ActionPrint (char **Params, int num)
 
 /* --------------------------------------------------------------------------- */
 
-static const char new_syntax[] =
-"New([name])";
+static const char new_syntax[] = "New([name])";
 
-static const char new_help[] =
-"Starts a new layout.";
+static const char new_help[] = "Starts a new layout.";
 
 /* %start-doc actions New
 
@@ -5569,13 +5505,13 @@ If a name is not given, one is prompted for.
 static int
 ActionNew (int argc, char **argv, int x, int y)
 {
-  char *name = ARG(0);
+  char *name = ARG (0);
 
   HideCrosshair (True);
   if (!PCB->Changed || gui->confirm_dialog (_("OK to clear layout data?"), 0))
     {
       if (name)
-	name = MyStrdup(name, "ActionNew");
+	name = MyStrdup (name, "ActionNew");
       else
 	name = gui->prompt_for (_("Enter the layout name:"), "");
       if (!name)
@@ -5620,13 +5556,13 @@ ActionBell (char *volume)
 /* --------------------------------------------------------------------------- */
 
 static const char pastebuffer_syntax[] =
-"PasteBuffer(AddSelected|Clear|1..MAX_BUFFER)\n"
-"PasteBuffer(Rotate, 1..3)\n"
-"PasteBuffer(Convert|Save|Restore|Mirror)\n"
-"PasteBuffer(ToLayout, X, Y, units)";
+  "PasteBuffer(AddSelected|Clear|1..MAX_BUFFER)\n"
+  "PasteBuffer(Rotate, 1..3)\n"
+  "PasteBuffer(Convert|Save|Restore|Mirror)\n"
+  "PasteBuffer(ToLayout, X, Y, units)";
 
 static const char pastebuffer_help[] =
-"Various operations on the paste buffer.";
+  "Various operations on the paste buffer.";
 
 /* %start-doc actions PasteBuffer
 
@@ -5760,12 +5696,12 @@ ActionPasteBuffer (int argc, char **argv, int x, int y)
 	      {
 		x = y = 0;
 	      }
-	    else if (argc == 3 || argc == 4) 
+	    else if (argc == 3 || argc == 4)
 	      {
-		x = GetValue(ARG (1), ARG (3), &r);
+		x = GetValue (ARG (1), ARG (3), &r);
 		if (!r)
 		  x += oldx;
-		y = GetValue(ARG (2), ARG (3), &r);
+		y = GetValue (ARG (2), ARG (3), &r);
 		if (!r)
 		  y += oldy;
 	      }
@@ -5800,12 +5736,9 @@ ActionPasteBuffer (int argc, char **argv, int x, int y)
 
 /* --------------------------------------------------------------------------- */
 
-static const char undo_syntax[] =
-"Undo()\n"
-"Undo(ClearList)";
+static const char undo_syntax[] = "Undo()\n" "Undo(ClearList)";
 
-static const char undo_help[] =
-"Undo recent changes.";
+static const char undo_help[] = "Undo recent changes.";
 
 /* %start-doc actions Undo
 
@@ -5861,8 +5794,9 @@ ActionUndo (int argc, char **argv, int x, int y)
 	      void *ptr1, *ptr3, *ptrtmp;
 	      LineTypePtr ptr2;
 	      /* this search is guaranteed to succeed */
-	      SearchObjectByLocation (LINE_TYPE | RATLINE_TYPE, &ptr1, &ptrtmp,
-				      &ptr3, Crosshair.AttachedLine.Point1.X,
+	      SearchObjectByLocation (LINE_TYPE | RATLINE_TYPE, &ptr1,
+				      &ptrtmp, &ptr3,
+				      Crosshair.AttachedLine.Point1.X,
 				      Crosshair.AttachedLine.Point1.Y, 0);
 	      ptr2 = (LineTypePtr) ptrtmp;
 
@@ -5891,7 +5825,7 @@ ActionUndo (int argc, char **argv, int x, int y)
 	      if (type & UNDO_REMOVE)
 		{
 		  /* this search should find the restored line */
-		  SearchObjectByLocation (LINE_TYPE | RATLINE_TYPE, &ptr1, 
+		  SearchObjectByLocation (LINE_TYPE | RATLINE_TYPE, &ptr1,
 					  &ptrtmp,
 					  &ptr3,
 					  Crosshair.AttachedLine.Point2.X,
@@ -5912,7 +5846,7 @@ ActionUndo (int argc, char **argv, int x, int y)
 	      else
 		{
 		  /* this search is guaranteed to succeed too */
-		  SearchObjectByLocation (LINE_TYPE | RATLINE_TYPE, &ptr1, 
+		  SearchObjectByLocation (LINE_TYPE | RATLINE_TYPE, &ptr1,
 					  &ptrtmp,
 					  &ptr3,
 					  Crosshair.AttachedLine.Point1.X,
@@ -5970,11 +5904,9 @@ ActionUndo (int argc, char **argv, int x, int y)
 
 /* --------------------------------------------------------------------------- */
 
-static const char redo_syntax[] =
-"Redo()";
+static const char redo_syntax[] = "Redo()";
 
-static const char redo_help[] =
-"Redo recent \"undo\" operations.";
+static const char redo_help[] = "Redo recent \"undo\" operations.";
 
 /* %start-doc actions Redo
 
@@ -6019,11 +5951,9 @@ ActionRedo (int argc, char **argv, int x, int y)
 
 /* --------------------------------------------------------------------------- */
 
-static const char polygon_syntax[] =
-"Polygon(Close|PreviousPoint)";
+static const char polygon_syntax[] = "Polygon(Close|PreviousPoint)";
 
-static const char polygon_help[] =
-"Some polygon related stuff.";
+static const char polygon_help[] = "Some polygon related stuff.";
 
 /* %start-doc actions Polygon
 
@@ -6069,11 +5999,10 @@ ActionPolygon (int argc, char **argv, int x, int y)
 
 /* --------------------------------------------------------------------------- */
 
-static const char routestyle_syntax[] =
-"RouteStyle(1|2|3|4)";
+static const char routestyle_syntax[] = "RouteStyle(1|2|3|4)";
 
 static const char routestyle_help[] =
-"Copies the indicated routing style into the current sizes.";
+  "Copies the indicated routing style into the current sizes.";
 
 /* %start-doc actions RouteStyle
 
@@ -6155,11 +6084,9 @@ ActionSwitchDrawingLayer (char *str)
 
 /* --------------------------------------------------------------------------- */
 
-static const char moveobject_syntax[] =
-"MoveObject(X,Y,dim)";
+static const char moveobject_syntax[] = "MoveObject(X,Y,dim)";
 
-static const char moveobject_help[] =
-"Moves the object under the crosshair.";
+static const char moveobject_help[] = "Moves the object under the crosshair.";
 
 /* %start-doc actions MoveObject
 
@@ -6208,10 +6135,10 @@ ActionMoveObject (int argc, char **argv, int x, int y)
 /* --------------------------------------------------------------------------- */
 
 static const char movetocurrentlayer_syntax[] =
-"MoveToCurrentLayer(Object|SelectedObjects)";
+  "MoveToCurrentLayer(Object|SelectedObjects)";
 
 static const char movetocurrentlayer_help[] =
-"Moves objects to the current layer.";
+  "Moves objects to the current layer.";
 
 /* %start-doc actions MoveToCurrentLayer
 
@@ -6256,11 +6183,10 @@ ActionMoveToCurrentLayer (int argc, char **argv, int x, int y)
 }
 
 
-static const char setsame_syntax[] =
-"SetSame()";
+static const char setsame_syntax[] = "SetSame()";
 
 static const char setsame_help[] =
-"Sets current layer and sizes to match indicated item.";
+  "Sets current layer and sizes to match indicated item.";
 
 /* %start-doc actions SetSame
 
@@ -6287,7 +6213,7 @@ ActionSetSame (int argc, char **argv, int x, int y)
       Settings.Keepaway = ((LineTypePtr) ptr2)->Clearance / 2;
       layer = (LayerTypePtr) ptr1;
       if (Settings.Mode != LINE_MODE)
-        SetMode (LINE_MODE);
+	SetMode (LINE_MODE);
       RestoreCrosshair (True);
       hid_action ("RouteStyleChanged");
       break;
@@ -6298,7 +6224,7 @@ ActionSetSame (int argc, char **argv, int x, int y)
       Settings.Keepaway = ((ArcTypePtr) ptr2)->Clearance / 2;
       layer = (LayerTypePtr) ptr1;
       if (Settings.Mode != ARC_MODE)
-        SetMode (ARC_MODE);
+	SetMode (ARC_MODE);
       RestoreCrosshair (True);
       hid_action ("RouteStyleChanged");
       break;
@@ -6313,7 +6239,7 @@ ActionSetSame (int argc, char **argv, int x, int y)
       Settings.ViaDrillingHole = ((PinTypePtr) ptr2)->DrillingHole;
       Settings.Keepaway = ((PinTypePtr) ptr2)->Clearance / 2;
       if (Settings.Mode != VIA_MODE)
-        SetMode (VIA_MODE);
+	SetMode (VIA_MODE);
       RestoreCrosshair (True);
       hid_action ("RouteStyleChanged");
       break;
@@ -6336,14 +6262,13 @@ ActionSetSame (int argc, char **argv, int x, int y)
 /* --------------------------------------------------------------------------- */
 
 static const char setflag_syntax[] =
-"SetFlag(Object|Selected|SelectedObjects, flag)\n"
-"SetFlag(SelectedLines|SelectedPins|SelectedVias, flag)\n"
-"SetFlag(SelectedPads|SelectedTexts|SelectedNames, flag)\n"
-"SetFlag(SelectedElements, flag)\n"
-"flag = square | octagon | thermal | join";
+  "SetFlag(Object|Selected|SelectedObjects, flag)\n"
+  "SetFlag(SelectedLines|SelectedPins|SelectedVias, flag)\n"
+  "SetFlag(SelectedPads|SelectedTexts|SelectedNames, flag)\n"
+  "SetFlag(SelectedElements, flag)\n"
+  "flag = square | octagon | thermal | join";
 
-static const char setflag_help[] =
-"Sets flags on objects.";
+static const char setflag_help[] = "Sets flags on objects.";
 
 /* %start-doc actions SetFlag
 
@@ -6368,14 +6293,13 @@ ActionSetFlag (int argc, char **argv, int x, int y)
 /* --------------------------------------------------------------------------- */
 
 static const char clrflag_syntax[] =
-"ClrFlag(Object|Selected|SelectedObjects, flag)\n"
-"ClrFlag(SelectedLines|SelectedPins|SelectedVias, flag)\n"
-"ClrFlag(SelectedPads|SelectedTexts|SelectedNames, flag)\n"
-"ClrFlag(SelectedElements, flag)\n"
-"flag = square | octagon | thermal | join";
+  "ClrFlag(Object|Selected|SelectedObjects, flag)\n"
+  "ClrFlag(SelectedLines|SelectedPins|SelectedVias, flag)\n"
+  "ClrFlag(SelectedPads|SelectedTexts|SelectedNames, flag)\n"
+  "ClrFlag(SelectedElements, flag)\n"
+  "flag = square | octagon | thermal | join";
 
-static const char clrflag_help[] =
-"Clears flags on objects.";
+static const char clrflag_help[] = "Clears flags on objects.";
 
 /* %start-doc actions ClrFlag
 
@@ -6400,15 +6324,13 @@ ActionClrFlag (int argc, char **argv, int x, int y)
 /* --------------------------------------------------------------------------- */
 
 static const char changeflag_syntax[] =
-"ChangeFlag(Object|Selected|SelectedObjects, flag, value)\n"
-"ChangeFlag(SelectedLines|SelectedPins|SelectedVias, flag, value)\n"
-"ChangeFlag(SelectedPads|SelectedTexts|SelectedNames, flag, value)\n"
-"ChangeFlag(SelectedElements, flag, value)\n"
-"flag = square | octagon | thermal | join\n"
-"value = 0 | 1";
+  "ChangeFlag(Object|Selected|SelectedObjects, flag, value)\n"
+  "ChangeFlag(SelectedLines|SelectedPins|SelectedVias, flag, value)\n"
+  "ChangeFlag(SelectedPads|SelectedTexts|SelectedNames, flag, value)\n"
+  "ChangeFlag(SelectedElements, flag, value)\n"
+  "flag = square | octagon | thermal | join\n" "value = 0 | 1";
 
-static const char changeflag_help[] =
-"Sets or clears flags on objects.";
+static const char changeflag_help[] = "Sets or clears flags on objects.";
 
 /* %start-doc actions ChangeFlag
 
@@ -6448,11 +6370,6 @@ ChangeFlag (char *what, char *flag_name, int value, char *cmd_name)
     {
       set_object = value ? SetObjectOctagon : ClrObjectOctagon;
       set_selected = value ? SetSelectedOctagon : ClrSelectedOctagon;
-    }
-  else if (NSTRCMP (flag_name, "thermal") == 0)
-    {
-      set_object = value ? SetObjectThermal : ClrObjectThermal;
-      set_selected = value ? SetSelectedThermals : ClrSelectedThermals;
     }
   else if (NSTRCMP (flag_name, "join") == 0)
     {
@@ -6532,11 +6449,9 @@ ChangeFlag (char *what, char *flag_name, int value, char *cmd_name)
 
 /* --------------------------------------------------------------------------- */
 
-static const char executefile_syntax[] =
-"ExecuteFile(filename)";
+static const char executefile_syntax[] = "ExecuteFile(filename)";
 
-static const char executefile_help[] =
-"Run actions from the given file.";
+static const char executefile_help[] = "Run actions from the given file.";
 
 /* %start-doc actions ExecuteFile
 
@@ -6599,115 +6514,167 @@ ActionExecuteFile (int argc, char **argv, int x, int y)
 
 HID_Action action_action_list[] = {
   {"AddRats", 0, ActionAddRats,
-   addrats_help, addrats_syntax},
+   addrats_help, addrats_syntax}
+  ,
   {"Atomic", 0, ActionAtomic,
-   atomic_help, atomic_syntax},
+   atomic_help, atomic_syntax}
+  ,
   {"AutoPlaceSelected", 0, ActionAutoPlaceSelected,
-   autoplace_help, autoplace_syntax},
+   autoplace_help, autoplace_syntax}
+  ,
   {"AutoRoute", 0, ActionAutoRoute,
-   autoroute_help, autoroute_syntax},
+   autoroute_help, autoroute_syntax}
+  ,
   {"ChangeClearSize", 0, ActionChangeClearSize,
-   changeclearsize_help, changeclearsize_syntax},
+   changeclearsize_help, changeclearsize_syntax}
+  ,
   {"ChangeDrillSize", 0, ActionChange2ndSize,
-   changedrillsize_help, changedrillsize_syntax},
+   changedrillsize_help, changedrillsize_syntax}
+  ,
   {"ChangeHole", 0, ActionChangeHole,
-   changehold_help, changehold_syntax},
+   changehold_help, changehold_syntax}
+  ,
   {"ChangeJoin", 0, ActionChangeJoin,
-   changejoin_help, changejoin_syntax},
+   changejoin_help, changejoin_syntax}
+  ,
   {"ChangeName", 0, ActionChangeName,
-   changename_help, changename_syntax},
+   changename_help, changename_syntax}
+  ,
   {"ChangePinName", 0, ActionChangePinName,
-   changepinname_help, changepinname_syntax},
+   changepinname_help, changepinname_syntax}
+  ,
   {"ChangeSize", 0, ActionChangeSize,
-   changesize_help, changesize_syntax},
+   changesize_help, changesize_syntax}
+  ,
   {"ChangeSquare", 0, ActionChangeSquare,
-   changesquare_help, changesquare_syntax},
+   changesquare_help, changesquare_syntax}
+  ,
   {"ChangeOctagon", 0, ActionChangeOctagon,
-   changeoctagon_help, changeoctagon_syntax},
+   changeoctagon_help, changeoctagon_syntax}
+  ,
   {"ClearSquare", 0, ActionClearSquare,
-   clearsquare_help, clearsquare_syntax},
+   clearsquare_help, clearsquare_syntax}
+  ,
   {"ClearOctagon", 0, ActionClearOctagon,
-   clearoctagon_help, clearoctagon_syntax},
-  {"ClearThermal", 0, ActionClearThermal,
-   clearthermal_help, clearthermal_syntax},
+   clearoctagon_help, clearoctagon_syntax}
+  ,
   {"Connection", 0, ActionConnection,
-   connection_help, connection_syntax},
+   connection_help, connection_syntax}
+  ,
   {"DeleteRats", 0, ActionDeleteRats,
-   deleterats_help, deleterats_syntax},
+   deleterats_help, deleterats_syntax}
+  ,
   {"DisperseElements", 0, ActionDisperseElements,
-   disperseelements_help, disperseelements_syntax},
+   disperseelements_help, disperseelements_syntax}
+  ,
   {"Display", 0, ActionDisplay,
-   display_help, display_syntax},
+   display_help, display_syntax}
+  ,
   {"DRC", 0, ActionDRCheck,
-   drc_help, drc_syntax},
+   drc_help, drc_syntax}
+  ,
   {"DumpLibrary", 0, ActionDumpLibrary,
-   dumplibrary_help, dumplibrary_syntax},
+   dumplibrary_help, dumplibrary_syntax}
+  ,
   {"ExecuteFile", 0, ActionExecuteFile,
-   executefile_help, executefile_syntax},
+   executefile_help, executefile_syntax}
+  ,
   {"Flip", "Click on Object or Flip Point", ActionFlip,
-   flip_help, flip_syntax},
+   flip_help, flip_syntax}
+  ,
   {"LoadFrom", 0, ActionLoadFrom,
-   loadfrom_help, loadfrom_syntax},
+   loadfrom_help, loadfrom_syntax}
+  ,
   {"MarkCrosshair", 0, ActionMarkCrosshair,
-   markcrosshair_help, markcrosshair_syntax},
+   markcrosshair_help, markcrosshair_syntax}
+  ,
   {"Message", 0, ActionMessage,
-   message_help, message_syntax},
+   message_help, message_syntax}
+  ,
   {"MinMaskGap", 0, ActionMinMaskGap,
-   minmaskgap_help, minmaskgap_syntax},
+   minmaskgap_help, minmaskgap_syntax}
+  ,
   {"Mode", 0, ActionMode,
-   mode_help, mode_syntax},
+   mode_help, mode_syntax}
+  ,
+  {"MorphPolygon", 0, ActionMorphPolygon,
+   morphpolygon_help, morphpolygon_syntax}
+  ,
   {"PasteBuffer", 0, ActionPasteBuffer,
-   pastebuffer_help, pastebuffer_syntax},
+   pastebuffer_help, pastebuffer_syntax}
+  ,
   {"Quit", 0, ActionQuit,
-   quit_help, quit_syntax},
+   quit_help, quit_syntax}
+  ,
   {"RemoveSelected", 0, ActionRemoveSelected,
-   removeselected_help, removeselected_syntax},
+   removeselected_help, removeselected_syntax}
+  ,
   {"Renumber", 0, ActionRenumber,
-   renumber_help, renumber_syntax},
+   renumber_help, renumber_syntax}
+  ,
   {"RipUp", 0, ActionRipUp,
-   ripup_help, ripup_syntax},
+   ripup_help, ripup_syntax}
+  ,
   {"Select", 0, ActionSelect,
-   select_help, select_syntax},
+   select_help, select_syntax}
+  ,
   {"Unselect", 0, ActionUnselect,
-   unselect_help, unselect_syntax},
+   unselect_help, unselect_syntax}
+  ,
   {"SaveSettings", 0, ActionSaveSettings,
-   savesettings_help, savesettings_syntax},
+   savesettings_help, savesettings_syntax}
+  ,
   {"SaveTo", 0, ActionSaveTo,
-   saveto_help, saveto_syntax},
+   saveto_help, saveto_syntax}
+  ,
   {"SetSquare", 0, ActionSetSquare,
-   setsquare_help, setsquare_syntax},
+   setsquare_help, setsquare_syntax}
+  ,
   {"SetOctagon", 0, ActionSetOctagon,
-   setoctagon_help, setoctagon_syntax},
+   setoctagon_help, setoctagon_syntax}
+  ,
   {"SetThermal", 0, ActionSetThermal,
-   setthermal_help, setthermal_syntax},
+   setthermal_help, setthermal_syntax}
+  ,
   {"SetValue", 0, ActionSetValue,
-   setvalue_help, setvalue_syntax},
+   setvalue_help, setvalue_syntax}
+  ,
   {"ToggleHideName", 0, ActionToggleHideName,
-   togglehidename_help, togglehidename_syntax},
-  {"ToggleThermal", 0, ActionToggleThermal,
-   togglethermal_help, togglethermal_syntax},
+   togglehidename_help, togglehidename_syntax}
+  ,
   {"Undo", 0, ActionUndo,
-   undo_help, undo_syntax},
+   undo_help, undo_syntax}
+  ,
   {"Redo", 0, ActionRedo,
-   redo_help, redo_syntax},
+   redo_help, redo_syntax}
+  ,
   {"SetSame", "Select item to use attributes from", ActionSetSame,
-   setsame_help, setsame_syntax},
+   setsame_help, setsame_syntax}
+  ,
   {"SetFlag", 0, ActionSetFlag,
-  setflag_help, setflag_syntax},
+   setflag_help, setflag_syntax}
+  ,
   {"ClrFlag", 0, ActionClrFlag,
-   clrflag_help, clrflag_syntax},
+   clrflag_help, clrflag_syntax}
+  ,
   {"ChangeFlag", 0, ActionChangeFlag,
-   changeflag_help, changeflag_syntax},
+   changeflag_help, changeflag_syntax}
+  ,
   {"Polygon", 0, ActionPolygon,
-   polygon_help, polygon_syntax},
+   polygon_help, polygon_syntax}
+  ,
   {"RouteStyle", 0, ActionRouteStyle,
-   routestyle_help, routestyle_syntax},
+   routestyle_help, routestyle_syntax}
+  ,
   {"MoveObject", "Select an Object", ActionMoveObject,
-   moveobject_help, moveobject_syntax},
+   moveobject_help, moveobject_syntax}
+  ,
   {"MoveToCurrentLayer", 0, ActionMoveToCurrentLayer,
-   movetocurrentlayer_help, movetocurrentlayer_syntax},
+   movetocurrentlayer_help, movetocurrentlayer_syntax}
+  ,
   {"New", 0, ActionNew,
-   new_help, new_syntax},
+   new_help, new_syntax}
+  ,
 };
 
 REGISTER_ACTIONS (action_action_list)

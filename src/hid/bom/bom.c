@@ -487,7 +487,7 @@ HID bom_hid = {
   sizeof (HID),
   "bom",
   "Exports a Bill of Materials",
-  0, 0, 1, 0, 0,
+  0, 0, 1, 0, 0, 0,
   bom_get_export_options,
   bom_do_export,
   bom_parse_arguments,

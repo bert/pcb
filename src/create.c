@@ -47,6 +47,7 @@
 #include "mymem.h"
 #include "misc.h"
 #include "parse_l.h"
+#include "polygon.h"
 #include "rtree.h"
 #include "search.h"
 #include "set.h"
@@ -80,6 +81,7 @@ CreateNewBuffer (void)
 {
   DataTypePtr data;
   data = (DataTypePtr) MyCalloc (1, sizeof (DataType), "CreateNewBuffer()");
+  data->pcb = (void *)PCB;
   return data;
 }
 
@@ -135,7 +137,9 @@ CreateNewPCB (Boolean SetDefaultNames)
   /* allocate memory, switch all layers on and copy resources */
   ptr = MyCalloc (1, sizeof (PCBType), "CreateNewPCB()");
   ptr->Data = CreateNewBuffer ();
+  ptr->Data->pcb = (void *)ptr;
 
+  ptr->ThermStyle = 4;
   ptr->SilkActive = False;
   ptr->RatDraw = False;
   SET_FLAG (NAMEONPCBFLAG, ptr);
@@ -188,7 +192,7 @@ CreateNewPCB (Boolean SetDefaultNames)
 }
 
 int
-CreateNewPCBPost(PCBTypePtr pcb, int use_defaults)
+CreateNewPCBPost (PCBTypePtr pcb, int use_defaults)
 {
   /* copy default settings */
   pcb_colors_from_settings (pcb);
@@ -196,7 +200,7 @@ CreateNewPCBPost(PCBTypePtr pcb, int use_defaults)
   if (use_defaults)
     {
       int i;
-      if (ParseGroupString(Settings.Groups, &pcb->LayerGroups, DEF_LAYER))
+      if (ParseGroupString (Settings.Groups, &pcb->LayerGroups, DEF_LAYER))
 	return 1;
 
       for (i = 0; i < max_layer; i++)
@@ -538,6 +542,7 @@ CreateNewPolygonFromRectangle (LayerTypePtr Layer,
   CreateNewPointInPolygon (polygon, X2, Y2);
   CreateNewPointInPolygon (polygon, X1, Y2);
   SetPolygonBoundingBox (polygon);
+  InitClip (PCB->Data, Layer, polygon);
   if (!Layer->polygon_tree)
     Layer->polygon_tree = r_create_tree (NULL, 0, 0);
   r_insert_entry (Layer->polygon_tree, (BoxTypePtr) polygon, 0);
@@ -586,6 +591,7 @@ CreateNewPolygon (LayerTypePtr Layer, FlagType Flags)
   /* copy values */
   polygon->Flags = Flags;
   polygon->ID = ID++;
+  polygon->Clipped = NULL;
   return (polygon);
 }
 

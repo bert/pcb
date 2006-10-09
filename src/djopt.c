@@ -117,11 +117,10 @@ static char layer_type[MAX_LAYER];
 
 static int autorouted_only = 1;
 
-static const char djopt_sao_syntax[] =
-"OptAutoOnly()";
+static const char djopt_sao_syntax[] = "OptAutoOnly()";
 
 static const char djopt_sao_help[] =
-"Toggles the optimize-only-autorouted flag.";
+  "Toggles the optimize-only-autorouted flag.";
 
 /* %start-doc actions OptAutoOnly
 
@@ -153,11 +152,8 @@ HID_Flag djopt_flag_list[] = {
 };
 
 REGISTER_FLAGS (djopt_flag_list)
-
 #define line_is_pad(l) ((l)->line == (LineType *)(l)->s->pad)
-
-static char *
-element_name_for (corner_s * c)
+     static char *element_name_for (corner_s * c)
 {
   int i, p;
   ElementType *e;
@@ -1049,8 +1045,8 @@ canonicalize_line (line_s * l)
     {
       int y1 = l->s->y;
       int y2 = l->e->y;
-      int x1 = l->s->x - l->line->Thickness/2;
-      int x2 = l->s->x + l->line->Thickness/2;
+      int x1 = l->s->x - l->line->Thickness / 2;
+      int x2 = l->s->x + l->line->Thickness / 2;
       if (y1 > y2)
 	{
 	  int t = y1;
@@ -1065,9 +1061,7 @@ canonicalize_line (line_s * l)
 	      && intersecting_layers (l->layer, c->layer))
 	    {
 	      if (c->x != l->s->x
-		  && c->x < x2
-		  && c->x > x1
-		  && !(c->pad || c->pin))
+		  && c->x < x2 && c->x > x1 && !(c->pad || c->pin))
 		{
 		  move_corner (c, l->s->x, c->y);
 		}
@@ -1085,8 +1079,8 @@ canonicalize_line (line_s * l)
     {
       int x1 = l->s->x;
       int x2 = l->e->x;
-      int y1 = l->s->y - l->line->Thickness/2;
-      int y2 = l->s->y + l->line->Thickness/2;
+      int y1 = l->s->y - l->line->Thickness / 2;
+      int y2 = l->s->y + l->line->Thickness / 2;
       if (x1 > x2)
 	{
 	  int t = x1;
@@ -1101,9 +1095,7 @@ canonicalize_line (line_s * l)
 	      && intersecting_layers (l->layer, c->layer))
 	    {
 	      if (c->y != l->s->y
-		  && c->y < y2
-		  && c->y > y1
-		  && !(c->pad || c->pin))
+		  && c->y < y2 && c->y > y1 && !(c->pad || c->pin))
 		{
 		  move_corner (c, c->x, l->s->y);
 		}
@@ -1119,7 +1111,7 @@ canonicalize_line (line_s * l)
   else
     {
       /* diagonal lines.  Let's try to split them at pins/vias
-	 anyway.  */
+         anyway.  */
       int x1 = l->s->x;
       int x2 = l->e->x;
       int y1 = l->s->y;
@@ -1186,7 +1178,7 @@ simple_optimize_corner (corner_s * c)
       if (selected (c->via))
 	dprintf ("via check: line[0] layer %d at %d,%d nl %d\n",
 		 c->lines[0]->layer, c->x, c->y, c->n_lines);
-      if (! TEST_ANY_THERMS (c->via))
+      if (!TEST_ANY_THERMS (c->via))
 	{
 	  for (i = 1; i < c->n_lines; i++)
 	    {
@@ -2492,7 +2484,7 @@ choose_example_line (corner_s * c1, corner_s * c2)
 		 c[ci]->lines[li]->e->x, c[ci]->lines[li]->e->y,
 		 c[ci]->lines[li]->line->Thickness,
 		 c[ci]->lines[li]->line->Clearance,
-		 flags_to_string(c[ci]->lines[li]->line->Flags, LINE_TYPE));
+		 flags_to_string (c[ci]->lines[li]->line->Flags, LINE_TYPE));
 	/* Pads are disqualified, as we want to mimic a trace line. */
 	if (c[ci]->lines[li]->line == (LineTypePtr) c[ci]->pad)
 	  {
@@ -2880,12 +2872,11 @@ grok_layer_groups ()
 }
 
 static const char djopt_syntax[] =
-"djopt(debumpify|unjaggy|simple|vianudge|viatrim|orthopull)\n"
-"djopt(auto) - all of the above\n"
-"djopt(miter)";
+  "djopt(debumpify|unjaggy|simple|vianudge|viatrim|orthopull)\n"
+  "djopt(auto) - all of the above\n" "djopt(miter)";
 
 static const char djopt_help[] =
-"Perform various optimizations on the current board";
+  "Perform various optimizations on the current board";
 
 /* %start-doc actions djopt
 
@@ -3000,7 +2991,8 @@ ActionDJopt (int argc, char **argv, int x, int y)
 	  LineType *l = &(layer->Line[ln]);
 	  line_s *ls;
 
-	  if (TEST_FLAG (RATFLAG, l))
+	  /* don't mess with thermals */
+	  if (TEST_FLAG (USETHERMALFLAG, l))
 	    continue;
 
 	  if (l->Point1.X == l->Point2.X && l->Point1.Y == l->Point2.Y)
@@ -3062,7 +3054,8 @@ ActionDJopt (int argc, char **argv, int x, int y)
 
 HID_Action djopt_action_list[] = {
   {"djopt", 0, ActionDJopt,
-   djopt_help, djopt_syntax},
+   djopt_help, djopt_syntax}
+  ,
   {"OptAutoOnly", 0, djopt_set_auto_only,
    djopt_sao_help, djopt_sao_syntax}
 };

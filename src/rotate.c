@@ -239,9 +239,8 @@ RotateElementLowLevel (DataTypePtr Data, ElementTypePtr Element,
     /* pre-delete the pins from the pin-tree before their coordinates change */
     if (Data)
       r_delete_entry (Data->pin_tree, (BoxType *) pin);
+    RestoreToPolygon (Data, PIN_TYPE, Element, pin);
     ROTATE_PIN_LOWLEVEL (pin, X, Y, Number);
-    if (PCB->Data == Data)
-      UpdatePIPFlags (pin, Element, NULL, True);
   }
   END_LOOP;
   PAD_LOOP (Element);
@@ -249,6 +248,7 @@ RotateElementLowLevel (DataTypePtr Data, ElementTypePtr Element,
     /* pre-delete the pads before their coordinates change */
     if (Data)
       r_delete_entry (Data->pad_tree, (BoxType *) pad);
+    RestoreToPolygon (Data, PAD_TYPE, Element, pad);
     ROTATE_PAD_LOWLEVEL (pad, X, Y, Number);
   }
   END_LOOP;
@@ -258,8 +258,9 @@ RotateElementLowLevel (DataTypePtr Data, ElementTypePtr Element,
   }
   END_LOOP;
   ROTATE (Element->MarkX, Element->MarkY, X, Y, Number);
-  /* SetElementBoundingBox reenters the pins/pads into their trees */
+  /* SetElementBoundingBox reenters the rtree data */
   SetElementBoundingBox (Data, Element, &PCB->Font);
+  ClearFromPolygon (Data, ELEMENT_TYPE, Element, Element);
 }
 
 /* ---------------------------------------------------------------------------

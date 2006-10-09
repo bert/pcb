@@ -222,10 +222,10 @@ RoundDrillInfo (DrillInfoTypePtr d, int roundto)
 {
   unsigned int i = 0;
 
-  while ( (d->DrillN > 0) && (i < d->DrillN - 1))
+  while ((d->DrillN > 0) && (i < d->DrillN - 1))
     {
       int diam1 = ROUND (d->Drill[i].DrillSize, roundto);
-      int diam2 = ROUND (d->Drill[i+1].DrillSize, roundto);
+      int diam2 = ROUND (d->Drill[i + 1].DrillSize, roundto);
 
       if (diam1 == diam2)
 	{
@@ -236,45 +236,41 @@ RoundDrillInfo (DrillInfoTypePtr d, int roundto)
 	  if (d->Drill[i].ElementMax)
 	    {
 	      d->Drill[i].Element = MyRealloc (d->Drill[i].Element,
-					       d->Drill[i].ElementMax * sizeof(ElementTypePtr),
+					       d->Drill[i].ElementMax *
+					       sizeof(ElementTypePtr),
 					       "RoundDrillInfo");
 
-	      for (ei=0; ei<d->Drill[i+1].ElementN; ei++)
+	      for (ei = 0; ei < d->Drill[i+1].ElementN; ei++)
 		{
-		  for (ej=0; ej<d->Drill[i].ElementN; ej++)
-		    if (d->Drill[i].Element[ej] == d->Drill[i+1].Element[ei])
+		  for (ej = 0; ej < d->Drill[i].ElementN; ej++)
+		    if (d->Drill[i].Element[ej] == d->Drill[i + 1].Element[ei])
 		      break;
 		  if (ej == d->Drill[i].ElementN)
 		    d->Drill[i].Element[d->Drill[i].ElementN++]
-		      = d->Drill[i+1].Element[ei];
+		      = d->Drill[i + 1].Element[ei];
 		}
 	    }
-	  MYFREE (d->Drill[i+1].Element);
+	  MYFREE (d->Drill[i + 1].Element);
 
-	  d->Drill[i].PinMax
-	    = d->Drill[i].PinN + d->Drill[i+1].PinN;
-	  if (d->Drill[i].PinMax)
-	    {
-	      d->Drill[i].Pin = MyRealloc (d->Drill[i].Pin,
-					   d->Drill[i].PinMax * sizeof(PinTypePtr),
-					   "RoundDrillInfo");
-	      memcpy (d->Drill[i].Pin + d->Drill[i].PinN,
-		      d->Drill[i+1].Pin,
-		      d->Drill[i+1].PinN * sizeof(PinTypePtr));
-	      d->Drill[i].PinN += d->Drill[i+1].PinN;
-	    }
-	  MYFREE (d->Drill[i+1].Pin);
+	  d->Drill[i].PinMax = d->Drill[i].PinN + d->Drill[i + 1].PinN;
+	  d->Drill[i].Pin = MyRealloc (d->Drill[i].Pin,
+				       d->Drill[i].PinMax *
+				       sizeof (PinTypePtr), "RoundDrillInfo");
+	  memcpy (d->Drill[i].Pin + d->Drill[i].PinN, d->Drill[i + 1].Pin,
+		  d->Drill[i + 1].PinN * sizeof (PinTypePtr));
+	  d->Drill[i].PinN += d->Drill[i + 1].PinN;
+	  MYFREE (d->Drill[i + 1].Pin);
 
-	  d->Drill[i].PinCount += d->Drill[i+1].PinCount;
-	  d->Drill[i].ViaCount += d->Drill[i+1].ViaCount;
-	  d->Drill[i].UnplatedCount += d->Drill[i+1].UnplatedCount;
+	  d->Drill[i].PinCount += d->Drill[i + 1].PinCount;
+	  d->Drill[i].ViaCount += d->Drill[i + 1].ViaCount;
+	  d->Drill[i].UnplatedCount += d->Drill[i + 1].UnplatedCount;
 
 	  d->Drill[i].DrillSize = diam1;
 
-	  memmove (d->Drill + i+1,
-		   d->Drill + i+2,
-		   (d->DrillN - i-2) * sizeof(DrillType));
-	  d->DrillN --;
+	  memmove (d->Drill + i + 1,
+		   d->Drill + i + 2,
+		   (d->DrillN - i - 2) * sizeof (DrillType));
+	  d->DrillN--;
 	}
       else
 	{

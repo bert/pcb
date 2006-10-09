@@ -221,11 +221,9 @@ find_pair (int Px, int Py)
 }
 
 
-static const char puller_syntax[] =
-"Puller()";
+static const char puller_syntax[] = "Puller()";
 
-static const char puller_help[] =
-"Pull an arc-line junction tight.";
+static const char puller_help[] = "Pull an arc-line junction tight.";
 
 /* %start-doc actions Puller
 

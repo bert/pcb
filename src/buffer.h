@@ -48,8 +48,7 @@ void SelectPasteBuffer (int);
 void SwapBuffers (void);
 void MirrorBuffer (BufferTypePtr);
 void InitBuffers (void);
-void *MoveObjectToBuffer (DataTypePtr, DataTypePtr, int,
-			  void *, void *, void *);
+void *MoveObjectToBuffer (DataTypePtr, DataTypePtr, int, void *, void *, void *); 
 void *CopyObjectToBuffer (DataTypePtr, DataTypePtr, int,
 			  void *, void *, void *);
 

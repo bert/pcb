@@ -2,7 +2,7 @@
  *                            COPYRIGHT
  *
  *  PCB, interactive printed circuit board design
- *  Copyright (C) 1994,1995 Thomas Nau
+ *  Copyright (C) 1994,1995,1996,2006 Thomas Nau
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -25,21 +25,22 @@
  *  RCS: $Id$
  */
 
-/*
- *  This header was derived from dev_ps.h of PCB 1.4.0 by Thomas Nau.  It was
- *  modified to produce Gerber/RS-274X photoplotter command files suitable
+/* prototypes for thermal routines
  *
- *
+ * Thermals are normal lines on the layout. The only thing unique
+ * about them is that they have the USETHERMALFLAG set so that they
+ * can be identified as thermals. It is handy for pcb to automatically
+ * make adjustments to the thermals when the user performs certain
+ * operations, and the functions in thermal.h help implement that.
  */
 
-/* prototypes for printing routines
- */
+#ifndef	__THERMAL_INCLUDED__
+#define	__THERMAL_INCLUDED__
 
-#ifndef	__DEV_GBXH_INCLUDED__
-#define	__DEV_GBXH_INCLUDED__
-
+#include <stdlib.h>
 #include "global.h"
+#include "mymem.h"
 
-PrintDeviceTypePtr GBX_Queryh (void);
+POLYAREA * ThermPoly (PinTypePtr, Cardinal);
 
 #endif

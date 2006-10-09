@@ -76,9 +76,7 @@ Boolean ClrSelectedJoin (int);
 Boolean ChangeSelectedSquare (int);
 Boolean SetSelectedSquare (int);
 Boolean ClrSelectedSquare (int);
-Boolean ChangeSelectedThermals (int);
-Boolean SetSelectedThermals (int);
-Boolean ClrSelectedThermals (int);
+Boolean ChangeSelectedThermals (int, int);
 Boolean ChangeSelectedHole (void);
 Boolean ChangeSelectedOctagon (int);
 Boolean SetSelectedOctagon (int);
@@ -87,9 +85,7 @@ Boolean ChangeSelectedElementSide (void);
 Boolean ChangeElementSide (ElementTypePtr, LocationType);
 Boolean ChangeHole (PinTypePtr);
 Boolean ChangeObjectSize (int, void *, void *, void *, LocationType, Boolean);
-Boolean ChangeObjectThermal (int, void *, void *, void *);
-Boolean SetObjectThermal (int, void *, void *, void *);
-Boolean ClrObjectThermal (int, void *, void *, void *);
+Boolean ChangeObjectThermal (int, void *, void *, void *, int);
 Boolean ChangeObjectClearSize (int, void *, void *, void *, LocationType,
 			       Boolean);
 Boolean ChangeObject2ndSize (int, void *, void *, void *, LocationType,

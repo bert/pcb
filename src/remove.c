@@ -34,6 +34,7 @@
 #include "config.h"
 #endif
 
+#include <setjmp.h>
 #include <memory.h>
 
 #include "global.h"
@@ -201,7 +202,7 @@ DestroyPolygonPoint (LayerTypePtr Layer,
   Polygon->PointN--;
   SetPolygonBoundingBox (Polygon);
   r_insert_entry (Layer->polygon_tree, (BoxType *) Polygon, 0);
-  UpdatePIPFlags (NULL, NULL, Layer, True);
+  InitClip (PCB->Data, Layer, Polygon);
   return (Polygon);
 }
 
@@ -331,36 +332,61 @@ RemoveRat (RatTypePtr Rat)
   return (NULL);
 }
 
+struct rlp_info
+{
+  jmp_buf env;
+  LineTypePtr line;
+  PointTypePtr point;
+};
+
+static int
+remove_point (const BoxType * b, void *cl)
+{
+  LineType *line = (LineType *) b;
+  struct rlp_info *info = (struct rlp_info *) cl;
+
+  if (line == info->line)
+    return 0;
+  if ((line->Point1.X == info->point->X)
+      && (line->Point1.Y == info->point->Y))
+    {
+      info->line = line;
+      info->point = &line->Point1;
+      longjmp (info->env, 1);
+    }
+  else if ((line->Point2.X == info->point->X)
+	   && (line->Point2.Y == info->point->Y))
+    {
+      info->line = line;
+      info->point = &line->Point2;
+      longjmp (info->env, 1);
+    }
+  return 0;
+}
+
 /* ---------------------------------------------------------------------------
  * removes a line point 
  */
 static void *
 RemoveLinePoint (LayerTypePtr Layer, LineTypePtr Line, PointTypePtr Point)
 {
-  PointType oldPoint;
+  PointType other;
+  struct rlp_info info;
 
   if (&Line->Point1 == Point)
-    oldPoint = Line->Point2;
+    other = Line->Point2;
   else
-    oldPoint = Line->Point1;
-  LINE_LOOP (Layer);
-  {
-    if (line == Line)
-      continue;
-    if ((line->Point1.X == Point->X) && (line->Point1.Y == Point->Y))
-      {
-	MoveObject (LINEPOINT_TYPE, Layer, line, &line->Point1,
-		    oldPoint.X - line->Point1.X, oldPoint.Y - line->Point1.Y);
-	break;
-      }
-    if ((line->Point2.X == Point->X) && (line->Point2.Y == Point->Y))
-      {
-	MoveObject (LINEPOINT_TYPE, Layer, line, &line->Point2,
-		    oldPoint.X - line->Point2.X, oldPoint.Y - line->Point2.Y);
-	break;
-      }
-  }
-  END_LOOP;
+    other = Line->Point1;
+  info.line = Line;
+  info.point = Point;
+  if (setjmp (info.env) == 0)
+    {
+      r_search (Layer->line_tree, (const BoxType *) Point, NULL, remove_point,
+		&info);
+      return NULL;
+    }
+  MoveObject (LINEPOINT_TYPE, Layer, info.line, info.point,
+	      other.X - Point->X, other.Y - Point->Y);
   return (RemoveLine (Layer, Line));
 }
 
@@ -429,7 +455,6 @@ RemovePolygon (LayerTypePtr Layer, PolygonTypePtr Polygon)
 	Draw ();
     }
   MoveObjectToRemoveUndoList (POLYGON_TYPE, Layer, Polygon, Polygon);
-  UpdatePIPFlags (NULL, NULL, Layer, True);
   return (NULL);
 }
 
@@ -469,7 +494,7 @@ RemovePolygonPoint (LayerTypePtr Layer,
   SetPolygonBoundingBox (Polygon);
   r_insert_entry (Layer->polygon_tree, (BoxType *) Polygon, 0);
   RemoveExcessPolygonPoints (Layer, Polygon);
-  UpdatePIPFlags (NULL, NULL, Layer, True);
+  InitClip (PCB->Data, Layer, Polygon);
   /* redraw polygon if necessary */
   if (Layer->On)
     {

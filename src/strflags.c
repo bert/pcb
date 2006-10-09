@@ -122,7 +122,7 @@ static struct
   {
   WARNFLAG, N ("warn"), PIN_TYPES | PAD_TYPE},
   {
-  USETHERMALFLAG, N ("usetherm"), PIN_TYPES | PAD_TYPE},
+  USETHERMALFLAG, N ("usetherm"), PIN_TYPES | LINE_TYPE | ARC_TYPE},
   {
   OCTAGONFLAG, N ("octagon"), PIN_TYPES | PAD_TYPE},
   {
@@ -226,20 +226,30 @@ parse_layer_list (const char *bp, int (*error) (const char *))
 {
   const char *orig_bp = bp;
   int l = 0, range = -1;
+  int value = 1;
 
   grow_layer_list (0);
   while (*bp)
     {
-      if (*bp == ')' || *bp == ',' || *bp == '-')
+      if (*bp == '+')
+        value = 2;
+      else if (*bp == 'S')
+        value = 3;
+      else if (*bp == 'X')
+        value = 4;
+      else if (*bp == 't')
+        value = 5;
+      else if (*bp == ')' || *bp == ',' || *bp == '-')
 	{
 	  if (range == -1)
 	    range = l;
 	  while (range <= l)
-	    set_layer_list (range++, 1);
+	    set_layer_list (range++, value);
 	  if (*bp == '-')
 	    range = l;
 	  else
 	    range = -1;
+	  value = 1;
 	  l = 0;
 	}
 
@@ -265,18 +275,18 @@ parse_layer_list (const char *bp, int (*error) (const char *))
 
 /* Number of character the value "i" requires when printed. */
 static int
-printed_int_length (int i)
+printed_int_length (int i, int j)
 {
   int rv;
 
   if (i < 10)
-    return 1;
+    return 1 + (j ? 1 : 0);
   if (i < 100)
-    return 2;
+    return 2 + (j ? 1 : 0);
 
   for (rv = 1; i >= 10; rv++)
     i /= 10;
-  return rv;
+  return rv + (j ? 1 : 0);
 }
 
 /* Returns a pointer to an internal buffer which is overwritten with
@@ -292,7 +302,7 @@ print_layer_list ()
   len = 2;
   for (i = 0; i < num_layers; i++)
     if (layers[i])
-      len += 1 + printed_int_length (i);
+      len += 1 + printed_int_length (i, layers[i]);
   if (buflen < len)
     {
       if (buf)
@@ -310,7 +320,7 @@ print_layer_list ()
       {
 	/* 0 0 1 1 1 0 0 */
 	/*     i     j   */
-	for (j = i + 1; j < num_layers && layers[j]; j++)
+	for (j = i + 1; j < num_layers && layers[j] == 1; j++)
 	  ;
 	if (j > i + 2)
 	  {
@@ -318,7 +328,25 @@ print_layer_list ()
 	    i = j - 1;
 	  }
 	else
-	  sprintf (bp, "%d,", i);
+	  switch (layers[i])
+	  {
+	    case 1:
+	     sprintf (bp, "%d,", i);
+	     break;
+	    case 2:
+	     sprintf (bp, "%d+,", i);
+	     break;
+	    case 3:
+	     sprintf (bp, "%dS,", i);
+	     break;
+	    case 4:
+	     sprintf (bp, "%dX,", i);
+	     break;
+	    case 5:
+	    default:
+	     sprintf (bp, "%dt,", i);
+	     break;
+	   }
 	bp += strlen (bp);
       }
   bp[-1] = ')';
@@ -377,7 +405,7 @@ string_to_flags (const char *flagstring, int (*error) (const char *msg))
 	{
 	  for (i = 0; i < MAX_LAYER && i < num_layers; i++)
 	    if (layers[i])
-	      SET_THERM (i, &rv);
+	      ASSIGN_THERM (i, layers[i], &rv);
 	}
       else
 	{
@@ -454,7 +482,7 @@ flags_to_string (FlagType flags, int object_type)
       len += sizeof ("thermal()");
       for (i = 0; i < MAX_LAYER; i++)
 	if (TEST_THERM (i, &fh))
-	  len += printed_int_length (i) + 1;
+	  len += printed_int_length (i, GET_THERM (i, &fh)) + 1;
     }
 
   bp = buf = alloc_buf (len + 2);
@@ -482,7 +510,7 @@ flags_to_string (FlagType flags, int object_type)
       grow_layer_list (0);
       for (i = 0; i < MAX_LAYER; i++)
 	if (TEST_THERM (i, &fh))
-	  set_layer_list (i, 1);
+	  set_layer_list (i, GET_THERM (i, &fh));
       strcpy (bp, print_layer_list ());
       bp += strlen (bp);
     }
@@ -567,7 +595,7 @@ main ()
       if (otype & PIN_TYPES)
 	for (i = 0; i < MAX_LAYER; i++)
 	  if (random () & 4)
-	    SET_THERM (i, &fh);
+	    ASSIGN_THERM (i, 3, &fh);
 
       str = flags_to_string (fh.Flags, otype);
       new_flags = string_to_flags (str, 0);

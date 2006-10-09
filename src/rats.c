@@ -51,6 +51,7 @@
 #include "find.h"
 #include "misc.h"
 #include "mymem.h"
+#include "polygon.h"
 #include "rats.h"
 #include "search.h"
 #include "set.h"
@@ -529,9 +530,9 @@ GatherSubnets (NetListTypePtr Netl, Boolean NoWarn, Boolean AndRats)
 		polygon->Points[0].Y != polygon->Points[3].Y)
 	      continue;
 	    conn = GetConnectionMemory (a);
-	    /* make point just inside rectangle */
-	    conn->X = polygon->BoundingBox.X1 + 1;
-	    conn->Y = polygon->BoundingBox.Y1 + 1;
+	    /* make point on a vertex */
+	    conn->X = polygon->Clipped->contours->head.point[0];
+	    conn->Y = polygon->Clipped->contours->head.point[1];
 	    conn->type = POLYGON_TYPE;
 	    conn->ptr1 = layer;
 	    conn->ptr2 = polygon;

@@ -35,6 +35,7 @@
 #include "global.h"
 #include "mymem.h"
 
+void r_delete_element (DataTypePtr, ElementTypePtr);
 void SetLineBoundingBox (LineTypePtr);
 void SetArcBoundingBox (ArcTypePtr);
 void SetPointBoundingBox (PointTypePtr);

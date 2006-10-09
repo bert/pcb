@@ -42,9 +42,11 @@
 #include "mymem.h"
 #include "misc.h"
 #include "parse_l.h"
+#include "polygon.h"
 #include "remove.h"
 #include "rtree.h"
 #include "strflags.h"
+#include "thermal.h"
 
 #ifdef HAVE_LIBDMALLOC
 # include <dmalloc.h> /* see http://dmalloc.com */
@@ -142,6 +144,7 @@ parsepcb
 					LayerFlag[i] = False;
 				yyFont = &yyPCB->Font;
 				yyData = yyPCB->Data;
+				yyData->pcb = (void *)yyPCB;
 				yyData->LayerN = 0;
 				layer_group_string = NULL;
 			}
@@ -157,6 +160,8 @@ parsepcb
 		  pcbdata
 		  pcbnetlist
 			{
+			  int i, j;
+
 			  if (layer_group_string == NULL)
 			    layer_group_string = Settings.Groups;
 			  CreateNewPCBPost (yyPCB, 0);
@@ -165,7 +170,14 @@ parsepcb
 			      Message("illegal layer-group string\n");
 			      YYABORT;
 			    }
+			/* initialize the polygon clipping now since
+			 * we didn't know the layer grouping before.
+			 */
+			for (i = 0; i < max_layer; i++)
+			  for (j = 0; j < yyData->Layer[i].PolygonN; j++)
+			      InitClip (yyData, &yyData->Layer[i], &yyData->Layer[i].Polygon[j]);
 			}
+			   
 		;
 
 parsedata
@@ -817,7 +829,7 @@ layerdefinition
 						"    line:        %i\n"
 						"    description: 'ignored polygon (< 3 points)'\n",
 						yyfilename, yylineno);
-					DestroyObject(PCB->Data, POLYGON_TYPE, Layer, Polygon, Polygon);
+					DestroyObject(yyData, POLYGON_TYPE, Layer, Polygon, Polygon);
 				}
 			}
 		;
@@ -1430,6 +1442,7 @@ pin_newformat
 				sprintf(p_number, "%d", pin_num++);
 				CreateNewPin(yyElement, $3*100, $4*100, $5*100, 200*GROUNDPLANEFRAME,
 					($5 + 2*MASKFRAME)*100, $6*100, $7, p_number, OldFlags($8));
+
 				SaveFree($7);
 			}
 		;

@@ -3498,6 +3498,7 @@ HID lesstif_gui = {
   0,				/* exporter */
   1,				/* poly before */
   0,				/* poly after */
+  0,				/* poly dicer */
 
   lesstif_get_export_options,
   lesstif_do_export,

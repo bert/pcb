@@ -61,6 +61,7 @@
 #include "mirror.h"
 #include "move.h"
 #include "mymem.h"
+#include "polygon.h"
 #include "remove.h"
 #include "rotate.h"
 #include "rtree.h"
@@ -120,6 +121,13 @@ typedef struct			/* information about layer changes */
 }
 LayerChangeType, *LayerChangeTypePtr;
 
+typedef struct			/* information about poly clear/restore */
+{
+  Boolean Clear;		/* true was clear, false was restore */
+  LayerTypePtr Layer;
+}
+ClearPolyType, *ClearPolyTypePtr;
+
 typedef struct			/* information about netlist lib changes */
 {
   LibraryTypePtr old;
@@ -143,6 +151,7 @@ typedef struct			/* holds information about an operation */
     FlagType Flags;
     BDimension Size;
     LayerChangeType LayerChange;
+    ClearPolyType ClearPoly;
     NetlistChangeType NetlistChange;
   }
   Data;
@@ -183,6 +192,7 @@ static Boolean UndoChange2ndSize (UndoListTypePtr);
 static Boolean UndoChangeAngles (UndoListTypePtr);
 static Boolean UndoChangeClearSize (UndoListTypePtr);
 static Boolean UndoChangeMaskSize (UndoListTypePtr);
+static Boolean UndoClearPoly (UndoListTypePtr);
 static int PerformUndo (UndoListTypePtr);
 
 /* ---------------------------------------------------------------------------
@@ -296,6 +306,30 @@ UndoRotate (UndoListTypePtr Entry)
 }
 
 /* ---------------------------------------------------------------------------
+ * recovers an object from a clear/restore poly operation
+ * returns True if anything has been recovered
+ */
+static Boolean
+UndoClearPoly (UndoListTypePtr Entry)
+{
+  void *ptr1, *ptr2, *ptr3;
+  int type;
+
+  type =
+    SearchObjectByID (PCB->Data, &ptr1, &ptr2, &ptr3, Entry->ID, Entry->Kind);
+  if (type != NO_TYPE)
+    {
+      if (Entry->Data.ClearPoly.Clear)
+	RestoreToPolygon (PCB->Data, type, Entry->Data.ClearPoly.Layer, ptr3);
+      else
+	ClearFromPolygon (PCB->Data, type, Entry->Data.ClearPoly.Layer, ptr3);
+      Entry->Data.ClearPoly.Clear = !Entry->Data.ClearPoly.Clear;
+      return True;
+    }
+  return False;
+}
+
+/* ---------------------------------------------------------------------------
  * recovers an object from a 'change name' operation
  * returns True if anything has been recovered
  */
@@ -402,9 +436,11 @@ UndoChangeClearSize (UndoListTypePtr Entry)
       if (TEST_FLAG (LOCKFLAG, (LineTypePtr) ptr2))
 	return (False);
       swap = ((PinTypePtr) ptr2)->Clearance;
+      RestoreToPolygon (PCB->Data, type, ptr1, ptr2);
       if (andDraw)
 	EraseObject (type, ptr2);
       ((PinTypePtr) ptr2)->Clearance = Entry->Data.Size;
+      ClearFromPolygon (PCB->Data, type, ptr1, ptr2);
       Entry->Data.Size = swap;
       if (andDraw)
 	DrawObject (type, ptr1, ptr2, 0);
@@ -466,11 +502,14 @@ UndoChangeSize (UndoListTypePtr Entry)
       if (TEST_FLAG (LOCKFLAG, (PinTypePtr) ptr2))
 	return (False);
       /* Wow! can any object be treated as a pin type for size change?? */
+      /* pins, vias, lines, and arcs can. Text can't but it has it's own mechanism */
       swap = ((PinTypePtr) ptr2)->Thickness;
+      RestoreToPolygon (PCB->Data, type, ptr1, ptr2);
       if (andDraw)
 	EraseObject (type, ptr2);
       ((PinTypePtr) ptr2)->Thickness = Entry->Data.Size;
       Entry->Data.Size = swap;
+      ClearFromPolygon (PCB->Data, type, ptr1, ptr2);
       if (andDraw)
 	DrawObject (type, ptr1, ptr2, 0);
       return (True);
@@ -766,7 +805,7 @@ UndoInsertPoint (UndoListTypePtr Entry)
 static Boolean
 UndoLayerChange (UndoListTypePtr Entry)
 {
-  LayerChangeTypePtr l = & Entry->Data.LayerChange;
+  LayerChangeTypePtr l = &Entry->Data.LayerChange;
   int tmp;
 
   tmp = l->new_index;
@@ -935,6 +974,11 @@ PerformUndo (UndoListTypePtr ptr)
 	return (UNDO_ROTATE);
       break;
 
+    case UNDO_CLEAR:
+      if (UndoClearPoly (ptr))
+	return (UNDO_CLEAR);
+      break;
+
     case UNDO_MOVETOLAYER:
       if (UndoMoveToLayer (ptr))
 	return (UNDO_MOVETOLAYER);
@@ -1095,6 +1139,23 @@ ClearUndoList (Boolean Force)
 }
 
 /* ---------------------------------------------------------------------------
+ * adds an object to the list of clearpoly objects
+ */
+void
+AddObjectToClearPolyUndoList (int Type, void *Ptr1, void *Ptr2, void *Ptr3,
+			      Boolean clear)
+{
+  UndoListTypePtr undo;
+
+  if (!Locked)
+    {
+      undo = GetUndoSlot (UNDO_CLEAR, OBJECT_ID (Ptr3), Type);
+      undo->Data.ClearPoly.Clear = clear;
+      undo->Data.ClearPoly.Layer = (LayerTypePtr) Ptr1;
+    }
+}
+
+/* ---------------------------------------------------------------------------
  * adds an object to the list of mirrored objects
  */
 void
@@ -1251,6 +1312,7 @@ AddObjectToCreateUndoList (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
 
   if (!Locked)
     undo = GetUndoSlot (UNDO_CREATE, OBJECT_ID (Ptr3), Type);
+  ClearFromPolygon (PCB->Data, Type, Ptr1, Ptr2);
 }
 
 /* ---------------------------------------------------------------------------

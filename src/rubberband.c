@@ -50,6 +50,7 @@
 #include "data.h"
 #include "error.h"
 #include "misc.h"
+#include "polygon.h"
 #include "rubberband.h"
 #include "rtree.h"
 #include "search.h"
@@ -225,7 +226,7 @@ CheckPadForRubberbandConnection (PadTypePtr Pad)
   group = GetLayerGroupNumberByNumber (i);
 
   /* check all visible layers in the same group */
-  GROUP_LOOP (group);
+  GROUP_LOOP (PCB->Data, group);
   {
     /* check all visible lines of the group member */
     info.layer = layer;
@@ -393,7 +394,7 @@ CheckLinePointForRubberbandConnection (LayerTypePtr Layer,
   info.X = LinePoint->X;
   info.Y = LinePoint->Y;
   group = GetLayerGroupNumberByPointer (Layer);
-  GROUP_LOOP (group);
+  GROUP_LOOP (PCB->Data, group);
   {
     /* check all visible lines of the group member */
     if (layer->On)
@@ -418,7 +419,7 @@ CheckPolygonForRubberbandConnection (LayerTypePtr Layer,
 
   /* lookup layergroup and check all visible lines in this group */
   group = GetLayerGroupNumberByPointer (Layer);
-  GROUP_LOOP (group);
+  GROUP_LOOP (PCB->Data, group);
   {
     if (layer->On)
       {

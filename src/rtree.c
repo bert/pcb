@@ -62,7 +62,7 @@
 RCSID ("$Id$");
 
 
-#undef SLOW_ASSERTS
+#define SLOW_ASSERTS
 /* All rectangles are closed. i.e. they contain both corner points.
  * Often the auto router will "open" the rectangle on an edge
  * using the search callback functions.
@@ -218,7 +218,8 @@ __r_tree_is_good (struct rtree_node *node)
     }
   return 1;
 }
-
+#endif
+#ifndef NDEBUG
 /* print out the tree */
 void
 __r_dump_tree (struct rtree_node *node, int depth)
@@ -799,8 +800,8 @@ split_node (struct rtree_node *node)
   struct rtree_node *new_node;
 
   assert (node);
-  assert (node->flags.is_leaf ? node->u.rects[M_SIZE].bptr : node->u.
-	  kids[M_SIZE]);
+  assert (node->flags.is_leaf ? (void *) node->u.rects[M_SIZE].
+	  bptr : (void *) node->u.kids[M_SIZE]);
   new_node = find_clusters (node);
   if (node->parent == NULL)	/* split root node */
     {

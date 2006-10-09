@@ -113,7 +113,8 @@ CopyPolygonLowLevel (PolygonTypePtr Dest, PolygonTypePtr Src)
  */
 ElementTypePtr
 CopyElementLowLevel (DataTypePtr Data, ElementTypePtr Dest,
-		     ElementTypePtr Src, Boolean uniqueName)
+		     ElementTypePtr Src, Boolean uniqueName, LocationType dx,
+		     LocationType dy)
 {
   int i;
   /* release old memory if necessary */
@@ -124,8 +125,8 @@ CopyElementLowLevel (DataTypePtr Data, ElementTypePtr Dest,
   Dest = CreateNewElement (Data, Dest, &PCB->Font,
 			   MaskFlags (Src->Flags, FOUNDFLAG),
 			   DESCRIPTION_NAME (Src), NAMEONPCB_NAME (Src),
-			   VALUE_NAME (Src), DESCRIPTION_TEXT (Src).X,
-			   DESCRIPTION_TEXT (Src).Y,
+			   VALUE_NAME (Src), DESCRIPTION_TEXT (Src).X + dx,
+			   DESCRIPTION_TEXT (Src).Y + dy,
 			   DESCRIPTION_TEXT (Src).Direction,
 			   DESCRIPTION_TEXT (Src).Scale,
 			   MaskFlags (DESCRIPTION_TEXT (Src).Flags,
@@ -137,29 +138,29 @@ CopyElementLowLevel (DataTypePtr Data, ElementTypePtr Dest,
 
   ELEMENTLINE_LOOP (Src);
   {
-    CreateNewLineInElement (Dest, line->Point1.X,
-			    line->Point1.Y, line->Point2.X,
-			    line->Point2.Y, line->Thickness);
+    CreateNewLineInElement (Dest, line->Point1.X + dx,
+			    line->Point1.Y + dy, line->Point2.X + dx,
+			    line->Point2.Y + dy, line->Thickness);
   }
   END_LOOP;
   PIN_LOOP (Src);
   {
-    CreateNewPin (Dest, pin->X, pin->Y, pin->Thickness,
+    CreateNewPin (Dest, pin->X + dx, pin->Y + dy, pin->Thickness,
 		  pin->Clearance, pin->Mask, pin->DrillingHole,
 		  pin->Name, pin->Number, MaskFlags (pin->Flags, FOUNDFLAG));
   }
   END_LOOP;
   PAD_LOOP (Src);
   {
-    CreateNewPad (Dest, pad->Point1.X, pad->Point1.Y, pad->Point2.X,
-		  pad->Point2.Y, pad->Thickness, pad->Clearance,
-		  pad->Mask, pad->Name, pad->Number,
+    CreateNewPad (Dest, pad->Point1.X + dx, pad->Point1.Y + dy,
+		  pad->Point2.X + dx, pad->Point2.Y + dy, pad->Thickness,
+		  pad->Clearance, pad->Mask, pad->Name, pad->Number,
 		  MaskFlags (pad->Flags, FOUNDFLAG));
   }
   END_LOOP;
   ARC_LOOP (Src);
   {
-    CreateNewArcInElement (Dest, arc->X, arc->Y, arc->Width,
+    CreateNewArcInElement (Dest, arc->X + dx, arc->Y + dy, arc->Width,
 			   arc->Height, arc->StartAngle, arc->Delta,
 			   arc->Thickness);
   }
@@ -170,8 +171,8 @@ CopyElementLowLevel (DataTypePtr Data, ElementTypePtr Dest,
 			Src->Attributes.List[i].name,
 			Src->Attributes.List[i].value);
 
-  Dest->MarkX = Src->MarkX;
-  Dest->MarkY = Src->MarkY;
+  Dest->MarkX = Src->MarkX + dx;
+  Dest->MarkY = Src->MarkY + dy;
 
   SetElementBoundingBox (Data, Dest, &PCB->Font);
   return (Dest);
@@ -191,7 +192,6 @@ CopyVia (PinTypePtr Via)
 		      MaskFlags (Via->Flags, FOUNDFLAG));
   if (!via)
     return (via);
-  UpdatePIPFlags (via, (ElementTypePtr) via, NULL, False);
   DrawVia (via, 0);
   AddObjectToCreateUndoList (VIA_TYPE, via, via, via);
   return (via);
@@ -270,8 +270,8 @@ CopyPolygon (LayerTypePtr Layer, PolygonTypePtr Polygon)
   if (!Layer->polygon_tree)
     Layer->polygon_tree = r_create_tree (NULL, 0, 0);
   r_insert_entry (Layer->polygon_tree, (BoxTypePtr) polygon, 0);
+  InitClip (PCB->Data, Layer, polygon);
   DrawPolygon (Layer, polygon, 0);
-  UpdatePIPFlags (NULL, NULL, Layer, True);
   AddObjectToCreateUndoList (POLYGON_TYPE, Layer, polygon, polygon);
   return (polygon);
 }
@@ -286,17 +286,17 @@ CopyElement (ElementTypePtr Element)
   ElementTypePtr element = CopyElementLowLevel (PCB->Data,
 						NULL, Element,
 						TEST_FLAG (UNIQUENAMEFLAG,
-							   PCB));
+							   PCB), DeltaX,
+						DeltaY);
 
-  MoveElementLowLevel (PCB->Data, element, DeltaX, DeltaY);
+  /* this call clears the polygons */
+  AddObjectToCreateUndoList (ELEMENT_TYPE, element, element, element);
   if (PCB->ElementOn && (FRONT (element) || PCB->InvisibleObjectsOn))
     {
       DrawElementName (element, 0);
       DrawElementPackage (element, 0);
       didDraw = True;
     }
-  UpdatePIPFlags (NULL, element, NULL, False);
-  AddObjectToCreateUndoList (ELEMENT_TYPE, element, element, element);
   if (PCB->PinOn)
     {
       DrawElementPinsAndPads (element, 0);

@@ -1,6 +1,5 @@
 /* $Id$ */
 
-#include "rtree.h"
 /*
  *                            COPYRIGHT
  *
@@ -42,6 +41,7 @@
 #include "search.h"
 #include "misc.h"
 #include "mymem.h"
+#include "rtree.h"
 #include "strflags.h"
 
 #ifdef HAVE_LIBDMALLOC
@@ -101,11 +101,10 @@ ReportDrills (int argc, char **argv, int x, int y)
 }
 
 
-static const char reportdialog_syntax[] =
-"ReportDialog()";
+static const char reportdialog_syntax[] = "ReportDialog()";
 
 static const char reportdialog_help[] =
-"Report on the object under the crosshair";
+  "Report on the object under the crosshair";
 
 /* %start-doc actions ReportDialog
 
@@ -122,7 +121,8 @@ ReportDialog (int argc, char **argv, int x, int y)
 
   type = SearchScreen (x, y, REPORT_TYPES, &ptr1, &ptr2, &ptr3);
   if (type == NO_TYPE)
-    type = SearchScreen (x, y, REPORT_TYPES | LOCKED_TYPE, &ptr1, &ptr2, &ptr3);
+    type =
+      SearchScreen (x, y, REPORT_TYPES | LOCKED_TYPE, &ptr1, &ptr2, &ptr3);
 
   switch (type)
     {
@@ -130,7 +130,7 @@ ReportDialog (int argc, char **argv, int x, int y)
       {
 #ifdef FIXME
 #ifndef NDEBUG
-	if (gui_shift_is_pressed ())
+	if (gui->shift_is_pressed ())
 	  {
 	    __r_dump_tree (PCB->Data->via_tree->root, 0);
 	    return 0;
@@ -300,7 +300,7 @@ ReportDialog (int argc, char **argv, int x, int y)
     case POLYGON_TYPE:
       {
 #ifndef NDEBUG
-	if (gui_shift_is_pressed ())
+	if (gui->shift_is_pressed ())
 	  {
 	    LayerTypePtr layer = (LayerTypePtr) ptr1;
 	    __r_dump_tree (layer->polygon_tree->root, 0);
@@ -528,11 +528,9 @@ ReportFoundPins (int argc, char **argv, int x, int y)
  * syntax: 
  */
 
-static const char report_syntax[] =
-"Report(Object|DrillReport|FoundPins)";
+static const char report_syntax[] = "Report(Object|DrillReport|FoundPins)";
 
-static const char report_help[] =
-"Produce various report.";
+static const char report_help[] = "Produce various report.";
 
 /* %start-doc actions Report
 
@@ -575,7 +573,8 @@ Report (int argc, char **argv, int x, int y)
 
 HID_Action report_action_list[] = {
   {"ReportObject", "Click on an object", ReportDialog,
-   reportdialog_help, reportdialog_syntax},
+   reportdialog_help, reportdialog_syntax}
+  ,
   {"Report", 0, Report,
    report_help, report_syntax}
 };

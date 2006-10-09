@@ -39,6 +39,7 @@
 
 #include "const.h"
 #include "macro.h"
+#include "polyarea.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -76,8 +77,7 @@ typedef unsigned char BYTE;
 typedef struct
 {
   unsigned short f;		/* generic flags */
-  unsigned char t[(MAX_LAYER + 7) / 8];	/* thermals */
-  unsigned char p[(MAX_LAYER + 7) / 8];	/* pip */
+  unsigned char t[(MAX_LAYER + 1) / 2];	/* thermals */
 } FlagType, *FlagTypePtr;
 
 #ifndef __GNUC__
@@ -218,6 +218,7 @@ typedef struct			/* holds information about a polygon */
   ANYOBJECTFIELDS;
   Cardinal PointN,		/* number of points in polygon */
     PointMax;			/* max number from malloc() */
+  POLYAREA *Clipped;		/* the clipped region of this polygon */
   PointTypePtr Points;		/* data */
 } PolygonType, *PolygonTypePtr;
 
@@ -340,6 +341,7 @@ typedef struct			/* holds all objects */
   RatTypePtr Rat;
   rtree_t *via_tree, *element_tree, *pin_tree, *pad_tree, *name_tree[3],	/* for element names */
    *rat_tree;
+  void *pcb;
   LayerType Layer[MAX_LAYER + 2];	/* add 2 silkscreen layers */
 } DataType, *DataTypePtr;
 
@@ -420,11 +422,12 @@ typedef struct
   char *Name,			/* name of board */
    *Filename,			/* name of file (from load) */
    *PrintFilename,		/* from print dialog */
-   *Netlistname;		/* name of netlist file */
+   *Netlistname,		/* name of netlist file */
+    ThermStyle;			/* type of thermal to place with thermal tool */
   Boolean Changed,		/* layout has been changed */
     ViaOn,			/* visibility flags */
     ElementOn, RatOn, InvisibleObjectsOn, PinOn, SilkActive,	/* active layer is actually silk */
-    RatDraw;			/* we're drawing rats */
+    RatDraw;			 /* we're drawing rats */
   char *ViaColor,		/* some colors */
    *ViaSelectedColor,
     *PinColor,
@@ -712,7 +715,8 @@ typedef struct
 #define UNDO_CHANGEMASKSIZE		0x2000	/* change mask size */
 #define UNDO_CHANGEANGLES		0x4000	/* change arc angles */
 #define UNDO_LAYERCHANGE		0x8000	/* layer new/delete/move */
-#define UNDO_NETLISTCHANGE		0x10000	/* netlist change */
+#define UNDO_CLEAR		       0x10000  /* clear/restore to polygons */
+#define UNDO_NETLISTCHANGE     	       0x20000	/* netlist change */
 
 
 /* ---------------------------------------------------------------------------

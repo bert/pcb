@@ -178,6 +178,7 @@ static HID extents_hid = {
   0,				/* exporter */
   1,				/* poly before */
   0,				/* poly after */
+  0,				/* poly dicer */
 
   0 /* extents_get_export_options */ ,
   0 /* extents_do_export */ ,

@@ -73,6 +73,7 @@
 #endif
 #include <math.h>
 #include <setjmp.h>
+#include <assert.h>
 
 #ifdef HAVE_SYS_TIMES_H
 #include <sys/times.h>
@@ -279,7 +280,8 @@ ADD_PV_TO_LIST (PinTypePtr Pin)
   PVList.Number++;
 #ifdef DEBUG
   if (PVList.Number > PVList.Size)
-    printf("ADD_PV_TO_LIST overflow! num=%d size=%d\n", PVList.Number, PVList.Size);
+    printf ("ADD_PV_TO_LIST overflow! num=%d size=%d\n", PVList.Number,
+	    PVList.Size);
 #endif
   if (drc && !TEST_FLAG (SELECTEDFLAG, Pin))
     return (SetThing (PIN_TYPE, Pin->Element, Pin, Pin));
@@ -296,8 +298,8 @@ ADD_PAD_TO_LIST (Cardinal L, PadTypePtr Pad)
   PadList[(L)].Number++;
 #ifdef DEBUG
   if (PadList[(L)].Number > PadList[(L)].Size)
-    printf("ADD_PAD_TO_LIST overflow! lay=%d, num=%d size=%d\n",L,
-    	PadList[(L)].Number, PadList[(L)].Size);
+    printf ("ADD_PAD_TO_LIST overflow! lay=%d, num=%d size=%d\n", L,
+	    PadList[(L)].Number, PadList[(L)].Size);
 #endif
   if (drc && !TEST_FLAG (SELECTEDFLAG, Pad))
     return (SetThing (PAD_TYPE, Pad->Element, Pad, Pad));
@@ -314,8 +316,8 @@ ADD_LINE_TO_LIST (Cardinal L, LineTypePtr Ptr)
   LineList[(L)].Number++;
 #ifdef DEBUG
   if (LineList[(L)].Number > LineList[(L)].Size)
-    printf("ADD_LINE_TO_LIST overflow! lay=%d, num=%d size=%d\n",L,
-    	LineList[(L)].Number, LineList[(L)].Size);
+    printf ("ADD_LINE_TO_LIST overflow! lay=%d, num=%d size=%d\n", L,
+	    LineList[(L)].Number, LineList[(L)].Size);
 #endif
   if (drc && !TEST_FLAG (SELECTEDFLAG, (Ptr)))
     return (SetThing (LINE_TYPE, LAYER_PTR (L), (Ptr), (Ptr)));
@@ -332,8 +334,8 @@ ADD_ARC_TO_LIST (Cardinal L, ArcTypePtr Ptr)
   ArcList[(L)].Number++;
 #ifdef DEBUG
   if (ArcList[(L)].Number > ArcList[(L)].Size)
-    printf("ADD_ARC_TO_LIST overflow! lay=%d, num=%d size=%d\n",L,
-    	ArcList[(L)].Number, ArcList[(L)].Size);
+    printf ("ADD_ARC_TO_LIST overflow! lay=%d, num=%d size=%d\n", L,
+	    ArcList[(L)].Number, ArcList[(L)].Size);
 #endif
   if (drc && !TEST_FLAG (SELECTEDFLAG, (Ptr)))
     return (SetThing (ARC_TYPE, LAYER_PTR (L), (Ptr), (Ptr)));
@@ -350,8 +352,8 @@ ADD_RAT_TO_LIST (RatTypePtr Ptr)
   RatList.Number++;
 #ifdef DEBUG
   if (RatList.Number > RatList.Size)
-    printf("ADD_RAT_TO_LIST overflow! num=%d size=%d\n",
-    	RatList.Number, RatList.Size);
+    printf ("ADD_RAT_TO_LIST overflow! num=%d size=%d\n",
+	    RatList.Number, RatList.Size);
 #endif
   if (drc && !TEST_FLAG (SELECTEDFLAG, (Ptr)))
     return (SetThing (RATLINE_TYPE, (Ptr), (Ptr), (Ptr)));
@@ -368,8 +370,8 @@ ADD_POLYGON_TO_LIST (Cardinal L, PolygonTypePtr Ptr)
   PolygonList[(L)].Number++;
 #ifdef DEBUG
   if (PolygonList[(L)].Number > PolygonList[(L)].Size)
-    printf("ADD_ARC_TO_LIST overflow! lay=%d, num=%d size=%d\n",L,
-    	PolygonList[(L)].Number, PolygonList[(L)].Size);
+    printf ("ADD_ARC_TO_LIST overflow! lay=%d, num=%d size=%d\n", L,
+	    PolygonList[(L)].Number, PolygonList[(L)].Size);
 #endif
   if (drc && !TEST_FLAG (SELECTEDFLAG, (Ptr)))
     return (SetThing (POLYGON_TYPE, LAYER_PTR (L), (Ptr), (Ptr)));
@@ -573,10 +575,10 @@ InitLayoutLookup (void)
 
       /* allocate memory for polygon list */
       if (layer->PolygonN)
-        {
+	{
 	  PolygonList[i].Data = (void **) MyCalloc (layer->PolygonN,
-						  sizeof (PolygonTypePtr),
-						  "InitLayoutLookup()");
+						    sizeof (PolygonTypePtr),
+						    "InitLayoutLookup()");
 	  PolygonList[i].Size = layer->PolygonN;
 	}
 
@@ -675,6 +677,48 @@ LOCtoPVrat_callback (const BoxType * b, void *cl)
     longjmp (i->env, 1);
   return 0;
 }
+static int
+LOCtoPVpoly_callback (const BoxType * b, void *cl)
+{
+  PolygonTypePtr polygon = (PolygonTypePtr) b;
+  struct pv_info *i = (struct pv_info *) cl;
+
+  /* if the pin doesn't have a therm and polygon is clearing
+   * then it can't touch due to clearance, so skip the expensive
+   * test. If it does have a therm, you still need to test
+   * because it might not be inside the polygon, or it could
+   * be on an edge such that it doesn't actually touch.
+   */
+  if (!TEST_FLAG (TheFlag, polygon) && (TEST_THERM (i->layer, &i->pv)
+					|| !TEST_FLAG (CLEARPOLYFLAG,
+						       polygon)))
+    {
+      float wide = 0.5 * i->pv.Thickness + fBloat;
+      wide = MAX (wide, 0);
+      if (TEST_FLAG (SQUAREFLAG, &i->pv))
+	{
+	  LocationType x1 = i->pv.X - (i->pv.Thickness + 1 + Bloat) / 2;
+	  LocationType x2 = i->pv.X + (i->pv.Thickness + 1 + Bloat) / 2;
+	  LocationType y1 = i->pv.Y - (i->pv.Thickness + 1 + Bloat) / 2;
+	  LocationType y2 = i->pv.Y + (i->pv.Thickness + 1 + Bloat) / 2;
+	  if (IsRectangleInPolygon (x1, y1, x2, y2, polygon)
+	      && ADD_POLYGON_TO_LIST (i->layer, polygon))
+	    longjmp (i->env, 1);
+	}
+      else if (TEST_FLAG (OCTAGONFLAG, &i->pv))
+	{
+	  POLYAREA *oct = OctagonPoly (i->pv.X, i->pv.Y, i->pv.Thickness / 2);
+	  if (isects (oct, polygon, True)
+	      && ADD_POLYGON_TO_LIST (i->layer, polygon))
+	    longjmp (i->env, 1);
+	}
+      else if (IsPointInPolygon (i->pv.X, i->pv.Y, wide,
+				 polygon)
+	       && ADD_POLYGON_TO_LIST (i->layer, polygon))
+	longjmp (i->env, 1);
+    }
+  return 0;
+}
 
 /* ---------------------------------------------------------------------------
  * checks if a PV is connected to LOs, if it is, the LO is added to
@@ -703,9 +747,6 @@ LookupLOConnectionsToPVList (Boolean AndRats)
       /* now all lines, arcs and polygons of the several layers */
       for (layer = 0; layer < max_layer; layer++)
 	{
-	  PolygonTypePtr polygon = PCB->Data->Layer[layer].Polygon;
-	  Cardinal i;
-
 	  info.layer = layer;
 	  /* add touching lines */
 	  if (setjmp (info.env) == 0)
@@ -720,36 +761,11 @@ LookupLOConnectionsToPVList (Boolean AndRats)
 	  else
 	    return True;
 	  /* check all polygons */
-	  for (i = 0; i < PCB->Data->Layer[layer].PolygonN; i++, polygon++)
-	    {
-	      float wide = 0.5 * info.pv.Thickness + fBloat;
-	      wide = MAX (wide, 0);
-	      if (((TEST_THERM (layer, &info.pv)
-		    && TEST_PIP (layer, &info.pv))
-		   || !TEST_FLAG (CLEARPOLYFLAG, polygon))
-		  && !TEST_FLAG (TheFlag, polygon))
-		{
-		  if (!TEST_FLAG (SQUAREFLAG, &info.pv)
-		      && IsPointInPolygon (info.pv.X, info.pv.Y, wide,
-					   polygon)
-		      && ADD_POLYGON_TO_LIST (layer, polygon))
-		    return True;
-		  if (TEST_FLAG (SQUAREFLAG, &info.pv))
-		    {
-		      LocationType x1 =
-			info.pv.X - (info.pv.Thickness + 1) / 2;
-		      LocationType x2 =
-			info.pv.X + (info.pv.Thickness + 1) / 2;
-		      LocationType y1 =
-			info.pv.Y - (info.pv.Thickness + 1) / 2;
-		      LocationType y2 =
-			info.pv.Y + (info.pv.Thickness + 1) / 2;
-		      if (IsRectangleInPolygon (x1, y1, x2, y2, polygon)
-			  && ADD_POLYGON_TO_LIST (layer, polygon))
-			return True;
-		    }
-		}
-	    }
+	  if (setjmp (info.env) == 0)
+	    r_search (LAYER_PTR (layer)->polygon_tree, (BoxType *) & info.pv,
+		      NULL, LOCtoPVpoly_callback, &info);
+	  else
+	    return True;
 	}
       /* Check for rat-lines that may intersect the PV */
       if (AndRats)
@@ -762,7 +778,7 @@ LookupLOConnectionsToPVList (Boolean AndRats)
 	}
       PVList.Location++;
     }
-  return (False);
+  return False;
 }
 
 /* ---------------------------------------------------------------------------
@@ -851,6 +867,12 @@ LookupLOConnectionsToLOList (Boolean AndRats)
 		{
 		  /* try all new pads */
 		  layer -= max_layer;
+		  if (layer > 1)
+		    {
+		      Message ("bad layer number %d max_layer=%d in find.c\n",
+			       layer, max_layer);
+		      return False;
+		    }
 		  position = &padposition[layer];
 		  for (; *position < PadList[layer].Number; (*position)++)
 		    if (LookupLOConnectionsToPad
@@ -1015,19 +1037,24 @@ pv_poly_callback (const BoxType * b, void *cl)
   struct lo_info *i = (struct lo_info *) cl;
 
   /* note that holes in polygons are ok */
-  if (((TEST_THERM (i->layer, pv) && TEST_PIP (i->layer, pv))
-       || !TEST_FLAG (CLEARPOLYFLAG, &i->polygon))
-      && !TEST_FLAG (TheFlag, pv))
+  if (!TEST_FLAG (TheFlag, pv) && (TEST_THERM (i->layer, pv) ||
+				   !TEST_FLAG (CLEARPOLYFLAG, &i->polygon)))
     {
       if (TEST_FLAG (SQUAREFLAG, pv))
 	{
 	  LocationType x1, x2, y1, y2;
-	  x1 = pv->X - (pv->Thickness + 1) / 2;
-	  x2 = pv->X + (pv->Thickness + 1) / 2;
-	  y1 = pv->Y - (pv->Thickness + 1) / 2;
-	  y2 = pv->Y + (pv->Thickness + 1) / 2;
+	  x1 = pv->X - (pv->Thickness + 1 + Bloat) / 2;
+	  x2 = pv->X + (pv->Thickness + 1 + Bloat) / 2;
+	  y1 = pv->Y - (pv->Thickness + 1 + Bloat) / 2;
+	  y2 = pv->Y + (pv->Thickness + 1 + Bloat) / 2;
 	  if (IsRectangleInPolygon (x1, y1, x2, y2, &i->polygon)
 	      && ADD_PV_TO_LIST (pv))
+	    longjmp (i->env, 1);
+	}
+      else if (TEST_FLAG (OCTAGONFLAG, pv))
+	{
+	  POLYAREA *oct = OctagonPoly (pv->X, pv->Y, pv->Thickness / 2);
+	  if (isects (oct, &i->polygon, True) && ADD_PV_TO_LIST (pv))
 	    longjmp (i->env, 1);
 	}
       else
@@ -1723,6 +1750,8 @@ LOCtoArcArc_callback (const BoxType * b, void *cl)
   ArcTypePtr arc = (ArcTypePtr) b;
   struct lo_info *i = (struct lo_info *) cl;
 
+  if (!arc->Thickness)
+    return 0;
   if (!TEST_FLAG (TheFlag, arc) && ArcArcIntersect (&i->arc, arc))
     {
       if (ADD_ARC_TO_LIST (i->layer, arc))
@@ -1759,8 +1788,6 @@ LookupLOConnectionsToArc (ArcTypePtr Arc, Cardinal LayerGroup)
   struct lo_info info;
 
   /* the maximum possible distance */
-
-
   xlow = Arc->BoundingBox.X1 - MAX (MAX_PADSIZE, MAX_LINESIZE) / 2;
   xhigh = Arc->BoundingBox.X2 + MAX (MAX_PADSIZE, MAX_LINESIZE) / 2;
 
@@ -1833,6 +1860,8 @@ LOCtoLineArc_callback (const BoxType * b, void *cl)
   ArcTypePtr arc = (ArcTypePtr) b;
   struct lo_info *i = (struct lo_info *) cl;
 
+  if (!arc->Thickness)
+    return 0;
   if (!TEST_FLAG (TheFlag, arc) && LineArcIntersect (&i->line, arc))
     {
       if (ADD_ARC_TO_LIST (i->layer, arc))
@@ -1970,6 +1999,8 @@ LOT_Arccallback (const BoxType * b, void *cl)
   ArcTypePtr arc = (ArcTypePtr) b;
   struct lo_info *i = (struct lo_info *) cl;
 
+  if (!arc->Thickness)
+    return 0;
   if (!TEST_FLAG (TheFlag, arc) && LineArcIntersect (&i->line, arc))
     longjmp (i->env, 1);
   return 0;
@@ -2075,7 +2106,7 @@ PolygonToRat_callback (const BoxType * b, void *cl)
   PolygonTypePtr polygon = (PolygonTypePtr) b;
   struct rat_info *i = (struct rat_info *) cl;
 
-  if (TEST_FLAG (TheFlag, polygon) &&
+  if (!TEST_FLAG (TheFlag, polygon) &&
       (i->Point->X == polygon->BoundingBox.X1 + 1) &&
       (i->Point->Y == polygon->BoundingBox.Y1 + 1))
     {
@@ -2171,6 +2202,8 @@ LOCtoPadArc_callback (const BoxType * b, void *cl)
   ArcTypePtr arc = (ArcTypePtr) b;
   struct lo_info *i = (struct lo_info *) cl;
 
+  if (!arc->Thickness)
+    return 0;
   if (!TEST_FLAG (TheFlag, arc) && ArcPadIntersect (arc, &i->pad))
     {
       if (ADD_ARC_TO_LIST (i->layer, arc))
@@ -2325,6 +2358,8 @@ LOCtoPolyArc_callback (const BoxType * b, void *cl)
   ArcTypePtr arc = (ArcTypePtr) b;
   struct lo_info *i = (struct lo_info *) cl;
 
+  if (!arc->Thickness)
+    return 0;
   if (!TEST_FLAG (TheFlag, arc) && IsArcInPolygon (arc, &i->polygon))
     {
       if (ADD_ARC_TO_LIST (i->layer, arc))
@@ -2358,9 +2393,11 @@ LOCtoPolyRat_callback (const BoxType * b, void *cl)
   if (!TEST_FLAG (TheFlag, rat))
     {
       if ((rat->Point1.X == (i->polygon.BoundingBox.X1 + 1) &&
-	   rat->Point1.Y == (i->polygon.BoundingBox.Y1 + 1)) ||
+	   rat->Point1.Y == (i->polygon.BoundingBox.Y1 + 1) &&
+	   rat->group1 == i->layer) ||
 	  (rat->Point2.X == (i->polygon.BoundingBox.X1 + 1) &&
-	   rat->Point2.Y == (i->polygon.BoundingBox.Y1 + 1)))
+	   rat->Point2.Y == (i->polygon.BoundingBox.Y1 + 1) &&
+	   rat->group2 == i->layer))
 	if (ADD_RAT_TO_LIST (rat))
 	  longjmp (i->env, 1);
     }
@@ -2380,6 +2417,13 @@ LookupLOConnectionsToPolygon (PolygonTypePtr Polygon, Cardinal LayerGroup)
 
   info.polygon = *Polygon;
   EXPAND_BOUNDS (&info.polygon);
+  info.layer = LayerGroup;
+  /* check rats */
+  if (setjmp (info.env) == 0)
+    r_search (PCB->Data->rat_tree, (BoxType *) & info.polygon, NULL,
+	      LOCtoPolyRat_callback, &info);
+  else
+    return True;
 /* loop over all layers of the group */
   for (entry = 0; entry < PCB->LayerGroups.Number[LayerGroup]; entry++)
     {
@@ -2415,12 +2459,6 @@ LookupLOConnectionsToPolygon (PolygonTypePtr Polygon, Cardinal LayerGroup)
 		      NULL, LOCtoPolyArc_callback, &info);
 	  else
 	    return True;
-	  /* check rats */
-	  if (setjmp (info.env) == 0)
-	    r_search (PCB->Data->rat_tree, (BoxType *) & info.polygon, NULL,
-		      LOCtoPolyRat_callback, &info);
-	  else
-	    return True;
 	}
       else
 	{
@@ -2438,32 +2476,6 @@ LookupLOConnectionsToPolygon (PolygonTypePtr Polygon, Cardinal LayerGroup)
   return (False);
 }
 
-/* LinePolyCandidate returns True if any point on the Line that
- * is inside the polygon is outside the clearance zone of
- * all clearances inside the polygon.
- * Unfortunately, it's a really hard thing to do. We don't
- * know what layer the polygon is on at the moment so it's
- * impossible.
- */
-Boolean
-LinePolyCandidate (LineTypePtr Line, PolygonTypePtr Polygon)
-{
-  return True;
-}
-
-/* ArcPolyCandidate returns True if any point on the Arc that
- * is inside the polygon is outside the clearance zone of
- * all clearances inside the polygon.
- * Unfortunately, it's a really hard thing to do. We don't
- * know what layer the polygon is on at the moment so it's
- * impossible.
- */
-Boolean
-ArcPolyCandidate (ArcTypePtr Arc, PolygonTypePtr Polygon)
-{
-  return True;
-}
-
 /* ---------------------------------------------------------------------------
  * checks if an arc has a connection to a polygon
  *
@@ -2475,49 +2487,25 @@ ArcPolyCandidate (ArcTypePtr Arc, PolygonTypePtr Polygon)
 Boolean
 IsArcInPolygon (ArcTypePtr Arc, PolygonTypePtr Polygon)
 {
-  BoxTypePtr Box;
+  BoxTypePtr Box = (BoxType *) Arc;
 
   /* arcs with clearance never touch polys */
   if (TEST_FLAG (CLEARPOLYFLAG, Polygon) && TEST_FLAG (CLEARLINEFLAG, Arc))
-    return (False);
-
-  Box =
-    GetObjectBoundingBox (ARC_TYPE, (void *) Arc, (void *) Arc, (void *) Arc);
-  if (Box->X1 <= Polygon->BoundingBox.X2 && Box->X2 >= Polygon->BoundingBox.X1
-      && Box->Y1 <= Polygon->BoundingBox.Y2
-      && Box->Y2 >= Polygon->BoundingBox.Y1)
+    return False;
+  if (!Polygon->Clipped)
+    return False;
+  if (Box->X1 <= Polygon->Clipped->contours->xmax + Bloat
+      && Box->X2 >= Polygon->Clipped->contours->xmin - Bloat
+      && Box->Y1 <= Polygon->Clipped->contours->ymax + Bloat
+      && Box->Y2 >= Polygon->Clipped->contours->ymin - Bloat)
     {
-      LineType line;
+      POLYAREA *ap;
 
-      Box = GetArcEnds (Arc);
-      if (IsPointInPolygon
-	  (Box->X1, Box->Y1, MAX (0.5 * Arc->Thickness + fBloat, 0.0),
-	   Polygon)
-	  || IsPointInPolygon (Box->X2, Box->Y2,
-			       MAX (0.5 * Arc->Thickness + fBloat, 0.0),
-			       Polygon))
-	return ArcPolyCandidate (Arc, Polygon);
-
-      /* check all lines, start with the connection of the first-last
-       * polygon point; POLYGONPOINT_LOOP decrements the pointers !!!
-       */
-
-      line.Point1 = Polygon->Points[0];
-      line.Thickness = 0;
-      line.Flags = NoFlags ();
-
-      POLYGONPOINT_LOOP (Polygon);
-      {
-	line.Point2.X = point->X;
-	line.Point2.Y = point->Y;
-	if (LineArcIntersect (&line, Arc))
-	  return ArcPolyCandidate (Arc, Polygon);
-	line.Point1.X = line.Point2.X;
-	line.Point1.Y = line.Point2.Y;
-      }
-      END_LOOP;
+      if (!(ap = ArcPoly (Arc, Arc->Thickness + Bloat)))
+	return False;		/* error */
+      return isects (ap, Polygon, True);
     }
-  return (False);
+  return False;
 }
 
 /* ---------------------------------------------------------------------------
@@ -2531,51 +2519,24 @@ IsArcInPolygon (ArcTypePtr Arc, PolygonTypePtr Polygon)
 Boolean
 IsLineInPolygon (LineTypePtr Line, PolygonTypePtr Polygon)
 {
-  LocationType minx, maxx, miny, maxy;
+  BoxTypePtr Box = (BoxType *) Line;
+  POLYAREA *lp;
 
   /* lines with clearance never touch polygons */
   if (TEST_FLAG (CLEARPOLYFLAG, Polygon) && TEST_FLAG (CLEARLINEFLAG, Line))
-    return (False);
-  minx = MIN (Line->Point1.X, Line->Point2.X)
-    - MAX (Line->Thickness + Bloat, 0);
-  maxx = MAX (Line->Point1.X, Line->Point2.X)
-    + MAX (Line->Thickness + Bloat, 0);
-  miny = MIN (Line->Point1.Y, Line->Point2.Y)
-    - MAX (Line->Thickness + Bloat, 0);
-  maxy = MAX (Line->Point1.Y, Line->Point2.Y)
-    + MAX (Line->Thickness + Bloat, 0);
-  if (minx <= Polygon->BoundingBox.X2 && maxx >= Polygon->BoundingBox.X1
-      && miny <= Polygon->BoundingBox.Y2 && maxy >= Polygon->BoundingBox.Y1)
+    return False;
+  if (!Polygon->Clipped)
+    return False;
+  if (Box->X1 <= Polygon->Clipped->contours->xmax + Bloat
+      && Box->X2 >= Polygon->Clipped->contours->xmin - Bloat
+      && Box->Y1 <= Polygon->Clipped->contours->ymax + Bloat
+      && Box->Y2 >= Polygon->Clipped->contours->ymin - Bloat)
     {
-      LineType line;
-      if (IsPointInPolygon (Line->Point1.X, Line->Point1.Y,
-			    MAX (0.5 * Line->Thickness + fBloat, 0.0),
-			    Polygon)
-	  || IsPointInPolygon (Line->Point2.X, Line->Point2.Y,
-			       MAX (0.5 * Line->Thickness + fBloat, 0.0),
-			       Polygon))
-	return LinePolyCandidate (Line, Polygon);
-
-      /* check all lines, start with the connection of the first-last
-       * polygon point; POLYGONPOINT_LOOP decrements the pointers !!!
-       */
-
-      line.Point1 = Polygon->Points[0];
-      line.Thickness = 0;
-      line.Flags = NoFlags ();
-
-      POLYGONPOINT_LOOP (Polygon);
-      {
-	line.Point2.X = point->X;
-	line.Point2.Y = point->Y;
-	if (LineLineIntersect (Line, &line))
-	  return LinePolyCandidate (Line, Polygon);
-	line.Point1.X = line.Point2.X;
-	line.Point1.Y = line.Point2.Y;
-      }
-      END_LOOP;
+      if (!(lp = LinePoly (Line, Line->Thickness + Bloat)))
+	return FALSE;		/* error */
+      return isects (lp, Polygon, True);
     }
-  return (False);
+  return False;
 }
 
 /* ---------------------------------------------------------------------------
@@ -2588,7 +2549,7 @@ IsPadInPolygon (PadTypePtr pad, PolygonTypePtr polygon)
 {
   if (TEST_FLAG (SQUAREFLAG, pad))
     {
-      BDimension wid = pad->Thickness / 2;
+      BDimension wid = (pad->Thickness + Bloat + 1) / 2;
       LocationType x1, x2, y1, y2;
 
       x1 = MIN (pad->Point1.X, pad->Point2.X) - wid;
@@ -2610,43 +2571,52 @@ IsPadInPolygon (PadTypePtr pad, PolygonTypePtr polygon)
 Boolean
 IsPolygonInPolygon (PolygonTypePtr P1, PolygonTypePtr P2)
 {
+  if (!P1->Clipped || !P2->Clipped)
+    return False;
+  assert (P1->Clipped->contours);
+  assert (P2->Clipped->contours);
   /* first check if both bounding boxes intersect */
-  if (P1->BoundingBox.X1 - Bloat <= P2->BoundingBox.X2 &&
-      P1->BoundingBox.X2 + Bloat >= P2->BoundingBox.X1 &&
-      P1->BoundingBox.Y1 - Bloat <= P2->BoundingBox.Y2 &&
-      P1->BoundingBox.Y2 + Bloat >= P2->BoundingBox.Y1)
+  if (P1->Clipped->contours->xmin - Bloat <= P2->Clipped->contours->xmax &&
+      P1->Clipped->contours->xmax + Bloat >= P2->Clipped->contours->xmin &&
+      P1->Clipped->contours->ymin - Bloat <= P2->Clipped->contours->ymax &&
+      P1->Clipped->contours->ymax + Bloat >= P2->Clipped->contours->ymin)
     {
-      LineType line;
+      PLINE *c;
 
-      POLYGONPOINT_LOOP (P2);
-      {
-	if (IsPointInPolygon (point->X, point->Y, 0, P1))
-	  return (True);
-	else
-	  break;		/* only one point need be tested */
-      }
-      END_LOOP;
+      /* first check un-bloated case */
+      if (isects (P1->Clipped, P2, False))
+	return TRUE;
+      if (Bloat > 0)
+	{
+	  /* now the difficult case of bloated */
+	  for (c = P1->Clipped->contours; c; c = c->next)
+	    {
+	      LineType line;
+	      VNODE *v = &c->head;
+	      if (c->xmin - Bloat <= P2->Clipped->contours->xmax &&
+		  c->xmax + Bloat >= P2->Clipped->contours->xmin &&
+		  c->ymin - Bloat <= P2->Clipped->contours->ymax &&
+		  c->ymax + Bloat >= P2->Clipped->contours->ymin)
+		{
 
-      /* check all lines of P1 against P2;
-       * POLYGONPOINT_LOOP decrements the pointer !!!
-       */
-
-
-      line.Point1.X = P1->Points[0].X;
-      line.Point1.Y = P1->Points[0].Y;
-      line.Thickness = 0;
-      line.Flags = NoFlags ();
-
-      POLYGONPOINT_LOOP (P1);
-      {
-	line.Point2.X = point->X;
-	line.Point2.Y = point->Y;
-	if (IsLineInPolygon (&line, P2))
-	  return (True);
-	line.Point1.X = line.Point2.X;
-	line.Point1.Y = line.Point2.Y;
-      }
-      END_LOOP;
+		  line.Point1.X = v->point[0];
+		  line.Point1.Y = v->point[1];
+		  line.Thickness = 2 * Bloat;
+		  line.Clearance = 0;
+		  line.Flags = NoFlags ();
+		  for (v = v->next; v != &c->head; v = v->next)
+		    {
+		      line.Point2.X = v->point[0];
+		      line.Point2.Y = v->point[1];
+		      SetLineBoundingBox (&line);
+		      if (IsLineInPolygon (&line, P2))
+			return (True);
+		      line.Point1.X = line.Point2.X;
+		      line.Point1.Y = line.Point2.Y;
+		    }
+		}
+	    }
+	}
     }
   return (False);
 }
@@ -2715,7 +2685,7 @@ PrintPadConnections (Cardinal Layer, FILE * FP, Boolean IsFirst)
   if (IsFirst)
     {
       ptr = PADLIST_ENTRY (Layer, 0);
-      if (ptr != NULL )
+      if (ptr != NULL)
 	PrintConnectionListEntry (UNKNOWN (ptr->Name), NULL, True, FP);
       else
 	printf ("Skipping NULL ptr in 1st part of PrintPadConnections\n");
@@ -2727,10 +2697,10 @@ PrintPadConnections (Cardinal Layer, FILE * FP, Boolean IsFirst)
   for (i = IsFirst ? 1 : 0; i < PadList[Layer].Number; i++)
     {
       ptr = PADLIST_ENTRY (Layer, i);
-      if (ptr != NULL )
-         PrintConnectionListEntry (EMPTY (ptr->Name), ptr->Element, False, FP);
+      if (ptr != NULL)
+	PrintConnectionListEntry (EMPTY (ptr->Name), ptr->Element, False, FP);
       else
-	      printf ("Skipping NULL ptr in 2nd part of PrintPadConnections\n");
+	printf ("Skipping NULL ptr in 2nd part of PrintPadConnections\n");
     }
 }
 
@@ -3671,8 +3641,8 @@ RestoreFindFlag (void)
 /* DRC clearance callback */
 
 static int
-drc_callback (int type, void *ptr1, void *ptr2, void *ptr3,
-	      LayerTypePtr layer, PolygonTypePtr polygon)
+drc_callback (DataTypePtr data, LayerTypePtr layer, PolygonTypePtr polygon,
+             int type, void *ptr1, void *ptr2)
 {
   LineTypePtr line = (LineTypePtr) ptr2;
   ArcTypePtr arc = (ArcTypePtr) ptr2;
@@ -3682,49 +3652,49 @@ drc_callback (int type, void *ptr1, void *ptr2, void *ptr3,
   thing_type = type;
   thing_ptr1 = ptr1;
   thing_ptr2 = ptr2;
-  thing_ptr3 = ptr3;
+  thing_ptr3 = ptr2;
   switch (type)
     {
     case LINE_TYPE:
-      if (line->Clearance <= 2 * PCB->Bloat)
+      if (line->Clearance < 2 * PCB->Bloat)
 	{
-	  AddObjectToFlagUndoList (type, ptr1, ptr2, ptr3);
+	  AddObjectToFlagUndoList (type, ptr1, ptr2, ptr2);
 	  SET_FLAG (TheFlag, line);
 	  Message (_("Line with insufficient clearance inside polygon\n"));
 	  goto doIsBad;
 	}
       break;
     case ARC_TYPE:
-      if (arc->Clearance <= 2 * PCB->Bloat)
+      if (arc->Clearance < 2 * PCB->Bloat)
 	{
-	  AddObjectToFlagUndoList (type, ptr1, ptr2, ptr3);
+	  AddObjectToFlagUndoList (type, ptr1, ptr2, ptr2);
 	  SET_FLAG (TheFlag, arc);
 	  Message (_("Arc with insufficient clearance inside polygon\n"));
 	  goto doIsBad;
 	}
       break;
     case PAD_TYPE:
-      if (pad->Clearance <= 2 * PCB->Bloat)
+      if (pad->Clearance < 2 * PCB->Bloat)
 	{
-	  AddObjectToFlagUndoList (type, ptr1, ptr2, ptr3);
+	  AddObjectToFlagUndoList (type, ptr1, ptr2, ptr2);
 	  SET_FLAG (TheFlag, pad);
 	  Message (_("Pad with insufficient clearance inside polygon\n"));
 	  goto doIsBad;
 	}
       break;
     case PIN_TYPE:
-      if (pin->Clearance <= 2 * PCB->Bloat)
+      if (pin->Clearance < 2 * PCB->Bloat)
 	{
-	  AddObjectToFlagUndoList (type, ptr1, ptr2, ptr3);
+	  AddObjectToFlagUndoList (type, ptr1, ptr2, ptr2);
 	  SET_FLAG (TheFlag, pin);
 	  Message (_("Pin with insufficient clearance inside polygon\n"));
 	  goto doIsBad;
 	}
       break;
     case VIA_TYPE:
-      if (pin->Clearance && pin->Clearance <= 2 * PCB->Bloat)
+      if (pin->Clearance && pin->Clearance < 2 * PCB->Bloat)
 	{
-	  AddObjectToFlagUndoList (type, ptr1, ptr2, ptr3);
+	  AddObjectToFlagUndoList (type, ptr1, ptr2, ptr2);
 	  SET_FLAG (TheFlag, pin);
 	  Message (_("Via with insufficient clearance inside polygon\n"));
 	  goto doIsBad;
@@ -3817,24 +3787,15 @@ DRCAll (void)
   TheFlag = (IsBad) ? DRCFLAG : (FOUNDFLAG | DRCFLAG | SELECTEDFLAG);
   ResetConnections (False);
   TheFlag = SELECTEDFLAG;
-  /* check polygon clearances */
-  if (!IsBad)
-    {
-      Cardinal group;
-      BoxType all;
-
-      all.X1 = -MAX_COORD;
-      all.X2 = MAX_COORD;
-      all.Y1 = -MAX_COORD;
-      all.Y2 = MAX_COORD;
-      for (group = 0; group < max_layer; group++)
-	PolygonPlows (group, &all, drc_callback);
-    }
-  /* check minimum widths */
+  /* check minimum widths and polygon clearances */
   if (!IsBad)
     {
       COPPERLINE_LOOP (PCB->Data);
       {
+        /* check line clearances in polygons */
+        PlowsPolygon (PCB->Data, LINE_TYPE, layer, line, drc_callback);
+	if (IsBad)
+	  break;
 	if (line->Thickness < PCB->minWid)
 	  {
 	    AddObjectToFlagUndoList (LINE_TYPE, layer, line, line);
@@ -3859,6 +3820,9 @@ DRCAll (void)
     {
       COPPERARC_LOOP (PCB->Data);
       {
+        PlowsPolygon (PCB->Data, ARC_TYPE, layer, arc, drc_callback);
+	if (IsBad)
+	  break;
 	if (arc->Thickness < PCB->minWid)
 	  {
 	    AddObjectToFlagUndoList (ARC_TYPE, layer, arc, arc);
@@ -3883,6 +3847,9 @@ DRCAll (void)
     {
       ALLPIN_LOOP (PCB->Data);
       {
+        PlowsPolygon (PCB->Data, PIN_TYPE, element, pin, drc_callback);
+	if (IsBad)
+	  break;
 	if (!TEST_FLAG (HOLEFLAG, pin) &&
 	    pin->Thickness - pin->DrillingHole < 2 * PCB->minWid)
 	  {
@@ -3921,7 +3888,7 @@ DRCAll (void)
 	    IncrementUndoSerialNumber ();
 	    Undo (False);
 	  }
-	if (!TEST_FLAG (HOLEFLAG, pin) && pin->DrillingHole < PCB->minDrill)
+	if (pin->DrillingHole < PCB->minDrill)
 	  {
 	    AddObjectToFlagUndoList (PIN_TYPE, element, pin, pin);
 	    SET_FLAG (TheFlag, pin);
@@ -3944,7 +3911,10 @@ DRCAll (void)
   if (!IsBad)
     {
       ALLPAD_LOOP (PCB->Data);
-      {
+      { 
+        PlowsPolygon (PCB->Data, PAD_TYPE, element, pad, drc_callback);
+	if (IsBad)
+	  break;
 	if (pad->Thickness < PCB->minWid)
 	  {
 	    AddObjectToFlagUndoList (PAD_TYPE, element, pad, pad);
@@ -3969,6 +3939,9 @@ DRCAll (void)
     {
       VIA_LOOP (PCB->Data);
       {
+        PlowsPolygon (PCB->Data, VIA_TYPE, via, via, drc_callback);
+	if (IsBad)
+	  break;
 	if (!TEST_FLAG (HOLEFLAG, via) &&
 	    via->Thickness - via->DrillingHole < 2 * PCB->minWid)
 	  {
@@ -4007,7 +3980,7 @@ DRCAll (void)
 	    IncrementUndoSerialNumber ();
 	    Undo (False);
 	  }
-	if (!TEST_FLAG (HOLEFLAG, via) && via->DrillingHole < PCB->minDrill)
+	if (via->DrillingHole < PCB->minDrill)
 	  {
 	    AddObjectToFlagUndoList (VIA_TYPE, via, via, via);
 	    SET_FLAG (TheFlag, via);
@@ -4171,7 +4144,7 @@ GotoError (void)
 			     (PCB->Data, (LayerTypePtr) thing_ptr1), True,
 			     True);
     }
-  CenterDisplay (X, Y - TO_PCB (Output.Height / 4), False);
+  CenterDisplay (X, Y, False);
 }
 
 void

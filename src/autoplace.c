@@ -619,7 +619,7 @@ ComputeCost (NetListTypePtr Nets, double T0, double T)
 PerturbationType
 createPerturbation (PointerListTypePtr selected, double T)
 {
-  PerturbationType pt={0};
+  PerturbationType pt = { 0 };
   /* pick element to perturb */
   pt.element = (ElementTypePtr) selected->Ptr[random () % selected->PtrN];
   /* exchange, flip/rotate or shift? */

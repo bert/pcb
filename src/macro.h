@@ -201,32 +201,15 @@
 
 #define FLAGS_EQUAL(F1,F2)	(memcmp (&F1, &F2, sizeof(FlagType)) == 0)
 
-#define THERMFLAG(L)		(1 << ((L) % 8))
+#define THERMFLAG(L)		(0xf << (4 *((L) % 2)))
 
-#define TEST_THERM(L,P)		((P)->Flags.t[(L)/8] & THERMFLAG(L) ? 1 : 0)
-#define SET_THERM(L,P)		(P)->Flags.t[(L)/8] |= THERMFLAG(L)
-#define CLEAR_THERM(L,P)	(P)->Flags.t[(L)/8] &= ~THERMFLAG(L)
-#define TOGGLE_THERM(L,P)	(P)->Flags.t[(L)/8] ^= THERMFLAG(L)
-#define ASSIGN_THERM(L,V,P)	(P)->Flags.t[(L)/8] = ((P)->Flags.t[(L)/8] & ~THERMFLAG(L)) | ((V) ? THERMFLAG(L) : 0)
+#define TEST_THERM(L,P)		((P)->Flags.t[(L)/2] & THERMFLAG(L) ? 1 : 0)
+#define GET_THERM(L,P)		(((P)->Flags.t[(L)/2] >> (4 * ((L) % 2))) & 0xf) 
+#define CLEAR_THERM(L,P)	(P)->Flags.t[(L)/2] &= ~THERMFLAG(L)
+#define ASSIGN_THERM(L,V,P)	(P)->Flags.t[(L)/2] = ((P)->Flags.t[(L)/2] & ~THERMFLAG(L)) | ((V)  << (4 * ((L) % 2)))
 
-#define TEST_PIP(L,P)		((P)->Flags.p[(L)/8] & THERMFLAG(L) ? 1 : 0)
-#define SET_PIP(L,P)		(P)->Flags.p[(L)/8] |= THERMFLAG(L)
-#define CLEAR_PIP(L,P)		(P)->Flags.p[(L)/8] &= ~THERMFLAG(L)
-
-/* Optimizations for common-ish cases.  */
-#if MAX_LAYER <= 8
-#define TEST_ANY_THERMS(P)	((P)->Flags.t[0] ? 1 : 0)
-#define TEST_ANY_PIPS(P)	((P)->Flags.p[0] ? 1 : 0)
-#else
-#if MAX_LAYER <= 16
-#define TEST_ANY_THERMS(P)	(((P)->Flags.t[0] | (P)->Flags.t[1]) ? 1 : 0)
-#define TEST_ANY_PIPS(P)	(((P)->Flags.p[0] | (P)->Flags.p[1]) ? 1 : 0)
-#else
 extern int mem_any_set (unsigned char *, int);
 #define TEST_ANY_THERMS(P)	mem_any_set((P)->Flags.t, sizeof((P)->Flags.t))
-#define TEST_ANY_PIPS(P)	mem_any_set((P)->Flags.p, sizeof((P)->Flags.p))
-#endif
-#endif
 
 /* ---------------------------------------------------------------------------
  * access macros for elements name structure
@@ -555,7 +538,7 @@ extern int mem_any_set (unsigned char *, int);
 	{					\
 		entry = &(top)->Entry[n]
 
-#define GROUP_LOOP(group) do { 	\
+#define GROUP_LOOP(data, group) do { 	\
 	Cardinal entry; \
         for (entry = 0; entry < PCB->LayerGroups.Number[(group)]; entry++) \
         { \
@@ -564,5 +547,11 @@ extern int mem_any_set (unsigned char *, int);
 		number = PCB->LayerGroups.Entries[(group)][entry]; \
 		if (number >= max_layer)	\
 		  continue;			\
-		layer = LAYER_PTR (number)
+		layer = &data->Layer[number];
+
+#define LAYER_LOOP(data, ml) do { \
+        Cardinal n; \
+	for (n = 0; n < ml; n++) \
+	{ \
+	   LayerTypePtr layer = (&data->Layer[(n)]);
 #endif

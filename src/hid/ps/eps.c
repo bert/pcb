@@ -608,7 +608,7 @@ static HID eps_hid = {
   sizeof (HID),
   "eps",
   "Encapsulated Postscript",
-  0, 0, 1, 0, 1,
+  0, 0, 1, 0, 1, 0,
   eps_get_export_options,
   eps_do_export,
   eps_parse_arguments,

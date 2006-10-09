@@ -76,11 +76,9 @@ is documented for that purpose.
 
 /* ---------------------------------------------------------------------- */
 
-static const char h_syntax[] =
-"h";
+static const char h_syntax[] = "h";
 
-static const char h_help[] =
-"Print a help message for commands.";
+static const char h_help[] = "Print a help message for commands.";
 
 /* %start-doc actions h
 
@@ -109,11 +107,9 @@ CommandHelp (int argc, char **argv, int x, int y)
 
 /* ---------------------------------------------------------------------- */
 
-static const char l_syntax[] =
-"l [name]";
+static const char l_syntax[] = "l [name]";
 
-static const char l_help[] =
-"Loads layout data.";
+static const char l_help[] = "Loads layout data.";
 
 /* %start-doc actions l
 
@@ -151,11 +147,9 @@ CommandLoadLayout (int argc, char **argv, int x, int y)
 
 /* --------------------------------------------------------------------------- */
 
-static const char le_syntax[] =
-"le [name]";
+static const char le_syntax[] = "le [name]";
 
-static const char le_help[] =
-"Loads an element into the current buffer.";
+static const char le_help[] = "Loads an element into the current buffer.";
 
 /* %start-doc actions le
 
@@ -189,11 +183,9 @@ CommandLoadElementToBuffer (int argc, char **argv, int x, int y)
 
 /* --------------------------------------------------------------------------- */
 
-static const char m_syntax[] =
-"m [name]";
+static const char m_syntax[] = "m [name]";
 
-static const char m_help[] =
-"Loads a layout into the current buffer.";
+static const char m_help[] = "Loads a layout into the current buffer.";
 
 /* %start-doc actions m
 
@@ -227,11 +219,9 @@ CommandLoadLayoutToBuffer (int argc, char **argv, int x, int y)
 
 /* --------------------------------------------------------------------------- */
 
-static const char q_syntax[] =
-"q";
+static const char q_syntax[] = "q";
 
-static const char q_help[] =
-"Quits the application after confirming.";
+static const char q_help[] = "Quits the application after confirming.";
 
 /* %start-doc actions q
 
@@ -249,11 +239,10 @@ CommandQuit (int argc, char **argv, int x, int y)
   return 0;
 }
 
-static const char qreally_syntax[] =
-"q!";
+static const char qreally_syntax[] = "q!";
 
 static const char qreally_help[] =
-"Quits the application without confirming.";
+  "Quits the application without confirming.";
 
 /* %start-doc actions q!
 
@@ -273,11 +262,9 @@ CommandReallyQuit (int argc, char **argv, int x, int y)
 
 /* ---------------------------------------------------------------------- */
 
-static const char rn_syntax[] =
-"rn [name]";
+static const char rn_syntax[] = "rn [name]";
 
-static const char rn_help[] =
-"Reads netlist.";
+static const char rn_help[] = "Reads netlist.";
 
 /* %start-doc actions rn
 
@@ -317,11 +304,9 @@ CommandLoadNetlist (int argc, char **argv, int x, int y)
 
 /* ---------------------------------------------------------------------- */
 
-static const char s_syntax[] =
-"s [name]";
+static const char s_syntax[] = "s [name]";
 
-static const char s_help[] =
-"Saves layout data.";
+static const char s_help[] = "Saves layout data.";
 
 /* %start-doc actions s
 
@@ -334,11 +319,9 @@ again or, if it is not available, a file select box will pop up.
 
 %end-doc */
 
-static const char w_syntax[] =
-"w [name]";
+static const char w_syntax[] = "w [name]";
 
-static const char w_help[] =
-"Saves layout data.";
+static const char w_help[] = "Saves layout data.";
 
 /* %start-doc actions w
 
@@ -367,11 +350,9 @@ CommandSaveLayout (int argc, char **argv, int x, int y)
 
 /* --------------------------------------------------------------------------- */
 
-static const char wq_syntax[] =
-"wq";
+static const char wq_syntax[] = "wq";
 
-static const char wq_help[] =
-"Saves the layout data and quits.";
+static const char wq_help[] = "Saves the layout data and quits.";
 
 /* %start-doc actions wq
 
@@ -394,25 +375,35 @@ CommandSaveLayoutAndQuit (int argc, char **argv, int x, int y)
 
 HID_Action command_action_list[] = {
   {"h", 0, CommandHelp,
-   h_help, h_syntax},
+   h_help, h_syntax}
+  ,
   {"l", 0, CommandLoadLayout,
-   l_help, l_syntax},
+   l_help, l_syntax}
+  ,
   {"le", 0, CommandLoadElementToBuffer,
-   le_help, le_syntax},
+   le_help, le_syntax}
+  ,
   {"m", 0, CommandLoadLayoutToBuffer,
-   m_help, m_syntax},
+   m_help, m_syntax}
+  ,
   {"q", 0, CommandQuit,
-   q_help, q_syntax},
+   q_help, q_syntax}
+  ,
   {"q!", 0, CommandReallyQuit,
-   qreally_help, qreally_syntax},
+   qreally_help, qreally_syntax}
+  ,
   {"rn", 0, CommandLoadNetlist,
-   rn_help, rn_syntax},
+   rn_help, rn_syntax}
+  ,
   {"s", 0, CommandSaveLayout,
-   s_help, s_syntax},
+   s_help, s_syntax}
+  ,
   {"w", 0, CommandSaveLayout,
-   w_help, w_syntax},
+   w_help, w_syntax}
+  ,
   {"wq", 0, CommandSaveLayoutAndQuit,
-   wq_help, wq_syntax},
+   wq_help, wq_syntax}
+  ,
 };
 
 REGISTER_ACTIONS (command_action_list)

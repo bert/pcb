@@ -116,7 +116,7 @@ HID lpr_hid = {
   sizeof (HID),
   "lpr",
   "Postscript print.",
-  0, 1, 0, 1, 0,
+  0, 1, 0, 1, 0, 0,
   lpr_get_export_options,
   lpr_do_export,
   lpr_parse_arguments,

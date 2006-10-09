@@ -744,7 +744,7 @@ HID ps_hid = {
   sizeof (HID),
   "ps",
   "Postscript export.",
-  0, 0, 1, 1, 0,
+  0, 0, 1, 1, 0, 0,
   ps_get_export_options,
   ps_do_export,
   ps_parse_arguments,
