@@ -16,6 +16,7 @@
 #include "hid.h"
 #include "../hidint.h"
 
+#include "error.h"
 #include "global.h"
 #include "misc.h"
 
@@ -35,6 +36,7 @@ int hid_num_hids = 0;
 extern HID hid_nogui;
 
 HID *gui = &hid_nogui;
+HID *exporter = NULL;
 
 int pixel_slop = 1;
 
@@ -70,7 +72,7 @@ hid_load_dir (char *dirname)
 	  && (st.st_mode & (S_IXUSR | S_IXGRP | S_IXOTH))
 	  && S_ISREG (st.st_mode))
 	{
-	  if ((so = dlopen (path, RTLD_NOW)) == NULL)
+	  if ((so = dlopen (path, RTLD_NOW | RTLD_GLOBAL)) == NULL)
 	    {
 	      fprintf(stderr, "dl_error: %s\n", dlerror ());
 	      continue;
@@ -461,7 +463,6 @@ hid_set_attribute (char *name, char *value)
       if (strcmp (name, ha->attributes[i].name) == 0)
 	{
 	  HID_Attribute *a = ha->attributes + i;
-	  char *ep;
 	  switch (ha->attributes[i].type)
 	    {
 	    case HID_Label:
@@ -548,7 +549,7 @@ hid_load_settings_1 (char *fname)
 void
 hid_load_settings ()
 {
-  char *home, *fname;
+  char *home;
   HID_AttrNode *ha;
   int i;
 

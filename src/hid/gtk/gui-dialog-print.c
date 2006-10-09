@@ -109,6 +109,7 @@ ghid_dialog_print (HID * printer)
       return;
     }
 
+  exporter = printer;
   tips = gtk_tooltips_new ();
 
   if (!PCB->PrintFilename)
@@ -326,7 +327,6 @@ ghid_dialog_export (void)
   GHidPort *out = &ghid_port;
   int i;
   HID **hids;
-  HID *exporter = NULL;
   GtkTooltips *tips;
 
   tips = gtk_tooltips_new ();
@@ -376,4 +376,6 @@ ghid_dialog_export (void)
   if (export_dialog != NULL)
     gtk_widget_destroy (export_dialog);
   export_dialog = NULL;
+
+  exporter = NULL;
 }

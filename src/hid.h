@@ -113,6 +113,8 @@ extern "C"
   int hid_action (const char *action);
   int hid_actionl (const char *action, ...);	/* NULL terminated */
   int hid_actionv (const char *action, int argc, char **argv);
+  void hid_save_settings (int);
+  void hid_load_settings (void);
 
 /* Parse the given string into action calls, and call `f' for each
    action found.  Returns nonzero if the action handler(s) return
@@ -458,6 +460,10 @@ extern "C"
 /* This is initially set to a "no-gui" gui, and later reset by
    hid_start_gui.  */
   extern HID *gui;
+
+/* This is either NULL or points to the current HID that is being called to
+	do the exporting. The gui HIDs set and unset this var.*/
+  extern HID *exporter;
 
 /* The GUI may set this to be approximately the PCB size of a pixel,
    to allow for near-misses in selection and changes in drawing items

@@ -968,6 +968,8 @@ Export (int argc, char **argv, int x, int y)
     return 1;
   printer = hids[i - 1];
 
+  exporter = printer;
+
   opts = printer->get_export_options (&n);
   vals = (HID_Attr_Val *) calloc (n, sizeof (HID_Attr_Val));
   if (lesstif_attribute_dialog (opts, n, vals))
@@ -977,6 +979,7 @@ Export (int argc, char **argv, int x, int y)
     }
   printer->do_export (vals);
   free (vals);
+  exporter = NULL;
   return 0;
 }
 
