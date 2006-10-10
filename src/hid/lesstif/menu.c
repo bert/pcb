@@ -18,8 +18,8 @@
 
 #include "hid.h"
 #include "../hidint.h"
-#include "lesstif.h"
 #include "resource.h"
+#include "lesstif.h"
 #include "mymem.h"
 
 #include "pcb-menu.h"
@@ -167,7 +167,6 @@ static LayerButtons *layer_button_list = 0;
 static int num_layer_buttons = 0;
 static int fg_colors[LB_NUM];
 static int bg_color;
-static int got_colors = 0;
 
 extern Widget lesstif_m_layer;
 
