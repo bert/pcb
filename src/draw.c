@@ -2136,7 +2136,7 @@ DrawPlainPolygon (LayerTypePtr Layer, PolygonTypePtr Polygon)
   if (gui->poly_dicer)
     {
       if (Polygon->Clipped)
-	NoHolesPolygonDicer (Polygon->Clipped->contours, DrawPolygonLowLevel);
+	NoHolesPolygonDicer (Polygon, DrawPolygonLowLevel);
     }
   else
     {

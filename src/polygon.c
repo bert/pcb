@@ -96,10 +96,10 @@ biggest (POLYAREA * p)
   do
     {
       if (n->contours->area > big)
-	{
-	  top = n;
-	  big = n->contours->area;
-	}
+        {
+          top = n;
+          big = n->contours->area;
+        }
     }
   while ((n = n->f) != p);
   assert (top);
@@ -141,12 +141,12 @@ original_poly (PolygonType * p)
     v[1] = point->Y;
     if (contour == NULL)
       {
-	if ((contour = poly_NewContour (v)) == NULL)
-	  return NULL;
+        if ((contour = poly_NewContour (v)) == NULL)
+          return NULL;
       }
     else
       {
-	poly_InclVertex (contour->head.prev, poly_CreateNode (v));
+        poly_InclVertex (contour->head.prev, poly_CreateNode (v));
       }
   }
   END_LOOP;
@@ -389,8 +389,8 @@ LinePoly (LineType * l, BDimension thick)
   half = (thick + 1) / 2;
   d =
     sqrt (SQUARE (l->Point1.X - l->Point2.X) +
-	  SQUARE (l->Point1.Y - l->Point2.Y));
-  if (d == 0)			/* line is a point */
+          SQUARE (l->Point1.Y - l->Point2.Y));
+  if (d == 0)                   /* line is a point */
     return CirclePoly (l->Point1.X, l->Point1.Y, half);
   d = half / d;
   dx = (l->Point1.Y - l->Point2.Y) * d;
@@ -431,12 +431,12 @@ Subtract (POLYAREA * np1, PolygonType * p, Boolean fnp)
   assert (poly_Valid (p->Clipped));
   assert (poly_Valid (np));
   if (fnp)
-  x = poly_Boolean_free (p->Clipped, np, &merged, PBO_SUB);
+    x = poly_Boolean_free (p->Clipped, np, &merged, PBO_SUB);
   else
-  {
-  x = poly_Boolean (p->Clipped, np, &merged, PBO_SUB);
-  poly_Free (&p->Clipped);
-  }
+    {
+      x = poly_Boolean (p->Clipped, np, &merged, PBO_SUB);
+      poly_Free (&p->Clipped);
+    }
   assert (!merged || poly_Valid (merged));
   if (x != err_ok)
     {
@@ -449,8 +449,8 @@ Subtract (POLYAREA * np1, PolygonType * p, Boolean fnp)
   assert (!p->Clipped || poly_Valid (p->Clipped));
   if (!p->Clipped)
     Message ("Polygon cleared out of existence near (%d, %d)\n",
-	     (p->BoundingBox.X1 + p->BoundingBox.X2) / 2,
-	     (p->BoundingBox.Y1 + p->BoundingBox.Y2) / 2);
+             (p->BoundingBox.X1 + p->BoundingBox.X2) / 2,
+             (p->BoundingBox.Y1 + p->BoundingBox.Y2) / 2);
   return 1;
 }
 
@@ -462,7 +462,7 @@ PinPoly (PinType * pin, BDimension thick)
   if (TEST_FLAG (SQUAREFLAG, pin))
     {
       return RectPoly (pin->X - size, pin->X + size, pin->Y - size,
-		       pin->Y + size);
+                       pin->Y + size);
     }
   else if (TEST_FLAG (OCTAGONFLAG, pin))
     {
@@ -487,7 +487,7 @@ SubtractPin (DataType * d, PinType * pin, LayerType * l, PolygonType * p)
     np = PinPoly (pin, pin->Thickness + pin->Clearance);
   if (!np)
     return 0;
-  return Subtract (np, p, TRUE); //!TEST_THERM (i, pin));
+  return Subtract (np, p, TRUE);        //!TEST_THERM (i, pin));
 }
 
 static int
@@ -528,13 +528,13 @@ SubtractPad (PadType * pad, PolygonType * p)
       y1 = MIN (pad->Point1.Y, pad->Point2.Y) - t;
       y2 = MAX (pad->Point1.Y, pad->Point2.Y) + t;
       if (!(np = RectPoly (x1, x2, y1, y2)))
-	return 0;
+        return 0;
     }
   else
     {
       if (!
-	  (np = LinePoly ((LineType *) pad, pad->Thickness + pad->Clearance)))
-	return 0;
+          (np = LinePoly ((LineType *) pad, pad->Thickness + pad->Clearance)))
+        return 0;
     }
   return Subtract (np, p, True);
 }
@@ -610,19 +610,20 @@ line_sub_callback (const BoxType * b, void *cl)
   return SubtractLine (line, polygon);
 }
 
-static int Group (DataTypePtr Data, Cardinal layer)
+static int
+Group (DataTypePtr Data, Cardinal layer)
 {
   Cardinal i, j;
-  for (i =0; i < max_layer; i++)
-    for (j = 0; j < ((PCBType *)(Data->pcb))->LayerGroups.Number[i]; j++)
-      if (layer == ((PCBType *)(Data->pcb))->LayerGroups.Entries[i][j])
+  for (i = 0; i < max_layer; i++)
+    for (j = 0; j < ((PCBType *) (Data->pcb))->LayerGroups.Number[i]; j++)
+      if (layer == ((PCBType *) (Data->pcb))->LayerGroups.Entries[i][j])
         return i;
   return i;
 }
 
 static int
 clearPoly (DataTypePtr Data, LayerTypePtr Layer, PolygonType * polygon,
-	   const BoxType * here, BDimension expand)
+           const BoxType * here, BDimension expand)
 {
   int r = 0;
   BoxType region;
@@ -649,7 +650,8 @@ clearPoly (DataTypePtr Data, LayerTypePtr Layer, PolygonType * polygon,
   {
     r += r_search (layer->line_tree, &region, NULL, line_sub_callback, &info);
     r += r_search (layer->arc_tree, &region, NULL, arc_sub_callback, &info);
-    if (info.solder || group == GetLayerGroupNumberByNumber (max_layer + COMPONENT_LAYER))
+    if (info.solder
+        || group == Group (Data, max_layer + COMPONENT_LAYER))
       r += r_search (Data->pad_tree, &region, NULL, pad_sub_callback, &info);
   }
   END_LOOP;
@@ -688,7 +690,8 @@ UnsubtractPin (PinType * pin, LayerType * l, PolygonType * p)
     return 0;
   if (!Unsubtract (np, p))
     return 0;
-  clearPoly (PCB->Data, l, p, (const BoxType *) pin, 0.1 * (pin->Thickness + pin->Clearance));
+  clearPoly (PCB->Data, l, p, (const BoxType *) pin,
+             0.1 * (pin->Thickness + pin->Clearance));
   return 1;
 }
 
@@ -738,16 +741,16 @@ UnsubtractPad (PadType * pad, LayerType * l, PolygonType * p)
       y1 = MIN (pad->Point1.Y, pad->Point2.Y) - t;
       y2 = MAX (pad->Point1.Y, pad->Point2.Y) + t;
       if (!(np = RectPoly (x1, x2, y1, y2)))
-	return 0;
+        return 0;
     }
   else
     {
       /* overlap a bit to prevent notches from rounding errors */
       if (!
-	  (np =
-	   LinePoly ((LineType *) pad,
-		     pad->Thickness + pad->Clearance + 100)))
-	return 0;
+          (np =
+           LinePoly ((LineType *) pad,
+                     pad->Thickness + pad->Clearance + 100)))
+        return 0;
     }
   if (!Unsubtract (np, p))
     return 0;
@@ -792,18 +795,18 @@ RemoveExcessPolygonPoints (LayerTypePtr Layer, PolygonTypePtr Polygon)
     {
       /* wrap around polygon */
       if (n == 1)
-	pt1 = &Polygon->Points[0];
+        pt1 = &Polygon->Points[0];
       if (n == Polygon->PointN - 1)
-	pt3 = &Polygon->Points[0];
+        pt3 = &Polygon->Points[0];
       line.Point1 = *pt1;
       line.Point2 = *pt3;
       line.Thickness = 0;
       if (IsPointOnLine ((float) pt2->X, (float) pt2->Y, 0.0, &line))
-	{
-	  RemoveObject (POLYGONPOINT_TYPE, (void *) Layer, (void *) Polygon,
-			(void *) pt2);
-	  changed = True;
-	}
+        {
+          RemoveObject (POLYGONPOINT_TYPE, (void *) Layer, (void *) Polygon,
+                        (void *) pt2);
+          changed = True;
+        }
     }
   return (changed);
 }
@@ -815,7 +818,7 @@ RemoveExcessPolygonPoints (LayerTypePtr Layer, PolygonTypePtr Polygon)
  */
 Cardinal
 GetLowestDistancePolygonPoint (PolygonTypePtr Polygon, LocationType X,
-			       LocationType Y)
+                               LocationType Y)
 {
   double mindistance = (double) MAX_COORD * MAX_COORD;
   PointTypePtr ptr1 = &Polygon->Points[Polygon->PointN - 1],
@@ -835,29 +838,29 @@ GetLowestDistancePolygonPoint (PolygonTypePtr Polygon, LocationType X,
       dx = ptr2->X - ptr1->X;
       dy = ptr2->Y - ptr1->Y;
       if (dx != 0.0 || dy != 0.0)
-	{
-	  /* projected intersection is at P1 + u(P2 - P1) */
-	  u = ((X - ptr1->X) * dx + (Y - ptr1->Y) * dy) / (dx * dx + dy * dy);
+        {
+          /* projected intersection is at P1 + u(P2 - P1) */
+          u = ((X - ptr1->X) * dx + (Y - ptr1->Y) * dy) / (dx * dx + dy * dy);
 
-	  if (u < 0.0)
-	    {			/* ptr1 is closest point */
-	      u = SQUARE (X - ptr1->X) + SQUARE (Y - ptr1->Y);
-	    }
-	  else if (u > 1.0)
-	    {			/* ptr2 is closest point */
-	      u = SQUARE (X - ptr2->X) + SQUARE (Y - ptr2->Y);
-	    }
-	  else
-	    {			/* projected intersection is closest point */
-	      u = SQUARE (X - ptr1->X * (1.0 - u) - u * ptr2->X) +
-		SQUARE (Y - ptr1->Y * (1.0 - u) - u * ptr2->Y);
-	    }
-	  if (u < mindistance)
-	    {
-	      mindistance = u;
-	      result = n;
-	    }
-	}
+          if (u < 0.0)
+            {                   /* ptr1 is closest point */
+              u = SQUARE (X - ptr1->X) + SQUARE (Y - ptr1->Y);
+            }
+          else if (u > 1.0)
+            {                   /* ptr2 is closest point */
+              u = SQUARE (X - ptr2->X) + SQUARE (Y - ptr2->Y);
+            }
+          else
+            {                   /* projected intersection is closest point */
+              u = SQUARE (X - ptr1->X * (1.0 - u) - u * ptr2->X) +
+                SQUARE (Y - ptr1->Y * (1.0 - u) - u * ptr2->Y);
+            }
+          if (u < mindistance)
+            {
+              mindistance = u;
+              result = n;
+            }
+        }
       ptr1 = ptr2;
     }
   return (result);
@@ -885,13 +888,13 @@ GoToPreviousPoint (void)
       /* back-up one point */
     default:
       {
-	PointTypePtr points = Crosshair.AttachedPolygon.Points;
-	Cardinal n = Crosshair.AttachedPolygon.PointN - 2;
+        PointTypePtr points = Crosshair.AttachedPolygon.Points;
+        Cardinal n = Crosshair.AttachedPolygon.PointN - 2;
 
-	Crosshair.AttachedPolygon.PointN--;
-	Crosshair.AttachedLine.Point1.X = points[n].X;
-	Crosshair.AttachedLine.Point1.Y = points[n].Y;
-	break;
+        Crosshair.AttachedPolygon.PointN--;
+        Crosshair.AttachedLine.Point1.X = points[n].X;
+        Crosshair.AttachedLine.Point1.Y = points[n].Y;
+        break;
       }
     }
 }
@@ -911,21 +914,21 @@ ClosePolygon (void)
        * if closing the polygon makes sense
        */
       if (!TEST_FLAG (ALLDIRECTIONFLAG, PCB))
-	{
-	  BDimension dx, dy;
+        {
+          BDimension dx, dy;
 
-	  dx = abs (Crosshair.AttachedPolygon.Points[n - 1].X -
-		    Crosshair.AttachedPolygon.Points[0].X);
-	  dy = abs (Crosshair.AttachedPolygon.Points[n - 1].Y -
-		    Crosshair.AttachedPolygon.Points[0].Y);
-	  if (!(dx == 0 || dy == 0 || dx == dy))
-	    {
-	      Message
-		(_
-		 ("Cannot close polygon because 45 degree lines are requested.\n"));
-	      return;
-	    }
-	}
+          dx = abs (Crosshair.AttachedPolygon.Points[n - 1].X -
+                    Crosshair.AttachedPolygon.Points[0].X);
+          dy = abs (Crosshair.AttachedPolygon.Points[n - 1].Y -
+                    Crosshair.AttachedPolygon.Points[0].Y);
+          if (!(dx == 0 || dy == 0 || dx == dy))
+            {
+              Message
+                (_
+                 ("Cannot close polygon because 45 degree lines are requested.\n"));
+              return;
+            }
+        }
       CopyAttachedPolygonToLayer ();
       Draw ();
     }
@@ -991,15 +994,15 @@ hole_callback (const BoxType * b, void *cl)
   do
     {
       for (pl = pa->contours->next; pl; pl = pl->next)
-	{
-	  if (pl->xmin > hole->range->X2 || pl->xmax < hole->range->X1 ||
-	      pl->ymin > hole->range->Y2 || pl->ymax < hole->range->Y1)
-	    continue;
-	  if (hole->callback (pl, hole->layer, polygon))
-	    {
-	      longjmp (hole->env, 1);
-	    }
-	}
+        {
+          if (pl->xmin > hole->range->X2 || pl->xmax < hole->range->X1 ||
+              pl->ymin > hole->range->Y2 || pl->ymax < hole->range->Y1)
+            continue;
+          if (hole->callback (pl, hole->layer, polygon))
+            {
+              longjmp (hole->env, 1);
+            }
+        }
     }
   while ((pa = pa->f) != polygon->Clipped);
   return 0;
@@ -1011,8 +1014,8 @@ hole_callback (const BoxType * b, void *cl)
  */
 int
 PolygonHoles (int group, const BoxType * range,
-	      int (*any_call) (PLINE * contour,
-			       LayerTypePtr lay, PolygonTypePtr poly))
+              int (*any_call) (PLINE * contour,
+                               LayerTypePtr lay, PolygonTypePtr poly))
 {
   struct hole_info info;
 
@@ -1039,12 +1042,12 @@ struct plow_info
   LayerTypePtr layer;
   DataTypePtr data;
   int (*callback) (DataTypePtr, LayerTypePtr, PolygonTypePtr, int, void *,
-		   void *);
+                   void *);
 };
 
 static int
 subtract_plow (DataTypePtr Data, LayerTypePtr Layer, PolygonTypePtr Polygon,
-	       int type, void *ptr1, void *ptr2)
+               int type, void *ptr1, void *ptr2)
 {
   switch (type)
     {
@@ -1067,7 +1070,7 @@ subtract_plow (DataTypePtr Data, LayerTypePtr Layer, PolygonTypePtr Polygon,
 
 static int
 add_plow (DataTypePtr Data, LayerTypePtr Layer, PolygonTypePtr Polygon,
-	  int type, void *ptr1, void *ptr2)
+          int type, void *ptr1, void *ptr2)
 {
   switch (type)
     {
@@ -1094,15 +1097,17 @@ plow_callback (const BoxType * b, void *cl)
   struct plow_info *plow = (struct plow_info *) cl;
   PolygonTypePtr polygon = (PolygonTypePtr) b;
 
-  return plow->callback (plow->data, plow->layer, polygon, plow->type,
-			 plow->ptr1, plow->ptr2);
+  if (TEST_FLAG (CLEARPOLYFLAG, polygon))
+    return plow->callback (plow->data, plow->layer, polygon, plow->type,
+                           plow->ptr1, plow->ptr2);
+  return 0;
 }
 
 int
 PlowsPolygon (DataType * Data, int type, void *ptr1, void *ptr2,
-	      int (*call_back) (DataTypePtr data, LayerTypePtr lay,
-				PolygonTypePtr poly, int type, void *ptr1,
-				void *ptr2))
+              int (*call_back) (DataTypePtr data, LayerTypePtr lay,
+                                PolygonTypePtr poly, int type, void *ptr1,
+                                void *ptr2))
 {
   BoxType sb = ((PinTypePtr) ptr2)->BoundingBox;
   int r = 0;
@@ -1118,68 +1123,68 @@ PlowsPolygon (DataType * Data, int type, void *ptr1, void *ptr2,
     case PIN_TYPE:
     case VIA_TYPE:
       if (type == PIN_TYPE || ptr1 == ptr2 || ptr1 == NULL)
-	{
-	  LAYER_LOOP (Data, max_layer);
-	  {
-	    info.layer = layer;
-	    r +=
-	      r_search (layer->polygon_tree, &sb, NULL, plow_callback, &info);
-	  }
-	  END_LOOP;
-	}
+        {
+          LAYER_LOOP (Data, max_layer);
+          {
+            info.layer = layer;
+            r +=
+              r_search (layer->polygon_tree, &sb, NULL, plow_callback, &info);
+          }
+          END_LOOP;
+        }
       else
-	{
-	  GROUP_LOOP (Data, GetLayerGroupNumberByNumber (GetLayerNumber (Data,
-									 ((LayerTypePtr) ptr1))));
-	  {
-	    info.layer = layer;
-	    r +=
-	      r_search (layer->polygon_tree, &sb, NULL, plow_callback, &info);
-	  }
-	  END_LOOP;
-	}
+        {
+          GROUP_LOOP (Data, GetLayerGroupNumberByNumber (GetLayerNumber (Data,
+                                                                         ((LayerTypePtr) ptr1))));
+          {
+            info.layer = layer;
+            r +=
+              r_search (layer->polygon_tree, &sb, NULL, plow_callback, &info);
+          }
+          END_LOOP;
+        }
       break;
     case LINE_TYPE:
     case ARC_TYPE:
       /* the cast works equally well for lines and arcs */
       if (!TEST_FLAG (CLEARLINEFLAG, (LineTypePtr) ptr2))
-	return 0;
+        return 0;
       GROUP_LOOP (Data, GetLayerGroupNumberByNumber (GetLayerNumber (Data,
-								     ((LayerTypePtr) ptr1))));
+                                                                     ((LayerTypePtr) ptr1))));
       {
-	info.layer = layer;
-	r += r_search (layer->polygon_tree, &sb, NULL, plow_callback, &info);
+        info.layer = layer;
+        r += r_search (layer->polygon_tree, &sb, NULL, plow_callback, &info);
       }
       END_LOOP;
       break;
     case PAD_TYPE:
       {
-	Cardinal group = TEST_FLAG (ONSOLDERFLAG,
-				    (PadType *) ptr2) ? SOLDER_LAYER :
-	  COMPONENT_LAYER;
-	group = GetLayerGroupNumberByNumber (max_layer + group);
-	GROUP_LOOP (Data, group);
-	{
-	  info.layer = layer;
-	  r +=
-	    r_search (layer->polygon_tree, &sb, NULL, plow_callback, &info);
-	}
-	END_LOOP;
+        Cardinal group = TEST_FLAG (ONSOLDERFLAG,
+                                    (PadType *) ptr2) ? SOLDER_LAYER :
+          COMPONENT_LAYER;
+        group = GetLayerGroupNumberByNumber (max_layer + group);
+        GROUP_LOOP (Data, group);
+        {
+          info.layer = layer;
+          r +=
+            r_search (layer->polygon_tree, &sb, NULL, plow_callback, &info);
+        }
+        END_LOOP;
       }
       break;
 
     case ELEMENT_TYPE:
       {
-	PIN_LOOP ((ElementType *) ptr1);
-	{
-	  PlowsPolygon (Data, PIN_TYPE, ptr1, pin, call_back);
-	}
-	END_LOOP;
-	PAD_LOOP ((ElementType *) ptr1);
-	{
-	  PlowsPolygon (Data, PAD_TYPE, ptr1, pad, call_back);
-	}
-	END_LOOP;
+        PIN_LOOP ((ElementType *) ptr1);
+        {
+          PlowsPolygon (Data, PIN_TYPE, ptr1, pin, call_back);
+        }
+        END_LOOP;
+        PAD_LOOP ((ElementType *) ptr1);
+        {
+          PlowsPolygon (Data, PAD_TYPE, ptr1, pad, call_back);
+        }
+        END_LOOP;
       }
       break;
     }
@@ -1217,13 +1222,13 @@ isects (POLYAREA * a, PolygonTypePtr p, Boolean fr)
 
 Boolean
 IsPointInPolygon (LocationType X, LocationType Y, BDimension r,
-		  PolygonTypePtr p)
+                  PolygonTypePtr p)
 {
   POLYAREA *c;
   Vector v;
   v[0] = X;
   v[1] = Y;
-  if (poly_CheckInside( p->Clipped, v))
+  if (poly_CheckInside (p->Clipped, v))
     return True;
   r = max (r, 1);
   if (!(c = CirclePoly (X, Y, r)))
@@ -1233,7 +1238,7 @@ IsPointInPolygon (LocationType X, LocationType Y, BDimension r,
 
 Boolean
 IsRectangleInPolygon (LocationType X1, LocationType Y1, LocationType X2,
-		      LocationType Y2, PolygonTypePtr p)
+                      LocationType Y2, PolygonTypePtr p)
 {
   POLYAREA *s;
   if (!
@@ -1242,14 +1247,15 @@ IsRectangleInPolygon (LocationType X1, LocationType Y1, LocationType X2,
   return isects (s, p, True);
 }
 
-void
-NoHolesPolygonDicer (PLINE * p, void (*emit) (PolygonTypePtr))
+static void
+r_NoHolesPolygonDicer (PLINE * p, void (*emit) (PolygonTypePtr))
 {
-  POLYAREA pa;
+  POLYAREA *pa;
 
-  pa.f = pa.b = &pa;
-  pa.contours = p;
-  if (!p->next)			/* no holes */
+  pa = (POLYAREA *) malloc (sizeof (*pa));
+  pa->b = pa->f = pa;
+  pa->contours = p;
+  if (!p->next)                 /* no holes */
     {
       PolygonType poly;
       PointType pts[4];
@@ -1259,7 +1265,7 @@ NoHolesPolygonDicer (PLINE * p, void (*emit) (PolygonTypePtr))
       poly.BoundingBox.Y1 = p->ymin;
       poly.BoundingBox.Y2 = p->ymax;
       poly.PointN = poly.PointMax = 4;
-      poly.Clipped = &pa;
+      poly.Clipped = pa;
       poly.Points = pts;
       pts[0].X = pts[0].X2 = p->xmin;
       pts[0].Y = pts[0].Y2 = p->ymin;
@@ -1271,47 +1277,58 @@ NoHolesPolygonDicer (PLINE * p, void (*emit) (PolygonTypePtr))
       pts[3].Y = pts[3].Y2 = p->ymax;
       poly.Flags = MakeFlags (CLEARPOLYFLAG);
       emit (&poly);
+      poly_Free (&pa);
       return;
     }
   else
     {
-      POLYAREA *poly2, *res = NULL;
+      POLYAREA *poly2, *left, *right;
 
       /* make a rectangle of the left region slicing through the middle of the first hole */
-      poly2 = RectPoly (p->xmin, (p->next->xmin + p->next->xmax) / 2, p->ymin, p->ymax);
-      poly_Boolean (poly2, &pa, &res, PBO_ISECT);
-      poly_Free (&poly2);
-      if (res)
-	{
-	  POLYAREA *x;
-	  x = res;
-	  do
-	    {
-	      PLINE *pl = x->contours;
-	      NoHolesPolygonDicer (pl, emit);
-	    }
-	  while ((x = x->f) != res);
-	  poly_Free (&res);
-	}
-      /* make a rectangle of the right region slicing through the middle of the first hole */
-      poly2 = RectPoly ((p->next->xmin + p->next->xmax) / 2, p->xmax, p->ymin, p->ymax);
-      poly_Boolean (poly2, &pa, &res, PBO_ISECT);
-      poly_Free (&poly2);
-      if (res)
-	{
-	  POLYAREA *x;
-	  x = res;
-	  do
-	    {
-	      PLINE *pl = x->contours;
-	      NoHolesPolygonDicer (pl, emit);
-	    }
-	  while ((x = x->f) != res);
-	  poly_Free (&res);
-	}
+      poly2 =
+        RectPoly (p->xmin, (p->next->xmin + p->next->xmax) / 2, p->ymin,
+                  p->ymax);
+      poly_AndSubtract_free (pa, poly2, &left, &right);
+      if (left)
+        {
+          POLYAREA *x, *y;
+          x = left;
+          do
+            {
+              PLINE *pl = x->contours;
+              r_NoHolesPolygonDicer (pl, emit);
+              y = x->f;
+              /* the pline was already freed by its use int he recursive dicer */
+              free (x);
+            }
+          while ((x = y) != left);
+        }
+      if (right)
+        {
+          POLYAREA *x, *y;
+          x = right;
+          do
+            {
+              PLINE *pl = x->contours;
+              r_NoHolesPolygonDicer (pl, emit);
+              y = x->f;
+              free (x);
+            }
+          while ((x = y) != right);
+        }
     }
 }
 
+void
+NoHolesPolygonDicer (PolygonTypePtr p, void (*emit) (PolygonTypePtr))
+{
+  POLYAREA *save;
+
+  save = poly_Create ();
+  poly_Copy1 (save, p->Clipped);
+  r_NoHolesPolygonDicer (save->contours, emit);
+  free (save);
+}
 
 /* make a polygon split into multiple parts into multiple polygons */
 Boolean
@@ -1344,31 +1361,31 @@ MorphPolygon (LayerTypePtr layer, PolygonTypePtr poly)
       PolygonTypePtr new;
 
       if (p->contours->area > M_PI * PCB->Bloat * 0.5 * PCB->Bloat)
-	{
-	  new = CreateNewPolygon (layer, flags);
-	  if (!new)
-	    return False;
-	  many = True;
-	  v = &p->contours->head;
-	  CreateNewPointInPolygon (new, v->point[0], v->point[1]);
-	  for (v = v->next; v != &p->contours->head; v = v->next)
-	    CreateNewPointInPolygon (new, v->point[0], v->point[1]);
-	  SetPolygonBoundingBox (new);
-	  AddObjectToCreateUndoList (POLYGON_TYPE, layer, new, new);
-	  new->Clipped = p;
-	  p = p->f;		/* go to next pline */
-	  new->Clipped->b = new->Clipped->f = new->Clipped;	/* unlink from others */
-	  r_insert_entry (layer->polygon_tree, (BoxType *) new, 0);
-	  DrawPolygon (layer, new, 0);
-	}
+        {
+          new = CreateNewPolygon (layer, flags);
+          if (!new)
+            return False;
+          many = True;
+          v = &p->contours->head;
+          CreateNewPointInPolygon (new, v->point[0], v->point[1]);
+          for (v = v->next; v != &p->contours->head; v = v->next)
+            CreateNewPointInPolygon (new, v->point[0], v->point[1]);
+          SetPolygonBoundingBox (new);
+          AddObjectToCreateUndoList (POLYGON_TYPE, layer, new, new);
+          new->Clipped = p;
+          p = p->f;             /* go to next pline */
+          new->Clipped->b = new->Clipped->f = new->Clipped;     /* unlink from others */
+          r_insert_entry (layer->polygon_tree, (BoxType *) new, 0);
+          DrawPolygon (layer, new, 0);
+        }
       else
-	{
-	  POLYAREA *t = p;
+        {
+          POLYAREA *t = p;
 
-	  p = p->f;
-	  poly_DelContour (&t->contours);
-	  free (t);
-	}
+          p = p->f;
+          poly_DelContour (&t->contours);
+          free (t);
+        }
     }
   while (p != start);
   return many;

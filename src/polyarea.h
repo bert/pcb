@@ -169,6 +169,7 @@ enum PolygonBooleanOperation {
 
 int poly_Boolean(const POLYAREA * a, const POLYAREA * b, POLYAREA ** res, int action);
 int poly_Boolean_free(POLYAREA * a, POLYAREA * b, POLYAREA ** res, int action);
+int poly_AndSubtract_free(POLYAREA * a, POLYAREA * b, POLYAREA ** aandb, POLYAREA ** aminusb);
 int SavePOLYAREA( POLYAREA *PA, char * fname);
 #ifdef __cplusplus
 }
