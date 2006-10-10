@@ -1300,7 +1300,6 @@ lgbutton_expose (Widget w, XtPointer u, XmDrawingAreaCallbackStruct *cbs)
 static void
 lgbutton_input (Widget w, XtPointer u, XmDrawingAreaCallbackStruct *cbs)
 {
-  int i;
   int layer, group;
   if (cbs->event->type != ButtonPress)
     return;
@@ -1315,8 +1314,7 @@ lgbutton_input (Widget w, XtPointer u, XmDrawingAreaCallbackStruct *cbs)
 static void
 lgbutton_resize (Widget w, XtPointer u, XmDrawingAreaCallbackStruct *cbs)
 {
-  int i, label_width = 0;
-  int fa, fd;
+  int i;
   Dimension width, height;
   n = 0;
   stdarg(XmNwidth, &width);
@@ -1449,8 +1447,6 @@ EditLayerGroups (int argc, char **argv, int x, int y)
 {
   if (!layer_groups_form)
     {
-      Widget lb;
-      int i, j;
 
       n = 0;
       stdarg (XmNfractionBase, max_layer + 2);
