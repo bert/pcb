@@ -458,6 +458,8 @@ PanAction (int argc, char **argv, int x, int y)
       mode = atoi (argv[0]);
     }
   Pan (mode, Vx(x), Vy(y));
+
+  return 0;
 }
 
 static const char thindraw_syntax[] =
@@ -1209,7 +1211,6 @@ do_mouse_action (int button, int rel_mask)
 static void
 work_area_input (Widget w, XtPointer v, XEvent * e, Boolean * ctd)
 {
-  Resource *r;
   static int pressed_button = 0;
   static int ignore_release = 0;
 
@@ -1336,7 +1337,6 @@ lesstif_note_mouse_resource (Resource *res)
   for (bi=0; bi<res->c; bi++)
     {
       int button_num;
-      Resource *button;
 
       /* All mouse-related resources must be named.  The name is the
 	 mouse button number.  */
@@ -2152,7 +2152,6 @@ draw_grid ()
     }
   for (y = y1; y <= y2; y += PCB->Grid)
     {
-      int i;
       int vy = Vy (y);
       points[0].y = vy;
       XDrawPoints (display, pixmap, grid_gc, points, n, CoordModePrevious);
@@ -2657,7 +2656,6 @@ idle_proc (XtPointer dummy)
 
     if (old_nrats != PCB->Data->RatN)
       {
-	Widget w;
 	old_nrats = PCB->Data->RatN;
 	sprintf(buf, "%d rat%s", PCB->Data->RatN, PCB->Data->RatN == 1 ? "" : "s");
 	if (PCB->Data->RatN)
