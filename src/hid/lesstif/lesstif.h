@@ -53,10 +53,11 @@ extern void lesstif_show_netlist (void);
 extern Pixel lesstif_parse_color (char *value);
 extern void lesstif_insert_style_buttons (Widget menu);
 extern void lesstif_styles_update_values ();
+extern void lesstif_update_layer_groups ();
 extern void lesstif_update_status_line ();
 extern char *lesstif_prompt_for (char *, char *);
 extern void lesstif_log (const char *fmt, ...);
-#ifdef __RESOURCE_INCLUDED
+#ifdef __RESOURCE_INCLUDED__
 extern void lesstif_note_mouse_resource(Resource *res);
 #endif
 
