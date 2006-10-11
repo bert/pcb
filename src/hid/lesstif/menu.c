@@ -1037,7 +1037,7 @@ note_accelerator (char *acc, Resource * node)
     }
   else if (multi_key)
     {
-      acc_table_t *ap = &acc_table;
+      acc_table_t **ap = &acc_table;
       int *np = &acc_num;
 
       mods |= M_Multi;

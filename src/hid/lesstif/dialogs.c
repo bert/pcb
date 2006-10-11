@@ -1470,7 +1470,7 @@ EditLayerGroups (int argc, char **argv, int x, int y)
 
       XtGetSubresources (layer_groups_form, &lgr,
 			 "layergroups", "LayerGroups",
-			 &lg_resources, XtNumber(lg_resources), 0, 0);
+			 lg_resources, XtNumber(lg_resources), 0, 0);
 #if 0
       stdarg (XmNfractionBase, max_layer * (MAX_LAYER + 2));
       lg_buttonform = XmCreateForm (layer_groups_form, "lgbutton", args, n);
