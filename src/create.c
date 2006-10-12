@@ -140,6 +140,7 @@ CreateNewPCB (Boolean SetDefaultNames)
   ptr->Data->pcb = (void *)ptr;
 
   ptr->ThermStyle = 4;
+  ptr->IsleArea = 2.e8;
   ptr->SilkActive = False;
   ptr->RatDraw = False;
   SET_FLAG (NAMEONPCBFLAG, ptr);

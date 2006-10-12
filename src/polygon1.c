@@ -47,6 +47,7 @@
 #include	<string.h>
 #include "polyarea.h"
 #include "rtree.h"
+#include "heap.h"
 
 #define ROUND(a) (long)((a) > 0 ? ((a) + 0.5) : ((a) - 0.5))
 
@@ -211,11 +212,15 @@ new_descriptor (VNODE * a, char poly, char side)
     {
       if (side == 'P')
         {
+          if (a->prev->cvc_prev == (CVCList *) - 1)
+            a->prev->cvc_prev = a->prev->cvc_next = NULL;
           poly_ExclVertex (a->prev);
           vect_sub (v, a->prev->point, a->point);
         }
       else
         {
+          if (a->next->cvc_prev == (CVCList *) - 1)
+            a->next->cvc_prev = a->next->cvc_next = NULL;
           poly_ExclVertex (a->next);
           vect_sub (v, a->next->point, a->point);
         }
@@ -970,7 +975,8 @@ InsCntr (jmp_buf * e, PLINE * c, POLYAREA ** dst)
 }                               /* InsCntr */
 
 static void
-PutContour (jmp_buf * e, PLINE * cntr, POLYAREA ** contours, PLINE ** holes)
+PutContour (jmp_buf * e, PLINE * cntr, POLYAREA ** contours, PLINE ** holes,
+            PLINE * parent)
 {
   assert (cntr != NULL);
   cntr->next = NULL;
@@ -979,17 +985,35 @@ PutContour (jmp_buf * e, PLINE * cntr, POLYAREA ** contours, PLINE ** holes)
   /* put hole into temporary list */
   else
     {
-      assert (!cntr->next);
-      cntr->next = *holes;
-      *holes = cntr;            /* let cntr be 1st hole in list */
+      /* if we know this belongs inside the parent, put it there now */
+      if (parent)
+        {
+          cntr->next = parent->next;
+          parent->next = cntr;
+        }
+      else
+        {
+          cntr->next = *holes;
+          *holes = cntr;        /* let cntr be 1st hole in list */
+        }
     }
 }                               /* PutContour */
+
+static inline int
+cntrbox_inside (PLINE * c1, PLINE * c2)
+{
+  assert (c1 != NULL && c2 != NULL);
+  return ((c1->xmin >= c2->xmin) &&
+          (c1->ymin >= c2->ymin) &&
+          (c1->xmax <= c2->xmax) && (c1->ymax <= c2->ymax));
+}
 
 static void
 InsertHoles (jmp_buf * e, POLYAREA * dest, PLINE ** src)
 {
   POLYAREA *curc, *container;
   PLINE *curh;
+  heap_t *heap;
 
   if (*src == NULL)
     return;                     /* empty hole list */
@@ -1001,25 +1025,56 @@ InsertHoles (jmp_buf * e, POLYAREA * dest, PLINE ** src)
       *src = curh->next;
 
       container = NULL;
+      /* build a heap of all of the polys that the hole is inside its bounding box */
+      heap = heap_create ();
       curc = dest;
       do
         {
-          /* find the smallest container for the hole */
-          if (poly_ContourInContour (curc->contours, curh) &&
-              (container == NULL ||
-               poly_ContourInContour (container->contours, curc->contours)))
-            container = curc;
+          if (cntrbox_inside (curh, curc->contours))
+            heap_insert (heap, curc->contours->area, (void *) curc);
         }
       while ((curc = curc->f) != dest);
-      curh->next = NULL;
-      if (container == NULL)
+      if (heap_is_empty (heap))
         {
 #ifndef NDEBUG
           poly_dump (dest);
 #endif
-          /* bad input polygons were given */
-          error (err_bad_parm);
           poly_DelContour (&curh);
+          error (err_bad_parm);
+        }
+      /* Now search the heap for the container. If there was only one item
+       * in the heap, assume it is the container without the expense of
+       * proving it.
+       */
+      curc = (POLYAREA *) heap_remove_smallest (heap);
+      if (heap_is_empty (heap))
+        {                       /* only one possibility it must be the right one */
+          assert (poly_ContourInContour (curc->contours, curh));
+          container = curc;
+        }
+      else
+        do
+          {
+            if (poly_ContourInContour (curc->contours, curh))
+              {
+                container = curc;
+                break;
+              }
+            if (heap_is_empty (heap))
+              break;
+            curc = (POLYAREA *) heap_remove_smallest (heap);
+          }
+        while (1);
+      heap_destroy (&heap);
+      curh->next = NULL;
+      if (container == NULL)
+        {
+          /* bad input polygons were given */
+#ifndef NDEBUG
+          poly_dump (dest);
+#endif
+          poly_DelContour (&curh);
+          error (err_bad_parm);
         }
       else
         poly_InclContour (container, curh);
@@ -1250,7 +1305,7 @@ Collect (jmp_buf * e, PLINE * a, POLYAREA ** contours, PLINE ** holes,
         poly_PreContour (p, TRUE);
         DEBUGP ("adding contour with %d verticies and direction %c\n",
                 p->Count, p->Flags.orient ? 'F' : 'B');
-        PutContour (e, p, contours, holes);
+        PutContour (e, p, contours, holes, NULL);
       }
   while ((cur = cur->next) != &a->head);
 }                               /* Collect */
@@ -1258,7 +1313,7 @@ Collect (jmp_buf * e, PLINE * a, POLYAREA ** contours, PLINE ** holes,
 
 static int
 cntr_Collect (jmp_buf * e, PLINE ** A, POLYAREA ** contours, PLINE ** holes,
-              int action)
+              int action, PLINE * parent)
 {
   PLINE *tmprev;
 
@@ -1291,7 +1346,7 @@ cntr_Collect (jmp_buf * e, PLINE ** A, POLYAREA ** contours, PLINE ** holes,
               /* disappear this contour */
               *A = tmprev->next;
               tmprev->next = NULL;
-              PutContour (e, tmprev, contours, holes);
+              PutContour (e, tmprev, contours, holes, NULL);
               return TRUE;
             }
           break;
@@ -1303,7 +1358,7 @@ cntr_Collect (jmp_buf * e, PLINE ** A, POLYAREA ** contours, PLINE ** holes,
               *A = tmprev->next;
               tmprev->next = NULL;
               poly_InvContour (tmprev);
-              PutContour (e, tmprev, contours, holes);
+              PutContour (e, tmprev, contours, holes, NULL);
               return TRUE;
             }
           break;
@@ -1315,7 +1370,7 @@ cntr_Collect (jmp_buf * e, PLINE ** A, POLYAREA ** contours, PLINE ** holes,
               /* disappear this contour */
               *A = tmprev->next;
               tmprev->next = NULL;
-              PutContour (e, tmprev, contours, holes);
+              PutContour (e, tmprev, contours, holes, parent);
               return TRUE;
             }
           break;
@@ -1352,7 +1407,7 @@ M_B_AREA_Collect (jmp_buf * e, POLYAREA * bfst, POLYAREA ** contours,
                 next = cur;
                 tmp->next = NULL;
                 tmp->Flags.status = UNKNWN;
-                PutContour (e, tmp, contours, holes);
+                PutContour (e, tmp, contours, holes, NULL);
                 break;
               case PBO_UNITE:
                 break;          /* nothing to do - already included */
@@ -1368,7 +1423,7 @@ M_B_AREA_Collect (jmp_buf * e, POLYAREA * bfst, POLYAREA ** contours,
                 next = cur;
                 tmp->next = NULL;
                 tmp->Flags.status = UNKNWN;
-                PutContour (e, tmp, contours, holes);
+                PutContour (e, tmp, contours, holes, NULL);
                 break;
               case PBO_ISECT:
               case PBO_SUB:
@@ -1382,19 +1437,27 @@ M_B_AREA_Collect (jmp_buf * e, POLYAREA * bfst, POLYAREA ** contours,
 
 static void
 M_POLYAREA_Collect (jmp_buf * e, POLYAREA * afst, POLYAREA ** contours,
-                    PLINE ** holes, int action)
+                    PLINE ** holes, int action, BOOLp maybe)
 {
   POLYAREA *a = afst;
-  PLINE **cur, **next;
+  PLINE **cur, **next, *parent;
 
   assert (a != NULL);
   do
     {
+      parent = a->contours;
+      if (parent->Flags.status == ISECTED || !maybe)
+        parent = NULL;
       for (cur = &a->contours; *cur != NULL; cur = next)
         {
+          /* check conditions where we may know in advance that the hole remains
+           * inside the same parent contour.
+           */
           next = &((*cur)->next);
           /* if we disappear a contour, don't advance twice */
-          if (cntr_Collect (e, cur, contours, holes, action))
+          if (cntr_Collect
+              (e, cur, contours, holes, action,
+               *cur != parent ? parent : NULL))
             next = cur;
         }
     }
@@ -1456,7 +1519,8 @@ poly_Boolean (const POLYAREA * a_org, const POLYAREA * b_org, POLYAREA ** res,
       M_POLYAREA_label (a, b, FALSE);
       M_POLYAREA_label (b, a, FALSE);
 
-      M_POLYAREA_Collect (&e, a, res, &holes, action);
+      M_POLYAREA_Collect (&e, a, res, &holes, action, b->f == b
+                          && !b->contours->next);
       poly_Free (&a);
       M_B_AREA_Collect (&e, b, res, &holes, action);
       poly_Free (&b);
@@ -1504,7 +1568,8 @@ poly_Boolean_free (POLYAREA * ai, POLYAREA * bi, POLYAREA ** res, int action)
       M_POLYAREA_label (a, b, FALSE);
       M_POLYAREA_label (b, a, FALSE);
 
-      M_POLYAREA_Collect (&e, a, res, &holes, action);
+      M_POLYAREA_Collect (&e, a, res, &holes, action, b->f == b
+                          && !b->contours->next);
       poly_Free (&a);
       M_B_AREA_Collect (&e, b, res, &holes, action);
       poly_Free (&b);
@@ -1550,7 +1615,7 @@ clear_marks (POLYAREA * p)
 }
 
 /* compute the intersection and subtraction (divides "a" into two pieces)
- * and frees the input polys
+ * and frees the input polys. This assumes that bi is a single simple polygon.
  */
 int
 poly_AndSubtract_free (POLYAREA * ai, POLYAREA * bi, POLYAREA ** aandb,
@@ -1578,8 +1643,7 @@ poly_AndSubtract_free (POLYAREA * ai, POLYAREA * bi, POLYAREA ** aandb,
       M_POLYAREA_label (a, b, FALSE);
       M_POLYAREA_label (b, a, FALSE);
 
-      M_POLYAREA_Collect (&e, a, aandb, &holes, PBO_SUB);
-      //    M_B_AREA_Collect (&e, b, aandb, &holes, PBO_SUB);
+      M_POLYAREA_Collect (&e, a, aandb, &holes, PBO_ISECT, TRUE);
       InsertHoles (&e, *aandb, &holes);
       assert (poly_Valid (*aandb));
       /* delete holes if any left */
@@ -1591,8 +1655,7 @@ poly_AndSubtract_free (POLYAREA * ai, POLYAREA * bi, POLYAREA ** aandb,
       holes = NULL;
       clear_marks (a);
       clear_marks (b);
-      M_POLYAREA_Collect (&e, a, aminusb, &holes, PBO_ISECT);
-      //   M_B_AREA_Collect (&e, b, aminusb, &holes, PBO_ISECT);
+      M_POLYAREA_Collect (&e, a, aminusb, &holes, PBO_SUB, TRUE);
       InsertHoles (&e, *aminusb, &holes);
       poly_Free (&a);
       poly_Free (&b);
@@ -1623,15 +1686,6 @@ cntrbox_pointin (PLINE * c, Vector p)
   return (p[0] >= c->xmin && p[1] >= c->ymin &&
           p[0] <= c->xmax && p[1] <= c->ymax);
 
-}
-
-static inline int
-cntrbox_inside (PLINE * c1, PLINE * c2)
-{
-  assert (c1 != NULL && c2 != NULL);
-  return ((c1->xmin >= c2->xmin) &&
-          (c1->ymin >= c2->ymin) &&
-          (c1->xmax <= c2->xmax) && (c1->ymax <= c2->ymax));
 }
 
 static inline int

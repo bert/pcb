@@ -40,7 +40,7 @@
 #include "global.h"
 
 /* type of heap costs.  *must be integer!* */
-typedef float cost_t;
+typedef double cost_t;
 /* what a heap looks like */
 typedef struct heap_struct heap_t;
 

@@ -449,6 +449,7 @@ typedef struct
 
   double Grid,			/* used grid with offsets */
     Zoom,			/* zoom factor */
+    IsleArea,			/* minimum poly island to retain */
     ThermScale;			/* scale factor used with thermals */
   FontType Font;
   LayerGroupType LayerGroups;
