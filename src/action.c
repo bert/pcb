@@ -192,7 +192,7 @@ typedef enum
 }
 FunctionID;
 
-typedef struct			/* used to identify subfunctions */
+typedef struct                  /* used to identify subfunctions */
 {
   char *Identifier;
   FunctionID ID;
@@ -290,8 +290,8 @@ static struct
   int Y;
   Cardinal Buffer;
   Boolean Click;
-  Boolean Moving;		/* selected type clicked on */
-  int Hit;			/* move type clicked on */
+  Boolean Moving;               /* selected type clicked on */
+  int Hit;                      /* move type clicked on */
   void *ptr1;
   void *ptr2;
   void *ptr3;
@@ -454,89 +454,89 @@ FinishStroke (void)
     {
       num = atoi (msg);
       switch (num)
-	{
-	case 456:
-	  if (Settings.Mode == LINE_MODE)
-	    {
-	      SetMode (LINE_MODE);
-	    }
-	  break;
-	case 9874123:
-	case 74123:
-	case 987412:
-	case 8741236:
-	case 874123:
-	  RotateScreenObject (StrokeBox.X1, StrokeBox.Y1, SWAP_IDENT ? 1 : 3);
-	  break;
-	case 7896321:
-	case 786321:
-	case 789632:
-	case 896321:
-	  RotateScreenObject (StrokeBox.X1, StrokeBox.Y1, SWAP_IDENT ? 3 : 1);
-	  break;
-	case 258:
-	  SetMode (LINE_MODE);
-	  break;
-	case 852:
-	  SetMode (ARROW_MODE);
-	  break;
-	case 1478963:
-	  ActionUndo ("");
-	  break;
-	case 147423:
-	case 147523:
-	case 1474123:
-	  Redo (True);
-	  break;
-	case 148963:
-	case 147863:
-	case 147853:
-	case 145863:
-	  SetMode (VIA_MODE);
-	  break;
-	case 951:
-	case 9651:
-	case 9521:
-	case 9621:
-	case 9851:
-	case 9541:
-	case 96521:
-	case 96541:
-	case 98541:
-	  SetZoom (1000);	/* special zoom extents */
-	  break;
-	case 159:
-	case 1269:
-	case 1259:
-	case 1459:
-	case 1569:
-	case 1589:
-	case 12569:
-	case 12589:
-	case 14589:
-	  {
-	    LocationType x = (StrokeBox.X1 + StrokeBox.X2) / 2;
-	    LocationType y = (StrokeBox.Y1 + StrokeBox.Y2) / 2;
-	    int z;
-	    z =
-	      1 +
-	      log (fabs (StrokeBox.X2 - StrokeBox.X1) / Output.Width) /
-	      log (2.0);
-	    z =
-	      MAX (z,
-		   1 +
-		   log (fabs (StrokeBox.Y2 - StrokeBox.Y1) / Output.Height) /
-		   log (2.0));
-	    SetZoom (z);
+        {
+        case 456:
+          if (Settings.Mode == LINE_MODE)
+            {
+              SetMode (LINE_MODE);
+            }
+          break;
+        case 9874123:
+        case 74123:
+        case 987412:
+        case 8741236:
+        case 874123:
+          RotateScreenObject (StrokeBox.X1, StrokeBox.Y1, SWAP_IDENT ? 1 : 3);
+          break;
+        case 7896321:
+        case 786321:
+        case 789632:
+        case 896321:
+          RotateScreenObject (StrokeBox.X1, StrokeBox.Y1, SWAP_IDENT ? 3 : 1);
+          break;
+        case 258:
+          SetMode (LINE_MODE);
+          break;
+        case 852:
+          SetMode (ARROW_MODE);
+          break;
+        case 1478963:
+          ActionUndo ("");
+          break;
+        case 147423:
+        case 147523:
+        case 1474123:
+          Redo (True);
+          break;
+        case 148963:
+        case 147863:
+        case 147853:
+        case 145863:
+          SetMode (VIA_MODE);
+          break;
+        case 951:
+        case 9651:
+        case 9521:
+        case 9621:
+        case 9851:
+        case 9541:
+        case 96521:
+        case 96541:
+        case 98541:
+          SetZoom (1000);       /* special zoom extents */
+          break;
+        case 159:
+        case 1269:
+        case 1259:
+        case 1459:
+        case 1569:
+        case 1589:
+        case 12569:
+        case 12589:
+        case 14589:
+          {
+            LocationType x = (StrokeBox.X1 + StrokeBox.X2) / 2;
+            LocationType y = (StrokeBox.Y1 + StrokeBox.Y2) / 2;
+            int z;
+            z =
+              1 +
+              log (fabs (StrokeBox.X2 - StrokeBox.X1) / Output.Width) /
+              log (2.0);
+            z =
+              MAX (z,
+                   1 +
+                   log (fabs (StrokeBox.Y2 - StrokeBox.Y1) / Output.Height) /
+                   log (2.0));
+            SetZoom (z);
 
-	    CenterDisplay (x, y, False);
-	    break;
-	  }
+            CenterDisplay (x, y, False);
+            break;
+          }
 
-	default:
-	  Message ("Unknown stroke %s\n", msg);
-	  break;
-	}
+        default:
+          Message ("Unknown stroke %s\n", msg);
+          break;
+        }
     }
   else
     gui->beep ();
@@ -554,8 +554,8 @@ ClearWarnings ()
   {
     if (TEST_FLAG (WARNFLAG, pin))
       {
-	CLEAR_FLAG (WARNFLAG, pin);
-	DrawPin (pin, 0);
+        CLEAR_FLAG (WARNFLAG, pin);
+        DrawPin (pin, 0);
       }
   }
   ENDALL_LOOP;
@@ -563,8 +563,8 @@ ClearWarnings ()
   {
     if (TEST_FLAG (WARNFLAG, pad))
       {
-	CLEAR_FLAG (WARNFLAG, pad);
-	DrawPad (pad, 0);
+        CLEAR_FLAG (WARNFLAG, pad);
+        DrawPad (pad, 0);
       }
   }
   ENDALL_LOOP;
@@ -578,52 +578,52 @@ click_cb (hidval hv)
     {
       Note.Click = False;
       if (Note.Moving && !gui->shift_is_pressed ())
-	{
-	  HideCrosshair (True);
-	  Note.Buffer = Settings.BufferNumber;
-	  SetBufferNumber (MAX_BUFFER - 1);
-	  ClearBuffer (PASTEBUFFER);
-	  AddSelectedToBuffer (PASTEBUFFER, Note.X, Note.Y, True);
-	  SaveUndoSerialNumber ();
-	  RemoveSelected ();
-	  SaveMode ();
-	  saved_mode = True;
-	  SetMode (PASTEBUFFER_MODE);
-	  RestoreCrosshair (True);
-	}
+        {
+          HideCrosshair (True);
+          Note.Buffer = Settings.BufferNumber;
+          SetBufferNumber (MAX_BUFFER - 1);
+          ClearBuffer (PASTEBUFFER);
+          AddSelectedToBuffer (PASTEBUFFER, Note.X, Note.Y, True);
+          SaveUndoSerialNumber ();
+          RemoveSelected ();
+          SaveMode ();
+          saved_mode = True;
+          SetMode (PASTEBUFFER_MODE);
+          RestoreCrosshair (True);
+        }
       else if (Note.Hit && !gui->shift_is_pressed ())
-	{
-	  HideCrosshair (True);
-	  SaveMode ();
-	  saved_mode = True;
-	  SetMode (gui->control_is_pressed ()? COPY_MODE : MOVE_MODE);
-	  Crosshair.AttachedObject.Ptr1 = Note.ptr1;
-	  Crosshair.AttachedObject.Ptr2 = Note.ptr2;
-	  Crosshair.AttachedObject.Ptr3 = Note.ptr3;
-	  Crosshair.AttachedObject.Type = Note.Hit;
-	  AttachForCopy (Note.X, Note.Y);
-	  RestoreCrosshair (True);
-	}
+        {
+          HideCrosshair (True);
+          SaveMode ();
+          saved_mode = True;
+          SetMode (gui->control_is_pressed ()? COPY_MODE : MOVE_MODE);
+          Crosshair.AttachedObject.Ptr1 = Note.ptr1;
+          Crosshair.AttachedObject.Ptr2 = Note.ptr2;
+          Crosshair.AttachedObject.Ptr3 = Note.ptr3;
+          Crosshair.AttachedObject.Type = Note.Hit;
+          AttachForCopy (Note.X, Note.Y);
+          RestoreCrosshair (True);
+        }
       else
-	{
-	  BoxType box;
+        {
+          BoxType box;
 
-	  Note.Hit = 0;
-	  Note.Moving = False;
-	  HideCrosshair (True);
-	  SaveUndoSerialNumber ();
-	  box.X1 = -MAX_COORD;
-	  box.Y1 = -MAX_COORD;
-	  box.X2 = MAX_COORD;
-	  box.Y2 = MAX_COORD;
-	  /* unselect first if shift key not down */
-	  if (!gui->shift_is_pressed () && SelectBlock (&box, False))
-	    SetChangedFlag (True);
-	  NotifyBlock ();
-	  Crosshair.AttachedBox.Point1.X = Note.X;
-	  Crosshair.AttachedBox.Point1.Y = Note.Y;
-	  RestoreCrosshair (True);
-	}
+          Note.Hit = 0;
+          Note.Moving = False;
+          HideCrosshair (True);
+          SaveUndoSerialNumber ();
+          box.X1 = -MAX_COORD;
+          box.Y1 = -MAX_COORD;
+          box.X2 = MAX_COORD;
+          box.Y2 = MAX_COORD;
+          /* unselect first if shift key not down */
+          if (!gui->shift_is_pressed () && SelectBlock (&box, False))
+            SetChangedFlag (True);
+          NotifyBlock ();
+          Crosshair.AttachedBox.Point1.X = Note.X;
+          Crosshair.AttachedBox.Point1.Y = Note.Y;
+          RestoreCrosshair (True);
+        }
     }
 }
 
@@ -641,23 +641,23 @@ ReleaseMode (void)
       box.X2 = MAX_COORD;
       box.Y2 = MAX_COORD;
 
-      Note.Click = False;	/* inhibit timer action */
+      Note.Click = False;       /* inhibit timer action */
       SaveUndoSerialNumber ();
       /* unselect first if shift key not down */
       if (!gui->shift_is_pressed ())
-	{
-	  if (SelectBlock (&box, False))
-	    SetChangedFlag (True);
-	  if (Note.Moving)
-	    {
-	      Note.Moving = 0;
-	      Note.Hit = 0;
-	      return;
-	    }
-	}
+        {
+          if (SelectBlock (&box, False))
+            SetChangedFlag (True);
+          if (Note.Moving)
+            {
+              Note.Moving = 0;
+              Note.Hit = 0;
+              return;
+            }
+        }
       RestoreUndoSerialNumber ();
       if (SelectObject ())
-	SetChangedFlag (True);
+        SetChangedFlag (True);
       Note.Hit = 0;
       Note.Moving = 0;
     }
@@ -678,18 +678,18 @@ ReleaseMode (void)
   else if (Settings.Mode == ARROW_MODE)
     {
       box.X1 = MIN (Crosshair.AttachedBox.Point1.X,
-		    Crosshair.AttachedBox.Point2.X);
+                    Crosshair.AttachedBox.Point2.X);
       box.Y1 = MIN (Crosshair.AttachedBox.Point1.Y,
-		    Crosshair.AttachedBox.Point2.Y);
+                    Crosshair.AttachedBox.Point2.Y);
       box.X2 = MAX (Crosshair.AttachedBox.Point1.X,
-		    Crosshair.AttachedBox.Point2.X);
+                    Crosshair.AttachedBox.Point2.X);
       box.Y2 = MAX (Crosshair.AttachedBox.Point1.Y,
-		    Crosshair.AttachedBox.Point2.Y);
+                    Crosshair.AttachedBox.Point2.Y);
       RestoreUndoSerialNumber ();
       if (SelectBlock (&box, True))
-	SetChangedFlag (True);
+        SetChangedFlag (True);
       else if (Bumped)
-	IncrementUndoSerialNumber ();
+        IncrementUndoSerialNumber ();
       Crosshair.AttachedBox.State = STATE_FIRST;
     }
   if (saved_mode)
@@ -726,12 +726,12 @@ AdjustAttachedBox (void)
     }
   switch (Crosshair.AttachedBox.State)
     {
-    case STATE_SECOND:		/* one corner is selected */
+    case STATE_SECOND:         /* one corner is selected */
       {
-	/* update coordinates */
-	Crosshair.AttachedBox.Point2.X = Crosshair.X;
-	Crosshair.AttachedBox.Point2.Y = Crosshair.Y;
-	break;
+        /* update coordinates */
+        Crosshair.AttachedBox.Point2.X = Crosshair.X;
+        Crosshair.AttachedBox.Point2.Y = Crosshair.Y;
+        break;
       }
     }
 }
@@ -749,10 +749,10 @@ AdjustAttachedObjects (void)
     case NO_MODE:
     case ARROW_MODE:
       if (Crosshair.AttachedBox.State)
-	{
-	  Crosshair.AttachedBox.Point2.X = Crosshair.X;
-	  Crosshair.AttachedBox.Point2.Y = Crosshair.Y;
-	}
+        {
+          Crosshair.AttachedBox.Point2.X = Crosshair.X;
+          Crosshair.AttachedBox.Point2.Y = Crosshair.Y;
+        }
       break;
 
       /* rectangle creation mode */
@@ -768,15 +768,15 @@ AdjustAttachedObjects (void)
       /* line creation mode */
     case LINE_MODE:
       if (PCB->RatDraw || PCB->Clipping == 0)
-	AdjustAttachedLine ();
+        AdjustAttachedLine ();
       else
-	AdjustTwoLine (PCB->Clipping - 1);
+        AdjustTwoLine (PCB->Clipping - 1);
       break;
       /* point insertion mode */
     case INSERTPOINT_MODE:
       pnt = AdjustInsertPoint ();
       if (pnt)
-	InsertedPoint = *pnt;
+        InsertedPoint = *pnt;
       break;
     case ROTATE_MODE:
       break;
@@ -796,62 +796,62 @@ NotifyLine (void)
     SetLocalRef (Crosshair.X, Crosshair.Y, True);
   switch (Crosshair.AttachedLine.State)
     {
-    case STATE_FIRST:		/* first point */
+    case STATE_FIRST:          /* first point */
       if (PCB->RatDraw && SearchScreen (Crosshair.X, Crosshair.Y,
-					PAD_TYPE | PIN_TYPE, &ptr1, &ptr1,
-					&ptr1) == NO_TYPE)
-	{
-	  gui->beep ();
-	  break;
-	}
+                                        PAD_TYPE | PIN_TYPE, &ptr1, &ptr1,
+                                        &ptr1) == NO_TYPE)
+        {
+          gui->beep ();
+          break;
+        }
       if (TEST_FLAG (AUTODRCFLAG, PCB) && Settings.Mode == LINE_MODE)
-	{
-	  type = SearchScreen (Crosshair.X, Crosshair.Y,
-			       PIN_TYPE | PAD_TYPE | VIA_TYPE, &ptr1, &ptr2,
-			       &ptr3);
-	  LookupConnection (Crosshair.X, Crosshair.Y, True, TO_PCB (1),
-			    FOUNDFLAG);
-	}
+        {
+          type = SearchScreen (Crosshair.X, Crosshair.Y,
+                               PIN_TYPE | PAD_TYPE | VIA_TYPE, &ptr1, &ptr2,
+                               &ptr3);
+          LookupConnection (Crosshair.X, Crosshair.Y, True, TO_PCB (1),
+                            FOUNDFLAG);
+        }
       if (type == PIN_TYPE || type == VIA_TYPE)
-	{
-	  Crosshair.AttachedLine.Point1.X =
-	    Crosshair.AttachedLine.Point2.X = ((PinTypePtr) ptr2)->X;
-	  Crosshair.AttachedLine.Point1.Y =
-	    Crosshair.AttachedLine.Point2.Y = ((PinTypePtr) ptr2)->Y;
-	}
+        {
+          Crosshair.AttachedLine.Point1.X =
+            Crosshair.AttachedLine.Point2.X = ((PinTypePtr) ptr2)->X;
+          Crosshair.AttachedLine.Point1.Y =
+            Crosshair.AttachedLine.Point2.Y = ((PinTypePtr) ptr2)->Y;
+        }
       else if (type == PAD_TYPE)
-	{
-	  PadTypePtr pad = (PadTypePtr) ptr2;
-	  float d1, d2;
-	  d1 = SQUARE (Crosshair.X - pad->Point1.X) +
-	    SQUARE (Crosshair.Y - pad->Point1.Y);
-	  d2 = SQUARE (Crosshair.X - pad->Point2.X) +
-	    SQUARE (Crosshair.Y - pad->Point2.Y);
-	  if (d2 < d1)
-	    {
-	      Crosshair.AttachedLine.Point1 =
-		Crosshair.AttachedLine.Point2 = pad->Point2;
-	    }
-	  else
-	    {
-	      Crosshair.AttachedLine.Point1 =
-		Crosshair.AttachedLine.Point2 = pad->Point1;
-	    }
-	}
+        {
+          PadTypePtr pad = (PadTypePtr) ptr2;
+          float d1, d2;
+          d1 = SQUARE (Crosshair.X - pad->Point1.X) +
+            SQUARE (Crosshair.Y - pad->Point1.Y);
+          d2 = SQUARE (Crosshair.X - pad->Point2.X) +
+            SQUARE (Crosshair.Y - pad->Point2.Y);
+          if (d2 < d1)
+            {
+              Crosshair.AttachedLine.Point1 =
+                Crosshair.AttachedLine.Point2 = pad->Point2;
+            }
+          else
+            {
+              Crosshair.AttachedLine.Point1 =
+                Crosshair.AttachedLine.Point2 = pad->Point1;
+            }
+        }
       else
-	{
-	  Crosshair.AttachedLine.Point1.X =
-	    Crosshair.AttachedLine.Point2.X = Crosshair.X;
-	  Crosshair.AttachedLine.Point1.Y =
-	    Crosshair.AttachedLine.Point2.Y = Crosshair.Y;
-	}
+        {
+          Crosshair.AttachedLine.Point1.X =
+            Crosshair.AttachedLine.Point2.X = Crosshair.X;
+          Crosshair.AttachedLine.Point1.Y =
+            Crosshair.AttachedLine.Point2.Y = Crosshair.Y;
+        }
       Crosshair.AttachedLine.State = STATE_SECOND;
       break;
 
     case STATE_SECOND:
       /* fall through to third state too */
       lastLayer = CURRENT;
-    default:			/* all following points */
+    default:                   /* all following points */
       Crosshair.AttachedLine.State = STATE_THIRD;
       break;
     }
@@ -866,15 +866,15 @@ NotifyBlock (void)
   HideCrosshair (True);
   switch (Crosshair.AttachedBox.State)
     {
-    case STATE_FIRST:		/* setup first point */
+    case STATE_FIRST:          /* setup first point */
       Crosshair.AttachedBox.Point1.X =
-	Crosshair.AttachedBox.Point2.X = Crosshair.X;
+        Crosshair.AttachedBox.Point2.X = Crosshair.X;
       Crosshair.AttachedBox.Point1.Y =
-	Crosshair.AttachedBox.Point2.Y = Crosshair.Y;
+        Crosshair.AttachedBox.Point2.Y = Crosshair.Y;
       Crosshair.AttachedBox.State = STATE_SECOND;
       break;
 
-    case STATE_SECOND:		/* setup second point */
+    case STATE_SECOND:         /* setup second point */
       Crosshair.AttachedBox.State = STATE_THIRD;
       break;
     }
@@ -901,219 +901,219 @@ NotifyMode (void)
     {
     case ARROW_MODE:
       {
-	int test;
-	hidval hv;
+        int test;
+        hidval hv;
 
-	Note.Click = True;
-	/* do something after click time */
-	gui->add_timer (click_cb, CLICK_TIME, hv);
+        Note.Click = True;
+        /* do something after click time */
+        gui->add_timer (click_cb, CLICK_TIME, hv);
 
-	/* see if we clicked on something already selected
-	 * (Note.Moving) or clicked on a MOVE_TYPE
-	 * (Note.Hit)
-	 */
-	for (test = (SELECT_TYPES | MOVE_TYPES) & ~RATLINE_TYPE;
-	     test; test &= ~type)
-	  {
-	    type = SearchScreen (Note.X, Note.Y, test, &ptr1, &ptr2, &ptr3);
-	    if (!Note.Hit && (type & MOVE_TYPES) &&
-		!TEST_FLAG (LOCKFLAG, (PinTypePtr) ptr2))
-	      {
-		Note.Hit = type;
-		Note.ptr1 = ptr1;
-		Note.ptr2 = ptr2;
-		Note.ptr3 = ptr3;
-	      }
-	    if (!Note.Moving && (type & SELECT_TYPES) &&
-		TEST_FLAG (SELECTEDFLAG, (PinTypePtr) ptr2))
-	      Note.Moving = True;
-	    if ((Note.Hit && Note.Moving) || type == NO_TYPE)
-	      break;
-	  }
-	break;
+        /* see if we clicked on something already selected
+         * (Note.Moving) or clicked on a MOVE_TYPE
+         * (Note.Hit)
+         */
+        for (test = (SELECT_TYPES | MOVE_TYPES) & ~RATLINE_TYPE;
+             test; test &= ~type)
+          {
+            type = SearchScreen (Note.X, Note.Y, test, &ptr1, &ptr2, &ptr3);
+            if (!Note.Hit && (type & MOVE_TYPES) &&
+                !TEST_FLAG (LOCKFLAG, (PinTypePtr) ptr2))
+              {
+                Note.Hit = type;
+                Note.ptr1 = ptr1;
+                Note.ptr2 = ptr2;
+                Note.ptr3 = ptr3;
+              }
+            if (!Note.Moving && (type & SELECT_TYPES) &&
+                TEST_FLAG (SELECTEDFLAG, (PinTypePtr) ptr2))
+              Note.Moving = True;
+            if ((Note.Hit && Note.Moving) || type == NO_TYPE)
+              break;
+          }
+        break;
       }
 
     case VIA_MODE:
       {
-	PinTypePtr via;
+        PinTypePtr via;
 
-	if (!PCB->ViaOn)
-	  {
-	    Message (_("You must turn via visibility on before\n"
-		       "you can place vias\n"));
-	    break;
-	  }
-	if ((via = CreateNewVia (PCB->Data, Note.X, Note.Y,
-				 Settings.ViaThickness, 2 * Settings.Keepaway,
-				 0, Settings.ViaDrillingHole, NULL,
-				 NoFlags ())) != NULL)
-	  {
-	    AddObjectToCreateUndoList (VIA_TYPE, via, via, via);
-	    IncrementUndoSerialNumber ();
-	    DrawVia (via, 0);
-	    Draw ();
-	  }
-	break;
+        if (!PCB->ViaOn)
+          {
+            Message (_("You must turn via visibility on before\n"
+                       "you can place vias\n"));
+            break;
+          }
+        if ((via = CreateNewVia (PCB->Data, Note.X, Note.Y,
+                                 Settings.ViaThickness, 2 * Settings.Keepaway,
+                                 0, Settings.ViaDrillingHole, NULL,
+                                 NoFlags ())) != NULL)
+          {
+            AddObjectToCreateUndoList (VIA_TYPE, via, via, via);
+            IncrementUndoSerialNumber ();
+            DrawVia (via, 0);
+            Draw ();
+          }
+        break;
       }
 
     case ARC_MODE:
       {
-	switch (Crosshair.AttachedBox.State)
-	  {
-	  case STATE_FIRST:
-	    Crosshair.AttachedBox.Point1.X =
-	      Crosshair.AttachedBox.Point2.X = Note.X;
-	    Crosshair.AttachedBox.Point1.Y =
-	      Crosshair.AttachedBox.Point2.Y = Note.Y;
-	    Crosshair.AttachedBox.State = STATE_SECOND;
-	    break;
+        switch (Crosshair.AttachedBox.State)
+          {
+          case STATE_FIRST:
+            Crosshair.AttachedBox.Point1.X =
+              Crosshair.AttachedBox.Point2.X = Note.X;
+            Crosshair.AttachedBox.Point1.Y =
+              Crosshair.AttachedBox.Point2.Y = Note.Y;
+            Crosshair.AttachedBox.State = STATE_SECOND;
+            break;
 
-	  case STATE_SECOND:
-	  case STATE_THIRD:
-	    {
-	      ArcTypePtr arc;
-	      LocationType wx, wy;
-	      int sa, dir;
+          case STATE_SECOND:
+          case STATE_THIRD:
+            {
+              ArcTypePtr arc;
+              LocationType wx, wy;
+              int sa, dir;
 
-	      wx = Note.X - Crosshair.AttachedBox.Point1.X;
-	      wy = Note.Y - Crosshair.AttachedBox.Point1.Y;
-	      if (XOR (Crosshair.AttachedBox.otherway, abs (wy) > abs (wx)))
-		{
-		  Crosshair.AttachedBox.Point2.X =
-		    Crosshair.AttachedBox.Point1.X + abs (wy) * SGNZ (wx);
-		  sa = (wx >= 0) ? 0 : 180;
+              wx = Note.X - Crosshair.AttachedBox.Point1.X;
+              wy = Note.Y - Crosshair.AttachedBox.Point1.Y;
+              if (XOR (Crosshair.AttachedBox.otherway, abs (wy) > abs (wx)))
+                {
+                  Crosshair.AttachedBox.Point2.X =
+                    Crosshair.AttachedBox.Point1.X + abs (wy) * SGNZ (wx);
+                  sa = (wx >= 0) ? 0 : 180;
 #ifdef ARC45
-		  if (abs (wy) / 2 >= abs (wx))
-		    dir = (SGNZ (wx) == SGNZ (wy)) ? 45 : -45;
-		  else
+                  if (abs (wy) / 2 >= abs (wx))
+                    dir = (SGNZ (wx) == SGNZ (wy)) ? 45 : -45;
+                  else
 #endif
-		    dir = (SGNZ (wx) == SGNZ (wy)) ? 90 : -90;
-		}
-	      else
-		{
-		  Crosshair.AttachedBox.Point2.Y =
-		    Crosshair.AttachedBox.Point1.Y + abs (wx) * SGNZ (wy);
-		  sa = (wy >= 0) ? -90 : 90;
+                    dir = (SGNZ (wx) == SGNZ (wy)) ? 90 : -90;
+                }
+              else
+                {
+                  Crosshair.AttachedBox.Point2.Y =
+                    Crosshair.AttachedBox.Point1.Y + abs (wx) * SGNZ (wy);
+                  sa = (wy >= 0) ? -90 : 90;
 #ifdef ARC45
-		  if (abs (wx) / 2 >= abs (wy))
-		    dir = (SGNZ (wx) == SGNZ (wy)) ? -45 : 45;
-		  else
+                  if (abs (wx) / 2 >= abs (wy))
+                    dir = (SGNZ (wx) == SGNZ (wy)) ? -45 : 45;
+                  else
 #endif
-		    dir = (SGNZ (wx) == SGNZ (wy)) ? -90 : 90;
-		  wy = wx;
-		}
-	      if (abs (wy) > 0 && (arc = CreateNewArcOnLayer (CURRENT,
-							      Crosshair.
-							      AttachedBox.
-							      Point2.X,
-							      Crosshair.
-							      AttachedBox.
-							      Point2.Y,
-							      abs (wy), sa,
-							      dir,
-							      Settings.
-							      LineThickness,
-							      2 * Settings.
-							      Keepaway,
-							      MakeFlags
-							      (TEST_FLAG
-							       (CLEARNEWFLAG,
-								PCB) ?
-							       CLEARLINEFLAG :
-							       0))))
-		{
-		  BoxTypePtr bx;
+                    dir = (SGNZ (wx) == SGNZ (wy)) ? -90 : 90;
+                  wy = wx;
+                }
+              if (abs (wy) > 0 && (arc = CreateNewArcOnLayer (CURRENT,
+                                                              Crosshair.
+                                                              AttachedBox.
+                                                              Point2.X,
+                                                              Crosshair.
+                                                              AttachedBox.
+                                                              Point2.Y,
+                                                              abs (wy), sa,
+                                                              dir,
+                                                              Settings.
+                                                              LineThickness,
+                                                              2 * Settings.
+                                                              Keepaway,
+                                                              MakeFlags
+                                                              (TEST_FLAG
+                                                               (CLEARNEWFLAG,
+                                                                PCB) ?
+                                                               CLEARLINEFLAG :
+                                                               0))))
+                {
+                  BoxTypePtr bx;
 
-		  bx = GetArcEnds (arc);
-		  Crosshair.AttachedBox.Point1.X =
-		    Crosshair.AttachedBox.Point2.X = bx->X2;
-		  Crosshair.AttachedBox.Point1.Y =
-		    Crosshair.AttachedBox.Point2.Y = bx->Y2;
-		  AddObjectToCreateUndoList (ARC_TYPE, CURRENT, arc, arc);
-		  IncrementUndoSerialNumber ();
-		  addedLines++;
-		  DrawArc (CURRENT, arc, 0);
-		  Draw ();
-		  Crosshair.AttachedBox.State = STATE_THIRD;
-		}
-	      break;
-	    }
-	  }
-	break;
+                  bx = GetArcEnds (arc);
+                  Crosshair.AttachedBox.Point1.X =
+                    Crosshair.AttachedBox.Point2.X = bx->X2;
+                  Crosshair.AttachedBox.Point1.Y =
+                    Crosshair.AttachedBox.Point2.Y = bx->Y2;
+                  AddObjectToCreateUndoList (ARC_TYPE, CURRENT, arc, arc);
+                  IncrementUndoSerialNumber ();
+                  addedLines++;
+                  DrawArc (CURRENT, arc, 0);
+                  Draw ();
+                  Crosshair.AttachedBox.State = STATE_THIRD;
+                }
+              break;
+            }
+          }
+        break;
       }
     case LOCK_MODE:
       {
-	type = SearchScreen (Note.X, Note.Y, LOCK_TYPES, &ptr1, &ptr2, &ptr3);
-	if (type == ELEMENT_TYPE)
-	  {
-	    ElementTypePtr element = (ElementTypePtr) ptr2;
+        type = SearchScreen (Note.X, Note.Y, LOCK_TYPES, &ptr1, &ptr2, &ptr3);
+        if (type == ELEMENT_TYPE)
+          {
+            ElementTypePtr element = (ElementTypePtr) ptr2;
 
-	    TOGGLE_FLAG (LOCKFLAG, element);
-	    PIN_LOOP (element);
-	    {
-	      TOGGLE_FLAG (LOCKFLAG, pin);
-	      CLEAR_FLAG (SELECTEDFLAG, pin);
-	    }
-	    END_LOOP;
-	    PAD_LOOP (element);
-	    {
-	      TOGGLE_FLAG (LOCKFLAG, pad);
-	      CLEAR_FLAG (SELECTEDFLAG, pad);
-	    }
-	    END_LOOP;
-	    CLEAR_FLAG (SELECTEDFLAG, element);
-	    /* always re-draw it since I'm too lazy
-	     * to tell if a selected flag changed
-	     */
-	    DrawElement (element, 0);
-	    Draw ();
-	    hid_actionl ("Report", "Object", NULL);
-	  }
-	else if (type != NO_TYPE)
-	  {
-	    TextTypePtr thing = (TextTypePtr) ptr3;
-	    TOGGLE_FLAG (LOCKFLAG, thing);
-	    if (TEST_FLAG (LOCKFLAG, thing)
-		&& TEST_FLAG (SELECTEDFLAG, thing))
-	      {
-		/* this is not un-doable since LOCK isn't */
-		CLEAR_FLAG (SELECTEDFLAG, thing);
-		DrawObject (type, ptr1, ptr2, 0);
-		Draw ();
-	      }
-	    hid_actionl ("Report", "Object", NULL);
-	  }
-	break;
+            TOGGLE_FLAG (LOCKFLAG, element);
+            PIN_LOOP (element);
+            {
+              TOGGLE_FLAG (LOCKFLAG, pin);
+              CLEAR_FLAG (SELECTEDFLAG, pin);
+            }
+            END_LOOP;
+            PAD_LOOP (element);
+            {
+              TOGGLE_FLAG (LOCKFLAG, pad);
+              CLEAR_FLAG (SELECTEDFLAG, pad);
+            }
+            END_LOOP;
+            CLEAR_FLAG (SELECTEDFLAG, element);
+            /* always re-draw it since I'm too lazy
+             * to tell if a selected flag changed
+             */
+            DrawElement (element, 0);
+            Draw ();
+            hid_actionl ("Report", "Object", NULL);
+          }
+        else if (type != NO_TYPE)
+          {
+            TextTypePtr thing = (TextTypePtr) ptr3;
+            TOGGLE_FLAG (LOCKFLAG, thing);
+            if (TEST_FLAG (LOCKFLAG, thing)
+                && TEST_FLAG (SELECTEDFLAG, thing))
+              {
+                /* this is not un-doable since LOCK isn't */
+                CLEAR_FLAG (SELECTEDFLAG, thing);
+                DrawObject (type, ptr1, ptr2, 0);
+                Draw ();
+              }
+            hid_actionl ("Report", "Object", NULL);
+          }
+        break;
       }
     case THERMAL_MODE:
       {
-	if (((type
-	      =
-	      SearchScreen (Note.X, Note.Y, PIN_TYPES, &ptr1, &ptr2,
-			    &ptr3)) != NO_TYPE)
-	    && !TEST_FLAG (HOLEFLAG, (PinTypePtr) ptr3))
-	  {
-	    if (gui->shift_is_pressed ())
-	      {
-		int tstyle = GET_THERM (INDEXOFCURRENT, (PinTypePtr) ptr3);
-		tstyle++;
-		if (tstyle > 5)
-		  tstyle = 1;
-		ChangeObjectThermal (type, ptr1, ptr2, ptr3, tstyle);
-	      }
-	    else if (GET_THERM (INDEXOFCURRENT, (PinTypePtr) ptr3))
-	      ChangeObjectThermal (type, ptr1, ptr2, ptr3, 0);
-	    else
-	      ChangeObjectThermal (type, ptr1, ptr2, ptr3, PCB->ThermStyle);
-	  }
-	break;
+        if (((type
+              =
+              SearchScreen (Note.X, Note.Y, PIN_TYPES, &ptr1, &ptr2,
+                            &ptr3)) != NO_TYPE)
+            && !TEST_FLAG (HOLEFLAG, (PinTypePtr) ptr3))
+          {
+            if (gui->shift_is_pressed ())
+              {
+                int tstyle = GET_THERM (INDEXOFCURRENT, (PinTypePtr) ptr3);
+                tstyle++;
+                if (tstyle > 5)
+                  tstyle = 1;
+                ChangeObjectThermal (type, ptr1, ptr2, ptr3, tstyle);
+              }
+            else if (GET_THERM (INDEXOFCURRENT, (PinTypePtr) ptr3))
+              ChangeObjectThermal (type, ptr1, ptr2, ptr3, 0);
+            else
+              ChangeObjectThermal (type, ptr1, ptr2, ptr3, PCB->ThermStyle);
+          }
+        break;
       }
 
     case LINE_MODE:
       /* do update of position */
       NotifyLine ();
       if (Crosshair.AttachedLine.State != STATE_THIRD)
-	break;
+        break;
 
       /* Remove anchor if clicking on start point;
        * this means we can't paint 0 length lines
@@ -1122,138 +1122,138 @@ NotifyMode (void)
        * the file after saving.
        */
       if (Crosshair.X == Crosshair.AttachedLine.Point1.X
-	  && Crosshair.Y == Crosshair.AttachedLine.Point1.Y)
-	{
-	  SetMode (LINE_MODE);
-	  break;
-	}
+          && Crosshair.Y == Crosshair.AttachedLine.Point1.Y)
+        {
+          SetMode (LINE_MODE);
+          break;
+        }
 
       if (PCB->RatDraw)
-	{
-	  RatTypePtr line;
-	  if ((line = AddNet ()))
-	    {
-	      addedLines++;
-	      AddObjectToCreateUndoList (RATLINE_TYPE, line, line, line);
-	      IncrementUndoSerialNumber ();
-	      DrawRat (line, 0);
-	      Crosshair.AttachedLine.Point1.X =
-		Crosshair.AttachedLine.Point2.X;
-	      Crosshair.AttachedLine.Point1.Y =
-		Crosshair.AttachedLine.Point2.Y;
-	      Draw ();
-	    }
-	  break;
-	}
+        {
+          RatTypePtr line;
+          if ((line = AddNet ()))
+            {
+              addedLines++;
+              AddObjectToCreateUndoList (RATLINE_TYPE, line, line, line);
+              IncrementUndoSerialNumber ();
+              DrawRat (line, 0);
+              Crosshair.AttachedLine.Point1.X =
+                Crosshair.AttachedLine.Point2.X;
+              Crosshair.AttachedLine.Point1.Y =
+                Crosshair.AttachedLine.Point2.Y;
+              Draw ();
+            }
+          break;
+        }
       else
-	/* create line if both ends are determined && length != 0 */
-	{
-	  LineTypePtr line;
+        /* create line if both ends are determined && length != 0 */
+        {
+          LineTypePtr line;
 
-	  if (PCB->Clipping
-	      && Crosshair.AttachedLine.Point1.X ==
-	      Crosshair.AttachedLine.Point2.X
-	      && Crosshair.AttachedLine.Point1.Y ==
-	      Crosshair.AttachedLine.Point2.Y
-	      && (Crosshair.AttachedLine.Point2.X != Note.X
-		  || Crosshair.AttachedLine.Point2.Y != Note.Y))
-	    {
-	      /* We will paint only the second line segment.
-	         Since we only check for vias on the first segment,
-	         swap them so we only paint the first segment. */
-	      Crosshair.AttachedLine.Point2.X = Note.X;
-	      Crosshair.AttachedLine.Point2.Y = Note.Y;
-	    }
+          if (PCB->Clipping
+              && Crosshair.AttachedLine.Point1.X ==
+              Crosshair.AttachedLine.Point2.X
+              && Crosshair.AttachedLine.Point1.Y ==
+              Crosshair.AttachedLine.Point2.Y
+              && (Crosshair.AttachedLine.Point2.X != Note.X
+                  || Crosshair.AttachedLine.Point2.Y != Note.Y))
+            {
+              /* We will paint only the second line segment.
+                 Since we only check for vias on the first segment,
+                 swap them so we only paint the first segment. */
+              Crosshair.AttachedLine.Point2.X = Note.X;
+              Crosshair.AttachedLine.Point2.Y = Note.Y;
+            }
 
-	  if ((Crosshair.AttachedLine.Point1.X !=
-	       Crosshair.AttachedLine.Point2.X
-	       || Crosshair.AttachedLine.Point1.Y !=
-	       Crosshair.AttachedLine.Point2.Y)
-	      && (line =
-		  CreateDrawnLineOnLayer (CURRENT,
-					  Crosshair.AttachedLine.Point1.X,
-					  Crosshair.AttachedLine.Point1.Y,
-					  Crosshair.AttachedLine.Point2.X,
-					  Crosshair.AttachedLine.Point2.Y,
-					  Settings.LineThickness,
-					  2 * Settings.Keepaway,
-					  MakeFlags ((TEST_FLAG
-						      (AUTODRCFLAG,
-						       PCB) ? FOUNDFLAG : 0) |
-						     (TEST_FLAG
-						      (CLEARNEWFLAG,
-						       PCB) ? CLEARLINEFLAG :
-						      0)))) != NULL)
-	    {
-	      PinTypePtr via;
+          if ((Crosshair.AttachedLine.Point1.X !=
+               Crosshair.AttachedLine.Point2.X
+               || Crosshair.AttachedLine.Point1.Y !=
+               Crosshair.AttachedLine.Point2.Y)
+              && (line =
+                  CreateDrawnLineOnLayer (CURRENT,
+                                          Crosshair.AttachedLine.Point1.X,
+                                          Crosshair.AttachedLine.Point1.Y,
+                                          Crosshair.AttachedLine.Point2.X,
+                                          Crosshair.AttachedLine.Point2.Y,
+                                          Settings.LineThickness,
+                                          2 * Settings.Keepaway,
+                                          MakeFlags ((TEST_FLAG
+                                                      (AUTODRCFLAG,
+                                                       PCB) ? FOUNDFLAG : 0) |
+                                                     (TEST_FLAG
+                                                      (CLEARNEWFLAG,
+                                                       PCB) ? CLEARLINEFLAG :
+                                                      0)))) != NULL)
+            {
+              PinTypePtr via;
 
-	      addedLines++;
-	      AddObjectToCreateUndoList (LINE_TYPE, CURRENT, line, line);
-	      DrawLine (CURRENT, line, 0);
-	      /* place a via if vias are visible, the layer is
-	         in a new group since the last line and there
-	         isn't a pin already here */
-	      if (PCB->ViaOn && GetLayerGroupNumberByPointer (CURRENT) !=
-		  GetLayerGroupNumberByPointer (lastLayer) &&
-		  SearchObjectByLocation (PIN_TYPES, &ptr1, &ptr2, &ptr3,
-					  Crosshair.AttachedLine.Point1.X,
-					  Crosshair.AttachedLine.Point1.Y,
-					  Settings.ViaThickness / 2) ==
-		  NO_TYPE
-		  && (via =
-		      CreateNewVia (PCB->Data,
-				    Crosshair.AttachedLine.Point1.X,
-				    Crosshair.AttachedLine.Point1.Y,
-				    Settings.ViaThickness,
-				    2 * Settings.Keepaway, 0,
-				    Settings.ViaDrillingHole, NULL,
-				    NoFlags ())) != NULL)
-		{
-		  AddObjectToCreateUndoList (VIA_TYPE, via, via, via);
-		  DrawVia (via, 0);
-		}
-	      /* copy the coordinates */
-	      Crosshair.AttachedLine.Point1.X =
-		Crosshair.AttachedLine.Point2.X;
-	      Crosshair.AttachedLine.Point1.Y =
-		Crosshair.AttachedLine.Point2.Y;
-	      IncrementUndoSerialNumber ();
-	      lastLayer = CURRENT;
-	    }
-	  if (PCB->Clipping && (Note.X != Crosshair.AttachedLine.Point2.X
-				|| Note.Y !=
-				Crosshair.AttachedLine.Point2.Y)
-	      && (line =
-		  CreateDrawnLineOnLayer (CURRENT,
-					  Crosshair.AttachedLine.Point2.X,
-					  Crosshair.AttachedLine.Point2.Y,
-					  Note.X, Note.Y,
-					  Settings.LineThickness,
-					  2 * Settings.Keepaway,
-					  MakeFlags ((TEST_FLAG
-						      (AUTODRCFLAG,
-						       PCB) ? FOUNDFLAG : 0) |
-						     (TEST_FLAG
-						      (CLEARNEWFLAG,
-						       PCB) ? CLEARLINEFLAG :
-						      0)))) != NULL)
-	    {
-	      addedLines++;
-	      AddObjectToCreateUndoList (LINE_TYPE, CURRENT, line, line);
-	      IncrementUndoSerialNumber ();
-	      DrawLine (CURRENT, line, 0);
-	      /* move to new start point */
-	      Crosshair.AttachedLine.Point1.X = Note.X;
-	      Crosshair.AttachedLine.Point1.Y = Note.Y;
-	      Crosshair.AttachedLine.Point2.X = Note.X;
-	      Crosshair.AttachedLine.Point2.Y = Note.Y;
-	      if (TEST_FLAG (SWAPSTARTDIRFLAG, PCB))
-		{
-		  PCB->Clipping ^= 3;
-		}
-	    }
-	  Draw ();
-	}
+              addedLines++;
+              AddObjectToCreateUndoList (LINE_TYPE, CURRENT, line, line);
+              DrawLine (CURRENT, line, 0);
+              /* place a via if vias are visible, the layer is
+                 in a new group since the last line and there
+                 isn't a pin already here */
+              if (PCB->ViaOn && GetLayerGroupNumberByPointer (CURRENT) !=
+                  GetLayerGroupNumberByPointer (lastLayer) &&
+                  SearchObjectByLocation (PIN_TYPES, &ptr1, &ptr2, &ptr3,
+                                          Crosshair.AttachedLine.Point1.X,
+                                          Crosshair.AttachedLine.Point1.Y,
+                                          Settings.ViaThickness / 2) ==
+                  NO_TYPE
+                  && (via =
+                      CreateNewVia (PCB->Data,
+                                    Crosshair.AttachedLine.Point1.X,
+                                    Crosshair.AttachedLine.Point1.Y,
+                                    Settings.ViaThickness,
+                                    2 * Settings.Keepaway, 0,
+                                    Settings.ViaDrillingHole, NULL,
+                                    NoFlags ())) != NULL)
+                {
+                  AddObjectToCreateUndoList (VIA_TYPE, via, via, via);
+                  DrawVia (via, 0);
+                }
+              /* copy the coordinates */
+              Crosshair.AttachedLine.Point1.X =
+                Crosshair.AttachedLine.Point2.X;
+              Crosshair.AttachedLine.Point1.Y =
+                Crosshair.AttachedLine.Point2.Y;
+              IncrementUndoSerialNumber ();
+              lastLayer = CURRENT;
+            }
+          if (PCB->Clipping && (Note.X != Crosshair.AttachedLine.Point2.X
+                                || Note.Y !=
+                                Crosshair.AttachedLine.Point2.Y)
+              && (line =
+                  CreateDrawnLineOnLayer (CURRENT,
+                                          Crosshair.AttachedLine.Point2.X,
+                                          Crosshair.AttachedLine.Point2.Y,
+                                          Note.X, Note.Y,
+                                          Settings.LineThickness,
+                                          2 * Settings.Keepaway,
+                                          MakeFlags ((TEST_FLAG
+                                                      (AUTODRCFLAG,
+                                                       PCB) ? FOUNDFLAG : 0) |
+                                                     (TEST_FLAG
+                                                      (CLEARNEWFLAG,
+                                                       PCB) ? CLEARLINEFLAG :
+                                                      0)))) != NULL)
+            {
+              addedLines++;
+              AddObjectToCreateUndoList (LINE_TYPE, CURRENT, line, line);
+              IncrementUndoSerialNumber ();
+              DrawLine (CURRENT, line, 0);
+              /* move to new start point */
+              Crosshair.AttachedLine.Point1.X = Note.X;
+              Crosshair.AttachedLine.Point1.Y = Note.Y;
+              Crosshair.AttachedLine.Point2.X = Note.X;
+              Crosshair.AttachedLine.Point2.Y = Note.Y;
+              if (TEST_FLAG (SWAPSTARTDIRFLAG, PCB))
+                {
+                  PCB->Clipping ^= 3;
+                }
+            }
+          Draw ();
+        }
       break;
 
     case RECTANGLE_MODE:
@@ -1264,319 +1264,319 @@ NotifyMode (void)
        * and width, height are != 0
        */
       if (Crosshair.AttachedBox.State == STATE_THIRD &&
-	  Crosshair.AttachedBox.Point1.X != Crosshair.AttachedBox.Point2.X &&
-	  Crosshair.AttachedBox.Point1.Y != Crosshair.AttachedBox.Point2.Y)
-	{
-	  PolygonTypePtr polygon;
+          Crosshair.AttachedBox.Point1.X != Crosshair.AttachedBox.Point2.X &&
+          Crosshair.AttachedBox.Point1.Y != Crosshair.AttachedBox.Point2.Y)
+        {
+          PolygonTypePtr polygon;
 
-	  if ((polygon = CreateNewPolygonFromRectangle (CURRENT,
-							Crosshair.
-							AttachedBox.Point1.X,
-							Crosshair.
-							AttachedBox.Point1.Y,
-							Crosshair.
-							AttachedBox.Point2.X,
-							Crosshair.
-							AttachedBox.Point2.Y,
-							MakeFlags
-							(CLEARPOLYFLAG))) !=
-	      NULL)
-	    {
-	      AddObjectToCreateUndoList (POLYGON_TYPE, CURRENT,
-					 polygon, polygon);
-	      IncrementUndoSerialNumber ();
-	      DrawPolygon (CURRENT, polygon, 0);
-	      Draw ();
-	    }
+          if ((polygon = CreateNewPolygonFromRectangle (CURRENT,
+                                                        Crosshair.
+                                                        AttachedBox.Point1.X,
+                                                        Crosshair.
+                                                        AttachedBox.Point1.Y,
+                                                        Crosshair.
+                                                        AttachedBox.Point2.X,
+                                                        Crosshair.
+                                                        AttachedBox.Point2.Y,
+                                                        MakeFlags
+                                                        (CLEARPOLYFLAG))) !=
+              NULL)
+            {
+              AddObjectToCreateUndoList (POLYGON_TYPE, CURRENT,
+                                         polygon, polygon);
+              IncrementUndoSerialNumber ();
+              DrawPolygon (CURRENT, polygon, 0);
+              Draw ();
+            }
 
-	  /* reset state to 'first corner' */
-	  Crosshair.AttachedBox.State = STATE_FIRST;
-	}
+          /* reset state to 'first corner' */
+          Crosshair.AttachedBox.State = STATE_FIRST;
+        }
       break;
 
     case TEXT_MODE:
       {
-	char *string;
+        char *string;
 
-	if ((string = gui->prompt_for (_("Enter text:"), "")) != NULL)
-	  {
-	    TextTypePtr text;
-	    int flag = NOFLAG;
+        if ((string = gui->prompt_for (_("Enter text:"), "")) != NULL)
+          {
+            TextTypePtr text;
+            int flag = NOFLAG;
 
-	    if (GetLayerGroupNumberByNumber (INDEXOFCURRENT) ==
-		GetLayerGroupNumberByNumber (max_layer + SOLDER_LAYER))
-	      flag = ONSOLDERFLAG;
-	    if ((text = CreateNewText (CURRENT, &PCB->Font, Note.X,
-				       Note.Y, 0, Settings.TextScale,
-				       string, MakeFlags (flag))) != NULL)
-	      {
-		AddObjectToCreateUndoList (TEXT_TYPE, CURRENT, text, text);
-		IncrementUndoSerialNumber ();
-		DrawText (CURRENT, text, 0);
-		Draw ();
-	      }
+            if (GetLayerGroupNumberByNumber (INDEXOFCURRENT) ==
+                GetLayerGroupNumberByNumber (max_layer + SOLDER_LAYER))
+              flag = ONSOLDERFLAG;
+            if ((text = CreateNewText (CURRENT, &PCB->Font, Note.X,
+                                       Note.Y, 0, Settings.TextScale,
+                                       string, MakeFlags (flag))) != NULL)
+              {
+                AddObjectToCreateUndoList (TEXT_TYPE, CURRENT, text, text);
+                IncrementUndoSerialNumber ();
+                DrawText (CURRENT, text, 0);
+                Draw ();
+              }
 
-	    /* free memory allocated by gui->prompt_for() */
-	    free (string);
-	  }
-	break;
+            /* free memory allocated by gui->prompt_for() */
+            free (string);
+          }
+        break;
       }
 
     case POLYGON_MODE:
       {
-	PointTypePtr points = Crosshair.AttachedPolygon.Points;
-	Cardinal n = Crosshair.AttachedPolygon.PointN;
+        PointTypePtr points = Crosshair.AttachedPolygon.Points;
+        Cardinal n = Crosshair.AttachedPolygon.PointN;
 
-	/* do update of position; use the 'LINE_MODE' mechanism */
-	NotifyLine ();
+        /* do update of position; use the 'LINE_MODE' mechanism */
+        NotifyLine ();
 
-	/* check if this is the last point of a polygon */
-	if (n >= 3 &&
-	    points->X == Crosshair.AttachedLine.Point2.X &&
-	    points->Y == Crosshair.AttachedLine.Point2.Y)
-	  {
-	    CopyAttachedPolygonToLayer ();
-	    Draw ();
-	    break;
-	  }
+        /* check if this is the last point of a polygon */
+        if (n >= 3 &&
+            points->X == Crosshair.AttachedLine.Point2.X &&
+            points->Y == Crosshair.AttachedLine.Point2.Y)
+          {
+            CopyAttachedPolygonToLayer ();
+            Draw ();
+            break;
+          }
 
-	/* create new point if it's the first one or if it's
-	 * different to the last one
-	 */
-	if (!n ||
-	    points[n - 1].X != Crosshair.AttachedLine.Point2.X ||
-	    points[n - 1].Y != Crosshair.AttachedLine.Point2.Y)
-	  {
-	    CreateNewPointInPolygon (&Crosshair.AttachedPolygon,
-				     Crosshair.AttachedLine.Point2.X,
-				     Crosshair.AttachedLine.Point2.Y);
+        /* create new point if it's the first one or if it's
+         * different to the last one
+         */
+        if (!n ||
+            points[n - 1].X != Crosshair.AttachedLine.Point2.X ||
+            points[n - 1].Y != Crosshair.AttachedLine.Point2.Y)
+          {
+            CreateNewPointInPolygon (&Crosshair.AttachedPolygon,
+                                     Crosshair.AttachedLine.Point2.X,
+                                     Crosshair.AttachedLine.Point2.Y);
 
-	    /* copy the coordinates */
-	    Crosshair.AttachedLine.Point1.X = Crosshair.AttachedLine.Point2.X;
-	    Crosshair.AttachedLine.Point1.Y = Crosshair.AttachedLine.Point2.Y;
-	  }
-	break;
+            /* copy the coordinates */
+            Crosshair.AttachedLine.Point1.X = Crosshair.AttachedLine.Point2.X;
+            Crosshair.AttachedLine.Point1.Y = Crosshair.AttachedLine.Point2.Y;
+          }
+        break;
       }
 
     case PASTEBUFFER_MODE:
       {
-	TextType estr[MAX_ELEMENTNAMES];
-	ElementTypePtr e = 0;
+        TextType estr[MAX_ELEMENTNAMES];
+        ElementTypePtr e = 0;
 
-	if (gui->shift_is_pressed ())
-	  {
-	    int type =
-	      SearchScreen (Note.X, Note.Y, ELEMENT_TYPE, &ptr1, &ptr2,
-			    &ptr3);
-	    if (type == ELEMENT_TYPE)
-	      {
-		e = (ElementTypePtr) ptr1;
-		if (e)
-		  {
-		    memcpy (estr, e->Name,
-			    MAX_ELEMENTNAMES * sizeof (TextType));
-		    memset (e->Name, 0, MAX_ELEMENTNAMES * sizeof (TextType));
-		    RemoveElement (e);
-		  }
-	      }
-	  }
-	if (CopyPastebufferToLayout (Note.X, Note.Y))
-	  SetChangedFlag (True);
-	if (e)
-	  {
-	    int type =
-	      SearchScreen (Note.X, Note.Y, ELEMENT_TYPE, &ptr1, &ptr2,
-			    &ptr3);
-	    if (type == ELEMENT_TYPE && ptr1)
-	      {
-		int i, save_n;
-		e = (ElementTypePtr) ptr1;
+        if (gui->shift_is_pressed ())
+          {
+            int type =
+              SearchScreen (Note.X, Note.Y, ELEMENT_TYPE, &ptr1, &ptr2,
+                            &ptr3);
+            if (type == ELEMENT_TYPE)
+              {
+                e = (ElementTypePtr) ptr1;
+                if (e)
+                  {
+                    memcpy (estr, e->Name,
+                            MAX_ELEMENTNAMES * sizeof (TextType));
+                    memset (e->Name, 0, MAX_ELEMENTNAMES * sizeof (TextType));
+                    RemoveElement (e);
+                  }
+              }
+          }
+        if (CopyPastebufferToLayout (Note.X, Note.Y))
+          SetChangedFlag (True);
+        if (e)
+          {
+            int type =
+              SearchScreen (Note.X, Note.Y, ELEMENT_TYPE, &ptr1, &ptr2,
+                            &ptr3);
+            if (type == ELEMENT_TYPE && ptr1)
+              {
+                int i, save_n;
+                e = (ElementTypePtr) ptr1;
 
-		save_n = NAME_INDEX (PCB);
+                save_n = NAME_INDEX (PCB);
 
-		for (i = 0; i < MAX_ELEMENTNAMES; i++)
-		  {
-		    if (i == save_n)
-		      EraseElementName (e);
-		    r_delete_entry (PCB->Data->name_tree[i],
-				    (BoxType *) & (e->Name[i]));
-		    memcpy (&(e->Name[i]), &(estr[i]), sizeof (TextType));
-		    e->Name[i].Element = e;
-		    SetTextBoundingBox (&PCB->Font, &(e->Name[i]));
-		    r_insert_entry (PCB->Data->name_tree[i],
-				    (BoxType *) & (e->Name[i]), 0);
-		    if (i == save_n)
-		      DrawElementName (e, 0);
-		  }
-	      }
-	  }
-	break;
+                for (i = 0; i < MAX_ELEMENTNAMES; i++)
+                  {
+                    if (i == save_n)
+                      EraseElementName (e);
+                    r_delete_entry (PCB->Data->name_tree[i],
+                                    (BoxType *) & (e->Name[i]));
+                    memcpy (&(e->Name[i]), &(estr[i]), sizeof (TextType));
+                    e->Name[i].Element = e;
+                    SetTextBoundingBox (&PCB->Font, &(e->Name[i]));
+                    r_insert_entry (PCB->Data->name_tree[i],
+                                    (BoxType *) & (e->Name[i]), 0);
+                    if (i == save_n)
+                      DrawElementName (e, 0);
+                  }
+              }
+          }
+        break;
       }
 
     case REMOVE_MODE:
       if ((type =
-	   SearchScreen (Note.X, Note.Y, REMOVE_TYPES, &ptr1, &ptr2,
-			 &ptr3)) != NO_TYPE)
-	{
-	  if (TEST_FLAG (LOCKFLAG, (LineTypePtr) ptr2))
-	    {
-	      Message (_("Sorry, the object is locked\n"));
-	      break;
-	    }
-	  if (type == ELEMENT_TYPE)
-	    {
-	      RubberbandTypePtr ptr;
-	      int i;
+           SearchScreen (Note.X, Note.Y, REMOVE_TYPES, &ptr1, &ptr2,
+                         &ptr3)) != NO_TYPE)
+        {
+          if (TEST_FLAG (LOCKFLAG, (LineTypePtr) ptr2))
+            {
+              Message (_("Sorry, the object is locked\n"));
+              break;
+            }
+          if (type == ELEMENT_TYPE)
+            {
+              RubberbandTypePtr ptr;
+              int i;
 
-	      Crosshair.AttachedObject.RubberbandN = 0;
-	      LookupRatLines (type, ptr1, ptr2, ptr3);
-	      ptr = Crosshair.AttachedObject.Rubberband;
-	      for (i = 0; i < Crosshair.AttachedObject.RubberbandN; i++)
-		{
-		  if (PCB->RatOn)
-		    EraseRat ((RatTypePtr) ptr->Line);
-		  MoveObjectToRemoveUndoList (RATLINE_TYPE,
-					      ptr->Line, ptr->Line,
-					      ptr->Line);
-		  ptr++;
-		}
-	    }
-	  RemoveObject (type, ptr1, ptr2, ptr3);
-	  IncrementUndoSerialNumber ();
-	  SetChangedFlag (True);
-	}
+              Crosshair.AttachedObject.RubberbandN = 0;
+              LookupRatLines (type, ptr1, ptr2, ptr3);
+              ptr = Crosshair.AttachedObject.Rubberband;
+              for (i = 0; i < Crosshair.AttachedObject.RubberbandN; i++)
+                {
+                  if (PCB->RatOn)
+                    EraseRat ((RatTypePtr) ptr->Line);
+                  MoveObjectToRemoveUndoList (RATLINE_TYPE,
+                                              ptr->Line, ptr->Line,
+                                              ptr->Line);
+                  ptr++;
+                }
+            }
+          RemoveObject (type, ptr1, ptr2, ptr3);
+          IncrementUndoSerialNumber ();
+          SetChangedFlag (True);
+        }
       break;
 
     case ROTATE_MODE:
       RotateScreenObject (Note.X, Note.Y,
-			  gui->shift_is_pressed ()? (SWAP_IDENT ?
-						     1 : 3)
-			  : (SWAP_IDENT ? 3 : 1));
+                          gui->shift_is_pressed ()? (SWAP_IDENT ?
+                                                     1 : 3)
+                          : (SWAP_IDENT ? 3 : 1));
       break;
 
       /* both are almost the same */
     case COPY_MODE:
     case MOVE_MODE:
       switch (Crosshair.AttachedObject.State)
-	{
-	  /* first notify, lookup object */
-	case STATE_FIRST:
-	  {
-	    int types = (Settings.Mode == COPY_MODE) ?
-	      COPY_TYPES : MOVE_TYPES;
+        {
+          /* first notify, lookup object */
+        case STATE_FIRST:
+          {
+            int types = (Settings.Mode == COPY_MODE) ?
+              COPY_TYPES : MOVE_TYPES;
 
-	    Crosshair.AttachedObject.Type =
-	      SearchScreen (Note.X, Note.Y, types,
-			    &Crosshair.AttachedObject.Ptr1,
-			    &Crosshair.AttachedObject.Ptr2,
-			    &Crosshair.AttachedObject.Ptr3);
-	    if (Crosshair.AttachedObject.Type != NO_TYPE)
-	      {
-		if (Settings.Mode == MOVE_MODE &&
-		    TEST_FLAG (LOCKFLAG, (PinTypePtr)
-			       Crosshair.AttachedObject.Ptr2))
-		  {
-		    Message (_("Sorry, the object is locked\n"));
-		    Crosshair.AttachedObject.Type = NO_TYPE;
-		  }
-		else
-		  AttachForCopy (Note.X, Note.Y);
-	      }
-	    break;
-	  }
+            Crosshair.AttachedObject.Type =
+              SearchScreen (Note.X, Note.Y, types,
+                            &Crosshair.AttachedObject.Ptr1,
+                            &Crosshair.AttachedObject.Ptr2,
+                            &Crosshair.AttachedObject.Ptr3);
+            if (Crosshair.AttachedObject.Type != NO_TYPE)
+              {
+                if (Settings.Mode == MOVE_MODE &&
+                    TEST_FLAG (LOCKFLAG, (PinTypePtr)
+                               Crosshair.AttachedObject.Ptr2))
+                  {
+                    Message (_("Sorry, the object is locked\n"));
+                    Crosshair.AttachedObject.Type = NO_TYPE;
+                  }
+                else
+                  AttachForCopy (Note.X, Note.Y);
+              }
+            break;
+          }
 
-	  /* second notify, move or copy object */
-	case STATE_SECOND:
-	  if (Settings.Mode == COPY_MODE)
-	    CopyObject (Crosshair.AttachedObject.Type,
-			Crosshair.AttachedObject.Ptr1,
-			Crosshair.AttachedObject.Ptr2,
-			Crosshair.AttachedObject.Ptr3,
-			Note.X - Crosshair.AttachedObject.X,
-			Note.Y - Crosshair.AttachedObject.Y);
-	  else
-	    {
-	      MoveObjectAndRubberband (Crosshair.AttachedObject.Type,
-				       Crosshair.AttachedObject.Ptr1,
-				       Crosshair.AttachedObject.Ptr2,
-				       Crosshair.AttachedObject.Ptr3,
-				       Note.X - Crosshair.AttachedObject.X,
-				       Note.Y - Crosshair.AttachedObject.Y);
-	      SetLocalRef (0, 0, False);
-	    }
-	  SetChangedFlag (True);
+          /* second notify, move or copy object */
+        case STATE_SECOND:
+          if (Settings.Mode == COPY_MODE)
+            CopyObject (Crosshair.AttachedObject.Type,
+                        Crosshair.AttachedObject.Ptr1,
+                        Crosshair.AttachedObject.Ptr2,
+                        Crosshair.AttachedObject.Ptr3,
+                        Note.X - Crosshair.AttachedObject.X,
+                        Note.Y - Crosshair.AttachedObject.Y);
+          else
+            {
+              MoveObjectAndRubberband (Crosshair.AttachedObject.Type,
+                                       Crosshair.AttachedObject.Ptr1,
+                                       Crosshair.AttachedObject.Ptr2,
+                                       Crosshair.AttachedObject.Ptr3,
+                                       Note.X - Crosshair.AttachedObject.X,
+                                       Note.Y - Crosshair.AttachedObject.Y);
+              SetLocalRef (0, 0, False);
+            }
+          SetChangedFlag (True);
 
-	  /* reset identifiers */
-	  Crosshair.AttachedObject.Type = NO_TYPE;
-	  Crosshair.AttachedObject.State = STATE_FIRST;
-	  break;
-	}
+          /* reset identifiers */
+          Crosshair.AttachedObject.Type = NO_TYPE;
+          Crosshair.AttachedObject.State = STATE_FIRST;
+          break;
+        }
       break;
 
       /* insert a point into a polygon/line/... */
     case INSERTPOINT_MODE:
       switch (Crosshair.AttachedObject.State)
-	{
-	  /* first notify, lookup object */
-	case STATE_FIRST:
-	  Crosshair.AttachedObject.Type =
-	    SearchScreen (Note.X, Note.Y, INSERT_TYPES,
-			  &Crosshair.AttachedObject.Ptr1,
-			  &Crosshair.AttachedObject.Ptr2,
-			  &Crosshair.AttachedObject.Ptr3);
+        {
+          /* first notify, lookup object */
+        case STATE_FIRST:
+          Crosshair.AttachedObject.Type =
+            SearchScreen (Note.X, Note.Y, INSERT_TYPES,
+                          &Crosshair.AttachedObject.Ptr1,
+                          &Crosshair.AttachedObject.Ptr2,
+                          &Crosshair.AttachedObject.Ptr3);
 
-	  if (Crosshair.AttachedObject.Type != NO_TYPE)
-	    {
-	      if (TEST_FLAG (LOCKFLAG, (PolygonTypePtr)
-			     Crosshair.AttachedObject.Ptr2))
-		{
-		  Message (_("Sorry, the object is locked\n"));
-		  Crosshair.AttachedObject.Type = NO_TYPE;
-		  break;
-		}
-	      else
-		{
-		  /* get starting point of nearest segment */
-		  if (Crosshair.AttachedObject.Type == POLYGON_TYPE)
-		    {
-		      fake.poly =
-			(PolygonTypePtr) Crosshair.AttachedObject.Ptr2;
-		      polyIndex =
-			GetLowestDistancePolygonPoint (fake.poly, Note.X,
-						       Note.Y);
-		      fake.line.Point1 = fake.poly->Points[polyIndex];
-		      fake.line.Point2 = (polyIndex) ?
-			fake.poly->Points[polyIndex - 1]
-			: fake.poly->Points[fake.poly->PointN - 1];
-		      Crosshair.AttachedObject.Ptr2 = &fake.line;
+          if (Crosshair.AttachedObject.Type != NO_TYPE)
+            {
+              if (TEST_FLAG (LOCKFLAG, (PolygonTypePtr)
+                             Crosshair.AttachedObject.Ptr2))
+                {
+                  Message (_("Sorry, the object is locked\n"));
+                  Crosshair.AttachedObject.Type = NO_TYPE;
+                  break;
+                }
+              else
+                {
+                  /* get starting point of nearest segment */
+                  if (Crosshair.AttachedObject.Type == POLYGON_TYPE)
+                    {
+                      fake.poly =
+                        (PolygonTypePtr) Crosshair.AttachedObject.Ptr2;
+                      polyIndex =
+                        GetLowestDistancePolygonPoint (fake.poly, Note.X,
+                                                       Note.Y);
+                      fake.line.Point1 = fake.poly->Points[polyIndex];
+                      fake.line.Point2 = (polyIndex) ?
+                        fake.poly->Points[polyIndex - 1]
+                        : fake.poly->Points[fake.poly->PointN - 1];
+                      Crosshair.AttachedObject.Ptr2 = &fake.line;
 
-		    }
-		  Crosshair.AttachedObject.State = STATE_SECOND;
-		  InsertedPoint = *AdjustInsertPoint ();
-		}
-	    }
-	  break;
+                    }
+                  Crosshair.AttachedObject.State = STATE_SECOND;
+                  InsertedPoint = *AdjustInsertPoint ();
+                }
+            }
+          break;
 
-	  /* second notify, insert new point into object */
-	case STATE_SECOND:
-	  if (Crosshair.AttachedObject.Type == POLYGON_TYPE)
-	    InsertPointIntoObject (POLYGON_TYPE,
-				   Crosshair.AttachedObject.Ptr1, fake.poly,
-				   &polyIndex,
-				   InsertedPoint.X, InsertedPoint.Y, False);
-	  else
-	    InsertPointIntoObject (Crosshair.AttachedObject.Type,
-				   Crosshair.AttachedObject.Ptr1,
-				   Crosshair.AttachedObject.Ptr2,
-				   &polyIndex,
-				   InsertedPoint.X, InsertedPoint.Y, False);
-	  SetChangedFlag (True);
+          /* second notify, insert new point into object */
+        case STATE_SECOND:
+          if (Crosshair.AttachedObject.Type == POLYGON_TYPE)
+            InsertPointIntoObject (POLYGON_TYPE,
+                                   Crosshair.AttachedObject.Ptr1, fake.poly,
+                                   &polyIndex,
+                                   InsertedPoint.X, InsertedPoint.Y, False);
+          else
+            InsertPointIntoObject (Crosshair.AttachedObject.Type,
+                                   Crosshair.AttachedObject.Ptr1,
+                                   Crosshair.AttachedObject.Ptr2,
+                                   &polyIndex,
+                                   InsertedPoint.X, InsertedPoint.Y, False);
+          SetChangedFlag (True);
 
-	  /* reset identifiers */
-	  Crosshair.AttachedObject.Type = NO_TYPE;
-	  Crosshair.AttachedObject.State = STATE_FIRST;
-	  break;
-	}
+          /* reset identifiers */
+          Crosshair.AttachedObject.Type = NO_TYPE;
+          Crosshair.AttachedObject.State = STATE_FIRST;
+          break;
+        }
       break;
     }
 }
@@ -1602,10 +1602,10 @@ WarpPointer (Boolean ignore)
     return;
 
   XWarpPointer (GDK_DRAWABLE_XDISPLAY (Output.drawing_area->window),
-		w_src, w_dst,
-		0, 0, 0, 0,
-		(int) (TO_SCREEN_X (Crosshair.X)),
-		(int) (TO_SCREEN_Y (Crosshair.Y)));
+                w_src, w_dst,
+                0, 0, 0, 0,
+                (int) (TO_SCREEN_X (Crosshair.X)),
+                (int) (TO_SCREEN_Y (Crosshair.Y)));
 
   /* XWarpPointer creates Motion events normally bound to
    *  EventMoveCrosshair.
@@ -1676,7 +1676,7 @@ ActionAtomic (int argc, char **argv, int x, int y)
     case F_Block:
       RestoreUndoSerialNumber ();
       if (Bumped)
-	IncrementUndoSerialNumber ();
+        IncrementUndoSerialNumber ();
       break;
     }
   return 0;
@@ -1701,14 +1701,14 @@ ActionDRCheck (int argc, char **argv, int x, int y)
   Cardinal count;
 
   Message (_("Rules are minspace %d.%02d, minoverlap %d.%d "
-	     "minwidth %d.%02d, minsilk %d.%02d\n"
-	     "min drill %d.%02d, min annular ring %d.%02d\n"),
-	   (PCB->Bloat + 1) / 100, (PCB->Bloat + 1) % 100,
-	   PCB->Shrink / 100, PCB->Shrink % 100,
-	   PCB->minWid / 100, PCB->minWid % 100,
-	   PCB->minSlk / 100, PCB->minSlk % 100,
-	   PCB->minDrill / 100, PCB->minDrill % 100,
-	   PCB->minRing / 100, PCB->minRing % 100);
+             "minwidth %d.%02d, minsilk %d.%02d\n"
+             "min drill %d.%02d, min annular ring %d.%02d\n"),
+           (PCB->Bloat + 1) / 100, (PCB->Bloat + 1) % 100,
+           PCB->Shrink / 100, PCB->Shrink % 100,
+           PCB->minWid / 100, PCB->minWid % 100,
+           PCB->minSlk / 100, PCB->minSlk % 100,
+           PCB->minDrill / 100, PCB->minDrill % 100,
+           PCB->minRing / 100, PCB->minRing % 100);
   HideCrosshair (True);
   count = DRCAll ();
   if (count == 0)
@@ -1746,28 +1746,28 @@ ActionDumpLibrary (int argc, char **argv, int x, int y)
       printf ("    EntryMax  = %d\n", Library.Menu[i].EntryMax);
       printf ("    Name      = \"%s\"\n", UNKNOWN (Library.Menu[i].Name));
       printf ("    directory = \"%s\"\n",
-	      UNKNOWN (Library.Menu[i].directory));
+              UNKNOWN (Library.Menu[i].directory));
       printf ("    Style     = \"%s\"\n", UNKNOWN (Library.Menu[i].Style));
       printf ("    flag      = %d\n", Library.Menu[i].flag);
 
       for (j = 0; j < Library.Menu[i].EntryN; j++)
-	{
-	  printf ("    #%4d: ", j);
-	  if (Library.Menu[i].Entry[j].Template == (char *) -1)
-	    {
-	      printf ("newlib: \"%s\"\n",
-		      UNKNOWN (Library.Menu[i].Entry[j].ListEntry));
-	    }
-	  else
-	    {
-	      printf ("\"%s\", \"%s\", \"%s\", \"%s\", \"%s\"\n",
-		      UNKNOWN (Library.Menu[i].Entry[j].ListEntry),
-		      UNKNOWN (Library.Menu[i].Entry[j].Template),
-		      UNKNOWN (Library.Menu[i].Entry[j].Package),
-		      UNKNOWN (Library.Menu[i].Entry[j].Value),
-		      UNKNOWN (Library.Menu[i].Entry[j].Description));
-	    }
-	}
+        {
+          printf ("    #%4d: ", j);
+          if (Library.Menu[i].Entry[j].Template == (char *) -1)
+            {
+              printf ("newlib: \"%s\"\n",
+                      UNKNOWN (Library.Menu[i].Entry[j].ListEntry));
+            }
+          else
+            {
+              printf ("\"%s\", \"%s\", \"%s\", \"%s\", \"%s\"\n",
+                      UNKNOWN (Library.Menu[i].Entry[j].ListEntry),
+                      UNKNOWN (Library.Menu[i].Entry[j].Template),
+                      UNKNOWN (Library.Menu[i].Entry[j].Package),
+                      UNKNOWN (Library.Menu[i].Entry[j].Value),
+                      UNKNOWN (Library.Menu[i].Entry[j].Description));
+            }
+        }
     }
 
   return 0;
@@ -1802,28 +1802,28 @@ ActionFlip (int argc, char **argv, int x, int y)
     {
       HideCrosshair (True);
       switch (GetFunctionID (function))
-	{
-	case F_Object:
-	  if ((SearchScreen (x, y, ELEMENT_TYPE,
-			     &ptrtmp, &ptrtmp, &ptrtmp)) != NO_TYPE)
-	    {
-	      element = (ElementTypePtr) ptrtmp;
-	      ChangeElementSide (element, 2 * Crosshair.Y - PCB->MaxHeight);
-	      IncrementUndoSerialNumber ();
-	      Draw ();
-	    }
-	  break;
-	case F_Selected:
-	case F_SelectedElements:
-	  ChangeSelectedElementSide ();
-	  break;
-	default:
-	  err = 1;
-	  break;
-	}
+        {
+        case F_Object:
+          if ((SearchScreen (x, y, ELEMENT_TYPE,
+                             &ptrtmp, &ptrtmp, &ptrtmp)) != NO_TYPE)
+            {
+              element = (ElementTypePtr) ptrtmp;
+              ChangeElementSide (element, 2 * Crosshair.Y - PCB->MaxHeight);
+              IncrementUndoSerialNumber ();
+              Draw ();
+            }
+          break;
+        case F_Selected:
+        case F_SelectedElements:
+          ChangeSelectedElementSide ();
+          break;
+        default:
+          err = 1;
+          break;
+        }
       RestoreCrosshair (True);
       if (!err)
-	return 0;
+        return 0;
     }
 
   AFAIL (flip);
@@ -1910,37 +1910,37 @@ ActionSetThermal (int argc, char **argv, int x, int y)
       kind = GetValue (style, NULL, &absolute);
       HideCrosshair (True);
       if (absolute)
-	switch (GetFunctionID (function))
-	  {
-	  case F_Object:
-	    if ((type =
-		 SearchScreen (Crosshair.X, Crosshair.Y, CHANGETHERMAL_TYPES,
-			       &ptr1, &ptr2, &ptr3)) != NO_TYPE)
-	      {
-		ChangeObjectThermal (type, ptr1, ptr2, ptr3, kind);
-		IncrementUndoSerialNumber ();
-		Draw ();
-	      }
-	    break;
-	  case F_SelectedPins:
-	    ChangeSelectedThermals (PIN_TYPE, kind);
-	    break;
-	  case F_SelectedVias:
-	    ChangeSelectedThermals (VIA_TYPE, kind);
-	    break;
-	  case F_Selected:
-	  case F_SelectedElements:
-	    ChangeSelectedThermals (CHANGETHERMAL_TYPES, kind);
-	    break;
-	  default:
-	    err = 1;
-	    break;
-	  }
+        switch (GetFunctionID (function))
+          {
+          case F_Object:
+            if ((type =
+                 SearchScreen (Crosshair.X, Crosshair.Y, CHANGETHERMAL_TYPES,
+                               &ptr1, &ptr2, &ptr3)) != NO_TYPE)
+              {
+                ChangeObjectThermal (type, ptr1, ptr2, ptr3, kind);
+                IncrementUndoSerialNumber ();
+                Draw ();
+              }
+            break;
+          case F_SelectedPins:
+            ChangeSelectedThermals (PIN_TYPE, kind);
+            break;
+          case F_SelectedVias:
+            ChangeSelectedThermals (VIA_TYPE, kind);
+            break;
+          case F_Selected:
+          case F_SelectedElements:
+            ChangeSelectedThermals (CHANGETHERMAL_TYPES, kind);
+            break;
+          default:
+            err = 1;
+            break;
+          }
       else
-	err = 1;
+        err = 1;
       RestoreCrosshair (True);
       if (!err)
-	return 0;
+        return 0;
     }
 
   AFAIL (setthermal);
@@ -2005,30 +2005,30 @@ EventMoveCrosshair (int ev_x, int ev_y)
        * slow redrawing
        */
       gdk_window_get_pointer (Output.drawing_area->window,
-			      &childX, &childY, &mask);
+                              &childX, &childY, &mask);
 
       if (ev_x == childX && ev_y == childY)
-	{
-	  if (Settings.Mode == NO_MODE && (mask & GDK_BUTTON1_MASK))
-	    {
-	      LocationType x, y;
-	      HideCrosshair (False);
-	      x = TO_SCREEN_X (Crosshair.X) - ev_x;
-	      y = TO_SCREEN_Y (Crosshair.Y) - ev_y;
-	      CenterDisplay (x, y, True);
-	      RestoreCrosshair (False);
-	    }
-	  else
+        {
+          if (Settings.Mode == NO_MODE && (mask & GDK_BUTTON1_MASK))
+            {
+              LocationType x, y;
+              HideCrosshair (False);
+              x = TO_SCREEN_X (Crosshair.X) - ev_x;
+              y = TO_SCREEN_Y (Crosshair.Y) - ev_y;
+              CenterDisplay (x, y, True);
+              RestoreCrosshair (False);
+            }
+          else
 #endif
-	  if (MoveCrosshairAbsolute (ev_x, ev_y))
-	    {
+          if (MoveCrosshairAbsolute (ev_x, ev_y))
+            {
 
-	      /* update object position and cursor location */
-	      AdjustAttachedObjects ();
-	      RestoreCrosshair (False);
-	    }
+              /* update object position and cursor location */
+              AdjustAttachedObjects ();
+              RestoreCrosshair (False);
+            }
 #ifdef FIXME
-	}
+        }
 #endif
     }
   else
@@ -2075,7 +2075,7 @@ ActionSetValue (int argc, char **argv, int x, int y)
   char *function = ARG (0);
   char *val = ARG (1);
   char *units = ARG (2);
-  Boolean r;			/* flag for 'relative' value */
+  Boolean r;                    /* flag for 'relative' value */
   float value;
   int err = 0;
 
@@ -2084,57 +2084,57 @@ ActionSetValue (int argc, char **argv, int x, int y)
       HideCrosshair (True);
       value = GetValue (val, units, &r);
       switch (GetFunctionID (function))
-	{
-	case F_ViaDrillingHole:
-	  SetViaDrillingHole (r ? value : value + Settings.ViaDrillingHole,
-			      False);
-	  hid_action ("RouteStylesChanged");
-	  break;
+        {
+        case F_ViaDrillingHole:
+          SetViaDrillingHole (r ? value : value + Settings.ViaDrillingHole,
+                              False);
+          hid_action ("RouteStylesChanged");
+          break;
 
-	case F_Grid:
-	  if (!r)
-	    {
-	      if ((value == (int) value && PCB->Grid == (int) PCB->Grid)
-		  || (value != (int) value && PCB->Grid != (int) PCB->Grid))
-		SetGrid (value + PCB->Grid, False);
-	      else
-		Message (_
-			 ("Don't combine metric/English grids like that!\n"));
-	    }
-	  else
-	    SetGrid (value, False);
-	  break;
+        case F_Grid:
+          if (!r)
+            {
+              if ((value == (int) value && PCB->Grid == (int) PCB->Grid)
+                  || (value != (int) value && PCB->Grid != (int) PCB->Grid))
+                SetGrid (value + PCB->Grid, False);
+              else
+                Message (_
+                         ("Don't combine metric/English grids like that!\n"));
+            }
+          else
+            SetGrid (value, False);
+          break;
 
 #if FIXME
-	case F_Zoom:
-	  SetZoom (r ? value : value + PCB->Zoom);
-	  break;
+        case F_Zoom:
+          SetZoom (r ? value : value + PCB->Zoom);
+          break;
 #endif
 
-	case F_LineSize:
-	case F_Line:
-	  SetLineSize (r ? value : value + Settings.LineThickness);
-	  hid_action ("RouteStylesChanged");
-	  break;
+        case F_LineSize:
+        case F_Line:
+          SetLineSize (r ? value : value + Settings.LineThickness);
+          hid_action ("RouteStylesChanged");
+          break;
 
-	case F_Via:
-	case F_ViaSize:
-	  SetViaSize (r ? value : value + Settings.ViaThickness, False);
-	  hid_action ("RouteStylesChanged");
-	  break;
+        case F_Via:
+        case F_ViaSize:
+          SetViaSize (r ? value : value + Settings.ViaThickness, False);
+          hid_action ("RouteStylesChanged");
+          break;
 
-	case F_Text:
-	case F_TextScale:
-	  value /= 45;
-	  SetTextScale (r ? value : value + Settings.TextScale);
-	  break;
-	default:
-	  err = 1;
-	  break;
-	}
+        case F_Text:
+        case F_TextScale:
+          value /= 45;
+          SetTextScale (r ? value : value + Settings.TextScale);
+          break;
+        default:
+          err = 1;
+          break;
+        }
       RestoreCrosshair (True);
       if (!err)
-	return 0;
+        return 0;
     }
 
   AFAIL (setvalue);
@@ -2207,29 +2207,29 @@ ActionConnection (int argc, char **argv, int x, int y)
     {
       HideCrosshair (True);
       switch (GetFunctionID (function))
-	{
-	case F_Find:
-	  {
-	    gui->get_coords ("Click on a connection", &x, &y);
-	    LookupConnection (x, y, True, PCB->Grid, FOUNDFLAG);
-	    break;
-	  }
+        {
+        case F_Find:
+          {
+            gui->get_coords ("Click on a connection", &x, &y);
+            LookupConnection (x, y, True, PCB->Grid, FOUNDFLAG);
+            break;
+          }
 
-	case F_ResetLinesAndPolygons:
-	  ResetFoundLinesAndPolygons (True);
-	  break;
+        case F_ResetLinesAndPolygons:
+          ResetFoundLinesAndPolygons (True);
+          break;
 
-	case F_ResetPinsViasAndPads:
-	  ResetFoundPinsViasAndPads (True);
-	  break;
+        case F_ResetPinsViasAndPads:
+          ResetFoundPinsViasAndPads (True);
+          break;
 
-	case F_Reset:
-	  SaveUndoSerialNumber ();
-	  ResetFoundPinsViasAndPads (True);
-	  RestoreUndoSerialNumber ();
-	  ResetFoundLinesAndPolygons (True);
-	  break;
-	}
+        case F_Reset:
+          SaveUndoSerialNumber ();
+          ResetFoundPinsViasAndPads (True);
+          RestoreUndoSerialNumber ();
+          ResetFoundLinesAndPolygons (True);
+          break;
+        }
       RestoreCrosshair (True);
       return 0;
     }
@@ -2275,18 +2275,18 @@ ActionDisperseElements (int argc, char **argv, int x, int y)
   else
     {
       switch (GetFunctionID (function))
-	{
-	case F_All:
-	  all = 1;
-	  break;
+        {
+        case F_All:
+          all = 1;
+          break;
 
-	case F_Selected:
-	  all = 0;
-	  break;
+        case F_Selected:
+          all = 0;
+          break;
 
-	default:
-	  bad = 1;
-	}
+        default:
+          bad = 1;
+        }
     }
 
   if (bad)
@@ -2307,47 +2307,47 @@ ActionDisperseElements (int argc, char **argv, int x, int y)
     if (all || TEST_FLAG (SELECTEDFLAG, element))
       {
 
-	/* figure out how much to move the element */
-	dx = minx - element->BoundingBox.X1;
+        /* figure out how much to move the element */
+        dx = minx - element->BoundingBox.X1;
 
-	/* snap to the grid */
-	dx -= (element->MarkX + dx) % (long) (PCB->Grid);
+        /* snap to the grid */
+        dx -= (element->MarkX + dx) % (long) (PCB->Grid);
 
-	/* 
-	 * and add one grid size so we make sure we always space by GAP or
-	 * more
-	 */
-	dx += (long) (PCB->Grid);
+        /* 
+         * and add one grid size so we make sure we always space by GAP or
+         * more
+         */
+        dx += (long) (PCB->Grid);
 
-	/* Figure out if this row has room.  If not, start a new row */
-	if (GAP + element->BoundingBox.X2 + dx > PCB->MaxWidth)
-	  {
-	    miny = maxy + GAP;
-	    minx = GAP;
-	  }
+        /* Figure out if this row has room.  If not, start a new row */
+        if (GAP + element->BoundingBox.X2 + dx > PCB->MaxWidth)
+          {
+            miny = maxy + GAP;
+            minx = GAP;
+          }
 
-	/* figure out how much to move the element */
-	dx = minx - element->BoundingBox.X1;
-	dy = miny - element->BoundingBox.Y1;
+        /* figure out how much to move the element */
+        dx = minx - element->BoundingBox.X1;
+        dy = miny - element->BoundingBox.Y1;
 
-	/* snap to the grid */
-	dx -= (element->MarkX + dx) % (long) (PCB->Grid);
-	dx += (long) (PCB->Grid);
-	dy -= (element->MarkY + dy) % (long) (PCB->Grid);
-	dy += (long) (PCB->Grid);
+        /* snap to the grid */
+        dx -= (element->MarkX + dx) % (long) (PCB->Grid);
+        dx += (long) (PCB->Grid);
+        dy -= (element->MarkY + dy) % (long) (PCB->Grid);
+        dy += (long) (PCB->Grid);
 
-	/* move the element */
-	MoveElementLowLevel (PCB->Data, element, dx, dy);
+        /* move the element */
+        MoveElementLowLevel (PCB->Data, element, dx, dy);
 
-	/* and add to the undo list so we can undo this operation */
-	AddObjectToMoveUndoList (ELEMENT_TYPE, NULL, NULL, element, dx, dy);
+        /* and add to the undo list so we can undo this operation */
+        AddObjectToMoveUndoList (ELEMENT_TYPE, NULL, NULL, element, dx, dy);
 
-	/* keep track of how tall this row is */
-	minx += element->BoundingBox.X2 - element->BoundingBox.X1 + GAP;
-	if (maxy < element->BoundingBox.Y2)
-	  {
-	    maxy = element->BoundingBox.Y2;
-	  }
+        /* keep track of how tall this row is */
+        minx += element->BoundingBox.X2 - element->BoundingBox.X1 + GAP;
+        if (maxy < element->BoundingBox.Y2)
+          {
+            maxy = element->BoundingBox.Y2;
+          }
       }
 
   }
@@ -2501,341 +2501,341 @@ ActionDisplay (int argc, char **argv, int childX, int childY)
     {
       HideCrosshair (True);
       switch (id = GetFunctionID (function))
-	{
+        {
 
 #ifdef FIXME
-	case F_Save:
-	  saved = PCB->Zoom;
-	  break;
-	case F_Restore:
-	  SetZoom (saved);
-	  break;
-	  /* redraw layout with clearing the background */
-	case F_ClearAndRedraw:
-	  ClearAndRedrawOutput ();
-	  UpdateAll ();
-	  break;
+        case F_Save:
+          saved = PCB->Zoom;
+          break;
+        case F_Restore:
+          SetZoom (saved);
+          break;
+          /* redraw layout with clearing the background */
+        case F_ClearAndRedraw:
+          ClearAndRedrawOutput ();
+          UpdateAll ();
+          break;
 #endif
 
-	  /* redraw layout without clearing the background */
-	case F_Redraw:
-	  {
-	    BoxType area;
-	    area.X1 = 0;
-	    area.Y1 = 0;
-	    area.X2 = Output.Width;
-	    area.Y2 = Output.Height;
-	    RedrawOutput (&area);
-	    break;
-	  }
+          /* redraw layout without clearing the background */
+        case F_Redraw:
+          {
+            BoxType area;
+            area.X1 = 0;
+            area.Y1 = 0;
+            area.X2 = Output.Width;
+            area.Y2 = Output.Height;
+            RedrawOutput (&area);
+            break;
+          }
 #ifdef FIXME
-	  /* center cursor and move X pointer too */
-	case F_Center:
-	  CenterDisplay (Crosshair.X, Crosshair.Y, False);
-	  warpNoWhere ();
-	  break;
+          /* center cursor and move X pointer too */
+        case F_Center:
+          CenterDisplay (Crosshair.X, Crosshair.Y, False);
+          warpNoWhere ();
+          break;
 #endif
 
-	  /* change the displayed name of elements */
-	case F_Value:
-	case F_NameOnPCB:
-	case F_Description:
-	  ELEMENT_LOOP (PCB->Data);
-	  {
-	    EraseElementName (element);
-	  }
-	  END_LOOP;
-	  CLEAR_FLAG (DESCRIPTIONFLAG | NAMEONPCBFLAG, PCB);
-	  switch (id)
-	    {
-	    case F_Value:
-	      break;
-	    case F_NameOnPCB:
-	      SET_FLAG (NAMEONPCBFLAG, PCB);
-	      break;
-	    case F_Description:
-	      SET_FLAG (DESCRIPTIONFLAG, PCB);
-	      break;
-	    }
-	  ELEMENT_LOOP (PCB->Data);
-	  {
-	    DrawElementName (element, 0);
-	  }
-	  END_LOOP;
-	  Draw ();
-	  break;
+          /* change the displayed name of elements */
+        case F_Value:
+        case F_NameOnPCB:
+        case F_Description:
+          ELEMENT_LOOP (PCB->Data);
+          {
+            EraseElementName (element);
+          }
+          END_LOOP;
+          CLEAR_FLAG (DESCRIPTIONFLAG | NAMEONPCBFLAG, PCB);
+          switch (id)
+            {
+            case F_Value:
+              break;
+            case F_NameOnPCB:
+              SET_FLAG (NAMEONPCBFLAG, PCB);
+              break;
+            case F_Description:
+              SET_FLAG (DESCRIPTIONFLAG, PCB);
+              break;
+            }
+          ELEMENT_LOOP (PCB->Data);
+          {
+            DrawElementName (element, 0);
+          }
+          END_LOOP;
+          Draw ();
+          break;
 
-	  /* toggle line-adjust flag */
-	case F_ToggleAllDirections:
-	  TOGGLE_FLAG (ALLDIRECTIONFLAG, PCB);
-	  AdjustAttachedObjects ();
-	  break;
+          /* toggle line-adjust flag */
+        case F_ToggleAllDirections:
+          TOGGLE_FLAG (ALLDIRECTIONFLAG, PCB);
+          AdjustAttachedObjects ();
+          break;
 
-	case F_CycleClip:
-	  if TEST_FLAG
-	    (ALLDIRECTIONFLAG, PCB)
-	    {
-	      TOGGLE_FLAG (ALLDIRECTIONFLAG, PCB);
-	      PCB->Clipping = 0;
-	    }
-	  else
-	    PCB->Clipping = (PCB->Clipping + 1) % 3;
-	  AdjustAttachedObjects ();
-	  break;
+        case F_CycleClip:
+          if TEST_FLAG
+            (ALLDIRECTIONFLAG, PCB)
+            {
+              TOGGLE_FLAG (ALLDIRECTIONFLAG, PCB);
+              PCB->Clipping = 0;
+            }
+          else
+            PCB->Clipping = (PCB->Clipping + 1) % 3;
+          AdjustAttachedObjects ();
+          break;
 
-	case F_ToggleRubberBandMode:
-	  TOGGLE_FLAG (RUBBERBANDFLAG, PCB);
-	  break;
+        case F_ToggleRubberBandMode:
+          TOGGLE_FLAG (RUBBERBANDFLAG, PCB);
+          break;
 
-	case F_ToggleStartDirection:
-	  TOGGLE_FLAG (SWAPSTARTDIRFLAG, PCB);
-	  break;
+        case F_ToggleStartDirection:
+          TOGGLE_FLAG (SWAPSTARTDIRFLAG, PCB);
+          break;
 
-	case F_ToggleUniqueNames:
-	  TOGGLE_FLAG (UNIQUENAMEFLAG, PCB);
-	  break;
+        case F_ToggleUniqueNames:
+          TOGGLE_FLAG (UNIQUENAMEFLAG, PCB);
+          break;
 
-	case F_ToggleSnapPin:
-	  TOGGLE_FLAG (SNAPPINFLAG, PCB);
-	  break;
+        case F_ToggleSnapPin:
+          TOGGLE_FLAG (SNAPPINFLAG, PCB);
+          break;
 
-	case F_ToggleLocalRef:
-	  TOGGLE_FLAG (LOCALREFFLAG, PCB);
-	  break;
+        case F_ToggleLocalRef:
+          TOGGLE_FLAG (LOCALREFFLAG, PCB);
+          break;
 
-	case F_ToggleThindraw:
-	  TOGGLE_FLAG (THINDRAWFLAG, PCB);
-	  ClearAndRedrawOutput ();
-	  break;
+        case F_ToggleThindraw:
+          TOGGLE_FLAG (THINDRAWFLAG, PCB);
+          ClearAndRedrawOutput ();
+          break;
 
-	case F_ToggleShowDRC:
-	  TOGGLE_FLAG (SHOWDRCFLAG, PCB);
-	  break;
+        case F_ToggleShowDRC:
+          TOGGLE_FLAG (SHOWDRCFLAG, PCB);
+          break;
 
-	case F_ToggleLiveRoute:
-	  TOGGLE_FLAG (LIVEROUTEFLAG, PCB);
-	  break;
+        case F_ToggleLiveRoute:
+          TOGGLE_FLAG (LIVEROUTEFLAG, PCB);
+          break;
 
-	case F_ToggleAutoDRC:
-	  TOGGLE_FLAG (AUTODRCFLAG, PCB);
-	  if (TEST_FLAG (AUTODRCFLAG, PCB) && Settings.Mode == LINE_MODE)
-	    {
-	      SaveUndoSerialNumber ();
-	      ResetFoundPinsViasAndPads (True);
-	      RestoreUndoSerialNumber ();
-	      ResetFoundLinesAndPolygons (True);
-	      if (Crosshair.AttachedLine.State != STATE_FIRST)
-		LookupConnection (Crosshair.AttachedLine.Point1.X,
-				  Crosshair.AttachedLine.Point1.Y, True, 1,
-				  FOUNDFLAG);
-	    }
-	  break;
+        case F_ToggleAutoDRC:
+          TOGGLE_FLAG (AUTODRCFLAG, PCB);
+          if (TEST_FLAG (AUTODRCFLAG, PCB) && Settings.Mode == LINE_MODE)
+            {
+              SaveUndoSerialNumber ();
+              ResetFoundPinsViasAndPads (True);
+              RestoreUndoSerialNumber ();
+              ResetFoundLinesAndPolygons (True);
+              if (Crosshair.AttachedLine.State != STATE_FIRST)
+                LookupConnection (Crosshair.AttachedLine.Point1.X,
+                                  Crosshair.AttachedLine.Point1.Y, True, 1,
+                                  FOUNDFLAG);
+            }
+          break;
 
-	case F_ToggleCheckPlanes:
-	  TOGGLE_FLAG (CHECKPLANESFLAG, PCB);
-	  ClearAndRedrawOutput ();
-	  break;
+        case F_ToggleCheckPlanes:
+          TOGGLE_FLAG (CHECKPLANESFLAG, PCB);
+          ClearAndRedrawOutput ();
+          break;
 
-	case F_ToggleOrthoMove:
-	  TOGGLE_FLAG (ORTHOMOVEFLAG, PCB);
-	  break;
+        case F_ToggleOrthoMove:
+          TOGGLE_FLAG (ORTHOMOVEFLAG, PCB);
+          break;
 
-	case F_ToggleName:
-	  TOGGLE_FLAG (SHOWNUMBERFLAG, PCB);
-	  UpdateAll ();
-	  break;
+        case F_ToggleName:
+          TOGGLE_FLAG (SHOWNUMBERFLAG, PCB);
+          UpdateAll ();
+          break;
 
-	case F_ToggleMask:
-	  TOGGLE_FLAG (SHOWMASKFLAG, PCB);
-	  UpdateAll ();
-	  break;
+        case F_ToggleMask:
+          TOGGLE_FLAG (SHOWMASKFLAG, PCB);
+          UpdateAll ();
+          break;
 
-	case F_ToggleClearLine:
-	  TOGGLE_FLAG (CLEARNEWFLAG, PCB);
-	  break;
+        case F_ToggleClearLine:
+          TOGGLE_FLAG (CLEARNEWFLAG, PCB);
+          break;
 
-	  /* shift grid alignment */
-	case F_ToggleGrid:
-	  {
-	    float oldGrid;
+          /* shift grid alignment */
+        case F_ToggleGrid:
+          {
+            float oldGrid;
 
-	    oldGrid = PCB->Grid;
-	    PCB->Grid = 1.0;
-	    if (MoveCrosshairAbsolute (childX, childY))
-	      RestoreCrosshair (False);	/* was hidden by MoveCrosshairAbs */
-	    SetGrid (oldGrid, True);
-	  }
-	  break;
+            oldGrid = PCB->Grid;
+            PCB->Grid = 1.0;
+            if (MoveCrosshairAbsolute (childX, childY))
+              RestoreCrosshair (False); /* was hidden by MoveCrosshairAbs */
+            SetGrid (oldGrid, True);
+          }
+          break;
 
-	  /* toggle displaying of the grid */
-	case F_Grid:
-	  Settings.DrawGrid = !Settings.DrawGrid;
-	  UpdateAll ();
-	  break;
+          /* toggle displaying of the grid */
+        case F_Grid:
+          Settings.DrawGrid = !Settings.DrawGrid;
+          UpdateAll ();
+          break;
 
-	  /* display the pinout of an element */
-	case F_Pinout:
-	  {
-	    ElementTypePtr element;
-	    void *ptrtmp;
+          /* display the pinout of an element */
+        case F_Pinout:
+          {
+            ElementTypePtr element;
+            void *ptrtmp;
 
-	    if ((SearchScreen
-		 (Crosshair.X, Crosshair.Y, ELEMENT_TYPE, &ptrtmp,
-		  &ptrtmp, &ptrtmp)) != NO_TYPE)
-	      {
-		element = (ElementTypePtr) ptrtmp;
-		gui->show_item (element);
-	      }
-	    break;
-	  }
+            if ((SearchScreen
+                 (Crosshair.X, Crosshair.Y, ELEMENT_TYPE, &ptrtmp,
+                  &ptrtmp, &ptrtmp)) != NO_TYPE)
+              {
+                element = (ElementTypePtr) ptrtmp;
+                gui->show_item (element);
+              }
+            break;
+          }
 
-	  /* toggle displaying of pin/pad/via names */
-	case F_PinOrPadName:
-	  {
-	    void *ptr1, *ptr2, *ptr3;
+          /* toggle displaying of pin/pad/via names */
+        case F_PinOrPadName:
+          {
+            void *ptr1, *ptr2, *ptr3;
 
-	    switch (SearchScreen (Crosshair.X, Crosshair.Y,
-				  ELEMENT_TYPE | PIN_TYPE | PAD_TYPE |
-				  VIA_TYPE, (void **) &ptr1, (void **) &ptr2,
-				  (void **) &ptr3))
-	      {
-	      case ELEMENT_TYPE:
-		PIN_LOOP ((ElementTypePtr) ptr1);
-		{
-		  if (TEST_FLAG (DISPLAYNAMEFLAG, pin))
-		    ErasePinName (pin);
-		  else
-		    DrawPinName (pin, 0);
-		  AddObjectToFlagUndoList (PIN_TYPE, ptr1, pin, pin);
-		  TOGGLE_FLAG (DISPLAYNAMEFLAG, pin);
-		}
-		END_LOOP;
-		PAD_LOOP ((ElementTypePtr) ptr1);
-		{
-		  if (TEST_FLAG (DISPLAYNAMEFLAG, pad))
-		    ErasePadName (pad);
-		  else
-		    DrawPadName (pad, 0);
-		  AddObjectToFlagUndoList (PAD_TYPE, ptr1, pad, pad);
-		  TOGGLE_FLAG (DISPLAYNAMEFLAG, pad);
-		}
-		END_LOOP;
-		SetChangedFlag (True);
-		IncrementUndoSerialNumber ();
-		Draw ();
-		break;
+            switch (SearchScreen (Crosshair.X, Crosshair.Y,
+                                  ELEMENT_TYPE | PIN_TYPE | PAD_TYPE |
+                                  VIA_TYPE, (void **) &ptr1, (void **) &ptr2,
+                                  (void **) &ptr3))
+              {
+              case ELEMENT_TYPE:
+                PIN_LOOP ((ElementTypePtr) ptr1);
+                {
+                  if (TEST_FLAG (DISPLAYNAMEFLAG, pin))
+                    ErasePinName (pin);
+                  else
+                    DrawPinName (pin, 0);
+                  AddObjectToFlagUndoList (PIN_TYPE, ptr1, pin, pin);
+                  TOGGLE_FLAG (DISPLAYNAMEFLAG, pin);
+                }
+                END_LOOP;
+                PAD_LOOP ((ElementTypePtr) ptr1);
+                {
+                  if (TEST_FLAG (DISPLAYNAMEFLAG, pad))
+                    ErasePadName (pad);
+                  else
+                    DrawPadName (pad, 0);
+                  AddObjectToFlagUndoList (PAD_TYPE, ptr1, pad, pad);
+                  TOGGLE_FLAG (DISPLAYNAMEFLAG, pad);
+                }
+                END_LOOP;
+                SetChangedFlag (True);
+                IncrementUndoSerialNumber ();
+                Draw ();
+                break;
 
-	      case PIN_TYPE:
-		if (TEST_FLAG (DISPLAYNAMEFLAG, (PinTypePtr) ptr2))
-		  ErasePinName ((PinTypePtr) ptr2);
-		else
-		  DrawPinName ((PinTypePtr) ptr2, 0);
-		AddObjectToFlagUndoList (PIN_TYPE, ptr1, ptr2, ptr3);
-		TOGGLE_FLAG (DISPLAYNAMEFLAG, (PinTypePtr) ptr2);
-		SetChangedFlag (True);
-		IncrementUndoSerialNumber ();
-		Draw ();
-		break;
+              case PIN_TYPE:
+                if (TEST_FLAG (DISPLAYNAMEFLAG, (PinTypePtr) ptr2))
+                  ErasePinName ((PinTypePtr) ptr2);
+                else
+                  DrawPinName ((PinTypePtr) ptr2, 0);
+                AddObjectToFlagUndoList (PIN_TYPE, ptr1, ptr2, ptr3);
+                TOGGLE_FLAG (DISPLAYNAMEFLAG, (PinTypePtr) ptr2);
+                SetChangedFlag (True);
+                IncrementUndoSerialNumber ();
+                Draw ();
+                break;
 
-	      case PAD_TYPE:
-		if (TEST_FLAG (DISPLAYNAMEFLAG, (PadTypePtr) ptr2))
-		  ErasePadName ((PadTypePtr) ptr2);
-		else
-		  DrawPadName ((PadTypePtr) ptr2, 0);
-		AddObjectToFlagUndoList (PAD_TYPE, ptr1, ptr2, ptr3);
-		TOGGLE_FLAG (DISPLAYNAMEFLAG, (PadTypePtr) ptr2);
-		SetChangedFlag (True);
-		IncrementUndoSerialNumber ();
-		Draw ();
-		break;
-	      case VIA_TYPE:
-		if (TEST_FLAG (DISPLAYNAMEFLAG, (PinTypePtr) ptr2))
-		  EraseViaName ((PinTypePtr) ptr2);
-		else
-		  DrawViaName ((PinTypePtr) ptr2, 0);
-		AddObjectToFlagUndoList (VIA_TYPE, ptr1, ptr2, ptr3);
-		TOGGLE_FLAG (DISPLAYNAMEFLAG, (PinTypePtr) ptr2);
-		SetChangedFlag (True);
-		IncrementUndoSerialNumber ();
-		Draw ();
-		break;
-	      }
-	    break;
-	  }
-	default:
-	  err = 1;
-	}
+              case PAD_TYPE:
+                if (TEST_FLAG (DISPLAYNAMEFLAG, (PadTypePtr) ptr2))
+                  ErasePadName ((PadTypePtr) ptr2);
+                else
+                  DrawPadName ((PadTypePtr) ptr2, 0);
+                AddObjectToFlagUndoList (PAD_TYPE, ptr1, ptr2, ptr3);
+                TOGGLE_FLAG (DISPLAYNAMEFLAG, (PadTypePtr) ptr2);
+                SetChangedFlag (True);
+                IncrementUndoSerialNumber ();
+                Draw ();
+                break;
+              case VIA_TYPE:
+                if (TEST_FLAG (DISPLAYNAMEFLAG, (PinTypePtr) ptr2))
+                  EraseViaName ((PinTypePtr) ptr2);
+                else
+                  DrawViaName ((PinTypePtr) ptr2, 0);
+                AddObjectToFlagUndoList (VIA_TYPE, ptr1, ptr2, ptr3);
+                TOGGLE_FLAG (DISPLAYNAMEFLAG, (PinTypePtr) ptr2);
+                SetChangedFlag (True);
+                IncrementUndoSerialNumber ();
+                Draw ();
+                break;
+              }
+            break;
+          }
+        default:
+          err = 1;
+        }
       RestoreCrosshair (True);
     }
   else if (function && str_dir)
     {
       switch (GetFunctionID (function))
-	{
-	case F_ToggleGrid:
-	  if (argc > 2)
-	    {
-	      /* FIXME: units */
-	      PCB->GridOffsetX = atoi (argv[1]);
-	      PCB->GridOffsetY = atoi (argv[2]);
-	      if (Settings.DrawGrid)
-		UpdateAll ();
-	    }
-	  break;
+        {
+        case F_ToggleGrid:
+          if (argc > 2)
+            {
+              /* FIXME: units */
+              PCB->GridOffsetX = atoi (argv[1]);
+              PCB->GridOffsetY = atoi (argv[2]);
+              if (Settings.DrawGrid)
+                UpdateAll ();
+            }
+          break;
 
-	case F_Scroll:
-	  {
-	    /* direction is like keypad, e.g. 4 = left 8 = up */
-	    int direction = atoi (str_dir);
+        case F_Scroll:
+          {
+            /* direction is like keypad, e.g. 4 = left 8 = up */
+            int direction = atoi (str_dir);
 
-	    switch (direction)
-	      {
-	      case 0:		/* special case: reposition crosshair */
-		{
+            switch (direction)
+              {
+              case 0:          /* special case: reposition crosshair */
+                {
 #ifdef FIXME
-		  int x, y;
-		  gui_get_pointer (&x, &y);
-		  if (MoveCrosshairAbsolute (TO_PCB_X (x), TO_PCB_Y (y)))
-		    {
-		      AdjustAttachedObjects ();
-		      RestoreCrosshair (False);
-		    }
+                  int x, y;
+                  gui_get_pointer (&x, &y);
+                  if (MoveCrosshairAbsolute (TO_PCB_X (x), TO_PCB_Y (y)))
+                    {
+                      AdjustAttachedObjects ();
+                      RestoreCrosshair (False);
+                    }
 #endif
-		}
-		break;
-	      case 1:		/* down, left */
-		CenterDisplay (-Output.Width / 2, Output.Height / 2, True);
-		break;
-	      case 2:		/* down */
-		CenterDisplay (0, Output.Height / 2, True);
-		break;
-	      case 3:		/* down, right */
-		CenterDisplay (Output.Width / 2, Output.Height / 2, True);
-		break;
-	      case 4:		/* left */
-		CenterDisplay (-Output.Width / 2, 0, True);
-		break;
-	      case 6:		/* right */
-		CenterDisplay (Output.Width / 2, 0, True);
-		break;
-	      case 7:		/* up, left */
-		CenterDisplay (-Output.Width / 2, -Output.Height / 2, True);
-		break;
-	      case 8:		/* up */
-		CenterDisplay (0, -Output.Height / 2, True);
-		break;
-	      case 9:		/* up, right */
-		CenterDisplay (Output.Width / 2, -Output.Height / 2, True);
-		break;
-	      default:
-		Message ("Bad argument (%d) to Display(Scroll)\n", direction);
-		err = 1;
-	      }
-	  }
-	  break;
-	default:
-	  err = 1;
-	  break;
-	}
+                }
+                break;
+              case 1:          /* down, left */
+                CenterDisplay (-Output.Width / 2, Output.Height / 2, True);
+                break;
+              case 2:          /* down */
+                CenterDisplay (0, Output.Height / 2, True);
+                break;
+              case 3:          /* down, right */
+                CenterDisplay (Output.Width / 2, Output.Height / 2, True);
+                break;
+              case 4:          /* left */
+                CenterDisplay (-Output.Width / 2, 0, True);
+                break;
+              case 6:          /* right */
+                CenterDisplay (Output.Width / 2, 0, True);
+                break;
+              case 7:          /* up, left */
+                CenterDisplay (-Output.Width / 2, -Output.Height / 2, True);
+                break;
+              case 8:          /* up */
+                CenterDisplay (0, -Output.Height / 2, True);
+                break;
+              case 9:          /* up, right */
+                CenterDisplay (Output.Width / 2, -Output.Height / 2, True);
+                break;
+              default:
+                Message ("Bad argument (%d) to Display(Scroll)\n", direction);
+                err = 1;
+              }
+          }
+          break;
+        default:
+          err = 1;
+          break;
+        }
     }
 
   if (!err)
@@ -2911,119 +2911,119 @@ ActionMode (int argc, char **argv, int x, int y)
       Note.Y = Crosshair.Y;
       HideCrosshair (True);
       switch (GetFunctionID (function))
-	{
-	case F_Arc:
-	  SetMode (ARC_MODE);
-	  break;
-	case F_Arrow:
-	  SetMode (ARROW_MODE);
-	  break;
-	case F_Copy:
-	  SetMode (COPY_MODE);
-	  break;
-	case F_InsertPoint:
-	  SetMode (INSERTPOINT_MODE);
-	  break;
-	case F_Line:
-	  SetMode (LINE_MODE);
-	  break;
-	case F_Lock:
-	  SetMode (LOCK_MODE);
-	  break;
-	case F_Move:
-	  SetMode (MOVE_MODE);
-	  break;
-	case F_None:
-	  SetMode (NO_MODE);
-	  break;
-	case F_Cancel:
-	  {
-	    int saved_mode = Settings.Mode;
-	    SetMode (NO_MODE);
-	    SetMode (saved_mode);
-	  }
-	  break;
-	case F_Notify:
-	  NotifyMode ();
-	  break;
-	case F_PasteBuffer:
-	  SetMode (PASTEBUFFER_MODE);
-	  break;
-	case F_Polygon:
-	  SetMode (POLYGON_MODE);
-	  break;
+        {
+        case F_Arc:
+          SetMode (ARC_MODE);
+          break;
+        case F_Arrow:
+          SetMode (ARROW_MODE);
+          break;
+        case F_Copy:
+          SetMode (COPY_MODE);
+          break;
+        case F_InsertPoint:
+          SetMode (INSERTPOINT_MODE);
+          break;
+        case F_Line:
+          SetMode (LINE_MODE);
+          break;
+        case F_Lock:
+          SetMode (LOCK_MODE);
+          break;
+        case F_Move:
+          SetMode (MOVE_MODE);
+          break;
+        case F_None:
+          SetMode (NO_MODE);
+          break;
+        case F_Cancel:
+          {
+            int saved_mode = Settings.Mode;
+            SetMode (NO_MODE);
+            SetMode (saved_mode);
+          }
+          break;
+        case F_Notify:
+          NotifyMode ();
+          break;
+        case F_PasteBuffer:
+          SetMode (PASTEBUFFER_MODE);
+          break;
+        case F_Polygon:
+          SetMode (POLYGON_MODE);
+          break;
 #ifndef HAVE_LIBSTROKE
-	case F_Release:
-	  ReleaseMode ();
-	  break;
+        case F_Release:
+          ReleaseMode ();
+          break;
 #else
-	case F_Release:
-	  if (mid_stroke)
-	    FinishStroke ();
-	  else
-	    ReleaseMode ();
-	  break;
+        case F_Release:
+          if (mid_stroke)
+            FinishStroke ();
+          else
+            ReleaseMode ();
+          break;
 #endif
-	case F_Remove:
-	  SetMode (REMOVE_MODE);
-	  break;
-	case F_Rectangle:
-	  SetMode (RECTANGLE_MODE);
-	  break;
-	case F_Rotate:
-	  SetMode (ROTATE_MODE);
-	  break;
-	case F_Stroke:
+        case F_Remove:
+          SetMode (REMOVE_MODE);
+          break;
+        case F_Rectangle:
+          SetMode (RECTANGLE_MODE);
+          break;
+        case F_Rotate:
+          SetMode (ROTATE_MODE);
+          break;
+        case F_Stroke:
 #ifdef HAVE_LIBSTROKE
-	  mid_stroke = True;
-	  StrokeBox.X1 = Crosshair.X;
-	  StrokeBox.Y1 = Crosshair.Y;
-	  break;
+          mid_stroke = True;
+          StrokeBox.X1 = Crosshair.X;
+          StrokeBox.Y1 = Crosshair.Y;
+          break;
 #else
-	  /* Handle middle mouse button restarts of drawing mode.  If not in
-	     |  a drawing mode, middle mouse button will select objects.
-	   */
-	  if (Settings.Mode == LINE_MODE
-	      && Crosshair.AttachedLine.State != STATE_FIRST)
-	    {
-	      SetMode (LINE_MODE);
-	    }
-	  else if (Settings.Mode == ARC_MODE
-		   && Crosshair.AttachedBox.State != STATE_FIRST)
-	    SetMode (ARC_MODE);
-	  else if (Settings.Mode == RECTANGLE_MODE
-		   && Crosshair.AttachedBox.State != STATE_FIRST)
-	    SetMode (RECTANGLE_MODE);
-	  else if (Settings.Mode == POLYGON_MODE
-		   && Crosshair.AttachedLine.State != STATE_FIRST)
-	    SetMode (POLYGON_MODE);
-	  else
-	    {
-	      SaveMode ();
-	      saved_mode = True;
-	      SetMode (ARROW_MODE);
-	      NotifyMode ();
-	    }
-	  break;
+          /* Handle middle mouse button restarts of drawing mode.  If not in
+             |  a drawing mode, middle mouse button will select objects.
+           */
+          if (Settings.Mode == LINE_MODE
+              && Crosshair.AttachedLine.State != STATE_FIRST)
+            {
+              SetMode (LINE_MODE);
+            }
+          else if (Settings.Mode == ARC_MODE
+                   && Crosshair.AttachedBox.State != STATE_FIRST)
+            SetMode (ARC_MODE);
+          else if (Settings.Mode == RECTANGLE_MODE
+                   && Crosshair.AttachedBox.State != STATE_FIRST)
+            SetMode (RECTANGLE_MODE);
+          else if (Settings.Mode == POLYGON_MODE
+                   && Crosshair.AttachedLine.State != STATE_FIRST)
+            SetMode (POLYGON_MODE);
+          else
+            {
+              SaveMode ();
+              saved_mode = True;
+              SetMode (ARROW_MODE);
+              NotifyMode ();
+            }
+          break;
 #endif
-	case F_Text:
-	  SetMode (TEXT_MODE);
-	  break;
-	case F_Thermal:
-	  SetMode (THERMAL_MODE);
-	  break;
-	case F_Via:
-	  SetMode (VIA_MODE);
-	  break;
+        case F_Text:
+          SetMode (TEXT_MODE);
+          break;
+        case F_Thermal:
+          SetMode (THERMAL_MODE);
+          break;
+        case F_Via:
+          SetMode (VIA_MODE);
+          break;
 
-	case F_Restore:	/* restore the last saved mode */
-	  RestoreMode ();
-	  break;
+        case F_Restore:        /* restore the last saved mode */
+          RestoreMode ();
+          break;
 
-	case F_Save:		/* save currently selected mode */
-	  SaveMode ();
-	  break;
-	}
+        case F_Save:           /* save currently selected mode */
+          SaveMode ();
+          break;
+        }
       RestoreCrosshair (True);
       return 0;
     }
@@ -3094,7 +3094,7 @@ ActionRenumber (int argc, char **argv, int x, int y)
     {
       fclose (out);
       if (!gui->confirm_dialog (_("File exists!  Ok to overwrite?"), 0))
-	return 0;
+        return 0;
     }
   if ((out = fopen (name, "w")) == NULL)
     {
@@ -3130,43 +3130,43 @@ ActionRenumber (int argc, char **argv, int x, int y)
   {
     if (TEST_FLAG (LOCKFLAG, element->Name) || TEST_FLAG (LOCKFLAG, element))
       {
-	/* 
-	 * add to the list of locked elements which we won't try to
-	 * renumber and whose reference designators are now reserved.
-	 */
-	fprintf (out,
-		 "*WARN* Element \"%s\" at (%d,%d) is locked and will not be renumbered.\n",
-		 UNKNOWN (NAMEONPCB_NAME (element)), element->MarkX,
-		 element->MarkY);
-	locked_element_list[lock_cnt] = element;
-	lock_cnt++;
+        /* 
+         * add to the list of locked elements which we won't try to
+         * renumber and whose reference designators are now reserved.
+         */
+        fprintf (out,
+                 "*WARN* Element \"%s\" at (%d,%d) is locked and will not be renumbered.\n",
+                 UNKNOWN (NAMEONPCB_NAME (element)), element->MarkX,
+                 element->MarkY);
+        locked_element_list[lock_cnt] = element;
+        lock_cnt++;
       }
 
     else
       {
-	/* count of devices which will be renumbered */
-	cnt++;
+        /* count of devices which will be renumbered */
+        cnt++;
 
-	/* search for correct position in the list */
-	i = 0;
-	while (element_list[i] && element->MarkY > element_list[i]->MarkY)
-	  i++;
+        /* search for correct position in the list */
+        i = 0;
+        while (element_list[i] && element->MarkY > element_list[i]->MarkY)
+          i++;
 
-	/* 
-	 * We have found the position where we have the first element that
-	 * has the same Y value or a lower Y value.  Now move forward if
-	 * needed through the X values
-	 */
-	while (element_list[i]
-	       && element->MarkY == element_list[i]->MarkY
-	       && element->MarkX > element_list[i]->MarkX)
-	  i++;
+        /* 
+         * We have found the position where we have the first element that
+         * has the same Y value or a lower Y value.  Now move forward if
+         * needed through the X values
+         */
+        while (element_list[i]
+               && element->MarkY == element_list[i]->MarkY
+               && element->MarkX > element_list[i]->MarkX)
+          i++;
 
-	for (j = cnt - 1; j > i; j--)
-	  {
-	    element_list[j] = element_list[j - 1];
-	  }
-	element_list[i] = element;
+        for (j = cnt - 1; j > i; j--)
+          {
+            element_list[j] = element_list[j - 1];
+          }
+        element_list[i] = element;
       }
   }
   END_LOOP;
@@ -3190,118 +3190,118 @@ ActionRenumber (int argc, char **argv, int x, int y)
     {
       /* If there is no refdes, maybe just spit out a warning */
       if (NAMEONPCB_NAME (element_list[i]))
-	{
-	  /* figure out the prefix */
-	  tmps = strdup (NAMEONPCB_NAME (element_list[i]));
-	  j = 0;
-	  while (tmps[j] && (tmps[j] < '0' || tmps[j] > '9')
-		 && tmps[j] != '?')
-	    j++;
-	  tmps[j] = '\0';
+        {
+          /* figure out the prefix */
+          tmps = strdup (NAMEONPCB_NAME (element_list[i]));
+          j = 0;
+          while (tmps[j] && (tmps[j] < '0' || tmps[j] > '9')
+                 && tmps[j] != '?')
+            j++;
+          tmps[j] = '\0';
 
-	  /* check the counter for this prefix */
-	  for (j = 0;
-	       cnt_list[j].name && (strcmp (cnt_list[j].name, tmps) != 0)
-	       && j < cnt_list_sz; j++);
+          /* check the counter for this prefix */
+          for (j = 0;
+               cnt_list[j].name && (strcmp (cnt_list[j].name, tmps) != 0)
+               && j < cnt_list_sz; j++);
 
-	  /* grow the list if needed */
-	  if (j == cnt_list_sz)
-	    {
-	      cnt_list_sz += 100;
-	      cnt_list = realloc (cnt_list, cnt_list_sz);
-	      if (cnt_list == NULL)
-		{
-		  fprintf (stderr, "realloc failed() in %s\n", __FUNCTION__);
-		  exit (1);
-		}
-	      /* zero out the memory that we added */
-	      for (tmpi = j; tmpi < cnt_list_sz; tmpi++)
-		{
-		  cnt_list[tmpi].name = NULL;
-		  cnt_list[tmpi].cnt = 0;
-		}
-	    }
+          /* grow the list if needed */
+          if (j == cnt_list_sz)
+            {
+              cnt_list_sz += 100;
+              cnt_list = realloc (cnt_list, cnt_list_sz);
+              if (cnt_list == NULL)
+                {
+                  fprintf (stderr, "realloc failed() in %s\n", __FUNCTION__);
+                  exit (1);
+                }
+              /* zero out the memory that we added */
+              for (tmpi = j; tmpi < cnt_list_sz; tmpi++)
+                {
+                  cnt_list[tmpi].name = NULL;
+                  cnt_list[tmpi].cnt = 0;
+                }
+            }
 
-	  /* 
-	   * start a new counter if we don't have a counter for this
-	   * prefix 
-	   */
-	  if (!cnt_list[j].name)
-	    {
-	      cnt_list[j].name = strdup (tmps);
-	      cnt_list[j].cnt = 0;
-	    }
+          /* 
+           * start a new counter if we don't have a counter for this
+           * prefix 
+           */
+          if (!cnt_list[j].name)
+            {
+              cnt_list[j].name = strdup (tmps);
+              cnt_list[j].cnt = 0;
+            }
 
-	  /*
-	   * check to see if the new refdes is already used by a
-	   * locked element
-	   */
-	  do
-	    {
-	      ok = 1;
-	      cnt_list[j].cnt++;
-	      free (tmps);
+          /*
+           * check to see if the new refdes is already used by a
+           * locked element
+           */
+          do
+            {
+              ok = 1;
+              cnt_list[j].cnt++;
+              free (tmps);
 
-	      /* space for the prefix plus 1 digit plus the '\0' */
-	      sz = strlen (cnt_list[j].name) + 2;
+              /* space for the prefix plus 1 digit plus the '\0' */
+              sz = strlen (cnt_list[j].name) + 2;
 
-	      /* and 1 more per extra digit needed to hold the number */
-	      tmpi = cnt_list[j].cnt;
-	      while (tmpi > 10)
-		{
-		  sz++;
-		  tmpi = tmpi / 10;
-		}
-	      tmps = malloc (sz * sizeof (char));
-	      sprintf (tmps, "%s%d", cnt_list[j].name, cnt_list[j].cnt);
+              /* and 1 more per extra digit needed to hold the number */
+              tmpi = cnt_list[j].cnt;
+              while (tmpi > 10)
+                {
+                  sz++;
+                  tmpi = tmpi / 10;
+                }
+              tmps = malloc (sz * sizeof (char));
+              sprintf (tmps, "%s%d", cnt_list[j].name, cnt_list[j].cnt);
 
-	      /* 
-	       * now compare to the list of reserved (by locked
-	       * elements) names 
-	       */
-	      for (k = 0; k < lock_cnt; k++)
-		{
-		  if (strcmp
-		      (UNKNOWN (NAMEONPCB_NAME (locked_element_list[k])),
-		       tmps) == 0)
-		    {
-		      ok = 0;
-		      break;
-		    }
-		}
+              /* 
+               * now compare to the list of reserved (by locked
+               * elements) names 
+               */
+              for (k = 0; k < lock_cnt; k++)
+                {
+                  if (strcmp
+                      (UNKNOWN (NAMEONPCB_NAME (locked_element_list[k])),
+                       tmps) == 0)
+                    {
+                      ok = 0;
+                      break;
+                    }
+                }
 
-	    }
-	  while (!ok);
+            }
+          while (!ok);
 
-	  if (strcmp (tmps, NAMEONPCB_NAME (element_list[i])) != 0)
-	    {
-	      fprintf (out, "*RENAME* \"%s\" \"%s\"\n",
-		       NAMEONPCB_NAME (element_list[i]), tmps);
+          if (strcmp (tmps, NAMEONPCB_NAME (element_list[i])) != 0)
+            {
+              fprintf (out, "*RENAME* \"%s\" \"%s\"\n",
+                       NAMEONPCB_NAME (element_list[i]), tmps);
 
-	      /* add this rename to our table of renames so we can update the netlist */
-	      was[c_cnt] = strdup (NAMEONPCB_NAME (element_list[i]));
-	      is[c_cnt] = strdup (tmps);
-	      c_cnt++;
+              /* add this rename to our table of renames so we can update the netlist */
+              was[c_cnt] = strdup (NAMEONPCB_NAME (element_list[i]));
+              is[c_cnt] = strdup (tmps);
+              c_cnt++;
 
-	      AddObjectToChangeNameUndoList (ELEMENT_TYPE, NULL, NULL,
-					     element_list[i],
-					     NAMEONPCB_NAME (element_list
-							     [i]));
+              AddObjectToChangeNameUndoList (ELEMENT_TYPE, NULL, NULL,
+                                             element_list[i],
+                                             NAMEONPCB_NAME (element_list
+                                                             [i]));
 
-	      ChangeObjectName (ELEMENT_TYPE, element_list[i], NULL, NULL,
-				tmps);
-	      changed = True;
+              ChangeObjectName (ELEMENT_TYPE, element_list[i], NULL, NULL,
+                                tmps);
+              changed = True;
 
-	      /* we don't free tmps in this case because it is used */
-	    }
-	  else
-	    free (tmps);
-	}
+              /* we don't free tmps in this case because it is used */
+            }
+          else
+            free (tmps);
+        }
       else
-	{
-	  fprintf (out, "*WARN* Element at (%d,%d) has no name.\n",
-		   element_list[i]->MarkX, element_list[i]->MarkY);
-	}
+        {
+          fprintf (out, "*WARN* Element at (%d,%d) has no name.\n",
+                   element_list[i]->MarkX, element_list[i]->MarkY);
+        }
 
     }
 
@@ -3319,45 +3319,45 @@ ActionRenumber (int argc, char **argv, int x, int y)
 
       /* iterate over each net */
       for (i = 0; i < PCB->NetlistLib.MenuN; i++)
-	{
+        {
 
-	  /* iterate over each pin on the net */
-	  for (j = 0; j < PCB->NetlistLib.Menu[i].EntryN; j++)
-	    {
+          /* iterate over each pin on the net */
+          for (j = 0; j < PCB->NetlistLib.Menu[i].EntryN; j++)
+            {
 
-	      /* figure out the pin number part from strings like U3-21 */
-	      tmps = strdup (PCB->NetlistLib.Menu[i].Entry[j].ListEntry);
-	      for (k = 0; tmps[k] && tmps[k] != '-'; k++);
-	      tmps[k] = '\0';
-	      pin = tmps + k + 1;
+              /* figure out the pin number part from strings like U3-21 */
+              tmps = strdup (PCB->NetlistLib.Menu[i].Entry[j].ListEntry);
+              for (k = 0; tmps[k] && tmps[k] != '-'; k++);
+              tmps[k] = '\0';
+              pin = tmps + k + 1;
 
-	      /* iterate over the list of changed reference designators */
-	      for (k = 0; k < c_cnt; k++)
-		{
-		  /*
-		   * if the pin needs to change, change it and quit
-		   * searching in the list. 
-		   */
-		  if (strcmp (tmps, was[k]) == 0)
-		    {
-		      free (PCB->NetlistLib.Menu[i].Entry[j].ListEntry);
-		      PCB->NetlistLib.Menu[i].Entry[j].ListEntry =
-			malloc ((strlen (is[k]) + strlen (pin) +
-				 2) * sizeof (char));
-		      sprintf (PCB->NetlistLib.Menu[i].Entry[j].ListEntry,
-			       "%s-%s", is[k], pin);
-		      k = c_cnt;
-		    }
+              /* iterate over the list of changed reference designators */
+              for (k = 0; k < c_cnt; k++)
+                {
+                  /*
+                   * if the pin needs to change, change it and quit
+                   * searching in the list. 
+                   */
+                  if (strcmp (tmps, was[k]) == 0)
+                    {
+                      free (PCB->NetlistLib.Menu[i].Entry[j].ListEntry);
+                      PCB->NetlistLib.Menu[i].Entry[j].ListEntry =
+                        malloc ((strlen (is[k]) + strlen (pin) +
+                                 2) * sizeof (char));
+                      sprintf (PCB->NetlistLib.Menu[i].Entry[j].ListEntry,
+                               "%s-%s", is[k], pin);
+                      k = c_cnt;
+                    }
 
-		}
-	      free (tmps);
-	    }
-	}
+                }
+              free (tmps);
+            }
+        }
       for (k = 0; k < c_cnt; k++)
-	{
-	  free (was[k]);
-	  free (is[k]);
-	}
+        {
+          free (was[k]);
+          free (is[k]);
+        }
 
       hid_action ("NetlistChanged");
       IncrementUndoSerialNumber ();
@@ -3407,87 +3407,87 @@ ActionRipUp (int argc, char **argv, int x, int y)
     {
       HideCrosshair (True);
       switch (GetFunctionID (function))
-	{
-	case F_All:
-	  ALLLINE_LOOP (PCB->Data);
-	  {
-	    if (TEST_FLAG (AUTOFLAG, line) && !TEST_FLAG (LOCKFLAG, line))
-	      {
-		RemoveObject (LINE_TYPE, layer, line, line);
-		changed = True;
-	      }
-	  }
-	  ENDALL_LOOP;
-	  VIA_LOOP (PCB->Data);
-	  {
-	    if (TEST_FLAG (AUTOFLAG, via) && !TEST_FLAG (LOCKFLAG, via))
-	      {
-		RemoveObject (VIA_TYPE, via, via, via);
-		changed = True;
-	      }
-	  }
-	  END_LOOP;
+        {
+        case F_All:
+          ALLLINE_LOOP (PCB->Data);
+          {
+            if (TEST_FLAG (AUTOFLAG, line) && !TEST_FLAG (LOCKFLAG, line))
+              {
+                RemoveObject (LINE_TYPE, layer, line, line);
+                changed = True;
+              }
+          }
+          ENDALL_LOOP;
+          VIA_LOOP (PCB->Data);
+          {
+            if (TEST_FLAG (AUTOFLAG, via) && !TEST_FLAG (LOCKFLAG, via))
+              {
+                RemoveObject (VIA_TYPE, via, via, via);
+                changed = True;
+              }
+          }
+          END_LOOP;
 
-	  if (changed)
-	    {
-	      IncrementUndoSerialNumber ();
-	      SetChangedFlag (True);
-	    }
-	  break;
-	case F_Selected:
-	  VISIBLELINE_LOOP (PCB->Data);
-	  {
-	    if (TEST_FLAGS (AUTOFLAG | SELECTEDFLAG, line)
-		&& !TEST_FLAG (LOCKFLAG, line))
-	      {
-		RemoveObject (LINE_TYPE, layer, line, line);
-		changed = True;
-	      }
-	  }
-	  ENDALL_LOOP;
-	  if (PCB->ViaOn)
-	    VIA_LOOP (PCB->Data);
-	  {
-	    if (TEST_FLAGS (AUTOFLAG | SELECTEDFLAG, via)
-		&& !TEST_FLAG (LOCKFLAG, via))
-	      {
-		RemoveObject (VIA_TYPE, via, via, via);
-		changed = True;
-	      }
-	  }
-	  END_LOOP;
-	  if (changed)
-	    {
-	      IncrementUndoSerialNumber ();
-	      SetChangedFlag (True);
-	    }
-	  break;
-	case F_Element:
-	  {
-	    void *ptr1, *ptr2, *ptr3;
+          if (changed)
+            {
+              IncrementUndoSerialNumber ();
+              SetChangedFlag (True);
+            }
+          break;
+        case F_Selected:
+          VISIBLELINE_LOOP (PCB->Data);
+          {
+            if (TEST_FLAGS (AUTOFLAG | SELECTEDFLAG, line)
+                && !TEST_FLAG (LOCKFLAG, line))
+              {
+                RemoveObject (LINE_TYPE, layer, line, line);
+                changed = True;
+              }
+          }
+          ENDALL_LOOP;
+          if (PCB->ViaOn)
+            VIA_LOOP (PCB->Data);
+          {
+            if (TEST_FLAGS (AUTOFLAG | SELECTEDFLAG, via)
+                && !TEST_FLAG (LOCKFLAG, via))
+              {
+                RemoveObject (VIA_TYPE, via, via, via);
+                changed = True;
+              }
+          }
+          END_LOOP;
+          if (changed)
+            {
+              IncrementUndoSerialNumber ();
+              SetChangedFlag (True);
+            }
+          break;
+        case F_Element:
+          {
+            void *ptr1, *ptr2, *ptr3;
 
-	    if (SearchScreen (Crosshair.X, Crosshair.Y, ELEMENT_TYPE,
-			      &ptr1, &ptr2, &ptr3) != NO_TYPE)
-	      {
-		Note.Buffer = Settings.BufferNumber;
-		SetBufferNumber (MAX_BUFFER - 1);
-		ClearBuffer (PASTEBUFFER);
-		CopyObjectToBuffer (PASTEBUFFER->Data, PCB->Data,
-				    ELEMENT_TYPE, ptr1, ptr2, ptr3);
-		SmashBufferElement (PASTEBUFFER);
-		PASTEBUFFER->X = 0;
-		PASTEBUFFER->Y = 0;
-		SaveUndoSerialNumber ();
-		EraseObject (ELEMENT_TYPE, ptr1);
-		MoveObjectToRemoveUndoList (ELEMENT_TYPE, ptr1, ptr2, ptr3);
-		RestoreUndoSerialNumber ();
-		CopyPastebufferToLayout (0, 0);
-		SetBufferNumber (Note.Buffer);
-		SetChangedFlag (True);
-	      }
-	  }
-	  break;
-	}
+            if (SearchScreen (Crosshair.X, Crosshair.Y, ELEMENT_TYPE,
+                              &ptr1, &ptr2, &ptr3) != NO_TYPE)
+              {
+                Note.Buffer = Settings.BufferNumber;
+                SetBufferNumber (MAX_BUFFER - 1);
+                ClearBuffer (PASTEBUFFER);
+                CopyObjectToBuffer (PASTEBUFFER->Data, PCB->Data,
+                                    ELEMENT_TYPE, ptr1, ptr2, ptr3);
+                SmashBufferElement (PASTEBUFFER);
+                PASTEBUFFER->X = 0;
+                PASTEBUFFER->Y = 0;
+                SaveUndoSerialNumber ();
+                EraseObject (ELEMENT_TYPE, ptr1);
+                MoveObjectToRemoveUndoList (ELEMENT_TYPE, ptr1, ptr2, ptr3);
+                RestoreUndoSerialNumber ();
+                CopyPastebufferToLayout (0, 0);
+                SetBufferNumber (Note.Buffer);
+                SetChangedFlag (True);
+              }
+          }
+          break;
+        }
       RestoreCrosshair (True);
     }
   return 0;
@@ -3529,44 +3529,44 @@ ActionAddRats (int argc, char **argv, int x, int y)
     {
       HideCrosshair (True);
       switch (GetFunctionID (function))
-	{
-	case F_AllRats:
-	  if (AddAllRats (False, NULL))
-	    SetChangedFlag (True);
-	  break;
-	case F_SelectedRats:
-	case F_Selected:
-	  if (AddAllRats (True, NULL))
-	    SetChangedFlag (True);
-	  break;
-	case F_Close:
-	  small = SQUARE (MAX_COORD);
-	  shorty = NULL;
-	  RAT_LOOP (PCB->Data);
-	  {
-	    if (TEST_FLAG (SELECTEDFLAG, line))
-	      continue;
-	    len = SQUARE (line->Point1.X - line->Point2.X) +
-	      SQUARE (line->Point1.Y - line->Point2.Y);
-	    if (len < small)
-	      {
-		small = len;
-		shorty = line;
-	      }
-	  }
-	  END_LOOP;
-	  if (shorty)
-	    {
-	      AddObjectToFlagUndoList (RATLINE_TYPE, shorty, shorty, shorty);
-	      SET_FLAG (SELECTEDFLAG, shorty);
-	      DrawRat (shorty, 0);
-	      Draw ();
-	      CenterDisplay ((shorty->Point2.X + shorty->Point1.X) / 2,
-			     (shorty->Point2.Y + shorty->Point1.Y) / 2,
-			     False);
-	    }
-	  break;
-	}
+        {
+        case F_AllRats:
+          if (AddAllRats (False, NULL))
+            SetChangedFlag (True);
+          break;
+        case F_SelectedRats:
+        case F_Selected:
+          if (AddAllRats (True, NULL))
+            SetChangedFlag (True);
+          break;
+        case F_Close:
+          small = SQUARE (MAX_COORD);
+          shorty = NULL;
+          RAT_LOOP (PCB->Data);
+          {
+            if (TEST_FLAG (SELECTEDFLAG, line))
+              continue;
+            len = SQUARE (line->Point1.X - line->Point2.X) +
+              SQUARE (line->Point1.Y - line->Point2.Y);
+            if (len < small)
+              {
+                small = len;
+                shorty = line;
+              }
+          }
+          END_LOOP;
+          if (shorty)
+            {
+              AddObjectToFlagUndoList (RATLINE_TYPE, shorty, shorty, shorty);
+              SET_FLAG (SELECTEDFLAG, shorty);
+              DrawRat (shorty, 0);
+              Draw ();
+              CenterDisplay ((shorty->Point2.X + shorty->Point1.X) / 2,
+                             (shorty->Point2.Y + shorty->Point1.Y) / 2,
+                             False);
+            }
+          break;
+        }
       RestoreCrosshair (True);
     }
   return 0;
@@ -3591,17 +3591,17 @@ ActionDeleteRats (int argc, char **argv, int x, int y)
     {
       HideCrosshair (True);
       switch (GetFunctionID (function))
-	{
-	case F_AllRats:
-	  if (DeleteRats (False))
-	    SetChangedFlag (True);
-	  break;
-	case F_SelectedRats:
-	case F_Selected:
-	  if (DeleteRats (True))
-	    SetChangedFlag (True);
-	  break;
-	}
+        {
+        case F_AllRats:
+          if (DeleteRats (False))
+            SetChangedFlag (True);
+          break;
+        case F_SelectedRats:
+        case F_Selected:
+          if (DeleteRats (True))
+            SetChangedFlag (True);
+          break;
+        }
       RestoreCrosshair (True);
     }
   return 0;
@@ -3624,11 +3624,11 @@ static int
 ActionAutoPlaceSelected (int argc, char **argv, int x, int y)
 {
   if (gui->confirm_dialog (_("Auto-placement can NOT be undone.\n"
-			     "Do you want to continue anyway?\n"), 0))
+                             "Do you want to continue anyway?\n"), 0))
     {
       HideCrosshair (True);
       if (AutoPlaceSelected ())
-	SetChangedFlag (True);
+        SetChangedFlag (True);
       RestoreCrosshair (True);
     }
   return 0;
@@ -3667,21 +3667,21 @@ static int
 ActionAutoRoute (int argc, char **argv, int x, int y)
 {
   char *function = ARG (0);
-  if (function)			/* one parameter */
+  if (function)                 /* one parameter */
     {
       HideCrosshair (True);
       switch (GetFunctionID (function))
-	{
-	case F_AllRats:
-	  if (AutoRoute (False))
-	    SetChangedFlag (True);
-	  break;
-	case F_SelectedRats:
-	case F_Selected:
-	  if (AutoRoute (True))
-	    SetChangedFlag (True);
-	  break;
-	}
+        {
+        case F_AllRats:
+          if (AutoRoute (False))
+            SetChangedFlag (True);
+          break;
+        case F_SelectedRats:
+        case F_Selected:
+          if (AutoRoute (True))
+            SetChangedFlag (True);
+          break;
+        }
       RestoreCrosshair (True);
     }
   return 0;
@@ -3715,17 +3715,17 @@ ActionMarkCrosshair (int argc, char **argv, int x, int y)
   if (!function || !*function)
     {
       if (Marked.status)
-	{
-	  DrawMark (True);
-	  Marked.status = False;
-	}
+        {
+          DrawMark (True);
+          Marked.status = False;
+        }
       else
-	{
-	  Marked.status = True;
-	  Marked.X = Crosshair.X;
-	  Marked.Y = Crosshair.Y;
-	  DrawMark (False);
-	}
+        {
+          Marked.status = True;
+          Marked.X = Crosshair.X;
+          Marked.Y = Crosshair.Y;
+          DrawMark (False);
+        }
     }
   else if (GetFunctionID (function) == F_Center)
     {
@@ -3765,7 +3765,7 @@ ActionChangeSize (int argc, char **argv, int x, int y)
   char *function = ARG (0);
   char *delta = ARG (1);
   char *units = ARG (2);
-  Boolean r;			/* indicates if absolute size is given */
+  Boolean r;                    /* indicates if absolute size is given */
   float value;
 
   if (function && delta)
@@ -3773,68 +3773,68 @@ ActionChangeSize (int argc, char **argv, int x, int y)
       value = GetValue (delta, units, &r);
       HideCrosshair (True);
       switch (GetFunctionID (function))
-	{
-	case F_Object:
-	  {
-	    int type;
-	    void *ptr1, *ptr2, *ptr3;
+        {
+        case F_Object:
+          {
+            int type;
+            void *ptr1, *ptr2, *ptr3;
 
-	    if ((type =
-		 SearchScreen (Crosshair.X, Crosshair.Y, CHANGESIZE_TYPES,
-			       &ptr1, &ptr2, &ptr3)) != NO_TYPE)
-	      if (TEST_FLAG (LOCKFLAG, (PinTypePtr) ptr2))
-		Message (_("Sorry, the object is locked\n"));
-	    if (ChangeObjectSize (type, ptr1, ptr2, ptr3, value, r))
-	      SetChangedFlag (True);
-	    break;
-	  }
+            if ((type =
+                 SearchScreen (Crosshair.X, Crosshair.Y, CHANGESIZE_TYPES,
+                               &ptr1, &ptr2, &ptr3)) != NO_TYPE)
+              if (TEST_FLAG (LOCKFLAG, (PinTypePtr) ptr2))
+                Message (_("Sorry, the object is locked\n"));
+            if (ChangeObjectSize (type, ptr1, ptr2, ptr3, value, r))
+              SetChangedFlag (True);
+            break;
+          }
 
-	case F_SelectedVias:
-	  if (ChangeSelectedSize (VIA_TYPE, value, r))
-	    SetChangedFlag (True);
-	  break;
+        case F_SelectedVias:
+          if (ChangeSelectedSize (VIA_TYPE, value, r))
+            SetChangedFlag (True);
+          break;
 
-	case F_SelectedPins:
-	  if (ChangeSelectedSize (PIN_TYPE, value, r))
-	    SetChangedFlag (True);
-	  break;
+        case F_SelectedPins:
+          if (ChangeSelectedSize (PIN_TYPE, value, r))
+            SetChangedFlag (True);
+          break;
 
-	case F_SelectedPads:
-	  if (ChangeSelectedSize (PAD_TYPE, value, r))
-	    SetChangedFlag (True);
-	  break;
+        case F_SelectedPads:
+          if (ChangeSelectedSize (PAD_TYPE, value, r))
+            SetChangedFlag (True);
+          break;
 
-	case F_SelectedArcs:
-	  if (ChangeSelectedSize (ARC_TYPE, value, r))
-	    SetChangedFlag (True);
-	  break;
+        case F_SelectedArcs:
+          if (ChangeSelectedSize (ARC_TYPE, value, r))
+            SetChangedFlag (True);
+          break;
 
-	case F_SelectedLines:
-	  if (ChangeSelectedSize (LINE_TYPE, value, r))
-	    SetChangedFlag (True);
-	  break;
+        case F_SelectedLines:
+          if (ChangeSelectedSize (LINE_TYPE, value, r))
+            SetChangedFlag (True);
+          break;
 
-	case F_SelectedTexts:
-	  if (ChangeSelectedSize (TEXT_TYPE, value, r))
-	    SetChangedFlag (True);
-	  break;
+        case F_SelectedTexts:
+          if (ChangeSelectedSize (TEXT_TYPE, value, r))
+            SetChangedFlag (True);
+          break;
 
-	case F_SelectedNames:
-	  if (ChangeSelectedSize (ELEMENTNAME_TYPE, value, r))
-	    SetChangedFlag (True);
-	  break;
+        case F_SelectedNames:
+          if (ChangeSelectedSize (ELEMENTNAME_TYPE, value, r))
+            SetChangedFlag (True);
+          break;
 
-	case F_SelectedElements:
-	  if (ChangeSelectedSize (ELEMENT_TYPE, value, r))
-	    SetChangedFlag (True);
-	  break;
+        case F_SelectedElements:
+          if (ChangeSelectedSize (ELEMENT_TYPE, value, r))
+            SetChangedFlag (True);
+          break;
 
-	case F_Selected:
-	case F_SelectedObjects:
-	  if (ChangeSelectedSize (CHANGESIZE_TYPES, value, r))
-	    SetChangedFlag (True);
-	  break;
-	}
+        case F_Selected:
+        case F_SelectedObjects:
+          if (ChangeSelectedSize (CHANGESIZE_TYPES, value, r))
+            SetChangedFlag (True);
+          break;
+        }
       RestoreCrosshair (True);
     }
   return 0;
@@ -3867,37 +3867,37 @@ ActionChange2ndSize (int argc, char **argv, int x, int y)
       value = GetValue (delta, units, &r);
       HideCrosshair (True);
       switch (GetFunctionID (function))
-	{
-	case F_Object:
-	  {
-	    int type;
-	    void *ptr1, *ptr2, *ptr3;
+        {
+        case F_Object:
+          {
+            int type;
+            void *ptr1, *ptr2, *ptr3;
 
-	    gui->get_coords ("Select an Object", &x, &y);
-	    if ((type =
-		 SearchScreen (x, y, CHANGE2NDSIZE_TYPES,
-			       &ptr1, &ptr2, &ptr3)) != NO_TYPE)
-	      if (ChangeObject2ndSize
-		  (type, ptr1, ptr2, ptr3, value, r, True))
-		SetChangedFlag (True);
-	    break;
-	  }
+            gui->get_coords ("Select an Object", &x, &y);
+            if ((type =
+                 SearchScreen (x, y, CHANGE2NDSIZE_TYPES,
+                               &ptr1, &ptr2, &ptr3)) != NO_TYPE)
+              if (ChangeObject2ndSize
+                  (type, ptr1, ptr2, ptr3, value, r, True))
+                SetChangedFlag (True);
+            break;
+          }
 
-	case F_SelectedVias:
-	  if (ChangeSelected2ndSize (VIA_TYPE, value, r))
-	    SetChangedFlag (True);
-	  break;
+        case F_SelectedVias:
+          if (ChangeSelected2ndSize (VIA_TYPE, value, r))
+            SetChangedFlag (True);
+          break;
 
-	case F_SelectedPins:
-	  if (ChangeSelected2ndSize (PIN_TYPE, value, r))
-	    SetChangedFlag (True);
-	  break;
-	case F_Selected:
-	case F_SelectedObjects:
-	  if (ChangeSelected2ndSize (PIN_TYPES, value, r))
-	    SetChangedFlag (True);
-	  break;
-	}
+        case F_SelectedPins:
+          if (ChangeSelected2ndSize (PIN_TYPE, value, r))
+            SetChangedFlag (True);
+          break;
+        case F_Selected:
+        case F_SelectedObjects:
+          if (ChangeSelected2ndSize (PIN_TYPES, value, r))
+            SetChangedFlag (True);
+          break;
+        }
       RestoreCrosshair (True);
     }
   return 0;
@@ -3936,47 +3936,47 @@ ActionChangeClearSize (int argc, char **argv, int x, int y)
       value = 2 * GetValue (delta, units, &r);
       HideCrosshair (True);
       switch (GetFunctionID (function))
-	{
-	case F_Object:
-	  {
-	    int type;
-	    void *ptr1, *ptr2, *ptr3;
+        {
+        case F_Object:
+          {
+            int type;
+            void *ptr1, *ptr2, *ptr3;
 
-	    gui->get_coords ("Select and Object", &x, &y);
-	    if ((type =
-		 SearchScreen (x, y,
-			       CHANGECLEARSIZE_TYPES, &ptr1, &ptr2,
-			       &ptr3)) != NO_TYPE)
-	      if (ChangeObjectClearSize (type, ptr1, ptr2, ptr3, value, r))
-		SetChangedFlag (True);
-	    break;
-	  }
-	case F_SelectedVias:
-	  if (ChangeSelectedClearSize (VIA_TYPE, value, r))
-	    SetChangedFlag (True);
-	  break;
-	case F_SelectedPads:
-	  if (ChangeSelectedClearSize (PAD_TYPE, value, r))
-	    SetChangedFlag (True);
-	  break;
-	case F_SelectedPins:
-	  if (ChangeSelectedClearSize (PIN_TYPE, value, r))
-	    SetChangedFlag (True);
-	  break;
-	case F_SelectedLines:
-	  if (ChangeSelectedClearSize (LINE_TYPE, value, r))
-	    SetChangedFlag (True);
-	  break;
-	case F_SelectedArcs:
-	  if (ChangeSelectedClearSize (ARC_TYPE, value, r))
-	    SetChangedFlag (True);
-	  break;
-	case F_Selected:
-	case F_SelectedObjects:
-	  if (ChangeSelectedClearSize (CHANGECLEARSIZE_TYPES, value, r))
-	    SetChangedFlag (True);
-	  break;
-	}
+            gui->get_coords ("Select and Object", &x, &y);
+            if ((type =
+                 SearchScreen (x, y,
+                               CHANGECLEARSIZE_TYPES, &ptr1, &ptr2,
+                               &ptr3)) != NO_TYPE)
+              if (ChangeObjectClearSize (type, ptr1, ptr2, ptr3, value, r))
+                SetChangedFlag (True);
+            break;
+          }
+        case F_SelectedVias:
+          if (ChangeSelectedClearSize (VIA_TYPE, value, r))
+            SetChangedFlag (True);
+          break;
+        case F_SelectedPads:
+          if (ChangeSelectedClearSize (PAD_TYPE, value, r))
+            SetChangedFlag (True);
+          break;
+        case F_SelectedPins:
+          if (ChangeSelectedClearSize (PIN_TYPE, value, r))
+            SetChangedFlag (True);
+          break;
+        case F_SelectedLines:
+          if (ChangeSelectedClearSize (LINE_TYPE, value, r))
+            SetChangedFlag (True);
+          break;
+        case F_SelectedArcs:
+          if (ChangeSelectedClearSize (ARC_TYPE, value, r))
+            SetChangedFlag (True);
+          break;
+        case F_Selected:
+        case F_SelectedObjects:
+          if (ChangeSelectedClearSize (CHANGECLEARSIZE_TYPES, value, r))
+            SetChangedFlag (True);
+          break;
+        }
       RestoreCrosshair (True);
     }
   return 0;
@@ -4027,25 +4027,25 @@ ActionMinMaskGap (int argc, char **argv, int x, int y)
     PIN_LOOP (element);
     {
       if (!TEST_FLAGS (flags, pin))
-	continue;
+        continue;
       if (pin->Mask < pin->Thickness + value)
-	{
-	  ChangeObjectMaskSize (PIN_TYPE, element, pin, 0,
-				pin->Thickness + value, 1);
-	  RestoreUndoSerialNumber ();
-	}
+        {
+          ChangeObjectMaskSize (PIN_TYPE, element, pin, 0,
+                                pin->Thickness + value, 1);
+          RestoreUndoSerialNumber ();
+        }
     }
     END_LOOP;
     PAD_LOOP (element);
     {
       if (!TEST_FLAGS (flags, pad))
-	continue;
+        continue;
       if (pad->Mask < pad->Thickness + value)
-	{
-	  ChangeObjectMaskSize (PAD_TYPE, element, pad, 0,
-				pad->Thickness + value, 1);
-	  RestoreUndoSerialNumber ();
-	}
+        {
+          ChangeObjectMaskSize (PAD_TYPE, element, pad, 0,
+                                pad->Thickness + value, 1);
+          RestoreUndoSerialNumber ();
+        }
     }
     END_LOOP;
   }
@@ -4056,8 +4056,8 @@ ActionMinMaskGap (int argc, char **argv, int x, int y)
       continue;
     if (via->Mask && via->Mask < via->Thickness + value)
       {
-	ChangeObjectMaskSize (VIA_TYPE, via, 0, 0, via->Thickness + value, 1);
-	RestoreUndoSerialNumber ();
+        ChangeObjectMaskSize (VIA_TYPE, via, 0, 0, via->Thickness + value, 1);
+        RestoreUndoSerialNumber ();
       }
   }
   END_LOOP;
@@ -4105,39 +4105,39 @@ ActionChangePinName (int argc, char **argv, int x, int y)
   {
     if (NSTRCMP (refdes, NAMEONPCB_NAME (element)) == 0)
       {
-	PIN_LOOP (element);
-	{
-	  if (NSTRCMP (pinnum, pin->Number) == 0)
-	    {
-	      AddObjectToChangeNameUndoList (PIN_TYPE, NULL, NULL,
-					     pin, pin->Name);
-	      /*
-	       * Note:  we can't free() pin->Name first because 
-	       * it is used in the undo list
-	       */
-	      pin->Name = strdup (pinname);
-	      SetChangedFlag (True);
-	      changed = 1;
-	    }
-	}
-	END_LOOP;
+        PIN_LOOP (element);
+        {
+          if (NSTRCMP (pinnum, pin->Number) == 0)
+            {
+              AddObjectToChangeNameUndoList (PIN_TYPE, NULL, NULL,
+                                             pin, pin->Name);
+              /*
+               * Note:  we can't free() pin->Name first because 
+               * it is used in the undo list
+               */
+              pin->Name = strdup (pinname);
+              SetChangedFlag (True);
+              changed = 1;
+            }
+        }
+        END_LOOP;
 
-	PAD_LOOP (element);
-	{
-	  if (NSTRCMP (pinnum, pad->Number) == 0)
-	    {
-	      AddObjectToChangeNameUndoList (PAD_TYPE, NULL, NULL,
-					     pad, pad->Name);
-	      /* 
-	       * Note:  we can't free() pad->Name first because 
-	       * it is used in the undo list
-	       */
-	      pad->Name = strdup (pinname);
-	      SetChangedFlag (True);
-	      changed = 1;
-	    }
-	}
-	END_LOOP;
+        PAD_LOOP (element);
+        {
+          if (NSTRCMP (pinnum, pad->Number) == 0)
+            {
+              AddObjectToChangeNameUndoList (PAD_TYPE, NULL, NULL,
+                                             pad, pad->Name);
+              /* 
+               * Note:  we can't free() pad->Name first because 
+               * it is used in the undo list
+               */
+              pad->Name = strdup (pinname);
+              SetChangedFlag (True);
+              changed = 1;
+            }
+        }
+        END_LOOP;
       }
   }
   END_LOOP;
@@ -4188,64 +4188,64 @@ ActionChangeName (int argc, char **argv, int x, int y)
     {
       HideCrosshair (True);
       switch (GetFunctionID (function))
-	{
-	  /* change the name of an object */
-	case F_Object:
-	  {
-	    int type;
-	    void *ptr1, *ptr2, *ptr3;
+        {
+          /* change the name of an object */
+        case F_Object:
+          {
+            int type;
+            void *ptr1, *ptr2, *ptr3;
 
-	    gui->get_coords ("Select an Object", &x, &y);
-	    if ((type =
-		 SearchScreen (x, y, CHANGENAME_TYPES,
-			       &ptr1, &ptr2, &ptr3)) != NO_TYPE)
-	      {
-		SaveUndoSerialNumber ();
-		if (QueryInputAndChangeObjectName (type, ptr1, ptr2, ptr3))
-		  {
-		    SetChangedFlag (True);
-		    if (type == ELEMENT_TYPE)
-		      {
-			RubberbandTypePtr ptr;
-			int i;
+            gui->get_coords ("Select an Object", &x, &y);
+            if ((type =
+                 SearchScreen (x, y, CHANGENAME_TYPES,
+                               &ptr1, &ptr2, &ptr3)) != NO_TYPE)
+              {
+                SaveUndoSerialNumber ();
+                if (QueryInputAndChangeObjectName (type, ptr1, ptr2, ptr3))
+                  {
+                    SetChangedFlag (True);
+                    if (type == ELEMENT_TYPE)
+                      {
+                        RubberbandTypePtr ptr;
+                        int i;
 
-			RestoreUndoSerialNumber ();
-			Crosshair.AttachedObject.RubberbandN = 0;
-			LookupRatLines (type, ptr1, ptr2, ptr3);
-			ptr = Crosshair.AttachedObject.Rubberband;
-			for (i = 0; i < Crosshair.AttachedObject.RubberbandN;
-			     i++, ptr++)
-			  {
-			    if (PCB->RatOn)
-			      EraseRat ((RatTypePtr) ptr->Line);
-			    MoveObjectToRemoveUndoList (RATLINE_TYPE,
-							ptr->Line, ptr->Line,
-							ptr->Line);
-			  }
-			IncrementUndoSerialNumber ();
-			Draw ();
-		      }
-		  }
-	      }
-	    break;
-	  }
+                        RestoreUndoSerialNumber ();
+                        Crosshair.AttachedObject.RubberbandN = 0;
+                        LookupRatLines (type, ptr1, ptr2, ptr3);
+                        ptr = Crosshair.AttachedObject.Rubberband;
+                        for (i = 0; i < Crosshair.AttachedObject.RubberbandN;
+                             i++, ptr++)
+                          {
+                            if (PCB->RatOn)
+                              EraseRat ((RatTypePtr) ptr->Line);
+                            MoveObjectToRemoveUndoList (RATLINE_TYPE,
+                                                        ptr->Line, ptr->Line,
+                                                        ptr->Line);
+                          }
+                        IncrementUndoSerialNumber ();
+                        Draw ();
+                      }
+                  }
+              }
+            break;
+          }
 
-	  /* change the layout's name */
-	case F_Layout:
-	  name =
-	    gui->prompt_for (_("Enter the layout name:"), EMPTY (PCB->Name));
-	  if (name && ChangeLayoutName (name))	/* XXX memory leak */
-	    SetChangedFlag (True);
-	  break;
+          /* change the layout's name */
+        case F_Layout:
+          name =
+            gui->prompt_for (_("Enter the layout name:"), EMPTY (PCB->Name));
+          if (name && ChangeLayoutName (name))  /* XXX memory leak */
+            SetChangedFlag (True);
+          break;
 
-	  /* change the name of the active layer */
-	case F_Layer:
-	  name = gui->prompt_for (_("Enter the layer name:"),
-				  EMPTY (CURRENT->Name));
-	  if (name && ChangeLayerName (CURRENT, name))	/* XXX memory leak */
-	    SetChangedFlag (True);
-	  break;
-	}
+          /* change the name of the active layer */
+        case F_Layer:
+          name = gui->prompt_for (_("Enter the layer name:"),
+                                  EMPTY (CURRENT->Name));
+          if (name && ChangeLayerName (CURRENT, name))  /* XXX memory leak */
+            SetChangedFlag (True);
+          break;
+        }
       RestoreCrosshair (True);
     }
   return 0;
@@ -4254,7 +4254,7 @@ ActionChangeName (int argc, char **argv, int x, int y)
 
 /* --------------------------------------------------------------------------- */
 
-static const char morphpolygon_syntax[] = "MorphPolygon(Object)";
+static const char morphpolygon_syntax[] = "MorphPolygon(Object|Selected)";
 
 static const char morphpolygon_help[] =
   "Converts dead polygon islands into separate polygons.";
@@ -4277,23 +4277,34 @@ ActionMorphPolygon (int argc, char **argv, int x, int y)
     {
       HideCrosshair (True);
       switch (GetFunctionID (function))
-	{
-	case F_Object:
-	  {
-	    int type;
-	    void *ptr1, *ptr2, *ptr3;
+        {
+        case F_Object:
+          {
+            int type;
+            void *ptr1, *ptr2, *ptr3;
 
-	    gui->get_coords ("Select an Object", &x, &y);
-	    if ((type = SearchScreen (x, y, POLYGON_TYPE,
-				      &ptr1, &ptr2, &ptr3)) != NO_TYPE)
-	      {
-		MorphPolygon ((LayerType *) ptr1, (PolygonType *) ptr3);
-		Draw ();
-		IncrementUndoSerialNumber ();
-	      }
-	    break;
-	  }
-	}
+            gui->get_coords ("Select an Object", &x, &y);
+            if ((type = SearchScreen (x, y, POLYGON_TYPE,
+                                      &ptr1, &ptr2, &ptr3)) != NO_TYPE)
+              {
+                MorphPolygon ((LayerType *) ptr1, (PolygonType *) ptr3);
+                Draw ();
+                IncrementUndoSerialNumber ();
+              }
+            break;
+          }
+        case F_Selected:
+        case F_SelectedObjects:
+          ALLPOLYGON_LOOP (PCB->Data);
+          {
+            if (TEST_FLAG (SELECTEDFLAG, polygon))
+              MorphPolygon (layer, polygon);
+          }
+          ENDALL_LOOP;
+          Draw ();
+          IncrementUndoSerialNumber ();
+          break;
+        }
     }
   return 0;
 }
@@ -4321,52 +4332,52 @@ ActionToggleHideName (int argc, char **argv, int x, int y)
     {
       HideCrosshair (True);
       switch (GetFunctionID (function))
-	{
-	case F_Object:
-	  {
-	    int type;
-	    void *ptr1, *ptr2, *ptr3;
+        {
+        case F_Object:
+          {
+            int type;
+            void *ptr1, *ptr2, *ptr3;
 
-	    gui->get_coords ("Select an Object", &x, &y);
-	    if ((type = SearchScreen (x, y, ELEMENT_TYPE,
-				      &ptr1, &ptr2, &ptr3)) != NO_TYPE)
-	      {
-		AddObjectToFlagUndoList (type, ptr1, ptr2, ptr3);
-		EraseElementName ((ElementTypePtr) ptr2);
-		TOGGLE_FLAG (HIDENAMEFLAG, (ElementTypePtr) ptr2);
-		DrawElementName ((ElementTypePtr) ptr2, 0);
-		Draw ();
-		IncrementUndoSerialNumber ();
-	      }
-	    break;
-	  }
-	case F_SelectedElements:
-	case F_Selected:
-	  {
-	    Boolean changed = False;
-	    ELEMENT_LOOP (PCB->Data);
-	    {
-	      if ((TEST_FLAG (SELECTEDFLAG, element) ||
-		   TEST_FLAG (SELECTEDFLAG,
-			      &NAMEONPCB_TEXT (element)))
-		  && (FRONT (element) || PCB->InvisibleObjectsOn))
-		{
-		  AddObjectToFlagUndoList (ELEMENT_TYPE, element,
-					   element, element);
-		  EraseElementName (element);
-		  TOGGLE_FLAG (HIDENAMEFLAG, element);
-		  DrawElementName (element, 0);
-		  changed = True;
-		}
-	    }
-	    END_LOOP;
-	    if (changed)
-	      {
-		Draw ();
-		IncrementUndoSerialNumber ();
-	      }
-	  }
-	}
+            gui->get_coords ("Select an Object", &x, &y);
+            if ((type = SearchScreen (x, y, ELEMENT_TYPE,
+                                      &ptr1, &ptr2, &ptr3)) != NO_TYPE)
+              {
+                AddObjectToFlagUndoList (type, ptr1, ptr2, ptr3);
+                EraseElementName ((ElementTypePtr) ptr2);
+                TOGGLE_FLAG (HIDENAMEFLAG, (ElementTypePtr) ptr2);
+                DrawElementName ((ElementTypePtr) ptr2, 0);
+                Draw ();
+                IncrementUndoSerialNumber ();
+              }
+            break;
+          }
+        case F_SelectedElements:
+        case F_Selected:
+          {
+            Boolean changed = False;
+            ELEMENT_LOOP (PCB->Data);
+            {
+              if ((TEST_FLAG (SELECTEDFLAG, element) ||
+                   TEST_FLAG (SELECTEDFLAG,
+                              &NAMEONPCB_TEXT (element)))
+                  && (FRONT (element) || PCB->InvisibleObjectsOn))
+                {
+                  AddObjectToFlagUndoList (ELEMENT_TYPE, element,
+                                           element, element);
+                  EraseElementName (element);
+                  TOGGLE_FLAG (HIDENAMEFLAG, element);
+                  DrawElementName (element, 0);
+                  changed = True;
+                }
+            }
+            END_LOOP;
+            if (changed)
+              {
+                Draw ();
+                IncrementUndoSerialNumber ();
+              }
+          }
+        }
       RestoreCrosshair (True);
     }
   return 0;
@@ -4398,38 +4409,38 @@ ActionChangeJoin (int argc, char **argv, int x, int y)
     {
       HideCrosshair (True);
       switch (GetFunctionID (function))
-	{
-	case F_ToggleObject:
-	case F_Object:
-	  {
-	    int type;
-	    void *ptr1, *ptr2, *ptr3;
+        {
+        case F_ToggleObject:
+        case F_Object:
+          {
+            int type;
+            void *ptr1, *ptr2, *ptr3;
 
-	    gui->get_coords ("Select an Object", &x, &y);
-	    if ((type =
-		 SearchScreen (x, y, CHANGEJOIN_TYPES,
-			       &ptr1, &ptr2, &ptr3)) != NO_TYPE)
-	      if (ChangeObjectJoin (type, ptr1, ptr2, ptr3))
-		SetChangedFlag (True);
-	    break;
-	  }
+            gui->get_coords ("Select an Object", &x, &y);
+            if ((type =
+                 SearchScreen (x, y, CHANGEJOIN_TYPES,
+                               &ptr1, &ptr2, &ptr3)) != NO_TYPE)
+              if (ChangeObjectJoin (type, ptr1, ptr2, ptr3))
+                SetChangedFlag (True);
+            break;
+          }
 
-	case F_SelectedLines:
-	  if (ChangeSelectedJoin (LINE_TYPE))
-	    SetChangedFlag (True);
-	  break;
+        case F_SelectedLines:
+          if (ChangeSelectedJoin (LINE_TYPE))
+            SetChangedFlag (True);
+          break;
 
-	case F_SelectedArcs:
-	  if (ChangeSelectedJoin (ARC_TYPE))
-	    SetChangedFlag (True);
-	  break;
+        case F_SelectedArcs:
+          if (ChangeSelectedJoin (ARC_TYPE))
+            SetChangedFlag (True);
+          break;
 
-	case F_Selected:
-	case F_SelectedObjects:
-	  if (ChangeSelectedJoin (CHANGEJOIN_TYPES))
-	    SetChangedFlag (True);
-	  break;
-	}
+        case F_Selected:
+        case F_SelectedObjects:
+          if (ChangeSelectedJoin (CHANGEJOIN_TYPES))
+            SetChangedFlag (True);
+          break;
+        }
       RestoreCrosshair (True);
     }
   return 0;
@@ -4461,38 +4472,38 @@ ActionChangeSquare (int argc, char **argv, int x, int y)
     {
       HideCrosshair (True);
       switch (GetFunctionID (function))
-	{
-	case F_ToggleObject:
-	case F_Object:
-	  {
-	    int type;
-	    void *ptr1, *ptr2, *ptr3;
+        {
+        case F_ToggleObject:
+        case F_Object:
+          {
+            int type;
+            void *ptr1, *ptr2, *ptr3;
 
-	    gui->get_coords ("Select an Object", &x, &y);
-	    if ((type =
-		 SearchScreen (x, y, CHANGESQUARE_TYPES,
-			       &ptr1, &ptr2, &ptr3)) != NO_TYPE)
-	      if (ChangeObjectSquare (type, ptr1, ptr2, ptr3))
-		SetChangedFlag (True);
-	    break;
-	  }
+            gui->get_coords ("Select an Object", &x, &y);
+            if ((type =
+                 SearchScreen (x, y, CHANGESQUARE_TYPES,
+                               &ptr1, &ptr2, &ptr3)) != NO_TYPE)
+              if (ChangeObjectSquare (type, ptr1, ptr2, ptr3))
+                SetChangedFlag (True);
+            break;
+          }
 
-	case F_SelectedElements:
-	  if (ChangeSelectedSquare (ELEMENT_TYPE))
-	    SetChangedFlag (True);
-	  break;
+        case F_SelectedElements:
+          if (ChangeSelectedSquare (ELEMENT_TYPE))
+            SetChangedFlag (True);
+          break;
 
-	case F_SelectedPins:
-	  if (ChangeSelectedSquare (PIN_TYPE | PAD_TYPE))
-	    SetChangedFlag (True);
-	  break;
+        case F_SelectedPins:
+          if (ChangeSelectedSquare (PIN_TYPE | PAD_TYPE))
+            SetChangedFlag (True);
+          break;
 
-	case F_Selected:
-	case F_SelectedObjects:
-	  if (ChangeSelectedSquare (PIN_TYPE | PAD_TYPE))
-	    SetChangedFlag (True);
-	  break;
-	}
+        case F_Selected:
+        case F_SelectedObjects:
+          if (ChangeSelectedSquare (PIN_TYPE | PAD_TYPE))
+            SetChangedFlag (True);
+          break;
+        }
       RestoreCrosshair (True);
     }
   return 0;
@@ -4521,38 +4532,38 @@ ActionSetSquare (int argc, char **argv, int x, int y)
     {
       /* HideCrosshair (True); */
       switch (GetFunctionID (function))
-	{
-	case F_ToggleObject:
-	case F_Object:
-	  {
-	    int type;
-	    void *ptr1, *ptr2, *ptr3;
+        {
+        case F_ToggleObject:
+        case F_Object:
+          {
+            int type;
+            void *ptr1, *ptr2, *ptr3;
 
-	    gui->get_coords ("Select an object", &x, &y);
-	    if ((type =
-		 SearchScreen (x, y, CHANGESQUARE_TYPES,
-			       &ptr1, &ptr2, &ptr3)) != NO_TYPE)
-	      if (SetObjectSquare (type, ptr1, ptr2, ptr3))
-		SetChangedFlag (True);
-	    break;
-	  }
+            gui->get_coords ("Select an object", &x, &y);
+            if ((type =
+                 SearchScreen (x, y, CHANGESQUARE_TYPES,
+                               &ptr1, &ptr2, &ptr3)) != NO_TYPE)
+              if (SetObjectSquare (type, ptr1, ptr2, ptr3))
+                SetChangedFlag (True);
+            break;
+          }
 
-	case F_SelectedElements:
-	  if (SetSelectedSquare (ELEMENT_TYPE))
-	    SetChangedFlag (True);
-	  break;
+        case F_SelectedElements:
+          if (SetSelectedSquare (ELEMENT_TYPE))
+            SetChangedFlag (True);
+          break;
 
-	case F_SelectedPins:
-	  if (SetSelectedSquare (PIN_TYPE | PAD_TYPE))
-	    SetChangedFlag (True);
-	  break;
+        case F_SelectedPins:
+          if (SetSelectedSquare (PIN_TYPE | PAD_TYPE))
+            SetChangedFlag (True);
+          break;
 
-	case F_Selected:
-	case F_SelectedObjects:
-	  if (SetSelectedSquare (PIN_TYPE | PAD_TYPE))
-	    SetChangedFlag (True);
-	  break;
-	}
+        case F_Selected:
+        case F_SelectedObjects:
+          if (SetSelectedSquare (PIN_TYPE | PAD_TYPE))
+            SetChangedFlag (True);
+          break;
+        }
       /* RestoreCrosshair (True); */
     }
   return 0;
@@ -4582,38 +4593,38 @@ ActionClearSquare (int argc, char **argv, int x, int y)
     {
       /* HideCrosshair (True); */
       switch (GetFunctionID (function))
-	{
-	case F_ToggleObject:
-	case F_Object:
-	  {
-	    int type;
-	    void *ptr1, *ptr2, *ptr3;
+        {
+        case F_ToggleObject:
+        case F_Object:
+          {
+            int type;
+            void *ptr1, *ptr2, *ptr3;
 
-	    gui->get_coords ("Select an Object", &x, &y);
-	    if ((type =
-		 SearchScreen (x, y, CHANGESQUARE_TYPES,
-			       &ptr1, &ptr2, &ptr3)) != NO_TYPE)
-	      if (ClrObjectSquare (type, ptr1, ptr2, ptr3))
-		SetChangedFlag (True);
-	    break;
-	  }
+            gui->get_coords ("Select an Object", &x, &y);
+            if ((type =
+                 SearchScreen (x, y, CHANGESQUARE_TYPES,
+                               &ptr1, &ptr2, &ptr3)) != NO_TYPE)
+              if (ClrObjectSquare (type, ptr1, ptr2, ptr3))
+                SetChangedFlag (True);
+            break;
+          }
 
-	case F_SelectedElements:
-	  if (ClrSelectedSquare (ELEMENT_TYPE))
-	    SetChangedFlag (True);
-	  break;
+        case F_SelectedElements:
+          if (ClrSelectedSquare (ELEMENT_TYPE))
+            SetChangedFlag (True);
+          break;
 
-	case F_SelectedPins:
-	  if (ClrSelectedSquare (PIN_TYPE | PAD_TYPE))
-	    SetChangedFlag (True);
-	  break;
+        case F_SelectedPins:
+          if (ClrSelectedSquare (PIN_TYPE | PAD_TYPE))
+            SetChangedFlag (True);
+          break;
 
-	case F_Selected:
-	case F_SelectedObjects:
-	  if (ClrSelectedSquare (PIN_TYPE | PAD_TYPE))
-	    SetChangedFlag (True);
-	  break;
-	}
+        case F_Selected:
+        case F_SelectedObjects:
+          if (ClrSelectedSquare (PIN_TYPE | PAD_TYPE))
+            SetChangedFlag (True);
+          break;
+        }
       /* RestoreCrosshair (True); */
     }
   return 0;
@@ -4642,43 +4653,43 @@ ActionChangeOctagon (int argc, char **argv, int x, int y)
     {
       /* HideCrosshair (True); */
       switch (GetFunctionID (function))
-	{
-	case F_ToggleObject:
-	case F_Object:
-	  {
-	    int type;
-	    void *ptr1, *ptr2, *ptr3;
+        {
+        case F_ToggleObject:
+        case F_Object:
+          {
+            int type;
+            void *ptr1, *ptr2, *ptr3;
 
-	    gui->get_coords ("Select an Object", &x, &y);
-	    if ((type =
-		 SearchScreen (x, y, CHANGEOCTAGON_TYPES,
-			       &ptr1, &ptr2, &ptr3)) != NO_TYPE)
-	      if (ChangeObjectOctagon (type, ptr1, ptr2, ptr3))
-		SetChangedFlag (True);
-	    break;
-	  }
+            gui->get_coords ("Select an Object", &x, &y);
+            if ((type =
+                 SearchScreen (x, y, CHANGEOCTAGON_TYPES,
+                               &ptr1, &ptr2, &ptr3)) != NO_TYPE)
+              if (ChangeObjectOctagon (type, ptr1, ptr2, ptr3))
+                SetChangedFlag (True);
+            break;
+          }
 
-	case F_SelectedElements:
-	  if (ChangeSelectedOctagon (ELEMENT_TYPE))
-	    SetChangedFlag (True);
-	  break;
+        case F_SelectedElements:
+          if (ChangeSelectedOctagon (ELEMENT_TYPE))
+            SetChangedFlag (True);
+          break;
 
-	case F_SelectedPins:
-	  if (ChangeSelectedOctagon (PIN_TYPE))
-	    SetChangedFlag (True);
-	  break;
+        case F_SelectedPins:
+          if (ChangeSelectedOctagon (PIN_TYPE))
+            SetChangedFlag (True);
+          break;
 
-	case F_SelectedVias:
-	  if (ChangeSelectedOctagon (VIA_TYPE))
-	    SetChangedFlag (True);
-	  break;
+        case F_SelectedVias:
+          if (ChangeSelectedOctagon (VIA_TYPE))
+            SetChangedFlag (True);
+          break;
 
-	case F_Selected:
-	case F_SelectedObjects:
-	  if (ChangeSelectedOctagon (PIN_TYPES))
-	    SetChangedFlag (True);
-	  break;
-	}
+        case F_Selected:
+        case F_SelectedObjects:
+          if (ChangeSelectedOctagon (PIN_TYPES))
+            SetChangedFlag (True);
+          break;
+        }
       /* RestoreCrosshair (True); */
     }
   return 0;
@@ -4705,43 +4716,43 @@ ActionSetOctagon (int argc, char **argv, int x, int y)
     {
       /* HideCrosshair (True); */
       switch (GetFunctionID (function))
-	{
-	case F_ToggleObject:
-	case F_Object:
-	  {
-	    int type;
-	    void *ptr1, *ptr2, *ptr3;
+        {
+        case F_ToggleObject:
+        case F_Object:
+          {
+            int type;
+            void *ptr1, *ptr2, *ptr3;
 
-	    gui->get_coords ("Select an object", &x, &y);
-	    if ((type =
-		 SearchScreen (x, y, CHANGEOCTAGON_TYPES,
-			       &ptr1, &ptr2, &ptr3)) != NO_TYPE)
-	      if (SetObjectOctagon (type, ptr1, ptr2, ptr3))
-		SetChangedFlag (True);
-	    break;
-	  }
+            gui->get_coords ("Select an object", &x, &y);
+            if ((type =
+                 SearchScreen (x, y, CHANGEOCTAGON_TYPES,
+                               &ptr1, &ptr2, &ptr3)) != NO_TYPE)
+              if (SetObjectOctagon (type, ptr1, ptr2, ptr3))
+                SetChangedFlag (True);
+            break;
+          }
 
-	case F_SelectedElements:
-	  if (SetSelectedOctagon (ELEMENT_TYPE))
-	    SetChangedFlag (True);
-	  break;
+        case F_SelectedElements:
+          if (SetSelectedOctagon (ELEMENT_TYPE))
+            SetChangedFlag (True);
+          break;
 
-	case F_SelectedPins:
-	  if (SetSelectedOctagon (PIN_TYPE))
-	    SetChangedFlag (True);
-	  break;
+        case F_SelectedPins:
+          if (SetSelectedOctagon (PIN_TYPE))
+            SetChangedFlag (True);
+          break;
 
-	case F_SelectedVias:
-	  if (SetSelectedOctagon (VIA_TYPE))
-	    SetChangedFlag (True);
-	  break;
+        case F_SelectedVias:
+          if (SetSelectedOctagon (VIA_TYPE))
+            SetChangedFlag (True);
+          break;
 
-	case F_Selected:
-	case F_SelectedObjects:
-	  if (SetSelectedOctagon (PIN_TYPES))
-	    SetChangedFlag (True);
-	  break;
-	}
+        case F_Selected:
+        case F_SelectedObjects:
+          if (SetSelectedOctagon (PIN_TYPES))
+            SetChangedFlag (True);
+          break;
+        }
       /* RestoreCrosshair (True); */
     }
   return 0;
@@ -4770,43 +4781,43 @@ ActionClearOctagon (int argc, char **argv, int x, int y)
     {
       /* HideCrosshair (True); */
       switch (GetFunctionID (function))
-	{
-	case F_ToggleObject:
-	case F_Object:
-	  {
-	    int type;
-	    void *ptr1, *ptr2, *ptr3;
+        {
+        case F_ToggleObject:
+        case F_Object:
+          {
+            int type;
+            void *ptr1, *ptr2, *ptr3;
 
-	    gui->get_coords ("Select an Object", &x, &y);
-	    if ((type =
-		 SearchScreen (Crosshair.X, Crosshair.Y, CHANGEOCTAGON_TYPES,
-			       &ptr1, &ptr2, &ptr3)) != NO_TYPE)
-	      if (ClrObjectOctagon (type, ptr1, ptr2, ptr3))
-		SetChangedFlag (True);
-	    break;
-	  }
+            gui->get_coords ("Select an Object", &x, &y);
+            if ((type =
+                 SearchScreen (Crosshair.X, Crosshair.Y, CHANGEOCTAGON_TYPES,
+                               &ptr1, &ptr2, &ptr3)) != NO_TYPE)
+              if (ClrObjectOctagon (type, ptr1, ptr2, ptr3))
+                SetChangedFlag (True);
+            break;
+          }
 
-	case F_SelectedElements:
-	  if (ClrSelectedOctagon (ELEMENT_TYPE))
-	    SetChangedFlag (True);
-	  break;
+        case F_SelectedElements:
+          if (ClrSelectedOctagon (ELEMENT_TYPE))
+            SetChangedFlag (True);
+          break;
 
-	case F_SelectedPins:
-	  if (ClrSelectedOctagon (PIN_TYPE))
-	    SetChangedFlag (True);
-	  break;
+        case F_SelectedPins:
+          if (ClrSelectedOctagon (PIN_TYPE))
+            SetChangedFlag (True);
+          break;
 
-	case F_SelectedVias:
-	  if (ClrSelectedOctagon (VIA_TYPE))
-	    SetChangedFlag (True);
-	  break;
+        case F_SelectedVias:
+          if (ClrSelectedOctagon (VIA_TYPE))
+            SetChangedFlag (True);
+          break;
 
-	case F_Selected:
-	case F_SelectedObjects:
-	  if (ClrSelectedOctagon (PIN_TYPES))
-	    SetChangedFlag (True);
-	  break;
-	}
+        case F_Selected:
+        case F_SelectedObjects:
+          if (ClrSelectedOctagon (PIN_TYPES))
+            SetChangedFlag (True);
+          break;
+        }
       /* RestoreCrosshair (True); */
     }
   return 0;
@@ -4834,27 +4845,27 @@ ActionChangeHole (int argc, char **argv, int x, int y)
     {
       /* HideCrosshair (True); */
       switch (GetFunctionID (function))
-	{
-	case F_ToggleObject:
-	case F_Object:
-	  {
-	    int type;
-	    void *ptr1, *ptr2, *ptr3;
+        {
+        case F_ToggleObject:
+        case F_Object:
+          {
+            int type;
+            void *ptr1, *ptr2, *ptr3;
 
-	    gui->get_coords ("Select an Object", &x, &y);
-	    if ((type = SearchScreen (x, y, VIA_TYPE,
-				      &ptr1, &ptr2, &ptr3)) != NO_TYPE
-		&& ChangeHole ((PinTypePtr) ptr3))
-	      IncrementUndoSerialNumber ();
-	    break;
-	  }
+            gui->get_coords ("Select an Object", &x, &y);
+            if ((type = SearchScreen (x, y, VIA_TYPE,
+                                      &ptr1, &ptr2, &ptr3)) != NO_TYPE
+                && ChangeHole ((PinTypePtr) ptr3))
+              IncrementUndoSerialNumber ();
+            break;
+          }
 
-	case F_SelectedVias:
-	case F_Selected:
-	  if (ChangeSelectedHole ())
-	    SetChangedFlag (True);
-	  break;
-	}
+        case F_SelectedVias:
+        case F_Selected:
+          if (ChangeSelectedHole ())
+            SetChangedFlag (True);
+          break;
+        }
       /* RestoreCrosshair (True); */
     }
   return 0;
@@ -4918,117 +4929,117 @@ ActionSelect (int argc, char **argv, int x, int y)
 
       HideCrosshair (True);
       switch (GetFunctionID (function))
-	{
+        {
 #if defined(HAVE_REGCOMP) || defined(HAVE_RE_COMP)
-	  int type;
-	  /* select objects by their names */
-	case F_ElementByName:
-	  type = ELEMENT_TYPE;
-	  goto commonByName;
-	case F_ObjectByName:
-	  type = ALL_TYPES;
-	  goto commonByName;
-	case F_PadByName:
-	  type = PAD_TYPE;
-	  goto commonByName;
-	case F_PinByName:
-	  type = PIN_TYPE;
-	  goto commonByName;
-	case F_TextByName:
-	  type = TEXT_TYPE;
-	  goto commonByName;
-	case F_ViaByName:
-	  type = VIA_TYPE;
-	  goto commonByName;
+          int type;
+          /* select objects by their names */
+        case F_ElementByName:
+          type = ELEMENT_TYPE;
+          goto commonByName;
+        case F_ObjectByName:
+          type = ALL_TYPES;
+          goto commonByName;
+        case F_PadByName:
+          type = PAD_TYPE;
+          goto commonByName;
+        case F_PinByName:
+          type = PIN_TYPE;
+          goto commonByName;
+        case F_TextByName:
+          type = TEXT_TYPE;
+          goto commonByName;
+        case F_ViaByName:
+          type = VIA_TYPE;
+          goto commonByName;
 
-	commonByName:
-	  {
-	    char *pattern = ARG (1);
+        commonByName:
+          {
+            char *pattern = ARG (1);
 
-	    if (pattern
-		|| (pattern =
-		    gui->prompt_for (_("Enter pattern:"), "")) != NULL)
-	      {
-		if (SelectObjectByName (type, pattern, True))
-		  SetChangedFlag (True);
-		if (ARG (1) == 0)
-		  free (pattern);
-	      }
-	    break;
-	  }
+            if (pattern
+                || (pattern =
+                    gui->prompt_for (_("Enter pattern:"), "")) != NULL)
+              {
+                if (SelectObjectByName (type, pattern, True))
+                  SetChangedFlag (True);
+                if (ARG (1) == 0)
+                  free (pattern);
+              }
+            break;
+          }
 #endif /* defined(HAVE_REGCOMP) || defined(HAVE_RE_COMP) */
 
-	  /* select a single object */
-	case F_ToggleObject:
-	case F_Object:
-	  if (SelectObject ())
-	    SetChangedFlag (True);
-	  break;
+          /* select a single object */
+        case F_ToggleObject:
+        case F_Object:
+          if (SelectObject ())
+            SetChangedFlag (True);
+          break;
 
-	  /* all objects in block */
-	case F_Block:
-	  {
-	    BoxType box;
+          /* all objects in block */
+        case F_Block:
+          {
+            BoxType box;
 
-	    box.X1 = MIN (Crosshair.AttachedBox.Point1.X,
-			  Crosshair.AttachedBox.Point2.X);
-	    box.Y1 = MIN (Crosshair.AttachedBox.Point1.Y,
-			  Crosshair.AttachedBox.Point2.Y);
-	    box.X2 = MAX (Crosshair.AttachedBox.Point1.X,
-			  Crosshair.AttachedBox.Point2.X);
-	    box.Y2 = MAX (Crosshair.AttachedBox.Point1.Y,
-			  Crosshair.AttachedBox.Point2.Y);
-	    NotifyBlock ();
-	    if (Crosshair.AttachedBox.State == STATE_THIRD &&
-		SelectBlock (&box, True))
-	      {
-		SetChangedFlag (True);
-		Crosshair.AttachedBox.State = STATE_FIRST;
-	      }
-	    break;
-	  }
+            box.X1 = MIN (Crosshair.AttachedBox.Point1.X,
+                          Crosshair.AttachedBox.Point2.X);
+            box.Y1 = MIN (Crosshair.AttachedBox.Point1.Y,
+                          Crosshair.AttachedBox.Point2.Y);
+            box.X2 = MAX (Crosshair.AttachedBox.Point1.X,
+                          Crosshair.AttachedBox.Point2.X);
+            box.Y2 = MAX (Crosshair.AttachedBox.Point1.Y,
+                          Crosshair.AttachedBox.Point2.Y);
+            NotifyBlock ();
+            if (Crosshair.AttachedBox.State == STATE_THIRD &&
+                SelectBlock (&box, True))
+              {
+                SetChangedFlag (True);
+                Crosshair.AttachedBox.State = STATE_FIRST;
+              }
+            break;
+          }
 
-	  /* select all visible objects */
-	case F_All:
-	  {
-	    BoxType box;
+          /* select all visible objects */
+        case F_All:
+          {
+            BoxType box;
 
-	    box.X1 = -MAX_COORD;
-	    box.Y1 = -MAX_COORD;
-	    box.X2 = MAX_COORD;
-	    box.Y2 = MAX_COORD;
-	    if (SelectBlock (&box, True))
-	      SetChangedFlag (True);
-	    break;
-	  }
+            box.X1 = -MAX_COORD;
+            box.Y1 = -MAX_COORD;
+            box.X2 = MAX_COORD;
+            box.Y2 = MAX_COORD;
+            if (SelectBlock (&box, True))
+              SetChangedFlag (True);
+            break;
+          }
 
-	  /* all found connections */
-	case F_Connection:
-	  if (SelectConnection (True))
-	    {
-	      IncrementUndoSerialNumber ();
-	      SetChangedFlag (True);
-	    }
-	  break;
+          /* all found connections */
+        case F_Connection:
+          if (SelectConnection (True))
+            {
+              IncrementUndoSerialNumber ();
+              SetChangedFlag (True);
+            }
+          break;
 
-	case F_Convert:
-	  Note.Buffer = Settings.BufferNumber;
-	  SetBufferNumber (MAX_BUFFER - 1);
-	  ClearBuffer (PASTEBUFFER);
-	  AddSelectedToBuffer (PASTEBUFFER, Crosshair.X, Crosshair.Y, True);
-	  SaveUndoSerialNumber ();
-	  RemoveSelected ();
-	  ConvertBufferToElement (PASTEBUFFER);
-	  RestoreUndoSerialNumber ();
-	  CopyPastebufferToLayout (Crosshair.X, Crosshair.Y);
-	  SetBufferNumber (Note.Buffer);
-	  break;
+        case F_Convert:
+          Note.Buffer = Settings.BufferNumber;
+          SetBufferNumber (MAX_BUFFER - 1);
+          ClearBuffer (PASTEBUFFER);
+          AddSelectedToBuffer (PASTEBUFFER, Crosshair.X, Crosshair.Y, True);
+          SaveUndoSerialNumber ();
+          RemoveSelected ();
+          ConvertBufferToElement (PASTEBUFFER);
+          RestoreUndoSerialNumber ();
+          CopyPastebufferToLayout (Crosshair.X, Crosshair.Y);
+          SetBufferNumber (Note.Buffer);
+          break;
 
-	default:
-	  RestoreCrosshair (True);
-	  AFAIL (select);
-	  break;
-	}
+        default:
+          RestoreCrosshair (True);
+          AFAIL (select);
+          break;
+        }
       RestoreCrosshair (True);
     }
   return 0;
@@ -5095,98 +5106,98 @@ ActionUnselect (int argc, char **argv, int x, int y)
     {
       HideCrosshair (True);
       switch (GetFunctionID (function))
-	{
+        {
 #if defined(HAVE_REGCOMP) || defined(HAVE_RE_COMP)
-	  int type;
-	  /* select objects by their names */
-	case F_ElementByName:
-	  type = ELEMENT_TYPE;
-	  goto commonByName;
-	case F_ObjectByName:
-	  type = ALL_TYPES;
-	  goto commonByName;
-	case F_PadByName:
-	  type = PAD_TYPE;
-	  goto commonByName;
-	case F_PinByName:
-	  type = PIN_TYPE;
-	  goto commonByName;
-	case F_TextByName:
-	  type = TEXT_TYPE;
-	  goto commonByName;
-	case F_ViaByName:
-	  type = VIA_TYPE;
-	  goto commonByName;
+          int type;
+          /* select objects by their names */
+        case F_ElementByName:
+          type = ELEMENT_TYPE;
+          goto commonByName;
+        case F_ObjectByName:
+          type = ALL_TYPES;
+          goto commonByName;
+        case F_PadByName:
+          type = PAD_TYPE;
+          goto commonByName;
+        case F_PinByName:
+          type = PIN_TYPE;
+          goto commonByName;
+        case F_TextByName:
+          type = TEXT_TYPE;
+          goto commonByName;
+        case F_ViaByName:
+          type = VIA_TYPE;
+          goto commonByName;
 
-	commonByName:
-	  {
-	    char *pattern = ARG (1);
+        commonByName:
+          {
+            char *pattern = ARG (1);
 
-	    if (pattern
-		|| (pattern =
-		    gui->prompt_for (_("Enter pattern:"), "")) != NULL)
-	      {
-		if (SelectObjectByName (type, pattern, False))
-		  SetChangedFlag (True);
-		if (ARG (1) == 0)
-		  free (pattern);
-	      }
-	    break;
-	  }
+            if (pattern
+                || (pattern =
+                    gui->prompt_for (_("Enter pattern:"), "")) != NULL)
+              {
+                if (SelectObjectByName (type, pattern, False))
+                  SetChangedFlag (True);
+                if (ARG (1) == 0)
+                  free (pattern);
+              }
+            break;
+          }
 #endif /* defined(HAVE_REGCOMP) || defined(HAVE_RE_COMP) */
 
-	  /* all objects in block */
-	case F_Block:
-	  {
-	    BoxType box;
+          /* all objects in block */
+        case F_Block:
+          {
+            BoxType box;
 
-	    box.X1 = MIN (Crosshair.AttachedBox.Point1.X,
-			  Crosshair.AttachedBox.Point2.X);
-	    box.Y1 = MIN (Crosshair.AttachedBox.Point1.Y,
-			  Crosshair.AttachedBox.Point2.Y);
-	    box.X2 = MAX (Crosshair.AttachedBox.Point1.X,
-			  Crosshair.AttachedBox.Point2.X);
-	    box.Y2 = MAX (Crosshair.AttachedBox.Point1.Y,
-			  Crosshair.AttachedBox.Point2.Y);
-	    NotifyBlock ();
-	    if (Crosshair.AttachedBox.State == STATE_THIRD &&
-		SelectBlock (&box, False))
-	      {
-		SetChangedFlag (True);
-		Crosshair.AttachedBox.State = STATE_FIRST;
-	      }
-	    break;
-	  }
+            box.X1 = MIN (Crosshair.AttachedBox.Point1.X,
+                          Crosshair.AttachedBox.Point2.X);
+            box.Y1 = MIN (Crosshair.AttachedBox.Point1.Y,
+                          Crosshair.AttachedBox.Point2.Y);
+            box.X2 = MAX (Crosshair.AttachedBox.Point1.X,
+                          Crosshair.AttachedBox.Point2.X);
+            box.Y2 = MAX (Crosshair.AttachedBox.Point1.Y,
+                          Crosshair.AttachedBox.Point2.Y);
+            NotifyBlock ();
+            if (Crosshair.AttachedBox.State == STATE_THIRD &&
+                SelectBlock (&box, False))
+              {
+                SetChangedFlag (True);
+                Crosshair.AttachedBox.State = STATE_FIRST;
+              }
+            break;
+          }
 
-	  /* unselect all visible objects */
-	case F_All:
-	  {
-	    BoxType box;
+          /* unselect all visible objects */
+        case F_All:
+          {
+            BoxType box;
 
-	    box.X1 = -MAX_COORD;
-	    box.Y1 = -MAX_COORD;
-	    box.X2 = MAX_COORD;
-	    box.Y2 = MAX_COORD;
-	    if (SelectBlock (&box, False))
-	      SetChangedFlag (True);
-	    break;
-	  }
+            box.X1 = -MAX_COORD;
+            box.Y1 = -MAX_COORD;
+            box.X2 = MAX_COORD;
+            box.Y2 = MAX_COORD;
+            if (SelectBlock (&box, False))
+              SetChangedFlag (True);
+            break;
+          }
 
-	  /* all found connections */
-	case F_Connection:
-	  if (SelectConnection (False))
-	    {
-	      IncrementUndoSerialNumber ();
-	      SetChangedFlag (True);
-	    }
-	  break;
+          /* all found connections */
+        case F_Connection:
+          if (SelectConnection (False))
+            {
+              IncrementUndoSerialNumber ();
+              SetChangedFlag (True);
+            }
+          break;
 
-	default:
-	  RestoreCrosshair (True);
-	  AFAIL (unselect);
-	  break;
+        default:
+          RestoreCrosshair (True);
+          AFAIL (unselect);
+          break;
 
-	}
+        }
       RestoreCrosshair (True);
     }
   return 0;
@@ -5251,11 +5262,11 @@ ActionSaveTo (int argc, char **argv, int x, int y)
       FILE *fp;
       Boolean result;
       if ((fp = CheckAndOpenFile (name, True, False, &result, NULL)) != NULL)
-	{
-	  LookupConnectionsToAllElements (fp);
-	  fclose (fp);
-	  SetChangedFlag (True);
-	}
+        {
+          LookupConnectionsToAllElements (fp);
+          fclose (fp);
+          SetChangedFlag (True);
+        }
       return 0;
     }
 
@@ -5264,11 +5275,11 @@ ActionSaveTo (int argc, char **argv, int x, int y)
       FILE *fp;
       Boolean result;
       if ((fp = CheckAndOpenFile (name, True, False, &result, NULL)) != NULL)
-	{
-	  LookupUnusedPins (fp);
-	  fclose (fp);
-	  SetChangedFlag (True);
-	}
+        {
+          LookupUnusedPins (fp);
+          fclose (fp);
+          SetChangedFlag (True);
+        }
       return 0;
     }
 
@@ -5280,17 +5291,17 @@ ActionSaveTo (int argc, char **argv, int x, int y)
       Boolean result;
 
       if ((SearchScreen (Crosshair.X, Crosshair.Y, ELEMENT_TYPE,
-			 &ptrtmp, &ptrtmp, &ptrtmp)) != NO_TYPE)
-	{
-	  element = (ElementTypePtr) ptrtmp;
-	  if ((fp =
-	       CheckAndOpenFile (name, True, False, &result, NULL)) != NULL)
-	    {
-	      LookupElementConnections (element, fp);
-	      fclose (fp);
-	      SetChangedFlag (True);
-	    }
-	}
+                         &ptrtmp, &ptrtmp, &ptrtmp)) != NO_TYPE)
+        {
+          element = (ElementTypePtr) ptrtmp;
+          if ((fp =
+               CheckAndOpenFile (name, True, False, &result, NULL)) != NULL)
+            {
+              LookupElementConnections (element, fp);
+              fclose (fp);
+              SetChangedFlag (True);
+            }
+        }
       return 0;
     }
 
@@ -5376,36 +5387,36 @@ ActionLoadFrom (int argc, char **argv, int x, int y)
   if (strcasecmp (function, "ElementToBuffer") == 0)
     {
       if (LoadElementToBuffer (PASTEBUFFER, name, True))
-	SetMode (PASTEBUFFER_MODE);
+        SetMode (PASTEBUFFER_MODE);
     }
 
   else if (strcasecmp (function, "LayoutToBuffer") == 0)
     {
       if (LoadLayoutToBuffer (PASTEBUFFER, name))
-	SetMode (PASTEBUFFER_MODE);
+        SetMode (PASTEBUFFER_MODE);
     }
 
   else if (strcasecmp (function, "Layout") == 0)
     {
       if (!PCB->Changed ||
-	  gui->confirm_dialog (_("OK to override layout data?"), 0))
-	LoadPCB (name);
+          gui->confirm_dialog (_("OK to override layout data?"), 0))
+        LoadPCB (name);
     }
 
   else if (strcasecmp (function, "Netlist") == 0)
     {
       if (PCB->Netlistname)
-	SaveFree (PCB->Netlistname);
+        SaveFree (PCB->Netlistname);
       PCB->Netlistname = StripWhiteSpaceAndDup (name);
       FreeLibraryMemory (&PCB->NetlistLib);
       if (!ReadNetlist (PCB->Netlistname))
-	hid_action ("NetlistChanged");
+        hid_action ("NetlistChanged");
     }
   else if (strcasecmp (function, "Revert") == 0 && PCB->Filename
-	   && (!PCB->Changed
-	       || gui->confirm_dialog (_("OK to override changes?"), 0)))
+           && (!PCB->Changed
+               || gui->confirm_dialog (_("OK to override changes?"), 0)))
     {
-      strcpy (fname, PCB->Filename);	/*Calling LoadPCB(PCB->Filename) changes the content of PCB->Filename. */
+      strcpy (fname, PCB->Filename);    /*Calling LoadPCB(PCB->Filename) changes the content of PCB->Filename. */
       LoadPCB (fname);
     }
 
@@ -5446,45 +5457,45 @@ ActionPrint (char **Params, int num)
     {
       /* check if layout is empty */
       if (!IsDataEmpty (PCB->Data))
-	{
-	  char *prefix_str = Params[0];
-	  int device_choice_i = atoi (Params[1]);
-	  float scale = atof (Params[2]);
+        {
+          char *prefix_str = Params[0];
+          int device_choice_i = atoi (Params[1]);
+          float scale = atof (Params[2]);
 
-	  int mirror = atoi (Params[3]);
-	  int rotate = atoi (Params[4]);
-	  int color = atoi (Params[5]);
-	  int invert = atoi (Params[6]);
-	  int outline = atoi (Params[7]);
+          int mirror = atoi (Params[3]);
+          int rotate = atoi (Params[4]);
+          int color = atoi (Params[5]);
+          int invert = atoi (Params[6]);
+          int outline = atoi (Params[7]);
 
-	  int add_alignment = atoi (Params[8]);
-	  int add_drill_helper = atoi (Params[9]);
+          int add_alignment = atoi (Params[8]);
+          int add_drill_helper = atoi (Params[9]);
 
-	  int use_dos_filenames = atoi (Params[10]);
+          int use_dos_filenames = atoi (Params[10]);
 
-	  /*
-	   * for(num_devices = 0; PrintingDevice[num_devices].Query; num_devices++);
-	   * assert(0 <= i && i < num_devices);
-	   */
+          /*
+           * for(num_devices = 0; PrintingDevice[num_devices].Query; num_devices++);
+           * assert(0 <= i && i < num_devices);
+           */
 
-	  Print (prefix_str, scale,
-		 /* boolean options */
-		 mirror, rotate, color, invert, outline, add_alignment, add_drill_helper, use_dos_filenames, PrintingDevice[device_choice_i].Info, 0,	/* media */
-		 0,		/* offsetx */
-		 0,		/* offsety */
-		 /* boolean options */
-		 0		/* silk screen text flag */
-	    );
-	}
+          Print (prefix_str, scale,
+                 /* boolean options */
+                 mirror, rotate, color, invert, outline, add_alignment, add_drill_helper, use_dos_filenames, PrintingDevice[device_choice_i].Info, 0,   /* media */
+                 0,             /* offsetx */
+                 0,             /* offsety */
+                 /* boolean options */
+                 0              /* silk screen text flag */
+            );
+        }
       else
-	Message (_("Can't print empty layout"));
+        Message (_("Can't print empty layout"));
     }
   else
     {
       Message (_("syntax: Print(prefix, device, scale,\n"
-		 "              mirror, rotate, color, invert, outline\n"
-		 "              add_alignment, add_drill_helper,\n"
-		 "              use_dos_filenames)\n"));
+                 "              mirror, rotate, color, invert, outline\n"
+                 "              add_alignment, add_drill_helper,\n"
+                 "              use_dos_filenames)\n"));
     }
 #endif
 }
@@ -5511,24 +5522,24 @@ ActionNew (int argc, char **argv, int x, int y)
   if (!PCB->Changed || gui->confirm_dialog (_("OK to clear layout data?"), 0))
     {
       if (name)
-	name = MyStrdup (name, "ActionNew");
+        name = MyStrdup (name, "ActionNew");
       else
-	name = gui->prompt_for (_("Enter the layout name:"), "");
+        name = gui->prompt_for (_("Enter the layout name:"), "");
       if (!name)
-	return 1;
+        return 1;
 
       /* do emergency saving
        * clear the old struct and allocate memory for the new one
        */
       if (PCB->Changed && Settings.SaveInTMP)
-	SaveInTMP ();
+        SaveInTMP ();
       RemovePCB (PCB);
       PCB = CreateNewPCB (True);
       PCB->Data->LayerN = DEF_LAYER;
       CreateNewPCBPost (PCB, 1);
 
       /* setup the new name and reset some values to default */
-      PCB->Name = name;		/* XXX memory leak */
+      PCB->Name = name;         /* XXX memory leak */
 
       ResetStackAndVisibility ();
       CreateDefaultFont ();
@@ -5626,108 +5637,108 @@ ActionPasteBuffer (int argc, char **argv, int x, int y)
   if (function)
     {
       switch (GetFunctionID (function))
-	{
-	  /* clear contents of paste buffer */
-	case F_Clear:
-	  ClearBuffer (PASTEBUFFER);
-	  break;
+        {
+          /* clear contents of paste buffer */
+        case F_Clear:
+          ClearBuffer (PASTEBUFFER);
+          break;
 
-	  /* copies objects to paste buffer */
-	case F_AddSelected:
-	  AddSelectedToBuffer (PASTEBUFFER, 0, 0, False);
-	  break;
+          /* copies objects to paste buffer */
+        case F_AddSelected:
+          AddSelectedToBuffer (PASTEBUFFER, 0, 0, False);
+          break;
 
-	  /* converts buffer contents into an element */
-	case F_Convert:
-	  ConvertBufferToElement (PASTEBUFFER);
-	  break;
+          /* converts buffer contents into an element */
+        case F_Convert:
+          ConvertBufferToElement (PASTEBUFFER);
+          break;
 
-	  /* break up element for editing */
-	case F_Restore:
-	  SmashBufferElement (PASTEBUFFER);
-	  break;
+          /* break up element for editing */
+        case F_Restore:
+          SmashBufferElement (PASTEBUFFER);
+          break;
 
-	  /* Mirror buffer */
-	case F_Mirror:
-	  MirrorBuffer (PASTEBUFFER);
-	  break;
+          /* Mirror buffer */
+        case F_Mirror:
+          MirrorBuffer (PASTEBUFFER);
+          break;
 
-	case F_Rotate:
-	  if (sbufnum)
-	    {
-	      RotateBuffer (PASTEBUFFER, (BYTE) atoi (sbufnum));
-	      SetCrosshairRangeToBuffer ();
-	    }
-	  break;
+        case F_Rotate:
+          if (sbufnum)
+            {
+              RotateBuffer (PASTEBUFFER, (BYTE) atoi (sbufnum));
+              SetCrosshairRangeToBuffer ();
+            }
+          break;
 
-	case F_Save:
-	  if (PASTEBUFFER->Data->ElementN == 0)
-	    {
-	      Message (_("Buffer has no elements!\n"));
-	      break;
-	    }
-	  if (argc <= 1)
-	    name = gui->prompt_for ("Save as:", 0);
-	  else
-	    name = argv[1];
+        case F_Save:
+          if (PASTEBUFFER->Data->ElementN == 0)
+            {
+              Message (_("Buffer has no elements!\n"));
+              break;
+            }
+          if (argc <= 1)
+            name = gui->prompt_for ("Save as:", 0);
+          else
+            name = argv[1];
 
-	  {
-	    FILE *exist;
+          {
+            FILE *exist;
 
-	    if ((exist = fopen (name, "r")))
-	      {
-		fclose (exist);
-		if (gui->
-		    confirm_dialog (_("File exists!  Ok to overwrite?"), 0))
-		  SaveBufferElements (name);
-	      }
-	    else
-	      SaveBufferElements (name);
-	  }
-	  break;
+            if ((exist = fopen (name, "r")))
+              {
+                fclose (exist);
+                if (gui->
+                    confirm_dialog (_("File exists!  Ok to overwrite?"), 0))
+                  SaveBufferElements (name);
+              }
+            else
+              SaveBufferElements (name);
+          }
+          break;
 
-	case F_ToLayout:
-	  {
-	    static int oldx = 0, oldy = 0;
-	    int x, y;
-	    Boolean r;
+        case F_ToLayout:
+          {
+            static int oldx = 0, oldy = 0;
+            int x, y;
+            Boolean r;
 
-	    if (argc == 1)
-	      {
-		x = y = 0;
-	      }
-	    else if (argc == 3 || argc == 4)
-	      {
-		x = GetValue (ARG (1), ARG (3), &r);
-		if (!r)
-		  x += oldx;
-		y = GetValue (ARG (2), ARG (3), &r);
-		if (!r)
-		  y += oldy;
-	      }
-	    else
-	      {
-		RestoreCrosshair (True);
-		AFAIL (pastebuffer);
-	      }
+            if (argc == 1)
+              {
+                x = y = 0;
+              }
+            else if (argc == 3 || argc == 4)
+              {
+                x = GetValue (ARG (1), ARG (3), &r);
+                if (!r)
+                  x += oldx;
+                y = GetValue (ARG (2), ARG (3), &r);
+                if (!r)
+                  y += oldy;
+              }
+            else
+              {
+                RestoreCrosshair (True);
+                AFAIL (pastebuffer);
+              }
 
-	    oldx = x;
-	    oldy = y;
-	    if (CopyPastebufferToLayout (x, y))
-	      SetChangedFlag (True);
-	  }
-	  break;
+            oldx = x;
+            oldy = y;
+            if (CopyPastebufferToLayout (x, y))
+              SetChangedFlag (True);
+          }
+          break;
 
-	  /* set number */
-	default:
-	  {
-	    int number = atoi (function);
+          /* set number */
+        default:
+          {
+            int number = atoi (function);
 
-	    /* correct number */
-	    if (number)
-	      SetBufferNumber (number - 1);
-	  }
-	}
+            /* correct number */
+            if (number)
+              SetBufferNumber (number - 1);
+          }
+        }
     }
 
   RestoreCrosshair (True);
@@ -5763,140 +5774,140 @@ ActionUndo (int argc, char **argv, int x, int y)
     {
       /* don't allow undo in the middle of an operation */
       if (Crosshair.AttachedObject.State != STATE_FIRST)
-	return 1;
+        return 1;
       if (Crosshair.AttachedBox.State != STATE_FIRST
-	  && Settings.Mode != ARC_MODE)
-	return 1;
+          && Settings.Mode != ARC_MODE)
+        return 1;
       /* undo the last operation */
 
       HideCrosshair (True);
       if (Settings.Mode == POLYGON_MODE && Crosshair.AttachedPolygon.PointN)
-	{
-	  GoToPreviousPoint ();
-	  RestoreCrosshair (True);
-	  return 0;
-	}
+        {
+          GoToPreviousPoint ();
+          RestoreCrosshair (True);
+          return 0;
+        }
       /* move anchor point if undoing during line creation */
       if (Settings.Mode == LINE_MODE)
-	{
-	  if (Crosshair.AttachedLine.State == STATE_SECOND)
-	    {
-	      if (TEST_FLAG (AUTODRCFLAG, PCB))
-		Undo (True);	/* undo the connection find */
-	      Crosshair.AttachedLine.State = STATE_FIRST;
-	      SetLocalRef (0, 0, False);
-	      RestoreCrosshair (True);
-	      return 0;
-	    }
-	  if (Crosshair.AttachedLine.State == STATE_THIRD)
-	    {
-	      int type;
-	      void *ptr1, *ptr3, *ptrtmp;
-	      LineTypePtr ptr2;
-	      /* this search is guaranteed to succeed */
-	      SearchObjectByLocation (LINE_TYPE | RATLINE_TYPE, &ptr1,
-				      &ptrtmp, &ptr3,
-				      Crosshair.AttachedLine.Point1.X,
-				      Crosshair.AttachedLine.Point1.Y, 0);
-	      ptr2 = (LineTypePtr) ptrtmp;
+        {
+          if (Crosshair.AttachedLine.State == STATE_SECOND)
+            {
+              if (TEST_FLAG (AUTODRCFLAG, PCB))
+                Undo (True);    /* undo the connection find */
+              Crosshair.AttachedLine.State = STATE_FIRST;
+              SetLocalRef (0, 0, False);
+              RestoreCrosshair (True);
+              return 0;
+            }
+          if (Crosshair.AttachedLine.State == STATE_THIRD)
+            {
+              int type;
+              void *ptr1, *ptr3, *ptrtmp;
+              LineTypePtr ptr2;
+              /* this search is guaranteed to succeed */
+              SearchObjectByLocation (LINE_TYPE | RATLINE_TYPE, &ptr1,
+                                      &ptrtmp, &ptr3,
+                                      Crosshair.AttachedLine.Point1.X,
+                                      Crosshair.AttachedLine.Point1.Y, 0);
+              ptr2 = (LineTypePtr) ptrtmp;
 
-	      /* save both ends of line */
-	      Crosshair.AttachedLine.Point2.X = ptr2->Point1.X;
-	      Crosshair.AttachedLine.Point2.Y = ptr2->Point1.Y;
-	      if ((type = Undo (True)))
-		SetChangedFlag (True);
-	      /* check that the undo was of the right type */
-	      if ((type & UNDO_CREATE) == 0)
-		{
-		  /* wrong undo type, restore anchor points */
-		  Crosshair.AttachedLine.Point2.X =
-		    Crosshair.AttachedLine.Point1.X;
-		  Crosshair.AttachedLine.Point2.Y =
-		    Crosshair.AttachedLine.Point1.Y;
-		  RestoreCrosshair (True);
-		  return 0;
-		}
-	      /* move to new anchor */
-	      Crosshair.AttachedLine.Point1.X =
-		Crosshair.AttachedLine.Point2.X;
-	      Crosshair.AttachedLine.Point1.Y =
-		Crosshair.AttachedLine.Point2.Y;
-	      /* check if an intermediate point was removed */
-	      if (type & UNDO_REMOVE)
-		{
-		  /* this search should find the restored line */
-		  SearchObjectByLocation (LINE_TYPE | RATLINE_TYPE, &ptr1,
-					  &ptrtmp,
-					  &ptr3,
-					  Crosshair.AttachedLine.Point2.X,
-					  Crosshair.AttachedLine.Point2.Y, 0);
-		  ptr2 = (LineTypePtr) ptrtmp;
-		  Crosshair.AttachedLine.Point1.X =
-		    Crosshair.AttachedLine.Point2.X = ptr2->Point2.X;
-		  Crosshair.AttachedLine.Point1.Y =
-		    Crosshair.AttachedLine.Point2.Y = ptr2->Point2.Y;
-		}
-	      FitCrosshairIntoGrid (Crosshair.X, Crosshair.Y);
-	      AdjustAttachedObjects ();
-	      if (--addedLines == 0)
-		{
-		  Crosshair.AttachedLine.State = STATE_SECOND;
-		  lastLayer = CURRENT;
-		}
-	      else
-		{
-		  /* this search is guaranteed to succeed too */
-		  SearchObjectByLocation (LINE_TYPE | RATLINE_TYPE, &ptr1,
-					  &ptrtmp,
-					  &ptr3,
-					  Crosshair.AttachedLine.Point1.X,
-					  Crosshair.AttachedLine.Point1.Y, 0);
-		  ptr2 = (LineTypePtr) ptrtmp;
-		  lastLayer = (LayerTypePtr) ptr1;
-		}
-	      RestoreCrosshair (True);
-	      return 0;
-	    }
-	}
+              /* save both ends of line */
+              Crosshair.AttachedLine.Point2.X = ptr2->Point1.X;
+              Crosshair.AttachedLine.Point2.Y = ptr2->Point1.Y;
+              if ((type = Undo (True)))
+                SetChangedFlag (True);
+              /* check that the undo was of the right type */
+              if ((type & UNDO_CREATE) == 0)
+                {
+                  /* wrong undo type, restore anchor points */
+                  Crosshair.AttachedLine.Point2.X =
+                    Crosshair.AttachedLine.Point1.X;
+                  Crosshair.AttachedLine.Point2.Y =
+                    Crosshair.AttachedLine.Point1.Y;
+                  RestoreCrosshair (True);
+                  return 0;
+                }
+              /* move to new anchor */
+              Crosshair.AttachedLine.Point1.X =
+                Crosshair.AttachedLine.Point2.X;
+              Crosshair.AttachedLine.Point1.Y =
+                Crosshair.AttachedLine.Point2.Y;
+              /* check if an intermediate point was removed */
+              if (type & UNDO_REMOVE)
+                {
+                  /* this search should find the restored line */
+                  SearchObjectByLocation (LINE_TYPE | RATLINE_TYPE, &ptr1,
+                                          &ptrtmp,
+                                          &ptr3,
+                                          Crosshair.AttachedLine.Point2.X,
+                                          Crosshair.AttachedLine.Point2.Y, 0);
+                  ptr2 = (LineTypePtr) ptrtmp;
+                  Crosshair.AttachedLine.Point1.X =
+                    Crosshair.AttachedLine.Point2.X = ptr2->Point2.X;
+                  Crosshair.AttachedLine.Point1.Y =
+                    Crosshair.AttachedLine.Point2.Y = ptr2->Point2.Y;
+                }
+              FitCrosshairIntoGrid (Crosshair.X, Crosshair.Y);
+              AdjustAttachedObjects ();
+              if (--addedLines == 0)
+                {
+                  Crosshair.AttachedLine.State = STATE_SECOND;
+                  lastLayer = CURRENT;
+                }
+              else
+                {
+                  /* this search is guaranteed to succeed too */
+                  SearchObjectByLocation (LINE_TYPE | RATLINE_TYPE, &ptr1,
+                                          &ptrtmp,
+                                          &ptr3,
+                                          Crosshair.AttachedLine.Point1.X,
+                                          Crosshair.AttachedLine.Point1.Y, 0);
+                  ptr2 = (LineTypePtr) ptrtmp;
+                  lastLayer = (LayerTypePtr) ptr1;
+                }
+              RestoreCrosshair (True);
+              return 0;
+            }
+        }
       if (Settings.Mode == ARC_MODE)
-	{
-	  if (Crosshair.AttachedBox.State == STATE_SECOND)
-	    {
-	      Crosshair.AttachedBox.State = STATE_FIRST;
-	      RestoreCrosshair (True);
-	      return 0;
-	    }
-	  if (Crosshair.AttachedBox.State == STATE_THIRD)
-	    {
-	      void *ptr1, *ptr2, *ptr3;
-	      BoxTypePtr bx;
-	      /* guaranteed to succeed */
-	      SearchObjectByLocation (ARC_TYPE, &ptr1, &ptr2, &ptr3,
-				      Crosshair.AttachedBox.Point1.X,
-				      Crosshair.AttachedBox.Point1.Y, 0);
-	      bx = GetArcEnds ((ArcTypePtr) ptr2);
-	      Crosshair.AttachedBox.Point1.X =
-		Crosshair.AttachedBox.Point2.X = bx->X1;
-	      Crosshair.AttachedBox.Point1.Y =
-		Crosshair.AttachedBox.Point2.Y = bx->Y1;
-	      AdjustAttachedObjects ();
-	      if (--addedLines == 0)
-		Crosshair.AttachedBox.State = STATE_SECOND;
-	    }
-	}
+        {
+          if (Crosshair.AttachedBox.State == STATE_SECOND)
+            {
+              Crosshair.AttachedBox.State = STATE_FIRST;
+              RestoreCrosshair (True);
+              return 0;
+            }
+          if (Crosshair.AttachedBox.State == STATE_THIRD)
+            {
+              void *ptr1, *ptr2, *ptr3;
+              BoxTypePtr bx;
+              /* guaranteed to succeed */
+              SearchObjectByLocation (ARC_TYPE, &ptr1, &ptr2, &ptr3,
+                                      Crosshair.AttachedBox.Point1.X,
+                                      Crosshair.AttachedBox.Point1.Y, 0);
+              bx = GetArcEnds ((ArcTypePtr) ptr2);
+              Crosshair.AttachedBox.Point1.X =
+                Crosshair.AttachedBox.Point2.X = bx->X1;
+              Crosshair.AttachedBox.Point1.Y =
+                Crosshair.AttachedBox.Point2.Y = bx->Y1;
+              AdjustAttachedObjects ();
+              if (--addedLines == 0)
+                Crosshair.AttachedBox.State = STATE_SECOND;
+            }
+        }
       /* undo the last destructive operation */
       if (Undo (True))
-	SetChangedFlag (True);
+        SetChangedFlag (True);
     }
   else if (function)
     {
       switch (GetFunctionID (function))
-	{
-	  /* clear 'undo objects' list */
-	case F_ClearList:
-	  ClearUndoList (False);
-	  break;
-	}
+        {
+          /* clear 'undo objects' list */
+        case F_ClearList:
+          ClearUndoList (False);
+          break;
+        }
     }
   RestoreCrosshair (True);
   return 0;
@@ -5935,15 +5946,15 @@ ActionRedo (int argc, char **argv, int x, int y)
     {
       SetChangedFlag (True);
       if (Settings.Mode == LINE_MODE &&
-	  Crosshair.AttachedLine.State != STATE_FIRST)
-	{
-	  LineTypePtr line = &CURRENT->Line[CURRENT->LineN - 1];
-	  Crosshair.AttachedLine.Point1.X =
-	    Crosshair.AttachedLine.Point2.X = line->Point2.X;
-	  Crosshair.AttachedLine.Point1.Y =
-	    Crosshair.AttachedLine.Point2.Y = line->Point2.Y;
-	  addedLines++;
-	}
+          Crosshair.AttachedLine.State != STATE_FIRST)
+        {
+          LineTypePtr line = &CURRENT->Line[CURRENT->LineN - 1];
+          Crosshair.AttachedLine.Point1.X =
+            Crosshair.AttachedLine.Point2.X = line->Point2.X;
+          Crosshair.AttachedLine.Point1.Y =
+            Crosshair.AttachedLine.Point2.Y = line->Point2.Y;
+          addedLines++;
+        }
     }
   RestoreCrosshair (True);
   return 0;
@@ -5981,17 +5992,17 @@ ActionPolygon (int argc, char **argv, int x, int y)
     {
       HideCrosshair (True);
       switch (GetFunctionID (function))
-	{
-	  /* close open polygon if possible */
-	case F_Close:
-	  ClosePolygon ();
-	  break;
+        {
+          /* close open polygon if possible */
+        case F_Close:
+          ClosePolygon ();
+          break;
 
-	  /* go back to the previous point */
-	case F_PreviousPoint:
-	  GoToPreviousPoint ();
-	  break;
-	}
+          /* go back to the previous point */
+        case F_PreviousPoint:
+          GoToPreviousPoint ();
+          break;
+        }
       RestoreCrosshair (True);
     }
   return 0;
@@ -6019,13 +6030,13 @@ ActionRouteStyle (int argc, char **argv, int x, int y)
     {
       number = atoi (str);
       if (number > 0 && number <= NUM_STYLES)
-	{
-	  rts = &PCB->RouteStyle[number - 1];
-	  SetLineSize (rts->Thick);
-	  SetViaSize (rts->Diameter, True);
-	  SetViaDrillingHole (rts->Hole, True);
-	  SetKeepawayWidth (rts->Keepaway);
-	}
+        {
+          rts = &PCB->RouteStyle[number - 1];
+          SetLineSize (rts->Thick);
+          SetViaSize (rts->Diameter, True);
+          SetViaDrillingHole (rts->Hole, True);
+          SetKeepawayWidth (rts->Keepaway);
+        }
     }
   return 0;
 }
@@ -6044,16 +6055,16 @@ ActionToggleVisibility (char *str)
     {
       number = atoi (str) - 1;
       if (number >= 0 && number < max_layer + 2)
-	{
-	  if (PCB->Data->Layer[number].On == False)
-	    g_message ("ChangeGroupVisibility (number, True, False)");
-	  else if ((LayerStack[0] != number) &&
-		   (GetLayerGroupNumberByNumber (number) !=
-		    GetLayerGroupNumberByNumber (LayerStack[0])))
-	    ChangeGroupVisibility (number, False, False);
-	  gui_layer_buttons_update ();
-	  ClearAndRedrawOutput ();
-	}
+        {
+          if (PCB->Data->Layer[number].On == False)
+            g_message ("ChangeGroupVisibility (number, True, False)");
+          else if ((LayerStack[0] != number) &&
+                   (GetLayerGroupNumberByNumber (number) !=
+                    GetLayerGroupNumberByNumber (LayerStack[0])))
+            ChangeGroupVisibility (number, False, False);
+          gui_layer_buttons_update ();
+          ClearAndRedrawOutput ();
+        }
     }
 }
 #endif
@@ -6072,11 +6083,11 @@ ActionSwitchDrawingLayer (char *str)
     {
       number = atoi (str) - 1;
       if (number >= 0 && number < max_layer + 2)
-	{
-	  ChangeGroupVisibility (number, True, True);
-	  gui_layer_buttons_update ();
-	  ClearAndRedrawOutput ();
-	}
+        {
+          ChangeGroupVisibility (number, True, True);
+          gui_layer_buttons_update ();
+          ClearAndRedrawOutput ();
+        }
     }
 }
 #endif
@@ -6156,27 +6167,27 @@ ActionMoveToCurrentLayer (int argc, char **argv, int x, int y)
     {
       HideCrosshair (True);
       switch (GetFunctionID (function))
-	{
-	case F_Object:
-	  {
-	    int type;
-	    void *ptr1, *ptr2, *ptr3;
+        {
+        case F_Object:
+          {
+            int type;
+            void *ptr1, *ptr2, *ptr3;
 
-	    gui->get_coords ("Select an Object", &x, &y);
-	    if ((type =
-		 SearchScreen (x, y, MOVETOLAYER_TYPES,
-			       &ptr1, &ptr2, &ptr3)) != NO_TYPE)
-	      if (MoveObjectToLayer (type, ptr1, ptr2, ptr3, CURRENT, False))
-		SetChangedFlag (True);
-	    break;
-	  }
+            gui->get_coords ("Select an Object", &x, &y);
+            if ((type =
+                 SearchScreen (x, y, MOVETOLAYER_TYPES,
+                               &ptr1, &ptr2, &ptr3)) != NO_TYPE)
+              if (MoveObjectToLayer (type, ptr1, ptr2, ptr3, CURRENT, False))
+                SetChangedFlag (True);
+            break;
+          }
 
-	case F_SelectedObjects:
-	case F_Selected:
-	  if (MoveSelectedObjectsToLayer (CURRENT))
-	    SetChangedFlag (True);
-	  break;
-	}
+        case F_SelectedObjects:
+        case F_Selected:
+          if (MoveSelectedObjectsToLayer (CURRENT))
+            SetChangedFlag (True);
+          break;
+        }
       RestoreCrosshair (True);
     }
   return 0;
@@ -6213,7 +6224,7 @@ ActionSetSame (int argc, char **argv, int x, int y)
       Settings.Keepaway = ((LineTypePtr) ptr2)->Clearance / 2;
       layer = (LayerTypePtr) ptr1;
       if (Settings.Mode != LINE_MODE)
-	SetMode (LINE_MODE);
+        SetMode (LINE_MODE);
       RestoreCrosshair (True);
       hid_action ("RouteStyleChanged");
       break;
@@ -6224,7 +6235,7 @@ ActionSetSame (int argc, char **argv, int x, int y)
       Settings.Keepaway = ((ArcTypePtr) ptr2)->Clearance / 2;
       layer = (LayerTypePtr) ptr1;
       if (Settings.Mode != ARC_MODE)
-	SetMode (ARC_MODE);
+        SetMode (ARC_MODE);
       RestoreCrosshair (True);
       hid_action ("RouteStyleChanged");
       break;
@@ -6239,7 +6250,7 @@ ActionSetSame (int argc, char **argv, int x, int y)
       Settings.ViaDrillingHole = ((PinTypePtr) ptr2)->DrillingHole;
       Settings.Keepaway = ((PinTypePtr) ptr2)->Clearance / 2;
       if (Settings.Mode != VIA_MODE)
-	SetMode (VIA_MODE);
+        SetMode (VIA_MODE);
       RestoreCrosshair (True);
       hid_action ("RouteStyleChanged");
       break;
@@ -6389,58 +6400,58 @@ ChangeFlag (char *what, char *flag_name, int value, char *cmd_name)
     {
     case F_Object:
       {
-	int type;
-	void *ptr1, *ptr2, *ptr3;
+        int type;
+        void *ptr1, *ptr2, *ptr3;
 
-	if ((type =
-	     SearchScreen (Crosshair.X, Crosshair.Y, CHANGESIZE_TYPES,
-			   &ptr1, &ptr2, &ptr3)) != NO_TYPE)
-	  if (TEST_FLAG (LOCKFLAG, (PinTypePtr) ptr2))
-	    Message (_("Sorry, the object is locked\n"));
-	if (set_object (type, ptr1, ptr2, ptr3))
-	  SetChangedFlag (True);
-	break;
+        if ((type =
+             SearchScreen (Crosshair.X, Crosshair.Y, CHANGESIZE_TYPES,
+                           &ptr1, &ptr2, &ptr3)) != NO_TYPE)
+          if (TEST_FLAG (LOCKFLAG, (PinTypePtr) ptr2))
+            Message (_("Sorry, the object is locked\n"));
+        if (set_object (type, ptr1, ptr2, ptr3))
+          SetChangedFlag (True);
+        break;
       }
 
     case F_SelectedVias:
       if (set_selected (VIA_TYPE))
-	SetChangedFlag (True);
+        SetChangedFlag (True);
       break;
 
     case F_SelectedPins:
       if (set_selected (PIN_TYPE))
-	SetChangedFlag (True);
+        SetChangedFlag (True);
       break;
 
     case F_SelectedPads:
       if (set_selected (PAD_TYPE))
-	SetChangedFlag (True);
+        SetChangedFlag (True);
       break;
 
     case F_SelectedLines:
       if (set_selected (LINE_TYPE))
-	SetChangedFlag (True);
+        SetChangedFlag (True);
       break;
 
     case F_SelectedTexts:
       if (set_selected (TEXT_TYPE))
-	SetChangedFlag (True);
+        SetChangedFlag (True);
       break;
 
     case F_SelectedNames:
       if (set_selected (ELEMENTNAME_TYPE))
-	SetChangedFlag (True);
+        SetChangedFlag (True);
       break;
 
     case F_SelectedElements:
       if (set_selected (ELEMENT_TYPE))
-	SetChangedFlag (True);
+        SetChangedFlag (True);
       break;
 
     case F_Selected:
     case F_SelectedObjects:
       if (set_selected (CHANGESIZE_TYPES))
-	SetChangedFlag (True);
+        SetChangedFlag (True);
       break;
     }
   RestoreCrosshair (True);
@@ -6486,13 +6497,13 @@ ActionExecuteFile (int argc, char **argv, int x, int y)
 
       /* eat the trailing newline */
       while (*sp && *sp != '\r' && *sp != '\n')
-	sp++;
+        sp++;
       *sp = '\0';
 
       /* eat leading spaces and tabs */
       sp = line;
       while (*sp && (*sp == ' ' || *sp == '\t'))
-	sp++;
+        sp++;
 
       /* 
        * if we have anything left and its not a comment line
@@ -6500,10 +6511,10 @@ ActionExecuteFile (int argc, char **argv, int x, int y)
        */
 
       if (*sp && *sp != '#')
-	{
-	  Message ("%s : line %-3d : \"%s\"\n", fname, n, sp);
-	  hid_parse_actions (sp, 0);
-	}
+        {
+          Message ("%s : line %-3d : \"%s\"\n", fname, n, sp);
+          hid_parse_actions (sp, 0);
+        }
     }
 
   fclose (fp);
