@@ -540,11 +540,11 @@ extern int mem_any_set (unsigned char *, int);
 
 #define GROUP_LOOP(data, group) do { 	\
 	Cardinal entry; \
-        for (entry = 0; entry < PCB->LayerGroups.Number[(group)]; entry++) \
+        for (entry = 0; entry < ((PCBTypePtr)(data->pcb))->LayerGroups.Number[(group)]; entry++) \
         { \
 		LayerTypePtr layer;		\
 		Cardinal number; 		\
-		number = PCB->LayerGroups.Entries[(group)][entry]; \
+		number = ((PCBTypePtr)(data->pcb))->LayerGroups.Entries[(group)][entry]; \
 		if (number >= max_layer)	\
 		  continue;			\
 		layer = &data->Layer[number];
