@@ -2106,9 +2106,9 @@ PolygonToRat_callback (const BoxType * b, void *cl)
   PolygonTypePtr polygon = (PolygonTypePtr) b;
   struct rat_info *i = (struct rat_info *) cl;
 
-  if (!TEST_FLAG (TheFlag, polygon) &&
-      (i->Point->X == polygon->BoundingBox.X1 + 1) &&
-      (i->Point->Y == polygon->BoundingBox.Y1 + 1))
+  if (!TEST_FLAG (TheFlag, polygon) && polygon->Clipped &&
+      (i->Point->X == polygon->Clipped->contours->head.point[0]) &&
+      (i->Point->Y == polygon->Clipped->contours->head.point[1]))
     {
       if (ADD_POLYGON_TO_LIST (i->layer, polygon))
 	longjmp (i->env, 1);
@@ -3642,7 +3642,7 @@ RestoreFindFlag (void)
 
 static int
 drc_callback (DataTypePtr data, LayerTypePtr layer, PolygonTypePtr polygon,
-             int type, void *ptr1, void *ptr2)
+	      int type, void *ptr1, void *ptr2)
 {
   LineTypePtr line = (LineTypePtr) ptr2;
   ArcTypePtr arc = (ArcTypePtr) ptr2;
@@ -3792,8 +3792,8 @@ DRCAll (void)
     {
       COPPERLINE_LOOP (PCB->Data);
       {
-        /* check line clearances in polygons */
-        PlowsPolygon (PCB->Data, LINE_TYPE, layer, line, drc_callback);
+	/* check line clearances in polygons */
+	PlowsPolygon (PCB->Data, LINE_TYPE, layer, line, drc_callback);
 	if (IsBad)
 	  break;
 	if (line->Thickness < PCB->minWid)
@@ -3820,7 +3820,7 @@ DRCAll (void)
     {
       COPPERARC_LOOP (PCB->Data);
       {
-        PlowsPolygon (PCB->Data, ARC_TYPE, layer, arc, drc_callback);
+	PlowsPolygon (PCB->Data, ARC_TYPE, layer, arc, drc_callback);
 	if (IsBad)
 	  break;
 	if (arc->Thickness < PCB->minWid)
@@ -3847,7 +3847,7 @@ DRCAll (void)
     {
       ALLPIN_LOOP (PCB->Data);
       {
-        PlowsPolygon (PCB->Data, PIN_TYPE, element, pin, drc_callback);
+	PlowsPolygon (PCB->Data, PIN_TYPE, element, pin, drc_callback);
 	if (IsBad)
 	  break;
 	if (!TEST_FLAG (HOLEFLAG, pin) &&
@@ -3911,8 +3911,8 @@ DRCAll (void)
   if (!IsBad)
     {
       ALLPAD_LOOP (PCB->Data);
-      { 
-        PlowsPolygon (PCB->Data, PAD_TYPE, element, pad, drc_callback);
+      {
+	PlowsPolygon (PCB->Data, PAD_TYPE, element, pad, drc_callback);
 	if (IsBad)
 	  break;
 	if (pad->Thickness < PCB->minWid)
@@ -3939,7 +3939,7 @@ DRCAll (void)
     {
       VIA_LOOP (PCB->Data);
       {
-        PlowsPolygon (PCB->Data, VIA_TYPE, via, via, drc_callback);
+	PlowsPolygon (PCB->Data, VIA_TYPE, via, via, drc_callback);
 	if (IsBad)
 	  break;
 	if (!TEST_FLAG (HOLEFLAG, via) &&
@@ -4104,8 +4104,12 @@ GotoError (void)
     case POLYGON_TYPE:
       {
 	PolygonTypePtr polygon = (PolygonTypePtr) thing_ptr3;
-	X = (polygon->BoundingBox.X1 + polygon->BoundingBox.X2) / 2;
-	Y = (polygon->BoundingBox.Y1 + polygon->BoundingBox.Y2) / 2;
+	X =
+	  (polygon->Clipped->contours->xmin +
+	   polygon->Clipped->contours->xmax) / 2;
+	Y =
+	  (polygon->Clipped->contours->ymin +
+	   polygon->Clipped->contours->ymax) / 2;
 	break;
       }
     case PIN_TYPE:
