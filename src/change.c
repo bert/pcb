@@ -350,8 +350,8 @@ static ObjectFunctionType ClrOctagonFunctions = {
 static void *
 ChangeViaThermal (PinTypePtr Via)
 {
-  RestoreToPolygon (PCB->Data, VIA_TYPE, CURRENT, Via);
   AddObjectToClearPolyUndoList (VIA_TYPE, Via, Via, Via, False);
+  RestoreToPolygon (PCB->Data, VIA_TYPE, CURRENT, Via);
   AddObjectToFlagUndoList (VIA_TYPE, Via, Via, Via);
   if (!Delta)			/* remove the thermals */
     CLEAR_THERM (INDEXOFCURRENT, Via);
@@ -370,15 +370,15 @@ ChangeViaThermal (PinTypePtr Via)
 static void *
 ChangePinThermal (ElementTypePtr element, PinTypePtr Pin)
 {
-  RestoreToPolygon (PCB->Data, VIA_TYPE, CURRENT, Pin);
   AddObjectToClearPolyUndoList (PIN_TYPE, element, Pin, Pin, False);
+  RestoreToPolygon (PCB->Data, VIA_TYPE, CURRENT, Pin);
   AddObjectToFlagUndoList (PIN_TYPE, element, Pin, Pin);
   if (!Delta)			/* remove the thermals */
     CLEAR_THERM (INDEXOFCURRENT, Pin);
   else
     ASSIGN_THERM (INDEXOFCURRENT, Delta, Pin);
-  ClearFromPolygon (PCB->Data, VIA_TYPE, CURRENT, Pin);
   AddObjectToClearPolyUndoList (PIN_TYPE, element, Pin, Pin, True);
+  ClearFromPolygon (PCB->Data, VIA_TYPE, CURRENT, Pin);
   DrawPin (Pin, 0);
   return Pin;
 }
@@ -1068,10 +1068,18 @@ ChangeLineJoin (LayerTypePtr Layer, LineTypePtr Line)
   if (TEST_FLAG (LOCKFLAG, Line))
     return (NULL);
   EraseLine (Line);
-  AddObjectToFlagUndoList (LINE_TYPE, Layer, Line, Line);
+  if (TEST_FLAG(CLEARLINEFLAG, Line))
+  {
+  AddObjectToClearPolyUndoList (LINE_TYPE, Layer, Line, Line, False);
   RestoreToPolygon (PCB->Data, LINE_TYPE, Layer, Line);
+  }
+  AddObjectToFlagUndoList (LINE_TYPE, Layer, Line, Line);
   TOGGLE_FLAG (CLEARLINEFLAG, Line);
+  if (TEST_FLAG(CLEARLINEFLAG, Line))
+  {
+  AddObjectToClearPolyUndoList (LINE_TYPE, Layer, Line, Line, True);
   ClearFromPolygon (PCB->Data, LINE_TYPE, Layer, Line);
+  }
   DrawLine (Layer, Line, 0);
   return (Line);
 }
@@ -1082,14 +1090,9 @@ ChangeLineJoin (LayerTypePtr Layer, LineTypePtr Line)
 static void *
 SetLineJoin (LayerTypePtr Layer, LineTypePtr Line)
 {
-  if (TEST_FLAG (LOCKFLAG, Line))
+  if (TEST_FLAG (LOCKFLAG, Line) || TEST_FLAG (CLEARLINEFLAG, Line))
     return (NULL);
-  EraseLine (Line);
-  AddObjectToFlagUndoList (LINE_TYPE, Layer, Line, Line);
-  SET_FLAG (CLEARLINEFLAG, Line);
-  ClearFromPolygon (PCB->Data, LINE_TYPE, Layer, Line);
-  DrawLine (Layer, Line, 0);
-  return (Line);
+  return ChangeLineJoin (Layer, Line);
 }
 
 /* ---------------------------------------------------------------------------
@@ -1098,14 +1101,9 @@ SetLineJoin (LayerTypePtr Layer, LineTypePtr Line)
 static void *
 ClrLineJoin (LayerTypePtr Layer, LineTypePtr Line)
 {
-  if (TEST_FLAG (LOCKFLAG, Line))
+  if (TEST_FLAG (LOCKFLAG, Line) || !TEST_FLAG (CLEARLINEFLAG, Line))
     return (NULL);
-  EraseLine (Line);
-  AddObjectToFlagUndoList (LINE_TYPE, Layer, Line, Line);
-  RestoreToPolygon (PCB->Data, LINE_TYPE, Layer, Line);
-  CLEAR_FLAG (CLEARLINEFLAG, Line);
-  DrawLine (Layer, Line, 0);
-  return (Line);
+  return ChangeLineJoin (Layer, Line);
 }
 
 /* ---------------------------------------------------------------------------
@@ -1118,11 +1116,17 @@ ChangeArcJoin (LayerTypePtr Layer, ArcTypePtr Arc)
     return (NULL);
   EraseArc (Arc);
   if (TEST_FLAG (CLEARLINEFLAG, Arc))
+  {
     RestoreToPolygon (PCB->Data, ARC_TYPE, Layer, Arc);
+    AddObjectToClearPolyUndoList (ARC_TYPE, Layer, Arc, Arc, False);
+    }
   AddObjectToFlagUndoList (ARC_TYPE, Layer, Arc, Arc);
   TOGGLE_FLAG (CLEARLINEFLAG, Arc);
   if (TEST_FLAG (CLEARLINEFLAG, Arc))
+  {
     ClearFromPolygon (PCB->Data, ARC_TYPE, Layer, Arc);
+  AddObjectToClearPolyUndoList (ARC_TYPE, Layer, Arc, Arc, True);
+  }
   DrawArc (Layer, Arc, 0);
   return (Arc);
 }
@@ -1133,14 +1137,9 @@ ChangeArcJoin (LayerTypePtr Layer, ArcTypePtr Arc)
 static void *
 SetArcJoin (LayerTypePtr Layer, ArcTypePtr Arc)
 {
-  if (TEST_FLAG (LOCKFLAG, Arc))
+  if (TEST_FLAG (LOCKFLAG, Arc) || TEST_FLAG (CLEARLINEFLAG, Arc))
     return (NULL);
-  EraseArc (Arc);
-  AddObjectToFlagUndoList (ARC_TYPE, Layer, Arc, Arc);
-  SET_FLAG (CLEARLINEFLAG, Arc);
-  ClearFromPolygon (PCB->Data, ARC_TYPE, Layer, Arc);
-  DrawArc (Layer, Arc, 0);
-  return (Arc);
+  return ChangeArcJoin (Layer, Arc);
 }
 
 /* ---------------------------------------------------------------------------
@@ -1149,14 +1148,9 @@ SetArcJoin (LayerTypePtr Layer, ArcTypePtr Arc)
 static void *
 ClrArcJoin (LayerTypePtr Layer, ArcTypePtr Arc)
 {
-  if (TEST_FLAG (LOCKFLAG, Arc))
+  if (TEST_FLAG (LOCKFLAG, Arc) || !TEST_FLAG (CLEARLINEFLAG, Arc))
     return (NULL);
-  EraseArc (Arc);
-  RestoreToPolygon (PCB->Data, ARC_TYPE, Layer, Arc);
-  AddObjectToFlagUndoList (ARC_TYPE, Layer, Arc, Arc);
-  CLEAR_FLAG (CLEARLINEFLAG, Arc);
-  DrawArc (Layer, Arc, 0);
-  return (Arc);
+  return ChangeArcJoin (Layer, Arc);
 }
 
 /* ---------------------------------------------------------------------------
@@ -1294,9 +1288,11 @@ ChangePadSquare (ElementTypePtr Element, PadTypePtr Pad)
   if (TEST_FLAG (LOCKFLAG, Pad))
     return (NULL);
   ErasePad (Pad);
+  AddObjectToClearPolyUndoList (PAD_TYPE, Element, Pad, Pad, False);
   RestoreToPolygon (PCB->Data, PAD_TYPE, Element, Pad);
   AddObjectToFlagUndoList (PAD_TYPE, Element, Pad, Pad);
   TOGGLE_FLAG (SQUAREFLAG, Pad);
+  AddObjectToClearPolyUndoList (PAD_TYPE, Element, Pad, Pad, True);
   ClearFromPolygon (PCB->Data, PAD_TYPE, Element, Pad);
   DrawPad (Pad, 0);
   return (Pad);
@@ -1339,9 +1335,11 @@ ChangePinSquare (ElementTypePtr Element, PinTypePtr Pin)
   if (TEST_FLAG (LOCKFLAG, Pin))
     return (NULL);
   ErasePin (Pin);
-  AddObjectToFlagUndoList (PIN_TYPE, Element, Pin, Pin);
+  AddObjectToClearPolyUndoList (PIN_TYPE, Element, Pin, Pin, False);
   RestoreToPolygon (PCB->Data, PIN_TYPE, Element, Pin);
+  AddObjectToFlagUndoList (PIN_TYPE, Element, Pin, Pin);
   TOGGLE_FLAG (SQUAREFLAG, Pin);
+  AddObjectToClearPolyUndoList (PIN_TYPE, Element, Pin, Pin, True);
   ClearFromPolygon (PCB->Data, PIN_TYPE, Element, Pin);
   DrawPin (Pin, 0);
   return (Pin);
@@ -1380,9 +1378,11 @@ ChangeViaOctagon (PinTypePtr Via)
   if (TEST_FLAG (LOCKFLAG, Via))
     return (NULL);
   EraseVia (Via);
+  AddObjectToClearPolyUndoList (VIA_TYPE, Via, Via, Via, False);
   RestoreToPolygon (PCB->Data, VIA_TYPE, Via, Via);
   AddObjectToFlagUndoList (VIA_TYPE, Via, Via, Via);
   TOGGLE_FLAG (OCTAGONFLAG, Via);
+  AddObjectToClearPolyUndoList (VIA_TYPE, Via, Via, Via, True);
   ClearFromPolygon (PCB->Data, VIA_TYPE, Via, Via);
   DrawVia (Via, 0);
   return (Via);
@@ -1421,9 +1421,11 @@ ChangePinOctagon (ElementTypePtr Element, PinTypePtr Pin)
   if (TEST_FLAG (LOCKFLAG, Pin))
     return (NULL);
   ErasePin (Pin);
-  AddObjectToFlagUndoList (PIN_TYPE, Element, Pin, Pin);
+  AddObjectToClearPolyUndoList (PIN_TYPE, Element, Pin, Pin, False);
   RestoreToPolygon (PCB->Data, PIN_TYPE, Element, Pin);
+  AddObjectToFlagUndoList (PIN_TYPE, Element, Pin, Pin);
   TOGGLE_FLAG (OCTAGONFLAG, Pin);
+  AddObjectToClearPolyUndoList (PIN_TYPE, Element, Pin, Pin, True);
   ClearFromPolygon (PCB->Data, PIN_TYPE, Element, Pin);
   DrawPin (Pin, 0);
   return (Pin);
@@ -1466,6 +1468,7 @@ ChangeHole (PinTypePtr Via)
   TOGGLE_FLAG (HOLEFLAG, Via);
   if (TEST_FLAG (HOLEFLAG, Via))
     {
+      RestoreToPolygon (PCB->Data, VIA_TYPE, Via, Via);
       AddObjectToSizeUndoList (VIA_TYPE, Via, Via, Via);
       Via->Thickness = Via->Mask = Via->DrillingHole;
     }
@@ -1487,6 +1490,7 @@ ChangePolyClear (LayerTypePtr Layer, PolygonTypePtr Polygon)
 {
   if (TEST_FLAG (LOCKFLAG, Polygon))
     return (NULL);
+  AddObjectToClearPolyUndoList (POLYGON_TYPE, Layer, Polygon, Polygon, True);
   AddObjectToFlagUndoList (POLYGON_TYPE, Layer, Polygon, Polygon);
   TOGGLE_FLAG (CLEARPOLYFLAG, Polygon);
   InitClip (PCB->Data, Layer, Polygon);
@@ -1850,11 +1854,6 @@ ChangeObjectClearSize (int Type, void *Ptr1, void *Ptr2, void *Ptr3,
  * changes the thermal of the passed object
  * Returns True if anything is changed
  *
- * therm_type = 0 means no thermsl
- *            = 1 means 45 degree lines
- *            = 2 means horizontal and vertical lines
- *            = 3 means 4 lines
- *            = 4 means solid connection to plane
  */
 Boolean
 ChangeObjectThermal (int Type, void *Ptr1, void *Ptr2, void *Ptr3,

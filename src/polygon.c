@@ -95,6 +95,7 @@ biggest (POLYAREA * p)
   n = p;
   do
     {
+#if 0
       if (n->contours->area < PCB->IsleArea)
         {
 	  n->b->f = n->f;
@@ -109,6 +110,7 @@ biggest (POLYAREA * p)
 	      return NULL;
 	    }
 	 }
+#endif
       if (n->contours->area > big)
         {
           top = n;
@@ -1210,15 +1212,18 @@ PlowsPolygon (DataType * Data, int type, void *ptr1, void *ptr2,
 void
 RestoreToPolygon (DataType * Data, int type, void *ptr1, void *ptr2)
 {
-  PlowsPolygon (Data, type, ptr1, ptr2, add_plow);
+  if (type == POLYGON_TYPE)
+    InitClip (PCB->Data, (LayerTypePtr) ptr1, (PolygonTypePtr) ptr2);
+  else
+    PlowsPolygon (Data, type, ptr1, ptr2, add_plow);
 }
 
 void
 ClearFromPolygon (DataType * Data, int type, void *ptr1, void *ptr2)
 {
-  if (type != POLYGON_TYPE)
-    // InitClip (PCB->Data, (LayerTypePtr) ptr1, (PolygonTypePtr) ptr2);
-    //else
+  if (type == POLYGON_TYPE)
+    InitClip (PCB->Data, (LayerTypePtr) ptr1, (PolygonTypePtr) ptr2);
+  else
     PlowsPolygon (Data, type, ptr1, ptr2, subtract_plow);
 }
 
