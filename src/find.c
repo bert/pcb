@@ -2392,11 +2392,11 @@ LOCtoPolyRat_callback (const BoxType * b, void *cl)
 
   if (!TEST_FLAG (TheFlag, rat))
     {
-      if ((rat->Point1.X == (i->polygon.BoundingBox.X1 + 1) &&
-	   rat->Point1.Y == (i->polygon.BoundingBox.Y1 + 1) &&
+      if ((rat->Point1.X == (i->polygon.Clipped->contours->head.point[0]) &&
+	   rat->Point1.Y == (i->polygon.Clipped->contours->head.point[1]) &&
 	   rat->group1 == i->layer) ||
-	  (rat->Point2.X == (i->polygon.BoundingBox.X1 + 1) &&
-	   rat->Point2.Y == (i->polygon.BoundingBox.Y1 + 1) &&
+	  (rat->Point2.X == (i->polygon.Clipped->contours->head.point[0]) &&
+	   rat->Point2.Y == (i->polygon.Clipped->contours->head.point[1]) &&
 	   rat->group2 == i->layer))
 	if (ADD_RAT_TO_LIST (rat))
 	  longjmp (i->env, 1);
@@ -2415,6 +2415,8 @@ LookupLOConnectionsToPolygon (PolygonTypePtr Polygon, Cardinal LayerGroup)
   Cardinal entry;
   struct lo_info info;
 
+  if (!Polygon->Clipped)
+    return False;
   info.polygon = *Polygon;
   EXPAND_BOUNDS (&info.polygon);
   info.layer = LayerGroup;
@@ -3516,6 +3518,8 @@ DumpList (void)
 static Boolean
 DRCFind (int What, void *ptr1, void *ptr2, void *ptr3)
 {
+  if (PCB->Shrink != 0)
+  {
   Bloat = -PCB->Shrink;
   fBloat = (float) -PCB->Shrink;
   TheFlag = DRCFLAG | SELECTEDFLAG;
@@ -3562,9 +3566,11 @@ DRCFind (int What, void *ptr1, void *ptr2, void *ptr3)
       Undo (True);
     }
   DumpList ();
+  }
   /* now check the bloated condition */
   drc = False;
   ResetConnections (False);
+  TheFlag = FOUNDFLAG;
   ListStart (What, ptr1, ptr2, ptr3);
   Bloat = PCB->Bloat;
   fBloat = (float) PCB->Bloat;
