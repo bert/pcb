@@ -440,8 +440,10 @@ ChangeVia2ndSize (PinTypePtr Via)
       Via->DrillingHole = value;
       if (TEST_FLAG (HOLEFLAG, Via))
 	{
+	  RestoreToPolygon (PCB->Data, VIA_TYPE, Via, Via);
 	  AddObjectToSizeUndoList (VIA_TYPE, Via, Via, Via);
 	  Via->Thickness = value;
+	  ClearFromPolygon (PCB->Data, VIA_TYPE, Via, Via);
 	}
       DrawVia (Via, 0);
       return (Via);
@@ -628,8 +630,10 @@ ChangeElement2ndSize (ElementTypePtr Element)
 	DrawPin (pin, 0);
 	if (TEST_FLAG (HOLEFLAG, pin))
 	  {
+	    RestoreToPolygon (PCB->Data, PIN_TYPE, Element, pin);
 	    AddObjectToSizeUndoList (PIN_TYPE, Element, pin, pin);
 	    pin->Thickness = value;
+	    ClearFromPolygon (PCB->Data, PIN_TYPE, Element, pin);
 	  }
       }
   }
@@ -663,8 +667,10 @@ ChangePin2ndSize (ElementTypePtr Element, PinTypePtr Pin)
       DrawPin (Pin, 0);
       if (TEST_FLAG (HOLEFLAG, Pin))
 	{
+	  RestoreToPolygon (PCB->Data, PIN_TYPE, Element, Pin);
 	  AddObjectToSizeUndoList (PIN_TYPE, Element, Pin, Pin);
 	  Pin->Thickness = value;
+	  ClearFromPolygon (PCB->Data, PIN_TYPE, Element, Pin);
 	}
       return (Pin);
     }
@@ -1471,6 +1477,7 @@ ChangeHole (PinTypePtr Via)
       RestoreToPolygon (PCB->Data, VIA_TYPE, Via, Via);
       AddObjectToSizeUndoList (VIA_TYPE, Via, Via, Via);
       Via->Thickness = Via->Mask = Via->DrillingHole;
+      ClearFromPolygon (PCB->Data, VIA_TYPE, Via, Via);
     }
   else
     {
