@@ -670,6 +670,9 @@ ConvertBufferToElement (BufferTypePtr Buffer)
   Cardinal pin_n = 1;
   Boolean hasParts = False;
 
+  if (Buffer->Data->pcb == 0)
+    Buffer->Data->pcb = PCB;
+
   Element = CreateNewElement (PCB->Data, NULL, &PCB->Font, NoFlags (),
 			      NULL, NULL, NULL, PASTEBUFFER->X,
 			      PASTEBUFFER->Y, 0, 100,
