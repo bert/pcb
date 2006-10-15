@@ -339,6 +339,8 @@ layer_button_callback (Widget w, int layer, XmPushButtonCallbackStruct * pbcs)
     {
     case LB_SILK:
       set = PCB->ElementOn = !PCB->ElementOn;
+      PCB->Data->SILKLAYER.On = set;
+      PCB->Data->BACKSILKLAYER.On = set;
       break;
     case LB_RATS:
       set = PCB->RatOn = !PCB->RatOn;

@@ -2483,6 +2483,8 @@ layer_enable_button_cb (GtkWidget * widget, gpointer data)
     {
     case LAYER_BUTTON_SILK:
       PCB->ElementOn = !PCB->ElementOn;
+      PCB->Data->SILKLAYER.On = PCB->ElementOn;
+      PCB->Data->BACKSILKLAYER.On = PCB->ElementOn;
       redraw = 1;
       break;
 
