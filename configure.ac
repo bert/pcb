@@ -261,6 +261,7 @@ AM_CONDITIONAL(MISSING_PS2PDF, test x$PS2PDF = xnotfound)
 
 dnl Checks for libraries.
 AC_CHECK_LIB(m, sqrt)
+AC_CHECK_LIB(dl, dlopen)
 AC_CHECK_LIB(xnet, gethostbyname)
 AC_CHECK_LIB(fl, yywrap)
 AC_CHECK_FUNCS(strerror)
