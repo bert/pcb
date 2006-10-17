@@ -63,9 +63,8 @@ RCSID ("$Id$");
 
 
 #define SLOW_ASSERTS
-/* All rectangles are closed. i.e. they contain both corner points.
- * Often the auto router will "open" the rectangle on an edge
- * using the search callback functions.
+/* All rectangles are closed on the bottom left and open on the
+ * top right. i.e. they contain one corner point, but not the other.
  */
 
 /* the number of entries in each rtree node
@@ -602,8 +601,10 @@ r_search (rtree_t * rtree, const BoxType * query,
     return 0;
   if (query)
     {
+#if DEBUG
       if (query->X2 < query->X1 || query->Y2 < query->Y1)
 	return 0;
+#endif
       return __r_search (rtree->root, query, check_region, found_rectangle,
 			 cl);
     }

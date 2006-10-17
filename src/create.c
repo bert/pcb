@@ -81,7 +81,7 @@ CreateNewBuffer (void)
 {
   DataTypePtr data;
   data = (DataTypePtr) MyCalloc (1, sizeof (DataType), "CreateNewBuffer()");
-  data->pcb = (void *)PCB;
+  data->pcb = (void *) PCB;
   return data;
 }
 
@@ -137,7 +137,7 @@ CreateNewPCB (Boolean SetDefaultNames)
   /* allocate memory, switch all layers on and copy resources */
   ptr = MyCalloc (1, sizeof (PCBType), "CreateNewPCB()");
   ptr->Data = CreateNewBuffer ();
-  ptr->Data->pcb = (void *)ptr;
+  ptr->Data->pcb = (void *) ptr;
 
   ptr->ThermStyle = 4;
   ptr->IsleArea = 2.e8;
@@ -543,7 +543,6 @@ CreateNewPolygonFromRectangle (LayerTypePtr Layer,
   CreateNewPointInPolygon (polygon, X2, Y2);
   CreateNewPointInPolygon (polygon, X1, Y2);
   SetPolygonBoundingBox (polygon);
-  InitClip (PCB->Data, Layer, polygon);
   if (!Layer->polygon_tree)
     Layer->polygon_tree = r_create_tree (NULL, 0, 0);
   r_insert_entry (Layer->polygon_tree, (BoxTypePtr) polygon, 0);
@@ -965,6 +964,6 @@ CreateNewAttribute (AttributeListTypePtr list, char *name, char *value)
     }
   list->List[list->Number].name = MyStrdup (name, "CreateNewAttribute");
   list->List[list->Number].value = MyStrdup (value, "CreateNewAttribute");
-  list->Number ++;
-  return & list->List[list->Number-1];
+  list->Number++;
+  return &list->List[list->Number - 1];
 }
