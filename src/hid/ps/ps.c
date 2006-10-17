@@ -48,6 +48,7 @@ static int print_layer[MAX_LAYER];
 static double fade_ratio = 0.4;
 static double antifade_ratio = 0.6;
 static int multi_file = 0;
+static double media_width, media_height, ps_width, ps_height;
 
 static const char *medias[] = { "A3", "A4", "A5",
   "Letter", "11x17", "Ledger",
@@ -168,6 +169,7 @@ static int incolor;
 static int doing_toc;
 static int bloat;
 static int invert;
+static int media;
 
 static double fill_zoom;
 
@@ -215,6 +217,11 @@ ps_hid_export_to_file (FILE * the_file, HID_Attr_Val * options)
   bloat = options[HA_psbloat].int_value;
   invert = options[HA_psinvert].int_value;
   fade_ratio = options[HA_psfade].real_value;
+  media = options[HA_media].int_value;
+  media_width = media_data[media].Width / 1e5;
+  media_height = media_data[media].Height / 1e5;
+  ps_width = media_width - 2.0*media_data[media].MarginX / 1e5;
+  ps_height = media_height - 2.0*media_data[media].MarginY / 1e5;
 
   if (fade_ratio < 0)
     fade_ratio = 0;
@@ -227,13 +234,13 @@ ps_hid_export_to_file (FILE * the_file, HID_Attr_Val * options)
       double zx, zy;
       if (PCB->MaxWidth > PCB->MaxHeight)
 	{
-	  zx = 10.0 / PCB->MaxWidth;
-	  zy = 7.5 / PCB->MaxHeight;
+	  zx = ps_height / PCB->MaxWidth;
+	  zy = ps_width / PCB->MaxHeight;
 	}
       else
 	{
-	  zx = 10.0 / PCB->MaxHeight;
-	  zy = 7.5 / PCB->MaxWidth;
+	  zx = ps_height / PCB->MaxHeight;
+	  zy = ps_width / PCB->MaxWidth;
 	}
       if (zx < zy)
 	fill_zoom = zx;
@@ -426,13 +433,13 @@ ps_set_layer (const char *name, int group)
 	  ps_start_file (f);
 	}
       fprintf (f, "%%%%Page: %d\n", pagecount);
-      fprintf (f, "72 72 scale 4.25 5.5 translate\n");
+      fprintf (f, "72 72 scale %g %g translate\n", 0.5*media_width, 0.5*media_height);
 
-      boffset = 5.5;
+      boffset = 0.5*media_height;
       if (PCB->MaxWidth > PCB->MaxHeight)
 	{
 	  fprintf (f, "90 rotate\n");
-	  boffset = 4.25;
+	  boffset = 0.5*media_width;
 	}
       if (mirror
 	  || (automirror
