@@ -134,9 +134,14 @@ of the documentation.  For this to work, you must have perl installed.
 	fi
 fi
 
+AC_MSG_CHECKING([If the compiler accepts -rdynamic])
 old_LDFLAGS="$LDFLAGS"
 LDFLAGS="$LDFLAGS -rdynamic"
-AC_LINK_IFELSE([int main(){}],[],[LDFLAGS="$old_LDFLAGS"])
+AC_LINK_IFELSE([int main(){}],
+	[AC_MSG_RESULT([yes])],
+	[LDFLAGS="$old_LDFLAGS"
+	AC_MSG_RESULT([no])
+	])
 
 # ------------- HID config -------------------
 
