@@ -4371,6 +4371,10 @@ of the documentation.  For this to work, you must have perl installed.
 	fi
 fi
 
+# FIXME:  for now, only try to add -rdynamic if we're using gcc.  We really
+# need to figure out what the correct test is here.  In the mean time, this
+# should let things build with SunPRO again.
+if test "x$GCC" = "xyes"; then
 echo "$as_me:$LINENO: checking If the compiler accepts -rdynamic" >&5
 echo $ECHO_N "checking If the compiler accepts -rdynamic... $ECHO_C" >&6
 old_LDFLAGS="$LDFLAGS"
@@ -4413,6 +4417,7 @@ echo "${ECHO_T}no" >&6
 fi
 rm -f conftest.err conftest.$ac_objext \
       conftest$ac_exeext conftest.$ac_ext
+fi
 
 # ------------- HID config -------------------
 
