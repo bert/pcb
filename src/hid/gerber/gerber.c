@@ -519,8 +519,11 @@ gerber_set_layer (const char *name, int group)
 
       /* Create a portable timestamp. */
       currenttime = time (NULL);
-      strftime (utcTime, sizeof utcTime, "%c UTC", gmtime (&currenttime));
-
+      {
+	/* avoid gcc complaints */
+	const char *fmt = "%c UTC";
+	strftime (utcTime, sizeof utcTime, fmt, gmtime (&currenttime));
+      }
       /* Print a cute file header at the beginning of each file. */
       fprintf (f, "G04 Title: %s, %s *\015\012", UNKNOWN (PCB->Name),
 	       UNKNOWN (name));

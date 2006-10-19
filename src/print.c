@@ -287,7 +287,11 @@ PrintFab (void)
 	   AllDrills->DrillN, total_drills);
   /* Create a portable timestamp. */
   currenttime = time (NULL);
-  strftime (utcTime, sizeof utcTime, "%c UTC", gmtime (&currenttime));
+  {
+    /* avoid gcc complaints */
+    const char *fmt = "%c UTC";
+    strftime (utcTime, sizeof utcTime, fmt, gmtime (&currenttime));
+  }
   yoff = -TEXT_LINE;
   for (i = 0; i < max_layer; i++)
     {

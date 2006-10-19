@@ -248,8 +248,11 @@ PrintBOM (void)
 
   /* Create a portable timestamp. */
   currenttime = time (NULL);
-  strftime (utcTime, sizeof (utcTime), "%c UTC", gmtime (&currenttime));
-
+  {
+    /* avoid gcc complaints */
+    const char *fmt = "%c UTC";
+    strftime (utcTime, sizeof (utcTime), fmt, gmtime (&currenttime));
+  }
   fprintf (fp, "# $Id");
   fprintf (fp, "$\n");
   fprintf (fp, "# PcbXY Version 1.0\n");
