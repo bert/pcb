@@ -222,7 +222,7 @@ style_value (int i)
   stdarg (XmNcolumns, 8);
   w = XmCreateTextField (value_texts, value_names[i], args, n);
   XtAddCallback (w, XmNvalueChangedCallback,
-		 (XtCallbackProc) style_value_cb, (XtPointer) i);
+		 (XtCallbackProc) style_value_cb, (XtPointer) (size_t) i);
   XtManageChild (w);
 
   n = 0;
@@ -235,7 +235,7 @@ style_value (int i)
   stdarg (XmNlabelString, USTR);
   units_pb[i] = XmCreatePushButton (units_form, value_names[i], args, n);
   XtAddCallback (units_pb[i], XmNactivateCallback,
-		 (XtCallbackProc) units_cb, (XtPointer) i);
+		 (XtCallbackProc) units_cb, (XtPointer) (size_t) i);
   XtManageChild (units_pb[i]);
 
   return w;
@@ -307,7 +307,7 @@ style_button (int i)
   set = XmCreatePushButton (style_dialog, "style", args, n);
   XtManageChild (set);
   XtAddCallback (set, XmNactivateCallback,
-		 (XtCallbackProc) style_name_cb, (XtPointer) i);
+		 (XtCallbackProc) style_name_cb, (XtPointer) (size_t) i);
 
   n = 0;
   stdarg (XmNtopAttachment, XmATTACH_WIDGET);
@@ -318,7 +318,7 @@ style_button (int i)
   set = XmCreatePushButton (style_dialog, "style", args, n);
   XtManageChild (set);
   XtAddCallback (set, XmNactivateCallback,
-		 (XtCallbackProc) style_set_cb, (XtPointer) i);
+		 (XtCallbackProc) style_set_cb, (XtPointer) (size_t) i);
 
   n = 0;
   stdarg (XmNtopAttachment, XmATTACH_WIDGET);
@@ -332,7 +332,7 @@ style_button (int i)
   pb = XmCreateToggleButton (style_dialog, "style", args, n);
   XtManageChild (pb);
   XtAddCallback (pb, XmNvalueChangedCallback,
-		 (XtCallbackProc) style_selected, (XtPointer) i);
+		 (XtCallbackProc) style_selected, (XtPointer) (size_t) i);
   return pb;
 }
 
@@ -461,7 +461,7 @@ lesstif_insert_style_buttons (Widget menu)
       btn = XmCreateToggleButton (menu, "style", args, n);
       XtManageChild (btn);
       XtAddCallback (btn, XmNvalueChangedCallback,
-		     (XtCallbackProc) style_selected, (XtPointer) i);
+		     (XtCallbackProc) style_selected, (XtPointer) (size_t) i);
       sb->w[i] = btn;
     }
   update_style_buttons ();

@@ -43,7 +43,7 @@ static int ok;
 static void
 dialog_callback (Widget w, void *v, void *cbs)
 {
-  ok = (int) v;
+  ok = (int) (size_t) v;
 }
 
 static int
@@ -955,7 +955,7 @@ Export (int argc, char **argv, int x, int y)
 	      XtManageChild (w);
 	      XtAddCallback (w, XmNactivateCallback,
 			     (XtCallbackProc) dialog_callback,
-			     (XtPointer) (i + 1));
+			     (XtPointer) ((size_t) i + 1));
 	      prev = w;
 	    }
 	}

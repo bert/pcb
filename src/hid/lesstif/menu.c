@@ -569,7 +569,7 @@ insert_layerview_buttons (Widget menu)
       btn = XmCreateToggleButton (menu, name, args, n);
       XtManageChild (btn);
       XtAddCallback (btn, XmNvalueChangedCallback,
-		     (XtCallbackProc) layer_button_callback, (XtPointer) i);
+		     (XtCallbackProc) layer_button_callback, (XtPointer) (size_t) i);
       lb->w[i] = btn;
     }
   lb->is_pick = 0;
@@ -637,7 +637,7 @@ insert_layerpick_buttons (Widget menu)
       XtManageChild (btn);
       XtAddCallback (btn, XmNvalueChangedCallback,
 		     (XtCallbackProc) layerpick_button_callback,
-		     (XtPointer) i);
+		     (XtPointer) (size_t) i);
       lb->w[i] = btn;
     }
   lb->is_pick = 1;
