@@ -118,6 +118,8 @@ if (((ptr) = malloc(sizeof(type))) == NULL) \
 	t = (a)[0], (a)[0] = (b)[0], (b)[0] = t; \
 	t = (a)[1], (a)[1] = (b)[1], (b)[1] = t; \
 }
+
+#ifdef DEBUG
 static char *theState (VNODE * v);
 
 static void
@@ -151,6 +153,7 @@ poly_dump (POLYAREA * p)
   while ((p = p->f) != f);
   fprintf (stderr, "NEXT_POLY\n");
 }
+#endif
 
 /***************************************************************/
 /* routines for processing intersections */
@@ -906,6 +909,7 @@ cntr_in_M_POLYAREA (PLINE * poly, POLYAREA * outfst, BOOLp test)
   return FALSE;
 }                               /* cntr_in_M_POLYAREA */
 
+#ifdef DEBUG
 
 static char *
 theState (VNODE * v)
@@ -931,7 +935,6 @@ theState (VNODE * v)
     }
 }
 
-#ifdef DEBUG
 static void
 print_labels (PLINE * a)
 {
