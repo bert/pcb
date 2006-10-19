@@ -444,6 +444,9 @@ hid_save_settings (int locally)
 		       a->name,
 		       a->enumerations[a->value ? *(int *)a->value : a->default_val.int_value]);
 	      break;
+	    case HID_Mixed:
+	      abort ();
+	      break;
 	    }
 	}
       fprintf (f, "\n");
