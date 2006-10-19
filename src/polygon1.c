@@ -1108,7 +1108,7 @@ InsertHoles (jmp_buf * e, POLYAREA * dest, PLINE ** src)
   curc = dest;
   do
     {
-      r_insert_entry (tree, (const BoxType *) curc->contours, 1);
+      r_insert_entry (tree, (const BoxType *) curc->contours, 0);
     }
   while ((curc = curc->f) != dest);
   /* loop through the holes and put them where they belong */
