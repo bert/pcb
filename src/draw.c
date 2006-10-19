@@ -2075,7 +2075,7 @@ DrawRegularText (LayerTypePtr Layer, TextTypePtr Text, int unused)
 static int
 cp_callback (const BoxType * b, void *cl)
 {
-  ClearPin ((PinTypePtr) b, (int) cl, 0);
+  ClearPin ((PinTypePtr) b, (int) (size_t) cl, 0);
   return 1;
 }
 
