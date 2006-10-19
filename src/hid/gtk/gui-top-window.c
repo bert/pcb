@@ -3589,27 +3589,27 @@ static void
 ghid_init_icons (GHidPort * port)
 {
   XC_clock_source = gdk_bitmap_create_from_data (gport->top_window->window,
-						 rotateIcon_bits,
+						 (char *) rotateIcon_bits,
 						 rotateIcon_width,
 						 rotateIcon_height);
   XC_clock_mask =
-    gdk_bitmap_create_from_data (gport->top_window->window, rotateMask_bits,
+    gdk_bitmap_create_from_data (gport->top_window->window, (char *) rotateMask_bits,
 				 rotateMask_width, rotateMask_height);
 
   XC_hand_source = gdk_bitmap_create_from_data (gport->top_window->window,
-						handIcon_bits,
+						(char *) handIcon_bits,
 						handIcon_width,
 						handIcon_height);
   XC_hand_mask =
-    gdk_bitmap_create_from_data (gport->top_window->window, handMask_bits,
+    gdk_bitmap_create_from_data (gport->top_window->window, (char *) handMask_bits,
 				 handMask_width, handMask_height);
 
   XC_lock_source = gdk_bitmap_create_from_data (gport->top_window->window,
-						lockIcon_bits,
+						(char *) lockIcon_bits,
 						lockIcon_width,
 						lockIcon_height);
   XC_lock_mask =
-    gdk_bitmap_create_from_data (gport->top_window->window, lockMask_bits,
+    gdk_bitmap_create_from_data (gport->top_window->window, (char *) lockMask_bits,
 				 lockMask_width, lockMask_height);
 }
 
