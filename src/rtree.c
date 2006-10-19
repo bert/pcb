@@ -83,24 +83,24 @@ typedef long long bigun;
 
 typedef struct
 {
-  const BoxType *bptr;		/* pointer to the box */
-  BoxType bounds;		/* copy of the box for locality of reference */
+  const BoxType *bptr;          /* pointer to the box */
+  BoxType bounds;               /* copy of the box for locality of reference */
 } Rentry;
 
 struct rtree_node
 {
-  BoxType box;			/* bounds rectangle of this node */
-  struct rtree_node *parent;	/* parent of this node, NULL = root */
+  BoxType box;                  /* bounds rectangle of this node */
+  struct rtree_node *parent;    /* parent of this node, NULL = root */
   struct
   {
-    unsigned is_leaf:1;		/* this is a leaf node */
-    unsigned manage:31;		/* true==should free 'rect.bptr' if node is destroyed */
+    unsigned is_leaf:1;         /* this is a leaf node */
+    unsigned manage:31;         /* true==should free 'rect.bptr' if node is destroyed */
   }
   flags;
   union
   {
-    struct rtree_node *kids[M_SIZE + 1];	/* when not leaf */
-    Rentry rects[M_SIZE + 1];	/* when leaf */
+    struct rtree_node *kids[M_SIZE + 1];        /* when not leaf */
+    Rentry rects[M_SIZE + 1];   /* when leaf */
   } u;
 };
 
@@ -117,77 +117,77 @@ __r_node_is_good (struct rtree_node *node)
   for (i = 0; i < M_SIZE; i++)
     {
       if (node->flags.is_leaf)
-	{
-	  if (!node->u.rects[i].bptr)
-	    {
-	      last = True;
-	      continue;
-	    }
-	  /* check that once one entry is empty, all the rest are too */
-	  if (node->u.rects[i].bptr && last)
-	    assert (0);
-	  /* check that the box makes sense */
-	  if (node->box.X1 > node->box.X2)
-	    assert (0);
-	  if (node->box.Y1 > node->box.Y2)
-	    assert (0);
-	  /* check that bounds is the same as the pointer */
-	  if (node->u.rects[i].bounds.X1 != node->u.rects[i].bptr->X1)
-	    assert (0);
-	  if (node->u.rects[i].bounds.Y1 != node->u.rects[i].bptr->Y1)
-	    assert (0);
-	  if (node->u.rects[i].bounds.X2 != node->u.rects[i].bptr->X2)
-	    assert (0);
-	  if (node->u.rects[i].bounds.Y2 != node->u.rects[i].bptr->Y2)
-	    assert (0);
-	  /* check that entries are within node bounds */
-	  if (node->u.rects[i].bounds.X1 < node->box.X1)
-	    assert (0);
-	  if (node->u.rects[i].bounds.X2 > node->box.X2)
-	    assert (0);
-	  if (node->u.rects[i].bounds.Y1 < node->box.Y1)
-	    assert (0);
-	  if (node->u.rects[i].bounds.Y2 > node->box.Y2)
-	    assert (0);
-	}
+        {
+          if (!node->u.rects[i].bptr)
+            {
+              last = True;
+              continue;
+            }
+          /* check that once one entry is empty, all the rest are too */
+          if (node->u.rects[i].bptr && last)
+            assert (0);
+          /* check that the box makes sense */
+          if (node->box.X1 > node->box.X2)
+            assert (0);
+          if (node->box.Y1 > node->box.Y2)
+            assert (0);
+          /* check that bounds is the same as the pointer */
+          if (node->u.rects[i].bounds.X1 != node->u.rects[i].bptr->X1)
+            assert (0);
+          if (node->u.rects[i].bounds.Y1 != node->u.rects[i].bptr->Y1)
+            assert (0);
+          if (node->u.rects[i].bounds.X2 != node->u.rects[i].bptr->X2)
+            assert (0);
+          if (node->u.rects[i].bounds.Y2 != node->u.rects[i].bptr->Y2)
+            assert (0);
+          /* check that entries are within node bounds */
+          if (node->u.rects[i].bounds.X1 < node->box.X1)
+            assert (0);
+          if (node->u.rects[i].bounds.X2 > node->box.X2)
+            assert (0);
+          if (node->u.rects[i].bounds.Y1 < node->box.Y1)
+            assert (0);
+          if (node->u.rects[i].bounds.Y2 > node->box.Y2)
+            assert (0);
+        }
       else
-	{
-	  if (!node->u.kids[i])
-	    {
-	      last = True;
-	      continue;
-	    }
-	  /* make sure all children are the same type */
-	  if (kind == -1)
-	    kind = node->u.kids[i]->flags.is_leaf;
-	  else if (kind != node->u.kids[i]->flags.is_leaf)
-	    assert (0);
-	  /* check that once one entry is empty, all the rest are too */
-	  if (node->u.kids[i] && last)
-	    assert (0);
-	  /* check that entries are within node bounds */
-	  if (node->u.kids[i]->box.X1 < node->box.X1)
-	    assert (0);
-	  if (node->u.kids[i]->box.X2 > node->box.X2)
-	    assert (0);
-	  if (node->u.kids[i]->box.Y1 < node->box.Y1)
-	    assert (0);
-	  if (node->u.kids[i]->box.Y2 > node->box.Y2)
-	    assert (0);
-	}
+        {
+          if (!node->u.kids[i])
+            {
+              last = True;
+              continue;
+            }
+          /* make sure all children are the same type */
+          if (kind == -1)
+            kind = node->u.kids[i]->flags.is_leaf;
+          else if (kind != node->u.kids[i]->flags.is_leaf)
+            assert (0);
+          /* check that once one entry is empty, all the rest are too */
+          if (node->u.kids[i] && last)
+            assert (0);
+          /* check that entries are within node bounds */
+          if (node->u.kids[i]->box.X1 < node->box.X1)
+            assert (0);
+          if (node->u.kids[i]->box.X2 > node->box.X2)
+            assert (0);
+          if (node->u.kids[i]->box.Y1 < node->box.Y1)
+            assert (0);
+          if (node->u.kids[i]->box.Y2 > node->box.Y2)
+            assert (0);
+        }
       flag <<= 1;
     }
   /* check that we're completely in the parent's bounds */
   if (node->parent)
     {
       if (node->parent->box.X1 > node->box.X1)
-	assert (0);
+        assert (0);
       if (node->parent->box.X2 < node->box.X2)
-	assert (0);
+        assert (0);
       if (node->parent->box.Y1 > node->box.Y1)
-	assert (0);
+        assert (0);
       if (node->parent->box.Y2 < node->box.Y2)
-	assert (0);
+        assert (0);
     }
   /* make sure overflow is empty */
   if (!node->flags.is_leaf && node->u.kids[i])
@@ -213,7 +213,7 @@ __r_tree_is_good (struct rtree_node *node)
   for (i = 0; i < M_SIZE; i++)
     {
       if (!__r_tree_is_good (node->u.kids[i]))
-	return 0;
+        return 0;
     }
   return 1;
 }
@@ -240,80 +240,80 @@ __r_dump_tree (struct rtree_node *node, int depth)
   if (!node->flags.is_leaf)
     {
       printf ("p=0x%p node X(%d, %d) Y(%d, %d)\n", (void *) node,
-	      node->box.X1, node->box.X2, node->box.Y1, node->box.Y2);
+              node->box.X1, node->box.X2, node->box.Y1, node->box.Y2);
 #ifdef DRAWBOX
       gdk_gc_set_line_attributes (Output.fgGC, 4,
-				  GDK_LINE_SOLID, GDK_CAP_ROUND,
-				  GDK_JOIN_ROUND);
+                                  GDK_LINE_SOLID, GDK_CAP_ROUND,
+                                  GDK_JOIN_ROUND);
 
       if (depth < max_layer + 1)
-	gdk_gc_set_foreground (Output.fgGC, (LAYER_PTR (depth)->Color));
+        gdk_gc_set_foreground (Output.fgGC, (LAYER_PTR (depth)->Color));
       else
-	gdk_gc_set_foreground (Output.fgGC, PCB->WarnColor);
+        gdk_gc_set_foreground (Output.fgGC, PCB->WarnColor);
       XDrawCLine (Output.top_window->window, Output.fgGC,
-		  node->box.X1, node->box.Y1, node->box.X2, node->box.Y1);
+                  node->box.X1, node->box.Y1, node->box.X2, node->box.Y1);
       XDrawCLine (Output.top_window->window, Output.fgGC,
-		  node->box.X2, node->box.Y1, node->box.X2, node->box.Y2);
+                  node->box.X2, node->box.Y1, node->box.X2, node->box.Y2);
       XDrawCLine (Output.top_window->window, Output.fgGC,
-		  node->box.X2, node->box.Y2, node->box.X1, node->box.Y2);
+                  node->box.X2, node->box.Y2, node->box.X1, node->box.Y2);
       XDrawCLine (Output.top_window->window, Output.fgGC,
-		  node->box.X1, node->box.Y2, node->box.X1, node->box.Y1);
+                  node->box.X1, node->box.Y2, node->box.X1, node->box.Y1);
 #endif
     }
   else
     {
 #ifdef DRAWBOX
       gdk_gc_set_line_attributes (Output.fgGC, 2,
-				  GDK_LINE_SOLID, GDK_CAP_ROUND,
-				  GDK_JOIN_ROUND);
+                                  GDK_LINE_SOLID, GDK_CAP_ROUND,
+                                  GDK_JOIN_ROUND);
       gdk_gc_set_foreground (Output.fgGC, PCB->MaskColor);
       XDrawCLine (Output.top_window->window, Output.fgGC,
-		  node->box.X1, node->box.Y1, node->box.X2, node->box.Y1);
+                  node->box.X1, node->box.Y1, node->box.X2, node->box.Y1);
       XDrawCLine (Output.top_window->window, Output.fgGC,
-		  node->box.X2, node->box.Y1, node->box.X2, node->box.Y2);
+                  node->box.X2, node->box.Y1, node->box.X2, node->box.Y2);
       XDrawCLine (Output.top_window->window, Output.fgGC,
-		  node->box.X2, node->box.Y2, node->box.X1, node->box.Y2);
+                  node->box.X2, node->box.Y2, node->box.X1, node->box.Y2);
       XDrawCLine (Output.top_window->window, Output.fgGC,
-		  node->box.X1, node->box.Y2, node->box.X1, node->box.Y1);
+                  node->box.X1, node->box.Y2, node->box.X1, node->box.Y1);
 #endif
       printf ("p=0x%p leaf manage(%02x) X(%d, %d) Y(%d, %d)\n", (void *) node,
-	      node->flags.manage, node->box.X1, node->box.X2, node->box.Y1,
-	      node->box.Y2);
+              node->flags.manage, node->box.X1, node->box.X2, node->box.Y1,
+              node->box.Y2);
       for (j = 0; j < M_SIZE; j++)
-	{
-	  if (!node->u.rects[j].bptr)
-	    break;
-	  area +=
-	    (node->u.rects[j].bounds.X2 -
-	     node->u.rects[j].bounds.X1) *
-	    (double) (node->u.rects[j].bounds.Y2 -
-		      node->u.rects[j].bounds.Y1);
-	  count++;
+        {
+          if (!node->u.rects[j].bptr)
+            break;
+          area +=
+            (node->u.rects[j].bounds.X2 -
+             node->u.rects[j].bounds.X1) *
+            (double) (node->u.rects[j].bounds.Y2 -
+                      node->u.rects[j].bounds.Y1);
+          count++;
 #ifdef DRAWBOX
-	  gdk_gc_set_line_attributes (Output.fgGC, 1,
-				      GDK_LINE_SOLID, GDK_CAP_ROUND,
-				      GDK_JOIN_ROUND);
-	  gdk_gc_set_foreground (Output.fgGC, PCB->ViaSelectedColor);
-	  XDrawCLine (Output.top_window->window, Output.fgGC,
-		      node->u.rects[j].bounds.X1, node->u.rects[j].bounds.Y1,
-		      node->u.rects[j].bounds.X2, node->u.rects[j].bounds.Y1);
-	  XDrawCLine (Output.top_window->window, Output.fgGC,
-		      node->u.rects[j].bounds.X2, node->u.rects[j].bounds.Y1,
-		      node->u.rects[j].bounds.X2, node->u.rects[j].bounds.Y2);
-	  XDrawCLine (Output.top_window->window, Output.fgGC,
-		      node->u.rects[j].bounds.X2, node->u.rects[j].bounds.Y2,
-		      node->u.rects[j].bounds.X1, node->u.rects[j].bounds.Y2);
-	  XDrawCLine (Output.top_window->window, Output.fgGC,
-		      node->u.rects[j].bounds.X1, node->u.rects[j].bounds.Y2,
-		      node->u.rects[j].bounds.X1, node->u.rects[j].bounds.Y1);
+          gdk_gc_set_line_attributes (Output.fgGC, 1,
+                                      GDK_LINE_SOLID, GDK_CAP_ROUND,
+                                      GDK_JOIN_ROUND);
+          gdk_gc_set_foreground (Output.fgGC, PCB->ViaSelectedColor);
+          XDrawCLine (Output.top_window->window, Output.fgGC,
+                      node->u.rects[j].bounds.X1, node->u.rects[j].bounds.Y1,
+                      node->u.rects[j].bounds.X2, node->u.rects[j].bounds.Y1);
+          XDrawCLine (Output.top_window->window, Output.fgGC,
+                      node->u.rects[j].bounds.X2, node->u.rects[j].bounds.Y1,
+                      node->u.rects[j].bounds.X2, node->u.rects[j].bounds.Y2);
+          XDrawCLine (Output.top_window->window, Output.fgGC,
+                      node->u.rects[j].bounds.X2, node->u.rects[j].bounds.Y2,
+                      node->u.rects[j].bounds.X1, node->u.rects[j].bounds.Y2);
+          XDrawCLine (Output.top_window->window, Output.fgGC,
+                      node->u.rects[j].bounds.X1, node->u.rects[j].bounds.Y2,
+                      node->u.rects[j].bounds.X1, node->u.rects[j].bounds.Y1);
 #endif
-	  for (i = 0; i < depth + 1; i++)
-	    printf ("  ");
-	  printf ("entry 0x%p X(%d, %d) Y(%d, %d)\n",
-		  (void *) (node->u.rects[j].bptr),
-		  node->u.rects[j].bounds.X1, node->u.rects[j].bounds.X2,
-		  node->u.rects[j].bounds.Y1, node->u.rects[j].bounds.Y2);
-	}
+          for (i = 0; i < depth + 1; i++)
+            printf ("  ");
+          printf ("entry 0x%p X(%d, %d) Y(%d, %d)\n",
+                  (void *) (node->u.rects[j].bptr),
+                  node->u.rects[j].bounds.X1, node->u.rects[j].bounds.X2,
+                  node->u.rects[j].bounds.Y1, node->u.rects[j].bounds.Y2);
+        }
       return;
     }
   for (i = 0; i < M_SIZE; i++)
@@ -361,18 +361,18 @@ sort_node (struct rtree_node *node)
       register Rentry *r, *i, temp;
 
       for (r = &node->u.rects[1]; r->bptr; r++)
-	{
-	  temp = *r;
-	  i = r - 1;
-	  while (i >= &node->u.rects[0])
-	    {
-	      if (cmp_box (&i->bounds, &r->bounds))
-		break;
-	      *(i + 1) = *i;
-	      i--;
-	    }
-	  *(i + 1) = temp;
-	}
+        {
+          temp = *r;
+          i = r - 1;
+          while (i >= &node->u.rects[0])
+            {
+              if (cmp_box (&i->bounds, &r->bounds))
+                break;
+              *(i + 1) = *i;
+              i--;
+            }
+          *(i + 1) = temp;
+        }
     }
 #ifdef SORT_NONLEAF
   else
@@ -380,18 +380,18 @@ sort_node (struct rtree_node *node)
       register struct rtree_node **r, **i, *temp;
 
       for (r = &node->u.kids[1]; *r; r++)
-	{
-	  temp = *r;
-	  i = r - 1;
-	  while (i >= &node->u.kids[0])
-	    {
-	      if (cmp_box (&(*i)->box, &(*r)->box))
-		break;
-	      *(i + 1) = *i;
-	      i--;
-	    }
-	  *(i + 1) = temp;
-	}
+        {
+          temp = *r;
+          i = r - 1;
+          while (i >= &node->u.kids[0])
+            {
+              if (cmp_box (&(*i)->box, &(*r)->box))
+                break;
+              *(i + 1) = *i;
+              i--;
+            }
+          *(i + 1) = temp;
+        }
     }
 #endif
 }
@@ -413,27 +413,27 @@ adjust_bounds (struct rtree_node *node)
     {
       node->box = node->u.rects[0].bounds;
       for (i = 1; i < M_SIZE + 1; i++)
-	{
-	  if (!node->u.rects[i].bptr)
-	    return;
-	  MAKEMIN (node->box.X1, node->u.rects[i].bounds.X1);
-	  MAKEMAX (node->box.X2, node->u.rects[i].bounds.X2);
-	  MAKEMIN (node->box.Y1, node->u.rects[i].bounds.Y1);
-	  MAKEMAX (node->box.Y2, node->u.rects[i].bounds.Y2);
-	}
+        {
+          if (!node->u.rects[i].bptr)
+            return;
+          MAKEMIN (node->box.X1, node->u.rects[i].bounds.X1);
+          MAKEMAX (node->box.X2, node->u.rects[i].bounds.X2);
+          MAKEMIN (node->box.Y1, node->u.rects[i].bounds.Y1);
+          MAKEMAX (node->box.Y2, node->u.rects[i].bounds.Y2);
+        }
     }
   else
     {
       node->box = node->u.kids[0]->box;
       for (i = 1; i < M_SIZE + 1; i++)
-	{
-	  if (!node->u.kids[i])
-	    return;
-	  MAKEMIN (node->box.X1, node->u.kids[i]->box.X1);
-	  MAKEMAX (node->box.X2, node->u.kids[i]->box.X2);
-	  MAKEMIN (node->box.Y1, node->u.kids[i]->box.Y1);
-	  MAKEMAX (node->box.Y2, node->u.kids[i]->box.Y2);
-	}
+        {
+          if (!node->u.kids[i])
+            return;
+          MAKEMIN (node->box.X1, node->u.kids[i]->box.X1);
+          MAKEMAX (node->box.X2, node->u.kids[i]->box.X2);
+          MAKEMIN (node->box.Y1, node->u.kids[i]->box.Y1);
+          MAKEMAX (node->box.Y2, node->u.kids[i]->box.Y2);
+        }
     }
 }
 
@@ -476,18 +476,18 @@ __r_destroy_tree (struct rtree_node *node)
   if (node->flags.is_leaf)
     for (i = 0; i < M_SIZE; i++)
       {
-	if (!node->u.rects[i].bptr)
-	  break;
-	if (node->flags.manage & flag)
-	  free ((void *) node->u.rects[i].bptr);
-	flag = flag << 1;
+        if (!node->u.rects[i].bptr)
+          break;
+        if (node->flags.manage & flag)
+          free ((void *) node->u.rects[i].bptr);
+        flag = flag << 1;
       }
   else
     for (i = 0; i < M_SIZE; i++)
       {
-	if (!node->u.kids[i])
-	  break;
-	__r_destroy_tree (node->u.kids[i]);
+        if (!node->u.kids[i])
+          break;
+        __r_destroy_tree (node->u.kids[i]);
       }
   free (node);
 }
@@ -502,88 +502,95 @@ r_destroy_tree (rtree_t ** rtree)
   *rtree = NULL;
 }
 
+typedef struct
+{
+  int (*check_it) (const BoxType * region, void *cl);
+  int (*found_it) (const BoxType * box, void *cl);
+  void *closure;
+} r_arg;
+
 /* most of the auto-routing time is spent in this routine
- * so some careful thought has been given to minimizing it
+ * so some careful thought has been given to maximizing the speed
  *
  */
 int
-__r_search (struct rtree_node *node, const BoxType * query,
-	    int (*check_it) (const BoxType * region, void *cl),
-	    int (*found_it) (const BoxType * box, void *cl), void *closure)
+__r_search (struct rtree_node *node, const BoxType * query, r_arg * arg)
 {
-  int seen;
-  int i;
-
   assert (node);
   /** assert that starting_region is well formed */
   assert (query->X1 <= query->X2 && query->Y1 <= query->Y2);
+  assert (node->box.X1 < query->X2 && node->box.X2 > query->X1 &&
+          node->box.Y1 < query->Y2 && node->box.Y2 > query->X1);
 #ifdef SLOW_ASSERTS
   /** assert that node is well formed */
   assert (__r_node_is_good (node));
 #endif
-  /* check this box. If it's not touched we're done here */
-  if (node->box.X1 >= query->X2 ||
-      node->box.X2 <= query->X1 ||
-      node->box.Y1 >= query->Y2 || node->box.Y2 <= query->Y1)
-    return 0;
-  seen = 0;
-  /* maybe something is here, check them */
+  /* the check for bounds is done before entry. This saves the overhead
+   * of building/destroying the stack frame for each bounds that fails
+   * to intersect, which is the most common condition.
+   */
   if (node->flags.is_leaf)
     {
-      if (found_it)		/* test this once outside of loop */
-	{
-	  for (i = 0; i < M_SIZE; i++)
-	    {
-	      if (!node->u.rects[i].bptr)
-		return seen;
-	      if ((node->u.rects[i].bounds.X1 < query->X2) &&
-		  (node->u.rects[i].bounds.X2 > query->X1) &&
-		  (node->u.rects[i].bounds.Y1 < query->Y2) &&
-		  (node->u.rects[i].bounds.Y2 > query->Y1) &&
-		  found_it (node->u.rects[i].bptr, closure))
-		seen++;
-	    }
-	}
+      register int i;
+      if (arg->found_it)        /* test this once outside of loop */
+        {
+          register int seen = 0;
+          for (i = 0; node->u.rects[i].bptr; i++)
+            {
+              if ((node->u.rects[i].bounds.X1 < query->X2) &&
+                  (node->u.rects[i].bounds.X2 > query->X1) &&
+                  (node->u.rects[i].bounds.Y1 < query->Y2) &&
+                  (node->u.rects[i].bounds.Y2 > query->Y1) &&
+                  arg->found_it (node->u.rects[i].bptr, arg->closure))
+                seen++;
+            }
+          return seen;
+        }
       else
-	{
-	  for (i = 0; i < M_SIZE; i++)
-	    {
-	      if (!node->u.rects[i].bptr)
-		return seen;
-	      if ((node->u.rects[i].bounds.X1 < query->X2) &&
-		  (node->u.rects[i].bounds.X2 > query->X1) &&
-		  (node->u.rects[i].bounds.Y1 < query->Y2) &&
-		  (node->u.rects[i].bounds.Y2 > query->Y1))
-		seen++;
-	    }
-	}
-      return seen;
+        {
+          register int seen = 0;
+          for (i = 0; node->u.rects[i].bptr; i++)
+            {
+              if ((node->u.rects[i].bounds.X1 < query->X2) &&
+                  (node->u.rects[i].bounds.X2 > query->X1) &&
+                  (node->u.rects[i].bounds.Y1 < query->Y2) &&
+                  (node->u.rects[i].bounds.Y2 > query->Y1))
+                seen++;
+            }
+          return seen;
+        }
     }
 
   /* not a leaf, recurse on lower nodes */
-  if (check_it)
+  if (arg->check_it)
     {
-      for (i = 0; i < M_SIZE; i++)
-	{
-	  if (!node->u.kids[i])
-	    return seen;
-	  if (check_it (&(node->box), closure))
-	    seen +=
-	      __r_search (node->u.kids[i], query, check_it, found_it,
-			  closure);
-	}
+      int seen = 0;
+      struct rtree_node **n;
+      for (n = &node->u.kids[0]; *n; n++)
+        {
+          if (arg->check_it (&(node->box), arg->closure))
+            if ((*n)->box.X1 >= query->X2 ||
+                (*n)->box.X2 <= query->X1 ||
+                (*n)->box.Y1 >= query->Y2 || (*n)->box.Y2 <= query->Y1)
+              continue;
+          seen += __r_search (*n, query, arg);
+        }
+      return seen;
     }
   else
     {
-      for (i = 0; i < M_SIZE; i++)
-	{
-	  if (!node->u.kids[i])
-	    return seen;
-	  seen +=
-	    __r_search (node->u.kids[i], query, check_it, found_it, closure);
-	}
+      int seen = 0;
+      struct rtree_node **n;
+      for (n = &node->u.kids[0]; *n; n++)
+        {
+          if ((*n)->box.X1 >= query->X2 ||
+              (*n)->box.X2 <= query->X1 ||
+              (*n)->box.Y1 >= query->Y2 || (*n)->box.Y2 <= query->Y1)
+            continue;
+          seen += __r_search (*n, query, arg);
+        }
+      return seen;
     }
-  return seen;
 }
 
 /* Parameterized search in the rtree.
@@ -594,23 +601,37 @@ __r_search (struct rtree_node *node, const BoxType * query,
  */
 int
 r_search (rtree_t * rtree, const BoxType * query,
-	  int (*check_region) (const BoxType * region, void *cl),
-	  int (*found_rectangle) (const BoxType * box, void *cl), void *cl)
+          int (*check_region) (const BoxType * region, void *cl),
+          int (*found_rectangle) (const BoxType * box, void *cl), void *cl)
 {
+  r_arg arg;
+
   if (!rtree || rtree->size < 1)
     return 0;
   if (query)
     {
 #if DEBUG
       if (query->X2 < query->X1 || query->Y2 < query->Y1)
-	return 0;
+        return 0;
 #endif
-      return __r_search (rtree->root, query, check_region, found_rectangle,
-			 cl);
+      /* check this box. If it's not touched we're done here */
+      if (rtree->root->box.X1 >= query->X2 ||
+          rtree->root->box.X2 <= query->X1 ||
+          rtree->root->box.Y1 >= query->Y2
+          || rtree->root->box.Y2 <= query->Y1)
+        return 0;
+      arg.check_it = check_region;
+      arg.found_it = found_rectangle;
+      arg.closure = cl;
+      return __r_search (rtree->root, query, &arg);
     }
   else
-    return __r_search (rtree->root, &rtree->root->box, check_region,
-		       found_rectangle, cl);
+    {
+      arg.check_it = check_region;
+      arg.found_it = found_rectangle;
+      arg.closure = cl;
+      return __r_search (rtree->root, &rtree->root->box, &arg);
+    }
 }
 
 /*------ r_region_is_empty ------*/
@@ -618,7 +639,7 @@ static int
 __r_region_is_empty_rect_in_reg (const BoxType * box, void *cl)
 {
   jmp_buf *envp = (jmp_buf *) cl;
-  longjmp (*envp, 1);		/* found one! */
+  longjmp (*envp, 1);           /* found one! */
 }
 
 /* return 0 if there are any rectangles in the given region. */
@@ -631,8 +652,8 @@ r_region_is_empty (rtree_t * rtree, const BoxType * region)
   if (setjmp (env))
     return 0;
   r = r_search (rtree, region, NULL, __r_region_is_empty_rect_in_reg, &env);
-  assert (r == 0);		/* otherwise longjmp would have been called */
-  return 1;			/* no rectangles found */
+  assert (r == 0);              /* otherwise longjmp would have been called */
+  return 1;                     /* no rectangles found */
 }
 
 struct centroid
@@ -659,9 +680,9 @@ find_clusters (struct rtree_node *node)
   for (i = 0; i < M_SIZE + 1; i++)
     {
       if (node->flags.is_leaf)
-	b = &(node->u.rects[i].bounds);
+        b = &(node->u.rects[i].bounds);
       else
-	b = &(node->u.kids[i]->box);
+        b = &(node->u.kids[i]->box);
       center[i].x = 0.5 * (b->X1 + b->X2);
       center[i].y = 0.5 * (b->Y1 + b->Y2);
       /* adding 1 prevents zero area */
@@ -687,52 +708,52 @@ find_clusters (struct rtree_node *node)
       old_by = (int) b_Y;
       clust_a = clust_b = 0;
       for (i = 0; i < M_SIZE + 1; i++)
-	{
-	  float dist1, dist2;
+        {
+          float dist1, dist2;
 
-	  dist1 = SQUARE (a_X - center[i].x) + SQUARE (a_Y - center[i].y);
-	  dist2 = SQUARE (b_X - center[i].x) + SQUARE (b_Y - center[i].y);
-	  if (dist1 * (clust_a + M_SIZE / 2) < dist2 * (clust_b + M_SIZE / 2))
-	    {
-	      belong[i] = True;
-	      clust_a++;
-	    }
-	  else
-	    {
-	      belong[i] = False;
-	      clust_b++;
-	    }
-	}
+          dist1 = SQUARE (a_X - center[i].x) + SQUARE (a_Y - center[i].y);
+          dist2 = SQUARE (b_X - center[i].x) + SQUARE (b_Y - center[i].y);
+          if (dist1 * (clust_a + M_SIZE / 2) < dist2 * (clust_b + M_SIZE / 2))
+            {
+              belong[i] = True;
+              clust_a++;
+            }
+          else
+            {
+              belong[i] = False;
+              clust_b++;
+            }
+        }
       /* kludge to fix degenerate cases */
       if (clust_a == M_SIZE + 1)
-	belong[M_SIZE / 2] = False;
+        belong[M_SIZE / 2] = False;
       else if (clust_b == M_SIZE + 1)
-	belong[M_SIZE / 2] = True;
+        belong[M_SIZE / 2] = True;
       /* compute new center of gravity of clusters */
       total_a = total_b = 0;
       a_X = a_Y = b_X = b_Y = 0;
       for (i = 0; i < M_SIZE + 1; i++)
-	{
-	  if (belong[i])
-	    {
-	      a_X += center[i].x * center[i].area;
-	      a_Y += center[i].y * center[i].area;
-	      total_a += center[i].area;
-	    }
-	  else
-	    {
-	      b_X += center[i].x * center[i].area;
-	      b_Y += center[i].y * center[i].area;
-	      total_b += center[i].area;
-	    }
-	}
+        {
+          if (belong[i])
+            {
+              a_X += center[i].x * center[i].area;
+              a_Y += center[i].y * center[i].area;
+              total_a += center[i].area;
+            }
+          else
+            {
+              b_X += center[i].x * center[i].area;
+              b_Y += center[i].y * center[i].area;
+              total_b += center[i].area;
+            }
+        }
       a_X /= total_a;
       a_Y /= total_a;
       b_X /= total_b;
       b_Y /= total_b;
       if (old_ax == (int) a_X && old_ay == (int) a_Y &&
-	  old_bx == (int) b_X && old_by == (int) b_Y)
-	break;
+          old_bx == (int) b_X && old_by == (int) b_Y)
+        break;
     }
   /* Now 'belong' has the partition map */
   new_node = calloc (1, sizeof (*new_node));
@@ -744,36 +765,36 @@ find_clusters (struct rtree_node *node)
       int flag, a_flag, b_flag;
       flag = a_flag = b_flag = 1;
       for (i = 0; i < M_SIZE + 1; i++)
-	{
-	  if (belong[i])
-	    {
-	      node->u.rects[clust_a++] = node->u.rects[i];
-	      if (node->flags.manage & flag)
-		a_manage |= a_flag;
-	      a_flag <<= 1;
-	    }
-	  else
-	    {
-	      new_node->u.rects[clust_b++] = node->u.rects[i];
-	      if (node->flags.manage & flag)
-		b_manage |= b_flag;
-	      b_flag <<= 1;
-	    }
-	  flag <<= 1;
-	}
+        {
+          if (belong[i])
+            {
+              node->u.rects[clust_a++] = node->u.rects[i];
+              if (node->flags.manage & flag)
+                a_manage |= a_flag;
+              a_flag <<= 1;
+            }
+          else
+            {
+              new_node->u.rects[clust_b++] = node->u.rects[i];
+              if (node->flags.manage & flag)
+                b_manage |= b_flag;
+              b_flag <<= 1;
+            }
+          flag <<= 1;
+        }
     }
   else
     {
       for (i = 0; i < M_SIZE + 1; i++)
-	{
-	  if (belong[i])
-	    node->u.kids[clust_a++] = node->u.kids[i];
-	  else
-	    {
-	      node->u.kids[i]->parent = new_node;
-	      new_node->u.kids[clust_b++] = node->u.kids[i];
-	    }
-	}
+        {
+          if (belong[i])
+            node->u.kids[clust_a++] = node->u.kids[i];
+          else
+            {
+              node->u.kids[i]->parent = new_node;
+              new_node->u.kids[clust_b++] = node->u.kids[i];
+            }
+        }
     }
   node->flags.manage = a_manage;
   new_node->flags.manage = b_manage;
@@ -802,25 +823,25 @@ split_node (struct rtree_node *node)
 
   assert (node);
   assert (node->flags.is_leaf ? (void *) node->u.rects[M_SIZE].
-	  bptr : (void *) node->u.kids[M_SIZE]);
+          bptr : (void *) node->u.kids[M_SIZE]);
   new_node = find_clusters (node);
-  if (node->parent == NULL)	/* split root node */
+  if (node->parent == NULL)     /* split root node */
     {
       struct rtree_node *second;
 
       second = calloc (1, sizeof (*second));
       *second = *node;
       if (!second->flags.is_leaf)
-	for (i = 0; i < M_SIZE; i++)
-	  if (second->u.kids[i])
-	    second->u.kids[i]->parent = second;
+        for (i = 0; i < M_SIZE; i++)
+          if (second->u.kids[i])
+            second->u.kids[i]->parent = second;
       node->flags.is_leaf = 0;
       node->flags.manage = 0;
       second->parent = new_node->parent = node;
       node->u.kids[0] = new_node;
       node->u.kids[1] = second;
       for (i = 2; i < M_SIZE + 1; i++)
-	node->u.kids[i] = NULL;
+        node->u.kids[i] = NULL;
       adjust_bounds (node);
       sort_node (node);
 #ifdef SLOW_ASSERTS
@@ -847,17 +868,11 @@ split_node (struct rtree_node *node)
   split_node (node->parent);
 }
 
-bigun
-__r_insert_node (struct rtree_node * node, const BoxType * query,
-		 int manage, Boolean force)
+static inline bigun
+penalty (struct rtree_node *node, const BoxType * query)
 {
-  int i;
-
-#ifdef SLOW_ASSERTS
-  assert (__r_node_is_good (node));
-#endif
-  if (!force && (node->box.X1 > query->X1 || node->box.X2 < query->X2 ||
-		 node->box.Y1 > query->Y1 || node->box.Y2 < query->Y2))
+  if (node->box.X1 > query->X1 || node->box.X2 < query->X2 ||
+      node->box.Y1 > query->Y1 || node->box.Y2 < query->Y2)
     {
       long long score;
       /* We're not already contained at this node, so compute
@@ -867,13 +882,23 @@ __r_insert_node (struct rtree_node * node, const BoxType * query,
        */
       score = (MAX (node->box.X2, query->X2) - MIN (node->box.X1, query->X1));
       score *=
-	(MAX (node->box.Y2, query->Y2) - MIN (node->box.Y1, query->Y1));
+        (MAX (node->box.Y2, query->Y2) - MIN (node->box.Y1, query->Y1));
       score -=
-	((long long) node->box.X2 -
-	 node->box.X1) * ((long long) node->box.Y2 - node->box.Y1);
+        ((long long) node->box.X2 -
+         node->box.X1) * ((long long) node->box.Y2 - node->box.Y1);
       return score;
     }
+  return 0;
+}
 
+static void
+__r_insert_node (struct rtree_node *node, const BoxType * query,
+                 int manage, Boolean force)
+{
+
+#ifdef SLOW_ASSERTS
+  assert (__r_node_is_good (node));
+#endif
   /* Ok, at this point we must already enclose the query or we're forcing
    * this node to expand to enclose it, so if we're a leaf, simply store
    * the query here
@@ -881,122 +906,123 @@ __r_insert_node (struct rtree_node * node, const BoxType * query,
 
   if (node->flags.is_leaf)
     {
-      if (manage)
-	{
-	  int flag = 1;
+      register int i;
 
-	  for (i = 0; i < M_SIZE; i++)
-	    {
-	      if (!node->u.rects[i].bptr)
-		break;
-	      flag <<= 1;
-	    }
-	  node->flags.manage |= flag;
-	}
+      if (manage)
+        {
+          register int flag = 1;
+
+          for (i = 0; i < M_SIZE; i++)
+            {
+              if (!node->u.rects[i].bptr)
+                break;
+              flag <<= 1;
+            }
+          node->flags.manage |= flag;
+        }
       else
-	{
-	  for (i = 0; i < M_SIZE; i++)
-	    if (!node->u.rects[i].bptr)
-	      break;
-	}
+        {
+          for (i = 0; i < M_SIZE; i++)
+            if (!node->u.rects[i].bptr)
+              break;
+        }
       /* the node always has an extra space available */
       node->u.rects[i].bptr = query;
       node->u.rects[i].bounds = *query;
       /* first entry in node determines initial bounding box */
       if (i == 0)
-	node->box = *query;
+        node->box = *query;
       else if (force)
-	{
-	  MAKEMIN (node->box.X1, query->X1);
-	  MAKEMAX (node->box.X2, query->X2);
-	  MAKEMIN (node->box.Y1, query->Y1);
-	  MAKEMAX (node->box.Y2, query->Y2);
-	}
+        {
+          MAKEMIN (node->box.X1, query->X1);
+          MAKEMAX (node->box.X2, query->X2);
+          MAKEMIN (node->box.Y1, query->Y1);
+          MAKEMAX (node->box.Y2, query->Y2);
+        }
       if (i < M_SIZE)
-	{
-	  sort_node (node);
-	  return 0;
-	}
+        {
+          sort_node (node);
+          return;
+        }
       /* we must split the node */
       split_node (node);
-      return 0;
+      return;
     }
   else
     {
+      int i;
       struct rtree_node *best_node;
       long long score, best_score;
 
       if (force)
-	{
-	  MAKEMIN (node->box.X1, query->X1);
-	  MAKEMAX (node->box.X2, query->X2);
-	  MAKEMIN (node->box.Y1, query->Y1);
-	  MAKEMAX (node->box.Y2, query->Y2);
-	}
+        {
+          MAKEMIN (node->box.X1, query->X1);
+          MAKEMAX (node->box.X2, query->X2);
+          MAKEMIN (node->box.Y1, query->Y1);
+          MAKEMAX (node->box.Y2, query->Y2);
+        }
       /* this node encloses it, but it's not a leaf, so descend the tree */
       assert (node->u.kids[0]);
-      best_score = __r_insert_node (node->u.kids[0], query, manage, False);
-      if (best_score == 0)
-	{
-	  sort_node (node);
-	  return 0;
-	}
+      if ((best_score = penalty (node->u.kids[0], query)) == 0)
+        {
+          __r_insert_node (node->u.kids[0], query, manage, False);
+          sort_node (node);
+          return;
+        }
       best_node = node->u.kids[0];
       for (i = 1; i < M_SIZE; i++)
-	{
-	  if (!node->u.kids[i])
-	    break;
-	  score = __r_insert_node (node->u.kids[i], query, manage, False);
-	  if (score == 0)
-	    {
-	      sort_node (node);
-	      return 0;
-	    }
-	  else if (score < best_score)
-	    {
-	      best_score = score;
-	      best_node = node->u.kids[i];
-	    }
-	}
+        {
+          if (!node->u.kids[i])
+            break;
+          if ((score = penalty (node->u.kids[i], query)) == 0)
+            {
+              __r_insert_node (node->u.kids[i], query, manage, False);
+              sort_node (node);
+              return;
+            }
+          else if (score < best_score)
+            {
+              best_score = score;
+              best_node = node->u.kids[i];
+            }
+        }
       /* see if there is room for a new leaf node */
       if (node->u.kids[0]->flags.is_leaf && i < M_SIZE)
-	{
-	  struct rtree_node *new_node;
-	  new_node = calloc (1, sizeof (*new_node));
-	  new_node->parent = node;
-	  new_node->flags.is_leaf = True;
-	  node->u.kids[i] = new_node;
-	  new_node->u.rects[0].bptr = query;
-	  new_node->u.rects[0].bounds = *query;
-	  new_node->box = *query;
-	  if (manage)
-	    new_node->flags.manage = 1;
-	  sort_node (node);
-	  return 0;
-	}
+        {
+          struct rtree_node *new_node;
+          new_node = calloc (1, sizeof (*new_node));
+          new_node->parent = node;
+          new_node->flags.is_leaf = True;
+          node->u.kids[i] = new_node;
+          new_node->u.rects[0].bptr = query;
+          new_node->u.rects[0].bounds = *query;
+          new_node->box = *query;
+          if (manage)
+            new_node->flags.manage = 1;
+          sort_node (node);
+          return;
+        }
 
       /* didn't find an enclosure, so use the best one */
-      score = __r_insert_node (best_node, query, manage, True);
-      assert (score == 0);
+      __r_insert_node (best_node, query, manage, True);
       sort_node (node);
-      return 0;
+      return;
     }
 }
 
 void
 r_insert_entry (rtree_t * rtree, const BoxType * which, int man)
 {
-  long long s;
-
   assert (which);
   assert (which->X1 <= which->X2);
   assert (which->Y1 <= which->Y2);
   /* recursively search the tree for the best leaf node */
   assert (rtree->root);
-  s = __r_insert_node (rtree->root, which, man, False);
-  if (s != 0)
-    s = __r_insert_node (rtree->root, which, man, True);
-  assert (s == 0);
+  __r_insert_node (rtree->root, which, man,
+                   rtree->root->box.X1 > which->X1
+                   || rtree->root->box.X2 < which->X2
+                   || rtree->root->box.Y1 > which->Y1
+                   || rtree->root->box.Y2 < which->Y2);
   rtree->size++;
 }
 
@@ -1012,48 +1038,48 @@ __r_delete (rtree_t * seed, struct rtree_node *node, const BoxType * query)
   if (!node->flags.is_leaf)
     {
       for (i = 0; i < M_SIZE; i++)
-	{
-	  /* if this is us being removed, free and copy over */
-	  if (node->u.kids[i] == (struct rtree_node *) query)
-	    {
-	      free ((void *) query);
-	      for (; i < M_SIZE; i++)
-		{
-		  node->u.kids[i] = node->u.kids[i + 1];
-		  if (!node->u.kids[i])
-		    break;
-		}
-	      /* nobody home here now ? */
-	      if (!node->u.kids[0])
-		{
-		  if (!node->parent)
-		    {
-		      /* wow, the root is empty! */
-		      node->flags.is_leaf = 1;
-		      /* changing type of node, be sure it's all zero */
-		      for (i = 1; i < M_SIZE + 1; i++)
-			node->u.rects[i].bptr = NULL;
-		      return True;
-		    }
-		  return (__r_delete (seed, node->parent, &node->box));
-		}
-	      else
-		/* propegate boundary adjust upward */
-		while (node)
-		  {
-		    adjust_bounds (node);
-		    node = node->parent;
-		  }
-	      return True;
-	    }
-	  if (node->u.kids[i])
-	    {
-	      if (__r_delete (seed, node->u.kids[i], query))
-		return True;
-	    }
-	  else
-	    break;
-	}
+        {
+          /* if this is us being removed, free and copy over */
+          if (node->u.kids[i] == (struct rtree_node *) query)
+            {
+              free ((void *) query);
+              for (; i < M_SIZE; i++)
+                {
+                  node->u.kids[i] = node->u.kids[i + 1];
+                  if (!node->u.kids[i])
+                    break;
+                }
+              /* nobody home here now ? */
+              if (!node->u.kids[0])
+                {
+                  if (!node->parent)
+                    {
+                      /* wow, the root is empty! */
+                      node->flags.is_leaf = 1;
+                      /* changing type of node, be sure it's all zero */
+                      for (i = 1; i < M_SIZE + 1; i++)
+                        node->u.rects[i].bptr = NULL;
+                      return True;
+                    }
+                  return (__r_delete (seed, node->parent, &node->box));
+                }
+              else
+                /* propegate boundary adjust upward */
+                while (node)
+                  {
+                    adjust_bounds (node);
+                    node = node->parent;
+                  }
+              return True;
+            }
+          if (node->u.kids[i])
+            {
+              if (__r_delete (seed, node->u.kids[i], query))
+                return True;
+            }
+          else
+            break;
+        }
       return False;
     }
   /* leaf node here */
@@ -1065,16 +1091,16 @@ __r_delete (rtree_t * seed, struct rtree_node *node, const BoxType * query)
       if (!node->u.rects[i].bptr || node->u.rects[i].bptr == query)
 #else
       if (node->u.rects[i].bounds.X1 == query->X1 &&
-	  node->u.rects[i].bounds.X2 == query->X2 &&
-	  node->u.rects[i].bounds.Y1 == query->Y1 &&
-	  node->u.rects[i].bounds.Y2 == query->Y2)
+          node->u.rects[i].bounds.X2 == query->X2 &&
+          node->u.rects[i].bounds.Y1 == query->Y1 &&
+          node->u.rects[i].bounds.Y2 == query->Y2)
 #endif
-	break;
+        break;
       mask |= a;
       a <<= 1;
     }
   if (!node->u.rects[i].bptr)
-    return False;		/* not at this leaf */
+    return False;               /* not at this leaf */
   if (node->flags.manage & a)
     {
       free ((void *) node->u.rects[i].bptr);
@@ -1089,20 +1115,20 @@ __r_delete (rtree_t * seed, struct rtree_node *node, const BoxType * query)
     {
       node->u.rects[i] = node->u.rects[i + 1];
       if (!node->u.rects[i].bptr)
-	break;
+        break;
     }
   if (!node->u.rects[0].bptr)
     {
       if (node->parent)
-	__r_delete (seed, node->parent, &node->box);
+        __r_delete (seed, node->parent, &node->box);
       return True;
     }
   else
     /* propagate boundary adjustment upward */
     while (node)
       {
-	adjust_bounds (node);
-	node = node->parent;
+        adjust_bounds (node);
+        node = node->parent;
       }
   return True;
 }
@@ -1124,26 +1150,27 @@ r_delete_entry (rtree_t * rtree, const BoxType * box)
 }
 
 int
-__r_sub (struct rtree_node *node, const BoxType * b, const BoxType * a)
+__r_sub (struct rtree_node *node, const BoxType * b, const BoxType * a,
+         jmp_buf * e)
 {
   int i;
 
   if (node->flags.is_leaf)
     {
       for (i = 0; i < M_SIZE; i++)
-	if (node->u.rects[i].bptr == b)
-	  {
-	    node->u.rects[i].bptr = a;
-	    assert (a->X1 == node->u.rects[i].bounds.X1);
-	    assert (a->X2 == node->u.rects[i].bounds.X2);
-	    assert (a->Y1 == node->u.rects[i].bounds.Y1);
-	    assert (a->Y2 == node->u.rects[i].bounds.Y2);
-	    return 1;
-	  }
+        if (node->u.rects[i].bptr == b)
+          {
+            node->u.rects[i].bptr = a;
+            assert (a->X1 == node->u.rects[i].bounds.X1);
+            assert (a->X2 == node->u.rects[i].bounds.X2);
+            assert (a->Y1 == node->u.rects[i].bounds.Y1);
+            assert (a->Y2 == node->u.rects[i].bounds.Y2);
+            longjmp (*e, 1);
+          }
       return 0;
     }
   for (i = 0; i < M_SIZE; i++)
-    if (node->u.kids[i] && __r_sub (node->u.kids[i], b, a))
+    if (node->u.kids[i] && __r_sub (node->u.kids[i], b, a, e))
       return 1;
   return 0;
 }
@@ -1152,7 +1179,10 @@ __r_sub (struct rtree_node *node, const BoxType * b, const BoxType * a)
 void
 r_substitute (rtree_t * rtree, const BoxType * before, const BoxType * after)
 {
+  jmp_buf env;
+
   if (before == after)
     return;
-  __r_sub (rtree->root, before, after);
+  if (setjmp (env) == 0)
+    __r_sub (rtree->root, before, after, &env);
 }
