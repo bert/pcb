@@ -99,9 +99,9 @@ if (((ptr) = malloc(sizeof(type))) == NULL) \
 
 #undef DEBUG
 #ifdef DEBUG
-#define DEBUGP(fmt, ...) fprintf(stderr, fmt, ## __VA_ARGS__)
+#define DEBUGP(...) fprintf(stderr, ## __VA_ARGS__)
 #else
-#define DEBUGP(fmt, ...)
+#define DEBUGP(...)
 #endif
 
 /* ///////////////////////////////////////////////////////////////////////////// * /
