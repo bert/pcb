@@ -75,7 +75,7 @@ RCSID ("$Id$");
 /* it seems that sorting the leaf order slows us down
  * but sometimes gives better routes
  */
-#define SORT
+#undef SORT
 #define SORT_NONLEAF
 
 #define DELETE_BY_POINTER
@@ -568,11 +568,11 @@ __r_search (struct rtree_node *node, const BoxType * query, r_arg * arg)
       struct rtree_node **n;
       for (n = &node->u.kids[0]; *n; n++)
         {
-          if (arg->check_it (&(node->box), arg->closure))
-            if ((*n)->box.X1 >= query->X2 ||
-                (*n)->box.X2 <= query->X1 ||
-                (*n)->box.Y1 >= query->Y2 || (*n)->box.Y2 <= query->Y1)
-              continue;
+          if ((*n)->box.X1 >= query->X2 ||
+              (*n)->box.X2 <= query->X1 ||
+              (*n)->box.Y1 >= query->Y2 || (*n)->box.Y2 <= query->Y1 ||
+              !arg->check_it (&(*n)->box, arg->closure))
+            continue;
           seen += __r_search (*n, query, arg);
         }
       return seen;
