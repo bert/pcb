@@ -527,21 +527,21 @@ hid_load_settings_1 (char *fname)
   free (fname);
   while (fgets (line, sizeof(line), f) != NULL)
     {
-      for (namep=line; *namep && isspace (*namep); namep++)
+      for (namep=line; *namep && isspace ((int) *namep); namep++)
 	;
       if (*namep == '#')
 	continue;
-      for (valp=namep; *valp && !isspace(*valp); valp++)
+      for (valp=namep; *valp && !isspace((int) *valp); valp++)
 	;
       if (! *valp)
 	continue;
       *valp++ = 0;
-      while (*valp && (isspace (*valp) || *valp == '='))
+      while (*valp && (isspace ((int) *valp) || *valp == '='))
 	valp ++;
       if (! *valp)
 	continue;
       cp = valp + strlen(valp) - 1;
-      while (cp >= valp && isspace (*cp))
+      while (cp >= valp && isspace ((int) *cp))
 	*cp-- = 0;
       hid_set_attribute (namep, valp);
     }
