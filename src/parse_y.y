@@ -93,7 +93,7 @@ int yylex();
 %token	T_PCB T_LAYER T_VIA T_RAT T_LINE T_ARC T_RECTANGLE T_TEXT T_ELEMENTLINE
 %token	T_ELEMENT T_PIN T_PAD T_GRID T_FLAGS T_SYMBOL T_SYMBOLLINE T_CURSOR
 %token	T_ELEMENTARC T_MARK T_GROUPS T_STYLES T_POLYGON T_NETLIST T_NET T_CONN
-%token	T_THERMAL T_DRC T_ATTRIBUTE
+%token	T_AREA T_THERMAL T_DRC T_ATTRIBUTE
 
 %type	<number>	symbolid
 %type	<string>	opt_string
@@ -152,6 +152,7 @@ parsepcb
 		  pcbgrid
 		  pcbcursor
 		  pcbthermal 
+		  polyarea
 		  pcbdrc
 		  pcbflags
 		  pcbgroups
@@ -173,7 +174,7 @@ parsepcb
 			/* initialize the polygon clipping now since
 			 * we didn't know the layer grouping before.
 			 */
-			for (i = 0; i < max_layer; i++)
+			for (i = 0; i < yyData->LayerN; i++)
 			  for (j = 0; j < yyData->Layer[i].PolygonN; j++)
 			      InitClip (yyData, &yyData->Layer[i], &yyData->Layer[i].Polygon[j]);
 			}
@@ -380,6 +381,28 @@ pcbcursor
 		|
 		;
 
+/* %start-doc pcbfile PolyArea
+
+@syntax
+PolyArea [Area]
+@end syntax
+
+@table @var
+@item Area 
+Minimum area of polygon island to retain. If a polygon has clearances that cause an isolated island to be created, then will only be retained if the area exceeds this minimum area.
+@end table
+
+%end-doc */
+
+polyarea
+		:
+		| T_AREA '[' FLOAT ']'
+			{
+				yyPCB->IsleArea = $3;
+			}
+		;
+
+
 /* %start-doc pcbfile Thermal
 
 @syntax
@@ -393,6 +416,7 @@ the annulus width (copper diameter minus drill diameter).  The normal value is 0
 @end table
 
 %end-doc */
+
 
 pcbthermal
 		:
@@ -995,7 +1019,7 @@ text_newformat
 			{
 				if ($8 & ONSILKFLAG)
 				{
-					LayerTypePtr lay = &yyData->Layer[max_layer +
+					LayerTypePtr lay = &yyData->Layer[yyData->LayerN +
 						(($8 & ONSOLDERFLAG) ? SOLDER_LAYER : COMPONENT_LAYER)];
 
 					CreateNewText(lay ,yyFont, $3*100, $4*100, $5, $6, $7,
@@ -1012,9 +1036,15 @@ text_hi_format
 		: T_TEXT '[' NUMBER NUMBER NUMBER NUMBER STRING flags ']'
 			{
 				/* FIXME: shouldn't know about .f */
+				/* I don't think this matters because anything with hi_format
+				 * will have the silk on its own layer in the file rather
+				 * than using the ONSILKFLAG and having it in a copper layer.
+				 * Thus there is no need for anything besides the 'else'
+				 * part of this code.
+				 */
 				if ($8.f & ONSILKFLAG)
 				{
-					LayerTypePtr lay = &yyData->Layer[max_layer +
+					LayerTypePtr lay = &yyData->Layer[yyData->LayerN +
 						(($8.f & ONSOLDERFLAG) ? SOLDER_LAYER : COMPONENT_LAYER)];
 
 					CreateNewText(lay, yyFont, $3, $4, $5, $6, $7, $8);
