@@ -78,6 +78,8 @@
 
 RCSID ("$Id$");
 
+static PCBTypePtr pcb;
+
 struct cent
 {
   LocationType x, y;
@@ -136,7 +138,7 @@ square_therm (PinTypePtr pin, Cardinal style)
   switch (style)
     {
     case 1:
-      d = PCB->ThermScale * pin->Clearance * M_SQRT1_2;
+      d = pcb->ThermScale * pin->Clearance * M_SQRT1_2;
       out = (pin->Thickness + pin->Clearance) / 2;
       in = pin->Thickness / 2;
       /* top (actually bottom since +y is down) */
@@ -203,7 +205,7 @@ square_therm (PinTypePtr pin, Cardinal style)
     case 4:
       {
 	LineType l;
-	d = pin->Thickness / 2 - PCB->ThermScale * pin->Clearance;
+	d = pin->Thickness / 2 - pcb->ThermScale * pin->Clearance;
 	out = pin->Thickness / 2 + pin->Clearance / 4;
 	in = pin->Clearance / 2;
 	/* top */
@@ -241,7 +243,7 @@ square_therm (PinTypePtr pin, Cardinal style)
 	POLYAREA *m;
 	LineType l;
 	in = pin->Clearance / 2;
-	d = PCB->ThermScale * pin->Clearance;
+	d = pcb->ThermScale * pin->Clearance;
 	out = pin->Thickness / 2 + in / 2;
 	/* top right */
 	l.Point1.Y = l.Point2.Y = pin->Y + out;
@@ -287,7 +289,7 @@ square_therm (PinTypePtr pin, Cardinal style)
 	return m;
       }
     default:
-      d = 0.5 * PCB->ThermScale * pin->Clearance;
+      d = 0.5 * pcb->ThermScale * pin->Clearance;
       out = (pin->Thickness + pin->Clearance) / 2;
       in = pin->Thickness / 2;
       /* topright */
@@ -370,7 +372,7 @@ static POLYAREA *
 oct_therm (PinTypePtr pin, Cardinal style)
 {
   POLYAREA *p, *p2, *m;
-  BDimension t = 0.5 * PCB->ThermScale * pin->Clearance;
+  BDimension t = 0.5 * pcb->ThermScale * pin->Clearance;
   BDimension w = pin->Thickness + pin->Clearance;
 
   p = OctagonPoly (pin->X, pin->Y, w);
@@ -411,11 +413,9 @@ oct_therm (PinTypePtr pin, Cardinal style)
  * subtracted from the plane create the desired thermal fingers.
  * Usually this is 4 disjoint regions.
  *
- * since calculating the POLYAREA can be expensive, the most recent several
- * are saved in a small cache
  */
 POLYAREA *
-ThermPoly (PinTypePtr pin, Cardinal laynum)
+ThermPoly (PCBTypePtr p, PinTypePtr pin, Cardinal laynum)
 {
   ArcType a;
   POLYAREA *pa, *arc;
@@ -423,6 +423,7 @@ ThermPoly (PinTypePtr pin, Cardinal laynum)
 
   if (style == 3)
     return NULL;		/* solid connection no clearance */
+  pcb = p;
   if (TEST_FLAG (SQUAREFLAG, pin))
     return square_therm (pin, style);
   if (TEST_FLAG (OCTAGONFLAG, pin))
@@ -435,7 +436,7 @@ ThermPoly (PinTypePtr pin, Cardinal laynum)
       {
 	POLYAREA *m;
 	BDimension t = (pin->Thickness + pin->Clearance) / 2;
-	BDimension w = 0.5 * PCB->ThermScale * pin->Clearance;
+	BDimension w = 0.5 * pcb->ThermScale * pin->Clearance;
 	pa = CirclePoly (pin->X, pin->Y, t);
 	arc = CirclePoly (pin->X, pin->Y, pin->Thickness / 2);
 	/* create a thin ring */
@@ -467,7 +468,7 @@ ThermPoly (PinTypePtr pin, Cardinal laynum)
       a.Flags = NoFlags ();
       a.Delta =
 	90 -
-	(a.Clearance * (1. + 2. * PCB->ThermScale) * 180) / (M_PI * a.Width);
+	(a.Clearance * (1. + 2. * pcb->ThermScale) * 180) / (M_PI * a.Width);
       a.StartAngle = 90 - a.Delta / 2 + (style == 4 ? 0 : 45);
       pa = ArcPoly (&a, a.Clearance);
       if (!pa)

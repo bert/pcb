@@ -498,7 +498,7 @@ SubtractPin (DataType * d, PinType * pin, LayerType * l, PolygonType * p)
     return 0;
   i = GetLayerNumber (d, l);
   if (TEST_THERM (i, pin))
-    np = ThermPoly (pin, i);
+    np = ThermPoly ((PCBTypePtr)(d->pcb), pin, i);
   else
     np = PinPoly (pin, pin->Thickness + pin->Clearance);
   if (!np)
