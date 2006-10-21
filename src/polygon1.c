@@ -721,7 +721,7 @@ get_seg (const BoxType * b, void *cl)
  */
 
 static int
-intersect (jmp_buf * jb, POLYAREA * a, POLYAREA * b, int add)
+intersect (jmp_buf * jb, POLYAREA * b, POLYAREA * a, int add)
 {
   POLYAREA *t;
   PLINE *pa, *pb;               /* pline iterators */
@@ -763,6 +763,10 @@ intersect (jmp_buf * jb, POLYAREA * a, POLYAREA * b, int add)
             sb.Y2 = pa->ymax + 1;
             for (pb = b->contours; pb; pb = pb->next)
               {
+	      /*
+	        if (sb.X1 > pb->xmax || sb.X2 < pb->xmin || sb.Y1 > pb->ymax || sb.Y2 < pb->ymin)
+		  continue;
+	       */
                 info.tree = (rtree_t *) pb->tree;
                 if (info.tree)
                   r_search (info.tree, &sb, NULL, curtail, &env);
@@ -797,6 +801,9 @@ intersect (jmp_buf * jb, POLYAREA * a, POLYAREA * b, int add)
                   }
                 for (pb = b->contours; pb; pb = pb->next)
                   {
+		    if (pb->xmin > info.s->box.X2 || pb->xmax < info.s->box.X1 ||
+		        pb->ymin > info.s->box.Y2 || pb->ymax < info.s->box.Y1)
+			continue;
                     info.tree = (rtree_t *) pb->tree;
                     if (info.tree && r_search
                         (info.tree, &info.s->box, seg_in_region, seg_in_seg,
