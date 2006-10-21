@@ -311,7 +311,7 @@ LoadPCB (char *Filename)
       RemovePCB (PCB);
       PCB = newPCB;
 
-      CreateNewPCBPost(PCB, 0);
+      CreateNewPCBPost (PCB, 0);
       ResetStackAndVisibility ();
 #if FIXME
       /* set the zoom first before the Xorig, Yorig */
@@ -383,15 +383,13 @@ PrintQuotedString (FILE * FP, char *S)
  * writes out an attribute list
  */
 static void
-WriteAttributeList (FILE *FP, AttributeListTypePtr list, char *prefix)
+WriteAttributeList (FILE * FP, AttributeListTypePtr list, char *prefix)
 {
   int i;
 
   for (i = 0; i < list->Number; i++)
-    fprintf(FP, "%sAttribute(\"%s\" \"%s\")\n",
-	    prefix,
-	    list->List[i].name,
-	    list->List[i].value);
+    fprintf (FP, "%sAttribute(\"%s\" \"%s\")\n",
+	     prefix, list->List[i].name, list->List[i].value);
 }
 
 /* ---------------------------------------------------------------------------
@@ -454,6 +452,7 @@ WritePCBDataHeader (FILE * FP)
 	   (int) PCB->GridOffsetY, (int) Settings.DrawGrid);
   fprintf (FP, "Cursor[%i %i %s]\n", (int) TO_PCB_X (Output.Width / 2),
 	   (int) TO_PCB_Y (Output.Height / 2), c_dtostr (PCB->Zoom));
+  fprintf (FP, "PolyArea[%s]\n", c_dtostr (PCB->IsleArea));
   fprintf (FP, "Thermal[%s]\n", c_dtostr (PCB->ThermScale));
   fprintf (FP, "DRC[%i %i %i %i %i %i]\n", PCB->Bloat, PCB->Shrink,
 	   PCB->minWid, PCB->minSlk, PCB->minDrill, PCB->minRing);
@@ -615,7 +614,7 @@ WriteElementData (FILE * FP, DataTypePtr Data)
 	       (int) DESCRIPTION_TEXT (element).Direction,
 	       (int) DESCRIPTION_TEXT (element).Scale,
 	       F2S (&(DESCRIPTION_TEXT (element)), ELEMENTNAME_TYPE));
-      WriteAttributeList (FP, & element->Attributes, "\t");
+      WriteAttributeList (FP, &element->Attributes, "\t");
       for (p = 0; p < element->PinN; p++)
 	{
 	  PinTypePtr pin = &element->Pin[p];
@@ -759,7 +758,7 @@ WritePCB (FILE * FP)
   WritePCBInfoHeader (FP);
   WritePCBDataHeader (FP);
   WritePCBFontData (FP);
-  WriteAttributeList (FP, & PCB->Attributes, "");
+  WriteAttributeList (FP, &PCB->Attributes, "");
   WriteViaData (FP, PCB->Data);
   WriteElementData (FP, PCB->Data);
   WritePCBRatData (FP);

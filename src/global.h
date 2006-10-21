@@ -566,6 +566,7 @@ typedef struct			/* some resources... */
     AlignmentDistance, Bloat,	/* default drc sizes */
     Shrink, minWid, minSlk, minDrill, minRing;
   double Grid,			/* grid 0.001'' */
+    IsleArea,    		/* polygon min area */
     grid_increment_mm,		/* key g and <shift>g value for mil units */
     grid_increment_mil,		/* key g and <shift>g value for mil units */
     size_increment_mm,		/* key s and <shift>s value for mil units */

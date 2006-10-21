@@ -101,6 +101,7 @@ PCB			{ return(T_PCB); }
 Grid		{ return(T_GRID); }
 Cursor		{ return(T_CURSOR); }
 Thermal		{ return(T_THERMAL); }
+PolyArea	{ return(T_AREA); }
 DRC		{ return(T_DRC); }
 Flags		{ return(T_FLAGS); }
 Layer		{ return(T_LAYER); }
