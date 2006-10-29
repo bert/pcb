@@ -51,6 +51,7 @@
 RCSID ("$Id$");
 
 
+#define UNIT(value) (Settings.grid_units_mm ? ((value) / 100000.0 * 25.4) : ((value) / 100.0)) , (Settings.grid_units_mm ? "mm" : "mils")
 
 static int
 ReportDrills (int argc, char **argv, int x, int y)
@@ -141,24 +142,24 @@ ReportDialog (int argc, char **argv, int x, int y)
 	if (TEST_FLAG (HOLEFLAG, via))
 	  sprintf (&report[0], "VIA ID# %ld  Flags:%s\n"
 		   "(X,Y) = (%d, %d)\n"
-		   "It is a pure hole of diameter %0.2f mils\n"
+		   "It is a pure hole of diameter %0.2f %s\n"
 		   "Name = \"%s\""
 		   "%s", via->ID, flags_to_string (via->Flags, VIA_TYPE),
-		   via->X, via->Y, via->DrillingHole / 100.0,
+		   via->X, via->Y, UNIT (via->DrillingHole),
 		   EMPTY (via->Name), TEST_FLAG (LOCKFLAG,
 						 via) ? "It is LOCKED\n" :
 		   "");
 	else
 	  sprintf (&report[0], "VIA ID# %ld   Flags:%s\n"
 		   "(X,Y) = (%d, %d)\n"
-		   "Copper width = %0.2f mils  Drill width = %0.2f mils\n"
-		   "Clearance width in polygons = %0.2f mils\n"
-		   "Solder mask hole = %0.2f mils\n"
+		   "Copper width = %0.2f %s  Drill width = %0.2f %s\n"
+		   "Clearance width in polygons = %0.2f %s\n"
+		   "Solder mask hole = %0.2f %s\n"
 		   "Name = \"%s\""
 		   "%s", via->ID, flags_to_string (via->Flags, VIA_TYPE),
-		   via->X, via->Y, via->Thickness / 100.,
-		   via->DrillingHole / 100., via->Clearance / 200.,
-		   via->Mask / 100., EMPTY (via->Name), TEST_FLAG (LOCKFLAG,
+		   via->X, via->Y, UNIT (via->Thickness),
+		   UNIT (via->DrillingHole), UNIT (via->Clearance / 2.),
+		   UNIT (via->Mask), EMPTY (via->Name), TEST_FLAG (LOCKFLAG,
 								   via) ?
 		   "It is LOCKED\n" : "");
 	break;
@@ -186,24 +187,24 @@ ReportDialog (int argc, char **argv, int x, int y)
 	if (TEST_FLAG (HOLEFLAG, Pin))
 	  sprintf (&report[0], "PIN ID# %ld  Flags:%s\n"
 		   "(X,Y) = (%d, %d)\n"
-		   "It is a mounting hole, Drill width = %0.2f mils\n"
+		   "It is a mounting hole, Drill width = %0.2f %s\n"
 		   "It is owned by element %s\n"
 		   "%s", Pin->ID, flags_to_string (Pin->Flags, PIN_TYPE),
-		   Pin->X, Pin->Y, Pin->DrillingHole / 100.,
+		   Pin->X, Pin->Y, UNIT (Pin->DrillingHole),
 		   EMPTY (element->Name[1].TextString),
 		   TEST_FLAG (LOCKFLAG, Pin) ? "It is LOCKED\n" : "");
 	else
 	  sprintf (&report[0],
 		   "PIN ID# %ld   Flags:%s\n" "(X,Y) = (%d, %d)\n"
-		   "Copper width = %0.2f mils  Drill width = %0.2f mils\n"
-		   "Clearance width to Polygon = %0.2f mils\n"
-		   "Solder mask hole = %0.2f mils\n" "Name = \"%s\"\n"
+		   "Copper width = %0.2f %s  Drill width = %0.2f %s\n"
+		   "Clearance width to Polygon = %0.2f %s\n"
+		   "Solder mask hole = %0.2f %s\n" "Name = \"%s\"\n"
 		   "It is owned by element %s\n" "As pin number %s\n"
 		   "%s",
 		   Pin->ID, flags_to_string (Pin->Flags, PIN_TYPE),
-		   Pin->X, Pin->Y, Pin->Thickness / 100.,
-		   Pin->DrillingHole / 100., Pin->Clearance / 200.,
-		   Pin->Mask / 100., EMPTY (Pin->Name),
+		   Pin->X, Pin->Y, UNIT (Pin->Thickness),
+		   UNIT (Pin->DrillingHole), UNIT (Pin->Clearance / 2.),
+		   UNIT (Pin->Mask), EMPTY (Pin->Name),
 		   EMPTY (element->Name[1].TextString), EMPTY (Pin->Number),
 		   TEST_FLAG (LOCKFLAG, Pin) ? "It is LOCKED\n" : "");
 	break;
@@ -224,15 +225,15 @@ ReportDialog (int argc, char **argv, int x, int y)
 	sprintf (&report[0], "LINE ID# %ld   Flags:%s\n"
 		 "FirstPoint(X,Y) = (%d, %d)  ID = %ld\n"
 		 "SecondPoint(X,Y) = (%d, %d)  ID = %ld\n"
-		 "Width = %0.2f mils.\nClearance width in polygons = %0.2f mils.\n"
+		 "Width = %0.2f %s.\nClearance width in polygons = %0.2f %s.\n"
 		 "It is on layer %d\n"
 		 "and has name %s\n"
 		 "%s",
 		 line->ID, flags_to_string (line->Flags, LINE_TYPE),
 		 line->Point1.X, line->Point1.Y,
 		 line->Point1.ID, line->Point2.X, line->Point2.Y,
-		 line->Point2.ID, line->Thickness / 100.,
-		 line->Clearance / 200., GetLayerNumber (PCB->Data,
+		 line->Point2.ID, UNIT (line->Thickness),
+		 UNIT (line->Clearance / 2.), GetLayerNumber (PCB->Data,
 							 (LayerTypePtr) ptr1),
 		 UNKNOWN (line->Number), TEST_FLAG (LOCKFLAG,
 						    line) ? "It is LOCKED\n" :
@@ -280,15 +281,15 @@ ReportDialog (int argc, char **argv, int x, int y)
 
 	sprintf (&report[0], "ARC ID# %ld   Flags:%s\n"
 		 "CenterPoint(X,Y) = (%d, %d)\n"
-		 "Radius = %0.2f mils, Thickness = %0.2f mils\n"
-		 "Clearance width in polygons = %0.2f mils\n"
+		 "Radius = %0.2f %s, Thickness = %0.2f %s\n"
+		 "Clearance width in polygons = %0.2f %s\n"
 		 "StartAngle = %ld degrees, DeltaAngle = %ld degrees\n"
 		 "Bounding Box is (%d,%d), (%d,%d)\n"
 		 "That makes the end points at (%d,%d) and (%d,%d)\n"
 		 "It is on layer %d\n"
 		 "%s", Arc->ID, flags_to_string (Arc->Flags, ARC_TYPE),
-		 Arc->X, Arc->Y, Arc->Width / 100., Arc->Thickness / 100.,
-		 Arc->Clearance / 200., Arc->StartAngle, Arc->Delta,
+		 Arc->X, Arc->Y, UNIT (Arc->Width), UNIT (Arc->Thickness),
+		 UNIT (Arc->Clearance / 2.), Arc->StartAngle, Arc->Delta,
 		 Arc->BoundingBox.X1, Arc->BoundingBox.Y1,
 		 Arc->BoundingBox.X2, Arc->BoundingBox.Y2, box->X1,
 		 box->Y1, box->X2, box->Y2, GetLayerNumber (PCB->Data,
@@ -348,8 +349,8 @@ ReportDialog (int argc, char **argv, int x, int y)
 	sprintf (&report[0], "PAD ID# %ld   Flags:%s\n"
 		 "FirstPoint(X,Y) = (%d, %d)  ID = %ld\n"
 		 "SecondPoint(X,Y) = (%d, %d)  ID = %ld\n"
-		 "Width = %0.2f mils.\nClearance width in polygons = %0.2f mils.\n"
-		 "Solder mask width = %0.2f mils\n"
+		 "Width = %0.2f %s.\nClearance width in polygons = %0.2f %s.\n"
+		 "Solder mask width = %0.2f %s.\n"
 		 "Name = \"%s\"\n"
 		 "It is owned by SMD element %s\n"
 		 "As pin number %s and is on the %s\n"
@@ -357,8 +358,8 @@ ReportDialog (int argc, char **argv, int x, int y)
 		 "%s", Pad->ID,
 		 flags_to_string (Pad->Flags, PAD_TYPE), Pad->Point1.X,
 		 Pad->Point1.Y, Pad->Point1.ID, Pad->Point2.X, Pad->Point2.Y,
-		 Pad->Point2.ID, Pad->Thickness / 100., Pad->Clearance / 200.,
-		 Pad->Mask / 100., EMPTY (Pad->Name),
+		 Pad->Point2.ID, UNIT (Pad->Thickness), UNIT (Pad->Clearance / 2.),
+		 UNIT (Pad->Mask), EMPTY (Pad->Name),
 		 EMPTY (element->Name[1].TextString), EMPTY (Pad->Number),
 		 TEST_FLAG (ONSOLDERFLAG,
 			    Pad) ? "solder (bottom)" : "component",
@@ -382,7 +383,7 @@ ReportDialog (int argc, char **argv, int x, int y)
 		 "Descriptive Name \"%s\"\n"
 		 "Name on board \"%s\"\n"
 		 "Part number name \"%s\"\n"
-		 "It is %0.2f mils tall and is located at (X,Y) = (%d,%d)\n"
+		 "It is %0.2f %s tall and is located at (X,Y) = (%d,%d)\n"
 		 "%s"
 		 "Mark located at point (X,Y) = (%d,%d)\n"
 		 "It is on the %s side of the board.\n"
@@ -393,7 +394,7 @@ ReportDialog (int argc, char **argv, int x, int y)
 		 EMPTY (element->Name[0].TextString),
 		 EMPTY (element->Name[1].TextString),
 		 EMPTY (element->Name[2].TextString),
-		 0.45 * element->Name[1].Scale, element->Name[1].X,
+		 UNIT (0.45 * element->Name[1].Scale * 100.), element->Name[1].X,
 		 element->Name[1].Y, TEST_FLAG (HIDENAMEFLAG, element) ?
 		 "But it's hidden\n" : "", element->MarkX,
 		 element->MarkY, TEST_FLAG (ONSOLDERFLAG,
@@ -432,13 +433,13 @@ ReportDialog (int argc, char **argv, int x, int y)
 		   GetLayerNumber (PCB->Data, (LayerTypePtr) ptr1));
 	sprintf (&report[0], "TEXT ID# %ld   Flags:%s\n"
 		 "Located at (X,Y) = (%d,%d)\n"
-		 "Characters are %0.2f mils tall\n"
+		 "Characters are %0.2f %s tall\n"
 		 "Value is \"%s\"\n"
 		 "Direction is %d\n"
 		 "The bounding box is (%d,%d) (%d, %d)\n"
 		 "It %s\n"
 		 "%s", text->ID, flags_to_string (text->Flags, TEXT_TYPE),
-		 text->X, text->Y, 0.45 * text->Scale,
+		 text->X, text->Y, UNIT (0.45 * text->Scale * 100.),
 		 text->TextString, text->Direction,
 		 text->BoundingBox.X1, text->BoundingBox.Y1,
 		 text->BoundingBox.X2, text->BoundingBox.Y2,
