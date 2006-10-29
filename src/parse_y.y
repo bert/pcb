@@ -151,8 +151,8 @@ parsepcb
 		  pcbname 
 		  pcbgrid
 		  pcbcursor
-		  pcbthermal 
 		  polyarea
+		  pcbthermal 
 		  pcbdrc
 		  pcbflags
 		  pcbgroups
