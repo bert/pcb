@@ -3103,7 +3103,7 @@ ActionRenumber (int argc, char **argv, int x, int y)
     }
 
   fprintf (out, "*COMMENT* PCB Annotation File\n");
-  fprintf (out, "*VERSION* 20060814\n");
+  fprintf (out, "*FILEVERSION* 20061031\n");
 
   /*
    * Make a first pass through all of the elements and sort them out
