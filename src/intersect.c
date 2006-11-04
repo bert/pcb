@@ -98,7 +98,7 @@ createSortedYList (BoxListTypePtr boxlist)
   /* create sorted list of Y coordinates */
   yCoords.size = 2 * boxlist->BoxN;
   yCoords.p = MyCalloc (yCoords.size, sizeof (*yCoords.p),
-			"createSortedYList");
+                        "createSortedYList");
   for (i = 0; i < boxlist->BoxN; i++)
     {
       yCoords.p[2 * i] = boxlist->Box[i].Y1;
@@ -136,7 +136,7 @@ createSegmentTree (LocationType * yCoords, int N)
     }
   /* initialize the internal nodes */
   for (; i > 0; i--)
-    {				/* node 0 is not used */
+    {                           /* node 0 is not used */
       st.nodes[i].right = st.nodes[2 * i + 1].right;
       st.nodes[i].left = st.nodes[2 * i].left;
     }
@@ -157,9 +157,9 @@ insertSegment (SegmentTree * st, int n, LocationType Y1, LocationType Y2)
       assert (n < st->size / 2);
       discriminant = st->nodes[n * 2 + 1 /*right */ ].left;
       if (Y1 < discriminant)
-	insertSegment (st, n * 2, Y1, Y2);
+        insertSegment (st, n * 2, Y1, Y2);
       if (discriminant < Y2)
-	insertSegment (st, n * 2 + 1, Y1, Y2);
+        insertSegment (st, n * 2 + 1, Y1, Y2);
     }
   /* fixup area */
   st->nodes[n].area = (st->nodes[n].covered > 0) ?
@@ -182,9 +182,9 @@ deleteSegment (SegmentTree * st, int n, LocationType Y1, LocationType Y2)
       assert (n < st->size / 2);
       discriminant = st->nodes[n * 2 + 1 /*right */ ].left;
       if (Y1 < discriminant)
-	deleteSegment (st, n * 2, Y1, Y2);
+        deleteSegment (st, n * 2, Y1, Y2);
       if (discriminant < Y2)
-	deleteSegment (st, n * 2 + 1, Y1, Y2);
+        deleteSegment (st, n * 2 + 1, Y1, Y2);
     }
   /* fixup area */
   st->nodes[n].area = (st->nodes[n].covered > 0) ?
@@ -226,6 +226,9 @@ ComputeUnionArea (BoxListTypePtr boxlist)
   SegmentTree segtree;
   LocationType lastX;
   double area = 0.0;
+
+  if (boxlist->BoxN == 0)
+    return 0.0;
   /* create sorted list of Y coordinates */
   yCoords = createSortedYList (boxlist);
   /* now create empty segment tree */
@@ -233,9 +236,9 @@ ComputeUnionArea (BoxListTypePtr boxlist)
   free (yCoords.p);
   /* create sorted list of left and right X coordinates of rectangles */
   rectLeft = MyCalloc (boxlist->BoxN, sizeof (*rectLeft),
-		       "ComputeUnionArea(1)");
+                       "ComputeUnionArea(1)");
   rectRight = MyCalloc (boxlist->BoxN, sizeof (*rectRight),
-			"ComputeUnionArea(2)");
+                        "ComputeUnionArea(2)");
   for (i = 0; i < boxlist->BoxN; i++)
     {
       assert (boxlist->Box[i].X1 <= boxlist->Box[i].X2);
@@ -252,33 +255,33 @@ ComputeUnionArea (BoxListTypePtr boxlist)
       assert (i <= boxlist->BoxN);
       /* i will step through rectLeft, j will through rectRight */
       if (i == boxlist->BoxN || rectRight[j]->X2 < rectLeft[i]->X1)
-	{
-	  /* right edge of rectangle */
-	  BoxTypePtr b = rectRight[j++];
-	  /* check lastX */
-	  if (b->X2 != lastX)
-	    {
-	      assert (lastX < b->X2);
-	      area += (double) (b->X2 - lastX) * segtree.nodes[1].area;
-	      lastX = b->X2;
-	    }
-	  /* remove a segment from the segment tree. */
-	  deleteSegment (&segtree, 1, b->Y1, b->Y2);
-	}
+        {
+          /* right edge of rectangle */
+          BoxTypePtr b = rectRight[j++];
+          /* check lastX */
+          if (b->X2 != lastX)
+            {
+              assert (lastX < b->X2);
+              area += (double) (b->X2 - lastX) * segtree.nodes[1].area;
+              lastX = b->X2;
+            }
+          /* remove a segment from the segment tree. */
+          deleteSegment (&segtree, 1, b->Y1, b->Y2);
+        }
       else
-	{
-	  /* left edge of rectangle */
-	  BoxTypePtr b = rectLeft[i++];
-	  /* check lastX */
-	  if (b->X1 != lastX)
-	    {
-	      assert (lastX < b->X1);
-	      area += (double) (b->X1 - lastX) * segtree.nodes[1].area;
-	      lastX = b->X1;
-	    }
-	  /* add a segment from the segment tree. */
-	  insertSegment (&segtree, 1, b->Y1, b->Y2);
-	}
+        {
+          /* left edge of rectangle */
+          BoxTypePtr b = rectLeft[i++];
+          /* check lastX */
+          if (b->X1 != lastX)
+            {
+              assert (lastX < b->X1);
+              area += (double) (b->X1 - lastX) * segtree.nodes[1].area;
+              lastX = b->X1;
+            }
+          /* add a segment from the segment tree. */
+          insertSegment (&segtree, 1, b->Y1, b->Y2);
+        }
     }
   free (rectLeft);
   free (rectRight);
