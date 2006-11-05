@@ -624,7 +624,8 @@ DrawEverything (BoxTypePtr drawn_area)
 	    if ((TEST_FLAG (ONSOLDERFLAG, pad) && side == SOLDER_LAYER)
 		|| (!TEST_FLAG (ONSOLDERFLAG, pad)
 		    && side == COMPONENT_LAYER))
-	      DrawPadLowLevel (pad);
+	      if (!TEST_FLAG (NOPASTEFLAG, pad))
+		DrawPadLowLevel (pad);
 	  }
 	  ENDALL_LOOP;
 	}

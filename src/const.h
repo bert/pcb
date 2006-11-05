@@ -162,6 +162,11 @@ Set for locked objects.
 For pads, indicates that the second point is closer to the edge.  For
 pins, indicates that the pin is closer to a horizontal edge and thus
 pinout text should be vertical.
+@item 0x8000 marker
+Marker used internally to avoid revisiting an object.
+@item 0x10000 nopaste
+For pads, set to prevent a solderpaste stencil opening for the
+pad.  Primarily used for pads used as fiducials.
 @end table
 %end-doc */
 
@@ -170,6 +175,9 @@ pinout text should be vertical.
 #define	VIAFLAG			0x0002	/* is a via */
 #define	FOUNDFLAG		0x0004	/* used by 'FindConnection()' */
 #define HOLEFLAG		0x0008	/* pin or via is only a hole */
+#define NOPASTEFLAG		0x0008  /* pad should not receive
+					   solderpaste.  This is to
+					   support fiducials */
 #define RATFLAG                 0x0010	/* indicates line is a rat line */
 #define PININPOLYFLAG           0x0010	/* pin found inside poly - same as */
 						/* rat line since not used on lines */
@@ -194,7 +202,6 @@ pinout text should be vertical.
 #define EDGE2FLAG               0x4000	/* Padr.Point2 is closer to outside edge */
 					/* also pinout text for pins is vertical */
 #define VISITFLAG		0x8000  /* marker to avoid re-visiting an object */
-
 /* ---------------------------------------------------------------------------
  * PCB flags
  */

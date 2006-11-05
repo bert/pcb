@@ -4873,6 +4873,56 @@ ActionChangeHole (int argc, char **argv, int x, int y)
 
 /* --------------------------------------------------------------------------- */
 
+static const char changepaste_syntax[] =
+  "ChangePaste(ToggleObject|Object|SelectedPads|Selected)";
+
+static const char changepaste_help[] = "Changes the no paste flag of objects.";
+
+/* %start-doc actions ChangePaste
+
+The "no paste flag" of a pad determines whether the solderpaste
+ stencil will have an opening for the pad (no set) or if there wil be
+ no solderpaste on the pad (set).  This is used for things such as
+ fiducial pads.
+
+%end-doc */
+
+static int
+ActionChangePaste (int argc, char **argv, int x, int y)
+{
+  char *function = ARG (0);
+  if (function)
+    {
+      /* HideCrosshair (True); */
+      switch (GetFunctionID (function))
+	{
+	case F_ToggleObject:
+	case F_Object:
+	  {
+	    int type;
+	    void *ptr1, *ptr2, *ptr3;
+
+	    gui->get_coords ("Select an Object", &x, &y);
+	    if ((type = SearchScreen (x, y, PAD_TYPE,
+				      &ptr1, &ptr2, &ptr3)) != NO_TYPE
+		&& ChangePaste ((PadTypePtr) ptr3))
+	      IncrementUndoSerialNumber ();
+	    break;
+	  }
+
+	case F_SelectedPads:
+	case F_Selected:
+	  if (ChangeSelectedPaste ())
+	    SetChangedFlag (True);
+	  break;
+	}
+      /* RestoreCrosshair (True); */
+    }
+  return 0;
+}
+
+/* --------------------------------------------------------------------------- */
+
 static const char select_syntax[] =
   "Select(ToggleObject)\n"
   "Select(All|Block|Connection)\n"
@@ -6547,6 +6597,9 @@ HID_Action action_action_list[] = {
   ,
   {"ChangeName", 0, ActionChangeName,
    changename_help, changename_syntax}
+  ,
+  {"ChangePaste", 0, ActionChangePaste,
+   changepaste_help, changepaste_syntax}
   ,
   {"ChangePinName", 0, ActionChangePinName,
    changepinname_help, changepinname_syntax}

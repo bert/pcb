@@ -130,7 +130,9 @@ static struct
   {
   LOCKFLAG, N ("lock"), ALL_TYPES},
   {
-  EDGE2FLAG, N ("edge2"), ALL_TYPES}
+    EDGE2FLAG, N ("edge2"), ALL_TYPES},
+  {
+    NOPASTEFLAG, N ("nopaste"), PAD_TYPE}
 };
 
 #undef N

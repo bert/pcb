@@ -3739,6 +3739,7 @@ Cardinal
 DRCAll (void)
 {
   int tmpcnt;
+  int nopastecnt = 0;
 
   IsBad = False;
   drcerr_count = 0;
@@ -3769,6 +3770,11 @@ DRCAll (void)
       break;
     PAD_LOOP (element);
     {
+
+      /* count up how many pads have no solderpaste openings */
+      if (TEST_FLAG (NOPASTEFLAG, pad))
+	nopastecnt++;
+
       if (!TEST_FLAG (DRCFLAG, pad)
           && DRCFind (PAD_TYPE, (void *) element, (void *) pad, (void *) pad))
         {
@@ -4083,6 +4089,12 @@ DRCAll (void)
   RestoreStackAndVisibility ();
   hid_action ("LayersChanged");
 
+  if (nopastecnt > 0) 
+    {
+      Message ("Warning:  %d pad%s the nopaste flag set.\n",
+	       nopastecnt,
+	       nopastecnt > 1 ? "s have" : " has");
+    }
   return (drcerr_count);
 }
 
