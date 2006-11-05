@@ -35,6 +35,7 @@ Symbolic and numeric flags (SFlags and NFlags) are described in
 * Pad syntax::
 * PCB syntax::
 * Pin syntax::
+* PolyArea syntax::
 * Polygon syntax::
 * Rat syntax::
 * Styles syntax::
@@ -47,7 +48,7 @@ Symbolic and numeric flags (SFlags and NFlags) are described in
 @c pcbfile Arc
 @node Arc syntax
 @subsection Arc
-@c ./../src/parse_y.y 621
+@c ./../src/parse_y.y 634
 
 @cartouche
 @format
@@ -87,7 +88,7 @@ Numeric flags.
 @c pcbfile Attribute
 @node Attribute syntax
 @subsection Attribute
-@c ./../src/parse_y.y 1172
+@c ./../src/parse_y.y 1191
 
 @cartouche
 @format
@@ -112,7 +113,7 @@ if the value is interpreted as, for example, a number.
 @c pcbfile Connect
 @node Connect syntax
 @subsection Connect
-@c ./../src/parse_y.y 1162
+@c ./../src/parse_y.y 1181
 
 @cartouche
 @format
@@ -130,7 +131,7 @@ pin 7 of U14, or @code{"T4-E"} for pin E of T4.
 @c pcbfile Cursor
 @node Cursor syntax
 @subsection Cursor
-@c ./../src/parse_y.y 288
+@c ./../src/parse_y.y 289
 
 @cartouche
 @format
@@ -152,7 +153,7 @@ first variant accepts floating point numbers.  The special value
 @c pcbfile DRC
 @node DRC syntax
 @subsection DRC
-@c ./../src/parse_y.y 322
+@c ./../src/parse_y.y 335
 
 @cartouche
 @format
@@ -180,7 +181,7 @@ Minimum width of the annular ring around pins and vias.
 @c pcbfile Element
 @node Element syntax
 @subsection Element
-@c ./../src/parse_y.y 717
+@c ./../src/parse_y.y 736
 
 @cartouche
 @format
@@ -236,7 +237,7 @@ definitions which use absolute coordinates.
 @c pcbfile ElementArc
 @node ElementArc syntax
 @subsection ElementArc
-@c ./../src/parse_y.y 826
+@c ./../src/parse_y.y 845
 
 @cartouche
 @format
@@ -268,7 +269,7 @@ The width of the silk line which forms the arc.
 @c pcbfile ElementLine
 @node ElementLine syntax
 @subsection ElementLine
-@c ./../src/parse_y.y 824
+@c ./../src/parse_y.y 843
 
 @cartouche
 @format
@@ -289,7 +290,7 @@ The width of the silk for this line.
 @c pcbfile Flags
 @node Flags syntax
 @subsection Flags
-@c ./../src/parse_y.y 362
+@c ./../src/parse_y.y 375
 
 @cartouche
 @format
@@ -307,7 +308,7 @@ represent pcb-wide flags as defined in @ref{PCBFlags}.
 @c pcbfile Grid
 @node Grid syntax
 @subsection Grid
-@c ./../src/parse_y.y 234
+@c ./../src/parse_y.y 235
 
 @cartouche
 @format
@@ -330,7 +331,7 @@ If non-zero, the grid will be visible on the screen.
 @c pcbfile Groups
 @node Groups syntax
 @subsection Groups
-@c ./../src/parse_y.y 372
+@c ./../src/parse_y.y 385
 
 @cartouche
 @format
@@ -357,7 +358,7 @@ Groups("1,2,c:3:4:5,6,s:7,8")
 @c pcbfile Layer
 @node Layer syntax
 @subsection Layer
-@c ./../src/parse_y.y 512
+@c ./../src/parse_y.y 525
 
 @cartouche
 @format
@@ -382,7 +383,7 @@ text, and polygons.
 @c pcbfile Line
 @node Line syntax
 @subsection Line
-@c ./../src/parse_y.y 591
+@c ./../src/parse_y.y 604
 
 @cartouche
 @format
@@ -411,7 +412,7 @@ Numeric flags.
 @c pcbfile Mark
 @node Mark syntax
 @subsection Mark
-@c ./../src/parse_y.y 828
+@c ./../src/parse_y.y 847
 
 @cartouche
 @format
@@ -429,7 +430,7 @@ the mark as part of the Element line.
 @c pcbfile Net
 @node Net syntax
 @subsection Net
-@c ./../src/parse_y.y 1139
+@c ./../src/parse_y.y 1158
 
 @cartouche
 @format
@@ -449,7 +450,7 @@ The routing style that should be used when autorouting this net.
 @c pcbfile Netlist
 @node Netlist syntax
 @subsection Netlist
-@c ./../src/parse_y.y 1118
+@c ./../src/parse_y.y 1137
 
 @cartouche
 @format
@@ -462,7 +463,7 @@ Netlist ( ) (
 @c pcbfile Pad
 @node Pad syntax
 @subsection Pad
-@c ./../src/parse_y.y 984
+@c ./../src/parse_y.y 1003
 
 @cartouche
 @format
@@ -500,7 +501,7 @@ numerical flags only
 @c pcbfile PCB
 @node PCB syntax
 @subsection PCB
-@c ./../src/parse_y.y 211
+@c ./../src/parse_y.y 212
 
 @cartouche
 @format
@@ -523,7 +524,7 @@ chosen.
 @c pcbfile Pin
 @node Pin syntax
 @subsection Pin
-@c ./../src/parse_y.y 911
+@c ./../src/parse_y.y 930
 
 @cartouche
 @format
@@ -558,10 +559,26 @@ symbolic or numerical flags
 numerical flags only
 @end table
 
+@c pcbfile PolyArea
+@node PolyArea syntax
+@subsection PolyArea
+@c ./../src/parse_y.y 313
+
+@cartouche
+@format
+PolyArea [Area]
+@end format
+@end cartouche
+
+@table @var
+@item Area 
+Minimum area of polygon island to retain. If a polygon has clearances that cause an isolated island to be created, then will only be retained if the area exceeds this minimum area.
+@end table
+
 @c pcbfile Polygon
 @node Polygon syntax
 @subsection Polygon
-@c ./../src/parse_y.y 697
+@c ./../src/parse_y.y 716
 
 @cartouche
 @format
@@ -582,7 +599,7 @@ Coordinates of each vertex.  You must list at least three coordinates.
 @c pcbfile Rat
 @node Rat syntax
 @subsection Rat
-@c ./../src/parse_y.y 497
+@c ./../src/parse_y.y 510
 
 @cartouche
 @format
@@ -605,7 +622,7 @@ Numeric flags.
 @c pcbfile Styles
 @node Styles syntax
 @subsection Styles
-@c ./../src/parse_y.y 382
+@c ./../src/parse_y.y 395
 
 @cartouche
 @format
@@ -648,7 +665,7 @@ is split across lines only to make it readable.
 @c pcbfile Symbol
 @node Symbol syntax
 @subsection Symbol
-@c ./../src/parse_y.y 1046
+@c ./../src/parse_y.y 1065
 
 @cartouche
 @format
@@ -670,7 +687,7 @@ Additional space to allow after this character.
 @c pcbfile SymbolLine
 @node SymbolLine syntax
 @subsection SymbolLine
-@c ./../src/parse_y.y 1101
+@c ./../src/parse_y.y 1120
 
 @cartouche
 @format
@@ -689,7 +706,7 @@ The width of this line.
 @c pcbfile Text
 @node Text syntax
 @subsection Text
-@c ./../src/parse_y.y 649
+@c ./../src/parse_y.y 662
 
 @cartouche
 @format
@@ -720,7 +737,7 @@ Numeric flags.
 @c pcbfile Thermal
 @node Thermal syntax
 @subsection Thermal
-@c ./../src/parse_y.y 312
+@c ./../src/parse_y.y 324
 
 @cartouche
 @format
@@ -737,7 +754,7 @@ the annulus width (copper diameter minus drill diameter).  The normal value is 0
 @c pcbfile Via
 @node Via syntax
 @subsection Via
-@c ./../src/parse_y.y 438
+@c ./../src/parse_y.y 451
 
 @cartouche
 @format
@@ -834,9 +851,14 @@ Set for locked objects.
 For pads, indicates that the second point is closer to the edge.  For
 pins, indicates that the pin is closer to a horizontal edge and thus
 pinout text should be vertical.
+@item 0x8000 marker
+Marker used internally to avoid revisiting an object.
+@item 0x10000 nopaste
+For pads, set to prevent a solderpaste stencil opening for the
+pad.  Primarily used for pads used as fiducials.
 @end table
 @c pcbfile ~pcbflags
-@c ./../src/const.h 136
+@c ./../src/const.h 138
 @node PCBFlags
 @section PCBFlags
 @table @code
