@@ -132,8 +132,8 @@ DestroyVia (PinTypePtr Via)
   MYFREE (Via->Name);
   *Via = DestroyTarget->Via[--DestroyTarget->ViaN];
   r_substitute (DestroyTarget->via_tree, (BoxTypePtr)
-		(BoxType *) & DestroyTarget->Via[DestroyTarget->ViaN],
-		(BoxType *) Via);
+                (BoxType *) & DestroyTarget->Via[DestroyTarget->ViaN],
+                (BoxType *) Via);
   memset (&DestroyTarget->Via[DestroyTarget->ViaN], 0, sizeof (PinType));
   return (NULL);
 }
@@ -149,7 +149,7 @@ DestroyLine (LayerTypePtr Layer, LineTypePtr Line)
   *Line = Layer->Line[--Layer->LineN];
   /* tricky - line pointers are moved around */
   r_substitute (Layer->line_tree, (BoxType *) & Layer->Line[Layer->LineN],
-		(BoxType *) Line);
+                (BoxType *) Line);
   memset (&Layer->Line[Layer->LineN], 0, sizeof (LineType));
   return (NULL);
 }
@@ -163,7 +163,7 @@ DestroyArc (LayerTypePtr Layer, ArcTypePtr Arc)
   r_delete_entry (Layer->arc_tree, (BoxTypePtr) Arc);
   *Arc = Layer->Arc[--Layer->ArcN];
   r_substitute (Layer->arc_tree, (BoxType *) & Layer->Arc[Layer->ArcN],
-		(BoxType *) Arc);
+                (BoxType *) Arc);
   memset (&Layer->Arc[Layer->ArcN], 0, sizeof (ArcType));
   return (NULL);
 }
@@ -178,8 +178,8 @@ DestroyPolygon (LayerTypePtr Layer, PolygonTypePtr Polygon)
   FreePolygonMemory (Polygon);
   *Polygon = Layer->Polygon[--Layer->PolygonN];
   r_substitute (Layer->polygon_tree,
-		(BoxType *) & Layer->Polygon[Layer->PolygonN],
-		(BoxType *) Polygon);
+                (BoxType *) & Layer->Polygon[Layer->PolygonN],
+                (BoxType *) Polygon);
   memset (&Layer->Polygon[Layer->PolygonN], 0, sizeof (PolygonType));
   return (NULL);
 }
@@ -189,10 +189,12 @@ DestroyPolygon (LayerTypePtr Layer, PolygonTypePtr Polygon)
  */
 static void *
 DestroyPolygonPoint (LayerTypePtr Layer,
-		     PolygonTypePtr Polygon, PointTypePtr Point)
+                     PolygonTypePtr Polygon, PointTypePtr Point)
 {
   PointTypePtr ptr;
 
+  if (Polygon->PointN <= 3)
+    return RemovePolygon(Layer, Polygon);
   r_delete_entry (Layer->polygon_tree, (BoxType *) Polygon);
   for (ptr = Point + 1; ptr != &Polygon->Points[Polygon->PointN]; ptr++)
     {
@@ -216,7 +218,7 @@ DestroyText (LayerTypePtr Layer, TextTypePtr Text)
   r_delete_entry (Layer->text_tree, (BoxTypePtr) Text);
   *Text = Layer->Text[--Layer->TextN];
   r_substitute (Layer->text_tree, (BoxType *) & Layer->Text[Layer->TextN],
-		(BoxType *) Text);
+                (BoxType *) Text);
   memset (&Layer->Text[Layer->TextN], 0, sizeof (TextType));
   return (NULL);
 }
@@ -233,7 +235,7 @@ DestroyElement (ElementTypePtr Element)
     {
       PIN_LOOP (Element);
       {
-	r_delete_entry (DestroyTarget->pin_tree, (BoxType *) pin);
+        r_delete_entry (DestroyTarget->pin_tree, (BoxType *) pin);
       }
       END_LOOP;
     }
@@ -241,7 +243,7 @@ DestroyElement (ElementTypePtr Element)
     {
       PAD_LOOP (Element);
       {
-	r_delete_entry (DestroyTarget->pad_tree, (BoxType *) pad);
+        r_delete_entry (DestroyTarget->pad_tree, (BoxType *) pad);
       }
       END_LOOP;
     }
@@ -255,8 +257,8 @@ DestroyElement (ElementTypePtr Element)
   *Element = DestroyTarget->Element[--DestroyTarget->ElementN];
   /* deal with changed element pointer */
   r_substitute (DestroyTarget->element_tree,
-		(BoxType *) & DestroyTarget->Element[DestroyTarget->ElementN],
-		(BoxType *) Element);
+                (BoxType *) & DestroyTarget->Element[DestroyTarget->ElementN],
+                (BoxType *) Element);
   PIN_LOOP (Element);
   {
     pin->Element = Element;
@@ -270,14 +272,14 @@ DestroyElement (ElementTypePtr Element)
   ELEMENTTEXT_LOOP (Element);
   {
     r_substitute (DestroyTarget->name_tree[n],
-		  (BoxType *) & DestroyTarget->Element[DestroyTarget->
-						       ElementN].Name[n],
-		  (BoxType *) text);
+                  (BoxType *) & DestroyTarget->Element[DestroyTarget->
+                                                       ElementN].Name[n],
+                  (BoxType *) text);
     text->Element = Element;
   }
   END_LOOP;
   memset (&DestroyTarget->Element[DestroyTarget->ElementN], 0,
-	  sizeof (ElementType));
+          sizeof (ElementType));
   return (NULL);
 }
 
@@ -291,8 +293,8 @@ DestroyRat (RatTypePtr Rat)
     r_delete_entry (DestroyTarget->rat_tree, &Rat->BoundingBox);
   *Rat = DestroyTarget->Rat[--DestroyTarget->RatN];
   r_substitute (DestroyTarget->rat_tree,
-		&DestroyTarget->Rat[DestroyTarget->RatN].BoundingBox,
-		&Rat->BoundingBox);
+                &DestroyTarget->Rat[DestroyTarget->RatN].BoundingBox,
+                &Rat->BoundingBox);
   memset (&DestroyTarget->Rat[DestroyTarget->RatN], 0, sizeof (RatType));
   return (NULL);
 }
@@ -309,7 +311,7 @@ RemoveVia (PinTypePtr Via)
     {
       EraseVia (Via);
       if (!Bulk)
-	Draw ();
+        Draw ();
     }
   MoveObjectToRemoveUndoList (VIA_TYPE, Via, Via, Via);
   return (NULL);
@@ -326,7 +328,7 @@ RemoveRat (RatTypePtr Rat)
     {
       EraseRat (Rat);
       if (!Bulk)
-	Draw ();
+        Draw ();
     }
   MoveObjectToRemoveUndoList (RATLINE_TYPE, Rat, Rat, Rat);
   return (NULL);
@@ -355,7 +357,7 @@ remove_point (const BoxType * b, void *cl)
       longjmp (info->env, 1);
     }
   else if ((line->Point2.X == info->point->X)
-	   && (line->Point2.Y == info->point->Y))
+           && (line->Point2.Y == info->point->Y))
     {
       info->line = line;
       info->point = &line->Point2;
@@ -382,11 +384,11 @@ RemoveLinePoint (LayerTypePtr Layer, LineTypePtr Line, PointTypePtr Point)
   if (setjmp (info.env) == 0)
     {
       r_search (Layer->line_tree, (const BoxType *) Point, NULL, remove_point,
-		&info);
+                &info);
       return NULL;
     }
   MoveObject (LINEPOINT_TYPE, Layer, info.line, info.point,
-	      other.X - Point->X, other.Y - Point->Y);
+              other.X - Point->X, other.Y - Point->Y);
   return (RemoveLine (Layer, Line));
 }
 
@@ -401,7 +403,7 @@ RemoveLine (LayerTypePtr Layer, LineTypePtr Line)
     {
       EraseLine (Line);
       if (!Bulk)
-	Draw ();
+        Draw ();
     }
   MoveObjectToRemoveUndoList (LINE_TYPE, Layer, Line, Line);
   return (NULL);
@@ -418,7 +420,7 @@ RemoveArc (LayerTypePtr Layer, ArcTypePtr Arc)
     {
       EraseArc (Arc);
       if (!Bulk)
-	Draw ();
+        Draw ();
     }
   MoveObjectToRemoveUndoList (ARC_TYPE, Layer, Arc, Arc);
   return (NULL);
@@ -435,7 +437,7 @@ RemoveText (LayerTypePtr Layer, TextTypePtr Text)
     {
       EraseText (Text);
       if (!Bulk)
-	Draw ();
+        Draw ();
     }
   MoveObjectToRemoveUndoList (TEXT_TYPE, Layer, Text, Text);
   return (NULL);
@@ -452,7 +454,7 @@ RemovePolygon (LayerTypePtr Layer, PolygonTypePtr Polygon)
     {
       ErasePolygon (Polygon);
       if (!Bulk)
-	Draw ();
+        Draw ();
     }
   MoveObjectToRemoveUndoList (POLYGON_TYPE, Layer, Polygon, Polygon);
   return (NULL);
@@ -463,11 +465,13 @@ RemovePolygon (LayerTypePtr Layer, PolygonTypePtr Polygon)
  */
 static void *
 RemovePolygonPoint (LayerTypePtr Layer,
-		    PolygonTypePtr Polygon, PointTypePtr Point)
+                    PolygonTypePtr Polygon, PointTypePtr Point)
 {
   PointTypePtr ptr;
   Cardinal index = 0;
 
+  if (Polygon->PointN <= 3)
+    return RemovePolygon(Layer, Polygon);
   if (Layer->On)
     ErasePolygon (Polygon);
   /* insert the polygon-point into the undo list */
@@ -475,8 +479,8 @@ RemovePolygonPoint (LayerTypePtr Layer,
   {
     if (point == Point)
       {
-	index = n;
-	break;
+        index = n;
+        break;
       }
   }
   END_LOOP;
@@ -500,7 +504,7 @@ RemovePolygonPoint (LayerTypePtr Layer,
     {
       DrawPolygon (Layer, Polygon, 0);
       if (!Bulk)
-	Draw ();
+        Draw ();
     }
   return (NULL);
 }
@@ -517,7 +521,7 @@ RemoveElement (ElementTypePtr Element)
     {
       EraseElement (Element);
       if (!Bulk)
-	Draw ();
+        Draw ();
     }
   MoveObjectToRemoveUndoList (ELEMENT_TYPE, Element, Element, Element);
   return (NULL);
@@ -568,8 +572,8 @@ DeleteRats (Boolean selected)
   {
     if ((!selected) || TEST_FLAG (SELECTEDFLAG, line))
       {
-	changed = True;
-	RemoveRat (line);
+        changed = True;
+        RemoveRat (line);
       }
   }
   END_LOOP;
@@ -588,7 +592,7 @@ DeleteRats (Boolean selected)
  */
 void *
 DestroyObject (DataTypePtr Target, int Type, void *Ptr1, void *Ptr2,
-	       void *Ptr3)
+               void *Ptr3)
 {
   DestroyTarget = Target;
   return (ObjectOperation (&DestroyFunctions, Type, Ptr1, Ptr2, Ptr3));
