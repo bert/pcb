@@ -50,9 +50,15 @@ static double antifade_ratio = 0.6;
 static int multi_file = 0;
 static double media_width, media_height, ps_width, ps_height;
 
-static const char *medias[] = { "A3", "A4", "A5",
+static const char *medias[] = { 
+  "A0", "A1", "A2", "A3", "A4", "A5",
+  "A6", "A7", "A8", "A9", "A10",
+  "B0", "B1", "B2", "B3", "B4", "B5",
+  "B6", "B7", "B8", "B9", "B10",
   "Letter", "11x17", "Ledger",
-  "Legal", "Executive", "C-Size", "D-size",
+  "Legal", "Executive", 
+  "A-Size", "B-size",
+  "C-Size", "D-size", "E-size",
   0
 };
 
@@ -63,19 +69,79 @@ typedef struct
   long int MarginX, MarginY;
 } MediaType, *MediaTypePtr;
 
+/*
+ * Metric ISO sizes in mm.  See http://en.wikipedia.org/wiki/ISO_paper_sizes
+ *
+ * A0  841 x 1189
+ * A1  594 x 841
+ * A2  420 x 594
+ * A3  297 x 420
+ * A4  210 x 297
+ * A5  148 x 210
+ * A6  105 x 148
+ * A7   74 x 105
+ * A8   52 x  74
+ * A9   37 x  52
+ * A10  26 x  37
+ *
+ * B0  1000 x 1414
+ * B1   707 x 1000
+ * B2   500 x  707
+ * B3   353 x  500
+ * B4   250 x  353
+ * B5   176 x  250
+ * B6   125 x  176
+ * B7    88 x  125
+ * B8    62 x   88
+ * B9    44 x   62
+ * B10   31 x   44
+ *
+ * awk '{printf("  {\"%s\", %d, %d, MARGINX, MARGINY},\n", $2, $3*100000/25.4, $5*100000/25.4)}'
+ *
+ * See http://en.wikipedia.org/wiki/Paper_size#Loose_sizes for some of the other sizes.  The
+ * {A,B,C,D,E}-Size here are the ANSI sizes and not the architectural sizes.
+ */
+
+#define MARGINX 50000
+#define MARGINY 50000
+
 static MediaType media_data[] = {
-  {"A3", 1169000, 1653000, 50000, 50000},
-  {"A4", 826000, 1169000, 50000, 50000},
-  {"A5", 583000, 826000, 50000, 50000},
-  {"Letter", 850000, 1100000, 50000, 50000},
-  {"11x17", 1100000, 1700000, 50000, 50000},
-  {"Ledger", 1700000, 1100000, 50000, 50000},
-  {"Legal", 850000, 1400000, 50000, 50000},
-  {"Executive", 750000, 1000000, 50000, 50000},
-  {"C-size", 1700000, 2200000, 50000, 50000},
-  {"D-size", 2200000, 3400000, 50000, 50000}
+  {"A0", 3311023, 4681102, MARGINX, MARGINY},
+  {"A1", 2338582, 3311023, MARGINX, MARGINY},
+  {"A2", 1653543, 2338582, MARGINX, MARGINY},
+  {"A3", 1169291, 1653543, MARGINX, MARGINY},
+  {"A4", 826771, 1169291, MARGINX, MARGINY},
+  {"A5", 582677, 826771, MARGINX, MARGINY},
+  {"A6", 413385, 582677, MARGINX, MARGINY},
+  {"A7", 291338, 413385, MARGINX, MARGINY},
+  {"A8", 204724, 291338, MARGINX, MARGINY},
+  {"A9", 145669, 204724, MARGINX, MARGINY},
+  {"A10", 102362, 145669, MARGINX, MARGINY},
+  {"B0", 3937007, 5566929, MARGINX, MARGINY},
+  {"B1", 2783464, 3937007, MARGINX, MARGINY},
+  {"B2", 1968503, 2783464, MARGINX, MARGINY},
+  {"B3", 1389763, 1968503, MARGINX, MARGINY},
+  {"B4", 984251, 1389763, MARGINX, MARGINY},
+  {"B5", 692913, 984251, MARGINX, MARGINY},
+  {"B6", 492125, 692913, MARGINX, MARGINY},
+  {"B7", 346456, 492125, MARGINX, MARGINY},
+  {"B8", 244094, 346456, MARGINX, MARGINY},
+  {"B9", 173228, 244094, MARGINX, MARGINY},
+  {"B10", 122047, 173228, MARGINX, MARGINY},
+  {"Letter", 850000, 1100000, MARGINX, MARGINY},
+  {"11x17", 1100000, 1700000, MARGINX, MARGINY},
+  {"Ledger", 1700000, 1100000, MARGINX, MARGINY},
+  {"Legal", 850000, 1400000, MARGINX, MARGINY},
+  {"Executive", 750000, 1000000, MARGINX, MARGINY},
+  {"A-size",  850000, 1100000, MARGINX, MARGINY},
+  {"B-size", 1100000, 1700000, MARGINX, MARGINY},
+  {"C-size", 1700000, 2200000, MARGINX, MARGINY},
+  {"D-size", 2200000, 3400000, MARGINX, MARGINY},
+  {"E-size", 3400000, 4400000, MARGINX, MARGINY}
 };
 
+#undef MARGINX
+#undef MARGINY
 
 HID_Attribute ps_attribute_list[] = {
   /* other HIDs expect this to be first.  */
@@ -110,7 +176,7 @@ HID_Attribute ps_attribute_list[] = {
    HID_Boolean, 0, 0, {0, 0, 0}, 0, 0},
 #define HA_psinvert 9
   {"media", "media type",
-   HID_Enum, 0, 0, {3, 0, 0}, medias, 0},
+   HID_Enum, 0, 0, {22, 0, 0}, medias, 0},
 #define HA_media 10
   {"psfade", "Fade amount for assembly drawings (0.0=missing, 1.0=solid)",
    HID_Real, 0, 1, {0, 0, 0.40}, 0, 0},
