@@ -97,6 +97,7 @@ STRINGCHAR		([^"\n\r\\]|\\\\|\\\")
 
 %%
 
+FileVersion	{ return(T_FILEVERSION); }
 PCB			{ return(T_PCB); }
 Grid		{ return(T_GRID); }
 Cursor		{ return(T_CURSOR); }

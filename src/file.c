@@ -444,6 +444,12 @@ WritePCBDataHeader (FILE * FP)
 {
   Cardinal group;
 
+  /* next time the file format changes, these two lines should be enabled */
+#if 0
+  fprintf (FP, "\n# To read pcb files, the pcb version (or the cvs source date) must be >= the file version\n");
+  fprintf (FP, "FileVersion[%i]\n", PCB_FILE_VERSION);
+#endif
+
   fputs ("\nPCB[", FP);
   PrintQuotedString (FP, EMPTY (PCB->Name));
   fprintf (FP, " %i %i]\n\n", (int) PCB->MaxWidth, (int) PCB->MaxHeight);

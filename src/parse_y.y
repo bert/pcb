@@ -1,4 +1,12 @@
 /* $Id$ */
+/*
+ * ************************** README *******************
+ *
+ * If the file format is modified in any way, update
+ * PCB_FILE_VERSION in file.h
+ * 
+ * ************************** README *******************
+ */
 
 %{
 /*
@@ -39,6 +47,7 @@
 #include "create.h"
 #include "data.h"
 #include "error.h"
+#include "file.h"
 #include "mymem.h"
 #include "misc.h"
 #include "parse_l.h"
@@ -75,6 +84,7 @@ static AttributeListTypePtr attr_list;
 
 int yyerror(const char *s);
 int yylex();
+static int check_file_version (int);
 
 %}
 
@@ -90,7 +100,7 @@ int yylex();
 %token  <floating>      FLOAT
 %token	<string>	STRING				/* element names ... */
 
-%token	T_PCB T_LAYER T_VIA T_RAT T_LINE T_ARC T_RECTANGLE T_TEXT T_ELEMENTLINE
+%token	T_FILEVERSION T_PCB T_LAYER T_VIA T_RAT T_LINE T_ARC T_RECTANGLE T_TEXT T_ELEMENTLINE
 %token	T_ELEMENT T_PIN T_PAD T_GRID T_FLAGS T_SYMBOL T_SYMBOLLINE T_CURSOR
 %token	T_ELEMENTARC T_MARK T_GROUPS T_STYLES T_POLYGON T_NETLIST T_NET T_CONN
 %token	T_AREA T_THERMAL T_DRC T_ATTRIBUTE
@@ -148,6 +158,7 @@ parsepcb
 				yyData->LayerN = 0;
 				layer_group_string = NULL;
 			}
+		  pcbfileversion
 		  pcbname 
 		  pcbgrid
 		  pcbcursor
@@ -226,6 +237,38 @@ parsefont
 		  		SetFontInfo(yyFont);
 			}
 		;
+
+/* %start-doc pcbfile FILEVERSION
+
+@syntax
+FILEVERSION [Version]
+@end syntax
+
+@table @var
+@item Version
+File format version.  This version string represents the date when the pcb file
+format was last changed.
+@end table
+
+Any version of pcb build from sources equal to or newer
+than this number should be able to read the file.  If this line is not present
+in the input file then file format compatibility is not checked.
+
+
+%end-doc */
+
+pcbfileversion
+: |
+T_FILEVERSION '[' NUMBER ']'
+{
+  if (check_file_version ($3) != 0)
+    {
+      YYABORT;
+    }
+}
+;	
+
+/* %start-doc pcbfile Grid
 
 /* %start-doc pcbfile PCB
 
@@ -1843,3 +1886,18 @@ int yywrap()
 {
   return 1;
 }
+
+
+static int
+check_file_version (int ver)
+{
+  if ( ver > PCB_FILE_VERSION ) {
+    Message ("ERROR:  The file you are attempting to load is in a format\n"
+	     "which is too new for this version of pcb.  To load this file\n"
+	     "you need a version of pcb which is >= %d\n", ver);
+    return 1;
+  }
+  
+  return 0;
+}
+
