@@ -460,6 +460,7 @@ ClearBuffer (BufferTypePtr Buffer)
 {
   if (Buffer)
     FreeDataMemory (Buffer->Data);
+  Buffer->Data->pcb = PCB;
 }
 
 /* ----------------------------------------------------------------------

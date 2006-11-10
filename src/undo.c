@@ -1129,6 +1129,7 @@ ClearUndoList (Boolean Force)
 	}
       MYFREE (UndoList);
       FreeDataMemory (RemoveList);
+      RemoveList->pcb = PCB;
 
       /* reset some counters */
       UndoN = UndoMax = RedoN = 0;
