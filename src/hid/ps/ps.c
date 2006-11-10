@@ -59,6 +59,7 @@ static const char *medias[] = {
   "Legal", "Executive", 
   "A-Size", "B-size",
   "C-Size", "D-size", "E-size",
+  "US-Business_Card", "Intl-Business_Card",
   0
 };
 
@@ -137,7 +138,9 @@ static MediaType media_data[] = {
   {"B-size", 1100000, 1700000, MARGINX, MARGINY},
   {"C-size", 1700000, 2200000, MARGINX, MARGINY},
   {"D-size", 2200000, 3400000, MARGINX, MARGINY},
-  {"E-size", 3400000, 4400000, MARGINX, MARGINY}
+  {"E-size", 3400000, 4400000, MARGINX, MARGINY},
+  {"US-Business_Card", 350000, 200000, 0, 0},
+  {"Intl-Business_Card", 337500, 212500, 0, 0}
 };
 
 #undef MARGINX
