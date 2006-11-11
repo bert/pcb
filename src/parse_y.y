@@ -238,15 +238,15 @@ parsefont
 			}
 		;
 
-/* %start-doc pcbfile FILEVERSION
+/* %start-doc pcbfile FileVersion
 
 @syntax
-FILEVERSION [Version]
+FileVersion[Version]
 @end syntax
 
 @table @var
 @item Version
-File format version.  This version string represents the date when the pcb file
+File format version.  This version number represents the date when the pcb file
 format was last changed.
 @end table
 
