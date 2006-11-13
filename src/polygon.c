@@ -663,7 +663,8 @@ clearPoly (DataTypePtr Data, LayerTypePtr Layer, PolygonType * polygon,
   struct cpInfo info;
   Cardinal group;
 
-  if (!TEST_FLAG (CLEARPOLYFLAG, polygon))
+  if (!TEST_FLAG (CLEARPOLYFLAG, polygon)
+      || GetLayerNumber (Data, Layer) >= max_layer)
     return 0;
   group = Group (Data, GetLayerNumber (Data, Layer));
   info.solder = (group == Group (Data, Data->LayerN + SOLDER_LAYER));
@@ -1194,6 +1195,9 @@ PlowsPolygon (DataType * Data, int type, void *ptr1, void *ptr2,
     case ARC_TYPE:
       /* the cast works equally well for lines and arcs */
       if (!TEST_FLAG (CLEARLINEFLAG, (LineTypePtr) ptr2))
+        return 0;
+      /* silk doesn't plow */
+      if (GetLayerNumber (Data, ptr1) >= max_layer)
         return 0;
       GROUP_LOOP (Data, GetLayerGroupNumberByNumber (GetLayerNumber (Data,
                                                                      ((LayerTypePtr) ptr1))));
