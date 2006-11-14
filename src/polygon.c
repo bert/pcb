@@ -1014,69 +1014,33 @@ CopyAttachedPolygonToLayer (void)
   IncrementUndoSerialNumber ();
 }
 
-struct hole_info
-{
-  LayerTypePtr layer;
-  const BoxType *range;
-  int (*callback) (PLINE *, LayerTypePtr, PolygonTypePtr);
-  jmp_buf env, env0;
-};
-
-static int
-hole_callback (const BoxType * b, void *cl)
-{
-  struct hole_info *hole = (struct hole_info *) cl;
-  PolygonTypePtr polygon = (PolygonTypePtr) b;
-  POLYAREA *pa;
-  PLINE *pl;
-
-  pa = polygon->Clipped;
-  /* If this hole is so big the polygon doesn't exist, then it's not
-   * really a hole.
-   */
-  if (!pa)
-    return 0;
-  do
-    {
-      for (pl = pa->contours->next; pl; pl = pl->next)
-        {
-          if (pl->xmin > hole->range->X2 || pl->xmax < hole->range->X1 ||
-              pl->ymin > hole->range->Y2 || pl->ymax < hole->range->Y1)
-            continue;
-          if (hole->callback (pl, hole->layer, polygon))
-            {
-              longjmp (hole->env, 1);
-            }
-        }
-    }
-  while ((pa = pa->f) != polygon->Clipped);
-  return 0;
-}
-
 /* find polygon holes in range, then call the callback function for
  * each hole. If the callback returns non-zero, stop
  * the search.
  */
 int
-PolygonHoles (int group, const BoxType * range,
-              int (*any_call) (PLINE * contour,
-                               LayerTypePtr lay, PolygonTypePtr poly))
+PolygonHoles (const BoxType * range, LayerTypePtr layer,
+              PolygonTypePtr polygon, int (*any_call) (PLINE * contour,
+                                                       LayerTypePtr lay,
+                                                       PolygonTypePtr poly))
 {
-  struct hole_info info;
-
-  info.callback = any_call;
-  info.range = range;
-  GROUP_LOOP (PCB->Data, group);
-  {
-    if (!layer->PolygonN)
-      continue;
-    info.layer = layer;
-    if (setjmp (info.env0) == 0)
-      r_search (layer->polygon_tree, range, NULL, hole_callback, &info);
-    else
-      return 1;
-  }
-  END_LOOP;
+  POLYAREA *pa = polygon->Clipped;
+  PLINE *pl;
+  /* If this hole is so big the polygon doesn't exist, then it's not
+   * really a hole.
+   */
+  if (!pa)
+    return 0;
+  for (pl = pa->contours->next; pl; pl = pl->next)
+    {
+      if (pl->xmin > range->X2 || pl->xmax < range->X1 ||
+          pl->ymin > range->Y2 || pl->ymax < range->Y1)
+        continue;
+      if (any_call (pl, layer, polygon))
+        {
+          return 1;
+        }
+    }
   return 0;
 }
 
@@ -1374,14 +1338,40 @@ r_NoHolesPolygonDicer (PLINE * p, void (*emit) (PolygonTypePtr))
 }
 
 void
-NoHolesPolygonDicer (PolygonTypePtr p, void (*emit) (PolygonTypePtr))
+NoHolesPolygonDicer (PolygonTypePtr p, void (*emit) (PolygonTypePtr),
+                     const BoxType * clip)
 {
-  POLYAREA *save;
+  POLYAREA *save, *ans;
 
-  save = poly_Create ();
+  ans = save = poly_Create ();
+  /* copy the main poly only */
   poly_Copy1 (save, p->Clipped);
-  r_NoHolesPolygonDicer (save->contours, emit);
-  free (save);
+  /* clip to the bounding box */
+  if (clip)
+    {
+      POLYAREA *cbox = RectPoly (clip->X1, clip->X2, clip->Y1, clip->Y2);
+      if (cbox)
+        {
+          int r = poly_Boolean_free (save, cbox, &ans, PBO_ISECT);
+          save = ans;
+          if (r != err_ok)
+            save = NULL;
+        }
+    }
+  if (!save)
+    return;
+  /* now dice it up */
+  do
+    {
+      POLYAREA *prev;
+      r_NoHolesPolygonDicer (save->contours, emit);
+      /* go to next poly (could be one because of clip) */
+      prev = save;
+      save = prev->f;
+      /* free the previouse POLYAREA. Note the contour was consumed in the dicer */
+      free (prev);
+    }
+  while (save != ans);
 }
 
 /* make a polygon split into multiple parts into multiple polygons */

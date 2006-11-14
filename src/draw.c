@@ -30,13 +30,6 @@
 /* drawing routines
  */
 
-/* ---------------------------------------------------------------------------
- * define TO_SCREEN before macro.h is included from global.h
- */
-#if 0
-#define TO_SCREEN(c)  ((Position)((c)*Local_Zoom))
-#endif
-
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -89,6 +82,7 @@ static int Erasing = False;
 
 static int doing_pinout = False;
 static int doing_assy = False;
+static const BoxType *clip_box = NULL;
 
 /* ---------------------------------------------------------------------------
  * some local prototypes
@@ -97,7 +91,7 @@ static void Redraw (Boolean, BoxTypePtr);
 static void DrawEverything (BoxTypePtr);
 static void DrawTop (const BoxType *);
 static void DrawLayer (LayerTypePtr, BoxType *);
-static int  DrawLayerGroup (int, const BoxType *);
+static int DrawLayerGroup (int, const BoxType *);
 static void DrawPinOrViaLowLevel (PinTypePtr, Boolean);
 static void ClearOnlyPin (PinTypePtr, Boolean);
 static void DrawPlainPin (PinTypePtr, Boolean);
@@ -133,32 +127,32 @@ SetPVColor (PinTypePtr Pin, int Type)
   if (Type == VIA_TYPE)
     {
       if (!doing_pinout
-	  && TEST_FLAG (WARNFLAG | SELECTEDFLAG | FOUNDFLAG, Pin))
-	{
-	  if (TEST_FLAG (WARNFLAG, Pin))
-	    color = PCB->WarnColor;
-	  else if (TEST_FLAG (SELECTEDFLAG, Pin))
-	    color = PCB->ViaSelectedColor;
-	  else
-	    color = PCB->ConnectedColor;
-	}
+          && TEST_FLAG (WARNFLAG | SELECTEDFLAG | FOUNDFLAG, Pin))
+        {
+          if (TEST_FLAG (WARNFLAG, Pin))
+            color = PCB->WarnColor;
+          else if (TEST_FLAG (SELECTEDFLAG, Pin))
+            color = PCB->ViaSelectedColor;
+          else
+            color = PCB->ConnectedColor;
+        }
       else
-	color = PCB->ViaColor;
+        color = PCB->ViaColor;
     }
   else
     {
       if (!doing_pinout
-	  && TEST_FLAG (WARNFLAG | SELECTEDFLAG | FOUNDFLAG, Pin))
-	{
-	  if (TEST_FLAG (WARNFLAG, Pin))
-	    color = PCB->WarnColor;
-	  else if (TEST_FLAG (SELECTEDFLAG, Pin))
-	    color = PCB->PinSelectedColor;
-	  else
-	    color = PCB->ConnectedColor;
-	}
+          && TEST_FLAG (WARNFLAG | SELECTEDFLAG | FOUNDFLAG, Pin))
+        {
+          if (TEST_FLAG (WARNFLAG, Pin))
+            color = PCB->WarnColor;
+          else if (TEST_FLAG (SELECTEDFLAG, Pin))
+            color = PCB->PinSelectedColor;
+          else
+            color = PCB->ConnectedColor;
+        }
       else
-	color = PCB->PinColor;
+        color = PCB->PinColor;
     }
 
   gui->set_color (Output.fgGC, color);
@@ -259,17 +253,17 @@ Redraw (Boolean ClearWindow, BoxTypePtr screen_area)
        * everything with Gather = False
        */
       if (!Output.pixmap)
-	HideCrosshair (True);
+        HideCrosshair (True);
       SwitchDrawingWindow (PCB->Zoom,
-			   Output.pixmap ? Output.pixmap :
-			   Output.drawing_area->window,
-			   Settings.ShowSolderSide, False);
+                           Output.pixmap ? Output.pixmap :
+                           Output.drawing_area->window,
+                           Settings.ShowSolderSide, False);
       draw_area.X1 = TO_PCB_X (screen_area->X1);
       draw_area.X2 = TO_PCB_X (screen_area->X2);
       draw_area.Y1 =
-	MIN (TO_PCB_Y (screen_area->Y1), TO_PCB_Y (screen_area->Y2));
+        MIN (TO_PCB_Y (screen_area->Y1), TO_PCB_Y (screen_area->Y2));
       draw_area.Y2 =
-	MAX (TO_PCB_Y (screen_area->Y1), TO_PCB_Y (screen_area->Y2));
+        MAX (TO_PCB_Y (screen_area->Y1), TO_PCB_Y (screen_area->Y2));
 
       /* clear the background
        * of the drawing area
@@ -277,25 +271,25 @@ Redraw (Boolean ClearWindow, BoxTypePtr screen_area)
       pcbwidth = TO_DRAWABS_X (PCB->MaxWidth);
       pcbheight = TO_DRAWABS_Y (PCB->MaxHeight);
       gdk_draw_rectangle (DrawingWindow, Output.bgGC, True, 0, 0,
-			  MIN (pcbwidth, Output.Width),
-			  MIN (pcbheight, Output.Height));
+                          MIN (pcbwidth, Output.Width),
+                          MIN (pcbheight, Output.Height));
       gui->set_color (Output.fgGC, Settings.OffLimitColor);
       if (pcbwidth < Output.Width)
-	gdk_draw_rectangle (DrawingWindow, Output.fgGC, True,
-			    pcbwidth, 0, Output.Width - pcbwidth,
-			    Output.Height);
+        gdk_draw_rectangle (DrawingWindow, Output.fgGC, True,
+                            pcbwidth, 0, Output.Width - pcbwidth,
+                            Output.Height);
       if (pcbheight < Output.Height)
-	gdk_draw_rectangle (DrawingWindow, Output.fgGC, True,
-			    0, pcbheight, Output.Width,
-			    Output.Height - pcbheight);
+        gdk_draw_rectangle (DrawingWindow, Output.fgGC, True,
+                            0, pcbheight, Output.Width,
+                            Output.Height - pcbheight);
       if (ClearWindow && !Output.pixmap)
-	Crosshair.On = False;
+        Crosshair.On = False;
 
 /*      DrawBackgroundImage (); */
       DrawEverything (&draw_area);
 
       if (!Output.pixmap)
-	RestoreCrosshair (True);
+        RestoreCrosshair (True);
     }
 #endif
   gui->invalidate_all ();
@@ -379,11 +373,11 @@ hole_callback (const BoxType * b, void *cl)
       break;
     case 0:
       if (!TEST_FLAG (HOLEFLAG, pin))
-	return 1;
+        return 1;
       break;
     case 1:
       if (TEST_FLAG (HOLEFLAG, pin))
-	return 1;
+        return 1;
       break;
     }
   DrawHole ((PinTypePtr) b);
@@ -443,7 +437,7 @@ PrintAssembly (const BoxType * drawn_area, int side_group, int swap_ident)
   /* draw package */
   r_search (PCB->Data->element_tree, drawn_area, NULL, frontE_callback, NULL);
   r_search (PCB->Data->name_tree[NAME_INDEX (PCB)], drawn_area, NULL,
-	    frontN_callback, NULL);
+            frontN_callback, NULL);
   SWAP_IDENT = save_swap;
 }
 
@@ -469,10 +463,10 @@ DrawEverything (BoxTypePtr drawn_area)
       LayerType *l = LAYER_ON_STACK (i);
       int group = GetLayerGroupNumberByNumber (LayerStack[i]);
       if (l->On && !do_group[group])
-	{
-	  do_group[group] = 1;
-	  drawn_groups[ngroups++] = group;
-	}
+        {
+          do_group[group] = 1;
+          drawn_groups[ngroups++] = group;
+        }
     }
 
   component = GetLayerGroupNumberByNumber (max_layer + COMPONENT_LAYER);
@@ -484,15 +478,15 @@ DrawEverything (BoxTypePtr drawn_area)
   if (gui->set_layer ("invisible", SL (INVISIBLE, 0)))
     {
       r_search (PCB->Data->pad_tree, drawn_area, NULL, backPad_callback,
-		NULL);
+                NULL);
       if (PCB->ElementOn)
-	{
-	  r_search (PCB->Data->element_tree, drawn_area, NULL, backE_callback,
-		    NULL);
-	  r_search (PCB->Data->name_tree[NAME_INDEX (PCB)], drawn_area, NULL,
-		    backN_callback, NULL);
-	  DrawLayer (&(PCB->Data->BACKSILKLAYER), drawn_area);
-	}
+        {
+          r_search (PCB->Data->element_tree, drawn_area, NULL, backE_callback,
+                    NULL);
+          r_search (PCB->Data->name_tree[NAME_INDEX (PCB)], drawn_area, NULL,
+                    backN_callback, NULL);
+          DrawLayer (&(PCB->Data->BACKSILKLAYER), drawn_area);
+        }
     }
 
   /* draw all layers in layerstack order */
@@ -501,32 +495,31 @@ DrawEverything (BoxTypePtr drawn_area)
       int group = drawn_groups[i];
 
       if (gui->set_layer (0, group))
-	{
-	  if (DrawLayerGroup (group, drawn_area)
-	      && !gui->gui)
-	    {
-	      int save_swap = SWAP_IDENT;
+        {
+          if (DrawLayerGroup (group, drawn_area) && !gui->gui)
+            {
+              int save_swap = SWAP_IDENT;
 
-	      r_search (PCB->Data->pin_tree, drawn_area, NULL, pin_callback,
-			NULL);
-	      r_search (PCB->Data->via_tree, drawn_area, NULL, pin_callback,
-			NULL);
-	      /* draw element pads */
-	      if (group == component || group == solder)
-		{
-		  SWAP_IDENT = (group == solder);
-		  r_search (PCB->Data->pad_tree, drawn_area, NULL,
-			    pad_callback, NULL);
-		}
-	      SWAP_IDENT = save_swap;
+              r_search (PCB->Data->pin_tree, drawn_area, NULL, pin_callback,
+                        NULL);
+              r_search (PCB->Data->via_tree, drawn_area, NULL, pin_callback,
+                        NULL);
+              /* draw element pads */
+              if (group == component || group == solder)
+                {
+                  SWAP_IDENT = (group == solder);
+                  r_search (PCB->Data->pad_tree, drawn_area, NULL,
+                            pad_callback, NULL);
+                }
+              SWAP_IDENT = save_swap;
 
-	      /* draw holes */
-	      r_search (PCB->Data->pin_tree, drawn_area, NULL, hole_callback,
-			NULL);
-	      r_search (PCB->Data->via_tree, drawn_area, NULL, hole_callback,
-			NULL);
-	    }
-	}
+              /* draw holes */
+              r_search (PCB->Data->pin_tree, drawn_area, NULL, hole_callback,
+                        NULL);
+              r_search (PCB->Data->via_tree, drawn_area, NULL, hole_callback,
+                        NULL);
+            }
+        }
     }
   /* draw vias below silk */
   if (PCB->ViaOn && gui->gui)
@@ -555,25 +548,25 @@ DrawEverything (BoxTypePtr drawn_area)
       HoleCountStruct hcs;
       hcs.nplated = hcs.nunplated = 0;
       r_search (PCB->Data->pin_tree, drawn_area, NULL, hole_counting_callback,
-		&hcs);
+                &hcs);
       r_search (PCB->Data->via_tree, drawn_area, NULL, hole_counting_callback,
-		&hcs);
+                &hcs);
       if (hcs.nplated && gui->set_layer ("plated-drill", SL (PDRILL, 0)))
-	{
-	  plated = 1;
-	  r_search (PCB->Data->pin_tree, drawn_area, NULL, hole_callback,
-		    &plated);
-	  r_search (PCB->Data->via_tree, drawn_area, NULL, hole_callback,
-		    &plated);
-	}
+        {
+          plated = 1;
+          r_search (PCB->Data->pin_tree, drawn_area, NULL, hole_callback,
+                    &plated);
+          r_search (PCB->Data->via_tree, drawn_area, NULL, hole_callback,
+                    &plated);
+        }
       if (hcs.nunplated && gui->set_layer ("unplated-drill", SL (UDRILL, 0)))
-	{
-	  plated = 0;
-	  r_search (PCB->Data->pin_tree, drawn_area, NULL, hole_callback,
-		    &plated);
-	  r_search (PCB->Data->via_tree, drawn_area, NULL, hole_callback,
-		    &plated);
-	}
+        {
+          plated = 0;
+          r_search (PCB->Data->pin_tree, drawn_area, NULL, hole_callback,
+                    &plated);
+          r_search (PCB->Data->via_tree, drawn_area, NULL, hole_callback,
+                    &plated);
+        }
     }
   /* Draw top silkscreen */
   if (gui->set_layer ("topsilk", SL (SILK, TOP)))
@@ -584,13 +577,13 @@ DrawEverything (BoxTypePtr drawn_area)
     {
       /* Draw element Marks */
       if (PCB->PinOn)
-	r_search (PCB->Data->element_tree, drawn_area, NULL, EMark_callback,
-		  NULL);
+        r_search (PCB->Data->element_tree, drawn_area, NULL, EMark_callback,
+                  NULL);
       /* Draw rat lines on top */
       if (PCB->RatOn)
-	r_search (PCB->Data->rat_tree, drawn_area, NULL, rat_callback, NULL);
+        r_search (PCB->Data->rat_tree, drawn_area, NULL, rat_callback, NULL);
       if (Settings.DrawGrid)
-	DrawGrid ();
+        DrawGrid ();
     }
 
   for (side = 0; side <= 1; side++)
@@ -599,36 +592,36 @@ DrawEverything (BoxTypePtr drawn_area)
       Boolean NoData = True;
       ALLPAD_LOOP (PCB->Data);
       {
-	if ((TEST_FLAG (ONSOLDERFLAG, pad) && side == SOLDER_LAYER)
-	    || (!TEST_FLAG (ONSOLDERFLAG, pad) && side == COMPONENT_LAYER))
-	  {
-	    NoData = False;
-	    break;
-	  }
+        if ((TEST_FLAG (ONSOLDERFLAG, pad) && side == SOLDER_LAYER)
+            || (!TEST_FLAG (ONSOLDERFLAG, pad) && side == COMPONENT_LAYER))
+          {
+            NoData = False;
+            break;
+          }
       }
       ENDALL_LOOP;
 
       /* skip empty files */
       if (NoData)
-	continue;
+        continue;
 
       if (side == SOLDER_LAYER)
-	doit = gui->set_layer ("bottompaste", SL (PASTE, BOTTOM));
+        doit = gui->set_layer ("bottompaste", SL (PASTE, BOTTOM));
       else
-	doit = gui->set_layer ("toppaste", SL (PASTE, TOP));
+        doit = gui->set_layer ("toppaste", SL (PASTE, TOP));
       if (doit)
-	{
-	  gui->set_color (Output.fgGC, PCB->ElementColor);
-	  ALLPAD_LOOP (PCB->Data);
-	  {
-	    if ((TEST_FLAG (ONSOLDERFLAG, pad) && side == SOLDER_LAYER)
-		|| (!TEST_FLAG (ONSOLDERFLAG, pad)
-		    && side == COMPONENT_LAYER))
-	      if (!TEST_FLAG (NOPASTEFLAG, pad))
-		DrawPadLowLevel (pad);
-	  }
-	  ENDALL_LOOP;
-	}
+        {
+          gui->set_color (Output.fgGC, PCB->ElementColor);
+          ALLPAD_LOOP (PCB->Data);
+          {
+            if ((TEST_FLAG (ONSOLDERFLAG, pad) && side == SOLDER_LAYER)
+                || (!TEST_FLAG (ONSOLDERFLAG, pad)
+                    && side == COMPONENT_LAYER))
+              if (!TEST_FLAG (NOPASTEFLAG, pad))
+                DrawPadLowLevel (pad);
+          }
+          ENDALL_LOOP;
+        }
     }
 
   doing_assy = True;
@@ -644,29 +637,26 @@ DrawEverything (BoxTypePtr drawn_area)
 }
 
 static void
-DrawEMark (ElementTypePtr e, LocationType X, LocationType Y, Boolean invisible)
+DrawEMark (ElementTypePtr e, LocationType X, LocationType Y,
+           Boolean invisible)
 {
   int mark_size = EMARK_SIZE;
   if (!PCB->InvisibleObjectsOn && invisible)
     return;
 
-  if (e->PinN && mark_size > e->Pin[0].Thickness/2)
-    mark_size = e->Pin[0].Thickness/2;
-  if (e->PadN && mark_size > e->Pad[0].Thickness/2)
-    mark_size = e->Pad[0].Thickness/2;
+  if (e->PinN && mark_size > e->Pin[0].Thickness / 2)
+    mark_size = e->Pin[0].Thickness / 2;
+  if (e->PadN && mark_size > e->Pad[0].Thickness / 2)
+    mark_size = e->Pad[0].Thickness / 2;
 
   gui->set_color (Output.fgGC,
-		  invisible ? PCB->InvisibleMarkColor : PCB->ElementColor);
+                  invisible ? PCB->InvisibleMarkColor : PCB->ElementColor);
   gui->set_line_cap (Output.fgGC, Trace_Cap);
   gui->set_line_width (Output.fgGC, 1);
-  gui->draw_line (Output.fgGC, X - mark_size,
-	      Y, X, Y - mark_size);
-  gui->draw_line (Output.fgGC, X + mark_size,
-	      Y, X, Y - mark_size);
-  gui->draw_line (Output.fgGC, X - mark_size,
-	      Y, X, Y + mark_size);
-  gui->draw_line (Output.fgGC, X + mark_size,
-	      Y, X, Y + mark_size);
+  gui->draw_line (Output.fgGC, X - mark_size, Y, X, Y - mark_size);
+  gui->draw_line (Output.fgGC, X + mark_size, Y, X, Y - mark_size);
+  gui->draw_line (Output.fgGC, X - mark_size, Y, X, Y + mark_size);
+  gui->draw_line (Output.fgGC, X + mark_size, Y, X, Y + mark_size);
 }
 
 static int
@@ -737,9 +727,7 @@ poly_callback (const BoxType * b, void *cl)
 {
   struct pin_info *i = (struct pin_info *) cl;
 
-  if (gui->poly_dicer
-      || XOR (i->arg, TEST_FLAG (CLEARPOLYFLAG, (PolygonTypePtr) b)))
-    DrawPlainPolygon (i->Layer, (PolygonTypePtr) b);
+  DrawPlainPolygon (i->Layer, (PolygonTypePtr) b);
   return 1;
 }
 
@@ -773,9 +761,9 @@ DrawSilk (int new_swap, int layer, BoxTypePtr drawn_area)
       DrawLayer (LAYER_PTR (max_layer + layer), drawn_area);
       /* draw package */
       r_search (PCB->Data->element_tree, drawn_area, NULL, frontE_callback,
-		NULL);
+                NULL);
       r_search (PCB->Data->name_tree[NAME_INDEX (PCB)], drawn_area, NULL,
-		frontN_callback, NULL);
+                frontN_callback, NULL);
 #if 0
     }
 
@@ -791,9 +779,9 @@ DrawSilk (int new_swap, int layer, BoxTypePtr drawn_area)
       DrawLayer (LAYER_PTR (max_layer + layer), drawn_area);
       /* draw package */
       r_search (PCB->Data->element_tree, drawn_area, NULL, frontE_callback,
-		NULL);
+                NULL);
       r_search (PCB->Data->name_tree[NAME_INDEX (PCB)], drawn_area, NULL,
-		frontN_callback, NULL);
+                frontN_callback, NULL);
     }
   gui->use_mask (HID_MASK_OFF);
 #endif
@@ -835,26 +823,6 @@ DrawMask (BoxType * screen)
 }
 
 static int
-clear_callback (PLINE * pl, LayerTypePtr lay, PolygonTypePtr poly)
-{
-  int i, *x, *y;
-  VNODE *v;
-
-  i = 0;
-  x = (int *) malloc (pl->Count * sizeof (int));
-  y = (int *) malloc (pl->Count * sizeof (int));
-  for (v = &pl->head; i < pl->Count; v = v->next)
-    {
-      x[i] = v->point[0];
-      y[i++] = v->point[1];
-    }
-  gui->fill_polygon (Output.pmGC, i, x, y);
-  free (x);
-  free (y);
-  return 0;
-}
-
-static int
 line_callback (const BoxType * b, void *cl)
 {
   DrawLine ((LayerTypePtr) cl, (LineTypePtr) b, 0);
@@ -887,6 +855,7 @@ DrawLayer (LayerTypePtr Layer, BoxType * screen)
   /* print the non-clearing polys */
   info.Layer = Layer;
   info.arg = False;
+  clip_box = screen;
   r_search (Layer->polygon_tree, screen, NULL, poly_callback, &info);
 
   /* draw all visible lines this layer */
@@ -897,6 +866,7 @@ DrawLayer (LayerTypePtr Layer, BoxType * screen)
 
   /* draw the layer text on screen */
   r_search (Layer->text_tree, screen, NULL, text_callback, Layer);
+  clip_box = NULL;
 }
 
 /* ---------------------------------------------------------------------------
@@ -906,109 +876,40 @@ DrawLayer (LayerTypePtr Layer, BoxType * screen)
 static int
 DrawLayerGroup (int group, const BoxType * screen)
 {
-  int i, rv=1;
+  int i, rv = 1;
   int layernum;
   struct pin_info info;
-  int need_mask = 0;
   LayerTypePtr Layer;
   int n_entries = PCB->LayerGroups.Number[group];
   Cardinal *layers = PCB->LayerGroups.Entries[group];
 
-
-  if (!gui->poly_dicer)
-    {
-      for (i = n_entries - 1; i >= 0; i--)
-	if (layers[i] < max_layer)
-	  {
-	    Layer = PCB->Data->Layer + layers[i];
-	    if (strcasecmp (Layer->Name, "route") == 0
-		|| strcasecmp (Layer->Name, "outline") == 0)
-	      rv = 0;
-	    if (Layer->On && Layer->PolygonN)
-	      {
-		POLYGON_LOOP (Layer);
-		{
-		  if (VPOLY (polygon) && TEST_FLAG (CLEARPOLYFLAG, polygon))
-		    {
-		      need_mask = 1;
-		      /* No point looping any more */
-		      goto got_mask;
-		    }
-		}
-		END_LOOP;
-	      }
-	  }
-    got_mask:
-
-      if (need_mask)
-	{
-
-	  if (gui->poly_before)
-	    {
-	      gui->use_mask (HID_MASK_BEFORE);
-	      for (i = n_entries - 1; i >= 0; i--)
-		if (layers[i] < max_layer)
-		  {
-		    Layer = PCB->Data->Layer + layers[i];
-		    info.Layer = Layer;
-
-		    if (Layer->On && Layer->PolygonN)
-		      {
-			/* print the clearing polys */
-			info.arg = False;
-			r_search (Layer->polygon_tree, screen, NULL,
-				  poly_callback, &info);
-		      }
-		  }
-	    }
-
-	  gui->use_mask (HID_MASK_CLEAR);
-	  for (i = n_entries - 1; i >= 0; i--)
-	    if (layers[i] < max_layer)
-	      {
-		/* Make clearances around lines, arcs, pins and vias
-		 */
-		gui->set_color (Output.pmGC, "erase");
-		PolygonHoles (group, screen, clear_callback);
-	      }
-
-	  if (gui->poly_after)
-	    {
-	      gui->use_mask (HID_MASK_AFTER);
-	      for (i = n_entries - 1; i >= 0; i--)
-		if (layers[i] < max_layer)
-		  {
-		    Layer = PCB->Data->Layer + layers[i];
-		    info.Layer = Layer;
-
-		    if (Layer->On && Layer->PolygonN)
-		      {
-			/* print the clearing polys */
-			info.arg = False;
-			r_search (Layer->polygon_tree, screen, NULL,
-				  poly_callback, &info);
-		      }
-		  }
-	    }
-
-
-	  gui->use_mask (HID_MASK_OFF);
-	}
-    }
-
+  clip_box = screen;
   for (i = n_entries - 1; i >= 0; i--)
     {
       layernum = layers[i];
       Layer = PCB->Data->Layer + layers[i];
-      if (layernum < max_layer && Layer->On && Layer->PolygonN)
-	{
-	  /* print the non-clearing polys */
-	  info.Layer = Layer;
-	  info.arg = True;
-	  r_search (Layer->polygon_tree, screen, NULL, poly_callback, &info);
-	  info.arg = False;
+      if (layernum < max_layer && Layer->On)
+        {
+          /* draw all polygons on this layer */
+          if (Layer->PolygonN)
+            {
+              info.Layer = Layer;
+              info.arg = True;
+              r_search (Layer->polygon_tree, screen, NULL, poly_callback,
+                        &info);
+              info.arg = False;
+            }
 
-	}
+          /* draw all visible lines this layer */
+          r_search (Layer->line_tree, screen, NULL, line_callback, Layer);
+
+          /* draw the layer arcs on screen */
+          r_search (Layer->arc_tree, screen, NULL, arc_callback, Layer);
+
+          /* draw the layer text on screen */
+          r_search (Layer->text_tree, screen, NULL, text_callback, Layer);
+
+        }
     }
 
 
@@ -1017,16 +918,8 @@ DrawLayerGroup (int group, const BoxType * screen)
       layernum = layers[i];
       Layer = PCB->Data->Layer + layers[i];
       if (layernum < max_layer && Layer->On)
-	{
-	  /* draw all visible lines this layer */
-	  r_search (Layer->line_tree, screen, NULL, line_callback, Layer);
-
-	  /* draw the layer arcs on screen */
-	  r_search (Layer->arc_tree, screen, NULL, arc_callback, Layer);
-
-	  /* draw the layer text on screen */
-	  r_search (Layer->text_tree, screen, NULL, text_callback, Layer);
-	}
+        {
+        }
     }
   return rv;
 }
@@ -1046,7 +939,7 @@ DrawLayerGroup (int group, const BoxType * screen)
   */
 static void
 DrawSpecialPolygon (HID * hid, hidGC DrawGC,
-		    LocationType X, LocationType Y, int Thickness)
+                    LocationType X, LocationType Y, int Thickness)
 {
   static FloatPolyType p[8] = {
     {
@@ -1078,10 +971,10 @@ DrawSpecialPolygon (HID * hid, hidGC DrawGC,
     {
       special_size = Thickness;
       for (i = 0; i < 8; i++)
-	{
-	  scaled_x[i] = p[i].X * special_size;
-	  scaled_y[i] = p[i].Y * special_size;
-	}
+        {
+          scaled_x[i] = p[i].X * special_size;
+          scaled_y[i] = p[i].Y * special_size;
+        }
     }
   /* add line offset */
   for (i = 0; i < 8; i++)
@@ -1097,8 +990,8 @@ DrawSpecialPolygon (HID * hid, hidGC DrawGC,
       polygon_x[8] = X + scaled_x[0];
       polygon_y[8] = Y + scaled_y[0];
       for (i = 0; i < 8; i++)
-	hid->draw_line (DrawGC, polygon_x[i], polygon_y[i],
-			polygon_x[i + 1], polygon_y[i + 1]);
+        hid->draw_line (DrawGC, polygon_x[i], polygon_y[i],
+                        polygon_x[i + 1], polygon_y[i + 1]);
     }
   else
     hid->fill_polygon (DrawGC, 8, polygon_x, polygon_y);
@@ -1119,78 +1012,78 @@ DrawPinOrViaLowLevel (PinTypePtr Ptr, Boolean drawHole)
   if (TEST_FLAG (HOLEFLAG, Ptr))
     {
       if (drawHole)
-	{
-	  gui->fill_circle (Output.bgGC, Ptr->X, Ptr->Y, Ptr->Thickness / 2);
-	  gui->set_line_cap (Output.fgGC, Round_Cap);
-	  gui->set_line_width (Output.fgGC, 1);
-	  gui->draw_arc (Output.fgGC, Ptr->X, Ptr->Y,
-			 Ptr->Thickness / 2, Ptr->Thickness / 2, 0, 360);
-	}
+        {
+          gui->fill_circle (Output.bgGC, Ptr->X, Ptr->Y, Ptr->Thickness / 2);
+          gui->set_line_cap (Output.fgGC, Round_Cap);
+          gui->set_line_width (Output.fgGC, 1);
+          gui->draw_arc (Output.fgGC, Ptr->X, Ptr->Y,
+                         Ptr->Thickness / 2, Ptr->Thickness / 2, 0, 360);
+        }
       return;
     }
   if (TEST_FLAG (SQUAREFLAG, Ptr))
     {
       if (TEST_FLAG (THINDRAWFLAG, PCB))
-	{
-	  int l, r, t, b;
-	  l = Ptr->X - Ptr->Thickness / 2;
-	  b = Ptr->Y - Ptr->Thickness / 2;
-	  r = l + Ptr->Thickness;
-	  t = b + Ptr->Thickness;
-	  gui->set_line_cap (Output.fgGC, Round_Cap);
-	  gui->set_line_width (Output.fgGC, 1);
-	  gui->draw_line (Output.fgGC, r, t, r, b);
-	  gui->draw_line (Output.fgGC, l, t, l, b);
-	  gui->draw_line (Output.fgGC, r, t, l, t);
-	  gui->draw_line (Output.fgGC, r, b, l, b);
-	}
+        {
+          int l, r, t, b;
+          l = Ptr->X - Ptr->Thickness / 2;
+          b = Ptr->Y - Ptr->Thickness / 2;
+          r = l + Ptr->Thickness;
+          t = b + Ptr->Thickness;
+          gui->set_line_cap (Output.fgGC, Round_Cap);
+          gui->set_line_width (Output.fgGC, 1);
+          gui->draw_line (Output.fgGC, r, t, r, b);
+          gui->draw_line (Output.fgGC, l, t, l, b);
+          gui->draw_line (Output.fgGC, r, t, l, t);
+          gui->draw_line (Output.fgGC, r, b, l, b);
+        }
       else
-	{
-	  gui->set_line_cap (Output.fgGC, Square_Cap);
-	  gui->set_line_width (Output.fgGC, Ptr->Thickness);
-	  gui->draw_line (Output.fgGC, Ptr->X, Ptr->Y, Ptr->X, Ptr->Y);
-	}
+        {
+          gui->set_line_cap (Output.fgGC, Square_Cap);
+          gui->set_line_width (Output.fgGC, Ptr->Thickness);
+          gui->draw_line (Output.fgGC, Ptr->X, Ptr->Y, Ptr->X, Ptr->Y);
+        }
     }
   else if (TEST_FLAG (OCTAGONFLAG, Ptr))
     {
       gui->set_line_cap (Output.fgGC, Round_Cap);
       gui->set_line_width (Output.fgGC,
-			   (Ptr->Thickness - Ptr->DrillingHole) / 2);
+                           (Ptr->Thickness - Ptr->DrillingHole) / 2);
 
       /* transform X11 specific coord system */
       DrawSpecialPolygon (gui, Output.fgGC, Ptr->X, Ptr->Y, Ptr->Thickness);
     }
   else
-    {				/* draw a round pin or via */
+    {                           /* draw a round pin or via */
       if (TEST_FLAG (THINDRAWFLAG, PCB))
-	{
-	  gui->set_line_cap (Output.fgGC, Round_Cap);
-	  gui->set_line_width (Output.fgGC, 1);
-	  gui->draw_arc (Output.fgGC, Ptr->X, Ptr->Y,
-			 Ptr->Thickness / 2, Ptr->Thickness / 2, 0, 360);
-	}
+        {
+          gui->set_line_cap (Output.fgGC, Round_Cap);
+          gui->set_line_width (Output.fgGC, 1);
+          gui->draw_arc (Output.fgGC, Ptr->X, Ptr->Y,
+                         Ptr->Thickness / 2, Ptr->Thickness / 2, 0, 360);
+        }
       else
-	{
-	  gui->fill_circle (Output.fgGC, Ptr->X, Ptr->Y, Ptr->Thickness / 2);
-	}
+        {
+          gui->fill_circle (Output.fgGC, Ptr->X, Ptr->Y, Ptr->Thickness / 2);
+        }
     }
 
   /* and the drilling hole  (which is always round */
   if (drawHole)
     {
       if (TEST_FLAG (THINDRAWFLAG, PCB))
-	{
-	  gui->set_line_cap (Output.fgGC, Round_Cap);
-	  gui->set_line_width (Output.fgGC, 1);
-	  gui->draw_arc (Output.fgGC,
-			 Ptr->X, Ptr->Y, Ptr->DrillingHole / 2,
-			 Ptr->DrillingHole / 2, 0, 360);
-	}
+        {
+          gui->set_line_cap (Output.fgGC, Round_Cap);
+          gui->set_line_width (Output.fgGC, 1);
+          gui->draw_arc (Output.fgGC,
+                         Ptr->X, Ptr->Y, Ptr->DrillingHole / 2,
+                         Ptr->DrillingHole / 2, 0, 360);
+        }
       else
-	{
-	  gui->fill_circle (Output.bgGC, Ptr->X, Ptr->Y,
-			    Ptr->DrillingHole / 2);
-	}
+        {
+          gui->fill_circle (Output.bgGC, Ptr->X, Ptr->Y,
+                            Ptr->DrillingHole / 2);
+        }
     }
 }
 
@@ -1203,13 +1096,13 @@ DrawHole (PinTypePtr Ptr)
   if (TEST_FLAG (THINDRAWFLAG, PCB))
     {
       if (!TEST_FLAG (HOLEFLAG, Ptr))
-	{
-	  gui->set_line_cap (Output.fgGC, Round_Cap);
-	  gui->set_line_width (Output.fgGC, 1);
-	  gui->draw_arc (Output.fgGC,
-			 Ptr->X, Ptr->Y, Ptr->DrillingHole / 2,
-			 Ptr->DrillingHole / 2, 0, 360);
-	}
+        {
+          gui->set_line_cap (Output.fgGC, Round_Cap);
+          gui->set_line_width (Output.fgGC, 1);
+          gui->draw_arc (Output.fgGC,
+                         Ptr->X, Ptr->Y, Ptr->DrillingHole / 2,
+                         Ptr->DrillingHole / 2, 0, 360);
+        }
     }
   else
     {
@@ -1218,17 +1111,17 @@ DrawHole (PinTypePtr Ptr)
   if (TEST_FLAG (HOLEFLAG, Ptr))
     {
       if (TEST_FLAG (WARNFLAG, Ptr))
-	gui->set_color (Output.fgGC, PCB->WarnColor);
+        gui->set_color (Output.fgGC, PCB->WarnColor);
       else if (TEST_FLAG (SELECTEDFLAG, Ptr))
-	gui->set_color (Output.fgGC, PCB->ViaSelectedColor);
+        gui->set_color (Output.fgGC, PCB->ViaSelectedColor);
       else
-	gui->set_color (Output.fgGC, Settings.BlackColor);
+        gui->set_color (Output.fgGC, Settings.BlackColor);
 
       gui->set_line_cap (Output.fgGC, Round_Cap);
       gui->set_line_width (Output.fgGC, 1);
       gui->draw_arc (Output.fgGC,
-		     Ptr->X, Ptr->Y, Ptr->DrillingHole / 2,
-		     Ptr->DrillingHole / 2, 0, 360);
+                     Ptr->X, Ptr->Y, Ptr->DrillingHole / 2,
+                     Ptr->DrillingHole / 2, 0, 360);
     }
 }
 
@@ -1259,7 +1152,7 @@ ClearOnlyPin (PinTypePtr Pin, Boolean mask)
     {
       gui->set_line_cap (Output.pmGC, Round_Cap);
       gui->set_line_width (Output.pmGC, (Pin->Clearance + Pin->Thickness
-					 - Pin->DrillingHole));
+                                         - Pin->DrillingHole));
 
       DrawSpecialPolygon (gui, Output.pmGC, Pin->X, Pin->Y, half * 2);
     }
@@ -1293,7 +1186,7 @@ ClearPin (PinTypePtr Pin, int Type, int unused)
     {
       gui->set_line_cap (Output.pmGC, Round_Cap);
       gui->set_line_width (Output.pmGC, (Pin->Clearance + Pin->Thickness
-					 - Pin->DrillingHole) / 2);
+                                         - Pin->DrillingHole) / 2);
 
       DrawSpecialPolygon (gui, Output.pmGC, Pin->X, Pin->Y, half * 2);
     }
@@ -1342,7 +1235,7 @@ DrawVText (int x, int y, int w, int h, char *str)
   gdk_draw_rectangle (pm, Output.bgGC, TRUE, 0, 0, w, h);
 
   gui_draw_string_markup (DrawingWindow, Output.font_desc, Output.fgGC,
-			  0, 0, str);
+                          0, 0, str);
 
   im = gdk_drawable_get_image (pm, 0, 0, w, h);
   gdk_gc_get_values (Output.fgGC, &values);
@@ -1351,9 +1244,9 @@ DrawVText (int x, int y, int w, int h, char *str)
   for (i = 0; i < w; i++)
     for (j = 0; j < h; j++)
       {
-	pixel = gdk_image_get_pixel (im, i, j);
-	if (pixel == values.foreground.pixel)
-	  gdk_draw_point (DrawingWindow, Output.fgGC, x + j, y + w - i - 1);
+        pixel = gdk_image_get_pixel (im, i, j);
+        if (pixel == values.foreground.pixel)
+          gdk_draw_point (DrawingWindow, Output.fgGC, x + j, y + w - i - 1);
       }
   g_object_unref (G_OBJECT (pm));
 }
@@ -1390,15 +1283,15 @@ DrawPinOrViaNameLowLevel (PinTypePtr Ptr)
   if (Gathering)
     {
       if (vert)
-	{
-	  box.X2 = box.X1;
-	  box.Y2 = box.Y1;
-	}
+        {
+          box.X2 = box.X1;
+          box.Y2 = box.Y1;
+        }
       else
-	{
-	  box.X2 = box.X1;
-	  box.Y2 = box.Y1;
-	}
+        {
+          box.X2 = box.X1;
+          box.Y2 = box.Y1;
+        }
 /*printf("AddPart: x1=%d y1=%d x2=%d y2=%d\n", box.X1, box.Y1, box.X2, box.Y2);*/
       AddPart (&box);
       return;
@@ -1445,67 +1338,67 @@ DrawPadLowLevel (PadTypePtr Pad)
       x2 = Pad->Point2.X;
       y2 = Pad->Point2.Y;
       if (x1 > x2 || y1 > y2)
-	{
-	  x1 ^= x2;
-	  x2 ^= x1;
-	  x1 ^= x2;
-	  y1 ^= y2;
-	  y2 ^= y1;
-	  y1 ^= y2;
-	}
+        {
+          x1 ^= x2;
+          x2 ^= x1;
+          x1 ^= x2;
+          y1 ^= y2;
+          y2 ^= y1;
+          y1 ^= y2;
+        }
       gui->set_line_cap (Output.fgGC, Round_Cap);
       gui->set_line_width (Output.fgGC, 1);
       if (TEST_FLAG (SQUAREFLAG, Pad))
-	{
-	  x1 -= t;
-	  y1 -= t;
-	  x2 += t2;
-	  y2 += t2;
-	  gui->draw_line (Output.fgGC, x1, y1, x1, y2);
-	  gui->draw_line (Output.fgGC, x1, y2, x2, y2);
-	  gui->draw_line (Output.fgGC, x2, y2, x2, y1);
-	  gui->draw_line (Output.fgGC, x2, y1, x1, y1);
-	}
+        {
+          x1 -= t;
+          y1 -= t;
+          x2 += t2;
+          y2 += t2;
+          gui->draw_line (Output.fgGC, x1, y1, x1, y2);
+          gui->draw_line (Output.fgGC, x1, y2, x2, y2);
+          gui->draw_line (Output.fgGC, x2, y2, x2, y1);
+          gui->draw_line (Output.fgGC, x2, y1, x1, y1);
+        }
       else if (x1 == x2 && y1 == y2)
-	{
-	  gui->draw_arc (Output.fgGC, x1, y1,
-			 Pad->Thickness / 2, Pad->Thickness / 2, 0, 360);
-	}
+        {
+          gui->draw_arc (Output.fgGC, x1, y1,
+                         Pad->Thickness / 2, Pad->Thickness / 2, 0, 360);
+        }
       else if (x1 == x2)
-	{
-	  gui->draw_line (Output.fgGC, x1 - t, y1, x2 - t, y2);
-	  gui->draw_line (Output.fgGC, x1 + t2, y1, x2 + t2, y2);
-	  gui->draw_arc (Output.fgGC, x1, y1,
-			 Pad->Thickness / 2, Pad->Thickness / 2, 0, 180);
-	  gui->draw_arc (Output.fgGC, x2, y2,
-			 Pad->Thickness / 2, Pad->Thickness / 2, 180, 180);
-	}
+        {
+          gui->draw_line (Output.fgGC, x1 - t, y1, x2 - t, y2);
+          gui->draw_line (Output.fgGC, x1 + t2, y1, x2 + t2, y2);
+          gui->draw_arc (Output.fgGC, x1, y1,
+                         Pad->Thickness / 2, Pad->Thickness / 2, 0, 180);
+          gui->draw_arc (Output.fgGC, x2, y2,
+                         Pad->Thickness / 2, Pad->Thickness / 2, 180, 180);
+        }
       else
-	{
-	  gui->draw_line (Output.fgGC, x1, y1 - t, x2, y2 - t);
-	  gui->draw_line (Output.fgGC, x1, y1 + t2, x2, y2 + t2);
-	  gui->draw_arc (Output.fgGC, x1, y1,
-			 Pad->Thickness / 2, Pad->Thickness / 2, 90, 180);
-	  gui->draw_arc (Output.fgGC, x2, y2,
-			 Pad->Thickness / 2, Pad->Thickness / 2, 270, 180);
-	}
+        {
+          gui->draw_line (Output.fgGC, x1, y1 - t, x2, y2 - t);
+          gui->draw_line (Output.fgGC, x1, y1 + t2, x2, y2 + t2);
+          gui->draw_arc (Output.fgGC, x1, y1,
+                         Pad->Thickness / 2, Pad->Thickness / 2, 90, 180);
+          gui->draw_arc (Output.fgGC, x2, y2,
+                         Pad->Thickness / 2, Pad->Thickness / 2, 270, 180);
+        }
     }
   else if (Pad->Point1.X == Pad->Point2.X
-	   && Pad->Point1.Y == Pad->Point2.Y && !TEST_FLAG (SQUAREFLAG, Pad))
+           && Pad->Point1.Y == Pad->Point2.Y && !TEST_FLAG (SQUAREFLAG, Pad))
     {
       gui->fill_circle (Output.fgGC,
-			Pad->Point1.X, Pad->Point1.Y, Pad->Thickness / 2);
+                        Pad->Point1.X, Pad->Point1.Y, Pad->Thickness / 2);
     }
   else
     {
       gui->set_line_cap (Output.fgGC,
-			 TEST_FLAG (SQUAREFLAG,
-				    Pad) ? Square_Cap : Round_Cap);
+                         TEST_FLAG (SQUAREFLAG,
+                                    Pad) ? Square_Cap : Round_Cap);
       gui->set_line_width (Output.fgGC, Pad->Thickness);
 
       gui->draw_line (Output.fgGC,
-		      Pad->Point1.X, Pad->Point1.Y,
-		      Pad->Point2.X, Pad->Point2.Y);
+                      Pad->Point1.X, Pad->Point1.Y,
+                      Pad->Point2.X, Pad->Point2.Y);
     }
 }
 
@@ -1554,15 +1447,15 @@ DrawPadNameLowLevel (PadTypePtr Pad)
   if (Gathering)
     {
       if (vert)
-	{
-	  box.X2 = box.X1;
-	  box.Y2 = box.Y1;
-	}
+        {
+          box.X2 = box.X1;
+          box.Y2 = box.Y1;
+        }
       else
-	{
-	  box.X2 = box.X1;
-	  box.Y2 = box.Y1;
-	}
+        {
+          box.X2 = box.X1;
+          box.Y2 = box.Y1;
+        }
       AddPart (&box);
       return;
     }
@@ -1596,12 +1489,12 @@ ClearPad (PadTypePtr Pad, Boolean mask)
   else
     {
       gui->set_line_cap (Output.pmGC,
-			 TEST_FLAG (SQUAREFLAG,
-				    Pad) ? Square_Cap : Round_Cap);
+                         TEST_FLAG (SQUAREFLAG,
+                                    Pad) ? Square_Cap : Round_Cap);
       gui->set_line_width (Output.pmGC, w);
       gui->draw_line (Output.pmGC,
-		      Pad->Point1.X, Pad->Point1.Y,
-		      Pad->Point2.X, Pad->Point2.Y);
+                      Pad->Point1.X, Pad->Point1.Y,
+                      Pad->Point2.X, Pad->Point2.Y);
     }
 }
 
@@ -1629,15 +1522,15 @@ DrawLineLowLevel (LineTypePtr Line, Boolean HaveGathered)
       gdk_gc_set_stipple (Output.fgGC, Stipples[0]);
       gdk_gc_set_fill (Output.fgGC, GDK_STIPPLED);
       XDrawCLine (DrawingWindow, Output.fgGC,
-		  Line->Point1.X, Line->Point1.Y,
-		  Line->Point2.X, Line->Point2.Y);
+                  Line->Point1.X, Line->Point1.Y,
+                  Line->Point2.X, Line->Point2.Y);
       gdk_gc_set_fill (Output.fgGC, GDK_SOLID);
     }
   else
 #endif
     gui->draw_line (Output.fgGC,
-		    Line->Point1.X, Line->Point1.Y,
-		    Line->Point2.X, Line->Point2.Y);
+                    Line->Point1.X, Line->Point1.Y,
+                    Line->Point2.X, Line->Point2.Y);
 }
 
 /* ---------------------------------------------------------------------------
@@ -1661,70 +1554,70 @@ DrawTextLowLevel (TextTypePtr Text)
     {
       /* draw lines if symbol is valid and data is present */
       if (*string <= MAX_FONTPOSITION && font->Symbol[*string].Valid)
-	{
-	  LineTypePtr line = font->Symbol[*string].Line;
-	  LineType newline;
+        {
+          LineTypePtr line = font->Symbol[*string].Line;
+          LineType newline;
 
-	  for (n = font->Symbol[*string].LineN; n; n--, line++)
-	    {
-	      /* create one line, scale, move, rotate and swap it */
-	      newline = *line;
-	      newline.Point1.X = (newline.Point1.X + x) * Text->Scale / 100;
-	      newline.Point1.Y = newline.Point1.Y * Text->Scale / 100;
-	      newline.Point2.X = (newline.Point2.X + x) * Text->Scale / 100;
-	      newline.Point2.Y = newline.Point2.Y * Text->Scale / 100;
-	      newline.Thickness = newline.Thickness * Text->Scale / 200;
-	      if (newline.Thickness < PCB->minSlk && !gui->gui)
-		newline.Thickness = PCB->minSlk;
+          for (n = font->Symbol[*string].LineN; n; n--, line++)
+            {
+              /* create one line, scale, move, rotate and swap it */
+              newline = *line;
+              newline.Point1.X = (newline.Point1.X + x) * Text->Scale / 100;
+              newline.Point1.Y = newline.Point1.Y * Text->Scale / 100;
+              newline.Point2.X = (newline.Point2.X + x) * Text->Scale / 100;
+              newline.Point2.Y = newline.Point2.Y * Text->Scale / 100;
+              newline.Thickness = newline.Thickness * Text->Scale / 200;
+              if (newline.Thickness < PCB->minSlk && !gui->gui)
+                newline.Thickness = PCB->minSlk;
 
-	      RotateLineLowLevel (&newline, 0, 0, Text->Direction);
+              RotateLineLowLevel (&newline, 0, 0, Text->Direction);
 
-	      /* the labels of SMD objects on the bottom
-	       * side haven't been swapped yet, only their offset
-	       */
-	      if (TEST_FLAG (ONSOLDERFLAG, Text))
-		{
-		  newline.Point1.X = SWAP_SIGN_X (newline.Point1.X);
-		  newline.Point1.Y = SWAP_SIGN_Y (newline.Point1.Y);
-		  newline.Point2.X = SWAP_SIGN_X (newline.Point2.X);
-		  newline.Point2.Y = SWAP_SIGN_Y (newline.Point2.Y);
-		}
-	      /* add offset and draw line */
-	      newline.Point1.X += Text->X;
-	      newline.Point1.Y += Text->Y;
-	      newline.Point2.X += Text->X;
-	      newline.Point2.Y += Text->Y;
-	      DrawLineLowLevel (&newline, True);
-	    }
+              /* the labels of SMD objects on the bottom
+               * side haven't been swapped yet, only their offset
+               */
+              if (TEST_FLAG (ONSOLDERFLAG, Text))
+                {
+                  newline.Point1.X = SWAP_SIGN_X (newline.Point1.X);
+                  newline.Point1.Y = SWAP_SIGN_Y (newline.Point1.Y);
+                  newline.Point2.X = SWAP_SIGN_X (newline.Point2.X);
+                  newline.Point2.Y = SWAP_SIGN_Y (newline.Point2.Y);
+                }
+              /* add offset and draw line */
+              newline.Point1.X += Text->X;
+              newline.Point1.Y += Text->Y;
+              newline.Point2.X += Text->X;
+              newline.Point2.Y += Text->Y;
+              DrawLineLowLevel (&newline, True);
+            }
 
-	  /* move on to next cursor position */
-	  x += (font->Symbol[*string].Width + font->Symbol[*string].Delta);
-	}
+          /* move on to next cursor position */
+          x += (font->Symbol[*string].Width + font->Symbol[*string].Delta);
+        }
       else
-	{
-	  /* the default symbol is a filled box */
-	  BoxType defaultsymbol = PCB->Font.DefaultSymbol;
-	  LocationType size = (defaultsymbol.X2 - defaultsymbol.X1) * 6 / 5;
+        {
+          /* the default symbol is a filled box */
+          BoxType defaultsymbol = PCB->Font.DefaultSymbol;
+          LocationType size = (defaultsymbol.X2 - defaultsymbol.X1) * 6 / 5;
 
-	  defaultsymbol.X1 = (defaultsymbol.X1 + x) * Text->Scale / 100;
-	  defaultsymbol.Y1 = defaultsymbol.Y1 * Text->Scale / 100;
-	  defaultsymbol.X2 = (defaultsymbol.X2 + x) * Text->Scale / 100;
-	  defaultsymbol.Y2 = defaultsymbol.Y2 * Text->Scale / 100;
+          defaultsymbol.X1 = (defaultsymbol.X1 + x) * Text->Scale / 100;
+          defaultsymbol.Y1 = defaultsymbol.Y1 * Text->Scale / 100;
+          defaultsymbol.X2 = (defaultsymbol.X2 + x) * Text->Scale / 100;
+          defaultsymbol.Y2 = defaultsymbol.Y2 * Text->Scale / 100;
 
-	  RotateBoxLowLevel (&defaultsymbol, 0, 0, Text->Direction);
+          RotateBoxLowLevel (&defaultsymbol, 0, 0, Text->Direction);
 
-	  /* add offset and draw box */
-	  defaultsymbol.X1 += Text->X;
-	  defaultsymbol.Y1 += Text->Y;
-	  defaultsymbol.X2 += Text->X;
-	  defaultsymbol.Y2 += Text->Y;
-	  gui->fill_rect (Output.fgGC,
-			  defaultsymbol.X1, defaultsymbol.Y1,
-			  defaultsymbol.X2, defaultsymbol.Y2);
+          /* add offset and draw box */
+          defaultsymbol.X1 += Text->X;
+          defaultsymbol.Y1 += Text->Y;
+          defaultsymbol.X2 += Text->X;
+          defaultsymbol.Y2 += Text->Y;
+          gui->fill_rect (Output.fgGC,
+                          defaultsymbol.X1, defaultsymbol.Y1,
+                          defaultsymbol.X2, defaultsymbol.Y2);
 
-	  /* move on to next cursor position */
-	  x += size;
-	}
+          /* move on to next cursor position */
+          x += size;
+        }
       string++;
     }
 }
@@ -1756,43 +1649,18 @@ DrawPolygonLowLevel (PolygonTypePtr Polygon)
     }
   if (TEST_FLAG (THINDRAWFLAG, PCB))
     {
+      gui->set_line_width (Output.fgGC, 1);
       for (i = 0; i < n - 1; i++)
-	{
-	  gui->draw_line (Output.fgGC, x[i], y[i], x[i + 1], y[i + 1]);
-	  //  gui->fill_circle (Output.fgGC, x[i], y[i], 30);
-	}
+        {
+          gui->draw_line (Output.fgGC, x[i], y[i], x[i + 1], y[i + 1]);
+          //  gui->fill_circle (Output.fgGC, x[i], y[i], 30);
+        }
       gui->draw_line (Output.fgGC, x[n - 1], y[n - 1], x[0], y[0]);
     }
   else
     gui->fill_polygon (Output.fgGC, n, x, y);
   free (x);
   free (y);
-  if (!TEST_FLAG (CHECKPLANESFLAG, PCB))
-    return;
-  {
-    POLYAREA *pg;
-    for (pg = Polygon->Clipped->f; pg != Polygon->Clipped; pg = pg->f)
-      {
-	pl = pg->contours;
-	i = 0;
-	n = pl->Count;
-	x = (int *) malloc (n * sizeof (int));
-	y = (int *) malloc (n * sizeof (int));
-	for (v = &pl->head; i < n; v = v->next)
-	  {
-	    x[i] = v->point[0];
-	    y[i++] = v->point[1];
-	  }
-	for (i = 0; i < n - 1; i++)
-	  {
-	    gui->draw_line (Output.fgGC, x[i], y[i], x[i + 1], y[i + 1]);
-	    gui->fill_circle (Output.bgGC, x[i], y[i], 10);
-	  }
-	gui->draw_line (Output.fgGC, x[n - 1], y[n - 1], x[0], y[0]);
-	free (x);
-	free (y);
-      }
-  }
 }
 
 /* ---------------------------------------------------------------------------
@@ -1816,7 +1684,7 @@ DrawArcLowLevel (ArcTypePtr Arc)
   gui->set_line_cap (Output.fgGC, Trace_Cap);
 
   gui->draw_arc (Output.fgGC, Arc->X, Arc->Y, Arc->Width,
-		 Arc->Height, Arc->StartAngle, Arc->Delta);
+                 Arc->Height, Arc->StartAngle, Arc->Delta);
 }
 
 /* ---------------------------------------------------------------------------
@@ -1876,9 +1744,9 @@ DrawViaName (PinTypePtr Via, int unused)
   if (!Gathering)
     {
       if (TEST_FLAG (SELECTEDFLAG, Via))
-	gui->set_color (Output.fgGC, PCB->ViaSelectedColor);
+        gui->set_color (Output.fgGC, PCB->ViaSelectedColor);
       else
-	gui->set_color (Output.fgGC, PCB->ViaColor);
+        gui->set_color (Output.fgGC, PCB->ViaColor);
     }
   DrawPinOrViaNameLowLevel (Via);
 }
@@ -1924,9 +1792,9 @@ DrawPinName (PinTypePtr Pin, int unused)
   if (!Gathering)
     {
       if (TEST_FLAG (SELECTEDFLAG, Pin))
-	gui->set_color (Output.fgGC, PCB->PinSelectedColor);
+        gui->set_color (Output.fgGC, PCB->PinSelectedColor);
       else
-	gui->set_color (Output.fgGC, PCB->PinColor);
+        gui->set_color (Output.fgGC, PCB->PinColor);
     }
   DrawPinOrViaNameLowLevel (Pin);
 }
@@ -1940,20 +1808,20 @@ DrawPad (PadTypePtr Pad, int unused)
   if (!Gathering)
     {
       if (doing_pinout)
-	gui->set_color (Output.fgGC, PCB->PinColor);
+        gui->set_color (Output.fgGC, PCB->PinColor);
       else if (TEST_FLAG (WARNFLAG | SELECTEDFLAG | FOUNDFLAG, Pad))
-	{
-	  if (TEST_FLAG (WARNFLAG, Pad))
-	    gui->set_color (Output.fgGC, PCB->WarnColor);
-	  else if (TEST_FLAG (SELECTEDFLAG, Pad))
-	    gui->set_color (Output.fgGC, PCB->PinSelectedColor);
-	  else
-	    gui->set_color (Output.fgGC, PCB->ConnectedColor);
-	}
+        {
+          if (TEST_FLAG (WARNFLAG, Pad))
+            gui->set_color (Output.fgGC, PCB->WarnColor);
+          else if (TEST_FLAG (SELECTEDFLAG, Pad))
+            gui->set_color (Output.fgGC, PCB->PinSelectedColor);
+          else
+            gui->set_color (Output.fgGC, PCB->ConnectedColor);
+        }
       else if (FRONT (Pad))
-	gui->set_color (Output.fgGC, PCB->PinColor);
+        gui->set_color (Output.fgGC, PCB->PinColor);
       else
-	gui->set_color (Output.fgGC, PCB->InvisibleObjectsColor);
+        gui->set_color (Output.fgGC, PCB->InvisibleObjectsColor);
     }
   DrawPadLowLevel (Pad);
   if (doing_pinout || TEST_FLAG (DISPLAYNAMEFLAG, Pad))
@@ -1969,11 +1837,11 @@ DrawPadName (PadTypePtr Pad, int unused)
   if (!Gathering)
     {
       if (TEST_FLAG (SELECTEDFLAG, Pad))
-	gui->set_color (Output.fgGC, PCB->PinSelectedColor);
+        gui->set_color (Output.fgGC, PCB->PinSelectedColor);
       else if (FRONT (Pad))
-	gui->set_color (Output.fgGC, PCB->PinColor);
+        gui->set_color (Output.fgGC, PCB->PinColor);
       else
-	gui->set_color (Output.fgGC, PCB->InvisibleObjectsColor);
+        gui->set_color (Output.fgGC, PCB->InvisibleObjectsColor);
     }
   DrawPadNameLowLevel (Pad);
 }
@@ -1987,14 +1855,14 @@ DrawLine (LayerTypePtr Layer, LineTypePtr Line, int unused)
   if (!Gathering)
     {
       if (TEST_FLAG (SELECTEDFLAG | FOUNDFLAG, Line))
-	{
-	  if (TEST_FLAG (SELECTEDFLAG, Line))
-	    gui->set_color (Output.fgGC, Layer->SelectedColor);
-	  else
-	    gui->set_color (Output.fgGC, PCB->ConnectedColor);
-	}
+        {
+          if (TEST_FLAG (SELECTEDFLAG, Line))
+            gui->set_color (Output.fgGC, Layer->SelectedColor);
+          else
+            gui->set_color (Output.fgGC, PCB->ConnectedColor);
+        }
       else
-	gui->set_color (Output.fgGC, Layer->Color);
+        gui->set_color (Output.fgGC, Layer->Color);
     }
   DrawLineLowLevel (Line, False);
 }
@@ -2008,14 +1876,14 @@ DrawRat (RatTypePtr Line, int unused)
   if (!Gathering)
     {
       if (TEST_FLAG (SELECTEDFLAG | FOUNDFLAG, Line))
-	{
-	  if (TEST_FLAG (SELECTEDFLAG, Line))
-	    gui->set_color (Output.fgGC, PCB->RatSelectedColor);
-	  else
-	    gui->set_color (Output.fgGC, PCB->ConnectedColor);
-	}
+        {
+          if (TEST_FLAG (SELECTEDFLAG, Line))
+            gui->set_color (Output.fgGC, PCB->RatSelectedColor);
+          else
+            gui->set_color (Output.fgGC, PCB->ConnectedColor);
+        }
       else
-	gui->set_color (Output.fgGC, PCB->RatColor);
+        gui->set_color (Output.fgGC, PCB->RatColor);
     }
   if (Settings.RatThickness < 20)
     Line->Thickness = pixel_slop * Settings.RatThickness;
@@ -2033,14 +1901,14 @@ DrawArc (LayerTypePtr Layer, ArcTypePtr Arc, int unused)
   if (!Gathering)
     {
       if (TEST_FLAG (SELECTEDFLAG | FOUNDFLAG, Arc))
-	{
-	  if (TEST_FLAG (SELECTEDFLAG, Arc))
-	    gui->set_color (Output.fgGC, Layer->SelectedColor);
-	  else
-	    gui->set_color (Output.fgGC, PCB->ConnectedColor);
-	}
+        {
+          if (TEST_FLAG (SELECTEDFLAG, Arc))
+            gui->set_color (Output.fgGC, Layer->SelectedColor);
+          else
+            gui->set_color (Output.fgGC, PCB->ConnectedColor);
+        }
       else
-	gui->set_color (Output.fgGC, Layer->Color);
+        gui->set_color (Output.fgGC, Layer->Color);
     }
   DrawArcLowLevel (Arc);
 }
@@ -2091,9 +1959,9 @@ DrawPolygon (LayerTypePtr Layer, PolygonTypePtr Polygon, int unused)
   if (TEST_FLAG (SELECTEDFLAG | FOUNDFLAG, Polygon))
     {
       if (TEST_FLAG (SELECTEDFLAG, Polygon))
-	gui->set_color (Output.fgGC, Layer->SelectedColor);
+        gui->set_color (Output.fgGC, Layer->SelectedColor);
       else
-	gui->set_color (Output.fgGC, PCB->ConnectedColor);
+        gui->set_color (Output.fgGC, PCB->ConnectedColor);
     }
   else
     gui->set_color (Output.fgGC, Layer->Color);
@@ -2113,14 +1981,41 @@ DrawPolygon (LayerTypePtr Layer, PolygonTypePtr Polygon, int unused)
   if (TEST_FLAG (CLEARPOLYFLAG, Polygon))
     {
       r_search (PCB->Data->pin_tree, &Polygon->BoundingBox, NULL,
-		cp_callback, (void *) PIN_TYPE);
+                cp_callback, (void *) PIN_TYPE);
       r_search (PCB->Data->via_tree, &Polygon->BoundingBox, NULL,
-		cp_callback, (void *) VIA_TYPE);
+                cp_callback, (void *) VIA_TYPE);
     }
 }
 
+int
+thin_callback (PLINE * pl, LayerTypePtr lay, PolygonTypePtr poly)
+{
+  int i, *x, *y;
+  VNODE *v;
+
+  i = 0;
+  x = (int *) malloc (pl->Count * sizeof (int));
+  y = (int *) malloc (pl->Count * sizeof (int));
+  for (v = &pl->head; i < pl->Count; v = v->next)
+    {
+      x[i] = v->point[0];
+      y[i++] = v->point[1];
+    }
+  gui->set_line_width (Output.fgGC, 1);
+  for (i = 0; i < pl->Count - 1; i++)
+    {
+      gui->draw_line (Output.fgGC, x[i], y[i], x[i + 1], y[i + 1]);
+      //  gui->fill_circle (Output.fgGC, x[i], y[i], 30);
+    }
+  gui->draw_line (Output.fgGC, x[pl->Count - 1], y[pl->Count - 1], x[0], y[0]);
+  free (x);
+  free (y);
+  return 0;
+}
+
+
 /* ---------------------------------------------------------------------------
- * draws a polygon without cutting away the pin/via clearances
+ * draws a polygon
  */
 static void
 DrawPlainPolygon (LayerTypePtr Layer, PolygonTypePtr Polygon)
@@ -2128,20 +2023,50 @@ DrawPlainPolygon (LayerTypePtr Layer, PolygonTypePtr Polygon)
   if (TEST_FLAG (SELECTEDFLAG | FOUNDFLAG, Polygon))
     {
       if (TEST_FLAG (SELECTEDFLAG, Polygon))
-	gui->set_color (Output.fgGC, Layer->SelectedColor);
+        gui->set_color (Output.fgGC, Layer->SelectedColor);
       else
-	gui->set_color (Output.fgGC, PCB->ConnectedColor);
+        gui->set_color (Output.fgGC, PCB->ConnectedColor);
     }
   else
     gui->set_color (Output.fgGC, Layer->Color);
-  if (gui->poly_dicer)
-    {
-      if (Polygon->Clipped)
-	NoHolesPolygonDicer (Polygon, DrawPolygonLowLevel);
-    }
-  else
+  /* if the gui has the dicer flag set then it won't accept thin draw */
+  if (TEST_FLAG (THINDRAWFLAG, PCB) && !gui->poly_dicer)
     {
       DrawPolygonLowLevel (Polygon);
+      if (!Gathering)
+        PolygonHoles (clip_box, Layer, Polygon, thin_callback);
+    }
+  else if (Polygon->Clipped)
+    NoHolesPolygonDicer (Polygon, DrawPolygonLowLevel, clip_box);
+  /* if the gui has the dicer flag set then it won't draw missing poly outlines */
+  if (TEST_FLAG (CHECKPLANESFLAG, PCB) && Polygon->Clipped && !Gathering
+      && !gui->poly_dicer)
+    {
+      POLYAREA *pg;
+
+      for (pg = Polygon->Clipped->f; pg != Polygon->Clipped; pg = pg->f)
+        {
+          VNODE *v;
+          PLINE *pl = pg->contours;
+          int i = 0;
+          int n = pl->Count;
+          int *x = (int *) malloc (n * sizeof (int));
+          int *y = (int *) malloc (n * sizeof (int));
+          for (v = &pl->head; i < n; v = v->next)
+            {
+              x[i] = v->point[0];
+              y[i++] = v->point[1];
+            }
+          gui->set_line_width (Output.fgGC, 1);
+          for (i = 0; i < n - 1; i++)
+            {
+              gui->draw_line (Output.fgGC, x[i], y[i], x[i + 1], y[i + 1]);
+              /* gui->fill_circle (Output.bgGC, x[i], y[i], 10); */
+            }
+          gui->draw_line (Output.fgGC, x[n - 1], y[n - 1], x[0], y[0]);
+          free (x);
+          free (y);
+        }
     }
 }
 
@@ -2441,11 +2366,11 @@ DrawGrid ()
       maxx = TO_PCB_X (Output.Width);
       maxy = TO_PCB_Y (Output.Height);
       if (miny > maxy)
-	{
-	  temp = maxy;
-	  maxy = miny;
-	  miny = temp;
-	}
+        {
+          temp = maxy;
+          maxy = miny;
+          miny = temp;
+        }
       minx -= delta;
       miny -= delta;
 #if 0
@@ -2460,10 +2385,10 @@ DrawGrid ()
       miny = MAX (0, miny);
       minx = MAX (0, minx);
       for (y = miny; y <= maxy; y += delta)
-	for (x = minx; x <= maxx; x += delta)
-	  gdk_draw_point (DrawingWindow,
-			  Output.GridGC, TO_DRAW_X (GRIDFIT_X (x, delta)),
-			  TO_DRAW_Y (GRIDFIT_Y (y, delta)));
+        for (x = minx; x <= maxx; x += delta)
+          gdk_draw_point (DrawingWindow,
+                          Output.GridGC, TO_DRAW_X (GRIDFIT_X (x, delta)),
+                          TO_DRAW_Y (GRIDFIT_Y (y, delta)));
     }
 #endif
 }
@@ -2513,45 +2438,45 @@ DrawObject (int type, void *ptr1, void *ptr2, int unused)
     {
     case VIA_TYPE:
       if (PCB->ViaOn)
-	DrawVia ((PinTypePtr) ptr2, 0);
+        DrawVia ((PinTypePtr) ptr2, 0);
       break;
     case LINE_TYPE:
       if (((LayerTypePtr) ptr1)->On)
-	DrawLine ((LayerTypePtr) ptr1, (LineTypePtr) ptr2, 0);
+        DrawLine ((LayerTypePtr) ptr1, (LineTypePtr) ptr2, 0);
       break;
     case ARC_TYPE:
       if (((LayerTypePtr) ptr1)->On)
-	DrawArc ((LayerTypePtr) ptr1, (ArcTypePtr) ptr2, 0);
+        DrawArc ((LayerTypePtr) ptr1, (ArcTypePtr) ptr2, 0);
       break;
     case TEXT_TYPE:
       if (((LayerTypePtr) ptr1)->On)
-	DrawText ((LayerTypePtr) ptr1, (TextTypePtr) ptr2, 0);
+        DrawText ((LayerTypePtr) ptr1, (TextTypePtr) ptr2, 0);
       break;
     case POLYGON_TYPE:
       if (((LayerTypePtr) ptr1)->On)
-	DrawPolygon ((LayerTypePtr) ptr1, (PolygonTypePtr) ptr2, 0);
+        DrawPolygon ((LayerTypePtr) ptr1, (PolygonTypePtr) ptr2, 0);
       break;
     case ELEMENT_TYPE:
       if (PCB->ElementOn &&
-	  (FRONT ((ElementTypePtr) ptr2) || PCB->InvisibleObjectsOn))
-	DrawElement ((ElementTypePtr) ptr2, 0);
+          (FRONT ((ElementTypePtr) ptr2) || PCB->InvisibleObjectsOn))
+        DrawElement ((ElementTypePtr) ptr2, 0);
       break;
     case RATLINE_TYPE:
       if (PCB->RatOn)
-	DrawRat ((RatTypePtr) ptr2, 0);
+        DrawRat ((RatTypePtr) ptr2, 0);
       break;
     case PIN_TYPE:
       if (PCB->PinOn)
-	DrawPin ((PinTypePtr) ptr2, 0);
+        DrawPin ((PinTypePtr) ptr2, 0);
       break;
     case PAD_TYPE:
       if (PCB->PinOn)
-	DrawPad ((PadTypePtr) ptr2, 0);
+        DrawPad ((PadTypePtr) ptr2, 0);
       break;
     case ELEMENTNAME_TYPE:
       if (PCB->ElementOn &&
-	  (FRONT ((ElementTypePtr) ptr2) || PCB->InvisibleObjectsOn))
-	DrawElementName ((ElementTypePtr) ptr1, 0);
+          (FRONT ((ElementTypePtr) ptr2) || PCB->InvisibleObjectsOn))
+        DrawElementName ((ElementTypePtr) ptr1, 0);
       break;
     }
 }
