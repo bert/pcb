@@ -208,10 +208,10 @@ ghid_invalidate_all ()
   if (!gport->pixmap)
     return;
 
-  region.X1 = 0;
-  region.Y1 = 0;
-  region.X2 = PCB->MaxWidth;
-  region.Y2 = PCB->MaxHeight;
+  region.X1 = MIN(VIEW_X(0), VIEW_X(gport->width + 1));
+  region.Y1 = MIN(VIEW_Y(0), VIEW_Y(gport->height + 1));
+  region.X2 = MAX(VIEW_X(0), VIEW_X(gport->width + 1));
+  region.Y2 = MAX(VIEW_Y(0), VIEW_Y(gport->height + 1));
 
   eleft = DRAW_X (0);
   eright = DRAW_X (PCB->MaxWidth);
