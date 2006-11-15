@@ -911,16 +911,6 @@ DrawLayerGroup (int group, const BoxType * screen)
 
         }
     }
-
-
-  for (i = n_entries - 1; i >= 0; i--)
-    {
-      layernum = layers[i];
-      Layer = PCB->Data->Layer + layers[i];
-      if (layernum < max_layer && Layer->On)
-        {
-        }
-    }
   return rv;
 }
 
@@ -2007,7 +1997,8 @@ thin_callback (PLINE * pl, LayerTypePtr lay, PolygonTypePtr poly)
       gui->draw_line (Output.fgGC, x[i], y[i], x[i + 1], y[i + 1]);
       //  gui->fill_circle (Output.fgGC, x[i], y[i], 30);
     }
-  gui->draw_line (Output.fgGC, x[pl->Count - 1], y[pl->Count - 1], x[0], y[0]);
+  gui->draw_line (Output.fgGC, x[pl->Count - 1], y[pl->Count - 1], x[0],
+                  y[0]);
   free (x);
   free (y);
   return 0;
