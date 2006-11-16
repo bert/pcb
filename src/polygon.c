@@ -70,17 +70,9 @@ RCSID ("$Id$");
  */
 
 #define CIRC_SEGS 36
-static double circleVerticies[(CIRC_SEGS / 4 + 1) * 2] = {
+static double circleVerticies[] = {
   1.0, 0.0,
   0.98480775301221, 0.17364817766693,
-  0.93969262978591, 0.34202014332567,
-  0.86602540478444, 0.5,
-  0.76604444311898, 0.64278760968654,
-  0.64278760968654, 0.76604444311898,
-  0.5, 0.86602540478444,
-  0.34202014332567, 0.93969262978591,
-  0.17364817766693, 0.98480775301221,
-  0.0, 1.0
 };
 
 
@@ -253,12 +245,15 @@ OctagonPoly (LocationType x, LocationType y, BDimension radius)
   return ContourToPoly (contour);
 }
 
-/* add verticies in a half-circle starting from v 
+/* add verticies in a fractional-circle starting from v 
  * centered at X, Y and going counter-clockwise
- * does not include the last point in the half circle
+ * does not include the first point
+ * last argument is 1 for a full circle
+ * 2 for a half circle
+ * or 4 for a quarter circle
  */
 void
-half_circle (PLINE * c, LocationType X, LocationType Y, Vector v)
+frac_circle (PLINE * c, LocationType X, LocationType Y, Vector v, int range)
 {
   double e1, e2, t1;
   int i;
@@ -267,7 +262,7 @@ half_circle (PLINE * c, LocationType X, LocationType Y, Vector v)
   /* move vector to origin */
   e1 = v[0] - X;
   e2 = v[1] - Y;
-  for (i = 0; i < (CIRC_SEGS - 1) / 2; i++)
+  for (i = 0; i < (CIRC_SEGS - 1) / range; i++)
     {
       /* rotate the vector */
       t1 = e1 * circleVerticies[2] - e2 * circleVerticies[3];
@@ -286,7 +281,6 @@ CirclePoly (LocationType x, LocationType y, BDimension radius)
 {
   PLINE *contour;
   Vector v;
-  int i;
 
   if (radius <= 0)
     return NULL;
@@ -294,34 +288,36 @@ CirclePoly (LocationType x, LocationType y, BDimension radius)
   v[1] = y;
   if ((contour = poly_NewContour (v)) == NULL)
     return NULL;
-  for (i = 2; i < 20;)
-    {
-      v[0] = x + circleVerticies[i++] * radius;
-      v[1] = y + circleVerticies[i++] * radius;
-      poly_InclVertex (contour->head.prev, poly_CreateNode (v));
-      i += COARSE_CIRCLE;
-    }
-  for (i = 17; i > 0;)
-    {
-      v[1] = y + circleVerticies[i--] * radius;
-      v[0] = x - circleVerticies[i--] * radius;
-      poly_InclVertex (contour->head.prev, poly_CreateNode (v));
-      i -= COARSE_CIRCLE;
-    }
-  for (i = 2; i < 20;)
-    {
-      v[0] = x - circleVerticies[i++] * radius;
-      v[1] = y - circleVerticies[i++] * radius;
-      poly_InclVertex (contour->head.prev, poly_CreateNode (v));
-      i += COARSE_CIRCLE;
-    }
-  for (i = 17; i > 2;)
-    {
-      v[1] = y - circleVerticies[i--] * radius;
-      v[0] = x + circleVerticies[i--] * radius;
-      poly_InclVertex (contour->head.prev, poly_CreateNode (v));
-      i -= COARSE_CIRCLE;;
-    }
+  frac_circle (contour, x, y, v, 1);
+  return ContourToPoly (contour);
+}
+
+/* make a rounded-corner rectangle with radius t beyond x1,x2,y1,y2 rectangle */
+POLYAREA *
+RoundRect (LocationType x1, LocationType x2, LocationType y1, LocationType y2, BDimension t)
+{
+  PLINE *contour = NULL;
+  Vector v;
+
+  assert (x2 > x1);
+  assert (y2 > y1);
+  v[0] = x1 - t;
+  v[1] = y1;
+  if ((contour = poly_NewContour (v)) == NULL)
+    return NULL;
+  frac_circle (contour, x1, y1, v, 4);
+  v[0] = x2;
+  v[1] = y1 - t;
+  poly_InclVertex (contour->head.prev, poly_CreateNode (v));
+  frac_circle (contour, x2, y1, v, 4);
+  v[0] = x2 + t;
+  v[1] = y2;
+  poly_InclVertex (contour->head.prev, poly_CreateNode (v));
+  frac_circle (contour, x2, y2, v, 4);
+  v[0] = x1;
+  v[1] = y2 + t;
+  poly_InclVertex (contour->head.prev, poly_CreateNode (v));
+  frac_circle (contour, x1, y2, v, 4);
   return ContourToPoly (contour);
 }
 
@@ -368,7 +364,7 @@ ArcPoly (ArcType * a, BDimension thick)
   v[0] = a->X - rx * cos (ang * M180);
   v[1] = a->Y + ry * sin (ang * M180);
   /* add the round cap at the end */
-  half_circle (contour, ends->X2, ends->Y2, v);
+  frac_circle (contour, ends->X2, ends->Y2, v, 2);
   /* and now do the outer arc (going backwards) */
   rx = a->Width + half;
   ry = a->Width + half;
@@ -384,7 +380,7 @@ ArcPoly (ArcType * a, BDimension thick)
   ang = a->StartAngle;
   v[0] = a->X - rx * cos (ang * M180);
   v[1] = a->Y + ry * sin (ang * M180);
-  half_circle (contour, ends->X1, ends->Y1, v);
+  frac_circle (contour, ends->X1, ends->Y1, v, 2);
   /* now we have the whole contour */
   if (!(np = ContourToPoly (contour)))
     return NULL;
@@ -417,13 +413,13 @@ LinePoly (LineType * l, BDimension thick)
     return 0;
   v[0] = l->Point2.X - dx;
   v[1] = l->Point2.Y - dy;
-  half_circle (contour, l->Point2.X, l->Point2.Y, v);
+  frac_circle (contour, l->Point2.X, l->Point2.Y, v, 2);
   v[0] = l->Point2.X + dx;
   v[1] = l->Point2.Y + dy;
   poly_InclVertex (contour->head.prev, poly_CreateNode (v));
   v[0] = l->Point1.X + dx;
   v[1] = l->Point1.Y + dy;
-  half_circle (contour, l->Point1.X, l->Point1.Y, v);
+  frac_circle (contour, l->Point1.X, l->Point1.Y, v, 2);
   /* now we have the line contour */
   if (!(np = ContourToPoly (contour)))
     return NULL;
@@ -472,17 +468,23 @@ Subtract (POLYAREA * np1, PolygonType * p, Boolean fnp)
 
 /* create a polygon of the pin clearance */
 POLYAREA *
-PinPoly (PinType * pin, BDimension thick)
+PinPoly (PinType * pin, BDimension thick, BDimension clear)
 {
-  int size = (thick + 1) / 2;
+  int size;
+
   if (TEST_FLAG (SQUAREFLAG, pin))
     {
-      return RectPoly (pin->X - size, pin->X + size, pin->Y - size,
-                       pin->Y + size);
+      size = (thick + 1)/2;
+      return RoundRect (pin->X - size, pin->X + size, pin->Y - size,
+                       pin->Y + size, (clear + 1)/2);
     }
-  else if (TEST_FLAG (OCTAGONFLAG, pin))
+  else
+    {
+      size = (thick + clear + 1)/2;
+  if (TEST_FLAG (OCTAGONFLAG, pin))
     {
       return OctagonPoly (pin->X, pin->Y, size + size);
+    }
     }
   return CirclePoly (pin->X, pin->Y, size);
 }
@@ -505,7 +507,7 @@ SubtractPin (DataType * d, PinType * pin, LayerType * l, PolygonType * p)
     }
   else
     {
-      np = PinPoly (pin, pin->Thickness + pin->Clearance);
+      np = PinPoly (pin, pin->Thickness, pin->Clearance);
       if (!np)
         return -1;
     }
@@ -543,13 +545,13 @@ SubtractPad (PadType * pad, PolygonType * p)
 
   if (TEST_FLAG (SQUAREFLAG, pad))
     {
-      BDimension t = (pad->Thickness + pad->Clearance) / 2;
+      BDimension t = pad->Thickness / 2;
       LocationType x1, x2, y1, y2;
       x1 = MIN (pad->Point1.X, pad->Point2.X) - t;
       x2 = MAX (pad->Point1.X, pad->Point2.X) + t;
       y1 = MIN (pad->Point1.Y, pad->Point2.Y) - t;
       y2 = MAX (pad->Point1.Y, pad->Point2.Y) + t;
-      if (!(np = RectPoly (x1, x2, y1, y2)))
+      if (!(np = RoundRect (x1, x2, y1, y2, pad->Clearance/2)))
         return -1;
     }
   else
@@ -725,7 +727,7 @@ UnsubtractPin (PinType * pin, LayerType * l, PolygonType * p)
   POLYAREA *np;
 
   /* overlap a bit to prevent gaps from rounding errors */
-  np = PinPoly (pin, (pin->Thickness + pin->Clearance) * 1.1);
+  np = PinPoly (pin, pin->Thickness, pin->Clearance * 1.1);
 
   if (!np)
     return 0;
@@ -775,13 +777,13 @@ UnsubtractPad (PadType * pad, LayerType * l, PolygonType * p)
 
   if (TEST_FLAG (SQUAREFLAG, pad))
     {
-      BDimension t = ((pad->Thickness + pad->Clearance) / 2) + 100;
+      BDimension t = pad->Clearance / 2 + 100;
       LocationType x1, x2, y1, y2;
-      x1 = MIN (pad->Point1.X, pad->Point2.X) - t;
-      x2 = MAX (pad->Point1.X, pad->Point2.X) + t;
-      y1 = MIN (pad->Point1.Y, pad->Point2.Y) - t;
-      y2 = MAX (pad->Point1.Y, pad->Point2.Y) + t;
-      if (!(np = RectPoly (x1, x2, y1, y2)))
+      x1 = MIN (pad->Point1.X, pad->Point2.X) - pad->Thickness;
+      x2 = MAX (pad->Point1.X, pad->Point2.X) + pad->Thickness;
+      y1 = MIN (pad->Point1.Y, pad->Point2.Y) - pad->Thickness;
+      y2 = MAX (pad->Point1.Y, pad->Point2.Y) + pad->Thickness;
+      if (!(np = RoundRect (x1, x2, y1, y2, t)))
         return 0;
     }
   else
