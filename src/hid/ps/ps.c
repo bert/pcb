@@ -242,7 +242,7 @@ static int media;
 
 static double fill_zoom;
 
-static void
+void
 ps_start_file (FILE *f)
 {
   fprintf (f, "%%!PS-Adobe-3.0\n\n");
