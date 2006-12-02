@@ -488,6 +488,7 @@ ps_set_layer (const char *name, int group)
     {
       double boffset;
       lastgroup = group;
+      int mirror_this = 0;
 
       if (f && pagecount)
 	{
@@ -502,6 +503,22 @@ ps_set_layer (const char *name, int group)
 	  ps_start_file (f);
 	}
       fprintf (f, "%%%%Page: %d\n", pagecount);
+
+      if (mirror)
+	mirror_this = 1 - mirror_this;
+      if (automirror
+	  &&
+	  ((idx >= 0 && group == GetLayerGroupNumberByNumber (max_layer))
+	   || (idx < 0 && SL_SIDE (idx) == SL_BOTTOM_SIDE)))
+	mirror_this = 1 - mirror_this;
+
+      fprintf (f, "/Helvetica findfont 10 scalefont setfont\n");
+      fprintf (f, "30 30 moveto (%s) show\n", PCB->Filename);
+      fprintf (f, "30 41 moveto (%s, %s) show\n",
+	       PCB->Name, layer_type_to_file_name (idx));
+      if (mirror_this)
+	fprintf (f, "( \\(mirrored\\)) show\n");
+
       fprintf (f, "72 72 scale %g %g translate\n", 0.5*media_width, 0.5*media_height);
 
       boffset = 0.5*media_height;
@@ -510,12 +527,10 @@ ps_set_layer (const char *name, int group)
 	  fprintf (f, "90 rotate\n");
 	  boffset = 0.5*media_width;
 	}
-      if (mirror
-	  || (automirror
-	      &&
-	      ((idx >= 0 && group == GetLayerGroupNumberByNumber (max_layer))
-	       || (idx < 0 && SL_SIDE (idx) == SL_BOTTOM_SIDE))))
+
+      if (mirror_this)
 	fprintf (f, "1 -1 scale\n");
+
       if (SL_TYPE (idx) == SL_FAB)
 	fprintf (f, "0.00001 dup neg scale\n");
       else
@@ -581,6 +596,7 @@ ps_set_layer (const char *name, int group)
 		 "/dh { gsave %d setlinewidth 0 gray %d 0 360 arc stroke grestore} bind def\n",
 		 MIN_PINORVIAHOLE, MIN_PINORVIAHOLE * 3 / 2);
     }
+#if 0
   /* Try to outsmart ps2pdf's heuristics for page rotation, by putting
    * text on all pages -- even if that text is blank */
   if (SL_TYPE (idx) != SL_FAB)
@@ -589,6 +605,7 @@ ps_set_layer (const char *name, int group)
 	     name);
   else
     fprintf (f, "gsave tx ty translate 1 -1 scale 0 0 moveto ( ) show grestore newpath /ty ty ts sub def\n");
+#endif
   return 1;
 }
 
