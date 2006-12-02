@@ -863,30 +863,37 @@ MoveSelectedObjectsToLayer (LayerTypePtr Target)
 static void
 move_one_thermal (int old_index, int new_index, PinType *pin)
 {
-  int t1, i;
+  int t1=0, i;
+  int oi=old_index, ni=new_index;
 
-  t1 = GET_THERM (old_index, pin);
-  if (old_index < new_index)
+  if (old_index != -1)
+    t1 = GET_THERM (old_index, pin);
+
+  if (oi == -1)
+    oi = MAX_LAYER-1; /* inserting a layer */
+  if (ni == -1)
+    ni = MAX_LAYER-1; /* deleting a layer */
+
+  if (oi < ni)
     {
-      for (i=old_index; i<new_index; i++)
+      for (i=oi; i<ni; i++)
 	ASSIGN_THERM (i, GET_THERM (i+1, pin), pin);
     }
   else
     {
-      for (i=old_index; i>new_index; i--)
+      for (i=oi; i>ni; i--)
 	ASSIGN_THERM (i, GET_THERM (i-1, pin), pin);
     }
-  ASSIGN_THERM (new_index, t1, pin);
+
+  if (new_index != -1)
+    ASSIGN_THERM (new_index, t1, pin);
+  else
+    ASSIGN_THERM (ni, 0, pin);
 }
 
 static void
 move_all_thermals (int old_index, int new_index)
 {
-  if (old_index == -1)
-    old_index = MAX_LAYER-1;
-  if (new_index == -1)
-    new_index = MAX_LAYER-1;
-
   VIA_LOOP (PCB->Data);
     {
       move_one_thermal (old_index, new_index, via);
