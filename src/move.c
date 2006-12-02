@@ -860,6 +860,46 @@ MoveSelectedObjectsToLayer (LayerTypePtr Target)
  * moves the selected layers to a new index in the layer list.
  */
 
+static void
+move_one_thermal (int old_index, int new_index, PinType *pin)
+{
+  int t1, i;
+
+  t1 = GET_THERM (old_index, pin);
+  if (old_index < new_index)
+    {
+      for (i=old_index; i<new_index; i++)
+	ASSIGN_THERM (i, GET_THERM (i+1, pin), pin);
+    }
+  else
+    {
+      for (i=old_index; i>new_index; i--)
+	ASSIGN_THERM (i, GET_THERM (i-1, pin), pin);
+    }
+  ASSIGN_THERM (new_index, t1, pin);
+}
+
+static void
+move_all_thermals (int old_index, int new_index)
+{
+  if (old_index == -1)
+    old_index = MAX_LAYER-1;
+  if (new_index == -1)
+    new_index = MAX_LAYER-1;
+
+  VIA_LOOP (PCB->Data);
+    {
+      move_one_thermal (old_index, new_index, via);
+    }
+  END_LOOP;
+
+  ALLPIN_LOOP (PCB->Data);
+    {
+      move_one_thermal (old_index, new_index, pin);
+    }
+  ENDALL_LOOP;
+}
+
 int
 MoveLayer (int old_index, int new_index)
 {
@@ -962,6 +1002,8 @@ MoveLayer (int old_index, int new_index)
       memcpy (&PCB->Data->Layer[new_index], &saved_layer, sizeof (LayerType));
       groups[new_index] = saved_group;
     }
+
+  move_all_thermals(old_index, new_index);
 
   for (g = 0; g < MAX_LAYER + 1; g++)
     PCB->LayerGroups.Number[g] = 0;
