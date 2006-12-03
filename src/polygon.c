@@ -294,7 +294,8 @@ CirclePoly (LocationType x, LocationType y, BDimension radius)
 
 /* make a rounded-corner rectangle with radius t beyond x1,x2,y1,y2 rectangle */
 POLYAREA *
-RoundRect (LocationType x1, LocationType x2, LocationType y1, LocationType y2, BDimension t)
+RoundRect (LocationType x1, LocationType x2, LocationType y1, LocationType y2,
+           BDimension t)
 {
   PLINE *contour = NULL;
   Vector v;
@@ -474,17 +475,17 @@ PinPoly (PinType * pin, BDimension thick, BDimension clear)
 
   if (TEST_FLAG (SQUAREFLAG, pin))
     {
-      size = (thick + 1)/2;
+      size = (thick + 1) / 2;
       return RoundRect (pin->X - size, pin->X + size, pin->Y - size,
-                       pin->Y + size, (clear + 1)/2);
+                        pin->Y + size, (clear + 1) / 2);
     }
   else
     {
-      size = (thick + clear + 1)/2;
-  if (TEST_FLAG (OCTAGONFLAG, pin))
-    {
-      return OctagonPoly (pin->X, pin->Y, size + size);
-    }
+      size = (thick + clear + 1) / 2;
+      if (TEST_FLAG (OCTAGONFLAG, pin))
+        {
+          return OctagonPoly (pin->X, pin->Y, size + size);
+        }
     }
   return CirclePoly (pin->X, pin->Y, size);
 }
@@ -551,7 +552,7 @@ SubtractPad (PadType * pad, PolygonType * p)
       x2 = MAX (pad->Point1.X, pad->Point2.X) + t;
       y1 = MIN (pad->Point1.Y, pad->Point2.Y) - t;
       y2 = MAX (pad->Point1.Y, pad->Point2.Y) + t;
-      if (!(np = RoundRect (x1, x2, y1, y2, pad->Clearance/2)))
+      if (!(np = RoundRect (x1, x2, y1, y2, pad->Clearance / 2)))
         return -1;
     }
   else
@@ -666,7 +667,7 @@ clearPoly (DataTypePtr Data, LayerTypePtr Layer, PolygonType * polygon,
   Cardinal group;
 
   if (!TEST_FLAG (CLEARPOLYFLAG, polygon)
-      || GetLayerNumber (Data, Layer) >= max_layer)
+      || GetLayerNumber (Data, Layer) >= Data->LayerN)
     return 0;
   group = Group (Data, GetLayerNumber (Data, Layer));
   info.solder = (group == Group (Data, Data->LayerN + SOLDER_LAYER));
@@ -1163,7 +1164,7 @@ PlowsPolygon (DataType * Data, int type, void *ptr1, void *ptr2,
       if (!TEST_FLAG (CLEARLINEFLAG, (LineTypePtr) ptr2))
         return 0;
       /* silk doesn't plow */
-      if (GetLayerNumber (Data, ptr1) >= max_layer)
+      if (GetLayerNumber (Data, ptr1) >= Data->LayerN)
         return 0;
       GROUP_LOOP (Data, GetLayerGroupNumberByNumber (GetLayerNumber (Data,
                                                                      ((LayerTypePtr) ptr1))));

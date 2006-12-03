@@ -88,7 +88,7 @@ RCSID ("$Id$");
 static char *BumpName (char *);
 static void RightAngles (int, float *, float *);
 static void GetGridLockCoordinates (int, void *, void *, void *,
-				    LocationType *, LocationType *);
+                                    LocationType *, LocationType *);
 
 
 /* Local variables */
@@ -125,17 +125,17 @@ GetValue (char *val, char *units, Boolean * absolute)
   else
     {
       if (isdigit ((int) *val))
-	*absolute = True;
+        *absolute = True;
       else
-	*absolute = False;
+        *absolute = False;
       value = atof (val);
     }
   if (units && *units)
     {
       if (strncasecmp (units, "mm", 2) == 0)
-	value *= MM_TO_COOR;
+        value *= MM_TO_COOR;
       else if (strncasecmp (units, "mil", 3) == 0)
-	value *= 100;
+        value *= 100;
     }
   return value;
 }
@@ -162,7 +162,7 @@ SetPinBoundingBox (PinTypePtr Pin)
    * so it must include the clearance values too
    */
   width = (Pin->Clearance + Pin->Thickness + 1 +
-	   (Pin->Thickness - Pin->DrillingHole) * PCB->ThermScale) / 2;
+           (Pin->Thickness - Pin->DrillingHole) * PCB->ThermScale) / 2;
   width = MAX (width, (Pin->Mask + 1) / 2);
   Pin->BoundingBox.X1 = Pin->X - width;
   Pin->BoundingBox.Y1 = Pin->Y - width;
@@ -230,7 +230,7 @@ SetPolygonBoundingBox (PolygonTypePtr Polygon)
  */
 void
 SetElementBoundingBox (DataTypePtr Data, ElementTypePtr Element,
-		       FontTypePtr Font)
+                       FontTypePtr Font)
 {
   BoxTypePtr box, vbox;
 
@@ -286,9 +286,9 @@ SetElementBoundingBox (DataTypePtr Data, ElementTypePtr Element,
     SetPinBoundingBox (pin);
     if (Data)
       {
-	if (!Data->pin_tree)
-	  Data->pin_tree = r_create_tree (NULL, 0, 0);
-	r_insert_entry (Data->pin_tree, (BoxType *) pin, 0);
+        if (!Data->pin_tree)
+          Data->pin_tree = r_create_tree (NULL, 0, 0);
+        r_insert_entry (Data->pin_tree, (BoxType *) pin, 0);
       }
     MAKEMIN (box->X1, pin->BoundingBox.X1);
     MAKEMIN (box->Y1, pin->BoundingBox.Y1);
@@ -307,22 +307,22 @@ SetElementBoundingBox (DataTypePtr Data, ElementTypePtr Element,
     SetPadBoundingBox (pad);
     if (Data)
       {
-	if (!Data->pad_tree)
-	  Data->pad_tree = r_create_tree (NULL, 0, 0);
-	r_insert_entry (Data->pad_tree, (BoxType *) pad, 0);
+        if (!Data->pad_tree)
+          Data->pad_tree = r_create_tree (NULL, 0, 0);
+        r_insert_entry (Data->pad_tree, (BoxType *) pad, 0);
       }
     MAKEMIN (box->X1, pad->BoundingBox.X1);
     MAKEMIN (box->Y1, pad->BoundingBox.Y1);
     MAKEMAX (box->X2, pad->BoundingBox.X2);
     MAKEMAX (box->Y2, pad->BoundingBox.Y2);
     MAKEMIN (vbox->X1,
-	     MIN (pad->Point1.X, pad->Point2.X) - pad->Thickness / 2);
+             MIN (pad->Point1.X, pad->Point2.X) - pad->Thickness / 2);
     MAKEMIN (vbox->Y1,
-	     MIN (pad->Point1.Y, pad->Point2.Y) - pad->Thickness / 2);
+             MIN (pad->Point1.Y, pad->Point2.Y) - pad->Thickness / 2);
     MAKEMAX (vbox->X2,
-	     MAX (pad->Point1.X, pad->Point2.X) + pad->Thickness / 2);
+             MAX (pad->Point1.X, pad->Point2.X) + pad->Thickness / 2);
     MAKEMAX (vbox->Y2,
-	     MAX (pad->Point1.Y, pad->Point2.Y) + pad->Thickness / 2);
+             MAX (pad->Point1.Y, pad->Point2.Y) + pad->Thickness / 2);
   }
   END_LOOP;
   /* now we set the EDGE2FLAG of the pad if Point2
@@ -332,19 +332,19 @@ SetElementBoundingBox (DataTypePtr Data, ElementTypePtr Element,
   {
     if (pad->Point1.Y == pad->Point2.Y)
       {
-	/* horizontal pad */
-	if (box->X2 - pad->Point2.X < pad->Point1.X - box->X1)
-	  SET_FLAG (EDGE2FLAG, pad);
-	else
-	  CLEAR_FLAG (EDGE2FLAG, pad);
+        /* horizontal pad */
+        if (box->X2 - pad->Point2.X < pad->Point1.X - box->X1)
+          SET_FLAG (EDGE2FLAG, pad);
+        else
+          CLEAR_FLAG (EDGE2FLAG, pad);
       }
     else
       {
-	/* vertical pad */
-	if (box->Y2 - pad->Point2.Y < pad->Point1.Y - box->Y1)
-	  SET_FLAG (EDGE2FLAG, pad);
-	else
-	  CLEAR_FLAG (EDGE2FLAG, pad);
+        /* vertical pad */
+        if (box->Y2 - pad->Point2.Y < pad->Point1.Y - box->Y1)
+          SET_FLAG (EDGE2FLAG, pad);
+        else
+          CLEAR_FLAG (EDGE2FLAG, pad);
       }
   }
   END_LOOP;
@@ -354,7 +354,7 @@ SetElementBoundingBox (DataTypePtr Data, ElementTypePtr Element,
     {
       PIN_LOOP (Element);
       {
-	SET_FLAG (EDGE2FLAG, pin);
+        SET_FLAG (EDGE2FLAG, pin);
       }
       END_LOOP;
     }
@@ -362,7 +362,7 @@ SetElementBoundingBox (DataTypePtr Data, ElementTypePtr Element,
     {
       PIN_LOOP (Element);
       {
-	CLEAR_FLAG (EDGE2FLAG, pin);
+        CLEAR_FLAG (EDGE2FLAG, pin);
       }
       END_LOOP;
     }
@@ -388,18 +388,18 @@ SetTextBoundingBox (FontTypePtr FontPtr, TextTypePtr Text)
   for (; s && *s; s++)
     if (*s <= MAX_FONTPOSITION && symbol[*s].Valid)
       {
-	LineTypePtr line = symbol[*s].Line;
-	for (i = 0; i < symbol[*s].LineN; line++, i++)
-	  if (line->Thickness > maxThick)
-	    maxThick = line->Thickness;
-	width += symbol[*s].Width + symbol[*s].Delta;
-	height = MAX (height, (LocationType) symbol[*s].Height);
+        LineTypePtr line = symbol[*s].Line;
+        for (i = 0; i < symbol[*s].LineN; line++, i++)
+          if (line->Thickness > maxThick)
+            maxThick = line->Thickness;
+        width += symbol[*s].Width + symbol[*s].Delta;
+        height = MAX (height, (LocationType) symbol[*s].Height);
       }
     else
       {
-	width +=
-	  ((FontPtr->DefaultSymbol.X2 - FontPtr->DefaultSymbol.X1) * 6 / 5);
-	height = (FontPtr->DefaultSymbol.Y2 - FontPtr->DefaultSymbol.Y1);
+        width +=
+          ((FontPtr->DefaultSymbol.X2 - FontPtr->DefaultSymbol.X1) * 6 / 5);
+        height = (FontPtr->DefaultSymbol.Y2 - FontPtr->DefaultSymbol.Y1);
       }
 
   /* scale values */
@@ -420,11 +420,11 @@ SetTextBoundingBox (FontTypePtr FontPtr, TextTypePtr Text)
       Text->BoundingBox.X1 -= maxThick;
       Text->BoundingBox.Y1 -= SWAP_SIGN_Y (maxThick);
       Text->BoundingBox.X2 =
-	Text->BoundingBox.X1 + SWAP_SIGN_X (width + maxThick);
+        Text->BoundingBox.X1 + SWAP_SIGN_X (width + maxThick);
       Text->BoundingBox.Y2 =
-	Text->BoundingBox.Y1 + SWAP_SIGN_Y (height + 2 * maxThick);
+        Text->BoundingBox.Y1 + SWAP_SIGN_Y (height + 2 * maxThick);
       RotateBoxLowLevel (&Text->BoundingBox, Text->X, Text->Y,
-			 (4 - Text->Direction) & 0x03);
+                         (4 - Text->Direction) & 0x03);
     }
   else
     {
@@ -433,7 +433,7 @@ SetTextBoundingBox (FontTypePtr FontPtr, TextTypePtr Text)
       Text->BoundingBox.X2 = Text->BoundingBox.X1 + width + maxThick;
       Text->BoundingBox.Y2 = Text->BoundingBox.Y1 + height + 2 * maxThick;
       RotateBoxLowLevel (&Text->BoundingBox,
-			 Text->X, Text->Y, Text->Direction);
+                         Text->X, Text->Y, Text->Direction);
     }
 }
 
@@ -448,7 +448,7 @@ IsDataEmpty (DataTypePtr Data)
 
   hasNoObjects = (Data->ViaN == 0);
   hasNoObjects &= (Data->ElementN == 0);
-  for (i = 0; i < max_layer + 2; i++)
+  for (i = 0; i < Data->LayerN + 2; i++)
     hasNoObjects = hasNoObjects &&
       Data->Layer[i].LineN == 0 &&
       Data->Layer[i].ArcN == 0 &&
@@ -585,25 +585,25 @@ SetFontInfo (FontTypePtr Ptr)
 
       /* next one if the index isn't used or symbol is empty (SPACE) */
       if (!symbol->Valid || !symbol->LineN)
-	continue;
+        continue;
 
       minx = miny = MAX_COORD;
       maxx = maxy = 0;
       for (line = symbol->Line, j = symbol->LineN; j; j--, line++)
-	{
-	  minx = MIN (minx, line->Point1.X);
-	  miny = MIN (miny, line->Point1.Y);
-	  minx = MIN (minx, line->Point2.X);
-	  miny = MIN (miny, line->Point2.Y);
-	  maxx = MAX (maxx, line->Point1.X);
-	  maxy = MAX (maxy, line->Point1.Y);
-	  maxx = MAX (maxx, line->Point2.X);
-	  maxy = MAX (maxy, line->Point2.Y);
-	}
+        {
+          minx = MIN (minx, line->Point1.X);
+          miny = MIN (miny, line->Point1.Y);
+          minx = MIN (minx, line->Point2.X);
+          miny = MIN (miny, line->Point2.Y);
+          maxx = MAX (maxx, line->Point1.X);
+          maxy = MAX (maxy, line->Point1.Y);
+          maxx = MAX (maxx, line->Point2.X);
+          maxy = MAX (maxy, line->Point2.Y);
+        }
 
       /* move symbol to left edge */
       for (line = symbol->Line, j = symbol->LineN; j; j--, line++)
-	MOVE_LINE_LOWLEVEL (line, -minx, 0);
+        MOVE_LINE_LOWLEVEL (line, -minx, 0);
 
       /* set symbol bounding box with a minimum cell size of (1,1) */
       symbol->Width = maxx - minx + 1;
@@ -619,9 +619,9 @@ SetFontInfo (FontTypePtr Ptr)
   for (i = 0, symbol = Ptr->Symbol; i <= MAX_FONTPOSITION; i++, symbol++)
     if (symbol->Valid)
       {
-	symbol->Height -= totalminy;
-	for (line = symbol->Line, j = symbol->LineN; j; j--, line++)
-	  MOVE_LINE_LOWLEVEL (line, 0, -totalminy);
+        symbol->Height -= totalminy;
+        for (line = symbol->Line, j = symbol->LineN; j; j--, line++)
+          MOVE_LINE_LOWLEVEL (line, 0, -totalminy);
       }
 
   /* setup the box for the default symbol */
@@ -654,58 +654,58 @@ ParseRouteString (char *s, RouteStyleTypePtr routeStyle, int scale)
   for (style = 0; style < NUM_STYLES; style++, routeStyle++)
     {
       while (*s && isspace ((int) *s))
-	s++;
+        s++;
       for (i = 0; *s && *s != ','; i++)
-	Name[i] = *s++;
+        Name[i] = *s++;
       Name[i] = '\0';
       routeStyle->Name = MyStrdup (Name, "ParseRouteString()");
       if (!isdigit ((int) *++s))
-	goto error;
+        goto error;
       GetNum (&s, &routeStyle->Thick);
       routeStyle->Thick *= scale;
       while (*s && isspace ((int) *s))
-	s++;
+        s++;
       if (*s++ != ',')
-	goto error;
+        goto error;
       while (*s && isspace ((int) *s))
-	s++;
+        s++;
       if (!isdigit ((int) *s))
-	goto error;
+        goto error;
       GetNum (&s, &routeStyle->Diameter);
       routeStyle->Diameter *= scale;
       while (*s && isspace ((int) *s))
-	s++;
+        s++;
       if (*s++ != ',')
-	goto error;
+        goto error;
       while (*s && isspace ((int) *s))
-	s++;
+        s++;
       if (!isdigit ((int) *s))
-	goto error;
+        goto error;
       GetNum (&s, &routeStyle->Hole);
       routeStyle->Hole *= scale;
       /* for backwards-compatibility, we use a 10-mil default
        * for styles which omit the keepaway specification. */
       if (*s != ',')
-	routeStyle->Keepaway = 1000;
+        routeStyle->Keepaway = 1000;
       else
-	{
-	  s++;
-	  while (*s && isspace ((int) *s))
-	    s++;
-	  if (!isdigit ((int) *s))
-	    goto error;
-	  GetNum (&s, &routeStyle->Keepaway);
-	  routeStyle->Keepaway *= scale;
-	  while (*s && isspace ((int) *s))
-	    s++;
-	}
+        {
+          s++;
+          while (*s && isspace ((int) *s))
+            s++;
+          if (!isdigit ((int) *s))
+            goto error;
+          GetNum (&s, &routeStyle->Keepaway);
+          routeStyle->Keepaway *= scale;
+          while (*s && isspace ((int) *s))
+            s++;
+        }
       if (style < NUM_STYLES - 1)
-	{
-	  while (*s && isspace ((int) *s))
-	    s++;
-	  if (*s++ != ':')
-	    goto error;
-	}
+        {
+          while (*s && isspace ((int) *s))
+            s++;
+          if (*s++ != ':')
+            goto error;
+        }
     }
   return (0);
 
@@ -722,8 +722,8 @@ int
 ParseGroupString (char *s, LayerGroupTypePtr LayerGroup, int LayerN)
 {
   int group, member, layer;
-  Boolean c_set = False,	/* flags for the two special layers to */
-    s_set = False;		/* provide a default setting for old formats */
+  Boolean c_set = False,        /* flags for the two special layers to */
+    s_set = False;              /* provide a default setting for old formats */
   int groupnum[MAX_LAYER + 2];
 
   /* clear struct */
@@ -737,52 +737,52 @@ ParseGroupString (char *s, LayerGroupTypePtr LayerGroup, int LayerN)
   for (group = 0; s && *s && group < LayerN; group++)
     {
       while (*s && isspace ((int) *s))
-	s++;
+        s++;
 
       /* loop over all group members */
       for (member = 0; *s; s++)
-	{
-	  /* ignore white spaces and get layernumber */
-	  while (*s && isspace ((int) *s))
-	    s++;
-	  switch (*s)
-	    {
-	    case 'c':
-	    case 'C':
-	      layer = LayerN + COMPONENT_LAYER;
-	      c_set = True;
-	      break;
+        {
+          /* ignore white spaces and get layernumber */
+          while (*s && isspace ((int) *s))
+            s++;
+          switch (*s)
+            {
+            case 'c':
+            case 'C':
+              layer = LayerN + COMPONENT_LAYER;
+              c_set = True;
+              break;
 
-	    case 's':
-	    case 'S':
-	      layer = LayerN + SOLDER_LAYER;
-	      s_set = True;
-	      break;
+            case 's':
+            case 'S':
+              layer = LayerN + SOLDER_LAYER;
+              s_set = True;
+              break;
 
-	    default:
-	      if (!isdigit ((int) *s))
-		goto error;
-	      layer = atoi (s) - 1;
-	      break;
-	    }
-	  if (layer > LayerN + MAX (SOLDER_LAYER, COMPONENT_LAYER) ||
-	      member >= LayerN + 1)
-	    goto error;
-	  groupnum[layer] = group;
-	  LayerGroup->Entries[group][member++] = layer;
-	  while (*++s && isdigit ((int) *s));
+            default:
+              if (!isdigit ((int) *s))
+                goto error;
+              layer = atoi (s) - 1;
+              break;
+            }
+          if (layer > LayerN + MAX (SOLDER_LAYER, COMPONENT_LAYER) ||
+              member >= LayerN + 1)
+            goto error;
+          groupnum[layer] = group;
+          LayerGroup->Entries[group][member++] = layer;
+          while (*++s && isdigit ((int) *s));
 
-	  /* ignore white spaces and check for separator */
-	  while (*s && isspace ((int) *s))
-	    s++;
-	  if (!*s || *s == ':')
-	    break;
-	  if (*s != ',')
-	    goto error;
-	}
+          /* ignore white spaces and check for separator */
+          while (*s && isspace ((int) *s))
+            s++;
+          if (!*s || *s == ':')
+            break;
+          if (*s != ',')
+            goto error;
+        }
       LayerGroup->Number[group] = member;
       if (*s == ':')
-	s++;
+        s++;
     }
   if (!s_set)
     LayerGroup->Entries[SOLDER_LAYER][LayerGroup->Number[SOLDER_LAYER]++] =
@@ -795,9 +795,9 @@ ParseGroupString (char *s, LayerGroupTypePtr LayerGroup, int LayerN)
   for (layer = 0; layer < LayerN && group < LayerN; layer++)
     if (groupnum[layer] == -1)
       {
-	LayerGroup->Entries[group][0] = layer;
-	LayerGroup->Number[group] = 1;
-	group++;
+        LayerGroup->Entries[group][0] = layer;
+        LayerGroup->Number[group] = 1;
+        group++;
       }
   return (0);
 
@@ -855,21 +855,21 @@ EvaluateFilename (char *Template, char *Path, char *Filename, char *Parameter)
     {
       /* copy character or add string to command */
       if (*p == '%'
-	  && (*(p + 1) == 'f' || *(p + 1) == 'p' || *(p + 1) == 'a'))
-	switch (*(++p))
-	  {
-	  case 'a':
-	    DSAddString (&command, Parameter);
-	    break;
-	  case 'f':
-	    DSAddString (&command, Filename);
-	    break;
-	  case 'p':
-	    DSAddString (&command, Path);
-	    break;
-	  }
+          && (*(p + 1) == 'f' || *(p + 1) == 'p' || *(p + 1) == 'a'))
+        switch (*(++p))
+          {
+          case 'a':
+            DSAddString (&command, Parameter);
+            break;
+          case 'f':
+            DSAddString (&command, Filename);
+            break;
+          case 'p':
+            DSAddString (&command, Path);
+            break;
+          }
       else
-	DSAddCharacter (&command, *p);
+        DSAddCharacter (&command, *p);
     }
   DSAddCharacter (&command, '\0');
   if (Settings.verbose)
@@ -895,7 +895,7 @@ ExpandFilename (char *Dirname, char *Filename)
   if (Dirname)
     {
       command = MyCalloc (strlen (Filename) + strlen (Dirname) + 7,
-			  sizeof (char), "ExpandFilename()");
+                          sizeof (char), "ExpandFilename()");
       sprintf (command, "echo %s/%s", Dirname, Filename);
     }
   else
@@ -909,12 +909,12 @@ ExpandFilename (char *Dirname, char *Filename)
     {
       /* discard all but the first returned line */
       for (;;)
-	{
-	  if ((c = fgetc (pipe)) == EOF || c == '\n' || c == '\r')
-	    break;
-	  else
-	    DSAddCharacter (&answer, c);
-	}
+        {
+          if ((c = fgetc (pipe)) == EOF || c == '\n' || c == '\r')
+            break;
+          else
+            DSAddCharacter (&answer, c);
+        }
 
       SaveFree (command);
       return (pclose (pipe) ? NULL : answer.Data);
@@ -935,7 +935,7 @@ GetLayerNumber (DataTypePtr Data, LayerTypePtr Layer)
 {
   int i;
 
-  for (i = 0; i < max_layer + 2; i++)
+  for (i = 0; i < Data->LayerN + 2; i++)
     if (Layer == &Data->Layer[i])
       break;
   return (i);
@@ -954,12 +954,12 @@ PushOnTopOfLayerStack (int NewTop)
     {
       /* first find position of passed one */
       for (i = 0; i < max_layer; i++)
-	if (LayerStack[i] == NewTop)
-	  break;
+        if (LayerStack[i] == NewTop)
+          break;
 
       /* bring this element to the top of the stack */
       for (; i; i--)
-	LayerStack[i] = LayerStack[i - 1];
+        LayerStack[i] = LayerStack[i - 1];
       LayerStack[0] = NewTop;
     }
 }
@@ -972,7 +972,7 @@ PushOnTopOfLayerStack (int NewTop)
 int
 ChangeGroupVisibility (int Layer, Boolean On, Boolean ChangeStackOrder)
 {
-  int group, i, changed = 1;	/* at least the current layer changes */
+  int group, i, changed = 1;    /* at least the current layer changes */
 
   /* Warning: these special case values must agree with what gui-top-window.c
      |  thinks the are.
@@ -980,7 +980,7 @@ ChangeGroupVisibility (int Layer, Boolean On, Boolean ChangeStackOrder)
 
   if (Settings.verbose)
     printf ("ChangeGroupVisibility(Layer=%d, On=%d, ChangeStackOrder=%d)\n",
-	    Layer, On, ChangeStackOrder);
+            Layer, On, ChangeStackOrder);
 
   /* special case of rat (netlist layer) */
 #ifdef FIXME
@@ -989,7 +989,7 @@ ChangeGroupVisibility (int Layer, Boolean On, Boolean ChangeStackOrder)
       PCB->RatOn = On;
       PCB->RatDraw = On && ChangeStackOrder;
       if (PCB->RatDraw)
-	SetMode (NO_MODE);
+        SetMode (NO_MODE);
       gui_layer_buttons_update ();
       return (0);
     }
@@ -1013,18 +1013,18 @@ ChangeGroupVisibility (int Layer, Boolean On, Boolean ChangeStackOrder)
   if ((group = GetGroupOfLayer (Layer)) < max_layer)
     for (i = PCB->LayerGroups.Number[group]; i;)
       {
-	int layer = PCB->LayerGroups.Entries[group][--i];
+        int layer = PCB->LayerGroups.Entries[group][--i];
 
-	/* don't count the passed member of the group */
-	if (layer != Layer && layer < max_layer)
-	  {
-	    PCB->Data->Layer[layer].On = On;
+        /* don't count the passed member of the group */
+        if (layer != Layer && layer < max_layer)
+          {
+            PCB->Data->Layer[layer].On = On;
 
-	    /* push layer on top of stack if switched on */
-	    if (On && ChangeStackOrder)
-	      PushOnTopOfLayerStack (layer);
-	    changed++;
-	  }
+            /* push layer on top of stack if switched on */
+            if (On && ChangeStackOrder)
+              PushOnTopOfLayerStack (layer);
+            changed++;
+          }
       }
 
   /* change at least the passed layer */
@@ -1051,7 +1051,7 @@ GetGroupOfLayer (int Layer)
   for (group = 0; group < max_layer; group++)
     for (i = 0; i < PCB->LayerGroups.Number[group]; i++)
       if (PCB->LayerGroups.Entries[group][i] == Layer)
-	return (group);
+        return (group);
   return (max_layer);
 }
 
@@ -1076,7 +1076,7 @@ GetLayerGroupNumberByNumber (Cardinal Layer)
   for (group = 0; group < max_layer; group++)
     for (entry = 0; entry < PCB->LayerGroups.Number[group]; entry++)
       if (PCB->LayerGroups.Entries[group][entry] == Layer)
-	return (group);
+        return (group);
 
   /* since every layer belongs to a group it is safe to return
    * the value without boundary checking
@@ -1097,28 +1097,28 @@ GetObjectBoundingBox (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
     {
     case VIA_TYPE:
       {
-	PinTypePtr via = (PinTypePtr) Ptr1;
+        PinTypePtr via = (PinTypePtr) Ptr1;
 
-	box.X1 = via->X - via->Thickness / 2;
-	box.Y1 = via->Y - via->Thickness / 2;
-	box.X2 = via->X + via->Thickness / 2;
-	box.Y2 = via->Y + via->Thickness / 2;
-	break;
+        box.X1 = via->X - via->Thickness / 2;
+        box.Y1 = via->Y - via->Thickness / 2;
+        box.X2 = via->X + via->Thickness / 2;
+        box.Y2 = via->Y + via->Thickness / 2;
+        break;
       }
 
     case LINE_TYPE:
       {
-	LineTypePtr line = (LineTypePtr) Ptr2;
+        LineTypePtr line = (LineTypePtr) Ptr2;
 
-	box.X1 = MIN (line->Point1.X, line->Point2.X);
-	box.Y1 = MIN (line->Point1.Y, line->Point2.Y);
-	box.X2 = MAX (line->Point1.X, line->Point2.X);
-	box.Y2 = MAX (line->Point1.Y, line->Point2.Y);
-	box.X1 -= line->Thickness / 2;
-	box.Y1 -= line->Thickness / 2;
-	box.X2 += line->Thickness / 2;
-	box.Y2 += line->Thickness / 2;
-	break;
+        box.X1 = MIN (line->Point1.X, line->Point2.X);
+        box.Y1 = MIN (line->Point1.Y, line->Point2.Y);
+        box.X2 = MAX (line->Point1.X, line->Point2.X);
+        box.Y2 = MAX (line->Point1.Y, line->Point2.Y);
+        box.X1 -= line->Thickness / 2;
+        box.Y1 -= line->Thickness / 2;
+        box.X2 += line->Thickness / 2;
+        box.Y2 += line->Thickness / 2;
+        break;
       }
 
     case ARC_TYPE:
@@ -1137,60 +1137,60 @@ GetObjectBoundingBox (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
     case ELEMENT_TYPE:
       box = ((ElementTypePtr) Ptr1)->BoundingBox;
       {
-	TextTypePtr text = &NAMEONPCB_TEXT ((ElementTypePtr) Ptr1);
-	if (text->BoundingBox.X1 < box.X1)
-	  box.X1 = text->BoundingBox.X1;
-	if (text->BoundingBox.Y1 < box.Y1)
-	  box.Y1 = text->BoundingBox.Y1;
-	if (text->BoundingBox.X2 > box.X2)
-	  box.X2 = text->BoundingBox.X2;
-	if (text->BoundingBox.Y2 > box.Y2)
-	  box.Y2 = text->BoundingBox.Y2;
+        TextTypePtr text = &NAMEONPCB_TEXT ((ElementTypePtr) Ptr1);
+        if (text->BoundingBox.X1 < box.X1)
+          box.X1 = text->BoundingBox.X1;
+        if (text->BoundingBox.Y1 < box.Y1)
+          box.Y1 = text->BoundingBox.Y1;
+        if (text->BoundingBox.X2 > box.X2)
+          box.X2 = text->BoundingBox.X2;
+        if (text->BoundingBox.Y2 > box.Y2)
+          box.Y2 = text->BoundingBox.Y2;
       }
       break;
 
     case PAD_TYPE:
       {
-	PadTypePtr pad = (PadTypePtr) Ptr2;
+        PadTypePtr pad = (PadTypePtr) Ptr2;
 
-	box.X1 = MIN (pad->Point1.X, pad->Point2.X);
-	box.Y1 = MIN (pad->Point1.Y, pad->Point2.Y);
-	box.X2 = MAX (pad->Point1.X, pad->Point2.X);
-	box.Y2 = MAX (pad->Point1.Y, pad->Point2.Y);
-	box.X1 -= pad->Thickness;
-	box.Y1 -= pad->Thickness;
-	box.Y2 += pad->Thickness;
-	box.X2 += pad->Thickness;
-	break;
+        box.X1 = MIN (pad->Point1.X, pad->Point2.X);
+        box.Y1 = MIN (pad->Point1.Y, pad->Point2.Y);
+        box.X2 = MAX (pad->Point1.X, pad->Point2.X);
+        box.Y2 = MAX (pad->Point1.Y, pad->Point2.Y);
+        box.X1 -= pad->Thickness;
+        box.Y1 -= pad->Thickness;
+        box.Y2 += pad->Thickness;
+        box.X2 += pad->Thickness;
+        break;
       }
 
     case PIN_TYPE:
       {
-	PinTypePtr pin = (PinTypePtr) Ptr2;
+        PinTypePtr pin = (PinTypePtr) Ptr2;
 
-	box.X1 = pin->X - pin->Thickness / 2;
-	box.Y1 = pin->Y - pin->Thickness / 2;
-	box.X2 = pin->X + pin->Thickness / 2;
-	box.Y2 = pin->Y + pin->Thickness / 2;
-	break;
+        box.X1 = pin->X - pin->Thickness / 2;
+        box.Y1 = pin->Y - pin->Thickness / 2;
+        box.X2 = pin->X + pin->Thickness / 2;
+        box.Y2 = pin->Y + pin->Thickness / 2;
+        break;
       }
 
     case LINEPOINT_TYPE:
       {
-	PointTypePtr point = (PointTypePtr) Ptr3;
+        PointTypePtr point = (PointTypePtr) Ptr3;
 
-	box.X1 = box.X2 = point->X;
-	box.Y1 = box.Y2 = point->Y;
-	break;
+        box.X1 = box.X2 = point->X;
+        box.Y1 = box.Y2 = point->Y;
+        break;
       }
 
     case POLYGONPOINT_TYPE:
       {
-	PointTypePtr point = (PointTypePtr) Ptr3;
+        PointTypePtr point = (PointTypePtr) Ptr3;
 
-	box.X1 = box.X2 = point->X;
-	box.Y1 = box.Y2 = point->Y;
-	break;
+        box.X1 = box.X2 = point->X;
+        box.Y1 = box.Y2 = point->Y;
+        break;
       }
 
     default:
@@ -1306,7 +1306,7 @@ ResetStackAndVisibility (void)
   for (i = 0; i < max_layer + 2; i++)
     {
       if (i < max_layer)
-	LayerStack[i] = i;
+        LayerStack[i] = i;
       PCB->Data->Layer[i].On = True;
     }
   PCB->ElementOn = True;
@@ -1334,14 +1334,14 @@ SaveStackAndVisibility (void)
   if (SavedStack.cnt != 0)
     {
       fprintf (stderr,
-	       "SaveStackAndVisibility()  layerstack was already saved and not"
-	       "yet restored.  cnt = %d\n", SavedStack.cnt);
+               "SaveStackAndVisibility()  layerstack was already saved and not"
+               "yet restored.  cnt = %d\n", SavedStack.cnt);
     }
 
   for (i = 0; i < max_layer + 2; i++)
     {
       if (i < max_layer)
-	SavedStack.LayerStack[i] = LayerStack[i];
+        SavedStack.LayerStack[i] = LayerStack[i];
       SavedStack.LayerOn[i] = PCB->Data->Layer[i].On;
     }
   SavedStack.ElementOn = PCB->ElementOn;
@@ -1363,19 +1363,19 @@ RestoreStackAndVisibility (void)
   if (SavedStack.cnt == 0)
     {
       fprintf (stderr, "RestoreStackAndVisibility()  layerstack has not"
-	       " been saved.  cnt = %d\n", SavedStack.cnt);
+               " been saved.  cnt = %d\n", SavedStack.cnt);
       return;
     }
   else if (SavedStack.cnt != 1)
     {
       fprintf (stderr, "RestoreStackAndVisibility()  layerstack save count is"
-	       " wrong.  cnt = %d\n", SavedStack.cnt);
+               " wrong.  cnt = %d\n", SavedStack.cnt);
     }
 
   for (i = 0; i < max_layer + 2; i++)
     {
       if (i < max_layer)
-	LayerStack[i] = SavedStack.LayerStack[i];
+        LayerStack[i] = SavedStack.LayerStack[i];
       PCB->Data->Layer[i].On = SavedStack.LayerOn[i];
     }
   PCB->ElementOn = SavedStack.ElementOn;
@@ -1416,7 +1416,7 @@ CreateQuotedString (DynamicStringTypePtr DS, char *S)
   while (*S)
     {
       if (*S == '"' || *S == '\\')
-	DSAddCharacter (DS, '\\');
+        DSAddCharacter (DS, '\\');
       DSAddCharacter (DS, *S++);
     }
   DSAddCharacter (DS, '"');
@@ -1439,13 +1439,13 @@ GetGridFactor (void)
     {
       delta = PCB->Grid * factor[i];
       if (TO_SCREEN (delta) >= MIN_GRID_DISTANCE)
-	{
-	  if (Settings.GridFactor != factor[i])
-	    {
-	      Settings.GridFactor = factor[i];
-	    }
-	  return (factor[i]);
-	}
+        {
+          if (Settings.GridFactor != factor[i])
+            {
+              Settings.GridFactor = factor[i];
+            }
+          return (factor[i]);
+        }
     }
   Settings.GridFactor = 0;
 #endif
@@ -1478,7 +1478,7 @@ GetArcEnds (ArcTypePtr Arc)
 /* doesn't this belong in change.c ?? */
 void
 ChangeArcAngles (LayerTypePtr Layer, ArcTypePtr a,
-		 long int new_sa, long int new_da)
+                 long int new_sa, long int new_da)
 {
   if (new_da >= 360)
     {
@@ -1538,25 +1538,25 @@ UniqueElementName (DataTypePtr Data, char *Name)
     {
       ELEMENT_LOOP (Data);
       {
-	if (NAMEONPCB_NAME (element) &&
-	    NSTRCMP (NAMEONPCB_NAME (element), Name) == 0)
-	  {
-	    Name = BumpName (Name);
-	    unique = False;
-	    break;
-	  }
+        if (NAMEONPCB_NAME (element) &&
+            NSTRCMP (NAMEONPCB_NAME (element), Name) == 0)
+          {
+            Name = BumpName (Name);
+            unique = False;
+            break;
+          }
       }
       END_LOOP;
       if (unique)
-	return (Name);
+        return (Name);
       unique = True;
     }
 }
 
 static void
 GetGridLockCoordinates (int type, void *ptr1,
-			void *ptr2, void *ptr3, LocationType * x,
-			LocationType * y)
+                        void *ptr2, void *ptr3, LocationType * x,
+                        LocationType * y)
 {
   switch (type)
     {
@@ -1589,12 +1589,12 @@ GetGridLockCoordinates (int type, void *ptr1,
       break;
     case ARC_TYPE:
       {
-	BoxTypePtr box;
+        BoxTypePtr box;
 
-	box = GetArcEnds ((ArcTypePtr) ptr2);
-	*x = box->X1;
-	*y = box->Y1;
-	break;
+        box = GetArcEnds ((ArcTypePtr) ptr2);
+        *x = box->X1;
+        *y = box->Y1;
+        break;
       }
     }
 }
@@ -1617,9 +1617,9 @@ AttachForCopy (LocationType PlaceX, LocationType PlaceY)
        * will end up on a grid coordinate
        */
       GetGridLockCoordinates (Crosshair.AttachedObject.Type,
-			      Crosshair.AttachedObject.Ptr1,
-			      Crosshair.AttachedObject.Ptr2,
-			      Crosshair.AttachedObject.Ptr3, &mx, &my);
+                              Crosshair.AttachedObject.Ptr1,
+                              Crosshair.AttachedObject.Ptr2,
+                              Crosshair.AttachedObject.Ptr3, &mx, &my);
       mx = GRIDFIT_X (mx, PCB->Grid) - mx;
       my = GRIDFIT_Y (my, PCB->Grid) - my;
     }
@@ -1631,29 +1631,29 @@ AttachForCopy (LocationType PlaceX, LocationType PlaceY)
 
   /* get boundingbox of object and set cursor range */
   box = GetObjectBoundingBox (Crosshair.AttachedObject.Type,
-			      Crosshair.AttachedObject.Ptr1,
-			      Crosshair.AttachedObject.Ptr2,
-			      Crosshair.AttachedObject.Ptr3);
+                              Crosshair.AttachedObject.Ptr1,
+                              Crosshair.AttachedObject.Ptr2,
+                              Crosshair.AttachedObject.Ptr3);
   SetCrosshairRange (Crosshair.AttachedObject.X - box->X1,
-		     Crosshair.AttachedObject.Y - box->Y1,
-		     PCB->MaxWidth - (box->X2 - Crosshair.AttachedObject.X),
-		     PCB->MaxHeight - (box->Y2 - Crosshair.AttachedObject.Y));
+                     Crosshair.AttachedObject.Y - box->Y1,
+                     PCB->MaxWidth - (box->X2 - Crosshair.AttachedObject.X),
+                     PCB->MaxHeight - (box->Y2 - Crosshair.AttachedObject.Y));
 
   /* get all attached objects if necessary */
   if ((Settings.Mode != COPY_MODE) && TEST_FLAG (RUBBERBANDFLAG, PCB))
     LookupRubberbandLines (Crosshair.AttachedObject.Type,
-			   Crosshair.AttachedObject.Ptr1,
-			   Crosshair.AttachedObject.Ptr2,
-			   Crosshair.AttachedObject.Ptr3);
+                           Crosshair.AttachedObject.Ptr1,
+                           Crosshair.AttachedObject.Ptr2,
+                           Crosshair.AttachedObject.Ptr3);
   if (Settings.Mode != COPY_MODE &&
       (Crosshair.AttachedObject.Type == ELEMENT_TYPE ||
        Crosshair.AttachedObject.Type == VIA_TYPE ||
        Crosshair.AttachedObject.Type == LINE_TYPE ||
        Crosshair.AttachedObject.Type == LINEPOINT_TYPE))
     LookupRatLines (Crosshair.AttachedObject.Type,
-		    Crosshair.AttachedObject.Ptr1,
-		    Crosshair.AttachedObject.Ptr2,
-		    Crosshair.AttachedObject.Ptr3);
+                    Crosshair.AttachedObject.Ptr1,
+                    Crosshair.AttachedObject.Ptr2,
+                    Crosshair.AttachedObject.Ptr3);
 }
 
 /*
@@ -1688,7 +1688,7 @@ Concat (const char *first, ...)
     {
       const char *s = va_arg (a, const char *);
       if (!s)
-	break;
+        break;
       len += strlen (s);
       rv = (char *) realloc (rv, len + 1);
       strcat (rv, s);
@@ -1729,10 +1729,10 @@ OldFlags (unsigned int flags)
   for (i = 0; i < 8; i++)
     {
       /* use the closest thing to the old thermal style */
-    if (flags & f)
-      rv.t[i/2] = (1 << (4 * (i % 2)));
-    f <<= 1;
-   }
+      if (flags & f)
+        rv.t[i / 2] = (1 << (4 * (i % 2)));
+      f <<= 1;
+    }
   return rv;
 }
 
@@ -1765,7 +1765,7 @@ MoveLayerToGroup (int layer, int group)
   if ((layer == max_layer
        && group == GetLayerGroupNumberByNumber (max_layer + 1))
       || (layer == max_layer + 1
-	  && group == GetLayerGroupNumberByNumber (max_layer))
+          && group == GetLayerGroupNumberByNumber (max_layer))
       || (group < 0 || group >= max_layer) || (prev == group))
     return prev;
 
@@ -1795,29 +1795,29 @@ LayerGroupsToString (LayerGroupTypePtr lg)
   for (group = 0; group < max_layer; group++)
     if (PCB->LayerGroups.Number[group])
       {
-	if (sep)
-	  *cp++ = ':';
-	sep = 1;
-	for (entry = 0; entry < PCB->LayerGroups.Number[group]; entry++)
-	  {
-	    int layer = PCB->LayerGroups.Entries[group][entry];
-	    if (layer == max_layer + COMPONENT_LAYER)
-	      {
-		*cp++ = 'c';
-	      }
-	    else if (layer == max_layer + SOLDER_LAYER)
-	      {
-		*cp++ = 's';
-	      }
-	    else
-	      {
-		sprintf (cp, "%d", layer + 1);
-		while (*++cp)
-		  ;
-	      }
-	    if (entry != PCB->LayerGroups.Number[group] - 1)
-	      *cp++ = ',';
-	  }
+        if (sep)
+          *cp++ = ':';
+        sep = 1;
+        for (entry = 0; entry < PCB->LayerGroups.Number[group]; entry++)
+          {
+            int layer = PCB->LayerGroups.Entries[group][entry];
+            if (layer == max_layer + COMPONENT_LAYER)
+              {
+                *cp++ = 'c';
+              }
+            else if (layer == max_layer + SOLDER_LAYER)
+              {
+                *cp++ = 's';
+              }
+            else
+              {
+                sprintf (cp, "%d", layer + 1);
+                while (*++cp)
+                  ;
+              }
+            if (entry != PCB->LayerGroups.Number[group] - 1)
+              *cp++ = ',';
+          }
       }
   *cp++ = 0;
   return buf;
@@ -1833,29 +1833,29 @@ pcb_author (void)
   if (!fab_author)
     {
       if (Settings.FabAuthor && Settings.FabAuthor[0])
-	fab_author = Settings.FabAuthor;
+        fab_author = Settings.FabAuthor;
       else
-	{
-	  int len;
-	  char *comma, *gecos;
+        {
+          int len;
+          char *comma, *gecos;
 
-	  /* ID the user. */
-	  pwentry = getpwuid (getuid ());
-	  gecos = pwentry->pw_gecos;
-	  comma = strchr (gecos, ',');
-	  if (comma)
-	    len = comma - gecos;
-	  else
-	    len = strlen (gecos);
-	  fab_author = malloc (len + 1);
-	  if (!fab_author)
-	    {
-	      perror ("pcb: out of memory.\n");
-	      exit (-1);
-	    }
-	  memcpy (fab_author, gecos, len);
-	  fab_author[len] = 0;
-	}
+          /* ID the user. */
+          pwentry = getpwuid (getuid ());
+          gecos = pwentry->pw_gecos;
+          comma = strchr (gecos, ',');
+          if (comma)
+            len = comma - gecos;
+          else
+            len = strlen (gecos);
+          fab_author = malloc (len + 1);
+          if (!fab_author)
+            {
+              perror ("pcb: out of memory.\n");
+              exit (-1);
+            }
+          memcpy (fab_author, gecos, len);
+          fab_author[len] = 0;
+        }
     }
   return fab_author;
 #else
@@ -1876,7 +1876,7 @@ c_dtostr (double d)
       *bufp++ = '-';
       d = -d;
     }
-  d += 0.0000005;		/* rounding */
+  d += 0.0000005;               /* rounding */
   i = floor (d);
   d -= i;
   sprintf (bufp, "%d", i);
@@ -1922,11 +1922,11 @@ c_strtod (const char *s)
       s++;
       scale = 0.1;
       while (*s >= '0' && *s <= '9')
-	{
-	  rv += (*s - '0') * scale;
-	  scale *= 0.1;
-	  s++;
-	}
+        {
+          rv += (*s - '0') * scale;
+          scale *= 0.1;
+          s++;
+        }
     }
 
   /* exponent */
@@ -1934,20 +1934,20 @@ c_strtod (const char *s)
     {
       int e;
       if (sscanf (s + 1, "%d", &e) == 1)
-	{
-	  scale = 1.0;
-	  while (e > 0)
-	    {
-	      scale *= 10.0;
-	      e--;
-	    }
-	  while (e < 0)
-	    {
-	      scale *= 0.1;
-	      e++;
-	    }
-	  rv *= scale;
-	}
+        {
+          scale = 1.0;
+          while (e > 0)
+            {
+              scale *= 10.0;
+              e--;
+            }
+          while (e < 0)
+            {
+              scale *= 0.1;
+              e++;
+            }
+          rv *= scale;
+        }
     }
 
   return rv * sign;
@@ -2000,62 +2000,65 @@ GetInfoString (void)
       DSAddString (&info, "\n\n");
       DSAddString (&info, "Compiled on " __DATE__ " at " __TIME__);
       DSAddString (&info, "\n\n" "by harry eaton\n\n");
-      DSAddString (&info, "Copyright (C) Thomas Nau 1994, 1995, 1996, 1997\n");
+      DSAddString (&info,
+                   "Copyright (C) Thomas Nau 1994, 1995, 1996, 1997\n");
       DSAddString (&info, "Copyright (C) harry eaton 1998-2006\n");
       DSAddString (&info, "Copyright (C) C. Scott Ananian 2001\n");
-      DSAddString (&info, "Copyright (C) DJ Delorie 2003, 2004, 2005, 2006\n");
-      DSAddString (&info, "Copyright (C) Dan McMahill 2003, 2004, 2005, 2006\n\n");
+      DSAddString (&info,
+                   "Copyright (C) DJ Delorie 2003, 2004, 2005, 2006\n");
+      DSAddString (&info,
+                   "Copyright (C) Dan McMahill 2003, 2004, 2005, 2006\n\n");
       DSAddString (&info, "It is licensed under the terms of the GNU\n");
       DSAddString (&info, "General Public License version 2\n");
       DSAddString (&info, "See the LICENSE file for more information\n\n");
       DSAddString (&info, "For more information see:\n\n");
       DSAddString (&info, "PCB homepage: http://pcb.sf.net\n");
       DSAddString (&info, "gEDA homepage: http://www.geda.seul.org\n");
-      DSAddString (&info, "gEDA Wiki: http://geda.seul.org/dokuwiki/doku.php?id=geda\n\n");
+      DSAddString (&info,
+                   "gEDA Wiki: http://geda.seul.org/dokuwiki/doku.php?id=geda\n\n");
 
       DSAddString (&info, "----- Compile Time Options -----\n");
       hids = hid_enumerate ();
       DSAddString (&info, "GUI:\n");
       for (i = 0; hids[i]; i++)
-	{
-	  if (hids[i]->gui)
-	    {
-	      DSAddString (&info, TAB );
-	      DSAddString (&info, hids[i]->name);
-	      DSAddString (&info, " : ");
-	      DSAddString (&info, hids[i]->description);
-	      DSAddString (&info, "\n");
-	    }
-	}
+        {
+          if (hids[i]->gui)
+            {
+              DSAddString (&info, TAB);
+              DSAddString (&info, hids[i]->name);
+              DSAddString (&info, " : ");
+              DSAddString (&info, hids[i]->description);
+              DSAddString (&info, "\n");
+            }
+        }
 
       DSAddString (&info, "Exporters:\n");
       for (i = 0; hids[i]; i++)
-	{
-	  if (hids[i]->exporter)
-	    {
-	      DSAddString (&info, TAB );
-	      DSAddString (&info, hids[i]->name);
-	      DSAddString (&info, " : ");
-	      DSAddString (&info, hids[i]->description);
-	      DSAddString (&info, "\n");
-	    }
-	}
+        {
+          if (hids[i]->exporter)
+            {
+              DSAddString (&info, TAB);
+              DSAddString (&info, hids[i]->name);
+              DSAddString (&info, " : ");
+              DSAddString (&info, hids[i]->description);
+              DSAddString (&info, "\n");
+            }
+        }
 
       DSAddString (&info, "Printers:\n");
       for (i = 0; hids[i]; i++)
-	{
-	  if (hids[i]->printer)
-	    {
-	      DSAddString (&info, TAB );
-	      DSAddString (&info, hids[i]->name);
-	      DSAddString (&info, " : ");
-	      DSAddString (&info, hids[i]->description);
-	      DSAddString (&info, "\n");
-	    }
-	}
+        {
+          if (hids[i]->printer)
+            {
+              DSAddString (&info, TAB);
+              DSAddString (&info, hids[i]->name);
+              DSAddString (&info, " : ");
+              DSAddString (&info, hids[i]->description);
+              DSAddString (&info, "\n");
+            }
+        }
     }
 #undef TAB
 
   return info.Data;
 }
-
