@@ -82,7 +82,9 @@
 RCSID ("$Id$");
 
 /* #defines to enable some debugging output */
+/*
 #define ROUTE_VERBOSE
+*/
 
 
 /*
@@ -196,7 +198,6 @@ typedef struct routebox
   enum
   { PAD, PIN, VIA, VIA_SHADOW, LINE, OTHER, EXPANSION_AREA, PLANE }
   type;
-  cost_t cost;
   struct
   {
     unsigned nonstraight:1;
@@ -235,6 +236,8 @@ typedef struct routebox
     unsigned inited:1;
   }
   flags;
+  /* indicate the direction an expansion box came from */
+  direction_t from;
   /* reference count for orphan routeboxes; free when refcount==0 */
   int refcount;
   /* when routing with conflicts, we keep a record of what we're
@@ -319,7 +322,7 @@ static struct
 AutoRouteParameters;
 
 static int ro = 0;
-static int smoothes = 7;
+static int smoothes = 3;
 static int passes = 19;
 static int routing_layers = 0;
 
@@ -1859,7 +1862,6 @@ CreateExpansionArea (const BoxType * area, Cardinal group,
                      routebox_t * parent,
                      Boolean relax_edge_requirements, edge_t * src_edge)
 {
-  CheapPointType center;
   routebox_t *rb = (routebox_t *) malloc (sizeof (*rb));
   assert (area && parent);
   init_const_box (rb, area->X1, area->Y1, area->X2, area->Y2);
@@ -1875,11 +1877,7 @@ CreateExpansionArea (const BoxType * area, Cardinal group,
     RB_up_count (rb->parent.expansion_area);
   rb->flags.orphan = 1;
   rb->augStyle = AutoRouteParameters.augStyle;
-  center.X = (area->X1 + area->X2) / 2;
-  center.Y = (area->Y1 + area->Y2) / 2;
-  rb->cost =
-    src_edge->cost_to_point + cost_to_point_on_layer (&src_edge->cost_point,
-                                                      &center, group);
+  rb->from = src_edge->expand_dir;
   InitLists (rb);
 #if defined(ROUTE_DEBUG) && defined(DEBUG_SHOW_EXPANSION_BOXES)
   showroutebox (rb);
@@ -1902,6 +1900,7 @@ static int
 __FindBlocker_rect_in_reg (const BoxType * box, void *cl)
 {
   struct FindBlocker_info *fbi = (struct FindBlocker_info *) cl;
+  routebox_t *rb = (routebox_t *) box;
   BoxType rbox;
   rbox = bloat_routebox ((routebox_t *) box);
   ROTATEBOX_TO_NORTH (rbox, fbi->expansion_edge->expand_dir);
@@ -1911,8 +1910,11 @@ __FindBlocker_rect_in_reg (const BoxType * box, void *cl)
   if (fbi->blocker != NULL && rbox.Y2 < fbi->north_box.Y1 - fbi->min_dist)
     return 0;
   /* this is a box; it has to jump through a few more hoops */
-  if ((routebox_t *) box == nonorphan_parent (fbi->expansion_edge->rb))
+  if (rb == nonorphan_parent (fbi->expansion_edge->rb))
     return 0;                   /* this is the parent */
+  if (rb->type == EXPANSION_AREA
+      && rb->from != fbi->expansion_edge->expand_dir)
+    return 0;                   /* this region may cost less from this direction */
   /* okay, this is the closest we've found. */
   assert (fbi->blocker == NULL
           || (fbi->north_box.Y1 - rbox.Y2) <= fbi->min_dist);
@@ -2304,6 +2306,8 @@ BreakEdges (routedata_t * rd, vector_t * edge_vec, rtree_t * targets)
                    (ne->cost_to_point - e->cost_to_point));
                 assert (__edge_is_good (ne));
                 if (rb->type == PAD || rb->type == PIN)
+                  ne->cost_to_point += AutoRouteParameters.ChokePenalty;
+                if (rb->type == PAD)    /* double penalty for pads */
                   ne->cost_to_point += AutoRouteParameters.ChokePenalty;
                 vector_append (edge_vec, ne);
               }
@@ -3385,6 +3389,8 @@ RouteOne (routedata_t * rd, routebox_t * from, routebox_t * to, int max_edges)
               ne = CreateEdge2 (nrb, e->expand_dir, e, targets, NULL);
               if (next->type == PAD || next->type == PIN)
                 ne->cost_to_point += AutoRouteParameters.ChokePenalty;
+              if (next->type == PAD)    /* double penalty for smd pads */
+                ne->cost_to_point += AutoRouteParameters.ChokePenalty;
               add_or_destroy_edge (&s, ne);
             }
           /* "right" is in rotate_north coordinates */
@@ -3395,6 +3401,8 @@ RouteOne (routedata_t * rd, routebox_t * from, routebox_t * to, int max_edges)
                                      False, e);
               ne = CreateEdge2 (nrb, e->expand_dir, e, targets, NULL);
               if (next->type == PAD || next->type == PIN)
+                ne->cost_to_point += AutoRouteParameters.ChokePenalty;
+              if (next->type == PAD)    /* double penalty for smd pads */
                 ne->cost_to_point += AutoRouteParameters.ChokePenalty;
               add_or_destroy_edge (&s, ne);
             }
@@ -3499,7 +3507,7 @@ InitAutoRouteParameters (int pass,
   AutoRouteParameters.augStyle = augStyle;
   /* costs */
   AutoRouteParameters.ViaCost =
-    10000 + augStyle->style->Diameter * (is_smoothing ? 50 : 1);
+    10000 + augStyle->style->Diameter * (is_smoothing ? 100 : 1);
   AutoRouteParameters.LastConflictPenalty =
     500 * (exp (LN_2_OVER_2 * MIN (25, pass * 20. / passes)) - 0.9);
   AutoRouteParameters.ConflictPenalty =
@@ -3512,7 +3520,7 @@ InitAutoRouteParameters (int pass,
   AutoRouteParameters.MinPenalty = MIN (AutoRouteParameters.DirectionPenalty,
                                         AutoRouteParameters.SurfacePenalty);
   /* other */
-  AutoRouteParameters.is_odd = (pass & 1);
+  AutoRouteParameters.is_odd = pass & 1;
   AutoRouteParameters.with_conflicts = with_conflicts;
   AutoRouteParameters.is_smoothing = is_smoothing;
 }
@@ -3568,8 +3576,11 @@ RouteAll (routedata_t * rd)
   for (i = 0; i <= passes + smoothes; i++)
     {
 #ifdef ROUTE_VERBOSE
-      if (i > 0)
+      if (i > 0 && i <= passes)
         printf ("--------- STARTING REFINEMENT PASS %d ------------\n", i);
+      else if (i > passes)
+        printf ("--------- STARTING SMOOTHING PASS %d -------------\n",
+                i - passes);
 #endif
       ras.total_subnets = ras.routed_subnets = ras.conflict_subnets = 0;
       assert (heap_is_empty (next_pass));
@@ -3687,8 +3698,9 @@ RouteAll (routedata_t * rd)
       next_pass = tmp;
       /* XXX: here we should update a status bar */
 #ifdef ROUTE_VERBOSE
-      printf ("END OF PASS %d: %d/%d subnets routed without conflicts\n",
-              i, ras.routed_subnets, ras.total_subnets);
+      printf
+        ("END OF PASS %d: %d/%d subnets routed without conflicts at cost %.0f\n",
+         i, ras.routed_subnets, ras.total_subnets, this_cost);
 #endif
       /* if no conflicts found, skip directly to smoothing pass! */
       if (ras.conflict_subnets == 0 && i < passes)
@@ -3697,6 +3709,7 @@ RouteAll (routedata_t * rd)
       if (this_cost == last_cost && i > passes)
         break;
       last_cost = this_cost;
+      this_cost = 0;
     }
   Message ("%d of %d nets successfully routed.\n", ras.routed_subnets,
            ras.total_subnets);
