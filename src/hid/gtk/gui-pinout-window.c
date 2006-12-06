@@ -213,11 +213,7 @@ ghid_pinout_window_show (GHidPort * out, ElementType * element)
 		    G_CALLBACK (pinout_close_cb), pinout);
   gtk_box_pack_start (GTK_BOX (hbox), button, TRUE, TRUE, 0);
 
-  /* If focus were grabbed, output drawing area would loose it which we
-     |  don't want.
-   */
   gtk_widget_realize (pinout->top_window);
-  gdk_window_set_accept_focus (pinout->top_window->window, FALSE);
   if (Settings.AutoPlace)
     gtk_widget_set_uposition (GTK_WIDGET (pinout->top_window), 10, 10);
   gtk_widget_show_all (pinout->top_window);
