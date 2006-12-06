@@ -3240,8 +3240,14 @@ static GtkWidget *ghid_left_sensitive_box;
 static gint
 delete_chart_cb (GtkWidget * widget, GdkEvent * event, GHidPort * port)
 {
-  /* Return FALSE to emit the "destroy" signal */
-  return FALSE;
+  ghid_config_files_write ();
+  hid_action ("Quit");
+
+  /*
+   * Return TRUE to keep our app running.  A FALSE here would let the
+   * delete signal continue on and kill our program.
+   */
+  return TRUE;
 }
 
 static void
