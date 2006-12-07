@@ -112,7 +112,6 @@ handle_exec_action( DBusConnection *connection, DBusMessage *message, void *data
   char *action_name;
   char **argv;
   int argc;
-  int i;
 
   result = DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
 
