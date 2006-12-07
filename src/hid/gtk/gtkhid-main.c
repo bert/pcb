@@ -908,7 +908,7 @@ ghid_watch (GIOChannel *source, GIOCondition condition, gpointer data)
     pcb_condition |= PCB_WATCH_HANGUP;
 
   x.ptr = (void *) watch;
-  *watch->func (x, watch->fd, pcb_condition, watch->user_data);
+  watch->func (x, watch->fd, pcb_condition, watch->user_data);
   ghid_mode_cursor (Settings.Mode);
 
   return TRUE;  /* Leave watch on */
