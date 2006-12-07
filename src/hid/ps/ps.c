@@ -184,9 +184,12 @@ HID_Attribute ps_attribute_list[] = {
   {"psfade", "Fade amount for assembly drawings (0.0=missing, 1.0=solid)",
    HID_Real, 0, 1, {0, 0, 0.40}, 0, 0},
 #define HA_psfade 11
+  {"scale", "Scale value to compensate for printer sizing errors (1.0 = full scale)",
+   HID_Real, 0.01, 4, {0, 0, 1.00}, 0, 0},
+#define HA_scale 12
   {"multi-file", "Produce multiple files, one per page, instead of a single file.",
    HID_Boolean, 0, 0, {0, 0, 0.40}, 0, 0},
-#define HA_multifile 12
+#define HA_multifile 13
 };
 
 #define NUM_OPTIONS (sizeof(ps_attribute_list)/sizeof(ps_attribute_list[0]))
@@ -241,6 +244,7 @@ static int invert;
 static int media;
 
 static double fill_zoom;
+static double scale_value;
 
 void
 ps_start_file (FILE *f)
@@ -291,6 +295,7 @@ ps_hid_export_to_file (FILE * the_file, HID_Attr_Val * options)
   media_height = media_data[media].Height / 1e5;
   ps_width = media_width - 2.0*media_data[media].MarginX / 1e5;
   ps_height = media_height - 2.0*media_data[media].MarginY / 1e5;
+  scale_value = options[HA_scale].real_value;
 
   if (fade_ratio < 0)
     fade_ratio = 0;
@@ -318,6 +323,7 @@ ps_hid_export_to_file (FILE * the_file, HID_Attr_Val * options)
     }
   else
     fill_zoom = 0.00001;
+
 
   memset (print_group, 0, sizeof (print_group));
   memset (print_layer, 0, sizeof (print_layer));
@@ -519,6 +525,8 @@ ps_set_layer (const char *name, int group)
       if (mirror_this)
 	fprintf (f, "( \\(mirrored\\)) show\n");
 
+      fprintf (f, "(, scale = 1:%.3f) show\n", scale_value);
+
       fprintf (f, "72 72 scale %g %g translate\n", 0.5*media_width, 0.5*media_height);
 
       boffset = 0.5*media_height;
@@ -534,7 +542,7 @@ ps_set_layer (const char *name, int group)
       if (SL_TYPE (idx) == SL_FAB)
 	fprintf (f, "0.00001 dup neg scale\n");
       else
-	fprintf (f, "%g dup neg scale\n", fill_zoom);
+	fprintf (f, "%g dup neg scale\n", (fill_zoom * scale_value));
       fprintf (f, "%d %d translate\n",
 	       -PCB->MaxWidth / 2, -PCB->MaxHeight / 2);
 
