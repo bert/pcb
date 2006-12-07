@@ -196,6 +196,17 @@ extern "C"
 /* Callers should use this.  */
 #define SL(type,side) (~0xfff | SL_##type | SL_##side##_SIDE)
 
+/* File Watch flags */
+/* Based upon those in dbus/dbus-connection.h */
+typedef enum
+{
+  PCB_WATCH_READABLE = 1 << 0, /**< As in POLLIN */
+  PCB_WATCH_WRITABLE = 1 << 1, /**< As in POLLOUT */
+  PCB_WATCH_ERROR    = 1 << 2, /**< As in POLLERR */ 
+  PCB_WATCH_HANGUP   = 1 << 3  /**< As in POLLHUP */
+} PCBWatchFlags;
+
+
 /* This is the main HID structure.  */
   typedef struct
   {
@@ -380,6 +391,20 @@ extern "C"
 			   unsigned long milliseconds, hidval user_data);
     /* Use this to stop a timer that hasn't triggered yet.  */
     void (*stop_timer) (hidval timer);
+
+    /* Causes func to be called when some condition occurs on the file
+       descriptor passed. Conditions include data for reading, writing,
+       hangup, and errors. user_data can be anything, it's just passed
+       to func. */
+      hidval (*watch_file) (int fd, unsigned int condition, void (*func) (hidval watch, int fd, unsigned int condition, hidval user_data),
+        hidval user_data);
+    /* Use this to stop a file watch. */
+    void (*unwatch_file) (hidval watch);
+
+    /* Causes func to be called in the mainloop prior to blocking */
+      hidval (*add_block_hook) (void (*func) (hidval data), hidval data);
+    /* Use this to stop a mainloop block hook. */
+    void (*stop_block_hook) (hidval block_hook);
 
     /* Various dialogs */
 

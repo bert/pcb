@@ -6,6 +6,9 @@
 /* m4 program used by pcb */
 #undef GNUM4
 
+/* Define to 1 if DBUS IPC is to be compiled in */
+#undef HAVE_DBUS
+
 /* Define to 1 if you have the `expf' function. */
 #undef HAVE_EXPF
 

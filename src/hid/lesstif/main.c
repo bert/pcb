@@ -29,6 +29,8 @@
 #include <dmalloc.h>
 #endif
 
+#include <sys/poll.h>
+
 RCSID ("$Id$");
 
 #ifndef XtRDouble
@@ -3320,6 +3322,121 @@ lesstif_stop_timer (hidval hv)
   free (ts);
 }
 
+
+typedef struct
+{
+  void (*func) ( hidval, int, unsigned int, hidval );
+  hidval user_data;
+  int fd;
+  XtInputId id;
+}
+WatchStruct;
+
+  /* We need a wrapper around the hid file watch because to pass the correct flags
+   */
+static void
+lesstif_watch_cb (XtPointer client_data, int *fid, XtInputId * id)
+{
+  unsigned int pcb_condition = 0;
+  struct pollfd fds;
+  short condition;
+
+  WatchStruct *watch = (WatchStruct*)client_data;
+
+  fds.fd = watch->fd;
+  fds.events = POLLIN | POLLOUT;
+  poll( &fds, 1, 0 );
+  condition = fds.revents;
+
+  // Should we only include those we were asked to watch?
+  if (condition & POLLIN)
+    pcb_condition |= PCB_WATCH_READABLE;
+  if (condition & POLLOUT)
+    pcb_condition |= PCB_WATCH_WRITABLE;
+  if (condition & POLLERR)
+    pcb_condition |= PCB_WATCH_ERROR;
+  if (condition & POLLHUP)
+    pcb_condition |= PCB_WATCH_HANGUP;
+
+  (*watch->func) ((hidval)(void *)watch, watch->fd, pcb_condition, watch->user_data);
+
+  return;
+}
+
+hidval
+lesstif_watch_file (int fd, unsigned int condition, void (*func) (hidval watch, int fd, unsigned int condition, hidval user_data),
+    hidval user_data)
+{
+  WatchStruct *watch = malloc (sizeof(WatchStruct));
+  hidval ret;
+  unsigned int xt_condition = 0;
+
+  if (condition & PCB_WATCH_READABLE)
+    xt_condition |= XtInputReadMask;
+  if (condition & PCB_WATCH_WRITABLE)
+    xt_condition |= XtInputWriteMask;
+  if (condition & PCB_WATCH_ERROR)
+    xt_condition |= XtInputExceptMask;
+  if (condition & PCB_WATCH_HANGUP)
+    xt_condition |= XtInputExceptMask;
+
+  watch->func = func;
+  watch->user_data = user_data;
+  watch->fd = fd;
+  watch->id = XtAppAddInput( app_context, fd, (XtPointer)xt_condition, lesstif_watch_cb, watch );
+
+  ret.ptr = (void *) watch;
+  return ret;
+}
+
+void
+lesstif_unwatch_file (hidval data)
+{
+  WatchStruct *watch = (WatchStruct*)data.ptr;
+  XtRemoveInput( watch->id );
+  free( watch );
+}
+
+typedef struct
+{
+  XtBlockHookId id;
+  void (*func) (hidval user_data);
+  hidval user_data; 
+} BlockHookStruct;
+
+static void lesstif_block_hook_cb(XtPointer user_data);
+
+static void
+lesstif_block_hook_cb (XtPointer user_data)
+{
+  BlockHookStruct *block_hook = (BlockHookStruct *)user_data;
+  block_hook->func( block_hook->user_data );
+}
+
+static hidval
+lesstif_add_block_hook (void (*func) (hidval data), hidval user_data )
+{
+  hidval ret;
+  BlockHookStruct *block_hook = malloc( sizeof( BlockHookStruct ));
+
+  block_hook->func = func;
+  block_hook->user_data = user_data;
+
+  block_hook->id = XtAppAddBlockHook( app_context, lesstif_block_hook_cb, (XtPointer)block_hook );
+
+  ret.ptr = (void *) block_hook;
+  return ret;
+}
+
+static void
+lesstif_stop_block_hook (hidval mlpoll)
+{
+  BlockHookStruct *block_hook = (BlockHookStruct *)mlpoll.ptr;
+  XtRemoveBlockHook( block_hook->id );
+  free( block_hook );
+}
+
+
 extern void lesstif_logv (const char *fmt, va_list ap);
 
 extern int lesstif_confirm_dialog (char *msg, ...);
@@ -3529,6 +3646,10 @@ HID lesstif_gui = {
   lesstif_set_crosshair,
   lesstif_add_timer,
   lesstif_stop_timer,
+  lesstif_watch_file,
+  lesstif_unwatch_file,
+  lesstif_add_block_hook,
+  lesstif_stop_block_hook,
 
   lesstif_log,
   lesstif_logv,

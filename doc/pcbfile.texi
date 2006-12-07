@@ -1,5 +1,5 @@
 @c key pcbfile
-@c ./../src/parse_y.y 111
+@c ./../src/parse_y.y 121
 
 A special note about units: Older versions of @code{pcb} used mils
 (1/1000 inch) as the base unit; a value of 500 in the file meant
@@ -24,6 +24,7 @@ Symbolic and numeric flags (SFlags and NFlags) are described in
 * Element syntax::
 * ElementArc syntax::
 * ElementLine syntax::
+* FILEVERSION syntax::
 * Flags syntax::
 * Grid syntax::
 * Groups syntax::
@@ -33,7 +34,6 @@ Symbolic and numeric flags (SFlags and NFlags) are described in
 * Net syntax::
 * Netlist syntax::
 * Pad syntax::
-* PCB syntax::
 * Pin syntax::
 * PolyArea syntax::
 * Polygon syntax::
@@ -48,7 +48,7 @@ Symbolic and numeric flags (SFlags and NFlags) are described in
 @c pcbfile Arc
 @node Arc syntax
 @subsection Arc
-@c ./../src/parse_y.y 634
+@c ./../src/parse_y.y 658
 
 @cartouche
 @format
@@ -88,7 +88,7 @@ Numeric flags.
 @c pcbfile Attribute
 @node Attribute syntax
 @subsection Attribute
-@c ./../src/parse_y.y 1191
+@c ./../src/parse_y.y 1215
 
 @cartouche
 @format
@@ -113,7 +113,7 @@ if the value is interpreted as, for example, a number.
 @c pcbfile Connect
 @node Connect syntax
 @subsection Connect
-@c ./../src/parse_y.y 1181
+@c ./../src/parse_y.y 1205
 
 @cartouche
 @format
@@ -131,7 +131,7 @@ pin 7 of U14, or @code{"T4-E"} for pin E of T4.
 @c pcbfile Cursor
 @node Cursor syntax
 @subsection Cursor
-@c ./../src/parse_y.y 289
+@c ./../src/parse_y.y 313
 
 @cartouche
 @format
@@ -153,7 +153,7 @@ first variant accepts floating point numbers.  The special value
 @c pcbfile DRC
 @node DRC syntax
 @subsection DRC
-@c ./../src/parse_y.y 335
+@c ./../src/parse_y.y 359
 
 @cartouche
 @format
@@ -181,7 +181,7 @@ Minimum width of the annular ring around pins and vias.
 @c pcbfile Element
 @node Element syntax
 @subsection Element
-@c ./../src/parse_y.y 736
+@c ./../src/parse_y.y 760
 
 @cartouche
 @format
@@ -237,7 +237,7 @@ definitions which use absolute coordinates.
 @c pcbfile ElementArc
 @node ElementArc syntax
 @subsection ElementArc
-@c ./../src/parse_y.y 845
+@c ./../src/parse_y.y 869
 
 @cartouche
 @format
@@ -269,7 +269,7 @@ The width of the silk line which forms the arc.
 @c pcbfile ElementLine
 @node ElementLine syntax
 @subsection ElementLine
-@c ./../src/parse_y.y 843
+@c ./../src/parse_y.y 867
 
 @cartouche
 @format
@@ -287,10 +287,32 @@ formats.
 The width of the silk for this line.
 @end table
 
+@c pcbfile FILEVERSION
+@node FILEVERSION syntax
+@subsection FILEVERSION
+@c ./../src/parse_y.y 223
+
+@cartouche
+@format
+FILEVERSION [Version]
+@end format
+@end cartouche
+
+@table @var
+@item Version
+File format version.  This version string represents the date when the pcb file
+format was last changed.
+@end table
+
+Any version of pcb build from sources equal to or newer
+than this number should be able to read the file.  If this line is not present
+in the input file then file format compatibility is not checked.
+
+
 @c pcbfile Flags
 @node Flags syntax
 @subsection Flags
-@c ./../src/parse_y.y 375
+@c ./../src/parse_y.y 399
 
 @cartouche
 @format
@@ -308,7 +330,29 @@ represent pcb-wide flags as defined in @ref{PCBFlags}.
 @c pcbfile Grid
 @node Grid syntax
 @subsection Grid
-@c ./../src/parse_y.y 235
+@c ./../src/parse_y.y 236
+
+/* %start-doc pcbfile PCB
+
+@cartouche
+@format
+PCB ["Name" Width Height]
+PCB ("Name" Width Height]
+PCB ("Name")
+@end format
+@end cartouche
+
+@table @var
+@item Name
+Name of the PCB project
+@item Width Height
+Size of the board
+@end table
+
+If you don't specify the size of the board, a very large default is
+chosen.
+
+@c ./../src/parse_y.y 259
 
 @cartouche
 @format
@@ -331,7 +375,7 @@ If non-zero, the grid will be visible on the screen.
 @c pcbfile Groups
 @node Groups syntax
 @subsection Groups
-@c ./../src/parse_y.y 385
+@c ./../src/parse_y.y 409
 
 @cartouche
 @format
@@ -358,7 +402,7 @@ Groups("1,2,c:3:4:5,6,s:7,8")
 @c pcbfile Layer
 @node Layer syntax
 @subsection Layer
-@c ./../src/parse_y.y 525
+@c ./../src/parse_y.y 549
 
 @cartouche
 @format
@@ -383,7 +427,7 @@ text, and polygons.
 @c pcbfile Line
 @node Line syntax
 @subsection Line
-@c ./../src/parse_y.y 604
+@c ./../src/parse_y.y 628
 
 @cartouche
 @format
@@ -412,7 +456,7 @@ Numeric flags.
 @c pcbfile Mark
 @node Mark syntax
 @subsection Mark
-@c ./../src/parse_y.y 847
+@c ./../src/parse_y.y 871
 
 @cartouche
 @format
@@ -430,7 +474,7 @@ the mark as part of the Element line.
 @c pcbfile Net
 @node Net syntax
 @subsection Net
-@c ./../src/parse_y.y 1158
+@c ./../src/parse_y.y 1182
 
 @cartouche
 @format
@@ -450,7 +494,7 @@ The routing style that should be used when autorouting this net.
 @c pcbfile Netlist
 @node Netlist syntax
 @subsection Netlist
-@c ./../src/parse_y.y 1137
+@c ./../src/parse_y.y 1161
 
 @cartouche
 @format
@@ -463,7 +507,7 @@ Netlist ( ) (
 @c pcbfile Pad
 @node Pad syntax
 @subsection Pad
-@c ./../src/parse_y.y 1003
+@c ./../src/parse_y.y 1027
 
 @cartouche
 @format
@@ -498,33 +542,10 @@ symbolic or numerical flags
 numerical flags only
 @end table
 
-@c pcbfile PCB
-@node PCB syntax
-@subsection PCB
-@c ./../src/parse_y.y 212
-
-@cartouche
-@format
-PCB ["Name" Width Height]
-PCB ("Name" Width Height]
-PCB ("Name")
-@end format
-@end cartouche
-
-@table @var
-@item Name
-Name of the PCB project
-@item Width Height
-Size of the board
-@end table
-
-If you don't specify the size of the board, a very large default is
-chosen.
-
 @c pcbfile Pin
 @node Pin syntax
 @subsection Pin
-@c ./../src/parse_y.y 930
+@c ./../src/parse_y.y 954
 
 @cartouche
 @format
@@ -562,7 +583,7 @@ numerical flags only
 @c pcbfile PolyArea
 @node PolyArea syntax
 @subsection PolyArea
-@c ./../src/parse_y.y 313
+@c ./../src/parse_y.y 337
 
 @cartouche
 @format
@@ -578,7 +599,7 @@ Minimum area of polygon island to retain. If a polygon has clearances that cause
 @c pcbfile Polygon
 @node Polygon syntax
 @subsection Polygon
-@c ./../src/parse_y.y 716
+@c ./../src/parse_y.y 740
 
 @cartouche
 @format
@@ -599,7 +620,7 @@ Coordinates of each vertex.  You must list at least three coordinates.
 @c pcbfile Rat
 @node Rat syntax
 @subsection Rat
-@c ./../src/parse_y.y 510
+@c ./../src/parse_y.y 534
 
 @cartouche
 @format
@@ -622,7 +643,7 @@ Numeric flags.
 @c pcbfile Styles
 @node Styles syntax
 @subsection Styles
-@c ./../src/parse_y.y 395
+@c ./../src/parse_y.y 419
 
 @cartouche
 @format
@@ -665,7 +686,7 @@ is split across lines only to make it readable.
 @c pcbfile Symbol
 @node Symbol syntax
 @subsection Symbol
-@c ./../src/parse_y.y 1065
+@c ./../src/parse_y.y 1089
 
 @cartouche
 @format
@@ -687,7 +708,7 @@ Additional space to allow after this character.
 @c pcbfile SymbolLine
 @node SymbolLine syntax
 @subsection SymbolLine
-@c ./../src/parse_y.y 1120
+@c ./../src/parse_y.y 1144
 
 @cartouche
 @format
@@ -706,7 +727,7 @@ The width of this line.
 @c pcbfile Text
 @node Text syntax
 @subsection Text
-@c ./../src/parse_y.y 662
+@c ./../src/parse_y.y 686
 
 @cartouche
 @format
@@ -737,7 +758,7 @@ Numeric flags.
 @c pcbfile Thermal
 @node Thermal syntax
 @subsection Thermal
-@c ./../src/parse_y.y 324
+@c ./../src/parse_y.y 348
 
 @cartouche
 @format
@@ -754,7 +775,7 @@ the annulus width (copper diameter minus drill diameter).  The normal value is 0
 @c pcbfile Via
 @node Via syntax
 @subsection Via
-@c ./../src/parse_y.y 451
+@c ./../src/parse_y.y 475
 
 @cartouche
 @format

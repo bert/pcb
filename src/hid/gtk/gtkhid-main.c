@@ -876,6 +876,146 @@ ghid_stop_timer (hidval timer)
   void *ptr = timer.ptr;
 
   gtk_timeout_remove (((GuiTimer *) ptr)->id);
+  g_free( ptr );
+}
+
+typedef struct
+{
+  void (*func) ( hidval, int, unsigned int, hidval );
+  hidval user_data;
+  int fd;
+  GIOChannel *channel;
+  gint id;
+}
+GuiWatch;
+
+  /* We need a wrapper around the hid file watch to pass the correct flags
+   */
+static gboolean
+ghid_watch (GIOChannel *source, GIOCondition condition, gpointer data)
+{
+  unsigned int pcb_condition = 0;
+  GuiWatch *watch = (GuiWatch*)data;
+
+  if (condition & G_IO_IN)
+    pcb_condition |= PCB_WATCH_READABLE;
+  if (condition & G_IO_OUT)
+    pcb_condition |= PCB_WATCH_WRITABLE;
+  if (condition & G_IO_ERR)
+    pcb_condition |= PCB_WATCH_ERROR;
+  if (condition & G_IO_HUP)
+    pcb_condition |= PCB_WATCH_HANGUP;
+
+  (*watch->func) ((hidval)(void *)watch, watch->fd, pcb_condition, watch->user_data);
+  ghid_mode_cursor (Settings.Mode);
+
+  return TRUE;  /* Leave watch on */
+}
+
+hidval
+ghid_watch_file (int fd, unsigned int condition, void (*func) (hidval watch, int fd, unsigned int condition, hidval user_data),
+  hidval user_data)
+{
+  GuiWatch *watch = g_new0 (GuiWatch, 1);
+  hidval ret;
+  unsigned int glib_condition = 0;
+
+  if (condition & PCB_WATCH_READABLE)
+    glib_condition |= G_IO_IN;
+  if (condition & PCB_WATCH_WRITABLE)
+    glib_condition |= G_IO_OUT;
+  if (condition & PCB_WATCH_ERROR)
+    glib_condition |= G_IO_ERR;
+  if (condition & PCB_WATCH_HANGUP)
+    glib_condition |= G_IO_HUP;
+
+  watch->func = func;
+  watch->user_data = user_data;
+  watch->fd = fd;
+  watch->channel = g_io_channel_unix_new( fd );
+  watch->id = g_io_add_watch( watch->channel, glib_condition, ghid_watch, watch );
+
+  ret.ptr = (void *) watch;
+  return ret;
+}
+
+void
+ghid_unwatch_file (hidval data)
+{
+  GuiWatch *watch = (GuiWatch*)data.ptr;
+
+  g_io_channel_shutdown( watch->channel, TRUE, NULL ); 
+  g_io_channel_unref( watch->channel );
+  g_free( watch );
+}
+
+typedef struct
+{
+  GSource source;
+  void (*func) (hidval user_data);
+  hidval user_data; 
+} BlockHookSource;
+
+static gboolean ghid_block_hook_prepare  (GSource     *source,
+                                             gint     *timeout);
+static gboolean ghid_block_hook_check    (GSource     *source);
+static gboolean ghid_block_hook_dispatch (GSource     *source,
+                                          GSourceFunc  callback,
+                                          gpointer     user_data);
+
+static GSourceFuncs ghid_block_hook_funcs = {
+  ghid_block_hook_prepare,
+  ghid_block_hook_check,
+  ghid_block_hook_dispatch,
+  NULL // No destroy notification
+};
+
+static gboolean
+ghid_block_hook_prepare (GSource *source,
+                         gint    *timeout)
+{
+  hidval data = ((BlockHookSource *)source)->user_data;
+  ((BlockHookSource *)source)->func( data );
+  return FALSE;
+}
+
+static gboolean
+ghid_block_hook_check (GSource *source)
+{
+  return FALSE;
+}
+
+static gboolean
+ghid_block_hook_dispatch (GSource     *source,
+                          GSourceFunc  callback,
+                          gpointer     user_data)
+{
+  return FALSE;
+}
+
+static hidval
+ghid_add_block_hook (void (*func) (hidval data),
+                     hidval user_data)
+{
+  hidval ret;
+  BlockHookSource *source;
+
+  source = (BlockHookSource *)g_source_new (&ghid_block_hook_funcs, sizeof( BlockHookSource ));
+
+  source->func = func;
+  source->user_data = user_data;
+
+  g_source_attach ((GSource *)source, NULL);
+
+  ret.ptr = (void *) source;
+  return ret;
+}
+
+static void
+ghid_stop_block_hook (hidval mlpoll)
+{
+  GSource *source = (GSource *)mlpoll.ptr;
+  g_source_destroy( source );
 }
 
 int
@@ -968,6 +1108,10 @@ HID ghid_hid = {
   ghid_set_crosshair,
   ghid_add_timer,
   ghid_stop_timer,
+  ghid_watch_file,
+  ghid_unwatch_file,
+  ghid_add_block_hook,
+  ghid_stop_block_hook,
 
   ghid_log,
   ghid_logv,
@@ -1021,6 +1165,10 @@ HID ghid_extents = {
   0 /* ghid_set_crosshair */ ,
   0 /* ghid_add_timer */ ,
   0 /* ghid_stop_timer */ ,
+  0 /* ghid_watch_file */ ,
+  0 /* ghid_unwatch_file */ ,
+  0 /* ghid_add_block_hook */ ,
+  0 /* ghid_stop_block_hook */ ,
 
   0 /* ghid_log */ ,
   0 /* ghid_logv */ ,

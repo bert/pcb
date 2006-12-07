@@ -55,6 +55,10 @@
 /* This next one is so we can print the help messages. */
 #include "hid/hidint.h"
 
+#ifdef HAVE_DBUS
+#include "dbus.h"
+#endif
+
 #ifdef HAVE_LIBDMALLOC
 #include <dmalloc.h>
 #endif
@@ -767,7 +771,13 @@ main (int argc, char *argv[])
   if (Settings.init_done == 0)
     {
       Settings.init_done = 1;
+#if HAVE_DBUS
+      pcb_dbus_setup();
+#endif
       gui->do_export (0);
+#if HAVE_DBUS
+      pcb_dbus_finish();
+#endif
     }
 
   return (0);

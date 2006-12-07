@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!-- Should name="/org/geda/seul/pcb" ? -->
+<node>
+  <!-- This section isn't needed for the glib binding
+       but is convenient for our raw binding          -->
+  <interface name="org.freedesktop.DBus.Introspectable">
+    <method name="Introspect">
+      <arg direction="out" type="s" name="data" />
+    </method>
+  </interface>
+  <!-- End section not needed for glib binding        -->
+  <interface name="org.seul.geda.pcb">
+    <method name="GetFilename">
+      <arg direction="out" type="s" />
+    </method>
+  </interface>
+  <interface name="org.seul.geda.pcb.actions">
+    <method name="ExecAction">
+      <arg direction="in" type="s" name="action" />
+      <arg direction="in" type="as" name="args" />
+      <arg direction="out" type="u" />
+    </method>
+  </interface>
+</node>
+

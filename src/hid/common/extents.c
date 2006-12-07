@@ -211,6 +211,10 @@ static HID extents_hid = {
   0 /* extents_set_crosshair */ ,
   0 /* extents_add_timer */ ,
   0 /* extents_stop_timer */ ,
+  0 /* extents_watch_file */ ,
+  0 /* extents_unwatch_file */ ,
+  0 /* extents_add_block_hook */ ,
+  0 /* extents_stop_block_hook */ ,
 
   0 /* extents_log */ ,
   0 /* extents_logv */ ,

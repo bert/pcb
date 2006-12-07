@@ -211,6 +211,37 @@ nogui_stop_timer (hidval timer)
   CRASH;
 }
 
+static hidval
+nogui_watch_file (int fd, unsigned int condition, void (*func) (hidval watch, int fd, unsigned int condition, hidval user_data),
+  hidval user_data)
+{
+  hidval rv;
+  CRASH;
+  rv.lval = 0;
+  return rv;
+}
+
+static void
+nogui_unwatch_file (hidval watch)
+{
+  CRASH;
+}
+
+static hidval
+nogui_add_block_hook (void (*func) (hidval data), hidval data)
+{
+  hidval rv;
+  CRASH;
+  rv.ptr = NULL;
+  return rv;
+}
+
+static void
+nogui_stop_block_hook (hidval block_hook)
+{
+  CRASH;
+}
+
 static void
 nogui_log (const char *fmt, ...)
 {
@@ -310,6 +341,10 @@ HID hid_nogui = {
   nogui_set_crosshair,
   nogui_add_timer,
   nogui_stop_timer,
+  nogui_watch_file,
+  nogui_unwatch_file,
+  nogui_add_block_hook,
+  nogui_stop_block_hook,
   nogui_log,
   nogui_logv,
   nogui_confirm_dialog,
@@ -353,6 +388,10 @@ apply_default_hid (HID * d, HID * s)
   AD (set_crosshair);
   AD (add_timer);
   AD (stop_timer);
+  AD (watch_file);
+  AD (unwatch_file);
+  AD (add_block_hook);
+  AD (stop_block_hook);
   AD (log);
   AD (logv);
   AD (confirm_dialog);

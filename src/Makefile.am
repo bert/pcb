@@ -138,6 +138,12 @@ PCB_SRCS = \
 	hid/hidint.h 
 pcb_bin_SOURCES = ${PCB_SRCS} core_lists.h
 
+EXTRA_pcb_bin_SOURCES = \
+	dbus-pcbmain.c \
+	dbus-pcbmain.h \
+	dbus.h \
+	dbus.c
+
 BUILT_SOURCES = \
 	core_lists.h \
 	hid/gtk/gtk_lists.h \
@@ -177,7 +183,8 @@ EXTRA_DIST= \
 	$(srcdir)/hid/ps/hid.conf \
 	Pcb.ad.in  \
 	pcb-menu.res \
-	pcbtest.sh.in
+	pcbtest.sh.in \
+	dbus.xml
 
 AM_YFLAGS=	-d
 
@@ -222,6 +229,21 @@ hid/gtk/gtk_lists.h : ${LIBGTK_SRCS} Makefile
 	true > $@
 	(for f in ${LIBGTK_SRCS} ; do cat $(srcdir)/$$f ; done) | grep "^REGISTER" > $@.tmp
 	mv $@.tmp $@
+
+# If we are building with dbus support, we need some extra files
+if WITH_DBUS
+dbus-introspect.h : dbus.xml Makefile
+	echo '/* AUTOMATICALLY GENERATED FROM dbus.xml DO NOT EDIT */' > $@.tmp
+	echo "static char *pcb_dbus_introspect_xml ="  > $@.tmp
+	sed 's/\\/\\\\/g; s/"/\\"/g; s/^/"/; s/$$/"/' < $(srcdir)/dbus.xml >> $@.tmp
+	echo ";" >> $@.tmp
+	mv $@.tmp $@
+	
+
+PCB_SRCS+=	dbus-pcbmain.c dbus-pcbmain.h dbus.c dbus.h
+BUILT_SOURCES+=	dbus-introspect.h
+
+endif
 
 # If we are building on win32, then compile in some icons for the
 # desktop and application toolbar
@@ -314,7 +336,8 @@ DISTCLEANFILES= pcbtest.sh Pcb .test/Pcb pcb-menu.h \
 	hid/lesstif/lesstif_lists.h \
 	hid/png/png_lists.h \
 	hid/ps/ps_lists.h \
-	core_lists.h
+	core_lists.h \
+	dbus-introspect.h
 
 
 # create wrapper script that lets you test pcb prior to installation
