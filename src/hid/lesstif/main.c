@@ -3340,7 +3340,7 @@ lesstif_watch_cb (XtPointer client_data, int *fid, XtInputId * id)
   unsigned int pcb_condition = 0;
   struct pollfd fds;
   short condition;
-
+  hidval x;
   WatchStruct *watch = (WatchStruct*)client_data;
 
   fds.fd = watch->fd;
@@ -3358,7 +3358,8 @@ lesstif_watch_cb (XtPointer client_data, int *fid, XtInputId * id)
   if (condition & POLLHUP)
     pcb_condition |= PCB_WATCH_HANGUP;
 
-  (*watch->func) ((hidval)(void *)watch, watch->fd, pcb_condition, watch->user_data);
+  x.ptr = (void *) watch;
+  watch->func (x, watch->fd, pcb_condition, watch->user_data);
 
   return;
 }

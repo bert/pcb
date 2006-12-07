@@ -895,6 +895,7 @@ static gboolean
 ghid_watch (GIOChannel *source, GIOCondition condition, gpointer data)
 {
   unsigned int pcb_condition = 0;
+  hidval x;
   GuiWatch *watch = (GuiWatch*)data;
 
   if (condition & G_IO_IN)
@@ -906,7 +907,8 @@ ghid_watch (GIOChannel *source, GIOCondition condition, gpointer data)
   if (condition & G_IO_HUP)
     pcb_condition |= PCB_WATCH_HANGUP;
 
-  (*watch->func) ((hidval)(void *)watch, watch->fd, pcb_condition, watch->user_data);
+  x.ptr = (void *) watch;
+  *watch->func (x, watch->fd, pcb_condition, watch->user_data);
   ghid_mode_cursor (Settings.Mode);
 
   return TRUE;  /* Leave watch on */
