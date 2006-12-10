@@ -935,7 +935,7 @@ GetLayerNumber (DataTypePtr Data, LayerTypePtr Layer)
 {
   int i;
 
-  for (i = 0; i < Data->LayerN + 2; i++)
+  for (i = 0; i < MAX_LAYER + 2; i++)
     if (Layer == &Data->Layer[i])
       break;
   return (i);
