@@ -282,7 +282,7 @@ dnl ----------------------------------------------------------------
 dnl From gcc's libiberty aclocal.m4
 
 dnl See whether we need a declaration for a function.
-AC_DEFUN(libiberty_NEED_DECLARATION,
+AC_DEFUN([libiberty_NEED_DECLARATION],
 [AC_MSG_CHECKING([whether $1 must be declared])
 AC_CACHE_VAL(libiberty_cv_decl_needed_$1,
 [AC_TRY_COMPILE([
