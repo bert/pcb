@@ -839,7 +839,8 @@ FreePCBMemory (PCBTypePtr PCBPtr)
       MYFREE (PCBPtr->Name);
       MYFREE (PCBPtr->Filename);
       MYFREE (PCBPtr->PrintFilename);
-      FreeDataMemory (PCBPtr->Data);
+      if (PCBPtr->Data)
+	FreeDataMemory (PCBPtr->Data);
       MYFREE (PCBPtr->Data);
       /* release font symbols */
       for (i = 0; i <= MAX_FONTPOSITION; i++)
@@ -847,6 +848,10 @@ FreePCBMemory (PCBTypePtr PCBPtr)
       FreeLibraryMemory (&PCBPtr->NetlistLib);
       /* clear struct */
       memset (PCBPtr, 0, sizeof (PCBType));
+    }
+  else
+    {
+      fprintf (stderr, "Warning:  Tried to FreePCBMemory(null)\n");
     }
 }
 
@@ -921,6 +926,10 @@ FreeDataMemory (DataTypePtr Data)
 	r_destroy_tree (&Data->rat_tree);
       /* clear struct */
       memset (Data, 0, sizeof (DataType));
+    }
+  else
+    {
+      fprintf (stderr, "Warning:  Tried to FreeDataMemory(null)\n");
     }
 }
 

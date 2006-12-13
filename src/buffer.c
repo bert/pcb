@@ -458,9 +458,11 @@ SetBufferBoundingBox (BufferTypePtr Buffer)
 void
 ClearBuffer (BufferTypePtr Buffer)
 {
-  if (Buffer)
-    FreeDataMemory (Buffer->Data);
-  Buffer->Data->pcb = PCB;
+  if (Buffer && Buffer->Data)
+    {
+      FreeDataMemory (Buffer->Data);
+      Buffer->Data->pcb = PCB;
+    }
 }
 
 /* ----------------------------------------------------------------------
