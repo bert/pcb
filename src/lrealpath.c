@@ -34,7 +34,6 @@ components will be simplified.  The returned value will be allocated using
 */
 
 #include "config.h"
-#include "ansidecl.h"
 #include "lrealpath.h"
 
 #ifdef HAVE_LIMITS_H
