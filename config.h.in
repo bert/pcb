@@ -6,6 +6,9 @@
 /* m4 program used by pcb */
 #undef GNUM4
 
+/* Define to 1 if you have the `canonicalize_file_name' function. */
+#undef HAVE_CANONICALIZE_FILE_NAME
+
 /* Define to 1 if DBUS IPC is to be compiled in */
 #undef HAVE_DBUS
 
@@ -81,6 +84,9 @@
 /* Define to 1 if you have the `Xt' library (-lXt). */
 #undef HAVE_LIBXT
 
+/* Define to 1 if you have the <limits.h> header file. */
+#undef HAVE_LIMITS_H
+
 /* Define to 1 if you have the `logf' function. */
 #undef HAVE_LOGF
 
@@ -101,6 +107,9 @@
 
 /* Define to 1 if you have the `random' function. */
 #undef HAVE_RANDOM
+
+/* Define to 1 if you have the `realpath' function. */
+#undef HAVE_REALPATH
 
 /* Define to 1 if you have the `regcomp' function. */
 #undef HAVE_REGCOMP
@@ -158,6 +167,9 @@
 
 /* m4 executible */
 #undef M4
+
+/* Define if canonicalize_file_name is not declared in system header files. */
+#undef NEED_DECLARATION_CANONICALIZE_FILE_NAME
 
 /* Define to 1 if your C compiler doesn't accept -c and -o together. */
 #undef NO_MINUS_C_MINUS_O

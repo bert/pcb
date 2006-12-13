@@ -39,7 +39,7 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 bin_PROGRAMS = pcb-bin$(EXEEXT)
-@WITH_DBUS_TRUE@am__append_1 = dbus-pcbmain.c dbus-pcbmain.h dbus.c dbus.h
+@WITH_DBUS_TRUE@am__append_1 = ${DBUS_SRCS}
 @WITH_DBUS_TRUE@am__append_2 = dbus-introspect.h
 @WIN32_TRUE@am__append_3 = pcb_icon.o
 @WIN32_TRUE@am__append_4 = pcb_icon.o
@@ -138,9 +138,11 @@ am__pcb_bin_SOURCES_DIST = action.c action.h autoplace.c autoplace.h \
 	vendor.h hid/common/actions.c hid/common/flags.c \
 	hid/common/hidinit.c hid/common/hidnogui.c \
 	hid/common/extents.c hid/hidint.h dbus-pcbmain.c \
-	dbus-pcbmain.h dbus.c dbus.h core_lists.h
-@WITH_DBUS_TRUE@am__objects_6 = dbus-pcbmain.$(OBJEXT) dbus.$(OBJEXT)
-am__objects_7 = action.$(OBJEXT) autoplace.$(OBJEXT) \
+	dbus-pcbmain.h dbus.h dbus.c lrealpath.c core_lists.h
+am__objects_6 = dbus-pcbmain.$(OBJEXT) dbus.$(OBJEXT) \
+	lrealpath.$(OBJEXT)
+@WITH_DBUS_TRUE@am__objects_7 = $(am__objects_6)
+am__objects_8 = action.$(OBJEXT) autoplace.$(OBJEXT) \
 	autoroute.$(OBJEXT) buffer.$(OBJEXT) change.$(OBJEXT) \
 	command.$(OBJEXT) compat.$(OBJEXT) copy.$(OBJEXT) \
 	create.$(OBJEXT) crosshair.$(OBJEXT) data.$(OBJEXT) \
@@ -160,8 +162,8 @@ am__objects_7 = action.$(OBJEXT) autoplace.$(OBJEXT) \
 	vector.$(OBJEXT) vendor.$(OBJEXT) hid/common/actions.$(OBJEXT) \
 	hid/common/flags.$(OBJEXT) hid/common/hidinit.$(OBJEXT) \
 	hid/common/hidnogui.$(OBJEXT) hid/common/extents.$(OBJEXT) \
-	$(am__objects_6)
-am_pcb_bin_OBJECTS = $(am__objects_7)
+	$(am__objects_7)
+am_pcb_bin_OBJECTS = $(am__objects_8)
 pcb_bin_OBJECTS = $(am_pcb_bin_OBJECTS)
 @WIN32_TRUE@am__DEPENDENCIES_1 = pcb_icon.o
 DEFAULT_INCLUDES = -I. -I$(srcdir) -I$(top_builddir)
@@ -386,11 +388,13 @@ PCB_SRCS = action.c action.h autoplace.c autoplace.h autoroute.c \
 	hid/common/hidinit.c hid/common/hidnogui.c \
 	hid/common/extents.c hid/hidint.h $(am__append_1)
 pcb_bin_SOURCES = ${PCB_SRCS} core_lists.h
-EXTRA_pcb_bin_SOURCES = \
+EXTRA_pcb_bin_SOURCES = ${DBUS_SRCS}
+DBUS_SRCS = \
 	dbus-pcbmain.c \
 	dbus-pcbmain.h \
 	dbus.h \
-	dbus.c
+	dbus.c \
+	lrealpath.c 
 
 BUILT_SOURCES = core_lists.h hid/gtk/gtk_lists.h \
 	hid/lesstif/lesstif_lists.h hid/batch/batch_lists.h \
@@ -796,6 +800,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/insert.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/intersect.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/line.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/lrealpath.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/main.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mirror.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/misc.Po@am__quote@
