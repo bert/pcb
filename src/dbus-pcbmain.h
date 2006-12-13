@@ -23,7 +23,7 @@
 #define DBUS_API_SUBJECT_TO_CHANGE
 #include <dbus/dbus.h>
 
-void pcb_dbus_connection_setup_with_mainloop (DBusConnection *connection);
-void pcb_dbus_connection_finish_with_mainloop (DBusConnection *connection);
+void pcb_dbus_connection_setup_with_mainloop (DBusConnection * connection);
+void pcb_dbus_connection_finish_with_mainloop (DBusConnection * connection);
 
 #endif /* !_DBUS_PCBMAIN_H */

@@ -21,10 +21,10 @@
 #define _DBUS_H_
 
 /* Carry out all actions to setup the D-Bus and register appropriate callbacks */
-void pcb_dbus_setup();
+void pcb_dbus_setup ();
 
 /* Carry out all actions to finalise the D-Bus connection */
-void pcb_dbus_finish();
+void pcb_dbus_finish ();
 
 
 #endif /* !_DBUS_H */
