@@ -144,7 +144,8 @@ DBUS_SRCS= \
 	dbus-pcbmain.h \
 	dbus.h \
 	dbus.c \
-	lrealpath.c 
+	lrealpath.c \
+	lrealpath.h
 
 BUILT_SOURCES = \
 	core_lists.h \
