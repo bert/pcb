@@ -138,7 +138,8 @@ am__pcb_bin_SOURCES_DIST = action.c action.h autoplace.c autoplace.h \
 	vendor.h hid/common/actions.c hid/common/flags.c \
 	hid/common/hidinit.c hid/common/hidnogui.c \
 	hid/common/extents.c hid/hidint.h dbus-pcbmain.c \
-	dbus-pcbmain.h dbus.h dbus.c lrealpath.c lrealpath.h core_lists.h
+	dbus-pcbmain.h dbus.h dbus.c lrealpath.c lrealpath.h \
+	core_lists.h
 am__objects_6 = dbus-pcbmain.$(OBJEXT) dbus.$(OBJEXT) \
 	lrealpath.$(OBJEXT)
 @WITH_DBUS_TRUE@am__objects_7 = $(am__objects_6)
