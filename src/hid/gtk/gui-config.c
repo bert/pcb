@@ -989,6 +989,7 @@ config_sizes_apply (void)
       Settings.Shrink = PCB->Shrink;
       Settings.minWid = PCB->minWid;
       Settings.minSlk = PCB->minSlk;
+      Settings.IsleArea = PCB->IsleArea;
       Settings.minDrill = PCB->minDrill;
       Settings.minRing = PCB->minRing;
       ghidgui->config_modified = TRUE;
