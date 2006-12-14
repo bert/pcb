@@ -1229,8 +1229,15 @@ ghid_port_window_motion_cb (GtkWidget * widget,
 
 gint
 ghid_port_window_enter_cb (GtkWidget * widget,
-			   GdkEventButton * ev, GHidPort * out)
+			   GdkEventCrossing * ev, GHidPort * out)
 {
+  /* See comment in ghid_port_window_leave_cb() */
+
+  if(ev->mode != GDK_CROSSING_NORMAL) 
+    {
+      return FALSE;
+    }
+
   if (!ghidgui->command_entry_status_line_active)
     {
       out->has_entered = TRUE;
@@ -1256,10 +1263,22 @@ ghid_pan_idle_cb (gpointer data)
 }
 
 gint
-ghid_port_window_leave_cb (GtkWidget * widget,
-			   GdkEventButton * ev, GHidPort * out)
+ghid_port_window_leave_cb (GtkWidget * widget, 
+                           GdkEventCrossing * ev, GHidPort * out)
 {
   gint x0, y0, x, y, dx, dy, w, h;
+
+  /* Window leave events can also be triggered because of focus grabs. Some
+   * X applications occasionally grab the focus and so trigger this function.
+   * At least GNOME's window manager is known to do this on every mouse click.
+   *
+   * See http://bugzilla.gnome.org/show_bug.cgi?id=102209 
+   */
+
+  if(ev->mode != GDK_CROSSING_NORMAL) 
+    {
+      return FALSE;
+    }
 
   if (out->has_entered && !ghidgui->in_popup)
     {

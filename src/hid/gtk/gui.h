@@ -326,9 +326,9 @@ gboolean ghid_port_button_release_cb (GtkWidget * drawing_area,
 
 
 gint ghid_port_window_enter_cb (GtkWidget * widget,
-				GdkEventButton * ev, GHidPort * out);
-gint ghid_port_window_leave_cb (GtkWidget * widget,
-				GdkEventButton * ev, GHidPort * out);
+			   GdkEventCrossing * ev, GHidPort * out);
+gint ghid_port_window_leave_cb (GtkWidget * widget, 
+                           GdkEventCrossing * ev, GHidPort * out);
 gint ghid_port_window_motion_cb (GtkWidget * widget,
 				 GdkEventButton * ev, GHidPort * out);
 gint ghid_port_window_mouse_scroll_cb (GtkWidget * widget,
