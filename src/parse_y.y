@@ -1396,6 +1396,7 @@ elementdefinition
 				yyElement->MarkX = $3*100;
 				yyElement->MarkY = $4*100;
 			}
+		| { attr_list = & yyElement->Attributes; } attributes
 		;
 
 relementdefs
