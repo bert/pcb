@@ -45,9 +45,10 @@ define(`PKG_DIP48',  `PKG_N(`$1', `$2', `$3',  48,  600)');
 define(`PKG_DIP64',  `PKG_N(`$1', `$2', `$3',  64,  900)');
 
 #
-##  Shrink dual in-line package, wide (400 mil)
+##  Shrink dual in-line package, wide (300 mil)
 #
 define(`PKG_SDIP18',  `PKG_NS(`$1', `$2', `$3', 18,  300)');
+define(`PKG_SDIP20',  `PKG_NS(`$1', `$2', `$3', 20,  300)');
 define(`PKG_SDIP22',  `PKG_NS(`$1', `$2', `$3', 22,  300)');
 define(`PKG_SDIP24',  `PKG_NS(`$1', `$2', `$3', 24,  300)');
 #
