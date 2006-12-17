@@ -3668,6 +3668,11 @@ lesstif_beep (void)
   fflush (stdout);
 }
 
+static void
+lesstif_progress (int so_far, int total, const char *message)
+{
+}
+
 HID lesstif_gui = {
   sizeof (HID),
   "lesstif",
@@ -3722,7 +3727,8 @@ HID lesstif_gui = {
   lesstif_prompt_for,
   lesstif_attribute_dialog,
   lesstif_show_item,
-  lesstif_beep
+  lesstif_beep,
+  lesstif_progress
 };
 
 #include "dolists.h"

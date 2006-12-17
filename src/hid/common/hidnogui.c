@@ -307,6 +307,11 @@ nogui_beep (void)
   fflush (stdout);
 }
 
+static void
+nogui_progress (int so_far, int total, const char *message)
+{
+}
+
 HID hid_nogui = {
   sizeof (HID),
   "nogui",
@@ -352,7 +357,8 @@ HID hid_nogui = {
   nogui_prompt_for,
   nogui_attribute_dialog,
   nogui_show_item,
-  nogui_beep
+  nogui_beep,
+  nogui_progress
 };
 
 #define AD(x) if (!d->x) d->x = s->x
@@ -400,4 +406,5 @@ apply_default_hid (HID * d, HID * s)
   AD (attribute_dialog);
   AD (show_item);
   AD (beep);
+  AD (progress);
 }

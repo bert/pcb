@@ -443,6 +443,12 @@ typedef enum
 
     /* Something to alert the user.  */
     void (*beep) (void);
+
+    /* Used by optimizers and autorouter to show progress to the user.
+       Pass all zeros to flush display and remove any dialogs.
+       Returns nonzero if the user wishes to cancel the operation.  */
+    int (*progress) (int so_far, int total, const char *message);
+
   } HID;
 
 /* Call this as soon as possible from main().  No other HID calls are

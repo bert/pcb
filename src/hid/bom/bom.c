@@ -528,6 +528,7 @@ HID bom_hid = {
   0,				/* bom_attribute_dialog */
   0,				/* bom_show_item */
   0,				/* bom_beep */
+  0,				/* bom_progress */
 };
 
 void

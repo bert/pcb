@@ -391,6 +391,11 @@ batch_beep (void)
   fflush (stdout);
 }
 
+static void
+batch_progress (int so_far, int total, const char *message)
+{
+}
+
 HID batch_gui = {
   sizeof (HID),
   "batch",
@@ -432,7 +437,8 @@ HID batch_gui = {
   batch_prompt_for,
   batch_attribute_dialog,
   batch_show_item,
-  batch_beep
+  batch_beep,
+  batch_progress
 };
 
 #include "dolists.h"
