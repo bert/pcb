@@ -10,6 +10,8 @@
 #include <string.h>
 #include <math.h>
 #include <unistd.h>
+#include <signal.h>
+#include <sys/time.h>
 
 #include "xincludes.h"
 
@@ -58,6 +60,7 @@ Widget appwidget;
 Display *display;
 static Window window = 0;
 static Cursor my_cursor = 0;
+static int old_cursor_mode = -1;
 
 /* The first is the "current" pixmap.  The main_ is the real one we
    usually use, the mask_ are the ones for doing polygon masks.  The
@@ -278,6 +281,49 @@ cur_clip ()
   if (PCB->Clipping == 1)
     return "_/";
   return "\\_";
+}
+
+static int busy_timer_set = -1;
+
+static void
+busy_timer_callback(int signum)
+{
+  static Cursor busy_cursor = 0;
+  if (busy_cursor == 0)
+    busy_cursor = XCreateFontCursor (display, XC_watch);
+  XDefineCursor (display, window, busy_cursor);
+  XFlush(display);
+  old_cursor_mode = -1;
+}
+
+#define BUSY_TIME 200000
+
+static void
+enable_busy_cursor (int enable)
+{
+  static struct itimerval tv;
+
+  if (busy_timer_set == -1)
+    {
+      signal (SIGALRM, busy_timer_callback);
+      busy_timer_set = 0;
+      tv.it_interval.tv_sec = 0;
+      tv.it_interval.tv_usec = 0;
+      tv.it_value.tv_sec = 0;
+      tv.it_value.tv_usec = BUSY_TIME;
+    }
+  if (enable && !busy_timer_set)
+    {
+      busy_timer_set = 1;
+      tv.it_value.tv_usec = BUSY_TIME;
+      setitimer (ITIMER_REAL, &tv, NULL);
+    }
+  else if (!enable && busy_timer_set)
+    {
+      busy_timer_set = 0;
+      tv.it_value.tv_usec = 0;
+      setitimer (ITIMER_REAL, &tv, NULL);
+    }
 }
 
 /* ---------------------------------------------------------------------- */
@@ -2302,6 +2348,8 @@ static int need_redraw = 0;
 static Boolean
 idle_proc (XtPointer dummy)
 {
+  enable_busy_cursor (0);
+
   if (need_redraw)
     {
       int mx, my;
@@ -2519,15 +2567,14 @@ idle_proc (XtPointer dummy)
   }
 
   {
-    static int old_mode = -1;
-    if (old_mode != Settings.Mode)
+    if (old_cursor_mode != Settings.Mode)
       {
 	char *s = "None";
 	XmString ms;
 	int cursor = -1;
 	static int free_cursor = 0;
 
-	old_mode = Settings.Mode;
+	old_cursor_mode = Settings.Mode;
 	switch (Settings.Mode)
 	  {
 	  case NO_MODE:
@@ -2697,6 +2744,7 @@ lesstif_need_idle_proc ()
     return;
   XtAppAddWorkProc (app_context, idle_proc, 0);
   idle_proc_set = 1;
+  enable_busy_cursor (1);
 }
 
 static void
@@ -3092,6 +3140,21 @@ lesstif_draw_arc (hidGC gc, int cx, int cy, int width, int height,
     XDrawArc (display, mask_bitmap, mask_gc, cx, cy,
 	      width * 2, height * 2, (start_angle + 180) * 64,
 	      delta_angle * 64);
+#if 0
+  /* Enable this if you want to see the center and radii of drawn
+     arcs, for debugging.  */
+  if (thindraw)
+    {
+      cx += width;
+      cy += height;
+      XDrawLine (display, pixmap, my_gc, cx, cy,
+		 cx - width*cos(start_angle*M_PI/180),
+		 cy + width*sin(start_angle*M_PI/180));
+      XDrawLine (display, pixmap, my_gc, cx, cy,
+		 cx - width*cos((start_angle+delta_angle)*M_PI/180),
+		 cy + width*sin((start_angle+delta_angle)*M_PI/180));
+    }
+#endif
 }
 
 static void
