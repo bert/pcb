@@ -1066,7 +1066,7 @@ ghid_beep ()
   gdk_beep ();
 }
 
-static void
+static int
 ghid_progress (int so_far, int total, const char *message)
 {
 }

@@ -3668,7 +3668,7 @@ lesstif_beep (void)
   fflush (stdout);
 }
 
-static void
+static int
 lesstif_progress (int so_far, int total, const char *message)
 {
 }

@@ -307,7 +307,7 @@ nogui_beep (void)
   fflush (stdout);
 }
 
-static void
+static int
 nogui_progress (int so_far, int total, const char *message)
 {
 }
