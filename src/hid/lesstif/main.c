@@ -3671,6 +3671,7 @@ lesstif_beep (void)
 static int
 lesstif_progress (int so_far, int total, const char *message)
 {
+  return 0;
 }
 
 HID lesstif_gui = {

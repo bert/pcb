@@ -1069,6 +1069,7 @@ ghid_beep ()
 static int
 ghid_progress (int so_far, int total, const char *message)
 {
+  return 0;
 }
 
 /* ---------------------------------------------------------------------- */

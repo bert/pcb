@@ -310,6 +310,7 @@ nogui_beep (void)
 static int
 nogui_progress (int so_far, int total, const char *message)
 {
+  return 0;
 }
 
 HID hid_nogui = {
