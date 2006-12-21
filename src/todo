@@ -1,5 +1,5 @@
-MoveLayers - need to move thermal and PIP flags too, plus undo of
-deleting a layer with stuff on it.
+MoveLayers - undo of deleting a layer with stuff on it.   
+
 
 -------------------- HID Validation Stuff --------------------
 
@@ -27,7 +27,11 @@ Layer/Group master control dialog
 
 Remember configuration and restore on startup?
 
+Handle enum attributes.
+
 -------------------- HID Enhancements --------------------
+
+PS: Add calibration logic.
 
 EPS: option to specify which layers and order to draw in.
 
@@ -53,6 +57,8 @@ silk layer.  Note: need "thin" lines for pinout windows still.
 SearchObjectByLocation() needs to search front side silk, elements,
 etc, before back side ones.
 
+Visually indicate when a click will grab a trace end.
+
 -------------------- Action Enhancements --------------------
 
 Default functions for ":"
@@ -68,6 +74,6 @@ Global "puller" optimizer.
 
 Constrain all objects to have the same fields first in their data
 structures; convert most internal functions to use this AnyObject type
-instead of N functions for N object types.
+instead of N functions for N object types.  (Prelude to C++ objects?)
 
 Win32 and MacOS HIDs.
