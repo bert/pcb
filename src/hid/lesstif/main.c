@@ -1697,11 +1697,11 @@ lesstif_do_export (HID_Attr_Val * options)
   XtGetValues (appwidget, args, n);
 
   if (width < 1)
-    width = 400;
+    width = 640;
   if (width > XDisplayWidth (display, screen))
     width = XDisplayWidth (display, screen);
   if (height < 1)
-    height = 300;
+    height = 480;
   if (height > XDisplayHeight (display, screen))
     height = XDisplayHeight (display, screen);
 
