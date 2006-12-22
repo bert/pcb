@@ -61,6 +61,7 @@ Display *display;
 static Window window = 0;
 static Cursor my_cursor = 0;
 static int old_cursor_mode = -1;
+static int over_point = 0;
 
 /* The first is the "current" pixmap.  The main_ is the real one we
    usually use, the mask_ are the ones for doing polygon masks.  The
@@ -329,6 +330,17 @@ enable_busy_cursor (int enable)
 /* ---------------------------------------------------------------------- */
 
 /* Local actions.  */
+
+static int
+PointCursor (int argc, char **argv, int x, int y)
+{
+  if (argc > 0)
+    over_point = 1;
+  else
+    over_point = 0;
+  old_cursor_mode = -1;
+  return 0;
+}
 
 static int
 PCBChanged (int argc, char **argv, int x, int y)
@@ -878,7 +890,8 @@ HID_Action lesstif_main_action_list[] = {
   {"Command", 0, Command,
    command_help, command_syntax},
   {"Benchmark", 0, Benchmark,
-   benchmark_help, benchmark_syntax}
+   benchmark_help, benchmark_syntax},
+  {"PointCursor", 0, PointCursor}
 };
 
 REGISTER_ACTIONS (lesstif_main_action_list)
@@ -2639,7 +2652,10 @@ idle_proc (XtPointer dummy)
 	    break;
 	  case ARROW_MODE:
 	    s = "Arrow";
-	    cursor = XC_left_ptr;
+	    if (over_point)
+	      cursor = XC_draped_box;
+	    else
+	      cursor = XC_left_ptr;
 	    break;
 	  case LOCK_MODE:
 	    s = "Lock";

@@ -895,6 +895,16 @@ FitCrosshairIntoGrid (LocationType X, LocationType Y)
       Crosshair.X = x0;
       Crosshair.Y = y0;
     }
+  if (Settings.Mode == ARROW_MODE)
+    {
+	ans =
+	  SearchScreen (Crosshair.X, Crosshair.Y, LINEPOINT_TYPE,
+			&ptr1, &ptr2, &ptr3);
+	if (ans == NO_TYPE)
+	  hid_action("PointCursor");
+	else
+	  hid_actionl("PointCursor","True", NULL);
+    }
   if (Settings.Mode == LINE_MODE
       && Crosshair.AttachedLine.State != STATE_FIRST
       && TEST_FLAG (AUTODRCFLAG, PCB))

@@ -55,7 +55,6 @@ silk layer.  Note: need "thin" lines for pinout windows still.
 SearchObjectByLocation() needs to search front side silk, elements,
 etc, before back side ones.
 
-Visually indicate when a click will grab a trace end.
 
 -------------------- Action Enhancements --------------------
 

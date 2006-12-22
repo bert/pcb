@@ -173,6 +173,12 @@ gport_set_cursor (GdkCursorType shape)
 }
 
 void
+ghid_point_cursor (void)
+{
+  oldCursor = gport_set_cursor (GDK_DRAPED_BOX);
+}
+
+void
 ghid_hand_cursor (void)
 {
   oldCursor = gport_set_cursor (GDK_HAND2);

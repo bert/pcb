@@ -33,7 +33,7 @@
 
 #include "global.h"
 
-#define SLOP 10
+#define SLOP 5
 /* ---------------------------------------------------------------------------
  * some useful macros
  */
