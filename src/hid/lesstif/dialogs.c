@@ -725,6 +725,44 @@ lesstif_attribute_dialog (HID_Attribute * attrs,
 	  stdarg (XmNvalue, buf);
 	  wl[i] = XmCreateTextField (form, attrs[i].name, args, n);
 	  break;
+	case HID_Enum:
+	  {
+	    static XmString empty = 0;
+	    Widget submenu, default_button=0;
+	    int sn = n;
+
+	    if (empty == 0)
+	      empty = XmStringCreateLocalized ("");
+
+	    submenu = XmCreatePulldownMenu (form, attrs[i].name, args+sn, n-sn);
+
+	    n = sn;
+	    stdarg (XmNlabelString, empty);
+	    stdarg (XmNsubMenuId, submenu);
+	    wl[i] = XmCreateOptionMenu (form, attrs[i].name, args, n);
+
+	    for (sn=0; attrs[i].enumerations[sn]; sn++)
+	      {
+		Widget btn;
+		XmString label;
+		n = 0;
+		label = XmStringCreateLocalized (attrs[i].enumerations[sn]);
+		stdarg (XmNuserData, & attrs[i].enumerations[sn]);
+		stdarg (XmNlabelString, label);
+		btn = XmCreatePushButton (submenu, "menubutton", args, n);
+		XtManageChild (btn);
+		XmStringFree (label);
+		if (sn == attrs[i].default_val.int_value)
+		  default_button = btn;
+	      }
+	    if (default_button)
+	      {
+		n = 0;
+		stdarg (XmNmenuHistory, default_button);
+		XtSetValues (wl[i], args, n);
+	      }
+	  }
+	  break;
 	default:
 	  wl[i] = XmCreateLabel (form, "UNIMPLEMENTED", args, n);
 	  break;
@@ -753,6 +791,20 @@ lesstif_attribute_dialog (HID_Attribute * attrs,
 	case HID_Real:
 	  cp = XmTextGetString (wl[i]);
 	  sscanf (cp, "%lg", &results[i].real_value);
+	  break;
+	case HID_Enum:
+	  {
+	    const char **uptr;
+	    Widget btn;
+
+	    n = 0;
+	    stdarg (XmNmenuHistory, &btn);
+	    XtGetValues (wl[i], args, n);
+	    n = 0;
+	    stdarg (XmNuserData, &uptr);
+	    XtGetValues (btn, args, n);
+	    results[i].int_value = uptr - attrs[i].enumerations;
+	  }
 	  break;
 	default:
 	  break;
