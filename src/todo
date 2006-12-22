@@ -27,8 +27,6 @@ Layer/Group master control dialog
 
 Remember configuration and restore on startup?
 
-Handle enum attributes.
-
 -------------------- HID Enhancements --------------------
 
 PS: Add calibration logic.
