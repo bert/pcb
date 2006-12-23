@@ -746,7 +746,7 @@ lesstif_attribute_dialog (HID_Attribute * attrs,
 		Widget btn;
 		XmString label;
 		n = 0;
-		label = XmStringCreateLocalized (attrs[i].enumerations[sn]);
+		label = XmStringCreateLocalized ((char *)attrs[i].enumerations[sn]);
 		stdarg (XmNuserData, & attrs[i].enumerations[sn]);
 		stdarg (XmNlabelString, label);
 		btn = XmCreatePushButton (submenu, "menubutton", args, n);
