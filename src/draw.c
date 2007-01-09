@@ -448,6 +448,7 @@ static void
 DrawEverything (BoxTypePtr drawn_area)
 {
   int i, ngroups, side;
+  int plated;
   int component, solder;
   /* This is the list of layer groups we will draw.  */
   int do_group[MAX_LAYER];
@@ -512,12 +513,16 @@ DrawEverything (BoxTypePtr drawn_area)
 			    pad_callback, NULL);
 		}
 	      SWAP_IDENT = save_swap;
+	    }
 
+	  if (!gui->gui)
+	    {
 	      /* draw holes */
+	      plated = 0;
 	      r_search (PCB->Data->pin_tree, drawn_area, NULL, hole_callback,
-			NULL);
+			&plated);
 	      r_search (PCB->Data->via_tree, drawn_area, NULL, hole_callback,
-			NULL);
+			&plated);
 	    }
 	}
     }
@@ -544,7 +549,6 @@ DrawEverything (BoxTypePtr drawn_area)
     DrawTop (drawn_area);
   else
     {
-      int plated;
       HoleCountStruct hcs;
       hcs.nplated = hcs.nunplated = 0;
       r_search (PCB->Data->pin_tree, drawn_area, NULL, hole_counting_callback,
@@ -888,6 +892,9 @@ DrawLayerGroup (int group, const BoxType * screen)
     {
       layernum = layers[i];
       Layer = PCB->Data->Layer + layers[i];
+      if (strcmp (Layer->Name, "outline") == 0
+	  || strcmp (Layer->Name, "route") == 0)
+	rv = 0;
       if (layernum < max_layer && Layer->On)
 	{
 	  /* draw all polygons on this layer */
@@ -911,6 +918,8 @@ DrawLayerGroup (int group, const BoxType * screen)
 
 	}
     }
+  if (n_entries > 1)
+    rv = 1;
   return rv;
 }
 

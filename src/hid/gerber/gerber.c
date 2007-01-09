@@ -57,6 +57,7 @@ static int verbose;
 static int is_mask, was_drill;
 static int is_drill;
 static int current_mask;
+static int flash_drills;
 
 enum ApertureShape
 {
@@ -417,6 +418,11 @@ gerber_set_layer (const char *name, int group)
     return 0;
   if (SL_TYPE (idx) == SL_ASSY)
     return 0;
+
+  flash_drills = 0;
+  if (strcmp (name, "outline") == 0
+      || strcmp (name, "route") == 0)
+    flash_drills = 1;
 
   if (is_drill && n_pending_drills)
     {
@@ -838,7 +844,7 @@ gerber_fill_circle (hidGC gc, int cx, int cy, int radius)
       n_pending_drills++;
       return;
     }
-  else if (gc->drill)
+  else if (gc->drill && !flash_drills)
     return;
   if (cx != lastX)
     {
