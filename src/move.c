@@ -706,6 +706,31 @@ MovePolygonToLayerLowLevel (LayerTypePtr Source, PolygonTypePtr Polygon,
   return (new);
 }
 
+struct mptlc
+{
+  Cardinal snum, dnum;
+  int type;
+  PolygonTypePtr polygon;
+} mptlc;
+
+int
+mptl_pin_callback (const BoxType *b, void *cl)
+{
+  struct mptlc *d = (struct mptlc *) cl;
+  PinTypePtr pin = (PinTypePtr) b;
+  if (!TEST_THERM (d->snum, pin) || !
+	IsPointInPolygon (pin->X, pin->Y, pin->Thickness + pin->Clearance + 2,
+			  d->polygon))
+			  return 0;
+  if (d->type == PIN_TYPE)
+    AddObjectToFlagUndoList (PIN_TYPE, pin->Element, pin, pin);
+  else
+    AddObjectToFlagUndoList (VIA_TYPE, pin, pin, pin);
+  ASSIGN_THERM (d->dnum, GET_THERM (d->snum, pin), pin);
+  CLEAR_THERM (d->snum, pin);
+  return 1;
+}
+
 /* ---------------------------------------------------------------------------
  * moves a polygon between layers
  */
@@ -713,8 +738,7 @@ static void *
 MovePolygonToLayer (LayerTypePtr Layer, PolygonTypePtr Polygon)
 {
   PolygonTypePtr new;
-  Boolean sv;
-  Cardinal snum, dnum;
+  struct mptlc d;
 
   if (TEST_FLAG (LOCKFLAG, Polygon))
     {
@@ -727,38 +751,15 @@ MovePolygonToLayer (LayerTypePtr Layer, PolygonTypePtr Polygon)
   if (Layer->On)
     ErasePolygon (Polygon);
   /* Move all of the thermals with the polygon */
-  sv = MoreToCome;
-  MoreToCome = True;
-  snum = GetLayerNumber (PCB->Data, Layer);
-  dnum = GetLayerNumber (PCB->Data, Dest);
-  /* fixme should use r_search */
-  ALLPIN_LOOP (PCB->Data);
-  {
-    if (TEST_THERM (snum, pin) &&
-	IsPointInPolygon (pin->X, pin->Y, pin->Thickness + pin->Clearance + 2,
-			  Polygon))
-      {
-	AddObjectToFlagUndoList (PIN_TYPE, Layer, pin, pin);
-	ASSIGN_THERM (dnum, GET_THERM (snum, pin), pin);
-	CLEAR_THERM (snum, pin);
-      }
-  }
-  ENDALL_LOOP;
-  VIA_LOOP (PCB->Data);
-  {
-    if (TEST_THERM (snum, via) &&
-	IsPointInPolygon (via->X, via->Y, via->Thickness + via->Clearance + 2,
-			  Polygon))
-      {
-	AddObjectToFlagUndoList (VIA_TYPE, Layer, via, via);
-	ASSIGN_THERM (dnum, GET_THERM (snum, via), via);
-	CLEAR_THERM (snum, via);
-      }
-  }
-  END_LOOP;
-  MoreToCome = sv;
+  d.snum = GetLayerNumber (PCB->Data, Layer);
+  d.dnum = GetLayerNumber (PCB->Data, Dest);
+  d.polygon = Polygon;
+  d.type = PIN_TYPE;
+  r_search (PCB->Data->pin_tree, &Polygon->BoundingBox, NULL, mptl_pin_callback, &d);
+  d.type = VIA_TYPE;
+  r_search (PCB->Data->via_tree, &Polygon->BoundingBox, NULL, mptl_pin_callback, &d);
   new = MovePolygonToLayerLowLevel (Layer, Polygon, Dest);
-  InitClip (PCB->Data, Dest, Polygon);
+  InitClip (PCB->Data, Dest, new);
   if (Dest->On)
     {
       DrawPolygon (Dest, new, 0);
