@@ -372,7 +372,8 @@ ps_hid_export_to_file (FILE * the_file, HID_Attr_Val * options)
   lastgroup = -1;
   hid_expose_callback (&ps_hid, &region, 0);
 
-  fprintf (f, "showpage\n");
+  if (f)
+    fprintf (f, "showpage\n");
 
   memcpy (LayerStack, saved_layer_stack, sizeof (LayerStack));
 }
@@ -415,7 +416,8 @@ ps_do_export (HID_Attr_Val * options)
   hid_restore_layer_ons (save_ons);
 
   multi_file = 0;
-  fclose (f);
+  if (f)
+   fclose (f);
 }
 
 extern void hid_parse_command_line (int *argc, char ***argv);
@@ -506,6 +508,12 @@ ps_set_layer (const char *name, int group)
 	  if (f)
 	    fclose (f);
 	  f = psopen (filename, layer_type_to_file_name (idx));
+	  if (!f)
+	  {
+	    perror(filename);
+	    return 0;
+	  }
+		  
 	  ps_start_file (f);
 	}
       fprintf (f, "%%%%Page: %d\n", pagecount);
