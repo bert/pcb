@@ -43,7 +43,7 @@ version() {
 		print $3 " Version "$4", "$5}' $0
 }
 
-do_png=no
+do_png=0
 while test $# -gt 0 ; do
 	case $1 in
 		-c|--contents )
@@ -62,7 +62,7 @@ while test $# -gt 0 ; do
 			;;
 
 		-p|--png )
-			do_png=yes
+			do_png=1
 			shift
 			;;
 
@@ -90,7 +90,7 @@ if test -d ${outd} ; then
 else
 	mkdir -p ${outd}
 fi
-
+outd_full=`cd $outd && pwd`
 
 $AWK '
 
@@ -105,6 +105,7 @@ first == 1 {
 	brokenurl = "broken.html";
 	broken = outd "/" brokenurl;
 	print "" > broken;
+
 	ind = outd "/index.html";
 
 	print "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 3.2 Final//EN\">" > ind;
@@ -114,6 +115,7 @@ first == 1 {
 	print "<UL>" >> ind;
 	print "" >> ind;
 
+	print "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 3.2 Final//EN\">" > broken;
 	print "<HTML><BODY>" >> broken;
 	print "<TABLE BORDER=2>" >> broken;
 	print "<TR><TD><EM>Library</EM></TD>" >> broken;
@@ -207,59 +209,62 @@ first == 1 {
 	} else {
 		# generate the web index
 		printf("  <TR>\n    <TD>%s</TD>\n", comment) >> libind;
-		printf("    <TD><A HREF=\"%s.fp\">%s</A>", txtcomp, txtcomp) >> libind;
-		printf("(<A HREF=\"%s.png\">preview</A>)", txtcomp) >> libind;
+		printf("    <TD><A HREF=\"%s.fp\">%s.fp</A>", txtcomp, txtcomp) >> libind;
+		if( do_png ) {
+			printf("(<A HREF=\"%s.png\">preview</A>)", txtcomp) >> libind;
+		}
 		printf("</TD>\n  </TR>\n") >> libind;
 	}
 
 	# Now create a layout with that element and print it.
-	layout = outd "/foo.pcb" ;
-	laytmpl = "footprint.pcb" ;
-	compfile = dir "/" comp ".fp";
-	pngfile = dir "/" comp ".png";
-	compfile2 = compfile;
-	gsub(/\\/, "", compfile2);
+	if( do_png ) {
+		layout = outd "/foo.pcb" ;
+		laytmpl = "footprint.pcb" ;
+		compfile = dir "/" comp ".fp";
+		pngfile = dir "/" comp ".png";
+		compfile2 = compfile;
+		gsub(/\\/, "", compfile2);
 
-	printf("   ===> %s\n", compfile);
-	printf("") > layout;
-	pok = 1;
-	while ( (getline < laytmpl) == 1 ) {
-		if( $0 ~ /ELEMENT/ ) {
-			pok = 0;
+		printf("   ===> %s\n", compfile);
+		printf("") > layout;
+		pok = 1;
+		while ( (getline < laytmpl) == 1 ) {
+			if( $0 ~ /ELEMENT/ ) {
+				pok = 0;
+			}
+			if( pok ) {
+				print >> layout ;
+			}
 		}
-		if( pok ) {
-			print >> layout ;
-		}
-	}
-	close( laytmpl );
+		close( laytmpl );
 
-	while( (x = getline < compfile2) == 1 ) {
-		print >> layout;
-	}
-	close( compfile2 );
-
-	pok = 0;
-	while( (getline < laytmpl) == 1 ) {
-		if( pok ) {
+		while( (x = getline < compfile2) == 1 ) {
 			print >> layout;
 		}
-		if( $0 ~ /ELEMENT/ ) {
-			pok = 1;
+		close( compfile2 );
+
+		pok = 0;
+		while( (getline < laytmpl) == 1 ) {
+			if( pok ) {
+				print >> layout;
+			}
+			if( $0 ~ /ELEMENT/ ) {
+				pok = 1;
+			}
+		}
+		close( laytmpl );
+		close( layout );
+
+		cmd = "cd ../src && ./pcb-bin -x png --outfile " pngfile " --xy-max 200 --only-visible " layout " 2>&1 > /dev/null" ;
+		rc = system( cmd );
+		if( rc != 0) {
+			printf("<TR><TD>~%s</TD>\n", lib) >> broken;
+			printf("    <TD>%s</TD>\n", comp) >> broken;
+			printf("    <TD>%s</TD>\n", comment) >> broken;
+			printf("    <TD>%s</TD>\n", cmd) >> broken;
+			printf("</TR>\n") >> broken;
 		}
 	}
-	close( laytmpl );
-	close( layout );
-
-	cmd = "cd ../src && ./pcb-bin -x png --outfile " pngfile " --xy-max 200 --only-visible " layout " 2>&1 > /dev/null" ;
-	rc = system( cmd );
-	if( rc != 0) {
-		printf("<TR><TD>~%s</TD>\n", lib) >> broken;
-		printf("    <TD>%s</TD>\n", comp) >> broken;
-		printf("    <TD>%s</TD>\n", comment) >> broken;
-		printf("    <TD>%s</TD>\n", cmd) >> broken;
-		printf("</TR>\n") >> broken;
-	}
-
 }
 
 END {
@@ -267,7 +272,7 @@ END {
 	print "</UL>" >> ind;
 	print "" >> ind;
 	print "<P>For a list of footprints with either m4 syntax errors" >> ind;
-	print "or PCB syntax errors see <A HREF=\"" brokenurl "\">the broken log file.</A>" >> ind;
+	print "or PCB syntax errors see <A HREF=\"" brokenurl "\">the broken log file.</A></P>" >> ind;
 	print "</BODY></HTML>" >> ind;
 	close( ind );
 
@@ -290,7 +295,7 @@ function finish_libind() {
 	}
 }
 
-' cmd_path=./ outd=$outd awk=$AWK $contents
+' cmd_path=./ do_png=$do_png outd=$outd_full awk=$AWK $contents
 
 
 
