@@ -23,6 +23,49 @@ LIBCONTENTS= \
 	${LIBRARYFILENAME} \
 	${LIBRARYFILENAME}.contents
 
+
+# ######################################################
+#
+# Process the entire m4lib library and create a newlib
+# library from it.
+#
+
+NEWLIB=${LIBRARYFILENAME}-newlib
+
+all-local: $(NEWLIB).stamp
+
+${NEWLIB}.stamp: ${NEWLIB}
+	touch $@
+
+# if we have compiled in PNG export capability then
+# generate previews of all the footprints.  This has
+# the added benefit of doing a PCB syntax check on all of them
+if PNG
+PREVIEW=	--png
+else
+PREVIEW=	
+endif
+
+.PHONY: ${NEWLIB}
+${NEWLIB} : m4lib_to_newlib.sh ${LIBCONTENTS}
+	rm -fr ${NEWLIB}
+	${SHELL} ./m4lib_to_newlib.sh --contents \
+		${LIBRARYFILENAME}.contents --output ${NEWLIB} \
+		${PREVIEW}
+
+
+install-data-local: ${NEWLIB}.stamp
+	tar cf - ${NEWLIB} | (cd $(DESTDIR)/$(PCBLIBDIR) && tar -xf -)
+
+uninstall-local:
+	rm -fr $(DESTDIR)/$(PCBLIBDIR)/${NEWLIB}
+
+EXTRA_DIST=	${NEWLIB}
+
+#
+#
+# ######################################################
+
 pcblibm4dir=	$(PCBLIBDIR)/m4
 pcblibm4_DATA=	$(LIB_FILES)
 
@@ -114,7 +157,7 @@ LIST_FILES=	${LIST_DIST_FILES} amp.list bourns.list cts.list geda.list johnstech
 
 LIB_FILES= ${COMMON_FILE} ${M4_FILES} ${LIST_FILES} ${INC_FILES} 
 
-EXTRA_DIST=	ListLibraryContents.sh ${COMMON_FILE} ${M4_DIST_FILES} ${LIST_DIST_FILES} ${INC_FILES} \
+EXTRA_DIST+=	ListLibraryContents.sh ${COMMON_FILE} ${M4_DIST_FILES} ${LIST_DIST_FILES} ${INC_FILES} \
 		${LIBCONTENTS} \
 		${DAT_FILES} gen_list.awk gen_m4.awk gen_geda_m4.awk gen_geda_list.awk
 
