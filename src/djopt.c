@@ -982,9 +982,9 @@ trim_step (int s, int l1, int l2)
   return s;
 }
 
-static void canonicalize_line (line_s * l);
+static int canonicalize_line (line_s * l);
 
-static void
+static int
 split_line (line_s * l, corner_s * c)
 {
   int i;
@@ -993,14 +993,14 @@ split_line (line_s * l, corner_s * c)
   line_s *ls;
 
   if (!intersecting_layers (l->layer, c->layer))
-    return;
+    return 0;
   if (line_is_pad (l))
-    return;
+    return 0;
   if (c->pad)
     {
       dprintf ("split on pad!\n");
       if (l->s->pad == c->pad || l->e->pad == c->pad)
-	return;
+	return 0;
       dprintf ("splitting...\n");
     }
 
@@ -1011,7 +1011,7 @@ split_line (line_s * l, corner_s * c)
 			     l->line->Thickness, l->line->Clearance,
 			     l->line->Flags);
   if (pcbline == 0)
-    return;			/* already a line there */
+    return 0;			/* already a line there */
 
   check (c, l);
 
@@ -1034,9 +1034,11 @@ split_line (line_s * l, corner_s * c)
 
   MoveObject (LINEPOINT_TYPE, LAYER_PTR (l->layer), l->line, &l->line->Point2,
 	      c->x - (l->line->Point2.X), c->y - (l->line->Point2.Y));
+
+  return 1;
 }
 
-static void
+static int
 canonicalize_line (line_s * l)
 {
   /* This could be faster */
@@ -1069,8 +1071,7 @@ canonicalize_line (line_s * l)
 		{
 		  /* FIXME: if the line is split, we have to re-canonicalize
 		     both segments. */
-		  split_line (l, c);
-		  return;
+		  return split_line (l, c);
 		}
 	    }
 	}
@@ -1102,8 +1103,7 @@ canonicalize_line (line_s * l)
 	      if (c->y == l->s->y)
 		{
 		  /* FIXME: Likewise.  */
-		  split_line (l, c);
-		  return;
+		  return split_line (l, c);
 		}
 	    }
 	}
@@ -1144,24 +1144,31 @@ canonicalize_line (line_s * l)
 		  && dist (l->e->x, l->e->y, c->x, c->y) > th
 		  && PinLineIntersect (c->pin ? c->pin : c->via, l->line))
 		{
-		  split_line (l, c);
-		  return;
+		  return split_line (l, c);
 		}
 	    }
 	}
     }
+  return 0;
 }
 
 /* Make sure all vias are at line end points */
 static void
 canonicalize_lines ()
 {
+  int count;
   line_s *l;
-  for (l = lines; l; l = l->next)
+  while (1)
     {
-      if (DELETED (l))
-	continue;
-      canonicalize_line (l);
+      count = 0;
+      for (l = lines; l; l = l->next)
+	{
+	  if (DELETED (l))
+	    continue;
+	  count += canonicalize_line (l);
+	}
+      if (count == 0)
+	break;
     }
 }
 
@@ -1178,7 +1185,10 @@ simple_optimize_corner (corner_s * c)
       if (selected (c->via))
 	dprintf ("via check: line[0] layer %d at %d,%d nl %d\n",
 		 c->lines[0]->layer, c->x, c->y, c->n_lines);
-      if (!TEST_ANY_THERMS (c->via))
+      /* We can't delete vias that connect to power planes, or vias
+	 that aren't tented (assume they're test points).  */
+      if (!TEST_ANY_THERMS (c->via)
+	  && c->via->Mask == 0)
 	{
 	  for (i = 1; i < c->n_lines; i++)
 	    {
@@ -2912,6 +2922,10 @@ traces orthogonal on one side than on the other.  Moves the chain in
 that direction, causing a net reduction in trace length, possibly
 eliminating traces and/or corners.
 
+@item splitlines
+Looks for lines that pass through vias, pins, or pads, and splits them
+into separate lines so they can be managed separately.
+
 @item auto
 Performs the above options, repeating until no further optimizations
 can be made.
@@ -3038,6 +3052,8 @@ ActionDJopt (int argc, char **argv, int x, int y)
     saved += automagic ();
   else if (NSTRCMP (arg, "miter") == 0)
     saved += miter ();
+  else if (NSTRCMP (arg, "splitlines") == 0)
+    /* Just to call canonicalize_lines() above.  */ ;
   else
     {
       printf ("unknown command: %s\n", arg);
