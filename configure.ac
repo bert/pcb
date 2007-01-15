@@ -483,6 +483,7 @@ JPEG export with --disable-jpeg])
 		AC_MSG_RESULT([yes])
 		with_png=yes
 		])
+	AM_CONDITIONAL(PNG, test x$with_png = xyes)
 	if test "X$with_png" = "Xyes" ; then
 		AC_CHECK_FUNCS(gdImagePng)
 		if test "$ac_cv_func_gdImagePng" != "yes"; then
