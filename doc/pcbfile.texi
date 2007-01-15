@@ -24,7 +24,7 @@ Symbolic and numeric flags (SFlags and NFlags) are described in
 * Element syntax::
 * ElementArc syntax::
 * ElementLine syntax::
-* FILEVERSION syntax::
+* FileVersion syntax::
 * Flags syntax::
 * Grid syntax::
 * Groups syntax::
@@ -88,7 +88,7 @@ Numeric flags.
 @c pcbfile Attribute
 @node Attribute syntax
 @subsection Attribute
-@c ./../src/parse_y.y 1215
+@c ./../src/parse_y.y 1216
 
 @cartouche
 @format
@@ -113,7 +113,7 @@ if the value is interpreted as, for example, a number.
 @c pcbfile Connect
 @node Connect syntax
 @subsection Connect
-@c ./../src/parse_y.y 1205
+@c ./../src/parse_y.y 1206
 
 @cartouche
 @format
@@ -287,20 +287,20 @@ formats.
 The width of the silk for this line.
 @end table
 
-@c pcbfile FILEVERSION
-@node FILEVERSION syntax
-@subsection FILEVERSION
+@c pcbfile FileVersion
+@node FileVersion syntax
+@subsection FileVersion
 @c ./../src/parse_y.y 223
 
 @cartouche
 @format
-FILEVERSION [Version]
+FileVersion[Version]
 @end format
 @end cartouche
 
 @table @var
 @item Version
-File format version.  This version string represents the date when the pcb file
+File format version.  This version number represents the date when the pcb file
 format was last changed.
 @end table
 
@@ -474,7 +474,7 @@ the mark as part of the Element line.
 @c pcbfile Net
 @node Net syntax
 @subsection Net
-@c ./../src/parse_y.y 1182
+@c ./../src/parse_y.y 1183
 
 @cartouche
 @format
@@ -494,7 +494,7 @@ The routing style that should be used when autorouting this net.
 @c pcbfile Netlist
 @node Netlist syntax
 @subsection Netlist
-@c ./../src/parse_y.y 1161
+@c ./../src/parse_y.y 1162
 
 @cartouche
 @format
@@ -507,7 +507,7 @@ Netlist ( ) (
 @c pcbfile Pad
 @node Pad syntax
 @subsection Pad
-@c ./../src/parse_y.y 1027
+@c ./../src/parse_y.y 1028
 
 @cartouche
 @format
@@ -545,7 +545,7 @@ numerical flags only
 @c pcbfile Pin
 @node Pin syntax
 @subsection Pin
-@c ./../src/parse_y.y 954
+@c ./../src/parse_y.y 955
 
 @cartouche
 @format
@@ -686,7 +686,7 @@ is split across lines only to make it readable.
 @c pcbfile Symbol
 @node Symbol syntax
 @subsection Symbol
-@c ./../src/parse_y.y 1089
+@c ./../src/parse_y.y 1090
 
 @cartouche
 @format
@@ -708,7 +708,7 @@ Additional space to allow after this character.
 @c pcbfile SymbolLine
 @node SymbolLine syntax
 @subsection SymbolLine
-@c ./../src/parse_y.y 1144
+@c ./../src/parse_y.y 1145
 
 @cartouche
 @format

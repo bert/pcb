@@ -776,7 +776,7 @@ djopt(auto) - all of the above
 @end cartouche
 
 Perform various optimizations on the current board
-@c ./../src/djopt.c 2867
+@c ./../src/djopt.c 2877
 
 The different types of optimizations change your board in order to
 reduce the total trace length and via count.
@@ -809,6 +809,10 @@ Looks for chains of traces all going in one direction, with more
 traces orthogonal on one side than on the other.  Moves the chain in
 that direction, causing a net reduction in trace length, possibly
 eliminating traces and/or corners.
+
+@item splitlines
+Looks for lines that pass through vias, pins, or pads, and splits them
+into separate lines so they can be managed separately.
 
 @item auto
 Performs the above options, repeating until no further optimizations
@@ -2128,7 +2132,7 @@ About()@end format
 @end cartouche
 
 Tell the user about this version of PCB.
-@c ./../src/hid/gtk/gtkhid-main.c 1342
+@c ./../src/hid/gtk/gtkhid-main.c 1512
 
 This just pops up a dialog telling the user which version of
 @code{pcb} they're running.
@@ -2188,7 +2192,7 @@ About()@end format
 @end cartouche
 
 Tell the user about this version of PCB.
-@c ./../src/hid/lesstif/dialogs.c 770
+@c ./../src/hid/lesstif/dialogs.c 822
 
 This just pops up a dialog telling the user which version of
 @code{pcb} they're running.
@@ -2203,7 +2207,7 @@ AdjustSizes()@end format
 @end cartouche
 
 Let the user change the board size, DRC parameters, etc
-@c ./../src/hid/lesstif/dialogs.c 1023
+@c ./../src/hid/lesstif/dialogs.c 1075
 
 Displays a dialog box that lets the user change the board
 size, DRC parameters, and text scale.
@@ -2232,7 +2236,7 @@ Benchmark()@end format
 @end cartouche
 
 Benchmark the GUI speed.
-@c ./../src/hid/lesstif/main.c 628
+@c ./../src/hid/lesstif/main.c 688
 
 This action is used to speed-test the Lesstif graphics subsystem.  It
 redraws the current screen as many times as possible in ten seconds.
@@ -2248,7 +2252,7 @@ Command()@end format
 @end cartouche
 
 Displays the command line input window.
-@c ./../src/hid/lesstif/main.c 613
+@c ./../src/hid/lesstif/main.c 673
 
 The command window allows the user to manually enter actions to be
 executed.  Action syntax can be done one of two ways:
@@ -2324,7 +2328,7 @@ DoWindows(Layout|Library|Log|Netlist)@end format
 @end cartouche
 
 Open various GUI windows.
-@c ./../src/hid/lesstif/dialogs.c 734
+@c ./../src/hid/lesstif/dialogs.c 786
 
 @table @code
 
@@ -2377,7 +2381,7 @@ EditLayerGroups()@end format
 @end cartouche
 
 Let the user change the layer groupings
-@c ./../src/hid/lesstif/dialogs.c 1335
+@c ./../src/hid/lesstif/dialogs.c 1387
 
 Displays a dialog that lets the user view and change the layer
 groupings.  Each layer (row) can be a member of any one layer group
@@ -2397,7 +2401,7 @@ Export()@end format
 @end cartouche
 
 Export the layout.
-@c ./../src/hid/lesstif/dialogs.c 829
+@c ./../src/hid/lesstif/dialogs.c 881
 
 Prompts the user for an exporter to use.  Then, prompts the user for
 that exporter's options, and exports the layout.
@@ -2485,7 +2489,7 @@ Print()@end format
 @end cartouche
 
 Print the layout.
-@c ./../src/hid/lesstif/dialogs.c 797
+@c ./../src/hid/lesstif/dialogs.c 849
 
 This will find the default printing HID, prompt the user for its
 options, and print the layout.
@@ -2567,7 +2571,7 @@ SetUnits(mm|mil)@end format
 @end cartouche
 
 Set the default measurement units.
-@c ./../src/hid/lesstif/main.c 327
+@c ./../src/hid/lesstif/main.c 387
 
 @table @code
 
@@ -2589,7 +2593,7 @@ SwapSides(|v|h|r)@end format
 @end cartouche
 
 Swaps the side of the board you're looking at.
-@c ./../src/hid/lesstif/main.c 461
+@c ./../src/hid/lesstif/main.c 521
 
 This action changes the way you view the board.
 
@@ -2631,7 +2635,7 @@ ThinDraw(1|0)@end format
 @end cartouche
 
 Sets the global thin-draw flag.
-@c ./../src/hid/lesstif/main.c 417
+@c ./../src/hid/lesstif/main.c 477
 
 When the thindraw flag is set, all board objects are drawn using
 ``thin'' lines.  Traces are drawn as single lines along their
@@ -2650,7 +2654,7 @@ ThinDrawPoly(0|1)@end format
 @end cartouche
 
 Sets the thin-draw flag for polygons.
-@c ./../src/hid/lesstif/main.c 439
+@c ./../src/hid/lesstif/main.c 499
 
 When the polygon thindraw flag is set, all polygons are drawn using
 ``thin'' lines along their outlines.  If you pass @code{0}, polygon
@@ -2691,7 +2695,7 @@ Zoom(factor)@end format
 @end cartouche
 
 Various zoom factor changes.
-@c ./../src/hid/lesstif/main.c 347
+@c ./../src/hid/lesstif/main.c 407
 
 Changes the zoom (magnification) of the view of the board.  If no
 arguments are passed, the view is scaled such that the board just fits
