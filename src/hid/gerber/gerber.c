@@ -78,14 +78,19 @@ typedef struct Aperture
 }
 Aperture;
 
+/* This is added to the global aperture array indexes to get gerber
+   dcode and macro numbers.  */
+#define DCODE_BASE 11
+
 typedef struct
 {
-  DynamicStringType appList;
-  int lastdCode;
-  int lastTherm;
-  int nextAperture;		/* Number of apertures */
-  Aperture aperture[GBX_MAXAPERTURECOUNT];
+  int some_apertures;
+  int aperture_used[GBX_MAXAPERTURECOUNT];
 } Apertures;
+
+static int global_aperture_count;
+static int global_aperture_sizes[GBX_MAXAPERTURECOUNT];
+static ApertureShape global_aperture_shapes[GBX_MAXAPERTURECOUNT];
 
 static Apertures *layerapps = 0;
 static Apertures *curapp;
@@ -111,8 +116,6 @@ static int
 findApertureCode (int width, ApertureShape shape)
 {
   int i;
-  Aperture *ap;
-  char appMacro[256];
 
   /* we never draw zero-width lines */
   if (width == 0)
@@ -120,70 +123,86 @@ findApertureCode (int width, ApertureShape shape)
 
   /* Search for an appropriate aperture. */
 
-  for (i = 0; i < curapp->nextAperture; i++)
+  for (i = 0; i < global_aperture_count; i++)
     {
-      ap = &(curapp->aperture[i]);
-
-      if (ap->apertureSize == width && ap->apertureShape == shape)
-	return (ap->dCode);
+      if (global_aperture_sizes[i] == width
+	  && global_aperture_shapes[i] == shape)
+	{
+	  curapp->aperture_used[i] = 1;
+	  curapp->some_apertures = 1;
+	  return i + DCODE_BASE;
+	}
     }
-  appMacro[0] = '\0';
 
   /* Not found, create a new aperture and add it to the list */
-  if (curapp->nextAperture < GBX_MAXAPERTURECOUNT)
+  if (global_aperture_count < GBX_MAXAPERTURECOUNT)
     {
-      i = curapp->nextAperture++;
-      ap = &(curapp->aperture[i]);
-      ap->dCode = curapp->lastdCode++;
-      ap->apertureSize = width;
-      ap->apertureShape = shape;
-      switch (shape)
-	{
-	case ROUND:
-	  sprintf (appMacro, "%%ADD%dC,%.4f*%%\015\012", ap->dCode,
-		   width / 100000.0);
-	  break;
-	case SQUARE:
-	  sprintf (appMacro, "%%ADD%dR,%.4fX%.4f*%%\015\012",
-		   ap->dCode, width / 100000.0, width / 100000.0);
-	  break;
-	case OCTAGON:
-	  sprintf (appMacro, "%%AMOCT%d*5,0,8,0,0,%.4f,22.5*%%\015\012"
-		   "%%ADD%dOCT%d*%%\015\012", curapp->lastTherm,
-		   width / (100000.0 * COS_22_5_DEGREE), ap->dCode,
-		   curapp->lastTherm);
-	  curapp->lastTherm++;
-	  break;
-#if 0
-	case THERMAL:
-	  sprintf (appMacro, "%%AMTHERM%d*7,0,0,%.4f,%.4f,%.4f,45*%%\015\012"
-		   "%%ADD%dTHERM%d*%%\015\012", lastTherm, gap / 100000.0,
-		   width / 100000.0, finger / 100000.0, ap->dCode, lastTherm);
-	  lastTherm++;
-	  break;
-	case ROUNDCLEAR:
-	  sprintf (appMacro, "%%ADD%dC,%.4fX%.4f*%%\015\012",
-		   ap->dCode, gap / 100000.0, width / 100000.0);
-	  break;
-	case SQUARECLEAR:
-	  sprintf (appMacro, "%%ADD%dR,%.4fX%.4fX%.4fX%.4f*%%\015\012",
-		   ap->dCode, gap / 100000.0, gap / 100000.0,
-		   width / 100000.0, width / 100000.0);
-	  break;
-#else
-	default:
-	  break;
-#endif
-	}
-
-      DSAddString (&(curapp->appList), appMacro);
-      return (ap->dCode);
+      i = global_aperture_count ++;
+      global_aperture_sizes[i] = width;
+      global_aperture_shapes[i] = shape;
+      curapp->aperture_used[i] = 1;
+      curapp->some_apertures = 1;
+      return i + DCODE_BASE;
     }
   else
     {
       Message (_("Error, too many apertures needed for Gerber file.\n"));
       return (10);
     }
+}
+
+static void
+printAperture(FILE *f, int i)
+{
+  int dCode = i + DCODE_BASE;
+  int width = global_aperture_sizes[i];
+
+  switch (global_aperture_shapes[i])
+    {
+    case ROUND:
+      fprintf (f, "%%ADD%dC,%.4f*%%\015\012", dCode,
+	       width / 100000.0);
+      break;
+    case SQUARE:
+      fprintf (f, "%%ADD%dR,%.4fX%.4f*%%\015\012",
+	       dCode, width / 100000.0, width / 100000.0);
+      break;
+    case OCTAGON:
+      fprintf (f, "%%AMOCT%d*5,0,8,0,0,%.4f,22.5*%%\015\012"
+	       "%%ADD%dOCT%d*%%\015\012", dCode,
+	       width / (100000.0 * COS_22_5_DEGREE), dCode,
+	       dCode);
+      break;
+#if 0
+    case THERMAL:
+      fprintf (f, "%%AMTHERM%d*7,0,0,%.4f,%.4f,%.4f,45*%%\015\012"
+	       "%%ADD%dTHERM%d*%%\015\012", dCode, gap / 100000.0,
+	       width / 100000.0, finger / 100000.0, dCode, dCode);
+      break;
+    case ROUNDCLEAR:
+      fprintf (f, "%%ADD%dC,%.4fX%.4f*%%\015\012",
+	       dCode, gap / 100000.0, width / 100000.0);
+      break;
+    case SQUARECLEAR:
+      fprintf (f, "%%ADD%dR,%.4fX%.4fX%.4fX%.4f*%%\015\012",
+	       dCode, gap / 100000.0, gap / 100000.0,
+	       width / 100000.0, width / 100000.0);
+      break;
+#else
+    default:
+      break;
+#endif
+    }
+}
+
+static int
+countApertures (Apertures *ap)
+{
+  int i, rv=0;
+  for (i=0; i<GBX_MAXAPERTURECOUNT; i++)
+    if (ap->aperture_used[i])
+      rv ++;
+  return rv;
 }
 
 static void
@@ -206,11 +225,10 @@ SetAppLayer (int l)
       curapp = layerapps + prev;
       while (curapp < layerapps + n_layerapps)
 	{
-	  curapp->appList.Data = NULL;
-	  curapp->appList.MaxLength = 0;
-	  curapp->lastdCode = 11;
-	  curapp->lastTherm = 1;
-	  curapp->nextAperture = 0;
+	  int i;
+	  curapp->some_apertures = 0;
+	  for (i=0; i<GBX_MAXAPERTURECOUNT; i++)
+	    curapp->aperture_used[i] = 0;
 	  curapp++;
 	}
     }
@@ -478,7 +496,7 @@ gerber_set_layer (const char *name, int group)
       if (finding_apertures)
 	return 1;
 
-      if (!curapp->nextAperture)
+      if (!curapp->some_apertures)
 	return 0;
 
       maybe_close_f ();
@@ -505,16 +523,20 @@ gerber_set_layer (const char *name, int group)
       was_drill = is_drill;
 
       if (verbose)
-	printf ("Gerber: %d aperture%s in %s\n", curapp->nextAperture,
-		curapp->nextAperture == 1 ? "" : "s", filename);
+	{
+	  int c = countApertures (curapp);
+	  printf ("Gerber: %d aperture%s in %s\n", c,
+		  c == 1 ? "" : "s", filename);
+	}
 
       if (is_drill)
 	{
 	  fprintf (f, "M48\015\012" "INCH,TZ\015\012");
-	  for (i = 0; i < curapp->nextAperture; i++)
-	    fprintf (f, "T%02dC%.3f\015\012",
-		     curapp->aperture[i].dCode,
-		     curapp->aperture[i].apertureSize / 100000.0);
+	  for (i = 0; i < GBX_MAXAPERTURECOUNT; i++)
+	    if (curapp->aperture_used[i])
+	      fprintf (f, "T%02dC%.3f\015\012",
+		       i + DCODE_BASE,
+		       global_aperture_sizes[i] / 100000.0);
 	  fprintf (f, "%%\015\012");
 	  /* FIXME */
 	  return 1;
@@ -568,7 +590,9 @@ gerber_set_layer (const char *name, int group)
       fprintf (f, "%%LN%s*%%\015\012", layername);
       lncount = 1;
 
-      fprintf (f, "%s", curapp->appList.Data);
+      for (i=0; i<GBX_MAXAPERTURECOUNT; i++)
+	if (curapp->aperture_used[i])
+	  printAperture(f, i);
     }
 
   return 1;
