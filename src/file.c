@@ -805,35 +805,51 @@ WritePipe (char *Filename, Boolean thePcb)
   int result;
   char *p;
   static DynamicStringType command;
+  int used_popen = 0;
 
-  /* setup commandline */
-  DSClearString (&command);
-  for (p = Settings.SaveCommand; *p; p++)
+  if (EMPTY_STRING_P (Settings.SaveCommand))
     {
-      /* copy character if not special or add string to command */
-      if (!(*p == '%' && *(p + 1) == 'f'))
-	DSAddCharacter (&command, *p);
-      else
+      fp = fopen (Filename, "w");
+      if (fp == 0)
 	{
-	  DSAddString (&command, Filename);
-
-	  /* skip the character */
-	  p++;
+	  Message ("Unable to write to file %s\n", Filename);
+	  return STATUS_ERROR;
 	}
     }
-  DSAddCharacter (&command, '\0');
-
-  printf ("write to pipe \"%s\"\n", command.Data);
-  if ((fp = popen (command.Data, "w")) == NULL)
+  else
     {
-      PopenErrorMessage (command.Data);
-      return (STATUS_ERROR);
+      used_popen = 1;
+      /* setup commandline */
+      DSClearString (&command);
+      for (p = Settings.SaveCommand; *p; p++)
+	{
+	  /* copy character if not special or add string to command */
+	  if (!(*p == '%' && *(p + 1) == 'f'))
+	    DSAddCharacter (&command, *p);
+	  else
+	    {
+	      DSAddString (&command, Filename);
+
+	      /* skip the character */
+	      p++;
+	    }
+	}
+      DSAddCharacter (&command, '\0');
+      printf ("write to pipe \"%s\"\n", command.Data);
+      if ((fp = popen (command.Data, "w")) == NULL)
+	{
+	  PopenErrorMessage (command.Data);
+	  return (STATUS_ERROR);
+	}
     }
   if (thePcb)
     result = WritePCB (fp);
   else
     result = WriteBuffer (fp);
-  return (pclose (fp) ? STATUS_ERROR : result);
+
+  if (used_popen)
+    return (pclose (fp) ? STATUS_ERROR : result);
+  return (fclose (fp) ? STATUS_ERROR : result);
 }
 
 /* ---------------------------------------------------------------------------
@@ -1144,18 +1160,33 @@ ReadNetlist (char *filename)
   LibraryEntryTypePtr entry;
   int i, j, lines, kind;
   Boolean continued;
+  int used_popen = 0;
 
   if (!filename)
     return (1);			/* nothing to do */
-  MYFREE (command);
-  command = EvaluateFilename (Settings.RatCommand,
-			      Settings.RatPath, filename, NULL);
 
-  /* open pipe to stdout of command */
-  if (*command == '\0' || (fp = popen (command, "r")) == NULL)
+  if (EMPTY_STRING_P (Settings.RatCommand))
     {
-      PopenErrorMessage (command);
-      return (1);
+      fp = fopen (filename, "r");
+      if (!fp)
+	{
+	  Message("Cannot open %s for reading", filename);
+	  return 1;
+	}
+    }
+  else
+    {
+      used_popen = 1;
+      MYFREE (command);
+      command = EvaluateFilename (Settings.RatCommand,
+				  Settings.RatPath, filename, NULL);
+
+      /* open pipe to stdout of command */
+      if (*command == '\0' || (fp = popen (command, "r")) == NULL)
+	{
+	  PopenErrorMessage (command);
+	  return (1);
+	}
     }
   lines = 0;
   /* kind = 0  is net name
@@ -1228,7 +1259,10 @@ ReadNetlist (char *filename)
       pclose (fp);
       return (1);
     }
-  pclose (fp);
+  if (used_popen)
+    pclose (fp);
+  else
+    fclose (fp);
   sort_netlist ();
   return (0);
 }

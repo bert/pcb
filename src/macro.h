@@ -101,6 +101,7 @@
 #define	UNKNOWN(a)		((a) && *(a) ? (a) : "(unknown)")
 #define NSTRCMP(a, b)		((a) ? ((b) ? strcmp((a),(b)) : 1) : -1)
 #define	EMPTY(a)		((a) ? (a) : "")
+#define	EMPTY_STRING_P(a)	((a) ? (a)[0]==0 : 1)
 #define XOR(a,b)		(((a) && !(b)) || (!(a) && (b)))
 #define SQUARE(x)		((float) (x) * (float) (x))
 #define TO_RADIANS(degrees)	(M180 * (degrees))
