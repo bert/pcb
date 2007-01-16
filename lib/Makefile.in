@@ -244,10 +244,10 @@ NEWLIB = ${LIBRARYFILENAME}-newlib
 # generate previews of all the footprints.  This has
 # the added benefit of doing a PCB syntax check on all of them
 @PNG_TRUE@PREVIEW = --png
-EXTRA_DIST = ${NEWLIB} ListLibraryContents.sh ${COMMON_FILE} \
-	${M4_DIST_FILES} ${LIST_DIST_FILES} ${INC_FILES} \
-	${LIBCONTENTS} ${DAT_FILES} gen_list.awk gen_m4.awk \
-	gen_geda_m4.awk gen_geda_list.awk
+EXTRA_DIST = ${NEWLIB} footprint.pcb ListLibraryContents.sh \
+	${COMMON_FILE} ${M4_DIST_FILES} ${LIST_DIST_FILES} \
+	${INC_FILES} ${LIBCONTENTS} ${DAT_FILES} gen_list.awk \
+	gen_m4.awk gen_geda_m4.awk gen_geda_list.awk
 
 #
 #
@@ -559,15 +559,12 @@ uninstall-am: uninstall-info-am uninstall-local uninstall-pcblibDATA \
 
 all-local: $(NEWLIB).stamp
 
-${NEWLIB}.stamp: ${NEWLIB}
-	touch $@
-
-.PHONY: ${NEWLIB}
-${NEWLIB} : m4lib_to_newlib.sh ${LIBCONTENTS}
+${NEWLIB}.stamp : m4lib_to_newlib.sh ${LIBCONTENTS} footprint.pcb
 	rm -fr ${NEWLIB}
 	${SHELL} ./m4lib_to_newlib.sh --contents \
 		${LIBRARYFILENAME}.contents --output ${NEWLIB} \
 		${PREVIEW}
+	touch $@
 
 install-data-local: ${NEWLIB}.stamp
 	tar cf - ${NEWLIB} | (cd $(DESTDIR)/$(PCBLIBDIR) && tar -xf -)

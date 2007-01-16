@@ -34,9 +34,6 @@ NEWLIB=${LIBRARYFILENAME}-newlib
 
 all-local: $(NEWLIB).stamp
 
-${NEWLIB}.stamp: ${NEWLIB}
-	touch $@
-
 # if we have compiled in PNG export capability then
 # generate previews of all the footprints.  This has
 # the added benefit of doing a PCB syntax check on all of them
@@ -46,12 +43,12 @@ else
 PREVIEW=	
 endif
 
-.PHONY: ${NEWLIB}
-${NEWLIB} : m4lib_to_newlib.sh ${LIBCONTENTS}
+${NEWLIB}.stamp : m4lib_to_newlib.sh ${LIBCONTENTS} footprint.pcb
 	rm -fr ${NEWLIB}
 	${SHELL} ./m4lib_to_newlib.sh --contents \
 		${LIBRARYFILENAME}.contents --output ${NEWLIB} \
 		${PREVIEW}
+	touch $@
 
 
 install-data-local: ${NEWLIB}.stamp
@@ -60,7 +57,7 @@ install-data-local: ${NEWLIB}.stamp
 uninstall-local:
 	rm -fr $(DESTDIR)/$(PCBLIBDIR)/${NEWLIB}
 
-EXTRA_DIST=	${NEWLIB}
+EXTRA_DIST=	${NEWLIB} footprint.pcb
 
 #
 #
