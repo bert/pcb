@@ -947,6 +947,7 @@ ParseLibraryTree (void)
   struct dirent *direntry, *e2;
   LibraryMenuTypePtr menu = NULL;
   LibraryEntryTypePtr entry;
+  size_t l;
 
   memset (path, 0, sizeof path);
   memset (working, 0, sizeof working);
@@ -986,7 +987,10 @@ ParseLibraryTree (void)
 	  chdir (path);
 	  /* find directories
 	   * ignore entries beginning with "." and CVS
-	   * directories
+	   * directories as well as a few other specific 
+	   * files.  We're skipping .png and .html because those
+	   * may exist in a library tree to provide an html browsable
+	   * index of the library.
 	   */
 	  if (!stat (direntry->d_name, &buffer)
 	      && S_ISDIR (buffer.st_mode) && direntry->d_name[0] != '.'
@@ -1001,12 +1005,15 @@ ParseLibraryTree (void)
 	      chdir (direntry->d_name);
 	      while (subdir && (e2 = readdir (subdir)))
 		{
+		  l = strlen (e2->d_name);
 		  if (!stat (e2->d_name, &buffer) && S_ISREG (buffer.st_mode)
 		      && e2->d_name[0] != '.'
 		      && NSTRCMP (e2->d_name, "CVS") != 0
 		      && NSTRCMP (e2->d_name, "Makefile") != 0
 		      && NSTRCMP (e2->d_name, "Makefile.am") != 0
-		      && NSTRCMP (e2->d_name, "Makefile.in") != 0)
+		      && NSTRCMP (e2->d_name, "Makefile.in") != 0
+		      && (l < 4 || NSTRCMP(e2->d_name + (l - 4), ".png") != 0) 
+		      && (l < 5 || NSTRCMP(e2->d_name + (l - 5), ".html") != 0) )
 		    {
 
 		      /* 
