@@ -579,7 +579,7 @@ AC_DEFINE_UNQUOTED(LIBRARYFILENAME,"$LIBRARYFILENAME",[library file name])
 
 
 # directory for new library
-PCBTREEDIR=${datadir}/pcb/newlib
+PCBTREEDIR=${datadir}/pcb/newlib:${PCBLIBDIR}/pcblib-newlib
 PCBTREEDIR=${PCBTREEDIR:-"$PCBTREEDIR"}
 AC_SUBST(PCBTREEDIR)
 #AC_DEFINE_UNQUOTED(PCBTREEDIR,"$PCBLIB",[top directory for new style pcb library])
