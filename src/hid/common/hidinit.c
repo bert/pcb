@@ -7,14 +7,25 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#ifdef HAVE_DLFCN_H
 #include <dlfcn.h>
+#endif
+
 #include <dirent.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
 
+#if defined(WIN32) && defined(HAVE_WINDOWS_H)
+#include <windows.h>
+#endif
+
 #include "hid.h"
 #include "../hidint.h"
+
+/* for dlopen() and friends on windows */
+#include "compat.h"
 
 #include "error.h"
 #include "global.h"
@@ -52,7 +63,6 @@ hid_load_dir (char *dirname)
       free (dirname);
       return;
     }
-
   while ((de = readdir (dir)) != NULL)
     {
       void *sym;
@@ -69,7 +79,15 @@ hid_load_dir (char *dirname)
       path = Concat (dirname, "/", de->d_name, NULL);
 
       if (stat (path, &st) == 0
-	  && (st.st_mode & (S_IXUSR | S_IXGRP | S_IXOTH))
+	  && (
+/* mingw and win32 do not support S_IXGRP or S_IXOTH */
+#if defined(S_IXGRP)
+	  (st.st_mode & S_IXGRP) ||
+#endif
+#if defined(S_IXOTH)
+	  (st.st_mode & S_IXOTH) ||
+#endif
+	  (st.st_mode & S_IXUSR) )
 	  && S_ISREG (st.st_mode))
 	{
 	  if ((so = dlopen (path, RTLD_NOW | RTLD_GLOBAL)) == NULL)
@@ -386,7 +404,11 @@ hid_save_settings (int locally)
       fname = Concat (home, "/.pcb", NULL);
 
       if (stat (fname, &st))
+#ifdef WIN32
+	if (mkdir (fname))
+#else
 	if (mkdir (fname, 0777))
+#endif
 	  {
 	    free (fname);
 	    return;
