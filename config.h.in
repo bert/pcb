@@ -12,6 +12,9 @@
 /* Define to 1 if DBUS IPC is to be compiled in */
 #undef HAVE_DBUS
 
+/* Define to 1 if you have the <dlfcn.h> header file. */
+#undef HAVE_DLFCN_H
+
 /* Define to 1 if you have the `expf' function. */
 #undef HAVE_EXPF
 
@@ -123,6 +126,9 @@
 /* Define to 1 if you have the `rint' function. */
 #undef HAVE_RINT
 
+/* Define to 1 if you have the `stat' function. */
+#undef HAVE_STAT
+
 /* Define to 1 if you have the <stdint.h> header file. */
 #undef HAVE_STDINT_H
 
@@ -158,6 +164,9 @@
 
 /* Define to 1 if you have the `vsnprintf' function. */
 #undef HAVE_VSNPRINTF
+
+/* Define to 1 if you have the <windows.h> header file. */
+#undef HAVE_WINDOWS_H
 
 /* Define to 1 if you have the <Xm/Xm.h> header file. */
 #undef HAVE_XM_XM_H

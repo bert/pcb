@@ -309,6 +309,7 @@ AC_CHECK_FUNCS(logf expf rint)
 AC_CHECK_FUNCS(vsnprintf)
 AC_CHECK_FUNCS(getpwuid gethostname getcwd)
 AC_CHECK_FUNCS(random)
+AC_CHECK_FUNCS(stat)
 
 # normally used for all file i/o
 AC_CHECK_FUNCS(popen)
@@ -320,7 +321,11 @@ libiberty_NEED_DECLARATION(canonicalize_file_name)
 AC_HEADER_STDC
 AC_CHECK_HEADERS(limits.h string.h sys/types.h regex.h pwd.h)
 AC_CHECK_HEADERS(sys/socket.h netinet/in.h netdb.h sys/param.h sys/times.h)
+AC_CHECK_HEADERS(dlfcn.h)
 
+if test "x${WIN32}" = "xyes" ; then
+	AC_CHECK_HEADERS(windows.h)
+fi
 
 for e in $HIDLIST; do
     case $e in
@@ -483,7 +488,6 @@ JPEG export with --disable-jpeg])
 		AC_MSG_RESULT([yes])
 		with_png=yes
 		])
-	AM_CONDITIONAL(PNG, test x$with_png = xyes)
 	if test "X$with_png" = "Xyes" ; then
 		AC_CHECK_FUNCS(gdImagePng)
 		if test "$ac_cv_func_gdImagePng" != "yes"; then
@@ -498,6 +502,8 @@ PNG export with --disable-png])
     esac
 done
 
+
+AM_CONDITIONAL(PNG, test x$with_png = xyes)
 
 # ------------- dmalloc -------------------
 dnl dmalloc checks
