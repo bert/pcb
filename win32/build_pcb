@@ -7,6 +7,81 @@
 # checked
 set -e
 
+usage() {
+cat << EOF
+
+$0 [options]
+
+Builds a non-cygwin version of pcb and create a standalone
+windows installer.
+
+Supported options:
+
+  --debug         - Omits the compiler flag which prevents
+                    a command window from being opened.  This
+                    is useful when trying to use debug printf's
+
+  --disable-doc   - Pass "--disable-doc" to the configure script.
+
+  --help          - Show this message and exit.
+
+  --skip-build    - Skip the "make" step of the process.
+
+  --skip-config   - Skip the "./configure" step of the process.
+
+  --skip-install  - Skip the "make install" step of the process.
+
+EOF
+}
+
+debug=no
+do_config=yes
+do_build=yes
+do_install=yes
+while test $# -ne 0 ; do
+	case $1 in
+		--debug)
+			debug=yes
+			shift
+			;;
+
+		--disable-doc)
+			config_args="${config_args} --disable-doc"
+			shift
+			;;
+
+		--help)
+			usage
+			exit 0
+			;;
+
+		--skip-build)
+			do_build=no
+			shift
+			;;
+
+		--skip-config)
+			do_config=no
+			shift
+			;;
+
+		--skip-install)
+			do_install=no
+			shift
+			;;
+
+		-*)
+			echo "ERROR:  Unknown option $1"
+			usage
+			exit 1
+			;;
+
+		*)
+			break
+			;;
+	esac
+done
+
 # Run this under cygwin to build pcb and create a windows installer for
 # it.  Thanks to Bob Paddock for pointing me to NSIS and answering some 
 # beginner windows questions.
@@ -25,8 +100,6 @@ echo "pcb_version=${pcb_version}"
 # location of the NSIS makensis executible (see http://nsis.sourceforge.net)
 makensis="/cygdrive/c/Program Files/NSIS/makensis.exe"
 
-do_config=${DO_CONFIG:-yes}
-do_build=${DO_BUILD:-yes}
 
 # ########################################################################
 #
@@ -63,10 +136,14 @@ export WISH
 
 # add the gcc options to produce a native windows binary that
 # does not need cygwin to run
-CYGWIN_CFLAGS="-mms-bitfields -mno-cygwin -mwindows"
+if test "x${debug}" = "xno" ; then
+	EXTRA_FLAGS="-mwindow"
+fi
+
+CYGWIN_CFLAGS="-mms-bitfields -mno-cygwin ${EXTRA_FLAGS}"
 export CYGWIN_CFLAGS
 
-CYGWIN_CPPFLAGS="-mms-bitfields -mno-cygwin -mwindows"
+CYGWIN_CPPFLAGS="-mms-bitfields -mno-cygwin ${EXTRA_FLAGS}"
 export CYGWIN_CPPFLAGS
 
 # setting WIN32=yes will make sure that the desktop icon
@@ -78,6 +155,7 @@ echo "Configuring for cygwin"
 	--disable-nls \
 	--with-exporters="bom gerber ps" \
 	--with-printer="" \
+	${config_args} \
 	2>&1 ; echo $? >&4 ) | tee c.log 1>&3) 4>&1 | (read a ; exit $a)) 3>&1
 
 if test $? -ne 0 ; then
@@ -94,14 +172,15 @@ if test $? -ne 0 ; then
 	echo "**** ERROR **** Build failed. See log in m.log"
 	exit 1
 fi
+fi
 
+if test "$do_install" = "yes" ; then
 echo "Installing for cygwin"
 ( ( ( make install 2>&1 ; echo $? >&4) | tee -a m.log 1>&3) 4>&1 | (read a ; exit $a) ) 3>&1
 if test $? -ne 0 ; then
 	echo "**** ERROR **** Build failed. See log in m.log"
 	exit 1
 fi
-
 fi
 
 echo "Creating NSIS script"
