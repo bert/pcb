@@ -500,7 +500,7 @@ HID_Attribute main_attribute_list[] = {
 	"lib-command", 0),
   SSET (LibraryContentsCommand, "ListLibraryContents.sh '%p' '%f'",
 	"lib-contents-command", 0),
-  SSET (LibraryTree, PCBTREEDIR, "lib-newlib",
+  SSET (LibraryTree, PCBTREEPATH, "lib-newlib",
 	"Top level directory for the newlib style library"),
   SSET (SaveCommand, "", "save-command", 0),
   SSET (LibraryFilename, LIBRARYFILENAME, "lib-name", 0),
