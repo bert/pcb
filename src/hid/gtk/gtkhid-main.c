@@ -1556,9 +1556,35 @@ REGISTER_ACTIONS (ghid_main_action_list)
 
 #include "dolists.h"
 
+/*
+ * We will need these for finding the windows installation
+ * directory.  Without that we can't find our fonts and
+ * footprint libraries.
+ */
+#ifdef WIN32
+#include <windows.h>
+#include <winreg.h>
+#endif
+
 void
 hid_gtk_init ()
 {
+  #ifdef WIN32
+
+  char * tmps;
+  char * share_dir;
+
+  tmps = g_win32_get_package_installation_directory (PACKAGE "-" VERSION, NULL);
+#define REST_OF_PATH G_DIR_SEPARATOR_S "share" G_DIR_SEPARATOR_S PACKAGE
+  share_dir = (char *) malloc(strlen(tmps) + 
+			  strlen(REST_OF_PATH) +
+			  1);
+  sprintf (share_dir, "%s%s", tmps, REST_OF_PATH);
+  free (tmps);
+#undef REST_OF_PATH
+  printf ("\"Share\" installation path is \"%s\"\n", share_dir);
+#endif  
+
   hid_register_hid (&ghid_hid);
   apply_default_hid (&ghid_extents, &ghid_hid);
 #include "gtk_lists.h"
