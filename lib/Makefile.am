@@ -52,10 +52,10 @@ ${NEWLIB}.stamp : m4lib_to_newlib.sh ${LIBCONTENTS} footprint.pcb
 
 
 install-data-local: ${NEWLIB}.stamp
-	tar cf - ${NEWLIB} | (cd $(DESTDIR)/$(PCBLIBDIR) && tar -xf -)
+	tar cf - ${NEWLIB} | (cd $(DESTDIR)$(PCBLIBDIR) && tar -xf -)
 
 uninstall-local:
-	rm -fr $(DESTDIR)/$(PCBLIBDIR)/${NEWLIB}
+	rm -fr $(DESTDIR)$(PCBLIBDIR)/${NEWLIB}
 
 EXTRA_DIST=	${NEWLIB} footprint.pcb
 
