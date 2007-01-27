@@ -5073,16 +5073,22 @@ ActionSelect (int argc, char **argv, int x, int y)
 	  break;
 
 	case F_Convert:
-	  Note.Buffer = Settings.BufferNumber;
-	  SetBufferNumber (MAX_BUFFER - 1);
-	  ClearBuffer (PASTEBUFFER);
-	  AddSelectedToBuffer (PASTEBUFFER, Crosshair.X, Crosshair.Y, True);
-	  SaveUndoSerialNumber ();
-	  RemoveSelected ();
-	  ConvertBufferToElement (PASTEBUFFER);
-	  RestoreUndoSerialNumber ();
-	  CopyPastebufferToLayout (Crosshair.X, Crosshair.Y);
-	  SetBufferNumber (Note.Buffer);
+	  {
+	    int x, y;
+	    Note.Buffer = Settings.BufferNumber;
+	    SetBufferNumber (MAX_BUFFER - 1);
+	    ClearBuffer (PASTEBUFFER);
+	    gui->get_coords ("Select the Element's Mark Location", &x, &y);
+	    x = GRIDFIT_X (x, PCB->Grid);
+	    y = GRIDFIT_Y (y, PCB->Grid);
+	    AddSelectedToBuffer (PASTEBUFFER, x, y, True);
+	    SaveUndoSerialNumber ();
+	    RemoveSelected ();
+	    ConvertBufferToElement (PASTEBUFFER);
+	    RestoreUndoSerialNumber ();
+	    CopyPastebufferToLayout (x, y);
+	    SetBufferNumber (Note.Buffer);
+	  }
 	  break;
 
 	default:
