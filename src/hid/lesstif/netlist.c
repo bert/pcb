@@ -15,6 +15,13 @@
 #include "global.h"
 #include "data.h"
 
+#include "find.h"
+#include "rats.h"
+#include "select.h"
+#include "undo.h"
+#include "remove.h"
+#include "crosshair.h"
+
 #include "hid.h"
 #include "../hidint.h"
 #include "lesstif.h"
@@ -35,6 +42,8 @@ static Widget netlist_list, netnode_list;
 static XmString *netlist_strings = 0;
 static XmString *netnode_strings = 0;
 static int last_pick = -1;
+
+static int NetlistChanged (int argc, char **argv, int x, int y);
 
 static void
 pick_net (int pick)
@@ -58,38 +67,242 @@ pick_net (int pick)
 }
 
 static void
-netlist_browse (Widget w, void *v, XmListCallbackStruct * cbs)
-{
-  char *name = PCB->NetlistLib.Menu[cbs->item_position - 1].Name + 2;
-  hid_actionl ("unselect", "all", NULL);
-  hid_actionl ("netlist", "select", name, NULL);
-  pick_net (cbs->item_position - 1);
-}
-
-static void
 netlist_select (Widget w, void *v, XmListCallbackStruct * cbs)
 {
-  char *name = PCB->NetlistLib.Menu[cbs->item_position - 1].Name + 2;
-  hid_actionl ("connection", "reset", NULL);
-  hid_actionl ("netlist", "find", name, NULL);
+  XmString str;
+  int pos = cbs->item_position;
+  LibraryMenuTypePtr net = & (PCB->NetlistLib.Menu[pos - 1]);
+  char *name = net->Name;
+  if (name[0] == ' ')
+    {
+      name[0] = '*';
+      net->flag = 0;
+    }
+  else
+    {
+      name[0] = ' ';
+      net->flag = 1;
+    }
+
+  str = XmStringCreateLocalized (name);
+  XmListReplaceItemsPos (netlist_list, &str, 1, pos);
+  XmStringFree (str);
+  XmListSelectPos (netlist_list, pos, False);
 }
 
 static void
 netlist_extend (Widget w, void *v, XmListCallbackStruct * cbs)
 {
-  char *name;
+  if (cbs->selected_item_count == 1)
+    pick_net (cbs->item_position - 1);
+}
+
+typedef void (*Std_Nbcb_Func)(LibraryMenuTypePtr, int);
+
+static void
+nbcb_rat_on (LibraryMenuTypePtr net, int pos)
+{
+  XmString str;
+  char *name = net->Name;
+  name[0] = ' ';
+  net->flag = 1;
+  str = XmStringCreateLocalized (name);
+  XmListReplaceItemsPos (netlist_list, &str, 1, pos);
+  XmStringFree (str);
+}
+
+static void
+nbcb_rat_off (LibraryMenuTypePtr net, int pos)
+{
+  XmString str;
+  char *name = net->Name;
+  name[0] = '*';
+  net->flag = 0;
+  str = XmStringCreateLocalized (name);
+  XmListReplaceItemsPos (netlist_list, &str, 1, pos);
+  XmStringFree (str);
+}
+
+
+/* Select on the layout the current net treeview selection
+ */
+static void
+nbcb_select_common (LibraryMenuTypePtr net, int pos, int select_flag)
+{
+  LibraryEntryType *entry;
+  ConnectionType conn;
   int i;
-  hid_actionl ("connection", "reset", NULL);
-  for (i=0; i<cbs->selected_item_count; i++)
+
+  InitConnectionLookup ();
+  ResetFoundPinsViasAndPads (False);
+  ResetFoundLinesAndPolygons (False);
+  SaveUndoSerialNumber ();
+
+  for (i = net->EntryN, entry = net->Entry; i; i--, entry++)
+    if (SeekPad (entry, &conn, False))
+      RatFindHook (conn.type, conn.ptr1, conn.ptr2, conn.ptr2, True, True);
+  RestoreUndoSerialNumber ();
+  SelectConnection (select_flag);
+  ResetFoundPinsViasAndPads (False);
+  ResetFoundLinesAndPolygons (False);
+  FreeConnectionLookupMemory ();
+  IncrementUndoSerialNumber ();
+}
+
+static void
+nbcb_select (LibraryMenuTypePtr net, int pos)
+{
+  nbcb_select_common (net, pos, 1);
+}
+
+static void
+nbcb_deselect (LibraryMenuTypePtr net, int pos)
+{
+  nbcb_select_common (net, pos, 0);
+}
+
+static void
+nbcb_find (LibraryMenuTypePtr net, int pos)
+{
+  char *name = net->Name + 2;
+  hid_actionl ("netlist", "find", name, NULL);
+}
+
+static void
+nbcb_std_callback (Widget w, Std_Nbcb_Func v, XmPushButtonCallbackStruct * cbs)
+{
+  int *posl, posc, i;
+  XmString **items, **selected;
+  if (XmListGetSelectedPos (netlist_list, &posl, &posc) == False)
+    return;
+  if (v == nbcb_find)
+    hid_actionl ("connection", "reset", NULL);
+  for (i=0; i<posc; i++)
     {
-      name = PCB->NetlistLib.Menu[cbs->selected_item_positions[i]-1].Name + 2;
-      hid_actionl ("netlist", "select", name, NULL);
+      LibraryMenuTypePtr net = & (PCB->NetlistLib.Menu[posl[i] - 1]);
+      v(net, posl[i]);
     }
+  n = 0;
+  stdarg (XmNitems, &items);
+  XtGetValues (netlist_list, args, n);
+  selected = (XmString **) malloc (posc * sizeof (XmString *));
+  for (i=0; i<posc; i++)
+    selected[i] = items[posl[i]-1];
+
+  n = 0;
+  stdarg (XmNselectedItems, selected);
+  XtSetValues (netlist_list, args, n);
+}
+
+static void
+nbcb_ripup (Widget w, Std_Nbcb_Func v, XmPushButtonCallbackStruct * cbs)
+{
+  nbcb_std_callback (w, nbcb_find, cbs);
+
+  VISIBLELINE_LOOP (PCB->Data);
+  {
+    if (TEST_FLAG (FOUNDFLAG, line) && !TEST_FLAG (LOCKFLAG, line))
+      RemoveObject (LINE_TYPE, layer, line, line);
+  }
+  ENDALL_LOOP;
+
+  VISIBLEARC_LOOP (PCB->Data);
+  {
+    if (TEST_FLAG (FOUNDFLAG, arc) && !TEST_FLAG (LOCKFLAG, arc))
+      RemoveObject (ARC_TYPE, layer, arc, arc);
+  }
+  ENDALL_LOOP;
+
+  if (PCB->ViaOn)
+    VIA_LOOP (PCB->Data);
+  {
+    if (TEST_FLAG (FOUNDFLAG, via) && !TEST_FLAG (LOCKFLAG, via))
+      RemoveObject (VIA_TYPE, via, via, via);
+  }
+  END_LOOP;
+}
+
+static void
+netnode_browse (Widget w, XtPointer v, XmListCallbackStruct * cbs)
+{
+  LibraryMenuType *menu = PCB->NetlistLib.Menu + last_pick;
+  char *name = menu->Entry[cbs->item_position - 1].ListEntry;
+  char *ename, *pname;
+
+  ename = strdup (name);
+  pname = strchr (ename, '-');
+  if (! pname)
+    {
+      free (ename);
+      return;
+    }
+  *pname++ = 0;
+
+  ELEMENT_LOOP (PCB->Data);
+  {
+    if (strcmp (element->Name[NAMEONPCB_INDEX].TextString, ename) == 0)
+      {
+	PIN_LOOP (element);
+	{
+	  if (strcmp (pin->Number, pname) == 0)
+	    {
+	      MoveCrosshairAbsolute (pin->X, pin->Y);
+	      free (ename);
+	      return;
+	    }
+	}
+	END_LOOP;
+	PAD_LOOP (element);
+	{
+	  if (strcmp (pad->Number, pname) == 0)
+	    {
+	      int x = (pad->Point1.X + pad->Point2.X) / 2;
+	      int y = (pad->Point1.Y + pad->Point2.Y) / 2;
+	      gui->set_crosshair (x, y);
+	      free (ename);
+	      return;
+	    }
+	}
+	END_LOOP;
+      }
+  }
+  END_LOOP;
+  free (ename);
+}
+
+#define NLB_FORM ((Widget)(~0))
+static Widget
+netlist_button (Widget parent, char *name, char *string,
+		Widget top, Widget bottom, Widget left, Widget right,
+		XtCallbackProc callback, void *user_data)
+{
+  Widget rv;
+  XmString str;
+
+#define NLB_W(w) if (w == NLB_FORM) { stdarg(XmN ## w ## Attachment, XmATTACH_FORM); } \
+  else if (w) { stdarg(XmN ## w ## Attachment, XmATTACH_WIDGET); \
+    stdarg (XmN ## w ## Widget, w); }
+
+  NLB_W (top);
+  NLB_W (bottom);
+  NLB_W (left);
+  NLB_W (right);
+  str = XmStringCreateLocalized (string);
+  stdarg(XmNlabelString, str);
+  rv = XmCreatePushButton (parent, name, args, n);
+  XtManageChild (rv);
+  if (callback)
+    XtAddCallback (rv, XmNactivateCallback, callback, (XtPointer)user_data);
+  XmStringFree(str);
+  return rv;
 }
 
 static int
 build_netlist_dialog ()
 {
+  Widget b_sel, b_unsel, b_find, b_ripup, b_rat_on, b_rat_off, l_ops;
+  XmString ops_str;
+
   if (!mainwind)
     return 1;
   if (netlist_dialog)
@@ -98,11 +311,53 @@ build_netlist_dialog ()
   n = 0;
   stdarg (XmNresizePolicy, XmRESIZE_GROW);
   stdarg (XmNtitle, "Netlists");
+  stdarg (XmNautoUnmanage, False);
   netlist_dialog = XmCreateFormDialog (mainwind, "netlist", args, n);
 
   n = 0;
+  b_rat_on = netlist_button (netlist_dialog, "rat_on", "Enable for rats",
+			     0, NLB_FORM, NLB_FORM, 0,
+			     (XtCallbackProc)nbcb_std_callback, nbcb_rat_on);
+
+  n = 0;
+  b_rat_off = netlist_button (netlist_dialog, "rat_off", "Disable for rats",
+			      0, NLB_FORM, b_rat_on, 0,
+			      (XtCallbackProc)nbcb_std_callback, nbcb_rat_off);
+
+  n = 0;
+  b_sel = netlist_button (netlist_dialog, "select", "Select",
+			  0, b_rat_on, NLB_FORM, 0, 
+			      (XtCallbackProc)nbcb_std_callback, nbcb_select);
+
+  n = 0;
+  b_unsel = netlist_button (netlist_dialog, "deselect", "Deselect",
+			    0, b_rat_on, b_sel, 0, 
+			      (XtCallbackProc)nbcb_std_callback, nbcb_deselect);
+
+  n = 0;
+  b_find = netlist_button (netlist_dialog, "find", "Find",
+			   0, b_rat_on, b_unsel, 0,
+			   (XtCallbackProc)nbcb_std_callback, nbcb_find);
+
+
+  n = 0;
+  b_ripup = netlist_button (netlist_dialog, "ripup", "Rip Up",
+			    0, b_rat_on, b_find, 0,
+			    (XtCallbackProc)nbcb_ripup, 0);
+
+  n = 0;
+  stdarg (XmNbottomAttachment, XmATTACH_WIDGET);
+  stdarg (XmNbottomWidget, b_sel);
+  stdarg (XmNleftAttachment, XmATTACH_FORM);
+  ops_str = XmStringCreateLocalized ("Operations on selected net names:");
+  stdarg (XmNlabelString, ops_str);
+  l_ops = XmCreateLabel (netlist_dialog, "ops", args, n);
+  XtManageChild (l_ops);
+
+  n = 0;
   stdarg (XmNtopAttachment, XmATTACH_FORM);
-  stdarg (XmNbottomAttachment, XmATTACH_FORM);
+  stdarg (XmNbottomAttachment, XmATTACH_WIDGET);
+  stdarg (XmNbottomWidget, l_ops);
   stdarg (XmNleftAttachment, XmATTACH_FORM);
   stdarg (XmNrightAttachment, XmATTACH_POSITION);
   stdarg (XmNrightPosition, 50);
@@ -110,18 +365,19 @@ build_netlist_dialog ()
   stdarg (XmNselectionPolicy, XmEXTENDED_SELECT);
   netlist_list = XmCreateScrolledList (netlist_dialog, "nets", args, n);
   XtManageChild (netlist_list);
-  XtAddCallback (netlist_list, XmNbrowseSelectionCallback, (XtCallbackProc)netlist_browse, 0);
   XtAddCallback (netlist_list, XmNdefaultActionCallback, (XtCallbackProc)netlist_select, 0);
   XtAddCallback (netlist_list, XmNextendedSelectionCallback, (XtCallbackProc)netlist_extend, 0);
 
   n = 0;
   stdarg (XmNtopAttachment, XmATTACH_FORM);
-  stdarg (XmNbottomAttachment, XmATTACH_FORM);
+  stdarg (XmNbottomAttachment, XmATTACH_WIDGET);
+  stdarg (XmNbottomWidget, l_ops);
   stdarg (XmNrightAttachment, XmATTACH_FORM);
   stdarg (XmNleftAttachment, XmATTACH_POSITION);
   stdarg (XmNleftPosition, 50);
   netnode_list = XmCreateScrolledList (netlist_dialog, "nodes", args, n);
   XtManageChild (netnode_list);
+  XtAddCallback (netnode_list, XmNbrowseSelectionCallback, (XtCallbackProc)netnode_browse, 0);
 
   return 0;
 }

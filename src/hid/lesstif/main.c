@@ -3346,6 +3346,7 @@ lesstif_set_crosshair (int x, int y)
 {
   if (crosshair_x != x || crosshair_y != y)
     {
+      lesstif_show_crosshair(0);
       crosshair_x = x;
       crosshair_y = y;
       need_idle_proc ();
