@@ -518,7 +518,7 @@ DrawEverything (BoxTypePtr drawn_area)
 	  if (!gui->gui)
 	    {
 	      /* draw holes */
-	      plated = 0;
+	      plated = -1;
 	      r_search (PCB->Data->pin_tree, drawn_area, NULL, hole_callback,
 			&plated);
 	      r_search (PCB->Data->via_tree, drawn_area, NULL, hole_callback,
