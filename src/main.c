@@ -527,6 +527,7 @@ HID_Attribute main_attribute_list[] = {
   ISET (PinoutTextOffsetX, 800, "pinout-text-offset-x", 0),
   ISET (PinoutTextOffsetY, -100, "pinout-text-offset-y", 0),
 
+  BSET (DrawGrid, 0, "draw-grid", "default to drawing the grid at startup"),
   BSET (ClearLine, 1, "clear-line", 0),
   BSET (UniqueNames, 1, "unique-names", 0),
   BSET (SnapPin, 1, "snap-pin", 0),
