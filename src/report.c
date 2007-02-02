@@ -62,6 +62,7 @@ ReportDrills (int argc, char **argv, int x, int y)
   int total_drills = 0;
 
   AllDrills = GetDrillInfo (PCB->Data);
+  RoundDrillInfo (AllDrills, 100);
 
   for (n = 0; n < AllDrills->DrillN; n++)
     {
@@ -86,7 +87,7 @@ ReportDrills (int argc, char **argv, int x, int y)
     {
       sprintf (thestring,
 	       "\t%d\t\t\t%d\t\t%d\t\t%d\t\t%d\n",
-	       AllDrills->Drill[n].DrillSize / 100,
+	       (AllDrills->Drill[n].DrillSize+50) / 100,
 	       AllDrills->Drill[n].PinCount, AllDrills->Drill[n].ViaCount,
 	       AllDrills->Drill[n].ElementN,
 	       AllDrills->Drill[n].UnplatedCount);
