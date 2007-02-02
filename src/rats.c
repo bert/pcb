@@ -872,11 +872,11 @@ AddNet (void)
 	    GetLayerGroupNumberByNumber (max_layer + SOLDER_LAYER) :
 	    GetLayerGroupNumberByNumber (max_layer + COMPONENT_LAYER));
   name2 = ConnectionName (found, ptr1, ptr2);
-#ifdef FIXME
-  menu = gui_get_net_from_node_name (name1, False);
+
+  menu = netnode_to_netname (name1);
   if (menu)
     {
-      if (gui_get_net_from_node_name (name2, False))
+      if (netnode_to_netname (name2))
 	{
 	  Message (_
 		   ("Both connections already in netlist - cannot merge nets\n"));
@@ -884,19 +884,18 @@ AddNet (void)
 	}
       entry = GetLibraryEntryMemory (menu);
       entry->ListEntry = MyStrdup (name2, "AddNet");
-      gui_get_net_from_node_name (name2, True);
+      netnode_to_netname (name2);
       goto ratIt;
     }
   /* ok, the first name did not belong to a net */
-  menu = gui_get_net_from_node_name (name2, False);
+  menu = netnode_to_netname (name2);
   if (menu)
     {
       entry = GetLibraryEntryMemory (menu);
       entry->ListEntry = MyStrdup (name1, "AddNet");
-      gui_get_net_from_node_name (name1, True);
+      netnode_to_netname (name1);
       goto ratIt;
     }
-#endif
 
   /*
    * neither belong to a net, so create a new one.
@@ -916,9 +915,9 @@ AddNet (void)
   entry->ListEntry = MyStrdup (name1, "AddNet");
   entry = GetLibraryEntryMemory (menu);
   entry->ListEntry = MyStrdup (name2, "AddNet");
-#ifdef FIXME
+  menu->flag = 1;
+
 ratIt:
-#endif
   hid_action ("NetlistChanged");
   return (CreateNewRat (PCB->Data, Crosshair.AttachedLine.Point1.X,
 			Crosshair.AttachedLine.Point1.Y,

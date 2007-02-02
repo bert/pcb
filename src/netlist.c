@@ -85,6 +85,25 @@ RCSID ("$Id$");
 
 typedef void (*NFunc) (LibraryMenuType *, LibraryEntryType *);
 
+LibraryMenuTypePtr
+netnode_to_netname (char *nodename)
+{
+  int i, j;
+  /*printf("nodename [%s]\n", nodename);*/
+  for (i=0; i<PCB->NetlistLib.MenuN; i++)
+    {
+      for (j=0; j<PCB->NetlistLib.Menu[i].EntryN; j++)
+	{
+	  if (strcmp (PCB->NetlistLib.Menu[i].Entry[j].ListEntry, nodename) == 0)
+	    {
+	      /*printf(" in [%s]\n", PCB->NetlistLib.Menu[i].Name);*/
+	      return & (PCB->NetlistLib.Menu[i]);
+	    }
+	}
+    }
+  return 0;
+}
+
 static int
 pin_name_to_xy (LibraryEntryType * pin, int *x, int *y)
 {
