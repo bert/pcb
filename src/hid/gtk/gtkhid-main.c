@@ -94,9 +94,9 @@ draw_grid ()
       gdk_gc_set_function (gport->grid_gc, GDK_XOR);
       gdk_gc_set_foreground (gport->grid_gc, &gport->grid_color);
     }
-  x1 = GRIDFIT_X (gport->view_x0, PCB->Grid);
+  x1 = GRIDFIT_X (SIDE_X(gport->view_x0), PCB->Grid);
   y1 = GRIDFIT_Y (gport->view_y0, PCB->Grid);
-  x2 = GRIDFIT_X (gport->view_x0 + gport->view_width - 1, PCB->Grid);
+  x2 = GRIDFIT_X (SIDE_X(gport->view_x0 + gport->view_width - 1), PCB->Grid);
   y2 = GRIDFIT_Y (gport->view_y0 + gport->view_height - 1, PCB->Grid);
   if (x1 > x2)
     {
