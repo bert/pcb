@@ -10,6 +10,8 @@ AM_MAINTAINER_MODE
 dnl determine host type
 AC_CANONICAL_HOST
 AC_MSG_CHECKING(for windows)
+PCB_DIR_SEPARATOR_S="/"
+PCB_DIR_SEPARATOR_C='/'
 case $host in
 	*-*-cygwin* )
 		CFLAGS="$CFLAGS ${CYGWIN_CFLAGS}"
@@ -18,6 +20,8 @@ case $host in
 
 	*-*-mingw* )
 		WIN32=yes
+		PCB_DIR_SEPARATOR_S="\\"
+		PCB_DIR_SEPARATOR_C='\\'
 		CFLAGS="$CFLAGS ${MINGW_CFLAGS:--mms-bitfields -mwindows}"
 		CPPFLAGS="$CPPFLAGS ${MINGW_CPPFLAGS:--mms-bitfields -mwindows}"
 		;;
@@ -26,6 +30,8 @@ case $host in
 		WIN32=no
 		;;
 esac
+AC_DEFINE_UNQUOTED(PCB_DIR_SEPARATOR_C,'$PCB_DIR_SEPARATOR_C',[Directory separator char])
+AC_DEFINE_UNQUOTED(PCB_DIR_SEPARATOR_S,"$PCB_DIR_SEPARATOR_S",[Directory separator string])
 
 AC_MSG_RESULT($WIN32)
 AC_SUBST(WIN32)
@@ -593,6 +599,18 @@ AC_SUBST(PCBTREEPATH)
 #AC_DEFINE_UNQUOTED(PCBTREEDIR,"$PCBLIB",[top directory for new style pcb library])
 CPPFLAGS="$CPPFLAGS -DPCBTREEDIR=\\\"$PCBTREEDIR\\\""
 CPPFLAGS="$CPPFLAGS -DPCBTREEPATH=\\\"$PCBTREEPATH\\\""
+
+# Figure out relative paths
+AC_MSG_CHECKING([for the bindir to pcblibdir relative path])
+adl_COMPUTE_RELATIVE_PATHS([bindir:PCBLIBDIR:bindir_to_pcblibdir])
+AC_MSG_RESULT([$bindir_to_pcblibdir])
+AC_DEFINE_UNQUOTED(BINDIR_TO_PCBLIBDIR, "$bindir_to_pcblibdir", [Relative path from bindir to pcblibdir])
+
+AC_MSG_CHECKING([for the bindir to pcbtreedir relative path])
+adl_COMPUTE_RELATIVE_PATHS([bindir:PCBTREEDIR:bindir_to_pcbtreedir])
+AC_MSG_RESULT([$bindir_to_pcbtreedir])
+AC_DEFINE_UNQUOTED(BINDIR_TO_PCBTREEDIR, "$bindir_to_pcbtreedir", [Relative path from bindir to pcbtreedir])
+
 
 BTNMOD=${BTNMOD:-"Mod1"}
 AC_SUBST(BTNMOD)

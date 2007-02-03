@@ -1,5 +1,11 @@
 /* config.h.in.  Generated from configure.ac by autoheader.  */
 
+/* Relative path from bindir to pcblibdir */
+#undef BINDIR_TO_PCBLIBDIR
+
+/* Relative path from bindir to pcbtreedir */
+#undef BINDIR_TO_PCBTREEDIR
+
 /* File for default font */
 #undef FONTFILENAME
 
@@ -200,6 +206,12 @@
 
 /* Define to the version of this package. */
 #undef PACKAGE_VERSION
+
+/* Directory separator char */
+#undef PCB_DIR_SEPARATOR_C
+
+/* Directory separator string */
+#undef PCB_DIR_SEPARATOR_S
 
 /* Define to 1 if you have the ANSI C header files. */
 #undef STDC_HEADERS
