@@ -61,9 +61,14 @@
 #include <netdb.h>
 #endif
 
+#ifdef HAVE_STDLIB_H
+#include <stdlib.h>
+#endif
+
 #ifdef HAVE_STRING_H
 #include <string.h>
 #endif
+
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -888,15 +893,39 @@ EmergencySave (void)
 }
 
 /* ---------------------------------------------------------------------------
- * creates backup file
+ * creates backup file.  The default is to use the pcb file name with
+ * a "-" appended (like "foo.pcb-") and if we don't have a pcb file name
+ * then use the template in BACKUP_NAME
  */
 void
 Backup (void)
 {
-  char filename[80];
+  char *filename = NULL;
 
-  sprintf (filename, BACKUP_NAME, (int) getpid ());
+  if( PCB && PCB->Filename )
+    {
+      filename 	= (char *) malloc (sizeof (char) * (strlen (PCB->Filename) + 2));
+      if (filename == NULL)
+	{
+	  fprintf (stderr, "Backup():  malloc failed\n");
+	  exit (1);
+	}
+      sprintf (filename, "%s-", PCB->Filename);
+    }
+  else
+    {
+      /* BACKUP_NAME has %.8i which  will be replaced by the process ID */
+      filename 	= (char *) malloc (sizeof (char) * (strlen (BACKUP_NAME) + 8));
+      if (filename == NULL)
+	{
+	  fprintf (stderr, "Backup():  malloc failed\n");
+	  exit (1);
+	}
+      sprintf (filename, BACKUP_NAME, (int) getpid ());
+    }
+
   WritePCBFile (filename);
+  free (filename);
 }
 
 #if !defined(HAS_ATEXIT) && !defined(HAS_ON_EXIT)

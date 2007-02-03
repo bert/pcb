@@ -38,8 +38,8 @@
 /* ---------------------------------------------------------------------------
  * some file-, directory- and environment names
  */
-#define	EMERGENCY_NAME		"/tmp/PCB.%i.save"	/* %i --> pid */
-#define	BACKUP_NAME		"/tmp/PCB.%i.backup"	/* %i --> pid */
+#define	EMERGENCY_NAME		"PCB.%.8i.save"	        /* %i --> pid */
+#define	BACKUP_NAME		"PCB.%.8i.backup"	/* %i --> pid */
 
 /* ---------------------------------------------------------------------------
  * some default values
