@@ -50,6 +50,7 @@
 #include "misc.h"
 #include "mymem.h"
 #include "rats.h"
+#include "remove.h"
 #include "search.h"
 #include "select.h"
 #include "set.h"
@@ -436,6 +437,52 @@ netlist_select_cb (GtkWidget * widget, gpointer data)
   ghid_invalidate_all ();
 }
 
+static void
+netlist_find_cb (GtkWidget * widget, gpointer data)
+{
+  char *name = NULL;
+
+  if (!selected_net)
+    return;
+
+  name = selected_net->Name + 2;
+  hid_actionl ("connection", "reset", NULL);
+  hid_actionl ("netlist", "find", name, NULL);
+}
+
+static void
+netlist_rip_up_cb (GtkWidget * widget, gpointer data)
+{
+
+  if (!selected_net)
+    return;
+  netlist_find_cb(widget, data);
+
+  VISIBLELINE_LOOP (PCB->Data);
+  {
+    if (TEST_FLAG (FOUNDFLAG, line) && !TEST_FLAG (LOCKFLAG, line))
+      RemoveObject (LINE_TYPE, layer, line, line);
+  }
+  ENDALL_LOOP;
+
+  VISIBLEARC_LOOP (PCB->Data);
+  {
+    if (TEST_FLAG (FOUNDFLAG, arc) && !TEST_FLAG (LOCKFLAG, arc))
+      RemoveObject (ARC_TYPE, layer, arc, arc);
+  }
+  ENDALL_LOOP;
+
+  if (PCB->ViaOn)
+    VIA_LOOP (PCB->Data);
+  {
+    if (TEST_FLAG (FOUNDFLAG, via) && !TEST_FLAG (LOCKFLAG, via))
+      RemoveObject (VIA_TYPE, via, via, via);
+  }
+  END_LOOP;
+
+}
+
+
 LibraryEntryType *
 node_get_node_from_name (gchar * node_name, LibraryMenuType ** node_net)
 {
@@ -611,15 +658,27 @@ ghid_netlist_window_show (GHidPort * out, gboolean raise)
 
   hbox = gtk_hbox_new (FALSE, 0);
   gtk_box_pack_start (GTK_BOX (vbox), hbox, FALSE, FALSE, 4);
-  button = gtk_button_new_with_label (_("Select on Layout"));
+
+  button = gtk_button_new_with_label (_("Select"));
   gtk_box_pack_start (GTK_BOX (hbox), button, FALSE, FALSE, 0);
   g_signal_connect (G_OBJECT (button), "clicked",
 		    G_CALLBACK (netlist_select_cb), GINT_TO_POINTER (1));
-  button = gtk_button_new_with_label (_("Unselect on Layout"));
+
+  button = gtk_button_new_with_label (_("Unselect"));
   gtk_box_pack_start (GTK_BOX (hbox), button, FALSE, FALSE, 0);
   g_signal_connect (G_OBJECT (button), "clicked",
 		    G_CALLBACK (netlist_select_cb), GINT_TO_POINTER (0));
 
+  button = gtk_button_new_with_label (_("Find"));
+  gtk_box_pack_start (GTK_BOX (hbox), button, FALSE, FALSE, 0);
+  g_signal_connect (G_OBJECT (button), "clicked",
+		    G_CALLBACK (netlist_find_cb), GINT_TO_POINTER (0));
+
+  button = gtk_button_new_with_label (_("Rip Up"));
+  gtk_box_pack_start (GTK_BOX (hbox), button, FALSE, FALSE, 0);
+  g_signal_connect (G_OBJECT (button), "clicked",
+		    G_CALLBACK (netlist_rip_up_cb), GINT_TO_POINTER (0));
+  
   ghid_check_button_connected (vbox, &disable_all_button, FALSE, TRUE, FALSE,
 			       FALSE, 0, netlist_disable_all_cb, NULL,
 			       _("Disable all nets for adding rats"));
