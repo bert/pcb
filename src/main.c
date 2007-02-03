@@ -72,8 +72,6 @@ RCSID ("$Id$");
 extern void stroke_init (void);
 #endif
 
-
-
 /* ----------------------------------------------------------------------
  * initialize signal and error handlers
  */
@@ -775,6 +773,9 @@ main (int argc, char *argv[])
 #if HAVE_DBUS
       pcb_dbus_setup();
 #endif
+
+      EnableAutosave ();
+
       gui->do_export (0);
 #if HAVE_DBUS
       pcb_dbus_finish();
@@ -783,3 +784,4 @@ main (int argc, char *argv[])
 
   return (0);
 }
+

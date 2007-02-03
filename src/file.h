@@ -38,6 +38,7 @@ FILE *CheckAndOpenFile (char *, Boolean, Boolean, Boolean *, Boolean *);
 FILE *OpenConnectionDataFile (void);
 int SavePCB (char *);
 int LoadPCB (char *);
+void EnableAutosave (void);
 void Backup (void);
 void SaveInTMP (void);
 void EmergencySave (void);

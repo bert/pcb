@@ -767,7 +767,6 @@ static GtkWidget *config_window;
 
   /* -------------- The General config page ----------------
    */
-static gint config_backup_interval_tmp;
 
 static void
 config_command_window_toggle_cb (GtkToggleButton * button, gpointer data)
@@ -847,7 +846,8 @@ config_general_toggle_cb (GtkToggleButton * button, gint * setting)
 static void
 config_backup_spin_button_cb (GtkSpinButton * spin_button, gpointer data)
 {
-  config_backup_interval_tmp = gtk_spin_button_get_value_as_int (spin_button);
+  Settings.BackupInterval = gtk_spin_button_get_value_as_int (spin_button);
+  EnableAutosave ();
   ghidgui->config_modified = TRUE;
 }
 
@@ -870,8 +870,6 @@ static void
 config_general_tab_create (GtkWidget * tab_vbox)
 {
   GtkWidget *vbox;
-
-  config_backup_interval_tmp = Settings.BackupInterval;
 
   gtk_container_set_border_width (GTK_CONTAINER (tab_vbox), 6);
 
@@ -901,10 +899,10 @@ config_general_tab_create (GtkWidget * tab_vbox)
   ghid_check_button_connected (vbox, NULL, Settings.SaveInTMP,
 			       TRUE, FALSE, FALSE, 2,
 			       config_general_toggle_cb, &Settings.SaveInTMP,
-			       _("If layout is modified at exit, save into /tmp/PCB.%i.save"));
+			       _("If layout is modified at exit, save into PCB.%i.save"));
   ghid_spin_button (vbox, NULL, Settings.BackupInterval, 0.0, 60 * 60, 60.0,
 		    600.0, 0, 0, config_backup_spin_button_cb, NULL, FALSE,
-		    _("Seconds between auto backups to /tmp/PCB.%i.save\n"
+		    _("Seconds between auto backups\n"
 		      "(set to zero to disable auto backups)"));
 
   vbox = ghid_category_vbox (tab_vbox, _("Misc"), 4, 2, TRUE, TRUE);
@@ -919,33 +917,11 @@ config_general_tab_create (GtkWidget * tab_vbox)
 }
 
 
-static gint
-backup_timeout_cb (gpointer data)
-{
-  Backup ();
-  ghid_config_files_write ();
-  return TRUE;			/* restarts timer */
-}
-
-void
-ghid_config_start_backup_timer (void)
-{
-  static gint timeout_id = 0;
-
-  if (timeout_id)
-    gtk_timeout_remove (timeout_id);
-
-  timeout_id = 0;
-  if (Settings.BackupInterval > 0)
-    timeout_id = gtk_timeout_add (1000 * Settings.BackupInterval,
-				  (GtkFunction) backup_timeout_cb, NULL);
-}
-
 static void
 config_general_apply (void)
 {
-  if (config_backup_interval_tmp != Settings.BackupInterval)
-    ghid_config_start_backup_timer ();
+  /* save the settings */
+  ghid_config_files_write ();
 }
 
 

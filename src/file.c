@@ -61,6 +61,8 @@
 #include <netdb.h>
 #endif
 
+#include <stdio.h>
+
 #ifdef HAVE_STDLIB_H
 #include <stdlib.h>
 #endif
@@ -81,6 +83,7 @@
 #include "data.h"
 #include "error.h"
 #include "file.h"
+#include "hid.h"
 #include "mymem.h"
 #include "misc.h"
 #include "parse_l.h"
@@ -890,6 +893,42 @@ EmergencySave (void)
       SaveInTMP ();
       already_called = True;
     }
+}
+
+/* ----------------------------------------------------------------------
+ * Callback for the autosave
+ */
+
+static hidval backup_timer = (hidval) NULL;
+
+/*  
+ * If the backup interval is > 0 then set another timer.  Otherwise
+ * we do nothing and it is up to the GUI to call EnableAutosave()
+ * after setting Settings.BackupInterval > 0 again.
+ */
+static void
+backup_cb (hidval data)
+{
+  backup_timer.ptr = NULL;
+  Backup ();
+  if (Settings.BackupInterval > 0 && gui->add_timer)
+    backup_timer = gui->add_timer (backup_cb, 
+				   1000 * Settings.BackupInterval, data);
+}
+
+void
+EnableAutosave (void)
+{
+  /* If we already have a timer going, then cancel it out */
+  if (backup_timer.ptr != NULL && gui->stop_timer)
+    gui->stop_timer (backup_timer);
+
+  backup_timer.ptr = NULL;
+  /* Start up a new timer */
+  if (Settings.BackupInterval > 0 && gui->add_timer)
+    backup_timer = gui->add_timer (backup_cb, 
+				   1000 * Settings.BackupInterval, 
+				   (hidval) NULL);
 }
 
 /* ---------------------------------------------------------------------------
