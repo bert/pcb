@@ -196,19 +196,38 @@ static int Parse(char *Executable, char *Path, char *Filename, char *Parameter)
 	static	char	*command = NULL;
 	int		returncode;
 	int		used_popen = 0;
-
+	char *tmps;
+	size_t l;
 #ifdef FLEX_SCANNER
 	static	Boolean	firsttime = True;
 #endif
 
 	if (EMPTY_STRING_P (Executable))
 	  {
-	    yyin = fopen (Filename, "r");
+	    l = 2;
+	    if ( Path != NULL )
+              l += strlen (Path);
+
+            l += strlen (Filename);
+
+	    if ( (tmps = (char *) malloc ( l * sizeof (char))) == NULL)
+              {
+                fprintf (stderr, "Parse():  malloc failed\n");
+                exit (1);
+              }
+
+	    if ( Path != NULL )
+              sprintf (tmps, "%s%s%s", Path, PCB_DIR_SEPARATOR_S, Filename);
+            else
+              sprintf (tmps, "%s", Filename);
+
+	    yyin = fopen (tmps, "r");
 	    if (!yyin)
 	      {
-		Message("Can't open %s for reading\n", Filename);
+		Message("Can't open %s for reading\n", tmps);
 		return(1);
 	      }
+            free (tmps);
 	  }
 	else
 	  {
@@ -301,9 +320,28 @@ int ParsePCB(PCBTypePtr Ptr, char *Filename)
  */
 int ParseFont(FontTypePtr Ptr, char *Filename)
 {
+	int r;
 	yyPCB = NULL;
 	yyFont = Ptr;
 	yyElement = NULL;
-	return(Parse(Settings.FontCommand, Settings.FontPath, Filename, NULL));
+	char *path, *p;
+
+	path = strdup (Settings.FontPath);
+
+        /* search through the font path for a font file */
+	for (p = strtok (path, PCB_PATH_DELIMETER); p && *p;
+		p = strtok (NULL, PCB_PATH_DELIMETER))
+	  {
+            Message ("Looking for %s in %s\n", Filename, p);
+	    r = Parse(Settings.FontCommand, p, Filename, NULL);
+            if (r == 0)
+              {
+                Message ("Found %s in %s\n", Filename, p);
+                break;
+              }
+          }
+        free (path);
+
+	return r;
 }
 

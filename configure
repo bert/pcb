@@ -309,7 +309,7 @@ ac_includes_default="\
 # include <unistd.h>
 #endif"
 
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA CYGPATH_W PACKAGE VERSION ACLOCAL AUTOCONF AUTOMAKE AUTOHEADER MAKEINFO install_sh STRIP ac_ct_STRIP INSTALL_STRIP_PROGRAM mkdir_p AWK SET_MAKE am__leading_dot AMTAR am__tar am__untar MAINTAINER_MODE_TRUE MAINTAINER_MODE_FALSE MAINT build build_cpu build_vendor build_os host host_cpu host_vendor host_os WIN32 WIN32_TRUE WIN32_FALSE CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT DEPDIR am__include am__quote AMDEP_TRUE AMDEP_FALSE AMDEPBACKSLASH CCDEPMODE am__fastdepCC_TRUE am__fastdepCC_FALSE CPP LEX LEXLIB LEX_OUTPUT_ROOT LEX_PATH YACC YACC_PATH RANLIB ac_ct_RANLIB TGIF MISSING_TGIF_TRUE MISSING_TGIF_FALSE XPMTOPPM PPMTOWINICON MISSING_XPMTOPPM_TRUE MISSING_XPMTOPPM_FALSE CONVERT MISSING_CONVERT_TRUE MISSING_CONVERT_FALSE DOC MKINFO PERL WITH_DBUS_TRUE WITH_DBUS_FALSE PKG_CONFIG DBUS_CFLAGS DBUS_LIBS HIDLIST HIDLIBS M4 WISH GNUM4 LATEX MISSING_LATEX_TRUE MISSING_LATEX_FALSE PDFLATEX MISSING_PDFLATEX_TRUE MISSING_PDFLATEX_FALSE DVIPS MISSING_DVIPS_TRUE MISSING_DVIPS_FALSE PS2PDF MISSING_PS2PDF_TRUE MISSING_PS2PDF_FALSE EGREP X_CFLAGS X_PRE_LIBS X_LIBS X_EXTRA_LIBS GTK_CFLAGS GTK_LIBS GLIB_CFLAGS GLIB_LIBS GDLIB_CONFIG PNG_TRUE PNG_FALSE FONTFILENAME PCBLIBDIR LIBRARYFILENAME PCBTREEDIR PCBTREEPATH BTNMOD TOPDIRS LIBOBJS LTLIBOBJS'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA CYGPATH_W PACKAGE VERSION ACLOCAL AUTOCONF AUTOMAKE AUTOHEADER MAKEINFO install_sh STRIP ac_ct_STRIP INSTALL_STRIP_PROGRAM mkdir_p AWK SET_MAKE am__leading_dot AMTAR am__tar am__untar MAINTAINER_MODE_TRUE MAINTAINER_MODE_FALSE MAINT build build_cpu build_vendor build_os host host_cpu host_vendor host_os WIN32 WIN32_TRUE WIN32_FALSE CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT DEPDIR am__include am__quote AMDEP_TRUE AMDEP_FALSE AMDEPBACKSLASH CCDEPMODE am__fastdepCC_TRUE am__fastdepCC_FALSE CPP LEX LEXLIB LEX_OUTPUT_ROOT LEX_PATH YACC YACC_PATH RANLIB ac_ct_RANLIB TGIF MISSING_TGIF_TRUE MISSING_TGIF_FALSE XPMTOPPM PPMTOWINICON MISSING_XPMTOPPM_TRUE MISSING_XPMTOPPM_FALSE CONVERT MISSING_CONVERT_TRUE MISSING_CONVERT_FALSE DOC MKINFO PERL WITH_DBUS_TRUE WITH_DBUS_FALSE PKG_CONFIG ac_pt_PKG_CONFIG DBUS_CFLAGS DBUS_LIBS HIDLIST HIDLIBS M4 WISH GNUM4 LATEX MISSING_LATEX_TRUE MISSING_LATEX_FALSE PDFLATEX MISSING_PDFLATEX_TRUE MISSING_PDFLATEX_FALSE DVIPS MISSING_DVIPS_TRUE MISSING_DVIPS_FALSE PS2PDF MISSING_PS2PDF_TRUE MISSING_PS2PDF_FALSE EGREP X_CFLAGS X_PRE_LIBS X_LIBS X_EXTRA_LIBS GTK_CFLAGS GTK_LIBS GLIB_CFLAGS GLIB_LIBS GDLIB_CONFIG PNG_TRUE PNG_FALSE FONTFILENAME PCBLIBDIR LIBRARYFILENAME PCBTREEDIR PCBTREEPATH BTNMOD TOPDIRS LIBOBJS LTLIBOBJS'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -770,6 +770,34 @@ ac_env_CPP_set=${CPP+set}
 ac_env_CPP_value=$CPP
 ac_cv_env_CPP_set=${CPP+set}
 ac_cv_env_CPP_value=$CPP
+ac_env_PKG_CONFIG_set=${PKG_CONFIG+set}
+ac_env_PKG_CONFIG_value=$PKG_CONFIG
+ac_cv_env_PKG_CONFIG_set=${PKG_CONFIG+set}
+ac_cv_env_PKG_CONFIG_value=$PKG_CONFIG
+ac_env_DBUS_CFLAGS_set=${DBUS_CFLAGS+set}
+ac_env_DBUS_CFLAGS_value=$DBUS_CFLAGS
+ac_cv_env_DBUS_CFLAGS_set=${DBUS_CFLAGS+set}
+ac_cv_env_DBUS_CFLAGS_value=$DBUS_CFLAGS
+ac_env_DBUS_LIBS_set=${DBUS_LIBS+set}
+ac_env_DBUS_LIBS_value=$DBUS_LIBS
+ac_cv_env_DBUS_LIBS_set=${DBUS_LIBS+set}
+ac_cv_env_DBUS_LIBS_value=$DBUS_LIBS
+ac_env_GTK_CFLAGS_set=${GTK_CFLAGS+set}
+ac_env_GTK_CFLAGS_value=$GTK_CFLAGS
+ac_cv_env_GTK_CFLAGS_set=${GTK_CFLAGS+set}
+ac_cv_env_GTK_CFLAGS_value=$GTK_CFLAGS
+ac_env_GTK_LIBS_set=${GTK_LIBS+set}
+ac_env_GTK_LIBS_value=$GTK_LIBS
+ac_cv_env_GTK_LIBS_set=${GTK_LIBS+set}
+ac_cv_env_GTK_LIBS_value=$GTK_LIBS
+ac_env_GLIB_CFLAGS_set=${GLIB_CFLAGS+set}
+ac_env_GLIB_CFLAGS_value=$GLIB_CFLAGS
+ac_cv_env_GLIB_CFLAGS_set=${GLIB_CFLAGS+set}
+ac_cv_env_GLIB_CFLAGS_value=$GLIB_CFLAGS
+ac_env_GLIB_LIBS_set=${GLIB_LIBS+set}
+ac_env_GLIB_LIBS_value=$GLIB_LIBS
+ac_cv_env_GLIB_LIBS_set=${GLIB_LIBS+set}
+ac_cv_env_GLIB_LIBS_value=$GLIB_LIBS
 
 #
 # Report the --help message.
@@ -881,6 +909,13 @@ Some influential environment variables:
   CPPFLAGS    C/C++ preprocessor flags, e.g. -I<include dir> if you have
               headers in a nonstandard directory <include dir>
   CPP         C preprocessor
+  PKG_CONFIG  path to pkg-config utility
+  DBUS_CFLAGS C compiler flags for DBUS, overriding pkg-config
+  DBUS_LIBS   linker flags for DBUS, overriding pkg-config
+  GTK_CFLAGS  C compiler flags for GTK, overriding pkg-config
+  GTK_LIBS    linker flags for GTK, overriding pkg-config
+  GLIB_CFLAGS C compiler flags for GLIB, overriding pkg-config
+  GLIB_LIBS   linker flags for GLIB, overriding pkg-config
 
 Use these variables to override the choices made by `configure' or to help
 it to find libraries and programs with nonstandard names/locations.
@@ -1841,6 +1876,7 @@ host_os=`echo $ac_cv_host | sed 's/^\([^-]*\)-\([^-]*\)-\(.*\)$/\3/'`
 
 echo "$as_me:$LINENO: checking for windows" >&5
 echo $ECHO_N "checking for windows... $ECHO_C" >&6
+PCB_PATH_DELIMETER=":"
 PCB_DIR_SEPARATOR_S="/"
 PCB_DIR_SEPARATOR_C='/'
 case $host in
@@ -1851,8 +1887,6 @@ case $host in
 
 	*-*-mingw* )
 		WIN32=yes
-		PCB_DIR_SEPARATOR_S="\\"
-		PCB_DIR_SEPARATOR_C='\\'
 		CFLAGS="$CFLAGS ${MINGW_CFLAGS:--mms-bitfields -mwindows}"
 		CPPFLAGS="$CPPFLAGS ${MINGW_CPPFLAGS:--mms-bitfields -mwindows}"
 		;;
@@ -1861,16 +1895,6 @@ case $host in
 		WIN32=no
 		;;
 esac
-
-cat >>confdefs.h <<_ACEOF
-#define PCB_DIR_SEPARATOR_C '$PCB_DIR_SEPARATOR_C'
-_ACEOF
-
-
-cat >>confdefs.h <<_ACEOF
-#define PCB_DIR_SEPARATOR_S "$PCB_DIR_SEPARATOR_S"
-_ACEOF
-
 
 echo "$as_me:$LINENO: result: $WIN32" >&5
 echo "${ECHO_T}$WIN32" >&6
@@ -1884,6 +1908,28 @@ else
   WIN32_TRUE='#'
   WIN32_FALSE=
 fi
+
+if test "x$WIN32" = "xyes" ; then
+	PCB_PATH_DELIMETER=";"
+	PCB_DIR_SEPARATOR_S="\\\\"
+	PCB_DIR_SEPARATOR_C='\\'
+fi
+
+
+cat >>confdefs.h <<_ACEOF
+#define PCB_DIR_SEPARATOR_C '$PCB_DIR_SEPARATOR_C'
+_ACEOF
+
+
+cat >>confdefs.h <<_ACEOF
+#define PCB_DIR_SEPARATOR_S "$PCB_DIR_SEPARATOR_S"
+_ACEOF
+
+
+cat >>confdefs.h <<_ACEOF
+#define PCB_PATH_DELIMETER "$PCB_PATH_DELIMETER"
+_ACEOF
+
 
 
 ac_ext=c
@@ -4563,11 +4609,11 @@ echo "$as_me: error: Cannot find pkg-config, make sure it is installed and in yo
 	fi
 
 
-  succeeded=no
 
-  if test -z "$PKG_CONFIG"; then
-    # Extract the first word of "pkg-config", so it can be a program name with args.
-set dummy pkg-config; ac_word=$2
+if test "x$ac_cv_env_PKG_CONFIG_set" != "xset"; then
+	if test -n "$ac_tool_prefix"; then
+  # Extract the first word of "${ac_tool_prefix}pkg-config", so it can be a program name with args.
+set dummy ${ac_tool_prefix}pkg-config; ac_word=$2
 echo "$as_me:$LINENO: checking for $ac_word" >&5
 echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6
 if test "${ac_cv_path_PKG_CONFIG+set}" = set; then
@@ -4592,7 +4638,6 @@ do
 done
 done
 
-  test -z "$ac_cv_path_PKG_CONFIG" && ac_cv_path_PKG_CONFIG="no"
   ;;
 esac
 fi
@@ -4606,56 +4651,123 @@ else
 echo "${ECHO_T}no" >&6
 fi
 
+fi
+if test -z "$ac_cv_path_PKG_CONFIG"; then
+  ac_pt_PKG_CONFIG=$PKG_CONFIG
+  # Extract the first word of "pkg-config", so it can be a program name with args.
+set dummy pkg-config; ac_word=$2
+echo "$as_me:$LINENO: checking for $ac_word" >&5
+echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6
+if test "${ac_cv_path_ac_pt_PKG_CONFIG+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  case $ac_pt_PKG_CONFIG in
+  [\\/]* | ?:[\\/]*)
+  ac_cv_path_ac_pt_PKG_CONFIG="$ac_pt_PKG_CONFIG" # Let the user override the test with a path.
+  ;;
+  *)
+  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+  for ac_exec_ext in '' $ac_executable_extensions; do
+  if $as_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
+    ac_cv_path_ac_pt_PKG_CONFIG="$as_dir/$ac_word$ac_exec_ext"
+    echo "$as_me:$LINENO: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
   fi
+done
+done
 
-  if test "$PKG_CONFIG" = "no" ; then
-     echo "*** The pkg-config script could not be found. Make sure it is"
-     echo "*** in your path, or set the PKG_CONFIG environment variable"
-     echo "*** to the full path to pkg-config."
-     echo "*** Or see http://www.freedesktop.org/software/pkgconfig to get pkg-config."
-  else
-     PKG_CONFIG_MIN_VERSION=0.9.0
-     if $PKG_CONFIG --atleast-pkgconfig-version $PKG_CONFIG_MIN_VERSION; then
-        echo "$as_me:$LINENO: checking for dbus-1 >= 0.61" >&5
-echo $ECHO_N "checking for dbus-1 >= 0.61... $ECHO_C" >&6
+  ;;
+esac
+fi
+ac_pt_PKG_CONFIG=$ac_cv_path_ac_pt_PKG_CONFIG
 
-        if $PKG_CONFIG --exists "dbus-1 >= 0.61" ; then
-            echo "$as_me:$LINENO: result: yes" >&5
+if test -n "$ac_pt_PKG_CONFIG"; then
+  echo "$as_me:$LINENO: result: $ac_pt_PKG_CONFIG" >&5
+echo "${ECHO_T}$ac_pt_PKG_CONFIG" >&6
+else
+  echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6
+fi
+
+  PKG_CONFIG=$ac_pt_PKG_CONFIG
+else
+  PKG_CONFIG="$ac_cv_path_PKG_CONFIG"
+fi
+
+fi
+if test -n "$PKG_CONFIG"; then
+	_pkg_min_version=0.9.0
+	echo "$as_me:$LINENO: checking pkg-config is at least version $_pkg_min_version" >&5
+echo $ECHO_N "checking pkg-config is at least version $_pkg_min_version... $ECHO_C" >&6
+	if $PKG_CONFIG --atleast-pkgconfig-version $_pkg_min_version; then
+		echo "$as_me:$LINENO: result: yes" >&5
 echo "${ECHO_T}yes" >&6
-            succeeded=yes
+	else
+		echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6
+		PKG_CONFIG=""
+	fi
 
-            echo "$as_me:$LINENO: checking DBUS_CFLAGS" >&5
-echo $ECHO_N "checking DBUS_CFLAGS... $ECHO_C" >&6
-            DBUS_CFLAGS=`$PKG_CONFIG --cflags "dbus-1 >= 0.61"`
-            echo "$as_me:$LINENO: result: $DBUS_CFLAGS" >&5
-echo "${ECHO_T}$DBUS_CFLAGS" >&6
+fi
 
-            echo "$as_me:$LINENO: checking DBUS_LIBS" >&5
-echo $ECHO_N "checking DBUS_LIBS... $ECHO_C" >&6
-            DBUS_LIBS=`$PKG_CONFIG --libs "dbus-1 >= 0.61"`
-            echo "$as_me:$LINENO: result: $DBUS_LIBS" >&5
-echo "${ECHO_T}$DBUS_LIBS" >&6
-        else
-            DBUS_CFLAGS=""
-            DBUS_LIBS=""
-            ## If we have a custom action on failure, don't print errors, but
-            ## do set a variable so people can do so.
-            DBUS_PKG_ERRORS=`$PKG_CONFIG --errors-to-stdout --print-errors "dbus-1 >= 0.61"`
+pkg_failed=no
+echo "$as_me:$LINENO: checking for DBUS_CFLAGS" >&5
+echo $ECHO_N "checking for DBUS_CFLAGS... $ECHO_C" >&6
+if test "${pkg_cv_DBUS_CFLAGS+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  if test "x$ac_cv_env_DBUS_CFLAGS_set" = "xset"; then
+	pkg_cv_DBUS_CFLAGS=$ac_cv_env_DBUS_CFLAGS_value
+elif test -n "$PKG_CONFIG"; then
+	if { (echo "$as_me:$LINENO: \$PKG_CONFIG --exists \"dbus-1 >= 0.61\" >/dev/null 2>&1") >&5
+  ($PKG_CONFIG --exists "dbus-1 >= 0.61" >/dev/null 2>&1) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; then
+		pkg_cv_DBUS_CFLAGS=`$PKG_CONFIG --cflags "dbus-1 >= 0.61" 2>/dev/null`
+	else
+		pkg_failed=yes
+	fi
+else
+	pkg_failed=untried
+fi
+fi
+echo "$as_me:$LINENO: result: $pkg_cv_DBUS_CFLAGS" >&5
+echo "${ECHO_T}$pkg_cv_DBUS_CFLAGS" >&6
+echo "$as_me:$LINENO: checking for DBUS_LIBS" >&5
+echo $ECHO_N "checking for DBUS_LIBS... $ECHO_C" >&6
+if test "${pkg_cv_DBUS_LIBS+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  if test "x$ac_cv_env_DBUS_LIBS_set" = "xset"; then
+	pkg_cv_DBUS_LIBS=$ac_cv_env_DBUS_LIBS_value
+elif test -n "$PKG_CONFIG"; then
+	if { (echo "$as_me:$LINENO: \$PKG_CONFIG --exists \"dbus-1 >= 0.61\" >/dev/null 2>&1") >&5
+  ($PKG_CONFIG --exists "dbus-1 >= 0.61" >/dev/null 2>&1) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; then
+		pkg_cv_DBUS_LIBS=`$PKG_CONFIG --libs "dbus-1 >= 0.61" 2>/dev/null`
+	else
+		pkg_failed=yes
+	fi
+else
+	pkg_failed=untried
+fi
+fi
+echo "$as_me:$LINENO: result: $pkg_cv_DBUS_LIBS" >&5
+echo "${ECHO_T}$pkg_cv_DBUS_LIBS" >&6
 
-        fi
+if test $pkg_failed = yes; then
+	DBUS_PKG_ERRORS=`$PKG_CONFIG --errors-to-stdout --print-errors "dbus-1 >= 0.61"`
+	# Put the nasty error message in config.log where it belongs
+	echo "$DBUS_PKG_ERRORS" 1>&5
 
-
-
-     else
-        echo "*** Your version of pkg-config is too old. You need version $PKG_CONFIG_MIN_VERSION or newer."
-        echo "*** See http://www.freedesktop.org/software/pkgconfig"
-     fi
-  fi
-
-  if test $succeeded = yes; then
-     :
-  else
-     { { echo "$as_me:$LINENO: error: Cannot find dbus-1 >= 0.61, install it and rerun ./configure
+	{ { echo "$as_me:$LINENO: error: Cannot find dbus-1 >= 0.61, install it and rerun ./configure
 Please review the following errors:
 $DBUS_PKG_ERRORS" >&5
 echo "$as_me: error: Cannot find dbus-1 >= 0.61, install it and rerun ./configure
@@ -4663,8 +4775,20 @@ Please review the following errors:
 $DBUS_PKG_ERRORS" >&2;}
    { (exit 1); exit 1; }; }
 
-  fi
+elif test $pkg_failed = untried; then
+	{ { echo "$as_me:$LINENO: error: Cannot find dbus-1 >= 0.61, install it and rerun ./configure
+Please review the following errors:
+$DBUS_PKG_ERRORS" >&5
+echo "$as_me: error: Cannot find dbus-1 >= 0.61, install it and rerun ./configure
+Please review the following errors:
+$DBUS_PKG_ERRORS" >&2;}
+   { (exit 1); exit 1; }; }
 
+else
+	DBUS_CFLAGS=$pkg_cv_DBUS_CFLAGS
+	DBUS_LIBS=$pkg_cv_DBUS_LIBS
+	:
+fi
 	DBUS_VERSION=`$PKG_CONFIG dbus-1 --modversion`
 
 
@@ -9411,99 +9535,60 @@ echo "$as_me: error: Cannot find pkg-config, make sure it is installed and in yo
 	fi
 
 
-  succeeded=no
-
-  if test -z "$PKG_CONFIG"; then
-    # Extract the first word of "pkg-config", so it can be a program name with args.
-set dummy pkg-config; ac_word=$2
-echo "$as_me:$LINENO: checking for $ac_word" >&5
-echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6
-if test "${ac_cv_path_PKG_CONFIG+set}" = set; then
+pkg_failed=no
+echo "$as_me:$LINENO: checking for GTK_CFLAGS" >&5
+echo $ECHO_N "checking for GTK_CFLAGS... $ECHO_C" >&6
+if test "${pkg_cv_GTK_CFLAGS+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
 else
-  case $PKG_CONFIG in
-  [\\/]* | ?:[\\/]*)
-  ac_cv_path_PKG_CONFIG="$PKG_CONFIG" # Let the user override the test with a path.
-  ;;
-  *)
-  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-for as_dir in $PATH
-do
-  IFS=$as_save_IFS
-  test -z "$as_dir" && as_dir=.
-  for ac_exec_ext in '' $ac_executable_extensions; do
-  if $as_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
-    ac_cv_path_PKG_CONFIG="$as_dir/$ac_word$ac_exec_ext"
-    echo "$as_me:$LINENO: found $as_dir/$ac_word$ac_exec_ext" >&5
-    break 2
-  fi
-done
-done
-
-  test -z "$ac_cv_path_PKG_CONFIG" && ac_cv_path_PKG_CONFIG="no"
-  ;;
-esac
-fi
-PKG_CONFIG=$ac_cv_path_PKG_CONFIG
-
-if test -n "$PKG_CONFIG"; then
-  echo "$as_me:$LINENO: result: $PKG_CONFIG" >&5
-echo "${ECHO_T}$PKG_CONFIG" >&6
+  if test "x$ac_cv_env_GTK_CFLAGS_set" = "xset"; then
+	pkg_cv_GTK_CFLAGS=$ac_cv_env_GTK_CFLAGS_value
+elif test -n "$PKG_CONFIG"; then
+	if { (echo "$as_me:$LINENO: \$PKG_CONFIG --exists \"gtk+-2.0 >= 2.4.0\" >/dev/null 2>&1") >&5
+  ($PKG_CONFIG --exists "gtk+-2.0 >= 2.4.0" >/dev/null 2>&1) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; then
+		pkg_cv_GTK_CFLAGS=`$PKG_CONFIG --cflags "gtk+-2.0 >= 2.4.0" 2>/dev/null`
+	else
+		pkg_failed=yes
+	fi
 else
-  echo "$as_me:$LINENO: result: no" >&5
-echo "${ECHO_T}no" >&6
+	pkg_failed=untried
 fi
+fi
+echo "$as_me:$LINENO: result: $pkg_cv_GTK_CFLAGS" >&5
+echo "${ECHO_T}$pkg_cv_GTK_CFLAGS" >&6
+echo "$as_me:$LINENO: checking for GTK_LIBS" >&5
+echo $ECHO_N "checking for GTK_LIBS... $ECHO_C" >&6
+if test "${pkg_cv_GTK_LIBS+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  if test "x$ac_cv_env_GTK_LIBS_set" = "xset"; then
+	pkg_cv_GTK_LIBS=$ac_cv_env_GTK_LIBS_value
+elif test -n "$PKG_CONFIG"; then
+	if { (echo "$as_me:$LINENO: \$PKG_CONFIG --exists \"gtk+-2.0 >= 2.4.0\" >/dev/null 2>&1") >&5
+  ($PKG_CONFIG --exists "gtk+-2.0 >= 2.4.0" >/dev/null 2>&1) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; then
+		pkg_cv_GTK_LIBS=`$PKG_CONFIG --libs "gtk+-2.0 >= 2.4.0" 2>/dev/null`
+	else
+		pkg_failed=yes
+	fi
+else
+	pkg_failed=untried
+fi
+fi
+echo "$as_me:$LINENO: result: $pkg_cv_GTK_LIBS" >&5
+echo "${ECHO_T}$pkg_cv_GTK_LIBS" >&6
 
-  fi
+if test $pkg_failed = yes; then
+	GTK_PKG_ERRORS=`$PKG_CONFIG --errors-to-stdout --print-errors "gtk+-2.0 >= 2.4.0"`
+	# Put the nasty error message in config.log where it belongs
+	echo "$GTK_PKG_ERRORS" 1>&5
 
-  if test "$PKG_CONFIG" = "no" ; then
-     echo "*** The pkg-config script could not be found. Make sure it is"
-     echo "*** in your path, or set the PKG_CONFIG environment variable"
-     echo "*** to the full path to pkg-config."
-     echo "*** Or see http://www.freedesktop.org/software/pkgconfig to get pkg-config."
-  else
-     PKG_CONFIG_MIN_VERSION=0.9.0
-     if $PKG_CONFIG --atleast-pkgconfig-version $PKG_CONFIG_MIN_VERSION; then
-        echo "$as_me:$LINENO: checking for gtk+-2.0 >= 2.4.0" >&5
-echo $ECHO_N "checking for gtk+-2.0 >= 2.4.0... $ECHO_C" >&6
-
-        if $PKG_CONFIG --exists "gtk+-2.0 >= 2.4.0" ; then
-            echo "$as_me:$LINENO: result: yes" >&5
-echo "${ECHO_T}yes" >&6
-            succeeded=yes
-
-            echo "$as_me:$LINENO: checking GTK_CFLAGS" >&5
-echo $ECHO_N "checking GTK_CFLAGS... $ECHO_C" >&6
-            GTK_CFLAGS=`$PKG_CONFIG --cflags "gtk+-2.0 >= 2.4.0"`
-            echo "$as_me:$LINENO: result: $GTK_CFLAGS" >&5
-echo "${ECHO_T}$GTK_CFLAGS" >&6
-
-            echo "$as_me:$LINENO: checking GTK_LIBS" >&5
-echo $ECHO_N "checking GTK_LIBS... $ECHO_C" >&6
-            GTK_LIBS=`$PKG_CONFIG --libs "gtk+-2.0 >= 2.4.0"`
-            echo "$as_me:$LINENO: result: $GTK_LIBS" >&5
-echo "${ECHO_T}$GTK_LIBS" >&6
-        else
-            GTK_CFLAGS=""
-            GTK_LIBS=""
-            ## If we have a custom action on failure, don't print errors, but
-            ## do set a variable so people can do so.
-            GTK_PKG_ERRORS=`$PKG_CONFIG --errors-to-stdout --print-errors "gtk+-2.0 >= 2.4.0"`
-
-        fi
-
-
-
-     else
-        echo "*** Your version of pkg-config is too old. You need version $PKG_CONFIG_MIN_VERSION or newer."
-        echo "*** See http://www.freedesktop.org/software/pkgconfig"
-     fi
-  fi
-
-  if test $succeeded = yes; then
-     :
-  else
-     { { echo "$as_me:$LINENO: error: Cannot find gtk+ >= 2.4.0, install it and rerun ./configure
+	{ { echo "$as_me:$LINENO: error: Cannot find gtk+ >= 2.4.0, install it and rerun ./configure
 Please review the following errors:
 $GTK_PKG_ERRORS" >&5
 echo "$as_me: error: Cannot find gtk+ >= 2.4.0, install it and rerun ./configure
@@ -9511,105 +9596,78 @@ Please review the following errors:
 $GTK_PKG_ERRORS" >&2;}
    { (exit 1); exit 1; }; }
 
-  fi
+elif test $pkg_failed = untried; then
+	{ { echo "$as_me:$LINENO: error: Cannot find gtk+ >= 2.4.0, install it and rerun ./configure
+Please review the following errors:
+$GTK_PKG_ERRORS" >&5
+echo "$as_me: error: Cannot find gtk+ >= 2.4.0, install it and rerun ./configure
+Please review the following errors:
+$GTK_PKG_ERRORS" >&2;}
+   { (exit 1); exit 1; }; }
 
+else
+	GTK_CFLAGS=$pkg_cv_GTK_CFLAGS
+	GTK_LIBS=$pkg_cv_GTK_LIBS
+	:
+fi
 	GTK_VERSION=`$PKG_CONFIG gtk+-2.0 --modversion`
 
 	# Search for glib
 
-  succeeded=no
-
-  if test -z "$PKG_CONFIG"; then
-    # Extract the first word of "pkg-config", so it can be a program name with args.
-set dummy pkg-config; ac_word=$2
-echo "$as_me:$LINENO: checking for $ac_word" >&5
-echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6
-if test "${ac_cv_path_PKG_CONFIG+set}" = set; then
+pkg_failed=no
+echo "$as_me:$LINENO: checking for GLIB_CFLAGS" >&5
+echo $ECHO_N "checking for GLIB_CFLAGS... $ECHO_C" >&6
+if test "${pkg_cv_GLIB_CFLAGS+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
 else
-  case $PKG_CONFIG in
-  [\\/]* | ?:[\\/]*)
-  ac_cv_path_PKG_CONFIG="$PKG_CONFIG" # Let the user override the test with a path.
-  ;;
-  *)
-  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-for as_dir in $PATH
-do
-  IFS=$as_save_IFS
-  test -z "$as_dir" && as_dir=.
-  for ac_exec_ext in '' $ac_executable_extensions; do
-  if $as_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
-    ac_cv_path_PKG_CONFIG="$as_dir/$ac_word$ac_exec_ext"
-    echo "$as_me:$LINENO: found $as_dir/$ac_word$ac_exec_ext" >&5
-    break 2
-  fi
-done
-done
-
-  test -z "$ac_cv_path_PKG_CONFIG" && ac_cv_path_PKG_CONFIG="no"
-  ;;
-esac
-fi
-PKG_CONFIG=$ac_cv_path_PKG_CONFIG
-
-if test -n "$PKG_CONFIG"; then
-  echo "$as_me:$LINENO: result: $PKG_CONFIG" >&5
-echo "${ECHO_T}$PKG_CONFIG" >&6
+  if test "x$ac_cv_env_GLIB_CFLAGS_set" = "xset"; then
+	pkg_cv_GLIB_CFLAGS=$ac_cv_env_GLIB_CFLAGS_value
+elif test -n "$PKG_CONFIG"; then
+	if { (echo "$as_me:$LINENO: \$PKG_CONFIG --exists \"glib-2.0 >= 2.4.0\" >/dev/null 2>&1") >&5
+  ($PKG_CONFIG --exists "glib-2.0 >= 2.4.0" >/dev/null 2>&1) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; then
+		pkg_cv_GLIB_CFLAGS=`$PKG_CONFIG --cflags "glib-2.0 >= 2.4.0" 2>/dev/null`
+	else
+		pkg_failed=yes
+	fi
 else
-  echo "$as_me:$LINENO: result: no" >&5
-echo "${ECHO_T}no" >&6
+	pkg_failed=untried
 fi
+fi
+echo "$as_me:$LINENO: result: $pkg_cv_GLIB_CFLAGS" >&5
+echo "${ECHO_T}$pkg_cv_GLIB_CFLAGS" >&6
+echo "$as_me:$LINENO: checking for GLIB_LIBS" >&5
+echo $ECHO_N "checking for GLIB_LIBS... $ECHO_C" >&6
+if test "${pkg_cv_GLIB_LIBS+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  if test "x$ac_cv_env_GLIB_LIBS_set" = "xset"; then
+	pkg_cv_GLIB_LIBS=$ac_cv_env_GLIB_LIBS_value
+elif test -n "$PKG_CONFIG"; then
+	if { (echo "$as_me:$LINENO: \$PKG_CONFIG --exists \"glib-2.0 >= 2.4.0\" >/dev/null 2>&1") >&5
+  ($PKG_CONFIG --exists "glib-2.0 >= 2.4.0" >/dev/null 2>&1) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; then
+		pkg_cv_GLIB_LIBS=`$PKG_CONFIG --libs "glib-2.0 >= 2.4.0" 2>/dev/null`
+	else
+		pkg_failed=yes
+	fi
+else
+	pkg_failed=untried
+fi
+fi
+echo "$as_me:$LINENO: result: $pkg_cv_GLIB_LIBS" >&5
+echo "${ECHO_T}$pkg_cv_GLIB_LIBS" >&6
 
-  fi
+if test $pkg_failed = yes; then
+	GLIB_PKG_ERRORS=`$PKG_CONFIG --errors-to-stdout --print-errors "glib-2.0 >= 2.4.0"`
+	# Put the nasty error message in config.log where it belongs
+	echo "$GLIB_PKG_ERRORS" 1>&5
 
-  if test "$PKG_CONFIG" = "no" ; then
-     echo "*** The pkg-config script could not be found. Make sure it is"
-     echo "*** in your path, or set the PKG_CONFIG environment variable"
-     echo "*** to the full path to pkg-config."
-     echo "*** Or see http://www.freedesktop.org/software/pkgconfig to get pkg-config."
-  else
-     PKG_CONFIG_MIN_VERSION=0.9.0
-     if $PKG_CONFIG --atleast-pkgconfig-version $PKG_CONFIG_MIN_VERSION; then
-        echo "$as_me:$LINENO: checking for glib-2.0 >= 2.4.0" >&5
-echo $ECHO_N "checking for glib-2.0 >= 2.4.0... $ECHO_C" >&6
-
-        if $PKG_CONFIG --exists "glib-2.0 >= 2.4.0" ; then
-            echo "$as_me:$LINENO: result: yes" >&5
-echo "${ECHO_T}yes" >&6
-            succeeded=yes
-
-            echo "$as_me:$LINENO: checking GLIB_CFLAGS" >&5
-echo $ECHO_N "checking GLIB_CFLAGS... $ECHO_C" >&6
-            GLIB_CFLAGS=`$PKG_CONFIG --cflags "glib-2.0 >= 2.4.0"`
-            echo "$as_me:$LINENO: result: $GLIB_CFLAGS" >&5
-echo "${ECHO_T}$GLIB_CFLAGS" >&6
-
-            echo "$as_me:$LINENO: checking GLIB_LIBS" >&5
-echo $ECHO_N "checking GLIB_LIBS... $ECHO_C" >&6
-            GLIB_LIBS=`$PKG_CONFIG --libs "glib-2.0 >= 2.4.0"`
-            echo "$as_me:$LINENO: result: $GLIB_LIBS" >&5
-echo "${ECHO_T}$GLIB_LIBS" >&6
-        else
-            GLIB_CFLAGS=""
-            GLIB_LIBS=""
-            ## If we have a custom action on failure, don't print errors, but
-            ## do set a variable so people can do so.
-            GLIB_PKG_ERRORS=`$PKG_CONFIG --errors-to-stdout --print-errors "glib-2.0 >= 2.4.0"`
-
-        fi
-
-
-
-     else
-        echo "*** Your version of pkg-config is too old. You need version $PKG_CONFIG_MIN_VERSION or newer."
-        echo "*** See http://www.freedesktop.org/software/pkgconfig"
-     fi
-  fi
-
-  if test $succeeded = yes; then
-     :
-  else
-     { { echo "$as_me:$LINENO: error: Cannot find glib >= 2.4.0, install it and rerun ./configure.
+	{ { echo "$as_me:$LINENO: error: Cannot find glib >= 2.4.0, install it and rerun ./configure.
 Please review the following errors:
 $GLIB_PKG_ERRORS" >&5
 echo "$as_me: error: Cannot find glib >= 2.4.0, install it and rerun ./configure.
@@ -9617,8 +9675,20 @@ Please review the following errors:
 $GLIB_PKG_ERRORS" >&2;}
    { (exit 1); exit 1; }; }
 
-  fi
+elif test $pkg_failed = untried; then
+	{ { echo "$as_me:$LINENO: error: Cannot find glib >= 2.4.0, install it and rerun ./configure.
+Please review the following errors:
+$GLIB_PKG_ERRORS" >&5
+echo "$as_me: error: Cannot find glib >= 2.4.0, install it and rerun ./configure.
+Please review the following errors:
+$GLIB_PKG_ERRORS" >&2;}
+   { (exit 1); exit 1; }; }
 
+else
+	GLIB_CFLAGS=$pkg_cv_GLIB_CFLAGS
+	GLIB_LIBS=$pkg_cv_GLIB_LIBS
+	:
+fi
 	GLIB_VERSION=`$PKG_CONFIG glib-2.0 --modversion`
 	;;
 
@@ -10795,7 +10865,7 @@ esac
 # squeze repeated slashes
 case '/' in
 # if the path contains any backslashes, turn slashes into backslashes
- *\\*) _lcl_from=`echo "$_lcl_from" | sed 's,\(.\)[\\/][\\/]*,\1\\\\,g'` ;;
+ *\\*) _lcl_from=`echo "$_lcl_from" | sed 's,\(.\)[\\/][\\/]*,\1\\\\\\\\,g'` ;;
 # if the path contains slashes, also turn backslashes into slashes
  *) _lcl_from=`echo "$_lcl_from" | sed 's,\(.\)[\\/][\\/]*,\1/,g'` ;;
 esac
@@ -10809,7 +10879,7 @@ esac
 # squeze repeated slashes
 case '/' in
 # if the path contains any backslashes, turn slashes into backslashes
- *\\*) _lcl_to=`echo "$_lcl_to" | sed 's,\(.\)[\\/][\\/]*,\1\\\\,g'` ;;
+ *\\*) _lcl_to=`echo "$_lcl_to" | sed 's,\(.\)[\\/][\\/]*,\1\\\\\\\\,g'` ;;
 # if the path contains slashes, also turn backslashes into slashes
  *) _lcl_to=`echo "$_lcl_to" | sed 's,\(.\)[\\/][\\/]*,\1/,g'` ;;
 esac
@@ -10848,12 +10918,26 @@ esac
 # squeze repeated slashes
 case "$_lcl_notation" in
 # if the path contains any backslashes, turn slashes into backslashes
- *\\*) _lcl_result_tmp=`echo "$_lcl_result_tmp" | sed 's,\(.\)[\\/][\\/]*,\1\\\\,g'` ;;
+ *\\*) _lcl_result_tmp=`echo "$_lcl_result_tmp" | sed 's,\(.\)[\\/][\\/]*,\1\\\\\\\\,g'` ;;
 # if the path contains slashes, also turn backslashes into slashes
  *) _lcl_result_tmp=`echo "$_lcl_result_tmp" | sed 's,\(.\)[\\/][\\/]*,\1/,g'` ;;
 esac
   eval $_lcl_result_var='$_lcl_result_tmp'
 done
+case ":$bindir_to_pcblibdir:" in
+# change empty paths to '.'
+  ::) bindir_to_pcblibdir='.' ;;
+# strip trailing slashes
+  :*[\\/]:) bindir_to_pcblibdir=`echo "$bindir_to_pcblibdir" | sed 's,[\\/]*$,,'` ;;
+  :*:) ;;
+esac
+# squeze repeated slashes
+case $PCB_DIR_SEPARATOR_S in
+# if the path contains any backslashes, turn slashes into backslashes
+ *\\*) bindir_to_pcblibdir=`echo "$bindir_to_pcblibdir" | sed 's,\(.\)[\\/][\\/]*,\1\\\\\\\\,g'` ;;
+# if the path contains slashes, also turn backslashes into slashes
+ *) bindir_to_pcblibdir=`echo "$bindir_to_pcblibdir" | sed 's,\(.\)[\\/][\\/]*,\1/,g'` ;;
+esac
 echo "$as_me:$LINENO: result: $bindir_to_pcblibdir" >&5
 echo "${ECHO_T}$bindir_to_pcblibdir" >&6
 
@@ -10897,7 +10981,7 @@ esac
 # squeze repeated slashes
 case '/' in
 # if the path contains any backslashes, turn slashes into backslashes
- *\\*) _lcl_from=`echo "$_lcl_from" | sed 's,\(.\)[\\/][\\/]*,\1\\\\,g'` ;;
+ *\\*) _lcl_from=`echo "$_lcl_from" | sed 's,\(.\)[\\/][\\/]*,\1\\\\\\\\,g'` ;;
 # if the path contains slashes, also turn backslashes into slashes
  *) _lcl_from=`echo "$_lcl_from" | sed 's,\(.\)[\\/][\\/]*,\1/,g'` ;;
 esac
@@ -10911,7 +10995,7 @@ esac
 # squeze repeated slashes
 case '/' in
 # if the path contains any backslashes, turn slashes into backslashes
- *\\*) _lcl_to=`echo "$_lcl_to" | sed 's,\(.\)[\\/][\\/]*,\1\\\\,g'` ;;
+ *\\*) _lcl_to=`echo "$_lcl_to" | sed 's,\(.\)[\\/][\\/]*,\1\\\\\\\\,g'` ;;
 # if the path contains slashes, also turn backslashes into slashes
  *) _lcl_to=`echo "$_lcl_to" | sed 's,\(.\)[\\/][\\/]*,\1/,g'` ;;
 esac
@@ -10950,12 +11034,26 @@ esac
 # squeze repeated slashes
 case "$_lcl_notation" in
 # if the path contains any backslashes, turn slashes into backslashes
- *\\*) _lcl_result_tmp=`echo "$_lcl_result_tmp" | sed 's,\(.\)[\\/][\\/]*,\1\\\\,g'` ;;
+ *\\*) _lcl_result_tmp=`echo "$_lcl_result_tmp" | sed 's,\(.\)[\\/][\\/]*,\1\\\\\\\\,g'` ;;
 # if the path contains slashes, also turn backslashes into slashes
  *) _lcl_result_tmp=`echo "$_lcl_result_tmp" | sed 's,\(.\)[\\/][\\/]*,\1/,g'` ;;
 esac
   eval $_lcl_result_var='$_lcl_result_tmp'
 done
+case ":$bindir_to_pcbtreedir:" in
+# change empty paths to '.'
+  ::) bindir_to_pcbtreedir='.' ;;
+# strip trailing slashes
+  :*[\\/]:) bindir_to_pcbtreedir=`echo "$bindir_to_pcbtreedir" | sed 's,[\\/]*$,,'` ;;
+  :*:) ;;
+esac
+# squeze repeated slashes
+case $PCB_DIR_SEPARATOR_S in
+# if the path contains any backslashes, turn slashes into backslashes
+ *\\*) bindir_to_pcbtreedir=`echo "$bindir_to_pcbtreedir" | sed 's,\(.\)[\\/][\\/]*,\1\\\\\\\\,g'` ;;
+# if the path contains slashes, also turn backslashes into slashes
+ *) bindir_to_pcbtreedir=`echo "$bindir_to_pcbtreedir" | sed 's,\(.\)[\\/][\\/]*,\1/,g'` ;;
+esac
 echo "$as_me:$LINENO: result: $bindir_to_pcbtreedir" >&5
 echo "${ECHO_T}$bindir_to_pcbtreedir" >&6
 
@@ -11000,7 +11098,7 @@ esac
 # squeze repeated slashes
 case '/' in
 # if the path contains any backslashes, turn slashes into backslashes
- *\\*) _lcl_from=`echo "$_lcl_from" | sed 's,\(.\)[\\/][\\/]*,\1\\\\,g'` ;;
+ *\\*) _lcl_from=`echo "$_lcl_from" | sed 's,\(.\)[\\/][\\/]*,\1\\\\\\\\,g'` ;;
 # if the path contains slashes, also turn backslashes into slashes
  *) _lcl_from=`echo "$_lcl_from" | sed 's,\(.\)[\\/][\\/]*,\1/,g'` ;;
 esac
@@ -11014,7 +11112,7 @@ esac
 # squeze repeated slashes
 case '/' in
 # if the path contains any backslashes, turn slashes into backslashes
- *\\*) _lcl_to=`echo "$_lcl_to" | sed 's,\(.\)[\\/][\\/]*,\1\\\\,g'` ;;
+ *\\*) _lcl_to=`echo "$_lcl_to" | sed 's,\(.\)[\\/][\\/]*,\1\\\\\\\\,g'` ;;
 # if the path contains slashes, also turn backslashes into slashes
  *) _lcl_to=`echo "$_lcl_to" | sed 's,\(.\)[\\/][\\/]*,\1/,g'` ;;
 esac
@@ -11053,118 +11151,31 @@ esac
 # squeze repeated slashes
 case "$_lcl_notation" in
 # if the path contains any backslashes, turn slashes into backslashes
- *\\*) _lcl_result_tmp=`echo "$_lcl_result_tmp" | sed 's,\(.\)[\\/][\\/]*,\1\\\\,g'` ;;
+ *\\*) _lcl_result_tmp=`echo "$_lcl_result_tmp" | sed 's,\(.\)[\\/][\\/]*,\1\\\\\\\\,g'` ;;
 # if the path contains slashes, also turn backslashes into slashes
  *) _lcl_result_tmp=`echo "$_lcl_result_tmp" | sed 's,\(.\)[\\/][\\/]*,\1/,g'` ;;
 esac
   eval $_lcl_result_var='$_lcl_result_tmp'
 done
+case ":$bindir_to_execprefix:" in
+# change empty paths to '.'
+  ::) bindir_to_execprefix='.' ;;
+# strip trailing slashes
+  :*[\\/]:) bindir_to_execprefix=`echo "$bindir_to_execprefix" | sed 's,[\\/]*$,,'` ;;
+  :*:) ;;
+esac
+# squeze repeated slashes
+case $PCB_DIR_SEPARATOR_S in
+# if the path contains any backslashes, turn slashes into backslashes
+ *\\*) bindir_to_execprefix=`echo "$bindir_to_execprefix" | sed 's,\(.\)[\\/][\\/]*,\1\\\\\\\\,g'` ;;
+# if the path contains slashes, also turn backslashes into slashes
+ *) bindir_to_execprefix=`echo "$bindir_to_execprefix" | sed 's,\(.\)[\\/][\\/]*,\1/,g'` ;;
+esac
 echo "$as_me:$LINENO: result: $bindir_to_execprefix" >&5
 echo "${ECHO_T}$bindir_to_execprefix" >&6
 
 cat >>confdefs.h <<_ACEOF
 #define BINDIR_TO_EXECPREFIX "$bindir_to_execprefix"
-_ACEOF
-
-
-
-for _lcl_i in bindir:PCBTREEDIR:bindir_to_pcbtreedir; do
-  _lcl_from=\$`echo "$_lcl_i" | sed 's,:.*$,,'`
-  _lcl_to=\$`echo "$_lcl_i" | sed 's,^[^:]*:,,' | sed 's,:[^:]*$,,'`
-  _lcl_result_var=`echo "$_lcl_i" | sed 's,^.*:,,'`
-  _lcl_receval="$_lcl_from"
-_lcl_from=`(test "x$prefix" = xNONE && prefix="$ac_default_prefix"
-     test "x$exec_prefix" = xNONE && exec_prefix="${prefix}"
-     _lcl_receval_old=''
-     while test "$_lcl_receval_old" != "$_lcl_receval"; do
-       _lcl_receval_old="$_lcl_receval"
-       eval _lcl_receval="\"$_lcl_receval\""
-     done
-     echo "$_lcl_receval")`
-  _lcl_receval="$_lcl_to"
-_lcl_to=`(test "x$prefix" = xNONE && prefix="$ac_default_prefix"
-     test "x$exec_prefix" = xNONE && exec_prefix="${prefix}"
-     _lcl_receval_old=''
-     while test "$_lcl_receval_old" != "$_lcl_receval"; do
-       _lcl_receval_old="$_lcl_receval"
-       eval _lcl_receval="\"$_lcl_receval\""
-     done
-     echo "$_lcl_receval")`
-  _lcl_notation="$_lcl_from$_lcl_to"
-  case ":$_lcl_from:" in
-# change empty paths to '.'
-  ::) _lcl_from='.' ;;
-# strip trailing slashes
-  :*[\\/]:) _lcl_from=`echo "$_lcl_from" | sed 's,[\\/]*$,,'` ;;
-  :*:) ;;
-esac
-# squeze repeated slashes
-case '/' in
-# if the path contains any backslashes, turn slashes into backslashes
- *\\*) _lcl_from=`echo "$_lcl_from" | sed 's,\(.\)[\\/][\\/]*,\1\\\\,g'` ;;
-# if the path contains slashes, also turn backslashes into slashes
- *) _lcl_from=`echo "$_lcl_from" | sed 's,\(.\)[\\/][\\/]*,\1/,g'` ;;
-esac
-  case ":$_lcl_to:" in
-# change empty paths to '.'
-  ::) _lcl_to='.' ;;
-# strip trailing slashes
-  :*[\\/]:) _lcl_to=`echo "$_lcl_to" | sed 's,[\\/]*$,,'` ;;
-  :*:) ;;
-esac
-# squeze repeated slashes
-case '/' in
-# if the path contains any backslashes, turn slashes into backslashes
- *\\*) _lcl_to=`echo "$_lcl_to" | sed 's,\(.\)[\\/][\\/]*,\1\\\\,g'` ;;
-# if the path contains slashes, also turn backslashes into slashes
- *) _lcl_to=`echo "$_lcl_to" | sed 's,\(.\)[\\/][\\/]*,\1/,g'` ;;
-esac
-  _lcl_common_prefix=''
-_lcl_second_prefix_match=''
-while test "$_lcl_second_prefix_match" != 0; do
-  _lcl_first_prefix=`expr "x$_lcl_from" : "x\($_lcl_common_prefix/*[^/]*\)"`
-  _lcl_second_prefix_match=`expr "x$_lcl_to" : "x$_lcl_first_prefix"`
-  if test "$_lcl_second_prefix_match" != 0; then
-    if test "$_lcl_first_prefix" != "$_lcl_common_prefix"; then
-      _lcl_common_prefix="$_lcl_first_prefix"
-    else
-      _lcl_second_prefix_match=0
-    fi
-  fi
-done
-_lcl_first_suffix=`expr "x$_lcl_from" : "x$_lcl_common_prefix/*\(.*\)"`
-_lcl_first_rel=''
-_lcl_tmp='xxx'
-while test "$_lcl_tmp" != ''; do
-  _lcl_tmp=`expr "x$_lcl_first_suffix" : "x[^/]*/*\(.*\)"`
-  if test "$_lcl_first_suffix" != ''; then
-     _lcl_first_suffix="$_lcl_tmp"
-     _lcl_first_rel="../$_lcl_first_rel"
-  fi
-done
-_lcl_second_suffix=`expr "x$_lcl_to" : "x$_lcl_common_prefix/*\(.*\)"`
-_lcl_result_tmp="$_lcl_first_rel$_lcl_second_suffix"
-  case ":$_lcl_result_tmp:" in
-# change empty paths to '.'
-  ::) _lcl_result_tmp='.' ;;
-# strip trailing slashes
-  :*[\\/]:) _lcl_result_tmp=`echo "$_lcl_result_tmp" | sed 's,[\\/]*$,,'` ;;
-  :*:) ;;
-esac
-# squeze repeated slashes
-case "$_lcl_notation" in
-# if the path contains any backslashes, turn slashes into backslashes
- *\\*) _lcl_result_tmp=`echo "$_lcl_result_tmp" | sed 's,\(.\)[\\/][\\/]*,\1\\\\,g'` ;;
-# if the path contains slashes, also turn backslashes into slashes
- *) _lcl_result_tmp=`echo "$_lcl_result_tmp" | sed 's,\(.\)[\\/][\\/]*,\1/,g'` ;;
-esac
-  eval $_lcl_result_var='$_lcl_result_tmp'
-done
-echo "$as_me:$LINENO: result: $bindir_to_pcbtreedir" >&5
-echo "${ECHO_T}$bindir_to_pcbtreedir" >&6
-
-cat >>confdefs.h <<_ACEOF
-#define BINDIR_TO_PCBTREEDIR "$bindir_to_pcbtreedir"
 _ACEOF
 
 
@@ -11335,9 +11346,10 @@ for ac_i in : $LIBOBJS; do test "x$ac_i" = x: && continue
   # 1. Remove the extension, and $U if already installed.
   ac_i=`echo "$ac_i" |
 	 sed 's/\$U\././;s/\.o$//;s/\.obj$//'`
-  # 2. Add them.
-  ac_libobjs="$ac_libobjs $ac_i\$U.$ac_objext"
-  ac_ltlibobjs="$ac_ltlibobjs $ac_i"'$U.lo'
+  # 2. Prepend LIBOBJDIR.  When used with automake>=1.10 LIBOBJDIR
+  #    will be set to the directory where LIBOBJS objects are built.
+  ac_libobjs="$ac_libobjs \${LIBOBJDIR}$ac_i\$U.$ac_objext"
+  ac_ltlibobjs="$ac_ltlibobjs \${LIBOBJDIR}$ac_i"'$U.lo'
 done
 LIBOBJS=$ac_libobjs
 
@@ -12072,6 +12084,7 @@ s,@PERL@,$PERL,;t t
 s,@WITH_DBUS_TRUE@,$WITH_DBUS_TRUE,;t t
 s,@WITH_DBUS_FALSE@,$WITH_DBUS_FALSE,;t t
 s,@PKG_CONFIG@,$PKG_CONFIG,;t t
+s,@ac_pt_PKG_CONFIG@,$ac_pt_PKG_CONFIG,;t t
 s,@DBUS_CFLAGS@,$DBUS_CFLAGS,;t t
 s,@DBUS_LIBS@,$DBUS_LIBS,;t t
 s,@HIDLIST@,$HIDLIST,;t t

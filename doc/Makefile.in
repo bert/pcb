@@ -36,6 +36,7 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
+LIBOBJDIR =
 subdir = doc
 DIST_COMMON = $(dist_man_MANS) $(dist_pkgdata_DATA) $(pcb_TEXINFOS) \
 	$(srcdir)/Makefile.am $(srcdir)/Makefile.in \
@@ -186,6 +187,7 @@ YACC_PATH = @YACC_PATH@
 ac_ct_CC = @ac_ct_CC@
 ac_ct_RANLIB = @ac_ct_RANLIB@
 ac_ct_STRIP = @ac_ct_STRIP@
+ac_pt_PKG_CONFIG = @ac_pt_PKG_CONFIG@
 am__fastdepCC_FALSE = @am__fastdepCC_FALSE@
 am__fastdepCC_TRUE = @am__fastdepCC_TRUE@
 am__include = @am__include@

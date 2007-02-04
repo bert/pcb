@@ -340,7 +340,7 @@ esac
 # squeze repeated slashes
 case ifelse($2,,"[$]$1",$2) in
 # if the path contains any backslashes, turn slashes into backslashes
- *\\*) $1=`echo "[$]$1" | sed 's,\(.\)[[\\/]][[\\/]]*,\1\\\\,g'` ;;
+ *\\*) $1=`echo "[$]$1" | sed 's,\(.\)[[\\/]][[\\/]]*,\1\\\\\\\\,g'` ;;
 # if the path contains slashes, also turn backslashes into slashes
  *) $1=`echo "[$]$1" | sed 's,\(.\)[[\\/]][[\\/]]*,\1/,g'` ;;
 esac])

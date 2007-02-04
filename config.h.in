@@ -216,6 +216,9 @@
 /* Directory separator string */
 #undef PCB_DIR_SEPARATOR_S
 
+/* Search path separator string */
+#undef PCB_PATH_DELIMETER
+
 /* Define to 1 if you have the ANSI C header files. */
 #undef STDC_HEADERS
 

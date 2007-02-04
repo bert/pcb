@@ -1025,7 +1025,7 @@ ParseLibraryTree (void)
 
   /* Additional loop to allow for multiple 'newlib' style library directories */
   libpaths = MyStrdup (Settings.LibraryTree, "ParseLibraryTree");
-  for (p = strtok (libpaths, ":"); p && *p; p = strtok (NULL, ":"))
+  for (p = strtok (libpaths, PCB_PATH_DELIMETER); p && *p; p = strtok (NULL, PCB_PATH_DELIMETER))
     {
       strncpy (path, p, sizeof (path) - 1);
 
