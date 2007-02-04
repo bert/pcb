@@ -8,13 +8,10 @@ SUBDIRS=\
 	burr-brown \
 	connectors \
 	crystal \
-	cypress \
 	electro-optics \
-	generic_SMD_packages \
 	headers \
 	msp430 \
 	not_vetted_ingo \
 	sockets \
-	tests \
-	toko 
+	tests
 

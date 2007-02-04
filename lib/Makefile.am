@@ -100,26 +100,30 @@ M4_DIST_FILES= \
 	texas_inst_voltage_reg.m4 \
 	transistor.m4 
 
-LIST_DIST_FILES= \
+# These files are for old footprint libraries and will be
+# removed in future releases
+OBSOLETE_LIST_DIST_FILES=	\
 	TTL_74xx_DIL.list \
-	amphenol.list \
-	connector.list \
-	crystal.list \
-	generic.list \
-	gtag.list \
 	jerry.list \
 	linear.list \
 	logic.list \
 	lsi.list \
 	memory.list \
-	optical.list \
-	pci.list \
 	resistor_0.25W.list \
 	resistor_adjust.list \
 	resistor_array.list \
 	texas_inst_amplifier.list \
 	texas_inst_voltage_reg.list \
 	transistor.list
+
+LIST_DIST_FILES= \
+	amphenol.list \
+	connector.list \
+	crystal.list \
+	generic.list \
+	gtag.list \
+	optical.list \
+	pci.list
 
 INC_FILES= \
 	bga.inc \
@@ -154,7 +158,8 @@ LIST_FILES=	${LIST_DIST_FILES} amp.list bourns.list cts.list geda.list johnstech
 
 LIB_FILES= ${COMMON_FILE} ${M4_FILES} ${LIST_FILES} ${INC_FILES} 
 
-EXTRA_DIST+=	ListLibraryContents.sh ${COMMON_FILE} ${M4_DIST_FILES} ${LIST_DIST_FILES} ${INC_FILES} \
+EXTRA_DIST+=	ListLibraryContents.sh ${COMMON_FILE} ${M4_DIST_FILES} ${OBSOLETE_LIST_DIST_FILES} \
+		${LIST_DIST_FILES} ${INC_FILES} \
 		${LIBCONTENTS} \
 		${DAT_FILES} gen_list.awk gen_m4.awk gen_geda_m4.awk gen_geda_list.awk
 

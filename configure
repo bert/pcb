@@ -11224,11 +11224,7 @@ if test -d $srcdir/newlib; then
 
              ac_config_files="$ac_config_files newlib/crystal/Makefile"
 
-             ac_config_files="$ac_config_files newlib/cypress/Makefile"
-
              ac_config_files="$ac_config_files newlib/electro-optics/Makefile"
-
-             ac_config_files="$ac_config_files newlib/generic_SMD_packages/Makefile"
 
              ac_config_files="$ac_config_files newlib/headers/Makefile"
 
@@ -11239,8 +11235,6 @@ if test -d $srcdir/newlib; then
              ac_config_files="$ac_config_files newlib/sockets/Makefile"
 
              ac_config_files="$ac_config_files newlib/tests/Makefile"
-
-             ac_config_files="$ac_config_files newlib/toko/Makefile"
 
 fi
           ac_config_files="$ac_config_files src/Makefile"
@@ -11903,15 +11897,12 @@ do
   "newlib/burr-brown/Makefile" ) CONFIG_FILES="$CONFIG_FILES newlib/burr-brown/Makefile" ;;
   "newlib/connectors/Makefile" ) CONFIG_FILES="$CONFIG_FILES newlib/connectors/Makefile" ;;
   "newlib/crystal/Makefile" ) CONFIG_FILES="$CONFIG_FILES newlib/crystal/Makefile" ;;
-  "newlib/cypress/Makefile" ) CONFIG_FILES="$CONFIG_FILES newlib/cypress/Makefile" ;;
   "newlib/electro-optics/Makefile" ) CONFIG_FILES="$CONFIG_FILES newlib/electro-optics/Makefile" ;;
-  "newlib/generic_SMD_packages/Makefile" ) CONFIG_FILES="$CONFIG_FILES newlib/generic_SMD_packages/Makefile" ;;
   "newlib/headers/Makefile" ) CONFIG_FILES="$CONFIG_FILES newlib/headers/Makefile" ;;
   "newlib/msp430/Makefile" ) CONFIG_FILES="$CONFIG_FILES newlib/msp430/Makefile" ;;
   "newlib/not_vetted_ingo/Makefile" ) CONFIG_FILES="$CONFIG_FILES newlib/not_vetted_ingo/Makefile" ;;
   "newlib/sockets/Makefile" ) CONFIG_FILES="$CONFIG_FILES newlib/sockets/Makefile" ;;
   "newlib/tests/Makefile" ) CONFIG_FILES="$CONFIG_FILES newlib/tests/Makefile" ;;
-  "newlib/toko/Makefile" ) CONFIG_FILES="$CONFIG_FILES newlib/toko/Makefile" ;;
   "src/Makefile" ) CONFIG_FILES="$CONFIG_FILES src/Makefile" ;;
   "src/icons/Makefile" ) CONFIG_FILES="$CONFIG_FILES src/icons/Makefile" ;;
   "tools/Makefile" ) CONFIG_FILES="$CONFIG_FILES tools/Makefile" ;;
