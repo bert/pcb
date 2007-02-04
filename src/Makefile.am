@@ -1,7 +1,7 @@
 ## $Id$
 ##
 
-SUBDIRS=	icons script
+SUBDIRS=	icons
 
 pcbtreedir=	@PCBTREEDIR@
 pcblibdir=	@PCBLIBDIR@
@@ -19,7 +19,7 @@ pcblib_DATA=	\
 
 pkgdata_DATA=	Pcb
 
-bin_PROGRAMS=	pcb-bin
+bin_PROGRAMS=	pcb
 
 AM_CFLAGS = -DNDEBUG
 
@@ -73,6 +73,8 @@ PCB_SRCS = \
 	intersect.h \
 	line.c \
 	line.h \
+	lrealpath.c \
+	lrealpath.h \
 	macro.h \
 	main.c \
 	mirror.c \
@@ -136,16 +138,14 @@ PCB_SRCS = \
 	hid/common/hidnogui.c \
 	hid/common/extents.c \
 	hid/hidint.h 
-pcb_bin_SOURCES = ${PCB_SRCS} core_lists.h
+pcb_SOURCES = ${PCB_SRCS} core_lists.h
 
-EXTRA_pcb_bin_SOURCES = ${DBUS_SRCS}
+EXTRA_pcb_SOURCES = ${DBUS_SRCS}
 DBUS_SRCS= \
 	dbus-pcbmain.c \
 	dbus-pcbmain.h \
 	dbus.h \
-	dbus.c \
-	lrealpath.c \
-	lrealpath.h
+	dbus.c
 
 BUILT_SOURCES = \
 	core_lists.h \
@@ -159,8 +159,8 @@ BUILT_SOURCES = \
 	res_parse.h \
 	hid/common/hidlist.h
 
-pcb_bin_LDADD = @HIDLIBS@
-pcb_bin_DEPENDENCIES = @HIDLIBS@
+pcb_LDADD = @HIDLIBS@
+pcb_DEPENDENCIES = @HIDLIBS@
 
 # Action, Attribute, and Flag lists.
 core_lists.h : ${PCB_SRCS} Makefile
@@ -257,8 +257,8 @@ pcb_icon.o : pcb_icon.ico $(srcdir)/hid/gtk/pcb.rc
 pcb_icon.ico: $(top_srcdir)/win32/pcb_icon.ico
 	cp $(top_srcdir)/win32/pcb_icon.ico $@
 
-pcb_bin_LDADD+=			pcb_icon.o
-pcb_bin_DEPENDENCIES+=	pcb_icon.o
+pcb_LDADD+=			pcb_icon.o
+pcb_DEPENDENCIES+=	pcb_icon.o
 
 endif
 

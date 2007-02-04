@@ -38,7 +38,7 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-bin_PROGRAMS = pcb-bin$(EXEEXT)
+bin_PROGRAMS = pcb$(EXEEXT)
 @WITH_DBUS_TRUE@am__append_1 = ${DBUS_SRCS}
 @WITH_DBUS_TRUE@am__append_2 = dbus-introspect.h
 @WIN32_TRUE@am__append_3 = pcb_icon.o
@@ -119,29 +119,27 @@ am__installdirs = "$(DESTDIR)$(bindir)" "$(DESTDIR)$(pcblibdir)" \
 	"$(DESTDIR)$(pkgdatadir)"
 binPROGRAMS_INSTALL = $(INSTALL_PROGRAM)
 PROGRAMS = $(bin_PROGRAMS)
-am__pcb_bin_SOURCES_DIST = action.c action.h autoplace.c autoplace.h \
+am__pcb_SOURCES_DIST = action.c action.h autoplace.c autoplace.h \
 	autoroute.c autoroute.h box.h buffer.c buffer.h change.c \
 	change.h command.c command.h compat.c compat.h const.h copy.c \
 	copy.h create.c create.h crosshair.c crosshair.h data.c data.h \
 	djopt.c djopt.h dolists.h draw.c draw.h drill.c drill.h \
 	error.c error.h file.c file.h find.c find.h flags.c fontmode.c \
 	global.h heap.c heap.h hid.h insert.c insert.h intersect.c \
-	intersect.h line.c line.h macro.h main.c mirror.c mirror.h \
-	misc.c misc.h move.c move.h mtspace.c mtspace.h mymem.c \
-	mymem.h netlist.c output.c output.h parse_l.h parse_l.l \
-	parse_y.h parse_y.y polygon.c polygon.h polygon1.c polyarea.h \
-	puller.c print.c print.h rats.c rats.h remove.c remove.h \
-	report.c report.h res_parse.y res_lex.l resource.h rotate.c \
-	rotate.h rtree.c rtree.h rubberband.c rubberband.h search.c \
-	search.h select.c select.h set.c set.h strflags.c strflags.h \
-	thermal.c thermal.h undo.c undo.h vector.c vector.h vendor.c \
-	vendor.h hid/common/actions.c hid/common/flags.c \
-	hid/common/hidinit.c hid/common/hidnogui.c \
+	intersect.h line.c line.h lrealpath.c lrealpath.h macro.h \
+	main.c mirror.c mirror.h misc.c misc.h move.c move.h mtspace.c \
+	mtspace.h mymem.c mymem.h netlist.c output.c output.h \
+	parse_l.h parse_l.l parse_y.h parse_y.y polygon.c polygon.h \
+	polygon1.c polyarea.h puller.c print.c print.h rats.c rats.h \
+	remove.c remove.h report.c report.h res_parse.y res_lex.l \
+	resource.h rotate.c rotate.h rtree.c rtree.h rubberband.c \
+	rubberband.h search.c search.h select.c select.h set.c set.h \
+	strflags.c strflags.h thermal.c thermal.h undo.c undo.h \
+	vector.c vector.h vendor.c vendor.h hid/common/actions.c \
+	hid/common/flags.c hid/common/hidinit.c hid/common/hidnogui.c \
 	hid/common/extents.c hid/hidint.h dbus-pcbmain.c \
-	dbus-pcbmain.h dbus.h dbus.c lrealpath.c lrealpath.h \
-	core_lists.h
-am__objects_6 = dbus-pcbmain.$(OBJEXT) dbus.$(OBJEXT) \
-	lrealpath.$(OBJEXT)
+	dbus-pcbmain.h dbus.h dbus.c core_lists.h
+am__objects_6 = dbus-pcbmain.$(OBJEXT) dbus.$(OBJEXT)
 @WITH_DBUS_TRUE@am__objects_7 = $(am__objects_6)
 am__objects_8 = action.$(OBJEXT) autoplace.$(OBJEXT) \
 	autoroute.$(OBJEXT) buffer.$(OBJEXT) change.$(OBJEXT) \
@@ -150,8 +148,8 @@ am__objects_8 = action.$(OBJEXT) autoplace.$(OBJEXT) \
 	djopt.$(OBJEXT) draw.$(OBJEXT) drill.$(OBJEXT) error.$(OBJEXT) \
 	file.$(OBJEXT) find.$(OBJEXT) flags.$(OBJEXT) \
 	fontmode.$(OBJEXT) heap.$(OBJEXT) insert.$(OBJEXT) \
-	intersect.$(OBJEXT) line.$(OBJEXT) main.$(OBJEXT) \
-	mirror.$(OBJEXT) misc.$(OBJEXT) move.$(OBJEXT) \
+	intersect.$(OBJEXT) line.$(OBJEXT) lrealpath.$(OBJEXT) \
+	main.$(OBJEXT) mirror.$(OBJEXT) misc.$(OBJEXT) move.$(OBJEXT) \
 	mtspace.$(OBJEXT) mymem.$(OBJEXT) netlist.$(OBJEXT) \
 	output.$(OBJEXT) parse_l.$(OBJEXT) parse_y.$(OBJEXT) \
 	polygon.$(OBJEXT) polygon1.$(OBJEXT) puller.$(OBJEXT) \
@@ -164,8 +162,8 @@ am__objects_8 = action.$(OBJEXT) autoplace.$(OBJEXT) \
 	hid/common/flags.$(OBJEXT) hid/common/hidinit.$(OBJEXT) \
 	hid/common/hidnogui.$(OBJEXT) hid/common/extents.$(OBJEXT) \
 	$(am__objects_7)
-am_pcb_bin_OBJECTS = $(am__objects_8)
-pcb_bin_OBJECTS = $(am_pcb_bin_OBJECTS)
+am_pcb_OBJECTS = $(am__objects_8)
+pcb_OBJECTS = $(am_pcb_OBJECTS)
 @WIN32_TRUE@am__DEPENDENCIES_1 = pcb_icon.o
 DEFAULT_INCLUDES = -I. -I$(srcdir) -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
@@ -180,13 +178,13 @@ YACCCOMPILE = $(YACC) $(YFLAGS) $(AM_YFLAGS)
 SOURCES = $(libbatch_a_SOURCES) $(libbom_a_SOURCES) \
 	$(libgerber_a_SOURCES) $(libgtk_a_SOURCES) \
 	$(liblesstif_a_SOURCES) $(liblpr_a_SOURCES) \
-	$(libpng_a_SOURCES) $(libps_a_SOURCES) $(pcb_bin_SOURCES) \
-	$(EXTRA_pcb_bin_SOURCES)
+	$(libpng_a_SOURCES) $(libps_a_SOURCES) $(pcb_SOURCES) \
+	$(EXTRA_pcb_SOURCES)
 DIST_SOURCES = $(libbatch_a_SOURCES) $(libbom_a_SOURCES) \
 	$(libgerber_a_SOURCES) $(libgtk_a_SOURCES) \
 	$(liblesstif_a_SOURCES) $(liblpr_a_SOURCES) \
-	$(libpng_a_SOURCES) $(libps_a_SOURCES) \
-	$(am__pcb_bin_SOURCES_DIST) $(EXTRA_pcb_bin_SOURCES)
+	$(libpng_a_SOURCES) $(libps_a_SOURCES) $(am__pcb_SOURCES_DIST) \
+	$(EXTRA_pcb_SOURCES)
 RECURSIVE_TARGETS = all-recursive check-recursive dvi-recursive \
 	html-recursive info-recursive install-data-recursive \
 	install-exec-recursive install-info-recursive \
@@ -357,7 +355,7 @@ sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
-SUBDIRS = icons script
+SUBDIRS = icons
 pcbtreedir = @PCBTREEDIR@
 pcblibdir = @PCBLIBDIR@
 AUTOMAKE_OPTIONS = subdir-objects
@@ -379,34 +377,32 @@ PCB_SRCS = action.c action.h autoplace.c autoplace.h autoroute.c \
 	djopt.c djopt.h dolists.h draw.c draw.h drill.c drill.h \
 	error.c error.h file.c file.h find.c find.h flags.c fontmode.c \
 	global.h heap.c heap.h hid.h insert.c insert.h intersect.c \
-	intersect.h line.c line.h macro.h main.c mirror.c mirror.h \
-	misc.c misc.h move.c move.h mtspace.c mtspace.h mymem.c \
-	mymem.h netlist.c output.c output.h parse_l.h parse_l.l \
-	parse_y.h parse_y.y polygon.c polygon.h polygon1.c polyarea.h \
-	puller.c print.c print.h rats.c rats.h remove.c remove.h \
-	report.c report.h res_parse.y res_lex.l resource.h rotate.c \
-	rotate.h rtree.c rtree.h rubberband.c rubberband.h search.c \
-	search.h select.c select.h set.c set.h strflags.c strflags.h \
-	thermal.c thermal.h undo.c undo.h vector.c vector.h vendor.c \
-	vendor.h hid/common/actions.c hid/common/flags.c \
-	hid/common/hidinit.c hid/common/hidnogui.c \
+	intersect.h line.c line.h lrealpath.c lrealpath.h macro.h \
+	main.c mirror.c mirror.h misc.c misc.h move.c move.h mtspace.c \
+	mtspace.h mymem.c mymem.h netlist.c output.c output.h \
+	parse_l.h parse_l.l parse_y.h parse_y.y polygon.c polygon.h \
+	polygon1.c polyarea.h puller.c print.c print.h rats.c rats.h \
+	remove.c remove.h report.c report.h res_parse.y res_lex.l \
+	resource.h rotate.c rotate.h rtree.c rtree.h rubberband.c \
+	rubberband.h search.c search.h select.c select.h set.c set.h \
+	strflags.c strflags.h thermal.c thermal.h undo.c undo.h \
+	vector.c vector.h vendor.c vendor.h hid/common/actions.c \
+	hid/common/flags.c hid/common/hidinit.c hid/common/hidnogui.c \
 	hid/common/extents.c hid/hidint.h $(am__append_1)
-pcb_bin_SOURCES = ${PCB_SRCS} core_lists.h
-EXTRA_pcb_bin_SOURCES = ${DBUS_SRCS}
+pcb_SOURCES = ${PCB_SRCS} core_lists.h
+EXTRA_pcb_SOURCES = ${DBUS_SRCS}
 DBUS_SRCS = \
 	dbus-pcbmain.c \
 	dbus-pcbmain.h \
 	dbus.h \
-	dbus.c \
-	lrealpath.c \
-	lrealpath.h
+	dbus.c
 
 BUILT_SOURCES = core_lists.h hid/gtk/gtk_lists.h \
 	hid/lesstif/lesstif_lists.h hid/batch/batch_lists.h \
 	hid/png/png_lists.h hid/ps/ps_lists.h parse_y.h pcb-menu.h \
 	res_parse.h hid/common/hidlist.h $(am__append_2)
-pcb_bin_LDADD = @HIDLIBS@ $(am__append_3)
-pcb_bin_DEPENDENCIES = @HIDLIBS@ $(am__append_4)
+pcb_LDADD = @HIDLIBS@ $(am__append_3)
+pcb_DEPENDENCIES = @HIDLIBS@ $(am__append_4)
 
 # for globalconst.h
 INCLUDES = -I$(top_srcdir) -I$(srcdir)/icons
@@ -737,9 +733,9 @@ hid/common/hidnogui.$(OBJEXT): hid/common/$(am__dirstamp) \
 	hid/common/$(DEPDIR)/$(am__dirstamp)
 hid/common/extents.$(OBJEXT): hid/common/$(am__dirstamp) \
 	hid/common/$(DEPDIR)/$(am__dirstamp)
-pcb-bin$(EXEEXT): $(pcb_bin_OBJECTS) $(pcb_bin_DEPENDENCIES) 
-	@rm -f pcb-bin$(EXEEXT)
-	$(LINK) $(pcb_bin_LDFLAGS) $(pcb_bin_OBJECTS) $(pcb_bin_LDADD) $(LIBS)
+pcb$(EXEEXT): $(pcb_OBJECTS) $(pcb_DEPENDENCIES) 
+	@rm -f pcb$(EXEEXT)
+	$(LINK) $(pcb_LDFLAGS) $(pcb_OBJECTS) $(pcb_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)

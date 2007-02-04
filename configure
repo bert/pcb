@@ -10731,7 +10731,6 @@ _ACEOF
 
 # standard autoconf variables
 CPPFLAGS="$CPPFLAGS -DPREFIXDIR=\\\"\${prefix}\\\""
-CPPFLAGS="$CPPFLAGS -DEXECPREFIXDIR=\\\"\${exec_prefix}\\\""
 CPPFLAGS="$CPPFLAGS -DHOST=\\\"\${host}\\\""
 
 # directory for old-style library and for fonts
@@ -10966,6 +10965,210 @@ _ACEOF
 
 
 
+echo "$as_me:$LINENO: checking for the bindir to exec_prefix relative path" >&5
+echo $ECHO_N "checking for the bindir to exec_prefix relative path... $ECHO_C" >&6
+for _lcl_i in bindir:exec_prefix:bindir_to_execprefix; do
+  _lcl_from=\$`echo "$_lcl_i" | sed 's,:.*$,,'`
+  _lcl_to=\$`echo "$_lcl_i" | sed 's,^[^:]*:,,' | sed 's,:[^:]*$,,'`
+  _lcl_result_var=`echo "$_lcl_i" | sed 's,^.*:,,'`
+  _lcl_receval="$_lcl_from"
+_lcl_from=`(test "x$prefix" = xNONE && prefix="$ac_default_prefix"
+     test "x$exec_prefix" = xNONE && exec_prefix="${prefix}"
+     _lcl_receval_old=''
+     while test "$_lcl_receval_old" != "$_lcl_receval"; do
+       _lcl_receval_old="$_lcl_receval"
+       eval _lcl_receval="\"$_lcl_receval\""
+     done
+     echo "$_lcl_receval")`
+  _lcl_receval="$_lcl_to"
+_lcl_to=`(test "x$prefix" = xNONE && prefix="$ac_default_prefix"
+     test "x$exec_prefix" = xNONE && exec_prefix="${prefix}"
+     _lcl_receval_old=''
+     while test "$_lcl_receval_old" != "$_lcl_receval"; do
+       _lcl_receval_old="$_lcl_receval"
+       eval _lcl_receval="\"$_lcl_receval\""
+     done
+     echo "$_lcl_receval")`
+  _lcl_notation="$_lcl_from$_lcl_to"
+  case ":$_lcl_from:" in
+# change empty paths to '.'
+  ::) _lcl_from='.' ;;
+# strip trailing slashes
+  :*[\\/]:) _lcl_from=`echo "$_lcl_from" | sed 's,[\\/]*$,,'` ;;
+  :*:) ;;
+esac
+# squeze repeated slashes
+case '/' in
+# if the path contains any backslashes, turn slashes into backslashes
+ *\\*) _lcl_from=`echo "$_lcl_from" | sed 's,\(.\)[\\/][\\/]*,\1\\\\,g'` ;;
+# if the path contains slashes, also turn backslashes into slashes
+ *) _lcl_from=`echo "$_lcl_from" | sed 's,\(.\)[\\/][\\/]*,\1/,g'` ;;
+esac
+  case ":$_lcl_to:" in
+# change empty paths to '.'
+  ::) _lcl_to='.' ;;
+# strip trailing slashes
+  :*[\\/]:) _lcl_to=`echo "$_lcl_to" | sed 's,[\\/]*$,,'` ;;
+  :*:) ;;
+esac
+# squeze repeated slashes
+case '/' in
+# if the path contains any backslashes, turn slashes into backslashes
+ *\\*) _lcl_to=`echo "$_lcl_to" | sed 's,\(.\)[\\/][\\/]*,\1\\\\,g'` ;;
+# if the path contains slashes, also turn backslashes into slashes
+ *) _lcl_to=`echo "$_lcl_to" | sed 's,\(.\)[\\/][\\/]*,\1/,g'` ;;
+esac
+  _lcl_common_prefix=''
+_lcl_second_prefix_match=''
+while test "$_lcl_second_prefix_match" != 0; do
+  _lcl_first_prefix=`expr "x$_lcl_from" : "x\($_lcl_common_prefix/*[^/]*\)"`
+  _lcl_second_prefix_match=`expr "x$_lcl_to" : "x$_lcl_first_prefix"`
+  if test "$_lcl_second_prefix_match" != 0; then
+    if test "$_lcl_first_prefix" != "$_lcl_common_prefix"; then
+      _lcl_common_prefix="$_lcl_first_prefix"
+    else
+      _lcl_second_prefix_match=0
+    fi
+  fi
+done
+_lcl_first_suffix=`expr "x$_lcl_from" : "x$_lcl_common_prefix/*\(.*\)"`
+_lcl_first_rel=''
+_lcl_tmp='xxx'
+while test "$_lcl_tmp" != ''; do
+  _lcl_tmp=`expr "x$_lcl_first_suffix" : "x[^/]*/*\(.*\)"`
+  if test "$_lcl_first_suffix" != ''; then
+     _lcl_first_suffix="$_lcl_tmp"
+     _lcl_first_rel="../$_lcl_first_rel"
+  fi
+done
+_lcl_second_suffix=`expr "x$_lcl_to" : "x$_lcl_common_prefix/*\(.*\)"`
+_lcl_result_tmp="$_lcl_first_rel$_lcl_second_suffix"
+  case ":$_lcl_result_tmp:" in
+# change empty paths to '.'
+  ::) _lcl_result_tmp='.' ;;
+# strip trailing slashes
+  :*[\\/]:) _lcl_result_tmp=`echo "$_lcl_result_tmp" | sed 's,[\\/]*$,,'` ;;
+  :*:) ;;
+esac
+# squeze repeated slashes
+case "$_lcl_notation" in
+# if the path contains any backslashes, turn slashes into backslashes
+ *\\*) _lcl_result_tmp=`echo "$_lcl_result_tmp" | sed 's,\(.\)[\\/][\\/]*,\1\\\\,g'` ;;
+# if the path contains slashes, also turn backslashes into slashes
+ *) _lcl_result_tmp=`echo "$_lcl_result_tmp" | sed 's,\(.\)[\\/][\\/]*,\1/,g'` ;;
+esac
+  eval $_lcl_result_var='$_lcl_result_tmp'
+done
+echo "$as_me:$LINENO: result: $bindir_to_execprefix" >&5
+echo "${ECHO_T}$bindir_to_execprefix" >&6
+
+cat >>confdefs.h <<_ACEOF
+#define BINDIR_TO_EXECPREFIX "$bindir_to_execprefix"
+_ACEOF
+
+
+
+for _lcl_i in bindir:PCBTREEDIR:bindir_to_pcbtreedir; do
+  _lcl_from=\$`echo "$_lcl_i" | sed 's,:.*$,,'`
+  _lcl_to=\$`echo "$_lcl_i" | sed 's,^[^:]*:,,' | sed 's,:[^:]*$,,'`
+  _lcl_result_var=`echo "$_lcl_i" | sed 's,^.*:,,'`
+  _lcl_receval="$_lcl_from"
+_lcl_from=`(test "x$prefix" = xNONE && prefix="$ac_default_prefix"
+     test "x$exec_prefix" = xNONE && exec_prefix="${prefix}"
+     _lcl_receval_old=''
+     while test "$_lcl_receval_old" != "$_lcl_receval"; do
+       _lcl_receval_old="$_lcl_receval"
+       eval _lcl_receval="\"$_lcl_receval\""
+     done
+     echo "$_lcl_receval")`
+  _lcl_receval="$_lcl_to"
+_lcl_to=`(test "x$prefix" = xNONE && prefix="$ac_default_prefix"
+     test "x$exec_prefix" = xNONE && exec_prefix="${prefix}"
+     _lcl_receval_old=''
+     while test "$_lcl_receval_old" != "$_lcl_receval"; do
+       _lcl_receval_old="$_lcl_receval"
+       eval _lcl_receval="\"$_lcl_receval\""
+     done
+     echo "$_lcl_receval")`
+  _lcl_notation="$_lcl_from$_lcl_to"
+  case ":$_lcl_from:" in
+# change empty paths to '.'
+  ::) _lcl_from='.' ;;
+# strip trailing slashes
+  :*[\\/]:) _lcl_from=`echo "$_lcl_from" | sed 's,[\\/]*$,,'` ;;
+  :*:) ;;
+esac
+# squeze repeated slashes
+case '/' in
+# if the path contains any backslashes, turn slashes into backslashes
+ *\\*) _lcl_from=`echo "$_lcl_from" | sed 's,\(.\)[\\/][\\/]*,\1\\\\,g'` ;;
+# if the path contains slashes, also turn backslashes into slashes
+ *) _lcl_from=`echo "$_lcl_from" | sed 's,\(.\)[\\/][\\/]*,\1/,g'` ;;
+esac
+  case ":$_lcl_to:" in
+# change empty paths to '.'
+  ::) _lcl_to='.' ;;
+# strip trailing slashes
+  :*[\\/]:) _lcl_to=`echo "$_lcl_to" | sed 's,[\\/]*$,,'` ;;
+  :*:) ;;
+esac
+# squeze repeated slashes
+case '/' in
+# if the path contains any backslashes, turn slashes into backslashes
+ *\\*) _lcl_to=`echo "$_lcl_to" | sed 's,\(.\)[\\/][\\/]*,\1\\\\,g'` ;;
+# if the path contains slashes, also turn backslashes into slashes
+ *) _lcl_to=`echo "$_lcl_to" | sed 's,\(.\)[\\/][\\/]*,\1/,g'` ;;
+esac
+  _lcl_common_prefix=''
+_lcl_second_prefix_match=''
+while test "$_lcl_second_prefix_match" != 0; do
+  _lcl_first_prefix=`expr "x$_lcl_from" : "x\($_lcl_common_prefix/*[^/]*\)"`
+  _lcl_second_prefix_match=`expr "x$_lcl_to" : "x$_lcl_first_prefix"`
+  if test "$_lcl_second_prefix_match" != 0; then
+    if test "$_lcl_first_prefix" != "$_lcl_common_prefix"; then
+      _lcl_common_prefix="$_lcl_first_prefix"
+    else
+      _lcl_second_prefix_match=0
+    fi
+  fi
+done
+_lcl_first_suffix=`expr "x$_lcl_from" : "x$_lcl_common_prefix/*\(.*\)"`
+_lcl_first_rel=''
+_lcl_tmp='xxx'
+while test "$_lcl_tmp" != ''; do
+  _lcl_tmp=`expr "x$_lcl_first_suffix" : "x[^/]*/*\(.*\)"`
+  if test "$_lcl_first_suffix" != ''; then
+     _lcl_first_suffix="$_lcl_tmp"
+     _lcl_first_rel="../$_lcl_first_rel"
+  fi
+done
+_lcl_second_suffix=`expr "x$_lcl_to" : "x$_lcl_common_prefix/*\(.*\)"`
+_lcl_result_tmp="$_lcl_first_rel$_lcl_second_suffix"
+  case ":$_lcl_result_tmp:" in
+# change empty paths to '.'
+  ::) _lcl_result_tmp='.' ;;
+# strip trailing slashes
+  :*[\\/]:) _lcl_result_tmp=`echo "$_lcl_result_tmp" | sed 's,[\\/]*$,,'` ;;
+  :*:) ;;
+esac
+# squeze repeated slashes
+case "$_lcl_notation" in
+# if the path contains any backslashes, turn slashes into backslashes
+ *\\*) _lcl_result_tmp=`echo "$_lcl_result_tmp" | sed 's,\(.\)[\\/][\\/]*,\1\\\\,g'` ;;
+# if the path contains slashes, also turn backslashes into slashes
+ *) _lcl_result_tmp=`echo "$_lcl_result_tmp" | sed 's,\(.\)[\\/][\\/]*,\1/,g'` ;;
+esac
+  eval $_lcl_result_var='$_lcl_result_tmp'
+done
+echo "$as_me:$LINENO: result: $bindir_to_pcbtreedir" >&5
+echo "${ECHO_T}$bindir_to_pcbtreedir" >&6
+
+cat >>confdefs.h <<_ACEOF
+#define BINDIR_TO_PCBTREEDIR "$bindir_to_pcbtreedir"
+_ACEOF
+
+
+
 BTNMOD=${BTNMOD:-"Mod1"}
 
 
@@ -11041,8 +11244,6 @@ if test -d $srcdir/newlib; then
 
 fi
           ac_config_files="$ac_config_files src/Makefile"
-
-          ac_config_files="$ac_config_files src/script/Makefile"
 
           ac_config_files="$ac_config_files src/icons/Makefile"
 
@@ -11712,7 +11913,6 @@ do
   "newlib/tests/Makefile" ) CONFIG_FILES="$CONFIG_FILES newlib/tests/Makefile" ;;
   "newlib/toko/Makefile" ) CONFIG_FILES="$CONFIG_FILES newlib/toko/Makefile" ;;
   "src/Makefile" ) CONFIG_FILES="$CONFIG_FILES src/Makefile" ;;
-  "src/script/Makefile" ) CONFIG_FILES="$CONFIG_FILES src/script/Makefile" ;;
   "src/icons/Makefile" ) CONFIG_FILES="$CONFIG_FILES src/icons/Makefile" ;;
   "tools/Makefile" ) CONFIG_FILES="$CONFIG_FILES tools/Makefile" ;;
   "tutorial/Makefile" ) CONFIG_FILES="$CONFIG_FILES tutorial/Makefile" ;;

@@ -1103,9 +1103,9 @@ ParseLibraryTree (void)
 		      entry->AllocatedMemory = MyCalloc (1, len,
 							 "ParseLibraryTree()");
 		      strcat (entry->AllocatedMemory, path);
-		      strcat (entry->AllocatedMemory, "/");
+		      strcat (entry->AllocatedMemory, PCB_DIR_SEPARATOR_S);
 		      strcat (entry->AllocatedMemory, direntry->d_name);
-		      strcat (entry->AllocatedMemory, "/");
+		      strcat (entry->AllocatedMemory, PCB_DIR_SEPARATOR_S);
 		      entry->ListEntry = entry->AllocatedMemory
 			+ strlen (entry->AllocatedMemory);
 		      strcat (entry->AllocatedMemory, e2->d_name);

@@ -1790,17 +1790,18 @@ supported either by the @emph{File} menu or by @kbd{:m filename}.
 @cindex /tmp
 @cindex directory /tmp
 @cindex temporary files
-@code{Pcb} saves a backup of the current layout depending on the resource
-@emph{backup}. The file is named @file{/tmp/PCB.%i.backup} by default
-(this may have been changed at compilation time via the
+@code{Pcb} saves a backup of the current layout at a user specified interval.
+The backup filename is created by appending a dash, "-", to the @file{.pcb} filename.
+For example, if you are editing the layout in @file{projects/board.pcb} then the
+backup file name will be @file{projects/board.pcb-}.  If the layout is new and
+has not been saved yet, then the backup file name is @file{PCB.####.backup} where the "####"
+will be replaced by the process ID of the currenting running copy of @code{Pcb}.
+This default backup file name may be changed at compilation time via the
 @code{BACKUP_NAME}
 variable in @file{globalconfig.h}).  During critical
 sections of the program or when data would be lost it is saved as
-@file{/tmp/PCB.%i.save}.  This file name may be changed at compile time
-with the @code{DEFAULT_MEDIASIZE} variable in @file{globalconfig.h}.
-
-
-@emph{%i} is replaced by the process ID.
+@file{PCB.%i.save}.  This file name may be changed at compile time
+with the @code{SAVE_NAME} variable in @file{globalconfig.h}.
 
 
 @node Printing

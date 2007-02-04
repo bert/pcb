@@ -745,4 +745,15 @@ typedef struct
 #define AUSAGE(x) Message ("Usage:\n%s\n", (x##_syntax))
 #define AFAIL(x) { Message ("Syntax error.  Usage:\n%s\n", (x##_syntax)); return 1; }
 
+/* ---------------------------------------------------------------------------
+ * Variables with absolute paths to various directories.  These are deduced
+ * at runtime to allow pcb to be relocatable
+ */
+extern char *bindir;
+extern char *pcblibdir;
+extern char *pcblibpath;
+extern char *pcbtreedir;
+extern char *pcbtreepath;
+extern char *exec_prefix;
+
 #endif /* __GLOBAL_INCLUDED__  */

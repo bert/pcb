@@ -669,7 +669,7 @@ load_rc_files (void)
   load_rc_file ("/etc/pcbrc");
   load_rc_file ("/usr/local/etc/pcbrc");
 
-  path = g_build_filename (PCBLIBDIR, "pcbrc", NULL);
+  path = g_build_filename (pcblibdir, "pcbrc", NULL);
   load_rc_file (path);
   g_free (path);
 

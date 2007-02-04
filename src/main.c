@@ -51,6 +51,7 @@
 #include "set.h"
 #include "action.h"
 #include "misc.h"
+#include "lrealpath.h"
 
 /* This next one is so we can print the help messages. */
 #include "hid/hidint.h"
@@ -66,11 +67,13 @@
 RCSID ("$Id$");
 
 
+#define PCBLIBPATH ".:" PCBLIBDIR
 
 
 #ifdef HAVE_LIBSTROKE
 extern void stroke_init (void);
 #endif
+
 
 /* ----------------------------------------------------------------------
  * initialize signal and error handlers
@@ -510,9 +513,9 @@ HID_Attribute main_attribute_list[] = {
 	0),
   SSET (FilePath, "", "file-path", 0),
   SSET (RatCommand, "", "rat-command", 0),
-  SSET (FontPath, ".:" PCBLIBDIR, "font-path", 0),
-  SSET (ElementPath, ".:" PCBLIBDIR, "element-path", 0),
-  SSET (LibraryPath, ".:" PCBLIBDIR, "lib-path", 0),
+  SSET (FontPath, PCBLIBPATH, "font-path", 0),
+  SSET (ElementPath, PCBLIBPATH, "element-path", 0),
+  SSET (LibraryPath, PCBLIBPATH, "lib-path", 0),
   SSET (MenuFile, "pcb-menu.res", "menu-file", 0),
   SSET (ScriptFilename, 0, "action-script",
 	"If set, this file is executed at startup."),
@@ -543,19 +546,20 @@ REGISTER_ATTRIBUTES (main_attribute_list)
  */
      static void settings_post_process ()
 {
-  if (Settings.LibraryCommand[0] != '/' && Settings.LibraryCommand[0] != '.')
+  if (Settings.LibraryCommand[0] != PCB_DIR_SEPARATOR_C && Settings.LibraryCommand[0] != '.')
     {
       Settings.LibraryCommand
 	=
-	Concat (Settings.LibraryCommandDir, "/", Settings.LibraryCommand,
+	Concat (Settings.LibraryCommandDir, PCB_DIR_SEPARATOR_S, 
+		Settings.LibraryCommand,
 		NULL);
     }
-  if (Settings.LibraryContentsCommand[0] != '/'
+  if (Settings.LibraryContentsCommand[0] != PCB_DIR_SEPARATOR_C
       && Settings.LibraryContentsCommand[0] != '.')
     {
       Settings.LibraryContentsCommand
 	=
-	Concat (Settings.LibraryCommandDir, "/",
+	Concat (Settings.LibraryCommandDir, PCB_DIR_SEPARATOR_S,
 		Settings.LibraryContentsCommand, NULL);
     }
 
@@ -589,6 +593,117 @@ print_version ()
   exit (0);
 }
 
+/* ----------------------------------------------------------------------
+ * Figure out the canonical name of the executed program
+ * and fix up the defaults for various paths
+ */
+char *bindir = NULL;
+char *exec_prefix = NULL;
+char *pcblibdir = NULL;
+char *pcblibpath = NULL;
+char *pcbtreedir = NULL;
+char *pcbtreepath = NULL;
+
+static void
+InitPaths (char *argv0)
+{
+  size_t l;
+  int i;
+  char *t1, *t2;
+  
+  bindir = strdup (lrealpath (argv0));
+
+  /* strip off the executible name leaving only the path */
+  t2 = NULL;
+  t1 = strchr (bindir, PCB_DIR_SEPARATOR_C);
+  while (t1 != NULL && *t1 != '\0')
+    {
+      t2 = t1;
+      t1 = strchr (t2 + 1, PCB_DIR_SEPARATOR_C);
+    }
+  if (t2 != NULL)
+    *t2 = '\0';
+
+  /* now find the path to exec_prefix */
+  l = strlen (bindir) + 1 + strlen (BINDIR_TO_EXECPREFIX) + 1;
+  if ( (exec_prefix = (char *) malloc (l * sizeof (char) )) == NULL )
+    {
+      fprintf (stderr, "InitPaths():  malloc failed\n");
+      exit (1);
+    }
+  sprintf (exec_prefix, "%s%s%s", bindir, PCB_DIR_SEPARATOR_S, 
+	   BINDIR_TO_EXECPREFIX);
+
+  /* now find the path to PCBLIBDIR */
+  l = strlen (bindir) + 1 + strlen (BINDIR_TO_PCBLIBDIR) + 1;
+  if ( (pcblibdir = (char *) malloc (l * sizeof (char) )) == NULL )
+    {
+      fprintf (stderr, "InitPaths():  malloc failed\n");
+      exit (1);
+    }
+  sprintf (pcblibdir, "%s%s%s", bindir, PCB_DIR_SEPARATOR_S, 
+	   BINDIR_TO_PCBLIBDIR);
+
+  /* and the path to PCBTREEDIR */
+  l = strlen (bindir) + 1 + strlen (BINDIR_TO_PCBTREEDIR) + 1;
+  if ( (pcbtreedir = (char *) malloc (l * sizeof (char) )) == NULL )
+    {
+      fprintf (stderr, "InitPaths():  malloc failed\n");
+      exit (1);
+    }
+  sprintf (pcbtreedir, "%s%s%s", bindir, PCB_DIR_SEPARATOR_S, 
+	   BINDIR_TO_PCBTREEDIR);
+
+  /* and the search path including PCBLIBDIR */
+  l = strlen (pcblibdir) + 3;
+  if ( (pcblibpath = (char *) malloc (l * sizeof (char) )) == NULL )
+    {
+      fprintf (stderr, "InitPaths():  malloc failed\n");
+      exit (1);
+    }
+  sprintf (pcblibpath, ".:%s", pcblibdir);
+
+  /* and the newlib search path */
+  l = strlen (pcblibdir) + 1 + strlen (pcbtreedir) 
+    + strlen ("pcblib-newlib") + 2;
+  if ( (pcbtreepath = (char *) malloc (l * sizeof (char) )) == NULL )
+    {
+      fprintf (stderr, "InitPaths():  malloc failed\n");
+      exit (1);
+    }
+  sprintf (pcbtreepath, "%s:%s/pcblib-newlib", pcbtreedir, pcblibdir);
+  
+#ifdef DEBUG
+  printf ("bindir      = %s\n", bindir);
+  printf ("pcblibdir   = %s\n", pcblibdir);
+  printf ("pcblibpath  = %s\n", pcblibpath);
+  printf ("pcbtreedir  = %s\n", pcbtreedir);
+  printf ("pcbtreepath = %s\n", pcbtreepath);
+#endif
+
+  l = sizeof (main_attribute_list) / sizeof (main_attribute_list[0]);
+  for (i = 0; i < l ; i++) 
+    {
+      if (NSTRCMP (main_attribute_list[i].name, "lib-command-dir") == 0)
+	{
+	  main_attribute_list[i].default_val.str_value = pcblibdir;
+	}
+
+      if ( (NSTRCMP (main_attribute_list[i].name, "font-path") == 0) 
+	   || (NSTRCMP (main_attribute_list[i].name, "element-path") == 0)
+	   || (NSTRCMP (main_attribute_list[i].name, "lib-path") == 0) )
+	{
+	  main_attribute_list[i].default_val.str_value = pcblibpath;
+	}
+
+      if (NSTRCMP (main_attribute_list[i].name, "lib-newlib") == 0)
+	{
+	  main_attribute_list[i].default_val.str_value = pcbtreepath;
+	}
+
+    }
+}
+
 /* ---------------------------------------------------------------------- 
  * main program
  */
@@ -617,16 +732,18 @@ main (int argc, char *argv[])
 
 #include "core_lists.h"
   setbuf (stdout, 0);
+  InitPaths (argv[0]);
+
   hid_init ();
 
   hid_load_settings ();
 
   program_name = argv[0];
-  program_basename = strrchr (program_name, '/');
+  program_basename = strrchr (program_name, PCB_DIR_SEPARATOR_C);
   if (program_basename)
     {
       program_directory = strdup (program_name);
-      *strrchr (program_directory, '/') = 0;
+      *strrchr (program_directory, PCB_DIR_SEPARATOR_C) = 0;
       program_basename++;
     }
   else
@@ -635,7 +752,7 @@ main (int argc, char *argv[])
       program_basename = program_name;
     }
   Progname = program_basename;
-
+  
   if (argc > 1 && strcmp (argv[1], "-h") == 0)
     usage ();
   if (argc > 1 && strcmp (argv[1], "-V") == 0)
@@ -684,6 +801,7 @@ main (int argc, char *argv[])
   Output.GridGC = gui->make_gc ();
 
   settings_post_process ();
+
 
   if (show_actions)
     {
@@ -775,6 +893,19 @@ main (int argc, char *argv[])
 #endif
 
       EnableAutosave ();
+
+#ifdef DEBUG
+      printf ("Settings.LibraryCommandDir = \"%s\"\n",
+	      Settings.LibraryCommandDir);
+      printf ("Settings.FontPath          = \"%s\"\n", 
+	      Settings.FontPath);
+      printf ("Settings.ElementPath       = \"%s\"\n", 
+	      Settings.ElementPath);
+      printf ("Settings.LibraryPath       = \"%s\"\n", 
+	      Settings.LibraryPath);
+      printf ("Settings.LibraryTree       = \"%s\"\n", 
+	      Settings.LibraryTree);
+#endif
 
       gui->do_export (0);
 #if HAVE_DBUS

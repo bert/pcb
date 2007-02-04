@@ -1,5 +1,8 @@
 /* config.h.in.  Generated from configure.ac by autoheader.  */
 
+/* Relative path from bindir to exec_prefix */
+#undef BINDIR_TO_EXECPREFIX
+
 /* Relative path from bindir to pcblibdir */
 #undef BINDIR_TO_PCBLIBDIR
 

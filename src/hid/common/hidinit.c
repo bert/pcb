@@ -76,7 +76,7 @@ hid_load_dir (char *dirname)
 	basename[strlen(basename)-3] = 0;
       else if (strcasecmp (basename+strlen(basename)-4, ".dll") == 0)
 	basename[strlen(basename)-4] = 0;
-      path = Concat (dirname, "/", de->d_name, NULL);
+      path = Concat (dirname, PCB_DIR_SEPARATOR_S, de->d_name, NULL);
 
       if (stat (path, &st) == 0
 	  && (
@@ -125,15 +125,23 @@ hid_init ()
 #include "hid/common/hidlist.h"
 #undef HID_DEF
 
-  hid_load_dir (Concat (EXECPREFIXDIR, "/lib/pcb/plugins/", HOST, NULL));
-  hid_load_dir (Concat (EXECPREFIXDIR, "/lib/pcb/plugins", NULL));
+  hid_load_dir (Concat (exec_prefix, PCB_DIR_SEPARATOR_S, "lib",
+	PCB_DIR_SEPARATOR_S, "pcb",
+	PCB_DIR_SEPARATOR_S, "plugins",
+	PCB_DIR_SEPARATOR_S, HOST, NULL));
+  hid_load_dir (Concat (exec_prefix, PCB_DIR_SEPARATOR_S, "lib",
+	PCB_DIR_SEPARATOR_S, "pcb",
+	PCB_DIR_SEPARATOR_S, "plugins", NULL));
   home = getenv("HOME");
   if (home)
     {
-      hid_load_dir (Concat (home, "/.pcb/plugins/", HOST, NULL));
-      hid_load_dir (Concat (home, "/.pcb/plugins", NULL));
+      hid_load_dir (Concat (home, PCB_DIR_SEPARATOR_S, ".pcb",
+	PCB_DIR_SEPARATOR_S, "plugins",
+	PCB_DIR_SEPARATOR_S, HOST, NULL));
+      hid_load_dir (Concat (home, PCB_DIR_SEPARATOR_S, ".pcb",
+	PCB_DIR_SEPARATOR_S, "plugins", NULL));
     }
-  hid_load_dir (Concat ("plugins/", HOST, NULL));
+  hid_load_dir (Concat ("plugins", PCB_DIR_SEPARATOR_S, HOST, NULL));
   hid_load_dir (Concat ("plugins", NULL));
 }
 
@@ -582,7 +590,7 @@ hid_load_settings ()
     for (i = 0; i < ha->n; i++)
       ha->attributes[i].hash = attr_hash (ha->attributes+i);
 
-  hid_load_settings_1 (Concat (PCBLIBDIR, "/settings", NULL));
+  hid_load_settings_1 (Concat (pcblibdir, "/settings", NULL));
   home = getenv("HOME");
   if (home)
     hid_load_settings_1 (Concat (home, "/.pcb/settings", NULL));

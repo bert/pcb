@@ -575,7 +575,6 @@ AC_DEFINE_UNQUOTED(FONTFILENAME,"$FONTFILENAME",[File for default font])
 
 # standard autoconf variables
 CPPFLAGS="$CPPFLAGS -DPREFIXDIR=\\\"\${prefix}\\\""
-CPPFLAGS="$CPPFLAGS -DEXECPREFIXDIR=\\\"\${exec_prefix}\\\""
 CPPFLAGS="$CPPFLAGS -DHOST=\\\"\${host}\\\""
 
 # directory for old-style library and for fonts
@@ -607,6 +606,17 @@ AC_MSG_RESULT([$bindir_to_pcblibdir])
 AC_DEFINE_UNQUOTED(BINDIR_TO_PCBLIBDIR, "$bindir_to_pcblibdir", [Relative path from bindir to pcblibdir])
 
 AC_MSG_CHECKING([for the bindir to pcbtreedir relative path])
+adl_COMPUTE_RELATIVE_PATHS([bindir:PCBTREEDIR:bindir_to_pcbtreedir])
+AC_MSG_RESULT([$bindir_to_pcbtreedir])
+AC_DEFINE_UNQUOTED(BINDIR_TO_PCBTREEDIR, "$bindir_to_pcbtreedir", [Relative path from bindir to pcbtreedir])
+
+
+AC_MSG_CHECKING([for the bindir to exec_prefix relative path])
+adl_COMPUTE_RELATIVE_PATHS([bindir:exec_prefix:bindir_to_execprefix])
+AC_MSG_RESULT([$bindir_to_execprefix])
+AC_DEFINE_UNQUOTED(BINDIR_TO_EXECPREFIX, "$bindir_to_execprefix", [Relative path from bindir to exec_prefix])
+
+
 adl_COMPUTE_RELATIVE_PATHS([bindir:PCBTREEDIR:bindir_to_pcbtreedir])
 AC_MSG_RESULT([$bindir_to_pcbtreedir])
 AC_DEFINE_UNQUOTED(BINDIR_TO_PCBTREEDIR, "$bindir_to_pcbtreedir", [Relative path from bindir to pcbtreedir])
@@ -660,7 +670,6 @@ if test -d $srcdir/newlib; then
    AC_CONFIG_FILES(newlib/toko/Makefile)
 fi
 AC_CONFIG_FILES(src/Makefile)
-AC_CONFIG_FILES(src/script/Makefile)
 AC_CONFIG_FILES(src/icons/Makefile)
 if test -d $srcdir/tools; then
    AC_CONFIG_FILES(tools/Makefile)
