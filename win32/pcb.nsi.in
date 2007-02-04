@@ -93,7 +93,7 @@ Section "Dummy Section" SecDummy
     CreateShortCut "$SMPROGRAMS\$STARTMENU_FOLDER\HTML Manual.lnk" "$INSTDIR\share\pcb\pcb.html"
     CreateShortCut "$SMPROGRAMS\$STARTMENU_FOLDER\PDF Manual.lnk" "$INSTDIR\share\pcb\pcb.pdf"
     CreateShortCut "$SMPROGRAMS\$STARTMENU_FOLDER\Readme.lnk" "$INSTDIR\share\pcb-@pcb_version@\Readme.txt"
-    CreateShortCut "$SMPROGRAMS\$STARTMENU_FOLDER\PCB.lnk" "$INSTDIR\bin\pcb-bin.exe" "" "$INSTDIR\bin\pcb" 0 "" "" "PCB Printed Circuit Board Layout Editor"
+    CreateShortCut "$SMPROGRAMS\$STARTMENU_FOLDER\PCB.lnk" "$INSTDIR\bin\pcb.exe" "" "$INSTDIR\bin\pcb" 0 "" "" "PCB Printed Circuit Board Layout Editor"
 
 ;; CreateShortCut  link.lnk target.file [parameters [icon.file [icon_index_number [start_options [keyboard_shortcut [description]]]]]]
 
