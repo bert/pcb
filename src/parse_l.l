@@ -216,7 +216,7 @@ static int Parse(char *Executable, char *Path, char *Filename, char *Parameter)
                 exit (1);
               }
 
-	    if ( Path != NULL )
+	    if ( Path != NULL && *Path != '\0')
               sprintf (tmps, "%s%s%s", Path, PCB_DIR_SEPARATOR_S, Filename);
             else
               sprintf (tmps, "%s", Filename);
