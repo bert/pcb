@@ -320,7 +320,7 @@ int ParsePCB(PCBTypePtr Ptr, char *Filename)
  */
 int ParseFont(FontTypePtr Ptr, char *Filename)
 {
-	int r;
+	int r = 0;
 	yyPCB = NULL;
 	yyFont = Ptr;
 	yyElement = NULL;
