@@ -683,13 +683,13 @@ extracted-docs :
 	@@MAINTAINER_MODE_FALSE@echo "Skipping documentation extraction since you are not in maintainer-mode"
 
 .pcb.eps :
-	../src/pcb-bin -x eps --only-visible --font-path $(top_srcdir)/src --eps-file $@ $<
+	../src/pcb -x eps --only-visible --font-path $(top_srcdir)/src --eps-file $@ $<
 
 .pcb.gif :
-	../src/pcb-bin -x png --only-visible --format GIF --font-path $(top_srcdir)/src --outfile $@ $<
+	../src/pcb -x png --only-visible --format GIF --font-path $(top_srcdir)/src --outfile $@ $<
 
 .pcb.png :
-	../src/pcb-bin -x png --only-visible --font-path $(top_srcdir)/src --outfile $@ $<
+	../src/pcb -x png --only-visible --font-path $(top_srcdir)/src --outfile $@ $<
 
 .eps.pdf :
 @MISSING_PS2PDF_TRUE@	@echo "****************************************************"
