@@ -23,6 +23,10 @@ Supported options:
 
   --disable-doc   - Pass "--disable-doc" to the configure script.
 
+  --enable-maintainer-mode
+                  - Pass "--enable-maintainer-mode" to the
+                    configure script.
+
   --help          - Show this message and exit.
 
   --skip-build    - Skip the "make" step of the process.
@@ -33,7 +37,9 @@ Supported options:
 
 For the $0 script to work, you must have the gtk_win32 files
 as well as gdlib installed on your system in very specific
-locations.  Edit $0 to change these.
+locations.  Edit $0 to change these.  While you are at it, feel
+free to provide a patch to improve the documentation about 
+those libraries.
 
 EOF
 }
@@ -51,6 +57,11 @@ while test $# -ne 0 ; do
 
 		--disable-doc)
 			config_args="${config_args} --disable-doc"
+			shift
+			;;
+
+		--enable-maintainer-mode3)
+			config_args="${config_args} --enable-maintainer-mode"
 			shift
 			;;
 
