@@ -77,6 +77,7 @@ Section "Dummy Section" SecDummy
   
   ;ADD YOUR OWN FILES HERE...
   File /a /r "@gtk_win32_runtime@\*.*"
+  File /a /r "@gd_win32_runtime@\*.*"
   File /a /r "@pcb_prefix@\*.*"
 
   ;Store installation folder
