@@ -60,7 +60,7 @@ while test $# -ne 0 ; do
 			shift
 			;;
 
-		--enable-maintainer-mode3)
+		--enable-maintainer-mode)
 			config_args="${config_args} --enable-maintainer-mode"
 			shift
 			;;
