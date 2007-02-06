@@ -401,14 +401,24 @@ gdlib-config is part of the GD library available from www.boutell.com/gd.
 This is needed for the png HID.  I will look for libgd anyway and maybe
 you will get lucky.
 ])
-		AC_CHECK_LIB(gd,main,,
+		if test "$WIN32" != "yes" ; then
+			AC_CHECK_LIB(gd,main,,
 			AC_MSG_ERROR([You have requested the png HID  but -lgd could not be found]))
+		else 
+			AC_CHECK_LIB(bgd,main,,
+			AC_MSG_ERROR([You have requested the png HID  but -lbgd could not be found]))
+		fi
 	else
+		if test "$WIN32" = "yes" ; then
+			GD=bgd
+		else
+			GD=gd
+		fi
 		AC_MSG_CHECKING([for libgd cflags])
 		GD_CFLAGS="`$GDLIB_CONFIG --cflags`"
 		AC_MSG_RESULT([$GD_CFLAGS])
 		AC_MSG_CHECKING([for libgd libs])
-		GD_LIBS="`$GDLIB_CONFIG --ldflags` `$GDLIB_CONFIG --libs` -lgd"
+		GD_LIBS="`$GDLIB_CONFIG --ldflags` `$GDLIB_CONFIG --libs` -l${GD}"
 		AC_MSG_RESULT([$GD_LIBS])
 	fi
    

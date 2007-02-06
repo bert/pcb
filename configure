@@ -9747,6 +9747,7 @@ gdlib-config is part of the GD library available from www.boutell.com/gd.
 This is needed for the png HID.  I will look for libgd anyway and maybe
 you will get lucky.
 " >&6
+		if test "$WIN32" != "yes" ; then
 
 echo "$as_me:$LINENO: checking for main in -lgd" >&5
 echo $ECHO_N "checking for main in -lgd... $ECHO_C" >&6
@@ -9819,7 +9820,86 @@ echo "$as_me: error: You have requested the png HID  but -lgd could not be found
    { (exit 1); exit 1; }; }
 fi
 
+		else
+
+echo "$as_me:$LINENO: checking for main in -lbgd" >&5
+echo $ECHO_N "checking for main in -lbgd... $ECHO_C" >&6
+if test "${ac_cv_lib_bgd_main+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lbgd  $LIBS"
+cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+
+
+int
+main ()
+{
+main ();
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext conftest$ac_exeext
+if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
+  (eval $ac_link) 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+	 { ac_try='test -z "$ac_c_werror_flag"
+			 || test ! -s conftest.err'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; } &&
+	 { ac_try='test -s conftest$ac_exeext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  ac_cv_lib_bgd_main=yes
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+ac_cv_lib_bgd_main=no
+fi
+rm -f conftest.err conftest.$ac_objext \
+      conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+echo "$as_me:$LINENO: result: $ac_cv_lib_bgd_main" >&5
+echo "${ECHO_T}$ac_cv_lib_bgd_main" >&6
+if test $ac_cv_lib_bgd_main = yes; then
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_LIBBGD 1
+_ACEOF
+
+  LIBS="-lbgd $LIBS"
+
+else
+  { { echo "$as_me:$LINENO: error: You have requested the png HID  but -lbgd could not be found" >&5
+echo "$as_me: error: You have requested the png HID  but -lbgd could not be found" >&2;}
+   { (exit 1); exit 1; }; }
+fi
+
+		fi
 	else
+		if test "$WIN32" = "yes" ; then
+			GD=bgd
+		else
+			GD=gd
+		fi
 		echo "$as_me:$LINENO: checking for libgd cflags" >&5
 echo $ECHO_N "checking for libgd cflags... $ECHO_C" >&6
 		GD_CFLAGS="`$GDLIB_CONFIG --cflags`"
@@ -9827,7 +9907,7 @@ echo $ECHO_N "checking for libgd cflags... $ECHO_C" >&6
 echo "${ECHO_T}$GD_CFLAGS" >&6
 		echo "$as_me:$LINENO: checking for libgd libs" >&5
 echo $ECHO_N "checking for libgd libs... $ECHO_C" >&6
-		GD_LIBS="`$GDLIB_CONFIG --ldflags` `$GDLIB_CONFIG --libs` -lgd"
+		GD_LIBS="`$GDLIB_CONFIG --ldflags` `$GDLIB_CONFIG --libs` -l${GD}"
 		echo "$as_me:$LINENO: result: $GD_LIBS" >&5
 echo "${ECHO_T}$GD_LIBS" >&6
 	fi
