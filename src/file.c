@@ -899,7 +899,7 @@ EmergencySave (void)
  * Callback for the autosave
  */
 
-static hidval backup_timer = (hidval) NULL;
+static hidval backup_timer;
 
 /*  
  * If the backup interval is > 0 then set another timer.  Otherwise
@@ -919,6 +919,10 @@ backup_cb (hidval data)
 void
 EnableAutosave (void)
 {
+  hidval x;
+
+  x.ptr = NULL;
+
   /* If we already have a timer going, then cancel it out */
   if (backup_timer.ptr != NULL && gui->stop_timer)
     gui->stop_timer (backup_timer);
@@ -928,7 +932,7 @@ EnableAutosave (void)
   if (Settings.BackupInterval > 0 && gui->add_timer)
     backup_timer = gui->add_timer (backup_cb, 
 				   1000 * Settings.BackupInterval, 
-				   (hidval) NULL);
+				   x);
 }
 
 /* ---------------------------------------------------------------------------
