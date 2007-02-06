@@ -218,7 +218,7 @@ first == 1 {
 
 	# Now create a layout with that element and print it.
 	if( do_png ) {
-		layout = outd "/foo.pcb" ;
+		layout = "temp.pcb" ;
 		laytmpl = "footprint.pcb" ;
 		compfile = dir "/" comp ".fp";
 		pngfile = dir "/" comp ".png";
@@ -255,7 +255,7 @@ first == 1 {
 		close( laytmpl );
 		close( layout );
 
-		cmd = "cd ../src && ./pcb -x png --outfile " pngfile " --xy-max 200 --only-visible " layout " 2>&1 > /dev/null" ;
+		cmd = "../src/pcb -x png --outfile temp.png --xy-max 200 --only-visible " layout " 2>&1 > /dev/null" ;
 		rc = system( cmd );
 		if( rc != 0) {
 			printf("<TR><TD>~%s</TD>\n", lib) >> broken;
@@ -263,6 +263,8 @@ first == 1 {
 			printf("    <TD>%s</TD>\n", comment) >> broken;
 			printf("    <TD>%s</TD>\n", cmd) >> broken;
 			printf("</TR>\n") >> broken;
+		} else {
+			system( "mv temp.png " pngfile " ; rm " layout);
 		}
 	}
 }
