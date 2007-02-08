@@ -1239,7 +1239,7 @@ Net(find|select|rats|norats[,net[,pin]])@end format
 @end cartouche
 
 Perform various actions on netlists.
-@c ./../src/netlist.c 147
+@c ./../src/netlist.c 166
 
 Each of these actions apply to a specified set of nets.  @var{net} and
 @var{pin} are patterns which match one or more nets or pins; these
@@ -1522,7 +1522,7 @@ Report(Object|DrillReport|FoundPins)@end format
 @end cartouche
 
 Produce various report.
-@c ./../src/report.c 531
+@c ./../src/report.c 532
 
 @table @code
 
@@ -1550,7 +1550,7 @@ ReportDialog()@end format
 @end cartouche
 
 Report on the object under the crosshair
-@c ./../src/report.c 109
+@c ./../src/report.c 110
 
 This is a shortcut for @code{Report(Object)}.
 
