@@ -43,7 +43,7 @@ else
 PREVIEW=	
 endif
 
-${NEWLIB}.stamp : m4lib_to_newlib.sh ${LIBCONTENTS} footprint.pcb
+${NEWLIB}.stamp : footprint.pcb @MAINTAINER_MODE_TRUE@ ${LIBCONTENTS} m4lib_to_newlib.sh
 	rm -fr ${NEWLIB}
 	${SHELL} ./m4lib_to_newlib.sh --contents \
 		${LIBRARYFILENAME}.contents --output ${NEWLIB} \
@@ -52,12 +52,23 @@ ${NEWLIB}.stamp : m4lib_to_newlib.sh ${LIBCONTENTS} footprint.pcb
 
 
 install-data-local: ${NEWLIB}.stamp
-	tar cf - ${NEWLIB} | (cd $(DESTDIR)$(PCBLIBDIR) && tar -xf -)
+	if test -d ${NEWLIB} ; then \
+		tar cf - ${NEWLIB} | (cd $(DESTDIR)$(PCBLIBDIR) && tar -xf -) ; \
+	else  \
+		cd $(srcdir) && tar -cf - ${NEWLIB} | (cd $(DESTDIR)$(PCBLIBDIR) && tar -xf -) ; \
+	fi
 
 uninstall-local:
+	chmod -R a+w $(DESTDIR)$(PCBLIBDIR)/${NEWLIB}
 	rm -fr $(DESTDIR)$(PCBLIBDIR)/${NEWLIB}
 
-EXTRA_DIST=	${NEWLIB} footprint.pcb
+EXTRA_DIST=	${NEWLIB} footprint.pcb ${NEWLIB}.stamp
+
+if MAINTAINER_MODE
+DISTCLEANFILES=	${NEWLIB}.stamp
+else
+DISTCLEANFILES=
+endif
 
 #
 #
@@ -163,7 +174,8 @@ EXTRA_DIST+=	ListLibraryContents.sh ${COMMON_FILE} ${M4_DIST_FILES} ${OBSOLETE_L
 		${LIBCONTENTS} \
 		${DAT_FILES} gen_list.awk gen_m4.awk gen_geda_m4.awk gen_geda_list.awk
 
-DISTCLEANFILES=	${LIBRARYFILENAME} ${LIBRARYFILENAME}.contents amp.m4 amp.list cts.m4 cts.list bourns.m4 bourns.list \
+DISTCLEANFILES+=	${LIBRARYFILENAME} ${LIBRARYFILENAME}.contents amp.m4 amp.list \
+	cts.m4 cts.list bourns.m4 bourns.list \
 	geda.m4 geda.list johnstech.m4 johnstech.list minicircuits.m4 minicircuits.list \
 	panasonic.m4 panasonic.list
 
