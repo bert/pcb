@@ -612,6 +612,7 @@ InitPaths (char *argv0)
   int i;
   int haspath;
   char *t1, *t2;
+  int found_bindir = 0;
 
   /* see if argv0 has enough of a path to let lrealpath give the
    * real path.  This should be the case if you invoke pcb with
@@ -632,7 +633,10 @@ InitPaths (char *argv0)
 #endif
 
   if (haspath)
-    bindir = strdup (lrealpath (argv0));
+    {
+      bindir = strdup (lrealpath (argv0));
+      found_bindir = 1;
+    }
   else
     {
       char *path, *p, *tmps;
@@ -661,6 +665,7 @@ InitPaths (char *argv0)
               printf ("Found it:  \"%s\"\n", tmps);
 #endif
               bindir = lrealpath (tmps);
+              found_bindir = 1;
 	      free (tmps);
               break;
             }  
@@ -673,21 +678,31 @@ InitPaths (char *argv0)
   printf ("InitPaths():  bindir = \"%s\"\n", bindir);
 #endif
 
-  /* strip off the executible name leaving only the path */
-  t2 = NULL;
-  t1 = strchr (bindir, PCB_DIR_SEPARATOR_C);
-  while (t1 != NULL && *t1 != '\0')
+  if (found_bindir)
     {
-      t2 = t1;
-      t1 = strchr (t2 + 1, PCB_DIR_SEPARATOR_C);
-    }
-  if (t2 != NULL)
-    *t2 = '\0';
+      /* strip off the executible name leaving only the path */
+      t2 = NULL;
+      t1 = strchr (bindir, PCB_DIR_SEPARATOR_C);
+      while (t1 != NULL && *t1 != '\0')
+        {
+          t2 = t1;
+          t1 = strchr (t2 + 1, PCB_DIR_SEPARATOR_C);
+        }
+      if (t2 != NULL)
+        *t2 = '\0';
 
 #ifdef DEBUG
-  printf ("After stripping off the executible name, we found\n");
-  printf ("bindir = \"%s\"\n", bindir);
+      printf ("After stripping off the executible name, we found\n");
+      printf ("bindir = \"%s\"\n", bindir);
 #endif
+    }
+  else
+    {
+      /* we have failed to find out anything from argv[0] so fall back to the original
+       * install prefix
+       */
+       bindir = strdup (BINDIR);
+    }
 
   /* now find the path to exec_prefix */
   l = strlen (bindir) + 1 + strlen (BINDIR_TO_EXECPREFIX) + 1;

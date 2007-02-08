@@ -594,6 +594,7 @@ AC_DEFINE_UNQUOTED(FONTFILENAME,"$FONTFILENAME",[File for default font])
 
 # standard autoconf variables
 CPPFLAGS="$CPPFLAGS -DPREFIXDIR=\\\"\${prefix}\\\""
+CPPFLAGS="$CPPFLAGS -DBINDIR=\\\"\${bindir}\\\""
 CPPFLAGS="$CPPFLAGS -DHOST=\\\"\${host}\\\""
 
 # directory for old-style library and for fonts
