@@ -309,7 +309,7 @@ ac_includes_default="\
 # include <unistd.h>
 #endif"
 
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA CYGPATH_W PACKAGE VERSION ACLOCAL AUTOCONF AUTOMAKE AUTOHEADER MAKEINFO install_sh STRIP ac_ct_STRIP INSTALL_STRIP_PROGRAM mkdir_p AWK SET_MAKE am__leading_dot AMTAR am__tar am__untar MAINTAINER_MODE_TRUE MAINTAINER_MODE_FALSE MAINT build build_cpu build_vendor build_os host host_cpu host_vendor host_os WIN32 WIN32_TRUE WIN32_FALSE CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT DEPDIR am__include am__quote AMDEP_TRUE AMDEP_FALSE AMDEPBACKSLASH CCDEPMODE am__fastdepCC_TRUE am__fastdepCC_FALSE CPP LEX LEXLIB LEX_OUTPUT_ROOT LEX_PATH YACC YACC_PATH RANLIB ac_ct_RANLIB TGIF MISSING_TGIF_TRUE MISSING_TGIF_FALSE XPMTOPPM PPMTOWINICON MISSING_XPMTOPPM_TRUE MISSING_XPMTOPPM_FALSE CONVERT MISSING_CONVERT_TRUE MISSING_CONVERT_FALSE DOC MKINFO PERL WITH_DBUS_TRUE WITH_DBUS_FALSE PKG_CONFIG ac_pt_PKG_CONFIG DBUS_CFLAGS DBUS_LIBS HIDLIST HIDLIBS M4 WISH GNUM4 LATEX MISSING_LATEX_TRUE MISSING_LATEX_FALSE PDFLATEX MISSING_PDFLATEX_TRUE MISSING_PDFLATEX_FALSE DVIPS MISSING_DVIPS_TRUE MISSING_DVIPS_FALSE PS2PDF MISSING_PS2PDF_TRUE MISSING_PS2PDF_FALSE EGREP X_CFLAGS X_PRE_LIBS X_LIBS X_EXTRA_LIBS GTK_CFLAGS GTK_LIBS GLIB_CFLAGS GLIB_LIBS GDLIB_CONFIG PNG_TRUE PNG_FALSE FONTFILENAME PCBLIBDIR LIBRARYFILENAME PCBTREEDIR PCBTREEPATH BTNMOD TOPDIRS LIBOBJS LTLIBOBJS'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA CYGPATH_W PACKAGE VERSION ACLOCAL AUTOCONF AUTOMAKE AUTOHEADER MAKEINFO install_sh STRIP ac_ct_STRIP INSTALL_STRIP_PROGRAM mkdir_p AWK SET_MAKE am__leading_dot AMTAR am__tar am__untar MAINTAINER_MODE_TRUE MAINTAINER_MODE_FALSE MAINT build build_cpu build_vendor build_os host host_cpu host_vendor host_os WIN32 WIN32_TRUE WIN32_FALSE CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT DEPDIR am__include am__quote AMDEP_TRUE AMDEP_FALSE AMDEPBACKSLASH CCDEPMODE am__fastdepCC_TRUE am__fastdepCC_FALSE CPP LEX LEXLIB LEX_OUTPUT_ROOT LEX_PATH YACC YACC_PATH RANLIB ac_ct_RANLIB TGIF MISSING_TGIF_TRUE MISSING_TGIF_FALSE XPMTOPPM PPMTOWINICON MISSING_XPMTOPPM_TRUE MISSING_XPMTOPPM_FALSE CONVERT MISSING_CONVERT_TRUE MISSING_CONVERT_FALSE DOC MKINFO PERL WITH_DBUS_TRUE WITH_DBUS_FALSE PKG_CONFIG DBUS_CFLAGS DBUS_LIBS HIDLIST HIDLIBS M4 WISH GNUM4 LATEX MISSING_LATEX_TRUE MISSING_LATEX_FALSE PDFLATEX MISSING_PDFLATEX_TRUE MISSING_PDFLATEX_FALSE DVIPS MISSING_DVIPS_TRUE MISSING_DVIPS_FALSE PS2PDF MISSING_PS2PDF_TRUE MISSING_PS2PDF_FALSE EGREP X_CFLAGS X_PRE_LIBS X_LIBS X_EXTRA_LIBS GTK_CFLAGS GTK_LIBS GLIB_CFLAGS GLIB_LIBS GDLIB_CONFIG PNG_TRUE PNG_FALSE GIF_TRUE GIF_FALSE FONTFILENAME PCBLIBDIR LIBRARYFILENAME PCBTREEDIR PCBTREEPATH BTNMOD TOPDIRS LIBOBJS LTLIBOBJS'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -770,34 +770,6 @@ ac_env_CPP_set=${CPP+set}
 ac_env_CPP_value=$CPP
 ac_cv_env_CPP_set=${CPP+set}
 ac_cv_env_CPP_value=$CPP
-ac_env_PKG_CONFIG_set=${PKG_CONFIG+set}
-ac_env_PKG_CONFIG_value=$PKG_CONFIG
-ac_cv_env_PKG_CONFIG_set=${PKG_CONFIG+set}
-ac_cv_env_PKG_CONFIG_value=$PKG_CONFIG
-ac_env_DBUS_CFLAGS_set=${DBUS_CFLAGS+set}
-ac_env_DBUS_CFLAGS_value=$DBUS_CFLAGS
-ac_cv_env_DBUS_CFLAGS_set=${DBUS_CFLAGS+set}
-ac_cv_env_DBUS_CFLAGS_value=$DBUS_CFLAGS
-ac_env_DBUS_LIBS_set=${DBUS_LIBS+set}
-ac_env_DBUS_LIBS_value=$DBUS_LIBS
-ac_cv_env_DBUS_LIBS_set=${DBUS_LIBS+set}
-ac_cv_env_DBUS_LIBS_value=$DBUS_LIBS
-ac_env_GTK_CFLAGS_set=${GTK_CFLAGS+set}
-ac_env_GTK_CFLAGS_value=$GTK_CFLAGS
-ac_cv_env_GTK_CFLAGS_set=${GTK_CFLAGS+set}
-ac_cv_env_GTK_CFLAGS_value=$GTK_CFLAGS
-ac_env_GTK_LIBS_set=${GTK_LIBS+set}
-ac_env_GTK_LIBS_value=$GTK_LIBS
-ac_cv_env_GTK_LIBS_set=${GTK_LIBS+set}
-ac_cv_env_GTK_LIBS_value=$GTK_LIBS
-ac_env_GLIB_CFLAGS_set=${GLIB_CFLAGS+set}
-ac_env_GLIB_CFLAGS_value=$GLIB_CFLAGS
-ac_cv_env_GLIB_CFLAGS_set=${GLIB_CFLAGS+set}
-ac_cv_env_GLIB_CFLAGS_value=$GLIB_CFLAGS
-ac_env_GLIB_LIBS_set=${GLIB_LIBS+set}
-ac_env_GLIB_LIBS_value=$GLIB_LIBS
-ac_cv_env_GLIB_LIBS_set=${GLIB_LIBS+set}
-ac_cv_env_GLIB_LIBS_value=$GLIB_LIBS
 
 #
 # Report the --help message.
@@ -909,13 +881,6 @@ Some influential environment variables:
   CPPFLAGS    C/C++ preprocessor flags, e.g. -I<include dir> if you have
               headers in a nonstandard directory <include dir>
   CPP         C preprocessor
-  PKG_CONFIG  path to pkg-config utility
-  DBUS_CFLAGS C compiler flags for DBUS, overriding pkg-config
-  DBUS_LIBS   linker flags for DBUS, overriding pkg-config
-  GTK_CFLAGS  C compiler flags for GTK, overriding pkg-config
-  GTK_LIBS    linker flags for GTK, overriding pkg-config
-  GLIB_CFLAGS C compiler flags for GLIB, overriding pkg-config
-  GLIB_LIBS   linker flags for GLIB, overriding pkg-config
 
 Use these variables to override the choices made by `configure' or to help
 it to find libraries and programs with nonstandard names/locations.
@@ -4609,11 +4574,11 @@ echo "$as_me: error: Cannot find pkg-config, make sure it is installed and in yo
 	fi
 
 
+  succeeded=no
 
-if test "x$ac_cv_env_PKG_CONFIG_set" != "xset"; then
-	if test -n "$ac_tool_prefix"; then
-  # Extract the first word of "${ac_tool_prefix}pkg-config", so it can be a program name with args.
-set dummy ${ac_tool_prefix}pkg-config; ac_word=$2
+  if test -z "$PKG_CONFIG"; then
+    # Extract the first word of "pkg-config", so it can be a program name with args.
+set dummy pkg-config; ac_word=$2
 echo "$as_me:$LINENO: checking for $ac_word" >&5
 echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6
 if test "${ac_cv_path_PKG_CONFIG+set}" = set; then
@@ -4638,6 +4603,7 @@ do
 done
 done
 
+  test -z "$ac_cv_path_PKG_CONFIG" && ac_cv_path_PKG_CONFIG="no"
   ;;
 esac
 fi
@@ -4651,123 +4617,56 @@ else
 echo "${ECHO_T}no" >&6
 fi
 
-fi
-if test -z "$ac_cv_path_PKG_CONFIG"; then
-  ac_pt_PKG_CONFIG=$PKG_CONFIG
-  # Extract the first word of "pkg-config", so it can be a program name with args.
-set dummy pkg-config; ac_word=$2
-echo "$as_me:$LINENO: checking for $ac_word" >&5
-echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6
-if test "${ac_cv_path_ac_pt_PKG_CONFIG+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  case $ac_pt_PKG_CONFIG in
-  [\\/]* | ?:[\\/]*)
-  ac_cv_path_ac_pt_PKG_CONFIG="$ac_pt_PKG_CONFIG" # Let the user override the test with a path.
-  ;;
-  *)
-  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-for as_dir in $PATH
-do
-  IFS=$as_save_IFS
-  test -z "$as_dir" && as_dir=.
-  for ac_exec_ext in '' $ac_executable_extensions; do
-  if $as_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
-    ac_cv_path_ac_pt_PKG_CONFIG="$as_dir/$ac_word$ac_exec_ext"
-    echo "$as_me:$LINENO: found $as_dir/$ac_word$ac_exec_ext" >&5
-    break 2
   fi
-done
-done
 
-  ;;
-esac
-fi
-ac_pt_PKG_CONFIG=$ac_cv_path_ac_pt_PKG_CONFIG
+  if test "$PKG_CONFIG" = "no" ; then
+     echo "*** The pkg-config script could not be found. Make sure it is"
+     echo "*** in your path, or set the PKG_CONFIG environment variable"
+     echo "*** to the full path to pkg-config."
+     echo "*** Or see http://www.freedesktop.org/software/pkgconfig to get pkg-config."
+  else
+     PKG_CONFIG_MIN_VERSION=0.9.0
+     if $PKG_CONFIG --atleast-pkgconfig-version $PKG_CONFIG_MIN_VERSION; then
+        echo "$as_me:$LINENO: checking for dbus-1 >= 0.61" >&5
+echo $ECHO_N "checking for dbus-1 >= 0.61... $ECHO_C" >&6
 
-if test -n "$ac_pt_PKG_CONFIG"; then
-  echo "$as_me:$LINENO: result: $ac_pt_PKG_CONFIG" >&5
-echo "${ECHO_T}$ac_pt_PKG_CONFIG" >&6
-else
-  echo "$as_me:$LINENO: result: no" >&5
-echo "${ECHO_T}no" >&6
-fi
-
-  PKG_CONFIG=$ac_pt_PKG_CONFIG
-else
-  PKG_CONFIG="$ac_cv_path_PKG_CONFIG"
-fi
-
-fi
-if test -n "$PKG_CONFIG"; then
-	_pkg_min_version=0.9.0
-	echo "$as_me:$LINENO: checking pkg-config is at least version $_pkg_min_version" >&5
-echo $ECHO_N "checking pkg-config is at least version $_pkg_min_version... $ECHO_C" >&6
-	if $PKG_CONFIG --atleast-pkgconfig-version $_pkg_min_version; then
-		echo "$as_me:$LINENO: result: yes" >&5
+        if $PKG_CONFIG --exists "dbus-1 >= 0.61" ; then
+            echo "$as_me:$LINENO: result: yes" >&5
 echo "${ECHO_T}yes" >&6
-	else
-		echo "$as_me:$LINENO: result: no" >&5
-echo "${ECHO_T}no" >&6
-		PKG_CONFIG=""
-	fi
+            succeeded=yes
 
-fi
+            echo "$as_me:$LINENO: checking DBUS_CFLAGS" >&5
+echo $ECHO_N "checking DBUS_CFLAGS... $ECHO_C" >&6
+            DBUS_CFLAGS=`$PKG_CONFIG --cflags "dbus-1 >= 0.61"`
+            echo "$as_me:$LINENO: result: $DBUS_CFLAGS" >&5
+echo "${ECHO_T}$DBUS_CFLAGS" >&6
 
-pkg_failed=no
-echo "$as_me:$LINENO: checking for DBUS_CFLAGS" >&5
-echo $ECHO_N "checking for DBUS_CFLAGS... $ECHO_C" >&6
-if test "${pkg_cv_DBUS_CFLAGS+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  if test "x$ac_cv_env_DBUS_CFLAGS_set" = "xset"; then
-	pkg_cv_DBUS_CFLAGS=$ac_cv_env_DBUS_CFLAGS_value
-elif test -n "$PKG_CONFIG"; then
-	if { (echo "$as_me:$LINENO: \$PKG_CONFIG --exists \"dbus-1 >= 0.61\" >/dev/null 2>&1") >&5
-  ($PKG_CONFIG --exists "dbus-1 >= 0.61" >/dev/null 2>&1) 2>&5
-  ac_status=$?
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); }; then
-		pkg_cv_DBUS_CFLAGS=`$PKG_CONFIG --cflags "dbus-1 >= 0.61" 2>/dev/null`
-	else
-		pkg_failed=yes
-	fi
-else
-	pkg_failed=untried
-fi
-fi
-echo "$as_me:$LINENO: result: $pkg_cv_DBUS_CFLAGS" >&5
-echo "${ECHO_T}$pkg_cv_DBUS_CFLAGS" >&6
-echo "$as_me:$LINENO: checking for DBUS_LIBS" >&5
-echo $ECHO_N "checking for DBUS_LIBS... $ECHO_C" >&6
-if test "${pkg_cv_DBUS_LIBS+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  if test "x$ac_cv_env_DBUS_LIBS_set" = "xset"; then
-	pkg_cv_DBUS_LIBS=$ac_cv_env_DBUS_LIBS_value
-elif test -n "$PKG_CONFIG"; then
-	if { (echo "$as_me:$LINENO: \$PKG_CONFIG --exists \"dbus-1 >= 0.61\" >/dev/null 2>&1") >&5
-  ($PKG_CONFIG --exists "dbus-1 >= 0.61" >/dev/null 2>&1) 2>&5
-  ac_status=$?
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); }; then
-		pkg_cv_DBUS_LIBS=`$PKG_CONFIG --libs "dbus-1 >= 0.61" 2>/dev/null`
-	else
-		pkg_failed=yes
-	fi
-else
-	pkg_failed=untried
-fi
-fi
-echo "$as_me:$LINENO: result: $pkg_cv_DBUS_LIBS" >&5
-echo "${ECHO_T}$pkg_cv_DBUS_LIBS" >&6
+            echo "$as_me:$LINENO: checking DBUS_LIBS" >&5
+echo $ECHO_N "checking DBUS_LIBS... $ECHO_C" >&6
+            DBUS_LIBS=`$PKG_CONFIG --libs "dbus-1 >= 0.61"`
+            echo "$as_me:$LINENO: result: $DBUS_LIBS" >&5
+echo "${ECHO_T}$DBUS_LIBS" >&6
+        else
+            DBUS_CFLAGS=""
+            DBUS_LIBS=""
+            ## If we have a custom action on failure, don't print errors, but
+            ## do set a variable so people can do so.
+            DBUS_PKG_ERRORS=`$PKG_CONFIG --errors-to-stdout --print-errors "dbus-1 >= 0.61"`
 
-if test $pkg_failed = yes; then
-	DBUS_PKG_ERRORS=`$PKG_CONFIG --errors-to-stdout --print-errors "dbus-1 >= 0.61"`
-	# Put the nasty error message in config.log where it belongs
-	echo "$DBUS_PKG_ERRORS" 1>&5
+        fi
 
-	{ { echo "$as_me:$LINENO: error: Cannot find dbus-1 >= 0.61, install it and rerun ./configure
+
+
+     else
+        echo "*** Your version of pkg-config is too old. You need version $PKG_CONFIG_MIN_VERSION or newer."
+        echo "*** See http://www.freedesktop.org/software/pkgconfig"
+     fi
+  fi
+
+  if test $succeeded = yes; then
+     :
+  else
+     { { echo "$as_me:$LINENO: error: Cannot find dbus-1 >= 0.61, install it and rerun ./configure
 Please review the following errors:
 $DBUS_PKG_ERRORS" >&5
 echo "$as_me: error: Cannot find dbus-1 >= 0.61, install it and rerun ./configure
@@ -4775,20 +4674,8 @@ Please review the following errors:
 $DBUS_PKG_ERRORS" >&2;}
    { (exit 1); exit 1; }; }
 
-elif test $pkg_failed = untried; then
-	{ { echo "$as_me:$LINENO: error: Cannot find dbus-1 >= 0.61, install it and rerun ./configure
-Please review the following errors:
-$DBUS_PKG_ERRORS" >&5
-echo "$as_me: error: Cannot find dbus-1 >= 0.61, install it and rerun ./configure
-Please review the following errors:
-$DBUS_PKG_ERRORS" >&2;}
-   { (exit 1); exit 1; }; }
+  fi
 
-else
-	DBUS_CFLAGS=$pkg_cv_DBUS_CFLAGS
-	DBUS_LIBS=$pkg_cv_DBUS_LIBS
-	:
-fi
 	DBUS_VERSION=`$PKG_CONFIG dbus-1 --modversion`
 
 
@@ -9535,60 +9422,99 @@ echo "$as_me: error: Cannot find pkg-config, make sure it is installed and in yo
 	fi
 
 
-pkg_failed=no
-echo "$as_me:$LINENO: checking for GTK_CFLAGS" >&5
-echo $ECHO_N "checking for GTK_CFLAGS... $ECHO_C" >&6
-if test "${pkg_cv_GTK_CFLAGS+set}" = set; then
+  succeeded=no
+
+  if test -z "$PKG_CONFIG"; then
+    # Extract the first word of "pkg-config", so it can be a program name with args.
+set dummy pkg-config; ac_word=$2
+echo "$as_me:$LINENO: checking for $ac_word" >&5
+echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6
+if test "${ac_cv_path_PKG_CONFIG+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
 else
-  if test "x$ac_cv_env_GTK_CFLAGS_set" = "xset"; then
-	pkg_cv_GTK_CFLAGS=$ac_cv_env_GTK_CFLAGS_value
-elif test -n "$PKG_CONFIG"; then
-	if { (echo "$as_me:$LINENO: \$PKG_CONFIG --exists \"gtk+-2.0 >= 2.4.0\" >/dev/null 2>&1") >&5
-  ($PKG_CONFIG --exists "gtk+-2.0 >= 2.4.0" >/dev/null 2>&1) 2>&5
-  ac_status=$?
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); }; then
-		pkg_cv_GTK_CFLAGS=`$PKG_CONFIG --cflags "gtk+-2.0 >= 2.4.0" 2>/dev/null`
-	else
-		pkg_failed=yes
-	fi
-else
-	pkg_failed=untried
-fi
-fi
-echo "$as_me:$LINENO: result: $pkg_cv_GTK_CFLAGS" >&5
-echo "${ECHO_T}$pkg_cv_GTK_CFLAGS" >&6
-echo "$as_me:$LINENO: checking for GTK_LIBS" >&5
-echo $ECHO_N "checking for GTK_LIBS... $ECHO_C" >&6
-if test "${pkg_cv_GTK_LIBS+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  if test "x$ac_cv_env_GTK_LIBS_set" = "xset"; then
-	pkg_cv_GTK_LIBS=$ac_cv_env_GTK_LIBS_value
-elif test -n "$PKG_CONFIG"; then
-	if { (echo "$as_me:$LINENO: \$PKG_CONFIG --exists \"gtk+-2.0 >= 2.4.0\" >/dev/null 2>&1") >&5
-  ($PKG_CONFIG --exists "gtk+-2.0 >= 2.4.0" >/dev/null 2>&1) 2>&5
-  ac_status=$?
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); }; then
-		pkg_cv_GTK_LIBS=`$PKG_CONFIG --libs "gtk+-2.0 >= 2.4.0" 2>/dev/null`
-	else
-		pkg_failed=yes
-	fi
-else
-	pkg_failed=untried
-fi
-fi
-echo "$as_me:$LINENO: result: $pkg_cv_GTK_LIBS" >&5
-echo "${ECHO_T}$pkg_cv_GTK_LIBS" >&6
+  case $PKG_CONFIG in
+  [\\/]* | ?:[\\/]*)
+  ac_cv_path_PKG_CONFIG="$PKG_CONFIG" # Let the user override the test with a path.
+  ;;
+  *)
+  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+  for ac_exec_ext in '' $ac_executable_extensions; do
+  if $as_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
+    ac_cv_path_PKG_CONFIG="$as_dir/$ac_word$ac_exec_ext"
+    echo "$as_me:$LINENO: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+done
 
-if test $pkg_failed = yes; then
-	GTK_PKG_ERRORS=`$PKG_CONFIG --errors-to-stdout --print-errors "gtk+-2.0 >= 2.4.0"`
-	# Put the nasty error message in config.log where it belongs
-	echo "$GTK_PKG_ERRORS" 1>&5
+  test -z "$ac_cv_path_PKG_CONFIG" && ac_cv_path_PKG_CONFIG="no"
+  ;;
+esac
+fi
+PKG_CONFIG=$ac_cv_path_PKG_CONFIG
 
-	{ { echo "$as_me:$LINENO: error: Cannot find gtk+ >= 2.4.0, install it and rerun ./configure
+if test -n "$PKG_CONFIG"; then
+  echo "$as_me:$LINENO: result: $PKG_CONFIG" >&5
+echo "${ECHO_T}$PKG_CONFIG" >&6
+else
+  echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6
+fi
+
+  fi
+
+  if test "$PKG_CONFIG" = "no" ; then
+     echo "*** The pkg-config script could not be found. Make sure it is"
+     echo "*** in your path, or set the PKG_CONFIG environment variable"
+     echo "*** to the full path to pkg-config."
+     echo "*** Or see http://www.freedesktop.org/software/pkgconfig to get pkg-config."
+  else
+     PKG_CONFIG_MIN_VERSION=0.9.0
+     if $PKG_CONFIG --atleast-pkgconfig-version $PKG_CONFIG_MIN_VERSION; then
+        echo "$as_me:$LINENO: checking for gtk+-2.0 >= 2.4.0" >&5
+echo $ECHO_N "checking for gtk+-2.0 >= 2.4.0... $ECHO_C" >&6
+
+        if $PKG_CONFIG --exists "gtk+-2.0 >= 2.4.0" ; then
+            echo "$as_me:$LINENO: result: yes" >&5
+echo "${ECHO_T}yes" >&6
+            succeeded=yes
+
+            echo "$as_me:$LINENO: checking GTK_CFLAGS" >&5
+echo $ECHO_N "checking GTK_CFLAGS... $ECHO_C" >&6
+            GTK_CFLAGS=`$PKG_CONFIG --cflags "gtk+-2.0 >= 2.4.0"`
+            echo "$as_me:$LINENO: result: $GTK_CFLAGS" >&5
+echo "${ECHO_T}$GTK_CFLAGS" >&6
+
+            echo "$as_me:$LINENO: checking GTK_LIBS" >&5
+echo $ECHO_N "checking GTK_LIBS... $ECHO_C" >&6
+            GTK_LIBS=`$PKG_CONFIG --libs "gtk+-2.0 >= 2.4.0"`
+            echo "$as_me:$LINENO: result: $GTK_LIBS" >&5
+echo "${ECHO_T}$GTK_LIBS" >&6
+        else
+            GTK_CFLAGS=""
+            GTK_LIBS=""
+            ## If we have a custom action on failure, don't print errors, but
+            ## do set a variable so people can do so.
+            GTK_PKG_ERRORS=`$PKG_CONFIG --errors-to-stdout --print-errors "gtk+-2.0 >= 2.4.0"`
+
+        fi
+
+
+
+     else
+        echo "*** Your version of pkg-config is too old. You need version $PKG_CONFIG_MIN_VERSION or newer."
+        echo "*** See http://www.freedesktop.org/software/pkgconfig"
+     fi
+  fi
+
+  if test $succeeded = yes; then
+     :
+  else
+     { { echo "$as_me:$LINENO: error: Cannot find gtk+ >= 2.4.0, install it and rerun ./configure
 Please review the following errors:
 $GTK_PKG_ERRORS" >&5
 echo "$as_me: error: Cannot find gtk+ >= 2.4.0, install it and rerun ./configure
@@ -9596,78 +9522,105 @@ Please review the following errors:
 $GTK_PKG_ERRORS" >&2;}
    { (exit 1); exit 1; }; }
 
-elif test $pkg_failed = untried; then
-	{ { echo "$as_me:$LINENO: error: Cannot find gtk+ >= 2.4.0, install it and rerun ./configure
-Please review the following errors:
-$GTK_PKG_ERRORS" >&5
-echo "$as_me: error: Cannot find gtk+ >= 2.4.0, install it and rerun ./configure
-Please review the following errors:
-$GTK_PKG_ERRORS" >&2;}
-   { (exit 1); exit 1; }; }
+  fi
 
-else
-	GTK_CFLAGS=$pkg_cv_GTK_CFLAGS
-	GTK_LIBS=$pkg_cv_GTK_LIBS
-	:
-fi
 	GTK_VERSION=`$PKG_CONFIG gtk+-2.0 --modversion`
 
 	# Search for glib
 
-pkg_failed=no
-echo "$as_me:$LINENO: checking for GLIB_CFLAGS" >&5
-echo $ECHO_N "checking for GLIB_CFLAGS... $ECHO_C" >&6
-if test "${pkg_cv_GLIB_CFLAGS+set}" = set; then
+  succeeded=no
+
+  if test -z "$PKG_CONFIG"; then
+    # Extract the first word of "pkg-config", so it can be a program name with args.
+set dummy pkg-config; ac_word=$2
+echo "$as_me:$LINENO: checking for $ac_word" >&5
+echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6
+if test "${ac_cv_path_PKG_CONFIG+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
 else
-  if test "x$ac_cv_env_GLIB_CFLAGS_set" = "xset"; then
-	pkg_cv_GLIB_CFLAGS=$ac_cv_env_GLIB_CFLAGS_value
-elif test -n "$PKG_CONFIG"; then
-	if { (echo "$as_me:$LINENO: \$PKG_CONFIG --exists \"glib-2.0 >= 2.4.0\" >/dev/null 2>&1") >&5
-  ($PKG_CONFIG --exists "glib-2.0 >= 2.4.0" >/dev/null 2>&1) 2>&5
-  ac_status=$?
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); }; then
-		pkg_cv_GLIB_CFLAGS=`$PKG_CONFIG --cflags "glib-2.0 >= 2.4.0" 2>/dev/null`
-	else
-		pkg_failed=yes
-	fi
-else
-	pkg_failed=untried
-fi
-fi
-echo "$as_me:$LINENO: result: $pkg_cv_GLIB_CFLAGS" >&5
-echo "${ECHO_T}$pkg_cv_GLIB_CFLAGS" >&6
-echo "$as_me:$LINENO: checking for GLIB_LIBS" >&5
-echo $ECHO_N "checking for GLIB_LIBS... $ECHO_C" >&6
-if test "${pkg_cv_GLIB_LIBS+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  if test "x$ac_cv_env_GLIB_LIBS_set" = "xset"; then
-	pkg_cv_GLIB_LIBS=$ac_cv_env_GLIB_LIBS_value
-elif test -n "$PKG_CONFIG"; then
-	if { (echo "$as_me:$LINENO: \$PKG_CONFIG --exists \"glib-2.0 >= 2.4.0\" >/dev/null 2>&1") >&5
-  ($PKG_CONFIG --exists "glib-2.0 >= 2.4.0" >/dev/null 2>&1) 2>&5
-  ac_status=$?
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); }; then
-		pkg_cv_GLIB_LIBS=`$PKG_CONFIG --libs "glib-2.0 >= 2.4.0" 2>/dev/null`
-	else
-		pkg_failed=yes
-	fi
-else
-	pkg_failed=untried
-fi
-fi
-echo "$as_me:$LINENO: result: $pkg_cv_GLIB_LIBS" >&5
-echo "${ECHO_T}$pkg_cv_GLIB_LIBS" >&6
+  case $PKG_CONFIG in
+  [\\/]* | ?:[\\/]*)
+  ac_cv_path_PKG_CONFIG="$PKG_CONFIG" # Let the user override the test with a path.
+  ;;
+  *)
+  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+  for ac_exec_ext in '' $ac_executable_extensions; do
+  if $as_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
+    ac_cv_path_PKG_CONFIG="$as_dir/$ac_word$ac_exec_ext"
+    echo "$as_me:$LINENO: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+done
 
-if test $pkg_failed = yes; then
-	GLIB_PKG_ERRORS=`$PKG_CONFIG --errors-to-stdout --print-errors "glib-2.0 >= 2.4.0"`
-	# Put the nasty error message in config.log where it belongs
-	echo "$GLIB_PKG_ERRORS" 1>&5
+  test -z "$ac_cv_path_PKG_CONFIG" && ac_cv_path_PKG_CONFIG="no"
+  ;;
+esac
+fi
+PKG_CONFIG=$ac_cv_path_PKG_CONFIG
 
-	{ { echo "$as_me:$LINENO: error: Cannot find glib >= 2.4.0, install it and rerun ./configure.
+if test -n "$PKG_CONFIG"; then
+  echo "$as_me:$LINENO: result: $PKG_CONFIG" >&5
+echo "${ECHO_T}$PKG_CONFIG" >&6
+else
+  echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6
+fi
+
+  fi
+
+  if test "$PKG_CONFIG" = "no" ; then
+     echo "*** The pkg-config script could not be found. Make sure it is"
+     echo "*** in your path, or set the PKG_CONFIG environment variable"
+     echo "*** to the full path to pkg-config."
+     echo "*** Or see http://www.freedesktop.org/software/pkgconfig to get pkg-config."
+  else
+     PKG_CONFIG_MIN_VERSION=0.9.0
+     if $PKG_CONFIG --atleast-pkgconfig-version $PKG_CONFIG_MIN_VERSION; then
+        echo "$as_me:$LINENO: checking for glib-2.0 >= 2.4.0" >&5
+echo $ECHO_N "checking for glib-2.0 >= 2.4.0... $ECHO_C" >&6
+
+        if $PKG_CONFIG --exists "glib-2.0 >= 2.4.0" ; then
+            echo "$as_me:$LINENO: result: yes" >&5
+echo "${ECHO_T}yes" >&6
+            succeeded=yes
+
+            echo "$as_me:$LINENO: checking GLIB_CFLAGS" >&5
+echo $ECHO_N "checking GLIB_CFLAGS... $ECHO_C" >&6
+            GLIB_CFLAGS=`$PKG_CONFIG --cflags "glib-2.0 >= 2.4.0"`
+            echo "$as_me:$LINENO: result: $GLIB_CFLAGS" >&5
+echo "${ECHO_T}$GLIB_CFLAGS" >&6
+
+            echo "$as_me:$LINENO: checking GLIB_LIBS" >&5
+echo $ECHO_N "checking GLIB_LIBS... $ECHO_C" >&6
+            GLIB_LIBS=`$PKG_CONFIG --libs "glib-2.0 >= 2.4.0"`
+            echo "$as_me:$LINENO: result: $GLIB_LIBS" >&5
+echo "${ECHO_T}$GLIB_LIBS" >&6
+        else
+            GLIB_CFLAGS=""
+            GLIB_LIBS=""
+            ## If we have a custom action on failure, don't print errors, but
+            ## do set a variable so people can do so.
+            GLIB_PKG_ERRORS=`$PKG_CONFIG --errors-to-stdout --print-errors "glib-2.0 >= 2.4.0"`
+
+        fi
+
+
+
+     else
+        echo "*** Your version of pkg-config is too old. You need version $PKG_CONFIG_MIN_VERSION or newer."
+        echo "*** See http://www.freedesktop.org/software/pkgconfig"
+     fi
+  fi
+
+  if test $succeeded = yes; then
+     :
+  else
+     { { echo "$as_me:$LINENO: error: Cannot find glib >= 2.4.0, install it and rerun ./configure.
 Please review the following errors:
 $GLIB_PKG_ERRORS" >&5
 echo "$as_me: error: Cannot find glib >= 2.4.0, install it and rerun ./configure.
@@ -9675,20 +9628,8 @@ Please review the following errors:
 $GLIB_PKG_ERRORS" >&2;}
    { (exit 1); exit 1; }; }
 
-elif test $pkg_failed = untried; then
-	{ { echo "$as_me:$LINENO: error: Cannot find glib >= 2.4.0, install it and rerun ./configure.
-Please review the following errors:
-$GLIB_PKG_ERRORS" >&5
-echo "$as_me: error: Cannot find glib >= 2.4.0, install it and rerun ./configure.
-Please review the following errors:
-$GLIB_PKG_ERRORS" >&2;}
-   { (exit 1); exit 1; }; }
+  fi
 
-else
-	GLIB_CFLAGS=$pkg_cv_GLIB_CFLAGS
-	GLIB_LIBS=$pkg_cv_GLIB_LIBS
-	:
-fi
 	GLIB_VERSION=`$PKG_CONFIG glib-2.0 --modversion`
 	;;
 
@@ -10515,6 +10456,17 @@ else
   PNG_TRUE='#'
   PNG_FALSE=
 fi
+
+
+
+if test x$with_gif = xyes; then
+  GIF_TRUE=
+  GIF_FALSE='#'
+else
+  GIF_TRUE='#'
+  GIF_FALSE=
+fi
+
 
 
 # ------------- dmalloc -------------------
@@ -11426,10 +11378,9 @@ for ac_i in : $LIBOBJS; do test "x$ac_i" = x: && continue
   # 1. Remove the extension, and $U if already installed.
   ac_i=`echo "$ac_i" |
 	 sed 's/\$U\././;s/\.o$//;s/\.obj$//'`
-  # 2. Prepend LIBOBJDIR.  When used with automake>=1.10 LIBOBJDIR
-  #    will be set to the directory where LIBOBJS objects are built.
-  ac_libobjs="$ac_libobjs \${LIBOBJDIR}$ac_i\$U.$ac_objext"
-  ac_ltlibobjs="$ac_ltlibobjs \${LIBOBJDIR}$ac_i"'$U.lo'
+  # 2. Add them.
+  ac_libobjs="$ac_libobjs $ac_i\$U.$ac_objext"
+  ac_ltlibobjs="$ac_ltlibobjs $ac_i"'$U.lo'
 done
 LIBOBJS=$ac_libobjs
 
@@ -11524,6 +11475,13 @@ if test -z "${PNG_TRUE}" && test -z "${PNG_FALSE}"; then
   { { echo "$as_me:$LINENO: error: conditional \"PNG\" was never defined.
 Usually this means the macro was only invoked conditionally." >&5
 echo "$as_me: error: conditional \"PNG\" was never defined.
+Usually this means the macro was only invoked conditionally." >&2;}
+   { (exit 1); exit 1; }; }
+fi
+if test -z "${GIF_TRUE}" && test -z "${GIF_FALSE}"; then
+  { { echo "$as_me:$LINENO: error: conditional \"GIF\" was never defined.
+Usually this means the macro was only invoked conditionally." >&5
+echo "$as_me: error: conditional \"GIF\" was never defined.
 Usually this means the macro was only invoked conditionally." >&2;}
    { (exit 1); exit 1; }; }
 fi
@@ -12164,7 +12122,6 @@ s,@PERL@,$PERL,;t t
 s,@WITH_DBUS_TRUE@,$WITH_DBUS_TRUE,;t t
 s,@WITH_DBUS_FALSE@,$WITH_DBUS_FALSE,;t t
 s,@PKG_CONFIG@,$PKG_CONFIG,;t t
-s,@ac_pt_PKG_CONFIG@,$ac_pt_PKG_CONFIG,;t t
 s,@DBUS_CFLAGS@,$DBUS_CFLAGS,;t t
 s,@DBUS_LIBS@,$DBUS_LIBS,;t t
 s,@HIDLIST@,$HIDLIST,;t t
@@ -12196,6 +12153,8 @@ s,@GLIB_LIBS@,$GLIB_LIBS,;t t
 s,@GDLIB_CONFIG@,$GDLIB_CONFIG,;t t
 s,@PNG_TRUE@,$PNG_TRUE,;t t
 s,@PNG_FALSE@,$PNG_FALSE,;t t
+s,@GIF_TRUE@,$GIF_TRUE,;t t
+s,@GIF_FALSE@,$GIF_FALSE,;t t
 s,@FONTFILENAME@,$FONTFILENAME,;t t
 s,@PCBLIBDIR@,$PCBLIBDIR,;t t
 s,@LIBRARYFILENAME@,$LIBRARYFILENAME,;t t
