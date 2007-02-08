@@ -1110,6 +1110,8 @@ heap_it (const BoxType * b, void *cl)
 {
   heap_t *heap = (heap_t *) cl;
   PLINE *p = (PLINE *) b;
+  if (p->Count == 0)
+    return 0;  /* how did this happen? */
   heap_insert (heap, p->area, (void *) p);
   return 1;
 }
@@ -1433,11 +1435,22 @@ Collect (jmp_buf * e, PLINE * a, POLYAREA ** contours, PLINE ** holes,
 	    error (errc);
 	  }
 	poly_PreContour (p, TRUE);
+	if (p->Count > 2)
+	  {
 #ifdef DEBUG_GATHER
-	DEBUGP ("adding contour with %d verticies and direction %c\n",
-		p->Count, p->Flags.orient ? 'F' : 'B');
+	    DEBUGP ("adding contour with %d verticies and direction %c\n",
+		    p->Count, p->Flags.orient ? 'F' : 'B');
 #endif
-	PutContour (e, p, contours, holes, NULL);
+	    PutContour (e, p, contours, holes, NULL);
+	  }
+	else
+	  {
+	    /* some sort of computation error ? */
+#ifdef DEBUG_GATHER
+	    DEBUGP ("Bad contour! Not enough points!!\n");
+#endif
+	    poly_DelContour (&p);
+	  }
       }
   while ((cur = cur->next) != &a->head);
 }				/* Collect */
