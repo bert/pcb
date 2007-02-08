@@ -44,6 +44,6 @@ if [ "X$1" = "X-gdb" ]; then
 	exec gdb -x $tmpf ./pcb
 	rm -f $tmpf
 else
-	exec ./pcb-bin $TEST_PATHS $TEST_CMDS "$@"
+	exec ./pcb $TEST_PATHS $TEST_CMDS "$@"
 fi
 
