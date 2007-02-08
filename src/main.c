@@ -39,6 +39,7 @@
 #endif
 #include <signal.h>
 #include <unistd.h>
+#include <sys/stat.h>
 
 #include "global.h"
 #include "data.h"
@@ -609,9 +610,68 @@ InitPaths (char *argv0)
 {
   size_t l;
   int i;
+  int haspath;
   char *t1, *t2;
-  
-  bindir = strdup (lrealpath (argv0));
+
+  /* see if argv0 has enough of a path to let lrealpath give the
+   * real path.  This should be the case if you invoke pcb with
+   * something like /usr/local/bin/pcb or ./pcb or ./foo/pcb
+   * but if you just use pcb and it exists in your path, you'll
+   * just get back pcb again.
+   */
+
+  haspath = 0;
+  for (i = 0; i < strlen (argv0) ; i++)
+    {
+      if (argv0[i] == PCB_DIR_SEPARATOR_C) 
+	haspath = 1;
+    }
+
+#ifdef DEBUG
+  printf ("InitPaths (%s): haspath = %d\n", argv0, haspath);
+#endif
+
+  if (haspath)
+    bindir = strdup (lrealpath (argv0));
+  else
+    {
+      char *path, *p, *tmps;
+      struct stat sb;
+      int r;
+
+      path = strdup (getenv ("PATH"));
+
+      /* search through the font path for a font file */
+      for (p = strtok (path, PCB_PATH_DELIMETER); p && *p;
+              p = strtok (NULL, PCB_PATH_DELIMETER))
+        {
+#ifdef DEBUG
+          printf ("Looking for %s in %s\n", argv0, p);
+#endif
+          if ( (tmps = malloc ( (strlen (argv0) + strlen (p) + 2) * sizeof (char))) == NULL )
+	    {
+	      fprintf (stderr, "InitPaths():  malloc failed\n");
+	      exit (1);
+	    }
+	  sprintf (tmps, "%s%s%s", p, PCB_DIR_SEPARATOR_S, argv0);
+	  r = stat (tmps, &sb);
+          if (r == 0)
+            {
+#ifdef DEBUG
+              printf ("Found it:  \"%s\"\n", tmps);
+#endif
+              bindir = lrealpath (tmps);
+	      free (tmps);
+              break;
+            }  
+	  free (tmps);
+        }
+      free (path);
+  }
+
+#ifdef DEBUG
+  printf ("InitPaths():  bindir = \"%s\"\n", bindir);
+#endif
 
   /* strip off the executible name leaving only the path */
   t2 = NULL;
@@ -623,6 +683,11 @@ InitPaths (char *argv0)
     }
   if (t2 != NULL)
     *t2 = '\0';
+
+#ifdef DEBUG
+  printf ("After stripping off the executible name, we found\n");
+  printf ("bindir = \"%s\"\n", bindir);
+#endif
 
   /* now find the path to exec_prefix */
   l = strlen (bindir) + 1 + strlen (BINDIR_TO_EXECPREFIX) + 1;
