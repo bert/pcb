@@ -527,6 +527,8 @@ done
 
 
 AM_CONDITIONAL(PNG, test x$with_png = xyes)
+AM_CONDITIONAL(GIF, test x$with_gif = xyes)
+
 
 # ------------- dmalloc -------------------
 dnl dmalloc checks
