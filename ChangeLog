@@ -1,3 +1,1996 @@
+2007-02-08 17:52  danmc
+
+	* configure, configure.ac, src/main.c: if we somehow fail to find
+	  the install path from lrealpath(argv[0]) or by searching through
+	  the PATH environment variable, fall back to the configure time
+	  path which is compiled into the binary.
+
+2007-02-08 17:30  danmc
+
+	* doc/: actions.texi, version.texi: regen
+
+2007-02-08 17:20  danmc
+
+	* lib/: Makefile.am, Makefile.in: Modify how the dependencies work
+	  a bit for the newlib library that is generated from the m4
+	  libraries.  In particular, make sure that a normal user building
+	  from a tarball doesn't have to build the libraries since they
+	  take quite a bit of time.  Also make sure things work with a
+	  read-only source tree.
+
+2007-02-08 16:58  danmc
+
+	* src/main.c: When pcb is called with no path, i.e. "pcb" instead
+	  of "../src/pcb" or /usr/local/bin/pcb, then we can't just look at
+	  argv[0] to figure out the installation path.	In this situation,
+	  search through PATH to find which pcb was called.  Should fix
+	  problems noted on geda-dev by Tomaz Solc.
+
+2007-02-08 01:44  haceaton
+
+	* src/pcbtest.sh.in: fix pcbtest script to use the new binary name
+	  ('pcb') even when not using gdb
+	  ----------------------------------------------------------------------
+
+2007-02-08 01:23  haceaton
+
+	* src/polygon1.c: Prevent degenrate holes with no points from being
+	  added to polygon.  This is a stop-gap measure until I figure out
+	  why coincident edges in opposite directions are being created in
+	  some polygons.
+	  ----------------------------------------------------------------------
+
+2007-02-07 23:32  danmc
+
+	* Makefile.in, aclocal.m4, configure, README_FILES/Makefile.in,
+	  doc/Makefile.in, example/Makefile.in,
+	  example/libraries/Makefile.in, lib/Makefile.in,
+	  newlib/Makefile.in, newlib/2_pin_thru-hole_packages/Makefile.in,
+	  newlib/analog-devices/Makefile.in, newlib/burr-brown/Makefile.in,
+	  newlib/connectors/Makefile.in, newlib/crystal/Makefile.in,
+	  newlib/electro-optics/Makefile.in, newlib/headers/Makefile.in,
+	  newlib/msp430/Makefile.in, newlib/not_vetted_ingo/Makefile.in,
+	  newlib/sockets/Makefile.in, newlib/tests/Makefile.in,
+	  src/Makefile.in, src/icons/Makefile.in, tools/Makefile.in,
+	  tutorial/Makefile.in, win32/Makefile.in: regen
+
+2007-02-07 23:31  danmc
+
+	* doc/: pad.gif, pad.png: remove these generated files
+
+2007-02-07 23:24  danmc
+
+	* README.snapshots: update for 20070208 snapshot
+
+2007-02-07 23:22  danmc
+
+	* configure.ac: add a GIF AM_CONDITIONAL to go along with the PNG
+	  one
+
+2007-02-06 16:08  danmc
+
+	* doc/: Makefile.am, Makefile.in: s/pcb-bin/pcb
+
+2007-02-06 14:46  danmc
+
+	* win32/build_pcb: fix botched commit
+
+2007-02-06 14:40  danmc
+
+	* win32/build_pcb: add a --enable-maintainer-mode flag
+
+2007-02-06 14:38  danmc
+
+	* win32/pcb.nsi.in: Include in the installer the licenses for the
+	  included libraries (gd, png, jpeg, freetype, zlib).
+
+2007-02-06 14:29  danmc
+
+	* win32/: build_pcb, pcb.nsi.in: Add in the png HID to the
+	  non-cygwin windows build.
+
+2007-02-06 14:27  danmc
+
+	* lib/m4lib_to_newlib.sh.in: When generating the previews of the
+	  footprints, run pcb on an input and output file in the current
+	  directory instead of a different directory.  This becomes
+	  important on filesystems that use \ instead of / for the
+	  directory separator.
+
+2007-02-06 14:25  danmc
+
+	* config.h.in, configure.ac, configure: On non-cygwin windows, look
+	  for -lbgd instead of -lgd since the former is what is available
+	  as a pre-build dll.
+
+2007-02-06 00:40  danmc
+
+	* src/file.c: remove some illegal casts to unions.
+
+2007-02-05 20:45  danmc
+
+	* lib/m4lib_to_newlib.sh.in: the executible is now pcb not pcb-bin
+
+2007-02-04 21:42  danmc
+
+	* src/parse_l.l: If the passed path to Parse is "" then don't use
+	  it.
+
+2007-02-04 20:11  danmc
+
+	* src/parse_l.l: make sure r is always initialized
+
+2007-02-04 18:20  danmc
+
+	* Makefile.in, acinclude.m4, aclocal.m4, config.h.in, configure,
+	  configure.ac, README_FILES/Makefile.in, doc/Makefile.in,
+	  example/Makefile.in, example/libraries/Makefile.in,
+	  lib/Makefile.in, newlib/Makefile.in,
+	  newlib/2_pin_thru-hole_packages/Makefile.in,
+	  newlib/analog-devices/Makefile.in, newlib/burr-brown/Makefile.in,
+	  newlib/connectors/Makefile.in, newlib/crystal/Makefile.in,
+	  newlib/electro-optics/Makefile.in, newlib/headers/Makefile.in,
+	  newlib/msp430/Makefile.in, newlib/not_vetted_ingo/Makefile.in,
+	  newlib/sockets/Makefile.in, newlib/tests/Makefile.in,
+	  src/Makefile.in, src/file.c, src/main.c, src/parse_l.l,
+	  src/icons/Makefile.in, tools/Makefile.in, tutorial/Makefile.in,
+	  win32/Makefile.in: More work on the relocatability stuff to
+	  handle the annoying "\" instead of "/" for directory separators
+	  in windows.  Use ";" instead of ":" for path seperators under
+	  windows since it is common to have "c:\some\path".  With this
+	  change things seem to work under non-cygwin windows.
+
+2007-02-03 21:44  danmc
+
+	* win32/pcb.nsi.in: install pcb.exe instead of pcb-bin.exe
+
+2007-02-03 21:29  danmc
+
+	* configure, configure.ac, lib/Makefile.am, lib/Makefile.in,
+	  newlib/Makefile.am, newlib/Makefile.in,
+	  newlib/cypress/Makefile.am, newlib/cypress/Makefile.in,
+	  newlib/generic_SMD_packages/0805_reflow_solder,
+	  newlib/generic_SMD_packages/0805_wave_solder,
+	  newlib/generic_SMD_packages/1206_reflow_solder,
+	  newlib/generic_SMD_packages/Makefile.am,
+	  newlib/generic_SMD_packages/Makefile.in,
+	  newlib/generic_SMD_packages/SOT-23_Transistor,
+	  newlib/toko/Makefile.am, newlib/toko/Makefile.in: Remove some
+	  empty newlib directories, some poorly maintained footprints, and
+	  some "heavy" footprints.  There is still much more to be done but
+	  this is a start.
+
+2007-02-03 20:32  danmc
+
+	* config.h.in, configure, configure.ac, doc/actions.texi,
+	  doc/pcb.texi, doc/version.texi, src/Makefile.am, src/Makefile.in,
+	  src/file.c, src/global.h, src/main.c, src/pcbtest.sh.in,
+	  src/hid/common/hidinit.c, src/hid/gtk/gui-config.c,
+	  src/script/Makefile.am, src/script/Makefile.in,
+	  src/script/pcb.in: Take a stab at making pcb installations be
+	  relocatable.	By this I mean you can configure and install with
+
+	  ./configure --prefix=/original/path make make install mv
+	  /original/path /new/path and still have pcb work.
+
+	  To make this work, the binary path is determined at runtime and
+	  all of the other paths are computed relative to this.
+
+	  As part of this, go ahead and kill off the pcb wrapper script
+	  around pcb-bin.  That was leftover from Xaw days and wasn't
+	  really needed anymore.  As a side effect, the --program-prefix
+	  and --program-suffix configure options will probably work now.
+
+2007-02-03 00:55  danmc
+
+	* acinclude.m4, config.h.in, configure, configure.ac: add autoconf
+	  macros from
+	  http://autoconf-archive.cryp.to/adl_compute_relative_paths.html
+	  and http://autoconf-archive.cryp.to/adl_normalize_path.html and
+	  use them to find relative paths from $bindir (where the pcb
+	  binary gets installed) to the directories with the default font
+	  and the footprints.  This is the first step in making an
+	  installation be relocatable.
+
+2007-02-02 23:12  danmc
+
+	* src/: file.c, file.h, main.c, hid/gtk/gui-config.c: - Instead of
+	  tying the saving of preferences to the autobackup timer, save
+	  them when we press ok on the preferences form.
+
+	  - Move the autosave code out of the gtk hid and put it in the
+	  core.  Now autosave	should work on all gui's instead of just
+	  the gtk one.
+
+2007-02-02 22:01  danmc
+
+	* src/hid/gtk/gui-netlist-window.c: Add a "find" and "rip-up"
+	  button to the netlist window.  Patch from Hans Nieuwenhuis on the
+	  geda-user mailing list.
+
+2007-02-02 20:05  danmc
+
+	* globalconst.h, src/file.c: Instead of writing the backup file
+	  always to /tmp/something derive a backup name from the pcb file
+	  name (if the pcb file name exists, otherwise use PCB.%i.save in
+	  the current directory).  This should make it easier to find the
+	  backup file for a particular layout and also helps in cases where
+	  /tmp is not appropriate (windows).
+
+2007-02-02 00:20  djdelorie
+
+	* src/main.c: Add command line option for setting DrawGrid
+
+2007-02-02 00:01  djdelorie
+
+	* src/report.c: Round drill sizes before reporting them.
+
+2007-02-01 23:49  djdelorie
+
+	* src/: netlist.c, rats.c, rats.h: Fix logic for adding new rat
+	  lines to the netlist.
+
+2007-02-01 23:09  djdelorie
+
+	* src/hid/gtk/gtkhid-main.c: Fix gtk grid when board flipped.
+
+2007-02-01 21:57  danmc
+
+	* Makefile.in, configure, README_FILES/Makefile.in,
+	  doc/Makefile.in, example/Makefile.in,
+	  example/libraries/Makefile.in, newlib/Makefile.in,
+	  newlib/2_pin_thru-hole_packages/Makefile.in,
+	  newlib/analog-devices/Makefile.in, newlib/burr-brown/Makefile.in,
+	  newlib/connectors/Makefile.in, newlib/crystal/Makefile.in,
+	  newlib/cypress/Makefile.in, newlib/electro-optics/Makefile.in,
+	  newlib/generic_SMD_packages/Makefile.in,
+	  newlib/headers/Makefile.in, newlib/msp430/Makefile.in,
+	  newlib/not_vetted_ingo/Makefile.in, newlib/sockets/Makefile.in,
+	  newlib/tests/Makefile.in, newlib/toko/Makefile.in,
+	  src/Makefile.in, src/icons/Makefile.in, src/script/Makefile.in,
+	  tools/Makefile.in, tutorial/Makefile.in, win32/Makefile.in: regen
+
+2007-02-01 16:10  djdelorie
+
+	* src/draw.c: Draw plated holes when exporting.
+
+2007-01-28 23:30  djdelorie
+
+	* src/hid/lesstif/: main.c, netlist.c: Add more functionality to
+	  netlist dialog.
+
+2007-01-26 21:16  djdelorie
+
+	* src/action.c: Make sure we have a current mark when we convert
+	  selection to an element.
+
+2007-01-21 20:27  danmc
+
+	* lib/: Makefile.am, Makefile.in: Fix a problem where we ended up
+	  with "//" in a full path name.  This caused problems on cygwin.
+
+2007-01-20 08:51  danmc
+
+	* src/hid/gtk/gtkhid-main.c: add some code showing how to get the
+	  installation path on windows.  Right now, just print out the
+	  directory to show it works until I figure out how to get it to
+	  the rest of the program.
+
+2007-01-20 08:28  danmc
+
+	* win32/build_pcb: clean out the old install directory prior to
+	  installing to avoid leftover cruft showing up in the installer.
+
+2007-01-20 08:05  danmc
+
+	* win32/build_pcb: add a number of flags to this script to help
+	  when using it with cvs sources or in debug mode.  See "build_pcb
+	  --help" for details on the flags.
+
+2007-01-20 08:04  danmc
+
+	* configure, configure.ac, src/main.c: Break apart PCBTREEDIR into
+	  the original plus PCBTREEPATH where the latter is a : seperated
+	  path and the former is just the base installation directory for
+	  newlib.
+
+2007-01-19 17:33  danmc
+
+	* src/: compat.c, compat.h, hid/common/hidinit.c: Add replacement
+	  wrappers for dlopen() and friends on windows.  Update the hid
+	  initialization code to pull in the compat header.  Also work
+	  around windows limitations with stat().  No change on real
+	  operating systems.
+
+2007-01-19 17:31  danmc
+
+	* config.h.in, configure, configure.ac: - check for dlfcn.h and
+	  windows.h - fix the test for if the PNG hid is being compiled in
+	  or not
+
+2007-01-17 17:00  danmc
+
+	* src/file.c: exclude .html and .png files from newlib directories
+
+2007-01-17 17:00  danmc
+
+	* configure, configure.ac, src/pcbtest.sh.in: add the generated
+	  (from m4lib) newlib to the library search path
+
+2007-01-16 18:29  danmc
+
+	* lib/: Makefile.am, Makefile.in, footprint.pcb: - Add missing
+	  template .pcb file for generating previews of all the footprints.
+	  Building the previews also verifies that there are no syntax
+	  errors in the    m4lib footprints.  - fix the logic for
+	  rebuilding the newlib library from m4 libs.
+
+2007-01-16 13:15  djdelorie
+
+	* src/hid/gerber/gerber.c: Use a global aperture list instead of
+	  per-layer lists.
+
+2007-01-16 13:13  djdelorie
+
+	* src/: file.c, macro.h, main.c, parse_l.l: Don't call popen() if
+	  we don't need to.
+
+2007-01-15 08:26  danmc
+
+	* lib/: Makefile.am, Makefile.in: Build and install a newlib
+	  library from the m4lib library.  Currently nothing else has
+	  changed, the default for pcb is still the old behaviour.  This is
+	  just the first step.
+
+2007-01-15 08:25  danmc
+
+	* lib/m4lib_to_newlib.sh.in: Make building the png preview
+	  optional.  Other minor cleanups.
+
+2007-01-15 08:24  danmc
+
+	* configure, configure.ac: add an AM_CONDITIONAL indicating if the
+	  png HID was compiled in
+
+2007-01-15 01:31  djdelorie
+
+	* doc/: actions.texi, pcbfile.texi, version.texi: Update from
+	  ../src
+
+2007-01-15 01:13  djdelorie
+
+	* src/djopt.c: Keep canonicalizing lines until they're all
+	  canonicalized.  Don't delete vias that aren't tented (assume
+	  they're test points).  Add an option to just canonicalize lines.
+
+2007-01-14 15:19  haceaton
+
+	* src/: autoroute.c, mtspace.c, mtspace.h: More thurough via site
+	  searching, cost function changes and some better handling of
+	  certain search conditions.  Much improved smoothing pass
+	  implementation. Doesn't gratuitously pack traces at minimum
+	  clearance during smoothing pass. Overall much better routing is
+	  acheived.
+	  ----------------------------------------------------------------------
+
+2007-01-11 15:55  djdelorie
+
+	* src/hid/ps/ps.c: From: Hans Nieuwenhuis <vzzbx@xs4all.nl> Check
+	  for failed opens.
+
+2007-01-09 09:16  djdelorie
+
+	* src/: draw.c, hid/gerber/gerber.c: Don't draw plated holes on
+	  outline gerber.
+
+2007-01-08 19:30  haceaton
+
+	* src/move.c: fix segfault when moving polygon to layer. Also user
+	  r_search to find the pin/via thermals.
+	  ----------------------------------------------------------------------
+
+2006-12-23 12:30  djdelorie
+
+	* src/hid/lesstif/dialogs.c: Cast away const-ness.
+
+2006-12-22 00:05  haceaton
+
+	* src/crosshair.c: don't indicate line end-point if the line is
+	  selected since move will move the whole selection.
+	  ----------------------------------------------------------------------
+
+2006-12-21 23:59  haceaton
+
+	* src/: crosshair.c, search.h, todo, hid/gtk/gtkhid-main.c,
+	  hid/gtk/gui-misc.c, hid/gtk/gui.h, hid/lesstif/main.c: provide a
+	  cursor shape change when the arrow mode crosshair is over a line
+	  end-point.
+	  ----------------------------------------------------------------------
+
+2006-12-21 23:53  djdelorie
+
+	* src/todo: Take "enums" off the lesstif list.
+
+2006-12-21 23:47  djdelorie
+
+	* src/hid/lesstif/dialogs.c: Add support for HID_Enum in attribute
+	  dialogs.
+
+2006-12-21 21:46  djdelorie
+
+	* src/hid/lesstif/main.c: Increase default size of main window.
+
+2006-12-21 17:03  danmc
+
+	* win32/build_pcb: if the configure or build fails, then abort the
+	  whole process.
+
+2006-12-21 17:03  danmc
+
+	* win32/pcb.nsi.in: the link should be to pcb-bin.exe not pcb
+
+2006-12-21 10:01  djdelorie
+
+	* src/todo: Remove completed projects, add some new ones.
+
+2006-12-18 00:48  djdelorie
+
+	* src/hid/: common/hidnogui.c, gtk/gtkhid-main.c, lesstif/main.c:
+	  ... and return 0 for progress hooks.
+
+2006-12-18 00:43  djdelorie
+
+	* src/hid/: gtk/gtkhid-main.c, lesstif/main.c, common/hidnogui.c:
+	  Fix progress prototypes.
+
+2006-12-17 00:28  djdelorie
+
+	* src/: hid.h, hid/batch/batch.c, hid/bom/bom.c,
+	  hid/common/hidnogui.c, hid/gtk/gtkhid-main.c, hid/lesstif/main.c,
+	  hid/lpr/lpr.c, hid/png/png.c, hid/ps/ps.c: Add progress() hook to
+	  HID structure.  No actual implementation yet.
+
+2006-12-16 23:41  djdelorie
+
+	* src/hid/lesstif/main.c: Add automatic busy cursor.  Add
+	  (disabled) debug code for arc thindraw.
+
+2006-12-16 22:59  djdelorie
+
+	* lib/geda.inc: Add SDIP20.  Fix comment.
+
+2006-12-15 01:15  djdelorie
+
+	* src/parse_y.y: Allow attributes in old-style elements too.
+
+2006-12-14 01:28  danmc
+
+	* src/hid/gtk/: gui-output-events.c, gui.h: Fix a bug in GTK hid
+	  that causes the view port to scroll in a random direction on a
+	  mouse click inside the view port (for example when drawing a
+	  line).
+
+	  This bug only shows itself when an X application that steals
+	  window focus is running together with PCB on the same X server.
+	  At least GNOME and XFCE window managers are known to do that.
+
+	  See the following and related GNOME bugs for some discussion
+	  about this:
+
+	  http://bugzilla.gnome.org/show_bug.cgi?id=102209
+
+	  See also GTK documentation for GtkWidget and GdkEvent.
+
+	  Analysis and patch provided in patch [ 1610717 ] Patch for
+	  auto-pan bug by Tomaz Solc.
+
+	  This should also address bug report [ 1593578 ] Display sometimes
+	  auto-scrolls when drawing lines by Garth Webb.
+
+2006-12-14 01:08  danmc
+
+	* src/Makefile.in: regen
+
+2006-12-13 20:55  haceaton
+
+	* src/polygon1.c: avoid duplicate removal of duplicate points
+	  ----------------------------------------------------------------------
+
+2006-12-13 20:53  haceaton
+
+	* src/hid/gtk/gui-config.c: beginnings of support for isleArea as a
+	  dialog changeable item
+	  ----------------------------------------------------------------------
+
+2006-12-13 20:26  haceaton
+
+	* src/draw.c: fix arc drawing on the flipped board
+	  ----------------------------------------------------------------------
+
+2006-12-13 19:37  danmc
+
+	* src/: Makefile.am, Makefile.in: add missing lrealpath.h
+
+2006-12-13 19:36  danmc
+
+	* src/dbus.c: change a libiberty.h include to lrealpath.h since
+	  thats what we have now
+
+2006-12-13 17:42  danmc
+
+	* src/: buffer.c, mymem.c, undo.c: Avoid some null pointer
+	  dereferences.  Also make sure UndoList and RemoveList are
+	  initialized at startup to avoid any strange behavior there.  This
+	  fixes a bug reported on geda-user where starting pcb with an
+	  empty board and then doing 'load layout to buffer' and pasting
+	  and then doing it again causes a segfault.  Thanks to Peter
+	  Clifton for pointing this out.
+
+2006-12-13 17:13  danmc
+
+	* src/: dbus-pcbmain.c, dbus-pcbmain.h, dbus.c, dbus.h: indent new
+	  code -- no other changes
+
+2006-12-12 21:51  danmc
+
+	* config.h.in, configure, src/Makefile.in: regen
+
+2006-12-12 21:40  danmc
+
+	* acinclude.m4: fix underquoting of libiberty_NEED_DECLARATION
+
+2006-12-12 21:33  danmc
+
+	* src/Makefile.am: when building dbus, compile in lrealpath.c
+
+2006-12-12 21:32  danmc
+
+	* acinclude.m4, configure.ac: add configure checks needed for
+	  lrealpath.c
+
+2006-12-12 21:30  danmc
+
+	* src/lrealpath.c: remove ansidecls.h
+
+2006-12-12 21:03  danmc
+
+	* src/: lrealpath.c, lrealpath.h: add a header with the lrealpath
+	  prototype and point to that instead of libiberty.h
+
+2006-12-12 21:02  danmc
+
+	* src/lrealpath.c: Add lrealpath.c from gcc's libiberty.   For now
+	  lets just add this one libiberty function.  This is the
+	  unmodified version from gcc current as of 2006-12-12.  Last
+	  modified on 2005-05-24.
+
+2006-12-10 09:48  haceaton
+
+	* src/misc.c: scan all layers for match because buffers don't
+	  always have LayerN set properly
+	  ----------------------------------------------------------------------
+
+2006-12-09 16:11  haceaton
+
+	* src/autoroute.c: break loops when exploring new paths, plus some
+	  other enhancements.
+	  ----------------------------------------------------------------------
+
+2006-12-07 18:19  danmc
+
+	* src/dbus.c: put back the unused variable but protect it with
+	  #ifdef DEBUG. From Peter Clifton
+
+2006-12-07 17:33  uid62541
+
+	* src/hid/gtk/gtkhid-main.c: fix broken dereference from last
+	  commit
+
+2006-12-07 17:33  danmc
+
+	* src/dbus.c: remove an unused variable
+
+2006-12-07 12:42  danmc
+
+	* src/hid/: gtk/gtkhid-main.c, lesstif/main.c: Don't try to cast to
+	  a union.  This practice does not work with all compilers.  Fixes
+	  compilation with sun compilers.
+
+2006-12-07 08:36  danmc
+
+	* src/hid/ps/ps.c: add --scale for postscript scaling.	Patch from
+	  Hans Nieuwenhuis on geda-user.
+
+2006-12-07 08:10  danmc
+
+	* Makefile.in, config.h.in, configure, configure.ac,
+	  README_FILES/Makefile.in, doc/Makefile.in, doc/pcbfile.texi,
+	  example/Makefile.in, example/libraries/Makefile.in,
+	  lib/Makefile.in, newlib/Makefile.in,
+	  newlib/2_pin_thru-hole_packages/Makefile.in,
+	  newlib/analog-devices/Makefile.in, newlib/burr-brown/Makefile.in,
+	  newlib/connectors/Makefile.in, newlib/crystal/Makefile.in,
+	  newlib/cypress/Makefile.in, newlib/electro-optics/Makefile.in,
+	  newlib/generic_SMD_packages/Makefile.in,
+	  newlib/headers/Makefile.in, newlib/msp430/Makefile.in,
+	  newlib/not_vetted_ingo/Makefile.in, newlib/sockets/Makefile.in,
+	  newlib/tests/Makefile.in, newlib/toko/Makefile.in,
+	  src/Makefile.am, src/Makefile.in, src/dbus-pcbmain.c,
+	  src/dbus-pcbmain.h, src/dbus.c, src/dbus.h, src/dbus.xml,
+	  src/hid.h, src/main.c, src/hid/common/extents.c,
+	  src/hid/common/hidnogui.c, src/hid/gtk/gtkhid-main.c,
+	  src/hid/lesstif/main.c, src/icons/Makefile.in,
+	  src/script/Makefile.in, tools/Makefile.in, tutorial/Makefile.in,
+	  win32/Makefile.in: Initial checkin of Peter Cliftons DBus work.
+	  Currently dbus is disabled by default but can be enabled with
+	  --enable-dbus
+
+2006-12-06 13:01  danmc
+
+	* src/hid/gtk/gui-top-window.c: Intercept window manager delete
+	  events.  This prevents data loss when the window manager closes
+	  or deletes a window.	 Reported as [ 1458340 ] data loss with
+	  closing main PCB windows and also on geda-dev by Peter Clifton.
+
+2006-12-06 10:10  danmc
+
+	* src/hid/gtk/: gui-library-window.c, gui-log-window.c,
+	  gui-netlist-window.c, gui-pinout-window.c: Stop preventing the
+	  library, log, netlist, and pinout windows from accepting focus.
+	  Preventing them from accepting focus had the side effect of
+	  breaking those dialogs on some systems with certain window
+	  managers.
+
+2006-12-05 05:29  haceaton
+
+	* src/autoroute.c: allow searching across expansion boxes in each
+	  direction which can find lower cost routes.
+	  ----------------------------------------------------------------------
+
+2006-12-05 00:22  haceaton
+
+	* src/autoroute.c: Various changes to improve the ability to find
+	  routes and make better looking, more efficient routes.
+
+2006-12-03 12:32  haceaton
+
+	* src/: misc.c, polygon.c: use Data->LayerN instead of max_layer
+	  where Data may not be PCB->Data
+	  ----------------------------------------------------------------------
+
+2006-12-02 11:03  djdelorie
+
+	* src/move.c: Handle edge conditions when adding/removing layers
+	  wrt thermals.
+
+2006-12-01 23:58  djdelorie
+
+	* src/move.c: Move thermals when we move layers.
+
+2006-12-01 22:11  djdelorie
+
+	* src/hid/ps/ps.c: Move layer ID text outside of the "board" area.
+	  Print board name, layer name, and mirror flag in lower left near
+	  margin.  When both mirror and auto-mirror are checked, xor them.
+
+2006-11-30 22:36  danmc
+
+	* src/hid/: ps/ps.c, lpr/lpr.c, ps/ps.h: make sure the postscript
+	  header line makes it in the lpr HID.	Should fix problems where
+	  the postscript text was being printed instead of executed.
+
+2006-11-15 22:01  haceaton
+
+	* src/: polygon.c, polygon.h, thermal.c: make clearances around
+	  rectangular pins and pads have rounded rectangle features
+	  ----------------------------------------------------------------------
+
+2006-11-14 21:57  haceaton
+
+	* src/draw.c: remove dead code accidentally left behind
+	  ----------------------------------------------------------------------
+
+2006-11-14 08:56  haceaton
+
+	* src/: polygon.c, polygon.h, draw.c: always draw with dicing so
+	  that polygons can reside in holes of other polygons
+	  ----------------------------------------------------------------------
+
+2006-11-14 00:29  haceaton
+
+	* src/hid/gtk/: gtkhid-main.c, gui.h: Make the invalidate rectangle
+	  only include the drawn region.  This vastly speeds up drawing
+	  when zoomed in on a complex deisgn.
+	  ----------------------------------------------------------------------
+
+2006-11-13 16:50  haceaton
+
+	* src/buffer.c: Warn if non-manhattan lines are trying to become
+	  pads.
+
+2006-11-13 16:48  haceaton
+
+	* src/polygon.c: preven silk clipping copper polygons and copper
+	  clipping silk polygons
+
+2006-11-11 09:45  danmc
+
+	* src/parse_y.y: minor fix to the FileVersion documentation
+
+2006-11-10 16:57  danmc
+
+	* src/hid/ps/ps.c: add us and international business card media
+
+2006-11-10 16:56  danmc
+
+	* src/: file.c, file.h, parse_l.l, parse_y.y: Add code to the
+	  parser which looks for a line like
+
+	  FileVersion[20061101]
+
+	  at the top of the .pcb file.	If this line is seen and indicates
+	  a version which is too new for this version of pcb then issue a
+	  complaint and explain why.  This should help out when the file
+	  format changes and someone tries to load a new design with an
+	  older version of pcb.  Of course the real benefit won't happen
+	  until versions of pcb prior to this check all go away...
+
+	  For now, the actual output file from pcb hasn't changed.  There
+	  is a two line change to include the FileVersion[] line that can
+	  be included the next time the file format is changed.  However,
+	  there is no reason to not have the program start watching for it.
+
+2006-11-10 13:28  haceaton
+
+	* src/: buffer.c, undo.c: fix some segfaults due to clearing pcb
+	  pointer in data structure.
+
+2006-11-09 00:13  danmc
+
+	* src/hid/ps/ps.c: Add several more media types and for the
+	  existing metric ones, recompute the bounding box size since pcb
+	  has more internal resolution that the old values.
+
+2006-11-08 08:23  haceaton
+
+	* src/remove.c: prevent segfault when removing polyogn points
+	  resulting in fewer than 3 points in the poly
+	  ----------------------------------------------------------------------
+
+2006-11-05 23:13  haceaton
+
+	* src/: polygon.c, polygon1.c: fix some bugs for unusual clipping
+	  conditions. Specifically holes touching at one point (or edge) as
+	  an acceptable self-intersection and snap-rounding expanding the
+	  bounding box by 1.
+	  ----------------------------------------------------------------------
+
+2006-11-04 20:40  danmc
+
+	* doc/: actions.texi, pcbfile.texi: regen
+
+2006-11-04 20:27  danmc
+
+	* src/: action.c, change.c, change.h, const.h, draw.c, find.c,
+	  strflags.c: Add a 'nopaste' flag for pads.  This lets you produce
+	  fiducial marks that should not have solder paste.  In addition
+	  you can use it for things like card edge connectors where you may
+	  not want solder paste.  Since this is moderately dangerous (how
+	  do you make sure you don't set this flag somewhere where you
+	  _need_ solder paste), the drc check reports a count of how many
+	  times this flag is used.
+
+2006-11-04 16:57  haceaton
+
+	* src/intersect.c: fix crash due to not checking for no overlaps.
+	  Thanks to Anread Kemnade for the patch.
+	  ----------------------------------------------------------------------
+
+2006-11-02 21:26  danmc
+
+	* src/action.c: use *FILEVERSION* instead of *VERSION* for the
+	  annotation file to help avoid possible confusion between file
+	  version and program version.
+
+2006-10-29 15:18  djdelorie
+
+	* src/report.c: Report units in mm or mils as selected by user.
+
+2006-10-29 08:35  haceaton
+
+	* src/parse_y.y: fix polyarea ordering to correspond to file saving
+	  ----------------------------------------------------------------------
+
+2006-10-25 17:53  haceaton
+
+	* src/action.c: fix setsame layer changing
+	  ----------------------------------------------------------------------
+
+2006-10-21 11:10  haceaton
+
+	* src/find.c: allow pins/vias with zero clearance to touch polygons
+	  ----------------------------------------------------------------------
+
+2006-10-21 10:48  haceaton
+
+	* src/polygon1.c: speed improvement by avoiding r_search call
+	  overhead when there is no overlap
+	  ----------------------------------------------------------------------
+
+2006-10-21 10:38  haceaton
+
+	* src/: file.c, global.h, main.c, parse_l.l: support for polygon
+	  island size in the pcb file
+	  ----------------------------------------------------------------------
+
+2006-10-21 10:31  haceaton
+
+	* src/: polygon.c, parse_y.y: Avoid use of 'max_layer' macro - it
+	  assumes the Data is the loaded PCB which doesn't work during file
+	  reading.
+	  ----------------------------------------------------------------------
+
+2006-10-20 22:34  haceaton
+
+	* src/: polygon.c, thermal.c, thermal.h: use the saved thermal
+	  scale when loading a design
+	  ----------------------------------------------------------------------
+
+2006-10-20 19:19  danmc
+
+	* src/hid/: gerber/gerber.c, common/hidinit.c: Cast the char's
+	  which are being fed to isspace() and friends to ints which is
+	  what they want.
+
+2006-10-19 23:25  haceaton
+
+	* src/rtree.c: check the coming regions, not the one we're at over
+	  and over
+	  ----------------------------------------------------------------------
+
+2006-10-19 20:11  danmc
+
+	* src/hid/gtk/: gui-misc.c, gui-output-events.c: add a couple of
+	  casts and kill the rest of the remaining gcc and SunPRO warnings!
+
+2006-10-19 18:43  danmc
+
+	* src/hid/lesstif/: dialogs.c, menu.c, styles.c: cast to a size_t
+	  before converting callback data between ints and pointers
+
+2006-10-19 18:42  danmc
+
+	* src/hid/gtk/: gui-icons-misc.data, gui-top-window.c: remove some
+	  SunPRO compiler complaints about initilizers being out of range
+
+2006-10-19 18:42  danmc
+
+	* src/hid/common/hidinit.c: catch HID_Mixed in a switch
+
+2006-10-19 18:42  danmc
+
+	* src/: print.c, hid/bom/bom.c, hid/gerber/gerber.c: avoid gcc
+	  warnings when using %c with strftime
+
+2006-10-19 18:42  danmc
+
+	* src/polygon1.c: #ifdef DEBUG out a couple of things which are
+	  defined but not used unless DEBUG is defined
+
+2006-10-19 18:42  danmc
+
+	* src/draw.c: cast to a size_t before an int when passing an int to
+	  a callback function.
+
+2006-10-19 15:22  haceaton
+
+	* src/rtree.c: even faster tree searching and insertion
+	  ----------------------------------------------------------------------
+
+2006-10-18 23:49  danmc
+
+	* src/polygon1.c: modify the DEBUGP macro slightly so it can be
+	  legally called with only one argument like DEBUGP("\n");
+
+2006-10-18 21:54  haceaton
+
+	* src/polygon1.c: oops, don't manage the contour bounding boxes in
+	  the tree
+	  ----------------------------------------------------------------------
+
+2006-10-18 17:22  danmc
+
+	* lib/geda.inc: {T,}QFN16_3{,_EP} needs to use PKG_QFN_50S not
+	  PKG_QFN_50.  Noted by Matthias Wenzel.
+
+2006-10-18 07:32  haceaton
+
+	* src/polygon1.c: speed up hole insertion further. Trees
+	  everywhere!
+	  ----------------------------------------------------------------------
+
+2006-10-18 01:59  danmc
+
+	* configure, configure.ac: Only apply the -rdynamic check if we're
+	  using gcc.  This probably isn't the correct long term fix but for
+	  now it lets users with SunPRO build again.  The problem is
+	  -rdynamic with SunPRO's cc doesn't have the same behaviour as
+	  with gcc but it returns 0 so configure thinks it is ok to add
+	  -rdynamic.
+
+2006-10-17 12:01  danmc
+
+	* src/hid/ps/ps.c: Use the media option to set the page size and
+	  margins.  Selecting different paper size should work now.
+
+2006-10-17 08:06  haceaton
+
+	* src/: create.c, polyarea.h, polygon.c, polygon1.c, rtree.c: bug
+	  fixes for hole insertion and fast point inside polygon checking
+	  ----------------------------------------------------------------------
+
+2006-10-16 22:28  danmc
+
+	* config.h.in, configure, configure.ac: check for dlopen in -ldl.
+	  Needed on solaris 9
+
+2006-10-16 22:21  danmc
+
+	* configure, configure.ac: be verbose about the rdynamic test
+
+2006-10-16 19:41  danmc
+
+	* lib/geda.inc: add some 16 pin 3x3 mm QFN packages
+
+2006-10-15 02:20  djdelorie
+
+	* src/buffer.c: If we're converting a buffer to an element and the
+	  buffer has no associated PCB; assign the current one so we have
+	  *a* group table to use.
+
+2006-10-14 20:45  djdelorie
+
+	* src/hid/: gtk/gui-top-window.c, lesstif/menu.c: Keep ElemenOn and
+	  *SILK->On in sync.
+
+2006-10-14 00:17  haceaton
+
+	* src/change.c: handle polygon clearance for unplated holes
+	  ----------------------------------------------------------------------
+
+2006-10-13 20:38  haceaton
+
+	* src/find.c: fix rat<->polygon connection test
+	  ----------------------------------------------------------------------
+
+2006-10-13 20:31  haceaton
+
+	* src/: change.c, polygon.c: fix undo handling for all change
+	  operations that affect polygon clip
+	  ----------------------------------------------------------------------
+
+2006-10-13 07:18  haceaton
+
+	* src/find.c: fix rat to polygon connection test
+	  ----------------------------------------------------------------------
+
+2006-10-12 23:04  haceaton
+
+	* src/change.c: fix the sense of set/clear for line join
+	  ----------------------------------------------------------------------
+
+2006-10-11 22:46  haceaton
+
+	* src/macro.h: Fix GROUP_LOOP macro
+
+2006-10-11 22:41  haceaton
+
+	* src/: create.c, global.h, heap.h, polygon.c, polygon1.c: fix
+	  GROUP_LOOP macro, optimize hole insertion and fix some small bugs
+	  ----------------------------------------------------------------------
+
+2006-10-11 22:37  haceaton
+
+	* src/action.c: Morph selections
+	  ----------------------------------------------------------------------
+
+2006-10-10 21:17  danmc
+
+	* src/hid/lesstif/: dialogs.c, menu.c: fix a few pointer bugs.
+
+2006-10-10 06:51  danmc
+
+	* src/hid/lesstif/dialogs.c: remove some unused variables
+
+2006-10-10 06:51  danmc
+
+	* src/hid/lesstif/menu.c: - include resource.h before lesstif.h to
+	  make sure we get a prototype	 for lesstif_note_mouse_resource().
+
+	  - remove some unused variables.
+
+2006-10-10 06:49  danmc
+
+	* src/hid/lesstif/main.c: remove some unused variables and add a
+	  missing return value
+
+2006-10-10 06:49  danmc
+
+	* src/hid/lesstif/lesstif.h: - Be consistent with underscores in
+	  __RESOURCE_INCLUDED__.  Now this file   matches what resource.h
+	  has!
+
+	  - Add a couple of missing prototypes.
+
+2006-10-10 06:48  danmc
+
+	* src/resource.h: be consistent with underscores in
+	  __RESOURCE_INCLUDED__
+
+2006-10-10 00:35  haceaton
+
+	* src/: draw.c, polyarea.h, polygon.c, polygon.h, polygon1.c: fix
+	  polygon search bug introduced with optimizations.  fix a layer
+	  group bug in polygon clearing.  speed up gerber generation a
+	  little
+	  ----------------------------------------------------------------------
+
+2006-10-08 20:53  danmc
+
+	* doc/version.texi: regen
+
+2006-10-08 20:41  danmc
+
+	* configure, configure.ac: bump rev to 1.99u in light of the
+	  clipper code going in
+
+2006-10-08 20:35  danmc
+
+	* README.snapshots, configure.ac, doc/actions.texi,
+	  doc/extract-docs, doc/pcbfile.texi, doc/ideas/database.txt,
+	  lib/Makefile.am, lib/amp.inc, lib/amphenol.inc, lib/bourns.inc,
+	  lib/connector.inc, lib/dil.inc, lib/geda.inc, lib/johnstech.inc,
+	  lib/lsi.m4, lib/m4lib_to_newlib.sh.in, lib/misc.inc, lib/pci.inc,
+	  lib/plcc.inc, lib/qfn.inc, lib/qfp.inc, lib/qfp2.inc,
+	  lib/qfpdj.inc, lib/to.inc, src/Makefile.am, src/Makefile.in,
+	  src/action.c, src/autoplace.c, src/autoroute.c, src/buffer.c,
+	  src/buffer.h, src/change.c, src/change.h, src/command.c,
+	  src/compat.c, src/const.h, src/copy.c, src/copy.h, src/create.c,
+	  src/create.h, src/crosshair.c, src/dev_ps.c, src/dev_ps.h,
+	  src/dev_rs274x.c, src/dev_rs274x.h, src/djopt.c, src/draw.c,
+	  src/drill.c, src/file.c, src/find.c, src/fontmode.c,
+	  src/global.h, src/hid.h, src/insert.c, src/line.c, src/macro.h,
+	  src/main.c, src/mirror.c, src/misc.c, src/misc.h, src/move.c,
+	  src/mtspace.c, src/mymem.c, src/mymem.h, src/netlist.c,
+	  src/parse_l.l, src/parse_y.y, src/polyarea.h, src/polygon.c,
+	  src/polygon.h, src/polygon1.c, src/print.c, src/puller.c,
+	  src/rats.c, src/remove.c, src/report.c, src/rotate.c,
+	  src/rtree.c, src/rubberband.c, src/search.c, src/search.h,
+	  src/select.c, src/strflags.c, src/thermal.c, src/thermal.h,
+	  src/undo.c, src/undo.h, src/vendor.c, src/hid/hidint.h,
+	  src/hid/batch/batch.c, src/hid/bom/bom.c,
+	  src/hid/common/actions.c, src/hid/common/extents.c,
+	  src/hid/common/flags.c, src/hid/common/hidinit.c,
+	  src/hid/common/hidnogui.c, src/hid/gerber/gerber.c,
+	  src/hid/gtk/gtkhid-main.c, src/hid/gtk/gui-dialog-print.c,
+	  src/hid/gtk/gui-dialog.c, src/hid/gtk/gui-output-events.c,
+	  src/hid/gtk/gui-pinout-window.c, src/hid/gtk/gui-top-window.c,
+	  src/hid/lesstif/dialogs.c, src/hid/lesstif/main.c,
+	  src/hid/lesstif/menu.c, src/hid/lpr/lpr.c, src/hid/png/png.c,
+	  src/hid/ps/eps.c, src/hid/ps/ps.c, win32/build_pcb: Merge clipper
+	  branch back to the trunk.
+
+2006-10-08 20:14  danmc
+
+	* doc/actions.texi, doc/pcbfile.texi, src/hid.h, src/main.c,
+	  src/hid/common/hidinit.c, src/hid/gtk/gui-dialog-print.c,
+	  src/hid/lesstif/dialogs.c: sync with trunk
+
+2006-10-08 15:01  haceaton
+
+	* src/parse_y.y: unclearing polys need an initclip too.
+	  ----------------------------------------------------------------------
+
+2006-10-08 10:31  djdelorie
+
+	* src/hid/common/hidinit.c: Add RTLD_GLOBAL.
+
+2006-10-08 00:13  haceaton
+
+	* src/polygon1.c: fix bug where snap round falls just outside
+	  contour bounding box.
+	  ----------------------------------------------------------------------
+
+2006-10-07 23:31  haceaton
+
+	* src/: create.c, parse_y.y: fix for clipper not knowing layer
+	  groupings during file loading
+	  ----------------------------------------------------------------------
+
+2006-10-07 23:21  haceaton
+
+	* src/polygon.c: fix Morph to work with optimized clipper
+	  ----------------------------------------------------------------------
+
+2006-10-07 19:14  haceaton
+
+	* src/polygon1.c: yet more optimization - don't use copies of
+	  holes, use the exisiting contour which saves a copying and
+	  deletion step.
+	  ----------------------------------------------------------------------
+
+2006-10-07 18:47  haceaton
+
+	* src/find.c: proper centering of display around DRC error
+	  ----------------------------------------------------------------------
+
+2006-10-07 15:40  haceaton
+
+	* src/create.c: initialize Data->pcb
+	  ----------------------------------------------------------------------
+
+2006-10-07 00:09  haceaton
+
+	* src/: global.h, parse_y.y, polygon.c: fix clipper understanding
+	  of layer groups during file parsing.
+	  ----------------------------------------------------------------------
+
+2006-10-06 20:50  danmc
+
+	* src/hid/common/hidinit.c: add missing header for Message()
+	  prototype and remove an unused variable
+
+2006-10-06 20:49  danmc
+
+	* src/hid.h: add missing hid_{load,save}_settings prototypes
+
+2006-10-06 14:34  djdelorie
+
+	* src/hid/gtk/gui-dialog-print.c: Minor bug fix for exporter.
+
+2006-10-05 22:03  haceaton
+
+	* src/draw.c: fix a compiler warning
+	  ----------------------------------------------------------------------
+
+2006-10-05 17:36  haceaton
+
+	* src/polygon1.c: yet more optimizations. The code is reasonably
+	  fast at this point.
+	  ----------------------------------------------------------------------
+
+2006-10-05 14:56  djdelorie
+
+	* src/: hid.h, main.c, hid/common/hidinit.c,
+	  hid/gtk/gui-dialog-print.c, hid/lesstif/dialogs.c: Add global
+	  "exporter" option.
+
+2006-10-05 00:59  haceaton
+
+	* src/: polyarea.h, polygon.c, polygon1.c, thermal.c: more
+	  optimizations
+	  ----------------------------------------------------------------------
+
+2006-10-04 22:14  haceaton
+
+	* src/: polyarea.h, polygon1.c: Huge performance improvement.
+	  Improved the intersection routine from typically 28% of clipping
+	  cpu time (the biggest contributor) to 2% of clipping cpu time!
+	  Also fixed a subtle bug.
+	  ----------------------------------------------------------------------
+
+2006-10-04 20:40  haceaton
+
+	* src/: polyarea.h, polygon.c, polygon1.c: some optimization to
+	  improve speed
+	  ----------------------------------------------------------------------
+
+2006-10-04 20:38  haceaton
+
+	* src/action.c: fixed the command-line interface to SetThermal()
+	  ----------------------------------------------------------------------
+
+2006-10-03 23:23  danmc
+
+	* ChangeLog, Makefile.in, NEWS, README.snapshots, config.h.in,
+	  configure, configure.ac, README_FILES/Makefile.in,
+	  doc/Makefile.in, doc/actions.texi, doc/pcbfile.texi,
+	  doc/version.texi, example/Makefile.in,
+	  example/libraries/Makefile.in, lib/Makefile.am, lib/Makefile.in,
+	  lib/amp.inc, lib/amphenol.inc, lib/bga.inc, lib/bourns.inc,
+	  lib/connector.inc, lib/dil.inc, lib/geda.inc, lib/gtag.m4,
+	  lib/johnstech.inc, lib/lsi.m4, lib/m4lib_to_newlib.sh.in,
+	  lib/misc.inc, lib/pci.inc, lib/plcc.inc, lib/qfn.inc,
+	  lib/qfp.inc, lib/qfp2.inc, lib/qfpdj.inc,
+	  lib/resistor_adjust.inc, lib/to.inc, lib/zif.inc,
+	  newlib/Makefile.in, newlib/2_pin_thru-hole_packages/Makefile.in,
+	  newlib/analog-devices/Makefile.in, newlib/burr-brown/Makefile.in,
+	  newlib/connectors/Makefile.in, newlib/crystal/Makefile.in,
+	  newlib/cypress/Makefile.in, newlib/electro-optics/Makefile.in,
+	  newlib/generic_SMD_packages/Makefile.in,
+	  newlib/headers/Makefile.in, newlib/msp430/Makefile.in,
+	  newlib/not_vetted_ingo/Makefile.in, newlib/sockets/Makefile.in,
+	  newlib/tests/Makefile.in, newlib/toko/Makefile.in,
+	  src/Makefile.in, src/action.c, src/buffer.c, src/change.c,
+	  src/copy.c, src/create.c, src/create.h, src/draw.c, src/drill.c,
+	  src/file.c, src/find.c, src/fontmode.c, src/global.h, src/hid.h,
+	  src/main.c, src/misc.c, src/misc.h, src/mymem.c, src/mymem.h,
+	  src/netlist.c, src/parse_l.l, src/parse_y.y, src/pcb-menu.res,
+	  src/rats.c, src/search.c, src/search.h, src/todo, src/undo.c,
+	  src/undo.h, src/hid/hidint.h, src/hid/batch/batch.c,
+	  src/hid/bom/bom.c, src/hid/common/actions.c,
+	  src/hid/common/extents.c, src/hid/common/flags.c,
+	  src/hid/common/hidinit.c, src/hid/common/hidnogui.c,
+	  src/hid/gerber/gerber.c, src/hid/gtk/gtkhid-main.c,
+	  src/hid/gtk/gui-dialog.c, src/hid/gtk/gui-output-events.c,
+	  src/hid/gtk/gui-top-window.c, src/hid/lesstif/dialogs.c,
+	  src/hid/lesstif/main.c, src/hid/lesstif/menu.c,
+	  src/hid/lpr/lpr.c, src/hid/png/png.c, src/hid/ps/eps.c,
+	  src/hid/ps/ps.c, src/icons/Makefile.in, src/script/Makefile.in,
+	  tools/Makefile.in, tutorial/Makefile.in, win32/Makefile.in,
+	  win32/build_pcb: sync with the trunk
+
+2006-10-03 21:11  haceaton
+
+	* src/: polygon.c, thermal.c: added cache for recently used
+	  thermals
+	  ----------------------------------------------------------------------
+
+2006-10-03 21:10  haceaton
+
+	* src/action.c: improved documentation for morph command
+	  ----------------------------------------------------------------------
+
+2006-10-03 21:07  haceaton
+
+	* src/find.c: oops, didn't do the clearances correctly
+	  ----------------------------------------------------------------------
+
+2006-10-03 19:51  haceaton
+
+	* src/find.c: remove no-longer-needed zero thickness arc checks.
+	  Restore DRC check on clearances
+	  ----------------------------------------------------------------------
+
+2006-10-02 00:51  djdelorie
+
+	* doc/actions.texi, src/action.c, src/hid.h, src/main.c,
+	  src/hid/common/hidinit.c: Load settings from ./pcb.settings and
+	  ~/.pcb/settings.  Add :savesettings action.
+
+2006-10-01 23:15  djdelorie
+
+	* src/hid/common/hidinit.c: Remove debugging printf.
+
+2006-10-01 22:18  djdelorie
+
+	* src/hid/common/hidinit.c: Fix plugin init function logic.
+
+2006-10-01 22:06  djdelorie
+
+	* configure, configure.ac, src/hid.h, src/hid/batch/batch.c,
+	  src/hid/bom/bom.c, src/hid/common/extents.c,
+	  src/hid/common/hidinit.c, src/hid/common/hidnogui.c,
+	  src/hid/gerber/gerber.c, src/hid/gtk/gtkhid-main.c,
+	  src/hid/lesstif/main.c, src/hid/lpr/lpr.c, src/hid/png/png.c,
+	  src/hid/ps/eps.c, src/hid/ps/ps.c: Dynamically load plug-ins
+	  (hids, actions, etc) at runtime.
+
+2006-10-01 13:53  haceaton
+
+	* src/polygon1.c: some more small optimizations
+	  ----------------------------------------------------------------------
+
+2006-10-01 13:52  haceaton
+
+	* src/undo.c: correctly handle polygon clearances with size/clear
+	  size undo
+	  ----------------------------------------------------------------------
+
+2006-10-01 13:51  haceaton
+
+	* src/: change.c, polygon.c: add missing clearances for SMD pads
+	  and proper change function for them
+	  ----------------------------------------------------------------------
+
+2006-10-01 12:08  haceaton
+
+	* src/polygon1.c: some speed improvements to help make up for slow
+	  intersection with snap rounding algorithm.
+	  ----------------------------------------------------------------------
+
+2006-10-01 11:52  haceaton
+
+	* src/find.c: properly check octagonal pins, plus improve
+	  optimization some
+	  ----------------------------------------------------------------------
+
+2006-10-01 10:26  danmc
+
+	* win32/build_pcb: extract the version from configure.ac instead of
+	  hard coding it.
+
+2006-10-01 00:41  haceaton
+
+	* src/action.c: remove no longer useful "fix me" suggestion
+	  ----------------------------------------------------------------------
+
+2006-10-01 00:39  haceaton
+
+	* src/hid/lesstif/menu.c: fix off-by one error
+	  ----------------------------------------------------------------------
+
+2006-10-01 00:39  haceaton
+
+	* src/change.c: include clearing polygon in thermal undo
+	  information with flag change.
+	  ----------------------------------------------------------------------
+
+2006-10-01 00:25  haceaton
+
+	* src/create.c: set thermal style default to 4
+	  ----------------------------------------------------------------------
+
+2006-10-01 00:24  haceaton
+
+	* src/buffer.c: handle polygon clearances when removing/restoring
+	  elements
+	  ----------------------------------------------------------------------
+
+2006-10-01 00:02  haceaton
+
+	* doc/ideas/database.txt: added some comments on the database ideas
+	  ----------------------------------------------------------------------
+
+2006-09-30 23:36  haceaton
+
+	* src/thermal.c: correct style 1 and 2 order for octagon thermals
+	  ----------------------------------------------------------------------
+
+2006-09-30 22:44  djdelorie
+
+	* src/hid/lesstif/menu.c: Fix off-by-one error.
+
+2006-09-30 22:37  haceaton
+
+	* src/action.c: updated docs for SetThermal() action
+	  ----------------------------------------------------------------------
+
+2006-09-30 22:25  haceaton
+
+	* src/polygon.c: fix another issue due to polygon pointers moving
+	  as polygons are created
+	  ----------------------------------------------------------------------
+
+2006-09-30 22:17  haceaton
+
+	* src/file.c: fix too-short memory allocation error
+	  ----------------------------------------------------------------------
+
+2006-09-30 22:12  haceaton
+
+	* src/find.c: fix bug where lines created by IsPolyInPoly didn't
+	  have their bounding box set needed by IsLineInPolygon()
+	  ----------------------------------------------------------------------
+
+2006-09-30 22:09  haceaton
+
+	* src/polygon.c: fix bug where polygon pointer can move while
+	  creating polygons during morph
+	  ----------------------------------------------------------------------
+
+2006-09-30 21:40  haceaton
+
+	* src/misc.c: fix bug for oldflags marking new thermals
+	  ----------------------------------------------------------------------
+
+2006-09-30 21:17  danmc
+
+	* config.h.in, configure, configure.ac: Check for popen().  So far
+	  nothing is done as a result of this.
+
+2006-09-30 20:41  danmc
+
+	* win32/build_pcb: It should be "-mms-bitfields" instead of
+	  "--mms-bitfields".  Noted by Cesar Strauss.
+
+2006-09-30 15:43  djdelorie
+
+	* configure, configure.ac: Add -rdynamic when it's available.
+
+2006-09-30 15:34  haceaton
+
+	* src/thermal.c: add thermal styles 1 and 2 to rounds and octagons.
+	  Still need thermal style 4 octagons
+	  ----------------------------------------------------------------------
+
+2006-09-30 14:48  djdelorie
+
+	* src/todo: I did the one about separate ps files.
+
+2006-09-30 00:21  haceaton
+
+	* src/: action.c, autoroute.c, change.c, create.c, draw.c, find.c,
+	  global.h, macro.h, misc.c, move.c, parse_y.y, polygon.c,
+	  polygon.h, polygon1.c, report.c, strflags.c, thermal.c,
+	  thermal.h: Complete re-think of thermals - they are now purely a
+	  matter of partial clearing in the polygon - there are no lines,
+	  arc or anything in the layout. DRC will be a matter of internal
+	  polygon DRC checking, but there is no danger of things "sticking
+	  out" etc.
+	  ----------------------------------------------------------------------
+
+2006-09-29 01:24  danmc
+
+	* configure, configure.ac, win32/build_pcb: Move the gcc flags that
+	  cause builds under cygwin to produce non-cygwin binaries out of
+	  the configure script and into the script which is used to build a
+	  non-cygwin binary under cygwin.
+
+	  The end result should be the same for users who use
+	  ./win32/build_pcb but users who wish to compile a cygwin binary
+	  should be able to now.
+
+	  Adapated from patch #1567401 "Re-enabling the Cygwin port" by
+	  Cesar Strauss.
+
+2006-09-28 00:30  haceaton
+
+	* src/: action.c, change.c, draw.c, find.c, move.c, polygon.c,
+	  polygon.h, rats.c, strflags.c, thermal.c, thermal.h: make new
+	  thermal style that allows for arc segment clearing added a
+	  function for "morphing" polygons so that the islands get
+	  converted to other polygons
+	  ----------------------------------------------------------------------
+
+2006-09-27 22:35  danmc
+
+	* doc/extract-docs: sync with trunk
+
+2006-09-27 22:31  haceaton
+
+	* src/buffer.c: Restore polygons when arc is moved to a buffer
+	  ----------------------------------------------------------------------
+
+2006-09-27 18:51  danmc
+
+	* src/buffer.c: remove unneeded cast
+
+2006-09-27 17:40  danmc
+
+	* src/file.c: Use NULL instead	of -1 for a pointer initializer and
+	  check for a NULL pointer instead of -1.  Avoids complaints about
+	  comparing pointers and integers.
+
+2006-09-27 17:06  danmc
+
+	* doc/extract-docs: make this script more robust with respect to
+	  the formatting of the help and syntax strings.  In particular,
+	  variable whitespace is now allowed in the "static const char"
+	  declaration and the string may not begin on the same line as the
+	  declaration.	This allows the source code to run through
+	  indent(1) and still have the docs extracted properly.
+
+2006-09-26 22:55  haceaton
+
+	* src/rtree.c: remove a compiler warning when NDEBUG is not defined
+	  ----------------------------------------------------------------------
+
+2006-09-26 22:54  haceaton
+
+	* src/: find.c, polygon.c, polygon.h, polygon1.c, rats.c:
+	  connection searching of clipped polygons completed some bugs
+	  fixed too
+	  ----------------------------------------------------------------------
+
+2006-09-26 07:25  danmc
+
+	* configure, configure.ac: We don't directly need X stuff anymore
+	  unless we're using the lesstif HID so don't look for X except in
+	  that case.  This avoids some issues seen on some systems which
+	  have older libraries in /usr/X11R6/lib (like freetype or
+	  fontconfig).
+
+2006-09-25 23:41  haceaton
+
+	* src/: autoroute.c, find.c, parse_y.y, polygon.c, polygon1.c: fix
+	  various other bugs
+	  ----------------------------------------------------------------------
+
+2006-09-25 23:39  haceaton
+
+	* src/change.c: handle thermals on pins and correctly adjust
+	  clearance with size changes
+	  ----------------------------------------------------------------------
+
+2006-09-25 22:45  haceaton
+
+	* src/: autoroute.c, find.c, polygon.c, polygon.h, rtree.c: various
+	  bug fixes; arc poly intersection testing
+	  ----------------------------------------------------------------------
+
+2006-09-25 19:02  danmc
+
+	* src/hid/lesstif/dialogs.c: use the unified "about" string.
+
+2006-09-25 18:55  danmc
+
+	* src/: mymem.c, mymem.h: const-ify DSAddString
+
+2006-09-25 18:55  danmc
+
+	* src/: misc.c, misc.h, hid/gtk/gui-dialog.c: Improve the gtk
+	  "about" dialog box output to explicitly list the HID's which have
+	  been compiled in.  As part of this, pull out the code which
+	  generates the text of the dialog box into its own function so
+	  that it can be used by other HID's.
+
+2006-09-24 23:30  haceaton
+
+	* src/: autoroute.c, change.c, djopt.c, draw.c, misc.c, move.c,
+	  polygon.c, polygon1.c, remove.c, thermal.c, undo.c: added support
+	  for arcs and some efficiency improvements fixed some bugs too.
+	  ----------------------------------------------------------------------
+
+2006-09-24 22:16  djdelorie
+
+	* src/draw.c: A layer group that only contains a layer named
+	  "outline" or "route" will not have pins, pads, or vias drawn.
+
+2006-09-24 22:15  djdelorie
+
+	* src/hid/common/flags.c: A layer group containing only an
+	  "outline" or "route" layer will be named "outline" when exported.
+
+2006-09-24 22:13  djdelorie
+
+	* src/hid/gerber/gerber.c: Add a --verbose option to list gerber
+	  files as they're printed.
+
+2006-09-24 18:44  danmc
+
+	* src/rats.c: When optimizing rats, if there are > 0 of them,
+	  display a message indicating how many.  This way when the layout
+	  is not complete you see how far you have to go and also you see
+	  that the operation has done something.
+
+2006-09-24 18:09  djdelorie
+
+	* src/draw.c: If Settings.RatThickness is less than 20, it's a
+	  pixel size, not a pcb size.
+
+2006-09-24 18:01  djdelorie
+
+	* src/hid/lesstif/main.c: Display remaining rats in status bar.
+
+2006-09-24 17:23  djdelorie
+
+	* src/: search.h, hid/gtk/gui-output-events.c,
+	  hid/gtk/gui-top-window.c: Note pixel slop in gtk hid.  Increase
+	  slop to 10 pixels.
+
+2006-09-22 19:07  danmc
+
+	* src/fontmode.c: add missing return value
+
+2006-09-22 19:06  danmc
+
+	* src/: create.c, file.c: remove some unused variables
+
+2006-09-22 09:09  danmc
+
+	* src/hid/gtk/gtkhid-main.c: add a missing initializer to the
+	  extents HID
+
+2006-09-22 09:09  danmc
+
+	* src/rubberband.c: add a missing header
+
+2006-09-22 08:58  danmc
+
+	* src/Makefile.in: regen
+
+2006-09-22 01:04  djdelorie
+
+	* src/buffer.c: Fix bug in poly point sorting for element
+	  conversion.
+
+2006-09-21 23:14  djdelorie
+
+	* src/buffer.c: Allow rectangular polygons when converting a buffer
+	  to an element.
+
+2006-09-21 23:00  haceaton
+
+	* src/hid/: batch/batch.c, png/png.c: add "poly_dicer" flag
+	  ----------------------------------------------------------------------
+
+2006-09-21 22:40  haceaton
+
+	* src/: dev_ps.c, dev_ps.h, dev_rs274x.c, dev_rs274x.h: remove
+	  these files - their functions are in the hid directory now
+	  ----------------------------------------------------------------------
+
+2006-09-21 21:38  haceaton
+
+	* src/: Makefile.am, action.c, buffer.c, change.c, change.h,
+	  const.h, draw.c, file.c, global.h, hid.h, misc.c, misc.h, move.c,
+	  parse_y.y, polygon.c, report.c, strflags.c, thermal.c, thermal.h,
+	  undo.c, undo.h, hid/bom/bom.c, hid/common/extents.c,
+	  hid/common/hidnogui.c, hid/gerber/gerber.c,
+	  hid/gtk/gtkhid-main.c, hid/lesstif/main.c, hid/lpr/lpr.c,
+	  hid/ps/eps.c, hid/ps/ps.c: Reasonable support for thermals added.
+	  Created new hid flag "poly_dicer" to allow an hid gui to request
+	  diced polygons instead of earasing.
+	  ----------------------------------------------------------------------
+
+2006-09-21 17:31  djdelorie
+
+	* src/: drill.c, mymem.c: Avoid attempts to realloc to zero bytes.
+
+2006-09-21 00:19  djdelorie
+
+	* src/action.c: Fix undo for MinMaskGap()
+
+2006-09-21 00:07  djdelorie
+
+	* src/action.c, doc/actions.texi: Add MinMaskGap() action.
+
+2006-09-20 00:27  djdelorie
+
+	* src/hid/ps/ps.c: Add multi-file output option.
+
+2006-09-20 00:26  djdelorie
+
+	* src/hid/: hidint.h, common/flags.c, gerber/gerber.c: Break out
+	  layer->filename code.  Fix bug in top/bottom detection.
+
+2006-09-18 08:33  haceaton
+
+	* src/: action.c, buffer.c, buffer.h, change.c, copy.c, create.c,
+	  draw.c, file.c, global.h, insert.c, mirror.c, misc.c, misc.h,
+	  move.c, polygon.c, polygon.h, polygon1.c, remove.c, rotate.c,
+	  rtree.c, undo.c: elliminated ObjectArgType - decided it's easier
+	  to use multiple args.  fixed some bugs, started work on thermals
+	  and saving files and backward compatibility.
+	  ----------------------------------------------------------------------
+
+2006-09-15 17:46  danmc
+
+	* src/Makefile.in: regen
+
+2006-09-15 17:03  danmc
+
+	* src/hid/gtk/gui-pinout-window.c: Add new dx and dy parameters to
+	  a call of CopyElementLowLevel.
+
+2006-09-15 17:02  danmc
+
+	* src/parse_y.y: change polys.h to polygon.h as the former has been
+	  replaced
+
+2006-09-15 17:01  danmc
+
+	* src/polygon.c: remove an out of bounds assignment that caused a
+	  stack corruption
+
+2006-09-15 07:43  haceaton
+
+	* src/create.c: initialize Clipped pointer in new polygons. Thanks
+	  to Dan M.
+	  ----------------------------------------------------------------------
+
+2006-09-15 07:41  haceaton
+
+	* src/polygon.c: removed the (now extraneous) 3rd vector
+	  intialization and changed form to array indecies instead of
+	  pointers. Thanks to Dan M. for finding this bug
+	  ----------------------------------------------------------------------
+
+2006-09-15 07:34  haceaton
+
+	* src/: polygon.c, polygon.h: created "NoHolesPolygonDicer" that
+	  will allow non-erasing gerber files with arbitrary complex
+	  polygons.
+	  ----------------------------------------------------------------------
+
+2006-09-15 00:14  haceaton
+
+	* src/: action.c, autoroute.c, change.c, file.c, insert.c, misc.h,
+	  move.c, polygon.c, polygon.h, remove.c: remove all UpdatePIPFlag
+	  occurances PIP Flags are no more. I plan to keep thermal flags
+	  for now.
+	  ----------------------------------------------------------------------
+
+2006-09-14 23:48  haceaton
+
+	* src/: action.c, autoplace.c, autoroute.c, buffer.c, change.c,
+	  command.c, compat.c, copy.c, copy.h, create.c, crosshair.c,
+	  dev_rs274x.c, djopt.c, drill.c, file.c, fontmode.c, line.c,
+	  macro.h, main.c, mirror.c, misc.c, move.c, mtspace.c, netlist.c,
+	  polygon.c, polygon.h, polygon1.c, print.c, puller.c, rotate.c,
+	  rubberband.c, select.c, undo.c, vendor.c: boatloads more changes
+	  to support polygon clipping. Some of this is just change of
+	  indents, but mostly code changes for the clipper.
+	  ----------------------------------------------------------------------
+
+2006-09-14 23:16  haceaton
+
+	* src/rtree.c: remove compiler warning when no NDEBUG is set
+	  ----------------------------------------------------------------------
+
+2006-09-14 19:15  haceaton
+
+	* src/: polyarea.h, polygon1.c: stop the computation for touching
+	  as soon as touching is seen rather than computing the whole
+	  intersecting polygon
+	  ----------------------------------------------------------------------
+
+2006-09-14 19:08  haceaton
+
+	* src/Makefile.am: oops, didn't mean to have polys.c and polys.h
+	  ----------------------------------------------------------------------
+
+2006-09-14 11:17  haceaton
+
+	* src/polygon1.c: some small bug fixes to intersections, cvslist
+	  linking and some code cleanup
+
+2006-09-13 23:02  danmc
+
+	* src/hid/gerber/gerber.c: If the output file(s) can't be opened
+	  for writing then spit out an error message instead of
+	  segfaulting.	The segfaults were noted in bug [ 1556894 ]
+	  "segfault when exporting to non-existing directory" reported by
+	  Stephan Boettcher.
+
+2006-09-12 23:35  haceaton
+
+	* src/parse_y.y: another initial clipper change
+
+	  ----------------------------------------------------------------------
+
+2006-09-12 23:32  djdelorie
+
+	* src/draw.c: Draw the elements' marks.
+
+2006-09-12 23:30  danmc
+
+	* lib/: amp.inc, amphenol.inc, bga.inc, bourns.inc, connector.inc,
+	  dil.inc, gtag.m4, johnstech.inc, lsi.m4, misc.inc, pci.inc,
+	  plcc.inc, qfn.inc, qfp.inc, qfp2.inc, qfpdj.inc,
+	  resistor_adjust.inc, to.inc, zif.inc: quote the refdes parameter
+	  (name on board parameter) on the PKG_* macros.  This prevents
+	  problems when a refdes matches the name of a macro and m4 expands
+	  it.  Patch provided by Peter Clifton.
+
+2006-09-12 23:28  haceaton
+
+	* src/: Makefile.am, buffer.c, buffer.h, change.c, create.c,
+	  draw.c, find.c, global.h, macro.h, move.c, mymem.c, polyarea.h,
+	  polygon.c, polygon.h, polygon1.c, report.c, search.c, search.h,
+	  undo.c: First cut at polygon clipping. Many more changes to go.
+	  Mostly lines and pins/vias are handeled plus a lot of
+	  infrastructure
+	  ----------------------------------------------------------------------
+
+2006-09-12 23:27  danmc
+
+	* lib/to.inc: remove a ' in an output comment line which threw off
+	  a closing ) that broke the TO3_90 element.
+
+2006-09-12 22:59  djdelorie
+
+	* src/hid/common/actions.c: [pcjc2@cam.ac.uk] Patch to fix bug
+	  #1553558, Stack corruption PCB bug in hid_parse_actions
+
+2006-09-12 10:29  haceaton
+
+	* src/polygon1.c: fixed a number of bugs. There are still
+	  degenerate cases when point rounding causes new intersections
+	  ----------------------------------------------------------------------
+
+2006-09-04 08:17  danmc
+
+	* configure, configure.ac, lib/Makefile.am, lib/Makefile.in,
+	  lib/m4lib_to_newlib.sh.in: Go ahead and let configure process the
+	  m4lib_to_newlib script.  Also remove a couple of hardcoded paths
+	  in the same script.
+
+2006-09-03 11:04  danmc
+
+	* lib/to.inc: Fix up the pads and drill sizes on the TO* packages.
+	  Based on patch [ 1108881 ] "Fix to m4 library hole sizes" by
+	  Walter Fetter Lages.	I added comments containing the actual
+	  dimensions from the JEDEC drawings and comments about how the pad
+	  size and drill size were selected.  Based on the JEDEC drawings I
+	  adjusted some of the drill and pad sizes.  I did not change or
+	  examine pin locations, numbering, or silk.
+
+2006-09-03 11:01  danmc
+
+	* lib/misc.inc: improve the drill sizes for several footprints.
+	  Changes provided by patch [ 1108881 ] "Fix to m4 library hole
+	  sizes" by Walter Fetter Lages.
+
+2006-09-02 07:54  danmc
+
+	* src/hid/common/hidinit.c: ensure that derive_default_filename()
+	  always comes back with a valid string even when we don't have a
+	  name for the pcbfile.  This fixes bug [ 1548756 ] "Segfault when
+	  exporting png files" reported by Werner Hoch.
+
+2006-09-01 18:24  danmc
+
+	* lib/connector.inc: increase PKG_CONNECTOR and PKG_CONNECTOR_DIL
+	  hole size to something more reasonable.
+
+2006-09-01 18:02  danmc
+
+	* lib/geda.inc: - remove the BRE* footprints.  The required
+	  PKG_RECTANGULAR macro doesn't   exist anywhere and I can't figure
+	  out what the correct behaviour should   be anyway so rather than
+	  propagate a very questionable footprint name,   kill it right
+	  here.
+
+	  - Fix the problem where the ACY*P and RCY*P packages called
+	  non-existant	 macros.  They now produce the same footprints as
+	  the ACY* and RCY* packages   but with a polarity marking.  The
+	  suitability for any particular part	number should be still
+	  verified before using them on a board.
+
+2006-09-01 17:59  danmc
+
+	* lib/misc.inc: expand the PKG_AXIAL_LAY and PKG_RADIAL_CAN macros
+	  to take an extra optional argument.  When set to 1, this optional
+	  argument causes the part to have a "+" by pin 1 and "-" by pin 2.
+	  This was done instead of implementing the missing
+	  PKG_AXIAL_LAY_POLAR and  PKG_RADIAL_CAN_POLAR macros.
+
+2006-09-01 17:58  danmc
+
+	* lib/m4lib_to_newlib.sh.in: Rather than putting a huge list of
+	  footprints into one index file, break it out by library.
+
+2006-09-01 08:24  danmc
+
+	* lib/geda.inc: remove unused PKG_DUMMY which did not do anything
+	  anyway
+
+2006-09-01 08:23  danmc
+
+	* lib/m4lib_to_newlib.sh.in: - put both the index.html file and the
+	  broken.html file in the output directory.  - run pcb-bin from the
+	  src build directory to avoid complaints about not being   able to
+	  find the font - use .fp as the file extension for footprints -
+	  fix up the .png output file names - fix up the links in the index
+	  file
+
+2006-08-31 22:07  djdelorie
+
+	* src/action.c: Shift-click replaces element on pcb with element in
+	  buffer.
+
+2006-08-29 23:16  djdelorie
+
+	* doc/: actions.texi, pcbfile.texi, version.texi: Regenerate to add
+	  attributes
+
+2006-08-29 23:14  djdelorie
+
+	* src/parse_y.y: Doc typo.
+
+2006-08-29 23:02  djdelorie
+
+	* src/copy.c: Copy attributes when copying element data.
+
+2006-08-29 22:42  djdelorie
+
+	* src/: create.c, create.h, file.c, global.h, parse_l.l, parse_y.y:
+	  Add arbitrary attributes to PCB and Element types.  Ignore
+	  optional flags on Layer types.
+
+2006-08-29 21:37  djdelorie
+
+	* src/draw.c: Remove obsolete comment.
+
+2006-08-29 18:44  danmc
+
+	* lib/m4lib_to_newlib.sh.in: add the start of a m4lib to newlib
+	  conversion script
+
+2006-08-27 21:47  danmc
+
+	* Makefile.in, README_FILES/Makefile.in, doc/Makefile.in,
+	  example/Makefile.in, example/libraries/Makefile.in,
+	  lib/Makefile.in, newlib/Makefile.in,
+	  newlib/2_pin_thru-hole_packages/Makefile.in,
+	  newlib/analog-devices/Makefile.in, newlib/burr-brown/Makefile.in,
+	  newlib/connectors/Makefile.in, newlib/crystal/Makefile.in,
+	  newlib/cypress/Makefile.in, newlib/electro-optics/Makefile.in,
+	  newlib/generic_SMD_packages/Makefile.in,
+	  newlib/headers/Makefile.in, newlib/msp430/Makefile.in,
+	  newlib/not_vetted_ingo/Makefile.in, newlib/sockets/Makefile.in,
+	  newlib/tests/Makefile.in, newlib/toko/Makefile.in,
+	  src/Makefile.in, src/icons/Makefile.in, src/script/Makefile.in,
+	  tools/Makefile.in, tutorial/Makefile.in, win32/Makefile.in: regen
+	  after the lex/yacc configure.ac change
+
+2006-08-27 00:14  djdelorie
+
+	* src/hid/lesstif/main.c: Constrain arc start angles to -180..180
+	  degrees.
+
+2006-08-26 22:56  haceaton
+
+	* src/: polyarea.h, polygon1.c: Initial version of polygon clipping
+	  code. It seems to work with my test cases but there still may be
+	  some bugs
+	  ----------------------------------------------------------------------
+
+2006-08-23 22:31  djdelorie
+
+	* src/netlist.c: Fix rats enable/disable code.
+
+2006-08-23 18:19  danmc
+
+	* configure, configure.ac: error out if yacc or lex could not be
+	  found
+
+2006-08-22 22:41  danmc
+
+	* doc/version.texi: bump rev after 20060822 branch
+
+2006-08-22 21:43  danmc
+
+	* configure, configure.ac, doc/version.texi: set version for
+	  20060822
+
+2006-08-22 21:30  danmc
+
+	* configure, configure.ac: bump rev after 20060822 branch
+
+2006-08-22 20:48  djdelorie
+
+	* src/hid/ps/eps.c: When printing as-shown, mirror the image if
+	  we're viewing the solder side.
+
+2006-08-22 20:28  djdelorie
+
+	* src/hid/ps/eps.c: Don't consider off layers for fast mask.  Don't
+	  print paste.
+
+2006-08-22 18:46  djdelorie
+
+	* src/hid/ps/eps.c: Don't print invisible silk.
+
+2006-08-22 17:20  danmc
+
+	* README.snapshots: add a note about how I test the distcheck
+	  target for the lesstif HID
+
+2006-08-22 16:26  djdelorie
+
+	* src/find.c: Special case: allow vias with exactly zero clearance.
+
+2006-08-22 12:14  danmc
+
+	* ChangeLog, NEWS, README.snapshots: update for 20060822 snapshot
+
+2006-08-22 10:33  djdelorie
+
+	* src/hid/lesstif/main.c: fill_rect needs the same point-ordering
+	  as draw_rect
+
+2006-08-22 10:29  djdelorie
+
+	* src/change.c: Allow via clearance to be reduced to zero.
+
+2006-08-22 10:27  djdelorie
+
+	* src/draw.c: If a pad/via's clearance is zero, don't attempt to
+	  draw a zero-width clear.
+
 2006-08-21 19:18  djdelorie
 
 	* src/main.c: Add default colors for layers 9..16

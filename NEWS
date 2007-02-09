@@ -1,4 +1,52 @@
 ========================================================================
+Release Notes for PCB snapshot 20070208
+========================================================================
+- Add polygon clipping code.  This is a big change to how polygons are handled.  
+  The new code now removes islands and correctly identifies open circuits caused
+  by a trace fully cutting through a polygon.  In addition, the RS-274-X output
+  is now simpler and works with some board houses that use older non-conforming
+  sofware.  Different styles for thermal reliefs are also now supported as part
+  of the polygon clipper code.
+- Add support for plugins
+- Many improvements to the autorouter.
+- Various improvements to the trace optimizer.
+- Add a fontmode for editing pcb fonts
+- Add progress() hook to HID structure
+- Fix a bug with non-functional windows on some window managers commonly
+  found on OS-X
+- Add support for controlling pcb via dbus
+- Fix various bugs which would cause a crash
+- Add --scale for postscript scaling
+- Intercept window manager delete events with the GTK gui
+- Scan the .pcb file for a FileVersion value.  This is not written out yet
+  but will be in future versions.  
+- Warn if non-manhattan lines are trying to become pads.
+- Allow no-solder paste pads to support fiducials
+- Report in mm or mils as selected by user
+- Allow reordering of layers
+- add some more QFN packages
+- fix building with sun studio c compiler
+- Made a pcb installation be relocatable.
+- Convert the m4 libraries to newlib libraries as part of building a distfile.
+  The m4 libraries are still considered the sources and as such are still
+  distributed but this eliminates the need for m4 at runtime for footprints.
+- Got rid of the pcb wrapper script around pcb-bin.
+- Remove some old footprints of questionable naming, accuracy, or usefulness.
+- Get the autosave/backup code working on all GUI's
+- Fix some drill size rounding in the reports
+- Changed the backup file name to be derived from the .pcb file name
+- Added a command line option for DrawGrid
+- Fix logic for adding new ratlines
+- Fix gtk grid when board is flipped
+- Add "find" and "rip-up" buttons to the netlist window
+- Draw plated holes when exporting
+- Fix some bugs when converting selection to element
+- Fix build on cygwin
+- Enhance the win32/build_pcb script used to generate a non-cygwin windows
+  installer.
+- Make pcb work under non-cygwin windows
+
+========================================================================
 Release Notes for PCB snapshot 20060822
 ========================================================================
 - various manual updates
