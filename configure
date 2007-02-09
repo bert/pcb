@@ -1627,7 +1627,7 @@ fi
 
 # Define the identity of the package.
  PACKAGE=pcb
- VERSION=1.99v
+ VERSION=20070208
 
 
 cat >>confdefs.h <<_ACEOF
