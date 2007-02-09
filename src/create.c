@@ -204,7 +204,7 @@ CreateNewPCBPost (PCBTypePtr pcb, int use_defaults)
       if (ParseGroupString (Settings.Groups, &pcb->LayerGroups, DEF_LAYER))
 	return 1;
 
-      for (i = 0; i < max_layer; i++)
+      for (i = 0; i < MAX_LAYER; i++)
 	pcb->Data->Layer[i].Name = MyStrdup (Settings.DefaultLayerName[i],
 					     "CreateNewPCB()");
       pcb->Data->Layer[max_layer + COMPONENT_LAYER].Name =
