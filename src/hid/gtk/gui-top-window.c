@@ -98,7 +98,8 @@ static gchar * new_ui_info;
 static gint menuitem_cnt = 0;
 static size_t new_ui_info_sz = 0;
 static GtkActionEntry *new_entries = NULL;
-
+static Resource **action_resources = NULL;
+#define MENUITEM "MenuItem"
 
 extern HID ghid_hid;
 
@@ -250,8 +251,26 @@ save_layout_cb (GtkAction * action, GHidPort * port)
 static void
 ghid_menu_cb (GtkAction * action, GHidPort * port)
 {
-  printf ("ghid_menu_cb(%p, %p)\n", action, port);
-  printf ("  -> name = \"%s\"\n", gtk_action_get_name (action));
+  const gchar * name;
+  int id;
+  int vi;
+  Resource *node;
+
+  name = gtk_action_get_name (action);
+  id = atoi (name + strlen (MENUITEM));
+  
+  printf ("ghid_menu_cb():  name = \"%s\", id = %ul\n", name, id);
+		
+  node = action_resources[id];
+  if (node != NULL)
+    {
+      for (vi = 1; vi < node->c; vi++)
+	if (resource_type (node->v[vi]) == 10)
+	  printf ("    %s\n", node->v[vi].value);
+    }
+  else {
+    printf ("    NOOP\n");
+  }
 }
 
 
@@ -3942,6 +3961,7 @@ add_resource_to_menu (char * menu, Resource * node, void * callback, int indent)
   Resource *r;
   int n;
   char tmps[32];
+  int menuitem_id;
 
   for (i = 0; i < node->c; i++)
     switch (resource_type (node->v[i]))
@@ -3970,13 +3990,21 @@ add_resource_to_menu (char * menu, Resource * node, void * callback, int indent)
 	    }
 	
 	    
-	sprintf (tmps, "MenuItem%d", menuitem_cnt);
+	sprintf (tmps, "%s%d", MENUITEM, menuitem_cnt);
 	if ( (new_entries = realloc (new_entries, 
 				     (menuitem_cnt + 1) * sizeof (GtkActionEntry))) == NULL)
 	  {
 	    fprintf (stderr, "add_resource_to_menu():  realloc of new_entries failed\n");
 	    exit (1);
 	  }
+	if ( (action_resources = realloc (action_resources,
+					  (menuitem_cnt + 1) * sizeof (Resource *))) == NULL)
+	  {
+	    fprintf (stderr, "add_resource_to_menu():  realloc of action_resources failed\n");
+	    exit (1);
+	  }
+	action_resources[menuitem_cnt] = NULL;
+
 	/* name, stock_id, label, accelerator, tooltip, callback */
 	new_entries[menuitem_cnt].name = strdup (tmps);
 	new_entries[menuitem_cnt].stock_id = NULL;
@@ -3985,6 +4013,9 @@ add_resource_to_menu (char * menu, Resource * node, void * callback, int indent)
 	new_entries[menuitem_cnt].tooltip = "my tooltip";
 	new_entries[menuitem_cnt].callback = G_CALLBACK (ghid_menu_cb);
 	
+	menuitem_id = menuitem_cnt;
+
+	menuitem_cnt++;
 	printf ("{\"%s\", NULL, \"%s\", NULL, \"my tooltip\", G_CALLBACK (ghid_menu_cb)}\n",
 		tmps, v);
 	
@@ -3996,7 +4027,6 @@ add_resource_to_menu (char * menu, Resource * node, void * callback, int indent)
 	    ghid_ui_info_append ("'/>\n");
 	    
 	  }
-	menuitem_cnt++;
 	
 	if (node->v[i].subres->flags & FLAG_S)
 	  {
@@ -4044,22 +4074,22 @@ add_resource_to_menu (char * menu, Resource * node, void * callback, int indent)
 		//btn = XmCreateToggleButton (menu, "menubutton", args, n);
 		//ti->w = btn;
 		//XtAddCallback (btn, XmNvalueChangedCallback,
-	//		       (XtCallbackProc) radio_callback,
-	//		       (XtPointer) ti);
+		//		       (XtCallbackProc) radio_callback,
+		//		       (XtPointer) ti);
 	      }
 	    else if (checked)
 	      {
 		if (strchr (checked, ','))
-		{
-		  //stdarg (XmNindicatorType, XmONE_OF_MANY);
-		}
+		  {
+		    //stdarg (XmNindicatorType, XmONE_OF_MANY);
+		  }
 		else
-		{
+		  {
 		  //stdarg (XmNindicatorType, XmN_OF_MANY);
 		}
 		//btn = XmCreateToggleButton (menu, "menubutton", args, n);
 		//XtAddCallback (btn, XmNvalueChangedCallback,
-	//		       callback, (XtPointer) node->v[i].subres);
+		//		       callback, (XtPointer) node->v[i].subres);
 	      }
 	    else if (label && strcmp (label, "false") == 0)
 	      {
@@ -4075,16 +4105,18 @@ add_resource_to_menu (char * menu, Resource * node, void * callback, int indent)
 		//	       node->v[i].subres);
 		//printf ("Create a pushbutton, menu=\"%s\"\n", menu);
 		//printf ("Add a callback with the data being node->v[i].subres\n");
+		action_resources[menuitem_id] = node->v[i].subres;
 		{
 			int vi;
 			Resource *mynode  = node->v[i].subres;
-
+			
 		  for (vi = 1; vi < mynode->c; vi++)
-		      if (resource_type (mynode->v[vi]) == 10)
-			printf("   action value=\"%s\"\n", mynode->v[vi].value);
+		    if (resource_type (mynode->v[vi]) == 10)
+		      printf("   action value=\"%s\"\n", mynode->v[vi].value);
 		}
 
 	      }
+
 
 	    for (j = 0; j < node->v[i].subres->c; j++)
 	      switch (resource_type (node->v[i].subres->v[j]))
