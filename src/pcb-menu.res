@@ -19,6 +19,9 @@ Mouse =
   }
   Up = Zoom(0.8)
   Down = Zoom(1.25)
+# If you want zoom to center, do this instead.
+  #Up = { {Zoom(0.8) Center()} }
+  #Down = { {Zoom(1.25) Center()} }
 }
 
 MainMenu =
@@ -50,6 +53,7 @@ MainMenu =
    {"Flip left/right" checked=flip_x SwapSides(H) a={"Shift-Tab" "Shift<Key>Tab"}}
    {"Spin 180°" SwapSides(R) a={"Ctrl-Tab" "Ctrl<Key>Tab"}}
    {"Swap Sides" SwapSides() a={"Ctrl-Shift-Tab" "Ctrl Shift<Key>Tab"}}
+   {"Center cursor" Center() a={"C" "<Key>c"}}
    {"Show soldermask" checked=showmask Display(ToggleMask)}
    -
    {"Displayed element-name..." foreground=grey50 sensitive=false}
@@ -64,6 +68,9 @@ MainMenu =
     {"Zoom In 2X" Zoom(-2)}
     {"Zoom In 20%" Zoom(-1.2) m=Z a={"Z" "<Key>z"}}
     {"Zoom Out 20%" Zoom(+1.2) m=O a={"Shift-Z" "Shift<Key>z"}}
+# If you want zoom to center, do this instead.
+    #{"Zoom In 20%" Zoom(-1.2) Center() m=Z a={"Z" "<Key>z"}}
+    #{"Zoom Out 20%" Zoom(+1.2) Center() m=O a={"Shift-Z" "Shift<Key>z"}}
     {"Zoom Out 2X" Zoom(+2)}
     {"Zoom Max" Zoom() m=M a={"V" "<Key>v"}}
     -

@@ -872,6 +872,21 @@ Benchmark (int argc, char **argv, int x, int y)
   return 0;
 }
 
+static int
+Center(int argc, char **argv, int x, int y)
+{
+  x = GRIDFIT_X (x, PCB->Grid);
+  y = GRIDFIT_Y (y, PCB->Grid);
+  view_left_x = x - (view_width * view_zoom) / 2;
+  view_top_y = y - (view_height * view_zoom) / 2;
+  lesstif_pan_fixup ();
+  /* Move the pointer to the center of the window, but only if it's
+     currently within the window already.  Watch out for edges,
+     though.  */
+  XWarpPointer (display, window, window, 0, 0, view_width, view_height,
+		Vx(x), Vy(y));
+}
+
 HID_Action lesstif_main_action_list[] = {
   {"PCBChanged", 0, PCBChanged,
    pcbchanged_help, pcbchanged_syntax},
@@ -891,7 +906,8 @@ HID_Action lesstif_main_action_list[] = {
    command_help, command_syntax},
   {"Benchmark", 0, Benchmark,
    benchmark_help, benchmark_syntax},
-  {"PointCursor", 0, PointCursor}
+  {"PointCursor", 0, PointCursor},
+  {"Center", "Click on a location to center", Center}
 };
 
 REGISTER_ACTIONS (lesstif_main_action_list)
@@ -1187,6 +1203,9 @@ Pan (int mode, int x, int y)
   static int opx, opy;
 
   panning = mode;
+  /* This is for ctrl-pan, where the viewport's position is directly
+     proportional to the cursor position in the window (like the Xaw
+     thumb panner) */
   if (pan_thumb_mode)
     {
       opx = x * PCB->MaxWidth / view_width;
@@ -1199,6 +1218,8 @@ Pan (int mode, int x, int y)
       view_top_y = opy - view_height / 2 * view_zoom;
       lesstif_pan_fixup ();
     }
+  /* This is the start of a regular pan.  On the first click, we
+     remember the coordinates where we "grabbed" the screen.  */
   else if (mode == 1)
     {
       ox = x;
@@ -1206,6 +1227,8 @@ Pan (int mode, int x, int y)
       opx = view_left_x;
       opy = view_top_y;
     }
+  /* continued drag, we calculate how far we've moved the cursor and
+     set the position accordingly.  */
   else
     {
       if (flip_x)
