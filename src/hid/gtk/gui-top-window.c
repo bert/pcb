@@ -41,6 +41,8 @@
 #include "config.h"
 #endif
 
+#include <unistd.h>
+
 #include "gtkhid.h"
 #include "gui.h"
 #include "hid.h"
@@ -65,10 +67,12 @@
 #include "misc.h"
 #include "move.h"
 #include "output.h"
+#include "pcb-menu.h"
 #include "polygon.h"
 #include "rats.h"
 #include "remove.h"
 #include "report.h"
+#include "resource.h"
 #include "rotate.h"
 #include "rubberband.h"
 #include "search.h"
@@ -85,6 +89,16 @@
 #endif
 
 RCSID ("$Id$");
+
+static void ghid_load_menus (void);
+static void ghid_ui_info_append (const gchar *);
+static void ghid_ui_info_indent (int);
+
+static gchar * new_ui_info;
+static gint menuitem_cnt = 0;
+static size_t new_ui_info_sz = 0;
+static GtkActionEntry *new_entries = NULL;
+
 
 extern HID ghid_hid;
 
@@ -232,6 +246,14 @@ save_layout_cb (GtkAction * action, GHidPort * port)
   hid_actionl ("Save", "Layout", NULL);
   ghid_set_status_line_label ();
 }
+
+static void
+ghid_menu_cb (GtkAction * action, GHidPort * port)
+{
+  printf ("ghid_menu_cb(%p, %p)\n", action, port);
+  printf ("  -> name = \"%s\"\n", gtk_action_get_name (action));
+}
+
 
 static void
 save_layout_as_cb (GtkAction * action, GHidPort * port)
@@ -1155,11 +1177,17 @@ radio_select_tool_cb (GtkAction * action, GtkRadioAction * current)
 */
 
 static GtkActionEntry entries[] = {
-  /* name, stock_id, label, accelerator, tooltip callback */
+  /* name, stock_id, label, accelerator, tooltip, callback */
   {"FileMenu", NULL, N_("File")},
   {"SaveConnectionMenu", NULL, N_("Save connection data of")},
 
 /* FileMenu */
+  {"TestMenu1", NULL, "Test Menu Choice #1", NULL, NULL,
+   G_CALLBACK (ghid_menu_cb)},
+  {"TestMenu2", NULL, "Test Menu Choice #2", NULL, NULL,
+   G_CALLBACK (ghid_menu_cb)},
+  {"TestMenu3", NULL, "Test Menu Choice #3", NULL, NULL,
+   G_CALLBACK (ghid_menu_cb)},
   {"SaveLayout", NULL, N_("Save layout"), NULL, NULL,
    G_CALLBACK (save_layout_cb)},
   {"SaveLayoutAs", NULL, N_("Save layout as"), NULL, NULL,
@@ -1615,6 +1643,9 @@ static const gchar *ui_info =
   "<ui>"
   "  <menubar name='MenuBar'>"
   "		<menu action='FileMenu'>"
+  "			<menuitem action='TestMenu1'/>"
+  "			<menuitem action='TestMenu2'/>"
+  "			<menuitem action='TestMenu3'/>"
   "			<menuitem action='SaveLayout'/>"
   "			<menuitem action='SaveLayoutAs'/>"
   "			<separator/>"
@@ -2261,10 +2292,12 @@ ghid_init_toggle_states (void)
 static void
 make_menu_actions (GtkActionGroup * actions, GHidPort * port)
 {
-  gtk_action_group_add_actions (actions, entries, n_entries, port);
+  //gtk_action_group_add_actions (actions, entries, n_entries, port);
+  gtk_action_group_add_actions (actions, new_entries, menuitem_cnt, port);
 
   /* Handle menu actions with dynamic content.
    */
+#ifdef FIXME
   ghid_change_selected_update_menu_actions ();
   ghid_grid_setting_update_menu_actions ();
   update_displayed_name_actions ();
@@ -2286,6 +2319,7 @@ make_menu_actions (GtkActionGroup * actions, GHidPort * port)
   gtk_action_group_add_toggle_actions (actions,
 				       toggle_entries, n_toggle_entries,
 				       port);
+#endif
 }
 
 
@@ -2324,7 +2358,8 @@ make_top_menubar (GtkWidget * hbox, GHidPort * port)
      |  But probably can't do this because of command combo box interaction.
    */
 
-  if (!gtk_ui_manager_add_ui_from_string (ui, ui_info, -1, &error))
+  //  if (!gtk_ui_manager_add_ui_from_string (ui, ui_info, -1, &error))
+  if (!gtk_ui_manager_add_ui_from_string (ui, new_ui_info, -1, &error))
     {
       g_message ("building menus failed: %s", error->message);
       g_error_free (error);
@@ -3297,6 +3332,7 @@ ghid_build_pcb_top_window (void)
   hbox = gtk_hbox_new(FALSE, 0);
   gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
 
+  ghid_load_menus ();
   make_top_menubar(hbox, port);
 
   frame = gtk_frame_new(NULL);
@@ -3872,3 +3908,381 @@ HID_Action gtk_topwindow_action_list[] = {
 };
 
 REGISTER_ACTIONS (gtk_topwindow_action_list)
+
+static char *pcbmenu_path = "pcb-menu.res";
+
+static HID_Attribute pcbmenu_attr[] = {
+{"pcb-menu", "Location of pcb-menu.res file",
+   HID_String, 0, 0, {0, PCBLIBDIR "/pcb-menu.res", 0}, 0, &pcbmenu_path}
+};
+
+REGISTER_ATTRIBUTES (pcbmenu_attr)
+
+typedef struct ToggleItem
+{
+  struct ToggleItem *next;
+  //Widget w;
+  char *group, *item;
+  //XtCallbackProc callback;
+  void * callback;
+  Resource *node;
+} ToggleItem;
+
+static ToggleItem *toggle_items = 0;
+
+#define INDENT_INC 5
+static int n = 0;
+
+
+static void
+add_resource_to_menu (char * menu, Resource * node, void * callback, int indent)
+{
+  int i, j;
+  char *v;
+  Resource *r;
+  int n;
+  char tmps[32];
+
+  for (i = 0; i < node->c; i++)
+    switch (resource_type (node->v[i]))
+      {
+      case 101:		/* named subnode */
+	add_resource_to_menu (node->v[i].name, node->v[i].subres, 
+			      callback, indent + INDENT_INC);
+	break;
+
+      case 1:			/* unnamed subres */
+	if ((v = resource_value (node->v[i].subres, "m")))
+	  {
+	    //stdarg (XmNmnemonic, v);
+	    printf ("    found resource value m=\"%s\"\n", v);
+	  }
+	if ((r = resource_subres (node->v[i].subres, "a")))
+	  {
+	    printf ("    accelerator a=%p.  r->v[0].value = \"%s\", r->v[1].value = \"%s\"\n", r, r->v[0].value, r->v[1].value);
+	  }
+	v = "button";
+	for (j = 0; j < node->v[i].subres->c; j++)
+	  if (resource_type (node->v[i].subres->v[j]) == 10)
+	    {
+	      v = node->v[i].subres->v[j].value;
+	      break;
+	    }
+	
+	    
+	sprintf (tmps, "MenuItem%d", menuitem_cnt);
+	if ( (new_entries = realloc (new_entries, 
+				     (menuitem_cnt + 1) * sizeof (GtkActionEntry))) == NULL)
+	  {
+	    fprintf (stderr, "add_resource_to_menu():  realloc of new_entries failed\n");
+	    exit (1);
+	  }
+	/* name, stock_id, label, accelerator, tooltip, callback */
+	new_entries[menuitem_cnt].name = strdup (tmps);
+	new_entries[menuitem_cnt].stock_id = NULL;
+	new_entries[menuitem_cnt].label = strdup (v);
+	new_entries[menuitem_cnt].accelerator = NULL;
+	new_entries[menuitem_cnt].tooltip = "my tooltip";
+	new_entries[menuitem_cnt].callback = G_CALLBACK (ghid_menu_cb);
+	
+	printf ("{\"%s\", NULL, \"%s\", NULL, \"my tooltip\", G_CALLBACK (ghid_menu_cb)}\n",
+		tmps, v);
+	
+	if (! (node->v[i].subres->flags & FLAG_S) )
+	  {
+	    ghid_ui_info_indent (indent);
+	    ghid_ui_info_append ("<menuitem action='");
+	    ghid_ui_info_append (tmps);
+	    ghid_ui_info_append ("'/>\n");
+	    
+	  }
+	menuitem_cnt++;
+	
+	if (node->v[i].subres->flags & FLAG_S)
+	  {
+	    int nn = n;
+	    //stdarg (XmNtearOffModel, XmTEAR_OFF_ENABLED);
+	    
+	    /* A pull down menu */
+	    ghid_ui_info_indent (indent);
+	    ghid_ui_info_append ("<menu action='");
+	    ghid_ui_info_append (tmps);
+	    //ghid_ui_info_append (v);
+	    ghid_ui_info_append ("'>\n");
+	    
+	    //sub = XmCreatePulldownMenu (menu, v, args + nn, n - nn);
+	    //n = nn;
+	    //stdarg (XmNsubMenuId, sub);
+	    //btn = XmCreateCascadeButton (menu, "menubutton", args, n);
+	    //XtManageChild (btn);
+	    add_resource_to_menu ("sub menu", node->v[i].subres, 
+				  callback, indent + INDENT_INC);
+	    ghid_ui_info_indent (indent);
+	    ghid_ui_info_append ("</menu>\n");
+	  }
+	else
+	  {
+	    Resource *radio = resource_subres (node->v[i].subres, "radio");
+	    char *checked = resource_value (node->v[i].subres, "checked");
+	    char *label = resource_value (node->v[i].subres, "sensitive");
+	    if (radio)
+	      {
+		ToggleItem *ti = (ToggleItem *) malloc (sizeof (ToggleItem));
+		ti->next = toggle_items;
+		ti->group = radio->v[0].value;
+		ti->item = radio->v[1].value;
+		ti->callback = callback;
+		ti->node = node->v[i].subres;
+		toggle_items = ti;
+		
+		if (resource_value (node->v[i].subres, "set"))
+		  {
+		    //stdarg (XmNset, True);
+		    //printf ("value is set\n");
+		  }
+		//stdarg (XmNindicatorType, XmONE_OF_MANY);
+		//btn = XmCreateToggleButton (menu, "menubutton", args, n);
+		//ti->w = btn;
+		//XtAddCallback (btn, XmNvalueChangedCallback,
+	//		       (XtCallbackProc) radio_callback,
+	//		       (XtPointer) ti);
+	      }
+	    else if (checked)
+	      {
+		if (strchr (checked, ','))
+		{
+		  //stdarg (XmNindicatorType, XmONE_OF_MANY);
+		}
+		else
+		{
+		  //stdarg (XmNindicatorType, XmN_OF_MANY);
+		}
+		//btn = XmCreateToggleButton (menu, "menubutton", args, n);
+		//XtAddCallback (btn, XmNvalueChangedCallback,
+	//		       callback, (XtPointer) node->v[i].subres);
+	      }
+	    else if (label && strcmp (label, "false") == 0)
+	      {
+		//printf ("label is false\n");
+		//stdarg (XmNalignment, XmALIGNMENT_BEGINNING);
+		//btn = XmCreateLabel (menu, "menulabel", args, n);
+	      }
+	    else
+	      {
+		//btn = XmCreatePushButton (menu, "menubutton", args, n);
+		//XtAddCallback (btn, XmNactivateCallback,
+		//	       callback, (XtPointer)
+		//	       node->v[i].subres);
+		//printf ("Create a pushbutton, menu=\"%s\"\n", menu);
+		//printf ("Add a callback with the data being node->v[i].subres\n");
+		{
+			int vi;
+			Resource *mynode  = node->v[i].subres;
+
+		  for (vi = 1; vi < mynode->c; vi++)
+		      if (resource_type (mynode->v[vi]) == 10)
+			printf("   action value=\"%s\"\n", mynode->v[vi].value);
+		}
+
+	      }
+
+	    for (j = 0; j < node->v[i].subres->c; j++)
+	      switch (resource_type (node->v[i].subres->v[j]))
+		{
+		case 110:	/* named value = X resource */
+		  {
+		    char *n = node->v[i].subres->v[j].name;
+		    if (strcmp (n, "fg") == 0)
+		      n = "foreground";
+		    if (strcmp (n, "bg") == 0)
+		      n = "background";
+		    if (strcmp (n, "m") == 0
+			|| strcmp (n, "a") == 0
+			|| strcmp (n, "sensitive") == 0)
+		      break;
+		    if (strcmp (n, "checked") == 0)
+		      {
+			//printf ("%s is checked\n", node->v[i].subres->v[j].value);
+			//note_widget_flag (btn, XmNset,
+			//			  node->v[i].subres->v[j].value);
+			break;
+		      }
+		    if (strcmp (n, "active") == 0)
+		      {
+			//printf ("%s is active\n", node->v[i].subres->v[j].value);
+			//note_widget_flag (btn, XmNsensitive,
+			//		  node->v[i].subres->v[j].value);
+			break;
+		      }
+		    /*
+		      XtVaSetValues (btn, XtVaTypedArg,
+				   n,
+				   XtRString,
+				   node->v[i].subres->v[j].value,
+				   strlen (node->v[i].subres->v[j].value) + 1,
+				   NULL);
+				   */
+		  }
+		  break;
+		}
+
+	    //XtManageChild (btn);
+	  }
+	break;
+
+      case 10:			/* unnamed value */
+	/*
+	printf ("resource_type for node #%d is 10 (unnamed value).  value=\"%s\"\n", 
+		i, node->v[i].value);
+	*/
+	n = 0;
+	if (node->v[i].value[0] == '@')
+	  {
+	    if (strcmp (node->v[i].value, "@layerview") == 0)
+	    {
+	      //insert_layerview_buttons (menu);
+	      printf ("insert_layerview_buttons\n");
+	    }
+	    if (strcmp (node->v[i].value, "@layerpick") == 0)
+	    {
+	      //insert_layerpick_buttons (menu);
+	      printf ("insert_layerpick_buttons\n");
+	    }
+	    if (strcmp (node->v[i].value, "@routestyles") == 0)
+	    {
+	      //lesstif_insert_style_buttons (menu);
+	      printf ("insert_style_buttons\n");
+	    }
+	  }
+	else if (strcmp (node->v[i].value, "-") == 0)
+	  {
+	    ghid_ui_info_indent (indent);
+	    ghid_ui_info_append ("<separator/>\n");
+	    //btn = XmCreateSeparator (menu, "sep", args, n);
+	    //XtManageChild (btn);
+	  }
+	else if (i > 0)
+	  {
+	    printf ("Create a pushbutton.  menu=\"%s\", value = \"%s\"\n",menu, node->v[i].value);
+	   // btn = XmCreatePushButton (menu, node->v[i].value, args, n);
+	    //XtManageChild (btn);
+	  }
+	break;
+      }
+}
+
+
+static void
+ghid_ui_info_indent (int indent)
+{
+  int i;
+
+  for (i = 0; i < indent ; i++)
+    {
+      ghid_ui_info_append (" ");
+    }
+}
+
+/* 
+ *appends a string to the ui_info string 
+ * This function is used 
+ */
+
+static void
+ghid_ui_info_append (const gchar * new)
+{
+  gchar *p;
+
+  if (new_ui_info_sz == 0) 
+    {
+      new_ui_info_sz = 1024;
+      new_ui_info = (gchar *) calloc ( new_ui_info_sz, sizeof (gchar));
+    }
+
+  while (strlen (new_ui_info) + strlen (new) + 1 > new_ui_info_sz)
+    {
+      size_t n;
+      gchar * np;
+
+      n = new_ui_info_sz + 1024;
+      printf ("Adding more memory to new_ui_info.  (n = %ld)\n", n);
+      if ( (np = realloc (new_ui_info, n)) == NULL)
+	{
+	  fprintf (stderr, "ghid_ui_info_append():  realloc of size %ld failed\n",
+		   n);
+	  exit (1);
+	}
+      new_ui_info = np;
+      new_ui_info_sz = n;
+    }
+
+  p = new_ui_info + strlen (new_ui_info) ;
+  while (*new != '\0')
+    {
+      *p = *new;
+      p++;
+      new++;
+    }
+  
+  *p = '\0';
+}
+
+
+static void
+ghid_load_menus (void)
+{
+  char *filename;
+  Resource *r = 0, *bir;
+  char *home_pcbmenu;
+  int screen;
+  Resource *mr;
+
+  home_pcbmenu = Concat (getenv ("HOME"), "/.pcb/pcb-menu.res", NULL);
+
+  if (access ("pcb-menu.res", R_OK) == 0)
+    filename = "pcb-menu.res";
+  else if (access (home_pcbmenu, R_OK) == 0)
+    filename = home_pcbmenu;
+  else if (access (pcbmenu_path, R_OK) == 0)
+    filename = pcbmenu_path;
+  else
+    filename = 0;
+
+  bir = resource_parse (0, pcb_menu_default);
+  if (!bir)
+    {
+      fprintf (stderr, "Error: internal menu resource didn't parse\n");
+      exit(1);
+    }
+
+  if (filename)
+    r = resource_parse (filename, 0);
+
+  if (!r)
+    r = bir;
+
+  mr = resource_subres (r, "MainMenu");
+  if (!mr)
+    mr = resource_subres (bir, "MainMenu");
+    
+  if (mr)
+    {
+      printf ("ghid_load_menus():  Adding MainMenu\n");
+      ghid_ui_info_append ("<ui>\n");
+      ghid_ui_info_indent (INDENT_INC);
+      ghid_ui_info_append ("<menubar name='MenuBar'>\n");
+      add_resource_to_menu ("Initial Call", mr, 0, 2*INDENT_INC);
+      ghid_ui_info_indent (INDENT_INC);
+      ghid_ui_info_append ("</menubar>\n");
+      ghid_ui_info_append ("</ui>\n");
+      printf ("Finished loading menus.  ui_info = \n");
+      printf ("%s\n", new_ui_info);
+    }
+
+  mr = resource_subres (r, "Mouse");
+  if (!mr)
+    mr = resource_subres (bir, "Mouse");
+  if (mr)
+    printf ("ghid_load_menus():  Adding Mouse\n");
+
+}
