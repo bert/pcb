@@ -266,7 +266,10 @@ ghid_menu_cb (GtkAction * action, GHidPort * port)
     {
       for (vi = 1; vi < node->c; vi++)
 	if (resource_type (node->v[vi]) == 10)
-	  printf ("    %s\n", node->v[vi].value);
+	  {
+	    printf ("    %s\n", node->v[vi].value);
+	    hid_parse_actions (node->v[vi].value, NULL);
+	  }
     }
   else {
     printf ("    NOOP\n");
