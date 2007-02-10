@@ -284,10 +284,10 @@ cur_clip ()
   return "\\_";
 }
 
-static int busy_timer_set = -1;
-
-static void
-busy_timer_callback(int signum)
+/* Called from the core when it's busy doing something and we need to
+   indicate that to the user.  */
+static int
+Busy(int argc, char **argv, int x, int y)
 {
   static Cursor busy_cursor = 0;
   if (busy_cursor == 0)
@@ -295,36 +295,7 @@ busy_timer_callback(int signum)
   XDefineCursor (display, window, busy_cursor);
   XFlush(display);
   old_cursor_mode = -1;
-}
-
-#define BUSY_TIME 200000
-
-static void
-enable_busy_cursor (int enable)
-{
-  static struct itimerval tv;
-
-  if (busy_timer_set == -1)
-    {
-      signal (SIGALRM, busy_timer_callback);
-      busy_timer_set = 0;
-      tv.it_interval.tv_sec = 0;
-      tv.it_interval.tv_usec = 0;
-      tv.it_value.tv_sec = 0;
-      tv.it_value.tv_usec = BUSY_TIME;
-    }
-  if (enable && !busy_timer_set)
-    {
-      busy_timer_set = 1;
-      tv.it_value.tv_usec = BUSY_TIME;
-      setitimer (ITIMER_REAL, &tv, NULL);
-    }
-  else if (!enable && busy_timer_set)
-    {
-      busy_timer_set = 0;
-      tv.it_value.tv_usec = 0;
-      setitimer (ITIMER_REAL, &tv, NULL);
-    }
+  return 0;
 }
 
 /* ---------------------------------------------------------------------- */
@@ -885,6 +856,7 @@ Center(int argc, char **argv, int x, int y)
      though.  */
   XWarpPointer (display, window, window, 0, 0, view_width, view_height,
 		Vx(x), Vy(y));
+  return 0;
 }
 
 HID_Action lesstif_main_action_list[] = {
@@ -907,7 +879,8 @@ HID_Action lesstif_main_action_list[] = {
   {"Benchmark", 0, Benchmark,
    benchmark_help, benchmark_syntax},
   {"PointCursor", 0, PointCursor},
-  {"Center", "Click on a location to center", Center}
+  {"Center", "Click on a location to center", Center},
+  {"Busy", 0, Busy}
 };
 
 REGISTER_ACTIONS (lesstif_main_action_list)
@@ -2384,8 +2357,6 @@ static int need_redraw = 0;
 static Boolean
 idle_proc (XtPointer dummy)
 {
-  enable_busy_cursor (0);
-
   if (need_redraw)
     {
       int mx, my;
@@ -2783,7 +2754,6 @@ lesstif_need_idle_proc ()
     return;
   XtAppAddWorkProc (app_context, idle_proc, 0);
   idle_proc_set = 1;
-  enable_busy_cursor (1);
 }
 
 static void

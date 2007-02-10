@@ -103,6 +103,7 @@ HID_Action batch_action_list[] = {
   {"NetlistChanged", 0, nop },
   {"LayersChanged", 0, nop },
   {"LibraryChanged", 0, nop },
+  {"Busy", 0, nop },
   {"Help", 0, help },
   {"Info", 0, info }
 };

@@ -2950,6 +2950,8 @@ ActionDJopt (int argc, char **argv, int x, int y)
 		       Settings.ShowSolderSide, False);
 #endif
 
+  hid_action("Busy");
+
   lines = 0;
   corners = 0;
 

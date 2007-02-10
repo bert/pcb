@@ -3623,6 +3623,7 @@ connecting them are minimized.  Note that you cannot undo this.
 static int
 ActionAutoPlaceSelected (int argc, char **argv, int x, int y)
 {
+  hid_action("Busy");
   if (gui->confirm_dialog (_("Auto-placement can NOT be undone.\n"
 			     "Do you want to continue anyway?\n"), 0))
     {
@@ -3667,6 +3668,7 @@ static int
 ActionAutoRoute (int argc, char **argv, int x, int y)
 {
   char *function = ARG (0);
+  hid_action("Busy");
   if (function)			/* one parameter */
     {
       HideCrosshair (True);

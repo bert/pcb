@@ -97,6 +97,7 @@ extern "C"
      NetlistChanged()
      LayersChanged()
      LibraryChanged()
+     Busy()
    */
 
   extern const char pcbchanged_help[];
