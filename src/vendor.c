@@ -119,6 +119,7 @@ sizes for your vendor.
 int
 ActionApplyVendor (int argc, char **argv, int x, int y)
 {
+  hid_action ("Busy");
   apply_vendor_map ();
   return 0;
 }
