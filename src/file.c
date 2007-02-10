@@ -583,12 +583,17 @@ WritePCBNetlistData (FILE * FP)
       for (n = 0; n < PCB->NetlistLib.MenuN; n++)
 	{
 	  LibraryMenuTypePtr menu = &PCB->NetlistLib.Menu[n];
-	  fprintf (FP, "\tNet(\"%s\" \"%s\")\n\t(\n", &menu->Name[2],
-		   UNKNOWN (menu->Style));
+	  fprintf (FP, "\tNet(");
+	  PrintQuotedString(FP, &menu->Name[2]);
+	  fprintf (FP, " ");
+	  PrintQuotedString(FP, UNKNOWN (menu->Style));
+	  fprintf (FP, ")\n\t(\n");
 	  for (p = 0; p < menu->EntryN; p++)
 	    {
 	      LibraryEntryTypePtr entry = &menu->Entry[p];
-	      fprintf (FP, "\t\tConnect(\"%s\")\n", entry->ListEntry);
+	      fprintf (FP, "\t\tConnect(");
+	      PrintQuotedString (FP, entry->ListEntry);
+	      fprintf (FP, ")\n");
 	    }
 	  fprintf (FP, "\t)\n");
 	}

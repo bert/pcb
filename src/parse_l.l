@@ -91,7 +91,7 @@ HEX				0x[0-9a-fA-F]+
 DECIMAL			-?[1-9][0-9]*|0
 FLOATING                -?[0-9]*"."[0-9]*
 CARDINAL		[1-9][0-9]*|0
-STRINGCHAR		([^"\n\r\\]|\\\\|\\\")
+STRINGCHAR		([^"\n\r\\]|\\.)
 
 %option yylineno
 
