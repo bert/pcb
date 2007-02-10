@@ -38,6 +38,7 @@ MainMenu =
    {"Load vendor resource file" LoadVendor()}
    {"Print layout..." Print()}
    {"Export layout..." Export()}
+   {"Calibrate Printer..." PrintCalibrate()}
    -
    {"Save connection data of..." foreground=grey50 sensitive=false}
    {" a single element" GetXY(press a button at the element location) Save(ElementConnections)}

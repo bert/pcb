@@ -6578,6 +6578,16 @@ ActionExecuteFile (int argc, char **argv, int x, int y)
 
 /* --------------------------------------------------------------------------- */
 
+static int
+ActionPSCalib (int argc, char **argv, int x, int y)
+{
+  HID *ps = hid_find_exporter ("ps");
+  ps->calibrate (0.0,0.0);
+  return 0;
+}
+
+/* --------------------------------------------------------------------------- */
+
 HID_Action action_action_list[] = {
   {"AddRats", 0, ActionAddRats,
    addrats_help, addrats_syntax}
@@ -6743,6 +6753,8 @@ HID_Action action_action_list[] = {
   ,
   {"New", 0, ActionNew,
    new_help, new_syntax}
+  ,
+  {"pscalib", 0, ActionPSCalib}
   ,
 };
 
