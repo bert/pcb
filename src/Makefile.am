@@ -1,3 +1,4 @@
+## -*- makefile -*-
 ## $Id$
 ##
 
@@ -15,6 +16,7 @@ EXTRA_LIBRARIES = \
 
 pcblib_DATA=	\
 	default_font \
+	gpcb-menu.res \
 	pcb-menu.res
 
 pkgdata_DATA=	Pcb
@@ -149,6 +151,7 @@ DBUS_SRCS= \
 
 BUILT_SOURCES = \
 	core_lists.h \
+	gpcb-menu.h \
 	hid/gtk/gtk_lists.h \
 	hid/lesstif/lesstif_lists.h \
 	hid/batch/batch_lists.h \
@@ -185,6 +188,7 @@ EXTRA_DIST= \
 	$(srcdir)/hid/png/hid.conf \
 	$(srcdir)/hid/ps/hid.conf \
 	Pcb.ad.in  \
+	gpcb-menu.res \
 	pcb-menu.res \
 	pcbtest.sh.in \
 	dbus.xml
@@ -198,6 +202,12 @@ pcb-menu.h : pcb-menu.res
 	echo 'const char *pcb_menu_default[] = {' >> pcb-menu.h
 	sed 's/\\/\\\\/g; s/"/\\"/g; s/^/"/; s/$$/",/' < ${srcdir}/pcb-menu.res >> pcb-menu.h
 	echo '0};' >> pcb-menu.h
+
+gpcb-menu.h : gpcb-menu.res
+	echo '/* AUTOMATICALLY GENERATED FROM gpcb-menu.res DO NOT EDIT */' > pcb-menu.h
+	echo 'const char *gpcb_menu_default[] = {' >> gpcb-menu.h
+	sed 's/\\/\\\\/g; s/"/\\"/g; s/^/"/; s/$$/",/' < ${srcdir}/gpcb-menu.res >> gpcb-menu.h
+	echo '0};' >> gpcb-menu.h
 
 hid/common/hidlist.h : Makefile
 	true > $@
@@ -241,7 +251,6 @@ dbus-introspect.h : dbus.xml Makefile
 	sed 's/\\/\\\\/g; s/"/\\"/g; s/^/"/; s/$$/"/' < $(srcdir)/dbus.xml >> $@.tmp
 	echo ";" >> $@.tmp
 	mv $@.tmp $@
-	
 
 PCB_SRCS+=	${DBUS_SRCS}
 BUILT_SOURCES+=	dbus-introspect.h
@@ -332,7 +341,7 @@ liblpr_a_SOURCES = \
 	hid/hidint.h \
 	hid/lpr/lpr.c
 
-DISTCLEANFILES= pcbtest.sh Pcb .test/Pcb pcb-menu.h \
+DISTCLEANFILES= pcbtest.sh Pcb .test/Pcb gpcb-menu.h pcb-menu.h \
 	hid/batch/batch_lists.h \
 	hid/common/hidlist.h \
 	hid/gtk/gtk_lists.h \
