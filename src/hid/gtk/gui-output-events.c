@@ -687,16 +687,20 @@ ghid_port_key_press_cb (GtkWidget * drawing_area,
     case GDK_bar:
     case GDK_backslash:
       hid_actionl ("Display", "ToggleThindraw", NULL);
+#ifdef DAN_FIXME
       ghid_set_menu_toggle_button (ghidgui->main_actions,
 				   "ToggleThinDraw", TEST_FLAG (THINDRAWFLAG,
 								PCB));
+#endif
       break;
 
     case GDK_Tab:
       hid_action ("SwapSides");
+#ifdef DAN_FIXME
       ghid_set_menu_toggle_button (ghidgui->main_actions,
 				   "ToggleViewSolderSide",
 				   Settings.ShowSolderSide);
+#endif
       break;
 
     case GDK_Escape:
@@ -764,9 +768,11 @@ ghid_port_key_press_cb (GtkWidget * drawing_area,
 
     case GDK_period:
       hid_actionl ("Display", "Toggle45Degree", NULL);
+#ifdef DAN_FIXME
       ghid_set_menu_toggle_button (ghidgui->main_actions,
 				   "Toggle45degree",
 				   TEST_FLAG (ALLDIRECTIONFLAG, PCB));
+#endif
       break;
 
     case GDK_slash:
