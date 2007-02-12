@@ -22,6 +22,21 @@
  *
  */
 
+#ifdef DAN_FIXME
+TODO:
+
+- figure out when we need to call this:
+  ghid_set_status_line_label ();
+  Everytime? 
+
+- the old quit callback had:
+
+  ghid_config_files_write ();
+  hid_action ("Quit");
+
+  
+#endif
+
 /* This file written by Bill Wilson for the PCB Gtk port */
 
 
@@ -67,7 +82,7 @@
 #include "misc.h"
 #include "move.h"
 #include "output.h"
-#include "pcb-menu.h"
+#include "gpcb-menu.h"
 #include "polygon.h"
 #include "rats.h"
 #include "remove.h"
@@ -95,11 +110,21 @@ static void ghid_ui_info_append (const gchar *);
 static void ghid_ui_info_indent (int);
 
 static gchar * new_ui_info;
-static gint menuitem_cnt = 0;
 static size_t new_ui_info_sz = 0;
+
+/* the array of actions for "normal" menuitems */
 static GtkActionEntry *new_entries = NULL;
+static gint menuitem_cnt = 0;
+
+/* the array of actions for "toggle" menuitems */
+static GtkToggleActionEntry *new_toggle_entries = NULL;
+static gint tmenuitem_cnt = 0;
+
 static Resource **action_resources = NULL;
+static Resource **toggle_action_resources = NULL;
+
 #define MENUITEM "MenuItem"
+#define TMENUITEM "TMenuItem"
 
 extern HID ghid_hid;
 
@@ -240,173 +265,66 @@ top_window_configure_event_cb (GtkWidget * widget, GdkEventConfigure * ev,
 |  in the callback to determine which indicates keyboard being used.
 */
 
-/* ============== FileMenu callbacks =============== */
-static void
-save_layout_cb (GtkAction * action, GHidPort * port)
-{
-  hid_actionl ("Save", "Layout", NULL);
-  ghid_set_status_line_label ();
-}
+
+/*
+ * This is the main menu callback function.  The callback looks as
+ * the gtk action name to figure out which menuitem was chosen.  Then
+ * it looks up in a table to find the pcb actions which should be
+ * executed
+ */
+#define DEBUG_MENU_CB
 
 static void
 ghid_menu_cb (GtkAction * action, GHidPort * port)
 {
   const gchar * name;
-  int id;
+  int id = 0;
   int vi;
-  Resource *node;
+  Resource *node = NULL;
 
   name = gtk_action_get_name (action);
-  id = atoi (name + strlen (MENUITEM));
-  
-  printf ("ghid_menu_cb():  name = \"%s\", id = %ul\n", name, id);
-		
-  node = action_resources[id];
+
+  if ( strncmp (name, MENUITEM, strlen (MENUITEM)) == 0)
+    {
+      /* This is a "normal" menuitem as opposed to a toggle menuitem
+       */
+      id = atoi (name + strlen (MENUITEM));
+      node = action_resources[id];
+    }
+  else if ( strncmp (name, TMENUITEM, strlen (TMENUITEM)) == 0)
+    {
+      /* This is a "toggle" menuitem */
+      id = atoi (name + strlen (TMENUITEM));
+      node = toggle_action_resources[id];
+    }
+  else
+    {
+      fprintf (stderr, "ERROR:  ghid_menu_cb():  name = \"%s\" is unknown\n", name);
+    }
+    
+
+#ifdef DEBUG_MENU_CB
+  printf ("ghid_menu_cb():  name = \"%s\", id = %d\n", name, id);
+#endif
+
   if (node != NULL)
     {
       for (vi = 1; vi < node->c; vi++)
 	if (resource_type (node->v[vi]) == 10)
 	  {
+#ifdef DEBUG_MENU_CB
 	    printf ("    %s\n", node->v[vi].value);
+#endif
 	    hid_parse_actions (node->v[vi].value, NULL);
 	  }
     }
   else {
+#ifdef DEBUG_MENU_CB
     printf ("    NOOP\n");
+#endif
   }
-}
 
-
-static void
-save_layout_as_cb (GtkAction * action, GHidPort * port)
-{
-  hid_actionl ("Save", "LayoutAs", NULL);
-  ghid_set_status_line_label ();
-}
-
-static void revert_cb(GtkAction *action, GHidPort *port)
-	{
-	hid_actionl ("LoadFrom", "Revert", "none", 0);
-	ghid_set_status_line_label ();
-	}
-
-
-
-static void
-load_layout_cb (GtkAction * action, GHidPort * port)
-{
-  hid_actionl ("Load", "Layout", NULL);
-}
-
-static void
-load_element_data_cb (GtkAction * action, GHidPort * port)
-{
-  hid_actionl ("PasteBuffer", "Clear", "", NULL);
-  hid_actionl ("Load", "ElementTobuffer", NULL);
-}
-
-static void
-load_layout_data_cb (GtkAction * action, GHidPort * port)
-{
-  hid_actionl ("PasteBuffer", "Clear", "", NULL);
-  hid_actionl ("Load", "LayoutTobuffer", NULL);
-}
-
-static void
-load_netlist_file_cb (GtkAction * action, GHidPort * port)
-{
-  hid_actionl ("Load", "Netlist", NULL);
-}
-
-static void
-load_vendor_file_cb (GtkAction * action, GHidPort * port)
-{
-  hid_action ("LoadVendor");
-}
-
-static void
-print_layout_cb (GtkAction * action, GHidPort * port)
-{
-  hid_action ("Print");
-}
-
-static void
-export_layout_cb (GtkAction * action, GHidPort * port)
-{
-  hid_action ("Export");
-}
-
-static void
-connections_single_element_cb (GtkAction * action, GHidPort * port)
-{
-  int x, y;
-  gui->get_coords ("Press a button at the element's location", &x, &y);
-  hid_actionl ("Save", "ElementConnections", NULL);
-}
-
-static void
-connections_all_elements_cb (GtkAction * action, GHidPort * port)
-{
-  hid_actionl ("Save", "AllConnections", NULL);
-}
-
-static void
-connections_unused_pins_cb (GtkAction * action, GHidPort * port)
-{
-  hid_actionl ("Save", "AllUnusedPins", NULL);
-}
-
-static void
-new_layout_cb (GtkAction * action, GHidPort * port)
-{
-  hid_action ("New");
-}
-
-static void
-quit_cb (GtkAction * action, GHidPort * port)
-{
-  ghid_config_files_write ();
-  hid_action ("Quit");
-}
-
-
-
-/* ============== EditMenu callbacks =============== */
-static void
-undo_cb (GtkAction * action, GHidPort * port)
-{
-  hid_action ("Undo");
-}
-
-static void
-redo_cb (GtkAction * action, GHidPort * port)
-{
-  hid_action ("Redo");
-}
-
-static void
-clear_undo_cb (GtkAction * action, GHidPort * port)
-{
-  hid_actionl ("Undo", "ClearList", NULL);
-}
-
-
-static void
-edit_text_on_layout_cb (GtkAction * action, GHidPort * port)
-{
-  hid_actionl ("ChangeName", "Object", NULL);
-}
-
-static void
-edit_name_of_layout_cb (GtkAction * action, GHidPort * port)
-{
-  hid_actionl ("ChangeName", "Layout", NULL);
-}
-
-static void
-edit_name_of_active_layer_cb (GtkAction * action, GHidPort * port)
-{
-  hid_actionl ("ChangeName", "Layer", NULL);
+  ghid_update_menus ();
 }
 
 
@@ -698,201 +616,6 @@ toggle_vendor_drill_mapping_cb (GtkAction * action, GHidPort * port)
   hid_action ("ToggleVendor");
 }
 
-/* ============== SelectMenu callbacks =============== */
-static void
-select_all_cb (GtkAction * action, GHidPort * port)
-{
-  hid_actionl ("Select", "All", NULL);
-}
-
-static void
-select_all_connected_cb (GtkAction * action, GHidPort * port)
-{
-  hid_actionl ("Select", "Connection", NULL);
-}
-
-static void
-unselect_all_cb (GtkAction * action, GHidPort * port)
-{
-  hid_actionl ("Unselect", "All", NULL);
-}
-
-static void
-unselect_all_connected_cb (GtkAction * action, GHidPort * port)
-{
-  hid_actionl ("Unselect", "Connection", NULL);
-}
-
-static void
-select_objects_by_name_cb (GtkAction * action, GHidPort * port)
-{
-  hid_actionl ("Select", "ObjectByName", NULL);
-}
-
-static void
-select_elements_by_name_cb (GtkAction * action, GHidPort * port)
-{
-  hid_actionl ("Select", "ElementByName", NULL);
-}
-
-static void
-select_pads_by_name_cb (GtkAction * action, GHidPort * port)
-{
-  hid_actionl ("Select", "PadByName", NULL);
-}
-
-static void
-select_pins_by_name_cb (GtkAction * action, GHidPort * port)
-{
-  hid_actionl ("Select", "PinByName", NULL);
-}
-
-static void
-select_text_by_name_cb (GtkAction * action, GHidPort * port)
-{
-  hid_actionl ("Select", "TextByName", NULL);
-}
-
-static void
-select_vias_by_name_cb (GtkAction * action, GHidPort * port)
-{
-  hid_actionl ("Select", "ViaByName", NULL);
-}
-
-static void
-auto_place_selected_cb (GtkAction * action, GHidPort * port)
-{
-  hid_action ("AutoPlaceSelected");
-}
-
-static void
-disperse_all_elements_cb (GtkAction * action, GHidPort * port)
-{
-  hid_actionl ("DisperseElements", "All", NULL);
-}
-
-static void
-disperse_selected_elements_cb (GtkAction * action, GHidPort * port)
-{
-  hid_actionl ("DisperseElements", "Selected", NULL);
-}
-
-static void
-move_selected_other_side_cb (GtkAction * action, GHidPort * port)
-{
-  hid_actionl ("Flip", "SelectedElements", NULL);
-}
-
-static void
-remove_selected_cb (GtkAction * action, GHidPort * port)
-{
-  hid_action ("RemoveSelected");
-}
-
-static void
-convert_selected_to_element_cb (GtkAction * action, GHidPort * port)
-{
-  hid_actionl ("Select", "Convert", NULL);
-}
-
-static void
-optimize_selected_rats_cb (GtkAction * action, GHidPort * port)
-{
-  hid_actionl ("DeleteRats", "SelectedRats", NULL);
-  hid_actionl ("AddRats", "SelectedRats", NULL);
-}
-
-
-static void
-rip_up_selected_tracks_cb (GtkAction * action, GHidPort * port)
-{
-  hid_actionl ("RipUp", "Selected", NULL);
-}
-
-
-static void
-selected_lines_size_change_cb (GtkAction * action, GHidPort * port)
-{
-  gchar *value, *units;
-
-  ghid_size_increment_get_value (gtk_action_get_name (action), &value,
-				 &units);
-  hid_actionl ("ChangeSize", "SelectedLines", value, units, NULL);
-  hid_actionl ("ChangeSize", "SelectedArcs", value, units, NULL);
-}
-
-static void
-selected_pads_size_change_cb (GtkAction * action, GHidPort * port)
-{
-  gchar *value, *units;
-
-  ghid_size_increment_get_value (gtk_action_get_name (action), &value,
-				 &units);
-  hid_actionl ("ChangeSize", "SelectedPads", value, units, NULL);
-}
-
-static void
-selected_pins_size_change_cb (GtkAction * action, GHidPort * port)
-{
-  gchar *value, *units;
-
-  ghid_size_increment_get_value (gtk_action_get_name (action), &value,
-				 &units);
-  hid_actionl ("ChangeSize", "SelectedPins", value, units, NULL);
-}
-
-static void
-selected_text_size_change_cb (GtkAction * action, GHidPort * port)
-{
-  gchar *value, *units;
-
-  ghid_size_increment_get_value (gtk_action_get_name (action), &value,
-				 &units);
-  hid_actionl ("ChangeSize", "SelectedText", value, units, NULL);
-}
-
-static void
-selected_vias_size_change_cb (GtkAction * action, GHidPort * port)
-{
-  gchar *value, *units;
-
-  ghid_size_increment_get_value (gtk_action_get_name (action), &value,
-				 &units);
-  hid_actionl ("ChangeSize", "SelectedVias", value, units, NULL);
-}
-
-static void
-selected_vias_drill_change_cb (GtkAction * action, GHidPort * port)
-{
-  gchar *value, *units;
-
-  ghid_size_increment_get_value (gtk_action_get_name (action), &value,
-				 &units);
-  hid_actionl ("ChangeDrillSize", "SelectedVias", value, units, NULL);
-}
-
-static void
-selected_pins_drill_change_cb (GtkAction * action, GHidPort * port)
-{
-  gchar *value, *units;
-
-  ghid_size_increment_get_value (gtk_action_get_name (action), &value,
-				 &units);
-  hid_actionl ("ChangeDrillSize", "SelectedPins", value, units, NULL);
-}
-
-static void
-selected_change_square_elements_cb (GtkAction * action, GHidPort * port)
-{
-  hid_actionl ("ChangeSquare", "SelectedElements", NULL);
-}
-
-static void
-selected_change_square_pins_cb (GtkAction * action, GHidPort * port)
-{
-  hid_actionl ("ChangeSquare", "SelectedPins", NULL);
-}
-
 
 /* ============== BufferMenu callbacks =============== */
 #define	PRESS_BUTTON_ELEMENT_PROMPT	\
@@ -909,274 +632,6 @@ copy_selection_to_buffer_cb (GtkAction * action, GHidPort * port)
   hid_actionl ("PasteBuffer", "Clear", "", NULL);
   hid_actionl ("PasteBuffer", "AddSelected", "", NULL);
   hid_actionl ("Mode", "PasteBuffer", NULL);
-}
-
-
-static void
-cut_selection_to_buffer_cb (GtkAction * action, GHidPort * port)
-{
-  if (!ghid_control_is_pressed ())
-    {
-      int x, y;
-      gui->get_coords (PRESS_BUTTON_ELEMENT_PROMPT, &x, &y);
-    }
-  hid_actionl ("PasteBuffer", "Clear", "", NULL);
-  hid_actionl ("PasteBuffer", "AddSelected", "", NULL);
-  hid_action ("RemoveSelected");
-  hid_actionl ("Mode", "PasteBuffer", NULL);
-}
-
-static void
-paste_buffer_to_layout_cb (GtkAction * action, GHidPort * port)
-{
-  hid_actionl ("Mode", "PasteBuffer", NULL);
-}
-
-static void
-rotate_buffer_CCW_cb (GtkAction * action, GHidPort * port)
-{
-  hid_actionl ("Mode", "PasteBuffer", NULL);
-  hid_actionl ("PasteBuffer", "Rotate", "1", NULL);
-}
-
-static void
-rotate_buffer_CW_cb (GtkAction * action, GHidPort * port)
-{
-  hid_actionl ("Mode", "PasteBuffer", NULL);
-  hid_actionl ("PasteBuffer", "Rotate", "3", NULL);
-}
-
-static void
-mirror_buffer_up_down_cb (GtkAction * action, GHidPort * port)
-{
-  hid_actionl ("Mode", "PasteBuffer", NULL);
-  hid_actionl ("PasteBuffer", "Mirror", "", NULL);
-}
-
-static void
-mirror_buffer_left_right_cb (GtkAction * action, GHidPort * port)
-{
-  hid_actionl ("Mode", "PasteBuffer", NULL);
-  hid_actionl ("PasteBuffer", "Rotate", "1", NULL);
-  hid_actionl ("PasteBuffer", "Mirror", "", NULL);
-  hid_actionl ("PasteBuffer", "Rotate", "3", NULL);
-}
-
-/* ============== ConnectsMenu callbacks =============== */
-static void
-clear_buffer_cb (GtkAction * action, GHidPort * port)
-{
-  hid_actionl ("PasteBuffer", "Clear", NULL);
-}
-
-static void
-convert_buffer_to_element_cb (GtkAction * action, GHidPort * port)
-{
-  hid_actionl ("PasteBuffer", "Convert", NULL);
-}
-
-static void
-break_buffer_elements_cb (GtkAction * action, GHidPort * port)
-{
-  hid_actionl ("PasteBuffer", "Restore", NULL);
-}
-
-static void
-save_buffer_elements_cb (GtkAction * action, GHidPort * port)
-{
-  hid_actionl ("PasteBuffer", "Save", NULL);
-}
-
-static void
-radio_select_current_buffer_cb (GtkAction * action, GtkRadioAction * current)
-{
-  gchar buf[16];
-  gint value;
-
-  value = gtk_radio_action_get_current_value (current);
-  if (value >= 1 && value <= 5)
-    {
-      sprintf (buf, "%d", value);
-      hid_actionl ("PasteBuffer", buf, "", NULL);
-    }
-  ghid_set_status_line_label ();
-}
-
-
-/* ============== ConnectsMenu callbacks =============== */
-static void
-lookup_connection_cb (GtkAction * action, GHidPort * port)
-{
-  if (!ghid_control_is_pressed ())
-    {
-      int x, y;
-      gui->get_coords ("Select the object", &x, &y);
-    }
-  hid_actionl ("Connection", "Find", NULL);
-}
-
-static void
-reset_scanned_pads_cb (GtkAction * action, GHidPort * port)
-{
-  hid_actionl ("Connection", "ResetPinsViasAndPads", NULL);
-  ghid_invalidate_all();
-}
-
-static void
-reset_scanned_lines_cb (GtkAction * action, GHidPort * port)
-{
-  hid_actionl ("Connection", "ResetLinesAndPolygons", NULL);
-  ghid_invalidate_all();
-}
-
-static void
-reset_all_connections_cb (GtkAction * action, GHidPort * port)
-{
-  hid_actionl ("Connection", "Reset", NULL);
-  ghid_invalidate_all();
-}
-
-static void
-optimize_rats_nest_cb (GtkAction * action, GHidPort * port)
-{
-  hid_actionl ("Atomic", "Save", NULL);
-  hid_actionl ("DeleteRats", "AllRats", NULL);
-  hid_actionl ("Atomic", "Restore", NULL);
-  hid_actionl ("AddRats", "AllRats", NULL);
-  hid_actionl ("Atomic", "Block", NULL);
-}
-
-static void
-erase_rats_nest_cb (GtkAction * action, GHidPort * port)
-{
-  hid_actionl ("DeleteRats", "AllRats", NULL);
-}
-
-static void
-auto_route_selected_rats_cb (GtkAction * action, GHidPort * port)
-{
-  hid_actionl ("AutoRoute", "Selected", NULL);
-}
-
-static void
-auto_route_all_rats_cb (GtkAction * action, GHidPort * port)
-{
-  hid_actionl ("AutoRoute", "AllRats", NULL);
-}
-
-static void
-rip_up_auto_routed_cb (GtkAction * action, GHidPort * port)
-{
-  hid_actionl ("RipUp", "All", NULL);
-}
-
-static void
-optimize_routes_cb (GtkAction * action, GHidPort * port)
-{
-  const gchar *saction;
-
-  saction = gtk_action_get_name (action);
-  if (!strcmp (saction, "AutoOptimize"))
-    hid_actionl ("DJopt", "auto", NULL);
-  else if (!strcmp (saction, "Debumpify"))
-    hid_actionl ("DJopt", "debumpify", NULL);
-  else if (!strcmp (saction, "Unjaggy"))
-    hid_actionl ("DJopt", "unjaggy", NULL);
-  else if (!strcmp (saction, "ViaNudge"))
-    hid_actionl ("DJopt", "vianudge", NULL);
-  else if (!strcmp (saction, "ViaTrim"))
-    hid_actionl ("DJopt", "viatrim", NULL);
-  else if (!strcmp (saction, "OrthoPull"))
-    hid_actionl ("DJopt", "orthopull", NULL);
-  else if (!strcmp (saction, "SimpleOpts"))
-    hid_actionl ("DJopt", "simple", NULL);
-  else if (!strcmp (saction, "Miter"))
-    hid_actionl ("DJopt", "miter", NULL);
-
-  ghid_invalidate_all();
-}
-
-static void
-toggle_only_auto_routed_cb (GtkAction * action, GHidPort * port)
-{
-  /* Transient setting, not saved in Settings. Not a PCB flag */
-  hid_action ("OptAutoOnly");
-}
-
-static void
-design_rule_check_cb (GtkAction * action, GHidPort * port)
-{
-  hid_action ("DRC");
-}
-
-static void
-apply_vendor_mapping_cb (GtkAction * action, GHidPort * port)
-{
-  hid_action ("ApplyVendor");
-}
-
-
-
-/* ============== InfoMenu callbacks =============== */
-static void
-object_report_cb (GtkAction * action, GHidPort * port)
-{
-  if (!ghid_control_is_pressed ())
-    {
-      int x, y;
-      gui->get_coords ("Select the object", &x, &y);
-    }
-  hid_actionl ("Report", "Object", NULL);
-}
-
-static void
-drill_summary_cb (GtkAction * action, GHidPort * port)
-{
-  hid_actionl ("Report", "DrillReport", NULL);
-}
-
-static void
-found_pins_pads_cb (GtkAction * action, GHidPort * port)
-{
-  hid_actionl ("Report", "FoundPins", NULL);
-}
-
-
-/* ============== WindowMenu callbacks =============== */
-static void
-about_dialog_cb (GtkAction * action, GHidPort * port)
-{
-  ghid_dialog_about ();
-}
-
-static void
-keyref_window_cb (GtkAction * action, GHidPort * port)
-{
-  ghid_keyref_window_show (TRUE);
-}
-
-static void
-library_window_cb (GtkAction * action, GHidPort * port)
-{
-  ghid_library_window_show (port, TRUE);
-}
-
-static void
-message_window_cb (GtkAction * action, GHidPort * port)
-{
-  ghid_log_window_show (TRUE);
-}
-
-static void
-netlist_window_cb (GtkAction * action, GHidPort * port)
-{
-  ghid_netlist_window_show (gport, TRUE);
-}
-
-static void
-command_entry_cb (GtkAction * action, GHidPort * port)
-{
-  ghid_handle_user_command (TRUE);
 }
 
 
@@ -1198,284 +653,10 @@ radio_select_tool_cb (GtkAction * action, GtkRadioAction * current)
 |  above callbacks.
 */
 
-static GtkActionEntry entries[] = {
-  /* name, stock_id, label, accelerator, tooltip, callback */
-  {"FileMenu", NULL, N_("File")},
-  {"SaveConnectionMenu", NULL, N_("Save connection data of")},
-
-/* FileMenu */
-  {"TestMenu1", NULL, "Test Menu Choice #1", NULL, NULL,
-   G_CALLBACK (ghid_menu_cb)},
-  {"TestMenu2", NULL, "Test Menu Choice #2", NULL, NULL,
-   G_CALLBACK (ghid_menu_cb)},
-  {"TestMenu3", NULL, "Test Menu Choice #3", NULL, NULL,
-   G_CALLBACK (ghid_menu_cb)},
-  {"SaveLayout", NULL, N_("Save layout"), NULL, NULL,
-   G_CALLBACK (save_layout_cb)},
-  {"SaveLayoutAs", NULL, N_("Save layout as"), NULL, NULL,
-   G_CALLBACK (save_layout_as_cb)},
-	{ "Revert", NULL, N_("Revert"), NULL, NULL, G_CALLBACK(revert_cb)},
-  {"LoadLayout", NULL, N_("Load layout"), NULL, NULL,
-   G_CALLBACK (load_layout_cb)},
-  {"LoadElementData", NULL, N_("Load element data to paste-buffer"),
-   NULL, NULL,
-   G_CALLBACK (load_element_data_cb)},
-  {"LoadLayoutData", NULL, N_("Load layout data to paste-buffer"),
-   NULL, NULL,
-   G_CALLBACK (load_layout_data_cb)},
-  {"LoadNetlistFile", NULL, N_("Load netlist file"), NULL, NULL,
-   G_CALLBACK (load_netlist_file_cb)},
-  {"LoadVendorFile", NULL, N_("Load vendor resource file"), NULL, NULL,
-   G_CALLBACK (load_vendor_file_cb)},
-  {"PrintLayout", NULL, N_("Print layout"), NULL, NULL,
-   G_CALLBACK (print_layout_cb)},
-  {"ExportLayout", NULL, N_("Export layout"), NULL, NULL,
-   G_CALLBACK (export_layout_cb)},
-  {"SingleElement", NULL, N_("a single element"), NULL, NULL,
-   G_CALLBACK (connections_single_element_cb)},
-  {"AllElements", NULL, N_("all elements"), NULL, NULL,
-   G_CALLBACK (connections_all_elements_cb)},
-  {"UnusedPins", NULL, N_("unused pins"), NULL, NULL,
-   G_CALLBACK (connections_unused_pins_cb)},
-  {"NewLayout", NULL, N_("Start new layout"), NULL, NULL,
-   G_CALLBACK (new_layout_cb)},
-  {"Preferences", NULL, N_("Preferences"), NULL, NULL,
-   G_CALLBACK (ghid_config_window_show)},
-  {"Quit", NULL, N_("Quit Program"), NULL, NULL,
-   G_CALLBACK (quit_cb)},
-
-/* EditMenu */
-  {"EditMenu", NULL, N_("Edit")},
-  {"Undo", NULL, N_("Undo last operation"),
-   "u", NULL,
-   G_CALLBACK (undo_cb)},
-  {"Redo", NULL, N_("Redo last undone operation"),
-   "<shift>r", NULL,
-   G_CALLBACK (redo_cb)},
-  {"ClearUndo", NULL, N_("Clear undo-buffer"),
-   "<shift><control>u", NULL,
-   G_CALLBACK (clear_undo_cb)},
-  /* CutSelectionToBuffer CopySelectionToBuffer PasteBufferToLayout
-     |  are in BufferMenu
-   */
-  /* UnselectAll SelectAll are in SelectMenu
-   */
-  {"EditNamesMenu", NULL, N_("Edit name of")},
-  {"EditTextOnLayout", NULL, "text on layout", "n", NULL,
-   G_CALLBACK (edit_text_on_layout_cb)},
-  {"EditNameOfLayout", NULL, N_("layout"), NULL, NULL,
-   G_CALLBACK (edit_name_of_layout_cb)},
-  {"EditNameOfActiveLayer", NULL, N_("active layer"), NULL, NULL,
-   G_CALLBACK (edit_name_of_active_layer_cb)},
-
-/* ViewMenu */
-  {"ViewMenu", NULL, N_("View")},
-  {"RealignGrid", NULL, N_("Realign grid"), NULL, NULL,
-   G_CALLBACK (realign_grid_cb)},
-  {"GridSettingMenu", NULL, N_("Grid setting")},
-  /* Some radio actions */
-  {"AdjustGridMenu", NULL, N_("Adjust grid")},
-  {"ZoomIn", NULL, "Zoom in",
-   "z", NULL,
-   G_CALLBACK (zoom_cb)},
-  {"ZoomOut", NULL, N_("Zoom out"),
-   "<shift>z", NULL,
-   G_CALLBACK (zoom_cb)},
-  {"DisplayedElementNameMenu", NULL, N_("Displayed element name")},
-  /* Radio actions */
-  {"PinoutMenu", NULL, N_("Open pinout menu"),
-   "<shift>d", NULL,
-   G_CALLBACK (pinout_menu_cb)},
-
-/* SizesMenu */
-  {"SizesMenu", NULL, N_("Sizes")},
-
-/* SettingsMenu */
-  {"SettingsMenu", NULL, N_("Settings")},
-
-/* SelectMenu */
-  {"SelectMenu", NULL, N_("Select")},
-  {"SelectAll", NULL, N_("Select all objects"),
-   "<alt>a", NULL,
-   G_CALLBACK (select_all_cb)},
-  {"SelectAllConnected", NULL, N_("Select all connected objects"),
-   NULL, NULL,
-   G_CALLBACK (select_all_connected_cb)},
-  {"UnselectAll", NULL, N_("Unselect all objects"),
-   "<shift><alt>a", NULL,
-   G_CALLBACK (unselect_all_cb)},
-  {"UnselectAllConnected", NULL, N_("Unselect all connected objects"),
-   NULL, NULL,
-   G_CALLBACK (unselect_all_connected_cb)},
-  {"SelectByNameMenu", NULL, N_("Select by name")},
-  {"SelectObjectsByName", NULL, N_("All objects"), NULL, NULL,
-   G_CALLBACK (select_objects_by_name_cb)},
-  {"SelectElementsByName", NULL, N_("Elements"), NULL, NULL,
-   G_CALLBACK (select_elements_by_name_cb)},
-  {"SelectPadsByName", NULL, N_("Pads"), NULL, NULL,
-   G_CALLBACK (select_pads_by_name_cb)},
-  {"SelectPinsByName", NULL, N_("Pins"), NULL, NULL,
-   G_CALLBACK (select_pins_by_name_cb)},
-  {"SelectTextByName", NULL, N_("Text"), NULL, NULL,
-   G_CALLBACK (select_text_by_name_cb)},
-  {"SelectViasByName", NULL, N_("Vias"), NULL, NULL,
-   G_CALLBACK (select_vias_by_name_cb)},
-  {"AutoPlaceSelected", NULL, N_("Auto place selected elements"),
-   "<control>p", NULL,
-   G_CALLBACK (auto_place_selected_cb)},
-  {"DisperseAllElements", NULL, N_("Disperse all elements"), NULL, NULL,
-   G_CALLBACK (disperse_all_elements_cb)},
-  {"DisperseSelectedElements", NULL, N_("Disperse selected elements"),
-   NULL, NULL,
-   G_CALLBACK (disperse_selected_elements_cb)},
-  {"MoveSelectedOtherSide", NULL, N_("Move selected elements to other side"),
-   "<shift>b", NULL,
-   G_CALLBACK (move_selected_other_side_cb)},
-  {"RemoveSelected", NULL, N_("Remove selected objects"), NULL, NULL,
-   G_CALLBACK (remove_selected_cb)},
-  {"ConvertSelectionToElement", NULL, N_("Convert selection to element"),
-   NULL, NULL,
-   G_CALLBACK (convert_selected_to_element_cb)},
-  {"OptimizeSelectedRats", NULL, N_("Optimize selected rats"), NULL, NULL,
-   G_CALLBACK (optimize_selected_rats_cb)},
-  {"AutoRouteSelectedRats", NULL, N_("Auto route selected rats"),
-   "<alt>r", NULL,
-   G_CALLBACK (auto_route_selected_rats_cb)},
-  {"RipUpSelectedTracks", NULL, N_("Rip up selected auto routed tracks"),
-   NULL, NULL,
-   G_CALLBACK (rip_up_selected_tracks_cb)},
-  {"ChangeSelectedSizeMenu", NULL, N_("Change size of selected objects")},
-  /* Actions in change_selected_entries[] to handle dynamic labels */
-  {"ChangeSelectedDrillMenu", NULL,
-   N_("Change drill hole of selected objects")},
-  /* Actions in change_selected_entries[] to handle dynamic labels */
-  {"ChangeSelectedSquareMenu", NULL,
-   N_("Change square flag of selected objects")},
-  {"ChangeSquareElements", NULL, N_("Elements"), NULL, NULL,
-   G_CALLBACK (selected_change_square_elements_cb)},
-  {"ChangeSquarePins", NULL, N_("Pins"), NULL, NULL,
-   G_CALLBACK (selected_change_square_pins_cb)},
-
-/* BufferMenu */
-  {"BufferMenu", NULL, "Buffer"},
-  {"CopySelectionToBuffer", NULL, N_("Copy selection to buffer"),
-   "<control>x", NULL,
-   G_CALLBACK (copy_selection_to_buffer_cb)},
-  {"CutSelectionToBuffer", NULL, N_("Cut selection to buffer"),
-   "<shift><control>x", NULL,
-   G_CALLBACK (cut_selection_to_buffer_cb)},
-  {"PasteBufferToLayout", NULL, N_("Paste buffer to layout"),
-   NULL, NULL,
-   G_CALLBACK (paste_buffer_to_layout_cb)},
-  {"RotateBufferCCW", NULL, N_("Rotate buffer 90 deg CCW"), NULL, NULL,
-   G_CALLBACK (rotate_buffer_CCW_cb)},
-  {"RotateBufferCW", NULL, N_("Rotate buffer 90 deg CW"), NULL, NULL,
-   G_CALLBACK (rotate_buffer_CW_cb)},
-  {"MirrorBufferUpDown", NULL, N_("Mirror buffer (up/down)"), NULL, NULL,
-   G_CALLBACK (mirror_buffer_up_down_cb)},
-  {"MirrorBufferLeftRight", NULL, N_("Mirror buffer (left/right)"),
-   NULL, NULL,
-   G_CALLBACK (mirror_buffer_left_right_cb)},
-  {"ClearBuffer", NULL, N_("Clear buffer"), NULL, NULL,
-   G_CALLBACK (clear_buffer_cb)},
-  {"ConvertBufferToElement", NULL, N_("Convert buffer to element"),
-   NULL, NULL,
-   G_CALLBACK (convert_buffer_to_element_cb)},
-  {"BreakBufferElements", NULL, N_("Break buffer elements to pieces"),
-   NULL, NULL,
-   G_CALLBACK (break_buffer_elements_cb)},
-  {"SaveBufferElements", NULL, N_("Save buffer elements to file"),
-   NULL, NULL,
-   G_CALLBACK (save_buffer_elements_cb)},
-  {"SelectCurrentBufferMenu", NULL, N_("Select current buffer")},
-  /* Radio action menu */
-
-/* ConnectsMenu */
-  {"ConnectsMenu", NULL, "Connects"},
-  {"LookupConnections", NULL, N_("Lookup connection to object"),
-   "<control>f", NULL,
-   G_CALLBACK (lookup_connection_cb)},
-  {"ResetScannedPads", NULL, N_("Reset scanned pads/pins/vias"), NULL, NULL,
-   G_CALLBACK (reset_scanned_pads_cb)},
-  {"ResetScannedLines", NULL, N_("Reset scanned lines/polygons"), NULL, NULL,
-   G_CALLBACK (reset_scanned_lines_cb)},
-  {"ResetAllConnections", NULL, N_("Reset all connections"),
-   "<shift>f", NULL,
-   G_CALLBACK (reset_all_connections_cb)},
-  {"OptimizeRatsNest", NULL, N_("Optimize rats nest"),
-   "o", NULL,
-   G_CALLBACK (optimize_rats_nest_cb)},
-  {"EraseRatsNest", NULL, N_("Erase rats nest"),
-   "e", NULL,
-   G_CALLBACK (erase_rats_nest_cb)},
-  {"AutoRouteSelectedRats", NULL, N_("Auto route selected rats"), NULL, NULL,
-   G_CALLBACK (auto_route_selected_rats_cb)},
-  {"AutoRouteAllRats", NULL, N_("Auto route all rats"), NULL, NULL,
-   G_CALLBACK (auto_route_all_rats_cb)},
-  {"RipUpAutoRouted", NULL, N_("Rip up all auto routed tracks"), NULL, NULL,
-   G_CALLBACK (rip_up_auto_routed_cb)},
-  {"OptimizeTracksMenu", NULL, N_("Optimize routed tracks")},
-  {"AutoOptimize", NULL, N_("Auto optimize"),
-   /* "<shift>=" */ NULL, NULL,
-   G_CALLBACK (optimize_routes_cb)},
-  {"Debumpify", NULL, N_("Debumpify"), NULL, NULL,
-   G_CALLBACK (optimize_routes_cb)},
-  {"Unjaggy", NULL, N_("Unjaggy"), NULL, NULL,
-   G_CALLBACK (optimize_routes_cb)},
-  {"ViaNudge", NULL, N_("Via nudge"), NULL, NULL,
-   G_CALLBACK (optimize_routes_cb)},
-  {"ViaTrim", NULL, N_("Via trim"), NULL, NULL,
-   G_CALLBACK (optimize_routes_cb)},
-  {"OrthoPull", NULL, N_("Ortho pull"), NULL, NULL,
-   G_CALLBACK (optimize_routes_cb)},
-  {"SimpleOpts", NULL, N_("Simple optimizations"), NULL, NULL,
-   G_CALLBACK (optimize_routes_cb)},
-  {"Miter", NULL, N_("Miter"), NULL, NULL,
-   G_CALLBACK (optimize_routes_cb)},
-  {"DesignRuleCheck", NULL, N_("Design Rule Checker"), NULL, NULL,
-   G_CALLBACK (design_rule_check_cb)},
-  {"ApplyVendorMapping", NULL, N_("Apply vendor drill mapping"), NULL, NULL,
-   G_CALLBACK (apply_vendor_mapping_cb)},
-
-/* InfoMenu */
-  {"InfoMenu", NULL, N_("Info")},
-  {"ObjectReport", NULL, N_("Generate object report"),
-   "<control>r", NULL,
-   G_CALLBACK (object_report_cb)},
-  {"DrillSummary", NULL, N_("Generate drill summary"), NULL, NULL,
-   G_CALLBACK (drill_summary_cb)},
-  {"FoundPinsPads", NULL, N_("Report found pins/pads"), NULL, NULL,
-   G_CALLBACK (found_pins_pads_cb)},
-
-/* WindowMenu */
-  {"WindowMenu", NULL, N_("Window")},
-  {"LibraryWindow", NULL, N_("Library"), NULL, NULL,
-   G_CALLBACK (library_window_cb)},
-  {"MessageLogWindow", NULL, N_("Message Log"), NULL, NULL,
-   G_CALLBACK (message_window_cb)},
-  {"NetlistWindow", NULL, N_("Netlist"), NULL, NULL,
-   G_CALLBACK (netlist_window_cb)},
-  {"CommandWindow", NULL, N_("Command Entry"), NULL, NULL,
-   G_CALLBACK (command_entry_cb)},
-  {"KeyrefWindow", NULL, N_("Key Reference"), NULL, NULL,
-   G_CALLBACK (keyref_window_cb)},
-  {"AboutDialog", NULL, N_("About"), NULL, NULL,
-   G_CALLBACK (about_dialog_cb)},
-
-/* PopupMenu */
-  {"SelectionOperationMenu", NULL, N_("Operations on selections")},
-  {"LocationOperationMenu", NULL, N_("Operations on this location")},
-  {"SelectToolMenu", NULL, N_("Select tool")},
-
-};
-
-static gint n_entries = G_N_ELEMENTS (entries);
-
-
-
   /* These get NULL labels because labels are dynamically set in
      |  ghid_change_selected_update_menu_actions()
    */
+#ifdef DAN_FIXME
 static GtkActionEntry change_selected_entries[] = {
   /* name, stock_id, label, accelerator, tooltip callback */
   {"-LinesChange", NULL, NULL, NULL, NULL,
@@ -1511,7 +692,7 @@ static GtkActionEntry change_selected_entries[] = {
 
 static gint n_change_selected_entries =
 G_N_ELEMENTS (change_selected_entries);
-
+#endif
 
 static GtkRadioActionEntry radio_grid_mil_setting_entries[] = {
   /* name, stock_id, label, accelerator, tooltip, value */
@@ -1590,7 +771,7 @@ static GtkRadioActionEntry radio_select_tool_entries[] = {
 static gint n_radio_select_tool_entries
   = G_N_ELEMENTS (radio_select_tool_entries);
 
-
+#ifdef DAN_FIXME
 static GtkToggleActionEntry toggle_entries[] = {
   /* name, stock_id, label, accelerator, tooltip, callback, is_active */
 
@@ -1654,277 +835,7 @@ static GtkToggleActionEntry toggle_entries[] = {
 
 static gint n_toggle_entries = G_N_ELEMENTS (toggle_entries);
 
-
-
-/* ======================================================================
-|  Here is the ui_manager string that defines the order of items displayed
-|  in the menus.
-*/
-
-static const gchar *ui_info =
-  "<ui>"
-  "  <menubar name='MenuBar'>"
-  "		<menu action='FileMenu'>"
-  "			<menuitem action='TestMenu1'/>"
-  "			<menuitem action='TestMenu2'/>"
-  "			<menuitem action='TestMenu3'/>"
-  "			<menuitem action='SaveLayout'/>"
-  "			<menuitem action='SaveLayoutAs'/>"
-  "			<separator/>"
-  "			<menuitem action='Revert'/>"
-  "			<separator/>"
-  "			<menuitem action='LoadLayout'/>"
-  "			<menuitem action='LoadElementData'/>"
-  "			<menuitem action='LoadLayoutData'/>"
-  "			<menuitem action='LoadNetlistFile'/>"
-  "			<menuitem action='LoadVendorFile'/>"
-  "			<separator/>"
-  "			<menu action='SaveConnectionMenu'>"
-  "				<menuitem action='SingleElement'/>"
-  "				<menuitem action='AllElements'/>"
-  "				<menuitem action='UnusedPins'/>"
-  "			</menu>"
-  "			<separator/>"
-  "			<menuitem action='PrintLayout'/>"
-  "			<menuitem action='ExportLayout'/>"
-  "			<separator/>"
-  "			<menuitem action='NewLayout'/>"
-  "			<separator/>"
-  "			<menuitem action='Preferences'/>"
-  "			<separator/>"
-  "			<menuitem action='Quit'/>"
-  "		</menu>"
-  "		<menu action='EditMenu'>"
-  "			<menuitem action='Undo'/>"
-  "			<menuitem action='Redo'/>"
-  "			<menuitem action='ClearUndo'/>"
-  "			<separator/>"
-  "			<menuitem action='CutSelectionToBuffer'/>"
-  "			<menuitem action='CopySelectionToBuffer'/>"
-  "			<menuitem action='PasteBufferToLayout'/>"
-  "			<separator/>"
-  "			<menuitem action='UnselectAll'/>"
-  "			<menuitem action='SelectAll'/>"
-  "			<separator/>"
-  "			<menu action='EditNamesMenu'>"
-  "				<menuitem action='EditTextOnLayout'/>"
-  "				<menuitem action='EditNameOfLayout'/>"
-  "				<menuitem action='EditNameOfActiveLayer'/>"
-  "			</menu>"
-  "		</menu>"
-  "		<menu action='ViewMenu'>"
-  "			<menuitem action='ToggleDrawGrid'/>"
-  "			<menuitem action='ToggleGridUnitsMm'/>"
-  "			<menu action='GridSettingMenu'>"
-  "				<menuitem action='grid-user'/>"
-  "				<menuitem action='grid0'/>"
-  "				<menuitem action='grid1'/>"
-  "				<menuitem action='grid2'/>"
-  "				<menuitem action='grid3'/>"
-  "				<menuitem action='grid4'/>"
-  "				<menuitem action='grid5'/>"
-  "				<menuitem action='grid6'/>"
-  "				<menuitem action='grid7'/>"
-  "				<menuitem action='grid8'/>"
-  "				<menuitem action='grid9'/>"
-  "				<menuitem action='grid10'/>"
-  "			</menu>"
-  "			<menuitem action='RealignGrid'/>"
-  "			<separator/>"
-  "			<menu action='DisplayedElementNameMenu'>"
-  "				<menuitem action='Description'/>"
-  "				<menuitem action='ReferenceDesignator'/>"
-  "				<menuitem action='Value'/>"
-  "			</menu>"
-  "			<separator/>"
-  "			<menuitem action='TogglePinoutShowsNumber'/>"
-  "			<menuitem action='PinoutMenu'/>"
-  "			<separator/>"
-  "			<menuitem action='ToggleViewSolderSide'/>"
-  "			<separator/>"
-  "			<menuitem action='ZoomIn'/>"
-  "			<menuitem action='ZoomOut'/>"
-  "		</menu>"
-  "		<menu action='SizesMenu'>"
-  "		</menu>"
-  "		<menu action='SettingsMenu'>"
-  "			<menuitem action='Toggle45degree'/>"
-  "			<menuitem action='ToggleStartDirection'/>"
-  "			<menuitem action='ToggleOrthogonalMoves'/>"
-  "			<menuitem action='ToggleSnapPin'/>"
-  "			<menuitem action='ToggleShowDRC'/>"
-  "			<menuitem action='ToggleAutoDrC'/>"
-  "			<separator/>"
-  "			<menuitem action='ToggleRubberBand'/>"
-  "			<menuitem action='ToggleUniqueNames'/>"
-  "			<menuitem action='ToggleLocalRef'/>"
-  "			<menuitem action='ToggleClearLine'/>"
-  "			<menuitem action='ToggleLiveRoute'/>"
-  "			<menuitem action='ToggleThinDraw'/>"
-  "			<menuitem action='ToggleCheckPlanes'/>"
-  "			<separator/>"
-  "			<menuitem action='ToggleVendorDrillMapping'/>"
-  "		</menu>"
-  "		<menu action='SelectMenu'>"
-  "			<menuitem action='SelectAll'/>"
-  "			<menuitem action='SelectAllConnected'/>"
-  "			<separator/>"
-  "			<menuitem action='UnselectAll'/>"
-  "			<menuitem action='UnselectAllConnected'/>"
-  "			<separator/>"
-  "			<menu action='SelectByNameMenu'>"
-  "				<menuitem action='SelectObjectsByName'/>"
-  "				<menuitem action='SelectElementsByName'/>"
-  "				<menuitem action='SelectPadsByName'/>"
-  "				<menuitem action='SelectPinsByName'/>"
-  "				<menuitem action='SelectTextByName'/>"
-  "				<menuitem action='SelectViasByName'/>"
-  "			</menu>"
-  "			<separator/>"
-  "			<menuitem action='AutoPlaceSelected'/>"
-  "			<menuitem action='DisperseAllElements'/>"
-  "			<menuitem action='DisperseSelectedElements'/>"
-  "			<separator/>"
-  "			<menuitem action='MoveSelectedOtherSide'/>"
-  "			<menuitem action='RemoveSelected'/>"
-  "			<separator/>"
-  "			<menuitem action='ConvertSelectionToElement'/>"
-  "			<separator/>"
-  "			<menuitem action='OptimizeSelectedRats'/>"
-  "			<menuitem action='AutoRouteSelectedRats'/>"
-  "			<menuitem action='RipUpSelectedTracks'/>"
-  "			<separator/>"
-  "			<menu action='ChangeSelectedSizeMenu'>"
-  "				<menuitem action='-LinesChange'/>"
-  "				<menuitem action='+LinesChange'/>"
-  "				<menuitem action='-PadsChange'/>"
-  "				<menuitem action='+PadsChange'/>"
-  "				<menuitem action='-PinsChange'/>"
-  "				<menuitem action='+PinsChange'/>"
-  "				<menuitem action='-TextChange'/>"
-  "				<menuitem action='+TextChange'/>"
-  "				<menuitem action='-ViasChange'/>"
-  "				<menuitem action='+ViasChange'/>"
-  "			</menu>"
-  "			<menu action='ChangeSelectedDrillMenu'>"
-  "				<menuitem action='-ViasDrillChange'/>"
-  "				<menuitem action='+ViasDrillChange'/>"
-  "				<menuitem action='-PinsDrillChange'/>"
-  "				<menuitem action='+PinsDrillChange'/>"
-  "			</menu>"
-  "			<menu action='ChangeSelectedSquareMenu'>"
-  "				<menuitem action='ChangeSquareElements'/>"
-  "				<menuitem action='ChangeSquarePins'/>"
-  "			</menu>"
-  "		</menu>"
-  "		<menu action='BufferMenu'>"
-  "			<menuitem action='CopySelectionToBuffer'/>"
-  "			<menuitem action='CutSelectionToBuffer'/>"
-  "			<menuitem action='PasteBufferToLayout'/>"
-  "			<separator/>"
-  "			<menuitem action='RotateBufferCCW'/>"
-  "			<menuitem action='RotateBufferCW'/>"
-  "			<menuitem action='MirrorBufferUpDown'/>"
-  "			<menuitem action='MirrorBufferLeftRight'/>"
-  "			<separator/>"
-  "			<menuitem action='ClearBuffer'/>"
-  "			<menuitem action='ConvertBufferToElement'/>"
-  "			<menuitem action='BreakBufferElements'/>"
-  "			<menuitem action='SaveBufferElements'/>"
-  "			<separator/>"
-  "			<menu action='SelectCurrentBufferMenu'>"
-  "				<menuitem action='SelectBuffer1'/>"
-  "				<menuitem action='SelectBuffer2'/>"
-  "				<menuitem action='SelectBuffer3'/>"
-  "				<menuitem action='SelectBuffer4'/>"
-  "				<menuitem action='SelectBuffer5'/>"
-  "			</menu>"
-  "		</menu>"
-  "		<menu action='ConnectsMenu'>"
-  "			<menuitem action='LookupConnections'/>"
-  "			<menuitem action='ResetScannedPads'/>"
-  "			<menuitem action='ResetScannedLines'/>"
-  "			<menuitem action='ResetAllConnections'/>"
-  "			<separator/>"
-  "			<menuitem action='OptimizeRatsNest'/>"
-  "			<menuitem action='EraseRatsNest'/>"
-  "			<separator/>"
-  "			<menuitem action='AutoRouteSelectedRats'/>"
-  "			<menuitem action='AutoRouteAllRats'/>"
-  "			<menuitem action='RipUpAutoRouted'/>"
-  "			<separator/>"
-  "			<menu action='OptimizeTracksMenu'>"
-  "				<menuitem action='AutoOptimize'/>"
-  "				<menuitem action='Debumpify'/>"
-  "				<menuitem action='Unjaggy'/>"
-  "				<menuitem action='ViaNudge'/>"
-  "				<menuitem action='ViaTrim'/>"
-  "				<menuitem action='OrthoPull'/>"
-  "				<menuitem action='SimpleOpts'/>"
-  "				<menuitem action='Miter'/>"
-  "				<separator/>"
-  "				<menuitem action='ToggleOnlyAutoRoutedNets'/>"
-  "				</menu>"
-  "			<separator/>"
-  "			<menuitem action='DesignRuleCheck'/>"
-  "			<separator/>"
-  "			<menuitem action='ApplyVendorMapping'/>"
-  "		</menu>"
-  "		<menu action='InfoMenu'>"
-  "			<menuitem action='ObjectReport'/>"
-  "			<menuitem action='DrillSummary'/>"
-  "			<menuitem action='FoundPinsPads'/>"
-  "		</menu>"
-  "		<menu action='WindowMenu'>"
-  "			<menuitem action='LibraryWindow'/>"
-  "			<menuitem action='MessageLogWindow'/>"
-  "			<menuitem action='NetlistWindow'/>"
-  "			<menuitem action='CommandWindow'/>"
-  "			<menuitem action='KeyrefWindow'/>"
-  "			<separator/>"
-  "			<menuitem action='AboutDialog'/>"
-  "		</menu>"
-  "	</menubar>"
-  "	<popup name='PopupMenu'>"
-  "		<menu action='SelectionOperationMenu'>"
-  "			<menuitem action='UnselectAll' />"
-  "			<menuitem action='RemoveSelected' />"
-  "			<menuitem action='CopySelectionToBuffer' />"
-  "			<menuitem action='CutSelectionToBuffer' />"
-  "			<menuitem action='ConvertSelectionToElement' />"
-/*"			<menuitem action='BreakElement' />"*/
-  "			<menuitem action='AutoPlaceSelected' />"
-  "			<menuitem action='AutoRouteSelectedRats' />"
-  "			<menuitem action='RipUpSelectedTracks' />"
-  "		</menu>" "		<menu action='LocationOperationMenu'>"
-/*"			<menuitem action='ToggleNameVisibility' />"*/
-/*"			<menuitem action='EditName' />"*/
-  "			<menuitem action='ObjectReport' />"
-/*"			<menuitem action='RotateObjectCCW' />"*/
-/*"			<menuitem action='RotateObjectCW' />"*/
-/*"			<menuitem action='SendToOtherSide' />"*/
-/*"			<menuitem action='ToggleThermal' />"*/
-/*"			<menuitem action='LookupConnections' />"*/
-  "		</menu>"
-  "		<separator/>"
-  "		<menuitem action='Undo' />"
-  "		<menuitem action='Redo' />"
-  "		<separator/>"
-  "		<menu action='SelectToolMenu'>"
-  "			<menuitem action='SelectLineTool' />"
-  "			<menuitem action='SelectViaTool' />"
-  "			<menuitem action='SelectRectangleTool' />"
-  "			<menuitem action='SelectSelectionTool' />"
-  "			<menuitem action='SelectTextTool' />"
-  "			<menuitem action='SelectPannerTool' />"
-  "		</menu>"
-#if 0
-  "		<menuitem name='New' action='SaveLayoutAs' position='top' />"
-  "		<menu name='HelpMenu' action='OptimizeTracksMenu'>"
-  "			<menuitem name='About' action='FoundPinsPads' />"
-  "		</menu>"
 #endif
-  "	</popup>" "</ui>";
 
 
   /* When user toggles grid units mil<->mm or when a new layout is loaded
@@ -1934,6 +845,7 @@ static const gchar *ui_info =
 void
 ghid_change_selected_update_menu_actions (void)
 {
+#ifdef DAN_FIXME
   gchar size_buf[32], buf[128];
 
   if (ghidgui->change_selected_actions)
@@ -2011,6 +923,7 @@ ghid_change_selected_update_menu_actions (void)
   gtk_action_group_add_actions (ghidgui->change_selected_actions,
 				change_selected_entries,
 				n_change_selected_entries, &Output);
+#endif
 }
 
   /* Grid setting labels must also match user and new layout unit changes.
@@ -2314,12 +1227,12 @@ ghid_init_toggle_states (void)
 static void
 make_menu_actions (GtkActionGroup * actions, GHidPort * port)
 {
-  //gtk_action_group_add_actions (actions, entries, n_entries, port);
   gtk_action_group_add_actions (actions, new_entries, menuitem_cnt, port);
+  gtk_action_group_add_toggle_actions (actions, new_toggle_entries, tmenuitem_cnt, port);
 
   /* Handle menu actions with dynamic content.
    */
-#ifdef FIXME
+#ifdef DAN_FIXME
   ghid_change_selected_update_menu_actions ();
   ghid_grid_setting_update_menu_actions ();
   update_displayed_name_actions ();
@@ -3931,11 +2844,11 @@ HID_Action gtk_topwindow_action_list[] = {
 
 REGISTER_ACTIONS (gtk_topwindow_action_list)
 
-static char *pcbmenu_path = "pcb-menu.res";
+static char *pcbmenu_path = "gpcb-menu.res";
 
 static HID_Attribute pcbmenu_attr[] = {
-{"pcb-menu", "Location of pcb-menu.res file",
-   HID_String, 0, 0, {0, PCBLIBDIR "/pcb-menu.res", 0}, 0, &pcbmenu_path}
+{"pcb-menu", "Location of gpcb-menu.res file",
+   HID_String, 0, 0, {0, PCBLIBDIR "/gpcb-menu.res", 0}, 0, &pcbmenu_path}
 };
 
 REGISTER_ATTRIBUTES (pcbmenu_attr)
@@ -3955,6 +2868,71 @@ static ToggleItem *toggle_items = 0;
 #define INDENT_INC 5
 static int n = 0;
 
+static void
+ghid_append_action (const char * name, const char *stock_id, 
+		    const char *label, const char *accelerator,
+		    const char *tooltip)
+{
+  if ( (new_entries = realloc (new_entries, 
+			       (menuitem_cnt + 1) * sizeof (GtkActionEntry))) == NULL)
+    {
+      fprintf (stderr, "ghid_append_action():  realloc of new_entries failed\n");
+      exit (1);
+    }
+  
+
+  if ( (action_resources = realloc (action_resources,
+				    (menuitem_cnt + 1) * sizeof (Resource *))) == NULL)
+    {
+      fprintf (stderr, "ghid_append_action():  realloc of action_resources failed\n");
+      exit (1);
+    }
+  action_resources[menuitem_cnt] = NULL;
+
+  /* name, stock_id, label, accelerator, tooltip, callback */
+  new_entries[menuitem_cnt].name = strdup (name);
+  new_entries[menuitem_cnt].stock_id = (stock_id == NULL ? NULL : strdup (stock_id));
+  new_entries[menuitem_cnt].label = strdup (label);
+  new_entries[menuitem_cnt].accelerator = (accelerator == NULL ? NULL : strdup (accelerator));
+  new_entries[menuitem_cnt].tooltip = (tooltip == NULL ? NULL : strdup (tooltip));
+  new_entries[menuitem_cnt].callback = G_CALLBACK (ghid_menu_cb);
+  menuitem_cnt++;
+}
+
+static void
+ghid_append_toggle_action (const char * name, const char *stock_id, 
+			   const char *label, const char *accelerator,
+			   const char *tooltip, int active)
+{
+
+  if ( (new_toggle_entries = realloc (new_toggle_entries, 
+				      (tmenuitem_cnt + 1) * sizeof (GtkToggleActionEntry))) == NULL)
+    {
+      fprintf (stderr, "ghid_append_toggle_action():  realloc of new_toggle_entries failed\n");
+      exit (1);
+    }
+  
+
+  if ( (toggle_action_resources = realloc (toggle_action_resources,
+				    (tmenuitem_cnt + 1) * sizeof (Resource *))) == NULL)
+    {
+      fprintf (stderr, "ghid_append_toggle_action():  realloc of toggle_action_resources failed\n");
+      exit (1);
+    }
+  toggle_action_resources[tmenuitem_cnt] = NULL;
+
+  /* name, stock_id, label, accelerator, tooltip, callback */
+  new_toggle_entries[tmenuitem_cnt].name = strdup (name);
+  new_toggle_entries[tmenuitem_cnt].stock_id = (stock_id == NULL ? NULL : strdup (stock_id));
+  new_toggle_entries[tmenuitem_cnt].label = strdup (label);
+  new_toggle_entries[tmenuitem_cnt].accelerator = (accelerator == NULL ? NULL : strdup (accelerator));
+  new_toggle_entries[tmenuitem_cnt].tooltip = (tooltip == NULL ? NULL : strdup (tooltip));
+  new_toggle_entries[tmenuitem_cnt].callback = G_CALLBACK (ghid_menu_cb);
+  new_toggle_entries[tmenuitem_cnt].is_active = active ? TRUE : FALSE;
+  tmenuitem_cnt++;
+}
+
+static int menu_cnt = 0;
 
 static void
 add_resource_to_menu (char * menu, Resource * node, void * callback, int indent)
@@ -3975,16 +2953,39 @@ add_resource_to_menu (char * menu, Resource * node, void * callback, int indent)
 	break;
 
       case 1:			/* unnamed subres */
+	/* This is a menu choice.  The first value in the unnamed
+	 * subres is what the menu choice gets called.
+	 *
+	 * This may be a top level menu on the menubar,
+	 * a menu choice under, say the File menu, or
+	 * a menu choice under a submenu of a menu choice.
+	 *
+	 * We need to pick off an "m" named resource which is
+	 * the menu accelerator key and an "a" named subresource
+	 * which contains the information for the hotkey.
+	 */
 	if ((v = resource_value (node->v[i].subres, "m")))
 	  {
-	    //stdarg (XmNmnemonic, v);
 	    printf ("    found resource value m=\"%s\"\n", v);
 	  }
 	if ((r = resource_subres (node->v[i].subres, "a")))
 	  {
+	    /* for the accelerator, it has 2 values  like
+	     *
+	     * a={"Ctrl-Q" "Ctrl<Key>q"}
+	     * The first one is what's displayed in the menu and the
+	     * second actually defines the hotkey
+	     */
 	    printf ("    accelerator a=%p.  r->v[0].value = \"%s\", r->v[1].value = \"%s\"\n", r, r->v[0].value, r->v[1].value);
 	  }
 	v = "button";
+
+	/* Now look for the first unnamed value (not a subresource) to
+	 * figure out the name of the menu or the menuitem.
+	 *
+	 * After this loop, v will be the name of the menu or menuitem.
+	 *
+	 */
 	for (j = 0; j < node->v[i].subres->c; j++)
 	  if (resource_type (node->v[i].subres->v[j]) == 10)
 	    {
@@ -3993,148 +2994,171 @@ add_resource_to_menu (char * menu, Resource * node, void * callback, int indent)
 	    }
 	
 	    
-	sprintf (tmps, "%s%d", MENUITEM, menuitem_cnt);
-	if ( (new_entries = realloc (new_entries, 
-				     (menuitem_cnt + 1) * sizeof (GtkActionEntry))) == NULL)
-	  {
-	    fprintf (stderr, "add_resource_to_menu():  realloc of new_entries failed\n");
-	    exit (1);
-	  }
-	if ( (action_resources = realloc (action_resources,
-					  (menuitem_cnt + 1) * sizeof (Resource *))) == NULL)
-	  {
-	    fprintf (stderr, "add_resource_to_menu():  realloc of action_resources failed\n");
-	    exit (1);
-	  }
-	action_resources[menuitem_cnt] = NULL;
-
-	/* name, stock_id, label, accelerator, tooltip, callback */
-	new_entries[menuitem_cnt].name = strdup (tmps);
-	new_entries[menuitem_cnt].stock_id = NULL;
-	new_entries[menuitem_cnt].label = strdup (v);
-	new_entries[menuitem_cnt].accelerator = NULL;
-	new_entries[menuitem_cnt].tooltip = "my tooltip";
-	new_entries[menuitem_cnt].callback = G_CALLBACK (ghid_menu_cb);
-	
-	menuitem_id = menuitem_cnt;
-
-	menuitem_cnt++;
-	printf ("{\"%s\", NULL, \"%s\", NULL, \"my tooltip\", G_CALLBACK (ghid_menu_cb)}\n",
-		tmps, v);
-	
-	if (! (node->v[i].subres->flags & FLAG_S) )
-	  {
-	    ghid_ui_info_indent (indent);
-	    ghid_ui_info_append ("<menuitem action='");
-	    ghid_ui_info_append (tmps);
-	    ghid_ui_info_append ("'/>\n");
-	    
-	  }
-	
+	/* if the subresource we're processing also has unnamed
+	 * subresources then this is either a menu (that goes on the
+	 * menu bar) or it is a submenu.  It isn't a menuitem.
+	 */
 	if (node->v[i].subres->flags & FLAG_S)
 	  {
-	    int nn = n;
-	    //stdarg (XmNtearOffModel, XmTEAR_OFF_ENABLED);
-	    
-	    /* A pull down menu */
+	    /* This is a menu */
+
+	    /* add menus to the same entries list as the "normal"
+	     * menuitems.  We'll just use NULL for what happens so the
+	     * callback doesn't have anything to do.
+	     */
+
+	    sprintf (tmps, "%s%d", MENUITEM, menuitem_cnt);
+
+	    /* add to the action entries */
+	    /* name, stock_id, label, accelerator, tooltip */
+	    ghid_append_action (tmps, NULL, v, NULL, NULL);
+
+	    /* and add to the user interfact XML description */
 	    ghid_ui_info_indent (indent);
 	    ghid_ui_info_append ("<menu action='");
 	    ghid_ui_info_append (tmps);
-	    //ghid_ui_info_append (v);
 	    ghid_ui_info_append ("'>\n");
-	    
-	    //sub = XmCreatePulldownMenu (menu, v, args + nn, n - nn);
-	    //n = nn;
-	    //stdarg (XmNsubMenuId, sub);
-	    //btn = XmCreateCascadeButton (menu, "menubutton", args, n);
-	    //XtManageChild (btn);
+
+
+	    /* recursively add more submenus or menuitems to this
+	     * menu/submenu
+	     */
 	    add_resource_to_menu ("sub menu", node->v[i].subres, 
 				  callback, indent + INDENT_INC);
 	    ghid_ui_info_indent (indent);
+
+	    /* and close this menu */
 	    ghid_ui_info_append ("</menu>\n");
 	  }
 	else
 	  {
-	    Resource *radio = resource_subres (node->v[i].subres, "radio");
+	    /* We are in a specific menu choice and need to figure out
+	     * if it is a "normal" one 
+	     * or if there is some condtion under which it is checked
+	     * or if it has sensitive=false which is simply a label 
+	     */
+	    
 	    char *checked = resource_value (node->v[i].subres, "checked");
 	    char *label = resource_value (node->v[i].subres, "sensitive");
-	    if (radio)
+	    if (checked)
 	      {
-		ToggleItem *ti = (ToggleItem *) malloc (sizeof (ToggleItem));
-		ti->next = toggle_items;
-		ti->group = radio->v[0].value;
-		ti->item = radio->v[1].value;
-		ti->callback = callback;
-		ti->node = node->v[i].subres;
-		toggle_items = ti;
-		
-		if (resource_value (node->v[i].subres, "set"))
-		  {
-		    //stdarg (XmNset, True);
-		    //printf ("value is set\n");
-		  }
-		//stdarg (XmNindicatorType, XmONE_OF_MANY);
-		//btn = XmCreateToggleButton (menu, "menubutton", args, n);
-		//ti->w = btn;
-		//XtAddCallback (btn, XmNvalueChangedCallback,
-		//		       (XtCallbackProc) radio_callback,
-		//		       (XtPointer) ti);
-	      }
-	    else if (checked)
-	      {
+		/* We have the "checked=" named value for this
+		 * menuitem.  Now see if it is
+		 *   checked=foo
+		 * or
+		 *   checked=foo,bar
+		 *
+		 * where the former is just a binary flag and the
+		 * latter is checking a flag against a value
+		 */
+		printf ("Found a \"checked\" menu choice \"%s\", \"%s\"", v, checked);
 		if (strchr (checked, ','))
 		  {
-		    //stdarg (XmNindicatorType, XmONE_OF_MANY);
+		    /* we're comparing a flag against a value */
 		  }
 		else
 		  {
-		  //stdarg (XmNindicatorType, XmN_OF_MANY);
-		}
-		//btn = XmCreateToggleButton (menu, "menubutton", args, n);
-		//XtAddCallback (btn, XmNvalueChangedCallback,
-		//		       callback, (XtPointer) node->v[i].subres);
+		    /* we're looking at a binary flag */
+		    /* name, stock_id, label, accelerator, tooltip, callback, is_active
+		     */
+		  }
+
+		sprintf (tmps, "%s%d", TMENUITEM, tmenuitem_cnt);
+
+		/* add to the action entries */
+		/* name, stock_id, label, accelerator, tooltip, is_active */
+		ghid_append_toggle_action (tmps, NULL, v, NULL, NULL, 1);
+
+		ghid_ui_info_indent (indent);
+		ghid_ui_info_append ("<menuitem action='");
+		ghid_ui_info_append (tmps);
+		ghid_ui_info_append ("'/>\n");
+
+
+		toggle_action_resources[tmenuitem_cnt-1] = node->v[i].subres;
+		
 	      }
 	    else if (label && strcmp (label, "false") == 0)
 	      {
-		//printf ("label is false\n");
-		//stdarg (XmNalignment, XmALIGNMENT_BEGINNING);
-		//btn = XmCreateLabel (menu, "menulabel", args, n);
+		/* we have sensitive=false so just put a label in the
+		 * GUI 
+		 */
 	      }
 	    else
 	      {
-		//btn = XmCreatePushButton (menu, "menubutton", args, n);
-		//XtAddCallback (btn, XmNactivateCallback,
-		//	       callback, (XtPointer)
-		//	       node->v[i].subres);
-		//printf ("Create a pushbutton, menu=\"%s\"\n", menu);
-		//printf ("Add a callback with the data being node->v[i].subres\n");
-		action_resources[menuitem_id] = node->v[i].subres;
+		/*
+		 * Here we are finally at the rest of an actual
+		 * menuitem.  So, we need to get the subresource
+		 * that has all the actions in it (actually, it will
+		 * be the entire subresource that defines the
+		 * menuitem, the callbacks later will pick out the
+		 * actions part.
+		 *
+		 * We add this resource to an array of action
+		 * resources that is used by the main menu callback to
+		 * figure out what really needs to be done.
+		 */
+
+		sprintf (tmps, "%s%d", MENUITEM, menuitem_cnt);
+
+		/* add to the action entries */
+		/* name, stock_id, label, accelerator, tooltip */
+		ghid_append_action (tmps, NULL, v, NULL, NULL);
+
+		ghid_ui_info_indent (indent);
+		ghid_ui_info_append ("<menuitem action='");
+		ghid_ui_info_append (tmps);
+		ghid_ui_info_append ("'/>\n");
+
+
+		action_resources[menuitem_cnt-1] = node->v[i].subres;
+
+#ifdef DEBUG
+		/* Print out the actions to help with debugging */
 		{
-			int vi;
-			Resource *mynode  = node->v[i].subres;
-			
+		  int vi;
+		  Resource *mynode  = node->v[i].subres;
+		 
+		  /* Start at the 2nd sub resource because the first
+		   * is the text that shows up in the menu.
+		   * 
+		   * We're looking for the unnamed values since those
+		   * are the ones which are actions.
+		   */
 		  for (vi = 1; vi < mynode->c; vi++)
 		    if (resource_type (mynode->v[vi]) == 10)
 		      printf("   action value=\"%s\"\n", mynode->v[vi].value);
 		}
+#endif
 
+		
 	      }
+	    
 
-
+	    /* now keep looking over our menuitem to see if there is
+	     * any more work.
+	     */
 	    for (j = 0; j < node->v[i].subres->c; j++)
 	      switch (resource_type (node->v[i].subres->v[j]))
 		{
 		case 110:	/* named value = X resource */
 		  {
 		    char *n = node->v[i].subres->v[j].name;
+		    /* allow fg and bg to be abbreviations for
+		     * foreground and background
+		     */
 		    if (strcmp (n, "fg") == 0)
 		      n = "foreground";
 		    if (strcmp (n, "bg") == 0)
 		      n = "background";
+
+		    /* ignore special named values (m, a, sensitive) */
 		    if (strcmp (n, "m") == 0
 			|| strcmp (n, "a") == 0
 			|| strcmp (n, "sensitive") == 0)
 		      break;
+
+		    /* log checked and active special values */
 		    if (strcmp (n, "checked") == 0)
 		      {
 			//printf ("%s is checked\n", node->v[i].subres->v[j].value);
@@ -4149,30 +3173,51 @@ add_resource_to_menu (char * menu, Resource * node, void * callback, int indent)
 			//		  node->v[i].subres->v[j].value);
 			break;
 		      }
-		    /*
-		      XtVaSetValues (btn, XtVaTypedArg,
-				   n,
-				   XtRString,
-				   node->v[i].subres->v[j].value,
-				   strlen (node->v[i].subres->v[j].value) + 1,
-				   NULL);
-				   */
+
+		    /* if we got this far it is supposed to be an X
+		     * resource.  For now ignore it and warn the user
+		     */
+		    Message ("The gtk gui currently ignores \"%s\"",
+			     node->v[i].subres->v[j].value);
+		    Message ("as part of a menuitem resource.\n"
+			     "Feel free to provide patches\n");
+		       
 		  }
 		  break;
 		}
 
-	    //XtManageChild (btn);
 	  }
 	break;
 
       case 10:			/* unnamed value */
-	/*
+	/* in the resource file we may have something like:
+	 *
+	 * {File
+	 *   {Open OpenAction()}
+	 *   {Close CloseAction()}
+	 *   -
+	 *   {"Some Choice" MyAction()}
+	 *   {"Some Other Choice" MyOtherAction()}
+	 *   @foo
+	 *   {Quit QuitAction()}
+	 *  }
+	 *
+	 * If we get here in the code it is becuase we found the "-"
+	 * or the "@foo".  
+	 * 
+	 */
+#ifdef DEBUG
 	printf ("resource_type for node #%d is 10 (unnamed value).  value=\"%s\"\n", 
 		i, node->v[i].value);
-	*/
-	n = 0;
+#endif
+
 	if (node->v[i].value[0] == '@')
 	  {
+	    Message ("GTK GUI currently ignores '@' constructs in the menu\n");
+	    Message ("resource file.  In this case what is ignored is\n");
+	    Message ("\"%s\"\n", node->v[i].value);
+
+#ifdef DAN_FIXME
 	    if (strcmp (node->v[i].value, "@layerview") == 0)
 	    {
 	      //insert_layerview_buttons (menu);
@@ -4188,17 +3233,19 @@ add_resource_to_menu (char * menu, Resource * node, void * callback, int indent)
 	      //lesstif_insert_style_buttons (menu);
 	      printf ("insert_style_buttons\n");
 	    }
+#endif
 	  }
+
 	else if (strcmp (node->v[i].value, "-") == 0)
 	  {
 	    ghid_ui_info_indent (indent);
 	    ghid_ui_info_append ("<separator/>\n");
-	    //btn = XmCreateSeparator (menu, "sep", args, n);
-	    //XtManageChild (btn);
 	  }
 	else if (i > 0)
 	  {
-	    printf ("Create a pushbutton.  menu=\"%s\", value = \"%s\"\n",menu, node->v[i].value);
+	    /* how do I get here??? */
+	    printf ("Create a pushbutton.  menu=\"%s\", value = \"%s\"\n",
+		    menu, node->v[i].value);
 	   // btn = XmCreatePushButton (menu, node->v[i].value, args, n);
 	    //XtManageChild (btn);
 	  }
@@ -4272,10 +3319,10 @@ ghid_load_menus (void)
   int screen;
   Resource *mr;
 
-  home_pcbmenu = Concat (getenv ("HOME"), "/.pcb/pcb-menu.res", NULL);
+  home_pcbmenu = Concat (getenv ("HOME"), "/.pcb/gpcb-menu.res", NULL);
 
-  if (access ("pcb-menu.res", R_OK) == 0)
-    filename = "pcb-menu.res";
+  if (access ("gpcb-menu.res", R_OK) == 0)
+    filename = "gpcb-menu.res";
   else if (access (home_pcbmenu, R_OK) == 0)
     filename = home_pcbmenu;
   else if (access (pcbmenu_path, R_OK) == 0)
@@ -4283,7 +3330,7 @@ ghid_load_menus (void)
   else
     filename = 0;
 
-  bir = resource_parse (0, pcb_menu_default);
+  bir = resource_parse (0, gpcb_menu_default);
   if (!bir)
     {
       fprintf (stderr, "Error: internal menu resource didn't parse\n");
