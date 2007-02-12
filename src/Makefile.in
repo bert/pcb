@@ -115,8 +115,7 @@ am__objects_5 = hid/ps/libps_a-ps.$(OBJEXT) \
 	hid/ps/libps_a-eps.$(OBJEXT)
 am_libps_a_OBJECTS = $(am__objects_5)
 libps_a_OBJECTS = $(am_libps_a_OBJECTS)
-am__installdirs = "$(DESTDIR)$(bindir)" "$(DESTDIR)$(pcblibdir)" \
-	"$(DESTDIR)$(pkgdatadir)"
+am__installdirs = "$(DESTDIR)$(bindir)" "$(DESTDIR)$(pcblibdir)"
 binPROGRAMS_INSTALL = $(INSTALL_PROGRAM)
 PROGRAMS = $(bin_PROGRAMS)
 am__pcb_SOURCES_DIST = action.c action.h autoplace.c autoplace.h \
@@ -198,8 +197,7 @@ am__vpath_adj = case $$p in \
   esac;
 am__strip_dir = `echo $$p | sed -e 's|^.*/||'`;
 pcblibDATA_INSTALL = $(INSTALL_DATA)
-pkgdataDATA_INSTALL = $(INSTALL_DATA)
-DATA = $(pcblib_DATA) $(pkgdata_DATA)
+DATA = $(pcblib_DATA)
 ETAGS = etags
 CTAGS = ctags
 DIST_SUBDIRS = $(SUBDIRS)
@@ -231,11 +229,6 @@ ECHO_N = @ECHO_N@
 ECHO_T = @ECHO_T@
 EGREP = @EGREP@
 EXEEXT = @EXEEXT@
-
-# we create Pcb.ad here instead of directly with autoconf because we need
-# recursive evaluation of variables.  Ie, if we directly use autoconf, we'll
-# end up with ${prefix}/share/.... instead of the fully evaluated version in
-# the app-default file
 FONTFILENAME = @FONTFILENAME@
 GDLIB_CONFIG = @GDLIB_CONFIG@
 GIF_FALSE = @GIF_FALSE@
@@ -370,7 +363,6 @@ pcblib_DATA = \
 	default_font \
 	pcb-menu.res
 
-pkgdata_DATA = Pcb
 AM_CFLAGS = -DNDEBUG
 PCB_SRCS = action.c action.h autoplace.c autoplace.h autoroute.c \
 	autoroute.h box.h buffer.c buffer.h change.c change.h \
@@ -421,7 +413,6 @@ EXTRA_DIST = \
 	$(srcdir)/hid/lpr/hid.conf \
 	$(srcdir)/hid/png/hid.conf \
 	$(srcdir)/hid/ps/hid.conf \
-	Pcb.ad.in  \
 	pcb-menu.res \
 	pcbtest.sh.in \
 	dbus.xml
@@ -499,7 +490,7 @@ liblpr_a_SOURCES = \
 	hid/hidint.h \
 	hid/lpr/lpr.c
 
-DISTCLEANFILES = pcbtest.sh Pcb .test/Pcb pcb-menu.h \
+DISTCLEANFILES = pcbtest.sh pcb-menu.h \
 	hid/batch/batch_lists.h \
 	hid/common/hidlist.h \
 	hid/gtk/gtk_lists.h \
@@ -1257,23 +1248,6 @@ uninstall-pcblibDATA:
 	  echo " rm -f '$(DESTDIR)$(pcblibdir)/$$f'"; \
 	  rm -f "$(DESTDIR)$(pcblibdir)/$$f"; \
 	done
-install-pkgdataDATA: $(pkgdata_DATA)
-	@$(NORMAL_INSTALL)
-	test -z "$(pkgdatadir)" || $(mkdir_p) "$(DESTDIR)$(pkgdatadir)"
-	@list='$(pkgdata_DATA)'; for p in $$list; do \
-	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
-	  f=$(am__strip_dir) \
-	  echo " $(pkgdataDATA_INSTALL) '$$d$$p' '$(DESTDIR)$(pkgdatadir)/$$f'"; \
-	  $(pkgdataDATA_INSTALL) "$$d$$p" "$(DESTDIR)$(pkgdatadir)/$$f"; \
-	done
-
-uninstall-pkgdataDATA:
-	@$(NORMAL_UNINSTALL)
-	@list='$(pkgdata_DATA)'; for p in $$list; do \
-	  f=$(am__strip_dir) \
-	  echo " rm -f '$(DESTDIR)$(pkgdatadir)/$$f'"; \
-	  rm -f "$(DESTDIR)$(pkgdatadir)/$$f"; \
-	done
 
 # This directory's subdirectories are mostly independent; you can cd
 # into them and run `make' without going through this Makefile.
@@ -1456,7 +1430,7 @@ check: $(BUILT_SOURCES)
 all-am: Makefile $(LIBRARIES) $(PROGRAMS) $(DATA) all-local
 installdirs: installdirs-recursive
 installdirs-am:
-	for dir in "$(DESTDIR)$(bindir)" "$(DESTDIR)$(pcblibdir)" "$(DESTDIR)$(pkgdatadir)"; do \
+	for dir in "$(DESTDIR)$(bindir)" "$(DESTDIR)$(pcblibdir)"; do \
 	  test -z "$$dir" || $(mkdir_p) "$$dir"; \
 	done
 install: $(BUILT_SOURCES)
@@ -1531,7 +1505,7 @@ info: info-recursive
 
 info-am:
 
-install-data-am: install-pcblibDATA install-pkgdataDATA
+install-data-am: install-pcblibDATA
 
 install-exec-am: install-binPROGRAMS
 
@@ -1559,7 +1533,7 @@ ps: ps-recursive
 ps-am:
 
 uninstall-am: uninstall-binPROGRAMS uninstall-info-am \
-	uninstall-pcblibDATA uninstall-pkgdataDATA
+	uninstall-pcblibDATA
 
 uninstall-info: uninstall-info-recursive
 
@@ -1571,13 +1545,12 @@ uninstall-info: uninstall-info-recursive
 	html-am info info-am install install-am install-binPROGRAMS \
 	install-data install-data-am install-exec install-exec-am \
 	install-info install-info-am install-man install-pcblibDATA \
-	install-pkgdataDATA install-strip installcheck installcheck-am \
-	installdirs installdirs-am maintainer-clean \
-	maintainer-clean-generic maintainer-clean-recursive \
-	mostlyclean mostlyclean-compile mostlyclean-generic \
-	mostlyclean-recursive pdf pdf-am ps ps-am tags tags-recursive \
-	uninstall uninstall-am uninstall-binPROGRAMS uninstall-info-am \
-	uninstall-pcblibDATA uninstall-pkgdataDATA
+	install-strip installcheck installcheck-am installdirs \
+	installdirs-am maintainer-clean maintainer-clean-generic \
+	maintainer-clean-recursive mostlyclean mostlyclean-compile \
+	mostlyclean-generic mostlyclean-recursive pdf pdf-am ps ps-am \
+	tags tags-recursive uninstall uninstall-am \
+	uninstall-binPROGRAMS uninstall-info-am uninstall-pcblibDATA
 
 
 # Action, Attribute, and Flag lists.
@@ -1586,7 +1559,7 @@ core_lists.h : ${PCB_SRCS} Makefile
 	(for f in ${PCB_SRCS} ; do cat $(srcdir)/$$f ; done) | grep "^REGISTER" > $@.tmp
 	mv $@.tmp $@
 
-all-local: pcbtest.sh .test/Pcb
+all-local: pcbtest.sh
 
 pcb-menu.h : pcb-menu.res
 	echo '/* AUTOMATICALLY GENERATED FROM pcb-menu.res DO NOT EDIT */' > pcb-menu.h
@@ -1646,31 +1619,6 @@ pcbtest.sh:	$(srcdir)/pcbtest.sh.in Makefile
 	sed -e "s;@BUILDDIR@;`pwd`;g" -e "s;@TOPSRCDIR@;${top_srcdir};g" \
 		$(srcdir)/pcbtest.sh.in > $@
 	chmod 755 $@
-Pcb:	$(srcdir)/Pcb.ad.in Makefile
-	sed \
-		-e 's;@gnum4@;${M4};g' \
-		-e 's;@pcblibdir@;${pcblibdir};g' \
-		-e 's;@pcbtreedir@;${pcbtreedir};g' \
-		-e 's;@fontfilename@;${FONTFILENAME};g' \
-		-e 's;@libraryfilename@;${LIBRARYFILENAME};g' \
-		-e 's;@btnmod@;${BTNMOD};g' \
-		$(srcdir)/Pcb.ad.in > $@
-
-# Note:  We reference QueryLibrary.sh and the libraries via $(top_srcdir) 
-# since they are not built.  For QueryLibrary.sh, we use a relative path
-# since it is a built file
-.test/Pcb: Pcb
-	if [ ! -d .test ]; then mkdir -p .test ; fi
-	sed	-e 's;^\(Pcb.elementPath\).*$$;\1: .:$(top_srcdir)/newlib:packages:circuits:$(top_srcdir)/lib:$(top_srcdir)/lib/circuits:$(top_srcdir)/lib/packages;' \
-		-e 's;^\(Pcb\.filePath\).*$$;\1: .;' \
-		-e 's;^\(Pcb.fontPath\).*$$;\1: .;' \
-		-e 's;^\(Pcb.fontFile\).*$$;\1: $(srcdir)/default_font;' \
-		-e "s;^\(Pcb.libraryCommand\).*$$;\1: `pwd`/../lib/QueryLibrary.sh \"%p\" \"%f\" %a;" \
-		-e 's;^\(Pcb.libraryContentsCommand\).*$$;\1: $(top_srcdir)/lib/ListLibraryContents.sh "%p" "%f";' \
-		-e "s;^\(Pcb.libraryPath\).*$$;\1: .:`pwd`/../lib;" \
-		-e 's;^\(Pcb.libraryTree\).*$$;\1: $(top_srcdir)/newlib;' \
-		-e 's;^\(Pcb.libraryFilename\).*$$;\1: ${LIBRARYFILENAME};' \
-			Pcb > $@
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
 .NOEXPORT:
