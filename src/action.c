@@ -3478,7 +3478,7 @@ ActionRipUp (int argc, char **argv, int x, int y)
 		PASTEBUFFER->X = 0;
 		PASTEBUFFER->Y = 0;
 		SaveUndoSerialNumber ();
-		EraseObject (ELEMENT_TYPE, ptr1);
+		EraseObject (ELEMENT_TYPE, ptr1, ptr1);
 		MoveObjectToRemoveUndoList (ELEMENT_TYPE, ptr1, ptr2, ptr3);
 		RestoreUndoSerialNumber ();
 		CopyPastebufferToLayout (0, 0);

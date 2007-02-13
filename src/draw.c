@@ -1309,7 +1309,7 @@ DrawPinOrViaNameLowLevel (PinTypePtr Ptr)
 
   if (gui->gui)
     doing_pinout++;
-  DrawTextLowLevel (&text);
+  DrawTextLowLevel (&text, 0);
   if (gui->gui)
     doing_pinout--;
 }
@@ -1469,7 +1469,7 @@ DrawPadNameLowLevel (PadTypePtr Pad)
   text.Direction = vert ? 1 : 0;
   text.TextString = name;
 
-  DrawTextLowLevel (&text);
+  DrawTextLowLevel (&text, 0);
 
 }
 
@@ -1537,7 +1537,7 @@ DrawLineLowLevel (LineTypePtr Line, Boolean HaveGathered)
  * lowlevel drawing routine for text objects
  */
 void
-DrawTextLowLevel (TextTypePtr Text)
+DrawTextLowLevel (TextTypePtr Text, int min_line_width)
 {
   LocationType x = 0;
   unsigned char *string = (unsigned char *) Text->TextString;
@@ -1567,8 +1567,8 @@ DrawTextLowLevel (TextTypePtr Text)
 	      newline.Point2.X = (newline.Point2.X + x) * Text->Scale / 100;
 	      newline.Point2.Y = newline.Point2.Y * Text->Scale / 100;
 	      newline.Thickness = newline.Thickness * Text->Scale / 200;
-	      if (newline.Thickness < PCB->minSlk && !gui->gui)
-		newline.Thickness = PCB->minSlk;
+	      if (newline.Thickness < min_line_width)
+		newline.Thickness = min_line_width;
 
 	      RotateLineLowLevel (&newline, 0, 0, Text->Direction);
 
@@ -1919,26 +1919,38 @@ DrawArc (LayerTypePtr Layer, ArcTypePtr Arc, int unused)
 void
 DrawText (LayerTypePtr Layer, TextTypePtr Text, int unused)
 {
+  int min_silk_line;
   if (!Layer->On)
     return;
   if (TEST_FLAG (SELECTEDFLAG, Text))
     gui->set_color (Output.fgGC, Layer->SelectedColor);
   else
     gui->set_color (Output.fgGC, Layer->Color);
-  DrawTextLowLevel (Text);
+  if (Layer == & PCB->Data->SILKLAYER
+      || Layer == & PCB->Data->BACKSILKLAYER)
+    min_silk_line = PCB->minSlk;
+  else
+    min_silk_line = PCB->minWid;
+  DrawTextLowLevel (Text, min_silk_line);
 }
 
 /* ---------------------------------------------------------------------------
- * draws text on a layer - assumes it's not on silkscreen
+ * draws text on a layer
  */
 static void
 DrawRegularText (LayerTypePtr Layer, TextTypePtr Text, int unused)
 {
+  int min_silk_line;
   if (TEST_FLAG (SELECTEDFLAG, Text))
     gui->set_color (Output.fgGC, Layer->SelectedColor);
   else
     gui->set_color (Output.fgGC, Layer->Color);
-  DrawTextLowLevel (Text);
+  if (Layer == & PCB->Data->SILKLAYER
+      || Layer == & PCB->Data->BACKSILKLAYER)
+    min_silk_line = PCB->minSlk;
+  else
+    min_silk_line = PCB->minWid;
+  DrawTextLowLevel (Text, min_silk_line);
 }
 
 static int
@@ -2098,7 +2110,7 @@ DrawElementName (ElementTypePtr Element, int unused)
     gui->set_color (Output.fgGC, PCB->ElementColor);
   else
     gui->set_color (Output.fgGC, PCB->InvisibleObjectsColor);
-  DrawTextLowLevel (&ELEMENT_TEXT (PCB, Element));
+  DrawTextLowLevel (&ELEMENT_TEXT (PCB, Element), PCB->minSlk);
 }
 
 /* ---------------------------------------------------------------------------
@@ -2259,11 +2271,17 @@ EraseArc (ArcTypePtr Arc)
  * erases a text on a layer
  */
 void
-EraseText (TextTypePtr Text)
+EraseText (LayerTypePtr Layer, TextTypePtr Text)
 {
+  int min_silk_line;
   Erasing++;
   gui->set_color (Output.fgGC, Settings.BackgroundColor);
-  DrawTextLowLevel (Text);
+  if (Layer == & PCB->Data->SILKLAYER
+      || Layer == & PCB->Data->BACKSILKLAYER)
+    min_silk_line = PCB->minSlk;
+  else
+    min_silk_line = PCB->minWid;
+  DrawTextLowLevel (Text, min_silk_line);
   Erasing--;
 }
 
@@ -2299,7 +2317,7 @@ EraseElement (ElementTypePtr Element)
   }
   END_LOOP;
   if (!TEST_FLAG (HIDENAMEFLAG, Element))
-    DrawTextLowLevel (&ELEMENT_TEXT (PCB, Element));
+    DrawTextLowLevel (&ELEMENT_TEXT (PCB, Element), PCB->minSlk);
   EraseElementPinsAndPads (Element);
   Erasing--;
 }
@@ -2345,7 +2363,7 @@ EraseElementName (ElementTypePtr Element)
     return;
   Erasing++;
   gui->set_color (Output.fgGC, Settings.BackgroundColor);
-  DrawTextLowLevel (&ELEMENT_TEXT (PCB, Element));
+  DrawTextLowLevel (&ELEMENT_TEXT (PCB, Element), PCB->minSlk);
   Erasing--;
 }
 
@@ -2395,7 +2413,7 @@ DrawGrid ()
 }
 
 void
-EraseObject (int type, void *ptr)
+EraseObject (int type, void *lptr, void *ptr)
 {
   switch (type)
     {
@@ -2405,7 +2423,7 @@ EraseObject (int type, void *ptr)
       break;
     case TEXT_TYPE:
     case ELEMENTNAME_TYPE:
-      EraseText ((TextTypePtr) ptr);
+      EraseText (lptr, (TextTypePtr) ptr);
       break;
     case POLYGON_TYPE:
       ErasePolygon ((PolygonTypePtr) ptr);

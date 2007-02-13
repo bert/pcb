@@ -114,7 +114,7 @@ text_at (int x, int y, int align, char *fmt, ...)
   t.X -= w * (align & 3) / 2;
   if (t.X < 0)
     t.X = 0;
-  DrawTextLowLevel (&t);
+  DrawTextLowLevel (&t, 0);
   if (align & 8)
     fab_line (t.X,
 	      t.Y +
@@ -341,7 +341,7 @@ PrintFab (void)
       END_LOOP;
       TEXT_LOOP (layer);
       {
-	DrawTextLowLevel (text);
+	DrawTextLowLevel (text, 0);
       }
       END_LOOP;
       gui->set_line_width (Output.fgGC, FAB_LINE_W);

@@ -178,7 +178,7 @@ RotatePolygonLowLevel (PolygonTypePtr Polygon,
 static void *
 RotateText (LayerTypePtr Layer, TextTypePtr Text)
 {
-  EraseText (Text);
+  EraseText (Layer, Text);
   r_delete_entry (Layer->text_tree, (BoxTypePtr) Text);
   RotateTextLowLevel (Text, CenterX, CenterY, Number);
   r_insert_entry (Layer->text_tree, (BoxTypePtr) Text, 0);

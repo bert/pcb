@@ -435,7 +435,7 @@ RemoveText (LayerTypePtr Layer, TextTypePtr Text)
   /* erase from screen */
   if (Layer->On)
     {
-      EraseText (Text);
+      EraseText (Layer, Text);
       if (!Bulk)
         Draw ();
     }
