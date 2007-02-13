@@ -126,6 +126,51 @@ static Resource **toggle_action_resources = NULL;
 #define MENUITEM "MenuItem"
 #define TMENUITEM "TMenuItem"
 
+typedef struct
+{
+  const char *actionname;
+  const char *flagname;
+  int oldval;
+  char *xres;
+} ToggleFlagType;
+
+static ToggleFlagType *tflags = 0;
+static int n_tflags = 0;
+static int max_tflags = 0;
+
+static void
+note_toggle_flag (const char *actionname, char *name)
+{
+  if (n_tflags >= max_tflags)
+    {
+      max_tflags += 20;
+      tflags =
+	MyRealloc (tflags, max_tflags * sizeof (ToggleFlagType),
+		   __FUNCTION__);
+    }
+  tflags[n_tflags].actionname = actionname;
+  tflags[n_tflags].flagname = name;
+  tflags[n_tflags].oldval = -1;
+  tflags[n_tflags].xres = "none";
+  n_tflags++;
+}
+
+void
+ghid_update_toggle_flags ()
+{
+  int i;
+  GtkAction *a;
+
+  for (i = 0; i < n_tflags; i++)
+    {
+      int v = hid_get_flag (tflags[i].flagname);
+      a = gtk_action_group_get_action (ghidgui->main_actions, tflags[i].actionname);
+      gtk_toggle_action_set_active (GTK_TOGGLE_ACTION (a), v? TRUE : FALSE);
+      tflags[i].oldval = v;
+    }
+}
+
+
 extern HID ghid_hid;
 
 GhidGui _ghidgui, *ghidgui = NULL;
@@ -281,6 +326,16 @@ ghid_menu_cb (GtkAction * action, GHidPort * port)
   int id = 0;
   int vi;
   Resource *node = NULL;
+  static int in_cb = 0;
+
+  /* If we don't do this then we can end up in loops where changing
+   * the state of the toggle actions triggers the callbacks and
+   * the call back updates the state of the actions.
+   */
+  if (in_cb)
+    return;
+  else
+    in_cb = 1;
 
   name = gtk_action_get_name (action);
 
@@ -324,7 +379,10 @@ ghid_menu_cb (GtkAction * action, GHidPort * port)
 #endif
   }
 
-  ghid_update_menus ();
+  ghid_update_toggle_flags ();
+  //ghid_update_menus ();
+
+  in_cb = 0;
 }
 
 
@@ -3051,15 +3109,18 @@ add_resource_to_menu (char * menu, Resource * node, void * callback, int indent)
 		 * where the former is just a binary flag and the
 		 * latter is checking a flag against a value
 		 */
-		printf ("Found a \"checked\" menu choice \"%s\", \"%s\"", v, checked);
+		printf ("Found a \"checked\" menu choice \"%s\", \"%s\"\n", v, checked);
 		if (strchr (checked, ','))
 		  {
 		    /* we're comparing a flag against a value */
+		    printf ("Found checked comparing a flag to a value\n");
 		  }
 		else
 		  {
 		    /* we're looking at a binary flag */
 		    /* name, stock_id, label, accelerator, tooltip, callback, is_active
+		    printf ("Found checked using a flag as a binary\n");
+
 		     */
 		  }
 
@@ -3161,16 +3222,17 @@ add_resource_to_menu (char * menu, Resource * node, void * callback, int indent)
 		    /* log checked and active special values */
 		    if (strcmp (n, "checked") == 0)
 		      {
-			//printf ("%s is checked\n", node->v[i].subres->v[j].value);
-			//note_widget_flag (btn, XmNset,
-			//			  node->v[i].subres->v[j].value);
+			printf ("%s is checked\n", node->v[i].subres->v[j].value);
+			note_toggle_flag (new_toggle_entries[tmenuitem_cnt-1].name,
+			  node->v[i].subres->v[j].value);
 			break;
 		      }
 		    if (strcmp (n, "active") == 0)
 		      {
-			//printf ("%s is active\n", node->v[i].subres->v[j].value);
-			//note_widget_flag (btn, XmNsensitive,
-			//		  node->v[i].subres->v[j].value);
+			Message ("The gtk gui currently ignores \"%s\"",
+				 node->v[i].subres->v[j].value);
+			Message ("as part of a menuitem resource.\n"
+				 "Feel free to provide patches\n");
 			break;
 		      }
 
