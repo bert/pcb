@@ -170,6 +170,12 @@ ghid_update_toggle_flags ()
 {
   int i;
   GtkAction *a;
+  gboolean old_holdoff;
+
+
+  /* mask the callbacks */
+  old_holdoff = ghidgui->toggle_holdoff;
+  ghidgui->toggle_holdoff = TRUE;
 
   for (i = 0; i < n_tflags; i++)
     {
@@ -178,6 +184,9 @@ ghid_update_toggle_flags ()
       gtk_toggle_action_set_active (GTK_TOGGLE_ACTION (a), v? TRUE : FALSE);
       tflags[i].oldval = v;
     }
+
+  ghidgui->toggle_holdoff = old_holdoff;
+
 }
 
 
@@ -337,6 +346,7 @@ ghid_menu_cb (GtkAction * action, GHidPort * port)
   int vi;
   Resource *node = NULL;
   static int in_cb = 0;
+  gboolean old_holdoff;
 
   /* If we don't do this then we can end up in loops where changing
    * the state of the toggle actions triggers the callbacks and
@@ -360,7 +370,14 @@ ghid_menu_cb (GtkAction * action, GHidPort * port)
     {
       /* This is a "toggle" menuitem */
       id = atoi (name + strlen (TMENUITEM));
-      node = toggle_action_resources[id];
+
+      /* toggle_holdoff lets us update the state of the menus without
+       * actually triggering all the callbacks
+       */
+      if (ghidgui->toggle_holdoff == TRUE) 
+	node = NULL;
+      else
+	node = toggle_action_resources[id];
     }
   else
     {
@@ -389,9 +406,12 @@ ghid_menu_cb (GtkAction * action, GHidPort * port)
 #endif
   }
 
-  ghid_update_toggle_flags ();
-  //ghid_update_menus ();
 
+  old_holdoff = ghidgui->toggle_holdoff;
+  ghidgui->toggle_holdoff = TRUE;
+  ghid_update_toggle_flags ();
+  ghidgui->toggle_holdoff = old_holdoff;
+  
   in_cb = 0;
 }
 
@@ -793,6 +813,7 @@ ghid_sync_with_new_layout (void)
   old_holdoff = ghidgui->toggle_holdoff;
   ghidgui->toggle_holdoff = TRUE;
 
+#ifdef DAN_FIXME
   action =
     gtk_action_group_get_action (ghidgui->main_actions, "ToggleDrawGrid");
   gtk_toggle_action_set_active (GTK_TOGGLE_ACTION (action),
@@ -868,6 +889,8 @@ ghid_sync_with_new_layout (void)
    */
   ghid_grid_setting_update_menu_actions ();
   update_displayed_name_actions ();
+
+#endif
 
   ghidgui->toggle_holdoff = old_holdoff;
 
@@ -2348,7 +2371,12 @@ ghid_create_pcb_widgets (void)
     g_error_free(err);
     }
   ghid_build_pcb_top_window ();
+#ifdef DAN_FIXME
   ghid_init_toggle_states ();
+#else
+  ghid_update_toggle_flags ();
+#endif
+
   ghid_init_icons (port);
   SetMode (ARROW_MODE);
   ghid_mode_buttons_update ();
