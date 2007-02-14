@@ -1554,6 +1554,41 @@ HID_Action ghid_main_action_list[] = {
 
 REGISTER_ACTIONS (ghid_main_action_list)
 
+static int flip_x = 0, flip_y = 0;
+static int thindraw = 0;
+static int thindrawpoly = 0;
+static int autofade = 0;
+
+static int
+flag_thindraw (int x)
+{
+  return thindraw;
+}
+static int
+flag_thindrawpoly (int x)
+{
+  return thindrawpoly;
+}
+static int
+flag_flipx (int x)
+{ 
+  return flip_x;
+} 
+static int  
+flag_flipy (int x)
+{ 
+  return flip_y;
+} 
+
+HID_Flag ghid_main_flag_list[] = {
+  {"thindraw", flag_thindraw, 0},
+  {"thindrawpoly", flag_thindrawpoly, 0},
+  {"flip_x", flag_flipx, 0},
+  {"flip_y", flag_flipy, 0}
+};  
+
+REGISTER_FLAGS (ghid_main_flag_list)
+
 #include "dolists.h"
 
 /*
