@@ -34,6 +34,16 @@ TODO:
   ghid_config_files_write ();
   hid_action ("Quit");
 
+- what about stuff like this:
+
+  /* Set to ! because ActionDisplay toggles it */
+  Settings.DrawGrid = !gtk_toggle_action_get_active (action);
+  ghidgui->config_modified = TRUE;
+  hid_actionl ("Display", "Grid", "", NULL);
+  ghid_set_status_line_label ();
+
+- do not forget I can use
+  if (!ghidgui->toggle_holdoff)
   
 #endif
 
@@ -388,78 +398,7 @@ ghid_menu_cb (GtkAction * action, GHidPort * port)
 
 
 /* ============== ViewMenu callbacks =============== */
-static void
-toggle_draw_grid_cb (GtkToggleAction * action, GHidPort * port)
-{
-  if (ghidgui->toggle_holdoff)	/* If setting initial condition */
-    return;
 
-  /* Set to ! because ActionDisplay toggles it */
-  Settings.DrawGrid = !gtk_toggle_action_get_active (action);
-  ghidgui->config_modified = TRUE;
-  hid_actionl ("Display", "Grid", "", NULL);
-  ghid_set_status_line_label ();
-}
-
-static void
-realign_grid_cb (GtkAction * action, GHidPort * port)
-{
-  int x, y;
-  gui->get_coords ("Press a button at a grid point", &x, &y);
-  hid_actionl ("Display", "ToggleGrid", "", NULL);
-  ghid_set_status_line_label ();
-}
-
-static void
-zoom_cb (GtkAction * action, GtkRadioAction * current)
-{
-  gint px, py;
-  const gchar *saction = gtk_action_get_name (action);
-  gdouble zoom_factor;
-
-  zoom_factor = !strcmp (saction, "ZoomIn") ? 0.8 : 1.25;
-  ghid_get_coords ("Click on zoom focus", &px, &py);
-  ghid_port_ranges_zoom (gport->zoom * zoom_factor);
-  ghid_set_status_line_label ();
-}
-
-
-static void
-toggle_view_solder_side_cb (GtkAction * action, GHidPort * port)
-{
-  /* If get here from the menu, ask for a locaton.
-   */
-  if (ghidgui->toggle_holdoff)
-    return;
-  if (!ghid_shift_is_pressed ())
-    {
-      int x, y;
-      gui->get_coords (_("Press a button at the desired point"), &x, &y);
-    }
-  hid_action ("SwapSides");
-  ghid_set_status_line_label ();
-}
-
-static void
-toggle_pinout_shows_number_cb (GtkToggleAction * action, GHidPort * port)
-{
-  /* Toggle existing PCB flag and use setting to initialize new PCB flag */
-  Settings.ShowNumber = gtk_toggle_action_get_active (action);
-  ghidgui->config_modified = TRUE;
-  if (!ghidgui->toggle_holdoff)
-    hid_actionl ("Display", "ToggleName", "", NULL);
-}
-
-static void
-pinout_menu_cb (GtkAction * action, GHidPort * port)
-{
-  if (!ghid_shift_is_pressed ())
-    {
-      int x, y;
-      gui->get_coords ("Select an element", &x, &y);
-    }
-  hid_actionl ("Display", "Pinout", "", NULL);
-}
 
   /* Do grid units handling common to a grid units change from the menu or
      |  the grid units button.
@@ -484,14 +423,6 @@ handle_grid_units_change (gboolean active)
 
   ghid_change_selected_update_menu_actions ();
   ghid_set_status_line_label ();
-}
-
-static void
-toggle_grid_units_cb (GtkToggleAction * action, GHidPort * port)
-{
-  if (ghidgui->toggle_holdoff)	/* If setting initial condition */
-    return;
-  handle_grid_units_change (gtk_toggle_action_get_active (action));
 }
 
 static void
@@ -542,168 +473,11 @@ radio_displayed_element_name_cb (GtkAction * action, GtkRadioAction * current)
 
 
 /* ============== SettingsMenu callbacks =============== */
-static void
-toggle_45_degree_cb (GtkToggleAction * action, GHidPort * port)
-{
-  /* Toggle existing PCB flag and use setting to initialize new PCB flag */
-  Settings.AllDirectionLines = gtk_toggle_action_get_active (action);
-  ghidgui->config_modified = TRUE;
-  if (!ghidgui->toggle_holdoff)
-    hid_actionl ("Display", "Toggle45Degree", "", NULL);
-  ghid_set_status_line_label ();
-}
-
-static void
-toggle_start_direction_cb (GtkToggleAction * action, GHidPort * port)
-{
-  /* Toggle existing PCB flag and use setting to initialize new PCB flag */
-  Settings.SwapStartDirection = gtk_toggle_action_get_active (action);
-  ghidgui->config_modified = TRUE;
-  if (!ghidgui->toggle_holdoff)
-    hid_actionl ("Display", "ToggleStartDirection", "", NULL);
-  ghid_set_status_line_label ();
-}
-
-static void
-toggle_orthogonal_moves_cb (GtkToggleAction * action, GHidPort * port)
-{
-  /* Toggle existing PCB flag and use setting to initialize new PCB flag */
-  Settings.OrthogonalMoves = gtk_toggle_action_get_active (action);
-  ghidgui->config_modified = TRUE;
-  if (!ghidgui->toggle_holdoff)
-    hid_actionl ("Display", "ToggleOrthoMove", "", NULL);
-  ghid_set_status_line_label ();
-}
-
-static void
-toggle_snap_pin_cb (GtkToggleAction * action, GHidPort * port)
-{
-  /* Toggle existing PCB flag and use setting to initialize new PCB flag */
-  Settings.SnapPin = gtk_toggle_action_get_active (action);
-  ghidgui->config_modified = TRUE;
-  if (!ghidgui->toggle_holdoff)
-    hid_actionl ("Display", "ToggleSnapPin", "", NULL);
-}
-
-static void
-toggle_show_DRC_cb (GtkToggleAction * action, GHidPort * port)
-{
-  /* Toggle existing PCB flag and use setting to initialize new PCB flag */
-  Settings.ShowDRC = gtk_toggle_action_get_active (action);
-  ghidgui->config_modified = TRUE;
-  if (!ghidgui->toggle_holdoff)
-    hid_actionl ("Display", "ToggleShowDRC", "", NULL);
-}
-
-static void
-toggle_auto_DRC_cb (GtkToggleAction * action, GHidPort * port)
-{
-  /* Toggle existing PCB flag and use setting to initialize new PCB flag */
-  Settings.AutoDRC = gtk_toggle_action_get_active (action);
-  ghidgui->config_modified = TRUE;
-  if (!ghidgui->toggle_holdoff)
-    hid_actionl ("Display", "ToggleAutoDRC", "", NULL);
-}
-
-static void
-toggle_rubber_band_cb (GtkToggleAction * action, GHidPort * port)
-{
-  /* Toggle existing PCB flag and use setting to initialize new PCB flag */
-  Settings.RubberBandMode = gtk_toggle_action_get_active (action);
-  ghidgui->config_modified = TRUE;
-  if (!ghidgui->toggle_holdoff)
-    hid_actionl ("Display", "ToggleRubberBandMode", "", NULL);
-}
-
-static void
-toggle_unique_names_cb (GtkToggleAction * action, GHidPort * port)
-{
-  /* Toggle existing PCB flag and use setting to initialize new PCB flag */
-  Settings.UniqueNames = gtk_toggle_action_get_active (action);
-  ghidgui->config_modified = TRUE;
-  if (!ghidgui->toggle_holdoff)
-    hid_actionl ("Display", "ToggleUniqueNames", "", NULL);
-}
-
-static void
-toggle_local_ref_cb (GtkAction * action, GHidPort * port)
-{
-  /* Transient setting, not saved in Settings & not used for new PCB flag. */
-  hid_actionl ("Display", "ToggleLocalRef", "", NULL);
-}
-
-static void
-toggle_clear_line_cb (GtkToggleAction * action, GHidPort * port)
-{
-  /* Toggle existing PCB flag and use setting to initialize new PCB flag */
-  Settings.ClearLine = gtk_toggle_action_get_active (action);
-  ghidgui->config_modified = TRUE;
-  if (!ghidgui->toggle_holdoff)
-    hid_actionl ("Display", "ToggleClearLine", "", NULL);
-}
-
-static void
-toggle_live_route_cb (GtkToggleAction * action, GHidPort * port)
-{
-  /* Toggle existing PCB flag and use setting to initialize new PCB flag */
-  Settings.liveRouting = gtk_toggle_action_get_active (action);
-  ghidgui->config_modified = TRUE;
-  if (!ghidgui->toggle_holdoff)
-    hid_actionl ("Display", "ToggleLiveRoute", "", NULL);
-}
-
-static void
-toggle_thin_draw_cb (GtkAction * action, GHidPort * port)
-{
-  /* Transient setting, not saved in Settings & not used for new PCB flag. */
-  if (!ghidgui->toggle_holdoff)
-    hid_actionl ("Display", "ToggleThindraw", "", NULL);
-}
-
-static void
-toggle_check_planes_cb (GtkAction * action, GHidPort * port)
-{
-  /* Transient setting, not saved in Settings & not used for new PCB flag. */
-  hid_actionl ("Display", "ToggleCheckPlanes", "", NULL);
-}
-
-static void
-toggle_vendor_drill_mapping_cb (GtkAction * action, GHidPort * port)
-{
-  /* Transient setting, not saved in Settings & not used for new PCB flag. */
-  hid_action ("ToggleVendor");
-}
 
 
 /* ============== BufferMenu callbacks =============== */
 #define	PRESS_BUTTON_ELEMENT_PROMPT	\
 		_("Press a button on a reference point for your selection")
-
-static void
-copy_selection_to_buffer_cb (GtkAction * action, GHidPort * port)
-{
-  if (!ghid_control_is_pressed ())
-    {
-      int x, y;
-      gui->get_coords (PRESS_BUTTON_ELEMENT_PROMPT, &x, &y);
-    }
-  hid_actionl ("PasteBuffer", "Clear", "", NULL);
-  hid_actionl ("PasteBuffer", "AddSelected", "", NULL);
-  hid_actionl ("Mode", "PasteBuffer", NULL);
-}
-
-
-/* ============== PopupMenu callbacks =============== */
-
-static void
-radio_select_tool_cb (GtkAction * action, GtkRadioAction * current)
-{
-  const gchar *saction;
-
-  saction = gtk_action_get_name (GTK_ACTION (current));
-  g_message ("Grid setting action: \"%s\"", saction);
-}
-
 
 
 /* ======================================================================
@@ -803,97 +577,6 @@ static GtkRadioActionEntry radio_displayed_element_name_entries[] = {
 static gint n_radio_displayed_element_name_entries
   = G_N_ELEMENTS (radio_displayed_element_name_entries);
 
-
-static GtkRadioActionEntry radio_select_current_buffer_entries[] = {
-  /* name, stock_id, label, accelerator, tooltip, value */
-  {"SelectBuffer1", NULL, "#1", "<control>1", NULL, 1},
-  {"SelectBuffer2", NULL, "#2", "<control>2", NULL, 2},
-  {"SelectBuffer3", NULL, "#3", "<control>3", NULL, 3},
-  {"SelectBuffer4", NULL, "#4", "<control>4", NULL, 4},
-  {"SelectBuffer5", NULL, "#5", "<control>5", NULL, 5}
-};
-
-static gint n_radio_select_current_buffer_entries
-  = G_N_ELEMENTS (radio_select_current_buffer_entries);
-
-static GtkRadioActionEntry radio_select_tool_entries[] = {
-  /* name, stock_id, label, accelerator, tooltip, value */
-  {"SelectLineTool", NULL, N_("Line"), NULL, NULL, 0},
-  {"SelectViaTool", NULL, N_("Via"), NULL, NULL, 0},
-  {"SelectRectangleTool", NULL, N_("Rectangle"), NULL, NULL, 0},
-  {"SelectSelectionTool", NULL, N_("Selection"), NULL, NULL, 0},
-  {"SelectTextTool", NULL, N_("Text"), NULL, NULL, 0},
-  {"SelectPannerTool", NULL, N_("Panner"), NULL, NULL, 0},
-};
-
-static gint n_radio_select_tool_entries
-  = G_N_ELEMENTS (radio_select_tool_entries);
-
-#ifdef DAN_FIXME
-static GtkToggleActionEntry toggle_entries[] = {
-  /* name, stock_id, label, accelerator, tooltip, callback, is_active */
-
-  /* ViewMenu */
-  {"ToggleDrawGrid", NULL, N_("Enable visible grid"), NULL, NULL,
-   G_CALLBACK (toggle_draw_grid_cb), FALSE},
-  {"ToggleGridUnitsMm", NULL, N_("Enable millimeter grid units"), NULL, NULL,
-   G_CALLBACK (toggle_grid_units_cb), FALSE},
-  {"ToggleViewSolderSide", NULL, N_("Enable view solder side"),
-   NULL, NULL,
-   G_CALLBACK (toggle_view_solder_side_cb)},
-  {"TogglePinoutShowsNumber", NULL, N_("Enable pinout shows number"),
-   NULL, NULL,
-   G_CALLBACK (toggle_pinout_shows_number_cb)},
-
-/* SettingsMenu */
-  {"Toggle45degree", NULL, N_("All direction lines"),
-   NULL /* gtk wont take "." */ , NULL,
-   G_CALLBACK (toggle_45_degree_cb)},
-  {"ToggleStartDirection", NULL, N_("Auto swap line start angle"),
-   NULL, NULL,
-   G_CALLBACK (toggle_start_direction_cb)},
-  {"ToggleOrthogonalMoves", NULL, N_("Orthogonal moves"), NULL, NULL,
-   G_CALLBACK (toggle_orthogonal_moves_cb)},
-  {"ToggleSnapPin", NULL, N_("Crosshair snaps to pins and pads"),
-   NULL, NULL,
-   G_CALLBACK (toggle_snap_pin_cb)},
-  {"ToggleShowDRC", NULL, N_("Crosshair shows DRC clearance"),
-   NULL, NULL,
-   G_CALLBACK (toggle_show_DRC_cb)},
-  {"ToggleAutoDrC", NULL, N_("Auto enforce DRC clearance"),
-   NULL, NULL,
-   G_CALLBACK (toggle_auto_DRC_cb)},
-  {"ToggleRubberBand", NULL, N_("Rubber band mode"), NULL, NULL,
-   G_CALLBACK (toggle_rubber_band_cb)},
-  {"ToggleUniqueNames", NULL, N_("Require unique element names"),
-   NULL, NULL,
-   G_CALLBACK (toggle_unique_names_cb)},
-  {"ToggleLocalRef", NULL, N_("Auto zero delta measurements"),
-   NULL, NULL,
-   G_CALLBACK (toggle_local_ref_cb)},
-  {"ToggleClearLine", NULL, N_("New lines, arcs clear polygons"),
-   NULL, NULL,
-   G_CALLBACK (toggle_clear_line_cb)},
-  {"ToggleLiveRoute", NULL, N_("Show autorouter trials"), NULL, NULL,
-   G_CALLBACK (toggle_live_route_cb)},
-  {"ToggleThinDraw", NULL, N_("Thin line draw"),
-   NULL /* Gtk can't take '\' or '|' */ , NULL,
-   G_CALLBACK (toggle_thin_draw_cb)},
-  {"ToggleCheckPlanes", NULL, N_("Check polygons"), NULL, NULL,
-   G_CALLBACK (toggle_check_planes_cb)},
-  {"ToggleVendorDrillMapping", NULL, N_("Vendor drill mapping"),
-   NULL, NULL,
-   G_CALLBACK (toggle_vendor_drill_mapping_cb)},
-
-/* ConnectsMenu */
-  {"ToggleOnlyAutoRoutedNets", NULL, N_("Enable only autorouted nets"),
-   NULL, NULL,
-   G_CALLBACK (toggle_only_auto_routed_cb)},
-};
-
-static gint n_toggle_entries = G_N_ELEMENTS (toggle_entries);
-
-#endif
 
 
   /* When user toggles grid units mil<->mm or when a new layout is loaded
@@ -2911,20 +2594,7 @@ static HID_Attribute pcbmenu_attr[] = {
 
 REGISTER_ATTRIBUTES (pcbmenu_attr)
 
-typedef struct ToggleItem
-{
-  struct ToggleItem *next;
-  //Widget w;
-  char *group, *item;
-  //XtCallbackProc callback;
-  void * callback;
-  Resource *node;
-} ToggleItem;
-
-static ToggleItem *toggle_items = 0;
-
 #define INDENT_INC 5
-static int n = 0;
 
 static void
 ghid_append_action (const char * name, const char *stock_id, 
@@ -2990,17 +2660,13 @@ ghid_append_toggle_action (const char * name, const char *stock_id,
   tmenuitem_cnt++;
 }
 
-static int menu_cnt = 0;
-
 static void
 add_resource_to_menu (char * menu, Resource * node, void * callback, int indent)
 {
   int i, j;
   char *v;
   Resource *r;
-  int n;
   char tmps[32];
-  int menuitem_id;
 
   for (i = 0; i < node->c; i++)
     switch (resource_type (node->v[i]))
@@ -3279,7 +2945,6 @@ add_resource_to_menu (char * menu, Resource * node, void * callback, int indent)
 	    Message ("resource file.  In this case what is ignored is\n");
 	    Message ("\"%s\"\n", node->v[i].value);
 
-#ifdef DAN_FIXME
 	    if (strcmp (node->v[i].value, "@layerview") == 0)
 	    {
 	      //insert_layerview_buttons (menu);
@@ -3295,7 +2960,6 @@ add_resource_to_menu (char * menu, Resource * node, void * callback, int indent)
 	      //lesstif_insert_style_buttons (menu);
 	      printf ("insert_style_buttons\n");
 	    }
-#endif
 	  }
 
 	else if (strcmp (node->v[i].value, "-") == 0)
@@ -3305,11 +2969,24 @@ add_resource_to_menu (char * menu, Resource * node, void * callback, int indent)
 	  }
 	else if (i > 0)
 	  {
-	    /* how do I get here??? */
-	    printf ("Create a pushbutton.  menu=\"%s\", value = \"%s\"\n",
-		    menu, node->v[i].value);
-	   // btn = XmCreatePushButton (menu, node->v[i].value, args, n);
-	    //XtManageChild (btn);
+	    /* This is where you get with an action-less menuitem.
+	     * It is really just useful when you're starting to build
+	     * a new menu and you're looking to get the layout
+	     * right.
+	     */
+	    sprintf (tmps, "%s%d", MENUITEM, menuitem_cnt);
+	    
+	    /* add to the action entries */
+	    /* name, stock_id, label, accelerator, tooltip */
+	    ghid_append_action (tmps, NULL, node->v[i].value, NULL, NULL);
+	    
+	    ghid_ui_info_indent (indent);
+	    ghid_ui_info_append ("<menuitem action='");
+	    ghid_ui_info_append (tmps);
+	    ghid_ui_info_append ("'/>\n");
+	    
+	    action_resources[menuitem_cnt-1] = NULL;
+
 	  }
 	break;
       }
@@ -3378,7 +3055,6 @@ ghid_load_menus (void)
   char *filename;
   Resource *r = 0, *bir;
   char *home_pcbmenu;
-  int screen;
   Resource *mr;
 
   home_pcbmenu = Concat (getenv ("HOME"), "/.pcb/gpcb-menu.res", NULL);
