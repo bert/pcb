@@ -101,7 +101,7 @@ static PinoutData *pinouts = 0;
 static PinoutData *pinout = 0;
 
 static int crosshair_x = 0, crosshair_y = 0;
-static int in_move_event = 0;
+static int in_move_event = 0, crosshair_in_window = 1;
 
 Widget work_area, messages, command, hscroll, vscroll;
 static Widget m_mark, m_crosshair, m_grid, m_zoom, m_mode, m_status;
@@ -1326,6 +1326,7 @@ work_area_input (Widget w, XtPointer v, XEvent * e, Boolean * ctd)
 	shift_pressed = (keys_buttons & ShiftMask);
 	ctrl_pressed = (keys_buttons & ControlMask);
 	/*printf("m %d %d\n", Px(e->xmotion.x), Py(e->xmotion.y)); */
+	crosshair_in_window = 1;
 	in_move_event = 1;
 	if (panning)
 	  Pan (2, pos_x, pos_y);
@@ -1335,16 +1336,17 @@ work_area_input (Widget w, XtPointer v, XEvent * e, Boolean * ctd)
       break;
 
     case LeaveNotify:
-      crosshair_x = crosshair_y = -1;
+      crosshair_in_window = 0;
       CrosshairOff (1);
       need_idle_proc ();
       break;
 
     case EnterNotify:
+      crosshair_in_window = 1;
       in_move_event = 1;
       EventMoveCrosshair (Px (e->xcrossing.x), Py (e->xcrossing.y));
-      in_move_event = 0;
       CrosshairOn (1);
+      in_move_event = 0;
       need_idle_proc ();
       break;
 
@@ -1507,7 +1509,7 @@ lesstif_show_crosshair (int show)
   static int sx, sy;
   static GC xor_gc = 0;
 
-  if (crosshair_x < 0 || !window)
+  if (!crosshair_in_window || !window)
     return;
   if (xor_gc == 0)
     {
