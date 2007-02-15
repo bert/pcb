@@ -355,6 +355,8 @@ ghid_idle_cb (gpointer data)
       ghid_mode_buttons_update ();
     }
   ghidgui->settings_mode = Settings.Mode;
+
+  ghid_update_toggle_flags ();
   return FALSE;
 }
 

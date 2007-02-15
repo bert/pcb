@@ -374,7 +374,7 @@ void ghid_route_style_set_button_label (gchar * name, gint index);
 void ghid_route_style_set_temp_style (RouteStyleType * rst, gint which);
 void ghid_route_style_button_set_active (gint number);
 void ghid_route_style_buttons_update (void);
-
+void ghid_update_toggle_flags (void);
 
 /* gui-utils.c
 */

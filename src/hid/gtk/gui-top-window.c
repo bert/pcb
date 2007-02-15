@@ -336,7 +336,7 @@ top_window_configure_event_cb (GtkWidget * widget, GdkEventConfigure * ev,
  * it looks up in a table to find the pcb actions which should be
  * executed
  */
-#define DEBUG_MENU_CB
+/* #define DEBUG_MENU_CB */
 
 static void
 ghid_menu_cb (GtkAction * action, GHidPort * port)
@@ -3054,7 +3054,6 @@ ghid_ui_info_append (const gchar * new)
       gchar * np;
 
       n = new_ui_info_sz + 1024;
-      printf ("Adding more memory to new_ui_info.  (n = %ld)\n", n);
       if ( (np = realloc (new_ui_info, n)) == NULL)
 	{
 	  fprintf (stderr, "ghid_ui_info_append():  realloc of size %ld failed\n",
@@ -3115,7 +3114,6 @@ ghid_load_menus (void)
     
   if (mr)
     {
-      printf ("ghid_load_menus():  Adding MainMenu\n");
       ghid_ui_info_append ("<ui>\n");
       ghid_ui_info_indent (INDENT_INC);
       ghid_ui_info_append ("<menubar name='MenuBar'>\n");
@@ -3123,8 +3121,10 @@ ghid_load_menus (void)
       ghid_ui_info_indent (INDENT_INC);
       ghid_ui_info_append ("</menubar>\n");
       ghid_ui_info_append ("</ui>\n");
+#ifdef DEBUG
       printf ("Finished loading menus.  ui_info = \n");
       printf ("%s\n", new_ui_info);
+#endif
     }
 
   mr = resource_subres (r, "Mouse");
