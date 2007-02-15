@@ -336,7 +336,7 @@ top_window_configure_event_cb (GtkWidget * widget, GdkEventConfigure * ev,
  * it looks up in a table to find the pcb actions which should be
  * executed
  */
-/* #define DEBUG_MENU_CB */
+#define DEBUG_MENU_CB
 
 static void
 ghid_menu_cb (GtkAction * action, GHidPort * port)
@@ -3120,12 +3120,42 @@ ghid_load_menus (void)
       add_resource_to_menu ("Initial Call", mr, 0, 2*INDENT_INC);
       ghid_ui_info_indent (INDENT_INC);
       ghid_ui_info_append ("</menubar>\n");
-      ghid_ui_info_append ("</ui>\n");
-#ifdef DEBUG
+    }
+
+  mr = resource_subres (r, "PopupMenus");
+  if (!mr)
+    mr = resource_subres (bir, "PopupMenus");
+   
+  if (mr)
+    {
+      int i;
+
+      for (i = 0; i < mr->c; i++)
+	{
+	  if (resource_type (mr->v[i]) == 101)
+	    {
+	      /* This is a named resource which defines a popup menu */
+	      ghid_ui_info_indent (INDENT_INC);
+	      ghid_ui_info_append ("<popup name='");
+	      ghid_ui_info_append (mr->v[i].name);
+	      ghid_ui_info_append ("'>\n");
+	      add_resource_to_menu ("Initial Call", mr->v[i].subres, 
+				    0, 2*INDENT_INC);
+	      ghid_ui_info_indent (INDENT_INC);
+	      ghid_ui_info_append ("</popup>\n");
+	    }
+	  else
+	    {
+	    }
+	}
+    }
+
+    ghid_ui_info_append ("</ui>\n");
+
+//#ifdef DEBUG
       printf ("Finished loading menus.  ui_info = \n");
       printf ("%s\n", new_ui_info);
-#endif
-    }
+//#endif
 
   mr = resource_subres (r, "Mouse");
   if (!mr)

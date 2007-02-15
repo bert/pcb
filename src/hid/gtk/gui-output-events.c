@@ -970,7 +970,7 @@ gboolean
 ghid_port_button_press_cb (GtkWidget * drawing_area,
 			   GdkEventButton * ev, GtkUIManager * ui)
 {
-  GtkWidget *menu = gtk_ui_manager_get_widget (ui, "/PopupMenu");
+  GtkWidget *menu = gtk_ui_manager_get_widget (ui, "/Popup1");
   ModifierKeysState mk;
   gboolean drag, start_pan = FALSE;
 

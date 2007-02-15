@@ -2,6 +2,11 @@
 # Note - gpcb-menu.res is used to build gpcb-menu.h
 # Note - parameters are sensitive to extra spaces around the commas
 
+#
+# NOTE:  I haven't figured out what to do with this
+# section yet so no need to try and make any fixes to it
+#
+
 Mouse =
 {
   Left = {
@@ -21,6 +26,10 @@ Mouse =
   Down = Zoom(1.25)
 }
 
+#
+# This section needs to be updated to match pcb-20070208's GTK-HID menu layout
+# and also the actions associated with each menu choice.  The goal will be
+# for the default behaviour to not change when we switch to user menus
 MainMenu =
 {
 
@@ -424,3 +433,86 @@ MainMenu =
    {"Pinout" Display(Pinout) a={"Shift-D" "Shift<Key>d"}}
   }
 }
+
+PopupMenus =
+  {
+    Popup1 =
+    {
+      {"Operations on selections"
+       {"Unselect all objects" Unselect(All)}
+       {"Remove selected objects" RemoveSelected()}
+       {"Copy selection to buffer" 
+	GetXY(Press a button on a reference point for your selection) 
+	PasteBuffer(Clear)
+	PasteBuffer(AddSelected)
+	Mode(PasteBuffer)
+       }
+       {"Cut selection to buffer"
+	GetXY(Press a button on a reference point for your selection) 
+	PasteBuffer(Clear)
+	PasteBuffer(AddSelected)
+	RemoveSelected()
+	Mode(PasteBuffer)
+       }
+       {"Convert selection to element" Select(Convert)}
+#{"BreakElement"}
+       {"Auto place selected elements" AutoPlaceSelected()}
+       {"Rip up selected auto routed tracks" RipUp(Selected)}
+      }
+      {"Operations on this location"
+#{"ToggleNameVisibility"}
+#{"EditName"}
+       {"Generate object report" GetXY(Select the object) Report(Object)}
+#{"Rotate object counter clockwise"}
+#{"Rotate object clockwise"}
+#{"Send object to other side"}
+#{"Toggle thermal"}
+#{"Lookup connections"}
+      }
+      -
+      {"Undo last operation" Undo()}
+      {"Redo last undone operation" Redo()}
+      -
+      {Tools
+       {"None" checked=nomode,1 Mode(None)}
+       {"Via" checked=viamode,1 Mode(Via)}
+       {"Line" checked=linemode,1 Mode(Line)}
+       {"Arc" checked=arcmode,1 Mode(Arc)}
+       {"Text" checked=textmode,1 Mode(Text)}
+       {"Rectangle" checked=rectanglemode,1 Mode(Rectangle)}
+       {"Polygon" checked=polygonmode,1 Mode(Polygon)}
+       {"Buffer" checked=pastebuffermode,1 Mode(PasteBuffer)}
+       {"Remove" checked=removemode,1 Mode(Remove)}
+       {"Rotate" checked=rotatemode,1 Mode(Rotate)}
+       {"Thermal" checked=thermalmode,1 Mode(Thermal)}
+       {"Arrow" checked=arrowmode,1 Mode(Arrow)}
+       {"Insert Point" checked=insertpointmode,1 Mode(InsertPoint)}
+       {"Move" checked=movemode,1 Mode(Move)}
+       {"Copy" checked=copymode,1 Mode(Copy)}
+       {"Lock" checked=lockmode,1 Mode(Lock)}
+       {"Cancel" Mode(Cancel)}
+      }
+    }
+
+#
+# A dummy popup menu  to help test out the parser and also
+# it will be used to help test the Popup() action when
+# I get around to writing it.
+#
+    Popup2 =
+    {
+      {"Submenu1"
+       {"Choice1a"}
+       {"Choice1b"}
+       {"Choice1c"}
+       {"Choice1d"}
+      }
+      {"Submenu2"
+       {"Choice2a"}
+       {"Choice2b"}
+      }
+      {"Choice1"}
+      {"Choice2"}
+    }
+  }
+
