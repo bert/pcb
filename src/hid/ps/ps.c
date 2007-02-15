@@ -497,8 +497,8 @@ ps_set_layer (const char *name, int group)
   if (group < 0 || group != lastgroup)
     {
       double boffset;
-      lastgroup = group;
       int mirror_this = 0;
+      lastgroup = group;
 
       if (f && pagecount)
 	{

@@ -431,7 +431,7 @@ LinePoly (LineType * l, BDimension thick)
 static int
 Subtract (POLYAREA * np1, PolygonType * p, Boolean fnp)
 {
-  POLYAREA *merged = NULL, *np = np1;;
+  POLYAREA *merged = NULL, *np = np1;
   int x;
   assert (np);
   assert (p);
@@ -705,7 +705,7 @@ clearPoly (DataTypePtr Data, LayerTypePtr Layer, PolygonType * polygon,
 static int
 Unsubtract (POLYAREA * np1, PolygonType * p)
 {
-  POLYAREA *merged = NULL, *np = np1;;
+  POLYAREA *merged = NULL, *np = np1;
   int x;
   assert (np);
   assert (p && p->Clipped);

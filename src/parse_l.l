@@ -321,10 +321,10 @@ int ParsePCB(PCBTypePtr Ptr, char *Filename)
 int ParseFont(FontTypePtr Ptr, char *Filename)
 {
 	int r = 0;
+	char *path, *p;
 	yyPCB = NULL;
 	yyFont = Ptr;
 	yyElement = NULL;
-	char *path, *p;
 
 	path = strdup (Settings.FontPath);
 

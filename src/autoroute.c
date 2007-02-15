@@ -654,13 +654,14 @@ AddPolygon (PointerListType layergroupboxes[], Cardinal layer,
 {
   int is_not_rectangle = 1;
   int layergroup = GetLayerGroupNumberByNumber (layer);
+  routebox_t *rb;
   assert (0 <= layergroup && layergroup < max_layer);
-  routebox_t *rb = AddIrregularObstacle (layergroupboxes,
-                                         polygon->BoundingBox.X1,
-                                         polygon->BoundingBox.Y1,
-                                         polygon->BoundingBox.X2,
-                                         polygon->BoundingBox.Y2,
-                                         layergroup, polygon);
+  rb = AddIrregularObstacle (layergroupboxes,
+			     polygon->BoundingBox.X1,
+			     polygon->BoundingBox.Y1,
+			     polygon->BoundingBox.X2,
+			     polygon->BoundingBox.Y2,
+			     layergroup, polygon);
   if (polygon->PointN == 4 &&
       (polygon->Points[0].X == polygon->Points[1].X ||
        polygon->Points[0].Y == polygon->Points[1].Y) &&
