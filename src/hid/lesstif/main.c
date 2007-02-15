@@ -1668,7 +1668,7 @@ make_message (char *name, Widget left, int resizeable)
   if (left)
     {
       stdarg (XmNleftAttachment, XmATTACH_WIDGET);
-      stdarg (XmNleftWidget, left);
+      stdarg (XmNleftWidget, XtParent(left));
     }
   else
     {
@@ -1815,15 +1815,16 @@ lesstif_do_export (HID_Attr_Val * options)
   XtAddEventHandler (m_cmd, KeyPressMask, 0, command_event_handler, 0);
 
   m_mark = make_message ("m_mark", 0, 0);
-  XtUnmanageChild (XtParent (m_mark));
   m_crosshair = make_message ("m_crosshair", m_mark, 0);
   m_grid = make_message ("m_grid", m_crosshair, 1);
   m_zoom = make_message ("m_zoom", m_grid, 1);
   lesstif_m_layer = make_message ("m_layer", m_zoom, 0);
   m_mode = make_message ("m_mode", lesstif_m_layer, 1);
   m_rats = make_message ("m_rats", m_mode, 1);
-  XtUnmanageChild (XtParent (m_rats));
   m_status = make_message ("m_status", m_mode, 1);
+
+  XtUnmanageChild (XtParent (m_mark));
+  XtUnmanageChild (XtParent (m_rats));
 
   n = 0;
   stdarg (XmNrightAttachment, XmATTACH_FORM);
