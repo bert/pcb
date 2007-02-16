@@ -398,6 +398,8 @@ ghid_port_key_press_cb (GtkWidget * drawing_area,
   gint tmp, ksym = kev->keyval;
   gboolean handled;
 
+  printf ("ghid_port_key_press_cb():  ksym = %d\n", ksym);
+
   if (ghid_is_modifier_key_sym (ksym))
     ghid_note_event_location (NULL);
 

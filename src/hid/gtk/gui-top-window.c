@@ -2649,7 +2649,8 @@ ghid_append_action (const char * name, const char *stock_id,
   new_entries[menuitem_cnt].name = strdup (name);
   new_entries[menuitem_cnt].stock_id = (stock_id == NULL ? NULL : strdup (stock_id));
   new_entries[menuitem_cnt].label = strdup (label);
-  new_entries[menuitem_cnt].accelerator = (accelerator == NULL ? NULL : strdup (accelerator));
+  new_entries[menuitem_cnt].accelerator = ( (accelerator == NULL || *accelerator == '\0')
+					    ? NULL : strdup (accelerator));
   new_entries[menuitem_cnt].tooltip = (tooltip == NULL ? NULL : strdup (tooltip));
   new_entries[menuitem_cnt].callback = G_CALLBACK (ghid_menu_cb);
   menuitem_cnt++;
@@ -2695,6 +2696,10 @@ add_resource_to_menu (char * menu, Resource * node, void * callback, int indent)
   char *v;
   Resource *r;
   char tmps[32];
+  char accel[64];
+  char ch[2];
+
+  ch[1] = '\0';
 
   for (i = 0; i < node->c; i++)
     switch (resource_type (node->v[i]))
@@ -2705,6 +2710,7 @@ add_resource_to_menu (char * menu, Resource * node, void * callback, int indent)
 	break;
 
       case 1:			/* unnamed subres */
+	accel[0] = '\0';
 	/* This is a menu choice.  The first value in the unnamed
 	 * subres is what the menu choice gets called.
 	 *
@@ -2727,8 +2733,56 @@ add_resource_to_menu (char * menu, Resource * node, void * callback, int indent)
 	     * a={"Ctrl-Q" "Ctrl<Key>q"}
 	     * The first one is what's displayed in the menu and the
 	     * second actually defines the hotkey
+	     *
+	     * We have to translate
+	     * "Ctrl" -> "<control>"
+	     * "Shift" -> "<shift>"
+	     * "Alt" -> "<alt>"
+	     * "<Key>" -> ""
+	     * " " -> ""
+	     *
+	     * FIXME
+	     *  What about Tab, BackSpace, Delete, Escape, F10, etc.
+	     * These all come after <Key>.  How to translate?
 	     */
-	    printf ("    accelerator a=%p.  r->v[0].value = \"%s\", r->v[1].value = \"%s\"\n", r, r->v[0].value, r->v[1].value);
+	    char *p;
+
+	    printf ("    accelerator a=%p.  r->v[0].value = \"%s\", r->v[1].value = \"%s\" ", 
+		    r, r->v[0].value, r->v[1].value);
+	    p = r->v[1].value;
+	    while (*p != '\0')
+	      {
+		if (*p == ' ')
+		  {
+		    p++;
+		  }
+		else if (strncmp (p, "<Key>", 5) == 0)
+		  {
+		    p += 5;
+		  }
+		else if (strncmp (p, "Ctrl", 4) == 0)
+		  {
+		    strncat (accel, "<control>", sizeof (accel));
+		    p += 4;
+		  }
+		else if (strncmp (p, "Shift", 5) == 0)
+		  {
+		    strncat (accel, "<shift>", sizeof (accel));
+		    p += 5;
+		  }
+		else if (strncmp (p, "Alt", 3) == 0)
+		  {
+		    strncat (accel, "<alt>", sizeof (accel));
+		    p += 3;
+		  }
+		else
+		  {
+		    ch[0] = *p;
+		    strncat (accel, ch, sizeof (accel));
+		    p++;
+		  }
+	      }
+	    printf ("translated = \"%s\"\n", accel);
 	  }
 	v = "button";
 
@@ -2763,7 +2817,7 @@ add_resource_to_menu (char * menu, Resource * node, void * callback, int indent)
 
 	    /* add to the action entries */
 	    /* name, stock_id, label, accelerator, tooltip */
-	    ghid_append_action (tmps, NULL, v, NULL, NULL);
+	    ghid_append_action (tmps, NULL, v, accel, NULL);
 
 	    /* and add to the user interfact XML description */
 	    ghid_ui_info_indent (indent);
@@ -2858,7 +2912,7 @@ add_resource_to_menu (char * menu, Resource * node, void * callback, int indent)
 
 		/* add to the action entries */
 		/* name, stock_id, label, accelerator, tooltip */
-		ghid_append_action (tmps, NULL, v, NULL, NULL);
+		ghid_append_action (tmps, NULL, v, accel, NULL);
 
 		ghid_ui_info_indent (indent);
 		ghid_ui_info_append ("<menuitem action='");
@@ -3006,7 +3060,7 @@ add_resource_to_menu (char * menu, Resource * node, void * callback, int indent)
 	    
 	    /* add to the action entries */
 	    /* name, stock_id, label, accelerator, tooltip */
-	    ghid_append_action (tmps, NULL, node->v[i].value, NULL, NULL);
+	    ghid_append_action (tmps, NULL, node->v[i].value, accel, NULL);
 	    
 	    ghid_ui_info_indent (indent);
 	    ghid_ui_info_append ("<menuitem action='");
