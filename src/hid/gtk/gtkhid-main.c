@@ -12,12 +12,13 @@
 #include <math.h>
 #include <time.h>
 
-#include "global.h"
-#include "data.h"
 #include "action.h"
 #include "crosshair.h"
-#include "mymem.h"
+#include "data.h"
 #include "draw.h"
+#include "error.h"
+#include "global.h"
+#include "mymem.h"
 
 #include "hid.h"
 #include "../hidint.h"
@@ -1532,6 +1533,67 @@ About (int argc, char **argv, int x, int y)
   return 0;
 }
 
+/* ------------------------------------------------------------ */
+static const char popup_syntax[] =
+"Popup(MenuName, [Button])";
+
+static const char popup_help[] =
+"Bring up the popup menu specified by @code{MenuName}.\n"
+"If called by a mouse event then the mouse button number\n"
+"must be specified as the optional second argument.";
+
+/* %start-doc actions Popup
+
+This just pops up the specified menu.  The menu must have been defined
+as a named subresource of the Popups resource in the menu resource
+file.  If called as a response to a mouse button click, the mouse 
+button number must be specified as the second argument.  
+
+%end-doc */
+
+
+static int
+Popup (int argc, char **argv, int x, int y)
+{
+  GtkWidget *menu;
+  char *element;
+  guint button;
+
+  if (argc != 1 && argc != 2)
+    AFAIL (popup);
+
+  if (argc == 1)
+    button = 0;
+  else
+    button = atoi (argv[1]);
+
+  if ( (element = (char *) malloc ( (strlen (argv[0]) + 2) * sizeof (char))) == NULL )
+    {
+      fprintf (stderr, "Popup():  malloc failed\n");
+      exit (1);
+    }
+
+  sprintf (element, "/%s", argv[0]);
+  printf ("Loading popup \"%s\". Button = %u\n", element, button);
+
+  menu = gtk_ui_manager_get_widget (ghidgui->ui_manager, element);
+  free (element);
+
+  if (! GTK_IS_MENU (menu))
+    {
+      Message ("The specified popup menu \"%s\" has not been defined.\n", argv[0]);
+      return 1;
+    }
+  else
+    {
+      ghidgui->in_popup = TRUE;
+      gtk_widget_grab_focus (ghid_port.drawing_area);
+      gtk_menu_popup (GTK_MENU (menu), NULL, NULL, NULL, NULL, 0, 
+		      gtk_get_current_event_time());
+    }
+  return 0;
+}
+
 HID_Action ghid_main_action_list[] = {
   {"About", 0, About,
    about_help, about_syntax},
@@ -1542,6 +1604,8 @@ HID_Action ghid_main_action_list[] = {
   {"RouteStylesChanged", 0, RouteStylesChanged},
   {"LayerGroupsChanged", 0, LayerGroupsChanged},
   {"LibraryChanged", 0, LibraryChanged},
+  {"Popup", 0, Popup,
+   popup_help, popup_syntax},
   {"Print", 0, Print},
   {"Save", 0, Save},
   {"SwapSides", 0, SwapSides},
