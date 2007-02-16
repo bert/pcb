@@ -2689,6 +2689,33 @@ ghid_append_toggle_action (const char * name, const char *stock_id,
   tmenuitem_cnt++;
 }
 
+/*
+ * Some keys need to be replaced by a name for the gtk accelerators to
+ * work.  This table contains the translations.  The "in" character is
+ * what would appear in gpcb-menu.res and the "out" string is what we
+ * have to feed to gtk.  I was able to find these by using xev to find
+ * the keycode and then looked at gtk+-2.10.9/gdk/keynames.txt (from the
+ * gtk source distribution) to figure out the names that go with the 
+ * codes.
+ */
+typedef struct
+{
+  const char in;
+  const char *out;
+} KeyTable;
+static KeyTable key_table[] = 
+  {
+    {':', "colon"},
+    {'=', "equal"},
+    {'/', "slash"},
+    {'[', "bracketleft"},
+    {']', "bracketright"},
+    {'.', "period"},
+    {'|', "bar"}
+  };
+static int n_key_table = sizeof (key_table) / sizeof (key_table[0]);
+
+
 static void
 add_resource_to_menu (char * menu, Resource * node, void * callback, int indent)
 {
@@ -2746,43 +2773,72 @@ add_resource_to_menu (char * menu, Resource * node, void * callback, int indent)
 	     * These all come after <Key>.  How to translate?
 	     */
 	    char *p;
+	    int j;
+	    enum {KEY, MOD} state;
+
+	    state = MOD;
 
 	    printf ("    accelerator a=%p.  r->v[0].value = \"%s\", r->v[1].value = \"%s\" ", 
 		    r, r->v[0].value, r->v[1].value);
 	    p = r->v[1].value;
 	    while (*p != '\0')
 	      {
-		if (*p == ' ')
+		switch (state)
 		  {
-		    p++;
-		  }
-		else if (strncmp (p, "<Key>", 5) == 0)
-		  {
-		    p += 5;
-		  }
-		else if (strncmp (p, "Ctrl", 4) == 0)
-		  {
-		    strncat (accel, "<control>", sizeof (accel));
-		    p += 4;
-		  }
-		else if (strncmp (p, "Shift", 5) == 0)
-		  {
-		    strncat (accel, "<shift>", sizeof (accel));
-		    p += 5;
-		  }
-		else if (strncmp (p, "Alt", 3) == 0)
-		  {
-		    strncat (accel, "<alt>", sizeof (accel));
-		    p += 3;
-		  }
-		else
-		  {
+		  case MOD:
+		    if (*p == ' ')
+		      {
+			p++;
+		      }
+		    else if (strncmp (p, "<Key>", 5) == 0)
+		      {
+			state = KEY;
+			p += 5;
+		      }
+		    else if (strncmp (p, "Ctrl", 4) == 0)
+		      {
+			strncat (accel, "<control>", sizeof (accel));
+			p += 4;
+		      }
+		    else if (strncmp (p, "Shift", 5) == 0)
+		      {
+			strncat (accel, "<shift>", sizeof (accel));
+			p += 5;
+		      }
+		    else if (strncmp (p, "Alt", 3) == 0)
+		      {
+			strncat (accel, "<alt>", sizeof (accel));
+			p += 3;
+		      }
+		    else
+		      {
+			Message ("Don't know how to parse \"%c\"\n", 
+				 *p);
+		      }
+		    break;
+
+		  case KEY:
 		    ch[0] = *p;
-		    strncat (accel, ch, sizeof (accel));
+		    for (j = 0; j < n_key_table; j++)
+		      {
+			if ( *p == key_table[j].in)
+			  {
+			    strncat (accel, key_table[j].out, sizeof (accel));
+			    j = n_key_table;
+			  }
+		      }
+		    
+		    if (j == n_key_table)
+		      strncat (accel, ch, sizeof (accel));
+		    
 		    p++;
+		    
+		    break;
+
 		  }
 	      }
-	    printf ("translated = \"%s\"\n", accel);
+	    
+	    printf ("\n    translated = \"%s\"\n", accel);
 	  }
 	v = "button";
 
@@ -2876,7 +2932,7 @@ add_resource_to_menu (char * menu, Resource * node, void * callback, int indent)
 
 		/* add to the action entries */
 		/* name, stock_id, label, accelerator, tooltip, is_active */
-		ghid_append_toggle_action (tmps, NULL, v, NULL, NULL, 1);
+		ghid_append_toggle_action (tmps, NULL, v, accel, NULL, 1);
 
 		ghid_ui_info_indent (indent);
 		ghid_ui_info_append ("<menuitem action='");
