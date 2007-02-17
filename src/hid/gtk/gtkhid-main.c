@@ -114,12 +114,13 @@ Zoom (int argc, char **argv, int x, int y)
       x = Vx (x);
       y = Vy (y);
     }
+#endif
+
   if (argc < 1)
     {
-      zoom_to (1000000, 0, 0);
+      //zoom_to (1000000, 0, 0);
       return 0;
     }
-#endif
 
   vp = argv[0];
   if (*vp == '+' || *vp == '-' || *vp == '=')
