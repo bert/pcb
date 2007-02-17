@@ -44,26 +44,112 @@ static int mask_seq = 0;
 
 
 static const char zoom_syntax[] =
-"Zoom(gtk)";
+"Zoom()\n"
+"Zoom(factor)";
+
 
 static const char zoom_help[] =
-"this is the gtk zoom";
+"Various zoom factor changes.";
 
 /* %start-doc actions Zoom
 
-This is for the gtk zoom.
+FIXME -- the gtk zoom action needs some work to make it behave like
+the documentation here.
+
+Changes the zoom (magnification) of the view of the board.  If no
+arguments are passed, the view is scaled such that the board just fits
+inside the visible window (i.e. ``view all'').  Otherwise,
+@var{factor} specifies a change in zoom factor.  It may be prefixed by
+@code{+}, @code{-}, or @code{=} to change how the zoom factor is
+modified.  The @var{factor} is a floating point number, such as
+@code{1.5} or @code{0.75}.
+
+@table @code
+  
+@item +@var{factor}
+Values greater than 1.0 cause the board to be drawn smaller; more of
+the board will be visible.  Values between 0.0 and 1.0 cause the board
+to be drawn bigger; less of the board will be visible.
+  
+@item -@var{factor}
+Values greater than 1.0 cause the board to be drawn bigger; less of
+the board will be visible.  Values between 0.0 and 1.0 cause the board
+to be drawn smaller; more of the board will be visible.
+ 
+@item =@var{factor}
+ 
+The @var{factor} is an absolute zoom factor; the unit for this value
+is "PCB units per screen pixel".  Since PCB units are 0.01 mil, a
+@var{factor} of 1000 means 10 mils (0.01 in) per pixel, or 100 DPI,
+about the actual resolution of most screens - resulting in an "actual
+size" board.  Similarly, a @var{factor} of 100 gives you a 10x actual
+size.
+ 
+@end table
+ 
+Note that zoom factors of zero are silently ignored.
+ 
+
 
 %end-doc */
 
-/* FIXME */
 static int
 Zoom (int argc, char **argv, int x, int y)
 {
   double factor;
+  const char *vp;
+  double v;
+
+  if (argc > 1)
+    AFAIL (zoom);
+#ifdef FIXME
+  if (x == 0 && y == 0)
+    {
+      x = view_width / 2;
+      y = view_height / 2;
+    }
+  else
+    {
+      /* Px converts view->pcb, Vx converts pcb->view */
+      x = Vx (x);
+      y = Vy (y);
+    }
   if (argc < 1)
+    {
+      zoom_to (1000000, 0, 0);
+      return 0;
+    }
+#endif
+
+  vp = argv[0];
+  if (*vp == '+' || *vp == '-' || *vp == '=')
+    vp++;
+  v = strtod (vp, 0);
+  if (v <= 0)
     return 1;
-  factor = strtod (argv[0], 0);
+  switch (argv[0][0])
+    {
+    case '-':
+      factor = 1 / v;
+      //zoom_by (1 / v, x, y);
+      break;
+    default:
+    case '+':
+      factor = v;
+      //zoom_by (v, x, y);
+      break;
+    case '=':
+      /* this needs to set the scale factor absolutely*/
+      factor = 1.0;
+      //zoom_to (v, x, y);
+      break;
+    }
+  //return 0;
+
+
   ghid_port_ranges_zoom (gport->zoom * factor);
+  ghid_set_status_line_label ();
+
   return 0;
 }
 
