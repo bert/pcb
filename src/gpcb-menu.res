@@ -37,7 +37,7 @@ MainMenu =
 # File Menu
 #
 
-  {File
+  {_File
    {"Save layout" Save(Layout)}
    {"Save layout as..." Save(LayoutAs)}
    -

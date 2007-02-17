@@ -2724,7 +2724,9 @@ add_resource_to_menu (char * menu, Resource * node, void * callback, int indent)
   Resource *r;
   char tmps[32];
   char accel[64];
+  char *menulabel = NULL;
   char ch[2];
+  char m = '\0';
 
   ch[1] = '\0';
 
@@ -2752,6 +2754,7 @@ add_resource_to_menu (char * menu, Resource * node, void * callback, int indent)
 	if ((v = resource_value (node->v[i].subres, "m")))
 	  {
 	    printf ("    found resource value m=\"%s\"\n", v);
+	    m = *v;
 	  }
 	if ((r = resource_subres (node->v[i].subres, "a")))
 	  {
@@ -2855,7 +2858,49 @@ add_resource_to_menu (char * menu, Resource * node, void * callback, int indent)
 	      break;
 	    }
 	
+	printf ("v = \"%s\"\n", v);
+	if (m == '\0')
+	  menulabel = strdup (v);
+	else
+	  {
+	    /* we've been given a mneumonic so we need to insert an
+	     * "_" into the label.  For example if the string is
+	     * "Quit Program" and we have m=Q, we'd need to produce
+	     * "_Quit Program".
+	     */
+	    char *s1, *s2;
+	    size_t l;
+
+	    l = strlen (v) + 2;
+	    printf ("allocate %ld bytes\n", l);
+	    if ( (menulabel = (char *) malloc ( l * sizeof (char)))
+		 == NULL)
+	      {
+		fprintf (stderr, "add_resource_to_menu():  malloc failed\n");
+		exit (1);
+	      }
 	    
+	    s1 = menulabel;
+	    s2 = v;
+	    while (*s2 != '\0')
+	      {
+		if (*s2 == m)
+		  {
+		    /* add the underscore and quit looking for more 
+		     * matches since we only want to add 1 underscore
+		     */
+		    *s1 = '_';
+		    s1++;
+		    m = '\0';
+		  }
+		*s1 = *s2;
+		s1++;
+		s2++;
+	      }
+	    *s1 = '\0';
+	  }
+	printf ("v = \"%s\", label = \"%s\"\n", v, menulabel);
+
 	/* if the subresource we're processing also has unnamed
 	 * subresources then this is either a menu (that goes on the
 	 * menu bar) or it is a submenu.  It isn't a menuitem.
@@ -2873,7 +2918,7 @@ add_resource_to_menu (char * menu, Resource * node, void * callback, int indent)
 
 	    /* add to the action entries */
 	    /* name, stock_id, label, accelerator, tooltip */
-	    ghid_append_action (tmps, NULL, v, accel, NULL);
+	    ghid_append_action (tmps, NULL, menulabel, accel, NULL);
 
 	    /* and add to the user interfact XML description */
 	    ghid_ui_info_indent (indent);
@@ -2932,7 +2977,7 @@ add_resource_to_menu (char * menu, Resource * node, void * callback, int indent)
 
 		/* add to the action entries */
 		/* name, stock_id, label, accelerator, tooltip, is_active */
-		ghid_append_toggle_action (tmps, NULL, v, accel, NULL, 1);
+		ghid_append_toggle_action (tmps, NULL, menulabel, accel, NULL, 1);
 
 		ghid_ui_info_indent (indent);
 		ghid_ui_info_append ("<menuitem action='");
@@ -2968,7 +3013,7 @@ add_resource_to_menu (char * menu, Resource * node, void * callback, int indent)
 
 		/* add to the action entries */
 		/* name, stock_id, label, accelerator, tooltip */
-		ghid_append_action (tmps, NULL, v, accel, NULL);
+		ghid_append_action (tmps, NULL, menulabel, accel, NULL);
 
 		ghid_ui_info_indent (indent);
 		ghid_ui_info_append ("<menuitem action='");
@@ -3114,8 +3159,13 @@ add_resource_to_menu (char * menu, Resource * node, void * callback, int indent)
 	     */
 	    sprintf (tmps, "%s%d", MENUITEM, menuitem_cnt);
 	    
-	    /* add to the action entries */
-	    /* name, stock_id, label, accelerator, tooltip */
+	    /* add to the action entries 
+	     * name, stock_id, label, accelerator, tooltip 
+	     * Note that we didn't get the mneumonic added in here,
+	     * but since this is really for a dummy menu (no
+	     * associated actions), I'm not concerned.
+	     */
+	    
 	    ghid_append_action (tmps, NULL, node->v[i].value, accel, NULL);
 	    
 	    ghid_ui_info_indent (indent);
@@ -3128,6 +3178,9 @@ add_resource_to_menu (char * menu, Resource * node, void * callback, int indent)
 	  }
 	break;
       }
+  
+  if (menulabel != NULL)
+    free (menuqlabel);
 }
 
 
