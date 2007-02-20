@@ -3180,7 +3180,7 @@ add_resource_to_menu (char * menu, Resource * node, void * callback, int indent)
       }
   
   if (menulabel != NULL)
-    free (menuqlabel);
+    free (menulabel);
 }
 
 
