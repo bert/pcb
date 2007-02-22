@@ -137,12 +137,15 @@ static Resource **toggle_action_resources = NULL;
 
 /* actions for the @layerview menuitems */
 static GtkToggleActionEntry layerview_toggle_entries[N_LAYER_BUTTONS];
+static Resource *layerview_resources[N_LAYER_BUTTONS];
 
 /* actions for the @layerpick menuitems */
 static GtkToggleActionEntry layerpick_toggle_entries[N_LAYER_BUTTONS];
+static Resource *layerpick_resources[N_LAYER_BUTTONS];
 
 /* actions for the @routestyles menuitems */
-static GtkToggleActionEntry routestyles_toggle_entries[N_ROUTE_STYLES];
+static GtkToggleActionEntry routestyle_toggle_entries[N_ROUTE_STYLES];
+static Resource *routestyle_resources[N_ROUTE_STYLES];
 
 #define MENUITEM "MenuItem"
 #define TMENUITEM "TMenuItem"
@@ -165,6 +168,8 @@ static int max_tflags = 0;
 static void
 note_toggle_flag (const char *actionname, char *name)
 {
+
+  printf ("note_toggle_flag(\"%s\", \"%s\")\n", actionname, name);
   if (n_tflags >= max_tflags)
     {
       max_tflags += 20;
@@ -179,22 +184,26 @@ note_toggle_flag (const char *actionname, char *name)
   n_tflags++;
 }
 
-static void
-ghid_update_layer_menus ()
-{
-  int i;
-
-  printf ("ghid_update_layer_menus()\n");
-
-}
 
 void
 ghid_update_toggle_flags ()
 {
+  static int foo=0;
   int i;
+  int current_layer;
+
   GtkAction *a;
   gboolean old_holdoff;
+  char tmpnm[40];
+  GValue setfalse = { 0 };
+  GValue settrue = { 0 };
+  GValue setlabel = { 0 };
 
+  g_value_init (&setfalse, G_TYPE_BOOLEAN);
+  g_value_init (&settrue, G_TYPE_BOOLEAN);
+  g_value_set_boolean (&setfalse, FALSE);
+  g_value_set_boolean (&settrue, TRUE);
+  g_value_init (&setlabel, G_TYPE_STRING);
 
   /* mask the callbacks */
   old_holdoff = ghidgui->toggle_holdoff;
@@ -208,6 +217,33 @@ ghid_update_toggle_flags ()
       tflags[i].oldval = v;
     }
 
+
+  /* FIXME -- this probably needs to go somewhere else */
+  for (i = 0; i < N_LAYER_BUTTONS; i++)
+    {
+      sprintf (tmpnm, "%s%d", LAYERVIEW, i);
+      a = gtk_action_group_get_action (ghidgui->main_actions, tmpnm);
+      if (a != NULL)
+	{
+	  g_object_set_property (G_OBJECT (a), "visible", (i > max_layer && i < MAX_LAYER) ? &setfalse : &settrue);
+	}
+
+    }
+  
+  for (i = 0; i < N_ROUTE_STYLES; i++)
+    {
+      if (i >= NUM_STYLES)
+	{
+	  sprintf (tmpnm, "%s%d", ROUTESTYLE, i);
+	  a = gtk_action_group_get_action (ghidgui->main_actions, tmpnm);
+	  g_object_set_property (G_OBJECT (a), "visible", &setfalse);
+	}
+      /* Update the toggle states */
+    }
+
+  g_value_unset (&setfalse);
+  g_value_unset (&settrue);
+  g_value_unset (&setlabel);
   ghidgui->toggle_holdoff = old_holdoff;
 
 }
@@ -404,24 +440,18 @@ ghid_menu_cb (GtkAction * action, GHidPort * port)
     }
   else if ( strncmp (name, LAYERPICK, strlen (LAYERPICK)) == 0)
     {
-      /* This is a "toggle" menuitem */
       id = atoi (name + strlen (LAYERPICK));
-
-      node = NULL;
+      node = layerpick_resources[id];
     }
   else if ( strncmp (name, LAYERVIEW, strlen (LAYERVIEW)) == 0)
     {
-      /* This is a "toggle" menuitem */
       id = atoi (name + strlen (LAYERVIEW));
-
-      node = NULL;
+      node = layerview_resources[id];
     }
   else if ( strncmp (name, ROUTESTYLE, strlen (ROUTESTYLE)) == 0)
     {
-      /* This is a "toggle" menuitem */
       id = atoi (name + strlen (ROUTESTYLE));
-
-      node = NULL;
+      node = routestyle_resources[id];
     }
   else
     {
@@ -1041,7 +1071,7 @@ make_menu_actions (GtkActionGroup * actions, GHidPort * port)
   ghid_make_programmed_menu_actions ();
   gtk_action_group_add_toggle_actions (actions, layerpick_toggle_entries, N_LAYER_BUTTONS, port);
   gtk_action_group_add_toggle_actions (actions, layerview_toggle_entries, N_LAYER_BUTTONS, port);
-  gtk_action_group_add_toggle_actions (actions, routestyles_toggle_entries, N_ROUTE_STYLES, port);
+  gtk_action_group_add_toggle_actions (actions, routestyle_toggle_entries, N_ROUTE_STYLES, port);
 
   /* Handle menu actions with dynamic content.
    */
@@ -1501,6 +1531,8 @@ ghid_make_programmed_menu_actions ()
 {
   int i;
   gchar * text;
+  Resource *ar;
+  char av[30];
 
   for (i = 0; i < N_LAYER_BUTTONS; i++)
     {
@@ -1546,6 +1578,17 @@ ghid_make_programmed_menu_actions ()
       layerview_toggle_entries[i].callback = G_CALLBACK (ghid_menu_cb);
       layerview_toggle_entries[i].is_active = FALSE;
       
+      ar = resource_create (0);
+      sprintf (av, "ToggleView(%d)", i + 1);
+      resource_add_val (ar, 0, strdup (av), 0);
+      resource_add_val (ar, 0, strdup (av), 0);
+      ar->flags |= FLAG_V;
+      layerview_resources[i] = ar;
+
+      // FIXME
+      //sprintf (av, "layer_visible,%d", i + 1);
+      //note_toggle_flag (layerview_toggle_entries[i].name, strdup (av));
+
       /* name, stock_id, label, accelerator, tooltip, callback */
       layerpick_toggle_entries[i].name = g_strdup_printf ("%s%d", LAYERPICK, i);
       layerpick_toggle_entries[i].stock_id = NULL;
@@ -1554,47 +1597,58 @@ ghid_make_programmed_menu_actions ()
       layerpick_toggle_entries[i].tooltip = NULL;
       layerpick_toggle_entries[i].callback = G_CALLBACK (ghid_menu_cb);
       layerpick_toggle_entries[i].is_active = FALSE;
-      
-      if (i <= max_layer || i >= MAX_LAYER )
+
+      ar = resource_create (0);
+      switch (i)
 	{
-	  printf ("  Need to add a @layerview menuitem.  <menuitem action=LayerView%d>.  \"%s\" ToggleView(%d)\n", i, text, i);
+	case LAYER_BUTTON_SILK:
+	  sprintf (av, "SelectLayer(Silk)");
+	  break; 
+	case LAYER_BUTTON_RATS:
+	  sprintf (av, "SelectLayer(Rats)");
+	  break;
+	default:
+	  sprintf (av, "SelectLayer(%d)", i + 1);
+	  break;
 	}
-      if (i <= max_layer || (i >= MAX_LAYER && i < N_SELECTABLE_LAYER_BUTTONS) )
-	{
-	  printf ("  Need to add a @layerselect menuitem.  <menuitem action=LayerSelect%d>.  \"%s\" ", i, text);
-	  switch (i)
-	    {
-	    case LAYER_BUTTON_SILK:
-	      printf ("SelectLayer(Silk)\n");
-	      break;
-	    case LAYER_BUTTON_RATS:
-	      printf ("SelectLayer(Rats)\n");
-	      break;
-	    default:
-	      printf ("SelectLayer(%d)\n", i + 1);
-	      break;
-	    }
-	}
+      resource_add_val (ar, 0, strdup (av), 0);
+      resource_add_val (ar, 0, strdup (av), 0);
+      ar->flags |= FLAG_V;
+      layerpick_resources[i] = ar;
+      // FIXME
+      //sprintf (av, "current_layer,%d", i + 1);
+      //note_toggle_flag (layerpick_toggle_entries[i].name, strdup (av));
+
     }
 
     for (i = 0; i < N_ROUTE_STYLES; i++)
     {
-      routestyles_toggle_entries[i].name = g_strdup_printf ("%s%d", ROUTESTYLE, i);
-      routestyles_toggle_entries[i].stock_id = NULL;
+      routestyle_toggle_entries[i].name = g_strdup_printf ("%s%d", ROUTESTYLE, i);
+      routestyle_toggle_entries[i].stock_id = NULL;
       if (i < NUM_STYLES && PCB)
 	{
-	  routestyles_toggle_entries[i].label = g_strdup ( (PCB->RouteStyle)[i].Name);
+	  routestyle_toggle_entries[i].label = g_strdup ( (PCB->RouteStyle)[i].Name);
 	}
       else
 	{
-	  routestyles_toggle_entries[i].label = g_strdup (routestyles_toggle_entries[i].name);
+	  routestyle_toggle_entries[i].label = g_strdup (routestyle_toggle_entries[i].name);
 	}
+      routestyle_toggle_entries[i].accelerator = NULL;
+      routestyle_toggle_entries[i].tooltip = NULL;
+      routestyle_toggle_entries[i].callback = G_CALLBACK (ghid_menu_cb);
+      routestyle_toggle_entries[i].is_active = FALSE;
 
-      routestyles_toggle_entries[i].accelerator = NULL;
-      routestyles_toggle_entries[i].tooltip = NULL;
-      routestyles_toggle_entries[i].callback = G_CALLBACK (ghid_menu_cb);
-      routestyles_toggle_entries[i].is_active = FALSE;
-      
+      ar = resource_create (0);
+      sprintf (av, "RouteStyle(%d)", i + 1);
+      resource_add_val (ar, 0, strdup (av), 0);
+      resource_add_val (ar, 0, strdup (av), 0);
+      ar->flags |= FLAG_V;
+      routestyle_resources[i] = ar;
+
+      // FIXME
+      //sprintf (av, "current_style,%d", i + 1);
+      //note_toggle_flag (routestyle_toggle_entries[i].name, strdup (av));
+
     }
 }
 
@@ -1725,6 +1779,21 @@ ghid_layer_buttons_update (void)
 {
   gint layer;
   gboolean active = FALSE;
+  gboolean old_holdoff;
+  char tmpnm[40];
+  int i;
+  int set;
+  gchar *text;
+  GtkAction *a;
+  GValue setfalse = { 0 };
+  GValue settrue = { 0 };
+  GValue setlabel = { 0 };
+
+  g_value_init (&setfalse, G_TYPE_BOOLEAN);
+  g_value_init (&settrue, G_TYPE_BOOLEAN);
+  g_value_set_boolean (&setfalse, FALSE);
+  g_value_set_boolean (&settrue, TRUE);
+  g_value_init (&setlabel, G_TYPE_STRING);
 
   printf ("ghid_layer_buttons_update()\n");
 
@@ -1755,6 +1824,70 @@ ghid_layer_buttons_update (void)
       if (active && layer != layer_select_button_index)
 	printf ("\tActivating button %d\n", layer);
     }
+
+  /* mask the callbacks */
+  old_holdoff = ghidgui->toggle_holdoff;
+  ghidgui->toggle_holdoff = TRUE;
+  
+  /* update the check marks in the layer pick menu */
+  for (i = 0; i < N_LAYER_BUTTONS ; i++)
+    {
+      sprintf (tmpnm, "%s%d", LAYERPICK, i);
+      a = gtk_action_group_get_action (ghidgui->main_actions, tmpnm);
+
+      text = UNKNOWN (PCB->Data->Layer[i].Name);
+      text = _(text);
+      g_value_set_string (&setlabel, text);
+
+      if (a != NULL)
+	{
+	  g_object_set_property (G_OBJECT (a), "visible", (i >= max_layer && i < MAX_LAYER) ? &setfalse : &settrue);
+	  gtk_toggle_action_set_active (GTK_TOGGLE_ACTION (a), (active && (i == layer) ) ? TRUE : FALSE);
+	  g_object_set_property (G_OBJECT (a), "label", &setlabel);
+	}
+
+      sprintf (tmpnm, "%s%d", LAYERVIEW, i);
+      a = gtk_action_group_get_action (ghidgui->main_actions, tmpnm);
+      if (a != NULL)
+	{
+	  
+	  switch (i)
+	    {
+	    case LAYER_BUTTON_SILK:
+	      set = PCB->ElementOn;
+	      break;
+	    case LAYER_BUTTON_RATS:
+	      set = PCB->RatOn;
+	      break;
+	    case LAYER_BUTTON_PINS:
+	      set = PCB->PinOn;
+	      break;
+	    case LAYER_BUTTON_VIAS:
+	      set = PCB->ViaOn;
+	      break;
+	    case LAYER_BUTTON_FARSIDE:
+	      set = PCB->InvisibleObjectsOn;
+	      break;
+	    case LAYER_BUTTON_MASK:
+	      set = TEST_FLAG (SHOWMASKFLAG, PCB);
+	      break;
+	    default:		/* layers */
+	      set = PCB->Data->Layer[i].On;
+	      break;
+	    }
+	  
+	  g_object_set_property (G_OBJECT (a), "visible", (i >= max_layer && i < MAX_LAYER) ? &setfalse : &settrue);
+	  gtk_toggle_action_set_active (GTK_TOGGLE_ACTION (a), set ? TRUE : FALSE);
+	  g_object_set_property (G_OBJECT (a), "label", &setlabel);
+	}
+
+
+    }
+  g_value_unset (&setfalse);
+  g_value_unset (&settrue);
+  g_value_unset (&setlabel);
+  ghidgui->toggle_holdoff = old_holdoff;
+
   if (active && layer != layer_select_button_index)
     {
       layer_select_button_cb_hold_off = TRUE;
