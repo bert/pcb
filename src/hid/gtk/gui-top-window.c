@@ -1,4 +1,4 @@
-/* $Id$ */
+ /* $Id$ */
 
 /*
  *                            COPYRIGHT
@@ -115,6 +115,8 @@ TODO:
 
 RCSID ("$Id$");
 
+#define N_ROUTE_STYLES (NUM_STYLES + 3)
+
 static void ghid_load_menus (void);
 static void ghid_ui_info_append (const gchar *);
 static void ghid_ui_info_indent (int);
@@ -133,8 +135,20 @@ static gint tmenuitem_cnt = 0;
 static Resource **action_resources = NULL;
 static Resource **toggle_action_resources = NULL;
 
+/* actions for the @layerview menuitems */
+static GtkToggleActionEntry layerview_toggle_entries[N_LAYER_BUTTONS];
+
+/* actions for the @layerpick menuitems */
+static GtkToggleActionEntry layerpick_toggle_entries[N_LAYER_BUTTONS];
+
+/* actions for the @routestyles menuitems */
+static GtkToggleActionEntry routestyles_toggle_entries[N_ROUTE_STYLES];
+
 #define MENUITEM "MenuItem"
 #define TMENUITEM "TMenuItem"
+#define LAYERPICK "LayerPick"
+#define LAYERVIEW "LayerView"
+#define ROUTESTYLE "RouteStyle"
 
 typedef struct
 {
@@ -163,6 +177,15 @@ note_toggle_flag (const char *actionname, char *name)
   tflags[n_tflags].oldval = -1;
   tflags[n_tflags].xres = "none";
   n_tflags++;
+}
+
+static void
+ghid_update_layer_menus ()
+{
+  int i;
+
+  printf ("ghid_update_layer_menus()\n");
+
 }
 
 void
@@ -378,6 +401,27 @@ ghid_menu_cb (GtkAction * action, GHidPort * port)
 	node = NULL;
       else
 	node = toggle_action_resources[id];
+    }
+  else if ( strncmp (name, LAYERPICK, strlen (LAYERPICK)) == 0)
+    {
+      /* This is a "toggle" menuitem */
+      id = atoi (name + strlen (LAYERPICK));
+
+      node = NULL;
+    }
+  else if ( strncmp (name, LAYERVIEW, strlen (LAYERVIEW)) == 0)
+    {
+      /* This is a "toggle" menuitem */
+      id = atoi (name + strlen (LAYERVIEW));
+
+      node = NULL;
+    }
+  else if ( strncmp (name, ROUTESTYLE, strlen (ROUTESTYLE)) == 0)
+    {
+      /* This is a "toggle" menuitem */
+      id = atoi (name + strlen (ROUTESTYLE));
+
+      node = NULL;
     }
   else
     {
@@ -994,6 +1038,11 @@ make_menu_actions (GtkActionGroup * actions, GHidPort * port)
   gtk_action_group_add_actions (actions, new_entries, menuitem_cnt, port);
   gtk_action_group_add_toggle_actions (actions, new_toggle_entries, tmenuitem_cnt, port);
 
+  ghid_make_programmed_menu_actions ();
+  gtk_action_group_add_toggle_actions (actions, layerpick_toggle_entries, N_LAYER_BUTTONS, port);
+  gtk_action_group_add_toggle_actions (actions, layerview_toggle_entries, N_LAYER_BUTTONS, port);
+  gtk_action_group_add_toggle_actions (actions, routestyles_toggle_entries, N_ROUTE_STYLES, port);
+
   /* Handle menu actions with dynamic content.
    */
 #ifdef DAN_FIXME
@@ -1442,6 +1491,110 @@ make_layer_buttons (GtkWidget * vbox, GHidPort * port)
       g_signal_connect (G_OBJECT (button), "toggled",
 			G_CALLBACK (layer_enable_button_cb),
 			GINT_TO_POINTER (i));
+
+
+    }
+}
+
+static void
+ghid_make_programmed_menu_actions ()
+{
+  int i;
+  gchar * text;
+
+  for (i = 0; i < N_LAYER_BUTTONS; i++)
+    {
+      switch (i)
+	{
+	case LAYER_BUTTON_SILK:
+	  text = _("silk");
+	  break;
+
+	case LAYER_BUTTON_RATS:
+	  text = _("rat lines");
+	  break;
+
+	case LAYER_BUTTON_PINS:
+	  text = _("pins/pads");
+	  break;
+
+	case LAYER_BUTTON_VIAS:
+	  text = _("vias");
+	  break;
+
+	case LAYER_BUTTON_FARSIDE:
+	  text = _("far side");
+	  break;
+
+	case LAYER_BUTTON_MASK:
+	  text = _("solder mask");
+	  break;
+
+	default:
+	  text = UNKNOWN (PCB->Data->Layer[i].Name);
+	  text = _(text);
+	  break;
+	}
+
+      printf ("make_layer_buttons():  Added #%2d \"%s\".  max_layer = %d, MAX_LAYER = %d\n", i, text, max_layer, MAX_LAYER);
+      /* name, stock_id, label, accelerator, tooltip, callback */
+      layerview_toggle_entries[i].name = g_strdup_printf ("%s%d", LAYERVIEW, i);
+      layerview_toggle_entries[i].stock_id = NULL;
+      layerview_toggle_entries[i].label = g_strdup (text);
+      layerview_toggle_entries[i].accelerator = NULL;
+      layerview_toggle_entries[i].tooltip = NULL;
+      layerview_toggle_entries[i].callback = G_CALLBACK (ghid_menu_cb);
+      layerview_toggle_entries[i].is_active = FALSE;
+      
+      /* name, stock_id, label, accelerator, tooltip, callback */
+      layerpick_toggle_entries[i].name = g_strdup_printf ("%s%d", LAYERPICK, i);
+      layerpick_toggle_entries[i].stock_id = NULL;
+      layerpick_toggle_entries[i].label = g_strdup (text);
+      layerpick_toggle_entries[i].accelerator = NULL;
+      layerpick_toggle_entries[i].tooltip = NULL;
+      layerpick_toggle_entries[i].callback = G_CALLBACK (ghid_menu_cb);
+      layerpick_toggle_entries[i].is_active = FALSE;
+      
+      if (i <= max_layer || i >= MAX_LAYER )
+	{
+	  printf ("  Need to add a @layerview menuitem.  <menuitem action=LayerView%d>.  \"%s\" ToggleView(%d)\n", i, text, i);
+	}
+      if (i <= max_layer || (i >= MAX_LAYER && i < N_SELECTABLE_LAYER_BUTTONS) )
+	{
+	  printf ("  Need to add a @layerselect menuitem.  <menuitem action=LayerSelect%d>.  \"%s\" ", i, text);
+	  switch (i)
+	    {
+	    case LAYER_BUTTON_SILK:
+	      printf ("SelectLayer(Silk)\n");
+	      break;
+	    case LAYER_BUTTON_RATS:
+	      printf ("SelectLayer(Rats)\n");
+	      break;
+	    default:
+	      printf ("SelectLayer(%d)\n", i + 1);
+	      break;
+	    }
+	}
+    }
+
+    for (i = 0; i < N_ROUTE_STYLES; i++)
+    {
+      routestyles_toggle_entries[i].name = g_strdup_printf ("%s%d", ROUTESTYLE, i);
+      routestyles_toggle_entries[i].stock_id = NULL;
+      if (i < NUM_STYLES && PCB)
+	{
+	  routestyles_toggle_entries[i].label = g_strdup ( (PCB->RouteStyle)[i].Name);
+	}
+      else
+	{
+	  routestyles_toggle_entries[i].label = g_strdup (routestyles_toggle_entries[i].name);
+	}
+
+      routestyles_toggle_entries[i].accelerator = NULL;
+      routestyles_toggle_entries[i].tooltip = NULL;
+      routestyles_toggle_entries[i].callback = G_CALLBACK (ghid_menu_cb);
+      routestyles_toggle_entries[i].is_active = FALSE;
+      
     }
 }
 
@@ -1496,6 +1649,7 @@ ghid_layer_enable_buttons_update (void)
   gchar *s;
   gint i;
 
+  printf ("ghid_layer_enable_buttons_update()\n");
 
   /* Update layer button labels and active state to state inside of PCB
    */
@@ -1572,6 +1726,8 @@ ghid_layer_buttons_update (void)
   gint layer;
   gboolean active = FALSE;
 
+  printf ("ghid_layer_buttons_update()\n");
+
   if (!ghidgui || ghidgui->creating)
     return;
 
@@ -1628,7 +1784,8 @@ RouteStyleButton;
      |  user can hit 'l', 'v', etc keys to change the settings without selecting
      |  a new defined style.
    */
-static RouteStyleButton route_style_button[NUM_STYLES + 3];
+
+static RouteStyleButton route_style_button[N_ROUTE_STYLES];
 static gint route_style_index;
 
 static GtkWidget *route_style_edit_button;
@@ -1702,7 +1859,7 @@ make_route_style_buttons (GtkWidget * vbox, GHidPort * port)
 		    G_CALLBACK (route_style_edit_cb), port);
   route_style_edit_button = button;
 
-  for (i = 0; i < NUM_STYLES + 3; ++i)
+  for (i = 0; i < N_ROUTE_STYLES; ++i)
     {
       RouteStyleType *rst;
       gchar buf[32];
@@ -1733,7 +1890,7 @@ make_route_style_buttons (GtkWidget * vbox, GHidPort * port)
 void
 ghid_route_style_button_set_active (gint n)
 {
-  if (n < 0 || n >= NUM_STYLES + 3)
+  if (n < 0 || n >= N_ROUTE_STYLES)
     return;
 
   gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON
@@ -2715,7 +2872,6 @@ static KeyTable key_table[] =
   };
 static int n_key_table = sizeof (key_table) / sizeof (key_table[0]);
 
-
 static void
 add_resource_to_menu (char * menu, Resource * node, void * callback, int indent)
 {
@@ -2991,7 +3147,7 @@ add_resource_to_menu (char * menu, Resource * node, void * callback, int indent)
 	    else if (label && strcmp (label, "false") == 0)
 	      {
 		/* we have sensitive=false so just put a label in the
-		 * GUI 
+		 * GUI  -- FIXME -- actually do something here....
 		 */
 	      }
 	    else
@@ -3125,23 +3281,41 @@ add_resource_to_menu (char * menu, Resource * node, void * callback, int indent)
 	if (node->v[i].value[0] == '@')
 	  {
 	    Message ("GTK GUI currently ignores '@' constructs in the menu\n");
-	    Message ("resource file.  In this case what is ignored is\n");
+	    Message ("resource file.  In this case what has been ignored is\n");
 	    Message ("\"%s\"\n", node->v[i].value);
 
 	    if (strcmp (node->v[i].value, "@layerview") == 0)
 	    {
-	      //insert_layerview_buttons (menu);
-	      printf ("insert_layerview_buttons\n");
+	      int i;
+	      char tmpid[40];
+	      for (i = 0 ; i <  N_LAYER_BUTTONS; i++)
+		{
+		  sprintf (tmpid, "<menuitem action='%s%d' />\n", LAYERVIEW, i);
+		  ghid_ui_info_indent (indent);
+		  ghid_ui_info_append (tmpid);
+		}
 	    }
 	    if (strcmp (node->v[i].value, "@layerpick") == 0)
 	    {
-	      //insert_layerpick_buttons (menu);
-	      printf ("insert_layerpick_buttons\n");
+	      int i;
+	      char tmpid[40];
+	      for (i = 0 ; i <  N_SELECTABLE_LAYER_BUTTONS; i++)
+		{
+		  sprintf (tmpid, "<menuitem action='%s%d' />\n", LAYERPICK, i);
+		  ghid_ui_info_indent (indent);
+		  ghid_ui_info_append (tmpid);
+		}
 	    }
 	    if (strcmp (node->v[i].value, "@routestyles") == 0)
 	    {
-	      //lesstif_insert_style_buttons (menu);
-	      printf ("insert_style_buttons\n");
+	      int i;
+	      char tmpid[40];
+	      for (i = 0 ; i <  N_ROUTE_STYLES; i++)
+		{
+		  sprintf (tmpid, "<menuitem action='%s%d' />\n", ROUTESTYLE, i);
+		  ghid_ui_info_indent (indent);
+		  ghid_ui_info_append (tmpid);
+		}
 	    }
 	  }
 

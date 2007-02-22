@@ -37,7 +37,7 @@ MainMenu =
 # File Menu
 #
 
-  {_File
+  {File m=F
    {"Save layout" Save(Layout)}
    {"Save layout as..." Save(LayoutAs)}
    -
@@ -70,7 +70,7 @@ MainMenu =
 # Edit Menu
 #
 
-  {Edit
+  {Edit m=E
    {"Undo last operation" Undo() a={"U" "<Key>u"}}
    {"Redo last undone operation" Redo() a={"Shift-R" "Shift<Key>r"}}
    {"Clear undo-buffer" Undo(ClearList) a={"Shift-Ctrl-U" "Shift Ctrl<Key>u"}}
@@ -95,6 +95,7 @@ MainMenu =
    -
    {"Move to current layer" MoveToCurrentLayer(Object) a={"M" "<Key>m"}}
    {"Move selected to current layer" MoveToCurrentLayer(Selected) a={"Shift-M" "Shift<Key>m"}}
+   {"Route Styles" @routestyles}
   }
 
 #
