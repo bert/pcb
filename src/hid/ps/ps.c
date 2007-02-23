@@ -13,6 +13,7 @@
 #include "global.h"
 #include "data.h"
 #include "misc.h"
+#include "error.h"
 
 #include "hid.h"
 #include "../hidint.h"
@@ -540,7 +541,7 @@ ps_set_layer (const char *name, int group)
 	fprintf (f, "( \\(mirrored\\)) show\n");
 
       if (fillpage)
-	fprintf (f, "(, not to scale) show\n", scale_value);
+	fprintf (f, "(, not to scale) show\n");
       else
 	fprintf (f, "(, scale = 1:%.3f) show\n", scale_value);
 
@@ -942,7 +943,7 @@ void
 ps_calibrate_1 (double xval, double yval, int use_command)
 {
   HID_Attr_Val vals[3];
-  FILE *f, *pt;
+  FILE *f;
   int used_popen = 0, c;
 
   if (xval > 0 && yval > 0)
