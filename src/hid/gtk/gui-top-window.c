@@ -219,17 +219,19 @@ ghid_update_toggle_flags ()
 
 
   /* FIXME -- this probably needs to go somewhere else */
+#ifdef notdef
   for (i = 0; i < N_LAYER_BUTTONS; i++)
     {
       sprintf (tmpnm, "%s%d", LAYERVIEW, i);
       a = gtk_action_group_get_action (ghidgui->main_actions, tmpnm);
       if (a != NULL)
 	{
-	  g_object_set_property (G_OBJECT (a), "visible", (i > max_layer && i < MAX_LAYER) ? &setfalse : &settrue);
+	  g_object_set_property (G_OBJECT (a), "visible", (i >= max_layer && i < MAX_LAYER) ? &setfalse : &settrue);
 	}
 
     }
-  
+#endif
+
   for (i = 0; i < N_ROUTE_STYLES; i++)
     {
       if (i >= NUM_STYLES)
@@ -1264,9 +1266,12 @@ static void
 layer_select_button_cb (GtkWidget * widget, LayerButtonSet * lb)
 {
   gboolean active = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget));
+  static gboolean in_cb = FALSE;
 
-  if (!active || layer_select_button_cb_hold_off)
+  if (!active || layer_select_button_cb_hold_off || in_cb)
     return;
+
+  in_cb = TRUE;
 
   PCB->SilkActive = (lb->index == LAYER_BUTTON_SILK);
   PCB->RatDraw = (lb->index == LAYER_BUTTON_RATS);
@@ -1276,7 +1281,14 @@ layer_select_button_cb (GtkWidget * widget, LayerButtonSet * lb)
 
   layer_select_button_index = lb->index;
 
+  layer_select_button_cb_hold_off = TRUE;
+  layer_enable_button_cb_hold_off = TRUE;
+  ghid_layer_buttons_update ();
+  layer_select_button_cb_hold_off = FALSE;
+  layer_enable_button_cb_hold_off = FALSE;
+
   ghid_invalidate_all ();
+  in_cb = FALSE;
 }
 
 static void
@@ -1359,6 +1371,13 @@ layer_enable_button_cb (GtkWidget * widget, gpointer data)
       redraw = TRUE;
       break;
     }
+
+  layer_select_button_cb_hold_off = TRUE;
+  layer_enable_button_cb_hold_off = TRUE;
+  ghid_layer_buttons_update ();
+  layer_select_button_cb_hold_off = FALSE;
+  layer_enable_button_cb_hold_off = FALSE;
+
   if (redraw)
     ghid_invalidate_all();
 }
@@ -1453,51 +1472,8 @@ make_layer_buttons (GtkWidget * vbox, GHidPort * port)
 			    G_CALLBACK (layer_select_button_cb), lb);
 	}
 
-      switch (i)
-	{
-	case LAYER_BUTTON_SILK:
-	  color_string = PCB->ElementColor;
-	  text = _("silk");
-	  active = PCB->ElementOn;
-	  break;
-
-	case LAYER_BUTTON_RATS:
-	  color_string = PCB->RatColor;
-	  text = _("rat lines");
-	  active = PCB->RatOn;
-	  break;
-
-	case LAYER_BUTTON_PINS:
-	  color_string = PCB->PinColor;
-	  text = _("pins/pads");
-	  active = PCB->PinOn;
-	  break;
-
-	case LAYER_BUTTON_VIAS:
-	  color_string = PCB->ViaColor;
-	  text = _("vias");
-	  active = PCB->ViaOn;
-	  break;
-
-	case LAYER_BUTTON_FARSIDE:
-	  color_string = PCB->InvisibleObjectsColor;
-	  text = _("far side");
-	  active = PCB->InvisibleObjectsOn;
-	  break;
-
-	case LAYER_BUTTON_MASK:
-	  color_string = PCB->MaskColor;
-	  text = _("solder mask");
-	  active = TEST_FLAG (SHOWMASKFLAG, PCB);
-	  break;
-
-	default:
-	  color_string = PCB->Data->Layer[i].Color;
-	  text = UNKNOWN (PCB->Data->Layer[i].Name);
-	  text = _(text);
-	  active = PCB->Data->Layer[i].On;
-	  break;
-	}
+      layer_process (&color_string, &text, &active, i);
+      
       button = gtk_check_button_new ();
       label = gtk_label_new ("");
       gtk_label_set_use_markup (GTK_LABEL (label), TRUE);
@@ -1531,44 +1507,14 @@ ghid_make_programmed_menu_actions ()
 {
   int i;
   gchar * text;
+  
   Resource *ar;
   char av[30];
 
   for (i = 0; i < N_LAYER_BUTTONS; i++)
     {
-      switch (i)
-	{
-	case LAYER_BUTTON_SILK:
-	  text = _("silk");
-	  break;
-
-	case LAYER_BUTTON_RATS:
-	  text = _("rat lines");
-	  break;
-
-	case LAYER_BUTTON_PINS:
-	  text = _("pins/pads");
-	  break;
-
-	case LAYER_BUTTON_VIAS:
-	  text = _("vias");
-	  break;
-
-	case LAYER_BUTTON_FARSIDE:
-	  text = _("far side");
-	  break;
-
-	case LAYER_BUTTON_MASK:
-	  text = _("solder mask");
-	  break;
-
-	default:
-	  text = UNKNOWN (PCB->Data->Layer[i].Name);
-	  text = _(text);
-	  break;
-	}
-
-      printf ("make_layer_buttons():  Added #%2d \"%s\".  max_layer = %d, MAX_LAYER = %d\n", i, text, max_layer, MAX_LAYER);
+      layer_process (NULL, &text, NULL, i);
+      printf ("ghid_make_programmed_menu_actions():  Added #%2d \"%s\".  max_layer = %d, MAX_LAYER = %d\n", i, text, max_layer, MAX_LAYER);
       /* name, stock_id, label, accelerator, tooltip, callback */
       layerview_toggle_entries[i].name = g_strdup_printf ("%s%d", LAYERVIEW, i);
       layerview_toggle_entries[i].stock_id = NULL;
@@ -1585,10 +1531,6 @@ ghid_make_programmed_menu_actions ()
       ar->flags |= FLAG_V;
       layerview_resources[i] = ar;
 
-      // FIXME
-      //sprintf (av, "layer_visible,%d", i + 1);
-      //note_toggle_flag (layerview_toggle_entries[i].name, strdup (av));
-
       /* name, stock_id, label, accelerator, tooltip, callback */
       layerpick_toggle_entries[i].name = g_strdup_printf ("%s%d", LAYERPICK, i);
       layerpick_toggle_entries[i].stock_id = NULL;
@@ -1602,23 +1544,19 @@ ghid_make_programmed_menu_actions ()
       switch (i)
 	{
 	case LAYER_BUTTON_SILK:
-	  sprintf (av, "SelectLayer(Silk)");
+	  sprintf (av, "SelectLayer(Silk) LayersChanged()");
 	  break; 
 	case LAYER_BUTTON_RATS:
-	  sprintf (av, "SelectLayer(Rats)");
+	  sprintf (av, "SelectLayer(Rats) LayersChanged()");
 	  break;
 	default:
-	  sprintf (av, "SelectLayer(%d)", i + 1);
+	  sprintf (av, "SelectLayer(%d) LayersChanged()", i + 1);
 	  break;
 	}
       resource_add_val (ar, 0, strdup (av), 0);
       resource_add_val (ar, 0, strdup (av), 0);
       ar->flags |= FLAG_V;
       layerpick_resources[i] = ar;
-      // FIXME
-      //sprintf (av, "current_layer,%d", i + 1);
-      //note_toggle_flag (layerpick_toggle_entries[i].name, strdup (av));
-
     }
 
     for (i = 0; i < N_ROUTE_STYLES; i++)
@@ -1674,20 +1612,7 @@ ghid_layer_buttons_color_update (void)
     {
       lb = &layer_buttons[i];
 
-      if (i == LAYER_BUTTON_SILK)
-	color_string = PCB->ElementColor;
-      else if (i == LAYER_BUTTON_RATS)
-	color_string = PCB->RatColor;
-      else if (i == LAYER_BUTTON_PINS)
-	color_string = PCB->PinColor;
-      else if (i == LAYER_BUTTON_VIAS)
-	color_string = PCB->ViaColor;
-      else if (i == LAYER_BUTTON_FARSIDE)
-	color_string = PCB->InvisibleObjectsColor;
-      else if (i == LAYER_BUTTON_MASK)
-	color_string = PCB->MaskColor;
-      else
-	color_string = PCB->Data->Layer[i].Color;
+      layer_process (&color_string, NULL, NULL, i);
 
       layer_button_set_color (lb, color_string);
     }
@@ -1774,6 +1699,76 @@ ghid_layer_button_select (gint layer)
      |  user toggles layer visibility or changes drawing layer or when internal
      |  PCB code changes layer visibility.
    */
+
+/* ---------------------------------------------------------------------------
+ *
+ * layer_process()
+ *
+ * Takes the index into the layers and produces the text string for
+ * the layer and if the layer is currently visible or not.  This is
+ * used by a couple of functions.
+ *
+ */
+static void
+layer_process (gchar **color_string, char **text, int *set, int i)
+{
+  int tmp;
+  char *tmps;
+  gchar *tmpc;
+
+  /* cheap hack to let users pass in NULL for either text or set if
+   * they don't care about the result
+   */
+   
+  if (color_string == NULL)
+    color_string = &tmpc;
+
+  if (text == NULL)
+    text = &tmps;
+
+  if (set == NULL)
+    set = &tmp;
+  
+  switch (i)
+    {
+    case LAYER_BUTTON_SILK:
+      *color_string = PCB->ElementColor;
+      *text = _( "silk");
+      *set = PCB->ElementOn;
+      break;
+    case LAYER_BUTTON_RATS:
+      *color_string = PCB->RatColor;
+      *text = _( "rat lines");
+      *set = PCB->RatOn;
+      break;
+    case LAYER_BUTTON_PINS:
+      *color_string = PCB->PinColor;
+      *text = _( "pins/pads");
+      *set = PCB->PinOn;
+      break;
+    case LAYER_BUTTON_VIAS:
+      *color_string = PCB->ViaColor;
+      *text = _( "vias");
+      *set = PCB->ViaOn;
+      break;
+    case LAYER_BUTTON_FARSIDE:
+      *color_string = PCB->InvisibleObjectsColor;
+      *text = _( "far side");
+      *set = PCB->InvisibleObjectsOn;
+      break;
+    case LAYER_BUTTON_MASK:
+      *color_string = PCB->MaskColor;
+      *text = _( "solder mask");
+      *set = TEST_FLAG (SHOWMASKFLAG, PCB);
+      break;
+    default:		/* layers */
+      *color_string = PCB->Data->Layer[i].Color;
+      *text = UNKNOWN (PCB->Data->Layer[i].Name);
+      *set = PCB->Data->Layer[i].On;
+      break;
+    }
+}
+
 void
 ghid_layer_buttons_update (void)
 {
@@ -1835,14 +1830,13 @@ ghid_layer_buttons_update (void)
       sprintf (tmpnm, "%s%d", LAYERPICK, i);
       a = gtk_action_group_get_action (ghidgui->main_actions, tmpnm);
 
-      text = UNKNOWN (PCB->Data->Layer[i].Name);
-      text = _(text);
+      layer_process (NULL, &text, &set, i);
       g_value_set_string (&setlabel, text);
 
       if (a != NULL)
 	{
 	  g_object_set_property (G_OBJECT (a), "visible", (i >= max_layer && i < MAX_LAYER) ? &setfalse : &settrue);
-	  gtk_toggle_action_set_active (GTK_TOGGLE_ACTION (a), (active && (i == layer) ) ? TRUE : FALSE);
+	  gtk_toggle_action_set_active (GTK_TOGGLE_ACTION (a), (set && (i == layer) ) ? TRUE : FALSE);
 	  g_object_set_property (G_OBJECT (a), "label", &setlabel);
 	}
 
@@ -1850,34 +1844,9 @@ ghid_layer_buttons_update (void)
       a = gtk_action_group_get_action (ghidgui->main_actions, tmpnm);
       if (a != NULL)
 	{
-	  
-	  switch (i)
-	    {
-	    case LAYER_BUTTON_SILK:
-	      set = PCB->ElementOn;
-	      break;
-	    case LAYER_BUTTON_RATS:
-	      set = PCB->RatOn;
-	      break;
-	    case LAYER_BUTTON_PINS:
-	      set = PCB->PinOn;
-	      break;
-	    case LAYER_BUTTON_VIAS:
-	      set = PCB->ViaOn;
-	      break;
-	    case LAYER_BUTTON_FARSIDE:
-	      set = PCB->InvisibleObjectsOn;
-	      break;
-	    case LAYER_BUTTON_MASK:
-	      set = TEST_FLAG (SHOWMASKFLAG, PCB);
-	      break;
-	    default:		/* layers */
-	      set = PCB->Data->Layer[i].On;
-	      break;
-	    }
-	  
 	  g_object_set_property (G_OBJECT (a), "visible", (i >= max_layer && i < MAX_LAYER) ? &setfalse : &settrue);
 	  gtk_toggle_action_set_active (GTK_TOGGLE_ACTION (a), set ? TRUE : FALSE);
+	  g_value_set_string (&setlabel, text);
 	  g_object_set_property (G_OBJECT (a), "label", &setlabel);
 	}
 
@@ -2874,6 +2843,12 @@ ghid_do_export (HID_Attr_Val * options)
 {
   ghid_create_pcb_widgets ();
 
+  /* These are needed to make sure the @layerpick and @layerview menus
+   * are properly initialized and synchronized with the current PCB.
+   */
+  ghid_layer_buttons_update ();
+  ghid_show_layer_buttons();
+
   if (stdin_listen)
     ghid_create_listener ();
 
@@ -3413,45 +3388,51 @@ add_resource_to_menu (char * menu, Resource * node, void * callback, int indent)
 
 	if (node->v[i].value[0] == '@')
 	  {
-	    Message ("GTK GUI currently ignores '@' constructs in the menu\n");
-	    Message ("resource file.  In this case what has been ignored is\n");
-	    Message ("\"%s\"\n", node->v[i].value);
-
 	    if (strcmp (node->v[i].value, "@layerview") == 0)
-	    {
-	      int i;
-	      char tmpid[40];
-	      for (i = 0 ; i <  N_LAYER_BUTTONS; i++)
-		{
-		  sprintf (tmpid, "<menuitem action='%s%d' />\n", LAYERVIEW, i);
-		  ghid_ui_info_indent (indent);
-		  ghid_ui_info_append (tmpid);
-		}
-	    }
-	    if (strcmp (node->v[i].value, "@layerpick") == 0)
-	    {
-	      int i;
-	      char tmpid[40];
-	      for (i = 0 ; i <  N_SELECTABLE_LAYER_BUTTONS; i++)
-		{
-		  sprintf (tmpid, "<menuitem action='%s%d' />\n", LAYERPICK, i);
-		  ghid_ui_info_indent (indent);
-		  ghid_ui_info_append (tmpid);
-		}
-	    }
-	    if (strcmp (node->v[i].value, "@routestyles") == 0)
-	    {
-	      int i;
-	      char tmpid[40];
-	      for (i = 0 ; i <  N_ROUTE_STYLES; i++)
-		{
-		  sprintf (tmpid, "<menuitem action='%s%d' />\n", ROUTESTYLE, i);
-		  ghid_ui_info_indent (indent);
-		  ghid_ui_info_append (tmpid);
-		}
-	    }
+	      {
+		int i;
+		char tmpid[40];
+		for (i = 0 ; i <  N_LAYER_BUTTONS; i++)
+		  {
+		    sprintf (tmpid, "<menuitem action='%s%d' />\n", 
+			     LAYERVIEW, i);
+		    ghid_ui_info_indent (indent);
+		    ghid_ui_info_append (tmpid);
+		  }
+	      }
+	    else if (strcmp (node->v[i].value, "@layerpick") == 0)
+	      {
+		int i;
+		char tmpid[40];
+		for (i = 0 ; i <  N_SELECTABLE_LAYER_BUTTONS; i++)
+		  {
+		    sprintf (tmpid, "<menuitem action='%s%d' />\n", 
+			     LAYERPICK, i);
+		    ghid_ui_info_indent (indent);
+		    ghid_ui_info_append (tmpid);
+		  }
+	      }
+	    else if (strcmp (node->v[i].value, "@routestyles") == 0)
+	      {
+		int i;
+		char tmpid[40];
+		for (i = 0 ; i <  N_ROUTE_STYLES; i++)
+		  {
+		    sprintf (tmpid, "<menuitem action='%s%d' />\n", 
+			     ROUTESTYLE, i);
+		    ghid_ui_info_indent (indent);
+		    ghid_ui_info_append (tmpid);
+		  }
+	      }
+	    else
+	      {
+		Message ("GTK GUI currently ignores \"%s\" in the menu\n", 
+			 node->v[i].value);
+		Message ("resource file.\n");
+	      }
+	    
 	  }
-
+	
 	else if (strcmp (node->v[i].value, "-") == 0)
 	  {
 	    ghid_ui_info_indent (indent);
