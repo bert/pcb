@@ -33,6 +33,8 @@
 #include "config.h"
 #endif
 
+#include <math.h>
+
 #include "report.h"
 #include "crosshair.h"
 #include "data.h"
@@ -51,7 +53,8 @@
 RCSID ("$Id$");
 
 
-#define UNIT(value) (Settings.grid_units_mm ? ((value) / 100000.0 * 25.4) : ((value) / 100.0)) , (Settings.grid_units_mm ? "mm" : "mils")
+#define UNIT1(value) (Settings.grid_units_mm ? ((value) / 100000.0 * 25.4) : ((value) / 100.0))
+#define UNIT(value) UNIT1(value) , (Settings.grid_units_mm ? "mm" : "mils")
 
 static int
 ReportDrills (int argc, char **argv, int x, int y)
@@ -327,6 +330,7 @@ ReportDialog (int argc, char **argv, int x, int y)
       }
     case PAD_TYPE:
       {
+	int len, dx, dy, mgap;
 #ifdef FIXME
 #ifndef NDEBUG
 	if (gui_shift_is_pressed ())
@@ -347,21 +351,30 @@ ReportDialog (int argc, char **argv, int x, int y)
 	  }
 	}
 	END_LOOP;
+	dx = Pad->Point1.X - Pad->Point2.X;
+	dy = Pad->Point1.Y - Pad->Point2.Y;
+	len = sqrt (dx*dx+dy*dy);
+	mgap = (Pad->Mask - Pad->Thickness)/2;
 	sprintf (&report[0], "PAD ID# %ld   Flags:%s\n"
-		 "FirstPoint(X,Y) = (%d, %d)  ID = %ld\n"
+		 "FirstPoint(X,Y)  = (%d, %d)  ID = %ld\n"
 		 "SecondPoint(X,Y) = (%d, %d)  ID = %ld\n"
-		 "Width = %0.2f %s.\nClearance width in polygons = %0.2f %s.\n"
-		 "Solder mask width = %0.2f %s.\n"
+		 "Width = %0.2f %s.  Length = %0.2f %s.\n"
+		 "Clearance width in polygons = %0.2f %s.\n"
+		 "Solder mask = %0.2f x %0.2f %s (gap = %0.2f %s).\n"
 		 "Name = \"%s\"\n"
 		 "It is owned by SMD element %s\n"
 		 "As pin number %s and is on the %s\n"
 		 "side of the board.\n"
 		 "%s", Pad->ID,
-		 flags_to_string (Pad->Flags, PAD_TYPE), Pad->Point1.X,
-		 Pad->Point1.Y, Pad->Point1.ID, Pad->Point2.X, Pad->Point2.Y,
-		 Pad->Point2.ID, UNIT (Pad->Thickness), UNIT (Pad->Clearance / 2.),
-		 UNIT (Pad->Mask), EMPTY (Pad->Name),
-		 EMPTY (element->Name[1].TextString), EMPTY (Pad->Number),
+		 flags_to_string (Pad->Flags, PAD_TYPE),
+		 Pad->Point1.X, Pad->Point1.Y, Pad->Point1.ID,
+		 Pad->Point2.X, Pad->Point2.Y, Pad->Point2.ID,
+		 UNIT (Pad->Thickness), UNIT (len + Pad->Thickness),
+		 UNIT (Pad->Clearance / 2.),
+		 UNIT1 (Pad->Mask), UNIT (Pad->Mask + len), UNIT (mgap),
+		 EMPTY (Pad->Name),
+		 EMPTY (element->Name[1].TextString),
+		 EMPTY (Pad->Number),
 		 TEST_FLAG (ONSOLDERFLAG,
 			    Pad) ? "solder (bottom)" : "component",
 		 TEST_FLAG (LOCKFLAG, Pad) ? "It is LOCKED\n" : "");
