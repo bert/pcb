@@ -190,6 +190,14 @@ parsepcb
 			      InitClip (yyData, &yyData->Layer[i], &yyData->Layer[i].Polygon[j]);
 			}
 			   
+		| { PreLoadElementPCB ();
+		    layer_group_string = NULL; }
+		  element
+		  { LayerFlag[0] = True;
+		    LayerFlag[1] = True;
+		    yyData->LayerN = 2;
+		    PostLoadElementPCB ();
+		  }
 		;
 
 parsedata
