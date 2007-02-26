@@ -443,17 +443,29 @@ ghid_menu_cb (GtkAction * action, GHidPort * port)
   else if ( strncmp (name, LAYERPICK, strlen (LAYERPICK)) == 0)
     {
       id = atoi (name + strlen (LAYERPICK));
-      node = layerpick_resources[id];
+
+      if (ghidgui->toggle_holdoff == TRUE) 
+	node = NULL;
+      else
+	node = layerpick_resources[id];
     }
   else if ( strncmp (name, LAYERVIEW, strlen (LAYERVIEW)) == 0)
     {
       id = atoi (name + strlen (LAYERVIEW));
-      node = layerview_resources[id];
+
+      if (ghidgui->toggle_holdoff == TRUE) 
+	node = NULL;
+      else
+	node = layerview_resources[id];
     }
   else if ( strncmp (name, ROUTESTYLE, strlen (ROUTESTYLE)) == 0)
     {
       id = atoi (name + strlen (ROUTESTYLE));
-      node = routestyle_resources[id];
+
+      if (ghidgui->toggle_holdoff == TRUE) 
+	node = NULL;
+      else
+	node = routestyle_resources[id];
     }
   else
     {
@@ -2872,8 +2884,141 @@ LayersChanged (int argc, char **argv, int px, int py)
   return 0;
 }
 
+static const char toggleview_syntax[] =
+"ToggleView(1..MAXLAYER)\n"
+"ToggleView(layername)\n"
+"ToggleView(Silk|Rats|Pins|Vias|Mask|BackSide)";
+
+static const char toggleview_help[] =
+"Toggle the visibility of the specified layer or layer group.";
+
+/* %start-doc actions ToggleView
+
+If you pass an integer, that layer is specified by index (the first
+layer is @code{1}, etc).  If you pass a layer name, that layer is
+specified by name.  When a layer is specified, the visibility of the
+layer group containing that layer is toggled.
+
+If you pass a special layer name, the visibility of those components
+(silk, rats, etc) is toggled.  Note that if you have a layer named
+the same as a special layer, the layer is chosen over the special layer.
+
+%end-doc */
+
+static int
+ToggleView (int argc, char **argv, int x, int y)
+{
+  int i, l;
+  static gboolean in_toggle_view = 0;
+  gboolean active;
+
+  printf ("Starting ToggleView().  in_toggle_view = %d\n", in_toggle_view);
+  if (in_toggle_view)
+    {
+      fprintf (stderr, "ToggleView() called on top of another ToggleView()\n"
+	       "Please report this and how it happened\n");
+      return 0;
+    }
+
+  in_toggle_view = 1;
+
+  if (argc == 0)
+    {
+      in_toggle_view = 0;
+      AFAIL (toggleview);
+    }
+  if (isdigit ((int) argv[0][0]))
+    {
+      l = atoi (argv[0]) - 1;
+    }
+  else if (strcmp (argv[0], "Silk") == 0)
+    l = LAYER_BUTTON_SILK;
+  else if (strcmp (argv[0], "Rats") == 0)
+    l = LAYER_BUTTON_RATS;
+  else if (strcmp (argv[0], "Pins") == 0)
+    l = LAYER_BUTTON_PINS;
+  else if (strcmp (argv[0], "Vias") == 0)
+    l = LAYER_BUTTON_VIAS;
+  else if (strcmp (argv[0], "Mask") == 0)
+    l = LAYER_BUTTON_MASK;
+  else if (strcmp (argv[0], "BackSide") == 0)
+    l = LAYER_BUTTON_FARSIDE;
+  else
+    {
+      l = -1;
+      for (i = 0; i < max_layer + 2; i++)
+	if (strcmp (argv[0], PCB->Data->Layer[i].Name) == 0)
+	  {
+	    l = i;
+	    break;
+	  }
+      if (l == -1)
+	{
+	  in_toggle_view = 0;
+	  AFAIL (toggleview);
+	}
+
+    }
+
+  printf ("ToggleView():  l = %d\n", l);
+
+  /* Now that we've figured out which toggle button ought to control
+   * this layer, simply hit the button and let the pre-existing code deal
+   */
+  active = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (layer_buttons[l].layer_enable_button));
+  
+  gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (layer_buttons[l].layer_enable_button),
+				active == TRUE ? FALSE : TRUE);
+  in_toggle_view = 0;
+  return 0;
+}
+
+static const char selectlayer_syntax[] =
+"SelectLayer(1..MAXLAYER|Silk|Rats)";
+
+static const char selectlayer_help[] =
+"Select which layer is the current layer.";
+
+/* %start-doc actions SelectLayer
+
+The specified layer becomes the currently active layer.  It is made
+visible if it is not already visible
+
+%end-doc */
+
+static int
+SelectLayer (int argc, char **argv, int x, int y)
+{
+  int newl;
+  if (argc == 0)
+    AFAIL (selectlayer);
+
+  if (strcasecmp (argv[0], "silk") == 0)
+    newl = LAYER_BUTTON_SILK;
+  else if (strcasecmp (argv[0], "rats") == 0)
+    newl = LAYER_BUTTON_RATS;
+  else
+    newl = atoi (argv[0]) - 1;
+
+  printf ("SelectLayer():  newl = %d\n", newl);
+
+  /* Now that we've figured out which radio button ought to select
+   * this layer, simply hit the button and let the pre-existing code deal
+   */
+  gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (layer_buttons[newl].radio_select_button),
+				TRUE);
+
+  return 0;
+}
+
+
 HID_Action gtk_topwindow_action_list[] = {
-  {"LayersChanged", 0, LayersChanged}
+  {"LayersChanged", 0, LayersChanged,
+   layerschanged_help, layerschanged_syntax},
+  {"SelectLayer", 0, SelectLayer,
+   selectlayer_help, selectlayer_syntax},
+  {"ToggleView", 0, ToggleView,
+   toggleview_help, toggleview_syntax}
 };
 
 REGISTER_ACTIONS (gtk_topwindow_action_list)
