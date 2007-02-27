@@ -388,6 +388,9 @@ PreLoadElementPCB ()
 {
   int i;
 
+  if (!yyPCB)
+    return;
+
   yyFont = &yyPCB->Font;
   yyData = yyPCB->Data;
   yyData->pcb = (void *)yyPCB;
@@ -399,6 +402,9 @@ PostLoadElementPCB ()
 {
   PCBTypePtr pcb_save = PCB;
   ElementTypePtr e;
+
+  if (!yyPCB)
+    return;
 
   CreateNewPCBPost (yyPCB, 0);
   ParseGroupString("1,c:2,s", &yyPCB->LayerGroups, yyData->LayerN);
