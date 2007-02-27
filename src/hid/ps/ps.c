@@ -193,6 +193,12 @@ HID_Attribute ps_attribute_list[] = {
   {"multi-file", "Produce multiple files, one per page, instead of a single file.",
    HID_Boolean, 0, 0, {0, 0, 0.40}, 0, 0},
 #define HA_multifile 13
+  {"xcalib", "X-Axis calibration (paper width).",
+   HID_Real, 0, 0, {0, 0, 1.0}, 0, 0},
+#define HA_xcalib 14
+  {"ycalib", "Y-Axis calibration (paper height).",
+   HID_Real, 0, 0, {0, 0, 1.0}, 0, 0},
+#define HA_ycalib 15
 };
 
 #define NUM_OPTIONS (sizeof(ps_attribute_list)/sizeof(ps_attribute_list[0]))
@@ -299,6 +305,8 @@ ps_hid_export_to_file (FILE * the_file, HID_Attr_Val * options)
   ps_width = media_width - 2.0*media_data[media].MarginX / 1e5;
   ps_height = media_height - 2.0*media_data[media].MarginY / 1e5;
   scale_value = options[HA_scale].real_value;
+  calibration_x = options[HA_xcalib].real_value;
+  calibration_y = options[HA_ycalib].real_value;
 
   if (fade_ratio < 0)
     fade_ratio = 0;
@@ -953,7 +961,8 @@ ps_calibrate_1 (double xval, double yval, int use_command)
 	  if (guess (xval, 7.5, &calibration_x))
 	    {
 	      if (xval < 2)
-		calibration_x = xval;
+		ps_attribute_list[HA_xcalib].default_val.real_value =
+		  calibration_x = xval;
 	      else
 		Message("X value of %g is too far off.\n", xval);
 	    }
@@ -962,7 +971,8 @@ ps_calibrate_1 (double xval, double yval, int use_command)
 	  if (guess (yval, 10, &calibration_y))
 	    {
 	      if (yval < 2)
-		calibration_y = yval;
+		ps_attribute_list[HA_ycalib].default_val.real_value =
+		  calibration_y = yval;
 	      else
 		Message("Y value of %g is too far off.\n", yval);
 	    }
