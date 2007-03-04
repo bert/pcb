@@ -91,7 +91,7 @@ HEX				0x[0-9a-fA-F]+
 DECIMAL			-?[1-9][0-9]*|0
 FLOATING                -?[0-9]*"."[0-9]*
 CARDINAL		[1-9][0-9]*|0
-STRINGCHAR		([^"\n\r\\]|\\\\|\\\")
+STRINGCHAR		([^"\n\r\\]|\\.)
 
 %option yylineno
 
@@ -321,10 +321,10 @@ int ParsePCB(PCBTypePtr Ptr, char *Filename)
 int ParseFont(FontTypePtr Ptr, char *Filename)
 {
 	int r = 0;
+	char *path, *p;
 	yyPCB = NULL;
 	yyFont = Ptr;
 	yyElement = NULL;
-	char *path, *p;
 
 	path = strdup (Settings.FontPath);
 

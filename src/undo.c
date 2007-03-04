@@ -373,7 +373,7 @@ UndoChange2ndSize (UndoListTypePtr Entry)
 	return (False);
       swap = ((PinTypePtr) ptr2)->DrillingHole;
       if (andDraw)
-	EraseObject (type, ptr2);
+	EraseObject (type, ptr1, ptr2);
       ((PinTypePtr) ptr2)->DrillingHole = Entry->Data.Size;
       Entry->Data.Size = swap;
       DrawObject (type, ptr1, ptr2, 0);
@@ -405,7 +405,7 @@ UndoChangeAngles (UndoListTypePtr Entry)
       old_sa = a->StartAngle;
       old_da = a->Delta;
       if (andDraw)
-	EraseObject (type, a);
+	EraseObject (type, Layer, a);
       a->StartAngle = Entry->Data.Move.DX;
       a->Delta = Entry->Data.Move.DY;
       SetArcBoundingBox (a);
@@ -438,7 +438,7 @@ UndoChangeClearSize (UndoListTypePtr Entry)
       swap = ((PinTypePtr) ptr2)->Clearance;
       RestoreToPolygon (PCB->Data, type, ptr1, ptr2);
       if (andDraw)
-	EraseObject (type, ptr2);
+	EraseObject (type, ptr1, ptr2);
       ((PinTypePtr) ptr2)->Clearance = Entry->Data.Size;
       ClearFromPolygon (PCB->Data, type, ptr1, ptr2);
       Entry->Data.Size = swap;
@@ -470,7 +470,7 @@ UndoChangeMaskSize (UndoListTypePtr Entry)
 	(type ==
 	 PAD_TYPE ? ((PadTypePtr) ptr2)->Mask : ((PinTypePtr) ptr2)->Mask);
       if (andDraw)
-	EraseObject (type, ptr2);
+	EraseObject (type, ptr1, ptr2);
       if (type == PAD_TYPE)
 	((PadTypePtr) ptr2)->Mask = Entry->Data.Size;
       else
@@ -506,7 +506,7 @@ UndoChangeSize (UndoListTypePtr Entry)
       swap = ((PinTypePtr) ptr2)->Thickness;
       RestoreToPolygon (PCB->Data, type, ptr1, ptr2);
       if (andDraw)
-	EraseObject (type, ptr2);
+	EraseObject (type, ptr1, ptr2);
       ((PinTypePtr) ptr2)->Thickness = Entry->Data.Size;
       Entry->Data.Size = swap;
       ClearFromPolygon (PCB->Data, type, ptr1, ptr2);
@@ -549,7 +549,7 @@ UndoFlag (UndoListTypePtr Entry)
 	must_redraw = 1;
 
       if (andDraw && must_redraw)
-	EraseObject (type, ptr2);
+	EraseObject (type, ptr1, ptr2);
 
       pin->Flags = Entry->Data.Flags;
 
@@ -615,7 +615,7 @@ UndoCopyOrCreate (UndoListTypePtr Entry)
       if (!RemoveList)
 	RemoveList = CreateNewBuffer ();
       if (andDraw)
-	EraseObject (type, ptr2);
+	EraseObject (type, ptr1, ptr2);
       /* in order to make this re-doable we move it to the RemoveList */
       MoveObjectToBuffer (RemoveList, PCB->Data, type, ptr1, ptr2, ptr3);
       Entry->Type = UNDO_REMOVE;

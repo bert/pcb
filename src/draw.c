@@ -107,7 +107,6 @@ static void DrawElementPackageLowLevel (ElementTypePtr Element, int);
 static void DrawPlainPolygon (LayerTypePtr Layer, PolygonTypePtr Polygon);
 static void AddPart (void *);
 static void SetPVColor (PinTypePtr, int);
-static void DrawGrid (void);
 static void DrawEMark (ElementTypePtr, LocationType, LocationType, Boolean);
 static void ClearPad (PadTypePtr, Boolean);
 static void DrawHole (PinTypePtr);
@@ -235,63 +234,6 @@ ClearAndRedrawOutput (void)
 static void
 Redraw (Boolean ClearWindow, BoxTypePtr screen_area)
 {
-#if 0
-  BoxType draw_area;
-  Dimension pcbwidth, pcbheight;
-
-  /* make sure window exists */
-  if (Output.drawing_area->window
-      && (render || ClearWindow || !Output.pixmap))
-    {
-      /* shrink the update block */
-      Block.X1 = MAX_COORD / 100;
-      Block.Y1 = MAX_COORD / 100;
-      Block.X2 = Block.Y2 = 0;
-
-      /* switch off crosshair if needed,
-       * set up drawing window and redraw
-       * everything with Gather = False
-       */
-      if (!Output.pixmap)
-	HideCrosshair (True);
-      SwitchDrawingWindow (PCB->Zoom,
-			   Output.pixmap ? Output.pixmap :
-			   Output.drawing_area->window,
-			   Settings.ShowSolderSide, False);
-      draw_area.X1 = TO_PCB_X (screen_area->X1);
-      draw_area.X2 = TO_PCB_X (screen_area->X2);
-      draw_area.Y1 =
-	MIN (TO_PCB_Y (screen_area->Y1), TO_PCB_Y (screen_area->Y2));
-      draw_area.Y2 =
-	MAX (TO_PCB_Y (screen_area->Y1), TO_PCB_Y (screen_area->Y2));
-
-      /* clear the background
-       * of the drawing area
-       */
-      pcbwidth = TO_DRAWABS_X (PCB->MaxWidth);
-      pcbheight = TO_DRAWABS_Y (PCB->MaxHeight);
-      gdk_draw_rectangle (DrawingWindow, Output.bgGC, True, 0, 0,
-			  MIN (pcbwidth, Output.Width),
-			  MIN (pcbheight, Output.Height));
-      gui->set_color (Output.fgGC, Settings.OffLimitColor);
-      if (pcbwidth < Output.Width)
-	gdk_draw_rectangle (DrawingWindow, Output.fgGC, True,
-			    pcbwidth, 0, Output.Width - pcbwidth,
-			    Output.Height);
-      if (pcbheight < Output.Height)
-	gdk_draw_rectangle (DrawingWindow, Output.fgGC, True,
-			    0, pcbheight, Output.Width,
-			    Output.Height - pcbheight);
-      if (ClearWindow && !Output.pixmap)
-	Crosshair.On = False;
-
-/*      DrawBackgroundImage (); */
-      DrawEverything (&draw_area);
-
-      if (!Output.pixmap)
-	RestoreCrosshair (True);
-    }
-#endif
   gui->invalidate_all ();
   Gathering = True;
   render = False;
@@ -476,7 +418,8 @@ DrawEverything (BoxTypePtr drawn_area)
   /*
    * first draw all 'invisible' stuff
    */
-  if (gui->set_layer ("invisible", SL (INVISIBLE, 0)))
+  if (!TEST_FLAG (CHECKPLANESFLAG, PCB)
+      && gui->set_layer ("invisible", SL (INVISIBLE, 0)))
     {
       r_search (PCB->Data->pad_tree, drawn_area, NULL, backPad_callback,
 		NULL);
@@ -501,6 +444,8 @@ DrawEverything (BoxTypePtr drawn_area)
 	    {
 	      int save_swap = SWAP_IDENT;
 
+	      if (TEST_FLAG (CHECKPLANESFLAG, PCB) && gui->gui)
+		continue;
 	      r_search (PCB->Data->pin_tree, drawn_area, NULL, pin_callback,
 			NULL);
 	      r_search (PCB->Data->via_tree, drawn_area, NULL, pin_callback,
@@ -526,6 +471,9 @@ DrawEverything (BoxTypePtr drawn_area)
 	    }
 	}
     }
+  if (TEST_FLAG (CHECKPLANESFLAG, PCB) && gui->gui)
+    return;
+
   /* draw vias below silk */
   if (PCB->ViaOn && gui->gui)
     r_search (PCB->Data->via_tree, drawn_area, NULL, lowvia_callback, NULL);
@@ -586,8 +534,6 @@ DrawEverything (BoxTypePtr drawn_area)
       /* Draw rat lines on top */
       if (PCB->RatOn)
 	r_search (PCB->Data->rat_tree, drawn_area, NULL, rat_callback, NULL);
-      if (Settings.DrawGrid)
-	DrawGrid ();
     }
 
   for (side = 0; side <= 1; side++)
@@ -752,6 +698,9 @@ static void
 DrawSilk (int new_swap, int layer, BoxTypePtr drawn_area)
 {
 #if 0
+  /* This code is used when you want to mask silk to avoid exposed
+     pins and pads.  We decided it was a bad idea to do this
+     unconditionally, but the code remains.  */
   struct pin_info info;
 #endif
   int save_swap = SWAP_IDENT;
@@ -906,6 +855,9 @@ DrawLayerGroup (int group, const BoxType * screen)
 			&info);
 	      info.arg = False;
 	    }
+
+	  if (TEST_FLAG (CHECKPLANESFLAG, PCB))
+	    continue;
 
 	  /* draw all visible lines this layer */
 	  r_search (Layer->line_tree, screen, NULL, line_callback, Layer);
@@ -1309,7 +1261,7 @@ DrawPinOrViaNameLowLevel (PinTypePtr Ptr)
 
   if (gui->gui)
     doing_pinout++;
-  DrawTextLowLevel (&text);
+  DrawTextLowLevel (&text, 0);
   if (gui->gui)
     doing_pinout--;
 }
@@ -1469,7 +1421,7 @@ DrawPadNameLowLevel (PadTypePtr Pad)
   text.Direction = vert ? 1 : 0;
   text.TextString = name;
 
-  DrawTextLowLevel (&text);
+  DrawTextLowLevel (&text, 0);
 
 }
 
@@ -1516,28 +1468,16 @@ DrawLineLowLevel (LineTypePtr Line, Boolean HaveGathered)
   else
     gui->set_line_width (Output.fgGC, Line->Thickness);
 
-#ifdef FIXME
-  if (TEST_FLAG (RATFLAG, Line))
-    {
-      gdk_gc_set_stipple (Output.fgGC, Stipples[0]);
-      gdk_gc_set_fill (Output.fgGC, GDK_STIPPLED);
-      XDrawCLine (DrawingWindow, Output.fgGC,
+  gui->draw_line (Output.fgGC,
 		  Line->Point1.X, Line->Point1.Y,
 		  Line->Point2.X, Line->Point2.Y);
-      gdk_gc_set_fill (Output.fgGC, GDK_SOLID);
-    }
-  else
-#endif
-    gui->draw_line (Output.fgGC,
-		    Line->Point1.X, Line->Point1.Y,
-		    Line->Point2.X, Line->Point2.Y);
 }
 
 /* ---------------------------------------------------------------------------
  * lowlevel drawing routine for text objects
  */
 void
-DrawTextLowLevel (TextTypePtr Text)
+DrawTextLowLevel (TextTypePtr Text, int min_line_width)
 {
   LocationType x = 0;
   unsigned char *string = (unsigned char *) Text->TextString;
@@ -1567,8 +1507,8 @@ DrawTextLowLevel (TextTypePtr Text)
 	      newline.Point2.X = (newline.Point2.X + x) * Text->Scale / 100;
 	      newline.Point2.Y = newline.Point2.Y * Text->Scale / 100;
 	      newline.Thickness = newline.Thickness * Text->Scale / 200;
-	      if (newline.Thickness < PCB->minSlk && !gui->gui)
-		newline.Thickness = PCB->minSlk;
+	      if (newline.Thickness < min_line_width)
+		newline.Thickness = min_line_width;
 
 	      RotateLineLowLevel (&newline, 0, 0, Text->Direction);
 
@@ -1647,7 +1587,8 @@ DrawPolygonLowLevel (PolygonTypePtr Polygon)
       x[i] = v->point[0];
       y[i++] = v->point[1];
     }
-  if (TEST_FLAG (THINDRAWFLAG, PCB))
+  if (TEST_FLAG (THINDRAWFLAG, PCB)
+      || TEST_FLAG (THINDRAWPOLYFLAG, PCB))
     {
       gui->set_line_width (Output.fgGC, 1);
       for (i = 0; i < n - 1; i++)
@@ -1919,26 +1860,38 @@ DrawArc (LayerTypePtr Layer, ArcTypePtr Arc, int unused)
 void
 DrawText (LayerTypePtr Layer, TextTypePtr Text, int unused)
 {
+  int min_silk_line;
   if (!Layer->On)
     return;
   if (TEST_FLAG (SELECTEDFLAG, Text))
     gui->set_color (Output.fgGC, Layer->SelectedColor);
   else
     gui->set_color (Output.fgGC, Layer->Color);
-  DrawTextLowLevel (Text);
+  if (Layer == & PCB->Data->SILKLAYER
+      || Layer == & PCB->Data->BACKSILKLAYER)
+    min_silk_line = PCB->minSlk;
+  else
+    min_silk_line = PCB->minWid;
+  DrawTextLowLevel (Text, min_silk_line);
 }
 
 /* ---------------------------------------------------------------------------
- * draws text on a layer - assumes it's not on silkscreen
+ * draws text on a layer
  */
 static void
 DrawRegularText (LayerTypePtr Layer, TextTypePtr Text, int unused)
 {
+  int min_silk_line;
   if (TEST_FLAG (SELECTEDFLAG, Text))
     gui->set_color (Output.fgGC, Layer->SelectedColor);
   else
     gui->set_color (Output.fgGC, Layer->Color);
-  DrawTextLowLevel (Text);
+  if (Layer == & PCB->Data->SILKLAYER
+      || Layer == & PCB->Data->BACKSILKLAYER)
+    min_silk_line = PCB->minSlk;
+  else
+    min_silk_line = PCB->minWid;
+  DrawTextLowLevel (Text, min_silk_line);
 }
 
 static int
@@ -1966,18 +1919,7 @@ DrawPolygon (LayerTypePtr Layer, PolygonTypePtr Polygon, int unused)
   else
     gui->set_color (Output.fgGC, Layer->Color);
   layernum = GetLayerNumber (PCB->Data, Layer);
-#ifdef FIXME
-  if (Settings.StipplePolygons)
-    {
-      gdk_gc_set_stipple (Output.fgGC, Stipples[layernum]);
-      gdk_gc_set_fill (Output.fgGC, GDK_STIPPLED);
-    }
-#endif
   DrawPolygonLowLevel (Polygon);
-#ifdef FIXME
-  if (Settings.StipplePolygons)
-    gdk_gc_set_fill (Output.fgGC, GDK_SOLID);
-#endif
   if (TEST_FLAG (CLEARPOLYFLAG, Polygon))
     {
       r_search (PCB->Data->pin_tree, &Polygon->BoundingBox, NULL,
@@ -2031,7 +1973,8 @@ DrawPlainPolygon (LayerTypePtr Layer, PolygonTypePtr Polygon)
   else
     gui->set_color (Output.fgGC, Layer->Color);
   /* if the gui has the dicer flag set then it won't accept thin draw */
-  if (TEST_FLAG (THINDRAWFLAG, PCB) && !gui->poly_dicer)
+  if ((TEST_FLAG (THINDRAWFLAG, PCB) || TEST_FLAG (THINDRAWPOLYFLAG, PCB))
+      && !gui->poly_dicer)
     {
       DrawPolygonLowLevel (Polygon);
       if (!Gathering)
@@ -2098,7 +2041,7 @@ DrawElementName (ElementTypePtr Element, int unused)
     gui->set_color (Output.fgGC, PCB->ElementColor);
   else
     gui->set_color (Output.fgGC, PCB->InvisibleObjectsColor);
-  DrawTextLowLevel (&ELEMENT_TEXT (PCB, Element));
+  DrawTextLowLevel (&ELEMENT_TEXT (PCB, Element), PCB->minSlk);
 }
 
 /* ---------------------------------------------------------------------------
@@ -2259,11 +2202,17 @@ EraseArc (ArcTypePtr Arc)
  * erases a text on a layer
  */
 void
-EraseText (TextTypePtr Text)
+EraseText (LayerTypePtr Layer, TextTypePtr Text)
 {
+  int min_silk_line;
   Erasing++;
   gui->set_color (Output.fgGC, Settings.BackgroundColor);
-  DrawTextLowLevel (Text);
+  if (Layer == & PCB->Data->SILKLAYER
+      || Layer == & PCB->Data->BACKSILKLAYER)
+    min_silk_line = PCB->minSlk;
+  else
+    min_silk_line = PCB->minWid;
+  DrawTextLowLevel (Text, min_silk_line);
   Erasing--;
 }
 
@@ -2299,7 +2248,7 @@ EraseElement (ElementTypePtr Element)
   }
   END_LOOP;
   if (!TEST_FLAG (HIDENAMEFLAG, Element))
-    DrawTextLowLevel (&ELEMENT_TEXT (PCB, Element));
+    DrawTextLowLevel (&ELEMENT_TEXT (PCB, Element), PCB->minSlk);
   EraseElementPinsAndPads (Element);
   Erasing--;
 }
@@ -2345,57 +2294,13 @@ EraseElementName (ElementTypePtr Element)
     return;
   Erasing++;
   gui->set_color (Output.fgGC, Settings.BackgroundColor);
-  DrawTextLowLevel (&ELEMENT_TEXT (PCB, Element));
+  DrawTextLowLevel (&ELEMENT_TEXT (PCB, Element), PCB->minSlk);
   Erasing--;
 }
 
-/* ---------------------------------------------------------------------------
- * draws grid points if the distance is >= MIN_GRID_DISTANCE
- */
-static void
-DrawGrid ()
-{
-#ifdef FIXME
-  LocationType minx, miny, maxx, maxy, temp;
-  double x, y, delta;
-
-  delta = GetGridFactor () * PCB->Grid;
-  if (TO_SCREEN ((int) delta) >= MIN_GRID_DISTANCE)
-    {
-      minx = TO_PCB_X (0);
-      miny = TO_PCB_Y (0);
-      maxx = TO_PCB_X (Output.Width);
-      maxy = TO_PCB_Y (Output.Height);
-      if (miny > maxy)
-	{
-	  temp = maxy;
-	  maxy = miny;
-	  miny = temp;
-	}
-      minx -= delta;
-      miny -= delta;
-#if 0
-      maxx += delta;
-      maxy += delta;
-#else
-      minx -= delta;
-      miny -= delta;
-#endif
-      maxx = MIN ((BDimension) maxx, PCB->MaxWidth);
-      maxy = MIN ((BDimension) maxy, PCB->MaxHeight);
-      miny = MAX (0, miny);
-      minx = MAX (0, minx);
-      for (y = miny; y <= maxy; y += delta)
-	for (x = minx; x <= maxx; x += delta)
-	  gdk_draw_point (DrawingWindow,
-			  Output.GridGC, TO_DRAW_X (GRIDFIT_X (x, delta)),
-			  TO_DRAW_Y (GRIDFIT_Y (y, delta)));
-    }
-#endif
-}
 
 void
-EraseObject (int type, void *ptr)
+EraseObject (int type, void *lptr, void *ptr)
 {
   switch (type)
     {
@@ -2405,7 +2310,7 @@ EraseObject (int type, void *ptr)
       break;
     case TEXT_TYPE:
     case ELEMENTNAME_TYPE:
-      EraseText ((TextTypePtr) ptr);
+      EraseText (lptr, (TextTypePtr) ptr);
       break;
     case POLYGON_TYPE:
       ErasePolygon ((PolygonTypePtr) ptr);

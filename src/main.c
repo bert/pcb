@@ -523,6 +523,8 @@ HID_Attribute main_attribute_list[] = {
   SSET (ActionString, 0, "action-string",
 	"If set, this is executed at startup."),
   SSET (FabAuthor, "", "fab-author", 0),
+  SSET (InitialLayerStack, "", "layer-stack",
+	"Initial layer stackup, for setting up an export."),
 
   ISET (PinoutOffsetX, 100, "pinout-offset-x", 0),
   ISET (PinoutOffsetY, 100, "pinout-offset-y", 0),
@@ -921,6 +923,12 @@ main (int argc, char *argv[])
        */
       if (LoadPCB (command_line_pcb))
 	PCB->Filename = MyStrdup (command_line_pcb, "main()");
+    }
+
+  if (Settings.InitialLayerStack
+      && Settings.InitialLayerStack[0])
+    {
+      LayerStringToLayerStack (Settings.InitialLayerStack);
     }
 
   if (gui->printer || gui->exporter)

@@ -600,7 +600,7 @@ eps_calibrate (double xval, double yval)
 }
 
 static void
-eps_set_crosshair (int x, int y)
+eps_set_crosshair (int x, int y, int action)
 {
 }
 

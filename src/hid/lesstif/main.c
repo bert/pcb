@@ -22,6 +22,7 @@
 #include "mymem.h"
 #include "misc.h"
 #include "resource.h"
+#include "error.h"
 
 #include "hid.h"
 #include "../hidint.h"
@@ -101,7 +102,7 @@ static PinoutData *pinouts = 0;
 static PinoutData *pinout = 0;
 
 static int crosshair_x = 0, crosshair_y = 0;
-static int in_move_event = 0;
+static int in_move_event = 0, crosshair_in_window = 1;
 
 Widget work_area, messages, command, hscroll, vscroll;
 static Widget m_mark, m_crosshair, m_grid, m_zoom, m_mode, m_status;
@@ -120,20 +121,8 @@ static int view_left_x = 0, view_top_y = 0;
    board.  */
 static double view_zoom = 1000;
 static int flip_x = 0, flip_y = 0;
-static int thindraw = 0;
-static int thindrawpoly = 0;
 static int autofade = 0;
 
-static int
-flag_thindraw (int x)
-{
-  return thindraw;
-}
-static int
-flag_thindrawpoly (int x)
-{
-  return thindrawpoly;
-}
 static int
 flag_flipx (int x)
 {
@@ -146,8 +135,6 @@ flag_flipy (int x)
 }
 
 HID_Flag lesstif_main_flag_list[] = {
-  {"thindraw", flag_thindraw, 0},
-  {"thindrawpoly", flag_thindrawpoly, 0},
   {"flip_x", flag_flipx, 0},
   {"flip_y", flag_flipy, 0}
 };
@@ -284,10 +271,10 @@ cur_clip ()
   return "\\_";
 }
 
-static int busy_timer_set = -1;
-
-static void
-busy_timer_callback(int signum)
+/* Called from the core when it's busy doing something and we need to
+   indicate that to the user.  */
+static int
+Busy(int argc, char **argv, int x, int y)
 {
   static Cursor busy_cursor = 0;
   if (busy_cursor == 0)
@@ -295,36 +282,7 @@ busy_timer_callback(int signum)
   XDefineCursor (display, window, busy_cursor);
   XFlush(display);
   old_cursor_mode = -1;
-}
-
-#define BUSY_TIME 200000
-
-static void
-enable_busy_cursor (int enable)
-{
-  static struct itimerval tv;
-
-  if (busy_timer_set == -1)
-    {
-      signal (SIGALRM, busy_timer_callback);
-      busy_timer_set = 0;
-      tv.it_interval.tv_sec = 0;
-      tv.it_interval.tv_usec = 0;
-      tv.it_value.tv_sec = 0;
-      tv.it_value.tv_usec = BUSY_TIME;
-    }
-  if (enable && !busy_timer_set)
-    {
-      busy_timer_set = 1;
-      tv.it_value.tv_usec = BUSY_TIME;
-      setitimer (ITIMER_REAL, &tv, NULL);
-    }
-  else if (!enable && busy_timer_set)
-    {
-      busy_timer_set = 0;
-      tv.it_value.tv_usec = 0;
-      setitimer (ITIMER_REAL, &tv, NULL);
-    }
+  return 0;
 }
 
 /* ---------------------------------------------------------------------- */
@@ -519,71 +477,6 @@ PanAction (int argc, char **argv, int x, int y)
     }
   Pan (mode, Vx(x), Vy(y));
 
-  return 0;
-}
-
-static const char thindraw_syntax[] =
-"ThinDraw()\n"
-"ThinDraw(1|0)";
-
-static const char thindraw_help[] =
-"Sets the global thin-draw flag.";
-
-/* %start-doc actions ThinDraw
-
-When the thindraw flag is set, all board objects are drawn using
-``thin'' lines.  Traces are drawn as single lines along their
-centerlines, other objects are drawn as outlines.  If you pass
-@code{0}, thin draw is disabled.  If you pass @code{1}, thin draw is
-enabled.  If you pass nothing, thin draw is toggled.
-
-%end-doc */
-
-static int
-ThinDraw (int argc, char **argv, int x, int y)
-{
-  PinoutData *pd;
-  if (argc == 0)
-    thindraw = !thindraw;
-  else if (argv[0][0] == '0')
-    thindraw = 0;
-  else
-    thindraw = 1;
-  lesstif_invalidate_all ();
-  for (pd = pinouts; pd; pd = pd->next)
-    pinout_callback (0, pd, 0);
-  return 0;
-}
-
-static const char thindrawpoly_syntax[] =
-"ThinDrawPoly()\n"
-"ThinDrawPoly(0|1)";
-
-static const char thindrawpoly_help[] =
-"Sets the thin-draw flag for polygons.";
-
-/* %start-doc actions ThinDrawPoly
-
-When the polygon thindraw flag is set, all polygons are drawn using
-``thin'' lines along their outlines.  If you pass @code{0}, polygon
-thin draw is disabled.  If you pass @code{1}, polygon thin draw is
-enabled.  If you pass nothing, polygon thin draw is toggled.
-
-%end-doc */
-
-static int
-ThinDrawPoly (int argc, char **argv, int x, int y)
-{
-  PinoutData *pd;
-  if (argc == 0)
-    thindrawpoly = !thindrawpoly;
-  else if (argv[0][0] == '0')
-    thindrawpoly = 0;
-  else
-    thindrawpoly = 1;
-  lesstif_invalidate_all ();
-  for (pd = pinouts; pd; pd = pd->next)
-    pinout_callback (0, pd, 0);
   return 0;
 }
 
@@ -872,6 +765,107 @@ Benchmark (int argc, char **argv, int x, int y)
   return 0;
 }
 
+static int
+Center(int argc, char **argv, int x, int y)
+{
+  x = GRIDFIT_X (x, PCB->Grid);
+  y = GRIDFIT_Y (y, PCB->Grid);
+  view_left_x = x - (view_width * view_zoom) / 2;
+  view_top_y = y - (view_height * view_zoom) / 2;
+  lesstif_pan_fixup ();
+  /* Move the pointer to the center of the window, but only if it's
+     currently within the window already.  Watch out for edges,
+     though.  */
+  XWarpPointer (display, window, window, 0, 0, view_width, view_height,
+		Vx(x), Vy(y));
+  return 0;
+}
+
+static const char cursor_syntax[] =
+"Cursor(Type,DeltaUp,DeltaRight,Units)";
+
+static const char cursor_help[] =
+"Move the cursor.";
+
+/* %start-doc actions Cursor
+
+This action moves the mouse cursor.  Unlike other actions which take
+coordinates, this action's coordinates are always relative to the
+user's view of the board.  Thus, a positive @var{DeltaUp} may move the
+cursor towards the board origin if the board is inverted.
+
+Type is one of @samp{Pan} or @samp{Warp}.  @samp{Pan} causes the
+viewport to move such that the crosshair is under the mouse curos.
+@samp{Warp} causes the mouse cursor to move to be above the crosshair.
+
+@var{Units} can be one of the following:
+
+@table @samp
+
+@item mil
+@itemx mm
+The cursor is moved by that amount, in board units.
+
+@item grid
+The cursor is moved by that many grid points.
+
+@item view
+The values are percentages of the viewport's view.  Thus, a pan of
+@samp{100} would scroll the viewport by exactly the width of the
+current view.
+
+@item board
+The values are percentages of the board size.  Thus, a move of
+@samp{50,50} moves you halfway across the board.
+
+@end table
+
+%end-doc */
+
+static int
+CursorAction(int argc, char **argv, int x, int y)
+{
+  int pan_warp = HID_SC_DO_NOTHING;
+  double dx, dy, xu, yu;
+
+  if (argc != 4)
+    AFAIL(cursor);
+
+  if (strcasecmp (argv[0], "pan") == 0)
+    pan_warp = HID_SC_PAN_VIEWPORT;
+  else if (strcasecmp (argv[0], "warp") == 0)
+    pan_warp = HID_SC_WARP_POINTER;
+  else
+    AFAIL(cursor);
+
+  dx = strtod (argv[1], 0);
+  if (flip_x)
+    dx = -dx;
+  dy = strtod (argv[2], 0);
+  if (!flip_y)
+    dy = -dy;
+
+  if (strncasecmp (argv[3], "mm", 2) == 0)
+    xu = yu = MM_TO_COOR;
+  else if (strncasecmp (argv[3], "mil", 3) == 0)
+    xu = yu = 100;
+  else if (strncasecmp (argv[3], "grid", 4) == 0)
+    xu = yu = PCB->Grid;
+  else if (strncasecmp (argv[3], "view", 4) == 0)
+    {
+      xu = Pz(view_width) / 100.0;
+      yu = Pz(view_height) / 100.0;
+    }
+  else if (strncasecmp (argv[3], "board", 4) == 0)
+    {
+      xu = PCB->MaxWidth / 100.0;
+      yu = PCB->MaxHeight / 100.0;
+    }
+
+  EventMoveCrosshair (Crosshair.X+(int)(dx*xu), Crosshair.Y+(int)(dy*yu));
+  gui->set_crosshair (Crosshair.X, Crosshair.Y, pan_warp);
+}
+
 HID_Action lesstif_main_action_list[] = {
   {"PCBChanged", 0, PCBChanged,
    pcbchanged_help, pcbchanged_syntax},
@@ -881,17 +875,17 @@ HID_Action lesstif_main_action_list[] = {
    zoom_help, zoom_syntax},
   {"Pan", 0, PanAction,
    zoom_help, zoom_syntax},
-  {"Thindraw", 0, ThinDraw,
-   thindraw_help, thindraw_syntax},
-  {"ThindrawPoly", 0, ThinDrawPoly,
-   thindrawpoly_help, thindrawpoly_syntax},
   {"SwapSides", 0, SwapSides,
    swapsides_help, swapsides_syntax},
   {"Command", 0, Command,
    command_help, command_syntax},
   {"Benchmark", 0, Benchmark,
    benchmark_help, benchmark_syntax},
-  {"PointCursor", 0, PointCursor}
+  {"PointCursor", 0, PointCursor},
+  {"Center", "Click on a location to center", Center},
+  {"Busy", 0, Busy},
+  {"Cursor", 0, CursorAction,
+   cursor_help, cursor_syntax},
 };
 
 REGISTER_ACTIONS (lesstif_main_action_list)
@@ -1187,6 +1181,9 @@ Pan (int mode, int x, int y)
   static int opx, opy;
 
   panning = mode;
+  /* This is for ctrl-pan, where the viewport's position is directly
+     proportional to the cursor position in the window (like the Xaw
+     thumb panner) */
   if (pan_thumb_mode)
     {
       opx = x * PCB->MaxWidth / view_width;
@@ -1199,6 +1196,8 @@ Pan (int mode, int x, int y)
       view_top_y = opy - view_height / 2 * view_zoom;
       lesstif_pan_fixup ();
     }
+  /* This is the start of a regular pan.  On the first click, we
+     remember the coordinates where we "grabbed" the screen.  */
   else if (mode == 1)
     {
       ox = x;
@@ -1206,6 +1205,8 @@ Pan (int mode, int x, int y)
       opx = view_left_x;
       opy = view_top_y;
     }
+  /* continued drag, we calculate how far we've moved the cursor and
+     set the position accordingly.  */
   else
     {
       if (flip_x)
@@ -1330,6 +1331,7 @@ work_area_input (Widget w, XtPointer v, XEvent * e, Boolean * ctd)
 	shift_pressed = (keys_buttons & ShiftMask);
 	ctrl_pressed = (keys_buttons & ControlMask);
 	/*printf("m %d %d\n", Px(e->xmotion.x), Py(e->xmotion.y)); */
+	crosshair_in_window = 1;
 	in_move_event = 1;
 	if (panning)
 	  Pan (2, pos_x, pos_y);
@@ -1339,16 +1341,17 @@ work_area_input (Widget w, XtPointer v, XEvent * e, Boolean * ctd)
       break;
 
     case LeaveNotify:
-      crosshair_x = crosshair_y = -1;
+      crosshair_in_window = 0;
       CrosshairOff (1);
       need_idle_proc ();
       break;
 
     case EnterNotify:
+      crosshair_in_window = 1;
       in_move_event = 1;
       EventMoveCrosshair (Px (e->xcrossing.x), Py (e->xcrossing.y));
-      in_move_event = 0;
       CrosshairOn (1);
+      in_move_event = 0;
       need_idle_proc ();
       break;
 
@@ -1511,7 +1514,7 @@ lesstif_show_crosshair (int show)
   static int sx, sy;
   static GC xor_gc = 0;
 
-  if (crosshair_x < 0 || !window)
+  if (!crosshair_in_window || !window)
     return;
   if (xor_gc == 0)
     {
@@ -1670,7 +1673,7 @@ make_message (char *name, Widget left, int resizeable)
   if (left)
     {
       stdarg (XmNleftAttachment, XmATTACH_WIDGET);
-      stdarg (XmNleftWidget, left);
+      stdarg (XmNleftWidget, XtParent(left));
     }
   else
     {
@@ -1817,15 +1820,16 @@ lesstif_do_export (HID_Attr_Val * options)
   XtAddEventHandler (m_cmd, KeyPressMask, 0, command_event_handler, 0);
 
   m_mark = make_message ("m_mark", 0, 0);
-  XtUnmanageChild (XtParent (m_mark));
   m_crosshair = make_message ("m_crosshair", m_mark, 0);
   m_grid = make_message ("m_grid", m_crosshair, 1);
   m_zoom = make_message ("m_zoom", m_grid, 1);
   lesstif_m_layer = make_message ("m_layer", m_zoom, 0);
   m_mode = make_message ("m_mode", lesstif_m_layer, 1);
   m_rats = make_message ("m_rats", m_mode, 1);
-  XtUnmanageChild (XtParent (m_rats));
   m_status = make_message ("m_status", m_mode, 1);
+
+  XtUnmanageChild (XtParent (m_mark));
+  XtUnmanageChild (XtParent (m_rats));
 
   n = 0;
   stdarg (XmNrightAttachment, XmATTACH_FORM);
@@ -2361,8 +2365,6 @@ static int need_redraw = 0;
 static Boolean
 idle_proc (XtPointer dummy)
 {
-  enable_busy_cursor (0);
-
   if (need_redraw)
     {
       int mx, my;
@@ -2760,7 +2762,6 @@ lesstif_need_idle_proc ()
     return;
   XtAppAddWorkProc (app_context, idle_proc, 0);
   idle_proc_set = 1;
-  enable_busy_cursor (1);
 }
 
 static void
@@ -2849,7 +2850,7 @@ lesstif_destroy_gc (hidGC gc)
 static void
 lesstif_use_mask (int use_it)
 {
-  if (thindraw || thindrawpoly)
+  if (TEST_FLAG (THINDRAWFLAG, PCB) || TEST_FLAG(THINDRAWPOLYFLAG, PCB))
     use_it = 0;
   if ((use_it == 0) == (use_mask == 0))
     return;
@@ -2995,7 +2996,7 @@ set_gc (hidGC gc)
   width = Vz (gc->width);
   if (width < 0)
     width = 0;
-  XSetLineAttributes (display, my_gc, thindraw ? 1 : width, LineSolid, cap,
+  XSetLineAttributes (display, my_gc, width, LineSolid, cap,
 		      join);
   if (use_mask)
     {
@@ -3044,7 +3045,7 @@ static void
 lesstif_draw_line (hidGC gc, int x1, int y1, int x2, int y2)
 {
   int vw = Vz (gc->width);
-  if ((pinout || thindraw || thindrawpoly) && gc->erase)
+  if ((pinout || TEST_FLAG (THINDRAWFLAG, PCB) || TEST_FLAG(THINDRAWPOLYFLAG, PCB)) && gc->erase)
     return;
 #if 0
   printf ("draw_line %d,%d %d,%d @%d", x1, y1, x2, y2, gc->width);
@@ -3065,46 +3066,7 @@ lesstif_draw_line (hidGC gc, int x1, int y1, int x2, int y2)
   if (y1 > view_height + vw && y2 > view_height + vw)
     return;
   set_gc (gc);
-  if (thindraw)
-    {
-      switch (gc->cap)
-	{
-	case Trace_Cap:
-	default:
-	  XDrawLine (display, pixmap, my_gc, x1, y1, x2, y2);
-	  break;
-	case Square_Cap:
-	  ISORT (x1, x2);
-	  ISORT (y1, y2);
-	  x1 -= vw / 2;
-	  y1 -= vw / 2;
-	  x2 += vw / 2;
-	  y2 += vw / 2;
-	  XDrawRectangle (display, pixmap, my_gc, x1, y1, x2 - x1, y2 - y1);
-	  return;
-	case Round_Cap:
-	  {
-	    double dx, dy, a, l;
-	    vw &= ~1;
-	    dx = x2 - x1;
-	    dy = y2 - y1;
-	    l = sqrt (dx * dx + dy * dy);
-	    dx *= vw / 2 / l;
-	    dy *= vw / 2 / l;
-	    a = atan2 ((float) dx, (float) dy) * 57.295779;
-	    a = a * 64;
-	    XDrawLine (display, pixmap, my_gc, x1 + dy, y1 - dx, x2 + dy,
-		       y2 - dx);
-	    XDrawLine (display, pixmap, my_gc, x1 - dy, y1 + dx, x2 - dy,
-		       y2 + dx);
-	    XDrawArc (display, pixmap, my_gc, x1 - vw / 2, y1 - vw / 2, vw,
-		      vw, a, 180 * 64);
-	    XDrawArc (display, pixmap, my_gc, x2 - vw / 2, y2 - vw / 2, vw,
-		      vw, a + 180 * 64, 180 * 64);
-	  }
-	}
-    }
-  else if (gc->cap == Square_Cap && x1 == x2 && y1 == y2)
+  if (gc->cap == Square_Cap && x1 == x2 && y1 == y2)
     {
       XFillRectangle (display, pixmap, my_gc, x1 - vw / 2, y1 - vw / 2, vw,
 		      vw);
@@ -3124,7 +3086,7 @@ static void
 lesstif_draw_arc (hidGC gc, int cx, int cy, int width, int height,
 		  int start_angle, int delta_angle)
 {
-  if ((pinout || thindraw) && gc->erase)
+  if ((pinout || TEST_FLAG (THINDRAWFLAG, PCB)) && gc->erase)
     return;
 #if 0
   printf ("draw_arc %d,%d %dx%d s %d d %d", cx, cy, width, height, start_angle, delta_angle);
@@ -3152,14 +3114,14 @@ lesstif_draw_arc (hidGC gc, int cx, int cy, int width, int height,
   XDrawArc (display, pixmap, my_gc, cx, cy,
 	    width * 2, height * 2, (start_angle + 180) * 64,
 	    delta_angle * 64);
-  if (use_mask && !thindraw)
+  if (use_mask && !TEST_FLAG (THINDRAWFLAG, PCB))
     XDrawArc (display, mask_bitmap, mask_gc, cx, cy,
 	      width * 2, height * 2, (start_angle + 180) * 64,
 	      delta_angle * 64);
 #if 0
   /* Enable this if you want to see the center and radii of drawn
      arcs, for debugging.  */
-  if (thindraw)
+  if (TEST_FLAG (THINDRAWFLAG, PCB))
     {
       cx += width;
       cy += height;
@@ -3177,7 +3139,7 @@ static void
 lesstif_draw_rect (hidGC gc, int x1, int y1, int x2, int y2)
 {
   int vw = Vz (gc->width);
-  if ((pinout || thindraw) && gc->erase)
+  if ((pinout || TEST_FLAG (THINDRAWFLAG, PCB)) && gc->erase)
     return;
   x1 = Vx (x1);
   y1 = Vy (y1);
@@ -3205,7 +3167,7 @@ lesstif_fill_circle (hidGC gc, int cx, int cy, int radius)
 {
   if (pinout && use_mask && gc->erase)
     return;
-  if ((thindraw || thindrawpoly) && gc->erase)
+  if ((TEST_FLAG (THINDRAWFLAG, PCB) || TEST_FLAG(THINDRAWPOLYFLAG, PCB)) && gc->erase)
     return;
 #if 0
   printf ("fill_circle %d,%d %d", cx, cy, radius);
@@ -3221,19 +3183,11 @@ lesstif_fill_circle (hidGC gc, int cx, int cy, int radius)
   printf (" = %d,%d %d %lx %s\n", cx, cy, radius, gc->color, gc->colorname);
 #endif
   set_gc (gc);
-  if (thindraw)
-    {
-      XDrawArc (display, pixmap, my_gc, cx, cy,
-		radius * 2, radius * 2, 0, 360 * 64);
-    }
-  else
-    {
-      XFillArc (display, pixmap, my_gc, cx, cy,
-		radius * 2, radius * 2, 0, 360 * 64);
-      if (use_mask)
-	XFillArc (display, mask_bitmap, mask_gc, cx, cy,
-		  radius * 2, radius * 2, 0, 360 * 64);
-    }
+  XFillArc (display, pixmap, my_gc, cx, cy,
+	    radius * 2, radius * 2, 0, 360 * 64);
+  if (use_mask)
+    XFillArc (display, mask_bitmap, mask_gc, cx, cy,
+	      radius * 2, radius * 2, 0, 360 * 64);
 }
 
 static void
@@ -3260,33 +3214,19 @@ lesstif_fill_polygon (hidGC gc, int n_coords, int *x, int *y)
 #if 0
   printf ("fill_polygon %d pts\n", n_coords);
 #endif
-  if (thindraw || thindrawpoly)
-    {
-      int save_thindraw = thindraw;
-      thindraw = 1;
-      set_gc (gc);
-      XDrawLines (display, pixmap, my_gc, p, n_coords, CoordModeOrigin);
-      if (x[0] != x[n_coords - 1] || y[0] != y[n_coords - 1])
-	XDrawLine (display, pixmap, my_gc, p[n_coords - 1].x,
-		   p[n_coords - 1].y, p[0].x, p[0].y);
-      thindraw = save_thindraw;
-    }
-  else
-    {
-      set_gc (gc);
-      XFillPolygon (display, pixmap, my_gc, p, n_coords, Complex,
-		    CoordModeOrigin);
-      if (use_mask)
-	XFillPolygon (display, mask_bitmap, mask_gc, p, n_coords, Complex,
-		      CoordModeOrigin);
-    }
+  set_gc (gc);
+  XFillPolygon (display, pixmap, my_gc, p, n_coords, Complex,
+		CoordModeOrigin);
+  if (use_mask)
+    XFillPolygon (display, mask_bitmap, mask_gc, p, n_coords, Complex,
+		  CoordModeOrigin);
 }
 
 static void
 lesstif_fill_rect (hidGC gc, int x1, int y1, int x2, int y2)
 {
   int vw = Vz (gc->width);
-  if ((pinout || thindraw) && gc->erase)
+  if ((pinout || TEST_FLAG (THINDRAWFLAG, PCB)) && gc->erase)
     return;
   x1 = Vx (x1);
   y1 = Vy (y1);
@@ -3303,22 +3243,11 @@ lesstif_fill_rect (hidGC gc, int x1, int y1, int x2, int y2)
   if (x1 > x2) { int xt = x1; x1 = x2; x2 = xt; }
   if (y1 > y2) { int yt = y1; y1 = y2; y2 = yt; }
   set_gc (gc);
-  if (thindraw)
-    {
-      XDrawRectangle (display, pixmap, my_gc, x1, y1, x2 - x1 + 1,
-		      y2 - y1 + 1);
-      if (use_mask)
-	XDrawRectangle (display, mask_bitmap, mask_gc, x1, y1, x2 - x1 + 1,
-			y2 - y1 + 1);
-    }
-  else
-    {
-      XFillRectangle (display, pixmap, my_gc, x1, y1, x2 - x1 + 1,
-		      y2 - y1 + 1);
-      if (use_mask)
-	XFillRectangle (display, mask_bitmap, mask_gc, x1, y1, x2 - x1 + 1,
-			y2 - y1 + 1);
-    }
+  XFillRectangle (display, pixmap, my_gc, x1, y1, x2 - x1 + 1,
+		  y2 - y1 + 1);
+  if (use_mask)
+    XFillRectangle (display, mask_bitmap, mask_gc, x1, y1, x2 - x1 + 1,
+		    y2 - y1 + 1);
 }
 
 static void
@@ -3342,7 +3271,7 @@ lesstif_control_is_pressed (void)
 extern void lesstif_get_coords (const char *msg, int *x, int *y);
 
 static void
-lesstif_set_crosshair (int x, int y)
+lesstif_set_crosshair (int x, int y, int action)
 {
   if (crosshair_x != x || crosshair_y != y)
     {
@@ -3362,6 +3291,30 @@ lesstif_set_crosshair (int x, int y)
 	  lesstif_pan_fixup ();
 	}
 
+    }
+
+  if (action == HID_SC_PAN_VIEWPORT)
+    {
+      Window root, child;
+      unsigned int keys_buttons;
+      int pos_x, pos_y, root_x, root_y;
+      XQueryPointer (display, window, &root, &child,
+		     &root_x, &root_y, &pos_x, &pos_y, &keys_buttons);
+      if (flip_x)
+	view_left_x = x - (view_width-pos_x) * view_zoom;
+      else
+	view_left_x = x - pos_x * view_zoom;
+      if (flip_y)
+	view_top_y = y - (view_height-pos_y) * view_zoom;
+	view_top_y = y - pos_y * view_zoom;
+      lesstif_pan_fixup();
+      action = HID_SC_WARP_POINTER;
+    }
+  if (action == HID_SC_WARP_POINTER)
+    {
+      in_move_event ++;
+      XWarpPointer (display, None, window, 0, 0, 0, 0, Vx(x), Vy(y));
+      in_move_event --;
     }
 }
 

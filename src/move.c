@@ -317,7 +317,7 @@ MoveText (LayerTypePtr Layer, TextTypePtr Text)
   r_delete_entry (Layer->text_tree, (BoxTypePtr) Text);
   if (Layer->On)
     {
-      EraseText (Text);
+      EraseText (Layer, Text);
       MOVE_TEXT_LOWLEVEL (Text, DeltaX, DeltaY);
       DrawText (Layer, Text, 0);
       Draw ();
@@ -672,7 +672,7 @@ MoveTextToLayer (LayerTypePtr Layer, TextTypePtr Text)
     {
       AddObjectToMoveToLayerUndoList (TEXT_TYPE, Layer, Text, Text);
       if (Layer->On)
-	EraseText (Text);
+	EraseText (Layer, Text);
       new = MoveTextToLayerLowLevel (Layer, Text, Dest);
       if (Dest->On)
 	DrawText (Dest, new, 0);

@@ -33,10 +33,6 @@
 #endif
 
 #include "data.h"
-#ifdef FIXME
-#include "dev_ps.h"
-#include "dev_rs274x.h"
-#endif
 
 #ifdef HAVE_LIBDMALLOC
 #include <dmalloc.h>
@@ -80,16 +76,3 @@ double Zoom_Multiplier = 0.01;
 */
 
 
-/* ---------------------------------------------------------------------------
- * all known printing devices
- */
-#ifdef FIXME
-DeviceInfoType PrintingDevice[] = {
-  {PS_Query, NULL},
-  {EPS_Query, NULL},
-/*	{GB_Query,   NULL }, */
-  {GBX_Queryh, NULL},
-/*	{GBX_Query,  NULL }, */
-  {NULL, NULL}
-};
-#endif

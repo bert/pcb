@@ -814,7 +814,7 @@ ChangeTextSize (LayerTypePtr Layer, TextTypePtr Text)
       value != Text->Scale)
     {
       AddObjectToSizeUndoList (TEXT_TYPE, Layer, Text, Text);
-      EraseText (Text);
+      EraseText (Layer, Text);
       r_delete_entry (Layer->text_tree, (BoxTypePtr) Text);
       Text->Scale = value;
       SetTextBoundingBox (&PCB->Font, Text);
@@ -1018,7 +1018,7 @@ ChangeTextName (LayerTypePtr Layer, TextTypePtr Text)
 
   if (TEST_FLAG (LOCKFLAG, Text))
     return (NULL);
-  EraseText (Text);
+  EraseText (Layer, Text);
   Text->TextString = NewName;
 
   /* calculate size of the bounding box */
@@ -2229,9 +2229,6 @@ ChangePCBSize (BDimension Width, BDimension Height)
   else
     SetCrosshairRange (0, 0, (LocationType) Width, (LocationType) Height);
   hid_action ("PCBChanged");
-#if 0
-  UpdateAll ();
-#endif
 }
 
 /* ---------------------------------------------------------------------------

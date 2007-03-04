@@ -71,7 +71,7 @@ typedef struct
  * Thermals are handled separately, as they're layer-selective.
  */
 
-static struct
+typedef struct
 {
 
   /* This is the bit that we're setting.  */
@@ -86,57 +86,57 @@ static struct
      of these.  */
   int object_types;
 
-} flagbits[] =
-{
+} FlagBitsType;
 
-  {
-  PINFLAG, N ("pin"), ALL_TYPES},
-  {
-  VIAFLAG, N ("via"), ALL_TYPES},
-  {
-  FOUNDFLAG, N ("found"), ALL_TYPES},
-  {
-  HOLEFLAG, N ("hole"), PIN_TYPES},
-  {
-  RATFLAG, N ("rat"), RATLINE_TYPE},
-  {
-  PININPOLYFLAG, N ("pininpoly"), PIN_TYPES | PAD_TYPE},
-  {
-  CLEARPOLYFLAG, N ("clearpoly"), POLYGON_TYPE},
-  {
-  HIDENAMEFLAG, N ("hidename"), ELEMENT_TYPE},
-  {
-  DISPLAYNAMEFLAG, N ("showname"), ELEMENT_TYPE},
-  {
-  CLEARLINEFLAG, N ("clearline"), LINE_TYPE | ARC_TYPE},
-  {
-  SELECTEDFLAG, N ("selected"), ALL_TYPES},
-  {
-  ONSOLDERFLAG, N ("onsolder"), ELEMENT_TYPE | PAD_TYPE},
-  {
-  AUTOFLAG, N ("auto"), ALL_TYPES},
-  {
-  SQUAREFLAG, N ("square"), PIN_TYPES | PAD_TYPE},
-  {
-  RUBBERENDFLAG, N ("rubberend"), LINE_TYPE | ARC_TYPE},
-  {
-  WARNFLAG, N ("warn"), PIN_TYPES | PAD_TYPE},
-  {
-  USETHERMALFLAG, N ("usetherm"), PIN_TYPES | LINE_TYPE | ARC_TYPE},
-  {
-  OCTAGONFLAG, N ("octagon"), PIN_TYPES | PAD_TYPE},
-  {
-  DRCFLAG, N ("drc"), ALL_TYPES},
-  {
-  LOCKFLAG, N ("lock"), ALL_TYPES},
-  {
-    EDGE2FLAG, N ("edge2"), ALL_TYPES},
-  {
-    NOPASTEFLAG, N ("nopaste"), PAD_TYPE}
+static FlagBitsType object_flagbits[] = {
+  { PINFLAG, N ("pin"), ALL_TYPES },
+  { VIAFLAG, N ("via"), ALL_TYPES },
+  { FOUNDFLAG, N ("found"), ALL_TYPES },
+  { HOLEFLAG, N ("hole"), PIN_TYPES },
+  { RATFLAG, N ("rat"), RATLINE_TYPE },
+  { PININPOLYFLAG, N ("pininpoly"), PIN_TYPES | PAD_TYPE },
+  { CLEARPOLYFLAG, N ("clearpoly"), POLYGON_TYPE },
+  { HIDENAMEFLAG, N ("hidename"), ELEMENT_TYPE },
+  { DISPLAYNAMEFLAG, N ("showname"), ELEMENT_TYPE },
+  { CLEARLINEFLAG, N ("clearline"), LINE_TYPE | ARC_TYPE },
+  { SELECTEDFLAG, N ("selected"), ALL_TYPES },
+  { ONSOLDERFLAG, N ("onsolder"), ELEMENT_TYPE | PAD_TYPE },
+  { AUTOFLAG, N ("auto"), ALL_TYPES },
+  { SQUAREFLAG, N ("square"), PIN_TYPES | PAD_TYPE },
+  { RUBBERENDFLAG, N ("rubberend"), LINE_TYPE | ARC_TYPE },
+  { WARNFLAG, N ("warn"), PIN_TYPES | PAD_TYPE },
+  { USETHERMALFLAG, N ("usetherm"), PIN_TYPES | LINE_TYPE | ARC_TYPE },
+  { OCTAGONFLAG, N ("octagon"), PIN_TYPES | PAD_TYPE },
+  { DRCFLAG, N ("drc"), ALL_TYPES },
+  { LOCKFLAG, N ("lock"), ALL_TYPES },
+  { EDGE2FLAG, N ("edge2"), ALL_TYPES },
+  { NOPASTEFLAG, N ("nopaste"), PAD_TYPE }
+};
+
+static FlagBitsType pcb_flagbits[] = {
+  { SHOWNUMBERFLAG, N ("shownumber"), 1 },
+  { LOCALREFFLAG, N ("localref"), 1 },
+  { CHECKPLANESFLAG, N ("checkplanes"), 1 },
+  { SHOWDRCFLAG, N ("showdrc"), 1 },
+  { RUBBERBANDFLAG, N ("rubberband"), 1 },
+  { DESCRIPTIONFLAG, N ("description"), 1 },
+  { NAMEONPCBFLAG, N ("nameonpcb"), 1 },
+  { AUTODRCFLAG, N ("autodrc"), 1 },
+  { ALLDIRECTIONFLAG, N ("alldirection"), 1 },
+  { SWAPSTARTDIRFLAG, N ("swapstartdir"), 1 },
+  { UNIQUENAMEFLAG, N ("uniquename"), 1 },
+  { CLEARNEWFLAG, N ("clearnew"), 1 },
+  { SNAPPINFLAG, N ("snappin"), 1 },
+  { SHOWMASKFLAG, N ("showmask"), 1 },
+  { THINDRAWFLAG, N ("thindraw"), 1 },
+  { ORTHOMOVEFLAG, N ("orthomove"), 1 },
+  { LIVEROUTEFLAG, N ("liveroute"), 1 },
+  { THINDRAWPOLYFLAG, N ("thindrawpoly"), 1 },
+  { LOCKNAMESFLAG, N ("locknames"), 1 },
+  { ONLYNAMESFLAG, N ("onlynames"), 1 },
 };
 
 #undef N
-#define NUM_FLAGBITS (sizeof(flagbits)/sizeof(flagbits[0]))
 
 /*
  * This helper function maintains a small list of buffers which are
@@ -372,8 +372,11 @@ error_ignore (const char *msg)
 }
 static FlagType empty_flags;
 
-FlagType
-string_to_flags (const char *flagstring, int (*error) (const char *msg))
+static FlagType
+common_string_to_flags (const char *flagstring,
+			int (*error) (const char *msg),
+			FlagBitsType *flagbits,
+			int n_flagbits)
 {
   const char *fp, *ep;
   int flen;
@@ -411,7 +414,7 @@ string_to_flags (const char *flagstring, int (*error) (const char *msg))
 	}
       else
 	{
-	  for (i = 0; i < NUM_FLAGBITS; i++)
+	  for (i = 0; i < n_flagbits; i++)
 	    if (flagbits[i].nlen == flen
 		&& memcmp (flagbits[i].name, fp, flen) == 0)
 	      {
@@ -432,6 +435,27 @@ string_to_flags (const char *flagstring, int (*error) (const char *msg))
   return rv.Flags;
 }
 
+FlagType
+string_to_flags (const char *flagstring,
+		 int (*error) (const char *msg))
+{
+  return common_string_to_flags (flagstring,
+				 error,
+				 object_flagbits,
+				 ENTRIES (object_flagbits));
+}
+
+FlagType
+string_to_pcbflags (const char *flagstring,
+		    int (*error) (const char *msg))
+{
+  return common_string_to_flags (flagstring,
+				 error,
+				 pcb_flagbits,
+				 ENTRIES (pcb_flagbits));
+}
+
+
 /*
  * Given a set of flags for a given type of object, return a string
  * which reflects those flags.  The only requirement is that this
@@ -443,8 +467,11 @@ string_to_flags (const char *flagstring, int (*error) (const char *msg))
  * forcibly set when vias are parsed.
  */
 
-char *
-flags_to_string (FlagType flags, int object_type)
+static char *
+common_flags_to_string (FlagType flags,
+			int object_type,
+			FlagBitsType *flagbits,
+			int n_flagbits)
 {
   int len;
   int i;
@@ -471,7 +498,7 @@ flags_to_string (FlagType flags, int object_type)
   savef = fh;
 
   len = 3;			/* for "()\0" */
-  for (i = 0; i < NUM_FLAGBITS; i++)
+  for (i = 0; i < n_flagbits; i++)
     if ((flagbits[i].object_types & object_type)
 	&& (TEST_FLAG (flagbits[i].mask, &fh)))
       {
@@ -492,7 +519,7 @@ flags_to_string (FlagType flags, int object_type)
   *bp++ = '"';
 
   fh = savef;
-  for (i = 0; i < NUM_FLAGBITS; i++)
+  for (i = 0; i < n_flagbits; i++)
     if (flagbits[i].object_types & object_type
 	&& (TEST_FLAG (flagbits[i].mask, &fh)))
       {
@@ -522,6 +549,24 @@ flags_to_string (FlagType flags, int object_type)
   return buf;
 }
 
+char *
+flags_to_string (FlagType flags, int object_type)
+{
+  return common_flags_to_string (flags,
+				 object_type,
+				 object_flagbits,
+				 ENTRIES (object_flagbits));
+}
+
+char *
+pcbflags_to_string (FlagType flags)
+{
+  return common_flags_to_string (flags,
+				 1,
+				 pcb_flagbits,
+				 ENTRIES (pcb_flagbits));
+}
+
 #if FLAG_TEST
 
 static void
@@ -531,11 +576,19 @@ dump_flag (FlagType * f)
   printf ("F:%08x T:[", f->f);
   for (l = 0; l < (MAX_LAYER + 7) / 8; l++)
     printf (" %02x", f->t[l]);
-  printf ("] P:[");
-  for (l = 0; l < (MAX_LAYER + 7) / 8; l++)
-    printf (" %02x", f->p[l]);
   printf ("]");
 }
+
+
+int
+mem_any_set (unsigned char *ptr, int bytes)
+{
+  while (bytes--)
+    if (*ptr++)
+      return 1;
+  return 0;
+}
+
 
 /*
  * This exists for standalone testing of this file.
@@ -581,17 +634,17 @@ main ()
 
       otype = ALL_TYPES;
       fh.Flags = empty_flags;
-      for (i = 0; i < NUM_FLAGBITS; i++)
+      for (i = 0; i < ENTRIES (object_flagbits); i++)
 	{
-	  if (TEST_FLAG (flagbits[i].mask, &fh))
+	  if (TEST_FLAG (object_flagbits[i].mask, &fh))
 	    continue;
-	  if ((otype & flagbits[i].object_types) == 0)
+	  if ((otype & object_flagbits[i].object_types) == 0)
 	    continue;
 	  if ((random () & 4) == 0)
 	    continue;
 
-	  otype &= flagbits[i].object_types;
-	  SET_FLAG (flagbits[i].mask, &fh);
+	  otype &= object_flagbits[i].object_types;
+	  SET_FLAG (object_flagbits[i].mask, &fh);
 	}
 
       if (otype & PIN_TYPES)
@@ -601,6 +654,42 @@ main ()
 
       str = flags_to_string (fh.Flags, otype);
       new_flags = string_to_flags (str, 0);
+
+      count++;
+      if (FLAGS_EQUAL (fh.Flags, new_flags))
+	continue;
+
+      dump_flag (&fh.Flags);
+      printf (" ");
+      dump_flag (&new_flags);
+      printf ("\n");
+      if (++errors == 5)
+	exit (1);
+    }
+
+  while (count < 1000000)
+    {
+      FlagHolder fh;
+      char *str;
+      FlagType new_flags;
+      int i;
+      int otype;
+
+      otype = ALL_TYPES;
+      fh.Flags = empty_flags;
+      for (i = 0; i < ENTRIES (pcb_flagbits); i++)
+	{
+	  if (TEST_FLAG (pcb_flagbits[i].mask, &fh))
+	    continue;
+	  if ((random () & 4) == 0)
+	    continue;
+
+	  otype &= pcb_flagbits[i].object_types;
+	  SET_FLAG (pcb_flagbits[i].mask, &fh);
+	}
+
+      str = pcbflags_to_string (fh.Flags);
+      new_flags = string_to_pcbflags (str, 0);
 
       count++;
       if (FLAGS_EQUAL (fh.Flags, new_flags))

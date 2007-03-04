@@ -1,6 +1,11 @@
 # $Id$
 #
 
+usermenu - cvs branch where Dan is working on allowing the gtk HID
+           to load its menus from a menu resource file like the lesstif
+	   HID.  No guarantees that this branch will even build, much less
+	   function.  Feel free to try it out, but wait until it is merged
+	   back to the trunk before using it for any serious work.
 
 pcb-xaw - cvs branch containing old Xaw based pcb
 pcb-gtk - cvs branch containing the GTK based pcb.  This was branched

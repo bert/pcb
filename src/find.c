@@ -431,30 +431,88 @@ PadPadIntersect (PadTypePtr p1, PadTypePtr p2)
     {
       BoxType b1, b2;
 
+      /* Here we are trying to find out if two rectangles have at least
+       * Bloat space between them.  Note that this takes more care than
+       * simply blowing out one of the rectangles by Bloat on all sides.
+       * That only works if the shortest line between the two original
+       * rectangles is perpendicular to the sids of the rectangles.
+       *
+       */
+
+      /* Step #1 find out if the shortest line is perpendicular to 
+       * the closest edge
+       */
       b1.X1 = MIN (p1->Point1.X, p1->Point2.X) - (p1->Thickness + 1) / 2;
       b1.Y1 = MIN (p1->Point1.Y, p1->Point2.Y) - (p1->Thickness + 1) / 2;
       b1.X2 = MAX (p1->Point1.X, p1->Point2.X) + (p1->Thickness + 1) / 2;
       b1.Y2 = MAX (p1->Point1.Y, p1->Point2.Y) + (p1->Thickness + 1) / 2;
 
-      b2.X1 =
-        MIN (p2->Point1.X,
-             p2->Point2.X) - MAX ((p2->Thickness + 1) / 2 + Bloat, 0);
-      b2.Y1 =
-        MIN (p2->Point1.Y,
-             p2->Point2.Y) - MAX ((p2->Thickness + 1) / 2 + Bloat, 0);
-      b2.X2 =
-        MAX (p2->Point1.X,
-             p2->Point2.X) + MAX ((p2->Thickness + 1) / 2 + Bloat, 0);
-      b2.Y2 =
-        MAX (p2->Point1.Y,
-             p2->Point2.Y) + MAX ((p2->Thickness + 1) / 2 + Bloat, 0);
-      return BoxBoxIntersection (&b1, &b2);
+      b2.X1 = MIN (p2->Point1.X, p2->Point2.X) - (p2->Thickness + 1) / 2;
+      b2.Y1 = MIN (p2->Point1.Y, p2->Point2.Y) - (p2->Thickness + 1) / 2;
+      b2.X2 = MAX (p2->Point1.X, p2->Point2.X) + (p2->Thickness + 1) / 2;
+      b2.Y2 = MAX (p2->Point1.Y, p2->Point2.Y) + (p2->Thickness + 1) / 2;
+
+      if ( (b2.X1 <= b1.X2 && b2.X2 >= b1.X1) ||
+	   (b2.Y1 <= b1.Y2 && b2.Y2 >= b1.Y1) )
+	{
+	  b2.X1 =
+	    MIN (p2->Point1.X,
+		 p2->Point2.X) - MAX ((p2->Thickness + 1) / 2 + Bloat, 0);
+	  b2.Y1 =
+	    MIN (p2->Point1.Y,
+		 p2->Point2.Y) - MAX ((p2->Thickness + 1) / 2 + Bloat, 0);
+	  b2.X2 =
+	    MAX (p2->Point1.X,
+		 p2->Point2.X) + MAX ((p2->Thickness + 1) / 2 + Bloat, 0);
+	  b2.Y2 =
+	    MAX (p2->Point1.Y,
+		 p2->Point2.Y) + MAX ((p2->Thickness + 1) / 2 + Bloat, 0);
+	  return BoxBoxIntersection (&b1, &b2);
+	}
+      else
+	{
+	  /* the shortest line is between two corners */
+	  double x1, x2, y1, y2, d;
+	  
+	  if (b2.X2 < b1.X1)
+	    {
+	      /* b2 is to the left of b1 */
+	      x1 = (double) b1.X1;
+	      x2 = (double) b2.X2;
+	    }
+	  else
+	    {
+	      /* b2 is to the right of b1 */
+	      x1 = (double) b1.X2;
+	      x2 = (double) b2.X1;
+	    }
+
+	  if (b2.Y2 < b1.Y1)
+	    {
+	      /* b2 is above b1 */
+	      y1 = (double) b1.Y1;
+	      y2 = (double) b2.Y2;
+	    }
+	  else
+	    {
+	      /* b2 is below b1 */
+	      y1 = (double) b1.Y2;
+	      y2 = (double) b2.Y1;
+	    }
+
+	  /* use floating point math to avoid overflows here */
+	  if ( (x1 - x2)*(x1 - x2) + (y1 - y2)*(y1 - y2) < ((double) Bloat)*((double) Bloat) )
+	    return TRUE;
+	  else
+	    return FALSE;
+	}
+      
     }
   if (TEST_FLAG (SQUAREFLAG, p1))
     return LinePadIntersect ((LineTypePtr) p2, p1);
   return LinePadIntersect ((LineTypePtr) p1, p2);
 }
-
+      
 static inline Boolean
 PV_TOUCH_PV (PinTypePtr PV1, PinTypePtr PV2)
 {
@@ -2932,15 +2990,6 @@ PrepareNextLoop (FILE * FP)
   PVList.Number = PVList.Location = 0;
   RatList.Number = RatList.Location = 0;
 
-#ifdef FIXME
-  /* check if abort buttons has been pressed */
-  if (gui_check_abort ())
-    {
-      if (FP)
-        fputs ("\n\nABORTED...\n", FP);
-      return (True);
-    }
-#endif
   return (False);
 }
 
@@ -3089,18 +3138,12 @@ void
 LookupElementConnections (ElementTypePtr Element, FILE * FP)
 {
   /* reset all currently marked connections */
-#ifdef FIXME
-  gui_create_abort_dialog ("Press button to abort connection scan");
-#endif
   User = True;
   TheFlag = FOUNDFLAG;
   ResetConnections (True);
   InitConnectionLookup ();
   PrintElementConnections (Element, FP, True);
   SetChangedFlag (True);
-#ifdef FIXME
-  gui_end_abort ();
-#endif
   if (Settings.RingBellWhenFinished)
     gui->beep ();
   FreeConnectionLookupMemory ();
@@ -3117,9 +3160,6 @@ LookupConnectionsToAllElements (FILE * FP)
 {
   /* reset all currently marked connections */
   User = False;
-#ifdef FIXME
-  gui_create_abort_dialog ("Press button to abort connection scan");
-#endif
   TheFlag = FOUNDFLAG;
   ResetConnections (False);
   InitConnectionLookup ();
@@ -3134,9 +3174,6 @@ LookupConnectionsToAllElements (FILE * FP)
       ResetConnections (False);
   }
   END_LOOP;
-#ifdef FIXME
-  gui_end_abort ();
-#endif
   if (Settings.RingBellWhenFinished)
     gui->beep ();
   ResetConnections (False);
@@ -3301,9 +3338,6 @@ LookupUnusedPins (FILE * FP)
   /* reset all currently marked connections */
   User = True;
   SaveUndoSerialNumber ();
-#ifdef FIXME
-  gui_create_abort_dialog ("Press button to abort unused pin scan");
-#endif
   ResetConnections (True);
   RestoreUndoSerialNumber ();
   InitConnectionLookup ();
@@ -3317,9 +3351,6 @@ LookupUnusedPins (FILE * FP)
       break;
   }
   END_LOOP;
-#ifdef FIXME
-  gui_end_abort ();
-#endif
 
   if (Settings.RingBellWhenFinished)
     gui->beep ();

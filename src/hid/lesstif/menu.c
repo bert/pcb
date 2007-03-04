@@ -179,7 +179,6 @@ LayersChanged (int argc, char **argv, int x, int y)
 
   if (!layer_button_list)
     return 0;
-
   if (PCB && PCB->Data)
     {
       DataType *d = PCB->Data;
@@ -246,7 +245,7 @@ LayersChanged (int argc, char **argv, int x, int y)
 	    }
 
 	  n = 0;
-	  if (i < MAX_LAYER)
+	  if (i < MAX_LAYER && PCB->Data->Layer[i].Name)
 	    {
 	      XmString s = XmStringCreateLocalized (PCB->Data->Layer[i].Name);
 	      stdarg (XmNlabelString, s);
@@ -279,7 +278,6 @@ LayersChanged (int argc, char **argv, int x, int y)
 	    XtManageChild(lb->w[i]);
 	}
     }
-
   if (lesstif_m_layer)
     {
       switch (current_layer)
@@ -525,8 +523,10 @@ insert_layerview_buttons (Widget menu)
 
   for (i = 0; i < LB_NUM; i++)
     {
-      char *name = "Label";
+      static char namestr[] = "Label ";
+      char *name = namestr;
       Widget btn;
+      name[5] = 'A' + i;
       switch (i)
 	{
 	case LB_SILK:
@@ -592,8 +592,10 @@ insert_layerpick_buttons (Widget menu)
 
   for (i = 0; i < LB_NUMPICK; i++)
     {
-      char *name = "Label";
+      static char namestr[] = "Label ";
+      char *name = namestr;
       Widget btn;
+      name[5] = 'A' + i;
       switch (i)
 	{
 	case LB_SILK:
@@ -1031,6 +1033,10 @@ note_accelerator (char *acc, Resource * node)
       return;
     }
 
+  /* We have a hard time specifying the Enter key the "usual" way.  */
+  if (strcmp (acc, "<Key>Enter") == 0)
+    acc = "<Key>\r";
+
   acc += 5;
   if (acc[0] && acc[1] == 0)
     {
@@ -1099,6 +1105,22 @@ dump_multi (int ix, int ind, acc_table_t *a, int n)
 static acc_table_t *cur_table = 0;
 static int cur_ntable = 0;
 
+/* We sort these such that the ones with explicit modifiers come
+   before the ones with implicit modifiers.  That way, a
+   Shift<Key>Code gets chosen before a <Key>Code.  */
+static int
+acc_sort_rev (const void *va, const void *vb)
+{
+  acc_table_t *a = (acc_table_t *) va;
+  acc_table_t *b = (acc_table_t *) vb;
+  if (a->key_char != b->key_char)
+    return a->key_char - b->key_char;
+  if (!(a->mods & M_Multi))
+    if (a->u.a.key != b->u.a.key)
+      return a->u.a.key - b->u.a.key;
+  return b->mods - a->mods;
+}
+
 int
 lesstif_key_event (XKeyEvent * e)
 {
@@ -1107,6 +1129,13 @@ lesstif_key_event (XKeyEvent * e)
   int slen, slen2;
   int mods = 0;
   int i, vi;
+  static int sorted = 0;
+
+  if (!sorted)
+    {
+      sorted = 1;
+      qsort (acc_table, acc_num, sizeof (acc_table_t), acc_sort_rev);
+    }
 
   if (e->state & ShiftMask)
     mods |= M_Shift;
@@ -1158,6 +1187,11 @@ lesstif_key_event (XKeyEvent * e)
   for (i = 0; i < cur_ntable; i++)
     {
       dump_multi (i, 0, cur_table+i, 1);
+      if (KM(cur_table[i].mods) == mods)
+	{
+	  if (sym == acc_table[i].u.a.key)
+	    break;
+	}
       if (KM(cur_table[i].mods) == (mods & ~M_Shift))
 	{
 	  if (slen == 1 && buf[0] == cur_table[i].key_char)
@@ -1173,7 +1207,6 @@ lesstif_key_event (XKeyEvent * e)
 	    break;
 	}
     }
-  //printf("i == %d\n", i);
 
   if (i == cur_ntable)
     {

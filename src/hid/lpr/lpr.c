@@ -110,7 +110,7 @@ lpr_parse_arguments (int *argc, char ***argv)
 static void
 lpr_calibrate (double xval, double yval)
 {
-  CRASH;
+  ps_calibrate_1 (xval, yval, 1);
 }
 
 HID lpr_hid = {

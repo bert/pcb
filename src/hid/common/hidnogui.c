@@ -191,7 +191,7 @@ nogui_get_coords (const char *msg, int *x, int *y)
 }
 
 static void
-nogui_set_crosshair (int x, int y)
+nogui_set_crosshair (int x, int y, int action)
 {
 }
 

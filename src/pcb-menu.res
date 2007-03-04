@@ -19,6 +19,9 @@ Mouse =
   }
   Up = Zoom(0.8)
   Down = Zoom(1.25)
+# If you want zoom to center, do this instead.
+  #Up = { {Zoom(0.8) Center()} }
+  #Down = { {Zoom(1.25) Center()} }
 }
 
 MainMenu =
@@ -35,6 +38,7 @@ MainMenu =
    {"Load vendor resource file" LoadVendor()}
    {"Print layout..." Print()}
    {"Export layout..." Export()}
+   {"Calibrate Printer..." PrintCalibrate()}
    -
    {"Save connection data of..." foreground=grey50 sensitive=false}
    {" a single element" GetXY(press a button at the element location) Save(ElementConnections)}
@@ -50,12 +54,15 @@ MainMenu =
    {"Flip left/right" checked=flip_x SwapSides(H) a={"Shift-Tab" "Shift<Key>Tab"}}
    {"Spin 180°" SwapSides(R) a={"Ctrl-Tab" "Ctrl<Key>Tab"}}
    {"Swap Sides" SwapSides() a={"Ctrl-Shift-Tab" "Ctrl Shift<Key>Tab"}}
+   {"Center cursor" Center() a={"C" "<Key>c"}}
    {"Show soldermask" checked=showmask Display(ToggleMask)}
    -
    {"Displayed element-name..." foreground=grey50 sensitive=false}
    {"Description" Display(Description) checked=elementname,1}
    {"Reference Designator" Display(NameOnPCB) checked=elementname,2}
    {"Value" Display(Value) checked=elementname,3}
+   {"Lock Names" checked=locknames Display(ToggleLockNames)}
+   {"Only Names" checked=onlynames Display(ToggleOnlyNames)}
    -
    {"Pinout shows number" checked=shownumber Display(ToggleName)}
    {"Open pinout menu" Display(Pinout) a={"Shift-D" "Shift<Key>d"}}
@@ -64,6 +71,9 @@ MainMenu =
     {"Zoom In 2X" Zoom(-2)}
     {"Zoom In 20%" Zoom(-1.2) m=Z a={"Z" "<Key>z"}}
     {"Zoom Out 20%" Zoom(+1.2) m=O a={"Shift-Z" "Shift<Key>z"}}
+# If you want zoom to center, do this instead.
+    #{"Zoom In 20%" Zoom(-1.2) Center() m=Z a={"Z" "<Key>z"}}
+    #{"Zoom Out 20%" Zoom(+1.2) Center() m=O a={"Shift-Z" "Shift<Key>z"}}
     {"Zoom Out 2X" Zoom(+2)}
     {"Zoom Max" Zoom() m=M a={"V" "<Key>v"}}
     -
@@ -184,8 +194,8 @@ MainMenu =
    {"Auto-zero delta measurements" checked=localref Display(ToggleLocalRef)}
    {"New lines, arcs clear polygons" checked=clearnew Display(ToggleClearLine)}
    {"Show autorouter trials" checked=liveroute Display(ToggleLiveRoute)}
-   {"Thin draw" checked=thindraw Thindraw() a={"|" "<Key>|"}}
-   {"Thin draw poly" checked=thindrawpoly ThindrawPoly() a={"Ctrl-Shift-P" "Ctrl Shift<Key>p"}}
+   {"Thin draw" checked=thindraw Display(ToggleThindraw) a={"|" "<Key>|"}}
+   {"Thin draw poly" checked=thindrawpoly Display(ToggleThindrawPoly) a={"Ctrl-Shift-P" "Ctrl Shift<Key>p"}}
    {"Check polygons" checked=checkplanes Display(ToggleCheckPlanes)}
    -
    {"Pinout shows number" checked=shownumber Display(ToggleName)}
@@ -303,6 +313,7 @@ MainMenu =
    {"Generate object report" ReportObject() a={"Ctrl-R" "Ctrl<Key>r"}}
    {"Generate drill summary" Report(DrillReport)}
    {"Report found pins/pads" Report(FoundPins)}
+   {"Report net length" Report(NetLength) a={"R" "<Key>r"}}
    {"Key Bindings"
     {"Remove" a={"Backspace" "<Key>BackSpace"}
      Mode(Save)
@@ -393,6 +404,16 @@ MainMenu =
     {"Arrow" a={"Space" "<Key>space"} Mode(Arrow) checked=arrowmode,1}
     {"Temp Arrow ON" a={"[" "<Key>["} Mode(Save) Mode(Arrow) Mode(Notify)}
     {"Temp Arrow OFF" a={"]" "<Key>]"} Mode(Release) Mode(Restore)}
+
+    {"Step Up" a={"Up" "<Key>Up"} Cursor(Warp,0,1,grid)}
+    {"Step Down" a={"Down" "<Key>Down"} Cursor(Warp,0,-1,grid)}
+    {"Step Left" a={"Left" "<Key>Left"} Cursor(Warp,-1,0,grid)}
+    {"Step Right" a={"Right" "<Key>Right"} Cursor(Warp,1,0,grid)}
+    {"Step +Up" a={"Up" "Shift<Key>Up"} Cursor(Pan,0,50,view)}
+    {"Step +Down" a={"Down" "Shift<Key>Down"} Cursor(Pan,0,-50,view)}
+    {"Step +Left" a={"Left" "Shift<Key>Left"} Cursor(Pan,-50,0,view)}
+    {"Step +Right" a={"Right" "Shift<Key>Right"} Cursor(Pan,50,0,view)}
+    {'"Click"' a={"Enter" "<Key>Enter"} Mode(Notify) Mode(Release) }
    }
   }
   {Window

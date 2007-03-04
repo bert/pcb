@@ -557,6 +557,7 @@ CenterDisplay (LocationType X, LocationType Y, Boolean Delta)
     MoveCrosshairRelative (X, Y);
   else
     MoveCrosshairAbsolute (X, Y);
+  gui->set_crosshair (Crosshair.X, Crosshair.Y, HID_SC_WARP_POINTER);
   PCB->Grid = save_grid;
 }
 
@@ -982,33 +983,6 @@ ChangeGroupVisibility (int Layer, Boolean On, Boolean ChangeStackOrder)
     printf ("ChangeGroupVisibility(Layer=%d, On=%d, ChangeStackOrder=%d)\n",
             Layer, On, ChangeStackOrder);
 
-  /* special case of rat (netlist layer) */
-#ifdef FIXME
-  if (Layer == GUI_RATS_LAYER)
-    {
-      PCB->RatOn = On;
-      PCB->RatDraw = On && ChangeStackOrder;
-      if (PCB->RatDraw)
-        SetMode (NO_MODE);
-      gui_layer_buttons_update ();
-      return (0);
-    }
-  else
-    PCB->RatDraw = (On && ChangeStackOrder) ? False : PCB->RatDraw;
-
-  /* special case of silk layer */
-  if (Layer == GUI_SILK_LAYER)
-    {
-      PCB->ElementOn = On;
-      PCB->SilkActive = On && ChangeStackOrder;
-      PCB->Data->SILKLAYER.On = On;
-      PCB->Data->BACKSILKLAYER.On = (On && PCB->InvisibleObjectsOn);
-      gui_layer_buttons_update ();
-      return (0);
-    }
-  PCB->SilkActive = (On && ChangeStackOrder) ? False : PCB->SilkActive;
-#endif
-
   /* decrement 'i' to keep stack in order of layergroup */
   if ((group = GetGroupOfLayer (Layer)) < max_layer)
     for (i = PCB->LayerGroups.Number[group]; i;)
@@ -1035,6 +1009,84 @@ ChangeGroupVisibility (int Layer, Boolean On, Boolean ChangeStackOrder)
   /* update control panel and exit */
   hid_action ("LayersChanged");
   return (changed);
+}
+
+/* ----------------------------------------------------------------------
+ * Given a string description of a layer stack, adjust the layer stack
+ * to correspond.
+*/
+
+void
+LayerStringToLayerStack (char *s)
+{
+  int l = strlen (s);
+  char **args;
+  int i, argn, lno;
+  int prev_sep = 1;
+
+  s = strdup (s);
+  args = (char **) malloc (l * sizeof (char *));
+  argn = 0;
+
+  for (i=0; i<l; i++)
+    {
+      switch (s[i])
+	{
+	case ' ':
+	case '\t':
+	case ',':
+	case ';':
+	case ':':
+	  prev_sep = 1;
+	  s[i] = '\0';
+	  break;
+	default:
+	  if (prev_sep)
+	    args[argn++] = s+i;
+	  prev_sep = 0;
+	  break;
+	}
+    }
+
+  for (i = 0; i < max_layer + 2; i++)
+    {
+      if (i < max_layer)
+        LayerStack[i] = i;
+      PCB->Data->Layer[i].On = False;
+    }
+  PCB->ElementOn = False;
+  PCB->InvisibleObjectsOn = False;
+  PCB->PinOn = False;
+  PCB->ViaOn = False;
+  PCB->RatOn = False;
+
+  for (i=argn-1; i>=0; i--)
+    {
+      if (strcasecmp (args[i], "rats") == 0)
+	PCB->RatOn = True;
+      else if (strcasecmp (args[i], "invisible") == 0)
+	PCB->InvisibleObjectsOn = True;
+      else if (strcasecmp (args[i], "pins") == 0)
+	PCB->PinOn = True;
+      else if (strcasecmp (args[i], "vias") == 0)
+	PCB->ViaOn = True;
+      else if (strcasecmp (args[i], "elements") == 0)
+	PCB->ElementOn = True;
+      else if (isdigit (args[i][0]))
+	{
+	  lno = atoi (args[i]);
+	  ChangeGroupVisibility (lno, True, True);
+	}
+      else
+	{
+	  for (lno = 0; lno < max_layer; lno++)
+	    if (strcasecmp (args[i], PCB->Data->Layer[lno].Name) == 0)
+	      {
+		ChangeGroupVisibility (lno, True, True);
+		break;
+	      }
+	}
+    }
 }
 
 /* ----------------------------------------------------------------------
@@ -1422,35 +1474,6 @@ CreateQuotedString (DynamicStringTypePtr DS, char *S)
   DSAddCharacter (DS, '"');
 }
 
-/* ---------------------------------------------------------------------------
- * returns the current possible grid factor or zero
- */
-int
-GetGridFactor (void)
-{
-#ifdef FIXME
-  static int factor[] = { 1, 2, 5, 10 };
-  int i, delta;
-
-  /* check to see if we have to draw every point,
-   * every 2nd, 5th or 10th
-   */
-  for (i = 0; i < ENTRIES (factor); i++)
-    {
-      delta = PCB->Grid * factor[i];
-      if (TO_SCREEN (delta) >= MIN_GRID_DISTANCE)
-        {
-          if (Settings.GridFactor != factor[i])
-            {
-              Settings.GridFactor = factor[i];
-            }
-          return (factor[i]);
-        }
-    }
-  Settings.GridFactor = 0;
-#endif
-  return (0);
-}
 
 static void
 RightAngles (int Angle, float *cosa, float *sina)

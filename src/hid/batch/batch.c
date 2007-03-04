@@ -103,6 +103,7 @@ HID_Action batch_action_list[] = {
   {"NetlistChanged", 0, nop },
   {"LayersChanged", 0, nop },
   {"LibraryChanged", 0, nop },
+  {"Busy", 0, nop },
   {"Help", 0, help },
   {"Info", 0, info }
 };
@@ -310,7 +311,7 @@ batch_get_coords (const char *msg, int *x, int *y)
 }
 
 static void
-batch_set_crosshair (int x, int y)
+batch_set_crosshair (int x, int y, int action)
 {
 }
 

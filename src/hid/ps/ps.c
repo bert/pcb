@@ -13,6 +13,7 @@
 #include "global.h"
 #include "data.h"
 #include "misc.h"
+#include "error.h"
 
 #include "hid.h"
 #include "../hidint.h"
@@ -36,6 +37,8 @@ typedef struct hid_gc_struct
   int erase;
   int faded;
 } hid_gc_struct;
+
+static double calibration_x = 1.0, calibration_y = 1.0;
 
 static FILE *f = 0;
 static int pagecount = 0;
@@ -190,6 +193,12 @@ HID_Attribute ps_attribute_list[] = {
   {"multi-file", "Produce multiple files, one per page, instead of a single file.",
    HID_Boolean, 0, 0, {0, 0, 0.40}, 0, 0},
 #define HA_multifile 13
+  {"xcalib", "X-Axis calibration (paper width).",
+   HID_Real, 0, 0, {0, 0, 1.0}, 0, 0},
+#define HA_xcalib 14
+  {"ycalib", "Y-Axis calibration (paper height).",
+   HID_Real, 0, 0, {0, 0, 1.0}, 0, 0},
+#define HA_ycalib 15
 };
 
 #define NUM_OPTIONS (sizeof(ps_attribute_list)/sizeof(ps_attribute_list[0]))
@@ -296,6 +305,8 @@ ps_hid_export_to_file (FILE * the_file, HID_Attr_Val * options)
   ps_width = media_width - 2.0*media_data[media].MarginX / 1e5;
   ps_height = media_height - 2.0*media_data[media].MarginY / 1e5;
   scale_value = options[HA_scale].real_value;
+  calibration_x = options[HA_xcalib].real_value;
+  calibration_y = options[HA_ycalib].real_value;
 
   if (fade_ratio < 0)
     fade_ratio = 0;
@@ -495,8 +506,8 @@ ps_set_layer (const char *name, int group)
   if (group < 0 || group != lastgroup)
     {
       double boffset;
-      lastgroup = group;
       int mirror_this = 0;
+      lastgroup = group;
 
       if (f && pagecount)
 	{
@@ -528,12 +539,19 @@ ps_set_layer (const char *name, int group)
 
       fprintf (f, "/Helvetica findfont 10 scalefont setfont\n");
       fprintf (f, "30 30 moveto (%s) show\n", PCB->Filename);
-      fprintf (f, "30 41 moveto (%s, %s) show\n",
-	       PCB->Name, layer_type_to_file_name (idx));
+      if (PCB->Name)
+	fprintf (f, "30 41 moveto (%s, %s) show\n",
+		 PCB->Name, layer_type_to_file_name (idx));
+      else
+	fprintf (f, "30 41 moveto (%s) show\n",
+		 layer_type_to_file_name (idx));
       if (mirror_this)
 	fprintf (f, "( \\(mirrored\\)) show\n");
 
-      fprintf (f, "(, scale = 1:%.3f) show\n", scale_value);
+      if (fillpage)
+	fprintf (f, "(, not to scale) show\n");
+      else
+	fprintf (f, "(, scale = 1:%.3f) show\n", scale_value);
 
       fprintf (f, "72 72 scale %g %g translate\n", 0.5*media_width, 0.5*media_height);
 
@@ -542,7 +560,10 @@ ps_set_layer (const char *name, int group)
 	{
 	  fprintf (f, "90 rotate\n");
 	  boffset = 0.5*media_width;
+	  fprintf (f, "%g %g scale %% calibration\n", calibration_y, calibration_x);
 	}
+      else
+	fprintf (f, "%g %g scale %% calibration\n", calibration_x, calibration_y);
 
       if (mirror_this)
 	fprintf (f, "1 -1 scale\n");
@@ -838,14 +859,172 @@ ps_fill_rect (hidGC gc, int x1, int y1, int x2, int y2)
   fprintf (f, "%d %d %d %d r\n", x1, y1, x2, y2);
 }
 
-static void
-ps_calibrate (double xval, double yval)
+HID_Attribute ps_calib_attribute_list[] = {
+  {"lprcommand", "Command to print",
+   HID_String, 0, 0, {0, 0, 0}, 0, 0},
+};
+
+static const char const *calib_lines[] = {
+  "%!PS-Adobe\n",
+  "\n",
+  "72 72 scale\n",
+  "\n",
+  "0 setlinewidth\n",
+  "0.375 0.375 moveto\n",
+  "8.125 0.375 lineto\n",
+  "8.125 10.625 lineto\n",
+  "0.375 10.625 lineto\n",
+  "closepath stroke\n",
+  "\n",
+  "0.5 0.5 translate\n",
+  "0.001 setlinewidth\n",
+  "\n",
+  "/Times-Roman findfont 0.2 scalefont setfont\n",
+  "\n",
+  "/sign {\n",
+  "    0 lt { -1 } { 1 } ifelse\n",
+  "} def\n",
+  "\n",
+  "/cbar {\n",
+  "    /units exch def\n",
+  "    /x exch def\n",
+  "    /y exch def  \n",
+  "\n",
+  "    /x x sign 0.5 mul def\n",
+  "\n",
+  "    0 setlinewidth\n",
+  "    newpath x y 0.25 0 180 arc gsave 0.85 setgray fill grestore closepath stroke\n",
+  "    newpath x 0 0.25 180 360 arc gsave 0.85 setgray fill grestore closepath stroke\n",
+  "    0.001 setlinewidth\n",
+  "\n",
+  "    x 0 moveto\n",
+  "    x y lineto\n",
+  "%    -0.07 -0.2 rlineto 0.14 0 rmoveto -0.07 0.2 rlineto\n",
+  "    x y lineto\n",
+  "    -0.1 0 rlineto 0.2 0 rlineto\n",
+  "    stroke\n",
+  "    x 0 moveto\n",
+  "%    -0.07 0.2 rlineto 0.14 0 rmoveto -0.07 -0.2 rlineto\n",
+  "    x 0 moveto\n",
+  "    -0.1 0 rlineto 0.2 0 rlineto\n",
+  "     stroke\n",
+  "\n",
+  "    x 0.1 add\n",
+  "    y 0.2 sub moveto\n",
+  "    units show\n",
+  "} bind def\n",
+  "\n",
+  "/y 9 def\n",
+  "/t {\n",
+  "    /str exch def\n",
+  "    1.5 y moveto str show\n",
+  "    /y y 0.25 sub def\n",
+  "} bind def\n",
+  "\n",
+  "(Please measure ONE of the horizontal lines, in the units indicated for)t\n",
+  "(that line, and enter that value as X.  Similarly, measure ONE of the)t\n",
+  "(vertical lines and enter that value as Y.  Measurements should be)t\n",
+  "(between the flat faces of the semicircles.)t\n",
+  "()t\n",
+  "(The large box is 10.25 by 7.75 inches)t\n",
+  "\n",
+  "/in { } bind def\n",
+  "/cm { 2.54 div } bind def\n",
+  "/mm { 25.4 div } bind def\n",
+  "\n",
+  0
+};
+
+static int
+guess(double val, double close_to, double *calib)
 {
-  CRASH;
+  if (val >= close_to * 0.9
+      && val <= close_to * 1.1)
+    {
+      *calib = close_to / val;
+      return 0;
+    }
+  return 1;
+}
+
+void
+ps_calibrate_1 (double xval, double yval, int use_command)
+{
+  HID_Attr_Val vals[3];
+  FILE *f;
+  int used_popen = 0, c;
+
+  if (xval > 0 && yval > 0)
+    {
+      if (guess (xval, 4, &calibration_x))
+	if (guess (xval, 15, &calibration_x))
+	  if (guess (xval, 7.5, &calibration_x))
+	    {
+	      if (xval < 2)
+		ps_attribute_list[HA_xcalib].default_val.real_value =
+		  calibration_x = xval;
+	      else
+		Message("X value of %g is too far off.\n", xval);
+	    }
+      if (guess (yval, 4, &calibration_y))
+	if (guess (yval, 20, &calibration_y))
+	  if (guess (yval, 10, &calibration_y))
+	    {
+	      if (yval < 2)
+		ps_attribute_list[HA_ycalib].default_val.real_value =
+		  calibration_y = yval;
+	      else
+		Message("Y value of %g is too far off.\n", yval);
+	    }
+      return;
+    }
+
+  if (ps_calib_attribute_list[0].default_val.str_value == NULL)
+    {
+      ps_calib_attribute_list[0].default_val.str_value = strdup("lpr");
+    }
+
+  if (gui->attribute_dialog (ps_calib_attribute_list, 1, vals))
+    return;
+
+  if (use_command || strchr (vals[0].str_value, '|'))
+    {
+      char *cmd = vals[0].str_value;
+      while (*cmd == ' ' || *cmd == '|')
+	cmd ++;
+      f = popen (cmd, "w");
+      used_popen = 1;
+    }
+  else
+    f = fopen (vals[0].str_value, "w");
+
+  for (c=0; calib_lines[c]; c++)
+    fputs(calib_lines[c], f);
+
+  fprintf (f, "4 in 0.5 (Y in) cbar\n");
+  fprintf (f, "20 cm 1.5 (Y mm) cbar\n");
+  fprintf (f, "10 in 2.5 (Y in) cbar\n");
+  fprintf (f, "-90 rotate\n");
+  fprintf (f, "4 in -0.5 (X in) cbar\n");
+  fprintf (f, "15 cm -1.5 (X mm) cbar\n");
+  fprintf (f, "7.5 in -2.5 (X in) cbar\n");
+
+  fprintf (f, "showpage\n");
+
+  if (used_popen)
+    pclose (f);
+  else
+    fclose (f);
 }
 
 static void
-ps_set_crosshair (int x, int y)
+ps_calibrate (double xval, double yval)
+{
+  ps_calibrate_1 (xval, yval, 0);
+}
+
+static void
+ps_set_crosshair (int x, int y, int action)
 {
 }
 

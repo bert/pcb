@@ -43,4 +43,9 @@ FlagType string_to_flags (const char *flagstring,
    freed.  */
 char *flags_to_string (FlagType flags, int object_type);
 
+/* Same as above, but for pcb flags.  */
+FlagType string_to_pcbflags (const char *flagstring,
+			  int (*error) (const char *msg));
+char *pcbflags_to_string (FlagType flags);
+
 #endif
