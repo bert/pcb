@@ -886,7 +886,7 @@ png_calibrate (double xval, double yval)
 }
 
 static void
-png_set_crosshair (int x, int y)
+png_set_crosshair (int x, int y, int a)
 {
 }
 

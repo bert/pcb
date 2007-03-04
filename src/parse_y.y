@@ -560,6 +560,10 @@ pcbflags
 			{
 				yyPCB->Flags = MakeFlags ($3 & PCB_FLAGS);
 			}
+		| T_FLAGS '(' STRING ')'
+			{
+			  yyPCB->Flags = string_to_pcbflags ($3, yyerror);
+			}
 		|
 		;
 

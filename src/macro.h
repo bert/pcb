@@ -53,14 +53,6 @@
 #define	SWAP_Y(y)		(PCB->MaxHeight +SWAP_SIGN_Y(y))
 #define SATURATE(x)             ((x) > 32767 ? 32767 : ((x) < -32767 ? -32767 : (x)))
 
-#if 0
-#ifndef	TO_SCREEN
-#define	TO_SCREEN(x)		((Position)((x)*Zoom_Multiplier))
-#endif
-
-#define	TO_SCREEN_X(x)		TO_SCREEN((SWAP_IDENT ? SWAP_X(x) : (x)) - Xorig)
-#define	TO_SCREEN_Y(y)		TO_SCREEN((SWAP_IDENT ? SWAP_Y(y)  : (y)) - Yorig)
-#endif
 #define	TO_DRAW_X(x)		TO_SCREEN((SWAP_IDENT ? SWAP_X(x) : (x)) - XORIG)
 #define	TO_DRAWABS_X(x)		(TO_SCREEN((x) - XORIG))
 #define	TO_DRAW_Y(y)		TO_SCREEN((SWAP_IDENT ? SWAP_Y(y) : (y)) - YORIG)
@@ -555,4 +547,5 @@ extern int mem_any_set (unsigned char *, int);
 	for (n = 0; n < ml; n++) \
 	{ \
 	   LayerTypePtr layer = (&data->Layer[(n)]);
+
 #endif

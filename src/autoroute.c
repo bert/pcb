@@ -96,6 +96,8 @@ RCSID ("$Id$");
 #define DEBUG_SHOW_ZIGZAG
 */
 
+static hidGC ar_gc = 0;
+
 #define EXPENSIVE 3e28
 /* round up "half" thicknesses */
 #define HALF_THICK(x) (((x)+1)/2)
@@ -1427,13 +1429,10 @@ EraseRouteBox (routebox_t * rb)
       X1 = rb->box.X1 + thick / 2;
       X2 = rb->box.X2 - thick / 2;
     }
-#ifdef FIXME
-  gdk_gc_set_line_attributes (Output.fgGC, TO_SCREEN (thick),
-                              GDK_LINE_SOLID, GDK_CAP_ROUND, GDK_JOIN_ROUND);
-  gdk_gc_set_foreground (Output.fgGC, &Settings.BackgroundColor);
 
-  XDrawCLine (Output.top_window->window, Output.fgGC, X1, Y1, X2, Y2);
-#endif
+  gui->set_line_width (ar_gc, thick);
+  gui->set_color (ar_gc, Settings.BackgroundColor);
+  gui->draw_line (ar_gc, X1, Y1, X2, Y2);
 }
 
 /* return a "parent" of this edge which immediately precedes it in the route.*/
@@ -2518,17 +2517,12 @@ RD_DrawVia (routedata_t * rd, LocationType X, LocationType Y,
       assert (__routebox_is_good (rb));
       /* and add it to the r-tree! */
       r_insert_entry (rd->layergrouptree[rb->group], &rb->box, 1);
-#ifdef FIXME
+
       if (TEST_FLAG (LIVEROUTEFLAG, PCB))
         {
-          gdk_gc_set_line_attributes (Output.fgGC, TO_SCREEN (2 * radius),
-                                      GDK_LINE_SOLID, GDK_CAP_ROUND,
-                                      GDK_JOIN_ROUND);
-          gdk_gc_set_foreground (Output.fgGC, PCB->ViaColor);
-
-          XDrawCLine (Output.top_window->window, Output.fgGC, X, Y, X, Y);
+	  gui->set_color (ar_gc, PCB->ViaColor);
+	  gui->fill_circle (ar_gc, X, Y, radius);
         }
-#endif
     }
 }
 static void
@@ -2565,18 +2559,16 @@ RD_DrawLine (routedata_t * rd,
   assert (__routebox_is_good (rb));
   /* and add it to the r-tree! */
   r_insert_entry (rd->layergrouptree[rb->group], &rb->box, 1);
-#ifdef FIXME
+
   if (TEST_FLAG (LIVEROUTEFLAG, PCB))
     {
       LayerTypePtr layp = LAYER_PTR (PCB->LayerGroups.Entries[rb->group][0]);
 
-      gdk_gc_set_line_attributes (Output.fgGC, TO_SCREEN (2 * halfthick),
-                                  GDK_LINE_SOLID, GDK_CAP_ROUND,
-                                  GDK_JOIN_ROUND);
-      gdk_gc_set_foreground (Output.fgGC, layp->Color);
-      XDrawCLine (Output.top_window->window, Output.fgGC, X1, Y1, X2, Y2);
+      gui->set_line_width (ar_gc, 2*halfthick);
+      gui->set_color (ar_gc, layp->Color);
+      gui->draw_line (ar_gc, X1, Y1, X2, Y2);
     }
-#endif
+
   /* and to the via space structures */
   if (AutoRouteParameters.use_vias)
     mtspace_add (rd->mtspace, &rb->box, rb->flags.is_odd ? ODD : EVEN,
@@ -4161,6 +4153,12 @@ AutoRoute (Boolean selected)
   Boolean changed = False;
   routedata_t *rd;
   int i;
+
+  if (ar_gc == 0)
+    {
+      ar_gc = gui->make_gc ();
+      gui->set_line_cap (ar_gc, Round_Cap);
+    }
 
   for (i = 0; i < NUM_STYLES; i++)
     {

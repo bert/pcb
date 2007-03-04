@@ -33,15 +33,6 @@
 
 #include "global.h"
 
-#if 0
-extern GdkPixmap **Stipples;
-extern GdkPixmap *XC_hand_source, *XC_hand_mask;
-extern GdkPixmap *XC_lock_source, *XC_lock_mask;
-extern GdkPixmap *XC_clock_source, *XC_clock_mask;
-
-extern GdkRegion *FullRegion;
-#endif
-
 /* ---------------------------------------------------------------------------
  * some shared identifiers
  */

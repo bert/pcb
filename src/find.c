@@ -2932,15 +2932,6 @@ PrepareNextLoop (FILE * FP)
   PVList.Number = PVList.Location = 0;
   RatList.Number = RatList.Location = 0;
 
-#ifdef FIXME
-  /* check if abort buttons has been pressed */
-  if (gui_check_abort ())
-    {
-      if (FP)
-        fputs ("\n\nABORTED...\n", FP);
-      return (True);
-    }
-#endif
   return (False);
 }
 
@@ -3089,18 +3080,12 @@ void
 LookupElementConnections (ElementTypePtr Element, FILE * FP)
 {
   /* reset all currently marked connections */
-#ifdef FIXME
-  gui_create_abort_dialog ("Press button to abort connection scan");
-#endif
   User = True;
   TheFlag = FOUNDFLAG;
   ResetConnections (True);
   InitConnectionLookup ();
   PrintElementConnections (Element, FP, True);
   SetChangedFlag (True);
-#ifdef FIXME
-  gui_end_abort ();
-#endif
   if (Settings.RingBellWhenFinished)
     gui->beep ();
   FreeConnectionLookupMemory ();
@@ -3117,9 +3102,6 @@ LookupConnectionsToAllElements (FILE * FP)
 {
   /* reset all currently marked connections */
   User = False;
-#ifdef FIXME
-  gui_create_abort_dialog ("Press button to abort connection scan");
-#endif
   TheFlag = FOUNDFLAG;
   ResetConnections (False);
   InitConnectionLookup ();
@@ -3134,9 +3116,6 @@ LookupConnectionsToAllElements (FILE * FP)
       ResetConnections (False);
   }
   END_LOOP;
-#ifdef FIXME
-  gui_end_abort ();
-#endif
   if (Settings.RingBellWhenFinished)
     gui->beep ();
   ResetConnections (False);
@@ -3301,9 +3280,6 @@ LookupUnusedPins (FILE * FP)
   /* reset all currently marked connections */
   User = True;
   SaveUndoSerialNumber ();
-#ifdef FIXME
-  gui_create_abort_dialog ("Press button to abort unused pin scan");
-#endif
   ResetConnections (True);
   RestoreUndoSerialNumber ();
   InitConnectionLookup ();
@@ -3317,9 +3293,6 @@ LookupUnusedPins (FILE * FP)
       break;
   }
   END_LOOP;
-#ifdef FIXME
-  gui_end_abort ();
-#endif
 
   if (Settings.RingBellWhenFinished)
     gui->beep ();

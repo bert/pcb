@@ -2229,9 +2229,6 @@ ChangePCBSize (BDimension Width, BDimension Height)
   else
     SetCrosshairRange (0, 0, (LocationType) Width, (LocationType) Height);
   hid_action ("PCBChanged");
-#if 0
-  UpdateAll ();
-#endif
 }
 
 /* ---------------------------------------------------------------------------

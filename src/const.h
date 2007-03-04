@@ -250,25 +250,28 @@ Draw autoroute paths real-time.
 @end table
 %end-doc */
 
-#define	PCB_FLAGS		0x1ffff	/* all used flags */
+#define	PCB_FLAGS		0x000fffff	/* all used flags */
 
-#define SHOWNUMBERFLAG          0x00001
-#define LOCALREFFLAG            0x00002
-#define CHECKPLANESFLAG         0x00004
-#define SHOWDRCFLAG             0x00008
-#define RUBBERBANDFLAG		0x00010
-#define	DESCRIPTIONFLAG		0x00020
-#define	NAMEONPCBFLAG		0x00040
-#define AUTODRCFLAG             0x00080
-#define	ALLDIRECTIONFLAG	0x00100
-#define SWAPSTARTDIRFLAG        0x00200
-#define UNIQUENAMEFLAG		0x00400
-#define CLEARNEWFLAG		0x00800
-#define SNAPPINFLAG             0x01000
-#define SHOWMASKFLAG            0x02000
-#define THINDRAWFLAG            0x04000
-#define ORTHOMOVEFLAG           0x08000
-#define LIVEROUTEFLAG           0x10000
+#define SHOWNUMBERFLAG          0x00000001
+#define LOCALREFFLAG            0x00000002
+#define CHECKPLANESFLAG         0x00000004
+#define SHOWDRCFLAG             0x00000008
+#define RUBBERBANDFLAG		0x00000010
+#define	DESCRIPTIONFLAG		0x00000020
+#define	NAMEONPCBFLAG		0x00000040
+#define AUTODRCFLAG             0x00000080
+#define	ALLDIRECTIONFLAG	0x00000100
+#define SWAPSTARTDIRFLAG        0x00000200
+#define UNIQUENAMEFLAG		0x00000400
+#define CLEARNEWFLAG		0x00000800
+#define SNAPPINFLAG             0x00001000
+#define SHOWMASKFLAG            0x00002000
+#define THINDRAWFLAG            0x00004000
+#define ORTHOMOVEFLAG           0x00008000
+#define LIVEROUTEFLAG           0x00010000
+#define THINDRAWPOLYFLAG        0x00020000
+#define LOCKNAMESFLAG           0x00040000
+#define ONLYNAMESFLAG           0x00080000
 
 /* ---------------------------------------------------------------------------
  * object types

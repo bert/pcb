@@ -1024,7 +1024,7 @@ ps_calibrate (double xval, double yval)
 }
 
 static void
-ps_set_crosshair (int x, int y)
+ps_set_crosshair (int x, int y, int action)
 {
 }
 

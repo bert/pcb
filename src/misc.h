@@ -60,6 +60,7 @@ int GetLayerGroupNumberByPointer (LayerTypePtr);
 int GetLayerGroupNumberByNumber (Cardinal);
 int GetGroupOfLayer (int);
 int ChangeGroupVisibility (int, Boolean, Boolean);
+void LayerStringToLayerStack (char *);
 
 
 BoxTypePtr GetObjectBoundingBox (int, void *, void *, void *);

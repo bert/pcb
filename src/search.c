@@ -1005,6 +1005,15 @@ SearchObjectByLocation (int Type,
   SearchBox.X2 = X + Radius;
   SearchBox.Y2 = Y + Radius;
 
+  if (TEST_FLAG (LOCKNAMESFLAG, PCB))
+    {
+      Type &= ~ (ELEMENTNAME_TYPE | TEXT_TYPE);
+    }
+  if (TEST_FLAG (ONLYNAMESFLAG, PCB))
+    {
+      Type &= (ELEMENTNAME_TYPE | TEXT_TYPE);
+    }
+
   if (Type & RATLINE_TYPE && PCB->RatOn &&
       SearchRatLineByLocation (locked,
 			       (RatTypePtr *) Result1,

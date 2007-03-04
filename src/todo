@@ -27,13 +27,9 @@ Layer/Group master control dialog
 
 Remember configuration and restore on startup?
 
+
 -------------------- HID Enhancements --------------------
 
-PS: Add calibration logic.
-
-EPS: option to specify which layers and order to draw in.
-
-PNG: option to specify which layers and order to draw in.
 PNG: get clears right.
 PNG: add options for gif and jpeg.  Maybe this HID needs
      a different name...
@@ -43,14 +39,8 @@ Add direct-to-pdf exporter?
 
 Put Xaw GUI back in?
 
+
 -------------------- Core Issues/Enhancements ---------------
-
-
-lots of #ifdef FIXME in the core code.  Some actions need fixing
-up in these areas.
-
-Adjust minimum symbol line size based on current layer; don't assume
-silk layer.  Note: need "thin" lines for pinout windows still.
 
 SearchObjectByLocation() needs to search front side silk, elements,
 etc, before back side ones.
@@ -62,6 +52,7 @@ Default functions for ":"
  - tab expansion
 
 Generic "set hid attribute" action.
+
 
 -------------------- Long Term Projects --------------------
 

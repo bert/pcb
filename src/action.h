@@ -39,11 +39,6 @@ void ActionMovePointer (char *, char *);
 void ActionAdjustStyle (char *);
 void EventMoveCrosshair (int, int);
 
-#if 0
-void ActionListAct (Widget, XEvent *, String *, Cardinal *);
-void ActionButton3 (Widget, XEvent *, String *, Cardinal *);
-#endif
-
 void AdjustAttachedObjects (void);
 
 void warpNoWhere (void);

@@ -76,7 +76,7 @@ typedef unsigned char BYTE;
    for now.  */
 typedef struct
 {
-  unsigned short f;		/* generic flags */
+  unsigned long f;		/* generic flags */
   unsigned char t[(MAX_LAYER + 1) / 2];	/* thermals */
 } FlagType, *FlagTypePtr;
 
@@ -98,7 +98,8 @@ typedef struct
 #define ANYOBJECTFIELDS			\
 	BoxType		BoundingBox;	\
 	long int	ID;		\
-	FlagType	Flags
+	FlagType	Flags;		\
+	struct LibraryEntryType *net
 
 /* Lines, pads, and rats all use this so they can be cross-cast.  */
 #define	ANYLINEFIELDS			\
@@ -113,16 +114,6 @@ typedef struct
  */
 typedef struct			/* holds information about output window */
 {
-#if 0
-  GtkWidget *top_window,	/* toplevel widget */
-   *drawing_area;		/* PCB drawing area */
-
-  GdkPixmap *pixmap, *mask;
-    PangoFontDescription * font_desc;
-  PangoLayout *layout;
-  int font_size;		/* pin name size levels depending on zoom */
-
-#endif
   hidGC bgGC,			/* background and foreground; */
     fgGC,			/* changed from some routines */
     pmGC,			/* depth 1 pixmap GC to store clip */
@@ -130,12 +121,6 @@ typedef struct			/* holds information about output window */
 
   int Width,			/* sizes of output window (porthole) */
     Height;
-#if 0
-  GdkCursor *XCursor;		/* used X cursor */
-  GdkCursorType XCursorShape;	/* and its shape */
-  gboolean VisibilityOK,	/* output is completely visible */
-    creating, has_entered;
-#endif
   int oldObjState,		/* Helpers for GetLocation */
     oldLineState, oldBoxState;
 }
@@ -390,6 +375,11 @@ typedef struct
    *Description;		/* some descritional text */
 } LibraryEntryType, *LibraryEntryTypePtr;
 
+/* If the internal flag is set, the only field that is valid is Name,
+   and the struct is allocated with malloc instead of
+   CreateLibraryEntry.  These "internal" entries are used for
+   electrical paths that aren't yet assigned to a real net.  */
+
 typedef struct
 {
   char *Name,			/* name of the menu entry */
@@ -398,7 +388,9 @@ typedef struct
   Cardinal EntryN,		/* number of objects */
     EntryMax;			/* number of reserved memory locations */
   LibraryEntryTypePtr Entry;	/* the entries */
-  int flag;			/* used by the netlist window to enable/disable nets */
+  char flag;			/* used by the netlist window to enable/disable nets */
+  char internal;		/* if set, this is an internal-only entry, not
+				   part of the global netlist. */
 } LibraryMenuType, *LibraryMenuTypePtr;
 
 typedef struct
@@ -590,7 +582,8 @@ typedef struct			/* some resources... */
    *BackgroundImage,		/* PPM file for board background */
    *ScriptFilename,		/* PCB Actions script to execute on startup */
    *ActionString,		/* PCB Actions string to execute on startup */
-   *FabAuthor;			/* Full name of author for FAB drawings */
+   *FabAuthor,			/* Full name of author for FAB drawings */
+   *InitialLayerStack;		/* If set, the initial layer stack is set to this */
   Boolean DumpMenuFile;		/* dump internal menu definitions */
   LocationType PinoutOffsetX,	/* offset of origin */
     PinoutOffsetY;
@@ -600,8 +593,6 @@ typedef struct			/* some resources... */
   LayerGroupType LayerGroups;	/* default layer groups */
   Boolean ClearLine, UniqueNames,	/* force unique names */
     SnapPin,			/* snap to pins and pads */
-    UseLogWindow,		/* FIXME? Used in hid/Xaw code only */
-    RaiseLogWindow,		/* raise log window if iconified */
     ShowSolderSide,		/* mirror output */
     SaveLastCommand,		/* save the last command entered by user */
     SaveInTMP,			/* always save data in /tmp */

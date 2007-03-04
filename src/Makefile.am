@@ -86,8 +86,6 @@ PCB_SRCS = \
 	mymem.c \
 	mymem.h \
 	netlist.c \
-	output.c \
-	output.h \
 	parse_l.h \
 	parse_l.l \
 	parse_y.h \
@@ -238,7 +236,6 @@ dbus-introspect.h : dbus.xml Makefile
 	sed 's/\\/\\\\/g; s/"/\\"/g; s/^/"/; s/$$/"/' < $(srcdir)/dbus.xml >> $@.tmp
 	echo ";" >> $@.tmp
 	mv $@.tmp $@
-	
 
 PCB_SRCS+=	${DBUS_SRCS}
 BUILT_SOURCES+=	dbus-introspect.h

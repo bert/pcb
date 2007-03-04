@@ -103,125 +103,70 @@ FlagMode (int x)
 #define OffsetOf(a,b) (int)(&(((a *)0)->b))
 
 HID_Flag flags_flag_list[] = {
-  {"style", FlagCurrentStyle, 0}
-  ,
-  {"grid", FlagGrid, 0}
-  ,
-  {"gridsize", FlagGridSize, 0}
-  ,
-  {"elementname", FlagElementName, 0}
-  ,
+  {"style", FlagCurrentStyle, 0},
+  {"grid", FlagGrid, 0},
+  {"gridsize", FlagGridSize, 0},
+  {"elementname", FlagElementName, 0},
 
-  {"mode", FlagMode, -1}
-  ,
-  {"nomode", FlagMode, NO_MODE}
-  ,
-  {"arcmode", FlagMode, ARC_MODE}
-  ,
-  {"arrowmode", FlagMode, ARROW_MODE}
-  ,
-  {"copymode", FlagMode, COPY_MODE}
-  ,
-  {"insertpointmode", FlagMode, INSERTPOINT_MODE}
-  ,
-  {"linemode", FlagMode, LINE_MODE}
-  ,
-  {"lockmode", FlagMode, LOCK_MODE}
-  ,
-  {"movemode", FlagMode, MOVE_MODE}
-  ,
-  {"pastebuffermode", FlagMode, PASTEBUFFER_MODE}
-  ,
-  {"polygonmode", FlagMode, POLYGON_MODE}
-  ,
-  {"rectanglemode", FlagMode, RECTANGLE_MODE}
-  ,
-  {"removemode", FlagMode, REMOVE_MODE}
-  ,
-  {"rotatemode", FlagMode, ROTATE_MODE}
-  ,
-  {"rubberbandmovemode", FlagMode, RUBBERBANDMOVE_MODE}
-  ,
-  {"textmode", FlagMode, TEXT_MODE}
-  ,
-  {"thermalmode", FlagMode, THERMAL_MODE}
-  ,
-  {"viamode", FlagMode, VIA_MODE}
-  ,
+  {"mode", FlagMode, -1},
+  {"nomode", FlagMode, NO_MODE},
+  {"arcmode", FlagMode, ARC_MODE},
+  {"arrowmode", FlagMode, ARROW_MODE},
+  {"copymode", FlagMode, COPY_MODE},
+  {"insertpointmode", FlagMode, INSERTPOINT_MODE},
+  {"linemode", FlagMode, LINE_MODE},
+  {"lockmode", FlagMode, LOCK_MODE},
+  {"movemode", FlagMode, MOVE_MODE},
+  {"pastebuffermode", FlagMode, PASTEBUFFER_MODE},
+  {"polygonmode", FlagMode, POLYGON_MODE},
+  {"rectanglemode", FlagMode, RECTANGLE_MODE},
+  {"removemode", FlagMode, REMOVE_MODE},
+  {"rotatemode", FlagMode, ROTATE_MODE},
+  {"rubberbandmovemode", FlagMode, RUBBERBANDMOVE_MODE},
+  {"textmode", FlagMode, TEXT_MODE},
+  {"thermalmode", FlagMode, THERMAL_MODE},
+  {"viamode", FlagMode, VIA_MODE},
 
-  {"shownumber", FlagTESTFLAG, SHOWNUMBERFLAG}
-  ,
-  {"localref", FlagTESTFLAG, LOCALREFFLAG}
-  ,
-  {"checkplanes", FlagTESTFLAG, CHECKPLANESFLAG}
-  ,
-  {"showdrc", FlagTESTFLAG, SHOWDRCFLAG}
-  ,
-  {"rubberband", FlagTESTFLAG, RUBBERBANDFLAG}
-  ,
-  {"description", FlagTESTFLAG, DESCRIPTIONFLAG}
-  ,
-  {"nameonpcb", FlagTESTFLAG, NAMEONPCBFLAG}
-  ,
-  {"autodrc", FlagTESTFLAG, AUTODRCFLAG}
-  ,
-  {"alldirection", FlagTESTFLAG, ALLDIRECTIONFLAG}
-  ,
-  {"swapstartdir", FlagTESTFLAG, SWAPSTARTDIRFLAG}
-  ,
-  {"uniquename", FlagTESTFLAG, UNIQUENAMEFLAG}
-  ,
-  {"clearnew", FlagTESTFLAG, CLEARNEWFLAG}
-  ,
-  {"snappin", FlagTESTFLAG, SNAPPINFLAG}
-  ,
-  {"showmask", FlagTESTFLAG, SHOWMASKFLAG}
-  ,
-  {"orthomove", FlagTESTFLAG, ORTHOMOVEFLAG}
-  ,
-  {"liveroute", FlagTESTFLAG, LIVEROUTEFLAG}
-  ,
+  {"shownumber", FlagTESTFLAG, SHOWNUMBERFLAG},
+  {"localref", FlagTESTFLAG, LOCALREFFLAG},
+  {"checkplanes", FlagTESTFLAG, CHECKPLANESFLAG},
+  {"showdrc", FlagTESTFLAG, SHOWDRCFLAG},
+  {"rubberband", FlagTESTFLAG, RUBBERBANDFLAG},
+  {"description", FlagTESTFLAG, DESCRIPTIONFLAG},
+  {"nameonpcb", FlagTESTFLAG, NAMEONPCBFLAG},
+  {"autodrc", FlagTESTFLAG, AUTODRCFLAG},
+  {"alldirection", FlagTESTFLAG, ALLDIRECTIONFLAG},
+  {"swapstartdir", FlagTESTFLAG, SWAPSTARTDIRFLAG},
+  {"uniquename", FlagTESTFLAG, UNIQUENAMEFLAG},
+  {"clearnew", FlagTESTFLAG, CLEARNEWFLAG},
+  {"snappin", FlagTESTFLAG, SNAPPINFLAG},
+  {"showmask", FlagTESTFLAG, SHOWMASKFLAG},
+  {"thindraw", FlagTESTFLAG, THINDRAWFLAG},
+  {"orthomove", FlagTESTFLAG, ORTHOMOVEFLAG},
+  {"liveroute", FlagTESTFLAG, LIVEROUTEFLAG},
+  {"thindrawpoly", FlagTESTFLAG, THINDRAWPOLYFLAG},
+  {"locknames", FlagTESTFLAG, LOCKNAMESFLAG},
+  {"onlynames", FlagTESTFLAG, ONLYNAMESFLAG},
 
-  {"grid_units_mm", FlagSETTINGS, OffsetOf (SettingType, grid_units_mm)}
-  ,
-  {"clearline", FlagSETTINGS, OffsetOf (SettingType, ClearLine)}
-  ,
-  {"uniquenames", FlagSETTINGS, OffsetOf (SettingType, UniqueNames)}
-  ,
-  {"uselogwindow", FlagSETTINGS, OffsetOf (SettingType, UseLogWindow)}
-  ,
-  {"raiselogwindow", FlagSETTINGS, OffsetOf (SettingType, RaiseLogWindow)}
-  ,
-  {"showsolderside", FlagSETTINGS, OffsetOf (SettingType, ShowSolderSide)}
-  ,
-  {"savelastcommand", FlagSETTINGS, OffsetOf (SettingType, SaveLastCommand)}
-  ,
-  {"saveintmp", FlagSETTINGS, OffsetOf (SettingType, SaveInTMP)}
-  ,
-  {"drawgrid", FlagSETTINGS, OffsetOf (SettingType, DrawGrid)}
-  ,
-  {"ratwarn", FlagSETTINGS, OffsetOf (SettingType, RatWarn)}
-  ,
-  {"stipplepolygons", FlagSETTINGS, OffsetOf (SettingType, StipplePolygons)}
-  ,
+  {"grid_units_mm", FlagSETTINGS, OffsetOf (SettingType, grid_units_mm)},
+  {"clearline", FlagSETTINGS, OffsetOf (SettingType, ClearLine)},
+  {"uniquenames", FlagSETTINGS, OffsetOf (SettingType, UniqueNames)},
+  {"showsolderside", FlagSETTINGS, OffsetOf (SettingType, ShowSolderSide)},
+  {"savelastcommand", FlagSETTINGS, OffsetOf (SettingType, SaveLastCommand)},
+  {"saveintmp", FlagSETTINGS, OffsetOf (SettingType, SaveInTMP)},
+  {"drawgrid", FlagSETTINGS, OffsetOf (SettingType, DrawGrid)},
+  {"ratwarn", FlagSETTINGS, OffsetOf (SettingType, RatWarn)},
+  {"stipplepolygons", FlagSETTINGS, OffsetOf (SettingType, StipplePolygons)},
   {"alldirectionlines", FlagSETTINGS,
-   OffsetOf (SettingType, AllDirectionLines)}
-  ,
-  {"rubberbandmode", FlagSETTINGS, OffsetOf (SettingType, RubberBandMode)}
-  ,
+	OffsetOf (SettingType, AllDirectionLines)},
+  {"rubberbandmode", FlagSETTINGS, OffsetOf (SettingType, RubberBandMode)},
   {"swapstartdirection", FlagSETTINGS,
-   OffsetOf (SettingType, SwapStartDirection)}
-  ,
-  {"showdrc", FlagSETTINGS, OffsetOf (SettingType, ShowDRC)}
-  ,
-  {"liveroute", FlagSETTINGS, OffsetOf (SettingType, liveRouting)}
-  ,
+	OffsetOf (SettingType, SwapStartDirection)},
+  {"showdrc", FlagSETTINGS, OffsetOf (SettingType, ShowDRC)},
   {"resetafterelement", FlagSETTINGS,
-   OffsetOf (SettingType, ResetAfterElement)}
-  ,
+	OffsetOf (SettingType, ResetAfterElement)},
   {"ringbellwhenfinished", FlagSETTINGS,
-   OffsetOf (SettingType, RingBellWhenFinished)}
-  ,
+	OffsetOf (SettingType, RingBellWhenFinished)},
 };
 
 REGISTER_FLAGS (flags_flag_list)

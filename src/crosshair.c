@@ -253,10 +253,17 @@ XORDrawElement (ElementTypePtr Element, LocationType DX, LocationType DY)
   {
     if ((TEST_FLAG (ONSOLDERFLAG, pad) != 0) ==
 	Settings.ShowSolderSide || PCB->InvisibleObjectsOn)
-      gui->draw_line (Crosshair.GC,
-		      DX + pad->Point1.X,
-		      DY + pad->Point1.Y,
-		      DX + pad->Point2.X, DY + pad->Point2.Y);
+      {
+	int minx, miny, maxx, maxy;
+	minx = DX + MIN (pad->Point1.X, pad->Point2.X) - pad->Thickness/2;
+	maxx = DX + MAX (pad->Point1.X, pad->Point2.X) + pad->Thickness/2;
+	miny = DY + MIN (pad->Point1.Y, pad->Point2.Y) - pad->Thickness/2;
+	maxy = DY + MAX (pad->Point1.Y, pad->Point2.Y) + pad->Thickness/2;
+	gui->draw_line (Crosshair.GC, minx, miny, maxx, miny);
+	gui->draw_line (Crosshair.GC, minx, miny, minx, maxy);
+	gui->draw_line (Crosshair.GC, maxx, miny, maxx, maxy);
+	gui->draw_line (Crosshair.GC, minx, maxy, maxx, maxy);
+      }
   }
   END_LOOP;
   /* mark */
@@ -733,37 +740,12 @@ FitCrosshairIntoGrid (LocationType X, LocationType Y)
   void *ptr1, *ptr2, *ptr3;
   int ans;
 
-#if 0
-  /* get PCB coordinates from visible display size.
-   * If the bottom view mode is active, y2 might be less then y1
-   */
-  y0 = TO_PCB_Y (0);
-  y2 = TO_PCB_Y (Output.Height - 1);
-  if (y2 < y0)
-    {
-      x0 = y0;
-      y0 = y2;
-      y2 = x0;
-    }
-  x0 = 0;
-  x2 = TO_PCB_X (Output.Width - 1);
-
-  /* check position against window size and against valid
-   * coordinates determined by the size of an attached
-   * object or buffer
-   an   */
-  Crosshair.X = MIN (x2, MAX (x0, X));
-  Crosshair.Y = MIN (y2, MAX (y0, Y));
-  Crosshair.X = MIN (Crosshair.MaxX, MAX (Crosshair.MinX, Crosshair.X));
-  Crosshair.Y = MIN (Crosshair.MaxY, MAX (Crosshair.MinY, Crosshair.Y));
-#else
   x0 = 0;
   y0 = 0;
   x2 = PCB->MaxWidth;
   y2 = PCB->MaxHeight;
   Crosshair.X = MIN (Crosshair.MaxX, MAX (Crosshair.MinX, X));
   Crosshair.Y = MIN (Crosshair.MaxY, MAX (Crosshair.MinY, Y));
-#endif
 
   if (PCB->RatDraw || TEST_FLAG (SNAPPINFLAG, PCB))
     {
@@ -910,7 +892,7 @@ FitCrosshairIntoGrid (LocationType X, LocationType Y)
       && TEST_FLAG (AUTODRCFLAG, PCB))
     EnforceLineDRC ();
 
-  gui->set_crosshair (Crosshair.X, Crosshair.Y);
+  gui->set_crosshair (Crosshair.X, Crosshair.Y, HID_SC_DO_NOTHING);
 }
 
 /* ---------------------------------------------------------------------------

@@ -830,7 +830,7 @@ ghid_control_is_pressed ()
 }
 
 void
-ghid_set_crosshair (int x, int y)
+ghid_set_crosshair (int x, int y, int action)
 {
   ghid_set_cursor_position_labels ();
   gport->x_crosshair = x;

@@ -378,10 +378,15 @@ typedef enum
     /* Sets the crosshair, which may differ from the pointer depending
        on grid and pad snap.  Note that the HID is responsible for
        hiding, showing, redrawing, etc.  The core just tells it what
-       coordinates it's actually using.  Note that this routine may need
-       to know what "pcb units" are so it can display them in mm or mils
-       accordingly.  */
-    void (*set_crosshair) (int x, int y);
+       coordinates it's actually using.  Note that this routine may
+       need to know what "pcb units" are so it can display them in mm
+       or mils accordingly.  If cursor_action is set, the cursor or
+       screen may be adjusted so that the cursor and the crosshair are
+       at the same point on the screen.  */
+    void (*set_crosshair) (int x, int y, int cursor_action);
+#define HID_SC_DO_NOTHING	0
+#define HID_SC_WARP_POINTER	1
+#define HID_SC_PAN_VIEWPORT	2
 
     /* Causes func to be called at some point in the future.  Timers are
        only good for *one* call; if you want it to repeat, add another

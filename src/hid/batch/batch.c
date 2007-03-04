@@ -311,7 +311,7 @@ batch_get_coords (const char *msg, int *x, int *y)
 }
 
 static void
-batch_set_crosshair (int x, int y)
+batch_set_crosshair (int x, int y, int action)
 {
 }
 

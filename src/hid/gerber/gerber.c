@@ -964,7 +964,7 @@ gerber_calibrate (double xval, double yval)
 }
 
 static void
-gerber_set_crosshair (int x, int y)
+gerber_set_crosshair (int x, int y, int action)
 {
 }
 

@@ -61,6 +61,8 @@ MainMenu =
    {"Description" Display(Description) checked=elementname,1}
    {"Reference Designator" Display(NameOnPCB) checked=elementname,2}
    {"Value" Display(Value) checked=elementname,3}
+   {"Lock Names" checked=locknames Display(ToggleLockNames)}
+   {"Only Names" checked=onlynames Display(ToggleOnlyNames)}
    -
    {"Pinout shows number" checked=shownumber Display(ToggleName)}
    {"Open pinout menu" Display(Pinout) a={"Shift-D" "Shift<Key>d"}}
@@ -192,8 +194,8 @@ MainMenu =
    {"Auto-zero delta measurements" checked=localref Display(ToggleLocalRef)}
    {"New lines, arcs clear polygons" checked=clearnew Display(ToggleClearLine)}
    {"Show autorouter trials" checked=liveroute Display(ToggleLiveRoute)}
-   {"Thin draw" checked=thindraw Thindraw() a={"|" "<Key>|"}}
-   {"Thin draw poly" checked=thindrawpoly ThindrawPoly() a={"Ctrl-Shift-P" "Ctrl Shift<Key>p"}}
+   {"Thin draw" checked=thindraw Display(ToggleThindraw) a={"|" "<Key>|"}}
+   {"Thin draw poly" checked=thindrawpoly Display(ToggleThindrawPoly) a={"Ctrl-Shift-P" "Ctrl Shift<Key>p"}}
    {"Check polygons" checked=checkplanes Display(ToggleCheckPlanes)}
    -
    {"Pinout shows number" checked=shownumber Display(ToggleName)}
@@ -311,6 +313,7 @@ MainMenu =
    {"Generate object report" ReportObject() a={"Ctrl-R" "Ctrl<Key>r"}}
    {"Generate drill summary" Report(DrillReport)}
    {"Report found pins/pads" Report(FoundPins)}
+   {"Report net length" Report(NetLength) a={"R" "<Key>r"}}
    {"Key Bindings"
     {"Remove" a={"Backspace" "<Key>BackSpace"}
      Mode(Save)
@@ -401,6 +404,16 @@ MainMenu =
     {"Arrow" a={"Space" "<Key>space"} Mode(Arrow) checked=arrowmode,1}
     {"Temp Arrow ON" a={"[" "<Key>["} Mode(Save) Mode(Arrow) Mode(Notify)}
     {"Temp Arrow OFF" a={"]" "<Key>]"} Mode(Release) Mode(Restore)}
+
+    {"Step Up" a={"Up" "<Key>Up"} Cursor(Warp,0,1,grid)}
+    {"Step Down" a={"Down" "<Key>Down"} Cursor(Warp,0,-1,grid)}
+    {"Step Left" a={"Left" "<Key>Left"} Cursor(Warp,-1,0,grid)}
+    {"Step Right" a={"Right" "<Key>Right"} Cursor(Warp,1,0,grid)}
+    {"Step +Up" a={"Up" "Shift<Key>Up"} Cursor(Pan,0,50,view)}
+    {"Step +Down" a={"Down" "Shift<Key>Down"} Cursor(Pan,0,-50,view)}
+    {"Step +Left" a={"Left" "Shift<Key>Left"} Cursor(Pan,-50,0,view)}
+    {"Step +Right" a={"Right" "Shift<Key>Right"} Cursor(Pan,50,0,view)}
+    {'"Click"' a={"Enter" "<Key>Enter"} Mode(Notify) Mode(Release) }
    }
   }
   {Window

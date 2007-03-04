@@ -179,6 +179,9 @@ typedef enum
   F_ToggleStartDirection,
   F_ToggleSnapPin,
   F_ToggleThindraw,
+  F_ToggleLockNames,
+  F_ToggleOnlyNames,
+  F_ToggleThindrawPoly,
   F_ToggleOrthoMove,
   F_ToggleLocalRef,
   F_ToggleCheckPlanes,
@@ -401,6 +404,9 @@ static FunctionType Functions[] = {
   {"ToggleStartDirection", F_ToggleStartDirection},
   {"ToggleSnapPin", F_ToggleSnapPin},
   {"ToggleThindraw", F_ToggleThindraw},
+  {"ToggleThindrawPoly", F_ToggleThindrawPoly},
+  {"ToggleLockNames", F_ToggleLockNames},
+  {"ToggleOnlyNames", F_ToggleOnlyNames},
   {"ToggleCheckPlanes", F_ToggleCheckPlanes},
   {"ToggleLocalRef", F_ToggleLocalRef},
   {"ToggleOrthoMove", F_ToggleOrthoMove},
@@ -419,7 +425,6 @@ static FunctionType Functions[] = {
 /* ---------------------------------------------------------------------------
  * some local routines
  */
-static void WarpPointer (Boolean);
 static int GetFunctionID (String);
 static void AdjustAttachedBox (void);
 static void NotifyLine (void);
@@ -700,16 +705,67 @@ ReleaseMode (void)
 /* ---------------------------------------------------------------------------
  * get function ID of passed string
  */
+#define HSIZE 257
+static char function_hash[HSIZE];
+static int hash_initted = 0;
+
+static int
+hashfunc(String s)
+{
+  int i = 0;
+  while (*s)
+    {
+      i ^= i >> 16;
+      i = (i * 13) ^ (unsigned char)tolower(*s);
+      s ++;
+    }
+  i = (unsigned int)i % HSIZE;
+  return i;
+}
+
 static int
 GetFunctionID (String Ident)
 {
-  int i;
+  int i, h;
 
-  i = ENTRIES (Functions);
-  while (i)
-    if (!strcasecmp (Ident, Functions[--i].Identifier))
-      return ((int) Functions[i].ID);
-  return (-1);
+  if (!hash_initted)
+    {
+      hash_initted = 1;
+      if (HSIZE < ENTRIES (Functions) * 2)
+	{
+	  fprintf(stderr, "Error: function hash size too small (%d vs %d at %s:%d)\n",
+		  HSIZE, ENTRIES (Functions)*2, __FILE__, __LINE__);
+	  exit(1);
+	}
+      if (ENTRIES (Functions) > 254)
+	{
+	  /* Change 'char' to 'int' and remove this when we get to 256
+	     strings to hash. */
+	  fprintf(stderr, "Error: function hash type too small (%d vs %d at %s:%d)\n",
+		  256, ENTRIES (Functions), __FILE__, __LINE__);
+	  exit(1);
+	  
+	}
+      for (i=ENTRIES (Functions)-1; i>=0; i--)
+	{
+	  h = hashfunc (Functions[i].Identifier);
+	  while (function_hash[h])
+	    h = (h + 1) % HSIZE;
+	  function_hash[h] = i + 1;
+	}
+    }
+
+  i = hashfunc (Ident);
+  while (1)
+    {
+      /* We enforce the "hash table bigger than function table" rule,
+	 so we know there will be at least one zero entry to find.  */
+      if (!function_hash[i])
+	return (-1);
+      if (!strcasecmp (Ident, Functions[function_hash[i]-1].Identifier))
+	return ((int) Functions[function_hash[i]-1].ID);
+      i ++;
+    }
 }
 
 /* ---------------------------------------------------------------------------
@@ -1582,41 +1638,6 @@ NotifyMode (void)
 }
 
 
-/*#include <gdk/gdkx.h>*/
-
-/* ---------------------------------------------------------------------------
- * warp pointer to new cursor location
- */
-static void
-WarpPointer (Boolean ignore)
-{
-#ifdef FIXME
-  Window w_src, w_dst;
-
-  w_src = GDK_WINDOW_XID (Output.drawing_area->window);
-  w_dst = w_src;
-
-  /* don't warp with the auto drc - that creates auto-scroll chaos */
-  if (TEST_FLAG (AUTODRCFLAG, PCB) && Settings.Mode == LINE_MODE
-      && Crosshair.AttachedLine.State != STATE_FIRST)
-    return;
-
-  XWarpPointer (GDK_DRAWABLE_XDISPLAY (Output.drawing_area->window),
-		w_src, w_dst,
-		0, 0, 0, 0,
-		(int) (TO_SCREEN_X (Crosshair.X)),
-		(int) (TO_SCREEN_Y (Crosshair.Y)));
-
-  /* XWarpPointer creates Motion events normally bound to
-   *  EventMoveCrosshair.
-   *  We don't do any updates when EventMoveCrosshair
-   *  is called the next time to prevent from rounding errors
-   */
-  IgnoreMotionEvents = ignore;
-#endif
-}
-
-
 /* --------------------------------------------------------------------------- */
 
 static const char atomic_syntax[] = "Atomic(Save|Restore|Close|Block)";
@@ -1962,9 +1983,6 @@ ActionMovePointer (char *deltax, char *deltay)
   dy = (LocationType) (atoi (deltay) * PCB->Grid);
   MoveCrosshairRelative (TO_SCREEN_SIGN_X (dx), TO_SCREEN_SIGN_Y (dy));
   FitCrosshairIntoGrid (Crosshair.X, Crosshair.Y);
-  /* adjust pointer before erasing anything */
-  /* in case there is no hardware cursor */
-  WarpPointer (True);
   /* restore crosshair for erasure */
   Crosshair.X = x;
   Crosshair.Y = y;
@@ -1996,40 +2014,13 @@ EventMoveCrosshair (int ev_x, int ev_y)
   /* ignore events that are caused by ActionMovePointer */
   if (!IgnoreMotionEvents)
     {
-#ifdef FIXME
-      GdkModifierType mask;
-      int childX, childY;
-
-      /* only handle the event if the pointer is still at
-       * the same position to prevent slow systems from
-       * slow redrawing
-       */
-      gdk_window_get_pointer (Output.drawing_area->window,
-			      &childX, &childY, &mask);
-
-      if (ev_x == childX && ev_y == childY)
+      if (MoveCrosshairAbsolute (ev_x, ev_y))
 	{
-	  if (Settings.Mode == NO_MODE && (mask & GDK_BUTTON1_MASK))
-	    {
-	      LocationType x, y;
-	      HideCrosshair (False);
-	      x = TO_SCREEN_X (Crosshair.X) - ev_x;
-	      y = TO_SCREEN_Y (Crosshair.Y) - ev_y;
-	      CenterDisplay (x, y, True);
-	      RestoreCrosshair (False);
-	    }
-	  else
-#endif
-	  if (MoveCrosshairAbsolute (ev_x, ev_y))
-	    {
 
-	      /* update object position and cursor location */
-	      AdjustAttachedObjects ();
-	      RestoreCrosshair (False);
-	    }
-#ifdef FIXME
+	  /* update object position and cursor location */
+	  AdjustAttachedObjects ();
+	  RestoreCrosshair (False);
 	}
-#endif
     }
   else
     IgnoreMotionEvents = False;
@@ -2104,12 +2095,6 @@ ActionSetValue (int argc, char **argv, int x, int y)
 	  else
 	    SetGrid (value, False);
 	  break;
-
-#if FIXME
-	case F_Zoom:
-	  SetZoom (r ? value : value + PCB->Zoom);
-	  break;
-#endif
 
 	case F_LineSize:
 	case F_Line:
@@ -2194,6 +2179,10 @@ Any ``found'' pins and vias are marked ``not found''.
 
 @item Reset
 All ``found'' objects are marked ``not found''.
+
+@item Measure
+The net under the cursor is found and measured (the lengths of all
+line segments are added together)
 
 @end table
 
@@ -2372,9 +2361,9 @@ static const char display_syntax[] =
   "Display(CycleClip|Toggle45Degree|ToggleStartDirection)\n"
   "Display(ToggleGrid|ToggleRubberBandMode|ToggleUniqueNames)\n"
   "Display(ToggleMask|ToggleName|ToggleClearLine|ToggleSnapPin)\n"
-  "Display(ToggleThindraw|ToggleOrthoMove|ToggleLocalRef)\n"
+  "Display(ToggleThindraw|ToggleThindrawPoly|ToggleOrthoMove|ToggleLocalRef)\n"
   "Display(ToggleCheckPlanes|ToggleShowDRC|ToggleAutoDRC)\n"
-  "Display(ToggleLiveRoute)\n"
+  "Display(ToggleLiveRoute|LockNames|OnlyNames)\n"
   "Display(Pinout|PinOrPadName)\n" "Display(Scroll, Direction)";
 
 static const char display_help[] = "Several display-related actions.";
@@ -2424,6 +2413,9 @@ you can see the relative distance you've moved.
 If set, objects on the screen are drawn as outlines (lines are drawn
 as center-lines).  This lets you see line endpoints hidden under pins,
 for example.
+
+@item ToggleThindrawPoly
+If set, polygons on the screen are drawn as outlines.
 
 @item ToggleShowDRC
 If set, pending objects (i.e. lines you're in the process of drawing)
@@ -2476,9 +2468,10 @@ Toggles whether the names of pins, pads, or (yes) vias will be
 displayed.  If the cursor is over an element, all of its pins and pads
 are affected.
 
-@item Scroll <direction>
-Scrolls the viewport in the given direction, with 1=down/left, 2=down,
-etc, according to the numeric keypad layout.
+@item Step <direction> <amount> <units>
+Steps the crosshair in the given direction, with 1=down/left, 2=down,
+etc, according to the numeric keypad layout.  If amount is not given,
+the crosshair steps along the grid.
 
 @end table
 
@@ -2489,9 +2482,6 @@ ActionDisplay (int argc, char **argv, int childX, int childY)
 {
   char *function, *str_dir;
   int id;
-#ifdef FIXME
-  static int saved = 0;
-#endif
   int err = 0;
 
   function = ARG (0);
@@ -2503,19 +2493,10 @@ ActionDisplay (int argc, char **argv, int childX, int childY)
       switch (id = GetFunctionID (function))
 	{
 
-#ifdef FIXME
-	case F_Save:
-	  saved = PCB->Zoom;
-	  break;
-	case F_Restore:
-	  SetZoom (saved);
-	  break;
 	  /* redraw layout with clearing the background */
 	case F_ClearAndRedraw:
-	  ClearAndRedrawOutput ();
-	  UpdateAll ();
+	  gui->invalidate_all();
 	  break;
-#endif
 
 	  /* redraw layout without clearing the background */
 	case F_Redraw:
@@ -2528,13 +2509,6 @@ ActionDisplay (int argc, char **argv, int childX, int childY)
 	    RedrawOutput (&area);
 	    break;
 	  }
-#ifdef FIXME
-	  /* center cursor and move X pointer too */
-	case F_Center:
-	  CenterDisplay (Crosshair.X, Crosshair.Y, False);
-	  warpNoWhere ();
-	  break;
-#endif
 
 	  /* change the displayed name of elements */
 	case F_Value:
@@ -2606,6 +2580,21 @@ ActionDisplay (int argc, char **argv, int childX, int childY)
 	case F_ToggleThindraw:
 	  TOGGLE_FLAG (THINDRAWFLAG, PCB);
 	  ClearAndRedrawOutput ();
+	  break;
+
+	case F_ToggleThindrawPoly:
+	  TOGGLE_FLAG (THINDRAWPOLYFLAG, PCB);
+	  ClearAndRedrawOutput ();
+	  break;
+
+	case F_ToggleLockNames:
+	  TOGGLE_FLAG (LOCKNAMESFLAG, PCB);
+	  CLEAR_FLAG (ONLYNAMESFLAG, PCB);
+	  break;
+
+	case F_ToggleOnlyNames:
+	  TOGGLE_FLAG (ONLYNAMESFLAG, PCB);
+	  CLEAR_FLAG (LOCKNAMESFLAG, PCB);
 	  break;
 
 	case F_ToggleShowDRC:
@@ -2782,56 +2771,6 @@ ActionDisplay (int argc, char **argv, int childX, int childY)
 	    }
 	  break;
 
-	case F_Scroll:
-	  {
-	    /* direction is like keypad, e.g. 4 = left 8 = up */
-	    int direction = atoi (str_dir);
-
-	    switch (direction)
-	      {
-	      case 0:		/* special case: reposition crosshair */
-		{
-#ifdef FIXME
-		  int x, y;
-		  gui_get_pointer (&x, &y);
-		  if (MoveCrosshairAbsolute (TO_PCB_X (x), TO_PCB_Y (y)))
-		    {
-		      AdjustAttachedObjects ();
-		      RestoreCrosshair (False);
-		    }
-#endif
-		}
-		break;
-	      case 1:		/* down, left */
-		CenterDisplay (-Output.Width / 2, Output.Height / 2, True);
-		break;
-	      case 2:		/* down */
-		CenterDisplay (0, Output.Height / 2, True);
-		break;
-	      case 3:		/* down, right */
-		CenterDisplay (Output.Width / 2, Output.Height / 2, True);
-		break;
-	      case 4:		/* left */
-		CenterDisplay (-Output.Width / 2, 0, True);
-		break;
-	      case 6:		/* right */
-		CenterDisplay (Output.Width / 2, 0, True);
-		break;
-	      case 7:		/* up, left */
-		CenterDisplay (-Output.Width / 2, -Output.Height / 2, True);
-		break;
-	      case 8:		/* up */
-		CenterDisplay (0, -Output.Height / 2, True);
-		break;
-	      case 9:		/* up, right */
-		CenterDisplay (Output.Width / 2, -Output.Height / 2, True);
-		break;
-	      default:
-		Message ("Bad argument (%d) to Display(Scroll)\n", direction);
-		err = 1;
-	      }
-	  }
-	  break;
 	default:
 	  err = 1;
 	  break;
@@ -5482,83 +5421,6 @@ ActionLoadFrom (int argc, char **argv, int x, int y)
   return 0;
 }
 
-/* ---------------------------------------------------------------------------
- * print data -- brings up Print dialog box
- * syntax: PrintDialog()
- */
-void
-ActionPrintDialog (void)
-{
-#ifdef FIXME
-  /* check if layout is empty */
-  if (!IsDataEmpty (PCB->Data))
-    gui_dialog_print ();
-  else
-    Message (_("Can't print empty layout"));
-#endif
-}
-
-/* ---------------------------------------------------------------------------
- * sets all print settings and prints.  
- *
- * syntax: Print(prefix, device, scale,");
- *               mirror, rotate, color, invert, outline");
- *               add_alignment, add_drill_helper,");
- *               use_dos_filenames)");
- */
-
-void
-ActionPrint (char **Params, int num)
-{
-#ifdef FIXME
-  if (num == 11)
-    {
-      /* check if layout is empty */
-      if (!IsDataEmpty (PCB->Data))
-	{
-	  char *prefix_str = Params[0];
-	  int device_choice_i = atoi (Params[1]);
-	  float scale = atof (Params[2]);
-
-	  int mirror = atoi (Params[3]);
-	  int rotate = atoi (Params[4]);
-	  int color = atoi (Params[5]);
-	  int invert = atoi (Params[6]);
-	  int outline = atoi (Params[7]);
-
-	  int add_alignment = atoi (Params[8]);
-	  int add_drill_helper = atoi (Params[9]);
-
-	  int use_dos_filenames = atoi (Params[10]);
-
-	  /*
-	   * for(num_devices = 0; PrintingDevice[num_devices].Query; num_devices++);
-	   * assert(0 <= i && i < num_devices);
-	   */
-
-	  Print (prefix_str, scale,
-		 /* boolean options */
-		 mirror, rotate, color, invert, outline, add_alignment, add_drill_helper, use_dos_filenames, PrintingDevice[device_choice_i].Info, 0,	/* media */
-		 0,		/* offsetx */
-		 0,		/* offsety */
-		 /* boolean options */
-		 0		/* silk screen text flag */
-	    );
-	}
-      else
-	Message (_("Can't print empty layout"));
-    }
-  else
-    {
-      Message (_("syntax: Print(prefix, device, scale,\n"
-		 "              mirror, rotate, color, invert, outline\n"
-		 "              add_alignment, add_drill_helper,\n"
-		 "              use_dos_filenames)\n"));
-    }
-#endif
-}
-
-
 /* --------------------------------------------------------------------------- */
 
 static const char new_syntax[] = "New([name])";
@@ -6098,57 +5960,6 @@ ActionRouteStyle (int argc, char **argv, int x, int y)
     }
   return 0;
 }
-
-
-/* ---------------------------------------------------------------------------
- * Turn on or off the visibility of a layer
- */
-#ifdef FIXME
-void
-ActionToggleVisibility (char *str)
-{
-  int number;
-
-  if (str)
-    {
-      number = atoi (str) - 1;
-      if (number >= 0 && number < max_layer + 2)
-	{
-	  if (PCB->Data->Layer[number].On == False)
-	    g_message ("ChangeGroupVisibility (number, True, False)");
-	  else if ((LayerStack[0] != number) &&
-		   (GetLayerGroupNumberByNumber (number) !=
-		    GetLayerGroupNumberByNumber (LayerStack[0])))
-	    ChangeGroupVisibility (number, False, False);
-	  gui_layer_buttons_update ();
-	  ClearAndRedrawOutput ();
-	}
-    }
-}
-#endif
-
-/* ---------------------------------------------------------------------------
- * changes the current drawing-layer
- * syntax: SwitchDrawingLayer()
- */
-#ifdef FIXME
-void
-ActionSwitchDrawingLayer (char *str)
-{
-  int number;
-
-  if (str)
-    {
-      number = atoi (str) - 1;
-      if (number >= 0 && number < max_layer + 2)
-	{
-	  ChangeGroupVisibility (number, True, True);
-	  gui_layer_buttons_update ();
-	  ClearAndRedrawOutput ();
-	}
-    }
-}
-#endif
 
 
 /* --------------------------------------------------------------------------- */

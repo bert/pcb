@@ -949,9 +949,7 @@ move_corner (corner_s * c, int x, int y)
 	    break;
 	  }
       }
-#ifdef FIXME
-  gdk_display_sync (gdk_drawable_get_display (Output.drawing_area->window));
-#endif
+  gui->progress (0, 0, 0);
   check (c, 0);
 }
 

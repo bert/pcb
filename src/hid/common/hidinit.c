@@ -294,9 +294,15 @@ hid_parse_command_line (int *argc, char ***argv)
 
   while (*argc && (*argv)[0][0] == '-' && (*argv)[0][1] == '-')
     {
+      int bool_val;
+      int arg_ofs;
+
+      bool_val = 1;
+      arg_ofs = 2;
+    try_no_arg:
       for (ha = hid_attr_nodes; ha; ha = ha->next)
 	for (i = 0; i < ha->n; i++)
-	  if (strcmp ((*argv)[0] + 2, ha->attributes[i].name) == 0)
+	  if (strcmp ((*argv)[0] + arg_ofs, ha->attributes[i].name) == 0)
 	    {
 	      HID_Attribute *a = ha->attributes + i;
 	      char *ep;
@@ -330,9 +336,9 @@ hid_parse_command_line (int *argc, char ***argv)
 		  break;
 		case HID_Boolean:
 		  if (a->value)
-		    *(char *) a->value = 1;
+		    *(char *) a->value = bool_val;
 		  else
-		    a->default_val.int_value = 1;
+		    a->default_val.int_value = bool_val;
 		  break;
 		case HID_Mixed:
 		  abort ();
@@ -372,6 +378,12 @@ hid_parse_command_line (int *argc, char ***argv)
 	      ha = 0;
 	      goto got_match;
 	    }
+      if (bool_val == 1 && strncmp ((*argv)[0], "--no-", 5) == 0)
+	{
+	  bool_val = 0;
+	  arg_ofs = 5;
+	  goto try_no_arg;
+	}
       fprintf (stderr, "unrecognized option: %s\n", (*argv)[0]);
       exit (1);
     got_match:;

@@ -45,6 +45,9 @@
 #include "mymem.h"
 #include "rtree.h"
 #include "strflags.h"
+#include "macro.h"
+#include "undo.h"
+#include "find.h"
 
 #ifdef HAVE_LIBDMALLOC
 #include <dmalloc.h>
@@ -133,14 +136,12 @@ ReportDialog (int argc, char **argv, int x, int y)
     {
     case VIA_TYPE:
       {
-#ifdef FIXME
 #ifndef NDEBUG
 	if (gui->shift_is_pressed ())
 	  {
 	    __r_dump_tree (PCB->Data->via_tree->root, 0);
 	    return 0;
 	  }
-#endif
 #endif
 	PinTypePtr via = (PinTypePtr) ptr2;
 	if (TEST_FLAG (HOLEFLAG, via))
@@ -170,14 +171,12 @@ ReportDialog (int argc, char **argv, int x, int y)
       }
     case PIN_TYPE:
       {
-#ifdef FIXME
 #ifndef NDEBUG
-	if (gui_shift_is_pressed ())
+	if (gui->shift_is_pressed ())
 	  {
 	    __r_dump_tree (PCB->Data->pin_tree->root, 0);
 	    return 0;
 	  }
-#endif
 #endif
 	PinTypePtr Pin = (PinTypePtr) ptr2;
 	ElementTypePtr element = (ElementTypePtr) ptr1;
@@ -215,15 +214,13 @@ ReportDialog (int argc, char **argv, int x, int y)
       }
     case LINE_TYPE:
       {
-#ifdef FIXME
 #ifndef NDEBUG
-	if (gui_shift_is_pressed ())
+	if (gui->shift_is_pressed ())
 	  {
 	    LayerTypePtr layer = (LayerTypePtr) ptr1;
 	    __r_dump_tree (layer->line_tree->root, 0);
 	    return 0;
 	  }
-#endif
 #endif
 	LineTypePtr line = (LineTypePtr) ptr2;
 	sprintf (&report[0], "LINE ID# %ld   Flags:%s\n"
@@ -246,14 +243,12 @@ ReportDialog (int argc, char **argv, int x, int y)
       }
     case RATLINE_TYPE:
       {
-#ifdef FIXME
 #ifndef NDEBUG
-	if (gui_shift_is_pressed ())
+	if (gui->shift_is_pressed ())
 	  {
 	    __r_dump_tree (PCB->Data->rat_tree->root, 0);
 	    return 0;
 	  }
-#endif
 #endif
 	RatTypePtr line = (RatTypePtr) ptr2;
 	sprintf (&report[0], "RAT-LINE ID# %ld   Flags:%s\n"
@@ -270,15 +265,13 @@ ReportDialog (int argc, char **argv, int x, int y)
       }
     case ARC_TYPE:
       {
-#ifdef FIXME
 #ifndef NDEBUG
-	if (gui_shift_is_pressed ())
+	if (gui->shift_is_pressed ())
 	  {
 	    LayerTypePtr layer = (LayerTypePtr) ptr1;
 	    __r_dump_tree (layer->arc_tree->root, 0);
 	    return 0;
 	  }
-#endif
 #endif
 	ArcTypePtr Arc = (ArcTypePtr) ptr2;
 	BoxTypePtr box = GetArcEnds (Arc);
@@ -331,14 +324,12 @@ ReportDialog (int argc, char **argv, int x, int y)
     case PAD_TYPE:
       {
 	int len, dx, dy, mgap;
-#ifdef FIXME
 #ifndef NDEBUG
-	if (gui_shift_is_pressed ())
+	if (gui->shift_is_pressed ())
 	  {
 	    __r_dump_tree (PCB->Data->pad_tree->root, 0);
 	    return 0;
 	  }
-#endif
 #endif
 	PadTypePtr Pad = (PadTypePtr) ptr2;
 	ElementTypePtr element = (ElementTypePtr) ptr1;
@@ -382,14 +373,12 @@ ReportDialog (int argc, char **argv, int x, int y)
       }
     case ELEMENT_TYPE:
       {
-#ifdef FIXME
 #ifndef NDEBUG
-	if (gui_shift_is_pressed ())
+	if (gui->shift_is_pressed ())
 	  {
 	    __r_dump_tree (PCB->Data->element_tree->root, 0);
 	    return 0;
 	  }
-#endif
 #endif
 	ElementTypePtr element = (ElementTypePtr) ptr2;
 	sprintf (&report[0], "ELEMENT ID# %ld   Flags:%s\n"
@@ -418,26 +407,22 @@ ReportDialog (int argc, char **argv, int x, int y)
 	break;
       }
     case TEXT_TYPE:
-#ifdef FIXME
 #ifndef NDEBUG
-      if (gui_shift_is_pressed ())
+      if (gui->shift_is_pressed ())
 	{
 	  LayerTypePtr layer = (LayerTypePtr) ptr1;
 	  __r_dump_tree (layer->text_tree->root, 0);
 	  return 0;
 	}
 #endif
-#endif
     case ELEMENTNAME_TYPE:
       {
-#ifdef FIXME
 #ifndef NDEBUG
-	if (gui_shift_is_pressed ())
+	if (gui->shift_is_pressed ())
 	  {
 	    __r_dump_tree (PCB->Data->name_tree[NAME_INDEX (PCB)]->root, 0);
 	    return 0;
 	  }
-#endif
 #endif
 	char laynum[32];
 	TextTypePtr text = (TextTypePtr) ptr2;
@@ -538,12 +523,115 @@ ReportFoundPins (int argc, char **argv, int x, int y)
   return 0;
 }
 
+static int
+ReportNetLength (int argc, char **argv, int x, int y)
+{
+  double length = 0;
+  char *netname = 0;
+  int found = 0;
+
+  SaveUndoSerialNumber ();
+  ResetFoundPinsViasAndPads (True);
+  RestoreUndoSerialNumber ();
+  ResetFoundLinesAndPolygons (True);
+  RestoreUndoSerialNumber ();
+  gui->get_coords ("Click on a connection", &x, &y);
+  LookupConnection (x, y, True, PCB->Grid, FOUNDFLAG);
+
+  ALLLINE_LOOP (PCB->Data);
+  {
+    if (TEST_FLAG (FOUNDFLAG, line))
+      {
+	double l;
+	int dx, dy;
+	dx = line->Point1.X - line->Point2.X;
+	dy = line->Point1.Y - line->Point2.Y;
+	l = sqrt ((double)dx*dx + (double)dy*dy);
+	length += l;
+	found = 1;
+      }
+  }
+  ENDALL_LOOP;
+
+  ALLARC_LOOP (PCB->Data);
+  {
+    if (TEST_FLAG (FOUNDFLAG, arc))
+      {
+	double l;
+	/* FIXME: we assume width==height here */
+	l = M_PI * 2*arc->Width * abs(arc->Delta)/360.0;
+	length += l;
+	found = 1;
+      }
+  }
+  ENDALL_LOOP;
+
+  if (!found)
+    {
+      gui->log ("No net under cursor.\n");
+      return 1;
+    }
+
+  ELEMENT_LOOP (PCB->Data);
+  {
+    PIN_LOOP (element);
+    {
+      if (TEST_FLAG (FOUNDFLAG, pin))
+	{
+	  int ni, nei;
+	  char *ename = element->Name[NAMEONPCB_INDEX].TextString;
+	  char *pname = pin->Number;
+	  char *n = Concat (ename, "-", pname, NULL);
+	  for (ni = 0; ni < PCB->NetlistLib.MenuN; ni++)
+	    for (nei = 0; nei < PCB->NetlistLib.Menu[ni].EntryN; nei++)
+	      {
+		if (strcmp (PCB->NetlistLib.Menu[ni].Entry[nei].ListEntry, n) == 0)
+		  {
+		    netname = PCB->NetlistLib.Menu[ni].Name + 2;
+		    goto got_net_name; /* four for loops deep */
+		  }
+	      }
+	}
+    }
+    END_LOOP;
+    PAD_LOOP (element);
+    {
+      if (TEST_FLAG (FOUNDFLAG, pad))
+	{
+	  int ni, nei;
+	  char *ename = element->Name[NAMEONPCB_INDEX].TextString;
+	  char *pname = pad->Number;
+	  char *n = Concat (ename, "-", pname, NULL);
+	  for (ni = 0; ni < PCB->NetlistLib.MenuN; ni++)
+	    for (nei = 0; nei < PCB->NetlistLib.Menu[ni].EntryN; nei++)
+	      {
+		if (strcmp (PCB->NetlistLib.Menu[ni].Entry[nei].ListEntry, n) == 0)
+		  {
+		    netname = PCB->NetlistLib.Menu[ni].Name + 2;
+		    goto got_net_name; /* four for loops deep */
+		  }
+	      }
+	}
+    }
+    END_LOOP;
+  }
+  END_LOOP;
+ got_net_name:
+
+  HideCrosshair (False);
+  if (netname)
+    gui->log ("Net %s length: %0.2f %s\n", netname, UNIT (length));
+  else
+    gui->log ("Net length: %0.2f %s\n", UNIT (length));
+  RestoreCrosshair (False);
+  return 0;
+}
 /* ---------------------------------------------------------------------------
  * reports on an object 
  * syntax: 
  */
 
-static const char report_syntax[] = "Report(Object|DrillReport|FoundPins)";
+static const char report_syntax[] = "Report(Object|DrillReport|FoundPins|NetLength)";
 
 static const char report_help[] = "Produce various report.";
 
@@ -563,6 +651,10 @@ each, will be produced.
 A report listing all pins and pads which are marked as ``found'' will
 be produced.
 
+@item NetLength
+The name and length of the net under the crosshair will be reported to
+the message log.
+
 @end table
 
 %end-doc */
@@ -581,6 +673,8 @@ Report (int argc, char **argv, int x, int y)
     return ReportDrills (argc - 1, argv + 1, x, y);
   else if (strcasecmp (argv[0], "FoundPins") == 0)
     return ReportFoundPins (argc - 1, argv + 1, x, y);
+  else if (strcasecmp (argv[0], "NetLength") == 0)
+    return ReportNetLength (argc - 1, argv + 1, x, y);
   else
     AFAIL (report);
   return 1;
