@@ -363,39 +363,12 @@ top_window_configure_event_cb (GtkWidget * widget, GdkEventConfigure * ev,
 }
 
 
-/* =========================================================================
-|  Here are the menu callbacks.  To use the "Save layout as" menu item as
-|  an example of Gtk ui_manager menu handling, here's how it would be added:
-|    1) In the XML ui_info string, add a menuitem:
-|         <menuitem action='SaveLayoutAs'/>
-|       which says that a menu item should appear as defined by the
-|       'SaveLayoutAs' action.
-|    2) So a GtkActionEntry for this must exist in one of the action arrays
-|       to be loaded into the ui_manager.  For this there is the entry:
-|          { "SaveLayoutAs", NULL, N_("Save layout as"), NULL, NULL,
-|                      G_CALLBACK(save_layout_as_cb) },
-|       which connects the menu position (via the name SaveLayoutAs) to the
-|       text to display and the callback function to call.
-|    3) And the callback function must be written.
-|
-|  Actions can be removed, modified and reloaded.  This is how the menus
-|  can be updated, for example, to display grid units appropriate when the
-|  grid units are toggle from mil<->mm.  At toggles, the relevant actions are
-|  removed, the string to display is updated, and the actions are added
-|  back in.  There are several other similar dynamic menu adjustments here.
-|
-|  Some of the callbacks that need to get a location when invoked from the
-|  menu need to work differently and not get a location when invoked via
-|  a keyboard shortcut.  That's done by checking shift or control state
-|  in the callback to determine which indicates keyboard being used.
-*/
-
-
 /*
  * This is the main menu callback function.  The callback looks as
  * the gtk action name to figure out which menuitem was chosen.  Then
  * it looks up in a table to find the pcb actions which should be
- * executed
+ * executed.  All menus go through this callback.  The tables of
+ * actions are loaded from the menu resource file at startup.
  */
 #define DEBUG_MENU_CB
 
