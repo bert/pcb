@@ -874,84 +874,7 @@ ghid_sync_with_new_layout (void)
   old_holdoff = ghidgui->toggle_holdoff;
   ghidgui->toggle_holdoff = TRUE;
 
-#ifdef DAN_FIXME
-  action =
-    gtk_action_group_get_action (ghidgui->main_actions, "ToggleDrawGrid");
-  gtk_toggle_action_set_active (GTK_TOGGLE_ACTION (action),
-				Settings.DrawGrid);
-/*	g_object_set(action, "sensitive", Settings.XXX, NULL); */
-
-  action = gtk_action_group_get_action (ghidgui->main_actions,
-					"ToggleGridUnitsMm");
-  gtk_toggle_action_set_active (GTK_TOGGLE_ACTION (action),
-				Settings.grid_units_mm);
-
-  /* Toggle actions in the menu which set a PCB flag must be set to
-     |  the new layout PCB flag states.  Transient toggle buttons which
-     |  do not set a PCB flag don't need setting here.
-   */
-  action = gtk_action_group_get_action (ghidgui->main_actions,
-					"TogglePinoutShowsNumber");
-  gtk_toggle_action_set_active (GTK_TOGGLE_ACTION (action),
-				TEST_FLAG (SHOWNUMBERFLAG, PCB));
-
-  action = gtk_action_group_get_action (ghidgui->main_actions,
-					"Toggle45degree");
-  gtk_toggle_action_set_active (GTK_TOGGLE_ACTION (action),
-				TEST_FLAG (ALLDIRECTIONFLAG, PCB));
-
-  action = gtk_action_group_get_action (ghidgui->main_actions,
-					"ToggleRubberBand");
-  gtk_toggle_action_set_active (GTK_TOGGLE_ACTION (action),
-				TEST_FLAG (RUBBERBANDFLAG, PCB));
-
-  action = gtk_action_group_get_action (ghidgui->main_actions,
-					"ToggleStartDirection");
-  gtk_toggle_action_set_active (GTK_TOGGLE_ACTION (action),
-				TEST_FLAG (SWAPSTARTDIRFLAG, PCB));
-
-  action = gtk_action_group_get_action (ghidgui->main_actions,
-					"ToggleUniqueNames");
-  gtk_toggle_action_set_active (GTK_TOGGLE_ACTION (action),
-				TEST_FLAG (UNIQUENAMEFLAG, PCB));
-
-  action = gtk_action_group_get_action (ghidgui->main_actions,
-					"ToggleSnapPin");
-  gtk_toggle_action_set_active (GTK_TOGGLE_ACTION (action),
-				TEST_FLAG (SNAPPINFLAG, PCB));
-
-  action = gtk_action_group_get_action (ghidgui->main_actions,
-					"ToggleClearLine");
-  gtk_toggle_action_set_active (GTK_TOGGLE_ACTION (action),
-				TEST_FLAG (CLEARNEWFLAG, PCB));
-
-  action = gtk_action_group_get_action (ghidgui->main_actions,
-					"ToggleOrthogonalMoves");
-  gtk_toggle_action_set_active (GTK_TOGGLE_ACTION (action),
-				TEST_FLAG (ORTHOMOVEFLAG, PCB));
-
-  action = gtk_action_group_get_action (ghidgui->main_actions,
-					"ToggleLiveRoute");
-  gtk_toggle_action_set_active (GTK_TOGGLE_ACTION (action),
-				TEST_FLAG (LIVEROUTEFLAG, PCB));
-
-  action = gtk_action_group_get_action (ghidgui->main_actions,
-					"ToggleShowDRC");
-  gtk_toggle_action_set_active (GTK_TOGGLE_ACTION (action),
-				TEST_FLAG (SHOWDRCFLAG, PCB));
-
-  action = gtk_action_group_get_action (ghidgui->main_actions,
-					"ToggleAutoDrC");
-  gtk_toggle_action_set_active (GTK_TOGGLE_ACTION (action),
-				TEST_FLAG (AUTODRCFLAG, PCB));
-
-  /* Not sure if I can set a radio button without loading actions, so
-     |  load the actions.
-   */
-  ghid_grid_setting_update_menu_actions ();
-  update_displayed_name_actions ();
-
-#endif
+  /* FIXME - need toggle_holdoff?  Need other calls to sync here? */
 
   ghidgui->toggle_holdoff = old_holdoff;
 
@@ -1053,12 +976,19 @@ static void
 make_menu_actions (GtkActionGroup * actions, GHidPort * port)
 {
   gtk_action_group_add_actions (actions, new_entries, menuitem_cnt, port);
-  gtk_action_group_add_toggle_actions (actions, new_toggle_entries, tmenuitem_cnt, port);
+  gtk_action_group_add_toggle_actions (actions, new_toggle_entries,
+				       tmenuitem_cnt, port);
 
   ghid_make_programmed_menu_actions ();
-  gtk_action_group_add_toggle_actions (actions, layerpick_toggle_entries, N_LAYER_BUTTONS, port);
-  gtk_action_group_add_toggle_actions (actions, layerview_toggle_entries, N_LAYER_BUTTONS, port);
-  gtk_action_group_add_toggle_actions (actions, routestyle_toggle_entries, N_ROUTE_STYLES, port);
+  gtk_action_group_add_toggle_actions (actions, 
+				       layerpick_toggle_entries, 
+				       N_LAYER_BUTTONS, port);
+  gtk_action_group_add_toggle_actions (actions,
+				       layerview_toggle_entries,
+				       N_LAYER_BUTTONS, port);
+  gtk_action_group_add_toggle_actions (actions,
+				       routestyle_toggle_entries,
+				       N_ROUTE_STYLES, port);
 
   /* Handle menu actions with dynamic content.
    */
@@ -1878,6 +1808,8 @@ static gint route_style_index;
 static GtkWidget *route_style_edit_button;
 
 
+/* FIXME -- need to make an action that this calls so we can get there
+   via the menu like in the lesstif HID */
 static void
 route_style_edit_cb (GtkWidget * widget, GHidPort * port)
 {
@@ -1888,6 +1820,10 @@ route_style_edit_cb (GtkWidget * widget, GHidPort * port)
   ghid_route_style_dialog (route_style_index, rst);
 }
 
+/* FIXME -- need to wrap most of this into an action so we can
+ * easily get there via the menus.  Or maybe just make the menu
+ * callback for the route styles call this.
+ */
 static void
 route_style_select_button_cb (GtkToggleButton * button, gpointer data)
 {
