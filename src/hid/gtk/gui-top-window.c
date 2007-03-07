@@ -115,6 +115,48 @@ TODO:
 
 RCSID ("$Id$");
 
+/* ---------------------------------------------------------------------------
+ * local types
+ */
+
+/* Used by the menuitems that are toggle actions */
+typedef struct
+{
+  const char *actionname;
+  const char *flagname;
+  int oldval;
+  char *xres;
+} ToggleFlagType;
+
+/* Used by the route style buttons and menu */
+typedef struct
+{
+  GtkWidget *button;
+  RouteStyleType route_style;
+  gboolean shown;		/* For temp buttons */
+}
+RouteStyleButton;
+
+/* Used by the layer buttons */
+typedef struct
+{
+  GtkWidget *radio_select_button,
+    *layer_enable_button, *layer_enable_ebox, *label;
+  gchar *text;
+  gint index;
+}
+LayerButtonSet;
+
+
+/* ---------------------------------------------------------------------------
+ * local macros
+ */
+
+/* ---------------------------------------------------------------------------
+ * local prototypes
+ */
+
+
 #define N_ROUTE_STYLES (NUM_STYLES + 3)
 
 static void ghid_load_menus (void);
@@ -153,17 +195,27 @@ static Resource *routestyle_resources[N_ROUTE_STYLES];
 #define LAYERVIEW "LayerView"
 #define ROUTESTYLE "RouteStyle"
 
-typedef struct
-{
-  const char *actionname;
-  const char *flagname;
-  int oldval;
-  char *xres;
-} ToggleFlagType;
 
 static ToggleFlagType *tflags = 0;
 static int n_tflags = 0;
 static int max_tflags = 0;
+
+  /* ------------------------------------------------------------------
+     |  Route style buttons
+   */
+
+  /* Make 3 extra route style radio buttons.  2 for the extra Temp route
+     |  styles, and the 3rd is an always invisible button selected when the
+     |  route style settings in use don't match any defined route style (the
+     |  user can hit 'l', 'v', etc keys to change the settings without selecting
+     |  a new defined style.
+   */
+
+static RouteStyleButton route_style_button[N_ROUTE_STYLES];
+static gint route_style_index;
+
+static GtkWidget *route_style_edit_button;
+
 
 static void
 note_toggle_flag (const char *actionname, char *name)
@@ -194,6 +246,7 @@ ghid_update_toggle_flags ()
 
   GtkAction *a;
   gboolean old_holdoff;
+  gboolean active;
   char tmpnm[40];
   GValue setfalse = { 0 };
   GValue settrue = { 0 };
@@ -234,13 +287,18 @@ ghid_update_toggle_flags ()
 
   for (i = 0; i < N_ROUTE_STYLES; i++)
     {
+      sprintf (tmpnm, "%s%d", ROUTESTYLE, i);
+      a = gtk_action_group_get_action (ghidgui->main_actions, tmpnm);
       if (i >= NUM_STYLES)
 	{
-	  sprintf (tmpnm, "%s%d", ROUTESTYLE, i);
-	  a = gtk_action_group_get_action (ghidgui->main_actions, tmpnm);
 	  g_object_set_property (G_OBJECT (a), "visible", &setfalse);
 	}
+
       /* Update the toggle states */
+      active = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (route_style_button[i].button));
+      printf ("ghid_update_toggle_flags():  route style %d, value is %d\n", i, active);
+      gtk_toggle_action_set_active (GTK_TOGGLE_ACTION (a), active);
+	
     }
 
   g_value_unset (&setfalse);
@@ -434,11 +492,9 @@ ghid_menu_cb (GtkAction * action, GHidPort * port)
   else if ( strncmp (name, ROUTESTYLE, strlen (ROUTESTYLE)) == 0)
     {
       id = atoi (name + strlen (ROUTESTYLE));
-
-      if (ghidgui->toggle_holdoff == TRUE) 
-	node = NULL;
-      else
-	node = routestyle_resources[id];
+      if (ghidgui->toggle_holdoff != TRUE) 
+	ghid_route_style_button_set_active (id);
+      node = NULL;
     }
   else
     {
@@ -1161,15 +1217,6 @@ make_cursor_position_labels (GtkWidget * hbox, GHidPort * port)
   /* ------------------------------------------------------------------
      |  Handle the layer buttons.
    */
-typedef struct
-{
-  GtkWidget *radio_select_button,
-    *layer_enable_button, *layer_enable_ebox, *label;
-  gchar *text;
-  gint index;
-}
-LayerButtonSet;
-
 static LayerButtonSet layer_buttons[N_LAYER_BUTTONS];
 
 static gint layer_select_button_index;
@@ -1783,29 +1830,6 @@ ghid_layer_buttons_update (void)
     }
 }
 
-
-  /* ------------------------------------------------------------------
-     |  Route style buttons
-   */
-typedef struct
-{
-  GtkWidget *button;
-  RouteStyleType route_style;
-  gboolean shown;		/* For temp buttons */
-}
-RouteStyleButton;
-
-  /* Make 3 extra route style radio buttons.  2 for the extra Temp route
-     |  styles, and the 3rd is an always invisible button selected when the
-     |  route style settings in use don't match any defined route style (the
-     |  user can hit 'l', 'v', etc keys to change the settings without selecting
-     |  a new defined style.
-   */
-
-static RouteStyleButton route_style_button[N_ROUTE_STYLES];
-static gint route_style_index;
-
-static GtkWidget *route_style_edit_button;
 
 
 /* FIXME -- need to make an action that this calls so we can get there
