@@ -1512,7 +1512,13 @@ ghid_make_programmed_menu_actions ()
 	  sprintf (av, "SelectLayer(Rats) LayersChanged()");
 	  break;
 	default:
-	  sprintf (av, "SelectLayer(%d) LayersChanged()", i + 1);
+	  if (i <= 8)
+	    sprintf (av, "SelectLayer(%d) LayersChanged() a={\"%d\" \"<Key>%d\"}",
+		     i + 1, i + 1, i + 1);
+	  else
+	    sprintf (av, "SelectLayer(%d) LayersChanged()",
+		     i + 1);
+	    
 	  break;
 	}
       resource_add_val (ar, 0, strdup (av), 0);

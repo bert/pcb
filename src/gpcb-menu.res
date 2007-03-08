@@ -3,7 +3,7 @@
 # Note - parameters are sensitive to extra spaces around the commas
 
 #
-# NOTE:  I haven't figured out what to do with this
+# NOTE:  I have not figured out what to do with this
 # section yet so no need to try and make any fixes to it
 #
 
@@ -24,12 +24,11 @@ Mouse =
   }
   Up = Zoom(0.8)
   Down = Zoom(1.25)
+# If you want zoom to center, do this instead.
+#Up = { {Zoom(0.8) Center()} }
+#Down = { {Zoom(1.25) Center()} }
 }
 
-#
-# This section needs to be updated to match pcb-20070208's GTK-HID menu layout
-# and also the actions associated with each menu choice.  The goal will be
-# for the default behaviour to not change when we switch to user menus
 MainMenu =
 {
 
@@ -49,8 +48,7 @@ MainMenu =
    {"Load netlist file" Load(Netlist)}
    {"Load vendor resource file" LoadVendor()}
    -
-   {Save
-     {"Save connection data of..." foreground=grey50 sensitive=false}
+   {"Save connection data of"
      {" a single element" GetXY(press a button at the element location) Save(ElementConnections)}
      {" all elements" Save(AllConnections)}
      {" unused pins" Save(AllUnusedPins)}
@@ -58,6 +56,7 @@ MainMenu =
    -
    {"Print layout..." Print()}
    {"Export layout..." Export()}
+   {"Calibrate Printer..." PrintCalibrate()}
    -
    {"Start new layout" New()}
    -
@@ -77,20 +76,19 @@ MainMenu =
    -
    {"Cut selection to buffer" GetXY(Press a button at the reference location)
     PasteBuffer(Clear) PasteBuffer(AddSelected) RemoveSelected() Mode(PasteBuffer)
-    a={"Ctrl-C" "Ctrl<Key>c"}}
+    a={"Shift-Ctrl-X" "Shift Ctrl<Key>x"}}
    {"Copy selection to buffer" GetXY(Press a button at the reference location)
     PasteBuffer(Clear) PasteBuffer(AddSelected) Mode(PasteBuffer)
     a={"Ctrl-X" "Ctrl<Key>x"}}
-   {"Paste buffer to layout" Mode(PasteBuffer) a={"F7" "<Key>F7"}}
+   {"Paste buffer to layout" Mode(PasteBuffer) }
    -
    {"Unselect all" Unselect(All) a={"Shift-Alt-A" "Shift Alt<Key>a"}}
    {"Select all" Select(All) a={"Alt-A" "Alt<Key>a"}}
    -
-   #{"Edit Names..." foreground=grey50 sensitive=false}
-   {EditNames
-     {" Change text on layout" ChangeName(Object) a={"N" "<Key>n"}}
-     {" Edit name of layout" ChangeName(Layout)}
-     {" Edit name of active layer" ChangeName(Layer)}
+   {"Edit name of"
+     {"text on layout" ChangeName(Object) a={"N" "<Key>n"}}
+     {"layout" ChangeName(Layout)}
+     {"active layer" ChangeName(Layer)}
    }
    -
    {"Move to current layer" MoveToCurrentLayer(Object) a={"M" "<Key>m"}}
@@ -102,12 +100,13 @@ MainMenu =
 # View Menu
 #
 
-  {View
-   {Grid
+  {View m=V
+   {"Enable visible grid" checked=drawgrid Display(Grid)}
+   {"Grid units"
     {"mils" checked=grid_units_mm,0 SetUnits(mil)}
     {"mms"  checked=grid_units_mm,1 SetUnits(mm)}
-    {"Display grid" checked=drawgrid Display(Grid)}
-    {"Realign grid" GetXY(Press a button at a grid point) Display(ToggleGrid)}
+   }
+   {"Grid size"
     {"No Grid" checked=gridsize,1 SetValue(Grid,1)}
     -
     {  "0.1 mil" checked=gridsize,10 SetUnits(mil) SetValue(Grid,10)}
@@ -129,22 +128,23 @@ MainMenu =
     {"Grid -0.05mm" SetValue(Grid,-0.05,mm) a={"Shift-Ctrl-G" "Shift Ctrl<Key>g"}}
     {"Grid +0.05mm" SetValue(Grid,+0.05,mm) a={"Ctrl-G" "Ctrl<Key>g"}}
    }
+   {"Realign grid" GetXY(Press a button at a grid point) Display(ToggleGrid)}
    -
    {DisplayedNameMenu
-     {"Displayed element-name..." foreground=grey50 sensitive=false}
-     {"Description" Display(Description) checked=elementname,1}
-     {"Reference Designator" Display(NameOnPCB) checked=elementname,2}
+    {"Description" Display(Description) checked=elementname,1}
+    {"Reference Designator" Display(NameOnPCB) checked=elementname,2}
+    {"Value" Display(Value) checked=elementname,3}
    }
-   {"Pinout shows number" checked=shownumber Display(ToggleName)}
-   {"Open pinout menu" Display(Pinout) a={"Shift-D" "Shift<Key>d"}}
+   {"Enable Pinout shows number" checked=shownumber Display(ToggleName)}
+   {"Pins/Via show Name/Number" Display(PinOrPadName) a={"D" "<Key>d"}}
+   {"Open pinout menu" Display(Pinout) a={"Shift+D" "Shift<Key>d"}}
    -
-   {Zoom
-    {"Zoom In 2X" Zoom(-2)}
-    {"Zoom In 20%" Zoom(-1.2) m=Z a={"Z" "<Key>z"}}
-    {"Zoom Out 20%" Zoom(+1.2) m=O a={"Shift-Z" "Shift<Key>z"}}
-    {"Zoom Out 2X" Zoom(+2)}
+   {"Zoom In 20%" Zoom(-1.2) m=Z a={"Z" "<Key>z"}}
+   {"Zoom Out 20%" Zoom(+1.2) m=O a={"Shift-Z" "Shift<Key>z"}}
+   {"More zooms and view changes"
     {"Zoom Max" Zoom() m=M a={"V" "<Key>v"}}
-    -
+    {"Zoom In 2X" Zoom(-2)}
+    {"Zoom Out 2X" Zoom(+2)}
     {"Zoom to 0.1mil/px" Zoom(=10)}
     {"Zoom to 0.01mm/px" Zoom(=39.37)}
     {"Zoom to 1mil/px" Zoom(=100)}
@@ -152,15 +152,14 @@ MainMenu =
     {"Zoom to 2.5mil/px" Zoom(=250)}
     {"Zoom to 0.1mm/px" Zoom(=393.7)}
     {"Zoom to 10mil/px" Zoom(=1000)}
+    {"Zoom In 20% and center" Zoom(-1.2) Center() m=Z }
+    {"Zoom Out 20% and center" Zoom(+1.2) Center() m=O }
+    {"Flip up/down" checked=flip_y SwapSides(V) a={"Tab" "<Key>Tab"}}
+    {"Flip left/right" checked=flip_x SwapSides(H) a={"Shift+Tab" "Shift<Key>Tab"}}
+    {"Spin 180°" SwapSides(R) a={"Ctrl+Tab" "Ctrl<Key>Tab"}}
+    {"Swap Sides" SwapSides() a={"Ctrl+Shift+Tab" "Ctrl Shift<Key>Tab"}}
+    {"Center cursor" Center() a={"C" "<Key>c"}}
    }
-   -
-   {"Flip up/down" checked=flip_y SwapSides(V) a={"Tab" "<Key>Tab"}}
-   {"Flip left/right" checked=flip_x SwapSides(H) a={"Shift-Tab" "Shift<Key>Tab"}}
-   {"Spin 180°" SwapSides(R) a={"Ctrl-Tab" "Ctrl<Key>Tab"}}
-   {"Swap Sides" SwapSides() a={"Ctrl-Shift-Tab" "Ctrl Shift<Key>Tab"}}
-   {"Show soldermask" checked=showmask Display(ToggleMask)}
-   -
-   {"Value" Display(Value) checked=elementname,3}
    -
    {"Shown Layers"
     @layerview
@@ -176,31 +175,11 @@ MainMenu =
     {"Move current layer down" MoveLayer(c,down)}
    }
   }
-  {Tools
-   {"None" checked=nomode,1 Mode(None)}
-   {"Via" checked=viamode,1 Mode(Via) a={"F1" "<Key>F1"}}
-   {"Line" checked=linemode,1 Mode(Line) a={"F2" "<Key>F2"}}
-   {"Arc" checked=arcmode,1 Mode(Arc) a={"F3" "<Key>F3"}}
-   {"Text" checked=textmode,1 Mode(Text) a={"F4" "<Key>F4"}}
-   {"Rectangle" checked=rectanglemode,1 Mode(Rectangle) a={"F5" "<Key>F5"}}
-   {"Polygon" checked=polygonmode,1 Mode(Polygon) a={"F6" "<Key>F6"}}
-   {"Buffer" checked=pastebuffermode,1 Mode(PasteBuffer) a={"F7" "<Key>F7"}}
-   {"Remove" checked=removemode,1 Mode(Remove) a={"F8" "<Key>F8"}}
-   {"Rotate" checked=rotatemode,1 Mode(Rotate) a={"F9" "<Key>F9"}}
-   {"Thermal" checked=thermalmode,1 Mode(Thermal) a={"F10" "<Key>F10"}}
-   {"Arrow" checked=arrowmode,1 Mode(Arrow)  a={"F11" "<Key>F11"}}
-   {"Insert Point" checked=insertpointmode,1 Mode(InsertPoint) a={"Insert" "<Key>Insert"}}
-   {"Move" checked=movemode,1 Mode(Move)}
-   {"Copy" checked=copymode,1 Mode(Copy)}
-   {"Lock" checked=lockmode,1 Mode(Lock)}
-   {"Cancel" Mode(Cancel) a={"Esc" "<Key>Escape"}}
-   -
-   {"Command" Command() a={":" "<Key>:"}}
-  }
-  {Settings
-   {"Layer groups" foreground=grey50 sensitive=false}
-   {"Edit layer groupings" EditLayerGroups()}
-   -
+
+#
+# Settings menu
+#  
+  {Settings m=S
    {"'All-direction' lines" checked=alldirection Display(Toggle45Degree) a={"." "<Key>."}}
    {"Auto swap line start angle" checked=swapstartdir Display(ToggleStartDirection)}
    {"Orthogonal moves" checked=orthomove Display(ToggleOrthoMove)}
@@ -217,62 +196,74 @@ MainMenu =
    {"Thin draw poly" checked=thindrawpoly ThindrawPoly() a={"Ctrl-Shift-P" "Ctrl Shift<Key>p"}}
    {"Check polygons" checked=checkplanes Display(ToggleCheckPlanes)}
    -
-   {"Pinout shows number" checked=shownumber Display(ToggleName)}
-   {"Pins/Via show Name/Number" Display(PinOrPadName) a={"D" "<Key>d"}}
-   {"Enable vendor drill mapping" ToggleVendor() checked=VendorMapOn}
+   {"Vendor drill mapping" ToggleVendor() checked=VendorMapOn}
   }
     
-  {Select
+#
+# Select menu
+#
+  {Select m=l
    {"Select all objects" Select(All)}
    {"Select all connected objects" Select(Connection)}
    -
    {"Unselect all objects" Unselect(All)}
    {"unselect all connected objects" Unselect(Connection)}
    -
-   {"Select by name" foreground=grey50 sensitive=false}
-   {"All objects" Select(ObjectByName) ActiveWhen(have_regex)}
-   {"Elements" Select(ElementByName) ActiveWhen(have_regex)}
-   {"Pads" Select(PadByName) ActiveWhen(have_regex)}
-   {"Pins" Select(PinByName) ActiveWhen(have_regex)}
-   {"Text Objects" Select(TextByName) ActiveWhen(have_regex)}
-   {"Vias" Select(ViaByName) ActiveWhen(have_regex)}
+   {"Select by name"
+    {"All objects" Select(ObjectByName) ActiveWhen(have_regex)}
+    {"Elements" Select(ElementByName) ActiveWhen(have_regex)}
+    {"Pads" Select(PadByName) ActiveWhen(have_regex)}
+    {"Pins" Select(PinByName) ActiveWhen(have_regex)}
+    {"Text" Select(TextByName) ActiveWhen(have_regex)}
+    {"Vias" Select(ViaByName) ActiveWhen(have_regex)}
+   }
    -
    {"Auto-place selected elements" AutoPlaceSelected() a={"Ctrl-P" "Ctrl<Key>p"}}
    {"Disperse all elements" DisperseElements(All)}
+   {"Disperse all elements" DisperseElements(Selected)}
+   -
    {"Move selected elements to other side" Flip(SelectedElements) a={"Shift-B" "Shift<Key>b"}}
-   {"Delete selected objects" RemoveSelected()}
+   {"Remove selected objects" RemoveSelected()}
    {"Convert selection to element" Select(Convert)}
    -
    {"Optimize selected rats" DeleteRats(SelectedRats) AddRats(SelectedRats)}
    {"Auto-route selected rats" AutoRoute(SelectedRats) a={"Alt-R" "Alt<Key>r"}}
    {"Rip-up selected auto-routed tracks" RipUp(Selected)}
    -
-   {"Change size of selected objects" foreground=grey50 sensitive=false}
-   {"Lines -10 mil" ChangeSize(SelectedLines,-10,mil) ChangeSize(SelectedArcs,-10,mil)}
-   {"Lines +10 mil" ChangeSize(SelectedLines,+10,mil) ChangeSize(SelectedArcs,+10,mil)}
-   {"Pads -10 mil" ChangeSize(SelectedPads,-10,mil)}
-   {"Pads +10 mil" ChangeSize(SelectedPads,+10,mil)}
-   {"Pins -10 mil" ChangeSize(SelectedPins,-10,mil)}
-   {"Pins +10 mil" ChangeSize(SelectedPins,+10,mil)}
-   {"Texts -10 mil" ChangeSize(SelectedTexts,-10,mil)}
-   {"Texts +10 mil" ChangeSize(SelectedTexts,+10,mil)}
-   {"Vias -10 mil" ChangeSize(SelectedVias,-10,mil)}
-   {"Vias +10 mil" ChangeSize(SelectedVias,+10,mil)}
+   {"Change size of selected objects"
+    {"Lines -10 mil" ChangeSize(SelectedLines,-10,mil) ChangeSize(SelectedArcs,-10,mil)}
+    {"Lines +10 mil" ChangeSize(SelectedLines,+10,mil) ChangeSize(SelectedArcs,+10,mil)}
+    {"Pads -10 mil" ChangeSize(SelectedPads,-10,mil)}
+    {"Pads +10 mil" ChangeSize(SelectedPads,+10,mil)}
+    {"Pins -10 mil" ChangeSize(SelectedPins,-10,mil)}
+    {"Pins +10 mil" ChangeSize(SelectedPins,+10,mil)}
+    {"Texts -10 mil" ChangeSize(SelectedTexts,-10,mil)}
+    {"Texts +10 mil" ChangeSize(SelectedTexts,+10,mil)}
+    {"Vias -10 mil" ChangeSize(SelectedVias,-10,mil)}
+    {"Vias +10 mil" ChangeSize(SelectedVias,+10,mil)}
+   }
    -
-   {"Change drilling hole of selected objects" foreground=grey50 sensitive=false}
-   {"Vias -10 mil" ChangeDrillSize(SelectedVias,-10,mil)}
-   {"Vias +10 mil" ChangeDrillSize(SelectedVias,+10,mil)}
-   {"Pins -10 mil" ChangeDrillSize(SelectedPins,-10,mil)}
-   {"Pins +10 mil" ChangeDrillSize(SelectedPins,+10,mil)}
+   {"Change drilling hole of selected objects"
+    {"Vias -10 mil" ChangeDrillSize(SelectedVias,-10,mil)}
+    {"Vias +10 mil" ChangeDrillSize(SelectedVias,+10,mil)}
+    {"Pins -10 mil" ChangeDrillSize(SelectedPins,-10,mil)}
+    {"Pins +10 mil" ChangeDrillSize(SelectedPins,+10,mil)}
+   }
    -
-   {"Change square-flag of selected objects" foreground=grey50 sensitive=false}
-   {"Elements" ChangeSquare(SelectedElements)}
-   {"Pins" ChangeSquare(SelectedPins)}
+   {"Change square-flag of selected objects"
+    {"Elements" ChangeSquare(SelectedElements)}
+    {"Pins" ChangeSquare(SelectedPins)}
+   }
   }
-    
-  {Buffer
+
+#
+# Buffer menu
+#
+  {Buffer m=B
    {"Copy selection to buffer" GetXY(Press a button at the element location)
-    PasteBuffer(Clear) PasteBuffer(AddSelected) Mode(PasteBuffer)}
+    PasteBuffer(Clear) PasteBuffer(AddSelected) Unselect(All) Mode(PasteBuffer)
+    a={"Ctrl-C" "Ctrl<Key>c"}
+   }
    {"Cut selection to buffer" GetXY(Press a button at the element location)
     PasteBuffer(Clear) PasteBuffer(AddSelected) RemoveSelected() Mode(PasteBuffer)}
    {"Paste buffer to layout" Mode(PasteBuffer)}
@@ -297,38 +288,47 @@ MainMenu =
    {"#5" CheckWhen(buffer,5) PasteBuffer(5) a={"Shift-5" "Shift<Key>5"}}
   }
     
-  {Connects
+#
+# Connects menu
+#
+  {Connects m=C
    {"Lookup connection to object" GetXY(Select the object) Connection(Find) a={"Ctrl-F" "Ctrl<Key>f"}}
    {"Reset scanned pads/pins/vias" Connection(ResetPinsViasAndPads) Display(Redraw)}
    {"Reset scanned lines/polygons" Connection(ResetLinesAndPolygons) Display(Redraw)}
    {"Reset all connections" Connection(Reset) Display(Redraw) a={"Shift-F" "Shift<Key>f"}}
    -
-   {"Optimize rats-nest" Atomic(Save) DeleteRats(AllRats)
+   {"Optimize rats nest" Atomic(Save) DeleteRats(AllRats)
     Atomic(Restore) AddRats(AllRats) Atomic(Block) a={"O" "<Key>o"}}
-   {"Erase rats-nest" DeleteRats(AllRats) a={"E" "<Key>e"}}
+   {"Erase rats nest" DeleteRats(AllRats) a={"E" "<Key>e"}}
    {"Erase selected rats" DeleteRats(SelectedRats) a={"Shift-E" "Shift<Key>e"}}
    -
    {"Auto-route selected rats" AutoRoute(Selected)}
    {"Auto-route all rats" AutoRoute(AllRats)}
    {"Rip up all auto-routed tracks" RipUp(All)}
    -
-   {"Auto-Optimize" djopt(auto)  a={"Shift-=" "Shift<Key>="}}
-   {"Debumpify" djopt(debumpify) }
-   {"Unjaggy" djopt(unjaggy) }
-   {"Vianudge" djopt(vianudge) }
-   {"Viatrim" djopt(viatrim) }
-   {"Orthopull" djopt(orthopull) }
-   {"SimpleOpts" djopt(simple)  a={"=" "<Key>="}}
-   {"Miter" djopt(miter) }
-   {"Puller" a={"Y" "<Key>y"} Puller() }
-   {"Only autorouted nets" OptAutoOnly() checked=optautoonly}
+   {"Optimize routed tracks"
+    {"Auto-Optimize" djopt(auto)  a={"Shift-=" "Shift<Key>="}}
+    {"Debumpify" djopt(debumpify) }
+    {"Unjaggy" djopt(unjaggy) }
+    {"Vianudge" djopt(vianudge) }
+    {"Viatrim" djopt(viatrim) }
+    {"Ortho pull" djopt(orthopull) }
+    {"Simple optimization" djopt(simple)  a={"=" "<Key>="}}
+    {"Miter" djopt(miter) }
+    {"Puller" a={"Y" "<Key>y"} Puller() }
+    -
+    {"Only autorouted nets" OptAutoOnly() checked=optautoonly}
+   }
    -
    {"Design Rule Checker" DRC()}
    -
    {"Apply vendor drill mapping" ApplyVendor()}
   }
     
-  {Info
+#
+# Info Menu
+#
+  {Info m=I
    {"Generate object report" ReportObject() a={"Ctrl-R" "Ctrl<Key>r"}}
    {"Generate drill summary" Report(DrillReport)}
    {"Report found pins/pads" Report(FoundPins)}
@@ -404,7 +404,7 @@ MainMenu =
     {"ChangeOctagon Object" a={"Ctrl-O" "Ctrl<Key>o"} ChangeOctagon(Object)}
     {"Polygon PreviousPoint" a={"P" "<Key>p"} Polygon(PreviousPoint)}
     {"Polygon Close" a={"Shift-P" "Shift<Key>p"} Polygon(Close)}
-    {"ChangeSquare Object" a={"Q" "<Key>q"} ChangeSquare(Object)}
+    {"ChangeSquare Object" a={"Q" "<Key>q"} ChangeSquare(ToggleObject)}
     {"ChangeSize +5 mil" a={"S" "<Key>s"} ChangeSize(Object,+5,mil)}
     {"ChangeSize -5 mil" a={"Shift-S" "Shift<Key>s"} ChangeSize(Object,-5,mil)}
     {"ChangeDrill +5 mil" a={"Alt-S" "Alt<Key>s"} ChangeDrillSize(Object,+5,mil)}
@@ -417,7 +417,6 @@ MainMenu =
     {"ViaDrill -5 mil" a={"Alt-Shift-V" "Alt Shift<Key>v"} SetValue(ViaDrillingHole,-5,mil)}
     {"AddRats Selected" a={"Shift-W" "Shift<Key>w"} AddRats(SelectedRats)}
     {"Add All Rats" a={"W" "<Key>w"} AddRats(AllRats)}
-    {"Undo" a={"Alt-Z" "Alt<Key>z"} Undo()}
     {"Cycle Clip" a={"/" "<Key>/"} Display(CycleClip)}
     {"Arrow" a={"Space" "<Key>space"} Mode(Arrow) checked=arrowmode,1}
     {"Temp Arrow ON" a={"[" "<Key>["} Mode(Save) Mode(Arrow) Mode(Notify)}
@@ -425,13 +424,14 @@ MainMenu =
    }
   }
   {Window
-   {"About..." About()}
-   -
-   {"Board Layout" DoWindows(Layout)}
    {"Library" DoWindows(Library)}
    {"Message Log" DoWindows(Log)}
    {"Netlist" DoWindows(Netlist)}
+   {"Command Entry" Command() a={":" "<Key>:"}}
    {"Pinout" Display(Pinout) a={"Shift-D" "Shift<Key>d"}}
+   {"Board Layout" DoWindows(Layout)}
+   -
+   {"About..." About()}
   }
 }
 
@@ -456,19 +456,12 @@ PopupMenus =
 	Mode(PasteBuffer)
        }
        {"Convert selection to element" Select(Convert)}
-#{"BreakElement"}
        {"Auto place selected elements" AutoPlaceSelected()}
+       {"Autoroute selected elements" AutoRoute(SelectedRats)}
        {"Rip up selected auto routed tracks" RipUp(Selected)}
       }
       {"Operations on this location"
-#{"ToggleNameVisibility"}
-#{"EditName"}
        {"Generate object report" GetXY(Select the object) Report(Object)}
-#{"Rotate object counter clockwise"}
-#{"Rotate object clockwise"}
-#{"Send object to other side"}
-#{"Toggle thermal"}
-#{"Lookup connections"}
       }
       -
       {"Undo last operation" Undo()}
@@ -476,22 +469,22 @@ PopupMenus =
       -
       {Tools
        {"None" checked=nomode,1 Mode(None)}
-       {"Via" checked=viamode,1 Mode(Via)}
-       {"Line" checked=linemode,1 Mode(Line)}
-       {"Arc" checked=arcmode,1 Mode(Arc)}
-       {"Text" checked=textmode,1 Mode(Text)}
-       {"Rectangle" checked=rectanglemode,1 Mode(Rectangle)}
-       {"Polygon" checked=polygonmode,1 Mode(Polygon)}
-       {"Buffer" checked=pastebuffermode,1 Mode(PasteBuffer)}
-       {"Remove" checked=removemode,1 Mode(Remove)}
-       {"Rotate" checked=rotatemode,1 Mode(Rotate)}
-       {"Thermal" checked=thermalmode,1 Mode(Thermal)}
-       {"Arrow" checked=arrowmode,1 Mode(Arrow)}
-       {"Insert Point" checked=insertpointmode,1 Mode(InsertPoint)}
+       {"Via" checked=viamode,1 Mode(Via) a={"F1" "<Key>F1"}}
+       {"Line" checked=linemode,1 Mode(Line) a={"F2" "<Key>F2"}}
+       {"Arc" checked=arcmode,1 Mode(Arc) a={"F3" "<Key>F3"}}
+       {"Text" checked=textmode,1 Mode(Text) a={"F4" "<Key>F4"}}
+       {"Rectangle" checked=rectanglemode,1 Mode(Rectangle) a={"F5" "<Key>F5"}}
+       {"Polygon" checked=polygonmode,1 Mode(Polygon) a={"F6" "<Key>F6"}}
+       {"Buffer" checked=pastebuffermode,1 Mode(PasteBuffer) a={"F7" "<Key>F7"}}
+       {"Remove" checked=removemode,1 Mode(Remove) a={"F8" "<Key>F8"}}
+       {"Rotate" checked=rotatemode,1 Mode(Rotate) a={"F9" "<Key>F9"}}
+       {"Thermal" checked=thermalmode,1 Mode(Thermal) a={"F10" "<Key>F10"}}
+       {"Arrow" checked=arrowmode,1 Mode(Arrow)  a={"F11" "<Key>F11"}}
+       {"Insert Point" checked=insertpointmode,1 Mode(InsertPoint) a={"Insert" "<Key>Insert"}}
        {"Move" checked=movemode,1 Mode(Move)}
        {"Copy" checked=copymode,1 Mode(Copy)}
        {"Lock" checked=lockmode,1 Mode(Lock)}
-       {"Cancel" Mode(Cancel)}
+       {"Cancel" Mode(Cancel) a={"Esc" "<Key>Escape"}}
       }
     }
 
