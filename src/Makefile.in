@@ -120,44 +120,44 @@ binPROGRAMS_INSTALL = $(INSTALL_PROGRAM)
 PROGRAMS = $(bin_PROGRAMS)
 am__pcb_SOURCES_DIST = action.c action.h autoplace.c autoplace.h \
 	autoroute.c autoroute.h box.h buffer.c buffer.h change.c \
-	change.h command.c command.h compat.c compat.h const.h copy.c \
-	copy.h create.c create.h crosshair.c crosshair.h data.c data.h \
-	djopt.c djopt.h dolists.h draw.c draw.h drill.c drill.h \
-	error.c error.h file.c file.h find.c find.h flags.c fontmode.c \
-	global.h heap.c heap.h hid.h insert.c insert.h intersect.c \
-	intersect.h line.c line.h lrealpath.c lrealpath.h macro.h \
-	main.c mirror.c mirror.h misc.c misc.h move.c move.h mtspace.c \
-	mtspace.h mymem.c mymem.h netlist.c \
-	parse_l.h parse_l.l parse_y.h parse_y.y polygon.c polygon.h \
-	polygon1.c polyarea.h puller.c print.c print.h rats.c rats.h \
-	remove.c remove.h report.c report.h res_parse.y res_lex.l \
-	resource.h rotate.c rotate.h rtree.c rtree.h rubberband.c \
-	rubberband.h search.c search.h select.c select.h set.c set.h \
-	strflags.c strflags.h thermal.c thermal.h undo.c undo.h \
-	vector.c vector.h vendor.c vendor.h hid/common/actions.c \
-	hid/common/flags.c hid/common/hidinit.c hid/common/hidnogui.c \
-	hid/common/extents.c hid/hidint.h dbus-pcbmain.c \
-	dbus-pcbmain.h dbus.h dbus.c core_lists.h
+	change.h clip.c clip.h command.c command.h compat.c compat.h \
+	const.h copy.c copy.h create.c create.h crosshair.c \
+	crosshair.h data.c data.h djopt.c djopt.h dolists.h draw.c \
+	draw.h drill.c drill.h error.c error.h file.c file.h find.c \
+	find.h flags.c fontmode.c global.h heap.c heap.h hid.h \
+	insert.c insert.h intersect.c intersect.h line.c line.h \
+	lrealpath.c lrealpath.h macro.h main.c mirror.c mirror.h \
+	misc.c misc.h move.c move.h mtspace.c mtspace.h mymem.c \
+	mymem.h netlist.c parse_l.h parse_l.l parse_y.h parse_y.y \
+	polygon.c polygon.h polygon1.c polyarea.h puller.c print.c \
+	print.h rats.c rats.h remove.c remove.h report.c report.h \
+	res_parse.y res_lex.l resource.h rotate.c rotate.h rtree.c \
+	rtree.h rubberband.c rubberband.h search.c search.h select.c \
+	select.h set.c set.h strflags.c strflags.h thermal.c thermal.h \
+	undo.c undo.h vector.c vector.h vendor.c vendor.h \
+	hid/common/actions.c hid/common/flags.c hid/common/hidinit.c \
+	hid/common/hidnogui.c hid/common/extents.c hid/hidint.h \
+	dbus-pcbmain.c dbus-pcbmain.h dbus.h dbus.c core_lists.h
 am__objects_6 = dbus-pcbmain.$(OBJEXT) dbus.$(OBJEXT)
 @WITH_DBUS_TRUE@am__objects_7 = $(am__objects_6)
 am__objects_8 = action.$(OBJEXT) autoplace.$(OBJEXT) \
 	autoroute.$(OBJEXT) buffer.$(OBJEXT) change.$(OBJEXT) \
-	command.$(OBJEXT) compat.$(OBJEXT) copy.$(OBJEXT) \
-	create.$(OBJEXT) crosshair.$(OBJEXT) data.$(OBJEXT) \
-	djopt.$(OBJEXT) draw.$(OBJEXT) drill.$(OBJEXT) error.$(OBJEXT) \
-	file.$(OBJEXT) find.$(OBJEXT) flags.$(OBJEXT) \
+	clip.$(OBJEXT) command.$(OBJEXT) compat.$(OBJEXT) \
+	copy.$(OBJEXT) create.$(OBJEXT) crosshair.$(OBJEXT) \
+	data.$(OBJEXT) djopt.$(OBJEXT) draw.$(OBJEXT) drill.$(OBJEXT) \
+	error.$(OBJEXT) file.$(OBJEXT) find.$(OBJEXT) flags.$(OBJEXT) \
 	fontmode.$(OBJEXT) heap.$(OBJEXT) insert.$(OBJEXT) \
 	intersect.$(OBJEXT) line.$(OBJEXT) lrealpath.$(OBJEXT) \
 	main.$(OBJEXT) mirror.$(OBJEXT) misc.$(OBJEXT) move.$(OBJEXT) \
 	mtspace.$(OBJEXT) mymem.$(OBJEXT) netlist.$(OBJEXT) \
-	parse_l.$(OBJEXT) parse_y.$(OBJEXT) \
-	polygon.$(OBJEXT) polygon1.$(OBJEXT) puller.$(OBJEXT) \
-	print.$(OBJEXT) rats.$(OBJEXT) remove.$(OBJEXT) \
-	report.$(OBJEXT) res_parse.$(OBJEXT) res_lex.$(OBJEXT) \
-	rotate.$(OBJEXT) rtree.$(OBJEXT) rubberband.$(OBJEXT) \
-	search.$(OBJEXT) select.$(OBJEXT) set.$(OBJEXT) \
-	strflags.$(OBJEXT) thermal.$(OBJEXT) undo.$(OBJEXT) \
-	vector.$(OBJEXT) vendor.$(OBJEXT) hid/common/actions.$(OBJEXT) \
+	parse_l.$(OBJEXT) parse_y.$(OBJEXT) polygon.$(OBJEXT) \
+	polygon1.$(OBJEXT) puller.$(OBJEXT) print.$(OBJEXT) \
+	rats.$(OBJEXT) remove.$(OBJEXT) report.$(OBJEXT) \
+	res_parse.$(OBJEXT) res_lex.$(OBJEXT) rotate.$(OBJEXT) \
+	rtree.$(OBJEXT) rubberband.$(OBJEXT) search.$(OBJEXT) \
+	select.$(OBJEXT) set.$(OBJEXT) strflags.$(OBJEXT) \
+	thermal.$(OBJEXT) undo.$(OBJEXT) vector.$(OBJEXT) \
+	vendor.$(OBJEXT) hid/common/actions.$(OBJEXT) \
 	hid/common/flags.$(OBJEXT) hid/common/hidinit.$(OBJEXT) \
 	hid/common/hidnogui.$(OBJEXT) hid/common/extents.$(OBJEXT) \
 	$(am__objects_7)
@@ -315,6 +315,7 @@ YACC_PATH = @YACC_PATH@
 ac_ct_CC = @ac_ct_CC@
 ac_ct_RANLIB = @ac_ct_RANLIB@
 ac_ct_STRIP = @ac_ct_STRIP@
+ac_pt_PKG_CONFIG = @ac_pt_PKG_CONFIG@
 am__fastdepCC_FALSE = @am__fastdepCC_FALSE@
 am__fastdepCC_TRUE = @am__fastdepCC_TRUE@
 am__include = @am__include@
@@ -365,23 +366,23 @@ pcblib_DATA = \
 
 AM_CFLAGS = -DNDEBUG
 PCB_SRCS = action.c action.h autoplace.c autoplace.h autoroute.c \
-	autoroute.h box.h buffer.c buffer.h change.c change.h \
-	command.c command.h compat.c compat.h const.h copy.c copy.h \
-	create.c create.h crosshair.c crosshair.h data.c data.h \
+	autoroute.h box.h buffer.c buffer.h change.c change.h clip.c \
+	clip.h command.c command.h compat.c compat.h const.h copy.c \
+	copy.h create.c create.h crosshair.c crosshair.h data.c data.h \
 	djopt.c djopt.h dolists.h draw.c draw.h drill.c drill.h \
 	error.c error.h file.c file.h find.c find.h flags.c fontmode.c \
 	global.h heap.c heap.h hid.h insert.c insert.h intersect.c \
 	intersect.h line.c line.h lrealpath.c lrealpath.h macro.h \
 	main.c mirror.c mirror.h misc.c misc.h move.c move.h mtspace.c \
-	mtspace.h mymem.c mymem.h netlist.c \
-	parse_l.h parse_l.l parse_y.h parse_y.y polygon.c polygon.h \
-	polygon1.c polyarea.h puller.c print.c print.h rats.c rats.h \
-	remove.c remove.h report.c report.h res_parse.y res_lex.l \
-	resource.h rotate.c rotate.h rtree.c rtree.h rubberband.c \
-	rubberband.h search.c search.h select.c select.h set.c set.h \
-	strflags.c strflags.h thermal.c thermal.h undo.c undo.h \
-	vector.c vector.h vendor.c vendor.h hid/common/actions.c \
-	hid/common/flags.c hid/common/hidinit.c hid/common/hidnogui.c \
+	mtspace.h mymem.c mymem.h netlist.c parse_l.h parse_l.l \
+	parse_y.h parse_y.y polygon.c polygon.h polygon1.c polyarea.h \
+	puller.c print.c print.h rats.c rats.h remove.c remove.h \
+	report.c report.h res_parse.y res_lex.l resource.h rotate.c \
+	rotate.h rtree.c rtree.h rubberband.c rubberband.h search.c \
+	search.h select.c select.h set.c set.h strflags.c strflags.h \
+	thermal.c thermal.h undo.c undo.h vector.c vector.h vendor.c \
+	vendor.h hid/common/actions.c hid/common/flags.c \
+	hid/common/hidinit.c hid/common/hidnogui.c \
 	hid/common/extents.c hid/hidint.h $(am__append_1)
 pcb_SOURCES = ${PCB_SRCS} core_lists.h
 EXTRA_pcb_SOURCES = ${DBUS_SRCS}
@@ -774,6 +775,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/autoroute.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/buffer.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/change.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/clip.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/command.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/compat.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/copy.Po@am__quote@

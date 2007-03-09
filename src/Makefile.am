@@ -33,6 +33,8 @@ PCB_SRCS = \
 	buffer.h \
 	change.c \
 	change.h \
+	clip.c \
+	clip.h \
 	command.c \
 	command.h \
 	compat.c \
