@@ -578,11 +578,10 @@ DrawShortestRats (NetListTypePtr Netl, void (*funcp) ())
   Cardinal n, m, j;
   NetTypePtr next, subnet, theSubnet = NULL;
 
-  firstpoint = secondpoint = NULL;
   while (Netl->NetN > 1)
     {
+      firstpoint = secondpoint = NULL;
       subnet = &Netl->Net[0];
-      distance = 10000 * SQUARE (MAX_COORD);
       for (j = 1; j < Netl->NetN; j++)
 	{
 	  next = &Netl->Net[j];
@@ -593,7 +592,7 @@ DrawShortestRats (NetListTypePtr Netl, void (*funcp) ())
 		{
 		  conn2 = &next->Connection[m];
 		  if ((temp = SQUARE (conn1->X - conn2->X) +
-		       SQUARE (conn1->Y - conn2->Y)) < distance)
+		       SQUARE (conn1->Y - conn2->Y)) < distance || !firstpoint)
 		    {
 		      distance = temp;
 		      firstpoint = conn1;
