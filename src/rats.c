@@ -582,7 +582,7 @@ DrawShortestRats (NetListTypePtr Netl, void (*funcp) ())
   while (Netl->NetN > 1)
     {
       subnet = &Netl->Net[0];
-      distance = SQUARE (MAX_COORD);
+      distance = 10000 * SQUARE (MAX_COORD);
       for (j = 1; j < Netl->NetN; j++)
 	{
 	  next = &Netl->Net[j];
