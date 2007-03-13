@@ -22,14 +22,6 @@ MoveLayers - undo of deleting a layer with stuff on it.
 - make sure that we're compatible with the lesstif hid as far as being able to 
   load the same menu resource file if we want
 
-- implement the @routestyles menu
-
-- move all key press events out of gui-output-events and run them through the
-  menu actions.  Then create a "hotkey" menu for all of the things which 
-  have/need hotkeys but are not normally menu items.  This provides a
-  convenient key reference.  I suppose I could make that invisible if
-  people don't like seeing it.
-
 - compare performace before and after over a slow link or on a slow computer.
 
 - make the ui append code more printf()-like.  It will simplify the code
@@ -37,6 +29,13 @@ MoveLayers - undo of deleting a layer with stuff on it.
 
 - look for code duplication in hid/gtk/gui-top-window.c, especially related to
   layers and tools.  Don't duplicate code if at all possible.
+
+Known issues:
+
+- Mouse section in the resource file is ignored.  I need to learn about how the mouse buttons are handled in the gtk HID currently so I can hook up that section.
+
+- A fair amount of now obsolete code still exists in gui-top-window.c.  I need to do some major house keeping.
+
 
 [existing before user controlled menus]
 
