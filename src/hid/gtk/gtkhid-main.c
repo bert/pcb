@@ -1599,6 +1599,68 @@ Benchmark (int argc, char **argv, int x, int y)
 }
 
 /* ------------------------------------------------------------ */
+
+static const char dowindows_syntax[] =
+"DoWindows(1|2|3|4)\n"
+"DoWindows(Layout|Library|Log|Netlist)";
+
+static const char dowindows_help[] =
+"Open various GUI windows.";
+
+/* %start-doc actions DoWindows
+
+@table @code
+
+@item 1
+@itemx Layout
+Open the layout window.  Since the layout window is always shown
+anyway, this has no effect.
+
+@item 2
+@itemx Library
+Open the library window.
+
+@item 3
+@itemx Log
+Open the log window.
+
+@item 4
+@itemx Netlist
+Open the netlist window.
+
+@end table
+
+%end-doc */
+
+static int
+DoWindows (int argc, char **argv, int x, int y)
+{
+  char *a = argc == 1 ? argv[0] : "";
+
+  if (strcmp (a, "1") == 0 || strcasecmp (a, "Layout") == 0)
+    {
+    }
+  else if (strcmp (a, "2") == 0 || strcasecmp (a, "Library") == 0)
+    {
+      ghid_library_window_show (gport, TRUE);
+    }
+  else if (strcmp (a, "3") == 0 || strcasecmp (a, "Log") == 0)
+    {
+      ghid_log_window_show (TRUE);
+    }
+  else if (strcmp (a, "4") == 0 || strcasecmp (a, "Netlist") == 0)
+    {
+      ghid_netlist_window_show (gport, TRUE);
+    }
+  else
+    {
+      AFAIL (dowindows);
+    }
+
+  return 0;
+}
+
+/* ------------------------------------------------------------ */
 static const char about_syntax[] =
 "About()";
 
@@ -1691,6 +1753,8 @@ Busy (int argc, char **argv, int x, int y)
 HID_Action ghid_main_action_list[] = {
   {"About", 0, About,
    about_help, about_syntax},
+  {"DoWindows", 0, DoWindows,
+   dowindows_help, dowindows_syntax},
   {"Export", 0, Export},
   {"Load", 0, Load},
   {"LoadVendor", 0, LoadVendor},

@@ -421,8 +421,21 @@ MainMenu =
     {"Arrow" a={"Space" "<Key>space"} Mode(Arrow) checked=arrowmode,1}
     {"Temp Arrow ON" a={"[" "<Key>["} Mode(Save) Mode(Arrow) Mode(Notify)}
     {"Temp Arrow OFF" a={"]" "<Key>]"} Mode(Release) Mode(Restore)}
+    -
+    {"Step Up" a={"Up" "<Key>Up"} Cursor(Warp,0,1,grid)}
+    {"Step Down" a={"Down" "<Key>Down"} Cursor(Warp,0,-1,grid)}
+    {"Step Left" a={"Left" "<Key>Left"} Cursor(Warp,-1,0,grid)}
+    {"Step Right" a={"Right" "<Key>Right"} Cursor(Warp,1,0,grid)}
+    {"Step +Up" a={"Up" "Shift<Key>Up"} Cursor(Pan,0,50,view)}
+    {"Step +Down" a={"Down" "Shift<Key>Down"} Cursor(Pan,0,-50,view)}
+    {"Step +Left" a={"Left" "Shift<Key>Left"} Cursor(Pan,-50,0,view)}
+    {"Step +Right" a={"Right" "Shift<Key>Right"} Cursor(Pan,50,0,view)}
+    {'"Click"' a={"Enter" "<Key>Enter"} Mode(Notify) Mode(Release) }
    }
   }
+#
+# Window Menu
+#
   {Window
    {"Library" DoWindows(Library)}
    {"Message Log" DoWindows(Log)}
@@ -484,7 +497,7 @@ PopupMenus =
        {"Move" checked=movemode,1 Mode(Move)}
        {"Copy" checked=copymode,1 Mode(Copy)}
        {"Lock" checked=lockmode,1 Mode(Lock)}
-       {"Cancel" Mode(Cancel) a={"Esc" "<Key>Escape"}}
+       {"Cancel" Mode(Escape) a={"Esc" "<Key>Escape"}}
       }
     }
 

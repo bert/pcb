@@ -398,8 +398,6 @@ ghid_port_key_press_cb (GtkWidget * drawing_area,
   gint tmp, ksym = kev->keyval;
   gboolean handled;
 
-  printf ("ghid_port_key_press_cb():  ksym = %d.  PLEASE REPORT THIS.\n", ksym);
-
   if (ghid_is_modifier_key_sym (ksym))
     ghid_note_event_location (NULL);
 
@@ -410,113 +408,17 @@ ghid_port_key_press_cb (GtkWidget * drawing_area,
   handled = TRUE;		/* Start off assuming we handle it */
   switch (ksym)
     {
-
-      /* FIXME -- need to deal with this or at least see if it works
-	 right with usermenus */
-    case GDK_Escape:
-      switch (Settings.Mode)
-	{
-	case VIA_MODE:
-	case PASTEBUFFER_MODE:
-	case TEXT_MODE:
-	case ROTATE_MODE:
-	case REMOVE_MODE:
-	case MOVE_MODE:
-	case COPY_MODE:
-	case INSERTPOINT_MODE:
-	case RUBBERBANDMOVE_MODE:
-	case THERMAL_MODE:
-	case LOCK_MODE:
-	  hid_actionl ("Mode", "Arrow", NULL);
-	  break;
-
-	case LINE_MODE:
-	  if (Crosshair.AttachedLine.State == STATE_FIRST)
-	    hid_actionl ("Mode", "Arrow", NULL);
-	  else
-	    hid_actionl ("Mode", "Line", NULL);
-	  break;
-
-	case RECTANGLE_MODE:
-	  if (Crosshair.AttachedBox.State == STATE_FIRST)
-	    hid_actionl ("Mode", "Arrow", NULL);
-	  else
-	    hid_actionl ("Mode", "Rectangle", NULL);
-	  break;
-
-	case POLYGON_MODE:
-	  if (Crosshair.AttachedLine.State == STATE_FIRST)
-	    hid_actionl ("Mode", "Arrow", NULL);
-	  else
-	    hid_actionl ("Mode", "Polygon", NULL);
-	  break;
-
-	case ARC_MODE:
-	  if (Crosshair.AttachedBox.State == STATE_FIRST)
-	    hid_actionl ("Mode", "Arrow", NULL);
-	  else
-	    hid_actionl ("Mode", "Arc", NULL);
-	  break;
-
-	case ARROW_MODE:
-	  break;
-
-	default:
-	  gui->log ("Mode %d not handled by ESC\n", Settings.Mode);
-	  break;
-	}
-
-      break;
-
-    case GDK_Up:
-      if (mk == CONTROL_PRESSED)
-	{
-	  hid_actionl ("Display", "Scroll", "8", NULL);
-	  hid_actionl ("Display", "Scroll", "0", NULL);
-	}
-      else if (mk == SHIFT_PRESSED)
-	hid_actionl ("MovePointer", "0", "-10", NULL);
-      else if (mk == NONE_PRESSED)
-	hid_actionl ("MovePointer", "0", "-1", NULL);
-      break;
-
-    case GDK_Down:
-      if (mk == CONTROL_PRESSED)
-	{
-	  hid_actionl ("Display", "Scroll", "2", NULL);
-	  hid_actionl ("Display", "Scroll", "0", NULL);
-	}
-      else if (mk == SHIFT_PRESSED)
-	hid_actionl ("MovePointer", "0", "10", NULL);
-      else if (mk == NONE_PRESSED)
-	hid_actionl ("MovePointer", "0", "1", NULL);
-      break;
-
-    case GDK_Left:
-      if (mk == CONTROL_PRESSED)
-	{
-	  hid_actionl ("Display", "Scroll", "4", NULL);
-	  hid_actionl ("Display", "Scroll", "0", NULL);
-	}
-      else if (mk == SHIFT_PRESSED)
-	hid_actionl ("MovePointer", "-10", "0", NULL);
-      else if (mk == NONE_PRESSED)
-	hid_actionl ("MovePointer", "-1", "0", NULL);
-      break;
-
-    case GDK_Right:
-      if (mk == CONTROL_PRESSED)
-	{
-	  hid_actionl ("Display", "Scroll", "6", NULL);
-	  hid_actionl ("Display", "Scroll", "0", NULL);
-	}
-      else if (mk == SHIFT_PRESSED)
-	hid_actionl ("MovePointer", "10", "0", NULL);
-      else if (mk == NONE_PRESSED)
-	hid_actionl ("MovePointer", "1", "0", NULL);
+    case GDK_Alt_L:
+    case GDK_Alt_R:
+    case GDK_Control_L:
+    case GDK_Control_R:
+    case GDK_Shift_L:
+    case GDK_Shift_R:
+    case GDK_Shift_Lock:
       break;
 
     default:
+      gui->log ("ksym %d has not been defined\n", ksym);
       handled = FALSE;
     }
 

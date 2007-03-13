@@ -22,6 +22,8 @@
  *
  */
 
+/* #define DEBUG_MENUS */
+
 #ifdef DAN_FIXME
 TODO:
 
@@ -221,7 +223,10 @@ static void
 note_toggle_flag (const char *actionname, char *name)
 {
 
+#ifdef DEBUG_MENUS
   printf ("note_toggle_flag(\"%s\", \"%s\")\n", actionname, name);
+#endif
+
   if (n_tflags >= max_tflags)
     {
       max_tflags += 20;
@@ -240,9 +245,7 @@ note_toggle_flag (const char *actionname, char *name)
 void
 ghid_update_toggle_flags ()
 {
-  static int foo=0;
   int i;
-  int current_layer;
 
   GtkAction *a;
   gboolean old_holdoff;
@@ -296,7 +299,9 @@ ghid_update_toggle_flags ()
 
       /* Update the toggle states */
       active = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (route_style_button[i].button));
+#ifdef DEBUG_MENUS
       printf ("ghid_update_toggle_flags():  route style %d, value is %d\n", i, active);
+#endif
       gtk_toggle_action_set_active (GTK_TOGGLE_ACTION (a), active);
 	
     }
@@ -428,7 +433,6 @@ top_window_configure_event_cb (GtkWidget * widget, GdkEventConfigure * ev,
  * executed.  All menus go through this callback.  The tables of
  * actions are loaded from the menu resource file at startup.
  */
-#define DEBUG_MENU_CB
 
 static void
 ghid_menu_cb (GtkAction * action, GHidPort * port)
@@ -502,7 +506,7 @@ ghid_menu_cb (GtkAction * action, GHidPort * port)
     }
     
 
-#ifdef DEBUG_MENU_CB
+#ifdef DEBUG_MENUS
   printf ("ghid_menu_cb():  name = \"%s\", id = %d\n", name, id);
 #endif
 
@@ -511,14 +515,14 @@ ghid_menu_cb (GtkAction * action, GHidPort * port)
       for (vi = 1; vi < node->c; vi++)
 	if (resource_type (node->v[vi]) == 10)
 	  {
-#ifdef DEBUG_MENU_CB
+#ifdef DEBUG_MENUS
 	    printf ("    %s\n", node->v[vi].value);
 #endif
 	    hid_parse_actions (node->v[vi].value, NULL);
 	  }
     }
   else {
-#ifdef DEBUG_MENU_CB
+#ifdef DEBUG_MENUS
     printf ("    NOOP\n");
 #endif
   }
@@ -1025,9 +1029,174 @@ ghid_init_toggle_states (void)
   ghid_set_status_line_label ();
 }
 
+/* ---------------------------------------------------------------------------
+ *
+ * layer_process()
+ *
+ * Takes the index into the layers and produces the text string for
+ * the layer and if the layer is currently visible or not.  This is
+ * used by a couple of functions.
+ *
+ */
+static void
+layer_process (gchar **color_string, char **text, int *set, int i)
+{
+  int tmp;
+  char *tmps;
+  gchar *tmpc;
+
+  /* cheap hack to let users pass in NULL for either text or set if
+   * they don't care about the result
+   */
+   
+  if (color_string == NULL)
+    color_string = &tmpc;
+
+  if (text == NULL)
+    text = &tmps;
+
+  if (set == NULL)
+    set = &tmp;
+  
+  switch (i)
+    {
+    case LAYER_BUTTON_SILK:
+      *color_string = PCB->ElementColor;
+      *text = _( "silk");
+      *set = PCB->ElementOn;
+      break;
+    case LAYER_BUTTON_RATS:
+      *color_string = PCB->RatColor;
+      *text = _( "rat lines");
+      *set = PCB->RatOn;
+      break;
+    case LAYER_BUTTON_PINS:
+      *color_string = PCB->PinColor;
+      *text = _( "pins/pads");
+      *set = PCB->PinOn;
+      break;
+    case LAYER_BUTTON_VIAS:
+      *color_string = PCB->ViaColor;
+      *text = _( "vias");
+      *set = PCB->ViaOn;
+      break;
+    case LAYER_BUTTON_FARSIDE:
+      *color_string = PCB->InvisibleObjectsColor;
+      *text = _( "far side");
+      *set = PCB->InvisibleObjectsOn;
+      break;
+    case LAYER_BUTTON_MASK:
+      *color_string = PCB->MaskColor;
+      *text = _( "solder mask");
+      *set = TEST_FLAG (SHOWMASKFLAG, PCB);
+      break;
+    default:		/* layers */
+      *color_string = PCB->Data->Layer[i].Color;
+      *text = UNKNOWN (PCB->Data->Layer[i].Name);
+      *set = PCB->Data->Layer[i].On;
+      break;
+    }
+}
+
 /*
  * The intial loading of all actions at startup.
  */
+static void
+ghid_make_programmed_menu_actions ()
+{
+  int i;
+  gchar * text;
+  
+  Resource *ar;
+  char av[30];
+
+  for (i = 0; i < N_LAYER_BUTTONS; i++)
+    {
+      layer_process (NULL, &text, NULL, i);
+#ifdef DEBUG_MENUS
+      printf ("ghid_make_programmed_menu_actions():  Added #%2d \"%s\".  max_layer = %d, MAX_LAYER = %d\n", i, text, max_layer, MAX_LAYER);
+#endif
+      /* name, stock_id, label, accelerator, tooltip, callback */
+      layerview_toggle_entries[i].name = g_strdup_printf ("%s%d", LAYERVIEW, i);
+      layerview_toggle_entries[i].stock_id = NULL;
+      layerview_toggle_entries[i].label = g_strdup (text);
+      layerview_toggle_entries[i].accelerator = NULL;
+      layerview_toggle_entries[i].tooltip = NULL;
+      layerview_toggle_entries[i].callback = G_CALLBACK (ghid_menu_cb);
+      layerview_toggle_entries[i].is_active = FALSE;
+      
+      ar = resource_create (0);
+      sprintf (av, "ToggleView(%d)", i + 1);
+      resource_add_val (ar, 0, strdup (av), 0);
+      resource_add_val (ar, 0, strdup (av), 0);
+      ar->flags |= FLAG_V;
+      layerview_resources[i] = ar;
+
+      /* name, stock_id, label, accelerator, tooltip, callback */
+      layerpick_toggle_entries[i].name = g_strdup_printf ("%s%d", LAYERPICK, i);
+      layerpick_toggle_entries[i].stock_id = NULL;
+      layerpick_toggle_entries[i].label = g_strdup (text);
+      layerpick_toggle_entries[i].accelerator = NULL;
+      layerpick_toggle_entries[i].tooltip = NULL;
+      layerpick_toggle_entries[i].callback = G_CALLBACK (ghid_menu_cb);
+      layerpick_toggle_entries[i].is_active = FALSE;
+
+      ar = resource_create (0);
+      switch (i)
+	{
+	case LAYER_BUTTON_SILK:
+	  sprintf (av, "SelectLayer(Silk) LayersChanged()");
+	  break; 
+	case LAYER_BUTTON_RATS:
+	  sprintf (av, "SelectLayer(Rats) LayersChanged()");
+	  break;
+	default:
+	  if (i <= 8)
+	    layerpick_toggle_entries[i].accelerator = 
+	      g_strdup_printf ("<Key>%d", i + 1);
+
+	  sprintf (av, "SelectLayer(%d) LayersChanged()",
+		   i + 1);
+	    
+	  break;
+	}
+      resource_add_val (ar, 0, strdup (av), 0);
+      resource_add_val (ar, 0, strdup (av), 0);
+      ar->flags |= FLAG_V;
+      layerpick_resources[i] = ar;
+    }
+
+    for (i = 0; i < N_ROUTE_STYLES; i++)
+    {
+      routestyle_toggle_entries[i].name = g_strdup_printf ("%s%d", ROUTESTYLE, i);
+      routestyle_toggle_entries[i].stock_id = NULL;
+      if (i < NUM_STYLES && PCB)
+	{
+	  routestyle_toggle_entries[i].label = g_strdup ( (PCB->RouteStyle)[i].Name);
+	}
+      else
+	{
+	  routestyle_toggle_entries[i].label = g_strdup (routestyle_toggle_entries[i].name);
+	}
+      routestyle_toggle_entries[i].accelerator = NULL;
+      routestyle_toggle_entries[i].tooltip = NULL;
+      routestyle_toggle_entries[i].callback = G_CALLBACK (ghid_menu_cb);
+      routestyle_toggle_entries[i].is_active = FALSE;
+
+      ar = resource_create (0);
+      sprintf (av, "RouteStyle(%d)", i + 1);
+      resource_add_val (ar, 0, strdup (av), 0);
+      resource_add_val (ar, 0, strdup (av), 0);
+      ar->flags |= FLAG_V;
+      routestyle_resources[i] = ar;
+
+      // FIXME
+      //sprintf (av, "current_style,%d", i + 1);
+      //note_toggle_flag (routestyle_toggle_entries[i].name, strdup (av));
+
+    }
+}
+
 static void
 make_menu_actions (GtkActionGroup * actions, GHidPort * port)
 {
@@ -1464,99 +1633,6 @@ make_layer_buttons (GtkWidget * vbox, GHidPort * port)
     }
 }
 
-static void
-ghid_make_programmed_menu_actions ()
-{
-  int i;
-  gchar * text;
-  
-  Resource *ar;
-  char av[30];
-
-  for (i = 0; i < N_LAYER_BUTTONS; i++)
-    {
-      layer_process (NULL, &text, NULL, i);
-      printf ("ghid_make_programmed_menu_actions():  Added #%2d \"%s\".  max_layer = %d, MAX_LAYER = %d\n", i, text, max_layer, MAX_LAYER);
-      /* name, stock_id, label, accelerator, tooltip, callback */
-      layerview_toggle_entries[i].name = g_strdup_printf ("%s%d", LAYERVIEW, i);
-      layerview_toggle_entries[i].stock_id = NULL;
-      layerview_toggle_entries[i].label = g_strdup (text);
-      layerview_toggle_entries[i].accelerator = NULL;
-      layerview_toggle_entries[i].tooltip = NULL;
-      layerview_toggle_entries[i].callback = G_CALLBACK (ghid_menu_cb);
-      layerview_toggle_entries[i].is_active = FALSE;
-      
-      ar = resource_create (0);
-      sprintf (av, "ToggleView(%d)", i + 1);
-      resource_add_val (ar, 0, strdup (av), 0);
-      resource_add_val (ar, 0, strdup (av), 0);
-      ar->flags |= FLAG_V;
-      layerview_resources[i] = ar;
-
-      /* name, stock_id, label, accelerator, tooltip, callback */
-      layerpick_toggle_entries[i].name = g_strdup_printf ("%s%d", LAYERPICK, i);
-      layerpick_toggle_entries[i].stock_id = NULL;
-      layerpick_toggle_entries[i].label = g_strdup (text);
-      layerpick_toggle_entries[i].accelerator = NULL;
-      layerpick_toggle_entries[i].tooltip = NULL;
-      layerpick_toggle_entries[i].callback = G_CALLBACK (ghid_menu_cb);
-      layerpick_toggle_entries[i].is_active = FALSE;
-
-      ar = resource_create (0);
-      switch (i)
-	{
-	case LAYER_BUTTON_SILK:
-	  sprintf (av, "SelectLayer(Silk) LayersChanged()");
-	  break; 
-	case LAYER_BUTTON_RATS:
-	  sprintf (av, "SelectLayer(Rats) LayersChanged()");
-	  break;
-	default:
-	  if (i <= 8)
-	    sprintf (av, "SelectLayer(%d) LayersChanged() a={\"%d\" \"<Key>%d\"}",
-		     i + 1, i + 1, i + 1);
-	  else
-	    sprintf (av, "SelectLayer(%d) LayersChanged()",
-		     i + 1);
-	    
-	  break;
-	}
-      resource_add_val (ar, 0, strdup (av), 0);
-      resource_add_val (ar, 0, strdup (av), 0);
-      ar->flags |= FLAG_V;
-      layerpick_resources[i] = ar;
-    }
-
-    for (i = 0; i < N_ROUTE_STYLES; i++)
-    {
-      routestyle_toggle_entries[i].name = g_strdup_printf ("%s%d", ROUTESTYLE, i);
-      routestyle_toggle_entries[i].stock_id = NULL;
-      if (i < NUM_STYLES && PCB)
-	{
-	  routestyle_toggle_entries[i].label = g_strdup ( (PCB->RouteStyle)[i].Name);
-	}
-      else
-	{
-	  routestyle_toggle_entries[i].label = g_strdup (routestyle_toggle_entries[i].name);
-	}
-      routestyle_toggle_entries[i].accelerator = NULL;
-      routestyle_toggle_entries[i].tooltip = NULL;
-      routestyle_toggle_entries[i].callback = G_CALLBACK (ghid_menu_cb);
-      routestyle_toggle_entries[i].is_active = FALSE;
-
-      ar = resource_create (0);
-      sprintf (av, "RouteStyle(%d)", i + 1);
-      resource_add_val (ar, 0, strdup (av), 0);
-      resource_add_val (ar, 0, strdup (av), 0);
-      ar->flags |= FLAG_V;
-      routestyle_resources[i] = ar;
-
-      // FIXME
-      //sprintf (av, "current_style,%d", i + 1);
-      //note_toggle_flag (routestyle_toggle_entries[i].name, strdup (av));
-
-    }
-}
 
   /* If new color scheme is loaded from the config or user changes a color
      |  in the preferences, make sure our layer button colors get updated.
@@ -1596,7 +1672,9 @@ ghid_layer_enable_buttons_update (void)
   gchar *s;
   gint i;
 
+#ifdef DEBUG_MENUS
   printf ("ghid_layer_enable_buttons_update()\n");
+#endif
 
   /* Update layer button labels and active state to state inside of PCB
    */
@@ -1668,75 +1746,6 @@ ghid_layer_button_select (gint layer)
      |  PCB code changes layer visibility.
    */
 
-/* ---------------------------------------------------------------------------
- *
- * layer_process()
- *
- * Takes the index into the layers and produces the text string for
- * the layer and if the layer is currently visible or not.  This is
- * used by a couple of functions.
- *
- */
-static void
-layer_process (gchar **color_string, char **text, int *set, int i)
-{
-  int tmp;
-  char *tmps;
-  gchar *tmpc;
-
-  /* cheap hack to let users pass in NULL for either text or set if
-   * they don't care about the result
-   */
-   
-  if (color_string == NULL)
-    color_string = &tmpc;
-
-  if (text == NULL)
-    text = &tmps;
-
-  if (set == NULL)
-    set = &tmp;
-  
-  switch (i)
-    {
-    case LAYER_BUTTON_SILK:
-      *color_string = PCB->ElementColor;
-      *text = _( "silk");
-      *set = PCB->ElementOn;
-      break;
-    case LAYER_BUTTON_RATS:
-      *color_string = PCB->RatColor;
-      *text = _( "rat lines");
-      *set = PCB->RatOn;
-      break;
-    case LAYER_BUTTON_PINS:
-      *color_string = PCB->PinColor;
-      *text = _( "pins/pads");
-      *set = PCB->PinOn;
-      break;
-    case LAYER_BUTTON_VIAS:
-      *color_string = PCB->ViaColor;
-      *text = _( "vias");
-      *set = PCB->ViaOn;
-      break;
-    case LAYER_BUTTON_FARSIDE:
-      *color_string = PCB->InvisibleObjectsColor;
-      *text = _( "far side");
-      *set = PCB->InvisibleObjectsOn;
-      break;
-    case LAYER_BUTTON_MASK:
-      *color_string = PCB->MaskColor;
-      *text = _( "solder mask");
-      *set = TEST_FLAG (SHOWMASKFLAG, PCB);
-      break;
-    default:		/* layers */
-      *color_string = PCB->Data->Layer[i].Color;
-      *text = UNKNOWN (PCB->Data->Layer[i].Name);
-      *set = PCB->Data->Layer[i].On;
-      break;
-    }
-}
-
 void
 ghid_layer_buttons_update (void)
 {
@@ -1758,7 +1767,9 @@ ghid_layer_buttons_update (void)
   g_value_set_boolean (&settrue, TRUE);
   g_value_init (&setlabel, G_TYPE_STRING);
 
+#ifdef DEBUG_MENUS
   printf ("ghid_layer_buttons_update()\n");
+#endif
 
   if (!ghidgui || ghidgui->creating)
     return;
@@ -2851,7 +2862,9 @@ ToggleView (int argc, char **argv, int x, int y)
   static gboolean in_toggle_view = 0;
   gboolean active;
 
+#ifdef DEBUG_MENUS
   printf ("Starting ToggleView().  in_toggle_view = %d\n", in_toggle_view);
+#endif
   if (in_toggle_view)
     {
       fprintf (stderr, "ToggleView() called on top of another ToggleView()\n"
@@ -2939,7 +2952,9 @@ SelectLayer (int argc, char **argv, int x, int y)
   else
     newl = atoi (argv[0]) - 1;
 
+#ifdef DEBUG_MENUS
   printf ("SelectLayer():  newl = %d\n", newl);
+#endif
 
   /* Now that we've figured out which radio button ought to select
    * this layer, simply hit the button and let the pre-existing code deal
@@ -3101,7 +3116,9 @@ add_resource_to_menu (char * menu, Resource * node, void * callback, int indent)
 	 */
 	if ((v = resource_value (node->v[i].subres, "m")))
 	  {
+#ifdef DEBUG_MENUS
 	    printf ("    found resource value m=\"%s\"\n", v);
+#endif
 	    m = *v;
 	  }
 	if ((r = resource_subres (node->v[i].subres, "a")))
@@ -3112,25 +3129,32 @@ add_resource_to_menu (char * menu, Resource * node, void * callback, int indent)
 	     * The first one is what's displayed in the menu and the
 	     * second actually defines the hotkey
 	     *
-	     * We have to translate
+	     * We have to translate some strings.  See
+	     * gtk+-2.10.9/gdk/keynames.txt from the gtk distribution
+	     * as well as the output from xev(1).
+	     *
+	     * Modifiers:
+	     *
 	     * "Ctrl" -> "<control>"
 	     * "Shift" -> "<shift>"
 	     * "Alt" -> "<alt>"
 	     * "<Key>" -> ""
-	     * " " -> ""
 	     *
-	     * FIXME
-	     *  What about Tab, BackSpace, Delete, Escape, F10, etc.
-	     * These all come after <Key>.  How to translate?
+	     * keys:
+	     *
+	     * " " -> ""
+	     * "Enter" -> "Return"
+	     *
 	     */
 	    char *p;
 	    int j;
 	    enum {KEY, MOD} state;
 
 	    state = MOD;
-
+#ifdef DEBUG_MENUS
 	    printf ("    accelerator a=%p.  r->v[0].value = \"%s\", r->v[1].value = \"%s\" ", 
 		    r, r->v[0].value, r->v[1].value);
+#endif
 	    p = r->v[1].value;
 	    while (*p != '\0')
 	      {
@@ -3169,27 +3193,35 @@ add_resource_to_menu (char * menu, Resource * node, void * callback, int indent)
 		    break;
 
 		  case KEY:
-		    ch[0] = *p;
-		    for (j = 0; j < n_key_table; j++)
+		    if (strncmp (p, "Enter", 5) == 0)
 		      {
-			if ( *p == key_table[j].in)
-			  {
-			    strncat (accel, key_table[j].out, sizeof (accel));
-			    j = n_key_table;
-			  }
+			strncat (accel, "Return", sizeof (accel));
+			p += 5;
 		      }
+		    else
+		      {
+			ch[0] = *p;
+			for (j = 0; j < n_key_table; j++)
+			  {
+			    if ( *p == key_table[j].in)
+			      {
+				strncat (accel, key_table[j].out, sizeof (accel));
+				j = n_key_table;
+			      }
+			  }
+			
+			if (j == n_key_table)
+			  strncat (accel, ch, sizeof (accel));
 		    
-		    if (j == n_key_table)
-		      strncat (accel, ch, sizeof (accel));
-		    
-		    p++;
-		    
+			p++;
+		      }
 		    break;
 
 		  }
 	      }
-	    
+#ifdef DEBUG_MENUS
 	    printf ("\n    translated = \"%s\"\n", accel);
+#endif
 	  }
 	v = "button";
 
@@ -3206,7 +3238,6 @@ add_resource_to_menu (char * menu, Resource * node, void * callback, int indent)
 	      break;
 	    }
 	
-	printf ("v = \"%s\"\n", v);
 	if (m == '\0')
 	  menulabel = strdup (v);
 	else
@@ -3220,7 +3251,9 @@ add_resource_to_menu (char * menu, Resource * node, void * callback, int indent)
 	    size_t l;
 
 	    l = strlen (v) + 2;
+#ifdef DEBUG_MENUS
 	    printf ("allocate %ld bytes\n", l);
+#endif
 	    if ( (menulabel = (char *) malloc ( l * sizeof (char)))
 		 == NULL)
 	      {
@@ -3247,8 +3280,9 @@ add_resource_to_menu (char * menu, Resource * node, void * callback, int indent)
 	      }
 	    *s1 = '\0';
 	  }
+#ifdef DEBUG_MENUS
 	printf ("v = \"%s\", label = \"%s\"\n", v, menulabel);
-
+#endif
 	/* if the subresource we're processing also has unnamed
 	 * subresources then this is either a menu (that goes on the
 	 * menu bar) or it is a submenu.  It isn't a menuitem.
@@ -3306,11 +3340,15 @@ add_resource_to_menu (char * menu, Resource * node, void * callback, int indent)
 		 * where the former is just a binary flag and the
 		 * latter is checking a flag against a value
 		 */
+#ifdef DEBUG_MENUS
 		printf ("Found a \"checked\" menu choice \"%s\", \"%s\"\n", v, checked);
+#endif
 		if (strchr (checked, ','))
 		  {
 		    /* we're comparing a flag against a value */
+#ifdef DEBUG_MENUS
 		    printf ("Found checked comparing a flag to a value\n");
+#endif
 		  }
 		else
 		  {
@@ -3371,7 +3409,7 @@ add_resource_to_menu (char * menu, Resource * node, void * callback, int indent)
 
 		action_resources[menuitem_cnt-1] = node->v[i].subres;
 
-#ifdef DEBUG
+#ifdef DEBUG_MENUS
 		/* Print out the actions to help with debugging */
 		{
 		  int vi;
@@ -3419,7 +3457,9 @@ add_resource_to_menu (char * menu, Resource * node, void * callback, int indent)
 		    /* log checked and active special values */
 		    if (strcmp (n, "checked") == 0)
 		      {
+#ifdef DEBUG_MENUS
 			printf ("%s is checked\n", node->v[i].subres->v[j].value);
+#endif
 			note_toggle_flag (new_toggle_entries[tmenuitem_cnt-1].name,
 			  node->v[i].subres->v[j].value);
 			break;
@@ -3465,7 +3505,7 @@ add_resource_to_menu (char * menu, Resource * node, void * callback, int indent)
 	 * or the "@foo".  
 	 * 
 	 */
-#ifdef DEBUG
+#ifdef DEBUG_MENUS
 	printf ("resource_type for node #%d is 10 (unnamed value).  value=\"%s\"\n", 
 		i, node->v[i].value);
 #endif
@@ -3687,15 +3727,16 @@ ghid_load_menus (void)
 
     ghid_ui_info_append ("</ui>\n");
 
-//#ifdef DEBUG
+#ifdef DEBUG_MENUS
       printf ("Finished loading menus.  ui_info = \n");
       printf ("%s\n", new_ui_info);
-//#endif
+#endif
 
   mr = resource_subres (r, "Mouse");
   if (!mr)
     mr = resource_subres (bir, "Mouse");
   if (mr)
-    printf ("ghid_load_menus():  Adding Mouse\n");
+    printf ("ghid_load_menus():  should process Mouse section here\n");
 
 }
+
