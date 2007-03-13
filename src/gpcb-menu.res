@@ -4,7 +4,8 @@
 
 #
 # NOTE:  I have not figured out what to do with this
-# section yet so no need to try and make any fixes to it
+# section yet.  The Mouse section is currently ignored until
+# I figure out how to handle it.
 #
 
 Mouse =
