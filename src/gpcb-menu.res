@@ -419,7 +419,7 @@ MainMenu =
     {"AddRats Selected" a={"Shift-W" "Shift<Key>w"} AddRats(SelectedRats)}
     {"Add All Rats" a={"W" "<Key>w"} AddRats(AllRats)}
     {"Cycle Clip" a={"/" "<Key>/"} Display(CycleClip)}
-    {"Arrow" a={"Space" "<Key>space"} Mode(Arrow) checked=arrowmode,1}
+    {"Arrow Mode" a={"Space" "<Key>space"} Mode(Arrow) checked=arrowmode,1}
     {"Temp Arrow ON" a={"[" "<Key>["} Mode(Save) Mode(Arrow) Mode(Notify)}
     {"Temp Arrow OFF" a={"]" "<Key>]"} Mode(Release) Mode(Restore)}
     -
