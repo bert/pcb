@@ -168,12 +168,6 @@ dm: no
 
 dm: existing bug.  confirmed.
 
-
-*  "View -> realign grid" does nothing.  This spew appears on console:
-   unknown action `GetXY'
-
-hmmm... doesn't do anything in lesstif.
-
 *  "View -> open pinout menu" does nothing.  No spew appears on console.
 
 dm:  need to select something or have crosshair over an element.
@@ -183,12 +177,11 @@ dm:  need to select something or have crosshair over an element.
 
 dm: same deal
 
-*  "View -> more zooms -> zoom to 10mil/px" does nothing.  Several of these
-   "more zooms" don't do anything.  I didn't test them all.
-
 *  "View -> more zooms -> flip up/dn and flip left/right" seem to do
    something.  However, they are check boxes, adn the check boxes don't
    check.
+
+dm:  now flip "works" but both of them do a left/right flip...
 
 *  If I do "view -> current layer -> delete current layer", the layer is
    deleted.  However, the remaining layers are re-colored.  It looks like the
@@ -198,9 +191,13 @@ dm: same deal
 
    Anyway, the layers shouldn't be recolored when I delete a layer.
 
+dm: existing bug in gtk HID only (lesstif works right)
+
 *  Again, "view -> current layer -> move current layer up/down" re-colors my
    layers.  I'd rather have the color follow the layer so that e.g. my GND
    planes remain green.
+
+dm: see above
 
 *  "Settings -> orthogonal moves" doesn't work correctly.  If I start a track,
    it will only go in an orthogonal direction, but then if I plant the track
@@ -216,24 +213,138 @@ dm: same deal
 *  "Settings -> crosshair shows DRC cvlearance" doesn't check.  No spew in
    console.
 
+dm:  bug exists in lesstif too.
 
-*  "Select -> Select all connected objects/deselect all connected objects"
-   doesn't seem to
-   do anything.  Nothing lights up if I use this menu item.  What should it do
-   anyway?  I don't see what useful function it presents....   Maybe remove it
-   from menus?
 
-*  Can't check "settings -> thin draw".  Why is this in the pull-down anyway?
-   Why wouldn't one just use the route style radio buttons?  Or does this
-   implement a different functionality?
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 
-   This spew appears in my shell window when I do this:
-   "unknown action `Thindraw'"
+*  WHile fiddling with a different setting,
+   I just noticed that trying to optimize rats only highlights pads now.  I
+   suspect this has to do with when I removed a layer.  The code which used to
+   tell the rats to light up is now telling the pads to light up, probably
+   because it is pointing to the wrong element in the layer list.
 
-*  "Settings -> thin draw poly" won't check either.  I also get this
-   spew in the shell window:
-   "unknown action `ThindrawPoly'"
+*  "Select -> move selected elements to other side" doesn't move a selected
+   element to the other side.  Rather, it asks you to click on the objects you
+   want to move.  That is, it is "verb noun" rather than "noun verb".  Bug or
+   feature?  These days, most UIs use the "noun verb" convention for one-step
+   actions like this.
 
-*  "Settings -> check polygons".  Checking this makes my component side
-   objects go away.  THe ground plane on solder side remains.  What is this
-   supposed to do anyway?
+*  "Select -> remove selected objects" is "noun verb".  This is good.
+   However, it's the same as selecting an object and hitting <delete>, right?
+   Why should it appear here.  Isn't this action under "edit" in most modern
+   UIs?
+
+*  On the same topic:  As you pointed out, hitting the <delete> key deletes
+   the object under the cursor.  This is not the expected behavior nowadays.
+   What should happen is that all selected objects (i.e. those which are lit
+   up) should be deleted.
+
+*  A general observation:  If I use the "lock" tool to lock down a component,
+   then I can't select it.  That's OK.  However, it would be nice if a dialog
+   box would pop up and tell me that the component is locked.  Right now it
+   can be very confusing if I locked a component and then forgot it was
+   locked.  I can't figure out why I can't select it......
+
+*  This is weird.  "Select -> convert selection to element" asks me to select
+   the mark.  I click in the middle of a component.  THen, depending upon luck
+   or perhaps history, PCB lights up a component *next to* the one I just
+   clicked.  And it also lights up a piece of etch in the vicinity of the
+   component I just clicked.  ???
+
+*  "Select -> optimize selected rats" -- what does this do?  Is it the same as
+   "Connects -> optimize rats nest?".  If so, then it should be removed form
+   the "select" menu.
+
+*  A general comment:  Lots of things in the "select" pull-down don't belong
+   under the heading of "select".  Rather, I'd call this menu "actions", or
+   possibly "tools".  THen, lots of the nice actions only available via the
+   command line widget can be grouped under this menu title.  As for a name, I
+   prefer "actions" 'cause that's what they are.
+
+*  "Select -> auto route" and "select -> rip up autorouted tracks"  also
+   appear under "connections".  They don't need to be under the "select" menu.
+
+
+
+*  General comment: the way the buffer works has alwyas bugged me.  When you
+   copy or cut somthing to the buffer, you get a ghost image of hte
+   footprint.  This is OK.  However, the ghost follows the cursor around while
+   you go to the menu to select the next action.  This is a PITA since the
+   view field of the design moves when you get to the top of the window while
+   reaching for the menu.  (Yes, I realize we all use
+   the hotkeys to trigger actions, but newbies don't know to do this yet.)
+
+*  "Buffer -> #1/#2/etc"  What do they do?   OK, I realize they allow you to
+   select one of five buffers to operate on.  Maybe this should be renamed
+   "Buffer -> operate on buf 1", "Buffer -> operate on buf2", etc.
+
+*  "Connects -> apply vendor drill mapping" doesn't report success of
+   failure.   In my case, I have no vendor drill file, but when I do "connects
+   -> apply vendor drill mapping" nothing happens.  I'd expect a pop-up box to
+   tell me about my error (no file).
+
+*  "Connects -> report found pins/pads" throws up box saying "the following
+   pins/pads are FOUND:" with nothing after that.
+
+
+*  On the upper right, teh box whihc holds the cursor's coordinates resizes as
+   you move the cursor around and the
+   coordinate numbers grow and shrink.  This
+   makes the text to the left of the box jump around.  It would look better if
+   the coordinate box was a fixed size, holding space for e.g. 8 digits each
+   (i.e. XXXXXX.XX).
+
+*  Next to the cursor coordinate box is another box which looks like it should
+   hold some coordinates.  However, it holds nothing.  What is it for?
+   Unimplemented feature?
+
+*  An annoyance:  Eariler, I tested the "disperse elements" menu item.  It
+   placed some components below the white drawing area, in the grey no-go
+   area.  Now I can't grab them because the cursor is prevented from moving
+   into the grey area.
+
+   IMO, the cursor should be permitted to move into the grey area.  Also you
+   should be permitted to drag components, etch, or anything else into the
+   grey area.  Yes, the grey area is outside the bounds of the board, but the
+   only things that should do is clip any graphic objects to the edge of the
+   white area when you generate Gerbers.  From teh standpoint of drawing, you
+   should have full access to the grey area.
+
+   One strong reason in favor of this is that it's quite common to put
+   unplaced components outside the board during placement stage.  You can sort
+   and segregate them out there.  Then, as
+   you place the components, you can grab them from outside the board and
+   place them where you want.  Right now, that's more of a PITA since the
+   components are initially imported all on top of one anther.  Then, if you
+   disperse them, they cover the board area where you want to eventually place
+   them.
+
+*  Finally, a general comment.  I've never been 100% happy with the top-level
+   menus in PCB.  In my opinion, I'd make them as follows:
+
+--  File
+--  Edit
+--  View
+--  Settings
+--  Actions (currently is selections, but should hold items related to acting
+    on things you have selected.)
+--  Footprints -- currently is buffer.  Should permit manipulations related to
+    editing, creating, saving, rotating, mirroring, etc. of footprints.
+    Might add other menu items related to dealing with footprints.
+--  Routing -- currently is connects, but should be renamed to reflect that its
+    primary purpose is related to things related to laying down physical
+    tracks and
+    dealing with the autorouter.  Could also include anything related to
+    changing track size or other etch manipulations.
+--  Nets -- Deals with highlighting connections, maybe toggling rats, opening
+    the nets dialog, etc.  Also, anything
+    else related to the abstract connections between circuit
+    elements. --  Info --  Window
+
+The idea is to make the menus reflect the physical things on teh board which
+the user is concerned with.  Right now the menus are more a reflection of
+PCB's internals (i.e. connections, buffer, etc.)
+
+Once the top level menus are re-named, then I'd do some re-factoring/shuffling
+of functionality into the new menus.
