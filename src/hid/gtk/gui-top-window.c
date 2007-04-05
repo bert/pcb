@@ -2972,6 +2972,16 @@ ghid_append_action (const char * name, const char *stock_id,
 		    const char *label, const char *accelerator,
 		    const char *tooltip)
 {
+
+#ifdef DEBUG_MENUS
+  printf ("ghid_append_action(\"%s\", \"%s\", \"%s\",  \"%s\", \"%s\")\n",
+	  UNKNOWN (name), 
+	  UNKNOWN (stock_id), 
+	  UNKNOWN (label), 
+	  UNKNOWN (accelerator), 
+	  UNKNOWN (tooltip));
+#endif
+
   if ( (new_entries = realloc (new_entries, 
 			       (menuitem_cnt + 1) * sizeof (GtkActionEntry))) == NULL)
     {
