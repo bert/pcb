@@ -38,12 +38,12 @@ MainMenu =
 #
 
   {File m=F
-   {"Save layout" Save(Layout)}
-   {"Save layout as..." Save(LayoutAs)}
+   {"Save layout" Save(Layout) tip="Saves current layout"}
+   {"Save layout as..." Save(LayoutAs) tip="Saves current layout into a new file"}
    -
-   {"Revert" Load(Revert,none)}
+   {"Revert" Load(Revert,none) tip="Revert to the layout stored on disk"}
    -
-   {"Load layout" Load(Layout)}
+   {"Load layout" Load(Layout) tip="Load a layout from a file"}
    {"Load element data to paste-buffer" PasteBuffer(Clear) Load(ElementTobuffer)}
    {"Load layout data to paste-buffer" PasteBuffer(Clear) Load(LayoutTobuffer)}
    {"Load netlist file" Load(Netlist)}
@@ -61,7 +61,7 @@ MainMenu =
    -
    {"Start new layout" New()}
    -
-   {"Preferences..." Preferences()}
+   {"Preferences..." DoWindows(Preferences)}
    -
    {"Quit Program" Quit() m=Q a={"Ctrl-Q" "Ctrl<Key>q"}}
   }
@@ -131,7 +131,7 @@ MainMenu =
    }
    {"Realign grid" GetXY(Press a button at a grid point) Display(ToggleGrid)}
    -
-   {DisplayedNameMenu
+   {"Displayed element name"
     {"Description" Display(Description) checked=elementname,1}
     {"Reference Designator" Display(NameOnPCB) checked=elementname,2}
     {"Value" Display(Value) checked=elementname,3}
@@ -193,8 +193,8 @@ MainMenu =
    {"Auto-zero delta measurements" checked=localref Display(ToggleLocalRef)}
    {"New lines, arcs clear polygons" checked=clearnew Display(ToggleClearLine)}
    {"Show autorouter trials" checked=liveroute Display(ToggleLiveRoute)}
-   {"Thin draw" checked=thindraw Thindraw() a={"|" "<Key>|"}}
-   {"Thin draw poly" checked=thindrawpoly ThindrawPoly() a={"Ctrl-Shift-P" "Ctrl Shift<Key>p"}}
+   {"Thin draw" checked=thindraw Display(ToggleThindraw) a={"|" "<Key>|"}}
+   {"Thin draw poly" checked=thindrawpoly Display(ToggleThindrawPoly) a={"Ctrl-Shift-P" "Ctrl Shift<Key>p"}}
    {"Check polygons" checked=checkplanes Display(ToggleCheckPlanes)}
    -
    {"Vendor drill mapping" ToggleVendor() checked=VendorMapOn}
@@ -221,7 +221,7 @@ MainMenu =
    -
    {"Auto-place selected elements" AutoPlaceSelected() a={"Ctrl-P" "Ctrl<Key>p"}}
    {"Disperse all elements" DisperseElements(All)}
-   {"Disperse all elements" DisperseElements(Selected)}
+   {"Disperse selected elements" DisperseElements(Selected)}
    -
    {"Move selected elements to other side" Flip(SelectedElements) a={"Shift-B" "Shift<Key>b"}}
    {"Remove selected objects" RemoveSelected()}

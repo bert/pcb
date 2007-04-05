@@ -49,7 +49,10 @@ TODO:
   
 #endif
 
-/* This file written by Bill Wilson for the PCB Gtk port */
+/* This file was originally written by Bill Wilson for the PCB Gtk
+ * port.  It was later heavily modified by Dan McMahill to provide
+ * user customized menus.
+*/
 
 
 /* gui-top-window.c
@@ -202,22 +205,26 @@ static ToggleFlagType *tflags = 0;
 static int n_tflags = 0;
 static int max_tflags = 0;
 
-  /* ------------------------------------------------------------------
-     |  Route style buttons
-   */
+/* ------------------------------------------------------------------
+ *  Route style buttons
+ */
 
-  /* Make 3 extra route style radio buttons.  2 for the extra Temp route
-     |  styles, and the 3rd is an always invisible button selected when the
-     |  route style settings in use don't match any defined route style (the
-     |  user can hit 'l', 'v', etc keys to change the settings without selecting
-     |  a new defined style.
-   */
+/* Make 3 extra route style radio buttons.  2 for the extra Temp route
+ * styles, and the 3rd is an always invisible button selected when the
+ * route style settings in use don't match any defined route style (the
+ * user can hit 'l', 'v', etc keys to change the settings without selecting
+ * a new defined style.
+ */
 
 static RouteStyleButton route_style_button[N_ROUTE_STYLES];
 static gint route_style_index;
 
 static GtkWidget *route_style_edit_button;
 
+
+/* ------------------------------------------------------------------
+ *  note_toggle_flag()
+ */
 
 static void
 note_toggle_flag (const char *actionname, char *name)
@@ -1201,45 +1208,24 @@ static void
 make_menu_actions (GtkActionGroup * actions, GHidPort * port)
 {
   gtk_action_group_add_actions (actions, new_entries, menuitem_cnt, port);
+
   gtk_action_group_add_toggle_actions (actions, new_toggle_entries,
 				       tmenuitem_cnt, port);
 
   ghid_make_programmed_menu_actions ();
+
   gtk_action_group_add_toggle_actions (actions, 
 				       layerpick_toggle_entries, 
 				       N_LAYER_BUTTONS, port);
+
   gtk_action_group_add_toggle_actions (actions,
 				       layerview_toggle_entries,
 				       N_LAYER_BUTTONS, port);
+
   gtk_action_group_add_toggle_actions (actions,
 				       routestyle_toggle_entries,
 				       N_ROUTE_STYLES, port);
 
-  /* Handle menu actions with dynamic content.
-   */
-#ifdef DAN_FIXME
-  ghid_change_selected_update_menu_actions ();
-  ghid_grid_setting_update_menu_actions ();
-  update_displayed_name_actions ();
-
-  gtk_action_group_add_radio_actions (actions,
-				      radio_select_current_buffer_entries,
-				      n_radio_select_current_buffer_entries,
-				      0,
-				      G_CALLBACK
-				      (radio_select_current_buffer_cb), NULL);
-
-  gtk_action_group_add_radio_actions (actions,
-				      radio_select_tool_entries,
-				      n_radio_select_tool_entries,
-				      0,
-				      G_CALLBACK (radio_select_tool_cb),
-				      NULL);
-
-  gtk_action_group_add_toggle_actions (actions,
-				       toggle_entries, n_toggle_entries,
-				       port);
-#endif
 }
 
 
@@ -1270,21 +1256,18 @@ make_top_menubar (GtkWidget * hbox, GHidPort * port)
   make_menu_actions (actions, port);
 
   gtk_ui_manager_insert_action_group (ui, actions, 0);
+
   gtk_window_add_accel_group (GTK_WINDOW (gport->top_window),
 			      gtk_ui_manager_get_accel_group (ui));
 
-  /* For user customization, we could add
-     |  gtk_menu_item_set_accel_path(), gtk_accel_map_save (), etc
-     |  But probably can't do this because of command combo box interaction.
-   */
-
-  //  if (!gtk_ui_manager_add_ui_from_string (ui, ui_info, -1, &error))
   if (!gtk_ui_manager_add_ui_from_string (ui, new_ui_info, -1, &error))
     {
       g_message ("building menus failed: %s", error->message);
       g_error_free (error);
     }
+
   gtk_ui_manager_set_add_tearoffs (ui, TRUE);
+
   gtk_container_add (GTK_CONTAINER (frame),
 		     gtk_ui_manager_get_widget (ui, "/MenuBar"));
 }
@@ -2592,11 +2575,7 @@ ghid_create_pcb_widgets (void)
     g_error_free(err);
     }
   ghid_build_pcb_top_window ();
-#ifdef DAN_FIXME
-  ghid_init_toggle_states ();
-#else
   ghid_update_toggle_flags ();
-#endif
 
   ghid_init_icons (port);
   SetMode (ARROW_MODE);
@@ -3127,7 +3106,9 @@ add_resource_to_menu (char * menu, Resource * node, void * callback, int indent)
 	     *
 	     * a={"Ctrl-Q" "Ctrl<Key>q"}
 	     * The first one is what's displayed in the menu and the
-	     * second actually defines the hotkey
+	     * second actually defines the hotkey.  Actually, the
+	     * first value is only used by the lesstif HID and is
+	     * ignored by the gtk HID.  The second value is used by both.
 	     *
 	     * We have to translate some strings.  See
 	     * gtk+-2.10.9/gdk/keynames.txt from the gtk distribution
@@ -3329,6 +3310,7 @@ add_resource_to_menu (char * menu, Resource * node, void * callback, int indent)
 	    
 	    char *checked = resource_value (node->v[i].subres, "checked");
 	    char *label = resource_value (node->v[i].subres, "sensitive");
+	    char *tip = resource_value (node->v[i].subres, "tip");
 	    if (checked)
 	      {
 		/* We have the "checked=" named value for this
@@ -3363,7 +3345,7 @@ add_resource_to_menu (char * menu, Resource * node, void * callback, int indent)
 
 		/* add to the action entries */
 		/* name, stock_id, label, accelerator, tooltip, is_active */
-		ghid_append_toggle_action (tmps, NULL, menulabel, accel, NULL, 1);
+		ghid_append_toggle_action (tmps, NULL, menulabel, accel, tip, 1);
 
 		ghid_ui_info_indent (indent);
 		ghid_ui_info_append ("<menuitem action='");
@@ -3399,7 +3381,7 @@ add_resource_to_menu (char * menu, Resource * node, void * callback, int indent)
 
 		/* add to the action entries */
 		/* name, stock_id, label, accelerator, tooltip */
-		ghid_append_action (tmps, NULL, menulabel, accel, NULL);
+		ghid_append_action (tmps, NULL, menulabel, accel, tip);
 
 		ghid_ui_info_indent (indent);
 		ghid_ui_info_append ("<menuitem action='");

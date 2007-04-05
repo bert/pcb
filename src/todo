@@ -98,3 +98,142 @@ structures; convert most internal functions to use this AnyObject type
 instead of N functions for N object types.  (Prelude to C++ objects?)
 
 Win32 and MacOS HIDs.
+
+-------------------- Punch list from sdb --------------------
+
+
+I played around with an existing design: the two-sided optical proximity
+sensor board I wrote about in Circuit Cellar.  A tarball of this project is
+available on my website.  Here are some notes
+
+*  Grab a single track and move it around.  Sometimes, PCB prevents me from
+   moving it beyond a point above and to the left of the track's original
+   starting point.   This happens regularly if I do this:
+   1.  Click on teh track.  It lights up.
+   2.  Grab the track with the left mouse button.  Then drag it with left
+       mouse button down.  The track won't move above or to the left of its
+       start point.
+   Maybe this has something to do with preventing motion to negative
+   coordinates, and PCB is looking at component-relative coordinates instead
+   of absolute board coords?
+
+dm:  there in 20070208
+
+*  Bug or feature?  I run the DRC checker.  The DRCs are written out to the
+   pcb.log file.  However, the pcb.log window does not rise to the top.
+   Rather, it remains hidden behind my main PCB window.
+
+dm:  there in 20070208
+
+*  Sometimes, after I highlight an object, I need to hit del twice to delete
+   it.
+
+dm:  del removes what the mouse is over, not whats highlighted
+
+*  "File -> revert" removes all my silk refdes text, and replaces it with the
+   component description from the element file.  It looks like this action
+   tries to put text(3) on the baord, when it should put text(2).
+
+dm:  can't reproduce on my board.  Need to investigate.  Looks like no change.
+
+*  "File -> revert" also changes many of my SMT pads from rectangular to round
+   end.
+
+dm:  can't reproduce.
+
+
+*  "Edit -> cut/copy/paste selection to buffer".  Is there any reason the key
+   bindings for these are not the standard bindings:
+   cut: <ctrl>-X
+   copy: <ctrl>-C
+   paste: <ctrl>-V
+   Yes, it may be in a .gtkrc file now, but IMO these should be the default.
+
+dm:  will switch after usermenu merge.
+
+*  We have "edit -> select/unselect all", and we have "select ->
+   select/unselect all objects".  Do we need two menu items doing the same
+   thing?  Or if they do different things, can we make the text reflect what
+   they do?
+
+dm: They are identical.  I have mixed feelings.  It is wierd to have 2.  Yet, it seems like they go under select but most programs have edit->select all....  I'll make a note, but this is the same as in the trunk right now.
+
+*  On teh subject of selections:  I like it that hitting <escape> sets the
+   mode back to "select".  Now, can hitting <escape> twice *unselect* all
+   selected objects?
+
+dm: no
+
+*  "Edit -> move selected to current layer" doesn't seem to do anything.
+
+dm: existing bug.  confirmed.
+
+
+*  "View -> realign grid" does nothing.  This spew appears on console:
+   unknown action `GetXY'
+
+hmmm... doesn't do anything in lesstif.
+
+*  "View -> open pinout menu" does nothing.  No spew appears on console.
+
+dm:  need to select something or have crosshair over an element.
+
+*  "View -> pin/via show name/number" does nothing.  No spew appears on
+   console.
+
+dm: same deal
+
+*  "View -> more zooms -> zoom to 10mil/px" does nothing.  Several of these
+   "more zooms" don't do anything.  I didn't test them all.
+
+*  "View -> more zooms -> flip up/dn and flip left/right" seem to do
+   something.  However, they are check boxes, adn the check boxes don't
+   check.
+
+*  If I do "view -> current layer -> delete current layer", the layer is
+   deleted.  However, the remaining layers are re-colored.  It looks like the
+   current layer is deleted from a list, but the colors are based upon list
+   position, so the remaining layers are re-colored if they live after teh
+   deleted layer.
+
+   Anyway, the layers shouldn't be recolored when I delete a layer.
+
+*  Again, "view -> current layer -> move current layer up/down" re-colors my
+   layers.  I'd rather have the color follow the layer so that e.g. my GND
+   planes remain green.
+
+*  "Settings -> orthogonal moves" doesn't work correctly.  If I start a track,
+   it will only go in an orthogonal direction, but then if I plant the track
+   by clicking once and try to veer off in an orthogonal direction, then the
+   track won't go orthogonal relative to my planted point.  Rather, it still
+   wants to move in an orthogonal relative to my start point.
+
+*  "Settings -> all directions lines" and "settings -> orthogonal moves"  can
+   both be selected at once.  These are incompatible settings.  I suggest these
+   drawing settings should be in an menu section with radio buttons which
+   prohibit checking more than one box at a time.
+
+*  "Settings -> crosshair shows DRC cvlearance" doesn't check.  No spew in
+   console.
+
+
+*  "Select -> Select all connected objects/deselect all connected objects"
+   doesn't seem to
+   do anything.  Nothing lights up if I use this menu item.  What should it do
+   anyway?  I don't see what useful function it presents....   Maybe remove it
+   from menus?
+
+*  Can't check "settings -> thin draw".  Why is this in the pull-down anyway?
+   Why wouldn't one just use the route style radio buttons?  Or does this
+   implement a different functionality?
+
+   This spew appears in my shell window when I do this:
+   "unknown action `Thindraw'"
+
+*  "Settings -> thin draw poly" won't check either.  I also get this
+   spew in the shell window:
+   "unknown action `ThindrawPoly'"
+
+*  "Settings -> check polygons".  Checking this makes my component side
+   objects go away.  THe ground plane on solder side remains.  What is this
+   supposed to do anyway?

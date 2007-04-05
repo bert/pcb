@@ -158,9 +158,16 @@ ghid_port_ranges_zoom (gdouble zoom)
   gdouble xtmp, ytmp;
   gint		x0, y0;
 
+  /* figure out zoom values in that would just make the width fit and
+   * that would just make the height fit
+   */
   xtmp = (gdouble) PCB->MaxWidth / gport->width;
   ytmp = (gdouble) PCB->MaxHeight / gport->height;
 
+  /* if we've tried to zoom further out than what would make the
+   * entire board fit or we passed 0, then pick a zoom that just makes
+   * the board fit.
+   */
   if ((zoom > xtmp && zoom > ytmp) || zoom == 0.0)
     zoom = (xtmp > ytmp) ? xtmp : ytmp;
 
@@ -378,15 +385,12 @@ ghid_port_key_release_cb (GtkWidget * drawing_area, GdkEventKey * kev,
   return FALSE;
 }
 
-  /* Handle user keys in the output drawing area.
-     |  Note that there are some menu shortcuts in gui-top-window.c and it's
-     |  possible there's overlap with key actions coded here and menu shortcut
-     |  actions.  If the menu handles it, we won't see the key and code here
-     |  won't be called.  I've commented the cases below, but probably have
-     |  missed some.
-     |  If a method of allowing user defined keys is implemented, it will have
-     |  to deal somehow with the menu shortcuts.
-   */
+/* Handle user keys in the output drawing area.
+ * Note that the default is for all hotkeys to be handled by the
+ * menu accelerators.
+ *
+ * Key presses not handled by the menus will show up here.
+ */
 
 gboolean
 ghid_port_key_press_cb (GtkWidget * drawing_area,
@@ -422,6 +426,9 @@ ghid_port_key_press_cb (GtkWidget * drawing_area,
       handled = FALSE;
     }
 
+  /* FIXME -- since we usually don't make it here, does this code need
+     to go somewhere else?
+  */
   HideCrosshair (TRUE);
   AdjustAttachedObjects ();
   ghid_invalidate_all ();
