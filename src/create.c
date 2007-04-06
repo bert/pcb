@@ -205,7 +205,6 @@ CreateNewPCBPost (PCBTypePtr pcb, int use_defaults)
 
   if (use_defaults)
     {
-      int i;
       if (ParseGroupString (Settings.Groups, &pcb->LayerGroups, DEF_LAYER))
 	return 1;
 

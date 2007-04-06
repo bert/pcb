@@ -472,7 +472,7 @@ PadPadIntersect (PadTypePtr p1, PadTypePtr p2)
       else
 	{
 	  /* the shortest line is between two corners */
-	  double x1, x2, y1, y2, d;
+	  double x1, x2, y1, y2;
 	  
 	  if (b2.X2 < b1.X1)
 	    {
