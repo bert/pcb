@@ -84,8 +84,9 @@
 #include "error.h"
 #include "file.h"
 #include "hid.h"
-#include "mymem.h"
 #include "misc.h"
+#include "move.h"
+#include "mymem.h"
 #include "parse_l.h"
 #include "polygon.h"
 #include "rats.h"
@@ -375,7 +376,6 @@ extern	FontTypePtr		yyFont;
 void
 PreLoadElementPCB ()
 {
-  int i;
 
   if (!yyPCB)
     return;
