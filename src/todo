@@ -193,6 +193,9 @@ dm:  now flip "works" but both of them do a left/right flip...
 
 dm: existing bug in gtk HID only (lesstif works right)
 
+actually.... lesstif doesn't recolor until you restart pcb and then it is 
+recolored.
+
 *  Again, "view -> current layer -> move current layer up/down" re-colors my
    layers.  I'd rather have the color follow the layer so that e.g. my GND
    planes remain green.
@@ -210,10 +213,6 @@ dm: see above
    drawing settings should be in an menu section with radio buttons which
    prohibit checking more than one box at a time.
 
-*  "Settings -> crosshair shows DRC cvlearance" doesn't check.  No spew in
-   console.
-
-dm:  bug exists in lesstif too.
 
 
 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
