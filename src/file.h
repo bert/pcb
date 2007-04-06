@@ -45,6 +45,8 @@ void EmergencySave (void);
 int ReadLibraryContents (void);
 int ReadNetlist (char *);
 int SaveBufferElements (char *);
+void PreLoadElementPCB (void);
+void PostLoadElementPCB (void);
 
 /* 
  * Whenever the pcb file format is modified, this version number
