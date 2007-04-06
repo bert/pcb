@@ -22,6 +22,7 @@
 #include "mymem.h"
 #include "misc.h"
 #include "resource.h"
+#include "clip.h"
 #include "error.h"
 
 #include "hid.h"
@@ -3044,27 +3045,32 @@ lesstif_set_line_cap_angle (hidGC gc, int x1, int y1, int x2, int y2)
 static void
 lesstif_draw_line (hidGC gc, int x1, int y1, int x2, int y2)
 {
+  double dx1, dy1, dx2, dy2;
   int vw = Vz (gc->width);
   if ((pinout || TEST_FLAG (THINDRAWFLAG, PCB) || TEST_FLAG(THINDRAWPOLYFLAG, PCB)) && gc->erase)
     return;
 #if 0
   printf ("draw_line %d,%d %d,%d @%d", x1, y1, x2, y2, gc->width);
 #endif
-  x1 = Vx (x1);
-  y1 = Vy (y1);
-  x2 = Vx (x2);
-  y2 = Vy (y2);
+  dx1 = Vx (x1);
+  dy1 = Vy (y1);
+  dx2 = Vx (x2);
+  dy2 = Vy (y2);
 #if 0
   printf (" = %d,%d %d,%d %s\n", x1, y1, x2, y2, gc->colorname);
 #endif
-  if (x1 < -vw && x2 < -vw)
+
+#if 1
+  if (! ClipLine (0, 0, view_width, view_height,
+		  &dx1, &dy1, &dx2, &dy2, vw))
     return;
-  if (y1 < -vw && y2 < -vw)
-    return;
-  if (x1 > view_width + vw && x2 > view_width + vw)
-    return;
-  if (y1 > view_height + vw && y2 > view_height + vw)
-    return;
+#endif
+
+  x1 = dx1;
+  y1 = dy1;
+  x2 = dx2;
+  y2 = dy2;
+
   set_gc (gc);
   if (gc->cap == Square_Cap && x1 == x2 && y1 == y2)
     {

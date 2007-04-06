@@ -37,11 +37,12 @@
 /* ---------------------------------------------------------------------------
  * prototypes
  */
-void XDrawCLine (GdkDrawable *, GdkGC *, int, int, int, int);
-void XDrawCArc (GdkDrawable *, GdkGC *, int, int, unsigned int, unsigned int,
-		int, int);
-void DrawCPolygon (GdkDrawable *, PolygonTypePtr);
-extern LocationType dxo, dyo;
-extern Boolean SwapOutput;
-extern float Local_Zoom;
+
+/* Clip X,Y to the given bounding box, plus a margin.  Returns TRUE if
+   there is something left to be drawn.  */
+Boolean ClipLine (double minx, double miny, double maxx, double maxy,
+		  double *x1, double *y1,
+		  double *x2, double *y2,
+		  double margin);
+
 #endif
