@@ -72,7 +72,7 @@ ghid_status_line_set_text (gchar * text)
 void
 ghid_cursor_position_label_set_text (gchar * text)
 {
-  ghid_label_set_markup (ghidgui->cursor_position_absolute_label, text);
+  ghid_label_set_markup (ghidgui->cursor_position_absolute_label, text);  
 }
 
 void
