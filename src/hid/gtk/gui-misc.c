@@ -18,11 +18,11 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  *
  */
 
-/* This file written by Bill Wilson for the PCB Gtk port */
+/* This file was originally written by Bill Wilson for the PCB Gtk port */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -552,33 +552,33 @@ ghid_set_status_line_label (void)
 void
 ghid_set_cursor_position_labels (void)
 {
-  gchar text[64];
+  gchar text[128];
 
   if (Marked.status)
-    {
+    {double scale, dx, dy, r, a;
+      scale = Settings.grid_units_mm ? COOR_TO_MM: 1. / 100;
+      dx = (Crosshair.X - Marked.X) * scale;
+      dy = (Marked.Y - Crosshair.Y) * scale;
+      r = sqrt( dx * dx + dy * dy);
+      a = atan2(dy, dx) * 180 / M_PI;
       if (Settings.grid_units_mm)
-	snprintf (text, sizeof (text), " %-.3f  %-.3f ",
-		  COOR_TO_MM * (Crosshair.X - Marked.X),
-		  COOR_TO_MM * (Crosshair.Y - Marked.Y));
+	snprintf (text, sizeof (text), "r %-.4f; phi %-.1f; %-.4f %-.4f",
+		  r, a, dx, dy);
 
       else
-	snprintf (text, sizeof (text), " %-li.%02d  %-li.%02d ",
-		  (Crosshair.X - Marked.X) / 100,
-		  abs (Crosshair.X - Marked.X) % 100,
-		  (Crosshair.Y - Marked.Y) / 100,
-		  abs (Crosshair.Y - Marked.Y) % 100);
+	snprintf (text, sizeof (text), "r %-.2f; phi %-.1f; %-.2f %-.2f",
+		  r, a, dx, dy);
       ghid_cursor_position_relative_label_set_text (text);
     }
   else
-    ghid_cursor_position_relative_label_set_text (" __.__  __.__ ");
+    ghid_cursor_position_relative_label_set_text ("r __.__; phi __._; __.__ __.__");
 
   if (Settings.grid_units_mm)
-    snprintf (text, sizeof (text), " %-.3f  %-.3f ",
+    snprintf (text, sizeof (text), "%-.4f %-.4f",
 	      COOR_TO_MM * Crosshair.X, COOR_TO_MM * Crosshair.Y);
   else
-    snprintf (text, sizeof (text), " %-i.%02d  %-i.%02d ",
-	      Crosshair.X / 100, abs (Crosshair.X % 100),
-	      Crosshair.Y / 100, abs (Crosshair.Y % 100));
+    snprintf (text, sizeof (text), "%-.2f %-.2f",
+	      Crosshair.X / 100.,  Crosshair.Y / 100.);
 
   ghid_cursor_position_label_set_text (text);
 }
