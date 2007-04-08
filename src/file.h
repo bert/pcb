@@ -55,7 +55,7 @@ void PostLoadElementPCB (void);
  * guidance to the user as to what the minimum version of pcb required
  * is.
  */
-#define PCB_FILE_VERSION 20061106
+#define PCB_FILE_VERSION 20070407
 
 
 #ifndef HAS_ATEXIT

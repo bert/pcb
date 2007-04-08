@@ -1907,7 +1907,10 @@ check_file_version (int ver)
   if ( ver > PCB_FILE_VERSION ) {
     Message ("ERROR:  The file you are attempting to load is in a format\n"
 	     "which is too new for this version of pcb.  To load this file\n"
-	     "you need a version of pcb which is >= %d\n", ver);
+	     "you need a version of pcb which is >= %d.  If you are\n"
+	     "using a version built from cvs sources, the source date\n"
+	     "must be >= %d.  This copy of pcb can only read files\n"
+	     "up to file version %d.\n", ver, ver, PCB_FILE_VERSION);
     return 1;
   }
   

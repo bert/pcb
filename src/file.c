@@ -483,11 +483,19 @@ WritePCBDataHeader (FILE * FP)
 {
   Cardinal group;
 
-  /* next time the file format changes, these two lines should be enabled */
-#if 0
+  /*
+   * ************************** README *******************
+   * ************************** README *******************
+   *
+   * If the file format is modified in any way, update
+   * PCB_FILE_VERSION in file.h
+   *  
+   * ************************** README *******************
+   * ************************** README *******************
+   */
+
   fprintf (FP, "\n# To read pcb files, the pcb version (or the cvs source date) must be >= the file version\n");
   fprintf (FP, "FileVersion[%i]\n", PCB_FILE_VERSION);
-#endif
 
   fputs ("\nPCB[", FP);
   PrintQuotedString (FP, EMPTY (PCB->Name));
