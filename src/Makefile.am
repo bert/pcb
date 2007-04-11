@@ -11,7 +11,7 @@ HIDLIST = @HIDLIST@
 noinst_LIBRARIES = @HIDLIBS@
 EXTRA_LIBRARIES = \
 	libgtk.a liblesstif.a libbatch.a \
-	liblpr.a libgerber.a libbom.a libpng.a libps.a
+	liblpr.a libgerber.a libbom.a libpng.a libps.a libnelma.a
 
 pcblib_DATA=	\
 	default_font \
@@ -151,6 +151,7 @@ BUILT_SOURCES = \
 	hid/lesstif/lesstif_lists.h \
 	hid/batch/batch_lists.h \
 	hid/png/png_lists.h \
+	hid/nelma/nelma_lists.h \
 	hid/ps/ps_lists.h \
 	parse_y.h \
 	pcb-menu.h \
@@ -181,6 +182,7 @@ EXTRA_DIST= \
 	$(srcdir)/hid/lesstif/hid.conf \
 	$(srcdir)/hid/lpr/hid.conf \
 	$(srcdir)/hid/png/hid.conf \
+	$(srcdir)/hid/nelma/hid.conf \
 	$(srcdir)/hid/ps/hid.conf \
 	pcb-menu.res \
 	pcbtest.sh.in \
@@ -324,6 +326,19 @@ hid/png/png_lists.h : ${LIBPNG_SRCS} Makefile
 	(for f in ${LIBPNG_SRCS} ; do cat $(srcdir)/$$f ; done) | grep "^REGISTER" > $@.tmp
 	mv $@.tmp $@
 
+libnelma_a_CPPFLAGS = -I./hid/nelma
+LIBNELMA_SRCS = \
+	dolists.h \
+	hid/hidint.h \
+	hid/nelma/nelma.c \
+	hid/nelma/nelma.h 
+libnelma_a_SOURCES = ${LIBNELMA_SRCS} hid/nelma/nelma_lists.h
+
+hid/nelma/nelma_lists.h : ${LIBNELMA_SRCS} Makefile
+	true > $@
+	(for f in ${LIBNELMA_SRCS} ; do cat $(srcdir)/$$f ; done) | grep "^REGISTER" > $@.tmp
+	mv $@.tmp $@
+
 liblpr_a_SOURCES = \
 	hid/hidint.h \
 	hid/lpr/lpr.c
@@ -334,6 +349,7 @@ DISTCLEANFILES= pcbtest.sh pcb-menu.h \
 	hid/gtk/gtk_lists.h \
 	hid/lesstif/lesstif_lists.h \
 	hid/png/png_lists.h \
+	hid/nelma/nelma_lists.h \
 	hid/ps/ps_lists.h \
 	core_lists.h \
 	dbus-introspect.h

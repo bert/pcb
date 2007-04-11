@@ -870,7 +870,7 @@ Optional Packages:
   --without-PACKAGE       do not use PACKAGE (same as --with-PACKAGE=no)
   --with-gui=	          Specify the GUI to use: batch gtk lesstif [default=gtk]
   --with-printer= 	  Specify the printer: lpr [default=lpr]
-  --with-exporters=       Enable export devices: bom gerber png ps [default=bom gerber png ps]
+  --with-exporters=       Enable export devices: bom gerber nelma png ps [default=bom gerber nelma png ps]
   --with-x                use the X Window System
 
 Some influential environment variables:
@@ -9633,7 +9633,7 @@ $GLIB_PKG_ERRORS" >&2;}
 	GLIB_VERSION=`$PKG_CONFIG glib-2.0 --modversion`
 	;;
 
-      png )
+      nelma|png )
 	# Check for gdlib-config for gd (www.boutell.com/gd)
 	# Extract the first word of "gdlib-config", so it can be a program name with args.
 set dummy gdlib-config; ac_word=$2
@@ -9756,8 +9756,8 @@ _ACEOF
   LIBS="-lgd $LIBS"
 
 else
-  { { echo "$as_me:$LINENO: error: You have requested the png HID  but -lgd could not be found" >&5
-echo "$as_me: error: You have requested the png HID  but -lgd could not be found" >&2;}
+  { { echo "$as_me:$LINENO: error: You have requested the nelma and/or png HID  but -lgd could not be found" >&5
+echo "$as_me: error: You have requested the nelma and/or png HID  but -lgd could not be found" >&2;}
    { (exit 1); exit 1; }; }
 fi
 
@@ -9829,8 +9829,8 @@ _ACEOF
   LIBS="-lbgd $LIBS"
 
 else
-  { { echo "$as_me:$LINENO: error: You have requested the png HID  but -lbgd could not be found" >&5
-echo "$as_me: error: You have requested the png HID  but -lbgd could not be found" >&2;}
+  { { echo "$as_me:$LINENO: error: You have requested the nelma and/or png HID  but -lbgd could not be found" >&5
+echo "$as_me: error: You have requested the nelma and/or png HID  but -lbgd could not be found" >&2;}
    { (exit 1); exit 1; }; }
 fi
 
@@ -10012,11 +10012,11 @@ done
 	     no )
 		{ { echo "$as_me:$LINENO: error:
 You evidentally do not have a complete installation of the GD library available from www.boutell.com/gd.
-This is needed for the png HID.
+This is needed for the nelma and/or png HID.
 " >&5
 echo "$as_me: error:
 You evidentally do not have a complete installation of the GD library available from www.boutell.com/gd.
-This is needed for the png HID.
+This is needed for the nelma and/or png HID.
 " >&2;}
    { (exit 1); exit 1; }; }
 		;;
