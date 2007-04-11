@@ -1231,12 +1231,15 @@ gint
 ghid_port_window_enter_cb (GtkWidget * widget,
 			   GdkEventCrossing * ev, GHidPort * out)
 {
+  /* printf("mode: %d type: %d\n", ev->mode, ev->detail); */
+  
   /* See comment in ghid_port_window_leave_cb() */
 
-  if(ev->mode != GDK_CROSSING_NORMAL) 
+  if(ev->mode != GDK_CROSSING_NORMAL && ev->detail != GDK_NOTIFY_NONLINEAR) 
     {
       return FALSE;
     }
+
 
   if (!ghidgui->command_entry_status_line_active)
     {
@@ -1247,6 +1250,16 @@ ghid_port_window_enter_cb (GtkWidget * widget,
     }
   ghidgui->in_popup = FALSE;
   RestoreCrosshair (TRUE);
+
+  /* Following expression is true if a you open a menu from the menu bar, 
+   * move the mouse to the viewport and click on it. This closes the menu 
+   * and moves the pointer to the viewport without the pointer going over 
+   * the edge of the viewport */
+  if(ev->mode == GDK_CROSSING_UNGRAB && GDK_NOTIFY_NONLINEAR)
+    {
+      ghid_screen_update ();
+    }
+	  
   return FALSE;
 }
 
@@ -1267,6 +1280,8 @@ ghid_port_window_leave_cb (GtkWidget * widget,
                            GdkEventCrossing * ev, GHidPort * out)
 {
   gint x0, y0, x, y, dx, dy, w, h;
+  
+  /* printf("mode: %d type: %d\n", ev->mode, ev->detail); */
 
   /* Window leave events can also be triggered because of focus grabs. Some
    * X applications occasionally grab the focus and so trigger this function.
