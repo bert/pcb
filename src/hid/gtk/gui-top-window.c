@@ -320,10 +320,6 @@ ghid_update_toggle_flags ()
 
 }
 
-=======
-RCSID ("$Id$");
->>>>>>> 1.36
-
 extern HID ghid_hid;
 
 GhidGui _ghidgui, *ghidgui = NULL;
