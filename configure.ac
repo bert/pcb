@@ -248,7 +248,7 @@ esac
 
 AC_MSG_CHECKING([for which exporters to use])
 AC_ARG_WITH([exporters],
-[  --with-exporters=       Enable export devices: bom gerber png ps [[default=bom gerber png ps]]],
+[  --with-exporters=       Enable export devices: bom gerber nelma png ps [[default=bom gerber nelma png ps]]],
 [],[with_exporters=$hid_exporters])
 AC_MSG_RESULT([$with_exporters])
 for e in `echo $with_exporters | sed 's/,/ /g'`; do
@@ -391,7 +391,7 @@ $GLIB_PKG_ERRORS])]
 	GLIB_VERSION=`$PKG_CONFIG glib-2.0 --modversion`
 	;;
 
-      png )
+      nelma|png )
 	# Check for gdlib-config for gd (www.boutell.com/gd)
 	AC_PATH_PROG(GDLIB_CONFIG, gdlib-config, no)
 	if test "$GDLIB_CONFIG" = "no"; then
@@ -403,10 +403,10 @@ you will get lucky.
 ])
 		if test "$WIN32" != "yes" ; then
 			AC_CHECK_LIB(gd,main,,
-			AC_MSG_ERROR([You have requested the png HID  but -lgd could not be found]))
+			AC_MSG_ERROR([You have requested the nelma and/or png HID  but -lgd could not be found]))
 		else 
 			AC_CHECK_LIB(bgd,main,,
-			AC_MSG_ERROR([You have requested the png HID  but -lbgd could not be found]))
+			AC_MSG_ERROR([You have requested the nelma and/or png HID  but -lbgd could not be found]))
 		fi
 	else
 		if test "$WIN32" = "yes" ; then
@@ -432,7 +432,7 @@ you will get lucky.
 	     no )
 		AC_MSG_ERROR([
 You evidentally do not have a complete installation of the GD library available from www.boutell.com/gd.
-This is needed for the png HID.
+This is needed for the nelma and/or png HID.
 ])
 		;;
 	     * ) ;;

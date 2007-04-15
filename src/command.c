@@ -337,6 +337,13 @@ CommandSaveLayout (int argc, char **argv, int x, int y)
 {
   switch (argc)
     {
+    case 0:
+      if (PCB->Filename)
+	SavePCB (PCB->Filename);
+      else
+	Message ("No filename to save to yet\n");
+      break;
+
     case 1:
       SavePCB (argv[0]);
       break;

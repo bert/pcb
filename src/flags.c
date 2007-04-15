@@ -162,7 +162,7 @@ HID_Flag flags_flag_list[] = {
   {"rubberbandmode", FlagSETTINGS, OffsetOf (SettingType, RubberBandMode)},
   {"swapstartdirection", FlagSETTINGS,
 	OffsetOf (SettingType, SwapStartDirection)},
-  {"showdrc", FlagSETTINGS, OffsetOf (SettingType, ShowDRC)},
+  {"showdrcmode", FlagSETTINGS, OffsetOf (SettingType, ShowDRC)},
   {"resetafterelement", FlagSETTINGS,
 	OffsetOf (SettingType, ResetAfterElement)},
   {"ringbellwhenfinished", FlagSETTINGS,
@@ -170,3 +170,4 @@ HID_Flag flags_flag_list[] = {
 };
 
 REGISTER_FLAGS (flags_flag_list)
+

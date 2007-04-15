@@ -259,6 +259,7 @@ ghid_config_init (void)
   ghidgui->small_label_markup = TRUE;
   ghidgui->auto_pan_on = TRUE;
   ghidgui->auto_pan_speed = 3;
+  ghidgui->history_size = 5;
   dup_string (&color_file, "");
 
   for (ha = hid_attr_nodes; ha; ha = ha->next)

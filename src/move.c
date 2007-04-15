@@ -908,6 +908,7 @@ move_all_thermals (int old_index, int new_index)
   ENDALL_LOOP;
 }
 
+
 int
 MoveLayer (int old_index, int new_index)
 {
@@ -1039,6 +1040,54 @@ MoveLayer (int old_index, int new_index)
   return 0;
 }
 
+/* --------------------------------------------------------------------------- */
+
+static const char movelayer_syntax[] = "MoveLayer(old,new)";
+
+static const char movelayer_help[] = "Moves/Creates/Deletes Layers";
+
+/* %start-doc actions MoveLayer
+
+Moves a layer, creates a new layer, or deletes a layer.
+
+@table @code
+
+@item old
+The is the layer number to act upon.  Allowed values are:
+@table @code
+
+@item c
+Currently selected layer.
+
+@item -1
+Create a new layer.
+
+@item number
+An existing layer number.
+
+@end table
+
+@item new
+Specifies where to move the layer to.  Allowed values are:
+@table @code
+@item -1
+Deletes the layer.
+
+@item up
+Moves the layer up.
+
+@item down
+Moves the layer down.
+
+@item c
+Creates a new layer.
+
+@end table
+
+@end table
+
+%end-doc */
+
 int
 MoveLayerAction (int argc, char **argv, int x, int y)
 {
@@ -1099,7 +1148,8 @@ MoveLayerAction (int argc, char **argv, int x, int y)
 }
 
 HID_Action move_action_list[] = {
-  {"MoveLayer", 0, MoveLayerAction}
+  {"MoveLayer", 0, MoveLayerAction,
+   movelayer_help, movelayer_syntax}
 };
 
 REGISTER_ACTIONS (move_action_list)
