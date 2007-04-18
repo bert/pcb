@@ -1838,6 +1838,48 @@ Benchmark (int argc, char **argv, int x, int y)
 
 /* ------------------------------------------------------------ */
 
+static const char center_syntax[] =
+"Center()\n";
+
+static const char center_help[] =
+"Moves the pointer to the center of the window.";
+
+/* %start-doc actions Center
+
+Move the pointer to the center of the window, but only if it's
+currently within the window already.
+
+%end-doc */
+
+static int
+Center(int argc, char **argv, int x, int y)
+{
+  x = GRIDFIT_X (x, PCB->Grid);
+  y = GRIDFIT_Y (y, PCB->Grid);
+
+  if (argc > 1)
+    AFAIL (center);
+
+  printf ("Center(%d, %d)\n", x, y);
+  printf ("  gport->view_x0 = %d\n", gport->view_x0);
+  printf ("  gport->view_y0 = %d\n", gport->view_y0);
+
+  gport->view_x0 = x - (gport->view_width * gport->zoom) / 2;
+  gport->view_y0 = y - (gport->view_height * gport->zoom) / 2;
+
+  //lesstif_pan_fixup ();
+  /* Move the pointer to the center of the window, but only if it's
+     currently within the window already.  Watch out for edges,
+     though.  */
+  /*
+  XWarpPointer (display, window, window, 0, 0, view_width, view_height,
+		Vx(x), Vy(y));
+  */
+  return 0;
+}
+
+/* ------------------------------------------------------------ */
+
 static const char dowindows_syntax[] =
 "DoWindows(1|2|3|4)\n"
 "DoWindows(Layout|Library|Log|Netlist|Preferences)";
@@ -2064,6 +2106,8 @@ HID_Action ghid_main_action_list[] = {
    zoom_help, zoom_syntax},
   {"Command", 0, Command},
   {"Benchmark", 0, Benchmark},
+  {"Center", "Click on a location to center", Center,
+   center_help, center_syntax},
   {"PointCursor", 0, PointCursor},
   {"Busy", 0, Busy},
 };
