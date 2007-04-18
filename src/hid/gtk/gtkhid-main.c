@@ -12,6 +12,7 @@
 #include <math.h>
 #include <time.h>
 
+
 #include "action.h"
 #include "crosshair.h"
 #include "data.h"
@@ -25,6 +26,10 @@
 #include "hid.h"
 #include "../hidint.h"
 #include "gui.h"
+
+#if !GTK_CHECK_VERSION(2,8,0) && defined(HAVE_GDK_GDKX_H)
+#include <gdk/gdkx.h>
+#endif
 
 #ifdef HAVE_LIBDMALLOC
 #include <dmalloc.h>
@@ -1854,30 +1859,87 @@ currently within the window already.
 static int
 Center(int argc, char **argv, int x, int y)
 {
+  int x0, y0, w2, h2;
+  
+  if (argc != 0)
+    AFAIL (center);
+
   x = GRIDFIT_X (x, PCB->Grid);
   y = GRIDFIT_Y (y, PCB->Grid);
 
-  if (argc > 1)
-    AFAIL (center);
+  w2 = gport->view_width / 2;
+  h2 = gport->view_height / 2;
+  x0 = x - w2;
+  y0 = y - h2;
 
-  printf ("Center(%d, %d)\n", x, y);
-  printf ("  gport->view_x0 = %d\n", gport->view_x0);
-  printf ("  gport->view_y0 = %d\n", gport->view_y0);
+  if (x0 < 0) 
+    {
+      x0 = 0;
+      x = x0 + w2;
+    }
 
-  gport->view_x0 = x - (gport->view_width * gport->zoom) / 2;
-  gport->view_y0 = y - (gport->view_height * gport->zoom) / 2;
+  if (y0 < 0)
+    {
+      y0 = 0;
+      y = y0 + w2;
+    }
 
-  //lesstif_pan_fixup ();
+  gport->view_x0 = x0;
+  gport->view_y0 = y0;
+
+  /* FIXME -- do I need something like the pan_fixup here? */
+  /* lesstif_pan_fixup (); */
+
   /* Move the pointer to the center of the window, but only if it's
      currently within the window already.  Watch out for edges,
      though.  */
+
+#if GTK_CHECK_VERSION(2,8,0)
   /*
-  XWarpPointer (display, window, window, 0, 0, view_width, view_height,
-		Vx(x), Vy(y));
-  */
+   * This little code blob has not been tested!  I have an older gtk
+   * on my development box.  Once this is tested (and possibly fixed)
+   * with gtk>=2.8.0, someone please remove this comment - Dan
+   */
+  {
+    GdkDisplay *display;
+    GdkScreen *screen;
+
+    display = gdk_display_get_default ();
+    screen = gdk_display_get_default_screen (display); 
+
+    gdk_display_warp_pointer (display, screen, Vx (x), Vy (y));
+  }
+#else  
+#  ifdef HAVE_GDK_GDKX_H
+  {
+
+    Window w_src, w_dst; 
+    w_src = GDK_WINDOW_XID (gport->drawing_area->window);
+    w_dst = w_src;
+
+    /* don't warp with the auto drc - that creates auto-scroll chaos */
+    if (TEST_FLAG (AUTODRCFLAG, PCB) && Settings.Mode == LINE_MODE
+	&& Crosshair.AttachedLine.State != STATE_FIRST)
+      return 0;
+    
+    XWarpPointer (GDK_DRAWABLE_XDISPLAY (gport->drawing_area->window),
+		 w_src, w_dst,
+		 0, 0, 0, 0,
+		 Vx (x), Vy (y));
+    
+    /* XWarpPointer creates Motion events normally bound to
+     *  EventMoveCrosshair.
+     *  We don't do any updates when EventMoveCrosshair
+     *  is called the next time to prevent from rounding errors
+     */
+    // DAN_FIXME
+    //IgnoreMotionEvents = ignore;
+  }
+#  endif
+#endif
+
   return 0;
 }
-
 /* ------------------------------------------------------------ */
 
 static const char dowindows_syntax[] =
