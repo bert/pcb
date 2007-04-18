@@ -36,6 +36,9 @@
 /* Define to 1 if you have the `gdImagePng' function. */
 #undef HAVE_GDIMAGEPNG
 
+/* Define to 1 if you have the <gdk/gdkx.h> header file. */
+#undef HAVE_GDK_GDKX_H
+
 /* Define to 1 if you have the <gd.h> header file. */
 #undef HAVE_GD_H
 
