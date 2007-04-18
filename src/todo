@@ -6,7 +6,11 @@ MoveLayers - undo of deleting a layer with stuff on it.
 [gtk]
 
 [user controlled menus for gtk]
-- Test all menu actions.
+
+- sometimes after using the command window, the hotkeys all seem to
+  quit working.  Why???
+
+- Test all menu actions (again)
 
 - Compare all hotkeys from the hard coded system to the new resource file
   controlled system.  We're looking for no/minimal user visible change
@@ -125,11 +129,6 @@ dm:  there in 20070208
 
 dm:  there in 20070208
 
-*  Sometimes, after I highlight an object, I need to hit del twice to delete
-   it.
-
-dm:  del removes what the mouse is over, not whats highlighted
-
 *  "File -> revert" removes all my silk refdes text, and replaces it with the
    component description from the element file.  It looks like this action
    tries to put text(3) on the baord, when it should put text(2).
@@ -158,12 +157,6 @@ dm:  will switch after usermenu merge.
 
 dm: They are identical.  I have mixed feelings.  It is wierd to have 2.  Yet, it seems like they go under select but most programs have edit->select all....  I'll make a note, but this is the same as in the trunk right now.
 
-*  On teh subject of selections:  I like it that hitting <escape> sets the
-   mode back to "select".  Now, can hitting <escape> twice *unselect* all
-   selected objects?
-
-dm: no
-
 *  "Edit -> move selected to current layer" doesn't seem to do anything.
 
 dm: existing bug.  confirmed.
@@ -176,13 +169,6 @@ dm:  need to select something or have crosshair over an element.
    console.
 
 dm: same deal
-
-*  "View -> more zooms -> flip up/dn and flip left/right" seem to do
-   something.  However, they are check boxes, adn the check boxes don't
-   check.
-
-dm:  now flip "works" but both of them do a left/right flip...
-
 *  If I do "view -> current layer -> delete current layer", the layer is
    deleted.  However, the remaining layers are re-colored.  It looks like the
    current layer is deleted from a list, but the colors are based upon list
@@ -193,8 +179,9 @@ dm:  now flip "works" but both of them do a left/right flip...
 
 dm: existing bug in gtk HID only (lesstif works right)
 
-actually.... lesstif doesn't recolor until you restart pcb and then it is 
-recolored.
+actually.... lesstif doesn't recolor until you restart pcb and then it
+is recolored.  It is because we don't store the color with the layer
+in the pcb file.
 
 *  Again, "view -> current layer -> move current layer up/down" re-colors my
    layers.  I'd rather have the color follow the layer so that e.g. my GND
