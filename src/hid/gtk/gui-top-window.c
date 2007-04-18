@@ -3477,7 +3477,9 @@ add_resource_to_menu (char * menu, Resource * node, void * callback, int indent)
 		    /* ignore special named values (m, a, sensitive) */
 		    if (strcmp (n, "m") == 0
 			|| strcmp (n, "a") == 0
-			|| strcmp (n, "sensitive") == 0)
+			|| strcmp (n, "sensitive") == 0
+			|| strcmp (n, "tip") == 0
+			)
 		      break;
 
 		    /* log checked and active special values */
