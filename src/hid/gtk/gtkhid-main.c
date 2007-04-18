@@ -78,18 +78,22 @@ GetXY (int argc, char **argv, int x, int y)
 static inline int 
 Vx (int x)
 {     
-  int rv = (x - gport->view_x0) / gport->zoom + 0.5;
+  int rv;
   if (flip_x) 
-    rv = gport->view_width - rv;
+    rv = (PCB->MaxWidth - x - gport->view_x0) / gport->zoom + 0.5;
+  else
+    rv = (x - gport->view_x0) / gport->zoom + 0.5;
   return rv;
 }       
       
 static inline int
 Vy (int y)
 {         
-  int rv = (y - gport->view_y0) / gport->zoom + 0.5;
+  int rv;
   if (flip_y)
-    rv = gport->view_height - rv;
+    rv = (PCB->MaxHeight - y - gport->view_y0) / gport->zoom + 0.5;
+  else
+    rv = (y - gport->view_y0) / gport->zoom + 0.5;
   return rv;
 }     
         
@@ -102,17 +106,19 @@ Vz (int z)
 static inline int
 Px (int x)
 {  
+  int rv = x * gport->zoom + gport->view_x0;
   if (flip_x)
-    x = gport->view_width - x;
-  return x * gport->zoom + gport->view_x0;
+    rv = PCB->MaxWidth - (x * gport->zoom + gport->view_x0);
+  return  rv;
 }  
 
 static inline int
 Py (int y)
 {  
+  int rv = y * gport->zoom + gport->view_y0;
   if (flip_y)
-    y = gport->view_height - y;
-  return y * gport->zoom + gport->view_y0;
+    rv = PCB->MaxHeight - (y * gport->zoom + gport->view_y0);
+  return  rv;
 }  
 
 
@@ -341,7 +347,7 @@ draw_grid ()
 
   if (!Settings.DrawGrid)
     return;
-  if (DRAW_Z (PCB->Grid) < MIN_GRID_DISTANCE)
+  if (Vz (PCB->Grid) < MIN_GRID_DISTANCE)
     return;
   if (!gport->grid_gc)
     {
@@ -372,13 +378,13 @@ draw_grid ()
       y1 = y2;
       y2 = tmp;
     }
-  if (DRAW_X (x1) < 0)
+  if (Vx (x1) < 0)
     x1 += PCB->Grid;
-  if (DRAW_Y (y1) < 0)
+  if (Vy (y1) < 0)
     y1 += PCB->Grid;
-  if (DRAW_X (x2) >= gport->width)
+  if (Vx (x2) >= gport->width)
     x2 -= PCB->Grid;
-  if (DRAW_Y (y2) >= gport->height)
+  if (Vy (y2) >= gport->height)
     y2 -= PCB->Grid;
   n = (int) ((x2 - x1) / PCB->Grid + 0.5) + 1;
   if (n > npoints)
@@ -390,12 +396,12 @@ draw_grid ()
   n = 0;
   for (x = x1; x <= x2; x += PCB->Grid)
     {
-      points[n].x = DRAW_X (x);
+      points[n].x = Vx (x);
       n++;
     }
   for (y = y1; y <= y2; y += PCB->Grid)
     {
-      int vy = DRAW_Y (y);
+      int vy = Vy (y);
       for (i = 0; i < n; i++)
 	points[i].y = vy;
       gdk_draw_points (gport->drawable, gport->grid_gc, points, n);
@@ -470,15 +476,15 @@ ghid_invalidate_all ()
   if (!gport->pixmap)
     return;
 
-  region.X1 = MIN(VIEW_X(0), VIEW_X(gport->width + 1));
-  region.Y1 = MIN(VIEW_Y(0), VIEW_Y(gport->height + 1));
-  region.X2 = MAX(VIEW_X(0), VIEW_X(gport->width + 1));
-  region.Y2 = MAX(VIEW_Y(0), VIEW_Y(gport->height + 1));
+  region.X1 = MIN(Px(0), Px(gport->width + 1));
+  region.Y1 = MIN(Py(0), Py(gport->height + 1));
+  region.X2 = MAX(Px(0), Px(gport->width + 1));
+  region.Y2 = MAX(Py(0), Py(gport->height + 1));
 
-  eleft = DRAW_X (0);
-  eright = DRAW_X (PCB->MaxWidth);
-  etop = DRAW_Y (0);
-  ebottom = DRAW_Y (PCB->MaxHeight);
+  eleft = Vx (0);
+  eright = Vx (PCB->MaxWidth);
+  etop = Vy (0);
+  ebottom = Vy (PCB->MaxHeight);
   if (eleft > eright)
     {
       int tmp = eleft;
@@ -807,7 +813,7 @@ ghid_set_line_cap (hidGC gc, EndCapStyle style)
     }
   if (gc->gc)
     gdk_gc_set_line_attributes (WHICH_GC (gc),
-				DRAW_Z (gc->width), GDK_LINE_SOLID,
+				Vz (gc->width), GDK_LINE_SOLID,
 				gc->cap, gc->join);
 }
 
@@ -818,7 +824,7 @@ ghid_set_line_width (hidGC gc, int width)
   gc->width = width;
   if (gc->gc)
     gdk_gc_set_line_attributes (WHICH_GC (gc),
-				DRAW_Z (gc->width), GDK_LINE_SOLID,
+				Vz (gc->width), GDK_LINE_SOLID,
 				gc->cap, gc->join);
 }
 
@@ -874,10 +880,10 @@ ghid_draw_line (hidGC gc, int x1, int y1, int x2, int y2)
 {
   double dx1, dy1, dx2, dy2;
 
-  dx1 = DRAW_X ((double)x1);
-  dy1 = DRAW_Y ((double)y1);
-  dx2 = DRAW_X ((double)x2);
-  dy2 = DRAW_Y ((double)y2);
+  dx1 = Vx ((double)x1);
+  dy1 = Vy ((double)y1);
+  dx2 = Vx ((double)x2);
+  dy2 = Vy ((double)y2);
 
   if (! ClipLine (0, 0, gport->width, gport->height,
 		  &dx1, &dy1, &dx2, &dy2, gc->width / gport->zoom))
@@ -903,15 +909,15 @@ ghid_draw_arc (hidGC gc, int cx, int cy,
     return;
 
   USE_GC (gc);
-  vrx = DRAW_Z (xradius);
-  vry = DRAW_Z (yradius);
+  vrx = Vz (xradius);
+  vry = Vz (yradius);
 	if (Settings.ShowSolderSide)
 		{
 		start_angle =-start_angle + 180;;
 		delta_angle = -delta_angle;;
 		}
   gdk_draw_arc (gport->drawable, gport->u_gc, 0,
-		DRAW_X (cx) - vrx, DRAW_Y (cy) - vry,
+		Vx (cx) - vrx, Vy (cy) - vry,
 		vrx * 2, vry * 2, (start_angle + 180) * 64, delta_angle * 64);
 }
 
@@ -932,10 +938,10 @@ ghid_draw_rect (hidGC gc, int x1, int y1, int x2, int y2)
       || (y1 > gport->view_y0 + h + lw && y2 > gport->view_y0 + h + lw))
     return;
 
-  x1 = DRAW_X (x1);
-  y1 = DRAW_Y (y1);
-  x2 = DRAW_X (x2);
-  y2 = DRAW_Y (y2);
+  x1 = Vx (x1);
+  y1 = Vy (y1);
+  x2 = Vx (x2);
+  y2 = Vy (y2);
 
   if (x1 > x2) { gint xt = x1; x1 = x2; x2 = xt; }
   if (y1 > y2) { gint yt = y1; y1 = y2; y2 = yt; }
@@ -959,9 +965,9 @@ ghid_fill_circle (hidGC gc, int cx, int cy, int radius)
     return;
 
   USE_GC (gc);
-  vr = DRAW_Z (radius);
+  vr = Vz (radius);
   gdk_draw_arc (gport->drawable, gport->u_gc, TRUE,
-		DRAW_X (cx) - vr, DRAW_Y (cy) - vr,
+		Vx (cx) - vr, Vy (cy) - vr,
 		vr * 2, vr * 2, 0, 360 * 64);
 }
 
@@ -981,8 +987,8 @@ ghid_fill_polygon (hidGC gc, int n_coords, int *x, int *y)
     }
   for (i = 0; i < n_coords; i++)
     {
-      points[i].x = DRAW_X (x[i]);
-      points[i].y = DRAW_Y (y[i]);
+      points[i].x = Vx (x[i]);
+      points[i].y = Vy (y[i]);
     }
   gdk_draw_polygon (gport->drawable, gport->u_gc, 1, points, n_coords);
 }
@@ -1004,10 +1010,10 @@ ghid_fill_rect (hidGC gc, int x1, int y1, int x2, int y2)
       || (y1 > gport->view_y0 + h + lw && y2 > gport->view_y0 + h + lw))
     return;
 
-  x1 = DRAW_X (x1);
-  y1 = DRAW_Y (y1);
-  x2 = DRAW_X (x2);
-  y2 = DRAW_Y (y2);
+  x1 = Vx (x1);
+  y1 = Vy (y1);
+  x2 = Vx (x2);
+  y2 = Vy (y2);
   if (x2 < x1)
     {
     xx = x1;
@@ -1745,8 +1751,10 @@ SwapSides (int argc, char **argv, int x, int y)
 	}
     }
 
-  //dx = PCB->MaxWidth / 2 - gport->view_x;
-  //ghid_port_ranges_pan (2 * dx, 0, TRUE);
+  /* what does this do? */
+  dx = PCB->MaxWidth / 2 - gport->view_x;
+  ghid_port_ranges_pan (2 * dx, 0, TRUE);
+
   ghid_invalidate_all ();
   return 0;
 }
