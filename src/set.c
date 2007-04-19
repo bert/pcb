@@ -53,7 +53,6 @@
 #include "error.h"
 #include "find.h"
 #include "misc.h"
-#include "output.h"
 #include "set.h"
 #include "undo.h"
 

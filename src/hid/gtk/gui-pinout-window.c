@@ -42,7 +42,6 @@
 #include "mymem.h"
 #include "move.h"
 #include "rotate.h"
-#include "output.h"
 
 #ifdef HAVE_LIBDMALLOC
 #include <dmalloc.h>

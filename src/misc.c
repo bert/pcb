@@ -64,7 +64,6 @@
 #include "mymem.h"
 #include "misc.h"
 #include "move.h"
-#include "output.h"
 #include "polygon.h"
 #include "remove.h"
 #include "rtree.h"
