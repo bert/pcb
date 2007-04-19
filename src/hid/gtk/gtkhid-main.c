@@ -57,27 +57,6 @@ static int autofade = 0;
 
 /* ------------------------------------------------------------ */
 
-
-static const char getxy_syntax[] =
-"GetXY()";
-
-static const char getxy_help[] =
-"Get a coordinate.";
-
-/* %start-doc actions GetXY
-
-Prompts the user for a coordinate, if one is not already selected.
-
-%end-doc */
-
-static int
-GetXY (int argc, char **argv, int x, int y)
-{
-  return 0;
-}
-
-/* ------------------------------------------------------------ */
-
 /* Px converts view->pcb, Vx converts pcb->view */
       
 static inline int 
@@ -1455,6 +1434,35 @@ HID ghid_extents = {
   0 /* ghid_progress */
 };
 
+/* ------------------------------------------------------------ 
+ *
+ * Actions specific to the GTK HID follow from here
+ *
+ */
+
+
+/* ------------------------------------------------------------ */
+static const char about_syntax[] =
+"About()";
+
+static const char about_help[] =
+"Tell the user about this version of PCB.";
+
+/* %start-doc actions About
+
+This just pops up a dialog telling the user which version of
+@code{pcb} they're running.
+
+%end-doc */
+
+
+static int
+About (int argc, char **argv, int x, int y)
+{
+  ghid_dialog_about ();
+  return 0;
+}
+
 /* ---------------------------------------------------------------------- */
 
 static int PointCursor (int argc, char **argv, int x, int y)
@@ -2052,28 +2060,6 @@ SetUnits (int argc, char **argv, int x, int y)
 }
 
 /* ------------------------------------------------------------ */
-static const char about_syntax[] =
-"About()";
-
-static const char about_help[] =
-"Tell the user about this version of PCB.";
-
-/* %start-doc actions About
-
-This just pops up a dialog telling the user which version of
-@code{pcb} they're running.
-
-%end-doc */
-
-
-static int
-About (int argc, char **argv, int x, int y)
-{
-  ghid_dialog_about ();
-  return 0;
-}
-
-/* ------------------------------------------------------------ */
 static const char popup_syntax[] =
 "Popup(MenuName, [Button])";
 
@@ -2142,35 +2128,27 @@ Busy (int argc, char **argv, int x, int y)
 }
 
 HID_Action ghid_main_action_list[] = {
-  {"About", 0, About,
-   about_help, about_syntax},
-  {"DoWindows", 0, DoWindows,
-   dowindows_help, dowindows_syntax},
+  {"About", 0, About, about_help, about_syntax},
+  {"Benchmark", 0, Benchmark},
+  {"Busy", 0, Busy},
+  {"Center", "Click on a location to center", Center, center_help, center_syntax},
+  {"Command", 0, Command},
+  {"DoWindows", 0, DoWindows, dowindows_help, dowindows_syntax},
   {"Export", 0, Export},
-  {"GetXY", "", GetXY,
-   getxy_help, getxy_syntax},
+  {"GetXY", "", GetXY, getxy_help, getxy_syntax},
+  {"LayerGroupsChanged", 0, LayerGroupsChanged},
+  {"LibraryChanged", 0, LibraryChanged},
   {"Load", 0, Load},
   {"LoadVendor", 0, LoadVendor},
   {"PCBChanged", 0, PCBChanged},
-  {"RouteStylesChanged", 0, RouteStylesChanged},
-  {"LayerGroupsChanged", 0, LayerGroupsChanged},
-  {"LibraryChanged", 0, LibraryChanged},
-  {"Popup", 0, Popup,
-   popup_help, popup_syntax},
-  {"Print", 0, Print},
-  {"Save", 0, Save},
-  {"SetUnits", 0, SetUnits,
-   setunits_help, setunits_syntax},
-  {"SwapSides", 0, SwapSides,
-   swapsides_help, swapsides_syntax},
-  {"Zoom", "Click on zoom focus", Zoom,
-   zoom_help, zoom_syntax},
-  {"Command", 0, Command},
-  {"Benchmark", 0, Benchmark},
-  {"Center", "Click on a location to center", Center,
-   center_help, center_syntax},
   {"PointCursor", 0, PointCursor},
-  {"Busy", 0, Busy},
+  {"Popup", 0, Popup, popup_help, popup_syntax},
+  {"Print", 0, Print},
+  {"RouteStylesChanged", 0, RouteStylesChanged},
+  {"Save", 0, Save},
+  {"SetUnits", 0, SetUnits, setunits_help, setunits_syntax},
+  {"SwapSides", 0, SwapSides, swapsides_help, swapsides_syntax},
+  {"Zoom", "Click on zoom focus", Zoom, zoom_help, zoom_syntax}
 };
 
 REGISTER_ACTIONS (ghid_main_action_list)
