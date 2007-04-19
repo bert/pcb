@@ -105,6 +105,7 @@ Py (int y)
   return  rv;
 }  
 
+/* ------------------------------------------------------------ */
 
 static const char zoom_syntax[] =
 "Zoom()\n"
@@ -1463,6 +1464,25 @@ About (int argc, char **argv, int x, int y)
   return 0;
 }
 
+/* ------------------------------------------------------------ */
+static const char getxy_syntax[] =
+"GetXY()";
+
+static const char getxy_help[] =
+"Get a coordinate.";
+
+/* %start-doc actions GetXY
+
+Prompts the user for a coordinate, if one is not already selected.
+
+%end-doc */
+
+static int
+GetXY (int argc, char **argv, int x, int y)
+{
+  return 0;
+}
+
 /* ---------------------------------------------------------------------- */
 
 static int PointCursor (int argc, char **argv, int x, int y)
@@ -1477,6 +1497,8 @@ static int PointCursor (int argc, char **argv, int x, int y)
   return 0;
 }
 
+/* ---------------------------------------------------------------------- */
+
 static int
 RouteStylesChanged (int argc, char **argv, int x, int y)
 {
@@ -1487,6 +1509,8 @@ RouteStylesChanged (int argc, char **argv, int x, int y)
       ghid_route_style_set_button_label ((&PCB->RouteStyle[n])->Name, n);
   return 0;
 }
+
+/* ---------------------------------------------------------------------- */
 
 int
 PCBChanged (int argc, char **argv, int x, int y)
@@ -1507,12 +1531,16 @@ PCBChanged (int argc, char **argv, int x, int y)
   return 0;
 }
 
+/* ---------------------------------------------------------------------- */
+
 static int
 LayerGroupsChanged (int argc, char **argv, int x, int y)
 {
   printf ("LayerGroupsChanged -- not implemented\n");
   return 0;
 }
+
+/* ---------------------------------------------------------------------- */
 
 static int
 LibraryChanged (int argc, char **argv, int x, int y)
@@ -1521,12 +1549,16 @@ LibraryChanged (int argc, char **argv, int x, int y)
   return 0;
 }
 
+/* ---------------------------------------------------------------------- */
+
 static int
 Command (int argc, char **argv, int x, int y)
 {
   ghid_handle_user_command (FALSE);
   return 0;
 }
+
+/* ---------------------------------------------------------------------- */
 
 static int
 Load (int argc, char **argv, int x, int y)
@@ -1581,6 +1613,8 @@ Load (int argc, char **argv, int x, int y)
   return 0;
 }
 
+/* ---------------------------------------------------------------------- */
+
 static int
 LoadVendor (int argc, char **argv, int x, int y)
 {
@@ -1605,6 +1639,8 @@ LoadVendor (int argc, char **argv, int x, int y)
 
   return 0;
 }
+
+/* ---------------------------------------------------------------------- */
 
 static int
 Save (int argc, char **argv, int x, int y)
