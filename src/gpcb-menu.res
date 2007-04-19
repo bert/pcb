@@ -94,7 +94,10 @@ MainMenu =
    -
    {"Move to current layer" MoveToCurrentLayer(Object) a={"M" "<Key>m"}}
    {"Move selected to current layer" MoveToCurrentLayer(Selected) a={"Shift-M" "Shift<Key>m"}}
-   {"Route Styles" @routestyles}
+   {"Route Styles" @routestyles
+    -
+    {"Edit..." AdjustStyle(0)}
+   }
   }
 
 #
@@ -157,7 +160,7 @@ MainMenu =
     {"Zoom Out 20% and center" Zoom(+1.2) Center() m=O }
     {"Flip up/down" checked=flip_y SwapSides(V) a={"Tab" "<Key>Tab"}}
     {"Flip left/right" checked=flip_x SwapSides(H) a={"Shift+Tab" "Shift<Key>Tab"}}
-    {"Spin 180°" SwapSides(R) a={"Ctrl+Tab" "Ctrl<Key>Tab"}}
+    {"Spin 180 degrees" SwapSides(R) a={"Ctrl+Tab" "Ctrl<Key>Tab"}}
     {"Swap Sides" SwapSides() a={"Ctrl+Shift+Tab" "Ctrl Shift<Key>Tab"}}
     {"Center cursor" Center() a={"C" "<Key>c"}}
    }
