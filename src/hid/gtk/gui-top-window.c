@@ -1668,23 +1668,12 @@ ghid_layer_buttons_update (void)
 }
 
 
-
-/* FIXME -- need to make an action that this calls so we can get there
-   via the menu like in the lesstif HID */
 static void
 route_style_edit_cb (GtkWidget * widget, GHidPort * port)
 {
-  RouteStyleType *rst = NULL;
-
-  if (route_style_index >= NUM_STYLES)
-    rst = &route_style_button[route_style_index].route_style;
-  ghid_route_style_dialog (route_style_index, rst);
+  hid_action("AdjustStyle");
 }
 
-/* FIXME -- need to wrap most of this into an action so we can
- * easily get there via the menus.  Or maybe just make the menu
- * callback for the route styles call this.
- */
 static void
 route_style_select_button_cb (GtkToggleButton * button, gpointer data)
 {
@@ -3567,7 +3556,75 @@ ghid_load_menus (void)
   if (!mr)
     mr = resource_subres (bir, "Mouse");
   if (mr)
-    printf ("ghid_load_menus():  should process Mouse section here\n");
+    Message ("ghid_load_menus():  Mouse resources are currently ignored by the GTK HID.\n"
+	"Please feel free to submit a patch to implement this!\n"
+    );
 
 }
+
+/* ------------------------------------------------------------ */
+
+static const char adjuststyle_syntax[] =
+"AdjustStyle()\n";
+
+static const char adjuststyle_help[] =
+"Open the window which allows editing of the route styles";
+
+/* %start-doc actions AdjustStyle
+
+Opens the window which allows editing of the route styles.
+
+%end-doc */
+
+static int
+AdjustStyle(int argc, char **argv, int x, int y)
+{
+  RouteStyleType *rst = NULL;
+  
+  if (argc > 1)
+    AFAIL (adjuststyle);
+
+  if (route_style_index >= NUM_STYLES)
+    rst = &route_style_button[route_style_index].route_style;
+  ghid_route_style_dialog (route_style_index, rst);
+
+  return 0;
+}
+
+/* ------------------------------------------------------------ */
+
+static const char editlayergroups_syntax[] =
+"EditLayerGroups()\n";
+
+static const char editlayergroups_help[] =
+"Open the preferences window which allows editing of the layer groups";
+
+/* %start-doc actions EditLayerGroups
+
+Opens the preferences window which is where the layer groups
+are edited.  This action is primarily provides to provide menu
+resource compatibility with the lesstif HID.
+
+%end-doc */
+
+static int
+EditLayerGroups(int argc, char **argv, int x, int y)
+{
+  
+  if (argc != 0)
+    AFAIL (editlayergroups);
+
+  hid_actionl ("DoWindows", "Preferences", NULL);
+
+  return 0;
+}
+
+/* ------------------------------------------------------------ */
+
+HID_Action ghid_menu_action_list[] = {
+  {"AdjustStyle", 0, AdjustStyle, adjuststyle_help, adjuststyle_syntax},
+  {"EditLayerGroups", 0, EditLayerGroups, editlayergroups_help, editlayergroups_syntax}
+};
+
+REGISTER_ACTIONS (ghid_menu_action_list)
 

@@ -27,6 +27,7 @@
 #include "../hidint.h"
 #include "gui.h"
 
+
 #if !GTK_CHECK_VERSION(2,8,0) && defined(HAVE_GDK_GDKX_H)
 #include <gdk/gdkx.h>
 #endif
@@ -52,8 +53,7 @@ static void zoom_by (double factor, int x, int y);
 static int cur_mask = -1;
 static int mask_seq = 0;
 
-static int flip_x = 0, flip_y = 0;
-static int autofade = 0;
+int ghid_flip_x = 0, ghid_flip_y = 0;
 
 /* ------------------------------------------------------------ */
 
@@ -63,24 +63,36 @@ static inline int
 Vx (int x)
 {     
   int rv;
-  if (flip_x) 
+  if (ghid_flip_x) 
     rv = (PCB->MaxWidth - x - gport->view_x0) / gport->zoom + 0.5;
   else
     rv = (x - gport->view_x0) / gport->zoom + 0.5;
   return rv;
 }       
       
+static inline int 
+Vx2 (int x)
+{     
+  return (x - gport->view_x0) / gport->zoom + 0.5;
+}       
+      
 static inline int
 Vy (int y)
 {         
   int rv;
-  if (flip_y)
+  if (ghid_flip_y)
     rv = (PCB->MaxHeight - y - gport->view_y0) / gport->zoom + 0.5;
   else
     rv = (y - gport->view_y0) / gport->zoom + 0.5;
   return rv;
 }     
         
+static inline int 
+Vy2 (int y)
+{     
+  return (y - gport->view_y0) / gport->zoom + 0.5;
+}       
+      
 static inline int
 Vz (int z)
 {           
@@ -91,7 +103,7 @@ static inline int
 Px (int x)
 {  
   int rv = x * gport->zoom + gport->view_x0;
-  if (flip_x)
+  if (ghid_flip_x)
     rv = PCB->MaxWidth - (x * gport->zoom + gport->view_x0);
   return  rv;
 }  
@@ -100,7 +112,7 @@ static inline int
 Py (int y)
 {  
   int rv = y * gport->zoom + gport->view_y0;
-  if (flip_y)
+  if (ghid_flip_y)
     rv = PCB->MaxHeight - (y * gport->zoom + gport->view_y0);
   return  rv;
 }  
@@ -235,9 +247,9 @@ zoom_to (double new_zoom, int x, int y)
   xfrac = (double) x / (double) gport->view_width;
   yfrac = (double) y / (double) gport->view_height;
 
-  if (flip_x)
+  if (ghid_flip_x)
     xfrac = 1-xfrac;
-  if (flip_y)
+  if (ghid_flip_y)
     yfrac = 1-yfrac;
 
   /* Find the zoom that would just make the entire board fit */
@@ -347,10 +359,10 @@ draw_grid ()
       gdk_gc_set_function (gport->grid_gc, GDK_XOR);
       gdk_gc_set_foreground (gport->grid_gc, &gport->grid_color);
     }
-  x1 = GRIDFIT_X (SIDE_X(gport->view_x0), PCB->Grid);
-  y1 = GRIDFIT_Y (gport->view_y0, PCB->Grid);
-  x2 = GRIDFIT_X (SIDE_X(gport->view_x0 + gport->view_width - 1), PCB->Grid);
-  y2 = GRIDFIT_Y (gport->view_y0 + gport->view_height - 1, PCB->Grid);
+  x1 = GRIDFIT_X (SIDE_X (gport->view_x0), PCB->Grid);
+  y1 = GRIDFIT_Y (SIDE_Y (gport->view_y0), PCB->Grid);
+  x2 = GRIDFIT_X (SIDE_X (gport->view_x0 + gport->view_width - 1), PCB->Grid);
+  y2 = GRIDFIT_Y (SIDE_Y (gport->view_y0 + gport->view_height - 1), PCB->Grid);
   if (x1 > x2)
     {
       int tmp = x1;
@@ -884,23 +896,34 @@ ghid_draw_arc (hidGC gc, int cx, int cy,
 {
   gint vrx, vry;
   gint w, h, radius;
-
+  
   w = gport->width * gport->zoom;
   h = gport->height * gport->zoom;
   radius = (xradius > yradius) ? xradius : yradius;
   if (SIDE_X (cx) < gport->view_x0 - radius
       || SIDE_X (cx) > gport->view_x0 + w + radius
-      || cy < gport->view_y0 - radius || cy > gport->view_y0 + h + radius)
+      || SIDE_Y (cy) < gport->view_y0 - radius 
+      || SIDE_Y (cy) > gport->view_y0 + h + radius)
     return;
-
+  
   USE_GC (gc);
   vrx = Vz (xradius);
   vry = Vz (yradius);
-	if (Settings.ShowSolderSide)
-		{
-		start_angle =-start_angle + 180;;
-		delta_angle = -delta_angle;;
-		}
+
+
+  /* make sure we fall in the -180 to +180 range */
+  start_angle = (start_angle + 360 + 180) % 360 - 180;
+  if (ghid_flip_x)
+    {
+      start_angle = 180 - start_angle;
+      delta_angle = - delta_angle;
+    }
+  if (ghid_flip_y)
+    {
+      start_angle = - start_angle;
+      delta_angle = - delta_angle;					
+    }
+
   gdk_draw_arc (gport->drawable, gport->u_gc, 0,
 		Vx (cx) - vrx, Vy (cy) - vry,
 		vrx * 2, vry * 2, (start_angle + 180) * 64, delta_angle * 64);
@@ -919,8 +942,10 @@ ghid_draw_rect (hidGC gc, int x1, int y1, int x2, int y2)
        && SIDE_X (x2) < gport->view_x0 - lw)
       || (SIDE_X (x1) > gport->view_x0 + w + lw
 	  && SIDE_X (x2) > gport->view_x0 + w + lw)
-      || (y1 < gport->view_y0 - lw && y2 < gport->view_y0 - lw)
-      || (y1 > gport->view_y0 + h + lw && y2 > gport->view_y0 + h + lw))
+      || (SIDE_Y (y1) < gport->view_y0 - lw 
+	  && SIDE_Y (y2) < gport->view_y0 - lw)
+      || (SIDE_Y (y1) > gport->view_y0 + h + lw 
+	  && SIDE_Y (y2) > gport->view_y0 + h + lw))
     return;
 
   x1 = Vx (x1);
@@ -946,7 +971,8 @@ ghid_fill_circle (hidGC gc, int cx, int cy, int radius)
   h = gport->height * gport->zoom;
   if (SIDE_X (cx) < gport->view_x0 - radius
       || SIDE_X (cx) > gport->view_x0 + w + radius
-      || cy < gport->view_y0 - radius || cy > gport->view_y0 + h + radius)
+      || SIDE_Y (cy) < gport->view_y0 - radius 
+      || SIDE_Y (cy) > gport->view_y0 + h + radius)
     return;
 
   USE_GC (gc);
@@ -991,8 +1017,10 @@ ghid_fill_rect (hidGC gc, int x1, int y1, int x2, int y2)
        && SIDE_X (x2) < gport->view_x0 - lw)
       || (SIDE_X (x1) > gport->view_x0 + w + lw
 	  && SIDE_X (x2) > gport->view_x0 + w + lw)
-      || (y1 < gport->view_y0 - lw && y2 < gport->view_y0 - lw)
-      || (y1 > gport->view_y0 + h + lw && y2 > gport->view_y0 + h + lw))
+      || (SIDE_Y (y1) < gport->view_y0 - lw 
+	  && SIDE_Y (y2) < gport->view_y0 - lw)
+      || (SIDE_Y (y1) > gport->view_y0 + h + lw 
+	  && SIDE_Y (y2) > gport->view_y0 + h + lw))
     return;
 
   x1 = Vx (x1);
@@ -1760,22 +1788,22 @@ SwapSides (int argc, char **argv, int x, int y)
       switch (argv[0][0]) {
       case 'h':
       case 'H':
-	flip_x = ! flip_x;
+	ghid_flip_x = ! ghid_flip_x;
 	break;
       case 'v':
       case 'V':
-	flip_y = ! flip_y;
+	ghid_flip_y = ! ghid_flip_y;
 	break;
       case 'r':
       case 'R':
-	flip_x = ! flip_x;
-	flip_y = ! flip_y;
+	ghid_flip_x = ! ghid_flip_x;
+	ghid_flip_y = ! ghid_flip_y;
 	break;
       default:
 	return 1;
       }
       /* SwapSides will swap this */
-      Settings.ShowSolderSide = (flip_x == flip_y);
+      Settings.ShowSolderSide = (ghid_flip_x == ghid_flip_y);
     }
 
   Settings.ShowSolderSide = !Settings.ShowSolderSide;
@@ -1903,13 +1931,13 @@ currently within the window already.
 static int
 Center(int argc, char **argv, int x, int y)
 {
-  int x0, y0, w2, h2;
-  
+  int x0, y0, w2, h2, dx, dy;
+ 
   if (argc != 0)
     AFAIL (center);
 
-  x = GRIDFIT_X (x, PCB->Grid);
-  y = GRIDFIT_Y (y, PCB->Grid);
+  x = GRIDFIT_X (SIDE_X (x), PCB->Grid);
+  y = GRIDFIT_Y (SIDE_Y (y), PCB->Grid);
 
   w2 = gport->view_width / 2;
   h2 = gport->view_height / 2;
@@ -1928,8 +1956,11 @@ Center(int argc, char **argv, int x, int y)
       y = y0 + w2;
     }
 
+  dx = (x0 - gport->view_x0) / gport->zoom ;
+  dy = (y0 - gport->view_y0) / gport->zoom;
   gport->view_x0 = x0;
   gport->view_y0 = y0;
+
 
   /* FIXME -- do I need something like the pan_fixup here? */
   /* lesstif_pan_fixup (); */
@@ -1939,19 +1970,23 @@ Center(int argc, char **argv, int x, int y)
      though.  */
 
 #if GTK_CHECK_VERSION(2,8,0)
-  /*
-   * This little code blob has not been tested!  I have an older gtk
-   * on my development box.  Once this is tested (and possibly fixed)
-   * with gtk>=2.8.0, someone please remove this comment - Dan
-   */
   {
     GdkDisplay *display;
     GdkScreen *screen;
+    gint cx, cy;
 
     display = gdk_display_get_default ();
     screen = gdk_display_get_default_screen (display); 
 
-    gdk_display_warp_pointer (display, screen, Vx (x), Vy (y));
+    /* figure out where the pointer is and then move it from there by the specified delta */
+    gdk_display_get_pointer (display, NULL, &cx, &cy, NULL); 
+    gdk_display_warp_pointer (display, screen, cx - dx, cy - dy);
+
+    /* 
+     * Note that under X11, gdk_display_warp_pointer is just a wrapper around XWarpPointer, but
+     * hopefully by avoiding the direct call to an X function we might still work under windows
+     * and other non-X11 based gdk's
+     */
   }
 #else  
 #  ifdef HAVE_GDK_GDKX_H
@@ -1969,7 +2004,7 @@ Center(int argc, char **argv, int x, int y)
     XWarpPointer (GDK_DRAWABLE_XDISPLAY (gport->drawing_area->window),
 		 w_src, w_dst,
 		 0, 0, 0, 0,
-		 Vx (x), Vy (y));
+		 Vx2 (x), Vy2 (y));
     
     /* XWarpPointer creates Motion events normally bound to
      *  EventMoveCrosshair.
@@ -2193,12 +2228,12 @@ REGISTER_ACTIONS (ghid_main_action_list)
 static int
 flag_flipx (int x)
 { 
-  return flip_x;
+  return ghid_flip_x;
 } 
 static int  
 flag_flipy (int x)
 { 
-  return flip_y;
+  return ghid_flip_y;
 } 
 
 HID_Flag ghid_main_flag_list[] = {

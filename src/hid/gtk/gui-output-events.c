@@ -208,8 +208,8 @@ ghid_get_coords (const char *msg, int *x, int *y)
 {
   if (!ghid_port.has_entered)
     ghid_get_user_xy (msg);
-  *x = SIDE_X(gport->view_x);
-  *y = gport->view_y;
+  *x = SIDE_X (gport->view_x);
+  *y = SIDE_Y (gport->view_y);
 }
 
 gboolean
@@ -232,7 +232,8 @@ ghid_note_event_location (GdkEventButton * ev)
   gport->view_x = event_x * gport->zoom + gport->view_x0;
   gport->view_y = event_y * gport->zoom + gport->view_y0;
 
-  moved = MoveCrosshairAbsolute (SIDE_X (gport->view_x), gport->view_y);
+  moved = MoveCrosshairAbsolute (SIDE_X (gport->view_x), 
+				 SIDE_Y (gport->view_y));
   if (moved)
     {
       AdjustAttachedObjects ();
