@@ -1152,9 +1152,7 @@ increment_spin_button_cb (GtkSpinButton * spin, gdouble * dst)
   value = gtk_spin_button_get_value (spin);
   *dst = value;			/* Not using PCB units */
 
-  if (dst == &Settings.size_increment_mm
-      || dst == &Settings.size_increment_mil)
-    ghid_change_selected_update_menu_actions ();
+
   ghidgui->config_modified = TRUE;
 }
 

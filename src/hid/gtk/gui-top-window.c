@@ -205,6 +205,17 @@ static ToggleFlagType *tflags = 0;
 static int n_tflags = 0;
 static int max_tflags = 0;
 
+extern HID ghid_hid;
+
+GhidGui _ghidgui, *ghidgui = NULL;
+
+GHidPort ghid_port, *gport;
+
+static GdkColor WhitePixel, BlackPixel;
+
+static gchar		*bg_image_file;
+
+
 /* ------------------------------------------------------------------
  *  Route style buttons
  */
@@ -320,17 +331,6 @@ ghid_update_toggle_flags ()
 
 }
 
-extern HID ghid_hid;
-
-GhidGui _ghidgui, *ghidgui = NULL;
-
-
-GHidPort ghid_port, *gport;
-
-static GdkColor WhitePixel, BlackPixel;
-
-static gchar		*bg_image_file;
-
 #define	N_GRID_SETTINGS		11
 
 #define	MM_TO_PCB(mm)	((mm) * 100000 / 25.4)
@@ -377,6 +377,7 @@ get_grid_value_index (gboolean allow_fail)
   gdouble *value;
   gint i;
 
+  printf ("get_grid_value_index()\n");
   value = Settings.grid_units_mm ? &grid_mm_values[0] : &grid_mil_values[0];
   for (i = 0; i < N_GRID_SETTINGS; ++i, ++value)
     if (PCB->Grid < *value + 1.0 && PCB->Grid > *value - 1.0)
@@ -433,11 +434,14 @@ top_window_configure_event_cb (GtkWidget * widget, GdkEventConfigure * ev,
 
 
 /*
- * This is the main menu callback function.  The callback looks as
+ * This is the main menu callback function.  The callback looks at
  * the gtk action name to figure out which menuitem was chosen.  Then
  * it looks up in a table to find the pcb actions which should be
  * executed.  All menus go through this callback.  The tables of
  * actions are loaded from the menu resource file at startup.
+ *
+ * In addition, all hotkeys go through the menus which means they go
+ * through here.
  */
 
 static void
@@ -516,6 +520,7 @@ ghid_menu_cb (GtkAction * action, GHidPort * port)
   printf ("ghid_menu_cb():  name = \"%s\", id = %d\n", name, id);
 #endif
 
+  /* Now we should have a pointer to the actions to execute */
   if (node != NULL)
     {
       for (vi = 1; vi < node->c; vi++)
@@ -534,6 +539,11 @@ ghid_menu_cb (GtkAction * action, GHidPort * port)
   }
 
 
+  /*
+   * Now mask off any callbacks and update the state of any toggle
+   * menuitems.  This is where we do things like sync the layer or
+   * tool checks marks in the menus with the layer or tool buttons
+   */
   old_holdoff = ghidgui->toggle_holdoff;
   ghidgui->toggle_holdoff = TRUE;
   ghid_update_toggle_flags ();
@@ -556,6 +566,7 @@ handle_grid_units_change (gboolean active)
   gchar *grid;
   gint i;
 
+  printf ("handle_grid_units_change()\n");
   i = get_grid_value_index (FALSE);
   Settings.grid_units_mm = active;
   PCB->Grid = Settings.grid_units_mm ? grid_mm_values[i] : grid_mil_values[i];
@@ -568,7 +579,6 @@ handle_grid_units_change (gboolean active)
 
   ghid_config_handle_units_changed ();
 
-  ghid_change_selected_update_menu_actions ();
   ghid_set_status_line_label ();
 }
 
@@ -579,6 +589,7 @@ radio_grid_mil_setting_cb (GtkAction * action, GtkRadioAction * current)
   gchar *grid;
   gint index;
 
+  printf ("radio_grid_mil_setting_cb()\n");
   if (ghidgui->toggle_holdoff)
     return;
   index = gtk_radio_action_get_current_value (current);
@@ -596,6 +607,7 @@ radio_grid_mm_setting_cb (GtkAction * action, GtkRadioAction * current)
   gchar *grid;
   gint index;
 
+  printf ("radio_grid_mm_setting_cb()\n");
   if (ghidgui->toggle_holdoff)
     return;
   index = gtk_radio_action_get_current_value (current);
@@ -606,72 +618,6 @@ radio_grid_mm_setting_cb (GtkAction * action, GtkRadioAction * current)
   ghid_set_status_line_label ();
 }
 
-static void
-radio_displayed_element_name_cb (GtkAction * action, GtkRadioAction * current)
-{
-  gint value;
-  static gchar *doit[] = { "Description", "NameOnPCB", "Value" };
-
-  value = gtk_radio_action_get_current_value (current);
-  if (value >= 0 && value < 4)
-    hid_actionl ("Display", doit[value], "", NULL);
-}
-
-
-
-/* ============== SettingsMenu callbacks =============== */
-
-
-/* ============== BufferMenu callbacks =============== */
-#define	PRESS_BUTTON_ELEMENT_PROMPT	\
-		_("Press a button on a reference point for your selection")
-
-
-/* ======================================================================
-|  Here are the action entries that connect menuitems to the
-|  above callbacks.
-*/
-
-  /* These get NULL labels because labels are dynamically set in
-     |  ghid_change_selected_update_menu_actions()
-   */
-#ifdef DAN_FIXME
-static GtkActionEntry change_selected_entries[] = {
-  /* name, stock_id, label, accelerator, tooltip callback */
-  {"-LinesChange", NULL, NULL, NULL, NULL,
-   G_CALLBACK (selected_lines_size_change_cb)},
-  {"+LinesChange", NULL, NULL, NULL, NULL,
-   G_CALLBACK (selected_lines_size_change_cb)},
-  {"-PadsChange", NULL, NULL, NULL, NULL,
-   G_CALLBACK (selected_pads_size_change_cb)},
-  {"+PadsChange", NULL, NULL, NULL, NULL,
-   G_CALLBACK (selected_pads_size_change_cb)},
-  {"-PinsChange", NULL, NULL, NULL, NULL,
-   G_CALLBACK (selected_pins_size_change_cb)},
-  {"+PinsChange", NULL, NULL, NULL, NULL,
-   G_CALLBACK (selected_pins_size_change_cb)},
-  {"-TextChange", NULL, NULL, NULL, NULL,
-   G_CALLBACK (selected_text_size_change_cb)},
-  {"+TextChange", NULL, NULL, NULL, NULL,
-   G_CALLBACK (selected_text_size_change_cb)},
-  {"-ViasChange", NULL, NULL, NULL, NULL,
-   G_CALLBACK (selected_vias_size_change_cb)},
-  {"+ViasChange", NULL, NULL, NULL, NULL,
-   G_CALLBACK (selected_vias_size_change_cb)},
-
-  {"-ViasDrillChange", NULL, NULL, NULL, NULL,
-   G_CALLBACK (selected_vias_drill_change_cb)},
-  {"+ViasDrillChange", NULL, NULL, NULL, NULL,
-   G_CALLBACK (selected_vias_drill_change_cb)},
-  {"-PinsDrillChange", NULL, NULL, NULL, NULL,
-   G_CALLBACK (selected_pins_drill_change_cb)},
-  {"+PinsDrillChange", NULL, NULL, NULL, NULL,
-   G_CALLBACK (selected_pins_drill_change_cb)},
-};
-
-static gint n_change_selected_entries =
-G_N_ELEMENTS (change_selected_entries);
-#endif
 
 static GtkRadioActionEntry radio_grid_mil_setting_entries[] = {
   /* name, stock_id, label, accelerator, tooltip, value */
@@ -713,106 +659,6 @@ static gint n_radio_grid_mm_setting_entries
   = G_N_ELEMENTS (radio_grid_mm_setting_entries);
 
 
-static GtkRadioActionEntry radio_displayed_element_name_entries[] = {
-  /* name, stock_id, label, accelerator, tooltip, value */
-  {"Description", NULL, N_("Description"), NULL, NULL, 0},
-  {"ReferenceDesignator", NULL, N_("Reference designator"),
-   NULL, NULL, 1},
-  {"Value", NULL, N_("Value"), NULL, NULL, 2}
-};
-
-static gint n_radio_displayed_element_name_entries
-  = G_N_ELEMENTS (radio_displayed_element_name_entries);
-
-
-
-  /* When user toggles grid units mil<->mm or when a new layout is loaded
-     |  that might use different units, the "Change size of selected" menu
-     |  displayed text muxt be changed.
-   */
-void
-ghid_change_selected_update_menu_actions (void)
-{
-#ifdef DAN_FIXME
-  gchar size_buf[32], buf[128];
-
-  if (ghidgui->change_selected_actions)
-    {
-      /* Remove the existing change selected actions from the menu.
-       */
-      gtk_ui_manager_remove_action_group (ghidgui->ui_manager,
-					  ghidgui->change_selected_actions);
-      g_object_unref (ghidgui->change_selected_actions);
-    }
-
-  /* And create a new action group for the changed selection actions.
-   */
-  ghidgui->change_selected_actions =
-    gtk_action_group_new ("ChangeSelActions");
-  gtk_action_group_set_translation_domain (ghidgui->change_selected_actions,
-					   NULL);
-  gtk_ui_manager_insert_action_group (ghidgui->ui_manager,
-				      ghidgui->change_selected_actions, 0);
-
-  /* Update the labels to match current units and increment values settings.
-   */
-  if (Settings.grid_units_mm)
-    snprintf (size_buf, sizeof (size_buf), "%.2f mm",
-	      Settings.size_increment_mm);
-  else
-    snprintf (size_buf, sizeof (size_buf), "%.0f mil",
-	      Settings.size_increment_mil);
-
-  snprintf (buf, sizeof (buf), _("Decrement lines by %s"), size_buf);
-  dup_string ((gchar **) & change_selected_entries[0].label, buf);
-
-  snprintf (buf, sizeof (buf), _("Increment lines by %s"), size_buf);
-  dup_string ((gchar **) & change_selected_entries[1].label, buf);
-
-  snprintf (buf, sizeof (buf), _("Decrement pads by %s"), size_buf);
-  dup_string ((gchar **) & change_selected_entries[2].label, buf);
-
-  snprintf (buf, sizeof (buf), _("Increment pads by %s"), size_buf);
-  dup_string ((gchar **) & change_selected_entries[3].label, buf);
-
-  snprintf (buf, sizeof (buf), _("Decrement pins by %s"), size_buf);
-  dup_string ((gchar **) & change_selected_entries[4].label, buf);
-
-  snprintf (buf, sizeof (buf), _("Increment pins by %s"), size_buf);
-  dup_string ((gchar **) & change_selected_entries[5].label, buf);
-
-  snprintf (buf, sizeof (buf), _("Decrement text by %s"), size_buf);
-  dup_string ((gchar **) & change_selected_entries[6].label, buf);
-
-  snprintf (buf, sizeof (buf), _("Increment text by %s"), size_buf);
-  dup_string ((gchar **) & change_selected_entries[7].label, buf);
-
-  snprintf (buf, sizeof (buf), _("Decrement vias by %s"), size_buf);
-  dup_string ((gchar **) & change_selected_entries[8].label, buf);
-
-  snprintf (buf, sizeof (buf), _("Increment vias by %s"), size_buf);
-  dup_string ((gchar **) & change_selected_entries[9].label, buf);
-
-  /* -- Drill size changes */
-  snprintf (buf, sizeof (buf), _("Decrement vias by %s"), size_buf);
-  dup_string ((gchar **) & change_selected_entries[10].label, buf);
-
-  snprintf (buf, sizeof (buf), _("Increment vias by %s"), size_buf);
-  dup_string ((gchar **) & change_selected_entries[11].label, buf);
-
-  snprintf (buf, sizeof (buf), _("Decrement pins by %s"), size_buf);
-  dup_string ((gchar **) & change_selected_entries[12].label, buf);
-
-  snprintf (buf, sizeof (buf), _("Increment pins by %s"), size_buf);
-  dup_string ((gchar **) & change_selected_entries[13].label, buf);
-
-  /* And add the actions with new labels back in.
-   */
-  gtk_action_group_add_actions (ghidgui->change_selected_actions,
-				change_selected_entries,
-				n_change_selected_entries, &Output);
-#endif
-}
 
   /* Grid setting labels must also match user and new layout unit changes.
    */
@@ -865,49 +711,6 @@ ghid_grid_setting_update_menu_actions (void)
 }
 
 
-  /* When a new layout is loaded, must set the radio state to the current
-     |  "Displayed element name".  Now I unload and reload the actions so
-     |  an initial value can be set, but there must be a better way?
-   */
-static void
-update_displayed_name_actions (void)
-{
-  gint i;
-
-  if (ghidgui->displayed_name_actions)
-    {
-      /* Remove the existing radio actions from the menu.
-       */
-      gtk_ui_manager_remove_action_group (ghidgui->ui_manager,
-					  ghidgui->displayed_name_actions);
-      g_object_unref (ghidgui->displayed_name_actions);
-    }
-
-  /* And add back actions just to get the initial one set.
-   */
-  ghidgui->displayed_name_actions = gtk_action_group_new ("DispNameActions");
-  gtk_action_group_set_translation_domain (ghidgui->displayed_name_actions,
-					   NULL);
-  gtk_ui_manager_insert_action_group (ghidgui->ui_manager,
-				      ghidgui->displayed_name_actions, 0);
-
-  /* Get the index of the radio button to set
-   */
-  if (TEST_FLAG (DESCRIPTIONFLAG, PCB))
-    i = 0;
-  else if (TEST_FLAG (NAMEONPCBFLAG, PCB))
-    i = 1;
-  else
-    i = 2;
-
-  gtk_action_group_add_radio_actions (ghidgui->displayed_name_actions,
-				      radio_displayed_element_name_entries,
-				      n_radio_displayed_element_name_entries,
-				      i,
-				      G_CALLBACK
-				      (radio_displayed_element_name_cb),
-				      NULL);
-}
 
 void
 ghid_set_menu_toggle_button (GtkActionGroup * ag, gchar * name,
@@ -948,7 +751,7 @@ ghid_sync_with_new_layout (void)
 
   ghid_route_style_button_set_active (0);
   ghid_config_handle_units_changed ();
-  ghid_change_selected_update_menu_actions ();
+
   ghid_set_status_line_label ();
 }
 

@@ -2043,7 +2043,6 @@ SetUnits (int argc, char **argv, int x, int y)
 
   ghid_config_handle_units_changed ();
 
-  ghid_change_selected_update_menu_actions ();
   ghid_set_status_line_label ();
 
   // DAN-FIXME
