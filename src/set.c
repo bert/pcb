@@ -53,7 +53,6 @@
 #include "error.h"
 #include "find.h"
 #include "misc.h"
-#include "output.h"
 #include "set.h"
 #include "undo.h"
 
@@ -62,9 +61,6 @@
 #endif
 
 RCSID ("$Id$");
-
-
-
 
 static int mode_position = 0;
 static int mode_stack[MAX_MODESTACK_DEPTH];

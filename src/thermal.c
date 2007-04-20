@@ -66,7 +66,6 @@
 #include "error.h"
 #include "misc.h"
 #include "move.h"
-#include "output.h"
 #include "polygon.h"
 #include "rtree.h"
 #include "thermal.h"

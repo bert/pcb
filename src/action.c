@@ -55,7 +55,6 @@
 #include "mymem.h"
 #include "misc.h"
 #include "move.h"
-#include "output.h"
 #include "polygon.h"
 /*#include "print.h"*/
 #include "rats.h"

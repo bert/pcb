@@ -41,7 +41,6 @@
 #include "crosshair.h"
 #include "draw.h"
 #include "error.h"
-#include "output.h"
 #include "misc.h"
 #include "set.h"
 

@@ -49,7 +49,6 @@
 #include "mymem.h"
 #include "misc.h"
 #include "mirror.h"
-#include "output.h"
 #include "polygon.h"
 #include "rats.h"
 #include "remove.h"
