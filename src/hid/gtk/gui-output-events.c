@@ -157,9 +157,16 @@ ghid_port_ranges_zoom (gdouble zoom)
   gdouble xtmp, ytmp;
   gint		x0, y0;
 
+  /* figure out zoom values in that would just make the width fit and
+   * that would just make the height fit
+   */
   xtmp = (gdouble) PCB->MaxWidth / gport->width;
   ytmp = (gdouble) PCB->MaxHeight / gport->height;
 
+  /* if we've tried to zoom further out than what would make the
+   * entire board fit or we passed 0, then pick a zoom that just makes
+   * the board fit.
+   */
   if ((zoom > xtmp && zoom > ytmp) || zoom == 0.0)
     zoom = (xtmp > ytmp) ? xtmp : ytmp;
 
@@ -200,8 +207,8 @@ ghid_get_coords (const char *msg, int *x, int *y)
 {
   if (!ghid_port.has_entered)
     ghid_get_user_xy (msg);
-  *x = SIDE_X(gport->view_x);
-  *y = gport->view_y;
+  *x = SIDE_X (gport->view_x);
+  *y = SIDE_Y (gport->view_y);
 }
 
 gboolean
@@ -224,7 +231,8 @@ ghid_note_event_location (GdkEventButton * ev)
   gport->view_x = event_x * gport->zoom + gport->view_x0;
   gport->view_y = event_y * gport->zoom + gport->view_y0;
 
-  moved = MoveCrosshairAbsolute (SIDE_X (gport->view_x), gport->view_y);
+  moved = MoveCrosshairAbsolute (SIDE_X (gport->view_x), 
+				 SIDE_Y (gport->view_y));
   if (moved)
     {
       AdjustAttachedObjects ();
@@ -354,6 +362,8 @@ ghid_idle_cb (gpointer data)
       ghid_mode_buttons_update ();
     }
   ghidgui->settings_mode = Settings.Mode;
+
+  ghid_update_toggle_flags ();
   return FALSE;
 }
 
@@ -375,15 +385,12 @@ ghid_port_key_release_cb (GtkWidget * drawing_area, GdkEventKey * kev,
   return FALSE;
 }
 
-  /* Handle user keys in the output drawing area.
-     |  Note that there are some menu shortcuts in gui-top-window.c and it's
-     |  possible there's overlap with key actions coded here and menu shortcut
-     |  actions.  If the menu handles it, we won't see the key and code here
-     |  won't be called.  I've commented the cases below, but probably have
-     |  missed some.
-     |  If a method of allowing user defined keys is implemented, it will have
-     |  to deal somehow with the menu shortcuts.
-   */
+/* Handle user keys in the output drawing area.
+ * Note that the default is for all hotkeys to be handled by the
+ * menu accelerators.
+ *
+ * Key presses not handled by the menus will show up here.
+ */
 
 gboolean
 ghid_port_key_press_cb (GtkWidget * drawing_area,
@@ -405,529 +412,23 @@ ghid_port_key_press_cb (GtkWidget * drawing_area,
   handled = TRUE;		/* Start off assuming we handle it */
   switch (ksym)
     {
-    case GDK_a:
-    case GDK_A:
-      if (mk == NONE_PRESSED)
-	hid_action ("SetSame");
-      else
-	handled = FALSE;
+    case GDK_Alt_L:
+    case GDK_Alt_R:
+    case GDK_Control_L:
+    case GDK_Control_R:
+    case GDK_Shift_L:
+    case GDK_Shift_R:
+    case GDK_Shift_Lock:
       break;
 
-    case GDK_b:
-    case GDK_B:
-      if (mk == NONE_PRESSED)
-	hid_actionl ("Flip", "Object", NULL);
-      else
-	handled = FALSE;
-      break;
-
-    case GDK_c:
-    case GDK_C:
-      if (mk == CONTROL_PRESSED)
-	{
-	  hid_actionl ("PasteBuffer", "Clear", NULL);
-	  hid_actionl ("PasteBuffer", "AddSelected", NULL);
-	  hid_actionl ("Unselect", "All", NULL);
-	  hid_actionl ("Mode", "PasteBuffer", NULL);
-	}
-      else
-	handled = FALSE;
-      break;
-
-    case GDK_d:
-    case GDK_D:
-      if (mk == NONE_PRESSED)
-	hid_actionl ("Display", "PinOrPadName", NULL);
-      else
-	handled = FALSE;
-      break;
-
-    case GDK_e:
-    case GDK_E:
-      if (mk == NONE_PRESSED)	/* XXX handled in menu */
-	hid_actionl ("DeleteRats", "AllRats", NULL);
-      else if (mk == SHIFT_PRESSED)
-	hid_actionl ("DeleteRats", "SelectedRats", NULL);
-      else
-	handled = FALSE;
-      break;
-
-    case GDK_f:
-    case GDK_F:
-      if (mk == NONE_PRESSED)
-	{
-	  hid_actionl ("Connection", "Reset", NULL);
-	  hid_actionl ("Connection", "Find", NULL);
-	}
-      else if (mk == SHIFT_PRESSED)
-	hid_actionl ("Connection", "Reset", NULL);
-      else if (mk == CONTROL_PRESSED)
-	hid_actionl ("Connection", "Find", NULL);
-      else
-	handled = FALSE;
-      break;
-
-    case GDK_g:
-    case GDK_G:
-      value = Settings.grid_units_mm ?
-	Settings.grid_increment_mm : Settings.grid_increment_mil;
-      if (mk == NONE_PRESSED)
-	arg = g_strdup_printf ("+%f", value);
-      else if (mk == SHIFT_PRESSED)
-	arg = g_strdup_printf ("-%f", value);
-      else
-	{
-	  handled = FALSE;
-	  break;
-	}
-      hid_actionl ("SetValue", "Grid", arg,
-		   Settings.grid_units_mm ? "mm" : "mil", NULL);
-      g_free (arg);
-
-      /* User set grid may no longer match grid setting menu.
-       */
-      ghid_grid_setting_update_menu_actions ();
-      break;
-
-    case GDK_h:
-    case GDK_H:
-      if (mk == CONTROL_PRESSED)
-	hid_actionl ("ChangeHole", "Object", NULL);
-      else if (mk == SHIFT_PRESSED)
-	hid_actionl ("ToggleHideName", "SelectedElements", NULL);
-      else if (mk == NONE_PRESSED)
-	hid_actionl ("ToggleHideName", "Object", NULL);
-      else
-	handled = FALSE;
-      break;
-
-    case GDK_j:
-    case GDK_J:
-      if (mk == SHIFT_PRESSED)
-	hid_actionl ("ChangeJoin", "SelectedObjects", NULL);
-      else if (mk == NONE_PRESSED)
-	hid_actionl ("ChangeJoin", "Object", NULL);
-      else
-	handled = FALSE;
-      break;
-
-    case GDK_k:
-    case GDK_K:
-      if (mk == CONTROL_PRESSED || mk == SHIFT_CONTROL_PRESSED)
-	{
-	  ghid_clear_increment_get_value ((mk == CONTROL_PRESSED) ? "+" : "-",
-					  &arg, &units);
-	  hid_actionl ("ChangeClearSize", "SelectedObjects", arg, units, NULL);
-	}
-      else
-	{
-	  ghid_clear_increment_get_value ((mk == NONE_PRESSED) ? "+" : "-",
-					  &arg, &units);
-	  hid_actionl ("ChangeClearSize", "Object", arg, units, NULL);
-	}
-      break;
-
-    case GDK_l:
-    case GDK_L:
-      if (mk == SHIFT_PRESSED)
-	{
-	  ghid_line_increment_get_value ("-", &arg, &units);
-	  hid_actionl ("SetValue", "LineSize", arg, units, NULL);
-	}
-      else if (mk == NONE_PRESSED)
-	{
-	  ghid_line_increment_get_value ("+", &arg, &units);
-	  hid_actionl ("SetValue", "LineSize", arg, units, NULL);
-	}
-      else
-	handled = FALSE;
-      break;
-
-    case GDK_m:
-    case GDK_M:
-      if (mk == CONTROL_PRESSED)
-	hid_action ("MarkCrosshair");
-      else if (mk == SHIFT_PRESSED)
-	hid_actionl ("MoveToCurrentLayer", "SelectedObjects", NULL);
-      else if (mk == NONE_PRESSED)
-	hid_actionl ("MoveToCurrentLayer", "Object", NULL);
-      else
-	handled = FALSE;
-      break;
-
-    case GDK_n:
-    case GDK_N:
-      if (mk == SHIFT_PRESSED)
-	hid_actionl ("AddRats", "Close", NULL);
-      else
-	handled = FALSE;
-      break;
-
-    case GDK_o:
-    case GDK_O:
-      if (mk == NONE_PRESSED)	/* XXX handled in menu */
-	{
-	  hid_actionl ("Atomic", "Save", NULL);
-	  hid_actionl ("DeleteRats", "AllRats", NULL);
-	  hid_actionl ("Atomic", "Restore", NULL);
-	  hid_actionl ("AddRats", "AllRats", NULL);
-	  hid_actionl ("Atomic", "Block", NULL);
-	}
-      else if (mk == CONTROL_PRESSED)
-	hid_actionl ("ChangeOctagon", "Object", NULL);
-      else if (mk == SHIFT_PRESSED)
-	{
-	  hid_actionl ("Atomic", "Save", NULL);
-	  hid_actionl ("DeleteRats", "AllRats", NULL);
-	  hid_actionl ("Atomic", "Restore", NULL);
-	  hid_actionl ("AddRats", "SelectedRats", NULL);
-	  hid_actionl ("Atomic", "Block", NULL);
-	}
-      else
-	handled = FALSE;
-      break;
-
-    case GDK_p:
-    case GDK_P:
-      if (mk == SHIFT_PRESSED)
-	hid_actionl ("Polygon", "Close", NULL);
-      else if (mk == NONE_PRESSED)
-	hid_actionl ("Polygon", "PreviousPoint", NULL);
-      else
-	handled = FALSE;
-      break;
-
-    case GDK_q:
-    case GDK_Q:
-      if (mk == NONE_PRESSED)
-	hid_actionl ("ChangeSquare", "ToggleObject", NULL);
-      else
-	handled = FALSE;
-      break;
-
-    case GDK_s:
-    case GDK_S:
-      if (mk == MOD1_PRESSED || mk == SHIFT_MOD1_PRESSED)
-	{
-	  ghid_size_increment_get_value ((mk == MOD1_PRESSED) ? "+" : "-",
-					 &arg, &units);
-	  hid_actionl ("ChangeDrillSize", "Object", arg, units, NULL);
-	}
-      else
-	{
-	  ghid_size_increment_get_value ((mk == NONE_PRESSED) ? "+" : "-",
-					 &arg, &units);
-	  hid_actionl ("ChangeSize", "Object", arg, units, NULL);
-	}
-      break;
-
-    case GDK_t:
-    case GDK_T:
-      if (mk == SHIFT_PRESSED)
-	{
-	  ghid_size_increment_get_value ("-", &arg, &units);
-	  hid_actionl ("SetValue", "TextScale", arg, units, NULL);
-	}
-      else if (mk == NONE_PRESSED)
-	{
-	  ghid_size_increment_get_value ("+", &arg, &units);
-	  hid_actionl ("SetValue", "TextScale", arg, units, NULL);
-	}
-      else
-	handled = FALSE;
-      break;
-
-    case GDK_u:
-    case GDK_U:
-      if (mk == NONE_PRESSED)	/* XXX handled in menu */
-	hid_action ("Undo");
-      else
-	handled = FALSE;
-      break;
-
-    case GDK_v:
-    case GDK_V:
-      if (mk == NONE_PRESSED)
-	ghid_port_ranges_zoom (0);
-      else if (mk == MOD1_PRESSED || mk == SHIFT_MOD1_PRESSED)
-	{
-	  ghid_size_increment_get_value ((mk == MOD1_PRESSED) ? "+" : "-",
-					 &arg, &units);
-	  hid_actionl ("SetValue", "ViaDrillingHole", arg, units, NULL);
-	}
-      else if (mk == CONTROL_PRESSED || mk == SHIFT_CONTROL_PRESSED)
-	{
-	  ghid_size_increment_get_value ((mk == CONTROL_PRESSED) ? "+" : "-",
-					 &arg, &units);
-	  hid_actionl ("SetValue", "ViaSize", arg, units, NULL);
-	}
-      else
-	handled = FALSE;
-      break;
-
-    case GDK_w:
-    case GDK_W:
-      if (mk == SHIFT_PRESSED)
-	hid_actionl ("AddRats", "SelectedRats", NULL);
-      else if (mk == NONE_PRESSED)
-	hid_actionl ("AddRats", "AllRats", NULL);
-      else
-	handled = FALSE;
-      break;
-
-    case GDK_z:
-    case GDK_Z:
-      if (mk == NONE_PRESSED)	/* XXX handled in menu */
-	hid_actionl ("SetValue", "Zoom", "-1", NULL);
-      else			/* <shift>z handled in menu shortcut */
-	handled = FALSE;
-      break;
-
-    case GDK_bar:
-    case GDK_backslash:
-      hid_actionl ("Display", "ToggleThindraw", NULL);
-      ghid_set_menu_toggle_button (ghidgui->main_actions,
-				   "ToggleThinDraw", TEST_FLAG (THINDRAWFLAG,
-								PCB));
-      break;
-
-    case GDK_Tab:
-      hid_action ("SwapSides");
-      ghid_set_menu_toggle_button (ghidgui->main_actions,
-				   "ToggleViewSolderSide",
-				   Settings.ShowSolderSide);
-      break;
-
-    case GDK_Escape:
-      switch (Settings.Mode)
-	{
-	case VIA_MODE:
-	case PASTEBUFFER_MODE:
-	case TEXT_MODE:
-	case ROTATE_MODE:
-	case REMOVE_MODE:
-	case MOVE_MODE:
-	case COPY_MODE:
-	case INSERTPOINT_MODE:
-	case RUBBERBANDMOVE_MODE:
-	case THERMAL_MODE:
-	case LOCK_MODE:
-	  hid_actionl ("Mode", "Arrow", NULL);
-	  break;
-
-	case LINE_MODE:
-	  if (Crosshair.AttachedLine.State == STATE_FIRST)
-	    hid_actionl ("Mode", "Arrow", NULL);
-	  else
-	    hid_actionl ("Mode", "Line", NULL);
-	  break;
-
-	case RECTANGLE_MODE:
-	  if (Crosshair.AttachedBox.State == STATE_FIRST)
-	    hid_actionl ("Mode", "Arrow", NULL);
-	  else
-	    hid_actionl ("Mode", "Rectangle", NULL);
-	  break;
-
-	case POLYGON_MODE:
-	  if (Crosshair.AttachedLine.State == STATE_FIRST)
-	    hid_actionl ("Mode", "Arrow", NULL);
-	  else
-	    hid_actionl ("Mode", "Polygon", NULL);
-	  break;
-
-	case ARC_MODE:
-	  if (Crosshair.AttachedBox.State == STATE_FIRST)
-	    hid_actionl ("Mode", "Arrow", NULL);
-	  else
-	    hid_actionl ("Mode", "Arc", NULL);
-	  break;
-
-	case ARROW_MODE:
-	  break;
-
-	default:
-	  gui->log ("Mode %d not handled by ESC\n", Settings.Mode);
-	  break;
-	}
-
-      break;
-
-    case GDK_space:
-      hid_actionl ("Mode", "Arrow", NULL);
-      break;
-
-    case GDK_colon:
-      hid_action ("Command");
-      break;
-
-    case GDK_period:
-      hid_actionl ("Display", "Toggle45Degree", NULL);
-      ghid_set_menu_toggle_button (ghidgui->main_actions,
-				   "Toggle45degree",
-				   TEST_FLAG (ALLDIRECTIONFLAG, PCB));
-      break;
-
-    case GDK_slash:
-      hid_actionl ("Display", "CycleClip", NULL);
-      break;
-
-    case GDK_Up:
-      if (mk == CONTROL_PRESSED)
-	{
-	  hid_actionl ("Display", "Scroll", "8", NULL);
-	  hid_actionl ("Display", "Scroll", "0", NULL);
-	}
-      else if (mk == SHIFT_PRESSED)
-	hid_actionl ("MovePointer", "0", "-10", NULL);
-      else if (mk == NONE_PRESSED)
-	hid_actionl ("MovePointer", "0", "-1", NULL);
-      break;
-
-    case GDK_Down:
-      if (mk == CONTROL_PRESSED)
-	{
-	  hid_actionl ("Display", "Scroll", "2", NULL);
-	  hid_actionl ("Display", "Scroll", "0", NULL);
-	}
-      else if (mk == SHIFT_PRESSED)
-	hid_actionl ("MovePointer", "0", "10", NULL);
-      else if (mk == NONE_PRESSED)
-	hid_actionl ("MovePointer", "0", "1", NULL);
-      break;
-
-    case GDK_Left:
-      if (mk == CONTROL_PRESSED)
-	{
-	  hid_actionl ("Display", "Scroll", "4", NULL);
-	  hid_actionl ("Display", "Scroll", "0", NULL);
-	}
-      else if (mk == SHIFT_PRESSED)
-	hid_actionl ("MovePointer", "-10", "0", NULL);
-      else if (mk == NONE_PRESSED)
-	hid_actionl ("MovePointer", "-1", "0", NULL);
-      break;
-
-    case GDK_Right:
-      if (mk == CONTROL_PRESSED)
-	{
-	  hid_actionl ("Display", "Scroll", "6", NULL);
-	  hid_actionl ("Display", "Scroll", "0", NULL);
-	}
-      else if (mk == SHIFT_PRESSED)
-	hid_actionl ("MovePointer", "10", "0", NULL);
-      else if (mk == NONE_PRESSED)
-	hid_actionl ("MovePointer", "1", "0", NULL);
-      break;
-
-    case GDK_BackSpace:
-    case GDK_Delete:
-      if (mk == SHIFT_PRESSED)
-	{
-	  hid_actionl ("Atomic", "Save", NULL);
-	  hid_actionl ("Connection", "Reset", NULL);
-	  hid_actionl ("Atomic", "Restore", NULL);
-	  hid_actionl ("Unselect", "All", NULL);
-	  hid_actionl ("Atomic", "Restore", NULL);
-	  hid_actionl ("Connection", "Find", NULL);
-	  hid_actionl ("Atomic", "Restore", NULL);
-	  hid_actionl ("Select", "Connection", NULL);
-	  hid_actionl ("Atomic", "Restore", NULL);
-	  hid_action ("RemoveSelected");
-	  hid_actionl ("Atomic", "Restore", NULL);
-	  hid_actionl ("Connection", "Reset", NULL);
-	  hid_actionl ("Atomic", "Restore", NULL);
-	  hid_actionl ("Unselect", "All", NULL);
-	  hid_actionl ("Atomic", "Block", NULL);
-	}
-      else if (mk == NONE_PRESSED)
-	{
-	  hid_actionl ("Mode", "Save", NULL);
-	  hid_actionl ("Mode", "Remove", NULL);
-	  hid_actionl ("Mode", "Notify", NULL);
-	  hid_actionl ("Mode", "Restore", NULL);
-	}
-      break;
-
-    case GDK_Insert:
-      if (mk == NONE_PRESSED)
-	hid_actionl ("Mode", "InsertPoint", NULL);
-      break;
-
-    case GDK_1:
-    case GDK_2:
-    case GDK_3:
-    case GDK_4:
-    case GDK_5:
-    case GDK_6:
-    case GDK_7:
-    case GDK_8:
-    case GDK_9:
-      tmp = ksym - GDK_1;
-      if (mk == NONE_PRESSED)
-	ghid_layer_button_select (tmp);
-      else
-	handled = FALSE;
-      break;
-
-    case GDK_F1:
-      hid_actionl ("Mode", "Via", NULL);
-      break;
-
-    case GDK_F2:
-      hid_actionl ("Mode", "Line", NULL);
-      break;
-
-    case GDK_F3:
-      hid_actionl ("Mode", "Arc", NULL);
-      break;
-
-    case GDK_F4:
-      hid_actionl ("Mode", "Text", NULL);
-      break;
-
-    case GDK_F5:
-      hid_actionl ("Mode", "Rectangle", NULL);
-      break;
-
-    case GDK_F6:
-      hid_actionl ("Mode", "Polygon", NULL);
-      break;
-
-    case GDK_F7:
-      hid_actionl ("Mode", "PasteBuffer", NULL);
-      break;
-
-    case GDK_F8:
-      hid_actionl ("Mode", "Remove", NULL);
-      break;
-
-    case GDK_F9:
-      hid_actionl ("Mode", "Rotate", NULL);
-      break;
-
-    case GDK_F10:
-      hid_actionl ("Mode", "Thermal", NULL);
-      break;
-
-    case GDK_F11:
-      hid_actionl ("Mode", "Arrow", NULL);
-      break;
-
-    case GDK_bracketleft:
-      hid_actionl ("Mode", "Save", NULL);
-      hid_actionl ("Mode", "Arrow", NULL);
-      hid_actionl ("Mode", "Notify", NULL);
-      break;
-
-    case GDK_bracketright:
-      hid_actionl ("Mode", "Release", NULL);
-      hid_actionl ("Mode", "Restore", NULL);
-      break;
     default:
+      gui->log ("keysym %d (0x%x) has not been defined\n", ksym, ksym);
       handled = FALSE;
     }
 
+  /* FIXME -- since we usually don't make it here, does this code need
+     to go somewhere else?
+  */
   HideCrosshair (TRUE);
   AdjustAttachedObjects ();
   ghid_invalidate_all ();
@@ -961,7 +462,7 @@ gboolean
 ghid_port_button_press_cb (GtkWidget * drawing_area,
 			   GdkEventButton * ev, GtkUIManager * ui)
 {
-  GtkWidget *menu = gtk_ui_manager_get_widget (ui, "/PopupMenu");
+  GtkWidget *menu = gtk_ui_manager_get_widget (ui, "/Popup1");
   ModifierKeysState mk;
   gboolean drag, start_pan = FALSE;
 

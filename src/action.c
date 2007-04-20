@@ -106,6 +106,7 @@ typedef enum
   F_ElementByName,
   F_ElementConnections,
   F_ElementToBuffer,
+  F_Escape,
   F_Find,
   F_FlipElement,
   F_FoundPins,
@@ -334,6 +335,7 @@ static FunctionType Functions[] = {
   {"ElementByName", F_ElementByName},
   {"ElementConnections", F_ElementConnections},
   {"ElementToBuffer", F_ElementToBuffer},
+  {"Escape", F_Escape},
   {"Find", F_Find},
   {"FlipElement", F_FlipElement},
   {"FoundPins", F_FoundPins},
@@ -2824,6 +2826,10 @@ Cancels any pending tool activity, allowing you to restart elsewhere.
 For example, this allows you to start a new line rather than attach a
 line to the previous line.
 
+@item Escape
+Similar to Cancel but calling this action a second time will return
+to the Arrow tool.
+
 @item Stroke
 If your @code{pcb} was built with libstroke, this invokes the stroke
 input method.  If not, this will restart a drawing mode if you were
@@ -2843,6 +2849,7 @@ static int
 ActionMode (int argc, char **argv, int x, int y)
 {
   char *function = ARG (0);
+
   if (function)
     {
       Note.X = Crosshair.X;
@@ -2881,6 +2888,74 @@ ActionMode (int argc, char **argv, int x, int y)
 	    SetMode (saved_mode);
 	  }
 	  break;
+	case F_Escape:
+	  {
+	    switch (Settings.Mode)
+	      {
+	      case VIA_MODE:
+	      case PASTEBUFFER_MODE:
+	      case TEXT_MODE:
+	      case ROTATE_MODE:
+	      case REMOVE_MODE:
+	      case MOVE_MODE:
+	      case COPY_MODE:
+	      case INSERTPOINT_MODE:
+	      case RUBBERBANDMOVE_MODE:
+	      case THERMAL_MODE:
+	      case LOCK_MODE:
+		SetMode (NO_MODE);
+		SetMode (ARROW_MODE);
+		break;
+
+	      case LINE_MODE:
+		if (Crosshair.AttachedLine.State == STATE_FIRST)
+		  SetMode (ARROW_MODE);
+		else
+		  {
+		    SetMode (NO_MODE);
+		    SetMode (LINE_MODE);
+		  }
+		break;
+
+	      case RECTANGLE_MODE:
+		if (Crosshair.AttachedBox.State == STATE_FIRST)
+		  SetMode (ARROW_MODE);
+		else
+		  {
+		    SetMode (NO_MODE);
+		    SetMode (RECTANGLE_MODE);
+		  }
+		break;
+	  
+	      case POLYGON_MODE:
+		if (Crosshair.AttachedLine.State == STATE_FIRST)
+		  SetMode (ARROW_MODE);
+		else
+		  {
+		    SetMode (NO_MODE);
+		    SetMode (POLYGON_MODE);
+		  }
+		break;
+
+	      case ARC_MODE:
+		if (Crosshair.AttachedBox.State == STATE_FIRST)
+		  SetMode (ARROW_MODE);
+		else
+		  {
+		    SetMode (NO_MODE);
+		    SetMode (ARC_MODE);
+		  }
+		break;
+		
+	      case ARROW_MODE:
+		break;
+		
+	      default:
+		break;
+	      }
+	  }
+	  break;
+	  
 	case F_Notify:
 	  NotifyMode ();
 	  break;

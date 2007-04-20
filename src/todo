@@ -5,9 +5,51 @@ MoveLayers - undo of deleting a layer with stuff on it.
 
 [gtk]
 
+[user controlled menus for gtk]
+
+- Why doesn't the Tab key work???  I get complaints that the keysym 
+  is undefined.  Maybe it is the old version of gtk I'm using?  Looking
+  in more recent sources seems to indicate that Tab should be Just Fine
+  as a hot key.
+
+- sometimes after using the command window, the hotkeys all seem to
+  quit working.  Why???
+
+- Test all menu actions (again)
+
+- Compare all hotkeys from the hard coded system to the new resource file
+  controlled system.  We're looking for no/minimal user visible change
+  when the usermenu branch is merged
+
+- Make sure loading a new board updates all the displayed menu checkmarks
+
+- play around with the route style buttons and menus to see if it gets 
+  confused ever.
+
+- make sure settings are always saved
+
+- make sure that we're compatible with the lesstif hid as far as being able to 
+  load the same menu resource file if we want
+
+- compare performace before and after over a slow link or on a slow computer.
+
+- make the ui append code more printf()-like.  It will simplify the code
+  and make it nicer to read.
+
+- look for code duplication in hid/gtk/gui-top-window.c, especially related to
+  layers and tools.  Don't duplicate code if at all possible.
+
+Known issues:
+
+- Mouse section in the resource file is ignored.  I need to learn about how the mouse buttons are handled in the gtk HID currently so I can hook up that section.
+
+- A fair amount of now obsolete code still exists in gui-top-window.c.  I need to do some major house keeping.
+
+
+[existing before user controlled menus]
+
 Do something with LayerGroupsChanged action.
 
-Test all menu actions.
 
 Verify all config items are saved/loaded properly.
 
@@ -65,3 +107,235 @@ structures; convert most internal functions to use this AnyObject type
 instead of N functions for N object types.  (Prelude to C++ objects?)
 
 Win32 and MacOS HIDs.
+
+-------------------- Punch list from sdb --------------------
+
+
+I played around with an existing design: the two-sided optical proximity
+sensor board I wrote about in Circuit Cellar.  A tarball of this project is
+available on my website.  Here are some notes
+
+*  Grab a single track and move it around.  Sometimes, PCB prevents me from
+   moving it beyond a point above and to the left of the track's original
+   starting point.   This happens regularly if I do this:
+   1.  Click on teh track.  It lights up.
+   2.  Grab the track with the left mouse button.  Then drag it with left
+       mouse button down.  The track won't move above or to the left of its
+       start point.
+   Maybe this has something to do with preventing motion to negative
+   coordinates, and PCB is looking at component-relative coordinates instead
+   of absolute board coords?
+
+dm:  there in 20070208
+
+*  Bug or feature?  I run the DRC checker.  The DRCs are written out to the
+   pcb.log file.  However, the pcb.log window does not rise to the top.
+   Rather, it remains hidden behind my main PCB window.
+
+dm:  there in 20070208
+
+*  "File -> revert" removes all my silk refdes text, and replaces it with the
+   component description from the element file.  It looks like this action
+   tries to put text(3) on the baord, when it should put text(2).
+
+dm:  can't reproduce on my board.  Need to investigate.  Looks like no change.
+
+*  "File -> revert" also changes many of my SMT pads from rectangular to round
+   end.
+
+dm:  can't reproduce.
+
+
+*  "Edit -> cut/copy/paste selection to buffer".  Is there any reason the key
+   bindings for these are not the standard bindings:
+   cut: <ctrl>-X
+   copy: <ctrl>-C
+   paste: <ctrl>-V
+   Yes, it may be in a .gtkrc file now, but IMO these should be the default.
+
+dm:  will switch after usermenu merge.
+
+*  We have "edit -> select/unselect all", and we have "select ->
+   select/unselect all objects".  Do we need two menu items doing the same
+   thing?  Or if they do different things, can we make the text reflect what
+   they do?
+
+dm: They are identical.  I have mixed feelings.  It is wierd to have 2.  Yet, it seems like they go under select but most programs have edit->select all....  I'll make a note, but this is the same as in the trunk right now.
+
+*  "Edit -> move selected to current layer" doesn't seem to do anything.
+
+dm: existing bug.  confirmed.
+
+*  "View -> open pinout menu" does nothing.  No spew appears on console.
+
+dm:  need to select something or have crosshair over an element.
+
+*  "View -> pin/via show name/number" does nothing.  No spew appears on
+   console.
+
+dm: same deal
+*  If I do "view -> current layer -> delete current layer", the layer is
+   deleted.  However, the remaining layers are re-colored.  It looks like the
+   current layer is deleted from a list, but the colors are based upon list
+   position, so the remaining layers are re-colored if they live after teh
+   deleted layer.
+
+   Anyway, the layers shouldn't be recolored when I delete a layer.
+
+dm: existing bug in gtk HID only (lesstif works right)
+
+actually.... lesstif doesn't recolor until you restart pcb and then it
+is recolored.  It is because we don't store the color with the layer
+in the pcb file.
+
+*  Again, "view -> current layer -> move current layer up/down" re-colors my
+   layers.  I'd rather have the color follow the layer so that e.g. my GND
+   planes remain green.
+
+dm: see above
+
+*  "Settings -> orthogonal moves" doesn't work correctly.  If I start a track,
+   it will only go in an orthogonal direction, but then if I plant the track
+   by clicking once and try to veer off in an orthogonal direction, then the
+   track won't go orthogonal relative to my planted point.  Rather, it still
+   wants to move in an orthogonal relative to my start point.
+
+*  "Settings -> all directions lines" and "settings -> orthogonal moves"  can
+   both be selected at once.  These are incompatible settings.  I suggest these
+   drawing settings should be in an menu section with radio buttons which
+   prohibit checking more than one box at a time.
+
+
+
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+*  WHile fiddling with a different setting,
+   I just noticed that trying to optimize rats only highlights pads now.  I
+   suspect this has to do with when I removed a layer.  The code which used to
+   tell the rats to light up is now telling the pads to light up, probably
+   because it is pointing to the wrong element in the layer list.
+
+*  "Select -> move selected elements to other side" doesn't move a selected
+   element to the other side.  Rather, it asks you to click on the objects you
+   want to move.  That is, it is "verb noun" rather than "noun verb".  Bug or
+   feature?  These days, most UIs use the "noun verb" convention for one-step
+   actions like this.
+
+*  "Select -> remove selected objects" is "noun verb".  This is good.
+   However, it's the same as selecting an object and hitting <delete>, right?
+   Why should it appear here.  Isn't this action under "edit" in most modern
+   UIs?
+
+*  On the same topic:  As you pointed out, hitting the <delete> key deletes
+   the object under the cursor.  This is not the expected behavior nowadays.
+   What should happen is that all selected objects (i.e. those which are lit
+   up) should be deleted.
+
+*  A general observation:  If I use the "lock" tool to lock down a component,
+   then I can't select it.  That's OK.  However, it would be nice if a dialog
+   box would pop up and tell me that the component is locked.  Right now it
+   can be very confusing if I locked a component and then forgot it was
+   locked.  I can't figure out why I can't select it......
+
+*  This is weird.  "Select -> convert selection to element" asks me to select
+   the mark.  I click in the middle of a component.  THen, depending upon luck
+   or perhaps history, PCB lights up a component *next to* the one I just
+   clicked.  And it also lights up a piece of etch in the vicinity of the
+   component I just clicked.  ???
+
+*  "Select -> optimize selected rats" -- what does this do?  Is it the same as
+   "Connects -> optimize rats nest?".  If so, then it should be removed form
+   the "select" menu.
+
+*  A general comment:  Lots of things in the "select" pull-down don't belong
+   under the heading of "select".  Rather, I'd call this menu "actions", or
+   possibly "tools".  THen, lots of the nice actions only available via the
+   command line widget can be grouped under this menu title.  As for a name, I
+   prefer "actions" 'cause that's what they are.
+
+*  "Select -> auto route" and "select -> rip up autorouted tracks"  also
+   appear under "connections".  They don't need to be under the "select" menu.
+
+
+
+*  General comment: the way the buffer works has alwyas bugged me.  When you
+   copy or cut somthing to the buffer, you get a ghost image of hte
+   footprint.  This is OK.  However, the ghost follows the cursor around while
+   you go to the menu to select the next action.  This is a PITA since the
+   view field of the design moves when you get to the top of the window while
+   reaching for the menu.  (Yes, I realize we all use
+   the hotkeys to trigger actions, but newbies don't know to do this yet.)
+
+*  "Buffer -> #1/#2/etc"  What do they do?   OK, I realize they allow you to
+   select one of five buffers to operate on.  Maybe this should be renamed
+   "Buffer -> operate on buf 1", "Buffer -> operate on buf2", etc.
+
+*  "Connects -> apply vendor drill mapping" doesn't report success of
+   failure.   In my case, I have no vendor drill file, but when I do "connects
+   -> apply vendor drill mapping" nothing happens.  I'd expect a pop-up box to
+   tell me about my error (no file).
+
+*  "Connects -> report found pins/pads" throws up box saying "the following
+   pins/pads are FOUND:" with nothing after that.
+
+
+*  On the upper right, teh box whihc holds the cursor's coordinates resizes as
+   you move the cursor around and the
+   coordinate numbers grow and shrink.  This
+   makes the text to the left of the box jump around.  It would look better if
+   the coordinate box was a fixed size, holding space for e.g. 8 digits each
+   (i.e. XXXXXX.XX).
+
+*  Next to the cursor coordinate box is another box which looks like it should
+   hold some coordinates.  However, it holds nothing.  What is it for?
+   Unimplemented feature?
+
+*  An annoyance:  Eariler, I tested the "disperse elements" menu item.  It
+   placed some components below the white drawing area, in the grey no-go
+   area.  Now I can't grab them because the cursor is prevented from moving
+   into the grey area.
+
+   IMO, the cursor should be permitted to move into the grey area.  Also you
+   should be permitted to drag components, etch, or anything else into the
+   grey area.  Yes, the grey area is outside the bounds of the board, but the
+   only things that should do is clip any graphic objects to the edge of the
+   white area when you generate Gerbers.  From teh standpoint of drawing, you
+   should have full access to the grey area.
+
+   One strong reason in favor of this is that it's quite common to put
+   unplaced components outside the board during placement stage.  You can sort
+   and segregate them out there.  Then, as
+   you place the components, you can grab them from outside the board and
+   place them where you want.  Right now, that's more of a PITA since the
+   components are initially imported all on top of one anther.  Then, if you
+   disperse them, they cover the board area where you want to eventually place
+   them.
+
+*  Finally, a general comment.  I've never been 100% happy with the top-level
+   menus in PCB.  In my opinion, I'd make them as follows:
+
+--  File
+--  Edit
+--  View
+--  Settings
+--  Actions (currently is selections, but should hold items related to acting
+    on things you have selected.)
+--  Footprints -- currently is buffer.  Should permit manipulations related to
+    editing, creating, saving, rotating, mirroring, etc. of footprints.
+    Might add other menu items related to dealing with footprints.
+--  Routing -- currently is connects, but should be renamed to reflect that its
+    primary purpose is related to things related to laying down physical
+    tracks and
+    dealing with the autorouter.  Could also include anything related to
+    changing track size or other etch manipulations.
+--  Nets -- Deals with highlighting connections, maybe toggling rats, opening
+    the nets dialog, etc.  Also, anything
+    else related to the abstract connections between circuit
+    elements. --  Info --  Window
+
+The idea is to make the menus reflect the physical things on teh board which
+the user is concerned with.  Right now the menus are more a reflection of
+PCB's internals (i.e. connections, buffer, etc.)
+
+Once the top level menus are re-named, then I'd do some re-factoring/shuffling
+of functionality into the new menus.

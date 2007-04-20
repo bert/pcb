@@ -33,6 +33,9 @@
 
 # If the first argument is "-gdb" then run PCB inside the gdb
 # debugger.  
+#
+# Use  --g-fatal-warnings with the gtk HID to cause gtk-WARNING's to
+# abort.
 
 TEST_PATHS="--lib-path ../lib --lib-newlib @TOPSRCDIR@/newlib:../lib/pcblib-newlib --element-path ../lib --font-path @TOPSRCDIR@/src"
 TEST_CMDS="--lib-command-dir ../lib"

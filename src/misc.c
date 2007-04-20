@@ -81,8 +81,6 @@
 RCSID ("$Id$");
 
 
-
-
 /*	forward declarations	*/
 static char *BumpName (char *);
 static void RightAngles (int, float *, float *);

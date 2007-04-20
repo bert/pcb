@@ -12,10 +12,13 @@
 #include <math.h>
 #include <time.h>
 
-#include "global.h"
-#include "data.h"
+
 #include "action.h"
 #include "crosshair.h"
+#include "data.h"
+#include "draw.h"
+#include "error.h"
+#include "global.h"
 #include "mymem.h"
 #include "draw.h"
 #include "clip.h"
@@ -23,6 +26,11 @@
 #include "hid.h"
 #include "../hidint.h"
 #include "gui.h"
+
+
+#if !GTK_CHECK_VERSION(2,8,0) && defined(HAVE_GDK_GDKX_H)
+#include <gdk/gdkx.h>
+#endif
 
 #ifdef HAVE_LIBDMALLOC
 #include <dmalloc.h>
@@ -35,6 +43,9 @@ RCSID ("$Id$");
 extern HID ghid_hid;
 
 
+static void zoom_to (double factor, int x, int y);
+static void zoom_by (double factor, int x, int y);
+
 /* Sets gport->u_gc to the "right" GC to use (wrt mask or window)
 */
 #define USE_GC(gc) if (!use_gc(gc)) return
@@ -42,31 +53,280 @@ extern HID ghid_hid;
 static int cur_mask = -1;
 static int mask_seq = 0;
 
+int ghid_flip_x = 0, ghid_flip_y = 0;
+
+/* ------------------------------------------------------------ */
+
+/* Px converts view->pcb, Vx converts pcb->view */
+      
+static inline int 
+Vx (int x)
+{     
+  int rv;
+  if (ghid_flip_x) 
+    rv = (PCB->MaxWidth - x - gport->view_x0) / gport->zoom + 0.5;
+  else
+    rv = (x - gport->view_x0) / gport->zoom + 0.5;
+  return rv;
+}       
+      
+static inline int 
+Vx2 (int x)
+{     
+  return (x - gport->view_x0) / gport->zoom + 0.5;
+}       
+      
+static inline int
+Vy (int y)
+{         
+  int rv;
+  if (ghid_flip_y)
+    rv = (PCB->MaxHeight - y - gport->view_y0) / gport->zoom + 0.5;
+  else
+    rv = (y - gport->view_y0) / gport->zoom + 0.5;
+  return rv;
+}     
+        
+static inline int 
+Vy2 (int y)
+{     
+  return (y - gport->view_y0) / gport->zoom + 0.5;
+}       
+      
+static inline int
+Vz (int z)
+{           
+  return z / gport->zoom + 0.5;
+}         
+                
+static inline int
+Px (int x)
+{  
+  int rv = x * gport->zoom + gport->view_x0;
+  if (ghid_flip_x)
+    rv = PCB->MaxWidth - (x * gport->zoom + gport->view_x0);
+  return  rv;
+}  
+
+static inline int
+Py (int y)
+{  
+  int rv = y * gport->zoom + gport->view_y0;
+  if (ghid_flip_y)
+    rv = PCB->MaxHeight - (y * gport->zoom + gport->view_y0);
+  return  rv;
+}  
+
+/* ------------------------------------------------------------ */
 
 static const char zoom_syntax[] =
-"Zoom(gtk)";
+"Zoom()\n"
+"Zoom(factor)";
+
 
 static const char zoom_help[] =
-"this is the gtk zoom";
+"Various zoom factor changes.";
 
 /* %start-doc actions Zoom
+Changes the zoom (magnification) of the view of the board.  If no
+arguments are passed, the view is scaled such that the board just fits
+inside the visible window (i.e. ``view all'').  Otherwise,
+@var{factor} specifies a change in zoom factor.  It may be prefixed by
+@code{+}, @code{-}, or @code{=} to change how the zoom factor is
+modified.  The @var{factor} is a floating point number, such as
+@code{1.5} or @code{0.75}.
 
-This is for the gtk zoom.
+@table @code
+  
+@item +@var{factor}
+Values greater than 1.0 cause the board to be drawn smaller; more of
+the board will be visible.  Values between 0.0 and 1.0 cause the board
+to be drawn bigger; less of the board will be visible.
+  
+@item -@var{factor}
+Values greater than 1.0 cause the board to be drawn bigger; less of
+the board will be visible.  Values between 0.0 and 1.0 cause the board
+to be drawn smaller; more of the board will be visible.
+ 
+@item =@var{factor}
+ 
+The @var{factor} is an absolute zoom factor; the unit for this value
+is "PCB units per screen pixel".  Since PCB units are 0.01 mil, a
+@var{factor} of 1000 means 10 mils (0.01 in) per pixel, or 100 DPI,
+about the actual resolution of most screens - resulting in an "actual
+size" board.  Similarly, a @var{factor} of 100 gives you a 10x actual
+size.
+ 
+@end table
+ 
+Note that zoom factors of zero are silently ignored.
+ 
+
 
 %end-doc */
 
-/* FIXME */
 static int
 Zoom (int argc, char **argv, int x, int y)
 {
   double factor;
+  const char *vp;
+  double v;
+
+  if (argc > 1)
+    AFAIL (zoom);
+
+  if (x == 0 && y == 0)
+    {
+      x = gport->view_width / 2;
+      y = gport->view_height / 2;
+    }
+  else
+    {
+      /* Px converts view->pcb, Vx converts pcb->view */
+      x = Vx (x);
+      y = Vy (y);
+    }
+
   if (argc < 1)
+    {
+      zoom_to (1000000, 0, 0);
+      return 0;
+    }
+
+  vp = argv[0];
+  if (*vp == '+' || *vp == '-' || *vp == '=')
+    vp++;
+  v = strtod (vp, 0);
+  if (v <= 0)
     return 1;
-  factor = strtod (argv[0], 0);
-  ghid_port_ranges_zoom (gport->zoom * factor);
+  switch (argv[0][0])
+    {
+    case '-':
+      factor = 1 / v;
+      zoom_by (1 / v, x, y);
+      break;
+    default:
+    case '+':
+      factor = v;
+      zoom_by (v, x, y);
+      break;
+    case '=':
+      /* this needs to set the scale factor absolutely*/
+      factor = 1.0;
+      zoom_to (v, x, y);
+      break;
+    }
+
   return 0;
 }
 
+
+static void
+zoom_to (double new_zoom, int x, int y)
+{
+  double max_zoom, xfrac, yfrac;
+  int cx, cy;
+
+  /* gport->zoom:
+   * zoom value is PCB units per screen pixel.  Larger numbers mean zooming
+   * out - the largest value means you are looking at the whole board.
+   *
+   * PCB units per screen pixel
+   *
+   * gport->view_width and gport->view_height are in PCB coordinates
+   */
+
+#ifdef DEBUG
+  printf ("\nzoom_to( %g, %d, %d)\n", new_zoom, x, y);
+#endif
+
+  xfrac = (double) x / (double) gport->view_width;
+  yfrac = (double) y / (double) gport->view_height;
+
+  if (ghid_flip_x)
+    xfrac = 1-xfrac;
+  if (ghid_flip_y)
+    yfrac = 1-yfrac;
+
+  /* Find the zoom that would just make the entire board fit */
+  max_zoom = PCB->MaxWidth / gport->width;
+  if (max_zoom < PCB->MaxHeight / gport->height)
+    max_zoom = PCB->MaxHeight / gport->height;
+
+#ifdef DEBUG
+  printf ("zoom_to():  max_zoom = %g\n", max_zoom);
+#endif
+
+  /* 
+   * clip the zooming so we can never have more than 1 pixel per PCB
+   * unit and never zoom out more than viewing the entire board
+   */
+     
+  if (new_zoom < 1)
+    new_zoom = 1;
+  if (new_zoom > max_zoom)
+    new_zoom = max_zoom;
+
+#ifdef DEBUG
+  printf ("max_zoom = %g, xfrac = %g, yfrac = %g, new_zoom = %g\n", 
+	  max_zoom, xfrac, yfrac, new_zoom);
+#endif
+
+  /* find center x and y */
+  cx = gport->view_x0 + gport->view_width * xfrac * gport->zoom;
+  cy = gport->view_y0 + gport->view_height * yfrac * gport->zoom;
+
+#ifdef DEBUG
+  printf ("zoom_to():  x0 = %d, cx = %d\n", gport->view_x0, cx);
+  printf ("zoom_to():  y0 = %d, cy = %d\n", gport->view_y0, cy);
+#endif
+
+  if (gport->zoom != new_zoom)
+    {
+      gdouble xtmp, ytmp;
+      gint x0, y0;
+
+      xtmp = (gport->view_x - gport->view_x0) / (gdouble) gport->view_width;
+      ytmp = (gport->view_y - gport->view_y0) / (gdouble) gport->view_height;
+      
+      gport->zoom = new_zoom;
+      pixel_slop = new_zoom;
+      ghid_port_ranges_scale(FALSE);
+
+      x0 = gport->view_x - xtmp * gport->view_width;
+      if (x0 < 0)
+	x0 = 0;
+      gport->view_x0 = x0;
+
+      y0 = gport->view_y - ytmp * gport->view_height;
+      if (y0 < 0)
+	y0 = 0;
+      gport->view_y0 = y0;
+      
+      ghidgui->adjustment_changed_holdoff = TRUE;
+      gtk_range_set_value (GTK_RANGE (ghidgui->h_range), gport->view_x0);
+      gtk_range_set_value (GTK_RANGE (ghidgui->v_range), gport->view_y0);
+      ghidgui->adjustment_changed_holdoff = FALSE;
+      
+      ghid_port_ranges_changed();
+    }
+
+#ifdef DEBUG
+  printf ("zoom_to():  new x0 = %d\n", gport->view_x0);
+  printf ("zoom_to():  new y0 = %d\n", gport->view_y0);
+#endif
+  ghid_set_status_line_label ();
+}
+
+void
+zoom_by (double factor, int x, int y)
+{
+#ifdef DEBUG
+  printf ("\nzoom_by( %g, %d, %d).  old gport->zoom = %g\n", 
+	  factor, x, y, gport->zoom);
+#endif
+  zoom_to (gport->zoom * factor, x, y);
+}
 
 /* ------------------------------------------------------------ */
 
@@ -80,7 +340,7 @@ draw_grid ()
 
   if (!Settings.DrawGrid)
     return;
-  if (DRAW_Z (PCB->Grid) < MIN_GRID_DISTANCE)
+  if (Vz (PCB->Grid) < MIN_GRID_DISTANCE)
     return;
   if (!gport->grid_gc)
     {
@@ -95,10 +355,10 @@ draw_grid ()
       gdk_gc_set_function (gport->grid_gc, GDK_XOR);
       gdk_gc_set_foreground (gport->grid_gc, &gport->grid_color);
     }
-  x1 = GRIDFIT_X (SIDE_X(gport->view_x0), PCB->Grid);
-  y1 = GRIDFIT_Y (gport->view_y0, PCB->Grid);
-  x2 = GRIDFIT_X (SIDE_X(gport->view_x0 + gport->view_width - 1), PCB->Grid);
-  y2 = GRIDFIT_Y (gport->view_y0 + gport->view_height - 1, PCB->Grid);
+  x1 = GRIDFIT_X (SIDE_X (gport->view_x0), PCB->Grid);
+  y1 = GRIDFIT_Y (SIDE_Y (gport->view_y0), PCB->Grid);
+  x2 = GRIDFIT_X (SIDE_X (gport->view_x0 + gport->view_width - 1), PCB->Grid);
+  y2 = GRIDFIT_Y (SIDE_Y (gport->view_y0 + gport->view_height - 1), PCB->Grid);
   if (x1 > x2)
     {
       int tmp = x1;
@@ -111,13 +371,13 @@ draw_grid ()
       y1 = y2;
       y2 = tmp;
     }
-  if (DRAW_X (x1) < 0)
+  if (Vx (x1) < 0)
     x1 += PCB->Grid;
-  if (DRAW_Y (y1) < 0)
+  if (Vy (y1) < 0)
     y1 += PCB->Grid;
-  if (DRAW_X (x2) >= gport->width)
+  if (Vx (x2) >= gport->width)
     x2 -= PCB->Grid;
-  if (DRAW_Y (y2) >= gport->height)
+  if (Vy (y2) >= gport->height)
     y2 -= PCB->Grid;
   n = (int) ((x2 - x1) / PCB->Grid + 0.5) + 1;
   if (n > npoints)
@@ -129,12 +389,12 @@ draw_grid ()
   n = 0;
   for (x = x1; x <= x2; x += PCB->Grid)
     {
-      points[n].x = DRAW_X (x);
+      points[n].x = Vx (x);
       n++;
     }
   for (y = y1; y <= y2; y += PCB->Grid)
     {
-      int vy = DRAW_Y (y);
+      int vy = Vy (y);
       for (i = 0; i < n; i++)
 	points[i].y = vy;
       gdk_draw_points (gport->drawable, gport->grid_gc, points, n);
@@ -209,15 +469,15 @@ ghid_invalidate_all ()
   if (!gport->pixmap)
     return;
 
-  region.X1 = MIN(VIEW_X(0), VIEW_X(gport->width + 1));
-  region.Y1 = MIN(VIEW_Y(0), VIEW_Y(gport->height + 1));
-  region.X2 = MAX(VIEW_X(0), VIEW_X(gport->width + 1));
-  region.Y2 = MAX(VIEW_Y(0), VIEW_Y(gport->height + 1));
+  region.X1 = MIN(Px(0), Px(gport->width + 1));
+  region.Y1 = MIN(Py(0), Py(gport->height + 1));
+  region.X2 = MAX(Px(0), Px(gport->width + 1));
+  region.Y2 = MAX(Py(0), Py(gport->height + 1));
 
-  eleft = DRAW_X (0);
-  eright = DRAW_X (PCB->MaxWidth);
-  etop = DRAW_Y (0);
-  ebottom = DRAW_Y (PCB->MaxHeight);
+  eleft = Vx (0);
+  eright = Vx (PCB->MaxWidth);
+  etop = Vy (0);
+  ebottom = Vy (PCB->MaxHeight);
   if (eleft > eright)
     {
       int tmp = eleft;
@@ -546,7 +806,7 @@ ghid_set_line_cap (hidGC gc, EndCapStyle style)
     }
   if (gc->gc)
     gdk_gc_set_line_attributes (WHICH_GC (gc),
-				DRAW_Z (gc->width), GDK_LINE_SOLID,
+				Vz (gc->width), GDK_LINE_SOLID,
 				gc->cap, gc->join);
 }
 
@@ -557,7 +817,7 @@ ghid_set_line_width (hidGC gc, int width)
   gc->width = width;
   if (gc->gc)
     gdk_gc_set_line_attributes (WHICH_GC (gc),
-				DRAW_Z (gc->width), GDK_LINE_SOLID,
+				Vz (gc->width), GDK_LINE_SOLID,
 				gc->cap, gc->join);
 }
 
@@ -613,10 +873,10 @@ ghid_draw_line (hidGC gc, int x1, int y1, int x2, int y2)
 {
   double dx1, dy1, dx2, dy2;
 
-  dx1 = DRAW_X ((double)x1);
-  dy1 = DRAW_Y ((double)y1);
-  dx2 = DRAW_X ((double)x2);
-  dy2 = DRAW_Y ((double)y2);
+  dx1 = Vx ((double)x1);
+  dy1 = Vy ((double)y1);
+  dx2 = Vx ((double)x2);
+  dy2 = Vy ((double)y2);
 
   if (! ClipLine (0, 0, gport->width, gport->height,
 		  &dx1, &dy1, &dx2, &dy2, gc->width / gport->zoom))
@@ -632,25 +892,36 @@ ghid_draw_arc (hidGC gc, int cx, int cy,
 {
   gint vrx, vry;
   gint w, h, radius;
-
+  
   w = gport->width * gport->zoom;
   h = gport->height * gport->zoom;
   radius = (xradius > yradius) ? xradius : yradius;
   if (SIDE_X (cx) < gport->view_x0 - radius
       || SIDE_X (cx) > gport->view_x0 + w + radius
-      || cy < gport->view_y0 - radius || cy > gport->view_y0 + h + radius)
+      || SIDE_Y (cy) < gport->view_y0 - radius 
+      || SIDE_Y (cy) > gport->view_y0 + h + radius)
     return;
-
+  
   USE_GC (gc);
-  vrx = DRAW_Z (xradius);
-  vry = DRAW_Z (yradius);
-	if (Settings.ShowSolderSide)
-		{
-		start_angle =-start_angle + 180;;
-		delta_angle = -delta_angle;;
-		}
+  vrx = Vz (xradius);
+  vry = Vz (yradius);
+
+
+  /* make sure we fall in the -180 to +180 range */
+  start_angle = (start_angle + 360 + 180) % 360 - 180;
+  if (ghid_flip_x)
+    {
+      start_angle = 180 - start_angle;
+      delta_angle = - delta_angle;
+    }
+  if (ghid_flip_y)
+    {
+      start_angle = - start_angle;
+      delta_angle = - delta_angle;					
+    }
+
   gdk_draw_arc (gport->drawable, gport->u_gc, 0,
-		DRAW_X (cx) - vrx, DRAW_Y (cy) - vry,
+		Vx (cx) - vrx, Vy (cy) - vry,
 		vrx * 2, vry * 2, (start_angle + 180) * 64, delta_angle * 64);
 }
 
@@ -667,14 +938,16 @@ ghid_draw_rect (hidGC gc, int x1, int y1, int x2, int y2)
        && SIDE_X (x2) < gport->view_x0 - lw)
       || (SIDE_X (x1) > gport->view_x0 + w + lw
 	  && SIDE_X (x2) > gport->view_x0 + w + lw)
-      || (y1 < gport->view_y0 - lw && y2 < gport->view_y0 - lw)
-      || (y1 > gport->view_y0 + h + lw && y2 > gport->view_y0 + h + lw))
+      || (SIDE_Y (y1) < gport->view_y0 - lw 
+	  && SIDE_Y (y2) < gport->view_y0 - lw)
+      || (SIDE_Y (y1) > gport->view_y0 + h + lw 
+	  && SIDE_Y (y2) > gport->view_y0 + h + lw))
     return;
 
-  x1 = DRAW_X (x1);
-  y1 = DRAW_Y (y1);
-  x2 = DRAW_X (x2);
-  y2 = DRAW_Y (y2);
+  x1 = Vx (x1);
+  y1 = Vy (y1);
+  x2 = Vx (x2);
+  y2 = Vy (y2);
 
   if (x1 > x2) { gint xt = x1; x1 = x2; x2 = xt; }
   if (y1 > y2) { gint yt = y1; y1 = y2; y2 = yt; }
@@ -694,13 +967,14 @@ ghid_fill_circle (hidGC gc, int cx, int cy, int radius)
   h = gport->height * gport->zoom;
   if (SIDE_X (cx) < gport->view_x0 - radius
       || SIDE_X (cx) > gport->view_x0 + w + radius
-      || cy < gport->view_y0 - radius || cy > gport->view_y0 + h + radius)
+      || SIDE_Y (cy) < gport->view_y0 - radius 
+      || SIDE_Y (cy) > gport->view_y0 + h + radius)
     return;
 
   USE_GC (gc);
-  vr = DRAW_Z (radius);
+  vr = Vz (radius);
   gdk_draw_arc (gport->drawable, gport->u_gc, TRUE,
-		DRAW_X (cx) - vr, DRAW_Y (cy) - vr,
+		Vx (cx) - vr, Vy (cy) - vr,
 		vr * 2, vr * 2, 0, 360 * 64);
 }
 
@@ -720,8 +994,8 @@ ghid_fill_polygon (hidGC gc, int n_coords, int *x, int *y)
     }
   for (i = 0; i < n_coords; i++)
     {
-      points[i].x = DRAW_X (x[i]);
-      points[i].y = DRAW_Y (y[i]);
+      points[i].x = Vx (x[i]);
+      points[i].y = Vy (y[i]);
     }
   gdk_draw_polygon (gport->drawable, gport->u_gc, 1, points, n_coords);
 }
@@ -739,14 +1013,16 @@ ghid_fill_rect (hidGC gc, int x1, int y1, int x2, int y2)
        && SIDE_X (x2) < gport->view_x0 - lw)
       || (SIDE_X (x1) > gport->view_x0 + w + lw
 	  && SIDE_X (x2) > gport->view_x0 + w + lw)
-      || (y1 < gport->view_y0 - lw && y2 < gport->view_y0 - lw)
-      || (y1 > gport->view_y0 + h + lw && y2 > gport->view_y0 + h + lw))
+      || (SIDE_Y (y1) < gport->view_y0 - lw 
+	  && SIDE_Y (y2) < gport->view_y0 - lw)
+      || (SIDE_Y (y1) > gport->view_y0 + h + lw 
+	  && SIDE_Y (y2) > gport->view_y0 + h + lw))
     return;
 
-  x1 = DRAW_X (x1);
-  y1 = DRAW_Y (y1);
-  x2 = DRAW_X (x2);
-  y2 = DRAW_Y (y2);
+  x1 = Vx (x1);
+  y1 = Vy (y1);
+  x2 = Vx (x2);
+  y2 = Vy (y2);
   if (x2 < x1)
     {
     xx = x1;
@@ -1183,6 +1459,54 @@ HID ghid_extents = {
   0 /* ghid_progress */
 };
 
+/* ------------------------------------------------------------ 
+ *
+ * Actions specific to the GTK HID follow from here
+ *
+ */
+
+
+/* ------------------------------------------------------------ */
+static const char about_syntax[] =
+"About()";
+
+static const char about_help[] =
+"Tell the user about this version of PCB.";
+
+/* %start-doc actions About
+
+This just pops up a dialog telling the user which version of
+@code{pcb} they're running.
+
+%end-doc */
+
+
+static int
+About (int argc, char **argv, int x, int y)
+{
+  ghid_dialog_about ();
+  return 0;
+}
+
+/* ------------------------------------------------------------ */
+static const char getxy_syntax[] =
+"GetXY()";
+
+static const char getxy_help[] =
+"Get a coordinate.";
+
+/* %start-doc actions GetXY
+
+Prompts the user for a coordinate, if one is not already selected.
+
+%end-doc */
+
+static int
+GetXY (int argc, char **argv, int x, int y)
+{
+  return 0;
+}
+
 /* ---------------------------------------------------------------------- */
 
 static int PointCursor (int argc, char **argv, int x, int y)
@@ -1197,6 +1521,8 @@ static int PointCursor (int argc, char **argv, int x, int y)
   return 0;
 }
 
+/* ---------------------------------------------------------------------- */
+
 static int
 RouteStylesChanged (int argc, char **argv, int x, int y)
 {
@@ -1207,6 +1533,8 @@ RouteStylesChanged (int argc, char **argv, int x, int y)
       ghid_route_style_set_button_label ((&PCB->RouteStyle[n])->Name, n);
   return 0;
 }
+
+/* ---------------------------------------------------------------------- */
 
 int
 PCBChanged (int argc, char **argv, int x, int y)
@@ -1227,12 +1555,16 @@ PCBChanged (int argc, char **argv, int x, int y)
   return 0;
 }
 
+/* ---------------------------------------------------------------------- */
+
 static int
 LayerGroupsChanged (int argc, char **argv, int x, int y)
 {
   printf ("LayerGroupsChanged -- not implemented\n");
   return 0;
 }
+
+/* ---------------------------------------------------------------------- */
 
 static int
 LibraryChanged (int argc, char **argv, int x, int y)
@@ -1241,12 +1573,16 @@ LibraryChanged (int argc, char **argv, int x, int y)
   return 0;
 }
 
+/* ---------------------------------------------------------------------- */
+
 static int
 Command (int argc, char **argv, int x, int y)
 {
   ghid_handle_user_command (FALSE);
   return 0;
 }
+
+/* ---------------------------------------------------------------------- */
 
 static int
 Load (int argc, char **argv, int x, int y)
@@ -1301,6 +1637,8 @@ Load (int argc, char **argv, int x, int y)
   return 0;
 }
 
+/* ---------------------------------------------------------------------- */
+
 static int
 LoadVendor (int argc, char **argv, int x, int y)
 {
@@ -1325,6 +1663,8 @@ LoadVendor (int argc, char **argv, int x, int y)
 
   return 0;
 }
+
+/* ---------------------------------------------------------------------- */
 
 static int
 Save (int argc, char **argv, int x, int y)
@@ -1385,11 +1725,51 @@ Save (int argc, char **argv, int x, int y)
   return 0;
 }
 
+/* ---------------------------------------------------------------------- */
+static const char swapsides_syntax[] =
+"SwapSides(|v|h|r)";
+
+static const char swapsides_help[] =
+"Swaps the side of the board you're looking at.";
+
+/* %start-doc actions SwapSides
+
+This action changes the way you view the board.
+
+@table @code
+
+@item v
+Flips the board over vertically (up/down).
+
+@item h
+Flips the board over horizontally (left/right), like flipping pages in
+a book.
+
+@item r
+Rotates the board 180 degrees without changing sides.
+
+@end table
+
+If no argument is given, the board isn't moved but the opposite side
+is shown.
+
+Normally, this action changes which pads and silk layer are drawn as
+true silk, and which are drawn as the "invisible" layer.  It also
+determines which solder mask you see.
+
+As a special case, if the layer group for the side you're looking at
+is visible and currently active, and the layer group for the opposite
+is not visible (i.e. disabled), then this action will also swap which
+layer group is visible and active, effectively swapping the ``working
+side'' of the board.
+
+%end-doc */
+
+
 static int
 SwapSides (int argc, char **argv, int x, int y)
 {
   gint dx;
-
   int comp_group = GetLayerGroupNumberByNumber (max_layer + COMPONENT_LAYER);
   int solder_group = GetLayerGroupNumberByNumber (max_layer + SOLDER_LAYER);
   int active_group = GetLayerGroupNumberByNumber (LayerStack[0]);
@@ -1398,8 +1778,30 @@ SwapSides (int argc, char **argv, int x, int y)
   int solder_showing =
     PCB->Data->Layer[PCB->LayerGroups.Entries[solder_group][0]].On;
 
-  if (argc && strcasecmp (argv[0], "lr") == 0)
-    ;
+
+  if (argc > 0)
+    {
+      switch (argv[0][0]) {
+      case 'h':
+      case 'H':
+	ghid_flip_x = ! ghid_flip_x;
+	break;
+      case 'v':
+      case 'V':
+	ghid_flip_y = ! ghid_flip_y;
+	break;
+      case 'r':
+      case 'R':
+	ghid_flip_x = ! ghid_flip_x;
+	ghid_flip_y = ! ghid_flip_y;
+	break;
+      default:
+	return 1;
+      }
+      /* SwapSides will swap this */
+      Settings.ShowSolderSide = (ghid_flip_x == ghid_flip_y);
+    }
+
   Settings.ShowSolderSide = !Settings.ShowSolderSide;
   if (Settings.ShowSolderSide)
     {
@@ -1421,8 +1823,12 @@ SwapSides (int argc, char **argv, int x, int y)
 				 1);
 	}
     }
+
+  /* what does this do? */
   dx = PCB->MaxWidth / 2 - gport->view_x;
   ghid_port_ranges_pan (2 * dx, 0, TRUE);
+
+  ghid_invalidate_all ();
   return 0;
 }
 
@@ -1504,24 +1910,282 @@ Benchmark (int argc, char **argv, int x, int y)
 }
 
 /* ------------------------------------------------------------ */
-static const char about_syntax[] =
-"About()";
 
-static const char about_help[] =
-"Tell the user about this version of PCB.";
+static const char center_syntax[] =
+"Center()\n";
 
-/* %start-doc actions About
+static const char center_help[] =
+"Moves the pointer to the center of the window.";
 
-This just pops up a dialog telling the user which version of
-@code{pcb} they're running.
+/* %start-doc actions Center
+
+Move the pointer to the center of the window, but only if it's
+currently within the window already.
+
+%end-doc */
+
+static int
+Center(int argc, char **argv, int x, int y)
+{
+  int x0, y0, w2, h2, dx, dy;
+ 
+  if (argc != 0)
+    AFAIL (center);
+
+  x = GRIDFIT_X (SIDE_X (x), PCB->Grid);
+  y = GRIDFIT_Y (SIDE_Y (y), PCB->Grid);
+
+  w2 = gport->view_width / 2;
+  h2 = gport->view_height / 2;
+  x0 = x - w2;
+  y0 = y - h2;
+
+  if (x0 < 0) 
+    {
+      x0 = 0;
+      x = x0 + w2;
+    }
+
+  if (y0 < 0)
+    {
+      y0 = 0;
+      y = y0 + w2;
+    }
+
+  dx = (x0 - gport->view_x0) / gport->zoom ;
+  dy = (y0 - gport->view_y0) / gport->zoom;
+  gport->view_x0 = x0;
+  gport->view_y0 = y0;
+
+
+  /* FIXME -- do I need something like the pan_fixup here? */
+  /* lesstif_pan_fixup (); */
+
+  /* Move the pointer to the center of the window, but only if it's
+     currently within the window already.  Watch out for edges,
+     though.  */
+
+#if GTK_CHECK_VERSION(2,8,0)
+  {
+    GdkDisplay *display;
+    GdkScreen *screen;
+    gint cx, cy;
+
+    display = gdk_display_get_default ();
+    screen = gdk_display_get_default_screen (display); 
+
+    /* figure out where the pointer is and then move it from there by the specified delta */
+    gdk_display_get_pointer (display, NULL, &cx, &cy, NULL); 
+    gdk_display_warp_pointer (display, screen, cx - dx, cy - dy);
+
+    /* 
+     * Note that under X11, gdk_display_warp_pointer is just a wrapper around XWarpPointer, but
+     * hopefully by avoiding the direct call to an X function we might still work under windows
+     * and other non-X11 based gdk's
+     */
+  }
+#else  
+#  ifdef HAVE_GDK_GDKX_H
+  {
+
+    Window w_src, w_dst; 
+    w_src = GDK_WINDOW_XID (gport->drawing_area->window);
+    w_dst = w_src;
+
+    /* don't warp with the auto drc - that creates auto-scroll chaos */
+    if (TEST_FLAG (AUTODRCFLAG, PCB) && Settings.Mode == LINE_MODE
+	&& Crosshair.AttachedLine.State != STATE_FIRST)
+      return 0;
+    
+    XWarpPointer (GDK_DRAWABLE_XDISPLAY (gport->drawing_area->window),
+		 w_src, w_dst,
+		 0, 0, 0, 0,
+		 Vx2 (x), Vy2 (y));
+    
+    /* XWarpPointer creates Motion events normally bound to
+     *  EventMoveCrosshair.
+     *  We don't do any updates when EventMoveCrosshair
+     *  is called the next time to prevent from rounding errors
+     */
+    /* FIXME?
+     * IgnoreMotionEvents = ignore;
+     */
+  }
+#  endif
+#endif
+
+  return 0;
+}
+/* ------------------------------------------------------------ */
+
+static const char dowindows_syntax[] =
+"DoWindows(1|2|3|4)\n"
+"DoWindows(Layout|Library|Log|Netlist|Preferences)";
+
+static const char dowindows_help[] =
+"Open various GUI windows.";
+
+/* %start-doc actions DoWindows
+
+@table @code
+
+@item 1
+@itemx Layout
+Open the layout window.  Since the layout window is always shown
+anyway, this has no effect.
+
+@item 2
+@itemx Library
+Open the library window.
+
+@item 3
+@itemx Log
+Open the log window.
+
+@item 4
+@itemx Netlist
+Open the netlist window.
+
+@item 5
+@itemx Preferences
+Open the preferences window.
+
+@end table
+
+%end-doc */
+
+static int
+DoWindows (int argc, char **argv, int x, int y)
+{
+  char *a = argc == 1 ? argv[0] : "";
+
+  if (strcmp (a, "1") == 0 || strcasecmp (a, "Layout") == 0)
+    {
+    }
+  else if (strcmp (a, "2") == 0 || strcasecmp (a, "Library") == 0)
+    {
+      ghid_library_window_show (gport, TRUE);
+    }
+  else if (strcmp (a, "3") == 0 || strcasecmp (a, "Log") == 0)
+    {
+      ghid_log_window_show (TRUE);
+    }
+  else if (strcmp (a, "4") == 0 || strcasecmp (a, "Netlist") == 0)
+    {
+      ghid_netlist_window_show (gport, TRUE);
+    }
+  else if (strcmp (a, "5") == 0 || strcasecmp (a, "Preferences") == 0)
+    {
+      ghid_config_window_show ();
+    }
+  else
+    {
+      AFAIL (dowindows);
+    }
+
+  return 0;
+}
+
+/* ------------------------------------------------------------ */
+static const char setunits_syntax[] =
+"SetUnits(mm|mil)";
+
+static const char setunits_help[] =
+"Set the default measurement units.";
+
+/* %start-doc actions SetUnits
+
+@table @code
+
+@item mil
+Sets the display units to mils (1/1000 inch).
+
+@item mm
+Sets the display units to millimeters.
+
+@end table
+
+%end-doc */
+
+static int
+SetUnits (int argc, char **argv, int x, int y)
+{
+  if (argc == 0)
+    return 0;
+  if (strcmp (argv[0], "mil") == 0)
+    Settings.grid_units_mm = 0;
+  if (strcmp (argv[0], "mm") == 0)
+    Settings.grid_units_mm = 1;
+
+  ghid_config_handle_units_changed ();
+
+  ghid_set_status_line_label ();
+
+  /* FIXME ?
+   * lesstif_sizes_reset ();
+   * lesstif_styles_update_values ();
+   */
+  return 0;
+}
+
+/* ------------------------------------------------------------ */
+static const char popup_syntax[] =
+"Popup(MenuName, [Button])";
+
+static const char popup_help[] =
+"Bring up the popup menu specified by @code{MenuName}.\n"
+"If called by a mouse event then the mouse button number\n"
+"must be specified as the optional second argument.";
+
+/* %start-doc actions Popup
+
+This just pops up the specified menu.  The menu must have been defined
+as a named subresource of the Popups resource in the menu resource
+file.  If called as a response to a mouse button click, the mouse 
+button number must be specified as the second argument.  
 
 %end-doc */
 
 
 static int
-About (int argc, char **argv, int x, int y)
+Popup (int argc, char **argv, int x, int y)
 {
-  ghid_dialog_about ();
+  GtkWidget *menu;
+  char *element;
+  guint button;
+
+  if (argc != 1 && argc != 2)
+    AFAIL (popup);
+
+  if (argc == 1)
+    button = 0;
+  else
+    button = atoi (argv[1]);
+
+  if ( (element = (char *) malloc ( (strlen (argv[0]) + 2) * sizeof (char))) == NULL )
+    {
+      fprintf (stderr, "Popup():  malloc failed\n");
+      exit (1);
+    }
+
+  sprintf (element, "/%s", argv[0]);
+  printf ("Loading popup \"%s\". Button = %u\n", element, button);
+
+  menu = gtk_ui_manager_get_widget (ghidgui->ui_manager, element);
+  free (element);
+
+  if (! GTK_IS_MENU (menu))
+    {
+      Message ("The specified popup menu \"%s\" has not been defined.\n", argv[0]);
+      return 1;
+    }
+  else
+    {
+      ghidgui->in_popup = TRUE;
+      gtk_widget_grab_focus (ghid_port.drawing_area);
+      gtk_menu_popup (GTK_MENU (menu), NULL, NULL, NULL, NULL, 0, 
+		      gtk_get_current_event_time());
+    }
   return 0;
 }
 
@@ -1533,27 +2197,49 @@ Busy (int argc, char **argv, int x, int y)
 }
 
 HID_Action ghid_main_action_list[] = {
-  {"About", 0, About,
-   about_help, about_syntax},
+  {"About", 0, About, about_help, about_syntax},
+  {"Benchmark", 0, Benchmark},
+  {"Busy", 0, Busy},
+  {"Center", "Click on a location to center", Center, center_help, center_syntax},
+  {"Command", 0, Command},
+  {"DoWindows", 0, DoWindows, dowindows_help, dowindows_syntax},
   {"Export", 0, Export},
+  {"GetXY", "", GetXY, getxy_help, getxy_syntax},
+  {"LayerGroupsChanged", 0, LayerGroupsChanged},
+  {"LibraryChanged", 0, LibraryChanged},
   {"Load", 0, Load},
   {"LoadVendor", 0, LoadVendor},
   {"PCBChanged", 0, PCBChanged},
-  {"RouteStylesChanged", 0, RouteStylesChanged},
-  {"LayerGroupsChanged", 0, LayerGroupsChanged},
-  {"LibraryChanged", 0, LibraryChanged},
-  {"Print", 0, Print},
-  {"Save", 0, Save},
-  {"SwapSides", 0, SwapSides},
-  {"Zoom", "Click on zoom focus", Zoom,
-   zoom_help, zoom_syntax},
-  {"Command", 0, Command},
-  {"Benchmark", 0, Benchmark},
   {"PointCursor", 0, PointCursor},
-  {"Busy", 0, Busy},
+  {"Popup", 0, Popup, popup_help, popup_syntax},
+  {"Print", 0, Print},
+  {"RouteStylesChanged", 0, RouteStylesChanged},
+  {"Save", 0, Save},
+  {"SetUnits", 0, SetUnits, setunits_help, setunits_syntax},
+  {"SwapSides", 0, SwapSides, swapsides_help, swapsides_syntax},
+  {"Zoom", "Click on zoom focus", Zoom, zoom_help, zoom_syntax}
 };
 
 REGISTER_ACTIONS (ghid_main_action_list)
+
+
+static int
+flag_flipx (int x)
+{ 
+  return ghid_flip_x;
+} 
+static int  
+flag_flipy (int x)
+{ 
+  return ghid_flip_y;
+} 
+
+HID_Flag ghid_main_flag_list[] = {
+  {"flip_x", flag_flipx, 0},
+  {"flip_y", flag_flipy, 0}
+};  
+
+REGISTER_FLAGS (ghid_main_flag_list)
 
 #include "dolists.h"
 
