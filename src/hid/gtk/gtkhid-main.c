@@ -128,10 +128,6 @@ static const char zoom_help[] =
 "Various zoom factor changes.";
 
 /* %start-doc actions Zoom
-
-FIXME -- the gtk zoom action needs some work to make it behave like
-the documentation here.
-
 Changes the zoom (magnification) of the view of the board.  If no
 arguments are passed, the view is scaled such that the board just fits
 inside the visible window (i.e. ``view all'').  Otherwise,
@@ -2011,8 +2007,9 @@ Center(int argc, char **argv, int x, int y)
      *  We don't do any updates when EventMoveCrosshair
      *  is called the next time to prevent from rounding errors
      */
-    // DAN_FIXME
-    //IgnoreMotionEvents = ignore;
+    /* FIXME?
+     * IgnoreMotionEvents = ignore;
+     */
   }
 #  endif
 #endif
@@ -2124,9 +2121,10 @@ SetUnits (int argc, char **argv, int x, int y)
 
   ghid_set_status_line_label ();
 
-  // DAN-FIXME
-  //lesstif_sizes_reset ();
-  //lesstif_styles_update_values ();
+  /* FIXME ?
+   * lesstif_sizes_reset ();
+   * lesstif_styles_update_values ();
+   */
   return 0;
 }
 

@@ -423,7 +423,7 @@ ghid_port_key_press_cb (GtkWidget * drawing_area,
       break;
 
     default:
-      gui->log ("ksym %d (0x%x) has not been defined\n", ksym, ksym);
+      gui->log ("keysym %d (0x%x) has not been defined\n", ksym, ksym);
       handled = FALSE;
     }
 
