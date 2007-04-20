@@ -732,7 +732,6 @@ ghid_set_menu_toggle_button (GtkActionGroup * ag, gchar * name,
 void
 ghid_sync_with_new_layout (void)
 {
-  GtkAction *action;
   gboolean old_holdoff;
 
   /* Just want to update the state of the menus without calling the

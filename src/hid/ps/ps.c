@@ -864,7 +864,7 @@ HID_Attribute ps_calib_attribute_list[] = {
    HID_String, 0, 0, {0, 0, 0}, 0, 0},
 };
 
-static const char const *calib_lines[] = {
+static const char * const calib_lines[] = {
   "%!PS-Adobe\n",
   "\n",
   "72 72 scale\n",

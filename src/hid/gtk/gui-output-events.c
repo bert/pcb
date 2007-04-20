@@ -397,9 +397,7 @@ ghid_port_key_press_cb (GtkWidget * drawing_area,
 			GdkEventKey * kev, GtkUIManager * ui)
 {
   ModifierKeysState mk;
-  gchar *arg, *units;
-  gdouble value;
-  gint tmp, ksym = kev->keyval;
+  gint  ksym = kev->keyval;
   gboolean handled;
 
   if (ghid_is_modifier_key_sym (ksym))

@@ -865,6 +865,8 @@ CursorAction(int argc, char **argv, int x, int y)
 
   EventMoveCrosshair (Crosshair.X+(int)(dx*xu), Crosshair.Y+(int)(dy*yu));
   gui->set_crosshair (Crosshair.X, Crosshair.Y, pan_warp);
+
+  return 0;
 }
 
 HID_Action lesstif_main_action_list[] = {
@@ -3423,7 +3425,7 @@ lesstif_watch_file (int fd, unsigned int condition, void (*func) (hidval watch, 
   watch->func = func;
   watch->user_data = user_data;
   watch->fd = fd;
-  watch->id = XtAppAddInput( app_context, fd, (XtPointer)xt_condition, lesstif_watch_cb, watch );
+  watch->id = XtAppAddInput( app_context, fd, (XtPointer) (size_t) xt_condition, lesstif_watch_cb, watch );
 
   ret.ptr = (void *) watch;
   return ret;
