@@ -183,7 +183,7 @@ AddRats(AllRats|SelectedRats|Close)@end format
 @end cartouche
 
 Add one or more rat lines to the board.
-@c ./../src/action.c 3041
+@c ./../src/action.c 3111
 
 @table @code
 
@@ -227,7 +227,7 @@ Atomic(Save|Restore|Close|Block)@end format
 @end cartouche
 
 Save or restore the undo serial number.
-@c ./../src/action.c 1582
+@c ./../src/action.c 1583
 
 This action allows making multiple-action bindings into an atomic
 operation that will be undone by a single Undo command.  For example,
@@ -267,7 +267,7 @@ AutoPlaceSelected()@end format
 @end cartouche
 
 Auto-place selected components.
-@c ./../src/action.c 3135
+@c ./../src/action.c 3205
 
 Attempts to re-arrange the selected components such that the nets
 connecting them are minimized.  Note that you cannot undo this.
@@ -282,7 +282,7 @@ AutoRoute(AllRats|SelectedRats)@end format
 @end cartouche
 
 Auto-route some or all rat lines.
-@c ./../src/action.c 3158
+@c ./../src/action.c 3228
 
 @table @code
 
@@ -316,7 +316,7 @@ ChangeClearSize(Selected|SelectedObjects, delta)@end format
 @end cartouche
 
 Changes the clearance size of objects.
-@c ./../src/action.c 3376
+@c ./../src/action.c 3446
 
 If the solder mask is currently showing, this action changes the
 solder mask clearance.  If the mask is not showing, this action
@@ -333,7 +333,7 @@ ChangeDrillSize(SelectedPins|SelectedVias|Selected|SelectedObjects, delta)@end f
 @end cartouche
 
 Changes the drilling hole size of objects.
-@c ./../src/action.c 3318
+@c ./../src/action.c 3388
 
 
 @node ChangeFlag Action
@@ -350,7 +350,7 @@ flag = square | octagon | thermal | join
 @end cartouche
 
 Sets or clears flags on objects.
-@c ./../src/action.c 5311
+@c ./../src/action.c 5381
 
 Toggles the given flag on the indicated object(s).  The flag may be
 one of the flags listed above (square, octagon, thermal, join).  The
@@ -367,7 +367,7 @@ ChangeHole(ToggleObject|Object|SelectedVias|Selected)@end format
 @end cartouche
 
 Changes the hole flag of objects.
-@c ./../src/action.c 4179
+@c ./../src/action.c 4249
 
 The "hole flag" of a via determines whether the via is a
 plated-through hole (not set), or an unplated hole (set).
@@ -382,7 +382,7 @@ ChangeJoin(ToggleObject|SelectedLines|SelectedArcs|Selected)@end format
 @end cartouche
 
 Changes the join (clearance through polygons) of objects.
-@c ./../src/action.c 3793
+@c ./../src/action.c 3863
 
 The join flag determines whether a line or arc, drawn to intersect a
 polygon, electrically connects to the polygon or not.  When joined,
@@ -401,7 +401,7 @@ ChangeName(Object)
 @end cartouche
 
 Sets the name of objects.
-@c ./../src/action.c 3596
+@c ./../src/action.c 3666
 
 @table @code
 
@@ -427,7 +427,7 @@ ChangeOctagon(SelectedElements|SelectedPins|SelectedVias)@end format
 @end cartouche
 
 Changes the octagon-flag of pins and vias.
-@c ./../src/action.c 4005
+@c ./../src/action.c 4075
 
 @pinshapes
 
@@ -441,7 +441,7 @@ ChangePaste(ToggleObject|Object|SelectedPads|Selected)@end format
 @end cartouche
 
 Changes the no paste flag of objects.
-@c ./../src/action.c 4221
+@c ./../src/action.c 4291
 
 The "no paste flag" of a pad determines whether the solderpaste
  stencil will have an opening for the pad (no set) or if there wil be
@@ -458,7 +458,7 @@ ChangePinName(ElementName,PinNumber,PinName)@end format
 @end cartouche
 
 Sets the name of a specific pin on a specific element.
-@c ./../src/action.c 3520
+@c ./../src/action.c 3590
 
 This can be especially useful for annotating pin names from a
 schematic to the layout without requiring knowledge of the pcb file
@@ -482,7 +482,7 @@ ChangeSize(SelectedElements, delta)@end format
 @end cartouche
 
 Changes the size of objects.
-@c ./../src/action.c 3229
+@c ./../src/action.c 3299
 
 For lines and arcs, this changes the width.  For pins and vias, this
 changes the overall diameter of the copper annulus.  For pads, this
@@ -502,7 +502,7 @@ ChangeSquare(Selected|SelectedObjects)@end format
 @end cartouche
 
 Changes the square flag of pins and pads.
-@c ./../src/action.c 3846
+@c ./../src/action.c 3916
 
 Note that @code{Pins} means both pins and pads.
 
@@ -519,7 +519,7 @@ ClearOctagon(SelectedElements|SelectedPins|SelectedVias)@end format
 @end cartouche
 
 Clears the octagon-flag of pins and vias.
-@c ./../src/action.c 4121
+@c ./../src/action.c 4191
 
 @pinshapes
 
@@ -533,7 +533,7 @@ ClearSquare(ToggleObject|SelectedElements|SelectedPins)@end format
 @end cartouche
 
 Clears the square-flag of pins and pads.
-@c ./../src/action.c 3952
+@c ./../src/action.c 4022
 
 Note that @code{Pins} means pins and pads.
 
@@ -553,7 +553,7 @@ flag = square | octagon | thermal | join@end format
 @end cartouche
 
 Clears flags on objects.
-@c ./../src/action.c 5294
+@c ./../src/action.c 5364
 
 Turns the given flag off, regardless of its previous setting.  See
 @code{ChangeFlag}.
@@ -572,7 +572,7 @@ Connection(Find|ResetLinesAndPolygons|ResetPinsAndVias|Reset)@end format
 @end cartouche
 
 Searches connections of the object at the cursor position.
-@c ./../src/action.c 1987
+@c ./../src/action.c 1988
 
 Connections found with this action will be highlighted in the
 ``connected-color'' color and will have the ``found'' flag set.
@@ -607,7 +607,7 @@ DeleteRats(AllRats|Selected|SelectedRats)@end format
 @end cartouche
 
 Delete rat lines.
-@c ./../src/action.c 3103
+@c ./../src/action.c 3173
 
 
 @node DisableVendor Action
@@ -639,7 +639,7 @@ DisperseElements(All|Selected)@end format
 @end cartouche
 
 Disperses elements.
-@c ./../src/action.c 2033
+@c ./../src/action.c 2034
 
 Normally this is used when starting a board, by selecting all elements
 and then dispersing them.  This scatters the elements around the board
@@ -666,7 +666,7 @@ Display(Pinout|PinOrPadName)
 @end cartouche
 
 Several display-related actions.
-@c ./../src/action.c 2151
+@c ./../src/action.c 2152
 
 @table @code
 
@@ -843,7 +843,7 @@ DRC()@end format
 @end cartouche
 
 Invoke the DRC check.
-@c ./../src/action.c 1617
+@c ./../src/action.c 1618
 
 Note that the design rule check uses the current board rule settings,
 not the current style settings.
@@ -858,7 +858,7 @@ DumpLibrary()@end format
 @end cartouche
 
 Display the entire contents of the libraries.
-@c ./../src/action.c 1649
+@c ./../src/action.c 1650
 
 
 
@@ -893,7 +893,7 @@ ExecuteFile(filename)@end format
 @end cartouche
 
 Run actions from the given file.
-@c ./../src/action.c 5425
+@c ./../src/action.c 5495
 
 Lines starting with @code{#} are ignored.
 
@@ -907,7 +907,7 @@ Flip(Object|Selected|SelectedElements)@end format
 @end cartouche
 
 Flip an element to the opposite side of the board.
-@c ./../src/action.c 1699
+@c ./../src/action.c 1700
 
 Note that the location of the element will be symmetric about the
 cursor location; i.e. if the part you are pointing at will still be at
@@ -1001,7 +1001,7 @@ LoadFrom(Layout|LayoutToBuffer|ElementToBuffer|Netlist|Revert,filename)@end form
 @end cartouche
 
 Load layout data from a file.
-@c ./../src/action.c 4625
+@c ./../src/action.c 4695
 
 This action assumes you know what the filename is.  The various GUIs
 should have a similar @code{Load} action where the filename is
@@ -1081,7 +1081,7 @@ MarkCrosshair()
 @end cartouche
 
 Set/Reset the Crosshair mark
-@c ./../src/action.c 3191
+@c ./../src/action.c 3261
 
 The ``mark'' is a small X-shaped target on the display which is
 treated like a second origin (the normal origin is the upper let
@@ -1103,7 +1103,7 @@ Message(message)@end format
 @end cartouche
 
 Writes a message to the log window.
-@c ./../src/action.c 1746
+@c ./../src/action.c 1747
 
 This action displays a message to the log window.  This action is primarily
 provided for use by other programs which may interface with PCB.  If
@@ -1121,7 +1121,7 @@ MinMaskGap(delta)
 @end cartouche
 
 Ensures the mask is a minimum distance from pins and pads.
-@c ./../src/action.c 3444
+@c ./../src/action.c 3514
 
 Checks all specified pins and/or pads, and increases the mask if
 needed to ensure a minimum distance between the pin or pad edge and
@@ -1140,7 +1140,7 @@ Mode(Notify|Release|Cancel|Stroke)
 @end cartouche
 
 Change or use the tool mode.
-@c ./../src/action.c 2465
+@c ./../src/action.c 2466
 
 @table @code
 
@@ -1173,6 +1173,10 @@ Cancels any pending tool activity, allowing you to restart elsewhere.
 For example, this allows you to start a new line rather than attach a
 line to the previous line.
 
+@item Escape
+Similar to Cancel but calling this action a second time will return
+to the Arrow tool.
+
 @item Stroke
 If your @code{pcb} was built with libstroke, this invokes the stroke
 input method.  If not, this will restart a drawing mode if you were
@@ -1196,7 +1200,7 @@ MorphPolygon(Object|Selected)@end format
 @end cartouche
 
 Converts dead polygon islands into separate polygons.
-@c ./../src/action.c 3678
+@c ./../src/action.c 3748
 
 If a polygon is divided into unconnected "islands", you can use
 this command to convert the otherwise disappeared islands into
@@ -1218,7 +1222,6 @@ Moves/Creates/Deletes Layers
 
 Moves a layer, creates a new layer, or deletes a layer.
 
-MoveLayer
 @table @code
 
 @item old
@@ -1265,7 +1268,7 @@ MoveObject(X,Y,dim)@end format
 @end cartouche
 
 Moves the object under the crosshair.
-@c ./../src/action.c 5126
+@c ./../src/action.c 5196
 
 The @code{X} and @code{Y} are treated like @code{delta} is for many
 other objects.  For each, if it's prefixed by @code{+} or @code{-},
@@ -1283,7 +1286,7 @@ MoveToCurrentLayer(Object|SelectedObjects)@end format
 @end cartouche
 
 Moves objects to the current layer.
-@c ./../src/action.c 5168
+@c ./../src/action.c 5238
 
 Note that moving an element from a component layer to a solder layer,
 or from solder to component, won't automatically flip it.  Use the
@@ -1339,7 +1342,7 @@ New([name])@end format
 @end cartouche
 
 Starts a new layout.
-@c ./../src/action.c 4688
+@c ./../src/action.c 4758
 
 If a name is not given, one is prompted for.
 
@@ -1376,7 +1379,7 @@ PasteBuffer(ToLayout, X, Y, units)@end format
 @end cartouche
 
 Various operations on the paste buffer.
-@c ./../src/action.c 4747
+@c ./../src/action.c 4817
 
 There are a number of paste buffers; the actual limit is a
 compile-time constant @code{MAX_BUFFER} in @file{globalconst.h}.  It
@@ -1435,7 +1438,7 @@ Polygon(Close|PreviousPoint)@end format
 @end cartouche
 
 Some polygon related stuff.
-@c ./../src/action.c 5063
+@c ./../src/action.c 5133
 
 Polygons need a special action routine to make life easier.
 
@@ -1518,7 +1521,7 @@ Quit()@end format
 @end cartouche
 
 Quits the application.
-@c ./../src/action.c 1965
+@c ./../src/action.c 1966
 
 If you have unsaved changes, you will be prompted to confirm before
 quitting.
@@ -1533,7 +1536,7 @@ Redo()@end format
 @end cartouche
 
 Redo recent``undo''operations.
-@c ./../src/action.c 5029
+@c ./../src/action.c 5099
 
 This routine allows you to recover from the last undo command.  You
 might want to do this if you thought that undo was going to revert
@@ -1556,7 +1559,7 @@ RemoveSelected()@end format
 @end cartouche
 
 Removes any selected objects.
-@c ./../src/action.c 2603
+@c ./../src/action.c 2673
 
 
 @node Renumber Action
@@ -1570,7 +1573,7 @@ Renumber()
 
 Renumber all elements.  The changes will be recorded to filename
 for use in backannotating these changes to the schematic.
-@c ./../src/action.c 2621
+@c ./../src/action.c 2691
 
 
 @node Report Action
@@ -1628,7 +1631,7 @@ RipUp(All|Selected|Element)@end format
 @end cartouche
 
 Ripup auto-routed tracks, or convert an element to parts.
-@c ./../src/action.c 2937
+@c ./../src/action.c 3007
 
 @table @code
 
@@ -1677,7 +1680,7 @@ RouteStyle(1|2|3|4)@end format
 @end cartouche
 
 Copies the indicated routing style into the current sizes.
-@c ./../src/action.c 5095
+@c ./../src/action.c 5165
 
 
 @node s Action
@@ -1709,7 +1712,7 @@ SaveSettings()
 @end cartouche
 
 Saves settings.
-@c ./../src/action.c 4609
+@c ./../src/action.c 4679
 
 If you pass no arguments, the settings are stored in
 @code{$HOME/.pcb/settings}.  If you pass the word @code{local} they're
@@ -1726,7 +1729,7 @@ SaveTo(AllConnections|AllUnusedPins|ElementConnections,filename)@end format
 @end cartouche
 
 Saves data to a file.
-@c ./../src/action.c 4527
+@c ./../src/action.c 4597
 
 @table @code
 
@@ -1763,7 +1766,7 @@ Select(TextByName|ViaByName, Name)
 @end cartouche
 
 Toggles or sets the selection
-@c ./../src/action.c 4263
+@c ./../src/action.c 4333
 
 @table @code
 
@@ -1812,7 +1815,7 @@ flag = square | octagon | thermal | join@end format
 @end cartouche
 
 Sets flags on objects.
-@c ./../src/action.c 5277
+@c ./../src/action.c 5347
 
 Turns the given flag on, regardless of its previous setting.  See
 @code{ChangeFlag}.
@@ -1831,7 +1834,7 @@ SetOctagon(Object|ToggleObject|SelectedElements|Selected)@end format
 @end cartouche
 
 Sets the octagon-flag of objects.
-@c ./../src/action.c 4063
+@c ./../src/action.c 4133
 
 @pinshapes
 
@@ -1845,7 +1848,7 @@ SetSame()@end format
 @end cartouche
 
 Sets current layer and sizes to match indicated item.
-@c ./../src/action.c 5209
+@c ./../src/action.c 5279
 
 When invoked over any line, arc, polygon, or via, this changes the
 current layer to be the layer that item is on, and changes the current
@@ -1861,7 +1864,7 @@ SetSquare(ToggleObject|SelectedElements|SelectedPins)@end format
 @end cartouche
 
 sets the square-flag of objects.
-@c ./../src/action.c 3899
+@c ./../src/action.c 3969
 
 Note that @code{Pins} means pins and pads.
 
@@ -1883,7 +1886,7 @@ Style = 2 has horizontal and vertical fingers with sharp edges.
 Style = 3 is a solid connection to the plane.Style = 4 has diagonal fingers with rounded edges.
 Style = 5 has horizontal and vertical fingers with rounded edges.
 
-@c ./../src/action.c 1772
+@c ./../src/action.c 1773
 
 This changes how/whether pins or vias connect to any rectangle or polygon
 on the current layer. The first argument can specify one object, or all
@@ -1909,7 +1912,7 @@ SetValue(Grid|Line|LineSize|Text|TextScale|ViaDrillingHole|Via|ViaSize, delta)@e
 @end cartouche
 
 Change various board-wide values and sizes.
-@c ./../src/action.c 1891
+@c ./../src/action.c 1892
 
 @table @code
 
@@ -1943,7 +1946,7 @@ ToggleHideName(Object|SelectedElements)@end format
 @end cartouche
 
 Toggles the visibility of element names.
-@c ./../src/action.c 3726
+@c ./../src/action.c 3796
 
 If names are hidden you won't see them on the screen and they will not
 appear on the silk layer when you print the layout.
@@ -1981,7 +1984,7 @@ Undo()
 @end cartouche
 
 Undo recent changes.
-@c ./../src/action.c 4874
+@c ./../src/action.c 4944
 
 The unlimited undo feature of @code{Pcb} allows you to recover from
 most operations that materially affect you work.  Calling
@@ -2025,7 +2028,7 @@ Unselect(TextByName|ViaByName)
 @end cartouche
 
 unselects the object at the pointer location or the specified objects
-@c ./../src/action.c 4413
+@c ./../src/action.c 4483
 
 @table @code
 
@@ -2080,7 +2083,7 @@ wq@end format
 @end cartouche
 
 Saves the layout data and quits.
-@c ./../src/command.c 274
+@c ./../src/command.c 281
 
 This command has been added for the convenience of @code{vi} users and
 has the same functionality as @code{s} combined with @code{q}.
@@ -2185,7 +2188,19 @@ Tells the GUI that the routing styles have changed.
 @section gtk actions
 @menu
 * gtk About Action:: Tell the user about this version of PCB.
-* gtk Zoom Action:: this is the gtk zoom
+* gtk AdjustStyle Action:: Open the window which allows editing of the route styles
+* gtk Center Action:: Moves the pointer to the center of the window.
+* gtk DoWindows Action:: Open various GUI windows.
+* gtk EditLayerGroups Action:: Open the preferences window which allows editing of the layer groups
+* gtk GetXY Action:: Get a coordinate.
+* gtk Popup Action:: Bring up the popup menu specified by @code{MenuName}.
+If called by a mouse event then the mouse button number
+must be specified as the optional second argument.
+* gtk SelectLayer Action:: Select which layer is the current layer.
+* gtk SetUnits Action:: Set the default measurement units.
+* gtk SwapSides Action:: Swaps the side of the board you're looking at.
+* gtk ToggleView Action:: Toggle the visibility of the specified layer or layer group.
+* gtk Zoom Action:: Various zoom factor changes.
 @end menu
 @node gtk About Action
 @subsection gtk About
@@ -2196,10 +2211,230 @@ About()@end format
 @end cartouche
 
 Tell the user about this version of PCB.
-@c ./../src/hid/gtk/gtkhid-main.c 1505
+@c ./../src/hid/gtk/gtkhid-main.c 1435
 
 This just pops up a dialog telling the user which version of
 @code{pcb} they're running.
+
+
+@node gtk AdjustStyle Action
+@subsection gtk AdjustStyle
+@c key gtk AdjustStyle in hid gtk
+@cartouche
+@format
+AdjustStyle()
+@end format
+@end cartouche
+
+Open the window which allows editing of the route styles
+@c ./../src/hid/gtk/gui-top-window.c 3557
+
+Opens the window which allows editing of the route styles.
+
+
+@node gtk Center Action
+@subsection gtk Center
+@c key gtk Center in hid gtk
+@cartouche
+@format
+Center()
+@end format
+@end cartouche
+
+Moves the pointer to the center of the window.
+@c ./../src/hid/gtk/gtkhid-main.c 1833
+
+Move the pointer to the center of the window, but only if it's
+currently within the window already.
+
+
+@node gtk DoWindows Action
+@subsection gtk DoWindows
+@c key gtk DoWindows in hid gtk
+@cartouche
+@format
+DoWindows(1|2|3|4)
+DoWindows(Layout|Library|Log|Netlist|Preferences)@end format
+@end cartouche
+
+Open various GUI windows.
+@c ./../src/hid/gtk/gtkhid-main.c 1933
+
+@table @code
+
+@item 1
+@itemx Layout
+Open the layout window.  Since the layout window is always shown
+anyway, this has no effect.
+
+@item 2
+@itemx Library
+Open the library window.
+
+@item 3
+@itemx Log
+Open the log window.
+
+@item 4
+@itemx Netlist
+Open the netlist window.
+
+@item 5
+@itemx Preferences
+Open the preferences window.
+
+@end table
+
+
+@node gtk EditLayerGroups Action
+@subsection gtk EditLayerGroups
+@c key gtk EditLayerGroups in hid gtk
+@cartouche
+@format
+EditLayerGroups()
+@end format
+@end cartouche
+
+Open the preferences window which allows editing of the layer groups
+@c ./../src/hid/gtk/gui-top-window.c 3580
+
+Opens the preferences window which is where the layer groups
+are edited.  This action is primarily provides to provide menu
+resource compatibility with the lesstif HID.
+
+
+@node gtk GetXY Action
+@subsection gtk GetXY
+@c key gtk GetXY in hid gtk
+@cartouche
+@format
+GetXY()@end format
+@end cartouche
+
+Get a coordinate.
+@c ./../src/hid/gtk/gtkhid-main.c 1450
+
+Prompts the user for a coordinate, if one is not already selected.
+
+
+@node gtk Popup Action
+@subsection gtk Popup
+@c key gtk Popup in hid gtk
+@cartouche
+@format
+Popup(MenuName, [Button])@end format
+@end cartouche
+
+Bring up the popup menu specified by @code{MenuName}.
+If called by a mouse event then the mouse button number
+must be specified as the optional second argument.
+@c ./../src/hid/gtk/gtkhid-main.c 2000
+
+This just pops up the specified menu.  The menu must have been defined
+as a named subresource of the Popups resource in the menu resource
+file.  If called as a response to a mouse button click, the mouse 
+button number must be specified as the second argument.  
+
+
+@node gtk SelectLayer Action
+@subsection gtk SelectLayer
+@c key gtk SelectLayer in hid gtk
+@cartouche
+@format
+SelectLayer(1..MAXLAYER|Silk|Rats)@end format
+@end cartouche
+
+Select which layer is the current layer.
+@c ./../src/hid/gtk/gui-top-window.c 2721
+
+The specified layer becomes the currently active layer.  It is made
+visible if it is not already visible
+
+
+@node gtk SetUnits Action
+@subsection gtk SetUnits
+@c key gtk SetUnits in hid gtk
+@cartouche
+@format
+SetUnits(mm|mil)@end format
+@end cartouche
+
+Set the default measurement units.
+@c ./../src/hid/gtk/gtkhid-main.c 1972
+
+@table @code
+
+@item mil
+Sets the display units to mils (1/1000 inch).
+
+@item mm
+Sets the display units to millimeters.
+
+@end table
+
+
+@node gtk SwapSides Action
+@subsection gtk SwapSides
+@c key gtk SwapSides in hid gtk
+@cartouche
+@format
+SwapSides(|v|h|r)@end format
+@end cartouche
+
+Swaps the side of the board you're looking at.
+@c ./../src/hid/gtk/gtkhid-main.c 1681
+
+This action changes the way you view the board.
+
+@table @code
+
+@item v
+Flips the board over vertically (up/down).
+
+@item h
+Flips the board over horizontally (left/right), like flipping pages in
+a book.
+
+@item r
+Rotates the board 180 degrees without changing sides.
+
+@end table
+
+If no argument is given, the board isn't moved but the opposite side
+is shown.
+
+Normally, this action changes which pads and silk layer are drawn as
+true silk, and which are drawn as the "invisible" layer.  It also
+determines which solder mask you see.
+
+As a special case, if the layer group for the side you're looking at
+is visible and currently active, and the layer group for the opposite
+is not visible (i.e. disabled), then this action will also swap which
+layer group is visible and active, effectively swapping the ``working
+side'' of the board.
+
+
+@node gtk ToggleView Action
+@subsection gtk ToggleView
+@c key gtk ToggleView in hid gtk
+@cartouche
+@format
+ToggleView(1..MAXLAYER)
+ToggleView(layername)
+ToggleView(Silk|Rats|Pins|Vias|Mask|BackSide)@end format
+@end cartouche
+
+Toggle the visibility of the specified layer or layer group.
+@c ./../src/hid/gtk/gui-top-window.c 2645
+
+If you pass an integer, that layer is specified by index (the first
+layer is @code{1}, etc).  If you pass a layer name, that layer is
+specified by name.  When a layer is specified, the visibility of the
+layer group containing that layer is toggled.
+
+If you pass a special layer name, the visibility of those components
+(silk, rats, etc) is toggled.  Note that if you have a layer named
+the same as a special layer, the layer is chosen over the special layer.
 
 
 @node gtk Zoom Action
@@ -2207,13 +2442,46 @@ This just pops up a dialog telling the user which version of
 @c key gtk Zoom in hid gtk
 @cartouche
 @format
-Zoom(gtk)@end format
+Zoom()
+Zoom(factor)@end format
 @end cartouche
 
-this is the gtk zoom
-@c ./../src/hid/gtk/gtkhid-main.c 50
+Various zoom factor changes.
+@c ./../src/hid/gtk/gtkhid-main.c 127
+Changes the zoom (magnification) of the view of the board.  If no
+arguments are passed, the view is scaled such that the board just fits
+inside the visible window (i.e. ``view all'').  Otherwise,
+@var{factor} specifies a change in zoom factor.  It may be prefixed by
+@code{+}, @code{-}, or @code{=} to change how the zoom factor is
+modified.  The @var{factor} is a floating point number, such as
+@code{1.5} or @code{0.75}.
 
-This is for the gtk zoom.
+@table @code
+  
+@item +@var{factor}
+Values greater than 1.0 cause the board to be drawn smaller; more of
+the board will be visible.  Values between 0.0 and 1.0 cause the board
+to be drawn bigger; less of the board will be visible.
+  
+@item -@var{factor}
+Values greater than 1.0 cause the board to be drawn bigger; less of
+the board will be visible.  Values between 0.0 and 1.0 cause the board
+to be drawn smaller; more of the board will be visible.
+ 
+@item =@var{factor}
+ 
+The @var{factor} is an absolute zoom factor; the unit for this value
+is "PCB units per screen pixel".  Since PCB units are 0.01 mil, a
+@var{factor} of 1000 means 10 mils (0.01 in) per pixel, or 100 DPI,
+about the actual resolution of most screens - resulting in an "actual
+size" board.  Similarly, a @var{factor} of 100 gives you a 10x actual
+size.
+ 
+@end table
+ 
+Note that zoom factors of zero are silently ignored.
+ 
+
 
 
 @node lesstif actions
