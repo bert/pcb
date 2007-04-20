@@ -2961,6 +2961,8 @@ add_resource_to_menu (char * menu, Resource * node, void * callback, int indent)
 	     *
 	     * " " -> ""
 	     * "Enter" -> "Return"
+	     * "Tab" -> clear out the accelerator entirely.  Gtk's
+	     * accessability features take over Tab so we can't use it.
 	     *
 	     */
 	    char *p;
@@ -3006,7 +3008,7 @@ add_resource_to_menu (char * menu, Resource * node, void * callback, int indent)
 		      {
 			Message ("Don't know how to parse \"%c\"\n", 
 				 *p);
-		      }
+;		      }
 		    break;
 
 		  case KEY:
@@ -3014,6 +3016,13 @@ add_resource_to_menu (char * menu, Resource * node, void * callback, int indent)
 		      {
 			strncat (accel, "Return", sizeof (accel));
 			p += 5;
+		      }
+		    else if (strncmp (p, "Tab", 3) == 0)
+		      {
+			Message ("GTK does not allow the use of Tab for menu accelerators\n"
+				 "Hotkey \"%s\" will be dropped\n", r->v[1].value);
+			accel[0] = '\0';
+			p += 3;
 		      }
 		    else
 		      {
