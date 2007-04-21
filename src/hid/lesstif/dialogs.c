@@ -65,7 +65,7 @@ wait_for_dialog (Widget w)
 
 static Widget fsb = 0;
 static XmString xms_pcb, xms_net, xms_vend, xms_all, xms_load, xms_loadv,
-  xms_save;
+  xms_save, xms_fp;
 
 static void
 setup_fsb_dialog ()
@@ -74,6 +74,7 @@ setup_fsb_dialog ()
     return;
 
   xms_pcb = XmStringCreateLocalized ("*.pcb");
+  xms_fp = XmStringCreateLocalized ("*.fp");
   xms_net = XmStringCreateLocalized ("*.net");
   xms_vend = XmStringCreateLocalized ("*.vend");
   xms_all = XmStringCreateLocalized ("*");
@@ -123,6 +124,8 @@ Load (int argc, char **argv, int x, int y)
 
   if (strcasecmp (function, "Netlist") == 0)
     pattern = xms_net;
+  else if (strcasecmp (function, "ElementToBuffer") == 0)
+    pattern = xms_fp;
   else
     pattern = xms_pcb;
 
