@@ -12,6 +12,7 @@
 #include <string.h>
 #include <assert.h>
 #include <ctype.h>
+#include <math.h>
 
 #ifdef HAVE_PWD_H
 #include <pwd.h>
@@ -767,6 +768,29 @@ gerber_draw_line (hidGC gc, int x1, int y1, int x2, int y2)
   use_gc (gc, 0);
   if (!f)
     return;
+
+  if (x1 != x2 && y1 != y2 && gc->cap == Square_Cap)
+    {
+      int x[5], y[5];
+      float tx, ty, theta;
+
+      theta = atan2 (y2-y1, x2-x1);
+
+      /* T is a vector half a thickness long, in the direction of
+	 one of the corners.  */
+      tx = gc->width / 2.0 * cos (theta + M_PI/4) * sqrt(2.0);
+      ty = gc->width / 2.0 * sin (theta + M_PI/4) * sqrt(2.0);
+
+      x[0] = x1 - tx;      y[0] = y1 - ty;
+      x[1] = x2 + ty;      y[1] = y2 - tx;
+      x[2] = x2 + tx;      y[2] = y2 + ty;
+      x[3] = x1 - ty;      y[3] = y1 + tx;
+
+      x[4] = x[0]; y[4] = y[0];
+      gerber_fill_polygon (gc, 5, x, y);
+      return;
+    }
+
   if (x1 != lastX)
     {
       m = True;
