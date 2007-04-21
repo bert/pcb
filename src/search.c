@@ -850,12 +850,59 @@ IsArcInRectangle (LocationType X1, LocationType Y1,
  * check if a point lies inside a square Pad
  * fixed 10/30/98 - radius can't expand both edges of a square box
  */
+
+/* Cross c->u and c->v, return the magnitute */
+static double
+cross2d (int cx, int cy, int ux, int uy, int vx, int vy)
+{
+  ux -= cx;
+  uy -= cy;
+  vx -= cx;
+  vy -= cy;
+  return (double)ux * vy - (double)uy * vx;
+}
+
 Boolean
 IsPointInSquarePad (LocationType X, LocationType Y, Cardinal Radius,
 		    PadTypePtr Pad)
 {
   register BDimension t2 = Pad->Thickness / 2;
   BoxType padbox;
+
+  if (Pad->Point1.X != Pad->Point2.X
+      && Pad->Point1.Y != Pad->Point2.Y)
+    {
+      /* rare but harder */
+      int x[5], y[5];
+      float tx, ty, theta;
+      int x1 = Pad->Point1.X;
+      int y1 = Pad->Point1.Y;
+      int x2 = Pad->Point2.X;
+      int y2 = Pad->Point2.Y;
+      int i;
+
+      theta = atan2 (y2-y1, x2-x1);
+
+      /* T is a vector half a thickness long, in the direction of
+	 one of the corners.  */
+      tx = t2 * cos (theta + M_PI/4) * sqrt(2.0);
+      ty = t2 * sin (theta + M_PI/4) * sqrt(2.0);
+
+      x[0] = x1 - tx;      y[0] = y1 - ty;
+      x[1] = x2 + ty;      y[1] = y2 - tx;
+      x[2] = x2 + tx;      y[2] = y2 + ty;
+      x[3] = x1 - ty;      y[3] = y1 + tx;
+
+      x[4] = x[0]; y[4] = y[0];
+
+      for (i=0; i<4; i++)
+	{
+	  double c = cross2d (x[i], y[i], x[i+1], y[i+1], X, Y);
+	  if (c < 0)
+	    return False;
+	}
+      return True;
+    }
 
   padbox.X1 = MIN (Pad->Point1.X, Pad->Point2.X) - t2;
   padbox.X2 = MAX (Pad->Point1.X, Pad->Point2.X) + t2;

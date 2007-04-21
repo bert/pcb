@@ -254,15 +254,26 @@ XORDrawElement (ElementTypePtr Element, LocationType DX, LocationType DY)
     if ((TEST_FLAG (ONSOLDERFLAG, pad) != 0) ==
 	Settings.ShowSolderSide || PCB->InvisibleObjectsOn)
       {
-	int minx, miny, maxx, maxy;
-	minx = DX + MIN (pad->Point1.X, pad->Point2.X) - pad->Thickness/2;
-	maxx = DX + MAX (pad->Point1.X, pad->Point2.X) + pad->Thickness/2;
-	miny = DY + MIN (pad->Point1.Y, pad->Point2.Y) - pad->Thickness/2;
-	maxy = DY + MAX (pad->Point1.Y, pad->Point2.Y) + pad->Thickness/2;
-	gui->draw_line (Crosshair.GC, minx, miny, maxx, miny);
-	gui->draw_line (Crosshair.GC, minx, miny, minx, maxy);
-	gui->draw_line (Crosshair.GC, maxx, miny, maxx, maxy);
-	gui->draw_line (Crosshair.GC, minx, maxy, maxx, maxy);
+	if (pad->Point1.X == pad->Point2.X
+	    || pad->Point1.Y == pad->Point2.Y)
+	  {
+	    int minx, miny, maxx, maxy;
+	    minx = DX + MIN (pad->Point1.X, pad->Point2.X) - pad->Thickness/2;
+	    maxx = DX + MAX (pad->Point1.X, pad->Point2.X) + pad->Thickness/2;
+	    miny = DY + MIN (pad->Point1.Y, pad->Point2.Y) - pad->Thickness/2;
+	    maxy = DY + MAX (pad->Point1.Y, pad->Point2.Y) + pad->Thickness/2;
+	    gui->draw_line (Crosshair.GC, minx, miny, maxx, miny);
+	    gui->draw_line (Crosshair.GC, minx, miny, minx, maxy);
+	    gui->draw_line (Crosshair.GC, maxx, miny, maxx, maxy);
+	    gui->draw_line (Crosshair.GC, minx, maxy, maxx, maxy);
+	  }
+	else
+	  {
+	    /* FIXME: draw outlines, not centerlines.  */
+	    gui->draw_line (Crosshair.GC,
+			    DX + pad->Point1.X, DY + pad->Point1.Y,
+			    DX + pad->Point2.X, DY + pad->Point2.Y);
+	  }
       }
   }
   END_LOOP;
