@@ -229,7 +229,7 @@ CopyArc (LayerTypePtr Layer, ArcTypePtr Arc)
   ArcTypePtr arc;
 
   arc = CreateNewArcOnLayer (Layer, Arc->X + DeltaX,
-			     Arc->Y + DeltaY, Arc->Width, Arc->StartAngle,
+			     Arc->Y + DeltaY, Arc->Width, Arc->Height, Arc->StartAngle,
 			     Arc->Delta, Arc->Thickness, Arc->Clearance,
 			     MaskFlags (Arc->Flags, FOUNDFLAG));
   if (!arc)

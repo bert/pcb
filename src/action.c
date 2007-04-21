@@ -1066,7 +1066,9 @@ NotifyMode (void)
 							      Crosshair.
 							      AttachedBox.
 							      Point2.Y,
-							      abs (wy), sa,
+							      abs (wy),
+							      abs (wy),
+							      sa,
 							      dir,
 							      Settings.
 							      LineThickness,

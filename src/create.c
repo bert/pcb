@@ -491,7 +491,9 @@ CreateNewRat (DataTypePtr Data, LocationType X1, LocationType Y1,
 ArcTypePtr
 CreateNewArcOnLayer (LayerTypePtr Layer,
 		     LocationType X1, LocationType Y1,
-		     BDimension width, int sa,
+		     BDimension width,
+		     BDimension height,
+		     int sa,
 		     int dir, BDimension Thickness,
 		     BDimension Clearance, FlagType Flags)
 {
@@ -515,7 +517,8 @@ CreateNewArcOnLayer (LayerTypePtr Layer,
   Arc->Clearance = Clearance;
   Arc->X = X1;
   Arc->Y = Y1;
-  Arc->Width = Arc->Height = width;
+  Arc->Width = width;
+  Arc->Height = height;
   Arc->StartAngle = sa;
   Arc->Delta = dir;
   SetArcBoundingBox (Arc);

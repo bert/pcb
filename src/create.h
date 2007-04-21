@@ -52,7 +52,7 @@ RatTypePtr CreateNewRat (DataTypePtr, LocationType, LocationType,
 			 LocationType, LocationType, Cardinal, Cardinal,
 			 BDimension, FlagType);
 ArcTypePtr CreateNewArcOnLayer (LayerTypePtr, LocationType, LocationType,
-				BDimension, int, int, BDimension, BDimension,
+				BDimension, BDimension, int, int, BDimension, BDimension,
 				FlagType);
 PolygonTypePtr CreateNewPolygonFromRectangle (LayerTypePtr, LocationType,
 					      LocationType, LocationType,

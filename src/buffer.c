@@ -164,7 +164,7 @@ AddArcToBuffer (LayerTypePtr Layer, ArcTypePtr Arc)
   LayerTypePtr layer = &Dest->Layer[GetLayerNumber (Source, Layer)];
 
   return (CreateNewArcOnLayer (layer, Arc->X, Arc->Y,
-			       Arc->Width, Arc->StartAngle, Arc->Delta,
+			       Arc->Width, Arc->Height, Arc->StartAngle, Arc->Delta,
 			       Arc->Thickness, Arc->Clearance,
 			       MaskFlags (Arc->Flags,
 					  FOUNDFLAG | ExtraFlag)));
@@ -589,7 +589,7 @@ SmashBufferElement (BufferTypePtr Buffer)
   ARC_LOOP (element);
   {
     CreateNewArcOnLayer (&Buffer->Data->SILKLAYER,
-			 arc->X, arc->Y, arc->Width, arc->StartAngle,
+			 arc->X, arc->Y, arc->Width, arc->Height, arc->StartAngle,
 			 arc->Delta, arc->Thickness, 0, NoFlags ());
   }
   END_LOOP;
