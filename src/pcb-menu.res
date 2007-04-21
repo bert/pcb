@@ -140,7 +140,7 @@ MainMenu =
    {"Paste buffer to layout" Mode(PasteBuffer) a={"F7" "<Key>F7"}}
    -
    {"Unselect all" Unselect(All) a={"Shift-Alt-A" "Shift Alt<Key>a"}}
-   {"Select all" Select(All) a={"Alt-A" "Alt<Key>a"}}
+   {"Select all visible" Select(All) a={"Alt-A" "Alt<Key>a"}}
    -
    {"Move to current layer" MoveToCurrentLayer(Object) a={"M" "<Key>m"}}
    {"Move selected to current layer" MoveToCurrentLayer(Selected) a={"Shift-M" "Shift<Key>m"}}
@@ -204,7 +204,7 @@ MainMenu =
   }
     
   {Select
-   {"Select all objects" Select(All)}
+   {"Select all visible objects" Select(All)}
    {"Select all connected objects" Select(Connection)}
    -
    {"Unselect all objects" Unselect(All)}

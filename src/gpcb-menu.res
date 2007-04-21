@@ -84,7 +84,7 @@ MainMenu =
    {"Paste buffer to layout" Mode(PasteBuffer) }
    -
    {"Unselect all" Unselect(All) a={"Shift-Alt-A" "Shift Alt<Key>a"}}
-   {"Select all" Select(All) a={"Alt-A" "Alt<Key>a"}}
+   {"Select all visible" Select(All) a={"Alt-A" "Alt<Key>a"}}
    -
    {"Edit name of"
      {"text on layout" ChangeName(Object) a={"N" "<Key>n"}}
@@ -207,7 +207,7 @@ MainMenu =
 # Select menu
 #
   {Select m=l
-   {"Select all objects" Select(All)}
+   {"Select all visible objects" Select(All)}
    {"Select all connected objects" Select(Connection)}
    -
    {"Unselect all objects" Unselect(All)}
