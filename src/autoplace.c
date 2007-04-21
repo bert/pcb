@@ -529,6 +529,12 @@ ComputeCost (NetListTypePtr Nets, double T0, double T)
 	GetPointerMemory (TEST_FLAG (ONSOLDERFLAG, element) ?
 			  &seboxes : &ceboxes);
       *boxpp = malloc (sizeof (**boxpp));
+      if (*boxpp == NULL ) 
+	{
+	  fprintf (stderr, "malloc() failed in %s\n", __FUNCTION__);
+	  exit (1);
+	}
+
       (*boxpp)->box = element->VBox;
       (*boxpp)->element = element;
     }
