@@ -35,6 +35,7 @@
 
 #include <stdlib.h>
 #include <memory.h>
+#include <math.h>
 
 #include "global.h"
 
@@ -915,6 +916,151 @@ RotateBuffer (BufferTypePtr Buffer, BYTE Number)
   RotateBoxLowLevel (&Buffer->BoundingBox, Buffer->X, Buffer->Y, Number);
 }
 
+static void
+free_rotate (int *x, int *y, int cx, int cy, double cosa, double sina)
+{
+  double nx, ny;
+  int px = *x - cx;
+  int py = *y - cy;
+
+  nx = px * cosa + py * sina;
+  ny = py * cosa - px * sina;
+
+  *x = nx + cx;
+  *y = ny + cy;
+}
+
+void
+FreeRotateElementLowLevel (DataTypePtr Data, ElementTypePtr Element,
+			   LocationType X, LocationType Y,
+			   double cosa, double sina, double Angle)
+{
+  /* solder side objects need a different orientation */
+
+  /* the text subroutine decides by itself if the direction
+   * is to be corrected
+   */
+#if 0
+  ELEMENTTEXT_LOOP (Element);
+  {
+    if (Data && Data->name_tree[n])
+      r_delete_entry (Data->name_tree[n], (BoxType *) text);
+    RotateTextLowLevel (text, X, Y, Number);
+  }
+  END_LOOP;
+#endif
+  ELEMENTLINE_LOOP (Element);
+  {
+    free_rotate (&line->Point1.X, &line->Point1.Y, X, Y, cosa, sina);
+    free_rotate (&line->Point2.X, &line->Point2.Y, X, Y, cosa, sina);
+    SetLineBoundingBox (line);
+  }
+  END_LOOP;
+  PIN_LOOP (Element);
+  {
+    /* pre-delete the pins from the pin-tree before their coordinates change */
+    if (Data)
+      r_delete_entry (Data->pin_tree, (BoxType *) pin);
+    RestoreToPolygon (Data, PIN_TYPE, Element, pin);
+    free_rotate (&pin->X, &pin->Y, X, Y, cosa, sina);
+    SetPinBoundingBox (pin);
+  }
+  END_LOOP;
+  PAD_LOOP (Element);
+  {
+    /* pre-delete the pads before their coordinates change */
+    if (Data)
+      r_delete_entry (Data->pad_tree, (BoxType *) pad);
+    RestoreToPolygon (Data, PAD_TYPE, Element, pad);
+    free_rotate (&pad->Point1.X, &pad->Point1.Y, X, Y, cosa, sina);
+    free_rotate (&pad->Point2.X, &pad->Point2.Y, X, Y, cosa, sina);
+    SetLineBoundingBox (pad);
+  }
+  END_LOOP;
+  ARC_LOOP (Element);
+  {
+    free_rotate (&arc->X, &arc->Y, X, Y, cosa, sina);
+    arc->StartAngle += Angle;
+    arc->StartAngle %= 360;
+  }
+  END_LOOP;
+
+  free_rotate (&Element->MarkX, &Element->MarkY, X, Y, cosa, sina);
+  SetElementBoundingBox (Data, Element, &PCB->Font);
+  ClearFromPolygon (Data, ELEMENT_TYPE, Element, Element);
+}
+
+void
+FreeRotateBuffer (BufferTypePtr Buffer, double Angle)
+{
+  double cosa, sina;
+
+  cosa = cos(Angle * M_PI/180.0);
+  sina = sin(Angle * M_PI/180.0);
+
+  /* rotate vias */
+  VIA_LOOP (Buffer->Data);
+  {
+    r_delete_entry (Buffer->Data->via_tree, (BoxTypePtr) via);
+    free_rotate (&via->X, &via->Y, Buffer->X, Buffer->Y, cosa, sina);
+    SetPinBoundingBox (via);
+    r_insert_entry (Buffer->Data->via_tree, (BoxTypePtr) via, 0);
+  }
+  END_LOOP;
+
+  /* elements */
+  ELEMENT_LOOP (Buffer->Data);
+  {
+    FreeRotateElementLowLevel (Buffer->Data, element, Buffer->X, Buffer->Y,
+			       cosa, sina, Angle);
+  }
+  END_LOOP;
+
+  /* all layer related objects */
+  ALLLINE_LOOP (Buffer->Data);
+  {
+    r_delete_entry (layer->line_tree, (BoxTypePtr) line);
+    free_rotate (&line->Point1.X, &line->Point1.Y, Buffer->X, Buffer->Y, cosa, sina);
+    free_rotate (&line->Point2.X, &line->Point2.Y, Buffer->X, Buffer->Y, cosa, sina);
+    SetLineBoundingBox (line);
+    r_insert_entry (layer->line_tree, (BoxTypePtr) line, 0);
+  }
+  ENDALL_LOOP;
+  ALLARC_LOOP (Buffer->Data);
+  {
+    r_delete_entry (layer->arc_tree, (BoxTypePtr) arc);
+    free_rotate (&arc->X, &arc->Y, Buffer->X, Buffer->Y, cosa, sina);
+    arc->StartAngle += Angle;
+    arc->StartAngle %= 360;
+    r_insert_entry (layer->arc_tree, (BoxTypePtr) arc, 0);
+  }
+  ENDALL_LOOP;
+  /* FIXME: rotate text */
+  ALLPOLYGON_LOOP (Buffer->Data);
+  {
+    r_delete_entry (layer->polygon_tree, (BoxTypePtr) polygon);
+    POLYGONPOINT_LOOP (polygon);
+    {
+      free_rotate (&point->X, &point->Y, Buffer->X, Buffer->Y, cosa, sina);
+    }
+    END_LOOP;
+    SetPolygonBoundingBox (polygon);
+    r_insert_entry (layer->polygon_tree, (BoxTypePtr) polygon, 0);
+  }
+  ENDALL_LOOP;
+
+  SetBufferBoundingBox (Buffer);
+}
+
+int
+ActionFreeRotateBuffer(int argc, char **argv, int x, int y)
+{
+  HideCrosshair(False);
+  FreeRotateBuffer(PASTEBUFFER, strtod(argv[0], 0));
+  RestoreCrosshair(False);
+  return 0;
+}
+
 /* ---------------------------------------------------------------------------
  * initializes the buffers by allocating memory
  */
@@ -1148,3 +1294,12 @@ CopyObjectToBuffer (DataTypePtr Destination, DataTypePtr Src,
   Source = Src;
   return (ObjectOperation (&AddBufferFunctions, Type, Ptr1, Ptr2, Ptr3));
 }
+
+/* ---------------------------------------------------------------------- */
+
+HID_Action rotate_action_list[] = {
+  {"FreeRotateBuffer", 0, ActionFreeRotateBuffer,
+   0,0}
+};
+
+REGISTER_ACTIONS (rotate_action_list)
