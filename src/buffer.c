@@ -715,21 +715,15 @@ ConvertBufferToElement (BufferTypePtr Buffer)
     char num[8];
     LINE_LOOP (layer);
     {
-      if (line->Point1.X == line->Point2.X
-	  || line->Point1.Y == line->Point2.Y)
-	{
-	  sprintf (num, "%d", pin_n++);
-	  CreateNewPad (Element, line->Point1.X,
-			line->Point1.Y, line->Point2.X,
-			line->Point2.Y, line->Thickness,
-			line->Clearance,
-			line->Thickness + line->Clearance, NULL,
-			line->Number ? line->Number : num,
-			MakeFlags (SWAP_IDENT ? ONSOLDERFLAG : NOFLAG));
-	  hasParts = True;
-	}
-      else
-        crooked = True;
+      sprintf (num, "%d", pin_n++);
+      CreateNewPad (Element, line->Point1.X,
+		    line->Point1.Y, line->Point2.X,
+		    line->Point2.Y, line->Thickness,
+		    line->Clearance,
+		    line->Thickness + line->Clearance, NULL,
+		    line->Number ? line->Number : num,
+		    MakeFlags (SWAP_IDENT ? ONSOLDERFLAG : NOFLAG));
+      hasParts = True;
     }
     END_LOOP;
     POLYGON_LOOP (layer);
@@ -772,29 +766,23 @@ ConvertBufferToElement (BufferTypePtr Buffer)
     char num[8];
     LINE_LOOP (layer);
     {
-      if (line->Point1.X == line->Point2.X
-	  || line->Point1.Y == line->Point2.Y)
+      sprintf (num, "%d", pin_n++);
+      CreateNewPad (Element, line->Point1.X,
+		    line->Point1.Y, line->Point2.X,
+		    line->Point2.Y, line->Thickness,
+		    line->Clearance,
+		    line->Thickness + line->Clearance, NULL,
+		    line->Number ? line->Number : num,
+		    MakeFlags (SWAP_IDENT ? NOFLAG : ONSOLDERFLAG));
+      if (!hasParts && !warned)
 	{
-	  sprintf (num, "%d", pin_n++);
-	  CreateNewPad (Element, line->Point1.X,
-			line->Point1.Y, line->Point2.X,
-			line->Point2.Y, line->Thickness,
-			line->Clearance,
-			line->Thickness + line->Clearance, NULL,
-			line->Number ? line->Number : num,
-			MakeFlags (SWAP_IDENT ? NOFLAG : ONSOLDERFLAG));
-	  if (!hasParts && !warned)
-	    {
-	      warned = True;
-	      Message
-		(_("Warning: All of the pads are on the opposite\n"
-		   "side from the component - that's probably not what\n"
-		   "you wanted\n"));
-	    }
-	  hasParts = True;
+	  warned = True;
+	  Message
+	    (_("Warning: All of the pads are on the opposite\n"
+	       "side from the component - that's probably not what\n"
+	       "you wanted\n"));
 	}
-      else
-        crooked = True;
+      hasParts = True;
     }
     END_LOOP;
   }
@@ -825,7 +813,7 @@ ConvertBufferToElement (BufferTypePtr Buffer)
       return (False);
     }
   if (crooked)
-     Message (_("There were lines or polygons that can't be made into pins!\n"
+     Message (_("There were polygons that can't be made into pins!\n"
                 "So they were not included in the element\n"));
   Element->MarkX = Buffer->X;
   Element->MarkY = Buffer->Y;
