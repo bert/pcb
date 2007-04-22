@@ -841,6 +841,44 @@ gerber_draw_arc (hidGC gc, int cx, int cy, int width, int height,
 
   arcStartX = cx - width * cos (TO_RADIANS (start_angle));
   arcStartY = cy + height * sin (TO_RADIANS (start_angle));
+
+  /* I checked three different gerber viewers, and they all disagreed
+     on how ellipses should be drawn.  The spec just calls G74/G75
+     "circular interpolation" so there's a chance it just doesn't
+     support ellipses at all.  Thus, we draw them out with line
+     segments.  Note that most arcs in pcb are circles anyway.  */
+  if (width != height)
+    {
+      double step, angle;
+      int max = width > height ? width : height;
+      int minr = max - gc->width / 10;
+      int nsteps;
+      int x0, y0, x1, y1;
+
+      if (minr >= max)
+	minr = max - 1;
+      step = acos((double)minr/(double)max) * 180.0/M_PI;
+      if (step > 5)
+	step = 5;
+      nsteps = abs(delta_angle) / step + 1;
+      step = (double)delta_angle / nsteps;
+
+      x0 = arcStartX;
+      y0 = arcStartY;
+      angle = start_angle;
+      while (nsteps > 0)
+	{
+	  nsteps --;
+	  x1 = cx - width * cos (TO_RADIANS (angle+step));
+	  y1 = cy + height * sin (TO_RADIANS (angle+step));
+	  gerber_draw_line (gc, x0, y0, x1, y1);
+	  x0 = x1;
+	  y0 = y1;
+	  angle += step;
+	}
+      return;
+    }
+
   arcStopX = cx - width * cos (TO_RADIANS (start_angle + delta_angle));
   arcStopY = cy + height * sin (TO_RADIANS (start_angle + delta_angle));
   if (arcStartX != lastX)
