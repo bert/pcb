@@ -775,27 +775,15 @@ static int
 UnsubtractPad (PadType * pad, LayerType * l, PolygonType * p)
 {
   POLYAREA *np = NULL;
+  BDimension t = (pad->Thickness + pad->Clearance) / 2 + 100;
+  LocationType x1, x2, y1, y2;
 
-  if (TEST_FLAG (SQUAREFLAG, pad))
-    {
-      BDimension t = pad->Clearance / 2 + 100;
-      LocationType x1, x2, y1, y2;
-      x1 = MIN (pad->Point1.X, pad->Point2.X) - pad->Thickness;
-      x2 = MAX (pad->Point1.X, pad->Point2.X) + pad->Thickness;
-      y1 = MIN (pad->Point1.Y, pad->Point2.Y) - pad->Thickness;
-      y2 = MAX (pad->Point1.Y, pad->Point2.Y) + pad->Thickness;
-      if (!(np = RoundRect (x1, x2, y1, y2, t)))
-        return 0;
-    }
-  else
-    {
-      /* overlap a bit to prevent notches from rounding errors */
-      if (!
-          (np =
-           LinePoly ((LineType *) pad,
-                     pad->Thickness + pad->Clearance + 100)))
-        return 0;
-    }
+  x1 = MIN (pad->Point1.X, pad->Point2.X) - t;
+  x2 = MAX (pad->Point1.X, pad->Point2.X) + t;
+  y1 = MIN (pad->Point1.Y, pad->Point2.Y) - t;
+  y2 = MAX (pad->Point1.Y, pad->Point2.Y) + t;
+  if (!(np = RectPoly (x1, x2, y1, y2)))
+    return 0;
   if (!Unsubtract (np, p))
     return 0;
   clearPoly (PCB->Data, l, p, (const BoxType *) pad, 100);
