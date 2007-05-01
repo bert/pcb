@@ -2016,6 +2016,97 @@ Center(int argc, char **argv, int x, int y)
 
   return 0;
 }
+
+/* ------------------------------------------------------------ */
+static const char cursor_syntax[] =
+"Cursor(Type,DeltaUp,DeltaRight,Units)";
+
+static const char cursor_help[] =
+"Move the cursor.";
+
+/* %start-doc actions Cursor
+
+This action moves the mouse cursor.  Unlike other actions which take
+coordinates, this action's coordinates are always relative to the
+user's view of the board.  Thus, a positive @var{DeltaUp} may move the
+cursor towards the board origin if the board is inverted.
+
+Type is one of @samp{Pan} or @samp{Warp}.  @samp{Pan} causes the
+viewport to move such that the crosshair is under the mouse curos.
+@samp{Warp} causes the mouse cursor to move to be above the crosshair.
+
+@var{Units} can be one of the following:
+
+@table @samp
+
+@item mil
+@itemx mm
+The cursor is moved by that amount, in board units.
+
+@item grid
+The cursor is moved by that many grid points.
+
+@item view
+The values are percentages of the viewport's view.  Thus, a pan of
+@samp{100} would scroll the viewport by exactly the width of the
+current view.
+
+@item board
+The values are percentages of the board size.  Thus, a move of
+@samp{50,50} moves you halfway across the board.
+
+@end table
+
+%end-doc */
+
+static int
+CursorAction(int argc, char **argv, int x, int y)
+{
+  int pan_warp = HID_SC_DO_NOTHING;
+  double dx, dy, xu, yu;
+
+  if (argc != 4)
+    AFAIL(cursor);
+
+  printf ("Cursor(%s, %s, %s, %s)\n", argv[0], argv[1], argv[2], argv[3]);
+
+#if 0
+  if (strcasecmp (argv[0], "pan") == 0)
+    pan_warp = HID_SC_PAN_VIEWPORT;
+  else if (strcasecmp (argv[0], "warp") == 0)
+    pan_warp = HID_SC_WARP_POINTER;
+  else
+    AFAIL(cursor);
+
+  dx = strtod (argv[1], 0);
+  if (flip_x)
+    dx = -dx;
+  dy = strtod (argv[2], 0);
+  if (!flip_y)
+    dy = -dy;
+
+  if (strncasecmp (argv[3], "mm", 2) == 0)
+    xu = yu = MM_TO_COOR;
+  else if (strncasecmp (argv[3], "mil", 3) == 0)
+    xu = yu = 100;
+  else if (strncasecmp (argv[3], "grid", 4) == 0)
+    xu = yu = PCB->Grid;
+  else if (strncasecmp (argv[3], "view", 4) == 0)
+    {
+      xu = Pz(view_width) / 100.0;
+      yu = Pz(view_height) / 100.0;
+    }
+  else if (strncasecmp (argv[3], "board", 4) == 0)
+    {
+      xu = PCB->MaxWidth / 100.0;
+      yu = PCB->MaxHeight / 100.0;
+    }
+
+  EventMoveCrosshair (Crosshair.X+(int)(dx*xu), Crosshair.Y+(int)(dy*yu));
+  gui->set_crosshair (Crosshair.X, Crosshair.Y, pan_warp);
+#endif
+  return 0;
+}
 /* ------------------------------------------------------------ */
 
 static const char dowindows_syntax[] =
@@ -2202,6 +2293,7 @@ HID_Action ghid_main_action_list[] = {
   {"Busy", 0, Busy},
   {"Center", "Click on a location to center", Center, center_help, center_syntax},
   {"Command", 0, Command},
+  {"Cursor", 0, CursorAction, cursor_help, cursor_syntax},
   {"DoWindows", 0, DoWindows, dowindows_help, dowindows_syntax},
   {"Export", 0, Export},
   {"GetXY", "", GetXY, getxy_help, getxy_syntax},

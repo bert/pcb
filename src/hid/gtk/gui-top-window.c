@@ -44,6 +44,11 @@ TODO:
   hid_actionl ("Display", "Grid", "", NULL);
   ghid_set_status_line_label ();
 
+
+I NEED TO DO THE STATUS LINE THING.  for example shift-alt-v to change the
+via size.  NOte the status line label does not get updated properly until
+a zoom in/out.
+
 - do not forget I can use
   if (!ghidgui->toggle_holdoff)
   
@@ -213,6 +218,8 @@ GHidPort ghid_port, *gport;
 static GdkColor WhitePixel, BlackPixel;
 
 static gchar		*bg_image_file;
+
+static char *ghid_hotkey_actions[256];
 
 
 /* ------------------------------------------------------------------
@@ -444,7 +451,7 @@ top_window_configure_event_cb (GtkWidget * widget, GdkEventConfigure * ev,
  */
 
 static void
-ghid_menu_cb (GtkAction * action, GHidPort * port)
+ghid_menu_cb (GtkAction * action, gpointer data)
 {
   const gchar * name;
   int id = 0;
@@ -462,7 +469,32 @@ ghid_menu_cb (GtkAction * action, GHidPort * port)
   else
     in_cb = 1;
 
-  name = gtk_action_get_name (action);
+  /* 
+   * Normally this callback is triggered by the menus in which case
+   * action will be the gtk action which was triggered.  In the case
+   * of the "special" hotkeys we will call this callback directly and
+   * pass in the name of the menu that it corresponds to in via the
+   * data argument
+   */
+  if (action != NULL) 
+    {
+      name = gtk_action_get_name (action);
+    }
+  else
+    {
+      name = (char *) data;
+#ifdef DEBUG_MENUS
+      printf ("ghid_menu_cb():  name = \"%s\"\n", UNKNOWN (name));
+#endif
+    }
+
+  if (name == NULL)
+    {
+      fprintf (stderr, "%s(%p, %p):  name == NULL\n", 
+	       __FUNCTION__, action, data);
+      in_cb = 0;
+      return;
+    }
 
   if ( strncmp (name, MENUITEM, strlen (MENUITEM)) == 0)
     {
@@ -549,8 +581,35 @@ ghid_menu_cb (GtkAction * action, GHidPort * port)
   ghidgui->toggle_holdoff = old_holdoff;
   
   in_cb = 0;
+
+  /*
+   * and finally, make any changes show up in the status line and the
+   * screen 
+   */
+  if (ghidgui->toggle_holdoff == FALSE) 
+    {
+      HideCrosshair (TRUE);
+      AdjustAttachedObjects ();
+      ghid_invalidate_all ();
+      RestoreCrosshair (TRUE);
+      ghid_screen_update ();
+      ghid_set_status_line_label ();
+#ifdef FIXME
+      g_idle_add (ghid_idle_cb, NULL);
+#endif
+    }
+
 }
 
+void ghid_hotkey_cb (int which)
+{
+#ifdef DEBUG_MENUS
+  printf ("%s(%d) -> \"%s\"\n", __FUNCTION__, 
+	  which, UNKNOWN (ghid_hotkey_actions[which]));
+#endif
+  if (ghid_hotkey_actions[which] != NULL)
+    ghid_menu_cb (NULL, ghid_hotkey_actions[which]);
+}
 
 
 /* ============== ViewMenu callbacks =============== */
@@ -1041,7 +1100,6 @@ make_top_menubar (GtkWidget * hbox, GHidPort * port)
   GtkActionGroup *actions;
   GError *error = NULL;
 
-
   frame = gtk_frame_new (NULL);
   gtk_box_pack_start (GTK_BOX (hbox), frame, FALSE, TRUE, 0);
   gtk_frame_set_shadow_type (GTK_FRAME (frame), GTK_SHADOW_ETCHED_OUT);
@@ -1070,6 +1128,7 @@ make_top_menubar (GtkWidget * hbox, GHidPort * port)
 
   gtk_container_add (GTK_CONTAINER (frame),
 		     gtk_ui_manager_get_widget (ui, "/MenuBar"));
+
 }
 
 
@@ -2787,7 +2846,89 @@ static HID_Attribute pcbmenu_attr[] = {
    HID_String, 0, 0, {0, PCBLIBDIR "/gpcb-menu.res", 0}, 0, &pcbmenu_path}
 };
 
-REGISTER_ATTRIBUTES (pcbmenu_attr)
+REGISTER_ATTRIBUTES (pcbmenu_attr) 
+     
+/* 
+ * This function is used to check if a specified hotkey in the menu
+ * resource file is "special".  In this case "special" means that gtk
+ * assigns a particular meaning to it and the normal menu setup will
+ * never see these key presses.  We capture those and feed them back
+ * into the menu callbacks.  This function is called as new
+ * accelerators are added when the menus are being built
+ */
+static void ghid_check_special_key (const char *accel, const char *name)
+{
+  size_t len;
+  unsigned int mods;
+  unsigned int ind;
+
+  if ( accel == NULL || *accel == '\0' )
+    {
+      return ;
+    }
+
+#ifdef DEBUG_MENUS
+  printf ("%s(\"%s\", \"%s\")\n", __FUNCTION__, accel, name);
+#endif
+
+  mods = 0;
+  if (strstr (accel, "<alt>") )
+    {
+      mods |= GHID_KEY_ALT;
+    }
+  if (strstr (accel, "<control>") )
+    {
+      mods |= GHID_KEY_CONTROL;
+    }
+  if (strstr (accel, "<shift>") )
+    {
+      mods |= GHID_KEY_SHIFT;
+    }
+
+  
+  len = strlen (accel);
+  
+#define  CHECK_KEY(a) ((len >= strlen (a)) && (strcmp (accel + len - strlen (a), (a)) == 0))
+
+  ind = 0;
+  if ( CHECK_KEY ("Tab") )
+    {
+      ind = mods | GHID_KEY_TAB;
+    }
+  else if ( CHECK_KEY ("Up") )
+    {
+      ind = mods | GHID_KEY_UP;
+    }
+  else if ( CHECK_KEY ("Down") )
+    {
+      ind = mods | GHID_KEY_DOWN;
+    }
+  else if ( CHECK_KEY ("Left") )
+    {
+      ind = mods | GHID_KEY_LEFT;
+    }
+  else if ( CHECK_KEY ("Right") )
+    {
+      ind = mods | GHID_KEY_RIGHT;
+    }
+
+  if (ind > 0) 
+    {
+      if (ind >= (sizeof (ghid_hotkey_actions) / sizeof (char *)) )
+	{
+	  fprintf (stderr, "ERROR:  overflow of the ghid_hotkey_actions array.  Index = %d\n"
+		   "Please report this.\n", ind);
+	  exit (1);
+	}
+
+      ghid_hotkey_actions[ind] = g_strdup (name);
+#ifdef DEBUG_MENUS
+      printf ("Adding \"special\" hotkey to ghid_hotkey_actions[%u] :"
+	      " %s (%s)\n", ind, accel, name);
+#endif
+    }
+}
+
 
 #define INDENT_INC 5
 
@@ -2830,6 +2971,8 @@ ghid_append_action (const char * name, const char *stock_id,
 					    ? NULL : strdup (accelerator));
   new_entries[menuitem_cnt].tooltip = (tooltip == NULL ? NULL : strdup (tooltip));
   new_entries[menuitem_cnt].callback = G_CALLBACK (ghid_menu_cb);
+
+  ghid_check_special_key (accelerator, name);
   menuitem_cnt++;
 }
 
@@ -2863,6 +3006,8 @@ ghid_append_toggle_action (const char * name, const char *stock_id,
   new_toggle_entries[tmenuitem_cnt].tooltip = (tooltip == NULL ? NULL : strdup (tooltip));
   new_toggle_entries[tmenuitem_cnt].callback = G_CALLBACK (ghid_menu_cb);
   new_toggle_entries[tmenuitem_cnt].is_active = active ? TRUE : FALSE;
+
+  ghid_check_special_key (accelerator, name);
   tmenuitem_cnt++;
 }
 
@@ -3015,6 +3160,7 @@ add_resource_to_menu (char * menu, Resource * node, void * callback, int indent)
 			strncat (accel, "Return", sizeof (accel));
 			p += 5;
 		      }
+#ifdef FIXME
 		    else if (strncmp (p, "Tab", 3) == 0)
 		      {
 			Message ("GTK does not allow the use of Tab for menu accelerators\n"
@@ -3022,6 +3168,7 @@ add_resource_to_menu (char * menu, Resource * node, void * callback, int indent)
 			accel[0] = '\0';
 			p += 3;
 		      }
+#endif
 		    else
 		      {
 			ch[0] = *p;
@@ -3485,6 +3632,12 @@ ghid_load_menus (void)
   Resource *r = 0, *bir;
   char *home_pcbmenu;
   Resource *mr;
+  int i;
+
+  for (i = 0; i < sizeof (ghid_hotkey_actions) / sizeof (char *) ; i++)
+    {
+      ghid_hotkey_actions[i] = NULL;
+    }
 
   home_pcbmenu = Concat (getenv ("HOME"), "/.pcb/gpcb-menu.res", NULL);
 

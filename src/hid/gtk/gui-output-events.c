@@ -389,7 +389,11 @@ ghid_port_key_release_cb (GtkWidget * drawing_area, GdkEventKey * kev,
  * Note that the default is for all hotkeys to be handled by the
  * menu accelerators.
  *
- * Key presses not handled by the menus will show up here.
+ * Key presses not handled by the menus will show up here.  This means
+ * the key press was either not defined in the menu resource file or
+ * that the key press is special in that gtk doesn't allow the normal
+ * menu code to ever see it.  We capture those here (like Tab and the
+ * arrow keys) and feed it back to the normal menu callback.
  */
 
 gboolean
@@ -399,6 +403,8 @@ ghid_port_key_press_cb (GtkWidget * drawing_area,
   ModifierKeysState mk;
   gint  ksym = kev->keyval;
   gboolean handled;
+  extern  void ghid_hotkey_cb (int);
+  extern char *ghid_hotkey_actions[];
 
   if (ghid_is_modifier_key_sym (ksym))
     ghid_note_event_location (NULL);
@@ -419,22 +425,85 @@ ghid_port_key_press_cb (GtkWidget * drawing_area,
     case GDK_Shift_Lock:
       break;
 
+    case GDK_Up:
+      ghid_hotkey_cb (GHID_KEY_UP);
+      break;
+      
+    case GDK_Down:
+      ghid_hotkey_cb (GHID_KEY_DOWN);
+      break;
+    case GDK_Left:
+      ghid_hotkey_cb (GHID_KEY_LEFT);
+      break;
+    case GDK_Right:
+      ghid_hotkey_cb (GHID_KEY_RIGHT);
+      break;
+
+    case GDK_ISO_Left_Tab: 
+    case GDK_3270_BackTab: 
+      switch (mk) 
+	{
+	case NONE_PRESSED:
+	  ghid_hotkey_cb (GHID_KEY_SHIFT | GHID_KEY_TAB);
+	  break;
+	case CONTROL_PRESSED:
+	  ghid_hotkey_cb (GHID_KEY_CONTROL | GHID_KEY_SHIFT | GHID_KEY_TAB);
+	  break;
+	case MOD1_PRESSED:
+	  ghid_hotkey_cb (GHID_KEY_ALT | GHID_KEY_SHIFT | GHID_KEY_TAB);
+	  break;
+	case SHIFT_PRESSED:
+	  ghid_hotkey_cb (GHID_KEY_SHIFT | GHID_KEY_TAB);
+	  break;
+	case SHIFT_CONTROL_PRESSED:
+	  ghid_hotkey_cb (GHID_KEY_CONTROL | GHID_KEY_SHIFT | GHID_KEY_TAB);
+	  break;
+	case SHIFT_MOD1_PRESSED:
+	  ghid_hotkey_cb (GHID_KEY_ALT | GHID_KEY_SHIFT | GHID_KEY_TAB);
+	  break;
+	  
+	default:
+	  handled = FALSE;
+	  break;
+	}
+      break;
+
+    case GDK_Tab: 
+      switch (mk) 
+	{
+	case NONE_PRESSED:
+	  ghid_hotkey_cb (GHID_KEY_TAB);
+	  break;
+	case CONTROL_PRESSED:
+	  ghid_hotkey_cb (GHID_KEY_CONTROL | GHID_KEY_TAB);
+	  break;
+	case MOD1_PRESSED:
+	  ghid_hotkey_cb (GHID_KEY_ALT | GHID_KEY_TAB);
+	  break;
+	case SHIFT_PRESSED:
+	  ghid_hotkey_cb (GHID_KEY_SHIFT | GHID_KEY_TAB);
+	  break;
+	case SHIFT_CONTROL_PRESSED:
+	  ghid_hotkey_cb (GHID_KEY_CONTROL | GHID_KEY_SHIFT | GHID_KEY_TAB);
+	  break;
+	case SHIFT_MOD1_PRESSED:
+	  ghid_hotkey_cb (GHID_KEY_ALT | GHID_KEY_SHIFT | GHID_KEY_TAB);
+	  break;
+	  
+	default:
+	  handled = FALSE;
+	  break;
+	}
+      break;
+
     default:
-      gui->log ("keysym %d (0x%x) has not been defined\n", ksym, ksym);
       handled = FALSE;
     }
 
-  /* FIXME -- since we usually don't make it here, does this code need
-     to go somewhere else?
-  */
-  HideCrosshair (TRUE);
-  AdjustAttachedObjects ();
-  ghid_invalidate_all ();
-  RestoreCrosshair (TRUE);
-  /*      ghid_show_crosshair(TRUE); */
-  ghid_screen_update ();
-  ghid_set_status_line_label ();
-  g_idle_add (ghid_idle_cb, NULL);
+
+  if (handled == FALSE)
+    gui->log ("keysym %d (0x%x) has not been defined\n", ksym, ksym);
+
   return handled;
 }
 

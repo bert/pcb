@@ -158,10 +158,10 @@ MainMenu =
     {"Zoom to 10mil/px" Zoom(=1000)}
     {"Zoom In 20% and center" Zoom(-1.2) Center() m=Z }
     {"Zoom Out 20% and center" Zoom(+1.2) Center() m=O }
-    {"Flip up/down" checked=flip_y SwapSides(V) }
-    {"Flip left/right" checked=flip_x SwapSides(H)}
-    {"Spin 180 degrees" SwapSides(R) }
-    {"Swap Sides" SwapSides() }
+    {"Flip up/down" checked=flip_y SwapSides(V) a={"Tab" "<Key>Tab"}}
+    {"Flip left/right" checked=flip_x SwapSides(H) a={"Shift-Tab" "Shift<Key>Tab"}}
+    {"Spin 180 degrees" SwapSides(R) a={"Ctrl-Tab" "Ctrl<Key>Tab"}}
+    {"Swap Sides" SwapSides() a={"Ctrl-Shift-Tab" "Ctrl Shift<Key>Tab"}}
     {"Center cursor" Center() a={"C" "<Key>c"}}
    }
    -

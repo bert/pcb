@@ -95,6 +95,24 @@ extern int ghid_flip_x, ghid_flip_y;
 #define	VIEW_Y(y)	SIDE_Y((gint)((y) * gport->zoom + gport->view_y0))
 #define	VIEW_Z(z)	(gint)((z) * gport->zoom)
 
+/*
+ * Used to intercept "special" hotkeys that gtk doesn't usually pass
+ * on to the menu hotkeys.  We catch them and put them back where we
+ * want them. 
+ */
+
+/* The modifier keys */
+
+ #define GHID_KEY_ALT     0x80
+ #define GHID_KEY_CONTROL 0x40
+ #define GHID_KEY_SHIFT   0x20
+
+/* The actual keys */
+#define GHID_KEY_TAB      0x01
+#define GHID_KEY_UP       0x02
+#define GHID_KEY_DOWN     0x03
+#define GHID_KEY_LEFT     0x04
+#define GHID_KEY_RIGHT    0x05
 
   /* Pick one of two values depending on current grid units setting.
    */
@@ -237,7 +255,6 @@ typedef struct
   gint w_pixels, h_pixels;
 }
 PinoutType;
-
 
 /* Function prototypes
 */
