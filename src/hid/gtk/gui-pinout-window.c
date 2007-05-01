@@ -83,10 +83,11 @@ pinout_new (ElementType * element)
 
   pinout = g_new0 (PinoutType, 1);
 
-  /* copy element data 
-     |  enable output of pin and padnames
-     |  move element to a 5% offset from zero position
-     |  set all package lines/arcs to zero with
+  /* 
+   * copy element data 
+   * enable output of pin and padnames
+   * move element to a 5% offset from zero position
+   * set all package lines/arcs to zero width
    */
   CopyElementLowLevel (NULL, &pinout->element, element, FALSE, 0, 0);
   PIN_LOOP (&pinout->element);
@@ -113,10 +114,6 @@ pinout_new (ElementType * element)
   }
   END_LOOP;
 
-  if (x_min < y_min)
-    RotateElementLowLevel (NULL, &pinout->element,
-			   pinout->element.BoundingBox.X1,
-			   pinout->element.BoundingBox.Y1, 1);
 
   MoveElementLowLevel (NULL, &pinout->element,
 		       Settings.PinoutOffsetX -
@@ -135,7 +132,12 @@ pinout_new (ElementType * element)
 
   ARC_LOOP (&pinout->element);
   {
-    arc->Thickness = 0;
+    /* 
+     * for whatever reason setting a thickness of 0 causes the arcs to
+     * not display so pick 1 which does display but is still quite
+     * thin.
+     */
+    arc->Thickness = 1;
   }
   END_LOOP;
 
