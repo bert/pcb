@@ -230,8 +230,12 @@ CreateNewVia (DataTypePtr Data,
   VIA_LOOP (Data);
   {
     if (SQUARE (via->X - X) + SQUARE (via->Y - Y) <=
-	SQUARE (via->Thickness / 2 + Thickness / 2))
+	SQUARE (via->Thickness / 2 + Thickness / 2)) 
+    {
+      Message ("Dropping via at (%d, %d) because it would overlap with the via"
+	"at (%d, %d)\n", X/100, Y/100, via->X/100, via->Y/100);
       return (NULL);		/* don't allow via stacking */
+    }
   }
   END_LOOP;
 
