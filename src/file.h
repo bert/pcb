@@ -42,6 +42,7 @@ void EnableAutosave (void);
 void Backup (void);
 void SaveInTMP (void);
 void EmergencySave (void);
+void DisableEmergencySave (void);
 int ReadLibraryContents (void);
 int ReadNetlist (char *);
 int SaveBufferElements (char *);

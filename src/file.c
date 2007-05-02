@@ -925,16 +925,22 @@ SaveInTMP (void)
  * front-end for 'SaveInTMP()'
  * just makes sure that the routine is only called once
  */
+static Boolean dont_save_any_more = False;
 void
 EmergencySave (void)
 {
-  static Boolean already_called = False;
 
-  if (!already_called)
+  if (!dont_save_any_more)
     {
       SaveInTMP ();
-      already_called = True;
+      dont_save_any_more = True;
     }
+}
+
+ void 
+DisableEmergencySave (void)
+{
+  dont_save_any_more = True;
 }
 
 /* ----------------------------------------------------------------------
