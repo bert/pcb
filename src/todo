@@ -7,19 +7,8 @@ MoveLayers - undo of deleting a layer with stuff on it.
 
 [user controlled menus for gtk]
 
-- Why doesn't the Tab key work???  I get complaints that the keysym 
-  is undefined.  Maybe it is the old version of gtk I'm using?  Looking
-  in more recent sources seems to indicate that Tab should be Just Fine
-  as a hot key.
-
 - sometimes after using the command window, the hotkeys all seem to
   quit working.  Why???
-
-- Test all menu actions (again)
-
-- Compare all hotkeys from the hard coded system to the new resource file
-  controlled system.  We're looking for no/minimal user visible change
-  when the usermenu branch is merged
 
 - Make sure loading a new board updates all the displayed menu checkmarks
 
