@@ -122,7 +122,7 @@ static void WriteLayerData (FILE *, Cardinal, LayerTypePtr);
 static int WritePCB (FILE *);
 static int WritePCBFile (char *);
 static int WritePipe (char *, Boolean);
-static void ParseLibraryTree (void);
+static int ParseLibraryTree (void);
 
 /* ---------------------------------------------------------------------------
  * Flag helper functions
@@ -1056,7 +1056,7 @@ pcb_basename (char *p)
   return p;
 }
 
-void
+int
 ParseLibraryTree (void)
 {
   char path[MAXPATHLEN + 1];
@@ -1068,6 +1068,7 @@ ParseLibraryTree (void)
   LibraryMenuTypePtr menu = NULL;
   LibraryEntryTypePtr entry;
   size_t l;
+  int n_footprints = 0;
 
   memset (path, 0, sizeof path);
   memset (working, 0, sizeof working);
@@ -1151,6 +1152,7 @@ ParseLibraryTree (void)
 			  (e2->d_name + strlen (e2->d_name) - 4, ".lel") != 0)
 			break;
 #endif
+		      n_footprints++;
 		      entry = GetLibraryEntryMemory (menu);
 		      entry->AllocatedMemory = MyCalloc (1, len,
 							 "ParseLibraryTree()");
@@ -1174,6 +1176,7 @@ ParseLibraryTree (void)
 
   /* restore the original working directory */
   chdir (working);
+  return n_footprints;
 }
 
 /* ---------------------------------------------------------------------------
@@ -1198,13 +1201,12 @@ ReadLibraryContents (void)
   if (command && *command && (resultFP = popen (command, "r")) == NULL)
     {
       PopenErrorMessage (command);
-      return (1);
     }
 
   /* the library contents are separated by colons;
    * template : package : name : description
    */
-  while (resultFP && fgets (inputline, MAX_LIBRARY_LINE_LENGTH, resultFP))
+  while (resultFP != NULL && fgets (inputline, MAX_LIBRARY_LINE_LENGTH, resultFP))
     {
       size_t len = strlen (inputline);
 
@@ -1259,13 +1261,15 @@ ReadLibraryContents (void)
 		   EMPTY (entry->Description));
 	}
     }
-  ParseLibraryTree ();
-  if (resultFP)
+  if (resultFP != NULL)
+    pclose (resultFP);
+  
+  if (ParseLibraryTree () > 0 || resultFP != NULL)
     {
       sort_library (&Library);
-      pclose (resultFP);
       return 0;
     }
+  
   return (1);
 }
 
