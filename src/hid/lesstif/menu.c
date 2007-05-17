@@ -14,6 +14,7 @@
 
 #include "global.h"
 #include "data.h"
+#include "error.h"
 #include "misc.h"
 
 #include "hid.h"
@@ -1446,7 +1447,7 @@ lesstif_menu (Widget parent, char *name, Arg * margs, int mn)
   Widget mb = XmCreateMenuBar (parent, name, margs, mn);
   char *filename;
   Resource *r = 0, *bir;
-  char *home_pcbmenu;
+  char *home_pcbmenu, *home;
   int screen;
   Resource *mr;
 
@@ -1454,7 +1455,13 @@ lesstif_menu (Widget parent, char *name, Arg * margs, int mn)
   screen = DefaultScreen (display);
   cmap = DefaultColormap (display, screen);
 
-  home_pcbmenu = Concat (getenv ("HOME"), "/.pcb/pcb-menu.res", NULL);
+  home = getenv ("HOME");
+  if (home == NULL)
+    {
+      Message ("Warning:  could not determine home directory (from HOME)\n");
+      home = "";
+    }
+  home_pcbmenu = Concat (home, "/.pcb/pcb-menu.res", NULL);
 
   if (access ("pcb-menu.res", R_OK) == 0)
     filename = "pcb-menu.res";
@@ -1464,6 +1471,8 @@ lesstif_menu (Widget parent, char *name, Arg * margs, int mn)
     filename = pcbmenu_path;
   else
     filename = 0;
+
+  free (home_pcbmenu);
 
   bir = resource_parse (0, pcb_menu_default);
   if (!bir)

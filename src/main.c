@@ -645,36 +645,41 @@ InitPaths (char *argv0)
       struct stat sb;
       int r;
 
-      path = strdup (getenv ("PATH"));
+      tmps = getenv ("PATH");
 
-      /* search through the font path for a font file */
-      for (p = strtok (path, PCB_PATH_DELIMETER); p && *p;
-              p = strtok (NULL, PCB_PATH_DELIMETER))
-        {
-#ifdef DEBUG
-          printf ("Looking for %s in %s\n", argv0, p);
-#endif
-          if ( (tmps = malloc ( (strlen (argv0) + strlen (p) + 2) * sizeof (char))) == NULL )
+      if (tmps != NULL) 
+	{
+	  path = strdup (tmps);
+
+	  /* search through the font path for a font file */
+	  for (p = strtok (path, PCB_PATH_DELIMETER); p && *p;
+	       p = strtok (NULL, PCB_PATH_DELIMETER))
 	    {
-	      fprintf (stderr, "InitPaths():  malloc failed\n");
-	      exit (1);
-	    }
-	  sprintf (tmps, "%s%s%s", p, PCB_DIR_SEPARATOR_S, argv0);
-	  r = stat (tmps, &sb);
-          if (r == 0)
-            {
 #ifdef DEBUG
-              printf ("Found it:  \"%s\"\n", tmps);
+	      printf ("Looking for %s in %s\n", argv0, p);
 #endif
-              bindir = lrealpath (tmps);
-              found_bindir = 1;
+	      if ( (tmps = malloc ( (strlen (argv0) + strlen (p) + 2) * sizeof (char))) == NULL )
+		{
+		  fprintf (stderr, "InitPaths():  malloc failed\n");
+		  exit (1);
+		}
+	      sprintf (tmps, "%s%s%s", p, PCB_DIR_SEPARATOR_S, argv0);
+	      r = stat (tmps, &sb);
+	      if (r == 0)
+		{
+#ifdef DEBUG
+		  printf ("Found it:  \"%s\"\n", tmps);
+#endif
+		  bindir = lrealpath (tmps);
+		  found_bindir = 1;
+		  free (tmps);
+		  break;
+		}  
 	      free (tmps);
-              break;
-            }  
-	  free (tmps);
-        }
-      free (path);
-  }
+	    }
+	  free (path);
+	}
+    }
 
 #ifdef DEBUG
   printf ("InitPaths():  bindir = \"%s\"\n", bindir);

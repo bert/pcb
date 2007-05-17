@@ -3630,7 +3630,7 @@ ghid_load_menus (void)
 {
   char *filename;
   Resource *r = 0, *bir;
-  char *home_pcbmenu;
+  char *home_pcbmenu, *home;
   Resource *mr;
   int i;
 
@@ -3639,7 +3639,13 @@ ghid_load_menus (void)
       ghid_hotkey_actions[i] = NULL;
     }
 
-  home_pcbmenu = Concat (getenv ("HOME"), "/.pcb/gpcb-menu.res", NULL);
+  home = getenv ("HOME");
+  if (home == NULL)
+    {
+      Message ("Warning:  could not determine home directory (from HOME)\n");
+      home = "";
+    }
+  home_pcbmenu = Concat (home, "/.pcb/gpcb-menu.res", NULL);
 
   if (access ("gpcb-menu.res", R_OK) == 0)
     filename = "gpcb-menu.res";
@@ -3649,6 +3655,8 @@ ghid_load_menus (void)
     filename = pcbmenu_path;
   else
     filename = 0;
+
+  free (home_pcbmenu);
 
   bir = resource_parse (0, gpcb_menu_default);
   if (!bir)
