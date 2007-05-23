@@ -974,7 +974,7 @@ ghid_make_programmed_menu_actions ()
   gchar * text;
   
   Resource *ar;
-  char av[30];
+  char av[64];
 
   for (i = 0; i < N_LAYER_BUTTONS; i++)
     {
