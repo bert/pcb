@@ -287,6 +287,18 @@ if test "X$M4" = "Xnone" ; then
 	AC_MSG_ERROR([Did not find a m4 executible.  You need to make sure
 	that m4 is installed on your system and that m4 is in your path])
 fi
+AC_MSG_CHECKING([if $M4 has the division involving negative numbers bug])
+pcb_m4_r=`echo "eval(-2/2)" | $M4`
+if test "$pcb_m4_r" != "-1" ; then
+	AC_MSG_RESULT([yes])
+	AC_MSG_ERROR([It appears that $M4 has a bug involving division
+with negative numbers.  In particular it just returned the result that
+-2/2 = $pcb_m4_r instead of -1.  This is a known bug in GNU m4-1.4.9.  Please
+install a non-broken m4.])
+else
+	AC_MSG_RESULT([no])
+fi
+
 
 AC_PATH_PROGS(WISH, wish wish83 wish8.3 wish80 wish8.0 cygwish83 cygwish80,[none])
 if test "X$WISH" = "Xnone" ; then
