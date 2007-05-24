@@ -4808,6 +4808,26 @@ echo "$as_me: error: Did not find a m4 executible.  You need to make sure
 	that m4 is installed on your system and that m4 is in your path" >&2;}
    { (exit 1); exit 1; }; }
 fi
+echo "$as_me:$LINENO: checking if $M4 has the division involving negative numbers bug" >&5
+echo $ECHO_N "checking if $M4 has the division involving negative numbers bug... $ECHO_C" >&6
+pcb_m4_r=`echo "eval(-2/2)" | $M4`
+if test "$pcb_m4_r" != "-1" ; then
+	echo "$as_me:$LINENO: result: yes" >&5
+echo "${ECHO_T}yes" >&6
+	{ { echo "$as_me:$LINENO: error: It appears that $M4 has a bug involving division
+with negative numbers.  In particular it just returned the result that
+-2/2 = $pcb_m4_r instead of -1.  This is a known bug in GNU m4-1.4.9.  Please
+install a non-broken m4." >&5
+echo "$as_me: error: It appears that $M4 has a bug involving division
+with negative numbers.  In particular it just returned the result that
+-2/2 = $pcb_m4_r instead of -1.  This is a known bug in GNU m4-1.4.9.  Please
+install a non-broken m4." >&2;}
+   { (exit 1); exit 1; }; }
+else
+	echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6
+fi
+
 
 for ac_prog in wish wish83 wish8.3 wish80 wish8.0 cygwish83 cygwish80
 do
