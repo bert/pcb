@@ -975,26 +975,24 @@ DrawPinOrViaLowLevel (PinTypePtr Ptr, Boolean drawHole)
     }
   if (TEST_FLAG (SQUAREFLAG, Ptr))
     {
+      int l, r, t, b;
+      l = Ptr->X - Ptr->Thickness / 2;
+      b = Ptr->Y - Ptr->Thickness / 2;
+      r = l + Ptr->Thickness;
+      t = b + Ptr->Thickness;
       if (TEST_FLAG (THINDRAWFLAG, PCB))
-	{
-	  int l, r, t, b;
-	  l = Ptr->X - Ptr->Thickness / 2;
-	  b = Ptr->Y - Ptr->Thickness / 2;
-	  r = l + Ptr->Thickness;
-	  t = b + Ptr->Thickness;
-	  gui->set_line_cap (Output.fgGC, Round_Cap);
-	  gui->set_line_width (Output.fgGC, 1);
-	  gui->draw_line (Output.fgGC, r, t, r, b);
-	  gui->draw_line (Output.fgGC, l, t, l, b);
-	  gui->draw_line (Output.fgGC, r, t, l, t);
-	  gui->draw_line (Output.fgGC, r, b, l, b);
-	}
+        {
+          gui->set_line_cap (Output.fgGC, Round_Cap);
+          gui->set_line_width (Output.fgGC, 1);
+          gui->draw_line (Output.fgGC, r, t, r, b);
+          gui->draw_line (Output.fgGC, l, t, l, b);
+          gui->draw_line (Output.fgGC, r, t, l, t);
+          gui->draw_line (Output.fgGC, r, b, l, b);
+        }
       else
-	{
-	  gui->set_line_cap (Output.fgGC, Square_Cap);
-	  gui->set_line_width (Output.fgGC, Ptr->Thickness);
-	  gui->draw_line (Output.fgGC, Ptr->X, Ptr->Y, Ptr->X, Ptr->Y);
-	}
+        {
+          gui->fill_rect (Output.fgGC, l, b, r, t);
+        }
     }
   else if (TEST_FLAG (OCTAGONFLAG, Ptr))
     {
@@ -1096,9 +1094,12 @@ ClearOnlyPin (PinTypePtr Pin, Boolean mask)
   /* Clear the area around the pin */
   if (TEST_FLAG (SQUAREFLAG, Pin))
     {
-      gui->set_line_cap (Output.pmGC, Square_Cap);
-      gui->set_line_width (Output.pmGC, half * 2);
-      gui->draw_line (Output.pmGC, Pin->X, Pin->Y, Pin->X, Pin->Y);
+      int l, r, t, b;
+      l = Pin->X - half;
+      b = Pin->Y - half;
+      r = l + half * 2;
+      t = b + half * 2;
+      gui->fill_rect (Output.pmGC, l, b, r, t);
     }
   else if (TEST_FLAG (OCTAGONFLAG, Pin))
     {
@@ -1130,9 +1131,12 @@ ClearPin (PinTypePtr Pin, int Type, int unused)
   /* Clear the area around the pin */
   if (TEST_FLAG (SQUAREFLAG, Pin))
     {
-      gui->set_line_cap (Output.pmGC, Square_Cap);
-      gui->set_line_width (Output.pmGC, half * 2);
-      gui->draw_line (Output.pmGC, Pin->X, Pin->Y, Pin->X, Pin->Y);
+      int l, r, t, b;
+      l = Pin->X - half;
+      b = Pin->Y - half;
+      r = l + half * 2;
+      t = b + half * 2;
+      gui->fill_rect (Output.pmGC, l, b, r, t);
     }
   else if (TEST_FLAG (OCTAGONFLAG, Pin))
     {
@@ -1337,21 +1341,33 @@ DrawPadLowLevel (PadTypePtr Pad)
 	}
     }
   else if (Pad->Point1.X == Pad->Point2.X
-	   && Pad->Point1.Y == Pad->Point2.Y && !TEST_FLAG (SQUAREFLAG, Pad))
+           && Pad->Point1.Y == Pad->Point2.Y)
     {
-      gui->fill_circle (Output.fgGC,
-			Pad->Point1.X, Pad->Point1.Y, Pad->Thickness / 2);
+      if (TEST_FLAG (SQUAREFLAG, Pad))
+        {
+          int l, r, t, b;
+          l = Pad->Point1.X - Pad->Thickness / 2;
+          b = Pad->Point1.Y - Pad->Thickness / 2;
+          r = l + Pad->Thickness;
+          t = b + Pad->Thickness;
+          gui->fill_rect (Output.fgGC, l, b, r, t);
+        }
+      else
+        {
+          gui->fill_circle (Output.fgGC,
+                            Pad->Point1.X, Pad->Point1.Y, Pad->Thickness / 2);
+        }
     }
   else
     {
       gui->set_line_cap (Output.fgGC,
-			 TEST_FLAG (SQUAREFLAG,
-				    Pad) ? Square_Cap : Round_Cap);
+                         TEST_FLAG (SQUAREFLAG,
+                                    Pad) ? Square_Cap : Round_Cap);
       gui->set_line_width (Output.fgGC, Pad->Thickness);
 
       gui->draw_line (Output.fgGC,
-		      Pad->Point1.X, Pad->Point1.Y,
-		      Pad->Point2.X, Pad->Point2.Y);
+                      Pad->Point1.X, Pad->Point1.Y,
+                      Pad->Point2.X, Pad->Point2.Y);
     }
 }
 
@@ -1435,19 +1451,31 @@ ClearPad (PadTypePtr Pad, Boolean mask)
   int w = mask ? Pad->Mask : Pad->Thickness + Pad->Clearance;
 
   if (Pad->Point1.X == Pad->Point2.X
-      && Pad->Point1.Y == Pad->Point2.Y && !TEST_FLAG (SQUAREFLAG, Pad))
+      && Pad->Point1.Y == Pad->Point2.Y)
     {
-      gui->fill_circle (Output.pmGC, Pad->Point1.X, Pad->Point1.Y, w / 2);
+      if (TEST_FLAG (SQUAREFLAG, Pad))
+        {
+          int l, r, t, b;
+          l = Pad->Point1.X - w;
+          b = Pad->Point1.Y - w;
+          r = l + w * 2;
+          t = b + w * 2;
+          gui->fill_rect (Output.pmGC, l, b, r, t);
+        }
+      else
+        {
+          gui->fill_circle (Output.pmGC, Pad->Point1.X, Pad->Point1.Y, w / 2);
+        }
     }
   else
     {
       gui->set_line_cap (Output.pmGC,
-			 TEST_FLAG (SQUAREFLAG,
-				    Pad) ? Square_Cap : Round_Cap);
+                         TEST_FLAG (SQUAREFLAG,
+                                    Pad) ? Square_Cap : Round_Cap);
       gui->set_line_width (Output.pmGC, w);
       gui->draw_line (Output.pmGC,
-		      Pad->Point1.X, Pad->Point1.Y,
-		      Pad->Point2.X, Pad->Point2.Y);
+                      Pad->Point1.X, Pad->Point1.Y,
+                      Pad->Point2.X, Pad->Point2.Y);
     }
 }
 
