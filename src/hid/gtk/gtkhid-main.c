@@ -1003,7 +1003,7 @@ ghid_fill_polygon (hidGC gc, int n_coords, int *x, int *y)
 void
 ghid_fill_rect (hidGC gc, int x1, int y1, int x2, int y2)
 {
-  gint w, h, lw, xx;
+  gint w, h, lw, xx, yy;
 
   lw = gc->width;
   w = gport->width * gport->zoom;
@@ -1012,11 +1012,11 @@ ghid_fill_rect (hidGC gc, int x1, int y1, int x2, int y2)
   if ((SIDE_X (x1) < gport->view_x0 - lw
        && SIDE_X (x2) < gport->view_x0 - lw)
       || (SIDE_X (x1) > gport->view_x0 + w + lw
-	  && SIDE_X (x2) > gport->view_x0 + w + lw)
-      || (SIDE_Y (y1) < gport->view_y0 - lw 
-	  && SIDE_Y (y2) < gport->view_y0 - lw)
-      || (SIDE_Y (y1) > gport->view_y0 + h + lw 
-	  && SIDE_Y (y2) > gport->view_y0 + h + lw))
+          && SIDE_X (x2) > gport->view_x0 + w + lw)
+      || (SIDE_Y (y1) < gport->view_y0 - lw
+          && SIDE_Y (y2) < gport->view_y0 - lw)
+      || (SIDE_Y (y1) > gport->view_y0 + h + lw
+          && SIDE_Y (y2) > gport->view_y0 + h + lw))
     return;
 
   x1 = Vx (x1);
@@ -1025,13 +1025,19 @@ ghid_fill_rect (hidGC gc, int x1, int y1, int x2, int y2)
   y2 = Vy (y2);
   if (x2 < x1)
     {
-    xx = x1;
-    x1 = x2;
-    x2 = xx;
-		}
+      xx = x1;
+      x1 = x2;
+      x2 = xx;
+    }
+  if (y2 < y1)
+    {
+      yy = y1;
+      y1 = y2;
+      y2 = yy;
+    }
   USE_GC (gc);
   gdk_draw_rectangle (gport->drawable, gport->u_gc, TRUE,
-		      x1, y1, x2 - x1 + 1, y2 - y1 + 1);
+                      x1, y1, x2 - x1 + 1, y2 - y1 + 1);
 }
 
 void
