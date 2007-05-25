@@ -199,6 +199,9 @@ HID_Attribute ps_attribute_list[] = {
   {"ycalib", "Y-Axis calibration (paper height).",
    HID_Real, 0, 0, {0, 0, 1.0}, 0, 0},
 #define HA_ycalib 15
+  {"drill-copper", "Draw drill holes in pins / vias, instead of leaving solid copper.",
+   HID_Boolean, 0, 0, {1, 0, 0}, 0, 0},
+#define HA_drillcopper 16
 };
 
 #define NUM_OPTIONS (sizeof(ps_attribute_list)/sizeof(ps_attribute_list[0]))
@@ -251,6 +254,7 @@ static int doing_toc;
 static int bloat;
 static int invert;
 static int media;
+static int drillcopper;
 
 static double fill_zoom;
 static double scale_value;
@@ -307,6 +311,7 @@ ps_hid_export_to_file (FILE * the_file, HID_Attr_Val * options)
   scale_value = options[HA_scale].real_value;
   calibration_x = options[HA_xcalib].real_value;
   calibration_y = options[HA_ycalib].real_value;
+  drillcopper = options[HA_drillcopper].int_value;
 
   if (fade_ratio < 0)
     fade_ratio = 0;
@@ -832,10 +837,13 @@ static void
 ps_fill_circle (hidGC gc, int cx, int cy, int radius)
 {
   use_gc (gc);
-  fprintf (f, "%d %d %d c\n", cx, cy, radius + (gc->erase ? -1 : 1) * bloat);
-  if (gc->erase && !is_drill && drill_helper
-      && radius >= 2 * MIN_PINORVIAHOLE)
-    fprintf (f, "%d %d dh\n", cx, cy);
+  if (!gc->erase || is_drill || drillcopper)
+    {
+      fprintf (f, "%d %d %d c\n", cx, cy, radius + (gc->erase ? -1 : 1) * bloat);
+      if (gc->erase && !is_drill && drill_helper
+          && radius >= 2 * MIN_PINORVIAHOLE)
+        fprintf (f, "%d %d dh\n", cx, cy);
+    }
 }
 
 static void
