@@ -421,9 +421,8 @@ DrawEverything (BoxTypePtr drawn_area)
   if (!TEST_FLAG (CHECKPLANESFLAG, PCB)
       && gui->set_layer ("invisible", SL (INVISIBLE, 0)))
     {
-      if (PCB->PinOn)
-        r_search (PCB->Data->pad_tree, drawn_area, NULL, backPad_callback,
-                  NULL);
+      r_search (PCB->Data->pad_tree, drawn_area, NULL, backPad_callback,
+		NULL);
       if (PCB->ElementOn)
 	{
 	  r_search (PCB->Data->element_tree, drawn_area, NULL, backE_callback,
