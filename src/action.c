@@ -729,6 +729,9 @@ GetFunctionID (String Ident)
 {
   int i, h;
 
+  if (Ident == 0)
+    return -1;
+
   if (!hash_initted)
     {
       hash_initted = 1;
@@ -3584,6 +3587,60 @@ ActionAddRats (int argc, char **argv, int x, int y)
 	}
       RestoreCrosshair (True);
     }
+  return 0;
+}
+
+/* --------------------------------------------------------------------------- */
+
+static const char delete_syntax[] =
+  "Delete(Object|Selected)\n"
+  "Delete(AllRats|SelectedRats)"
+  ;
+
+static const char delete_help[] = "Delete stuff.";
+
+/* %start-doc actions Delete
+
+%end-doc */
+
+static int
+ActionDelete (int argc, char **argv, int x, int y)
+{
+  char *function = ARG (0);
+  int id = GetFunctionID (function);
+
+  Note.X = Crosshair.X;
+  Note.Y = Crosshair.Y;
+
+  if (id == -1) /* no arg */
+    {
+      if (RemoveSelected() == False)
+	id = F_Object;
+    }
+
+  HideCrosshair (True);
+  switch (id)
+    {
+    case F_Object:
+      SaveMode();
+      SetMode(REMOVE_MODE);
+      NotifyMode();
+      RestoreMode();
+      break;
+    case F_Selected:
+      RemoveSelected();
+      break;
+    case F_AllRats:
+      if (DeleteRats (False))
+	SetChangedFlag (True);
+      break;
+    case F_SelectedRats:
+      if (DeleteRats (True))
+	SetChangedFlag (True);
+      break;
+    }
+
+  RestoreCrosshair (True);
   return 0;
 }
 
@@ -6526,6 +6583,9 @@ HID_Action action_action_list[] = {
   ,
   {"Connection", 0, ActionConnection,
    connection_help, connection_syntax}
+  ,
+  {"Delete", 0, ActionDelete,
+   delete_help, delete_syntax}
   ,
   {"DeleteRats", 0, ActionDeleteRats,
    deleterats_help, deleterats_syntax}

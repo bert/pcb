@@ -221,7 +221,7 @@ MainMenu =
    {"Auto-place selected elements" AutoPlaceSelected() a={"Ctrl-P" "Ctrl<Key>p"}}
    {"Disperse all elements" DisperseElements(All)}
    {"Move selected elements to other side" Flip(SelectedElements) a={"Shift-B" "Shift<Key>b"}}
-   {"Delete selected objects" RemoveSelected()}
+   {"Delete selected objects" Delete(Selected) a={"Delete" "<Key>Delete"}}
    {"Convert selection to element" Select(Convert)}
    -
    {"Optimize selected rats" DeleteRats(SelectedRats) AddRats(SelectedRats)}
@@ -316,16 +316,7 @@ MainMenu =
    {"Report net length" Report(NetLength) a={"R" "<Key>r"}}
    {"Key Bindings"
     {"Remove" a={"Backspace" "<Key>BackSpace"}
-     Mode(Save)
-     Mode(Remove)
-     Mode(Notify)
-     Mode(Restore)
-    }
-    {"Remove" a={"Delete" "<Key>Delete"}
-     Mode(Save)
-     Mode(Remove)
-     Mode(Notify)
-     Mode(Restore)
+     Delete(Selected)
     }
     {"Remove Connected" a={"Shift-Backspace" "Shift<Key>BackSpace"}
      Atomic(Save)
