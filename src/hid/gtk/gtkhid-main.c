@@ -1671,12 +1671,32 @@ LoadVendor (int argc, char **argv, int x, int y)
 }
 
 /* ---------------------------------------------------------------------- */
+static const char save_syntax[] =
+"Save()\n"
+"Save(Layout|LayoutAs)\n"
+"Save(AllConnections|AllUnusedPins|ElementConnections)\n"
+"Save(PasteBuffer)";
+
+static const char save_help[] =
+"Save layout and/or element data to a user-selected file.";
+
+/* %start-doc actions Save
+
+This action is a GUI front-end to the core's @code{SaveTo} action
+(@pxref{SaveTo Action}).  If you happen to pass a filename, like
+@code{SaveTo}, then @code{SaveTo} is called directly.  Else, the
+user is prompted for a filename to save, and then @code{SaveTo} is
+called with that filename.
+
+%end-doc */
 
 static int
 Save (int argc, char **argv, int x, int y)
 {
   char *function;
   char *name;
+  char *prompt;
+
   static gchar *current_dir = NULL;
 
   if (argc > 1)
@@ -1688,10 +1708,15 @@ Save (int argc, char **argv, int x, int y)
     if (PCB->Filename)
       return hid_actionl ("SaveTo", "Layout", PCB->Filename, NULL);
 
-  name = ghid_dialog_file_select_save (_("Save layout as"),
+  if (strcasecmp (function, "PasteBuffer") == 0)
+    prompt = _("Save element as");
+  else
+    prompt = _("Save layout as");
+  
+  name = ghid_dialog_file_select_save (prompt,
 				       &current_dir,
 				       PCB->Filename, Settings.FilePath);
-
+  
   if (name)
     {
       FILE *exist;
@@ -1701,8 +1726,8 @@ Save (int argc, char **argv, int x, int y)
 	  fclose (exist);
 	  if (ghid_dialog_confirm (_("File exists!  Ok to overwrite?")))
 	    {
-				if (Settings.verbose)
-		      fprintf (stderr, "Overwriting %s\n", name);
+	      if (Settings.verbose)
+		fprintf (stderr, "Overwriting %s\n", name);
 	    }
 	  else
 	    {
@@ -1710,22 +1735,27 @@ Save (int argc, char **argv, int x, int y)
 	      return 1;
 	    }
 	}
-
-	if (Settings.verbose)
-	  fprintf (stderr, "%s:  Calling SaveTo(%s, %s)\n", __FUNCTION__, function,
-	   name);
-  
-    /* 
-     * if we got this far and the function is Layout, then
-     * we really needed it to be a LayoutAs.  Otherwise 
-     * ActionSaveTo() will ignore the new file name we
-     * just obtained.
-     */
-    if (strcasecmp (function, "Layout") == 0)
-      hid_actionl ("SaveTo", "LayoutAs", name, NULL);
-    else
-      hid_actionl ("SaveTo", function, name, NULL);
-    g_free (name);
+      
+      if (Settings.verbose)
+	fprintf (stderr, "%s:  Calling SaveTo(%s, %s)\n", 
+		 __FUNCTION__, function, name);
+      
+      if (strcasecmp (function, "PasteBuffer") == 0)
+	hid_actionl ("PasteBuffer", "Save", name, NULL);
+      else
+	{
+	  /* 
+	   * if we got this far and the function is Layout, then
+	   * we really needed it to be a LayoutAs.  Otherwise 
+	   * ActionSaveTo() will ignore the new file name we
+	   * just obtained.
+	   */
+	  if (strcasecmp (function, "Layout") == 0)
+	    hid_actionl ("SaveTo", "LayoutAs", name, NULL);
+	  else
+	    hid_actionl ("SaveTo", function, name, NULL);
+	}
+      g_free (name);
     }
 
   return 0;
@@ -2312,7 +2342,7 @@ HID_Action ghid_main_action_list[] = {
   {"Popup", 0, Popup, popup_help, popup_syntax},
   {"Print", 0, Print},
   {"RouteStylesChanged", 0, RouteStylesChanged},
-  {"Save", 0, Save},
+  {"Save", 0, Save, save_help, save_syntax},
   {"SetUnits", 0, SetUnits, setunits_help, setunits_syntax},
   {"SwapSides", 0, SwapSides, swapsides_help, swapsides_syntax},
   {"Zoom", "Click on zoom focus", Zoom, zoom_help, zoom_syntax}
