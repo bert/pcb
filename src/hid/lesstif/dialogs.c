@@ -211,7 +211,8 @@ LoadVendor (int argc, char **argv, int x, int y)
 static const char save_syntax[] =
 "Save()\n"
 "Save(Layout|LayoutAs)\n"
-"Save(AllConnections|AllUnusedPins|ElementConnections)";
+"Save(AllConnections|AllUnusedPins|ElementConnections)\n"
+"Save(PasteBuffer)";
 
 static const char save_help[] =
 "Save layout data to a user-selected file.";
