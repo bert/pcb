@@ -437,6 +437,8 @@ config_file_read (void)
       g_free (option);
       g_free (arg);
     }
+
+  fclose (f);
 }
 
 static void
