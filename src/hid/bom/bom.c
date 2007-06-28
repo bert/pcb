@@ -222,6 +222,49 @@ bom_insert (char *refdes, char *descr, char *value, BomList * bom)
 
 }
 
+/* 
+ * If fp is not NULL then print out the bill of materials contained in
+ * bom.  Either way, free all memory which has been allocated for bom.
+ */
+static void
+print_and_free (FILE *fp, BomList *bom)
+{
+  BomList *lastb;
+  StringList *lasts;
+  char *descr, *value;
+
+  while (bom != NULL)
+    {
+      if (fp)
+	{
+	  descr = CleanBOMString (bom->descr);
+	  value = CleanBOMString (bom->value);
+	  fprintf (fp, "%d,\"%s\",\"%s\",", bom->num, descr, value);
+	  free (descr);
+	  free (value);
+	}
+      
+      while (bom->refdes != NULL)
+	{
+	  if (fp)
+	    {
+	      fprintf (fp, "%s ", bom->refdes->str);
+	    }
+	  free (bom->refdes->str);
+	  lasts = bom->refdes;
+	  bom->refdes = bom->refdes->next;
+	  free (lasts);
+	}
+      if (fp)
+	{
+	  fprintf (fp, "\n");
+	}
+      lastb = bom;
+      bom = bom->next;
+      free (lastb);
+    }
+}
+
 static int
 PrintBOM (void)
 {
@@ -236,8 +279,7 @@ PrintBOM (void)
   time_t currenttime;
   FILE *fp;
   BomList *bom = NULL;
-  BomList *lastb;
-  StringList *lasts;
+  char *name, *descr, *value;
 
   fp = fopen (xy_filename, "w");
   if (!fp)
@@ -396,16 +438,20 @@ PrintBOM (void)
 	       UNKNOWN (NAMEONPCB_NAME (element)), theta);
 	  }
 
+	name = CleanBOMString (UNKNOWN (NAMEONPCB_NAME (element)));
+	descr = CleanBOMString (UNKNOWN (DESCRIPTION_NAME (element)));
+	value = CleanBOMString (UNKNOWN (VALUE_NAME (element)));
 	fprintf (fp, "%s,\"%s\",\"%s\",%.2f,%.2f,%g,%s\n",
-		 CleanBOMString (UNKNOWN (NAMEONPCB_NAME (element))),
-		 CleanBOMString (UNKNOWN (DESCRIPTION_NAME (element))),
-		 CleanBOMString (UNKNOWN (VALUE_NAME (element))),
+		 name, descr, value,
 #if 0
 		 (double) element->MarkX, (double) element->MarkY,
 #else
 		 0.01 * x, 0.01 * y,
 #endif
 		 theta, FRONT (element) == 1 ? "top" : "bottom");
+	free (name);
+	free (descr);
+	free (value);
       }
   }
   END_LOOP;
@@ -418,6 +464,7 @@ PrintBOM (void)
   if (!fp)
     {
       gui->log ("Cannot open file %s for writing\n", bom_filename);
+      print_and_free (NULL, bom);
       return 1;
     }
 
@@ -430,24 +477,7 @@ PrintBOM (void)
   fprintf (fp, "# Quantity, Description, Value, RefDes\n");
   fprintf (fp, "# --------------------------------------------\n");
 
-  while (bom != NULL)
-    {
-      fprintf (fp, "%d,\"%s\",\"%s\",",
-	       bom->num,
-	       CleanBOMString (bom->descr), CleanBOMString (bom->value));
-      while (bom->refdes != NULL)
-	{
-	  fprintf (fp, "%s ", bom->refdes->str);
-	  free (bom->refdes->str);
-	  lasts = bom->refdes;
-	  bom->refdes = bom->refdes->next;
-	  free (lasts);
-	}
-      fprintf (fp, "\n");
-      lastb = bom;
-      bom = bom->next;
-      free (lastb);
-    }
+  print_and_free (fp, bom);
 
   fclose (fp);
 
