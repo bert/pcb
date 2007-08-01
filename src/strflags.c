@@ -562,7 +562,7 @@ char *
 pcbflags_to_string (FlagType flags)
 {
   return common_flags_to_string (flags,
-				 1,
+				 ALL_TYPES,
 				 pcb_flagbits,
 				 ENTRIES (pcb_flagbits));
 }
