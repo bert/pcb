@@ -291,6 +291,11 @@ ps_hid_export_to_file (FILE * the_file, HID_Attr_Val * options)
   int i;
   static int saved_layer_stack[MAX_LAYER];
   BoxType region;
+  FlagType save_thindraw;
+
+  save_thindraw = PCB->Flags;
+  CLEAR_FLAG(THINDRAWFLAG, PCB);
+  CLEAR_FLAG(THINDRAWPOLYFLAG, PCB);
 
   f = the_file;
   drill_helper = options[HA_drillhelper].int_value;
@@ -392,6 +397,7 @@ ps_hid_export_to_file (FILE * the_file, HID_Attr_Val * options)
     fprintf (f, "showpage\n");
 
   memcpy (LayerStack, saved_layer_stack, sizeof (LayerStack));
+  PCB->Flags = save_thindraw;
 }
 
 static void
@@ -557,6 +563,7 @@ ps_set_layer (const char *name, int group)
 	fprintf (f, "(, not to scale) show\n");
       else
 	fprintf (f, "(, scale = 1:%.3f) show\n", scale_value);
+      fprintf (f, "newpath\n");
 
       fprintf (f, "72 72 scale %g %g translate\n", 0.5*media_width, 0.5*media_height);
 
@@ -839,10 +846,10 @@ ps_fill_circle (hidGC gc, int cx, int cy, int radius)
   use_gc (gc);
   if (!gc->erase || is_drill || drillcopper)
     {
-      fprintf (f, "%d %d %d c\n", cx, cy, radius + (gc->erase ? -1 : 1) * bloat);
       if (gc->erase && !is_drill && drill_helper
-          && radius >= 2 * MIN_PINORVIAHOLE)
-        fprintf (f, "%d %d dh\n", cx, cy);
+	  && radius >= 2 * MIN_PINORVIAHOLE)
+	radius = 2 * MIN_PINORVIAHOLE;
+      fprintf (f, "%d %d %d c\n", cx, cy, radius + (gc->erase ? -1 : 1) * bloat);
     }
 }
 

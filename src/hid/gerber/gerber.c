@@ -329,6 +329,11 @@ gerber_do_export (HID_Attr_Val * options)
   static int saved_layer_stack[MAX_LAYER];
   BoxType region;
   int save_ons[MAX_LAYER + 2];
+  FlagType save_thindraw;
+
+  save_thindraw = PCB->Flags;
+  CLEAR_FLAG(THINDRAWFLAG, PCB);
+  CLEAR_FLAG(THINDRAWPOLYFLAG, PCB);
 
   if (!options)
     {
@@ -395,6 +400,7 @@ gerber_do_export (HID_Attr_Val * options)
 
   maybe_close_f ();
   hid_restore_layer_ons (save_ons);
+  PCB->Flags = save_thindraw;
 }
 
 extern void hid_parse_command_line (int *argc, char ***argv);

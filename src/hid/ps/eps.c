@@ -123,6 +123,11 @@ eps_hid_export_to_file (FILE * the_file, HID_Attr_Val * options)
   int i;
   static int saved_layer_stack[MAX_LAYER];
   BoxType region;
+  FlagType save_thindraw;
+
+  save_thindraw = PCB->Flags;
+  CLEAR_FLAG(THINDRAWFLAG, PCB);
+  CLEAR_FLAG(THINDRAWPOLYFLAG, PCB);
 
   f = the_file;
 
@@ -249,6 +254,7 @@ eps_hid_export_to_file (FILE * the_file, HID_Attr_Val * options)
   fprintf (f, "%%%%EOF\n");
 
   memcpy (LayerStack, saved_layer_stack, sizeof (LayerStack));
+  PCB->Flags = save_thindraw;
 }
 
 static void
