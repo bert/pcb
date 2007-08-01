@@ -1472,8 +1472,6 @@ lesstif_menu (Widget parent, char *name, Arg * margs, int mn)
   else
     filename = 0;
 
-  free (home_pcbmenu);
-
   bir = resource_parse (0, pcb_menu_default);
   if (!bir)
     {
@@ -1486,6 +1484,8 @@ lesstif_menu (Widget parent, char *name, Arg * margs, int mn)
 
   if (!r)
     r = bir;
+
+  free (home_pcbmenu);
 
   mr = resource_subres (r, "MainMenu");
   if (!mr)
