@@ -1356,6 +1356,7 @@ SetArcBoundingBox (ArcTypePtr Arc)
 void
 ResetStackAndVisibility (void)
 {
+  int comp_group;
   Cardinal i;
 
   for (i = 0; i < max_layer + 2; i++)
