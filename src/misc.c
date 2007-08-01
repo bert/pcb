@@ -1369,6 +1369,10 @@ ResetStackAndVisibility (void)
   PCB->PinOn = True;
   PCB->ViaOn = True;
   PCB->RatOn = True;
+
+  /* Bring the component group to the front and make it active.  */
+  comp_group = GetLayerGroupNumberByNumber (max_layer + COMPONENT_LAYER);
+  ChangeGroupVisibility (PCB->LayerGroups.Entries[comp_group][0], 1, 1);
 }
 
 /* ---------------------------------------------------------------------------
