@@ -6089,6 +6089,7 @@ ActionRouteStyle (int argc, char **argv, int x, int y)
 	  SetViaSize (rts->Diameter, True);
 	  SetViaDrillingHole (rts->Hole, True);
 	  SetKeepawayWidth (rts->Keepaway);
+	  hid_action("RouteStylesChanged");
 	}
     }
   return 0;
@@ -6228,7 +6229,7 @@ ActionSetSame (int argc, char **argv, int x, int y)
       if (Settings.Mode != LINE_MODE)
 	SetMode (LINE_MODE);
       RestoreCrosshair (True);
-      hid_action ("RouteStyleChanged");
+      hid_action ("RouteStylesChanged");
       break;
 
     case ARC_TYPE:
@@ -6239,7 +6240,7 @@ ActionSetSame (int argc, char **argv, int x, int y)
       if (Settings.Mode != ARC_MODE)
 	SetMode (ARC_MODE);
       RestoreCrosshair (True);
-      hid_action ("RouteStyleChanged");
+      hid_action ("RouteStylesChanged");
       break;
 
     case POLYGON_TYPE:
@@ -6254,7 +6255,7 @@ ActionSetSame (int argc, char **argv, int x, int y)
       if (Settings.Mode != VIA_MODE)
 	SetMode (VIA_MODE);
       RestoreCrosshair (True);
-      hid_action ("RouteStyleChanged");
+      hid_action ("RouteStylesChanged");
       break;
 
     default:
