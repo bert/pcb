@@ -642,6 +642,8 @@ command_parse (char *s)
 	  ws = 0;
 	}
     }
+  if (n == 0)
+    return;
   argv[n] = 0;
   lesstif_call_action (argv[0], n - 1, argv + 1);
 }
