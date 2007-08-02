@@ -2683,6 +2683,9 @@ ghid_do_export (HID_Attr_Val * options)
 gint
 LayersChanged (int argc, char **argv, int px, int py)
 {
+  if (!ghidgui->ui_manager)
+    return 0;
+
   ghid_config_groups_changed();
   ghid_layer_buttons_update ();
   ghid_show_layer_buttons();
