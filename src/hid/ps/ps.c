@@ -871,7 +871,19 @@ static void
 ps_fill_rect (hidGC gc, int x1, int y1, int x2, int y2)
 {
   use_gc (gc);
-  fprintf (f, "%d %d %d %d r\n", x1, y1, x2, y2);
+  if (x1 > x2)
+    {
+      int t = x1;
+      x2 = x2;
+      x2 = t;
+    }
+  if (y1 > y2)
+    {
+      int t = y1;
+      y2 = y2;
+      y2 = t;
+    }
+  fprintf (f, "%d %d %d %d r\n", x1-bloat, y1-bloat, x2+bloat, y2+bloat);
 }
 
 HID_Attribute ps_calib_attribute_list[] = {
