@@ -1455,8 +1455,8 @@ ClearPad (PadTypePtr Pad, Boolean mask)
       if (TEST_FLAG (SQUAREFLAG, Pad))
         {
           int l, r, t, b;
-          l = Pad->Point1.X - w;
-          b = Pad->Point1.Y - w;
+          l = Pad->Point1.X - w/2;
+          b = Pad->Point1.Y - w/2;
           r = l + w * 2;
           t = b + w * 2;
           gui->fill_rect (Output.pmGC, l, b, r, t);
