@@ -31,6 +31,9 @@ static HID_Attribute bom_options[] = {
   {"xyfile", "XY output file",
    HID_String, 0, 0, {0, 0, 0}, 0, 0},
 #define HA_xyfile 1
+  {"xy-in-mm", "XY dimensions in mm instead of mils",
+   HID_Boolean, 0, 0, {0, 0, 0}, 0, 0},
+#define HA_xymm 2
 };
 
 #define NUM_OPTIONS (sizeof(bom_options)/sizeof(bom_options[0]))
@@ -39,6 +42,7 @@ static HID_Attr_Val bom_values[NUM_OPTIONS];
 
 static char *bom_filename;
 static char *xy_filename;
+static int xy_dim_type;
 
 typedef struct _StringList
 {
@@ -269,7 +273,7 @@ static int
 PrintBOM (void)
 {
   char utcTime[64];
-  double x, y, theta = 0.0;
+  double x, y, theta = 0.0, user_x, user_y;
   double sumx, sumy;
   double pin1x = 0.0, pin1y = 0.0, pin1angle = 0.0;
   double pin2x = 0.0, pin2y = 0.0, pin2angle;
@@ -302,7 +306,11 @@ PrintBOM (void)
   fprintf (fp, "# Author: %s\n", pcb_author ());
   fprintf (fp, "# Title: %s - PCB X-Y\n", UNKNOWN (PCB->Name));
   fprintf (fp, "# RefDes, Description, Value, X, Y, rotation, top/bottom\n");
-  fprintf (fp, "# X,Y in mils.  rotation in degrees.\n");
+  if (xy_dim_type) {
+    fprintf (fp, "# X,Y in mm.  rotation in degrees.\n");
+  } else {
+    fprintf (fp, "# X,Y in mils.  rotation in degrees.\n");
+  }
   fprintf (fp, "# --------------------------------------------\n");
 
   /*
@@ -441,12 +449,22 @@ PrintBOM (void)
 	name = CleanBOMString (UNKNOWN (NAMEONPCB_NAME (element)));
 	descr = CleanBOMString (UNKNOWN (DESCRIPTION_NAME (element)));
 	value = CleanBOMString (UNKNOWN (VALUE_NAME (element)));
+
+ 	if (xy_dim_type) {
+ 	  /* dimensions in mm */
+ 	  user_x = 0.000254 * x;
+ 	  user_y = 0.000254 * y;
+ 	} else {
+ 	  /* dimensions in mils */
+ 	  user_x = 0.01 * x;
+ 	  user_y = 0.01 * y;
+ 	}
 	fprintf (fp, "%s,\"%s\",\"%s\",%.2f,%.2f,%g,%s\n",
 		 name, descr, value,
 #if 0
 		 (double) element->MarkX, (double) element->MarkY,
 #else
-		 0.01 * x, 0.01 * y,
+		 user_x, user_y,
 #endif
 		 theta, FRONT (element) == 1 ? "top" : "bottom");
 	free (name);
@@ -505,6 +523,7 @@ bom_do_export (HID_Attr_Val * options)
   if (!xy_filename)
     xy_filename = "pcb-out.xy";
 
+  xy_dim_type = options[HA_xymm].int_value;
   PrintBOM ();
 }
 
