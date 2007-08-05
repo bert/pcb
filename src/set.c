@@ -143,7 +143,7 @@ pcb_use_route_style (RouteStyleType * rst)
 void
 SetKeepawayWidth (BDimension Width)
 {
-  if (Width <= MAX_LINESIZE && Width >= MIN_LINESIZE)
+  if (Width <= MAX_LINESIZE)
     {
       Settings.Keepaway = Width;
     }
