@@ -147,7 +147,9 @@ HID_Flag flags_flag_list[] = {
   {"thindrawpoly", FlagTESTFLAG, THINDRAWPOLYFLAG},
   {"locknames", FlagTESTFLAG, LOCKNAMESFLAG},
   {"onlynames", FlagTESTFLAG, ONLYNAMESFLAG},
+  {"newfullpoly", FlagTESTFLAG, NEWFULLPOLYFLAG},
 
+  {"fullpoly", FlagSETTINGS, OffsetOf (SettingType, FullPoly)},
   {"grid_units_mm", FlagSETTINGS, OffsetOf (SettingType, grid_units_mm)},
   {"clearline", FlagSETTINGS, OffsetOf (SettingType, ClearLine)},
   {"uniquenames", FlagSETTINGS, OffsetOf (SettingType, UniqueNames)},

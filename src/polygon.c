@@ -987,6 +987,8 @@ CopyAttachedPolygonToLayer (void)
   *polygon = Crosshair.AttachedPolygon;
   polygon->ID = saveID;
   SET_FLAG (CLEARPOLYFLAG, polygon);
+  if (TEST_FLAG (NEWFULLPOLYFLAG, PCB))
+    SET_FLAG (FULLPOLYFLAG, polygon);
   memset (&Crosshair.AttachedPolygon, 0, sizeof (PolygonType));
   SetPolygonBoundingBox (polygon);
   if (!CURRENT->polygon_tree)

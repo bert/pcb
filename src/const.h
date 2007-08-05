@@ -134,6 +134,8 @@ For elements, when set the names of pins are shown.
 @item 0x0020 clearline
 For lines and arcs, the line/arc will clear polygons instead of
 connecting to them.
+@item 0x0020 fullpoly
+For polygons, the full polygon is drawn (i.e. all parts instead of only the biggest one).
 @item 0x0040 selected
 Set when the object is selected.
 @item 0x0080 onsolder
@@ -186,6 +188,7 @@ pad.  Primarily used for pads used as fiducials.
 #define	DISPLAYNAMEFLAG		0x0020	/* display the names of pins/pads */
 					/* of an element */
 #define CLEARLINEFLAG		0x0020	/* line doesn't touch polygons */
+#define FULLPOLYFLAG            0x0020	/* full polygon is drawn (i.e. all parts instead of only the biggest one) */
 #define	SELECTEDFLAG		0x0040	/* object has been selected */
 #define	ONSOLDERFLAG		0x0080	/* element is on bottom side */
 #define AUTOFLAG		0x0080	/* line/via created by auto-router */
@@ -247,6 +250,8 @@ Draw with thin lines.
 Move items orthogonally.
 @item 0x10000
 Draw autoroute paths real-time.
+@item 0x20000
+New polygons are full ones.
 @end table
 %end-doc */
 
@@ -272,6 +277,7 @@ Draw autoroute paths real-time.
 #define THINDRAWPOLYFLAG        0x00020000
 #define LOCKNAMESFLAG           0x00040000
 #define ONLYNAMESFLAG           0x00080000
+#define NEWFULLPOLYFLAG         0x00100000
 
 /* ---------------------------------------------------------------------------
  * object types

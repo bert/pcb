@@ -195,6 +195,7 @@ MainMenu =
    {"Require unique element names" checked=uniquename Display(ToggleUniqueNames)}
    {"Auto-zero delta measurements" checked=localref Display(ToggleLocalRef)}
    {"New lines, arcs clear polygons" checked=clearnew Display(ToggleClearLine)}
+   {"New polygons are full ones" checked=newfullpoly Display(ToggleFullPoly)}
    {"Show autorouter trials" checked=liveroute Display(ToggleLiveRoute)}
    {"Thin draw" checked=thindraw Display(ToggleThindraw) a={"|" "<Key>|"}}
    {"Thin draw poly" checked=thindrawpoly Display(ToggleThindrawPoly) a={"Ctrl-Shift-P" "Ctrl Shift<Key>p"}}

@@ -533,6 +533,7 @@ HID_Attribute main_attribute_list[] = {
 
   BSET (DrawGrid, 0, "draw-grid", "default to drawing the grid at startup"),
   BSET (ClearLine, 1, "clear-line", 0),
+  BSET (FullPoly, 0, "full-poly", 0),
   BSET (UniqueNames, 1, "unique-names", 0),
   BSET (SnapPin, 1, "snap-pin", 0),
   BSET (SaveLastCommand, 0, "save-last-command", 0),

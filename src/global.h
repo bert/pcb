@@ -591,7 +591,8 @@ typedef struct			/* some resources... */
     PinoutTextOffsetY;
   RouteStyleType RouteStyle[NUM_STYLES];	/* default routing styles */
   LayerGroupType LayerGroups;	/* default layer groups */
-  Boolean ClearLine, UniqueNames,	/* force unique names */
+  Boolean ClearLine, FullPoly,
+    UniqueNames,		/* force unique names */
     SnapPin,			/* snap to pins and pads */
     ShowSolderSide,		/* mirror output */
     SaveLastCommand,		/* save the last command entered by user */

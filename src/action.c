@@ -169,6 +169,7 @@ typedef enum
   F_ToggleAllDirections,
   F_ToggleAutoDRC,
   F_ToggleClearLine,
+  F_ToggleFullPoly,
   F_ToggleGrid,
   F_ToggleMask,
   F_ToggleName,
@@ -397,6 +398,7 @@ static FunctionType Functions[] = {
   {"ToLayout", F_ToLayout},
   {"Toggle45Degree", F_ToggleAllDirections},
   {"ToggleClearLine", F_ToggleClearLine},
+  {"ToggleFullPoly", F_ToggleFullPoly},
   {"ToggleGrid", F_ToggleGrid},
   {"ToggleMask", F_ToggleMask},
   {"ToggleName", F_ToggleName},
@@ -1331,6 +1333,9 @@ NotifyMode (void)
 	{
 	  PolygonTypePtr polygon;
 
+	  int flags = CLEARPOLYFLAG;
+	  if (Settings.FullPoly)
+	    flags |= FULLPOLYFLAG;
 	  if ((polygon = CreateNewPolygonFromRectangle (CURRENT,
 							Crosshair.
 							AttachedBox.Point1.X,
@@ -1341,7 +1346,7 @@ NotifyMode (void)
 							Crosshair.
 							AttachedBox.Point2.Y,
 							MakeFlags
-							(CLEARPOLYFLAG))) !=
+							(flags))) !=
 	      NULL)
 	    {
 	      AddObjectToCreateUndoList (POLYGON_TYPE, CURRENT,
@@ -2366,7 +2371,7 @@ static const char display_syntax[] =
   "Display(Grid|Redraw)\n"
   "Display(CycleClip|Toggle45Degree|ToggleStartDirection)\n"
   "Display(ToggleGrid|ToggleRubberBandMode|ToggleUniqueNames)\n"
-  "Display(ToggleMask|ToggleName|ToggleClearLine|ToggleSnapPin)\n"
+  "Display(ToggleMask|ToggleName|ToggleClearLine|ToggleFullPoly|ToggleSnapPin)\n"
   "Display(ToggleThindraw|ToggleThindrawPoly|ToggleOrthoMove|ToggleLocalRef)\n"
   "Display(ToggleCheckPlanes|ToggleShowDRC|ToggleAutoDRC)\n"
   "Display(ToggleLiveRoute|LockNames|OnlyNames)\n"
@@ -2455,6 +2460,11 @@ Turns the solder mask on or off.
 When set, the clear-line flag causes new lines and arcs to have their
 ``clear polygons'' flag set, so they won't be electrically connected
 to any polygons they overlap.
+
+@item ToggleFullPoly
+When set, the full-poly flag causes new polygons to have their
+``full polygon'' flag set, so all parts of them will be displayed
+instead of only the biggest one.
 
 @item ToggleGrid
 Resets the origin of the current grid to be wherever the mouse pointer
@@ -2647,6 +2657,10 @@ ActionDisplay (int argc, char **argv, int childX, int childY)
 
 	case F_ToggleClearLine:
 	  TOGGLE_FLAG (CLEARNEWFLAG, PCB);
+	  break;
+
+	case F_ToggleFullPoly:
+	  TOGGLE_FLAG (NEWFULLPOLYFLAG, PCB);
 	  break;
 
 	  /* shift grid alignment */
