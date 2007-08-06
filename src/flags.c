@@ -100,6 +100,16 @@ FlagMode (int x)
   return Settings.Mode == x;
 }
 
+static int
+FlagHaveRegex (int x)
+{
+#if defined(HAVE_REGCOMP) || defined(HAVE_RE_COMP)
+  return 1;
+#else
+  return 0;
+#endif
+}
+
 #define OffsetOf(a,b) (int)(&(((a *)0)->b))
 
 HID_Flag flags_flag_list[] = {
@@ -107,6 +117,7 @@ HID_Flag flags_flag_list[] = {
   {"grid", FlagGrid, 0},
   {"gridsize", FlagGridSize, 0},
   {"elementname", FlagElementName, 0},
+  {"have_regex", FlagHaveRegex, 0},
 
   {"mode", FlagMode, -1},
   {"nomode", FlagMode, NO_MODE},

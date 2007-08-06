@@ -212,12 +212,12 @@ MainMenu =
    {"unselect all connected objects" Unselect(Connection)}
    -
    {"Select by name" foreground=grey50 sensitive=false}
-   {"All objects" Select(ObjectByName) ActiveWhen(have_regex)}
-   {"Elements" Select(ElementByName) ActiveWhen(have_regex)}
-   {"Pads" Select(PadByName) ActiveWhen(have_regex)}
-   {"Pins" Select(PinByName) ActiveWhen(have_regex)}
-   {"Text Objects" Select(TextByName) ActiveWhen(have_regex)}
-   {"Vias" Select(ViaByName) ActiveWhen(have_regex)}
+   {"All objects" Select(ObjectByName) active=have_regex}
+   {"Elements" Select(ElementByName) active=have_regex}
+   {"Pads" Select(PadByName) active=have_regex}
+   {"Pins" Select(PinByName) active=have_regex}
+   {"Text Objects" Select(TextByName) active=have_regex}
+   {"Vias" Select(ViaByName) active=have_regex}
    -
    {"Auto-place selected elements" AutoPlaceSelected() a={"Ctrl-P" "Ctrl<Key>p"}}
    {"Disperse all elements" DisperseElements(All)}
