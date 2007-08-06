@@ -97,7 +97,7 @@ static void ClearOnlyPin (PinTypePtr, Boolean);
 static void DrawPlainPin (PinTypePtr, Boolean);
 static void DrawPlainVia (PinTypePtr, Boolean);
 static void DrawPinOrViaNameLowLevel (PinTypePtr);
-static void DrawPadLowLevel (PadTypePtr);
+static void DrawPadLowLevel (hidGC, PadTypePtr, Boolean, Boolean);
 static void DrawPadNameLowLevel (PadTypePtr);
 static void DrawLineLowLevel (LineTypePtr, Boolean);
 static void DrawRegularText (LayerTypePtr, TextTypePtr, int);
@@ -568,7 +568,7 @@ DrawEverything (BoxTypePtr drawn_area)
 		|| (!TEST_FLAG (ONSOLDERFLAG, pad)
 		    && side == COMPONENT_LAYER))
 	      if (!TEST_FLAG (NOPASTEFLAG, pad))
-		DrawPadLowLevel (pad);
+		DrawPadLowLevel (Output.fgGC, pad, False, False);
 	  }
 	  ENDALL_LOOP;
 	}
@@ -748,31 +748,41 @@ static void
 DrawMask (BoxType * screen)
 {
   struct pin_info info;
+  int thin = TEST_FLAG(THINDRAWFLAG, PCB) || TEST_FLAG(THINDRAWPOLYFLAG, PCB);
 
   OutputType *out = &Output;
 
   info.arg = True;
 
-  if (gui->poly_before)
+  if (thin)
+    gui->set_color (Output.pmGC, PCB->MaskColor);
+  else
     {
-      gui->use_mask (HID_MASK_BEFORE);
-      gui->set_color (out->fgGC, PCB->MaskColor);
-      gui->fill_rect (out->fgGC, 0, 0, PCB->MaxWidth, PCB->MaxHeight);
+      if (gui->poly_before)
+	{
+	  gui->use_mask (HID_MASK_BEFORE);
+	  gui->set_color (out->fgGC, PCB->MaskColor);
+	  gui->fill_rect (out->fgGC, 0, 0, PCB->MaxWidth, PCB->MaxHeight);
+	}
+      gui->use_mask (HID_MASK_CLEAR);
     }
 
-  gui->use_mask (HID_MASK_CLEAR);
   r_search (PCB->Data->pin_tree, screen, NULL, clearPin_callback, &info);
   r_search (PCB->Data->via_tree, screen, NULL, clearPin_callback, &info);
   r_search (PCB->Data->pad_tree, screen, NULL, clearPad_callback, &info);
 
-  if (gui->poly_after)
+  if (thin)
+    gui->set_color (Output.pmGC, "erase");
+  else
     {
-      gui->use_mask (HID_MASK_AFTER);
-      gui->set_color (out->fgGC, PCB->MaskColor);
-      gui->fill_rect (out->fgGC, 0, 0, PCB->MaxWidth, PCB->MaxHeight);
+      if (gui->poly_after)
+	{
+	  gui->use_mask (HID_MASK_AFTER);
+	  gui->set_color (out->fgGC, PCB->MaskColor);
+	  gui->fill_rect (out->fgGC, 0, 0, PCB->MaxWidth, PCB->MaxHeight);
+	}
+      gui->use_mask (HID_MASK_OFF);
     }
-
-  gui->use_mask (HID_MASK_OFF);
 }
 
 static int
@@ -1098,7 +1108,17 @@ ClearOnlyPin (PinTypePtr Pin, Boolean mask)
       b = Pin->Y - half;
       r = l + half * 2;
       t = b + half * 2;
-      gui->fill_rect (Output.pmGC, l, b, r, t);
+      if (TEST_FLAG (THINDRAWFLAG, PCB) || TEST_FLAG (THINDRAWPOLYFLAG, PCB))
+        {
+          gui->set_line_cap (Output.pmGC, Round_Cap);
+          gui->set_line_width (Output.pmGC, 1);
+          gui->draw_line (Output.pmGC, r, t, r, b);
+          gui->draw_line (Output.pmGC, l, t, l, b);
+          gui->draw_line (Output.pmGC, r, t, l, t);
+          gui->draw_line (Output.pmGC, r, b, l, b);
+        }
+      else
+	gui->fill_rect (Output.pmGC, l, b, r, t);
     }
   else if (TEST_FLAG (OCTAGONFLAG, Pin))
     {
@@ -1110,7 +1130,10 @@ ClearOnlyPin (PinTypePtr Pin, Boolean mask)
     }
   else
     {
-      gui->fill_circle (Output.pmGC, Pin->X, Pin->Y, half);
+      if (TEST_FLAG (THINDRAWFLAG, PCB) || TEST_FLAG (THINDRAWPOLYFLAG, PCB))
+	gui->draw_arc (Output.pmGC, Pin->X, Pin->Y, half, half, 0, 360);
+      else
+	gui->fill_circle (Output.pmGC, Pin->X, Pin->Y, half);
     }
 }
 
@@ -1275,19 +1298,23 @@ DrawPinOrViaNameLowLevel (PinTypePtr Ptr)
  */
 
 static void
-DrawPadLowLevel (PadTypePtr Pad)
+DrawPadLowLevel (hidGC gc, PadTypePtr Pad, Boolean clear, Boolean mask)
 {
+  int w = clear ? (mask ? Pad->Mask : Pad->Thickness + Pad->Clearance)
+		: Pad->Thickness;
+
   if (Gathering)
     {
       AddPart (Pad);
       return;
     }
 
-  if (TEST_FLAG (THINDRAWFLAG, PCB))
+  if (TEST_FLAG (THINDRAWFLAG, PCB) ||
+      (clear && TEST_FLAG (THINDRAWPOLYFLAG, PCB)))
     {
       int x1, y1, x2, y2, t, t2;
-      t = Pad->Thickness / 2;
-      t2 = Pad->Thickness - t;
+      t = w / 2;
+      t2 = w - t;
       x1 = Pad->Point1.X;
       y1 = Pad->Point1.Y;
       x2 = Pad->Point2.X;
@@ -1302,41 +1329,36 @@ DrawPadLowLevel (PadTypePtr Pad)
 	  y2 ^= y1;
 	  y1 ^= y2;
 	}
-      gui->set_line_cap (Output.fgGC, Round_Cap);
-      gui->set_line_width (Output.fgGC, 1);
+      gui->set_line_cap (gc, Round_Cap);
+      gui->set_line_width (gc, 1);
       if (TEST_FLAG (SQUAREFLAG, Pad))
 	{
 	  x1 -= t;
 	  y1 -= t;
 	  x2 += t2;
 	  y2 += t2;
-	  gui->draw_line (Output.fgGC, x1, y1, x1, y2);
-	  gui->draw_line (Output.fgGC, x1, y2, x2, y2);
-	  gui->draw_line (Output.fgGC, x2, y2, x2, y1);
-	  gui->draw_line (Output.fgGC, x2, y1, x1, y1);
+	  gui->draw_line (gc, x1, y1, x1, y2);
+	  gui->draw_line (gc, x1, y2, x2, y2);
+	  gui->draw_line (gc, x2, y2, x2, y1);
+	  gui->draw_line (gc, x2, y1, x1, y1);
 	}
       else if (x1 == x2 && y1 == y2)
 	{
-	  gui->draw_arc (Output.fgGC, x1, y1,
-			 Pad->Thickness / 2, Pad->Thickness / 2, 0, 360);
+	  gui->draw_arc (gc, x1, y1, w / 2, w / 2, 0, 360);
 	}
       else if (x1 == x2)
 	{
-	  gui->draw_line (Output.fgGC, x1 - t, y1, x2 - t, y2);
-	  gui->draw_line (Output.fgGC, x1 + t2, y1, x2 + t2, y2);
-	  gui->draw_arc (Output.fgGC, x1, y1,
-			 Pad->Thickness / 2, Pad->Thickness / 2, 0, -180);
-	  gui->draw_arc (Output.fgGC, x2, y2,
-			 Pad->Thickness / 2, Pad->Thickness / 2, 180, -180);
+	  gui->draw_line (gc, x1 - t, y1, x2 - t, y2);
+	  gui->draw_line (gc, x1 + t2, y1, x2 + t2, y2);
+	  gui->draw_arc (gc, x1, y1, w / 2, w / 2, 0, -180);
+	  gui->draw_arc (gc, x2, y2, w / 2, w / 2, 180, -180);
 	}
       else
 	{
-	  gui->draw_line (Output.fgGC, x1, y1 - t, x2, y2 - t);
-	  gui->draw_line (Output.fgGC, x1, y1 + t2, x2, y2 + t2);
-	  gui->draw_arc (Output.fgGC, x1, y1,
-			 Pad->Thickness / 2, Pad->Thickness / 2, 90, -180);
-	  gui->draw_arc (Output.fgGC, x2, y2,
-			 Pad->Thickness / 2, Pad->Thickness / 2, 270, -180);
+	  gui->draw_line (gc, x1, y1 - t, x2, y2 - t);
+	  gui->draw_line (gc, x1, y1 + t2, x2, y2 + t2);
+	  gui->draw_arc (gc, x1, y1, w / 2, w / 2, 90, -180);
+	  gui->draw_arc (gc, x2, y2, w / 2, w / 2, 270, -180);
 	}
     }
   else if (Pad->Point1.X == Pad->Point2.X
@@ -1345,26 +1367,25 @@ DrawPadLowLevel (PadTypePtr Pad)
       if (TEST_FLAG (SQUAREFLAG, Pad))
         {
           int l, r, t, b;
-          l = Pad->Point1.X - Pad->Thickness / 2;
-          b = Pad->Point1.Y - Pad->Thickness / 2;
-          r = l + Pad->Thickness;
-          t = b + Pad->Thickness;
-          gui->fill_rect (Output.fgGC, l, b, r, t);
+          l = Pad->Point1.X - w / 2;
+          b = Pad->Point1.Y - w / 2;
+          r = l + w;
+          t = b + w;
+          gui->fill_rect (gc, l, b, r, t);
         }
       else
         {
-          gui->fill_circle (Output.fgGC,
-                            Pad->Point1.X, Pad->Point1.Y, Pad->Thickness / 2);
+          gui->fill_circle (gc, Pad->Point1.X, Pad->Point1.Y, w / 2);
         }
     }
   else
     {
-      gui->set_line_cap (Output.fgGC,
+      gui->set_line_cap (gc,
                          TEST_FLAG (SQUAREFLAG,
                                     Pad) ? Square_Cap : Round_Cap);
-      gui->set_line_width (Output.fgGC, Pad->Thickness);
+      gui->set_line_width (gc, w);
 
-      gui->draw_line (Output.fgGC,
+      gui->draw_line (gc,
                       Pad->Point1.X, Pad->Point1.Y,
                       Pad->Point2.X, Pad->Point2.Y);
     }
@@ -1447,35 +1468,7 @@ DrawPadNameLowLevel (PadTypePtr Pad)
 static void
 ClearPad (PadTypePtr Pad, Boolean mask)
 {
-  int w = mask ? Pad->Mask : Pad->Thickness + Pad->Clearance;
-
-  if (Pad->Point1.X == Pad->Point2.X
-      && Pad->Point1.Y == Pad->Point2.Y)
-    {
-      if (TEST_FLAG (SQUAREFLAG, Pad))
-        {
-          int l, r, t, b;
-          l = Pad->Point1.X - w/2;
-          b = Pad->Point1.Y - w/2;
-          r = l + w * 2;
-          t = b + w * 2;
-          gui->fill_rect (Output.pmGC, l, b, r, t);
-        }
-      else
-        {
-          gui->fill_circle (Output.pmGC, Pad->Point1.X, Pad->Point1.Y, w / 2);
-        }
-    }
-  else
-    {
-      gui->set_line_cap (Output.pmGC,
-                         TEST_FLAG (SQUAREFLAG,
-                                    Pad) ? Square_Cap : Round_Cap);
-      gui->set_line_width (Output.pmGC, w);
-      gui->draw_line (Output.pmGC,
-                      Pad->Point1.X, Pad->Point1.Y,
-                      Pad->Point2.X, Pad->Point2.Y);
-    }
+  DrawPadLowLevel(Output.pmGC, Pad, True, mask);
 }
 
 /* ---------------------------------------------------------------------------
@@ -1792,7 +1785,7 @@ DrawPad (PadTypePtr Pad, int unused)
       else
 	gui->set_color (Output.fgGC, PCB->InvisibleObjectsColor);
     }
-  DrawPadLowLevel (Pad);
+  DrawPadLowLevel (Output.fgGC, Pad, False, False);
   if (doing_pinout || TEST_FLAG (DISPLAYNAMEFLAG, Pad))
     DrawPadNameLowLevel (Pad);
 }
@@ -2169,7 +2162,7 @@ ErasePad (PadTypePtr Pad)
 {
   Erasing++;
   gui->set_color (Output.fgGC, Settings.BackgroundColor);
-  DrawPadLowLevel (Pad);
+  DrawPadLowLevel (Output.fgGC, Pad, False, False);
   if (TEST_FLAG (DISPLAYNAMEFLAG, Pad))
     DrawPadNameLowLevel (Pad);
   Erasing--;
@@ -2317,7 +2310,7 @@ EraseElementPinsAndPads (ElementTypePtr Element)
   END_LOOP;
   PAD_LOOP (Element);
   {
-    DrawPadLowLevel (pad);
+    DrawPadLowLevel (Output.fgGC, pad, False, False);
     if (TEST_FLAG (DISPLAYNAMEFLAG, pad))
       DrawPadNameLowLevel (pad);
   }
