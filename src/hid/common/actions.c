@@ -65,6 +65,9 @@ hid_find_action (const char *name)
   HID_ActionNode *ha;
   int i, n, lower, upper;
 
+  if (name == NULL)
+    return 0;
+
   if (all_actions == 0)
     {
       n = 0;
@@ -200,7 +203,7 @@ hid_actionv (const char *name, int argc, char **argv)
   int x = 0, y = 0, i;
   HID_Action *a;
 
-  if (Settings.verbose)
+  if (Settings.verbose && name)
     {
       printf ("Action: \033[34m%s(", name);
       for (i = 0; i < argc; i++)

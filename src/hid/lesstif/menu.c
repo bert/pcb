@@ -810,7 +810,11 @@ int
 lesstif_call_action (const char *aname, int argc, char **argv)
 {
   int px, py;
-  HID_Action *a = hid_find_action (aname);
+  HID_Action *a;
+
+  if (!aname)
+    return 1;
+  a = hid_find_action (aname);
   if (!a)
     {
       int i;
