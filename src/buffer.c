@@ -849,11 +849,13 @@ LoadLayoutToBuffer (BufferTypePtr Buffer, char *Filename)
       Buffer->X = newPCB->CursorX;
       Buffer->Y = newPCB->CursorY;
       RemovePCB (newPCB);
+      Buffer->Data->pcb = PCB;
       return (True);
     }
 
   /* release unused memory */
   RemovePCB (newPCB);
+      Buffer->Data->pcb = PCB;
   return (False);
 }
 
