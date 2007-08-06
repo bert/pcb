@@ -326,7 +326,7 @@ typedef struct			/* holds all objects */
   RatTypePtr Rat;
   rtree_t *via_tree, *element_tree, *pin_tree, *pad_tree, *name_tree[3],	/* for element names */
    *rat_tree;
-  void *pcb;
+  struct PCBType *pcb;
   LayerType Layer[MAX_LAYER + 2];	/* add 2 silkscreen layers */
 } DataType, *DataTypePtr;
 
@@ -407,7 +407,7 @@ typedef struct
      |  to the saved layout values when a layout is loaded.
      |  This struct is also used for the remove list and for buffer handling
    */
-typedef struct
+typedef struct PCBType
 {
   long ID;			/* see macro.h */
   FlagType Flags;
