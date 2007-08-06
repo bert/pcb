@@ -827,20 +827,37 @@ SelectConnection (Boolean Flag)
  * it's a case insensitive match
  * returns True if any object has been selected
  */
+
+#if defined (HAVE_REGCOMP)
+static int
+regexec_match_all (const  regex_t  *preg,  const  char  *string)
+{
+  regmatch_t match;
+
+  if (regexec (preg, string, 1, &match, 0) != 0)
+    return 0;
+  if (match.rm_so != 0)
+    return 0;
+  if (match.rm_eo != strlen(string))
+    return 0;
+  return 1;
+}
+#endif
+
 Boolean
 SelectObjectByName (int Type, char *Pattern, Boolean Flag)
 {
   Boolean changed = False;
 
 #if defined(HAVE_REGCOMP)
-#define	REGEXEC(arg)	(!regexec(&compiled, (arg), 1, &match, 0))
+#define	REGEXEC(arg)	(regexec_match_all(&compiled, (arg)))
 
   int result;
   regex_t compiled;
   regmatch_t match;
 
   /* compile the regular expression */
-  result = regcomp (&compiled, Pattern, REG_EXTENDED | REG_ICASE | REG_NOSUB);
+  result = regcomp (&compiled, Pattern, REG_EXTENDED | REG_ICASE);
   if (result)
     {
       char errorstring[128];
@@ -964,9 +981,12 @@ SelectObjectByName (int Type, char *Pattern, Boolean Flag)
   }
   END_LOOP;
 
+#if defined(HAVE_REGCOMP)
 #if !defined(sgi)
   regfree (&compiled);
 #endif
+#endif
+
   if (changed)
     {
       IncrementUndoSerialNumber ();
