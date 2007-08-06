@@ -692,12 +692,10 @@ clearPoly (DataTypePtr Data, LayerTypePtr Layer, PolygonType * polygon,
                     &info);
         r +=
           r_search (layer->arc_tree, &region, NULL, arc_sub_callback, &info);
-        if (info.solder
-            || group == Group (Data, Data->LayerN + COMPONENT_LAYER))
-          r +=
-            r_search (Data->pad_tree, &region, NULL, pad_sub_callback, &info);
       }
       END_LOOP;
+      if (info.solder || group == Group (Data, Data->LayerN + COMPONENT_LAYER))
+	r += r_search (Data->pad_tree, &region, NULL, pad_sub_callback, &info);
     }
   return r;
 }
