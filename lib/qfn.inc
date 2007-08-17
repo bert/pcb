@@ -81,6 +81,9 @@ define(`PKG_GENERIC_QFN',
 	# square exposed paddle size (mil/100)
 	define(`EPSIZE', `eval(`$9'*10000/254)')
 
+   # pad clearance to polygons (1/100 mil)
+   define(`PADCLEAR', `2000')
+
    # width of the pad solder mask relief (1/100 mil). 
    # grow by 1.5 mils on each side
    define(`PADMASK', `eval(2*150 + PADWIDTHMIL100)')
@@ -103,7 +106,7 @@ define(`CURPIN', 1)
 define(`idx',0)
 forloop(`i', 1, LRPINS,
 	`define(`Y', `eval((-LRYMAX + PITCH*idx)/10)')'
-	`Pad[-LRXMAX  Y  -LRXMIN  Y  PADWIDTHMIL100  0 PADMASK "CURPIN" "CURPIN"  0x00000100]'
+	`Pad[-LRXMAX  Y  -LRXMIN  Y  PADWIDTHMIL100  PADCLEAR PADMASK "CURPIN" "CURPIN"  0x00000100]'
 	`define(`CURPIN', incr(CURPIN))'
 	`define(`idx',incr(idx))'
 )
@@ -112,7 +115,7 @@ forloop(`i', 1, LRPINS,
 define(`idx',0)
 forloop(`i', 1, TBPINS,
 	`define(`X', `eval((-TBXMAX + PITCH*idx)/10)')'
-	`Pad[X  TBYMAX  X  TBYMIN  PADWIDTHMIL100 0 PADMASK "CURPIN" "CURPIN"  0x00000900]'
+	`Pad[X  TBYMAX  X  TBYMIN  PADWIDTHMIL100 PADCLEAR PADMASK "CURPIN" "CURPIN"  0x00000900]'
 	`define(`CURPIN', incr(CURPIN))'
 	`define(`idx',incr(idx))'
 )
@@ -121,7 +124,7 @@ forloop(`i', 1, TBPINS,
 define(`idx',0)
 forloop(`i', 1, LRPINS,
 	`define(`Y', `eval(( LRYMAX - PITCH*idx)/10)')'
-	`Pad[LRXMAX  Y  LRXMIN  Y  PADWIDTHMIL100  0 PADMASK "CURPIN" "CURPIN"  0x00000100]'
+	`Pad[LRXMAX  Y  LRXMIN  Y  PADWIDTHMIL100  PADCLEAR PADMASK "CURPIN" "CURPIN"  0x00000100]'
 	`define(`CURPIN', incr(CURPIN))'
 	`define(`idx',incr(idx))'
 )
@@ -130,7 +133,7 @@ forloop(`i', 1, LRPINS,
 define(`idx',0)
 forloop(`i', 1, TBPINS,
 	`define(`X', `eval((TBXMAX - PITCH*idx)/10)')'
-	`Pad[X  -TBYMAX  X  -TBYMIN  PADWIDTHMIL100 0 PADMASK "CURPIN" "CURPIN" 0x00000900]'
+	`Pad[X  -TBYMAX  X  -TBYMIN  PADWIDTHMIL100 PADCLEAR PADMASK "CURPIN" "CURPIN" 0x00000900]'
 	`define(`CURPIN', incr(CURPIN))'
 	`define(`idx',incr(idx))'
 )
