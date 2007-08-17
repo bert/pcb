@@ -29,7 +29,7 @@ Copyright (C) 1994,1995,1996, 2004 Thomas Nau
 
 Copyright (C) 1997, 1998, 1999, 2000, 2001, 2002 harry eaton
 
-Copyright (C) 2003, 2004, 2005, 2006 Dan McMahill
+Copyright (C) 2003, 2004, 2005, 2006, 2007 Dan McMahill
 
 Copyright (C) 2004 DJ Delorie
 
@@ -5641,7 +5641,11 @@ pcb -dumpmenu
 @section Element Search/Regular Expressions
 @code{Pcb}'s search is based on POSIX 1003.2 Regular Expressions.  Full POSIX
 Regular Expressions are supported by @code{Pcb} if the regex library was
-available when @code{Pcb} was built.
+available when @code{Pcb} was built.  One difference from the regular
+expressions found in tools like awk or grep is that PCB implicitly
+adds a ``^'' to the begining of a regular expression and ``$'' to the
+end of the regular expression.  For example if you enter ``C1'', the
+actual regular expression used internally is ``^C1$''.  
 It is easier to show by example how to search than explain POSIX 1003.2.  The following table shows the most common
 Regular Expression characters used to find elements in @code{Pcb}:
 
@@ -5657,26 +5661,35 @@ Matches 1 or more instances of preceding character.
 Matches 0 or 1 instances of preceding character.
 @item .
 Matches any single character other than the newline character.
+
 @end table
 
 The following examples illustrate how regular expressions are used to
 specify element names (reference designators) to search for.
 @table @samp
-@item Search for "C1":
-Enter "C1".
-@item Search for all elements that start with "C", such as capacitors:
-Enter "C.*", that is "C-dot-star".
-@item Search for all elements that start with "C" and end with "1",
-such as "C1", or "C51":
-Enter "C.*1", that is "C-dot-star-1".
+
+@item Search for the element whose name is exactly ``C1''.
+Enter ``C1''.
+
+@item Search for all elements that start with ``C'', such as capacitors:
+Enter ``C.*''.
+
+@item Search for all elements that start with ``C'' and end with ``1'', such as ``C1'', or ``C51'':
+Enter ``C.*1''.
+
 @item Search for only R1 or R10, will not match R100:
-Enter "R10?".
-@item Search for all parts starting with "R12" and ending with the number eight, or eighty-eight etc:
-Enter "R128+".
-@item Search for all terminal blocks having a one digit designator such as TB1 or TB2:
-"TB.", that is "TB-dot".
+Enter ``R10?''.
+
+@item Search for all parts starting with ``R12'' and ending with the number eight, or eighty-eight etc:
+Enter ``R128+''.
+
+@item Search for all terminal blocks having a one digit designator
+such as ``TB1'', ``TB2'', or ``TBx'':
+"TB.".
+
 @item Search for all terminal blocks having a two digit designator such as TB21 or TB15:
-"TB..", that is "TB-dot-dot".
+"TB..".
+
 @end table
 
 
