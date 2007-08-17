@@ -128,11 +128,15 @@ RCSID ("$Id$");
  * local types
  */
 
+
+typedef enum {GHID_FLAG_ACTIVE, GHID_FLAG_CHECKED, GHID_FLAG_VISIBLE} MenuFlagType;
+
 /* Used by the menuitems that are toggle actions */
 typedef struct
 {
   const char *actionname;
   const char *flagname;
+  MenuFlagType flagtype;
   int oldval;
   char *xres;
 } ToggleFlagType;
@@ -244,12 +248,12 @@ static GtkWidget *route_style_edit_button;
  */
 
 static void
-note_toggle_flag (const char *actionname, char *name)
+note_toggle_flag (const char *actionname, MenuFlagType type, char *name)
 {
 
-#ifdef DEBUG_MENUS
-  printf ("note_toggle_flag(\"%s\", \"%s\")\n", actionname, name);
-#endif
+  #ifdef DEBUG_MENUS
+  printf ("note_toggle_flag(\"%s\", %d, \"%s\")\n", actionname, type, name);
+  #endif
 
   if (n_tflags >= max_tflags)
     {
@@ -258,8 +262,9 @@ note_toggle_flag (const char *actionname, char *name)
 	MyRealloc (tflags, max_tflags * sizeof (ToggleFlagType),
 		   __FUNCTION__);
     }
-  tflags[n_tflags].actionname = actionname;
+  tflags[n_tflags].actionname = strdup (actionname);
   tflags[n_tflags].flagname = name;
+  tflags[n_tflags].flagtype = type;
   tflags[n_tflags].oldval = -1;
   tflags[n_tflags].xres = "none";
   n_tflags++;
@@ -291,10 +296,30 @@ ghid_update_toggle_flags ()
 
   for (i = 0; i < n_tflags; i++)
     {
-      int v = hid_get_flag (tflags[i].flagname);
-      a = gtk_action_group_get_action (ghidgui->main_actions, tflags[i].actionname);
-      gtk_toggle_action_set_active (GTK_TOGGLE_ACTION (a), v? TRUE : FALSE);
-      tflags[i].oldval = v;
+      switch (tflags[i].flagtype)
+	{
+	case GHID_FLAG_ACTIVE:
+	  {
+	    int v = hid_get_flag (tflags[i].flagname);
+	    a = gtk_action_group_get_action (ghidgui->main_actions, tflags[i].actionname);
+	    g_object_set_property (G_OBJECT (a), "sensitive", v? &settrue : &setfalse);
+	    tflags[i].oldval = v;
+	  }
+	  break;
+
+	case GHID_FLAG_CHECKED:
+	  {
+	    int v = hid_get_flag (tflags[i].flagname);
+	    a = gtk_action_group_get_action (ghidgui->main_actions, tflags[i].actionname);
+	    gtk_toggle_action_set_active (GTK_TOGGLE_ACTION (a), v? TRUE : FALSE);
+	    tflags[i].oldval = v;
+	  }
+	  break;
+
+	default:
+	  printf ("Skipping flagtype %d\n", tflags[i].flagtype);
+	  break;
+	}
     }
 
 
@@ -3051,6 +3076,7 @@ add_resource_to_menu (char * menu, Resource * node, void * callback, int indent)
   char *menulabel = NULL;
   char ch[2];
   char m = '\0';
+  char *cname = NULL;
 
   ch[1] = '\0';
 
@@ -3271,6 +3297,7 @@ add_resource_to_menu (char * menu, Resource * node, void * callback, int indent)
 	     */
 
 	    sprintf (tmps, "%s%d", MENUITEM, menuitem_cnt);
+	    cname = strdup (tmps);
 
 	    /* add to the action entries */
 	    /* name, stock_id, label, accelerator, tooltip */
@@ -3335,6 +3362,7 @@ add_resource_to_menu (char * menu, Resource * node, void * callback, int indent)
 		  }
 
 		sprintf (tmps, "%s%d", TMENUITEM, tmenuitem_cnt);
+		cname = strdup (tmps);
 
 		/* add to the action entries */
 		/* name, stock_id, label, accelerator, tooltip, is_active */
@@ -3344,7 +3372,6 @@ add_resource_to_menu (char * menu, Resource * node, void * callback, int indent)
 		ghid_ui_info_append ("<menuitem action='");
 		ghid_ui_info_append (tmps);
 		ghid_ui_info_append ("'/>\n");
-
 
 		toggle_action_resources[tmenuitem_cnt-1] = node->v[i].subres;
 		
@@ -3371,6 +3398,7 @@ add_resource_to_menu (char * menu, Resource * node, void * callback, int indent)
 		 */
 
 		sprintf (tmps, "%s%d", MENUITEM, menuitem_cnt);
+		cname = strdup (tmps);
 
 		/* add to the action entries */
 		/* name, stock_id, label, accelerator, tooltip */
@@ -3438,15 +3466,22 @@ add_resource_to_menu (char * menu, Resource * node, void * callback, int indent)
 			printf ("%s is checked\n", node->v[i].subres->v[j].value);
 #endif
 			note_toggle_flag (new_toggle_entries[tmenuitem_cnt-1].name,
-			  node->v[i].subres->v[j].value);
+					  GHID_FLAG_CHECKED,
+					  node->v[i].subres->v[j].value);
 			break;
 		      }
 		    if (strcmp (n, "active") == 0)
 		      {
-			Message ("The gtk gui currently ignores \"%s\"",
-				 node->v[i].subres->v[j].value);
-			Message ("as part of a menuitem resource.\n"
-				 "Feel free to provide patches\n");
+			if (cname != NULL) 
+			  {
+			    note_toggle_flag (cname,
+					      GHID_FLAG_ACTIVE,
+					      node->v[i].subres->v[j].value);
+			  }
+			else
+			  {
+			    printf ("WARNING: %s cname == NULL\n", __FUNCTION__);
+			  }
 			break;
 		      }
 
@@ -3547,6 +3582,7 @@ add_resource_to_menu (char * menu, Resource * node, void * callback, int indent)
 	     * right.
 	     */
 	    sprintf (tmps, "%s%d", MENUITEM, menuitem_cnt);
+	    cname = strdup (tmps);
 	    
 	    /* add to the action entries 
 	     * name, stock_id, label, accelerator, tooltip 
@@ -3556,7 +3592,7 @@ add_resource_to_menu (char * menu, Resource * node, void * callback, int indent)
 	     */
 	    
 	    ghid_append_action (tmps, NULL, node->v[i].value, accel, NULL);
-	    
+
 	    ghid_ui_info_indent (indent);
 	    ghid_ui_info_append ("<menuitem action='");
 	    ghid_ui_info_append (tmps);
@@ -3568,6 +3604,9 @@ add_resource_to_menu (char * menu, Resource * node, void * callback, int indent)
 	break;
       }
   
+  if (cname != NULL)
+    free (cname);
+
   if (menulabel != NULL)
     free (menulabel);
 }
