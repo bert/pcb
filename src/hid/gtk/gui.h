@@ -384,6 +384,8 @@ void ghid_dialog_print (HID * printer);
 void ghid_dialog_export (void);
 
 
+int ghid_attribute_dialog (HID_Attribute *, int, HID_Attr_Val *);
+
 /* gui-route-style function prototypes.
 */
   /* In gui-dialog-size.c */

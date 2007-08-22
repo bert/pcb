@@ -1321,14 +1321,6 @@ ghid_prompt_for (char *msg, char *default_string)
   return rv;
 }
 
-int
-ghid_attribute_dialog (HID_Attribute * attrs,
-		       int n_attrs, HID_Attr_Val * results)
-{
-  printf ("ghid_attribute_dialog() -- not implemented yet\n");
-  return 0;
-}
-
 void
 ghid_show_item (void *item)
 {
@@ -1868,6 +1860,21 @@ SwapSides (int argc, char **argv, int x, int y)
   return 0;
 }
 
+/* ------------------------------------------------------------ */
+
+static const char print_syntax[] =
+"Print()";
+
+static const char print_help[] =
+"Print the layout.";
+
+/* %start-doc actions Print
+
+This will find the default printing HID, prompt the user for its
+options, and print the layout.
+
+%end-doc */
+
 static int
 Print (int argc, char **argv, int x, int y)
 {
@@ -1899,6 +1906,49 @@ Print (int argc, char **argv, int x, int y)
   return 0;
 }
 
+
+/* ------------------------------------------------------------ */
+
+static HID_Attribute
+printer_calibrate_attrs[] = {
+  {"Enter Values here:", "",
+   HID_Label, 0, 0, {0, 0, 0}, 0, 0},
+  {"x-calibration", "X scale for calibrating your printer",
+   HID_Real, 0.5, 2, {0, 0, 1.00}, 0, 0},
+  {"y-calibration", "Y scale for calibrating your printer",
+   HID_Real, 0.5, 2, {0, 0, 1.00}, 0, 0}
+};
+static HID_Attr_Val printer_calibrate_values[3];
+
+static const char printcalibrate_syntax[] =
+"PrintCalibrate()";
+
+static const char printcalibrate_help[] =
+"Calibrate the printer.";
+
+/* %start-doc actions PrintCalibrate
+
+This will print a calibration page, which you would measure and type
+the measurements in, so that future printouts will be more precise.
+
+%end-doc */
+
+static int
+PrintCalibrate (int argc, char **argv, int x, int y)
+{
+  HID *printer = hid_find_printer ();
+  printer->calibrate (0.0, 0.0);
+
+  if (gui->attribute_dialog (printer_calibrate_attrs, 3,
+			     printer_calibrate_values))
+    return 1;
+  printer->calibrate (printer_calibrate_values[1].real_value,
+		      printer_calibrate_values[2].real_value);
+  return 0;
+}
+
+/* ------------------------------------------------------------ */
+
 static int
 Export (int argc, char **argv, int x, int y)
 {
@@ -1913,6 +1963,8 @@ Export (int argc, char **argv, int x, int y)
 
   return 0;
 }
+
+/* ------------------------------------------------------------ */
 
 static int
 Benchmark (int argc, char **argv, int x, int y)
@@ -2340,7 +2392,10 @@ HID_Action ghid_main_action_list[] = {
   {"PCBChanged", 0, PCBChanged},
   {"PointCursor", 0, PointCursor},
   {"Popup", 0, Popup, popup_help, popup_syntax},
-  {"Print", 0, Print},
+  {"Print", 0, Print,
+   print_help, print_syntax},
+  {"PrintCalibrate", 0, PrintCalibrate,
+   printcalibrate_help, printcalibrate_syntax},
   {"RouteStylesChanged", 0, RouteStylesChanged},
   {"Save", 0, Save, save_help, save_syntax},
   {"SetUnits", 0, SetUnits, setunits_help, setunits_syntax},
