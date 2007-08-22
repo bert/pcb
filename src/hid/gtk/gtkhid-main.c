@@ -1940,7 +1940,8 @@ PrintCalibrate (int argc, char **argv, int x, int y)
   printer->calibrate (0.0, 0.0);
 
   if (gui->attribute_dialog (printer_calibrate_attrs, 3,
-			     printer_calibrate_values))
+			     printer_calibrate_values,
+			     "Printer Calibration Values"))
     return 1;
   printer->calibrate (printer_calibrate_values[1].real_value,
 		      printer_calibrate_values[2].real_value);

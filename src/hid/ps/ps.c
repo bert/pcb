@@ -1011,7 +1011,7 @@ ps_calibrate_1 (double xval, double yval, int use_command)
       ps_calib_attribute_list[0].default_val.str_value = strdup ("lpr");
     }
 
-  if (gui->attribute_dialog (ps_calib_attribute_list, 1, vals))
+  if (gui->attribute_dialog (ps_calib_attribute_list, 1, vals, "Print Calibration Page"))
     return;
 
   if (use_command || strchr (vals[0].str_value, '|'))

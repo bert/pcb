@@ -312,7 +312,8 @@ ghid_dialog_print (HID * printer)
 
 int
 ghid_attribute_dialog (HID_Attribute * attrs,
-		       int n_attrs, HID_Attr_Val * results)
+		       int n_attrs, HID_Attr_Val * results,
+		       const char * title)
 {
   GtkWidget *dialog, *main_vbox, *vbox, *vbox1, *hbox, *entry;
   GtkWidget *combo;
@@ -324,7 +325,7 @@ ghid_attribute_dialog (HID_Attribute * attrs,
 
   tips = gtk_tooltips_new ();
 
-  dialog = gtk_dialog_new_with_buttons (_("PCB Attribute Editor"),
+  dialog = gtk_dialog_new_with_buttons (_(title),
 					GTK_WINDOW (out->top_window),
 					GTK_DIALOG_MODAL
 					| GTK_DIALOG_DESTROY_WITH_PARENT,
@@ -337,7 +338,8 @@ ghid_attribute_dialog (HID_Attribute * attrs,
   gtk_container_add (GTK_CONTAINER (GTK_DIALOG (dialog)->vbox), main_vbox);
 
 
-  vbox = ghid_category_vbox (main_vbox, "printer->description",
+  /* Here it would be nice to get a description in */
+  vbox = ghid_category_vbox (main_vbox, "",
 			     4, 2, TRUE, TRUE);
 
   /* 

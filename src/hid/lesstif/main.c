@@ -3515,7 +3515,8 @@ extern void lesstif_report_dialog (char *title, char *msg);
 
 extern int
 lesstif_attribute_dialog (HID_Attribute * attrs,
-			  int n_attrs, HID_Attr_Val * results);
+			  int n_attrs, HID_Attr_Val * results,
+			  const char * title);
 
 static void
 pinout_callback (Widget da, PinoutData * pd,

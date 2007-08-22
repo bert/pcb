@@ -626,7 +626,8 @@ create_form_ok_dialog (char *name, int ok)
 
 int
 lesstif_attribute_dialog (HID_Attribute * attrs,
-			  int n_attrs, HID_Attr_Val * results)
+			  int n_attrs, HID_Attr_Val * results,
+			  const char * title)
 {
   Widget dialog, topform, lform, form;
   Widget *wl;
@@ -645,7 +646,7 @@ lesstif_attribute_dialog (HID_Attribute * attrs,
 
   wl = (Widget *) malloc (n_attrs * sizeof (Widget));
 
-  topform = create_form_ok_dialog ("attributes", 1);
+  topform = create_form_ok_dialog (title, 1);
   dialog = XtParent (topform);
 
   n = 0;
@@ -948,7 +949,7 @@ Print (int argc, char **argv, int x, int y)
     }
   opts = printer->get_export_options (&n);
   vals = (HID_Attr_Val *) calloc (n, sizeof (HID_Attr_Val));
-  if (lesstif_attribute_dialog (opts, n, vals))
+  if (lesstif_attribute_dialog (opts, n, vals, "Print"))
     {
       free (vals);
       return 1;
@@ -988,7 +989,8 @@ PrintCalibrate (int argc, char **argv, int x, int y)
   HID *printer = hid_find_printer ();
   printer->calibrate (0.0, 0.0);
   if (gui->attribute_dialog (printer_calibrate_attrs, 3,
-			     printer_calibrate_values))
+			     printer_calibrate_values,
+			     "Printer Calibration Values"))
     return 1;
   printer->calibrate (printer_calibrate_values[1].real_value,
 		      printer_calibrate_values[2].real_value);
@@ -1065,7 +1067,7 @@ Export (int argc, char **argv, int x, int y)
 
   opts = printer->get_export_options (&n);
   vals = (HID_Attr_Val *) calloc (n, sizeof (HID_Attr_Val));
-  if (lesstif_attribute_dialog (opts, n, vals))
+  if (lesstif_attribute_dialog (opts, n, vals, "Export"))
     {
       free (vals);
       return 1;

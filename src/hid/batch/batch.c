@@ -376,7 +376,8 @@ batch_prompt_for (char *msg, char *default_string)
 
 static int
 batch_attribute_dialog (HID_Attribute * attrs,
-			int n_attrs, HID_Attr_Val * results)
+			int n_attrs, HID_Attr_Val * results,
+			const char *)
 {
 }
 

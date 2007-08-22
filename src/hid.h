@@ -436,9 +436,10 @@ typedef enum
     /* A generic dialog to ask for a set of attributes.  If n_attrs is
        zero, attrs(.name) must be NULL terminated.  Returns non-zero if
        an error occurred (usually, this means the user cancelled the
-       dialog or something). */
+       dialog or something). title is the title of the dialog box */
     int (*attribute_dialog) (HID_Attribute * attrs,
-			     int n_attrs, HID_Attr_Val * results);
+			     int n_attrs, HID_Attr_Val * results,
+			     const char * title);
 
     /* This causes a second window to display, which only shows the
        selected item. The expose callback is called twice; once to size
