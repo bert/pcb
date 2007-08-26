@@ -478,6 +478,7 @@ corner (int x, int y, int dx, int dy)
 static int is_mask;
 static int is_drill;
 static int is_assy;
+static int is_copper;
 
 static int
 ps_set_layer (const char *name, int group)
@@ -497,6 +498,7 @@ ps_set_layer (const char *name, int group)
   is_drill = (SL_TYPE (idx) == SL_PDRILL || SL_TYPE (idx) == SL_UDRILL);
   is_mask = (SL_TYPE (idx) == SL_MASK);
   is_assy = (SL_TYPE (idx) == SL_ASSY);
+  is_copper = (SL_TYPE (idx) == 0);
 #if 0
   printf ("Layer %s group %d drill %d mask %d\n", name, group, is_drill,
 	  is_mask);
@@ -844,9 +846,9 @@ static void
 ps_fill_circle (hidGC gc, int cx, int cy, int radius)
 {
   use_gc (gc);
-  if (!gc->erase || is_drill || drillcopper)
+  if (!gc->erase || !is_copper || drillcopper)
     {
-      if (gc->erase && !is_drill && drill_helper
+      if (gc->erase && is_copper && drill_helper
 	  && radius >= 2 * MIN_PINORVIAHOLE)
 	radius = 2 * MIN_PINORVIAHOLE;
       fprintf (f, "%d %d %d c\n", cx, cy, radius + (gc->erase ? -1 : 1) * bloat);
