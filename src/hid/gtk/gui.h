@@ -382,9 +382,8 @@ char * ghid_fileselect (const char *, const char *, char *, char *, const char *
 
 
 /* gui-dialog-print.c */
-void ghid_dialog_print (HID * printer);
 void ghid_dialog_export (void);
-
+void ghid_dialog_print (HID *);
 
 int ghid_attribute_dialog (HID_Attribute *, int, HID_Attr_Val *, const char *, const char *);
 
