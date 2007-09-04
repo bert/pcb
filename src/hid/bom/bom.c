@@ -574,6 +574,7 @@ HID bom_hid = {
   0,				/* bom_confirm_dialog */
   0,				/* bom_report_dialog */
   0,				/* bom_prompt_for */
+  0,				/* bom_fileselect */
   0,				/* bom_attribute_dialog */
   0,				/* bom_show_item */
   0,				/* bom_beep */

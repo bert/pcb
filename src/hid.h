@@ -433,13 +433,56 @@ typedef enum
        value.  "msg" is like "Enter value:".  */
     char *(*prompt_for) (char *msg, char *default_string);
 
+    /* Prompts the user for a filename or directory name.  For GUI
+       HID's this would mean a file select dialog box.  The 'flags'
+       argument is the bitwise OR of the following values.  */
+#define HID_FILESELECT_READ  0x01
+    
+    /* The function calling hid->fileselect will deal with the case
+       where the selected file already exists.  If not given, then the
+       gui will prompt with an "overwrite?" prompt.  Only used when
+       writing.
+    */
+#define HID_FILESELECT_MAY_NOT_EXIST 0x02
+
+    /* The call is supposed to return a file template (for gerber
+       output for example) instead of an actual file.  Only used when
+       writing.
+    */
+#define HID_FILESELECT_IS_TEMPLATE 0x04
+
+    /* title may be used as a dialog box title.  Ignored if NULL.
+     *
+     * descr is a longer help string.  Ignored if NULL.
+     *
+     * default_file is the default file name.  Ignored if NULL.
+     *
+     * default_ext is the default file extension, like ".pdf".
+     * Ignored if NULL.
+     *
+     * history_tag may be used by the GUI to keep track of file
+     * history.  Examples would be "board", "vendor", "renumber",
+     * etc.  If NULL, no specific history is kept.
+     *
+     * flags are the bitwise or of the HID_FILESELECT defines above
+     */
+    
+    char *(*fileselect) (const char *title, const char *descr,
+			 char *default_file, char *default_ext,
+			 const char *history_tag, int flags);
+
     /* A generic dialog to ask for a set of attributes.  If n_attrs is
        zero, attrs(.name) must be NULL terminated.  Returns non-zero if
        an error occurred (usually, this means the user cancelled the
-       dialog or something). title is the title of the dialog box */
+       dialog or something). title is the title of the dialog box 
+       descr (if not NULL) can be a longer description of what the
+       attributes are used for.  The HID may choose to ignore it or it
+       may use it for a tooltip or text in a dialog box, or a help
+       string. 
+    */
     int (*attribute_dialog) (HID_Attribute * attrs,
 			     int n_attrs, HID_Attr_Val * results,
-			     const char * title);
+			     const char * title, const char * descr);
 
     /* This causes a second window to display, which only shows the
        selected item. The expose callback is called twice; once to size

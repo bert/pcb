@@ -47,7 +47,7 @@ MainMenu =
    {"Load element data to paste-buffer" PasteBuffer(Clear) Load(ElementTobuffer)}
    {"Load layout data to paste-buffer" PasteBuffer(Clear) Load(LayoutTobuffer)}
    {"Load netlist file" Load(Netlist)}
-   {"Load vendor resource file" LoadVendor()}
+   {"Load vendor resource file" LoadVendorFrom()}
    -
    {"Save connection data of"
      {" a single element" GetXY(press a button at the element location) Save(ElementConnections)}

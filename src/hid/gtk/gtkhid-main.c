@@ -1321,6 +1321,20 @@ ghid_prompt_for (char *msg, char *default_string)
   return rv;
 }
 
+/* FIXME -- implement a proper file select dialog */
+#ifdef FIXME
+char *
+ghid_fileselect (const char *title, const char *descr,
+		 char *default_file, char *default_ext,
+		 const char *history_tag, int flags)
+{
+  char *rv;
+
+  rv = ghid_dialog_input (title, default_file);
+  return rv;
+}
+#endif
+
 void
 ghid_show_item (void *item)
 {
@@ -1393,6 +1407,7 @@ HID ghid_hid = {
   ghid_confirm_dialog,
   ghid_report_dialog,
   ghid_prompt_for,
+  ghid_fileselect,
   ghid_attribute_dialog,
   ghid_show_item,
   ghid_beep,
@@ -1635,32 +1650,6 @@ Load (int argc, char **argv, int x, int y)
   return 0;
 }
 
-/* ---------------------------------------------------------------------- */
-
-static int
-LoadVendor (int argc, char **argv, int x, int y)
-{
-  char *name;
-  static gchar *current_vendor_dir = NULL;
-
-  if (argc > 0)
-    return hid_actionv ("LoadVendorFrom", argc, argv);
-
-  name = ghid_dialog_file_select_open (_("Load vendor file"),
-				       &current_vendor_dir,
-				       Settings.FilePath);
-
-  if (name)
-    {
-      if (Settings.verbose)
-      	fprintf (stderr, "%s:  Calling LoadVendorFrom(%s)\n", __FUNCTION__,
-	       	name);
-      hid_actionl ("LoadVendorFrom", name, NULL);
-      g_free (name);
-    }
-
-  return 0;
-}
 
 /* ---------------------------------------------------------------------- */
 static const char save_syntax[] =
@@ -1941,7 +1930,8 @@ PrintCalibrate (int argc, char **argv, int x, int y)
 
   if (gui->attribute_dialog (printer_calibrate_attrs, 3,
 			     printer_calibrate_values,
-			     "Printer Calibration Values"))
+			     "Printer Calibration Values",
+			     "Enter calibration values for your printer"))
     return 1;
   printer->calibrate (printer_calibrate_values[1].real_value,
 		      printer_calibrate_values[2].real_value);
@@ -2389,7 +2379,6 @@ HID_Action ghid_main_action_list[] = {
   {"LayerGroupsChanged", 0, LayerGroupsChanged},
   {"LibraryChanged", 0, LibraryChanged},
   {"Load", 0, Load},
-  {"LoadVendor", 0, LoadVendor},
   {"PCBChanged", 0, PCBChanged},
   {"PointCursor", 0, PointCursor},
   {"Popup", 0, Popup, popup_help, popup_syntax},

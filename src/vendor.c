@@ -4,7 +4,7 @@
  *                            COPYRIGHT
  *
  *  PCB, interactive printed circuit board design
- *  Copyright (C) 2004 Dan McMahill
+ *  Copyright (C) 2004, 2007 Dan McMahill
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -270,6 +270,7 @@ ActionLoadVendorFrom (int argc, char **argv, int x, int y)
 {
   int i;
   char *fname = NULL, *name = NULL;
+  static char *default_file = NULL;
   char *sval;
   Resource *res, *drcres, *drlres;
   int type;
@@ -280,9 +281,24 @@ ActionLoadVendorFrom (int argc, char **argv, int x, int y)
 
   if (!fname || !*fname)
     {
-      fname = gui->prompt_for (_("Enter vendor resource file name:"), "");
+      fname = gui->fileselect (_("Load Vendor Resource File..."),
+			       _("Picks a vendor resource file to load.\n"
+				 "This file can contain drc settings for a\n"
+				 "particular vendor as well as a list of\n"
+				 "predefined drills which are allowed."),
+			       default_file, ".res", "vendor",
+			       HID_FILESELECT_READ);
       if (fname == NULL)
 	AFAIL (load_vendor);
+
+      if (default_file != NULL)
+	{
+	  free (default_file);
+	  default_file = NULL;
+	}
+
+      if (fname && *fname)
+	default_file = strdup (fname);
     }
 
   /* Unload any vendor table we may have had */

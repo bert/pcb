@@ -1086,6 +1086,7 @@ HID             nelma_hid = {
 	0 /* nelma_confirm_dialog */ ,
 	0 /* nelma_report_dialog */ ,
 	0 /* nelma_prompt_for */ ,
+	0 /* nelma_fileselect */ ,
 	0 /* nelma_attribute_dialog */ ,
 	0 /* nelma_show_item */ ,
 	0 /* nelma_beep */ ,

@@ -523,6 +523,17 @@ lesstif_report_dialog (char *title, char *msg)
 }
 
 /* ------------------------------------------------------------ */
+/* FIXME -- make this a proper file select dialog box */
+char *
+lesstif_fileselect (const char *title, const char *descr,
+		    char *default_file, char *default_ext,
+		    const char *history_tag, int flags)
+{
+
+  return lesstif_prompt_for (title, default_file);
+}
+
+/* ------------------------------------------------------------ */
 
 static Widget prompt_dialog = 0;
 static Widget prompt_label, prompt_text;
@@ -627,7 +638,7 @@ create_form_ok_dialog (char *name, int ok)
 int
 lesstif_attribute_dialog (HID_Attribute * attrs,
 			  int n_attrs, HID_Attr_Val * results,
-			  const char * title)
+			  const char * title, const char * descr)
 {
   Widget dialog, topform, lform, form;
   Widget *wl;
@@ -949,7 +960,7 @@ Print (int argc, char **argv, int x, int y)
     }
   opts = printer->get_export_options (&n);
   vals = (HID_Attr_Val *) calloc (n, sizeof (HID_Attr_Val));
-  if (lesstif_attribute_dialog (opts, n, vals, "Print"))
+  if (lesstif_attribute_dialog (opts, n, vals, "Print", ""))
     {
       free (vals);
       return 1;
@@ -990,7 +1001,7 @@ PrintCalibrate (int argc, char **argv, int x, int y)
   printer->calibrate (0.0, 0.0);
   if (gui->attribute_dialog (printer_calibrate_attrs, 3,
 			     printer_calibrate_values,
-			     "Printer Calibration Values"))
+			     "Printer Calibration Values", "Enter calibration values for your printer"))
     return 1;
   printer->calibrate (printer_calibrate_values[1].real_value,
 		      printer_calibrate_values[2].real_value);
@@ -1067,7 +1078,7 @@ Export (int argc, char **argv, int x, int y)
 
   opts = printer->get_export_options (&n);
   vals = (HID_Attr_Val *) calloc (n, sizeof (HID_Attr_Val));
-  if (lesstif_attribute_dialog (opts, n, vals, "Export"))
+  if (lesstif_attribute_dialog (opts, n, vals, "Export", NULL))
     {
       free (vals);
       return 1;

@@ -313,7 +313,8 @@ ghid_dialog_print (HID * printer)
 int
 ghid_attribute_dialog (HID_Attribute * attrs,
 		       int n_attrs, HID_Attr_Val * results,
-		       const char * title)
+		       const char * title,
+		       const char * descr)
 {
   GtkWidget *dialog, *main_vbox, *vbox, *vbox1, *hbox, *entry;
   GtkWidget *combo;
@@ -337,9 +338,7 @@ ghid_attribute_dialog (HID_Attribute * attrs,
   gtk_container_set_border_width (GTK_CONTAINER (main_vbox), 6);
   gtk_container_add (GTK_CONTAINER (GTK_DIALOG (dialog)->vbox), main_vbox);
 
-
-  /* Here it would be nice to get a description in */
-  vbox = ghid_category_vbox (main_vbox, "",
+  vbox = ghid_category_vbox (main_vbox, descr != NULL ? descr : "",
 			     4, 2, TRUE, TRUE);
 
   /* 

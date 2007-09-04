@@ -934,6 +934,7 @@ HID png_hid = {
   0 /* png_confirm_dialog */ ,
   0 /* png_report_dialog */ ,
   0 /* png_prompt_for */ ,
+  0 /* png_fileselect */ ,
   0 /* png_attribute_dialog */ ,
   0 /* png_show_item */ ,
   0 /* png_beep */ ,

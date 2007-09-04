@@ -1075,6 +1075,7 @@ static HID gerber_hid = {
   0 /* gerber_confirm_dialog */ ,
   0 /* gerber_report_dialog */ ,
   0 /* gerber_prompt_for */ ,
+  0 /* gerber_fileselect */ ,
   0 /* gerber_attribute_dialog */ ,
   0 /* gerber_show_item */ ,
   0				/* gerber_beep */

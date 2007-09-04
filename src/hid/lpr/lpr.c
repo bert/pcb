@@ -152,6 +152,7 @@ HID lpr_hid = {
   0 /* lpr_confirm_dialog */ ,
   0 /* lpr_report_dialog */ ,
   0 /* lpr_prompt_for */ ,
+  0 /* lpr_fileselect */ ,
   0 /* lpr_attribute_dialog */ ,
   0 /* lpr_show_item */ ,
   0 /* lpr_beep */ ,

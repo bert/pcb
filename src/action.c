@@ -50,6 +50,7 @@
 #include "error.h"
 #include "file.h"
 #include "find.h"
+#include "hid.h"
 #include "insert.h"
 #include "line.h"
 #include "mymem.h"
@@ -3107,6 +3108,7 @@ ActionRenumber (int argc, char **argv, int x, int y)
   char *tmps;
   char *name;
   FILE *out;
+  static char * default_file = NULL;
   size_t cnt_list_sz = 100;
   struct _cnt_list
   {
@@ -3116,23 +3118,58 @@ ActionRenumber (int argc, char **argv, int x, int y)
   char **was, **is, *pin;
   unsigned int c_cnt = 0;
   int unique, ok;
+  int free_name = 0;
 
   if (argc < 1)
-    name = gui->prompt_for ("Renumber annotation file:", 0);
+    {
+      /*
+       * We deal with the case where name already exists in this
+       * function so the GUI doesn't need to deal with it 
+       */
+      name = gui->fileselect (_("Save Renumber Annotation File As ..."),
+			      _("Choose a file to record the renumbering to.\n"
+				"This file may be used to back annotate the\n"
+				"change to the schematics.\n"),
+			      default_file, ".eco", "eco",
+			      0);
+
+      free_name = 1;
+    }
   else
     name = argv[0];
+
+  if (default_file)
+    {
+      free (default_file);
+      default_file = NULL;
+    }
+
+  if (name && *name)
+    {
+      default_file = strdup (name);
+    }
 
   if ((out = fopen (name, "r")))
     {
       fclose (out);
       if (!gui->confirm_dialog (_("File exists!  Ok to overwrite?"), 0))
-	return 0;
+	{
+	  if (free_name && name)
+	    free (name);
+	  return 0;
+	}
     }
+
   if ((out = fopen (name, "w")) == NULL)
     {
       Message ("Could not open %s\n", name);
+      if (free_name && name)
+	free (name);
       return 1;
     }
+  
+  if (free_name && name)
+    free (name);
 
   fprintf (out, "*COMMENT* PCB Annotation File\n");
   fprintf (out, "*FILEVERSION* 20061031\n");
@@ -5699,6 +5736,8 @@ ActionPasteBuffer (int argc, char **argv, int x, int y)
   char *function = argc ? argv[0] : "";
   char *sbufnum = argc > 1 ? argv[1] : "";
   char *name;
+  static char *default_file = NULL;
+  int free_name = 0;
 
   HideCrosshair (True);
   if (function)
@@ -5744,8 +5783,27 @@ ActionPasteBuffer (int argc, char **argv, int x, int y)
 	      Message (_("Buffer has no elements!\n"));
 	      break;
 	    }
+	  free_name = 0;
 	  if (argc <= 1)
-	    name = gui->prompt_for ("Save as:", 0);
+	    {
+	      name = gui->fileselect (_("Save Paste Buffer As ..."),
+				      _("Choose a file to save the contents of the\n"
+					"paste buffer to.\n"),
+				      default_file, ".fp", "footprint",
+				      0);
+
+	      if (default_file)
+		{
+		  free (default_file);
+		  default_file = NULL;
+		}
+	      if ( name && *name)
+		{
+		  default_file = strdup (name);
+		}
+	      free_name = 1;
+	    }
+	      
 	  else
 	    name = argv[1];
 
@@ -5761,6 +5819,9 @@ ActionPasteBuffer (int argc, char **argv, int x, int y)
 	      }
 	    else
 	      SaveBufferElements (name);
+
+	    if (free_name && name)
+	      free (name);
 	  }
 	  break;
 

@@ -256,12 +256,32 @@ CheckAndOpenFile (char *Filename, Boolean Confirm, Boolean AllButton,
 FILE *
 OpenConnectionDataFile (void)
 {
-  char *filename;
+  char *fname;
+  FILE *fp;
+  static char * default_file = NULL;
   Boolean result;		/* not used */
 
-  filename = gui->prompt_for (_("Enter filename for connection data"), "");
-  /* XXX Memory leak */
-  return (CheckAndOpenFile (filename, True, False, &result, NULL));
+  /* CheckAndOpenFile deals with the case where fname already exists */
+  fname = gui->fileselect (_("Save Connection Data As ..."),
+			   _("Choose a file to save all connection data to."),
+			   default_file, ".net", "connection_data",
+			   0);
+  if (fname == NULL)
+    return NULL;
+
+  if (default_file != NULL)
+    {
+      free (default_file);
+      default_file = NULL;
+    }
+
+  if (fname && *fname)
+    default_file = strdup (fname);
+
+  fp = CheckAndOpenFile (fname, True, False, &result, NULL);
+  free (fname);
+
+  return fp;
 }
 
 /* ---------------------------------------------------------------------------

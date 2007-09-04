@@ -287,10 +287,28 @@ nogui_prompt_for (char *msg, char *default_string)
   return buf;
 }
 
+/* FIXME - this could use some enhancement to actually use the other
+   args */
+static char *
+nogui_fileselect (const char *title, const char *descr,
+		  char *default_file, char *default_ext,
+		  const char *history_tag, int flags)
+{
+  static char buf[1024];
+  if (default_file)
+    printf ("%s [%s] : ", title, default_file);
+  else
+    printf ("%s : ", title);
+  fgets (buf, 1024, stdin);
+  if (buf[0] == 0 && default_file)
+    strcpy (buf, default_file);
+  return buf;
+}
+
 static int
 nogui_attribute_dialog (HID_Attribute * attrs,
 			int n_attrs, HID_Attr_Val * results,
-			const char * title)
+			const char * title, const char * descr)
 {
   CRASH;
 }
@@ -357,6 +375,7 @@ HID hid_nogui = {
   nogui_confirm_dialog,
   nogui_report_dialog,
   nogui_prompt_for,
+  nogui_fileselect,
   nogui_attribute_dialog,
   nogui_show_item,
   nogui_beep,
@@ -405,6 +424,7 @@ apply_default_hid (HID * d, HID * s)
   AD (confirm_dialog);
   AD (report_dialog);
   AD (prompt_for);
+  AD (fileselect);
   AD (attribute_dialog);
   AD (show_item);
   AD (beep);
