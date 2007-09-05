@@ -10,6 +10,7 @@ SUBDIRS=\
 	crystal \
 	electro-optics \
 	headers \
+	keystone \
 	msp430 \
 	not_vetted_ingo \
 	sockets \
