@@ -60,6 +60,7 @@ define(`PKG_DIL',
 	define(`MAXY', `eval(`$4' / 2 * PINSPACE)')
 	define(`MAXX', `eval(`$5' + 100)')
 	define(`CENTERX', `eval(MAXX / 2)')
+	define(`MARKY', `eval(PINSPACE / 2)')
 Element(0x00 "$1" "`$2'" "$3" eval(CENTERX + 20) 100 3 100 0x00)
 (
 	forloop(`i', 1, eval($4 / 2),
@@ -76,7 +77,7 @@ Element(0x00 "$1" "`$2'" "$3" eval(CENTERX + 20) 100 3 100 0x00)
 	ElementLine(0 0 eval(CENTERX - 50) 0 10)
 	ElementLine(eval(CENTERX + 50) 0 MAXX 0 10)
 	ElementArc(CENTERX 0 50 50 0 180 10)
-	Mark(50 50)
+	Mark(50 MARKY)
 )')
 define(`PKG_J',  `PKG_DIL(`$1', `$2', `$3', `$4', `$5', 100, 60, 28)')
 define(`PKG_JD', `PKG_DIL(`$1', `$2', `$3', `$4', `$5', 100, 60, 28)')
