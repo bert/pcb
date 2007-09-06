@@ -699,6 +699,7 @@ if test -d $srcdir/newlib; then
    AC_CONFIG_FILES(newlib/crystal/Makefile)
    AC_CONFIG_FILES(newlib/electro-optics/Makefile)
    AC_CONFIG_FILES(newlib/headers/Makefile)
+   AC_CONFIG_FILES(newlib/keystone/Makefile)
    AC_CONFIG_FILES(newlib/msp430/Makefile)
    AC_CONFIG_FILES(newlib/not_vetted_ingo/Makefile)
    AC_CONFIG_FILES(newlib/sockets/Makefile)

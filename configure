@@ -11449,6 +11449,8 @@ if test -d $srcdir/newlib; then
 
              ac_config_files="$ac_config_files newlib/headers/Makefile"
 
+             ac_config_files="$ac_config_files newlib/keystone/Makefile"
+
              ac_config_files="$ac_config_files newlib/msp430/Makefile"
 
              ac_config_files="$ac_config_files newlib/not_vetted_ingo/Makefile"
@@ -12127,6 +12129,7 @@ do
   "newlib/crystal/Makefile" ) CONFIG_FILES="$CONFIG_FILES newlib/crystal/Makefile" ;;
   "newlib/electro-optics/Makefile" ) CONFIG_FILES="$CONFIG_FILES newlib/electro-optics/Makefile" ;;
   "newlib/headers/Makefile" ) CONFIG_FILES="$CONFIG_FILES newlib/headers/Makefile" ;;
+  "newlib/keystone/Makefile" ) CONFIG_FILES="$CONFIG_FILES newlib/keystone/Makefile" ;;
   "newlib/msp430/Makefile" ) CONFIG_FILES="$CONFIG_FILES newlib/msp430/Makefile" ;;
   "newlib/not_vetted_ingo/Makefile" ) CONFIG_FILES="$CONFIG_FILES newlib/not_vetted_ingo/Makefile" ;;
   "newlib/sockets/Makefile" ) CONFIG_FILES="$CONFIG_FILES newlib/sockets/Makefile" ;;
