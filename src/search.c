@@ -614,8 +614,8 @@ element_callback (const BoxType * box, void *cl)
 	{
 	  i->area = newarea;
 	  *i->ptr1 = *i->ptr2 = *i->ptr3 = element;
+	  return 1;
 	}
-      return 1;
     }
   return 0;
 }
