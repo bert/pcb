@@ -586,7 +586,8 @@ MoveLineToLayer (LayerTypePtr Layer, LineTypePtr Line)
     EraseLine (Line);
   RestoreToPolygon (PCB->Data, LINE_TYPE, Layer, Line);
   new = MoveLineToLayerLowLevel (Layer, Line, Dest);
-  ClearFromPolygon (PCB->Data, LINE_TYPE, Dest, Line);
+  Line = NULL;
+  ClearFromPolygon (PCB->Data, LINE_TYPE, Dest, new);
   if (Dest->On)
     DrawLine (Dest, new, 0);
   Draw ();
