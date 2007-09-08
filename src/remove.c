@@ -367,7 +367,7 @@ remove_point (const BoxType * b, void *cl)
 }
 
 /* ---------------------------------------------------------------------------
- * removes a line point 
+ * removes a line point, or a line if the selected point is the end
  */
 static void *
 RemoveLinePoint (LayerTypePtr Layer, LineTypePtr Line, PointTypePtr Point)
@@ -385,7 +385,7 @@ RemoveLinePoint (LayerTypePtr Layer, LineTypePtr Line, PointTypePtr Point)
     {
       r_search (Layer->line_tree, (const BoxType *) Point, NULL, remove_point,
                 &info);
-      return NULL;
+      return RemoveLine(Layer, Line);
     }
   MoveObject (LINEPOINT_TYPE, Layer, info.line, info.point,
               other.X - Point->X, other.Y - Point->Y);
