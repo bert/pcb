@@ -419,25 +419,18 @@ MoveElementToBuffer (ElementTypePtr Element)
     r_substitute (Source->name_tree[i],
 		  (BoxType *) & Source->Element[Source->ElementN].Name[i],
 		  (BoxType *) & Element->Name[i]);
-
-  PIN_LOOP (Element);
-  {
-    pin->Element = Element;
-    ClearFromPolygon (Dest, PIN_TYPE, Element, pin);
-  }
-  END_LOOP;
-  PAD_LOOP (Element);
-  {
-    pad->Element = Element;
-    ClearFromPolygon (Dest, PAD_TYPE, Element, pad);
-  }
-  END_LOOP;
-  ELEMENTTEXT_LOOP (Element);
-  {
-    text->Element = Element;
-  }
-  END_LOOP;
   memset (&Source->Element[Source->ElementN], 0, sizeof (ElementType));
+
+  PIN_LOOP (element);
+  {
+    ClearFromPolygon (Dest, PIN_TYPE, element, pin);
+  }
+  END_LOOP;
+  PAD_LOOP (element);
+  {
+    ClearFromPolygon (Dest, PAD_TYPE, element, pad);
+  }
+  END_LOOP;
   return (element);
 }
 
