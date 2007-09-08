@@ -3596,6 +3596,8 @@ ActionAddRats (int argc, char **argv, int x, int y)
 
   if (function)
     {
+      if (Settings.RatWarn)
+	ClearWarnings ();
       HideCrosshair (True);
       switch (GetFunctionID (function))
 	{
@@ -3712,6 +3714,8 @@ ActionDeleteRats (int argc, char **argv, int x, int y)
   char *function = ARG (0);
   if (function)
     {
+      if (Settings.RatWarn)
+	ClearWarnings ();
       HideCrosshair (True);
       switch (GetFunctionID (function))
 	{
