@@ -1060,6 +1060,10 @@ SearchObjectByLocation (int Type,
     {
       Type &= (ELEMENTNAME_TYPE | TEXT_TYPE);
     }
+  if (TEST_FLAG (THINDRAWFLAG, PCB) || TEST_FLAG (THINDRAWPOLYFLAG, PCB))
+    {
+      Type &= ~POLYGON_TYPE;
+    }
 
   if (Type & RATLINE_TYPE && PCB->RatOn &&
       SearchRatLineByLocation (locked,
