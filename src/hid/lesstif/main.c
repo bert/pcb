@@ -3342,6 +3342,7 @@ lesstif_set_crosshair (int x, int y, int action)
 	view_left_x = x - pos_x * view_zoom;
       if (flip_y)
 	view_top_y = y - (view_height-pos_y) * view_zoom;
+      else
 	view_top_y = y - pos_y * view_zoom;
       lesstif_pan_fixup();
       action = HID_SC_WARP_POINTER;
