@@ -824,7 +824,7 @@ user's view of the board.  Thus, a positive @var{DeltaUp} may move the
 cursor towards the board origin if the board is inverted.
 
 Type is one of @samp{Pan} or @samp{Warp}.  @samp{Pan} causes the
-viewport to move such that the crosshair is under the mouse curos.
+viewport to move such that the crosshair is under the mouse cursor.
 @samp{Warp} causes the mouse cursor to move to be above the crosshair.
 
 @var{Units} can be one of the following:
