@@ -1,4 +1,36 @@
 ========================================================================
+Release Notes for PCB snapshot 20070912
+========================================================================
+This release represents nearly 200 commits and as such this summary 
+clearly is not complete.  See the ChangeLog file for the complete list
+of changes.
+
+- Many many bug fixes.  Too many to list.
+- Added keystone, C&K, Nichicon, and Optek footprint libraries
+- Add attribute editor to the GTK HID
+- Add a fileselect() function to the HID spec
+- Fix ps output with drill helper on
+- Add a visual indicater when elements are locked
+- Corrections to the manual
+- BOM can export in mm as well as mil 
+- Fix a ps output bug with arcs
+- Fix some memory leaks found with Coverity
+- Added autoconf test for buggy versions of m4
+- Fixed some footprint drill sizes
+- Add user customizable menus for the gtk HID.  The gtk HID now is capable
+  of reading the same format menu resource files as the lesstif HID.
+  This represents significant rework of the menu code and menu callback code.
+- Added Center() action
+- Store the file format in the .pcb file.  This will let pcb know when
+  presented with a file which is too new.  The code for checking the format
+  was present in the prior snapshot.
+- Fix DRC checking of square pads to square pads
+- Added window panning/cursor warping
+- Add the ability to directly load a footprint from a file as if it were
+  a complete layout.
+- Add a Popup() action
+
+========================================================================
 Release Notes for PCB snapshot 20070208
 ========================================================================
 - Add polygon clipping code.  This is a big change to how polygons are handled.  
