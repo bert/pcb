@@ -1,3 +1,1201 @@
+2007-09-12 19:06  danmc
+
+	* README.snapshots: set date for 20070912
+
+2007-09-12 19:05  danmc
+
+	* Makefile.in, aclocal.m4, configure, README_FILES/Makefile.in,
+	  doc/Makefile.in, doc/actions.texi, doc/pcbfile.texi,
+	  doc/version.texi, example/Makefile.in,
+	  example/libraries/Makefile.in, lib/Makefile.in,
+	  newlib/Makefile.in, newlib/2_pin_thru-hole_packages/Makefile.in,
+	  newlib/analog-devices/Makefile.in, newlib/burr-brown/Makefile.in,
+	  newlib/connectors/Makefile.in, newlib/crystal/Makefile.in,
+	  newlib/electro-optics/Makefile.in, newlib/headers/Makefile.in,
+	  newlib/keystone/Makefile.in, newlib/msp430/Makefile.in,
+	  newlib/not_vetted_ingo/Makefile.in, newlib/sockets/Makefile.in,
+	  newlib/tests/Makefile.in, src/Makefile.in, src/icons/Makefile.in,
+	  tools/Makefile.in, tutorial/Makefile.in, win32/Makefile.in: regen
+
+2007-09-12 17:53  danmc
+
+	* src/hid/gtk/gtkhid-main.c: fill in the missing code to get the
+	  gtk HID set_crosshair() function working as well as the Cursor()
+	  action
+
+2007-09-12 17:53  danmc
+
+	* src/hid/lesstif/main.c: fix a typo in a help string
+
+2007-09-12 17:53  danmc
+
+	* src/hid/gtk/gui-output-events.c: remove unused variable
+
+2007-09-11 12:54  djdelorie
+
+	* src/hid/lesstif/main.c: Add missing else.
+
+2007-09-08 19:34  bjj
+
+	* src/buffer.c: Fix bugs with undoing "group" moves of objects over
+	  a polygon.  The group code uses the buffer code (sort of an
+	  automatic cut/paste) so it applies to inserting elements and
+	  using the buffers as well.
+
+2007-09-08 19:28  bjj
+
+	* src/action.c: Fix [ 1751568 ] shorted nets stay orange after
+	  fixing and re-opt netlist
+
+2007-09-08 19:25  bjj
+
+	* src/rotate.c: Fix [ 1751574 ] undoing rotation that put an elt
+	  inside a poly didn't fix plow Properly restores/clears rubber
+	  band lines during rotate and undo.  Still shockingly slow if you
+	  try this on an even moderately full board!
+
+2007-09-08 19:09  bjj
+
+	* src/: find.c, rtree.h: Search for rat-end connections using 3x3
+	  "fat" ends to avoid having rat-to-polygon-corner connections
+	  missed.
+
+2007-09-08 18:54  bjj
+
+	* src/select.c: Fix [ 1751566 ] When 'far side' hidden, hidden
+	  elements don't deselect Change the SelectBlock to ignore
+	  visibility for deselect while looping over all elements.  The
+	  diffs are large because the original code used VISIBLE_*_LOOP so
+	  all of the looping was replaced.
+
+2007-09-08 18:48  bjj
+
+	* src/search.c: Apply [ 1751580 ] polys should not be
+	  selectable/considered when thin-drawn
+
+2007-09-08 18:38  bjj
+
+	* src/search.c: Fix the crash from [ 1724453 ] PCB Crashes with bad
+	  footprint (in its library) Does not fix whatever bug in the input
+	  allowed a bogus element in (see bug for description of the
+	  problem with the element and the source of the bad element).
+
+2007-09-08 18:31  bjj
+
+	* src/remove.c: Fix bugs 1751572 and 1743534 by allowing a remove
+	  on an endpoint to delete the segment if it's not just deleting a
+	  kink from a longer line.
+
+2007-09-08 18:27  bjj
+
+	* src/move.c: Fix [ 1751578 ] 'move to current layer' doesn't
+	  re-plow polygon correctly by clearing the NEW line pointer
+	  instead of the old (destroyed) one.
+
+2007-09-06 19:35  danmc
+
+	* lib/dil.inc: Patch [ 1784693 ] Fix Mark position for SDIP
+	  packages
+
+2007-09-06 18:44  danmc
+
+	* configure, configure.ac: Add newlib/keystone/Makefile.  Forgot to
+	  check this in earlier.
+
+2007-09-05 06:40  danmc
+
+	* newlib/: Makefile.am, Makefile.in, keystone/KEYSTONE_1062.fp,
+	  keystone/Makefile.am, keystone/Makefile.in: add Keystone SMT
+	  battery holder for CR2032 coin cells.
+
+2007-09-05 06:39  danmc
+
+	* lib/: Makefile.am, Makefile.in, candk.inc, common.m4,
+	  nichicon.inc, optek.inc: Add C&K ES series switches, Optek white
+	  LED, and Nichicon WT series of SMT electrolytics.
+
+2007-09-03 20:40  danmc
+
+	* src/hid/gtk/: gui-dialog-print.c, gui.h: gut ghid_print_dialog()
+	  and use the attribute editor to do all of the dialog box work.
+	  Removes a bunch of duplicated code.
+
+2007-09-03 20:08  danmc
+
+	* src/: action.c, file.c, gpcb-menu.res, hid.h, vendor.c,
+	  hid/batch/batch.c, hid/bom/bom.c, hid/common/hidnogui.c,
+	  hid/gerber/gerber.c, hid/gtk/gtkhid-main.c,
+	  hid/gtk/gui-dialog-print.c, hid/gtk/gui-dialog.c, hid/gtk/gui.h,
+	  hid/lesstif/dialogs.c, hid/lesstif/lesstif.h, hid/lesstif/main.c,
+	  hid/lpr/lpr.c, hid/nelma/nelma.c, hid/png/png.c, hid/ps/ps.c:
+	  Add a ->fileselect() function to the HID interface.  Now actions
+	  can use gui->fileselect() instead of gui->prompt_for() when they
+	  are specifically looking for a file.	Currently the gtk HID
+	  implements this and the lesstif one has the old behaviour.
+
+	  While messing around with dialogs, add a "descr" argument to the
+	  attribute editor.  That can be used as a tooltip, help string, or
+	  ignored.
+
+2007-08-26 07:14  petercjclifton
+
+	* src/hid/ps/ps.c: Fixed .ps output with "drill-copper" and
+	  "drill-helper" options.
+
+	  Holes in the soldermask (and other non-copper layers) are now
+	  drawn correctly when the "drill-copper" option is set to false.
+	  With the "drill-helper" option on, only holes on copper layers
+	  are affected.
+
+2007-08-21 23:23  danmc
+
+	* src/: hid.h, hid/batch/batch.c, hid/common/hidnogui.c,
+	  hid/gtk/gtkhid-main.c, hid/gtk/gui-dialog-print.c, hid/gtk/gui.h,
+	  hid/lesstif/dialogs.c, hid/lesstif/main.c, hid/ps/ps.c: add a
+	  title argument to the HID attribute_dialog function so the
+	  dialogs can have appropriate titles
+
+2007-08-21 22:43  danmc
+
+	* src/hid/gtk/: gtkhid-main.c, gui-dialog-print.c, gui.h: Implement
+	  the missing attribute editor dialog for the GTK HID and now that
+	  it is available, add the PrintCalibrate() action to match the
+	  lesstif one.
+
+2007-08-21 22:42  danmc
+
+	* src/hid/ps/ps.c: indent
+
+2007-08-19 14:25  danmc
+
+	* src/draw.c: when drawing the mark for an element also put an "L"
+	  on it if the element is locked.  Patch from Bert Timmerman
+
+2007-08-17 17:06  danmc
+
+	* doc/pcb.texi: clean up the regexp appendix a bit
+
+2007-08-17 08:26  danmc
+
+	* lib/qfn.inc: use a default pad clearance of 20 mils instead of
+	  zero.  Bug [ 1742394 ] Zero clearance QFN footprints.
+
+2007-08-16 23:51  danmc
+
+	* src/: gpcb-menu.res, hid/gtk/gui-top-window.c: Teach the GTK HID
+	  about active=<flag> in the menu resource file.  Now that this
+	  works, sync up the active=have_regex menus with the lesstif menu
+	  resource file.
+
+2007-08-06 00:31  djdelorie
+
+	* src/global.h: Give data->pcb a real type.
+
+2007-08-06 00:30  djdelorie
+
+	* src/buffer.c: Make sure loaded buffers have a proper pcb
+	  backpointer.
+
+2007-08-05 22:18  djdelorie
+
+	* src/draw.c: [ 1751567 ] with thin-draw-poly on, soldermask
+	  display is messed up
+
+2007-08-05 22:09  djdelorie
+
+	* src/select.c: Match whole names with regex's, when possible.
+	  [1741650]
+
+2007-08-05 21:45  djdelorie
+
+	* src/: flags.c, pcb-menu.res: Fix the have_regex flag in
+	  pcb-menu.res [1751564]
+
+2007-08-05 21:35  djdelorie
+
+	* src/hid/: common/actions.c, lesstif/menu.c: More empty :command
+	  checks [1751582]
+
+2007-08-05 20:37  djdelorie
+
+	* src/polygon.c: Ben: Avoid duplicate passes through pad
+	  clearances.
+
+2007-08-05 19:40  djdelorie
+
+	* src/: action.c, const.h, draw.c, flags.c, global.h,
+	  gpcb-menu.res, main.c, pcb-menu.res, polygon.c, strflags.c: patch
+	  1738364: flag for non-clipped polygons.
+
+2007-08-05 12:15  djdelorie
+
+	* src/hid/bom/bom.c: Adds an export in mm to the BOM export dialog
+	  [1742399]
+
+2007-08-04 22:36  djdelorie
+
+	* src/set.c: Don't limit keepaway size to minimum *line* size.
+
+2007-08-04 17:40  djdelorie
+
+	* src/hid/ps/ps.c: Apply bloat to drawn rectangles.
+
+2007-08-04 17:20  djdelorie
+
+	* src/draw.c: Tracker 1753084 - fixes 1751589, merged soldermask
+	  has larger than expected outline.
+
+2007-08-03 13:41  djdelorie
+
+	* src/hid/gtk/gui-top-window.c: More paranoid check for "gui is up"
+
+2007-08-02 15:28  djdelorie
+
+	* src/hid/gtk/gui-top-window.c: Don't allow LayersChanged if
+	  there's no GUI yet.
+
+2007-07-31 23:03  djdelorie
+
+	* src/hid/lesstif/main.c: Protect against empty :command string.
+
+2007-07-31 22:59  djdelorie
+
+	* src/strflags.c: Fixed a bug in flags_to_string where the LOCALREF
+	  pcb flag would be discarded.
+
+2007-07-31 22:54  djdelorie
+
+	* src/action.c: Fix references to RouteStyleChanged (should be
+	  RouteStylesChanged).	Call it when :RouteStyle is called.
+
+2007-07-31 22:52  djdelorie
+
+	* src/file.c: When a board is loaded, the first route style is
+	  automatically selected if the old style doesn't happen to match
+	  any styles.
+
+2007-07-31 22:49  djdelorie
+
+	* src/misc.c: Add missing variable.
+
+2007-07-31 22:45  djdelorie
+
+	* src/misc.c: When the layer stack is reset, bring the component
+	  layer to the front and make it active.
+
+2007-07-31 22:38  djdelorie
+
+	* src/hid/lesstif/main.c: When swapping board sides, swap top/bot
+	  layers even if both layers are visible.
+
+2007-07-31 22:16  djdelorie
+
+	* src/hid/lesstif/main.c: Swap the direction of scroll bars when
+	  the board is swapped.
+
+2007-07-31 22:11  djdelorie
+
+	* src/hid/: gerber/gerber.c, ps/eps.c, ps/ps.c: Gerber, PS, and EPS
+	  ignore the thindraw settings.  Fix bug in PS when first item on
+	  the board is an arc.	PS "drill helper" changed to a simple hole
+	  reduction so that copper extends to drilled hole even when hole
+	  is off-center.
+
+2007-07-31 21:29  djdelorie
+
+	* src/hid/lesstif/menu.c: Don't free home_pcbmenu until after it's
+	  used.
+
+2007-06-28 18:15  danmc
+
+	* src/hid/gtk/gui-config.c: Don't forget to fclose() the config
+	  file after we're done reading it.  CID 27, scan #1.
+
+2007-06-27 21:46  danmc
+
+	* src/hid/bom/bom.c: Fix a few memory leaks.  Coverity ID 22, 23,
+	  and 24, scan #1.
+
+2007-06-12 21:51  danmc
+
+	* src/hid/gtk/gtkhid-main.c: add missing save_syntax and save_help.
+	  Also allow Save(PasteBuffer) so we have more compatibility with
+	  the lesstif HID.  This also fixes the regression about saving
+	  buffer elements which appeared after the user menu branch was
+	  merged.
+
+2007-06-12 21:50  danmc
+
+	* src/hid/lesstif/dialogs.c: add Save(PasteBuffer) to save_syntax.
+
+2007-06-09 16:34  djdelorie
+
+	* src/: action.c, pcb-menu.res: Add Delete() action.  No arguments:
+	  delete selected ELSE object, but options for selected only,
+	  object only, selected rats, all rats.
+
+2007-05-29 07:18  petercjclifton
+
+	* src/draw.c: Revert patch to hide far-side (invisible) pads when
+	  near-side pins / pads are switched off. Old behaviour was
+	  intentional.
+
+2007-05-25 15:08  petercjclifton
+
+	* src/hid/ps/ps.c: Add option "drill-copper" to draw / not draw
+	  drill holes in the copper layers of the ps exporter. This is
+	  useful for plated through processes which require the etch mask
+	  to protect the vias / pins during etching.
+
+2007-05-25 14:12  petercjclifton
+
+	* src/draw.c: Change drawing code for square pads to use
+	  gui->fill_rect (...) as on Win32, the current method of drawing a
+	  zero length line doesn't work.
+
+2007-05-25 13:43  petercjclifton
+
+	* src/draw.c: Stop far side 'invisible' pads being drawn when pins
+	  / pads are switched off.
+
+2007-05-25 13:40  petercjclifton
+
+	* src/hid/gtk/gtkhid-main.c: Fix drawing of filled rectangles when
+	  the board is flipped.  Makes soldermask view	on the back of the
+	  board work.
+
+2007-05-24 18:06  danmc
+
+	* configure: regen
+
+2007-05-24 18:00  danmc
+
+	* configure.ac: check for buggy versions of m4 which seem to think
+	  eval(-2/2) should be 2147483647.  Noted by Peter Clifton.
+
+2007-05-22 21:21  danmc
+
+	* src/hid/gtk/gui-top-window.c: Avoid a stack corruption.  Noted by
+	  Peter Clifton.  Should probably replace all instances of sprintf
+	  in pcb with snprintf, but that will take some work.
+
+2007-05-17 00:39  danmc
+
+	* src/: main.c, hid/gtk/gui-top-window.c, hid/lesstif/menu.c: check
+	  for getenv() return codes everywhere and deal if getenv returns
+	  NULL.  Noted by Peter Clifton.
+
+2007-05-16 18:19  danmc
+
+	* src/file.c: if the popen fails for the ListLibraryContents.sh
+	  shell script, continue on with the newlib processing instead of
+	  failing.  This helps on systems where either the user has
+	  disabled m4 libraries or on systems like windows where the popen
+	  will not work.
+
+2007-05-03 23:16  danmc
+
+	* src/todo: remove a few fixed things
+
+2007-05-03 22:21  danmc
+
+	* lib/connector.inc: Increase the hole size on the DIN* connectors
+	  (are these named wrong btw?) from 28 mils to 40 mils.  This is
+	  more in line with what is recommended for Tyco *-1634689-* box
+	  headers in Tyco drawing 1634689.  Noted by Seb James.
+
+2007-05-01 23:17  danmc
+
+	* src/create.c: When refusing to create overlapping vias spit out a
+	  warning.  We should probably allow overlapping vias but turn it
+	  into a DRC violation.  But until then, at least give a warning
+	  instead of silently dropping them.  More details are in bug
+	  reports: [ 1687692 ] Large Pads (150 mils) silently dropped [
+	  1266154 ] lost vias
+
+2007-05-01 22:50  danmc
+
+	* src/: file.c, file.h, misc.c: avoid triggering an emergency save
+	  on normal exit.  Reported and patch provided in bug [ 1705607 ]
+	  Emergency save on normal exit.
+
+2007-05-01 17:53  danmc
+
+	* src/hid/gtk/gui-pinout-window.c: - make arcs show up in the
+	  pinout window - don't rotate the element in the pinout window.
+	  Rather display with	the same rotation as in the layout.
+	  Besides being more useful this   avoid a segfault in some cases.
+
+2007-05-01 17:52  danmc
+
+	* src/gpcb-menu.res: remove the menu mneumonics as some conflict
+	  with hotkeys
+
+2007-04-30 23:29  danmc
+
+	* src/: gpcb-menu.res, hid/gtk/gtkhid-main.c,
+	  hid/gtk/gui-output-events.c, hid/gtk/gui-top-window.c,
+	  hid/gtk/gui.h: Teach the GTK HID how to trap certain hotkeys
+	  which gtk usually captures for its own use.  This lets PCB use
+	  the arrow keys and the tab key again.  So restore the hotkey for
+	  flipping sides in the menu resource file.  Start on the Cursor()
+	  action which is needed for the arrow keys.  That part is not done
+	  yet.
+
+2007-04-28 10:32  haceaton
+
+	* src/polygon.c: Don't double the pad thickness when restoring to
+	  the polygon.	For speedup, just add back a simple rectangle since
+	  it only has 4 points. Should do that for lines too, but didn't.
+	  ----------------------------------------------------------------------
+
+2007-04-27 00:17  haceaton
+
+	* src/polygon.c: fix bloating of region to search for re-clearance
+	  after a portion of polyogn is restored.
+	  ----------------------------------------------------------------------
+
+2007-04-21 23:33  djdelorie
+
+	* src/hid/gerber/gerber.c: Draw non-circular arcs manually.
+
+2007-04-21 17:21  djdelorie
+
+	* src/: action.c, buffer.c, copy.c, create.c, create.h, parse_y.y:
+	  Preserve width *and* height when manipulating arcs.
+
+2007-04-21 16:41  djdelorie
+
+	* src/buffer.c: Add FreeRotatebuffer(Angle) (angle can be any
+	  angle)
+
+2007-04-21 15:00  djdelorie
+
+	* src/: crosshair.c, search.c: Allow for diagonal pads.
+
+2007-04-21 14:02  djdelorie
+
+	* src/hid/lesstif/dialogs.c: Use ".fp" when loading element data.
+
+2007-04-21 13:03  djdelorie
+
+	* src/: buffer.c, create.c: Permit the existence of diagonal pads.
+
+2007-04-21 13:00  djdelorie
+
+	* src/hid/gerber/gerber.c: Use polygons to draw square ended
+	  diagonal lines.
+
+2007-04-20 23:17  danmc
+
+	* src/autoplace.c: add a check to make sure malloc() succeeds.
+	  Noted in bug [ 1657886 ] Check return codes everywhere
+
+2007-04-20 22:43  danmc
+
+	* src/: gpcb-menu.res, pcb-menu.res: Change "Select all" to "Select
+	  all visible" to match up with what actually happens.	Reported in
+	  bug [ 1013719 ] Select all objects: misleading name?
+
+2007-04-20 18:39  danmc
+
+	* src/hid/: gtk/gui-output-events.c, gtk/gui-top-window.c,
+	  lesstif/main.c, ps/ps.c, ps/ps.h: fix a handful of compiler
+	  warnings
+
+2007-04-20 08:13  danmc
+
+	* doc/actions.texi: regen after usermenu merge
+
+2007-04-20 07:31  danmc
+
+	* README.cvs_branches, config.h.in, configure, configure.ac,
+	  src/Makefile.am, src/Makefile.in, src/action.c, src/action.h,
+	  src/autoroute.c, src/change.c, src/clip.c, src/clip.h,
+	  src/command.c, src/const.h, src/create.c, src/crosshair.c,
+	  src/data.c, src/data.h, src/djopt.c, src/draw.c, src/draw.h,
+	  src/file.c, src/file.h, src/find.c, src/flags.c, src/global.h,
+	  src/gpcb-menu.res, src/macro.h, src/main.c, src/misc.c,
+	  src/misc.h, src/move.c, src/parse_l.l, src/parse_y.y,
+	  src/pcbtest.sh.in, src/polygon.c, src/print.c, src/rats.c,
+	  src/remove.c, src/report.c, src/rotate.c, src/search.c,
+	  src/set.c, src/strflags.c, src/strflags.h, src/thermal.c,
+	  src/todo, src/undo.c, src/vendor.c, src/hid/batch/batch.c,
+	  src/hid/common/hidinit.c, src/hid/common/hidnogui.c,
+	  src/hid/gerber/gerber.c, src/hid/gtk/gtkhid-main.c,
+	  src/hid/gtk/gui-config.c, src/hid/gtk/gui-misc.c,
+	  src/hid/gtk/gui-output-events.c, src/hid/gtk/gui-pinout-window.c,
+	  src/hid/gtk/gui-top-window.c, src/hid/gtk/gui.h,
+	  src/hid/lesstif/dialogs.c, src/hid/lesstif/main.c,
+	  src/hid/lesstif/menu.c, src/hid/lesstif/netlist.c,
+	  src/hid/lpr/lpr.c, src/hid/nelma/nelma.c, src/hid/nelma/nelma.h,
+	  src/hid/png/png.c, src/hid/ps/eps.c, src/hid/ps/ps.c,
+	  win32/pcb.nsi.in: Merge the usermenu branch.	 This reworks how
+	  the menus and hotkeys are defined and handled for the gtk HID.
+	  In particular, instead of being hard coded, the menus are loaded
+	  from a menu resource file like in the lesstif gui.  All hotkeys
+	  are defined via the menu hotkeys and thus are visually presented
+	  in the menus.  The gtk HID looks for "gpcb-menu.res" instead of
+	  "pcb-menu.res" so that the menu organization may be different
+	  between the lesstif and gtk HID's.
+
+2007-04-20 06:50  danmc
+
+	* src/: action.c, change.c, misc.c, output.c, output.h, set.c,
+	  thermal.c, hid/gtk/gui-output-events.c,
+	  hid/gtk/gui-pinout-window.c, hid/gtk/gui-top-window.c: sync with
+	  trunk
+
+2007-04-19 22:20  danmc
+
+	* src/hid/gtk/: gtkhid-main.c, gui-output-events.c: clean up some
+	  comments and also some warning output
+
+2007-04-19 22:11  danmc
+
+	* src/: gpcb-menu.res, hid/gtk/gui-top-window.c: don't try to use
+	  hotkeys involving Tab.  That is reserved for gtk's accessibility
+	  features.  If the user puts one in the menu resource file, drop
+	  it and give a message about it and why.
+
+2007-04-19 18:29  danmc
+
+	* src/hid/gtk/: gtkhid-main.c, gui-output-events.c,
+	  gui-top-window.c, gui.h: fix several bugs (flipping, centering,
+	  no routestyles and layer group edit actions) found by Bernd
+	  Jendrissek
+
+2007-04-19 18:29  danmc
+
+	* src/gpcb-menu.res: remove a character (degree symbol) that the
+	  gtk menus do not like
+
+2007-04-19 00:50  danmc
+
+	* src/hid/gtk/gtkhid-main.c: fix botched commit
+
+2007-04-18 23:39  danmc
+
+	* src/hid/gtk/gtkhid-main.c: organize the actions in the list so
+	  they are easier to find
+
+2007-04-18 23:31  danmc
+
+	* src/hid/gtk/: gtkhid-main.c, gui-config.c, gui-top-window.c:
+	  remove a bunch of now unused code
+
+2007-04-18 23:07  danmc
+
+	* src/: action.c, change.c, misc.c, output.c, output.h, set.c,
+	  thermal.c, hid/gtk/gui-output-events.c,
+	  hid/gtk/gui-pinout-window.c, hid/gtk/gui-top-window.c: Remove
+	  references to the now unused output.h.  To help keep it that way,
+	  go ahead and remove the unused output.c and output.h files.
+
+2007-04-18 17:44  danmc
+
+	* src/todo: add a complaint about the Tab key
+
+2007-04-18 17:35  danmc
+
+	* config.h.in, configure, configure.ac: when using gtk which is
+	  older than 2.8.0, check for gdkx.h and then use that to call
+	  XWarpPointer instead of the gdk function which does the same
+	  thing.  Needed for the Center() action.
+
+2007-04-18 17:33  danmc
+
+	* src/hid/gtk/gtkhid-main.c: get the Center action to work
+
+2007-04-18 17:32  danmc
+
+	* src/hid/gtk/gui-output-events.c: output undefined keysyms in hex
+	  as well as decimal
+
+2007-04-18 17:31  danmc
+
+	* src/todo: update todo list a bit
+
+2007-04-17 23:02  danmc
+
+	* src/hid/gtk/gtkhid-main.c: start work on a Center() action. Not
+	  quite right yet.
+
+2007-04-17 22:49  danmc
+
+	* src/hid/gtk/gtkhid-main.c: get the flip_x and flip_y stuff
+	  working
+
+2007-04-17 22:15  danmc
+
+	* src/hid/gtk/gui-top-window.c: do not complain about tip= menuitem
+	  resources.  we like them!
+
+2007-04-15 18:40  danmc
+
+	* src/hid/gtk/gui-top-window.c: fix one more merge conflict
+
+2007-04-15 16:05  danmc
+
+	* configure, configure.ac, doc/actions.texi, doc/pcbfile.texi,
+	  doc/version.texi, src/Makefile.am, src/Makefile.in, src/action.c,
+	  src/command.c, src/create.c, src/file.c, src/file.h, src/find.c,
+	  src/flags.c, src/move.c, src/parse_y.y, src/rats.c,
+	  src/hid/gtk/gui-config.c, src/hid/gtk/gui-misc.c,
+	  src/hid/gtk/gui-output-events.c, src/hid/gtk/gui-top-window.c,
+	  src/hid/nelma/hid.conf, src/hid/nelma/nelma.c,
+	  src/hid/nelma/nelma.h: sync with trunk
+
+2007-04-11 23:01  djdelorie
+
+	* src/command.c: Allow :s without filename to use current filename.
+
+2007-04-11 07:12  danmc
+
+	* configure, configure.ac, src/Makefile.am, src/Makefile.in,
+	  src/hid/nelma/hid.conf, src/hid/nelma/nelma.c,
+	  src/hid/nelma/nelma.h: add the nelma export HID provided in
+	  patch: [ 1601099 ] Nelma export HID by Tomaz Solc with a few
+	  minor updates by me.
+
+2007-04-10 22:13  danmc
+
+	* src/hid/gtk/gui-output-events.c: Apply patch supplied in patch [
+	  1692014 ] Patch for "click on focus for zoom" bug from Tomaz
+	  Solc.
+
+2007-04-09 21:14  danmc
+
+	* doc/actions.texi, doc/pcbfile.texi, doc/version.texi,
+	  src/Makefile.in: regen
+
+2007-04-07 22:28  danmc
+
+	* src/hid/gtk/gui-config.c: Initialize command history size to 5 if
+	  no config setting is given.  Patch [ 1608559 ] Patch for command
+	  entry history bug.
+
+2007-04-07 22:19  danmc
+
+	* src/hid/gtk/gui-misc.c: add distance and angle to the relative
+	  readout.  Mostly provided in patch submission [ 1621913 ]
+	  Euclidian distance from mark.  Minor update (fix the fact that in
+	  PCB units, positive Y is down) from me.
+
+2007-04-07 21:44  danmc
+
+	* src/: file.c, file.h, parse_y.y: turn on the code which marks the
+	  file format version in the file.  pcb has had the code in place
+	  for a bit now that parses that and gives a warning if the version
+	  of pcb is not new enough to read the current file version.
+
+2007-04-07 13:06  danmc
+
+	* src/hid/gtk/: gui-misc.c, gui-top-window.c: prevent the cursor
+	  position labels from growing/shrinking as you move the cursor
+	  around.
+
+2007-04-05 23:47  danmc
+
+	* src/todo: fixed the "crosshair shows drc clearance bug"
+
+2007-04-05 23:45  danmc
+
+	* src/flags.c: Change the stringflag in the settings from showdrc
+	  to showdrcmode since we already used showdrc for the flag.  This
+	  fixes the menu choice for "crosshairs show drc clearance".
+
+2007-04-05 21:44  danmc
+
+	* src/rats.c: avoid using an unitialized variable (even though we
+	  ignore the result of that access)
+
+2007-04-05 21:44  danmc
+
+	* src/move.c: document MoveLayer() action
+
+2007-04-05 21:43  danmc
+
+	* src/file.h: add missing prototypes
+
+2007-04-05 21:43  danmc
+
+	* src/file.c: add missing header, remove unused variable
+
+2007-04-05 21:43  danmc
+
+	* src/: create.c, find.c: remove unused variable
+
+2007-04-05 21:43  danmc
+
+	* src/action.c: format string fix
+
+2007-04-05 21:16  danmc
+
+	* src/: Makefile.am, Makefile.in, clip.c, clip.h, rats.c,
+	  hid/gtk/gtkhid-main.c, hid/lesstif/main.c: sync with head
+
+2007-04-05 09:10  danmc
+
+	* src/gpcb-menu.res: improve text for the Arrow mode hotkey
+
+2007-04-05 00:02  danmc
+
+	* src/hid/gtk/gui-top-window.c: add more debug output
+
+2007-04-05 00:02  danmc
+
+	* src/todo: add more to the todo list
+
+2007-04-04 23:17  danmc
+
+	* src/: gpcb-menu.res, pcbtest.sh.in, todo, hid/gtk/gtkhid-main.c,
+	  hid/gtk/gui-output-events.c, hid/gtk/gui-top-window.c: Fix many
+	  bugs found by Stuart Brorson who was helpful enough to try out
+	  every single menu item.
+
+2007-03-12 22:30  danmc
+
+	* src/todo: update the usermenu stuff a bit
+
+2007-03-12 22:27  danmc
+
+	* src/gpcb-menu.res: update comment in Mouse section
+
+2007-03-12 22:19  danmc
+
+	* src/: action.c, gpcb-menu.res, hid/gtk/gtkhid-main.c,
+	  hid/gtk/gui-output-events.c, hid/gtk/gui-top-window.c: Move the
+	  rest of the key strokes out of gui-top-window.c and into
+	  gpcb-menu.res.  Also add a DoWindows() action and add an "Escape"
+	  option to the Mode() action to behave like the gtk HID escape.
+
+2007-03-09 22:06  haceaton
+
+	* src/rats.c: find rats regardless of how far the coordinates are
+	  out of bounds
+	  ----------------------------------------------------------------------
+
+2007-03-09 19:14  haceaton
+
+	* src/rats.c: Handle case for connections are close to or beyond
+	  MAX_COORD
+	  ----------------------------------------------------------------------
+
+2007-03-09 01:03  djdelorie
+
+	* src/: Makefile.am, Makefile.in, clip.c, clip.h,
+	  hid/gtk/gtkhid-main.c, hid/lesstif/main.c: Add basic line
+	  clipping to both GUIs.
+
+2007-03-07 21:48  danmc
+
+	* src/: gpcb-menu.res, hid/gtk/gui-output-events.c,
+	  hid/gtk/gui-top-window.c: Bring gpcb-menu.res more inline with
+	  the way the gtk menus are setup in the hard coded menu version
+	  currently.  While here, move a whole bunch of hot keys out of
+	  gui-output-events.c and into the menu resource file.
+
+2007-03-06 22:52  danmc
+
+	* src/hid/gtk/gui-top-window.c: get the @routestyle menus working.
+
+2007-03-05 21:25  danmc
+
+	* src/: Makefile.in, hid/gtk/gui-top-window.c: garbage collect some
+	  more now-obsolete code
+
+2007-03-05 21:24  danmc
+
+	* src/todo: add some usermenu todo items
+
+2007-03-03 22:57  danmc
+
+	* README.cvs_branches, src/Makefile.am, src/Makefile.in,
+	  src/Pcb.ad.in, src/Pcb.ad.raw, src/Pcb.ad.small, src/action.c,
+	  src/action.h, src/autoroute.c, src/change.c, src/const.h,
+	  src/crosshair.c, src/data.c, src/data.h, src/djopt.c, src/draw.c,
+	  src/draw.h, src/file.c, src/find.c, src/flags.c, src/global.h,
+	  src/hid.h, src/macro.h, src/main.c, src/misc.c, src/misc.h,
+	  src/move.c, src/parse_l.l, src/parse_y.y, src/pcb-menu.res,
+	  src/polygon.c, src/print.c, src/remove.c, src/report.c,
+	  src/rotate.c, src/search.c, src/set.c, src/strflags.c,
+	  src/strflags.h, src/todo, src/undo.c, src/vendor.c,
+	  src/hid/batch/batch.c, src/hid/common/hidinit.c,
+	  src/hid/common/hidnogui.c, src/hid/gerber/gerber.c,
+	  src/hid/gtk/gtkhid-main.c, src/hid/lesstif/dialogs.c,
+	  src/hid/lesstif/main.c, src/hid/lesstif/menu.c,
+	  src/hid/lesstif/netlist.c, src/hid/lpr/lpr.c, src/hid/png/png.c,
+	  src/hid/ps/eps.c, src/hid/ps/ps.c, win32/pcb.nsi.in: sync with
+	  trunk
+
+2007-03-03 22:46  danmc
+
+	* src/find.c: Fix a bug when looking for square pad to square pad
+	  clearance.  The old way simply grew one of the pads by Bloat on
+	  all 4 sides and looked for overlap.  This is not the correct test
+	  in the case where the closest line between the two pads is a
+	  unique line from two of the corners.	The new way should
+	  correctly handle all cases.
+
+2007-03-03 22:42  danmc
+
+	* src/hid/gtk/gui-top-window.c: fix some comments
+
+2007-03-03 22:17  djdelorie
+
+	* src/: Makefile.am, Makefile.in, action.c, action.h, autoroute.c,
+	  change.c, const.h, crosshair.c, data.c, data.h, djopt.c, draw.c,
+	  file.c, find.c, flags.c, global.h, hid.h, macro.h, main.c,
+	  misc.c, misc.h, parse_y.y, pcb-menu.res, report.c, search.c,
+	  set.c, strflags.c, strflags.h, todo, hid/batch/batch.c,
+	  hid/common/hidinit.c, hid/common/hidnogui.c, hid/gerber/gerber.c,
+	  hid/gtk/gtkhid-main.c, hid/lesstif/main.c, hid/lesstif/menu.c,
+	  hid/lesstif/netlist.c, hid/png/png.c, hid/ps/eps.c, hid/ps/ps.c:
+	  Made flags type big enough to hold PCB flags.
+
+	  Added hash table for parameter lookup in action.c
+
+	  Moved thindraw code out of lesstif hid.
+
+	  Added "thin draw polygons" flag to toplevel stuff.
+
+	  Fixed "check polygons" so it works again.
+
+	  Added "lock names" setting: When set, the arrow tool ignores
+	  element names and text objects, so you can select the elements or
+	  objects beneath them.
+
+	  Added "only names" setting: When set, the arrow tool can only
+	  select element names and text objects; you won't accidentally
+	  move an element.
+
+	  Made the crosshair-move code draw the outline of pads, not the
+	  centerline.  It does still draw round-end pads as rectangles,
+	  though.
+
+	  Allow "--no-foo" to shut off boolean "--foo" options that default
+	  to on.
+
+	  Added "--layer-stack" option that takes a string and sets the
+	  layer stack to it (for eps/png export, mostly).  Layers are
+	  numbers 0..N-1, the names of the layers from the loaded PCB file,
+	  or the special names "rats", "invisible", "pins", "vias", or
+	  "elements".  Layers may be separated by spaces, commas,
+	  semicolons, or colons.
+
+	  Added Display(Step,[1..9]) to move the cursor in steps.
+	  Implemented in lesstif HID, attached to arrow keys.  Added "what
+	  to do with the pointer" parameter - warp pointer to match
+	  crosshair, or pan window to put crosshair under cursor.
+
+	  Make autorouter show live trials.
+
+	  Clean up various FIXMEs.
+
+	  Add support for string encoded PCB flags.
+
+	  thindraw exports: off by default?  Follow current setting?  Or
+	  put it in their own attribute list?
+
+	  Added Report(NetLength) which reports on the total length of
+	  segments (lines and arcs) for the net under the cursor.  It will
+	  also tell you the name of the net.
+
+	  Remove obsolete UseLogWindow and RaiseLogWindow.
+
+2007-03-02 17:38  danmc
+
+	* win32/pcb.nsi.in: remove some left over links on uninstall
+
+2007-02-27 14:33  djdelorie
+
+	* src/file.c: Avoid segfaults when loading elements, fixes bug in
+	  load-element-as-pcb patch.
+
+2007-02-27 01:32  djdelorie
+
+	* src/hid/ps/ps.c: Add calibration values to the attribute list so
+	  they can be stored in the settings file, or given on the command
+	  line.
+
+2007-02-25 22:20  danmc
+
+	* src/hid/gtk/gui-top-window.c: Implement ToggleView() and
+	  SelectLayer() actions.  Now the @layerview and @layerpick menus
+	  appear to be fully functional.
+
+2007-02-24 01:08  djdelorie
+
+	* src/: file.c, parse_y.y: Allow the user to load a footprint as a
+	  pcb; create a suitably-sized pcb around it.
+
+2007-02-23 11:59  djdelorie
+
+	* src/report.c: Report on pads as rectangles, not lines, so we get
+	  width and height for the pad and mask.  Also, report the gap
+	  between the pad and the mask.
+
+2007-02-23 00:30  danmc
+
+	* src/hid/gtk/gui-top-window.c: more progress on the @layerview and
+	  @layerpick menus.  The menus now seem to always get their names
+	  and check marks updated properly.  Still need to work the other
+	  way around (clicking the menu making the right thing happen).
+
+2007-02-22 22:07  djdelorie
+
+	* src/hid/ps/ps.c: Silence some compiler warnings.
+
+2007-02-22 22:05  djdelorie
+
+	* src/hid/ps/ps.c: Don't print the scale if we're filling the page.
+	  Don't print (null) if there's no board name.
+
+2007-02-22 18:17  danmc
+
+	* src/hid/gtk/gui-top-window.c: lots more work on the @layerpick
+	  and @layerview menus
+
+2007-02-21 20:48  danmc
+
+	* src/: gpcb-menu.res, hid/gtk/gui-top-window.c: start getting the
+	  @layerview @layerpick and @routestyles menu resources working
+
+2007-02-20 08:55  danmc
+
+	* src/hid/gtk/gui-top-window.c: fix a typo
+
+2007-02-17 00:50  danmc
+
+	* src/: gpcb-menu.res, hid/gtk/gui-top-window.c: support m= values
+	  in menu resources for mneumonics
+
+2007-02-17 00:50  danmc
+
+	* src/hid/gtk/gtkhid-main.c: avoid a segfault on Zoom() with no
+	  args
+
+2007-02-17 00:07  danmc
+
+	* src/hid/gtk/gtkhid-main.c: start work on fixing the gtk Zoom()
+	  action to make it behave like the lesstif one
+
+2007-02-16 18:48  danmc
+
+	* src/hid/gtk/gui-top-window.c: Make sure that the menu
+	  accelerators get connected to the toggle menuitems as well.  Also
+	  add a translation table to convert certain keys like ':' from the
+	  menu resource to the value that gtk wants to see.  In this case
+	  it is "colon".  This gets rid of all of the warnings like:
+	  (pcb:4288): Gtk-WARNING **: Unable to parse accelerator ':' for
+	  action 'MenuItem66'
+
+2007-02-16 00:50  danmc
+
+	* src/hid/gtk/: gui-output-events.c, gui-top-window.c: get menu
+	  accelerators mostly working
+
+2007-02-16 00:02  danmc
+
+	* src/hid/gtk/gtkhid-main.c: add a first cut at a Popup() action to
+	  popup the specified popup menu
+
+2007-02-15 18:25  danmc
+
+	* src/: gpcb-menu.res, hid/gtk/gui-output-events.c,
+	  hid/gtk/gui-top-window.c: add and enable the popup menus
+
+2007-02-15 18:25  danmc
+
+	* src/: Makefile.am, Makefile.in: fix the target for gpcb-menu.res
+
+2007-02-15 08:04  djdelorie
+
+	* src/hid/lesstif/main.c: Attach status bar widgets to the correct
+	  siblings.
+
+2007-02-15 00:48  djdelorie
+
+	* src/hid/lesstif/main.c: Don't use the crosshair's position to
+	  keep track of whether it's in the window or not; have a separate
+	  variable so we can avoid panning when we're just resetting the
+	  crosshair after a tool change.
+
+2007-02-15 00:12  djdelorie
+
+	* src/: autoroute.c, parse_l.l, polygon.c, hid/ps/ps.c: Move
+	  declarations before statements (patch by Ben Jackson
+	  <ben@ben.com>)
+
+2007-02-14 22:42  danmc
+
+	* src/hid/gtk/: gui-output-events.c, gui-top-window.c, gui.h: Add
+	  ghid_update_toggle_flags() to the idle callback.  Now the menu
+	  flags get updated even when they are torn off.  For example,
+	  hitting 'esc' twice to exit out of line mode now show up in a
+	  torn off menu.  While here, turn off some extra debug spew which
+	  is no longer really needed.
+
+2007-02-14 18:31  danmc
+
+	* src/hid/gtk/gui-top-window.c: disable some more deprecated code
+	  which gets rid of a bunch of runtime gtk warnings
+
+2007-02-14 18:31  danmc
+
+	* src/hid/gtk/gtkhid-main.c: add thindraw, thindrawpoly, flip_x,
+	  and flip_y flags
+
+2007-02-14 02:05  danmc
+
+	* src/hid/gtk/gui-top-window.c: - fill in the code to put menuitems
+	  in the menu that don't have actions	associated with them.
+	  Probably will only be used when starting on	a new menu layout.
+
+	  - remove a whole bunch of the old deprecated callbacks.
+
+2007-02-12 23:44  djdelorie
+
+	* src/: action.c, change.c, draw.c, draw.h, move.c, print.c,
+	  remove.c, rotate.c, undo.c: Keep track of the minimum line size
+	  for text depending on which layer the text is on (copper, silk,
+	  pin numbers).
+
+2007-02-12 19:31  danmc
+
+	* src/hid/gtk/gui-top-window.c: First cut at getting the toggle
+	  menu items to work.  They seem to get the check marks when
+	  they're supposed to and they toggle.
+
+2007-02-12 18:17  danmc
+
+	* src/hid/gtk/gui-output-events.c: comment out some calls to
+	  ghid_set_menu_toggle_button which I have broken for now
+
+2007-02-12 18:16  danmc
+
+	* src/hid/gtk/gui-top-window.c: - remove a bunch of menu callbacks
+	  which are no longer needed since there   is just 1 master menu
+	  callback now.
+
+	  - deal with the toggle menu items (menus with the checked=
+	  resource value)   in terms of getting them into the menus and
+	  having the callbacks do something.	The checked/not checked
+	  code is still missing.
+
+2007-02-12 18:14  danmc
+
+	* src/: Makefile.am, Makefile.in, gpcb-menu.res: start work on a
+	  gpcb-menu.res to be used by the gtk HID.  Either gtk or lesstif
+	  HID should be able to read the same resource file but this way
+	  the menu layouts can comply more with the style guides for
+	  lesstif or gtk apps.
+
+2007-02-11 23:22  danmc
+
+	* src/: Makefile.am, Makefile.in, Pcb.ad.in, Pcb.ad.raw,
+	  Pcb.ad.small: Remove the appdefaults files.  These were leftover
+	  from Xaw days and weren't really doing anything other than
+	  providing a filename conflict on case insensitive file systems
+	  (pcb vs Pcb).
+
+2007-02-11 22:27  djdelorie
+
+	* src/hid/ps/ps.c: Compensate for rotated boards.  Allow the print
+	  step to be skipped.
+
+2007-02-10 16:59  djdelorie
+
+	* src/: action.c, pcb-menu.res, hid/lesstif/dialogs.c,
+	  hid/lpr/lpr.c, hid/ps/ps.c: Add printer calibration code for
+	  lesstif HID.
+
+2007-02-10 16:59  djdelorie
+
+	* src/vendor.c: Cache vendor lookups.  Use binary search instead of
+	  linear.
+
+2007-02-10 14:21  djdelorie
+
+	* src/: file.c, parse_l.l: Properly deal with quoted characters in
+	  both string reading and string writing.
+
+2007-02-10 11:57  djdelorie
+
+	* src/vendor.c: Call busy before applying the vendor map.
+
+2007-02-10 11:49  djdelorie
+
+	* src/: action.c, djopt.c, hid.h, hid/batch/batch.c,
+	  hid/gtk/gtkhid-main.c, hid/lesstif/main.c: Change the way the
+	  busy cursor is done.	Called for autoplace, autoroute, and
+	  optimize.
+
+2007-02-10 11:07  djdelorie
+
+	* src/: pcb-menu.res, hid/lesstif/main.c: Add "C" for Center()
+	  action.  Provide examples for zooming-with-centering in
+	  pcb-menu.res.
+
+2007-02-10 00:30  danmc
+
+	* src/hid/gtk/gui-top-window.c: Let the menu actions actually do
+	  something.  At this point, the user customizable menus are at
+	  least partially functional.
+
+2007-02-10 00:20  danmc
+
+	* src/hid/gtk/gui-top-window.c: Generate a list of actions
+	  associated with each menu item as the menu resources are being
+	  added.  Add some code to the menu callback which for now just
+	  spits out the actions which would be taken.
+
+	  At this point, the menus get created according to the resource
+	  file and the actions get correctly associated.  Accelerators
+	  don't work yet and neither do menu items with checks.
+
+2007-02-09 23:44  danmc
+
+	* README.cvs_branches: note the usermenu branch
+
+2007-02-09 19:28  danmc
+
+	* src/hid/gtk/gui-top-window.c: Start work on user configurable
+	  menus for the gtk HID.
+
+	  Right now the menus get loaded from pcb-menu.res and the callback
+	  simply reports which one.  There are many issues left to deal
+	  with.
+
+2007-02-08 23:33  djdelorie
+
+	* src/: create.c: Always initialize default layer names.
+
+2007-02-08 22:50  danmc
+
+	* src/create.c: pullup rev 1.36 from the trunk.  Prevents a
+	  segfault on startup in the lesstif hid.
+
+2007-02-08 22:49  danmc
+
+	* src/create.c: use MAX_LAYER in a spot instead of max_layer.
+	  Prevents a segfault with the lesstif hid.
+
+2007-02-08 19:44  danmc
+
+	* configure, configure.ac, doc/fractional_size.texi,
+	  doc/letter_size.texi, doc/metric_size.texi, doc/version.texi,
+	  doc/wire_size.texi: update version for 20070208 snapshot
+
+2007-02-08 19:17  danmc
+
+	* configure, configure.ac: bump rev after 20070208 branch
+
+2007-02-08 19:14  danmc
+
+	* ChangeLog, NEWS: update for 20070208 snapshot
+
 2007-02-08 17:52  danmc
 
 	* configure, configure.ac, src/main.c: if we somehow fail to find
