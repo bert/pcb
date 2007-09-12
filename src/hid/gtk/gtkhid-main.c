@@ -117,6 +117,59 @@ Py (int y)
   return  rv;
 }  
 
+static inline int  
+Pz (int z)
+{
+  return (z * gport->zoom);
+}
+
+/* ------------------------------------------------------------ */
+
+static void
+ghid_pan_fixup ()
+{
+
+  /* 
+   * don't pan so far to the right that we see way past the right 
+   * edge of the board.
+   */
+  if (gport->view_x0 > PCB->MaxWidth - gport->view_width)
+    gport->view_x0 = PCB->MaxWidth - gport->view_width;
+
+  /* 
+   * don't pan so far down that we see way past the bottom edge of
+   * the board.
+   */
+  if (gport->view_y0 > PCB->MaxHeight - gport->view_height)
+    gport->view_y0 = PCB->MaxHeight - gport->view_height;
+
+  /* don't view above or to the left of the board... ever */
+  if (gport->view_x0 < 0)
+    gport->view_x0 = 0;
+
+   if (gport->view_y0 < 0)
+    gport->view_y0 = 0;
+
+
+   /* if we can see the entire board and some, then zoom to fit */
+   if (gport->view_width > PCB->MaxWidth &&
+       gport->view_height > PCB->MaxHeight)
+     {
+       zoom_by (1, 0, 0);
+       return;
+     }
+
+   /* FIXME -- do I need to have something like this?  These two lines
+   came from the lesstif HID:
+
+   set_scroll (hscroll, view_left_x, view_width, PCB->MaxWidth);
+   set_scroll (vscroll, view_top_y, view_height, PCB->MaxHeight);
+   */
+
+   ghid_invalidate_all ();
+
+}
+
 /* ------------------------------------------------------------ */
 
 static const char zoom_syntax[] =
@@ -1107,9 +1160,126 @@ ghid_control_is_pressed ()
 void
 ghid_set_crosshair (int x, int y, int action)
 {
-  ghid_set_cursor_position_labels ();
-  gport->x_crosshair = x;
-  gport->y_crosshair = y;
+
+  if (gport->x_crosshair != x || gport->y_crosshair != y)
+    {
+      ghid_set_cursor_position_labels ();
+      gport->x_crosshair = x;
+      gport->y_crosshair = y;
+      /*
+       * FIXME - does this trigger the idle_proc stuff?  It is in the
+       * lesstif HID.  Maybe something is needed here?
+       *
+       * need_idle_proc ();
+       */
+      if ( (x < gport->view_x0) ||
+	   (x > gport->view_x0 + gport->view_width) ||
+	   (y < gport->view_y0) ||
+	   (y > gport->view_y0 + gport->view_height) )
+	{
+	  gport->view_x0 = x - gport->view_width / 2;
+	  gport->view_y0 = y - gport->view_height / 2;
+	  ghid_pan_fixup ();
+	}
+    }
+
+  /*
+   * Pan the viewport so that the crosshair (which is in a fixed
+   * location relative to the board) lands where the pointer
+   * is.  What happens is the crosshair is moved on the board
+   * (see above) and then we move the board here to line it up
+   * again.  We do this by figuring out where the pointer is
+   * in board coordinates and we know where the crosshair is
+   * in board coordinates.  Then we know how far to pan.
+   */
+  if (action == HID_SC_PAN_VIEWPORT)
+    {
+      GdkDisplay *display;
+      GdkScreen *screen;
+      gint pos_x, pos_y, xofs, yofs;
+      
+      display = gdk_display_get_default ();
+      screen = gdk_display_get_default_screen (display); 
+      
+      /* figure out where the pointer is relative to the display */ 
+      gdk_display_get_pointer (display, NULL, &pos_x, &pos_y, NULL); 
+      
+      /*
+       * Figure out where the drawing area is on the screen so we can
+       * figure out where the pointer is relative to the viewport.
+       */ 
+      gdk_window_get_origin (gport->drawing_area->window, &xofs, &yofs);
+      
+      pos_x -= xofs;
+      pos_y -= yofs;
+
+      /*
+       * pointer is at
+       *  px = gport->view_x0 + pos_x * gport->zoom
+       *  py = gport->view_y0 + pos_y * gport->zoom
+       *
+       * cross hair is at
+       *  x
+       *  y
+       *
+       * we need to shift x0 by (x - px) and y0 by (y - py)
+       * x0 = x0 + x - (x0 + pos_x * zoom)
+       *    = x - pos_x*zoom
+       */
+
+      if (ghid_flip_x)
+        gport->view_x0 = x - (gport->view_width - pos_x * gport->zoom);
+      else
+        gport->view_x0 = x - pos_x * gport->zoom;
+
+      if (ghid_flip_y)
+        gport->view_y0 = y - (gport->view_height - pos_y * gport->zoom);
+      else
+        gport->view_y0 = y - pos_y * gport->zoom;
+
+      ghid_pan_fixup();
+
+      action = HID_SC_WARP_POINTER;
+    }
+
+  if (action == HID_SC_WARP_POINTER)
+    {
+#if GTK_CHECK_VERSION(2,8,0)
+    gint xofs, yofs;
+    GdkDisplay *display;
+    GdkScreen *screen;
+
+    display = gdk_display_get_default ();
+    screen = gdk_display_get_default_screen (display); 
+
+    /*
+     * Figure out where the drawing area is on the screen because
+     * gdk_display_warp_pointer will warp relative to the whole display
+     * but the value we've been given is relative to your drawing area
+     */ 
+    gdk_window_get_origin (gport->drawing_area->window, &xofs, &yofs);
+
+    /* 
+     * Note that under X11, gdk_display_warp_pointer is just a wrapper around XWarpPointer, but
+     * hopefully by avoiding the direct call to an X function we might still work under windows
+     * and other non-X11 based gdk's
+     */
+    gdk_display_warp_pointer (display, screen, xofs + Vx2 (x), yofs + Vy2 (y));
+
+
+#else
+#  ifdef HAVE_GDK_GDKX_H
+    gint xofs, yofs;
+    gdk_window_get_origin (gport->drawing_area->window, &xofs, &yofs);
+    XWarpPointer (GDK_DRAWABLE_XDISPLAY (gport->drawing_area->window),
+		  None, GDK_WINDOW_XID (gport->drawing_area->window),
+		  0, 0, 0, 0,
+		  xofs + Vx2 (x), yofs + Vy2 (y));
+#  else
+#    error  "sorry.  You need gtk+>=2.8.0 unless you are on X windows"
+#  endif
+#endif
+    }
 }
 
 typedef struct
@@ -1640,9 +1810,9 @@ Load (int argc, char **argv, int x, int y)
 
   if (name)
     {
-			if (Settings.verbose)
+      if (Settings.verbose)
       	fprintf (stderr, "%s:  Calling LoadFrom(%s, %s)\n", __FUNCTION__,
-	       	function, name);
+		 function, name);
       hid_actionl ("LoadFrom", function, name, NULL);
       g_free (name);
     }
@@ -2037,8 +2207,7 @@ Center(int argc, char **argv, int x, int y)
   gport->view_y0 = y0;
 
 
-  /* FIXME -- do I need something like the pan_fixup here? */
-  /* lesstif_pan_fixup (); */
+  ghid_pan_fixup ();
 
   /* Move the pointer to the center of the window, but only if it's
      currently within the window already.  Watch out for edges,
@@ -2111,7 +2280,7 @@ user's view of the board.  Thus, a positive @var{DeltaUp} may move the
 cursor towards the board origin if the board is inverted.
 
 Type is one of @samp{Pan} or @samp{Warp}.  @samp{Pan} causes the
-viewport to move such that the crosshair is under the mouse curos.
+viewport to move such that the crosshair is under the mouse cursor.
 @samp{Warp} causes the mouse cursor to move to be above the crosshair.
 
 @var{Units} can be one of the following:
@@ -2142,28 +2311,30 @@ static int
 CursorAction(int argc, char **argv, int x, int y)
 {
   int pan_warp = HID_SC_DO_NOTHING;
-  double dx, dy, xu, yu;
+  double dx, dy;
+  double xu = 0.0, yu = 0.0;
 
   if (argc != 4)
-    AFAIL(cursor);
+    AFAIL (cursor);
 
-  printf ("Cursor(%s, %s, %s, %s)\n", argv[0], argv[1], argv[2], argv[3]);
-
-#if 0
   if (strcasecmp (argv[0], "pan") == 0)
     pan_warp = HID_SC_PAN_VIEWPORT;
   else if (strcasecmp (argv[0], "warp") == 0)
     pan_warp = HID_SC_WARP_POINTER;
   else
-    AFAIL(cursor);
+    AFAIL (cursor);
 
   dx = strtod (argv[1], 0);
-  if (flip_x)
+  if (ghid_flip_x)
     dx = -dx;
   dy = strtod (argv[2], 0);
-  if (!flip_y)
+  if (!ghid_flip_y)
     dy = -dy;
 
+  /* 
+   * xu and yu are the scale factors that we multiply dx and dy by to
+   * come up with PCB internal units.
+   */
   if (strncasecmp (argv[3], "mm", 2) == 0)
     xu = yu = MM_TO_COOR;
   else if (strncasecmp (argv[3], "mil", 3) == 0)
@@ -2172,8 +2343,8 @@ CursorAction(int argc, char **argv, int x, int y)
     xu = yu = PCB->Grid;
   else if (strncasecmp (argv[3], "view", 4) == 0)
     {
-      xu = Pz(view_width) / 100.0;
-      yu = Pz(view_height) / 100.0;
+      xu = gport->view_width / 100.0;
+      yu = gport->view_height / 100.0;
     }
   else if (strncasecmp (argv[3], "board", 4) == 0)
     {
@@ -2183,7 +2354,7 @@ CursorAction(int argc, char **argv, int x, int y)
 
   EventMoveCrosshair (Crosshair.X+(int)(dx*xu), Crosshair.Y+(int)(dy*yu));
   gui->set_crosshair (Crosshair.X, Crosshair.Y, pan_warp);
-#endif
+
   return 0;
 }
 /* ------------------------------------------------------------ */
