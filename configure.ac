@@ -2,7 +2,7 @@ dnl $Id$
 dnl Process this file with autoconf to produce a configure script.
 
 AC_INIT(src/draw.c)
-AM_INIT_AUTOMAKE(pcb, 1.99v)
+AM_INIT_AUTOMAKE(pcb, 1.99w)
 AM_CONFIG_HEADER(config.h)
 
 AM_MAINTAINER_MODE
