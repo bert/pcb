@@ -844,6 +844,8 @@ For elements, when set the names of pins are shown.
 @item 0x0020 clearline
 For lines and arcs, the line/arc will clear polygons instead of
 connecting to them.
+@item 0x0020 fullpoly
+For polygons, the full polygon is drawn (i.e. all parts instead of only the biggest one).
 @item 0x0040 selected
 Set when the object is selected.
 @item 0x0080 onsolder
@@ -879,7 +881,7 @@ For pads, set to prevent a solderpaste stencil opening for the
 pad.  Primarily used for pads used as fiducials.
 @end table
 @c pcbfile ~pcbflags
-@c ./../src/const.h 138
+@c ./../src/const.h 139
 @node PCBFlags
 @section PCBFlags
 @table @code
@@ -920,4 +922,6 @@ Draw with thin lines.
 Move items orthogonally.
 @item 0x10000
 Draw autoroute paths real-time.
+@item 0x20000
+New polygons are full ones.
 @end table
