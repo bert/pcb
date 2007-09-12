@@ -404,7 +404,6 @@ ghid_port_key_press_cb (GtkWidget * drawing_area,
   gint  ksym = kev->keyval;
   gboolean handled;
   extern  void ghid_hotkey_cb (int);
-  extern char *ghid_hotkey_actions[];
 
   if (ghid_is_modifier_key_sym (ksym))
     ghid_note_event_location (NULL);
