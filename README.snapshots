@@ -73,7 +73,7 @@ To make a pcb release do the following:
 		cvs ci
 		cvs tag -R -r pcb-20070912 pcb-20070912-RELEASE
 		cvs update -PdA -r pcb-20070912-RELEASE
-		./autogen.sh --enable-maintainer-mode && gmake clean && gmake && gmake distcheck
+		./autogen.sh && ./configure --enable-maintainer-mode && gmake clean && gmake && gmake distcheck
 	
 	7. Create checksums
 
@@ -98,5 +98,5 @@ To make a pcb release do the following:
 		cvs ci
 		cvs tag -R -r pcb-20070912 pcb-20070912-PATCH001
 
-=)	gmake distclean ; ./autogen.sh && gmake distcheck
+=)	gmake distclean ; ./autogen.sh &&./configure && gmake distcheck
 
