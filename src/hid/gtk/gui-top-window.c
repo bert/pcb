@@ -3698,8 +3698,6 @@ ghid_load_menus (void)
   else
     filename = 0;
 
-  free (home_pcbmenu);
-
   bir = resource_parse (0, gpcb_menu_default);
   if (!bir)
     {
@@ -3709,6 +3707,8 @@ ghid_load_menus (void)
 
   if (filename)
     r = resource_parse (filename, 0);
+
+  free (home_pcbmenu);
 
   if (!r)
     r = bir;
