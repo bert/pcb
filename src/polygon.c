@@ -180,7 +180,7 @@ ClipOriginal (PolygonType * poly)
   r = poly_Boolean_free (poly->Clipped, p, &result, PBO_ISECT);
   if (r != err_ok)
     {
-      fprintf (stderr, "Error while clipping PBO_ISECT\n");
+      fprintf (stderr, "Error while clipping PBO_ISECT: %d\n", r);
       poly_Free (&result);
       poly->Clipped = NULL;
       return 0;
@@ -262,7 +262,9 @@ frac_circle (PLINE * c, LocationType X, LocationType Y, Vector v, int range)
   /* move vector to origin */
   e1 = v[0] - X;
   e2 = v[1] - Y;
-  for (i = 0; i < (CIRC_SEGS - 1) / range; i++)
+
+  range = range == 1 ? CIRC_SEGS-1 : (CIRC_SEGS / range);
+  for (i = 0; i < range; i++)
     {
       /* rotate the vector */
       t1 = e1 * circleVerticies[2] - e2 * circleVerticies[3];
@@ -453,7 +455,7 @@ Subtract (POLYAREA * np1, PolygonType * p, Boolean fnp)
   assert (!merged || poly_Valid (merged));
   if (x != err_ok)
     {
-      fprintf (stderr, "Error while clipping PBO_SUB\n");
+      fprintf (stderr, "Error while clipping PBO_SUB: %d\n", x);
       poly_Free (&merged);
       p->Clipped = NULL;
       return -1;
@@ -710,7 +712,7 @@ Unsubtract (POLYAREA * np1, PolygonType * p)
   x = poly_Boolean_free (p->Clipped, np, &merged, PBO_UNITE);
   if (x != err_ok)
     {
-      fprintf (stderr, "Error while clipping PBO_UNITE\n");
+      fprintf (stderr, "Error while clipping PBO_UNITE: %d\n", x);
       poly_Free (&merged);
       p->Clipped = NULL;
       return 0;
