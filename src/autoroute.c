@@ -4263,6 +4263,11 @@ AutoRoute (Boolean selected)
                                       line->Point2.Y, line->group2);
           if (!a || !b)
             {
+#ifdef DEBUG_STALE_RATS
+	      AddObjectToFlagUndoList (RATLINE_TYPE, line, line, line);
+	      ASSIGN_FLAG (SELECTEDFLAG, True, line);
+	      DrawRat (line, 0);
+#endif /* DEBUG_STALE_RATS */
               Message ("The rats nest is stale! Aborting autoroute...\n");
               goto donerouting;
             }
