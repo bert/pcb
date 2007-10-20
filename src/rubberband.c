@@ -68,7 +68,9 @@ RCSID ("$Id$");
 static void CheckPadForRubberbandConnection (PadTypePtr);
 static void CheckPinForRubberbandConnection (PinTypePtr);
 static void CheckLinePointForRubberbandConnection (LayerTypePtr,
-						   LineTypePtr, PointTypePtr);
+						   LineTypePtr,
+						   PointTypePtr,
+						   Boolean);
 static void CheckPolygonForRubberbandConnection (LayerTypePtr,
 						 PolygonTypePtr);
 static void CheckLinePointForRat (LayerTypePtr, PointTypePtr);
@@ -88,7 +90,7 @@ rubber_callback (const BoxType * b, void *cl)
 {
   LineTypePtr line = (LineTypePtr) b;
   struct rubber_info *i = (struct rubber_info *) cl;
-  float x, y;
+  float x, y, rad, dist1, dist2;
   BDimension t;
   int touches = 0;
 
@@ -105,6 +107,8 @@ rubber_callback (const BoxType * b, void *cl)
    */
   if (i->radius == 0)
     {
+      int found = 0;
+
       if (line->Point1.X + t >= i->box.X1 && line->Point1.X - t <= i->box.X2
 	  && line->Point1.Y + t >= i->box.Y1
 	  && line->Point1.Y - t <= i->box.Y2)
@@ -144,7 +148,7 @@ rubber_callback (const BoxType * b, void *cl)
 	  if (touches)
 	    {
 	      CreateNewRubberbandEntry (i->layer, line, &line->Point1);
-	      return 1;
+	      found++;
 	    }
 	}
       if (line->Point2.X + t >= i->box.X1 && line->Point2.X - t <= i->box.X2
@@ -174,33 +178,44 @@ rubber_callback (const BoxType * b, void *cl)
 	  if (touches)
 	    {
 	      CreateNewRubberbandEntry (i->layer, line, &line->Point2);
-	      return 1;
+	      found++;
 	    }
 	}
-      return 0;
+      return found;
     }
   /* circular search region */
+  if (i->radius < 0)
+    rad = 0;  /* require exact match */
+  else
+    rad = SQUARE(i->radius + t);
+
   x = (i->X - line->Point1.X);
   x *= x;
   y = (i->Y - line->Point1.Y);
   y *= y;
-  x = x + y - (t * t);
-  if (x < (i->radius * (i->radius + 2 * t)))
-    {
-      CreateNewRubberbandEntry (i->layer, line, &line->Point1);
-      return 1;
-    }
+  dist1 = x + y - rad;
+
   x = (i->X - line->Point2.X);
   x *= x;
   y = (i->Y - line->Point2.Y);
   y *= y;
-  x = x + y - (t * t);
-  if (x < (i->radius * (i->radius + 2 * t)))
-    {
-      CreateNewRubberbandEntry (i->layer, line, &line->Point2);
-      return 1;
-    }
-  return 0;
+  dist2 = x + y - rad;
+
+  if (dist1 > 0 && dist2 > 0)
+    return 0;
+
+#ifdef CLOSEST_ONLY	/* keep this to remind me */
+  if (dist1 < dist2)
+    CreateNewRubberbandEntry (i->layer, line, &line->Point1);
+  else
+    CreateNewRubberbandEntry (i->layer, line, &line->Point2);
+#else
+  if (dist1 <= 0)
+    CreateNewRubberbandEntry (i->layer, line, &line->Point1);
+  if (dist2 <= 0)
+    CreateNewRubberbandEntry (i->layer, line, &line->Point2);
+#endif
+  return 1;
 }
 
 /* ---------------------------------------------------------------------------
@@ -378,16 +393,17 @@ CheckPinForRubberbandConnection (PinTypePtr Pin)
 static void
 CheckLinePointForRubberbandConnection (LayerTypePtr Layer,
 				       LineTypePtr Line,
-				       PointTypePtr LinePoint)
+				       PointTypePtr LinePoint,
+				       Boolean Exact)
 {
   Cardinal group;
   struct rubber_info info;
   BDimension t = Line->Thickness / 2;
 
   /* lookup layergroup and check all visible lines in this group */
-  info.radius = Line->Thickness / 2;
+  info.radius = Exact ? -1 : MAX(Line->Thickness / 2, 1);
   info.box.X1 = LinePoint->X - t;
-  info.box.X2 = LinePoint->X + t;;
+  info.box.X2 = LinePoint->X + t;
   info.box.Y1 = LinePoint->Y - t;
   info.box.Y2 = LinePoint->Y + t;
   info.line = Line;
@@ -440,7 +456,7 @@ CheckPolygonForRubberbandConnection (LayerTypePtr Layer,
 	    CreateNewRubberbandEntry (layer, line, &line->Point1);
 	  if (IsPointInPolygon (line->Point2.X, line->Point2.Y,
 				thick, Polygon))
-	    CreateNewRubberbandEntry (layer, line, &line->Point1);
+	    CreateNewRubberbandEntry (layer, line, &line->Point2);
 	}
 	END_LOOP;
       }
@@ -492,9 +508,9 @@ LookupRubberbandLines (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
 	if (GetLayerNumber (PCB->Data, layer) < max_layer)
 	  {
 	    CheckLinePointForRubberbandConnection (layer, line,
-						   &line->Point1);
+						   &line->Point1, False);
 	    CheckLinePointForRubberbandConnection (layer, line,
-						   &line->Point2);
+						   &line->Point2, False);
 	  }
 	break;
       }
@@ -503,7 +519,7 @@ LookupRubberbandLines (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
       if (GetLayerNumber (PCB->Data, (LayerTypePtr) Ptr1) < max_layer)
 	CheckLinePointForRubberbandConnection ((LayerTypePtr) Ptr1,
 					       (LineTypePtr) Ptr2,
-					       (PointTypePtr) Ptr3);
+					       (PointTypePtr) Ptr3, True);
       break;
 
     case VIA_TYPE:
