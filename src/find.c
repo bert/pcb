@@ -163,7 +163,9 @@ RCSID ("$Id$");
  * message when asked about continuing DRC checks after first 
  * violation is found.
  */
-#define DRC_CONTINUE _("Press OK to continue DRC checking")
+#define DRC_CONTINUE _("Press Next to continue DRC checking")
+#define DRC_NEXT _("Next")
+#define DRC_CANCEL _("Cancel")
 
 /* ---------------------------------------------------------------------------
  * some local types
@@ -3594,7 +3596,7 @@ DRCFind (int What, void *ptr1, void *ptr2, void *ptr3)
           drc = False;
           drcerr_count++;
           GotoError ();
-          if (!gui->confirm_dialog (DRC_CONTINUE, 0))
+          if (!gui->confirm_dialog (DRC_CONTINUE, DRC_CANCEL, DRC_NEXT))
             return (True);
           IncrementUndoSerialNumber ();
           Undo (True);
@@ -3636,7 +3638,7 @@ DRCFind (int What, void *ptr1, void *ptr2, void *ptr3)
       GotoError ();
       User = False;
       drc = False;
-      if (!gui->confirm_dialog (DRC_CONTINUE, 0))
+      if (!gui->confirm_dialog (DRC_CONTINUE, DRC_CANCEL, DRC_NEXT))
         return (True);
       IncrementUndoSerialNumber ();
       Undo (True);
@@ -3752,7 +3754,7 @@ doIsBad:
   DrawObject (type, ptr1, ptr2, 0);
   drcerr_count++;
   GotoError ();
-  if (!gui->confirm_dialog (DRC_CONTINUE, 0))
+  if (!gui->confirm_dialog (DRC_CONTINUE, DRC_CANCEL, DRC_NEXT))
     {
       IsBad = True;
       return 1;
@@ -3766,7 +3768,7 @@ doIsBad:
  * Check for DRC violations
  * see if the connectivity changes when everything is bloated, or shrunk
  */
-Cardinal
+int
 DRCAll (void)
 {
   int tmpcnt;
@@ -3851,7 +3853,7 @@ DRCAll (void)
             drcerr_count++;
             SetThing (LINE_TYPE, layer, line, line);
             GotoError ();
-            if (!gui->confirm_dialog (DRC_CONTINUE, 0))
+            if (!gui->confirm_dialog (DRC_CONTINUE, DRC_CANCEL, DRC_NEXT))
               {
                 IsBad = True;
                 break;
@@ -3878,7 +3880,7 @@ DRCAll (void)
             drcerr_count++;
             SetThing (ARC_TYPE, layer, arc, arc);
             GotoError ();
-            if (!gui->confirm_dialog (DRC_CONTINUE, 0))
+            if (!gui->confirm_dialog (DRC_CONTINUE, DRC_CANCEL, DRC_NEXT))
               {
                 IsBad = True;
                 break;
@@ -3907,7 +3909,7 @@ DRCAll (void)
             drcerr_count++;
             SetThing (PIN_TYPE, element, pin, pin);
             GotoError ();
-            if (!gui->confirm_dialog (DRC_CONTINUE, 0))
+            if (!gui->confirm_dialog (DRC_CONTINUE, DRC_CANCEL, DRC_NEXT))
               {
                 IsBad = True;
                 break;
@@ -3926,7 +3928,7 @@ DRCAll (void)
             drcerr_count++;
             SetThing (PIN_TYPE, element, pin, pin);
             GotoError ();
-            if (!gui->confirm_dialog (DRC_CONTINUE, 0))
+            if (!gui->confirm_dialog (DRC_CONTINUE, DRC_CANCEL, DRC_NEXT))
               {
                 IsBad = True;
                 break;
@@ -3943,7 +3945,7 @@ DRCAll (void)
             drcerr_count++;
             SetThing (PIN_TYPE, element, pin, pin);
             GotoError ();
-            if (!gui->confirm_dialog (DRC_CONTINUE, 0))
+            if (!gui->confirm_dialog (DRC_CONTINUE, DRC_CANCEL, DRC_NEXT))
               {
                 IsBad = True;
                 break;
@@ -3970,7 +3972,7 @@ DRCAll (void)
             drcerr_count++;
             SetThing (PAD_TYPE, element, pad, pad);
             GotoError ();
-            if (!gui->confirm_dialog (DRC_CONTINUE, 0))
+            if (!gui->confirm_dialog (DRC_CONTINUE, DRC_CANCEL, DRC_NEXT))
               {
                 IsBad = True;
                 break;
@@ -3999,7 +4001,7 @@ DRCAll (void)
             drcerr_count++;
             SetThing (VIA_TYPE, via, via, via);
             GotoError ();
-            if (!gui->confirm_dialog (DRC_CONTINUE, 0))
+            if (!gui->confirm_dialog (DRC_CONTINUE, DRC_CANCEL, DRC_NEXT))
               {
                 IsBad = True;
                 break;
@@ -4018,7 +4020,7 @@ DRCAll (void)
             drcerr_count++;
             SetThing (VIA_TYPE, via, via, via);
             GotoError ();
-            if (!gui->confirm_dialog (DRC_CONTINUE, 0))
+            if (!gui->confirm_dialog (DRC_CONTINUE, DRC_CANCEL, DRC_NEXT))
               {
                 IsBad = True;
                 break;
@@ -4035,7 +4037,7 @@ DRCAll (void)
             drcerr_count++;
             SetThing (VIA_TYPE, via, via, via);
             GotoError ();
-            if (!gui->confirm_dialog (DRC_CONTINUE, 0))
+            if (!gui->confirm_dialog (DRC_CONTINUE, DRC_CANCEL, DRC_NEXT))
               {
                 IsBad = True;
                 break;
@@ -4067,7 +4069,7 @@ DRCAll (void)
             drcerr_count++;
             SetThing (LINE_TYPE, layer, line, line);
             GotoError ();
-            if (!gui->confirm_dialog (DRC_CONTINUE, 0))
+            if (!gui->confirm_dialog (DRC_CONTINUE, DRC_CANCEL, DRC_NEXT))
               {
                 IsBad = True;
                 break;
@@ -4100,7 +4102,7 @@ DRCAll (void)
             drcerr_count++;
             SetThing (ELEMENT_TYPE, element, element, element);
             GotoError ();
-            if (!gui->confirm_dialog (DRC_CONTINUE, 0))
+            if (!gui->confirm_dialog (DRC_CONTINUE, DRC_CANCEL, DRC_NEXT))
               {
                 IsBad = True;
                 break;
@@ -4126,7 +4128,7 @@ DRCAll (void)
 	       nopastecnt,
 	       nopastecnt > 1 ? "s have" : " has");
     }
-  return (drcerr_count);
+  return IsBad ? -drcerr_count : drcerr_count;
 }
 
 /*----------------------------------------------------------------------------

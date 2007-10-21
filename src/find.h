@@ -65,7 +65,7 @@ void FreeLayoutLookupMemory (void);
 void RatFindHook (int, void *, void *, void *, Boolean, Boolean);
 void SaveFindFlag (int);
 void RestoreFindFlag (void);
-Cardinal DRCAll (void);
+int DRCAll (void);
 Boolean lineClear (LineTypePtr, Cardinal);
 Boolean IsLineInPolygon (LineTypePtr, PolygonTypePtr);
 Boolean IsArcInPolygon (ArcTypePtr, PolygonTypePtr);

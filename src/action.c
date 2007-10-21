@@ -1731,7 +1731,7 @@ not the current style settings.
 static int
 ActionDRCheck (int argc, char **argv, int x, int y)
 {
-  Cardinal count;
+  int count;
 
   Message (_("Rules are minspace %d.%02d, minoverlap %d.%d "
 	     "minwidth %d.%02d, minsilk %d.%02d\n"
@@ -1746,8 +1746,10 @@ ActionDRCheck (int argc, char **argv, int x, int y)
   count = DRCAll ();
   if (count == 0)
     Message (_("No DRC problems found.\n"));
+  else if (count > 0)
+    Message (_("Found %d design rule errors.\n"), count);
   else
-    Message (_("Found %d design rule errors\n"), count);
+    Message (_("Aborted DRC after %d design rule errors.\n"), -count);
   RestoreCrosshair (True);
   return 0;
 }
