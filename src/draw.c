@@ -1861,7 +1861,33 @@ DrawRat (RatTypePtr Line, int unused)
     }
   if (Settings.RatThickness < 20)
     Line->Thickness = pixel_slop * Settings.RatThickness;
-  DrawLineLowLevel ((LineTypePtr) Line, False);
+  /* rats.c set VIAFLAG if this rat goes to a containing poly: draw a donut */
+  if (TEST_FLAG(VIAFLAG, Line))
+    {
+      int w = Line->Thickness;
+
+      if (Gathering)
+	{
+	  BoxType b;
+
+	  b.X1 = Line->Point1.X - w * 2 - w / 2;
+	  b.X2 = Line->Point1.X + w * 2 + w / 2;
+	  b.Y1 = Line->Point1.Y - w * 2 - w / 2;
+	  b.Y2 = Line->Point1.Y + w * 2 + w / 2;
+	  AddPart(&b);
+	}
+      else
+	{
+	  if (TEST_FLAG (THINDRAWFLAG, PCB))
+	    gui->set_line_width (Output.fgGC, 1);
+	  else
+	    gui->set_line_width (Output.fgGC, w);
+	  gui->draw_arc (Output.fgGC, Line->Point1.X, Line->Point1.Y,
+			 w * 2, w * 2, 0, 360);
+	}
+    }
+  else
+    DrawLineLowLevel ((LineTypePtr) Line, False);
 }
 
 /* ---------------------------------------------------------------------------
@@ -2149,7 +2175,19 @@ EraseRat (RatTypePtr Rat)
 {
   Erasing++;
   gui->set_color (Output.fgGC, Settings.BackgroundColor);
-  DrawLineLowLevel ((LineTypePtr) Rat, False);
+  if (TEST_FLAG(VIAFLAG, Rat))
+    {
+      int w = Rat->Thickness;
+
+      if (TEST_FLAG (THINDRAWFLAG, PCB))
+	gui->set_line_width (Output.fgGC, 1);
+      else
+	gui->set_line_width (Output.fgGC, w);
+      gui->draw_arc (Output.fgGC, Rat->Point1.X, Rat->Point1.Y,
+		     w * 2, w * 2, 0, 360);
+    }
+  else
+    DrawLineLowLevel ((LineTypePtr) Rat, False);
   Erasing--;
 }
 

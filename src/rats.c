@@ -513,6 +513,7 @@ GatherSubnets (NetListTypePtr Netl, Boolean NoWarn, Boolean AndRats)
       }
       ENDALL_LOOP;
       /* add rectangular polygons so the auto-router can see them as targets */
+      /* NB: code in DrawShortestRats below relies on only rectangular polys */
       ALLPOLYGON_LOOP (PCB->Data);
       {
 	if (TEST_FLAG (DRCFLAG, polygon) && polygon->PointN == 4)
@@ -574,10 +575,20 @@ DrawShortestRats (NetListTypePtr Netl, void (*funcp) ())
   RatTypePtr line;
   register float distance, temp;
   register ConnectionTypePtr conn1, conn2, firstpoint, secondpoint;
+  PolygonTypePtr polygon;
   Boolean changed = False;
   Cardinal n, m, j;
   NetTypePtr next, subnet, theSubnet = NULL;
 
+  /*
+   * Everything inside the NetList Netl should be connected together.
+   * Each Net in Netl is a group of Connections which are already
+   * connected together somehow, either by real wires or by rats we've
+   * already drawn.  Each Connection is a vertex within that blob of
+   * connected items.  This loop finds the closest vertex pairs between
+   * each blob and draws rats that merge the blobs until there's just
+   * one big blob.
+   */
   distance = 0.0;
   while (Netl->NetN > 1)
     {
@@ -592,7 +603,29 @@ DrawShortestRats (NetListTypePtr Netl, void (*funcp) ())
 	      for (m = next->ConnectionN - 1; m != -1; m--)
 		{
 		  conn2 = &next->Connection[m];
-		  if ((temp = SQUARE (conn1->X - conn2->X) +
+		  if (conn1->type == POLYGON_TYPE &&
+		      (polygon = (PolygonTypePtr)conn1->ptr2) &&
+		      IsPointInBox (conn2->X, conn2->Y, (BoxTypePtr)polygon, 0)
+		      && !(distance == 0 && firstpoint->type == VIA_TYPE))
+		      // IsPointInPolygon (conn2->X, conn2->Y, 0, polygon))
+		    {
+		      distance = 0;
+		      firstpoint = conn2;
+		      secondpoint = conn1;
+		      theSubnet = next;
+		    }
+		  else if (conn2->type == POLYGON_TYPE &&
+		      (polygon = (PolygonTypePtr)conn2->ptr2) &&
+		      IsPointInBox (conn1->X, conn2->Y, (BoxTypePtr)polygon, 0)
+		      && !(distance == 0 && firstpoint->type == VIA_TYPE))
+		      // IsPointInPolygon (conn1->X, conn1->Y, 0, polygon))
+		    {
+		      distance = 0;
+		      firstpoint = conn1;
+		      secondpoint = conn2;
+		      theSubnet = next;
+		    }
+		  else if ((temp = SQUARE (conn1->X - conn2->X) +
 		       SQUARE (conn1->Y - conn2->Y)) < distance || !firstpoint)
 		    {
 		      distance = temp;
@@ -617,6 +650,8 @@ DrawShortestRats (NetListTypePtr Netl, void (*funcp) ())
 				    Settings.RatThickness,
 				    NoFlags ())) != NULL)
 	    {
+	      if (distance == 0)
+		SET_FLAG (VIAFLAG, line);
 	      AddObjectToCreateUndoList (RATLINE_TYPE, line, line, line);
 	      DrawRat (line, 0);
 	      changed = True;

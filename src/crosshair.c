@@ -537,7 +537,11 @@ XORDrawMoveOrCopyObject (void)
     {
       PointTypePtr point1, point2;
 
-      if (TEST_FLAG (RUBBERENDFLAG, ptr->Line))
+      if (TEST_FLAG (VIAFLAG, ptr->Line))
+	{
+	  /* this is a rat going to a polygon.  do not draw for rubberband */;
+	}
+      else if (TEST_FLAG (RUBBERENDFLAG, ptr->Line))
 	{
 	  /* 'point1' is always the fix-point */
 	  if (ptr->MovedPoint == &ptr->Line->Point1)
