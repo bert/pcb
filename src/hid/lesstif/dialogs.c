@@ -389,7 +389,13 @@ lesstif_logv (const char *fmt, va_list ap)
     }
   XmTextInsert (log_text, log_size, msg_buffer);
   log_size += strlen (msg_buffer);
-  XmTextSetCursorPosition (log_text, log_size);
+
+  bp = strrchr(msg_buffer, '\n');
+  if (bp)
+    bp++;
+  else
+    bp = msg_buffer;
+  XmTextSetCursorPosition (log_text, log_size - strlen(bp));
 }
 
 void
