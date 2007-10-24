@@ -293,7 +293,10 @@ rat_callback (const BoxType * box, void *cl)
   if (TEST_FLAG (i->locked, line))
     return 0;
 
-  if (IsPointOnLine (PosX, PosY, SearchRadius, line))
+  if (TEST_FLAG (VIAFLAG, line) ?
+      (SQUARE (line->Point1.X - PosX) + SQUARE (line->Point1.Y - PosY) <=
+	   SQUARE (line->Thickness * 2 + SearchRadius)) :
+      IsPointOnLine (PosX, PosY, SearchRadius, line))
     {
       *i->ptr1 = *i->ptr2 = *i->ptr3 = line;
       longjmp (i->env, 1);
