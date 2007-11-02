@@ -740,16 +740,16 @@ GetFunctionID (String Ident)
       hash_initted = 1;
       if (HSIZE < ENTRIES (Functions) * 2)
 	{
-	  fprintf(stderr, "Error: function hash size too small (%d vs %ud at %s:%d)\n",
-		  HSIZE, ENTRIES (Functions)*2, __FILE__,  __LINE__);
+	  fprintf(stderr, "Error: function hash size too small (%d vs %lu at %s:%d)\n",
+		  HSIZE, (unsigned long) ENTRIES (Functions)*2, __FILE__,  __LINE__);
 	  exit(1);
 	}
       if (ENTRIES (Functions) > 254)
 	{
 	  /* Change 'char' to 'int' and remove this when we get to 256
 	     strings to hash. */
-	  fprintf(stderr, "Error: function hash type too small (%d vs %ud at %s:%d)\n",
-		  256, ENTRIES (Functions), __FILE__,  __LINE__);
+	  fprintf(stderr, "Error: function hash type too small (%d vs %lu at %s:%d)\n",
+		  256, (unsigned long) ENTRIES (Functions), __FILE__,  __LINE__);
 	  exit(1);
 	  
 	}

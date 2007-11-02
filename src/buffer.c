@@ -969,7 +969,7 @@ FreeRotateElementLowLevel (DataTypePtr Data, ElementTypePtr Element,
     RestoreToPolygon (Data, PAD_TYPE, Element, pad);
     free_rotate (&pad->Point1.X, &pad->Point1.Y, X, Y, cosa, sina);
     free_rotate (&pad->Point2.X, &pad->Point2.Y, X, Y, cosa, sina);
-    SetLineBoundingBox (pad);
+    SetLineBoundingBox ((LineType *) pad);
   }
   END_LOOP;
   ARC_LOOP (Element);

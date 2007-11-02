@@ -1194,7 +1194,6 @@ ghid_window_set_name_label (gchar * name)
 static void
 grid_units_button_cb (GtkWidget * widget, gpointer data)
 {
-  GtkAction *action;
 
   /* Do handling common to when units are changed from the menu.
    */

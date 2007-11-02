@@ -876,7 +876,6 @@ SelectObjectByName (int Type, char *Pattern, Boolean Flag)
 
   int result;
   regex_t compiled;
-  regmatch_t match;
 
   /* compile the regular expression */
   result = regcomp (&compiled, Pattern, REG_EXTENDED | REG_ICASE);

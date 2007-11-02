@@ -533,7 +533,7 @@ ghid_port_button_press_cb (GtkWidget * drawing_area,
   gboolean drag, start_pan = FALSE;
 
   /* Reject double and triple click events */
-  if (ev->type != GDK_BUTTON_PRESS) return;
+  if (ev->type != GDK_BUTTON_PRESS) return TRUE;
 
   x_press = ev->x;
   y_press = ev->y;
