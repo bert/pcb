@@ -19,7 +19,7 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  *
  *  Contact addresses for paper mail and Email:
  *  Thomas Nau, Schlehenweg 15, 88471 Baustetten, Germany
@@ -155,9 +155,7 @@ RCSID ("$Id$");
 		IsPointOnArc((PV)->X,(PV)->Y,MAX((PV)->Thickness/2.0 + fBloat,0.0), (Arc)))
 
 #define	IS_PV_ON_PAD(PV,Pad) \
-	((TEST_FLAG(SQUAREFLAG, (Pad))) ? \
-			IsPointInSquarePad((PV)->X, (PV)->Y, MAX((PV)->Thickness/2 +Bloat,0), (Pad)) : \
-			PinLineIntersect((PV), (LineTypePtr) (Pad)))
+	( IsPointInPad((PV)->X, (PV)->Y, MAX((PV)->Thickness/2 +Bloat,0), (Pad)))
 
 /*
  * message when asked about continuing DRC checks after first 
@@ -242,33 +240,13 @@ static Boolean SetThing (int, void *, void *, void *);
 Boolean
 LinePadIntersect (LineTypePtr Line, PadTypePtr Pad)
 {
-  return TEST_FLAG (SQUAREFLAG, Pad) ?
-    IsLineInRectangle (MIN ((Pad)->Point1.X, (Pad)->Point2.X) -
-                       ((Pad)->Thickness + 1) / 2, MIN ((Pad)->Point1.Y,
-                                                        (Pad)->Point2.Y) -
-                       ((Pad)->Thickness + 1) / 2, MAX ((Pad)->Point1.X,
-                                                        (Pad)->Point2.X) +
-                       ((Pad)->Thickness + 1) / 2, MAX ((Pad)->Point1.Y,
-                                                        (Pad)->Point2.Y) +
-                       ((Pad)->Thickness + 1) / 2,
-                       (Line)) : LineLineIntersect ((Line),
-                                                    (LineTypePtr) (Pad));
+  return LineLineIntersect ((Line), (LineTypePtr)Pad);
 }
 
 Boolean
 ArcPadIntersect (ArcTypePtr Arc, PadTypePtr Pad)
 {
-  return TEST_FLAG (SQUAREFLAG, Pad) ?
-/* IsArcInRectangle already applies Bloat */
-    IsArcInRectangle (MIN ((Pad)->Point1.X, (Pad)->Point2.X) -
-                      ((Pad)->Thickness + 1) / 2, MIN ((Pad)->Point1.Y,
-                                                       (Pad)->Point2.Y) -
-                      ((Pad)->Thickness + 1) / 2, MAX ((Pad)->Point1.X,
-                                                       (Pad)->Point2.X) +
-                      ((Pad)->Thickness + 1) / 2, MAX ((Pad)->Point1.Y,
-                                                       (Pad)->Point2.Y) +
-                      ((Pad)->Thickness + 1) / 2,
-                      (Arc)) : LineArcIntersect ((LineTypePtr) (Pad), (Arc));
+  return LineArcIntersect ((LineTypePtr) (Pad), (Arc));
 }
 
 static Boolean
@@ -389,7 +367,7 @@ PinLineIntersect (PinTypePtr PV, LineTypePtr Line)
                                              PV->Y - (PV->Thickness + 1) / 2,
                                              PV->X + (PV->Thickness + 1) / 2,
                                              PV->Y + (PV->Thickness + 1) / 2,
-                                             Line) : IsPointOnLine (PV->X,
+                                             Line) : IsPointInPad (PV->X,
                                                                     PV->Y,
                                                                     MAX (PV->
                                                                          Thickness
@@ -397,7 +375,7 @@ PinLineIntersect (PinTypePtr PV, LineTypePtr Line)
                                                                          2.0 +
                                                                          fBloat,
                                                                          0.0),
-                                                                    Line);
+                                                                    (PadTypePtr)Line);
 }
 
 
@@ -429,89 +407,6 @@ BoxBoxIntersection (BoxTypePtr b1, BoxTypePtr b2)
 static Boolean
 PadPadIntersect (PadTypePtr p1, PadTypePtr p2)
 {
-  if (TEST_FLAG (SQUAREFLAG, p1) && TEST_FLAG (SQUAREFLAG, p2))
-    {
-      BoxType b1, b2;
-
-      /* Here we are trying to find out if two rectangles have at least
-       * Bloat space between them.  Note that this takes more care than
-       * simply blowing out one of the rectangles by Bloat on all sides.
-       * That only works if the shortest line between the two original
-       * rectangles is perpendicular to the sids of the rectangles.
-       *
-       */
-
-      /* Step #1 find out if the shortest line is perpendicular to 
-       * the closest edge
-       */
-      b1.X1 = MIN (p1->Point1.X, p1->Point2.X) - (p1->Thickness + 1) / 2;
-      b1.Y1 = MIN (p1->Point1.Y, p1->Point2.Y) - (p1->Thickness + 1) / 2;
-      b1.X2 = MAX (p1->Point1.X, p1->Point2.X) + (p1->Thickness + 1) / 2;
-      b1.Y2 = MAX (p1->Point1.Y, p1->Point2.Y) + (p1->Thickness + 1) / 2;
-
-      b2.X1 = MIN (p2->Point1.X, p2->Point2.X) - (p2->Thickness + 1) / 2;
-      b2.Y1 = MIN (p2->Point1.Y, p2->Point2.Y) - (p2->Thickness + 1) / 2;
-      b2.X2 = MAX (p2->Point1.X, p2->Point2.X) + (p2->Thickness + 1) / 2;
-      b2.Y2 = MAX (p2->Point1.Y, p2->Point2.Y) + (p2->Thickness + 1) / 2;
-
-      if ( (b2.X1 <= b1.X2 && b2.X2 >= b1.X1) ||
-	   (b2.Y1 <= b1.Y2 && b2.Y2 >= b1.Y1) )
-	{
-	  b2.X1 =
-	    MIN (p2->Point1.X,
-		 p2->Point2.X) - MAX ((p2->Thickness + 1) / 2 + Bloat, 0);
-	  b2.Y1 =
-	    MIN (p2->Point1.Y,
-		 p2->Point2.Y) - MAX ((p2->Thickness + 1) / 2 + Bloat, 0);
-	  b2.X2 =
-	    MAX (p2->Point1.X,
-		 p2->Point2.X) + MAX ((p2->Thickness + 1) / 2 + Bloat, 0);
-	  b2.Y2 =
-	    MAX (p2->Point1.Y,
-		 p2->Point2.Y) + MAX ((p2->Thickness + 1) / 2 + Bloat, 0);
-	  return BoxBoxIntersection (&b1, &b2);
-	}
-      else
-	{
-	  /* the shortest line is between two corners */
-	  double x1, x2, y1, y2;
-	  
-	  if (b2.X2 < b1.X1)
-	    {
-	      /* b2 is to the left of b1 */
-	      x1 = (double) b1.X1;
-	      x2 = (double) b2.X2;
-	    }
-	  else
-	    {
-	      /* b2 is to the right of b1 */
-	      x1 = (double) b1.X2;
-	      x2 = (double) b2.X1;
-	    }
-
-	  if (b2.Y2 < b1.Y1)
-	    {
-	      /* b2 is above b1 */
-	      y1 = (double) b1.Y1;
-	      y2 = (double) b2.Y2;
-	    }
-	  else
-	    {
-	      /* b2 is below b1 */
-	      y1 = (double) b1.Y2;
-	      y2 = (double) b2.Y1;
-	    }
-
-	  /* use floating point math to avoid overflows here */
-	  if ( (x1 - x2)*(x1 - x2) + (y1 - y2)*(y1 - y2) < ((double) Bloat)*((double) Bloat) )
-	    return TRUE;
-	  else
-	    return FALSE;
-	}
-      
-    }
-  if (TEST_FLAG (SQUAREFLAG, p1))
-    return LinePadIntersect ((LineTypePtr) p2, p1);
   return LinePadIntersect ((LineTypePtr) p1, p2);
 }
       
@@ -1449,6 +1344,30 @@ IsRatPointOnLineEnd (PointTypePtr Point, LineTypePtr Line)
   return (False);
 }
 
+static void 
+form_slanted_rectangle(PointType p[4],LineTypePtr l)
+/* writes vertices of a squared line */
+{
+   int dX= l->Point2.X - l->Point1.X, dY = l->Point2.Y - l->Point1.Y, 
+     w = l->Thickness;
+   double dwx, dwy;
+   if (dY == 0)
+     {
+       dwx = w / 2; dwy = 0;
+     }
+    else if (dX == 0)
+     {
+       dwx = 0; dwy = w / 2;
+     }
+    else 
+     {double r = sqrt (dX * (double) dX + dY * (double) dY) * 2;
+       dwx = w / r * dX; dwy =  w / r * dY;
+     }
+    p[0].X = l->Point1.X - dwx + dwy; p[0].Y = l->Point1.Y - dwy - dwx;
+    p[1].X = l->Point1.X - dwx - dwy; p[1].Y = l->Point1.Y - dwy + dwx;
+    p[2].X = l->Point2.X + dwx - dwy; p[2].Y = l->Point2.Y + dwy + dwx;
+    p[3].X = l->Point2.X + dwx + dwy; p[3].Y = l->Point2.Y + dwy - dwx;
+}
 /* ---------------------------------------------------------------------------
  * checks if two lines intersect
  * from news FAQ:
@@ -1508,6 +1427,19 @@ Boolean
 LineLineIntersect (LineTypePtr Line1, LineTypePtr Line2)
 {
   register float dx, dy, dx1, dy1, s, r;
+  if (TEST_FLAG (SQUAREFLAG, Line1))/* pretty reckless recursion */
+    {
+      PointType p[4];form_slanted_rectangle(p,Line1);
+      return IsLineInQuadrangle(p,Line2);
+    }
+  /* here come only round Line1 because IsLineInQuadrangle()
+     calls LineLineIntersect() with first argument rounded*/
+  if (TEST_FLAG (SQUAREFLAG, Line2))
+    {
+      PointType p[4];form_slanted_rectangle(p,Line2);
+      return IsLineInQuadrangle(p,Line1);
+    }
+  /* now all lines are round */
 
 #if 0
   if (Line1->BoundingBox.X1 - Bloat > Line2->BoundBoxing.X2
@@ -1542,21 +1474,12 @@ LineLineIntersect (LineTypePtr Line1, LineTypePtr Line2)
 
       /* perhaps line 1 is really just a point */
       if ((dx == 0) && (dy == 0))
-
-
-
-        return (TEST_FLAG (SQUAREFLAG, Line2)
-                ?
-                IsPointInSquarePad
+        return IsPointInPad
                 (Line1->Point1.X,
                  Line1->Point1.Y,
                  MAX (Line1->Thickness / 2 +
                       Bloat, 0),
-                 (PadTypePtr) Line2) :
-                IsPointOnLine
-                (Line1->Point1.X,
-                 Line1->Point1.Y,
-                 MAX (Line1->Thickness / 2 + Bloat, 0), Line2));
+                 (PadTypePtr) Line2);
       s = s * s / (dx * dx + dy * dy);
 
 
@@ -1566,8 +1489,7 @@ LineLineIntersect (LineTypePtr Line1, LineTypePtr Line2)
       distance *= distance;
       if (s > distance)
         return (False);
-      if (TEST_FLAG (SQUAREFLAG, Line1) &&
-          (IsPointInSquarePad (Line2->Point1.
+      if (IsPointInPad (Line2->Point1.
                                X,
                                Line2->Point1.
                                Y,
@@ -1577,16 +1499,15 @@ LineLineIntersect (LineTypePtr Line1, LineTypePtr Line2)
                                     Bloat, 0),
                                (PadTypePtr)
                                Line1)
-           || IsPointInSquarePad (Line2->
+           || IsPointInPad (Line2->
                                   Point2.X,
                                   Line2->
                                   Point2.Y,
                                   MAX (Line2->
                                        Thickness
-                                       / 2 + Bloat, 0), (PadTypePtr) Line1)))
+                                       / 2 + Bloat, 0), (PadTypePtr) Line1))
         return (True);
-      if (TEST_FLAG (SQUAREFLAG, Line2) &&
-          (IsPointInSquarePad (Line1->Point1.
+      return ((IsPointInPad (Line1->Point1.
                                X,
                                Line1->Point1.
                                Y,
@@ -1596,51 +1517,13 @@ LineLineIntersect (LineTypePtr Line1, LineTypePtr Line2)
                                     Bloat, 0),
                                (PadTypePtr)
                                Line2)
-           || IsPointInSquarePad (Line1->
+           || IsPointInPad (Line1->
                                   Point2.X,
                                   Line1->
                                   Point2.Y,
                                   MAX (Line1->
                                        Thickness
-                                       / 2 + Bloat, 0), (PadTypePtr) Line2)))
-        return (True);
-      return (IsPointOnLine (Line1->Point1.X,
-                             Line1->Point1.
-                             Y,
-                             MAX (0.5 *
-                                  Line1->
-                                  Thickness
-                                  + fBloat,
-                                  0.0),
-                             Line2)
-              || IsPointOnLine (Line1->
-                                Point2.X,
-                                Line1->
-                                Point2.Y,
-                                MAX (0.5 *
-                                     Line1->
-                                     Thickness
-                                     +
-                                     fBloat,
-                                     0.0),
-                                Line2)
-              || IsPointOnLine (Line2->
-                                Point1.X,
-                                Line2->
-                                Point1.Y,
-                                MAX (0.5 *
-                                     Line2->
-                                     Thickness
-                                     +
-                                     fBloat,
-                                     0.0),
-                                Line1)
-              || IsPointOnLine (Line2->
-                                Point2.X,
-                                Line2->
-                                Point2.Y,
-                                MAX (0.5 *
-                                     Line2->Thickness + fBloat, 0.0), Line1));
+                                       / 2 + Bloat, 0), (PadTypePtr) Line2)));
     }
   else
     {
@@ -1659,17 +1542,17 @@ LineLineIntersect (LineTypePtr Line1, LineTypePtr Line2)
 
           /* intersection on AB and extension of CD */
           return (s < 0.0 ?
-                  IsPointOnLine
+                  IsPointInPad
                   (Line2->Point1.X,
                    Line2->Point1.Y,
                    MAX (0.5 *
                         Line2->Thickness +
                         fBloat, 0.0),
-                   Line1) :
-                  IsPointOnLine
+                   (PadTypePtr)Line1) :
+                  IsPointInPad
                   (Line2->Point2.X,
                    Line2->Point2.Y,
-                   MAX (0.5 * Line2->Thickness + fBloat, 0.0), Line1));
+                   MAX (0.5 * Line2->Thickness + fBloat, 0.0), (PadTypePtr)Line1));
         }
 
       /* intersection is at least on CD */
@@ -1677,32 +1560,32 @@ LineLineIntersect (LineTypePtr Line1, LineTypePtr Line2)
         {
           /* intersection on CD and extension of AB */
           return (r < 0.0 ?
-                  IsPointOnLine
+                  IsPointInPad
                   (Line1->Point1.X,
                    Line1->Point1.Y,
                    MAX (Line1->Thickness /
                         2.0 + fBloat, 0.0),
-                   Line2) :
-                  IsPointOnLine
+                   (PadTypePtr)Line2) :
+                  IsPointInPad
                   (Line1->Point2.X,
                    Line1->Point2.Y,
-                   MAX (Line1->Thickness / 2.0 + fBloat, 0.0), Line2));
+                   MAX (Line1->Thickness / 2.0 + fBloat, 0.0), (PadTypePtr)Line2));
         }
 
       /* no intersection of zero-width lines but maybe of thick lines;
        * Must check each end point to exclude intersection
        */
-      if (IsPointOnLine (Line1->Point1.X, Line1->Point1.Y,
-                         Line1->Thickness / 2.0 + fBloat, Line2))
+      if (IsPointInPad (Line1->Point1.X, Line1->Point1.Y,
+                         Line1->Thickness / 2.0 + fBloat, (PadTypePtr)Line2))
         return True;
-      if (IsPointOnLine (Line1->Point2.X, Line1->Point2.Y,
-                         Line1->Thickness / 2.0 + fBloat, Line2))
+      if (IsPointInPad (Line1->Point2.X, Line1->Point2.Y,
+                         Line1->Thickness / 2.0 + fBloat, (PadTypePtr)Line2))
         return True;
-      if (IsPointOnLine (Line2->Point1.X, Line2->Point1.Y,
-                         Line2->Thickness / 2.0 + fBloat, Line1))
+      if (IsPointInPad (Line2->Point1.X, Line2->Point1.Y,
+                         Line2->Thickness / 2.0 + fBloat, (PadTypePtr)Line1))
         return True;
-      return IsPointOnLine (Line2->Point2.X, Line2->Point2.Y,
-                            Line2->Thickness / 2.0 + fBloat, Line1);
+      return IsPointInPad (Line2->Point2.X, Line2->Point2.Y,
+                            Line2->Thickness / 2.0 + fBloat, (PadTypePtr)Line1);
     }
 }
 
@@ -1785,9 +1668,9 @@ LineArcIntersect (LineTypePtr Line, ArcTypePtr Arc)
     return (True);
   /* check arc end points */
   box = GetArcEnds (Arc);
-  if (IsPointOnLine (box->X1, box->Y1, Arc->Thickness * 0.5 + fBloat, Line))
+  if (IsPointInPad (box->X1, box->Y1, Arc->Thickness * 0.5 + fBloat, (PadTypePtr)Line))
     return True;
-  if (IsPointOnLine (box->X2, box->Y2, Arc->Thickness * 0.5 + fBloat, Line))
+  if (IsPointInPad (box->X2, box->Y2, Arc->Thickness * 0.5 + fBloat, (PadTypePtr)Line))
     return True;
   return False;
 }
@@ -2591,6 +2474,17 @@ IsLineInPolygon (LineTypePtr Line, PolygonTypePtr Polygon)
     return False;
   if (!Polygon->Clipped)
     return False;
+  if (TEST_FLAG(SQUAREFLAG,Line)&&(Line->Point1.X==Line->Point2.X||Line->Point1.Y==Line->Point2.Y))
+     {
+       BDimension wid = (Line->Thickness + Bloat + 1) / 2;
+       LocationType x1, x2, y1, y2;
+
+       x1 = MIN (Line->Point1.X, Line->Point2.X) - wid;
+       y1 = MIN (Line->Point1.Y, Line->Point2.Y) - wid;
+       x2 = MAX (Line->Point1.X, Line->Point2.X) + wid;
+       y2 = MAX (Line->Point1.Y, Line->Point2.Y) + wid;
+       return IsRectangleInPolygon (x1, y1, x2, y2, Polygon);
+     }
   if (Box->X1 <= Polygon->Clipped->contours->xmax + Bloat
       && Box->X2 >= Polygon->Clipped->contours->xmin - Bloat
       && Box->Y1 <= Polygon->Clipped->contours->ymax + Bloat
@@ -2611,18 +2505,6 @@ IsLineInPolygon (LineTypePtr Line, PolygonTypePtr Polygon)
 Boolean
 IsPadInPolygon (PadTypePtr pad, PolygonTypePtr polygon)
 {
-  if (TEST_FLAG (SQUAREFLAG, pad))
-    {
-      BDimension wid = (pad->Thickness + Bloat + 1) / 2;
-      LocationType x1, x2, y1, y2;
-
-      x1 = MIN (pad->Point1.X, pad->Point2.X) - wid;
-      y1 = MIN (pad->Point1.Y, pad->Point2.Y) - wid;
-      x2 = MAX (pad->Point1.X, pad->Point2.X) + wid;
-      y2 = MAX (pad->Point1.Y, pad->Point2.Y) + wid;
-      return IsRectangleInPolygon (x1, y1, x2, y2, polygon);
-    }
-  else
     return IsLineInPolygon ((LineTypePtr) pad, polygon);
 }
 
@@ -3717,12 +3599,13 @@ drc_callback (DataTypePtr data, LayerTypePtr layer, PolygonTypePtr polygon,
       break;
     case PAD_TYPE:
       if (pad->Clearance < 2 * PCB->Bloat)
-        {
-          AddObjectToFlagUndoList (type, ptr1, ptr2, ptr2);
-          SET_FLAG (TheFlag, pad);
-          Message (_("Pad with insufficient clearance inside polygon\n"));
-          goto doIsBad;
-        }
+	if (IsPadInPolygon(pad,polygon))
+	  {
+	    AddObjectToFlagUndoList (type, ptr1, ptr2, ptr2);
+	    SET_FLAG (TheFlag, pad);
+	    Message (_("Pad with insufficient clearance inside polygon\n"));
+	    goto doIsBad;
+	  }
       break;
     case PIN_TYPE:
       if (pin->Clearance < 2 * PCB->Bloat)

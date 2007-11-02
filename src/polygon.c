@@ -391,13 +391,13 @@ ArcPoly (ArcType * a, BDimension thick)
 }
 
 POLYAREA *
-LinePoly (LineType * l, BDimension thick)
+LinePoly (LineType * L, BDimension thick)
 {
   PLINE *contour = NULL;
   POLYAREA *np = NULL;
   Vector v;
   double d, dx, dy;
-  long half;
+  long half;LineType _l=*L,*l=&_l;
 
   if (thick <= 0)
     return NULL;
@@ -405,24 +405,46 @@ LinePoly (LineType * l, BDimension thick)
   d =
     sqrt (SQUARE (l->Point1.X - l->Point2.X) +
           SQUARE (l->Point1.Y - l->Point2.Y));
-  if (d == 0)                   /* line is a point */
-    return CirclePoly (l->Point1.X, l->Point1.Y, half);
-  d = half / d;
-  dx = (l->Point1.Y - l->Point2.Y) * d;
-  dy = (l->Point2.X - l->Point1.X) * d;
+  if (!TEST_FLAG (SQUAREFLAG,l))
+    if (d == 0)                   /* line is a point */
+      return CirclePoly (l->Point1.X, l->Point1.Y, half);
+  if (d != 0)
+    {
+      d = half / d;
+      dx = (l->Point1.Y - l->Point2.Y) * d;
+      dy = (l->Point2.X - l->Point1.X) * d;
+    }
+  else
+    {
+      dx = half;
+      dy = 0;
+    }
+  if (TEST_FLAG (SQUAREFLAG,l))/* take into account the ends */
+    {
+      l->Point1.X -= dy;
+      l->Point1.Y += dx;
+      l->Point2.X += dy;
+      l->Point2.Y -= dx;
+    }
   v[0] = l->Point1.X - dx;
   v[1] = l->Point1.Y - dy;
   if ((contour = poly_NewContour (v)) == NULL)
     return 0;
   v[0] = l->Point2.X - dx;
   v[1] = l->Point2.Y - dy;
-  frac_circle (contour, l->Point2.X, l->Point2.Y, v, 2);
+  if (TEST_FLAG (SQUAREFLAG,l))
+    poly_InclVertex (contour->head.prev, poly_CreateNode (v));
+  else
+    frac_circle (contour, l->Point2.X, l->Point2.Y, v, 2);
   v[0] = l->Point2.X + dx;
   v[1] = l->Point2.Y + dy;
   poly_InclVertex (contour->head.prev, poly_CreateNode (v));
   v[0] = l->Point1.X + dx;
   v[1] = l->Point1.Y + dy;
-  frac_circle (contour, l->Point1.X, l->Point1.Y, v, 2);
+  if (TEST_FLAG (SQUAREFLAG,l))
+    poly_InclVertex (contour->head.prev, poly_CreateNode (v));
+  else
+    frac_circle (contour, l->Point1.X, l->Point1.Y, v, 2);
   /* now we have the line contour */
   if (!(np = ContourToPoly (contour)))
     return NULL;

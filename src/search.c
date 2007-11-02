@@ -186,25 +186,13 @@ pad_callback (const BoxType * b, void *cl)
 
   if (FRONT (pad) || i->BackToo)
     {
-      if (TEST_FLAG (SQUAREFLAG, pad))
-	{
-	  if (IsPointInSquarePad (PosX, PosY, SearchRadius, pad))
+      if (IsPointInPad (PosX, PosY, SearchRadius, pad))
 	    {
 	      *i->ptr1 = pad->Element;
 	      *i->ptr2 = *i->ptr3 = pad;
 	      longjmp (i->env, 1);
 	    }
 	}
-      else
-	{
-	  if (IsPointOnLine (PosX, PosY, SearchRadius, (LineTypePtr) pad))
-	    {
-	      *i->ptr1 = pad->Element;
-	      *i->ptr2 = *i->ptr3 = pad;
-	      longjmp (i->env, 1);
-	    }
-	}
-    }
   return 0;
 }
 
@@ -255,7 +243,7 @@ line_callback (const BoxType * box, void *cl)
   if (TEST_FLAG (i->locked, l))
     return 0;
 
-  if (!IsPointOnLine (PosX, PosY, SearchRadius, l))
+  if (!IsPointInPad (PosX, PosY, SearchRadius, (PadTypePtr)l))
     return 0;
   *i->Line = l;
   *i->Point = (PointTypePtr) l;
@@ -804,7 +792,77 @@ IsLineInRectangle (LocationType X1, LocationType Y1,
 
   return (False);
 }
+static int 
+sign(float x){return x<0?-1:x>0?1:0;}
+static int /*checks if a point (of null radius) is in a slanted rectangle*/
+IsPointInQuadrangle(PointType p[4],PointTypePtr l)
+{
+  int dx,dy,x,y;
+  float prod0,prod1;
 
+  dx = p[1].X - p[0].X;
+  dy = p[1].Y - p[0].Y;
+  x=l->X - p[0].X;
+  y=l->Y - p[0].Y;
+  prod0 = (float)x * dx + (float)y * dy;
+  x = l->X - p[1].X;
+  y = l->Y - p[1].Y;
+  prod1 = (float)x * dx + (float)y * dy;
+  if (sign (prod0) * sign (prod1) <= 0)
+    {
+      dx = p[1].X - p[2].X;
+      dy = p[1].Y - p[2].Y;
+      prod0 = (float)x * dx + (float)y * dy;
+      x = l->X - p[2].X;
+      y = l->Y - p[2].Y;
+      prod1 = (float)x * dx + (float)y * dy;
+      if (sign (prod0) * sign (prod1) <= 0)
+	return True;
+    }
+  return False;
+}
+/* ---------------------------------------------------------------------------
+ * checks if a line crosses a quadrangle: almost copied from IsLineInRectangle()
+ * Note: actually this quadrangle is a slanted rectangle
+ */
+Boolean
+IsLineInQuadrangle (PointType p[4], LineTypePtr Line)
+{
+  LineType line;
+
+  /* first, see if point 1 is inside the rectangle */
+  /* in case the whole line is inside the rectangle */
+  if (IsPointInQuadrangle(p,&(Line->Point1)))
+    return True;
+  if (IsPointInQuadrangle(p,&(Line->Point2)))
+    return True;
+  /* construct a set of dummy lines and check each of them */
+  line.Thickness = 0;
+  line.Flags = NoFlags ();
+
+  /* upper-left to upper-right corner */
+  line.Point1.X = p[0].X; line.Point1.Y = p[0].Y;
+  line.Point2.X = p[1].X; line.Point2.Y = p[1].Y;
+  if (LineLineIntersect (&line, Line))
+    return (True);
+
+  /* upper-right to lower-right corner */
+  line.Point1.X = p[2].X; line.Point1.Y = p[2].Y;
+  if (LineLineIntersect (&line, Line))
+    return (True);
+
+  /* lower-right to lower-left corner */
+  line.Point2.X = p[3].X; line.Point2.Y = p[3].Y;
+  if (LineLineIntersect (&line, Line))
+    return (True);
+
+  /* lower-left to upper-left corner */
+  line.Point1.X = p[0].X; line.Point1.Y = p[0].Y;
+  if (LineLineIntersect (&line, Line))
+    return (True);
+
+  return (False);
+}
 /* ---------------------------------------------------------------------------
  * checks if an arc crosses a square
  */
@@ -850,97 +908,96 @@ IsArcInRectangle (LocationType X1, LocationType Y1,
 }
 
 /* ---------------------------------------------------------------------------
- * check if a point lies inside a square Pad
- * fixed 10/30/98 - radius can't expand both edges of a square box
+ * Check if a circle of Radius with center at (X, Y) intersects a Pad.
+ * Written to enable arbitrary pad directions; for rounded pads, too.
  */
-
-/* Cross c->u and c->v, return the magnitute */
-static double
-cross2d (int cx, int cy, int ux, int uy, int vx, int vy)
-{
-  ux -= cx;
-  uy -= cy;
-  vx -= cx;
-  vy -= cy;
-  return (double)ux * vy - (double)uy * vx;
-}
-
 Boolean
-IsPointInSquarePad (LocationType X, LocationType Y, Cardinal Radius,
-		    PadTypePtr Pad)
+IsPointInPad (LocationType X, LocationType Y, Cardinal Radius,
+	      PadTypePtr Pad)
 {
-  register BDimension t2 = Pad->Thickness / 2;
-  BoxType padbox;
+  double r, Sin, Cos;
+  long x, t2 = Pad->Thickness / 2, range;
+  PadType pad = *Pad;
 
-  if (Pad->Point1.X != Pad->Point2.X
-      && Pad->Point1.Y != Pad->Point2.Y)
+  /* series of transforms saving range */
+  /* move Point1 to the origin */
+  X -= pad.Point1.X;
+  Y -= pad.Point1.Y;
+
+  pad.Point2.X -= pad.Point1.X;
+  pad.Point2.Y -= pad.Point1.Y;
+  /* so, pad.Point1.X = pad.Point1.Y = 0; */
+
+  /* rotate round (0, 0) so that Point2 coordinates be (r, 0) */
+  r= sqrt ((double)pad.Point2.X * pad.Point2.X +
+	   (double)pad.Point2.Y * pad.Point2.Y);
+  if (r < .1)
     {
-      /* rare but harder */
-      int x[5], y[5];
-      float tx, ty, theta;
-      int x1 = Pad->Point1.X;
-      int y1 = Pad->Point1.Y;
-      int x2 = Pad->Point2.X;
-      int y2 = Pad->Point2.Y;
-      int i;
-
-      theta = atan2 (y2-y1, x2-x1);
-
-      /* T is a vector half a thickness long, in the direction of
-	 one of the corners.  */
-      tx = t2 * cos (theta + M_PI/4) * sqrt(2.0);
-      ty = t2 * sin (theta + M_PI/4) * sqrt(2.0);
-
-      x[0] = x1 - tx;      y[0] = y1 - ty;
-      x[1] = x2 + ty;      y[1] = y2 - tx;
-      x[2] = x2 + tx;      y[2] = y2 + ty;
-      x[3] = x1 - ty;      y[3] = y1 + tx;
-
-      x[4] = x[0]; y[4] = y[0];
-
-      for (i=0; i<4; i++)
-	{
-	  double c = cross2d (x[i], y[i], x[i+1], y[i+1], X, Y);
-	  if (c < 0)
-	    return False;
-	}
-      return True;
+      Cos = 1;
+      Sin = 0;
     }
+  else
+    {
+      Sin = pad.Point2.Y / r;
+      Cos = pad.Point2.X / r;
+    }
+  x = X;
+  X = X * Cos + Y * Sin;
+  Y = Y * Cos - x * Sin;
+  /* now pad.Point2.X = r; pad.Point2.Y = 0; */
 
-  padbox.X1 = MIN (Pad->Point1.X, Pad->Point2.X) - t2;
-  padbox.X2 = MAX (Pad->Point1.X, Pad->Point2.X) + t2;
-  padbox.Y1 = MIN (Pad->Point1.Y, Pad->Point2.Y) - t2;
-  padbox.Y2 = MAX (Pad->Point1.Y, Pad->Point2.Y) + t2;
-  return (IsPointInBox (X, Y, &padbox, Radius));
+  /* take into account the ends */
+  if (TEST_FLAG (SQUAREFLAG, Pad))
+    {
+      r += Pad->Thickness;
+      X += t2;
+    }
+  if (Y < 0)
+    Y = -Y;	/* range value is evident now*/
+
+  if (TEST_FLAG (SQUAREFLAG, Pad))
+    {
+      if (X <= 0)
+	{
+	  if ( Y <= t2 ) range = -X; else
+	    return (Radius * (double)Radius > 
+		    (double)(t2 - Y) * (t2 - Y) + (double)X * X);
+	}
+      else if (X >= r)
+	{
+	  if ( Y <= t2 ) range = X - r; else 
+	    return (Radius * (double)Radius > 
+		    (double)(t2 - Y) * (t2 - Y) + (double)(X - r) * (X - r));
+	}
+      else
+	range = Y - t2;
+    }
+  else/*Rounded pad: even more simple*/
+    {
+      if (X <= 0)
+	return ((Radius + t2) * (double)(Radius + t2) > 
+		(double)X * X + (double)Y * Y);
+      else if (X >= r) 
+	return ((Radius + t2) * (double)(Radius + t2) > 
+		(double)(X - r) * (X - r) + (double)Y * Y);
+      else
+	range = Y - t2;
+    }
+  return range < (long)Radius;
 }
 
 Boolean
 IsPointInBox (LocationType X, LocationType Y, BoxTypePtr box, Cardinal Radius)
 {
-  LineType line;
+  PadType pad;
 
-  if (POINT_IN_BOX (X, Y, box))
-    return (True);
-  line.Thickness = 0;
-  line.Flags = NoFlags ();
-
-  line.Point1.X = box->X1;
-  line.Point1.Y = box->Y1;
-  line.Point2.X = box->X2;
-  line.Point2.Y = box->Y1;
-  if (IsPointOnLine (X, Y, Radius, &line))
-    return (True);
-  line.Point2.X = box->X1;
-  line.Point2.Y = box->Y2;
-  if (IsPointOnLine (X, Y, Radius, &line))
-    return (True);
-  line.Point1.X = box->X2;
-  line.Point1.Y = box->Y2;
-  if (IsPointOnLine (X, Y, Radius, &line))
-    return (True);
-  line.Point2.X = box->X2;
-  line.Point2.Y = box->Y1;
-  return (IsPointOnLine (X, Y, Radius, &line));
+  pad.Thickness = (box->X1 - box->X2); ASSIGN_FLAG (SQUAREFLAG, True, &pad);
+  if (pad.Thickness < 0)
+    pad.Thickness = - pad.Thickness;
+  pad.Point1.X = pad.Point2.X = (box->X1 + box->X2) / 2; 
+  pad.Point1.Y = MIN (box->Y1, box->Y2) + pad.Thickness / 2; 
+  pad.Point2.Y = MAX (box->Y1, box->Y2) - pad.Thickness / 2;
+  return IsPointInPad (X, Y, Radius, &pad);
 }
 
 Boolean

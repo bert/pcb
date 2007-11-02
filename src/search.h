@@ -77,9 +77,10 @@ Boolean IsPointOnArc (float, float, float, ArcTypePtr);
 Boolean IsPointOnLineEnd (LocationType, LocationType, RatTypePtr);
 Boolean IsLineInRectangle (LocationType, LocationType, LocationType,
 			   LocationType, LineTypePtr);
+Boolean IsLineInQuadrangle (PointType p[4], LineTypePtr Line);
 Boolean IsArcInRectangle (LocationType, LocationType, LocationType,
 			  LocationType, ArcTypePtr);
-Boolean IsPointInSquarePad (LocationType, LocationType, Cardinal, PadTypePtr);
+Boolean IsPointInPad (LocationType, LocationType, Cardinal, PadTypePtr);
 Boolean IsPointInBox (LocationType, LocationType, BoxTypePtr, Cardinal);
 int SearchObjectByLocation (int, void **, void **, void **, LocationType,
 			    LocationType, BDimension);
