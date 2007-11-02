@@ -109,35 +109,32 @@ docs_yesno=yes
 AC_SUBST(DOC)
 
 if test "X$docs_yesno" = "Xyes" -a "X$USE_MAINTAINER_MODE" = "Xyes" ; then
-	AC_CHECK_PROGS(MKINFO, makeinfo, notfound)
-	if test "X$MKINFO" = "Xnotfound"; then
-			AC_MSG_ERROR([You have requested a maintainer-mode build and a build
-of the documentation.  For this to work, you must have version 4.6 or newer of
-the GNU texinfo package.
-])
-	fi
-   AC_MSG_CHECKING([for makeinfo version 4.6 or newer])
-   v=`$MKINFO --version | grep "GNU texinfo"`
-   if test $? -ne 0 ; then
-		v=notfound
+   AC_CHECK_PROGS(MKINFO, makeinfo, no)
+   if test "X$MKINFO" != "Xno"; then
+      AC_MSG_CHECKING([for GNU makeinfo version >= 4.6])
+      v=`$MKINFO --version | grep "GNU texinfo"`
+      if test $? -ne 0; then
+         MKINFO="no"
+      fi
    fi
-
-	case " $v " in
-		*\ 4.[[6-9]]\ *)
-			AC_MSG_RESULT([yes])
-			;;
-
-		*)
-			AC_MSG_RESULT([no])
-			AC_MSG_ERROR([You have requested a maintainer-mode build and a build
+   if test "X$MKINFO" != "Xno"; then
+      vmajor=`echo "$v" | sed 's/.* \([[0-9]]*\)\.\([[0-9]]*\)$/\1/'`
+      vminor=`echo "$v" | sed 's/.* \([[0-9]]*\)\.\([[0-9]]*\)$/\2/'`
+      AC_MSG_RESULT([$vmajor.$vminor])
+      if test "$vmajor" -lt 4 \
+              || (test "$vmajor" -eq 4 && test "$vminor" -lt 6); then
+         MKINFO=no
+      fi
+   fi
+   if test "X$MKINFO" == "Xno"; then
+      AC_MSG_ERROR([You have requested a maintainer-mode build and a build
 of the documentation.  For this to work, you must have version 4.6 or newer of
 the GNU texinfo package.  You seem to have
 
 $v
 
 ])
-			;;
-	esac
+   fi
 
 	AC_PATH_PROG(PERL, perl, notfound)
 	if test "X$PERL" = "Xnotfound"; then
