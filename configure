@@ -5143,7 +5143,7 @@ fi
 
 
 if test "X$docs_yesno" = "Xyes" -a "X$USE_MAINTAINER_MODE" = "Xyes" ; then
-	for ac_prog in makeinfo
+   for ac_prog in makeinfo
 do
   # Extract the first word of "$ac_prog", so it can be a program name with args.
 set dummy $ac_prog; ac_word=$2
@@ -5184,36 +5184,28 @@ fi
 
   test -n "$MKINFO" && break
 done
-test -n "$MKINFO" || MKINFO="notfound"
+test -n "$MKINFO" || MKINFO="no"
 
-	if test "X$MKINFO" = "Xnotfound"; then
-			{ { echo "$as_me:$LINENO: error: You have requested a maintainer-mode build and a build
-of the documentation.  For this to work, you must have version 4.6 or newer of
-the GNU texinfo package.
-" >&5
-echo "$as_me: error: You have requested a maintainer-mode build and a build
-of the documentation.  For this to work, you must have version 4.6 or newer of
-the GNU texinfo package.
-" >&2;}
-   { (exit 1); exit 1; }; }
-	fi
-   { echo "$as_me:$LINENO: checking for makeinfo version 4.6 or newer" >&5
-echo $ECHO_N "checking for makeinfo version 4.6 or newer... $ECHO_C" >&6; }
-   v=`$MKINFO --version | grep "GNU texinfo"`
-   if test $? -ne 0 ; then
-		v=notfound
+   if test "X$MKINFO" != "Xno"; then
+      { echo "$as_me:$LINENO: checking for GNU makeinfo version >= 4.6" >&5
+echo $ECHO_N "checking for GNU makeinfo version >= 4.6... $ECHO_C" >&6; }
+      v=`$MKINFO --version | grep "GNU texinfo"`
+      if test $? -ne 0; then
+         MKINFO="no"
+      fi
    fi
-
-	case " $v " in
-		*\ 4.[6-9]\ *)
-			{ echo "$as_me:$LINENO: result: yes" >&5
-echo "${ECHO_T}yes" >&6; }
-			;;
-
-		*)
-			{ echo "$as_me:$LINENO: result: no" >&5
-echo "${ECHO_T}no" >&6; }
-			{ { echo "$as_me:$LINENO: error: You have requested a maintainer-mode build and a build
+   if test "X$MKINFO" != "Xno"; then
+      vmajor=`echo "$v" | sed 's/.* \([0-9]*\)\.\([0-9]*\)$/\1/'`
+      vminor=`echo "$v" | sed 's/.* \([0-9]*\)\.\([0-9]*\)$/\2/'`
+      { echo "$as_me:$LINENO: result: $vmajor.$vminor" >&5
+echo "${ECHO_T}$vmajor.$vminor" >&6; }
+      if test "$vmajor" -lt 4 \
+              || (test "$vmajor" -eq 4 && test "$vminor" -lt 6); then
+         MKINFO=no
+      fi
+   fi
+   if test "X$MKINFO" == "Xno"; then
+      { { echo "$as_me:$LINENO: error: You have requested a maintainer-mode build and a build
 of the documentation.  For this to work, you must have version 4.6 or newer of
 the GNU texinfo package.  You seem to have
 
@@ -5228,8 +5220,7 @@ $v
 
 " >&2;}
    { (exit 1); exit 1; }; }
-			;;
-	esac
+   fi
 
 	# Extract the first word of "perl", so it can be a program name with args.
 set dummy perl; ac_word=$2
