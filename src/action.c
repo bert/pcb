@@ -1011,6 +1011,8 @@ NotifyMode (void)
 				 0, Settings.ViaDrillingHole, NULL,
 				 NoFlags ())) != NULL)
 	  {
+	    if (gui->shift_is_pressed ())
+	      ChangeObjectThermal (VIA_TYPE, via, via, via, PCB->ThermStyle);
 	    AddObjectToCreateUndoList (VIA_TYPE, via, via, via);
 	    IncrementUndoSerialNumber ();
 	    DrawVia (via, 0);
