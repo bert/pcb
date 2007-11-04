@@ -41,6 +41,7 @@ static Widget netlist_list, netnode_list;
 
 static XmString *netlist_strings = 0;
 static XmString *netnode_strings = 0;
+static int n_netnode_strings;
 static int last_pick = -1;
 
 static int NetlistChanged (int argc, char **argv, int x, int y);
@@ -56,7 +57,8 @@ pick_net (int pick)
   last_pick = pick;
 
   if (netnode_strings)
-    free (netnode_strings);
+    free (netnode_strings);	/* XXX leaked all XmStrings??? */
+  n_netnode_strings = menu->EntryN;
   netnode_strings = (XmString *) malloc (menu->EntryN * sizeof (XmString));
   for (i = 0; i < menu->EntryN; i++)
     netnode_strings[i] = XmStringCreateLocalized (menu->Entry[i].ListEntry);
@@ -407,10 +409,10 @@ NetlistChanged (int argc, char **argv, int x, int y)
 }
 
 static const char netlistshow_syntax[] =
-"NetlistShow()";
+"NetlistShow(pinname|netname)";
 
 static const char netlistshow_help[] =
-"Displays the netlist window.";
+"Selects the given pinname or netname in the netlist window.";
 
 /* %start-doc actions NetlistShow
 
@@ -421,6 +423,57 @@ NetlistShow (int argc, char **argv, int x, int y)
 {
   if (build_netlist_dialog ())
     return 0;
+
+  if (argc == 1)
+    {
+      LibraryMenuTypePtr net;
+
+      net = netnode_to_netname(argv[0]);
+      if (net)
+	{
+	  XmString item;
+	  int vis = 0;
+
+	  /* Select net first, 'True' causes pick_net() to be invoked */
+	  item = XmStringCreateLocalized (net->Name);
+	  XmListSelectItem (netlist_list, item, True);
+	  XmListSetItem (netlist_list, item);
+	  XmStringFree (item);
+
+	  /* Now the netnode_list has the right contents */
+	  item = XmStringCreateLocalized (argv[0]);
+	  XmListSelectItem (netnode_list, item, False);
+
+	  /*
+	   * Only force the item to the top if there are enough to scroll.
+	   * A bug (?) in lesstif will cause the window to get ever wider
+	   * if an XmList that doesn't require a scrollbar is forced to
+	   * have one (when the top item is not the first item).
+	   */
+	  n = 0;
+	  stdarg (XmNvisibleItemCount, &vis);
+	  XtGetValues (netnode_list, args, n);
+	  if (n_netnode_strings > vis)
+	    {
+	      XmListSetItem (netnode_list, item);
+	    }
+	  XmStringFree (item);
+	}
+      else
+	{
+	  /* Try the argument as a netname */
+	  net = netname_to_netname(argv[0]);
+	  if (net)
+	    {
+	      XmString item;
+
+	      item = XmStringCreateLocalized (net->Name);
+	      XmListSetItem (netlist_list, item);
+	      XmListSelectItem (netlist_list, item, True);
+	      XmStringFree (item);
+	    }
+	}
+    }
   return 0;
 }
 

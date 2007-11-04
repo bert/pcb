@@ -104,6 +104,26 @@ netnode_to_netname (char *nodename)
   return 0;
 }
 
+LibraryMenuTypePtr
+netname_to_netname (char *netname)
+{
+  int i;
+
+  if ((netname[0] == '*' || netname[0] == ' ') && netname[1] == ' ')
+    {
+      /* Looks like we were passed an internal netname, skip the prefix */
+      netname += 2;
+    }
+  for (i=0; i<PCB->NetlistLib.MenuN; i++)
+    {
+      if (strcmp (PCB->NetlistLib.Menu[i].Name + 2, netname) == 0)
+	{
+	  return & (PCB->NetlistLib.Menu[i]);
+	}
+    }
+  return 0;
+}
+
 static int
 pin_name_to_xy (LibraryEntryType * pin, int *x, int *y)
 {
