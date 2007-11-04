@@ -179,9 +179,11 @@ static void *
 RotateText (LayerTypePtr Layer, TextTypePtr Text)
 {
   EraseText (Layer, Text);
+  RestoreToPolygon (PCB->Data, TEXT_TYPE, Layer, Text);
   r_delete_entry (Layer->text_tree, (BoxTypePtr) Text);
   RotateTextLowLevel (Text, CenterX, CenterY, Number);
   r_insert_entry (Layer->text_tree, (BoxTypePtr) Text, 0);
+  ClearFromPolygon (PCB->Data, TEXT_TYPE, Layer, Text);
   DrawText (Layer, Text, 0);
   Draw ();
   return (Text);

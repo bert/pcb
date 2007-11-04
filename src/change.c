@@ -119,6 +119,9 @@ static void *ClrLineJoin (LayerTypePtr, LineTypePtr);
 static void *ChangeArcJoin (LayerTypePtr, ArcTypePtr);
 static void *SetArcJoin (LayerTypePtr, ArcTypePtr);
 static void *ClrArcJoin (LayerTypePtr, ArcTypePtr);
+static void *ChangeTextJoin (LayerTypePtr, TextTypePtr);
+static void *SetTextJoin (LayerTypePtr, TextTypePtr);
+static void *ClrTextJoin (LayerTypePtr, TextTypePtr);
 static void *ChangePolyClear (LayerTypePtr, PolygonTypePtr);
 
 /* ---------------------------------------------------------------------------
@@ -213,7 +216,7 @@ static ObjectFunctionType ChangeSquareFunctions = {
 };
 static ObjectFunctionType ChangeJoinFunctions = {
   ChangeLineJoin,
-  NULL,
+  ChangeTextJoin,
   NULL,
   NULL,
   NULL,
@@ -273,7 +276,7 @@ static ObjectFunctionType SetSquareFunctions = {
 };
 static ObjectFunctionType SetJoinFunctions = {
   SetLineJoin,
-  NULL,
+  SetTextJoin,
   NULL,
   NULL,
   NULL,
@@ -315,7 +318,7 @@ static ObjectFunctionType ClrSquareFunctions = {
 };
 static ObjectFunctionType ClrJoinFunctions = {
   ClrLineJoin,
-  NULL,
+  ClrTextJoin,
   NULL,
   NULL,
   NULL,
@@ -815,9 +818,11 @@ ChangeTextSize (LayerTypePtr Layer, TextTypePtr Text)
       AddObjectToSizeUndoList (TEXT_TYPE, Layer, Text, Text);
       EraseText (Layer, Text);
       r_delete_entry (Layer->text_tree, (BoxTypePtr) Text);
+      RestoreToPolygon (PCB->Data, TEXT_TYPE, Layer, Text);
       Text->Scale = value;
       SetTextBoundingBox (&PCB->Font, Text);
       r_insert_entry (Layer->text_tree, (BoxTypePtr) Text, 0);
+      ClearFromPolygon (PCB->Data, TEXT_TYPE, Layer, Text);
       DrawText (Layer, Text, 0);
       return (Text);
     }
@@ -1018,10 +1023,12 @@ ChangeTextName (LayerTypePtr Layer, TextTypePtr Text)
   if (TEST_FLAG (LOCKFLAG, Text))
     return (NULL);
   EraseText (Layer, Text);
+  RestoreToPolygon (PCB->Data, TEXT_TYPE, Layer, Text);
   Text->TextString = NewName;
 
   /* calculate size of the bounding box */
   SetTextBoundingBox (&PCB->Font, Text);
+  ClearFromPolygon (PCB->Data, TEXT_TYPE, Layer, Text);
   DrawText (Layer, Text, 0);
   return (old);
 }
@@ -1090,7 +1097,7 @@ ChangeLineJoin (LayerTypePtr Layer, LineTypePtr Line)
 }
 
 /* ---------------------------------------------------------------------------
- * changes the clearance flag of a line
+ * sets the clearance flag of a line
  */
 static void *
 SetLineJoin (LayerTypePtr Layer, LineTypePtr Line)
@@ -1101,7 +1108,7 @@ SetLineJoin (LayerTypePtr Layer, LineTypePtr Line)
 }
 
 /* ---------------------------------------------------------------------------
- * changes the clearance flag of a line
+ * clears the clearance flag of a line
  */
 static void *
 ClrLineJoin (LayerTypePtr Layer, LineTypePtr Line)
@@ -1137,7 +1144,7 @@ ChangeArcJoin (LayerTypePtr Layer, ArcTypePtr Arc)
 }
 
 /* ---------------------------------------------------------------------------
- * changes the clearance flag of an arc
+ * sets the clearance flag of an arc
  */
 static void *
 SetArcJoin (LayerTypePtr Layer, ArcTypePtr Arc)
@@ -1148,7 +1155,7 @@ SetArcJoin (LayerTypePtr Layer, ArcTypePtr Arc)
 }
 
 /* ---------------------------------------------------------------------------
- * changes the clearance flag of an arc
+ * clears the clearance flag of an arc
  */
 static void *
 ClrArcJoin (LayerTypePtr Layer, ArcTypePtr Arc)
@@ -1156,6 +1163,53 @@ ClrArcJoin (LayerTypePtr Layer, ArcTypePtr Arc)
   if (TEST_FLAG (LOCKFLAG, Arc) || !TEST_FLAG (CLEARLINEFLAG, Arc))
     return (NULL);
   return ChangeArcJoin (Layer, Arc);
+}
+
+/* ---------------------------------------------------------------------------
+ * changes the clearance flag of a text
+ */
+static void *
+ChangeTextJoin (LayerTypePtr Layer, TextTypePtr Text)
+{
+  if (TEST_FLAG (LOCKFLAG, Text))
+    return (NULL);
+  EraseText (Layer, Text);
+  if (TEST_FLAG(CLEARLINEFLAG, Text))
+  {
+  AddObjectToClearPolyUndoList (TEXT_TYPE, Layer, Text, Text, False);
+  RestoreToPolygon (PCB->Data, TEXT_TYPE, Layer, Text);
+  }
+  AddObjectToFlagUndoList (LINE_TYPE, Layer, Text, Text);
+  TOGGLE_FLAG (CLEARLINEFLAG, Text);
+  if (TEST_FLAG(CLEARLINEFLAG, Text))
+  {
+  AddObjectToClearPolyUndoList (TEXT_TYPE, Layer, Text, Text, True);
+  ClearFromPolygon (PCB->Data, TEXT_TYPE, Layer, Text);
+  }
+  DrawText (Layer, Text, 0);
+  return (Text);
+}
+
+/* ---------------------------------------------------------------------------
+ * sets the clearance flag of a text
+ */
+static void *
+SetTextJoin (LayerTypePtr Layer, TextTypePtr Text)
+{
+  if (TEST_FLAG (LOCKFLAG, Text) || TEST_FLAG (CLEARLINEFLAG, Text))
+    return (NULL);
+  return ChangeTextJoin (Layer, Text);
+}
+
+/* ---------------------------------------------------------------------------
+ * clears the clearance flag of a text
+ */
+static void *
+ClrTextJoin (LayerTypePtr Layer, TextTypePtr Text)
+{
+  if (TEST_FLAG (LOCKFLAG, Text) || !TEST_FLAG (CLEARLINEFLAG, Text))
+    return (NULL);
+  return ChangeTextJoin (Layer, Text);
 }
 
 /* ---------------------------------------------------------------------------

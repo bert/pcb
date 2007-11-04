@@ -564,6 +564,19 @@ SubtractArc (ArcType * arc, PolygonType * p)
 }
 
 static int
+SubtractText (TextType * text, PolygonType * p)
+{
+  POLYAREA *np;
+  const BoxType *b = &text->BoundingBox;
+
+  if (!TEST_FLAG (CLEARLINEFLAG, text))
+    return 0;
+  if (!(np = RoundRect (b->X1, b->X2, b->Y1, b->Y2, PCB->Bloat)))
+    return -1;
+  return Subtract (np, p, True);
+}
+
+static int
 SubtractPad (PadType * pad, PolygonType * p)
 {
   POLYAREA *np = NULL;
@@ -671,6 +684,24 @@ line_sub_callback (const BoxType * b, void *cl)
 }
 
 static int
+text_sub_callback (const BoxType * b, void *cl)
+{
+  TextTypePtr text = (TextTypePtr) b;
+  struct cpInfo *info = (struct cpInfo *) cl;
+  PolygonTypePtr polygon;
+
+  /* don't subtract the object that was put back! */
+  if (b == info->other)
+    return 0;
+  if (!TEST_FLAG (CLEARLINEFLAG, text))
+    return 0;
+  polygon = info->polygon;
+  if (SubtractText (text, polygon) < 0)
+    longjmp (info->env, 1);
+  return 1;
+}
+
+static int
 Group (DataTypePtr Data, Cardinal layer)
 {
   Cardinal i, j;
@@ -716,6 +747,8 @@ clearPoly (DataTypePtr Data, LayerTypePtr Layer, PolygonType * polygon,
                     &info);
         r +=
           r_search (layer->arc_tree, &region, NULL, arc_sub_callback, &info);
+	r +=
+          r_search (layer->text_tree, &region, NULL, text_sub_callback, &info);
       }
       END_LOOP;
       if (info.solder || group == Group (Data, Data->LayerN + COMPONENT_LAYER))
@@ -790,6 +823,22 @@ UnsubtractLine (LineType * line, LayerType * l, PolygonType * p)
   if (!Unsubtract (np, p))
     return 0;
   clearPoly (PCB->Data, l, p, (const BoxType *) line, 50);
+  return 1;
+}
+
+static int
+UnsubtractText (TextType * text, LayerType * l, PolygonType * p)
+{
+  POLYAREA *np;
+  const BoxType *b = &text->BoundingBox;
+
+  if (!TEST_FLAG (CLEARLINEFLAG, text))
+    return 0;
+  if (!(np = RoundRect (b->X1, b->X2, b->Y1, b->Y2, PCB->Bloat + 100)))
+    return -1;
+  if (!Unsubtract (np, p))
+    return 0;
+  clearPoly (PCB->Data, l, p, (const BoxType *) text, 101);
   return 1;
 }
 
@@ -1090,6 +1139,9 @@ subtract_plow (DataTypePtr Data, LayerTypePtr Layer, PolygonTypePtr Polygon,
     case PAD_TYPE:
       SubtractPad ((PadTypePtr) ptr2, Polygon);
       return 1;
+    case TEXT_TYPE:
+      SubtractText ((TextTypePtr) ptr2, Polygon);
+      return 1;
     }
   return 0;
 }
@@ -1112,6 +1164,9 @@ add_plow (DataTypePtr Data, LayerTypePtr Layer, PolygonTypePtr Polygon,
       return 1;
     case PAD_TYPE:
       UnsubtractPad ((PadTypePtr) ptr2, Layer, Polygon);
+      return 1;
+    case TEXT_TYPE:
+      UnsubtractText ((TextTypePtr) ptr2, Layer, Polygon);
       return 1;
     }
   return 0;
@@ -1172,6 +1227,7 @@ PlowsPolygon (DataType * Data, int type, void *ptr1, void *ptr2,
       break;
     case LINE_TYPE:
     case ARC_TYPE:
+    case TEXT_TYPE:
       /* the cast works equally well for lines and arcs */
       if (!TEST_FLAG (CLEARLINEFLAG, (LineTypePtr) ptr2))
         return 0;

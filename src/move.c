@@ -314,6 +314,7 @@ MoveArc (LayerTypePtr Layer, ArcTypePtr Arc)
 static void *
 MoveText (LayerTypePtr Layer, TextTypePtr Text)
 {
+  RestoreToPolygon (PCB->Data, TEXT_TYPE, Layer, Text);
   r_delete_entry (Layer->text_tree, (BoxTypePtr) Text);
   if (Layer->On)
     {
@@ -325,6 +326,7 @@ MoveText (LayerTypePtr Layer, TextTypePtr Text)
   else
     MOVE_TEXT_LOWLEVEL (Text, DeltaX, DeltaY);
   r_insert_entry (Layer->text_tree, (BoxTypePtr) Text, 0);
+  ClearFromPolygon (PCB->Data, TEXT_TYPE, Layer, Text);
   return (Text);
 }
 
@@ -514,6 +516,12 @@ static void *
 MoveRatToLayer (RatTypePtr Rat)
 {
   LineTypePtr new;
+  //LocationType X1 = Rat->Point1.X, Y1 = Rat->Point1.Y;
+  //LocationType X1 = Rat->Point1.X, Y1 = Rat->Point1.Y;
+  // if VIAFLAG
+  //   if we're on a pin, add a thermal
+  //   else make a via and a wire, but 0-length wire not good
+  // else as before
 
   new = CreateNewLineOnLayer (Dest, Rat->Point1.X, Rat->Point1.Y,
 			      Rat->Point2.X, Rat->Point2.Y,
@@ -636,6 +644,7 @@ MoveTextToLayerLowLevel (LayerTypePtr Source, TextTypePtr Text,
 {
   TextTypePtr new = GetTextMemory (Destination);
 
+  RestoreToPolygon (PCB->Data, TEXT_TYPE, Source, Text);
   r_delete_entry (Source->text_tree, (BoxTypePtr) Text);
   /* copy the data and remove it from the former layer */
   *new = *Text;
@@ -653,6 +662,7 @@ MoveTextToLayerLowLevel (LayerTypePtr Source, TextTypePtr Text,
   if (!Destination->text_tree)
     Destination->text_tree = r_create_tree (NULL, 0, 0);
   r_insert_entry (Destination->text_tree, (BoxTypePtr) new, 0);
+  ClearFromPolygon (PCB->Data, TEXT_TYPE, Destination, new);
   return (new);
 }
 
