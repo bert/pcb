@@ -56,9 +56,9 @@ define(`PKG_GENERIC_QFP',
 	define(`FARPIN', `eval(WIDTH-BORDER)')
 	define(`FARPIN2',`eval(WIDTH2-BORDER2)')
 	define(`PIN1INMIDDLE',`$10')
-	define(`EDGECUT',`ifelse(1,eval(PIN1INMIDDLE),`0',`28')')
+	define(`EDGECUT',`ifelse(1,eval(PIN1INMIDDLE),`0',`33')')
 	define(`STARTPIN',`ifelse(1,eval(PIN1INMIDDLE),`eval(((QUARTER+1)/2)+1)',`1')')
-	define(`CIRCLECENTRE',`ifelse(1,eval(PIN1INMIDDLE),`eval(WIDTH/2)',35)')
+	define(`CIRCLECENTRE',`ifelse(1,eval(PIN1INMIDDLE),`eval(WIDTH/2)',45)')
 Element(0x00 "$1" "`$2'" "$3" 100 CENTER 0 100 0x00)
 (
 
@@ -104,12 +104,14 @@ forloop(`i', 1, QUARTER2,
 	`define(`idx',incr(idx))'
 )
 
-	ElementLine(EDGECUT 0 WIDTH2 0 10)
-	ElementLine(WIDTH2 0 WIDTH2 WIDTH 10)
-	ElementLine(WIDTH2 WIDTH 0 WIDTH 10)
-	ElementLine(0 WIDTH 0 EDGECUT 10)
-	ElementLine(0 EDGECUT EDGECUT 0 10)
-	ElementArc(CIRCLECENTRE 35 10 10 0 360 10)
+	define(`SWIDTH', `eval(WIDTH-5)')
+	define(`SWIDTH2', `eval(WIDTH2-5)')
+	ElementLine(EDGECUT 5 SWIDTH2 5 10)
+	ElementLine(SWIDTH2 5 SWIDTH2 SWIDTH 10)
+	ElementLine(SWIDTH2 SWIDTH 5 SWIDTH 10)
+	ElementLine(5 SWIDTH 5 EDGECUT 10)
+	ElementLine(5 EDGECUT EDGECUT 5 10)
+	ElementArc(CIRCLECENTRE 45 15 15 0 360 10)
 
 	Mark(0 0)
 )')
