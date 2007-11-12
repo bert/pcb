@@ -387,6 +387,11 @@ MoveElementToBuffer (ElementTypePtr Element)
   ElementTypePtr element;
   int i;
 
+  /*
+   * Two steps at once:  Delete the element from the source (remove it
+   * from trees, restore to polygons) and simultaneously adjust its
+   * component pointers to the new storage in Dest
+   */
   r_delete_element (Source, Element);
   element = GetElementMemory (Dest);
   *element = *Element;
@@ -410,17 +415,9 @@ MoveElementToBuffer (ElementTypePtr Element)
   }
   END_LOOP;
   SetElementBoundingBox (Dest, element, &PCB->Font);
-  *Element = Source->Element[--Source->ElementN];
-  /* deal with element pointer changing */
-  r_substitute (Source->element_tree,
-		(BoxType *) & Source->Element[Source->ElementN],
-		(BoxType *) Element);
-  for (i = 0; i < MAX_ELEMENTNAMES; i++)
-    r_substitute (Source->name_tree[i],
-		  (BoxType *) & Source->Element[Source->ElementN].Name[i],
-		  (BoxType *) & Element->Name[i]);
-  memset (&Source->Element[Source->ElementN], 0, sizeof (ElementType));
-
+  /*
+   * Now clear the from the polygons in the destination
+   */
   PIN_LOOP (element);
   {
     ClearFromPolygon (Dest, PIN_TYPE, element, pin);
@@ -431,6 +428,39 @@ MoveElementToBuffer (ElementTypePtr Element)
     ClearFromPolygon (Dest, PAD_TYPE, element, pad);
   }
   END_LOOP;
+
+  /*
+   * Now compact the Source's Element array by moving the last element
+   * to the hole created by the removal above.  Then make a pass adjusting
+   * *its* component pointers.  Confusingly, this element (which is of no
+   * particular relation to this removal) becomes `Element' while the
+   * original Element is now in `element'.
+   */
+  *Element = Source->Element[--Source->ElementN];
+  memset (&Source->Element[Source->ElementN], 0, sizeof (ElementType));
+  r_substitute (Source->element_tree,
+		(BoxType *) & Source->Element[Source->ElementN],
+		(BoxType *) Element);
+  for (i = 0; i < MAX_ELEMENTNAMES; i++)
+    r_substitute (Source->name_tree[i],
+		  (BoxType *) & Source->Element[Source->ElementN].Name[i],
+		  (BoxType *) & Element->Name[i]);
+  ELEMENTTEXT_LOOP (Element);
+  {
+    text->Element = Element;
+  }
+  END_LOOP;
+  PIN_LOOP (Element);
+  {
+    pin->Element = Element;
+  }
+  END_LOOP;
+  PAD_LOOP (Element);
+  {
+    pad->Element = Element;
+  }
+  END_LOOP;
+
   return (element);
 }
 
