@@ -846,8 +846,9 @@ FitCrosshairIntoGrid (LocationType X, LocationType Y)
 	  py = pad->Point2.Y;
 	}
 
-      if (SQUARE (x0 - Crosshair.X) + SQUARE (y0 - Crosshair.Y) >
-	  SQUARE (px - Crosshair.X) + SQUARE (py - Crosshair.Y))
+      if (!gui->shift_is_pressed()
+	  || (SQUARE (x0 - Crosshair.X) + SQUARE (y0 - Crosshair.Y) >
+	      SQUARE (px - Crosshair.X) + SQUARE (py - Crosshair.Y)))
 	{
 	  x0 = px;
 	  y0 = py;
@@ -857,9 +858,10 @@ FitCrosshairIntoGrid (LocationType X, LocationType Y)
   else if (ans & (PIN_TYPE | VIA_TYPE))
     {
       PinTypePtr pin = (PinTypePtr) ptr2;
-      if (SQUARE (x0 - Crosshair.X) +
-	  SQUARE (y0 - Crosshair.Y) >
-	  SQUARE (pin->X - Crosshair.X) + SQUARE (pin->Y - Crosshair.Y))
+      if (!gui->shift_is_pressed()
+	  || (SQUARE (x0 - Crosshair.X) +
+	      SQUARE (y0 - Crosshair.Y) >
+	      SQUARE (pin->X - Crosshair.X) + SQUARE (pin->Y - Crosshair.Y)))
 	{
 	  x0 = pin->X;
 	  y0 = pin->Y;
