@@ -173,7 +173,7 @@ nogui_calibrate (double xval, double yval)
 static int
 nogui_shift_is_pressed (void)
 {
-  CRASH;
+  /* This is called from FitCrosshairIntoGrid() when the board is loaded.  */
   return 0;
 }
 
