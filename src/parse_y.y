@@ -185,7 +185,7 @@ parsepcb
 			/* initialize the polygon clipping now since
 			 * we didn't know the layer grouping before.
 			 */
-			for (i = 0; i < yyData->LayerN; i++)
+			for (i = 0; i < yyData->LayerN+2; i++)
 			  for (j = 0; j < yyData->Layer[i].PolygonN; j++)
 			      InitClip (yyData, &yyData->Layer[i], &yyData->Layer[i].Polygon[j]);
 			}
@@ -462,8 +462,10 @@ Thermal [Scale]
 
 @table @var
 @item Scale
-Relative size of thermal fingers.  A value of 1.0 makes the finger width twice
-the annulus width (copper diameter minus drill diameter).  The normal value is 0.5.
+Relative size of thermal fingers.  A value of 1.0 makes the finger
+width twice the clearance gap width (measured across the gap, not
+diameter).  The normal value is 0.5, which results in a finger width
+the same as the clearance gap width.
 @end table
 
 %end-doc */

@@ -158,8 +158,7 @@ SetPinBoundingBox (PinTypePtr Pin)
   /* the bounding box covers the extent of influence
    * so it must include the clearance values too
    */
-  width = (Pin->Clearance + Pin->Thickness + 1 +
-           (Pin->Thickness - Pin->DrillingHole) * PCB->ThermScale) / 2;
+  width = (Pin->Clearance + Pin->Thickness + 1) / 2;
   width = MAX (width, (Pin->Mask + 1) / 2);
   Pin->BoundingBox.X1 = Pin->X - width;
   Pin->BoundingBox.Y1 = Pin->Y - width;
