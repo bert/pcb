@@ -60,20 +60,22 @@
 /* ---------------------------------------------------------------------------
  * some limit specifications
  */
+#define LARGE_VALUE		10000000 /* maximum extent of board and elements in 1/100 mil */
+ 
 #define	MAX_LAYER		16	/* max number of layer, check source */
 					/* code for more changes, a *lot* more changes */
 #define DEF_LAYER		8	/* default number of layers for new boards */
 #define NUM_STYLES		4
 #define	MIN_LINESIZE		1	/* thickness of lines in 1/100000'' */
-#define	MAX_LINESIZE		25000
-#define	MIN_TEXTSCALE		20	/* scaling of text objects in percent */
-#define	MAX_TEXTSCALE		1000
-#define	MIN_PINORVIASIZE	2000	/* size of a pin or via in mils */
+#define	MAX_LINESIZE		LARGE_VALUE
+#define	MIN_TEXTSCALE		10	/* scaling of text objects in percent */
+#define	MAX_TEXTSCALE		10000
+#define	MIN_PINORVIASIZE	2000	/* size of a pin or via in 1/100 mils */
 #define	MIN_PINORVIAHOLE	400	/* size of a pins or vias drilling hole */
-#define	MAX_PINORVIASIZE	40000
+#define	MAX_PINORVIASIZE	LARGE_VALUE
 #define	MIN_PINORVIACOPPER	400	/* min difference outer-inner diameter */
-#define	MIN_PADSIZE			500	/* size of a pad */
-#define	MAX_PADSIZE			25000
+#define	MIN_PADSIZE		100	/* min size of a pad */
+#define	MAX_PADSIZE		LARGE_VALUE   /* max size of a pad */
 #define	MIN_DRC_VALUE		10
 #define	MAX_DRC_VALUE		50000
 #define	MIN_DRC_SILK		100
@@ -82,15 +84,15 @@
 #define	MAX_DRC_DRILL		5000
 #define	MIN_DRC_RING		0
 #define	MAX_DRC_RING		10000
-#define	MIN_GRID		1	/* grid in 1/100000'' */
-#define	MAX_GRID		20000
+#define	MIN_GRID		1	/* min grid in 1/100 mils */
+#define	MAX_GRID		100000 /* max grid in 1/100 mils */ 
 #define	CHUNK			100	/* step size for size sliders */
 #define	MIN_ZOOM		-12	/* min zoom */
 #define	MAX_ZOOM		12	/* max zoom */
 #define	MAX_FONTPOSITION	127	/* upper limit of characters in my font */
 
-#define	MAX_COORD		3000000	/* coordinate limits */
-#define	MIN_SIZE		60000	/* lowest width and height */
+#define	MAX_COORD		LARGE_VALUE	/* coordinate limits */
+#define	MIN_SIZE		1000	/* lowest width and height of the board */
 #define	MAX_BUFFER		5	/* number of pastebuffers */
 					/* additional changes in menu.c are */
 					/* also required to select more buffers */
