@@ -114,6 +114,7 @@ if test "X$docs_yesno" = "Xyes" -a "X$USE_MAINTAINER_MODE" = "Xyes" ; then
       AC_MSG_CHECKING([for GNU makeinfo version >= 4.6])
       v=`$MKINFO --version | grep "GNU texinfo"`
       if test $? -ne 0; then
+         AC_MSG_RESULT([non-GNU])
          MKINFO="no"
       fi
    fi
@@ -126,7 +127,7 @@ if test "X$docs_yesno" = "Xyes" -a "X$USE_MAINTAINER_MODE" = "Xyes" ; then
          MKINFO=no
       fi
    fi
-   if test "X$MKINFO" == "Xno"; then
+   if test "X$MKINFO" = "Xno"; then
       AC_MSG_ERROR([You have requested a maintainer-mode build and a build
 of the documentation.  For this to work, you must have version 4.6 or newer of
 the GNU texinfo package.  You seem to have

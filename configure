@@ -5191,6 +5191,8 @@ test -n "$MKINFO" || MKINFO="no"
 echo $ECHO_N "checking for GNU makeinfo version >= 4.6... $ECHO_C" >&6; }
       v=`$MKINFO --version | grep "GNU texinfo"`
       if test $? -ne 0; then
+         { echo "$as_me:$LINENO: result: non-GNU" >&5
+echo "${ECHO_T}non-GNU" >&6; }
          MKINFO="no"
       fi
    fi
@@ -5204,7 +5206,7 @@ echo "${ECHO_T}$vmajor.$vminor" >&6; }
          MKINFO=no
       fi
    fi
-   if test "X$MKINFO" == "Xno"; then
+   if test "X$MKINFO" = "Xno"; then
       { { echo "$as_me:$LINENO: error: You have requested a maintainer-mode build and a build
 of the documentation.  For this to work, you must have version 4.6 or newer of
 the GNU texinfo package.  You seem to have
