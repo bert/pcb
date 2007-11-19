@@ -159,13 +159,15 @@ ReportDialog (int argc, char **argv, int x, int y)
 		   "(X,Y) = (%d, %d)\n"
 		   "Copper width = %0.2f %s  Drill width = %0.2f %s\n"
 		   "Clearance width in polygons = %0.2f %s\n"
-		   "Solder mask hole = %0.2f %s\n"
+		   "Annulus = %0.2f %s\n"
+		   "Solder mask hole = %0.2f %s (gap = %0.2f %s)\n"
 		   "Name = \"%s\""
 		   "%s", via->ID, flags_to_string (via->Flags, VIA_TYPE),
 		   via->X, via->Y, UNIT (via->Thickness),
 		   UNIT (via->DrillingHole), UNIT (via->Clearance / 2.),
-		   UNIT (via->Mask), EMPTY (via->Name), TEST_FLAG (LOCKFLAG,
-								   via) ?
+		   UNIT ((via->Thickness - via->DrillingHole)/2),
+		   UNIT (via->Mask), UNIT ((via->Mask - via->Thickness)/2),
+		   EMPTY (via->Name), TEST_FLAG (LOCKFLAG, via) ?
 		   "It is LOCKED\n" : "");
 	break;
       }
@@ -201,13 +203,17 @@ ReportDialog (int argc, char **argv, int x, int y)
 		   "PIN ID# %ld   Flags:%s\n" "(X,Y) = (%d, %d)\n"
 		   "Copper width = %0.2f %s  Drill width = %0.2f %s\n"
 		   "Clearance width to Polygon = %0.2f %s\n"
-		   "Solder mask hole = %0.2f %s\n" "Name = \"%s\"\n"
+		   "Annulus = %0.2f %s\n"
+		   "Solder mask hole = %0.2f %s (gap = %0.2f %s)\n"
+		   "Name = \"%s\"\n"
 		   "It is owned by element %s\n" "As pin number %s\n"
 		   "%s",
 		   Pin->ID, flags_to_string (Pin->Flags, PIN_TYPE),
 		   Pin->X, Pin->Y, UNIT (Pin->Thickness),
 		   UNIT (Pin->DrillingHole), UNIT (Pin->Clearance / 2.),
-		   UNIT (Pin->Mask), EMPTY (Pin->Name),
+		   UNIT ((Pin->Thickness - Pin->DrillingHole)/2),
+		   UNIT (Pin->Mask), UNIT ((Pin->Mask - Pin->Thickness)/2),
+		   EMPTY (Pin->Name),
 		   EMPTY (element->Name[1].TextString), EMPTY (Pin->Number),
 		   TEST_FLAG (LOCKFLAG, Pin) ? "It is LOCKED\n" : "");
 	break;
