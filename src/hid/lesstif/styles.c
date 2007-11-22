@@ -128,7 +128,10 @@ void
 lesstif_styles_update_values ()
 {
   if (!style_dialog)
-    return;
+    {
+      lesstif_update_status_line ();
+      return;
+    }
   use_mm = Settings.grid_units_mm;
   update_values ();
 }
@@ -284,6 +287,8 @@ style_selected (Widget w, int i, XmToggleButtonCallbackStruct * cbs)
 	  XmToggleButtonSetState (style_pb[j], 1, 0);
       update_values ();
     }
+  else
+    lesstif_update_status_line ();
   for (n = 0; n < num_style_buttons; n++)
     {
       for (j = 0; j < NUM_STYLES; j++)
