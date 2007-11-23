@@ -912,11 +912,12 @@ IsArcInRectangle (LocationType X1, LocationType Y1,
  * Written to enable arbitrary pad directions; for rounded pads, too.
  */
 Boolean
-IsPointInPad (LocationType X, LocationType Y, Cardinal Radius,
+IsPointInPad (LocationType X, LocationType Y, BDimension Radius,
 	      PadTypePtr Pad)
 {
   double r, Sin, Cos;
-  long x, t2 = Pad->Thickness / 2, range;
+  LocationType x; 
+  BDimension t2 = (Pad->Thickness + 1) / 2, range;
   PadType pad = *Pad;
 
   /* series of transforms saving range */
@@ -960,13 +961,13 @@ IsPointInPad (LocationType X, LocationType Y, Cardinal Radius,
       if (X <= 0)
 	{
 	  if ( Y <= t2 ) range = -X; else
-	    return (Radius * (double)Radius > 
+	    return (Radius >= 0) && (Radius * (double)Radius > 
 		    (double)(t2 - Y) * (t2 - Y) + (double)X * X);
 	}
       else if (X >= r)
 	{
 	  if ( Y <= t2 ) range = X - r; else 
-	    return (Radius * (double)Radius > 
+	    return (Radius >= 0) && (Radius * (double)Radius > 
 		    (double)(t2 - Y) * (t2 - Y) + (double)(X - r) * (X - r));
 	}
       else
@@ -975,19 +976,19 @@ IsPointInPad (LocationType X, LocationType Y, Cardinal Radius,
   else/*Rounded pad: even more simple*/
     {
       if (X <= 0)
-	return ((Radius + t2) * (double)(Radius + t2) > 
+	return (Radius + t2 >= 0) && ((Radius + t2) * (double)(Radius + t2) > 
 		(double)X * X + (double)Y * Y);
       else if (X >= r) 
-	return ((Radius + t2) * (double)(Radius + t2) > 
+	return (Radius + t2 >= 0) && ((Radius + t2) * (double)(Radius + t2) > 
 		(double)(X - r) * (X - r) + (double)Y * Y);
       else
 	range = Y - t2;
     }
-  return range < (long)Radius;
+  return range < Radius;
 }
 
 Boolean
-IsPointInBox (LocationType X, LocationType Y, BoxTypePtr box, Cardinal Radius)
+IsPointInBox (LocationType X, LocationType Y, BoxTypePtr box, BDimension Radius)
 {
   PadType pad;
 
