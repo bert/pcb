@@ -50,7 +50,7 @@ MainMenu =
    {"Load vendor resource file" LoadVendorFrom()}
    -
    {"Save connection data of"
-     {" a single element" GetXY(press a button at the element location) Save(ElementConnections)}
+     {" a single element" GetXY(Click to set the element mark <>) Save(ElementConnections)}
      {" all elements" Save(AllConnections)}
      {" unused pins" Save(AllUnusedPins)}
    }
@@ -75,10 +75,10 @@ MainMenu =
    {"Redo last undone operation" Redo() a={"Shift-R" "Shift<Key>r"}}
    {"Clear undo-buffer" Undo(ClearList) a={"Shift-Ctrl-U" "Shift Ctrl<Key>u"}}
    -
-   {"Cut selection to buffer" GetXY(Press a button at the reference location)
+   {"Cut selection to buffer" GetXY(Click to set the snap point for this buffer)
     PasteBuffer(Clear) PasteBuffer(AddSelected) RemoveSelected() Mode(PasteBuffer)
     a={"Shift-Ctrl-X" "Shift Ctrl<Key>x"}}
-   {"Copy selection to buffer" GetXY(Press a button at the reference location)
+   {"Copy selection to buffer" GetXY(Click to set the snap point for this buffer)
     PasteBuffer(Clear) PasteBuffer(AddSelected) Mode(PasteBuffer)
     a={"Ctrl-X" "Ctrl<Key>x"}}
    {"Paste buffer to layout" Mode(PasteBuffer) }
@@ -132,7 +132,7 @@ MainMenu =
     {"Grid -0.05mm" SetValue(Grid,-0.05,mm) a={"Shift-Ctrl-G" "Shift Ctrl<Key>g"}}
     {"Grid +0.05mm" SetValue(Grid,+0.05,mm) a={"Ctrl-G" "Ctrl<Key>g"}}
    }
-   {"Realign grid" GetXY(Press a button at a grid point) Display(ToggleGrid)}
+   {"Realign grid" GetXY(Click to set the grid origin) Display(ToggleGrid)}
    -
    {"Displayed element name"
     {"Description" Display(Description) checked=elementname,1}
@@ -265,11 +265,11 @@ MainMenu =
 # Buffer menu
 #
   {Buffer
-   {"Copy selection to buffer" GetXY(Press a button at the element location)
+   {"Copy selection to buffer" GetXY(Click to set the snap point for this buffer)
     PasteBuffer(Clear) PasteBuffer(AddSelected) Unselect(All) Mode(PasteBuffer)
     a={"Ctrl-C" "Ctrl<Key>c"}
    }
-   {"Cut selection to buffer" GetXY(Press a button at the element location)
+   {"Cut selection to buffer" GetXY(Click to set the snap point for this buffer)
     PasteBuffer(Clear) PasteBuffer(AddSelected) RemoveSelected() Mode(PasteBuffer)}
    {"Paste buffer to layout" Mode(PasteBuffer)}
    -
@@ -297,7 +297,7 @@ MainMenu =
 # Connects menu
 #
   {Connects 
-   {"Lookup connection to object" GetXY(Select the object) Connection(Find) a={"Ctrl-F" "Ctrl<Key>f"}}
+   {"Lookup connection to object" GetXY(Click on the object) Connection(Find) a={"Ctrl-F" "Ctrl<Key>f"}}
    {"Reset scanned pads/pins/vias" Connection(ResetPinsViasAndPads) Display(Redraw)}
    {"Reset scanned lines/polygons" Connection(ResetLinesAndPolygons) Display(Redraw)}
    {"Reset all connections" Connection(Reset) Display(Redraw) a={"Shift-F" "Shift<Key>f"}}
@@ -460,13 +460,13 @@ PopupMenus =
        {"Unselect all objects" Unselect(All)}
        {"Remove selected objects" RemoveSelected()}
        {"Copy selection to buffer" 
-	GetXY(Press a button on a reference point for your selection) 
+	GetXY(Click to set the snap point for this buffer) 
 	PasteBuffer(Clear)
 	PasteBuffer(AddSelected)
 	Mode(PasteBuffer)
        }
        {"Cut selection to buffer"
-	GetXY(Press a button on a reference point for your selection) 
+	GetXY(Click to set the snap point for this buffer) 
 	PasteBuffer(Clear)
 	PasteBuffer(AddSelected)
 	RemoveSelected()
@@ -478,7 +478,7 @@ PopupMenus =
        {"Rip up selected auto routed tracks" RipUp(Selected)}
       }
       {"Operations on this location"
-       {"Generate object report" GetXY(Select the object) Report(Object)}
+       {"Generate object report" GetXY(Click on the object) Report(Object)}
       }
       -
       {"Undo last operation" Undo()}
