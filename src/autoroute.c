@@ -123,6 +123,9 @@ static hidGC ar_gc = 0;
 #define LIST_LOOP(init, which, x) do {\
      routebox_t *__next_one__ = (init);\
    x = NULL;\
+   if (!__next_one__)\
+     assert(__next_one__);\
+   else\
    while (!x  || __next_one__ != (init)) {\
      x = __next_one__;\
      /* save next one first in case the command modifies or frees it */\
