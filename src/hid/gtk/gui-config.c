@@ -2136,6 +2136,7 @@ config_destroy_cb (gpointer data)
   config_sizes_vbox = NULL;
   config_increments_vbox = NULL;
   config_groups_vbox = config_groups_table = NULL;
+  gtk_widget_destroy (config_window);
   config_window = NULL;
 }
 
