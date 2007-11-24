@@ -5396,7 +5396,8 @@ ActionUnselect (int argc, char **argv, int x, int y)
 
 static const char saveto_syntax[] =
   "SaveTo(Layout|LayoutAs,filename)\n"
-  "SaveTo(AllConnections|AllUnusedPins|ElementConnections,filename)";
+  "SaveTo(AllConnections|AllUnusedPins|ElementConnections,filename)\n"
+  "SaveTo(PasteBuffer,filename)";
 
 static const char saveto_help[] = "Saves data to a file.";
 
@@ -5419,6 +5420,9 @@ List all unused pins to a file.
 @item ElementConnections
 Save connections to the element at the cursor to a file.
 
+@item PasteBuffer
+Save the content of the active Buffer to a file. This is the graphical way to create a footprint.
+
 @end table
 
 %end-doc */
@@ -5431,6 +5435,7 @@ ActionSaveTo (int argc, char **argv, int x, int y)
 
   function = argv[0];
   name = argv[1];
+
   if (argc != 2)
     AFAIL (saveto);
 
@@ -5492,6 +5497,11 @@ ActionSaveTo (int argc, char **argv, int x, int y)
 	    }
 	}
       return 0;
+    }
+
+  if (strcasecmp (function, "PasteBuffer") == 0)
+    {
+      return SaveBufferElements (name);
     }
 
   AFAIL (saveto);
