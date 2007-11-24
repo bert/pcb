@@ -165,8 +165,12 @@ LibraryShow (int argc, char **argv, int x, int y)
 void
 lesstif_show_library ()
 {
-  LibraryChanged (0, 0, 0, 0);
-  XtManageChild (library_dialog);
+  if (mainwind)
+    {
+      if (!library_dialog)
+	LibraryChanged (0, 0, 0, 0);
+      XtManageChild (library_dialog);
+    }
 }
 
 HID_Action lesstif_library_action_list[] = {
