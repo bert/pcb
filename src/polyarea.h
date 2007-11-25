@@ -168,6 +168,13 @@ enum PolygonBooleanOperation {
 	PBO_XOR
 };
 
+double vect_dist2 (Vector v1, Vector v2);
+double vect_det2 (Vector v1, Vector v2);
+double vect_len2 (Vector v1);
+
+int vect_inters2 (Vector A, Vector B, Vector C, Vector D, Vector S1,
+                  Vector S2);
+
 int poly_Boolean(const POLYAREA * a, const POLYAREA * b, POLYAREA ** res, int action);
 int poly_Boolean_free(POLYAREA * a, POLYAREA * b, POLYAREA ** res, int action);
 int poly_AndSubtract_free(POLYAREA * a, POLYAREA * b, POLYAREA ** aandb, POLYAREA ** aminusb);
