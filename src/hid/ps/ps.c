@@ -14,6 +14,7 @@
 #include "data.h"
 #include "misc.h"
 #include "error.h"
+#include "draw.h"
 
 #include "hid.h"
 #include "../hidint.h"
@@ -256,6 +257,8 @@ static int invert;
 static int media;
 static int drillcopper;
 
+static LayerTypePtr outline_layer;
+
 static double fill_zoom;
 static double scale_value;
 
@@ -283,6 +286,8 @@ psopen (const char *base, const char *suff)
   return f;
 }
 
+static BoxType region;
+
 /* This is used by other HIDs that use a postscript format, like lpr
    or eps.  */
 void
@@ -290,7 +295,6 @@ ps_hid_export_to_file (FILE * the_file, HID_Attr_Val * options)
 {
   int i;
   static int saved_layer_stack[MAX_LAYER];
-  BoxType region;
   FlagType save_thindraw;
 
   save_thindraw = PCB->Flags;
@@ -349,11 +353,20 @@ ps_hid_export_to_file (FILE * the_file, HID_Attr_Val * options)
   memset (print_group, 0, sizeof (print_group));
   memset (print_layer, 0, sizeof (print_layer));
 
+  outline_layer = NULL;
+
   for (i = 0; i < max_layer; i++)
     {
       LayerType *layer = PCB->Data->Layer + i;
       if (layer->LineN || layer->TextN || layer->ArcN || layer->PolygonN)
 	print_group[GetLayerGroupNumberByNumber (i)] = 1;
+
+      if (strcmp (layer->Name, "outline") == 0
+	  || strcmp (layer->Name, "route") == 0)
+	{
+	  printf("see outline layer\n");
+	  outline_layer = layer;
+	}
     }
   print_group[GetLayerGroupNumberByNumber (max_layer)] = 1;
   print_group[GetLayerGroupNumberByNumber (max_layer + 1)] = 1;
@@ -463,7 +476,7 @@ corner (int x, int y, int dx, int dy)
   int len = 200000;
   int len2 = 20000;
 #endif
-  int thick = 4000;
+  int thick = 0;
 
   fprintf (f, "gsave %d setlinewidth %d %d translate %d %d scale\n",
 	   thick * 2, x, y, dx, dy);
@@ -479,6 +492,7 @@ static int is_mask;
 static int is_drill;
 static int is_assy;
 static int is_copper;
+static int is_paste;
 
 static int
 ps_set_layer (const char *name, int group)
@@ -499,6 +513,7 @@ ps_set_layer (const char *name, int group)
   is_mask = (SL_TYPE (idx) == SL_MASK);
   is_assy = (SL_TYPE (idx) == SL_ASSY);
   is_copper = (SL_TYPE (idx) == 0);
+  is_paste = (SL_TYPE (idx) == SL_PASTE);
 #if 0
   printf ("Layer %s group %d drill %d mask %d\n", name, group, is_drill,
 	  is_mask);
@@ -613,11 +628,13 @@ ps_set_layer (const char *name, int group)
 	  fprintf (f, "/rgb { setrgbcolor } bind def\n");
 	}
 
-      if (outline || invert)
-	fprintf (f,
-		 "0 setgray 0 setlinewidth 0 0 moveto 0 %d lineto %d %d lineto %d 0 lineto closepath %s\n",
-		 PCB->MaxHeight, PCB->MaxWidth, PCB->MaxHeight, PCB->MaxWidth,
-		 invert ? "fill" : "stroke");
+      if ((outline && !outline_layer) || invert)
+	{
+	  fprintf (f,
+		   "0 setgray 0 setlinewidth 0 0 moveto 0 %d lineto %d %d lineto %d 0 lineto closepath %s\n",
+		   PCB->MaxHeight, PCB->MaxWidth, PCB->MaxHeight, PCB->MaxWidth,
+		   invert ? "fill" : "stroke");
+	}
 
       if (align_marks)
 	{
@@ -657,6 +674,21 @@ ps_set_layer (const char *name, int group)
   else
     fprintf (f, "gsave tx ty translate 1 -1 scale 0 0 moveto ( ) show grestore newpath /ty ty ts sub def\n");
 #endif
+
+  /* If we're printing a copper layer other than the outline layer,
+     and we want to "print outlines", and we have an outline layer,
+     print the outline layer on this layer also.  */
+  if (outline
+      && outline_layer
+      && outline_layer != PCB->Data->Layer+idx
+      && SL_TYPE (idx) == 0 /* copper */
+      && strcmp (name, "outline")
+      && strcmp (name, "route"))
+    {
+      printf("attempting to draw outlines on %s\n", name);
+      DrawLayer (outline_layer, &region);
+    }
+
   return 1;
 }
 
@@ -807,6 +839,23 @@ static void ps_fill_rect (hidGC gc, int x1, int y1, int x2, int y2);
 static void
 ps_draw_line (hidGC gc, int x1, int y1, int x2, int y2)
 {
+#if 0
+  /* If you're etching your own paste mask, this will reduce the
+     amount of brass you need to etch by drawing outlines for large
+     pads.  See also ps_fill_rect.  */
+  if (is_paste && gc->width > 2500 && gc->cap == Square_Cap
+      && (x1 == x2 || y1 == y2))
+    {
+      int t, w;
+      if (x1 > x2)
+	{ t = x1; x1 = x2; x2 = t; }
+      if (y1 > y2)
+	{ t = y1; y1 = y2; y2 = t; }
+      w = gc->width/2;
+      ps_fill_rect (gc, x1-w, y1-w, x2+w, y2+w);
+      return;
+    }
+#endif
   if (x1 == x2 && y1 == y2)
     {
       int w = gc->width / 2;
@@ -849,8 +898,8 @@ ps_fill_circle (hidGC gc, int cx, int cy, int radius)
   if (!gc->erase || !is_copper || drillcopper)
     {
       if (gc->erase && is_copper && drill_helper
-	  && radius >= 2 * MIN_PINORVIAHOLE)
-	radius = 2 * MIN_PINORVIAHOLE;
+	  && radius >= PCB->minDrill/4)
+	radius = PCB->minDrill/4;
       fprintf (f, "%d %d %d c\n", cx, cy, radius + (gc->erase ? -1 : 1) * bloat);
     }
 }
@@ -885,6 +934,21 @@ ps_fill_rect (hidGC gc, int x1, int y1, int x2, int y2)
       y2 = y2;
       y2 = t;
     }
+#if 0
+  /* See comment in ps_draw_line.  */
+  if (is_paste && (x2-x1)>2500 && (y2-y1)>2500)
+    {
+      linewidth = 1000;
+      lastcap = Round_Cap;
+      fprintf(f, "1000 setlinewidth 1 setlinecap 1 setlinejoin\n");
+      fprintf(f, "%d %d moveto %d %d lineto %d %d lineto %d %d lineto closepath stroke\n",
+	      x1+500-bloat, y1+500-bloat,
+	      x1+500-bloat, y2-500+bloat,
+	      x2-500+bloat, y2-500+bloat,
+	      x2-500+bloat, y1+500-bloat);
+      return;
+    }
+#endif
   fprintf (f, "%d %d %d %d r\n", x1-bloat, y1-bloat, x2+bloat, y2+bloat);
 }
 
