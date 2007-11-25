@@ -90,7 +90,6 @@ static const BoxType *clip_box = NULL;
 static void Redraw (Boolean, BoxTypePtr);
 static void DrawEverything (BoxTypePtr);
 static void DrawTop (const BoxType *);
-static void DrawLayer (LayerTypePtr, BoxType *);
 static int DrawLayerGroup (int, const BoxType *);
 static void DrawPinOrViaLowLevel (PinTypePtr, Boolean);
 static void ClearOnlyPin (PinTypePtr, Boolean);
@@ -838,7 +837,7 @@ text_callback (const BoxType * b, void *cl)
 /* ---------------------------------------------------------------------------
  * draws one non-copper layer
  */
-static void
+void
 DrawLayer (LayerTypePtr Layer, BoxType * screen)
 {
   struct pin_info info;
