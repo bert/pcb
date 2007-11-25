@@ -1131,7 +1131,8 @@ ClearUndoList (Boolean Force)
       if (RemoveList)
 	{
           FreeDataMemory (RemoveList);
-          RemoveList->pcb = PCB;
+	  free (RemoveList);
+	  RemoveList = NULL;
         }
 
       /* reset some counters */
