@@ -84,6 +84,8 @@ static GC my_gc = 0, bg_gc, clip_gc = 0, bset_gc = 0, bclear_gc = 0, mask_gc =
 static Pixel bgcolor, offlimit_color, grid_color;
 static int bgred, bggreen, bgblue;
 
+static GC arc1_gc, arc2_gc;
+
 /* These are for the pinout windows. */
 typedef struct PinoutData
 {
@@ -1653,10 +1655,23 @@ static void
 work_area_first_expose (Widget work_area, void *me,
 			XmDrawingAreaCallbackStruct * cbs)
 {
+  int c;
   Dimension width, height;
+  static char dashes[] = { 4, 4 };
 
   window = XtWindow (work_area);
   my_gc = XCreateGC (display, window, 0, 0);
+
+  arc1_gc = XCreateGC (display, window, 0, 0);
+  c = lesstif_parse_color ("#804000");
+  XSetForeground (display, arc1_gc, c);
+  arc2_gc = XCreateGC (display, window, 0, 0);
+  c = lesstif_parse_color ("#004080");
+  XSetForeground (display, arc2_gc, c);
+  XSetLineAttributes (display, arc1_gc, 1, LineOnOffDash, 0, 0);
+  XSetLineAttributes (display, arc2_gc, 1, LineOnOffDash, 0, 0);
+  XSetDashes (display, arc1_gc, 0, dashes, 2);
+  XSetDashes (display, arc2_gc, 0, dashes, 2);
 
   n = 0;
   stdarg (XtNwidth, &width);
@@ -3157,14 +3172,15 @@ lesstif_draw_arc (hidGC gc, int cx, int cy, int width, int height,
 #if 0
   /* Enable this if you want to see the center and radii of drawn
      arcs, for debugging.  */
-  if (TEST_FLAG (THINDRAWFLAG, PCB))
+  if (TEST_FLAG (THINDRAWFLAG, PCB)
+      && delta_angle != 360)
     {
       cx += width;
       cy += height;
-      XDrawLine (display, pixmap, my_gc, cx, cy,
+      XDrawLine (display, pixmap, arc1_gc, cx, cy,
 		 cx - width*cos(start_angle*M_PI/180),
 		 cy + width*sin(start_angle*M_PI/180));
-      XDrawLine (display, pixmap, my_gc, cx, cy,
+      XDrawLine (display, pixmap, arc2_gc, cx, cy,
 		 cx - width*cos((start_angle+delta_angle)*M_PI/180),
 		 cy + width*sin((start_angle+delta_angle)*M_PI/180));
     }
