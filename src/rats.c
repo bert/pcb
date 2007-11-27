@@ -603,10 +603,17 @@ DrawShortestRats (NetListTypePtr Netl, void (*funcp) ())
 	      for (m = next->ConnectionN - 1; m != -1; m--)
 		{
 		  conn2 = &next->Connection[m];
+		  /*
+		   * Prefer to connect Connections over polygons to the
+		   * polygons (ie assume the user wants a via to a plane,
+		   * not a daisy chain).  Further prefer to pick an existing
+		   * via in the Net to make that connection.
+		   */
 		  if (conn1->type == POLYGON_TYPE &&
 		      (polygon = (PolygonTypePtr)conn1->ptr2) &&
 		      IsPointInBox (conn2->X, conn2->Y, (BoxTypePtr)polygon, 0)
-		      && !(distance == 0 && firstpoint->type == VIA_TYPE))
+		      && !(distance == 0 &&
+			   firstpoint && firstpoint->type == VIA_TYPE))
 		      // IsPointInPolygon (conn2->X, conn2->Y, 0, polygon))
 		    {
 		      distance = 0;
@@ -616,8 +623,9 @@ DrawShortestRats (NetListTypePtr Netl, void (*funcp) ())
 		    }
 		  else if (conn2->type == POLYGON_TYPE &&
 		      (polygon = (PolygonTypePtr)conn2->ptr2) &&
-		      IsPointInBox (conn1->X, conn2->Y, (BoxTypePtr)polygon, 0)
-		      && !(distance == 0 && firstpoint->type == VIA_TYPE))
+		      IsPointInBox (conn1->X, conn1->Y, (BoxTypePtr)polygon, 0)
+		      && !(distance == 0 &&
+			   firstpoint && firstpoint->type == VIA_TYPE))
 		      // IsPointInPolygon (conn1->X, conn1->Y, 0, polygon))
 		    {
 		      distance = 0;
