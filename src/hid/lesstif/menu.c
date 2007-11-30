@@ -44,6 +44,7 @@ static int n;
 #define stdarg(t,v) XtSetArg(args[n], t, v), n++
 
 static void note_accelerator (char *acc, Resource * node);
+static void note_widget_flag (Widget w, char *type, char *name);
 
 static const char getxy_syntax[] =
 "GetXY()";
@@ -572,6 +573,9 @@ insert_layerview_buttons (Widget menu)
       XtAddCallback (btn, XmNvalueChangedCallback,
 		     (XtCallbackProc) layer_button_callback, (XtPointer) (size_t) i);
       lb->w[i] = btn;
+
+      if (i == LB_MASK)
+	note_widget_flag (btn, XmNset, "showmask");
     }
   lb->is_pick = 0;
   LayersChanged (0, 0, 0, 0);
