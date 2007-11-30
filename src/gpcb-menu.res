@@ -118,6 +118,7 @@ MainMenu =
     {  "5 mil"   checked=gridsize,500 SetUnits(mil) SetValue(Grid,500)}
     { "10 mil"   checked=gridsize,1000 SetUnits(mil) SetValue(Grid,1000)}
     { "25 mil"   checked=gridsize,2500 SetUnits(mil) SetValue(Grid,2500)}
+    { "50 mil"   checked=gridsize,5000 SetUnits(mil) SetValue(Grid,5000)}
     {"100 mil"   checked=gridsize,10000 SetUnits(mil) SetValue(Grid,10000)}
     -
     {"0.01 mm" checked=gridsize,39 SetUnits(mm) SetValue(Grid,39.37007874)}
@@ -321,6 +322,11 @@ MainMenu =
     {"Simple optimization" djopt(simple)  a={"=" "<Key>="}}
     {"Miter" djopt(miter) }
     {"Puller" a={"Y" "<Key>y"} Puller() }
+    {"Global Puller"
+     {"Selected" GlobalPuller(selected) }
+     {"Found" GlobalPuller(found) }
+     {"All" GlobalPuller() }
+    }
     -
     {"Only autorouted nets" OptAutoOnly() checked=optautoonly}
    }
