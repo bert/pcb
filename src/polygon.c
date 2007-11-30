@@ -81,7 +81,7 @@ biggest (POLYAREA * p)
 {
   POLYAREA *n, *top = NULL;
   PLINE *pl;
-  double big = 0;
+  double big = -1;
   if (!p)
     return NULL;
   n = p;
