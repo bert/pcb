@@ -981,9 +981,9 @@ printer_calibrate_attrs[] = {
   {"Enter Values here:", "",
    HID_Label, 0, 0, {0, 0, 0}, 0, 0},
   {"x-calibration", "X scale for calibrating your printer",
-   HID_Real, 0.5, 2, {0, 0, 1.00}, 0, 0},
+   HID_Real, 0.5, 25, {0, 0, 1.00}, 0, 0},
   {"y-calibration", "Y scale for calibrating your printer",
-   HID_Real, 0.5, 2, {0, 0, 1.00}, 0, 0}
+   HID_Real, 0.5, 25, {0, 0, 1.00}, 0, 0}
 };
 static HID_Attr_Val printer_calibrate_values[3];
 

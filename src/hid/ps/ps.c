@@ -1057,7 +1057,8 @@ ps_calibrate_1 (double xval, double yval, int use_command)
 		ps_attribute_list[HA_xcalib].default_val.real_value =
 		  calibration_x = xval;
 	      else
-		Message("X value of %g is too far off.\n", xval);
+		Message("X value of %g is too far off.\n"
+			"Expecting it near: 1.0, 4.0, 15.0, 7.5\n", xval);
 	    }
       if (guess (yval, 4, &calibration_y))
 	if (guess (yval, 20, &calibration_y))
@@ -1067,7 +1068,8 @@ ps_calibrate_1 (double xval, double yval, int use_command)
 		ps_attribute_list[HA_ycalib].default_val.real_value =
 		  calibration_y = yval;
 	      else
-		Message("Y value of %g is too far off.\n", yval);
+		Message("Y value of %g is too far off.\n"
+			"Expecting it near: 1.0, 4.0, 20.0, 10.0\n", yval);
 	    }
       return;
     }
@@ -1095,11 +1097,11 @@ ps_calibrate_1 (double xval, double yval, int use_command)
     fputs(calib_lines[c], f);
 
   fprintf (f, "4 in 0.5 (Y in) cbar\n");
-  fprintf (f, "20 cm 1.5 (Y mm) cbar\n");
+  fprintf (f, "20 cm 1.5 (Y cm) cbar\n");
   fprintf (f, "10 in 2.5 (Y in) cbar\n");
   fprintf (f, "-90 rotate\n");
   fprintf (f, "4 in -0.5 (X in) cbar\n");
-  fprintf (f, "15 cm -1.5 (X mm) cbar\n");
+  fprintf (f, "15 cm -1.5 (X cm) cbar\n");
   fprintf (f, "7.5 in -2.5 (X in) cbar\n");
 
   fprintf (f, "showpage\n");
