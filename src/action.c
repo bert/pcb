@@ -1443,9 +1443,12 @@ NotifyMode (void)
 		e = (ElementTypePtr) ptr1;
 		if (e)
 		  {
+		    int i;
+
 		    memcpy (estr, e->Name,
 			    MAX_ELEMENTNAMES * sizeof (TextType));
-		    memset (e->Name, 0, MAX_ELEMENTNAMES * sizeof (TextType));
+		    for (i = 0; i < MAX_ELEMENTNAMES; ++i)
+		      estr[i].TextString = strdup(estr[i].TextString);
 		    RemoveElement (e);
 		  }
 	      }
