@@ -326,7 +326,7 @@ MoveArcToBuffer (LayerTypePtr Layer, ArcTypePtr Arc)
   if (!lay->arc_tree)
     lay->arc_tree = r_create_tree (NULL, 0, 0);
   r_insert_entry (lay->arc_tree, (BoxTypePtr) arc, 0);
-  RestoreToPolygon (Dest, ARC_TYPE, lay, arc);
+  ClearFromPolygon (Dest, ARC_TYPE, lay, arc);
   return (arc);
 }
 
@@ -340,6 +340,7 @@ MoveTextToBuffer (LayerTypePtr Layer, TextTypePtr Text)
   LayerTypePtr lay;
 
   r_delete_entry (Layer->text_tree, (BoxTypePtr) Text);
+  RestoreToPolygon (Source, TEXT_TYPE, Layer, Text);
   lay = &Dest->Layer[GetLayerNumber (Source, Layer)];
   text = GetTextMemory (lay);
   *text = *Text;
@@ -350,6 +351,7 @@ MoveTextToBuffer (LayerTypePtr Layer, TextTypePtr Text)
   if (!lay->text_tree)
     lay->text_tree = r_create_tree (NULL, 0, 0);
   r_insert_entry (lay->text_tree, (BoxTypePtr) text, 0);
+  ClearFromPolygon (Dest, TEXT_TYPE, lay, text);
   return (text);
 }
 
