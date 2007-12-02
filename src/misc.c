@@ -444,7 +444,7 @@ IsDataEmpty (DataTypePtr Data)
 
   hasNoObjects = (Data->ViaN == 0);
   hasNoObjects &= (Data->ElementN == 0);
-  for (i = 0; i < Data->LayerN + 2; i++)
+  for (i = 0; i < max_layer + 2; i++)
     hasNoObjects = hasNoObjects &&
       Data->Layer[i].LineN == 0 &&
       Data->Layer[i].ArcN == 0 &&
