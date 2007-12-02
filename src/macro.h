@@ -172,6 +172,9 @@
 #define BACKSILKLAYER		Layer[max_layer + \
 				(Settings.ShowSolderSide ? COMPONENT_LAYER : SOLDER_LAYER)]
 
+#define TEST_SILK_LAYER(layer)	(GetLayerNumber (PCB->Data, layer) >= max_layer)
+
+
 /* ---------------------------------------------------------------------------
  * returns the object ID
  */

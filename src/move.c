@@ -601,7 +601,9 @@ MoveLineToLayer (LayerTypePtr Layer, LineTypePtr Line)
   Draw ();
   if (!PCB->ViaOn || MoreToCome ||
       GetLayerGroupNumberByPointer (Layer) ==
-      GetLayerGroupNumberByPointer (Dest))
+      GetLayerGroupNumberByPointer (Dest) ||
+      TEST_SILK_LAYER(Layer) ||
+      TEST_SILK_LAYER(Dest))
     return (new);
   /* consider via at Point1 */
   sb.X1 = new->Point1.X - new->Thickness / 2;
