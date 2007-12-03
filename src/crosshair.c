@@ -779,6 +779,24 @@ FitCrosshairIntoGrid (LocationType X, LocationType Y)
   else
     ans = NO_TYPE;
 
+  /* avoid self-snapping */
+  if (Settings.Mode == MOVE_MODE)
+    {
+      switch (Crosshair.AttachedObject.Type)
+	{
+	case ELEMENT_TYPE:
+	  if ((ans & (PAD_TYPE | PIN_TYPE)) &&
+	      ptr1 == Crosshair.AttachedObject.Ptr1)
+	    ans = NO_TYPE;
+	  break;
+	case VIA_TYPE:
+	  /* just avoid snapping to any other vias */
+	  if (ans & PIN_TYPES)
+	    ans = NO_TYPE;
+	  break;
+	}
+    }
+
   if (PCB->RatDraw)
     {
       x0 = -600;
