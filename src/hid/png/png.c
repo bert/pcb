@@ -68,7 +68,7 @@ typedef struct color_struct
   int c;
 
   /* so I can figure out what rgb value c refers to */
-  unsigned int r, g, b;
+  unsigned int r, g, b, a;
 
 } color_struct;
 
@@ -149,9 +149,13 @@ HID_Attribute png_attribute_list[] = {
    HID_Boolean, 0, 0, {0, 0, 0}, 0, 0},
 #define HA_only_visible 7
 
+  {"use-alpha", "Make the background and any holes transparent",
+   HID_Boolean, 0, 0, {0, 0, 0}, 0, 0},
+#define HA_use_alpha 8
+
   {"format", "Graphics file format",
    HID_Enum, 0, 0, {2, 0, 0}, filetypes, 0},
-#define HA_filetype 8
+#define HA_filetype 9
 };
 
 #define NUM_OPTIONS (sizeof(png_attribute_list)/sizeof(png_attribute_list[0]))
@@ -408,10 +412,14 @@ png_do_export (HID_Attr_Val * options)
 
   white = (color_struct *) malloc (sizeof (color_struct));
   white->r = white->g = white->b = 255;
-  white->c = gdImageColorAllocate (im, white->r, white->g, white->b);
+  if (options[HA_use_alpha].int_value)
+    white->a = 127;
+  else
+    white->a = 0;
+  white->c = gdImageColorAllocateAlpha (im, white->r, white->g, white->b, white->a);
 
   black = (color_struct *) malloc (sizeof (color_struct));
-  black->r = black->g = black->b = 0;
+  black->r = black->g = black->b = black->a = 0;
   black->c = gdImageColorAllocate (im, black->r, black->g, black->b);
 
   f = fopen (filename, "wb");
@@ -503,7 +511,7 @@ png_set_layer (const char *name, int group)
   is_drill = (SL_TYPE (idx) == SL_PDRILL || SL_TYPE (idx) == SL_UDRILL);
   is_mask = (SL_TYPE (idx) == SL_MASK);
 
-  if (is_mask)
+  if (SL_TYPE (idx) == SL_PASTE)
     return 0;
 
   if (as_shown)
@@ -514,10 +522,18 @@ png_set_layer (const char *name, int group)
 	case SL (SILK, BOTTOM):
 	  if (SL_MYSIDE (idx))
 	    return PCB->ElementOn;
+	  return 0;
+
+	case SL (MASK, TOP):
+	case SL (MASK, BOTTOM):
+	  return TEST_FLAG (SHOWMASKFLAG, PCB) && SL_MYSIDE (idx);
 	}
     }
   else
     {
+      if (is_mask)
+	return 0;
+
       switch (idx)
 	{
 	case SL (SILK, TOP):
@@ -526,7 +542,6 @@ png_set_layer (const char *name, int group)
 	  return 0;
 	}
     }
-
 
   return 1;
 }
@@ -540,7 +555,7 @@ png_make_gc (void)
   rv->cap = Trace_Cap;
   rv->width = 1;
   rv->color = (color_struct *) malloc (sizeof (color_struct));
-  rv->color->r = rv->color->g = rv->color->b = 0;
+  rv->color->r = rv->color->g = rv->color->b = rv->color->a = 0;
   rv->color->c = 0;
   return rv;
 }
@@ -695,8 +710,8 @@ use_gc (hidGC gc)
 	    gc->brush = gdImageCreate (r + 1, r + 1);
 	  bg = gdImageColorAllocate (gc->brush, 255, 255, 255);
 	  fg =
-	    gdImageColorAllocate (gc->brush, gc->color->r, gc->color->g,
-				  gc->color->b);
+	    gdImageColorAllocateAlpha (gc->brush, gc->color->r, gc->color->g,
+				  gc->color->b, gc->color->a);
 	  gdImageColorTransparent (gc->brush, bg);
 
 	  /*
