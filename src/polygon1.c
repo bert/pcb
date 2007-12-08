@@ -98,8 +98,10 @@ if (((ptr) = malloc(sizeof(type))) == NULL) \
     error(err_no_memory);
 
 #undef DEBUG_LABEL
+#undef DEBUG_ALL_LABELS
 #undef DEBUG_JUMP
 #undef DEBUG_GATHER
+#undef DEBUG_ANGLE
 #undef DEBUG
 #ifdef DEBUG
 #define DEBUGP(...) fprintf(stderr, ## __VA_ARGS__)
@@ -1413,19 +1415,10 @@ Gather (VNODE * start, PLINE ** result, J_Rule v_rule, DIRECTION initdir)
 }				/* Gather */
 
 static void
-Collect (jmp_buf * e, PLINE * a, POLYAREA ** contours, PLINE ** holes,
-	 S_Rule s_rule, J_Rule j_rule)
+Collect1 (jmp_buf * e, VNODE *cur, DIRECTION dir, POLYAREA **contours, PLINE ** holes, J_Rule j_rule)
 {
-  VNODE *cur;
-  PLINE *p = NULL;
+  PLINE *p = NULL;		/* start making contour */
   int errc = err_ok;
-  DIRECTION dir;
-
-  cur = &a->head;
-  do
-    if ((cur->Flags.mark == 0) && s_rule (cur, &dir))
-      {
-	p = NULL;		/* start making contour */
 	if ((errc =
 	     Gather (dir == FORW ? cur : cur->next, &p, j_rule,
 		     dir)) != err_ok)
@@ -1434,6 +1427,8 @@ Collect (jmp_buf * e, PLINE * a, POLYAREA ** contours, PLINE ** holes,
 	      poly_DelContour (&p);
 	    error (errc);
 	  }
+	if (!p)
+	  return;
 	poly_PreContour (p, TRUE);
 	if (p->Count > 2)
 	  {
@@ -1451,7 +1446,24 @@ Collect (jmp_buf * e, PLINE * a, POLYAREA ** contours, PLINE ** holes,
 #endif
 	    poly_DelContour (&p);
 	  }
-      }
+}
+
+static void
+Collect (jmp_buf * e, PLINE * a, POLYAREA ** contours, PLINE ** holes,
+	 S_Rule s_rule, J_Rule j_rule)
+{
+  VNODE *cur, *other;
+  DIRECTION dir;
+
+  cur = &a->head;
+  do
+   {
+    if (cur->Flags.mark == 0 && s_rule (cur, &dir))
+        Collect1(e, cur, dir, contours, holes, j_rule);
+    other = cur;
+    if ((other->cvc_prev && jump(&other, &dir, j_rule)))
+        Collect1(e, other, dir, contours, holes, j_rule);
+   }
   while ((cur = cur->next) != &a->head);
 }				/* Collect */
 
