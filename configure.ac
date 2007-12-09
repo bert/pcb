@@ -548,6 +548,22 @@ AM_CONDITIONAL(PNG, test x$with_png = xyes)
 AM_CONDITIONAL(GIF, test x$with_gif = xyes)
 
 
+# ------------- Xrender -------------------
+have_xrender=no
+AC_CHECK_LIB(Xrender,XRenderQueryExtension,have_xrender=yes,have_xrender=no,$X_LIBS)
+
+AC_ARG_ENABLE([xrender],
+[  --disable-xrender        Compile and link with Xrender [default=yes]])
+case "$have_xrender:$enable_xrender" in
+   no:* ) ;;
+   *:no ) ;;
+   * )
+     X_LIBS="-lXrender $X_LIBS"
+     AC_DEFINE([HAVE_XRENDER], 1,
+		[Define to 1 if Xrender is available])
+     ;;
+esac
+
 # ------------- dmalloc -------------------
 dnl dmalloc checks
 with_dmalloc=no

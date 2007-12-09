@@ -186,6 +186,9 @@
 /* Define to 1 if you have the <Xm/Xm.h> header file. */
 #undef HAVE_XM_XM_H
 
+/* Define to 1 if Xrender is available */
+#undef HAVE_XRENDER
+
 /* library file name */
 #undef LIBRARYFILENAME
 
