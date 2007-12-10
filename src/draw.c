@@ -806,7 +806,7 @@ DrawMask (BoxType * screen)
       for (i=PCB->Data->LayerN; i>=0; i--)
 	{
 	  LayerTypePtr Layer = PCB->Data->Layer + i;
-	  if (strcmp (Layer->Name, "outline") ==0)
+	  if (strcasecmp (Layer->Name, "outline") == 0)
 	    DrawLayer (Layer, screen);
 	}
     }
