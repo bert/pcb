@@ -75,6 +75,14 @@ static Pixmap mask_pixmap = 0;
 static Pixmap mask_bitmap = 0;
 static int use_mask = 0;
 
+static int use_xrender = 0;
+#ifdef HAVE_XRENDER
+static Picture main_picture;
+static Picture mask_picture;
+static Pixmap pale_pixmap;
+static Picture pale_picture;
+#endif /* HAVE_XRENDER */
+
 static int pixmap_w = 0, pixmap_h = 0;
 Screen *screen_s;
 int screen;
@@ -1591,6 +1599,53 @@ scroll_callback (Widget scroll, int *view_dim,
 }
 
 static void
+work_area_make_pixmaps (Dimension width, Dimension height)
+{
+  if (main_pixmap)
+    XFreePixmap (display, main_pixmap);
+  main_pixmap =
+    XCreatePixmap (display, window, width, height,
+		   XDefaultDepth (display, screen));
+
+  if (mask_pixmap)
+    XFreePixmap (display, mask_pixmap);
+  mask_pixmap =
+    XCreatePixmap (display, window, width, height,
+		   XDefaultDepth (display, screen));
+#ifdef HAVE_XRENDER
+  if (main_picture)
+    {
+      XRenderFreePicture (display, main_picture);
+      main_picture = NULL;
+    }
+  if (mask_picture)
+    {
+      XRenderFreePicture (display, mask_picture);
+      mask_picture = NULL;
+    }
+  if (use_xrender)
+    {
+      main_picture = XRenderCreatePicture (display, main_pixmap,
+			  XRenderFindVisualFormat(display,
+			  DefaultVisual(display, screen)), 0, 0);
+      mask_picture = XRenderCreatePicture (display, mask_pixmap,
+			  XRenderFindVisualFormat(display,
+			  DefaultVisual(display, screen)), 0, 0);
+      if (main_picture == NULL || mask_picture == NULL)
+	use_xrender = 0;
+    }
+#endif /* HAVE_XRENDER */
+
+  if (mask_bitmap)
+    XFreePixmap (display, mask_bitmap);
+  mask_bitmap = XCreatePixmap (display, window, width, height, 1);
+
+  pixmap = use_mask ? main_pixmap : mask_pixmap;
+  pixmap_w = width;
+  pixmap_h = height;
+}
+
+static void
 work_area_resize (Widget work_area, void *me,
 		  XmDrawingAreaCallbackStruct * cbs)
 {
@@ -1616,37 +1671,7 @@ work_area_resize (Widget work_area, void *me,
   if (!window)
     return;
 
-#if 0
-  if (!pixmap || view_width > pixmap_w || view_height > pixmap_h)
-    {
-      if (pixmap_w < view_width)
-#endif
-	pixmap_w = view_width;
-#if 0
-      if (pixmap_h < view_height)
-#endif
-	pixmap_h = view_height;
-
-      if (main_pixmap)
-	XFreePixmap (display, main_pixmap);
-      main_pixmap =
-	XCreatePixmap (display, window, pixmap_w, pixmap_h,
-		       XDefaultDepth (display, screen));
-
-      if (mask_pixmap)
-	XFreePixmap (display, mask_pixmap);
-      mask_pixmap =
-	XCreatePixmap (display, window, pixmap_w, pixmap_h,
-		       XDefaultDepth (display, screen));
-
-      if (mask_bitmap)
-	XFreePixmap (display, mask_bitmap);
-      mask_bitmap = XCreatePixmap (display, window, pixmap_w, pixmap_h, 1);
-
-      pixmap = use_mask ? main_pixmap : mask_pixmap;
-#if 0
-    }
-#endif
+  work_area_make_pixmaps (view_width, view_height);
 
   zoom_by (1, 0, 0);
 }
@@ -1687,16 +1712,25 @@ work_area_first_expose (Widget work_area, void *me,
   bg_gc = XCreateGC (display, window, 0, 0);
   XSetForeground (display, bg_gc, bgcolor);
 
-  main_pixmap =
-    XCreatePixmap (display, window, width, height,
-		   XDefaultDepth (display, screen));
-  mask_pixmap =
-    XCreatePixmap (display, window, width, height,
-		   XDefaultDepth (display, screen));
-  mask_bitmap = XCreatePixmap (display, window, width, height, 1);
-  pixmap = main_pixmap;
-  pixmap_w = width;
-  pixmap_h = height;
+  work_area_make_pixmaps (width, height);
+
+#ifdef HAVE_XRENDER
+  if (use_xrender)
+    {
+      XRenderPictureAttributes pa;
+      XRenderColor a = {0, 0, 0, 0x8000};
+
+      pale_pixmap = XCreatePixmap (display, window, 1, 1, 8);
+      pa.repeat = True;
+      pale_picture = XRenderCreatePicture (display, pale_pixmap,
+			    XRenderFindStandardFormat(display, PictStandardA8),
+			    CPRepeat, &pa);
+      if (pale_picture)
+	XRenderFillRectangle(display, PictOpSrc, pale_picture, &a, 0, 0, 1, 1);
+      else
+	use_xrender = 0;
+    }
+#endif /* HAVE_XRENDER */
 
   clip_gc = XCreateGC (display, window, 0, 0);
   bset_gc = XCreateGC (display, mask_bitmap, 0, 0);
@@ -1971,6 +2005,7 @@ lesstif_parse_arguments (int *argc, char ***argv)
   XrmOptionDescRec *new_options;
   XtResource *new_resources;
   val_union *new_values;
+  int render_event, render_error;
 
   XtSetTypeConverter (XtRString,
 		      XtRDouble,
@@ -2127,6 +2162,11 @@ lesstif_parse_arguments (int *argc, char ***argv)
 
   XtGetApplicationResources (appwidget, new_values, new_resources,
 			     rmax, 0, 0);
+
+#ifdef HAVE_XRENDER
+  use_xrender = XRenderQueryExtension (display, &render_event, &render_error) &&
+	XRenderFindVisualFormat (display, DefaultVisual(display, screen));
+#endif /* HAVE_XRENDER */
 
   rcount = 0;
   for (ha = hid_attr_nodes; ha; ha = ha->next)
@@ -2896,7 +2936,8 @@ lesstif_destroy_gc (hidGC gc)
 static void
 lesstif_use_mask (int use_it)
 {
-  if (TEST_FLAG (THINDRAWFLAG, PCB) || TEST_FLAG(THINDRAWPOLYFLAG, PCB))
+  if (TEST_FLAG (THINDRAWFLAG, PCB) || TEST_FLAG(THINDRAWPOLYFLAG, PCB) &&
+      !use_xrender)
     use_it = 0;
   if ((use_it == 0) == (use_mask == 0))
     return;
@@ -2925,10 +2966,24 @@ lesstif_use_mask (int use_it)
     }
   else
     {
-      XSetClipMask (display, clip_gc, mask_bitmap);
       pixmap = main_pixmap;
-      XCopyArea (display, mask_pixmap, main_pixmap, clip_gc,
-		 0, 0, view_width, view_height, 0, 0);
+#ifdef HAVE_XRENDER
+      if (use_xrender)
+	{
+	  XRenderPictureAttributes pa;
+
+	  pa.clip_mask = mask_bitmap;
+	  XRenderChangePicture(display, main_picture, CPClipMask, &pa);
+	  XRenderComposite(display, PictOpOver, mask_picture, pale_picture,
+	        main_picture, 0, 0, 0, 0, 0, 0, view_width, view_height);
+	}
+      else
+#endif /* HAVE_XRENDER */
+	{
+	  XSetClipMask (display, clip_gc, mask_bitmap);
+	  XCopyArea (display, mask_pixmap, main_pixmap, clip_gc,
+		     0, 0, view_width, view_height, 0, 0);
+	}
     }
 }
 

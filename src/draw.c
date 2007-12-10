@@ -110,6 +110,7 @@ static void DrawEMark (ElementTypePtr, LocationType, LocationType, Boolean);
 static void ClearPad (PadTypePtr, Boolean);
 static void DrawHole (PinTypePtr);
 static void DrawMask (BoxType *);
+static void DrawRats (BoxType *);
 static void DrawSilk (int, int, BoxType *);
 static int pin_callback (const BoxType * b, void *cl);
 static int pad_callback (const BoxType * b, void *cl);
@@ -532,7 +533,7 @@ DrawEverything (BoxTypePtr drawn_area)
 		  NULL);
       /* Draw rat lines on top */
       if (PCB->RatOn)
-	r_search (PCB->Data->rat_tree, drawn_area, NULL, rat_callback, NULL);
+	DrawRats(drawn_area);
     }
 
   for (side = 0; side <= 1; side++)
@@ -810,6 +811,14 @@ DrawMask (BoxType * screen)
 	}
     }
 #endif
+}
+
+static void
+DrawRats (BoxTypePtr drawn_area)
+{
+  gui->use_mask (HID_MASK_CLEAR);
+  r_search (PCB->Data->rat_tree, drawn_area, NULL, rat_callback, NULL);
+  gui->use_mask (HID_MASK_OFF);
 }
 
 static int
