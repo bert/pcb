@@ -816,9 +816,18 @@ DrawMask (BoxType * screen)
 static void
 DrawRats (BoxTypePtr drawn_area)
 {
-  gui->use_mask (HID_MASK_CLEAR);
+  /*
+   * XXX lesstif allows positive AND negative drawing in HID_MASK_CLEAR.
+   * XXX gtk only allows negative drawing.
+   * XXX using the mask here is to get rat transparency
+   */
+  int can_mask = strcmp(gui->name, "lesstif") == 0;
+
+  if (can_mask)
+    gui->use_mask (HID_MASK_CLEAR);
   r_search (PCB->Data->rat_tree, drawn_area, NULL, rat_callback, NULL);
-  gui->use_mask (HID_MASK_OFF);
+  if (can_mask)
+    gui->use_mask (HID_MASK_OFF);
 }
 
 static int
