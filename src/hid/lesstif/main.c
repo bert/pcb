@@ -130,7 +130,7 @@ static int view_left_x = 0, view_top_y = 0;
 /* Denotes PCB units per screen pixel.  Larger numbers mean zooming
    out - the largest value means you are looking at the whole
    board.  */
-static double view_zoom = 1000;
+static double view_zoom = 1000, prev_view_zoom = 1000;
 static int flip_x = 0, flip_y = 0;
 static int autofade = 0;
 
@@ -185,6 +185,7 @@ REGISTER_ATTRIBUTES (lesstif_attribute_list)
 static void lesstif_use_mask (int use_it);
 static void zoom_to (double factor, int x, int y);
 static void zoom_by (double factor, int x, int y);
+static void zoom_toggle (int x, int y);
 static void pinout_callback (Widget, PinoutData *,
 			     XmDrawingAreaCallbackStruct *);
 static void pinout_unmap (Widget, PinoutData *, void *);
@@ -448,6 +449,11 @@ ZoomAction (int argc, char **argv, int x, int y)
       return 0;
     }
   vp = argv[0];
+  if (strcasecmp (vp, "toggle") == 0)
+    {
+      zoom_toggle (x, y);
+      return 0;
+    }
   if (*vp == '+' || *vp == '-' || *vp == '=')
     vp++;
   v = strtod (vp, 0);
@@ -900,6 +906,8 @@ CursorAction(int argc, char **argv, int x, int y)
       xu = PCB->MaxWidth / 100.0;
       yu = PCB->MaxHeight / 100.0;
     }
+  else
+    xu = yu = 100;
 
   EventMoveCrosshair (Crosshair.X+(int)(dx*xu), Crosshair.Y+(int)(dy*yu));
   gui->set_crosshair (Crosshair.X, Crosshair.Y, pan_warp);
@@ -1201,6 +1209,16 @@ zoom_to (double new_zoom, int x, int y)
       view_top_y = cy - view_height * yfrac * view_zoom;
     }
   lesstif_pan_fixup ();
+}
+
+static void
+zoom_toggle(int x, int y)
+{
+  double tmp;
+
+  tmp = prev_view_zoom;
+  prev_view_zoom = view_zoom;
+  zoom_to(tmp, x, y);
 }
 
 void
@@ -1616,12 +1634,12 @@ work_area_make_pixmaps (Dimension width, Dimension height)
   if (main_picture)
     {
       XRenderFreePicture (display, main_picture);
-      main_picture = NULL;
+      main_picture = 0;
     }
   if (mask_picture)
     {
       XRenderFreePicture (display, mask_picture);
-      mask_picture = NULL;
+      mask_picture = 0;
     }
   if (use_xrender)
     {
@@ -1631,7 +1649,7 @@ work_area_make_pixmaps (Dimension width, Dimension height)
       mask_picture = XRenderCreatePicture (display, mask_pixmap,
 			  XRenderFindVisualFormat(display,
 			  DefaultVisual(display, screen)), 0, 0);
-      if (main_picture == NULL || mask_picture == NULL)
+      if (!main_picture || !mask_picture)
 	use_xrender = 0;
     }
 #endif /* HAVE_XRENDER */
@@ -2936,7 +2954,7 @@ lesstif_destroy_gc (hidGC gc)
 static void
 lesstif_use_mask (int use_it)
 {
-  if (TEST_FLAG (THINDRAWFLAG, PCB) || TEST_FLAG(THINDRAWPOLYFLAG, PCB) &&
+  if ((TEST_FLAG (THINDRAWFLAG, PCB) || TEST_FLAG(THINDRAWPOLYFLAG, PCB)) &&
       !use_xrender)
     use_it = 0;
   if ((use_it == 0) == (use_mask == 0))

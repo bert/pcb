@@ -76,6 +76,7 @@ MainMenu =
     #{"Zoom Out 20%" Zoom(+1.2) Center() m=O a={"Shift-Z" "Shift<Key>z"}}
     {"Zoom Out 2X" Zoom(+2)}
     {"Zoom Max" Zoom() m=M a={"V" "<Key>v"}}
+    {"Zoom Toggle" Zoom(Toggle) a={"`" "<Key>`"}}
     -
     {"Zoom to 0.1mil/px" Zoom(=10)}
     {"Zoom to 0.01mm/px" Zoom(=39.37)}
