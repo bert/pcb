@@ -800,7 +800,9 @@ gint
 ghid_port_window_enter_cb (GtkWidget * widget,
 			   GdkEventCrossing * ev, GHidPort * out)
 {
-  /* printf("mode: %d type: %d\n", ev->mode, ev->detail); */
+  /* printf("enter: mode: %d type: %d\n", ev->mode, ev->detail); */
+
+  RestoreCrosshair (TRUE);
   
   /* See comment in ghid_port_window_leave_cb() */
 
@@ -808,7 +810,6 @@ ghid_port_window_enter_cb (GtkWidget * widget,
     {
       return FALSE;
     }
-
 
   if (!ghidgui->command_entry_status_line_active)
     {
@@ -818,7 +819,6 @@ ghid_port_window_enter_cb (GtkWidget * widget,
       gtk_widget_grab_focus (out->drawing_area);
     }
   ghidgui->in_popup = FALSE;
-  RestoreCrosshair (TRUE);
 
   /* Following expression is true if a you open a menu from the menu bar, 
    * move the mouse to the viewport and click on it. This closes the menu 
@@ -850,7 +850,7 @@ ghid_port_window_leave_cb (GtkWidget * widget,
 {
   gint x0, y0, x, y, dx, dy, w, h;
   
-  /* printf("mode: %d type: %d\n", ev->mode, ev->detail); */
+  /* printf("leave: mode: %d type: %d\n", ev->mode, ev->detail); */
 
   /* Window leave events can also be triggered because of focus grabs. Some
    * X applications occasionally grab the focus and so trigger this function.
@@ -859,12 +859,8 @@ ghid_port_window_leave_cb (GtkWidget * widget,
    * See http://bugzilla.gnome.org/show_bug.cgi?id=102209 
    */
 
-  if(ev->mode != GDK_CROSSING_NORMAL) 
-    {
-      return FALSE;
-    }
-
-  if (out->has_entered && !ghidgui->in_popup)
+  if(ev->mode == GDK_CROSSING_NORMAL
+     && out->has_entered && !ghidgui->in_popup)
     {
       /* if actively drawing, start scrolling */
 
@@ -914,6 +910,8 @@ ghid_port_window_leave_cb (GtkWidget * widget,
 	  g_idle_add (ghid_pan_idle_cb, NULL);
 	}
     }
+
+  HideCrosshair (TRUE);
 
   ghid_show_crosshair (FALSE);
   out->has_entered = FALSE;
