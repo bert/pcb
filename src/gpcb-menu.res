@@ -77,11 +77,11 @@ MainMenu =
    -
    {"Cut selection to buffer" GetXY(Click to set the snap point for this buffer)
     PasteBuffer(Clear) PasteBuffer(AddSelected) RemoveSelected() Mode(PasteBuffer)
-    a={"Shift-Ctrl-X" "Shift Ctrl<Key>x"}}
+    a={"Ctrl-X" "Ctrl<Key>x"}}
    {"Copy selection to buffer" GetXY(Click to set the snap point for this buffer)
     PasteBuffer(Clear) PasteBuffer(AddSelected) Mode(PasteBuffer)
-    a={"Ctrl-X" "Ctrl<Key>x"}}
-   {"Paste buffer to layout" Mode(PasteBuffer) }
+    a={"Ctrl-C" "Ctrl<Key>c"}}
+   {"Paste buffer to layout" Mode(PasteBuffer) a={"Ctrl-V" "Ctrl<Key>v"}}
    -
    {"Unselect all" Unselect(All) a={"Shift-Alt-A" "Shift Alt<Key>a"}}
    {"Select all visible" Select(All) a={"Alt-A" "Alt<Key>a"}}
@@ -191,6 +191,8 @@ MainMenu =
    {"Crosshair snaps to pins and pads" checked=snappin Display(ToggleSnapPin)}
    {"Crosshair shows DRC clearance" checked=showdrc Display(ToggleShowDRC)}
    {"Auto enforce DRC clearance" checked=autodrc Display(ToggleAutoDRC)}
+   {"Lock Names" checked=locknames Display(ToggleLockNames)}
+   {"Only Names" checked=onlynames Display(ToggleOnlyNames)}
    -
    {"Rubber band mode" checked=rubberband Display(ToggleRubberBandMode)}
    {"Require unique element names" checked=uniquename Display(ToggleUniqueNames)}
@@ -229,7 +231,7 @@ MainMenu =
    {"Disperse selected elements" DisperseElements(Selected)}
    -
    {"Move selected elements to other side" Flip(SelectedElements) a={"Shift-B" "Shift<Key>b"}}
-   {"Remove selected objects" RemoveSelected()}
+   {"Remove selected objects" RemoveSelected() a={"Shift-Delete" "Shift<Key>Delete"}}
    {"Convert selection to element" Select(Convert)}
    -
    {"Optimize selected rats" DeleteRats(SelectedRats) AddRats(SelectedRats)}
@@ -344,17 +346,14 @@ MainMenu =
    {"Generate drill summary" Report(DrillReport)}
    {"Report found pins/pads" Report(FoundPins)}
    {"Key Bindings"
-    {"Remove" a={"Backspace" "<Key>BackSpace"}
-     Mode(Save)
-     Mode(Remove)
-     Mode(Notify)
-     Mode(Restore)
-    }
     {"Remove" a={"Delete" "<Key>Delete"}
      Mode(Save)
      Mode(Remove)
      Mode(Notify)
      Mode(Restore)
+    }
+    {"Remove Selected" a={"Backspace" "<Key>BackSpace"}
+     RemoveSelected()
     }
     {"Remove Connected" a={"Shift-Backspace" "Shift<Key>BackSpace"}
      Atomic(Save)
@@ -416,13 +415,16 @@ MainMenu =
     {"Polygon PreviousPoint" a={"P" "<Key>p"} Polygon(PreviousPoint)}
     {"Polygon Close" a={"Shift-P" "Shift<Key>p"} Polygon(Close)}
     {"ChangeSquare Object" a={"Q" "<Key>q"} ChangeSquare(ToggleObject)}
+    {"Redo last undone operation" Redo() a={"Shift-R" "Shift<Key>r"}}
     {"ChangeSize +5 mil" a={"S" "<Key>s"} ChangeSize(Object,+5,mil)}
     {"ChangeSize -5 mil" a={"Shift-S" "Shift<Key>s"} ChangeSize(Object,-5,mil)}
     {"ChangeDrill +5 mil" a={"Alt-S" "Alt<Key>s"} ChangeDrillSize(Object,+5,mil)}
     {"ChangeDrill -5 mil" a={"Alt-Shift-S" "Alt Shift<Key>s"} ChangeDrillSize(Object,-5,mil)}
     {"TextScale +10 mil" a={"T" "<Key>t"} SetValue(TextScale,+10,mil)}
     {"TextScale -10 mil" a={"Shift-T" "Shift<Key>t"} SetValue(TextScale,-10,mil)}
-    {"ViaSize +5 mil" a={"Ctrl-V" "Ctrl<Key>v"} SetValue(ViaSize,+5,mil)}
+    {"Undo last operation" Undo() a={"U" "<Key>u"}}
+    {"Clear undo-buffer" Undo(ClearList) a={"Shift-Ctrl-U" "Shift Ctrl<Key>u"}}
+    {"ViaSize +5 mil" a={"Shift-V" "Shift<Key>v"} SetValue(ViaSize,+5,mil)}
     {"ViaSize -5 mil" a={"Shift-Ctrl-V" "Shift Ctrl<Key>v"} SetValue(ViaSize,-5,mil)}
     {"ViaDrill +5 mil" a={"Alt-V" "Alt<Key>v"} SetValue(ViaDrillingHole,+5,mil)}
     {"ViaDrill -5 mil" a={"Alt-Shift-V" "Alt Shift<Key>v"} SetValue(ViaDrillingHole,-5,mil)}
@@ -433,6 +435,11 @@ MainMenu =
     {"Temp Arrow ON" a={"[" "<Key>["} Mode(Save) Mode(Arrow) Mode(Notify)}
     {"Temp Arrow OFF" a={"]" "<Key>]"} Mode(Release) Mode(Restore)}
     -
+    {"Flip up/down" a={"Tab" "<Key>Tab"} checked=flip_y SwapSides(V)}
+    {"Flip left/right" a={"Shift-Tab" "Shift<Key>Tab"} checked=flip_x SwapSides(H)}
+    {"Spin 180?" a={"Ctrl-Tab" "Ctrl<Key>Tab"} SwapSides(R)}
+    {"Swap Sides" a={"Ctrl-Shift-Tab" "Ctrl Shift<Key>Tab"}  SwapSides()}
+    -
     {"Step Up" a={"Up" "<Key>Up"} Cursor(Warp,0,1,grid)}
     {"Step Down" a={"Down" "<Key>Down"} Cursor(Warp,0,-1,grid)}
     {"Step Left" a={"Left" "<Key>Left"} Cursor(Warp,-1,0,grid)}
@@ -441,7 +448,8 @@ MainMenu =
     {"Step +Down" a={"Down" "Shift<Key>Down"} Cursor(Pan,0,-50,view)}
     {"Step +Left" a={"Left" "Shift<Key>Left"} Cursor(Pan,-50,0,view)}
     {"Step +Right" a={"Right" "Shift<Key>Right"} Cursor(Pan,50,0,view)}
-    {'"Click"' a={"Enter" "<Key>Enter"} Mode(Notify) Mode(Release) }
+    {'"Click"' a={"Enter" "<Key>Enter"} Mode(Notify) Mode(Release)}
+    -
    }
   }
 #

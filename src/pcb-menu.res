@@ -135,11 +135,11 @@ MainMenu =
    -
    {"Cut selection to buffer" GetXY(Click to set the snap point for this buffer)
     PasteBuffer(Clear) PasteBuffer(AddSelected) RemoveSelected() Mode(PasteBuffer)
-    a={"Ctrl-C" "Ctrl<Key>c"}}
+    a={"Ctrl-X" "Ctrl<Key>x"}}
    {"Copy selection to buffer" GetXY(Click to set the snap point for this buffer)
     PasteBuffer(Clear) PasteBuffer(AddSelected) Mode(PasteBuffer)
-    a={"Ctrl-X" "Ctrl<Key>x"}}
-   {"Paste buffer to layout" Mode(PasteBuffer) a={"F7" "<Key>F7"}}
+    a={"Ctrl-C" "Ctrl<Key>c"}}
+   {"Paste buffer to layout" Mode(PasteBuffer) a={"Ctrl-V" "Ctrl<Key>v"}}
    -
    {"Unselect all" Unselect(All) a={"Shift-Alt-A" "Shift Alt<Key>a"}}
    {"Select all visible" Select(All) a={"Alt-A" "Alt<Key>a"}}
@@ -392,7 +392,7 @@ MainMenu =
     {"ChangeDrill -5 mil" a={"Alt-Shift-S" "Alt Shift<Key>s"} ChangeDrillSize(Object,-5,mil)}
     {"TextScale +10 mil" a={"T" "<Key>t"} SetValue(TextScale,+10,mil)}
     {"TextScale -10 mil" a={"Shift-T" "Shift<Key>t"} SetValue(TextScale,-10,mil)}
-    {"ViaSize +5 mil" a={"Ctrl-V" "Ctrl<Key>v"} SetValue(ViaSize,+5,mil)}
+    {"ViaSize +5 mil" a={"Shift-V" "Shift<Key>v"} SetValue(ViaSize,+5,mil)}
     {"ViaSize -5 mil" a={"Shift-Ctrl-V" "Shift Ctrl<Key>v"} SetValue(ViaSize,-5,mil)}
     {"ViaDrill +5 mil" a={"Alt-V" "Alt<Key>v"} SetValue(ViaDrillingHole,+5,mil)}
     {"ViaDrill -5 mil" a={"Alt-Shift-V" "Alt Shift<Key>v"} SetValue(ViaDrillingHole,-5,mil)}
