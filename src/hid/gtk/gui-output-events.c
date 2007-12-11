@@ -772,7 +772,7 @@ ghid_port_window_motion_cb (GtkWidget * widget,
 {
   ModifierKeysState mk = ghid_modifier_keys_state ((GdkModifierType *) &ev->state);
   gdouble dx, dy;
-  static gint x_prev, y_prev;
+  static gint x_prev = -1, y_prev = -1;
   gboolean moved;
 
   if ((ev->state & GDK_BUTTON3_MASK) == GDK_BUTTON3_MASK
