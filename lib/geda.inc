@@ -283,6 +283,8 @@ define(`PKG_TSOP32B',  `PKG_TSOP(  `$1', `$2', `$3', 32, 559, 2000)');
 ##  Thin shrink small outline package
 # BUG: TSSOP 14, 20, 28 are all 4.4mm
 define(`PKG_TSSOP8',   `PKG_TSSOP( `$1', `$2', `$3',  8, 260, 2600)');
+define(`PKG_TSSOP14',  `PKG_TSSOP( `$1', `$2', `$3', 14, 260, 2600)');
+define(`PKG_TSSOP16',  `PKG_TSSOP( `$1', `$2', `$3', 16, 260, 2600)');
 
 define(`PKG_TSSOP48',  `PKG_TSOP(  `$1', `$2', `$3', 48, 319, 2000)');
 define(`PKG_TSSOP56',  `PKG_TSOP(  `$1', `$2', `$3', 56, 319, 2000)');
