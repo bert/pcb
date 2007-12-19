@@ -69,7 +69,7 @@ Element(0x00 "$1" "`$2'" "$3" eval(MAXX + 60) 0 3 100 0x00)
 		`PIN(50, eval(row * 100 -50), 60, 38, eval(row))
 	')
 	forloop(`row', 1, eval(`$4'),
-		`PIN(150, eval(($4 + 1 - row) * 100 -50), 60, 30, eval($4 + row))
+		`PIN(150, eval(($4 + 1 - row) * 100 -50), 60, 38, eval($4 + row))
 	')
 	ElementLine(0 0 0 MAXY 10)
 	ElementLine(0 MAXY MAXX MAXY 10)
