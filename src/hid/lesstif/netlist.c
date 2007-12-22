@@ -320,27 +320,27 @@ build_netlist_dialog ()
   n = 0;
   b_rat_on = netlist_button (netlist_dialog, "rat_on", "Enable for rats",
 			     0, NLB_FORM, NLB_FORM, 0,
-			     (XtCallbackProc)nbcb_std_callback, nbcb_rat_on);
+			     (XtCallbackProc)nbcb_std_callback, (void *)nbcb_rat_on);
 
   n = 0;
   b_rat_off = netlist_button (netlist_dialog, "rat_off", "Disable for rats",
 			      0, NLB_FORM, b_rat_on, 0,
-			      (XtCallbackProc)nbcb_std_callback, nbcb_rat_off);
+			      (XtCallbackProc)nbcb_std_callback, (void *)nbcb_rat_off);
 
   n = 0;
   b_sel = netlist_button (netlist_dialog, "select", "Select",
 			  0, b_rat_on, NLB_FORM, 0, 
-			      (XtCallbackProc)nbcb_std_callback, nbcb_select);
+			      (XtCallbackProc)nbcb_std_callback, (void *)nbcb_select);
 
   n = 0;
   b_unsel = netlist_button (netlist_dialog, "deselect", "Deselect",
 			    0, b_rat_on, b_sel, 0, 
-			      (XtCallbackProc)nbcb_std_callback, nbcb_deselect);
+			      (XtCallbackProc)nbcb_std_callback, (void *)nbcb_deselect);
 
   n = 0;
   b_find = netlist_button (netlist_dialog, "find", "Find",
 			   0, b_rat_on, b_unsel, 0,
-			   (XtCallbackProc)nbcb_std_callback, nbcb_find);
+			   (XtCallbackProc)nbcb_std_callback, (void *)nbcb_find);
 
 
   n = 0;
