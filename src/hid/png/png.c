@@ -55,12 +55,12 @@ RCSID ("$Id$");
 
 #define CRASH fprintf(stderr, "HID error: pcb called unimplemented PNG function %s.\n", __FUNCTION__); abort()
 
-int scale = 1;
+double scale = 1;
 int x_shift = 0;
 int y_shift = 0;
-#define SCALE(x)   ((x)/scale)
-#define SCALE_X(x) (((x) - x_shift)/scale)
-#define SCALE_Y(x) (((x) - y_shift)/scale)
+#define SCALE(x)   ((int)((x)/scale + 0.5))
+#define SCALE_X(x) ((int)(((x) - x_shift)/scale))
+#define SCALE_Y(x) ((int)(((x) - y_shift)/scale))
 
 typedef struct color_struct
 {
@@ -375,7 +375,7 @@ png_do_export (HID_Attr_Val * options)
        * so if we ever change pcb's internal units, this 
        * will get updated.
        */
-      scale = 100000 / dpi;
+      scale = 100000.0 / dpi;
       w = w / scale;
       h = h / scale;
     }
@@ -682,18 +682,19 @@ use_gc (hidGC gc)
       int r;
 
       switch (gc->cap)
-	{
-	case Round_Cap:
-	case Trace_Cap:
-	  type = 'C';
-	  r = SCALE (0.5 * gc->width);
-	  break;
-	default:
-	case Square_Cap:
-	  r = SCALE (gc->width);
-	  type = 'S';
-	  break;
-	}
+        {
+        case Round_Cap:
+        case Trace_Cap:
+          type = 'C';
+          break;
+        default:
+        case Square_Cap:
+          type = 'S';
+          break;
+        }
+      r = SCALE (gc->width);
+      if (r == 0 && gc->width > 0)
+	r = 1;
       sprintf (name, "#%.2x%.2x%.2x_%c_%d", gc->color->r, gc->color->g,
 	       gc->color->b, type, r);
 
@@ -704,10 +705,7 @@ use_gc (hidGC gc)
       else
 	{
 	  int bg, fg;
-	  if (type == 'C')
-	    gc->brush = gdImageCreate (2 * r + 1, 2 * r + 1);
-	  else
-	    gc->brush = gdImageCreate (r + 1, r + 1);
+	  gc->brush = gdImageCreate (r, r);
 	  bg = gdImageColorAllocate (gc->brush, 255, 255, 255);
 	  fg =
 	    gdImageColorAllocateAlpha (gc->brush, gc->color->r, gc->color->g,
@@ -718,14 +716,21 @@ use_gc (hidGC gc)
 	   * if we shrunk to a radius/box width of zero, then just use
 	   * a single pixel to draw with.
 	   */
-	  if (r == 0)
+	  if (r <= 1)
 	    gdImageFilledRectangle (gc->brush, 0, 0, 0, 0, fg);
 	  else
 	    {
 	      if (type == 'C')
-		gdImageFilledEllipse (gc->brush, r, r, 2 * r, 2 * r, fg);
+		{
+		  gdImageFilledEllipse (gc->brush, r/2, r/2, r, r, fg);
+		  /* Make sure the ellipse is the right exact size.  */
+		  gdImageSetPixel (gc->brush, 0, r/2, fg);
+		  gdImageSetPixel (gc->brush, r-1, r/2, fg);
+		  gdImageSetPixel (gc->brush, r/2, 0, fg);
+		  gdImageSetPixel (gc->brush, r/2, r-1, fg);
+		}
 	      else
-		gdImageFilledRectangle (gc->brush, 0, 0, r, r, fg);
+		gdImageFilledRectangle (gc->brush, 0, 0, r-1, r-1, fg);
 	    }
 	  bval.ptr = gc->brush;
 	  hid_cache_color (1, name, &bval, &bcache);
