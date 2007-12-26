@@ -1801,16 +1801,16 @@ adjust_pointers_1 (Extra *old, Extra *new, int num, Extra *l, int n)
   for (i=0; i<n; i++)
     {
       if (l[i].start.waiting_for
-	  && l[i].start.waiting_for > old
-	  && l[i].start.waiting_for < last+1)
+	  && (Extra *) l[i].start.waiting_for > old
+	  && (Extra *) l[i].start.waiting_for < last+1)
 	{
 	  l[i].start.waiting_for
 	    = (End *)((char *)l[i].start.waiting_for
 		      + cdelta);
 	}
       if (l[i].end.waiting_for
-	  && l[i].end.waiting_for > old
-	  && l[i].end.waiting_for < last+1)
+	  && (Extra *) l[i].end.waiting_for > old
+	  && (Extra *) l[i].end.waiting_for < last+1)
 	{
 	  l[i].end.waiting_for
 	    = (End *)((char *)l[i].end.waiting_for
