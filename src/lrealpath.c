@@ -86,12 +86,12 @@ lrealpath (const char *filename)
       rp = filename;
     return strdup (rp);
   }
-#endif /* REALPATH_LIMIT */
+  /* REALPATH_LIMIT */
 
   /* Method 2: The host system (i.e., GNU) has the function
      canonicalize_file_name() which malloc's a chunk of memory and
      returns that, use that.  */
-#if defined(HAVE_CANONICALIZE_FILE_NAME)
+#elif defined(HAVE_CANONICALIZE_FILE_NAME)
   {
     char *rp = canonicalize_file_name (filename);
     if (rp == NULL)
@@ -99,7 +99,7 @@ lrealpath (const char *filename)
     else
       return rp;
   }
-#endif
+  /* HAVE_CANONICALIZE_FILE_NAME */
 
   /* Method 3: Now we're getting desperate!  The system doesn't have a
      compile time buffer size and no alternative function.  Query the
@@ -108,7 +108,7 @@ lrealpath (const char *filename)
      pathconf()) making it impossible to pass a correctly sized buffer
      to realpath() (it could always overflow).  On those systems, we
      skip this.  */
-#if defined (HAVE_REALPATH) && defined (HAVE_UNISTD_H)
+#elif defined (HAVE_REALPATH) && defined (HAVE_UNISTD_H)
   {
     /* Find out the max path size.  */
     long path_max = pathconf ("/", _PC_PATH_MAX);
@@ -125,7 +125,7 @@ lrealpath (const char *filename)
 	return ret;
       }
   }
-#endif
+  /* HAVE_REALPATH && HAVE_UNISTD_H */
 
   /* The MS Windows method.  If we don't have realpath, we assume we
      don't have symlinks and just canonicalize to a Windows absolute
@@ -133,7 +133,7 @@ lrealpath (const char *filename)
      absolute paths, filling in current drive if one is not given
      or using the current directory of a specified drive (eg, "E:foo").
      It also converts all forward slashes to back slashes.  */
-#if defined (_WIN32)
+#elif defined (_WIN32)
   {
     char buf[MAX_PATH];
     char* basename;
@@ -149,8 +149,9 @@ lrealpath (const char *filename)
         return strdup (buf);
       }
   }
-#endif
+#else
 
   /* This system is a lost cause, just duplicate the filename.  */
   return strdup (filename);
+#endif
 }
