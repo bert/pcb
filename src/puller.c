@@ -175,6 +175,7 @@ dot2d (int cx, int cy, int ux, int uy, int vx, int vy)
   return (double)ux * vx + (double)uy * vy;
 }
 
+#if 0
 /* angle of c->v, relative to c->u, in radians.  Range is -pi..pi */
 static double
 angle2d (int cx, int cy, int ux, int uy, int vx, int vy)
@@ -200,6 +201,7 @@ angle2d (int cx, int cy, int ux, int uy, int vx, int vy)
 #endif
   return asin (sintheta);
 }
+#endif
 
 static int
 same_sign (double a, double b)
@@ -631,9 +633,11 @@ static int did_something;
 static int current_is_component, current_is_solder;
 
 /* If set, these are the pins/pads/vias that this path ends on.  */
-static void *start_pin_pad, *end_pin_pad;
+/* static void *start_pin_pad, *end_pin_pad; */
 
+#if TRACE1
 static void trace_paths ();
+#endif
 static void mark_line_for_deletion (LineTypePtr);
 
 #define LINE2EXTRA(l) (lines[(l)-CURRENT->Line])
@@ -669,6 +673,7 @@ unlink_end (Extra *x, Extra **e)
   (*e) = &multi_next;
 }
 
+#if TRACE1
 static void
 clear_found ()
 {
@@ -678,6 +683,7 @@ clear_found ()
   for (i=0; i<narcs; i++)
     arcs[i].found = 0;
 }
+#endif
 
 static void
 fix_arc_extra (ArcTypePtr a, Extra *e)
@@ -707,7 +713,9 @@ static int
 find_pair_line_callback (const BoxType * b, void *cl)
 {
   LineTypePtr line = (LineTypePtr) b;
+#if TRACE1
   Extra *e = & LINE2EXTRA (line);
+#endif
   FindPairCallbackStruct *fpcs = (FindPairCallbackStruct *) cl;
 
   if (line == fpcs->me)
@@ -1214,7 +1222,7 @@ print_extra (Extra *e, Extra *prev)
   if (EXTRA_IS_LINE (e))
     {
       LineTypePtr line = & EXTRA2LINE (e);
-      printf(" %4d L %d,%d-%d,%d", line-CURRENT->Line, line->Point1.X, line->Point1.Y, line->Point2.X, line->Point2.Y);
+      printf(" %4d L %d,%d-%d,%d", (int)(line-CURRENT->Line), line->Point1.X, line->Point1.Y, line->Point2.X, line->Point2.Y);
       printf("  %s %p %s %p\n",
 	     e->start.is_pad ? "pad" : "pin", e->start.pin,
 	     e->end.is_pad ? "pad" : "pin", e->end.pin);
@@ -1222,7 +1230,7 @@ print_extra (Extra *e, Extra *prev)
   else if (EXTRA_IS_ARC (e))
     {
       ArcTypePtr arc = & EXTRA2ARC (e);
-      printf(" %4d A %d,%d-%d,%d", arc-CURRENT->Arc, e->start.x, e->start.y, e->end.x, e->end.y);
+      printf(" %4d A %d,%d-%d,%d", (int) (arc-CURRENT->Arc), e->start.x, e->start.y, e->end.x, e->end.y);
       printf(" at %d,%d ang %ld,%ld\n", arc->X, arc->Y, arc->StartAngle, arc->Delta);
     }
   else if (e == &multi_next)
@@ -1235,6 +1243,7 @@ print_extra (Extra *e, Extra *prev)
     }
 }
 
+#if TRACE1
 static void
 trace_path (Extra *e)
 {
@@ -1278,6 +1287,7 @@ trace_paths ()
     trace_path (e);
   } END_LOOP;
 }
+#endif
 
 static void
 reverse_line (LineTypePtr line)
@@ -2013,7 +2023,6 @@ mark_line_for_deletion (LineTypePtr l)
 static void
 mark_arc_for_deletion (ArcTypePtr a)
 {
-  int old_i, rep_i;
   Extra *e = & ARC2EXTRA(a);
   e->deleted = 1;
   unlink_extras (e);
@@ -2041,7 +2050,6 @@ maybe_pull_1 (LineTypePtr line)
 {
   BoxType box;
   /* Line half-thicknesses, including line space */
-  int th;
   int ex, ey;
   LineTypePtr new_line;
   Extra *new_lextra;
@@ -2644,7 +2652,9 @@ GlobalPuller(int argc, char **argv, int x, int y)
   printf("pulling...\n");
   if (setjmp(abort_buf) == 0)
     {
+#if TRACE0
       int old_did_something = -1;
+#endif
       did_something = 1;
       while (did_something)
 	{
