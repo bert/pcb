@@ -450,6 +450,7 @@ PrintBOM (void)
 	descr = CleanBOMString (UNKNOWN (DESCRIPTION_NAME (element)));
 	value = CleanBOMString (UNKNOWN (VALUE_NAME (element)));
 
+ 	y = PCB->MaxHeight - y;
  	if (xy_dim_type) {
  	  /* dimensions in mm */
  	  user_x = 0.000254 * x;
