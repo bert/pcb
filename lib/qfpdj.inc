@@ -131,6 +131,9 @@ forloop(`i', 1, QUARTER2,
 # $5: body size in mm
 # $6: pad pitch in 1/100 mmm
 # $7: pad thickness
+# $8: pad min offset ( edge nearest package )
+# $9: pad max offset ( edge furthest away from package )
+# $10: pin 1 in middle
 #
 
 # pins 1.9-2.1mm long
@@ -143,6 +146,7 @@ define(`PKG_QFP_50L',`PKG_GENERIC_QFP(`$1',`$2',`$3',`$4',`$5', `50',`28',`20',`
 define(`PKG_QFP_80', `PKG_GENERIC_QFP(`$1',`$2',`$3',`$4',`$5', `80',`40',`20', `80',`0')')
 define(`PKG_QFP_65', `PKG_GENERIC_QFP(`$1',`$2',`$3',`$4',`$5', `65',`40',`20', `80',`0')')
 define(`PKG_QFP_50', `PKG_GENERIC_QFP(`$1',`$2',`$3',`$4',`$5', `50',`28',`20', `80',`0')')
+define(`PKG_QFP_40', `PKG_GENERIC_QFP(`$1',`$2',`$3',`$4',`$5', `40',`25',`20', `80',`0')')
 
 # pins 1mm long
 define(`PKG_LQFP_80',`PKG_GENERIC_QFP(`$1',`$2',`$3',`$4',`$5', `80',`40', `5', `50',`0')')
