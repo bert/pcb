@@ -18,7 +18,7 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  *
  */
 
@@ -1326,7 +1326,7 @@ config_library_tab_create (GtkWidget * tab_vbox)
 
   /* -------------- The Layers Group config page ----------------
    */
-static GtkWidget	*config_groups_table, *config_groups_vbox;
+static GtkWidget	*config_groups_table, *config_groups_vbox, *config_groups_window;
 
 static GtkWidget *layer_entry[MAX_LAYER];
 static GtkWidget *group_button[MAX_LAYER + 2][MAX_LAYER];
@@ -1554,21 +1554,6 @@ config_layer_group_button_state_update (void)
   groups_holdoff = FALSE;
 }
 
-  /* All the radio buttons should have no label, but the component and solder
-     |  side rows need a button with an initial label to force the button to fill
-     |  out vertically when realized so it will match in size the other buttons
-     |  which naturally fill out because the layer entries force more vertical
-     |  space on their rows.  So erase that initial kludge label after showing.
-   */
-static void
-layer_button_post_show_fixup (void)
-{
-  gint l;
-
-  for (l = max_layer; l < max_layer + 2; ++l)
-    gtk_button_set_label (GTK_BUTTON (group_button[l][0]), "");
-}
-
 static void
 layer_name_entry_cb(GtkWidget *entry, gpointer data)
 {
@@ -1585,26 +1570,36 @@ layer_name_entry_cb(GtkWidget *entry, gpointer data)
 void
 ghid_config_groups_changed(void)
 {
-  GtkWidget *vbox, *table, *button, *label;
+  GtkWidget *vbox, *table, *button, *label, *scrolled_window;
   GSList *group;
   gchar buf[32], *name;
   gint layer, i;
-  gboolean	need_fixup = FALSE;
 
   if (!config_groups_vbox)
 	return;
   vbox = config_groups_vbox;
 
   if (config_groups_table)
-	{
 	gtk_widget_destroy(config_groups_table);
-	need_fixup = TRUE;
-	}
+  if (config_groups_window)
+    gtk_widget_destroy(config_groups_window);
+
+  config_groups_window = scrolled_window = 
+    gtk_scrolled_window_new (NULL, NULL);
+  gtk_widget_set_size_request (scrolled_window, 34, 408);
+  gtk_container_set_border_width (GTK_CONTAINER (scrolled_window), 3);
+  gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrolled_window),
+                                  GTK_POLICY_AUTOMATIC, GTK_POLICY_ALWAYS);
+  gtk_box_pack_start (GTK_BOX (vbox), scrolled_window, TRUE, TRUE, 0);
+  gtk_widget_show (scrolled_window);
+
+
   table = gtk_table_new (max_layer + 3, max_layer + 1, FALSE);
   config_groups_table = table;
   gtk_table_set_row_spacings (GTK_TABLE (table), 3);
-
-  gtk_box_pack_start (GTK_BOX (vbox), table, FALSE, FALSE, 0);
+  gtk_scrolled_window_add_with_viewport (
+        GTK_SCROLLED_WINDOW (scrolled_window), table);
+  gtk_widget_show (table);
 
   layer_groups = PCB->LayerGroups;	/* working copy */
   lg_monitor = &PCB->LayerGroups;	/* So can know if PCB changes on us */
@@ -1655,10 +1650,8 @@ ghid_config_groups_changed(void)
       group = NULL;
       for (i = 0; i < max_layer; ++i)
 	{
-	  if (layer < max_layer || i > 0)
-	    button = gtk_radio_button_new (group);
-	  else			/* See layer button fixup above */
-	    button = gtk_radio_button_new_with_label (group, "8");
+	  snprintf (buf, sizeof (buf), "%2.2d", i+1);
+	  button = gtk_radio_button_new_with_label (group, buf);
 
 	  gtk_toggle_button_set_mode (GTK_TOGGLE_BUTTON (button), FALSE);
 	  group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (button));
@@ -1671,8 +1664,6 @@ ghid_config_groups_changed(void)
 	}
     }
   gtk_widget_show_all(config_groups_vbox);
-  if (need_fixup)
-	layer_button_post_show_fixup();
   config_layer_group_button_state_update ();
 }
 
@@ -2125,6 +2116,7 @@ config_close_cb (gpointer data)
   config_increments_vbox = NULL;
 
   config_groups_vbox = config_groups_table = NULL;
+  config_groups_window = NULL;
 
   gtk_widget_destroy (config_window);
   config_window = NULL;
@@ -2136,6 +2128,7 @@ config_destroy_cb (gpointer data)
   config_sizes_vbox = NULL;
   config_increments_vbox = NULL;
   config_groups_vbox = config_groups_table = NULL;
+  config_groups_window = NULL;
   gtk_widget_destroy (config_window);
   config_window = NULL;
 }
@@ -2272,6 +2265,4 @@ ghid_config_window_show (void)
   gtk_widget_grab_default (button);
 
   gtk_widget_show_all (config_window);
-
-  layer_button_post_show_fixup ();
 }

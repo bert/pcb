@@ -18,7 +18,7 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  *
  */
 
@@ -2110,9 +2110,7 @@ ghid_build_pcb_top_window (void)
   GtkWidget *label;
   GHidPort *port = &ghid_port;
   gchar *s;
-#if defined(SCROLLED_LAYER_BUTTONS)
   GtkWidget *scrolled;
-#endif
 
   window = gport->top_window;
 
@@ -2214,16 +2212,8 @@ ghid_build_pcb_top_window (void)
   vbox_left = gtk_vbox_new (FALSE, 0);
   gtk_container_add (GTK_CONTAINER (ebox), vbox_left);
 
-#if defined(SCROLLED_LAYER_BUTTONS)
-  /* May need to do this when adding layers and vertical height gets large. */
   vbox = ghid_scrolled_vbox(vbox_left, &scrolled,
       GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
-#else
-  frame = gtk_frame_new(NULL);
-  gtk_box_pack_start(GTK_BOX(vbox_left), frame, FALSE, FALSE, 0);
-  vbox = gtk_vbox_new(FALSE, 0);
-  gtk_container_add(GTK_CONTAINER(frame), vbox);
-#endif
   make_layer_buttons(vbox, port);
 
   vbox = gtk_vbox_new(FALSE, 0);
