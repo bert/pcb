@@ -15,7 +15,7 @@ cat << EOF
 Usage:
 	$0 [-h | --help]
 	$0 [-v | --version]
-	$0 [-c|--contents contents_file] [-o|--output output_directory] [-p|--png]
+	$0 [-c|--contents contents_file] [-o|--output output_directory] [-p|--png] [-d|--dpi]
 
 Extracts all footprints from an m4 library and creates a "newlib" style
 library.
@@ -24,6 +24,11 @@ The following options are supported:
 
     -c | --contents file : Specifies the contents file to be use as an input.
                            Default is "${contents}".
+
+    -d | --dpi           : Specifies that the png output should use a fixed pixels
+                           per inch scaling instead of a fixed maximum size.  This
+                           option is useful when comparing the before and after footprints
+                           when making footprint library changes.
 
     -h | --help          : Outputs this message and exits.
 
@@ -44,11 +49,18 @@ version() {
 }
 
 do_png=0
+png_flag="--xy-max 200"
+
 while test $# -gt 0 ; do
 	case $1 in
 		-c|--contents )
 			contents=$2
 			shift 2
+			;;
+
+		-d|--dpi )
+			png_flag="--dpi 1000"
+			shift
 			;;
 
 		-h|--help )
@@ -255,7 +267,7 @@ first == 1 {
 		close( laytmpl );
 		close( layout );
 
-		cmd = "../src/pcb -x png --outfile temp.png --xy-max 200 --only-visible " layout " 2>&1 > /dev/null" ;
+		cmd = "../src/pcb -x png --outfile temp.png ${png_flag} --only-visible " layout " 2>&1 > /dev/null" ;
 		rc = system( cmd );
 		if( rc != 0) {
 			printf("<TR><TD>~%s</TD>\n", lib) >> broken;
