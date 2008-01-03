@@ -62,7 +62,7 @@ uninstall-local:
 	chmod -R a+w $(DESTDIR)$(PCBLIBDIR)/${NEWLIB}
 	rm -fr $(DESTDIR)$(PCBLIBDIR)/${NEWLIB}
 
-EXTRA_DIST=	${NEWLIB} footprint.pcb ${NEWLIB}.stamp
+EXTRA_DIST=	${NEWLIB} footprint.pcb ${NEWLIB}.stamp png_diff.sh
 
 if MAINTAINER_MODE
 DISTCLEANFILES=	${NEWLIB}.stamp

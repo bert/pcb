@@ -233,7 +233,7 @@ NEWLIB = ${LIBRARYFILENAME}-newlib
 # generate previews of all the footprints.  This has
 # the added benefit of doing a PCB syntax check on all of them
 @PNG_TRUE@PREVIEW = --png
-EXTRA_DIST = ${NEWLIB} footprint.pcb ${NEWLIB}.stamp \
+EXTRA_DIST = ${NEWLIB} footprint.pcb ${NEWLIB}.stamp png_diff.sh \
 	ListLibraryContents.sh ${COMMON_FILE} ${M4_DIST_FILES} \
 	${OBSOLETE_LIST_DIST_FILES} ${LIST_DIST_FILES} ${INC_FILES} \
 	${LIBCONTENTS} ${DAT_FILES} gen_list.awk gen_m4.awk \
