@@ -38,82 +38,110 @@
 # $8: pad min offset ( edge nearest package )
 # $9: pad max offset ( edge furthest away from package )
 # $10: pin 1 in middle
+# $11: Exposed paddle size, 0 for no exposed paddle (1/100 mm)
 #
 define(`PKG_GENERIC_QFP',
        `define(`QUARTER',  `ifelse(0,`$5',`eval($4 * 3 / 10)',`eval($4 / 4)')')
         define(`QUARTER2', `eval(`$4' / 2 - QUARTER)')
 	define(`OFFSET', `eval((QUARTER +1) /2)')
-	define(`WIDTH', `ifelse(0,`$5',`787',`eval(`$5'*10000/254)')')
-	define(`WIDTH2',`ifelse(0,`$5',`551',`eval(`$5'*10000/254)')')
+	define(`WIDTH', `ifelse(0,`$5',`78740',`eval(`$5'*1000000/254)')')
+	define(`WIDTH2',`ifelse(0,`$5',`55118',`eval(`$5'*1000000/254)')')
 	define(`PITCH',`eval(`$6'*100000/254)')
-	define(`BORDER',  `eval((WIDTH-(QUARTER-1)*PITCH/1000)/2)')
-	define(`BORDER2', `eval((WIDTH2-(QUARTER2-1)*PITCH/1000)/2)')
-	define(`CENTER', `eval(WIDTH2 / 2)')
+	define(`PINREACH',  `eval(((QUARTER-1)*PITCH/10)/2)')
+	define(`PINREACH2', `eval(((QUARTER2-1)*PITCH/10)/2)')
+	define(`HALFWIDTH', `eval(WIDTH / 2)')
+	define(`HALFWIDTH2', `eval(WIDTH2 / 2)')
 	define(`NUMPINS', `$4')
-	define(`PADTHICKNESS',`eval(`$7'*100/254)')
-	define(`PADMINOFFSET',`eval(`$8'+PADTHICKNESS/2)')
-	define(`PADMAXOFFSET',`eval(`$9'-PADTHICKNESS/2)')
-	define(`FARPIN', `eval(WIDTH-BORDER)')
-	define(`FARPIN2',`eval(WIDTH2-BORDER2)')
+	define(`PADTHICKNESS',`eval(`$7'*10000/254)')
+	define(`PADMINOFFSET',`eval(`$8'*100+PADTHICKNESS/2)')
+	define(`PADMAXOFFSET',`eval(`$9'*100-PADTHICKNESS/2)')
 	define(`PIN1INMIDDLE',`$10')
-	define(`EDGECUT',`ifelse(1,eval(PIN1INMIDDLE),`0',`33')')
+	define(`CUTSIZE',`3300')
+	define(`EDGECUT',`ifelse(1,eval(PIN1INMIDDLE),`HALFWIDTH',`eval(HALFWIDTH-CUTSIZE)')')
+	define(`EDGECUT2',`ifelse(1,eval(PIN1INMIDDLE),`HALFWIDTH2',`eval(HALFWIDTH2-CUTSIZE)')')
 	define(`STARTPIN',`ifelse(1,eval(PIN1INMIDDLE),`eval(((QUARTER+1)/2)+1)',`1')')
-	define(`CIRCLECENTRE',`ifelse(1,eval(PIN1INMIDDLE),`eval(WIDTH/2)',45)')
-Element(0x00 "$1" "`$2'" "$3" 100 CENTER 0 100 0x00)
+	define(`CIRCLECENTRE',`eval(-EDGECUT)')
+	define(`CIRCLECENTRE2',`ifelse(1,eval(PIN1INMIDDLE),`0',`eval(-EDGECUT2)')')
+	define(`PADMASK', `eval(2*150 + PADTHICKNESS)')
+	define(`PADCLEAR', `3000')
+	define(`EPCLEAR', `500')
+	define(`EPSIZE', `eval(`$11'*10000/254)')
+	define(`EPMASK', `eval(2*200 + EPSIZE)')
+	define(`SILKW', `800')
+	define(`SLX', `eval(-HALFWIDTH2 + SILKW/2)')
+	define(`SRX', `eval( HALFWIDTH2 - SILKW/2)')
+	define(`SUY', `eval(-HALFWIDTH  + SILKW/2)')
+	define(`SLY', `eval( HALFWIDTH  - SILKW/2)')
+
+
+Element[0x00000000 "$1" "`$2'" "$3" 0 0 -2000 -6000 0 100 0x00000000]
 (
 
 	# left row
-define(`X', 0)
 define(`QFPPIN',`STARTPIN')
 define(`idx',0)
+define(`PADIN',`eval(-HALFWIDTH2-PADMINOFFSET)')
+define(`PADOUT',`eval(-HALFWIDTH2-PADMAXOFFSET)')
 forloop(`i', 1, QUARTER,
-	`define(`Y', `eval(BORDER+((PITCH*idx)/1000))')'
-	`PAD(eval(X-PADMAXOFFSET), Y, eval(X-PADMINOFFSET), Y, PADTHICKNESS, QFPPIN)'
+	`define(`Y', `eval(-PINREACH+((PITCH*idx)/10))')'
+	`Pad[PADOUT  Y  PADIN  Y  PADTHICKNESS  PADCLEAR PADMASK "QFPPIN" "QFPPIN"  0x00000100]'
 	`define(`QFPPIN', incr(QFPPIN))'
 	`define(`idx',incr(idx))'
 )
 
 	# bottom row
-define(`Y', WIDTH)
 define(`idx',0)
+define(`PADIN',`eval(HALFWIDTH+PADMINOFFSET)')
+define(`PADOUT',`eval(HALFWIDTH+PADMAXOFFSET)')
 forloop(`i', 1, QUARTER2,
-	`define(`X', `eval(BORDER2+((PITCH*idx)/1000))')'
-	`PAD(X, eval(Y+PADMAXOFFSET), X, eval(Y+PADMINOFFSET), PADTHICKNESS, QFPPIN)'
+	`define(`X', `eval(-PINREACH2+((PITCH*idx)/10))')'
+	`Pad[X PADOUT  X  PADIN  PADTHICKNESS  PADCLEAR PADMASK "QFPPIN" "QFPPIN"  0x00000900]'
 	`define(`QFPPIN', incr(QFPPIN))'
 	`define(`idx',incr(idx))'
 )
 
 	# right row
-define(`X', WIDTH2)
 define(`idx',0)
+define(`PADIN',`eval(HALFWIDTH2+PADMINOFFSET)')
+define(`PADOUT',`eval(HALFWIDTH2+PADMAXOFFSET)')
 forloop(`i', 1, QUARTER,
-	`define(`Y', `eval(FARPIN-((PITCH*idx)/1000))')'
-	`PAD(eval(X+PADMAXOFFSET), Y, eval(X+PADMINOFFSET), Y, PADTHICKNESS, QFPPIN)'
+	`define(`Y', `eval(PINREACH-((PITCH*idx)/10))')'
+	`Pad[PADOUT  Y  PADIN  Y  PADTHICKNESS  PADCLEAR PADMASK "QFPPIN" "QFPPIN"  0x00000100]'
 	`define(`QFPPIN', incr(QFPPIN))'
 	`define(`idx',incr(idx))'
 )
 
 	# top row
 define(`idx',0)
-define(`Y', 0)
+define(`PADIN',`eval(-HALFWIDTH-PADMINOFFSET)')
+define(`PADOUT',`eval(-HALFWIDTH-PADMAXOFFSET)')
 forloop(`i', 1, QUARTER2,
-	`define(`X',`eval(FARPIN2-((PITCH*idx)/1000))')'
-	`PAD(X, eval(Y-PADMAXOFFSET), X, eval(Y-PADMINOFFSET), PADTHICKNESS, QFPPIN)'
+	`define(`X',`eval(PINREACH2-((PITCH*idx)/10))')'
+	`Pad[X PADOUT  X  PADIN  PADTHICKNESS  PADCLEAR PADMASK "QFPPIN" "QFPPIN"  0x00000900]'
 	`define(`QFPPIN', incr(QFPPIN))'
 	`ifelse(eval(QFPPIN > NUMPINS), 1, `define(`QFPPIN', 1)')'
 	`define(`idx',incr(idx))'
 )
 
-	define(`SWIDTH', `eval(WIDTH-5)')
-	define(`SWIDTH2', `eval(WIDTH2-5)')
-	ElementLine(EDGECUT 5 SWIDTH2 5 10)
-	ElementLine(SWIDTH2 5 SWIDTH2 SWIDTH 10)
-	ElementLine(SWIDTH2 SWIDTH 5 SWIDTH 10)
-	ElementLine(5 SWIDTH 5 EDGECUT 10)
-	ElementLine(5 EDGECUT EDGECUT 5 10)
-	ElementArc(CIRCLECENTRE 45 15 15 0 360 10)
+	# exposed paddle (if this is an exposed paddle part) 
+ifelse(1, eval(EPSIZE>0), 
+	`Pad[0 0 0 0 EPSIZE EPCLEAR EPMASK "QFPPIN" "QFPPIN" 0x00000100]'
+	`define(`QFPPIN', incr(QFPPIN))'
+)
 
-	Mark(0 0)
+	# top
+	ElementLine[-EDGECUT2 SUY SRX SUY SILKW]
+	# right
+	ElementLine[SRX SUY SRX SLY SILKW]
+	# bottom
+	ElementLine[SRX SLY SLX SLY SILKW]
+	# left
+	ElementLine[SLX SLY SLX -EDGECUT SILKW]
+	# angled corner
+	ElementLine[SLX -EDGECUT -EDGECUT2 SUY SILKW]
+
+	ElementArc[CIRCLECENTRE2 CIRCLECENTRE 1000 1000 0 360 SILKW]
+
 )')
 
 # -------------------------------------------------------------------
@@ -137,22 +165,22 @@ forloop(`i', 1, QUARTER2,
 #
 
 # pins 1.9-2.1mm long
-define(`PKG_QFP_100',`PKG_GENERIC_QFP(`$1',`$2',`$3',`$4',`$5',`100',`50',`20',`100',`0')')
-define(`PKG_QFP_80L',`PKG_GENERIC_QFP(`$1',`$2',`$3',`$4',`$5', `80',`50',`20',`100',`0')')
-define(`PKG_QFP_65L',`PKG_GENERIC_QFP(`$1',`$2',`$3',`$4',`$5', `65',`40',`20',`100',`0')')
-define(`PKG_QFP_50L',`PKG_GENERIC_QFP(`$1',`$2',`$3',`$4',`$5', `50',`28',`20',`100',`0')')
+define(`PKG_QFP_100',`PKG_GENERIC_QFP(`$1',`$2',`$3',`$4',`$5',`100',`50',`20',`100',`0',`$6')')
+define(`PKG_QFP_80L',`PKG_GENERIC_QFP(`$1',`$2',`$3',`$4',`$5', `80',`50',`20',`100',`0',`$6')')
+define(`PKG_QFP_65L',`PKG_GENERIC_QFP(`$1',`$2',`$3',`$4',`$5', `65',`40',`20',`100',`0',`$6')')
+define(`PKG_QFP_50L',`PKG_GENERIC_QFP(`$1',`$2',`$3',`$4',`$5', `50',`28',`20',`100',`0',`$6')')
 
 # pins 1.6mm long
-define(`PKG_QFP_80', `PKG_GENERIC_QFP(`$1',`$2',`$3',`$4',`$5', `80',`40',`20', `80',`0')')
-define(`PKG_QFP_65', `PKG_GENERIC_QFP(`$1',`$2',`$3',`$4',`$5', `65',`40',`20', `80',`0')')
-define(`PKG_QFP_50', `PKG_GENERIC_QFP(`$1',`$2',`$3',`$4',`$5', `50',`28',`20', `80',`0')')
-define(`PKG_QFP_40', `PKG_GENERIC_QFP(`$1',`$2',`$3',`$4',`$5', `40',`25',`20', `80',`0')')
+define(`PKG_QFP_80', `PKG_GENERIC_QFP(`$1',`$2',`$3',`$4',`$5', `80',`40',`20', `80',`0',`$6')')
+define(`PKG_QFP_65', `PKG_GENERIC_QFP(`$1',`$2',`$3',`$4',`$5', `65',`40',`20', `80',`0',`$6')')
+define(`PKG_QFP_50', `PKG_GENERIC_QFP(`$1',`$2',`$3',`$4',`$5', `50',`28',`20', `80',`0',`$6')')
+define(`PKG_QFP_40', `PKG_GENERIC_QFP(`$1',`$2',`$3',`$4',`$5', `40',`25',`20', `80',`0',`$6')')
 
 # pins 1mm long
-define(`PKG_LQFP_80',`PKG_GENERIC_QFP(`$1',`$2',`$3',`$4',`$5', `80',`40', `5', `50',`0')')
-define(`PKG_LQFP_65',`PKG_GENERIC_QFP(`$1',`$2',`$3',`$4',`$5', `65',`40', `5', `50',`0')')
-define(`PKG_LQFP_50',`PKG_GENERIC_QFP(`$1',`$2',`$3',`$4',`$5', `50',`28', `5', `50',`0')')
-define(`PKG_LQFP_40',`PKG_GENERIC_QFP(`$1',`$2',`$3',`$4',`$5', `40',`25', `5', `50',`0')')
+define(`PKG_LQFP_80',`PKG_GENERIC_QFP(`$1',`$2',`$3',`$4',`$5', `80',`40', `5', `50',`0',`$6')')
+define(`PKG_LQFP_65',`PKG_GENERIC_QFP(`$1',`$2',`$3',`$4',`$5', `65',`40', `5', `50',`0',`$6')')
+define(`PKG_LQFP_50',`PKG_GENERIC_QFP(`$1',`$2',`$3',`$4',`$5', `50',`28', `5', `50',`0',`$6')')
+define(`PKG_LQFP_40',`PKG_GENERIC_QFP(`$1',`$2',`$3',`$4',`$5', `40',`25', `5', `50',`0',`$6')')
 
 # -------------------------------------------------------------------
 

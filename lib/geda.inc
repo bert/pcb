@@ -5,9 +5,8 @@
 #
 #   the real component definitions are in the *.inc files
 #
-#   revisions:
-#   Oct 10 2002 - Egil Kvaleberg <egil@kvaleberg.no>
-#   Initial version
+#   Initial version from Egil Kvaleberg <egil@kvaleberg.no>,
+#   Oct 10 2002
 #
 
 #
@@ -101,39 +100,39 @@ define(`PKG_US16',    `PKG_US( `$1', `$2', `$3', 16)');
 #     the Mini-Circuits KK81
 
 # dimensions from http://landpatterns.ipc.org/
-define(`PKG_SO8',   `COMMON_SMT_DIL_MIL(`$1',`$2',`$3',  8, 20000, 85000, 50000, 120000)')
-define(`PKG_SO14',  `COMMON_SMT_DIL_MIL(`$1',`$2',`$3', 14, 20000, 85000, 50000, 120000)')
-define(`PKG_SO16',  `COMMON_SMT_DIL_MIL(`$1',`$2',`$3', 16, 20000, 85000, 50000, 120000)')
-define(`PKG_SO18N', `COMMON_SMT_DIL_MIL(`$1',`$2',`$3', 18, 20000, 85000, 50000, 120000)')
-define(`PKG_SO20N', `COMMON_SMT_DIL_MIL(`$1',`$2',`$3', 20, 20000, 85000, 50000, 120000)')
+define(`PKG_SO8',   `COMMON_SMT_DIL_MIL(`$1',`$2',`$3',  8, 20000, 85000, 50000, 120000)');
+define(`PKG_SO14',  `COMMON_SMT_DIL_MIL(`$1',`$2',`$3', 14, 20000, 85000, 50000, 120000)');
+define(`PKG_SO16',  `COMMON_SMT_DIL_MIL(`$1',`$2',`$3', 16, 20000, 85000, 50000, 120000)');
+define(`PKG_SO18N', `COMMON_SMT_DIL_MIL(`$1',`$2',`$3', 18, 20000, 85000, 50000, 120000)');
+define(`PKG_SO20N', `COMMON_SMT_DIL_MIL(`$1',`$2',`$3', 20, 20000, 85000, 50000, 120000)');
 
 ##  Small outline package, medium (200mil)
 #   aka 8S2
-define(`PKG_SO8M',    `PKG_SO( `$1', `$2', `$3',  8, 330, 5000)');
-define(`PKG_SO18M',   `PKG_SO( `$1', `$2', `$3', 18, 330, 5000)');
-define(`PKG_SO20M',   `PKG_SO( `$1', `$2', `$3', 20, 330, 5000)');
-define(`PKG_SO22M',   `PKG_SO( `$1', `$2', `$3', 22, 330, 5000)');
-define(`PKG_SO24M',   `PKG_SO( `$1', `$2', `$3', 24, 330, 5000)');
+define(`PKG_SO8M',   `COMMON_SMT_DIL_MIL(`$1',`$2',`$3',  8, 20000, 85000, 50000, 170000)');
+define(`PKG_SO18M',  `COMMON_SMT_DIL_MIL(`$1',`$2',`$3', 18, 20000, 85000, 50000, 170000)');
+define(`PKG_SO20M',  `COMMON_SMT_DIL_MIL(`$1',`$2',`$3', 20, 20000, 85000, 50000, 170000)');
+define(`PKG_SO22M',  `COMMON_SMT_DIL_MIL(`$1',`$2',`$3', 22, 20000, 85000, 50000, 170000)');
+define(`PKG_SO24M',  `COMMON_SMT_DIL_MIL(`$1',`$2',`$3', 24, 20000, 85000, 50000, 170000)');
 
 ##  Small outline package, wide (300mil)
 # dimensions from http://landpatterns.ipc.org/
-define(`PKG_SO8W',   `COMMON_SMT_DIL_MIL(`$1',`$2',`$3',  8, 20000, 80000, 50000, 280000)')
-define(`PKG_SO14W',  `COMMON_SMT_DIL_MIL(`$1',`$2',`$3', 14, 20000, 80000, 50000, 280000)')
-define(`PKG_SO16W',  `COMMON_SMT_DIL_MIL(`$1',`$2',`$3', 16, 20000, 80000, 50000, 280000)')
-define(`PKG_SO18W',  `COMMON_SMT_DIL_MIL(`$1',`$2',`$3', 18, 20000, 80000, 50000, 280000)')
-define(`PKG_SO20W',  `COMMON_SMT_DIL_MIL(`$1',`$2',`$3', 20, 20000, 80000, 50000, 280000)')
-define(`PKG_SO24W',  `COMMON_SMT_DIL_MIL(`$1',`$2',`$3', 24, 20000, 80000, 50000, 280000)')
-define(`PKG_SO28',   `COMMON_SMT_DIL_MIL(`$1',`$2',`$3', 28, 20000, 80000, 50000, 280000)')
-define(`PKG_SO32',   `COMMON_SMT_DIL_MIL(`$1',`$2',`$3', 32, 20000, 80000, 50000, 280000)')
+define(`PKG_SO8W',   `COMMON_SMT_DIL_MIL(`$1',`$2',`$3',  8, 20000, 80000, 50000, 280000)');
+define(`PKG_SO14W',  `COMMON_SMT_DIL_MIL(`$1',`$2',`$3', 14, 20000, 80000, 50000, 280000)');
+define(`PKG_SO16W',  `COMMON_SMT_DIL_MIL(`$1',`$2',`$3', 16, 20000, 80000, 50000, 280000)');
+define(`PKG_SO18W',  `COMMON_SMT_DIL_MIL(`$1',`$2',`$3', 18, 20000, 80000, 50000, 280000)');
+define(`PKG_SO20W',  `COMMON_SMT_DIL_MIL(`$1',`$2',`$3', 20, 20000, 80000, 50000, 280000)');
+define(`PKG_SO24W',  `COMMON_SMT_DIL_MIL(`$1',`$2',`$3', 24, 20000, 80000, 50000, 280000)');
+define(`PKG_SO28',   `COMMON_SMT_DIL_MIL(`$1',`$2',`$3', 28, 20000, 80000, 50000, 280000)');
+define(`PKG_SO32',   `COMMON_SMT_DIL_MIL(`$1',`$2',`$3', 32, 20000, 80000, 50000, 280000)');
 
 ##  Small outline package, wider (325mil)
-define(`PKG_SO28W',   `PKG_SO( `$1', `$2', `$3', 28, 474, 5000)');
+define(`PKG_SO28W',  `COMMON_SMT_DIL_MIL(`$1',`$2',`$3', 28, 20000, 80000, 50000, 305000)');
 
 ##  Small outline package, wider (450mil)
-define(`PKG_SO32W',   `PKG_SO( `$1', `$2', `$3', 32, 567, 5000)');
+define(`PKG_SO32W',  `COMMON_SMT_DIL_MIL(`$1',`$2',`$3', 32, 20000, 80000, 50000, 430000)');
 
 ##  Small outline package, wide (525mil)
-define(`PKG_SO44',    `PKG_SO( `$1', `$2', `$3', 44, 634, 5000)');
+define(`PKG_SO44',   `COMMON_SMT_DIL_MIL(`$1',`$2',`$3', 44, 20000, 80000, 50000, 505000)');
 
 
 
@@ -280,15 +279,30 @@ define(`PKG_TSOP28',   `PKG_TSOP(  `$1', `$2', `$3', 28, 535, 2165)');
 define(`PKG_TSOP32A',  `PKG_TSOP(  `$1', `$2', `$3', 32, 795, 2000)');
 define(`PKG_TSOP32B',  `PKG_TSOP(  `$1', `$2', `$3', 32, 559, 2000)');
 
-##  Thin shrink small outline package
-# BUG: TSSOP 14, 20, 28 are all 4.4mm
-define(`PKG_TSSOP8',   `PKG_TSSOP( `$1', `$2', `$3',  8, 260, 2600)');
-define(`PKG_TSSOP14',  `PKG_TSSOP( `$1', `$2', `$3', 14, 260, 2600)');
-define(`PKG_TSSOP16',  `PKG_TSSOP( `$1', `$2', `$3', 16, 260, 2600)');
+##  Thin shrink small outline package, narrow (3mm)
+#
+define(`PKG_TSSOP8',  `COMMON_SMT_DIL_MM(`$1',`$2',`$3',  8, 33, 150, 65, 300)');
+define(`PKG_TSSOP10', `COMMON_SMT_DIL_MM(`$1',`$2',`$3', 10, 30, 150, 50, 300)');
 
-define(`PKG_TSSOP48',  `PKG_TSOP(  `$1', `$2', `$3', 48, 319, 2000)');
-define(`PKG_TSSOP56',  `PKG_TSOP(  `$1', `$2', `$3', 56, 319, 2000)');
-define(`PKG_TSSOP64',  `PKG_TSOP(  `$1', `$2', `$3', 64, 319, 2000)');
+##  Thin shrink small outline package, standard (4.4mm)
+#
+define(`PKG_TSSOP8W',  `COMMON_SMT_DIL_MM(`$1',`$2',`$3',  8, 33, 150, 65, 440)');
+define(`PKG_TSSOP14',  `COMMON_SMT_DIL_MM(`$1',`$2',`$3', 14, 33, 150, 65, 440)');
+define(`PKG_TSSOP16',  `COMMON_SMT_DIL_MM(`$1',`$2',`$3', 16, 33, 150, 65, 440)');
+define(`PKG_TSSOP20',  `COMMON_SMT_DIL_MM(`$1',`$2',`$3', 20, 33, 150, 65, 440)');
+define(`PKG_TSSOP24',  `COMMON_SMT_DIL_MM(`$1',`$2',`$3', 24, 33, 150, 65, 440)');
+define(`PKG_TSSOP28',  `COMMON_SMT_DIL_MM(`$1',`$2',`$3', 28, 33, 150, 65, 440)');
+define(`PKG_TSSOP38N', `COMMON_SMT_DIL_MM(`$1',`$2',`$3', 38, 30, 150, 50, 440)');
+define(`PKG_TSSOP48N', `COMMON_SMT_DIL_MM(`$1',`$2',`$3', 48, 25, 150, 40, 440)');
+define(`PKG_TSSOP56N', `COMMON_SMT_DIL_MM(`$1',`$2',`$3', 56, 25, 150, 40, 440)');
+
+##  Thin shrink small outline package, wide (6.1mm)
+#
+define(`PKG_TSSOP32',  `COMMON_SMT_DIL_MM(`$1',`$2',`$3', 32, 33, 150, 65, 610)');
+define(`PKG_TSSOP48',  `COMMON_SMT_DIL_MM(`$1',`$2',`$3', 48, 30, 150, 50, 610)');
+define(`PKG_TSSOP56',  `COMMON_SMT_DIL_MM(`$1',`$2',`$3', 56, 30, 150, 50, 610)');
+define(`PKG_TSSOP64',  `COMMON_SMT_DIL_MM(`$1',`$2',`$3', 64, 30, 150, 50, 610)');
+define(`PKG_TSSOP80',  `COMMON_SMT_DIL_MM(`$1',`$2',`$3', 80, 25, 150, 40, 610)');
 
 #
 ##  Plastic leadless chip carrier
@@ -413,69 +427,70 @@ define(`PKG_TQFN68_10_EP', `PKG_QFN_50(`$1',`$2',`$3', `68', `10', `770')')
 #   LQFP 144,176,208
 #   TQFP 44,48,64,80,120
 
-define(`PKG_LQFP24_4',   `PKG_LQFP_50(`$1',`$2',`$3', `24', `4')');
-define(`PKG_LQFP32_5',   `PKG_LQFP_50(`$1',`$2',`$3', `32', `5')');
-define(`PKG_LQFP32_7',   `PKG_LQFP_80(`$1',`$2',`$3', `32', `7')');
-define(`PKG_LQFP44_10',  `PKG_LQFP_80(`$1',`$2',`$3', `44',`10')');
-define(`PKG_LQFP48_7',   `PKG_LQFP_50(`$1',`$2',`$3', `48', `7')');
-define(`PKG_LQFP48_12',  `PKG_LQFP_80(`$1',`$2',`$3', `48',`12')');
-define(`PKG_LQFP52_10',  `PKG_LQFP_65(`$1',`$2',`$3', `52',`10')');
-define(`PKG_LQFP64_7',   `PKG_LQFP_40(`$1',`$2',`$3', `64', `7')');
-define(`PKG_LQFP64_10',  `PKG_LQFP_50(`$1',`$2',`$3', `64',`10')');
-define(`PKG_LQFP64_14',  `PKG_LQFP_80(`$1',`$2',`$3', `64',`14')');
-define(`PKG_LQFP72_10',  `PKG_LQFP_50(`$1',`$2',`$3', `72',`10')');
-define(`PKG_LQFP80_12',  `PKG_LQFP_50(`$1',`$2',`$3', `80',`12')');
-define(`PKG_LQFP80_14',  `PKG_LQFP_65(`$1',`$2',`$3', `80',`14')');
-define(`PKG_LQFP100_10', `PKG_LQFP_40(`$1',`$2',`$3',`100',`10')');
-define(`PKG_LQFP100_14', `PKG_LQFP_50(`$1',`$2',`$3',`100',`14')');
-define(`PKG_LQFP112_20', `PKG_LQFP_65(`$1',`$2',`$3',`112',`20')');
-define(`PKG_LQFP120_16', `PKG_LQFP_50(`$1',`$2',`$3',`120',`16')');
-define(`PKG_LQFP128_14', `PKG_LQFP_40(`$1',`$2',`$3',`128',`14')');
-define(`PKG_LQFP144_20', `PKG_LQFP_50(`$1',`$2',`$3',`144',`20')');
-define(`PKG_LQFP160_24', `PKG_LQFP_50(`$1',`$2',`$3',`160',`24')');
-define(`PKG_LQFP176_24', `PKG_LQFP_50(`$1',`$2',`$3',`176',`24')');
+define(`PKG_LQFP24_4',   `PKG_LQFP_50(`$1',`$2',`$3', `24', `4',`0')');
+define(`PKG_LQFP32_5',   `PKG_LQFP_50(`$1',`$2',`$3', `32', `5',`0')');
+define(`PKG_LQFP32_7',   `PKG_LQFP_80(`$1',`$2',`$3', `32', `7',`0')');
+define(`PKG_LQFP44_10',  `PKG_LQFP_80(`$1',`$2',`$3', `44',`10',`0')');
+define(`PKG_LQFP48_7',   `PKG_LQFP_50(`$1',`$2',`$3', `48', `7',`0')');
+define(`PKG_LQFP48_12',  `PKG_LQFP_80(`$1',`$2',`$3', `48',`12',`0')');
+define(`PKG_LQFP52_10',  `PKG_LQFP_65(`$1',`$2',`$3', `52',`10',`0')');
+define(`PKG_LQFP64_7',   `PKG_LQFP_40(`$1',`$2',`$3', `64', `7',`0')');
+define(`PKG_LQFP64_10',  `PKG_LQFP_50(`$1',`$2',`$3', `64',`10',`0')');
+define(`PKG_LQFP64_14',  `PKG_LQFP_80(`$1',`$2',`$3', `64',`14',`0')');
+define(`PKG_LQFP72_10',  `PKG_LQFP_50(`$1',`$2',`$3', `72',`10',`0')');
+define(`PKG_LQFP80_12',  `PKG_LQFP_50(`$1',`$2',`$3', `80',`12',`0')');
+define(`PKG_LQFP80_14',  `PKG_LQFP_65(`$1',`$2',`$3', `80',`14',`0')');
+define(`PKG_LQFP100_10', `PKG_LQFP_40(`$1',`$2',`$3',`100',`10',`0')');
+define(`PKG_LQFP100_14', `PKG_LQFP_50(`$1',`$2',`$3',`100',`14',`0')');
+define(`PKG_LQFP112_20', `PKG_LQFP_65(`$1',`$2',`$3',`112',`20',`0')');
+define(`PKG_LQFP120_16', `PKG_LQFP_50(`$1',`$2',`$3',`120',`16',`0')');
+define(`PKG_LQFP128_14', `PKG_LQFP_40(`$1',`$2',`$3',`128',`14',`0')');
+define(`PKG_LQFP144_20', `PKG_LQFP_50(`$1',`$2',`$3',`144',`20',`0')');
+define(`PKG_LQFP160_24', `PKG_LQFP_50(`$1',`$2',`$3',`160',`24',`0')');
+define(`PKG_LQFP176_24', `PKG_LQFP_50(`$1',`$2',`$3',`176',`24',`0')');
 
-define(`PKG_QFP32_7',   `PKG_QFP_80(`$1',`$2',`$3', `32', `7')');
-define(`PKG_QFP44_10',  `PKG_QFP_80(`$1',`$2',`$3', `44',`10')');
-define(`PKG_QFP52_10',  `PKG_QFP_65(`$1',`$2',`$3', `52',`10')');
-define(`PKG_QFP64_14',  `PKG_QFP_80(`$1',`$2',`$3', `64',`14')');
-define(`PKG_QFP80_14',  `PKG_QFP_65(`$1',`$2',`$3', `80',`14')');
-define(`PKG_QFP100_14', `PKG_QFP_50(`$1',`$2',`$3',`100',`14')');
-define(`PKG_QFP120_28', `PKG_QFP_80(`$1',`$2',`$3',`120',`28')');
-define(`PKG_QFP128_28', `PKG_QFP_80(`$1',`$2',`$3',`128',`28')');
-define(`PKG_QFP144_28', `PKG_QFP_65(`$1',`$2',`$3',`144',`28')');
-define(`PKG_QFP160_28', `PKG_QFP_65(`$1',`$2',`$3',`160',`28')');
-define(`PKG_QFP208_28', `PKG_QFP_50(`$1',`$2',`$3',`208',`28')');
-define(`PKG_QFP160_28', `PKG_QFP_65(`$1',`$2',`$3',`160',`28')');
-define(`PKG_QFP240_32', `PKG_QFP_50(`$1',`$2',`$3',`240',`32')');
-define(`PKG_QFP304_40', `PKG_QFP_50(`$1',`$2',`$3',`304',`40')');
 
-define(`PKG_TQFP32_7',   `PKG_QFP_80(`$1',`$2',`$3', `32', `7')');
-define(`PKG_TQFP44_10',  `PKG_QFP_80(`$1',`$2',`$3', `44',`10')');
-define(`PKG_TQFP52_10',  `PKG_QFP_65(`$1',`$2',`$3', `52',`10')');
-define(`PKG_TQFP64_10',  `PKG_QFP_50(`$1',`$2',`$3', `64',`10')');
-define(`PKG_TQFP64_14',  `PKG_QFP_80(`$1',`$2',`$3', `64',`14')');
-define(`PKG_TQFP80_12',  `PKG_QFP_50(`$1',`$2',`$3', `80',`12')');
-define(`PKG_TQFP80_14',  `PKG_QFP_65(`$1',`$2',`$3', `80',`14')');
-define(`PKG_TQFP100_12', `PKG_QFP_40(`$1',`$2',`$3',`100',`12')');
-define(`PKG_TQFP100_14', `PKG_QFP_50(`$1',`$2',`$3',`100',`14')');
-define(`PKG_TQFP120_28', `PKG_QFP_80(`$1',`$2',`$3',`120',`28')');
-define(`PKG_TQFP128_28', `PKG_QFP_80(`$1',`$2',`$3',`128',`28')');
-define(`PKG_TQFP144_28', `PKG_QFP_65(`$1',`$2',`$3',`144',`28')');
-define(`PKG_TQFP160_28', `PKG_QFP_65(`$1',`$2',`$3',`160',`28')');
-define(`PKG_TQFP208_28', `PKG_QFP_50(`$1',`$2',`$3',`208',`28')');
-define(`PKG_TQFP160_28', `PKG_QFP_65(`$1',`$2',`$3',`160',`28')');
-define(`PKG_TQFP240_32', `PKG_QFP_50(`$1',`$2',`$3',`240',`32')');
-define(`PKG_TQFP304_40', `PKG_QFP_50(`$1',`$2',`$3',`304',`40')');
+define(`PKG_QFP32_7',   `PKG_QFP_80(`$1',`$2',`$3', `32', `7',`0')');
+define(`PKG_QFP44_10',  `PKG_QFP_80(`$1',`$2',`$3', `44',`10',`0')');
+define(`PKG_QFP52_10',  `PKG_QFP_65(`$1',`$2',`$3', `52',`10',`0')');
+define(`PKG_QFP64_14',  `PKG_QFP_80(`$1',`$2',`$3', `64',`14',`0')');
+define(`PKG_QFP80_14',  `PKG_QFP_65(`$1',`$2',`$3', `80',`14',`0')');
+define(`PKG_QFP100_14', `PKG_QFP_50(`$1',`$2',`$3',`100',`14',`0')');
+define(`PKG_QFP120_28', `PKG_QFP_80(`$1',`$2',`$3',`120',`28',`0')');
+define(`PKG_QFP128_28', `PKG_QFP_80(`$1',`$2',`$3',`128',`28',`0')');
+define(`PKG_QFP144_28', `PKG_QFP_65(`$1',`$2',`$3',`144',`28',`0')');
+define(`PKG_QFP160_28', `PKG_QFP_65(`$1',`$2',`$3',`160',`28',`0')');
+define(`PKG_QFP208_28', `PKG_QFP_50(`$1',`$2',`$3',`208',`28',`0')');
+define(`PKG_QFP160_28', `PKG_QFP_65(`$1',`$2',`$3',`160',`28',`0')');
+define(`PKG_QFP240_32', `PKG_QFP_50(`$1',`$2',`$3',`240',`32',`0')');
+define(`PKG_QFP304_40', `PKG_QFP_50(`$1',`$2',`$3',`304',`40',`0')');
+
+define(`PKG_TQFP32_7',   `PKG_QFP_80(`$1',`$2',`$3', `32', `7',`0')');
+define(`PKG_TQFP44_10',  `PKG_QFP_80(`$1',`$2',`$3', `44',`10',`0')');
+define(`PKG_TQFP52_10',  `PKG_QFP_65(`$1',`$2',`$3', `52',`10',`0')');
+define(`PKG_TQFP64_10',  `PKG_QFP_50(`$1',`$2',`$3', `64',`10',`0')');
+define(`PKG_TQFP64_14',  `PKG_QFP_80(`$1',`$2',`$3', `64',`14',`0')');
+define(`PKG_TQFP80_12',  `PKG_QFP_50(`$1',`$2',`$3', `80',`12',`0')');
+define(`PKG_TQFP80_14',  `PKG_QFP_65(`$1',`$2',`$3', `80',`14',`0')');
+define(`PKG_TQFP100_12', `PKG_QFP_40(`$1',`$2',`$3',`100',`12',`0')');
+define(`PKG_TQFP100_14', `PKG_QFP_50(`$1',`$2',`$3',`100',`14',`0')');
+define(`PKG_TQFP120_28', `PKG_QFP_80(`$1',`$2',`$3',`120',`28',`0')');
+define(`PKG_TQFP128_28', `PKG_QFP_80(`$1',`$2',`$3',`128',`28',`0')');
+define(`PKG_TQFP144_28', `PKG_QFP_65(`$1',`$2',`$3',`144',`28',`0')');
+define(`PKG_TQFP160_28', `PKG_QFP_65(`$1',`$2',`$3',`160',`28',`0')');
+define(`PKG_TQFP208_28', `PKG_QFP_50(`$1',`$2',`$3',`208',`28',`0')');
+define(`PKG_TQFP160_28', `PKG_QFP_65(`$1',`$2',`$3',`160',`28',`0')');
+define(`PKG_TQFP240_32', `PKG_QFP_50(`$1',`$2',`$3',`240',`32',`0')');
+define(`PKG_TQFP304_40', `PKG_QFP_50(`$1',`$2',`$3',`304',`40',`0')');
 
 #
 ##  Rectangular Quad-side flat pack
 
-define(`PKG_QFP64_R',   `PKG_QFP_100(`$1',`$2',`$3', `64',`0')');
-define(`PKG_QFP80_R',   `PKG_QFP_80L(`$1',`$2',`$3', `80',`0')');
-define(`PKG_QFP100_R',  `PKG_QFP_65L(`$1',`$2',`$3',`100',`0')');
-define(`PKG_QFP128_R',  `PKG_QFP_50L(`$1',`$2',`$3',`128',`0')');
-define(`PKG_LQFP128_R', `PKG_LQFP_50(`$1',`$2',`$3',`128',`0')');
+define(`PKG_QFP64_R',   `PKG_QFP_100(`$1',`$2',`$3', `64',`0',`0')');
+define(`PKG_QFP80_R',   `PKG_QFP_80L(`$1',`$2',`$3', `80',`0',`0')');
+define(`PKG_QFP100_R',  `PKG_QFP_65L(`$1',`$2',`$3',`100',`0',`0')');
+define(`PKG_QFP128_R',  `PKG_QFP_50L(`$1',`$2',`$3',`128',`0',`0')');
+define(`PKG_LQFP128_R', `PKG_LQFP_50(`$1',`$2',`$3',`128',`0',`0')');
 
 ##  Zig-zag in-line package
 #   ZIP20 .. ZIP40
