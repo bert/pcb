@@ -1074,7 +1074,7 @@ LayerStringToLayerStack (char *s)
 	PCB->ViaOn = True;
       else if (strcasecmp (args[i], "elements") == 0)
 	PCB->ElementOn = True;
-      else if (isdigit (args[i][0]))
+      else if (isdigit ((int) args[i][0]))
 	{
 	  lno = atoi (args[i]);
 	  ChangeGroupVisibility (lno, True, True);

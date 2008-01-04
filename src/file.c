@@ -148,8 +148,8 @@ string_cmp (const char *a, const char *b)
 	  while (isdigit ((int) *b))
 	    b++;
 	}
-      else if (tolower (*a) != tolower (*b))
-	return tolower (*a) - tolower (*b);
+      else if (tolower ((int) *a) != tolower ((int) *b))
+	return tolower ((int) *a) - tolower ((int) *b);
       a++;
       b++;
     }

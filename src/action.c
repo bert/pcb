@@ -720,7 +720,7 @@ hashfunc(String s)
   while (*s)
     {
       i ^= i >> 16;
-      i = (i * 13) ^ (unsigned char)tolower(*s);
+      i = (i * 13) ^ (unsigned char)tolower((int) *s);
       s ++;
     }
   i = (unsigned int)i % HSIZE;

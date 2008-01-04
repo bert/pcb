@@ -590,7 +590,7 @@ gerber_set_layer (const char *name, int group)
       for (cp=layername; *cp; cp++)
 	{
 	  if (isalnum((int) *cp))
-	    *cp = toupper(*cp);
+	    *cp = toupper((int) *cp);
 	  else
 	    *cp = '_';
 	}
