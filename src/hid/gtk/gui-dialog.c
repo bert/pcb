@@ -149,17 +149,39 @@ ghid_dialog_message (gchar * message)
 }
 
 gboolean
-ghid_dialog_confirm (gchar * message)
+ghid_dialog_confirm (gchar * message, ...)
 {
   GtkWidget *dialog;
   gboolean confirm = FALSE;
   GHidPort *out = &ghid_port;
+  va_list ap;
+  char *cancelmsg, *okmsg;
+
+  va_start (ap, message);
+  cancelmsg = va_arg (ap, char *);
+  okmsg = va_arg (ap, char *);
+  va_end (ap);
+
+  if (!cancelmsg)
+    {
+      cancelmsg = _("_Cancel");
+      okmsg = _("_OK");
+    }
+  if (!okmsg)
+    {
+      okmsg = _("_OK");
+    }
+
 
   dialog = gtk_message_dialog_new (GTK_WINDOW (out->top_window),
 				   GTK_DIALOG_MODAL |
 				   GTK_DIALOG_DESTROY_WITH_PARENT,
 				   GTK_MESSAGE_QUESTION,
-				   GTK_BUTTONS_OK_CANCEL, message);
+				   GTK_BUTTONS_NONE, message);
+  gtk_dialog_add_buttons (GTK_DIALOG (dialog), 
+			  cancelmsg, GTK_RESPONSE_CANCEL,
+			  okmsg, GTK_RESPONSE_OK,
+			  NULL);
   if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_OK)
     confirm = TRUE;
   gtk_widget_destroy (dialog);

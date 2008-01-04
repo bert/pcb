@@ -1480,9 +1480,25 @@ int
 ghid_confirm_dialog (char *msg, ...)
 {
   int rv;
+  va_list ap;
+  char *cancelmsg, *okmsg;
 
-  /* FIXME -- deal with the ... part! */
-  rv = ghid_dialog_confirm (msg);
+  va_start (ap, msg);
+  cancelmsg = va_arg (ap, char *);
+  okmsg = va_arg (ap, char *);
+  va_end (ap);
+
+  if (!cancelmsg)
+    {
+      cancelmsg = _("_Cancel");
+      okmsg = _("_OK");
+    }
+  if (!okmsg)
+    {
+      okmsg = _("_OK");
+    }
+
+  rv = ghid_dialog_confirm (msg, cancelmsg, okmsg);
 
   return rv;
 }

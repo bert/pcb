@@ -157,13 +157,48 @@ RCSID ("$Id$");
 #define	IS_PV_ON_PAD(PV,Pad) \
 	( IsPointInPad((PV)->X, (PV)->Y, MAX((PV)->Thickness/2 +Bloat,0), (Pad)))
 
+static char drc_dialog_message[289];
+static void
+reset_drc_dialog_message(void)
+{
+   drc_dialog_message[0] = 0;
+}
+#ifdef __GNUC__
+static void append_drc_dialog_message(const char *fmt, ...)
+ __attribute__ ((format (printf, 1, 2)));
+#endif
+static void
+append_drc_dialog_message(const char *fmt, ...)
+{
+  size_t len = strlen (drc_dialog_message), 
+         remained = sizeof (drc_dialog_message) - len - 1;
+  va_list ap;
+  va_start (ap, fmt);
+#ifdef HAVE_VSNPRINTF
+  vsnprintf (drc_dialog_message + len, remained, fmt, ap);
+#else
+  vsprintf (drc_dialog_message + len, fmt, ap);
+#endif
+  va_end (ap);
+}
+
 /*
- * message when asked about continuing DRC checks after first 
+ * message when asked about continuing DRC checks after next 
  * violation is found.
  */
 #define DRC_CONTINUE _("Press Next to continue DRC checking")
 #define DRC_NEXT _("Next")
 #define DRC_CANCEL _("Cancel")
+
+static int
+throw_drc_dialog(void)
+{
+  int r;
+  append_drc_dialog_message (DRC_CONTINUE); 
+  r = gui->confirm_dialog (drc_dialog_message, DRC_CANCEL, DRC_NEXT);
+  reset_drc_dialog_message();
+  return r;
+}
 
 /* ---------------------------------------------------------------------------
  * some local types
@@ -825,7 +860,7 @@ LookupLOConnectionsToLOList (Boolean AndRats)
                   layer -= max_layer;
                   if (layer > 1)
                     {
-                      Message ("bad layer number %d max_layer=%d in find.c\n",
+                      Message (_("bad layer number %d max_layer=%d in find.c\n"),
                                layer, max_layer);
                       return False;
                     }
@@ -2879,7 +2914,7 @@ PrepareNextLoop (FILE * FP)
 
 /* ---------------------------------------------------------------------------
  * finds all connections to the pins of the passed element.
- * The result is written to filedescriptor 'FP'
+ * The result is written to file FP
  * Returns True if operation was aborted
  */
 static Boolean
@@ -3435,6 +3470,7 @@ DumpList (void)
 static Boolean
 DRCFind (int What, void *ptr1, void *ptr2, void *ptr3)
 {
+  reset_drc_dialog_message();
   if (PCB->Shrink != 0)
     {
       Bloat = -PCB->Shrink;
@@ -3455,6 +3491,7 @@ DRCFind (int What, void *ptr1, void *ptr2, void *ptr3)
           Message
             (_
              ("WARNING!!  Design Rule Error - potential for broken trace!\n"));
+          append_drc_dialog_message(_("potential for broken trace\n"));
           /* make the flag changes undoable */
           TheFlag = FOUNDFLAG | SELECTEDFLAG;
           ResetConnections (False);
@@ -3478,7 +3515,7 @@ DRCFind (int What, void *ptr1, void *ptr2, void *ptr3)
           drc = False;
           drcerr_count++;
           GotoError ();
-          if (!gui->confirm_dialog (DRC_CONTINUE, DRC_CANCEL, DRC_NEXT))
+          if (!throw_drc_dialog())
             return (True);
           IncrementUndoSerialNumber ();
           Undo (True);
@@ -3497,6 +3534,7 @@ DRCFind (int What, void *ptr1, void *ptr2, void *ptr3)
     {
       DumpList ();
       Message (_("WARNING!  Design Rule error - copper areas too close!\n"));
+      append_drc_dialog_message(_("copper areas too close\n"));
       /* make the flag changes undoable */
       TheFlag = FOUNDFLAG | SELECTEDFLAG;
       ResetConnections (False);
@@ -3520,7 +3558,7 @@ DRCFind (int What, void *ptr1, void *ptr2, void *ptr3)
       GotoError ();
       User = False;
       drc = False;
-      if (!gui->confirm_dialog (DRC_CONTINUE, DRC_CANCEL, DRC_NEXT))
+      if (!throw_drc_dialog())
         return (True);
       IncrementUndoSerialNumber ();
       Undo (True);
@@ -3585,6 +3623,8 @@ drc_callback (DataTypePtr data, LayerTypePtr layer, PolygonTypePtr polygon,
           AddObjectToFlagUndoList (type, ptr1, ptr2, ptr2);
           SET_FLAG (TheFlag, line);
           Message (_("Line with insufficient clearance inside polygon\n"));
+          append_drc_dialog_message(_("line inside polygon\n"
+            "with insufficient clearance\n"));
           goto doIsBad;
         }
       break;
@@ -3594,6 +3634,8 @@ drc_callback (DataTypePtr data, LayerTypePtr layer, PolygonTypePtr polygon,
           AddObjectToFlagUndoList (type, ptr1, ptr2, ptr2);
           SET_FLAG (TheFlag, arc);
           Message (_("Arc with insufficient clearance inside polygon\n"));
+          append_drc_dialog_message(_("arc inside polygon\n"
+            "with insufficient clearance\n"));
           goto doIsBad;
         }
       break;
@@ -3604,6 +3646,8 @@ drc_callback (DataTypePtr data, LayerTypePtr layer, PolygonTypePtr polygon,
 	    AddObjectToFlagUndoList (type, ptr1, ptr2, ptr2);
 	    SET_FLAG (TheFlag, pad);
 	    Message (_("Pad with insufficient clearance inside polygon\n"));
+	    append_drc_dialog_message(_("pad inside polygon\n"
+          "with insufficient clearance\n"));
 	    goto doIsBad;
 	  }
       break;
@@ -3613,6 +3657,8 @@ drc_callback (DataTypePtr data, LayerTypePtr layer, PolygonTypePtr polygon,
           AddObjectToFlagUndoList (type, ptr1, ptr2, ptr2);
           SET_FLAG (TheFlag, pin);
           Message (_("Pin with insufficient clearance inside polygon\n"));
+          append_drc_dialog_message(_("pin inside polygon\n"
+            "with insufficient clearance\n"));
           goto doIsBad;
         }
       break;
@@ -3622,11 +3668,15 @@ drc_callback (DataTypePtr data, LayerTypePtr layer, PolygonTypePtr polygon,
           AddObjectToFlagUndoList (type, ptr1, ptr2, ptr2);
           SET_FLAG (TheFlag, pin);
           Message (_("Via with insufficient clearance inside polygon\n"));
+          append_drc_dialog_message(_("via inside polygon\n"
+            "with insufficient clearance\n"));
           goto doIsBad;
         }
       break;
     default:
       Message ("hace: Bad Plow object in callback\n");
+      append_drc_dialog_message(_("wrong object inside polygon\n"
+        "with insufficient clearance\n"));
     }
   return 0;
 
@@ -3637,7 +3687,7 @@ doIsBad:
   DrawObject (type, ptr1, ptr2, 0);
   drcerr_count++;
   GotoError ();
-  if (!gui->confirm_dialog (DRC_CONTINUE, DRC_CANCEL, DRC_NEXT))
+  if (!throw_drc_dialog())
     {
       IsBad = True;
       return 1;
@@ -3732,11 +3782,12 @@ DRCAll (void)
             AddObjectToFlagUndoList (LINE_TYPE, layer, line, line);
             SET_FLAG (TheFlag, line);
             Message (_("Line is too thin\n"));
+            append_drc_dialog_message(_("too thin line\n"));
             DrawLine (layer, line, 0);
             drcerr_count++;
             SetThing (LINE_TYPE, layer, line, line);
             GotoError ();
-            if (!gui->confirm_dialog (DRC_CONTINUE, DRC_CANCEL, DRC_NEXT))
+            if (!throw_drc_dialog())
               {
                 IsBad = True;
                 break;
@@ -3759,11 +3810,12 @@ DRCAll (void)
             AddObjectToFlagUndoList (ARC_TYPE, layer, arc, arc);
             SET_FLAG (TheFlag, arc);
             Message (_("Arc is too thin\n"));
+            append_drc_dialog_message(_("too thin arc\n"));
             DrawArc (layer, arc, 0);
             drcerr_count++;
             SetThing (ARC_TYPE, layer, arc, arc);
             GotoError ();
-            if (!gui->confirm_dialog (DRC_CONTINUE, DRC_CANCEL, DRC_NEXT))
+            if (!throw_drc_dialog())
               {
                 IsBad = True;
                 break;
@@ -3788,11 +3840,12 @@ DRCAll (void)
             SET_FLAG (TheFlag, pin);
             Message (_
                      ("Pin annular ring is too small based on minimum copper width\n"));
+            append_drc_dialog_message(_("pin ring thinner\nthan min copper width\n"));
             DrawPin (pin, 0);
             drcerr_count++;
             SetThing (PIN_TYPE, element, pin, pin);
             GotoError ();
-            if (!gui->confirm_dialog (DRC_CONTINUE, DRC_CANCEL, DRC_NEXT))
+            if (!throw_drc_dialog())
               {
                 IsBad = True;
                 break;
@@ -3807,11 +3860,12 @@ DRCAll (void)
             SET_FLAG (TheFlag, pin);
             Message (_
                      ("Pin annular ring is too small based on minimum annular ring\n"));
+            append_drc_dialog_message(_("pin ring thinner\nthan min annular ring\n"));
             DrawPin (pin, 0);
             drcerr_count++;
             SetThing (PIN_TYPE, element, pin, pin);
             GotoError ();
-            if (!gui->confirm_dialog (DRC_CONTINUE, DRC_CANCEL, DRC_NEXT))
+            if (!throw_drc_dialog())
               {
                 IsBad = True;
                 break;
@@ -3824,11 +3878,12 @@ DRCAll (void)
             AddObjectToFlagUndoList (PIN_TYPE, element, pin, pin);
             SET_FLAG (TheFlag, pin);
             Message (_("Pin drill size is too small\n"));
+            append_drc_dialog_message(_("too small pin drill\n"));
             DrawPin (pin, 0);
             drcerr_count++;
             SetThing (PIN_TYPE, element, pin, pin);
             GotoError ();
-            if (!gui->confirm_dialog (DRC_CONTINUE, DRC_CANCEL, DRC_NEXT))
+            if (!throw_drc_dialog())
               {
                 IsBad = True;
                 break;
@@ -3851,11 +3906,12 @@ DRCAll (void)
             AddObjectToFlagUndoList (PAD_TYPE, element, pad, pad);
             SET_FLAG (TheFlag, pad);
             Message (_("Pad is too thin\n"));
+            append_drc_dialog_message(_("too thin pad\n"));
             DrawPad (pad, 0);
             drcerr_count++;
             SetThing (PAD_TYPE, element, pad, pad);
             GotoError ();
-            if (!gui->confirm_dialog (DRC_CONTINUE, DRC_CANCEL, DRC_NEXT))
+            if (!throw_drc_dialog())
               {
                 IsBad = True;
                 break;
@@ -3880,11 +3936,12 @@ DRCAll (void)
             SET_FLAG (TheFlag, via);
             Message (_
                      ("Via annular ring is too small based on minimum copper width\n"));
+            append_drc_dialog_message(_("via ring thinner\nthan min copper width\n"));
             DrawVia (via, 0);
             drcerr_count++;
             SetThing (VIA_TYPE, via, via, via);
             GotoError ();
-            if (!gui->confirm_dialog (DRC_CONTINUE, DRC_CANCEL, DRC_NEXT))
+            if (!throw_drc_dialog())
               {
                 IsBad = True;
                 break;
@@ -3899,11 +3956,12 @@ DRCAll (void)
             SET_FLAG (TheFlag, via);
             Message (_
                      ("Via annular ring is too small based on minimum annular ring\n"));
+            append_drc_dialog_message(_("via ring thinner\nthan min annular ring\n"));
             DrawVia (via, 0);
             drcerr_count++;
             SetThing (VIA_TYPE, via, via, via);
             GotoError ();
-            if (!gui->confirm_dialog (DRC_CONTINUE, DRC_CANCEL, DRC_NEXT))
+            if (!throw_drc_dialog())
               {
                 IsBad = True;
                 break;
@@ -3916,11 +3974,12 @@ DRCAll (void)
             AddObjectToFlagUndoList (VIA_TYPE, via, via, via);
             SET_FLAG (TheFlag, via);
             Message (_("Via drill size is too small\n"));
+            append_drc_dialog_message(_("too small via drill\n"));
             DrawVia (via, 0);
             drcerr_count++;
             SetThing (VIA_TYPE, via, via, via);
             GotoError ();
-            if (!gui->confirm_dialog (DRC_CONTINUE, DRC_CANCEL, DRC_NEXT))
+            if (!throw_drc_dialog())
               {
                 IsBad = True;
                 break;
@@ -3948,11 +4007,12 @@ DRCAll (void)
           {
             SET_FLAG (TheFlag, line);
             Message (_("Silk line is too thin\n"));
+            append_drc_dialog_message(_("too thin silk line\n"));
             DrawLine (layer, line, 0);
             drcerr_count++;
             SetThing (LINE_TYPE, layer, line, line);
             GotoError ();
-            if (!gui->confirm_dialog (DRC_CONTINUE, DRC_CANCEL, DRC_NEXT))
+            if (!throw_drc_dialog())
               {
                 IsBad = True;
                 break;
@@ -3981,11 +4041,14 @@ DRCAll (void)
             SET_FLAG (TheFlag, element);
             Message (_("Element %s has %d silk lines which are too thin\n"),
                      UNKNOWN (NAMEONPCB_NAME (element)), tmpcnt);
+            append_drc_dialog_message (_
+                     ("%i silk lines\n of element %s\nare too thin\n"),
+                     tmpcnt, UNKNOWN (NAMEONPCB_NAME (element)));
             DrawElement (element, 0);
             drcerr_count++;
             SetThing (ELEMENT_TYPE, element, element, element);
             GotoError ();
-            if (!gui->confirm_dialog (DRC_CONTINUE, DRC_CANCEL, DRC_NEXT))
+            if (!throw_drc_dialog())
               {
                 IsBad = True;
                 break;
@@ -4007,7 +4070,7 @@ DRCAll (void)
 
   if (nopastecnt > 0) 
     {
-      Message ("Warning:  %d pad%s the nopaste flag set.\n",
+      Message (_("Warning:  %d pad%s the nopaste flag set.\n"),
 	       nopastecnt,
 	       nopastecnt > 1 ? "s have" : " has");
     }
@@ -4074,8 +4137,13 @@ GotoError (void)
     default:
       return;
     }
-  Message (_("near location (%d.%02d,%d.%02d)\n"), X / 100, X % 100, Y / 100,
-           Y % 100);
+  {
+    int digits = Settings.grid_units_mm ? 4: 2;
+    double scale = Settings.grid_units_mm ? COOR_TO_MM : 1./100,
+      x = X * scale, y = Y * scale;
+    Message (_("near location (%.*f,%.*f)\n"), digits, x, digits, y);
+    append_drc_dialog_message("near (%.*f,%.*f)\n", digits, x, digits, y);
+  }
   switch (thing_type)
     {
     case LINE_TYPE:
