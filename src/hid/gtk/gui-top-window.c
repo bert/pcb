@@ -3631,7 +3631,7 @@ ghid_ui_info_append (const gchar * new)
       if ( (np = realloc (new_ui_info, n)) == NULL)
 	{
 	  fprintf (stderr, "ghid_ui_info_append():  realloc of size %ld failed\n",
-		   n);
+		   (long int) n);
 	  exit (1);
 	}
       new_ui_info = np;
