@@ -203,6 +203,9 @@ HID_Attribute ps_attribute_list[] = {
   {"drill-copper", "Draw drill holes in pins / vias, instead of leaving solid copper.",
    HID_Boolean, 0, 0, {1, 0, 0}, 0, 0},
 #define HA_drillcopper 16
+  {"show-legend", "Print file name and scale on printout",
+   HID_Boolean, 0, 0, {1, 0, 0}, 0, 0},
+#define HA_legend 17
 };
 
 #define NUM_OPTIONS (sizeof(ps_attribute_list)/sizeof(ps_attribute_list[0]))
@@ -256,6 +259,7 @@ static int bloat;
 static int invert;
 static int media;
 static int drillcopper;
+static int legend;
 
 static LayerTypePtr outline_layer;
 
@@ -275,7 +279,6 @@ psopen (const char *base, const char *suff)
   char *buf;
   if (!multi_file)
     {
-      printf("PS: open %s\n", base);
       return fopen (base, "w");
     }
   buf = malloc (strlen (base) + strlen (suff) + 5);
@@ -321,6 +324,7 @@ ps_hid_export_to_file (FILE * the_file, HID_Attr_Val * options)
   calibration_x = options[HA_xcalib].real_value;
   calibration_y = options[HA_ycalib].real_value;
   drillcopper = options[HA_drillcopper].int_value;
+  legend = options[HA_legend].int_value;
 
   if (fade_ratio < 0)
     fade_ratio = 0;
@@ -566,24 +570,27 @@ ps_set_layer (const char *name, int group)
 	mirror_this = 1 - mirror_this;
 
       fprintf (f, "/Helvetica findfont 10 scalefont setfont\n");
-      fprintf (f, "30 30 moveto (%s) show\n", PCB->Filename);
-      if (PCB->Name)
-	fprintf (f, "30 41 moveto (%s, %s) show\n",
-		 PCB->Name, layer_type_to_file_name (idx));
-      else
-	fprintf (f, "30 41 moveto (%s) show\n",
-		 layer_type_to_file_name (idx));
-      if (mirror_this)
-	fprintf (f, "( \\(mirrored\\)) show\n");
-
-      if (fillpage)
-	fprintf (f, "(, not to scale) show\n");
-      else
-	fprintf (f, "(, scale = 1:%.3f) show\n", scale_value);
+      if (legend) 
+	{
+	  fprintf (f, "30 30 moveto (%s) show\n", PCB->Filename);
+	  if (PCB->Name)
+	    fprintf (f, "30 41 moveto (%s, %s) show\n",
+		     PCB->Name, layer_type_to_file_name (idx));
+	  else
+	    fprintf (f, "30 41 moveto (%s) show\n",
+		     layer_type_to_file_name (idx));
+	  if (mirror_this)
+	    fprintf (f, "( \\(mirrored\\)) show\n");
+	  
+	  if (fillpage)
+	    fprintf (f, "(, not to scale) show\n");
+	  else
+	    fprintf (f, "(, scale = 1:%.3f) show\n", scale_value);
+	}
       fprintf (f, "newpath\n");
-
+      
       fprintf (f, "72 72 scale %g %g translate\n", 0.5*media_width, 0.5*media_height);
-
+      
       boffset = 0.5*media_height;
       if (PCB->MaxWidth > PCB->MaxHeight)
 	{
