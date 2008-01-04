@@ -137,6 +137,14 @@ $v
 ])
    fi
 
+   AC_CHECK_PROGS(TEXI2DVI, texi2dvi, no)
+   if test "X$TEXI2DVI" = "Xno"; then
+      AC_MSG_ERROR([You have requested a maintainer-mode build and a build
+of the documentation.  For this to work, you must have the texi2dvi program
+installed.])
+   fi
+
+
 	AC_PATH_PROG(PERL, perl, notfound)
 	if test "X$PERL" = "Xnotfound"; then
 			AC_MSG_ERROR([You have requested a maintainer-mode build and a build
