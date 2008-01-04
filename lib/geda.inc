@@ -608,7 +608,20 @@ define(`PKG_RCY1100P', `PKG_RADIAL_CAN(`$1', `$2', `$3', 2200, 1)');
 define(`PKG_RCY1200P', `PKG_RADIAL_CAN(`$1', `$2', `$3', 2400, 1)');
 
 #
-##  Crystal
+##  Crystals
+#
+#
+define(`PKG_HC49U',   `PKG_CRYSTAL_V(`$1', `$2', `$3', 192, 435, 183,  60, 32, 2)');
+define(`PKG_HC49UH',  `PKG_CRYSTAL_H(`$1', `$2', `$3', 192, 435, 515,  60, 32, 2)');
+define(`PKG_HC49U_3', `PKG_CRYSTAL_V(`$1', `$2', `$3',  96, 435, 183,  60, 32, 3)');
+define(`PKG_HC49U_3H',`PKG_CRYSTAL_H(`$1', `$2', `$3',  96, 435, 515,  60, 32, 3)');
+define(`PKG_HC51U',   `PKG_CRYSTAL_V(`$1', `$2', `$3', 485, 757, 352,  80, 40, 2)');
+define(`PKG_HC51UH',  `PKG_CRYSTAL_H(`$1', `$2', `$3', 485, 757, 775,  80, 40, 2)');
+define(`PKG_UM1',     `PKG_CRYSTAL_V(`$1', `$2', `$3', 148, 311, 126,  60, 32, 2)');
+define(`PKG_UM1H',    `PKG_CRYSTAL_H(`$1', `$2', `$3', 148, 311, 322,  60, 32, 2)');
+define(`PKG_UM1_3',   `PKG_CRYSTAL_V(`$1', `$2', `$3',  74, 311, 126,  60, 32, 3)');
+define(`PKG_UM1_3H',  `PKG_CRYSTAL_H(`$1', `$2', `$3',  74, 311, 322,  60, 32, 3)');
+#
 #   HC49
 #
 define(`PKG_HC49',  `PKG_CRYSTAL(`$1', `$2', `$3', 300)');

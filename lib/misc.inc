@@ -348,30 +348,88 @@ Element(0x00 "$1" "`$2'" "$3" eval(X2+20) eval(Y2+20) 0 100 0x00)
 )')
 
 # -------------------------------------------------------------------
-# an crystal package
-# Pin 1 is K, 2 is A
-# 
+#
+# general purpose crystal standing, 2 or 3 pins
+# $1: canonical name
+# $2: name on PCB
+# $3: value
+# $4: pin spacing in mil
+# $5: length of component in mil
+# $6: width of component in mil
+# $7: diametr of pad in mil
+# $8: diametr of drill in mil
+# $9: number of pins
+#
+define(`PKG_CRYSTAL_V',
+       `define(`spacing',  `$4')
+	define(`sizX',     `$5')
+	define(`sizY',     `$6')
+	define(`pad',      `$7')
+	define(`drill',    `$8')
+	define(`centerY',  `eval(sizY / 2)')
+	define(`pinX',    `eval((sizX - spacing * (`$9'-1)) /2)')
+
+Element(0x00 "$1" "$2" "$3" 0 eval(0 - 60) 0 100 0x00)
+(
+	PIN(pinX, centerY, pad, drill, 1)
+	PIN(eval(pinX + spacing), centerY, pad, drill, 2)
+	ifelse(eval(`$9' == 3), 1,
+	PIN(eval(pinX + 2 * spacing), centerY, pad, drill, 3))
+
+	ElementLine(centerY 0 eval(sizX-centerY) 0 20)
+	ElementArc(eval(sizX-centerY) centerY centerY centerY 90 180 20)
+	ElementLine(eval(sizX-centerY) sizY centerY sizY 20)
+	ElementArc(centerY centerY centerY centerY 270 180 20)
+
+	Mark(pinX centerY)
+)')
+#
+#
+# general purpose crystal laying, 2 or 3 pins
+# $1: canonical name
+# $2: name on PCB
+# $3: value
+# $4: pin spacing in mil
+# $5: length of component in mil
+# $6: height of component in mil
+# $7: diametr of pad in mil
+# $8: diametr of drill in mil
+# $9: number of pins
+#
+define(`PKG_CRYSTAL_H',
+       `define(`base',     `$4')
+	define(`sizX',     `$5')
+	define(`sizY',     `$6')
+	define(`pad',      `$7')
+	define(`drill',    `$8')
+	define(`pinX',     `eval((sizX - base * (`$9'-1)) /2)')
+	define(`pinY',     `ifelse(eval(sizX > 500),1,eval(sizY+200),eval(sizY+100))')
+	define(`maxY',     `eval(sizY + offset)')
+
+Element(0x00 "$1" "$2" "$3" 0 eval(0 - 60) 0 100 0x00)
+(
+	PIN(pinX, pinY, pad, drill, 1)
+	PIN(eval(pinX + base), pinY, pad, drill, 2)
+	ifelse(eval(`$9' == 3), 1,
+	PIN(eval(pinX + 2 * base), pinY, pad, drill, 3))
+
+	ElementLine(0 0 sizX 0 20)
+	ElementLine(sizX 0 sizX sizY 20)
+	ElementLine(sizX sizY 0 sizY 20)
+	ElementLine(0 sizY 0 0 20)
+
+	Mark(pinX pinY)
+)')
+
+# a crystal package for backward compatibility
+#
 # $1: canonical name
 # $2: name on PCB
 # $3: value
 # $4: package width in MIL
 #
-define(`PKG_CRYSTAL',
-	`define(`X1', `100')
-	define(`X2', `$4')
-	define(`Y', `100')
-	define(`Y1', `eval(Y -50)')
-	define(`Y2', `eval(Y +50)')
-Element(0x00 "$1" "`$2'" "$3" X1 eval(Y2+20) 0 100 0x00)
-(
-	PIN(X1, Y, 60, 28, 1)
-	PIN(X2, Y, 60, 28, 2)
-	ElementLine(X1 Y1 X2 Y1 10)
-	ElementLine(X1 Y2 X2 Y2 10)
-	ElementArc(X1 Y 50 50 270 180 10)
-	ElementArc(X2 Y 50 50 90 180 10)
-	Mark (X1 Y)
-)')
+define(`PKG_CRYSTAL',`PKG_CRYSTAL_V(`$1',`$2',`$3',`eval($4-100)',`$4',`100',`60',`28',`2')')
+
 
 # -------------------------------------------------------------------
 # a can oscillator package
