@@ -1460,7 +1460,7 @@ ghid_confirm_dialog (char *msg, ...)
 {
   int rv;
   va_list ap;
-  char *cancelmsg, *okmsg;
+  char *cancelmsg = NULL, *okmsg = NULL;
 
   va_start (ap, msg);
   cancelmsg = va_arg (ap, char *);
@@ -1881,7 +1881,7 @@ Save (int argc, char **argv, int x, int y)
       if (exist)
 	{
 	  fclose (exist);
-	  if (ghid_dialog_confirm (_("File exists!  Ok to overwrite?")))
+	  if (ghid_dialog_confirm (_("File exists!  Ok to overwrite?"), NULL, NULL))
 	    {
 	      if (Settings.verbose)
 		fprintf (stderr, "Overwriting %s\n", name);
