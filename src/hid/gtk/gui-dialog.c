@@ -154,7 +154,6 @@ ghid_dialog_confirm (gchar * message, gchar * cancelmsg, gchar * okmsg)
   GtkWidget *dialog;
   gboolean confirm = FALSE;
   GHidPort *out = &ghid_port;
-  va_list ap;
 
   if (cancelmsg == NULL)
     {

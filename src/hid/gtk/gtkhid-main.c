@@ -1156,8 +1156,6 @@ ghid_control_is_pressed ()
 void
 ghid_set_crosshair (int x, int y, int action)
 {
-  int need_pan_fixup = FALSE;
-
   if (gport->x_crosshair != x || gport->y_crosshair != y)
     {
       ghid_set_cursor_position_labels ();
