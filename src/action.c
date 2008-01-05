@@ -2108,8 +2108,21 @@ ActionSetValue (int argc, char **argv, int x, int y)
 	  if (!r)
 	    {
 	      if ((value == (int) value && PCB->Grid == (int) PCB->Grid)
-		  || (value != (int) value && PCB->Grid != (int) PCB->Grid))
-		SetGrid (value + PCB->Grid, False);
+		  || (value != (int) value && PCB->Grid != (int) PCB->Grid)
+                  || PCB->Grid ==1)
+                {
+                  /* 
+		   * On the way down short against the minimum 
+		   * PCB drawing unit 
+		   */
+                  if ((value + PCB->Grid) < 1)
+                     SetGrid (1, False);
+                  else if (PCB->Grid == 1)
+                    SetGrid ( value, False);
+                  else
+                    SetGrid (value + PCB->Grid, False);
+                }
+
 	      else
 		Message (_
 			 ("Don't combine metric/English grids like that!\n"));
