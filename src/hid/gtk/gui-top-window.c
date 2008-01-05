@@ -67,8 +67,8 @@ a zoom in/out.
 |
 |  Some caveats with menu shorcut keys:  Some keys are trapped out by Gtk
 |  and can't be used as shortcuts (eg. '|', TAB, etc).  For these cases
-|  the Gtk menus can't show the same shortcut as the Xt menus did, but the
-|  actions are the same as the keys are handled in ghid_port_key_press_cb().
+|  we have our own shortcut table and capture the keys and send the events
+|  there in ghid_port_key_press_cb().
 */
 
 
