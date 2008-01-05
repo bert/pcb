@@ -159,12 +159,8 @@ ghid_pan_fixup ()
        return;
      }
 
-   /* FIXME -- do I need to have something like this?  These two lines
-   came from the lesstif HID:
-
-   set_scroll (hscroll, view_left_x, view_width, PCB->MaxWidth);
-   set_scroll (vscroll, view_top_y, view_height, PCB->MaxHeight);
-   */
+   gtk_range_set_value (GTK_RANGE (ghidgui->h_range), gport->view_x0);
+   gtk_range_set_value (GTK_RANGE (ghidgui->v_range), gport->view_y0);
 
    ghid_invalidate_all ();
 
