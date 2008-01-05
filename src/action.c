@@ -5627,7 +5627,7 @@ ActionLoadFrom (int argc, char **argv, int x, int y)
 	SaveFree (PCB->Netlistname);
       PCB->Netlistname = StripWhiteSpaceAndDup (name);
       FreeLibraryMemory (&PCB->NetlistLib);
-      if (!ReadNetlist (PCB->Netlistname))
+      if (!ImportNetlist (PCB->Netlistname))
 	hid_action ("NetlistChanged");
     }
   else if (strcasecmp (function, "Revert") == 0 && PCB->Filename

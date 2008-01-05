@@ -57,6 +57,8 @@ PCB_SRCS = \
 	draw.h \
 	drill.c \
 	drill.h \
+	edif.y \
+	edif_parse.h \
 	error.c \
 	error.h \
 	file.c \

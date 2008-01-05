@@ -44,7 +44,7 @@ void SaveInTMP (void);
 void EmergencySave (void);
 void DisableEmergencySave (void);
 int ReadLibraryContents (void);
-int ReadNetlist (char *);
+int ImportNetlist (char *);
 int SaveBufferElements (char *);
 void PreLoadElementPCB (void);
 void PostLoadElementPCB (void);

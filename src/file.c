@@ -81,6 +81,7 @@
 #include "create.h"
 #include "crosshair.h"
 #include "data.h"
+#include "edif_parse.h"
 #include "error.h"
 #include "file.h"
 #include "hid.h"
@@ -1334,6 +1335,8 @@ ReadNetlist (char *filename)
   if (!filename)
     return (1);			/* nothing to do */
 
+  Message (_("Importing PCB netlist %s\n"), filename);
+
   if (EMPTY_STRING_P (Settings.RatCommand))
     {
       fp = fopen (filename, "r");
@@ -1435,3 +1438,39 @@ ReadNetlist (char *filename)
   sort_netlist ();
   return (0);
 }
+
+static int ReadEdifNetlist (char *filename);
+
+int ImportNetlist (char *filename)
+{
+  FILE *fp;
+  char buf[16];
+  int i;
+  char* p;
+  
+
+  if (!filename) return (1);			/* nothing to do */
+  fp = fopen (filename, "r");
+  if (!fp) return (1);			/* bad filename */
+  i = fread (buf, 1, sizeof(buf)-1, fp);
+  fclose(fp);
+  buf[i] = '\0';
+  p=buf;
+  while ( *p )
+  {
+      *p = tolower ((int) *p);
+      p++;
+  }
+  p = strstr (buf, "edif");
+  if (!p) return ReadNetlist (filename);
+  else return ReadEdifNetlist (filename);
+}
+
+static int ReadEdifNetlist (char *filename)
+{
+    Message (_("Importing edif netlist %s\n"), filename);
+    ParseEDIF(filename, NULL);
+    
+    return 0;
+}
+
