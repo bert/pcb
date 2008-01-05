@@ -225,7 +225,7 @@ hid_parse_actions (const char *rstr,
 {
   char **list = NULL;
   int max = 0;
-  int num = 0;
+  int num;
   char *str = NULL;
   char *sp, *aname, *sp2;
   int maybe_empty = 0;
@@ -239,6 +239,7 @@ hid_parse_actions (const char *rstr,
   sp = str = strdup (rstr);
 
 another:
+  num = 0;
   /* eat leading spaces and tabs */
   while (*sp && isspace ((int) *sp))
     sp++;
