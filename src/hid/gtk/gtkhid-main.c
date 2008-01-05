@@ -1167,6 +1167,7 @@ ghid_set_crosshair (int x, int y, int action)
       ghid_set_cursor_position_labels ();
       gport->x_crosshair = x;
       gport->y_crosshair = y;
+
       /*
        * FIXME - does this trigger the idle_proc stuff?  It is in the
        * lesstif HID.  Maybe something is needed here?
@@ -1174,24 +1175,6 @@ ghid_set_crosshair (int x, int y, int action)
        * need_idle_proc ();
        */
 
-      if ( (SIDE_X (x) < gport->view_x0) ||
-	   (SIDE_X (x) > gport->view_x0 + gport->view_width))
-	{
-	  gport->view_x0 = SIDE_X (x) - gport->view_width / 2;
-	  need_pan_fixup = TRUE;
-	}
- 
-      if ( (SIDE_Y (y) < gport->view_y0) ||
-	   (SIDE_Y (y) > gport->view_y0 + gport->view_height))
-	{
-	  gport->view_y0 = SIDE_Y (y) - gport->view_height / 2;
-	  need_pan_fixup = TRUE;
-	}
- 
-      if ( need_pan_fixup == TRUE )
-	{
-	  ghid_pan_fixup ();
-	}
     }
 
   /*
