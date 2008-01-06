@@ -1,5 +1,5 @@
 /* $Id$ */
-
+/*Sept 2007: patch to enable slanted squared lines*/
 /*
  *                            COPYRIGHT
  *
@@ -806,8 +806,30 @@ png_draw_line (hidGC gc, int x1, int y1, int x2, int y2)
 
   gdImageSetThickness (im, 0);
   linewidth = 0;
-  gdImageLine (im, SCALE_X (x1), SCALE_Y (y1),
-	       SCALE_X (x2), SCALE_Y (y2), gdBrushed);
+  if(gc->cap != Square_Cap || x1 == x2 || y1 == y2 )
+    {
+      gdImageLine (im, SCALE_X (x1), SCALE_Y (y1),
+		   SCALE_X (x2), SCALE_Y (y2), gdBrushed);
+    }
+  else
+    {
+      /*
+       * if we are drawing a line with a square end cap and it is
+       * not purely horizontal or vertical, then we need to draw
+       * it as a filled polygon.
+       */
+      int fg = gdImageColorResolve (im, gc->color->r, gc->color->g,
+				    gc->color->b),
+	w = gc->width, dx = x2 - x1, dy = y2 - y1, dwx, dwy;
+      gdPoint p[4];
+      double l = sqrt (dx * dx + dy * dy) * 2 * scale;
+      dwx = -w / l * dy; dwy =  w / l * dx;
+      p[0].x = SCALE_X (x1) + dwx - dwy; p[0].y = SCALE_Y(y1) + dwy + dwx;
+      p[1].x = SCALE_X (x1) - dwx - dwy; p[1].y = SCALE_Y(y1) - dwy + dwx;
+      p[2].x = SCALE_X (x2) - dwx + dwy; p[2].y = SCALE_Y(y2) - dwy - dwx;
+      p[3].x = SCALE_X (x2) + dwx + dwy; p[3].y = SCALE_Y(y2) + dwy - dwx;
+      gdImageFilledPolygon (im, p, 4, fg);
+    }
 }
 
 static void
