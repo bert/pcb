@@ -23,8 +23,7 @@ implementation.  If you do not have lex or yacc, try installing:
 bison     -- ftp://ftp.gnu.org/pub/gnu/bison/
 flex      -- ftp://ftp.gnu.org/pub/non-gnu/flex/
 
-In addition, if you make any edits to configure.ac or any of the 
-Makefile.am's, you will need recent versions of:
+In addition you will need recent versions of:
 
 autoconf  -- ftp://ftp.gnu.org/pub/gnu/autoconf/
              Please note that version 2.13 is too old.  Current development
@@ -83,17 +82,14 @@ from your top level pcb directory:
 ----------------------------------
 Bootstrapping with the auto* tools
 ----------------------------------
-If you have made any edits to configure.ac in the top level pcb directory
-or any of the Makefile.am's, you will need to run 
+To create the configure script and the Makefile.in's
+you will need to run 
 
 ./autogen.sh
 
 from the top level pcb directory.  This will run the various auto* tools
 which creates the configure script, the config.h.in file and the various
 Makefile.in's.
-
-If you have not edited configure.ac or Makefile.am's, you can skip this
-step.
 
 If you plan on making changes to configure.ac, Makefile.am's, or actions
 defined by the 
