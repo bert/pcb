@@ -140,12 +140,16 @@ ghid_port_ranges_scale (gboolean emit_changed)
 
   adj = gtk_range_get_adjustment (GTK_RANGE (ghidgui->h_range));
   adj->page_size = gport->view_width;
+  adj->page_increment = adj->page_size/10.0;
+  adj->step_increment = adj->page_size/100.0;
   adj->upper = PCB->MaxWidth;
   if (emit_changed)
     gtk_signal_emit_by_name (GTK_OBJECT (adj), "changed");
 
   adj = gtk_range_get_adjustment (GTK_RANGE (ghidgui->v_range));
   adj->page_size = gport->view_height;
+  adj->page_increment = adj->page_size/10.0;
+  adj->step_increment = adj->page_size/100.0;
   adj->upper = PCB->MaxHeight;
   if (emit_changed)
     gtk_signal_emit_by_name (GTK_OBJECT (adj), "changed");
