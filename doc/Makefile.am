@@ -49,6 +49,16 @@ html_docs=	${info_TEXINFOS:.texi=.html}
 ps_docs=	${info_TEXINFOS:.texi=.ps} refcard.ps
 pdf_docs=	${info_TEXINFOS:.texi=.pdf} refcard.pdf
 
+# these dependencies prevent a parallel make job
+# from trying to invoke latex and pdflatex at the same
+# time on the same input file.  That causes clashes in 
+# the .aux files which are used by both latex and
+# pdflatex.
+if MAINTAINER_MODE
+refcard.pdf: refcard.ps
+pcb.pdf: pcb.ps
+endif
+
 # put the html manual into 1 file instead of multiple files?
 AM_MAKEINFOHTMLFLAGS=	--css-include=$(srcdir)/pcb.css --no-split
 
