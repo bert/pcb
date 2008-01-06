@@ -55,6 +55,9 @@ RCSID ("$Id$");
 
 #define CRASH fprintf(stderr, "HID error: pcb called unimplemented PNG function %s.\n", __FUNCTION__); abort()
 
+static void *color_cache = NULL;
+static void *brush_cache = NULL;
+
 double scale = 1;
 int x_shift = 0;
 int y_shift = 0;
@@ -84,7 +87,7 @@ typedef struct hid_gc_struct
   gdImagePtr brush;
 } hid_gc_struct;
 
-static color_struct *black, *white;
+static color_struct *black = NULL, *white = NULL;
 static gdImagePtr im = NULL;
 static FILE *f = 0;
 static int linewidth = -1;
@@ -294,6 +297,18 @@ png_do_export (HID_Attr_Val * options)
   int w, h;
   int xmax, ymax, dpi;
   const char *fmt;
+
+  if (color_cache)
+    {
+      free (color_cache);
+      color_cache = NULL;
+    }
+
+  if (brush_cache)
+    {
+      free (brush_cache);
+      brush_cache = NULL;
+    }
 
   if (!options)
     {
@@ -575,7 +590,6 @@ png_use_mask (int use_it)
 static void
 png_set_color (hidGC gc, const char *name)
 {
-  static void *cache = 0;
   hidval cval;
 
   if (im == NULL)
@@ -599,7 +613,7 @@ png_set_color (hidGC gc, const char *name)
       return;
     }
 
-  if (hid_cache_color (0, name, &cval, &cache))
+  if (hid_cache_color (0, name, &cval, &color_cache))
     {
       gc->color = cval.ptr;
     }
@@ -611,7 +625,7 @@ png_set_color (hidGC gc, const char *name)
       gc->color->c =
 	gdImageColorAllocate (im, gc->color->r, gc->color->g, gc->color->b);
       cval.ptr = gc->color;
-      hid_cache_color (1, name, &cval, &cache);
+      hid_cache_color (1, name, &cval, &color_cache);
     }
   else
     {
@@ -675,7 +689,6 @@ use_gc (hidGC gc)
 
   if (lastbrush != gc->brush || need_brush)
     {
-      static void *bcache = 0;
       hidval bval;
       char name[256];
       char type;
@@ -698,7 +711,7 @@ use_gc (hidGC gc)
       sprintf (name, "#%.2x%.2x%.2x_%c_%d", gc->color->r, gc->color->g,
 	       gc->color->b, type, r);
 
-      if (hid_cache_color (0, name, &bval, &bcache))
+      if (hid_cache_color (0, name, &bval, &brush_cache))
 	{
 	  gc->brush = bval.ptr;
 	}
@@ -733,7 +746,7 @@ use_gc (hidGC gc)
 		gdImageFilledRectangle (gc->brush, 0, 0, r-1, r-1, fg);
 	    }
 	  bval.ptr = gc->brush;
-	  hid_cache_color (1, name, &bval, &bcache);
+	  hid_cache_color (1, name, &bval, &brush_cache);
 	}
 
       gdImageSetBrush (im, gc->brush);
