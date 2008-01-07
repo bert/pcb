@@ -298,11 +298,13 @@ loop_key_press_cb (GtkWidget * drawing_area, GdkEventKey * kev,
 		   GMainLoop ** loop)
 {
   ModifierKeysState mk;
+  GdkModifierType state;
   gint ksym = kev->keyval;
 
   if (ghid_is_modifier_key_sym (ksym))
     return TRUE;
-  mk = ghid_modifier_keys_state ((GdkModifierType *) &kev->state);
+  state = (GdkModifierType) (kev->state);
+  mk = ghid_modifier_keys_state (&state);
 
   /* Duplicate the cursor key actions in gui-output-events.c
    */

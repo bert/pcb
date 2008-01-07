@@ -408,11 +408,13 @@ ghid_port_key_press_cb (GtkWidget * drawing_area,
   gint  ksym = kev->keyval;
   gboolean handled;
   extern  void ghid_hotkey_cb (int);
+  GdkModifierType state;
 
   if (ghid_is_modifier_key_sym (ksym))
     ghid_note_event_location (NULL);
 
-  mk = ghid_modifier_keys_state ((GdkModifierType *) &kev->state);
+  state = (GdkModifierType) (kev->state);
+  mk = ghid_modifier_keys_state (&state);
 
   ghid_show_crosshair (FALSE);
 
@@ -535,6 +537,7 @@ ghid_port_button_press_cb (GtkWidget * drawing_area,
   GtkWidget *menu = gtk_ui_manager_get_widget (ui, "/Popup1");
   ModifierKeysState mk;
   gboolean drag, start_pan = FALSE;
+  GdkModifierType state;
 
   /* Reject double and triple click events */
   if (ev->type != GDK_BUTTON_PRESS) return TRUE;
@@ -543,7 +546,8 @@ ghid_port_button_press_cb (GtkWidget * drawing_area,
   y_press = ev->y;
 
   ghid_note_event_location (ev);
-  mk = ghid_modifier_keys_state ((GdkModifierType *) &ev->state);
+  state = (GdkModifierType) (ev->state);
+  mk = ghid_modifier_keys_state (&state);
   ghid_show_crosshair (FALSE);
   HideCrosshair (TRUE);
   drag = have_crosshair_attachments ();
@@ -639,9 +643,11 @@ ghid_port_button_release_cb (GtkWidget * drawing_area,
 {
   ModifierKeysState mk;
   gboolean drag;
+  GdkModifierType state;
 
   ghid_note_event_location (ev);
-  mk = ghid_modifier_keys_state ((GdkModifierType *) &ev->state);
+  state = (GdkModifierType) (ev->state);
+  mk = ghid_modifier_keys_state (&state);
 
   drag = have_crosshair_attachments ();
   if (drag)
@@ -774,10 +780,14 @@ gint
 ghid_port_window_motion_cb (GtkWidget * widget,
 			    GdkEventButton * ev, GHidPort * out)
 {
-  ModifierKeysState mk = ghid_modifier_keys_state ((GdkModifierType *) &ev->state);
+  ModifierKeysState mk;
   gdouble dx, dy;
   static gint x_prev = -1, y_prev = -1;
   gboolean moved;
+  GdkModifierType state;
+
+  state = (GdkModifierType) (ev->state);
+  mk = ghid_modifier_keys_state (&state);
 
   if ((ev->state & GDK_BUTTON3_MASK) == GDK_BUTTON3_MASK
       && mk == NONE_PRESSED)
@@ -932,9 +942,12 @@ gint
 ghid_port_window_mouse_scroll_cb (GtkWidget * widget,
 				  GdkEventScroll * ev, GHidPort * out)
 {
-  ModifierKeysState mk = ghid_modifier_keys_state ((GdkModifierType *) &ev->state);
+  ModifierKeysState mk;
   gdouble dx = 0.0, dy = 0.0, zoom_factor;
+  GdkModifierType state;
 
+  state = (GdkModifierType) (ev->state);
+  mk = ghid_modifier_keys_state (&state);
   if (mk == NONE_PRESSED)
     {
       zoom_factor = (ev->direction == GDK_SCROLL_UP) ? 0.8 : 1.25;
