@@ -242,6 +242,48 @@ static gint route_style_index;
 
 static GtkWidget *route_style_edit_button;
 
+static const char *
+ghid_check_unique_accel (const char *accelerator)
+{
+  static int n_list = 0;
+  static char **accel_list;
+  static int amax = 0;
+  int i;
+  const char * a = accelerator;
+
+  if (accelerator == NULL)
+    return NULL;
+
+  if (strlen (accelerator) == 0)
+    return accelerator;
+
+  if (amax >= n_list) 
+    {
+      n_list += 128;
+      if ( (accel_list = realloc (accel_list, n_list * sizeof (char *))) == NULL)
+	{
+	  fprintf (stderr, "%s():  realloc failed\n", __FUNCTION__);
+	  exit (1);
+	}
+    }
+
+  for (i = 0; i < amax ; i++) 
+    {
+      if (strcmp (accel_list[i], accelerator) == 0)
+	{
+	  Message ("Duplicate accelerator found: \"%s\"\n"
+		   "The second occurance will be dropped\n",
+		   accelerator);
+	  a = NULL;
+	  break;
+	}
+    }
+  accel_list[amax] = strdup (accelerator);
+  amax++;
+
+  return a;
+}
+
 
 /* ------------------------------------------------------------------
  *  note_toggle_flag()
@@ -2958,6 +3000,8 @@ ghid_append_action (const char * name, const char *stock_id,
 	  UNKNOWN (tooltip));
 #endif
 
+  accelerator = ghid_check_unique_accel (accelerator);
+
   if ( (new_entries = realloc (new_entries, 
 			       (menuitem_cnt + 1) * sizeof (GtkActionEntry))) == NULL)
     {
@@ -2992,6 +3036,8 @@ ghid_append_toggle_action (const char * name, const char *stock_id,
 			   const char *label, const char *accelerator,
 			   const char *tooltip, int active)
 {
+
+  accelerator = ghid_check_unique_accel (accelerator);
 
   if ( (new_toggle_entries = realloc (new_toggle_entries, 
 				      (tmenuitem_cnt + 1) * sizeof (GtkToggleActionEntry))) == NULL)
@@ -3116,8 +3162,6 @@ add_resource_to_menu (char * menu, Resource * node, void * callback, int indent)
 	     *
 	     * " " -> ""
 	     * "Enter" -> "Return"
-	     * "Tab" -> clear out the accelerator entirely.  Gtk's
-	     * accessability features take over Tab so we can't use it.
 	     *
 	     */
 	    char *p;
@@ -3161,9 +3205,27 @@ add_resource_to_menu (char * menu, Resource * node, void * callback, int indent)
 		      }
 		    else
 		      {
-			Message ("Don't know how to parse \"%c\"\n", 
-				 *p);
-;		      }
+			static int gave_msg = 0;
+			Message ("Don't know how to parse \"%s\" as an accelerator in the menu resource file.\n", 
+				 p);
+			
+			if (! gave_msg) 
+			  {
+			    gave_msg = 1;
+			    Message ("Format is:\n"
+				     "modifiers<Key>k\n"
+				     "where \"modifiers\" is a space separated list of key modifiers\n"
+				     "and \"k\" is the name of the key.\n"
+				     "Allowed modifiers are:\n"
+				     "   Ctrl\n"
+				     "   Shift\n"
+				     "   Alt\n"
+				     "Please note that case is important.\n");
+			  }
+			/* skip processing the rest */
+			accel[0] = '\0';
+			p += strlen (p);
+		      }
 		    break;
 
 		  case KEY:
@@ -3172,15 +3234,6 @@ add_resource_to_menu (char * menu, Resource * node, void * callback, int indent)
 			strncat (accel, "Return", sizeof (accel));
 			p += 5;
 		      }
-#ifdef FIXME
-		    else if (strncmp (p, "Tab", 3) == 0)
-		      {
-			Message ("GTK does not allow the use of Tab for menu accelerators\n"
-				 "Hotkey \"%s\" will be dropped\n", r->v[1].value);
-			accel[0] = '\0';
-			p += 3;
-		      }
-#endif
 		    else
 		      {
 			ch[0] = *p;
