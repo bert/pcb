@@ -424,7 +424,7 @@ static void
 nelma_write_object(FILE * out, LibraryEntryTypePtr pin)
 {
 	int             i, idx;
-	int             x, y;
+	int             x = 0, y = 0;
 
 	char           *f;
 	const char     *ext;

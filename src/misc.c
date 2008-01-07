@@ -1633,15 +1633,10 @@ void
 AttachForCopy (LocationType PlaceX, LocationType PlaceY)
 {
   BoxTypePtr box;
-  LocationType mx, my;
+  LocationType mx = 0, my = 0;
 
   Crosshair.AttachedObject.RubberbandN = 0;
-  if (TEST_FLAG (SNAPPINFLAG, PCB))
-    {
-      mx = 0;
-      my = 0;
-    }
-  else
+  if (! TEST_FLAG (SNAPPINFLAG, PCB))
     {
       /* dither the grab point so that the mark, center, etc
        * will end up on a grid coordinate
