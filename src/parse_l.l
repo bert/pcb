@@ -67,6 +67,7 @@ RCSID("$Id$");
  */
 #ifdef FLEX_SCANNER
 int				yylineno;		/* linenumber */
+#define yyunput ATTRIBUTE_UNUSED yyunput
 #endif
 
 char			*yyfilename;	/* in this file */
