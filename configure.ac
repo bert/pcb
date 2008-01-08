@@ -230,7 +230,11 @@ Either do not use --enable-dbus or enable the gtk or lesstif GUI HID.])
 		AC_MSG_ERROR([Cannot find pkg-config, make sure it is installed and in your PATH])
 	fi
 
-	PKG_CHECK_MODULES(DBUS, dbus-1 >= 0.61, , 
+	PKG_CHECK_MODULES(DBUS, dbus-1 >= 0.61,
+		[saved_LIBS="$LIBS"
+		 LIBS="$LIBS $DBUS_LIBS"
+		 AC_CHECK_FUNCS(dbus_watch_get_unix_fd)
+		 LIBS="$saved_LIBS" ],
 		[AC_MSG_ERROR([Cannot find dbus-1 >= 0.61, install it and rerun ./configure
 Please review the following errors:
 $DBUS_PKG_ERRORS])]

@@ -23,6 +23,11 @@
  *
  */
 
+
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #define DBUS_API_SUBJECT_TO_CHANGE
 #include <dbus/dbus.h>
 #include <stdio.h>
@@ -160,7 +165,11 @@ watch_add (DBusWatch * dbus_watch, void *data)
   if (dbus_flags & DBUS_WATCH_WRITABLE)
     pcb_condition |= PCB_WATCH_READABLE;
 
+#if HAVE_DBUS_WATCH_GET_UNIX_FD
+  fd = dbus_watch_get_unix_fd (dbus_watch);
+#else
   fd = dbus_watch_get_fd (dbus_watch);
+#endif
 
   handler = malloc (sizeof (IOWatchHandler));
   handler->dbus_watch = dbus_watch;
