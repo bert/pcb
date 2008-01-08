@@ -576,55 +576,6 @@ ghid_invalidate_all ()
 }
 
 
-void
-ghid_pinout_redraw (PinoutType * po)
-{
-  double save_zoom;
-  int da_w, da_h, save_left, save_top, save_width, save_height;
-  double xz, yz;
-
-  GdkWindow *window = po->drawing_area->window;
-  GdkDrawable *save_drawable;
-
-  if (!window)
-    return;
-
-  save_zoom = gport->zoom;
-  save_left = gport->view_x0;
-  save_top = gport->view_y0;
-  save_width = gport->view_width;
-  save_height = gport->view_height;
-
-  /* Setup drawable and zoom factor for drawing routines
-   */
-  save_drawable = gport->drawable;
-
-  gdk_window_get_geometry (window, 0, 0, &da_w, &da_h, 0);
-  xz = (double) po->x_max / da_w;
-  yz = (double) po->y_max / da_h;
-  if (xz > yz)
-    gport->zoom = xz;
-  else
-    gport->zoom = yz;
-
-  gport->drawable = window;
-  gport->view_x0 = gport->view_y0 = 0;
-  gport->view_width = da_w * gport->zoom;
-  gport->view_height = da_h * gport->zoom;
-
-  /* clear background call the drawing routine */
-  gdk_draw_rectangle (window, gport->bg_gc, TRUE, 0, 0, MAX_COORD, MAX_COORD);
-
-  DrawElement (&po->element, 0);
-
-  gport->zoom = save_zoom;
-  gport->drawable = save_drawable;
-  gport->view_x0 = save_left;
-  gport->view_y0 = save_top;
-  gport->view_width = save_width;;
-  gport->view_height = save_height;
-}
-
 int
 ghid_set_layer (const char *name, int group)
 {

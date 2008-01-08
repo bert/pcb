@@ -234,6 +234,8 @@ LIBGTK_SRCS = \
 	hid/gtk/gui-misc.c \
 	hid/gtk/gui-netlist-window.c \
 	hid/gtk/gui-output-events.c \
+	hid/gtk/gui-pinout-preview.c \
+	hid/gtk/gui-pinout-preview.h \
 	hid/gtk/gui-pinout-window.c \
 	hid/gtk/gui-top-window.c \
 	hid/gtk/gui-utils.c

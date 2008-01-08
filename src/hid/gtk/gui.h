@@ -243,19 +243,6 @@ typedef enum
 }
 ButtonState;
 
-typedef struct
-{
-  GtkWidget *top_window, *drawing_area, *enlarge_button, *shrink_button;
-
-  ElementType element;		/* element data to display */
-
-  gfloat zoom,			/* zoom factor of window */
-    scale;			/* scale factor of zoom */
-  gint x_max, y_max;
-  gint w_pixels, h_pixels;
-}
-PinoutType;
-
 /* Function prototypes
 */
 void ghid_parse_arguments (gint * argc, gchar *** argv);
@@ -361,7 +348,6 @@ gint ghid_port_drawing_area_expose_event_cb (GtkWidget * widget,
 gint ghid_port_drawing_area_configure_event_cb (GtkWidget * widget,
 						GdkEventConfigure * ev,
 						GHidPort * out);
-void ghid_pinout_expose (PinoutType * po);
 
 
 /* gui-dialog.c function prototypes.
@@ -521,7 +507,6 @@ void ghid_pinout_window_show (GHidPort * out, ElementTypePtr Element);
 /* gtkhid-main.c */
 void ghid_invalidate_all ();
 void ghid_get_coords (const char *msg, int *x, int *y);
-void ghid_pinout_redraw (PinoutType * po);
 gint PCBChanged (int argc, char **argv, int x, int y);
 
 

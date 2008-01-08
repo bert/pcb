@@ -43,6 +43,8 @@
 #include "move.h"
 #include "rotate.h"
 
+#include "gui-pinout-preview.h"
+
 #ifdef HAVE_LIBDMALLOC
 #include <dmalloc.h>
 #endif
@@ -50,128 +52,19 @@
 RCSID ("$Id$");
 
 
-static gboolean
-pinout_zoom_fit (PinoutType * pinout, gint zoom)
-{
-  pinout->zoom = zoom;
-
-  /* Should be a function I can call for this:
-   */
-  pinout->scale = 1.0 / (100.0 * exp (pinout->zoom * LN_2_OVER_2));
-
-  pinout->x_max = pinout->element.BoundingBox.X2 + Settings.PinoutOffsetX;
-  pinout->y_max = pinout->element.BoundingBox.Y2 + Settings.PinoutOffsetY;
-  pinout->w_pixels = (gint) (pinout->scale *
-			     (pinout->element.BoundingBox.X2 -
-			      pinout->element.BoundingBox.X1));
-  pinout->h_pixels =
-    (gint) (pinout->scale *
-	    (pinout->element.BoundingBox.Y2 -
-	     pinout->element.BoundingBox.Y1));
-
-  if (pinout->w_pixels > 3 * Output.Width / 4
-      || pinout->h_pixels > 3 * Output.Height / 4)
-    return FALSE;
-  return TRUE;
-}
-
-PinoutType *
-pinout_new (ElementType * element)
-{
-  PinoutType *pinout;
-  gint tx, ty, x_min = 0, y_min = 0;
-
-  pinout = g_new0 (PinoutType, 1);
-
-  /* 
-   * copy element data 
-   * enable output of pin and padnames
-   * move element to a 5% offset from zero position
-   * set all package lines/arcs to zero width
-   */
-  CopyElementLowLevel (NULL, &pinout->element, element, FALSE, 0, 0);
-  PIN_LOOP (&pinout->element);
-  {
-    tx = abs (pinout->element.Pin[0].X - pin->X);
-    ty = abs (pinout->element.Pin[0].Y - pin->Y);
-    if (x_min == 0 || (tx != 0 && tx < x_min))
-      x_min = tx;
-    if (y_min == 0 || (ty != 0 && ty < y_min))
-      y_min = ty;
-    SET_FLAG (DISPLAYNAMEFLAG, pin);
-  }
-  END_LOOP;
-
-  PAD_LOOP (&pinout->element);
-  {
-    tx = abs (pinout->element.Pad[0].Point1.X - pad->Point1.X);
-    ty = abs (pinout->element.Pad[0].Point1.Y - pad->Point1.Y);
-    if (x_min == 0 || (tx != 0 && tx < x_min))
-      x_min = tx;
-    if (y_min == 0 || (ty != 0 && ty < y_min))
-      y_min = ty;
-    SET_FLAG (DISPLAYNAMEFLAG, pad);
-  }
-  END_LOOP;
-
-
-  MoveElementLowLevel (NULL, &pinout->element,
-		       Settings.PinoutOffsetX -
-		       pinout->element.BoundingBox.X1,
-		       Settings.PinoutOffsetY -
-		       pinout->element.BoundingBox.Y1);
-
-  if (!pinout_zoom_fit (pinout, 2))
-    pinout_zoom_fit (pinout, 3);
-
-  ELEMENTLINE_LOOP (&pinout->element);
-  {
-    line->Thickness = 0;
-  }
-  END_LOOP;
-
-  ARC_LOOP (&pinout->element);
-  {
-    /* 
-     * for whatever reason setting a thickness of 0 causes the arcs to
-     * not display so pick 1 which does display but is still quite
-     * thin.
-     */
-    arc->Thickness = 1;
-  }
-  END_LOOP;
-
-  return pinout;
-}
-
-static gint
-expose_event_cb (GtkWidget * widget, GdkEventExpose * ev, PinoutType * po)
-{
-  /* Just redraw the complete window.  No pixmap to copy over.
-   */
-  ghid_pinout_redraw (po);
-  return FALSE;
-}
-
 static void
-pinout_close_cb (GtkWidget * widget, PinoutType * pinout)
+pinout_close_cb (GtkWidget * widget, GtkWidget *top_window)
 {
-  gtk_widget_destroy (pinout->top_window);
+  gtk_widget_destroy (top_window);
 }
 
-
-static void
-pinout_destroy_cb (GtkWidget * widget, PinoutType * pinout)
-{
-  g_free (pinout);
-}
 
 void
 ghid_pinout_window_show (GHidPort * out, ElementType * element)
 {
-  GtkWidget *button, *viewport, *vbox, *hbox;
-  PinoutType *pinout;
+  GtkWidget *button, *viewport, *vbox, *hbox, *preview, *top_window;
   gchar *title;
+  int width, height;
 
   if (!element)
     return;
@@ -180,42 +73,38 @@ ghid_pinout_window_show (GHidPort * out, ElementType * element)
 			   UNKNOWN (NAMEONPCB_NAME (element)),
 			   UNKNOWN (VALUE_NAME (element)));
 
-  pinout = pinout_new (element);
-
-  pinout->top_window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
-  g_signal_connect (G_OBJECT (pinout->top_window), "destroy",
-		    G_CALLBACK (pinout_destroy_cb), pinout);
-  gtk_window_set_title (GTK_WINDOW (pinout->top_window), title);
+  top_window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+  gtk_window_set_title (GTK_WINDOW (top_window), title);
   g_free (title);
-  gtk_window_set_wmclass (GTK_WINDOW (pinout->top_window),
-			  "PCB_Pinout", "PCB");
-  gtk_container_set_border_width (GTK_CONTAINER (pinout->top_window), 4);
-  gtk_window_set_default_size (GTK_WINDOW (pinout->top_window),
-			       pinout->w_pixels + 50, pinout->h_pixels + 50);
+  gtk_window_set_wmclass (GTK_WINDOW (top_window), "PCB_Pinout", "PCB");
+  gtk_container_set_border_width (GTK_CONTAINER (top_window), 4);
 
   vbox = gtk_vbox_new (FALSE, 0);
-  gtk_container_add (GTK_CONTAINER (pinout->top_window), vbox);
+  gtk_container_add (GTK_CONTAINER (top_window), vbox);
 
   viewport = gtk_viewport_new (NULL, NULL);
   gtk_viewport_set_shadow_type (GTK_VIEWPORT (viewport), GTK_SHADOW_IN);
   gtk_box_pack_start (GTK_BOX (vbox), viewport, TRUE, TRUE, 0);
 
-  pinout->drawing_area = gtk_drawing_area_new ();
-  gtk_container_add (GTK_CONTAINER (viewport), pinout->drawing_area);
+  preview = ghid_pinout_preview_new (element);
+  gtk_container_add (GTK_CONTAINER (viewport), preview);
 
-  g_signal_connect (G_OBJECT (pinout->drawing_area), "expose_event",
-		    G_CALLBACK (expose_event_cb), pinout);
+  ghid_pinout_preview_get_natural_size (GHID_PINOUT_PREVIEW (preview),
+                                        &width, &height);
+
+  gtk_window_set_default_size (GTK_WINDOW (top_window),
+                               width + 50, height + 50);
 
   hbox = gtk_hbutton_box_new ();
   gtk_button_box_set_layout (GTK_BUTTON_BOX (hbox), GTK_BUTTONBOX_END);
   gtk_box_pack_start (GTK_BOX (vbox), hbox, FALSE, FALSE, 0);
   button = gtk_button_new_from_stock (GTK_STOCK_CLOSE);
   g_signal_connect (G_OBJECT (button), "clicked",
-		    G_CALLBACK (pinout_close_cb), pinout);
+                    G_CALLBACK (pinout_close_cb), top_window);
   gtk_box_pack_start (GTK_BOX (hbox), button, TRUE, TRUE, 0);
 
-  gtk_widget_realize (pinout->top_window);
+  gtk_widget_realize (top_window);
   if (Settings.AutoPlace)
-    gtk_widget_set_uposition (GTK_WIDGET (pinout->top_window), 10, 10);
-  gtk_widget_show_all (pinout->top_window);
+    gtk_widget_set_uposition (top_window, 10, 10);
+  gtk_widget_show_all (top_window);
 }
