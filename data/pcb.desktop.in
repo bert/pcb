@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=1.0
+Encoding=UTF-8
+_Name=PCB Designer
+_GenericName=PCB Design
+_Comment=Create and edit printed circuit board designs
+Type=Application
+Exec=pcb %f
+Icon=pcb
+MimeType=application/x-pcb;
+Categories=Engineering;Electronics;
