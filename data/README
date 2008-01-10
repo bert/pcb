@@ -1,0 +1,54 @@
+
+PCB
+------------------------------------------------------------------------------
+
+README for icon data
+
+This file describes where the various icons came from and their license.
+
+The PCB layout and gerber icons and mime registration data were contributed
+by Tomaz Solc, and subsequently modified by Peter Clifton, including
+creation of an excillon icon file with a ruler element taken from
+Tomaz's gerber icon. The footprint and netlist icons were drawn by
+Peter Clifton.
+
+The page outline featured in all the above icons is from the GNOME icon
+theme's text-x-generic icon by Jakub Steiner.
+
+The icons are licensed under the GPL2 license.
+
+Scalable versions: (128x128 canvas for the "hicolor" fallback theme).
+These were scaled up from the 48x48 pixel targeted version.
+
+application-x-excillon.svg
+application-x-gerber.svg
+application-x-pcb-footprint.svg
+application-x-pcb-layout.svg
+application-x-pcb-netlist.svg
+
+Pixel targeted varients:
+
+application-x-excillon-{16,22,32,48}.svg
+application-x-gerber-{16,22,32,48}.svg
+application-x-pcb-footprint-{16,22,32,48}.svg
+application-x-pcb-layout-{16,22,32,48}.svg
+application-x-pcb-netlist-{16,22,32,48}.svg
+
+
+PNG versions of the above icons were exported from Inkscape. The 24x24 pixel
+versions are copied from the 22x22 version, with a 1 pixel border added:
+
+application-x-excillon-{16,22,24,32,48}.png
+application-x-gerber-{16,22,24,32,48}.png
+application-x-pcb-footprint-{16,22,24,32,48}.png
+application-x-pcb-layout-{16,22,24,32,48}.png
+application-x-pcb-netlist-{16,22,24,32,48}.png
+
+
+The PCB application icons were created by Peter Clifton, based upon the
+Gnome "text-editor" icon created by Lapo Calamandrei. The PCB specific
+additions are from the mime-type icons by Tomaz Solc.
+These icons are licensed under the GPL2 license.
+
+pcb.svg
+pcb-48.png
