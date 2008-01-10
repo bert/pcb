@@ -9,6 +9,12 @@
 CONFIG_SHELL=/bin/sh
 export CONFIG_SHELL
 
+echo "Running autopoint..."
+autopoint --force || exit 1
+
+echo "Running intltoolize..."
+echo "no" | intltoolize --force --copy --automake || exit 1
+
 echo "Running aclocal..."
 aclocal $ACLOCAL_FLAGS || exit 1
 echo "Done with aclocal"

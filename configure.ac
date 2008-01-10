@@ -5,7 +5,8 @@ AC_INIT([pcb], [1.99w])
 AC_CONFIG_SRCDIR([src/draw.c])
 AC_PREREQ([2.59])
 AM_INIT_AUTOMAKE([1.9])
-AM_CONFIG_HEADER(config.h)
+AC_GNU_SOURCE
+AM_CONFIG_HEADER([config.h])
 
 AM_MAINTAINER_MODE
 
@@ -48,6 +49,12 @@ AC_DEFINE_UNQUOTED(PCB_PATH_DELIMETER,"$PCB_PATH_DELIMETER",[Search path separat
 
 dnl Checks for programs.
 AC_PROG_CC
+
+# i18n
+AM_GNU_GETTEXT_VERSION([0.14])
+AM_GNU_GETTEXT
+IT_PROG_INTLTOOL([0.35.0])
+
 AC_C_INLINE
 AC_PROG_CC_STDC
 AM_PROG_CC_C_O
@@ -698,7 +705,8 @@ do
 done
 AC_SUBST(TOPDIRS)
 
-AC_CONFIG_FILES(Makefile)
+AC_CONFIG_FILES(Makefile intl/Makefile po/Makefile.in)
+
 if test -d $srcdir/README_FILES; then
    AC_CONFIG_FILES(README_FILES/Makefile)
 fi

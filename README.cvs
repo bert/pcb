@@ -34,6 +34,12 @@ automake  -- ftp://ftp.gnu.org/pub/gnu/automake/
              have not been as well tested (or tested at all).  Versions 1.7 and
              older are too old and will not work.
 
+gettext   -- ftp://ftp.gnu.org/pub/gnu/gettext/
+             You will need version 0.14.x, or 0.16.x or higher
+
+intltool  -- ??
+             You will need version 0.35.0 or higher
+
 texinfo   -- ftp://ftp.gnu.org/pub/gnu/texinfo/
              You will need at least version 4.6 to be able to build
              the documentation.
