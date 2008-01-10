@@ -230,6 +230,7 @@ LIBGTK_SRCS = \
 	hid/gtk/gui-dialog.c \
 	hid/gtk/gui-keyref-window.c \
 	hid/gtk/gui-library-window.c \
+	hid/gtk/gui-library-window.h \
 	hid/gtk/gui-log-window.c \
 	hid/gtk/gui-misc.c \
 	hid/gtk/gui-netlist-window.c \

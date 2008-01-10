@@ -178,6 +178,7 @@ typedef struct
     log_window_height,
     keyref_window_width,
     keyref_window_height,
+    library_window_width,
     library_window_height,
     netlist_window_height, history_size, settings_mode, auto_pan_speed;
 }

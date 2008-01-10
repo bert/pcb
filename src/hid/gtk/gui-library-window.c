@@ -26,7 +26,32 @@
  *
  */
 
-/* This file written by Bill Wilson for the PCB Gtk port */
+/* This file originally from the PCB Gtk port by Bill Wilson. It has
+ * since been combined with modified code from the gEDA project:
+ *
+ * gschem/src/ghid_library_window.c, checked out by Peter Clifton
+ * from gEDA/gaf commit 72581a91da08c9d69593c24756144fc18940992e
+ * on 3rd Jan, 2008.
+ *
+ * gEDA - GPL Electronic Design Automation
+ * gschem - gEDA Schematic Capture
+ * Copyright (C) 1998-2007 Ales Hvezda
+ * Copyright (C) 1998-2007 gEDA Contributors (see ChangeLog for details)
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111 USA
+ */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -45,61 +70,231 @@
 RCSID ("$Id$");
 
 static GtkWidget *library_window;
-static GtkTreeModel *entry_model;
-static GtkTreeView *entry_treeview;
-static GtkTreeSelection *entry_selection;
 
+#include "gui-pinout-preview.h"
+#include "gui-library-window.h"
 
-
-/* -------- The library entries (LibraryEntryType) data model ----------
+/*! \def LIBRARY_FILTER_INTERVAL
+ *  \brief The time interval between request and actual filtering
+ *
+ *  This constant is the time-lag between user modifications in the
+ *  filter entry and the actual evaluation of the filter which
+ *  ultimately update the display. It helps reduce the frequency of
+ *  evaluation of the filter as user types.
+ *
+ *  Unit is milliseconds.
  */
-enum
+#define LIBRARY_FILTER_INTERVAL 200
+
+
+static gint
+library_window_configure_event_cb (GtkWidget * widget, GdkEventConfigure * ev,
+				   gpointer data)
 {
-  ENTRY_NAME_COLUMN,		/* Name to show in the treeview         */
-  ENTRY_LIBRARY_COLUMN,		/* Pointer to this LibraryEntryType     */
-  N_ENTRY_COLUMNS
-};
-
-static GtkTreeModel *
-entry_model_create (LibraryMenuType * menu)
-{
-  GtkListStore *store;
-  GtkTreeIter iter;
-
-  store = gtk_list_store_new (N_ENTRY_COLUMNS, G_TYPE_STRING, G_TYPE_POINTER);
-
-  ENTRY_LOOP (menu);
-  {
-    gtk_list_store_append (store, &iter);
-    gtk_list_store_set (store, &iter,
-			ENTRY_NAME_COLUMN, entry->ListEntry,
-			ENTRY_LIBRARY_COLUMN, entry, -1);
-  }
-  END_LOOP;
-
-  return GTK_TREE_MODEL (store);
+  ghidgui->library_window_width = widget->allocation.width;
+  ghidgui->library_window_height = widget->allocation.height;
+  ghidgui->config_modified = TRUE;
+  return FALSE;
 }
 
 
-/* Callback when the user clicks on a PCB element in the right treeview.
+enum
+{
+  MENU_NAME_COLUMN,		/* Text to display in the tree     */
+  MENU_LIBRARY_COLUMN,		/* Pointer to the LibraryMenuType  */
+  MENU_ENTRY_COLUMN,		/* Pointer to the LibraryEntryType */
+  N_MENU_COLUMNS
+};
+
+
+/*! \brief Process the response returned by the library dialog.
+ *  \par Function Description
+ *  This function handles the response <B>arg1</B> of the library
+ *  dialog <B>dialog</B>.
+ *
+ *  Parameter <B>user_data</B> is a pointer on the relevant toplevel
+ *  structure.
+ *
+ *  \param [in] dialog    The library dialog.
+ *  \param [in] arg1      The response ID.
+ *  \param [in] user_data
  */
 static void
-entry_tree_selection_changed_cb (GtkTreeSelection * selection, gpointer data)
+library_window_callback_response (GtkDialog * dialog,
+				  gint arg1, gpointer user_data)
 {
-  GtkTreeIter iter;
+  switch (arg1)
+    {
+    case GTK_RESPONSE_CLOSE:
+    case GTK_RESPONSE_DELETE_EVENT:
+      gtk_widget_destroy (GTK_WIDGET (library_window));
+      library_window = NULL;
+      break;
+
+    default:
+      /* Do nothing, in case there's another handler function which
+         can handle the response ID received. */
+      break;
+    }
+}
+
+
+/*! \brief Opens a library dialog.
+ *  \par Function Description
+ *  This function opens the library dialog for if it is not already.
+ *  In this last case, it only raises the dialog.
+ *
+ */
+void
+ghid_library_window_show (GHidPort * out, gboolean raise)
+{
+  GtkWidget *current_tab, *entry_filter;
+  GtkNotebook *notebook;
+
+  if (library_window == NULL)
+    {
+      library_window = g_object_new (GHID_TYPE_LIBRARY_WINDOW, NULL);
+
+      g_signal_connect (library_window,
+			"response",
+			G_CALLBACK (library_window_callback_response), NULL);
+      g_signal_connect (G_OBJECT (library_window), "configure_event",
+			G_CALLBACK (library_window_configure_event_cb), NULL);
+      gtk_window_set_default_size (GTK_WINDOW (library_window),
+				   ghidgui->library_window_width,
+				   ghidgui->library_window_height);
+
+      gtk_window_set_title (GTK_WINDOW (library_window), _("PCB Library"));
+      gtk_window_set_wmclass (GTK_WINDOW (library_window), "PCB_Library",
+			      "PCB");
+
+      gtk_widget_realize (library_window);
+      if (Settings.AutoPlace)
+	gtk_widget_set_uposition (GTK_WIDGET (library_window), 10, 10);
+
+      gtk_widget_show (library_window);
+
+    }
+  else if (raise)
+    {
+      gtk_window_present (GTK_WINDOW (library_window));
+    }
+  gtk_editable_select_region (GTK_EDITABLE
+			      (GHID_LIBRARY_WINDOW (library_window)->
+			       entry_filter), 0, -1);
+
+  /* Set the focus to the filter entry only if it is in the current
+     displayed tab */
+  notebook = GTK_NOTEBOOK (GHID_LIBRARY_WINDOW (library_window)->viewtabs);
+  current_tab = gtk_notebook_get_nth_page (notebook,
+					   gtk_notebook_get_current_page
+					   (notebook));
+  entry_filter =
+    GTK_WIDGET (GHID_LIBRARY_WINDOW (library_window)->entry_filter);
+  if (gtk_widget_is_ancestor (entry_filter, current_tab))
+    {
+      gtk_widget_grab_focus (entry_filter);
+    }
+}
+
+
+static GObjectClass *library_window_parent_class = NULL;
+
+
+/*! \brief Determines visibility of items of the library treeview.
+ *  \par Function Description
+ *  This is the function used to filter entries of the footprint
+ *  selection tree.
+ *
+ *  \param [in] model The current selection in the treeview.
+ *  \param [in] iter  An iterator on a footprint or folder in the tree.
+ *  \param [in] data  The library dialog.
+ *  \returns TRUE if item should be visible, FALSE otherwise.
+ */
+static gboolean
+lib_model_filter_visible_func (GtkTreeModel * model,
+			       GtkTreeIter * iter, gpointer data)
+{
+  GhidLibraryWindow *library_window = (GhidLibraryWindow *) data;
+  const gchar *compname;
+  gchar *compname_upper, *text_upper, *pattern;
+  const gchar *text;
+  gboolean ret;
+
+  g_assert (GHID_IS_LIBRARY_WINDOW (data));
+
+  text = gtk_entry_get_text (library_window->entry_filter);
+  if (g_ascii_strcasecmp (text, "") == 0)
+    {
+      return TRUE;
+    }
+
+  /* If this is a source, only display it if it has children that
+   * match */
+  if (gtk_tree_model_iter_has_child (model, iter))
+    {
+      GtkTreeIter iter2;
+
+      gtk_tree_model_iter_children (model, &iter2, iter);
+      ret = FALSE;
+      do
+	{
+	  if (lib_model_filter_visible_func (model, &iter2, data))
+	    {
+	      ret = TRUE;
+	      break;
+	    }
+	}
+      while (gtk_tree_model_iter_next (model, &iter2));
+    }
+  else
+    {
+      gtk_tree_model_get (model, iter, MENU_NAME_COLUMN, &compname, -1);
+      /* Do a case insensitive comparison, converting the strings
+         to uppercase */
+      compname_upper = g_ascii_strup (compname, -1);
+      text_upper = g_ascii_strup (text, -1);
+      pattern = g_strconcat ("*", text_upper, "*", NULL);
+      ret = g_pattern_match_simple (pattern, compname_upper);
+      g_free (compname_upper);
+      g_free (text_upper);
+      g_free (pattern);
+    }
+
+  return ret;
+}
+
+
+/*! \brief Handles changes in the treeview selection.
+ *  \par Function Description
+ *  This is the callback function that is called every time the user
+ *  select a row the library treeview of the dialog.
+ *
+ *  If the selection is not a selection of a footprint, it does
+ *  nothing. Otherwise it updates the preview and Element data.
+ *
+ *  \param [in] selection The current selection in the treeview.
+ *  \param [in] user_data The library dialog.
+ */
+static void
+library_window_callback_tree_selection_changed (GtkTreeSelection * selection,
+						gpointer user_data)
+{
+  GtkTreeView *view;
   GtkTreeModel *model;
-  GtkTreePath *path;
-  LibraryEntryType *entry;
+  GtkTreeIter iter;
+  GhidLibraryWindow *library_window = (GhidLibraryWindow *) user_data;
+  LibraryEntryType *entry = NULL;
   gchar *m4_args;
 
   if (!gtk_tree_selection_get_selected (selection, &model, &iter))
     return;
 
-  /* Get the LibraryEntryType entry from the currently selected row of
-     |  of the entry_model.
-   */
-  path = gtk_tree_model_get_path (model, &iter);
-  gtk_tree_model_get (model, &iter, ENTRY_LIBRARY_COLUMN, &entry, -1);
+  view = gtk_tree_selection_get_tree_view (selection);
+  gtk_tree_model_get (model, &iter, MENU_ENTRY_COLUMN, &entry, -1);
+
+  if (entry == NULL)
+    return;
 
   /* -1 flags this is an element file part and the file path is in
      |  entry->AllocateMemory.
@@ -108,7 +303,7 @@ entry_tree_selection_changed_cb (GtkTreeSelection * selection, gpointer data)
     {
       if (LoadElementToBuffer (PASTEBUFFER, entry->AllocatedMemory, True))
 	SetMode (PASTEBUFFER_MODE);
-      return;
+      goto out;
     }
 
   /* Otherwise, it's a m4 element and we need to create a string of
@@ -121,26 +316,124 @@ entry_tree_selection_changed_cb (GtkTreeSelection * selection, gpointer data)
   if (LoadElementToBuffer (PASTEBUFFER, m4_args, False))
     SetMode (PASTEBUFFER_MODE);
   g_free (m4_args);
+
+out:
+
+  /* update the preview with new symbol data */
+  g_object_set (library_window->preview,
+		"element-data", PASTEBUFFER->Data->Element, NULL);
 }
 
-
-/* -------- The library group (LibraryMenuType) data model ---------- */
-enum
+/*! \brief Requests re-evaluation of the filter.
+ *  \par Function Description
+ *  This is the timeout function for the filtering of footprint
+ *  in the tree of the dialog.
+ *
+ *  The timeout this callback is attached to is removed after the
+ *  function.
+ *
+ *  \param [in] data The library dialog.
+ *  \returns FALSE to remove the timeout.
+ */
+static gboolean
+library_window_filter_timeout (gpointer data)
 {
-  MENU_NAME_COLUMN,		/* Name to show in the treeview         */
-  MENU_LIBRARY_COLUMN,		/* Pointer to this LibraryMenuType      */
-  N_MENU_COLUMNS
-};
+  GhidLibraryWindow *library_window = GHID_LIBRARY_WINDOW (data);
+  GtkTreeModel *model;
 
+  /* resets the source id in library_window */
+  library_window->filter_timeout = 0;
+
+  model = gtk_tree_view_get_model (library_window->libtreeview);
+
+  if (model != NULL)
+    {
+      gtk_tree_model_filter_refilter ((GtkTreeModelFilter *) model);
+    }
+
+  /* return FALSE to remove the source */
+  return FALSE;
+}
+
+/*! \brief Callback function for the changed signal of the filter entry.
+ *  \par Function Description
+ *  This function monitors changes in the entry filter of the dialog.
+ *
+ *  It specifically manages the sensitivity of the clear button of the
+ *  entry depending on its contents. It also requests an update of the
+ *  footprint list by re-evaluating filter at every changes.
+ *
+ *  \param [in] editable  The filter text entry.
+ *  \param [in] user_data The library dialog.
+ */
+static void
+library_window_callback_filter_entry_changed (GtkEditable * editable,
+					      gpointer user_data)
+{
+  GhidLibraryWindow *library_window = GHID_LIBRARY_WINDOW (user_data);
+  GtkWidget *button;
+  gboolean sensitive;
+
+  /* turns button off if filter entry is empty */
+  /* turns it on otherwise */
+  button = GTK_WIDGET (library_window->button_clear);
+  sensitive =
+    (g_ascii_strcasecmp (gtk_entry_get_text (library_window->entry_filter),
+			 "") != 0);
+  if (GTK_WIDGET_IS_SENSITIVE (button) != sensitive)
+    {
+      gtk_widget_set_sensitive (button, sensitive);
+    }
+
+  /* Cancel any pending update of the footprint list filter */
+  if (library_window->filter_timeout != 0)
+    g_source_remove (library_window->filter_timeout);
+
+  /* Schedule an update of the footprint list filter in
+   * LIBRARY_FILTER_INTERVAL milliseconds */
+  library_window->filter_timeout = g_timeout_add (LIBRARY_FILTER_INTERVAL,
+						  library_window_filter_timeout,
+						  library_window);
+
+}
+
+/*! \brief Handles a click on the clear button.
+ *  \par Function Description
+ *  This is the callback function called every time the user press the
+ *  clear button associated with the filter.
+ *
+ *  It resets the filter entry, indirectly causing re-evaluation
+ *  of the filter on the list of symbols to update the display.
+ *
+ *  \param [in] editable  The filter text entry.
+ *  \param [in] user_data The library dialog.
+ */
+static void
+library_window_callback_filter_button_clicked (GtkButton * button,
+					       gpointer user_data)
+{
+  GhidLibraryWindow *library_window = GHID_LIBRARY_WINDOW (user_data);
+
+  /* clears text in text entry for filter */
+  gtk_entry_set_text (library_window->entry_filter, "");
+
+}
+
+/* \brief Create the tree model for the "Library" view.
+ * \par Function Description
+ * Creates a tree where the branches are the available library
+ * sources and the leaves are the footprints.
+ */
 static GtkTreeModel *
-menu_model_create (void)
+create_lib_tree_model (GhidLibraryWindow * library_window)
 {
   GtkTreeStore *tree;
-  GtkTreeIter iter, p_iter, e_iter;
+  GtkTreeIter iter, p_iter, e_iter, c_iter;
   gchar *name;
   gboolean exists;
 
-  tree = gtk_tree_store_new (N_MENU_COLUMNS, G_TYPE_STRING, G_TYPE_POINTER);
+  tree = gtk_tree_store_new (N_MENU_COLUMNS,
+			     G_TYPE_STRING, G_TYPE_POINTER, G_TYPE_POINTER);
 
   MENU_LOOP (&Library);
   {
@@ -170,173 +463,355 @@ menu_model_create (void)
       {
 	gtk_tree_store_append (tree, &p_iter, NULL);
 	gtk_tree_store_set (tree, &p_iter,
-			    MENU_NAME_COLUMN, menu->directory, -1);
+			    MENU_NAME_COLUMN, menu->directory,
+			    MENU_LIBRARY_COLUMN, NULL,
+			    MENU_ENTRY_COLUMN, NULL, -1);
       }
     gtk_tree_store_append (tree, &iter, &p_iter);
     gtk_tree_store_set (tree, &iter,
 			MENU_NAME_COLUMN, menu->Name,
-			MENU_LIBRARY_COLUMN, menu, -1);
+			MENU_LIBRARY_COLUMN, menu,
+			MENU_ENTRY_COLUMN, NULL, -1);
+    ENTRY_LOOP (menu);
+    {
+      gtk_tree_store_append (tree, &c_iter, &iter);
+      gtk_tree_store_set (tree, &c_iter,
+			  MENU_NAME_COLUMN, entry->ListEntry,
+			  MENU_LIBRARY_COLUMN, menu,
+			  MENU_ENTRY_COLUMN, entry, -1);
+    }
+    END_LOOP;
+
   }
   END_LOOP;
 
-  return GTK_TREE_MODEL (tree);
+  return (GtkTreeModel *) tree;
 }
 
-/* 
- * Called when the user clicks on a new library group in the left
- * treeview. 
+
+#if 0
+/* \brief On-demand refresh of the footprint library.
+ * \par Function Description
+ * Requests a rescan of the footprint library in order to pick up any
+ * new signals, and then updates the library window.
  */
 static void
-menu_tree_selection_changed_cb (GtkTreeSelection * selection, gpointer data)
+library_window_callback_refresh_library (GtkButton * button,
+					 gpointer user_data)
 {
-  GtkTreeIter iter;
+  GhidLibraryWindow *library_window = GHID_LIBRARY_WINDOW (user_data);
   GtkTreeModel *model;
-  GtkTreePath *path;
-  LibraryMenuType *menu;
-  gint depth;
 
-  if (!gtk_tree_selection_get_selected (selection, &model, &iter))
-    return;
-  path = gtk_tree_model_get_path (model, &iter);
-  depth = gtk_tree_path_get_depth (path);
-  gtk_tree_path_free (path);
+  /* Rescan the libraries for symbols */
+  /*  TODO: How do we do this in PCB?  */
 
-  if (depth == 1)
-    return;			/* On a directory item and not a group */
+  /* Refresh the "Library" view */
+  model = (GtkTreeModel *)
+    g_object_new (GTK_TYPE_TREE_MODEL_FILTER,
+		  "child-model", create_lib_tree_model (library_window),
+		  "virtual-root", NULL, NULL);
 
-  gtk_tree_model_get (model, &iter, MENU_LIBRARY_COLUMN, &menu, -1);
+  gtk_tree_model_filter_set_visible_func ((GtkTreeModelFilter *) model,
+					  lib_model_filter_visible_func,
+					  library_window, NULL);
 
-  /* 
-   * Got a pointer, menu, to the LibraryMenuType of the newly selected
-   * library group row, so create a new entry model from the menu entries
-   * and insert that model into the entry view.  Then delete old entry model.
-   */
-  model = entry_model;
-  entry_model = entry_model_create (menu);
-  gtk_tree_view_set_model (entry_treeview, entry_model);
-  gtk_tree_sortable_set_sort_column_id (GTK_TREE_SORTABLE (entry_model),
-					ENTRY_NAME_COLUMN,
-					GTK_SORT_ASCENDING);
-
-  if (model)
-    gtk_list_store_clear (GTK_LIST_STORE (model));
+  gtk_tree_view_set_model (library_window->libtreeview, model);
 }
+#endif
 
 
-
-/* ---------- Manage the GUI treeview of the data models ----------- */
-static gint
-library_window_configure_event_cb (GtkWidget * widget, GdkEventConfigure * ev,
-				   gpointer data)
+/*! \brief Creates the treeview for the "Library" view */
+static GtkWidget *
+create_lib_treeview (GhidLibraryWindow * library_window)
 {
-  ghidgui->library_window_height = widget->allocation.height;
-  ghidgui->config_modified = TRUE;
-  return FALSE;
-}
-
-static void
-library_close_cb (gpointer data)
-{
-  gtk_widget_destroy (library_window);
-  library_window = NULL;
-}
-
-static void
-library_destroy_cb (GtkWidget * widget, GHidPort * out)
-{
-  library_window = NULL;
-}
-
-void
-ghid_library_window_show (GHidPort * out, gboolean raise)
-{
-  GtkWidget *vbox, *hbox, *button;
-  GtkTreeView *treeview;
-  GtkTreeModel *model;
+  GtkWidget *libtreeview, *vbox, *scrolled_win, *label,
+    *hbox, *entry, *button;
+  GtkTreeModel *child_model, *model;
   GtkTreeSelection *selection;
   GtkCellRenderer *renderer;
+  GtkTreeViewColumn *column;
 
-  if (library_window)
-    {
-      if (raise)
-        gtk_window_present(GTK_WINDOW(library_window));
-      return;
-    }
-  library_window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
-  g_signal_connect (G_OBJECT (library_window), "destroy",
-		    G_CALLBACK (library_destroy_cb), out);
-  gtk_window_set_title (GTK_WINDOW (library_window), _("PCB Library"));
-  gtk_window_set_wmclass (GTK_WINDOW (library_window), "PCB_Library", "PCB");
-  g_signal_connect (G_OBJECT (library_window), "configure_event",
-		    G_CALLBACK (library_window_configure_event_cb), NULL);
-  gtk_window_set_default_size (GTK_WINDOW (library_window),
-			       -1, ghidgui->library_window_height);
+  /* -- library selection view -- */
 
-  gtk_container_set_border_width (GTK_CONTAINER (library_window), 2);
+  /* vertical box for footprint selection and search entry */
+  vbox = GTK_WIDGET (g_object_new (GTK_TYPE_VBOX,
+				   /* GtkContainer */
+				   "border-width", 5,
+				   /* GtkBox */
+				   "homogeneous", FALSE, "spacing", 5, NULL));
 
-  vbox = gtk_vbox_new (FALSE, 0);
-  gtk_container_set_border_width (GTK_CONTAINER (vbox), 6);
-  gtk_container_add (GTK_CONTAINER (library_window), vbox);
-  hbox = gtk_hbox_new (FALSE, 8);
-  gtk_box_pack_start (GTK_BOX (vbox), hbox, TRUE, TRUE, 4);
-
-
-  model = menu_model_create ();
-  treeview = GTK_TREE_VIEW (gtk_tree_view_new_with_model (model));
-  gtk_tree_sortable_set_sort_column_id (GTK_TREE_SORTABLE (model),
+  child_model = create_lib_tree_model (library_window);
+  gtk_tree_sortable_set_sort_column_id (GTK_TREE_SORTABLE (child_model),
 					MENU_NAME_COLUMN, GTK_SORT_ASCENDING);
-  g_object_unref (G_OBJECT (model));
-  gtk_tree_view_set_rules_hint (treeview, FALSE);
+  model = (GtkTreeModel *) g_object_new (GTK_TYPE_TREE_MODEL_FILTER,
+					 "child-model", child_model,
+					 "virtual-root", NULL, NULL);
 
-  renderer = gtk_cell_renderer_text_new ();
-  gtk_tree_view_insert_column_with_attributes (treeview, -1,
-					       _("Library Group"), renderer,
-					       "text", MENU_NAME_COLUMN,
-					       NULL);
+  scrolled_win = GTK_WIDGET (g_object_new (GTK_TYPE_SCROLLED_WINDOW,
+					   /* GtkScrolledWindow */
+					   "hscrollbar-policy",
+					   GTK_POLICY_AUTOMATIC,
+					   "vscrollbar-policy",
+					   GTK_POLICY_ALWAYS, "shadow-type",
+					   GTK_SHADOW_ETCHED_IN, NULL));
+  /* create the treeview */
+  libtreeview = GTK_WIDGET (g_object_new (GTK_TYPE_TREE_VIEW,
+					  /* GtkTreeView */
+					  "model", model,
+					  "rules-hint", TRUE,
+					  "headers-visible", FALSE, NULL));
+  /* connect callback to selection */
+  selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (libtreeview));
+  gtk_tree_selection_set_mode (selection, GTK_SELECTION_SINGLE);
+  g_signal_connect (selection,
+		    "changed",
+		    G_CALLBACK
+		    (library_window_callback_tree_selection_changed),
+		    library_window);
 
-  /*  
-   * TODO: record expanded states when window is destroyed and restore
-   * state here?
-   */
+  /* insert a column to treeview for library/symbol name */
+  renderer = GTK_CELL_RENDERER (g_object_new (GTK_TYPE_CELL_RENDERER_TEXT,
+					      /* GtkCellRendererText */
+					      "editable", FALSE, NULL));
+  column = GTK_TREE_VIEW_COLUMN (g_object_new (GTK_TYPE_TREE_VIEW_COLUMN,
+					       /* GtkTreeViewColumn */
+					       "title", _("Components"),
+					       NULL));
+  gtk_tree_view_column_pack_start (column, renderer, TRUE);
+  gtk_tree_view_column_set_attributes (column, renderer,
+				       "text", MENU_NAME_COLUMN, NULL);
+  gtk_tree_view_append_column (GTK_TREE_VIEW (libtreeview), column);
 
-  selection = ghid_scrolled_selection (treeview, hbox,
-				       GTK_SELECTION_SINGLE,
-				       GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC,
-				       menu_tree_selection_changed_cb, NULL);
+  /* add the treeview to the scrolled window */
+  gtk_container_add (GTK_CONTAINER (scrolled_win), libtreeview);
+  /* set directory/footprint treeview of library_window */
+  library_window->libtreeview = GTK_TREE_VIEW (libtreeview);
+
+  /* add the scrolled window for directories to the vertical box */
+  gtk_box_pack_start (GTK_BOX (vbox), scrolled_win, TRUE, TRUE, 0);
 
 
-  /* 
-   * Create the elements treeview and wait for a callback to populate
-   * it.
-   */
-  treeview = GTK_TREE_VIEW (gtk_tree_view_new ());
-  entry_treeview = treeview;
+  /* -- filter area -- */
+  hbox = GTK_WIDGET (g_object_new (GTK_TYPE_HBOX,
+				   /* GtkBox */
+				   "homogeneous", FALSE, "spacing", 3, NULL));
 
-  gtk_tree_view_set_rules_hint (treeview, FALSE);
+  /* create the entry label */
+  label = GTK_WIDGET (g_object_new (GTK_TYPE_LABEL,
+				    /* GtkMisc */
+				    "xalign", 0.0,
+				    /* GtkLabel */
+				    "label", _("Filter:"), NULL));
+  /* add the search label to the filter area */
+  gtk_box_pack_start (GTK_BOX (hbox), label, FALSE, FALSE, 0);
 
-  renderer = gtk_cell_renderer_text_new ();
-  gtk_tree_view_insert_column_with_attributes (treeview, -1, _("Elements"),
-					       renderer,
-					       "text", ENTRY_NAME_COLUMN,
-					       NULL);
+  /* create the text entry for filter in footprints */
+  entry = GTK_WIDGET (g_object_new (GTK_TYPE_ENTRY,
+				    /* GtkEntry */
+				    "text", "", NULL));
+  g_signal_connect (entry,
+		    "changed",
+		    G_CALLBACK (library_window_callback_filter_entry_changed),
+		    library_window);
 
-  selection = ghid_scrolled_selection (treeview, hbox,
-				       GTK_SELECTION_SINGLE,
-				       GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC,
-				       entry_tree_selection_changed_cb, NULL);
-  entry_selection = selection;
+  /* now that that we have an entry, set the filter func of model */
+  gtk_tree_model_filter_set_visible_func ((GtkTreeModelFilter *) model,
+					  lib_model_filter_visible_func,
+					  library_window, NULL);
 
-  hbox = gtk_hbutton_box_new ();
-  gtk_button_box_set_layout (GTK_BUTTON_BOX (hbox), GTK_BUTTONBOX_END);
+  /* add the filter entry to the filter area */
+  gtk_box_pack_start (GTK_BOX (hbox), entry, TRUE, TRUE, 0);
+  /* set filter entry of library_window */
+  library_window->entry_filter = GTK_ENTRY (entry);
+  /* and init the event source for footprint filter */
+  library_window->filter_timeout = 0;
+
+  /* create the erase button for filter entry */
+  button = GTK_WIDGET (g_object_new (GTK_TYPE_BUTTON,
+				     /* GtkWidget */
+				     "sensitive", FALSE,
+				     /* GtkButton */
+				     "relief", GTK_RELIEF_NONE, NULL));
+
+  gtk_container_add (GTK_CONTAINER (button),
+		     gtk_image_new_from_stock (GTK_STOCK_CLEAR,
+					       GTK_ICON_SIZE_SMALL_TOOLBAR));
+  g_signal_connect (button,
+		    "clicked",
+		    G_CALLBACK
+		    (library_window_callback_filter_button_clicked),
+		    library_window);
+  /* add the clear button to the filter area */
+  gtk_box_pack_start (GTK_BOX (hbox), button, FALSE, FALSE, 0);
+  /* set clear button of library_window */
+  library_window->button_clear = GTK_BUTTON (button);
+
+#if 0
+  /* create the refresh button */
+  button = GTK_WIDGET (g_object_new (GTK_TYPE_BUTTON,
+				     /* GtkWidget */
+				     "sensitive", TRUE,
+				     /* GtkButton */
+				     "relief", GTK_RELIEF_NONE, NULL));
+  gtk_container_add (GTK_CONTAINER (button),
+		     gtk_image_new_from_stock (GTK_STOCK_REFRESH,
+					       GTK_ICON_SIZE_SMALL_TOOLBAR));
+  /* add the refresh button to the filter area */
+  gtk_box_pack_start (GTK_BOX (hbox), button, FALSE, FALSE, 0);
+  g_signal_connect (button,
+		    "clicked",
+		    G_CALLBACK (library_window_callback_refresh_library),
+		    library_window);
+#endif
+
+  /* add the filter area to the vertical box */
   gtk_box_pack_start (GTK_BOX (vbox), hbox, FALSE, FALSE, 0);
-  button = gtk_button_new_from_stock (GTK_STOCK_CLOSE);
-  g_signal_connect (G_OBJECT (button), "clicked",
-		    G_CALLBACK (library_close_cb), NULL);
-  gtk_box_pack_start (GTK_BOX (hbox), button, TRUE, TRUE, 0);
 
-  gtk_widget_realize (library_window);
-  if (Settings.AutoPlace)
-    gtk_widget_set_uposition (GTK_WIDGET (library_window), 10, 10);
+  library_window->libtreeview = GTK_TREE_VIEW (libtreeview);
 
-  gtk_widget_show_all (library_window);
+  return vbox;
+}
+
+
+static GObject *
+library_window_constructor (GType type,
+			    guint n_construct_properties,
+			    GObjectConstructParam * construct_params)
+{
+  GObject *object;
+  GhidLibraryWindow *library_window;
+
+  GtkWidget *hpaned, *notebook;
+  GtkWidget *libview;
+  GtkWidget *preview;
+  GtkWidget *alignment, *frame;
+
+  /* chain up to constructor of parent class */
+  object = G_OBJECT_CLASS (library_window_parent_class)->
+    constructor (type, n_construct_properties, construct_params);
+  library_window = GHID_LIBRARY_WINDOW (object);
+
+  /* dialog initialization */
+  g_object_set (object,
+		/* GtkWindow */
+		"type", GTK_WINDOW_TOPLEVEL,
+		"title", _("Select Footprint..."),
+		"default-height", 300,
+		"default-width", 400,
+		"modal", FALSE, "window-position", GTK_WIN_POS_NONE,
+		/* GtkDialog */
+		"has-separator", TRUE, NULL);
+  g_object_set (GTK_DIALOG (library_window)->vbox,
+		"homogeneous", FALSE, NULL);
+
+  /* horizontal pane containing selection and preview */
+  hpaned = GTK_WIDGET (g_object_new (GTK_TYPE_HPANED,
+				     /* GtkContainer */
+				     "border-width", 5, NULL));
+  library_window->hpaned = hpaned;
+
+  /* notebook for library views */
+  notebook = GTK_WIDGET (g_object_new (GTK_TYPE_NOTEBOOK,
+				       "show-tabs", FALSE, NULL));
+  library_window->viewtabs = GTK_NOTEBOOK (notebook);
+
+  libview = create_lib_treeview (library_window);
+  gtk_notebook_append_page (GTK_NOTEBOOK (notebook), libview,
+			    gtk_label_new (_("Libraries")));
+
+  /* include the vertical box in horizontal box */
+  gtk_paned_pack1 (GTK_PANED (hpaned), notebook, TRUE, FALSE);
+
+
+  /* -- preview area -- */
+  frame = GTK_WIDGET (g_object_new (GTK_TYPE_FRAME,
+				    /* GtkFrame */
+				    "label", _("Preview"), NULL));
+  alignment = GTK_WIDGET (g_object_new (GTK_TYPE_ALIGNMENT,
+					/* GtkAlignment */
+					"left-padding", 5,
+					"right-padding", 5,
+					"top-padding", 5,
+					"bottom-padding", 5,
+					"xscale", 1.0,
+					"yscale", 1.0,
+					"xalign", 0.5, "yalign", 0.5, NULL));
+  preview = g_object_new (GHID_TYPE_PINOUT_PREVIEW,
+			  /* GhidPinoutPreview */
+			  "element-data", NULL,
+			  /* GtkWidget */
+			  "width-request", 150, "height-request", 150, NULL);
+  gtk_container_add (GTK_CONTAINER (alignment), preview);
+  gtk_container_add (GTK_CONTAINER (frame), alignment);
+  /* set preview of library_window */
+  library_window->preview = preview;
+
+  gtk_paned_pack2 (GTK_PANED (hpaned), frame, FALSE, FALSE);
+
+  /* add the hpaned to the dialog vbox */
+  gtk_box_pack_start (GTK_BOX (GTK_DIALOG (library_window)->vbox), hpaned,
+		      TRUE, TRUE, 0);
+  gtk_widget_show_all (hpaned);
+
+
+  /* now add buttons in the action area */
+  gtk_dialog_add_buttons (GTK_DIALOG (library_window),
+			  /*  - close button */
+			  GTK_STOCK_CLOSE, GTK_RESPONSE_CLOSE, NULL);
+
+  return object;
+}
+
+static void
+library_window_finalize (GObject * object)
+{
+  GhidLibraryWindow *library_window = GHID_LIBRARY_WINDOW (object);
+
+  if (library_window->filter_timeout != 0)
+    {
+      g_source_remove (library_window->filter_timeout);
+      library_window->filter_timeout = 0;
+    }
+
+  G_OBJECT_CLASS (library_window_parent_class)->finalize (object);
+}
+
+
+static void
+library_window_class_init (GhidLibraryWindowClass * klass)
+{
+  GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
+
+  gobject_class->constructor = library_window_constructor;
+  gobject_class->finalize = library_window_finalize;
+
+  library_window_parent_class = g_type_class_peek_parent (klass);
+}
+
+
+GType
+ghid_library_window_get_type ()
+{
+  static GType library_window_type = 0;
+
+  if (!library_window_type)
+    {
+      static const GTypeInfo library_window_info = {
+	sizeof (GhidLibraryWindowClass),
+	NULL,			/* base_init */
+	NULL,			/* base_finalize */
+	(GClassInitFunc) library_window_class_init,
+	NULL,			/* class_finalize */
+	NULL,			/* class_data */
+	sizeof (GhidLibraryWindow),
+	0,			/* n_preallocs */
+	NULL			/* instance_init */
+      };
+
+      library_window_type = g_type_register_static (GTK_TYPE_DIALOG,
+						    "GhidLibraryWindow",
+						    &library_window_info, 0);
+    }
+
+  return library_window_type;
 }

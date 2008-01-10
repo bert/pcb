@@ -130,6 +130,7 @@ static ConfigAttribute config_attributes[] = {
   {"top-window-height", CONFIG_Integer, &_ghidgui.top_window_height},
   {"log-window-width", CONFIG_Integer, &_ghidgui.log_window_width},
   {"log-window-height", CONFIG_Integer, &_ghidgui.log_window_height},
+  {"library-window-width", CONFIG_Integer, &_ghidgui.library_window_width},
   {"library-window-height", CONFIG_Integer, &_ghidgui.library_window_height},
   {"netlist-window-height", CONFIG_Integer, &_ghidgui.netlist_window_height},
   {"keyref-window-width", CONFIG_Integer, &_ghidgui.keyref_window_width},

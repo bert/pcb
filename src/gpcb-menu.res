@@ -443,7 +443,7 @@ MainMenu =
 # Window Menu
 #
   {Window
-   {"Library" DoWindows(Library)}
+   {"Library" DoWindows(Library) a={"i" "<Key>i"}}
    {"Message Log" DoWindows(Log)}
    {"Netlist" DoWindows(Netlist)}
    {"Command Entry" Command() a={":" "<Key>:"}}
