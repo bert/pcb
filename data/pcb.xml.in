@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mime-info xmlns="http://www.freedesktop.org/standards/shared-mime-info">
+  <mime-type type="application/x-pcb-layout">
+    <sub-class-of type="text/plain"/>
+    <_comment>PCB layout</_comment>
+    <glob pattern="*.pcb"/>
+    <magic priority="50">
+      <match value="# release: pcb " type="string" offset="0"/>
+    </magic>
+  </mime-type>
+  <mime-type type="application/x-pcb-footprint">
+    <sub-class-of type="text/plain"/>
+    <_comment>PCB footprint</_comment>
+    <glob pattern="*.fp"/>
+  </mime-type>
+  <mime-type type="application/x-pcb-netlist">
+    <sub-class-of type="text/plain"/>
+    <_comment>PCB netlist</_comment>
+    <glob pattern="*.net"/>
+  </mime-type>
+  <mime-type type="application/x-gerber">
+    <sub-class-of type="text/plain"/>
+    <_comment>Gerber file</_comment>
+    <glob pattern="*.gbr"/>
+    <magic priority="50">
+      <match value="G04" type="string" offset="0"/>
+    </magic>
+  </mime-type>
+  <mime-type type="application/x-excellon">
+    <sub-class-of type="text/plain"/>
+    <_comment>Excellon drill file</_comment>
+    <glob pattern="*.cnc"/>
+  </mime-type>
+</mime-info>
