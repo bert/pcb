@@ -1,5 +1,5 @@
 theme=hicolor
-xdgdir=@XDGDATADIR@
+xdgdatadir=@XDGDATADIR@
 themedir=$(xdgdatadir)/icons/$(theme)
 
 app_icon = pcb
@@ -45,7 +45,7 @@ desktop_DATA = $(desktop_in_files:.desktop.in=.desktop)
 @INTLTOOL_DESKTOP_RULE@
 
 
-mimedir = $(xdgdir)/mime
+mimedir = $(xdgdatadir)/mime
 xmldir = $(mimedir)/packages
 
 xml_in_files = pcb.xml.in
