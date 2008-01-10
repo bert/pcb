@@ -12,6 +12,9 @@
     <sub-class-of type="text/plain"/>
     <_comment>PCB footprint</_comment>
     <glob pattern="*.fp"/>
+    <magic priority="50">
+      <match value="Element[" type="string" offset="0:20"/>
+    </magic>
   </mime-type>
   <mime-type type="application/x-pcb-netlist">
     <sub-class-of type="text/plain"/>
