@@ -304,6 +304,68 @@ AC_SUBST(HIDLIBS)
 
 # ------------- end HID config -------------------
 
+######################################################################
+#
+# desktop integration
+#
+
+# Change default location for XDG files (MIME and Icons)
+AC_ARG_WITH(xdgdatadir, [  --with-xdgdatadir=path  Change where the theme icons 
+and mime registrations are installed [[DATADIR]]], [opt_xdgdatadir=$withval])
+
+# Change default location for KDE data files (KDE MIME registrations)
+AC_ARG_WITH(kdedatadir, [  --with-kdedatadir=path  Change where the KDE mime reg
+istrations are installed [[DATADIR]]], [opt_kdedatadir=$withval])
+
+if test x$opt_xdgdatadir = x; then
+	# path was not specified with --with-xdgdatadir
+	XDGDATADIR='${datadir}'
+else
+	# path WAS specified with --with-xdgdatadir
+	XDGDATADIR="$opt_xdgdatadir"
+fi
+AC_SUBST(XDGDATADIR)
+
+if test x$opt_kdedatadir = x; then
+	# path was not specified with --with-kdedatadir
+	KDEDATADIR='${datadir}'
+else
+	# path WAS specified with --with-kdedatadir
+	KDEDATADIR="$opt_kdedatadir"
+fi
+AC_SUBST(KDEDATADIR)
+
+AC_ARG_ENABLE(update-desktop-database,
+	AC_HELP_STRING([--disable-update-desktop-database],
+	[do not update desktop database after installation]),,
+	enable_update_desktop_database=yes)
+
+AM_CONDITIONAL(ENABLE_UPDATE_DESKTOP_DATABASE, test x$enable_update_desktop_database = xyes)
+
+if test x$enable_update_desktop_database = xyes ; then
+	AC_PATH_PROG(UPDATE_DESKTOP_DATABASE, [update-desktop-database], no)
+	if test $UPDATE_DESKTOP_DATABASE = no; then
+	AC_MSG_ERROR([Cannot find update-desktop-database, make sure it is installed and in your PATH, or configure with --disable-update-desktop-database])
+	fi
+fi
+
+AC_ARG_ENABLE(update-mime-database,
+	AC_HELP_STRING([--disable-update-mime-database],
+	[do not update mime database after installation]),,
+	enable_update_mime_database=yes)
+
+AM_CONDITIONAL(ENABLE_UPDATE_MIME_DATABASE, test x$enable_update_mime_database = xyes)
+
+if test x$enable_update_mime_database = xyes ; then
+	AC_PATH_PROG(UPDATE_MIME_DATABASE, [update-mime-database], no)
+	if test $UPDATE_MIME_DATABASE = no; then
+	AC_MSG_ERROR([Cannot find update-mime-database, make sure it is installed and in your PATH, or configure with --disable-update-mime-database])
+	fi
+fi
+
+#
+######################################################################
+
 AC_PATH_PROGS(M4, gm4 m4, [none])
 if test "X$M4" = "Xnone" ; then
 	AC_MSG_ERROR([Did not find a m4 executible.  You need to make sure
@@ -708,7 +770,7 @@ do
 done
 AC_SUBST(TOPDIRS)
 
-AC_CONFIG_FILES(Makefile intl/Makefile po/Makefile.in)
+AC_CONFIG_FILES(Makefile data/Makefile intl/Makefile po/Makefile.in)
 
 if test -d $srcdir/README_FILES; then
    AC_CONFIG_FILES(README_FILES/Makefile)
@@ -761,6 +823,9 @@ with_gui=`echo $with_gui`
 with_printer=`echo $with_printer`
 with_exporters=`echo $with_exporters | sed 's/,/ /g'`
 
+expandedXDGDATADIR=`eval "echo $XDGDATADIR"`
+expandedKDEDATADIR=`eval "echo $KDEDATADIR"`
+
 AC_MSG_RESULT([
 ** Configuration summary for $PACKAGE $VERSION:
 
@@ -768,6 +833,8 @@ AC_MSG_RESULT([
    Printer:                  $with_printer
    Exporters:                $with_exporters
    Build documentation:      $docs_yesno
+   xdg data directory:       $expandedXDGDATADIR
+   KDE data directory:       $expandedKDEDATADIR
    dmalloc debugging:        $with_dmalloc
    ElectricFence debugging:  $with_efence
    CPPFLAGS:                 $CPPFLAGS
