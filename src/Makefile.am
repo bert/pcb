@@ -175,6 +175,8 @@ core_lists.h : ${PCB_SRCS} Makefile
 # for globalconst.h
 INCLUDES=	-I$(top_srcdir) -I$(srcdir)/icons
 
+DEFS= 	-DLOCALEDIR=\"$(localedir)\" @DEFS@
+
 EXTRA_DIST= \
 	check_icon.data \
 	default_font \

@@ -61,6 +61,10 @@
 #include "dbus.h"
 #endif
 
+#if ENABLE_NLS
+#include <libintl.h>
+#endif
+
 #ifdef HAVE_LIBDMALLOC
 #include <dmalloc.h>
 #endif
@@ -823,6 +827,9 @@ main (int argc, char *argv[])
 #include "core_lists.h"
   setbuf (stdout, 0);
   InitPaths (argv[0]);
+
+  bindtextdomain (GETTEXT_PACKAGE, LOCALEDIR);
+  bind_textdomain_codeset(GETTEXT_PACKAGE, "UTF-8");
 
   hid_init ();
 
