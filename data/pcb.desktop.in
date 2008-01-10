@@ -7,5 +7,5 @@ _Comment=Create and edit printed circuit board designs
 Type=Application
 Exec=pcb %f
 Icon=pcb
-MimeType=application/x-pcb-layout;
+MimeType=application/x-pcb-layout;application/x-pcb-footprint;
 Categories=Engineering;Electronics;
