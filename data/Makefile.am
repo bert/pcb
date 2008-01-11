@@ -102,4 +102,6 @@ EXTRA_DIST = $(mime_icon_files) $(mime_icon_sources) \
              $(xml_in_files) $(xml_DATA) \
              $(application_in_files) \
              $(app_icon_files) \
-             $(desktop_in_files) $(desktop_DATA)
+             $(desktop_in_files) $(desktop_DATA) \
+	     regen_files pcb_icon.ico
+
