@@ -1,5 +1,6 @@
 *~
 .deps
+.dirstamp
 Makefile
 Makefile.in
 gtk_lists.h

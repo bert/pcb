@@ -1,5 +1,6 @@
 *~
 .deps
+.dirstamp
 Makefile
 Makefile.in
 png_lists.h
