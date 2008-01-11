@@ -23,11 +23,23 @@ fi
 
 if test $do_inkscape = yes ; then
 	for r in 16 22 24 32 48 ; do
-		for f in *-${r}.svg ; do
-			fb=`basename ${f} .svg`
-			p="${fb}.png"
+		case ${r} in 
+			24)
+				x=-1
+				y=23
+				rs=22
+				;;
+			*)
+				x=0
+				y=0
+				rs=${r}
+				;;
+		esac
+		for f in *-${rs}.svg ; do
+			fb=`basename ${f} ${rs}.svg`
+			p="${fb}${r}.png"
 			echo "${f} -> ${p}"
-			${INKSCAPE} --export-png=${p} --export-area=0:0:${r}:${r}
+			${INKSCAPE} --export-png=${p} --export-area=${x}:${x}:${y}:${y} ${f}
 		done
 	done
 fi
