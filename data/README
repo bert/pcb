@@ -44,6 +44,8 @@ application-x-pcb-footprint-{16,22,24,32,48}.png
 application-x-pcb-layout-{16,22,24,32,48}.png
 application-x-pcb-netlist-{16,22,24,32,48}.png
 
+The script "regen_files" will re-export the SVG drawings to PNG and also
+regenerate the windows icon file.
 
 The PCB application icons were created by Peter Clifton, based upon the
 Gnome "text-editor" icon created by Lapo Calamandrei. The PCB specific
