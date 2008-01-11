@@ -1949,7 +1949,10 @@ poly_DelContour (PLINE ** c)
     cur = cur->prev;
   /* FIXME -- strict aliasing violation.  */
   if ((*c)->tree)
-    r_destroy_tree ((rtree_t **) & ((*c)->tree));
+    {
+      rtree_t *r = (*c)->tree;
+      r_destroy_tree (&r);
+    }
   free (*c), *c = NULL;
 }
 
