@@ -78,6 +78,10 @@ a zoom in/out.
 
 #include <unistd.h>
 
+#ifdef HAVE_LOCALE_H
+#include <locale.h>
+#endif
+
 #include "gtkhid.h"
 #include "gui.h"
 #include "hid.h"
