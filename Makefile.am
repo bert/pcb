@@ -3,7 +3,7 @@
 ##
 ## Top level automake file for PCB
 
-DIRS=		win32 src data lib newlib example tools tutorial README_FILES intl po
+DIRS=		win32 intl src data lib newlib example tools tutorial README_FILES po
 SUBDIRS=	${DIRS} @DOC@
 DIST_SUBDIRS=	${DIRS} doc
 
