@@ -269,8 +269,8 @@ if WIN32
 pcb_icon.o : pcb_icon.ico $(srcdir)/hid/gtk/pcb.rc
 	windres $(srcdir)/hid/gtk/pcb.rc $@
 
-pcb_icon.ico: $(top_srcdir)/win32/pcb_icon.ico
-	cp $(top_srcdir)/win32/pcb_icon.ico $@
+pcb_icon.ico: $(top_srcdir)/data/pcb_icon.ico
+	cp $(top_srcdir)/data/pcb_icon.ico $@
 
 pcb_LDADD+=			pcb_icon.o
 pcb_DEPENDENCIES+=	pcb_icon.o
