@@ -1,4 +1,4 @@
-/* $Id$ */
+//* $Id$ */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -943,7 +943,7 @@ DumpKeys2 ()
 	       acc_table[i].mods & M_Alt ? "Alt-" : "",
 	       acc_table[i].mods & M_Ctrl ? "Ctrl-" : "",
 	       acc_table[i].mods & M_Shift ? "Shift-" : "");
-      ch[0] = toupper (acc_table[i].key_char);
+      ch[0] = toupper ((int)  acc_table[i].key_char);
       printf ("%16s%s\t", mod,
 	      acc_table[i].key_char ? ch : XKeysymToString (acc_table[i].
 							    u.a.key));

@@ -3799,7 +3799,7 @@ char *str;
    *	Create a lower case copy of the string.
    */
   for (cp = lower; *str;)
-    if (isupper(*str))
+    if (isupper( (int) *str))
       *cp++ = tolower( (int) *str++);
     else
       *cp++ = *str++;
