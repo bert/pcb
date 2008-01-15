@@ -3098,9 +3098,8 @@ RouteOne (routedata_t * rd, routebox_t * from, routebox_t * to, int max_edges)
       result.found_route = False;
       result.net_completely_routed = True;
       result.best_route_cost = 0;
-      /* result.route_had_conflicts is in fact undefined here but
-       * we are returning anyway.  Is this a bug?  FIXME.
-       */
+      result.route_had_conflicts = 0;
+
       return result;
     }
   result.net_completely_routed = False;
