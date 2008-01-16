@@ -68,6 +68,7 @@ application_DATA = $(application_in_files:.desktop.in=.desktop)
 @INTLTOOL_DESKTOP_RULE@
 
 install_icon_exec = \
+	$(SETENV) GTK_UPDATE_ICON_CACHE_BIN="@GTK_UPDATE_ICON_CACHE_BIN@" \
 	$(SHELL) $(top_srcdir)/icon-theme-installer \
 	-t $(theme) \
 	-s $(srcdir) \

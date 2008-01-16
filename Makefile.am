@@ -16,5 +16,5 @@ DISTCLEANFILES= configure.lineno intltool-extract intltool-merge intltool-update
 MAINTAINERCLEANFILES= $(INTLTOOL_FILES)
 
 ACLOCAL_AMFLAGS = -I m4
-DISTCHECK_CONFIGURE_FLAGS = --disable-update-mime-database --disable-update-desktop-database
+DISTCHECK_CONFIGURE_FLAGS = --disable-update-mime-database --disable-update-desktop-database GTK_UPDATE_ICON_THEME_BIN=true
 

@@ -307,6 +307,9 @@ AC_SUBST(HIDLIBS)
 # desktop integration
 #
 
+AC_PATH_PROG(SETENV, env, [])
+AC_PATH_PROG(GTK_UPDATE_ICON_CACHE_BIN, gtk-update-icon-path, [true])
+
 # Change default location for XDG files (MIME and Icons)
 AC_ARG_WITH(xdgdatadir, [  --with-xdgdatadir=path  Change where the theme icons 
 and mime registrations are installed [[DATADIR]]], [opt_xdgdatadir=$withval])
