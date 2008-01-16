@@ -46,8 +46,8 @@ echo "    $it_ver"
 
 case $it_maj in
 	0)
-		if test $it_min -lt 36 ; then
-			echo "You must have intltool >= 0.36.0 but you seem to have $it_ver"
+		if test $it_min -lt 35 ; then
+			echo "You must have intltool >= 0.35.0 but you seem to have $it_ver"
 			exit 1
 		fi
 		;;
