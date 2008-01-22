@@ -676,12 +676,10 @@ ghid_dialog_report (gchar * title, gchar * message)
 
 
 void
-ghid_label_set_markup (GtkWidget * label, gchar * text)
+ghid_label_set_markup (GtkWidget * label, const gchar * text)
 {
-  if (label && text)
-    gtk_label_set_markup (GTK_LABEL (label), text);
-  else if (label)
-    gtk_label_set_text (GTK_LABEL (label), "");
+  if (label)
+    gtk_label_set_text (GTK_LABEL (label), text ? text : "");
 }
 
 

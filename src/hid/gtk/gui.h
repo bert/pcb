@@ -294,7 +294,7 @@ void ghid_layer_buttons_color_update (void);
 
 /* gui-misc.c function prototypes
 */
-void ghid_status_line_set_text (gchar * text);
+void ghid_status_line_set_text (const gchar * text);
 void ghid_cursor_position_label_set_text (gchar * text);
 void ghid_cursor_position_relative_label_set_text (gchar * text);
 
@@ -469,7 +469,7 @@ GtkTreeSelection *ghid_scrolled_selection (GtkTreeView * treeview,
 					   void (*func_cb) (), gpointer data);
 
 void ghid_dialog_report (gchar * title, gchar * message);
-void ghid_label_set_markup (GtkWidget * label, gchar * text);
+void ghid_label_set_markup (GtkWidget * label, const gchar * text);
 
 void ghid_set_cursor_position_labels (void);
 void ghid_set_status_line_label (void);
