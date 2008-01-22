@@ -4067,6 +4067,7 @@ DRCAll (void)
 
   RestoreStackAndVisibility ();
   hid_action ("LayersChanged");
+  gui->invalidate_all ();
 
   if (nopastecnt > 0) 
     {
