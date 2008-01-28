@@ -274,11 +274,11 @@ MainMenu =
    {"Save buffer elements to file" Save(PasteBuffer)}
    -
    {"Select current buffer" foreground=grey50 sensitive=false}
-   {"#1" CheckWhen(buffer,1) PasteBuffer(1) a={"Shift-1" "Shift<Key>1"}}
-   {"#2" CheckWhen(buffer,2) PasteBuffer(2) a={"Shift-2" "Shift<Key>2"}}
-   {"#3" CheckWhen(buffer,3) PasteBuffer(3) a={"Shift-3" "Shift<Key>3"}}
-   {"#4" CheckWhen(buffer,4) PasteBuffer(4) a={"Shift-4" "Shift<Key>4"}}
-   {"#5" CheckWhen(buffer,5) PasteBuffer(5) a={"Shift-5" "Shift<Key>5"}}
+   {"#1" checked=buffer,1 PasteBuffer(1) a={"Shift-1" "Shift<Key>1"}}
+   {"#2" checked=buffer,2 PasteBuffer(2) a={"Shift-2" "Shift<Key>2"}}
+   {"#3" checked=buffer,3 PasteBuffer(3) a={"Shift-3" "Shift<Key>3"}}
+   {"#4" checked=buffer,4 PasteBuffer(4) a={"Shift-4" "Shift<Key>4"}}
+   {"#5" checked=buffer,5 PasteBuffer(5) a={"Shift-5" "Shift<Key>5"}}
   }
     
   {Connects

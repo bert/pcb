@@ -71,6 +71,12 @@ FlagGridSize (int dummy)
 }
 
 static int
+FlagBuffer (int dummy)
+{
+  return (int) (Settings.BufferNumber + 1);
+}
+
+static int
 FlagElementName (int dummy)
 {
   if (TEST_FLAG (NAMEONPCBFLAG, PCB))
@@ -180,6 +186,9 @@ HID_Flag flags_flag_list[] = {
 	OffsetOf (SettingType, ResetAfterElement)},
   {"ringbellwhenfinished", FlagSETTINGS,
 	OffsetOf (SettingType, RingBellWhenFinished)},
+
+  {"buffer", FlagBuffer, 0},
+
 };
 
 REGISTER_FLAGS (flags_flag_list)
