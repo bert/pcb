@@ -7,7 +7,7 @@
 # also extract a bunch of license files.
 #
 # It is used when initially setting up a cygwin environment for 
-# building pcb with a non-cygwin version of pcb for windows
+# building gerbv or pcb with a non-cygwin version for windows
 # as the goal.
 
 # directory where all the files have been downloaded
