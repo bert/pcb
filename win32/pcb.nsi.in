@@ -47,6 +47,7 @@
 ;Pages
 
   !insertmacro MUI_PAGE_LICENSE "@pcb_srcdir@\COPYING"
+  !insertmacro MUI_PAGE_LICENSE "@gd_win32_runtime@\gd-license.txt"
   !insertmacro MUI_PAGE_LICENSE "@gtk_win32_runtime@\LICENSE-gpl"
   !insertmacro MUI_PAGE_LICENSE "@gtk_win32_runtime@\LICENSE-lgpl"
   !insertmacro MUI_PAGE_LICENSE "@gtk_win32_runtime@\LICENSE-expat"
