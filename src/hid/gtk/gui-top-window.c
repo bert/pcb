@@ -2730,8 +2730,11 @@ ghid_do_export (HID_Attr_Val * options)
   if (stdin_listen)
     ghid_create_listener ();
 
+  ghid_notify_gui_is_up ();
+
   gtk_main ();
   ghid_config_files_write ();
+
 }
 
 gint
