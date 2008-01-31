@@ -244,7 +244,12 @@ fi
 
 # If the win32 pkg-config is used, then you end up with spurious CR's
 # in the generated Makefile's and we need to get rid of them.
-dos2unix src/Makefile
+
+for f in `find . -name Makefile -print`; do
+	mv $f $f.bak
+	cat $f.bak | tr '\r' ' ' > $f
+	rm $f.bak
+done
 
 fi
 
