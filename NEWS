@@ -1,4 +1,46 @@
 ========================================================================
+Release Notes for PCB snapshot 20080202
+========================================================================
+This release represents over 180 commits and as such this summary 
+clearly is not complete.  See the ChangeLog file for the complete list
+of changes.
+
+- Added a footprin preview in the library window
+- Added gnome/kde desktop integration files (app and mime icons, and
+  .desktop file)
+- Added i18n support
+- Updated dbus support
+- Fix a number of GCC 4 compiler warnings
+- Make the gtk gui more robust against malformed menu resource files
+- Added checking for duplicate hot key definitions in the menu resource
+  file in the gtk gui.
+- Improved support for building on win32.
+- Removed automake/autoconf generated files from cvs
+- Fixed some parallel make bugs
+- Fixed some scrolling/panning bugs in the gtk gui.
+- Added the ability to load edif netlists
+- Closed a number of bugs in the sourceforge tracker
+- Fix a bg in the x-y output files where the y values were mirrored and offset
+- Add XRENDER support to the lesstif HID to support layer transparency
+- Fix some polygon dicer bugs
+- Fix a handful of bugs in the png export HID
+- Avoid vias snapping to pins and moving elements snapping to their own
+  pins/pads
+- Fix a number of undo bugs
+- Fix printer calibration
+- Add global puller
+- Various improvements to the postscript export HID
+- Improve all the GetXY prompts in the menu resource files
+- Improved the pin/via report
+- Improved pin/pad vs grid snapping
+- Various footprint improvements 
+  o fixed some drill sizes
+  o fixed some silk sizes
+  o Added a handful of QFP family footprints
+  o Converted the QFP family to the hi-res format
+- Several other bug fixes
+
+========================================================================
 Release Notes for PCB snapshot 20070912
 ========================================================================
 This release represents nearly 200 commits and as such this summary 
