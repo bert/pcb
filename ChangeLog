@@ -1,3 +1,1121 @@
+2008-02-01 07:06  danmc
+
+	* README.snapshots: update to deal with the desktop integration and
+	  20080202
+
+2008-02-01 07:05  danmc
+
+	* NEWS: add some news items for 20080202
+
+2008-02-01 07:05  danmc
+
+	* src/misc.c: add 2008 to copyright year
+
+2008-02-01 07:05  danmc
+
+	* doc/actions.texi: regen
+
+2008-01-31 19:00  danmc
+
+	* src/hid/gtk/gui-utils.c: fix mark up rendering on status line
+
+2008-01-31 17:17  danmc
+
+	* win32/build_pcb: add a --with-tex and --with-etex to work around
+	  some cygwin/tex bugs
+
+2008-01-31 17:16  danmc
+
+	* win32/pcb.nsi.in: fix the start menu shortcut icon
+
+2008-01-31 02:11  danmc
+
+	* win32/build_pcb: use tr to kill the extra \r that end up in the
+	  Makefiles courtesy of pkg-config.  This builds all but the docs
+	  on windows again.
+
+2008-01-30 20:23  danmc
+
+	* src/hid/gtk/: gtkhid-main.c, gtkhid.h, gui-top-window.c: avoid
+	  segfaults on loading certain boards from the command line.  This
+	  patch introduces a flag that indicates when the gui is up and
+	  calls to ghid_shift_is_pressed() and ghid_control_is_pressed()
+	  can proceed as normal.
+
+2008-01-30 18:57  danmc
+
+	* win32/extract_gtk_win32: clean up a comment
+
+2008-01-30 18:56  danmc
+
+	* win32/: build_pcb, extract_gtk_win32, pcb.nsi.in: copy over
+	  build_pcb improvements from gerbv.  Add gdwin32 to the extract
+	  script.
+
+2008-01-30 18:27  danmc
+
+	* win32/: Makefile.am, extract_gtk_win32, pcb.nsi.in: add script to
+	  help setup build environmnet.  Also add all the various licenses
+	  to the installer.
+
+2008-01-29 18:36  petercjclifton
+
+	* icon-theme-installer: Fix bug in icon-theme-installer where the
+	  -?? size was not stripped from the installed icon name.
+
+2008-01-28 16:37  danmc
+
+	* src/: flags.c, gpcb-menu.res, pcb-menu.res: Repair the buffer #
+	  menus by changing CheckedWhen() to checked=.	As part of this,
+	  added a buffer flag.
+
+2008-01-22 18:34  danmc
+
+	* src/hid/gtk/: gui-misc.c, gui-utils.c, gui.h: add a bunch of
+	  const fixups from Larry Doolittle.
+
+2008-01-21 22:17  danmc
+
+	* src/find.c: After we run DRC, force a redraw since we've possibly
+	  turned on and off layers (like silk).  Should address SF bug
+	  1843181.
+
+2008-01-16 06:58  danmc
+
+	* autogen.sh: drop the intltool required version to 0.35 as that
+	  seems to work
+
+2008-01-15 22:20  danmc
+
+	* Makefile.am, configure.ac, icon-theme-installer,
+	  data/Makefile.am: check for gtk-update-icon-cache and use it.
+	  For distcheck, disable that via setting the
+	  GTK_UPDATE_ICON_CACHE_BIN to 'true' to avoid creating a cache
+	  file which then is not removed.  A better way would probably be a
+	  uninstall hook which noticed that it was a distcheck uninstall
+	  and simply removed the file.
+
+2008-01-15 22:15  danmc
+
+	* doc/actions.texi: regen
+
+2008-01-15 21:57  danmc
+
+	* win32/Makefile.am: remove deprecated icon generation code
+
+2008-01-15 18:01  danmc
+
+	* data/pcb_icon.ico: regen
+
+2008-01-15 18:00  danmc
+
+	* data/regen_files: add some help output, add options to only do
+	  the .png's or the .ico, check for imagemagick and netpbm.
+
+2008-01-15 17:45  danmc
+
+	* win32/Xdefaults.tgif, win32/pcb_icon.ico, win32/pcb_icon_big.obj,
+	  win32/pcb_icon_med.obj, win32/pcb_icon_sml.obj, configure.ac,
+	  src/Makefile.am: Use the same icons for windows as in the
+	  kde/gnome desktop.  Remove the old windows icons which were
+	  really placeholders anyway.  Remove the rules for regenerating
+	  these obsolete icons.
+
+2008-01-15 17:41  danmc
+
+	* doc/Xdefaults.tgif: this file is no longer used.  The drawings
+	  for the documentation are drawn with pcb.
+
+2008-01-15 17:40  danmc
+
+	* doc/: pcb.man.in, pcb.man.raw: remove some old and very obsolete
+	  files.
+
+2008-01-15 17:22  danmc
+
+	* icon-theme-installer, data/Makefile.am: Remove the use of
+	  #!/bin/bash for the benefit of systems which don't install bash
+	  in /bin.  In the Makefile, call out the name of the shell to help
+	  systems like solaris where it is more likely that SHELL will be
+	  /bin/ksh instead of the broken solaris /bin/sh
+
+2008-01-15 17:17  danmc
+
+	* autogen.sh: Check for the version of intltool.  Also apply some
+	  fixups to the po/Makefile.in.in file created by intltoolize.
+
+2008-01-15 12:18  danmc
+
+	* src/autoroute.c: fix an unitialized variable
+
+2008-01-15 12:18  danmc
+
+	* src/: edif.y, hid/lesstif/menu.c: fix a few gcc4 warnings
+
+2008-01-14 21:10  danmc
+
+	* Makefile.am: skip adding m4/ChangeLog to the distfile.  It seems
+	  to be installation dependent
+
+2008-01-14 17:19  danmc
+
+	* Makefile.am: it helps if we build libintl before using it...
+
+2008-01-14 11:55  danmc
+
+	* configure.ac: add missing $INTLLIBS to LIBS.	Fixes building with
+	  lesstif and batch.
+
+2008-01-13 00:55  danmc
+
+	* configure.ac, src/hid/gtk/gui-top-window.c: check for and include
+	  locale.h.  Should fix solaris build problems.
+
+2008-01-13 00:51  danmc
+
+	* mkinstalldirs: remove generated file.  This comes from the
+	  ./autogen.sh bootstrap
+
+2008-01-11 22:11  petercjclifton
+
+	* data/regen_files: Fix script to regenerate icon files, including
+	  mask channel for windows icons.
+
+2008-01-11 19:44  danmc
+
+	* autogen.sh: put in a check for autopoint version
+
+2008-01-11 18:09  danmc
+
+	* data/README: note the regen_files script
+
+2008-01-11 18:02  danmc
+
+	* data/regen_files: hopefully fix a few minor bugs in inkscape
+	  exporting
+
+2008-01-11 17:23  danmc
+
+	* data/: Makefile.am, pcb_icon.ico, regen_files: add windows icon
+	  and script to generate it
+
+2008-01-11 15:32  djdelorie
+
+	* src/polygon1.c: Strict aliasing patch from Larry Doolittle.
+
+2008-01-10 20:22  danmc
+
+	* lib/geda.inc: fix pincount for MSOP10
+
+2008-01-10 19:32  danmc
+
+	* src/hid/: batch/.cvsignore, bom/.cvsignore, common/.cvsignore,
+	  gerber/.cvsignore, gtk/.cvsignore, lesstif/.cvsignore,
+	  lpr/.cvsignore, nelma/.cvsignore, png/.cvsignore, ps/.cvsignore:
+	  add .dirstamp
+
+2008-01-10 19:26  petercjclifton
+
+	* lib/gtag.m4: Fix typo in gtag.m4 file
+
+2008-01-10 18:17  petercjclifton
+
+	* configure.ac, src/Makefile.am, src/main.c, src/hid/gtk/gui.h:
+	  Activate gettext support in PCB by setting up the domain and
+	  locale dir.
+
+2008-01-10 14:48  petercjclifton
+
+	* data/pcb.desktop.in: Add application/x-pcb-footprint to the
+	  mime-types PCB will be launched for
+
+2008-01-10 14:46  petercjclifton
+
+	* data/pcb.xml.in: Add an attempt at a glob pattern to match PCB
+	  footprints
+
+	  Searches for the string "Element[" starting between and offset of
+	  0 and 20 bytes into the file.
+
+2008-01-10 14:40  petercjclifton
+
+	* data/pcb.desktop.in: Fix mime type registered to open PCB to
+	  application/x-pcb-layout
+
+2008-01-10 14:37  petercjclifton
+
+	* data/Makefile.am: Fix data/Makefile.am where xdgdir was used
+	  instead of xdgdatadir
+
+2008-01-10 14:05  petercjclifton
+
+	* Makefile.am: Add intltool-XXX.in to EXTRA_DIST and add
+	  appropriate cleaning rules.
+
+2008-01-10 13:57  petercjclifton
+
+	* Makefile.am, icon-theme-installer: Add missed
+	  icon-theme-installer script required for installing icons
+
+2008-01-10 13:11  petercjclifton
+
+	* Makefile.am: Add make distcheck ./configure flag
+	  --disable-desktop-database
+
+	  Ensures cache files won't be left during make distcheck which
+	  could break the distcheck.
+
+2008-01-10 12:35  danmc
+
+	* win32/.cvsignore: add missing cvsignore
+
+2008-01-10 12:34  danmc
+
+	* src/hid/common/.cvsignore: add hidlist.h
+
+2008-01-10 12:29  danmc
+
+	* src/hid/common/.cvsignore, src/hid/bom/.cvsignore,
+	  src/hid/lesstif/.cvsignore, src/hid/nelma/.cvsignore,
+	  src/hid/gtk/.cvsignore, src/hid/lpr/.cvsignore,
+	  src/hid/batch/.cvsignore, src/hid/gerber/.cvsignore,
+	  src/hid/ps/.cvsignore, src/hid/.cvsignore,
+	  src/hid/png/.cvsignore, src/icons/.cvsignore, src/.cvsignore,
+	  .cvsignore: add a cvsignore file
+
+2008-01-10 12:10  danmc
+
+	* data/README: fix a typo
+
+2008-01-10 12:10  danmc
+
+	* Makefile.am, configure.ac: wire in the desktop stuff
+
+2008-01-10 00:35  petercjclifton
+
+	* src/: Makefile.am, gpcb-menu.res, hid/gtk/gui-config.c,
+	  hid/gtk/gui-library-window.c, hid/gtk/gui-library-window.h,
+	  hid/gtk/gui.h: Change library window to give a preview and
+	  filterable list of components.
+
+	  Code for the libarary window is based on x_compselect.c from
+	  gEDA/gaf's gschem schematic editor, and the libray window code
+	  pre-existing in PCB.
+
+	  Also added a shortcut "i" to the library window, matching
+	  gschem's insert component shortcut.
+
+2008-01-09 23:32  petercjclifton
+
+	* configure.ac, po/LINGUAS, po/POTFILES.in: Ensure GETTEXT_PACKAGE
+	  is set, and add missing LINGUAS and POTFILES.in files.
+
+2008-01-09 23:06  danmc
+
+	* Makefile.am, README.cvs, autogen.sh, configure.ac: add i18n
+	  framework.
+
+2008-01-09 22:56  petercjclifton
+
+	* data/Makefile.am: Add Makefile.am for data dir, with rules to
+	  install icons and desktop data
+
+2008-01-09 22:55  petercjclifton
+
+	* data/pcb.desktop.in: Commit pcb.desktop.in template menu file for
+	  translation
+
+2008-01-09 22:38  petercjclifton
+
+	* data/: pcb.xml.in, x-excellon.desktop.in, x-gerber.desktop.in,
+	  x-pcb-footprint.desktop.in, x-pcb-layout.desktop.in,
+	  x-pcb-netlist.desktop.in: Check in KDE mimelnk .desktop.in and
+	  XDG pcb.xml.in MIME registrations
+
+	  Files are annotated suitably for translation with intltool
+
+2008-01-09 22:30  petercjclifton
+
+	* data/: README, application-x-excellon-16.png,
+	  application-x-excellon-16.svg, application-x-excellon-22.png,
+	  application-x-excellon-22.svg, application-x-excellon-24.png,
+	  application-x-excellon-32.png, application-x-excellon-32.svg,
+	  application-x-excellon-48.png, application-x-excellon-48.svg,
+	  application-x-excellon.svg, application-x-gerber-16.png,
+	  application-x-gerber-16.svg, application-x-gerber-22.png,
+	  application-x-gerber-22.svg, application-x-gerber-24.png,
+	  application-x-gerber-32.png, application-x-gerber-32.svg,
+	  application-x-gerber-48.png, application-x-gerber-48.svg,
+	  application-x-gerber.svg, application-x-pcb-footprint-16.png,
+	  application-x-pcb-footprint-16.svg,
+	  application-x-pcb-footprint-22.png,
+	  application-x-pcb-footprint-22.svg,
+	  application-x-pcb-footprint-24.png,
+	  application-x-pcb-footprint-32.png,
+	  application-x-pcb-footprint-32.svg,
+	  application-x-pcb-footprint-48.png,
+	  application-x-pcb-footprint-48.svg,
+	  application-x-pcb-footprint.svg, application-x-pcb-layout-16.png,
+	  application-x-pcb-layout-16.svg, application-x-pcb-layout-22.png,
+	  application-x-pcb-layout-22.svg, application-x-pcb-layout-24.png,
+	  application-x-pcb-layout-32.png, application-x-pcb-layout-32.svg,
+	  application-x-pcb-layout-48.png, application-x-pcb-layout-48.svg,
+	  application-x-pcb-layout.svg, application-x-pcb-netlist-16.png,
+	  application-x-pcb-netlist-16.svg,
+	  application-x-pcb-netlist-22.png,
+	  application-x-pcb-netlist-22.svg,
+	  application-x-pcb-netlist-24.png,
+	  application-x-pcb-netlist-32.png,
+	  application-x-pcb-netlist-32.svg,
+	  application-x-pcb-netlist-48.png,
+	  application-x-pcb-netlist-48.svg, application-x-pcb-netlist.svg,
+	  pcb-48.png, pcb.svg: Check in MIME and app icons along with a
+	  README with origins and copyright
+
+2008-01-08 09:47  petercjclifton
+
+	* configure.ac, src/dbus-pcbmain.c: Avoid using deprecated
+	  dbus_watch_get_fd() in newer dbus versions.
+
+	  Use a configure test (copied from PulseAudio) for the newer API,
+	  dbus_watch_get_unix_fd(), and use that if available.
+
+2008-01-07 22:58  danmc
+
+	* src/polygon1.c: add a FIXME comment
+
+2008-01-07 19:50  petercjclifton
+
+	* src/: Makefile.am, hid/gtk/gtkhid-main.c,
+	  hid/gtk/gui-pinout-preview.c, hid/gtk/gui-pinout-preview.h,
+	  hid/gtk/gui-pinout-window.c, hid/gtk/gui.h: Refactored pinout
+	  preview code into a new widget, GhidPinoutPreview
+
+	  In the refactoring, fix a bug where if the pinout window was
+	  larger than the PCB window's viewport, elements in the preview
+	  were clipped to the viewport size.
+
+	  In a break from the old behaviour, the previewed element is
+	  centered in the preview area.
+
+2008-01-06 23:13  danmc
+
+	* src/hid/gtk/: gui-misc.c, gui-output-events.c: remove a handful
+	  of strict aliasing rule violation warnings generate by gcc4
+
+2008-01-06 22:44  danmc
+
+	* src/: parse_l.l, res_lex.l: avoid some 'defined but not used' gcc
+	  warnings.
+
+2008-01-06 22:07  danmc
+
+	* src/: autoroute.c, misc.c, hid/nelma/nelma.c: clear out a few
+	  more compiler warnings
+
+2008-01-06 21:13  danmc
+
+	* src/gpcb-menu.res: remove some duplicated entries and remove some
+	  conflicting hot keys.
+
+2008-01-06 19:22  danmc
+
+	* src/hid/gtk/gui-top-window.c: be a little smarter about parsing
+	  the hotkey parts of the menu resource file.  Now give a sane
+	  message instead of segfaulting on a malformed input.	Also check
+	  for duplicate hot keys and drop the duplicates with a message.
+
+2008-01-06 16:52  danmc
+
+	* src/hid/gtk/gui-output-events.c: correctly scale the step sizes
+	  for scroll bar scrolling of the main drawing area.  This
+	  addresses the "scoll bars scroll by tiny tiny steps" part of sf
+	  bug [ 1796016 ] Cursor/scrolling madness
+
+2008-01-06 16:14  danmc
+
+	* doc/Makefile.am: add some extra dependencies to get this working
+	  with parallel make jobs.
+
+2008-01-06 00:39  danmc
+
+	* configure.ac: add min version for automake
+
+2008-01-06 00:25  danmc
+
+	* configure.ac: specify the minimum autoconf version
+
+2008-01-05 23:13  danmc
+
+	* Makefile.in, README.cvs, aclocal.m4, config.h.in, configure,
+	  README_FILES/Makefile.in, doc/Makefile.in, doc/actions.texi,
+	  doc/pcbfile.texi, doc/version.texi, example/Makefile.in,
+	  example/libraries/Makefile.in, lib/Makefile.in,
+	  newlib/Makefile.in, newlib/2_pin_thru-hole_packages/Makefile.in,
+	  newlib/analog-devices/Makefile.in, newlib/burr-brown/Makefile.in,
+	  newlib/connectors/Makefile.in, newlib/crystal/Makefile.in,
+	  newlib/electro-optics/Makefile.in, newlib/headers/Makefile.in,
+	  newlib/keystone/Makefile.in, newlib/msp430/Makefile.in,
+	  newlib/not_vetted_ingo/Makefile.in, newlib/sockets/Makefile.in,
+	  newlib/tests/Makefile.in, src/Makefile.in, src/icons/Makefile.in,
+	  tools/Makefile.in, tutorial/Makefile.in, win32/Makefile.in:
+	  remove a bunch of autotools generated files and update the
+	  instructions for building from cvs accordingly.
+
+2008-01-05 20:36  danmc
+
+	* src/hid/png/png.c: before exporting png, clear out any existing
+	  color or brush cache.  They are stale.
+
+	  Should fix sf bug [ 1807726 ] png HID exports transparent copper
+	  rectangles
+
+2008-01-05 19:15  danmc
+
+	* src/hid/png/png.c: apply the patch provided in sf bug [ 1792119 ]
+	  Slanted squared pads: png output which corrects the drawing of
+	  non 90-deg square cap lines in the png output.
+
+2008-01-05 17:52  danmc
+
+	* src/: Makefile.am, action.c, edif.y, edif_parse.h, file.c,
+	  file.h: add the ability to load edif netlists provided in sf
+	  patch [ 1516885 ] added edif netlist import by Jeff Bailey.
+
+2008-01-05 17:38  danmc
+
+	* src/hid/gtk/: gtkhid-main.c, gui-dialog.c: remove some unused
+	  variables
+
+2008-01-05 16:07  danmc
+
+	* src/hid/gtk/: gtkhid-main.c, gui-dialog.c, gui.h: fix a bug where
+	  sometimes the confirm dialog had corrupt button names.
+
+2008-01-05 15:53  danmc
+
+	* src/action.c: apply the patch provided in sf bug [ 1850097 ] Grid
+	  off by 1 after setting to 1
+
+2008-01-05 14:46  danmc
+
+	* src/hid/gtk/gtkhid-main.c: apply a patch provided in sf bug [
+	  1840422 ] GTK HID panning bug.  Keeps the scroll bars in sync
+	  when the display is panned.
+
+2008-01-05 00:37  djdelorie
+
+	* src/hid/common/actions.c: Re-initialize num so that multiple
+	  actions will be parsed properly.
+
+2008-01-04 20:14  danmc
+
+	* src/hid/gtk/gtkhid-main.c: remove some code from set_cursor()
+	  that tries to limit the cursor position in a way which seems to
+	  cause spurious scrolling in a number of situations.
+
+	  Should hopefully fix sf bug [ 1796016 ] Cursor/scrolling madness
+
+2008-01-04 20:02  danmc
+
+	* src/hid/gtk/gui-top-window.c: update a comment
+
+2008-01-04 15:37  danmc
+
+	* src/buffer.c: Allow the conversion of a selection which contains
+	  only silk to an element instead of requiring a pad or pin.
+	  Useful for logos.
+
+	  Requested in sf bug [ 1820380 ] convert-to-element requires at
+	  least one pin or pad
+
+2008-01-04 14:58  danmc
+
+	* configure.ac: add missing check for texi2dvi.
+
+	  sf bug [ 1840645 ] texi2dvi: Missing configure check
+
+2008-01-04 14:53  danmc
+
+	* src/hid/ps/ps.c: Add an option that turns off the scale and file
+	  name in the postscript output.  This is useful when trying to do
+	  a toner transfer or print transparencies that use the whole page.
+
+	  Requested in sf bug [ 1858547 ] unwanted text lines in printouts
+	  makes these useless
+
+2008-01-04 14:38  danmc
+
+	* src/: find.c, hid/gtk/gtkhid-main.c, hid/gtk/gui-dialog.c,
+	  hid/gtk/gui.h: Apply sf patch [ 1848465 ] brief error info in
+	  "DRC continue" dialog
+
+	  While here, add some missing bits of code in the dialog_confirm
+	  function for the gtk hid that lets you specify the ok and cancel
+	  messages.
+
+2008-01-03 22:55  danmc
+
+	* src/hid/gtk/gui-top-window.c: fix a printf format string compiler
+	  warning.
+
+2008-01-03 20:11  danmc
+
+	* src/: action.c, file.c, misc.c, hid/gerber/gerber.c: add some
+	  casts to silence some gcc4 warnings
+
+2008-01-03 19:00  danmc
+
+	* lib/: geda.inc, qfpdj.inc: apply sf patch 1784721 to move the QFP
+	  footprints to 0.01 mil resolution.  Also the remaining SO
+	  packages have been moved to the hi-res format.
+
+	  Minor corrections to the patch by me.
+
+2008-01-03 18:51  danmc
+
+	* lib/: Makefile.am, Makefile.in, png_diff.sh: add a utility script
+	  for comparing .png's of an entire footprint library.
+
+2008-01-03 18:46  danmc
+
+	* lib/m4lib_to_newlib.sh.in: add a -d|--dpi flag to use a fixed
+	  scale factor for the exported png files
+
+2008-01-03 00:01  bjj
+
+	* src/parse_y.y: Temporarily change PCB=yyPCB while InitClip after
+	  load (similar hacks exist in other load code)
+
+2008-01-02 22:32  danmc
+
+	* lib/qfpdj.inc: add missing PKG_QFP_40
+
+2008-01-02 22:30  danmc
+
+	* src/hid/gtk/: gui-config.c, gui-top-window.c: apply patch 1852864
+		GTK HID: scrolled layer preferences To enable a scroll
+	  window for the layers.  This is needed if the user uses more than
+	  8 or so layers.
+
+2008-01-02 18:45  danmc
+
+	* src/hid/bom/bom.c: Fix a problem with the X-Y output file where
+	  the y values were mirrored and offset with respect to the RS274-X
+	  output.  Given that this bug has been here since the code was
+	  written 3 years ago, I conclude that in fact no one has used this
+	  feature.
+
+2007-12-26 11:26  danmc
+
+	* src/lrealpath.c: change the preprocessor logic a bit to avoid
+	  #ifdef-ing in code that will never be reached.
+
+2007-12-26 11:23  danmc
+
+	* src/puller.c: add a couple of casts to make pointer compares work
+	  on identical pointer types.
+
+2007-12-25 21:14  djdelorie
+
+	* src/hid/png/png.c: Fix some off-by-one bugs.
+
+2007-12-25 20:16  danmc
+
+	* src/puller.c: get rid of a handful of compiler warnings (printf
+	  format strings, and unused variables).
+
+2007-12-21 21:04  djdelorie
+
+	* src/hid/lesstif/netlist.c: Cast parameters to right type.
+
+2007-12-21 07:15  danmc
+
+	* lib/geda.inc: add 10x10mm TQFP64, 12x12mm TQFP80, and 12x12mm
+	  TQFP100 footprints
+
+2007-12-19 18:39  danmc
+
+	* lib/connector.inc: make sure both rows of CONNECTOR_DIL use 38
+	  mil pins.  Noted on geda-user by Michael Stovenour
+
+2007-12-18 21:06  djdelorie
+
+	* src/hid/lesstif/dialogs.c: Resolve some const-cast issues.
+
+2007-12-18 01:08  djdelorie
+
+	* lib/geda.inc: Add TSSOP14 and TSSOP16
+
+2007-12-13 12:17  danmc
+
+	* lib/plcc.inc: fix a few more cases of = being used where == was
+	  called for
+
+2007-12-13 00:29  danmc
+
+	* lib/plcc.inc: use == instead of = for testing equality.  Gets rid
+	  of a bunch of warnings.  Verified that pcblib-newlib contents did
+	  not change with this commit.
+
+2007-12-11 00:12  djdelorie
+
+	* src/: gpcb-menu.res, pcb-menu.res: Various changes from Kai;
+	  cut-copy swap for lesstif.
+
+2007-12-10 20:48  petercjclifton
+
+	* src/hid/gtk/gui-output-events.c: Forced checkin with no changes
+	  due to missed log entry from in commit
+
+	  Initialise static variables x_prev and y_prev in
+	  ghid_port_window_motion_cb() to -1, to avoid the (unlikely) case
+	  they are used initialised.
+
+2007-12-10 20:40  petercjclifton
+
+	* src/hid/gtk/: gui-output-events.c, gui-utils.c: Cleaned up unused
+	  return values from gdk_window_get_pointer().
+
+	  Where we are only interested in the modifier mask, we can just
+	  pass NULL as return locations for the pointer x and y
+	  coordinates.
+
+	  Also removed #if 0'd out section containing duplicated code for
+	  ghid_control_is_pressed() and ghid_shift_is_pressed().
+
+2007-12-09 23:09  djdelorie
+
+	* src/hid/gtk/gui-output-events.c: Fix enter/leave logic to avoid
+	  leaving obsolete crosshair-attached elements on the screen when
+	  the cursor leaves the working area.
+
+2007-12-09 23:06  bjj
+
+	* src/: pcb-menu.res, hid/lesstif/main.c: Add Zoom(Toggle) and bind
+	  it to ` (backtick).  Fix all warnings in hid/lesstif/main.c
+
+2007-12-09 22:29  bjj
+
+	* src/draw.c: Make 'outline' layer test case-insensitive to match
+	  other instances.
+
+2007-12-09 20:47  bjj
+
+	* src/draw.c: Add gross hack to avoid using mask in DrawRats() for
+	  othet than lesstif HID, as lesstif and gtk provide different
+	  capabilities in CLEAR mode.
+
+2007-12-09 20:18  bjj
+
+	* src/: draw.c, hid/lesstif/main.c, hid/lesstif/xincludes.h: Add
+	  XRENDER support to the Lesstif HID.  Rat lines and soldermasks
+	  are now displayed at 50% intensity on top of other drawn
+	  elements.
+
+2007-12-09 03:35  bjj
+
+	* configure: Rebuild with 2.61
+
+2007-12-09 01:37  djdelorie
+
+	* config.h.in, configure, configure.ac: Check for Xrender library.
+
+2007-12-08 12:58  haceaton
+
+	* src/polygon1.c: Sometimes single-point touching will leave no
+	  starting point on the 'A' pline for an ISECTED contour. Check for
+	  starting points on the 'B' pline (only at the point of
+	  intersection) just in case it has a valid starting point.
+
+2007-12-04 03:24  bjj
+
+	* src/hid/png/png.c: ignore paste layers when exporting 'as shown':
+	  Correct logic for silk display; Add logic for mask display ignore
+	  soldermask layers for normal output add option to make
+	  background/erasures transparent
+
+2007-12-03 03:39  bjj
+
+	* src/crosshair.c: Avoid moving elements snapping to their own pins
+	  or pads.  Don't snap moving vias to any kind of pins (they can't
+	  overlap anyway).
+
+2007-12-03 02:58  bjj
+
+	* src/action.c: Don't create empty text objects.
+
+2007-12-02 04:35  bjj
+
+	* src/: misc.c, polygon.c: Data->LayerN should generally be
+	  avoided.  It's not initialized for buffers.  All buffers should
+	  have max_layer available (which is a macro for PCB->Data->LayerN,
+	  the number of layers in the current board).
+
+2007-12-02 03:44  bjj
+
+	* src/action.c: Partial fix? [ 1775101 ] Undo with the line tool
+	  sometimes switches to wrong node If you auto-drc and you extend a
+	  line (causing a delete and re-add of a longer line), then undo,
+	  this patch ensures the restored short segment has FOUNDFLAG so
+	  you can continue drawing.
+
+2007-12-01 23:44  bjj
+
+	* src/: macro.h, move.c: Fix [ 1820398 ] Inconsistant vias with
+	  move-to-layer Add explicit check for silk layer when making vias
+	  due to movelinetolayer
+
+2007-12-01 23:24  bjj
+
+	* src/action.c: Fix [ 1836169 ] undo of shift-paste element
+	  replacement broken Code was "stealing" the original name memory
+	  before removing it, so the element went into the undo buffer
+	  nameless.  Copy string instead.
+
+2007-12-01 23:10  bjj
+
+	* src/action.c: Fix [ 1836172 ] shift-create two vias, undo twice,
+	  internal error Caused by my addition of shift-click vias -- the
+	  new via undo was happening before the new flag undo.
+
+2007-12-01 22:57  bjj
+
+	* src/buffer.c: Missed a spot when adding 'clearlineflag' support
+	  to Text.  Also Fixed a bug in movearctobuffer
+
+2007-11-30 10:40  djdelorie
+
+	* src/hid/: gtk/gtkhid-main.c, lesstif/dialogs.c, ps/ps.c: Fix
+	  printer calibration.
+
+2007-11-30 10:29  djdelorie
+
+	* src/: gpcb-menu.res, pcb-menu.res: Add 50 mil grid setting.  Add
+	  global puller submenu.
+
+2007-11-30 01:33  bjj
+
+	* src/action.c: Fix a typo.  Do not use grid size for
+	  Connection(Find) search radius
+
+2007-11-30 01:22  djdelorie
+
+	* src/hid/lesstif/menu.c: Attach the show soldermask layer button
+	  to its flag.
+
+2007-11-30 00:54  bjj
+
+	* src/polygon.c: In case 'biggest()' polygon is 0 area, init size =
+	  -1 instead of 0.
+
+2007-11-27 00:41  bjj
+
+	* src/rats.c: Fix two bugs in my via-rats patch: 1)  Certain
+	  combinations of objects (presumably rare!) could lead to a crash.
+	  2)  Fix a cut/paste error where the wrong coordinate was tested.
+	  Add explanatory comment.
+
+2007-11-24 21:47  djdelorie
+
+	* src/puller.c: Add global puller.
+
+2007-11-24 21:46  djdelorie
+
+	* src/hid/lesstif/main.c: Draw arc start/end radii in separate
+	  colors, and dotted, if enabled.
+
+2007-11-24 21:40  djdelorie
+
+	* src/: draw.c, draw.h: Export DrawLayer() for the ps exporter.
+
+2007-11-24 21:36  djdelorie
+
+	* src/hid/ps/ps.c: Draw outline layer on all other copper layers
+	  when "draw outline" is selected.  Make alignment marks less
+	  obtrusive.  Make drill helpers half the board's minimum drill
+	  size, not twice PCB's minimum drill size.  Include commented out
+	  helpers for brass paste stencil etching.
+
+2007-11-24 19:17  djdelorie
+
+	* src/undo.c: Don't just clean out RemoveList, free it, so it's
+	  created properly later.
+
+2007-11-24 19:17  bjj
+
+	* src/polyarea.h: Add some prototypes for global functions
+	  returning double that will confuse the heck out of you if treated
+	  as returning int!
+
+2007-11-24 17:19  djdelorie
+
+	* src/hid/lesstif/netlist.c: Don't crash if a scanned element has
+	  no text.
+
+2007-11-24 17:12  djdelorie
+
+	* src/hid/lesstif/library.c: lesstif_show_library: Don't reset the
+	  dialog when we're just re-displaying it.
+
+2007-11-23 20:06  bjj
+
+	* src/action.c: Apply [ 1726201 ] SaveTo(PasteBuffer.file) for
+	  footprint creation with cleanups (original patch from Christian
+	  Riggenbach - gizmotron)
+
+2007-11-23 16:33  bjj
+
+	* src/actionlist.c: Remove obsolete (generated, even!) file
+
+2007-11-23 16:17  bjj
+
+	* src/: gpcb-menu.res, pcb-menu.res: Change all the GetXY prompts
+	  for greater clarity.
+
+2007-11-23 15:53  bjj
+
+	* src/hid/gtk/gui-config.c: Apply patch [ 1835365 ] Fix for [
+	  1820385 ] Can't close the preference dialog from denis77
+
+2007-11-23 15:39  bjj
+
+	* src/autoroute.c: LIST_LOOP works on circular lists, but at least
+	  some code will produce a head pointer of NULL for an empty list,
+	  causing LIST_LOOP to crash.  Since I'm not sure which is the bug,
+	  I changed LIST_LOOP to assert() on a NULL list head and skip the
+	  loop.  With assert disabled, the loop becomes a no-op, which
+	  seems appropriate.
+
+2007-11-23 01:09  djdelorie
+
+	* src/: search.c, search.h: Additional slanted-pad patch for missed
+	  DRC
+
+2007-11-22 00:50  djdelorie
+
+	* src/hid/lesstif/styles.c: Update the status line even when we
+	  don't have a styles dialog.
+
+2007-11-19 11:19  djdelorie
+
+	* src/report.c: Add annulus and mask gap to pin/via report.
+
+2007-11-18 20:18  danmc
+
+	* configure, configure.ac: add a missing AC_MSG_RESULT in the
+	  makeinfo version test.  Patch from Peter Brett.  While here,
+	  remove a bashism (== vs =).
+
+2007-11-17 20:35  djdelorie
+
+	* globalconst.h: Expand min/max values.
+
+2007-11-13 23:17  djdelorie
+
+	* src/: misc.c, parse_y.y: Fix pin bound calculations based on new
+	  thermal calculations.
+
+2007-11-12 14:29  djdelorie
+
+	* src/crosshair.c: Snap to pin/pads whenever we're within the
+	  pin/pad copper, unless shift is pressed, then snap to the nearest
+	  grid point if it's closer.
+
+2007-11-12 14:27  djdelorie
+
+	* src/hid/common/hidnogui.c: Don't complain about checking the
+	  shift key when exporting pngs from the command line.
+
+2007-11-11 19:34  bjj
+
+	* src/buffer.c: Fix bugs intoduced by revision 1.41 while
+	  preserving the fixes in 1.41.
+
+2007-11-10 03:35  djdelorie
+
+	* lib/connector.inc: Reduce silk width of connector/header/jumpers
+	  (some fabs clip it to the pads) to be similar to other elements.
+
+2007-11-10 03:29  djdelorie
+
+	* lib/: qfpdj.inc, smt.inc: Move silk away from pads.  Fix notch in
+	  SO footprints.
+
+2007-11-05 17:27  danmc
+
+	* lib/geda.inc: fix DIN41651_20 and DIN41651_20S.  Those are 20 pin
+	  footprints not 10 pin footprints.  Reported by Marshall Jose.
+
+2007-11-04 17:01  bjj
+
+	* src/: change.c, change.h, move.c, polygon.c, rotate.c,
+	  strflags.c: Add support for clearing text from polygons.  Text
+	  with the clearline flag (set with the J key by default, just like
+	  lines and arcs) will have a rounded rectangle hole cut in any
+	  overlapping polygons.
+
+2007-11-04 03:52  bjj
+
+	* src/action.c: Shift-click with the via tool to connect it to the
+	  current layer as you place it.
+
+2007-11-03 22:22  bjj
+
+	* src/: netlist.c, rats.h, hid/lesstif/netlist.c: Plumb the
+	  NetlistShow() hid action in lesstif.	Takes a pin name or a net
+	  name and sets the current selection in the netlist window.  Does
+	  not pop up the netlist.
+
+2007-11-02 08:53  danmc
+
+	* configure, doc/actions.texi, doc/version.texi: regen
+
+2007-11-01 23:21  djdelorie
+
+	* src/draw.c: Properly thin-draw slanted pads.
+
+2007-11-01 22:55  djdelorie
+
+	* src/: find.c, polygon.c, search.c, search.h: Fixes for DRC of
+	  slanted pads.  Tracker bug 1791388 and patch 1791392.
+
+2007-11-01 22:12  djdelorie
+
+	* src/draw.c: Don't draw pins/holes on the outline layer.  Include
+	  commented-out code to put board outline on mask layers, for fabs
+	  that need that.
+
+2007-11-01 21:56  danmc
+
+	* src/: action.c, buffer.c, select.c, hid/gtk/gui-output-events.c,
+	  hid/gtk/gui-top-window.c: fix some compiler warnings
+
+2007-11-01 20:40  danmc
+
+	* configure.ac: Improve the robustness of the makeinfo version
+	  test.  Patch provided by Peter Brett.
+
+2007-11-01 20:25  danmc
+
+	* src/hid/gtk/gui-top-window.c: Don't segfault when clicking the
+	  top right button which toggles units.  Problem noted by and
+	  solution provided by Christian Riggenbach.
+
+2007-10-23 22:23  bjj
+
+	* src/search.c: Treat VIAFLAG rats (displayed as donuts) as round
+	  targets, not as the invisible lines they are internally.
+
+2007-10-22 23:04  djdelorie
+
+	* src/hid/lesstif/dialogs.c: Make sure the leftmost end of the line
+	  is visible in the log window.
+
+2007-10-20 22:04  bjj
+
+	* src/action.c: Fix printf format warnings.
+
+2007-10-20 22:02  bjj
+
+	* src/: crosshair.c, draw.c, rats.c: Ratlist generation is changed
+	  to favor connecting to polygons when they are available and
+	  surround the pin needing a connection.  Such rats are still
+	  internally lines to the corner of the polygon, but have the
+	  VIAFLAG set.	The drawing code is modified to show them as little
+	  donuts (suggesting the via that would be used to connect the pin,
+	  vs a line).  The crosshair rubberband code is modified to NOT
+	  draw these lines while dragging.  These changes are forward and
+	  backward compatible.
+
+2007-10-20 21:29  bjj
+
+	* src/: action.c, find.c, find.h: Make DRC dialog next/continue to
+	  clarify its function.  When DRC is over, message now indicates if
+	  it was cancelled (so log can distinguish lack of DRC errors from
+	  aborted DRC).
+
+2007-10-20 16:28  bjj
+
+	* src/rubberband.c: The correct point on a line now moves with a
+	  polygon (fix cut'n'paste typo) When you move a line endpoint,
+	  only *exactly* connected lines go with you.  When you move a
+	  line, if another segment fully overlaps the end of the moving
+	  line, the entire segment (not an arbitrary end of it) will move.
+	  When you move an element, any segments completely covered by a
+	  pad move with the pad.  (there are still some bugs in the drawing
+	  code as you drag??)
+
+2007-10-06 08:56  danmc
+
+	* src/hid/gtk/gtkhid-main.c: Fix some really broken spurious
+	  panning of the drawing area which happens when the board is
+	  viewed from the back.  Reported by Peter Clifton who also helped
+	  getting this patch working right.
+
+2007-10-04 19:49  petercjclifton
+
+	* src/hid/gtk/gui-output-events.c: Reject double and triple clicks
+	  in ghid_port_button_press_cb()
+
+	  Fixes a bug where a component would be rotated by more steps than
+	  desired if clicking quickly with the rotate tool.
+
+2007-09-24 00:37  bjj
+
+	* src/polygon.c: Change rendering of rounded corners used when
+	  clearing polygons.  This fixes a slight rotation in rounded
+	  rectangles and asymmetry of all rounded clearances besides
+	  complete circles (which were not affected by the bug).  For an
+	  illustration, see:  http://ad7gd.net/geda/roundrectanim.gif
+	  (include error code print in returns from the polygon code -- not
+	  much use)
+
+2007-09-24 00:02  bjj
+
+	* src/autoroute.c: Add (under ifdef) code I used to debug a report
+	  of "The rats nest is stale! Aborting autoroute...".  It leaves
+	  the rat in question selected after the error.
+
+2007-09-19 16:32  danmc
+
+	* src/misc.c: add missing 2007 in copyright year (for all the gtk
+	  usermenu stuff)
+
+2007-09-17 07:43  danmc
+
+	* src/hid/gtk/gui-top-window.c: avoid free()-ing some memory a bit
+	  too soon.  Patch from Ineiev.
+
+2007-09-14 18:07  danmc
+
+	* src/: gpcb-menu.res, pcb-menu.res: use mil and mm instead of mils
+	  and mms for grid units
+
+2007-09-12 21:51  danmc
+
+	* README.snapshots: a few minor corrections
+
+2007-09-12 20:11  danmc
+
+	* configure, doc/version.texi: regen
+
+2007-09-12 19:44  danmc
+
+	* configure.ac: set version to 20070912
+
+2007-09-12 19:42  danmc
+
+	* configure, configure.ac: welcome to 1.99w
+
+2007-09-12 19:31  danmc
+
+	* NEWS: news for 20070912
+
+2007-09-12 19:07  danmc
+
+	* ChangeLog: update for 20070912 snapshot
+
 2007-09-12 19:06  danmc
 
 	* README.snapshots: set date for 20070912
@@ -1363,10 +2481,9 @@
 	* config.h.in, configure, configure.ac, doc/actions.texi,
 	  doc/pcb.texi, doc/version.texi, src/Makefile.am, src/Makefile.in,
 	  src/file.c, src/global.h, src/main.c, src/pcbtest.sh.in,
-	  src/hid/common/hidinit.c, src/hid/gtk/gui-config.c,
-	  src/script/Makefile.am, src/script/Makefile.in,
-	  src/script/pcb.in: Take a stab at making pcb installations be
-	  relocatable.	By this I mean you can configure and install with
+	  src/hid/common/hidinit.c, src/hid/gtk/gui-config.c: Take a stab
+	  at making pcb installations be relocatable.  By this I mean you
+	  can configure and install with
 
 	  ./configure --prefix=/original/path make make install mv
 	  /original/path /new/path and still have pcb work.
@@ -1445,8 +2562,8 @@
 	  newlib/headers/Makefile.in, newlib/msp430/Makefile.in,
 	  newlib/not_vetted_ingo/Makefile.in, newlib/sockets/Makefile.in,
 	  newlib/tests/Makefile.in, newlib/toko/Makefile.in,
-	  src/Makefile.in, src/icons/Makefile.in, src/script/Makefile.in,
-	  tools/Makefile.in, tutorial/Makefile.in, win32/Makefile.in: regen
+	  src/Makefile.in, src/icons/Makefile.in, tools/Makefile.in,
+	  tutorial/Makefile.in, win32/Makefile.in: regen
 
 2007-02-01 16:10  djdelorie
 
@@ -1817,11 +2934,10 @@
 	  src/dbus-pcbmain.h, src/dbus.c, src/dbus.h, src/dbus.xml,
 	  src/hid.h, src/main.c, src/hid/common/extents.c,
 	  src/hid/common/hidnogui.c, src/hid/gtk/gtkhid-main.c,
-	  src/hid/lesstif/main.c, src/icons/Makefile.in,
-	  src/script/Makefile.in, tools/Makefile.in, tutorial/Makefile.in,
-	  win32/Makefile.in: Initial checkin of Peter Cliftons DBus work.
-	  Currently dbus is disabled by default but can be enabled with
-	  --enable-dbus
+	  src/hid/lesstif/main.c, src/icons/Makefile.in, tools/Makefile.in,
+	  tutorial/Makefile.in, win32/Makefile.in: Initial checkin of Peter
+	  Cliftons DBus work.  Currently dbus is disabled by default but
+	  can be enabled with --enable-dbus
 
 2006-12-06 13:01  danmc
 
@@ -2424,9 +3540,9 @@
 	  src/hid/gtk/gui-top-window.c, src/hid/lesstif/dialogs.c,
 	  src/hid/lesstif/main.c, src/hid/lesstif/menu.c,
 	  src/hid/lpr/lpr.c, src/hid/png/png.c, src/hid/ps/eps.c,
-	  src/hid/ps/ps.c, src/icons/Makefile.in, src/script/Makefile.in,
-	  tools/Makefile.in, tutorial/Makefile.in, win32/Makefile.in,
-	  win32/build_pcb: sync with the trunk
+	  src/hid/ps/ps.c, src/icons/Makefile.in, tools/Makefile.in,
+	  tutorial/Makefile.in, win32/Makefile.in, win32/build_pcb: sync
+	  with the trunk
 
 2006-10-03 21:11  haceaton
 
@@ -3110,9 +4226,9 @@
 	  newlib/headers/Makefile.in, newlib/msp430/Makefile.in,
 	  newlib/not_vetted_ingo/Makefile.in, newlib/sockets/Makefile.in,
 	  newlib/tests/Makefile.in, newlib/toko/Makefile.in,
-	  src/Makefile.in, src/icons/Makefile.in, src/script/Makefile.in,
-	  tools/Makefile.in, tutorial/Makefile.in, win32/Makefile.in: regen
-	  after the lex/yacc configure.ac change
+	  src/Makefile.in, src/icons/Makefile.in, tools/Makefile.in,
+	  tutorial/Makefile.in, win32/Makefile.in: regen after the lex/yacc
+	  configure.ac change
 
 2006-08-27 00:14  djdelorie
 
@@ -3968,8 +5084,8 @@
 	  newlib/not_vetted_ingo/Makefile.in, newlib/sockets/Makefile.in,
 	  newlib/tests/Makefile.in, newlib/toko/Makefile.in,
 	  src/Makefile.am, src/Makefile.in, src/icons/Makefile.in,
-	  src/script/Makefile.in, tools/Makefile.in, tutorial/Makefile.in:
-	  check for a few tools used to regenerate windows icons
+	  tools/Makefile.in, tutorial/Makefile.in: check for a few tools
+	  used to regenerate windows icons
 
 2006-04-13 09:04  danmc
 
@@ -4013,12 +5129,11 @@
 	  newlib/tests/Makefile.in, newlib/toko/Makefile.in,
 	  src/Makefile.in, src/compat.c, src/compat.h, src/file.c,
 	  src/misc.c, src/print.c, src/hid/gerber/gerber.c,
-	  src/icons/Makefile.in, src/script/Makefile.in, tools/Makefile.in,
-	  tutorial/Makefile.in: Add a couple more configure checks for
-	  functions (gethostname and password related functions) and
-	  headers which may not be present on win32.  This should be enough
-	  to get things to compile under cygwin although there are still
-	  runtime issues.
+	  src/icons/Makefile.in, tools/Makefile.in, tutorial/Makefile.in:
+	  Add a couple more configure checks for functions (gethostname and
+	  password related functions) and headers which may not be present
+	  on win32.  This should be enough to get things to compile under
+	  cygwin although there are still runtime issues.
 
 2006-04-12 18:58  danmc
 
@@ -4141,9 +5256,8 @@
 	  newlib/headers/Makefile.in, newlib/msp430/Makefile.in,
 	  newlib/not_vetted_ingo/Makefile.in, newlib/sockets/Makefile.in,
 	  newlib/tests/Makefile.in, newlib/toko/Makefile.in,
-	  src/Makefile.in, src/icons/Makefile.in, src/script/Makefile.in,
-	  tools/Makefile.in, tutorial/Makefile.in: regen (after checking
-	  for perl)
+	  src/Makefile.in, src/icons/Makefile.in, tools/Makefile.in,
+	  tutorial/Makefile.in: regen (after checking for perl)
 
 2006-04-11 12:59  danmc
 
@@ -4265,13 +5379,6 @@
 	  pad.gif, pad.png, pcb.texi, version.texi: Fix eps->pdf rule to
 	  set size and resolution right.  Limit pcb->* to visible areas.
 	  Add support for action extraction from sources.
-
-2006-04-04 23:09  danmc
-
-	* src/script/: Makefile.am, Makefile.in, pcb-print: remove the
-	  pcb-print script.  It is obsolete now that the HID version
-	  directly supports command line export/print through the export
-	  HID's.
 
 2006-04-04 23:05  haceaton
 
@@ -4558,8 +5665,8 @@
 	  newlib/headers/Makefile.in, newlib/msp430/Makefile.in,
 	  newlib/not_vetted_ingo/Makefile.in, newlib/sockets/Makefile.in,
 	  newlib/tests/Makefile.in, newlib/toko/Makefile.in,
-	  src/Makefile.in, src/icons/Makefile.in, src/script/Makefile.in,
-	  tools/Makefile.in, tutorial/Makefile.in: regen
+	  src/Makefile.in, src/icons/Makefile.in, tools/Makefile.in,
+	  tutorial/Makefile.in: regen
 
 2006-03-24 17:27  danmc
 
@@ -4608,8 +5715,8 @@
 	  newlib/headers/Makefile.in, newlib/msp430/Makefile.in,
 	  newlib/not_vetted_ingo/Makefile.in, newlib/sockets/Makefile.in,
 	  newlib/tests/Makefile.in, newlib/toko/Makefile.in,
-	  src/icons/Makefile.in, src/script/Makefile.in, tools/Makefile.in,
-	  tutorial/Makefile.in: regen after configure.ac changes
+	  src/icons/Makefile.in, tools/Makefile.in, tutorial/Makefile.in:
+	  regen after configure.ac changes
 
 2006-03-23 19:32  danmc
 
@@ -4804,8 +5911,7 @@
 	  resource.h, rotate.c, rotate.h, rtree.c, rtree.h, rubberband.c,
 	  rubberband.h, search.c, search.h, select.c, select.h, set.c,
 	  set.h, strflags.c, strflags.h, undo.c, undo.h, vector.c,
-	  vector.h, vendor.c, vendor.h, icons/Makefile.in,
-	  script/Makefile.in: indent
+	  vector.h, vendor.c, vendor.h, icons/Makefile.in: indent
 
 2006-03-22 18:05  danmc
 
@@ -5023,9 +6129,8 @@
 	  newlib/headers/Makefile.in, newlib/msp430/Makefile.in,
 	  newlib/not_vetted_ingo/Makefile.in, newlib/sockets/Makefile.in,
 	  newlib/tests/Makefile.in, newlib/toko/Makefile.in,
-	  src/Makefile.in, src/icons/Makefile.in, src/script/Makefile.in,
-	  tools/Makefile.in, tutorial/Makefile.in: regenerate everything
-	  with FC4.
+	  src/Makefile.in, src/icons/Makefile.in, tools/Makefile.in,
+	  tutorial/Makefile.in: regenerate everything with FC4.
 
 2006-03-21 12:34  djdelorie
 
@@ -5112,8 +6217,7 @@
 	  newlib/headers/Makefile.in, newlib/msp430/Makefile.in,
 	  newlib/not_vetted_ingo/Makefile.in, newlib/sockets/Makefile.in,
 	  newlib/tests/Makefile.in, newlib/toko/Makefile.in,
-	  src/icons/Makefile.in, src/script/Makefile.in, tools/Makefile.in:
-	  regen
+	  src/icons/Makefile.in, tools/Makefile.in: regen
 
 2006-03-21 01:16  danmc
 
@@ -5399,46 +6503,31 @@
 	* configure.ac: check for gtk+ >= 2.4.0 instead of 2.2.0 since we
 	  need >= 2.4.0
 
-2005-08-05 18:31  danmc
-
-	* src/script/: Makefile.am, Makefile.in: add pcb-print to the list
-	  of distributed files
-
-2005-08-05 18:31  danmc
-
-	* src/script/pcb-print: fix a bug in the --add-alignment option.
-	  Noted by David Baird
-
 2005-08-04 18:24  danmc
 
 	* src/gui-library-window.c: fix -auto-place for the library window
-
-2005-08-04 18:24  danmc
-
-	* src/script/pcb-print: add script to make it easier to print from
-	  the command line
 
 2005-08-03 23:23  danmc
 
 	* src/: action.c, action.h, command.c, global.h,
 	  gui-library-window.c, gui-log-window.c, gui-netlist-window.c,
-	  gui-pinout-window.c, gui-top-window.c, main.c, misc.c,
-	  script/Makefile.am, script/Makefile.in: - change the Print action
-	  to PrintDialog since it causes the print   dialog box to come up
-	  - add a new Print action provided by David Baird as patch #
-	  1212168.    Modified by me to work with the gtk version of pcb.
-	  - to let this action work, allow actions to take a parameter list
-	  and	# of parameters to allow large numbers of arguments.  -
-	  modify the Quit action and some of the initialization code so
-	  that	 you can use Quit() in a startup script.  - add a
-	  -auto-place command line option which causes the windows to be
-	  automatically placed rather than letting the window manager do
-	  it.	 This is useful when printing via the command line.  - add
-	  a command line shell script for printing.  This is a wrapper
-	  which   takes a whole bunch of flags relating to the print
-	  parameters and   translates that to the correct invocation of the
-	  Print() action.    Shell script provided by David Baird as part
-	  of patch #1212168 and    modified by me to make it portable.
+	  gui-pinout-window.c, gui-top-window.c, main.c, misc.c: - change
+	  the Print action to PrintDialog since it causes the print
+	  dialog box to come up - add a new Print action provided by David
+	  Baird as patch # 1212168.    Modified by me to work with the gtk
+	  version of pcb.  - to let this action work, allow actions to take
+	  a parameter list and	 # of parameters to allow large numbers of
+	  arguments.  - modify the Quit action and some of the
+	  initialization code so that	you can use Quit() in a startup
+	  script.  - add a -auto-place command line option which causes the
+	  windows to be   automatically placed rather than letting the
+	  window manager do it.    This is useful when printing via the
+	  command line.  - add a command line shell script for printing.
+	  This is a wrapper which   takes a whole bunch of flags relating
+	  to the print parameters and	translates that to the correct
+	  invocation of the Print() action.    Shell script provided by
+	  David Baird as part of patch #1212168 and    modified by me to
+	  make it portable.
 
 2005-07-31 14:48  danmc
 
@@ -5726,10 +6815,9 @@
 	  src/pcbtest.sh.in, src/polygon.c, src/print.c, src/rats.c,
 	  src/rats.h, src/report.c, src/res_parse.y, src/rotate.c,
 	  src/rtree.c, src/select.c, src/select.h, src/set.c, src/set.h,
-	  src/undo.c, src/vector.c, src/vendor.c, src/vendor.h,
-	  src/script/pcb.in: Import Bill Wilson's port of pcb to gtk.
-	  Things seem to compile and run but this should be considered a
-	  work in progress at the moment.
+	  src/undo.c, src/vector.c, src/vendor.c, src/vendor.h: Import Bill
+	  Wilson's port of pcb to gtk.	Things seem to compile and run but
+	  this should be considered a work in progress at the moment.
 
 2005-03-11 21:09  danmc
 
@@ -5764,9 +6852,8 @@
 	  newlib/headers/Makefile.in, newlib/msp430/Makefile.in,
 	  newlib/not_vetted_ingo/Makefile.in, newlib/sockets/Makefile.in,
 	  newlib/tests/Makefile.in, newlib/toko/Makefile.in,
-	  src/Makefile.in, src/icons/Makefile.in, src/script/Makefile.in,
-	  tools/Makefile.in, tutorial/Makefile.in: regen after adding gtk
-	  configure.ac stuff
+	  src/Makefile.in, src/icons/Makefile.in, tools/Makefile.in,
+	  tutorial/Makefile.in: regen after adding gtk configure.ac stuff
 
 2005-03-10 17:32  danmc
 
@@ -5898,9 +6985,8 @@
 	  newlib/headers/Makefile.in, newlib/msp430/Makefile.in,
 	  newlib/not_vetted_ingo/Makefile.in, newlib/sockets/Makefile.in,
 	  newlib/tests/Makefile.in, newlib/toko/Makefile.in,
-	  src/Makefile.in, src/icons/Makefile.in, src/script/Makefile.in,
-	  tools/Makefile.in, tutorial/Makefile.in: update to latest
-	  automake
+	  src/Makefile.in, src/icons/Makefile.in, tools/Makefile.in,
+	  tutorial/Makefile.in: update to latest automake
 
 2005-01-26 20:49  danmc
 
@@ -6150,10 +7236,6 @@
 	  selection dialog box to choose a file.  Also add a menu choice
 	  for this.
 
-2004-10-30 02:30  danmc
-
-	* src/script/pcb.in: Quote "$@" to keep args whole
-
 2004-10-29 09:05  danmc
 
 	* src/: Makefile.am, Makefile.in: add missing vendor.h
@@ -6228,9 +7310,9 @@
 	  newlib/headers/Makefile.in, newlib/msp430/Makefile.in,
 	  newlib/not_vetted_ingo/Makefile.in, newlib/sockets/Makefile.in,
 	  newlib/tests/Makefile.in, newlib/toko/Makefile.in,
-	  src/Makefile.in, src/icons/Makefile.in, src/script/Makefile.in,
-	  tools/Makefile.in, tutorial/Makefile.in: regen so that all
-	  Makefile.in files came from the same version of automake
+	  src/Makefile.in, src/icons/Makefile.in, tools/Makefile.in,
+	  tutorial/Makefile.in: regen so that all Makefile.in files came
+	  from the same version of automake
 
 2004-10-24 21:59  danmc
 
@@ -6639,8 +7721,8 @@
 
 2004-06-30 19:28  danmc
 
-	* src/: pcbtest.sh.in, script/pcb.in: when running under gdb set
-	  XAPPLRESDIR and unset XUSERFILESEARCHPATH
+	* src/pcbtest.sh.in: when running under gdb set XAPPLRESDIR and
+	  unset XUSERFILESEARCHPATH
 
 2004-06-30 19:24  danmc
 
@@ -6809,9 +7891,9 @@
 
 2004-05-28 20:15  danmc
 
-	* src/: pcbtest.sh.in, script/pcb.in: For the pcb wrapper script,
-	  if the first argument is "-gdb", pick off that flag and run pcb
-	  inside of the gdb debugger.  Should simplify debugging a bit.
+	* src/pcbtest.sh.in: For the pcb wrapper script, if the first
+	  argument is "-gdb", pick off that flag and run pcb inside of the
+	  gdb debugger.  Should simplify debugging a bit.
 
 2004-05-28 20:13  danmc
 
@@ -6875,8 +7957,8 @@
 
 2004-05-13 22:59  danmc
 
-	* src/: pcbtest.sh.in, script/pcb.in: unset XUSERFILESEARCHPATH
-	  which causes a conflict with XAPPLRESDIR
+	* src/pcbtest.sh.in: unset XUSERFILESEARCHPATH which causes a
+	  conflict with XAPPLRESDIR
 
 2004-05-13 22:29  danmc
 
@@ -7743,9 +8825,9 @@
 	  newlib/not_vetted_ingo/Makefile.in, newlib/sockets/Makefile.in,
 	  newlib/tests/Makefile.in, newlib/toko/Makefile.in,
 	  src/Makefile.am, src/Makefile.in, src/icons/Makefile.in,
-	  src/script/Makefile.in, tools/Makefile.in, tutorial/Makefile.in:
-	  * Detect re_comp(), regcomp(), and <regex.h> (select.c doesn't
-	  use the   new HAVE_* yet, this is a prelude to it).
+	  tools/Makefile.in, tutorial/Makefile.in: * Detect re_comp(),
+	  regcomp(), and <regex.h> (select.c doesn't use the   new HAVE_*
+	  yet, this is a prelude to it).
 
 	  * Set -DNDEBUG for all src/* compiles.
 
@@ -7959,9 +9041,9 @@
 	  newlib/headers/Makefile.in, newlib/msp430/Makefile.in,
 	  newlib/not_vetted_ingo/Makefile.in, newlib/sockets/Makefile.in,
 	  newlib/tests/Makefile.in, newlib/toko/Makefile.in, src/Pcb.ad.in,
-	  src/action.c, src/main.c, src/misc.c, src/icons/Makefile.in,
-	  src/script/Makefile.in: Fixes for absolute/relative size change.
-	  Also added repeat last typed command and fixed a few hi-res bugs.
+	  src/action.c, src/main.c, src/misc.c, src/icons/Makefile.in:
+	  Fixes for absolute/relative size change. Also added repeat last
+	  typed command and fixed a few hi-res bugs.
 
 2004-01-06 18:53  haceaton
 
@@ -8369,13 +9451,12 @@
 
 2003-11-07 22:35  danmc
 
-	* configure, src/Makefile.in, src/script/Makefile.in: regen after
-	  moving the pcb script to a subdirectory.
+	* configure, src/Makefile.in: regen after moving the pcb script to
+	  a subdirectory.
 
 2003-11-07 22:31  danmc
 
-	* configure.ac, src/Makefile.am, src/pcb.in,
-	  src/script/Makefile.am, src/script/pcb.in: move the pcb script to
+	* configure.ac, src/Makefile.am, src/pcb.in: move the pcb script to
 	  a subdirectory to avoid name conflicts with the Pcb application
 	  default file on systems such as cygwin that are not case
 	  sensitive.
