@@ -2251,7 +2251,7 @@ About()@end format
 @end cartouche
 
 Tell the user about this version of PCB.
-@c ./../src/hid/gtk/gtkhid-main.c 1573
+@c ./../src/hid/gtk/gtkhid-main.c 1587
 
 This just pops up a dialog telling the user which version of
 @code{pcb} they're running.
@@ -2267,7 +2267,7 @@ AdjustStyle()
 @end cartouche
 
 Open the window which allows editing of the route styles
-@c ./../src/hid/gtk/gui-top-window.c 3799
+@c ./../src/hid/gtk/gui-top-window.c 3802
 
 Opens the window which allows editing of the route styles.
 
@@ -2282,7 +2282,7 @@ Center()
 @end cartouche
 
 Moves the pointer to the center of the window.
-@c ./../src/hid/gtk/gtkhid-main.c 2010
+@c ./../src/hid/gtk/gtkhid-main.c 2024
 
 Move the pointer to the center of the window, but only if it's
 currently within the window already.
@@ -2297,7 +2297,7 @@ Cursor(Type,DeltaUp,DeltaRight,Units)@end format
 @end cartouche
 
 Move the cursor.
-@c ./../src/hid/gtk/gtkhid-main.c 2109
+@c ./../src/hid/gtk/gtkhid-main.c 2123
 
 This action moves the mouse cursor.  Unlike other actions which take
 coordinates, this action's coordinates are always relative to the
@@ -2341,7 +2341,7 @@ DoWindows(Layout|Library|Log|Netlist|Preferences)@end format
 @end cartouche
 
 Open various GUI windows.
-@c ./../src/hid/gtk/gtkhid-main.c 2167
+@c ./../src/hid/gtk/gtkhid-main.c 2181
 
 @table @code
 
@@ -2379,7 +2379,7 @@ EditLayerGroups()
 @end cartouche
 
 Open the preferences window which allows editing of the layer groups
-@c ./../src/hid/gtk/gui-top-window.c 3822
+@c ./../src/hid/gtk/gui-top-window.c 3825
 
 Opens the preferences window which is where the layer groups
 are edited.  This action is primarily provides to provide menu
@@ -2395,7 +2395,7 @@ GetXY()@end format
 @end cartouche
 
 Get a coordinate.
-@c ./../src/hid/gtk/gtkhid-main.c 1588
+@c ./../src/hid/gtk/gtkhid-main.c 1602
 
 Prompts the user for a coordinate, if one is not already selected.
 
@@ -2411,7 +2411,7 @@ Popup(MenuName, [Button])@end format
 Bring up the popup menu specified by @code{MenuName}.
 If called by a mouse event then the mouse button number
 must be specified as the optional second argument.
-@c ./../src/hid/gtk/gtkhid-main.c 2234
+@c ./../src/hid/gtk/gtkhid-main.c 2248
 
 This just pops up the specified menu.  The menu must have been defined
 as a named subresource of the Popups resource in the menu resource
@@ -2428,7 +2428,7 @@ Print()@end format
 @end cartouche
 
 Print the layout.
-@c ./../src/hid/gtk/gtkhid-main.c 1885
+@c ./../src/hid/gtk/gtkhid-main.c 1899
 
 This will find the default printing HID, prompt the user for its
 options, and print the layout.
@@ -2443,7 +2443,7 @@ PrintCalibrate()@end format
 @end cartouche
 
 Calibrate the printer.
-@c ./../src/hid/gtk/gtkhid-main.c 1936
+@c ./../src/hid/gtk/gtkhid-main.c 1950
 
 This will print a calibration page, which you would measure and type
 the measurements in, so that future printouts will be more precise.
@@ -2461,7 +2461,7 @@ Save(PasteBuffer)@end format
 @end cartouche
 
 Save layout and/or element data to a user-selected file.
-@c ./../src/hid/gtk/gtkhid-main.c 1732
+@c ./../src/hid/gtk/gtkhid-main.c 1746
 
 This action is a GUI front-end to the core's @code{SaveTo} action
 (@pxref{SaveTo Action}).  If you happen to pass a filename, like
@@ -2479,7 +2479,7 @@ SelectLayer(1..MAXLAYER|Silk|Rats)@end format
 @end cartouche
 
 Select which layer is the current layer.
-@c ./../src/hid/gtk/gui-top-window.c 2836
+@c ./../src/hid/gtk/gui-top-window.c 2839
 
 The specified layer becomes the currently active layer.  It is made
 visible if it is not already visible
@@ -2494,7 +2494,7 @@ SetUnits(mm|mil)@end format
 @end cartouche
 
 Set the default measurement units.
-@c ./../src/hid/gtk/gtkhid-main.c 2206
+@c ./../src/hid/gtk/gtkhid-main.c 2220
 
 @table @code
 
@@ -2516,7 +2516,7 @@ SwapSides(|v|h|r)@end format
 @end cartouche
 
 Swaps the side of the board you're looking at.
-@c ./../src/hid/gtk/gtkhid-main.c 1810
+@c ./../src/hid/gtk/gtkhid-main.c 1824
 
 This action changes the way you view the board.
 
@@ -2559,7 +2559,7 @@ ToggleView(Silk|Rats|Pins|Vias|Mask|BackSide)@end format
 @end cartouche
 
 Toggle the visibility of the specified layer or layer group.
-@c ./../src/hid/gtk/gui-top-window.c 2760
+@c ./../src/hid/gtk/gui-top-window.c 2763
 
 If you pass an integer, that layer is specified by index (the first
 layer is @code{1}, etc).  If you pass a layer name, that layer is
