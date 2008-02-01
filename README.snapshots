@@ -80,6 +80,8 @@ To make a pcb release do the following:
 		openssl sha1 pcb-20080202.tar.gz > pcb-20080202.cksum
 		openssl md5 pcb-20080202.tar.gz >> pcb-20080202.cksum
 		openssl rmd160 pcb-20080202.tar.gz >> pcb-20080202.cksum
+		echo "File size (bytes):" >> pcb-20080202.cksum
+		wc -c pcb-20080202.tar.gz >> pcb-20080202.cksum
 
 	8. Upload the .tar.gz, .cksum files to
 	   ftp://upload.sourceforge.net/incoming/
