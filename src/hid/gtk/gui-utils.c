@@ -679,7 +679,7 @@ void
 ghid_label_set_markup (GtkWidget * label, const gchar * text)
 {
   if (label)
-    gtk_label_set_text (GTK_LABEL (label), text ? text : "");
+    gtk_label_set_markup (GTK_LABEL (label), text ? text : "");
 }
 
 
