@@ -25,7 +25,7 @@ To make a pcb release do the following:
 
 =)	# make sure it makes distfiles ok: (have to build before doing distcheck so
 	pcb gets built so it can create some of the images in the doc directory)
-	gmake distclean ; ./autogen.sh  && ./configure --enable-maintainer-mode && gmake && gmake distcheck
+	gmake distclean ; ./autogen.sh  && ./configure --enable-maintainer-mode --disable-update-desktop-database --disable-update-mime-database && gmake && gmake distcheck
 	setenv DISTCHECK_CONFIGURE_FLAGS '--with-gui=lesstif CPPFLAGS=-I/usr/pkg/include CFLAGS=-I/usr/pkg/include LDFLAGS="-L/usr/pkg/lib -R/usr/pkg/lib"'
 	gmake distcheck
 	unsetenv DISTCHECK_CONFIGURE_FLAGS
@@ -40,10 +40,10 @@ To make a pcb release do the following:
 =)	if this is a major release, then tag and branch:
 
 	1. Tag the base of the release branch
-		cvs tag pcb-20070912-base 
+		cvs tag pcb-20080202-base 
 
 	2. Create the release branch
-		cvs tag -R -b -r pcb-20070912-base pcb-20070912
+		cvs tag -R -b -r pcb-20080202-base pcb-20080202
 
 	3. FIX_ME [fix up this step.  what shall we do with the version
 	   on the trunk?]
@@ -54,41 +54,42 @@ To make a pcb release do the following:
 		cvs ci configure.ac
 
 	4. On the release branch, update configure.ac to update the version
-		for example 20070912_ALPHA.  Now pre-release snapshots can be made.
-		cvs update -PdA -r pcb-20070912
+		for example 20080202_ALPHA.  Now pre-release snapshots can be made.
+		cvs update -PdA -r pcb-20080202
 
 	5. If desired tag an alpha release:
-		cvs update -PdA -r pcb-20070912
+		cvs update -PdA -r pcb-20080202
 		./autogen.sh
-		cvs tag -R -r pcb-20070912 pcb-20070912-ALPHA
-		cvs update -PdA -r pcb-20070912-ALPHA
-		./autogen.sh && ./configure --enable-maintainer-mode && gmake && gmake distcheck
+		cvs tag -R -r pcb-20080202 pcb-20080202-ALPHA
+		cvs update -PdA -r pcb-20080202-ALPHA
+		./autogen.sh && ./configure --enable-maintainer-mode --disable-update-desktop-database --disable-update-mime-database && gmake && gmake distcheck
 
 	6. When the release branch is ready to go,  update configure.ac to
 	   set the final release version.  Then tag the release.
-		cvs update -PdA -r pcb-20070912
+		cvs update -PdA -r pcb-20080202
 		vi configure.ac
 		cvs ci configure.ac
 		./autogen.sh
 		cvs ci
-		cvs tag -R -r pcb-20070912 pcb-20070912-RELEASE
-		cvs update -PdA -r pcb-20070912-RELEASE
-		./autogen.sh && ./configure --enable-maintainer-mode && gmake clean && gmake && gmake distcheck
+		cvs tag -R -r pcb-20080202 pcb-20080202-RELEASE
+		cvs update -PdA -r pcb-20080202-RELEASE
+		./autogen.sh && ./configure --enable-maintainer-mode --disable-update-desktop-database --disable-update-mime-database && gmake clean && gmake && gmake distcheck
 	
 	7. Create checksums
 
-		digest sha1 pcb-20070912.tar.gz > pcb-20070912.SHA1
-		digest md5 pcb-20070912.tar.gz > pcb-20070912.MD5
+		openssl sha1 pcb-20080202.tar.gz > pcb-20080202.cksum
+		openssl md5 pcb-20080202.tar.gz >> pcb-20080202.cksum
+		openssl rmd160 pcb-20080202.tar.gz >> pcb-20080202.cksum
 
-	8. Upload the .tar.gz, .MD5, and .SHA1 files to
+	8. Upload the .tar.gz, .cksum files to
 	   ftp://upload.sourceforge.net/incoming/
 
 	9. Create a new file release for pcb with a release name of
-	   "pcb-20070912" (for pcb-20070912).
+	   "pcb-20080202" (for pcb-20080202).
 
 		For file types:
 			.tar.gz      -  any / source .gz
-			.{SHA1,MD5}  -  Platform Independent / Other Source File
+			.cksum       -  Platform Independent / Other Source File
 
 	10. Return to your regularly scheduled trunk development
 		cvs update -PdA
@@ -96,7 +97,7 @@ To make a pcb release do the following:
 =) 	if this is a patch release, then simply make desired changes to the branch, and
 		./autogen.sh 
 		cvs ci
-		cvs tag -R -r pcb-20070912 pcb-20070912-PATCH001
+		cvs tag -R -r pcb-20080202 pcb-20080202-PATCH001
 
 =)	gmake distclean ; ./autogen.sh &&./configure && gmake distcheck
 
