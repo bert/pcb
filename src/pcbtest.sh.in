@@ -37,8 +37,8 @@
 # Use  --g-fatal-warnings with the gtk HID to cause gtk-WARNING's to
 # abort.
 
-TEST_PATHS="--lib-path ../lib --lib-newlib @TOPSRCDIR@/newlib:../lib/pcblib-newlib --element-path ../lib --font-path @TOPSRCDIR@/src"
-TEST_CMDS="--lib-command-dir ../lib"
+TEST_PATHS="--lib-path ../lib --lib-newlib @TOPSRCDIR@/newlib:@TOP_BUILDDIR@/lib/pcblib-newlib --element-path @TOP_BUILDDIR@/lib --font-path @TOPSRCDIR@/src"
+TEST_CMDS="--lib-command-dir @TOP_BUILDDIR@/lib"
 
 if [ "X$1" = "X-gdb" ]; then
 	shift

@@ -12,7 +12,7 @@ HIDLIST = @HIDLIST@
 noinst_LIBRARIES = @HIDLIBS@
 EXTRA_LIBRARIES = \
 	libgtk.a liblesstif.a libbatch.a \
-	liblpr.a libgerber.a libbom.a libpng.a libps.a libnelma.a
+	liblpr.a libgerber.a libbom.a libcairo.a libpng.a libps.a libnelma.a
 
 pcblib_DATA=	\
 	default_font \
@@ -155,6 +155,7 @@ BUILT_SOURCES = \
 	hid/gtk/gtk_lists.h \
 	hid/lesstif/lesstif_lists.h \
 	hid/batch/batch_lists.h \
+	hid/cairo/cairo_lists.h \
 	hid/png/png_lists.h \
 	hid/nelma/nelma_lists.h \
 	hid/ps/ps_lists.h \
@@ -181,6 +182,7 @@ EXTRA_DIST= \
 	check_icon.data \
 	default_font \
 	$(srcdir)/hid/bom/hid.conf \
+	$(srcdir)/hid/cairo/hid.conf \
 	$(srcdir)/hid/gerber/hid.conf \
 	$(srcdir)/hid/gtk/gui-icons-misc.data \
 	$(srcdir)/hid/gtk/gui-icons-mode-buttons.data \
@@ -343,6 +345,19 @@ hid/png/png_lists.h : ${LIBPNG_SRCS} Makefile
 	(for f in ${LIBPNG_SRCS} ; do cat $(srcdir)/$$f ; done) | grep "^REGISTER" > $@.tmp
 	mv $@.tmp $@
 
+libcairo_a_CPPFLAGS = -I./hid/cairo
+LIBCAIRO_SRCS = \
+	dolists.h \
+	hid/hidint.h \
+	hid/cairo/cairo.c \
+	hid/cairo/cairo_hid.h 
+libcairo_a_SOURCES = ${LIBCAIRO_SRCS} hid/cairo/cairo_lists.h
+
+hid/cairo/cairo_lists.h : ${LIBCAIRO_SRCS} Makefile
+	true > $@
+	(for f in ${LIBCAIRO_SRCS} ; do cat $(srcdir)/$$f ; done) | grep "^REGISTER" > $@.tmp
+	mv $@.tmp $@
+
 libnelma_a_CPPFLAGS = -I./hid/nelma
 LIBNELMA_SRCS = \
 	dolists.h \
@@ -374,7 +389,8 @@ DISTCLEANFILES= pcbtest.sh gpcb-menu.h pcb-menu.h \
 
 # create wrapper script that lets you test pcb prior to installation
 pcbtest.sh:	$(srcdir)/pcbtest.sh.in Makefile
-	sed -e "s;@BUILDDIR@;`pwd`;g" -e "s;@TOPSRCDIR@;${top_srcdir};g" \
+	sed -e 's;@BUILDDIR@;${abs_builddir};g' -e 's;@TOP_BUILDDIR@;${abs_top_builddir};g' \
+		-e 's;@TOPSRCDIR@;${abs_top_srcdir};g' \
 		$(srcdir)/pcbtest.sh.in > $@
 	chmod 755 $@
 
