@@ -549,7 +549,7 @@ gerber_set_layer (const char *name, int group)
 	  return 1;
 	}
 
-      fprintf (f, "G04 start of page %d for group %d idx %d\015\012",
+      fprintf (f, "G04 start of page %d for group %d idx %d *\015\012",
 	       pagecount, group, idx);
 
       /* Create a portable timestamp. */
