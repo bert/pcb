@@ -520,6 +520,7 @@ pcbdrc1
 				yyPCB->Bloat = $3;
 				yyPCB->Shrink = $4;
 				yyPCB->minWid = $5;
+				yyPCB->minRing = $5;
 			}
 		;
 
@@ -530,6 +531,7 @@ pcbdrc2
 				yyPCB->Shrink = $4;
 				yyPCB->minWid = $5;
 				yyPCB->minSlk = $6;
+				yyPCB->minRing = $5;
 			}
 		;
 
