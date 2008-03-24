@@ -916,6 +916,8 @@ gerber_draw_arc (hidGC gc, int cx, int cy, int width, int height,
 static void
 gerber_fill_circle (hidGC gc, int cx, int cy, int radius)
 {
+  if (radius <= 0)
+    return;
   if (is_drill)
     radius = ROUND(radius*2)/2;
   use_gc (gc, radius);
