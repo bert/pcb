@@ -842,6 +842,7 @@ ps_draw_rect (hidGC gc, int x1, int y1, int x2, int y2)
 }
 
 static void ps_fill_rect (hidGC gc, int x1, int y1, int x2, int y2);
+static void ps_fill_circle (hidGC gc, int cx, int cy, int radius);
 
 static void
 ps_draw_line (hidGC gc, int x1, int y1, int x2, int y2)
@@ -866,7 +867,10 @@ ps_draw_line (hidGC gc, int x1, int y1, int x2, int y2)
   if (x1 == x2 && y1 == y2)
     {
       int w = gc->width / 2;
-      ps_fill_rect (gc, x1 - w, y1 - w, x1 + w, y1 + w);
+      if (gc->cap == Square_Cap)
+	ps_fill_rect (gc, x1 - w, y1 - w, x1 + w, y1 + w);
+      else
+	ps_fill_circle (gc, x1, y1, w);
       return;
     }
   use_gc (gc);
