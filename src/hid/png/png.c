@@ -803,7 +803,7 @@ png_fill_rect (hidGC gc, int x1, int y1, int x2, int y2)
   gdImageSetThickness (im, 0);
   linewidth = 0;
   gdImageFilledRectangle (im, SCALE_X (x1), SCALE_Y (y1),
-			  SCALE_X (x2), SCALE_Y (y2), gc->color->c);
+			  SCALE_X (x2)-1, SCALE_Y (y2)-1, gc->color->c);
 }
 
 static void
