@@ -267,6 +267,12 @@ nogui_confirm_dialog (char *msg, ...)
   return rv;
 }
 
+static int
+nogui_close_confirm_dialog ()
+{
+  return nogui_confirm_dialog (_("OK to lose data ?"), NULL);
+}
+
 static void
 nogui_report_dialog (char *title, char *msg)
 {
@@ -373,6 +379,7 @@ HID hid_nogui = {
   nogui_log,
   nogui_logv,
   nogui_confirm_dialog,
+  nogui_close_confirm_dialog,
   nogui_report_dialog,
   nogui_prompt_for,
   nogui_fileselect,
@@ -422,6 +429,7 @@ apply_default_hid (HID * d, HID * s)
   AD (log);
   AD (logv);
   AD (confirm_dialog);
+  AD (close_confirm_dialog);
   AD (report_dialog);
   AD (prompt_for);
   AD (fileselect);

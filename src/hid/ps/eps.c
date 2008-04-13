@@ -647,6 +647,7 @@ static HID eps_hid = {
   0 /* eps_log */ ,
   0 /* eps_logv */ ,
   0 /* eps_confirm_dialog */ ,
+  0 /* eps_close_confirm_dialog */ ,
   0 /* eps_report_dialog */ ,
   0 /* eps_prompt_for */ ,
   0 /* eps_attribute_dialog */ ,

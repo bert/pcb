@@ -219,6 +219,7 @@ static HID extents_hid = {
   0 /* extents_log */ ,
   0 /* extents_logv */ ,
   0 /* extents_confirm_dialog */ ,
+  0 /* extents_close_confirm_dialog */ ,
   0 /* extents_report_dialog */ ,
   0 /* extents_prompt_for */ ,
   0 /* extents_attribute_dialog */ ,

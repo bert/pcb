@@ -150,6 +150,7 @@ HID lpr_hid = {
   0 /* lpr_log */ ,
   0 /* lpr_logv */ ,
   0 /* lpr_confirm_dialog */ ,
+  0 /* lpr_close_confirm_dialog */ ,
   0 /* lpr_report_dialog */ ,
   0 /* lpr_prompt_for */ ,
   0 /* lpr_fileselect */ ,

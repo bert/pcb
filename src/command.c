@@ -225,7 +225,8 @@ static const char q_help[] = "Quits the application after confirming.";
 
 /* %start-doc actions q
 
-Note that this command doesn't save your layout.
+If you have unsaved changes, you will be prompted to confirm (or
+save) before quitting.
 
 @colonaction
 
@@ -234,7 +235,7 @@ Note that this command doesn't save your layout.
 static int
 CommandQuit (int argc, char **argv, int x, int y)
 {
-  if (!PCB->Changed || gui->confirm_dialog ("OK to lose data ?", 0))
+  if (!PCB->Changed || gui->close_confirm_dialog () == HID_CLOSE_CONFIRM_OK)
     QuitApplication ();
   return 0;
 }

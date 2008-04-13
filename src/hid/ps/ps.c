@@ -1171,6 +1171,7 @@ HID ps_hid = {
   0 /* ps_log */ ,
   0 /* ps_logv */ ,
   0 /* ps_confirm_dialog */ ,
+  0 /* ps_close_confirm_dialog */ ,
   0 /* ps_report_dialog */ ,
   0 /* ps_prompt_for */ ,
   0 /* ps_fileselect */ ,

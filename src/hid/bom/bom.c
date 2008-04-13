@@ -573,6 +573,7 @@ HID bom_hid = {
   0,				/* bom_log */
   0,				/* bom_logv */
   0,				/* bom_confirm_dialog */
+  0,				/* bom_close_confirm_dialog */
   0,				/* bom_report_dialog */
   0,				/* bom_prompt_for */
   0,				/* bom_fileselect */

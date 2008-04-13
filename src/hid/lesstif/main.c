@@ -3601,6 +3601,8 @@ extern void lesstif_logv (const char *fmt, va_list ap);
 
 extern int lesstif_confirm_dialog (char *msg, ...);
 
+extern int lesstif_close_confirm_dialog ();
+
 extern void lesstif_report_dialog (char *title, char *msg);
 
 extern int
@@ -3821,6 +3823,7 @@ HID lesstif_gui = {
   lesstif_log,
   lesstif_logv,
   lesstif_confirm_dialog,
+  lesstif_close_confirm_dialog,
   lesstif_report_dialog,
   lesstif_prompt_for,
   lesstif_fileselect,

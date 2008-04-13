@@ -425,6 +425,16 @@ typedef enum
        NULL as the last parameter to this.  */
     int (*confirm_dialog) (char *msg, ...);
 
+    /* A close confirmation dialog for unsaved pages, for example, with
+       options "Close without saving", "Cancel" and "Save". Returns zero
+       if the close is cancelled, or one if it should proceed. The HID
+       is responsible for any "Save" action the user may wish before
+       confirming the close.
+       */
+    int (*close_confirm_dialog) ();
+#define HID_CLOSE_CONFIRM_CANCEL 0
+#define HID_CLOSE_CONFIRM_OK     1
+
     /* Just prints text.  */
     void (*report_dialog) (char *title, char *msg);
 

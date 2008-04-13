@@ -142,7 +142,7 @@ Affects all objects which are both selected and of the @var{Type} specified.
 * Puller Action:: Pull an arc-line junction tight.
 * q Action:: Quits the application after confirming.
 * q! Action:: Quits the application without confirming.
-* Quit Action:: Quits the application.
+* Quit Action:: Quits the application after confirming.
 * Redo Action:: Redo recent``undo''operations.
 * RemoveSelected Action:: Removes any selected objects.
 * Renumber Action:: Renumber all elements.  The changes will be recorded to filename
@@ -1522,7 +1522,8 @@ q@end format
 Quits the application after confirming.
 @c ./../src/command.c 185
 
-Note that this command doesn't save your layout.
+If you have unsaved changes, you will be prompted to confirm (or
+save) before quitting.
 
 @colonaction
 
@@ -1552,11 +1553,11 @@ confirmation.
 Quit()@end format
 @end cartouche
 
-Quits the application.
+Quits the application after confirming.
 @c ./../src/action.c 2000
 
-If you have unsaved changes, you will be prompted to confirm before
-quitting.
+If you have unsaved changes, you will be prompted to confirm (or
+save) before quitting.
 
 
 @node Redo Action
@@ -2251,7 +2252,7 @@ About()@end format
 @end cartouche
 
 Tell the user about this version of PCB.
-@c ./../src/hid/gtk/gtkhid-main.c 1587
+@c ./../src/hid/gtk/gtkhid-main.c 1595
 
 This just pops up a dialog telling the user which version of
 @code{pcb} they're running.
@@ -2282,7 +2283,7 @@ Center()
 @end cartouche
 
 Moves the pointer to the center of the window.
-@c ./../src/hid/gtk/gtkhid-main.c 2024
+@c ./../src/hid/gtk/gtkhid-main.c 2032
 
 Move the pointer to the center of the window, but only if it's
 currently within the window already.
@@ -2297,7 +2298,7 @@ Cursor(Type,DeltaUp,DeltaRight,Units)@end format
 @end cartouche
 
 Move the cursor.
-@c ./../src/hid/gtk/gtkhid-main.c 2123
+@c ./../src/hid/gtk/gtkhid-main.c 2131
 
 This action moves the mouse cursor.  Unlike other actions which take
 coordinates, this action's coordinates are always relative to the
@@ -2341,7 +2342,7 @@ DoWindows(Layout|Library|Log|Netlist|Preferences)@end format
 @end cartouche
 
 Open various GUI windows.
-@c ./../src/hid/gtk/gtkhid-main.c 2181
+@c ./../src/hid/gtk/gtkhid-main.c 2189
 
 @table @code
 
@@ -2395,7 +2396,7 @@ GetXY()@end format
 @end cartouche
 
 Get a coordinate.
-@c ./../src/hid/gtk/gtkhid-main.c 1602
+@c ./../src/hid/gtk/gtkhid-main.c 1610
 
 Prompts the user for a coordinate, if one is not already selected.
 
@@ -2411,7 +2412,7 @@ Popup(MenuName, [Button])@end format
 Bring up the popup menu specified by @code{MenuName}.
 If called by a mouse event then the mouse button number
 must be specified as the optional second argument.
-@c ./../src/hid/gtk/gtkhid-main.c 2248
+@c ./../src/hid/gtk/gtkhid-main.c 2256
 
 This just pops up the specified menu.  The menu must have been defined
 as a named subresource of the Popups resource in the menu resource
@@ -2428,7 +2429,7 @@ Print()@end format
 @end cartouche
 
 Print the layout.
-@c ./../src/hid/gtk/gtkhid-main.c 1899
+@c ./../src/hid/gtk/gtkhid-main.c 1907
 
 This will find the default printing HID, prompt the user for its
 options, and print the layout.
@@ -2443,7 +2444,7 @@ PrintCalibrate()@end format
 @end cartouche
 
 Calibrate the printer.
-@c ./../src/hid/gtk/gtkhid-main.c 1950
+@c ./../src/hid/gtk/gtkhid-main.c 1958
 
 This will print a calibration page, which you would measure and type
 the measurements in, so that future printouts will be more precise.
@@ -2461,7 +2462,7 @@ Save(PasteBuffer)@end format
 @end cartouche
 
 Save layout and/or element data to a user-selected file.
-@c ./../src/hid/gtk/gtkhid-main.c 1746
+@c ./../src/hid/gtk/gtkhid-main.c 1754
 
 This action is a GUI front-end to the core's @code{SaveTo} action
 (@pxref{SaveTo Action}).  If you happen to pass a filename, like
@@ -2494,7 +2495,7 @@ SetUnits(mm|mil)@end format
 @end cartouche
 
 Set the default measurement units.
-@c ./../src/hid/gtk/gtkhid-main.c 2220
+@c ./../src/hid/gtk/gtkhid-main.c 2228
 
 @table @code
 
@@ -2516,7 +2517,7 @@ SwapSides(|v|h|r)@end format
 @end cartouche
 
 Swaps the side of the board you're looking at.
-@c ./../src/hid/gtk/gtkhid-main.c 1824
+@c ./../src/hid/gtk/gtkhid-main.c 1832
 
 This action changes the way you view the board.
 
@@ -2658,7 +2659,7 @@ About()@end format
 @end cartouche
 
 Tell the user about this version of PCB.
-@c ./../src/hid/lesstif/dialogs.c 843
+@c ./../src/hid/lesstif/dialogs.c 851
 
 This just pops up a dialog telling the user which version of
 @code{pcb} they're running.
@@ -2673,7 +2674,7 @@ AdjustSizes()@end format
 @end cartouche
 
 Let the user change the board size, DRC parameters, etc
-@c ./../src/hid/lesstif/dialogs.c 1127
+@c ./../src/hid/lesstif/dialogs.c 1135
 
 Displays a dialog box that lets the user change the board
 size, DRC parameters, and text scale.
@@ -2837,7 +2838,7 @@ DoWindows(Layout|Library|Log|Netlist)@end format
 @end cartouche
 
 Open various GUI windows.
-@c ./../src/hid/lesstif/dialogs.c 807
+@c ./../src/hid/lesstif/dialogs.c 815
 
 @table @code
 
@@ -2890,7 +2891,7 @@ EditLayerGroups()@end format
 @end cartouche
 
 Let the user change the layer groupings
-@c ./../src/hid/lesstif/dialogs.c 1439
+@c ./../src/hid/lesstif/dialogs.c 1447
 
 Displays a dialog that lets the user view and change the layer
 groupings.  Each layer (row) can be a member of any one layer group
@@ -2910,7 +2911,7 @@ Export()@end format
 @end cartouche
 
 Export the layout.
-@c ./../src/hid/lesstif/dialogs.c 933
+@c ./../src/hid/lesstif/dialogs.c 941
 
 Prompts the user for an exporter to use.  Then, prompts the user for
 that exporter's options, and exports the layout.
@@ -2998,7 +2999,7 @@ Print()@end format
 @end cartouche
 
 Print the layout.
-@c ./../src/hid/lesstif/dialogs.c 870
+@c ./../src/hid/lesstif/dialogs.c 878
 
 This will find the default printing HID, prompt the user for its
 options, and print the layout.
@@ -3013,7 +3014,7 @@ PrintCalibrate()@end format
 @end cartouche
 
 Calibrate the printer.
-@c ./../src/hid/lesstif/dialogs.c 913
+@c ./../src/hid/lesstif/dialogs.c 921
 
 This will print a calibration page, which you would measure and type
 the measurements in, so that future printouts will be more precise.
@@ -3028,7 +3029,7 @@ PromptFor([message[,default]])@end format
 @end cartouche
 
 Prompt for a response.
-@c ./../src/hid/lesstif/dialogs.c 566
+@c ./../src/hid/lesstif/dialogs.c 574
 
 This is mostly for testing the lesstif HID interface.  The parameters
 are passed to the @code{prompt_for()} HID function, causing the user

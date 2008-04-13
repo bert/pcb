@@ -2165,12 +2165,12 @@ ActionSetValue (int argc, char **argv, int x, int y)
 
 static const char quit_syntax[] = "Quit()";
 
-static const char quit_help[] = "Quits the application.";
+static const char quit_help[] = "Quits the application after confirming.";
 
 /* %start-doc actions Quit
 
-If you have unsaved changes, you will be prompted to confirm before
-quitting.
+If you have unsaved changes, you will be prompted to confirm (or
+save) before quitting.
 
 %end-doc */
 
@@ -2183,7 +2183,7 @@ ActionQuit (int argc, char **argv, int x, int y)
       PCB->Changed = 0;
       exit (0);
     }
-  if (!PCB->Changed || gui->confirm_dialog (_("OK to lose data ?"), 0))
+  if (!PCB->Changed || gui->close_confirm_dialog () == HID_CLOSE_CONFIRM_OK)
     QuitApplication ();
   return 1;
 }

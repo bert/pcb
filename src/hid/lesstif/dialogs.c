@@ -492,6 +492,14 @@ ConfirmAction (int argc, char **argv, int x, int y)
 
 /* ------------------------------------------------------------ */
 
+int
+lesstif_close_confirm_dialog ()
+{
+  return lesstif_confirm_dialog ("OK to lose data ?", NULL);
+}
+
+/* ------------------------------------------------------------ */
+
 static Widget report = 0, report_form;
 
 void

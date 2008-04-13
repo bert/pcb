@@ -354,6 +354,12 @@ batch_confirm_dialog (char *msg, ...)
   return rv;
 }
 
+static int
+batch_close_confirm_dialog ()
+{
+  return batch_confirm_dialog (_("OK to lose data ?"), NULL);
+}
+
 static void
 batch_report_dialog (char *title, char *msg)
 {
@@ -451,6 +457,7 @@ HID batch_gui = {
   batch_log,
   batch_logv,
   batch_confirm_dialog,
+  batch_close_confirm_dialog,
   batch_report_dialog,
   batch_prompt_for,
   batch_fileselect,
