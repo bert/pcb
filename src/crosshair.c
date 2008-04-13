@@ -66,6 +66,9 @@ typedef struct
 /* ---------------------------------------------------------------------------
  * some local identifiers
  */
+
+/* This is a stack for HideCrosshair() and RestoreCrosshair() calls. They
+ * must always be matched. */
 static Boolean CrosshairStack[MAX_CROSSHAIRSTACK_DEPTH];
 static int CrosshairStackLocation = 0;
 
@@ -718,15 +721,31 @@ CrosshairOff (Boolean BlockToo)
     }
 }
 
+/*
+ * The parameter to HideCrosshair() and RestoreCrosshair() dictates whether 
+ * the object you're dragging should be drawn or not.
+ *
+ * This argument is _not_ saved in the stack, so whether you have drawings
+ * following the cursor around or not is dependant on the parameter passed 
+ * LAST to either of these two functions.
+ */
+
 /* ---------------------------------------------------------------------------
  * saves crosshair state (on/off) and hides him
  */
 void
 HideCrosshair (Boolean BlockToo)
 {
-  CrosshairStack[CrosshairStackLocation++] = Crosshair.On;
+  /* fprintf(stderr, "HideCrosshair %d stack %d\n", BlockToo ? 1 : 0, CrosshairStackLocation); */
   if (CrosshairStackLocation >= MAX_CROSSHAIRSTACK_DEPTH)
-    CrosshairStackLocation--;
+    {
+      fprintf(stderr, "Error: CrosshairStackLocation overflow\n");
+      return;
+    }
+
+  CrosshairStack[CrosshairStackLocation] = Crosshair.On;
+  CrosshairStackLocation++;
+
   CrosshairOff (BlockToo);
 }
 
@@ -736,12 +755,22 @@ HideCrosshair (Boolean BlockToo)
 void
 RestoreCrosshair (Boolean BlockToo)
 {
-  if (CrosshairStackLocation)
+  /* fprintf(stderr, "RestoreCrosshair %d stack %d\n", BlockToo ? 1 : 0, CrosshairStackLocation); */
+  if (CrosshairStackLocation <= 0)
     {
-      if (CrosshairStack[--CrosshairStackLocation])
-	CrosshairOn (BlockToo);
-      else
-	CrosshairOff (BlockToo);
+      fprintf(stderr, "Error: CrosshairStackLocation underflow\n");
+      return;
+    }
+
+  CrosshairStackLocation--;
+
+  if (CrosshairStack[CrosshairStackLocation])
+    {
+      CrosshairOn (BlockToo);
+    }
+  else
+    {
+      CrosshairOff (BlockToo);
     }
 }
 

@@ -52,6 +52,10 @@ RCSID ("$Id$");
 
 static gint x_pan_speed, y_pan_speed;
 
+/* Set to true if cursor is currently in viewport. This is a hack to prevent
+ * Crosshair stack corruption due to unmatching window enter / leave events */
+gboolean cursor_in_viewport = False;
+
 void
 ghid_port_ranges_changed (void)
 {
@@ -814,10 +818,8 @@ gint
 ghid_port_window_enter_cb (GtkWidget * widget,
 			   GdkEventCrossing * ev, GHidPort * out)
 {
-  /* printf("enter: mode: %d type: %d\n", ev->mode, ev->detail); */
+  /* printf("enter: mode: %d detail: %d\n", ev->mode, ev->detail); */
 
-  RestoreCrosshair (TRUE);
-  
   /* See comment in ghid_port_window_leave_cb() */
 
   if(ev->mode != GDK_CROSSING_NORMAL && ev->detail != GDK_NOTIFY_NONLINEAR) 
@@ -838,9 +840,15 @@ ghid_port_window_enter_cb (GtkWidget * widget,
    * move the mouse to the viewport and click on it. This closes the menu 
    * and moves the pointer to the viewport without the pointer going over 
    * the edge of the viewport */
-  if(ev->mode == GDK_CROSSING_UNGRAB && GDK_NOTIFY_NONLINEAR)
+  if(ev->mode == GDK_CROSSING_UNGRAB && ev->detail == GDK_NOTIFY_NONLINEAR)
     {
       ghid_screen_update ();
+    }
+
+  if(! cursor_in_viewport)
+    {
+      RestoreCrosshair (TRUE);
+      cursor_in_viewport = TRUE;
     }
 	  
   return FALSE;
@@ -864,7 +872,7 @@ ghid_port_window_leave_cb (GtkWidget * widget,
 {
   gint x0, y0, x, y, dx, dy, w, h;
   
-  /* printf("leave: mode: %d type: %d\n", ev->mode, ev->detail); */
+  /* printf("leave mode: %d detail: %d\n", ev->mode, ev->detail); */
 
   /* Window leave events can also be triggered because of focus grabs. Some
    * X applications occasionally grab the focus and so trigger this function.
@@ -873,8 +881,12 @@ ghid_port_window_leave_cb (GtkWidget * widget,
    * See http://bugzilla.gnome.org/show_bug.cgi?id=102209 
    */
 
-  if(ev->mode == GDK_CROSSING_NORMAL
-     && out->has_entered && !ghidgui->in_popup)
+  if(ev->mode != GDK_CROSSING_NORMAL)
+    {
+      return FALSE;
+    }
+
+  if(out->has_entered && !ghidgui->in_popup)
     {
       /* if actively drawing, start scrolling */
 
@@ -925,7 +937,11 @@ ghid_port_window_leave_cb (GtkWidget * widget,
 	}
     }
 
-  HideCrosshair (TRUE);
+  if(cursor_in_viewport)
+    {
+      HideCrosshair (TRUE);
+      cursor_in_viewport = FALSE;
+    }
 
   ghid_show_crosshair (FALSE);
   out->has_entered = FALSE;
