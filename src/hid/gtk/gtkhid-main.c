@@ -1957,7 +1957,9 @@ side'' of the board.
 static int
 SwapSides (int argc, char **argv, int x, int y)
 {
-  gint dx;
+  gint flipd;
+  int do_flip_x = 0;
+  int do_flip_y = 0;
   int comp_group = GetLayerGroupNumberByNumber (max_layer + COMPONENT_LAYER);
   int solder_group = GetLayerGroupNumberByNumber (max_layer + SOLDER_LAYER);
   int active_group = GetLayerGroupNumberByNumber (LayerStack[0]);
@@ -1973,15 +1975,19 @@ SwapSides (int argc, char **argv, int x, int y)
       case 'h':
       case 'H':
 	ghid_flip_x = ! ghid_flip_x;
+	do_flip_x = 1;
 	break;
       case 'v':
       case 'V':
 	ghid_flip_y = ! ghid_flip_y;
+	do_flip_y = 1;
 	break;
       case 'r':
       case 'R':
 	ghid_flip_x = ! ghid_flip_x;
 	ghid_flip_y = ! ghid_flip_y;
+	do_flip_x = 1;
+	do_flip_y = 1;
 	break;
       default:
 	return 1;
@@ -2012,9 +2018,20 @@ SwapSides (int argc, char **argv, int x, int y)
 	}
     }
 
-  /* what does this do? */
-  dx = PCB->MaxWidth / 2 - gport->view_x;
-  ghid_port_ranges_pan (2 * dx, 0, TRUE);
+  /* Update coordinates so that the current location stays where it was on the
+     other side; we need to do this since the actual flip center is the
+     center of the board while the user expect the center would be the current
+     location */
+  if (do_flip_x)
+    {
+	flipd = PCB->MaxWidth / 2 - gport->view_x;
+	ghid_port_ranges_pan (2 * flipd, 0, TRUE);
+    }
+  if (do_flip_y)
+    {
+	flipd = PCB->MaxHeight / 2 - gport->view_y;
+	ghid_port_ranges_pan (0, 2 * flipd, TRUE);
+    }
 
   ghid_invalidate_all ();
   return 0;
