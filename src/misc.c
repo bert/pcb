@@ -550,9 +550,16 @@ CenterDisplay (LocationType X, LocationType Y, Boolean Delta)
   int save_grid = PCB->Grid;
   PCB->Grid = 1;
   if (Delta)
-    MoveCrosshairRelative (X, Y);
+    {
+      MoveCrosshairRelative (X, Y);
+    }
   else
-    MoveCrosshairAbsolute (X, Y);
+    {
+      if (MoveCrosshairAbsolute (X, Y))
+        {
+          RestoreCrosshair(False);
+        }
+    }
   gui->set_crosshair (Crosshair.X, Crosshair.Y, HID_SC_WARP_POINTER);
   PCB->Grid = save_grid;
 }
