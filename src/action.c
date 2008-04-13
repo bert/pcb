@@ -5666,8 +5666,12 @@ ActionNew (int argc, char **argv, int x, int y)
 	name = MyStrdup (name, "ActionNew");
       else
 	name = gui->prompt_for (_("Enter the layout name:"), "");
+
       if (!name)
-	return 1;
+	{
+	  RestoreCrosshair(True);
+	  return 1;
+	}
 
       /* do emergency saving
        * clear the old struct and allocate memory for the new one
@@ -5689,6 +5693,7 @@ ActionNew (int argc, char **argv, int x, int y)
       ClearAndRedrawOutput ();
 
       hid_action ("PCBChanged");
+      RestoreCrosshair(True);
       return 0;
     }
   RestoreCrosshair (True);
