@@ -95,7 +95,14 @@ extern void free();
 
  void define_pcb_net(str_pair* name, pair_list* nodes)
  {
+     int tl;
+     str_pair* done_node;
+     str_pair* node;
+     char* buf;
+     char* p;
+     LibraryEntryTypePtr entry;
      LibraryMenuTypePtr menu = GetLibraryMenuMemory (&PCB->NetlistLib);
+
      if ( !name->str1 )
      {
 	 /* no net name given, stop now */
@@ -110,18 +117,15 @@ extern void free();
      /* if renamed str2 also exists and must be freed */
      if ( name->str2 )  free(name->str2);
      free(name);
-     LibraryEntryTypePtr entry;
-     char* buf = malloc(256);
-     char* p;
+     buf = malloc(256);
      if ( !buf )
      {
 	 /* no memory */
 	 pair_list_free(nodes);
 	 return;
      }
-     int tl;
-     str_pair* done_node;
-     str_pair* node = nodes->list;
+
+     node = nodes->list;
      free(nodes->name);
      free(nodes);
      while ( node )

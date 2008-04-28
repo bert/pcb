@@ -878,9 +878,11 @@ static int
 check_point_in_pad (PadTypePtr pad, int x, int y, End *e)
 {
   int inside_p;
+  int t;
+
   printf("pad %d,%d - %d,%d t %d  vs  %d,%d\n", pad->Point1.X, pad->Point1.Y,
 	 pad->Point2.X, pad->Point2.Y, pad->Thickness, x, y);
-  int t = (pad->Thickness+1)/2;
+  t = (pad->Thickness+1)/2;
   if (TEST_FLAG (SQUAREFLAG, pad))
     {
     inside_p = (x >= MIN (pad->Point1.X - t, pad->Point2.X - t)
@@ -1886,6 +1888,8 @@ static ArcTypePtr
 create_arc (LineTypePtr sample, int x, int y, int r, int sa, int da)
 {
   Extra *e, *new_arcs;
+  ArcTypePtr arc;
+
   if (r % 100 == 1)
     r--;
   if (r % 100 == 99)
@@ -1893,7 +1897,7 @@ create_arc (LineTypePtr sample, int x, int y, int r, int sa, int da)
 #if TRACE1
   printf("create_arc at %d,%d r %d sa %d delta %d\n", x, y, r, sa, da);
 #endif
-  ArcTypePtr arc = CreateNewArcOnLayer (CURRENT, x, y, r, r, sa, da,
+  arc = CreateNewArcOnLayer (CURRENT, x, y, r, r, sa, da,
 					sample->Thickness, sample->Clearance, sample->Flags);
   if (arc == 0)
     {
