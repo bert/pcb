@@ -305,6 +305,9 @@ void
 qloop (struct query_closure *qc, rtree_t * tree, vector_t * res)
 {
   BoxType *cbox;
+#ifndef NDEBUG
+  int n;
+#endif
   while (!vector_is_empty (qc->vec))
     {
       cbox = vector_remove_last (qc->vec);
@@ -313,7 +316,7 @@ qloop (struct query_closure *qc, rtree_t * tree, vector_t * res)
           assert (__box_is_good (cbox));
           qc->cbox = cbox;
 #ifndef NDEBUG
-          int n =
+          n =
 #endif
             r_search (tree, cbox, NULL, query_one, qc);
           assert (n == 0);

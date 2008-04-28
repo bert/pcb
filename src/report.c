@@ -136,6 +136,7 @@ ReportDialog (int argc, char **argv, int x, int y)
     {
     case VIA_TYPE:
       {
+	PinTypePtr via;
 #ifndef NDEBUG
 	if (gui->shift_is_pressed ())
 	  {
@@ -143,7 +144,7 @@ ReportDialog (int argc, char **argv, int x, int y)
 	    return 0;
 	  }
 #endif
-	PinTypePtr via = (PinTypePtr) ptr2;
+	via = (PinTypePtr) ptr2;
 	if (TEST_FLAG (HOLEFLAG, via))
 	  sprintf (&report[0], "VIA ID# %ld  Flags:%s\n"
 		   "(X,Y) = (%d, %d)\n"
@@ -173,6 +174,8 @@ ReportDialog (int argc, char **argv, int x, int y)
       }
     case PIN_TYPE:
       {
+	PinTypePtr Pin;
+	ElementTypePtr element;
 #ifndef NDEBUG
 	if (gui->shift_is_pressed ())
 	  {
@@ -180,8 +183,8 @@ ReportDialog (int argc, char **argv, int x, int y)
 	    return 0;
 	  }
 #endif
-	PinTypePtr Pin = (PinTypePtr) ptr2;
-	ElementTypePtr element = (ElementTypePtr) ptr1;
+	Pin = (PinTypePtr) ptr2;
+	element = (ElementTypePtr) ptr1;
 
 	PIN_LOOP (element);
 	{
@@ -220,6 +223,7 @@ ReportDialog (int argc, char **argv, int x, int y)
       }
     case LINE_TYPE:
       {
+	LineTypePtr line;
 #ifndef NDEBUG
 	if (gui->shift_is_pressed ())
 	  {
@@ -228,7 +232,7 @@ ReportDialog (int argc, char **argv, int x, int y)
 	    return 0;
 	  }
 #endif
-	LineTypePtr line = (LineTypePtr) ptr2;
+	line = (LineTypePtr) ptr2;
 	sprintf (&report[0], "LINE ID# %ld   Flags:%s\n"
 		 "FirstPoint(X,Y) = (%d, %d)  ID = %ld\n"
 		 "SecondPoint(X,Y) = (%d, %d)  ID = %ld\n"
@@ -249,6 +253,7 @@ ReportDialog (int argc, char **argv, int x, int y)
       }
     case RATLINE_TYPE:
       {
+	RatTypePtr line;
 #ifndef NDEBUG
 	if (gui->shift_is_pressed ())
 	  {
@@ -256,7 +261,7 @@ ReportDialog (int argc, char **argv, int x, int y)
 	    return 0;
 	  }
 #endif
-	RatTypePtr line = (RatTypePtr) ptr2;
+	line = (RatTypePtr) ptr2;
 	sprintf (&report[0], "RAT-LINE ID# %ld   Flags:%s\n"
 		 "FirstPoint(X,Y) = (%d, %d) ID = %ld "
 		 "connects to layer group %d\n"
@@ -271,6 +276,8 @@ ReportDialog (int argc, char **argv, int x, int y)
       }
     case ARC_TYPE:
       {
+	ArcTypePtr Arc;
+	BoxTypePtr box;
 #ifndef NDEBUG
 	if (gui->shift_is_pressed ())
 	  {
@@ -279,8 +286,8 @@ ReportDialog (int argc, char **argv, int x, int y)
 	    return 0;
 	  }
 #endif
-	ArcTypePtr Arc = (ArcTypePtr) ptr2;
-	BoxTypePtr box = GetArcEnds (Arc);
+	Arc = (ArcTypePtr) ptr2;
+	box = GetArcEnds (Arc);
 
 	sprintf (&report[0], "ARC ID# %ld   Flags:%s\n"
 		 "CenterPoint(X,Y) = (%d, %d)\n"
@@ -303,6 +310,7 @@ ReportDialog (int argc, char **argv, int x, int y)
       }
     case POLYGON_TYPE:
       {
+	PolygonTypePtr Polygon;
 #ifndef NDEBUG
 	if (gui->shift_is_pressed ())
 	  {
@@ -311,7 +319,7 @@ ReportDialog (int argc, char **argv, int x, int y)
 	    return;
 	  }
 #endif
-	PolygonTypePtr Polygon = (PolygonTypePtr) ptr2;
+	Polygon = (PolygonTypePtr) ptr2;
 
 	sprintf (&report[0], "POLYGON ID# %ld   Flags:%s\n"
 		 "Its bounding box is (%d,%d) (%d,%d)\n"
@@ -330,6 +338,8 @@ ReportDialog (int argc, char **argv, int x, int y)
     case PAD_TYPE:
       {
 	int len, dx, dy, mgap;
+	PadTypePtr Pad;
+	ElementTypePtr element;
 #ifndef NDEBUG
 	if (gui->shift_is_pressed ())
 	  {
@@ -337,8 +347,8 @@ ReportDialog (int argc, char **argv, int x, int y)
 	    return 0;
 	  }
 #endif
-	PadTypePtr Pad = (PadTypePtr) ptr2;
-	ElementTypePtr element = (ElementTypePtr) ptr1;
+	Pad = (PadTypePtr) ptr2;
+	element = (ElementTypePtr) ptr1;
 
 	PAD_LOOP (element);
 	{
@@ -379,6 +389,7 @@ ReportDialog (int argc, char **argv, int x, int y)
       }
     case ELEMENT_TYPE:
       {
+	ElementTypePtr element;
 #ifndef NDEBUG
 	if (gui->shift_is_pressed ())
 	  {
@@ -386,7 +397,7 @@ ReportDialog (int argc, char **argv, int x, int y)
 	    return 0;
 	  }
 #endif
-	ElementTypePtr element = (ElementTypePtr) ptr2;
+	element = (ElementTypePtr) ptr2;
 	sprintf (&report[0], "ELEMENT ID# %ld   Flags:%s\n"
 		 "BoundingBox (%d,%d) (%d,%d)\n"
 		 "Descriptive Name \"%s\"\n"
@@ -423,6 +434,8 @@ ReportDialog (int argc, char **argv, int x, int y)
 #endif
     case ELEMENTNAME_TYPE:
       {
+	char laynum[32];
+	TextTypePtr text;
 #ifndef NDEBUG
 	if (gui->shift_is_pressed ())
 	  {
@@ -430,8 +443,7 @@ ReportDialog (int argc, char **argv, int x, int y)
 	    return 0;
 	  }
 #endif
-	char laynum[32];
-	TextTypePtr text = (TextTypePtr) ptr2;
+	text = (TextTypePtr) ptr2;
 
 	if (type == TEXT_TYPE)
 	  sprintf (laynum, "is on layer %d",
