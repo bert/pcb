@@ -702,11 +702,26 @@ LIBS="$LIBS $XM_LIBS $DBUS_LIBS $X_LIBS $GTK_LIBS $DMALLOC_LIBS $GD_LIBS $INTLLI
 
 # if we have gcc then add -Wall
 if test "x$GCC" = "xyes"; then
-	if test -z "`echo "$CFLAGS" | grep "\-Wall" 2> /dev/null`" ; then
-		CFLAGS="$CFLAGS -Wall"
-	fi
+	# see about adding some extra checks if the compiler takes them
+	for flag in -Wall -Wdeclaration-after-statement ; do
+		case " ${CFLAGS} " in
+			*\ ${flag}\ *)
+				# flag is already present
+				;;
+			*)
+				AC_MSG_CHECKING([if the compiler accepts ${flag}])
+				ac_save_CFLAGS="$CFLAGS"
+				CFLAGS="$CFLAGS ${flag}"
+				AC_COMPILE_IFELSE([AC_LANG_PROGRAM()],
+					[AC_MSG_RESULT([yes])],
+					[AC_MSG_RESULT([no])
+					 CFLAGS="$ac_save_CFLAGS"
+					]
+				)
+				;;
+		esac
+	done
 fi
-
 
 # font filename
 FONTFILENAME=${FONTFILENAME:-"default_font"}
