@@ -538,7 +538,9 @@ gerber_set_layer (const char *name, int group)
 
       if (is_drill)
 	{
-	  fprintf (f, "M48\015\012" "INCH,TZ\015\012");
+	  /* We omit the ,TZ here because we are not omitting trailing zeros.  Our format is
+	     always six-digit 0.1 mil resolution (i.e. 001100 = 0.11")*/
+	  fprintf (f, "M48\015\012" "INCH\015\012");
 	  for (i = 0; i < GBX_MAXAPERTURECOUNT; i++)
 	    if (curapp->aperture_used[i])
 	      fprintf (f, "T%02dC%.3f\015\012",
