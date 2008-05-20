@@ -33,5 +33,8 @@
     <sub-class-of type="text/plain"/>
     <_comment>Excellon drill file</_comment>
     <glob pattern="*.cnc"/>
+    <magic priority="50">
+      <match value="M48" type="string" offset="0"/>
+    </magic>
   </mime-type>
 </mime-info>

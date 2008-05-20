@@ -48,7 +48,7 @@ Symbolic and numeric flags (SFlags and NFlags) are described in
 @c pcbfile Arc
 @node Arc syntax
 @subsection Arc
-@c ./../src/parse_y.y 673
+@c ./../src/parse_y.y 675
 
 @cartouche
 @format
@@ -88,7 +88,7 @@ Numeric flags.
 @c pcbfile Attribute
 @node Attribute syntax
 @subsection Attribute
-@c ./../src/parse_y.y 1231
+@c ./../src/parse_y.y 1233
 
 @cartouche
 @format
@@ -113,7 +113,7 @@ if the value is interpreted as, for example, a number.
 @c pcbfile Connect
 @node Connect syntax
 @subsection Connect
-@c ./../src/parse_y.y 1221
+@c ./../src/parse_y.y 1223
 
 @cartouche
 @format
@@ -181,7 +181,7 @@ Minimum width of the annular ring around pins and vias.
 @c pcbfile Element
 @node Element syntax
 @subsection Element
-@c ./../src/parse_y.y 775
+@c ./../src/parse_y.y 777
 
 @cartouche
 @format
@@ -237,7 +237,7 @@ definitions which use absolute coordinates.
 @c pcbfile ElementArc
 @node ElementArc syntax
 @subsection ElementArc
-@c ./../src/parse_y.y 884
+@c ./../src/parse_y.y 886
 
 @cartouche
 @format
@@ -269,7 +269,7 @@ The width of the silk line which forms the arc.
 @c pcbfile ElementLine
 @node ElementLine syntax
 @subsection ElementLine
-@c ./../src/parse_y.y 882
+@c ./../src/parse_y.y 884
 
 @cartouche
 @format
@@ -312,7 +312,7 @@ in the input file then file format compatibility is not checked.
 @c pcbfile Flags
 @node Flags syntax
 @subsection Flags
-@c ./../src/parse_y.y 410
+@c ./../src/parse_y.y 412
 
 @cartouche
 @format
@@ -375,7 +375,7 @@ If non-zero, the grid will be visible on the screen.
 @c pcbfile Groups
 @node Groups syntax
 @subsection Groups
-@c ./../src/parse_y.y 424
+@c ./../src/parse_y.y 426
 
 @cartouche
 @format
@@ -402,7 +402,7 @@ Groups("1,2,c:3:4:5,6,s:7,8")
 @c pcbfile Layer
 @node Layer syntax
 @subsection Layer
-@c ./../src/parse_y.y 564
+@c ./../src/parse_y.y 566
 
 @cartouche
 @format
@@ -427,7 +427,7 @@ text, and polygons.
 @c pcbfile Line
 @node Line syntax
 @subsection Line
-@c ./../src/parse_y.y 643
+@c ./../src/parse_y.y 645
 
 @cartouche
 @format
@@ -456,7 +456,7 @@ Numeric flags.
 @c pcbfile Mark
 @node Mark syntax
 @subsection Mark
-@c ./../src/parse_y.y 886
+@c ./../src/parse_y.y 888
 
 @cartouche
 @format
@@ -474,7 +474,7 @@ the mark as part of the Element line.
 @c pcbfile Net
 @node Net syntax
 @subsection Net
-@c ./../src/parse_y.y 1198
+@c ./../src/parse_y.y 1200
 
 @cartouche
 @format
@@ -494,7 +494,7 @@ The routing style that should be used when autorouting this net.
 @c pcbfile Netlist
 @node Netlist syntax
 @subsection Netlist
-@c ./../src/parse_y.y 1177
+@c ./../src/parse_y.y 1179
 
 @cartouche
 @format
@@ -507,7 +507,7 @@ Netlist ( ) (
 @c pcbfile Pad
 @node Pad syntax
 @subsection Pad
-@c ./../src/parse_y.y 1043
+@c ./../src/parse_y.y 1045
 
 @cartouche
 @format
@@ -545,7 +545,7 @@ numerical flags only
 @c pcbfile Pin
 @node Pin syntax
 @subsection Pin
-@c ./../src/parse_y.y 970
+@c ./../src/parse_y.y 972
 
 @cartouche
 @format
@@ -599,7 +599,7 @@ Minimum area of polygon island to retain. If a polygon has clearances that cause
 @c pcbfile Polygon
 @node Polygon syntax
 @subsection Polygon
-@c ./../src/parse_y.y 755
+@c ./../src/parse_y.y 757
 
 @cartouche
 @format
@@ -620,7 +620,7 @@ Coordinates of each vertex.  You must list at least three coordinates.
 @c pcbfile Rat
 @node Rat syntax
 @subsection Rat
-@c ./../src/parse_y.y 549
+@c ./../src/parse_y.y 551
 
 @cartouche
 @format
@@ -643,7 +643,7 @@ Numeric flags.
 @c pcbfile Styles
 @node Styles syntax
 @subsection Styles
-@c ./../src/parse_y.y 434
+@c ./../src/parse_y.y 436
 
 @cartouche
 @format
@@ -686,7 +686,7 @@ is split across lines only to make it readable.
 @c pcbfile Symbol
 @node Symbol syntax
 @subsection Symbol
-@c ./../src/parse_y.y 1105
+@c ./../src/parse_y.y 1107
 
 @cartouche
 @format
@@ -708,7 +708,7 @@ Additional space to allow after this character.
 @c pcbfile SymbolLine
 @node SymbolLine syntax
 @subsection SymbolLine
-@c ./../src/parse_y.y 1160
+@c ./../src/parse_y.y 1162
 
 @cartouche
 @format
@@ -727,7 +727,7 @@ The width of this line.
 @c pcbfile Text
 @node Text syntax
 @subsection Text
-@c ./../src/parse_y.y 701
+@c ./../src/parse_y.y 703
 
 @cartouche
 @format
@@ -777,7 +777,7 @@ the same as the clearance gap width.
 @c pcbfile Via
 @node Via syntax
 @subsection Via
-@c ./../src/parse_y.y 490
+@c ./../src/parse_y.y 492
 
 @cartouche
 @format
