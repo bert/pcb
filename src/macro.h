@@ -370,6 +370,13 @@ extern int mem_any_set (unsigned char *, int);
 	{						\
 		line = &(element)->Line[n]
 
+#define	ELEMENTARC_LOOP(element)	do { 	\
+	Cardinal	n;				\
+	ArcTypePtr	arc;				\
+	for (n = (element)->ArcN-1; n != -1; n--)	\
+	{						\
+		arc = &(element)->Arc[n]
+
 #define	LINE_LOOP(layer) do {			\
 	Cardinal		n;			\
 	LineTypePtr		line;			\
