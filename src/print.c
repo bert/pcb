@@ -296,7 +296,7 @@ PrintFab (void)
   for (i = 0; i < max_layer; i++)
     {
       LayerType *l = LAYER_PTR (i);
-      if (l->Name && l->LineN)
+      if (l->Name && (l->LineN || l->ArcN))
 	{
 	  if (strcasecmp ("route", l->Name) == 0)
 	    break;
