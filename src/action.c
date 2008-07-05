@@ -5468,7 +5468,8 @@ ActionSaveTo (int argc, char **argv, int x, int y)
     {
       MYFREE (PCB->Filename);
       PCB->Filename = MyStrdup (name, __FUNCTION__);
-      function = "Layout";
+      SavePCB (PCB->Filename);
+      return 0;
     }
 
   if (strcasecmp (function, "AllConnections") == 0)
