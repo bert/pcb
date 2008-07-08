@@ -88,7 +88,7 @@ typedef struct hid_gc_struct
 } hid_gc_struct;
 
 static color_struct *black = NULL, *white = NULL;
-static gdImagePtr im = NULL;
+static gdImagePtr im = NULL, master_im;
 static FILE *f = 0;
 static int linewidth = -1;
 static int lastgroup = -1;
@@ -97,6 +97,19 @@ static int lastcap = -1;
 static int lastcolor = -1;
 static int print_group[MAX_LAYER];
 static int print_layer[MAX_LAYER];
+
+/* For ben-mode we need the following layers as monochrome masks:
+
+   top soldermask
+   top silk
+   copper layers
+   drill
+*/
+
+static int ben_mode;
+static gdImagePtr ben_copper[MAX_LAYER+2];
+static gdImagePtr ben_silk, ben_mask, ben_drill, *ben_im;
+static int ben_groups[MAX_LAYER+2], ben_ngroups;
 
 #define FMT_gif "GIF"
 #define FMT_jpg "JPEG"
@@ -159,6 +172,10 @@ HID_Attribute png_attribute_list[] = {
   {"format", "Graphics file format",
    HID_Enum, 0, 0, {2, 0, 0}, filetypes, 0},
 #define HA_filetype 9
+
+  {"ben-mode", "Ben Jackson mode",
+   HID_Boolean, 0, 0, {0, 0, 0}, 0, 0},
+#define HA_ben_mode 10
 };
 
 #define NUM_OPTIONS (sizeof(png_attribute_list)/sizeof(png_attribute_list[0]))
@@ -238,6 +255,7 @@ png_hid_export_to_file (FILE * the_file, HID_Attr_Val * options)
   int i;
   static int saved_layer_stack[MAX_LAYER];
   BoxType region;
+  FlagType save_flags;
 
   f = the_file;
 
@@ -273,6 +291,22 @@ png_hid_export_to_file (FILE * the_file, HID_Attr_Val * options)
       comp_layer = GetLayerGroupNumberByNumber (max_layer + COMPONENT_LAYER);
       solder_layer = GetLayerGroupNumberByNumber (max_layer + SOLDER_LAYER);
       qsort (LayerStack, max_layer, sizeof (LayerStack[0]), layer_sort);
+
+      save_flags = PCB->Flags;
+      CLEAR_FLAG(THINDRAWFLAG, PCB);
+      CLEAR_FLAG(THINDRAWPOLYFLAG, PCB);
+
+      if (ben_mode)
+	{
+	  int i, n=0;
+	  if (comp_layer < solder_layer)
+	    for (i = comp_layer; i <= solder_layer; i++)
+	      ben_groups[n++] = i;
+	  else
+	    for (i = comp_layer; i <= solder_layer; i--)
+	      ben_groups[n++] = i;
+	  ben_ngroups = n;
+	}
     }
   linewidth = -1;
   lastbrush = (void *) -1;
@@ -286,6 +320,89 @@ png_hid_export_to_file (FILE * the_file, HID_Attr_Val * options)
   hid_expose_callback (&png_hid, bounds, 0);
 
   memcpy (LayerStack, saved_layer_stack, sizeof (LayerStack));
+
+  if (!options[HA_as_shown].int_value)
+    {
+      PCB->Flags = save_flags;
+    }
+}
+
+static void
+blend (color_struct *dest, float a_amount, color_struct *a, color_struct *b)
+{
+  dest->r = a->r * a_amount + b->r * (1 - a_amount);
+  dest->g = a->g * a_amount + b->g * (1 - a_amount);
+  dest->b = a->b * a_amount + b->b * (1 - a_amount);
+}
+
+static void
+rgb (color_struct *dest, int r, int g, int b)
+{
+  dest->r = r;
+  dest->g = g;
+  dest->b = b;
+}
+
+static int smshadows[3][3] = {
+  {  1,  20,   1 },
+  { 10,   0, -10 },
+  { -1, -20,  -1 },
+};
+
+static int shadows[5][5] = {
+  {  1,  1,   1,   1, -1 },
+  {  1,  1,   1,   1, -1 },
+  {  1,  1,   0,  -1, -1 },
+  {  1, -1,  -1,  -1, -1 },
+  { -1, -1,  -1,  -1, -1 },
+};
+
+/* black and white are 0 and 1 */
+#define TOP_SHADOW 2
+#define BOTTOM_SHADOW 3
+
+static void
+ts_bs (gdImagePtr im)
+{
+  int x, y, sx, sy, si;
+  for (x=0; x<gdImageSX(im); x++)
+    for (y=0; y<gdImageSY(im); y++)
+      {
+	si = 0;
+	for (sx=-2; sx<3; sx++)
+	  for (sy=-2; sy<3; sy++)
+	    if (!gdImageGetPixel (im, x+sx, y+sy))
+	      si += shadows[sx+2][sy+2];
+	if (gdImageGetPixel (im, x, y))
+	  {
+	    if (si > 1)
+	      gdImageSetPixel (im, x, y, TOP_SHADOW);
+	    else if (si < -1)
+	      gdImageSetPixel (im, x, y, BOTTOM_SHADOW);
+	  }
+      }
+}
+
+static void
+ts_bs_sm (gdImagePtr im)
+{
+  int x, y, sx, sy, si;
+  for (x=0; x<gdImageSX(im); x++)
+    for (y=0; y<gdImageSY(im); y++)
+      {
+	si = 0;
+	for (sx=-1; sx<2; sx++)
+	  for (sy=-1; sy<2; sy++)
+	    if (!gdImageGetPixel (im, x+sx, y+sy))
+	      si += smshadows[sx+1][sy+1];
+	if (gdImageGetPixel (im, x, y))
+	  {
+	    if (si > 1)
+	      gdImageSetPixel (im, x, y, TOP_SHADOW);
+	    else if (si < -1)
+	      gdImageSetPixel (im, x, y, BOTTOM_SHADOW);
+	  }
+      }
 }
 
 static void
@@ -317,6 +434,18 @@ png_do_export (HID_Attr_Val * options)
 	png_values[i] = png_attribute_list[i].default_val;
       options = png_values;
     }
+
+  if (options[HA_ben_mode].int_value)
+    {
+      ben_mode = 1;
+      options[HA_mono].int_value = 1;
+      options[HA_as_shown].int_value = 0;
+      options[HA_only_visible].int_value = 0;
+      memset (ben_copper, 0, sizeof(ben_copper));
+      ben_silk = ben_mask = ben_drill = 0;
+    }
+  else
+    ben_mode = 0;
 
   filename = options[HA_pngfile].str_value;
   if (!filename)
@@ -419,6 +548,7 @@ png_do_export (HID_Attr_Val * options)
     }
 
   im = gdImageCreate (w, h);
+  master_im = im;
 
   /* 
    * Allocate white and black -- the first color allocated
@@ -451,6 +581,99 @@ png_do_export (HID_Attr_Val * options)
 
   if (!options[HA_as_shown].int_value)
     hid_restore_layer_ons (save_ons);
+
+  if (ben_mode)
+    {
+      int x, y;
+      color_struct white, black, fr4;
+
+      rgb (&white, 255, 255, 255);
+      rgb (&black, 0, 0, 0);
+      rgb (&fr4, 70, 70, 70);
+
+      im = master_im;
+
+      ts_bs (ben_copper[ben_groups[0]]);
+      ts_bs (ben_silk);
+      ts_bs_sm (ben_mask);
+
+      for (x=0; x<gdImageSX (im); x++)
+	for (y=0; y<gdImageSY (im); y++)
+	  {
+	    color_struct p, cop;
+	    int cc, mask, silk;
+
+	    mask = ben_mask ? gdImageGetPixel (ben_mask, x, y) : 0;
+	    silk = ben_silk ? gdImageGetPixel (ben_silk, x, y) : 0;
+
+	    if (gdImageGetPixel (ben_copper[ben_groups[1]], x, y))
+	      rgb (&cop, 40, 40, 40);
+	    else
+	      rgb (&cop, 100, 100, 110);
+
+	    if (ben_ngroups == 2)
+	      blend (&cop, 0.3, &cop, &fr4);
+
+	    cc = gdImageGetPixel (ben_copper[ben_groups[0]], x, y);
+	    if (cc)
+	      {
+		int r;
+
+		if (mask)
+		  rgb (&cop, 220, 145, 230);
+		else
+		  {
+		    rgb (&cop, 140, 150, 160);
+#if 1
+		    r = (random() % 5 - 2) * 2;
+		    cop.r += r;
+		    cop.g += r;
+		    cop.b += r;
+#endif
+		  }
+
+		if (cc == TOP_SHADOW)
+		  {
+		    cop.r = 255 - (255 - cop.r) * 0.7;
+		    cop.g = 255 - (255 - cop.g) * 0.7;
+		    cop.b = 255 - (255 - cop.b) * 0.7;
+		  }
+		if (cc == BOTTOM_SHADOW)
+		  {
+		    cop.r *= 0.7;
+		    cop.g *= 0.7;
+		    cop.b *= 0.7;
+		  }
+	      }
+
+	    if (ben_drill && !gdImageGetPixel (ben_drill, x, y))
+	      rgb (&p, 0, 0, 0);
+	    else if (silk)
+	      {
+		if (silk == TOP_SHADOW)
+		  rgb (&p, 255, 255, 255);
+		else if (silk == BOTTOM_SHADOW)
+		  rgb (&p, 192, 192, 192);
+		else
+		  rgb (&p, 224, 224, 224);
+	      }
+	    else if (mask)
+	      {
+		p = cop;
+		p.r /= 2;
+		p.b /= 2;
+		if (mask == TOP_SHADOW)
+		  blend (&p, 0.7, &p, &white);
+		if (mask == BOTTOM_SHADOW)
+		  blend (&p, 0.7, &p, &black);
+	      }
+	    else
+	      p = cop;
+
+	    cc = gdImageColorResolve (im, p.r, p.g, p.b);
+	    gdImageSetPixel (im, x, y, cc);
+	  }
+    }
 
   /* actually write out the image */
   fmt = filetypes[options[HA_filetype].int_value];
@@ -528,6 +751,52 @@ png_set_layer (const char *name, int group)
 
   if (SL_TYPE (idx) == SL_PASTE)
     return 0;
+
+  if (ben_mode)
+    {
+      switch (idx)
+	{
+	case SL (SILK, TOP):
+	  ben_im = &ben_silk;
+	  break;
+
+	case SL (MASK, TOP):
+	  ben_im = &ben_mask;
+	  break;
+
+	case SL (PDRILL, 0):
+	case SL (UDRILL, 0):
+	  ben_im = &ben_drill;
+	  break;
+
+	default:
+	  if (idx < 0)
+	    return 0;
+	  ben_im = ben_copper + group;
+	  break;
+	}
+
+      if (! *ben_im)
+	{
+	  static color_struct *black = NULL, *white = NULL;
+	  *ben_im = gdImageCreate (gdImageSX (im), gdImageSY (im));
+
+	  white = (color_struct *) malloc (sizeof (color_struct));
+	  white->r = white->g = white->b = 255;
+	  white->a = 0;
+	  white->c = gdImageColorAllocate (*ben_im, white->r, white->g, white->b);
+
+	  black = (color_struct *) malloc (sizeof (color_struct));
+	  black->r = black->g = black->b = black->a = 0;
+	  black->c = gdImageColorAllocate (*ben_im, black->r, black->g, black->b);
+
+	  if (idx == SL (PDRILL, 0)
+	      || idx == SL (UDRILL, 0))
+	    gdImageFilledRectangle (*ben_im, 0, 0, gdImageSX (im), gdImageSY (im), black->c);
+	}
+      im = *ben_im;
+      return 1;
+    }
 
   if (as_shown)
     {
