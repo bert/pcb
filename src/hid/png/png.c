@@ -303,7 +303,7 @@ png_hid_export_to_file (FILE * the_file, HID_Attr_Val * options)
 	    for (i = comp_layer; i <= solder_layer; i++)
 	      ben_groups[n++] = i;
 	  else
-	    for (i = comp_layer; i <= solder_layer; i--)
+	    for (i = comp_layer; i >= solder_layer; i--)
 	      ben_groups[n++] = i;
 	  ben_ngroups = n;
 	}
