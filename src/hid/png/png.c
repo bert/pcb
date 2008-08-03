@@ -106,7 +106,10 @@ static int print_layer[MAX_LAYER];
    drill
 */
 
-static int ben_mode;
+#define BEN_FLIP_X	1
+#define BEN_FLIP_Y	2
+
+static int ben_mode, ben_flip;
 static gdImagePtr ben_copper[MAX_LAYER+2];
 static gdImagePtr ben_silk, ben_mask, ben_drill, *ben_im;
 static int ben_groups[MAX_LAYER+2], ben_ngroups;
@@ -176,6 +179,14 @@ HID_Attribute png_attribute_list[] = {
   {"ben-mode", "Ben Jackson mode",
    HID_Boolean, 0, 0, {0, 0, 0}, 0, 0},
 #define HA_ben_mode 10
+
+  {"ben-flip-x", "Show reverse side of the board, left-right flip",
+   HID_Boolean, 0, 0, {0, 0, 0}, 0, 0},
+#define HA_ben_flip_x 11
+
+  {"ben-flip-y", "Show reverse side of the board, up-down flip",
+   HID_Boolean, 0, 0, {0, 0, 0}, 0, 0},
+#define HA_ben_flip_y 12
 };
 
 #define NUM_OPTIONS (sizeof(png_attribute_list)/sizeof(png_attribute_list[0]))
@@ -306,6 +317,16 @@ png_hid_export_to_file (FILE * the_file, HID_Attr_Val * options)
 	    for (i = comp_layer; i >= solder_layer; i--)
 	      ben_groups[n++] = i;
 	  ben_ngroups = n;
+
+	  if (ben_flip)
+	    {
+	      for (i=0, n=ben_ngroups-1; i<n; i++, n--)
+		{
+		  int tmp = ben_groups[i];
+		  ben_groups[i] = ben_groups[n];
+		  ben_groups[n] = tmp;
+		}
+	    }
 	}
     }
   linewidth = -1;
@@ -351,7 +372,7 @@ static int smshadows[3][3] = {
 
 static int shadows[5][5] = {
   {  1,  1,   1,   1, -1 },
-  {  1,  1,   1,   1, -1 },
+  {  1,  1,   1,  -1, -1 },
   {  1,  1,   0,  -1, -1 },
   {  1, -1,  -1,  -1, -1 },
   { -1, -1,  -1,  -1, -1 },
@@ -443,6 +464,12 @@ png_do_export (HID_Attr_Val * options)
       options[HA_only_visible].int_value = 0;
       memset (ben_copper, 0, sizeof(ben_copper));
       ben_silk = ben_mask = ben_drill = 0;
+      if (options[HA_ben_flip_x].int_value)
+	ben_flip = BEN_FLIP_X;
+      else if (options[HA_ben_flip_y].int_value)
+	ben_flip = BEN_FLIP_Y;
+      else
+	ben_flip = 0;
     }
   else
     ben_mode = 0;
@@ -671,7 +698,12 @@ png_do_export (HID_Attr_Val * options)
 	      p = cop;
 
 	    cc = gdImageColorResolve (im, p.r, p.g, p.b);
-	    gdImageSetPixel (im, x, y, cc);
+	    if (ben_flip == BEN_FLIP_X)
+	      gdImageSetPixel (im, gdImageSX (im) - x - 1, y, cc);
+	    else if (ben_flip == BEN_FLIP_Y)
+	      gdImageSetPixel (im, x, gdImageSY (im) - y - 1, cc);
+	    else
+	      gdImageSetPixel (im, x, y, cc);
 	  }
     }
 
@@ -757,10 +789,24 @@ png_set_layer (const char *name, int group)
       switch (idx)
 	{
 	case SL (SILK, TOP):
+	  if (ben_flip)
+	    return 0;
+	  ben_im = &ben_silk;
+	  break;
+	case SL (SILK, BOTTOM):
+	  if (!ben_flip)
+	    return 0;
 	  ben_im = &ben_silk;
 	  break;
 
 	case SL (MASK, TOP):
+	  if (ben_flip)
+	    return 0;
+	  ben_im = &ben_mask;
+	  break;
+	case SL (MASK, BOTTOM):
+	  if (!ben_flip)
+	    return 0;
 	  ben_im = &ben_mask;
 	  break;
 
