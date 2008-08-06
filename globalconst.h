@@ -89,7 +89,7 @@
 #define	CHUNK			100	/* step size for size sliders */
 #define	MIN_ZOOM		-12	/* min zoom */
 #define	MAX_ZOOM		12	/* max zoom */
-#define	MAX_FONTPOSITION	127	/* upper limit of characters in my font */
+#define	MAX_FONTPOSITION	255	/* upper limit of characters in my font */
 
 #define	MAX_COORD		LARGE_VALUE	/* coordinate limits */
 #define	MIN_SIZE		1000	/* lowest width and height of the board */
@@ -129,5 +129,5 @@
 						/* to enable grid drawing */
 	/* size of diamond element mark */
 #define EMARK_SIZE	1000
-#define GBX_MAXAPERTURECOUNT	256
+#define GBX_MAXAPERTURECOUNT	2560
 #endif
