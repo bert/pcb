@@ -399,7 +399,7 @@ batch_fileselect (const char *title, const char *descr,
 static int
 batch_attribute_dialog (HID_Attribute * attrs,
 			int n_attrs, HID_Attr_Val * results,
-			const char *)
+			const char *descr)
 {
 }
 
