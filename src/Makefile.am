@@ -21,7 +21,11 @@ pcblib_DATA=	\
 
 bin_PROGRAMS=	pcb
 
+if DEBUG_BUILD
+# don't disable assert()
+else
 AM_CFLAGS = -DNDEBUG
+endif
 
 PCB_SRCS = \
 	action.c \

@@ -696,6 +696,18 @@ fi
 AC_MSG_RESULT([no])
 ])
 
+# ------------- Enable Debug code -------------------
+AC_MSG_CHECKING([for whether to enable debugging code])
+AC_ARG_ENABLE([debug],
+[  --enable-debug          Enable debugging code],
+[],[enable_debug=no])
+
+AC_MSG_RESULT([$enable_debug])
+AM_CONDITIONAL(DEBUG_BUILD, test x$enable_debug = xyes)
+
+
+# ------------- Complete set of CFLAGS and LIBS -------------------
+
 CFLAGS="$CFLAGS $X_CFLAGS $DBUS_CFLAGS $GTK_CFLAGS"
 LIBS="$LIBS $XM_LIBS $DBUS_LIBS $X_LIBS $GTK_LIBS $DMALLOC_LIBS $GD_LIBS $INTLLIBS"
 
