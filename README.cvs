@@ -72,8 +72,8 @@ If you already have a checked out PCB source tree, please proceed to the
 
 To check out sources from the anonymous CVS server, run the following:
 
-	cvs -d:pserver:anonymous@cvs.sourceforge.net:/cvsroot/pcb login 
-	cvs -z3 -d:pserver:anonymous@cvs.sourceforge.net:/cvsroot/pcb co pcb
+	cvs -d:pserver:anonymous@pcb.cvs.sourceforge.net:/cvsroot/pcb login 
+	cvs -z3 -d:pserver:anonymous@pcb.cvs.sourceforge.net:/cvsroot/pcb co pcb
 
 ---------
 Updating
