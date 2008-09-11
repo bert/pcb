@@ -451,6 +451,82 @@ LinePoly (LineType * L, BDimension thick)
   return np;
 }
 
+/* make a rounded-corner rectangle */
+POLYAREA *
+SquarePadPoly (PadType * pad, BDimension clear)
+{
+  PLINE *contour = NULL;
+  POLYAREA *np = NULL;
+  Vector v;
+  double d;
+  double tx, ty;
+  double cx, cy;
+  PadType _t=*pad,*t=&_t;
+  PadType _c=*pad,*c=&_c;
+  int halfthick = (pad->Thickness + 1) / 2;
+  int halfclear = (clear + 1) / 2;
+
+  d =
+    sqrt (SQUARE (pad->Point1.X - pad->Point2.X) +
+          SQUARE (pad->Point1.Y - pad->Point2.Y));
+  if (d != 0)
+    {
+      double a = halfthick / d;
+      tx = (t->Point1.Y - t->Point2.Y) * a;
+      ty = (t->Point2.X - t->Point1.X) * a;
+      a = halfclear / d;
+      cx = (c->Point1.Y - c->Point2.Y) * a;
+      cy = (c->Point2.X - c->Point1.X) * a;
+
+      t->Point1.X -= ty;
+      t->Point1.Y += tx;
+      t->Point2.X += ty;
+      t->Point2.Y -= tx;
+      c->Point1.X -= cy;
+      c->Point1.Y += cx;
+      c->Point2.X += cy;
+      c->Point2.Y -= cx;
+    }
+  else
+    {
+      tx = halfthick;
+      ty = 0;
+      cx = halfclear;
+      cy = 0;
+
+      t->Point1.Y += tx;
+      t->Point2.Y -= tx;
+      c->Point1.Y += cx;
+      c->Point2.Y -= cx;
+    }
+
+  v[0] = c->Point1.X - tx;
+  v[1] = c->Point1.Y - ty;
+  if ((contour = poly_NewContour (v)) == NULL)
+    return 0;
+  frac_circle (contour, (t->Point1.X - tx), (t->Point1.Y - ty), v, 4);
+
+  v[0] = t->Point2.X - cx;
+  v[1] = t->Point2.Y - cy;
+  poly_InclVertex (contour->head.prev, poly_CreateNode (v));
+  frac_circle (contour, (t->Point2.X - tx), (t->Point2.Y - ty), v, 4);
+
+  v[0] = c->Point2.X + tx;
+  v[1] = c->Point2.Y + ty;
+  poly_InclVertex (contour->head.prev, poly_CreateNode (v));
+  frac_circle (contour, (t->Point2.X + tx), (t->Point2.Y + ty), v, 4);
+
+  v[0] = t->Point1.X + cx;
+  v[1] = t->Point1.Y + cy;
+  poly_InclVertex (contour->head.prev, poly_CreateNode (v));
+  frac_circle (contour, (t->Point1.X + tx), (t->Point1.Y + ty), v, 4);
+
+  /* now we have the line contour */
+  if (!(np = ContourToPoly (contour)))
+    return NULL;
+  return np;
+}
+
 /* clear np1 from the polygon */
 static int
 Subtract (POLYAREA * np1, PolygonType * p, Boolean fnp)
@@ -583,13 +659,8 @@ SubtractPad (PadType * pad, PolygonType * p)
 
   if (TEST_FLAG (SQUAREFLAG, pad))
     {
-      BDimension t = pad->Thickness / 2;
-      LocationType x1, x2, y1, y2;
-      x1 = MIN (pad->Point1.X, pad->Point2.X) - t;
-      x2 = MAX (pad->Point1.X, pad->Point2.X) + t;
-      y1 = MIN (pad->Point1.Y, pad->Point2.Y) - t;
-      y2 = MAX (pad->Point1.Y, pad->Point2.Y) + t;
-      if (!(np = RoundRect (x1, x2, y1, y2, pad->Clearance / 2)))
+      if (!
+          (np = SquarePadPoly (pad, pad->Thickness + pad->Clearance)))
         return -1;
     }
   else
@@ -846,14 +917,20 @@ static int
 UnsubtractPad (PadType * pad, LayerType * l, PolygonType * p)
 {
   POLYAREA *np = NULL;
-  BDimension t = (pad->Thickness + pad->Clearance) / 2 + 100;
-  LocationType x1, x2, y1, y2;
 
-  x1 = MIN (pad->Point1.X, pad->Point2.X) - t;
-  x2 = MAX (pad->Point1.X, pad->Point2.X) + t;
-  y1 = MIN (pad->Point1.Y, pad->Point2.Y) - t;
-  y2 = MAX (pad->Point1.Y, pad->Point2.Y) + t;
-  if (!(np = RectPoly (x1, x2, y1, y2)))
+  if (TEST_FLAG (SQUAREFLAG, pad))
+    {
+      if (!
+          (np = SquarePadPoly (pad, pad->Thickness + pad->Clearance + 100)))
+        return 0;
+    }
+  else
+    {
+      if (!
+          (np = LinePoly ((LineType *) pad, pad->Thickness + pad->Clearance + 100)))
+        return 0;
+    }
+  if (!np)
     return 0;
   if (!Unsubtract (np, p))
     return 0;
