@@ -1572,13 +1572,16 @@ lesstif_show_crosshair (int show)
   static int showing = 0;
   static int sx, sy;
   static GC xor_gc = 0;
+  Pixel crosshair_color;
 
   if (!crosshair_in_window || !window)
     return;
   if (xor_gc == 0)
     {
+      crosshair_color = lesstif_parse_color (Settings.CrosshairColor) ^ bgcolor;
       xor_gc = XCreateGC (display, window, 0, 0);
-      XSetFunction (display, xor_gc, GXinvert);
+      XSetFunction (display, xor_gc, GXxor);
+      XSetForeground (display, xor_gc, crosshair_color);
     }
   if (show == showing)
     return;
