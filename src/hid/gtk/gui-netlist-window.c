@@ -62,6 +62,8 @@
 #include <dmalloc.h>
 #endif
 
+#define NET_HIERARCHY_SEPARATOR "/"
+
 RCSID ("$Id$");
 
 static GtkWidget	*netlist_window;
@@ -167,6 +169,9 @@ node_model_create (LibraryMenuType * menu)
   GtkTreeIter iter;
 
   store = gtk_list_store_new (N_NODE_COLUMNS, G_TYPE_STRING, G_TYPE_POINTER);
+
+  if (menu == NULL)
+    return GTK_TREE_MODEL (store);
 
   ENTRY_LOOP (menu);
   {
@@ -300,30 +305,109 @@ static gboolean		loading_new_netlist;
 static GtkTreeModel *
 net_model_create (void)
 {
-  GtkListStore *store;
-  GtkTreeIter iter;
+  GtkTreeModel *model;
+  GtkTreeStore *store;
+  GtkTreeIter new_iter;
+  GtkTreeIter parent_iter;
+  GtkTreeIter *parent_ptr;
+  GtkTreePath *path;
+  GtkTreeRowReference *row_ref;
+  GHashTable *prefix_hash;
+  char *display_name;
+  char *hash_string;
+  char **join_array;
+  char **path_segments;
+  int path_depth;
+  int try_depth;
 
-  store = gtk_list_store_new (N_NET_COLUMNS,
+  store = gtk_tree_store_new (N_NET_COLUMNS,
 			      G_TYPE_STRING, G_TYPE_STRING, G_TYPE_POINTER);
+
+  model = GTK_TREE_MODEL (store);
+
+  /* Hash table stores GtkTreeRowReference for given path prefixes */
+  prefix_hash = g_hash_table_new_full (g_str_hash, g_str_equal, g_free,
+                                       (GDestroyNotify)
+                                         gtk_tree_row_reference_free);
 
   MENU_LOOP (&PCB->NetlistLib);
   {
     if (!menu->Name)
       continue;
 
-		if (loading_new_netlist)
-			menu->flag = TRUE;
+    if (loading_new_netlist)
+      menu->flag = TRUE;
 
-    gtk_list_store_append (store, &iter);
-    gtk_list_store_set (store, &iter,
-			NET_ENABLED_COLUMN, "",
+    parent_ptr = NULL;
+
+    path_segments = g_strsplit (menu->Name, NET_HIERARCHY_SEPARATOR, 0);
+    path_depth = g_strv_length (path_segments);
+
+    for (try_depth = path_depth - 1; try_depth > 0; try_depth--)
+      {
+        join_array = g_new0 (char *, try_depth + 1);
+        memcpy (join_array, path_segments, sizeof (char *) * try_depth);
+
+        /* See if this net's parent node is in the hash table */
+        hash_string = g_strjoinv (NET_HIERARCHY_SEPARATOR, join_array);
+        g_free (join_array);
+
+        row_ref = g_hash_table_lookup (prefix_hash, hash_string);
+        g_free (hash_string);
+
+        /* If we didn't find the path at this level, keep looping */
+        if (row_ref == NULL)
+          continue;
+
+        path = gtk_tree_row_reference_get_path (row_ref);
+        gtk_tree_model_get_iter (model, &parent_iter, path);
+        parent_ptr = &parent_iter;
+        break;
+      }
+
+    /* NB: parent_ptr may still be NULL if we reached the toplevel */
+
+    /* Now walk up the desired path, adding the nodes */
+
+    for (; try_depth < path_depth - 1; try_depth++)
+      {
+        display_name = g_strconcat (path_segments[try_depth],
+                                    NET_HIERARCHY_SEPARATOR, NULL);
+        gtk_tree_store_append (store, &new_iter, parent_ptr);
+        gtk_tree_store_set (store, &new_iter,
+                            NET_ENABLED_COLUMN, "",
+                            NET_NAME_COLUMN, display_name,
+                            NET_LIBRARY_COLUMN, NULL, -1);
+        g_free (display_name);
+
+        path = gtk_tree_model_get_path (model, &new_iter);
+        row_ref = gtk_tree_row_reference_new (model, path);
+        parent_iter = new_iter;
+        parent_ptr = &parent_iter;
+
+        join_array = g_new0 (char *, try_depth + 1);
+        memcpy (join_array, path_segments, sizeof (char *) * (try_depth + 1));
+
+        hash_string = g_strjoinv (NET_HIERARCHY_SEPARATOR, join_array);
+        g_free (join_array);
+
+        /* Insert those node in the hash table */
+        g_hash_table_insert (prefix_hash, hash_string, row_ref);
+        /* Don't free hash_string, it is now oened by the hash table */
+      }
+
+    gtk_tree_store_append (store, &new_iter, parent_ptr);
+    gtk_tree_store_set (store, &new_iter,
 			NET_ENABLED_COLUMN, menu->flag ? "" : "*",
-			NET_NAME_COLUMN, menu->Name,
+			NET_NAME_COLUMN, path_segments[path_depth - 1],
 			NET_LIBRARY_COLUMN, menu, -1);
+    g_strfreev (path_segments);
   }
   END_LOOP;
 
-  return GTK_TREE_MODEL (store);
+  g_hash_table_destroy (prefix_hash);
+
+  return model;
 }
 
 
@@ -341,10 +425,21 @@ net_selection_double_click_cb (GtkTreeView * treeview, GtkTreePath * path,
   model = gtk_tree_view_get_model (treeview);
   if (gtk_tree_model_get_iter (model, &iter, path))
     {
+
+      /* Expand / contract nodes with children */
+      if (gtk_tree_model_iter_has_child (model, &iter))
+        {
+          if (gtk_tree_view_row_expanded (treeview, path))
+            gtk_tree_view_collapse_row (treeview, path);
+          else
+            gtk_tree_view_expand_row (treeview, path, FALSE);
+          return;
+        }
+
       /* Get the current enabled string and toggle it between "" and "*"
        */
       gtk_tree_model_get (model, &iter, NET_ENABLED_COLUMN, &str, -1);
-      gtk_list_store_set (GTK_LIST_STORE (model), &iter,
+      gtk_tree_store_set (GTK_TREE_STORE (model), &iter,
 			  NET_ENABLED_COLUMN, !strcmp (str, "*") ? "" : "*",
 			  -1);
       /* set/clear the flag which says the net is enabled or disabled */
@@ -396,7 +491,7 @@ netlist_disable_all_cb (GtkToggleButton * button, gpointer data)
   if (gtk_tree_model_get_iter_first (net_model, &iter))
     do
       {
-	gtk_list_store_set (GTK_LIST_STORE (net_model), &iter,
+	gtk_tree_store_set (GTK_TREE_STORE (net_model), &iter,
 			    NET_ENABLED_COLUMN, active ? "*" : "", -1);
 	/* set/clear the flag which says the net is enabled or disabled */
 	gtk_tree_model_get (net_model, &iter, NET_LIBRARY_COLUMN, &menu, -1);
@@ -562,6 +657,7 @@ ghid_netlist_window_show (GHidPort * out, gboolean raise)
   GtkTreeModel *model;
   GtkTreeSelection *selection;
   GtkCellRenderer *renderer;
+  GtkTreeViewColumn *column;
 
   /* No point in putting up the window if no netlist is loaded.
    */
@@ -602,6 +698,7 @@ ghid_netlist_window_show (GHidPort * out, gboolean raise)
 					NET_NAME_COLUMN, GTK_SORT_ASCENDING);
 
   gtk_tree_view_set_rules_hint (treeview, FALSE);
+  g_object_set (treeview, "enable-tree-lines", TRUE, NULL);
 
   renderer = gtk_cell_renderer_text_new ();
   gtk_tree_view_insert_column_with_attributes (treeview, -1, _(" "),
@@ -610,9 +707,11 @@ ghid_netlist_window_show (GHidPort * out, gboolean raise)
 					       NULL);
 
   renderer = gtk_cell_renderer_text_new ();
-  gtk_tree_view_insert_column_with_attributes (treeview, -1, _("Net Name"),
-					       renderer,
-					       "text", NET_NAME_COLUMN, NULL);
+  column = gtk_tree_view_column_new_with_attributes (_("Net Name"),
+						     renderer,
+						     "text", NET_NAME_COLUMN, NULL);
+  gtk_tree_view_insert_column (treeview, column, -1);
+  gtk_tree_view_set_expander_column (treeview, column);
 
   /* TODO: dont expand all, but record expanded states when window is
      |  destroyed and restore state here.
@@ -840,7 +939,7 @@ ghid_netlist_window_update (gboolean init_nodes)
 					NET_NAME_COLUMN, GTK_SORT_ASCENDING);
   if (model)
     {
-      gtk_list_store_clear (GTK_LIST_STORE (model));
+      gtk_tree_store_clear (GTK_TREE_STORE (model));
       g_object_unref (model);
     }
 
