@@ -659,6 +659,7 @@ hid_cache_color (int set, const char *name, hidval * val, void **vcache)
     if (strcmp (e->name, name) == 0)
       {
 	copy_color (set, &(e->val), val);
+	cache->lru = e;
 	return 1;
       }
   if (!set)
@@ -669,6 +670,7 @@ hid_cache_color (int set, const char *name, hidval * val, void **vcache)
   cache->colors[hash] = e;
   e->name = strdup (name);
   memcpy (&(e->val), val, sizeof (hidval));
+  cache->lru = e;
 
   return 1;
 }
