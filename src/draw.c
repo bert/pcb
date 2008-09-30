@@ -2596,4 +2596,6 @@ hid_expose_callback (HID * hid, BoxType * region, void *item)
   Output.fgGC = savefg;
   Output.bgGC = savebg;
   Output.pmGC = savepm;
+
+  Gathering = True;
 }
