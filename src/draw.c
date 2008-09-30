@@ -1475,6 +1475,16 @@ DrawPadLowLevel (hidGC gc, PadTypePtr Pad, Boolean clear, Boolean mask)
                       Pad->Point1.X, Pad->Point1.Y,
                       Pad->Point2.X, Pad->Point2.Y);
     }
+#if 0
+  { /* Draw bounding box for test */
+    BoxType *box = &Pad->BoundingBox;
+    gui->set_line_width (gc, 1);
+    gui->draw_line (gc, box->X1, box->Y1, box->X1, box->Y2);
+    gui->draw_line (gc, box->X1, box->Y2, box->X2, box->Y2);
+    gui->draw_line (gc, box->X2, box->Y2, box->X2, box->Y1);
+    gui->draw_line (gc, box->X2, box->Y1, box->X1, box->Y1);
+  }
+#endif
 }
 
 /* ---------------------------------------------------------------------------
