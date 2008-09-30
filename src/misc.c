@@ -465,6 +465,14 @@ SetTextBoundingBox (FontTypePtr FontPtr, TextTypePtr Text)
       RotateBoxLowLevel (&Text->BoundingBox,
                          Text->X, Text->Y, Text->Direction);
     }
+
+  /* the bounding box covers the extent of influence
+   * so it must include the clearance values too
+   */
+  Text->BoundingBox.X1 -= PCB->Bloat;
+  Text->BoundingBox.Y1 -= PCB->Bloat;
+  Text->BoundingBox.X2 += PCB->Bloat;
+  Text->BoundingBox.Y2 += PCB->Bloat;
 }
 
 /* ---------------------------------------------------------------------------
