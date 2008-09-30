@@ -173,16 +173,50 @@ void
 SetPadBoundingBox (PadTypePtr Pad)
 {
   BDimension width;
+  BDimension deltax;
+  BDimension deltay;
 
   /* the bounding box covers the extent of influence
    * so it must include the clearance values too
    */
   width = (Pad->Thickness + Pad->Clearance + 1) / 2;
   width = MAX (width, (Pad->Mask + 1) / 2);
-  Pad->BoundingBox.X1 = MIN (Pad->Point1.X, Pad->Point2.X) - width;
-  Pad->BoundingBox.X2 = MAX (Pad->Point1.X, Pad->Point2.X) + width;
-  Pad->BoundingBox.Y1 = MIN (Pad->Point1.Y, Pad->Point2.Y) - width;
-  Pad->BoundingBox.Y2 = MAX (Pad->Point1.Y, Pad->Point2.Y) + width;
+  deltax = Pad->Point2.X - Pad->Point1.X;
+  deltay = Pad->Point2.Y - Pad->Point1.Y;
+
+  if (TEST_FLAG (SQUAREFLAG, Pad) && deltax != 0 && deltay != 0)
+    {
+      /* slanted square pad */
+      float tx, ty, theta;
+      BDimension btx, bty;
+
+      theta = atan2 (deltay, deltax);
+
+      /* T is a vector half a thickness long, in the direction of
+          one of the corners.  */
+      tx = width * cos (theta + M_PI/4) * sqrt(2.0);
+      ty = width * sin (theta + M_PI/4) * sqrt(2.0);
+
+      /* cast back to this integer type */
+      btx = tx;
+      bty = ty;
+
+      Pad->BoundingBox.X1 = MIN (MIN (Pad->Point1.X - btx, Pad->Point1.X - bty),
+                                 MIN (Pad->Point2.X + btx, Pad->Point2.X + bty));
+      Pad->BoundingBox.X2 = MAX (MAX (Pad->Point1.X - btx, Pad->Point1.X - bty),
+                                 MAX (Pad->Point2.X + btx, Pad->Point2.X + bty));
+      Pad->BoundingBox.Y1 = MIN (MIN (Pad->Point1.Y + btx, Pad->Point1.Y - bty),
+                                 MIN (Pad->Point2.Y - btx, Pad->Point2.Y + bty));
+      Pad->BoundingBox.Y2 = MAX (MAX (Pad->Point1.Y + btx, Pad->Point1.Y - bty),
+                                 MAX (Pad->Point2.Y - btx, Pad->Point2.Y + bty));
+    }
+  else
+    {
+      Pad->BoundingBox.X1 = MIN (Pad->Point1.X, Pad->Point2.X) - width;
+      Pad->BoundingBox.X2 = MAX (Pad->Point1.X, Pad->Point2.X) + width;
+      Pad->BoundingBox.Y1 = MIN (Pad->Point1.Y, Pad->Point2.Y) - width;
+      Pad->BoundingBox.Y2 = MAX (Pad->Point1.Y, Pad->Point2.Y) + width;
+    }
 }
 
 /* ---------------------------------------------------------------------------
