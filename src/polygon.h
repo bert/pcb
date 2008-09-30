@@ -50,6 +50,7 @@ POLYAREA * OctagonPoly(LocationType x, LocationType y, BDimension radius);
 POLYAREA * LinePoly(LineType *l, BDimension thick);
 POLYAREA * ArcPoly(ArcType *l, BDimension thick);
 POLYAREA * PinPoly(PinType *l, BDimension thick, BDimension clear);
+POLYAREA * BoxPolyBloated (BoxType *box, BDimension radius);
 void frac_circle (PLINE *, LocationType, LocationType, Vector, int);
 int InitClip(DataType *d, LayerType *l, PolygonType *p);
 void RestoreToPolygon(DataType *, int, void *, void *);
