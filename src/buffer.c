@@ -591,7 +591,7 @@ SmashBufferElement (BufferTypePtr Buffer)
 {
   ElementTypePtr element;
   Cardinal group;
-  LayerTypePtr layer;
+  LayerTypePtr clayer, slayer;
 
   if (Buffer->Data->ElementN != 1)
     {
@@ -634,11 +634,17 @@ SmashBufferElement (BufferTypePtr Buffer)
     GetLayerGroupNumberByNumber (max_layer +
 				 (SWAP_IDENT ? SOLDER_LAYER :
 				  COMPONENT_LAYER));
-  layer = &Buffer->Data->Layer[PCB->LayerGroups.Entries[group][0]];
+  clayer = &Buffer->Data->Layer[PCB->LayerGroups.Entries[group][0]];
+  group =
+    GetLayerGroupNumberByNumber (max_layer +
+				 (SWAP_IDENT ? COMPONENT_LAYER :
+				  SOLDER_LAYER));
+  slayer = &Buffer->Data->Layer[PCB->LayerGroups.Entries[group][0]];
   PAD_LOOP (element);
   {
     LineTypePtr line;
-    line = CreateNewLineOnLayer (layer, pad->Point1.X, pad->Point1.Y,
+    line = CreateNewLineOnLayer (TEST_FLAG (ONSOLDERFLAG, pad) ? slayer : clayer,
+				 pad->Point1.X, pad->Point1.Y,
 				 pad->Point2.X, pad->Point2.Y,
 				 pad->Thickness, pad->Clearance, NoFlags ());
     if (line)
