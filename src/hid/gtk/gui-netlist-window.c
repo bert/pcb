@@ -801,17 +801,54 @@ ghid_netlist_window_show (GHidPort * out, gboolean raise)
   gtk_widget_show_all (netlist_window);
 }
 
+struct ggnfnn_task {
+  gboolean enabled_only;
+  gchar *node_name;
+  LibraryMenuType *found_net;
+  GtkTreeIter iter;
+};
+
+static gboolean
+hunt_named_node (GtkTreeModel *model, GtkTreePath *path,
+                 GtkTreeIter *iter, gpointer data)
+{
+  struct ggnfnn_task *task = data;
+  LibraryMenuType *net;
+  LibraryEntryType *node;
+  gchar *str;
+  gint j;
+  gboolean is_disabled;
+
+  /* We only want to inspect leaf nodes in the tree */
+  if (gtk_tree_model_iter_has_child (model, iter))
+    return FALSE;
+
+  gtk_tree_model_get (model, iter, NET_LIBRARY_COLUMN, &net, -1);
+  gtk_tree_model_get (model, iter, NET_ENABLED_COLUMN, &str, -1);
+  is_disabled = !strcmp (str, "*");
+  g_free (str);
+
+  /* Don't check net nodes of disabled nets. */
+  if (task->enabled_only && is_disabled)
+    return FALSE;
+
+  /* Look for the node name in this net. */
+  for (j = net->EntryN, node = net->Entry; j; j--, node++)
+    if (node->ListEntry && !strcmp (task->node_name, node->ListEntry))
+      {
+        task->found_net = net;
+        task->iter = *iter;
+        return TRUE;
+      }
+
+  return FALSE;
+}
 
 LibraryMenuType *
 ghid_get_net_from_node_name (gchar * node_name, gboolean enabled_only)
 {
   GtkTreePath *path;
-  GtkTreeIter iter;
-  LibraryMenuType *net, *found_net = NULL;
-  LibraryEntryType *node;
-  gchar *str;
-  gint j;
-  gboolean is_disabled;
+  struct ggnfnn_task task;
 
   if (!node_name)
     return NULL;
@@ -826,47 +863,30 @@ ghid_get_net_from_node_name (gchar * node_name, gboolean enabled_only)
   while (gtk_events_pending ())	/* Make sure everything gets built */
     gtk_main_iteration ();
 
-  /* Now walk through node entries of each net in the net model looking for
-     |  the node_name.  Don't check net nodes of disabled nets.
-   */
-  if (gtk_tree_model_get_iter_first (net_model, &iter))
-    do
-      {
-	gtk_tree_model_get (net_model, &iter, NET_LIBRARY_COLUMN, &net, -1);
-	gtk_tree_model_get (net_model, &iter, NET_ENABLED_COLUMN, &str, -1);
-	is_disabled = !strcmp (str, "*");
-	g_free (str);
-	if (enabled_only && is_disabled)
-	  continue;
+  task.enabled_only = enabled_only;
+  task.node_name = node_name;
+  task.found_net = NULL;
 
-	/* Look for the node name in this net.
-	 */
-	for (j = net->EntryN, node = net->Entry; j; j--, node++)
-	  if (node->ListEntry && !strcmp (node_name, node->ListEntry))
-	    {
-	      found_net = net;
-	      break;
-	    }
-	if (found_net)
-	  break;
-      }
-    while (gtk_tree_model_iter_next (net_model, &iter));
+  /* Now walk through node entries of each net in the net model looking for
+     |  the node_name.
+   */
+  gtk_tree_model_foreach (net_model, hunt_named_node, &task);
 
   /* We are asked to highlight the found net if enabled_only is TRUE.
      |  Set holdoff TRUE since this is just a highlight and user is not
      |  expecting normal select action to happen?  Or should the node
      |  treeview also get updated?  Original PCB code just tries to highlight.
    */
-  if (found_net && enabled_only)
+  if (task.found_net && enabled_only)
     {
       selection_holdoff = TRUE;
-      path = gtk_tree_model_get_path (net_model, &iter);
+      path = gtk_tree_model_get_path (net_model, &task.iter);
       gtk_tree_view_scroll_to_cell (net_treeview, path, NULL, TRUE, 0.5, 0.5);
       gtk_tree_selection_select_path (gtk_tree_view_get_selection
 				      (net_treeview), path);
       selection_holdoff = FALSE;
     }
-  return found_net;
+  return task.found_net;
 }
 
 /* PCB LookupConnection code in find.c calls this if it wants a node
