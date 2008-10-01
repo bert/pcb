@@ -32,7 +32,7 @@ To make a pcb release do the following:
 
 =)	cvs ci
 
-=)	update the ChangeLog with 'cvs2cl.pl'.  Check in changes
+=)	update the ChangeLog with './utils/cvs2cl.pl'.  Check in changes
 
 =)	update the NEWS file with some sort of release notes
 	summary.  Check in changes
@@ -46,7 +46,7 @@ To make a pcb release do the following:
 		cvs tag -R -b -r pcb-20080202-base pcb-20080202
 
 	3. FIX_ME [fix up this step.  what shall we do with the version
-	   on the trunk?]
+	   on the trunk?  We're about to run out of letters!] 
 	   On the trunk, update configure.ac to update the version
 		for example 1.99x after releasing 1.99w
 		cvs update -PdA
