@@ -1027,7 +1027,7 @@ MoveLayer (int old_index, int new_index)
 
   move_all_thermals(old_index, new_index);
 
-  for (g = 0; g < MAX_LAYER + 1; g++)
+  for (g = 0; g < MAX_LAYER; g++)
     PCB->LayerGroups.Number[g] = 0;
   for (l = 0; l < max_layer + 2; l++)
     {
