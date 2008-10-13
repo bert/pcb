@@ -380,7 +380,6 @@ mtspace_query_rect (mtspace_t * mtspace, const BoxType * region,
   assert (free_space_vec && vector_is_empty (free_space_vec));
   assert (lo_conflict_space_vec && vector_is_empty (lo_conflict_space_vec));
   assert (hi_conflict_space_vec && vector_is_empty (hi_conflict_space_vec));
-  assert (untested && no_fix && no_hi && hi_candidate);
   /* search out to anything that might matter */
   if (region)
     {
@@ -393,6 +392,8 @@ mtspace_query_rect (mtspace_t * mtspace, const BoxType * region,
       work->no_hi = vector_create ();
       work->keepaway = keepaway;
       work->radius = radius;
+      assert (work->untested && work->no_fix &&
+              work->no_hi && work->hi_candidate);
       cbox = (BoxType *) malloc (sizeof (BoxType));
       *cbox = bloat_box (region, keepaway + radius);
       vector_append (work->untested, cbox);

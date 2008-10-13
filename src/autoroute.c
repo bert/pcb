@@ -2971,7 +2971,6 @@ do_via_search (edge_t * search, struct routeone_state *s,
         {
           BoxType cliparea;
           BoxType *area = vector_remove_last (v);
-          assert (box_intersect (area, &region));
           if (!(i == NO_CONFLICT || AutoRouteParameters.with_conflicts))
             {
               free (area);
