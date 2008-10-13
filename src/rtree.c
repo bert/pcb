@@ -79,7 +79,6 @@ RCSID ("$Id$");
 #define SORT_NONLEAF
 
 #define DELETE_BY_POINTER
-typedef long long bigun;
 
 typedef struct
 {
@@ -878,21 +877,20 @@ contained (struct rtree_node *node, const BoxType * query)
 }
 
 
-static inline bigun
+static inline double
 penalty (struct rtree_node *node, const BoxType * query)
 {
-  long long score;
+  double score;
 
   /* Compute the area penalty for inserting here and return.
    * The penalty is the increase in area necessary
    * to include the query->
    */
-  score = (MAX (node->box.X2, query->X2) - MIN (node->box.X1, query->X1));
-  score *=
-    (MAX (node->box.Y2, query->Y2) - MIN (node->box.Y1, query->Y1));
+  score  = (MAX (node->box.X2, query->X2) - MIN (node->box.X1, query->X1));
+  score *= (MAX (node->box.Y2, query->Y2) - MIN (node->box.Y1, query->Y1));
   score -=
-    ((long long) node->box.X2 -
-     node->box.X1) * ((long long) node->box.Y2 - node->box.Y1);
+    (double)(node->box.X2 - node->box.X1) *
+    (double)(node->box.Y2 - node->box.Y1);
   return score;
 }
 
@@ -957,7 +955,7 @@ __r_insert_node (struct rtree_node *node, const BoxType * query,
     {
       int i;
       struct rtree_node *best_node;
-      long long score, best_score;
+      double score, best_score;
 
       if (force)
         {
