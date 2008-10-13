@@ -990,15 +990,50 @@ IsPointInPad (LocationType X, LocationType Y, BDimension Radius,
 Boolean
 IsPointInBox (LocationType X, LocationType Y, BoxTypePtr box, BDimension Radius)
 {
-  PadType pad;
+  BDimension width, height, range;
 
-  pad.Thickness = (box->X1 - box->X2); ASSIGN_FLAG (SQUAREFLAG, True, &pad);
-  if (pad.Thickness < 0)
-    pad.Thickness = - pad.Thickness;
-  pad.Point1.X = pad.Point2.X = (box->X1 + box->X2) / 2; 
-  pad.Point1.Y = MIN (box->Y1, box->Y2) + pad.Thickness / 2; 
-  pad.Point2.Y = MAX (box->Y1, box->Y2) - pad.Thickness / 2;
-  return IsPointInPad (X, Y, Radius, &pad);
+  /* NB: Assumes box has point1 with numerically lower X and Y coordinates */
+
+  /* Compute coordinates relative to Point1 */
+  X -= box->X1;
+  Y -= box->Y1;
+
+  width =  box->X2 - box->X1;
+  height = box->Y2 - box->Y1;
+
+  if (X <= 0)
+    {
+      if (Y < 0)
+        return (Radius >= 0) && (Radius * (double)Radius >
+                (double)Y * Y + (double)X * X);
+      else if (Y > height)
+        return (Radius >= 0) && (Radius * (double)Radius >
+                (double)(Y - height) * (Y - height) + (double)X * X);
+      else
+        range = -X;
+    }
+  else if (X >= width)
+    {
+      if (Y < 0)
+        return (Radius >= 0) && (Radius * (double)Radius >
+                (double)Y * Y + (double)(X - width) * (X - width));
+      else if (Y > height)
+        return (Radius >= 0) && (Radius * (double)Radius >
+                (double)(Y - height) * (Y - height) + (double)(X - width) * (X - width));
+      else
+        range = X - width;
+    }
+  else
+    {
+      if (Y < 0)
+        range = -Y;
+      else if (Y > height)
+        range = Y - height;
+      else
+        return True;
+    }
+
+  return range < Radius;
 }
 
 Boolean
