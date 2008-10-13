@@ -1758,7 +1758,7 @@ LibraryChanged (int argc, char **argv, int x, int y)
 static int
 Command (int argc, char **argv, int x, int y)
 {
-  ghid_handle_user_command (FALSE);
+  ghid_handle_user_command (TRUE);
   return 0;
 }
 
