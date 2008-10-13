@@ -165,7 +165,7 @@ heap_insert (heap_t * heap, cost_t cost, void *data)
     {
       heap->max *= 2;
       if (heap->max == 0)
-	heap->max = 32;		/* default initial heap size */
+	heap->max = 256;		/* default initial heap size */
       heap->element =
 	realloc (heap->element, heap->max * sizeof (*heap->element));
     }
