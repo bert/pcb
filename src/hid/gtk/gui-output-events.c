@@ -509,10 +509,6 @@ ghid_port_key_press_cb (GtkWidget * drawing_area,
       handled = FALSE;
     }
 
-
-  if (handled == FALSE)
-    gui->log ("keysym %d (0x%x) has not been defined\n", ksym, ksym);
-
   return handled;
 }
 
