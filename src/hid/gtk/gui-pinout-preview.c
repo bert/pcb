@@ -153,6 +153,7 @@ pinout_set_data (GhidPinoutPreview * pinout, ElementType * element)
 static gboolean
 ghid_pinout_preview_expose (GtkWidget * widget, GdkEventExpose * event)
 {
+  extern HID ghid_hid;
   GhidPinoutPreview *pinout = GHID_PINOUT_PREVIEW (widget);
   GdkDrawable *save_drawable;
   double save_zoom;
@@ -194,7 +195,7 @@ ghid_pinout_preview_expose (GtkWidget * widget, GdkEventExpose * event)
   gdk_draw_rectangle (widget->window, gport->bg_gc, TRUE, 0, 0, da_w, da_h);
 
   /* call the drawing routine */
-  DrawElement (&pinout->element, 0);
+  hid_expose_callback (&ghid_hid, NULL, &pinout->element);
 
   gport->drawable = save_drawable;
   gport->zoom = save_zoom;
