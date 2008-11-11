@@ -320,7 +320,9 @@ line_callback (const BoxType * b, void *cl)
       longjmp (i->env, 1);
     }
   /* remove unnecessary line points */
-  if (line->Thickness == i->Thickness)
+  if (line->Thickness == i->Thickness
+      /* don't merge lines if the clear flags differ  */
+      && TEST_FLAG (CLEARLINEFLAG, line) == TEST_FLAG (CLEARNEWFLAG, PCB))
     {
       if (line->Point1.X == i->X1 && line->Point1.Y == i->Y1)
 	{
