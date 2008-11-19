@@ -1151,9 +1151,10 @@ canonicalize_line (line_s * l)
 }
 
 /* Make sure all vias are at line end points */
-static void
+static int
 canonicalize_lines ()
 {
+  int changes = 0;
   int count;
   line_s *l;
   while (1)
@@ -1165,9 +1166,11 @@ canonicalize_lines ()
 	    continue;
 	  count += canonicalize_line (l);
 	}
+      changes += count;
       if (count == 0)
 	break;
     }
+  return changes;
 }
 
 static int
@@ -2996,6 +2999,13 @@ ActionDJopt (int argc, char **argv, int x, int y)
   END_LOOP;
   check (0, 0);
 
+  if (NSTRCMP (arg, "splitlines") == 0)
+    {
+      if (canonicalize_lines ())
+	IncrementUndoSerialNumber ();
+      return 0;
+    }
+
   for (layn = 0; layn < max_layer; layn++)
     {
       LayerType *layer = LAYER_PTR (layn);
@@ -3028,6 +3038,7 @@ ActionDJopt (int argc, char **argv, int x, int y)
 	}
     }
 
+
   check (0, 0);
   pinsnap ();
   canonicalize_lines ();
@@ -3052,8 +3063,6 @@ ActionDJopt (int argc, char **argv, int x, int y)
     saved += automagic ();
   else if (NSTRCMP (arg, "miter") == 0)
     saved += miter ();
-  else if (NSTRCMP (arg, "splitlines") == 0)
-    /* Just to call canonicalize_lines() above.  */ ;
   else
     {
       printf ("unknown command: %s\n", arg);
