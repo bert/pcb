@@ -273,16 +273,27 @@ ps_start_file (FILE *f)
 }
 
 static FILE *
-psopen (const char *base, const char *suff)
+psopen (const char *base, const char *which)
 {
   FILE *f;
-  char *buf;
+  char *buf, *suff, *buf2;
+
   if (!multi_file)
+    return fopen (base, "w");
+
+  buf = malloc (strlen (base) + strlen (which) + 5);
+
+  suff = strrchr (base, '.');
+  if (suff)
     {
-      return fopen (base, "w");
+      strcpy (buf, base);
+      buf2 = strrchr (buf, '.');
+      sprintf(buf2, ".%s.%s", which, suff+1);
     }
-  buf = malloc (strlen (base) + strlen (suff) + 5);
-  sprintf(buf, "%s.%s.ps", base, suff);
+  else
+    {
+      sprintf(buf, "%s.%s.ps", base, which);
+    }
   printf("PS: open %s\n", buf);
   f = fopen(buf, "w");
   free (buf);
