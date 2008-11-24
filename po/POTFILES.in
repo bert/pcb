@@ -14,6 +14,8 @@ src/edif.c
 src/error.c
 src/file.c
 src/find.c
+src/hid/batch/batch.c
+src/hid/common/hidnogui.c
 src/hid/gerber/gerber.c
 src/hid/gtk/gtkhid-main.c
 src/hid/gtk/gui-command-window.c
