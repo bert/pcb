@@ -813,10 +813,6 @@ InitPaths (char *argv0)
           homedir = NULL;
       }
 
-      if (tmps != NULL) {
-          free (tmps);
-          tmps = NULL;
-      }
     }
 }
 
