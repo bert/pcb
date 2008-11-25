@@ -611,6 +611,7 @@ char *pcblibdir = NULL;
 char *pcblibpath = NULL;
 char *pcbtreedir = NULL;
 char *pcbtreepath = NULL;
+char *homedir = NULL;
 
 static void
 InitPaths (char *argv0)
@@ -795,6 +796,27 @@ InitPaths (char *argv0)
 	  main_attribute_list[i].default_val.str_value = pcbtreepath;
 	}
 
+    }
+
+    {
+      char *tmps;
+
+      tmps = getenv ("HOME");
+
+      if (tmps == NULL) {
+          tmps = getenv ("USERPROFILE");
+      }
+
+      if (tmps != NULL) {
+          homedir = strdup (tmps);
+      } else {
+          homedir = NULL;
+      }
+
+      if (tmps != NULL) {
+          free (tmps);
+          tmps = NULL;
+      }
     }
 }
 

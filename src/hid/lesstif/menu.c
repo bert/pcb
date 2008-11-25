@@ -1463,17 +1463,21 @@ lesstif_menu (Widget parent, char *name, Arg * margs, int mn)
   screen = DefaultScreen (display);
   cmap = DefaultColormap (display, screen);
 
-  home = getenv ("HOME");
+  /* homedir is set by the core */
+  home_pcbmenu = NULL;
   if (home == NULL)
     {
       Message ("Warning:  could not determine home directory (from HOME)\n");
-      home = "";
     }
-  home_pcbmenu = Concat (home, "/.pcb/pcb-menu.res", NULL);
+  else 
+    {
+      home_pcbmenu = Concat (home, PCB_DIR_SEPARATOR_S, ".pcb", 
+         PCB_DIR_SEPARATOR_S, "pcb-menu.res", NULL);
+    }
 
   if (access ("pcb-menu.res", R_OK) == 0)
     filename = "pcb-menu.res";
-  else if (access (home_pcbmenu, R_OK) == 0)
+  else if (home_pcbmenu != NULL && (access (home_pcbmenu, R_OK) == 0))
     filename = home_pcbmenu;
   else if (access (pcbmenu_path, R_OK) == 0)
     filename = pcbmenu_path;
@@ -1493,7 +1497,10 @@ lesstif_menu (Widget parent, char *name, Arg * margs, int mn)
   if (!r)
     r = bir;
 
-  free (home_pcbmenu);
+  if (home_pcbmenu != NULL)
+    {
+      free (home_pcbmenu);
+    }
 
   mr = resource_subres (r, "MainMenu");
   if (!mr)

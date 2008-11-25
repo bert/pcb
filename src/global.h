@@ -747,5 +747,6 @@ extern char *pcblibpath;
 extern char *pcbtreedir;
 extern char *pcbtreepath;
 extern char *exec_prefix;
+extern char *homedir;
 
 #endif /* __GLOBAL_INCLUDED__  */

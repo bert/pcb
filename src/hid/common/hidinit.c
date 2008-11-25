@@ -118,7 +118,6 @@ hid_load_dir (char *dirname)
 void
 hid_init ()
 {
-  char *home;
 
   gui = &hid_nogui;
 #define HID_DEF(x) hid_ ## x ## _init();
@@ -132,13 +131,14 @@ hid_init ()
   hid_load_dir (Concat (exec_prefix, PCB_DIR_SEPARATOR_S, "lib",
 	PCB_DIR_SEPARATOR_S, "pcb",
 	PCB_DIR_SEPARATOR_S, "plugins", NULL));
-  home = getenv("HOME");
-  if (home)
+
+  /* homedir is set by the core immediately on startup */
+  if (homedir != NULL)
     {
-      hid_load_dir (Concat (home, PCB_DIR_SEPARATOR_S, ".pcb",
+      hid_load_dir (Concat (homedir, PCB_DIR_SEPARATOR_S, ".pcb",
 	PCB_DIR_SEPARATOR_S, "plugins",
 	PCB_DIR_SEPARATOR_S, HOST, NULL));
-      hid_load_dir (Concat (home, PCB_DIR_SEPARATOR_S, ".pcb",
+      hid_load_dir (Concat (homedir, PCB_DIR_SEPARATOR_S, ".pcb",
 	PCB_DIR_SEPARATOR_S, "plugins", NULL));
     }
   hid_load_dir (Concat ("plugins", PCB_DIR_SEPARATOR_S, HOST, NULL));
@@ -406,7 +406,7 @@ attr_hash (HID_Attribute *a)
 void
 hid_save_settings (int locally)
 {
-  char *home, *fname;
+  char *fname;
   struct stat st;
   FILE *f;
   HID_AttrNode *ha;
@@ -418,10 +418,9 @@ hid_save_settings (int locally)
     }
   else
     {
-      home = getenv ("HOME");
-      if (! home)
+      if (homedir == NULL)
 	return;
-      fname = Concat (home, "/.pcb", NULL);
+      fname = Concat (homedir, PCB_DIR_SEPARATOR_S, ".pcb", NULL);
 
       if (stat (fname, &st))
 #ifdef WIN32
@@ -435,7 +434,8 @@ hid_save_settings (int locally)
 	  }
       free (fname);
 
-      fname = Concat (home, "/.pcb/settings", NULL);
+      fname = Concat (homedir, PCB_DIR_SEPARATOR_S, ".pcb", 
+               PCB_DIR_SEPARATOR_S, "settings", NULL);
     }
 
   f = fopen (fname, "w");
@@ -594,7 +594,6 @@ hid_load_settings_1 (char *fname)
 void
 hid_load_settings ()
 {
-  char *home;
   HID_AttrNode *ha;
   int i;
 
@@ -602,10 +601,10 @@ hid_load_settings ()
     for (i = 0; i < ha->n; i++)
       ha->attributes[i].hash = attr_hash (ha->attributes+i);
 
-  hid_load_settings_1 (Concat (pcblibdir, "/settings", NULL));
-  home = getenv("HOME");
-  if (home)
-    hid_load_settings_1 (Concat (home, "/.pcb/settings", NULL));
+  hid_load_settings_1 (Concat (pcblibdir, PCB_DIR_SEPARATOR_S, "settings", NULL));
+  if (homedir != NULL)
+    hid_load_settings_1 (Concat (homedir, PCB_DIR_SEPARATOR_S, ".pcb",
+               PCB_DIR_SEPARATOR_S, "settings", NULL));
   hid_load_settings_1 (Concat ("pcb.settings", NULL));
 }
 
