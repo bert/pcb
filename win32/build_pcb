@@ -150,8 +150,8 @@ gtk_win32_runtime=c:\\\\cygwin\\\\home\\\\${USER}\\\\gtk_win32_runtime
 # where the gdwin32.zip archive has been extracted
 # gdwin32.zip can be downloaded from http://www.boutell.com/gd/http/gdwin32.zip
 # I have used 2.0.33
-gd_win32=c:\\cygwin\\home\\${USER}\\gdwin32
-gd_win32_runtime=c:\\\\cygwin\\\\home\\\\${USER}\\\\gdwin32
+gd_win32=c:\\cygwin\\home\\${USER}\\gd_win32
+gd_win32_runtime=c:\\\\cygwin\\\\home\\\\${USER}\\\\gd_win32_runtime
 
 
 # pcb version
@@ -192,7 +192,7 @@ pcb_inst_dir=c:\\\\cygwin`echo ${pcb_inst} | sed 's;/;\\\\\\\\;g'`
 PKG_CONFIG_PATH=${gtk_win32}\\lib\\pkgconfig
 export PKG_CONFIG_PATH
 
-PATH=${gtk_win32}\\bin:${gd_win32}:${PATH}
+PATH=${gtk_win32}\\bin:${gd_win32}:${gtk_win32_runtime}\\bin:${gd_win32_runtime}:${PATH}
 export PATH
 
 echo "Showing packages known to pkg-config:"
@@ -216,8 +216,8 @@ export WISH
 GDLIB_CONFIG=/usr/bin/true
 export GDLIB_CONFIG
  
-GDLIB_CFLAGS="-I${HOME}/gdwin32"
-GDLIB_LDFLAGS="-L${HOME}/gdwin32"
+GDLIB_CFLAGS="-I${HOME}/gd_win32/include"
+GDLIB_LDFLAGS="-L${HOME}/gd_win32/lib -lbgd"
 
 # add the gcc options to produce a native windows binary that
 # does not need cygwin to run
