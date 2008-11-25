@@ -352,7 +352,7 @@ flag = square | octagon | thermal | join
 @end cartouche
 
 Sets or clears flags on objects.
-@c ./../src/action.c 5550
+@c ./../src/action.c 5552
 
 Toggles the given flag on the indicated object(s).  The flag may be
 one of the flags listed above (square, octagon, thermal, join).  The
@@ -555,7 +555,7 @@ flag = square | octagon | thermal | join@end format
 @end cartouche
 
 Clears flags on objects.
-@c ./../src/action.c 5533
+@c ./../src/action.c 5535
 
 Turns the given flag off, regardless of its previous setting.  See
 @code{ChangeFlag}.
@@ -805,7 +805,7 @@ djopt(auto) - all of the above
 @end cartouche
 
 Perform various optimizations on the current board
-@c ./../src/djopt.c 2875
+@c ./../src/djopt.c 2878
 
 The different types of optimizations change your board in order to
 reduce the total trace length and via count.
@@ -913,7 +913,7 @@ ExecuteFile(filename)@end format
 @end cartouche
 
 Run actions from the given file.
-@c ./../src/action.c 5664
+@c ./../src/action.c 5666
 
 Lines starting with @code{#} are ignored.
 
@@ -1033,7 +1033,7 @@ LoadFrom(Layout|LayoutToBuffer|ElementToBuffer|Netlist|Revert,filename)@end form
 @end cartouche
 
 Load layout data from a file.
-@c ./../src/action.c 4828
+@c ./../src/action.c 4830
 
 This action assumes you know what the filename is.  The various GUIs
 should have a similar @code{Load} action where the filename is
@@ -1300,7 +1300,7 @@ MoveObject(X,Y,dim)@end format
 @end cartouche
 
 Moves the object under the crosshair.
-@c ./../src/action.c 5365
+@c ./../src/action.c 5367
 
 The @code{X} and @code{Y} are treated like @code{delta} is for many
 other objects.  For each, if it's prefixed by @code{+} or @code{-},
@@ -1318,7 +1318,7 @@ MoveToCurrentLayer(Object|SelectedObjects)@end format
 @end cartouche
 
 Moves objects to the current layer.
-@c ./../src/action.c 5407
+@c ./../src/action.c 5409
 
 Note that moving an element from a component layer to a solder layer,
 or from solder to component, won't automatically flip it.  Use the
@@ -1374,7 +1374,7 @@ New([name])@end format
 @end cartouche
 
 Starts a new layout.
-@c ./../src/action.c 4891
+@c ./../src/action.c 4893
 
 If a name is not given, one is prompted for.
 
@@ -1411,7 +1411,7 @@ PasteBuffer(ToLayout, X, Y, units)@end format
 @end cartouche
 
 Various operations on the paste buffer.
-@c ./../src/action.c 4955
+@c ./../src/action.c 4957
 
 There are a number of paste buffers; the actual limit is a
 compile-time constant @code{MAX_BUFFER} in @file{globalconst.h}.  It
@@ -1470,7 +1470,7 @@ Polygon(Close|PreviousPoint)@end format
 @end cartouche
 
 Some polygon related stuff.
-@c ./../src/action.c 5301
+@c ./../src/action.c 5303
 
 Polygons need a special action routine to make life easier.
 
@@ -1569,7 +1569,7 @@ Redo()@end format
 @end cartouche
 
 Redo recent``undo''operations.
-@c ./../src/action.c 5267
+@c ./../src/action.c 5269
 
 This routine allows you to recover from the last undo command.  You
 might want to do this if you thought that undo was going to revert
@@ -1618,7 +1618,7 @@ Report(Object|DrillReport|FoundPins|NetLength)@end format
 @end cartouche
 
 Produce various report.
-@c ./../src/report.c 639
+@c ./../src/report.c 651
 
 @table @code
 
@@ -1713,7 +1713,7 @@ RouteStyle(1|2|3|4)@end format
 @end cartouche
 
 Copies the indicated routing style into the current sizes.
-@c ./../src/action.c 5333
+@c ./../src/action.c 5335
 
 
 @node s Action
@@ -1745,7 +1745,7 @@ SaveSettings()
 @end cartouche
 
 Saves settings.
-@c ./../src/action.c 4812
+@c ./../src/action.c 4814
 
 If you pass no arguments, the settings are stored in
 @code{$HOME/.pcb/settings}.  If you pass the word @code{local} they're
@@ -1852,7 +1852,7 @@ flag = square | octagon | thermal | join@end format
 @end cartouche
 
 Sets flags on objects.
-@c ./../src/action.c 5516
+@c ./../src/action.c 5518
 
 Turns the given flag on, regardless of its previous setting.  See
 @code{ChangeFlag}.
@@ -1885,7 +1885,7 @@ SetSame()@end format
 @end cartouche
 
 Sets current layer and sizes to match indicated item.
-@c ./../src/action.c 5448
+@c ./../src/action.c 5450
 
 When invoked over any line, arc, polygon, or via, this changes the
 current layer to be the layer that item is on, and changes the current
@@ -2021,7 +2021,7 @@ Undo()
 @end cartouche
 
 Undo recent changes.
-@c ./../src/action.c 5106
+@c ./../src/action.c 5108
 
 The unlimited undo feature of @code{Pcb} allows you to recover from
 most operations that materially affect you work.  Calling
