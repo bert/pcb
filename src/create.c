@@ -287,6 +287,7 @@ struct line_info
 {
   LocationType X1, X2, Y1, Y2;
   BDimension Thickness;
+  FlagType Flags;
   LineType test, *ans;
   jmp_buf env;
 };
@@ -322,7 +323,7 @@ line_callback (const BoxType * b, void *cl)
   /* remove unnecessary line points */
   if (line->Thickness == i->Thickness
       /* don't merge lines if the clear flags differ  */
-      && TEST_FLAG (CLEARLINEFLAG, line) == TEST_FLAG (CLEARNEWFLAG, PCB))
+      && TEST_FLAG (CLEARLINEFLAG, line) == TEST_FLAG (CLEARLINEFLAG, i))
     {
       if (line->Point1.X == i->X1 && line->Point1.Y == i->Y1)
 	{
@@ -399,6 +400,7 @@ CreateDrawnLineOnLayer (LayerTypePtr Layer,
   info.Y1 = Y1;
   info.Y2 = Y2;
   info.Thickness = Thickness;
+  info.Flags = Flags;
   info.test.Thickness = 0;
   info.test.Flags = NoFlags ();
   info.ans = NULL;
