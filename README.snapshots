@@ -25,7 +25,9 @@ To make a pcb release do the following:
 
 =)	# make sure it makes distfiles ok: (have to build before doing distcheck so
 	pcb gets built so it can create some of the images in the doc directory)
-	gmake distclean ; ./autogen.sh  && ./configure --enable-maintainer-mode --disable-update-desktop-database --disable-update-mime-database && gmake && gmake distcheck
+	gmake distclean ; ./autogen.sh  && ./configure --enable-maintainer-mode \
+		--disable-update-desktop-database --disable-update-mime-database && \
+		gmake && gmake distcheck
 	setenv DISTCHECK_CONFIGURE_FLAGS '--with-gui=lesstif CPPFLAGS=-I/usr/pkg/include CFLAGS=-I/usr/pkg/include LDFLAGS="-L/usr/pkg/lib -R/usr/pkg/lib"'
 	gmake distcheck
 	unsetenv DISTCHECK_CONFIGURE_FLAGS
@@ -62,7 +64,10 @@ To make a pcb release do the following:
 		./autogen.sh
 		cvs tag -R -r pcb-20081128 pcb-20081128-ALPHA
 		cvs update -PdA -r pcb-20081128-ALPHA
-		./autogen.sh && ./configure --enable-maintainer-mode --disable-update-desktop-database --disable-update-mime-database && gmake && gmake distcheck
+		./autogen.sh && ./configure --enable-maintainer-mode \
+			--disable-update-desktop-database \
+			--disable-update-mime-database && \
+			gmake && gmake distcheck
 
 	6. When the release branch is ready to go,  update configure.ac to
 	   set the final release version.  Then tag the release.
@@ -73,7 +78,10 @@ To make a pcb release do the following:
 		cvs ci
 		cvs tag -R -r pcb-20081128 pcb-20081128-RELEASE
 		cvs update -PdA -r pcb-20081128-RELEASE
-		./autogen.sh && ./configure --enable-maintainer-mode --disable-update-desktop-database --disable-update-mime-database && gmake clean && gmake && gmake distcheck
+		./autogen.sh && ./configure --enable-maintainer-mode \
+			--disable-update-desktop-database \
+			--disable-update-mime-database && \
+			gmake clean && gmake && gmake distcheck
 	
 	7. Create checksums
 
@@ -83,13 +91,13 @@ To make a pcb release do the following:
 		echo "File size (bytes):" >> pcb-20081128.cksum
 		wc -c pcb-20081128.tar.gz >> pcb-20081128.cksum
 
-	8. Upload the .tar.gz, .cksum files to
-	   ftp://upload.sourceforge.net/incoming/
-
-	9. Create a new file release for pcb with a release name of
+	8. Create a new file release for pcb with a release name of
 	   "pcb-20081128" (for pcb-20081128).
 
-		For file types:
+	9. Upload the .tar.gz, .cksum files via the file release system on sourceforge.  There is
+           a web upload page that can be reached from the file release system.  After uploading
+           set the file types:
+
 			.tar.gz      -  any / source .gz
 			.cksum       -  Platform Independent / Other Source File
 
