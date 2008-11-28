@@ -2268,7 +2268,7 @@ AdjustStyle()
 @end cartouche
 
 Open the window which allows editing of the route styles
-@c ./../src/hid/gtk/gui-top-window.c 3802
+@c ./../src/hid/gtk/gui-top-window.c 3810
 
 Opens the window which allows editing of the route styles.
 
@@ -2380,7 +2380,7 @@ EditLayerGroups()
 @end cartouche
 
 Open the preferences window which allows editing of the layer groups
-@c ./../src/hid/gtk/gui-top-window.c 3825
+@c ./../src/hid/gtk/gui-top-window.c 3833
 
 Opens the preferences window which is where the layer groups
 are edited.  This action is primarily provides to provide menu
