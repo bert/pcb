@@ -1,3 +1,498 @@
+2008-11-27 22:35  danmc
+
+	* doc/actions.texi: regen.
+
+2008-11-27 22:32  danmc
+
+	* Makefile.am: Make DISTCHECK_CONFIGURE_FLAGS actually work again
+	  so we can check that 'make distcheck' passes for lesstif.
+
+2008-11-27 18:33  danmc
+
+	* doc/Makefile.am: honor psdir, pdfdir, docdir, htmldir, dvidir.
+	  Noted in sf bug #1916057.
+
+2008-11-27 11:36  djdelorie
+
+	* src/create.c: Test the two lines, not the line vs the current
+	  pcb, for compatible poly-join flags.
+
+2008-11-27 11:11  danmc
+
+	* src/pcbtest.sh.in: get rid of an insecure usage of a temp file
+
+2008-11-25 09:50  danmc
+
+	* src/main.c: do not free() the result of getenv().  Noted by Peter
+	  Clifton
+
+2008-11-25 08:50  danmc
+
+	* src/: global.h, main.c, hid/common/hidinit.c,
+	  hid/gtk/gui-top-window.c, hid/lesstif/menu.c: Determine the users
+	  home directory on program startup and remember it for use in
+	  other places later.  This avoids repeated use of getenv("HOME")
+	  which may have issues especially under windows.
+
+2008-11-25 08:49  danmc
+
+	* win32/build_pcb: create a DOS batch file wrapper for the
+	  installer to make it easier to run the installer immediately
+	  after building it from the cygwin shell.  Without this, vista
+	  doesn't seem to like to run it for some reason.
+
+2008-11-24 22:08  danmc
+
+	* doc/: actions.texi, version.texi: regen
+
+2008-11-24 22:07  danmc
+
+	* win32/: Makefile.am, build_pcb, extract_gtk_win32, pcb.nsi.in,
+	  registerExtension.nsh: - various minor updates for a more recent
+	  download of gtk and friends	largely taken from gerbv.
+
+	  - associate .pcb and .fp file extensions with pcb
+
+	  - make sure we start up pcb in the My Documents area to
+	  discourage   writing into Program Files.
+
+2008-11-24 17:51  danmc
+
+	* po/POTFILES.in: add 2 missing files that have translations
+
+2008-11-22 21:32  djdelorie
+
+	* src/hid/ps/ps.c: Fix the foo.ps.type.ps bug
+
+2008-11-19 11:23  djdelorie
+
+	* src/djopt.c: Move splitlines even earlier, to avoid unwanted
+	  changes.
+
+2008-11-10 23:37  djdelorie
+
+	* src/create.c: Don't merge two lines if the join flag differs.
+
+2008-10-21 19:28  petercjclifton
+
+	* src/hid/gtk/gui-pinout-preview.c: Fix preview drawing broken by
+	  resetting "Gathering" mode after painting.
+
+	  Seems that the pinout preview widget relied on the bug fixed in
+	  commit 0647d028e6c755715d2fcdbd0b4f2be73d36ae7f. In the expose
+	  handler of the preview, We should be calling the
+	  hid_expose_callback() function rather than DrawElement()
+	  directly.
+
+2008-10-20 21:51  petercjclifton
+
+	* src/hid/gtk/gui-output-events.c: Remove logged warning when
+	  pressing a key with no defined binding
+
+	  Poping up the log window in these cases is very intrusive, and it
+	  triggered for keys such as capslock, Mod4/Windows etc. There is
+	  no real need to log errant key-presses, so remove this feature.
+
+2008-10-13 15:59  petercjclifton
+
+	* src/: autoroute.c, mtspace.c: Fix two assertion test to allow
+	  compiling a debug build.
+
+	  Due to code-restructures, a couple of assert tests (not normally
+	  compiled) had bit-rotted. Remove one, rejig the other.
+
+2008-10-13 15:46  petercjclifton
+
+	* src/rtree.c: rtree.c: Fix typo in assertion test inside
+	  __r_search
+
+	  Caused false assertion failures when running a debugging build.
+
+2008-10-13 15:23  petercjclifton
+
+	* src/search.c: Fix IsPointInBox to work with wide as well as tall
+	  boxes
+
+	  Actually implement the test, rather than trying to construct a
+	  pad to test which has the right geometry.
+
+2008-10-13 15:22  petercjclifton
+
+	* src/rtree.c: Change rtree penalty function in rtree.c to use
+	  doubles, not long long.
+
+	  Since the exact integer result doesn't matter, this is ok.
+	  Marginally faster on Core Duo machine.
+
+2008-10-13 15:21  petercjclifton
+
+	* src/rtree.c: Check all r-tree node children for fit before
+	  working out penalties
+
+	  Working out the penalty involves multiplications which produce a
+	  "long long" result, and is seen to be appear in profiling.
+
+	  Make a pass at testing all children for the fast case of the
+	  child node containing the desired box, before working out size
+	  penalties to expanding each child.
+
+2008-10-13 15:20  petercjclifton
+
+	* src/heap.c: Increase initial heap size from 32 to 256
+
+	  In complex boards with lots of polygons, we were realloc'ing up
+	  to this kind of number anyway, in x2 size steps. Save all the
+	  memcpy'ing by making the heap larger to start with.
+
+	  My test board still has some requirement for heaps >256, <512,
+	  but the frequency is low.
+
+2008-10-13 15:19  petercjclifton
+
+	* src/hid/gtk/gtkhid-main.c: GTK HID: Raise already open command
+	  window to top with ":" key
+
+	  Previously, ":" only opened the window, but would not raise it if
+	  already open.
+
+2008-10-02 11:13  petercjclifton
+
+	* src/move.c: Fix array index out of bounds over layer groups
+
+	  Off by one error in for loop, picked out by a recent version of
+	  GCC being better at spotting this kind of bug. The effects (if
+	  any) this bug caused are unknown.
+
+2008-09-30 23:13  petercjclifton
+
+	* src/hid/gtk/gui-netlist-window.c: GTK HID: Fix crash when
+	  highlighting connectivity caused by net tree.
+
+	  Seems I caused a crash in the connectivity highlighting code
+	  which assumed the net model of in the netlist window is a list
+	  structure where each element represents a net. Adapted the code
+	  to hunt out the right net / node with a tree model of nets.
+
+2008-09-30 20:43  danmc
+
+	* README.snapshots, utils/cvs2cl.pl: add a local coyp of cvs2cl.pl
+
+2008-09-30 18:40  petercjclifton
+
+	* src/: polygon.c, polygon.h: Don't bother unsubtracting complex
+	  polygons when doing incremental updates
+
+	  Since the polygon is re-cleared against any objects existing
+	  within the bounding box of the update region, there is no point
+	  wasting CPU cycles intersecting a more complex polygon than
+	  necessary. Just take the UNION of the polygon being unsubtracted,
+	  and the bounding box of the hole to be filed in.
+
+2008-09-30 18:39  petercjclifton
+
+	* src/: misc.c, polygon.c: Fix text bounds to include the area
+	  cleared into a polygon
+
+	  Fixes re-clearing the polygon when a closely touching object is
+	  incrementally updated.
+
+2008-09-30 18:39  petercjclifton
+
+	* src/draw.c: Ensure "Gathering" mode is set after painting the
+	  screen.
+
+	  In between repaints initiated from the GUI, with this flag set,
+	  all Draw{object_type} operations just update a dirtied bounds. A
+	  final Draw() call then calls the HID to invalidate the bounds
+	  gathered.
+
+	  Setting "Gathering = True" after an expose event callback ensures
+	  subsequent drawing is batched up for the next screen update.
+
+2008-09-30 18:38  petercjclifton
+
+	* src/draw.c: Add debugging code to visually check a pad's bounding
+	  box
+
+	  Proved useful in fixing the pad bounding box update routine.
+	  Disabled with #if 0 block.
+
+2008-09-30 18:37  petercjclifton
+
+	* src/: misc.c, move.h: Fix bounding boxes for rotated square ended
+	  pads.
+
+	  Bounding box compution only worked for round ended pads before.
+	  In addition, the "move" code previously called SetLineBoundingBox
+	  for pads, which computes the wrong result.
+
+2008-09-30 18:36  petercjclifton
+
+	* src/hid/gtk/gui-library-window.c: GTK HID: Make double clicking
+	  on a footprint library expand / contract it
+
+	  Usability improvement.
+
+2008-09-29 22:16  djdelorie
+
+	* src/buffer.c: Put exploded pads on the correct layer
+
+2008-09-23 19:07  petercjclifton
+
+	* src/hid/gtk/gui-netlist-window.c: Display nets as a hierarchical
+	  tree in the netlist window.
+
+	  The view splits netnames at "/" characters, and builds the
+	  netlist view as a tree accordingly. Allows more strutured viewing
+	  of nets coming from hierarchical designs.
+
+2008-09-23 19:02  petercjclifton
+
+	* src/hid/common/hidinit.c: Improve hashing algorithm for storing
+	  color data
+
+	  Curosry testing showed the old algorithm encountered a lot of
+	  hash collisions. Swap to a more sensible hashing algorithm.
+
+2008-09-23 19:00  petercjclifton
+
+	* src/hid/common/hidinit.c: Fix lru heuristic to shortcut color
+	  cache lookup
+
+	  Heuristic didn't work before as the lru element wasn't saved.
+
+2008-09-23 18:57  petercjclifton
+
+	* src/hid/batch/batch.c: Fix batch HID by adding stub functions for
+	  file watches and block hooks
+
+	  This was broken when these features were added to the HID
+	  interface.
+
+2008-09-11 16:32  djdelorie
+
+	* src/polygon.c: Fix poly clearance around rotated pads - Robert
+	  Fitzsimons and Ineiev
+
+2008-09-11 16:25  djdelorie
+
+	* src/hid/lesstif/main.c: Fix lesstif crosshair color - joel
+	  silvestre
+
+2008-08-21 21:36  danmc
+
+	* README.cvs: update the anoncvs server name
+
+2008-08-19 18:26  danmc
+
+	* configure.ac, src/Makefile.am: add a --enable-debug mode that
+	  does not disable assert()
+
+2008-08-16 17:03  djdelorie
+
+	* src/hid/batch/batch.c: Add missing parameter name
+
+2008-08-05 21:42  djdelorie
+
+	* globalconst.h: Bump up font size and aperture count.
+
+2008-08-02 23:41  djdelorie
+
+	* src/hid/png/png.c: Add --ben-flip-x and --ben-flip-y options to
+	  produce "ben mode" images of the other side of the board.
+
+2008-07-09 22:50  bjj
+
+	* src/hid/png/png.c: Fix crash with 'ben-mode' if your layer stack
+	  is the reverse of DJ's.
+
+2008-07-08 14:26  djdelorie
+
+	* src/hid/png/png.c: Add "Ben Mode".  Fix export of thindrawn
+	  polygons.
+
+2008-07-05 15:19  djdelorie
+
+	* src/action.c: Oops, fix bug from previous patch.
+
+2008-07-05 15:17  djdelorie
+
+	* src/action.c: Do not require a second paramter for SaveTo(Layout)
+
+2008-06-01 23:33  djdelorie
+
+	* src/print.c: Allow outline layers that have nothing but arcs.
+
+2008-05-28 16:15  djdelorie
+
+	* src/macro.h: Add ELEMENTARC_LOOP
+
+2008-05-20 05:31  petercjclifton
+
+	* data/pcb.xml.in, doc/actions.texi, doc/pcbfile.texi: Add mime
+	  magic "M48" for detection of excellon drill files.
+
+2008-05-07 12:09  djdelorie
+
+	* src/hid/gerber/gerber.c: Don't say ,TZ as we're not omitting
+	  trailing zeros.
+
+2008-04-28 17:37  danmc
+
+	* src/: mtspace.c, report.c: fix a few more code before
+	  declarations bugs.  Patch by der Mouse.
+
+2008-04-28 13:10  danmc
+
+	* configure.ac: if the compiler takes it, turn on code before
+	  declarations warnings
+
+2008-04-28 13:09  danmc
+
+	* src/: edif.y, puller.c: Fix some code before declarations bugs
+	  noted by der Mouse.
+
+2008-04-13 12:27  petercjclifton
+
+	* src/action.c: Applied patch from Tomaz Solc fixing crosshair
+	  issues with ActionNew()
+
+	  ActionNew() function didn't call a RestoreCrosshair() after a
+	  HideCrosshair() in most cases.
+
+	  This causes symptoms similar to those described in #1900255 when
+	  "Start new layout" is selected in the File menu in GTK HID (most
+	  probably also in Lesstiff, but I haven't checked).
+
+	  This patch adds two missing RestoreCrosshair() calls and fixes
+	  that issue.
+
+	  Minor re-indentation by Peter Clifton during application.
+
+2008-04-13 12:17  petercjclifton
+
+	* src/misc.c: Applied patch from Tomaz Solc fixing a bug in the
+	  CenterDisplay function.
+
+	  This patch fixes a bug in the CenterDisplay function that doesn't
+	  do a RestoreCrosshair() after HideCrosshair().
+
+	  This causes the crosshair stack overflow when using the DRC
+	  checker (which calls CenterDisplay a lot).
+
+	  Minor re-indentation by Peter Clifton during application.
+
+2008-04-13 12:06  petercjclifton
+
+	* src/: crosshair.c, hid/gtk/gui-output-events.c: Applied patch
+	  from Tomaz Solc fixing bug #1882970.
+
+	  This patch fixes a bug where objects attached to the cursor (line
+	  segments during drawing, etc.) permanently disappear if mouse
+	  cursor leaves a window during dragging.
+
+	  Minor re-indentation by Peter Clifton during application.
+
+2008-04-13 11:29  petercjclifton
+
+	* src/hid/gtk/gtkhid-main.c: Apply patch from Igor to ensure when
+	  flipping the board, the cursor remains on the same point on the
+	  layout. Thanks!
+
+2008-04-13 10:15  petercjclifton
+
+	* doc/actions.texi, src/action.c, src/command.c, src/hid.h,
+	  src/hid/batch/batch.c, src/hid/bom/bom.c,
+	  src/hid/common/extents.c, src/hid/common/hidnogui.c,
+	  src/hid/gerber/gerber.c, src/hid/gtk/gtkhid-main.c,
+	  src/hid/gtk/gui-dialog.c, src/hid/gtk/gui.h,
+	  src/hid/lesstif/dialogs.c, src/hid/lesstif/main.c,
+	  src/hid/lpr/lpr.c, src/hid/nelma/nelma.c, src/hid/png/png.c,
+	  src/hid/ps/eps.c, src/hid/ps/ps.c: Add HID hook,
+	  close_confirm_dialog() for closing modified layouts.
+
+	  This allows GUI HIDs to present a more native looking "save
+	  before closing" dialog. The HID is responsible for any save which
+	  the user requests and the subsequent return codes from the HID
+	  are as before, 0 for cancel and 1 for close.
+
+	  This checkin also fixes the GTK HID's Save() action to return 1
+	  for cancel if the user cancels from the "Save As" dialog.
+
+2008-04-02 12:06  djdelorie
+
+	* src/hid/png/png.c: Fix off-by-one bug drawing pads.
+
+2008-03-31 13:54  djdelorie
+
+	* src/hid/ps/ps.c: When drawing zero-length lines, draw a square or
+	  circle according to the end cap value.
+
+2008-03-30 19:33  djdelorie
+
+	* src/misc.c: If a layer selected through --layer-stack isn't
+	  found, let the user know and print a list of available layers.
+
+2008-03-24 01:17  djdelorie
+
+	* src/hid/gerber/gerber.c: Ignore zero-radius filled circles.
+
+2008-03-16 10:33  danmc
+
+	* src/: find.c, parse_y.y: Only use the min annular ring parameter
+	  for checking the annular rings on pins and vias.  Previously the
+	  minimum copper width setting was also used.  Changed after a
+	  discussion on geda-user.  Also make sure we use the minimum
+	  copper width as the default if the .pcb file doesn't specify the
+	  minimum annulus.
+
+2008-03-15 00:48  danmc
+
+	* src/hid/gerber/gerber.c: Add a missing terminating '*' on the
+	  first G04 line of the output files.  Noted on #geda.
+
+2008-02-27 10:26  danmc
+
+	* src/Makefile.am: revert most of the previous commit which
+	  accidentally added some stuff that was not meant to be checked
+	  in.
+
+2008-02-26 08:16  danmc
+
+	* src/: Makefile.am, pcbtest.sh.in: use absolute paths (set at
+	  configure time) so this script may be called from other
+	  directories as part of a test suite.
+
+2008-02-22 12:46  danmc
+
+	* lib/geda.inc: add 128 pin 14x14 mm LQFP with exposed padded.	Add
+	  128 pin 14x14 mm TQFP with and without exposed paddle
+
+2008-02-09 19:48  djdelorie
+
+	* src/hid/ps/ps.c: Allow negative bloats
+
+2008-02-01 17:57  danmc
+
+	* README.snapshots: add file size to checksum file
+
+2008-02-01 17:56  danmc
+
+	* po/: LINGUAS, fr.po, fr_FR.po: move fr_FR to fr as the latter
+	  seems to be recommended these days
+
+2008-02-01 08:28  danmc
+
+	* configure.ac, doc/version.texi: set version for 20080202 release
+
+2008-02-01 07:08  danmc
+
+	* configure.ac: bump to 1.99x after branching 20080202
+
+2008-02-01 07:06  danmc
+
+	* ChangeLog: update for 20080202
+
 2008-02-01 07:06  danmc
 
 	* README.snapshots: update to deal with the desktop integration and
@@ -960,43 +1455,43 @@
 	* src/action.c: Shift-click with the via tool to connect it to the
 	  current layer as you place it.
 
-2007-11-03 22:22  bjj
+2007-11-03 23:22  bjj
 
 	* src/: netlist.c, rats.h, hid/lesstif/netlist.c: Plumb the
 	  NetlistShow() hid action in lesstif.	Takes a pin name or a net
 	  name and sets the current selection in the netlist window.  Does
 	  not pop up the netlist.
 
-2007-11-02 08:53  danmc
+2007-11-02 09:53  danmc
 
 	* configure, doc/actions.texi, doc/version.texi: regen
 
-2007-11-01 23:21  djdelorie
+2007-11-02 00:21  djdelorie
 
 	* src/draw.c: Properly thin-draw slanted pads.
 
-2007-11-01 22:55  djdelorie
+2007-11-01 23:55  djdelorie
 
 	* src/: find.c, polygon.c, search.c, search.h: Fixes for DRC of
 	  slanted pads.  Tracker bug 1791388 and patch 1791392.
 
-2007-11-01 22:12  djdelorie
+2007-11-01 23:12  djdelorie
 
 	* src/draw.c: Don't draw pins/holes on the outline layer.  Include
 	  commented-out code to put board outline on mask layers, for fabs
 	  that need that.
 
-2007-11-01 21:56  danmc
+2007-11-01 22:56  danmc
 
 	* src/: action.c, buffer.c, select.c, hid/gtk/gui-output-events.c,
 	  hid/gtk/gui-top-window.c: fix some compiler warnings
 
-2007-11-01 20:40  danmc
+2007-11-01 21:40  danmc
 
 	* configure.ac: Improve the robustness of the makeinfo version
 	  test.  Patch provided by Peter Brett.
 
-2007-11-01 20:25  danmc
+2007-11-01 21:25  danmc
 
 	* src/hid/gtk/gui-top-window.c: Don't segfault when clicking the
 	  top right button which toggles units.  Problem noted by and
@@ -1872,15 +2367,15 @@
 	  bugs found by Stuart Brorson who was helpful enough to try out
 	  every single menu item.
 
-2007-03-12 22:30  danmc
+2007-03-12 23:30  danmc
 
 	* src/todo: update the usermenu stuff a bit
 
-2007-03-12 22:27  danmc
+2007-03-12 23:27  danmc
 
 	* src/gpcb-menu.res: update comment in Mouse section
 
-2007-03-12 22:19  danmc
+2007-03-12 23:19  danmc
 
 	* src/: action.c, gpcb-menu.res, hid/gtk/gtkhid-main.c,
 	  hid/gtk/gui-output-events.c, hid/gtk/gui-top-window.c: Move the
@@ -2463,18 +2958,10 @@
 2007-02-03 21:29  danmc
 
 	* configure, configure.ac, lib/Makefile.am, lib/Makefile.in,
-	  newlib/Makefile.am, newlib/Makefile.in,
-	  newlib/cypress/Makefile.am, newlib/cypress/Makefile.in,
-	  newlib/generic_SMD_packages/0805_reflow_solder,
-	  newlib/generic_SMD_packages/0805_wave_solder,
-	  newlib/generic_SMD_packages/1206_reflow_solder,
-	  newlib/generic_SMD_packages/Makefile.am,
-	  newlib/generic_SMD_packages/Makefile.in,
-	  newlib/generic_SMD_packages/SOT-23_Transistor,
-	  newlib/toko/Makefile.am, newlib/toko/Makefile.in: Remove some
-	  empty newlib directories, some poorly maintained footprints, and
-	  some "heavy" footprints.  There is still much more to be done but
-	  this is a start.
+	  newlib/Makefile.am, newlib/Makefile.in: Remove some empty newlib
+	  directories, some poorly maintained footprints, and some "heavy"
+	  footprints.  There is still much more to be done but this is a
+	  start.
 
 2007-02-03 20:32  danmc
 
@@ -2557,11 +3044,9 @@
 	  newlib/2_pin_thru-hole_packages/Makefile.in,
 	  newlib/analog-devices/Makefile.in, newlib/burr-brown/Makefile.in,
 	  newlib/connectors/Makefile.in, newlib/crystal/Makefile.in,
-	  newlib/cypress/Makefile.in, newlib/electro-optics/Makefile.in,
-	  newlib/generic_SMD_packages/Makefile.in,
-	  newlib/headers/Makefile.in, newlib/msp430/Makefile.in,
-	  newlib/not_vetted_ingo/Makefile.in, newlib/sockets/Makefile.in,
-	  newlib/tests/Makefile.in, newlib/toko/Makefile.in,
+	  newlib/electro-optics/Makefile.in, newlib/headers/Makefile.in,
+	  newlib/msp430/Makefile.in, newlib/not_vetted_ingo/Makefile.in,
+	  newlib/sockets/Makefile.in, newlib/tests/Makefile.in,
 	  src/Makefile.in, src/icons/Makefile.in, tools/Makefile.in,
 	  tutorial/Makefile.in, win32/Makefile.in: regen
 
@@ -2925,11 +3410,9 @@
 	  newlib/2_pin_thru-hole_packages/Makefile.in,
 	  newlib/analog-devices/Makefile.in, newlib/burr-brown/Makefile.in,
 	  newlib/connectors/Makefile.in, newlib/crystal/Makefile.in,
-	  newlib/cypress/Makefile.in, newlib/electro-optics/Makefile.in,
-	  newlib/generic_SMD_packages/Makefile.in,
-	  newlib/headers/Makefile.in, newlib/msp430/Makefile.in,
-	  newlib/not_vetted_ingo/Makefile.in, newlib/sockets/Makefile.in,
-	  newlib/tests/Makefile.in, newlib/toko/Makefile.in,
+	  newlib/electro-optics/Makefile.in, newlib/headers/Makefile.in,
+	  newlib/msp430/Makefile.in, newlib/not_vetted_ingo/Makefile.in,
+	  newlib/sockets/Makefile.in, newlib/tests/Makefile.in,
 	  src/Makefile.am, src/Makefile.in, src/dbus-pcbmain.c,
 	  src/dbus-pcbmain.h, src/dbus.c, src/dbus.h, src/dbus.xml,
 	  src/hid.h, src/main.c, src/hid/common/extents.c,
@@ -3520,11 +4003,9 @@
 	  newlib/Makefile.in, newlib/2_pin_thru-hole_packages/Makefile.in,
 	  newlib/analog-devices/Makefile.in, newlib/burr-brown/Makefile.in,
 	  newlib/connectors/Makefile.in, newlib/crystal/Makefile.in,
-	  newlib/cypress/Makefile.in, newlib/electro-optics/Makefile.in,
-	  newlib/generic_SMD_packages/Makefile.in,
-	  newlib/headers/Makefile.in, newlib/msp430/Makefile.in,
-	  newlib/not_vetted_ingo/Makefile.in, newlib/sockets/Makefile.in,
-	  newlib/tests/Makefile.in, newlib/toko/Makefile.in,
+	  newlib/electro-optics/Makefile.in, newlib/headers/Makefile.in,
+	  newlib/msp430/Makefile.in, newlib/not_vetted_ingo/Makefile.in,
+	  newlib/sockets/Makefile.in, newlib/tests/Makefile.in,
 	  src/Makefile.in, src/action.c, src/buffer.c, src/change.c,
 	  src/copy.c, src/create.c, src/create.h, src/draw.c, src/drill.c,
 	  src/file.c, src/find.c, src/fontmode.c, src/global.h, src/hid.h,
@@ -4221,11 +4702,9 @@
 	  newlib/2_pin_thru-hole_packages/Makefile.in,
 	  newlib/analog-devices/Makefile.in, newlib/burr-brown/Makefile.in,
 	  newlib/connectors/Makefile.in, newlib/crystal/Makefile.in,
-	  newlib/cypress/Makefile.in, newlib/electro-optics/Makefile.in,
-	  newlib/generic_SMD_packages/Makefile.in,
-	  newlib/headers/Makefile.in, newlib/msp430/Makefile.in,
-	  newlib/not_vetted_ingo/Makefile.in, newlib/sockets/Makefile.in,
-	  newlib/tests/Makefile.in, newlib/toko/Makefile.in,
+	  newlib/electro-optics/Makefile.in, newlib/headers/Makefile.in,
+	  newlib/msp430/Makefile.in, newlib/not_vetted_ingo/Makefile.in,
+	  newlib/sockets/Makefile.in, newlib/tests/Makefile.in,
 	  src/Makefile.in, src/icons/Makefile.in, tools/Makefile.in,
 	  tutorial/Makefile.in, win32/Makefile.in: regen after the lex/yacc
 	  configure.ac change
@@ -5078,11 +5557,9 @@
 	  newlib/Makefile.in, newlib/2_pin_thru-hole_packages/Makefile.in,
 	  newlib/analog-devices/Makefile.in, newlib/burr-brown/Makefile.in,
 	  newlib/connectors/Makefile.in, newlib/crystal/Makefile.in,
-	  newlib/cypress/Makefile.in, newlib/electro-optics/Makefile.in,
-	  newlib/generic_SMD_packages/Makefile.in,
-	  newlib/headers/Makefile.in, newlib/msp430/Makefile.in,
-	  newlib/not_vetted_ingo/Makefile.in, newlib/sockets/Makefile.in,
-	  newlib/tests/Makefile.in, newlib/toko/Makefile.in,
+	  newlib/electro-optics/Makefile.in, newlib/headers/Makefile.in,
+	  newlib/msp430/Makefile.in, newlib/not_vetted_ingo/Makefile.in,
+	  newlib/sockets/Makefile.in, newlib/tests/Makefile.in,
 	  src/Makefile.am, src/Makefile.in, src/icons/Makefile.in,
 	  tools/Makefile.in, tutorial/Makefile.in: check for a few tools
 	  used to regenerate windows icons
@@ -5122,11 +5599,9 @@
 	  newlib/Makefile.in, newlib/2_pin_thru-hole_packages/Makefile.in,
 	  newlib/analog-devices/Makefile.in, newlib/burr-brown/Makefile.in,
 	  newlib/connectors/Makefile.in, newlib/crystal/Makefile.in,
-	  newlib/cypress/Makefile.in, newlib/electro-optics/Makefile.in,
-	  newlib/generic_SMD_packages/Makefile.in,
-	  newlib/headers/Makefile.in, newlib/msp430/Makefile.in,
-	  newlib/not_vetted_ingo/Makefile.in, newlib/sockets/Makefile.in,
-	  newlib/tests/Makefile.in, newlib/toko/Makefile.in,
+	  newlib/electro-optics/Makefile.in, newlib/headers/Makefile.in,
+	  newlib/msp430/Makefile.in, newlib/not_vetted_ingo/Makefile.in,
+	  newlib/sockets/Makefile.in, newlib/tests/Makefile.in,
 	  src/Makefile.in, src/compat.c, src/compat.h, src/file.c,
 	  src/misc.c, src/print.c, src/hid/gerber/gerber.c,
 	  src/icons/Makefile.in, tools/Makefile.in, tutorial/Makefile.in:
@@ -5251,11 +5726,9 @@
 	  newlib/Makefile.in, newlib/2_pin_thru-hole_packages/Makefile.in,
 	  newlib/analog-devices/Makefile.in, newlib/burr-brown/Makefile.in,
 	  newlib/connectors/Makefile.in, newlib/crystal/Makefile.in,
-	  newlib/cypress/Makefile.in, newlib/electro-optics/Makefile.in,
-	  newlib/generic_SMD_packages/Makefile.in,
-	  newlib/headers/Makefile.in, newlib/msp430/Makefile.in,
-	  newlib/not_vetted_ingo/Makefile.in, newlib/sockets/Makefile.in,
-	  newlib/tests/Makefile.in, newlib/toko/Makefile.in,
+	  newlib/electro-optics/Makefile.in, newlib/headers/Makefile.in,
+	  newlib/msp430/Makefile.in, newlib/not_vetted_ingo/Makefile.in,
+	  newlib/sockets/Makefile.in, newlib/tests/Makefile.in,
 	  src/Makefile.in, src/icons/Makefile.in, tools/Makefile.in,
 	  tutorial/Makefile.in: regen (after checking for perl)
 
@@ -5660,11 +6133,9 @@
 	  newlib/Makefile.in, newlib/2_pin_thru-hole_packages/Makefile.in,
 	  newlib/analog-devices/Makefile.in, newlib/burr-brown/Makefile.in,
 	  newlib/connectors/Makefile.in, newlib/crystal/Makefile.in,
-	  newlib/cypress/Makefile.in, newlib/electro-optics/Makefile.in,
-	  newlib/generic_SMD_packages/Makefile.in,
-	  newlib/headers/Makefile.in, newlib/msp430/Makefile.in,
-	  newlib/not_vetted_ingo/Makefile.in, newlib/sockets/Makefile.in,
-	  newlib/tests/Makefile.in, newlib/toko/Makefile.in,
+	  newlib/electro-optics/Makefile.in, newlib/headers/Makefile.in,
+	  newlib/msp430/Makefile.in, newlib/not_vetted_ingo/Makefile.in,
+	  newlib/sockets/Makefile.in, newlib/tests/Makefile.in,
 	  src/Makefile.in, src/icons/Makefile.in, tools/Makefile.in,
 	  tutorial/Makefile.in: regen
 
@@ -5710,11 +6181,9 @@
 	  newlib/Makefile.in, newlib/2_pin_thru-hole_packages/Makefile.in,
 	  newlib/analog-devices/Makefile.in, newlib/burr-brown/Makefile.in,
 	  newlib/connectors/Makefile.in, newlib/crystal/Makefile.in,
-	  newlib/cypress/Makefile.in, newlib/electro-optics/Makefile.in,
-	  newlib/generic_SMD_packages/Makefile.in,
-	  newlib/headers/Makefile.in, newlib/msp430/Makefile.in,
-	  newlib/not_vetted_ingo/Makefile.in, newlib/sockets/Makefile.in,
-	  newlib/tests/Makefile.in, newlib/toko/Makefile.in,
+	  newlib/electro-optics/Makefile.in, newlib/headers/Makefile.in,
+	  newlib/msp430/Makefile.in, newlib/not_vetted_ingo/Makefile.in,
+	  newlib/sockets/Makefile.in, newlib/tests/Makefile.in,
 	  src/icons/Makefile.in, tools/Makefile.in, tutorial/Makefile.in:
 	  regen after configure.ac changes
 
@@ -6124,11 +6593,9 @@
 	  newlib/Makefile.in, newlib/2_pin_thru-hole_packages/Makefile.in,
 	  newlib/analog-devices/Makefile.in, newlib/burr-brown/Makefile.in,
 	  newlib/connectors/Makefile.in, newlib/crystal/Makefile.in,
-	  newlib/cypress/Makefile.in, newlib/electro-optics/Makefile.in,
-	  newlib/generic_SMD_packages/Makefile.in,
-	  newlib/headers/Makefile.in, newlib/msp430/Makefile.in,
-	  newlib/not_vetted_ingo/Makefile.in, newlib/sockets/Makefile.in,
-	  newlib/tests/Makefile.in, newlib/toko/Makefile.in,
+	  newlib/electro-optics/Makefile.in, newlib/headers/Makefile.in,
+	  newlib/msp430/Makefile.in, newlib/not_vetted_ingo/Makefile.in,
+	  newlib/sockets/Makefile.in, newlib/tests/Makefile.in,
 	  src/Makefile.in, src/icons/Makefile.in, tools/Makefile.in,
 	  tutorial/Makefile.in: regenerate everything with FC4.
 
@@ -6212,11 +6679,9 @@
 	  newlib/2_pin_thru-hole_packages/Makefile.in,
 	  newlib/analog-devices/Makefile.in, newlib/burr-brown/Makefile.in,
 	  newlib/connectors/Makefile.in, newlib/crystal/Makefile.in,
-	  newlib/cypress/Makefile.in, newlib/electro-optics/Makefile.in,
-	  newlib/generic_SMD_packages/Makefile.in,
-	  newlib/headers/Makefile.in, newlib/msp430/Makefile.in,
-	  newlib/not_vetted_ingo/Makefile.in, newlib/sockets/Makefile.in,
-	  newlib/tests/Makefile.in, newlib/toko/Makefile.in,
+	  newlib/electro-optics/Makefile.in, newlib/headers/Makefile.in,
+	  newlib/msp430/Makefile.in, newlib/not_vetted_ingo/Makefile.in,
+	  newlib/sockets/Makefile.in, newlib/tests/Makefile.in,
 	  src/icons/Makefile.in, tools/Makefile.in: regen
 
 2006-03-21 01:16  danmc
@@ -6847,11 +7312,9 @@
 	  newlib/Makefile.in, newlib/2_pin_thru-hole_packages/Makefile.in,
 	  newlib/analog-devices/Makefile.in, newlib/burr-brown/Makefile.in,
 	  newlib/connectors/Makefile.in, newlib/crystal/Makefile.in,
-	  newlib/cypress/Makefile.in, newlib/electro-optics/Makefile.in,
-	  newlib/generic_SMD_packages/Makefile.in,
-	  newlib/headers/Makefile.in, newlib/msp430/Makefile.in,
-	  newlib/not_vetted_ingo/Makefile.in, newlib/sockets/Makefile.in,
-	  newlib/tests/Makefile.in, newlib/toko/Makefile.in,
+	  newlib/electro-optics/Makefile.in, newlib/headers/Makefile.in,
+	  newlib/msp430/Makefile.in, newlib/not_vetted_ingo/Makefile.in,
+	  newlib/sockets/Makefile.in, newlib/tests/Makefile.in,
 	  src/Makefile.in, src/icons/Makefile.in, tools/Makefile.in,
 	  tutorial/Makefile.in: regen after adding gtk configure.ac stuff
 
@@ -6980,11 +7443,9 @@
 	  newlib/Makefile.in, newlib/2_pin_thru-hole_packages/Makefile.in,
 	  newlib/analog-devices/Makefile.in, newlib/burr-brown/Makefile.in,
 	  newlib/connectors/Makefile.in, newlib/crystal/Makefile.in,
-	  newlib/cypress/Makefile.in, newlib/electro-optics/Makefile.in,
-	  newlib/generic_SMD_packages/Makefile.in,
-	  newlib/headers/Makefile.in, newlib/msp430/Makefile.in,
-	  newlib/not_vetted_ingo/Makefile.in, newlib/sockets/Makefile.in,
-	  newlib/tests/Makefile.in, newlib/toko/Makefile.in,
+	  newlib/electro-optics/Makefile.in, newlib/headers/Makefile.in,
+	  newlib/msp430/Makefile.in, newlib/not_vetted_ingo/Makefile.in,
+	  newlib/sockets/Makefile.in, newlib/tests/Makefile.in,
 	  src/Makefile.in, src/icons/Makefile.in, tools/Makefile.in,
 	  tutorial/Makefile.in: update to latest automake
 
@@ -7305,11 +7766,9 @@
 	  newlib/Makefile.in, newlib/2_pin_thru-hole_packages/Makefile.in,
 	  newlib/analog-devices/Makefile.in, newlib/burr-brown/Makefile.in,
 	  newlib/connectors/Makefile.in, newlib/crystal/Makefile.in,
-	  newlib/cypress/Makefile.in, newlib/electro-optics/Makefile.in,
-	  newlib/generic_SMD_packages/Makefile.in,
-	  newlib/headers/Makefile.in, newlib/msp430/Makefile.in,
-	  newlib/not_vetted_ingo/Makefile.in, newlib/sockets/Makefile.in,
-	  newlib/tests/Makefile.in, newlib/toko/Makefile.in,
+	  newlib/electro-optics/Makefile.in, newlib/headers/Makefile.in,
+	  newlib/msp430/Makefile.in, newlib/not_vetted_ingo/Makefile.in,
+	  newlib/sockets/Makefile.in, newlib/tests/Makefile.in,
 	  src/Makefile.in, src/icons/Makefile.in, tools/Makefile.in,
 	  tutorial/Makefile.in: regen so that all Makefile.in files came
 	  from the same version of automake
@@ -8819,11 +9278,9 @@
 	  newlib/2_pin_thru-hole_packages/Makefile.in,
 	  newlib/analog-devices/Makefile.in, newlib/burr-brown/Makefile.in,
 	  newlib/connectors/Makefile.in, newlib/crystal/Makefile.in,
-	  newlib/cypress/Makefile.in, newlib/electro-optics/Makefile.in,
-	  newlib/generic_SMD_packages/Makefile.in,
-	  newlib/headers/Makefile.in, newlib/msp430/Makefile.in,
-	  newlib/not_vetted_ingo/Makefile.in, newlib/sockets/Makefile.in,
-	  newlib/tests/Makefile.in, newlib/toko/Makefile.in,
+	  newlib/electro-optics/Makefile.in, newlib/headers/Makefile.in,
+	  newlib/msp430/Makefile.in, newlib/not_vetted_ingo/Makefile.in,
+	  newlib/sockets/Makefile.in, newlib/tests/Makefile.in,
 	  src/Makefile.am, src/Makefile.in, src/icons/Makefile.in,
 	  tools/Makefile.in, tutorial/Makefile.in: * Detect re_comp(),
 	  regcomp(), and <regex.h> (select.c doesn't use the   new HAVE_*
@@ -9036,14 +9493,12 @@
 	  newlib/2_pin_thru-hole_packages/Makefile.in,
 	  newlib/analog-devices/Makefile.in, newlib/burr-brown/Makefile.in,
 	  newlib/connectors/Makefile.in, newlib/crystal/Makefile.in,
-	  newlib/cypress/Makefile.in, newlib/electro-optics/Makefile.in,
-	  newlib/generic_SMD_packages/Makefile.in,
-	  newlib/headers/Makefile.in, newlib/msp430/Makefile.in,
-	  newlib/not_vetted_ingo/Makefile.in, newlib/sockets/Makefile.in,
-	  newlib/tests/Makefile.in, newlib/toko/Makefile.in, src/Pcb.ad.in,
-	  src/action.c, src/main.c, src/misc.c, src/icons/Makefile.in:
-	  Fixes for absolute/relative size change. Also added repeat last
-	  typed command and fixed a few hi-res bugs.
+	  newlib/electro-optics/Makefile.in, newlib/headers/Makefile.in,
+	  newlib/msp430/Makefile.in, newlib/not_vetted_ingo/Makefile.in,
+	  newlib/sockets/Makefile.in, newlib/tests/Makefile.in,
+	  src/Pcb.ad.in, src/action.c, src/main.c, src/misc.c,
+	  src/icons/Makefile.in: Fixes for absolute/relative size change.
+	  Also added repeat last typed command and fixed a few hi-res bugs.
 
 2004-01-06 18:53  haceaton
 
@@ -9744,12 +10199,10 @@
 	  lib/Makefile.in, newlib/2_pin_thru-hole_packages/Makefile.in,
 	  newlib/analog-devices/Makefile.in, newlib/burr-brown/Makefile.in,
 	  newlib/connectors/Makefile.in, newlib/crystal/Makefile.in,
-	  newlib/cypress/Makefile.in, newlib/electro-optics/Makefile.in,
-	  newlib/generic_SMD_packages/Makefile.in,
-	  newlib/headers/Makefile.in, newlib/Makefile.in,
-	  newlib/msp430/Makefile.in, newlib/not_vetted_ingo/Makefile.in,
-	  newlib/sockets/Makefile.in, newlib/tests/Makefile.in,
-	  newlib/toko/Makefile.in, src/icons/Makefile.in, src/Makefile.in,
+	  newlib/electro-optics/Makefile.in, newlib/headers/Makefile.in,
+	  newlib/Makefile.in, newlib/msp430/Makefile.in,
+	  newlib/not_vetted_ingo/Makefile.in, newlib/sockets/Makefile.in,
+	  newlib/tests/Makefile.in, src/icons/Makefile.in, src/Makefile.in,
 	  tools/Makefile.in, tutorial/Makefile.in: add the automake/conf
 	  generated files to make building from CVS sources easier for
 	  people.
@@ -9950,18 +10403,12 @@
 	  newlib/connectors/RightAngleSMA,
 	  newlib/connectors/SJ-3523-SMT_3.5mm_stereo_jack,
 	  newlib/crystal/CTX169_oscillator, newlib/crystal/Makefile.am,
-	  newlib/cypress/Makefile.am,
 	  newlib/electro-optics/IRF_optical_switch,
-	  newlib/electro-optics/Makefile.am,
-	  newlib/generic_SMD_packages/0805_reflow_solder,
-	  newlib/generic_SMD_packages/0805_wave_solder,
-	  newlib/generic_SMD_packages/1206_reflow_solder,
-	  newlib/generic_SMD_packages/Makefile.am,
-	  newlib/generic_SMD_packages/SOT-23_Transistor,
-	  newlib/headers/0.1_inch_10pin, newlib/headers/0.1_inch_2pin,
-	  newlib/headers/2mm_8pin_header, newlib/headers/Makefile.am,
-	  newlib/msp430/MSP430F1121, newlib/msp430/MSP430F1121+jtag,
-	  newlib/msp430/Makefile.am, newlib/not_vetted_ingo/Makefile.am,
+	  newlib/electro-optics/Makefile.am, newlib/headers/0.1_inch_10pin,
+	  newlib/headers/0.1_inch_2pin, newlib/headers/2mm_8pin_header,
+	  newlib/headers/Makefile.am, newlib/msp430/MSP430F1121,
+	  newlib/msp430/MSP430F1121+jtag, newlib/msp430/Makefile.am,
+	  newlib/not_vetted_ingo/Makefile.am,
 	  newlib/not_vetted_ingo/pc104+.ele,
 	  newlib/not_vetted_ingo/pc104.ele,
 	  newlib/not_vetted_ingo/pq100.ele,
@@ -9983,42 +10430,41 @@
 	  newlib/tests/MONOBLOCK_large, newlib/tests/Makefile.am,
 	  newlib/tests/StrongARM_CPU, newlib/tests/TK11950,
 	  newlib/tests/TO99fromLED, newlib/tests/UART,
-	  newlib/tests/monoblock_small, newlib/toko/Makefile.am,
-	  src/smask.grb, src/.output.h.swp, src/1.grb, src/2.grb,
-	  src/3.grb, src/4.grb, src/5.grb, src/CreateSedScript.sh,
-	  src/Imakefile, src/Makefile.am, src/Pcb.ad.in, src/Pcb.ad.raw,
-	  src/Pcb.ad.small, src/action.c, src/action.h, src/autoplace.c,
-	  src/autoplace.h, src/autoroute.c, src/autoroute.h, src/box.h,
-	  src/buffer.c, src/buffer.h, src/change.c, src/change.h,
-	  src/check_icon.data, src/cmask.grb, src/set.h, src/command.c,
-	  src/command.h, src/const.h, src/control.c, src/control.h,
-	  src/copy.c, src/copy.h, src/cpaste.grb, src/create.c,
-	  src/create.h, src/crosshair.c, src/crosshair.h, src/csilk.grb,
-	  src/data.c, src/data.h, src/default_font, src/dev_ps.c,
-	  src/dev_ps.h, src/dev_rs274x.c, src/dev_rs274x.h, src/dialog.c,
-	  src/dialog.h, src/draw.c, src/draw.h, src/drill.c, src/drill.h,
-	  src/error.c, src/error.h, src/file.c, src/file.h,
-	  src/fileselect.c, src/fileselect.h, src/find.c, src/find.h,
-	  src/global.h, src/gui.c, src/gui.h, src/heap.c, src/heap.h,
-	  src/icon.data, src/insert.c, src/insert.h, src/intersect.c,
-	  src/intersect.h, src/kdtree.c, src/kdtree.h, src/lgdialog.c,
-	  src/lgdialog.h, src/library.c, src/library.h, src/log.c,
-	  src/log.h, src/macro.h, src/main.c, src/menu.c, src/menu.h,
-	  src/mirror.c, src/mirror.h, src/misc.c, src/misc.h,
-	  src/mode_icon.data, src/move.c, src/move.h, src/mtspace.c,
-	  src/mtspace.h, src/mymem.c, src/mymem.h, src/netlist.c,
-	  src/netlist.h, src/output.c, src/output.h, src/parse_l.h,
-	  src/parse_l.l, src/parse_y.y, src/pcb.in, src/pcbtest.sh.in,
-	  src/pdrill.grb, src/pinout.c, src/pinout.h, src/polygon.c,
-	  src/polygon.h, src/print.c, src/print.h, src/printdialog.c,
-	  src/printdialog.h, src/printpanner.c, src/printpanner.h,
-	  src/rats.c, src/rats.h, src/remove.c, src/remove.h, src/report.c,
-	  src/report.h, src/rotate.c, src/rotate.h, src/rubberband.c,
-	  src/rubberband.h, src/search.c, src/search.h, src/select.c,
-	  src/select.h, src/selector.c, src/selector.h, src/set.c,
-	  src/sizedialog.c, src/sizedialog.h, src/spaste.grb,
-	  src/ssilk.grb, src/udrill.grb, src/undo.c, src/undo.h,
-	  src/vector.c, src/vector.h, src/icons/Makefile.am,
+	  newlib/tests/monoblock_small, src/smask.grb, src/.output.h.swp,
+	  src/1.grb, src/2.grb, src/3.grb, src/4.grb, src/5.grb,
+	  src/CreateSedScript.sh, src/Imakefile, src/Makefile.am,
+	  src/Pcb.ad.in, src/Pcb.ad.raw, src/Pcb.ad.small, src/action.c,
+	  src/action.h, src/autoplace.c, src/autoplace.h, src/autoroute.c,
+	  src/autoroute.h, src/box.h, src/buffer.c, src/buffer.h,
+	  src/change.c, src/change.h, src/check_icon.data, src/cmask.grb,
+	  src/set.h, src/command.c, src/command.h, src/const.h,
+	  src/control.c, src/control.h, src/copy.c, src/copy.h,
+	  src/cpaste.grb, src/create.c, src/create.h, src/crosshair.c,
+	  src/crosshair.h, src/csilk.grb, src/data.c, src/data.h,
+	  src/default_font, src/dev_ps.c, src/dev_ps.h, src/dev_rs274x.c,
+	  src/dev_rs274x.h, src/dialog.c, src/dialog.h, src/draw.c,
+	  src/draw.h, src/drill.c, src/drill.h, src/error.c, src/error.h,
+	  src/file.c, src/file.h, src/fileselect.c, src/fileselect.h,
+	  src/find.c, src/find.h, src/global.h, src/gui.c, src/gui.h,
+	  src/heap.c, src/heap.h, src/icon.data, src/insert.c,
+	  src/insert.h, src/intersect.c, src/intersect.h, src/kdtree.c,
+	  src/kdtree.h, src/lgdialog.c, src/lgdialog.h, src/library.c,
+	  src/library.h, src/log.c, src/log.h, src/macro.h, src/main.c,
+	  src/menu.c, src/menu.h, src/mirror.c, src/mirror.h, src/misc.c,
+	  src/misc.h, src/mode_icon.data, src/move.c, src/move.h,
+	  src/mtspace.c, src/mtspace.h, src/mymem.c, src/mymem.h,
+	  src/netlist.c, src/netlist.h, src/output.c, src/output.h,
+	  src/parse_l.h, src/parse_l.l, src/parse_y.y, src/pcb.in,
+	  src/pcbtest.sh.in, src/pdrill.grb, src/pinout.c, src/pinout.h,
+	  src/polygon.c, src/polygon.h, src/print.c, src/print.h,
+	  src/printdialog.c, src/printdialog.h, src/printpanner.c,
+	  src/printpanner.h, src/rats.c, src/rats.h, src/remove.c,
+	  src/remove.h, src/report.c, src/report.h, src/rotate.c,
+	  src/rotate.h, src/rubberband.c, src/rubberband.h, src/search.c,
+	  src/search.h, src/select.c, src/select.h, src/selector.c,
+	  src/selector.h, src/set.c, src/sizedialog.c, src/sizedialog.h,
+	  src/spaste.grb, src/ssilk.grb, src/udrill.grb, src/undo.c,
+	  src/undo.h, src/vector.c, src/vector.h, src/icons/Makefile.am,
 	  src/icons/hand.dat, src/icons/hcurs.dat, src/icons/lcurs.dat,
 	  src/icons/lock.dat, tools/Makefile.am, tools/MergePCBPS,
 	  tools/PCB2HPGL, tools/apctools.zip, tools/gerbertotk.c,
@@ -10081,18 +10527,12 @@
 	  newlib/connectors/RightAngleSMA,
 	  newlib/connectors/SJ-3523-SMT_3.5mm_stereo_jack,
 	  newlib/crystal/CTX169_oscillator, newlib/crystal/Makefile.am,
-	  newlib/cypress/Makefile.am,
 	  newlib/electro-optics/IRF_optical_switch,
-	  newlib/electro-optics/Makefile.am,
-	  newlib/generic_SMD_packages/0805_reflow_solder,
-	  newlib/generic_SMD_packages/0805_wave_solder,
-	  newlib/generic_SMD_packages/1206_reflow_solder,
-	  newlib/generic_SMD_packages/Makefile.am,
-	  newlib/generic_SMD_packages/SOT-23_Transistor,
-	  newlib/headers/0.1_inch_10pin, newlib/headers/0.1_inch_2pin,
-	  newlib/headers/2mm_8pin_header, newlib/headers/Makefile.am,
-	  newlib/msp430/MSP430F1121, newlib/msp430/MSP430F1121+jtag,
-	  newlib/msp430/Makefile.am, newlib/not_vetted_ingo/Makefile.am,
+	  newlib/electro-optics/Makefile.am, newlib/headers/0.1_inch_10pin,
+	  newlib/headers/0.1_inch_2pin, newlib/headers/2mm_8pin_header,
+	  newlib/headers/Makefile.am, newlib/msp430/MSP430F1121,
+	  newlib/msp430/MSP430F1121+jtag, newlib/msp430/Makefile.am,
+	  newlib/not_vetted_ingo/Makefile.am,
 	  newlib/not_vetted_ingo/pc104+.ele,
 	  newlib/not_vetted_ingo/pc104.ele,
 	  newlib/not_vetted_ingo/pq100.ele,
@@ -10114,42 +10554,41 @@
 	  newlib/tests/MONOBLOCK_large, newlib/tests/Makefile.am,
 	  newlib/tests/StrongARM_CPU, newlib/tests/TK11950,
 	  newlib/tests/TO99fromLED, newlib/tests/UART,
-	  newlib/tests/monoblock_small, newlib/toko/Makefile.am,
-	  src/smask.grb, src/.output.h.swp, src/1.grb, src/2.grb,
-	  src/3.grb, src/4.grb, src/5.grb, src/CreateSedScript.sh,
-	  src/Imakefile, src/Makefile.am, src/Pcb.ad.in, src/Pcb.ad.raw,
-	  src/Pcb.ad.small, src/action.c, src/action.h, src/autoplace.c,
-	  src/autoplace.h, src/autoroute.c, src/autoroute.h, src/box.h,
-	  src/buffer.c, src/buffer.h, src/change.c, src/change.h,
-	  src/check_icon.data, src/cmask.grb, src/set.h, src/command.c,
-	  src/command.h, src/const.h, src/control.c, src/control.h,
-	  src/copy.c, src/copy.h, src/cpaste.grb, src/create.c,
-	  src/create.h, src/crosshair.c, src/crosshair.h, src/csilk.grb,
-	  src/data.c, src/data.h, src/default_font, src/dev_ps.c,
-	  src/dev_ps.h, src/dev_rs274x.c, src/dev_rs274x.h, src/dialog.c,
-	  src/dialog.h, src/draw.c, src/draw.h, src/drill.c, src/drill.h,
-	  src/error.c, src/error.h, src/file.c, src/file.h,
-	  src/fileselect.c, src/fileselect.h, src/find.c, src/find.h,
-	  src/global.h, src/gui.c, src/gui.h, src/heap.c, src/heap.h,
-	  src/icon.data, src/insert.c, src/insert.h, src/intersect.c,
-	  src/intersect.h, src/kdtree.c, src/kdtree.h, src/lgdialog.c,
-	  src/lgdialog.h, src/library.c, src/library.h, src/log.c,
-	  src/log.h, src/macro.h, src/main.c, src/menu.c, src/menu.h,
-	  src/mirror.c, src/mirror.h, src/misc.c, src/misc.h,
-	  src/mode_icon.data, src/move.c, src/move.h, src/mtspace.c,
-	  src/mtspace.h, src/mymem.c, src/mymem.h, src/netlist.c,
-	  src/netlist.h, src/output.c, src/output.h, src/parse_l.h,
-	  src/parse_l.l, src/parse_y.y, src/pcb.in, src/pcbtest.sh.in,
-	  src/pdrill.grb, src/pinout.c, src/pinout.h, src/polygon.c,
-	  src/polygon.h, src/print.c, src/print.h, src/printdialog.c,
-	  src/printdialog.h, src/printpanner.c, src/printpanner.h,
-	  src/rats.c, src/rats.h, src/remove.c, src/remove.h, src/report.c,
-	  src/report.h, src/rotate.c, src/rotate.h, src/rubberband.c,
-	  src/rubberband.h, src/search.c, src/search.h, src/select.c,
-	  src/select.h, src/selector.c, src/selector.h, src/set.c,
-	  src/sizedialog.c, src/sizedialog.h, src/spaste.grb,
-	  src/ssilk.grb, src/udrill.grb, src/undo.c, src/undo.h,
-	  src/vector.c, src/vector.h, src/icons/Makefile.am,
+	  newlib/tests/monoblock_small, src/smask.grb, src/.output.h.swp,
+	  src/1.grb, src/2.grb, src/3.grb, src/4.grb, src/5.grb,
+	  src/CreateSedScript.sh, src/Imakefile, src/Makefile.am,
+	  src/Pcb.ad.in, src/Pcb.ad.raw, src/Pcb.ad.small, src/action.c,
+	  src/action.h, src/autoplace.c, src/autoplace.h, src/autoroute.c,
+	  src/autoroute.h, src/box.h, src/buffer.c, src/buffer.h,
+	  src/change.c, src/change.h, src/check_icon.data, src/cmask.grb,
+	  src/set.h, src/command.c, src/command.h, src/const.h,
+	  src/control.c, src/control.h, src/copy.c, src/copy.h,
+	  src/cpaste.grb, src/create.c, src/create.h, src/crosshair.c,
+	  src/crosshair.h, src/csilk.grb, src/data.c, src/data.h,
+	  src/default_font, src/dev_ps.c, src/dev_ps.h, src/dev_rs274x.c,
+	  src/dev_rs274x.h, src/dialog.c, src/dialog.h, src/draw.c,
+	  src/draw.h, src/drill.c, src/drill.h, src/error.c, src/error.h,
+	  src/file.c, src/file.h, src/fileselect.c, src/fileselect.h,
+	  src/find.c, src/find.h, src/global.h, src/gui.c, src/gui.h,
+	  src/heap.c, src/heap.h, src/icon.data, src/insert.c,
+	  src/insert.h, src/intersect.c, src/intersect.h, src/kdtree.c,
+	  src/kdtree.h, src/lgdialog.c, src/lgdialog.h, src/library.c,
+	  src/library.h, src/log.c, src/log.h, src/macro.h, src/main.c,
+	  src/menu.c, src/menu.h, src/mirror.c, src/mirror.h, src/misc.c,
+	  src/misc.h, src/mode_icon.data, src/move.c, src/move.h,
+	  src/mtspace.c, src/mtspace.h, src/mymem.c, src/mymem.h,
+	  src/netlist.c, src/netlist.h, src/output.c, src/output.h,
+	  src/parse_l.h, src/parse_l.l, src/parse_y.y, src/pcb.in,
+	  src/pcbtest.sh.in, src/pdrill.grb, src/pinout.c, src/pinout.h,
+	  src/polygon.c, src/polygon.h, src/print.c, src/print.h,
+	  src/printdialog.c, src/printdialog.h, src/printpanner.c,
+	  src/printpanner.h, src/rats.c, src/rats.h, src/remove.c,
+	  src/remove.h, src/report.c, src/report.h, src/rotate.c,
+	  src/rotate.h, src/rubberband.c, src/rubberband.h, src/search.c,
+	  src/search.h, src/select.c, src/select.h, src/selector.c,
+	  src/selector.h, src/set.c, src/sizedialog.c, src/sizedialog.h,
+	  src/spaste.grb, src/ssilk.grb, src/udrill.grb, src/undo.c,
+	  src/undo.h, src/vector.c, src/vector.h, src/icons/Makefile.am,
 	  src/icons/hand.dat, src/icons/hcurs.dat, src/icons/lcurs.dat,
 	  src/icons/lock.dat, tools/Makefile.am, tools/MergePCBPS,
 	  tools/PCB2HPGL, tools/apctools.zip, tools/gerbertotk.c,
