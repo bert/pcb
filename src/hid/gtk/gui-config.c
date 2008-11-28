@@ -521,7 +521,7 @@ add_to_paths_list (GList ** list, gchar * path_string)
   gchar *p, *paths;
 
   paths = g_strdup (path_string);
-  for (p = strtok (paths, ":"); p && *p; p = strtok (NULL, ":"))
+  for (p = strtok (paths, PCB_PATH_DELIMETER); p && *p; p = strtok (NULL, PCB_PATH_DELIMETER))
     *list = g_list_prepend (*list, expand_dir (p));
   g_free (paths);
 }
@@ -716,7 +716,7 @@ ghid_config_files_read (gint * argc, gchar *** argv)
     {
       str = Settings.LibraryTree;
       dir = expand_dir ((gchar *) list->data);
-      Settings.LibraryTree = g_strconcat (str, ":", dir, NULL);
+      Settings.LibraryTree = g_strconcat (str, PCB_PATH_DELIMETER, dir, NULL);
       g_free (dir);
       g_free (str);
     }
