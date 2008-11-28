@@ -521,7 +521,7 @@ add_to_paths_list (GList ** list, gchar * path_string)
   gchar *p, *paths;
 
   paths = g_strdup (path_string);
-  for (p = strtok (paths, ":"); p && *p; p = strtok (NULL, ":"))
+  for (p = strtok (paths, PCB_PATH_DELIMETER); p && *p; p = strtok (NULL, PCB_PATH_DELIMETER))
     *list = g_list_prepend (*list, expand_dir (p));
   g_free (paths);
 }
@@ -716,7 +716,7 @@ ghid_config_files_read (gint * argc, gchar *** argv)
     {
       str = Settings.LibraryTree;
       dir = expand_dir ((gchar *) list->data);
-      Settings.LibraryTree = g_strconcat (str, ":", dir, NULL);
+      Settings.LibraryTree = g_strconcat (str, PCB_PATH_DELIMETER, dir, NULL);
       g_free (dir);
       g_free (str);
     }
@@ -1310,9 +1310,15 @@ config_library_tab_create (GtkWidget * tab_vbox)
   gtk_label_set_use_markup (GTK_LABEL (label), TRUE);
   gtk_label_set_markup (GTK_LABEL (label),
 			_
-			("<small>Enter a colon separated list of custom top level\n"
+			("<small>Enter a \""
+			 PCB_PATH_DELIMETER 
+			 "\" separated list of custom top level\n"
 			 "element directories.  For example:\n"
-			 "\t<b>~/gaf/pcb-elements:packages:/usr/local/pcb-elements</b>\n"
+			 "\t<b>~/gaf/pcb-elements"
+			 PCB_PATH_DELIMETER
+			 "packages"
+			 PCB_PATH_DELIMETER
+			 "/usr/local/pcb-elements</b>\n"
 			 "Elements should be organized into subdirectories below each\n"
 			 "top level directory.  Restart program for changes to take effect."
 			 "</small>"));
