@@ -40,10 +40,10 @@ To make a pcb release do the following:
 =)	if this is a major release, then tag and branch:
 
 	1. Tag the base of the release branch
-		cvs tag pcb-20080202-base 
+		cvs tag pcb-20081128-base 
 
 	2. Create the release branch
-		cvs tag -R -b -r pcb-20080202-base pcb-20080202
+		cvs tag -R -b -r pcb-20081128-base pcb-20081128
 
 	3. FIX_ME [fix up this step.  what shall we do with the version
 	   on the trunk?  We're about to run out of letters!] 
@@ -54,40 +54,40 @@ To make a pcb release do the following:
 		cvs ci configure.ac
 
 	4. On the release branch, update configure.ac to update the version
-		for example 20080202_ALPHA.  Now pre-release snapshots can be made.
-		cvs update -PdA -r pcb-20080202
+		for example 20081128_ALPHA.  Now pre-release snapshots can be made.
+		cvs update -PdA -r pcb-20081128
 
 	5. If desired tag an alpha release:
-		cvs update -PdA -r pcb-20080202
+		cvs update -PdA -r pcb-20081128
 		./autogen.sh
-		cvs tag -R -r pcb-20080202 pcb-20080202-ALPHA
-		cvs update -PdA -r pcb-20080202-ALPHA
+		cvs tag -R -r pcb-20081128 pcb-20081128-ALPHA
+		cvs update -PdA -r pcb-20081128-ALPHA
 		./autogen.sh && ./configure --enable-maintainer-mode --disable-update-desktop-database --disable-update-mime-database && gmake && gmake distcheck
 
 	6. When the release branch is ready to go,  update configure.ac to
 	   set the final release version.  Then tag the release.
-		cvs update -PdA -r pcb-20080202
+		cvs update -PdA -r pcb-20081128
 		vi configure.ac
 		cvs ci configure.ac
 		./autogen.sh
 		cvs ci
-		cvs tag -R -r pcb-20080202 pcb-20080202-RELEASE
-		cvs update -PdA -r pcb-20080202-RELEASE
+		cvs tag -R -r pcb-20081128 pcb-20081128-RELEASE
+		cvs update -PdA -r pcb-20081128-RELEASE
 		./autogen.sh && ./configure --enable-maintainer-mode --disable-update-desktop-database --disable-update-mime-database && gmake clean && gmake && gmake distcheck
 	
 	7. Create checksums
 
-		openssl sha1 pcb-20080202.tar.gz > pcb-20080202.cksum
-		openssl md5 pcb-20080202.tar.gz >> pcb-20080202.cksum
-		openssl rmd160 pcb-20080202.tar.gz >> pcb-20080202.cksum
-		echo "File size (bytes):" >> pcb-20080202.cksum
-		wc -c pcb-20080202.tar.gz >> pcb-20080202.cksum
+		openssl sha1 pcb-20081128.tar.gz > pcb-20081128.cksum
+		openssl md5 pcb-20081128.tar.gz >> pcb-20081128.cksum
+		openssl rmd160 pcb-20081128.tar.gz >> pcb-20081128.cksum
+		echo "File size (bytes):" >> pcb-20081128.cksum
+		wc -c pcb-20081128.tar.gz >> pcb-20081128.cksum
 
 	8. Upload the .tar.gz, .cksum files to
 	   ftp://upload.sourceforge.net/incoming/
 
 	9. Create a new file release for pcb with a release name of
-	   "pcb-20080202" (for pcb-20080202).
+	   "pcb-20081128" (for pcb-20081128).
 
 		For file types:
 			.tar.gz      -  any / source .gz
@@ -99,7 +99,7 @@ To make a pcb release do the following:
 =) 	if this is a patch release, then simply make desired changes to the branch, and
 		./autogen.sh 
 		cvs ci
-		cvs tag -R -r pcb-20080202 pcb-20080202-PATCH001
+		cvs tag -R -r pcb-20081128 pcb-20081128-PATCH001
 
 =)	gmake distclean ; ./autogen.sh &&./configure && gmake distcheck
 
