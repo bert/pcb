@@ -1,4 +1,31 @@
 ========================================================================
+Release Notes for PCB snapshot 20081128
+========================================================================
+This release represents over 70 commits and as such this summary 
+clearly is not complete.  See the ChangeLog file for the complete list
+of changes.
+
+- Minor bug fixes in RS274-X output.
+-.Bug fixes in postscript output
+- DRC checks for annular ring on pads only uses the mininum annular ring
+  drc setting instead of also checking minimum copper width.
+- Fix postscript output for zero length lines.
+- Improve the 'save before closing' dialogs.
+- Fixed bugs where objects attached to the cursor vanish sometimes.
+- Various minor code portability improvements.
+- Enabled additional gcc warnings (when using gcc)
+- Allow outline layers to have only arcs.
+- Added "Ben Mode" png output which provides a simulated "photograph"
+  of the board.  Very nice for publications.
+- Fix poly clearance around rotated pads.
+- Fix the batch HID which had bit rotted a little.
+- Display net names hierarchically.
+- Various speed improvements in the GTK HID.
+- Various speed improvements in the autorouter.
+- Minor improvements to the windows port.
+- Other various bug fixes.
+
+========================================================================
 Release Notes for PCB snapshot 20080202
 ========================================================================
 This release represents over 180 commits and as such this summary 
