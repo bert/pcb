@@ -996,6 +996,11 @@ ghid_port_window_leave_cb (GtkWidget * widget,
 	  x -= x0;
 	  y -= y0;
 
+	  if (ghid_flip_x )
+	      x = -x;
+	  if (ghid_flip_y )
+	      y = -y;
+
 	  dx = w - x;
 	  dy = h - y;
 
