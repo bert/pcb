@@ -18,7 +18,7 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  *
  *  Contact addresses for paper mail and Email:
  *  Thomas Nau, Schlehenweg 15, 88471 Baustetten, Germany
@@ -292,6 +292,106 @@ have_crosshair_attachments (void)
 #define	VCW		16
 #define VCD		8
 
+static void
+draw_right_cross (GdkGC *xor_gc, gint x, gint y)
+{
+  gdk_draw_line (gport->drawing_area->window, xor_gc,
+		 x, 0, x, gport->height);
+  gdk_draw_line (gport->drawing_area->window, xor_gc,
+		 0, y, gport->width, y);
+}
+
+static void
+draw_slanted_cross (GdkGC *xor_gc, gint x, gint y)
+{
+  gint x0, y0, x1, y1;
+
+  x0 = x + (gport->height - y);
+  x0 = MAX(0, MIN (x0, gport->width));
+  x1 = x - y;
+  x1 = MAX(0, MIN (x1, gport->width));
+  y0 = y + (gport->width - x);
+  y0 = MAX(0, MIN (y0, gport->height));
+  y1 = y - x;
+  y1 = MAX(0, MIN (y1, gport->height));
+  gdk_draw_line (gport->drawing_area->window, xor_gc,
+		 x0, y0, x1, y1);
+  x0 = x - (gport->height - y);
+  x0 = MAX(0, MIN (x0, gport->width));
+  x1 = x + y;
+  x1 = MAX(0, MIN (x1, gport->width));
+  y0 = y + x;
+  y0 = MAX(0, MIN (y0, gport->height));
+  y1 = y - (gport->width - x);
+  y1 = MAX(0, MIN (y1, gport->height));
+  gdk_draw_line (gport->drawing_area->window, xor_gc,
+		 x0, y0, x1, y1);
+}
+
+static void
+draw_dozen_cross (GdkGC *xor_gc, gint x, gint y)
+{
+  gint x0, y0, x1, y1;
+  gdouble tan60 = sqrt (3);
+
+  x0 = x + (gport->height - y) / tan60;
+  x0 = MAX(0, MIN (x0, gport->width));
+  x1 = x - y / tan60;
+  x1 = MAX(0, MIN (x1, gport->width));
+  y0 = y + (gport->width - x) * tan60;
+  y0 = MAX(0, MIN (y0, gport->height));
+  y1 = y - x * tan60;
+  y1 = MAX(0, MIN (y1, gport->height));
+  gdk_draw_line (gport->drawing_area->window, xor_gc,
+		 x0, y0, x1, y1);
+
+  x0 = x + (gport->height - y) * tan60;
+  x0 = MAX(0, MIN (x0, gport->width));
+  x1 = x - y * tan60;
+  x1 = MAX(0, MIN (x1, gport->width));
+  y0 = y + (gport->width - x) / tan60;
+  y0 = MAX(0, MIN (y0, gport->height));
+  y1 = y - x / tan60;
+  y1 = MAX(0, MIN (y1, gport->height));
+  gdk_draw_line (gport->drawing_area->window, xor_gc,
+		 x0, y0, x1, y1);
+
+  x0 = x - (gport->height - y) / tan60;
+  x0 = MAX(0, MIN (x0, gport->width));
+  x1 = x + y / tan60;
+  x1 = MAX(0, MIN (x1, gport->width));
+  y0 = y + x * tan60;
+  y0 = MAX(0, MIN (y0, gport->height));
+  y1 = y - (gport->width - x) * tan60;
+  y1 = MAX(0, MIN (y1, gport->height));
+  gdk_draw_line (gport->drawing_area->window, xor_gc,
+		 x0, y0, x1, y1);
+
+  x0 = x - (gport->height - y) * tan60;
+  x0 = MAX(0, MIN (x0, gport->width));
+  x1 = x + y * tan60;
+  x1 = MAX(0, MIN (x1, gport->width));
+  y0 = y + x / tan60;
+  y0 = MAX(0, MIN (y0, gport->height));
+  y1 = y - (gport->width - x) / tan60;
+  y1 = MAX(0, MIN (y1, gport->height));
+  gdk_draw_line (gport->drawing_area->window, xor_gc,
+		 x0, y0, x1, y1);
+}
+
+static void
+draw_crosshair (GdkGC *xor_gc, gint x, gint y)
+{
+  static enum crosshair_shape prev = Basic_Crosshair_Shape;
+
+  draw_right_cross (xor_gc, x, y);
+  if (prev == Union_Jack_Crosshair_Shape)
+    draw_slanted_cross (xor_gc, x, y);
+  if (prev == Dozen_Crosshair_Shape)
+    draw_dozen_cross (xor_gc, x, y);
+  prev = Crosshair.shape;
+}
+
 void
 ghid_show_crosshair (gboolean show)
 {
@@ -318,10 +418,7 @@ ghid_show_crosshair (gboolean show)
 
   if (x_prev >= 0)
     {
-      gdk_draw_line (gport->drawing_area->window, xor_gc,
-		     x_prev, 0, x_prev, gport->height);
-      gdk_draw_line (gport->drawing_area->window, xor_gc,
-		     0, y_prev, gport->width, y_prev);
+      draw_crosshair (xor_gc, x_prev, y_prev);
       if (ghidgui->auto_pan_on && have_crosshair_attachments ())
 	{
 	  gdk_draw_rectangle (gport->drawing_area->window, xor_gc, TRUE,
@@ -337,10 +434,7 @@ ghid_show_crosshair (gboolean show)
 
   if (x >= 0 && show)
     {
-      gdk_draw_line (gport->drawing_area->window, xor_gc,
-		     x, 0, x, gport->height);
-      gdk_draw_line (gport->drawing_area->window, xor_gc,
-		     0, y, gport->width, y);
+      draw_crosshair (xor_gc, x, y);
       if (ghidgui->auto_pan_on && have_crosshair_attachments ())
 	{
 	  gdk_draw_rectangle (gport->drawing_area->window, xor_gc, TRUE,
@@ -684,6 +778,8 @@ ghid_port_button_release_cb (GtkWidget * drawing_area,
 	  hid_actionl ("Display", "Center", NULL);
 	  hid_actionl ("Display", "Restore", NULL);
 	}
+      else if (mk == CONTROL_PRESSED)
+	  hid_actionl ("Display", "CycleCrosshair", NULL);
       else if (ev->x == x_press && ev->y == y_press)
 	{
 	  ghid_show_crosshair (FALSE);

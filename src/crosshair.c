@@ -1,4 +1,5 @@
 /* $Id$ */
+/* 15 Oct 2008 Ineiev: add different crosshair shapes */
 
 /*
  *                            COPYRIGHT
@@ -18,7 +19,7 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  *
  *  Contact addresses for paper mail and Email:
  *  Thomas Nau, Schlehenweg 15, 88471 Baustetten, Germany
@@ -1051,6 +1052,9 @@ InitCrosshair (void)
   CrosshairStackLocation = 0;
   CrosshairStack[CrosshairStackLocation++] = True;
   Crosshair.On = False;
+
+  /* set initial shape */
+  Crosshair.shape = Basic_Crosshair_Shape;
 
   /* set default limits */
   Crosshair.MinX = Crosshair.MinY = 0;

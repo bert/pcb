@@ -1,4 +1,5 @@
 /* $Id$ */
+/* 15 Oct 2008 Ineiev: add CycleCrosshair action */
 
 /*
  *                            COPYRIGHT
@@ -19,7 +20,7 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  *
  *  Contact addresses for paper mail and Email:
  *  Harry Eaton, 6697 Buttonhole Ct, Columbia, MD 21044, USA
@@ -100,6 +101,7 @@ typedef enum
   F_Convert,
   F_Copy,
   F_CycleClip,
+  F_CycleCrosshair,
   F_DeleteRats,
   F_Drag,
   F_DrillReport,
@@ -330,6 +332,7 @@ static FunctionType Functions[] = {
   {"Convert", F_Convert},
   {"Copy", F_Copy},
   {"CycleClip", F_CycleClip},
+  {"CycleCrosshair", F_CycleCrosshair},
   {"DeleteRats", F_DeleteRats},
   {"Drag", F_Drag},
   {"DrillReport", F_DrillReport},
@@ -2393,7 +2396,7 @@ ActionDisperseElements (int argc, char **argv, int x, int y)
 static const char display_syntax[] =
   "Display(NameOnPCB|Description|Value)\n"
   "Display(Grid|Redraw)\n"
-  "Display(CycleClip|Toggle45Degree|ToggleStartDirection)\n"
+  "Display(CycleClip|CycleCrosshair|Toggle45Degree|ToggleStartDirection)\n"
   "Display(ToggleGrid|ToggleRubberBandMode|ToggleUniqueNames)\n"
   "Display(ToggleMask|ToggleName|ToggleClearLine|ToggleFullPoly|ToggleSnapPin)\n"
   "Display(ToggleThindraw|ToggleThindrawPoly|ToggleOrthoMove|ToggleLocalRef)\n"
@@ -2424,6 +2427,10 @@ broken up according to the clip setting.
 Changes the way lines are restricted to 45 degree increments.  The
 various settings are: straight only, orthogonal then angled, and angled
 then orthogonal.  If AllDirections is set, this action disables it.
+
+@item CycleCrosshair
+Changes crosshair drawing.  Crosshair may accept form of 4-ray,
+8-ray and 12-ray cross.
 
 @item ToggleRubberBandMode
 If set, moving an object moves all the lines attached to it too.
@@ -2595,6 +2602,12 @@ ActionDisplay (int argc, char **argv, int childX, int childY)
 	  else
 	    PCB->Clipping = (PCB->Clipping + 1) % 3;
 	  AdjustAttachedObjects ();
+	  break;
+
+	case F_CycleCrosshair:
+	  Crosshair.shape++;
+	  if (Crosshair_Shapes_Number == Crosshair.shape)
+	    Crosshair.shape = Basic_Crosshair_Shape;
 	  break;
 
 	case F_ToggleRubberBandMode:

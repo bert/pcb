@@ -16,7 +16,7 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  *
  *  Contact addresses for paper mail and Email:
  *  Thomas Nau, Schlehenweg 15, 88471 Baustetten, Germany
@@ -24,6 +24,7 @@
  *
  *  RCS: $Id$
  */
+/* 15 Oct 2008 Ineiev: add different crosshair shapes */
 
 /* definition of types
  */
@@ -503,6 +504,14 @@ typedef struct			/* currently attached object */
   RubberbandTypePtr Rubberband;
 } AttachedObjectType, *AttachedObjectTypePtr;
 
+enum crosshair_shape
+{
+  Basic_Crosshair_Shape = 0,  /*  4-ray */
+  Union_Jack_Crosshair_Shape, /*  8-ray */
+  Dozen_Crosshair_Shape,      /* 12-ray */
+  Crosshair_Shapes_Number
+};
+
 typedef struct			/* holds cursor information */
 {
   hidGC GC,			/* GC for cursor drawing */
@@ -515,6 +524,7 @@ typedef struct			/* holds cursor information */
   AttachedBoxType AttachedBox;
   PolygonType AttachedPolygon;
   AttachedObjectType AttachedObject;	/* data of attached objects */
+  enum crosshair_shape shape; /* shape of crosshair */
 } CrosshairType, *CrosshairTypePtr;
 
 typedef struct

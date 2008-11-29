@@ -10,6 +10,7 @@ Mouse =
   }
   Right = {
     { Mode(Save) Mode(Rotate) Mode(Notify) Mode(Release) Mode(Restore) }
+    ctrl = Display(CycleCrosshair)
   }
   Middle = {
     Pan(1)
