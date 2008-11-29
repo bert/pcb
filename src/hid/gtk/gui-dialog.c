@@ -151,6 +151,7 @@ ghid_dialog_message (gchar * message)
 gboolean
 ghid_dialog_confirm (gchar * message, gchar * cancelmsg, gchar * okmsg)
 {
+  static gint x = -1, y = -1;
   GtkWidget *dialog;
   gboolean confirm = FALSE;
   GHidPort *out = &ghid_port;
@@ -164,7 +165,6 @@ ghid_dialog_confirm (gchar * message, gchar * cancelmsg, gchar * okmsg)
       okmsg = _("_OK");
     }
 
-
   dialog = gtk_message_dialog_new (GTK_WINDOW (out->top_window),
 				   GTK_DIALOG_MODAL |
 				   GTK_DIALOG_DESTROY_WITH_PARENT,
@@ -174,8 +174,16 @@ ghid_dialog_confirm (gchar * message, gchar * cancelmsg, gchar * okmsg)
 			  cancelmsg, GTK_RESPONSE_CANCEL,
 			  okmsg, GTK_RESPONSE_OK,
 			  NULL);
+
+  if(x != -1) {
+  	gtk_window_move(GTK_WINDOW (dialog), x, y);
+  }
+
   if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_OK)
     confirm = TRUE;
+
+  gtk_window_get_position(GTK_WINDOW (dialog), &x, &y);
+
   gtk_widget_destroy (dialog);
   return confirm;
 }
