@@ -239,6 +239,9 @@ echo "Configuring for cygwin"
 ( ( ( env WIN32=yes \
 	./configure \
 	--prefix=${pcb_inst} \
+	--pdfdir=${pcb_inst}/doc/pdf \
+	--htmldir=${pcb_inst}/doc/html \
+	--datadir=${pcb_inst}/share \
        ac_cv_func_gdImageGif="yes" \
        ac_cv_func_gdImageJpeg="yes" \
        ac_cv_func_gdImagePng="yes" \
@@ -300,11 +303,15 @@ if test $? -ne 0 ; then
 fi
 fi
 
-echo "Creating NSIS script"
-echo "srcdir = ${srcdir}"
-echo "src_dir = ${src_dir}"
-echo "top_srcdir = ${top_srcdir}"
-echo "top_src_dir = ${top_src_dir}"
+cat << EOF
+Creating NSIS script
+
+srcdir = ${srcdir}
+src_dir = ${src_dir}
+top_srcdir = ${top_srcdir}
+top_src_dir = ${top_src_dir}
+
+EOF
 
 sed \
 	-e "s;@pcb_version@;${pcb_version};g" \
