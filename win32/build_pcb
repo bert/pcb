@@ -192,8 +192,9 @@ pcb_inst_dir=c:\\\\cygwin`echo ${pcb_inst} | sed 's;/;\\\\\\\\;g'`
 PKG_CONFIG_PATH=${gtk_win32}\\lib\\pkgconfig
 export PKG_CONFIG_PATH
 
-PATH=${gtk_win32}\\bin:${gd_win32}:${gtk_win32_runtime}\\bin:${gd_win32_runtime}:${PATH}
+PATH=${HOME}/gd_win32_runtime/bin:${HOME}/gtk_win32_runtime/bin:${PATH}
 export PATH
+echo "Set PATH=${PATH}"
 
 echo "Showing packages known to pkg-config:"
 pkg-config --list-all
