@@ -32,6 +32,11 @@
   Name "PCB-@pcb_version@"
   OutFile "pcbinst-@pcb_version@.exe"
 
+
+  ;See http://nsis.sourceforge.net/Shortcuts_removal_fails_on_Windows_Vista
+  ;for more details.
+  RequestExecutionLevel admin
+
   ;Default installation folder
   InstallDir "$PROGRAMFILES\PCB-@pcb_version@"
   
@@ -145,6 +150,7 @@ SectionEnd
 ;Uninstaller Section
 
 Section "Uninstall"
+  SetShellVarContext all
 
   ;ADD YOUR OWN FILES HERE...
 
