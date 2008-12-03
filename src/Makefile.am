@@ -271,7 +271,7 @@ endif
 # desktop and application toolbar
 if WIN32
 pcb_icon.o : pcb_icon.ico $(srcdir)/hid/gtk/pcb.rc
-	windres $(srcdir)/hid/gtk/pcb.rc $@
+	$(WINDRES) $(srcdir)/hid/gtk/pcb.rc $@
 
 pcb_icon.ico: $(top_srcdir)/data/pcb_icon.ico
 	cp $(top_srcdir)/data/pcb_icon.ico $@

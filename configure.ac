@@ -50,6 +50,13 @@ AC_DEFINE_UNQUOTED(PCB_PATH_DELIMETER,"$PCB_PATH_DELIMETER",[Search path separat
 dnl Checks for programs.
 AC_PROG_CC
 
+if test "x$WIN32" = "xyes" ; then
+	AC_CHECK_TOOL(WINDRES, windres, [no])
+	if test "$WINDRES" = "no" ; then
+		AC_MSG_ERROR([*** Could not find an implementation of windres in your PATH.])
+	fi
+fi
+
 # i18n
 GETTEXT_PACKAGE=$PACKAGE
 AH_TEMPLATE([GETTEXT_PACKAGE], [Name of this program's gettext domain])
