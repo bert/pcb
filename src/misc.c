@@ -1818,7 +1818,7 @@ OldFlags (unsigned int flags)
     {
       /* use the closest thing to the old thermal style */
       if (flags & f)
-        rv.t[i / 2] = (1 << (4 * (i % 2)));
+	rv.t[i / 2] |= (1 << (4 * (i % 2)));
       f <<= 1;
     }
   return rv;
