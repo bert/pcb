@@ -641,13 +641,40 @@ done
 AM_CONDITIONAL(PNG, test x$with_png = xyes)
 AM_CONDITIONAL(GIF, test x$with_gif = xyes)
 
+# ------------- check if png previews should be built for pcblib-newlib
+AC_MSG_CHECKING([if the m4lib to newlib export should create png previews])
+AC_ARG_ENABLE(
+	[m4lib-png],
+	[  --enable-m4lib-png      Enable creating png previews for the m4 library],
+	[],[enable_m4lib_png=no])
+AC_MSG_RESULT([$enable_m4lib_png])
+AM_CONDITIONAL(PNG_PREVIEW, test x$enable_m4lib_png = xyes)
+
+if test "X$cross_compiling" = "Xyes" -a "X$USE_MAINTAINER_MODE" = "Xyes" -a "X$enable_m4lib_png" = "Xyes" ; then
+	AC_PATH_PROG(PCB, [pcb], [notfound])
+	if test "$PCB" = "notfound" ; then
+		AC_MSG_ERROR([You have selected a maintainer mode build with m4lib png
+previews enabled but you also
+appear to be cross-compiling.  For this to work, you must have a pcb installed that
+can run on this machine (the build machine) because it is needed for generating
+library footprint png previews as well as some of the figures in the documentation.
+If you wish to skip building the documentation and the footprint previews then add
+--disable-doc --disable-m4lib-png
+This will allow your cross build to work.])
+	fi
+else
+	PCB="\${top_builddir}/src/pcb"
+fi
+AC_SUBST(PCB)
+
+
 
 # ------------- Xrender -------------------
 have_xrender=no
 AC_CHECK_LIB(Xrender,XRenderQueryExtension,have_xrender=yes,have_xrender=no,$X_LIBS)
 
 AC_ARG_ENABLE([xrender],
-[  --disable-xrender        Compile and link with Xrender [default=yes]])
+[  --disable-xrender       Compile and link with Xrender [default=yes]])
 case "$have_xrender:$enable_xrender" in
    no:* ) ;;
    *:no ) ;;
@@ -823,7 +850,6 @@ if test -d $srcdir/lib; then
    AC_CONFIG_FILES(lib/ListLibraryContents.sh)
    AC_CONFIG_FILES(lib/Makefile)
    AC_CONFIG_FILES(lib/QueryLibrary.sh)
-   AC_CONFIG_FILES(lib/m4lib_to_newlib.sh)
    AC_CONFIG_FILES(lib/qfp-ui)
 fi
 if test -d $srcdir/newlib; then

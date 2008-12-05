@@ -14,7 +14,7 @@ LIBSCRIPTS= \
 	QueryLibrary.sh \
 	qfp-ui
 
-noinst_SCRIPTS= \
+dist_noinst_SCRIPTS= \
 	m4lib_to_newlib.sh
 
 pcblib_DATA= ${LIBCONTENTS} ${DAT_FILES}
@@ -37,17 +37,17 @@ all-local: $(NEWLIB).stamp
 # if we have compiled in PNG export capability then
 # generate previews of all the footprints.  This has
 # the added benefit of doing a PCB syntax check on all of them
-if PNG
+if PNG_PREVIEW
 PREVIEW=	--png
 else
 PREVIEW=	
 endif
 
-${NEWLIB}.stamp : footprint.pcb @MAINTAINER_MODE_TRUE@ ${LIBCONTENTS} m4lib_to_newlib.sh
+${NEWLIB}.stamp : footprint.pcb @MAINTAINER_MODE_TRUE@ ${LIBCONTENTS} ${srcdir}/m4lib_to_newlib.sh
 	rm -fr ${NEWLIB}
-	${SHELL} ./m4lib_to_newlib.sh --contents \
+	${SHELL} ${srcdir}/m4lib_to_newlib.sh --contents \
 		${LIBRARYFILENAME}.contents --output ${NEWLIB} \
-		${PREVIEW}
+		${PREVIEW} --pcb "${PCB}" --awk "${AWK}"
 	touch $@
 
 
