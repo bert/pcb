@@ -650,24 +650,30 @@ AC_ARG_ENABLE(
 AC_MSG_RESULT([$enable_m4lib_png])
 AM_CONDITIONAL(PNG_PREVIEW, test x$enable_m4lib_png = xyes)
 
-if test "X$cross_compiling" = "Xyes" -a "X$USE_MAINTAINER_MODE" = "Xyes" -a "X$enable_m4lib_png" = "Xyes" ; then
+if test "X$cross_compiling" = "Xyes" ; then
+	# we are cross compiling so we will need a build host binary for pcb
 	AC_PATH_PROG(PCB, [pcb], [notfound])
-	if test "$PCB" = "notfound" ; then
-		AC_MSG_ERROR([You have selected a maintainer mode build with m4lib png
-previews enabled but you also
+else
+	PCB="\${top_builddir}/src/pcb"
+fi
+AC_SUBST(PCB)
+
+# now make see how essential it was that we have a pcb executable for the build
+# host
+if test "X$USE_MAINTAINER_MODE" = "Xyes" ; then
+	if test "X$docs_yesno" = "Xyes" -o "X$enable_m4lib_png" = "Xyes" ; then
+		if test "$PCB" = "notfound" ; then
+			AC_MSG_ERROR([You have selected a maintainer mode build with m4lib png
+previews enabled and/or with building the documentation enabled but you also
 appear to be cross-compiling.  For this to work, you must have a pcb installed that
 can run on this machine (the build machine) because it is needed for generating
 library footprint png previews as well as some of the figures in the documentation.
 If you wish to skip building the documentation and the footprint previews then add
 --disable-doc --disable-m4lib-png
 This will allow your cross build to work.])
+		fi
 	fi
-else
-	PCB="\${top_builddir}/src/pcb"
 fi
-AC_SUBST(PCB)
-
-
 
 # ------------- Xrender -------------------
 have_xrender=no
@@ -898,8 +904,12 @@ AC_MSG_RESULT([
    KDE data directory:       $expandedKDEDATADIR
    dmalloc debugging:        $with_dmalloc
    ElectricFence debugging:  $with_efence
+
+   Cross Compiling:          $cross_compiling
+   CC:                       $CC
    CPPFLAGS:                 $CPPFLAGS
    CFLAGS:                   $CFLAGS
    LIBS:                     $LIBS
+   PCB:                      $PCB
 
 ])
