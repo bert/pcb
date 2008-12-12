@@ -39,7 +39,11 @@ info_TEXINFOS=	pcb.texi
 # and dist_pkgdata_DATA.  Also this helps us avoid problem with users
 # having various out of date versions of the texinfo package installed
 # which can have all sorts of issues.
-pcb_TEXINFOS=	@MAINTAINER_MODE_TRUE@ ${inline_texi} ${pcb_output} ${tab_texi}
+if MAINTAINER_MODE
+pcb_TEXINFOS=	${inline_texi} ${pcb_output} ${tab_texi}
+else
+pcb_TEXINFOS=
+endif
 
 dist_html_DATA=	${html_docs} ${pcb_output_inst}
 dist_ps_DATA=	${ps_docs}
@@ -87,7 +91,11 @@ MAINTAINERCLEANFILES= \
 	refcard.aux refcard.dvi refcard.log refcard.pdf refcard.ps \
 	${pcb_output} ${tab_texi} ${inline_texi} pcb.dvi pcb.html pcb.pdf pcb.ps
 
-BUILT_SOURCES=	@MAINTAINER_MODE_TRUE@ ${tab_texi} ${pcb_output} ${inline_texi}
+if MAINTAINER_MODE
+BUILT_SOURCES=	${tab_texi} ${pcb_output} ${inline_texi}
+else
+BUILT_SOURCES=
+endif
 
 inline_texi=	\
 	actions.texi \
@@ -125,8 +133,11 @@ ${inline_texi} : extracted-docs
 # anyway.
 .PHONY : extracted-docs
 extracted-docs :
-	@MAINTAINER_MODE_TRUE@${PERL} $(srcdir)/extract-docs $(srcdir)
-	@@MAINTAINER_MODE_FALSE@echo "Skipping documentation extraction since you are not in maintainer-mode"
+if MAINTAINER_MODE
+	${PERL} $(srcdir)/extract-docs $(srcdir)
+else
+	@echo "Skipping documentation extraction since you are not in maintainer-mode"
+endif
 
 SUFFIXES = .dvi .eps .gif .pcb .pdf .png .ps .tab .tex
 

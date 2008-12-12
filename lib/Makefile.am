@@ -43,7 +43,13 @@ else
 PREVIEW=	
 endif
 
-${NEWLIB}.stamp : footprint.pcb @MAINTAINER_MODE_TRUE@ ${LIBCONTENTS} ${srcdir}/m4lib_to_newlib.sh
+if MAINTAINER_MODE
+NEWLIB_DEPS=	${LIBCONTENTS} ${srcdir}/m4lib_to_newlib.sh
+else
+NEWLIB_DEPS=
+endif
+
+${NEWLIB}.stamp : footprint.pcb ${NEWLIB_DEPS}
 	rm -fr ${NEWLIB}
 	${SHELL} ${srcdir}/m4lib_to_newlib.sh --contents \
 		${LIBRARYFILENAME}.contents --output ${NEWLIB} \
