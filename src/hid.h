@@ -111,17 +111,17 @@ extern "C"
   extern const char librarychanged_help[];
   extern const char librarychanged_syntax[];
 
-  int hid_action (const char *action);
-  int hid_actionl (const char *action, ...);	/* NULL terminated */
-  int hid_actionv (const char *action, int argc, char **argv);
+  int hid_action (const char *action_);
+  int hid_actionl (const char *action_, ...);	/* NULL terminated */
+  int hid_actionv (const char *action_, int argc_, char **argv_);
   void hid_save_settings (int);
   void hid_load_settings (void);
 
 /* Parse the given string into action calls, and call `f' for each
    action found.  Returns nonzero if the action handler(s) return
    nonzero.  If f is NULL, hid_actionv is called.  */
-  int hid_parse_actions (const char *str,
-			 int (*f) (const char *, int, char **));
+  int hid_parse_actions (const char *str_,
+			 int (*_f) (const char *, int, char **));
 
   typedef struct
   {
@@ -139,7 +139,7 @@ extern "C"
 
 /* Looks up one of the flags registered above.  If the flag is
    unknown, returns zero.  */
-  int hid_get_flag (const char *name);
+  int hid_get_flag (const char *name_);
 
 /* Used for HID attributes (exporting and printing, mostly).
    HA_boolean uses int_value, HA_enum sets int_value to the index and
@@ -258,28 +258,28 @@ typedef enum
        set up the selectable options.  In command line mode, these are
        used to interpret command line options.  If n_ret is non-NULL,
        the number of attributes is stored there.  */
-    HID_Attribute *(*get_export_options) (int *n_ret);
+    HID_Attribute *(*get_export_options) (int *n_ret_);
 
     /* Export (or print) the current PCB.  The options given represent
        the choices made from the options returned from
        get_export_options.  Call with options == NULL to start the
        primary GUI (create a main window, print, export, etc)  */
-    void (*do_export) (HID_Attr_Val * options);
+    void (*do_export) (HID_Attr_Val * options_);
 
     /* Parse the command line.  Call this early for whatever HID will be
        the primary HID, as it will set all the registered attributes.
        The HID should remove all arguments, leaving any possible file
        names behind.  */
-    void (*parse_arguments) (int *argc, char ***argv);
+    void (*parse_arguments) (int *argc_, char ***argv_);
 
     /* This may be called outside of redraw to force a redraw.  Pass
        zero for "last" for all but the last call before control returns
        to the user (pass nonzero the last time).  If determining the
        last call is difficult, call *_wh at the end with width and
        height zero.  */
-    void (*invalidate_wh) (int x, int y, int width, int height, int last);
-    void (*invalidate_lr) (int left, int right, int top, int bottom,
-			   int last);
+    void (*invalidate_wh) (int x_, int y_, int width_, int height_, int last_);
+    void (*invalidate_lr) (int left_, int right_, int top_, int bottom_,
+			   int last_);
     void (*invalidate_all) (void);
 
     /* During redraw or print/export cycles, this is called once per
@@ -292,7 +292,7 @@ typedef enum
        defined above, or any others with an index of -1.  For copper
        layer groups, you may pass NULL for name to have a name fetched
        from the PCB struct.  */
-    int (*set_layer) (const char *name, int group);
+    int (*set_layer) (const char *name_, int group_);
 
     /* Drawing Functions.  Coordinates and distances are ALWAYS in PCB's
        default coordinates (1/100 mil at the time this comment was
@@ -301,7 +301,7 @@ typedef enum
 
     /* Make an empty graphics context.  */
       hidGC (*make_gc) (void);
-    void (*destroy_gc) (hidGC gc);
+    void (*destroy_gc) (hidGC gc_);
 
     /* Special note about the "erase" color: To use this color, you must
        use this function to tell the HID when you're using it.  At the
@@ -311,7 +311,7 @@ typedef enum
        call use_mask(HID_MASK_OFF) to flush the buffer to the HID.  If
        you use the "erase" color when use_mask is disabled, it simply
        draws in the background color.  */
-    void (*use_mask) (int use_it);
+    void (*use_mask) (int use_it_);
     /* Flush the buffer and return to non-mask operation.  */
 #define HID_MASK_OFF 0
     /* Polygons being drawn before clears.  */
@@ -328,33 +328,33 @@ typedef enum
        use the "drill" color to draw holes.  You may assume this is
        cheap enough to call inside the redraw callback, but not cheap
        enough to call for each item drawn. */
-    void (*set_color) (hidGC gc, const char *name);
+    void (*set_color) (hidGC gc_, const char *name_);
 
     /* Set the line style.  While calling this is cheap, calling it with
        different values each time may be expensive, so grouping items by
        line style is helpful.  */
-    void (*set_line_cap) (hidGC gc, EndCapStyle style);
-    void (*set_line_width) (hidGC gc, int width);
-    void (*set_draw_xor) (hidGC gc, int xor);
+    void (*set_line_cap) (hidGC gc_, EndCapStyle style_);
+    void (*set_line_width) (hidGC gc_, int width_);
+    void (*set_draw_xor) (hidGC gc_, int xor_);
     /* Blends 20% or so color with 80% background.  Only used for
        assembly drawings so far. */
-    void (*set_draw_faded) (hidGC gc, int faded);
+    void (*set_draw_faded) (hidGC gc_, int faded_);
 
     /* When you pass the same x,y twice to draw_line, the end caps are
        drawn as if the "line" were parallel to the line defined by these
        coordinates.  Use this for rotating non-round pads.  */
-    void (*set_line_cap_angle) (hidGC gc, int x1, int y1, int x2, int y2);
+    void (*set_line_cap_angle) (hidGC gc_, int x1_, int y1_, int x2_, int y2_);
 
     /* The usual drawing functions.  "draw" means to use segments of the
        given width, whereas "fill" means to fill to a zero-width
        outline.  */
-    void (*draw_line) (hidGC gc, int x1, int y1, int x2, int y2);
-    void (*draw_arc) (hidGC gc, int cx, int cy, int xradius, int yradius,
-		      int start_angle, int delta_angle);
-    void (*draw_rect) (hidGC gc, int x1, int y1, int x2, int y2);
-    void (*fill_circle) (hidGC gc, int cx, int cy, int radius);
-    void (*fill_polygon) (hidGC gc, int n_coords, int *x, int *y);
-    void (*fill_rect) (hidGC gc, int x1, int y1, int x2, int y2);
+    void (*draw_line) (hidGC gc_, int x1_, int y1_, int x2_, int y2_);
+    void (*draw_arc) (hidGC gc_, int cx_, int cy_, int xradius_, int yradius_,
+		      int start_angle_, int delta_angle_);
+    void (*draw_rect) (hidGC gc_, int x1_, int y1_, int x2_, int y2_);
+    void (*fill_circle) (hidGC gc_, int cx_, int cy_, int radius_);
+    void (*fill_polygon) (hidGC gc_, int n_coords_, int *x_, int *y_);
+    void (*fill_rect) (hidGC gc_, int x1_, int y1_, int x2_, int y2_);
 
 
     /* This is for the printer.  If you call this for the GUI, xval and
@@ -364,7 +364,7 @@ typedef enum
        calibrating your printer.  After calibrating, nonzero xval and
        yval are passed according to the instructions.  Metric is nonzero
        if the user prefers metric units, else inches are used. */
-    void (*calibrate) (double xval, double yval);
+    void (*calibrate) (double xval_, double yval_);
 
 
     /* GUI layout functions.  Not used or defined for print/export
@@ -373,7 +373,7 @@ typedef enum
     /* Temporary */
     int (*shift_is_pressed) (void);
     int (*control_is_pressed) (void);
-    void (*get_coords) (const char *msg, int *x, int *y);
+    void (*get_coords) (const char *msg_, int *x_, int *y_);
 
     /* Sets the crosshair, which may differ from the pointer depending
        on grid and pad snap.  Note that the HID is responsible for
@@ -383,7 +383,7 @@ typedef enum
        or mils accordingly.  If cursor_action is set, the cursor or
        screen may be adjusted so that the cursor and the crosshair are
        at the same point on the screen.  */
-    void (*set_crosshair) (int x, int y, int cursor_action);
+    void (*set_crosshair) (int x_, int y_, int cursor_action_);
 #define HID_SC_DO_NOTHING	0
 #define HID_SC_WARP_POINTER	1
 #define HID_SC_PAN_VIEWPORT	2
@@ -393,37 +393,37 @@ typedef enum
        timer during the callback for the first.  user_data can be
        anything, it's just passed to func.  Times are not guaranteed to
        be accurate.  */
-      hidval (*add_timer) (void (*func) (hidval user_data),
-			   unsigned long milliseconds, hidval user_data);
+      hidval (*add_timer) (void (*func) (hidval user_data_),
+			   unsigned long milliseconds_, hidval user_data_);
     /* Use this to stop a timer that hasn't triggered yet.  */
-    void (*stop_timer) (hidval timer);
+    void (*stop_timer) (hidval timer_);
 
     /* Causes func to be called when some condition occurs on the file
        descriptor passed. Conditions include data for reading, writing,
        hangup, and errors. user_data can be anything, it's just passed
        to func. */
-      hidval (*watch_file) (int fd, unsigned int condition, void (*func) (hidval watch, int fd, unsigned int condition, hidval user_data),
+      hidval (*watch_file) (int fd_, unsigned int condition_, void (*func_) (hidval watch_, int fd_, unsigned int condition_, hidval user_data_),
         hidval user_data);
     /* Use this to stop a file watch. */
-    void (*unwatch_file) (hidval watch);
+    void (*unwatch_file) (hidval watch_);
 
     /* Causes func to be called in the mainloop prior to blocking */
-      hidval (*add_block_hook) (void (*func) (hidval data), hidval data);
+      hidval (*add_block_hook) (void (*func_) (hidval data_), hidval data_);
     /* Use this to stop a mainloop block hook. */
-    void (*stop_block_hook) (hidval block_hook);
+    void (*stop_block_hook) (hidval block_hook_);
 
     /* Various dialogs */
 
     /* Log a message to the log window.  */
-    void (*log) (const char *fmt, ...);
-    void (*logv) (const char *fmt, va_list args);
+    void (*log) (const char *fmt_, ...);
+    void (*logv) (const char *fmt_, va_list args_);
 
     /* A generic yes/no dialog.  Returns zero if the cancel button is
        pressed, one for the ok button.  If you specify alternate labels
        for ..., they are used instead of the default OK/Cancel ones, and
        the return value is the index of the label chosen.  You MUST pass
        NULL as the last parameter to this.  */
-    int (*confirm_dialog) (char *msg, ...);
+    int (*confirm_dialog) (char *msg_, ...);
 
     /* A close confirmation dialog for unsaved pages, for example, with
        options "Close without saving", "Cancel" and "Save". Returns zero
@@ -436,12 +436,12 @@ typedef enum
 #define HID_CLOSE_CONFIRM_OK     1
 
     /* Just prints text.  */
-    void (*report_dialog) (char *title, char *msg);
+    void (*report_dialog) (char *title_, char *msg_);
 
     /* Prompts the user to enter a string, returns the string.  If
        default_string isn't NULL, the form is pre-filled with this
        value.  "msg" is like "Enter value:".  */
-    char *(*prompt_for) (char *msg, char *default_string);
+    char *(*prompt_for) (char *msg_, char *default_string_);
 
     /* Prompts the user for a filename or directory name.  For GUI
        HID's this would mean a file select dialog box.  The 'flags'
@@ -477,9 +477,9 @@ typedef enum
      * flags are the bitwise or of the HID_FILESELECT defines above
      */
     
-    char *(*fileselect) (const char *title, const char *descr,
-			 char *default_file, char *default_ext,
-			 const char *history_tag, int flags);
+    char *(*fileselect) (const char *title_, const char *descr_,
+			 char *default_file_, char *default_ext_,
+			 const char *history_tag_, int flags_);
 
     /* A generic dialog to ask for a set of attributes.  If n_attrs is
        zero, attrs(.name) must be NULL terminated.  Returns non-zero if
@@ -490,16 +490,16 @@ typedef enum
        may use it for a tooltip or text in a dialog box, or a help
        string. 
     */
-    int (*attribute_dialog) (HID_Attribute * attrs,
-			     int n_attrs, HID_Attr_Val * results,
-			     const char * title, const char * descr);
+    int (*attribute_dialog) (HID_Attribute * attrs_,
+			     int n_attrs_, HID_Attr_Val * results_,
+			     const char * title_, const char * descr_);
 
     /* This causes a second window to display, which only shows the
        selected item. The expose callback is called twice; once to size
        the extents of the item, and once to draw it.  To pass magic
        values, pass the address of a variable created for this
        purpose.  */
-    void (*show_item) (void *item);
+    void (*show_item) (void *item_);
 
     /* Something to alert the user.  */
     void (*beep) (void);
@@ -507,7 +507,7 @@ typedef enum
     /* Used by optimizers and autorouter to show progress to the user.
        Pass all zeros to flush display and remove any dialogs.
        Returns nonzero if the user wishes to cancel the operation.  */
-    int (*progress) (int so_far, int total, const char *message);
+    int (*progress) (int so_far_, int total_, const char *message_);
 
   } HID;
 
@@ -546,7 +546,7 @@ typedef enum
    Do *not* assume that the hid that is passed is the GUI hid.  This
    callback is also used for printing and exporting. */
   struct BoxType;
-  void hid_expose_callback (HID * hid, struct BoxType *region, void *item);
+  void hid_expose_callback (HID * hid_, struct BoxType *region_, void *item_);
 
 /* This is initially set to a "no-gui" gui, and later reset by
    hid_start_gui.  */
