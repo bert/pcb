@@ -1,0 +1,18 @@
+body {
+  background: #ffffff;
+}
+table.cartouche {
+  border-collapse: collapse;
+  border: 1px solid #800000;
+  width: 100%;
+}
+table.cartouche td {
+  padding: 4px;
+}
+pre.format {
+  font-family: monospace;
+}
+pre.example {
+  background: #f0f0f0;
+  border: 1px solid #e0e0e0;
+}
