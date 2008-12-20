@@ -1,0 +1,554 @@
+@node Terminology
+@chapter Terminology
+
+@comment wrap terms at their definition
+@ifhtml
+@macro tdef{TERM}
+@html
+<a name="\TERM\">\TERM\</a>@end html
+@end macro
+@end ifhtml
+
+@iftex
+@tex
+\gdef\tdef#1{%
+  \ifpdf
+    \pdfdest name{#1} xyz
+    \pdfoutline goto name{#1} count 0 {#1}
+  \fi
+  #1%
+}
+@end tex
+@end iftex
+
+@ifnottex
+@ifnothtml
+@macro tdef{TERM}
+\TERM\
+@end macro
+@end ifnothtml
+@end ifnottex
+
+@comment wrap terms to cross reference
+@ifhtml
+@macro tref{TERM}
+@html
+<a href="#\TERM\">\TERM\</a>@end html
+@end macro
+@macro trefl{TERM,LINK}
+@html
+<a href="#\LINK\">\TERM\</a>@end html
+@end macro
+@end ifhtml
+
+@ifnothtml
+@macro tref{TERM}
+\TERM\
+@end macro
+@macro trefl{TERM,LINK}
+\TERM\
+@end macro
+@end ifnothtml
+
+@comment image legend
+@macro iml{ITXT}
+@center @i{\ITXT\}
+@end macro
+
+There is some variation in terminology used by EDA packages.  To best
+understand the @pcb{} documentation, it's important to read through
+these definitions so you understand how @pcb{} uses these terms.
+
+@table @dfn
+
+@item @tdef{action}
+Internally, most @code{pcb} commands use a common interface to connect
+to the GUI, scripts, and user requests.  We call these internal
+commands actions, because they are actions that pcb can take.  Each
+action may take parameters, according to their individual
+documentation.  Actions are written like function calls, and may be
+invoked directly from within @pcb{} using the ':' key.
+
+@item @tdef{annulus}
+@itemx @tdef{annular ring}
+The donut-shaped ring of copper that surrounds the hole of a
+@tref{pin} or @tref{via}.  In @pcb{}, the size of a @tref{pin} or
+@tref{via} is the overall diameter of the copper, not the distance
+from the outer edge of the hole to the outer edge of the copper.  When
+we refer specifically to the size of the annulus, we mean the distance
+from the hole's outer edge to the copper's outer edge; i.e. the amount
+of copper remaining around a drilled hole.  Example: a 30 @tref{mil}
+drilled hole with a 8 @tref{mil} annulus results in a 46 @tref{mil}
+pin (30 + 8 + 8).  Likewise, a 50 @tref{mil} pin with a 30 @tref{mil}
+drill results in a 10 @tref{mil} annulus.
+
+@img{term-annulus-1}
+
+@item @tdef{aperture}
+In reference to @tref{RS-274X} files, an aperture is a brush shape
+used to draw things.  Originally, the aperture was a physical hole of
+a specific shape and size through which light exposed a photographic
+film.
+
+@item @tdef{arc}
+A curved trace drawn on a @tref{drawing layer}.
+
+@item @tdef{attribute}
+Varied meanings.  @trefl{Elements,element} and @trefl{boards,board}
+may have attributes assigned to them, which are arbitrary mappings
+between a name and its value.  @pcb{} does not currently use those
+attributes itself.  Within @code{pcb} an attribute is an arbitrary
+value passed between the core and the various @trefl{HIDs,HID}, such
+as checkboxes and file names.
+
+@item @tdef{bloat}
+The most that the copper areas can be expanded before they are allowed
+to touch.  For example, two 40 @tref{mil} lines 10 @tref{mil} apart can bloat up to
+(but not including) 5 @tref{mil} before they touch, so the maximum bloat
+would be 4.99 @tref{mil}.
+
+@item @tdef{board}
+The physical printed circuit board that is depicted by your @tref{layout}.
+``Board'' refers to the physical board, ``@tref{layout}'' refers to the
+electronic data.
+
+@item @tdef{buffer}
+A temporary storage location within @code{pcb} where items can be
+stored until needed later.  One such buffer is used for the common
+cut-and-paste operations.
+
+@item @tdef{clad}
+A thin layer of copper attached to a thin layer of insulator.  Once
+etched, the remaining copper forms the electrical connections
+described by the @tref{layout} file.
+
+@item @tdef{clearance}
+The distance beween the copper around a hole (the @tref{annulus}) and
+the copper in the surrounding @tref{polygon}, or between any other
+copper item (@tref{line} or @tref{arc}) and a surrounding
+@tref{polygon}.
+
+@img{term-clearance-1}
+
+@item @tdef{courtyard}
+The area around an @tref{element} which is still ``used'' by the
+@tref{element}, for its electrical and mechanical clearance
+requirements.  @pcb{} does not use this term, nor explicitly support a
+courtyard definition for @trefl{elements,element}.
+
+@item @tdef{crosshair}
+This is the actual location on the @tref{board} which is used when you
+perform an @tref{action}.  If @tref{grid} snap is active, the
+crosshair reflects the grid point closest to the @tref{cursor}, else
+the crosshair reflects the @tref{cursor} itself.
+
+@item @tdef{cursor}
+@pcb{} is referring to your mouse cursor.  See ``@tref{crosshair}''.
+
+@item @tdef{drawing layer}
+While designing your circuit board, @pcb{} provides a number of
+@trefl{layers,layer} to draw on.  While it's convenient to think of
+each drawing layer as corresponding to one of the @trefl{physical
+layers,physical layer} (copper, silk, etc), it's possible to group
+multiple drawing layers together into one @tref{physical layer}, or
+assign drawing layers to purposes not corresponding to physical
+layers.  For example, you could have two drawing layers corresponding
+to your ground plane copper layer, one for the ground plane itself and
+a second (differently colored) one for any signals that need to be
+routed on the ground plane layer.
+
+@item @tdef{DRC}
+Design Rule Check.  Your design is scanned and compared to a number of
+design rules, such as minimum trace thickness and spacing, and any
+violations are noted.  Then, you are tortured to death with non-modal
+dialogs.
+
+@item @tdef{drill file}
+A computer-readable file intended to be used by automated drilling
+machines.  The information includes drill diameters and locations.
+@code{pcb} may produce up to two drill files, one for @trefl{plated
+holes,plated hole} and one for @trefl{unplated holes,unplated hole}.
+Automated drill machines were originally designed by the Excellon
+company, so drill files are sometimes called @trefl{excellon
+files,excellon file}.  Also called an @tref{NC drill} file.
+
+@item @tdef{element}
+In @pcb{} an element represents any part you might install on your
+@tref{board}, such as resistors, capacitors, and integrated circuits.
+Note that this also includes anything on your @tref{board} that has
+its own @tref{footprint}, even if it doesn't have a part associated
+with it, such as test points, registration targets, and edge
+connectors.  An element has a @tref{footprint}, but is more than a
+@tref{footprint} - it also has a reference designator (refdes), value,
+description, and location.  ``@trefl{Footprint,footprint}'' refers to
+the pattern; ``element'' refers to the instance.  For example, your
+@tref{layout} might have four elements that use one @tref{footprint}.
+
+@img{term-element-1}
+@iml{Four examples of elements.}
+
+@item @tdef{etch resist}
+Not to be confused with @tref{solder resist}, etch resist is used
+during the fabrication of the copper layers to define what copper is
+removed and what copper will remain.
+
+@item @tdef{excellon file}
+See @tref{drill file}.
+
+@item @tdef{fab}
+@itemx @tdef{fab house}
+@itemx @tdef{fabrication house}
+A company that produces (fabricates) circuit boards from mechanical
+design files.  Most accept (or expect) @tref{gerber} (@tref{RS-274X})
+format files.
+
+@item @tdef{fab drawing}
+@itemx @tdef{fabrication drawing}
+A drawing that shows a mechanical overview of the @tref{board},
+including the physical outline and all physical holes.  This is often
+used by @trefl{fabs,fab} to sanity check their interpretation of your
+design files.
+
+@item @tdef{footprint}
+A footprint is the pattern on a circuit board to which your parts are
+attached.  This includes all copper, silk, @tref{solder mask}, and
+@trefl{paste,solder paste} information.  In other EDA programs, this
+may be referred to as a ``land pattern''.  ``Footprint'' sometimes is
+used to refer to a footprint file.  ``Footprint'' refers to the
+pattern; ``@tref{element}'' refers to the instance.  For example, your
+@tref{layout} might have four @trefl{elements,element} that use one
+footprint.
+
+@item @tdef{footprint file}
+A file that contains a single @tref{footprint} definition.  Normally,
+this means it describes one @tref{element}, although there are
+exceptions.
+
+@item @tdef{FR4}
+A specification for the insulating layer used in printed circuit board
+manufacture.  FR4 is the most common grade, and is often an epoxy
+fiberglass composite.
+
+@item @tdef{gEDA}
+The GPL'd Electronic Design Automation suite of tools.  See
+@url{http://www.geda.seul.org}.  It includes, among other things, the
+@code{gschem} schematic editor, which produces input that @code{pcb}
+can use.
+
+@item @tdef{gerber}
+@itemx @tdef{gerber file}
+The common name for an @tref{RS-274X} formatted file.  Originally
+named after the Gerber Photoplotter Company.
+
+@item @tdef{grid}
+A pattern of locations on the @tref{board} which can be displayed, or
+used as a limit on @tref{crosshair} locations.
+
+@item @tdef{gschem}
+The schematic editor that comes with @tref{gEDA}.
+
+@item @tdef{HID}
+Human Interface Device.  We use this term to refer to user interfaces,
+printers, exporters, and other ways that @code{pcb} interacts with
+humans.
+
+@item @tdef{keepout}
+A region created by the designer solely to prevent something else from
+existing there.  For example, an @tref{element} with a copper keepout
+would prevent the autorouter from routing traces through that area.
+@pcb{} does not currently support keepouts.
+
+@item @tdef{layer}
+There are two meanings of ``layer'' in @pcb{}.  See ``@tref{drawing layer}''
+ and ``@tref{physical layer}''.
+
+@item @tdef{layout}
+The @tref{board} design information depicted by the edits you've made;
+this is what's stored in a pcb file and displayed on the screen.
+``@trefl{Board,board}'' refers to the physical board, ``layout''
+refers to the electronic data.
+
+@item @tdef{line}
+A straight segment drawn on a @tref{drawing layer}.
+
+@item @tdef{mark}
+Normally, @code{pcb} reports coordinates relative to the origin (upper
+left) of the board.  However, you can designate a location on the
+@tref{board} such that @code{pcb} also reports coordinates relative to
+that location.  Such a location is the mark, and is drawn with an X
+shape.  @trefl{Elements,element} also have a mark; this is the local
+origin from which other locations within the @tref{element} are
+measured.  @trefl{Element,element} marks are drawn as small diamonds.
+
+@img{term-mark-1}
+@iml{crosshair mark, element mark}
+
+
+@item @tdef{mask}
+See ``@tref{solder mask}''.
+
+@item @tdef{mil}
+In @pcb{} a mil is 0.001 inch, or a ``milli-inch''.  Other packages
+may call it a ``@tref{thou}'', short for a thousandth of an inch.
+
+@item @tdef{NC drill}
+Numerically Controlled Drill file.  See ``@tref{drill file}''.
+
+@item @tdef{negative layer}
+@itemx @tdef{negative plane}
+For most @trefl{drawing layers,drawing layer}, the stuff you draw
+corresponds to stuff that exists in a @tref{physical layer}.  For
+example, a @tref{trace} drawn on a copper layer results in copper
+existing on the @tref{board}.  For negative layers, however, what you
+draw results in what does @emph{not} exist on the board.  The
+@tref{solder mask} @tref{gerber}, for example, is such a layer - a
+circle drawn in the @tref{solder mask} gerber results in a hole in the
+physical @tref{solder mask}.  @code{pcb} represents such layers in a
+meaningful way on the screen, but exporters may use a negative layer
+according to the needs of the fabrication process.
+
+@item @tdef{netlist}
+A list of symbolic electrical connections, normally provided as input
+to @code{pcb} from a schematic layout program, which represents the
+desired electrical connectivity of the board.  @pcb{} can compare the
+desired (loaded) netlist with the actual (copper) netlist and advise
+you of shorts or unrouted connections.  If there are unrouted
+connections, it can use those to create a @tref{rat's nest} to assist
+you in routing them.
+
+@item @tdef{outline}
+The physical shape and dimension of your physical @tref{board}.  By
+default, this is a rectangle the size of your working area (the
+``board size''), but if you name one of the @tref{drawing layers}
+``outline'' that is used instead.  While your @tref{board} is itself a
+polygon shape, a @tref{polygon} drawing object is not used to denote
+its outline - by convention, 10 @tref{mil} wide @trefl{lines,line} are
+used to draw the outline, and the centerlines of those lines indicate
+the actual outline edges.
+
+@item @tdef{pad}
+An electrical connection to an @tref{element} which does not require a
+through hole, for example as used by a surface mounted device.
+
+@img{term-pad-1}
+@iml{Surface-mount element with eight pads.}
+
+@item @tdef{paste}
+See ``@tref{solder paste}''.
+
+@item @tdef{paste stencil}
+A thin sheet, usually plastic or metal and 0.002 to 0.005 inches
+thick, with holes where solder @trefl{paste,solder paste} should be applied to your
+board.
+
+@item @tdef{pcb file}
+A file used by @code{pcb} to store board layout.  Such files end in
+@code{.pcb} and are normally readable (and editable) text files.
+
+@item @tdef{pcb units}
+Internally, @code{pcb} maintains all measurements in its own units,
+which are smaller than both @trefl{mils,mil} and millimeters.  These are the
+default units used in @pcb{} files.  At the time this text was written,
+@code{pcb} units are 1/100 of a @tref{mil}, or
+@iftex
+@math{10^{-5}}
+@end iftex
+@ifhtml
+@html
+10<sup>-5</sup>
+@end html
+@end ifhtml
+@ifnottex
+@ifnothtml
+0.00001
+@end ifnothtml
+@end ifnottex
+inches.
+
+@item @tdef{pin}
+An electrical connection to an @tref{element} which requires a through
+hole, for example as needed by a DIP socket.  Contrast with a
+@tref{pad}.  Note that pins and @trefl{vias,via} are mechanically
+identical, although pins default to @tref{untented} while
+@trefl{vias,via} default to @tref{tented}.
+
+@img{term-pin-1}
+@iml{DIP element with eight pins.}
+
+@item @tdef{physical layer}
+In the manufacture of circuit boards, a physical layer is, for
+example, each layer of copper, each side's @tref{silkscreen}, the
+@tref{solder mask}, the @tref{paste stencil}, the physical outline,
+etc.  Each physical layer requires a single layer definition to be
+produced by @code{pcb}; for professional @trefl{fabs,fab} there is one
+@tref{gerber} file for each physical layer.
+
+@item @tdef{plated hole}
+@itemx @tdef{plated through hole}
+@itemx @tdef{PTH}
+During fabrication, some holes become coated with copper which
+connects all the copper layers together at that point.  Since this is
+normally done by electroplating, such holes are called ``plated''
+holes, and normally have a copper @tref{annulus} around them.
+
+@img{term-platedhole-1}
+@iml{Plated and Unplated holes.}
+
+@item @tdef{polygon}
+A polygon defines the ouline of a drawn region on a @tref{drawing
+layer}.  When used on a @tref{drawing layer} representing a copper
+@tref{physical layer}, it causes a copper polygon to exist in the
+final board, for example.  Unlike @trefl{lines,line} and
+@trefl{arcs,arc}, a polygon does not have a ``thickness'' as the lines
+define the exact boundary of the shape.
+
+@item @tdef{rat}
+@itemx @tdef{rat lines}
+@itemx @tdef{rat list}
+@itemx @tdef{rat's nest}
+A rat is a symbolic visual representation of an unconnected electrical
+connection - i.e. something in the @tref{netlist} which doesn't exist
+as a @tref{trace} yet.  It's called a rat's nest because of its messy
+appearance when first created, from that, the individual connections
+were named rat lines or just rats.  In a @pcb{} file, the rat list is
+a list of all rats that exist on the board; this isn't always the same
+as the @tref{netlist}, because you may choose to work with a subset of
+the @tref{netlist} at a time, or hide the rats completely.  Many
+@code{pcb} functions use a rat list to determine which connections to
+work with; it is important to update the rats list before using such
+functions.
+
+@item @tdef{rectangle}
+A special case of @tref{polygon}.
+
+@item @tdef{resist}
+In @pcb{} this usually means the @tref{etch resist}.
+
+@item @tdef{route}
+In @pcb{} this term is a verb, meaning to add and arrange
+@trefl{traces,trace} so as to properly reflect the @tref{netlist}.
+Other packages may use this term to reflect the @tref{outline}, but
+@pcb{} does not.
+
+@item @tdef{route style}
+A collection of sizes, such as @tref{trace} thickness, drill diameter,
+@tref{pin} size, and @tref{clearance}, which is used when routing
+@trefl{traces,trace}.  @pcb{} can keep track of at least four styles,
+which you can quickly switch between.
+
+@item @tdef{RS-274D}
+@itemx @tdef{RS-274X}
+A file format used originally by photoplotters, but now used by any
+machine used to fabricate circuit boards.  The D variant requires a
+separate file defining all the @trefl{apertures,aperture}, and is
+considered obsolete.  The X variant is newer and includes the
+@tref{aperture} definitions.  Since these formats were defined by the
+Gerber Photoplotter company, they are commonly known as
+``@tref{gerber} files''.  Although there is no ``owner'' of the
+RS-274X spec, it can be found at various places online such as
+@url{http://www.artwork.com/gerber/274x/rs274xrevd_e.pdf}.
+
+@item @tdef{shrink}
+The most that a copper area can decrease in size before it no longer
+touches (overlaps) an adjacent copper area.
+
+@item @tdef{silk}
+@itemx @tdef{silkscreen}
+A layer of ink or pigment drawn on the circuit board (usually, one for
+each side of the board) in order to include, for example, part numbers
+or @tref{element} outlines.
+
+@item @tdef{solder mask}
+A layer of heat resistant film placed over the outermost copper layers
+of your board, to prevent solder from sticking to any covered copper.
+When used to cover @trefl{traces,trace} routed between
+@trefl{pins,pin} or @trefl{pads,pad}, this can help avoid shorts to
+those @trefl{traces,trace}.  Note that when shown in @code{pcb} the
+mask is drawn where the film exists, but when output (to postscript or
+@tref{gerber}, for example), it is often ``drawn'' where the mask is
+to be @emph{removed}.
+
+@item @tdef{solder resist}
+See @tref{solder mask}.
+
+@item @tdef{solder paste}
+Ground up solder mixed with flux.  This paste is normally squeegeed
+through a paste stencil to deposit a measured amount of paste on each
+@tref{pad} on the board.  Once the paste is applied, parts can be
+positioned on the paste, and the board heated - which melts the paste
+and solders the parts to the board.
+
+@item @tdef{tented}
+When a circuit board is made with a @tref{solder mask}, you have the
+option of opening a hole in the mask over @trefl{vias,via}, or leaving
+the @trefl{mask,solder mask} intact over them.  A @tref{via} with an
+intact @trefl{mask,solder mask} over it is tented, as the
+@trefl{mask,solder mask} acts like a tent over the copper and hole.
+
+@img{term-tented-1}
+@iml{Tented and untented vias.}
+
+@item @tdef{thermal}
+@itemx @tdef{thermal relief}
+Since copper is an efficient heat sink, connections to a large region
+of copper would be very difficult to solder - the copper heat sink
+prevents you from adequately heating the connection.  To fix this,
+small cutouts are made around each such connection to create a thermal
+barrier, so that heat applied to the connection stays at the
+connection.  Such a set of cutouts, and the copper bridges that
+remain, is called a ``thermal''.  Thermals come in many patterns,
+which allows the designer to ensure adequate electrical connectivity
+and/or manufacturability.
+
+@img{term-thermal-1}
+@iml{Pins with no connection, three types of thermals, and no thermal.}
+
+@item @tdef{thickness}
+In @pcb{} this often refers to the width of a @tref{line} or
+@tref{arc}, not the thickness of the copper film used to produce the
+@tref{board}.  This is also the ``size'' of a @tref{line} or
+@tref{arc}.
+
+@img{term-thickness-1}
+
+@item @tdef{thin draw}
+A mode used by @code{pcb}'s GUI by which board objects are drawn as
+thin lines (or outlines) rather than as actual-width lines.  This mode
+is useful for detail work where the size of the objects would
+otherwise obscure their relationship to each other.
+
+@item @tdef{thou}
+See ``@tref{mil}''.
+
+@item @tdef{toner transfer}
+@itemx @tdef{TT}
+A home-fabrication method that involves printing a layer with a laser
+printer, and transferring the toner from that print to an unetched
+copper board.  The toner acts as an @tref{etch resist}.
+
+@item @tdef{trace}
+Any copper added to a copper layer whose purpose is to connect
+electrical signals between @trefl{elements,element}.  Traces may be
+built up from @trefl{lines,line}, @trefl{arcs,arc}, and
+@trefl{polygons,polygon}.
+
+@item @tdef{unplated hole}
+During fabrication, some holes are drilled after electroplating, and
+so do not receive the copper that would otherwise connect layers.
+Such holes are unplated holes, and normally do not have a copper
+@tref{annulus} around them either.
+
+@img{term-platedhole-1}
+@iml{Plated and Unplated holes.}
+
+@item @tdef{untented}
+When a hole is placed in the @tref{solder mask} in order to expose a
+@tref{via} below it, such a via is untented.  Untented
+@trefl{vias,via} are available as test points or places to add wires
+later.
+
+@item @tdef{via}
+A via is a connection between different copper layers.  In @pcb{} all
+vias are ``through'' vias, in that they connect copper on all layers.
+
+@end table

@@ -1,0 +1,32 @@
+@node Introduction
+@chapter Introduction
+
+@img{sample-board}
+
+@pcb{} includes a stand-alone program (called @code{pcb}) which allows
+users to create, edit, and process layouts for printed circuit boards,
+as well as a library of footprint definitions for commonly needed
+elements.  While originally written for the Atari, and later rewritten
+for Unix-like environments, it has been ported to other operating
+systems, such as Linux, MacOS/X, and Windows.
+
+While @pcb{} can be used on its own, by adding elements and traces
+manually, it works best in conjunction with a schematic editor such as
+@code{gschem} from the gEDA project, as @code{gschem} will create a
+netlist, make sure all the elements are correct, etc.
+
+The file in which @code{pcb} stores its data ends in @code{.pcb} such
+as @code{myboard.pcb}.  Additionally, @code{pcb} reads individual
+element footprints from files ending in @code{.fp} and netlists from
+files ending in @code{.net}.
+
+There are a couple of different outputs from @code{pcb}.  If you are
+having your boards professionally fabricated, you will want to export
+your board as an RS-247X (aka gerber) file.  If you are fabricating
+your board yourself, you'll probably want to print it.  You can also
+save it as an encapsulated postscript or image file for use in
+documentation and/or web pages.
+
+A note about typography: Throughout this document, ``@pcb{}'' refers
+to the whole package, ``@code{pcb}'' refers to that specific program,
+and ``pcb'' refers to a generic printed circuit board.

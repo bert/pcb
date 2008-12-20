@@ -1,0 +1,65 @@
+@node Installation
+@chapter Installation
+
+@menu
+* Installing a Pre-Built Package::
+* Building From the Source CD::
+* Building From CVS::
+@end menu
+
+@node Installing a Pre-Built Package
+@section Installing a Pre-Built Package
+
+@menu
+* Debian::
+* Fedora::
+* Gentoo::
+* NetBSD::
+* Ubuntu::
+@end menu
+
+@node Debian
+@subsection Debian
+
+@example
+apt-get install pcb
+@end example
+
+@node Fedora
+@subsection Fedora
+
+@node Gentoo
+@subsection Gentoo
+
+@example
+emerge pcb
+@end example
+
+@node NetBSD
+@subsection NetBSD
+
+See @url{ftp://ftp.netbsd.org/pub/NetBSD/packages/pkgsrc/cad/pcb/README.html}.
+
+@node Ubuntu
+@subsection Ubuntu
+
+@node Building From the Source CD
+@section Building From the Source CD
+
+@node Building From CVS
+@section Building From Source
+
+@menu
+* Unix/Linux::
+* Mac OS/X::
+* Cygwin::
+@end menu
+
+@node Unix/Linux
+@subsection Unix/Linux
+
+@node Mac OS/X
+@subsection Mac OS/X
+
+@node Cygwin
+@subsection Cygwin
