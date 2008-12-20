@@ -116,6 +116,53 @@ FlagHaveRegex (int x)
 #endif
 }
 
+enum {
+  FL_SILK = -6,
+  FL_PINS,
+  FL_RATS,
+  FL_VIAS,
+  FL_BACK,
+  FL_MASK
+};
+
+static int
+FlagLayerShown (int n)
+{
+  switch (n)
+    {
+    case FL_SILK:
+      return PCB->ElementOn;
+    case FL_PINS:
+      return PCB->PinOn;
+    case FL_RATS:
+      return PCB->RatOn;
+    case FL_VIAS:
+      return PCB->ViaOn;
+    case FL_BACK:
+      return PCB->InvisibleObjectsOn;
+    case FL_MASK:
+      return TEST_FLAG (SHOWMASKFLAG, PCB);
+    default:
+      if (n >= 0 && n < max_layer)
+	return PCB->Data->Layer[n].On;
+    }
+  return 0;
+}
+
+static int
+FlagLayerActive (int n)
+{
+  int current_layer;
+  if (PCB->RatDraw)
+    current_layer = FL_RATS;
+  else if (PCB->SilkActive)
+    current_layer = FL_SILK;
+  else
+    return 0;
+
+  return current_layer == n;
+}
+
 #define OffsetOf(a,b) (int)(&(((a *)0)->b))
 
 HID_Flag flags_flag_list[] = {
@@ -124,6 +171,15 @@ HID_Flag flags_flag_list[] = {
   {"gridsize", FlagGridSize, 0},
   {"elementname", FlagElementName, 0},
   {"have_regex", FlagHaveRegex, 0},
+
+  {"silk_shown", FlagLayerShown, FL_SILK},
+  {"pins_shown", FlagLayerShown, FL_PINS},
+  {"rats_shown", FlagLayerShown, FL_RATS},
+  {"vias_shown", FlagLayerShown, FL_VIAS},
+  {"back_shown", FlagLayerShown, FL_BACK},
+  {"mask_shown", FlagLayerShown, FL_MASK},
+  {"silk_active", FlagLayerActive, FL_SILK},
+  {"rats_active", FlagLayerActive, FL_RATS},
 
   {"mode", FlagMode, -1},
   {"nomode", FlagMode, NO_MODE},
