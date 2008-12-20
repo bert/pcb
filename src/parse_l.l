@@ -76,6 +76,8 @@ DataTypePtr		yyData;
 ElementTypePtr		yyElement;
 FontTypePtr		yyFont;
 
+static int parse_number (double);
+
 /* ---------------------------------------------------------------------------
  * an external prototypes
  */
@@ -90,7 +92,11 @@ static	int		Parse(char *, char *, char *, char *);
 
 HEX				0x[0-9a-fA-F]+
 DECIMAL			-?[1-9][0-9]*|0
-FLOATING                -?[0-9]*"."[0-9]*
+FLOATING                [+-]?[0-9]*("."[0-9]*)?
+FLOATINGMM              {FLOATING}[mM][mM]
+FLOATINGUM              {FLOATING}[uU][mM]
+FLOATINGIN              {FLOATING}[iI][nN]
+FLOATINGMIL             {FLOATING}[mM][iI][lL]
 CARDINAL		[1-9][0-9]*|0
 STRINGCHAR		([^"\n\r\\]|\\.)
 
@@ -133,10 +139,12 @@ Attribute	{ return(T_ATTRIBUTE); }
 						yylval.number = (unsigned) *(yytext+1);
 						return(CHAR_CONST);
 					}
-{DECIMAL}		{
-						sscanf((char *) yytext, "%i", &yylval.number);
-						return(NUMBER);
-					}
+{FLOATINGMM}		{	return parse_number(3937.0079); }
+{FLOATINGUM}		{	return parse_number(3.9370079); }
+{FLOATINGIN}		{	return parse_number(100000.0); }
+{FLOATINGMIL}		{	return parse_number(100.0); }
+{DECIMAL}		{	return parse_number(1.0); }
+
 {HEX}			{
 						sscanf((char *) yytext, "%x", &yylval.number);
 						return(NUMBER);
@@ -346,3 +354,17 @@ int ParseFont(FontTypePtr Ptr, char *Filename)
 	return r;
 }
 
+static int
+parse_number (double scale)
+{
+  double val;
+  sscanf ((char *) yytext, "%lf", &val);
+  val *= scale;
+  /* Round towards nearest means we have to check the sign first.  */
+  if (val < 0)
+    val -= 0.49;
+  else
+    val += 0.49;
+  yylval.number = (int)(val);
+  return NUMBER;
+}
