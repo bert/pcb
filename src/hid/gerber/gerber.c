@@ -45,10 +45,17 @@ static void gerber_fill_polygon (hidGC gc, int n_coords, int *x, int *y);
 /* Utility routines                                                           */
 /*----------------------------------------------------------------------------*/
 
-#define gerberX(pcb, x) ((long) ((x)/10))
-#define gerberY(pcb, y) ((long) (((pcb)->MaxHeight - (y)))/10)
-#define gerberXOffset(pcb, x) ((long) ((x) /10))
-#define gerberYOffset(pcb, y) ((long) (-(y) /10))
+/* These are for films */
+#define gerberX(pcb, x) ((long) ((x)))
+#define gerberY(pcb, y) ((long) (((pcb)->MaxHeight - (y))))
+#define gerberXOffset(pcb, x) ((long) ((x)))
+#define gerberYOffset(pcb, y) ((long) (-(y)))
+
+/* These are for drills */
+#define gerberDrX(pcb, x) ((long) ((x)/10))
+#define gerberDrY(pcb, y) ((long) (((pcb)->MaxHeight - (y)))/10)
+#define gerberDrXOffset(pcb, x) ((long) ((x)/10))
+#define gerberDrYOffset(pcb, y) ((long) (-(y))/10)
 
 /*----------------------------------------------------------------------------*/
 /* Private data structures                                                    */
@@ -463,9 +470,8 @@ gerber_set_layer (const char *name, int group)
 	      fprintf (f, "T%02d\015\012", ap);
 	    }
 	  fprintf (f, "X%06ldY%06ld\015\012",
-		   gerberX (PCB, pending_drills[i].x), gerberY (PCB,
-								pending_drills
-								[i].y));
+		   gerberDrX (PCB, pending_drills[i].x),
+		   gerberDrY (PCB, pending_drills[i].y));
 	}
       free (pending_drills);
       n_pending_drills = max_pending_drills = 0;
@@ -581,8 +587,8 @@ gerber_set_layer (const char *name, int group)
       /* Signal data in inches. */
       fprintf (f, "%%MOIN*%%\015\012");
 
-      /* Signal Leading zero suppression, Absolute Data, 2.3 format */
-      fprintf (f, "%%FSLAX24Y24*%%\015\012");
+      /* Signal Leading zero suppression, Absolute Data, 2.5 format */
+      fprintf (f, "%%FSLAX25Y25*%%\015\012");
 
       /* build a legal identifier. */
       if (layername)
