@@ -3910,7 +3910,7 @@ DRCAll (void)
         if (IsBad)
           break;
         if (!TEST_FLAG (HOLEFLAG, via) &&
-            via->Thickness - via->DrillingHole < PCB->minRing)
+            via->Thickness - via->DrillingHole < 2 * PCB->minRing)
           {
             AddObjectToFlagUndoList (VIA_TYPE, via, via, via);
             SET_FLAG (TheFlag, via);
