@@ -1464,6 +1464,7 @@ lesstif_menu (Widget parent, char *name, Arg * margs, int mn)
   cmap = DefaultColormap (display, screen);
 
   /* homedir is set by the core */
+  home = homedir;
   home_pcbmenu = NULL;
   if (home == NULL)
     {
