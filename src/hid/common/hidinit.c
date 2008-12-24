@@ -72,9 +72,11 @@ hid_load_dir (char *dirname)
       struct stat st;
 
       basename = strdup (de->d_name);
-      if (strcasecmp (basename+strlen(basename)-3, ".so") == 0)
+      if (strlen (basename) > 3
+	  && strcasecmp (basename+strlen(basename)-3, ".so") == 0)
 	basename[strlen(basename)-3] = 0;
-      else if (strcasecmp (basename+strlen(basename)-4, ".dll") == 0)
+      else if (strlen (basename) > 5
+	       && strcasecmp (basename+strlen(basename)-4, ".dll") == 0)
 	basename[strlen(basename)-4] = 0;
       path = Concat (dirname, PCB_DIR_SEPARATOR_S, de->d_name, NULL);
 
