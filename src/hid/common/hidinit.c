@@ -75,7 +75,7 @@ hid_load_dir (char *dirname)
       if (strlen (basename) > 3
 	  && strcasecmp (basename+strlen(basename)-3, ".so") == 0)
 	basename[strlen(basename)-3] = 0;
-      else if (strlen (basename) > 5
+      else if (strlen (basename) > 4
 	       && strcasecmp (basename+strlen(basename)-4, ".dll") == 0)
 	basename[strlen(basename)-4] = 0;
       path = Concat (dirname, PCB_DIR_SEPARATOR_S, de->d_name, NULL);
