@@ -385,7 +385,7 @@ net_model_create (void)
         parent_iter = new_iter;
         parent_ptr = &parent_iter;
 
-        join_array = g_new0 (char *, try_depth + 1);
+        join_array = g_new0 (char *, try_depth + 2);
         memcpy (join_array, path_segments, sizeof (char *) * (try_depth + 1));
 
         hash_string = g_strjoinv (NET_HIERARCHY_SEPARATOR, join_array);
