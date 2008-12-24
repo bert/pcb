@@ -95,21 +95,22 @@ hid_load_dir (char *dirname)
 	  if ((so = dlopen (path, RTLD_NOW | RTLD_GLOBAL)) == NULL)
 	    {
 	      fprintf(stderr, "dl_error: %s\n", dlerror ());
-	      continue;
 	    }
-
-	  symname = Concat ("hid_", basename, "_init", NULL);
-	  if ((sym = dlsym (so, symname)) != NULL)
+	  else
 	    {
-	      symv = (void (*)()) sym;
-	      symv();
+	      symname = Concat ("hid_", basename, "_init", NULL);
+	      if ((sym = dlsym (so, symname)) != NULL)
+		{
+		  symv = (void (*)()) sym;
+		  symv();
+		}
+	      else if ((sym = dlsym (so, "pcb_plugin_init")) != NULL)
+		{
+		  symv = (void (*)()) sym;
+		  symv();
+		}
+	      free (symname);
 	    }
-	  else if ((sym = dlsym (so, "pcb_plugin_init")) != NULL)
-	    {
-	      symv = (void (*)()) sym;
-	      symv();
-	    }
-	  free (symname);
 	}
       free (basename);
       free (path);
