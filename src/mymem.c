@@ -305,10 +305,19 @@ GetRatMemory (DataTypePtr Data)
   if (Data->RatN >= Data->RatMax)
     {
       Data->RatMax += STEP_RAT;
+      /* all of the pointers move, so rebuild the whole tree */
+      if (Data->rat_tree)
+        r_destroy_tree (&Data->rat_tree);
       rat = MyRealloc (rat, Data->RatMax * sizeof (RatType),
 		       "GetRatMemory()");
       Data->Rat = rat;
       memset (rat + Data->RatN, 0, STEP_RAT * sizeof (RatType));
+      Data->rat_tree = r_create_tree (NULL, 0, 0);
+      RAT_LOOP (Data);
+      {
+        r_insert_entry (Data->rat_tree, (BoxTypePtr) line, 0);
+      }
+      END_LOOP;
     }
   return (rat + Data->RatN++);
 }
