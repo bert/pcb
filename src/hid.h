@@ -293,8 +293,9 @@ typedef enum
        groups, you may select layers indicated by the macros SL_*
        defined above, or any others with an index of -1.  For copper
        layer groups, you may pass NULL for name to have a name fetched
-       from the PCB struct.  */
-    int (*set_layer) (const char *name_, int group_);
+       from the PCB struct.  The EMPTY argument is a hint - if set, the
+       layer is empty, if zero it may be non-empty.  */
+    int (*set_layer) (const char *name_, int group_, int _empty);
 
     /* Drawing Functions.  Coordinates and distances are ALWAYS in PCB's
        default coordinates (1/100 mil at the time this comment was

@@ -62,6 +62,7 @@ static void gerber_fill_polygon (hidGC gc, int n_coords, int *x, int *y);
 /*----------------------------------------------------------------------------*/
 
 static int verbose;
+static int all_layers;
 static int is_mask, was_drill;
 static int is_drill;
 static int current_mask;
@@ -274,9 +275,12 @@ static HID_Attribute gerber_options[] = {
   {"gerberfile", "Gerber output file base",
    HID_String, 0, 0, {0, 0, 0}, 0, 0},
 #define HA_gerberfile 0
+  {"all-layers", "Print all layers, even empty ones",
+   HID_Boolean, 0, 0, {0, 0, 0}, 0, 0},
+#define HA_all_layers 1
   {"verbose", "print file names and aperture counts",
    HID_Boolean, 0, 0, {0, 0, 0}, 0, 0},
-#define HA_verbose 1
+#define HA_verbose 2
 };
 
 #define NUM_OPTIONS (sizeof(gerber_options)/sizeof(gerber_options[0]))
@@ -355,6 +359,7 @@ gerber_do_export (HID_Attr_Val * options)
     fnbase = "pcb-out";
 
   verbose = options[HA_verbose].int_value;
+  all_layers = options[HA_all_layers].int_value;
 
   i = strlen (fnbase);
   filename = MyRealloc (filename, i + 40, "gerber");
@@ -362,8 +367,16 @@ gerber_do_export (HID_Attr_Val * options)
   strcat (filename, ".");
   filesuff = filename + strlen (filename);
 
-  memset (print_group, 0, sizeof (print_group));
-  memset (print_layer, 0, sizeof (print_layer));
+  if (all_layers)
+    {
+      memset (print_group, 1, sizeof (print_group));
+      memset (print_layer, 1, sizeof (print_layer));
+    }
+  else
+    {
+      memset (print_group, 0, sizeof (print_group));
+      memset (print_layer, 0, sizeof (print_layer));
+    }
 
   hid_save_and_show_layer_ons (save_ons);
   for (i = 0; i < max_layer; i++)
@@ -434,12 +447,13 @@ drill_sort (const void *va, const void *vb)
 }
 
 static int
-gerber_set_layer (const char *name, int group)
+gerber_set_layer (const char *name, int group, int empty)
 {
   char *cp;
   int idx = (group >= 0
 	     && group <
 	     max_layer) ? PCB->LayerGroups.Entries[group][0] : group;
+
   if (name == 0)
     name = PCB->Data->Layer[idx].Name;
 
@@ -495,6 +509,7 @@ gerber_set_layer (const char *name, int group)
 #endif
       char *sext=".gbr";
       int i;
+      int some_apertures = 0;
 
       lastgroup = group;
       lastX = -1;
@@ -509,7 +524,7 @@ gerber_set_layer (const char *name, int group)
       if (finding_apertures)
 	return 1;
 
-      if (!curapp->some_apertures)
+      if (!curapp->some_apertures && !all_layers)
 	return 0;
 
       maybe_close_f ();
@@ -607,7 +622,14 @@ gerber_set_layer (const char *name, int group)
 
       for (i=0; i<GBX_MAXAPERTURECOUNT; i++)
 	if (curapp->aperture_used[i])
-	  printAperture(f, i);
+	  {
+	    some_apertures ++;
+	    printAperture(f, i);
+	  }
+      if (!some_apertures)
+	/* We need to put *something* in the file to make it be parsed
+	   as RS-274X instead of RS-274D. */
+	fprintf (f, "%%ADD11C,0.0100*%%\r\n");
     }
 
   return 1;

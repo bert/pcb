@@ -510,13 +510,16 @@ static int is_copper;
 static int is_paste;
 
 static int
-ps_set_layer (const char *name, int group)
+ps_set_layer (const char *name, int group, int empty)
 {
   int idx = (group >= 0
 	     && group <
 	     max_layer) ? PCB->LayerGroups.Entries[group][0] : group;
   if (name == 0)
     name = PCB->Data->Layer[idx].Name;
+
+  if (empty)
+    return 0;
 
   if (idx >= 0 && idx < max_layer && !print_layer[idx])
     return 0;

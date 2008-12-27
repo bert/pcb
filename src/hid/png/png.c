@@ -777,7 +777,7 @@ static int is_mask;
 static int is_drill;
 
 static int
-png_set_layer (const char *name, int group)
+png_set_layer (const char *name, int group, int empty)
 {
   int idx = (group >= 0
 	     && group <

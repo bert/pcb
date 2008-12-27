@@ -68,7 +68,7 @@ nogui_invalidate_all (void)
 }
 
 static int
-nogui_set_layer (const char *name, int idx)
+nogui_set_layer (const char *name, int idx, int empty)
 {
   CRASH;
   return 0;

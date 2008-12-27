@@ -206,7 +206,7 @@ batch_invalidate_all (void)
 }
 
 static int
-batch_set_layer (const char *name, int idx)
+batch_set_layer (const char *name, int idx, int empty)
 {
   return 0;
 }

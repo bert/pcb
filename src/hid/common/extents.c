@@ -34,7 +34,7 @@ typedef struct hid_gc_struct
 } hid_gc_struct;
 
 static int
-extents_set_layer (const char *name, int group)
+extents_set_layer (const char *name, int group, int empty)
 {
   int idx = group;
   if (idx >= 0 && idx < max_layer)

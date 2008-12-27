@@ -419,7 +419,7 @@ DrawEverything (BoxTypePtr drawn_area)
    * first draw all 'invisible' stuff
    */
   if (!TEST_FLAG (CHECKPLANESFLAG, PCB)
-      && gui->set_layer ("invisible", SL (INVISIBLE, 0)))
+      && gui->set_layer ("invisible", SL (INVISIBLE, 0), 0))
     {
       r_search (PCB->Data->pad_tree, drawn_area, NULL, backPad_callback,
 		NULL);
@@ -438,7 +438,7 @@ DrawEverything (BoxTypePtr drawn_area)
     {
       int group = drawn_groups[i];
 
-      if (gui->set_layer (0, group))
+      if (gui->set_layer (0, group, 0))
 	{
 	  if (DrawLayerGroup (group, drawn_area) && !gui->gui)
 	    {
@@ -478,14 +478,14 @@ DrawEverything (BoxTypePtr drawn_area)
   if (PCB->ViaOn && gui->gui)
     r_search (PCB->Data->via_tree, drawn_area, NULL, lowvia_callback, NULL);
   /* Draw the solder mask if turned on */
-  if (gui->set_layer ("componentmask", SL (MASK, TOP)))
+  if (gui->set_layer ("componentmask", SL (MASK, TOP), 0))
     {
       int save_swap = SWAP_IDENT;
       SWAP_IDENT = 0;
       DrawMask (drawn_area);
       SWAP_IDENT = save_swap;
     }
-  if (gui->set_layer ("soldermask", SL (MASK, BOTTOM)))
+  if (gui->set_layer ("soldermask", SL (MASK, BOTTOM), 0))
     {
       int save_swap = SWAP_IDENT;
       SWAP_IDENT = 1;
@@ -503,7 +503,7 @@ DrawEverything (BoxTypePtr drawn_area)
 		&hcs);
       r_search (PCB->Data->via_tree, drawn_area, NULL, hole_counting_callback,
 		&hcs);
-      if (hcs.nplated && gui->set_layer ("plated-drill", SL (PDRILL, 0)))
+      if (hcs.nplated && gui->set_layer ("plated-drill", SL (PDRILL, 0), 0))
 	{
 	  plated = 1;
 	  r_search (PCB->Data->pin_tree, drawn_area, NULL, hole_callback,
@@ -511,7 +511,7 @@ DrawEverything (BoxTypePtr drawn_area)
 	  r_search (PCB->Data->via_tree, drawn_area, NULL, hole_callback,
 		    &plated);
 	}
-      if (hcs.nunplated && gui->set_layer ("unplated-drill", SL (UDRILL, 0)))
+      if (hcs.nunplated && gui->set_layer ("unplated-drill", SL (UDRILL, 0), 0))
 	{
 	  plated = 0;
 	  r_search (PCB->Data->pin_tree, drawn_area, NULL, hole_callback,
@@ -521,9 +521,9 @@ DrawEverything (BoxTypePtr drawn_area)
 	}
     }
   /* Draw top silkscreen */
-  if (gui->set_layer ("topsilk", SL (SILK, TOP)))
+  if (gui->set_layer ("topsilk", SL (SILK, TOP), 0))
     DrawSilk (0, COMPONENT_LAYER, drawn_area);
-  if (gui->set_layer ("bottomsilk", SL (SILK, BOTTOM)))
+  if (gui->set_layer ("bottomsilk", SL (SILK, BOTTOM), 0))
     DrawSilk (1, SOLDER_LAYER, drawn_area);
   if (gui->gui)
     {
@@ -551,14 +551,10 @@ DrawEverything (BoxTypePtr drawn_area)
       }
       ENDALL_LOOP;
 
-      /* skip empty files */
-      if (NoData)
-	continue;
-
       if (side == SOLDER_LAYER)
-	doit = gui->set_layer ("bottompaste", SL (PASTE, BOTTOM));
+	doit = gui->set_layer ("bottompaste", SL (PASTE, BOTTOM), NoData);
       else
-	doit = gui->set_layer ("toppaste", SL (PASTE, TOP));
+	doit = gui->set_layer ("toppaste", SL (PASTE, TOP), NoData);
       if (doit)
 	{
 	  gui->set_color (Output.fgGC, PCB->ElementColor);
@@ -575,14 +571,14 @@ DrawEverything (BoxTypePtr drawn_area)
     }
 
   doing_assy = True;
-  if (gui->set_layer ("topassembly", SL (ASSY, TOP)))
+  if (gui->set_layer ("topassembly", SL (ASSY, TOP), 0))
     PrintAssembly (drawn_area, component, 0);
 
-  if (gui->set_layer ("bottomassembly", SL (ASSY, BOTTOM)))
+  if (gui->set_layer ("bottomassembly", SL (ASSY, BOTTOM), 0))
     PrintAssembly (drawn_area, solder, 1);
   doing_assy = False;
 
-  if (gui->set_layer ("fab", SL (FAB, 0)))
+  if (gui->set_layer ("fab", SL (FAB, 0), 0))
     PrintFab ();
 }
 

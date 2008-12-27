@@ -2986,7 +2986,7 @@ lesstif_invalidate_all (void)
 }
 
 static int
-lesstif_set_layer (const char *name, int group)
+lesstif_set_layer (const char *name, int group, int empty)
 {
   int idx = group;
   if (idx >= 0 && idx < max_layer)

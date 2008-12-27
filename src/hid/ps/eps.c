@@ -307,7 +307,7 @@ static int is_paste;
 static int is_drill;
 
 static int
-eps_set_layer (const char *name, int group)
+eps_set_layer (const char *name, int group, int empty)
 {
   int idx = (group >= 0
 	     && group <

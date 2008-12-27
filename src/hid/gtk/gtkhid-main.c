@@ -577,7 +577,7 @@ ghid_invalidate_all ()
 
 
 int
-ghid_set_layer (const char *name, int group)
+ghid_set_layer (const char *name, int group, int empty)
 {
   int idx = (group >= 0
 	     && group <
