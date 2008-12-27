@@ -64,6 +64,7 @@ MainMenu =
    {"Value" Display(Value) checked=elementname,3}
    {"Lock Names" checked=locknames Display(ToggleLockNames)}
    {"Only Names" checked=onlynames Display(ToggleOnlyNames)}
+   {"Hide Names" checked=hidenames Display(ToggleHideNames)}
    -
    {"Pinout shows number" checked=shownumber Display(ToggleName)}
    {"Open pinout menu" Display(Pinout) a={"Shift-D" "Shift<Key>d"}}

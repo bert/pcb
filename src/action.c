@@ -174,6 +174,7 @@ typedef enum
   F_ToggleClearLine,
   F_ToggleFullPoly,
   F_ToggleGrid,
+  F_ToggleHideNames,
   F_ToggleMask,
   F_ToggleName,
   F_ToggleObject,
@@ -414,6 +415,7 @@ static FunctionType Functions[] = {
   {"ToggleThindrawPoly", F_ToggleThindrawPoly},
   {"ToggleLockNames", F_ToggleLockNames},
   {"ToggleOnlyNames", F_ToggleOnlyNames},
+  {"ToggleHideNames", F_ToggleHideNames},
   {"ToggleCheckPlanes", F_ToggleCheckPlanes},
   {"ToggleLocalRef", F_ToggleLocalRef},
   {"ToggleOrthoMove", F_ToggleOrthoMove},
@@ -2648,6 +2650,11 @@ ActionDisplay (int argc, char **argv, int childX, int childY)
 	case F_ToggleOnlyNames:
 	  TOGGLE_FLAG (ONLYNAMESFLAG, PCB);
 	  CLEAR_FLAG (LOCKNAMESFLAG, PCB);
+	  break;
+
+	case F_ToggleHideNames:
+	  TOGGLE_FLAG (HIDENAMESFLAG, PCB);
+	  ClearAndRedrawOutput ();
 	  break;
 
 	case F_ToggleShowDRC:

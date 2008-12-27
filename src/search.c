@@ -1148,7 +1148,8 @@ SearchObjectByLocation (int Type,
   SearchBox.X2 = X + Radius;
   SearchBox.Y2 = Y + Radius;
 
-  if (TEST_FLAG (LOCKNAMESFLAG, PCB))
+  if (TEST_FLAG (LOCKNAMESFLAG, PCB)
+      || TEST_FLAG (HIDENAMESFLAG, PCB))
     {
       Type &= ~ (ELEMENTNAME_TYPE | TEXT_TYPE);
     }

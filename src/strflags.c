@@ -135,6 +135,7 @@ static FlagBitsType pcb_flagbits[] = {
   { THINDRAWPOLYFLAG, N ("thindrawpoly"), 1 },
   { LOCKNAMESFLAG, N ("locknames"), 1 },
   { ONLYNAMESFLAG, N ("onlynames"), 1 },
+  { HIDENAMESFLAG, N ("hidenames"), 1 },
 };
 
 #undef N

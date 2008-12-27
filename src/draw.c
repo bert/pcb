@@ -2183,6 +2183,8 @@ DrawElement (ElementTypePtr Element, int unused)
 void
 DrawElementName (ElementTypePtr Element, int unused)
 {
+  if (gui->gui && TEST_FLAG (HIDENAMESFLAG, PCB))
+    return;
   if (TEST_FLAG (HIDENAMEFLAG, Element))
     return;
   if (doing_pinout || doing_assy)

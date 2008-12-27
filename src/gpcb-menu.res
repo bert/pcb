@@ -193,6 +193,7 @@ MainMenu =
    {"Auto enforce DRC clearance" checked=autodrc Display(ToggleAutoDRC)}
    {"Lock Names" checked=locknames Display(ToggleLockNames)}
    {"Only Names" checked=onlynames Display(ToggleOnlyNames)}
+   {"Hide Names" checked=hidenames Display(ToggleHideNames)}
    -
    {"Rubber band mode" checked=rubberband Display(ToggleRubberBandMode)}
    {"Require unique element names" checked=uniquename Display(ToggleUniqueNames)}
