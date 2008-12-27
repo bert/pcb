@@ -865,8 +865,6 @@ fi
 if test -d $srcdir/newlib; then
    AC_CONFIG_FILES(newlib/2_pin_thru-hole_packages/Makefile)
    AC_CONFIG_FILES(newlib/Makefile)
-   AC_CONFIG_FILES(newlib/analog-devices/Makefile)
-   AC_CONFIG_FILES(newlib/burr-brown/Makefile)
    AC_CONFIG_FILES(newlib/connectors/Makefile)
    AC_CONFIG_FILES(newlib/crystal/Makefile)
    AC_CONFIG_FILES(newlib/electro-optics/Makefile)

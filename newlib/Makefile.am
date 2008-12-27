@@ -4,8 +4,6 @@
 
 SUBDIRS=\
 	2_pin_thru-hole_packages \
-	analog-devices \
-	burr-brown \
 	connectors \
 	crystal \
 	electro-optics \
