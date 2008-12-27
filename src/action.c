@@ -2724,9 +2724,11 @@ ActionDisplay (int argc, char **argv, int childX, int childY)
 	  {
 	    ElementTypePtr element;
 	    void *ptrtmp;
+	    int x, y;
 
+	    gui->get_coords ("Click on an element", &x, &y);
 	    if ((SearchScreen
-		 (Crosshair.X, Crosshair.Y, ELEMENT_TYPE, &ptrtmp,
+		 (x, y, ELEMENT_TYPE, &ptrtmp,
 		  &ptrtmp, &ptrtmp)) != NO_TYPE)
 	      {
 		element = (ElementTypePtr) ptrtmp;
