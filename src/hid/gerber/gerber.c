@@ -801,9 +801,6 @@ static void
 gerber_draw_line (hidGC gc, int x1, int y1, int x2, int y2)
 {
   Boolean m = False;
-  use_gc (gc, 0);
-  if (!f)
-    return;
 
   if (x1 != x2 && y1 != y2 && gc->cap == Square_Cap)
     {
@@ -826,6 +823,10 @@ gerber_draw_line (hidGC gc, int x1, int y1, int x2, int y2)
       gerber_fill_polygon (gc, 5, x, y);
       return;
     }
+
+  use_gc (gc, 0);
+  if (!f)
+    return;
 
   if (x1 != lastX)
     {
