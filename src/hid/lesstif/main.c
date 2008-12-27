@@ -3314,7 +3314,6 @@ lesstif_draw_arc (hidGC gc, int cx, int cy, int width, int height,
   height = Vz (height);
   cx = Vx (cx) - width;
   cy = Vy (cy) - height;
-  start_angle = (start_angle + 360 + 180) % 360 - 180;
   if (flip_x)
     {
       start_angle = 180 - start_angle;
@@ -3325,6 +3324,7 @@ lesstif_draw_arc (hidGC gc, int cx, int cy, int width, int height,
       start_angle = - start_angle;
       delta_angle = - delta_angle;					
     }
+  start_angle = (start_angle + 360 + 180) % 360 - 180;
 #if 0
   printf (" = %d,%d %dx%d %d %s\n", cx, cy, width, height, gc->width,
 	  gc->colorname);

@@ -906,9 +906,6 @@ ghid_draw_arc (hidGC gc, int cx, int cy,
   vrx = Vz (xradius);
   vry = Vz (yradius);
 
-
-  /* make sure we fall in the -180 to +180 range */
-  start_angle = (start_angle + 360 + 180) % 360 - 180;
   if (ghid_flip_x)
     {
       start_angle = 180 - start_angle;
@@ -919,6 +916,8 @@ ghid_draw_arc (hidGC gc, int cx, int cy,
       start_angle = - start_angle;
       delta_angle = - delta_angle;					
     }
+  /* make sure we fall in the -180 to +180 range */
+  start_angle = (start_angle + 360 + 180) % 360 - 180;
 
   gdk_draw_arc (gport->drawable, gport->u_gc, 0,
 		Vx (cx) - vrx, Vy (cy) - vry,
