@@ -156,6 +156,8 @@ extern "C"
   typedef struct
   {
     char *name;
+    /* If the help_text is this, usage() won't show this option */
+#define ATTR_UNDOCUMENTED ((char *)(1))
     char *help_text;
     enum
     { HID_Label, HID_Integer, HID_Real, HID_String,

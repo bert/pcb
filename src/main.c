@@ -147,6 +147,10 @@ usage_attr (HID_Attribute * a)
 {
   int i;
   static char buf[200];
+
+  if (a->help_text == ATTR_UNDOCUMENTED)
+    return;
+
   switch (a->type)
     {
     case HID_Label:
