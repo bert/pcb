@@ -1023,7 +1023,7 @@ arc_1.7_format
 			/* x, y, width, height, thickness, clearance, startangle, delta, flags */
 		: T_ARC '(' NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER ')'
 			{
-				CreateNewArcOnLayer(Layer, $3*100, $4*100, $4*100, $5*100, $9, $10,
+				CreateNewArcOnLayer(Layer, $3*100, $4*100, $5*100, $6*100, $9, $10,
 						    $7*100, $8*100, OldFlags($11));
 			}
 		;
