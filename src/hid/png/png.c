@@ -98,7 +98,7 @@ static int lastcolor = -1;
 static int print_group[MAX_LAYER];
 static int print_layer[MAX_LAYER];
 
-/* For ben-mode we need the following layers as monochrome masks:
+/* For photo-mode we need the following layers as monochrome masks:
 
    top soldermask
    top silk
@@ -106,13 +106,13 @@ static int print_layer[MAX_LAYER];
    drill
 */
 
-#define BEN_FLIP_X	1
-#define BEN_FLIP_Y	2
+#define PHOTO_FLIP_X	1
+#define PHOTO_FLIP_Y	2
 
-static int ben_mode, ben_flip;
-static gdImagePtr ben_copper[MAX_LAYER+2];
-static gdImagePtr ben_silk, ben_mask, ben_drill, *ben_im;
-static int ben_groups[MAX_LAYER+2], ben_ngroups;
+static int photo_mode, photo_flip;
+static gdImagePtr photo_copper[MAX_LAYER+2];
+static gdImagePtr photo_silk, photo_mask, photo_drill, *photo_im;
+static int photo_groups[MAX_LAYER+2], photo_ngroups;
 
 #define FMT_gif "GIF"
 #define FMT_jpg "JPEG"
@@ -176,15 +176,27 @@ HID_Attribute png_attribute_list[] = {
    HID_Enum, 0, 0, {2, 0, 0}, filetypes, 0},
 #define HA_filetype 9
 
-  {"ben-mode", "Ben Jackson mode",
+  {"photo-mode", "Photo-realistic mode",
+   HID_Boolean, 0, 0, {0, 0, 0}, 0, 0},
+#define HA_photo_mode 10
+
+  {"photo-flip-x", "Show reverse side of the board, left-right flip",
+   HID_Boolean, 0, 0, {0, 0, 0}, 0, 0},
+#define HA_photo_flip_x 11
+
+  {"photo-flip-y", "Show reverse side of the board, up-down flip",
+   HID_Boolean, 0, 0, {0, 0, 0}, 0, 0},
+#define HA_photo_flip_y 12
+
+  {"ben-mode", ATTR_UNDOCUMENTED,
    HID_Boolean, 0, 0, {0, 0, 0}, 0, 0},
 #define HA_ben_mode 10
 
-  {"ben-flip-x", "Show reverse side of the board, left-right flip",
+  {"ben-flip-x", ATTR_UNDOCUMENTED,
    HID_Boolean, 0, 0, {0, 0, 0}, 0, 0},
 #define HA_ben_flip_x 11
 
-  {"ben-flip-y", "Show reverse side of the board, up-down flip",
+  {"ben-flip-y", ATTR_UNDOCUMENTED,
    HID_Boolean, 0, 0, {0, 0, 0}, 0, 0},
 #define HA_ben_flip_y 12
 };
@@ -307,24 +319,24 @@ png_hid_export_to_file (FILE * the_file, HID_Attr_Val * options)
       CLEAR_FLAG(THINDRAWFLAG, PCB);
       CLEAR_FLAG(THINDRAWPOLYFLAG, PCB);
 
-      if (ben_mode)
+      if (photo_mode)
 	{
 	  int i, n=0;
 	  if (comp_layer < solder_layer)
 	    for (i = comp_layer; i <= solder_layer; i++)
-	      ben_groups[n++] = i;
+	      photo_groups[n++] = i;
 	  else
 	    for (i = comp_layer; i >= solder_layer; i--)
-	      ben_groups[n++] = i;
-	  ben_ngroups = n;
+	      photo_groups[n++] = i;
+	  photo_ngroups = n;
 
-	  if (ben_flip)
+	  if (photo_flip)
 	    {
-	      for (i=0, n=ben_ngroups-1; i<n; i++, n--)
+	      for (i=0, n=photo_ngroups-1; i<n; i++, n--)
 		{
-		  int tmp = ben_groups[i];
-		  ben_groups[i] = ben_groups[n];
-		  ben_groups[n] = tmp;
+		  int tmp = photo_groups[i];
+		  photo_groups[i] = photo_groups[n];
+		  photo_groups[n] = tmp;
 		}
 	    }
 	}
@@ -456,23 +468,26 @@ png_do_export (HID_Attr_Val * options)
       options = png_values;
     }
 
-  if (options[HA_ben_mode].int_value)
+  if (options[HA_photo_mode].int_value
+      || options[HA_ben_mode].int_value)
     {
-      ben_mode = 1;
+      photo_mode = 1;
       options[HA_mono].int_value = 1;
       options[HA_as_shown].int_value = 0;
       options[HA_only_visible].int_value = 0;
-      memset (ben_copper, 0, sizeof(ben_copper));
-      ben_silk = ben_mask = ben_drill = 0;
-      if (options[HA_ben_flip_x].int_value)
-	ben_flip = BEN_FLIP_X;
-      else if (options[HA_ben_flip_y].int_value)
-	ben_flip = BEN_FLIP_Y;
+      memset (photo_copper, 0, sizeof(photo_copper));
+      photo_silk = photo_mask = photo_drill = 0;
+      if (options[HA_photo_flip_x].int_value
+	  || options[HA_ben_flip_x].int_value)
+	photo_flip = PHOTO_FLIP_X;
+      else if (options[HA_photo_flip_y].int_value
+	       || options[HA_ben_flip_y].int_value)
+	photo_flip = PHOTO_FLIP_Y;
       else
-	ben_flip = 0;
+	photo_flip = 0;
     }
   else
-    ben_mode = 0;
+    photo_mode = 0;
 
   filename = options[HA_pngfile].str_value;
   if (!filename)
@@ -609,7 +624,7 @@ png_do_export (HID_Attr_Val * options)
   if (!options[HA_as_shown].int_value)
     hid_restore_layer_ons (save_ons);
 
-  if (ben_mode)
+  if (photo_mode)
     {
       int x, y;
       color_struct white, black, fr4;
@@ -620,9 +635,9 @@ png_do_export (HID_Attr_Val * options)
 
       im = master_im;
 
-      ts_bs (ben_copper[ben_groups[0]]);
-      ts_bs (ben_silk);
-      ts_bs_sm (ben_mask);
+      ts_bs (photo_copper[photo_groups[0]]);
+      ts_bs (photo_silk);
+      ts_bs_sm (photo_mask);
 
       for (x=0; x<gdImageSX (im); x++)
 	for (y=0; y<gdImageSY (im); y++)
@@ -630,18 +645,18 @@ png_do_export (HID_Attr_Val * options)
 	    color_struct p, cop;
 	    int cc, mask, silk;
 
-	    mask = ben_mask ? gdImageGetPixel (ben_mask, x, y) : 0;
-	    silk = ben_silk ? gdImageGetPixel (ben_silk, x, y) : 0;
+	    mask = photo_mask ? gdImageGetPixel (photo_mask, x, y) : 0;
+	    silk = photo_silk ? gdImageGetPixel (photo_silk, x, y) : 0;
 
-	    if (gdImageGetPixel (ben_copper[ben_groups[1]], x, y))
+	    if (gdImageGetPixel (photo_copper[photo_groups[1]], x, y))
 	      rgb (&cop, 40, 40, 40);
 	    else
 	      rgb (&cop, 100, 100, 110);
 
-	    if (ben_ngroups == 2)
+	    if (photo_ngroups == 2)
 	      blend (&cop, 0.3, &cop, &fr4);
 
-	    cc = gdImageGetPixel (ben_copper[ben_groups[0]], x, y);
+	    cc = gdImageGetPixel (photo_copper[photo_groups[0]], x, y);
 	    if (cc)
 	      {
 		int r;
@@ -673,7 +688,7 @@ png_do_export (HID_Attr_Val * options)
 		  }
 	      }
 
-	    if (ben_drill && !gdImageGetPixel (ben_drill, x, y))
+	    if (photo_drill && !gdImageGetPixel (photo_drill, x, y))
 	      rgb (&p, 0, 0, 0);
 	    else if (silk)
 	      {
@@ -698,9 +713,9 @@ png_do_export (HID_Attr_Val * options)
 	      p = cop;
 
 	    cc = gdImageColorResolve (im, p.r, p.g, p.b);
-	    if (ben_flip == BEN_FLIP_X)
+	    if (photo_flip == PHOTO_FLIP_X)
 	      gdImageSetPixel (im, gdImageSX (im) - x - 1, y, cc);
-	    else if (ben_flip == BEN_FLIP_Y)
+	    else if (photo_flip == PHOTO_FLIP_Y)
 	      gdImageSetPixel (im, x, gdImageSY (im) - y - 1, cc);
 	    else
 	      gdImageSetPixel (im, x, y, cc);
@@ -784,63 +799,63 @@ png_set_layer (const char *name, int group)
   if (SL_TYPE (idx) == SL_PASTE)
     return 0;
 
-  if (ben_mode)
+  if (photo_mode)
     {
       switch (idx)
 	{
 	case SL (SILK, TOP):
-	  if (ben_flip)
+	  if (photo_flip)
 	    return 0;
-	  ben_im = &ben_silk;
+	  photo_im = &photo_silk;
 	  break;
 	case SL (SILK, BOTTOM):
-	  if (!ben_flip)
+	  if (!photo_flip)
 	    return 0;
-	  ben_im = &ben_silk;
+	  photo_im = &photo_silk;
 	  break;
 
 	case SL (MASK, TOP):
-	  if (ben_flip)
+	  if (photo_flip)
 	    return 0;
-	  ben_im = &ben_mask;
+	  photo_im = &photo_mask;
 	  break;
 	case SL (MASK, BOTTOM):
-	  if (!ben_flip)
+	  if (!photo_flip)
 	    return 0;
-	  ben_im = &ben_mask;
+	  photo_im = &photo_mask;
 	  break;
 
 	case SL (PDRILL, 0):
 	case SL (UDRILL, 0):
-	  ben_im = &ben_drill;
+	  photo_im = &photo_drill;
 	  break;
 
 	default:
 	  if (idx < 0)
 	    return 0;
-	  ben_im = ben_copper + group;
+	  photo_im = photo_copper + group;
 	  break;
 	}
 
-      if (! *ben_im)
+      if (! *photo_im)
 	{
 	  static color_struct *black = NULL, *white = NULL;
-	  *ben_im = gdImageCreate (gdImageSX (im), gdImageSY (im));
+	  *photo_im = gdImageCreate (gdImageSX (im), gdImageSY (im));
 
 	  white = (color_struct *) malloc (sizeof (color_struct));
 	  white->r = white->g = white->b = 255;
 	  white->a = 0;
-	  white->c = gdImageColorAllocate (*ben_im, white->r, white->g, white->b);
+	  white->c = gdImageColorAllocate (*photo_im, white->r, white->g, white->b);
 
 	  black = (color_struct *) malloc (sizeof (color_struct));
 	  black->r = black->g = black->b = black->a = 0;
-	  black->c = gdImageColorAllocate (*ben_im, black->r, black->g, black->b);
+	  black->c = gdImageColorAllocate (*photo_im, black->r, black->g, black->b);
 
 	  if (idx == SL (PDRILL, 0)
 	      || idx == SL (UDRILL, 0))
-	    gdImageFilledRectangle (*ben_im, 0, 0, gdImageSX (im), gdImageSY (im), black->c);
+	    gdImageFilledRectangle (*photo_im, 0, 0, gdImageSX (im), gdImageSY (im), black->c);
 	}
-      im = *ben_im;
+      im = *photo_im;
       return 1;
     }
 
