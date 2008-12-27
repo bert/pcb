@@ -377,9 +377,9 @@ PrintAssembly (const BoxType * drawn_area, int side_group, int swap_ident)
   gui->set_draw_faded (Output.fgGC, 0);
 
   /* draw package */
-  r_search (PCB->Data->element_tree, drawn_area, NULL, frontE_callback, NULL);
-  r_search (PCB->Data->name_tree[NAME_INDEX (PCB)], drawn_area, NULL,
-	    frontN_callback, NULL);
+  DrawSilk (swap_ident,
+	    swap_ident ? SOLDER_LAYER : COMPONENT_LAYER,
+	    drawn_area);
   SWAP_IDENT = save_swap;
 }
 
