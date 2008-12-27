@@ -145,6 +145,8 @@ static ConfigAttribute config_attributes[] = {
   {"shrink", CONFIG_Unused, NULL},
   {"min-width", CONFIG_Unused, NULL},
   {"min-silk", CONFIG_Unused, NULL},
+  {"min-drill", CONFIG_Unused, NULL},
+  {"min-ring", CONFIG_Unused, NULL},
   {"default-PCB-width", CONFIG_Unused, NULL},
   {"default-PCB-height", CONFIG_Unused, NULL},
 
@@ -2114,10 +2116,10 @@ config_close_cb (gpointer data)
   /* Config pages may need to check for modified entries, use as default
      |  options, etc when the config window is closed.
    */
-  config_general_apply ();
   config_sizes_apply ();
   config_layers_apply ();
   config_library_apply ();
+  config_general_apply ();
 
   config_sizes_vbox = NULL;
   config_increments_vbox = NULL;
