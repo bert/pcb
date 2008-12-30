@@ -27,6 +27,51 @@
  */
 
 
+/*
+
+Here's a brief tour of the data and life of a polygon, courtesy of Ben
+Jackson:
+
+A PCB PolygonType contains an array of points outlining the polygon.
+This is what is manipulated by the UI and stored in the saved PCB.
+
+A PolygonType also contains a POLYAREA called 'Clipped' which is
+computed dynamically by InitClip every time a board is loaded.  The
+point array is coverted to a POLYAREA by original_poly and then holes
+are cut in it by clearPoly.  After that it is maintained dynamically
+as parts are added, moved or removed (this is why sometimes bugs can
+be fixed by just re-loading the board).
+
+A POLYAREA consists of a linked list of PLINE structures.  The head of
+that list is POLYAREA.contours.  The first contour is an outline of a
+filled region.  All of the subsequent PLINEs are holes cut out of that
+first contour.  POLYAREAs are in a doubly-linked list and each member
+of the list is an independent (non-overlapping) area with its own
+outline and holes.  The function biggest() finds the largest POLYAREA
+so that PolygonType.Clipped points to that shape.  The rest of the
+polygon still exists, it's just ignored when turning the polygon into
+copper.
+
+The first POLYAREA in PolygonType.Clipped is what is used for the vast
+majority of Polygon related tests.  The basic logic for an
+intersection is "is the target shape inside POLYAREA.contours and NOT
+fully enclosed in any of POLYAREA.contours.next... (the holes)".
+
+The polygon dicer (NoHolesPolygonDicer and r_NoHolesPolygonDicer)
+emits a series of PolygonTypes with Clipped pointing to a "simple"
+shape.  That is, there is a single POLYAREA (the dlink pointers point
+to itself) and the contours list has only one element (the solid
+outline, with no "holes" oulines).  That's the meaning of the first
+test in r_NoHolesPolygonDicer.  It is testing to see if the PLINE
+contour (the first, making it a solid outline) has a valid next
+pointer (which would point to one or more holes).  The dicer works by
+recursively chopping the polygon in half through the first hole it
+sees (which is guaranteed to eliminate at least that one hole).  The
+dicer output is used for HIDs which cannot render things with holes
+(which would require erasure).
+
+*/
+
 /* special polygon editing routines
  */
 
@@ -1596,4 +1641,47 @@ MorphPolygon (LayerTypePtr layer, PolygonTypePtr poly)
   inhibit = False;
   IncrementUndoSerialNumber ();
   return many;
+}
+
+void debug_pline (PLINE *pl)
+{
+  VNODE *v;
+  fprintf (stderr, "\txmin %d xmax %d ymin %d ymax %d\n",
+	   pl->xmin, pl->xmax, pl->ymin, pl->ymax);
+  v = &pl->head;
+  while (v)
+    {
+      fprintf(stderr, "\t\tvnode: %d,%d\n", v->point[0], v->point[1]);
+      v = v->next;
+      if (v == &pl->head)
+	break;
+    }
+}
+
+void
+debug_polyarea (POLYAREA *p)
+{
+  PLINE *pl;
+
+  fprintf (stderr, "POLYAREA %p\n", p);
+  for (pl=p->contours; pl; pl=pl->next)
+    debug_pline (pl);
+}
+
+void
+debug_polygon (PolygonType *p)
+{
+  int i;
+  POLYAREA *pa;
+  fprintf (stderr, "POLYGON %p  %d pts\n", p, p->PointN);
+  for (i=0; i<p->PointN; i++)
+    fprintf(stderr, "\t%d: %d, %d\n", i, p->Points[i].X, p->Points[i].Y);
+  pa = p->Clipped;
+  while (pa)
+    {
+      debug_polyarea (pa);
+      pa = pa->f;
+      if (pa == p->Clipped)
+	break;
+    }
 }
