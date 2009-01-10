@@ -112,6 +112,7 @@ static int print_layer[MAX_LAYER];
 static int photo_mode, photo_flip;
 static gdImagePtr photo_copper[MAX_LAYER+2];
 static gdImagePtr photo_silk, photo_mask, photo_drill, *photo_im;
+static gdImagePtr photo_outline;
 static int photo_groups[MAX_LAYER+2], photo_ngroups;
 
 #define FMT_gif "GIF"
@@ -477,6 +478,7 @@ png_do_export (HID_Attr_Val * options)
       options[HA_only_visible].int_value = 0;
       memset (photo_copper, 0, sizeof(photo_copper));
       photo_silk = photo_mask = photo_drill = 0;
+      photo_outline = 0;
       if (options[HA_photo_flip_x].int_value
 	  || options[HA_ben_flip_x].int_value)
 	photo_flip = PHOTO_FLIP_X;
@@ -639,87 +641,114 @@ png_do_export (HID_Attr_Val * options)
       ts_bs (photo_silk);
       ts_bs_sm (photo_mask);
 
-      for (x=0; x<gdImageSX (im); x++)
-	for (y=0; y<gdImageSY (im); y++)
-	  {
-	    color_struct p, cop;
-	    int cc, mask, silk;
+      if (photo_outline)
+	gdImageFill(photo_outline, 0, 0, 
+		    gdImageColorResolve(photo_outline, 0x00, 0x00, 0x00));
 
-	    mask = photo_mask ? gdImageGetPixel (photo_mask, x, y) : 0;
-	    silk = photo_silk ? gdImageGetPixel (photo_silk, x, y) : 0;
+      for (x=0; x<gdImageSX (im); x++) 
+	{
+	  for (y=0; y<gdImageSY (im); y++)
+	    {
+	      color_struct p, cop;
+	      int cc, mask, silk;
+	      int transparent;
+	     
+	      if (photo_outline) {
+		transparent=gdImageGetPixel(photo_outline, x, y);	      
+	      } else {
+		transparent=0;
+	      }
 
-	    if (gdImageGetPixel (photo_copper[photo_groups[1]], x, y))
-	      rgb (&cop, 40, 40, 40);
-	    else
-	      rgb (&cop, 100, 100, 110);
+	      mask = photo_mask ? gdImageGetPixel (photo_mask, x, y) : 0;
+	      silk = photo_silk ? gdImageGetPixel (photo_silk, x, y) : 0;
 
-	    if (photo_ngroups == 2)
-	      blend (&cop, 0.3, &cop, &fr4);
+	      if (gdImageGetPixel (photo_copper[photo_groups[1]], x, y))
+		rgb (&cop, 40, 40, 40);
+	      else
+		rgb (&cop, 100, 100, 110);
 
-	    cc = gdImageGetPixel (photo_copper[photo_groups[0]], x, y);
-	    if (cc)
-	      {
-		int r;
-
-		if (mask)
-		  rgb (&cop, 220, 145, 230);
-		else
-		  {
-		    rgb (&cop, 140, 150, 160);
+	      if (photo_ngroups == 2)
+		blend (&cop, 0.3, &cop, &fr4);
+	      
+	      cc = gdImageGetPixel (photo_copper[photo_groups[0]], x, y);
+	      if (cc)
+		{
+		  int r;
+		  
+		  if (mask)
+		    rgb (&cop, 220, 145, 230);
+		  else
+		    {
+		      rgb (&cop, 140, 150, 160);
 #if 1
-		    r = (random() % 5 - 2) * 2;
-		    cop.r += r;
-		    cop.g += r;
-		    cop.b += r;
+		      r = (random() % 5 - 2) * 2;
+		      cop.r += r;
+		      cop.g += r;
+		      cop.b += r;
 #endif
-		  }
+		    }
+		  
+		  if (cc == TOP_SHADOW)
+		    {
+		      cop.r = 255 - (255 - cop.r) * 0.7;
+		      cop.g = 255 - (255 - cop.g) * 0.7;
+		      cop.b = 255 - (255 - cop.b) * 0.7;
+		    }
+		  if (cc == BOTTOM_SHADOW)
+		    {
+		      cop.r *= 0.7;
+		      cop.g *= 0.7;
+		      cop.b *= 0.7;
+		    }
+		}
 
-		if (cc == TOP_SHADOW)
-		  {
-		    cop.r = 255 - (255 - cop.r) * 0.7;
-		    cop.g = 255 - (255 - cop.g) * 0.7;
-		    cop.b = 255 - (255 - cop.b) * 0.7;
-		  }
-		if (cc == BOTTOM_SHADOW)
-		  {
-		    cop.r *= 0.7;
-		    cop.g *= 0.7;
-		    cop.b *= 0.7;
-		  }
-	      }
-
-	    if (photo_drill && !gdImageGetPixel (photo_drill, x, y))
-	      rgb (&p, 0, 0, 0);
-	    else if (silk)
-	      {
-		if (silk == TOP_SHADOW)
-		  rgb (&p, 255, 255, 255);
-		else if (silk == BOTTOM_SHADOW)
-		  rgb (&p, 192, 192, 192);
-		else
-		  rgb (&p, 224, 224, 224);
-	      }
-	    else if (mask)
-	      {
+	      if (photo_drill && !gdImageGetPixel (photo_drill, x, y)) 
+		{		
+		  rgb (&p, 0, 0, 0);
+		  transparent=1;
+		}
+	      else if (silk)
+		{
+		  if (silk == TOP_SHADOW)
+		    rgb (&p, 255, 255, 255);
+		  else if (silk == BOTTOM_SHADOW)
+		    rgb (&p, 192, 192, 192);
+		  else
+		    rgb (&p, 224, 224, 224);
+		}
+	      else if (mask)
+		{
+		  p = cop;
+		  p.r /= 2;
+		  p.b /= 2;
+		  if (mask == TOP_SHADOW)
+		    blend (&p, 0.7, &p, &white);
+		  if (mask == BOTTOM_SHADOW)
+		    blend (&p, 0.7, &p, &black);
+		}
+	      else
 		p = cop;
-		p.r /= 2;
-		p.b /= 2;
-		if (mask == TOP_SHADOW)
-		  blend (&p, 0.7, &p, &white);
-		if (mask == BOTTOM_SHADOW)
-		  blend (&p, 0.7, &p, &black);
-	      }
-	    else
-	      p = cop;
+	      
+	      if (options[HA_use_alpha].int_value) {
 
-	    cc = gdImageColorResolve (im, p.r, p.g, p.b);
-	    if (photo_flip == PHOTO_FLIP_X)
-	      gdImageSetPixel (im, gdImageSX (im) - x - 1, y, cc);
-	    else if (photo_flip == PHOTO_FLIP_Y)
-	      gdImageSetPixel (im, x, gdImageSY (im) - y - 1, cc);
-	    else
-	      gdImageSetPixel (im, x, y, cc);
-	  }
+		cc = (transparent)?\
+		  gdImageColorResolveAlpha(im, 0, 0, 0, 127):\
+		  gdImageColorResolveAlpha(im, p.r, p.g, p.b, 0);
+
+	      } else {
+		cc = (transparent)?\
+		  gdImageColorResolve(im, 0, 0, 0):\
+		  gdImageColorResolve(im, p.r, p.g, p.b);
+	      }		  
+
+	      if (photo_flip == PHOTO_FLIP_X)
+		gdImageSetPixel (im, gdImageSX (im) - x - 1, y, cc);
+	      else if (photo_flip == PHOTO_FLIP_Y)
+		gdImageSetPixel (im, x, gdImageSY (im) - y - 1, cc);
+	      else
+		gdImageSetPixel (im, x, y, cc);
+	    }
+	}
     }
 
   /* actually write out the image */
@@ -833,7 +862,12 @@ png_set_layer (const char *name, int group, int empty)
 	default:
 	  if (idx < 0)
 	    return 0;
-	  photo_im = photo_copper + group;
+
+	  if (strcasecmp (name, "outline") == 0)
+	    photo_im = &photo_outline;
+	  else
+	    photo_im = photo_copper + group;
+
 	  break;
 	}
 
@@ -1052,7 +1086,7 @@ use_gc (hidGC gc)
 	  bg = gdImageColorAllocate (gc->brush, 255, 255, 255);
 	  fg =
 	    gdImageColorAllocateAlpha (gc->brush, gc->color->r, gc->color->g,
-				  gc->color->b, gc->color->a);
+				       gc->color->b, 0); 
 	  gdImageColorTransparent (gc->brush, bg);
 
 	  /*
