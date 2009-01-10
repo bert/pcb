@@ -289,7 +289,7 @@ png_hid_export_to_file (FILE * the_file, HID_Attr_Val * options)
   region.Y2 = PCB->MaxHeight;
 
   if (options[HA_only_visible].int_value)
-    bounds = GetDataBoundingBox (PCB->Data);
+    bounds = GetDataBoundingBox (PCB->Data);    
   else
     bounds = &region;
 
@@ -475,7 +475,6 @@ png_do_export (HID_Attr_Val * options)
       photo_mode = 1;
       options[HA_mono].int_value = 1;
       options[HA_as_shown].int_value = 0;
-      options[HA_only_visible].int_value = 0;
       memset (photo_copper, 0, sizeof(photo_copper));
       photo_silk = photo_mask = photo_drill = 0;
       photo_outline = 0;
@@ -641,9 +640,21 @@ png_do_export (HID_Attr_Val * options)
       ts_bs (photo_silk);
       ts_bs_sm (photo_mask);
 
-      if (photo_outline)
-	gdImageFill(photo_outline, 0, 0, 
-		    gdImageColorResolve(photo_outline, 0x00, 0x00, 0x00));
+      if (photo_outline) {
+	int black=gdImageColorResolve(photo_outline, 0x00, 0x00, 0x00);
+
+	// go all the way around the image, trying to fill the outline
+	for (x=0; x<gdImageSX(im); x++) {
+	  gdImageFillToBorder(photo_outline, x, 0, black, black);
+	  gdImageFillToBorder(photo_outline, x, gdImageSY(im)-1, black, black);
+	}
+	for (y=1; y<gdImageSY(im)-1; y++) {
+	  gdImageFillToBorder(photo_outline, 0, y, black, black);
+	  gdImageFillToBorder(photo_outline, gdImageSX(im)-1, y, black, black);
+
+	}
+      }
+
 
       for (x=0; x<gdImageSX (im); x++) 
 	{
