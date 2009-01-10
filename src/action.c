@@ -776,7 +776,7 @@ GetFunctionID (String Ident)
 	return (-1);
       if (!strcasecmp (Ident, Functions[function_hash[i]-1].Identifier))
 	return ((int) Functions[function_hash[i]-1].ID);
-      i ++;
+      i = (i + 1) % HSIZE;
     }
 }
 
