@@ -297,7 +297,7 @@ enum
   N_NET_COLUMNS
 };
 
-static GtkTreeModel *net_model;
+static GtkTreeModel *net_model = NULL;
 static GtkTreeView *net_treeview;
 
 static gboolean		loading_new_netlist;
@@ -862,6 +862,10 @@ ghid_get_net_from_node_name (gchar * node_name, gboolean enabled_only)
 
   while (gtk_events_pending ())	/* Make sure everything gets built */
     gtk_main_iteration ();
+
+  /* If no netlist is loaded the window doesn't appear. */
+  if (netlist_window == NULL)
+    return;
 
   task.enabled_only = enabled_only;
   task.node_name = node_name;
