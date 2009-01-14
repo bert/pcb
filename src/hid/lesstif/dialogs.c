@@ -111,7 +111,7 @@ called with that filename.
 static int
 Load (int argc, char **argv, int x, int y)
 {
-  char *function;
+  const char *function;
   char *name;
   XmString xmname, pattern;
 
@@ -230,7 +230,7 @@ called with that filename.
 static int
 Save (int argc, char **argv, int x, int y)
 {
-  char *function;
+  const char *function;
   char *name;
   XmString xmname, pattern;
 
@@ -658,12 +658,16 @@ lesstif_attribute_dialog (HID_Attribute * attrs,
   Widget *wl;
   int i, rv;
   static XmString empty = 0;
+  int actual_nattrs = 0;
+  int attrcount = 0;
 
   if (!empty)
     empty = XmStringCreateLocalized (" ");
 
   for (i = 0; i < n_attrs; i++)
     {
+      if (attrs[i].help_text != ATTR_UNDOCUMENTED)
+	actual_nattrs ++;
       results[i] = attrs[i].default_val;
       if (results[i].str_value)
 	results[i].str_value = strdup (results[i].str_value);
@@ -682,7 +686,7 @@ lesstif_attribute_dialog (HID_Attribute * attrs,
   stdarg (XmNtopAttachment, XmATTACH_FORM);
   stdarg (XmNbottomAttachment, XmATTACH_FORM);
   stdarg (XmNleftAttachment, XmATTACH_FORM);
-  stdarg (XmNfractionBase, n_attrs);
+  stdarg (XmNfractionBase, actual_nattrs);
   lform = XmCreateForm (topform, "attributes", args, n);
   XtManageChild (lform);
 
@@ -692,36 +696,47 @@ lesstif_attribute_dialog (HID_Attribute * attrs,
   stdarg (XmNleftAttachment, XmATTACH_WIDGET);
   stdarg (XmNleftWidget, lform);
   stdarg (XmNrightAttachment, XmATTACH_FORM);
-  stdarg (XmNfractionBase, n_attrs);
+  stdarg (XmNfractionBase, actual_nattrs);
   form = XmCreateForm (topform, "attributes", args, n);
   XtManageChild (form);
 
+  attrcount = -1;
   for (i = 0; i < n_attrs; i++)
     {
       Widget w;
+
+      if (attrs[i].help_text == ATTR_UNDOCUMENTED)
+	continue;
+      attrcount ++;
 
       n = 0;
       stdarg (XmNleftAttachment, XmATTACH_FORM);
       stdarg (XmNrightAttachment, XmATTACH_FORM);
       stdarg (XmNtopAttachment, XmATTACH_POSITION);
-      stdarg (XmNtopPosition, i);
+      stdarg (XmNtopPosition, attrcount);
       stdarg (XmNbottomAttachment, XmATTACH_POSITION);
-      stdarg (XmNbottomPosition, i + 1);
+      stdarg (XmNbottomPosition, attrcount + 1);
       stdarg (XmNalignment, XmALIGNMENT_END);
       w = XmCreateLabel (lform, attrs[i].name, args, n);
       XtManageChild (w);
     }
 
+  attrcount = -1;
   for (i = 0; i < n_attrs; i++)
     {
       static char buf[30];
       n = 0;
+
+      if (attrs[i].help_text == ATTR_UNDOCUMENTED)
+	continue;
+      attrcount ++;
+
       stdarg (XmNleftAttachment, XmATTACH_FORM);
       stdarg (XmNrightAttachment, XmATTACH_FORM);
       stdarg (XmNtopAttachment, XmATTACH_POSITION);
-      stdarg (XmNtopPosition, i);
+      stdarg (XmNtopPosition, attrcount);
       stdarg (XmNbottomAttachment, XmATTACH_POSITION);
-      stdarg (XmNbottomPosition, i + 1);
+      stdarg (XmNbottomPosition, attrcount + 1);
       stdarg (XmNalignment, XmALIGNMENT_END);
 
       switch (attrs[i].type)
@@ -806,6 +821,10 @@ lesstif_attribute_dialog (HID_Attribute * attrs,
   for (i = 0; i < n_attrs; i++)
     {
       char *cp;
+
+      if (attrs[i].help_text == ATTR_UNDOCUMENTED)
+	continue;
+
       switch (attrs[i].type)
 	{
 	case HID_Boolean:
