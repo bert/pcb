@@ -131,6 +131,8 @@ ghid_attribute_dialog (HID_Attribute * attrs,
    */
   for (j = 0; j < n_attrs; j++)
     {
+      if (attrs[j].help_text == ATTR_UNDOCUMENTED)
+	continue;
       switch (attrs[j].type)
 	{
 	case HID_Label:
