@@ -512,24 +512,11 @@ GatherSubnets (NetListTypePtr Netl, Boolean NoWarn, Boolean AndRats)
 	  }
       }
       ENDALL_LOOP;
-      /* add rectangular polygons so the auto-router can see them as targets */
-      /* NB: code in DrawShortestRats below relies on only rectangular polys */
+      /* add polygons so the auto-router can see them as targets */
       ALLPOLYGON_LOOP (PCB->Data);
       {
-	if (TEST_FLAG (DRCFLAG, polygon) && polygon->PointN == 4)
+	if (TEST_FLAG (DRCFLAG, polygon))
 	  {
-	    if (polygon->Points[0].X != polygon->Points[1].X &&
-		polygon->Points[0].Y != polygon->Points[1].Y)
-	      continue;
-	    if (polygon->Points[1].X != polygon->Points[2].X &&
-		polygon->Points[1].Y != polygon->Points[2].Y)
-	      continue;
-	    if (polygon->Points[2].X != polygon->Points[3].X &&
-		polygon->Points[2].Y != polygon->Points[3].Y)
-	      continue;
-	    if (polygon->Points[0].X != polygon->Points[3].X &&
-		polygon->Points[0].Y != polygon->Points[3].Y)
-	      continue;
 	    conn = GetConnectionMemory (a);
 	    /* make point on a vertex */
 	    conn->X = polygon->Clipped->contours->head.point[0];
@@ -611,10 +598,9 @@ DrawShortestRats (NetListTypePtr Netl, void (*funcp) ())
 		   */
 		  if (conn1->type == POLYGON_TYPE &&
 		      (polygon = (PolygonTypePtr)conn1->ptr2) &&
-		      IsPointInBox (conn2->X, conn2->Y, (BoxTypePtr)polygon, 0)
-		      && !(distance == 0 &&
-			   firstpoint && firstpoint->type == VIA_TYPE))
-		      // IsPointInPolygon (conn2->X, conn2->Y, 0, polygon))
+		      !(distance == 0 &&
+		        firstpoint && firstpoint->type == VIA_TYPE) &&
+		      IsPointInPolygonIgnoreHoles (conn2->X, conn2->Y, polygon))
 		    {
 		      distance = 0;
 		      firstpoint = conn2;
@@ -623,10 +609,9 @@ DrawShortestRats (NetListTypePtr Netl, void (*funcp) ())
 		    }
 		  else if (conn2->type == POLYGON_TYPE &&
 		      (polygon = (PolygonTypePtr)conn2->ptr2) &&
-		      IsPointInBox (conn1->X, conn1->Y, (BoxTypePtr)polygon, 0)
-		      && !(distance == 0 &&
-			   firstpoint && firstpoint->type == VIA_TYPE))
-		      // IsPointInPolygon (conn1->X, conn1->Y, 0, polygon))
+		      !(distance == 0 &&
+		        firstpoint && firstpoint->type == VIA_TYPE) &&
+		      IsPointInPolygonIgnoreHoles (conn1->X, conn1->Y, polygon))
 		    {
 		      distance = 0;
 		      firstpoint = conn1;

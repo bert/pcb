@@ -57,6 +57,7 @@ void RestoreToPolygon(DataType *, int, void *, void *);
 void ClearFromPolygon(DataType *, int, void *, void *);
 
 Boolean IsPointInPolygon (LocationType, LocationType, BDimension, PolygonTypePtr);
+Boolean IsPointInPolygonIgnoreHoles (LocationType, LocationType, PolygonTypePtr);
 Boolean IsRectangleInPolygon (LocationType, LocationType, LocationType,
 			      LocationType, PolygonTypePtr);
 Boolean isects (POLYAREA *, PolygonTypePtr, Boolean);
