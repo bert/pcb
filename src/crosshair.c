@@ -593,7 +593,7 @@ DrawAttached (Boolean BlockToo)
 	  s = Settings.ViaThickness / 2 + PCB->Bloat + 1;
 	  gui->set_color (Crosshair.GC, Settings.CrossColor);
 	  gui->draw_arc (Crosshair.GC,
-			 Crosshair.X, Crosshair.Y, s, s, 0, 360 * 64);
+			 Crosshair.X, Crosshair.Y, s, s, 0, 360);
 	  gui->set_color (Crosshair.GC, Settings.CrosshairColor);
 	}
       break;
