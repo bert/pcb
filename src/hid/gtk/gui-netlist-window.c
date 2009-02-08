@@ -865,7 +865,7 @@ ghid_get_net_from_node_name (gchar * node_name, gboolean enabled_only)
 
   /* If no netlist is loaded the window doesn't appear. */
   if (netlist_window == NULL)
-    return;
+    return NULL;
 
   task.enabled_only = enabled_only;
   task.node_name = node_name;
