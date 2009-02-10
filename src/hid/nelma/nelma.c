@@ -698,7 +698,7 @@ nelma_do_export(HID_Attr_Val * options)
 /* *** PNG export (slightly modified code from PNG export HID) ************* */
 
 static int 
-nelma_set_layer(const char *name, int group)
+nelma_set_layer(const char *name, int group, int empty)
 {
 	int             idx = (group >= 0 && group < max_layer) ?
 	PCB->LayerGroups.Entries[group][0] : group;
