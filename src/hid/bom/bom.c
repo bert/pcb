@@ -570,6 +570,10 @@ HID bom_hid = {
   0,				/* bom_set_crosshair */
   0,				/* bom_add_timer */
   0,				/* bom_stop_timer */
+  0,				/* bom_watch_file */
+  0,				/* bom_unwatch_file */
+  0,				/* bom_add_block_hook */
+  0,				/* bom_stop_block_hook */
   0,				/* bom_log */
   0,				/* bom_logv */
   0,				/* bom_confirm_dialog */
