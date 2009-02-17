@@ -372,8 +372,8 @@ RoundRect (LocationType x1, LocationType x2, LocationType y1, LocationType y2,
 }
 
 #define ARC_ANGLE 5
-POLYAREA *
-ArcPoly (ArcType * a, BDimension thick)
+static POLYAREA *
+ArcPolyNoIntersect (ArcType * a, BDimension thick)
 {
   PLINE *contour = NULL;
   POLYAREA *np = NULL;
@@ -435,6 +435,37 @@ ArcPoly (ArcType * a, BDimension thick)
   if (!(np = ContourToPoly (contour)))
     return NULL;
   return np;
+}
+
+#define MIN_CLEARANCE_BEFORE_BISECT 10.
+POLYAREA *
+ArcPoly (ArcType * a, BDimension thick)
+{
+  double delta;
+  ArcType seg1, seg2;
+  POLYAREA *tmp1, *tmp2, *res;
+
+  delta = (a->Delta < 0) ? -a->Delta : a->Delta;
+
+  /* If the arc segment would self-intersect, we need to construct it as the union of
+     two non-intersecting segments */
+
+  if (2 * M_PI * a->Width * (1. - (double)delta / 360.) - thick < MIN_CLEARANCE_BEFORE_BISECT)
+    {
+      int half_delta = a->Delta / 2;
+
+      seg1 = seg2 = *a;
+      seg1.Delta = half_delta;
+      seg2.Delta -= half_delta;
+      seg2.StartAngle += half_delta;
+
+      tmp1 = ArcPolyNoIntersect (&seg1, thick);
+      tmp2 = ArcPolyNoIntersect (&seg2, thick);
+      poly_Boolean_free (tmp1, tmp2, &res, PBO_UNITE);
+      return res;
+    }
+
+  return ArcPolyNoIntersect (a, thick);
 }
 
 POLYAREA *
