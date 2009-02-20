@@ -1,5 +1,3 @@
-/* $Id$ */
-
 /*
  *                            COPYRIGHT
  *
@@ -54,14 +52,7 @@
 
 #define TOOLTIP_UPDATE_DELAY 200
 
-RCSID ("$Id$");
-
 static gint x_pan_speed, y_pan_speed;
-
-/* Set to true if cursor is currently in viewport. This is a hack to prevent
- * Crosshair stack corruption due to unmatching window enter / leave events */
-gboolean cursor_in_viewport = false;
-
 void
 ghid_port_ranges_changed (void)
 {
@@ -453,7 +444,6 @@ ghid_port_button_press_cb (GtkWidget * drawing_area,
 			   GdkEventButton * ev, GtkUIManager * ui)
 {
   ModifierKeysState mk;
-  gboolean drag;
   GdkModifierType state;
 
   /* Reject double and triple click events */
@@ -464,7 +454,6 @@ ghid_port_button_press_cb (GtkWidget * drawing_area,
   mk = ghid_modifier_keys_state (&state);
   ghid_show_crosshair (FALSE);
   HideCrosshair (TRUE);
-  drag = have_crosshair_attachments ();
 
   do_mouse_action(ev->button, mk);
 
@@ -484,26 +473,21 @@ ghid_port_button_release_cb (GtkWidget * drawing_area,
 			     GdkEventButton * ev, GtkUIManager * ui)
 {
   ModifierKeysState mk;
-  gboolean drag;
   GdkModifierType state;
 
   ghid_note_event_location (ev);
   state = (GdkModifierType) (ev->state);
   mk = ghid_modifier_keys_state (&state);
 
-  drag = have_crosshair_attachments ();
-  if (drag)
-    HideCrosshair (TRUE);
+  HideCrosshair (TRUE);
 
   do_mouse_action(ev->button, mk + M_Release);
 
-  if (drag)
-    {
-      AdjustAttachedObjects ();
-      ghid_invalidate_all ();
-      RestoreCrosshair (TRUE);
-      ghid_screen_update ();
-    }
+  AdjustAttachedObjects ();
+  ghid_invalidate_all ();
+  RestoreCrosshair (TRUE);
+  ghid_screen_update ();
+
   ghid_window_set_name_label (PCB->Name);
   ghid_set_status_line_label ();
   g_idle_add (ghid_idle_cb, NULL);
@@ -767,13 +751,7 @@ ghid_port_window_enter_cb (GtkWidget * widget,
     {
       ghid_screen_update ();
     }
-
-  if(! cursor_in_viewport)
-    {
-      RestoreCrosshair (TRUE);
-      cursor_in_viewport = TRUE;
-    }
-	  
+  CrosshairOn (TRUE);
   return FALSE;
 }
 
@@ -863,12 +841,6 @@ ghid_port_window_leave_cb (GtkWidget * widget,
 	    }
 	  g_idle_add (ghid_pan_idle_cb, NULL);
 	}
-    }
-
-  if(cursor_in_viewport)
-    {
-      HideCrosshair (TRUE);
-      cursor_in_viewport = FALSE;
     }
 
   ghid_show_crosshair (FALSE);
