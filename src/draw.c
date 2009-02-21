@@ -598,7 +598,7 @@ DrawEMark (ElementTypePtr e, LocationType X, LocationType Y,
   gui->set_color (Output.fgGC,
 		  invisible ? PCB->InvisibleMarkColor : PCB->ElementColor);
   gui->set_line_cap (Output.fgGC, Trace_Cap);
-  gui->set_line_width (Output.fgGC, 1);
+  gui->set_line_width (Output.fgGC, 0);
   gui->draw_line (Output.fgGC, X - mark_size, Y, X, Y - mark_size);
   gui->draw_line (Output.fgGC, X + mark_size, Y, X, Y - mark_size);
   gui->draw_line (Output.fgGC, X - mark_size, Y, X, Y + mark_size);
@@ -988,7 +988,7 @@ DrawSpecialPolygon (HID * hid, hidGC DrawGC,
     {
       int i;
       hid->set_line_cap (Output.fgGC, Round_Cap);
-      hid->set_line_width (Output.fgGC, 1);
+      hid->set_line_width (Output.fgGC, 0);
       polygon_x[8] = X + scaled_x[0];
       polygon_y[8] = Y + scaled_y[0];
       for (i = 0; i < 8; i++)
@@ -1017,7 +1017,7 @@ DrawPinOrViaLowLevel (PinTypePtr Ptr, Boolean drawHole)
 	{
 	  gui->fill_circle (Output.bgGC, Ptr->X, Ptr->Y, Ptr->Thickness / 2);
 	  gui->set_line_cap (Output.fgGC, Round_Cap);
-	  gui->set_line_width (Output.fgGC, 1);
+	  gui->set_line_width (Output.fgGC, 0);
 	  gui->draw_arc (Output.fgGC, Ptr->X, Ptr->Y,
 			 Ptr->Thickness / 2, Ptr->Thickness / 2, 0, 360);
 	}
@@ -1033,7 +1033,7 @@ DrawPinOrViaLowLevel (PinTypePtr Ptr, Boolean drawHole)
       if (TEST_FLAG (THINDRAWFLAG, PCB))
         {
           gui->set_line_cap (Output.fgGC, Round_Cap);
-          gui->set_line_width (Output.fgGC, 1);
+          gui->set_line_width (Output.fgGC, 0);
           gui->draw_line (Output.fgGC, r, t, r, b);
           gui->draw_line (Output.fgGC, l, t, l, b);
           gui->draw_line (Output.fgGC, r, t, l, t);
@@ -1058,7 +1058,7 @@ DrawPinOrViaLowLevel (PinTypePtr Ptr, Boolean drawHole)
       if (TEST_FLAG (THINDRAWFLAG, PCB))
 	{
 	  gui->set_line_cap (Output.fgGC, Round_Cap);
-	  gui->set_line_width (Output.fgGC, 1);
+	  gui->set_line_width (Output.fgGC, 0);
 	  gui->draw_arc (Output.fgGC, Ptr->X, Ptr->Y,
 			 Ptr->Thickness / 2, Ptr->Thickness / 2, 0, 360);
 	}
@@ -1074,7 +1074,7 @@ DrawPinOrViaLowLevel (PinTypePtr Ptr, Boolean drawHole)
       if (TEST_FLAG (THINDRAWFLAG, PCB))
 	{
 	  gui->set_line_cap (Output.fgGC, Round_Cap);
-	  gui->set_line_width (Output.fgGC, 1);
+	  gui->set_line_width (Output.fgGC, 0);
 	  gui->draw_arc (Output.fgGC,
 			 Ptr->X, Ptr->Y, Ptr->DrillingHole / 2,
 			 Ptr->DrillingHole / 2, 0, 360);
@@ -1098,7 +1098,7 @@ DrawHole (PinTypePtr Ptr)
       if (!TEST_FLAG (HOLEFLAG, Ptr))
 	{
 	  gui->set_line_cap (Output.fgGC, Round_Cap);
-	  gui->set_line_width (Output.fgGC, 1);
+	  gui->set_line_width (Output.fgGC, 0);
 	  gui->draw_arc (Output.fgGC,
 			 Ptr->X, Ptr->Y, Ptr->DrillingHole / 2,
 			 Ptr->DrillingHole / 2, 0, 360);
@@ -1118,7 +1118,7 @@ DrawHole (PinTypePtr Ptr)
 	gui->set_color (Output.fgGC, Settings.BlackColor);
 
       gui->set_line_cap (Output.fgGC, Round_Cap);
-      gui->set_line_width (Output.fgGC, 1);
+      gui->set_line_width (Output.fgGC, 0);
       gui->draw_arc (Output.fgGC,
 		     Ptr->X, Ptr->Y, Ptr->DrillingHole / 2,
 		     Ptr->DrillingHole / 2, 0, 360);
@@ -1152,7 +1152,7 @@ ClearOnlyPin (PinTypePtr Pin, Boolean mask)
       if (TEST_FLAG (THINDRAWFLAG, PCB) || TEST_FLAG (THINDRAWPOLYFLAG, PCB))
         {
           gui->set_line_cap (Output.pmGC, Round_Cap);
-          gui->set_line_width (Output.pmGC, 1);
+          gui->set_line_width (Output.pmGC, 0);
           gui->draw_line (Output.pmGC, r, t, r, b);
           gui->draw_line (Output.pmGC, l, t, l, b);
           gui->draw_line (Output.pmGC, r, t, l, t);
@@ -1371,7 +1371,7 @@ DrawPadLowLevel (hidGC gc, PadTypePtr Pad, Boolean clear, Boolean mask)
 	  y1 ^= y2;
 	}
       gui->set_line_cap (gc, Round_Cap);
-      gui->set_line_width (gc, 1);
+      gui->set_line_width (gc, 0);
       if (TEST_FLAG (SQUAREFLAG, Pad)
 	  && (x1 == x2 || y1 == y2))
 	{
@@ -1474,7 +1474,7 @@ DrawPadLowLevel (hidGC gc, PadTypePtr Pad, Boolean clear, Boolean mask)
 #if 0
   { /* Draw bounding box for test */
     BoxType *box = &Pad->BoundingBox;
-    gui->set_line_width (gc, 1);
+    gui->set_line_width (gc, 0);
     gui->draw_line (gc, box->X1, box->Y1, box->X1, box->Y2);
     gui->draw_line (gc, box->X1, box->Y2, box->X2, box->Y2);
     gui->draw_line (gc, box->X2, box->Y2, box->X2, box->Y1);
@@ -1577,7 +1577,7 @@ DrawLineLowLevel (LineTypePtr Line, Boolean HaveGathered)
 
   gui->set_line_cap (Output.fgGC, Trace_Cap);
   if (TEST_FLAG (THINDRAWFLAG, PCB))
-    gui->set_line_width (Output.fgGC, 1);
+    gui->set_line_width (Output.fgGC, 0);
   else
     gui->set_line_width (Output.fgGC, Line->Thickness);
 
@@ -1703,7 +1703,7 @@ DrawPolygonLowLevel (PolygonTypePtr Polygon)
   if (TEST_FLAG (THINDRAWFLAG, PCB)
       || TEST_FLAG (THINDRAWPOLYFLAG, PCB))
     {
-      gui->set_line_width (Output.fgGC, 1);
+      gui->set_line_width (Output.fgGC, 0);
       gui->set_line_cap (Output.fgGC, Round_Cap);
       for (i = 0; i < n - 1; i++)
 	{
@@ -1733,7 +1733,7 @@ DrawArcLowLevel (ArcTypePtr Arc)
     }
 
   if (TEST_FLAG (THINDRAWFLAG, PCB))
-    gui->set_line_width (Output.fgGC, 1);
+    gui->set_line_width (Output.fgGC, 0);
   else
     gui->set_line_width (Output.fgGC, Arc->Thickness);
   gui->set_line_cap (Output.fgGC, Trace_Cap);
@@ -1960,7 +1960,7 @@ DrawRat (RatTypePtr Line, int unused)
       else
 	{
 	  if (TEST_FLAG (THINDRAWFLAG, PCB))
-	    gui->set_line_width (Output.fgGC, 1);
+	    gui->set_line_width (Output.fgGC, 0);
 	  else
 	    gui->set_line_width (Output.fgGC, w);
 	  gui->draw_arc (Output.fgGC, Line->Point1.X, Line->Point1.Y,
@@ -2084,7 +2084,7 @@ thin_callback (PLINE * pl, LayerTypePtr lay, PolygonTypePtr poly)
       y[i++] = v->point[1];
     }
   gui->set_line_cap (Output.fgGC, Round_Cap);
-  gui->set_line_width (Output.fgGC, 1);
+  gui->set_line_width (Output.fgGC, 0);
   for (i = 0; i < pl->Count - 1; i++)
     {
       gui->draw_line (Output.fgGC, x[i], y[i], x[i + 1], y[i + 1]);
@@ -2155,7 +2155,7 @@ DrawPlainPolygon (LayerTypePtr Layer, PolygonTypePtr Polygon)
 	      x[i] = v->point[0];
 	      y[i++] = v->point[1];
 	    }
-	  gui->set_line_width (Output.fgGC, 1);
+	  gui->set_line_width (Output.fgGC, 0);
 	  gui->set_line_cap (Output.fgGC, Round_Cap);
 	  for (i = 0; i < n - 1; i++)
 	    {
@@ -2265,7 +2265,7 @@ EraseRat (RatTypePtr Rat)
       int w = Rat->Thickness;
 
       if (TEST_FLAG (THINDRAWFLAG, PCB))
-	gui->set_line_width (Output.fgGC, 1);
+	gui->set_line_width (Output.fgGC, 0);
       else
 	gui->set_line_width (Output.fgGC, w);
       gui->draw_arc (Output.fgGC, Rat->Point1.X, Rat->Point1.Y,
