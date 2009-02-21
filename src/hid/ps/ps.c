@@ -18,6 +18,7 @@
 
 #include "hid.h"
 #include "../hidint.h"
+#include "hid/common/draw_helpers.h"
 #include "../ps/ps.h"
 #include "../../print.h"
 
@@ -1174,6 +1175,8 @@ HID ps_hid = {
   ps_draw_rect,
   ps_fill_circle,
   ps_fill_polygon,
+  common_fill_pcb_polygon,
+  0 /* ps_thindraw_pcb_polygon */,
   ps_fill_rect,
   ps_calibrate,
   0 /* ps_shift_is_pressed */ ,

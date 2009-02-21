@@ -14,6 +14,7 @@
 
 #include "hid.h"
 #include "../hidint.h"
+#include "hid/common/draw_helpers.h"
 
 #ifdef HAVE_LIBDMALLOC
 #include <dmalloc.h>
@@ -202,6 +203,8 @@ static HID extents_hid = {
   extents_draw_rect,
   extents_fill_circle,
   extents_fill_polygon,
+  common_fill_pcb_polygon,
+  0 /* extents_thindraw_pcb_polygon */,
   extents_fill_rect,
 
   0 /* extents_calibrate */ ,

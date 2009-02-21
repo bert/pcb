@@ -21,6 +21,7 @@
 #include <windows.h>
 #endif
 
+#include "global.h"
 #include "hid.h"
 #include "../hidint.h"
 

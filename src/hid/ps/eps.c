@@ -16,6 +16,7 @@
 
 #include "hid.h"
 #include "../hidint.h"
+#include "hid/common/draw_helpers.h"
 #include "../ps/ps.h"
 
 #ifdef HAVE_LIBDMALLOC
@@ -636,6 +637,8 @@ static HID eps_hid = {
   eps_draw_rect,
   eps_fill_circle,
   eps_fill_polygon,
+  common_fill_pcb_polygon,
+  0 /* eps_thindraw_pcb_polygon */ ,
   eps_fill_rect,
   eps_calibrate,
   0 /* eps_shift_is_pressed */ ,

@@ -13,12 +13,12 @@
 #include <time.h>
 
 
+#include "global.h"
 #include "action.h"
 #include "crosshair.h"
 #include "data.h"
 #include "draw.h"
 #include "error.h"
-#include "global.h"
 #include "mymem.h"
 #include "draw.h"
 #include "clip.h"
@@ -26,6 +26,7 @@
 #include "hid.h"
 #include "../hidint.h"
 #include "gui.h"
+#include "hid/common/draw_helpers.h"
 
 
 #if !GTK_CHECK_VERSION(2,8,0) && defined(HAVE_GDK_GDKX_H)
@@ -1552,6 +1553,8 @@ HID ghid_hid = {
   ghid_draw_rect,
   ghid_fill_circle,
   ghid_fill_polygon,
+  common_fill_pcb_polygon,
+  common_thindraw_pcb_polygon,
   ghid_fill_rect,
 
   ghid_calibrate,
@@ -1612,6 +1615,8 @@ HID ghid_extents = {
   ghid_extents_draw_rect,
   ghid_extents_fill_circle,
   ghid_extents_fill_polygon,
+  common_fill_pcb_polygon,
+  0 /* ghid_extents_thindraw_pcb_polygon */ ,
   ghid_extents_fill_rect,
 
   0 /* ghid_calibrate */ ,

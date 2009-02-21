@@ -39,8 +39,9 @@ Boolean RemoveExcessPolygonPoints (LayerTypePtr, PolygonTypePtr);
 void GoToPreviousPoint (void);
 void ClosePolygon (void);
 void CopyAttachedPolygonToLayer (void);
-int PolygonHoles (const BoxType * range, LayerTypePtr, PolygonTypePtr,
-		  int (*callback) (PLINE *, LayerTypePtr, PolygonTypePtr));
+int PolygonHoles (PolygonType *ptr, const BoxType *range,
+		  int (*callback) (PLINE *, void *user_data),
+                  void *user_data);
 int PlowsPolygon (DataType *, int, void *, void *,
 		  int (*callback) (DataTypePtr, LayerTypePtr, PolygonTypePtr, int, void *, void *));
 POLYAREA * ContourToPoly (PLINE *);
@@ -63,6 +64,5 @@ Boolean IsRectangleInPolygon (LocationType, LocationType, LocationType,
 Boolean isects (POLYAREA *, PolygonTypePtr, Boolean);
 Boolean MorphPolygon (LayerTypePtr, PolygonTypePtr);
 void NoHolesPolygonDicer (PolygonType *p, const BoxType *clip,
-                          void (*emit) (PolygonTypePtr, void *),
-                          void *user_data);
+                          void (*emit) (PLINE *, void *), void *user_data);
 #endif

@@ -44,7 +44,6 @@
 #include "error.h"
 #include "mymem.h"
 #include "misc.h"
-#include "polygon.h"
 #include "rotate.h"
 #include "rtree.h"
 #include "search.h"
@@ -1681,41 +1680,16 @@ DrawTextLowLevel (TextTypePtr Text, int min_line_width)
 static void
 DrawPolygonLowLevel (PolygonTypePtr Polygon)
 {
-  int *x, *y, n, i = 0;
-  PLINE *pl;
-  VNODE *v;
   if (!Polygon->Clipped)
     return;
+
   if (Gathering)
     {
       AddPart (Polygon);
       return;
     }
-  pl = Polygon->Clipped->contours;
-  n = pl->Count;
-  x = (int *) malloc (n * sizeof (int));
-  y = (int *) malloc (n * sizeof (int));
-  for (v = &pl->head; i < n; v = v->next)
-    {
-      x[i] = v->point[0];
-      y[i++] = v->point[1];
-    }
-  if (TEST_FLAG (THINDRAWFLAG, PCB)
-      || TEST_FLAG (THINDRAWPOLYFLAG, PCB))
-    {
-      gui->set_line_width (Output.fgGC, 0);
-      gui->set_line_cap (Output.fgGC, Round_Cap);
-      for (i = 0; i < n - 1; i++)
-	{
-	  gui->draw_line (Output.fgGC, x[i], y[i], x[i + 1], y[i + 1]);
-	  //  gui->fill_circle (Output.fgGC, x[i], y[i], 30);
-	}
-      gui->draw_line (Output.fgGC, x[n - 1], y[n - 1], x[0], y[0]);
-    }
-  else
-    gui->fill_polygon (Output.fgGC, n, x, y);
-  free (x);
-  free (y);
+
+  printf ("DrawPolygonLowLevel: Called without Gathering set!\n");
 }
 
 /* ---------------------------------------------------------------------------
@@ -2104,68 +2078,43 @@ thin_callback (PLINE * pl, LayerTypePtr lay, PolygonTypePtr poly)
 static void
 DrawPlainPolygon (LayerTypePtr Layer, PolygonTypePtr Polygon)
 {
-  if (TEST_FLAG (SELECTEDFLAG | FOUNDFLAG, Polygon))
-    {
-      if (TEST_FLAG (SELECTEDFLAG, Polygon))
-	gui->set_color (Output.fgGC, Layer->SelectedColor);
-      else
-	gui->set_color (Output.fgGC, PCB->ConnectedColor);
-    }
-  else
-    gui->set_color (Output.fgGC, Layer->Color);
-  /* if the gui has the dicer flag set then it won't accept thin draw */
-  if ((TEST_FLAG (THINDRAWFLAG, PCB) || TEST_FLAG (THINDRAWPOLYFLAG, PCB))
-      && !gui->poly_dicer)
-    {
-      DrawPolygonLowLevel (Polygon);
-      if (!Gathering)
-	PolygonHoles (clip_box, Layer, Polygon, thin_callback);
-    }
-  else if (Polygon->Clipped)
-    {
-      NoHolesPolygonDicer (Polygon, clip_box, DrawPolygonLowLevel, NULL);
-      /* draw other parts of the polygon if fullpoly flag is set */
-      if (TEST_FLAG (FULLPOLYFLAG, Polygon))
-	{
-	  POLYAREA *pg;
-	  for (pg = Polygon->Clipped->f; pg != Polygon->Clipped; pg = pg->f)
-	    {
-	      PolygonType poly;
-	      poly.Clipped = pg;
-	      NoHolesPolygonDicer (&poly, clip_box, DrawPolygonLowLevel, NULL);
-	    }
-	}
-    }
-  /* if the gui has the dicer flag set then it won't draw missing poly outlines */
-  if (TEST_FLAG (CHECKPLANESFLAG, PCB) && Polygon->Clipped && !Gathering
-      && !gui->poly_dicer)
-    {
-      POLYAREA *pg;
+  static char *color;
 
-      for (pg = Polygon->Clipped->f; pg != Polygon->Clipped; pg = pg->f)
-	{
-	  VNODE *v;
-	  PLINE *pl = pg->contours;
-	  int i = 0;
-	  int n = pl->Count;
-	  int *x = (int *) malloc (n * sizeof (int));
-	  int *y = (int *) malloc (n * sizeof (int));
-	  for (v = &pl->head; i < n; v = v->next)
-	    {
-	      x[i] = v->point[0];
-	      y[i++] = v->point[1];
-	    }
-	  gui->set_line_width (Output.fgGC, 0);
-	  gui->set_line_cap (Output.fgGC, Round_Cap);
-	  for (i = 0; i < n - 1; i++)
-	    {
-	      gui->draw_line (Output.fgGC, x[i], y[i], x[i + 1], y[i + 1]);
-	      /* gui->fill_circle (Output.bgGC, x[i], y[i], 10); */
-	    }
-	  gui->draw_line (Output.fgGC, x[n - 1], y[n - 1], x[0], y[0]);
-	  free (x);
-	  free (y);
-	}
+  if (!Polygon->Clipped)
+    return;
+
+  if (Gathering)
+    {
+      AddPart (Polygon);
+      return;
+    }
+
+  if (TEST_FLAG (SELECTEDFLAG, Polygon))
+    color = Layer->SelectedColor;
+  else if (TEST_FLAG (FOUNDFLAG, Polygon))
+    color = PCB->ConnectedColor;
+  else
+    color = Layer->Color;
+  gui->set_color (Output.fgGC, color);
+
+  if (gui->thindraw_pcb_polygon != NULL &&
+      (TEST_FLAG (THINDRAWFLAG, PCB) ||
+       TEST_FLAG (THINDRAWPOLYFLAG, PCB)))
+    gui->thindraw_pcb_polygon (Output.fgGC, Polygon, clip_box);
+  else
+    gui->fill_pcb_polygon (Output.fgGC, Polygon, clip_box);
+
+  /* If checking planes, thin-draw any pieces which have been clipped away */
+  if (gui->thindraw_pcb_polygon != NULL &&
+      TEST_FLAG (CHECKPLANESFLAG, PCB) &&
+      !TEST_FLAG (FULLPOLYFLAG, Polygon))
+    {
+      PolygonType poly = *Polygon;
+
+      for (poly.Clipped = Polygon->Clipped->f;
+           poly.Clipped != Polygon->Clipped;
+           poly.Clipped = poly.Clipped->f)
+        gui->thindraw_pcb_polygon (Output.fgGC, &poly, clip_box);
     }
 }
 

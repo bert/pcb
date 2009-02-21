@@ -28,6 +28,7 @@
 
 #include "hid.h"
 #include "../hidint.h"
+#include "hid/common/draw_helpers.h"
 #include "lesstif.h"
 
 #ifdef HAVE_LIBDMALLOC
@@ -3901,6 +3902,8 @@ HID lesstif_gui = {
   lesstif_draw_rect,
   lesstif_fill_circle,
   lesstif_fill_polygon,
+  common_fill_pcb_polygon,
+  common_thindraw_pcb_polygon,
   lesstif_fill_rect,
 
   lesstif_calibrate,

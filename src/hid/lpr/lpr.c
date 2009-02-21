@@ -139,6 +139,8 @@ HID lpr_hid = {
   0 /* lpr_draw_rect */ ,
   0 /* lpr_fill_circle */ ,
   0 /* lpr_fill_polygon */ ,
+  0 /* lpr_fill_pcb_polygon */ ,
+  0 /* lpr_thindraw_pcb_polygon */ ,
   0 /* lpr_fill_rect */ ,
   lpr_calibrate,
   0 /* lpr_shift_is_pressed */ ,

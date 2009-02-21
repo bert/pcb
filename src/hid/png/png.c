@@ -42,6 +42,7 @@
 
 #include "hid.h"
 #include "../hidint.h"
+#include "hid/common/draw_helpers.h"
 #include "png.h"
 
 /* the gd library which makes this all so easy */
@@ -1351,6 +1352,8 @@ HID png_hid = {
   png_draw_rect,
   png_fill_circle,
   png_fill_polygon,
+  common_fill_pcb_polygon,
+  0 /* png_thindraw_pcb_polygon */ ,
   png_fill_rect,
   png_calibrate,
   0 /* png_shift_is_pressed */ ,

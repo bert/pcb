@@ -51,6 +51,9 @@
 #include <ctype.h>
 #include <sys/types.h>
 
+typedef struct BoxType BoxType, *BoxTypePtr;
+typedef struct polygon_st PolygonType, *PolygonTypePtr;
+
 #include "hid.h"
 
 #define _(S) (S)
@@ -137,11 +140,11 @@ typedef struct
     Entries[MAX_LAYER][MAX_LAYER + 2];
 } LayerGroupType, *LayerGroupTypePtr;
 
-typedef struct BoxType		/* a bounding box */
+struct BoxType		/* a bounding box */
 {
   LocationType X1, Y1,		/* upper left */
     X2, Y2;			/* and lower right corner */
-} BoxType, *BoxTypePtr;
+};
 
 typedef struct
 {
@@ -199,14 +202,14 @@ typedef struct
   void *Element;
 } TextType, *TextTypePtr;
 
-typedef struct			/* holds information about a polygon */
+struct polygon_st			/* holds information about a polygon */
 {
   ANYOBJECTFIELDS;
   Cardinal PointN,		/* number of points in polygon */
     PointMax;			/* max number from malloc() */
   POLYAREA *Clipped;		/* the clipped region of this polygon */
   PointTypePtr Points;		/* data */
-} PolygonType, *PolygonTypePtr;
+};
 
 typedef struct			/* holds information about arcs */
 {

@@ -562,6 +562,8 @@ HID bom_hid = {
   0,				/* bom_draw_rect */
   0,				/* bom_fill_circle */
   0,				/* bom_fill_polygon */
+  0,				/* bom_fill_pcb_polygon */
+  0,				/* bom_thindraw_pcb_polygon */
   0,				/* bom_fill_rect */
   0,				/* bom_calibrate */
   0,				/* bom_shift_is_pressed */

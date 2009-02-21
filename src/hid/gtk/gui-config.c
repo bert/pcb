@@ -34,11 +34,11 @@
 #include <stdlib.h>
 #endif
 
+#include "gui.h"
 #include "hid.h"
 #include "../hidint.h"
 #include "gtkhid.h"
 
-#include "gui.h"
 #include "global.h"
 #include "action.h"
 #include "change.h"

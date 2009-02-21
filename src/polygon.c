@@ -58,10 +58,8 @@ intersection is "is the target shape inside POLYAREA.contours and NOT
 fully enclosed in any of POLYAREA.contours.next... (the holes)".
 
 The polygon dicer (NoHolesPolygonDicer and r_NoHolesPolygonDicer)
-emits a series of PolygonTypes with Clipped pointing to a "simple"
-shape.  That is, there is a single POLYAREA (the dlink pointers point
-to itself) and the contours list has only one element (the solid
-outline, with no "holes" oulines).  That's the meaning of the first
+emits a series of "simple" PLINE shapes.  That is, the PLINE isn't
+linked to any other "holes" oulines).  That's the meaning of the first
 test in r_NoHolesPolygonDicer.  It is testing to see if the PLINE
 contour (the first, making it a solid outline) has a valid next
 pointer (which would point to one or more holes).  The dicer works by
@@ -1245,10 +1243,9 @@ CopyAttachedPolygonToLayer (void)
  * the search.
  */
 int
-PolygonHoles (const BoxType * range, LayerTypePtr layer,
-              PolygonTypePtr polygon, int (*any_call) (PLINE * contour,
-                                                       LayerTypePtr lay,
-                                                       PolygonTypePtr poly))
+PolygonHoles (PolygonType *polygon, const BoxType *range,
+              int (*callback) (PLINE *contour, void *user_data),
+              void *user_data)
 {
   POLYAREA *pa = polygon->Clipped;
   PLINE *pl;
@@ -1262,7 +1259,7 @@ PolygonHoles (const BoxType * range, LayerTypePtr layer,
       if (pl->xmin > range->X2 || pl->xmax < range->X1 ||
           pl->ymin > range->Y2 || pl->ymax < range->Y1)
         continue;
-      if (any_call (pl, layer, polygon))
+      if (callback (pl, user_data))
         {
           return 1;
         }
@@ -1510,7 +1507,7 @@ IsRectangleInPolygon (LocationType X1, LocationType Y1, LocationType X2,
 
 static void
 r_NoHolesPolygonDicer (PLINE * p,
-                       void (*emit) (PolygonTypePtr, void *), void *user_data)
+                       void (*emit) (PLINE *, void *), void *user_data)
 {
   POLYAREA *pa;
 
@@ -1519,26 +1516,7 @@ r_NoHolesPolygonDicer (PLINE * p,
   pa->contours = p;
   if (!p->next)                 /* no holes */
     {
-      PolygonType poly;
-      PointType pts[4];
-
-      poly.BoundingBox.X1 = p->xmin;
-      poly.BoundingBox.X2 = p->xmax;
-      poly.BoundingBox.Y1 = p->ymin;
-      poly.BoundingBox.Y2 = p->ymax;
-      poly.PointN = poly.PointMax = 4;
-      poly.Clipped = pa;
-      poly.Points = pts;
-      pts[0].X = pts[0].X2 = p->xmin;
-      pts[0].Y = pts[0].Y2 = p->ymin;
-      pts[1].X = pts[1].X2 = p->xmax;
-      pts[1].Y = pts[1].Y2 = p->ymin;
-      pts[2].X = pts[2].X2 = p->xmax;
-      pts[2].Y = pts[2].Y2 = p->ymax;
-      pts[3].X = pts[3].X2 = p->xmin;
-      pts[3].Y = pts[3].Y2 = p->ymax;
-      poly.Flags = MakeFlags (CLEARPOLYFLAG);
-      emit (&poly, user_data);
+      emit (p, user_data);
       poly_Free (&pa);
       return;
     }
@@ -1583,7 +1561,7 @@ r_NoHolesPolygonDicer (PLINE * p,
 
 void
 NoHolesPolygonDicer (PolygonTypePtr p, const BoxType * clip,
-                     void (*emit) (PolygonTypePtr, void *), void *user_data)
+                     void (*emit) (PLINE *, void *), void *user_data)
 {
   POLYAREA *save, *ans;
 

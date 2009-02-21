@@ -143,6 +143,8 @@ PCB_SRCS = \
 	hid/common/hidinit.c \
 	hid/common/hidnogui.c \
 	hid/common/extents.c \
+	hid/common/draw_helpers.c \
+	hid/common/draw_helpers.h \
 	hid/hidint.h 
 pcb_SOURCES = ${PCB_SRCS} core_lists.h
 

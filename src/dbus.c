@@ -29,7 +29,7 @@
 #include "dbus.h"
 #include "dbus-pcbmain.h"
 #include "dbus-introspect.h"
-#include "hid.h"
+#include "global.h"
 #include "data.h"
 
 /* For lrealpath */

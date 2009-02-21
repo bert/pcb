@@ -284,6 +284,16 @@ batch_fill_polygon (hidGC gc, int n_coords, int *x, int *y)
 }
 
 static void
+batch_fill_pcb_polygon (hidGC gc, PolygonType *poly)
+{
+}
+
+static void
+batch_thindraw_pcb_polygon (hidGC gc, PolygonType *poly)
+{
+}
+
+static void
 batch_fill_rect (hidGC gc, int x1, int y1, int x2, int y2)
 {
 }
@@ -473,6 +483,8 @@ HID batch_gui = {
   batch_draw_rect,
   batch_fill_circle,
   batch_fill_polygon,
+  batch_fill_pcb_polygon,
+  batch_thindraw_pcb_polygon,
   batch_fill_rect,
   batch_calibrate,
   batch_shift_is_pressed,

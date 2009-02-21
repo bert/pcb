@@ -27,6 +27,7 @@
 #ifndef __GHID_INCLUDED__
 #define __GHID_INCLUDED__
 
+#include "global.h"
 #include "hid.h"
 
 #include "data.h"
