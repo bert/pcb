@@ -1509,7 +1509,8 @@ IsRectangleInPolygon (LocationType X1, LocationType Y1, LocationType X2,
 }
 
 static void
-r_NoHolesPolygonDicer (PLINE * p, void (*emit) (PolygonTypePtr))
+r_NoHolesPolygonDicer (PLINE * p,
+                       void (*emit) (PolygonTypePtr, void *), void *user_data)
 {
   POLYAREA *pa;
 
@@ -1537,7 +1538,7 @@ r_NoHolesPolygonDicer (PLINE * p, void (*emit) (PolygonTypePtr))
       pts[3].X = pts[3].X2 = p->xmin;
       pts[3].Y = pts[3].Y2 = p->ymax;
       poly.Flags = MakeFlags (CLEARPOLYFLAG);
-      emit (&poly);
+      emit (&poly, user_data);
       poly_Free (&pa);
       return;
     }
@@ -1557,7 +1558,7 @@ r_NoHolesPolygonDicer (PLINE * p, void (*emit) (PolygonTypePtr))
           do
             {
               PLINE *pl = x->contours;
-              r_NoHolesPolygonDicer (pl, emit);
+              r_NoHolesPolygonDicer (pl, emit, user_data);
               y = x->f;
               /* the pline was already freed by its use int he recursive dicer */
               free (x);
@@ -1571,7 +1572,7 @@ r_NoHolesPolygonDicer (PLINE * p, void (*emit) (PolygonTypePtr))
           do
             {
               PLINE *pl = x->contours;
-              r_NoHolesPolygonDicer (pl, emit);
+              r_NoHolesPolygonDicer (pl, emit, user_data);
               y = x->f;
               free (x);
             }
@@ -1581,8 +1582,8 @@ r_NoHolesPolygonDicer (PLINE * p, void (*emit) (PolygonTypePtr))
 }
 
 void
-NoHolesPolygonDicer (PolygonTypePtr p, void (*emit) (PolygonTypePtr),
-                     const BoxType * clip)
+NoHolesPolygonDicer (PolygonTypePtr p, const BoxType * clip,
+                     void (*emit) (PolygonTypePtr, void *), void *user_data)
 {
   POLYAREA *save, *ans;
 
@@ -1607,7 +1608,7 @@ NoHolesPolygonDicer (PolygonTypePtr p, void (*emit) (PolygonTypePtr),
   do
     {
       POLYAREA *prev;
-      r_NoHolesPolygonDicer (save->contours, emit);
+      r_NoHolesPolygonDicer (save->contours, emit, user_data);
       /* go to next poly (could be one because of clip) */
       prev = save;
       save = prev->f;

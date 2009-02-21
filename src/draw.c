@@ -2123,7 +2123,7 @@ DrawPlainPolygon (LayerTypePtr Layer, PolygonTypePtr Polygon)
     }
   else if (Polygon->Clipped)
     {
-      NoHolesPolygonDicer (Polygon, DrawPolygonLowLevel, clip_box);
+      NoHolesPolygonDicer (Polygon, clip_box, DrawPolygonLowLevel, NULL);
       /* draw other parts of the polygon if fullpoly flag is set */
       if (TEST_FLAG (FULLPOLYFLAG, Polygon))
 	{
@@ -2132,7 +2132,7 @@ DrawPlainPolygon (LayerTypePtr Layer, PolygonTypePtr Polygon)
 	    {
 	      PolygonType poly;
 	      poly.Clipped = pg;
-	      NoHolesPolygonDicer (&poly, DrawPolygonLowLevel, clip_box);
+	      NoHolesPolygonDicer (&poly, clip_box, DrawPolygonLowLevel, NULL);
 	    }
 	}
     }
