@@ -1704,6 +1704,7 @@ DrawPolygonLowLevel (PolygonTypePtr Polygon)
       || TEST_FLAG (THINDRAWPOLYFLAG, PCB))
     {
       gui->set_line_width (Output.fgGC, 1);
+      gui->set_line_cap (Output.fgGC, Round_Cap);
       for (i = 0; i < n - 1; i++)
 	{
 	  gui->draw_line (Output.fgGC, x[i], y[i], x[i + 1], y[i + 1]);
@@ -2082,6 +2083,7 @@ thin_callback (PLINE * pl, LayerTypePtr lay, PolygonTypePtr poly)
       x[i] = v->point[0];
       y[i++] = v->point[1];
     }
+  gui->set_line_cap (Output.fgGC, Round_Cap);
   gui->set_line_width (Output.fgGC, 1);
   for (i = 0; i < pl->Count - 1; i++)
     {
@@ -2154,6 +2156,7 @@ DrawPlainPolygon (LayerTypePtr Layer, PolygonTypePtr Polygon)
 	      y[i++] = v->point[1];
 	    }
 	  gui->set_line_width (Output.fgGC, 1);
+	  gui->set_line_cap (Output.fgGC, Round_Cap);
 	  for (i = 0; i < n - 1; i++)
 	    {
 	      gui->draw_line (Output.fgGC, x[i], y[i], x[i + 1], y[i + 1]);
