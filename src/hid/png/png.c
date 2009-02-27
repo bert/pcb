@@ -1,5 +1,3 @@
-/* $Id$ */
-/*Sept 2007: patch to enable slanted squared lines*/
 /*
  *                            COPYRIGHT
  *
@@ -51,8 +49,6 @@
 #ifdef HAVE_LIBDMALLOC
 #include <dmalloc.h>
 #endif
-
-RCSID ("$Id$");
 
 #define CRASH fprintf(stderr, "HID error: pcb called unimplemented PNG function %s.\n", __FUNCTION__); abort()
 
