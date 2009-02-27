@@ -3,7 +3,7 @@ dnl Process this file with autoconf to produce a configure script.
 
 AC_INIT([pcb], [1.99y])
 AC_CONFIG_SRCDIR([src/draw.c])
-AC_PREREQ([2.59])
+AC_PREREQ([2.60])
 AM_INIT_AUTOMAKE([1.9])
 AC_GNU_SOURCE
 AM_CONFIG_HEADER([config.h])
