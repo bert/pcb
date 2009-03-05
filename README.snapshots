@@ -1,7 +1,5 @@
 #!/bin/sh
 #
-# $Id$
-#
 
 This documents what is done to create a pcb release.  The releases now
 are done by branching the sources, fixing up the release version number
@@ -15,6 +13,10 @@ target with lesstif as the built gui with
 DISTCHECK_CONFIGURE_FLAGS="--with-gui=lesstif" if you want to also verify
 that distcheck works with the lesstif HID.
 
+FIXME -- we need to build where we explicitly add all the export HID's
+         and where we explicitly build with each of the gui HID's (including
+	 batch).  This is needed to catch the case of missing src/hid/*/hid.conf
+	 files.
 
 After following the steps below,
 upload the 'pcb-$VERSION.tar.gz' file to the sourceforge file release system
