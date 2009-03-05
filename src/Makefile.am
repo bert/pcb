@@ -186,6 +186,7 @@ DEFS= 	-DLOCALEDIR=\"$(localedir)\" @DEFS@
 EXTRA_DIST= \
 	check_icon.data \
 	default_font \
+	$(srcdir)/hid/batch/hid.conf \
 	$(srcdir)/hid/bom/hid.conf \
 	$(srcdir)/hid/gerber/hid.conf \
 	$(srcdir)/hid/gtk/gui-icons-misc.data \
