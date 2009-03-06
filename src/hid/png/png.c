@@ -1078,7 +1078,7 @@ use_gc (hidGC gc)
           break;
         }
       r = SCALE (gc->width);
-      if (r == 0 && gc->width > 0)
+      if (r == 0)
 	r = 1;
       sprintf (name, "#%.2x%.2x%.2x_%c_%d", gc->color->r, gc->color->g,
 	       gc->color->b, type, r);

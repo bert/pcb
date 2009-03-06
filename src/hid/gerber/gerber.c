@@ -870,7 +870,8 @@ gerber_draw_arc (hidGC gc, int cx, int cy, int width, int height,
   Boolean m = False;
   float arcStartX, arcStopX, arcStartY, arcStopY;
 
-  if (gc->width == 1)
+  /* we never draw zero-width lines */
+  if (gc->width == 0)
     return;
 
   use_gc (gc, 0);
