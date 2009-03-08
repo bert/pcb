@@ -599,16 +599,21 @@ ReportNetLength (int argc, char **argv, int x, int y)
 	  int ni, nei;
 	  char *ename = element->Name[NAMEONPCB_INDEX].TextString;
 	  char *pname = pin->Number;
-	  char *n = Concat (ename, "-", pname, NULL);
-	  for (ni = 0; ni < PCB->NetlistLib.MenuN; ni++)
-	    for (nei = 0; nei < PCB->NetlistLib.Menu[ni].EntryN; nei++)
-	      {
-		if (strcmp (PCB->NetlistLib.Menu[ni].Entry[nei].ListEntry, n) == 0)
+	  char *n;
+
+	  if (ename && pname)
+	    {
+	      n = Concat (ename, "-", pname, NULL);
+	      for (ni = 0; ni < PCB->NetlistLib.MenuN; ni++)
+		for (nei = 0; nei < PCB->NetlistLib.Menu[ni].EntryN; nei++)
 		  {
-		    netname = PCB->NetlistLib.Menu[ni].Name + 2;
-		    goto got_net_name; /* four for loops deep */
+		    if (strcmp (PCB->NetlistLib.Menu[ni].Entry[nei].ListEntry, n) == 0)
+		      {
+			netname = PCB->NetlistLib.Menu[ni].Name + 2;
+			goto got_net_name; /* four for loops deep */
+		      }
 		  }
-	      }
+	    }
 	}
     }
     END_LOOP;
@@ -619,16 +624,21 @@ ReportNetLength (int argc, char **argv, int x, int y)
 	  int ni, nei;
 	  char *ename = element->Name[NAMEONPCB_INDEX].TextString;
 	  char *pname = pad->Number;
-	  char *n = Concat (ename, "-", pname, NULL);
-	  for (ni = 0; ni < PCB->NetlistLib.MenuN; ni++)
-	    for (nei = 0; nei < PCB->NetlistLib.Menu[ni].EntryN; nei++)
-	      {
-		if (strcmp (PCB->NetlistLib.Menu[ni].Entry[nei].ListEntry, n) == 0)
+	  char *n;
+
+	  if (ename && pname)
+	    {
+	      n = Concat (ename, "-", pname, NULL);
+	      for (ni = 0; ni < PCB->NetlistLib.MenuN; ni++)
+		for (nei = 0; nei < PCB->NetlistLib.Menu[ni].EntryN; nei++)
 		  {
-		    netname = PCB->NetlistLib.Menu[ni].Name + 2;
-		    goto got_net_name; /* four for loops deep */
+		    if (strcmp (PCB->NetlistLib.Menu[ni].Entry[nei].ListEntry, n) == 0)
+		      {
+			netname = PCB->NetlistLib.Menu[ni].Name + 2;
+			goto got_net_name; /* four for loops deep */
+		      }
 		  }
-	      }
+	    }
 	}
     }
     END_LOOP;
