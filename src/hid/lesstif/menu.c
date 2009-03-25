@@ -818,7 +818,7 @@ lesstif_call_action (const char *aname, int argc, char **argv)
 
   if (!aname)
     return 1;
-  a = hid_find_action (aname);
+  a = hid_find_action (aname, NULL);
   if (!a)
     {
       int i;

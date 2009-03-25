@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include <assert.h>
 
 #include "global.h"
 #include "data.h"
@@ -26,14 +27,29 @@ typedef struct HID_ActionNode
   struct HID_ActionNode *next;
   HID_Action *actions;
   int n;
+  /* The registrar the callback function may use this pointer to
+     remember context; the action infrastructure will just pass it
+     along. */
+  void *context;
+  /* is this ActionNode registered runtime? (can be deregistered) */
+  int dynamic;
 } HID_ActionNode;
 
-HID_ActionNode *hid_action_nodes = 0;
+/* The master list of all actions registered */ 
+typedef struct HID_ActionContext
+{
+  HID_Action action;
+  void *context;
+} HID_ActionContext;
 static int n_actions = 0;
-static HID_Action *all_actions = 0;
+static HID_ActionContext *all_actions = NULL;
 
-void
-hid_register_actions (HID_Action * a, int n)
+HID_ActionNode *hid_action_nodes = NULL;
+
+void *hid_action_context = NULL;
+
+static void
+hid_register_actions_context (HID_Action * a, int n, void *context, int dynamic)
 {
   HID_ActionNode *ha;
 
@@ -41,26 +57,87 @@ hid_register_actions (HID_Action * a, int n)
   ha = (HID_ActionNode *) malloc (sizeof (HID_ActionNode));
   ha->next = hid_action_nodes;
   hid_action_nodes = ha;
-  ha->actions = a;
+  if (dynamic) {
+    assert(n == 1); /* we register dynamic actions one by one */
+    ha->actions = malloc(sizeof(HID_Action));
+    memcpy(ha->actions, a, sizeof(HID_Action));
+  }
+  else
+    ha->actions = a;
+
   ha->n = n;
+  ha->context = context;
+  ha->dynamic = dynamic;
   n_actions += n;
   if (all_actions)
     {
       free (all_actions);
-      all_actions = 0;
+      all_actions = NULL;
     }
+}
+
+void
+hid_register_actions (HID_Action * a, int n)
+{
+  hid_register_actions_context (a, n, NULL, 0);
+}
+
+void
+hid_register_action (const HID_Action * a, void *context)
+{
+  hid_register_actions_context (a, 1, context, 1);
+}
+
+void
+hid_deregister_action (const char *name, void **context)
+{
+  HID_ActionNode *prev, *ha;
+
+  if (context != NULL)
+    *context = NULL;
+
+  /* find the action in hid_action_nodes */
+  for(prev = NULL, ha = hid_action_nodes; ha != NULL; prev = ha, ha = ha->next) {
+    if (ha->dynamic) {
+      if (strcmp(ha->actions->name, name) == 0) {
+	/* found the action in the tree, save context */
+	if (context != NULL)
+	  *context = ha->context;
+
+	/* remove ha */
+	if (prev == NULL)
+	  hid_action_nodes = ha->next;
+	else
+	  prev->next = ha->next;
+
+	free(ha->actions);
+	free(ha);
+
+	/* to make sure the rebuild of the sorted list next time */
+	if (all_actions != NULL) {
+	  free (all_actions);
+	  all_actions = NULL;
+	}
+
+	n_actions--;
+	return;
+      }
+    }
+  }
+
+  /* action not found - nothing to do */
 }
 
 static int
 action_sort (const void *va, const void *vb)
 {
-  HID_Action *a = (HID_Action *) va;
-  HID_Action *b = (HID_Action *) vb;
-  return strcmp (a->name, b->name);
+  HID_ActionContext *a = (HID_ActionContext *) va;
+  HID_ActionContext *b = (HID_ActionContext *) vb;
+  return strcmp (a->action.name, b->action.name);
 }
 
 HID_Action *
-hid_find_action (const char *name)
+hid_find_action (const char *name, void **context)
 {
   HID_ActionNode *ha;
   int i, n, lower, upper;
@@ -68,14 +145,17 @@ hid_find_action (const char *name)
   if (name == NULL)
     return 0;
 
-  if (all_actions == 0)
+  if (all_actions == NULL)
     {
       n = 0;
-      all_actions = malloc (n_actions * sizeof (HID_Action));
+      all_actions = malloc (n_actions * sizeof (HID_ActionContext));
       for (ha = hid_action_nodes; ha; ha = ha->next)
-	for (i = 0; i < ha->n; i++)
-	  all_actions[n++] = ha->actions[i];
-      qsort (all_actions, n_actions, sizeof (HID_Action), action_sort);
+	for (i = 0; i < ha->n; i++) {
+	  all_actions[n].action = ha->actions[i];
+	  all_actions[n].context = ha->context;
+	  n++;
+	}
+      qsort (all_actions, n_actions, sizeof (HID_ActionContext), action_sort);
     }
 
 
@@ -85,10 +165,13 @@ hid_find_action (const char *name)
   while (lower < upper - 1)
     {
       i = (lower + upper) / 2;
-      n = strcmp (all_actions[i].name, name);
+      n = strcmp (all_actions[i].action.name, name);
       /*printf("try [%d].%s, cmp %d\n", i, all_actions[i].name, n); */
-      if (n == 0)
-	return all_actions + i;
+      if (n == 0) {
+	if (context != NULL)
+	  *context = all_actions[i].context;
+	return &(all_actions[i].action);
+      }
       if (n > 0)
 	upper = i;
       else
@@ -96,8 +179,11 @@ hid_find_action (const char *name)
     }
 
   for (i = 0; i < n_actions; i++)
-    if (strcasecmp (all_actions[i].name, name) == 0)
-      return all_actions + i;
+    if (strcasecmp (all_actions[i].action.name, name) == 0) {
+      if (*context != NULL)
+        *context = all_actions[i].context;
+      return &(all_actions[i].action);
+    }
 
   printf ("unknown action `%s'\n", name);
   return 0;
@@ -108,19 +194,19 @@ print_actions ()
 {
   int i;
   /* Forces them to be sorted in all_actions */
-  hid_find_action (hid_action_nodes->actions[0].name);
+  hid_find_action (hid_action_nodes->actions[0].name, NULL);
   fprintf (stderr, "Registered Actions:\n");
   for (i = 0; i < n_actions; i++)
     {
-      if (all_actions[i].description)
-	fprintf (stderr, "  %s - %s\n", all_actions[i].name,
-		 all_actions[i].description);
+      if (all_actions[i].action.description)
+	fprintf (stderr, "  %s - %s\n", all_actions[i].action.name,
+		 all_actions[i].action.description);
       else
-	fprintf (stderr, "  %s\n", all_actions[i].name);
-      if (all_actions[i].syntax)
+	fprintf (stderr, "  %s\n", all_actions[i].action.name);
+      if (all_actions[i].action.syntax)
 	{
 	  const char *bb, *eb;
-	  bb = eb = all_actions[i].syntax;
+	  bb = eb = all_actions[i].action.syntax;
 	  while (1)
 	    {
 	      for (eb = bb; *eb && *eb != '\n'; eb++)
@@ -161,16 +247,16 @@ dump_actions ()
 {
   int i;
   /* Forces them to be sorted in all_actions */
-  hid_find_action (hid_action_nodes->actions[0].name);
+  hid_find_action (hid_action_nodes->actions[0].name, NULL);
   for (i = 0; i < n_actions; i++)
     {
-      const char *desc = all_actions[i].description;
-      const char *synt = all_actions[i].syntax;
+      const char *desc = all_actions[i].action.description;
+      const char *synt = all_actions[i].action.syntax;
 
       desc = desc ? desc : "";
       synt = synt ? synt : "";
 
-      printf ("A%s\n", all_actions[i].name);
+      printf ("A%s\n", all_actions[i].action.name);
       dump_string ('D', desc);
       dump_string ('S', synt);
     }
@@ -200,8 +286,10 @@ hid_actionl (const char *name, ...)
 int
 hid_actionv (const char *name, int argc, char **argv)
 {
-  int x = 0, y = 0, i;
+  int x = 0, y = 0, i, ret;
   HID_Action *a;
+  void *old_context;
+  void *context;
 
   if (Settings.verbose && name)
     {
@@ -211,12 +299,21 @@ hid_actionv (const char *name, int argc, char **argv)
       printf (")\033[0m\n");
     }
 
-  a = hid_find_action (name);
+  a = hid_find_action (name, &context);
   if (!a)
     return 1;
   if (a->need_coord_msg)
     gui->get_coords (a->need_coord_msg, &x, &y);
-  return a->trigger_cb (argc, argv, x, y);
+
+  /* save old action context and set it to the context associated with the action */
+  old_context = hid_action_context;
+  hid_action_context = context;
+
+  ret = a->trigger_cb (argc, argv, x, y);
+
+  /* restore old context and return */
+  hid_action_context = old_context;
+  return ret;
 }
 
 int
