@@ -813,12 +813,13 @@ lesstif_get_coords (const char *msg, int *px, int *py)
 int
 lesstif_call_action (const char *aname, int argc, char **argv)
 {
-  int px, py;
+  int px, py, ret;
   HID_Action *a;
+  void *context, *old_context;
 
   if (!aname)
     return 1;
-  a = hid_find_action (aname, NULL);
+  a = hid_find_action (aname, &context);
   if (!a)
     {
       int i;
@@ -848,7 +849,11 @@ lesstif_call_action (const char *aname, int argc, char **argv)
 	printf ("%s%s", i ? "," : "", argv[i]);
       printf (")\033[0m\n");
     }
-  return a->trigger_cb (argc, argv, px, py);
+  old_context = hid_action_context;
+  hid_action_context = context;
+  ret = a->trigger_cb (argc, argv, px, py);
+  hid_action_context = old_context;
+  return ret;
 }
 
 static void
