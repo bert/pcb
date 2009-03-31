@@ -262,6 +262,7 @@ ghid_dialog_file_select_open (gchar * title, gchar ** path, gchar * shortcuts)
   GtkWidget *dialog;
   gchar *result = NULL, *folder, *seed;
   GHidPort *out = &ghid_port;
+  GtkFileFilter *no_filter;
 
   dialog = gtk_file_chooser_dialog_new (title,
 					GTK_WINDOW (out->top_window),
@@ -271,6 +272,53 @@ ghid_dialog_file_select_open (gchar * title, gchar ** path, gchar * shortcuts)
 					NULL);
 
   gtk_dialog_set_default_response (GTK_DIALOG (dialog), GTK_RESPONSE_OK);
+
+  /* add a default filter for not filtering files */
+  no_filter = gtk_file_filter_new ();
+  gtk_file_filter_set_name (no_filter, "all");
+  gtk_file_filter_add_pattern (no_filter, "*.*");
+  gtk_file_filter_add_pattern (no_filter, "*");
+  gtk_file_chooser_add_filter (GTK_FILE_CHOOSER (dialog), no_filter);
+
+  /* in case we have a dialog for loading a footprint file */
+  if (strcmp (title, _("Load element to buffer")) == 0)
+  {
+    /* add a filter for footprint files */
+    GtkFileFilter *fp_filter;
+    fp_filter = gtk_file_filter_new ();
+    gtk_file_filter_set_name (fp_filter, "fp");
+    gtk_file_filter_add_mime_type (fp_filter, "application/x-pcb-footprint");
+    gtk_file_filter_add_pattern (fp_filter, "*.fp");
+    gtk_file_filter_add_pattern (fp_filter, "*.FP");
+    gtk_file_chooser_add_filter (GTK_FILE_CHOOSER (dialog), fp_filter);
+  }
+
+  /* in case we have a dialog for loading a layout file */
+  if ((strcmp (title, _("Load layout file")) == 0)
+    || (strcmp (title, _("Load layout file to buffer")) == 0))
+  {
+    /* add a filter for layout files */
+    GtkFileFilter *pcb_filter;
+    pcb_filter = gtk_file_filter_new ();
+    gtk_file_filter_set_name (pcb_filter, "pcb");
+    gtk_file_filter_add_mime_type (pcb_filter, "application/x-pcb-layout");
+    gtk_file_filter_add_pattern (pcb_filter, "*.pcb");
+    gtk_file_filter_add_pattern (pcb_filter, "*.PCB");
+    gtk_file_chooser_add_filter (GTK_FILE_CHOOSER (dialog), pcb_filter);
+  }
+
+  /* in case we have a dialog for loading a netlist file */
+  if (strcmp (title, _("Load netlist file")) == 0)
+  {
+    /* add a filter for netlist files */
+    GtkFileFilter *net_filter;
+    net_filter = gtk_file_filter_new ();
+    gtk_file_filter_set_name (net_filter, "netlist");
+    gtk_file_filter_add_mime_type (net_filter, "application/x-pcb-netlist");
+    gtk_file_filter_add_pattern (net_filter, "*.net");
+    gtk_file_filter_add_pattern (net_filter, "*.NET");
+    gtk_file_chooser_add_filter (GTK_FILE_CHOOSER (dialog), net_filter);
+  }
 
   if (path && *path)
     gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (dialog), *path);
