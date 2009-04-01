@@ -1679,8 +1679,11 @@ poly_Boolean_free (POLYAREA * ai, POLYAREA * bi, POLYAREA ** res, int action)
 	case PBO_XOR:
 	case PBO_UNITE:
 	  *res = bi;
+	  return err_ok;
 	case PBO_SUB:
 	case PBO_ISECT:
+	  if (b != NULL)
+	    poly_Free (&b);
 	  return err_ok;
 	}
     }
@@ -1692,7 +1695,10 @@ poly_Boolean_free (POLYAREA * ai, POLYAREA * bi, POLYAREA ** res, int action)
 	case PBO_XOR:
 	case PBO_UNITE:
 	  *res = ai;
+	  return err_ok;
 	case PBO_ISECT:
+	  if (a != NULL)
+	    poly_Free (&a);
 	  return err_ok;
 	}
     }
