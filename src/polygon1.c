@@ -1901,12 +1901,25 @@ poly_ClrContour (PLINE * c)
 void
 poly_DelContour (PLINE ** c)
 {
-  VNODE *cur;
+  VNODE *cur, *prev;
 
   if (*c == NULL)
     return;
-  for (cur = (*c)->head.prev; cur != &(*c)->head; free (cur->next))
-    cur = cur->prev;
+  for (cur = (*c)->head.prev; cur != &(*c)->head; cur = prev)
+    {
+      prev = cur->prev;
+      if (cur->cvc_next != NULL)
+        {
+          free (cur->cvc_next);
+          free (cur->cvc_prev);
+        }
+      free (cur);
+    }
+  if ((*c)->head.cvc_next != NULL)
+    {
+      free ((*c)->head.cvc_next);
+      free ((*c)->head.cvc_prev);
+    }
   /* FIXME -- strict aliasing violation.  */
   if ((*c)->tree)
     {
