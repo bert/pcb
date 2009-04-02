@@ -227,6 +227,16 @@ typedef enum
   PCB_WATCH_HANGUP   = 1 << 3  /**< As in POLLHUP */
 } PCBWatchFlags;
 
+/* DRC GUI Hooks */
+  typedef struct
+  {
+    int log_drc_overview;
+    int log_drc_violations;
+    void (*reset_drc_dialog_message) (void);
+    void (*append_drc_violation) (DrcViolationType *violation);
+    int (*throw_drc_dialog) (void);
+  } HID_DRC_GUI;
+
 
 /* This is the main HID structure.  */
   typedef struct
@@ -533,6 +543,8 @@ typedef enum
        Pass all zeros to flush display and remove any dialogs.
        Returns nonzero if the user wishes to cancel the operation.  */
     int (*progress) (int so_far_, int total_, const char *message_);
+
+    HID_DRC_GUI *drc_gui;
 
   } HID;
 

@@ -157,11 +157,61 @@ RCSID ("$Id$");
 #define	IS_PV_ON_PAD(PV,Pad) \
 	( IsPointInPad((PV)->X, (PV)->Y, MAX((PV)->Thickness/2 +Bloat,0), (Pad)))
 
-static char drc_dialog_message[289];
+#define LENGTH_TO_HUMAN(value) (Settings.grid_units_mm ? ((value) / 100000.0 * 25.4) : ((value) / 100.0))
+#define LENGTH_DIGITS (Settings.grid_units_mm ? 4 : 2)
+#define LENGTH_UNITS_STRING (Settings.grid_units_mm ? "mm" : "mils")
+
+
+static DrcViolationType
+*pcb_drc_violation_new (char *title,
+                        char *explanation,
+                        int x, int y,
+                        int angle,
+                        int have_measured,
+                        double measured_value,
+                        double required_value,
+                        int value_digits,
+                        const char *value_units,
+                        int object_count,
+                        long int *object_id_list,
+                        int *object_type_list)
+{
+  DrcViolationType *violation = malloc (sizeof (DrcViolationType));
+
+  violation->title = strdup (title);
+  violation->explanation = strdup (explanation);
+  violation->x = x;
+  violation->y = y;
+  violation->angle = angle;
+  violation->have_measured = have_measured;
+  violation->measured_value = measured_value;
+  violation->required_value = required_value;
+  violation->value_digits = value_digits;
+  violation->value_units = value_units;
+  violation->object_count = object_count;
+  violation->object_id_list = object_id_list;
+  violation->object_type_list = object_type_list;
+
+  return violation;
+}
+
+static void
+pcb_drc_violation_free (DrcViolationType *violation)
+{
+  free (violation->title);
+  free (violation->explanation);
+  free (violation);
+}
+
+static char drc_dialog_message[289] = {0};
 static void
 reset_drc_dialog_message(void)
 {
-   drc_dialog_message[0] = 0;
+  drc_dialog_message[0] = 0;
+  if (gui->drc_gui != NULL)
+    {
+      gui->drc_gui->reset_drc_dialog_message ();
+    }
 }
 #ifdef __GNUC__
 static void append_drc_dialog_message(const char *fmt, ...)
@@ -170,7 +220,7 @@ static void append_drc_dialog_message(const char *fmt, ...)
 static void
 append_drc_dialog_message(const char *fmt, ...)
 {
-  size_t len = strlen (drc_dialog_message), 
+  size_t len = strlen (drc_dialog_message),
          remained = sizeof (drc_dialog_message) - len - 1;
   va_list ap;
   va_start (ap, fmt);
@@ -182,6 +232,33 @@ append_drc_dialog_message(const char *fmt, ...)
   va_end (ap);
 }
 
+static void GotoError (void);
+
+static void
+append_drc_violation (DrcViolationType *violation)
+{
+  if (gui->drc_gui != NULL)
+    {
+      gui->drc_gui->append_drc_violation (violation);
+    }
+  else
+    {
+      /* Fallback to formatting the violation message as text */
+      append_drc_dialog_message ("%s\n", violation->title);
+      append_drc_dialog_message (_("near (%.*f, %.*f)\n"),
+                                 LENGTH_DIGITS, LENGTH_TO_HUMAN (violation->x),
+                                 LENGTH_DIGITS, LENGTH_TO_HUMAN (violation->y));
+      GotoError ();
+    }
+
+  if (gui->drc_gui == NULL || gui->drc_gui->log_drc_violations )
+    {
+      Message (_("WARNING!  Design Rule error - %s\n"), violation->title);
+      Message (_("near location (%.*f, %.*f)\n"),
+               LENGTH_DIGITS, LENGTH_TO_HUMAN (violation->x),
+               LENGTH_DIGITS, LENGTH_TO_HUMAN (violation->y));
+    }
+}
 /*
  * message when asked about continuing DRC checks after next 
  * violation is found.
@@ -194,9 +271,18 @@ static int
 throw_drc_dialog(void)
 {
   int r;
-  append_drc_dialog_message (DRC_CONTINUE); 
-  r = gui->confirm_dialog (drc_dialog_message, DRC_CANCEL, DRC_NEXT);
-  reset_drc_dialog_message();
+
+  if (gui->drc_gui != NULL)
+    {
+      r = gui->drc_gui->throw_drc_dialog ();
+    }
+  else
+    {
+      /* Fallback to formatting the violation message as text */
+      append_drc_dialog_message (DRC_CONTINUE);
+      r = gui->confirm_dialog (drc_dialog_message, DRC_CANCEL, DRC_NEXT);
+      reset_drc_dialog_message();
+    }
   return r;
 }
 
@@ -261,6 +347,8 @@ static Boolean PrintAndSelectUnusedPinsAndPadsOfElement (ElementTypePtr,
 static void DrawNewConnections (void);
 static void ResetConnections (Boolean);
 static void DumpList (void);
+static void LocateError (LocationType *, LocationType *);
+static void BuildObjectList (int *, long int **, int **);
 static void GotoError (void);
 static Boolean DRCFind (int, void *, void *, void *);
 static Boolean ListStart (int, void *, void *, void *);
@@ -3470,7 +3558,12 @@ DumpList (void)
 static Boolean
 DRCFind (int What, void *ptr1, void *ptr2, void *ptr3)
 {
-  reset_drc_dialog_message();
+  LocationType x, y;
+  int object_count;
+  long int *object_id_list;
+  int *object_type_list;
+  DrcViolationType *violation;
+
   if (PCB->Shrink != 0)
     {
       Bloat = -PCB->Shrink;
@@ -3488,10 +3581,6 @@ DRCFind (int What, void *ptr1, void *ptr2, void *ptr3)
       if (DoIt (True, False))
         {
           DumpList ();
-          Message
-            (_
-             ("WARNING!!  Design Rule Error - potential for broken trace!\n"));
-          append_drc_dialog_message(_("potential for broken trace\n"));
           /* make the flag changes undoable */
           TheFlag = FOUNDFLAG | SELECTEDFLAG;
           ResetConnections (False);
@@ -3514,7 +3603,26 @@ DRCFind (int What, void *ptr1, void *ptr2, void *ptr3)
           User = False;
           drc = False;
           drcerr_count++;
-          GotoError ();
+          LocateError (&x, &y);
+          BuildObjectList (&object_count, &object_id_list, &object_type_list);
+          violation = pcb_drc_violation_new (_("Potential for broken trace"),
+                                             _("Insufficient overlap between objects can lead to broken tracks\n"
+                                               "due to registration errors with old wheel style photo-plotters."),
+                                             x, y,
+                                             0,     /* ANGLE OF ERROR UNKNOWN */
+                                             FALSE, /* MEASUREMENT OF ERROR UNKNOWN */
+                                             0,     /* MAGNITUDE OF ERROR UNKNOWN */
+                                             LENGTH_TO_HUMAN(PCB->Shrink),
+                                             LENGTH_DIGITS,
+                                             LENGTH_UNITS_STRING,
+                                             object_count,
+                                             object_id_list,
+                                             object_type_list);
+          append_drc_violation (violation);
+          pcb_drc_violation_free (violation);
+          free (object_id_list);
+          free (object_type_list);
+
           if (!throw_drc_dialog())
             return (True);
           IncrementUndoSerialNumber ();
@@ -3533,8 +3641,6 @@ DRCFind (int What, void *ptr1, void *ptr2, void *ptr3)
   while (DoIt (True, False))
     {
       DumpList ();
-      Message (_("WARNING!  Design Rule error - copper areas too close!\n"));
-      append_drc_dialog_message(_("copper areas too close\n"));
       /* make the flag changes undoable */
       TheFlag = FOUNDFLAG | SELECTEDFLAG;
       ResetConnections (False);
@@ -3555,7 +3661,25 @@ DRCFind (int What, void *ptr1, void *ptr2, void *ptr3)
       DoIt (True, True);
       DumpList ();
       drcerr_count++;
-      GotoError ();
+      LocateError (&x, &y);
+      BuildObjectList (&object_count, &object_id_list, &object_type_list);
+      violation = pcb_drc_violation_new (_("Copper areas too close"),
+                                         _("Circuits that are too close may bridge during imaging, etching,\n"
+                                           "plating, or soldering processes resulting in a direct short."),
+                                         x, y,
+                                         0,     /* ANGLE OF ERROR UNKNOWN */
+                                         FALSE, /* MEASUREMENT OF ERROR UNKNOWN */
+                                         0,     /* MAGNITUDE OF ERROR UNKNOWN */
+                                         LENGTH_TO_HUMAN(PCB->Bloat),
+                                         LENGTH_DIGITS,
+                                         LENGTH_UNITS_STRING,
+                                         object_count,
+                                         object_id_list,
+                                         object_type_list);
+      append_drc_violation (violation);
+      pcb_drc_violation_free (violation);
+      free (object_id_list);
+      free (object_type_list);
       User = False;
       drc = False;
       if (!throw_drc_dialog())
@@ -3606,6 +3730,13 @@ static int
 drc_callback (DataTypePtr data, LayerTypePtr layer, PolygonTypePtr polygon,
               int type, void *ptr1, void *ptr2)
 {
+  char *message;
+  LocationType x, y;
+  int object_count;
+  long int *object_id_list;
+  int *object_type_list;
+  DrcViolationType *violation;
+
   LineTypePtr line = (LineTypePtr) ptr2;
   ArcTypePtr arc = (ArcTypePtr) ptr2;
   PinTypePtr pin = (PinTypePtr) ptr2;
@@ -3622,9 +3753,7 @@ drc_callback (DataTypePtr data, LayerTypePtr layer, PolygonTypePtr polygon,
         {
           AddObjectToFlagUndoList (type, ptr1, ptr2, ptr2);
           SET_FLAG (TheFlag, line);
-          Message (_("Line with insufficient clearance inside polygon\n"));
-          append_drc_dialog_message(_("line inside polygon\n"
-            "with insufficient clearance\n"));
+          message = _("Line with insufficient clearance inside polygon\n");
           goto doIsBad;
         }
       break;
@@ -3633,9 +3762,7 @@ drc_callback (DataTypePtr data, LayerTypePtr layer, PolygonTypePtr polygon,
         {
           AddObjectToFlagUndoList (type, ptr1, ptr2, ptr2);
           SET_FLAG (TheFlag, arc);
-          Message (_("Arc with insufficient clearance inside polygon\n"));
-          append_drc_dialog_message(_("arc inside polygon\n"
-            "with insufficient clearance\n"));
+          message = _("Arc with insufficient clearance inside polygon\n");
           goto doIsBad;
         }
       break;
@@ -3645,9 +3772,7 @@ drc_callback (DataTypePtr data, LayerTypePtr layer, PolygonTypePtr polygon,
 	  {
 	    AddObjectToFlagUndoList (type, ptr1, ptr2, ptr2);
 	    SET_FLAG (TheFlag, pad);
-	    Message (_("Pad with insufficient clearance inside polygon\n"));
-	    append_drc_dialog_message(_("pad inside polygon\n"
-          "with insufficient clearance\n"));
+	    message = _("Pad with insufficient clearance inside polygon\n");
 	    goto doIsBad;
 	  }
       break;
@@ -3656,9 +3781,7 @@ drc_callback (DataTypePtr data, LayerTypePtr layer, PolygonTypePtr polygon,
         {
           AddObjectToFlagUndoList (type, ptr1, ptr2, ptr2);
           SET_FLAG (TheFlag, pin);
-          Message (_("Pin with insufficient clearance inside polygon\n"));
-          append_drc_dialog_message(_("pin inside polygon\n"
-            "with insufficient clearance\n"));
+          message = _("Pin with insufficient clearance inside polygon\n");
           goto doIsBad;
         }
       break;
@@ -3667,16 +3790,12 @@ drc_callback (DataTypePtr data, LayerTypePtr layer, PolygonTypePtr polygon,
         {
           AddObjectToFlagUndoList (type, ptr1, ptr2, ptr2);
           SET_FLAG (TheFlag, pin);
-          Message (_("Via with insufficient clearance inside polygon\n"));
-          append_drc_dialog_message(_("via inside polygon\n"
-            "with insufficient clearance\n"));
+          message = _("Via with insufficient clearance inside polygon\n");
           goto doIsBad;
         }
       break;
     default:
       Message ("hace: Bad Plow object in callback\n");
-      append_drc_dialog_message(_("wrong object inside polygon\n"
-        "with insufficient clearance\n"));
     }
   return 0;
 
@@ -3686,7 +3805,25 @@ doIsBad:
   DrawPolygon (layer, polygon, 0);
   DrawObject (type, ptr1, ptr2, 0);
   drcerr_count++;
-  GotoError ();
+  LocateError (&x, &y);
+  BuildObjectList (&object_count, &object_id_list, &object_type_list);
+  violation = pcb_drc_violation_new (message,
+                                     _("Circuits that are too close may bridge during imaging, etching,\n"
+                                       "plating, or soldering processes resulting in a direct short."),
+                                     x, y,
+                                     0,     /* ANGLE OF ERROR UNKNOWN */
+                                     FALSE, /* MEASUREMENT OF ERROR UNKNOWN */
+                                     0,     /* MAGNITUDE OF ERROR UNKNOWN */
+                                     LENGTH_TO_HUMAN(PCB->Bloat),
+                                     LENGTH_DIGITS,
+                                     LENGTH_UNITS_STRING,
+                                     object_count,
+                                     object_id_list,
+                                     object_type_list);
+  append_drc_violation (violation);
+  pcb_drc_violation_free (violation);
+  free (object_id_list);
+  free (object_type_list);
   if (!throw_drc_dialog())
     {
       IsBad = True;
@@ -3704,8 +3841,15 @@ doIsBad:
 int
 DRCAll (void)
 {
+  LocationType x, y;
+  int object_count;
+  long int *object_id_list;
+  int *object_type_list;
+  DrcViolationType *violation;
   int tmpcnt;
   int nopastecnt = 0;
+
+  reset_drc_dialog_message();
 
   IsBad = False;
   drcerr_count = 0;
@@ -3781,12 +3925,28 @@ DRCAll (void)
           {
             AddObjectToFlagUndoList (LINE_TYPE, layer, line, line);
             SET_FLAG (TheFlag, line);
-            Message (_("Line is too thin\n"));
-            append_drc_dialog_message(_("too thin line\n"));
             DrawLine (layer, line, 0);
             drcerr_count++;
             SetThing (LINE_TYPE, layer, line, line);
-            GotoError ();
+            LocateError (&x, &y);
+            BuildObjectList (&object_count, &object_id_list, &object_type_list);
+            violation = pcb_drc_violation_new (_("Line width is too thin"),
+                                               _("Process specifications dictate a minimum feature-width\n"
+                                                 "that can reliably be reproduced"),
+                                               x, y,
+                                               0,    /* ANGLE OF ERROR UNKNOWN */
+                                               TRUE, /* MEASUREMENT OF ERROR KNOWN */
+                                               LENGTH_TO_HUMAN(line->Thickness),
+                                               LENGTH_TO_HUMAN(PCB->minWid),
+                                               LENGTH_DIGITS,
+                                               LENGTH_UNITS_STRING,
+                                               object_count,
+                                               object_id_list,
+                                               object_type_list);
+            append_drc_violation (violation);
+            pcb_drc_violation_free (violation);
+            free (object_id_list);
+            free (object_type_list);
             if (!throw_drc_dialog())
               {
                 IsBad = True;
@@ -3809,12 +3969,28 @@ DRCAll (void)
           {
             AddObjectToFlagUndoList (ARC_TYPE, layer, arc, arc);
             SET_FLAG (TheFlag, arc);
-            Message (_("Arc is too thin\n"));
-            append_drc_dialog_message(_("too thin arc\n"));
             DrawArc (layer, arc, 0);
             drcerr_count++;
             SetThing (ARC_TYPE, layer, arc, arc);
-            GotoError ();
+            LocateError (&x, &y);
+            BuildObjectList (&object_count, &object_id_list, &object_type_list);
+            violation = pcb_drc_violation_new (_("Arc width is too thin"),
+                                               _("Process specifications dictate a minimum feature-width\n"
+                                                 "that can reliably be reproduced"),
+                                               x, y,
+                                               0,    /* ANGLE OF ERROR UNKNOWN */
+                                               TRUE, /* MEASUREMENT OF ERROR KNOWN */
+                                               LENGTH_TO_HUMAN(arc->Thickness),
+                                               LENGTH_TO_HUMAN(PCB->minWid),
+                                               LENGTH_DIGITS,
+                                               LENGTH_UNITS_STRING,
+                                               object_count,
+                                               object_id_list,
+                                               object_type_list);
+            append_drc_violation (violation);
+            pcb_drc_violation_free (violation);
+            free (object_id_list);
+            free (object_type_list);
             if (!throw_drc_dialog())
               {
                 IsBad = True;
@@ -3838,13 +4014,28 @@ DRCAll (void)
           {
             AddObjectToFlagUndoList (PIN_TYPE, element, pin, pin);
             SET_FLAG (TheFlag, pin);
-            Message (_
-                     ("Pin annular ring is too small based on minimum annular ring\n"));
-            append_drc_dialog_message(_("pin ring thinner\nthan min annular ring\n"));
             DrawPin (pin, 0);
             drcerr_count++;
             SetThing (PIN_TYPE, element, pin, pin);
-            GotoError ();
+            LocateError (&x, &y);
+            BuildObjectList (&object_count, &object_id_list, &object_type_list);
+            violation = pcb_drc_violation_new (_("Pin annular ring too small"),
+                                               _("Annular rings that are too small may erode during etching,\n"
+                                                 "resulting in a broken connection"),
+                                               x, y,
+                                               0,    /* ANGLE OF ERROR UNKNOWN */
+                                               TRUE, /* MEASUREMENT OF ERROR KNOWN */
+                                               LENGTH_TO_HUMAN((pin->Thickness - pin->DrillingHole) / 2),
+                                               LENGTH_TO_HUMAN(PCB->minRing),
+                                               LENGTH_DIGITS,
+                                               LENGTH_UNITS_STRING,
+                                               object_count,
+                                               object_id_list,
+                                               object_type_list);
+            append_drc_violation (violation);
+            pcb_drc_violation_free (violation);
+            free (object_id_list);
+            free (object_type_list);
             if (!throw_drc_dialog())
               {
                 IsBad = True;
@@ -3857,12 +4048,27 @@ DRCAll (void)
           {
             AddObjectToFlagUndoList (PIN_TYPE, element, pin, pin);
             SET_FLAG (TheFlag, pin);
-            Message (_("Pin drill size is too small\n"));
-            append_drc_dialog_message(_("too small pin drill\n"));
             DrawPin (pin, 0);
             drcerr_count++;
             SetThing (PIN_TYPE, element, pin, pin);
-            GotoError ();
+            LocateError (&x, &y);
+            BuildObjectList (&object_count, &object_id_list, &object_type_list);
+            violation = pcb_drc_violation_new (_("Pin drill size is too small"),
+                                               _("Process rules dictate the minimum drill size which can be used"),
+                                               x, y,
+                                               0,    /* ANGLE OF ERROR UNKNOWN */
+                                               TRUE, /* MEASUREMENT OF ERROR KNOWN */
+                                               LENGTH_TO_HUMAN(pin->DrillingHole),
+                                               LENGTH_TO_HUMAN(PCB->minDrill),
+                                               LENGTH_DIGITS,
+                                               LENGTH_UNITS_STRING,
+                                               object_count,
+                                               object_id_list,
+                                               object_type_list);
+            append_drc_violation (violation);
+            pcb_drc_violation_free (violation);
+            free (object_id_list);
+            free (object_type_list);
             if (!throw_drc_dialog())
               {
                 IsBad = True;
@@ -3885,12 +4091,28 @@ DRCAll (void)
           {
             AddObjectToFlagUndoList (PAD_TYPE, element, pad, pad);
             SET_FLAG (TheFlag, pad);
-            Message (_("Pad is too thin\n"));
-            append_drc_dialog_message(_("too thin pad\n"));
             DrawPad (pad, 0);
             drcerr_count++;
             SetThing (PAD_TYPE, element, pad, pad);
-            GotoError ();
+            LocateError (&x, &y);
+            BuildObjectList (&object_count, &object_id_list, &object_type_list);
+            violation = pcb_drc_violation_new (_("Pad is too thin"),
+                                               _("Pads which are too thin may erode during etching,\n"
+                                                  "resulting in a broken or unreliable connection"),
+                                               x, y,
+                                               0,    /* ANGLE OF ERROR UNKNOWN */
+                                               TRUE, /* MEASUREMENT OF ERROR KNOWN */
+                                               LENGTH_TO_HUMAN(pad->Thickness),
+                                               LENGTH_TO_HUMAN(PCB->minWid),
+                                               LENGTH_DIGITS,
+                                               LENGTH_UNITS_STRING,
+                                               object_count,
+                                               object_id_list,
+                                               object_type_list);
+            append_drc_violation (violation);
+            pcb_drc_violation_free (violation);
+            free (object_id_list);
+            free (object_type_list);
             if (!throw_drc_dialog())
               {
                 IsBad = True;
@@ -3914,13 +4136,28 @@ DRCAll (void)
           {
             AddObjectToFlagUndoList (VIA_TYPE, via, via, via);
             SET_FLAG (TheFlag, via);
-            Message (_
-                     ("Via annular ring is too small based on minimum annular ring\n"));
-            append_drc_dialog_message(_("via ring thinner\nthan min annular ring\n"));
             DrawVia (via, 0);
             drcerr_count++;
             SetThing (VIA_TYPE, via, via, via);
-            GotoError ();
+            LocateError (&x, &y);
+            BuildObjectList (&object_count, &object_id_list, &object_type_list);
+            violation = pcb_drc_violation_new (_("Via annular ring too small"),
+                                               _("Annular rings that are too small may erode during etching,\n"
+                                                 "resulting in a broken connection"),
+                                               x, y,
+                                               0,    /* ANGLE OF ERROR UNKNOWN */
+                                               TRUE, /* MEASUREMENT OF ERROR KNOWN */
+                                               LENGTH_TO_HUMAN((via->Thickness - via->DrillingHole) / 2),
+                                               LENGTH_TO_HUMAN(PCB->minRing),
+                                               LENGTH_DIGITS,
+                                               LENGTH_UNITS_STRING,
+                                               object_count,
+                                               object_id_list,
+                                               object_type_list);
+            append_drc_violation (violation);
+            pcb_drc_violation_free (violation);
+            free (object_id_list);
+            free (object_type_list);
             if (!throw_drc_dialog())
               {
                 IsBad = True;
@@ -3933,12 +4170,27 @@ DRCAll (void)
           {
             AddObjectToFlagUndoList (VIA_TYPE, via, via, via);
             SET_FLAG (TheFlag, via);
-            Message (_("Via drill size is too small\n"));
-            append_drc_dialog_message(_("too small via drill\n"));
             DrawVia (via, 0);
             drcerr_count++;
             SetThing (VIA_TYPE, via, via, via);
-            GotoError ();
+            LocateError (&x, &y);
+            BuildObjectList (&object_count, &object_id_list, &object_type_list);
+            violation = pcb_drc_violation_new (_("Via drill size is too small"),
+                                               _("Process rules dictate the minimum drill size which can be used"),
+                                               x, y,
+                                               0,    /* ANGLE OF ERROR UNKNOWN */
+                                               TRUE, /* MEASUREMENT OF ERROR KNOWN */
+                                               LENGTH_TO_HUMAN(via->DrillingHole),
+                                               LENGTH_TO_HUMAN(PCB->minDrill),
+                                               LENGTH_DIGITS,
+                                               LENGTH_UNITS_STRING,
+                                               object_count,
+                                               object_id_list,
+                                               object_type_list);
+            append_drc_violation (violation);
+            pcb_drc_violation_free (violation);
+            free (object_id_list);
+            free (object_type_list);
             if (!throw_drc_dialog())
               {
                 IsBad = True;
@@ -3966,12 +4218,28 @@ DRCAll (void)
         if (line->Thickness < PCB->minSlk)
           {
             SET_FLAG (TheFlag, line);
-            Message (_("Silk line is too thin\n"));
-            append_drc_dialog_message(_("too thin silk line\n"));
             DrawLine (layer, line, 0);
             drcerr_count++;
             SetThing (LINE_TYPE, layer, line, line);
-            GotoError ();
+            LocateError (&x, &y);
+            BuildObjectList (&object_count, &object_id_list, &object_type_list);
+            violation = pcb_drc_violation_new (_("Silk line is too thin"),
+                                               _("Process specifications dictate a minimum silkscreen feature-width\n"
+                                                 "that can reliably be reproduced"),
+                                               x, y,
+                                               0,    /* ANGLE OF ERROR UNKNOWN */
+                                               TRUE, /* MEASUREMENT OF ERROR KNOWN */
+                                               LENGTH_TO_HUMAN(line->Thickness),
+                                               LENGTH_TO_HUMAN(PCB->minSlk),
+                                               LENGTH_DIGITS,
+                                               LENGTH_UNITS_STRING,
+                                               object_count,
+                                               object_id_list,
+                                               object_type_list);
+            append_drc_violation (violation);
+            pcb_drc_violation_free (violation);
+            free (object_id_list);
+            free (object_type_list);
             if (!throw_drc_dialog())
               {
                 IsBad = True;
@@ -3998,16 +4266,46 @@ DRCAll (void)
         END_LOOP;
         if (tmpcnt > 0)
           {
+            char *title;
+            char *name;
+            char *buffer;
+            int buflen;
+
             SET_FLAG (TheFlag, element);
-            Message (_("Element %s has %d silk lines which are too thin\n"),
-                     UNKNOWN (NAMEONPCB_NAME (element)), tmpcnt);
-            append_drc_dialog_message (_
-                     ("%i silk lines\n of element %s\nare too thin\n"),
-                     tmpcnt, UNKNOWN (NAMEONPCB_NAME (element)));
             DrawElement (element, 0);
             drcerr_count++;
             SetThing (ELEMENT_TYPE, element, element, element);
-            GotoError ();
+            LocateError (&x, &y);
+            BuildObjectList (&object_count, &object_id_list, &object_type_list);
+
+            title = _("Element %s has %i silk lines which are too thin");
+            name = UNKNOWN (NAMEONPCB_NAME (element));
+
+            /* -4 is for the %s and %i place-holders */
+            /* +11 is the max printed length for a 32 bit integer */
+            /* +1 is for the \0 termination */
+            buflen = strlen (title) - 4 + strlen (name) + 11 + 1;
+            buffer = malloc (buflen);
+            snprintf (buffer, buflen, title, name, tmpcnt);
+
+            violation = pcb_drc_violation_new (buffer,
+                                               _("Process specifications dictate a minimum silkscreen\n"
+                                               "feature-width that can reliably be reproduced"),
+                                               x, y,
+                                               0,    /* ANGLE OF ERROR UNKNOWN */
+                                               0,    /* MINIMUM OFFENDING WIDTH UNKNOWN */
+                                               TRUE, /* MEASUREMENT OF ERROR KNOWN */
+                                               LENGTH_TO_HUMAN(PCB->minSlk),
+                                               LENGTH_DIGITS,
+                                               LENGTH_UNITS_STRING,
+                                               object_count,
+                                               object_id_list,
+                                               object_type_list);
+            free (buffer);
+            append_drc_violation (violation);
+            pcb_drc_violation_free (violation);
+            free (object_id_list);
+            free (object_type_list);
             if (!throw_drc_dialog())
               {
                 IsBad = True;
@@ -4039,36 +4337,34 @@ DRCAll (void)
 }
 
 /*----------------------------------------------------------------------------
- * center the display to show the offending item (thing)
+ * Locate the coordinatates of offending item (thing)
  */
 static void
-GotoError (void)
+LocateError (LocationType *x, LocationType *y)
 {
-  LocationType X, Y;
-
   switch (thing_type)
     {
     case LINE_TYPE:
       {
         LineTypePtr line = (LineTypePtr) thing_ptr3;
-        X = (line->Point1.X + line->Point2.X) / 2;
-        Y = (line->Point1.Y + line->Point2.Y) / 2;
+        *x = (line->Point1.X + line->Point2.X) / 2;
+        *y = (line->Point1.Y + line->Point2.Y) / 2;
         break;
       }
     case ARC_TYPE:
       {
         ArcTypePtr arc = (ArcTypePtr) thing_ptr3;
-        X = arc->X;
-        Y = arc->Y;
+        *x = arc->X;
+        *y = arc->Y;
         break;
       }
     case POLYGON_TYPE:
       {
         PolygonTypePtr polygon = (PolygonTypePtr) thing_ptr3;
-        X =
+        *x =
           (polygon->Clipped->contours->xmin +
            polygon->Clipped->contours->xmax) / 2;
-        Y =
+        *y =
           (polygon->Clipped->contours->ymin +
            polygon->Clipped->contours->ymax) / 2;
         break;
@@ -4077,34 +4373,71 @@ GotoError (void)
     case VIA_TYPE:
       {
         PinTypePtr pin = (PinTypePtr) thing_ptr3;
-        X = pin->X;
-        Y = pin->Y;
+        *x = pin->X;
+        *y = pin->Y;
         break;
       }
     case PAD_TYPE:
       {
         PadTypePtr pad = (PadTypePtr) thing_ptr3;
-        X = (pad->Point1.X + pad->Point2.X) / 2;
-        Y = (pad->Point1.Y + pad->Point2.Y) / 2;
+        *x = (pad->Point1.X + pad->Point2.X) / 2;
+        *y = (pad->Point1.Y + pad->Point2.Y) / 2;
         break;
       }
     case ELEMENT_TYPE:
       {
         ElementTypePtr element = (ElementTypePtr) thing_ptr3;
-        X = element->MarkX;
-        Y = element->MarkY;
+        *x = element->MarkX;
+        *y = element->MarkY;
         break;
       }
     default:
       return;
     }
-  {
-    int digits = Settings.grid_units_mm ? 4: 2;
-    double scale = Settings.grid_units_mm ? COOR_TO_MM : 1./100,
-      x = X * scale, y = Y * scale;
-    Message (_("near location (%.*f,%.*f)\n"), digits, x, digits, y);
-    append_drc_dialog_message("near (%.*f,%.*f)\n", digits, x, digits, y);
-  }
+}
+
+
+/*----------------------------------------------------------------------------
+ * Build a list of the of offending items by ID. (Currently just "thing")
+ */
+static void
+BuildObjectList (int *object_count, long int **object_id_list, int **object_type_list)
+{
+  *object_count = 0;
+  *object_id_list = NULL;
+
+  switch (thing_type)
+    {
+    case LINE_TYPE:
+    case ARC_TYPE:
+    case POLYGON_TYPE:
+    case PIN_TYPE:
+    case VIA_TYPE:
+    case PAD_TYPE:
+    case ELEMENT_TYPE:
+      *object_count = 1;
+      *object_id_list = malloc (sizeof (long int));
+      *object_type_list = malloc (sizeof (int));
+      **object_id_list = ((AnyObjectType *)thing_ptr3)->ID;
+      **object_type_list = thing_type;
+      return;
+
+    default:
+      return;
+    }
+}
+
+
+/*----------------------------------------------------------------------------
+ * center the display to show the offending item (thing)
+ */
+static void
+GotoError (void)
+{
+  LocationType X, Y;
+
+  LocateError (&X, &Y);
+
   switch (thing_type)
     {
     case LINE_TYPE:

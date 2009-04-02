@@ -163,7 +163,8 @@ HID lpr_hid = {
   0 /* lpr_attribute_dialog */ ,
   0 /* lpr_show_item */ ,
   0 /* lpr_beep */ ,
-  0 /* lpr_progress */
+  0 /* lpr_progress */ ,
+  0 /* lpr_drc_gui */
 };
 
 void

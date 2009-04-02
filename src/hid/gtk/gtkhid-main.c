@@ -1579,7 +1579,8 @@ HID ghid_hid = {
   ghid_attribute_dialog,
   ghid_show_item,
   ghid_beep,
-  ghid_progress
+  ghid_progress,
+  0 /* ghid_drc_gui */
 };
 
 HID ghid_extents = {
@@ -1640,7 +1641,8 @@ HID ghid_extents = {
   0 /* ghid_attribute_dialog */ ,
   0 /* ghid_show_item */ ,
   0 /* ghid_beep */ ,
-  0 /* ghid_progress */
+  0 /* ghid_progress */ ,
+  0 /* ghid_drc_gui */
 };
 
 /* ------------------------------------------------------------ 

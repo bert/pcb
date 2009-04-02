@@ -1746,23 +1746,29 @@ ActionDRCheck (int argc, char **argv, int x, int y)
 {
   int count;
 
-  Message (_("Rules are minspace %d.%02d, minoverlap %d.%d "
-	     "minwidth %d.%02d, minsilk %d.%02d\n"
-	     "min drill %d.%02d, min annular ring %d.%02d\n"),
-	   (PCB->Bloat + 1) / 100, (PCB->Bloat + 1) % 100,
-	   PCB->Shrink / 100, PCB->Shrink % 100,
-	   PCB->minWid / 100, PCB->minWid % 100,
-	   PCB->minSlk / 100, PCB->minSlk % 100,
-	   PCB->minDrill / 100, PCB->minDrill % 100,
-	   PCB->minRing / 100, PCB->minRing % 100);
+  if (gui->drc_gui == NULL || gui->drc_gui->log_drc_overview)
+    {
+      Message (_("Rules are minspace %d.%02d, minoverlap %d.%d "
+		 "minwidth %d.%02d, minsilk %d.%02d\n"
+		 "min drill %d.%02d, min annular ring %d.%02d\n"),
+	       (PCB->Bloat + 1) / 100, (PCB->Bloat + 1) % 100,
+	       PCB->Shrink / 100, PCB->Shrink % 100,
+	       PCB->minWid / 100, PCB->minWid % 100,
+	       PCB->minSlk / 100, PCB->minSlk % 100,
+	       PCB->minDrill / 100, PCB->minDrill % 100,
+	       PCB->minRing / 100, PCB->minRing % 100);
+    }
   HideCrosshair (True);
   count = DRCAll ();
-  if (count == 0)
-    Message (_("No DRC problems found.\n"));
-  else if (count > 0)
-    Message (_("Found %d design rule errors.\n"), count);
-  else
-    Message (_("Aborted DRC after %d design rule errors.\n"), -count);
+  if (gui->drc_gui == NULL || gui->drc_gui->log_drc_overview)
+    {
+      if (count == 0)
+	Message (_("No DRC problems found.\n"));
+      else if (count > 0)
+	Message (_("Found %d design rule errors.\n"), count);
+      else
+	Message (_("Aborted DRC after %d design rule errors.\n"), -count);
+    }
   RestoreCrosshair (True);
   return 0;
 }

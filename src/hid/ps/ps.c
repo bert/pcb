@@ -1199,7 +1199,8 @@ HID ps_hid = {
   0 /* ps_attribute_dialog */ ,
   0 /* ps_show_item */ ,
   0 /* ps_beep */ ,
-  0 /* ps_progress */
+  0 /* ps_progress */ ,
+  0 /* ps_drc_gui */
 };
 
 #include "dolists.h"

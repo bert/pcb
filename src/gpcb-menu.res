@@ -447,6 +447,7 @@ MainMenu =
   {Window
    {"Library" DoWindows(Library) a={"i" "<Key>i"}}
    {"Message Log" DoWindows(Log)}
+   {"DRC Check" DoWindows(DRC)}
    {"Netlist" DoWindows(Netlist)}
    {"Command Entry" Command() a={":" "<Key>:"}}
    {"Pinout" Display(Pinout) a={"Shift-D" "Shift<Key>d"}}
