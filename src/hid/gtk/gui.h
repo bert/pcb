@@ -177,6 +177,8 @@ typedef struct
     top_window_height,
     log_window_width,
     log_window_height,
+    drc_window_width,
+    drc_window_height,
     keyref_window_width,
     keyref_window_height,
     library_window_width,
@@ -378,6 +380,13 @@ void ghid_dialog_export (void);
 void ghid_dialog_print (HID *);
 
 int ghid_attribute_dialog (HID_Attribute *, int, HID_Attr_Val *, const char *, const char *);
+
+/* gui-drc-window.c */
+void ghid_drc_window_show (gboolean raise);
+void ghid_drc_window_reset_message (void);
+void ghid_drc_window_append_violation (DrcViolationType *violation);
+void ghid_drc_window_append_messagev (const char *fmt, va_list va);
+int ghid_drc_window_throw_dialog (void);
 
 /* gui-route-style function prototypes.
 */
