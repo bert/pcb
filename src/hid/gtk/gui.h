@@ -519,6 +519,14 @@ void ghid_logv (const char *fmt, va_list args);
 /* gui-pinout-window.c */
 void ghid_pinout_window_show (GHidPort * out, ElementTypePtr Element);
 
+/* gui-render-pixmap.c */
+GdkPixmap *ghid_render_pixmap (int cx,
+			       int cy,
+			       double zoom,
+			       int width,
+			       int height,
+			       int depth);
+
 /* gtkhid-main.c */
 void ghid_invalidate_all ();
 void ghid_get_coords (const char *msg, int *x, int *y);

@@ -62,12 +62,14 @@ struct _GhidDrcViolation
   int object_count;
   long int *object_id_list;
   int *object_type_list;
+  GdkDrawable *pixmap;
 };
 
 
 GType ghid_drc_violation_get_type (void);
 
-GhidDrcViolation *ghid_drc_violation_new (DrcViolationType *violation);
+GhidDrcViolation *ghid_drc_violation_new (DrcViolationType *violation,
+					  GdkDrawable *pixmap);
 
 
 #define GHID_TYPE_VIOLATION_RENDERER           (ghid_violation_renderer_get_type())
