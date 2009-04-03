@@ -1217,7 +1217,7 @@ ghid_set_crosshair (int x, int y, int action)
      * hopefully by avoiding the direct call to an X function we might still work under windows
      * and other non-X11 based gdk's
      */
-    gdk_display_warp_pointer (display, screen, xofs + Vx2 (x), yofs + Vy2 (y));
+    gdk_display_warp_pointer (display, screen, xofs + Vx (x), yofs + Vy (y));
 
 
 #else
@@ -1227,7 +1227,7 @@ ghid_set_crosshair (int x, int y, int action)
     XWarpPointer (GDK_DRAWABLE_XDISPLAY (gport->drawing_area->window),
 		  None, GDK_WINDOW_XID (gport->drawing_area->window),
 		  0, 0, 0, 0,
-		  xofs + Vx2 (x), yofs + Vy2 (y));
+		  xofs + Vx (x), yofs + Vy (y));
 #  else
 #    error  "sorry.  You need gtk+>=2.8.0 unless you are on X windows"
 #  endif
