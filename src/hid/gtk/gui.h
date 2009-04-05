@@ -539,4 +539,59 @@ extern GdkPixmap *XC_hand_source, *XC_hand_mask;
 extern GdkPixmap *XC_lock_source, *XC_lock_mask;
 extern GdkPixmap *XC_clock_source, *XC_clock_mask;
 
+
+/* Coordinate conversions */
+/* Px converts view->pcb, Vx converts pcb->view */
+static inline int
+Vx (int x)
+{
+  int rv;
+  if (ghid_flip_x)
+    rv = (PCB->MaxWidth - x - gport->view_x0) / gport->zoom + 0.5;
+  else
+    rv = (x - gport->view_x0) / gport->zoom + 0.5;
+  return rv;
+}
+
+static inline int
+Vy (int y)
+{
+  int rv;
+  if (ghid_flip_y)
+    rv = (PCB->MaxHeight - y - gport->view_y0) / gport->zoom + 0.5;
+  else
+    rv = (y - gport->view_y0) / gport->zoom + 0.5;
+  return rv;
+}
+
+static inline int
+Vz (int z)
+{
+  return z / gport->zoom + 0.5;
+}
+
+static inline int
+Px (int x)
+{
+  int rv = x * gport->zoom + gport->view_x0;
+  if (ghid_flip_x)
+    rv = PCB->MaxWidth - (x * gport->zoom + gport->view_x0);
+  return  rv;
+}
+
+static inline int
+Py (int y)
+{
+  int rv = y * gport->zoom + gport->view_y0;
+  if (ghid_flip_y)
+    rv = PCB->MaxHeight - (y * gport->zoom + gport->view_y0);
+  return  rv;
+}
+
+static inline int
+Pz (int z)
+{
+  return (z * gport->zoom);
+}
+
 #endif /* __GHID_INCLUDED__  */
