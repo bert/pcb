@@ -649,10 +649,10 @@ ghid_violation_renderer_set_property (GObject * object, guint property_id,
   if (renderer->violation->have_measured)
     {
       markup = g_strdup_printf ("<b>%s (%.*f %s)</b>\n"
-				"<span font_size='1024'> </span>\n"
+				"<span size='1024'> </span>\n"
 				"<small>"
 				  "<i>%s</i>\n"
-				  "<span font_size='5120'> </span>\n"
+				  "<span size='5120'> </span>\n"
 				  "Required: %.*f %s"
 				"</small>",
 				renderer->violation->title,
@@ -667,10 +667,10 @@ ghid_violation_renderer_set_property (GObject * object, guint property_id,
   else
     {
       markup = g_strdup_printf ("<b>%s</b>\n"
-				"<span font_size='1024'> </span>\n"
+				"<span size='1024'> </span>\n"
 				"<small>"
 				  "<i>%s</i>\n"
-				  "<span font_size='5120'> </span>\n"
+				  "<span size='5120'> </span>\n"
 				  "Required: %.*f %s"
 				"</small>",
 				renderer->violation->title,
