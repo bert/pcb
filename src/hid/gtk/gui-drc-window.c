@@ -72,6 +72,12 @@ drc_close_cb (gpointer data)
 }
 
 static void
+drc_refresh_cb (gpointer data)
+{
+  hid_actionl ("DRC", NULL);
+}
+
+static void
 drc_destroy_cb (GtkWidget * widget, gpointer data)
 {
   drc_window = NULL;
@@ -894,8 +900,9 @@ ghid_drc_window_show (gboolean raise)
 			       ghidgui->drc_window_height);
 
   vbox = gtk_vbox_new (FALSE, 0);
-  gtk_container_set_border_width (GTK_CONTAINER (vbox), 6);
   gtk_container_add (GTK_CONTAINER (drc_window), vbox);
+  gtk_container_set_border_width (GTK_CONTAINER (vbox), 6);
+  gtk_box_set_spacing (GTK_BOX (vbox), 6);
 
   drc_list_model = gtk_list_store_new (NUM_DRC_COLUMNS,
 				       G_TYPE_INT,      /* DRC_VIOLATION_NUM_COL */
@@ -936,6 +943,14 @@ ghid_drc_window_show (gboolean raise)
   hbox = gtk_hbutton_box_new ();
   gtk_button_box_set_layout (GTK_BUTTON_BOX (hbox), GTK_BUTTONBOX_END);
   gtk_box_pack_start (GTK_BOX (vbox), hbox, FALSE, FALSE, 0);
+
+  gtk_box_set_spacing (GTK_BOX (hbox), 6);
+
+  button = gtk_button_new_from_stock (GTK_STOCK_REFRESH);
+  g_signal_connect (G_OBJECT (button), "clicked",
+		    G_CALLBACK (drc_refresh_cb), NULL);
+  gtk_box_pack_start (GTK_BOX (hbox), button, TRUE, TRUE, 0);
+
   button = gtk_button_new_from_stock (GTK_STOCK_CLOSE);
   g_signal_connect (G_OBJECT (button), "clicked",
 		    G_CALLBACK (drc_close_cb), NULL);
