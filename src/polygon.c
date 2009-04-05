@@ -1256,8 +1256,9 @@ PolygonHoles (PolygonType *polygon, const BoxType *range,
     return 0;
   for (pl = pa->contours->next; pl; pl = pl->next)
     {
-      if (pl->xmin > range->X2 || pl->xmax < range->X1 ||
-          pl->ymin > range->Y2 || pl->ymax < range->Y1)
+      if (range != NULL &&
+          (pl->xmin > range->X2 || pl->xmax < range->X1 ||
+           pl->ymin > range->Y2 || pl->ymax < range->Y1))
         continue;
       if (callback (pl, user_data))
         {
