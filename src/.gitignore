@@ -1,0 +1,10 @@
+*.[oa]
+*_lists.h
+edif.[ch]
+parse_l.c
+parse_y.[ch]
+res_lex.c
+res_parse.[ch]
+*pcb-menu.h
+pcbtest.sh
+pcb

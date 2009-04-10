@@ -1,0 +1,10 @@
+Makefile*
+POTFILES
+*.gmo
+*.gmo
+*.sed
+*.header
+*.sin
+Rules-quot
+Makevars.template
+.intltool-merge-cache
