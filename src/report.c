@@ -541,6 +541,144 @@ ReportFoundPins (int argc, char **argv, int x, int y)
   return 0;
 }
 
+static double
+XYtoNetLength (int x, int y, int *found)
+{
+  double length;
+
+  length = 0;
+  *found = 0;
+  LookupConnection (x, y, True, PCB->Grid, FOUNDFLAG);
+
+  ALLLINE_LOOP (PCB->Data);
+  {
+    if (TEST_FLAG (FOUNDFLAG, line))
+      {
+	double l;
+	int dx, dy;
+	dx = line->Point1.X - line->Point2.X;
+	dy = line->Point1.Y - line->Point2.Y;
+	l = sqrt ((double)dx*dx + (double)dy*dy);
+	length += l;
+	*found = 1;
+      }
+  }
+  ENDALL_LOOP;
+
+  ALLARC_LOOP (PCB->Data);
+  {
+    if (TEST_FLAG (FOUNDFLAG, arc))
+      {
+	double l;
+	/* FIXME: we assume width==height here */
+	l = M_PI * 2*arc->Width * abs(arc->Delta)/360.0;
+	length += l;
+	*found = 1;
+      }
+  }
+  ENDALL_LOOP;
+
+  return length;
+}
+
+static int
+ReportAllNetLengths (int argc, char **argv, int x, int y)
+{
+  enum { Upcb, Umm, Umil, Uin } units;
+  int ni, nei;
+  int found;
+  double length;
+
+  units = Settings.grid_units_mm ? Umm : Umil;
+
+  if (argc >= 1)
+    {
+      printf("Units: %s\n", argv[0]);
+      if (strcasecmp (argv[0], "mm") == 0)
+	units = Umm;
+      else if (strcasecmp (argv[0], "mil") == 0)
+	units = Umil;
+      else if (strcasecmp (argv[0], "in") == 0)
+	units = Uin;
+      else
+	units = Upcb;
+    }
+
+  for (ni = 0; ni < PCB->NetlistLib.MenuN; ni++)
+    {
+      char *netname = PCB->NetlistLib.Menu[ni].Name + 2;
+      char *ename = PCB->NetlistLib.Menu[ni].Entry[0].ListEntry;
+      char *pname;
+
+      ename = strdup (ename);
+      pname = strchr (ename, '-');
+      if (! pname)
+	{
+	  free (ename);
+	  continue;
+	}
+      *pname++ = 0;
+
+      ELEMENT_LOOP (PCB->Data);
+      {
+	char *es = element->Name[NAMEONPCB_INDEX].TextString;
+	if (es && strcmp (es, ename) == 0)
+	  {
+	    PIN_LOOP (element);
+	    {
+	      if (strcmp (pin->Number, pname) == 0)
+		{
+		  x = pin->X;
+		  y = pin->Y;
+		  goto got_one;
+		}
+	    }
+	    END_LOOP;
+	    PAD_LOOP (element);
+	    {
+	      if (strcmp (pad->Number, pname) == 0)
+		{
+		  x = (pad->Point1.X + pad->Point2.X) / 2;
+		  y = (pad->Point1.Y + pad->Point2.Y) / 2;
+		  goto got_one;
+		}
+	    }
+	    END_LOOP;
+	  }
+      }
+      END_LOOP;
+
+      continue;
+
+    got_one:
+      SaveUndoSerialNumber ();
+      ResetFoundPinsViasAndPads (True);
+      RestoreUndoSerialNumber ();
+      ResetFoundLinesAndPolygons (True);
+      RestoreUndoSerialNumber ();
+      length = XYtoNetLength (x, y, &found);
+
+      switch (units)
+	{
+	case Upcb:
+	  gui->log("Net %s length %d\n", netname, (int)length);
+	  break;
+	case Umm:
+	  length *= COOR_TO_MM;
+	  gui->log("Net %s length %.2f mm\n", netname, length);
+	  break;
+	case Umil:
+	  length /= 100;
+	  gui->log("Net %s length %d mil\n", netname, (int)length);
+	  break;
+	case Uin:
+	  length /= 100000.0;
+	  gui->log("Net %s length %.3f in\n", netname, length);
+	  break;
+	}
+    }
+}
+
 static int
 ReportNetLength (int argc, char **argv, int x, int y)
 {
@@ -554,35 +692,8 @@ ReportNetLength (int argc, char **argv, int x, int y)
   ResetFoundLinesAndPolygons (True);
   RestoreUndoSerialNumber ();
   gui->get_coords ("Click on a connection", &x, &y);
-  LookupConnection (x, y, True, PCB->Grid, FOUNDFLAG);
 
-  ALLLINE_LOOP (PCB->Data);
-  {
-    if (TEST_FLAG (FOUNDFLAG, line))
-      {
-	double l;
-	int dx, dy;
-	dx = line->Point1.X - line->Point2.X;
-	dy = line->Point1.Y - line->Point2.Y;
-	l = sqrt ((double)dx*dx + (double)dy*dy);
-	length += l;
-	found = 1;
-      }
-  }
-  ENDALL_LOOP;
-
-  ALLARC_LOOP (PCB->Data);
-  {
-    if (TEST_FLAG (FOUNDFLAG, arc))
-      {
-	double l;
-	/* FIXME: we assume width==height here */
-	l = M_PI * 2*arc->Width * abs(arc->Delta)/360.0;
-	length += l;
-	found = 1;
-      }
-  }
-  ENDALL_LOOP;
+  XYtoNetLength (x, y, &found);
 
   if (!found)
     {
@@ -659,7 +770,7 @@ ReportNetLength (int argc, char **argv, int x, int y)
  * syntax: 
  */
 
-static const char report_syntax[] = "Report(Object|DrillReport|FoundPins|NetLength)";
+static const char report_syntax[] = "Report(Object|DrillReport|FoundPins|NetLength|AllNetLengths)";
 
 static const char report_help[] = "Produce various report.";
 
@@ -683,6 +794,11 @@ be produced.
 The name and length of the net under the crosshair will be reported to
 the message log.
 
+@item AllNetLengths
+The name and length of the net under the crosshair will be reported to
+the message log.  An optional parameter specifies mm, mil, pcb, or in
+units
+
 @end table
 
 %end-doc */
@@ -690,7 +806,7 @@ the message log.
 static int
 Report (int argc, char **argv, int x, int y)
 {
-  if (argc != 1)
+  if (argc < 1)
     AUSAGE (report);
   else if (strcasecmp (argv[0], "Object") == 0)
     {
@@ -703,6 +819,8 @@ Report (int argc, char **argv, int x, int y)
     return ReportFoundPins (argc - 1, argv + 1, x, y);
   else if (strcasecmp (argv[0], "NetLength") == 0)
     return ReportNetLength (argc - 1, argv + 1, x, y);
+  else if (strcasecmp (argv[0], "AllNetLengths") == 0)
+    return ReportAllNetLengths (argc - 1, argv + 1, x, y);
   else
     AFAIL (report);
   return 1;
