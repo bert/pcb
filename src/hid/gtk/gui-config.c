@@ -1924,6 +1924,7 @@ config_color_set_cb (GtkWidget * button, ConfigColor * cc)
   gtk_widget_set_sensitive (config_colors_save_button, TRUE);
   gtk_widget_set_sensitive (config_color_warn_label, TRUE);
 
+  ghid_set_special_colors (ha);
   ghid_layer_buttons_color_update ();
   ghid_invalidate_all();
 }
