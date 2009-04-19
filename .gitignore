@@ -13,3 +13,4 @@ ABOUT-NLS
 stamp-*
 *.stamp
 /missing
+*.backup
