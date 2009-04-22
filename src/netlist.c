@@ -57,6 +57,7 @@
 #include "rats.h"
 #include "set.h"
 #include "vendor.h"
+#include "create.h"
 
 #ifdef HAVE_REGCOMP
 #undef HAVE_RE_COMP
@@ -178,9 +179,98 @@ netlist_norats (LibraryMenuType * net, LibraryEntryType * pin)
   hid_action ("NetlistChanged");
 }
 
+/* The primary purpose of this action is to remove the netlist
+   completely so that a new one can be loaded, usually via a gsch2pcb
+   style script.  */
+static void
+netlist_clear (LibraryMenuType * net, LibraryEntryType * pin)
+{
+  LibraryType *netlist = &PCB->NetlistLib;
+  int ni, pi;
+
+  if (net == 0)
+    {
+      /* Clear the entire netlist. */
+      FreeLibraryMemory (&PCB->NetlistLib);
+    }
+  else if (pin == 0)
+    {
+      /* Remove a net from the netlist. */
+      ni = net - netlist->Menu;
+      if (ni >= 0 && ni < netlist->MenuN)
+	{
+	  /* if there is exactly one item, MenuN is 1 and ni is 0 */
+	  if (netlist->MenuN - ni > 1)
+	    memmove (net, net+1, (netlist->MenuN - ni - 1) * sizeof (*net));
+	  netlist->MenuN --;
+	}
+    }
+  else
+    {
+      /* Remove a pin from the given net.  Note that this may leave an
+	 empty net, which is different than removing the net
+	 (above).  */
+      pi = pin - net->Entry;
+      if (pi >= 0 && pi < net->EntryN)
+	{
+	  /* if there is exactly one item, MenuN is 1 and ni is 0 */
+	  if (net->EntryN - pi > 1)
+	    memmove (pin, pin+1, (net->EntryN - pi - 1) * sizeof (*pin));
+	  net->EntryN --;
+	}
+    }
+  hid_action ("NetlistChanged");
+}
+
+static void
+netlist_style (LibraryMenuType *net, const char *style)
+{
+  if (net->Style)
+    MYFREE (net->Style);
+  if (style)
+    net->Style = MyStrdup ((char *)style, "Netlist(Style)");
+}
+
+/* The primary purpose of this action is to rebuild a netlist from a
+   script, in conjunction with the clear action above.  */
+static int
+netlist_add (const char *netname, const char *pinname, const char *defer_update)
+{
+  int ni, pi;
+  LibraryType *netlist = &PCB->NetlistLib;
+  LibraryMenuType *net = NULL;
+  LibraryEntryType *pin = NULL;
+
+  for (ni=0; ni<netlist->MenuN; ni++)
+    if (strcmp (netlist->Menu[ni].Name+2, netname) == 0)
+      {
+	net = & (netlist->Menu[ni]);
+	break;
+      }
+  if (net == NULL)
+    {
+      net = CreateNewNet (netlist, (char *)netname, NULL);
+    }
+
+  for (pi=0; pi<net->EntryN; pi++)
+    if (strcmp (net->Entry[pi].ListEntry, pinname) == 0)
+      {
+	pin = & (net->Entry[pi]);
+	break;
+      }
+  if (pin == NULL)
+    {
+      pin = CreateNewConnection (net, (char *)pinname);
+    }
+
+  if (!defer_update)
+    hid_action ("NetlistChanged");
+  return 0;
+}
 
 static const char netlist_syntax[] =
-  "Net(find|select|rats|norats[,net[,pin]])";
+  "Net(find|select|rats|norats|clear[,net[,pin]])\n"
+  "Net(add,net,pin[,defer])";
 
 static const char netlist_help[] = "Perform various actions on netlists.";
 
@@ -212,9 +302,22 @@ Nets which apply are marked as available for the rats nest.
 @item norats
 Nets which apply are marked as not available for the rats nest.
 
+@item clear
+Clears the netlist.
+
+@item add
+Add the given pin to the given netlist, creating either if needed.  If
+defer is specified, the GUI is not informed of this change - after a
+list of such changes, call NetlistChanged() to update the GUI.
+
+@item sort
+Called after a list of add's, this sorts the netlist.
+
 @end table
 
 %end-doc */
+
+#define ARG(n) (argc > (n) ? argv[n] : 0)
 
 static int
 Netlist (int argc, char **argv, int x, int y)
@@ -251,6 +354,27 @@ Netlist (int argc, char **argv, int x, int y)
     func = netlist_rats;
   else if (strcasecmp (argv[0], "norats") == 0)
     func = netlist_norats;
+  else if (strcasecmp (argv[0], "clear") == 0)
+    {
+      func = netlist_clear;
+      if (argc == 1)
+	{
+	  netlist_clear (NULL, NULL);
+	  hid_action ("NetlistChanged");
+	  return 0;
+	}
+    }
+  else if (strcasecmp (argv[0], "style") == 0)
+    func = (void *)netlist_style;
+  else if (strcasecmp (argv[0], "add") == 0)
+    {
+      /* Add is different, because the net/pin won't already exist.  */
+      return netlist_add (ARG(1), ARG(2), ARG(3));
+    }
+  else if (strcasecmp (argv[0], "sort") == 0)
+    {
+      return sort_netlist ();
+    }
   else
     {
       Message (netlist_syntax);
@@ -295,7 +419,7 @@ Netlist (int argc, char **argv, int x, int y)
     }
 #endif
 
-  for (i = 0; i < PCB->NetlistLib.MenuN; i++)
+  for (i = PCB->NetlistLib.MenuN-1; i >= 0; i--)
     {
       net = PCB->NetlistLib.Menu + i;
 
@@ -321,10 +445,14 @@ Netlist (int argc, char **argv, int x, int y)
       net_found = 1;
 
       pin = 0;
-      if (argc > 2)
+      if (func == (void *)netlist_style)
+	{
+	  netlist_style (net, ARG(2));
+	}
+      else if (argc > 2)
 	{
 	  int l = strlen (argv[2]);
-	  for (j = 0; j < net->EntryN; j++)
+	  for (j = net->EntryN-1; j >= 0 ; j--)
 	    if (strcasecmp (net->Entry[j].ListEntry, argv[2]) == 0
 		|| (strncasecmp (net->Entry[j].ListEntry, argv[2], l) == 0
 		    && net->Entry[j].ListEntry[l] == '-'))

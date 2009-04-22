@@ -52,4 +52,7 @@ void *MoveObjectToBuffer (DataTypePtr, DataTypePtr, int, void *, void *, void *)
 void *CopyObjectToBuffer (DataTypePtr, DataTypePtr, int,
 			  void *, void *, void *);
 
+/* This action is called from ActionElementAddIf() */
+int LoadFootprint (int argc, char **argv, int x, int y);
+
 #endif

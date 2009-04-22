@@ -3116,6 +3116,8 @@ lesstif_set_line_cap (hidGC gc, EndCapStyle style)
 static void
 lesstif_set_line_width (hidGC gc, int width)
 {
+  if (width == 1)
+    width = 0;
   gc->width = width;
 }
 

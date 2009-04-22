@@ -2080,3 +2080,92 @@ GetInfoString (void)
 
   return info.Data;
 }
+
+/* ---------------------------------------------------------------------------
+ * Returns a best guess about the orientation of an element.  The
+ * value corresponds to the rotation; a difference is the right value
+ * to pass to RotateElementLowLevel.  However, the actual value is no
+ * indication of absolute rotation; only relative rotation is
+ * meaningful.
+ */
+
+int 
+ElementOrientation (ElementType *e)
+{
+  int pin1x, pin1y, pin2x, pin2y, dx, dy;
+  int found_pin1 = 0;
+  int found_pin2 = 0;
+
+  PIN_LOOP (e);
+  {
+    if (NSTRCMP (pin->Number, "1") == 0)
+      {
+	pin1x = pin->X;
+	pin1y = pin->Y;
+	found_pin1 = 1;
+      }
+    else if (NSTRCMP (pin->Number, "2") == 0)
+      {
+	pin2x = pin->X;
+	pin2y = pin->Y;
+	found_pin2 = 1;
+      }
+  }
+  END_LOOP;
+
+  PAD_LOOP (e);
+  {
+    if (NSTRCMP (pad->Number, "1") == 0)
+      {
+	pin1x = (pad->Point1.X + pad->Point2.X) / 2;
+	pin1y = (pad->Point1.Y + pad->Point2.Y) / 2;
+	found_pin1 = 1;
+      }
+    else if (NSTRCMP (pad->Number, "2") == 0)
+      {
+	pin2x = (pad->Point1.X + pad->Point2.X) / 2;
+	pin2y = (pad->Point1.Y + pad->Point2.Y) / 2;
+	found_pin2 = 1;
+      }
+  }
+  END_LOOP;
+
+  if (found_pin1 && found_pin2)
+    {
+      dx = pin2x - pin1x;
+      dy = pin2y - pin1y;
+    }
+  else if (found_pin1 && (pin1x || pin1y))
+    {
+      dx = pin1x;
+      dy = pin1y;
+    }
+  else if (found_pin2 && (pin2x || pin2y))
+    {
+      dx = pin2x;
+      dy = pin2y;
+    }
+  else
+    return 0;
+
+  if (abs(dx) > abs(dy))
+    return dx > 0 ? 0 : 2;
+  return dy > 0 ? 3 : 1;
+}
+
+int
+ActionListRotations(int argc, char **argv, int x, int y)
+{
+  ELEMENT_LOOP (PCB->Data);
+  {
+    printf("%d %s\n", ElementOrientation(element), NAMEONPCB_NAME(element));
+  }
+  END_LOOP;
+}
+
+HID_Action misc_action_list[] = {
+  {"ListRotations", 0, ActionListRotations,
+   0,0},
+};
+
+REGISTER_ACTIONS (misc_action_list)

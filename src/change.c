@@ -982,6 +982,30 @@ ChangeLineName (LayerTypePtr Layer, LineTypePtr Line)
 /* ---------------------------------------------------------------------------
  * changes the layout-name of an element
  */
+
+char *
+ChangeElementText (PCBType *pcb, DataType *data, ElementTypePtr Element, int which, char *new_name)
+{
+  char *old = Element->Name[which].TextString;
+
+  if (pcb && which == NAME_INDEX (pcb))
+    EraseElementName (Element);
+
+  r_delete_entry (data->name_tree[which],
+		  (BoxType *) & Element->Name[which].TextString);
+
+  Element->Name[which].TextString = new_name;
+  SetTextBoundingBox (&PCB->Font, &Element->Name[which]);
+
+  r_insert_entry (data->name_tree[which],
+		  (BoxType *) & Element->Name[which].TextString, 0);
+
+  if (pcb && which == NAME_INDEX (pcb))
+    DrawElementName (Element, 0);
+
+  return old;
+}
+
 static void *
 ChangeElementName (ElementTypePtr Element)
 {
@@ -998,15 +1022,8 @@ ChangeElementName (ElementTypePtr Element)
 	  return ((char *) -1);
 	}
     }
-  EraseElementName (Element);
-  r_delete_entry (PCB->Data->name_tree[NAME_INDEX (PCB)],
-		  (BoxType *) & ELEMENT_TEXT (PCB, Element));
-  ELEMENT_NAME (PCB, Element) = NewName;
-  SetTextBoundingBox (&PCB->Font, &ELEMENT_TEXT (PCB, Element));
-  r_insert_entry (PCB->Data->name_tree[NAME_INDEX (PCB)],
-		  (BoxType *) & ELEMENT_TEXT (PCB, Element), 0);
-  DrawElementName (Element, 0);
-  return (old);
+
+  return ChangeElementText (PCB, PCB->Data, Element, NAME_INDEX (PCB), NewName);
 }
 
 /* ---------------------------------------------------------------------------

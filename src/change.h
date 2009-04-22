@@ -107,4 +107,10 @@ void *ChangeObjectName (int, void *, void *, void *, char *);
 void *QueryInputAndChangeObjectName (int, void *, void *, void *);
 void ChangePCBSize (BDimension, BDimension);
 
+/* Change the specified text on an element, either on the board (give
+   PCB, PCB->Data) or in a buffer (give NULL, Buffer->Data).  The old
+   string is returned, and must be properly freed by the caller.  */
+char *ChangeElementText (PCBType *pcb, DataType *data, ElementTypePtr Element,
+			 int which, char *new_name);
+
 #endif

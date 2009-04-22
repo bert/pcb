@@ -70,6 +70,7 @@
 #include "thermal.h"
 #include "undo.h"
 #include "rtree.h"
+#include "macro.h"
 
 #ifdef HAVE_LIBDMALLOC
 #include <dmalloc.h>
@@ -305,6 +306,9 @@ static struct
   void *ptr3;
 }
 Note;
+
+static int defer_updates = 0;
+static int defer_needs_update = 0;
 
 static Cardinal polyIndex = 0;
 static Boolean IgnoreMotionEvents = False;
@@ -4436,8 +4440,13 @@ ActionChangePinName (int argc, char **argv, int x, int y)
    */
   if (changed)
     {
-      IncrementUndoSerialNumber ();
-      gui->invalidate_all ();
+      if (defer_updates)
+	defer_needs_update = 1;
+      else
+	{
+	  IncrementUndoSerialNumber ();
+	  gui->invalidate_all ();
+	}
     }
 
   return 0;
@@ -6752,6 +6761,8 @@ ActionExecuteFile (int argc, char **argv, int x, int y)
       return 1;
     }
 
+  defer_updates = 1;
+  defer_needs_update = 0;
   while (fgets (line, sizeof (line), fp) != NULL)
     {
       n++;
@@ -6774,11 +6785,17 @@ ActionExecuteFile (int argc, char **argv, int x, int y)
 
       if (*sp && *sp != '#')
 	{
-	  Message ("%s : line %-3d : \"%s\"\n", fname, n, sp);
+	  /*Message ("%s : line %-3d : \"%s\"\n", fname, n, sp);*/
 	  hid_parse_actions (sp, 0);
 	}
     }
 
+  defer_updates = 0;
+  if (defer_needs_update)
+    {
+      IncrementUndoSerialNumber ();
+      gui->invalidate_all ();
+    }
   fclose (fp);
   return 0;
 }
@@ -6790,6 +6807,287 @@ ActionPSCalib (int argc, char **argv, int x, int y)
 {
   HID *ps = hid_find_exporter ("ps");
   ps->calibrate (0.0,0.0);
+  return 0;
+}
+
+/* --------------------------------------------------------------------------- */
+
+static ElementType *element_cache = NULL;
+
+static ElementType *
+find_element_by_refdes (char *refdes)
+{
+  if (element_cache
+      && strcmp (NAMEONPCB_NAME(element_cache), refdes) == 0)
+    return element_cache;
+
+  ELEMENT_LOOP (PCB->Data);
+  {
+    if (NAMEONPCB_NAME(element)
+	&& strcmp (NAMEONPCB_NAME(element), refdes) == 0)
+      {
+	element_cache = element;
+	return element_cache;
+      }
+  }
+  END_LOOP;
+  return NULL;
+}
+
+static AttributeType *
+lookup_attr (AttributeListTypePtr list, const char *name)
+{
+  int i;
+  for (i=0; i<list->Number; i++)
+    if (strcmp (list->List[i].name, name) == 0)
+      return & list->List[i];
+  return NULL;
+}
+
+static void
+delete_attr (AttributeListTypePtr list, AttributeType *attr)
+{
+  int idx = attr - list->List;
+  if (idx < 0 || idx >= list->Number)
+    return;
+  if (list->Number - idx > 1)
+    memmove (attr, attr+1, (list->Number - idx - 1) * sizeof(AttributeType));
+  list->Number --;
+}
+
+static const char elementaddstart_syntax[] = "ElementAddStart()";
+
+static const char elementaddstart_help[] = "Notes the start of an element set update.";
+
+/* %start-doc actions elementaddstart
+
+Used before conditionally adding elements, it clears the list of
+"remembered" elements, so that unlisted elements can be discovered
+later.
+
+%end-doc */
+
+static int
+ActionElementAddStart (int argc, char **argv, int x, int y)
+{
+  ELEMENT_LOOP (PCB->Data);
+  {
+    CLEAR_FLAG (FOUNDFLAG, element);
+  }
+  END_LOOP;
+  element_cache = NULL;
+  return 0;
+}
+
+static const char elementaddif_syntax[] = "ElementAddIf(<refdes>,<footprint>,<value>)";
+
+static const char elementaddif_help[] = "Adds the given element if it doesn't already exist.";
+
+/* %start-doc actions elementaddif
+
+Searches the board for an element with a matching refdes.
+
+If found, the value and footprint are updated.
+
+If not found, a new element is created with the given footprint and value.
+
+%end-doc */
+
+static int
+ActionElementAddIf (int argc, char **argv, int x, int y)
+{
+  ElementType *e = NULL;
+  char *refdes, *value, *footprint, *old;
+  char *args[3];
+
+  if (argc != 3)
+    AFAIL (elementaddif);
+
+  refdes = ARG(0);
+  footprint = ARG(1);
+  value = ARG(2);
+
+  args[0] = footprint;
+  args[1] = refdes;
+  args[2] = value;
+
+  e = find_element_by_refdes (refdes);
+
+  if (!e)
+    {
+      /* Not on board, need to add it. */
+      if (LoadFootprint(argc, args, x, y))
+	return 1;
+      if (CopyPastebufferToLayout (0, 0))
+	SetChangedFlag (True);
+    }
+
+  else if (e && strcmp (DESCRIPTION_NAME(e), footprint) != 0)
+    {
+      int er, pr, i;
+      LocationType mx, my;
+      ElementType *pe;
+
+      /* Different footprint, we need to swap them out.  */
+      if (LoadFootprint(argc, args, x, y))
+	return 1;
+
+      er = ElementOrientation (e);
+      pe = & PASTEBUFFER->Data->Element[0];
+      pr = ElementOrientation (pe);
+
+      mx = e->MarkX - pe->MarkX;
+      my = e->MarkY - pe->MarkY;
+
+      if (er != pr)
+	RotateElementLowLevel (PASTEBUFFER->Data, pe, pe->MarkX, pe->MarkY, (er-pr+4)%4);
+
+      for (i=0; i<MAX_ELEMENTNAMES; i++)
+	{
+	  pe->Name[i].X = e->Name[i].X - mx;
+	  pe->Name[i].Y = e->Name[i].Y - my;
+	  pe->Name[i].Direction = e->Name[i].Direction;
+	  pe->Name[i].Scale = e->Name[i].Scale;
+	}
+
+      RemoveElement (e);
+
+      if (CopyPastebufferToLayout (mx, my))
+	SetChangedFlag (True);
+    }
+
+  e = find_element_by_refdes (refdes);
+
+  old = ChangeElementText (PCB, PCB->Data, e, NAMEONPCB_INDEX, strdup (refdes));
+  if (old)
+    free(old);
+  old = ChangeElementText (PCB, PCB->Data, e, VALUE_INDEX, strdup (value));
+  if (old)
+    free(old);
+
+  SET_FLAG (FOUNDFLAG, e);
+
+  return 0;
+}
+
+static const char elementadddone_syntax[] = "ElementAddDone()";
+
+static const char elementadddone_help[] = "Notes the end of an element set update";
+
+/* %start-doc actions elementadddone
+
+Used after conditionally adding elements, it finds any unmentioned
+elements which were previously added (non-empty refdes) and deletes
+them.
+
+%end-doc */
+
+static int
+ActionElementAddDone (int argc, char **argv, int x, int y)
+{
+  ELEMENT_LOOP (PCB->Data);
+  {
+    if (TEST_FLAG (FOUNDFLAG, element))
+      {
+	CLEAR_FLAG (FOUNDFLAG, element);
+      }
+    else if (! EMPTY_STRING_P (NAMEONPCB_NAME (element)))
+      {
+	/* Unnamed elements should remain untouched */
+	SET_FLAG (SELECTEDFLAG, element);
+      }
+  }
+  END_LOOP;
+  return 0;
+}
+
+static const char elementsetattr_syntax[] = "ElementSetAttr(refdes,name[,value])";
+
+static const char elementsetattr_help[] = "Sets or clears an element-specific attribute";
+
+/* %start-doc actions elementsetattr
+
+If a value is specified, the named attribute is added (if not already
+present) or changed (if it is) to the given value.  If the value is
+not specified, the given attribute is removed if present.
+
+%end-doc */
+
+static int
+ActionElementSetAttr (int argc, char **argv, int x, int y)
+{
+  ElementType *e = NULL;
+  char *refdes, *name, *value;
+  AttributeType *attr;
+
+  if (argc < 2)
+    {
+      AFAIL (changepinname);
+    }
+
+  refdes = argv[0];
+  name = argv[1];
+  value = ARG(2);
+
+  ELEMENT_LOOP (PCB->Data);
+  {
+    if (NSTRCMP (refdes, NAMEONPCB_NAME (element)) == 0)
+      {
+	e = element;
+	break;
+      }
+  }
+  END_LOOP;
+
+  if (!e)
+    {
+      Message("Cannot change attribute of %s - element not found", refdes);
+      return 1;
+    }
+
+  attr = lookup_attr (&e->Attributes, name);
+
+  if (attr && value)
+    {
+      MYFREE (attr->value);
+      attr->value = MyStrdup (value, "ElementSetAttr");
+    }
+  if (attr && ! value)
+    {
+      delete_attr (& e->Attributes, attr);
+    }
+  if (!attr && value)
+    {
+      CreateNewAttribute (& e->Attributes, name, value);
+    }
+
+  return 0;
+}
+
+static const char execcommand_syntax[] = "ExecCommand(command)";
+
+static const char execcommand_help[] = "Runs a command";
+
+/* %start-doc actions execcommand
+
+Runs the given command, which is a system executable.
+
+%end-doc */
+
+static int
+ActionExecCommand (int argc, char **argv, int x, int y)
+{
+  char *command;
+
+  if (argc < 1)
+    {
+      AFAIL (execcommand);
+    }
+
+  command = ARG(0);
+
+  if (system (command))
+    return 1;
   return 0;
 }
 
@@ -6969,6 +7267,22 @@ HID_Action action_action_list[] = {
   ,
   {"pscalib", 0, ActionPSCalib}
   ,
+  {"ElementAddStart", 0, ActionElementAddStart,
+   elementaddstart_help, elementaddstart_syntax}
+  ,
+  {"ElementAddIf", 0, ActionElementAddIf,
+   elementaddif_help, elementaddif_syntax}
+  ,
+  {"ElementAddDone", 0, ActionElementAddDone,
+   elementadddone_help, elementadddone_syntax}
+  ,
+  {"ElementSetAttr", 0, ActionElementSetAttr,
+   elementsetattr_help, elementsetattr_syntax}
+  ,
+  {"ExecCommand", 0, ActionExecCommand,
+   execcommand_help, execcommand_syntax}
+  ,
 };
 
 REGISTER_ACTIONS (action_action_list)
+

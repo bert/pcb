@@ -197,7 +197,7 @@ sort_library (LibraryTypePtr lib)
 	   lib->Menu[i].EntryN, sizeof (lib->Menu[i].Entry[0]), netnode_sort);
 }
 
-static void
+void
 sort_netlist ()
 {
   netlist_sort_offset = 2;

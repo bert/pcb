@@ -83,6 +83,8 @@ static void *MovePolygonToBuffer (LayerTypePtr, PolygonTypePtr);
 static void *MoveElementToBuffer (ElementTypePtr);
 static void SwapBuffer (BufferTypePtr);
 
+#define ARG(n) (argc > (n) ? argv[n] : 0)
+
 /* ---------------------------------------------------------------------------
  * some local identifiers
  */
@@ -601,6 +603,287 @@ LoadElementToBuffer (BufferTypePtr Buffer, char *Name, Boolean FromFile)
   return (False);
 }
 
+
+/*---------------------------------------------------------------------------
+ * Searches for the given element by "footprint" name, and loads it
+ * into the buffer.
+ */
+
+/* Figuring out which library entry is the one we want is a little
+   tricky.  For file-based footprints, it's just a matter of finding
+   the first match in the search list.  For m4-based footprints you
+   need to know what magic to pass to the m4 functions.  Fortunately,
+   the footprint needed is determined when we build the m4 libraries
+   and stored as a comment in the description, so we can search for
+   that to find the magic we need.  We use a hash to store the
+   corresponding footprints and pointers to the library tree so we can
+   quickly find the various bits we need to load a given
+   footprint.  */
+
+typedef struct {
+  char *footprint;
+  int footprint_allocated;
+  int menu_idx;
+  int entry_idx;
+} FootprintHashEntry;
+
+static FootprintHashEntry *footprint_hash = 0;
+int footprint_hash_size = 0;
+
+void
+clear_footprint_hash ()
+{
+  int i;
+  if (!footprint_hash)
+    return;
+  for (i=0; i<footprint_hash_size; i++)
+    if (footprint_hash[i].footprint_allocated)
+      free (footprint_hash[i].footprint);
+  free (footprint_hash);
+  footprint_hash = NULL;
+  footprint_hash_size = 0;
+}
+
+/* Used to sort footprint pointer entries.  Note we include the index
+   numbers so that same-named footprints are sorted by the library
+   search order.  */
+static int
+footprint_hash_cmp (const void *va, const void *vb)
+{
+  int i;
+  FootprintHashEntry *a = (FootprintHashEntry *)va;
+  FootprintHashEntry *b = (FootprintHashEntry *)vb;
+
+  i = strcmp (a->footprint, b->footprint);
+  if (i == 0)
+    i = a->menu_idx - b->menu_idx;
+  if (i == 0)
+    i = a->entry_idx - b->entry_idx;
+  return i;
+}
+
+void
+make_footprint_hash ()
+{
+  int i, j;
+  char *fp;
+  int num_entries = 0;
+
+  clear_footprint_hash ();
+
+  for (i=0; i<Library.MenuN; i++)
+    for (j=0; j<Library.Menu[i].EntryN; j++)
+      num_entries ++;
+  footprint_hash = (FootprintHashEntry *)malloc (num_entries * sizeof(FootprintHashEntry));
+  num_entries = 0;
+
+  /* There are two types of library entries.  The file-based types
+     have a Template of (char *)-1 and the AllocatedMemory is the full
+     path to the footprint file.  The m4 ones have the footprint name
+     in brackets in the description.  */
+  for (i=0; i<Library.MenuN; i++)
+    {
+      for (j=0; j<Library.Menu[i].EntryN; j++)
+	{
+	  footprint_hash[num_entries].menu_idx = i;
+	  footprint_hash[num_entries].entry_idx = j;
+	  if (Library.Menu[i].Entry[j].Template == (char *) -1)
+	    {
+	      fp = strrchr (Library.Menu[i].Entry[j].AllocatedMemory, '/');
+	      if (!fp)
+		fp = strrchr (Library.Menu[i].Entry[j].AllocatedMemory, '\\');
+	      if (fp)
+		fp ++;
+	      else
+		fp = Library.Menu[i].Entry[j].AllocatedMemory;
+	      footprint_hash[num_entries].footprint = fp;
+	      footprint_hash[num_entries].footprint_allocated = 0;
+	    }
+	  else
+	    {
+	      fp = strrchr (Library.Menu[i].Entry[j].Description, '[');
+	      if (fp)
+		{
+		  footprint_hash[num_entries].footprint = strdup (fp+1);
+		  footprint_hash[num_entries].footprint_allocated = 1;
+		  fp = strchr (footprint_hash[num_entries].footprint, ']');
+		  if (fp)
+		    *fp = 0;
+		}
+	      else
+		{
+		  fp = Library.Menu[i].Entry[j].Description;
+		  footprint_hash[num_entries].footprint = fp;
+		  footprint_hash[num_entries].footprint_allocated = 0;
+		}
+	    }
+	  num_entries ++;
+	}
+    }
+
+  footprint_hash_size = num_entries;
+  qsort (footprint_hash, num_entries, sizeof(footprint_hash[0]), footprint_hash_cmp);
+#if 0
+  for (i=0; i<num_entries; i++)
+    printf("[%s]\n", footprint_hash[i].footprint);
+#endif
+}
+
+FootprintHashEntry *
+search_footprint_hash (const char *footprint)
+{
+  int i, min, max, c;
+
+  /* Standard binary search */
+
+  min = -1;
+  max = footprint_hash_size;
+
+  while (max - min > 1)
+    {
+      i = (min+max)/2;
+      c = strcmp (footprint, footprint_hash[i].footprint);
+      if (c < 0)
+	max = i;
+      else if (c > 0)
+	min = i;
+      else
+	{
+	  /* We want to return the first match, not just any match.  */
+	  while (i > 0
+		 && strcmp (footprint, footprint_hash[i-1].footprint) == 0)
+	    i--;
+	  return & footprint_hash[i];
+	}
+    }
+  return NULL;
+}
+
+/* Returns zero on success, non-zero on error.  */
+int
+LoadFootprintByName (BufferTypePtr Buffer, char *Footprint)
+{
+  int i;
+  FootprintHashEntry *fpe;
+  LibraryMenuType *menu;
+  LibraryEntryType *entry;
+
+  if (!footprint_hash)
+    make_footprint_hash ();
+
+  fpe = search_footprint_hash (Footprint);
+  if (!fpe)
+    {
+      Message("Unable to load footprint %s\n", Footprint);
+      return 1;
+    }
+
+  menu = & Library.Menu[fpe->menu_idx];
+  entry = & menu->Entry[fpe->entry_idx];
+
+  if (entry->Template == (char *) -1)
+    {
+      i = LoadElementToBuffer (Buffer, entry->AllocatedMemory, True);
+      return i ? 0 : 1;
+    }
+  else
+    {
+      char *args;
+
+      args = Concat("'", EMPTY (entry->Template), "' '",
+		    EMPTY (entry->Value), "' '", EMPTY (entry->Package), "'", NULL);
+      i = LoadElementToBuffer (Buffer, args, False);
+
+      free (args);
+      return i ? 0 : 1;
+    }
+
+#if 1
+  {
+    int j;
+    printf("Library path: %s\n", Settings.LibraryPath);
+    printf("Library tree: %s\n", Settings.LibraryTree);
+
+    printf("Library:\n");
+    for (i=0; i<Library.MenuN; i++)
+      {
+	printf("  [%02d] Name: %s\n", i, Library.Menu[i].Name);
+	printf("       Dir:  %s\n", Library.Menu[i].directory);
+	printf("       Sty:  %s\n", Library.Menu[i].Style);
+	for (j=0; j<Library.Menu[i].EntryN; j++)
+	  {
+	    printf("       [%02d] E: %s\n", j, Library.Menu[i].Entry[j].ListEntry);
+	    if (Library.Menu[i].Entry[j].Template == (char *) -1)
+	      printf("            A: %s\n", Library.Menu[i].Entry[j].AllocatedMemory);
+	    else
+	      {
+		printf("            T: %s\n", Library.Menu[i].Entry[j].Template);
+		printf("            P: %s\n", Library.Menu[i].Entry[j].Package);
+		printf("            V: %s\n", Library.Menu[i].Entry[j].Value);
+		printf("            D: %s\n", Library.Menu[i].Entry[j].Description);
+	      }
+	    if (j == 10)
+	      break;
+	  }
+      }
+  }
+#endif
+}
+
+
+static const char loadfootprint_syntax[] = "LoadFootprint(filename[,refdes,value])";
+
+static const char loadfootprint_help[] = "Loads a single footprint by name";
+
+/* %start-doc actions LoadFootprint
+
+Loads a single footprint by name, rather than by reference or through
+the library.  If a refdes and value are specified, those are inserted
+into the footprint as well.  The footprint remains in the paste buffer.
+
+%end-doc */
+
+int
+LoadFootprint (int argc, char **argv, int x, int y)
+{
+  char *name = ARG(0);
+  char *refdes = ARG(1);
+  char *value = ARG(2);
+  ElementTypePtr e;
+
+  if (!name)
+    AFAIL (loadfootprint);
+
+  if (LoadFootprintByName (PASTEBUFFER, name))
+    return 1;
+
+  if (PASTEBUFFER->Data->ElementN == 0)
+    {
+      Message("Footprint %s contains no elements", name);
+      return 1;
+    }
+  if (PASTEBUFFER->Data->ElementN > 1)
+    {
+      Message("Footprint %s contains multiple elements", name);
+      return 1;
+    }
+
+  e = & PASTEBUFFER->Data->Element[0];
+
+  if (e->Name[0].TextString)
+    free (e->Name[0].TextString);
+  e->Name[0].TextString = strdup (name);
+
+  if (e->Name[1].TextString)
+    free (e->Name[1].TextString);
+  e->Name[1].TextString = refdes ? strdup (refdes) : 0;
+
+  if (e->Name[2].TextString)
+    free (e->Name[2].TextString);
+  e->Name[2].TextString = value ? strdup (value) : 0;
+
+  return 0;
+}
 
 /*---------------------------------------------------------------------------
  *
@@ -1369,7 +1652,9 @@ CopyObjectToBuffer (DataTypePtr Destination, DataTypePtr Src,
 
 HID_Action rotate_action_list[] = {
   {"FreeRotateBuffer", 0, ActionFreeRotateBuffer,
-   freerotatebuffer_syntax, freerotatebuffer_help}
+   freerotatebuffer_syntax, freerotatebuffer_help},
+  {"LoadFootprint", 0, LoadFootprint,
+   0,0}
 };
 
 REGISTER_ACTIONS (rotate_action_list)

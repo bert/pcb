@@ -103,4 +103,8 @@ extern const char *c_dtostr(double d);
 /* Returns a string with info about this copy of pcb. */
 char * GetInfoString (void);
 
+/* Return a relative rotation for an element, useful only for
+   comparing two similar footprints.  */
+int ElementOrientation (ElementType *e);
+
 #endif
