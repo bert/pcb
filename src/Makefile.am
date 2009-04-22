@@ -132,6 +132,8 @@ PCB_SRCS = \
 	strflags.h \
 	thermal.c \
 	thermal.h \
+	toporouter.c \
+	toporouter.h \
 	undo.c \
 	undo.h \
 	vector.c \
