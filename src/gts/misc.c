@@ -27,8 +27,8 @@
 const guint gts_major_version = GTS_MAJOR_VERSION;
 const guint gts_minor_version = GTS_MINOR_VERSION;
 const guint gts_micro_version = GTS_MICRO_VERSION;
-const guint gts_interface_age = GTS_INTERFACE_AGE;
-const guint gts_binary_age = GTS_BINARY_AGE;
+const guint gts_interface_age = 1;
+const guint gts_binary_age = 1;
 
 static gboolean char_in_string (char c, const char * s)
 {

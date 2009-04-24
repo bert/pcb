@@ -983,7 +983,7 @@ delaunay_remove_similar_segment(GtsSurface *s, GtsSegment *seg)
 }
 
 void 
-gts_edge_remove(GtsEdge *edge) 
+toporouter_edge_remove(GtsEdge *edge) 
 {
   edge->segment.v1->segments = g_slist_remove(edge->segment.v1->segments, &edge->segment);
   edge->segment.v2->segments = g_slist_remove(edge->segment.v2->segments, &edge->segment);
@@ -1049,7 +1049,7 @@ insert_constraint_edge_rec(toporouter_t *r, toporouter_layer_t *l, GtsVertex **v
           tc->box->constraints = g_slist_remove(tc->box->constraints, tc);
           tc->box->constraints = g_slist_prepend(tc->box->constraints, e[0]);
           
-          gts_edge_remove(GTS_EDGE(tc));
+          toporouter_edge_remove(GTS_EDGE(tc));
           
           tempconstraints = insert_constraint_edge_rec(r, l, v, box);
           ii = tempconstraints;
@@ -1084,7 +1084,7 @@ insert_constraint_edge_rec(toporouter_t *r, toporouter_layer_t *l, GtsVertex **v
           tc->box->constraints = g_slist_remove(tc->box->constraints, tc);
           tc->box->constraints = g_slist_prepend(tc->box->constraints, e[0]);
           
-          gts_edge_remove(GTS_EDGE(tc));
+          toporouter_edge_remove(GTS_EDGE(tc));
           
           tempconstraints = insert_constraint_edge_rec(r, l, v, box);
           ii = tempconstraints;
@@ -1119,7 +1119,7 @@ insert_constraint_edge_rec(toporouter_t *r, toporouter_layer_t *l, GtsVertex **v
           tc->box->constraints = g_slist_remove(tc->box->constraints, tc);
           tc->box->constraints = g_slist_prepend(tc->box->constraints, e[0]);
           
-          gts_edge_remove(GTS_EDGE(tc));
+          toporouter_edge_remove(GTS_EDGE(tc));
           
           tempconstraints = insert_constraint_edge_rec(r, l, v, box);
           ii = tempconstraints;
@@ -1154,7 +1154,7 @@ insert_constraint_edge_rec(toporouter_t *r, toporouter_layer_t *l, GtsVertex **v
           tc->box->constraints = g_slist_remove(tc->box->constraints, tc);
           tc->box->constraints = g_slist_prepend(tc->box->constraints, e[0]);
           
-          gts_edge_remove(GTS_EDGE(tc));
+          toporouter_edge_remove(GTS_EDGE(tc));
           
           tempconstraints = insert_constraint_edge_rec(r, l, v, box);
           ii = tempconstraints;
@@ -1205,7 +1205,7 @@ insert_constraint_edge_rec(toporouter_t *r, toporouter_layer_t *l, GtsVertex **v
         tc->box->constraints = g_slist_prepend(tc->box->constraints, e[0]);
         tc->box->constraints = g_slist_prepend(tc->box->constraints, e[1]);
         
-        gts_edge_remove(GTS_EDGE(tc));
+        toporouter_edge_remove(GTS_EDGE(tc));
         
         tempconstraints = insert_constraint_edge_rec(r, l, v, box);
         ii = tempconstraints;
@@ -1249,7 +1249,7 @@ insert_constraint_edge_rec(toporouter_t *r, toporouter_layer_t *l, GtsVertex **v
         tc->box->constraints = g_slist_prepend(tc->box->constraints, e[0]);
         tc->box->constraints = g_slist_prepend(tc->box->constraints, e[1]);
         
-        gts_edge_remove(GTS_EDGE(tc));
+        toporouter_edge_remove(GTS_EDGE(tc));
 
         return insert_constraint_edge_rec(r, l, v, box);
 
@@ -1274,7 +1274,7 @@ insert_constraint_edge_rec(toporouter_t *r, toporouter_layer_t *l, GtsVertex **v
         tc->box->constraints = g_slist_prepend(tc->box->constraints, e[0]);
         tc->box->constraints = g_slist_prepend(tc->box->constraints, e[1]);
         
-        gts_edge_remove(GTS_EDGE(tc));
+        toporouter_edge_remove(GTS_EDGE(tc));
 
         return insert_constraint_edge_rec(r, l, v, box);
 
@@ -1355,7 +1355,7 @@ insert_constraint_proper_intersection_cont:
         tc->box->constraints = g_slist_prepend(tc->box->constraints, e[0]);
         tc->box->constraints = g_slist_prepend(tc->box->constraints, e[1]);
 
-        gts_edge_remove(GTS_EDGE(tc));
+        toporouter_edge_remove(GTS_EDGE(tc));
 
         p[0] = newv;
         p[1] = v[0];

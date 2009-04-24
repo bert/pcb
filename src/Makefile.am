@@ -12,7 +12,7 @@ HIDLIST = @HIDLIST@
 noinst_LIBRARIES = @HIDLIBS@
 EXTRA_LIBRARIES = \
 	libgtk.a liblesstif.a libbatch.a \
-	liblpr.a libgerber.a libbom.a libpng.a libps.a libnelma.a
+	liblpr.a libgerber.a libbom.a libpng.a libps.a libnelma.a libgts.a
 
 pcblib_DATA=	\
 	default_font \
@@ -166,13 +166,14 @@ BUILT_SOURCES = \
 	hid/png/png_lists.h \
 	hid/nelma/nelma_lists.h \
 	hid/ps/ps_lists.h \
+	gts/predicates_init.h \
 	parse_y.h \
 	pcb-menu.h \
 	res_parse.h \
 	hid/common/hidlist.h
 
-pcb_LDADD = @HIDLIBS@
-pcb_DEPENDENCIES = @HIDLIBS@
+pcb_LDADD = @HIDLIBS@ libgts.a
+pcb_DEPENDENCIES = @HIDLIBS@ libgts.a
 
 # Action, Attribute, and Flag lists.
 core_lists.h : ${PCB_SRCS} Makefile
@@ -181,7 +182,7 @@ core_lists.h : ${PCB_SRCS} Makefile
 	mv $@.tmp $@
 
 # for globalconst.h
-INCLUDES=	-I$(top_srcdir) -I$(srcdir)/icons
+INCLUDES=	-I$(top_srcdir) -I$(srcdir)/icons -I$(srcdir)/gts
 
 DEFS= 	-DLOCALEDIR=\"$(localedir)\" @DEFS@
 
@@ -309,6 +310,61 @@ hid/lesstif/lesstif_lists.h : ${LIBLESSTIF_SRCS} Makefile
 	(for f in ${LIBLESSTIF_SRCS} ; do cat $(srcdir)/$$f ; done) | grep "^REGISTER" > $@.tmp
 	mv $@.tmp $@
 
+gts/predicates_init: gts/predicates_init.c gts/rounding.h
+	$(COMPILE) $(srcdir)/gts/predicates_init.c -o $(srcdir)/gts/predicates_init
+
+gts/predicates_init.h: gts/predicates_init
+	./gts/predicates_init >  $(srcdir)/gts/predicates_init.h
+
+libgts_a_CPPFLAGS = -I./gts
+LIBGTS_SRCS = \
+	gts/predicates_init.h \
+	gts/object.c \
+	gts/point.c \
+	gts/vertex.c \
+	gts/segment.c \
+	gts/edge.c \
+	gts/triangle.c \
+	gts/face.c \
+	gts/kdtree.c \
+	gts/bbtree.c \
+	gts/misc.c \
+	gts/gts-private.h \
+	gts/predicates.c \
+	gts/predicates.h \
+	gts/rounding.h \
+	gts/heap.c \
+	gts/eheap.c \
+	gts/fifo.c \
+	gts/gts.h \
+	gts/matrix.c \
+	gts/surface.c \
+	gts/stripe.c \
+	gts/vopt.c \
+	gts/refine.c \
+	gts/iso.c \
+	gts/isotetra.c \
+	gts/split.c \
+	gts/psurface.c \
+	gts/hsurface.c \
+	gts/cdt.c \
+	gts/boolean.c \
+	gts/named.c \
+	gts/oocs.c \
+	gts/container.c \
+	gts/graph.c \
+	gts/pgraph.c \
+	gts/partition.c \
+	gts/curvature.c \
+	gts/tribox3.c
+libgts_a_SOURCES = ${LIBGTS_SRCS} gts/gts_lists.h
+libgts_a_DEPENDENCIES = gts/predicates_init.h
+
+gts/gts_lists.h : ${LIBGTS_SRCS} Makefile
+	true > $@
+	(for f in ${LIBGTS_SRCS} ; do cat $(srcdir)/$$f ; done) | grep "^REGISTER" > $@.tmp
+	mv $@.tmp $@
+
 libbatch_a_CPPFLAGS = -I./hid/batch
 LIBBATCH_SRCS = \
 	hid/hidint.h \
@@ -380,6 +436,9 @@ DISTCLEANFILES= pcbtest.sh gpcb-menu.h pcb-menu.h \
 	hid/png/png_lists.h \
 	hid/nelma/nelma_lists.h \
 	hid/ps/ps_lists.h \
+	gts/gts_lists.h \
+	gts/predicates_init.h \
+	gts/predicates_init \
 	core_lists.h \
 	dbus-introspect.h
 
