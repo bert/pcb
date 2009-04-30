@@ -22,12 +22,10 @@
 
 #include <stdio.h>
 #include <glib.h>
-#ifndef NATIVE_WIN32
-# include <gtsconfig.h>
-#endif
-#ifdef GTS_COMPILATION
-# include "config.h"
-#endif /* not GTS_COMPILATION */
+
+#define GTS_MAJOR_VERSION 0
+#define GTS_MINOR_VERSION 7
+#define GTS_MICRO_VERSION 6
 
 #ifdef __cplusplus
 extern "C" {
