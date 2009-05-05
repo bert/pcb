@@ -132,8 +132,6 @@ PCB_SRCS = \
 	strflags.h \
 	thermal.c \
 	thermal.h \
-	toporouter.c \
-	toporouter.h \
 	undo.c \
 	undo.h \
 	vector.c \
@@ -148,9 +146,8 @@ PCB_SRCS = \
 	hid/common/draw_helpers.c \
 	hid/common/draw_helpers.h \
 	hid/hidint.h 
-pcb_SOURCES = ${PCB_SRCS} core_lists.h
 
-EXTRA_pcb_SOURCES = ${DBUS_SRCS}
+EXTRA_pcb_SOURCES = ${DBUS_SRCS} toporouter.c toporouter.h
 DBUS_SRCS= \
 	dbus-pcbmain.c \
 	dbus-pcbmain.h \
@@ -166,14 +163,24 @@ BUILT_SOURCES = \
 	hid/png/png_lists.h \
 	hid/nelma/nelma_lists.h \
 	hid/ps/ps_lists.h \
-	gts/predicates_init.h \
 	parse_y.h \
 	pcb-menu.h \
 	res_parse.h \
 	hid/common/hidlist.h
 
-pcb_LDADD = @HIDLIBS@ libgts.a
-pcb_DEPENDENCIES = @HIDLIBS@ libgts.a
+pcb_LDADD = @HIDLIBS@
+pcb_DEPENDENCIES = @HIDLIBS@
+
+if WITH_TOPOROUTER
+PCB_SRCS += toporouter.c toporouter.h
+noinst_PROGRAMS = predicates_init
+noinst_LIBRARIES += libgts.a
+pcb_LDADD += libgts.a
+pcb_DEPENDENCIES += libgts.a
+BUILT_SOURCES += gts/predicates_init.h
+endif
+
+pcb_SOURCES = ${PCB_SRCS} core_lists.h
 
 # Action, Attribute, and Flag lists.
 core_lists.h : ${PCB_SRCS} Makefile
@@ -310,15 +317,13 @@ hid/lesstif/lesstif_lists.h : ${LIBLESSTIF_SRCS} Makefile
 	(for f in ${LIBLESSTIF_SRCS} ; do cat $(srcdir)/$$f ; done) | grep "^REGISTER" > $@.tmp
 	mv $@.tmp $@
 
-gts/predicates_init: gts/predicates_init.c gts/rounding.h
-	$(COMPILE) $(srcdir)/gts/predicates_init.c -o $(srcdir)/gts/predicates_init
+predicates_init_SOURCES = gts/predicates_init.c gts/rounding.h
 
-gts/predicates_init.h: gts/predicates_init
-	./gts/predicates_init >  $(srcdir)/gts/predicates_init.h
+gts/predicates_init.h: predicates_init
+	./predicates_init >  gts/predicates_init.h
 
 libgts_a_CPPFLAGS = -I./gts
 LIBGTS_SRCS = \
-	gts/predicates_init.h \
 	gts/object.c \
 	gts/point.c \
 	gts/vertex.c \
@@ -437,8 +442,6 @@ DISTCLEANFILES= pcbtest.sh gpcb-menu.h pcb-menu.h \
 	hid/nelma/nelma_lists.h \
 	hid/ps/ps_lists.h \
 	gts/gts_lists.h \
-	gts/predicates_init.h \
-	gts/predicates_init \
 	core_lists.h \
 	dbus-introspect.h
 

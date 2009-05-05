@@ -79,10 +79,6 @@ static GtsFace * closest_face (GtsSurface * s, GtsPoint * p)
 
 #else /* not USE_SURFACE_BTREE */
 
-#  if GLIB_CHECK_VERSION(2,4,0)
-/* finally, with g_hash_table_find we are able to stop iteration over the hash 
-   table in the middle */
-
 typedef struct _SFindClosest SFindClosest; 
 
 struct _SFindClosest {
@@ -91,6 +87,10 @@ struct _SFindClosest {
   GtsPoint * p;
   gint stop;
 };
+
+#  if GLIB_CHECK_VERSION(2,4,0)
+/* finally, with g_hash_table_find we are able to stop iteration over the hash
+   table in the middle */
 
 static gboolean find_closest (gpointer key, gpointer value, gpointer user_data)
 {
@@ -126,59 +126,40 @@ static GtsFace * closest_face (GtsSurface * s, GtsPoint * p)
 
 #  else /* VERSION < 2.4.0 */
 
-/* Due to an unkown reason g_hash_table_foreach does not allow to stop 
- * the loop, hence the redefinition. I hope they don't change
- * the GHashTable, GHashNode structures ... */
-typedef struct _GHashNode      GHashNode;
-
-struct _GHashNode
+static void
+find_closest (gpointer key, gpointer value, gpointer user_data)
 {
-  gpointer key;
-  gpointer value;
-  GHashNode *next;
-};
+  SFindClosest * data = (SFindClosest *) user_data;
+  GtsFace * f = GTS_FACE (value);
 
-struct _GHashTable
-{
-  gint size;
-  gint nnodes;
-  guint frozen;
-  GHashNode **nodes;
-  GHashFunc hash_func;
-  GCompareFunc key_compare_func;
-};
+  if (gts_triangle_orientation (GTS_TRIANGLE (f)) > 0.) {
+    GtsPoint * p1 = GTS_POINT (GTS_SEGMENT (GTS_TRIANGLE (f)->e1)->v1);
+    gdouble d = ((data->p->x - p1->x)*(data->p->x - p1->x) +
+		 (data->p->y - p1->y)*(data->p->y - p1->y));
+
+    if (d < data->dmin) {
+      data->dmin = d;
+      data->closest = f;
+    }
+  }
+  data->stop--;
+}
 
 /* select the face closest to @p among n^1/3 randomly picked faces
  * of @surface */
 static GtsFace * closest_face (GtsSurface * s, GtsPoint * p)
 {
-  guint i, n, nt, ns;
-  gdouble dmin = G_MAXDOUBLE;
-  GtsFace * closest = NULL;
-  GHashNode * node;
-  GHashTable * hash_table = s->faces;
+  SFindClosest fc;
 
-  nt = g_hash_table_size (hash_table);
-  if (!nt)
+  if (!g_hash_table_size (s->faces))
     return NULL;
 
-  ns = exp(log((gdouble) nt)/3.);
-  for (i = 0, n = 0; i < hash_table->size && n < ns; i++)
-    for (node = hash_table->nodes[i]; node && n < ns; node = node->next) {
-      GtsFace * f = node->key;
-
-      if (gts_triangle_orientation (GTS_TRIANGLE (f)) > 0.) {
-	GtsPoint * p1 = GTS_POINT (GTS_SEGMENT (GTS_TRIANGLE (f)->e1)->v1);
-	gdouble d = (p->x - p1->x)*(p->x - p1->x) + (p->y - p1->y)*(p->y - p1->y);
-		 
-	if (d < dmin) {
-	  dmin = d;
-	  closest = f;
-	}
-	n++;
-      }
-    }
-  return closest;
+  fc.dmin = G_MAXDOUBLE;
+  fc.closest = NULL;
+  fc.p = p;
+  fc.stop = (gint) exp (log ((gdouble) g_hash_table_size (s->faces))/3.);
+  g_hash_table_foreach (s->faces, find_closest, &fc);
+  return fc.closest;
 }
 #  endif /* VERSION < 2.4.0 */
 #endif /* not USE_SURFACE_BTREE */

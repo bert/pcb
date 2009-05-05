@@ -27,6 +27,7 @@
 #ifndef __TOPOROUTER_INCLUDED__
 #define __TOPOROUTER_INCLUDED__
 
+#include <assert.h>
 #include "data.h"
 #include "macro.h"
 #include "autoroute.h"
@@ -55,9 +56,7 @@
 #define TOPOROUTER_FLAG_DUMP_CDTS     (1<<1)
 #define TOPOROUTER_FLAG_DEBUG_CDTS    (1<<2)
 
-#define OUTPUT_ENABLED 
-
-#ifdef OUTPUT_ENABLED
+#if TOPO_OUTPUT_ENABLED
   #include <cairo.h>
 #endif
 

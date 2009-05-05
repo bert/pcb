@@ -1,3 +1,25 @@
+2009-05-05 17:17  ineiev
+
+	* src/gts/cdt.c: fix find_closest() for glib < 2.4.0.
+
+2008-05-05 17:17  ineiev
+
+	* src/Makefile.am: fix VPATH builds
+
+2008-05-05 17:17  ineiev
+
+	* src/toporouter.c: make the code compatible with glib < 2.10.0
+
+2008-05-05 17:17  ineiev
+
+	* configure.ac, src/Makefile.am, src/toporouter.c,
+	  src/toporouter.h: add toporouter-related configure
+	  options
+
+2008-05-05 17:17  ineiev
+
+	* src/toporouter.h: add #include <assert.h>
+
 2008-11-27 22:35  danmc
 
 	* doc/actions.texi: regen.

@@ -223,6 +223,42 @@ then
     HIDLIST=
 fi
 
+AC_MSG_CHECKING([whether to enable toporouter])
+AC_ARG_ENABLE([toporouter],
+ [AS_HELP_STRING([--enable-toporouter],
+  [build toporouter [[yes]]])
+ ]
+)
+AS_CASE(["x$enable_toporouter"],[xyes | xno],,
+ [enable_toporouter=yes
+ ]
+)
+AC_MSG_RESULT([$enable_toporouter])
+AM_CONDITIONAL([WITH_TOPOROUTER], test $enable_toporouter != no)
+
+AC_MSG_CHECKING([whether to enable toporouter output])
+AC_ARG_ENABLE([toporouter-output],
+ [AS_HELP_STRING([--enable-toporouter-output],
+  [enable toporouter graphical output [[yes]]])
+ ]
+)
+AS_CASE(["z$enable_toporouter_output"],[zyes | zno],,
+ [enable_toporouter_output=yes]
+)
+AC_MSG_RESULT([$enable_toporouter_output])
+AS_CASE([$enable_toporouter_output],[yes],
+ [
+  topo_output_enabled=1
+ ],
+ [
+  topo_output_enabled=0
+ ]
+)
+AC_DEFINE_UNQUOTED([TOPO_OUTPUT_ENABLED], [$topo_output_enabled],
+ [Define to 1 to enable toporouter graphical output]
+)
+
+
 AC_MSG_CHECKING([for whether to use DBUS])
 AC_ARG_ENABLE([dbus],
 [  --enable-dbus           Enable DBUS IPC],
@@ -446,6 +482,12 @@ AC_CHECK_HEADERS(dlfcn.h)
 if test "x${WIN32}" = "xyes" ; then
 	AC_CHECK_HEADERS(windows.h)
 fi
+# Search for glib
+PKG_CHECK_MODULES(GLIB, glib-2.0, ,
+		[AC_MSG_RESULT([Note: cannot find glib-2.0.
+You may want to review the following errors:
+$GLIB_PKG_ERRORS])]
+)
 
 for e in $HIDLIST; do
     case $e in
@@ -497,12 +539,6 @@ $GTK_PKG_ERRORS])]
 		AC_CHECK_HEADERS([gdk/gdkx.h])
 	fi
 
-	# Search for glib
-	PKG_CHECK_MODULES(GLIB, glib-2.0 >= 2.4.0, , 
-		[AC_MSG_ERROR([Cannot find glib >= 2.4.0, install it and rerun ./configure.
-Please review the following errors:
-$GLIB_PKG_ERRORS])]
-	)
 	GLIB_VERSION=`$PKG_CONFIG glib-2.0 --modversion`
 	;;
 
@@ -751,8 +787,8 @@ AM_CONDITIONAL(DEBUG_BUILD, test x$enable_debug = xyes)
 
 # ------------- Complete set of CFLAGS and LIBS -------------------
 
-CFLAGS="$CFLAGS $X_CFLAGS $DBUS_CFLAGS $GTK_CFLAGS"
-LIBS="$LIBS $XM_LIBS $DBUS_LIBS $X_LIBS $GTK_LIBS $DMALLOC_LIBS $GD_LIBS $INTLLIBS"
+CFLAGS="$CFLAGS $X_CFLAGS $DBUS_CFLAGS $GLIB_CFLAGS $GTK_CFLAGS"
+LIBS="$LIBS $XM_LIBS $DBUS_LIBS $X_LIBS $GLIB_LIBS $GTK_LIBS $DMALLOC_LIBS $GD_LIBS $INTLLIBS"
 
 
 # if we have gcc then add -Wall
@@ -902,6 +938,8 @@ AC_MSG_RESULT([
    Printer:                  $with_printer
    Exporters:                $with_exporters
    Build documentation:      $docs_yesno
+   Build toporouter:         $enable_toporouter
+   Enable toporouter output: $enable_toporouter_output
    xdg data directory:       $expandedXDGDATADIR
    KDE data directory:       $expandedKDEDATADIR
    dmalloc debugging:        $with_dmalloc

@@ -207,7 +207,7 @@ toporouter_output_init(int w, int h, char *filename)
     dc->iw = (double)PCB->MaxWidth * dc->s + (2 * MARGIN);
   }
 
-#ifdef CAIRO_H  
+#if TOPO_OUTPUT_ENABLED
   dc->surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, dc->iw, dc->ih);
   dc->cr = cairo_create (dc->surface);
   
@@ -223,7 +223,7 @@ toporouter_output_init(int w, int h, char *filename)
 void
 toporouter_output_close(drawing_context_t *dc) 
 {
-#ifdef CAIRO_H  
+#if TOPO_OUTPUT_ENABLED
   cairo_surface_write_to_png (dc->surface, dc->filename);
   cairo_destroy (dc->cr);
   cairo_surface_destroy (dc->surface);
@@ -257,7 +257,7 @@ lookup_thickness(char *name)
 gint
 toporouter_draw_vertex(gpointer item, gpointer data)
 {
-#ifdef CAIRO_H
+#if TOPO_OUTPUT_ENABLED
   drawing_context_t *dc = (drawing_context_t *) data;
   ToporouterVertex *tv;
   PinType *pin;
@@ -360,7 +360,7 @@ toporouter_draw_vertex(gpointer item, gpointer data)
 gint
 toporouter_draw_edge(gpointer item, gpointer data)
 {
-#ifdef CAIRO_H
+#if TOPO_OUTPUT_ENABLED
   drawing_context_t *dc = (drawing_context_t *) data;
   ToporouterEdge *te;
   ToporouterConstraint *tc;
@@ -428,6 +428,7 @@ toporouter_draw_edge(gpointer item, gpointer data)
 void
 toporouter_draw_surface(GtsSurface *s, char *filename, int w, int h, int mode, void *data) 
 {
+#if TOPO_OUTPUT_ENABLED
   drawing_context_t *dc;
   
   dc = toporouter_output_init(w, h, filename);
@@ -515,6 +516,7 @@ toporouter_draw_surface(GtsSurface *s, char *filename, int w, int h, int mode, v
   }
 
   toporouter_output_close(dc);
+#endif
 }
 
 toporouter_t *toporouter_new() 
@@ -3744,6 +3746,16 @@ attach_cmp(gconstpointer a, gconstpointer b)
   return 0;
 }
 
+#if !GLIB_CHECK_VERSION (2,10,0)
+/* work-around g_slist_insert_sorted_with_data() absence */
+static GSList*
+g_slist_insert_sorted_with_data (GSList *list, gpointer data,
+  GCompareDataFunc func, gpointer user_data)
+{
+  g_slist_append (list, data);
+  return g_slist_sort_with_data (list, func, user_data);
+}
+#endif /* !GLIB_CHECK_VERSION (2,10,0) */
 
 /* 
  * inserts b into a's visibility
