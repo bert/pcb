@@ -127,7 +127,7 @@ BEGIN {
 	libind = "";
 }
 
-# we have to use this trick because variables like 'outd' are not yet defined
+# we have to use this trick because variables like outd are not yet defined
 # in BEGIN.
 first == 1 {
 	brokenurl = "broken.html";
