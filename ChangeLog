@@ -1,3 +1,11 @@
+2009-05-17 15:17  jaredcasper
+
+	* configure.ac,src/hid/lpr/hid.conf: Added top level check for
+	pkg-config with PKG_PROG_PKG_CONFIG and removed AC_PATH_PROG call for
+	pkg-config from inside a block conditional on enable_dbus. Added a
+	PKG_CHECK_MODULE for cairo if the toporouter output is enabled. Added a
+	check for HID dependencies.
+
 2009-05-05 17:17  ineiev
 
 	* src/gts/cdt.c: fix find_closest() for glib < 2.4.0.

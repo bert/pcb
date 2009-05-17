@@ -225,9 +225,7 @@ fi
 
 AC_MSG_CHECKING([whether to enable toporouter])
 AC_ARG_ENABLE([toporouter],
- [AS_HELP_STRING([--enable-toporouter],
-  [build toporouter [[yes]]])
- ]
+ [AS_HELP_STRING([--enable-toporouter], [build toporouter [default=yes]]) ]
 )
 AS_CASE(["x$enable_toporouter"],[xyes | xno],,
  [enable_toporouter=yes
@@ -238,12 +236,10 @@ AM_CONDITIONAL([WITH_TOPOROUTER], test $enable_toporouter != no)
 
 AC_MSG_CHECKING([whether to enable toporouter output])
 AC_ARG_ENABLE([toporouter-output],
- [AS_HELP_STRING([--enable-toporouter-output],
-  [enable toporouter graphical output [[yes]]])
- ]
+ [AS_HELP_STRING([--enable-toporouter-output], [enable toporouter graphical output [default=no]]) ]
 )
 AS_CASE(["z$enable_toporouter_output"],[zyes | zno],,
- [enable_toporouter_output=yes]
+ [enable_toporouter_output=no]
 )
 AC_MSG_RESULT([$enable_toporouter_output])
 AS_CASE([$enable_toporouter_output],[yes],
@@ -258,6 +254,15 @@ AC_DEFINE_UNQUOTED([TOPO_OUTPUT_ENABLED], [$topo_output_enabled],
  [Define to 1 to enable toporouter graphical output]
 )
 
+PKG_PROG_PKG_CONFIG()
+
+if test "x$enable_toporouter_output" = "xyes"; then
+   PKG_CHECK_MODULES(CAIRO, cairo,,
+                     [AC_MSG_ERROR([Cannot find cairo, needed by the toporouter
+Please review the following errors:
+$CAIRO_PKG_ERRORS])]
+   )
+fi
 
 AC_MSG_CHECKING([for whether to use DBUS])
 AC_ARG_ENABLE([dbus],
@@ -275,12 +280,6 @@ if test "x$enable_dbus" = "xyes"; then
 Either do not use --enable-dbus or enable the gtk or lesstif GUI HID.])
 	esac
 	
-	# Check for pkg-config
-	AC_PATH_PROG(PKG_CONFIG, pkg-config, no)
-	if test "$PKG_CONFIG" = "no"; then
-		AC_MSG_ERROR([Cannot find pkg-config, make sure it is installed and in your PATH])
-	fi
-
 	PKG_CHECK_MODULES(DBUS, dbus-1 >= 0.61,
 		[saved_LIBS="$LIBS"
 		 LIBS="$LIBS $DBUS_LIBS"
@@ -335,6 +334,20 @@ which exporters you want and do not list png there.])
 			;;
 	esac
 fi
+
+for hid in $HIDLIST; do
+    F=$srcdir/src/hid/$hid/hid.conf
+    if test -f $F ; then
+        echo checking $hid depedencies
+        deps=
+        . $F
+        for dep in $deps; do
+            if test "X`echo $HIDLIST | grep $dep`" = "X"; then
+                AC_MSG_ERROR([you have requested the $hid HID but not the $dep HID, which it depends on])
+            fi
+        done
+   fi
+done
 
 for e in $HIDLIST; do
     HIDLIBS="$HIDLIBS lib$e.a"
@@ -787,8 +800,8 @@ AM_CONDITIONAL(DEBUG_BUILD, test x$enable_debug = xyes)
 
 # ------------- Complete set of CFLAGS and LIBS -------------------
 
-CFLAGS="$CFLAGS $X_CFLAGS $DBUS_CFLAGS $GLIB_CFLAGS $GTK_CFLAGS"
-LIBS="$LIBS $XM_LIBS $DBUS_LIBS $X_LIBS $GLIB_LIBS $GTK_LIBS $DMALLOC_LIBS $GD_LIBS $INTLLIBS"
+CFLAGS="$CFLAGS $X_CFLAGS $DBUS_CFLAGS $GLIB_CFLAGS $GTK_CFLAGS $CAIRO_CFLAGS"
+LIBS="$LIBS $XM_LIBS $DBUS_LIBS $X_LIBS $GLIB_LIBS $GTK_LIBS $DMALLOC_LIBS $GD_LIBS $INTLLIBS $CAIRO_LIBS"
 
 
 # if we have gcc then add -Wall
