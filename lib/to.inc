@@ -1,3 +1,4 @@
+# -*- m4 -*-
 #
 #                             COPYRIGHT
 # 
@@ -22,7 +23,6 @@
 #   Thomas Nau, Schlehenweg 15, 88471 Baustetten, Germany
 #   Thomas.Nau@rz.uni-ulm.de
 # 
-#   RCS: $Id$
 #
 # TO packages
 
@@ -120,6 +120,93 @@ define(`PKG_TO5',
 )')
 
 # -------------------------------------------------------------------
+# a TO18 package.  
+# 
+# $1: canonical name
+# $2: name on PCB
+# $3: value
+#
+define(`PKG_TO18BASE',
+`Element["" "$1" "`$2'" "$3" 10300 11100 6000 7000 0 100 ""]
+(
+
+# The JEDEC drawing shows a pin diameter of 16-21 mils
+#
+#
+#         ___x_
+#        /     \
+# TO18:  |3   1|     <-- bottom view (supposed to be a circle)
+#        \  2  /
+#          ---
+#       
+# NOTE:  some vendors, ST for example, number the pins
+# differently.  Here we follow the JEDEC drawing.
+#
+# the pins are arranged along a 100 mil diameter
+# circle.  The can outline is 178 to 195 mils
+# for the top of the can and 209 to 230 mils
+# for the bottom edge of the can
+#
+        Pin[0 -5000 5500 3000 6100 3500 "1" "1" ""]
+        Pin[-5000 0 5500 3000 6100 3500 "2" "2" ""]
+        Pin[0 5000 5500 3000 6100 3500 "3" "3" ""]
+# x, y, width, height, start angle, delta angle, thickness
+        ElementArc [0 0 9800 9800 0 360 1000]
+# tab is 28 to 48 mils long, 36 to 46 wide
+# and comes off at an angle of 45 deg clockwise from
+# pin 1 when looking at the top of the board
+        ElementLine [6700 -7900 9400 -10600 1000]
+        ElementLine [7300 -7300 10000 -10000 1000]
+        ElementLine [7900 -6700 10600 -9400 1000]
+        ElementLine [9400 -10600 10600 -9400 1000]
+)')
+
+# -------------------------------------------------------------------
+# a TO39 package.  
+# 
+# $1: canonical name
+# $2: name on PCB
+# $3: value
+#
+#
+define(`PKG_TO39BASE',
+`Element["" "$1" "`$2'" "$3" 18800 18800 6000 7000 0 100 ""]
+(
+# The JEDEC drawing shows a pin diameter of 16-21 mils
+#
+#
+#         ___x_
+#        /     \
+# TO39:  |3   1|     <-- bottom view (supposed to be a circle)
+#        \  2  /
+#          ---
+#       
+# NOTE:  some vendors, ST for example, number the pins
+# differently.  Here we follow the JEDEC drawing.
+#
+# the pins are arranged along a 200 mil diameter
+# circle.  The can outline is 315 to 335 mils (320 nom)
+# for the top of the can and 350 to 370 mils (360 nom)
+# for the bottom edge of thecan
+#
+        Pin[0 -10000 5500 3000 6100 3500 "1" "1" "square"]
+        Pin[-10000 0 5500 3000 6100 3500 "2" "2" ""]
+        Pin[0 10000 5500 3000 6100 3500 "3" "3" ""]
+# tab is 29 to 40 mils long, 28 to 34 wide
+# and comes off at an angle of 45 deg clockwise from
+# pin 1 when looking at the top of the board
+        ElementLine [12700 -13900 14800 -16000 1000]
+        ElementLine [13300 -13300 15400 -15400 1000]
+        ElementLine [13900 -12700 16000 -14800 1000]
+        ElementLine [16000 -14800 14800 -16000 1000]
+# x, y, width, height, start angle, delta angle, thickness
+        ElementArc [0 0 18300 18300 0 360 1000]
+
+        )'
+)
+
+
+# -------------------------------------------------------------------
 # a TO92 housing
 # 
 # $1: canonical name
@@ -128,16 +215,21 @@ define(`PKG_TO5',
 #
 # by Volker Bosch (bosch@iema.e-technik.uni-stuttgart.de)
 # lineare Anordnung der Pins
-define(`PKG_TO92',
+define(`PKG_TO92BASE',
 `Element(0x00 "$1" "`$2'" "$3" 60 70 0 100 0x00)
 (
 
 # The JEDEC drawing shows a pin diameter of 16-21 mils
 #
+#
+#         _______
+# TO92:  | 1 2 3 |   <-- bottom view
+#         \_____/
+#       
 # The pin to pin spacing is 100 mils.
-	PIN(50, 200, 72, 42, 1)
+	PIN(250, 200, 72, 42, 1)
 	PIN(150, 200, 72, 42, 2)
-	PIN(250, 200, 72, 42, 3)
+	PIN(50, 200, 72, 42, 3)
 
 	ElementArc(150 200 100 100 315 270 10)
 	ElementLine( 80 130 220 130 10)

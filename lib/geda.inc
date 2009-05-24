@@ -615,6 +615,14 @@ define(`PKG_TO220S', `PKG_TO220LAY_WIDE(  `$1', `$2', `$3')');
 define(`PKG_TO220W', `PKG_TO220STAND(     `$1', `$2', `$3')');
 define(`PKG_TO220SW',`PKG_TO220STAND_WIDE(`$1', `$2', `$3')');
 
+# these are just wrappers around the footprints from to.inc.
+# they are done here to be in a standard format that will
+# make them show up in the footprint window and also get
+# generated via the m4lib_to_newlib.sh script
+define(`PKG_TO18',   `PKG_TO18BASE(`$1', `$2', `$3')');
+define(`PKG_TO39',   `PKG_TO39BASE(`$1', `$2', `$3')');
+define(`PKG_TO92',   `PKG_TO92BASE(`$1', `$2', `$3')');
+
 ## diode in TO220
 #
 define(`PKG_TO220ACS', `PKG_TO220ACSTAND(`$1', `$2', `$3')');
