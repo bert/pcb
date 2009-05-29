@@ -365,10 +365,13 @@ LIBGTS_SRCS = \
 libgts_a_SOURCES = ${LIBGTS_SRCS} gts/gts_lists.h
 libgts_a_DEPENDENCIES = gts/predicates_init.h
 
+ 
 gts/gts_lists.h : ${LIBGTS_SRCS} Makefile
 	true > $@
-	(for f in ${LIBGTS_SRCS} ; do cat $(srcdir)/$$f ; done) | grep "^REGISTER" > $@.tmp
-	mv $@.tmp $@
+# Uncomment out the following if/when we ever end up with REGISTER in any of the gts
+# source files.  For now, there aren't any and so the grep fails and make stops
+#	(for f in ${LIBGTS_SRCS} ; do cat $(srcdir)/$$f ; done) | grep "^REGISTER" > $@.tmp
+#	mv $@.tmp $@
 
 libbatch_a_CPPFLAGS = -I./hid/batch
 LIBBATCH_SRCS = \
@@ -441,10 +444,10 @@ DISTCLEANFILES= pcbtest.sh gpcb-menu.h pcb-menu.h \
 	hid/png/png_lists.h \
 	hid/nelma/nelma_lists.h \
 	hid/ps/ps_lists.h \
+	gts/predicates_init.h \
 	gts/gts_lists.h \
 	core_lists.h \
 	dbus-introspect.h
-
 
 # create wrapper script that lets you test pcb prior to installation
 pcbtest.sh:	$(srcdir)/pcbtest.sh.in Makefile
