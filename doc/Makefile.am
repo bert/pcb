@@ -23,23 +23,19 @@
 ##  Thomas Nau, Schlehenweg 15, 88471 Baustetten, Germany
 ##  Thomas.Nau@rz.uni-ulm.de
 ##
-##  RCS: $Id$
-##
+
+## not until it is fully fixed up in terms of building
+##SUBDIRS=	gs
 
 info_TEXINFOS=	pcb.texi
 
-# We avoid adding all the dependencies except in maintainer mode.  This is
-# because the automake team feels that you should not require the user
-# to have makeinfo and friends installed just to build the package.
-# This seems reasonable.  Because of that, the documentation must be
-# built in the source directory so it can be found when creating a distfile
-# and this means you can't build outside the source tree with a read-only
-# source.  So, ignore the dependencies unless we're in maintainer mode
-# but be sure and put the generated files in the distfile via EXTRA_DIST
-# and dist_pkgdata_DATA.  Also this helps us avoid problem with users
-# having various out of date versions of the texinfo package installed
-# which can have all sorts of issues.
-if MAINTAINER_MODE
+# We avoid adding all the dependencies when building from a tarball.
+# This allows end users to use pre-built documentation instead of
+# requiring recent versions of makeinfo and other tools used only
+# to build the documentation.  Users who obtain the cutting edge sources
+# via GIT are considered to be doing "development" and incur a slightly
+# higher list of required tools.
+if GIT_VERSION
 pcb_TEXINFOS=	${inline_texi} ${pcb_output} ${tab_texi}
 else
 pcb_TEXINFOS=
@@ -60,7 +56,7 @@ pdf_docs=	${info_TEXINFOS:.texi=.pdf} refcard.pdf
 # time on the same input file.  That causes clashes in 
 # the .aux files which are used by both latex and
 # pdflatex.
-if MAINTAINER_MODE
+if GIT_VERSION
 refcard.pdf: refcard.ps
 pcb.pdf: pcb.ps
 endif
@@ -76,6 +72,7 @@ mostlyclean-aminfo:
 
 EXTRA_DIST= \
 	ascii2texi.awk \
+	eps2png \
 	extract-docs \
 	refcard.tex \
 	pcb.dvi \
@@ -87,12 +84,11 @@ EXTRA_DIST= \
 	${tab_files} \
 	${tab_texi}
 
-MAINTAINERCLEANFILES= \
+if GIT_VERSION
+BUILT_SOURCES=	${tab_texi} ${pcb_output} ${inline_texi}
+CLEANFILES= \
 	refcard.aux refcard.dvi refcard.log refcard.pdf refcard.ps \
 	${pcb_output} ${tab_texi} ${inline_texi} pcb.dvi pcb.html pcb.pdf pcb.ps
-
-if MAINTAINER_MODE
-BUILT_SOURCES=	${tab_texi} ${pcb_output} ${inline_texi}
 else
 BUILT_SOURCES=
 endif
@@ -129,14 +125,14 @@ pcb_output=	${pcb_output_inst} ${pcb_output_noinst}
 
 ${inline_texi} : extracted-docs
 
-# no need to build these when not in maintainer mode.  They're not used then
+# no need to build these when building via a tarball.  They're not used then
 # anyway.
 .PHONY : extracted-docs
 extracted-docs :
-if MAINTAINER_MODE
+if GIT_VERSION
 	${PERL} $(srcdir)/extract-docs $(srcdir)
 else
-	@echo "Skipping documentation extraction since you are not in maintainer-mode"
+	@echo "Skipping documentation extraction since you are not building from GIT sources"
 endif
 
 SUFFIXES = .dvi .eps .gif .pcb .pdf .png .ps .tab .tex

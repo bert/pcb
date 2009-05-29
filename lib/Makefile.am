@@ -43,7 +43,7 @@ else
 PREVIEW=	
 endif
 
-if MAINTAINER_MODE
+if GIT_VERSION
 NEWLIB_DEPS=	${LIBCONTENTS} ${srcdir}/m4lib_to_newlib.sh
 else
 NEWLIB_DEPS=
@@ -70,7 +70,7 @@ uninstall-local:
 
 EXTRA_DIST=	${NEWLIB} footprint.pcb ${NEWLIB}.stamp png_diff.sh
 
-if MAINTAINER_MODE
+if GIT_VERSION
 DISTCLEANFILES=	${NEWLIB}.stamp
 else
 DISTCLEANFILES=
