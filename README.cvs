@@ -44,24 +44,15 @@ texinfo   -- ftp://ftp.gnu.org/pub/gnu/texinfo/
              You will need at least version 4.6 to be able to build
              the documentation.
 
+perl      -- Version 5 or newer.  This is needed for building the documentation.
+
+latex     -- This is needed for building the documentation.
+
 You can find the version of autoconf, automake, and makeinfo by running them with the 
 --version flag.
 
 If you do not wish to build the documentation, use --disable-doc when you run
-configure.  If you do wish to build the documentation, you should enable
-maintainer-mode (--enable-maintainer-mode) which will turn on various
-dependency rules for documentation building.  In addition you must build
-pcb with the png export HID enabled (it is enabled by default) because some
-of the figures in the manual are drawn with pcb.
-
-Please note that maintainer-mode and the png HID are only needed when building
-documentation from cvs sources.  If you are building pcb from a distfile you 
-do not need maintainer-mode and the png export HID is optional.
-
-Finally, if you edit any of the actions identified by 
-/* ACTION(Foo,ActionFoo) */
-comments, you will need perl and in addition, you must have used
-the --enable-maintainer-mode flag to the configure script.
+configure.  When building from a release tarball, the documentation comes preformatted.
 
 ---------
 Check out
@@ -72,8 +63,7 @@ If you already have a checked out PCB source tree, please proceed to the
 
 To check out sources from the anonymous CVS server, run the following:
 
-	cvs -d:pserver:anonymous@pcb.cvs.sourceforge.net:/cvsroot/pcb login 
-	cvs -z3 -d:pserver:anonymous@pcb.cvs.sourceforge.net:/cvsroot/pcb co pcb
+  cvs -z3 -d:pserver:anonymous@git.gpleda.org/home/git/pcb.git co master
 
 ---------
 Updating
@@ -82,8 +72,7 @@ Updating
 To update an already checked out copy of the PCB source tree, run these commands
 from your top level pcb directory:
 
-	cvs login 
-	cvs -z3 update -PdA
+  cvs -z3 update -PdA
 
 ----------------------------------
 Bootstrapping with the auto* tools
@@ -97,11 +86,6 @@ from the top level pcb directory.  This will run the various auto* tools
 which creates the configure script, the config.h.in file and the various
 Makefile.in's.
 
-If you plan on making changes to configure.ac, Makefile.am's, or actions
-defined by the 
-/* ACTION(Foo,ActionFoo) */
-comments, you may want to enable maintainer mode by passing the
---enable-maintainer mode flag to ./autogen.sh
 
 At this point you can proceed to configure and build PCB as outlined in
 the INSTALL document.
