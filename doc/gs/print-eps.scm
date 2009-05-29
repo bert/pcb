@@ -8,7 +8,7 @@
 ;; The schematic in "mysch.sch" will be printed to the file "mysch.ps"
 
 ; light background
-(load "/envy/dj/geda/share/gEDA/gschem-lightbg")
+;(load "/envy/dj/geda/share/gEDA/gschem-lightbg")
 
 (output-orientation "portrait")
 (output-type "extents no margins")
