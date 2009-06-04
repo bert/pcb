@@ -8,8 +8,6 @@ AM_INIT_AUTOMAKE([1.9])
 AC_GNU_SOURCE
 AM_CONFIG_HEADER([config.h])
 
-AM_MAINTAINER_MODE
-
 ##########################################################################
 #
 # Try to figure out if we are building from git sources.
@@ -29,6 +27,44 @@ else
 	AC_MSG_RESULT([no])
 fi
 AM_CONDITIONAL(GIT_VERSION, test x$pcb_git_version = xyes)
+
+##########################################################################
+#
+# See if we are supposed to build the docs
+#
+
+docs_yesno=yes
+AC_MSG_CHECKING([if the documentation should be built])
+AC_ARG_ENABLE([doc],
+[  --enable-doc            Build and install the documentation [[default=yes]]],
+[
+if test "X$enable_doc" = "Xno" ; then
+        DOC=""
+        AC_MSG_RESULT([no])
+        docs_yesno=no
+else
+        DOC=doc
+        AC_MSG_RESULT([yes])
+        docs_yesno=yes
+fi
+],
+[
+DOC=doc
+AC_MSG_RESULT([yes])
+docs_yesno=yes
+])
+AC_SUBST(DOC)
+
+
+AC_MSG_CHECKING([if maintainer mode is required])
+if test "$docs_yesno" = "yes" -a "$pcb_git_version" = "yes" ; then
+	AC_MSG_RESULT([yes -- the documentation build is enabled and your sources are from git])
+	enable_maintainer_mode=yes
+else
+	AC_MSG_RESULT([no])
+fi
+
+AM_MAINTAINER_MODE
 
 
 dnl determine host type
@@ -125,33 +161,7 @@ AC_PATH_PROG(CONVERT, convert, notfound)
 
 ##########################################################################
 #
-# See if we are supposed to build the docs
 #
-
-docs_yesno=yes
-
-AC_MSG_CHECKING([if the documentation should be built])
-AC_ARG_ENABLE([doc],
-[  --enable-doc            Build and install the documentation [[default=yes]]],
-[
-if test "X$enable_doc" = "Xno" ; then
-        DOC=""
-        AC_MSG_RESULT([no])
-        docs_yesno=no
-else
-        DOC=doc
-        AC_MSG_RESULT([yes])
-        docs_yesno=yes
-fi
-],
-[
-DOC=doc
-AC_MSG_RESULT([yes])
-docs_yesno=yes
-])
-AC_SUBST(DOC)
-
-
 if test "X$docs_yesno" = "Xyes" -a "X$pcb_git_version" = "Xyes" ; then
    AC_CHECK_PROGS(MKINFO, makeinfo, no)
    if test "X$MKINFO" != "Xno"; then
