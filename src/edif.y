@@ -17,6 +17,13 @@
  *									*
  ************************************************************************/
 #include <stdio.h>
+
+/* for malloc, free, atoi */
+#include <stdlib.h>
+
+/* for strcpy */
+#include <string.h>
+
 #include <ctype.h>
 
 #include "global.h"
@@ -34,14 +41,6 @@ LibraryEntryTypePtr GetLibraryEntryMemory (LibraryMenuTypePtr);
 #define	ABS(v)			((v) < 0 ? -(v) : (v))
 #define	Getc(s)			getc(s)
 #define	Ungetc(c)		ungetc(c,Input)
-/*
- *	External functions.
- */
-extern void *malloc();
-extern char *strcpy();
-extern int atoi();
-extern void free();
-
 
  typedef struct _str_pair
  {
