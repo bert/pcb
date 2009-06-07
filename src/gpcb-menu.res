@@ -12,23 +12,24 @@ Mouse =
 {
   Left = {
     Mode(Notify)
+    ctrl = { Mode(Save) Mode(None) Mode(Restore) Mode(Notify) }
+    shift-ctrl = { Mode(Save) Mode(Remove) Mode(Notify) Mode(Restore) }
     up = Mode(Release)
   }
   Right = {
-    { Mode(Save) Mode(Rotate) Mode(Notify) Mode(Release) Mode(Restore) }
+    Pan(1)
+    up = Pan(0)
+    shift = Popup(Popup1)
     ctrl = Display(CycleCrosshair)
   }
   Middle = {
-    Pan(1)
-    up = Pan(0)
-    ctrl = Pan(thumb,1)
-    ctrl-up = Pan(thumb,0)
+    Mode(Stroke)
+    up = Mode(Release)
+    ctrl = { Mode(Save) Mode(Copy) Mode(Notify) }
+    up-ctrl = { Mode(Notify) Mode(Restore) }
+    shift-ctrl = { Display(ToggleRubberbandMode) Mode(Save) Mode(Move) Mode(Notify) }
+    up-shift-ctrl = { Mode(Notify) Mode(Restore) Display(ToggleRubberbandMode) }
   }
-  Up = Zoom(0.8)
-  Down = Zoom(1.25)
-# If you want zoom to center, do this instead.
-#Up = { {Zoom(0.8) Center()} }
-#Down = { {Zoom(1.25) Center()} }
 }
 
 MainMenu =

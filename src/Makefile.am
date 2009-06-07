@@ -145,6 +145,8 @@ PCB_SRCS = \
 	hid/common/extents.c \
 	hid/common/draw_helpers.c \
 	hid/common/draw_helpers.h \
+	hid/common/hid_resource.c \
+	hid/common/hid_resource.h \
 	hid/hidint.h 
 
 EXTRA_pcb_SOURCES = ${DBUS_SRCS} toporouter.c toporouter.h

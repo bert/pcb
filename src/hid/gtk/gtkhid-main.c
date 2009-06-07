@@ -2455,6 +2455,60 @@ SetUnits (int argc, char **argv, int x, int y)
 }
 
 /* ------------------------------------------------------------ */
+static const char pan_syntax[] =
+"Pan([thumb], Mode)";
+
+static const char pan_help[] =
+"Start or stop panning (Mode = 1 to start, 0 to stop)\n"
+"Optional thumb argument is ignored for now in gtk hid.\n";
+
+/* %start-doc actions Pan
+
+Start or stop panning.  To start call with Mode = 1, to stop call with
+Mode = 0.  If the Mode is turned on and off with the cross hairs at
+the same coordinates, the auto pan mode is toggled.
+
+%end-doc */
+
+static int
+PanAction (int argc, char **argv, int x, int y)
+{
+  static int on_x, on_y;
+  int mode;
+
+  if (!ghidgui)
+    return 0;
+
+  if (argc != 1 && argc != 2)
+    AFAIL (pan);
+
+  if (argc == 1)
+    mode = atoi(argv[0]);
+  else
+    {
+      mode = atoi(argv[1]);
+      Message ("The gtk gui currently ignores the optional first argument"
+               "to the Pan action.\nFeel free to provide patches.\n");
+    }
+
+  gport->panning = mode;
+
+  if (mode == 1)
+    {
+      on_x = x;
+      on_y = y;
+    }
+  else if (x == on_x && y == on_y)
+    {
+      ghid_show_crosshair (FALSE);
+      ghidgui->auto_pan_on = !ghidgui->auto_pan_on;
+      ghid_show_crosshair (TRUE);
+    }
+
+  return 0;
+}
+
+/* ------------------------------------------------------------ */
 static const char popup_syntax[] =
 "Popup(MenuName, [Button])";
 
@@ -2535,6 +2589,7 @@ HID_Action ghid_main_action_list[] = {
   {"LayerGroupsChanged", 0, LayerGroupsChanged},
   {"LibraryChanged", 0, LibraryChanged},
   {"Load", 0, Load},
+  {"Pan", 0, PanAction, pan_help, pan_syntax},
   {"PCBChanged", 0, PCBChanged},
   {"PointCursor", 0, PointCursor},
   {"Popup", 0, Popup, popup_help, popup_syntax},
