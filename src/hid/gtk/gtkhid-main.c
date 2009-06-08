@@ -2474,6 +2474,60 @@ SetUnits (int argc, char **argv, int x, int y)
 }
 
 /* ------------------------------------------------------------ */
+static const char scroll_syntax[] =
+"Scroll(up|down|left|right, [div])";
+
+static const char scroll_help[] =
+"Scroll the viewport.";
+
+/* % start-doc actions Scroll
+
+@item up|down|left|right
+Specifies the direction to scroll
+
+@item div
+Optional.  Specifies how much to scroll by.  The viewport is scrolled
+by 1/div of what is visible, so div = 1 scrolls a whole page. If not
+default is given, div=40.
+
+%end-doc */
+
+static int
+ScrollAction (int argc, char **argv, int x, int y)
+{
+  gdouble dx = 0.0, dy = 0.0;
+  int div = 40;
+
+  if (!ghidgui)
+    return 0;
+
+  if (argc != 1 && argc != 2)
+    AFAIL (scroll);
+
+  if (argc == 2)
+    div = atoi(argv[1]);
+
+  if (strcasecmp (argv[0], "up") == 0)
+    dy = -(ghid_port.height * gport->zoom / div);
+  else if (strcasecmp (argv[0], "down") == 0)
+    dy = ghid_port.height * gport->zoom / div;
+  else if (strcasecmp (argv[0], "right") == 0)
+    dx = ghid_port.width * gport->zoom / div;
+  else if (strcasecmp (argv[0], "left") == 0)
+    dx = -(ghid_port.width * gport->zoom / div);
+  else
+    AFAIL (scroll);
+
+  HideCrosshair (FALSE);
+  ghid_port_ranges_pan (dx, dy, TRUE);
+  MoveCrosshairRelative (dx, dy);
+  AdjustAttachedObjects ();
+  RestoreCrosshair (FALSE);
+
+  return 0;
+}
+
+/* ------------------------------------------------------------ */
 static const char pan_syntax[] =
 "Pan([thumb], Mode)";
 
@@ -2618,6 +2672,7 @@ HID_Action ghid_main_action_list[] = {
    printcalibrate_help, printcalibrate_syntax},
   {"RouteStylesChanged", 0, RouteStylesChanged},
   {"Save", 0, Save, save_help, save_syntax},
+  {"Scroll", 0, ScrollAction, scroll_help, scroll_syntax},
   {"SetUnits", 0, SetUnits, setunits_help, setunits_syntax},
   {"SwapSides", 0, SwapSides, swapsides_help, swapsides_syntax},
   {"Zoom", "Click on zoom focus", Zoom, zoom_help, zoom_syntax}

@@ -30,6 +30,19 @@ Mouse =
     shift-ctrl = { Display(ToggleRubberbandMode) Mode(Save) Mode(Move) Mode(Notify) }
     up-shift-ctrl = { Mode(Notify) Mode(Restore) Display(ToggleRubberbandMode) }
   }
+  Up = {
+    Zoom(0.8)
+    shift = Scroll(up)
+    ctrl = Scroll(left)
+  }
+  Down = {
+    Zoom(1.25)
+    shift = Scroll(down)
+    ctrl = Scroll(right)
+  }
+# If you want zoom to center, do this instead.
+  #Up = { {Zoom(0.8) Center()} }
+  #Down = { {Zoom(1.25) Center()} }
 }
 
 MainMenu =

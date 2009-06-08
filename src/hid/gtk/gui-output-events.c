@@ -935,34 +935,27 @@ ghid_port_window_mouse_scroll_cb (GtkWidget * widget,
 				  GdkEventScroll * ev, GHidPort * out)
 {
   ModifierKeysState mk;
-  gdouble dx = 0.0, dy = 0.0, zoom_factor;
   GdkModifierType state;
+  int button;
 
   state = (GdkModifierType) (ev->state);
   mk = ghid_modifier_keys_state (&state);
-  if (mk == NONE_PRESSED)
+
+  /* X11 gtk hard codes buttons 4, 5, 6, 7 as below in
+   * gtk+/gdk/x11/gdkevents-x11.c:1121, but quartz and windows have
+   * special mouse scroll events, so this may conflict with a mouse
+   * who has buttons 4 - 7 that aren't the scroll wheel?
+   */
+  switch(ev->direction)
     {
-      zoom_factor = (ev->direction == GDK_SCROLL_UP) ? 0.8 : 1.25;
-      ghid_port_ranges_zoom (gport->zoom * zoom_factor);
-      return TRUE;
+    case GDK_SCROLL_UP: button = 4; break;
+    case GDK_SCROLL_DOWN: button = 5; break;
+    case GDK_SCROLL_LEFT: button = 6; break;
+    case GDK_SCROLL_RIGHT: button = 7; break;
+    default: button = -1;
     }
 
-  if (mk == SHIFT_PRESSED)
-    dy = ghid_port.height * gport->zoom / 40;
-  else
-    dx = ghid_port.width * gport->zoom / 40;
-
-  if (ev->direction == GDK_SCROLL_UP)
-    {
-      dx = -dx;
-      dy = -dy;
-    }
-
-  HideCrosshair (FALSE);
-  ghid_port_ranges_pan (dx, dy, TRUE);
-  MoveCrosshairRelative (dx, dy);
-  AdjustAttachedObjects ();
-  RestoreCrosshair (FALSE);
+  do_mouse_action(button, mk);
 
   return TRUE;
 }
