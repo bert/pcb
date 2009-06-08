@@ -210,6 +210,7 @@ static HID extents_hid = {
   0 /* extents_calibrate */ ,
   0 /* extents_shift_is_pressed */ ,
   0 /* extents_control_is_pressed */ ,
+  0 /* extents_mod1_is_pressed */ ,
   0 /* extents_get_coords */ ,
   0 /* extents_set_crosshair */ ,
   0 /* extents_add_timer */ ,

@@ -412,6 +412,7 @@ ModifierKeysState ghid_modifier_keys_state (GdkModifierType * state);
 ButtonState ghid_button_state (GdkModifierType * state);
 gboolean ghid_is_modifier_key_sym (gint ksym);
 gboolean ghid_control_is_pressed (void);
+gboolean ghid_mod1_is_pressed (void);
 gboolean ghid_shift_is_pressed (void);
 
 void ghid_draw_area_update (GHidPort * out, GdkRectangle * rect);

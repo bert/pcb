@@ -1080,6 +1080,7 @@ HID             nelma_hid = {
 	nelma_calibrate,
 	0 /* nelma_shift_is_pressed */ ,
 	0 /* nelma_control_is_pressed */ ,
+	0 /* nelma_mod1_is_pressed */ ,
 	0 /* nelma_get_coords */ ,
 	nelma_set_crosshair,
 	0 /* nelma_add_timer */ ,

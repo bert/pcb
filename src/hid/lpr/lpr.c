@@ -145,6 +145,7 @@ HID lpr_hid = {
   lpr_calibrate,
   0 /* lpr_shift_is_pressed */ ,
   0 /* lpr_control_is_pressed */ ,
+  0 /* lpr_mod1_is_pressed */ ,
   0 /* lpr_get_coords */ ,
   0 /* lpr_set_crosshair */ ,
   0 /* lpr_add_timer */ ,

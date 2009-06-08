@@ -568,6 +568,7 @@ HID bom_hid = {
   0,				/* bom_calibrate */
   0,				/* bom_shift_is_pressed */
   0,				/* bom_control_is_pressed */
+  0,				/* bom_mod1_is_pressed */
   0,				/* bom_get_coords */
   0,				/* bom_set_crosshair */
   0,				/* bom_add_timer */

@@ -1064,6 +1064,23 @@ ghid_control_is_pressed ()
   return (mask & GDK_CONTROL_MASK) ? TRUE : FALSE;
 }
 
+int
+ghid_mod1_is_pressed ()
+{
+  GdkModifierType mask;
+  GHidPort *out = &ghid_port;
+
+  if( ! ghid_gui_is_up )
+    return 0;
+
+  gdk_window_get_pointer (out->drawing_area->window, NULL, NULL, &mask);
+#ifdef __APPLE__
+  return (mask & ( 1 << 13 ) ) ? TRUE : FALSE;  // The option key is not MOD1, although it should be...
+#else
+  return (mask & GDK_MOD1_MASK) ? TRUE : FALSE;
+#endif
+}
+
 void
 ghid_set_crosshair (int x, int y, int action)
 {
@@ -1513,6 +1530,7 @@ HID ghid_hid = {
   ghid_calibrate,
   ghid_shift_is_pressed,
   ghid_control_is_pressed,
+  ghid_mod1_is_pressed,
   ghid_get_coords,
   ghid_set_crosshair,
   ghid_add_timer,
@@ -1576,6 +1594,7 @@ HID ghid_extents = {
   0 /* ghid_calibrate */ ,
   0 /* ghid_shift_is_pressed */ ,
   0 /* ghid_control_is_pressed */ ,
+  0 /* ghid_mod1_is_pressed */ ,
   0 /* ghid_get_coords */ ,
   0 /* ghid_set_crosshair */ ,
   0 /* ghid_add_timer */ ,

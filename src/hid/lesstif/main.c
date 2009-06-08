@@ -1233,6 +1233,7 @@ zoom_by (double factor, int x, int y)
 static int panning = 0;
 static int shift_pressed;
 static int ctrl_pressed;
+static int alt_pressed;
 
 /* X and Y are in screen coordinates.  */
 static void
@@ -1295,7 +1296,16 @@ mod_changed (XKeyEvent * e, int set)
     case XK_Control_R:
       ctrl_pressed = set;
       break;
+#ifdef __APPLE__
+	case XK_Mode_switch:
+#else
+	case XK_Alt_L:
+	case XK_Alt_R:
+#endif
+	  alt_pressed = set;
+	  break;
     default:
+	  // to include the Apple keyboard left and right command keys use XK_Meta_L and XK_Meta_R respectivly.
       return;
     }
   in_move_event = 1;
@@ -1344,7 +1354,11 @@ work_area_input (Widget w, XtPointer v, XEvent * e, Boolean * ctd)
         pressed_button = e->xbutton.button;
         mods = ((e->xbutton.state & ShiftMask) ? M_Shift : 0)
           + ((e->xbutton.state & ControlMask) ? M_Ctrl : 0)
+#ifdef __APPLE__
+          + ((e->xbutton.state & (1<<13)) ? M_Alt : 0);
+#else
           + ((e->xbutton.state & Mod1Mask) ? M_Alt : 0);
+#endif
         do_mouse_action(e->xbutton.button, mods);
         RestoreCrosshair (True);
         break;
@@ -1360,7 +1374,11 @@ work_area_input (Widget w, XtPointer v, XEvent * e, Boolean * ctd)
         pressed_button = 0;
         mods = ((e->xbutton.state & ShiftMask) ? M_Shift : 0)
           + ((e->xbutton.state & ControlMask) ? M_Ctrl : 0)
+#ifdef __APPLE__
+          + ((e->xbutton.state & (1<<13)) ? M_Alt : 0)
+#else
           + ((e->xbutton.state & Mod1Mask) ? M_Alt : 0)
+#endif
           + M_Release;
         do_mouse_action (e->xbutton.button, mods);
         RestoreCrosshair (True);
@@ -1377,6 +1395,11 @@ work_area_input (Widget w, XtPointer v, XEvent * e, Boolean * ctd)
 		       &root_x, &root_y, &pos_x, &pos_y, &keys_buttons);
 	shift_pressed = (keys_buttons & ShiftMask);
 	ctrl_pressed = (keys_buttons & ControlMask);
+#ifdef __APPLE__
+	alt_pressed = (keys_buttons & (1<<13));
+#else
+	alt_pressed = (keys_buttons & Mod1Mask);
+#endif
 	/*printf("m %d %d\n", Px(e->xmotion.x), Py(e->xmotion.y)); */
 	crosshair_in_window = 1;
 	in_move_event = 1;
@@ -3329,6 +3352,12 @@ lesstif_control_is_pressed (void)
   return ctrl_pressed;
 }
 
+static int
+lesstif_mod1_is_pressed (void)
+{
+  return alt_pressed;
+}
+
 extern void lesstif_get_coords (const char *msg, int *x, int *y);
 
 static void
@@ -3749,6 +3778,7 @@ HID lesstif_gui = {
   lesstif_calibrate,
   lesstif_shift_is_pressed,
   lesstif_control_is_pressed,
+  lesstif_mod1_is_pressed,
   lesstif_get_coords,
   lesstif_set_crosshair,
   lesstif_add_timer,
