@@ -2662,7 +2662,7 @@ HID_Action ghid_main_action_list[] = {
   {"LayerGroupsChanged", 0, LayerGroupsChanged},
   {"LibraryChanged", 0, LibraryChanged},
   {"Load", 0, Load},
-  {"Pan", 0, PanAction, pan_help, pan_syntax},
+  {"Pan", "Click on a place to pan", PanAction, pan_help, pan_syntax},
   {"PCBChanged", 0, PCBChanged},
   {"PointCursor", 0, PointCursor},
   {"Popup", 0, Popup, popup_help, popup_syntax},
@@ -2672,7 +2672,7 @@ HID_Action ghid_main_action_list[] = {
    printcalibrate_help, printcalibrate_syntax},
   {"RouteStylesChanged", 0, RouteStylesChanged},
   {"Save", 0, Save, save_help, save_syntax},
-  {"Scroll", 0, ScrollAction, scroll_help, scroll_syntax},
+  {"Scroll", "Click on a place to scroll", ScrollAction, scroll_help, scroll_syntax},
   {"SetUnits", 0, SetUnits, setunits_help, setunits_syntax},
   {"SwapSides", 0, SwapSides, swapsides_help, swapsides_syntax},
   {"Zoom", "Click on zoom focus", Zoom, zoom_help, zoom_syntax}

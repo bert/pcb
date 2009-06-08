@@ -302,7 +302,8 @@ hid_actionv (const char *name, int argc, char **argv)
   a = hid_find_action (name, &context);
   if (!a)
     return 1;
-  gui->get_coords (a->need_coord_msg, &x, &y);
+  if (a->need_coord_msg)
+    gui->get_coords (a->need_coord_msg, &x, &y);
 
   /* save old action context and set it to the context associated with the action */
   old_context = hid_action_context;
