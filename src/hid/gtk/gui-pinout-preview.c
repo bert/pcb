@@ -163,6 +163,11 @@ ghid_pinout_preview_expose (GtkWidget * widget, GdkEventExpose * event)
   int save_view_width, save_view_height;
   double xz, yz;
 
+  /* make sure that the graphic contexts have been set up before we try to do anything here */
+  if (gport->bg_gc == NULL) {
+    return FALSE;
+  }
+
   save_zoom = gport->zoom;
   save_width = gport->width;
   save_height = gport->height;
