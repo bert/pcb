@@ -1044,32 +1044,17 @@ struct _GHashNode
 {
   gpointer   key;
   gpointer   value;
-
-  /* If key_hash == 0, node is not in use
-   * If key_hash == 1, node is a tombstone
-   * If key_hash >= 2, node contains data */
-  guint      key_hash;
+  GHashNode *next;
 };
 
 struct _GHashTable
 {
   gint             size;
-  gint             mod;
-  guint            mask;
   gint             nnodes;
-  gint             noccupied;  /* nnodes + tombstones */
-  GHashNode       *nodes;
+  GHashNode      **nodes;
   GHashFunc        hash_func;
   GEqualFunc       key_equal_func;
   volatile gint    ref_count;
-#ifndef G_DISABLE_ASSERT
-  /*
-   * Tracks the structure of the hash table, not its contents: is only
-   * incremented when a node is added or removed (is not incremented
-   * when the key or data of a node is modified).
-   */
-  int              version;
-#endif
   GDestroyNotify   key_destroy_func;
   GDestroyNotify   value_destroy_func;
 };
@@ -1087,7 +1072,7 @@ g_hash_table_get_keys (GHashTable *hash_table)
     {
       GHashNode *node = &hash_table->nodes [i];
 
-      if (node->key_hash > 1)
+      if (node->key)
         retval = g_list_prepend (retval, node->key);
     }
 
