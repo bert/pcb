@@ -1038,6 +1038,19 @@ toporouter_draw_cluster(toporouter_t *r, drawing_context_t *dc, toporouter_clust
 }
 
 #if GLIB_MAJOR_VERSION <= 2 && GLIB_MINOR_VERSION < 14
+typedef struct _GHashNode      GHashNode;
+
+struct _GHashNode
+{
+  gpointer   key;
+  gpointer   value;
+
+  /* If key_hash == 0, node is not in use
+   * If key_hash == 1, node is a tombstone
+   * If key_hash >= 2, node contains data */
+  guint      key_hash;
+};
+
 GList *
 g_hash_table_get_keys (GHashTable *hash_table)
 {
