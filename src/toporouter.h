@@ -52,8 +52,6 @@
 #include <stdlib.h>
 #include <getopt.h>
 
-#include <execinfo.h>
-
 #include <sys/time.h>
 
 #define TOPOROUTER_FLAG_VERBOSE     (1<<0)

@@ -675,7 +675,7 @@ vertex_net_keepaway(toporouter_vertex_t *v)
   if(!box || !box->cluster) return Settings.Keepaway + 1.;
   return cluster_keepaway(box->cluster);
 }
-
+/*
 void
 print_trace (void)
 {
@@ -694,7 +694,7 @@ print_trace (void)
 
   free (strings);
 }
-
+*/
 /* fills in x and y with coordinates of point from a towards b of distance d */
 void
 point_from_point_to_point(toporouter_vertex_t *a, toporouter_vertex_t *b, gdouble d, gdouble *x, gdouble *y)
@@ -710,7 +710,7 @@ point_from_point_to_point(toporouter_vertex_t *a, toporouter_vertex_t *b, gdoubl
 #endif
 
   if(!finite(theta)) {
-    print_trace();
+//    print_trace();
   }
   g_assert(finite(theta));
 
