@@ -1037,6 +1037,28 @@ toporouter_draw_cluster(toporouter_t *r, drawing_context_t *dc, toporouter_clust
 #endif
 }
 
+#if GLIB_MAJOR_VERSION <= 2 && GLIB_MINOR_VERSION < 14
+GList *
+g_hash_table_get_keys (GHashTable *hash_table)
+{
+  gint i;
+  GList *retval;
+
+  g_return_val_if_fail (hash_table != NULL, NULL);
+
+  retval = NULL;
+  for (i = 0; i < hash_table->size; i++)
+    {
+      GHashNode *node = &hash_table->nodes [i];
+
+      if (node->key_hash > 1)
+        retval = g_list_prepend (retval, node->key);
+    }
+
+  return retval;
+}
+#endif
+
 
 void
 toporouter_draw_surface(toporouter_t *r, GtsSurface *s, char *filename, int w, int h, int mode, GSList *datas, int layer, GSList *candidatepoints) 
