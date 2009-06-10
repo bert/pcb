@@ -1051,6 +1051,29 @@ struct _GHashNode
   guint      key_hash;
 };
 
+struct _GHashTable
+{
+  gint             size;
+  gint             mod;
+  guint            mask;
+  gint             nnodes;
+  gint             noccupied;  /* nnodes + tombstones */
+  GHashNode       *nodes;
+  GHashFunc        hash_func;
+  GEqualFunc       key_equal_func;
+  volatile gint    ref_count;
+#ifndef G_DISABLE_ASSERT
+  /*
+   * Tracks the structure of the hash table, not its contents: is only
+   * incremented when a node is added or removed (is not incremented
+   * when the key or data of a node is modified).
+   */
+  int              version;
+#endif
+  GDestroyNotify   key_destroy_func;
+  GDestroyNotify   value_destroy_func;
+};
+
 GList *
 g_hash_table_get_keys (GHashTable *hash_table)
 {
