@@ -1396,6 +1396,7 @@ static void triangulate_loop (GtsSegment * start,
   NEXT (s) = NULL;
 }
 
+#ifdef CHECK_ORIENTED
 static void check_object (GtsObject * o)
 {
   g_assert (o->reserved == NULL);
@@ -1432,6 +1433,7 @@ static void check_boundary_interior_triangulation (GSList * boundary,
   g_slist_foreach (boundary, (GFunc) check_boundary, surface);
   g_slist_foreach (interior, (GFunc) check_interior, surface);
 }
+#endif /*ifdef CHECK_ORIENTED */
 
 static void merge_duplicate (GtsEdge * e)
 {
