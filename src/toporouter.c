@@ -1020,6 +1020,7 @@ min_net_net_spacing(toporouter_vertex_t *v1, toporouter_vertex_t *v2)
 void
 toporouter_draw_cluster(toporouter_t *r, drawing_context_t *dc, toporouter_cluster_t *cluster, gdouble red, gdouble green, gdouble blue, guint layer)
 {
+#if TOPO_OUTPUT_ENABLED
   GSList *i = cluster->i;
 
   while(i) {
@@ -1033,7 +1034,7 @@ toporouter_draw_cluster(toporouter_t *r, drawing_context_t *dc, toporouter_clust
 
     i = i->next;
   }
-
+#endif
 }
 
 
