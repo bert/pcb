@@ -175,11 +175,9 @@ pcb_DEPENDENCIES = @HIDLIBS@
 
 if WITH_TOPOROUTER
 PCB_SRCS += toporouter.c toporouter.h
-noinst_PROGRAMS = predicates_init
 noinst_LIBRARIES += libgts.a
 pcb_LDADD += libgts.a
 pcb_DEPENDENCIES += libgts.a
-BUILT_SOURCES += gts/predicates_init.h
 endif
 
 pcb_SOURCES = ${PCB_SRCS} core_lists.h
@@ -319,11 +317,6 @@ hid/lesstif/lesstif_lists.h : ${LIBLESSTIF_SRCS} Makefile
 	(for f in ${LIBLESSTIF_SRCS} ; do cat $(srcdir)/$$f ; done) | grep "^REGISTER" > $@.tmp
 	mv $@.tmp $@
 
-predicates_init_SOURCES = gts/predicates_init.c gts/rounding.h
-
-gts/predicates_init.h: predicates_init
-	./predicates_init >  gts/predicates_init.h
-
 libgts_a_CPPFLAGS = -I./gts
 LIBGTS_SRCS = \
 	gts/object.c \
@@ -365,8 +358,6 @@ LIBGTS_SRCS = \
 	gts/curvature.c \
 	gts/tribox3.c
 libgts_a_SOURCES = ${LIBGTS_SRCS} gts/gts_lists.h
-libgts_a_DEPENDENCIES = gts/predicates_init.h
-
  
 gts/gts_lists.h : ${LIBGTS_SRCS} Makefile
 	true > $@
@@ -446,7 +437,6 @@ DISTCLEANFILES= pcbtest.sh gpcb-menu.h pcb-menu.h \
 	hid/png/png_lists.h \
 	hid/nelma/nelma_lists.h \
 	hid/ps/ps_lists.h \
-	gts/predicates_init.h \
 	gts/gts_lists.h \
 	core_lists.h \
 	dbus-introspect.h

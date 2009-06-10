@@ -61,6 +61,12 @@ GTS_C_VAR const guint gts_binary_age;
 #define GTS_COMMENTS  "#!"
 #define GTS_MAINTAINER "popinet@users.sourceforge.net"
 
+
+
+
+void gts_predicates_init();
+
+
 /* Class declarations for base types */
 
 typedef struct _GtsObjectClassInfo     GtsObjectClassInfo;

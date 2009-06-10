@@ -57,6 +57,7 @@
 #define TOPOROUTER_FLAG_VERBOSE     (1<<0)
 #define TOPOROUTER_FLAG_HARDDEST    (1<<1)
 #define TOPOROUTER_FLAG_HARDSRC     (1<<2)
+#define TOPOROUTER_FLAG_MATCH       (1<<3)
 
 #if TOPO_OUTPUT_ENABLED
   #include <cairo.h>
@@ -297,6 +298,7 @@ typedef struct {
 struct _toporouter_clearance_t {
   gpointer data;
   gint wind;
+  gdouble line_int_x, line_int_y, ms;
 };
 
 typedef struct _toporouter_clearance_t toporouter_clearance_t;
