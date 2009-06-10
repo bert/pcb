@@ -585,7 +585,7 @@ static int
 ReportAllNetLengths (int argc, char **argv, int x, int y)
 {
   enum { Upcb, Umm, Umil, Uin } units;
-  int ni, nei;
+  int ni;
   int found;
   double length;
 

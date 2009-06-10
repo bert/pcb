@@ -1557,6 +1557,11 @@ static GtsVertex * edge_collapse (GtsEdge * e,
   return mid;
 }
 
+/*
+ * I don't see where this code is ever used, but keep it for a bit 
+ * in case it is needed for debugging
+ */
+#ifdef GTS_NEED_UPDATE_CLOSEST_NEIGHBORS
 static void update_closest_neighbors (GtsVertex * v, GtsEHeap * heap)
 {
   GSList * i = v->segments;
@@ -1570,6 +1575,7 @@ static void update_closest_neighbors (GtsVertex * v, GtsEHeap * heap)
     i = i->next;
   }
 }
+#endif
 
 static void update_2nd_closest_neighbors (GtsVertex * v, GtsEHeap * heap)
 {

@@ -531,6 +531,8 @@ static gboolean edge_collapse_is_valid (GtsEdge * e)
 }
 #endif /* DEBUG */
 
+/* Not currently used.  May be useful for some debug code */
+#ifdef DEBUG
 static void print_split (GtsSplit * vs, FILE * fptr)
 {
   guint j;
@@ -549,6 +551,7 @@ static void print_split (GtsSplit * vs, FILE * fptr)
     cf++;
   }
 }
+#endif
 
 /**
  * gts_split_collapse:
@@ -864,6 +867,7 @@ void gts_split_expand (GtsSplit * vs,
   }
 }
 
+#ifndef DYNAMIC_SPLIT
 static void cface_neighbors (GtsSplitCFace * cf,
 			     GtsEdge * e,
 			     GtsVertex * v1,
@@ -899,6 +903,7 @@ static void cface_neighbors (GtsSplitCFace * cf,
   }
   *a = NULL;
 }
+#endif /*ifndef DYNAMIC_SPLIT */
 
 /**
  * gts_split_new:
@@ -919,9 +924,11 @@ GtsSplit * gts_split_new (GtsSplitClass * klass,
 {
   GtsSplit * vs;
   GtsVertex * v1, * v2;
+#ifndef DYNAMIC_SPLIT
   GtsEdge * e;
   GSList * i;
   GtsSplitCFace * cf;
+#endif
 
   g_return_val_if_fail (klass != NULL, NULL);
   g_return_val_if_fail (v != NULL, NULL);
@@ -1102,6 +1109,7 @@ guint gts_split_height (GtsSplit * root)
   return height + 1;
 }
 
+#ifndef DYNAMIC_SPLIT
 static gboolean list_array_are_identical (GSList * list, 
 					  gpointer * array,
 					  gpointer excluded)
@@ -1122,6 +1130,7 @@ static gboolean list_array_are_identical (GSList * list,
   }
   return TRUE;
 }
+#endif /* ifndef DYNAMIC_SPLIT */
 
 #ifndef NEW
 gboolean gts_split_is_collapsable (GtsSplit * vs)
