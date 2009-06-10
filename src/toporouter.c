@@ -9494,7 +9494,7 @@ export_oproute_check:
   }
 //*/  
 
-  oproutes_tof_match(r, oproutes);
+//  oproutes_tof_match(r, oproutes);
   
 //export_oproute_finish:
   i = oproutes;
@@ -10397,7 +10397,7 @@ toporouter (int argc, char **argv, int x, int y)
 */
   spring_embedder(r);
   create_pad_points(r);
-///*
+/*
   {
     int i;
     for(i=0;i<groupcount();i++) {
@@ -10406,7 +10406,7 @@ toporouter (int argc, char **argv, int x, int y)
       toporouter_draw_surface(r, r->layers[i].surface, buffer, 2048, 2048, 2, NULL, i, NULL);
     }
   }
-//*/ 
+*/ 
   toporouter_export(r);
 
 /*
