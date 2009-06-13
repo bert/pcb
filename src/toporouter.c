@@ -1588,6 +1588,23 @@ vertex_outside_segment(toporouter_spoint_t *a, toporouter_spoint_t *b, gdouble r
  * AB and CD must share a point interior to both segments.
  * returns TRUE if AB properly intersects CD.
  */
+gint
+coord_intersect_prop(gdouble ax, gdouble ay, gdouble bx, gdouble by, gdouble cx, gdouble cy, gdouble dx, gdouble dy)
+{
+  gint wind_abc = coord_wind(ax, ay, bx, by, cx, cy);
+  gint wind_abd = coord_wind(ax, ay, bx, by, dx, dy);
+  gint wind_cda = coord_wind(cx, cy, dx, dy, ax, ay);
+  gint wind_cdb = coord_wind(cx, cy, dx, dy, bx, by);
+
+  if( !wind_abc || !wind_abd || !wind_cda || !wind_cdb ) return 0;
+
+  return ( wind_abc ^ wind_abd ) && ( wind_cda ^ wind_cdb );
+}
+
+/* proper intersection:
+ * AB and CD must share a point interior to both segments.
+ * returns TRUE if AB properly intersects CD.
+ */
 int
 point_intersect_prop(GtsPoint *a, GtsPoint *b, GtsPoint *c, GtsPoint *d) 
 {
@@ -4730,9 +4747,9 @@ clean_routing_edges(toporouter_t *r, toporouter_route_t *data)
   data->alltemppoints = NULL;
  
   
-//  for(gint i=0;i<groupcount();i++) {
-//    gts_surface_foreach_edge(r->layers[i].surface, clean_edge, NULL);
-//  }
+  for(gint i=0;i<groupcount();i++) {
+    gts_surface_foreach_edge(r->layers[i].surface, clean_edge, NULL);
+  }
 }
 
 gdouble
@@ -7023,6 +7040,47 @@ edge_routing_vertex_wind_from_path(GSList *path, toporouter_vertex_t *edgev)
   return 0;
 }
 
+gint
+arc_centre_wind_from_path(GSList *path, toporouter_vertex_t *centre)
+{
+  GSList *i = path;
+  toporouter_vertex_t *prevv = NULL;
+  toporouter_vertex_t *closestv = NULL;
+  gdouble closestd = 0.;
+  gint closestwind = 0;
+
+  while(i) {
+    toporouter_vertex_t *curv = TOPOROUTER_VERTEX(i->data);
+    gdouble tempd;
+
+    if(curv->routingedge) {
+
+      if(tedge_v1(curv->routingedge) == centre)
+        return vertex_wind(GTS_VERTEX(prevv), GTS_VERTEX(curv), GTS_VERTEX(tedge_v1(curv->routingedge)));        
+      if(tedge_v2(curv->routingedge) == centre)
+        return vertex_wind(GTS_VERTEX(prevv), GTS_VERTEX(curv), GTS_VERTEX(tedge_v2(curv->routingedge)));        
+      if(tedge_v1(curv->routingedge)->fakev == centre)
+        return vertex_wind(GTS_VERTEX(prevv), GTS_VERTEX(curv), GTS_VERTEX(tedge_v1(curv->routingedge)->fakev));        
+      if(tedge_v2(curv->routingedge)->fakev == centre)
+        return vertex_wind(GTS_VERTEX(prevv), GTS_VERTEX(curv), GTS_VERTEX(tedge_v2(curv->routingedge)->fakev));        
+
+    }
+    tempd = gts_point_distance2(GTS_POINT(curv), GTS_POINT(centre));
+
+    if(prevv && (!closestv || (tempd < closestd))) {
+      closestd = tempd;
+      closestv = curv;
+      closestwind = vertex_wind(GTS_VERTEX(prevv), GTS_VERTEX(curv), GTS_VERTEX(centre));
+    }
+
+    prevv = curv;
+    i = i->next;
+  }
+
+//  printf("ERROR: arc_centre_wind_from_path: didn't find edge vertex\n");
+  return closestwind;
+}
+
 toporouter_oproute_t *
 optimize_path(toporouter_t *r, GSList *path) 
 {
@@ -7668,30 +7726,53 @@ fix_loopy_oproute_arcs(toporouter_t *r, toporouter_oproute_t *oproute)
 {
   GList *i = oproute->arcs;
   toporouter_arc_t *parc = NULL;
-  guint recalculate = 0;
+  GSList *remlist = NULL, *j;
+//  guint recalculate = 0;
 
   i = oproute->arcs;
   while(i) {
     toporouter_arc_t *arc = (toporouter_arc_t *)i->data;
-   
+     
     if(parc && arc) {
-      gint wind = coord_wind(parc->x1, parc->y1, arc->x0, arc->y0, vx(arc->centre), vy(arc->centre));
+      gdouble x, y;
+//      gint wind = coord_wind(parc->x1, parc->y1, arc->x0, arc->y0, vx(arc->centre), vy(arc->centre));
       //gint pathdir = vertex_wind_from_path(oproute->path, arc->centre, v);
-      if(wind != arc->dir) {
-        arc->dir = wind;
-        recalculate = 1;
+//      if(wind != arc->dir) {
+        //arc->dir = wind;
+        //recalculate = 1;
+//      }
+
+      if(i->next) {
+        toporouter_arc_t *narc = TOPOROUTER_ARC(i->next->data);
+        x = narc->x0;
+        y = narc->y0;
+      }else{
+        x = vx(oproute->term2);
+        y = vy(oproute->term2);
       }
 
+      if(coord_intersect_prop(parc->x1, parc->y1, arc->x0, arc->y0, arc->x1, arc->y1, x, y)) {
+//        printf("DETECTED LOOPY ARC\n");
+        remlist = g_slist_prepend(remlist, arc);
+      }
+      
     }
 
     parc = arc;
     i = i->next;
   }
 
-  if(recalculate) {
-    calculate_oproute(r, oproute);
+//  if(recalculate) {
+//    calculate_oproute(r, oproute);
+//  }
+  j = remlist;
+  while(j) {
+    toporouter_arc_t *arc = TOPOROUTER_ARC(j->data);
+    toporouter_arc_remove(oproute, arc);
+    j = j->next;
   }
 
+  g_slist_free(remlist);
 }
 
 void
@@ -8241,6 +8322,7 @@ check_line_clearance(toporouter_oproute_t *oproute, gdouble x0, gdouble y0, gdou
 guint
 arc_on_opposite_side(toporouter_vertex_t *v, toporouter_arc_t *arc, toporouter_vertex_t *a)
 {
+  /*
   gint vwind, awind;
 
   g_assert(arc);
@@ -8259,6 +8341,16 @@ arc_on_opposite_side(toporouter_vertex_t *v, toporouter_arc_t *arc, toporouter_v
   }
 
   return 1;
+  */
+
+  gint vwind, awind;
+
+  awind = arc_centre_wind_from_path(v->route->path, arc->centre);
+  vwind = edge_routing_vertex_wind_from_path(v->route->path, a);
+
+  if(awind == vwind) return 0;
+  return 1;
+
 }
 
 
@@ -8281,7 +8373,7 @@ check_oproute_edge(toporouter_oproute_t *oproute, gdouble x0, gdouble y0, gdoubl
     childarc = vertex_child_arc(nextv);
     parentarc = vertex_parent_arc(nextv);
 
-//#ifdef DEBUG_CHECK_OPROUTE          
+#ifdef DEBUG_CHECK_OPROUTE          
   if(debug) {
     printf("NEXT HAS ");
     if(childarc) {
@@ -8298,7 +8390,7 @@ check_oproute_edge(toporouter_oproute_t *oproute, gdouble x0, gdouble y0, gdoubl
 
     printf("NEXTV: "); print_vertex(nextv);
   }
-//#endif
+#endif
     
     if(childarc && childarc != parc && childarc != arc && arc_on_opposite_side(nextv, childarc, v)) {
 //    if(childarc) {
@@ -8476,7 +8568,7 @@ check_oproute(toporouter_t *r, toporouter_oproute_t *oproute)
 
   GList *i = oproute->arcs;
   guint debug = 0;
-//  if(!strcmp(oproute->netlist, "  SIG191")) debug = 1;
+//  if(!strcmp(oproute->netlist, "  DRAM_CK_N")) debug = 1;
 //  printf("checking oproute for %s\n", oproute->netlist);
 
   while(i) {
@@ -9945,10 +10037,10 @@ toporouter_export(toporouter_t *r)
     path_assign_to_oproute(j, oproute);
     oproutes = g_slist_prepend(oproutes, oproute);
     
-//    if(!strcmp(oproute->netlist, "  SIG191")) {
-//      printf("\nOPROUTE INITIAL\n");
-//      print_oproute(oproute);
-//    }
+    if(!strcmp(oproute->netlist, "  DRAM_CK_N")) {
+      printf("\nOPROUTE INITIAL\n");
+      print_oproute(oproute);
+    }
 
     i = i->next;
   }
@@ -9972,10 +10064,10 @@ toporouter_export(toporouter_t *r)
 
     fix_overshoot_oproute_arcs(r, oproute, 1);
     calculate_oproute(r, oproute);
-//    if(!strcmp(oproute->netlist, "  SIG191")) {
-//      printf("\nOPROUTE\n");
-//      print_oproute(oproute);
-//    }
+    if(!strcmp(oproute->netlist, "  DRAM_CK_N")) {
+      printf("\nOPROUTE\n");
+      print_oproute(oproute);
+    }
 
     i = i->next;
   }
@@ -9991,10 +10083,10 @@ export_oproute_check:
     printf("CHECKING NETLIST %s\n", oproute->netlist);
 #endif      
     
-//    if(!strcmp(oproute->netlist, "  SIG191")) {
-//      printf("\nOPROUTE CHECK\n");
-//      print_oproute(oproute);
-//    }
+    if(!strcmp(oproute->netlist, "  DRAM_CK_N")) {
+      printf("\nOPROUTE CHECK\n");
+      print_oproute(oproute);
+    }
 
     if(check_oproute(r, oproute)) {
 #ifdef DEBUG_EXPORT
@@ -10015,10 +10107,10 @@ export_oproute_check:
 #endif    
 
       calculate_oproute(r, oproute);
-//      if(!strcmp(oproute->netlist, "  SIG191")) {
-//        printf("\nOPROUTE CHECK FIX\n");
-//       print_oproute(oproute);
-//      }
+      if(!strcmp(oproute->netlist, "  DRAM_CK_N")) {
+        printf("\nOPROUTE CHECK FIX\n");
+       print_oproute(oproute);
+      }
       goto export_oproute_check;
     }
     
@@ -11145,7 +11237,7 @@ toporouter (int argc, char **argv, int x, int y)
 */
   spring_embedder(r);
   create_pad_points(r);
-/*
+///*
   {
     int i;
     for(i=0;i<groupcount();i++) {
@@ -11154,7 +11246,7 @@ toporouter (int argc, char **argv, int x, int y)
       toporouter_draw_surface(r, r->layers[i].surface, buffer, 2048, 2048, 2, NULL, i, NULL);
     }
   }
-*/ 
+//*/ 
   toporouter_export(r);
 
 /*
