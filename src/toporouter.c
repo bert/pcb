@@ -4747,9 +4747,9 @@ clean_routing_edges(toporouter_t *r, toporouter_route_t *data)
   data->alltemppoints = NULL;
  
   
-  for(gint i=0;i<groupcount();i++) {
-    gts_surface_foreach_edge(r->layers[i].surface, clean_edge, NULL);
-  }
+//  for(gint i=0;i<groupcount();i++) {
+//    gts_surface_foreach_edge(r->layers[i].surface, clean_edge, NULL);
+//  }
 }
 
 gdouble
@@ -10037,10 +10037,10 @@ toporouter_export(toporouter_t *r)
     path_assign_to_oproute(j, oproute);
     oproutes = g_slist_prepend(oproutes, oproute);
     
-    if(!strcmp(oproute->netlist, "  DRAM_CK_N")) {
-      printf("\nOPROUTE INITIAL\n");
-      print_oproute(oproute);
-    }
+//    if(!strcmp(oproute->netlist, "  DRAM_CK_N")) {
+//      printf("\nOPROUTE INITIAL\n");
+//      print_oproute(oproute);
+//    }
 
     i = i->next;
   }
@@ -10064,10 +10064,10 @@ toporouter_export(toporouter_t *r)
 
     fix_overshoot_oproute_arcs(r, oproute, 1);
     calculate_oproute(r, oproute);
-    if(!strcmp(oproute->netlist, "  DRAM_CK_N")) {
-      printf("\nOPROUTE\n");
-      print_oproute(oproute);
-    }
+//    if(!strcmp(oproute->netlist, "  DRAM_CK_N")) {
+//      printf("\nOPROUTE\n");
+//      print_oproute(oproute);
+//    }
 
     i = i->next;
   }
@@ -10083,10 +10083,10 @@ export_oproute_check:
     printf("CHECKING NETLIST %s\n", oproute->netlist);
 #endif      
     
-    if(!strcmp(oproute->netlist, "  DRAM_CK_N")) {
-      printf("\nOPROUTE CHECK\n");
-      print_oproute(oproute);
-    }
+//    if(!strcmp(oproute->netlist, "  DRAM_CK_N")) {
+//      printf("\nOPROUTE CHECK\n");
+//      print_oproute(oproute);
+//    }
 
     if(check_oproute(r, oproute)) {
 #ifdef DEBUG_EXPORT
@@ -10107,10 +10107,10 @@ export_oproute_check:
 #endif    
 
       calculate_oproute(r, oproute);
-      if(!strcmp(oproute->netlist, "  DRAM_CK_N")) {
-        printf("\nOPROUTE CHECK FIX\n");
-       print_oproute(oproute);
-      }
+//      if(!strcmp(oproute->netlist, "  DRAM_CK_N")) {
+//        printf("\nOPROUTE CHECK FIX\n");
+//       print_oproute(oproute);
+//      }
       goto export_oproute_check;
     }
     
@@ -11237,7 +11237,7 @@ toporouter (int argc, char **argv, int x, int y)
 */
   spring_embedder(r);
   create_pad_points(r);
-///*
+/*
   {
     int i;
     for(i=0;i<groupcount();i++) {
@@ -11246,7 +11246,7 @@ toporouter (int argc, char **argv, int x, int y)
       toporouter_draw_surface(r, r->layers[i].surface, buffer, 2048, 2048, 2, NULL, i, NULL);
     }
   }
-//*/ 
+*/ 
   toporouter_export(r);
 
 /*
