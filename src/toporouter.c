@@ -1045,50 +1045,6 @@ toporouter_draw_cluster(toporouter_t *r, drawing_context_t *dc, toporouter_clust
 #endif
 }
 
-#if GLIB_MAJOR_VERSION <= 2 && GLIB_MINOR_VERSION < 14
-typedef struct _GHashNode      GHashNode;
-
-struct _GHashNode
-{
-  gpointer   key;
-  gpointer   value;
-  GHashNode *next;
-};
-
-struct _GHashTable
-{
-  gint             size;
-  gint             nnodes;
-  GHashNode      **nodes;
-  GHashFunc        hash_func;
-  GEqualFunc       key_equal_func;
-  volatile gint    ref_count;
-  GDestroyNotify   key_destroy_func;
-  GDestroyNotify   value_destroy_func;
-};
-
-GList *
-g_hash_table_get_keys (GHashTable *hash_table)
-{
-  gint i;
-  GList *retval;
-
-  g_return_val_if_fail (hash_table != NULL, NULL);
-
-  retval = NULL;
-  for (i = 0; i < hash_table->size; i++)
-    {
-      GHashNode *node = &hash_table->nodes [i];
-
-      if (node->key)
-        retval = g_list_prepend (retval, node->key);
-    }
-
-  return retval;
-}
-#endif
-
-
 void
 toporouter_draw_surface(toporouter_t *r, GtsSurface *s, char *filename, int w, int h, int mode, GSList *datas, int layer, GSList *candidatepoints) 
 {
@@ -4711,31 +4667,50 @@ gint
 clean_edge(gpointer item, gpointer data)
 {
   toporouter_edge_t *e = TOPOROUTER_EDGE(item);
-  toporouter_vertex_t *tv;
-  GList *i; 
-clean_edge_restart:    
-  i = edge_routing(e);
+  GSList *remlist = NULL, *j;
+  GList *i = edge_routing(e);
   
   while(i) {
-    tv = TOPOROUTER_VERTEX(i->data); 
+    toporouter_vertex_t *tv = TOPOROUTER_VERTEX(i->data); 
     if(tv->flags & VERTEX_FLAG_TEMP) {
       if(TOPOROUTER_IS_CONSTRAINT(tv->routingedge)) 
         TOPOROUTER_CONSTRAINT(tv->routingedge)->routing = g_list_remove(TOPOROUTER_CONSTRAINT(tv->routingedge)->routing, tv);
       else
         tv->routingedge->routing = g_list_remove(tv->routingedge->routing, tv);
-      gts_object_destroy ( GTS_OBJECT(tv) );
-      goto clean_edge_restart;
+      remlist = g_slist_prepend(remlist, tv);
     }
 
     i = i->next;
   }
 
+  j = remlist;
+  while(j) {
+    toporouter_vertex_t *tv = TOPOROUTER_VERTEX(j->data); 
+    gts_object_destroy ( GTS_OBJECT(tv) );
+    j = j->next;
+  }
+
+  g_slist_free(remlist);
   return 0;  
+}
+
+void 
+temp_point_clean(gpointer key, gpointer value, gpointer user_data)
+{
+  toporouter_vertex_t *tv = TOPOROUTER_VERTEX(key);
+  if(tv->flags & VERTEX_FLAG_TEMP) {
+    if(TOPOROUTER_IS_CONSTRAINT(tv->routingedge)) 
+      TOPOROUTER_CONSTRAINT(tv->routingedge)->routing = g_list_remove(TOPOROUTER_CONSTRAINT(tv->routingedge)->routing, tv);
+    else
+      tv->routingedge->routing = g_list_remove(tv->routingedge->routing, tv);
+    gts_object_destroy ( GTS_OBJECT(tv) );
+  }
 }
 
 void
 clean_routing_edges(toporouter_t *r, toporouter_route_t *data)
 {
+  /*
   GList *j, *i;
   j = i = g_hash_table_get_keys(data->alltemppoints);
   while(i) {
@@ -4748,14 +4723,16 @@ clean_routing_edges(toporouter_t *r, toporouter_route_t *data)
       gts_object_destroy ( GTS_OBJECT(tv) );
     }
     i = i->next;
-  }
+  }*/
+  g_hash_table_foreach(data->alltemppoints, temp_point_clean, NULL);
   g_hash_table_destroy(data->alltemppoints);  
-  g_list_free(j);
+  //g_list_free(j);
   data->alltemppoints = NULL;
+ 
   
-  for(gint i=0;i<groupcount();i++) {
-    gts_surface_foreach_edge(r->layers[i].surface, clean_edge, NULL);
-  }
+//  for(gint i=0;i<groupcount();i++) {
+//    gts_surface_foreach_edge(r->layers[i].surface, clean_edge, NULL);
+//  }
 }
 
 gdouble
@@ -7021,6 +6998,31 @@ vertex_wind_from_path(GSList *path, toporouter_vertex_t *v, toporouter_vertex_t 
   return closestwind;
 }
 
+gint
+edge_routing_vertex_wind_from_path(GSList *path, toporouter_vertex_t *edgev)
+{
+  GSList *i = path;
+  toporouter_vertex_t *prevv = NULL;
+
+  while(i) {
+    toporouter_vertex_t *curv = TOPOROUTER_VERTEX(i->data);
+    GList *edgerouting = NULL;
+    
+    if(curv->routingedge) {
+      edgerouting = edge_routing(curv->routingedge);
+      if(g_list_find(edgerouting, edgev)) {
+        return vertex_wind(GTS_VERTEX(prevv), GTS_VERTEX(curv), GTS_VERTEX(edgev));        
+      }
+    }
+
+    prevv = curv;
+    i = i->next;
+  }
+
+  printf("ERROR: edge_routing_vertex_wind_from_path: didn't find edge vertex\n");
+  return 0;
+}
+
 toporouter_oproute_t *
 optimize_path(toporouter_t *r, GSList *path) 
 {
@@ -7158,7 +7160,7 @@ print_oproute(toporouter_oproute_t *oproute)
   printf("\t"); print_vertex(oproute->term2); printf("\n");
 }
 
-void
+gdouble
 export_pcb_drawline(guint layer, guint x0, guint y0, guint x1, guint y1, guint thickness, guint keepaway) 
 {
 
@@ -7169,6 +7171,7 @@ export_pcb_drawline(guint layer, guint x0, guint y0, guint x1, guint y1, guint t
 
   AddObjectToCreateUndoList (LINE_TYPE, LAYER_PTR(layer), line, line);
 
+  return sqrt(pow(x0-x1,2)+pow(y0-y1,2)) / 100.;
 }
 
 gdouble
@@ -7184,11 +7187,11 @@ arc_angle(toporouter_arc_t *arc)
   return fabs(acos(((x0*x1)+(y0*y1))/(sqrt(pow(x0,2)+pow(y0,2))*sqrt(pow(x1,2)+pow(y1,2)))));
 }
 
-void
+gdouble
 export_pcb_drawarc(guint layer, toporouter_arc_t *a, guint thickness, guint keepaway) 
 {
   gdouble sa, da, theta;
-  gdouble x0, y0, x1, y1;
+  gdouble x0, y0, x1, y1, d;
   ArcTypePtr arc;
   gint wind = coord_wind(a->x0, a->y0, a->x1, a->y1, vx(a->centre), vy(a->centre));
 
@@ -7201,15 +7204,14 @@ export_pcb_drawarc(guint layer, toporouter_arc_t *a, guint thickness, guint keep
 
   theta = arc_angle(a);
 
-  if(!a->dir || !wind) return;
+  if(!a->dir || !wind) return 0.;
   
   if(a->dir != wind) theta = 2. * M_PI - theta;
-    da = -a->dir * theta * 180. / M_PI;
+  
+  da = -a->dir * theta * 180. / M_PI;
 
-
-  if(da < 1. && da > -1.) return;
-  if(da > 359. || da < -359.) return;
-
+  if(da < 1. && da > -1.) return 0.;
+  if(da > 359. || da < -359.) return 0.;
 
   arc = CreateNewArcOnLayer(LAYER_PTR(layer), vx(a->centre), vy(a->centre), a->r, a->r,
     sa, da, thickness, keepaway, 
@@ -7217,6 +7219,9 @@ export_pcb_drawarc(guint layer, toporouter_arc_t *a, guint thickness, guint keep
 
   AddObjectToCreateUndoList( ARC_TYPE, LAYER_PTR(layer), arc, arc);
 
+  d = a->r * theta / 100.;
+  
+  return d;
 }
 
 void
@@ -7548,7 +7553,7 @@ export_oproutes(toporouter_t *ar, toporouter_oproute_t *oproute)
   toporouter_arc_t *arc, *parc = NULL;
 
   if(!arcs) {
-    export_pcb_drawline(layer, vx(oproute->term1), vy(oproute->term1), vx(oproute->term2), vy(oproute->term2), thickness, keepaway);
+    ar->wiring_score += export_pcb_drawline(layer, vx(oproute->term1), vy(oproute->term1), vx(oproute->term2), vy(oproute->term2), thickness, keepaway);
     return;
   }
 
@@ -7558,22 +7563,18 @@ export_oproutes(toporouter_t *ar, toporouter_oproute_t *oproute)
   while(arcs) {
     arc = TOPOROUTER_ARC(arcs->data);
 
-    if(vx(arc->centre) == 146000. && vy(arc->centre) == 65000) {
-      printf("ARC: %f,%f %f,%f \n", arc->x0, arc->y0, arc->x1, arc->y1);
-    }
-
     if(parc && arc) {
-      export_pcb_drawarc(layer, parc, thickness, keepaway);
-      export_pcb_drawline(layer, parc->x1, parc->y1, arc->x0, arc->y0, thickness, keepaway);
+      ar->wiring_score += export_pcb_drawarc(layer, parc, thickness, keepaway);
+      ar->wiring_score += export_pcb_drawline(layer, parc->x1, parc->y1, arc->x0, arc->y0, thickness, keepaway);
     }else if(!parc) {
-      export_pcb_drawline(layer, vx(oproute->term1), vy(oproute->term1), arc->x0, arc->y0, thickness, keepaway);
+      ar->wiring_score += export_pcb_drawline(layer, vx(oproute->term1), vy(oproute->term1), arc->x0, arc->y0, thickness, keepaway);
     }
 
     parc = arc;
     arcs = arcs->next;
   }
-  export_pcb_drawarc(layer, arc, thickness, keepaway);
-  export_pcb_drawline(layer, arc->x1, arc->y1, vx(oproute->term2), vy(oproute->term2), thickness, keepaway);
+  ar->wiring_score += export_pcb_drawarc(layer, arc, thickness, keepaway);
+  ar->wiring_score += export_pcb_drawline(layer, arc->x1, arc->y1, vx(oproute->term2), vy(oproute->term2), thickness, keepaway);
 
 }
 
@@ -7765,7 +7766,7 @@ fix_overshoot_oproute_arcs(toporouter_t *r, toporouter_oproute_t *oproute, guint
           if(bigr==arc) {
           }else{
             gint wind1, wind2;
-            gint wind = coord_wind(bigr->x0, bigr->y0, a0x, a0y, vx(bigr->centre), vy(bigr->centre));
+//            gint wind = coord_wind(bigr->x0, bigr->y0, a0x, a0y, vx(bigr->centre), vy(bigr->centre));
 
             wind1 = coord_wind(vx(bigr->centre), vy(bigr->centre), bigr->x0, bigr->y0, a0x, a0y);
             wind2 = coord_wind(vx(bigr->centre), vy(bigr->centre), a0x, a0y, vx(smallr->centre), vy(smallr->centre));
@@ -7784,7 +7785,7 @@ fix_overshoot_oproute_arcs(toporouter_t *r, toporouter_oproute_t *oproute, guint
           if(bigr==arc) {
           }else{
             gint wind1, wind2;
-            gint wind = coord_wind(bigr->x0, bigr->y0, a1x, a1y, vx(bigr->centre), vy(bigr->centre));
+//            gint wind = coord_wind(bigr->x0, bigr->y0, a1x, a1y, vx(bigr->centre), vy(bigr->centre));
 
             wind1 = coord_wind(vx(bigr->centre), vy(bigr->centre), bigr->x0, bigr->y0, a1x, a1y);
             wind2 = coord_wind(vx(bigr->centre), vy(bigr->centre), a1x, a1y, vx(smallr->centre), vy(smallr->centre));
@@ -7811,7 +7812,7 @@ fix_overshoot_oproute_arcs(toporouter_t *r, toporouter_oproute_t *oproute, guint
         if(winddir == bigr->dir) {
           if(bigr==arc) {
             gint wind1, wind2;
-            gint wind = coord_wind(smallr->x0, smallr->y0, a0x, a0y, vx(smallr->centre), vy(smallr->centre));
+//            gint wind = coord_wind(smallr->x0, smallr->y0, a0x, a0y, vx(smallr->centre), vy(smallr->centre));
 
             wind1 = coord_wind(vx(smallr->centre), vy(smallr->centre), smallr->x0, smallr->y0, a0x, a0y);
             wind2 = coord_wind(vx(smallr->centre), vy(smallr->centre), a0x, a0y, vx(bigr->centre), vy(bigr->centre));
@@ -7830,7 +7831,7 @@ fix_overshoot_oproute_arcs(toporouter_t *r, toporouter_oproute_t *oproute, guint
         }else{
           if(bigr==arc) {
             gint wind1, wind2;
-            gint wind = coord_wind(smallr->x0, smallr->y0, a1x, a1y, vx(smallr->centre), vy(smallr->centre));
+//            gint wind = coord_wind(smallr->x0, smallr->y0, a1x, a1y, vx(smallr->centre), vy(smallr->centre));
 
             wind1 = coord_wind(vx(smallr->centre), vy(smallr->centre), smallr->x0, smallr->y0, a1x, a1y);
             wind2 = coord_wind(vx(smallr->centre), vy(smallr->centre), a1x, a1y, vx(bigr->centre), vy(bigr->centre));
@@ -8079,10 +8080,6 @@ fix_colinear_oproute_arcs(toporouter_oproute_t *oproute)
 
       }
 
-    }else if(parc && arc && parc->centre == arc->centre) {
-      remlist = g_slist_prepend(remlist, parc);
-
-
     }
 
     parc = arc;
@@ -8091,6 +8088,15 @@ fix_colinear_oproute_arcs(toporouter_oproute_t *oproute)
     i = i->next;
   }
 
+  parc = NULL;
+  i = oproute->arcs;
+  while(i) {
+    toporouter_arc_t *arc = (toporouter_arc_t *)i->data;
+    
+    if(parc && arc && parc->centre == arc->centre) remlist = g_slist_prepend(remlist, parc);
+    parc = arc;
+    i = i->next;
+  }
 
   j = remlist;
   while(j) {
@@ -8269,13 +8275,14 @@ check_oproute_edge(toporouter_oproute_t *oproute, gdouble x0, gdouble y0, gdoubl
     gint nextvwind;
     
     nextv = TOPOROUTER_VERTEX(curvlist->data);
-    nextvwind = coord_wind(x0, y0, x1, y1, vx(nextv), vy(nextv));
+//    nextvwind = coord_wind(x0, y0, x1, y1, vx(nextv), vy(nextv));
+    nextvwind = edge_routing_vertex_wind_from_path(oproute->path, nextv);
 
     childarc = vertex_child_arc(nextv);
     parentarc = vertex_parent_arc(nextv);
 
-#ifdef DEBUG_CHECK_OPROUTE          
-//  if(debug) {
+//#ifdef DEBUG_CHECK_OPROUTE          
+  if(debug) {
     printf("NEXT HAS ");
     if(childarc) {
       g_assert(childarc->centre);
@@ -8290,8 +8297,8 @@ check_oproute_edge(toporouter_oproute_t *oproute, gdouble x0, gdouble y0, gdoubl
     printf("\n");
 
     printf("NEXTV: "); print_vertex(nextv);
-//  }
-#endif
+  }
+//#endif
     
     if(childarc && childarc != parc && childarc != arc && arc_on_opposite_side(nextv, childarc, v)) {
 //    if(childarc) {
@@ -8319,6 +8326,7 @@ check_oproute_edge(toporouter_oproute_t *oproute, gdouble x0, gdouble y0, gdoubl
         }
       
       }
+
     }
 
   }else{
@@ -8359,12 +8367,14 @@ check_oproute_edge(toporouter_oproute_t *oproute, gdouble x0, gdouble y0, gdoubl
     GList *curvlist = vlist->prev;
     
     prevv = TOPOROUTER_VERTEX(curvlist->data);
-    prevvwind = coord_wind(x0, y0, x1, y1, vx(prevv), vy(prevv));
+    //prevvwind = coord_wind(x0, y0, x1, y1, vx(prevv), vy(prevv));
+    prevvwind = edge_routing_vertex_wind_from_path(oproute->path, prevv);
 
     childarc = vertex_child_arc(prevv);
     parentarc = vertex_parent_arc(prevv);
     
-#ifdef DEBUG_CHECK_OPROUTE          
+//#ifdef DEBUG_CHECK_OPROUTE          
+if(debug) {
     printf("PREV HAS ");
     if(childarc) printf("childarc (%f,%f) ", vx(childarc->centre), vy(childarc->centre));
     else printf("no childarc ");
@@ -8375,7 +8385,8 @@ check_oproute_edge(toporouter_oproute_t *oproute, gdouble x0, gdouble y0, gdoubl
     if(childarc && arc_on_opposite_side(prevv, childarc, v)) printf("childarc on opposite side\n");
     if(parentarc && arc_on_opposite_side(prevv, parentarc, v)) printf("parentarc on opposite side\n");
     printf("\n");
-#endif
+  }
+//#endif
 
 //    if(childarc) {
     if(childarc && childarc != parc && childarc != arc && arc_on_opposite_side(prevv, childarc, v)) {
@@ -8464,7 +8475,8 @@ check_oproute(toporouter_t *r, toporouter_oproute_t *oproute)
   toporouter_vertex_t *v;//, *ev;
 
   GList *i = oproute->arcs;
-
+  guint debug = 0;
+//  if(!strcmp(oproute->netlist, "  SIG191")) debug = 1;
 //  printf("checking oproute for %s\n", oproute->netlist);
 
   while(i) {
@@ -8525,7 +8537,7 @@ check_oproute(toporouter_t *r, toporouter_oproute_t *oproute)
 #endif
         if(v->routingedge) {
           GList *vlist = g_list_find(edge_routing(v->routingedge), v);
-          rarc = check_oproute_edge(oproute, vx(oproute->term1), vy(oproute->term1), arc->x0, arc->y0, vlist, v, arc, parc, 0);
+          rarc = check_oproute_edge(oproute, vx(oproute->term1), vy(oproute->term1), arc->x0, arc->y0, vlist, v, arc, parc, debug);
 
           if(rarc) {
             toporouter_arc_t *dupearc;
@@ -9933,7 +9945,7 @@ toporouter_export(toporouter_t *r)
     path_assign_to_oproute(j, oproute);
     oproutes = g_slist_prepend(oproutes, oproute);
     
-//    if(!strcmp(oproute->netlist, "  SIG292") || !strcmp(oproute->netlist, "  SIG291")) {
+//    if(!strcmp(oproute->netlist, "  SIG191")) {
 //      printf("\nOPROUTE INITIAL\n");
 //      print_oproute(oproute);
 //    }
@@ -9958,8 +9970,12 @@ toporouter_export(toporouter_t *r)
     fix_colinear_oproute_arcs(oproute);
     calculate_oproute(r, oproute);
 
-    fix_overshoot_oproute_arcs(r, oproute, 0);
+    fix_overshoot_oproute_arcs(r, oproute, 1);
     calculate_oproute(r, oproute);
+//    if(!strcmp(oproute->netlist, "  SIG191")) {
+//      printf("\nOPROUTE\n");
+//      print_oproute(oproute);
+//    }
 
     i = i->next;
   }
@@ -9975,10 +9991,10 @@ export_oproute_check:
     printf("CHECKING NETLIST %s\n", oproute->netlist);
 #endif      
     
-//    if(!strcmp(oproute->netlist, "  SIG292") || !strcmp(oproute->netlist, "  SIG291")) {
+//    if(!strcmp(oproute->netlist, "  SIG191")) {
 //      printf("\nOPROUTE CHECK\n");
 //      print_oproute(oproute);
- //   }
+//    }
 
     if(check_oproute(r, oproute)) {
 #ifdef DEBUG_EXPORT
@@ -9999,6 +10015,10 @@ export_oproute_check:
 #endif    
 
       calculate_oproute(r, oproute);
+//      if(!strcmp(oproute->netlist, "  SIG191")) {
+//        printf("\nOPROUTE CHECK FIX\n");
+//       print_oproute(oproute);
+//      }
       goto export_oproute_check;
     }
     
@@ -10027,6 +10047,7 @@ export_oproute_check:
     i = i->next;
   }
 
+  printf("Wiring cost: %f\n", r->wiring_score / 1000.);
 
   g_slist_free(oproutes);
 
@@ -10100,10 +10121,11 @@ route_ratline(toporouter_t *r, RatType *line)
     free(routedata);
     return NULL;
   }
-  
-  if(cluster_pin_check(routedata->src) && cluster_pin_check(routedata->dest)) {
+ 
+  if(r->flags & TOPOROUTER_FLAG_LAYERHINT && cluster_pin_check(routedata->src) && cluster_pin_check(routedata->dest)) {
     gdouble *layer = malloc(sizeof(gdouble));
-    *layer = 0.;
+    *layer = GetLayerGroupNumberByNumber (max_layer + COMPONENT_LAYER);
+
     routedata->keepoutlayers = g_slist_prepend(routedata->keepoutlayers, layer);
 //    printf("detected pins\n");
   }
@@ -10855,7 +10877,7 @@ guint
 router_roar(toporouter_t *r)
 {
   GSList *i = r->failednets;
-  guint successcount = 0;
+//  guint successcount = 0;
 
   while(i) {
     toporouter_route_t *data = (toporouter_route_t *)i->data; 
@@ -10979,6 +11001,8 @@ parse_arguments(toporouter_t *r, int argc, char **argv)
       r->flags |= TOPOROUTER_FLAG_HARDDEST;
     }else if(!strcmp(argv[i], "match")) {
       r->flags |= TOPOROUTER_FLAG_MATCH;
+    }else if(!strcmp(argv[i], "layerhint")) {
+      r->flags |= TOPOROUTER_FLAG_LAYERHINT;
     }else if(sscanf(argv[i], "h%d", &tempint)) {
       r->router = hard_router;
       r->effort = tempint;
@@ -11024,6 +11048,8 @@ toporouter_new()
   r->stublength = 300.;
   r->effort  = 2;
   r->serpintine_half_amplitude = 1500.;
+
+  r->wiring_score = 0.;
 
   r->bboxes = NULL;
   r->bboxtree = NULL;
