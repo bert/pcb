@@ -54,10 +54,11 @@
 
 #include <sys/time.h>
 
-#define TOPOROUTER_FLAG_VERBOSE     (1<<0)
-#define TOPOROUTER_FLAG_HARDDEST    (1<<1)
-#define TOPOROUTER_FLAG_HARDSRC     (1<<2)
-#define TOPOROUTER_FLAG_MATCH       (1<<3)
+#define TOPOROUTER_FLAG_VERBOSE       (1<<0)
+#define TOPOROUTER_FLAG_HARDDEST      (1<<1)
+#define TOPOROUTER_FLAG_HARDSRC       (1<<2)
+#define TOPOROUTER_FLAG_MATCH         (1<<3)
+#define TOPOROUTER_FLAG_LAYERHINT     (1<<4)
 
 #if TOPO_OUTPUT_ENABLED
   #include <cairo.h>
@@ -430,6 +431,8 @@ struct _toporouter_t {
   gdouble viacost;
   gdouble stublength;
   gdouble serpintine_half_amplitude;
+
+  gdouble wiring_score;
 
   guint effort;
 
