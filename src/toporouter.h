@@ -71,6 +71,7 @@
 //#define DEBUG_ORDERING 1
 //#define DEBUG_CHECK_OPROUTE 1
 //#define DEBUG_MERGING 1
+//#define DEBUG_CLUSTER_FIND 1
 
 #define edge_v1(e) (GTS_SEGMENT(e)->v1)
 #define edge_v2(e) (GTS_SEGMENT(e)->v2)
@@ -172,8 +173,9 @@ typedef struct _toporouter_edge_class_t toporouter_edge_class_t;
 
 struct _toporouter_vertex_t {
   GtsVertex v;
-  GSList *boxes;
-  
+  //GSList *boxes;
+  struct _toporouter_bbox_t *bbox;
+
   struct _toporouter_vertex_t *parent;
   struct _toporouter_vertex_t *child;
   struct _toporouter_vertex_t *fakev;
@@ -192,6 +194,7 @@ struct _toporouter_vertex_t {
   struct _toporouter_arc_t *arc;
 
   struct _toporouter_oproute_t *oproute;
+  struct _toporouter_route_t *route;
 
   gdouble thickness;
 
@@ -270,7 +273,7 @@ typedef struct {
 } toporouter_vertex_region_t;
 
 
-typedef struct {
+struct _toporouter_route_t {
 
 //  toporouter_bbox_t *src;
 
@@ -292,13 +295,20 @@ typedef struct {
   guint flags;
 
   GSList *destvertices, *srcvertices;
+  GSList *keepoutlayers;
 
-} toporouter_route_t;
+  GSList *topopath;
+
+};
+
+typedef struct _toporouter_route_t toporouter_route_t;
+
+#define TOPOROUTER_ROUTE(x) ((toporouter_route_t *)x)
 
 struct _toporouter_clearance_t {
   gpointer data;
   gint wind;
-  gdouble line_int_x, line_int_y, ms;
+  gdouble ms;
 };
 
 typedef struct _toporouter_clearance_t toporouter_clearance_t;
@@ -436,7 +446,7 @@ struct _toporouter_t {
   FILE *debug;
 };
 
-typedef void (*oproute_adjseg_func)
+typedef gint (*oproute_adjseg_func)
   (toporouter_t *,
    GSList **,
    GList **,
