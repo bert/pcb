@@ -6953,7 +6953,7 @@ fix_oproute(toporouter_oproute_t *oproute)
   i = remlist;
   while(i) {
     toporouter_arc_t *arc = TOPOROUTER_ARC(i->data);
-    oproute->arcs = g_list_remove(oproute->arcs, arc);
+    toporouter_arc_remove(oproute, arc);
     i = i->next;
   }
 
@@ -9933,10 +9933,10 @@ toporouter_export(toporouter_t *r)
     path_assign_to_oproute(j, oproute);
     oproutes = g_slist_prepend(oproutes, oproute);
     
-    if(!strcmp(oproute->netlist, "  SIG292")) {
-      printf("\nOPROUTE INITIAL\n");
-      print_oproute(oproute);
-    }
+//    if(!strcmp(oproute->netlist, "  SIG292") || !strcmp(oproute->netlist, "  SIG291")) {
+//      printf("\nOPROUTE INITIAL\n");
+//      print_oproute(oproute);
+//    }
 
     i = i->next;
   }
@@ -9974,14 +9974,19 @@ export_oproute_check:
 #ifdef DEBUG_EXPORT
     printf("CHECKING NETLIST %s\n", oproute->netlist);
 #endif      
+    
+//    if(!strcmp(oproute->netlist, "  SIG292") || !strcmp(oproute->netlist, "  SIG291")) {
+//      printf("\nOPROUTE CHECK\n");
+//      print_oproute(oproute);
+ //   }
 
     if(check_oproute(r, oproute)) {
-//#ifdef DEBUG_EXPORT
+#ifdef DEBUG_EXPORT
       printf("CHECKFAIL NETLIST %s\n", oproute->netlist);
       printf("OPROUTE AFTER CHECKFAIL:\n");
       print_oproute(oproute);
       printf("\n\n");
-//#endif    
+#endif    
       fix_colinear_oproute_arcs(oproute);
       calculate_oproute(r, oproute);
 
@@ -9997,10 +10002,6 @@ export_oproute_check:
       goto export_oproute_check;
     }
     
-    if(!strcmp(oproute->netlist, "  SIG292")) {
-      printf("\nOPROUTE CHECK\n");
-      print_oproute(oproute);
-    }
     
     i = i->next;
   }
@@ -10014,10 +10015,10 @@ export_oproute_check:
     toporouter_oproute_t *oproute = (toporouter_oproute_t *) i->data;
 
   //  if(!strcmp(oproute->netlist, "  S00001") && vx(oproute->term1) == 203000. && vy(oproute->term1) == 118500.) {
-    if(!strcmp(oproute->netlist, "  SIG292")) {
-      printf("\nOPROUTE\n");
-      print_oproute(oproute);
-    }
+//    if(!strcmp(oproute->netlist, "  SIG292")) {
+//      printf("\nOPROUTE\n");
+//      print_oproute(oproute);
+//    }
 
     export_oproutes(r, oproute);
     
@@ -10736,47 +10737,6 @@ route_clusters_merge(toporouter_t *r, toporouter_route_t *routedata)
 
 }
 
-guint
-hard_router(toporouter_t *r)
-{
-  GSList *i;
-  guint failcount = 0, ncount = 0;
-  toporouter_vertex_t *destv = NULL;
-  order_nets_preroute_greedy(r, r->nets, &i); 
-
-  while(i) {
-    toporouter_route_t *data = (toporouter_route_t *)i->data; 
-   
-    printf("%d remaining, %d routed, %d failed\n", 
-        g_slist_length(i),
-        g_slist_length(r->routednets),
-        g_slist_length(r->failednets));
-
-    if((destv = route(r, data, 1))) { 
-      GSList *path = split_path(data->path);//, *j = i->next; 
-
-      r->paths = g_slist_concat(r->paths, path);
-      r->routednets = g_slist_prepend(r->routednets, data);
-      
-      route_clusters_merge(r, data);
-
-    }else{
-      r->failednets = g_slist_prepend(r->failednets, data);
-      failcount++;
-      g_slist_free(data->path);
-      data->path = NULL;
-    }
-
-    if(ncount++ >= r->effort || g_slist_length(i) < 10) { 
-      order_nets_preroute_greedy(r, i->next, &i);
-      ncount = 0;
-    } else {
-      i = i->next;
-    }
-  } 
-
-  return failcount;
-}
 
 guint
 router_relaxlayerassignment(toporouter_t *r)
@@ -10918,6 +10878,51 @@ router_roar(toporouter_t *r)
 }
 
 guint
+hard_router(toporouter_t *r)
+{
+  GSList *i;
+  guint failcount = 0, ncount = 0;
+  toporouter_vertex_t *destv = NULL;
+  order_nets_preroute_greedy(r, r->nets, &i); 
+
+  while(i) {
+    toporouter_route_t *data = (toporouter_route_t *)i->data; 
+   
+    printf("%d remaining, %d routed, %d failed\n", 
+        g_slist_length(i),
+        g_slist_length(r->routednets),
+        g_slist_length(r->failednets));
+
+    if((destv = route(r, data, 1))) { 
+      GSList *path = split_path(data->path);//, *j = i->next; 
+
+      r->paths = g_slist_concat(r->paths, path);
+      r->routednets = g_slist_prepend(r->routednets, data);
+      
+      route_clusters_merge(r, data);
+
+    }else{
+      r->failednets = g_slist_prepend(r->failednets, data);
+      failcount++;
+      g_slist_free(data->path);
+      data->path = NULL;
+    }
+
+    if(ncount++ >= r->effort || g_slist_length(i) < 10) { 
+      order_nets_preroute_greedy(r, i->next, &i);
+      ncount = 0;
+    } else {
+      i = i->next;
+    }
+  } 
+  
+  failcount -= router_relaxlayerassignment(r);
+ // failcount -= router_roar(r);
+
+  return failcount;
+}
+
+guint
 soft_router(toporouter_t *r)
 {
   GSList *i;
@@ -10950,7 +10955,7 @@ soft_router(toporouter_t *r)
   printf("\n");
 
   failcount -= router_relaxlayerassignment(r);
-  failcount -= router_roar(r);
+//  failcount -= router_roar(r);
 
   return failcount;
 }
@@ -11114,7 +11119,7 @@ toporouter (int argc, char **argv, int x, int y)
 */
   spring_embedder(r);
   create_pad_points(r);
-///*
+/*
   {
     int i;
     for(i=0;i<groupcount();i++) {
@@ -11123,7 +11128,7 @@ toporouter (int argc, char **argv, int x, int y)
       toporouter_draw_surface(r, r->layers[i].surface, buffer, 2048, 2048, 2, NULL, i, NULL);
     }
   }
-//*/ 
+*/ 
   toporouter_export(r);
 
 /*
