@@ -3433,6 +3433,8 @@ routing_edge_insert(gconstpointer a, gconstpointer b, gpointer user_data)
       v1->x, v1->y,
       vx(a), vy(a),
       vx(a), vy(b));
+  printf("A: "); print_vertex(TOPOROUTER_VERTEX(a));
+  printf("B: "); print_vertex(TOPOROUTER_VERTEX(b));
 
   TOPOROUTER_VERTEX(a)->flags |= VERTEX_FLAG_RED;
   TOPOROUTER_VERTEX(b)->flags |= VERTEX_FLAG_RED;
@@ -4186,7 +4188,14 @@ triangle_candidate_points_from_vertex_exit:
   return NULL;
 }
 
-
+void
+routedata_insert_temppoints(toporouter_route_t *data, GSList *temppoints) {
+  GSList *j = temppoints;
+  while(j) {
+    g_hash_table_insert(data->alltemppoints, j->data, j->data);  
+    j = j->next;
+  }
+}
 
 
 GSList *
@@ -4482,6 +4491,7 @@ triangle_candidate_points_finish:
 #ifdef DEBUG_ROUTE      
     printf("freeing e1cands\n");
 #endif
+    routedata_insert_temppoints(routedata, e1cands);
     g_slist_free(e1cands);
     e1cands = NULL;
   }
@@ -4490,6 +4500,7 @@ triangle_candidate_points_finish:
 #ifdef DEBUG_ROUTE      
     printf("freeing e2cands\n");
 #endif
+    routedata_insert_temppoints(routedata, e2cands);
     g_slist_free(e2cands);
     e2cands = NULL;
   }
@@ -4587,11 +4598,7 @@ compute_candidate_points(toporouter_t *tr, toporouter_layer_t *l, toporouter_ver
 #ifdef DEBUG_ROUTE     
       printf("\treturned %d points\n", g_slist_length(temppoints));
 #endif      
-      j = temppoints;
-      while(j) {
-        g_hash_table_insert(data->alltemppoints, j->data, NULL);  
-        j = j->next;
-      }
+      routedata_insert_temppoints(data, temppoints);
 
       r = g_slist_concat(r, temppoints);
       //triangle_check_visibility(&r, GTS_TRIANGLE(i->data), curpoint);
@@ -4629,7 +4636,7 @@ compute_candidate_points(toporouter_t *tr, toporouter_layer_t *l, toporouter_ver
         while(j) {
           toporouter_vertex_t *tempj = TOPOROUTER_VERTEX(j->data);
           if(tempj->flags & VERTEX_FLAG_TEMP) 
-            g_hash_table_insert(data->alltemppoints, j->data, NULL); 
+            g_hash_table_insert(data->alltemppoints, j->data, j->data); 
 #ifdef DEBUG_ROUTE          
           else 
             printf("got cand not a temp\n");
@@ -4702,7 +4709,8 @@ clean_edge(gpointer item, gpointer data)
 
   j = remlist;
   while(j) {
-    toporouter_vertex_t *tv = TOPOROUTER_VERTEX(j->data); 
+    toporouter_vertex_t *tv = TOPOROUTER_VERTEX(j->data);
+    printf("FOUND STALE V ON EDGE "); print_vertex(tv);
     gts_object_destroy ( GTS_OBJECT(tv) );
     j = j->next;
   }
@@ -4711,10 +4719,10 @@ clean_edge(gpointer item, gpointer data)
   return 0;  
 }
 
-void 
+gboolean 
 temp_point_clean(gpointer key, gpointer value, gpointer user_data)
 {
-  toporouter_vertex_t *tv = TOPOROUTER_VERTEX(key);
+  toporouter_vertex_t *tv = TOPOROUTER_VERTEX(value);
   if(tv->flags & VERTEX_FLAG_TEMP) {
     if(TOPOROUTER_IS_CONSTRAINT(tv->routingedge)) 
       TOPOROUTER_CONSTRAINT(tv->routingedge)->routing = g_list_remove(TOPOROUTER_CONSTRAINT(tv->routingedge)->routing, tv);
@@ -4722,6 +4730,7 @@ temp_point_clean(gpointer key, gpointer value, gpointer user_data)
       tv->routingedge->routing = g_list_remove(tv->routingedge->routing, tv);
     gts_object_destroy ( GTS_OBJECT(tv) );
   }
+  return TRUE;
 }
 
 void
@@ -4741,11 +4750,12 @@ clean_routing_edges(toporouter_t *r, toporouter_route_t *data)
     }
     i = i->next;
   }*/
-  g_hash_table_foreach(data->alltemppoints, temp_point_clean, NULL);
+  g_hash_table_foreach_remove(data->alltemppoints, temp_point_clean, NULL);
+  //g_hash_table_foreach(data->alltemppoints, temp_point_clean, NULL);
   g_hash_table_destroy(data->alltemppoints);  
   //g_list_free(j);
   data->alltemppoints = NULL;
- 
+  
   
 //  for(gint i=0;i<groupcount();i++) {
 //    gts_surface_foreach_edge(r->layers[i].surface, clean_edge, NULL);
@@ -4818,7 +4828,7 @@ route(toporouter_t *r, toporouter_route_t *data, guint debug)
 
   closest_cluster_pair(r, data->srcvertices, data->destvertices, &curpoint, &destv);
   
-  if(!curpoint || !destv) return NULL;
+  if(!curpoint || !destv) goto routing_return;
 
   srcv = curpoint;
   cur_layer = vlayer(curpoint); dest_layer = vlayer(destv);
