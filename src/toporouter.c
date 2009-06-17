@@ -3421,10 +3421,12 @@ routing_edge_insert(gconstpointer a, gconstpointer b, gpointer user_data)
 {
   GtsPoint *v1 = GTS_POINT(edge_v1(user_data));
 
-  if(gts_point_distance2(v1, GTS_POINT(a)) < gts_point_distance2(v1, GTS_POINT(b)))
+  if(gts_point_distance2(v1, GTS_POINT(a)) < gts_point_distance2(v1, GTS_POINT(b)) - EPSILON)
     return -1;
-  if(gts_point_distance2(v1, GTS_POINT(a)) > gts_point_distance2(v1, GTS_POINT(b)))
+  if(gts_point_distance2(v1, GTS_POINT(a)) > gts_point_distance2(v1, GTS_POINT(b)) + EPSILON)
     return 1;
+
+  printf("a = %x b = %x\n", (int) a, (int) b);
 
   printf("WARNING: routing_edge_insert() with same points..\n \
       v1 @ %f,%f\n\
@@ -3479,7 +3481,7 @@ new_temp_toporoutervertex(gdouble x, gdouble y, toporouter_edge_t *e)
 
   while(i) {
     r = TOPOROUTER_VERTEX(i->data);
-    if(vx(r) == x && vy(r) == y) {
+    if(epsilon_equals(vx(r),x) && epsilon_equals(vy(r),y)) {
       if(!(r->flags & VERTEX_FLAG_TEMP)) {
         print_edge(e);
 //        print_trace();
@@ -7742,6 +7744,12 @@ fix_loopy_oproute_arcs(toporouter_t *r, toporouter_oproute_t *oproute)
   i = oproute->arcs;
   while(i) {
     toporouter_arc_t *arc = (toporouter_arc_t *)i->data;
+    
+    if(oproute->serp && g_list_find(oproute->serp->arcs, arc)) {
+      parc = arc;
+      i = i->next;
+      continue;
+    }
      
     if(parc && arc) {
       gdouble x, y;
@@ -7778,6 +7786,7 @@ fix_loopy_oproute_arcs(toporouter_t *r, toporouter_oproute_t *oproute)
   j = remlist;
   while(j) {
     toporouter_arc_t *arc = TOPOROUTER_ARC(j->data);
+    printf("loopy arcs removing %f,%f\n", vx(arc), vy(arc));
     toporouter_arc_remove(oproute, arc);
     j = j->next;
   }
@@ -7798,7 +7807,7 @@ fix_overshoot_oproute_arcs(toporouter_t *r, toporouter_oproute_t *oproute, guint
   while(i) {
     toporouter_arc_t *arc = (toporouter_arc_t *)i->data;
 
-    if(oproute->serp && g_list_find(oproute->serp->arcs, arc)) {
+    if(oproute->serp && (g_list_find(oproute->serp->arcs, arc) || (parc && g_list_find(oproute->serp->arcs, parc))) ) {
       parc = arc;
       i = i->next;
       continue;
