@@ -333,7 +333,7 @@ hid_parse_actions (const char *rstr,
   if (function == NULL)
     function = hid_actionv;
 
-  fprintf(stderr, "invoke: `%s'\n", rstr);
+  /*fprintf(stderr, "invoke: `%s'\n", rstr);*/
 
   sp = rstr;
   str = malloc(strlen(rstr)+1);
