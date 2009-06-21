@@ -37,11 +37,44 @@
 # Use  --g-fatal-warnings with the gtk HID to cause gtk-WARNING's to
 # abort.
 
-TEST_PATHS="--lib-path ../lib --lib-newlib @TOPSRCDIR@/newlib:@TOP_BUILDDIR@/lib/pcblib-newlib --element-path @TOP_BUILDDIR@/lib --font-path @TOPSRCDIR@/src"
+TEST_PATHS="--lib-path @TOP_BUILDDIR@/lib --lib-newlib @TOPSRCDIR@/newlib:@TOP_BUILDDIR@/lib/pcblib-newlib --element-path @TOP_BUILDDIR@/lib --font-path @TOPSRCDIR@/src"
 TEST_CMDS="--lib-command-dir @TOP_BUILDDIR@/lib"
 
+# note:  To do command line exporting, pcb requires the "-x <export_hid>" command to appear first.  For example
+#
+#   pcb -x bom [other args] pcbfile
+#
+# as opposed to
+#
+#  pcb [other args] -x bom pcbfile
+#
+
+use_gdb=no
 if [ "X$1" = "X-gdb" ]; then
+	use_gdb=yes
 	shift
+fi
+
+args=""
+export_args=""
+
+while test $# -ne 0 ; do
+	case $1 in
+		-x)
+			export_args="$1 $2"
+			shift 2
+			;;
+		*)
+			args="$args $1"
+			shift
+			;;
+	esac
+done
+
+# build up the complete argument list
+arg_list="$export_args $TEST_PATHS $TEST_CMDS $args"
+
+if test $use_gdb = yes ; then
 	tmpd=/tmp/pcbtest.$$
 	tmpf=${tmpd}/pcbtest.gdb
 	mkdir -p -m 0700 ${tmpd}
@@ -51,10 +84,12 @@ if [ "X$1" = "X-gdb" ]; then
 	 	echo "   mkdir returned $rc"
 		exit 1
 	fi
-	echo set args $TEST_PATHS $TEST_CMDS "$@"  > $tmpf
+	cat > $tmpf << EOF
+set args $arg_list
+EOF
 	exec gdb -x $tmpf ./pcb
 	rm -fr $tmpd
 else
-	exec ./pcb $TEST_PATHS $TEST_CMDS "$@"
+	exec @TOP_BUILDDIR@/src/pcb $arg_list
 fi
 
