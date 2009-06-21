@@ -1516,9 +1516,12 @@ NotifyMode (void)
 		{
 		  if (PCB->RatOn)
 		    EraseRat ((RatTypePtr) ptr->Line);
-		  MoveObjectToRemoveUndoList (RATLINE_TYPE,
-					      ptr->Line, ptr->Line,
-					      ptr->Line);
+                  if (TEST_FLAG (RUBBERENDFLAG, ptr->Line))
+		    MoveObjectToRemoveUndoList (RATLINE_TYPE,
+					        ptr->Line, ptr->Line,
+					        ptr->Line);
+                  else
+                    TOGGLE_FLAG (RUBBERENDFLAG, ptr->Line); /* only remove line once */
 		  ptr++;
 		}
 	    }
@@ -3086,8 +3089,8 @@ ActionMode (int argc, char **argv, int x, int y)
 	      SaveMode ();
 	      saved_mode = True;
 	      SetMode (ARROW_MODE);
+	      NotifyMode ();
 	    }
-          NotifyMode ();
 	  break;
 #endif
 	case F_Text:
