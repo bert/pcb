@@ -55,6 +55,7 @@
 
 #include "global.h"
 
+#include "box.h"
 #include "crosshair.h"
 #include "create.h"
 #include "data.h"
@@ -143,8 +144,8 @@ GetValue (char *val, char *units, Boolean * absolute)
 void
 SetPointBoundingBox (PointTypePtr Pnt)
 {
-  Pnt->X2 = Pnt->X;
-  Pnt->Y2 = Pnt->Y;
+  Pnt->X2 = Pnt->X + 1;
+  Pnt->Y2 = Pnt->Y + 1;
 }
 
 /* ---------------------------------------------------------------------------
@@ -164,6 +165,7 @@ SetPinBoundingBox (PinTypePtr Pin)
   Pin->BoundingBox.Y1 = Pin->Y - width;
   Pin->BoundingBox.X2 = Pin->X + width;
   Pin->BoundingBox.Y2 = Pin->Y + width;
+  close_box(&Pin->BoundingBox);
 }
 
 /* ---------------------------------------------------------------------------
@@ -217,6 +219,7 @@ SetPadBoundingBox (PadTypePtr Pad)
       Pad->BoundingBox.Y1 = MIN (Pad->Point1.Y, Pad->Point2.Y) - width;
       Pad->BoundingBox.Y2 = MAX (Pad->Point1.Y, Pad->Point2.Y) + width;
     }
+  close_box(&Pad->BoundingBox);
 }
 
 /* ---------------------------------------------------------------------------
@@ -233,6 +236,7 @@ SetLineBoundingBox (LineTypePtr Line)
   Line->BoundingBox.X2 = MAX (Line->Point1.X, Line->Point2.X) + width;
   Line->BoundingBox.Y1 = MIN (Line->Point1.Y, Line->Point2.Y) - width;
   Line->BoundingBox.Y2 = MAX (Line->Point1.Y, Line->Point2.Y) + width;
+  close_box(&Line->BoundingBox);
   SetPointBoundingBox (&Line->Point1);
   SetPointBoundingBox (&Line->Point2);
 }
@@ -252,6 +256,8 @@ SetPolygonBoundingBox (PolygonTypePtr Polygon)
     MAKEMAX (Polygon->BoundingBox.X2, point->X);
     MAKEMAX (Polygon->BoundingBox.Y2, point->Y);
   }
+  /* boxes don't include the lower right corner */
+  close_box(&Polygon->BoundingBox);
   END_LOOP;
 }
 
@@ -396,6 +402,8 @@ SetElementBoundingBox (DataTypePtr Data, ElementTypePtr Element,
       }
       END_LOOP;
     }
+  close_box(box);
+  close_box(vbox);
   if (Data && !Data->element_tree)
     Data->element_tree = r_create_tree (NULL, 0, 0);
   if (Data)
@@ -473,6 +481,7 @@ SetTextBoundingBox (FontTypePtr FontPtr, TextTypePtr Text)
   Text->BoundingBox.Y1 -= PCB->Bloat;
   Text->BoundingBox.X2 += PCB->Bloat;
   Text->BoundingBox.Y2 += PCB->Bloat;
+  close_box(&Text->BoundingBox);
 }
 
 /* ---------------------------------------------------------------------------
@@ -512,6 +521,7 @@ BoxTypePtr
 GetDataBoundingBox (DataTypePtr Data)
 {
   static BoxType box;
+  /* FIX ME: use r_search to do this much faster */
 
   /* preset identifiers with highest and lowest possible values */
   box.X1 = box.Y1 = MAX_COORD;
@@ -1208,114 +1218,25 @@ GetLayerGroupNumberByNumber (Cardinal Layer)
 BoxTypePtr
 GetObjectBoundingBox (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
 {
-  static BoxType box;
-
   switch (Type)
     {
-    case VIA_TYPE:
-      {
-        PinTypePtr via = (PinTypePtr) Ptr1;
-
-        box.X1 = via->X - via->Thickness / 2;
-        box.Y1 = via->Y - via->Thickness / 2;
-        box.X2 = via->X + via->Thickness / 2;
-        box.Y2 = via->Y + via->Thickness / 2;
-        break;
-      }
-
     case LINE_TYPE:
-      {
-        LineTypePtr line = (LineTypePtr) Ptr2;
-
-        box.X1 = MIN (line->Point1.X, line->Point2.X);
-        box.Y1 = MIN (line->Point1.Y, line->Point2.Y);
-        box.X2 = MAX (line->Point1.X, line->Point2.X);
-        box.Y2 = MAX (line->Point1.Y, line->Point2.Y);
-        box.X1 -= line->Thickness / 2;
-        box.Y1 -= line->Thickness / 2;
-        box.X2 += line->Thickness / 2;
-        box.Y2 += line->Thickness / 2;
-        break;
-      }
-
     case ARC_TYPE:
-      box = ((ArcTypePtr) Ptr2)->BoundingBox;
-      break;
-
     case TEXT_TYPE:
-    case ELEMENTNAME_TYPE:
-      box = ((TextTypePtr) Ptr2)->BoundingBox;
-      break;
-
     case POLYGON_TYPE:
-      box = ((PolygonTypePtr) Ptr2)->BoundingBox;
-      break;
-
-    case ELEMENT_TYPE:
-      box = ((ElementTypePtr) Ptr1)->BoundingBox;
-      {
-        TextTypePtr text = &NAMEONPCB_TEXT ((ElementTypePtr) Ptr1);
-        if (text->BoundingBox.X1 < box.X1)
-          box.X1 = text->BoundingBox.X1;
-        if (text->BoundingBox.Y1 < box.Y1)
-          box.Y1 = text->BoundingBox.Y1;
-        if (text->BoundingBox.X2 > box.X2)
-          box.X2 = text->BoundingBox.X2;
-        if (text->BoundingBox.Y2 > box.Y2)
-          box.Y2 = text->BoundingBox.Y2;
-      }
-      break;
-
     case PAD_TYPE:
-      {
-        PadTypePtr pad = (PadTypePtr) Ptr2;
-
-        box.X1 = MIN (pad->Point1.X, pad->Point2.X);
-        box.Y1 = MIN (pad->Point1.Y, pad->Point2.Y);
-        box.X2 = MAX (pad->Point1.X, pad->Point2.X);
-        box.Y2 = MAX (pad->Point1.Y, pad->Point2.Y);
-        box.X1 -= pad->Thickness;
-        box.Y1 -= pad->Thickness;
-        box.Y2 += pad->Thickness;
-        box.X2 += pad->Thickness;
-        break;
-      }
-
     case PIN_TYPE:
-      {
-        PinTypePtr pin = (PinTypePtr) Ptr2;
-
-        box.X1 = pin->X - pin->Thickness / 2;
-        box.Y1 = pin->Y - pin->Thickness / 2;
-        box.X2 = pin->X + pin->Thickness / 2;
-        box.Y2 = pin->Y + pin->Thickness / 2;
-        break;
-      }
-
-    case LINEPOINT_TYPE:
-      {
-        PointTypePtr point = (PointTypePtr) Ptr3;
-
-        box.X1 = box.X2 = point->X;
-        box.Y1 = box.Y2 = point->Y;
-        break;
-      }
-
+      return (BoxType *)Ptr2;
+    case VIA_TYPE:
+    case ELEMENT_TYPE:
+      return (BoxType *)Ptr1;
     case POLYGONPOINT_TYPE:
-      {
-        PointTypePtr point = (PointTypePtr) Ptr3;
-
-        box.X1 = box.X2 = point->X;
-        box.Y1 = box.Y2 = point->Y;
-        break;
-      }
-
+    case LINEPOINT_TYPE:
+      return (BoxType *)Ptr3;
     default:
       Message ("Request for bounding box of unsupported type %d\n", Type);
-      box.X1 = box.X2 = box.Y1 = box.Y2 = 0;
-      break;
+      return (BoxType *)Ptr2;
     }
-  return (&box);
 }
 
 /* ---------------------------------------------------------------------------
@@ -1410,6 +1331,7 @@ SetArcBoundingBox (ArcTypePtr Arc)
   Arc->BoundingBox.X2 += width;
   Arc->BoundingBox.Y1 -= width;
   Arc->BoundingBox.Y2 += width;
+  close_box(&Arc->BoundingBox);
 }
 
 /* ---------------------------------------------------------------------------
