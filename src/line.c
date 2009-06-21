@@ -489,7 +489,7 @@ EnforceLineDRC (void)
   Boolean shift;
   float r1, r2;
 
-  if (gui->control_is_pressed () || PCB->RatDraw
+  if ( gui->mod1_is_pressed() || gui->control_is_pressed () || PCB->RatDraw
       || INDEXOFCURRENT >= max_layer)
     return;
   rs.X = r45.X = Crosshair.X;

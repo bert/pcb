@@ -1181,6 +1181,7 @@ HID ps_hid = {
   ps_calibrate,
   0 /* ps_shift_is_pressed */ ,
   0 /* ps_control_is_pressed */ ,
+  0 /* ps_mod1_is_pressed */ ,
   0 /* ps_get_coords */ ,
   ps_set_crosshair,
   0 /* ps_add_timer */ ,

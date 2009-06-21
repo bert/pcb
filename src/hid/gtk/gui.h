@@ -29,6 +29,7 @@
 
 #include "global.h"
 #include "hid.h"
+#include "hid/common/hid_resource.h"
 
 #include "data.h"
 #include "misc.h"
@@ -210,6 +211,7 @@ typedef struct
   GdkCursorType X_cursor_shape;	/* and its shape */
 
   gboolean has_entered;
+  gboolean panning;
 
 /* zoom value is PCB units per screen pixel.  Larger numbers mean zooming
 |  out - the largest value means you are looking at the whole board.
@@ -227,14 +229,14 @@ extern GHidPort ghid_port, *gport;
 
 typedef enum
 {
-  NONE_PRESSED,
-  SHIFT_PRESSED,
-  CONTROL_PRESSED,
-  MOD1_PRESSED,
-  SHIFT_CONTROL_PRESSED,
-  SHIFT_MOD1_PRESSED,
-  CONTROL_MOD1_PRESSED,
-  SHIFT_CONTROL_MOD1_PRESSED
+  NONE_PRESSED               = 0,
+  SHIFT_PRESSED              = M_Shift,
+  CONTROL_PRESSED            = M_Ctrl,
+  MOD1_PRESSED               = M_Mod(1),
+  SHIFT_CONTROL_PRESSED      = M_Shift | M_Ctrl,
+  SHIFT_MOD1_PRESSED         = M_Shift | M_Mod(1),
+  CONTROL_MOD1_PRESSED       = M_Ctrl | M_Mod(1),
+  SHIFT_CONTROL_MOD1_PRESSED = M_Shift | M_Ctrl | M_Mod(1),
 }
 ModifierKeysState;
 
@@ -410,6 +412,7 @@ ModifierKeysState ghid_modifier_keys_state (GdkModifierType * state);
 ButtonState ghid_button_state (GdkModifierType * state);
 gboolean ghid_is_modifier_key_sym (gint ksym);
 gboolean ghid_control_is_pressed (void);
+gboolean ghid_mod1_is_pressed (void);
 gboolean ghid_shift_is_pressed (void);
 
 void ghid_draw_area_update (GHidPort * out, GdkRectangle * rect);

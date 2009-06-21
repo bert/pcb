@@ -3086,8 +3086,8 @@ ActionMode (int argc, char **argv, int x, int y)
 	      SaveMode ();
 	      saved_mode = True;
 	      SetMode (ARROW_MODE);
-	      NotifyMode ();
 	    }
+          NotifyMode ();
 	  break;
 #endif
 	case F_Text:

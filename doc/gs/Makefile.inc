@@ -91,10 +91,6 @@ EXTRA_DIST= \
 	${tab_files} \
 	${tab_texi}
 
-MAINTAINERCLEANFILES= \
-	refcard.aux refcard.dvi refcard.log refcard.pdf refcard.ps \
-	${pcb_output} ${tab_texi} ${inline_texi} pcb.dvi pcb.html pcb.pdf pcb.ps
-
 CLEANFILES = \
 	${html_docs} \
 	${ps_docs} \
@@ -104,7 +100,15 @@ CLEANFILES = \
 	${pdf_files} \
 	${tab_texi}
 
-BUILT_SOURCES=	@MAINTAINER_MODE_TRUE@ ${tab_texi} ${pcb_output} ${inline_texi}
+if GIT_VERSION
+BUILT_SOURCES=	${tab_texi} ${pcb_output} ${inline_texi}
+CLEANFILES+= \
+	refcard.aux refcard.dvi refcard.log refcard.pdf refcard.ps \
+	${pcb_output} ${tab_texi} ${inline_texi} pcb.dvi pcb.html pcb.pdf pcb.ps
+
+else
+BUILT_SOURCES=
+endif
 
 ASCII2TEXI=	${AWK} -f $(srcdir)/../ascii2texi.awk ncol=3
 
@@ -116,20 +120,34 @@ pcb_output=	\
 SUFFIXES = .dvi .eps .gif .pcb .pdf .png .ps .tab .tex
 
 %.png %.eps : %.pcb
-	../../src/pcb -x eps --font-path $(top_srcdir)/src --eps-file $*.eps $<
-	../eps2png -resolution 100 -output $*.png $*.eps
+	$(PCB) -x eps --font-path $(top_srcdir)/src --eps-file $*.eps $<
+	$(PERL) $(srcdir)/../eps2png -resolution 100 -output $*.png $*.eps
 
 %.png %.eps : %.fp
-	../../src/pcb -x eps --font-path $(top_srcdir)/src --eps-file $*.eps $<
-	../eps2png -resolution 100 -output $*.png $*.eps
+	$(PCB) -x eps --font-path $(top_srcdir)/src --eps-file $*.eps $<
+	$(PERL) $(srcdir)/../eps2png -resolution 100 -output $*.png $*.eps
 
 %.png %.eps : %.sch
-	gschem -p -o $*.eps -s ./print-eps.scm $<
-	../eps2png -resolution 100 -output $*.png $*.eps
+if MISSING_GSCHEM
+	@echo "****************************************************"
+	@echo "WARNING:  gschem is missing on your system but"
+	@echo "$@ is out of date and needs to rebuilt."
+	@echo "Changes to $< will be ignored"
+else
+	$(GSCHEM) -p -o $*.eps -s ./print-eps.scm $<
+	$(PERL) $(srcdir)/../eps2png -resolution 100 -output $*.png $*.eps
+endif
 
 %.png %.eps : %.sym
-	gschem -p -o $*.eps -s ./print-eps.scm $<
-	../eps2png -resolution 100 -output $*.png $*.eps
+if MISSING_GSCHEM
+	@echo "****************************************************"
+	@echo "WARNING:  gschem is missing on your system but"
+	@echo "$@ is out of date and needs to rebuilt."
+	@echo "Changes to $< will be ignored"
+else
+	$(GSCHEM) -p -o $*.eps -s $(srcdir)/print-eps.scm $<
+	$(PERL) $(srcdir)/../eps2png -resolution 100 -output $*.png $*.eps
+endif
 
 .eps.pdf :
 if MISSING_PS2PDF
@@ -187,3 +205,4 @@ djtest :
 	@echo png_files = ${png_files}
 	@echo
 	@echo png_found = ${png_found}
+

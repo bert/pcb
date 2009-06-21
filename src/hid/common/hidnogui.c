@@ -190,6 +190,13 @@ nogui_control_is_pressed (void)
   return 0;
 }
 
+static int
+nogui_mod1_is_pressed (void)
+{
+  CRASH;
+  return 0;
+}
+
 static void
 nogui_get_coords (const char *msg, int *x, int *y)
 {
@@ -376,6 +383,7 @@ HID hid_nogui = {
   nogui_calibrate,
   nogui_shift_is_pressed,
   nogui_control_is_pressed,
+  nogui_mod1_is_pressed,
   nogui_get_coords,
   nogui_set_crosshair,
   nogui_add_timer,
@@ -429,6 +437,7 @@ apply_default_hid (HID * d, HID * s)
   AD (calibrate);
   AD (shift_is_pressed);
   AD (control_is_pressed);
+  AD (mod1_is_pressed);
   AD (get_coords);
   AD (set_crosshair);
   AD (add_timer);

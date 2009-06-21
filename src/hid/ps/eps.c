@@ -643,6 +643,7 @@ static HID eps_hid = {
   eps_calibrate,
   0 /* eps_shift_is_pressed */ ,
   0 /* eps_control_is_pressed */ ,
+  0 /* eps_mod1_is_pressed */ ,
   0 /* eps_get_coords */ ,
   eps_set_crosshair,
   0 /* eps_add_timer */ ,

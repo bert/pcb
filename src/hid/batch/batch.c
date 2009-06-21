@@ -315,6 +315,12 @@ batch_control_is_pressed (void)
   return 0;
 }
 
+static int
+batch_mod1_is_pressed (void)
+{
+  return 0;
+}
+
 static void
 batch_get_coords (const char *msg, int *x, int *y)
 {
@@ -489,6 +495,7 @@ HID batch_gui = {
   batch_calibrate,
   batch_shift_is_pressed,
   batch_control_is_pressed,
+  batch_mod1_is_pressed,
   batch_get_coords,
   batch_set_crosshair,
   batch_add_timer,

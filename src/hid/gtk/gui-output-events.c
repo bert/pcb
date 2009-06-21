@@ -34,6 +34,7 @@
 
 #include "gui.h"
 #include "gtkhid.h"
+#include "hid/common/hid_resource.h"
 
 #include <gdk/gdkkeysyms.h>
 
@@ -213,10 +214,13 @@ static gint event_x, event_y;
 void
 ghid_get_coords (const char *msg, int *x, int *y)
 {
-  if (!ghid_port.has_entered)
+  if (!ghid_port.has_entered && msg)
     ghid_get_user_xy (msg);
-  *x = SIDE_X (gport->view_x);
-  *y = SIDE_Y (gport->view_y);
+  if (ghid_port.has_entered)
+    {
+      *x = SIDE_X (gport->view_x);
+      *y = SIDE_Y (gport->view_y);
+    }
 }
 
 gboolean
@@ -621,23 +625,16 @@ in_draw_state (void)
   return FALSE;
 }
 
-static gboolean draw_state_reset;
-static gint x_press, y_press;
-
 gboolean
 ghid_port_button_press_cb (GtkWidget * drawing_area,
 			   GdkEventButton * ev, GtkUIManager * ui)
 {
-  GtkWidget *menu = gtk_ui_manager_get_widget (ui, "/Popup1");
   ModifierKeysState mk;
-  gboolean drag, start_pan = FALSE;
+  gboolean drag;
   GdkModifierType state;
 
   /* Reject double and triple click events */
   if (ev->type != GDK_BUTTON_PRESS) return TRUE;
-
-  x_press = ev->x;
-  y_press = ev->y;
 
   ghid_note_event_location (ev);
   state = (GdkModifierType) (ev->state);
@@ -645,87 +642,14 @@ ghid_port_button_press_cb (GtkWidget * drawing_area,
   ghid_show_crosshair (FALSE);
   HideCrosshair (TRUE);
   drag = have_crosshair_attachments ();
-  draw_state_reset = FALSE;
 
-  switch (ev->button)
-    {
-    case 1:
-      if (mk == NONE_PRESSED || mk == SHIFT_PRESSED)
-	hid_actionl ("Mode", "Notify", NULL);
-      else if (mk == CONTROL_PRESSED)
-	{
-	  hid_actionl ("Mode", "Save", NULL);
-	  hid_actionl ("Mode", "None", NULL);
-	  hid_actionl ("Mode", "Restore", NULL);
-	  hid_actionl ("Mode", "Notify", NULL);
-	}
-      else if (mk == SHIFT_CONTROL_PRESSED)
-	{
-	  hid_actionl ("Mode", "Save", NULL);
-	  hid_actionl ("Mode", "Remove", NULL);
-	  hid_actionl ("Mode", "Notify", NULL);
-	  hid_actionl ("Mode", "Restore", NULL);
-	}
-      break;
+  do_mouse_action(ev->button, mk);
 
-    case 2:
-      if (mk == NONE_PRESSED && in_draw_state ())
-	{
-	  if (Settings.Mode == LINE_MODE)
-	    hid_actionl ("Mode", "Line", NULL);
-	  else if (Settings.Mode == ARC_MODE)
-	    hid_actionl ("Mode", "Arc", NULL);
-	  else if (Settings.Mode == RECTANGLE_MODE)
-	    hid_actionl ("Mode", "Rectangle", NULL);
-	  else if (Settings.Mode == POLYGON_MODE)
-	    hid_actionl ("Mode", "Polygon", NULL);
-
-	  hid_actionl ("Mode", "Notify", NULL);
-	  draw_state_reset = TRUE;
-	}
-      else if (mk == NONE_PRESSED)
-	{
-	  hid_actionl ("Mode", "Save", NULL);
-	  hid_actionl ("Mode", "Stroke", NULL);
-	}
-      else if (mk == CONTROL_PRESSED)
-	{
-	  hid_actionl ("Mode", "Save", NULL);
-	  hid_actionl ("Mode", "Copy", NULL);
-	  hid_actionl ("Mode", "Notify", NULL);
-	}
-      else if (mk == SHIFT_CONTROL_PRESSED)
-	{
-	  hid_actionl ("Display", "ToggleRubberbandMode", NULL);
-	  hid_actionl ("Mode", "Save", NULL);
-	  hid_actionl ("Mode", "Move", NULL);
-	  hid_actionl ("Mode", "Notify", NULL);
-	}
-      break;
-
-    case 3:
-      if (mk == NONE_PRESSED)
-	{
-	  ghid_mode_cursor (PAN_MODE);
-	  start_pan = TRUE;
-	}
-      else if (mk == SHIFT_PRESSED
-	       && !ghidgui->command_entry_status_line_active)
-	{
-	  ghidgui->in_popup = TRUE;
-	  gtk_widget_grab_focus (drawing_area);
-	  if (GTK_IS_MENU (menu))
-	    gtk_menu_popup (GTK_MENU (menu), NULL, NULL, NULL,
-			    drawing_area, 3, ev->time);
-	}
-
-      break;
-    }
   ghid_invalidate_all ();
   RestoreCrosshair (TRUE);
   ghid_set_status_line_label ();
   ghid_show_crosshair (TRUE);
-  if (!start_pan)
+  if (!gport->panning)
     g_idle_add (ghid_idle_cb, NULL);
   return TRUE;
 }
@@ -747,47 +671,8 @@ ghid_port_button_release_cb (GtkWidget * drawing_area,
   if (drag)
     HideCrosshair (TRUE);
 
-  switch (ev->button)
-    {
-    case 1:
-      hid_actionl ("Mode", "Release", NULL);	/* For all modifier states */
-      break;
+  do_mouse_action(ev->button, mk + M_Release);
 
-    case 2:
-      if (mk == NONE_PRESSED && !draw_state_reset)
-	{
-	  hid_actionl ("Mode", "Release", NULL);
-	  hid_actionl ("Mode", "Restore", NULL);
-	}
-      else if (mk == CONTROL_PRESSED)
-	{
-	  hid_actionl ("Mode", "Notify", NULL);
-	  hid_actionl ("Mode", "Restore", NULL);
-	}
-      else if (mk == SHIFT_CONTROL_PRESSED)
-	{
-	  hid_actionl ("Mode", "Notify", NULL);
-	  hid_actionl ("Mode", "Restore", NULL);
-	  hid_actionl ("Display", "ToggleRubberbandMode", NULL);
-	}
-      break;
-
-    case 3:
-      if (mk == SHIFT_PRESSED)
-	{
-	  hid_actionl ("Display", "Center", NULL);
-	  hid_actionl ("Display", "Restore", NULL);
-	}
-      else if (mk == CONTROL_PRESSED)
-	  hid_actionl ("Display", "CycleCrosshair", NULL);
-      else if (ev->x == x_press && ev->y == y_press)
-	{
-	  ghid_show_crosshair (FALSE);
-	  ghidgui->auto_pan_on = !ghidgui->auto_pan_on;
-	  ghid_show_crosshair (TRUE);
-	}
-      break;
-    }
   if (drag)
     {
       AdjustAttachedObjects ();
@@ -876,17 +761,11 @@ gint
 ghid_port_window_motion_cb (GtkWidget * widget,
 			    GdkEventButton * ev, GHidPort * out)
 {
-  ModifierKeysState mk;
   gdouble dx, dy;
   static gint x_prev = -1, y_prev = -1;
   gboolean moved;
-  GdkModifierType state;
 
-  state = (GdkModifierType) (ev->state);
-  mk = ghid_modifier_keys_state (&state);
-
-  if ((ev->state & GDK_BUTTON3_MASK) == GDK_BUTTON3_MASK
-      && mk == NONE_PRESSED)
+  if (out->panning)
     {
       if (gtk_events_pending ())
 	return FALSE;
@@ -1056,34 +935,27 @@ ghid_port_window_mouse_scroll_cb (GtkWidget * widget,
 				  GdkEventScroll * ev, GHidPort * out)
 {
   ModifierKeysState mk;
-  gdouble dx = 0.0, dy = 0.0, zoom_factor;
   GdkModifierType state;
+  int button;
 
   state = (GdkModifierType) (ev->state);
   mk = ghid_modifier_keys_state (&state);
-  if (mk == NONE_PRESSED)
+
+  /* X11 gtk hard codes buttons 4, 5, 6, 7 as below in
+   * gtk+/gdk/x11/gdkevents-x11.c:1121, but quartz and windows have
+   * special mouse scroll events, so this may conflict with a mouse
+   * who has buttons 4 - 7 that aren't the scroll wheel?
+   */
+  switch(ev->direction)
     {
-      zoom_factor = (ev->direction == GDK_SCROLL_UP) ? 0.8 : 1.25;
-      ghid_port_ranges_zoom (gport->zoom * zoom_factor);
-      return TRUE;
+    case GDK_SCROLL_UP: button = 4; break;
+    case GDK_SCROLL_DOWN: button = 5; break;
+    case GDK_SCROLL_LEFT: button = 6; break;
+    case GDK_SCROLL_RIGHT: button = 7; break;
+    default: button = -1;
     }
 
-  if (mk == SHIFT_PRESSED)
-    dy = ghid_port.height * gport->zoom / 40;
-  else
-    dx = ghid_port.width * gport->zoom / 40;
-
-  if (ev->direction == GDK_SCROLL_UP)
-    {
-      dx = -dx;
-      dy = -dy;
-    }
-
-  HideCrosshair (FALSE);
-  ghid_port_ranges_pan (dx, dy, TRUE);
-  MoveCrosshairRelative (dx, dy);
-  AdjustAttachedObjects ();
-  RestoreCrosshair (FALSE);
+  do_mouse_action(button, mk);
 
   return TRUE;
 }

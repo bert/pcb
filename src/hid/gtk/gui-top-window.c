@@ -86,6 +86,7 @@ a zoom in/out.
 #include "gui.h"
 #include "hid.h"
 #include "../hidint.h"
+#include "hid/common/hid_resource.h"
 
 #include "action.h"
 #include "autoplace.h"
@@ -3817,9 +3818,7 @@ ghid_load_menus (void)
   if (!mr)
     mr = resource_subres (bir, "Mouse");
   if (mr)
-    Message ("ghid_load_menus():  Mouse resources are currently ignored by the GTK HID.\n"
-	"Please feel free to submit a patch to implement this!\n"
-    );
+    load_mouse_resource (mr);
 
 }
 

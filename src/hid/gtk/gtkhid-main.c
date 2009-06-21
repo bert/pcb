@@ -1082,6 +1082,23 @@ ghid_control_is_pressed ()
   return (mask & GDK_CONTROL_MASK) ? TRUE : FALSE;
 }
 
+int
+ghid_mod1_is_pressed ()
+{
+  GdkModifierType mask;
+  GHidPort *out = &ghid_port;
+
+  if( ! ghid_gui_is_up )
+    return 0;
+
+  gdk_window_get_pointer (out->drawing_area->window, NULL, NULL, &mask);
+#ifdef __APPLE__
+  return (mask & ( 1 << 13 ) ) ? TRUE : FALSE;  // The option key is not MOD1, although it should be...
+#else
+  return (mask & GDK_MOD1_MASK) ? TRUE : FALSE;
+#endif
+}
+
 void
 ghid_set_crosshair (int x, int y, int action)
 {
@@ -1531,6 +1548,7 @@ HID ghid_hid = {
   ghid_calibrate,
   ghid_shift_is_pressed,
   ghid_control_is_pressed,
+  ghid_mod1_is_pressed,
   ghid_get_coords,
   ghid_set_crosshair,
   ghid_add_timer,
@@ -1594,6 +1612,7 @@ HID ghid_extents = {
   0 /* ghid_calibrate */ ,
   0 /* ghid_shift_is_pressed */ ,
   0 /* ghid_control_is_pressed */ ,
+  0 /* ghid_mod1_is_pressed */ ,
   0 /* ghid_get_coords */ ,
   0 /* ghid_set_crosshair */ ,
   0 /* ghid_add_timer */ ,
@@ -2473,6 +2492,114 @@ SetUnits (int argc, char **argv, int x, int y)
 }
 
 /* ------------------------------------------------------------ */
+static const char scroll_syntax[] =
+"Scroll(up|down|left|right, [div])";
+
+static const char scroll_help[] =
+"Scroll the viewport.";
+
+/* % start-doc actions Scroll
+
+@item up|down|left|right
+Specifies the direction to scroll
+
+@item div
+Optional.  Specifies how much to scroll by.  The viewport is scrolled
+by 1/div of what is visible, so div = 1 scrolls a whole page. If not
+default is given, div=40.
+
+%end-doc */
+
+static int
+ScrollAction (int argc, char **argv, int x, int y)
+{
+  gdouble dx = 0.0, dy = 0.0;
+  int div = 40;
+
+  if (!ghidgui)
+    return 0;
+
+  if (argc != 1 && argc != 2)
+    AFAIL (scroll);
+
+  if (argc == 2)
+    div = atoi(argv[1]);
+
+  if (strcasecmp (argv[0], "up") == 0)
+    dy = -(ghid_port.height * gport->zoom / div);
+  else if (strcasecmp (argv[0], "down") == 0)
+    dy = ghid_port.height * gport->zoom / div;
+  else if (strcasecmp (argv[0], "right") == 0)
+    dx = ghid_port.width * gport->zoom / div;
+  else if (strcasecmp (argv[0], "left") == 0)
+    dx = -(ghid_port.width * gport->zoom / div);
+  else
+    AFAIL (scroll);
+
+  HideCrosshair (FALSE);
+  ghid_port_ranges_pan (dx, dy, TRUE);
+  MoveCrosshairRelative (dx, dy);
+  AdjustAttachedObjects ();
+  RestoreCrosshair (FALSE);
+
+  return 0;
+}
+
+/* ------------------------------------------------------------ */
+static const char pan_syntax[] =
+"Pan([thumb], Mode)";
+
+static const char pan_help[] =
+"Start or stop panning (Mode = 1 to start, 0 to stop)\n"
+"Optional thumb argument is ignored for now in gtk hid.\n";
+
+/* %start-doc actions Pan
+
+Start or stop panning.  To start call with Mode = 1, to stop call with
+Mode = 0.  If the Mode is turned on and off with the cross hairs at
+the same coordinates, the auto pan mode is toggled.
+
+%end-doc */
+
+static int
+PanAction (int argc, char **argv, int x, int y)
+{
+  static int on_x, on_y;
+  int mode;
+
+  if (!ghidgui)
+    return 0;
+
+  if (argc != 1 && argc != 2)
+    AFAIL (pan);
+
+  if (argc == 1)
+    mode = atoi(argv[0]);
+  else
+    {
+      mode = atoi(argv[1]);
+      Message ("The gtk gui currently ignores the optional first argument"
+               "to the Pan action.\nFeel free to provide patches.\n");
+    }
+
+  gport->panning = mode;
+
+  if (mode == 1)
+    {
+      on_x = x;
+      on_y = y;
+    }
+  else if (x == on_x && y == on_y)
+    {
+      ghid_show_crosshair (FALSE);
+      ghidgui->auto_pan_on = !ghidgui->auto_pan_on;
+      ghid_show_crosshair (TRUE);
+    }
+
+  return 0;
+}
+
+/* ------------------------------------------------------------ */
 static const char popup_syntax[] =
 "Popup(MenuName, [Button])";
 
@@ -2553,6 +2680,7 @@ HID_Action ghid_main_action_list[] = {
   {"LayerGroupsChanged", 0, LayerGroupsChanged},
   {"LibraryChanged", 0, LibraryChanged},
   {"Load", 0, Load},
+  {"Pan", "Click on a place to pan", PanAction, pan_help, pan_syntax},
   {"PCBChanged", 0, PCBChanged},
   {"PointCursor", 0, PointCursor},
   {"Popup", 0, Popup, popup_help, popup_syntax},
@@ -2562,6 +2690,7 @@ HID_Action ghid_main_action_list[] = {
    printcalibrate_help, printcalibrate_syntax},
   {"RouteStylesChanged", 0, RouteStylesChanged},
   {"Save", 0, Save, save_help, save_syntax},
+  {"Scroll", "Click on a place to scroll", ScrollAction, scroll_help, scroll_syntax},
   {"SetUnits", 0, SetUnits, setunits_help, setunits_syntax},
   {"SwapSides", 0, SwapSides, swapsides_help, swapsides_syntax},
   {"Zoom", "Click on zoom focus", Zoom, zoom_help, zoom_syntax}

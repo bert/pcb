@@ -1103,6 +1103,7 @@ static HID gerber_hid = {
   gerber_calibrate,
   0 /* gerber_shift_is_pressed */ ,
   0 /* gerber_control_is_pressed */ ,
+  0 /* gerber_mod1_is_pressed */ ,
   0 /* gerber_get_coords */ ,
   gerber_set_crosshair,
   0 /* gerber_add_timer */ ,

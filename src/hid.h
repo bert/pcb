@@ -414,6 +414,7 @@ typedef enum
     /* Temporary */
     int (*shift_is_pressed) (void);
     int (*control_is_pressed) (void);
+	int (*mod1_is_pressed) (void);
     void (*get_coords) (const char *msg_, int *x_, int *y_);
 
     /* Sets the crosshair, which may differ from the pointer depending

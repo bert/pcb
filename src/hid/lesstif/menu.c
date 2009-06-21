@@ -19,6 +19,7 @@
 
 #include "hid.h"
 #include "../hidint.h"
+#include "hid/common/hid_resource.h"
 #include "resource.h"
 #include "lesstif.h"
 #include "mymem.h"
@@ -805,9 +806,10 @@ lesstif_get_xy (const char *message)
 void
 lesstif_get_coords (const char *msg, int *px, int *py)
 {
-  if (!have_xy)
+  if (!have_xy && msg)
     lesstif_get_xy (msg);
-  lesstif_coords_to_pcb (action_x, action_y, px, py);
+  if (have_xy)
+    lesstif_coords_to_pcb (action_x, action_y, px, py);
 }
 
 int
@@ -1518,7 +1520,7 @@ lesstif_menu (Widget parent, char *name, Arg * margs, int mn)
   if (!mr)
     mr = resource_subres (bir, "Mouse");
   if (mr)
-    lesstif_note_mouse_resource (mr);
+    load_mouse_resource (mr);
 
 
   if (do_dump_keys)

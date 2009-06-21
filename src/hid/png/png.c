@@ -1354,6 +1354,7 @@ HID png_hid = {
   png_calibrate,
   0 /* png_shift_is_pressed */ ,
   0 /* png_control_is_pressed */ ,
+  0 /* png_mod1_is_pressed */ ,
   0 /* png_get_coords */ ,
   png_set_crosshair,
   0 /* png_add_timer */ ,

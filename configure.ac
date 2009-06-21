@@ -8,7 +8,64 @@ AM_INIT_AUTOMAKE([1.9])
 AC_GNU_SOURCE
 AM_CONFIG_HEADER([config.h])
 
+##########################################################################
+#
+# Try to figure out if we are building from git sources.
+# If we are then unless building of the documentation has
+# been disabled then just require the user have all the right
+# tools.  Users building from a tarball won't need latex, makeinfo,
+# etc. but if you're already downloading development sources, then
+# it is not unreasonable to require development tools.  What motivated
+# this is that using maintainer mode proved to cause regular confusion.
+
+AC_MSG_CHECKING([if you are building from a git checkout])
+pcb_git_version=no
+if test -f $srcdir/.gitignore ; then
+	pcb_git_version=yes
+	AC_MSG_RESULT([yes])
+else
+	AC_MSG_RESULT([no])
+fi
+AM_CONDITIONAL(GIT_VERSION, test x$pcb_git_version = xyes)
+
+##########################################################################
+#
+# See if we are supposed to build the docs
+#
+
+docs_yesno=yes
+AC_MSG_CHECKING([if the documentation should be built])
+AC_ARG_ENABLE([doc],
+[  --enable-doc            Build and install the documentation [[default=yes]]],
+[
+if test "X$enable_doc" = "Xno" ; then
+        DOC=""
+        AC_MSG_RESULT([no])
+        docs_yesno=no
+else
+        DOC=doc
+        AC_MSG_RESULT([yes])
+        docs_yesno=yes
+fi
+],
+[
+DOC=doc
+AC_MSG_RESULT([yes])
+docs_yesno=yes
+])
+AC_SUBST(DOC)
+
+
+AC_MSG_CHECKING([if maintainer mode is required])
+if test "$docs_yesno" = "yes" -a "$pcb_git_version" = "yes" ; then
+	AC_MSG_RESULT([yes -- the documentation build is enabled and your sources are from git])
+	enable_maintainer_mode=yes
+else
+	AC_MSG_RESULT([no])
+fi
+
 AM_MAINTAINER_MODE
+
 
 dnl determine host type
 AC_CANONICAL_HOST
@@ -102,30 +159,10 @@ AC_PATH_PROG(XPMTOPPM, xpmtoppm, notfound)
 AC_PATH_PROG(PPMTOWINICON, ppmtowinicon, notfound)
 AC_PATH_PROG(CONVERT, convert, notfound)
 
-docs_yesno=yes
-
-AC_MSG_CHECKING([if the documentation should be built])
-AC_ARG_ENABLE([doc],
-[  --enable-doc            Build and install the documentation [[default=yes]]],
-[
-if test "X$enable_doc" = "Xno" ; then
-        DOC=""
-        AC_MSG_RESULT([no])
-        docs_yesno=no
-else
-        DOC=doc
-        AC_MSG_RESULT([yes])
-        docs_yesno=yes
-fi
-],
-[
-DOC=doc
-AC_MSG_RESULT([yes])
-docs_yesno=yes
-])
-AC_SUBST(DOC)
-
-if test "X$docs_yesno" = "Xyes" -a "X$USE_MAINTAINER_MODE" = "Xyes" ; then
+##########################################################################
+#
+#
+if test "X$docs_yesno" = "Xyes" -a "X$pcb_git_version" = "Xyes" ; then
    AC_CHECK_PROGS(MKINFO, makeinfo, no)
    if test "X$MKINFO" != "Xno"; then
       AC_MSG_CHECKING([for GNU makeinfo version >= 4.6])
@@ -145,30 +182,39 @@ if test "X$docs_yesno" = "Xyes" -a "X$USE_MAINTAINER_MODE" = "Xyes" ; then
       fi
    fi
    if test "X$MKINFO" = "Xno"; then
-      AC_MSG_ERROR([You have requested a maintainer-mode build and a build
+      AC_MSG_ERROR([You have requested a build
 of the documentation.  For this to work, you must have version 4.6 or newer of
 the GNU texinfo package.  You seem to have
 
 $v
 
+Please update to a newer version of texinfo or disable building of
+the documentation with --disable-doc
 ])
    fi
 
    AC_CHECK_PROGS(TEXI2DVI, texi2dvi, no)
    if test "X$TEXI2DVI" = "Xno"; then
-      AC_MSG_ERROR([You have requested a maintainer-mode build and a build
+      AC_MSG_ERROR([You have requested a build
 of the documentation.  For this to work, you must have the texi2dvi program
-installed.])
+installed.  Alternatively, you can disable building the documentation with
+--disable-doc.])
    fi
 
 
 	AC_PATH_PROG(PERL, perl, notfound)
 	if test "X$PERL" = "Xnotfound"; then
-			AC_MSG_ERROR([You have requested a maintainer-mode build and a build
+			AC_MSG_ERROR([You have requested a build
 of the documentation.  For this to work, you must have perl installed.
+Alternatively, you can disable building the documentation with
+--disable-doc.
 ])
 	fi
 fi
+
+##########################################################################
+#
+#
 
 # FIXME:  for now, only try to add -rdynamic if we're using gcc.  We really
 # need to figure out what the correct test is here.  In the mean time, this
@@ -467,6 +513,27 @@ AM_CONDITIONAL(MISSING_TEXI2DVI, test x$TEXI2DVI = xnotfound)
 AC_CHECK_PROGS(PS2PDF, ps2pdf, notfound)
 AM_CONDITIONAL(MISSING_PS2PDF, test x$PS2PDF = xnotfound)
 
+AC_CHECK_PROGS(GSCHEM, gschem, notfound)
+AM_CONDITIONAL(MISSING_GSCHEM, test x$GSCHEM = xnotfound)
+
+if test "X$docs_yesno" = "Xyes" -a "X$pcb_git_version" = "Xyes" ; then
+	if test "$LATEX" = "notfound" -o "$PDFLATEX" = "notfound" -o "$DVIPS" = "notfound" -o "$TEXI2DVI" = "notfound" -o "$PS2PDF" = "notfound" ; then
+		AC_MSG_ERROR([It appears that you are building from a source tree obtained
+via git but you do not have the required tools installed to build the documentation.  Here
+is a list of tools and the detected values:
+LATEX:  $LATEX
+PDFLATEX:  $PDFLATEX
+DVIPS:     $DVIPS
+TEXI2DVI:  $TEXI2DVI
+PS2PDF:    $PS2PDF
+GSCHEM:    $GSCHEM
+
+Either make sure these tools are installed or disable building and installing the documentation
+by using the --disable-doc configure option.
+])
+	fi
+fi
+
 dnl Checks for libraries.
 AC_CHECK_LIB(m, sqrt)
 AC_CHECK_LIB(dl, dlopen)
@@ -712,10 +779,10 @@ AC_SUBST(PCB)
 
 # now make see how essential it was that we have a pcb executable for the build
 # host
-if test "X$USE_MAINTAINER_MODE" = "Xyes" ; then
+if test "X$pcb_git_version" = "Xyes" ; then
 	if test "X$docs_yesno" = "Xyes" -o "X$enable_m4lib_png" = "Xyes" ; then
 		if test "$PCB" = "notfound" ; then
-			AC_MSG_ERROR([You have selected a maintainer mode build with m4lib png
+			AC_MSG_ERROR([You have selected a build with m4lib png
 previews enabled and/or with building the documentation enabled but you also
 appear to be cross-compiling.  For this to work, you must have a pcb installed that
 can run on this machine (the build machine) because it is needed for generating
@@ -897,7 +964,11 @@ if test -d $srcdir/README_FILES; then
 fi
 if test -d $srcdir/doc; then
    AC_CONFIG_FILES(doc/Makefile)
+fi
+if test -d $srcdir/doc/gs; then
    AC_CONFIG_FILES(doc/gs/Makefile)
+   AC_CONFIG_FILES(doc/gs/gafrc)
+   AC_CONFIG_FILES(doc/gs/gschemrc)
 fi
 if test -d $srcdir/example; then
    AC_CONFIG_FILES(example/Makefile)
@@ -944,12 +1015,19 @@ with_exporters=`echo $with_exporters | sed 's/,/ /g'`
 expandedXDGDATADIR=`eval "echo $XDGDATADIR"`
 expandedKDEDATADIR=`eval "echo $KDEDATADIR"`
 
+if test "X$pcb_git_version" = "Xyes" ; then
+	pcb_sources="GIT"
+else
+	pcb_sources="tarball"
+fi
+
 AC_MSG_RESULT([
 ** Configuration summary for $PACKAGE $VERSION:
 
    GUI:                      $with_gui
    Printer:                  $with_printer
    Exporters:                $with_exporters
+   Source tree distribution: $pcb_sources
    Build documentation:      $docs_yesno
    Build toporouter:         $enable_toporouter
    Enable toporouter output: $enable_toporouter_output

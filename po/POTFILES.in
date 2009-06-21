@@ -23,6 +23,7 @@ src/hid/gtk/gui-config.c
 src/hid/gtk/gui-dialog-print.c
 src/hid/gtk/gui-dialog-size.c
 src/hid/gtk/gui-dialog.c
+src/hid/gtk/gui-drc-window.c
 src/hid/gtk/gui-keyref-window.c
 src/hid/gtk/gui-library-window.c
 src/hid/gtk/gui-log-window.c
