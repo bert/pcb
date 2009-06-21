@@ -395,6 +395,10 @@ CreateDrawnLineOnLayer (LayerTypePtr Layer,
   search.X2 = MAX (X1, X2);
   search.Y1 = MIN (Y1, Y2);
   search.Y2 = MAX (Y1, Y2);
+  if (search.Y2 == search.Y1)
+    search.Y2++;
+  if (search.X2 == search.X1)
+    search.X2++;
   info.X1 = X1;
   info.X2 = X2;
   info.Y1 = Y1;
