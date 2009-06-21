@@ -1551,7 +1551,7 @@ EraseRouteBox (routebox_t * rb)
 static routebox_t *
 route_parent (routebox_t * rb)
 {
-  while (rb->flags.homeless && !rb->flags.is_via)
+  while (rb->flags.homeless && !rb->flags.is_via && !rb->flags.is_thermal)
     {
       assert (rb->type == EXPANSION_AREA);
       rb = rb->parent.expansion_area;
@@ -2041,6 +2041,8 @@ CreateExpansionArea (const BoxType * area, Cardinal group,
 			    &rb->cost_point, rb->group);
   assert (relax_edge_requirements ? edge_intersect (&rb->sbox, &parent->sbox)
 	  : share_edge (&rb->sbox, &parent->sbox));
+  if (rb->parent.expansion_area->flags.homeless)
+    RB_up_count(rb->parent.expansion_area);
   rb->flags.homeless = 1;
   rb->flags.nobloat = 1;
   rb->style = AutoRouteParameters.style;
@@ -2437,6 +2439,8 @@ CreateBridge (const BoxType * area, routebox_t * parent, direction_t dir)
 						    &rb->cost_point,
 						    rb->group);
   rb->parent.expansion_area = route_parent (parent);
+  if (rb->parent.expansion_area->flags.homeless)
+    RB_up_count (rb->parent.expansion_area);
   rb->flags.homeless = 1;
   rb->flags.nobloat = 1;
   rb->style = parent->style;
@@ -3497,6 +3501,8 @@ TracePath (routedata_t * rd, routebox_t * path, const routebox_t * target,
        * is where we're utlimately headed on this path. However, it
        * must reside in the plane as well as the via area too. 
        */
+      nextpoint.X = CENTER_X (path->sbox);
+      nextpoint.Y = CENTER_Y (path->sbox);
       if (path->parent.expansion_area->flags.is_via)
 	{
 	  TargetPoint (&nextpoint, rb_source (path));
