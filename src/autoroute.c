@@ -396,6 +396,8 @@ static int ro = 0;
 static int smoothes = 1;
 static int passes = 12;
 static int routing_layers = 0;
+static float total_wire_length = 0;
+static int total_via_count = 0;
 
 /* assertion helper for routeboxen */
 #ifndef NDEBUG
@@ -2042,7 +2044,7 @@ CreateExpansionArea (const BoxType * area, Cardinal group,
   assert (relax_edge_requirements ? edge_intersect (&rb->sbox, &parent->sbox)
 	  : share_edge (&rb->sbox, &parent->sbox));
   if (rb->parent.expansion_area->flags.homeless)
-    RB_up_count(rb->parent.expansion_area);
+    RB_up_count (rb->parent.expansion_area);
   rb->flags.homeless = 1;
   rb->flags.nobloat = 1;
   rb->style = AutoRouteParameters.style;
@@ -3028,10 +3030,10 @@ static routebox_t *
 rb_source (routebox_t * rb)
 {
   while (rb && !rb->flags.source)
-   {
+    {
       assert (rb->type == EXPANSION_AREA);
       rb = rb->parent.expansion_area;
-   }
+    }
   assert (rb);
   return rb;
 }
@@ -3877,7 +3879,7 @@ show_area_vec (int lay)
 static Boolean
 net_id (routebox_t * rb, long int id)
 {
-  routebox_t * p;
+  routebox_t *p;
   LIST_LOOP (rb, same_net, p);
   if (p->flags.source && p->parent.pad->ID == id)
     return True;
@@ -4537,7 +4539,8 @@ InitAutoRouteParameters (int pass,
   /* costs */
   AutoRouteParameters.ViaCost =
     350000 + style->Diameter * (is_smoothing ? 80 : 30);
-  AutoRouteParameters.LastConflictPenalty = (400  * pass / passes + 2)/(pass+1);
+  AutoRouteParameters.LastConflictPenalty =
+    (400 * pass / passes + 2) / (pass + 1);
   AutoRouteParameters.ConflictPenalty =
     4 * AutoRouteParameters.LastConflictPenalty;
   AutoRouteParameters.JogPenalty = 1000 * (is_smoothing ? 20 : 4);
@@ -4545,12 +4548,14 @@ InitAutoRouteParameters (int pass,
   AutoRouteParameters.MinPenalty = EXPENSIVE;
   for (i = 0; i < max_layer; i++)
     {
-      if (is_layer_group_active[i]) {
-      AutoRouteParameters.MinPenalty = MIN (x_cost[i],
-					    AutoRouteParameters.MinPenalty);
-      AutoRouteParameters.MinPenalty = MIN (y_cost[i],
-					    AutoRouteParameters.MinPenalty);
-      }
+      if (is_layer_group_active[i])
+	{
+	  AutoRouteParameters.MinPenalty = MIN (x_cost[i],
+						AutoRouteParameters.
+						MinPenalty);
+	  AutoRouteParameters.MinPenalty =
+	    MIN (y_cost[i], AutoRouteParameters.MinPenalty);
+	}
     }
   AutoRouteParameters.NewLayerPenalty = is_smoothing ?
     0.5 * EXPENSIVE : 10 * AutoRouteParameters.ViaCost;
@@ -4868,8 +4873,8 @@ RouteAll (routedata_t * rd)
       last_cost = this_cost;
       this_cost = 0;
     }
-  Message ("%d of %d nets successfully routed.\n", ras.routed_subnets,
-	   ras.total_subnets);
+  Message ("%d of %d nets successfully routed.\n",
+	   ras.routed_subnets, ras.total_subnets);
 
   heap_destroy (&this_pass);
   heap_destroy (&next_pass);
@@ -4960,16 +4965,20 @@ IronDownAllUnfixedPaths (routedata_t * rd)
 	  if (p->type == LINE)
 	    {
 	      BDimension halfwidth = HALF_THICK (p->style->Thick);
+	      double th = halfwidth * 2 + 1;
 	      BoxType b;
 	      assert (p->parent.line == NULL);
 	      /* orthogonal; thickness is 2*halfwidth */
 	      /* flip coordinates, if bl_to_ur */
 	      b = p->sbox;
+	      total_wire_length +=
+		sqrt ((b.X2 - b.X1 - th) * (b.X2 - b.X1 - th) +
+		      (b.Y2 - b.Y1 - th) * (b.Y2 - b.Y1 - th));
 	      b = shrink_box (&b, halfwidth);
-              if (b.X2 == b.X1 + 1)
-               b.X2 = b.X1;
-              if (b.Y2 == b.Y1 + 1)
-               b.Y2 = b.Y1;
+	      if (b.X2 == b.X1 + 1)
+		b.X2 = b.X1;
+	      if (b.Y2 == b.Y1 + 1)
+		b.Y2 = b.Y1;
 	      if (p->flags.bl_to_ur)
 		{
 		  BDimension t;
@@ -4999,6 +5008,7 @@ IronDownAllUnfixedPaths (routedata_t * rd)
 		(p->type == VIA_SHADOW) ? p->parent.via_shadow : p;
 	      BDimension radius = HALF_THICK (pp->style->Diameter);
 	      BoxType b = shrink_routebox (p);
+	      total_via_count++;
 	      assert (pp->type == VIA);
 	      if (pp->parent.via == NULL)
 		{
@@ -5076,6 +5086,8 @@ AutoRoute (Boolean selected)
   routedata_t *rd;
   int i;
 
+  total_wire_length = 0;
+  total_via_count = 0;
   if (TEST_FLAG (LIVEROUTEFLAG, PCB))
     {
       gui->use_mask (HID_LIVE_DRAWING);
@@ -5242,6 +5254,8 @@ AutoRoute (Boolean selected)
 donerouting:
   if (changed)
     changed = IronDownAllUnfixedPaths (rd);
+  Message ("Total added wire length = %f inches, %d vias added\n",
+	   total_wire_length / 1.e5, total_via_count);
   DestroyRouteData (&rd);
   if (TEST_FLAG (LIVEROUTEFLAG, PCB))
     {
