@@ -55,9 +55,10 @@
 static void *color_cache = NULL;
 static void *brush_cache = NULL;
 
-double scale = 1;
-int x_shift = 0;
-int y_shift = 0;
+static double bloat = 0;
+static double scale = 1;
+static int x_shift = 0;
+static int y_shift = 0;
 #define SCALE(x)   ((int)((x)/scale + 0.5))
 #define SCALE_X(x) ((int)(((x) - x_shift)/scale))
 #define SCALE_Y(x) ((int)(((x) - y_shift)/scale))
@@ -174,29 +175,33 @@ HID_Attribute png_attribute_list[] = {
    HID_Enum, 0, 0, {2, 0, 0}, filetypes, 0},
 #define HA_filetype 9
 
+  {"png-bloat", "Amount (in/mm/mil/pix) to add to trace/pad/pin edges (1 = 1/100 mil)",
+   HID_String, 0, 0, {0, 0, 0}, 0, 0},
+#define HA_bloat 10
+
   {"photo-mode", "Photo-realistic mode",
    HID_Boolean, 0, 0, {0, 0, 0}, 0, 0},
-#define HA_photo_mode 10
+#define HA_photo_mode 11
 
   {"photo-flip-x", "Show reverse side of the board, left-right flip",
    HID_Boolean, 0, 0, {0, 0, 0}, 0, 0},
-#define HA_photo_flip_x 11
+#define HA_photo_flip_x 12
 
   {"photo-flip-y", "Show reverse side of the board, up-down flip",
    HID_Boolean, 0, 0, {0, 0, 0}, 0, 0},
-#define HA_photo_flip_y 12
+#define HA_photo_flip_y 13
 
   {"ben-mode", ATTR_UNDOCUMENTED,
    HID_Boolean, 0, 0, {0, 0, 0}, 0, 0},
-#define HA_ben_mode 10
+#define HA_ben_mode 11
 
   {"ben-flip-x", ATTR_UNDOCUMENTED,
    HID_Boolean, 0, 0, {0, 0, 0}, 0, 0},
-#define HA_ben_flip_x 11
+#define HA_ben_flip_x 12
 
   {"ben-flip-y", ATTR_UNDOCUMENTED,
    HID_Boolean, 0, 0, {0, 0, 0}, 0, 0},
-#define HA_ben_flip_y 12
+#define HA_ben_flip_y 13
 };
 
 #define NUM_OPTIONS (sizeof(png_attribute_list)/sizeof(png_attribute_list[0]))
@@ -269,6 +274,31 @@ layer_sort (const void *va, const void *vb)
 static char *filename;
 static BoxType *bounds;
 static int in_mono, as_shown;
+
+static void
+parse_bloat (char *str)
+{
+  double val;
+  char suf[10];
+  bloat = 0.0;
+  if (str == NULL)
+    return;
+  suf[0] = 0;
+  sscanf (str, "%lf %s", &val, suf);
+  if (strcasecmp (suf, "in") == 0)
+    bloat = val * 100000.0;
+  else if (strcasecmp (suf, "mil") == 0)
+    bloat = val * 100.0;
+  else if (strcasecmp (suf, "mm") == 0)
+    bloat = val * MM_TO_COOR;
+  else if (strcasecmp (suf, "um") == 0)
+    bloat = val * MM_TO_COOR * 1000.0;
+  else if (strcasecmp (suf, "pix") == 0
+	   || strcasecmp (suf, "px") == 0)
+    bloat = val * scale;
+  else
+    bloat = val;
+}
 
 void
 png_hid_export_to_file (FILE * the_file, HID_Attr_Val * options)
@@ -589,6 +619,8 @@ png_do_export (HID_Attr_Val * options)
 
   im = gdImageCreate (w, h);
   master_im = im;
+
+  parse_bloat (options[HA_bloat].str_value);
 
   /* 
    * Allocate white and black -- the first color allocated
@@ -1054,7 +1086,7 @@ use_gc (hidGC gc)
       if (SCALE (gc->width) == 0 && gc->width > 0)
 	gdImageSetThickness (im, 1);
       else
-	gdImageSetThickness (im, SCALE (gc->width));
+	gdImageSetThickness (im, SCALE (gc->width + 2*bloat));
       linewidth = gc->width;
       need_brush = 1;
     }
@@ -1077,8 +1109,9 @@ use_gc (hidGC gc)
           type = 'S';
           break;
         }
-      r = SCALE (gc->width);
-      if (r == 0)
+      if (gc->width)
+	r = SCALE (gc->width + 2*bloat);
+      else
 	r = 1;
       sprintf (name, "#%.2x%.2x%.2x_%c_%d", gc->color->r, gc->color->g,
 	       gc->color->b, type, r);
@@ -1174,8 +1207,22 @@ png_fill_rect (hidGC gc, int x1, int y1, int x2, int y2)
   use_gc (gc);
   gdImageSetThickness (im, 0);
   linewidth = 0;
-  gdImageFilledRectangle (im, SCALE_X (x1), SCALE_Y (y1),
-			  SCALE_X (x2)-1, SCALE_Y (y2)-1, gc->color->c);
+
+  if (x1 > x2)
+    {
+      int t = x1;
+      x2 = x2;
+      x2 = t;
+    }
+  if (y1 > y2)
+    {
+      int t = y1;
+      y2 = y2;
+      y2 = t;
+    }
+
+  gdImageFilledRectangle (im, SCALE_X (x1-bloat), SCALE_Y (y1-bloat),
+			  SCALE_X (x2+bloat)-1, SCALE_Y (y2+bloat)-1, gc->color->c);
 }
 
 static void
@@ -1208,6 +1255,8 @@ png_draw_line (hidGC gc, int x1, int y1, int x2, int y2)
 	w = gc->width, dx = x2 - x1, dy = y2 - y1, dwx, dwy;
       gdPoint p[4];
       double l = sqrt (dx * dx + dy * dy) * 2 * scale;
+
+      w += 2 * bloat;
       dwx = -w / l * dy; dwy =  w / l * dx;
       p[0].x = SCALE_X (x1) + dwx - dwy; p[0].y = SCALE_Y(y1) + dwy + dwx;
       p[1].x = SCALE_X (x1) - dwx - dwy; p[1].y = SCALE_Y(y1) - dwy + dwx;
@@ -1277,7 +1326,7 @@ png_fill_circle (hidGC gc, int cx, int cy, int radius)
   gdImageSetThickness (im, 0);
   linewidth = 0;
   gdImageFilledEllipse (im, SCALE_X (cx), SCALE_Y (cy),
-			SCALE (2 * radius), SCALE (2 * radius), gc->color->c);
+			SCALE (2 * radius + 2*bloat), SCALE (2 * radius + 2*bloat), gc->color->c);
 
 }
 
