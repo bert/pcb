@@ -1087,6 +1087,21 @@ FreeRotateBuffer (BufferTypePtr Buffer, double Angle)
   SetBufferBoundingBox (Buffer);
 }
 
+
+/* -------------------------------------------------------------------------- */
+
+static const char freerotatebuffer_syntax[] =
+  "FreeRotateBuffer(Angle)";
+
+static const char freerotatebuffer_help[] =
+  "Rotates the current paste buffer contents by the specified angle.  The\n"
+  "angle is given in degrees.\n";
+
+/* %start-doc actions FreeRotateBuffer
+   
+Rotates the contents of the pastebuffer by an arbitrary angle.
+%end-doc */
+
 int
 ActionFreeRotateBuffer(int argc, char **argv, int x, int y)
 {
@@ -1334,7 +1349,7 @@ CopyObjectToBuffer (DataTypePtr Destination, DataTypePtr Src,
 
 HID_Action rotate_action_list[] = {
   {"FreeRotateBuffer", 0, ActionFreeRotateBuffer,
-   0,0}
+   freerotatebuffer_syntax, freerotatebuffer_help}
 };
 
 REGISTER_ACTIONS (rotate_action_list)
