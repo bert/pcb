@@ -2351,7 +2351,12 @@ new vias.
 @item Draw continuous lines (on all routing layers) to outline keep-out
    zones if desired.
 
-@item Use routing styles in the netlist to have per-net routing styles.
+@item Use routing styles in the netlist to have per-net routing styles.  
+  Note that the routing style will be used for an entire net.  This means
+  if you have a wide metal setting for a power net you will need to manually
+  route breakouts from any fine pitch parts on their power pins because
+  the router will not be able to change to a narrow trace to connect
+  to the part.
 
 @item Set the current routing style to whatever you'd like the router to
    use for any nets not having a defined route style in the netlist.
