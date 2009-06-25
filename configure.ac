@@ -570,12 +570,24 @@ else
     AC_MSG_RESULT([yes])
     have_magick=yes
 fi
-AM_CONDITIONAL(HAVE_MAGICK, test x$have_magick = xyes)
+
+have_test_tools=yes
+
+test $have_magick = yes || have_test_tools=no
 
 # the RS274-X export HID is partially checked by looking at the result with
 # gerbv
 AC_PATH_PROG(GERBV, gerbv, notfound)
-AM_CONDITIONAL(MISSING_GERBV, test x$GERBV = xnotfound)
+test $GERBV != notfound || have_test_tools=no
+
+
+AM_CONDITIONAL(HAVE_TEST_TOOLS, test x$have_test_tools = xyes)
+AC_MSG_CHECKING([if all the requried testsuite tools were found])
+if test x$have_test_tools = xyes ; then
+	AC_MSG_RESULT([yes])
+else
+	AC_MSG_RESULT([no -- the testsuite will be disabled])
+fi
 
 
 #
@@ -1052,6 +1064,19 @@ if test -d $srcdir/tutorial; then
    AC_CONFIG_FILES(tutorial/Makefile)
 fi
 
+dnl testsuite
+AC_CONFIG_FILES(tests/inputs/Makefile)
+AC_CONFIG_FILES(tests/golden/Makefile)
+AC_CONFIG_FILES(tests/golden/hid_bom1/Makefile)
+AC_CONFIG_FILES(tests/golden/hid_bom2/Makefile)
+AC_CONFIG_FILES(tests/golden/hid_bom3/Makefile)
+AC_CONFIG_FILES(tests/golden/hid_bom4/Makefile)
+AC_CONFIG_FILES(tests/golden/hid_gerber1/Makefile)
+AC_CONFIG_FILES(tests/golden/hid_gerber2/Makefile)
+AC_CONFIG_FILES(tests/golden/hid_png1/Makefile)
+AC_CONFIG_FILES(tests/Makefile)
+
+dnl win32 build scripts
 AC_CONFIG_FILES(win32/Makefile)
 
 AC_OUTPUT
