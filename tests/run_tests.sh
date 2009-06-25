@@ -378,27 +378,7 @@ compare_rs274x() {
     debug "${GERBV} ${GERBV_DEFAULT_FLAGS} --output=${png2} ${f2}"
     ${GERBV} ${GERBV_DEFAULT_FLAGS} --output=${png2} ${f2}
 
-    # now see if the png files are the same
-    debug "${IM_COMPARE} -metric MAE ${png1} ${png2}  null:"
-    same=`${IM_COMPARE} -metric MAE ${png1} ${png2}  null: 2>&1 | \
-          ${AWK} '{if($1 == 0){print "yes"} else {print "no"}}'`
-    debug "compare_rs274x():  same = $same"
-
-    if test "$same" != yes ; then
-	test_failed=yes
-	echo "FAILED:  See ${errdir}"
-	mkdir -p ${errdir}
-	${IM_COMPARE} ${png1} ${png2} ${errdir}/compare.png
-	${IM_COMPOSITE} ${png1} ${png2} -compose difference ${errdir}/composite.png
-	${IM_CONVERT} ${png1} ${png2} -compose difference -composite  -colorspace gray   ${errdir}/gray.png
-	cat > ${errdir}/animate.sh << EOF
-#!/bin/sh
-${IM_CONVERT} -label "%f" ${png1} ${png2} miff:- | \
-${IM_MONTAGE} - -geometry +0+0 -tile 1x1 miff:- | \
-${IM_ANIMATE} -delay 0.5 -loop 0 -
-EOF
-	chmod a+x ${errdir}/animate.sh
-    fi
+    compare_image ${png1} ${png2}
 
 }
 
@@ -415,6 +395,28 @@ compare_image() {
     f1="$1"
     f2="$2"
     compare_check "compare_image" "$f1" "$f2" || return 1
+
+    # now see if the image files are the same
+    debug "${IM_COMPARE} -metric MAE ${f1} ${f2}  null:"
+    same=`${IM_COMPARE} -metric MAE ${f1} ${f2}  null: 2>&1 | \
+          ${AWK} '{if($1 == 0){print "yes"} else {print "no"}}'`
+    debug "compare_image():  same = $same"
+
+    if test "$same" != yes ; then
+	test_failed=yes
+	echo "FAILED:  See ${errdir}"
+	mkdir -p ${errdir}
+	${IM_COMPARE} ${f1} ${f2} ${errdir}/compare.png
+	${IM_COMPOSITE} ${f1} ${f2} -compose difference ${errdir}/composite.png
+	${IM_CONVERT} ${f1} ${f2} -compose difference -composite  -colorspace gray   ${errdir}/gray.png
+	cat > ${errdir}/animate.sh << EOF
+#!/bin/sh
+${IM_CONVERT} -label "%f" ${f1} ${f2} miff:- | \
+${IM_MONTAGE} - -geometry +0+0 -tile 1x1 miff:- | \
+${IM_ANIMATE} -delay 0.5 -loop 0 -
+EOF
+	chmod a+x ${errdir}/animate.sh
+    fi
 }
 
 ##########################################################################

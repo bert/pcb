@@ -93,16 +93,40 @@ hid_bom4 | bom_general.pcb | bom | --xy-in-mm | |  bom:bom_general.bom xy:bom_ge
 ######################################################################
 #
 # options:
-#  --bomfile <string>             BOM output file
-#  --xyfile <string>              XY output file
-#  --xy-in-mm                     XY dimensions in mm instead of mils
-#
+#  --gerberfile <string>          Basename for output file
 #
 # Produces RS274-X (a.k.a. gerber) photo plot files and Excellon drill files
 #
 # we can't include gbx:gerber_oneline.fab.gbr yet because it has a name and a date stamp
 hid_gerber1 | gerber_oneline.pcb | gerber | | | gbx:gerber_oneline.back.gbr  gbx:gerber_oneline.front.gbr cnc:gerber_oneline.plated-drill.cnc
 hid_gerber2 | gerber_oneline.pcb | gerber | --gerberfile out | | gbx:out.back.gbr  gbx:out.front.gbr cnc:out.plated-drill.cnc
+#
+
+
+######################################################################
+# ---------------------------------------------
+# PNG export HID
+# ---------------------------------------------
+######################################################################
+#
+# options:
+#   --outfile <string>             Graphics output file
+#   --dpi <num>                    Scale factor (pixels/inch). 0 to scale to fix specified size
+#   --x-max <num>                  Maximum width (pixels).  0 to not constrain.
+#   --y-max <num>                  Maximum height (pixels).  0 to not constrain.
+#   --xy-max <num>                 Maximum width and height (pixels).  0 to not constrain.
+#   --as-shown                     Export layers as shown on screen
+#   --monochrome                   Convert to monochrome
+#   --only-visible                 Limit the bounds of the PNG file to the visible items
+#   --use-alpha                    Make the background and any holes transparent
+#   --format <GIF|JPEG|PNG>        Graphics file format
+#   --photo-mode                   Photo-realistic mode
+#   --photo-flip-x                 Show reverse side of the board, left-right flip
+#   --photo-flip-y                 Show reverse side of the board, up-down flip
+#
+# Produces GIF/JPEG/PNG (image) files
+#
+hid_png1 | gerber_oneline.pcb | png | | | png:gerber_oneline.png
 #
 
 
