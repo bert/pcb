@@ -728,6 +728,7 @@ AddAllRats (Boolean SelectedOnly, void (*funcp) ())
   }
   END_LOOP;
   FreeNetListMemory (Nets);
+  MYFREE (Nets);
   FreeConnectionLookupMemory ();
   RestoreFindFlag ();
   if (funcp)

@@ -138,6 +138,18 @@ heap_destroy (heap_t ** heap)
   *heap = NULL;
 }
 
+/* free all elements in the heap */
+void heap_free (heap_t *heap, void (*freefunc) (void *))
+{
+  assert (heap);
+  assert (__heap_is_good (heap));
+  for ( ; heap->size; heap->size--)  
+   {
+     if (heap->element[heap->size].data)
+       freefunc (heap->element[heap->size].data);
+   }
+}
+
 /* -- mutation -- */
 static void
 __upheap (heap_t * heap, int k)
@@ -247,3 +259,12 @@ heap_is_empty (heap_t * heap)
   assert (__heap_is_good (heap));
   return heap->size == 0;
 }
+
+/* -- size -- */
+int
+heap_size (heap_t * heap)
+{
+  assert (__heap_is_good (heap));
+  return heap->size;
+}
+

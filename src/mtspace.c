@@ -46,6 +46,7 @@
 #include <setjmp.h>
 
 #include "box.h"
+#include "heap.h"
 #include "rtree.h"
 #include "mtspace.h"
 #include "vector.h"
@@ -54,6 +55,7 @@
 #include <dmalloc.h>
 #endif
 
+#define ABS(x) ((x) < 0 ? -(x) : (x))
 RCSID ("$Id$");
 
 /* mtspace data structures are built on r-trees. */
@@ -65,7 +67,7 @@ RCSID ("$Id$");
 typedef struct mtspacebox
 {
   const BoxType box;
-  BDimension keepaway;          /* the smallest keepaway around this box */
+  BDimension keepaway;		/* the smallest keepaway around this box */
 }
 mtspacebox_t;
 
@@ -77,27 +79,36 @@ struct mtspace
   rtree_t *ftree, *etree, *otree;
 };
 
+typedef union
+{
+  vector_t * v;
+  heap_t * h;
+} heap_or_vector;
+
 /* this is a vetting_t */
 struct vetting
 {
-  vector_t *untested;
-  vector_t *no_fix;
-  vector_t *no_hi;
-  vector_t *hi_candidate;
+  heap_or_vector untested;
+  heap_or_vector no_fix;
+  heap_or_vector no_hi;
+  heap_or_vector hi_candidate;
   BDimension radius;
   BDimension keepaway;
+  CheapPointType desired;
 };
+
+#define SPECIAL 823157
 
 mtspacebox_t *
 mtspace_create_box (const BoxType * box, BDimension keepaway)
 {
   mtspacebox_t *mtsb;
-  assert (__box_is_good (box));
+  assert (box_is_good (box));
   mtsb = malloc (sizeof (*mtsb));
-  /* expand the box by its keepaway amount */
-  *((BoxTypePtr) & mtsb->box) = bloat_box (box, keepaway);
+  /* the box was sent to us pre-bloated by the keepaway amount */
+  *((BoxTypePtr) & mtsb->box) = *box;
   mtsb->keepaway = keepaway;
-  assert (__box_is_good (&mtsb->box));
+  assert (box_is_good (&mtsb->box));
   return mtsb;
 }
 
@@ -143,16 +154,13 @@ mts_remove_one (const BoxType * b, void *cl)
   mtspacebox_t *box = (mtspacebox_t *) b;
 
   /* there can be duplicate boxes, we just remove one */
-  if (box->keepaway == info->keepaway)
+  /* the info box is pre-bloated, so just check equality */
+  if (b->X1 == info->box.X1 && b->X2 == info->box.X2 &&
+      b->Y1 == info->box.Y1 && b->Y2 == info->box.Y2 &&
+      box->keepaway == info->keepaway)
     {
-      /* shrink back to original size */
-      BoxType sb = shrink_box (b, box->keepaway);
-      if (sb.X1 == info->box.X1 && sb.X2 == info->box.X2 &&
-          sb.Y1 == info->box.Y1 && sb.Y2 == info->box.Y2)
-        {
-          r_delete_entry (info->tree, b);
-          longjmp (info->env, 1);
-        }
+      r_delete_entry (info->tree, b);
+      longjmp (info->env, 1);
     }
   return 0;
 }
@@ -174,7 +182,7 @@ which_tree (mtspace_t * mtspace, mtspace_type_t which)
 /* add a space-filler to the empty space representation.  */
 void
 mtspace_add (mtspace_t * mtspace, const BoxType * box, mtspace_type_t which,
-             BDimension keepaway)
+	     BDimension keepaway)
 {
   mtspacebox_t *filler = mtspace_create_box (box, keepaway);
   r_insert_entry (which_tree (mtspace, which), (const BoxType *) filler, 1);
@@ -183,28 +191,51 @@ mtspace_add (mtspace_t * mtspace, const BoxType * box, mtspace_type_t which,
 /* remove a space-filler from the empty space representation. */
 void
 mtspace_remove (mtspace_t * mtspace,
-                const BoxType * box, mtspace_type_t which,
-                BDimension keepaway)
+		const BoxType * box, mtspace_type_t which,
+		BDimension keepaway)
 {
   struct mts_info cl;
+  BoxType small_search;
 
   cl.keepaway = keepaway;
   cl.box = *box;
   cl.tree = which_tree (mtspace, which);
+  small_search = box_center(box);
   if (setjmp (cl.env) == 0)
     {
-      r_search (cl.tree, box, NULL, mts_remove_one, &cl);
-      assert (0);               /* didn't find it?? */
+      r_search (cl.tree, &small_search, NULL, mts_remove_one, &cl);
+      assert (0);		/* didn't find it?? */
     }
 }
 
 struct query_closure
 {
   BoxType *cbox;
-  vector_t *vec, *ivec;
+  heap_or_vector checking;
+  heap_or_vector touching;
+  CheapPointType *desired;
   BDimension radius, keepaway;
   jmp_buf env;
+  Boolean touch_is_vec;
 };
+
+static inline void
+heap_append (heap_t *heap, CheapPointType *desired, BoxType *new)
+{
+  CheapPointType p = *desired;
+  assert (desired);
+  closest_point_in_box (&p, new);
+  heap_insert (heap, ABS(p.X - desired->X) + (p.Y - desired->Y), new);
+}
+
+static inline void
+append (struct query_closure * qc, BoxType *new)
+{ 
+  if (qc->desired)
+    heap_append (qc->checking.h, qc->desired, new);
+  else
+    vector_append (qc->checking.v, new);
+}
 
 /* we found some space filler that may intersect this query.
  * First check if it does intersect, then break it into
@@ -230,100 +261,119 @@ query_one (const BoxType * box, void *cl)
       qc->cbox->Y2 - shrink <= mtsb->box.Y1)
     return 0;
   /* ok, we do touch this box, now create up to 4 boxes that don't */
-  if (mtsb->box.Y1 > qc->cbox->Y1 + shrink)     /* top region exists */
+  if (mtsb->box.Y1 > qc->cbox->Y1 + shrink)	/* top region exists */
     {
       int Y1 = qc->cbox->Y1;
       int Y2 = mtsb->box.Y1 + shrink;
       if (Y2 - Y1 >= 2 * (qc->radius + qc->keepaway))
-        {
-          BoxType *new = (BoxType *) malloc (sizeof (BoxType));
-          new->X1 = qc->cbox->X1;
-          new->X2 = qc->cbox->X2;
-          new->Y1 = Y1;
-          new->Y2 = Y2;
-          assert (new->Y2 < qc->cbox->Y2);
-          vector_append (qc->vec, new);
-        }
+	{
+	  BoxType *new = (BoxType *) malloc (sizeof (BoxType));
+	  new->X1 = qc->cbox->X1;
+	  new->X2 = qc->cbox->X2;
+	  new->Y1 = Y1;
+	  new->Y2 = Y2;
+	  assert (new->Y2 < qc->cbox->Y2);
+          append(qc, new);
+	}
     }
-  if (mtsb->box.Y2 < qc->cbox->Y2 - shrink)     /* bottom region exists */
+  if (mtsb->box.Y2 < qc->cbox->Y2 - shrink)	/* bottom region exists */
     {
       int Y1 = mtsb->box.Y2 - shrink;
       int Y2 = qc->cbox->Y2;
       if (Y2 - Y1 >= 2 * (qc->radius + qc->keepaway))
-        {
-          BoxType *new = (BoxType *) malloc (sizeof (BoxType));
-          new->X1 = qc->cbox->X1;
-          new->X2 = qc->cbox->X2;
-          new->Y2 = qc->cbox->Y2;
-          new->Y1 = mtsb->box.Y2 - shrink;
-          assert (new->Y1 > qc->cbox->Y1);
-          vector_append (qc->vec, new);
-        }
+	{
+	  BoxType *new = (BoxType *) malloc (sizeof (BoxType));
+	  new->X1 = qc->cbox->X1;
+	  new->X2 = qc->cbox->X2;
+	  new->Y2 = qc->cbox->Y2;
+	  new->Y1 = Y1;
+	  assert (new->Y1 > qc->cbox->Y1);
+	  append (qc, new);
+	}
     }
-  if (mtsb->box.X1 > qc->cbox->X1 + shrink)     /* left region exists */
+  if (mtsb->box.X1 > qc->cbox->X1 + shrink)	/* left region exists */
     {
       int X1 = qc->cbox->X1;
       int X2 = mtsb->box.X1 + shrink;
       if (X2 - X1 >= 2 * (qc->radius + qc->keepaway))
-        {
-          BoxType *new;
-          new = (BoxType *) malloc (sizeof (BoxType));
-          new->Y1 = qc->cbox->Y1;
-          new->Y2 = qc->cbox->Y2;
-          new->X1 = qc->cbox->X1;
-          new->X2 = mtsb->box.X1 + shrink;
-          assert (new->X2 < qc->cbox->X2);
-          vector_append (qc->vec, new);
-        }
+	{
+	  BoxType *new;
+	  new = (BoxType *) malloc (sizeof (BoxType));
+	  new->Y1 = qc->cbox->Y1;
+	  new->Y2 = qc->cbox->Y2;
+	  new->X1 = qc->cbox->X1;
+	  new->X2 = X2;
+	  assert (new->X2 < qc->cbox->X2);
+	  append (qc, new);
+	}
     }
-  if (mtsb->box.X2 < qc->cbox->X2 - shrink)     /* right region exists */
+  if (mtsb->box.X2 < qc->cbox->X2 - shrink)	/* right region exists */
     {
       int X1 = mtsb->box.X2 - shrink;
       int X2 = qc->cbox->X2;
       if (X2 - X1 >= 2 * (qc->radius + qc->keepaway))
-        {
-          BoxType *new = (BoxType *) malloc (sizeof (BoxType));
-          new->Y1 = qc->cbox->Y1;
-          new->Y2 = qc->cbox->Y2;
-          new->X2 = qc->cbox->X2;
-          new->X1 = mtsb->box.X2 - shrink;
-          assert (new->X1 > qc->cbox->X1);
-          vector_append (qc->vec, new);
-        }
+	{
+	  BoxType *new = (BoxType *) malloc (sizeof (BoxType));
+	  new->Y1 = qc->cbox->Y1;
+	  new->Y2 = qc->cbox->Y2;
+	  new->X2 = qc->cbox->X2;
+	  new->X1 = X1;
+	  assert (new->X1 > qc->cbox->X1);
+	  append (qc, new);
+	}
     }
-  if (qc->ivec)
+  if (qc->touching.v)
     {
-      vector_append (qc->ivec, qc->cbox);
+      if (qc->touch_is_vec || !qc->desired)
+        vector_append (qc->touching.v, qc->cbox);
+      else
+        heap_append (qc->touching.h, qc->desired, qc->cbox);
     }
   else
-    free (qc->cbox);            /* done with this one */
+    free (qc->cbox);		/* done with this one */
   longjmp (qc->env, 1);
-  return 1;                     /* never reached */
+  return 1;			/* never reached */
 }
 
-void
-qloop (struct query_closure *qc, rtree_t * tree, vector_t * res)
+/* qloop takes a vector (or heap) of regions to check (checking) if they don't intersect
+ * anything. If a region does intersect something, it is broken into
+ * pieces that don't intersect that thing (if possible) which are
+ * put back into the vector/heap of regions to check.
+ * qloop returns False when it finds the first empty region
+ * it returns True if it has exhausted the region vector/heap and never
+ * found an empty area.
+ */
+static void
+qloop (struct query_closure *qc, rtree_t * tree, heap_or_vector res, Boolean is_vec)
 {
   BoxType *cbox;
 #ifndef NDEBUG
   int n;
 #endif
-  while (!vector_is_empty (qc->vec))
+  while (!(qc->desired ? heap_is_empty (qc->checking.h) : vector_is_empty (qc->checking.v)))
     {
-      cbox = vector_remove_last (qc->vec);
+      cbox = qc->desired ? heap_remove_smallest (qc->checking.h) : vector_remove_last (qc->checking.v);
       if (setjmp (qc->env) == 0)
-        {
-          assert (__box_is_good (cbox));
-          qc->cbox = cbox;
+	{
+	  assert (box_is_good (cbox));
+	  qc->cbox = cbox;
 #ifndef NDEBUG
-          n =
+	  n =
 #endif
-            r_search (tree, cbox, NULL, query_one, qc);
-          assert (n == 0);
-          /* nothing intersected with this tree, put it in the result vector */
-          vector_append (res, cbox);
-          return;               /* found one - perhaps one answer is good enough */
-        }
+	    r_search (tree, cbox, NULL, query_one, qc);
+	  assert (n == 0);
+	  /* nothing intersected with this tree, put it in the result vector */
+          if (is_vec)
+	    vector_append (res.v, cbox);
+          else
+            {
+              if (qc->desired)
+                heap_append (res.h, qc->desired, cbox);
+              else
+	        vector_append (res.v, cbox);
+            }
+	  return;		/* found one - perhaps one answer is good enough */
+	}
     }
 }
 
@@ -332,18 +382,32 @@ void
 mtsFreeWork (vetting_t ** w)
 {
   vetting_t *work = (*w);
-  while (!vector_is_empty (work->untested))
-    free (vector_remove_last (work->untested));
-  vector_destroy (&work->untested);
-  while (!vector_is_empty (work->no_fix))
-    free (vector_remove_last (work->no_fix));
-  vector_destroy (&work->no_fix);
-  while (!vector_is_empty (work->no_hi))
-    free (vector_remove_last (work->no_hi));
-  vector_destroy (&work->no_hi);
-  while (!vector_is_empty (work->hi_candidate))
-    free (vector_remove_last (work->hi_candidate));
-  vector_destroy (&work->hi_candidate);
+  if (work->desired.X != -SPECIAL || work->desired.Y != -SPECIAL)
+    {
+       heap_free (work->untested.h, free);
+       heap_destroy (&work->untested.h);
+       heap_free (work->no_fix.h, free);
+       heap_destroy (&work->no_fix.h);
+       heap_free (work->no_hi.h, free);
+       heap_destroy (&work->no_hi.h);
+       heap_free (work->hi_candidate.h, free);
+       heap_destroy (&work->hi_candidate.h);
+    }
+  else
+    {
+       while (!vector_is_empty (work->untested.v))
+         free (vector_remove_last (work->untested.v));
+       vector_destroy (&work->untested.v);
+       while (!vector_is_empty (work->no_fix.v))
+         free (vector_remove_last (work->no_fix.v));
+       vector_destroy (&work->no_fix.v);
+       while (!vector_is_empty (work->no_hi.v))
+         free (vector_remove_last (work->no_hi.v));
+       vector_destroy (&work->no_hi.v);
+       while (!vector_is_empty (work->hi_candidate.v))
+         free (vector_remove_last (work->hi_candidate.v));
+       vector_destroy (&work->hi_candidate.v);
+    }
   free (work);
   (*w) = NULL;
 }
@@ -366,100 +430,148 @@ mtsFreeWork (vetting_t ** w)
  */
 vetting_t *
 mtspace_query_rect (mtspace_t * mtspace, const BoxType * region,
-                    BDimension radius, BDimension keepaway,
-                    vetting_t * work,
-                    vector_t * free_space_vec,
-                    vector_t * lo_conflict_space_vec,
-                    vector_t * hi_conflict_space_vec,
-                    Boolean is_odd, Boolean with_conflicts)
+		    BDimension radius, BDimension keepaway,
+		    vetting_t * work,
+		    vector_t * free_space_vec,
+		    vector_t * lo_conflict_space_vec,
+		    vector_t * hi_conflict_space_vec,
+		    Boolean is_odd, Boolean with_conflicts, CheapPointType *desired)
 {
   struct query_closure qc;
 
   /* pre-assertions */
-  assert (__box_is_good (region));
-  assert (free_space_vec && vector_is_empty (free_space_vec));
-  assert (lo_conflict_space_vec && vector_is_empty (lo_conflict_space_vec));
-  assert (hi_conflict_space_vec && vector_is_empty (hi_conflict_space_vec));
+  assert (free_space_vec);
+  assert (lo_conflict_space_vec);
+  assert (hi_conflict_space_vec);
   /* search out to anything that might matter */
   if (region)
     {
       BoxType *cbox;
       assert (work == NULL);
+      assert (box_is_good (region));
+      assert(vector_is_empty (free_space_vec));
+      assert(vector_is_empty (lo_conflict_space_vec));
+      assert(vector_is_empty (hi_conflict_space_vec));
       work = (vetting_t *) malloc (sizeof (vetting_t));
-      work->untested = vector_create ();
-      work->no_fix = vector_create ();
-      work->hi_candidate = vector_create ();
-      work->no_hi = vector_create ();
       work->keepaway = keepaway;
       work->radius = radius;
-      assert (work->untested && work->no_fix &&
-              work->no_hi && work->hi_candidate);
       cbox = (BoxType *) malloc (sizeof (BoxType));
       *cbox = bloat_box (region, keepaway + radius);
-      vector_append (work->untested, cbox);
+      if (desired)
+        {
+          work->untested.h = heap_create ();
+          work->no_fix.h = heap_create ();
+          work->hi_candidate.h = heap_create ();
+          work->no_hi.h =heap_create ();
+          assert (work->untested.h && work->no_fix.h &&
+                  work->no_hi.h && work->hi_candidate.h);
+          heap_insert (work->untested.h, 0, cbox);
+          work->desired = *desired;
+        }
+      else
+        {
+          work->untested.v = vector_create ();
+          work->no_fix.v = vector_create ();
+          work->hi_candidate.v = vector_create ();
+          work->no_hi.v = vector_create ();
+          assert (work->untested.v && work->no_fix.v &&
+                  work->no_hi.v && work->hi_candidate.v);
+          vector_append (work->untested.v, cbox);
+          work->desired.X = work->desired.Y = -SPECIAL;
+        }
       return work;
     }
   qc.keepaway = work->keepaway;
   qc.radius = work->radius;
+  if (work->desired.X == -SPECIAL && work->desired.Y == -SPECIAL)
+    qc.desired = NULL;
+  else
+    qc.desired = &work->desired;
   /* do the query */
   do
     {
       /* search the fixed object tree discarding any intersections
        * and placing empty regions in the no_fix vector.
        */
-      qc.vec = work->untested;
-      qc.ivec = NULL;
-      qloop (&qc, mtspace->ftree, work->no_fix);
+      qc.checking = work->untested;
+      qc.touching.v = NULL;
+      qloop (&qc, mtspace->ftree, work->no_fix, False);
       /* search the hi-conflict tree placing intersectors in the
        * hi_candidate vector (if conflicts are allowed) and
        * placing empty regions in the no_hi vector.
        */
-      qc.vec = work->no_fix;
-      qc.ivec = with_conflicts ? work->hi_candidate : NULL;
-      qloop (&qc, is_odd ? mtspace->otree : mtspace->etree, work->no_hi);
+      qc.checking.v = work->no_fix.v;
+      qc.touching.v = with_conflicts ? work->hi_candidate.v : NULL;
+      qc.touch_is_vec = False;
+      qloop (&qc, is_odd ? mtspace->otree : mtspace->etree, work->no_hi, False);
       /* search the lo-conflict tree placing intersectors in the
        * lo-conflict answer vector (if conflicts allowed) and
        * placing emptry regions in the free-space answer vector.
        */
-      qc.vec = work->no_hi;
-      qc.ivec = with_conflicts ? lo_conflict_space_vec : NULL;
-      qloop (&qc, is_odd ? mtspace->etree : mtspace->otree, free_space_vec);
+      qc.checking = work->no_hi;
+/* XXX lo_conflict_space_vec will be treated like a heap! */
+      qc.touching.v = (with_conflicts ? lo_conflict_space_vec : NULL);
+      qc.touch_is_vec = True;
+      qloop (&qc, is_odd ? mtspace->etree : mtspace->otree, (heap_or_vector)free_space_vec, True);
       if (!vector_is_empty (free_space_vec))
-        {
-          if (vector_is_empty (work->untested))
-            break;
+	{
+	  if (qc.desired)
+          {
+            if (heap_is_empty (work->untested.h))
+              break;
+          }
           else
-            return work;
-        }
+          {
+            if (vector_is_empty (work->untested.v))
+	      break;
+          }
+	  return work;
+	}
       /* finally check the hi-conflict intersectors against the
        * lo-conflict tree discarding intersectors (two types of conflict is real bad)
        * and placing empty regions in the hi-conflict answer vector.
        */
       if (with_conflicts)
-        {
-          qc.vec = work->hi_candidate;
-          qc.ivec = NULL;
-          qloop (&qc, is_odd ? mtspace->etree : mtspace->otree,
-                 hi_conflict_space_vec);
-        }
+	{
+	  qc.checking = work->hi_candidate;
+	  qc.touching.v = NULL;
+	  qloop (&qc, is_odd ? mtspace->etree : mtspace->otree,
+		 (heap_or_vector)hi_conflict_space_vec, True);
+	}
     }
-  while (!vector_is_empty (work->untested));
-  if (vector_is_empty (work->no_fix) &&
-      vector_is_empty (work->no_hi) && vector_is_empty (work->hi_candidate))
+  while (!(qc.desired ? heap_is_empty(work->untested.h) : vector_is_empty (work->untested.v)));
+  if (qc.desired)
     {
-      mtsFreeWork (&work);
-      return NULL;
+      if (heap_is_empty (work->no_fix.h) &&
+          heap_is_empty (work->no_hi.h) &&
+          heap_is_empty (work->hi_candidate.h))
+       {
+          mtsFreeWork (&work);
+          return NULL;
+       }
     }
+  else
+    {
+      if (vector_is_empty (work->no_fix.v) &&
+          vector_is_empty (work->no_hi.v) && vector_is_empty (work->hi_candidate.v))
+        {
+          mtsFreeWork (&work);
+          return NULL;
+        }
+     }
   return work;
 }
 
 int
 mtsBoxCount (vetting_t * w)
 {
+#if 0
   int ans;
   ans = 3 * vector_size (w->untested);
   ans += 2 * vector_size (w->no_fix);
   ans += vector_size (w->no_hi);
   ans += vector_size (w->hi_candidate);
   return ans;
+#endif
+  return 100;
 }

@@ -65,6 +65,7 @@ RCSID ("$Id$");
 #define SLOW_ASSERTS
 /* All rectangles are closed on the bottom left and open on the
  * top right. i.e. they contain one corner point, but not the other.
+ * This requires that the corner points not be equal!
  */
 
 /* the number of entries in each rtree node
@@ -517,7 +518,7 @@ __r_search (struct rtree_node *node, const BoxType * query, r_arg * arg)
 {
   assert (node);
   /** assert that starting_region is well formed */
-  assert (query->X1 <= query->X2 && query->Y1 <= query->Y2);
+  assert (query->X1 < query->X2 && query->Y1 < query->Y2);
   assert (node->box.X1 < query->X2 && node->box.X2 > query->X1 &&
           node->box.Y1 < query->Y2 && node->box.Y2 > query->Y1);
 #ifdef SLOW_ASSERTS
@@ -609,8 +610,11 @@ r_search (rtree_t * rtree, const BoxType * query,
     return 0;
   if (query)
     {
-#if DEBUG
-      if (query->X2 < query->X1 || query->Y2 < query->Y1)
+#ifdef SLOW_ASSERTS
+  assert (__r_tree_is_good (rtree->root));
+#endif
+#ifdef DEBUG
+      if (query->X2 <= query->X1 || query->Y2 <= query->Y1)
         return 0;
 #endif
       /* check this box. If it's not touched we're done here */
@@ -1035,7 +1039,7 @@ r_insert_entry (rtree_t * rtree, const BoxType * which, int man)
 }
 
 Boolean
-__r_delete (rtree_t * seed, struct rtree_node *node, const BoxType * query)
+__r_delete (struct rtree_node *node, const BoxType * query)
 {
   int i, flag, mask, a;
 
@@ -1069,7 +1073,7 @@ __r_delete (rtree_t * seed, struct rtree_node *node, const BoxType * query)
                         node->u.rects[i].bptr = NULL;
                       return True;
                     }
-                  return (__r_delete (seed, node->parent, &node->box));
+                  return (__r_delete (node->parent, &node->box));
                 }
               else
                 /* propegate boundary adjust upward */
@@ -1082,7 +1086,7 @@ __r_delete (rtree_t * seed, struct rtree_node *node, const BoxType * query)
             }
           if (node->u.kids[i])
             {
-              if (__r_delete (seed, node->u.kids[i], query))
+              if (__r_delete (node->u.kids[i], query))
                 return True;
             }
           else
@@ -1128,7 +1132,7 @@ __r_delete (rtree_t * seed, struct rtree_node *node, const BoxType * query)
   if (!node->u.rects[0].bptr)
     {
       if (node->parent)
-        __r_delete (seed, node->parent, &node->box);
+        __r_delete (node->parent, &node->box);
       return True;
     }
   else
@@ -1148,7 +1152,7 @@ r_delete_entry (rtree_t * rtree, const BoxType * box)
 
   assert (box);
   assert (rtree);
-  r = __r_delete (rtree, rtree->root, box);
+  r = __r_delete (rtree->root, box);
   if (r)
     rtree->size--;
 #ifdef SLOW_ASSERTS

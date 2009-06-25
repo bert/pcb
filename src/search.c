@@ -40,6 +40,7 @@
 
 #include "global.h"
 
+#include "box.h"
 #include "data.h"
 #include "draw.h"
 #include "error.h"
@@ -1143,10 +1144,17 @@ SearchObjectByLocation (int Type,
   PosX = X;
   PosY = Y;
   SearchRadius = Radius;
-  SearchBox.X1 = X - Radius;
-  SearchBox.Y1 = Y - Radius;
-  SearchBox.X2 = X + Radius;
-  SearchBox.Y2 = Y + Radius;
+  if (Radius)
+    {
+      SearchBox.X1 = X - Radius;
+      SearchBox.Y1 = Y - Radius;
+      SearchBox.X2 = X + Radius;
+      SearchBox.Y2 = Y + Radius;
+    }
+  else
+    {
+      SearchBox = point_box (X, Y);
+    }
 
   if (TEST_FLAG (LOCKNAMESFLAG, PCB)
       || TEST_FLAG (HIDENAMESFLAG, PCB))

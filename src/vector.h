@@ -46,6 +46,8 @@ typedef void *vector_element_t;
 vector_t *vector_create ();
 /* destroy a vector */
 void vector_destroy (vector_t ** vector);
+/* copy a vector */
+vector_t *vector_duplicate (vector_t * vector);
 
 /* -- interrogation -- */
 int vector_is_empty (vector_t * vector);
