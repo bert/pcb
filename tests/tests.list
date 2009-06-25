@@ -1,0 +1,108 @@
+# Copyright (c) 2003, 2004, 2005, 2006, 2007, 2009 Dan McMahill
+#
+#  This program is free software; you can redistribute it and/or modify
+#  it under the terms of version 2 of the GNU General Public License as
+#  published by the Free Software Foundation
+#
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with this program; if not, write to the Free Software
+#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111 USA
+#  All rights reserved.
+#
+# This code was derived from code written by Dan McMahill as part of the
+# latex-mk testsuite.  The original code was covered by a BSD license
+# but the copyright holder is releasing the version for pcb under the GPL.
+#
+#
+# Format:
+#
+# test_name | layout file(s) | [export hid name] | [optional arguments to pcb] |  [mismatch]
+# | output file(s)
+#
+# test_name - a single string with no spaces, tabs, *, +, ? (i.e. any "special"
+# characters) that identifies the test.
+#
+# layout file(s) - a list of layout files.  Files listed are relative to
+# the $(top_srcdir)/tests/inputs directory.
+#
+# [export hid name] - the name of the export HID to use.  This is used both for
+# running pcb as well as determining how we process the output
+#
+# [optional arguments to pcb] - a list of additional arguments to be passed to pcb.
+# This is where one would specify additional options which are specific to a particular
+# export HID.
+#
+# [mismatch] If specified as "mismatch" (no quotes), then the result 
+# should *not* match the reference.  This can be thought of as a test
+# on the testsuite to make sure we can properly detect when a change has
+# occurred.
+#
+# output file(s) - a list of output files and their associated types.  For
+# example:
+#  bom:bom_general.bom xy:test.txt
+# specifies that "bom_general.bom" is created and it is a bill of materials file
+# and that "test.txt" is created and it is a centroid (X-Y) file.
+#
+# File types grouped by which HID produces them are:
+#
+# BOM
+#
+#    bom -- PCB bill of materials file
+#    xy  -- PCB centroid file
+#
+# GERBER
+#
+#    cnc -- Excellon drill file
+#    gbx -- RS274-X (Gerber) file
+#
+# PNG
+#
+#    gif -- GIF file
+#    jpg -- JPEG file
+#    png -- Portable network graphics (PNG) file
+#
+#    
+######################################################################
+# ---------------------------------------------
+# BOM export HID
+# ---------------------------------------------
+######################################################################
+#
+# options:
+#  --bomfile <string>             BOM output file
+#  --xyfile <string>              XY output file
+#  --xy-in-mm                     XY dimensions in mm instead of mils
+#
+#
+# Produces a bill of materials (BOM) file and a centroid (XY) file
+#
+hid_bom1 | bom_general.pcb | bom | | | bom:bom_general.bom xy:bom_general.xy
+hid_bom2 | bom_general.pcb | bom | --bomfile test.bom | | bom:test.bom xy:bom_general.xy
+hid_bom3 | bom_general.pcb | bom | --xyfile  test.xy  | | bom:bom_general.bom xy:test.xy
+hid_bom4 | bom_general.pcb | bom | --xy-in-mm | |  bom:bom_general.bom xy:bom_general.xy
+#
+######################################################################
+# ---------------------------------------------
+# Gerber export HID
+# ---------------------------------------------
+######################################################################
+#
+# options:
+#  --bomfile <string>             BOM output file
+#  --xyfile <string>              XY output file
+#  --xy-in-mm                     XY dimensions in mm instead of mils
+#
+#
+# Produces RS274-X (a.k.a. gerber) photo plot files and Excellon drill files
+#
+# we can't include gbx:gerber_oneline.fab.gbr yet because it has a name and a date stamp
+hid_gerber1 | gerber_oneline.pcb | gerber | | | gbx:gerber_oneline.back.gbr  gbx:gerber_oneline.front.gbr cnc:gerber_oneline.plated-drill.cnc
+hid_gerber2 | gerber_oneline.pcb | gerber | --gerberfile out | | gbx:out.back.gbr  gbx:out.front.gbr cnc:out.plated-drill.cnc
+#
+
+
