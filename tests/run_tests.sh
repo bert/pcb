@@ -460,6 +460,10 @@ for t in $all_tests ; do
 	pcb_flags="${args}"
     fi
 
+    if test "X${hid}" = "Xgerber" ; then
+	pcb_flags="--fab-author Fab_Author ${pcb_flags}"
+    fi
+
     ######################################################################
     #
     # Set up the run directory
@@ -515,7 +519,7 @@ for t in $all_tests ; do
 
     # and clean up the input files we'd copied over
     for f in $files ; do
-	rm ${rundir}/${f}
+	rm -f ${rundir}/${f}
     done
 
     ######################################################################
