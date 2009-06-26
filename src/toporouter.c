@@ -525,21 +525,14 @@ toporouter_draw_edge(gpointer item, gpointer data)
 #endif
 }
 
+//#define vertex_bbox(v) (v->bbox)
+///*
 toporouter_bbox_t *
 vertex_bbox(toporouter_vertex_t *v) 
 {
-/*  GList *i = v ? v->boxes : NULL;
-
-  if(!i) return NULL;
-
-  if(g_list_length(i) > 1) {
-    printf("WARNING: vertex with multiple bboxes\n");
-  }
-
-  return TOPOROUTER_BBOX(i->data);*/
   return v ? v->bbox : NULL;
 }
-
+//*/
 char *
 vertex_netlist(toporouter_vertex_t *v)
 {
@@ -666,7 +659,7 @@ vertex_net_keepaway(toporouter_vertex_t *v)
 {
   toporouter_bbox_t *box = vertex_bbox(v);
   if(!box) {
-
+  
     while(v && (v->flags & VERTEX_FLAG_TEMP || v->flags & VERTEX_FLAG_ROUTE)) {
       v = v->parent;
     }
@@ -1022,16 +1015,6 @@ toporouter_draw_surface(toporouter_t *r, GtsSurface *s, char *filename, int w, i
           cairo_stroke(dc->cr);
         }
 
-        if(tv->fakev) {
-
-          cairo_set_source_rgba(dc->cr, 0.25, 0.5, 0.75, 0.8f);
-          cairo_arc(dc->cr, 
-              vx(tv->fakev) * dc->s + MARGIN, 
-              vy(tv->fakev) * dc->s + MARGIN, 
-              500. * dc->s, 0, 2 * M_PI);
-          cairo_fill(dc->cr);
-        }
-
         if(tv->flags & VERTEX_FLAG_RED) {
           cairo_set_source_rgba(dc->cr, 1., 0., 0., 0.8f);
           cairo_arc(dc->cr, 
@@ -1069,7 +1052,7 @@ toporouter_draw_surface(toporouter_t *r, GtsSurface *s, char *filename, int w, i
 
         }
 
-        if(tv->routingedge) {
+        if(tv->routingedge && !TOPOROUTER_IS_CONSTRAINT(tv->routingedge)) {
           gdouble tempx, tempy, nms, pms;
           GList *i = g_list_find(edge_routing(tv->routingedge), tv);
           toporouter_vertex_t *nextv, *prevv;
@@ -1236,8 +1219,6 @@ toporouter_free(toporouter_t *r)
     toporouter_layer_free(&r->layers[i]);
   }
 
-  free(r->layers);  
-  free(r);
 
   gettimeofday(&endtime, NULL);  
 
@@ -1250,56 +1231,10 @@ toporouter_free(toporouter_t *r)
   }
 
   printf("Elapsed time: %d.%02d seconds\n", secs, usecs);
+  free(r->layers);  
+  free(r);
 
 }
-/*
-Boolean
-IsPointOnPin (float X, float Y, float Radius, PinTypePtr pin)
-{
-  if (TEST_FLAG (SQUAREFLAG, pin))
-    {
-      BoxType b;
-      BDimension t = pin->Thickness / 2;
-
-      b.X1 = pin->X - t;
-      b.X2 = pin->X + t;
-      b.Y1 = pin->Y - t;
-      b.Y2 = pin->Y + t;
-      if (IsPointInBox (X, Y, &b, Radius))
-	return (True);
-    }
-  else if (SQUARE (pin->X - X) + SQUARE (pin->Y - Y) <=
-	   SQUARE (pin->Thickness / 2 + Radius))
-    return (True);
-  return (False);
-}
-
-struct ans_info
-{
-  void **ptr1, **ptr2, **ptr3;
-  Boolean BackToo;
-  float area;
-  jmp_buf env;
-  int locked;		
-};
-
-static int
-pinorvia_callback (const BoxType * box, void *cl)
-{
-  struct ans_info *i = (struct ans_info *) cl;
-  PinTypePtr pin = (PinTypePtr) box;
-
-  if (TEST_FLAG (i->locked, pin))
-    return 0;
-
-  if (!IsPointOnPin (PosX, PosY, SearchRadius, pin))
-    return 0;
-  *i->ptr1 = pin->Element ? pin->Element : pin;
-  *i->ptr2 = *i->ptr3 = pin;
-  longjmp (i->env, 1);
-  return 1;	
-}
-*/
 
 /* wind:
  * returns 1,0,-1 for counterclockwise, collinear or clockwise, respectively.
@@ -2962,7 +2897,7 @@ routing_edge_insert(gconstpointer a, gconstpointer b, gpointer user_data)
     return -1;
   if(gts_point_distance2(v1, GTS_POINT(a)) > gts_point_distance2(v1, GTS_POINT(b)) + EPSILON)
     return 1;
-
+/*
   printf("a = %x b = %x\n", (int) a, (int) b);
 
   printf("WARNING: routing_edge_insert() with same points..\n \
@@ -2977,7 +2912,7 @@ routing_edge_insert(gconstpointer a, gconstpointer b, gpointer user_data)
 
   TOPOROUTER_VERTEX(a)->flags |= VERTEX_FLAG_RED;
   TOPOROUTER_VERTEX(b)->flags |= VERTEX_FLAG_RED;
-
+*/
   return 0;
 }
 
@@ -3015,20 +2950,15 @@ new_temp_toporoutervertex(gdouble x, gdouble y, toporouter_edge_t *e)
   GtsVertexClass *vertex_class = GTS_VERTEX_CLASS (toporouter_vertex_class ());
   GList *i = edge_routing(e);
   toporouter_vertex_t *r;
-
+///*
   while(i) {
     r = TOPOROUTER_VERTEX(i->data);
     if(epsilon_equals(vx(r),x) && epsilon_equals(vy(r),y)) {
-      if(!(r->flags & VERTEX_FLAG_TEMP)) {
-        print_edge(e);
-//        print_trace();
-      }
-      g_assert(r->flags & VERTEX_FLAG_TEMP); 
-      return r;
+      if(r->flags & VERTEX_FLAG_TEMP) return r;
     }
     i = i->next;
   }
-
+//*/
   r = TOPOROUTER_VERTEX( gts_vertex_new (vertex_class, x, y, vz(edge_v1(e))) );
   r->flags |= VERTEX_FLAG_TEMP;
   r->routingedge = e;
@@ -3037,12 +2967,7 @@ new_temp_toporoutervertex(gdouble x, gdouble y, toporouter_edge_t *e)
     TOPOROUTER_CONSTRAINT(e)->routing = g_list_insert_sorted_with_data(edge_routing(e), r, routing_edge_insert, e);
   else
     e->routing = g_list_insert_sorted_with_data(edge_routing(e), r, routing_edge_insert, e);
-/*
-  if(TOPOROUTER_IS_CONSTRAINT(e))
-    TOPOROUTER_CONSTRAINT(e)->routing = g_list_insert_sorted_with_data(TOPOROUTER_CONSTRAINT(e)->routing, r, routing_edge_insert, e);
-  else
-    e->routing = g_list_insert_sorted_with_data(e->routing, r, routing_edge_insert, e);
-*/
+  
   return r;
 }
 
@@ -3385,28 +3310,30 @@ check_triangle_interior_capacity(GtsTriangle *t, toporouter_vertex_t *v, toporou
 toporouter_vertex_t *
 edge_routing_next_not_temp(toporouter_edge_t *e, GList *list) 
 {
-  while(list) {
-    toporouter_vertex_t *v = TOPOROUTER_VERTEX(list->data);
-    if(!(v->flags & VERTEX_FLAG_TEMP))
-      return v;
+  if(!TOPOROUTER_IS_CONSTRAINT(e)) {
+    while(list) {
+      toporouter_vertex_t *v = TOPOROUTER_VERTEX(list->data);
+      if(!(v->flags & VERTEX_FLAG_TEMP))
+        return v;
 
-    list = list->next;
+      list = list->next;
+    }
   }
-
   return tedge_v2(e);
 }
 
 toporouter_vertex_t *
 edge_routing_prev_not_temp(toporouter_edge_t *e, GList *list) 
 {
-  while(list) {
-    toporouter_vertex_t *v = TOPOROUTER_VERTEX(list->data);
-    if(!(v->flags & VERTEX_FLAG_TEMP))
-      return v;
+  if(!TOPOROUTER_IS_CONSTRAINT(e)) {
+    while(list) {
+      toporouter_vertex_t *v = TOPOROUTER_VERTEX(list->data);
+      if(!(v->flags & VERTEX_FLAG_TEMP))
+        return v;
 
-    list = list->prev;
+      list = list->prev;
+    }
   }
-
   return tedge_v1(e);
 }
 
@@ -3451,7 +3378,7 @@ candidate_vertices(toporouter_vertex_t *v1, toporouter_vertex_t *v2, toporouter_
   v1ms = min_spacing(v1, dest);
   v2ms = min_spacing(v2, dest); 
   ms = min_spacing(dest, dest);
-  flow = edge_flow(e, v1, v2, dest);
+  flow = TOPOROUTER_IS_CONSTRAINT(e) ? 0. : edge_flow(e, v1, v2, dest);
   capacity = edge_capacity(e);
  
 #ifdef DEBUG_ROUTE
@@ -3553,7 +3480,7 @@ delete_vertex(toporouter_vertex_t *v)
 #define edge_is_blocked(e) (TOPOROUTER_IS_EDGE(e) ? (e->flags & EDGE_FLAG_DIRECTCONNECTION) : 0)
 
 GList *
-triangle_candidate_points_from_vertex(GtsTriangle *t, toporouter_vertex_t *v, toporouter_vertex_t *dest)
+triangle_candidate_points_from_vertex(GtsTriangle *t, toporouter_vertex_t *v, toporouter_vertex_t *dest, toporouter_route_t *routedata)
 {
   toporouter_edge_t *op_e = TOPOROUTER_EDGE(gts_triangle_edge_opposite(t, GTS_VERTEX(v)));
   toporouter_vertex_t *vv1, *vv2, *constraintv = NULL;
@@ -3578,7 +3505,7 @@ triangle_candidate_points_from_vertex(GtsTriangle *t, toporouter_vertex_t *v, to
 #endif      
       return NULL;
     }
-    if(constraint_netlist(TOPOROUTER_CONSTRAINT(op_e)) != vertex_netlist(dest) || TOPOROUTER_CONSTRAINT(op_e)->routing) {
+    if(constraint_netlist(TOPOROUTER_CONSTRAINT(op_e)) != vertex_netlist(dest)) { // || TOPOROUTER_CONSTRAINT(op_e)->routing) {
 #ifdef DEBUG_ROUTE
       printf("op_e routing:\n");
       print_edge(op_e);
@@ -3592,9 +3519,12 @@ triangle_candidate_points_from_vertex(GtsTriangle *t, toporouter_vertex_t *v, to
         gts_point_distance(GTS_POINT(edge_v1(op_e)), GTS_POINT(edge_v2(op_e))) / 2., TOPOROUTER_VERTEX(edge_v2(op_e)));
 //    return g_list_prepend(NULL, vv1);
 
+
   }
 
-  if(edge_is_blocked(op_e)) return NULL;
+  if(edge_is_blocked(op_e)) {
+    goto triangle_candidate_points_from_vertex_exit;
+  }
 //  v1 = tedge_v1(op_e); 
 //  v2 = tedge_v2(op_e);
  
@@ -3746,7 +3676,8 @@ triangle_candidate_points_from_vertex(GtsTriangle *t, toporouter_vertex_t *v, to
 
 
 triangle_candidate_points_from_vertex_exit:
-  if(constraintv) delete_vertex(constraintv);    
+  if(constraintv) //delete_vertex(constraintv);    
+  g_hash_table_insert(routedata->alltemppoints, constraintv, constraintv);  
 
   g_list_free(rval);
 
@@ -3786,35 +3717,26 @@ triangle_candidate_points_from_edge(toporouter_t *r, GtsTriangle *t, toporouter_
     GList *i = edge_routing(e1);
 
     if(TOPOROUTER_CONSTRAINT(e1)->box->type == BOARD) {
-      noe1 = 1; //noe2 = 1;
-//      goto triangle_candidate_points_e2;
+      noe1 = 1;
     }else
-    if((TOPOROUTER_CONSTRAINT(e1)->box->cluster != routedata->dest && TOPOROUTER_CONSTRAINT(e1)->box->cluster != routedata->src) 
-        || TOPOROUTER_CONSTRAINT(e1)->routing) {
-      noe1 = 1; //noe2 = 1;
+    if((TOPOROUTER_CONSTRAINT(e1)->box->cluster != routedata->dest && TOPOROUTER_CONSTRAINT(e1)->box->cluster != routedata->src) ) {
+//        || TOPOROUTER_CONSTRAINT(e1)->routing) {
+      noe1 = 1; 
 #ifdef DEBUG_ROUTE      
       printf("noe1 netlist\n");
 #endif      
-//      goto triangle_candidate_points_e2;
     }else
 
-    if(v1 == tedge_v1(e)) {
-      toporouter_vertex_t *tempv;
-#ifdef DEBUG_ROUTE      
-//      printf("v1 putting in constraint.. dest netlist = %s, constraint netlist = %s\n", 
-//          TOPOROUTER_CONSTRAINT(e1)->box->cluster->netlist,
-//          vertex_bbox(*dest)->cluster->netlist);
-#endif
-      tempv = new_temp_toporoutervertex_in_segment(e1, tedge_v1(e1), gts_point_distance(GTS_POINT(edge_v1(e1)), GTS_POINT(edge_v2(e1))) / 2., tedge_v2(e1));
-//      e1cands = g_list_prepend(NULL, tempv);
-      e1constraintv = tempv;
+    if(v1 == tedge_v1(e) || 
+        (v1->parent->routingedge && v1->parent->routingedge == e1) || 
+        (v1->child->routingedge && v1->child->routingedge == e1)) {
+      e1constraintv = new_temp_toporoutervertex_in_segment(e1, tedge_v1(e1), gts_point_distance(GTS_POINT(edge_v1(e1)), GTS_POINT(edge_v2(e1))) / 2., tedge_v2(e1));
     }
     
     while(i) {
       toporouter_vertex_t *temp = TOPOROUTER_VERTEX(i->data);
 
-      if((temp->child == tedge_v2(e) || temp->parent == tedge_v2(e)) && !(temp->flags & VERTEX_FLAG_TEMP)) 
-        noe2 = 1;
+      if((temp->child == tedge_v2(e) || temp->parent == tedge_v2(e)) && !(temp->flags & VERTEX_FLAG_TEMP)) noe2 = 1;
 
       i = i->next;
     }
@@ -3921,6 +3843,7 @@ triangle_candidate_points_from_edge(toporouter_t *r, GtsTriangle *t, toporouter_
     }else{
       if(g_list_find(routedata->destvertices, op_v)) {
         rval = g_list_prepend(rval, op_v);
+        *dest = op_v;
       }else if(g_list_find(routedata->destvertices, boxpoint)) {
         *dest = boxpoint;
       }
@@ -3940,20 +3863,18 @@ triangle_candidate_points_e2:
     if(TOPOROUTER_CONSTRAINT(e2)->box->type == BOARD) {
       noe2 = 1;
 //      goto triangle_candidate_points_finish;
-    }else if((TOPOROUTER_CONSTRAINT(e2)->box->cluster != routedata->src && TOPOROUTER_CONSTRAINT(e2)->box->cluster != routedata->dest) ||
-        TOPOROUTER_CONSTRAINT(e2)->routing) {
+    }else if((TOPOROUTER_CONSTRAINT(e2)->box->cluster != routedata->src && TOPOROUTER_CONSTRAINT(e2)->box->cluster != routedata->dest) ) {
+//        || TOPOROUTER_CONSTRAINT(e2)->routing) {
 #ifdef DEBUG_ROUTE      
       printf("noe2 netlist\n");
 #endif
       noe2 = 1;
 //      goto triangle_candidate_points_finish;
-    }else if(v2 == tedge_v2(e)) {
-//      toporouter_vertex_t *tempv;
-#ifdef DEBUG_ROUTE      
-      printf("v2 putting in constraint..\n");
-#endif
+    }else if(v2 == tedge_v2(e) ||
+        (v2->parent->routingedge && v2->parent->routingedge == e2) || 
+        (v2->child->routingedge && v2->child->routingedge == e2)) {
+       
       e2constraintv = new_temp_toporoutervertex_in_segment(e2, tedge_v1(e2), gts_point_distance(GTS_POINT(edge_v1(e2)), GTS_POINT(edge_v2(e2))) / 2., tedge_v2(e2));
-      //e2cands = g_list_prepend(NULL, tempv);
       
     }
     
@@ -3977,7 +3898,7 @@ triangle_candidate_points_e2:
   }
   
   if(v2 == tedge_v2(e)) {
-    // continue up e1
+    // continue up e2
     toporouter_vertex_t *vv1 = NULL, *vv2 = NULL;
     edge_adjacent_vertices(e2, v2, &vv1, &vv2);
 
@@ -4073,13 +3994,15 @@ triangle_candidate_points_finish:
   if(!noe1 && e1constraintv) {
     e1cands = g_list_prepend(e1cands, e1constraintv);
   }else if(e1constraintv) {
-    delete_vertex(e1constraintv);
+    g_hash_table_insert(routedata->alltemppoints, e1constraintv, e1constraintv);  
+//    delete_vertex(e1constraintv);
   }
 
   if(!noe2 && e2constraintv) {
     e2cands = g_list_prepend(e2cands, e2constraintv);
   }else if(e2constraintv) {
-    delete_vertex(e2constraintv);
+    g_hash_table_insert(routedata->alltemppoints, e2constraintv, e2constraintv);  
+//    delete_vertex(e2constraintv);
   }
   
   if(!noe1 && !noe2) return g_list_concat(rval, g_list_concat(e1cands, e2cands));
@@ -4152,13 +4075,13 @@ compute_candidate_points(toporouter_t *tr, toporouter_layer_t *l, toporouter_ver
     GSList *triangles, *i;
     i = triangles = gts_vertex_triangles(GTS_VERTEX(curpoint), NULL);
 #ifdef DEBUG_ROUTE    
-    printf("triangle count = %d\n", g_list_length(triangles));
+    printf("triangle count = %d\n", g_slist_length(triangles));
 #endif    
     while(i) {
       GtsTriangle *t = GTS_TRIANGLE(i->data);
 
       //GtsEdge* e = gts_triangle_edge_opposite(GTS_TRIANGLE(i->data), GTS_VERTEX(curpoint));
-      GList *temppoints = triangle_candidate_points_from_vertex(t, curpoint, *closestdest);
+      GList *temppoints = triangle_candidate_points_from_vertex(t, curpoint, *closestdest, data);
 #ifdef DEBUG_ROUTE     
       printf("\treturned %d points\n", g_list_length(temppoints));
 #endif      
@@ -4178,25 +4101,7 @@ compute_candidate_points(toporouter_t *tr, toporouter_layer_t *l, toporouter_ver
     while(i) {
       GtsVertex *oppv =  gts_triangle_vertex_opposite(GTS_TRIANGLE(i->data), GTS_EDGE(edge));
       if(prevwind != vertex_wind(GTS_SEGMENT(edge)->v1, GTS_SEGMENT(edge)->v2, oppv)) {
-        GList *temppoints;
-/*
-        if(oppv == GTS_VERTEX(closestdest)) {
-          r = g_list_prepend(r, closestdest);
-        }else{
-
-          // check zlinks of oppv 
-          j = TOPOROUTER_VERTEX(oppv)->zlink;
-          while(j) {
-            if(TOPOROUTER_VERTEX(j->data) == TOPOROUTER_VERTEX(closestdest)) { 
-              r = g_list_prepend(r, oppv);
-              break;//goto compute_candidate_points_finish;
-
-            }
-            j = j->next;
-          }
-        }
-*/
-        temppoints = triangle_candidate_points_from_edge(tr, GTS_TRIANGLE(i->data), edge, curpoint, closestdest, data);
+        GList *temppoints = triangle_candidate_points_from_edge(tr, GTS_TRIANGLE(i->data), edge, curpoint, closestdest, data);
         j = temppoints;
         while(j) {
           toporouter_vertex_t *tempj = TOPOROUTER_VERTEX(j->data);
@@ -4317,6 +4222,76 @@ print_vertices(GList *vertices)
   }
 }
 
+gint       
+space_edge(gpointer item, gpointer data)
+{
+  toporouter_edge_t *e = TOPOROUTER_EDGE(item);
+  GList *i;
+  gdouble *forces;
+
+  if(TOPOROUTER_IS_CONSTRAINT(e)) return 0;
+
+  if(!edge_routing(e) || !g_list_length(edge_routing(e))) return 0;
+
+  forces = malloc(sizeof(double) * g_list_length(edge_routing(e)));
+  
+  for(guint j=0;j<100;j++) {
+    guint k=0;
+    guint equilibrium = 1;
+
+    i = edge_routing(e);
+    while(i) {
+      toporouter_vertex_t *v = TOPOROUTER_VERTEX(i->data); 
+      gdouble ms, d;
+
+      if(i->prev) {
+//        ms = min_net_net_spacing(TOPOROUTER_VERTEX(i->prev->data), v);
+        ms = min_spacing(TOPOROUTER_VERTEX(i->prev->data), v);
+        d = gts_point_distance(GTS_POINT(i->prev->data), GTS_POINT(v));
+      }else{
+//        ms = min_vertex_net_spacing(v, tedge_v1(e));
+        ms = min_spacing(v, tedge_v1(e));
+        d = gts_point_distance(GTS_POINT(edge_v1(e)), GTS_POINT(v));
+      }
+
+      if(d < ms) forces[k] = ms - d;
+      else forces[k] = 0.;
+
+      if(i->next) {
+//        ms = min_net_net_spacing(TOPOROUTER_VERTEX(i->next->data), v);
+        ms = min_spacing(TOPOROUTER_VERTEX(i->next->data), v);
+        d = gts_point_distance(GTS_POINT(i->next->data), GTS_POINT(v));
+      }else{
+//        ms = min_vertex_net_spacing(v, tedge_v2(e));
+        ms = min_spacing(v, tedge_v2(e));
+        d = gts_point_distance(GTS_POINT(edge_v2(e)), GTS_POINT(v));
+      }
+
+      if(d < ms) forces[k] += d - ms;
+
+      k++; i = i->next;
+    }
+    
+    k = 0;
+    i = edge_routing(e);
+    while(i) {
+      toporouter_vertex_t *v = TOPOROUTER_VERTEX(i->data); 
+      if(forces[k] > EPSILON || forces[k] < -EPSILON) equilibrium = 0;
+      vertex_move_towards_vertex_values(GTS_VERTEX(v), edge_v2(e), forces[k] * 0.1, &(GTS_POINT(v)->x), &(GTS_POINT(v)->y));
+      k++; i = i->next;
+    }
+
+    if(equilibrium) {
+//      printf("reached equilibriium at %d\n", j);
+      break;
+    }
+
+  }
+
+  free(forces);
+  return 0;  
+}
+
 #define vlayer(x) (&r->layers[(int)vz(x)])
 
 toporouter_vertex_t *
@@ -4372,7 +4347,7 @@ route(toporouter_t *r, toporouter_route_t *data, guint debug)
   curpoint->child = NULL;
   curpoint->gcost = 0.;
   curpoint->hcost = simple_h_cost(r, curpoint, destv);
-  if(cur_layer != dest_layer) curpoint->hcost += r->viacost;
+//  if(cur_layer != dest_layer) curpoint->hcost += r->viacost;
   
   
   gts_eheap_insert(openlist, curpoint);
@@ -4410,7 +4385,8 @@ route(toporouter_t *r, toporouter_route_t *data, guint debug)
       }
 
       while(temppoint) {
-        data->path = g_list_prepend(data->path, temppoint);    
+        data->path = g_list_prepend(data->path, temppoint);   
+//        if(g_list_find(data->srcvertices, temppoint)) break;
         temppoint = temppoint->parent;
       }
 //      rval = data->path;
@@ -4487,8 +4463,11 @@ route(toporouter_t *r, toporouter_route_t *data, guint debug)
           if(temp_g_cost < temppoint->gcost) {
             
             temppoint->gcost = temp_g_cost;
-            
-            temppoint->parent = curpoint;
+     
+//            if(temp_g_cost == 0.) temppoint->parent = NULL;
+//            else 
+              temppoint->parent = curpoint;
+
             curpoint->child = temppoint;
             
             gts_eheap_update(openlist);
@@ -4499,7 +4478,7 @@ route(toporouter_t *r, toporouter_route_t *data, guint debug)
           
           temppoint->gcost = temp_g_cost;
           temppoint->hcost = simple_h_cost(r, temppoint, destv);
-          if(cur_layer != dest_layer) temppoint->hcost += r->viacost;
+//          if(cur_layer != dest_layer) temppoint->hcost += r->viacost;
           gts_eheap_insert(openlist, temppoint);
         }
       
@@ -4601,7 +4580,7 @@ route_finish:
       i = i->next;
     }
   }*/
-
+///*
   {
     toporouter_vertex_t *pv = NULL;
     GList *i = data->path;
@@ -4618,7 +4597,7 @@ route_finish:
       i = i->next;
     }
   }
-  
+//*/
   {
     toporouter_vertex_t *pv = NULL;
     GList *i = data->path;
@@ -4631,6 +4610,8 @@ route_finish:
       if(pv) pv->child = tv;
 
       if(tv->routingedge) tv->route = data;
+
+//      if(tv->routingedge && !TOPOROUTER_IS_CONSTRAINT(tv->routingedge)) space_edge(tv->routingedge, NULL);
 
       pv = tv;
       i = i->next;
@@ -4778,6 +4759,7 @@ edge_min_spacing(GList *list, toporouter_edge_t *e, toporouter_vertex_t *v)
     /* towards v2 */
     while(i) {
       nextv = edge_routing_next(e, i);
+      if(nextv->route && nextv->route->src == prevv->route->src) { i = i->next; continue; }
       if(!(nextv->flags & VERTEX_FLAG_TEMP)) {
         gdouble ms = min_spacing(prevv, nextv);
           if(nextv == tedge_v2(e)) {
@@ -4797,6 +4779,7 @@ edge_min_spacing(GList *list, toporouter_edge_t *e, toporouter_vertex_t *v)
     /* towards v1 */
     while(i) {
       nextv = edge_routing_prev(e, i);
+      if(nextv->route && nextv->route->src == prevv->route->src) { i = i->prev; continue; }
       if(!(nextv->flags & VERTEX_FLAG_TEMP)) {
         gdouble ms = min_spacing(prevv, nextv);
           if(nextv == tedge_v1(e)) {
@@ -4933,15 +4916,17 @@ print_oproute(toporouter_oproute_t *oproute)
 gdouble
 export_pcb_drawline(guint layer, guint x0, guint y0, guint x1, guint y1, guint thickness, guint keepaway) 
 {
-
+  gdouble d = 0.;
   LineTypePtr line;
   line = CreateDrawnLineOnLayer( LAYER_PTR(layer), x0, y0, x1, y1, 
       thickness, keepaway, 
       MakeFlags (AUTOFLAG | (TEST_FLAG (CLEARNEWFLAG, PCB) ? CLEARLINEFLAG : 0)));
 
-  AddObjectToCreateUndoList (LINE_TYPE, LAYER_PTR(layer), line, line);
-
-  return sqrt(pow(x0-x1,2)+pow(y0-y1,2)) / 100.;
+  if(line) {
+    AddObjectToCreateUndoList (LINE_TYPE, LAYER_PTR(layer), line, line);
+    d = sqrt(pow(x0-x1,2)+pow(y0-y1,2)) / 100.;
+  }
+  return d;
 }
 
 gdouble
@@ -4961,9 +4946,11 @@ gdouble
 export_pcb_drawarc(guint layer, toporouter_arc_t *a, guint thickness, guint keepaway) 
 {
   gdouble sa, da, theta;
-  gdouble x0, y0, x1, y1, d;
+  gdouble x0, y0, x1, y1, d=0.;
   ArcTypePtr arc;
-  gint wind = coord_wind(a->x0, a->y0, a->x1, a->y1, vx(a->centre), vy(a->centre));
+  gint wind;
+
+  wind = coord_wind(a->x0, a->y0, a->x1, a->y1, vx(a->centre), vy(a->centre));
 
   sa = coord_xangle(a->x0, a->y0, vx(a->centre), vy(a->centre)) * 180. / M_PI;
   
@@ -4987,9 +4974,10 @@ export_pcb_drawarc(guint layer, toporouter_arc_t *a, guint thickness, guint keep
     sa, da, thickness, keepaway, 
     MakeFlags( AUTOFLAG | (TEST_FLAG (CLEARNEWFLAG, PCB) ? CLEARLINEFLAG : 0)));
 
-  AddObjectToCreateUndoList( ARC_TYPE, LAYER_PTR(layer), arc, arc);
-
-  d = a->r * theta / 100.;
+  if(arc) {
+    AddObjectToCreateUndoList( ARC_TYPE, LAYER_PTR(layer), arc, arc);
+    d = a->r * theta / 100.;
+  }
   
   return d;
 }
@@ -5517,17 +5505,22 @@ oproute_print_adjs(toporouter_oproute_t *oproute)
 
 }
 
+//#define DEBUG_RUBBERBAND 1
+
 gdouble
 check_non_intersect_vertex(gdouble x0, gdouble y0, gdouble x1, gdouble y1, toporouter_vertex_t *pathv, toporouter_vertex_t *arcv,
-    toporouter_vertex_t *opv, gint wind, gint *arcwind, gdouble *arcr)
+    toporouter_vertex_t *opv, gint wind, gint *arcwind, gdouble *arcr, guint debug)
 {
   gdouble ms, line_int_x, line_int_y, x, y, d = 0., m;
   gdouble tx0, ty0, tx1, ty1;
   gint wind1, wind2;
 
-  ms = edge_min_spacing(g_list_find(edge_routing(pathv->routingedge), pathv), pathv->routingedge, arcv);
+  if(TOPOROUTER_IS_CONSTRAINT(pathv->routingedge)) { 
+    gdouble d = tvdistance(tedge_v1(pathv->routingedge), tedge_v2(pathv->routingedge)) / 2.;
+    ms = min_spacing(pathv, arcv);
+    if(ms > d) ms = d;
+  }else ms = edge_min_spacing(g_list_find(edge_routing(pathv->routingedge), pathv), pathv->routingedge, arcv);
 
-//  printf("non-int check %f,%f ms %f\n", vx(arcv), vy(arcv), ms);
 
   if(!vertex_line_normal_intersection(x0, y0, x1, y1, vx(arcv), vy(arcv), &line_int_x, &line_int_y)) {
 
@@ -5551,35 +5544,52 @@ check_non_intersect_vertex(gdouble x0, gdouble y0, gdouble x1, gdouble y1, topor
     if(coord_distance2(tx0, ty0, vx(opv), vy(opv)) < coord_distance2(tx1, ty1, vx(opv), vy(opv))) 
     { x = tx0; y = ty0; }else{ x = tx1; y = ty1; }
   }else{
+    toporouter_vertex_t *parent = pathv->parent, *child = pathv->child;
+    guint windtests = 0;
 
     d = coord_distance(vx(arcv), vy(arcv), line_int_x, line_int_y);
     coord_move_towards_coord_values(line_int_x, line_int_y, vx(arcv), vy(arcv), ms + d, &x, &y);
-    
-    wind1 = coord_wind(line_int_x, line_int_y, x, y, vx(pathv->parent), vy(pathv->parent));
-    wind2 = coord_wind(line_int_x, line_int_y, x, y, vx(pathv->child), vy(pathv->child));
-    if(wind1 && wind2 && wind1 == wind2) return -1.;
+rewind_test:    
+    wind1 = coord_wind(line_int_x, line_int_y, x, y, vx(parent), vy(parent));
+    wind2 = coord_wind(line_int_x, line_int_y, x, y, vx(child), vy(child));
+    if(wind1 && wind2 && wind1 == wind2) {
+//      return -1.;
+      if(windtests++ == 2) return -1.;
+
+      if(parent->flags & VERTEX_FLAG_ROUTE) parent = parent->parent;
+      if(child->flags & VERTEX_FLAG_ROUTE) child = child->child;
+      goto rewind_test;
+    }
   }
 
 
   *arcr = ms;
   *arcwind = tvertex_wind(pathv->parent, pathv, arcv);
 
+#ifdef DEBUG_RUBBERBAND
+  if(debug) printf("non-int check %f,%f ms %f d %f\n", vx(arcv), vy(arcv), ms, d + ms);
+#endif
+
   return d + ms;
 }
 
 gdouble
 check_intersect_vertex(gdouble x0, gdouble y0, gdouble x1, gdouble y1, toporouter_vertex_t *pathv, toporouter_vertex_t *arcv,
-    toporouter_vertex_t *opv, gint wind, gint *arcwind, gdouble *arcr)
+    toporouter_vertex_t *opv, gint wind, gint *arcwind, gdouble *arcr, guint debug)
 {
   gdouble ms, line_int_x, line_int_y, x, y, d = 0.;
 
-  ms = edge_min_spacing(g_list_find(edge_routing(pathv->routingedge), pathv), pathv->routingedge, arcv);
+  if(TOPOROUTER_IS_CONSTRAINT(pathv->routingedge)) {
+    gdouble d = tvdistance(tedge_v1(pathv->routingedge), tedge_v2(pathv->routingedge)) / 2.;
+    ms = min_spacing(pathv, arcv);
+    if(ms > d) ms = d;
+  }else ms = edge_min_spacing(g_list_find(edge_routing(pathv->routingedge), pathv), pathv->routingedge, arcv);
 
   if(!vertex_line_normal_intersection(x0, y0, x1, y1, vx(arcv), vy(arcv), &line_int_x, &line_int_y)) return -1.; 
 
   d = coord_distance(line_int_x, line_int_y, vx(arcv), vy(arcv));
 
-//  printf("int check %f,%f ms %f d %f\n", vx(arcv), vy(arcv), ms, d);
+
   if(d > ms - EPSILON) return -1.;
 
   coord_move_towards_coord_values(vx(arcv), vy(arcv), line_int_x, line_int_y, ms, &x, &y);
@@ -5587,6 +5597,9 @@ check_intersect_vertex(gdouble x0, gdouble y0, gdouble x1, gdouble y1, toporoute
   *arcr = ms;
   *arcwind = tvertex_wind(pathv->parent, pathv, arcv);
 //  *arcwind = coord_wind(x0, y0, x, y, x1, y1);
+#ifdef DEBUG_RUBBERBAND
+  if(debug) printf("int check %f,%f ms %f d %f\n", vx(arcv), vy(arcv), ms, ms - d);
+#endif
 
   return ms - d;
 }
@@ -5658,24 +5671,19 @@ free_list_elements(gpointer data, gpointer user_data)
   free(data);
 }
 
+
 // path is t1 path
 GList *
-oproute_rubberband_segment(toporouter_t *r, toporouter_oproute_t *oproute, GList *path, gpointer t1, gpointer t2)
+oproute_rubberband_segment(toporouter_t *r, toporouter_oproute_t *oproute, GList *path, gpointer t1, gpointer t2, guint debug)
 {
   gdouble x0, y0, x1, y1;
   toporouter_vertex_t *v1, *v2, *av1, *av2;
   toporouter_arc_t *arc1 = NULL, *arc2 = NULL, *newarc = NULL;
-  GList *i = path;//, *constraintvs;
+  GList *i = path;
   GList *list1, *list2;
 
   GList *arcs = NULL;
   toporouter_rubberband_arc_t *max = NULL;
-/*
-  toporouter_vertex_t *maxpathv = NULL, *maxarcv = NULL;
-  gdouble maxr = 0., maxd = 0.;
-  gint maxwind = 0;
-  GList *maxlist = NULL;
-*/
 
   if(TOPOROUTER_IS_VERTEX(t1)) {
     v1 = TOPOROUTER_VERTEX(t1);
@@ -5703,9 +5711,8 @@ oproute_rubberband_segment(toporouter_t *r, toporouter_oproute_t *oproute, GList
   if(v1 == v2 || !i->next || TOPOROUTER_VERTEX(i->data) == v2) return NULL;
 
 #ifdef DEBUG_RUBBERBAND
-  printf("RB: line %f,%f %f,%f v1 = %f,%f v2 = %f,%f \n ", x0, y0, x1, y1, vx(v1), vy(v1), vx(v2), vy(v2)); 
+  if(debug) printf("RB: line %f,%f %f,%f v1 = %f,%f v2 = %f,%f \n ", x0, y0, x1, y1, vx(v1), vy(v1), vx(v2), vy(v2)); 
 #endif
-
 //  if(!(TOPOROUTER_VERTEX(i->data)->flags & VERTEX_FLAG_ROUTE))
   i = i->next;
   while(i) {
@@ -5716,7 +5723,7 @@ oproute_rubberband_segment(toporouter_t *r, toporouter_oproute_t *oproute, GList
     if(v == v2 || v == v1 || !v->routingedge) break;
 
 #ifdef DEBUG_RUBBERBAND
-    printf("current v %f,%f\n", vx(v), vy(v));
+//    printf("current v %f,%f\n", vx(v), vy(v));
 #endif
   //  g_assert(v->routingedge);
    
@@ -5725,30 +5732,27 @@ oproute_rubberband_segment(toporouter_t *r, toporouter_oproute_t *oproute, GList
 
     if(!v1wind && !v2wind) { i = i->next; continue; }
 
-//#define UPDATE_MAX(z) { maxpathv = v; maxarcv = z; maxr = arcr; maxd = d; maxlist = i; maxwind = arcwind; }
-//#define TEST_MAX(z) { if(d > EPSILON && (!maxpathv || d > maxd)) UPDATE_MAX(z) }
- 
 #define TEST_AND_INSERT(z) if(d > EPSILON) arcs = g_list_prepend(arcs, new_rubberband_arc(v, z, arcr, d, arcwind, i));
 
 #define ARC_CHECKS(z) (!(arc1 && arc1->centre == z) && !(arc2 && arc2->centre == z))    
 
     if(v1wind && v2wind && v1wind != v2wind) {
       if(ARC_CHECKS(tedge_v1(v->routingedge)) ){// && prev_hairpin_check(v)) {
-        d = check_intersect_vertex(x0, y0, x1, y1, v, tedge_v1(v->routingedge), tedge_v2(v->routingedge), v1wind, &arcwind, &arcr); 
+        d = check_intersect_vertex(x0, y0, x1, y1, v, tedge_v1(v->routingedge), tedge_v2(v->routingedge), v1wind, &arcwind, &arcr, debug); 
         TEST_AND_INSERT(tedge_v1(v->routingedge));
       }
 
       if(ARC_CHECKS(tedge_v2(v->routingedge)) ){// && next_hairpin_check(v)) {
-        d = check_intersect_vertex(x0, y0, x1, y1, v, tedge_v2(v->routingedge), tedge_v1(v->routingedge), v2wind, &arcwind, &arcr);  
+        d = check_intersect_vertex(x0, y0, x1, y1, v, tedge_v2(v->routingedge), tedge_v1(v->routingedge), v2wind, &arcwind, &arcr, debug);  
         TEST_AND_INSERT(tedge_v2(v->routingedge));
       }
     }else{
       if(ARC_CHECKS(tedge_v1(v->routingedge)) ){//&& prev_hairpin_check(v)) {
-        d = check_non_intersect_vertex(x0, y0, x1, y1, v, tedge_v1(v->routingedge), tedge_v2(v->routingedge), v1wind, &arcwind, &arcr);  
+        d = check_non_intersect_vertex(x0, y0, x1, y1, v, tedge_v1(v->routingedge), tedge_v2(v->routingedge), v1wind, &arcwind, &arcr, debug);  
         TEST_AND_INSERT(tedge_v1(v->routingedge));
       }
       if(ARC_CHECKS(tedge_v2(v->routingedge)) ){//&& next_hairpin_check(v)) {
-        d = check_non_intersect_vertex(x0, y0, x1, y1, v, tedge_v2(v->routingedge), tedge_v1(v->routingedge), v2wind, &arcwind, &arcr);  
+        d = check_non_intersect_vertex(x0, y0, x1, y1, v, tedge_v2(v->routingedge), tedge_v1(v->routingedge), v2wind, &arcwind, &arcr, debug);  
         TEST_AND_INSERT(tedge_v2(v->routingedge));
       }
     }
@@ -5756,9 +5760,7 @@ oproute_rubberband_segment(toporouter_t *r, toporouter_oproute_t *oproute, GList
     i = i->next;
   }
 
-
   arcs = g_list_sort(arcs, (GCompareFunc) compare_rubberband_arcs);
-
 rubberband_insert_maxarc:
   if(!arcs) return NULL;
   max = TOPOROUTER_RUBBERBAND_ARC(arcs->data); 
@@ -5781,7 +5783,7 @@ rubberband_insert_maxarc:
     break;
   }
 #ifdef DEBUG_RUBBERBAND
-  printf("newarc @ %f,%f \t v1 = %f,%f v2 = %f,%f\n", vx(max->arcv), vy(max->arcv), vx(av1), vy(av1), vx(av2), vy(av2));
+  if(debug) printf("newarc @ %f,%f \t v1 = %f,%f v2 = %f,%f\n", vx(max->arcv), vy(max->arcv), vx(av1), vy(av1), vx(av2), vy(av2));
 #endif
   newarc = toporouter_arc_new(oproute, av1, av2, max->arcv, max->r, max->wind);
 
@@ -5806,8 +5808,9 @@ rubberband_insert_maxarc:
     goto rubberband_insert_maxarc;
   }
 
-  list1 = oproute_rubberband_segment(r, oproute, path, t1, newarc);
-  list2 = oproute_rubberband_segment(r, oproute, i->prev, newarc, t2);
+
+  list1 = oproute_rubberband_segment(r, oproute, path, t1, newarc, debug);
+  list2 = oproute_rubberband_segment(r, oproute, i->prev, newarc, t2, debug);
 
   if(list1) {
     GList *list = g_list_last(list1);
@@ -5859,10 +5862,14 @@ oproute_rubberband(toporouter_t *r, GList *path)
   oproute->serp = NULL;
 
   path_set_oproute(path, oproute);
+#ifdef DEBUG_RUBBERBAND
+  printf("OPROUTE %s - %f,%f %f,%f\n", oproute->netlist, vx(oproute->term1), vy(oproute->term1), vx(oproute->term2), vy(oproute->term2));
 
-//  printf("\n\nOPROUTE %s\n", oproute->netlist);
-
-  oproute->arcs = oproute_rubberband_segment(r, oproute, path, oproute->term1, oproute->term2);
+  if(!strcmp(oproute->netlist, "  R/W"))
+    oproute->arcs = oproute_rubberband_segment(r, oproute, path, oproute->term1, oproute->term2, 1);
+  else
+#endif    
+    oproute->arcs = oproute_rubberband_segment(r, oproute, path, oproute->term1, oproute->term2, 0);
 
   return oproute;
 
@@ -6295,105 +6302,7 @@ order_nets_preroute_greedy(toporouter_t *r, GList *nets, GList **rnets)
 
   
 
-gint       
-spread_edge(gpointer item, gpointer data)
-{
-  toporouter_edge_t *e = TOPOROUTER_EDGE(item);
-  toporouter_vertex_t *v;
-  gdouble spacing, s;
-  GList *i;
 
-  if(TOPOROUTER_IS_CONSTRAINT(e)) return 0;
-
-  i = edge_routing(e);
-
-  if(!g_list_length(i)) return 0;
-
-  if(g_list_length(i) == 1) {
-    v = TOPOROUTER_VERTEX(i->data);
-    GTS_POINT(v)->x = (vx(edge_v1(e)) + vx(edge_v2(e))) / 2.;
-    GTS_POINT(v)->y = (vy(edge_v1(e)) + vy(edge_v2(e))) / 2.;
-    return 0;
-  }
-  
-  s = spacing = (gts_point_distance(GTS_POINT(edge_v1(e)), GTS_POINT(edge_v2(e))) ) / (g_list_length(i) + 1);
-  
-  while(i) {
-    v = TOPOROUTER_VERTEX(i->data); 
-    vertex_move_towards_vertex_values(edge_v1(e), edge_v2(e), s, &(GTS_POINT(v)->x), &(GTS_POINT(v)->y));
-
-    s += spacing;
-    i = i->next;
-  }
-
-  return 0;  
-}
-
-gint       
-space_edge(gpointer item, gpointer data)
-{
-  toporouter_edge_t *e = TOPOROUTER_EDGE(item);
-  GList *i;
-  gdouble *forces;
-
-  if(TOPOROUTER_IS_CONSTRAINT(e)) return 0;
-
-  if(!g_list_length(edge_routing(e))) return 0;
-
-  forces = malloc(sizeof(double) * g_list_length(edge_routing(e)));
-  
-  for(guint j=0;j<100;j++) {
-    guint k=0;
-    guint equilibrium = 1;
-
-    i = edge_routing(e);
-    while(i) {
-      toporouter_vertex_t *v = TOPOROUTER_VERTEX(i->data); 
-      gdouble ms, d;
-
-      if(i->prev) {
-        ms = min_net_net_spacing(TOPOROUTER_VERTEX(i->prev->data), v);
-        d = gts_point_distance(GTS_POINT(i->prev->data), GTS_POINT(v));
-      }else{
-        ms = min_vertex_net_spacing(v, tedge_v1(e));
-        d = gts_point_distance(GTS_POINT(edge_v1(e)), GTS_POINT(v));
-      }
-
-      if(d < ms) forces[k] = ms - d;
-      else forces[k] = 0.;
-
-      if(i->next) {
-        ms = min_net_net_spacing(TOPOROUTER_VERTEX(i->next->data), v);
-        d = gts_point_distance(GTS_POINT(i->next->data), GTS_POINT(v));
-      }else{
-        ms = min_vertex_net_spacing(v, tedge_v2(e));
-        d = gts_point_distance(GTS_POINT(edge_v2(e)), GTS_POINT(v));
-      }
-
-      if(d < ms) forces[k] += d - ms;
-
-      k++; i = i->next;
-    }
-    
-    k = 0;
-    i = edge_routing(e);
-    while(i) {
-      toporouter_vertex_t *v = TOPOROUTER_VERTEX(i->data); 
-      if(forces[k] > EPSILON || forces[k] < EPSILON) equilibrium = 0;
-      vertex_move_towards_vertex_values(GTS_VERTEX(v), edge_v2(e), forces[k] * 0.1, &(GTS_POINT(v)->x), &(GTS_POINT(v)->y));
-      k++; i = i->next;
-    }
-
-    if(equilibrium) {
-      printf("reached equilibriium at %d\n", j);
-      break;
-    }
-
-  }
-
-  free(forces);
-  return 0;  
-}
 
 void
 route_clusters_merge(toporouter_t *r, toporouter_route_t *routedata)
@@ -6584,6 +6493,7 @@ hard_router(toporouter_t *r)
 
     if((destv = route(r, data, 1))) { 
       GList *path = split_path(data->path);
+//      GList *path = data->path;
 
       r->paths = g_list_concat(r->paths, path);
       r->routednets = g_list_prepend(r->routednets, data);

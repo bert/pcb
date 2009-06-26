@@ -174,7 +174,6 @@ typedef struct _toporouter_edge_class_t toporouter_edge_class_t;
 #define VERTEX_FLAG_BLUE     (1<<6)
 #define VERTEX_FLAG_TEMP              (1<<7)
 #define VERTEX_FLAG_ROUTE             (1<<8)
-#define VERTEX_FLAG_FAKEV_OUTSIDE_SEG (1<<9)
 #define VERTEX_FLAG_FAKE     (1<<10)
 
 struct _toporouter_vertex_t {
@@ -184,7 +183,6 @@ struct _toporouter_vertex_t {
 
   struct _toporouter_vertex_t *parent;
   struct _toporouter_vertex_t *child;
-  struct _toporouter_vertex_t *fakev;
 //  struct _toporouter_vertex_t *cdest;
  
   gdouble pullx, pully;
