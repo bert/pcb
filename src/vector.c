@@ -199,6 +199,20 @@ vector_insert_many (vector_t * vector, int N,
   assert (__vector_is_good (vector));
 }
 
+vector_t *
+vector_duplicate (vector_t * orig)
+{
+  vector_t * new = vector_create();
+  if (!orig)
+    return new;
+  new->element = malloc (orig->max * sizeof (*orig->element));
+  new->max = orig->max;
+  new->size = orig->size;
+  memcpy (new->element, orig->element, orig->size * sizeof (vector_element_t));
+  assert (__vector_is_good (new));
+  return new;
+}
+
 /* return and delete the *last* element of vector */
 vector_element_t
 vector_remove_last (vector_t * vector)

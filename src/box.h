@@ -37,10 +37,12 @@
 #ifndef __BOX_H_INCLUDED__
 #define __BOX_H_INCLUDED__
 
+#include <assert.h>
 #include "global.h"
 
 typedef enum
-{ NORTH = 0, EAST = 1, SOUTH = 2, WEST = 3 } direction_t;
+{ NORTH = 0, EAST = 1, SOUTH = 2, WEST = 3, NE = 4, SE = 5, SW = 6, NW =
+    7, ALL = 8 } direction_t;
 
 /* rotates box 90-degrees cw */
 /* that's a strange rotation! */
@@ -79,6 +81,9 @@ typedef enum
   }\
   } while (0)
 
+/* to avoid overflow, we calculate centers this way */
+#define CENTER_X(b) ((b).X1 + ((b).X2 - (b).X1)/2)
+#define CENTER_Y(b) ((b).Y1 + ((b).Y2 - (b).Y1)/2)
 /* some useful box utilities. */
 
 typedef struct cheap_point
@@ -96,13 +101,17 @@ point_in_box (const BoxType * box, LocationType X, LocationType Y)
   return (X >= box->X1) && (Y >= box->Y1) && (X < box->X2) && (Y < box->Y2);
 }
 
-#ifndef NDEBUG
 static inline Boolean
-__box_is_good (const BoxType * b)
+point_in_closed_box (const BoxType * box, LocationType X, LocationType Y)
+{
+  return (X >= box->X1) && (Y >= box->Y1) && (X <= box->X2) && (Y <= box->Y2);
+}
+
+static inline Boolean
+box_is_good (const BoxType * b)
 {
   return (b->X1 < b->X2) && (b->Y1 < b->Y2);
 }
-#endif /* !NDEBUG */
 
 static inline Boolean
 box_intersect (const BoxType * a, const BoxType * b)
@@ -162,6 +171,50 @@ static inline BoxType
 bloat_box (const BoxType * box, LocationType amount)
 {
   return shrink_box (box, -amount);
+}
+
+/* construct a minimum box that touches the input box at the center */
+static inline BoxType
+box_center (const BoxType * box)
+{
+  BoxType r;
+  r.X1 = box->X1 + (box->X2 - box->X1)/2;
+  r.X2 = r.X1 + 1;
+  r.Y1 = box->Y1 + (box->Y2 - box->Y1)/2;
+  r.Y2 = r.Y1 + 1;
+  return r;
+}
+
+/* construct a minimum box that touches the input box at the corner */
+static inline BoxType
+box_corner (const BoxType * box)
+{
+  BoxType r;
+  r.X1 = box->X1;
+  r.X2 = r.X1 + 1;
+  r.Y1 = box->Y1;
+  r.Y2 = r.Y1 + 1;
+  return r;
+}
+
+/* construct a box that holds a single point */
+static inline BoxType
+point_box (LocationType X, LocationType Y)
+{
+  BoxType r;
+  r.X1 = X;
+  r.X2 = X + 1;
+  r.Y1 = Y;
+  r.Y2 = Y + 1;
+  return r;
+}
+
+/* close a bounding box by pushing its upper right corner */
+static inline void
+close_box (BoxType * r)
+{
+  r->X2++;
+  r->Y2++;
 }
 
 /* return the square of the minimum distance from a point to some point

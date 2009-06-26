@@ -562,7 +562,25 @@ void
 ghid_use_mask (int use_it)
 {
   static int mask_seq_id = 0;
+  static GdkDrawable *old;
   GdkColor color;
+
+  if (use_it == HID_FLUSH_DRAW_Q)
+    {
+      gdk_flush();
+      return;
+    }
+  else if (use_it == HID_LIVE_DRAWING)
+    {
+      old = gport->drawable;
+      gport->drawable = gport->drawing_area->window;
+      return;
+    }
+  else if (use_it == HID_LIVE_DRAWING_OFF)
+    {
+      gport->drawable = old;
+      return;
+    }
 
   if (!gport->pixmap)
     return;

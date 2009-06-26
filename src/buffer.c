@@ -218,12 +218,12 @@ AddElementToBuffer (ElementTypePtr Element)
       END_LOOP;
       PIN_LOOP (element);
       {
-	CLEAR_FLAG (ExtraFlag, pin);
+	CLEAR_FLAG (FOUNDFLAG | ExtraFlag, pin);
       }
       END_LOOP;
       PAD_LOOP (element);
       {
-	CLEAR_FLAG (ExtraFlag, pad);
+	CLEAR_FLAG (FOUNDFLAG | ExtraFlag, pad);
       }
       END_LOOP;
     }
@@ -242,10 +242,13 @@ MoveViaToBuffer (PinTypePtr Via)
   r_delete_entry (Source->via_tree, (BoxType *) Via);
   via = GetViaMemory (Dest);
   *via = *Via;
-  *Via = Source->Via[--Source->ViaN];
+  CLEAR_FLAG (WARNFLAG | FOUNDFLAG, via);
+  if (Via != &Source->Via[--Source->ViaN])
+  {
+  *Via = Source->Via[Source->ViaN];
   r_substitute (Source->via_tree, (BoxType *) & Source->Via[Source->ViaN],
 		(BoxType *) Via);
-  CLEAR_FLAG (WARNFLAG | FOUNDFLAG, via);
+  }
   memset (&Source->Via[Source->ViaN], 0, sizeof (PinType));
   if (!Dest->via_tree)
     Dest->via_tree = r_create_tree (NULL, 0, 0);
@@ -262,13 +265,16 @@ MoveRatToBuffer (RatTypePtr Rat)
 {
   RatTypePtr rat;
 
+  r_delete_entry (Source->rat_tree, &Rat->BoundingBox);
   rat = GetRatMemory (Dest);
   *rat = *Rat;
-  r_delete_entry (Source->rat_tree, &Rat->BoundingBox);
-  *Rat = Source->Rat[--Source->RatN];
+  CLEAR_FLAG (FOUNDFLAG, rat);
+  if (Rat != &Source->Rat[--Source->RatN])
+  {
+  *Rat = Source->Rat[Source->RatN];
   r_substitute (Source->rat_tree, &Source->Rat[Source->RatN].BoundingBox,
 		&Rat->BoundingBox);
-  CLEAR_FLAG (FOUNDFLAG, Rat);
+  }
   memset (&Source->Rat[Source->RatN], 0, sizeof (RatType));
   if (!Dest->rat_tree)
     Dest->rat_tree = r_create_tree (NULL, 0, 0);
@@ -292,9 +298,12 @@ MoveLineToBuffer (LayerTypePtr Layer, LineTypePtr Line)
   *line = *Line;
   CLEAR_FLAG (FOUNDFLAG, line);
   /* line pointers being shuffled */
-  *Line = Layer->Line[--Layer->LineN];
+  if (Line != &Layer->Line[--Layer->LineN])
+  {
+  *Line = Layer->Line[Layer->LineN];
   r_substitute (Layer->line_tree, (BoxTypePtr) & Layer->Line[Layer->LineN],
 		(BoxTypePtr) Line);
+  }
   memset (&Layer->Line[Layer->LineN], 0, sizeof (LineType));
   if (!lay->line_tree)
     lay->line_tree = r_create_tree (NULL, 0, 0);
@@ -319,9 +328,12 @@ MoveArcToBuffer (LayerTypePtr Layer, ArcTypePtr Arc)
   *arc = *Arc;
   CLEAR_FLAG (FOUNDFLAG, arc);
   /* arc pointers being shuffled */
-  *Arc = Layer->Arc[--Layer->ArcN];
+  if (Arc != &Layer->Arc[--Layer->ArcN])
+  {
+  *Arc = Layer->Arc[Layer->ArcN];
   r_substitute (Layer->arc_tree, (BoxTypePtr) & Layer->Arc[Layer->ArcN],
 		(BoxTypePtr) Arc);
+  }
   memset (&Layer->Arc[Layer->ArcN], 0, sizeof (ArcType));
   if (!lay->arc_tree)
     lay->arc_tree = r_create_tree (NULL, 0, 0);
@@ -344,9 +356,12 @@ MoveTextToBuffer (LayerTypePtr Layer, TextTypePtr Text)
   lay = &Dest->Layer[GetLayerNumber (Source, Layer)];
   text = GetTextMemory (lay);
   *text = *Text;
-  *Text = Layer->Text[--Layer->TextN];
+  if (Text != &Layer->Text[--Layer->TextN])
+  {
+  *Text = Layer->Text[Layer->TextN];
   r_substitute (Layer->text_tree, (BoxTypePtr) & Layer->Text[Layer->TextN],
 		(BoxTypePtr) Text);
+  }
   memset (&Layer->Text[Layer->TextN], 0, sizeof (TextType));
   if (!lay->text_tree)
     lay->text_tree = r_create_tree (NULL, 0, 0);
@@ -369,10 +384,13 @@ MovePolygonToBuffer (LayerTypePtr Layer, PolygonTypePtr Polygon)
   polygon = GetPolygonMemory (lay);
   *polygon = *Polygon;
   CLEAR_FLAG (FOUNDFLAG, polygon);
-  *Polygon = Layer->Polygon[--Layer->PolygonN];
+  if (Polygon != &Layer->Polygon[--Layer->PolygonN])
+  {
+  *Polygon = Layer->Polygon[Layer->PolygonN];
   r_substitute (Layer->polygon_tree,
 		(BoxTypePtr) & Layer->Polygon[Layer->PolygonN],
 		(BoxTypePtr) Polygon);
+  }
   memset (&Layer->Polygon[Layer->PolygonN], 0, sizeof (PolygonType));
   if (!lay->polygon_tree)
     lay->polygon_tree = r_create_tree (NULL, 0, 0);
@@ -438,8 +456,9 @@ MoveElementToBuffer (ElementTypePtr Element)
    * particular relation to this removal) becomes `Element' while the
    * original Element is now in `element'.
    */
-  *Element = Source->Element[--Source->ElementN];
-  memset (&Source->Element[Source->ElementN], 0, sizeof (ElementType));
+  if (Element != &Source->Element[--Source->ElementN])
+    {
+  *Element = Source->Element[Source->ElementN];
   r_substitute (Source->element_tree,
 		(BoxType *) & Source->Element[Source->ElementN],
 		(BoxType *) Element);
@@ -462,7 +481,8 @@ MoveElementToBuffer (ElementTypePtr Element)
     pad->Element = Element;
   }
   END_LOOP;
-
+  }
+  memset (&Source->Element[Source->ElementN], 0, sizeof (ElementType));
   return (element);
 }
 
@@ -1087,6 +1107,21 @@ FreeRotateBuffer (BufferTypePtr Buffer, double Angle)
   SetBufferBoundingBox (Buffer);
 }
 
+
+/* -------------------------------------------------------------------------- */
+
+static const char freerotatebuffer_syntax[] =
+  "FreeRotateBuffer(Angle)";
+
+static const char freerotatebuffer_help[] =
+  "Rotates the current paste buffer contents by the specified angle.  The\n"
+  "angle is given in degrees.\n";
+
+/* %start-doc actions FreeRotateBuffer
+   
+Rotates the contents of the pastebuffer by an arbitrary angle.
+%end-doc */
+
 int
 ActionFreeRotateBuffer(int argc, char **argv, int x, int y)
 {
@@ -1334,7 +1369,7 @@ CopyObjectToBuffer (DataTypePtr Destination, DataTypePtr Src,
 
 HID_Action rotate_action_list[] = {
   {"FreeRotateBuffer", 0, ActionFreeRotateBuffer,
-   0,0}
+   freerotatebuffer_syntax, freerotatebuffer_help}
 };
 
 REGISTER_ACTIONS (rotate_action_list)

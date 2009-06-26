@@ -70,6 +70,7 @@ board layout system for @code{X11}.
 * Overview::               An overview of @code{Pcb}.
 * Intro::                  A short description of the basic objects.
 * Getting Started::        Introduction to @code{Pcb}.
+* Autorouter::             Using the autorouter.
 * User Commands::          User commands of @code{Pcb}.
 * Command-Line Options::   Calling @code{Pcb} from a shell.
 * X11 Interface::          Action routines, resources and default translation.
@@ -212,7 +213,8 @@ apologize; please send me an e-mail and I'll try to correct the omission.
 Pcb is a printed circuit board editor for the X11 window system.
 Pcb includes many professional features such as:
 @itemize @bullet
-@item Up to 8 copper layer designs
+@item Up to 8 copper layer designs by default, unlimited by changing a
+compile time setting.
 @item RS-274-X (Gerber) output
 @item NC Drill output
 @item Centroid (X-Y) data output
@@ -2312,7 +2314,85 @@ Note that the expressions used in the @code{skips} section are regular
 expressions.  See @ref{Regular Expressions} for an introduction to
 regular expressions.  
 
-@c --------------------------- chapter 3 -------------------------------
+@c --------------------------- Autorouter Chapter -------------------------------
+@node Autorouter
+@chapter Autorouter
+@cindex autorouter
+
+@code{Pcb} includes an autorouter which can greatly speed up the
+layout of a circuit board.  The autorouter is a rectangle-expansion
+type of autorouter based on 
+``A Method for Gridless Routing of Printed Circuit Boards'' by
+A. C. Finch, K. J. Mackenzie, G. J. Balsdon, and G. Symonds in the
+1985 Proceedings of the 22nd ACM/IEEE Design Automation Conference.
+This reference is available from the ACM Digital Library at
+@url{http://www.acm.org/dl} for those with institutional or personal
+access to it.  It's also available from your local engineering
+library.  The reference paper is not needed for using the autorouter.
+
+Before using the autorouter, all elements need to be loaded into the
+layout and placed and the connectivity netlist must be loaded.  Once
+the elements have been placed and the netlist loaded, the following
+steps will autoroute your design.
+
+@enumerate
+@item Turn off visibility of any layers that you don't want the router
+to use.
+
+@item Turn of via visibility if you don't want the router to use any
+new vias. 
+
+@item Use only plain rectangles for power/ground planes that you want
+   the router to use [use the rectangle tool!]
+
+@item Make at least one connection from any plane you want the router to
+   use to the net you want it to connect to.
+
+@item Draw continuous lines (on all routing layers) to outline keep-out
+   zones if desired.
+
+@item Use routing styles in the netlist to have per-net routing styles.  
+  Note that the routing style will be used for an entire net.  This means
+  if you have a wide metal setting for a power net you will need to manually
+  route breakouts from any fine pitch parts on their power pins because
+  the router will not be able to change to a narrow trace to connect
+  to the part.
+
+@item Set the current routing style to whatever you'd like the router to
+   use for any nets not having a defined route style in the netlist.
+
+@item Disable any nets that you don't want the autorouter to route
+   (double-click them in the  netlist window to add/remove the *)
+
+         NOTE: If you will be manually routing these later not using
+   planes, it is usually better to let the autorouter route them then rip
+   them up yourself afterwards. If you plan to use a ground/power plane
+   manually, consider making it from one or more pure rectangles and
+   letting the autorouter have a go at it.
+
+@item Create a fresh rat's nest. ('E' the 'W')
+
+@item Select ``show autorouter trials'' in the settings menu if you want
+   to watch what's happening
+
+@item Choose ``autoroute all rats'' in the connection menu.
+
+@item If you really want to muck with the router because you have a
+   special design, e.g. all through-hole components you can mess with
+   layer directional costs by editing the autoroute.c source file and
+   changing the directional costs in lines 929-940. and try again. Even
+   more mucking about with costs is possible in lines 4540-4569, but it's
+   probably not such a good idea unless you really just want to
+   experiment.
+
+@end enumerate
+
+After the design has been autorouted, you may want to run the trace
+optimizer.  See section @ref{Trace Optimizer} for more information on
+the trace optimizer.
+
+
+@c --------------------------- User Commands chapter -------------------------------
 @node User Commands
 @chapter User Commands
 

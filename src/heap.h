@@ -39,7 +39,7 @@
 
 #include "global.h"
 
-/* type of heap costs.  *must be integer!* */
+/* type of heap costs */
 typedef double cost_t;
 /* what a heap looks like */
 typedef struct heap_struct heap_t;
@@ -48,6 +48,8 @@ typedef struct heap_struct heap_t;
 heap_t *heap_create ();
 /* destroy a heap */
 void heap_destroy (heap_t ** heap);
+/* free all elements in a heap */
+void heap_free (heap_t * heap, void (*funcfree) (void *));
 
 /* -- mutation -- */
 void heap_insert (heap_t * heap, cost_t cost, void *data);
@@ -58,5 +60,6 @@ void *heap_replace (heap_t * heap, cost_t cost, void *data);
 
 /* -- interrogation -- */
 int heap_is_empty (heap_t * heap);
+int heap_size (heap_t * heap);
 
 #endif /* __HEAP_INCLUDED__ */

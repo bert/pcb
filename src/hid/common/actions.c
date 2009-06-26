@@ -324,19 +324,24 @@ hid_parse_actions (const char *rstr,
   int max = 0;
   int num;
   char *str = NULL;
-  char *sp, *aname, *sp2;
+  const char *sp;
+  char *cp, *aname, *cp2;
   int maybe_empty = 0;
+  char in_quotes = 0;
   int retcode = 0;
 
   if (function == NULL)
     function = hid_actionv;
 
-  /*fprintf(stderr, "invoke: `%s'\n", rstr); */
+  /*fprintf(stderr, "invoke: `%s'\n", rstr);*/
 
-  sp = str = strdup (rstr);
+  sp = rstr;
+  str = malloc(strlen(rstr)+1);
 
 another:
   num = 0;
+  cp = str;
+
   /* eat leading spaces and tabs */
   while (*sp && isspace ((int) *sp))
     sp++;
@@ -347,11 +352,13 @@ another:
       goto cleanup;
     }
   
-  aname = sp;
+  aname = cp;
   
   /* search for the leading ( */
   while (*sp && *sp != '(')
-    sp++;
+    *cp++ = *sp++;
+  *cp++ = 0;
+  sp++;
 
   /*
    * we didn't find a leading ( so invoke the action
@@ -371,7 +378,6 @@ another:
    * we found a leading ( so see if we have parameters to pass to the
    * action 
    */
-  *sp++ = 0;
   while (1)
     {
       /* 
@@ -380,12 +386,12 @@ another:
        */
       if (*sp == ')' && !maybe_empty)
 	{
-	  *sp++ = 0;
 	  if (function (aname, num, list))
 	    {
 	      retcode = 1;
 	      goto cleanup;
 	    }
+	  sp++;
 	  goto another;
 	}
       else if (*sp == 0 && !maybe_empty)
@@ -393,6 +399,7 @@ another:
       else
 	{
 	  maybe_empty = 0;
+	  in_quotes = 0;
 	  /* 
 	   * if we have more parameters than memory in our array of
 	   * pointers, then either allocate some or grow the array
@@ -408,20 +415,37 @@ another:
 	  /* Strip leading whitespace.  */
 	  while (*sp && isspace ((int) *sp))
 	    sp++;
-	  list[num++] = sp;
+	  list[num++] = cp;
 	  
 	  /* search for a "," or a ")" */
-	  while (*sp && *sp != ',' && *sp != ')')
-	    sp++;
-	  sp2 = sp - 1;
+	  while (*sp && (in_quotes || (*sp != ',' && *sp != ')')))
+	    {
+	      /*
+	       * single quotes give literal value inside, including '\'. 
+	       * you can't have a single inside single quotes.
+	       * doubles quotes gives literal value inside, but allows escape.
+	       */
+	      if ((*sp == '"' || *sp == '\'') && (!in_quotes || *sp == in_quotes))
+	        {
+	          in_quotes = in_quotes ? 0 : *sp;
+	          sp++;
+	          continue;
+	        }
+	      /* unless within single quotes, \<char> will just be <char> */
+	      else if (*sp == '\\' && in_quotes != '\'')
+	        sp++;
+	      *cp++ = *sp++;
+	    }
+	  cp2 = cp - 1;
+	  *cp++ = 0;
 	  if (*sp == ',')
 	    {
 	      maybe_empty = 1;
-	      *sp++ = 0;
+	      sp++;
 	    }
 	  /* Strip trailing whitespace.  */
-	  for (; isspace ((int) *sp2) && sp2 >= list[num - 1]; sp2--)
-	    *sp2 = 0;
+	  for (; isspace ((int) *cp2) && cp2 >= list[num - 1]; cp2--)
+	    *cp2 = 0;
 	}
     }
   

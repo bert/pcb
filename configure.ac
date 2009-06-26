@@ -163,7 +163,7 @@ AC_PATH_PROG(CONVERT, convert, notfound)
 #
 #
 if test "X$docs_yesno" = "Xyes" -a "X$pcb_git_version" = "Xyes" ; then
-   AC_CHECK_PROGS(MKINFO, makeinfo, no)
+   AC_PATH_PROG(MKINFO, makeinfo, no)
    if test "X$MKINFO" != "Xno"; then
       AC_MSG_CHECKING([for GNU makeinfo version >= 4.6])
       v=`$MKINFO --version | grep "GNU texinfo"`
@@ -193,7 +193,7 @@ the documentation with --disable-doc
 ])
    fi
 
-   AC_CHECK_PROGS(TEXI2DVI, texi2dvi, no)
+   AC_PATH_PROG(TEXI2DVI, texi2dvi, no)
    if test "X$TEXI2DVI" = "Xno"; then
       AC_MSG_ERROR([You have requested a build
 of the documentation.  For this to work, you must have the texi2dvi program
@@ -498,22 +498,23 @@ GNUM4=$M4
 AC_SUBST(GNUM4)
 AC_DEFINE_UNQUOTED(GNUM4,"$M4",[m4 program used by pcb])
 
-AC_CHECK_PROGS(LATEX, latex, notfound)
+AC_PATH_PROG(LATEX, latex, notfound)
 AM_CONDITIONAL(MISSING_LATEX, test x$LATEX = xnotfound)
 
-AC_CHECK_PROGS(PDFLATEX, pdflatex, notfound)
+AC_PATH_PROG(PDFLATEX, pdflatex, notfound)
 AM_CONDITIONAL(MISSING_PDFLATEX, test x$PDFLATEX = xnotfound)
 
-AC_CHECK_PROGS(DVIPS, dvips, notfound)
+AC_PATH_PROG(DVIPS, dvips, notfound)
 AM_CONDITIONAL(MISSING_DVIPS, test x$DVIPS = xnotfound)
 
-AC_CHECK_PROGS(TEXI2DVI, texi2dvi, notfound)
+AC_PATH_PROG(TEXI2DVI, texi2dvi, notfound)
 AM_CONDITIONAL(MISSING_TEXI2DVI, test x$TEXI2DVI = xnotfound)
 
-AC_CHECK_PROGS(PS2PDF, ps2pdf, notfound)
+AC_PATH_PROG(PS2PDF, ps2pdf, notfound)
 AM_CONDITIONAL(MISSING_PS2PDF, test x$PS2PDF = xnotfound)
 
-AC_CHECK_PROGS(GSCHEM, gschem, notfound)
+# used to build some of the getting started guide
+AC_PATH_PROG(GSCHEM, gschem, notfound)
 AM_CONDITIONAL(MISSING_GSCHEM, test x$GSCHEM = xnotfound)
 
 if test "X$docs_yesno" = "Xyes" -a "X$pcb_git_version" = "Xyes" ; then
@@ -533,6 +534,65 @@ by using the --disable-doc configure option.
 ])
 	fi
 fi
+
+############################################################################
+#
+# These checks are for tools used by the testsuite.  It will not be fatal
+# if these are missing because this is primarily for developer use.  It is
+# possible that we might add some --enable flag in the future that forces
+# full tools for development work.
+
+# Check for ImageMagick tools used by the testsuite
+AC_PATH_PROG(IM_ANIMATE, animate, notfound)
+AC_PATH_PROG(IM_COMPARE, compare, notfound)
+AC_PATH_PROG(IM_COMPOSITE, composite, notfound)
+AC_PATH_PROG(IM_CONVERT, convert, notfound)
+AC_PATH_PROG(IM_DISPLAY, display, notfound)
+AC_PATH_PROG(IM_MONTAGE, montage, notfound)
+missing_magick=""
+test "${IM_ANIMATE}" != "notfound" || missing_magick="${missing_magick} animate"
+test "${IM_COMPARE}" != "notfound" || missing_magick="${missing_magick} compare"
+test "${IM_COMPOSITE}" != "notfound" || missing_magick="${missing_magick} composite"
+test "${IM_CONVERT}" != "notfound" || missing_magick="${missing_magick} convert"
+test "${IM_DISPLAY}" != "notfound" || missing_magick="${missing_magick} display"
+test "${IM_MONTAGE}" != "notfound" || missing_magick="${missing_magick} montage"
+
+AC_MSG_CHECKING([if all ImageMagick tools needed for the testsuite were found])
+if test "X${missing_magick}" != "X" ; then
+    AC_MSG_RESULT([no.  The testsuite will be disabled because the following
+tools from the ImageMagick suite were not found:
+${missing_magick}
+No loss in pcb functionality should be experienced, you just will not
+be able to run the full regression testsuite.
+])
+    have_magick=no
+else
+    AC_MSG_RESULT([yes])
+    have_magick=yes
+fi
+
+have_test_tools=yes
+
+test $have_magick = yes || have_test_tools=no
+
+# the RS274-X export HID is partially checked by looking at the result with
+# gerbv
+AC_PATH_PROG(GERBV, gerbv, notfound)
+test $GERBV != notfound || have_test_tools=no
+
+
+AM_CONDITIONAL(HAVE_TEST_TOOLS, test x$have_test_tools = xyes)
+AC_MSG_CHECKING([if all the requried testsuite tools were found])
+if test x$have_test_tools = xyes ; then
+	AC_MSG_RESULT([yes])
+else
+	AC_MSG_RESULT([no -- the testsuite will be disabled])
+fi
+
+
+#
+############################################################################
+
 
 dnl Checks for libraries.
 AC_CHECK_LIB(m, sqrt)
@@ -1004,6 +1064,19 @@ if test -d $srcdir/tutorial; then
    AC_CONFIG_FILES(tutorial/Makefile)
 fi
 
+dnl testsuite
+AC_CONFIG_FILES(tests/inputs/Makefile)
+AC_CONFIG_FILES(tests/golden/Makefile)
+AC_CONFIG_FILES(tests/golden/hid_bom1/Makefile)
+AC_CONFIG_FILES(tests/golden/hid_bom2/Makefile)
+AC_CONFIG_FILES(tests/golden/hid_bom3/Makefile)
+AC_CONFIG_FILES(tests/golden/hid_bom4/Makefile)
+AC_CONFIG_FILES(tests/golden/hid_gerber1/Makefile)
+AC_CONFIG_FILES(tests/golden/hid_gerber2/Makefile)
+AC_CONFIG_FILES(tests/golden/hid_png1/Makefile)
+AC_CONFIG_FILES(tests/Makefile)
+
+dnl win32 build scripts
 AC_CONFIG_FILES(win32/Makefile)
 
 AC_OUTPUT

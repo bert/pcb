@@ -1,0 +1,10 @@
+# $Id$
+# PcbBOM Version 1.0
+# Date: Wed Jun 24 21:42:21 2009 UTC
+# Author: Dan McMahill
+# Title: Basic BOM/XY Test - PCB BOM
+# Quantity, Description, Value, RefDes
+# --------------------------------------------
+8,"Standard SMT resistor, capacitor etc","RESC3216N",R90_TOP R180_TOP R270_TOP R0_TOP R270_BOT R180_BOT R90_BOT R0_BOT 
+8,"Dual in-line package, narrow (300 mil)","DIP8",UDIP90_TOP UDIP180_TOP UDIP270_TOP UDIP0_TOP UDIP270_BOT UDIP180_BOT UDIP90_BOT UDIP0_BOT 
+8,"Small outline package, narrow (150mil)","SO8",USO90_TOP USO180_TOP USO270_TOP USO0_TOP USO270_BOT USO180_BOT USO90_BOT USO0_BOT 
