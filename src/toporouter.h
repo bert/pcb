@@ -73,6 +73,11 @@
 //#define DEBUG_CHECK_OPROUTE 1
 //#define DEBUG_MERGING 1
 //#define DEBUG_CLUSTER_FIND 1
+#define coord_distance(a,b,c,d) sqrt(pow(a-c,2)+pow(b-d,2))
+#define coord_distance2(a,b,c,d) (pow(a-c,2)+pow(b-d,2))
+
+#define tvdistance(a,b) sqrt(pow(vx(a)-vx(b),2)+pow(vy(a)-vy(b),2))
+#define tvdistance2(a,b) (pow(vx(a)-vx(b),2)+pow(vy(a)-vy(b),2))
 
 #define edge_v1(e) (GTS_SEGMENT(e)->v1)
 #define edge_v2(e) (GTS_SEGMENT(e)->v2)
@@ -118,7 +123,7 @@ struct _toporouter_bbox_t {
   GtsSurface *surface;
   GtsTriangle *enclosing;
 
-  GSList *constraints;
+  GList *constraints;
   GtsPoint *point,
            *realpoint;
 
@@ -174,7 +179,7 @@ typedef struct _toporouter_edge_class_t toporouter_edge_class_t;
 
 struct _toporouter_vertex_t {
   GtsVertex v;
-  //GSList *boxes;
+  //GList *boxes;
   struct _toporouter_bbox_t *bbox;
 
   struct _toporouter_vertex_t *parent;
@@ -186,7 +191,7 @@ struct _toporouter_vertex_t {
 
   toporouter_edge_t *routingedge;
 
-//  GSList *zlink;
+//  GList *zlink;
 
   guint flags;
 
@@ -250,7 +255,7 @@ typedef struct {
 
 typedef struct {
   toporouter_vertex_t *v;
-  GSList *edges;
+  GList *edges;
 } toporouter_visibility_t;
 
 typedef struct {
@@ -258,27 +263,36 @@ typedef struct {
 //  GtsTriangle *t;
 //  GtsVertex *v1, *v2, *v3;
   
-  GSList *vertices;
-  GSList *constraints; 
-  GSList *edges;
+  GList *vertices;
+  GList *constraints; 
+  GList *edges;
 
 } toporouter_layer_t;
 
 #define TOPOROUTER_VERTEX_REGION(x) ((toporouter_vertex_region_t *)x)
 typedef struct {
 
-  GSList *points;
+  GList *points;
   toporouter_vertex_t *v1, *v2;
   toporouter_vertex_t *origin;
 
 } toporouter_vertex_region_t;
 
+struct _toporouter_rubberband_arc_t {
+  toporouter_vertex_t *pathv, *arcv;
+  gdouble r, d;
+  gint wind;
+  GList *list;
+};
+
+typedef struct _toporouter_rubberband_arc_t toporouter_rubberband_arc_t;
+#define TOPOROUTER_RUBBERBAND_ARC(x) ((toporouter_rubberband_arc_t *)x)
 
 struct _toporouter_route_t {
 
 //  toporouter_bbox_t *src;
 
-//  GSList *dests;
+//  GList *dests;
   
   struct toporouter_cluster_t *src, *dest;
 
@@ -286,7 +300,7 @@ struct _toporouter_route_t {
 
   toporouter_vertex_t *curpoint;
   GHashTable *alltemppoints; 
-  GSList *path;
+  GList *path;
 /*
   toporouter_bbox_t *destbox;
 #ifdef DEBUG_ROUTE
@@ -295,10 +309,10 @@ struct _toporouter_route_t {
 */
   guint flags;
 
-  GSList *destvertices, *srcvertices;
-  GSList *keepoutlayers;
+  GList *destvertices, *srcvertices;
+  GList *keepoutlayers;
 
-  GSList *topopath;
+  GList *topopath;
 
 };
 
@@ -340,12 +354,12 @@ struct _toporouter_oproute_t {
   char *style; char *netlist;
   guint layergroup;
   gdouble tof;
-  GSList *path;
+  GList *path;
   
   GList *clearance;
-  GSList *adj;
+  GList *adj;
 
-//  GSList *serpintining;
+//  GList *serpintining;
 //  GList *serpintines;
   toporouter_serpintine_t *serp;
 };
@@ -369,6 +383,7 @@ struct _toporouter_arc_t {
 
   toporouter_oproute_t *oproute;
 
+  toporouter_vertex_t *v1, *v2;
 };
 
 struct _toporouter_arc_class_t {
@@ -385,7 +400,7 @@ typedef struct _toporouter_t toporouter_t;
 
 typedef struct toporouter_cluster_t {
   guint id;
-  GSList *i;
+  GList *i;
   char *netlist, *style;
 } toporouter_cluster_t;
 
@@ -412,18 +427,18 @@ struct _toporouter_t {
 
   toporouter_layer_t *layers;
   
-  GSList *clusters;
+  GList *clusters;
   guint clustercounter;
 
-  GSList *nets;
-  GSList *paths;
-  GSList *finalroutes;
+  GList *nets;
+  GList *paths;
+  GList *finalroutes;
 
-  GSList *keepoutlayers;
+  GList *keepoutlayers;
 
   guint flags;
 
-  GSList *destboxes, *consumeddestboxes;
+  GList *destboxes, *consumeddestboxes;
 
   guint routecount;
   /* settings: */
@@ -436,8 +451,8 @@ struct _toporouter_t {
 
   guint effort;
 
-  GSList *routednets, *failednets;
-  GSList *bestrouting;
+  GList *routednets, *failednets;
+  GList *bestrouting;
   guint bestfailcount;
 
   guint (*router)(struct _toporouter_t *);
@@ -451,7 +466,7 @@ struct _toporouter_t {
 
 typedef gint (*oproute_adjseg_func)
   (toporouter_t *,
-   GSList **,
+   GList **,
    GList **,
    guint *,
    gdouble, gdouble, gdouble, gdouble,
