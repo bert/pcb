@@ -139,7 +139,7 @@ although he contributed some code beginning with Release 1.4.3
 
 Release 1.5 provides support for rats-nest generation from simple net
 lists.  It also allows for automatic clearances around pins that pierce
-a polygon.  A variety of other enhancements including a Gerber RS-274-X
+a polygon.  A variety of other enhancements including a Gerber RS-274X
 driver and NC drill file generation have also been added.
 
 Release 1.6 provides automatic screen updates of changed regions.
@@ -213,9 +213,9 @@ apologize; please send me an e-mail and I'll try to correct the omission.
 Pcb is a printed circuit board editor for the X11 window system.
 Pcb includes many professional features such as:
 @itemize @bullet
-@item Up to 8 copper layer designs by default, unlimited by changing a
-compile time setting.
-@item RS-274-X (Gerber) output
+@item Up to 16 copper layer designs by default.  By changing a compile time setting, this
+can be set as high as needed.
+@item RS-274X (Gerber) output
 @item NC Drill output
 @item Centroid (X-Y) data output
 @item Postscript and Encapsulated Postscript output
@@ -1813,8 +1813,8 @@ with the @code{SAVE_NAME} variable in @file{globalconfig.h}.
 
 @code{Pcb} now has support for device drivers,
 @code{PostScript}, @emph{encapsulated PostScript},
-and @emph{Gerber RS-274-X} drivers are
-available so far.  The @emph{Gerber RS-274-X}
+and @emph{Gerber RS-274X} drivers are
+available so far.  The @emph{Gerber RS-274X}
 driver additionally generates a numerical control (NC) drill file for
 automated drilling,
 a bill of materials file to assist in materials procurement and
@@ -4372,7 +4372,7 @@ specifies the size of the aperture.
 @center @image{pad,,,Pad Layout,png}
 
 Pads and lines are represented in this way because this is how lines are 
-specified in RS-274-X (Gerber) files which are used for creating
+specified in RS-274X (Gerber) files which are used for creating
 the masks used in board manufacturing.  In fact, older mask making
 equipment created lines in precisely this fashion.  A physical aperture was
 used to pass light through onto a photosensitive film.
@@ -5092,7 +5092,7 @@ The basic steps in a gEDA + PCB design flow are:
 @item Layout circuit board using @code{pcb}
 @item Make any additional schematic changes with @code{gschem} and
 forward annotate to PCB with @code{gsch2pcb}
-@item Generate photoplot files (RS-274-X, also known as "Gerber") for
+@item Generate photoplot files (RS-274X, also known as "Gerber") for
 board vendor
 @end enumerate
 
@@ -5222,7 +5222,7 @@ modifications to @file{preamp.pcb} include forward annotation of
 schematic component value changes, adds any new components, and removes
 any deleted components.
 
-@subsection Generate Photoplot Files (RS-274-X)
+@subsection Generate Photoplot Files (RS-274X)
 After the layout is complete, choose "edit layer-groupings" from the
 "Settings" menu.  The LayerGroups form lets you specify which layers
 will appear in each output layer group.  For example, in the default
@@ -5882,9 +5882,9 @@ placement phase of PCB layout.
 
 @item Gerber File
 The file format used in the industry to convey a board database to the
-manufacturer is RS-274-X (which replaces the now obsolete RS-274-D
+manufacturer is RS-274X (which replaces the now obsolete RS-274D
 format).  This file format was originally developed by Gerber for
-their photo plotters and thus RS-274-D and RS-274-X format files 
+their photo plotters and thus RS-274D and RS-274X format files 
 are often times refered to as ``Gerber'' files.
 
 @item Thermal, Thermal Relief
