@@ -126,7 +126,6 @@ toporouter_vertex_init (toporouter_vertex_t *vertex)
   vertex->bbox = NULL;
   vertex->parent = NULL;
   vertex->child = NULL;
-  vertex->fakev = NULL;
   vertex->pullx = INFINITY;
   vertex->pully = INFINITY;
   vertex->flags = 0;
@@ -913,42 +912,6 @@ vertex_move_towards_vertex_values(GtsVertex *v, GtsVertex *p, gdouble d, gdouble
 #define tv_on_layer(v,l) (l == TOPOROUTER_BBOX(TOPOROUTER_VERTEX(v)->boxes->data)->layer)
 
 inline gdouble
-fake_min_spacing(toporouter_vertex_t *v, toporouter_vertex_t *term, gdouble ms)
-{
-  /* term has a fakev */
-  gdouble a,b,c,theta,beta,alpha,r,x,y;
-
-#ifdef SPACING_DEBUG
-  printf("Getting fake min spacing..\n");
-#endif
-
-  if(!vertex_wind(GTS_VERTEX(v), GTS_VERTEX(term), GTS_VERTEX(term->fakev)))
-    return ms;
-
-  vertex_move_towards_vertex_values(GTS_VERTEX(term), GTS_VERTEX(v), ms, &x, &y);
-  
-  a = gts_point_distance(GTS_POINT(term), GTS_POINT(term->fakev));
-  c = sqrt(pow(x-vx(term),2) + pow(y-vy(term),2));//gts_point_distance(GTS_POINT(term), GTS_POINT(v));
-  b = sqrt(pow(x-vx(term->fakev),2) + pow(y-vy(term->fakev),2));//gts_point_distance(GTS_POINT(term), GTS_POINT(v));
-//  b = gts_point_distance(GTS_POINT(term->fakev), GTS_POINT(v));
-
-  theta = acos((pow(b,2) - pow(a,2) - pow(c,2)) / (-2. * a * c));
-
-  beta = asin(a * sin(theta) / ms);
-
-  alpha = M_PI - theta - beta;
-
-  r = sqrt(pow(ms,2) + pow(a,2) - (2. * ms * a * cos(alpha)));
-
-#ifdef SPACING_DEBUG
-  printf("fake_min_spacing: v = %f,%f term = %f,%f fakev = %f,%f ms = %f a = %f b = %f c = %f r = %f\n",
-      vx(v), vy(v), vx(term), vy(term), vx(term->fakev), vy(term->fakev),
-      ms, a, b, c, r);
-#endif
-  return r;
-}
-
-inline gdouble
 min_spacing(toporouter_vertex_t *v1, toporouter_vertex_t *v2)
 {
 
@@ -967,20 +930,7 @@ min_spacing(toporouter_vertex_t *v1, toporouter_vertex_t *v2)
   printf("v1halfthick = %f v2halfthick = %f v1keepaway = %f v2keepaway = %f ms = %f\n",
       v1halfthick, v2halfthick, v1keepaway, v2keepaway, ms);
 #endif 
-/*
-  if(e) {
-    if((v1 == tedge_v1(e) || v1 == tedge_v2(e)) && v1->fakev) {
-//      if(v1->flags & VERTEX_FLAG_FAKEV_OUTSIDE_SEG)
-        return fake_min_spacing(v2, v1, ms);
-    }
-
-
-    if((v2 == tedge_v1(e) || v2 == tedge_v2(e)) && v2->fakev) {
-//      if(v2->flags & VERTEX_FLAG_FAKEV_OUTSIDE_SEG)
-        return fake_min_spacing(v1, v2, ms);
-    }
-  }
-*/
+  
   return ms;
 }
 
@@ -990,7 +940,6 @@ min_vertex_net_spacing(toporouter_vertex_t *v1, toporouter_vertex_t *v2)
 {
 
   gdouble v1halfthick, v2halfthick, v1keepaway, v2keepaway, ms;
-  toporouter_edge_t *e = v1->routingedge;
   
   v1halfthick = vertex_net_thickness(TOPOROUTER_VERTEX(v1)) / 2.;
   v2halfthick = cluster_thickness(vertex_bbox(v2)->cluster) / 2.;
@@ -1000,16 +949,6 @@ min_vertex_net_spacing(toporouter_vertex_t *v1, toporouter_vertex_t *v2)
 
   ms = v1halfthick + v2halfthick + MAX(v1keepaway, v2keepaway);
 
-  if(e) {
-    if((v1 == tedge_v1(e) || v1 == tedge_v2(e)) && v1->fakev) {
-      return fake_min_spacing(v2, v1, ms);
-    }
-
-    if((v2 == tedge_v1(e) || v2 == tedge_v2(e)) && v2->fakev) {
-      return fake_min_spacing(v1, v2, ms);
-    }
-  }
-
   return ms;
 }
 
@@ -1018,7 +957,6 @@ min_net_net_spacing(toporouter_vertex_t *v1, toporouter_vertex_t *v2)
 {
 
   gdouble v1halfthick, v2halfthick, v1keepaway, v2keepaway, ms;
-  toporouter_edge_t *e = v1->routingedge;
   
   v1halfthick = cluster_thickness(v1->route->src) / 2.;
   v2halfthick = cluster_thickness(v2->route->src) / 2.;
@@ -1027,16 +965,6 @@ min_net_net_spacing(toporouter_vertex_t *v1, toporouter_vertex_t *v2)
   v2keepaway = cluster_keepaway(v2->route->src);
 
   ms = v1halfthick + v2halfthick + MAX(v1keepaway, v2keepaway);
-
-  if(e) {
-    if((v1 == tedge_v1(e) || v1 == tedge_v2(e)) && v1->fakev) {
-      return fake_min_spacing(v2, v1, ms);
-    }
-
-    if((v2 == tedge_v1(e) || v2 == tedge_v2(e)) && v2->fakev) {
-      return fake_min_spacing(v1, v2, ms);
-    }
-  }
 
   return ms;
 }
