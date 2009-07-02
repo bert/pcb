@@ -59,6 +59,8 @@
 #define TOPOROUTER_FLAG_HARDSRC       (1<<2)
 #define TOPOROUTER_FLAG_MATCH         (1<<3)
 #define TOPOROUTER_FLAG_LAYERHINT     (1<<4)
+#define TOPOROUTER_FLAG_LEASTINVALID  (1<<5)
+#define TOPOROUTER_FLAG_AFTERORDER    (1<<6)
 
 #if TOPO_OUTPUT_ENABLED
   #include <cairo.h>
@@ -66,6 +68,7 @@
 
 #define EPSILON 0.0001f
 
+//#define DEBUG_RUBBERBAND 1
 //#define DEBUG_EXPORT 1
 //#define DEBUG_ROUTE 1
 //#define DEBUG_IMPORT 1
@@ -85,6 +88,7 @@
 #define tedge_v2(e) (TOPOROUTER_VERTEX(GTS_SEGMENT(e)->v2))
 
 #define edge_routing(e) (TOPOROUTER_IS_CONSTRAINT(e) ? TOPOROUTER_CONSTRAINT(e)->routing : e->routing)
+#define vrouting(v) (edge_routing(v->routingedge))
 
 #define edge_routing_next(e,list) ((list->next) ? TOPOROUTER_VERTEX(list->next->data) : TOPOROUTER_VERTEX(edge_v2(e)))
 #define edge_routing_prev(e,list) ((list->prev) ? TOPOROUTER_VERTEX(list->prev->data) : TOPOROUTER_VERTEX(edge_v1(e)))
@@ -129,7 +133,7 @@ struct _toporouter_bbox_t {
 
 //  char *netlist, *style;
 
-  struct toporouter_cluster_t *cluster;
+  struct _toporouter_cluster_t *cluster;
 
 };
 
@@ -183,17 +187,13 @@ struct _toporouter_vertex_t {
 
   struct _toporouter_vertex_t *parent;
   struct _toporouter_vertex_t *child;
-//  struct _toporouter_vertex_t *cdest;
- 
-  gdouble pullx, pully;
 
   toporouter_edge_t *routingedge;
-
-//  GList *zlink;
 
   guint flags;
 
   gdouble gcost, hcost;
+  guint gn;
 
   struct _toporouter_arc_t *arc;
 
@@ -292,9 +292,12 @@ struct _toporouter_route_t {
 
 //  GList *dests;
   
-  struct toporouter_cluster_t *src, *dest;
+  struct _toporouter_cluster_t *src, *dest;
+  struct _toporouter_cluster_t *node;
 
-  gdouble score;
+  toporouter_bbox_t *mergebox1, *mergebox2;
+
+  gdouble score, detourscore;
 
   toporouter_vertex_t *curpoint;
   GHashTable *alltemppoints; 
@@ -308,15 +311,31 @@ struct _toporouter_route_t {
   guint flags;
 
   GList *destvertices, *srcvertices;
-  GList *keepoutlayers;
 
   GList *topopath;
+
+  gdouble pscore;
+  GList *ppath;
+  gint *ppathindices;
+  toporouter_bbox_t *pmergebox1, *pmergebox2;
 
 };
 
 typedef struct _toporouter_route_t toporouter_route_t;
 
 #define TOPOROUTER_ROUTE(x) ((toporouter_route_t *)x)
+
+#define TOPOROUTER_CLUSTER(x) ((toporouter_cluster_t *)x)
+
+struct _toporouter_cluster_t {
+  guint id;
+  GList *is;
+  char *netlist, *style;
+  struct _toporouter_cluster_t *p1, *p2, *c;
+  struct _toporouter_route_t *route;
+};
+
+typedef struct _toporouter_cluster_t toporouter_cluster_t;
 
 struct _toporouter_clearance_t {
   gpointer data;
@@ -394,19 +413,12 @@ typedef struct _toporouter_arc_class_t toporouter_arc_class_t;
 
 typedef struct _toporouter_t toporouter_t;
 
-#define TOPOROUTER_CLUSTER(x) ((toporouter_cluster_t *)x)
-
-typedef struct toporouter_cluster_t {
-  guint id;
-  GList *i;
-  char *netlist, *style;
-} toporouter_cluster_t;
 
 
 typedef struct {
   guint id;
 
-//  gdouble *pairwise_detour;
+  guint *pairwise_nodetour;
   gdouble pairwise_detour_sum;
   gdouble score;
   guint pairwise_fails;
@@ -430,7 +442,7 @@ struct _toporouter_t {
 
   GList *nets;
   GList *paths;
-  GList *finalroutes;
+//  GList *finalroutes;
 
   GList *keepoutlayers;
 
@@ -447,13 +459,9 @@ struct _toporouter_t {
 
   gdouble wiring_score;
 
-  guint effort;
-
   GList *routednets, *failednets;
-  GList *bestrouting;
-  guint bestfailcount;
-
-  guint (*router)(struct _toporouter_t *);
+//  GList *bestrouting;
+//  guint bestfailcount;
 
   gint (*netsort)(toporouter_netscore_t **, toporouter_netscore_t **);
 

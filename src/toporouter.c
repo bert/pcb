@@ -126,13 +126,15 @@ toporouter_vertex_init (toporouter_vertex_t *vertex)
   vertex->bbox = NULL;
   vertex->parent = NULL;
   vertex->child = NULL;
-  vertex->pullx = INFINITY;
-  vertex->pully = INFINITY;
   vertex->flags = 0;
   vertex->routingedge = NULL;
   vertex->arc = NULL;
   vertex->oproute = NULL;
   vertex->route = NULL;
+
+  vertex->gcost = 0.;
+  vertex->hcost = 0.;
+  vertex->gn = 0;
 }
 
 toporouter_vertex_class_t * 
@@ -966,19 +968,19 @@ void
 toporouter_draw_cluster(toporouter_t *r, drawing_context_t *dc, toporouter_cluster_t *cluster, gdouble red, gdouble green, gdouble blue, guint layer)
 {
 #if TOPO_OUTPUT_ENABLED
-  GList *i = cluster->i;
+//GList *i = cluster->i;
 
-  while(i) {
-    toporouter_bbox_t *box = TOPOROUTER_BBOX(i->data);
+//while(i) {
+//  toporouter_bbox_t *box = TOPOROUTER_BBOX(i->data);
 
-    if(box->point && vz(box->point) == layer) {
-      cairo_set_source_rgba(dc->cr, red, green, blue, 0.8f);
-      cairo_arc(dc->cr, vx(box->point) * dc->s + MARGIN, vy(box->point) * dc->s + MARGIN, 500. * dc->s, 0, 2 * M_PI);
-      cairo_fill(dc->cr);
-    }
+//  if(box->point && vz(box->point) == layer) {
+//    cairo_set_source_rgba(dc->cr, red, green, blue, 0.8f);
+//    cairo_arc(dc->cr, vx(box->point) * dc->s + MARGIN, vy(box->point) * dc->s + MARGIN, 500. * dc->s, 0, 2 * M_PI);
+//    cairo_fill(dc->cr);
+//  }
 
-    i = i->next;
-  }
+//  i = i->next;
+//}
 #endif
 }
 
@@ -997,9 +999,9 @@ toporouter_draw_surface(toporouter_t *r, GtsSurface *s, char *filename, int w, i
   gts_surface_foreach_edge(s, toporouter_draw_edge, dc);
   gts_surface_foreach_vertex(s, toporouter_draw_vertex, dc);
 
-  i = r->paths;
+  i = r->routednets;
   while(i) {
-    GList *j = (GList *) i->data;
+    GList *j = TOPOROUTER_ROUTE(i->data)->path;
     tv2 = NULL;
     while(j) {
       tv = TOPOROUTER_VERTEX(j->data);
@@ -1082,22 +1084,6 @@ toporouter_draw_surface(toporouter_t *r, GtsSurface *s, char *filename, int w, i
 
 
         }
-        if(finite(tv->pullx) && finite(tv->pully)) {
-          cairo_set_source_rgba(dc->cr, 0.0f, 0.0f, 1.0f, 0.8f);
-          cairo_move_to(dc->cr, vx(tv) * dc->s + MARGIN, vy(tv) * dc->s + MARGIN);
-          cairo_line_to(dc->cr, tv->pullx * dc->s + MARGIN, tv->pully * dc->s + MARGIN);
-          cairo_stroke(dc->cr);
-
-
-        }/*
-            if(tv->cdest) {
-            cairo_set_source_rgba(dc->cr, 1.0f, 1.0f, 0.0f, 0.8f);
-            cairo_move_to(dc->cr, vx(tv) * dc->s + MARGIN, vy(tv) * dc->s + MARGIN);
-            cairo_line_to(dc->cr, vx(tv->cdest) * dc->s + MARGIN, vy(tv->cdest) * dc->s + MARGIN);
-            cairo_stroke(dc->cr);
-
-
-            }*/
 
 
       }
@@ -1230,7 +1216,7 @@ toporouter_free(toporouter_t *r)
     usecs += 1000;
   }
 
-  printf("Elapsed time: %d.%02d seconds\n", secs, usecs);
+  Message(_("Elapsed time: %d.%02d seconds\n"), secs, usecs);
   free(r->layers);  
   free(r);
 
@@ -2379,27 +2365,73 @@ point_xangle(GtsPoint *a, GtsPoint *b)
   return theta;  
 }
 
+GList *
+cluster_vertices(toporouter_cluster_t *cluster)
+{
+  GList *i = NULL, *rval = NULL;
+
+  if(!cluster) return NULL;
+
+  if(cluster->p1) 
+    return g_list_concat(cluster_vertices(cluster->p1), cluster_vertices(cluster->p2));
+
+  i = cluster->is;
+  while(i) {
+    toporouter_bbox_t *box = TOPOROUTER_BBOX(i->data);
+
+//  if(box->cluster != cluster) {
+//    printf("ERROR: box cluster = %d cluster = %d\n", box->cluster->id, cluster->id);
+//  }
+//  g_assert(box->cluster == cluster);
+
+    if(box->type == LINE) {
+      g_assert(box->constraints->data);
+      rval = g_list_prepend(rval, tedge_v1(box->constraints->data));
+      rval = g_list_prepend(rval, tedge_v2(box->constraints->data));
+    }else if(box->point) {
+      rval = g_list_prepend(rval, TOPOROUTER_VERTEX(box->point));
+      g_assert(vertex_bbox(TOPOROUTER_VERTEX(box->point)) == box);
+    }else {
+      printf("WARNING: cluster_vertices: unhandled bbox type\n");
+    }
+
+    i = i->next;
+  }
+
+  return rval;
+}
+
+
+void
+cluster_print_boxes(toporouter_cluster_t *c)
+{
+  if(c->p1) {
+    cluster_print_boxes(c->p1);
+    cluster_print_boxes(c->p2);
+  }else{
+    GList *i = c->is;
+    while(i) {
+      printf("\t"); print_bbox(TOPOROUTER_BBOX(i->data));
+      i = i->next;
+    }
+
+  }
+
+}
+
 
 void
 print_cluster(toporouter_cluster_t *c)
 {
-  GList *i;
 
   if(!c) {
     printf("[CLUSTER (NULL)]\n");
     return;
   }
 
-  i = c->i;
-
   printf("CLUSTER %d: NETLIST = %s STYLE = %s\n", c->id, c->netlist, c->style);
 
-  while(i) {
-    printf("\t");
-    print_bbox(TOPOROUTER_BBOX(i->data));
-    i = i->next;
-  }
-  printf("\n");
+  cluster_print_boxes(c);
 }
 
 void
@@ -2422,9 +2454,13 @@ cluster_create(toporouter_t *r, char *netlist, char *style)
 {
   toporouter_cluster_t *c = malloc(sizeof(toporouter_cluster_t));
   c->id = r->clustercounter++;
-  c->i = NULL;
+  c->is = NULL;
   c->netlist = netlist;
   c->style = style;
+
+  c->route = NULL;
+  c->p1 = c->p2 = c->c = NULL;
+
   return c;
 }
 
@@ -2455,8 +2491,8 @@ void
 cluster_join_bbox(toporouter_cluster_t *cluster, toporouter_bbox_t *box)
 {
   if(box) {
-    if(g_list_find(cluster->i, box)) return;
-    cluster->i = g_list_prepend(cluster->i, box);
+    if(g_list_find(cluster->is, box)) return;
+    cluster->is = g_list_prepend(cluster->is, box);
     box->cluster = cluster;
 //    box->netlist = cluster->netlist;
 //    box->style = cluster->style;
@@ -2992,72 +3028,6 @@ new_temp_toporoutervertex_in_segment(toporouter_edge_t *e, toporouter_vertex_t *
   return rval;
 }
 
-GList *
-cluster_vertices(toporouter_cluster_t *cluster)
-{
-  GList *i = NULL, *rval = NULL;
-
-  if(!cluster) return NULL;
-
-  i = cluster->i;
-  while(i) {
-    toporouter_bbox_t *box = TOPOROUTER_BBOX(i->data);
-
-    g_assert(box->cluster == cluster);
-
-    if(box->type == LINE) {
-      g_assert(box->constraints->data);
-      rval = g_list_prepend(rval, tedge_v1(box->constraints->data));
-      rval = g_list_prepend(rval, tedge_v2(box->constraints->data));
-    }else if(box->point) {
-      rval = g_list_prepend(rval, TOPOROUTER_VERTEX(box->point));
-      g_assert(vertex_bbox(TOPOROUTER_VERTEX(box->point)) == box);
-    }else {
-      printf("WARNING: cluster_vertices: unhandled bbox type\n");
-    }
-
-    i = i->next;
-  }
-
-  return rval;
-}
-
-
-void
-closest_cluster_pair_detour(toporouter_t *r, toporouter_route_t *routedata, toporouter_vertex_t **a, toporouter_vertex_t **b)
-{
-  GList *src_vertices = cluster_vertices(routedata->src), *i = src_vertices;
-  GList *dest_vertices = cluster_vertices(routedata->dest), *j = dest_vertices;
-
-  gdouble min = 0.;
-  *a = NULL; *b = NULL;
-
-  i = src_vertices;
-  while(i) {
-    toporouter_vertex_t *v1 = TOPOROUTER_VERTEX(i->data);
-
-    j = dest_vertices;
-    while(j) {
-      toporouter_vertex_t *v2 = TOPOROUTER_VERTEX(j->data);
-
-      if(!*a) {
-        *a = v1; *b = v2; min = simple_h_cost(r, *a, *b);
-      }else{
-        gdouble tempd = simple_h_cost(r, v1, v2);
-        if(tempd < min) {
-          *a = v1; *b = v2; min = tempd;
-        }
-      }
-
-      j = j->next;
-    }
-
-    i = i->next;
-  }
-
-  g_list_free(src_vertices);
-  g_list_free(dest_vertices);
-}
 
 void
 closest_cluster_pair(toporouter_t *r, GList *src_vertices, GList *dest_vertices, toporouter_vertex_t **a, toporouter_vertex_t **b)
@@ -3180,6 +3150,13 @@ segment_common_vertex(GtsSegment *s1, GtsSegment *s2)
   if(s1->v2 == s2->v2) return TOPOROUTER_VERTEX(s1->v2);
   return NULL;
 }
+
+inline toporouter_vertex_t *
+route_vertices_common_vertex(toporouter_vertex_t *v1, toporouter_vertex_t *v2)
+{
+  return segment_common_vertex(GTS_SEGMENT(v1->routingedge), GTS_SEGMENT(v2->routingedge));
+}
+
 
 inline guint
 edges_third_edge(GtsSegment *s1, GtsSegment *s2, toporouter_vertex_t **v1, toporouter_vertex_t **v2) 
@@ -3695,6 +3672,94 @@ routedata_insert_temppoints(toporouter_route_t *data, GList *temppoints) {
 
 
 GList *
+all_candidates_on_edge(toporouter_edge_t *e, toporouter_route_t *routedata)
+{
+  GList *rval = NULL;
+  if(edge_is_blocked(e)) return NULL;
+  
+  if(!TOPOROUTER_IS_CONSTRAINT(e)) { 
+    GList *i = edge_routing(e);
+    toporouter_vertex_t *pv = tedge_v1(e);
+
+    while(i) {
+      toporouter_vertex_t *v = TOPOROUTER_VERTEX(i->data);
+      if(!(v->flags & VERTEX_FLAG_TEMP)) {
+        rval = g_list_concat(rval, candidate_vertices(pv, v, TOPOROUTER_VERTEX(routedata->destvertices->data), e));
+        pv = v;
+      }
+      i = i->next;
+    }
+
+    rval = g_list_concat(rval, candidate_vertices(pv, tedge_v2(e), TOPOROUTER_VERTEX(routedata->destvertices->data), e));
+  }else if(TOPOROUTER_CONSTRAINT(e)->box->type == BOARD) {
+     return NULL; 
+  }else if(TOPOROUTER_CONSTRAINT(e)->box->cluster == routedata->dest || TOPOROUTER_CONSTRAINT(e)->box->cluster == routedata->src) {
+    toporouter_vertex_t *consv = new_temp_toporoutervertex_in_segment(e, tedge_v1(e), tvdistance(tedge_v1(e), tedge_v2(e)) / 2., tedge_v2(e));
+    rval = g_list_prepend(rval, consv);
+//    g_hash_table_insert(routedata->alltemppoints, consv, consv);  
+  }
+
+  return rval;
+}
+
+GList *
+triangle_all_candidate_points_from_vertex(GtsTriangle *t, toporouter_vertex_t *v, toporouter_route_t *routedata)
+{
+  toporouter_edge_t *op_e = TOPOROUTER_EDGE(gts_triangle_edge_opposite(t, GTS_VERTEX(v)));
+  return all_candidates_on_edge(op_e, routedata);
+}
+
+GList *
+triangle_all_candidate_points_from_edge(toporouter_t *r, GtsTriangle *t, toporouter_edge_t *e, toporouter_route_t *routedata,
+    toporouter_vertex_t **dest, toporouter_vertex_t *curpoint)
+{
+  toporouter_vertex_t *op_v;
+  toporouter_edge_t *e1, *e2;
+  GList *i, *rval = NULL, *rval2 = NULL;
+  toporouter_vertex_t *boxpoint = NULL;
+  guint e1intcap, e2intcap;
+
+  op_v = TOPOROUTER_VERTEX(gts_triangle_vertex_opposite(t, GTS_EDGE(e)));
+  
+    
+  if(vertex_bbox(op_v)) boxpoint = TOPOROUTER_VERTEX(vertex_bbox(op_v)->point);
+    
+  if(g_list_find(routedata->destvertices, op_v)) {
+    rval = g_list_prepend(rval, op_v);
+    *dest = op_v;
+    return rval;
+  }else if(g_list_find(routedata->destvertices, boxpoint)) {
+    *dest = boxpoint;
+  }
+  
+  e1 = TOPOROUTER_EDGE(gts_vertices_are_connected(GTS_VERTEX(op_v), edge_v1(e)));
+  e2 = TOPOROUTER_EDGE(gts_vertices_are_connected(GTS_VERTEX(op_v), edge_v2(e)));
+
+  rval = g_list_concat(rval, all_candidates_on_edge(e1, routedata));
+  rval = g_list_concat(rval, all_candidates_on_edge(e2, routedata));
+
+  e1intcap = check_triangle_interior_capacity(t, tedge_v1(e), curpoint, e2, e, e1);
+  e2intcap = check_triangle_interior_capacity(t, tedge_v2(e), curpoint, e1, e, e2);
+
+  i = rval;
+  while(i) {
+    toporouter_vertex_t *v = TOPOROUTER_VERTEX(i->data);
+
+    if(!v->routingedge) 
+      rval2 = g_list_prepend(rval2, v);
+    else if(v->routingedge == e1 && !(!TOPOROUTER_IS_CONSTRAINT(e1) && !e1intcap))
+      rval2 = g_list_prepend(rval2, v);
+    else if(v->routingedge == e2 && !(!TOPOROUTER_IS_CONSTRAINT(e2) && !e2intcap))
+      rval2 = g_list_prepend(rval2, v);
+
+    i = i->next;
+  }
+  g_list_free(rval);
+
+  return rval2;
+}
+
+GList *
 triangle_candidate_points_from_edge(toporouter_t *r, GtsTriangle *t, toporouter_edge_t *e, toporouter_vertex_t *v, toporouter_vertex_t **dest,
     toporouter_route_t *routedata)
 {
@@ -4016,7 +4081,7 @@ compute_candidate_points(toporouter_t *tr, toporouter_layer_t *l, toporouter_ver
 {
   GList *r = NULL, *i, *j;
   toporouter_edge_t *edge = curpoint->routingedge, *tempedge;
-  
+/*
   if(!(curpoint->flags & VERTEX_FLAG_TEMP)) {
 
     GSList *vertices = gts_vertex_neighbors(GTS_VERTEX(curpoint), NULL, NULL), *i = vertices;
@@ -4031,15 +4096,8 @@ compute_candidate_points(toporouter_t *tr, toporouter_layer_t *l, toporouter_ver
 
     g_slist_free(vertices);
   }
-
+*/
   i = tr->keepoutlayers;
-  while(i) {
-    gdouble keepout = *((double *) i->data);
-
-    if(vz(curpoint) == keepout) goto compute_candidate_points_finish;
-    i = i->next;
-  }
-  i = data->keepoutlayers;
   while(i) {
     gdouble keepout = *((double *) i->data);
 
@@ -4079,16 +4137,17 @@ compute_candidate_points(toporouter_t *tr, toporouter_layer_t *l, toporouter_ver
 #endif    
     while(i) {
       GtsTriangle *t = GTS_TRIANGLE(i->data);
+      GList *temppoints;
 
-      //GtsEdge* e = gts_triangle_edge_opposite(GTS_TRIANGLE(i->data), GTS_VERTEX(curpoint));
-      GList *temppoints = triangle_candidate_points_from_vertex(t, curpoint, *closestdest, data);
+      if(tr->flags & TOPOROUTER_FLAG_LEASTINVALID) temppoints = triangle_all_candidate_points_from_vertex(t, curpoint, data);
+      else temppoints = triangle_candidate_points_from_vertex(t, curpoint, *closestdest, data);
+
 #ifdef DEBUG_ROUTE     
       printf("\treturned %d points\n", g_list_length(temppoints));
 #endif      
       routedata_insert_temppoints(data, temppoints);
 
       r = g_list_concat(r, temppoints);
-      //triangle_check_visibility(&r, GTS_TRIANGLE(i->data), curpoint);
       i = i->next;
     }
     g_slist_free(triangles);
@@ -4101,7 +4160,12 @@ compute_candidate_points(toporouter_t *tr, toporouter_layer_t *l, toporouter_ver
     while(i) {
       GtsVertex *oppv =  gts_triangle_vertex_opposite(GTS_TRIANGLE(i->data), GTS_EDGE(edge));
       if(prevwind != vertex_wind(GTS_SEGMENT(edge)->v1, GTS_SEGMENT(edge)->v2, oppv)) {
-        GList *temppoints = triangle_candidate_points_from_edge(tr, GTS_TRIANGLE(i->data), edge, curpoint, closestdest, data);
+        GList *temppoints;
+        
+        if(tr->flags & TOPOROUTER_FLAG_LEASTINVALID) temppoints = triangle_all_candidate_points_from_edge(tr, GTS_TRIANGLE(i->data), edge,
+            data, closestdest, curpoint);
+        else temppoints = triangle_candidate_points_from_edge(tr, GTS_TRIANGLE(i->data), edge, curpoint, closestdest, data);
+
         j = temppoints;
         while(j) {
           toporouter_vertex_t *tempj = TOPOROUTER_VERTEX(j->data);
@@ -4122,20 +4186,6 @@ compute_candidate_points(toporouter_t *tr, toporouter_layer_t *l, toporouter_ver
   }
 
 compute_candidate_points_finish:
-  /*
-  if(vertex_bbox(curpoint)) {
-    i = curpoint->zlink;
-    while(i) {
-      if(TOPOROUTER_VERTEX(i->data) != curpoint) { 
-        r = g_list_prepend(r, i->data);
-#ifdef DEBUG_ROUTE          
-        printf("adding zlink to %f,%f\n", vx( TOPOROUTER_VERTEX(i->data) ), vy( TOPOROUTER_VERTEX(i->data) ));
-#endif
-      }
-      i = i->next;
-    }
-  }
-  */
 
   if(vertex_bbox(curpoint)) {
     if(vertex_bbox(curpoint)->cluster == data->src) {
@@ -4292,7 +4342,199 @@ space_edge(gpointer item, gpointer data)
   return 0;  
 }
 
+void
+swap_vertices(toporouter_vertex_t **v1, toporouter_vertex_t **v2)
+{
+  toporouter_vertex_t *tempv = *v1;
+  *v1 = *v2;
+  *v2 = tempv;
+}
+
+void
+split_edge_routing(toporouter_vertex_t *v, GList **l1, GList **l2)
+{
+  GList *base, *i;
+
+  g_assert(v);
+  g_assert(v->routingedge);
+  
+  base = g_list_find(vrouting(v), v);
+
+  *l1 = g_list_prepend(*l1, tedge_v1(v->routingedge));
+  *l2 = g_list_prepend(*l2, tedge_v2(v->routingedge));
+  
+  g_assert(base);
+
+  i = base->next;
+  while(i) {
+    if(!(TOPOROUTER_VERTEX(i->data)->flags & VERTEX_FLAG_TEMP)) *l2 = g_list_prepend(*l2, i->data);
+    i = i->next;
+  }
+
+  i = base->prev;
+  while(i) {
+    if(!(TOPOROUTER_VERTEX(i->data)->flags & VERTEX_FLAG_TEMP)) *l1 = g_list_prepend(*l1, i->data);
+    i = i->prev;
+  }
+}
+
+GList *
+vertices_routing_conflicts(toporouter_vertex_t *v, toporouter_vertex_t *pv)
+{
+  toporouter_edge_t *e;
+  GList *rval = NULL, *l1 = NULL, *l2 = NULL, *i;
+
+  if(vz(v) != vz(pv)) return NULL;
+  g_assert(v != pv);
+
+  if(!v->routingedge && !pv->routingedge) {
+    e = TOPOROUTER_EDGE(gts_vertices_are_connected(GTS_VERTEX(v), GTS_VERTEX(pv)));
+    if(!e) return NULL;
+    i = edge_routing(e);
+    while(i) {
+      rval = g_list_prepend(rval, TOPOROUTER_VERTEX(i->data)->route);
+      i = i->next;
+    }
+    return rval;
+  }
+
+  if(TOPOROUTER_IS_CONSTRAINT(v->routingedge) && TOPOROUTER_IS_CONSTRAINT(pv->routingedge))
+    return NULL;
+
+  if(TOPOROUTER_IS_CONSTRAINT(pv->routingedge)) swap_vertices(&pv, &v);
+
+  if(!v->routingedge) swap_vertices(&pv, &v);
+
+  e = v->routingedge;
+
+  split_edge_routing(v, &l1, &l2);
+  g_assert(l2);
+  g_assert(l1);
+
+  if(!pv->routingedge) {
+    toporouter_edge_t *e1, *e2;
+    e1 = TOPOROUTER_EDGE(gts_vertices_are_connected(GTS_VERTEX(pv), edge_v1(e)));
+    e2 = TOPOROUTER_EDGE(gts_vertices_are_connected(GTS_VERTEX(pv), edge_v2(e)));
+   
+    l1 = g_list_concat(l1, g_list_copy(edge_routing(e1)));
+    l2 = g_list_concat(l2, g_list_copy(edge_routing(e2)));
+
+  }else{
+    GList *pvlist1 = NULL, *pvlist2 = NULL;
+    toporouter_vertex_t *commonv = route_vertices_common_vertex(v, pv);
+
+    g_assert(commonv);
+
+    split_edge_routing(pv, &pvlist1, &pvlist2);
+
+    if(commonv == tedge_v1(e)) {
+      toporouter_edge_t *ope;
+
+      if(commonv == tedge_v1(pv->routingedge)) {
+        l1 = g_list_concat(l1, pvlist1);
+        l2 = g_list_concat(l2, pvlist2);
+        ope = TOPOROUTER_EDGE(gts_vertices_are_connected(edge_v2(e), edge_v2(pv->routingedge)));
+      }else{
+        l1 = g_list_concat(l1, pvlist2);
+        l2 = g_list_concat(l2, pvlist1);
+        ope = TOPOROUTER_EDGE(gts_vertices_are_connected(edge_v2(e), edge_v1(pv->routingedge)));
+      }
+      g_assert(ope);
+      l2 = g_list_concat(l2, g_list_copy(edge_routing(ope)));
+
+    }else{
+      toporouter_edge_t *ope;
+      if(commonv == tedge_v1(pv->routingedge)) {
+        l1 = g_list_concat(l1, pvlist2);
+        l2 = g_list_concat(l2, pvlist1);
+        ope = TOPOROUTER_EDGE(gts_vertices_are_connected(edge_v1(e), edge_v2(pv->routingedge)));
+      }else{
+        l1 = g_list_concat(l1, pvlist1);
+        l2 = g_list_concat(l2, pvlist2);
+        ope = TOPOROUTER_EDGE(gts_vertices_are_connected(edge_v1(e), edge_v1(pv->routingedge)));
+      }
+      g_assert(ope);
+      l1 = g_list_concat(l1, g_list_copy(edge_routing(ope)));
+    }
+  }
+
+  i = l1;
+  while(i) {
+    toporouter_vertex_t *curv = TOPOROUTER_VERTEX(i->data);
+
+    if(curv->flags & VERTEX_FLAG_ROUTE && (g_list_find(l2, curv->parent) || g_list_find(l2, curv->child))) {
+      if(!g_list_find(rval, curv->route)) rval = g_list_prepend(rval, curv->route);
+    }
+    i = i->next;
+  }
+  i = l2;
+  while(i) {
+    toporouter_vertex_t *curv = TOPOROUTER_VERTEX(i->data);
+
+    if(curv->flags & VERTEX_FLAG_ROUTE && (g_list_find(l1, curv->parent) || g_list_find(l1, curv->child))) {
+      if(!g_list_find(rval, curv->route)) rval = g_list_prepend(rval, curv->route);
+    }
+    i = i->next;
+  }
+
+  g_list_free(l1);
+  g_list_free(l2);
+
+  return rval;
+}
+
+gdouble
+vertices_routing_conflict_cost(toporouter_vertex_t *v, toporouter_vertex_t *pv, guint *n) 
+{
+  GList *conflicts = vertices_routing_conflicts(v, pv), *i;
+  gdouble penalty = 0.;
+
+  i = conflicts;
+  while(i) {
+    (*n) += 1;
+    penalty += TOPOROUTER_ROUTE(i->data)->score;
+    i = i->next;
+  }
+  g_list_free(conflicts);
+//  if(penalty > 0.) printf("conflict penalty of %f with %f,%f %f,%f\n", penalty, vx(v), vy(v), vx(pv), vy(pv));
+  return penalty;
+}
+
+gdouble
+gcost(toporouter_t *r, toporouter_route_t *data, toporouter_vertex_t *v, toporouter_vertex_t *pv, guint *n)
+{
+  gdouble cost = 0.;
+
+  *n = pv->gn;
+
+//  if(g_list_find(data->srcvertices, v)) return cost;
+//  else 
+    cost = pv->gcost + tvdistance(pv, v);
+  if(g_list_find(data->srcvertices, v)) return cost;
+
+  if(r->flags & TOPOROUTER_FLAG_LEASTINVALID) {
+    gdouble conflictcost = 0.;
+    
+    if(pv && v != pv && vz(v) == vz(pv)) conflictcost = vertices_routing_conflict_cost(v, pv, n);
+    cost += conflictcost * (pow(*n,2));
+  }
+
+  return cost;
+}
+
 #define vlayer(x) (&r->layers[(int)vz(x)])
+
+guint
+candidate_is_available(toporouter_vertex_t *pv, toporouter_vertex_t *v)
+{
+  // TODO: still needed?  
+  while(pv) {
+    if(pv == v) return 0;
+    pv = pv->parent;
+  }
+
+  return 1;
+}
 
 toporouter_vertex_t *
 route(toporouter_t *r, toporouter_route_t *data, guint debug)
@@ -4308,36 +4550,18 @@ route(toporouter_t *r, toporouter_route_t *data, guint debug)
 
   g_assert(data->src != data->dest);
   
+  if(data->destvertices) g_list_free(data->destvertices);
+  if(data->srcvertices) g_list_free(data->srcvertices);
   
   data->destvertices = cluster_vertices(data->dest);
   data->srcvertices = cluster_vertices(data->src);
 
   closest_cluster_pair(r, data->srcvertices, data->destvertices, &curpoint, &destv);
-  
+
   if(!curpoint || !destv) goto routing_return;
 
   srcv = curpoint;
   cur_layer = vlayer(curpoint); dest_layer = vlayer(destv);
-
-#ifdef DEBUG_ROUTE
-
-  printf("ROUTING NETLIST %s starting at %f,%f\n", vertex_netlist(curpoint), 
-      vx(curpoint), vy(curpoint));
-
-  if(debug && !strcmp(data->src->netlist, "  MODE")) {
-    debug = 1; 
-    printf("START OF MODE ROUTE from: ");
-    print_vertex(curpoint);
-  }else{
-
-    debug = 0;
-  }
-#endif
-//  toporouter_vertex_t *destpoint = TOPOROUTER_VERTEX(data->dest->point);
-
-//  printf(" * TCS ROUTING\n");
-//  printf("destpoint = %f,%f\n", vx(destpoint), vy(destpoint));
-//  printf("srcpoint = %f,%f\n", vx(curpoint), vy(curpoint));
 
   data->path = NULL; 
   if(!data->alltemppoints)
@@ -4346,18 +4570,12 @@ route(toporouter_t *r, toporouter_route_t *data, guint debug)
   curpoint->parent = NULL;
   curpoint->child = NULL;
   curpoint->gcost = 0.;
+  curpoint->gn = 0;
   curpoint->hcost = simple_h_cost(r, curpoint, destv);
-//  if(cur_layer != dest_layer) curpoint->hcost += r->viacost;
-  
+  if(cur_layer != dest_layer) curpoint->hcost += r->viacost;
   
   gts_eheap_insert(openlist, curpoint);
-/*
-  i = data->srcvertices;
-  while(i) {
-    gts_eheap_insert(openlist, i->data);
-    i = i->next;
-  }
-*/
+  
   while(gts_eheap_size(openlist) > 0) {
     GList *candidatepoints;
     data->curpoint = curpoint;
@@ -4378,14 +4596,20 @@ route(toporouter_t *r, toporouter_route_t *data, guint debug)
     
     if(g_list_find(data->destvertices, curpoint)) {
       toporouter_vertex_t *temppoint = curpoint;
+      srcv = NULL;
+      destv = curpoint;
 
       if(data->path) {
         g_list_free(data->path);
-        data->path = NULL;
       }
+      data->path = NULL;
 
       while(temppoint) {
         data->path = g_list_prepend(data->path, temppoint);   
+        if(!srcv && g_list_find(data->srcvertices, temppoint)) {
+          srcv = temppoint;
+          if(r->flags & TOPOROUTER_FLAG_AFTERORDER) break;
+        }
 //        if(g_list_find(data->srcvertices, temppoint)) break;
         temppoint = temppoint->parent;
       }
@@ -4395,6 +4619,12 @@ route(toporouter_t *r, toporouter_route_t *data, guint debug)
 #ifdef DEBUG_ROUTE
       printf("ROUTE: path score = %f computation cost = %d\n", data->score, count);
 #endif
+      data->mergebox1 = srcv->bbox;
+      data->mergebox2 = destv->bbox;
+
+      g_assert(data->mergebox1);
+      g_assert(data->mergebox2);
+
       goto route_finish;
     }
     closelist_insert(curpoint);
@@ -4403,10 +4633,9 @@ route(toporouter_t *r, toporouter_route_t *data, guint debug)
 #endif
     candidatepoints = compute_candidate_points(r, cur_layer, curpoint, data, &destv);
 
-#ifdef DEBUG_ROUTE    
+//#ifdef DEBUG_ROUTE    
     /*********************
-//    if(debug)
-    if(!strcmp(data->dest->netlist, "  SIG291")) 
+    if(debug && !strcmp(data->dest->netlist, "  unnamed_net12")) 
     {
       unsigned int mask = ~(VERTEX_FLAG_RED | VERTEX_FLAG_GREEN | VERTEX_FLAG_BLUE); 
       char buffer[256];
@@ -4440,22 +4669,19 @@ route(toporouter_t *r, toporouter_route_t *data, guint debug)
         g_list_free(datas);
       }
     }
-        *********************/
-#endif    
+//#endif    
+    *********************/
     count++;
 //    if(count > 100) exit(0);
     i = candidatepoints;
     while(i) {
       toporouter_vertex_t *temppoint = TOPOROUTER_VERTEX(i->data);
-      if(!g_list_find(closelist, temppoint) && temppoint != curpoint) {
+      if(!g_list_find(closelist, temppoint) && candidate_is_available(curpoint, temppoint)) { //&& temppoint != curpoint) {
         toporouter_heap_search_data_t heap_search_data = { temppoint, NULL };
 
-        gdouble temp_g_cost;
+        guint temp_gn;
+        gdouble temp_g_cost = gcost(r, data, temppoint, curpoint, &temp_gn);
       
-        if(g_list_find(data->srcvertices, temppoint)) temp_g_cost = 0.;
-        else 
-          temp_g_cost = curpoint->gcost + gts_point_distance(GTS_POINT(curpoint), GTS_POINT(temppoint));
-
 
         gts_eheap_foreach(openlist,toporouter_heap_search, &heap_search_data);
 
@@ -4463,11 +4689,9 @@ route(toporouter_t *r, toporouter_route_t *data, guint debug)
           if(temp_g_cost < temppoint->gcost) {
             
             temppoint->gcost = temp_g_cost;
-     
-//            if(temp_g_cost == 0.) temppoint->parent = NULL;
-//            else 
-              temppoint->parent = curpoint;
-
+            temppoint->gn = temp_gn; 
+            
+            temppoint->parent = curpoint;
             curpoint->child = temppoint;
             
             gts_eheap_update(openlist);
@@ -4477,6 +4701,8 @@ route(toporouter_t *r, toporouter_route_t *data, guint debug)
           curpoint->child = temppoint;
           
           temppoint->gcost = temp_g_cost;
+          temppoint->gn = temp_gn;
+
           temppoint->hcost = simple_h_cost(r, temppoint, destv);
 //          if(cur_layer != dest_layer) temppoint->hcost += r->viacost;
           gts_eheap_insert(openlist, temppoint);
@@ -4497,8 +4723,8 @@ route(toporouter_t *r, toporouter_route_t *data, guint debug)
 
   if(data->path) {
     g_list_free(data->path);
-    data->path = NULL;
   }
+  data->path = NULL;
   //TOPOROUTER_VERTEX(data->src->point)->parent = NULL;
   //TOPOROUTER_VERTEX(data->src->point)->child  = NULL;
   goto routing_return;
@@ -4640,10 +4866,23 @@ route_finish:
   }
 
   clean_routing_edges(r, data); 
+  
+  {
+    GList *i = data->path;
+    while(i) {
+      toporouter_vertex_t *v = TOPOROUTER_VERTEX(i->data);
+
+      if(v->routingedge && !TOPOROUTER_IS_CONSTRAINT(v->routingedge))
+        space_edge(v->routingedge, NULL);
+      i = i->next;
+    }
+  }
 routing_return:
 
   g_list_free(data->destvertices);
   g_list_free(data->srcvertices);
+  data->destvertices = NULL;
+  data->srcvertices = NULL;
   gts_eheap_destroy(openlist);     
   g_list_free(closelist);
 
@@ -4999,6 +5238,11 @@ calculate_term_to_arc(toporouter_vertex_t *v, toporouter_arc_t *arc, guint dir)
   coords_on_line(bx, by, perpendicular_gradient(point_gradient(GTS_POINT(v), GTS_POINT(arc->centre))), a, &a0x, &a0y, &a1x, &a1y);
 
   winddir = coord_wind(vx(v), vy(v), a0x, a0y, vx(arc->centre), vy(arc->centre));
+
+  if(!winddir) {
+    printf("!winddir @ v %f,%f arc->centre %f,%f\n", vx(v), vy(v), vx(arc->centre), vy(arc->centre));
+
+  }
 
   g_assert(winddir);
 
@@ -5385,46 +5629,6 @@ calculate_serpintine(gdouble delta, gdouble r, gdouble initiala, gdouble *a, gui
   *nhalfcycles = n;
 }
 
-void
-print_clearance_list(GList *clearance, gdouble x0, gdouble y0, gdouble x1, gdouble y1)
-{
-  
-  gdouble px = x0, py = y0;
-  gdouble line_int_x, line_int_y;
-  char buffer[64];
-
-  printf("totald = %f\n", sqrt(pow(x1-x0,2)+pow(y1-y0,2)));
-
-  while(clearance) {
-    toporouter_vertex_t *v;
-    toporouter_clearance_t *c = TOPOROUTER_CLEARANCE(clearance->data);
-
-    if(TOPOROUTER_IS_ARC(c->data)) {
-//      printf("arc centre: ");
-//      print_vertex(TOPOROUTER_ARC(list->data)->centre);
-      v = TOPOROUTER_ARC(c->data)->centre;
-      sprintf(buffer, "\t\tarc: centre:%f,%f d:", vx(v), vy(v));
-    }else{
-      g_assert(TOPOROUTER_IS_VERTEX(c->data));
-//      printf("vertex: ");
-//      print_vertex(TOPOROUTER_VERTEX(list->data));
-      v = TOPOROUTER_VERTEX(c->data);
-      sprintf(buffer, "\t\tv: %f,%f d:", vx(v), vy(v));
-    }
-
-    if(vertex_line_normal_intersection(x0, y0, x1, y1, vx(v), vy(v), &line_int_x, &line_int_y)) {
-
-      printf("%s%f\n", buffer, sqrt(pow(line_int_x-px,2)+pow(line_int_y-py,2)));
-
-      px = line_int_x;
-      py = line_int_y;
-    }
-    clearance = clearance->next;
-  }
-  printf("\t\t%f\n", sqrt(pow(x1-px,2)+pow(y1-py,2)));
-
-}
-
 gdouble
 oproute_min_spacing(toporouter_oproute_t *a, toporouter_oproute_t *b)
 {
@@ -5567,7 +5771,8 @@ rewind_test:
   *arcwind = tvertex_wind(pathv->parent, pathv, arcv);
 
 #ifdef DEBUG_RUBBERBAND
-  if(debug) printf("non-int check %f,%f ms %f d %f\n", vx(arcv), vy(arcv), ms, d + ms);
+  if(debug) printf("non-int check %f,%f ms %f d %f arcv %f,%f opv %f,%f\n", vx(arcv), vy(arcv), ms, d + ms,
+      vx(arcv), vy(arcv), vx(opv), vy(opv));
 #endif
 
   return d + ms;
@@ -5598,7 +5803,8 @@ check_intersect_vertex(gdouble x0, gdouble y0, gdouble x1, gdouble y1, toporoute
   *arcwind = tvertex_wind(pathv->parent, pathv, arcv);
 //  *arcwind = coord_wind(x0, y0, x, y, x1, y1);
 #ifdef DEBUG_RUBBERBAND
-  if(debug) printf("int check %f,%f ms %f d %f\n", vx(arcv), vy(arcv), ms, ms - d);
+  if(debug) printf("int check %f,%f ms %f d %f arcv %f,%f opv %f,%f\n", vx(arcv), vy(arcv), ms, ms - d,
+      vx(arcv), vy(arcv), vx(opv), vy(opv));
 #endif
 
   return ms - d;
@@ -5617,7 +5823,9 @@ check_arc_for_loops(gpointer t1, toporouter_arc_t *arc, gpointer t2)
   else { x1 = TOPOROUTER_ARC(t2)->x0; y1 = TOPOROUTER_ARC(t2)->y0; }
 
   if(coord_intersect_prop(x0, y0, arc->x0, arc->y0, arc->x1, arc->y1, x1, y1)) {
-    printf("%f %f -> %f %f & %f %f -> %f %f\n", x0, y0, arc->x0, arc->y0, arc->x1, arc->y1, x1, y1);
+#ifdef DEBUG_RUBBERBAND
+    printf("LOOPS %f %f -> %f %f & %f %f -> %f %f\n", x0, y0, arc->x0, arc->y0, arc->x1, arc->y1, x1, y1);
+#endif
     return 1;
   }
   return 0;
@@ -5661,15 +5869,11 @@ new_rubberband_arc(toporouter_vertex_t *pathv, toporouter_vertex_t *arcv, gdoubl
 
 gint
 compare_rubberband_arcs(toporouter_rubberband_arc_t *a, toporouter_rubberband_arc_t *b)
-{
-  return b->d - a->d;
-}
+{ return b->d - a->d; }
 
 void
 free_list_elements(gpointer data, gpointer user_data)
-{
-  free(data);
-}
+{ free(data); }
 
 
 // path is t1 path
@@ -5711,7 +5915,15 @@ oproute_rubberband_segment(toporouter_t *r, toporouter_oproute_t *oproute, GList
   if(v1 == v2 || !i->next || TOPOROUTER_VERTEX(i->data) == v2) return NULL;
 
 #ifdef DEBUG_RUBBERBAND
-  if(debug) printf("RB: line %f,%f %f,%f v1 = %f,%f v2 = %f,%f \n ", x0, y0, x1, y1, vx(v1), vy(v1), vx(v2), vy(v2)); 
+  if(debug) {
+    printf("\nRB: line %f,%f %f,%f v1 = %f,%f v2 = %f,%f \n ", x0, y0, x1, y1, vx(v1), vy(v1), vx(v2), vy(v2)); 
+    if(v1->routingedge)
+    printf("\tv1 edge %f,%f %f,%f\n", vx(tedge_v1(v1->routingedge)), vy(tedge_v1(v1->routingedge)), vx(tedge_v2(v1->routingedge)), vy(tedge_v2(v1->routingedge)));
+    if(v2->routingedge)
+    printf("\tv2 edge %f,%f %f,%f\n", vx(tedge_v2(v2->routingedge)), vy(tedge_v2(v2->routingedge)), vx(tedge_v2(v2->routingedge)), vy(tedge_v2(v2->routingedge)));
+
+  }
+
 #endif
 //  if(!(TOPOROUTER_VERTEX(i->data)->flags & VERTEX_FLAG_ROUTE))
   i = i->next;
@@ -5723,7 +5935,10 @@ oproute_rubberband_segment(toporouter_t *r, toporouter_oproute_t *oproute, GList
     if(v == v2 || v == v1 || !v->routingedge) break;
 
 #ifdef DEBUG_RUBBERBAND
-//    printf("current v %f,%f\n", vx(v), vy(v));
+    if(debug) printf("current v %f,%f - edge %f,%f %f,%f\n", vx(v), vy(v),
+        vx(tedge_v1(v->routingedge)), vy(tedge_v1(v->routingedge)),
+        vx(tedge_v2(v->routingedge)), vy(tedge_v2(v->routingedge))
+        );
 #endif
   //  g_assert(v->routingedge);
    
@@ -5764,21 +5979,21 @@ oproute_rubberband_segment(toporouter_t *r, toporouter_oproute_t *oproute, GList
 rubberband_insert_maxarc:
   if(!arcs) return NULL;
   max = TOPOROUTER_RUBBERBAND_ARC(arcs->data); 
-
-  av1 = max->pathv; i = max->list->prev;
-  while(i) {
-    toporouter_vertex_t *v = TOPOROUTER_VERTEX(i->data);
-    if(v->routingedge && (tedge_v1(v->routingedge) == max->arcv || tedge_v2(v->routingedge) == max->arcv)) {
-      av1 = v; i = i->prev; continue;
-    }
-    break;
-  }
   
   av2 = max->pathv; i = max->list->next;
   while(i) {
     toporouter_vertex_t *v = TOPOROUTER_VERTEX(i->data);
     if(v->routingedge && (tedge_v1(v->routingedge) == max->arcv || tedge_v2(v->routingedge) == max->arcv)) {
       av2 = v; i = i->next; continue;
+    }
+    break;
+  }
+  
+  av1 = max->pathv; i = max->list->prev;
+  while(i) {
+    toporouter_vertex_t *v = TOPOROUTER_VERTEX(i->data);
+    if(v->routingedge && (tedge_v1(v->routingedge) == max->arcv || tedge_v2(v->routingedge) == max->arcv)) {
+      av1 = v; i = i->prev; continue;
     }
     break;
   }
@@ -5800,8 +6015,10 @@ rubberband_insert_maxarc:
     else if(arc1) calculate_term_to_arc(TOPOROUTER_VERTEX(t2), arc1, 1);
     else if(arc2) calculate_term_to_arc(TOPOROUTER_VERTEX(t1), arc2, 0);
 
+#ifdef DEBUG_RUBBERBAND
     printf("REMOVING NEW ARC @ %f,%f\n", vx(newarc->centre), vy(newarc->centre));
     //TODO: properly remove newarc
+#endif
 
     arcs = g_list_remove(arcs, max);
     free(max);
@@ -5810,7 +6027,7 @@ rubberband_insert_maxarc:
 
 
   list1 = oproute_rubberband_segment(r, oproute, path, t1, newarc, debug);
-  list2 = oproute_rubberband_segment(r, oproute, i->prev, newarc, t2, debug);
+  list2 = oproute_rubberband_segment(r, oproute, i->next, newarc, t2, debug);
 
   if(list1) {
     GList *list = g_list_last(list1);
@@ -5822,7 +6039,9 @@ rubberband_insert_maxarc:
       list1 = g_list_remove(list1, testarc);
       if(parc) calculate_arc_to_arc(r, parc, newarc);
       else calculate_term_to_arc(TOPOROUTER_VERTEX(t1), newarc, 0);
+#ifdef DEBUG_RUBBERBAND
       printf("REMOVING ARC @ %f,%f\n", vx(testarc->centre), vy(testarc->centre));
+#endif
     }
   }
   if(list2) {
@@ -5835,7 +6054,9 @@ rubberband_insert_maxarc:
       if(narc) calculate_arc_to_arc(r, newarc, narc);
       else calculate_term_to_arc(TOPOROUTER_VERTEX(t2), newarc, 1);
     
+#ifdef DEBUG_RUBBERBAND
       printf("REMOVING ARC @ %f,%f\n", vx(testarc->centre), vy(testarc->centre));
+#endif
     }
   }
 
@@ -5864,8 +6085,7 @@ oproute_rubberband(toporouter_t *r, GList *path)
   path_set_oproute(path, oproute);
 #ifdef DEBUG_RUBBERBAND
   printf("OPROUTE %s - %f,%f %f,%f\n", oproute->netlist, vx(oproute->term1), vy(oproute->term1), vx(oproute->term2), vy(oproute->term2));
-
-  if(!strcmp(oproute->netlist, "  R/W"))
+  if(!strcmp(oproute->netlist, "  unnamed_net13"))
     oproute->arcs = oproute_rubberband_segment(r, oproute, path, oproute->term1, oproute->term2, 1);
   else
 #endif    
@@ -5878,13 +6098,14 @@ oproute_rubberband(toporouter_t *r, GList *path)
 void
 toporouter_export(toporouter_t *r) 
 {
-  GList *i = r->paths;
+//  GList *i = r->paths;
+  GList *i = r->routednets;
   GList *oproutes = NULL;
 
   while(i) {
-    GList *j = (GList *)i->data;
-    toporouter_oproute_t *oproute;
-    oproute = oproute_rubberband(r, j);
+//    GList *j = (GList *) i->data;
+    toporouter_route_t *routedata = TOPOROUTER_ROUTE(i->data);
+    toporouter_oproute_t *oproute = oproute_rubberband(r, routedata->path);
     oproutes = g_list_prepend(oproutes, oproute);
     i = i->next;
   }
@@ -5899,7 +6120,8 @@ toporouter_export(toporouter_t *r)
     i = i->next;
   }
 
-  printf("Wiring cost: %f\n", r->wiring_score / 1000.);
+  Message(_("Reticulating splines... successful\n\n"));
+//  Message(_("Wiring cost: %f\n"), r->wiring_score / 1000.);
 
   g_list_free(oproutes);
 
@@ -5909,16 +6131,22 @@ toporouter_route_t *
 routedata_create(void)
 {
   toporouter_route_t *routedata = malloc(sizeof(toporouter_route_t));
-  
+
   routedata->alltemppoints = NULL;
   routedata->path = NULL;
   routedata->curpoint = NULL;
   routedata->score = 0.;
   routedata->flags = 0;
-  routedata->src = NULL;
-  routedata->dest = NULL;
-  routedata->keepoutlayers = NULL; 
-  routedata->topopath = NULL;
+  routedata->node = routedata->src = routedata->dest = NULL;
+  routedata->ppath = routedata->topopath = NULL;
+
+  routedata->ppathindices = NULL;
+
+  routedata->mergebox1 = routedata->mergebox2 = NULL;
+  
+  routedata->pmergebox1 = routedata->pmergebox2 = NULL;
+
+  routedata->destvertices = routedata->srcvertices = NULL;
   return routedata;
 }
 
@@ -5938,21 +6166,21 @@ print_routedata(toporouter_route_t *routedata)
   g_list_free(destvertices);
 }
 
-guint
-cluster_pin_check(toporouter_cluster_t *c)
-{
-  GList *i = c->i;
-  while(i) {
-    toporouter_bbox_t *bbox = TOPOROUTER_BBOX(i->data);
+//guint
+//cluster_pin_check(toporouter_cluster_t *c)
+//{
+//  GList *i = c->i;
+//  while(i) {
+//    toporouter_bbox_t *bbox = TOPOROUTER_BBOX(i->data);
 
-    if(!(bbox->type == PIN || bbox->type == VIA))
-      return 0;
+//    if(!(bbox->type == PIN || bbox->type == VIA))
+//      return 0;
 
-    i = i->next;
-  }
+//    i = i->next;
+//  }
 
-  return 1;
-}
+//  return 1;
+//}
 
 
 toporouter_route_t *
@@ -5974,13 +6202,13 @@ route_ratline(toporouter_t *r, RatType *line)
     return NULL;
   }
  
-  if(r->flags & TOPOROUTER_FLAG_LAYERHINT && cluster_pin_check(routedata->src) && cluster_pin_check(routedata->dest)) {
-    gdouble *layer = malloc(sizeof(gdouble));
-    *layer = GetLayerGroupNumberByNumber (max_layer + COMPONENT_LAYER);
+//if(r->flags & TOPOROUTER_FLAG_LAYERHINT && cluster_pin_check(routedata->src) && cluster_pin_check(routedata->dest)) {
+//  gdouble *layer = malloc(sizeof(gdouble));
+//  *layer = GetLayerGroupNumberByNumber (max_layer + COMPONENT_LAYER);
 
-    routedata->keepoutlayers = g_list_prepend(routedata->keepoutlayers, layer);
+//  routedata->keepoutlayers = g_list_prepend(routedata->keepoutlayers, layer);
 //    printf("detected pins\n");
-  }
+//}
 
   return routedata;
 }
@@ -6030,14 +6258,32 @@ delete_route(toporouter_route_t *routedata, guint destroy)
   routedata->curpoint = NULL;
   routedata->score = INFINITY;
   routedata->alltemppoints = NULL;
+
+  routedata->mergebox1 = routedata->mergebox2 = NULL;
+  //routedata->merge1 = routedata->merge1 =  NULL;
+}
+
+gint  
+routing_vertex_compare(gconstpointer a, gconstpointer b, gpointer user_data) 
+{
+  GtsSegment *s = GTS_SEGMENT(user_data);
+  gdouble ad, bd;
+
+  ad = gts_point_distance2(GTS_POINT(s->v1), GTS_POINT(a));
+  bd = gts_point_distance2(GTS_POINT(s->v2), GTS_POINT(b));
+
+  if(ad < bd) return -1;
+  if(ad > bd) return 1;
+  g_assert(ad != bd);
+  return 0;
 }
 
 
 /* remove route can be later reapplied */
 void
-remove_route(toporouter_route_t *routedata)
+remove_route(GList *path)
 {
-  GList *i = routedata->path;
+  GList *i = path;
 
   while(i) {
     toporouter_vertex_t *tv = TOPOROUTER_VERTEX(i->data);
@@ -6056,25 +6302,10 @@ remove_route(toporouter_route_t *routedata)
 
 }
 
-gint  
-routing_vertex_compare(gconstpointer a, gconstpointer b, gpointer user_data) 
-{
-  GtsSegment *s = GTS_SEGMENT(user_data);
-  gdouble ad, bd;
-
-  ad = gts_point_distance2(GTS_POINT(s->v1), GTS_POINT(a));
-  bd = gts_point_distance2(GTS_POINT(s->v2), GTS_POINT(b));
-
-  if(ad < bd) return -1;
-  if(ad > bd) return 1;
-  g_assert(ad != bd);
-  return 0;
-}
-
 void
-apply_route(toporouter_route_t *routedata)
+apply_route(GList *path)
 {
-  GList *i = routedata->path;
+  GList *i = path;
   toporouter_vertex_t *pv = NULL;
 
   while(i) {
@@ -6153,8 +6384,12 @@ netscore_create(toporouter_t *r, toporouter_route_t *routedata, guint n, guint i
   netscore->id = id;
 
   netscore->routedata = routedata;
-  netscore->score = routedata->score;
-//  netscore->pairwise_detour = malloc(n * sizeof(gdouble));
+  routedata->detourscore = netscore->score = routedata->score;
+  netscore->pairwise_nodetour = malloc(n * sizeof(guint));
+
+  for(guint i=0;i<n;i++) {
+    netscore->pairwise_nodetour[i] = 0;
+  }
 
   netscore->pairwise_detour_sum = 0.;
   netscore->pairwise_fails = 0;
@@ -6172,7 +6407,7 @@ netscore_create(toporouter_t *r, toporouter_route_t *routedata, guint n, guint i
 inline void
 netscore_destroy(toporouter_netscore_t *netscore)
 {
-//  free(netscore->pairwise_detour);
+  free(netscore->pairwise_nodetour);
   free(netscore);
 }
 
@@ -6194,17 +6429,22 @@ netscore_pairwise_calculation(toporouter_netscore_t *netscore, GPtrArray *netsco
   toporouter_netscore_t **netscores_base = (toporouter_netscore_t **) (netscores->pdata); 
   toporouter_route_t *temproutedata = routedata_create();
 
-  route(netscore->r, netscore->routedata, 0);
+  //route(netscore->r, netscore->routedata, 0);
+  apply_route(netscore->routedata->topopath);
 
   for(toporouter_netscore_t **i = netscores_base; i < netscores_base + netscores->len; i++) {
-    
-    if(*i != netscore) {
+        
+    if(!netscore->pairwise_nodetour[i-netscores_base] && *i != netscore) {
       
       temproutedata->src = (*i)->routedata->src;
       temproutedata->dest = (*i)->routedata->dest;
   
       route(netscore->r, temproutedata, 0);
 
+      if(temproutedata->score == (*i)->score) {
+        netscore->pairwise_nodetour[i-netscores_base] = 1;
+        (*i)->pairwise_nodetour[netscore->id] = 1;
+      }else 
       if(!finite(temproutedata->score)) {
         netscore->pairwise_fails += 1;
       }else{
@@ -6216,7 +6456,8 @@ netscore_pairwise_calculation(toporouter_netscore_t *netscore, GPtrArray *netsco
     
   }
 
-  delete_route(netscore->routedata, 1);
+//  delete_route(netscore->routedata, 1);
+  remove_route(netscore->routedata->topopath);
 
   free(temproutedata);
 }
@@ -6300,80 +6541,216 @@ order_nets_preroute_greedy(toporouter_t *r, GList *nets, GList **rnets)
   return failcount;
 }
 
-  
-
-
 
 void
-route_clusters_merge(toporouter_t *r, toporouter_route_t *routedata)
+cluster_nodes_set_cluster(toporouter_cluster_t *c, toporouter_cluster_t *cluster)
 {
-  GList *i = routedata->dest->i;
-
-  while(i) {
-    TOPOROUTER_BBOX(i->data)->cluster = routedata->src;
-    i = i->next;
-  }
-
-  i = r->nets;
-  while(i) {
-    toporouter_route_t *rd = (toporouter_route_t *)i->data;
-
-    if(rd != routedata) {
-      if(rd->src == routedata->dest) rd->src = routedata->src;
-      if(rd->dest == routedata->dest) rd->dest = routedata->src;
+  if(c->p1) {
+    c->route->src = cluster;
+    c->route->dest = cluster;
+    cluster_nodes_set_cluster(c->p1, cluster);
+    cluster_nodes_set_cluster(c->p2, cluster);
+  }else{
+    GList *i = c->is;
+    while(i) {
+      toporouter_bbox_t *box = TOPOROUTER_BBOX(i->data);
+      box->cluster = cluster;
+      i = i->next;
     }
 
-    i = i->next;
   }
+
+}
+
+void
+cluster_merge(toporouter_t *r, toporouter_route_t *route)
+{
+  GList *i = r->nets;
+
+  if(route->src->c || route->dest->c || route->node) {
   
-  routedata->src->i = g_list_concat(routedata->src->i, routedata->dest->i);
+    if(route->src->c) printf("ERROR: route->src->c = %d\n", route->src->c->id);
+    if(route->dest->c) printf("ERROR: route->dest->c = %d\n", route->dest->c->id);
+    if(route->node) printf("ERROR: route->node->c = %d\n", route->node->id);
+  
 
-  free(routedata->dest);
-  routedata->dest = routedata->src;
+    g_assert(0 == 1);
+  }
+
+  route->node = cluster_create(r, route->src->netlist, route->src->style);
+
+  route->node->p1 = route->src;
+  route->node->p2 = route->dest;
+  route->src->c = route->node;
+  route->dest->c = route->node;
+
+  while(i) {
+    toporouter_route_t *curroute = TOPOROUTER_ROUTE(i->data);
+    if(curroute != route) {
+      if(curroute->src == route->src || curroute->src == route->dest) curroute->src = route->node;
+      if(curroute->dest == route->src || curroute->dest == route->dest) curroute->dest = route->node;
+    }
+    i = i->next;
+  }
+
+  route->node->route = route;
+
+//  printf("** Merged %d %d -> %d\n", route->src->id, route->dest->id, route->node->id);
+//  route->src = route->node;
+//  route->dest = route->node;
+  cluster_nodes_set_cluster(route->node, route->node);
+}
+
+gint
+cluster_find_box(toporouter_cluster_t *c, toporouter_bbox_t *box) 
+{
+  if(c->p1) return ((cluster_find_box(c->p1, box) || cluster_find_box(c->p2, box)) ? 1 : 0);
+  return g_list_find(c->is, box) ? 1 : 0;
+}
+
+toporouter_cluster_t *
+cluster_head(toporouter_cluster_t *c)
+{
+  g_assert(c);
+  if(c->c) return cluster_head(c->c);
+  return c;
+}
+
+void
+print_cluster_tree(gint depth, toporouter_cluster_t *c)
+{
+  if(!c->route) return;
+  for(guint i=0;i<depth;i++) printf(" | ");
+  print_bbox(c->route->mergebox1);
+  print_cluster_tree(depth+1, c->p1);
+  for(guint i=0;i<depth;i++) printf(" | ");
+  print_bbox(c->route->mergebox2);
+  print_cluster_tree(depth+1, c->p2);
+}
+
+void
+cluster_bubble(toporouter_cluster_t *node, toporouter_cluster_t *otherc)
+{
+  
+cluster_bubble_start:
+
+  if(!cluster_find_box(node, node->route->mergebox1)) {
+    toporouter_cluster_t *temp = node->p1;
+    node->p1 = otherc;
+    otherc = temp;
+
+    otherc->c = NULL;
+    node->p1->c = node;
+  }else if(!cluster_find_box(node, node->route->mergebox2)) { 
+    toporouter_cluster_t *temp = node->p2;
+    node->p2 = otherc;
+    otherc = temp;
+
+    otherc->c = NULL;
+    node->p2->c = node;
+  }
+
+  if(node->c) {
+    node = node->c;
+    goto cluster_bubble_start;
+  }
 
 }
 
-
-guint
-router_relaxlayerassignment(toporouter_t *r)
+void
+cluster_split(toporouter_t *r, toporouter_route_t *route)
 {
-  GList *i = r->failednets, *remlist = NULL;
-  guint successcount = 0;  
+  GList *i = r->nets;
+  toporouter_cluster_t *phead;
+  GList *vs1, *vs2;
+  
+  g_assert(route->src == route->dest);
+  g_assert(route->node);
 
-  while(i) {
-    toporouter_route_t *data = (toporouter_route_t *)i->data; 
-   
-    if(data->keepoutlayers) {
-      g_list_free(data->keepoutlayers);
-      data->keepoutlayers = NULL;
+  phead = cluster_head(route->node);
 
-      printf("Attempted to relax layer assignment of %s... ", data->src->netlist);
+//printf("cluster split node %d\n", route->node->id);
+//print_bbox(route->mergebox1);
+//print_bbox(route->mergebox2);
+//print_cluster_tree(0, route->node);
+//print_cluster(route->node);
 
-      if(route(r, data, 1)) { 
-        GList *path = split_path(data->path);
+  if(route->node->c) {
+    toporouter_cluster_t *p1 = route->node->p1, *p2 = route->node->p2;
 
-        r->paths = g_list_concat(r->paths, path);
-        r->routednets = g_list_prepend(r->routednets, data);
-        remlist = g_list_prepend(remlist, data);
-
-        route_clusters_merge(r, data);
-        printf("success\n");
-        successcount++;
-      }else printf("failure\n");
+    if(route->node->c->p1 == route->node) {
+      route->node->c->p1 = p1;
+      p1->c = route->node->c;
+    }else{
+      route->node->c->p2 = p1;
+      p1->c = route->node->c;
     }
 
-    i = i->next;
-  }
+    p2->c = NULL;
+    
+    cluster_bubble(route->node->c, p2);
 
-  i = remlist;
+    route->src = cluster_head(p1); 
+    route->dest = cluster_head(p2); 
+
+  }else{
+    route->node->p1->c = NULL; 
+    route->node->p2->c = NULL; 
+    
+    route->src = route->node->p1;
+    route->dest = route->node->p2;
+
+  }
+  cluster_nodes_set_cluster(route->src, route->src);
+  cluster_nodes_set_cluster(route->dest, route->dest);
+ 
+  
+  vs1 = cluster_vertices(route->src);
+  vs2 = cluster_vertices(route->dest);
+
   while(i) {
-    r->failednets = g_list_remove(r->failednets, i->data);
+    toporouter_route_t *curroute = TOPOROUTER_ROUTE(i->data);
+  
+    if(curroute != route) {
+      if(curroute->src == phead && curroute->dest == phead) {
+//        printf("STALE ROUTE IN NETS\n");
+//        g_assert(1==0);
+      }else if(curroute->src == phead) {
+        GList *other_vs = cluster_vertices(curroute->dest);
+        gdouble d1, d2;
+        toporouter_vertex_t *a, *b;
+
+        closest_cluster_pair(r, vs1, other_vs, &a, &b); d1 = tvdistance2(a,b); 
+        closest_cluster_pair(r, vs2, other_vs, &a, &b); d2 = tvdistance2(a,b); 
+
+        if(d1 < d2) curroute->src = route->src;
+        else curroute->src = route->dest;
+
+        g_list_free(other_vs);
+      }else if(curroute->dest == phead) {
+        GList *other_vs = cluster_vertices(curroute->src);
+        gdouble d1, d2;
+        toporouter_vertex_t *a, *b;
+
+        closest_cluster_pair(r, vs1, other_vs, &a, &b); d1 = tvdistance2(a,b); 
+        closest_cluster_pair(r, vs2, other_vs, &a, &b); d2 = tvdistance2(a,b); 
+
+        if(d1 < d2) curroute->dest = route->src;
+        else curroute->dest = route->dest;
+
+        g_list_free(other_vs);
+      }
+    }
     i = i->next;
   }
-  g_list_free(remlist);
 
-  return successcount;
+  
+  g_list_free(vs1); g_list_free(vs2);
+
+  free(route->node);
+  route->node = NULL;
 }
+
 
 toporouter_vertex_t *
 edge_closest_vertex(toporouter_edge_t *e, toporouter_vertex_t *v)
@@ -6397,162 +6774,566 @@ edge_closest_vertex(toporouter_edge_t *e, toporouter_vertex_t *v)
   return closestv;
 }
 
-GList *
-path_conflict(GList *path)
+void
+snapshot(toporouter_t *r, char *name, GList *datas) 
 {
-  GList *i = path, *conflicts = NULL;
+/*
+  for(gint i=0;i<groupcount();i++) {
+   gts_surface_foreach_edge(r->layers[i].surface, space_edge, NULL);
+  }
+  {
+    int i;
+    for(i=0;i<groupcount();i++) {
+      char buffer[256];
+      sprintf(buffer, "route-%s-%d.png", name, i);
+      toporouter_draw_surface(r, r->layers[i].surface, buffer, 2048, 2048, 2, datas, i, NULL);
+    }
+  }
+*/
+
+}
+
+gdouble
+route_conflict(toporouter_route_t *route, guint *n)
+{
+  GList *i = route->path;
+  toporouter_vertex_t *pv = NULL;
+  gdouble cost = 0.;
+
+  while(i) {
+    toporouter_vertex_t *v = TOPOROUTER_VERTEX(i->data);
+    if(pv && vz(v) == vz(pv))
+      cost += vertices_routing_conflict_cost(v, pv, n);
+    pv = v;
+    i = i->next;
+  }
+
+  return cost;
+}
+
+GList *
+route_conflicts(toporouter_route_t *route)
+{
+  GList *conflicts = NULL, *i = route->path;
   toporouter_vertex_t *pv = NULL;
 
   while(i) {
     toporouter_vertex_t *v = TOPOROUTER_VERTEX(i->data);
-    toporouter_vertex_t *nv = i->next ? TOPOROUTER_VERTEX(i->next->data) : NULL;
-   
-    if(nv && pv) {
-      GList *er = v->routingedge ? edge_routing(v->routingedge) : NULL;
 
-      printf("\t vertex %f,%f\n", vx(v), vy(v));
-
-      if(er) {
-        gdouble flow = edge_flow(v->routingedge, tedge_v1(v->routingedge), tedge_v2(v->routingedge), TOPOROUTER_VERTEX(path->data));
-        gdouble capacity = edge_capacity(v->routingedge);
-        gdouble ms = min_spacing(TOPOROUTER_VERTEX(path->data), TOPOROUTER_VERTEX(path->data));
-       
-        if(flow + ms >= capacity) {
-          toporouter_vertex_t *closestv = edge_closest_vertex(v->routingedge, v); 
-
-          if(closestv && !g_list_find(conflicts, closestv->route)) {
-            printf("conflict with %s at %f,%f\n", closestv->route->dest->netlist, vx(closestv), vy(closestv));
-            conflicts = g_list_prepend(conflicts, closestv->route);  
-          }
-
-        }
-
+    if(pv && vz(pv) == vz(v)) {
+      GList *temp = vertices_routing_conflicts(pv, v), *j;
+     
+      j = temp;
+      while(j) {
+        toporouter_route_t *conroute = TOPOROUTER_ROUTE(j->data);
+        if(!g_list_find(conflicts, conroute)) 
+          conflicts = g_list_prepend(conflicts, conroute);
+        j = j->next;
       }
 
-      while(er) {
-        toporouter_vertex_t *ev = TOPOROUTER_VERTEX(er->data);
-        if(ev != v && vertex_intersect(GTS_VERTEX(pv), GTS_VERTEX(nv), GTS_VERTEX(ev->parent), GTS_VERTEX(ev->child))) {
-          if(!g_list_find(conflicts, ev->route)) {
-            printf("conflict with %s at %f,%f\n", ev->route->dest->netlist, vx(ev), vy(ev));
-            conflicts = g_list_prepend(conflicts, ev->route);
-          }
-        }
-        er = er->next;
-      }
-
+      if(temp) g_list_free(temp);
     }
 
     pv = v;
     i = i->next;
   }
-
   return conflicts;
 }
 
-guint 
-router_roar(toporouter_t *r)
+
+void
+single_layer_path(toporouter_route_t *data)
 {
-  GList *i = r->failednets;
-//  guint successcount = 0;
+  GList *path = split_path(data->path), *i = path;
+  gint maxpath = 0;
+  data->path = NULL;
 
   while(i) {
-    toporouter_route_t *data = (toporouter_route_t *)i->data; 
-    GList *conflicts = path_conflict(data->topopath);
-    GList *j = conflicts;
+    GList *j = (GList *) i->data;
+    gint n = g_list_length(j);
+    if(!data->path || n > maxpath) {
+      maxpath = n;
+      data->path = j;
+    }
+    i = i->next;
+  }
 
-    printf("Trying ROAR on %s\n", data->src->netlist);
+}
 
+gint       
+spread_edge(gpointer item, gpointer data)
+{
+  toporouter_edge_t *e = TOPOROUTER_EDGE(item);
+  toporouter_vertex_t *v;
+  gdouble spacing, s;
+  GList *i;
+
+  if(TOPOROUTER_IS_CONSTRAINT(e)) return 0;
+
+  i = edge_routing(e);
+
+  if(!g_list_length(i)) return 0;
+
+  if(g_list_length(i) == 1) {
+    v = TOPOROUTER_VERTEX(i->data);
+    GTS_POINT(v)->x = (vx(edge_v1(e)) + vx(edge_v2(e))) / 2.;
+    GTS_POINT(v)->y = (vy(edge_v1(e)) + vy(edge_v2(e))) / 2.;
+    return 0;
+  }
+  
+  s = spacing = (gts_point_distance(GTS_POINT(edge_v1(e)), GTS_POINT(edge_v2(e))) ) / (g_list_length(i) + 1);
+  
+  while(i) {
+    v = TOPOROUTER_VERTEX(i->data); 
+    vertex_move_towards_vertex_values(edge_v1(e), edge_v2(e), s, &(GTS_POINT(v)->x), &(GTS_POINT(v)->y));
+
+    s += spacing;
+    i = i->next;
+  }
+
+  return 0;  
+}
+
+void
+route_rollback(toporouter_route_t *route)
+{
+  GList *i;
+  toporouter_vertex_t *pv = NULL;
+  gint n = 0;
+
+  //  if(route->path) g_list_free(route->path);
+  //  if(route->merge1) g_list_free(route->merge1);
+  //  if(route->merge2) g_list_free(route->merge2);
+  //
+  g_assert(route->ppath);
+  g_assert(route->ppathindices);
+
+  route->path = route->ppath;
+  i = route->ppath;
+  while(i) {
+    toporouter_vertex_t *v = TOPOROUTER_VERTEX(i->data);
+
+    if(v->routingedge) {
+      if(TOPOROUTER_IS_CONSTRAINT(v->routingedge)) 
+        TOPOROUTER_CONSTRAINT(v->routingedge)->routing = g_list_insert(TOPOROUTER_CONSTRAINT(v->routingedge)->routing, v, route->ppathindices[n]);
+      else
+        v->routingedge->routing = g_list_insert(v->routingedge->routing, v, route->ppathindices[n]);
+
+      //      space_edge(v->routingedge, NULL);
+    }
+
+    if(pv) {
+      pv->child = v;
+      v->parent = pv;
+    }
+
+    n++;
+    pv = v;
+    i = i->next;
+  }
+
+  route->score = route->pscore;
+  route->mergebox1 = route->pmergebox1;
+  route->mergebox2 = route->pmergebox2;
+  //  route->ppath = NULL;
+}
+
+void
+roar_revert(toporouter_t *r, GList *conflicts, gint rs, gint fs)
+{
+  GList *i;
+
+  r->flags &= ~TOPOROUTER_FLAG_LEASTINVALID;
+
+  for(guint i=0;i<rs;i++) {
+    toporouter_route_t *route = TOPOROUTER_ROUTE(r->routednets->data);
+#ifdef DEBUG_ROAR
+    printf("- Removed %s\n", route->src->netlist);
+#endif 
+    cluster_split(r, route);
+    delete_route(route, 1);
+
+    r->routednets = g_list_remove(r->routednets, route);
+    r->failednets = g_list_prepend(r->failednets, route);
+  }
+  ///*  
+  i = g_list_last(conflicts);
+  while(i) {
+    toporouter_route_t *data = TOPOROUTER_ROUTE(i->data);
+
+    route_rollback(data);
+    i = i->prev;
+  }
+  i = g_list_last(conflicts);
+  while(i) {
+    toporouter_route_t *data = TOPOROUTER_ROUTE(i->data);
+#ifdef DEBUG_ROAR
+    printf("- Reappling %s - %d %d\n", data->src->netlist, data->src->id, data->dest->id);
+#endif 
+//    printf("\nBEFORE MERGE:\n");
+//    print_cluster(data->src);
+//    print_cluster(data->dest);
+    cluster_merge(r, data);
+//    printf("AFTER MERGE:\n");
+//    print_cluster(data->src);
+
+#ifdef DEBUG_ROAR
+    printf("- Reapplied %s - %d %d\n", data->src->netlist, data->src->id, data->dest->id);
+#endif 
+    r->failednets = g_list_remove(r->failednets, data);
+    r->routednets = g_list_prepend(r->routednets, data);
+    i = i->prev;
+  }
+  //  */
+
+  g_list_free(conflicts);
+}
+
+void
+route_checkpoint(toporouter_route_t *route, toporouter_route_t *temproute)
+{
+  GList *i = g_list_last(route->path);
+  gint n = g_list_length(route->path);
+
+  if(route->ppathindices) free(route->ppathindices);
+  route->ppathindices = malloc(sizeof(gint)*n);
+
+//  n = 0;
+  while(i) {
+    toporouter_vertex_t *v = TOPOROUTER_VERTEX(i->data);
+    n--;
+
+    if(v->routingedge) {
+      GList *j = g_list_find(edge_routing(v->routingedge), v)->prev;
+      gint tempindex = g_list_index(edge_routing(v->routingedge), v);
+
+      while(j) {
+        if(TOPOROUTER_VERTEX(j->data)->route == temproute) tempindex--;
+        j = j->prev;
+      }
+
+      route->ppathindices[n] = tempindex; 
+
+      if(TOPOROUTER_IS_CONSTRAINT(v->routingedge)) 
+        TOPOROUTER_CONSTRAINT(v->routingedge)->routing = g_list_remove(TOPOROUTER_CONSTRAINT(v->routingedge)->routing, v);
+      else
+        v->routingedge->routing = g_list_remove(v->routingedge->routing, v);
+    }
+
+    i = i->prev;
+  }
+
+  //  if(route->ppath) {
+  //    g_list_free(route->ppath);
+  //    g_list_free(route->pmerge1);
+  //    g_list_free(route->pmerge2);
+  //  }
+
+  route->pscore = route->score;
+  route->ppath = g_list_copy(route->path);
+  route->pmergebox1 = route->mergebox1;
+  route->pmergebox2 = route->mergebox2;
+  remove_route(route->path);      
+  route->path = NULL; 
+}
+
+GList *
+roar_route(toporouter_t *r, toporouter_route_t *data, gint *routed, gint *failed, gint failurethreshold)
+{
+  gint intfails = 0;
+
+  (*routed) = 0;
+  (*failed) = 0;
+
+  r->flags |= TOPOROUTER_FLAG_LEASTINVALID;
+#ifdef DEBUG_ROAR
+  printf("Attemping least invalid route of %s\n", data->src->netlist);
+#endif 
+  if(route(r, data, 0)) {
+    GList *conflicts, *j;
+
+    (*routed)++;
+    single_layer_path(data);
+
+    conflicts = route_conflicts(data);
+    r->routednets = g_list_prepend(r->routednets, data);
+    r->failednets = g_list_remove(r->failednets, data);
+    cluster_merge(r, data);
+    
+    r->flags &= ~TOPOROUTER_FLAG_LEASTINVALID;
+
+    j = conflicts;
     while(j) {
-      toporouter_route_t *route = TOPOROUTER_ROUTE(j->data);
-      printf("\tconflict with %s\n", route->src->netlist);
+      toporouter_route_t *conflict = TOPOROUTER_ROUTE(j->data);
+#ifdef DEBUG_ROAR
+      printf("\tripping up conflict %d %d %s --- ", conflict->src->id, conflict->dest->id, conflict->src->netlist);
+#endif 
+
+      route_checkpoint(conflict, data);
+//    printf("\nBEFORE SPLIT:\n");
+//    print_cluster(conflict->src);
+      cluster_split(r, conflict);
+//    printf("AFTER SPLIT:\n");
+//    print_cluster(conflict->src);
+//    print_cluster(conflict->dest);
+
+      r->routednets = g_list_remove(r->routednets, conflict);
+      r->failednets = g_list_prepend(r->failednets, conflict);
+      (*failed) ++;
+#ifdef DEBUG_ROAR
+      printf("now %d %d\n", conflict->src->id, conflict->dest->id);
+#endif 
+      j = j->next;
+    }
+
+    j = conflicts;
+    while(j) {
+      toporouter_route_t *conflict = TOPOROUTER_ROUTE(j->data);
+#ifdef DEBUG_ROAR
+      printf("\t\tre-routing conflict %d %d %s - ", conflict->src->id, conflict->dest->id, conflict->src->netlist);
+#endif 
+
+      if(route(r, conflict, 0)) { 
+        (*routed)++;
+        (*failed)--;
+        single_layer_path(conflict);
+        r->routednets = g_list_prepend(r->routednets, conflict);
+        r->failednets = g_list_remove(r->failednets, conflict);
+        cluster_merge(r, conflict);
+#ifdef DEBUG_ROAR
+        printf("SUCCESS %d %d\n", conflict->src->id, conflict->dest->id);
+#endif 
+      }else{
+#ifdef DEBUG_ROAR
+        printf("FAILURE %d %d\n", conflict->src->id, conflict->dest->id);
+#endif 
+
+        if(++intfails >= failurethreshold) return conflicts;
+      }
       j = j->next;
     }
 
     g_list_free(conflicts);
-    i = i->next;
+  
+  }else{
+#ifdef DEBUG_ROAR
+    printf("FAILED\n");
+#endif 
+    r->flags &= ~TOPOROUTER_FLAG_LEASTINVALID;
   }
 
-  return 0;
+  return NULL;
 }
 
-guint
-hard_router(toporouter_t *r)
+gint
+route_detour_compare(toporouter_route_t **a, toporouter_route_t **b)
+{ return ((*b)->score - (*b)->detourscore) - ((*a)->score - (*a)->detourscore); }
+
+
+void
+roar_detour_route(toporouter_t *r, toporouter_route_t *data)
 {
-  GList *i;
-  guint failcount = 0, ncount = 0;
-  toporouter_vertex_t *destv = NULL;
-  order_nets_preroute_greedy(r, r->nets, &i); 
+  gdouble pscore = data->score, nscore = 0.; 
+
+  route_checkpoint(data, NULL);
+  cluster_split(r, data);
+
+  r->flags |= TOPOROUTER_FLAG_LEASTINVALID;
+  if(route(r, data, 0)) {
+    GList *conflicts, *j;  
+    single_layer_path(data);
+
+    nscore = data->score;
+
+    conflicts = route_conflicts(data);
+    cluster_merge(r, data);
+
+    r->flags &= ~TOPOROUTER_FLAG_LEASTINVALID;
+
+    j = conflicts;
+    while(j) {
+      toporouter_route_t *conflict = TOPOROUTER_ROUTE(j->data);
+
+      pscore += conflict->score;
+
+      route_checkpoint(conflict, NULL);
+      cluster_split(r, conflict);
+#ifdef DEBUG_DETOUR_ROAR
+      printf("\tCP %s score %f\n", conflict->src->netlist, pscore);
+#endif 
+
+      j = j->next;
+    }
+    
+    j = conflicts;
+    while(j) {
+      toporouter_route_t *conflict = TOPOROUTER_ROUTE(j->data);
+
+      if(route(r, conflict, 0)) { 
+        single_layer_path(conflict);
+        cluster_merge(r, conflict);
+
+        nscore += conflict->score;
+#ifdef DEBUG_DETOUR_ROAR
+        printf("\tRouted %s score %f\n", conflict->src->netlist, nscore);
+#endif 
+      }else{
+        j = j->prev;
+        goto roar_detour_route_rollback_int;
+      }
+      j = j->next;
+    }
+
+#ifdef DEBUG_DETOUR_ROAR
+    printf("All rerouted.. nscore = %f pscore = %f\n", nscore, pscore);
+#endif 
+
+    if(nscore > pscore) {
+      j = g_list_last(conflicts);
+roar_detour_route_rollback_int:      
+      while(j) {
+        toporouter_route_t *conflict = TOPOROUTER_ROUTE(j->data);
+#ifdef DEBUG_DETOUR_ROAR
+        printf("\t * split, delete %s\n", conflict->src->netlist);
+#endif 
+        cluster_split(r, conflict);
+        delete_route(conflict, 1);
+        j = j->prev;
+      }
+      j = g_list_last(conflicts);
+      while(j) {
+        toporouter_route_t *conflict = TOPOROUTER_ROUTE(j->data);
+#ifdef DEBUG_DETOUR_ROAR
+        printf("\t * rollback, merge %s\n", conflict->src->netlist);
+#endif 
+        route_rollback(conflict);
+        cluster_merge(r, conflict);
+        j = j->prev;
+      }
+      cluster_split(r, data);
+      delete_route(data, 1);
+      goto roar_detour_route_rollback_exit;
+
+    }
+
+    g_list_free(conflicts);
+  }else{
+    r->flags &= ~TOPOROUTER_FLAG_LEASTINVALID;
+roar_detour_route_rollback_exit:    
+#ifdef DEBUG_DETOUR_ROAR
+    printf("ERROR: Couldn't detour route %s\n", data->src->netlist);
+    printf("\t * Rolling back main route %s\n", data->src->netlist);
+#endif 
+    route_rollback(data);
+    cluster_merge(r, data);
+  }
+
+}
+
+void
+detour_router(toporouter_t *r) 
+{
+  GList *i = r->routednets;
+  guint n = g_list_length(r->routednets);
+  GPtrArray* scores =  g_ptr_array_sized_new(n);
 
   while(i) {
-    toporouter_route_t *data = (toporouter_route_t *)i->data; 
-   
-    printf("%d remaining, %d routed, %d failed\n", 
-        g_list_length(i),
-        g_list_length(r->routednets),
-        g_list_length(r->failednets));
-
-    if((destv = route(r, data, 1))) { 
-      GList *path = split_path(data->path);
-//      GList *path = data->path;
-
-      r->paths = g_list_concat(r->paths, path);
-      r->routednets = g_list_prepend(r->routednets, data);
-      
-      route_clusters_merge(r, data);
-
-    }else{
-      r->failednets = g_list_prepend(r->failednets, data);
-      failcount++;
-      g_list_free(data->path);
-      data->path = NULL;
-    }
-
-    if(ncount++ >= r->effort || g_list_length(i) < 10) { 
-      order_nets_preroute_greedy(r, i->next, &i);
-      ncount = 0;
-    } else {
-      i = i->next;
-    }
-  } 
+    toporouter_route_t *curroute = TOPOROUTER_ROUTE(i->data);
+    curroute->score = path_score(r, curroute->path);
+    g_ptr_array_add(scores, i->data);
+    i = i->next;
+  }
   
-  failcount -= router_relaxlayerassignment(r);
+  g_ptr_array_sort(scores, (GCompareFunc) route_detour_compare);
+
+  for(toporouter_route_t **i = (toporouter_route_t **) scores->pdata; i < (toporouter_route_t **) scores->pdata + scores->len; i++) {
+    toporouter_route_t *curroute = (*i);
+   
+    if(finite(curroute->score) && finite(curroute->detourscore)) {
+//    printf("%15s %15f \t %8f,%8f - %8f,%8f\n", (*i)->src->netlist + 2, (*i)->score - (*i)->detourscore,
+//        vx(curroute->mergebox1->point), vy(curroute->mergebox1->point),
+//        vx(curroute->mergebox2->point), vy(curroute->mergebox2->point));
+
+      if(curroute->score - curroute->detourscore > 1000.) {
+        roar_detour_route(r, curroute);
+      }else break;
+
+    }
+  }
+  printf("\n");
+  
+  g_ptr_array_free(scores, TRUE);
+
+}
+
+gint
+roar_router(toporouter_t *r, gint failcount)
+{
+  gint pfailcount = failcount;
+
+  Message(_("ROAR router: "));
+  for(guint j=0;j<5;j++) {
+    GList *failed = g_list_copy(r->failednets), *k = failed;
+    gint rs, fs;
+
+    k = failed;
+    while(k) {
+      GList *conflicts;
+      if((conflicts = roar_route(r, TOPOROUTER_ROUTE(k->data), &rs, &fs, 2))) 
+        roar_revert(r, conflicts, rs, fs);
+      else 
+        failcount -= 1-fs;
+      
+      k = k->next;
+    }
+    g_list_free(failed);
+//    printf("\tROAR pass %d - %d routed -  %d failed\n", j, g_list_length(r->routednets), g_list_length(r->failednets));
+
+    if(!failcount || failcount >= pfailcount) {
+      Message(_("%d nets remaining\n"), failcount);
+      break;
+    }
+    Message(_("%d -> "), failcount);
+    pfailcount = failcount;
+  }
 
   return failcount;
 }
 
 guint
-soft_router(toporouter_t *r)
+hybrid_router(toporouter_t *r)
 {
   GList *i;
-  toporouter_vertex_t *destv = NULL;
-  guint failcount = 0;
+  gint failcount = 0;
+  
   order_nets_preroute_greedy(r, r->nets, &i); 
 
-  printf("%d nets to route\n", g_list_length(i));
+  r->flags |= TOPOROUTER_FLAG_AFTERORDER;
 
   while(i) {
     toporouter_route_t *data = (toporouter_route_t *)i->data; 
     
-    if((destv = route(r, data, 1))) { 
-      GList *path = split_path(data->path);//, *j = i->next;
-
-      r->paths = g_list_concat(r->paths, path);
+    if(route(r, data, 0)) { 
+      single_layer_path(data);
       r->routednets = g_list_prepend(r->routednets, data);
-
-      route_clusters_merge(r, data);
-      printf(".");
-
+      cluster_merge(r, data);
     }else{
       r->failednets = g_list_prepend(r->failednets, data);
       failcount++;
     }
 
-
     i = i->next;
   } 
-  printf("\n");
+  Message(_("RUBIX router: %d nets remaining\n"), failcount);
 
-  failcount -= router_relaxlayerassignment(r);
+  failcount = roar_router(r, failcount);
+  
+  detour_router(r);
+  
+  failcount = roar_router(r, failcount);
+  failcount = roar_router(r, failcount);
+  
+  detour_router(r);
 
   return failcount;
 }
@@ -6568,19 +7349,6 @@ parse_arguments(toporouter_t *r, int argc, char **argv)
       gdouble *layer = malloc(sizeof(gdouble));
       *layer = (double)tempint;
       r->keepoutlayers = g_list_prepend(r->keepoutlayers, layer);
-    }else if(!strcmp(argv[i], "no2")) {
-      r->netsort = netscore_pairwise_size_compare;
-    }else if(!strcmp(argv[i], "hardsrc")) {
-      r->flags |= TOPOROUTER_FLAG_HARDSRC;
-    }else if(!strcmp(argv[i], "harddest")) {
-      r->flags |= TOPOROUTER_FLAG_HARDDEST;
-    }else if(!strcmp(argv[i], "match")) {
-      r->flags |= TOPOROUTER_FLAG_MATCH;
-    }else if(!strcmp(argv[i], "layerhint")) {
-      r->flags |= TOPOROUTER_FLAG_LAYERHINT;
-    }else if(sscanf(argv[i], "h%d", &tempint)) {
-      r->router = hard_router;
-      r->effort = tempint;
     }
   }
   
@@ -6594,28 +7362,14 @@ parse_arguments(toporouter_t *r, int argc, char **argv)
 
 }
 
-void
-finalize_path(toporouter_t *r, GList *routedatas)
-{
-  while(routedatas) {
-    toporouter_route_t *routedata = (toporouter_route_t *)routedatas->data;
-    GList *path = split_path(routedata->path); 
-
-    r->paths = g_list_concat(r->paths, path);
-
-    routedatas = routedatas->next;
-  }
-}
-
 toporouter_t *
 toporouter_new() 
 {
   toporouter_t *r = calloc(1, sizeof(toporouter_t));
   time_t ltime; 
-  
+
   gettimeofday(&r->starttime, NULL);  
 
-  r->router = soft_router;
   r->netsort = netscore_pairwise_compare;
 
   r->clusters = NULL;
@@ -6624,12 +7378,13 @@ toporouter_new()
   r->destboxes = NULL;
   r->consumeddestboxes = NULL;
 
+  r->paths = NULL;
+
   r->layers = NULL;
   r->flags = 0;
   r->viamax     = 3;
   r->viacost    = 10000.;
   r->stublength = 300.;
-  r->effort  = 2;
   r->serpintine_half_amplitude = 1500.;
 
   r->wiring_score = 0.;
@@ -6639,21 +7394,20 @@ toporouter_new()
 
   r->routecount = 0;
 
-  r->paths = NULL;
   r->nets = NULL;
   r->keepoutlayers = NULL;
 
   r->routednets = NULL;
   r->failednets = NULL;
-  r->bestrouting = NULL;
 
   ltime=time(NULL); 
 
   gts_predicates_init();
 
-  printf("Topological Autorouter - Copyright 2009 Anthony Blake (amb33@cs.waikato.ac.nz)\n");
-  printf("Started %s\n",asctime( localtime(&ltime) ) );  
-  
+  Message(_("Topological Autorouter\n"));
+  Message(_("Started %s"),asctime(localtime(&ltime)));  
+  Message(_("-------------------------------------\n"));
+  Message(_("Copyright 2009 Anthony Blake (tonyb33@gmail.com)\n\n"));
   return r;
 }
 
@@ -6686,27 +7440,14 @@ static int
 toporouter (int argc, char **argv, int x, int y)
 {
   toporouter_t *r = toporouter_new();
-
-  Message (_("The autorouter is *EXPERIMENTAL*.\n\n\
-        As such it probably: \n\
-        \tDoes not work;\n\
-        \tIs not optimized;\n\
-        \tIs not documented because code may change;\n"));
-
   parse_arguments(r, argc, argv);
-  
   import_geometry(r);
-
   acquire_twonets(r);
- 
-  r->router(r);
-  
-  printf("Routed %d of %d two-nets\n", g_list_length(r->routednets), g_list_length(r->nets));
-
+  hybrid_router(r);
 /*
-  for(gint i=0;i<groupcount();i++) {
-   gts_surface_foreach_edge(r->layers[i].surface, space_edge, NULL);
-  }
+//  for(gint i=0;i<groupcount();i++) {
+//   gts_surface_foreach_edge(r->layers[i].surface, space_edge, NULL);
+//  }
   {
     int i;
     for(i=0;i<groupcount();i++) {
@@ -6717,7 +7458,6 @@ toporouter (int argc, char **argv, int x, int y)
   }
 */
   toporouter_export(r);
-
   toporouter_free(r);
   
   SaveUndoSerialNumber ();
