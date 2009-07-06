@@ -41,5 +41,6 @@ src/res_parse.c
 src/rotate.c
 src/select.c
 src/set.c
+src/toporouter.c
 src/undo.c
 src/vendor.c
