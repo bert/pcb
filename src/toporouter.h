@@ -61,6 +61,8 @@
 #define TOPOROUTER_FLAG_LAYERHINT     (1<<4)
 #define TOPOROUTER_FLAG_LEASTINVALID  (1<<5)
 #define TOPOROUTER_FLAG_AFTERORDER    (1<<6)
+#define TOPOROUTER_FLAG_AFTERRUBIX    (1<<7)
+#define TOPOROUTER_FLAG_GOFAR         (1<<8)
 
 #if TOPO_OUTPUT_ENABLED
   #include <cairo.h>
@@ -68,14 +70,8 @@
 
 #define EPSILON 0.0001f
 
-//#define DEBUG_RUBBERBAND 1
-//#define DEBUG_EXPORT 1
-//#define DEBUG_ROUTE 1
-//#define DEBUG_IMPORT 1
-//#define DEBUG_ORDERING 1
-//#define DEBUG_CHECK_OPROUTE 1
-//#define DEBUG_MERGING 1
-//#define DEBUG_CLUSTER_FIND 1
+#define DEBUG_ROAR 1
+
 #define coord_distance(a,b,c,d) sqrt(pow(a-c,2)+pow(b-d,2))
 #define coord_distance2(a,b,c,d) (pow(a-c,2)+pow(b-d,2))
 
@@ -86,6 +82,8 @@
 #define edge_v2(e) (GTS_SEGMENT(e)->v2)
 #define tedge_v1(e) (TOPOROUTER_VERTEX(GTS_SEGMENT(e)->v1))
 #define tedge_v2(e) (TOPOROUTER_VERTEX(GTS_SEGMENT(e)->v2))
+
+#define tedge(v1,v2) TOPOROUTER_EDGE(gts_vertices_are_connected(GTS_VERTEX(v1), GTS_VERTEX(v2)))
 
 #define edge_routing(e) (TOPOROUTER_IS_CONSTRAINT(e) ? TOPOROUTER_CONSTRAINT(e)->routing : e->routing)
 #define vrouting(v) (edge_routing(v->routingedge))
@@ -98,6 +96,11 @@
 #define vz(v) (GTS_POINT(v)->z)
 
 #define close_enough_xy(a,b) (vx(a) > vx(b) - EPSILON && vx(a) < vx(b) + EPSILON && vy(a) > vy(b) - EPSILON && vy(a) < vy(b) + EPSILON)
+
+#define tev1x(e) (vx(tedge_v1(e))
+#define tev1y(e) (vy(tedge_v1(e))
+#define tev2x(e) (vx(tedge_v2(e))
+#define tev2y(e) (vy(tedge_v2(e))
 
 #define TOPOROUTER_IS_BBOX(obj)      (gts_object_is_from_class (obj, toporouter_bbox_class ()))
 #define TOPOROUTER_BBOX(obj)          GTS_OBJECT_CAST (obj, toporouter_bbox_t, toporouter_bbox_class ())
@@ -176,9 +179,10 @@ typedef struct _toporouter_edge_class_t toporouter_edge_class_t;
 #define VERTEX_FLAG_RED      (1<<4)
 #define VERTEX_FLAG_GREEN    (1<<5)
 #define VERTEX_FLAG_BLUE     (1<<6)
-#define VERTEX_FLAG_TEMP              (1<<7)
-#define VERTEX_FLAG_ROUTE             (1<<8)
+#define VERTEX_FLAG_TEMP     (1<<7)
+#define VERTEX_FLAG_ROUTE    (1<<8)
 #define VERTEX_FLAG_FAKE     (1<<10)
+#define VERTEX_FLAG_SPECCUT  (1<<11)
 
 struct _toporouter_vertex_t {
   GtsVertex v;
@@ -288,26 +292,18 @@ typedef struct _toporouter_rubberband_arc_t toporouter_rubberband_arc_t;
 
 struct _toporouter_route_t {
 
-//  toporouter_bbox_t *src;
+  struct _toporouter_netlist_t *netlist;
 
-//  GList *dests;
-  
   struct _toporouter_cluster_t *src, *dest;
-  struct _toporouter_cluster_t *node;
-
-  toporouter_bbox_t *mergebox1, *mergebox2;
+  struct _toporouter_cluster_t *psrc, *pdest;
 
   gdouble score, detourscore;
 
   toporouter_vertex_t *curpoint;
   GHashTable *alltemppoints; 
+  
   GList *path;
-/*
-  toporouter_bbox_t *destbox;
-#ifdef DEBUG_ROUTE
-  toporouter_vertex_t *curdest;
-#endif
-*/
+  
   guint flags;
 
   GList *destvertices, *srcvertices;
@@ -316,35 +312,33 @@ struct _toporouter_route_t {
 
   gdouble pscore;
   GList *ppath;
-  gint *ppathindices;
-  toporouter_bbox_t *pmergebox1, *pmergebox2;
 
+  gint *ppathindices;
 };
 
 typedef struct _toporouter_route_t toporouter_route_t;
 
 #define TOPOROUTER_ROUTE(x) ((toporouter_route_t *)x)
 
-#define TOPOROUTER_CLUSTER(x) ((toporouter_cluster_t *)x)
+struct _toporouter_netlist_t {
+  GPtrArray *clusters, *routes;
+  char *netlist, *style;
+  GList *routed;
+};
+
+typedef struct _toporouter_netlist_t toporouter_netlist_t;
+
+#define TOPOROUTER_NETLIST(x) ((toporouter_netlist_t *)x)
 
 struct _toporouter_cluster_t {
-  guint id;
-  GList *is;
-  char *netlist, *style;
-  struct _toporouter_cluster_t *p1, *p2, *c;
-  struct _toporouter_route_t *route;
+  gint c, pc;
+  GPtrArray *boxes;
+  toporouter_netlist_t *netlist;
 };
 
 typedef struct _toporouter_cluster_t toporouter_cluster_t;
 
-struct _toporouter_clearance_t {
-  gpointer data;
-  gint wind;
-  gdouble ms;
-};
-
-typedef struct _toporouter_clearance_t toporouter_clearance_t;
-#define TOPOROUTER_CLEARANCE(x) ((toporouter_clearance_t *)x)
+#define TOPOROUTER_CLUSTER(x) ((toporouter_cluster_t *)x)
 
 #define TOPOROUTER_OPROUTE(x) ((toporouter_oproute_t *)x)
 
@@ -373,11 +367,6 @@ struct _toporouter_oproute_t {
   gdouble tof;
   GList *path;
   
-  GList *clearance;
-  GList *adj;
-
-//  GList *serpintining;
-//  GList *serpintines;
   toporouter_serpintine_t *serp;
 };
 
@@ -437,12 +426,7 @@ struct _toporouter_t {
 
   toporouter_layer_t *layers;
   
-  GList *clusters;
-  guint clustercounter;
-
-  GList *nets;
   GList *paths;
-//  GList *finalroutes;
 
   GList *keepoutlayers;
 
@@ -450,7 +434,6 @@ struct _toporouter_t {
 
   GList *destboxes, *consumeddestboxes;
 
-  guint routecount;
   /* settings: */
   guint viamax;
   gdouble viacost;
@@ -459,9 +442,10 @@ struct _toporouter_t {
 
   gdouble wiring_score;
 
+  GPtrArray *routes;
+  GPtrArray *netlists;
+
   GList *routednets, *failednets;
-//  GList *bestrouting;
-//  guint bestfailcount;
 
   gint (*netsort)(toporouter_netscore_t **, toporouter_netscore_t **);
 
@@ -493,5 +477,27 @@ typedef struct {
   char *filename;
   double iw, ih; /* image dimensions */
 } drawing_context_t;
+
+#define FOREACH_CLUSTER(clusters) do { \
+  for(toporouter_cluster_t **i = ((toporouter_cluster_t **)clusters->pdata) + clusters->len - 1; i >= (toporouter_cluster_t **)clusters->pdata && clusters->len > 0; --i) { \
+    toporouter_cluster_t *cluster = *i; 
+
+#define FOREACH_BBOX(boxes) do { \
+  for(toporouter_bbox_t **i = ((toporouter_bbox_t **)boxes->pdata) + boxes->len - 1; i >= (toporouter_bbox_t **)boxes->pdata && boxes->len > 0; --i) { \
+    toporouter_bbox_t *box = *i;
+
+#define FOREACH_ROUTE(routes) do { \
+  for(toporouter_route_t **i = ((toporouter_route_t **)routes->pdata) + routes->len - 1; i >= (toporouter_route_t **)routes->pdata && routes->len > 0; --i) { \
+    toporouter_route_t *routedata = *i;
+
+#define FOREACH_NETSCORE(netscores) do { \
+  for(toporouter_netscore_t **i = ((toporouter_netscore_t **)netscores->pdata) + netscores->len - 1; i >= (toporouter_netscore_t **)netscores->pdata && netscores->len > 0; --i) { \
+    toporouter_netscore_t *netscore = *i;
+
+#define FOREACH_NETLIST(netlists) do { \
+  for(toporouter_netlist_t **i = ((toporouter_netlist_t **)netlists->pdata) + netlists->len - 1; i >= (toporouter_netlist_t **)netlists->pdata && netlists->len > 0; --i) { \
+    toporouter_netlist_t *netlist = *i;
+
+#define FOREACH_END }} while(0)
 
 #endif /* __TOPOROUTER_INCLUDED__ */
