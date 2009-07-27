@@ -2342,7 +2342,7 @@ ActionDisperseElements (int argc, char **argv, int x, int y)
      * going to be used either with a brand new design or a scratch
      * design holding some new components
      */
-    if (all || TEST_FLAG (SELECTEDFLAG, element))
+    if (!TEST_FLAG (LOCKFLAG, element) && (all || TEST_FLAG (SELECTEDFLAG, element)))
       {
 
 	/* figure out how much to move the element */
