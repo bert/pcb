@@ -36,6 +36,7 @@
 
 #include "global.h"
 #include "data.h"
+#include "error.h"
 #include "misc.h"
 
 #include "hid.h"
@@ -62,6 +63,9 @@ static int y_shift = 0;
 #define SCALE(x)   ((int)((x)/scale + 0.5))
 #define SCALE_X(x) ((int)(((x) - x_shift)/scale))
 #define SCALE_Y(x) ((int)(((x) - y_shift)/scale))
+
+/* The result of a failed gdImageColorAllocate() call */
+#define BADC -1
 
 typedef struct color_struct
 {
@@ -618,6 +622,12 @@ png_do_export (HID_Attr_Val * options)
     }
 
   im = gdImageCreate (w, h);
+  if (im == NULL) 
+    {
+      Message ("%s():  gdImageCreate(%d, %d) returned NULL.  Aborting export.\n", __FUNCTION__, w, h);
+      return;
+    }
+  
   master_im = im;
 
   parse_bloat (options[HA_bloat].str_value);
@@ -634,10 +644,20 @@ png_do_export (HID_Attr_Val * options)
   else
     white->a = 0;
   white->c = gdImageColorAllocateAlpha (im, white->r, white->g, white->b, white->a);
+  if (white->c == BADC) 
+    {
+      Message ("%s():  gdImageColorAllocateAlpha() returned NULL.  Aborting export.\n", __FUNCTION__, w, h);
+      return;
+    }
 
   black = (color_struct *) malloc (sizeof (color_struct));
   black->r = black->g = black->b = black->a = 0;
   black->c = gdImageColorAllocate (im, black->r, black->g, black->b);
+  if (black->c == BADC) 
+    {
+      Message ("%s():  gdImageColorAllocateAlpha() returned NULL.  Aborting export.\n", __FUNCTION__);
+      return;
+    }
 
   f = fopen (filename, "wb");
   if (!f)
@@ -915,15 +935,32 @@ png_set_layer (const char *name, int group, int empty)
 	{
 	  static color_struct *black = NULL, *white = NULL;
 	  *photo_im = gdImageCreate (gdImageSX (im), gdImageSY (im));
+          if (photo_im == NULL) 
+	    {
+	      Message ("%s():  gdImageCreate(%d, %d) returned NULL.  Aborting export.\n", __FUNCTION__, 
+		       gdImageSX (im), gdImageSY (im));
+	      return 0;
+	    }
+
 
 	  white = (color_struct *) malloc (sizeof (color_struct));
 	  white->r = white->g = white->b = 255;
 	  white->a = 0;
 	  white->c = gdImageColorAllocate (*photo_im, white->r, white->g, white->b);
+	  if (white->c == BADC) 
+	    {
+	      Message ("%s():  gdImageColorAllocate() returned NULL.  Aborting export.\n", __FUNCTION__);
+	      return 0;
+	    }
 
 	  black = (color_struct *) malloc (sizeof (color_struct));
 	  black->r = black->g = black->b = black->a = 0;
 	  black->c = gdImageColorAllocate (*photo_im, black->r, black->g, black->b);
+	  if (black->c == BADC) 
+	    {
+	      Message ("%s(): gdImageColorAllocate() returned NULL.  Aborting export.\n", __FUNCTION__);
+	      return 0;
+	    }
 
 	  if (idx == SL (PDRILL, 0)
 	      || idx == SL (UDRILL, 0))
@@ -1028,6 +1065,11 @@ png_set_color (hidGC gc, const char *name)
 	      &(gc->color->b));
       gc->color->c =
 	gdImageColorAllocate (im, gc->color->r, gc->color->g, gc->color->b);
+      if (gc->color->c == BADC) 
+	{
+	  Message ("%s():  gdImageColorAllocate() returned NULL.  Aborting export.\n", __FUNCTION__);
+	  return;
+	}
       cval.ptr = gc->color;
       hid_cache_color (1, name, &cval, &color_cache);
     }
@@ -1124,10 +1166,25 @@ use_gc (hidGC gc)
 	{
 	  int bg, fg;
 	  gc->brush = gdImageCreate (r, r);
+	  if (gc->brush == NULL) 
+	    {
+	      Message ("%s():  gdImageCreate(%d, %d) returned NULL.  Aborting export.\n", __FUNCTION__, r, r);
+	      return;
+	    }
 	  bg = gdImageColorAllocate (gc->brush, 255, 255, 255);
+	  if (bg == BADC) 
+	    {
+	      Message ("%s():  gdImageColorAllocate() returned NULL.  Aborting export.\n", __FUNCTION__);
+	      return;
+	    }
 	  fg =
 	    gdImageColorAllocateAlpha (gc->brush, gc->color->r, gc->color->g,
 				       gc->color->b, 0); 
+	  if (fg == BADC) 
+	    {
+	      Message ("%s():  gdImageColorAllocate() returned NULL.  Aborting export.\n", __FUNCTION__);
+	      return;
+	    }
 	  gdImageColorTransparent (gc->brush, bg);
 
 	  /*
