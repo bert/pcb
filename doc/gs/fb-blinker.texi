@@ -79,7 +79,7 @@ and @code{value} attributes as follows:
 @multitable @columnfractions 0.25 0.15 0.15 0.15
 @item @tab @b{refdes} @tab @b{footprint} @tab @b{value}
 @item @tab C1 @tab RCY100 @tab 1uF
-@item @tab J1 @tab pj-102.fp @tab PJ102
+@item @tab J1 @tab pj102.fp @tab PJ102
 @item @tab LED1 @tab RCY100 @tab RED
 @item @tab R1 @tab ACY400 @tab 100k
 @item @tab R2 @tab ACY400 @tab 100k
@@ -155,7 +155,7 @@ below.
 Using the selection tool, position the crosshair on the element's mark
 and click on it to select it.  Press @kbd{Ctrl-C} to copy it to the
 buffer, and use @mnuu{Buffer,Save buffer elements to file} to save your
-new footprint to a file.  Save it as @code{pj-102.fp} in the
+new footprint to a file.  Save it as @code{pj102.fp} in the
 footprints directory.  Note that the name of the file must match the
 footprint attribute you used for the power jack in your schematics.
 

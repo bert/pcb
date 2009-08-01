@@ -23,7 +23,7 @@ set the footprint attributes as follows:
 @multitable @columnfractions 0.25 0.15 0.15 0.15
 @item @tab @b{refdes} @tab @b{footprint} @tab @b{value}
 @item @tab C1 @tab 0402 @tab 1uF
-@item @tab J1 @tab pj-102.fp @tab PJ102
+@item @tab J1 @tab pj102.fp @tab PJ102
 @item @tab LED1 @tab 0402 @tab RED
 @item @tab R1 @tab 0201 @tab 100k
 @item @tab R2 @tab 0201 @tab 100k
