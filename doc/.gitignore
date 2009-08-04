@@ -37,3 +37,7 @@ thermal.png
 pcbfile.texi
 version.texi
 actions.texi
+fractional_size.texi
+letter_size.texi
+metric_size.texi
+wire_size.texi
