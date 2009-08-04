@@ -1,0 +1,135 @@
+=======================
+ Building PCB from git
+=======================
+
+This file describes how to build from git sources.  If you are
+building from a released version or snapshot, please refer to the
+'INSTALL' document instead.  Take the time to read this file, it's not
+that long and it addresses some questions which come up with some
+frequency.
+
+-------------
+Prerequisites
+-------------
+
+You will need the following tools to obtain and build a git version of
+PCB:
+
+git       -- To download and track sources you will need the 'git'
+             version control tool installed.
+
+To compile you will need a C compiler (such as 'gcc'), a 'lex' (or
+'flex') and a 'yacc' (or 'bison') implementation.  If you do not have
+'lex' or 'yacc', try installing:
+
+bison     -- ftp://ftp.gnu.org/pub/gnu/bison/
+flex      -- ftp://ftp.gnu.org/pub/non-gnu/flex/
+
+In addition you will need recent versions of:
+
+autoconf  -- ftp://ftp.gnu.org/pub/gnu/autoconf/
+             Please note that version 2.13 is too old.  Current development
+             is done with 2.59.
+
+automake  -- ftp://ftp.gnu.org/pub/gnu/automake/
+             The developers use the 1.9.* versions of automake.  Older
+             versions have not been as well tested (or tested at all).
+             Versions 1.7 and older are too old and will not work.
+
+gettext   -- ftp://ftp.gnu.org/pub/gnu/gettext/
+             You will need version 0.14.x, or 0.16.x or higher
+
+intltool  -- https://edge.launchpad.net/intltool/+download
+             You will need version 0.35.0 or higher
+
+texinfo   -- ftp://ftp.gnu.org/pub/gnu/texinfo/
+             You will need at least version 4.6 to be able to build
+             the documentation.
+
+perl      -- Version 5 or newer.  This is needed for building the
+             documentation.
+
+latex     -- This is needed for building the documentation.
+
+You can find the version of autoconf, automake, and makeinfo by
+running them with the '--version' flag.
+
+If you do not wish to build the documentation, use '--disable-doc'
+when you run configure.  When building from a release tarball, the
+documentation comes preformatted.
+
+------------------------
+Clone the PCB repository
+------------------------
+
+If you have previously cloned the PCB source tree, please proceed to
+the updating section.
+
+To clone the PCB repository to your computer, run:
+
+  git clone git://git.gpleda.org/pcb.git
+
+This will download the entire version control history for PCB to
+your computer, and will take some time.
+
+--------
+Updating
+--------
+
+To update your git repository with the latest changes, simply run:
+
+  git pull
+
+----------------------------------
+Bootstrapping with the auto* tools
+----------------------------------
+To create the configure script and the Makefile.in's
+you will need to run:
+
+  ./autogen.sh
+
+from the top level PCB directory.  This will run various programs
+from the GNU autotools to create the 'configure' script, the
+'config.h.in' file and the various 'Makefile.in's.
+
+At this point you can proceed to configure and build PCB as outlined
+in the 'INSTALL' document.
+
+-------------------
+Building a Snapshot
+-------------------
+
+The file 'README.snapshots' documents what is currently done to create
+a snapshot release for PCB.  Most of what is in there has to do with
+the cvs repository and how we tag and branch the sources.  If you are
+interested in building your own .tar.gz file from git sources, you can
+still use the information in 'README.snapshots' as a guide.
+
+------------------
+Advanced git usage
+------------------
+
+If you wish to use git to track your own changes to PCB, use git to
+contribute patches back to the community, or gain 'push' permissions
+for the PCB git repository, please see the gEDA wiki for more
+information:
+
+  http://geda.seul.org/wiki/geda:scm
+
+------------------------
+Using CVS instead of git
+------------------------
+
+It is still possible to use CVS to access the PCB sources.  You can
+checkout the latest version using the command:
+
+  cvs -z3 -d:pserver:anonymous@git.gpleda.org/home/git/pcb.git co master
+
+And update them using:
+
+  cvs -z3 update -PdA
+
+..
+        Local Variables:
+        mode: rst
+        End:
