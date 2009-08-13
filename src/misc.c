@@ -2023,9 +2023,9 @@ GetInfoString (void)
       DSAddString (&info, "See the LICENSE file for more information\n\n");
       DSAddString (&info, "For more information see:\n\n");
       DSAddString (&info, "PCB homepage: http://pcb.gpleda.org\n");
-      DSAddString (&info, "gEDA homepage: http://www.geda.seul.org\n");
+      DSAddString (&info, "gEDA homepage: http://www.gpleda.org\n");
       DSAddString (&info,
-                   "gEDA Wiki: http://geda.seul.org/dokuwiki/doku.php?id=geda\n\n");
+                   "gEDA Wiki: http://geda.seul.org/wiki/ \n\n");
 
       DSAddString (&info, "----- Compile Time Options -----\n");
       hids = hid_enumerate ();
