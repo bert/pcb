@@ -599,7 +599,7 @@ GetDataBoundingBox (DataTypePtr Data)
 void
 CenterDisplay (LocationType X, LocationType Y, Boolean Delta)
 {
-  int save_grid = PCB->Grid;
+  double save_grid = PCB->Grid;
   PCB->Grid = 1;
   if (Delta)
     {
