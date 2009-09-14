@@ -9,7 +9,7 @@ DIST_SUBDIRS=	${DIRS} doc
 
 INTLTOOL_FILES = intltool-extract.in intltool-merge.in  intltool-update.in
 
-EXTRA_DIST=	config.rpath globalconst.h README.cvs README.win32 icon-theme-installer $(INTLTOOL_FILES)
+EXTRA_DIST=	config.rpath globalconst.h README.git README.win32 icon-theme-installer $(INTLTOOL_FILES)
 
 DISTCLEANFILES= configure.lineno intltool-extract intltool-merge intltool-update po/.intltool-merge-cache
 
