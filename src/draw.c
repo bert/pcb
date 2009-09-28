@@ -113,6 +113,7 @@ static void DrawMask (BoxType *);
 static void DrawRats (BoxType *);
 static void DrawSilk (int, int, BoxType *);
 static int pin_callback (const BoxType * b, void *cl);
+static int pin_via_callback (const BoxType * b, void *cl);
 static int pad_callback (const BoxType * b, void *cl);
 
 /*--------------------------------------------------------------------------------------
@@ -304,12 +305,64 @@ frontN_callback (const BoxType * b, void *cl)
   return 0;
 }
 
+enum via_mode {
+  via_on_current, /* draw (holes of) vias enabled on current layer */
+  via_on_visible, /* draw (holes of) vias enabled on any visble layer */
+  via_on_all, /* draw (holes of) vias enabled on all layers */
+  via_all, /* draw all (holes of) vias */
+  via_by_hole_type, /* draw (holes of) vias with specified hole type */
+};
+
+typedef struct
+{
+  unsigned char dl[(MAX_LAYER + 7) >> 3]; /* hole type == dl member of object flags */
+} HoleType;
+
+struct hole_info {
+  int plated; /* -1: draw all holes, 0: draw ony unplated holes, 1: draw only plated holes */
+  enum via_mode via_m; /* for holes of vias */
+  HoleType hole_type; /* the hole type to draw (for via_m == via_by_hole_type) */
+};
+
+static int check_draw_via (const PinTypePtr via, enum via_mode via_m, const HoleType * hole_type /* may be NULL */)
+{
+  switch (via_m) {
+    case via_on_current: /* only (holes of) vias enabled on current layer */
+      if (TEST_DISAB_LAY(INDEXOFCURRENT, via))
+        return 0; /* do not draw */
+      return 1; /* draw */
+    case via_on_visible: /* only (holes of) vias enabled on any visible layer */
+      {
+        int i;
+        for (i = 0; i < max_layer; i++)
+          if (LAYER_PTR(i)->On && !TEST_DISAB_LAY(i, via))
+            break;
+        if (i >= max_layer)
+          return 0; /* do not draw */
+      }
+      return 1; /* draw */
+    case via_on_all: /* only (holes of) vias on all layers */
+      if (TEST_ANY_DISAB_LAY(via))
+        return 0; /* do not draw */
+      return 1; /* draw */
+    case via_all: /* (holes of) all vias */
+      return 1; /* draw */
+    case via_by_hole_type: /* draw (holes of) vias with specified hole type */
+      if (hole_type == NULL || memcmp(via->Flags.dl, hole_type, sizeof( HoleType )) != 0)
+        return 0; /* do not draw */
+      return 1; /* draw */
+  }
+  return 1; /* draw */
+}
+
 static int
 hole_callback (const BoxType * b, void *cl)
 {
   PinTypePtr pin = (PinTypePtr) b;
-  int plated = cl ? *(int *) cl : -1;
-  switch (plated)
+  struct hole_info * hole_i = (struct hole_info *)cl;
+  if (!check_draw_via (pin, hole_i->via_m, &hole_i->hole_type))
+    return 1;
+  switch (hole_i->plated)
     {
     case -1:
       break;
@@ -328,8 +381,15 @@ hole_callback (const BoxType * b, void *cl)
 
 typedef struct
 {
+  int cnt; /* number of hole types in list */
+  HoleType list[16]; /* list with hole types */
+} HoleTypeList;
+
+typedef struct
+{
   int nplated;
   int nunplated;
+  HoleTypeList hole_types; /* hole types of plated holes */
 } HoleCountStruct;
 
 static int
@@ -337,10 +397,30 @@ hole_counting_callback (const BoxType * b, void *cl)
 {
   PinTypePtr pin = (PinTypePtr) b;
   HoleCountStruct *hcs = (HoleCountStruct *) cl;
+  int i;
+
+  /* count plated and unplated holes */
   if (TEST_FLAG (HOLEFLAG, pin))
     hcs->nunplated++;
   else
     hcs->nplated++;
+
+  /* collect all hole types for plated holes */
+  if (!TEST_FLAG (HOLEFLAG, pin)) {
+    /* search hole type in list */
+    for( i = 0; i < hcs->hole_types.cnt; i++ )
+      if( memcmp( &pin->Flags.dl, &hcs->hole_types.list[i], sizeof( HoleType ) ) == 0 )
+        break; /* found hole type in list */
+    /* not found */
+    if( i >= hcs->hole_types.cnt ) {
+      /* add hole type to list */
+      if( hcs->hole_types.cnt < sizeof( hcs->hole_types.list ) / sizeof( hcs->hole_types.list[0] ) ) { /* ignore if list is full */
+        memcpy( &hcs->hole_types.list[hcs->hole_types.cnt], &pin->Flags.dl, sizeof( HoleType ) );
+        hcs->hole_types.cnt++;
+      }
+    }
+  }
+
   return 1;
 }
 
@@ -351,10 +431,17 @@ rat_callback (const BoxType * b, void *cl)
   return 1;
 }
 
+struct via_info {
+  enum via_mode via_m;
+};
+
 static int
 lowvia_callback (const BoxType * b, void *cl)
 {
   PinTypePtr via = (PinTypePtr) b;
+  struct via_info * via_i = (struct via_info *)cl;
+  if (!check_draw_via (via, via_i->via_m, NULL))
+    return 1;
   if (!via->Mask)
     DrawPlainVia (via, False);
   return 1;
@@ -368,11 +455,13 @@ static void
 PrintAssembly (const BoxType * drawn_area, int side_group, int swap_ident)
 {
   int save_swap = SWAP_IDENT;
+  struct via_info via_i;
 
   gui->set_draw_faded (Output.fgGC, 1);
   SWAP_IDENT = swap_ident;
   DrawLayerGroup (side_group, drawn_area);
-  r_search (PCB->Data->via_tree, drawn_area, NULL, lowvia_callback, NULL);
+  via_i.via_m = via_all;
+  r_search (PCB->Data->via_tree, drawn_area, NULL, lowvia_callback, &via_i);
   DrawTop (drawn_area);
   gui->set_draw_faded (Output.fgGC, 0);
 
@@ -383,6 +472,15 @@ PrintAssembly (const BoxType * drawn_area, int side_group, int swap_ident)
   SWAP_IDENT = save_swap;
 }
 
+struct pin_via_info {
+  int group;
+};
+
+static int hole_type_cmp (const void * a, const void * b)
+{
+  return memcmp (a, b, sizeof( HoleType ));
+}
+
 /* ---------------------------------------------------------------------------
  * initializes some identifiers for a new zoom factor and redraws whole screen
  */
@@ -390,12 +488,14 @@ static void
 DrawEverything (BoxTypePtr drawn_area)
 {
   int i, ngroups, side;
-  int plated;
   int component, solder;
   /* This is the list of layer groups we will draw.  */
   int do_group[MAX_LAYER];
   /* This is the reverse of the order in which we draw them.  */
   int drawn_groups[MAX_LAYER];
+  struct via_info via_i;
+  struct hole_info hole_i;
+  struct pin_via_info pin_via_i;
 
   PCB->Data->SILKLAYER.Color = PCB->ElementColor;
   PCB->Data->BACKSILKLAYER.Color = PCB->InvisibleObjectsColor;
@@ -433,6 +533,15 @@ DrawEverything (BoxTypePtr drawn_area)
 	}
     }
 
+  /* draw vias enabled in any visible layer */
+  if (PCB->ViaOn && gui->gui) {
+    via_i.via_m = via_on_visible;
+    hole_i.plated = -1;
+    hole_i.via_m = via_on_visible;
+    r_search (PCB->Data->via_tree, drawn_area, NULL, lowvia_callback, &via_i);
+    r_search (PCB->Data->via_tree, drawn_area, NULL, hole_callback, &hole_i);
+  }
+
   /* draw all layers in layerstack order */
   for (i = ngroups - 1; i >= 0; i--)
     {
@@ -448,8 +557,9 @@ DrawEverything (BoxTypePtr drawn_area)
 		continue;
 	      r_search (PCB->Data->pin_tree, drawn_area, NULL, pin_callback,
 			NULL);
-	      r_search (PCB->Data->via_tree, drawn_area, NULL, pin_callback,
-			NULL);
+              pin_via_i.group = group;
+	      r_search (PCB->Data->via_tree, drawn_area, NULL, pin_via_callback,
+			&pin_via_i);
 	      /* draw element pads */
 	      if (group == component || group == solder)
 		{
@@ -462,11 +572,12 @@ DrawEverything (BoxTypePtr drawn_area)
 	      if (!gui->gui)
 		{
 		  /* draw holes */
-		  plated = -1;
+		  hole_i.plated = -1;
+                  hole_i.via_m = via_on_current;
 		  r_search (PCB->Data->pin_tree, drawn_area, NULL, hole_callback,
-			    &plated);
+			    &hole_i);
 		  r_search (PCB->Data->via_tree, drawn_area, NULL, hole_callback,
-			    &plated);
+			    &hole_i);
 		}
 	    }
 	}
@@ -474,9 +585,10 @@ DrawEverything (BoxTypePtr drawn_area)
   if (TEST_FLAG (CHECKPLANESFLAG, PCB) && gui->gui)
     return;
 
-  /* draw vias below silk */
+  /* draw vias enabled in current layer below silk */
+  via_i.via_m = via_on_current;
   if (PCB->ViaOn && gui->gui)
-    r_search (PCB->Data->via_tree, drawn_area, NULL, lowvia_callback, NULL);
+    r_search (PCB->Data->via_tree, drawn_area, NULL, lowvia_callback, &via_i);
   /* Draw the solder mask if turned on */
   if (gui->set_layer ("componentmask", SL (MASK, TOP)))
     {
@@ -497,27 +609,53 @@ DrawEverything (BoxTypePtr drawn_area)
     DrawTop (drawn_area);
   else
     {
+      /* count holes and get hole types */
       HoleCountStruct hcs;
       hcs.nplated = hcs.nunplated = 0;
+      hcs.hole_types.cnt = 0;
       r_search (PCB->Data->pin_tree, drawn_area, NULL, hole_counting_callback,
 		&hcs);
       r_search (PCB->Data->via_tree, drawn_area, NULL, hole_counting_callback,
 		&hcs);
-      if (hcs.nplated && gui->set_layer ("plated-drill", SL (PDRILL, 0)))
+      /* sort holes */
+      qsort (hcs.hole_types.list, hcs.hole_types.cnt, sizeof( HoleType ), hole_type_cmp);
+      if (hcs.nplated)
 	{
-	  plated = 1;
-	  r_search (PCB->Data->pin_tree, drawn_area, NULL, hole_callback,
-		    &plated);
-	  r_search (PCB->Data->via_tree, drawn_area, NULL, hole_callback,
-		    &plated);
+          int hole_type_idx;
+          for (hole_type_idx = 0; hole_type_idx < hcs.hole_types.cnt; hole_type_idx++) /* draw all hole types separately */
+            {
+              HoleType hole_type = hcs.hole_types.list[hole_type_idx];
+              /* get name for current hole type */
+	      char name[32];
+	      int number;
+	      if (mem_any_set( hole_type.dl, sizeof( hole_type.dl ))) {
+	        sprintf( name, "special-plated-drill-%d", hole_type_idx ); /* special plated drill (i.e. blind or buried vias) */
+                number = SLNO (SPDRILL, 0, hole_type_idx);
+	      } else {
+	        strcpy( name, "plated-drill" ); /* normal plated drill */
+                number = SL (PDRILL, 0);
+	      }
+              /* set layer and draw holes */
+              if (gui->set_layer (name, number))
+                {
+                  hole_i.plated = 1;
+                  hole_i.via_m = via_by_hole_type;
+                  hole_i.hole_type = hole_type;
+                  r_search (PCB->Data->pin_tree, drawn_area, NULL, hole_callback,
+                            &hole_i);
+                  r_search (PCB->Data->via_tree, drawn_area, NULL, hole_callback,
+                            &hole_i);
+                }
+            }
 	}
       if (hcs.nunplated && gui->set_layer ("unplated-drill", SL (UDRILL, 0)))
 	{
-	  plated = 0;
+	  hole_i.plated = 0;
+          hole_i.via_m = via_all;
 	  r_search (PCB->Data->pin_tree, drawn_area, NULL, hole_callback,
-		    &plated);
+		    &hole_i);
 	  r_search (PCB->Data->via_tree, drawn_area, NULL, hole_callback,
-		    &plated);
+		    &hole_i);
 	}
     }
   /* Draw top silkscreen */
@@ -625,6 +763,9 @@ static int
 via_callback (const BoxType * b, void *cl)
 {
   PinTypePtr via = (PinTypePtr) b;
+  struct via_info * via_i = (struct via_info *)cl;
+  if (!check_draw_via (via, via_i->via_m, NULL))
+    return 1;
   if (via->Mask)
     DrawPlainVia (via, False);
   return 1;
@@ -634,6 +775,17 @@ static int
 pin_callback (const BoxType * b, void *cl)
 {
   DrawPlainPin ((PinTypePtr) b, False);
+  return 1;
+}
+
+/* special version of pin_callback for vias
+ * used to only draw vias enabled on one layer of the group
+ */
+static int pin_via_callback (const BoxType * b, void *cl)
+{
+  struct pin_via_info * pin_via_i = (struct pin_via_info *)cl;
+  if (! TEST_DISAB_LAY(pin_via_i->group, (PinTypePtr) b))
+    DrawPlainPin ((PinTypePtr) b, False);
   return 1;
 }
 
@@ -652,6 +804,8 @@ pad_callback (const BoxType * b, void *cl)
 static void
 DrawTop (const BoxType * screen)
 {
+  struct via_info via_i;
+  struct hole_info hole_i;
   if (PCB->PinOn || doing_assy)
     {
       /* draw element pins */
@@ -660,13 +814,16 @@ DrawTop (const BoxType * screen)
       r_search (PCB->Data->pad_tree, screen, NULL, pad_callback, NULL);
     }
   /* draw vias */
+  via_i.via_m = via_on_current;
+  hole_i.plated = -1;
+  hole_i.via_m = via_on_current;
   if (PCB->ViaOn || doing_assy)
     {
-      r_search (PCB->Data->via_tree, screen, NULL, via_callback, NULL);
-      r_search (PCB->Data->via_tree, screen, NULL, hole_callback, NULL);
+      r_search (PCB->Data->via_tree, screen, NULL, via_callback, &via_i);
+      r_search (PCB->Data->via_tree, screen, NULL, hole_callback, &hole_i);
     }
   if (PCB->PinOn || doing_assy)
-    r_search (PCB->Data->pin_tree, screen, NULL, hole_callback, NULL);
+    r_search (PCB->Data->pin_tree, screen, NULL, hole_callback, &hole_i);
 }
 
 struct pin_info

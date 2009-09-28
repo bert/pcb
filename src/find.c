@@ -649,10 +649,14 @@ LOCtoPVpad_callback (const BoxType * b, void *cl)
   PadTypePtr pad = (PadTypePtr) b;
   struct pv_info *i = (struct pv_info *) cl;
 
-  if (!TEST_FLAG (TheFlag, pad) && IS_PV_ON_PAD (&i->pv, pad) &&
-      ADD_PAD_TO_LIST (TEST_FLAG (ONSOLDERFLAG, pad) ? SOLDER_LAYER :
-                       COMPONENT_LAYER, pad))
-    longjmp (i->env, 1);
+  int sc_layer = TEST_FLAG (ONSOLDERFLAG, pad) ? SOLDER_LAYER : COMPONENT_LAYER;
+  int layer = GetLayerGroupNumberByNumber (max_layer + sc_layer);
+
+  if (!TEST_DISAB_LAY (layer, &i->pv)) {
+    if (!TEST_FLAG (TheFlag, pad) && IS_PV_ON_PAD (&i->pv, pad) &&
+        ADD_PAD_TO_LIST (sc_layer, pad))
+      longjmp (i->env, 1);
+  }
   return 0;
 }
 
@@ -673,16 +677,21 @@ LOCtoPVpoly_callback (const BoxType * b, void *cl)
   PolygonTypePtr polygon = (PolygonTypePtr) b;
   struct pv_info *i = (struct pv_info *) cl;
 
+  /* if the via is disabled for the layer it can't touch,
+   * so skip the expensive test.
+   */
   /* if the pin doesn't have a therm and polygon is clearing
    * then it can't touch due to clearance, so skip the expensive
    * test. If it does have a therm, you still need to test
    * because it might not be inside the polygon, or it could
    * be on an edge such that it doesn't actually touch.
    */
-  if (!TEST_FLAG (TheFlag, polygon) && (TEST_THERM (i->layer, &i->pv)
-                                        || !TEST_FLAG (CLEARPOLYFLAG,
-                                                       polygon)
-                                        || !i->pv.Clearance))
+  if (!TEST_FLAG (TheFlag, polygon)
+      && !TEST_DISAB_LAY (i->layer, &i->pv)
+      && (TEST_THERM (i->layer, &i->pv)
+          || !TEST_FLAG (CLEARPOLYFLAG,
+                         polygon)
+          || !i->pv.Clearance))
     {
       float wide = 0.5 * i->pv.Thickness + fBloat;
       wide = MAX (wide, 0);
@@ -738,25 +747,29 @@ LookupLOConnectionsToPVList (Boolean AndRats)
       /* now all lines, arcs and polygons of the several layers */
       for (layer = 0; layer < max_layer; layer++)
         {
-          info.layer = layer;
-          /* add touching lines */
-          if (setjmp (info.env) == 0)
-            r_search (LAYER_PTR (layer)->line_tree, (BoxType *) & info.pv,
-                      NULL, LOCtoPVline_callback, &info);
-          else
-            return True;
-          /* add touching arcs */
-          if (setjmp (info.env) == 0)
-            r_search (LAYER_PTR (layer)->arc_tree, (BoxType *) & info.pv,
-                      NULL, LOCtoPVarc_callback, &info);
-          else
-            return True;
-          /* check all polygons */
-          if (setjmp (info.env) == 0)
-            r_search (LAYER_PTR (layer)->polygon_tree, (BoxType *) & info.pv,
-                      NULL, LOCtoPVpoly_callback, &info);
-          else
-            return True;
+          /* if the via is not diabled for this layer */
+          if (!TEST_DISAB_LAY (layer, &info.pv))
+            {
+              info.layer = layer;
+              /* add touching lines */
+              if (setjmp (info.env) == 0)
+                r_search (LAYER_PTR (layer)->line_tree, (BoxType *) & info.pv,
+                          NULL, LOCtoPVline_callback, &info);
+              else
+                return True;
+              /* add touching arcs */
+              if (setjmp (info.env) == 0)
+                r_search (LAYER_PTR (layer)->arc_tree, (BoxType *) & info.pv,
+                          NULL, LOCtoPVarc_callback, &info);
+              else
+                return True;
+              /* check all polygons */
+              if (setjmp (info.env) == 0)
+                r_search (LAYER_PTR (layer)->polygon_tree, (BoxType *) & info.pv,
+                          NULL, LOCtoPVpoly_callback, &info);
+              else
+                return True;
+            }
         }
       /* Check for rat-lines that may intersect the PV */
       if (AndRats)
@@ -899,21 +912,30 @@ pv_pv_callback (const BoxType * b, void *cl)
 {
   PinTypePtr pin = (PinTypePtr) b;
   struct pv_info *i = (struct pv_info *) cl;
+  int l;
 
-  if (!TEST_FLAG (TheFlag, pin) && PV_TOUCH_PV (&i->pv, pin))
-    {
-      if (TEST_FLAG (HOLEFLAG, pin))
-        {
-          SET_FLAG (WARNFLAG, pin);
-          Settings.RatWarn = True;
-          if (pin->Element)
-            Message (_("WARNING: Hole too close to pin.\n"));
-          else
-            Message (_("WARNING: Hole too close to via.\n"));
-        }
-      if (ADD_PV_TO_LIST (pin))
-        longjmp (i->env, 1);
-    }
+  /* find a layer both vias are enabled in */
+  for (l = 0; l < max_layer; l++)
+    if (!TEST_DISAB_LAY(l, pin) && !TEST_DISAB_LAY(l, &i->pv))
+      break;
+  if (l < max_layer) {
+
+    if (!TEST_FLAG (TheFlag, pin) && PV_TOUCH_PV (&i->pv, pin))
+      {
+        if (TEST_FLAG (HOLEFLAG, pin))
+          {
+            SET_FLAG (WARNFLAG, pin);
+            Settings.RatWarn = True;
+            if (pin->Element)
+              Message (_("WARNING: Hole too close to pin.\n"));
+            else
+              Message (_("WARNING: Hole too close to via.\n"));
+          }
+        if (ADD_PV_TO_LIST (pin))
+          longjmp (i->env, 1);
+      }
+
+  }
   return 0;
 }
 
@@ -967,7 +989,9 @@ pv_line_callback (const BoxType * b, void *cl)
   PinTypePtr pv = (PinTypePtr) b;
   struct lo_info *i = (struct lo_info *) cl;
 
-  if (!TEST_FLAG (TheFlag, pv) && PinLineIntersect (pv, &i->line))
+  if (!TEST_FLAG (TheFlag, pv)
+      && !TEST_DISAB_LAY (i->layer, pv)
+      && PinLineIntersect (pv, &i->line))
     {
       if (TEST_FLAG (HOLEFLAG, pv))
         {
@@ -987,7 +1011,12 @@ pv_pad_callback (const BoxType * b, void *cl)
   PinTypePtr pv = (PinTypePtr) b;
   struct lo_info *i = (struct lo_info *) cl;
 
-  if (!TEST_FLAG (TheFlag, pv) && IS_PV_ON_PAD (pv, &i->pad))
+  int sc_layer = TEST_FLAG (ONSOLDERFLAG, &i->pad) ? SOLDER_LAYER : COMPONENT_LAYER;
+  int layer = GetLayerGroupNumberByNumber (max_layer + sc_layer);
+
+  if (!TEST_FLAG (TheFlag, pv)
+      && !TEST_DISAB_LAY (layer, pv)
+      && IS_PV_ON_PAD (pv, &i->pad))
     {
       if (TEST_FLAG (HOLEFLAG, pv))
         {
@@ -1007,7 +1036,9 @@ pv_arc_callback (const BoxType * b, void *cl)
   PinTypePtr pv = (PinTypePtr) b;
   struct lo_info *i = (struct lo_info *) cl;
 
-  if (!TEST_FLAG (TheFlag, pv) && IS_PV_ON_ARC (pv, &i->arc))
+  if (!TEST_FLAG (TheFlag, pv)
+      && !TEST_DISAB_LAY (i->layer, pv)
+      && IS_PV_ON_ARC (pv, &i->arc))
     {
       if (TEST_FLAG (HOLEFLAG, pv))
         {
@@ -1028,9 +1059,11 @@ pv_poly_callback (const BoxType * b, void *cl)
   struct lo_info *i = (struct lo_info *) cl;
 
   /* note that holes in polygons are ok */
-  if (!TEST_FLAG (TheFlag, pv) && (TEST_THERM (i->layer, pv) ||
-                                   !TEST_FLAG (CLEARPOLYFLAG, &i->polygon) ||
-                                   !pv->Clearance))
+  if (!TEST_FLAG (TheFlag, pv)
+      && !TEST_DISAB_LAY (i->layer, pv)
+      && (TEST_THERM (i->layer, pv) ||
+          !TEST_FLAG (CLEARPOLYFLAG, &i->polygon) ||
+          !pv->Clearance))
     {
       if (TEST_FLAG (SQUAREFLAG, pv))
         {
@@ -1095,6 +1128,7 @@ LookupPVConnectionsToLOList (Boolean AndRats)
         }
 
       /* check all lines */
+      info.layer = layer;
       while (LineList[layer].Location < LineList[layer].Number)
         {
           info.line = *(LINELIST_ENTRY (layer, LineList[layer].Location));
@@ -1113,6 +1147,7 @@ LookupPVConnectionsToLOList (Boolean AndRats)
         }
 
       /* check all arcs */
+      info.layer = layer;
       while (ArcList[layer].Location < ArcList[layer].Number)
         {
           info.arc = *(ARCLIST_ENTRY (layer, ArcList[layer].Location));

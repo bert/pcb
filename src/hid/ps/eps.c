@@ -323,7 +323,7 @@ eps_set_layer (const char *name, int group)
   if (strcmp (name, "invisible") == 0)
     return 0;
 
-  is_drill = (SL_TYPE (idx) == SL_PDRILL || SL_TYPE (idx) == SL_UDRILL);
+  is_drill = (SL_TYPE (idx) == SL_PDRILL || SL_TYPE (idx) == SL_UDRILL || SL_TYPE (idx) == SL_SPDRILL);
   is_mask = (SL_TYPE (idx) == SL_MASK);
   is_paste = (SL_TYPE (idx) == SL_PASTE);
 

@@ -472,7 +472,7 @@ gerber_set_layer (const char *name, int group)
       pending_drills = 0;
     }
 
-  is_drill = (SL_TYPE (idx) == SL_PDRILL || SL_TYPE (idx) == SL_UDRILL);
+  is_drill = (SL_TYPE (idx) == SL_PDRILL || SL_TYPE (idx) == SL_UDRILL || SL_TYPE (idx) == SL_SPDRILL);
   is_mask = (SL_TYPE (idx) == SL_MASK);
   current_mask = 0;
 #if 0
@@ -509,12 +509,15 @@ gerber_set_layer (const char *name, int group)
       maybe_close_f ();
 
       pagecount++;
-      switch (idx)
+      switch (SL_REMOVE_NO (idx))
 	{
 	case SL (PDRILL, 0):
 	  sext = ".cnc";
 	  break;
 	case SL (UDRILL, 0):
+	  sext = ".cnc";
+	  break;
+	case SL (SPDRILL, 0): /* special plated drill (i.e. blind and buried vias) */
 	  sext = ".cnc";
 	  break;
 	}

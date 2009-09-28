@@ -152,7 +152,7 @@ layer_type_to_file_name (int idx)
 {
   int group;
 
-  switch (idx)
+  switch (SL_REMOVE_NO (idx))
     {
     case SL (SILK, TOP):
       return "frontsilk";
@@ -178,6 +178,12 @@ layer_type_to_file_name (int idx)
       return "frontassembly";
     case SL (ASSY, BOTTOM):
       return "backassembly";
+    case SL (SPDRILL, 0):
+      {
+        static char buf[32];
+        sprintf (buf, "special-plated-drill-%d", SL_NO (idx));
+	return buf;
+      }
     default:
       group = GetLayerGroupNumberByNumber(idx);
       if (group == GetLayerGroupNumberByNumber(max_layer+COMPONENT_LAYER))

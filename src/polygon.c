@@ -609,6 +609,8 @@ SubtractPin (DataType * d, PinType * pin, LayerType * l, PolygonType * p)
   if (pin->Clearance == 0)
     return 0;
   i = GetLayerNumber (d, l);
+  if (TEST_DISAB_LAY (i, pin)) /* do not subtract via if disabled for layer */
+    return 0;
   if (TEST_THERM (i, pin))
     {
       np = ThermPoly ((PCBTypePtr) (d->pcb), pin, i);

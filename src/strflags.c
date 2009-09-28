@@ -413,6 +413,12 @@ common_string_to_flags (const char *flagstring,
 	    if (layers[i])
 	      ASSIGN_THERM (i, layers[i], &rv);
 	}
+      else if (flen == 12 && memcmp (fp, "disablelayer", 12) == 0)
+	{
+	  for (i = 0; i < MAX_LAYER && i < num_layers; i++)
+	    if (layers[i])
+	      ASSIGN_DISAB_LAY (i, layers[i], &rv);
+	}
       else
 	{
 	  for (i = 0; i < n_flagbits; i++)
@@ -515,6 +521,14 @@ common_flags_to_string (FlagType flags,
 	  len += printed_int_length (i, GET_THERM (i, &fh)) + 1;
     }
 
+  if (TEST_ANY_DISAB_LAY (&fh))
+    {
+      len += sizeof ("disablelayer()");
+      for (i = 0; i < MAX_LAYER; i++)
+	if (TEST_DISAB_LAY (i, &fh))
+	  len += printed_int_length (i, 0) + 1;
+    }
+
   bp = buf = alloc_buf (len + 2);
 
   *bp++ = '"';
@@ -541,6 +555,20 @@ common_flags_to_string (FlagType flags,
       for (i = 0; i < MAX_LAYER; i++)
 	if (TEST_THERM (i, &fh))
 	  set_layer_list (i, GET_THERM (i, &fh));
+      strcpy (bp, print_layer_list ());
+      bp += strlen (bp);
+    }
+
+  if (TEST_ANY_DISAB_LAY (&fh))
+    {
+      if (bp != buf + 1)
+	*bp++ = ',';
+      strcpy (bp, "disablelayer");
+      bp += strlen ("disablelayer");
+      grow_layer_list (0);
+      for (i = 0; i < MAX_LAYER; i++)
+	if (TEST_DISAB_LAY (i, &fh))
+	  set_layer_list (i, 1);
       strcpy (bp, print_layer_list ());
       bp += strlen (bp);
     }

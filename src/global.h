@@ -78,6 +78,7 @@ typedef struct
 {
   unsigned long f;		/* generic flags */
   unsigned char t[(MAX_LAYER + 1) / 2];	/* thermals */
+  unsigned char dl[(MAX_LAYER + 7) >> 3]; /* disabled layers (only for vias) */
 } FlagType, *FlagTypePtr;
 
 #ifndef __GNUC__
