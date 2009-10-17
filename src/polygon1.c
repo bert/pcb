@@ -660,12 +660,6 @@ seg_in_seg (const BoxType * b, void *cl)
   return 0;
 }
 
-static int
-curtail (const BoxType * b, void *cl)
-{
-  longjmp (*(jmp_buf *) cl, 1);
-}
-
 static void *
 make_edge_tree (PLINE * pb)
 {
@@ -738,25 +732,12 @@ get_seg (const BoxType * b, void *cl)
 static int
 intersect (jmp_buf * jb, POLYAREA * b, POLYAREA * a, int add)
 {
-  POLYAREA *t;
   PLINE *pa, *pb;		/* pline iterators */
+  PLINE *rtree_over;
+  PLINE *looping_over;
   VNODE *av;			/* node iterators */
   struct info info;
   BoxType box;
-  int ca = 0, cb = 0;
-
-  /* count the vertices in a and b */
-  for (pa = a->contours; pa; pa = pa->next)
-    ca += pa->Count;
-  for (pb = b->contours; pb; pb = pb->next)
-    cb += pb->Count;
-  /* search the tree with the larger number of verticies */
-  if (ca > cb)
-    {
-      t = b;
-      b = a;
-      a = t;
-    }
 
   if (add)
     info.touch = NULL;
@@ -764,71 +745,87 @@ intersect (jmp_buf * jb, POLYAREA * b, POLYAREA * a, int add)
     info.touch = jb;
   setjmp (info.env);		/* we loop back here whenever a vertex is inserted */
   {
-    for (pa = a->contours; pa; pa = pa->next)
+    pa = a->contours;
+    pb = b->contours;
+    while (pa)     /* Loop over the contours of POLYAREA "a" */
       {
-	jmp_buf env;
-	/* skip the whole contour if it's bounding box doesn't intersect */
-	if (setjmp (env) == 0)
-	  {
-	    /* expand the box to include the max point */
-	    BoxType sb;
-	    sb.X1 = pa->xmin;
-	    sb.X2 = pa->xmax + 1;
-	    sb.Y1 = pa->ymin;
-	    sb.Y2 = pa->ymax + 1;
-	    for (pb = b->contours; pb; pb = pb->next)
-	      {
-		/*
-		   if (sb.X1 > pb->xmax || sb.X2 < pb->xmin || sb.Y1 > pb->ymax || sb.Y2 < pb->ymin)
-		   continue;
-		 */
-		info.tree = (rtree_t *) pb->tree;
-		if (info.tree)
-		  r_search (info.tree, &sb, NULL, curtail, &env);
-	      }
-	    continue;
-	  }
-	else			/* something intersects so check the edges of the contour */
-	  {
-	    av = &pa->head;
-	    do
-	      {
-		/* check this edge for any insertions */
-		double dx;
-		info.v = av;
-		/* compute the slant for region trimming */
-		dx = av->next->point[0] - av->point[0];
-		if (dx == 0)
-		  info.m = 0;
-		else
-		  {
-		    info.m = (av->next->point[1] - av->point[1]) / dx;
-		    info.b = av->point[1] - info.m * av->point[0];
-		  }
-		box.X2 = (box.X1 = av->point[0]) + 1;
-		box.Y2 = (box.Y1 = av->point[1]) + 1;
-		/* fill in the segment in info corresponding to this node */
-		if (setjmp (info.sego) == 0)
-		  {
-		    r_search ((rtree_t *) (pa->tree), &box, NULL, get_seg,
-			      &info);
-		    assert (0);
-		  }
-		for (pb = b->contours; pb; pb = pb->next)
-		  {
-		    if (pb->xmin > info.s->box.X2 || pb->xmax < info.s->box.X1
-			|| pb->ymin > info.s->box.Y2
-			|| pb->ymax < info.s->box.Y1)
-		      continue;
-		    info.tree = (rtree_t *) pb->tree;
-		    if (info.tree && r_search
-			(info.tree, &info.s->box, seg_in_region, seg_in_seg,
-			 &info))
-		      return err_no_memory;	/* error */
-		  }
-	      }
-	    while ((av = av->next) != &pa->head);
-	  }
+        int found_overlapping_a_b_contour = FALSE;
+
+        while (pb) /* Loop over the contours of POLYAREA "b" */
+          {
+            /* Are there overlapping bounds? */
+            if (pb->xmin <= pa->xmax && pb->xmax >= pa->xmin &&
+                pb->ymin <= pa->ymax && pb->ymax >= pa->ymin)
+              {
+                found_overlapping_a_b_contour = TRUE;
+                break;
+              }
+            pb = pb->next;
+          }
+
+        /* If we didn't find anything intersting, move onto the next "a" contour */
+        if (!found_overlapping_a_b_contour)
+          {
+            pa = pa->next;
+            pb = b->contours;
+            continue;
+          }
+
+        /* something intersects so check the edges of the contour */
+
+        /* Pick which contour has the fewer points, and do the loop
+         * over that. The r_tree makes hit-testing against a contour
+         * faster, so we want to do that on the bigger contour.
+         */
+        if (pa->Count < pb->Count)
+          {
+            rtree_over   = pb;
+            looping_over = pa;
+          }
+        else
+          {
+            rtree_over   = pa;
+            looping_over = pb;
+          }
+
+        av = &looping_over->head;
+        do  /* Loop over the nodes in the smaller contour */
+          {
+            /* check this edge for any insertions */
+            double dx;
+            info.v = av;
+            /* compute the slant for region trimming */
+            dx = av->next->point[0] - av->point[0];
+            if (dx == 0)
+              info.m = 0;
+            else
+              {
+                info.m = (av->next->point[1] - av->point[1]) / dx;
+                info.b = av->point[1] - info.m * av->point[0];
+              }
+            box.X2 = (box.X1 = av->point[0]) + 1;
+            box.Y2 = (box.Y1 = av->point[1]) + 1;
+
+            /* fill in the segment in info corresponding to this node */
+            if (setjmp (info.sego) == 0)
+              {
+                r_search ((rtree_t *) (looping_over->tree), &box, NULL, get_seg, &info);
+                assert (0);
+              }
+
+              /* NB: If this actually hits anything, we are teleported back to the beginning */
+              info.tree = (rtree_t *) rtree_over->tree;
+              if (info.tree)
+                if (r_search (info.tree, &info.s->box,
+                              seg_in_region, seg_in_seg, &info))
+                  return err_no_memory;	/* error */
+          }
+        while ((av = av->next) != &looping_over->head);
+
+        /* Continue the with the _same_ "a" contour,
+         * testing it against the next "b" contour.
+         */
+        pb = pb->next;
       }
   }				/* end of setjmp loop */
   return 0;
