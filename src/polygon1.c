@@ -94,7 +94,7 @@ int vect_inters2 (Vector A, Vector B, Vector C, Vector D, Vector S1,
 #define error(code)  longjmp(*(e), code)
 
 #define MemGet(ptr, type) \
-if (((ptr) = malloc(sizeof(type))) == NULL) \
+if (UNLIKELY (((ptr) = malloc(sizeof(type))) == NULL)) \
     error(err_no_memory);
 
 #undef DEBUG_LABEL
@@ -816,8 +816,8 @@ intersect (jmp_buf * jb, POLYAREA * b, POLYAREA * a, int add)
               /* NB: If this actually hits anything, we are teleported back to the beginning */
               info.tree = (rtree_t *) rtree_over->tree;
               if (info.tree)
-                if (r_search (info.tree, &info.s->box,
-                              seg_in_region, seg_in_seg, &info))
+                if (UNLIKELY (r_search (info.tree, &info.s->box,
+                                        seg_in_region, seg_in_seg, &info)))
                   return err_no_memory;	/* error */
           }
         while ((av = av->next) != &looping_over->head);
@@ -849,23 +849,29 @@ M_POLYAREA_intersect (jmp_buf * e, POLYAREA * afst, POLYAREA * bfst, int add)
 	      a->contours->xmin <= b->contours->xmax &&
 	      a->contours->ymin <= b->contours->ymax)
 	    {
-	      if (intersect (e, a, b, add))
+	      if (UNLIKELY (intersect (e, a, b, add)))
 		error (err_no_memory);
 	    }
 	}
       while (add && (a = a->f) != afst);
       for (curcB = b->contours; curcB != NULL; curcB = curcB->next)
 	if (curcB->Flags.status == ISECTED)
-	  if (!(the_list = add_descriptors (curcB, 'B', the_list)))
-	    error (err_no_memory);
+	  {
+	    the_list = add_descriptors (curcB, 'B', the_list);
+	    if (UNLIKELY (the_list == NULL))
+	      error (err_no_memory);
+	  }
     }
   while (add && (b = b->f) != bfst);
   do
     {
       for (curcA = a->contours; curcA != NULL; curcA = curcA->next)
 	if (curcA->Flags.status == ISECTED)
-	  if (!(the_list = add_descriptors (curcA, 'A', the_list)))
-	    error (err_no_memory);
+	  {
+	    the_list = add_descriptors (curcA, 'A', the_list);
+	    if (UNLIKELY (the_list == NULL))
+	      error (err_no_memory);
+	  }
     }
   while (add && (a = a->f) != afst);
 }				/* M_POLYAREA_intersect */
