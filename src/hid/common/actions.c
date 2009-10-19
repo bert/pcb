@@ -358,7 +358,8 @@ another:
   while (*sp && *sp != '(')
     *cp++ = *sp++;
   *cp++ = 0;
-  sp++;
+  if (*sp)
+    sp++;
 
   /*
    * we didn't find a leading ( so invoke the action
