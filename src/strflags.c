@@ -127,6 +127,7 @@ static FlagBitsType pcb_flagbits[] = {
   { SWAPSTARTDIRFLAG, N ("swapstartdir"), 1 },
   { UNIQUENAMEFLAG, N ("uniquename"), 1 },
   { CLEARNEWFLAG, N ("clearnew"), 1 },
+  { NEWFULLPOLYFLAG, N ("newfullpoly"), 1 },
   { SNAPPINFLAG, N ("snappin"), 1 },
   { SHOWMASKFLAG, N ("showmask"), 1 },
   { THINDRAWFLAG, N ("thindraw"), 1 },

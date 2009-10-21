@@ -1342,7 +1342,7 @@ NotifyMode (void)
 	  PolygonTypePtr polygon;
 
 	  int flags = CLEARPOLYFLAG;
-	  if (Settings.FullPoly)
+	  if (TEST_FLAG (NEWFULLPOLYFLAG, PCB))
 	    flags |= FULLPOLYFLAG;
 	  if ((polygon = CreateNewPolygonFromRectangle (CURRENT,
 							Crosshair.

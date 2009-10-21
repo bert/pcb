@@ -160,6 +160,8 @@ CreateNewPCB (Boolean SetDefaultNames)
     SET_FLAG (SNAPPINFLAG, ptr);
   if (Settings.ClearLine)
     SET_FLAG (CLEARNEWFLAG, ptr);
+  if (Settings.FullPoly)
+    SET_FLAG (NEWFULLPOLYFLAG, ptr);
   if (Settings.OrthogonalMoves)
     SET_FLAG (ORTHOMOVEFLAG, ptr);
   if (Settings.liveRouting)
