@@ -1380,14 +1380,14 @@ layer_enable_button_cb (GtkWidget * widget, gpointer data)
   switch (layer)
     {
     case LAYER_BUTTON_SILK:
-      PCB->ElementOn = !PCB->ElementOn;
+      PCB->ElementOn = active;
       PCB->Data->SILKLAYER.On = PCB->ElementOn;
       PCB->Data->BACKSILKLAYER.On = PCB->ElementOn;
       redraw = 1;
       break;
 
     case LAYER_BUTTON_RATS:
-      PCB->RatOn = !PCB->RatOn;
+      PCB->RatOn = active;
       redraw = 1;
       break;
 
@@ -1649,23 +1649,23 @@ ghid_layer_enable_buttons_update (void)
   /* Buttons for elements (silk), rats, pins, vias, and far side don't
      |  change labels.
    */
-  lb = &layer_buttons[i++];	/* LAYER_BUTTON_SILK */
+  lb = &layer_buttons[LAYER_BUTTON_SILK];
   gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (lb->layer_enable_button),
 				PCB->ElementOn);
 
-  lb = &layer_buttons[i++];	/* LAYER_BUTTON_RATS */
+  lb = &layer_buttons[LAYER_BUTTON_RATS];
   gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (lb->layer_enable_button),
 				PCB->RatOn);
 
-  lb = &layer_buttons[i++];	/* pins/pads    */
+  lb = &layer_buttons[LAYER_BUTTON_PINS];
   gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (lb->layer_enable_button),
 				PCB->PinOn);
 
-  lb = &layer_buttons[i++];	/* vias         */
+  lb = &layer_buttons[LAYER_BUTTON_VIAS];
   gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (lb->layer_enable_button),
 				PCB->ViaOn);
 
-  lb = &layer_buttons[i++];	/* far side     */
+  lb = &layer_buttons[LAYER_BUTTON_FARSIDE];
   gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (lb->layer_enable_button),
 				PCB->InvisibleObjectsOn);
   layer_enable_button_cb_hold_off = FALSE;
