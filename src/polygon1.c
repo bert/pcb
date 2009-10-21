@@ -45,7 +45,8 @@
 #include	<setjmp.h>
 #include	<math.h>
 #include	<string.h>
-#include "polyarea.h"
+
+#include "global.h"
 #include "rtree.h"
 #include "heap.h"
 
@@ -638,7 +639,7 @@ seg_in_seg (const BoxType * b, void *cl)
       if (res & 2)
 	{
 	  cntrbox_adjust (i->s->p, cnt > 1 ? s2 : s1);
-	  if (adjust_tree ((rtree_t *) (i->s->p->tree), i->s))
+	  if (adjust_tree (i->s->p->tree, i->s))
 	    return 1;
 	}
       /* if we added a node in the tree we need to change the tree */
@@ -809,12 +810,12 @@ intersect (jmp_buf * jb, POLYAREA * b, POLYAREA * a, int add)
             /* fill in the segment in info corresponding to this node */
             if (setjmp (info.sego) == 0)
               {
-                r_search ((rtree_t *) (looping_over->tree), &box, NULL, get_seg, &info);
+                r_search (looping_over->tree, &box, NULL, get_seg, &info);
                 assert (0);
               }
 
               /* NB: If this actually hits anything, we are teleported back to the beginning */
-              info.tree = (rtree_t *) rtree_over->tree;
+              info.tree = rtree_over->tree;
               if (info.tree)
                 if (UNLIKELY (r_search (info.tree, &info.s->box,
                                         seg_in_region, seg_in_seg, &info)))
@@ -2019,7 +2020,7 @@ poly_InvContour (PLINE * c)
   c->Flags.orient ^= 1;
   if (c->tree)
     {
-      r = r_search ((rtree_t *) (c->tree), NULL, NULL, flip_cb, NULL);
+      r = r_search (c->tree, NULL, NULL, flip_cb, NULL);
       assert (r == c->Count);
     }
 }
@@ -2247,7 +2248,7 @@ poly_InsideContour (PLINE * c, Vector p)
   ray.X2 = 0x7fffffff;
   ray.Y2 = p[1] + 1;
   if (setjmp (info.env) == 0)
-    r_search ((rtree_t *) c->tree, &ray, NULL, crossing, &info);
+    r_search (c->tree, &ray, NULL, crossing, &info);
   return info.f;
 }
 

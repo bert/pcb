@@ -40,7 +40,6 @@
 
 #include "const.h"
 #include "macro.h"
-#include "polyarea.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -54,8 +53,10 @@
 typedef struct BoxType BoxType, *BoxTypePtr;
 typedef struct polygon_st PolygonType, *PolygonTypePtr;
 typedef struct drc_violation_st DrcViolationType, *DrcViolationTypePtr;
+typedef struct rtree rtree_t;
 
 #include "hid.h"
+#include "polyarea.h"
 
 #define _(S) (S)
 
@@ -257,11 +258,11 @@ typedef struct			/* holds information about arcs */
     Delta;
 } ArcType, *ArcTypePtr;
 
-typedef struct
+struct rtree
 {
   struct rtree_node *root;
   int size;			/* number of entries in tree */
-} rtree_t;
+};
 
 typedef struct			/* holds information about one layer */
 {

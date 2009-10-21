@@ -98,7 +98,7 @@ struct PLINE
     VNODE head;
     unsigned int Count;
     double area;
-    void *tree;
+    rtree_t *tree;
     struct {
       unsigned int status:3;
       unsigned int orient:1;
