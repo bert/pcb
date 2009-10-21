@@ -736,6 +736,7 @@ FreePolygonMemory (PolygonTypePtr Polygon)
       MYFREE (Polygon->Points);
       if (Polygon->Clipped)
 	poly_Free (&Polygon->Clipped);
+      poly_FreeContours (&Polygon->NoHoles);
       memset (Polygon, 0, sizeof (PolygonType));
     }
 }

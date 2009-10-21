@@ -70,9 +70,20 @@ void common_fill_pcb_polygon (hidGC gc, PolygonType *poly,
             we are dicing for every case. Some GUIs
             rely on this, and need their flags fixing. */
 
-  NoHolesPolygonDicer (poly, clip_box, fill_contour_cb, gc);
+  if (!poly->NoHolesValid)
+    {
+      ComputeNoHoles (poly);
+    }
+  if (poly->NoHoles)
+    {
+      PLINE *pl;
+
+      for (pl = poly->NoHoles; pl != NULL; pl = pl->next)
+        fill_contour (gc, pl);
+    }
 
   /* Draw other parts of the polygon if fullpoly flag is set */
+  /* NB: No "NoHoles" cache for these */
   if (TEST_FLAG (FULLPOLYFLAG, poly))
     {
       PolygonType p = *poly;
@@ -82,7 +93,6 @@ void common_fill_pcb_polygon (hidGC gc, PolygonType *poly,
            p.Clipped = p.Clipped->f)
         NoHolesPolygonDicer (&p, clip_box, fill_contour_cb, gc);
     }
-
 }
 
 static int thindraw_hole_cb (PLINE *pl, void *user_data)

@@ -610,6 +610,8 @@ CreateNewPolygon (LayerTypePtr Layer, FlagType Flags)
   polygon->Flags = Flags;
   polygon->ID = ID++;
   polygon->Clipped = NULL;
+  polygon->NoHoles = NULL;
+  polygon->NoHolesValid = 0;
   return (polygon);
 }
 

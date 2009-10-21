@@ -44,6 +44,7 @@ int PolygonHoles (PolygonType *ptr, const BoxType *range,
                   void *user_data);
 int PlowsPolygon (DataType *, int, void *, void *,
 		  int (*callback) (DataTypePtr, LayerTypePtr, PolygonTypePtr, int, void *, void *));
+void ComputeNoHoles (PolygonType *poly);
 POLYAREA * ContourToPoly (PLINE *);
 POLYAREA * RectPoly (LocationType x1, LocationType x2, LocationType y1, LocationType y2);
 POLYAREA * CirclePoly(LocationType x, LocationType y, BDimension radius);
