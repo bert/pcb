@@ -1522,7 +1522,7 @@ cntr_Collect (jmp_buf * e, PLINE ** A, POLYAREA ** contours, PLINE ** holes,
 	      PutContour (e, tmprev, contours, holes, NULL);
 	      return TRUE;
 	    }
-	  break;
+	  /* break; */ /* Fall through (I think this is correct! pcjc2) */
 	case PBO_UNITE:
 	case PBO_SUB:
 	  if ((*A)->Flags.status == OUTSIDE)
