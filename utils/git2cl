@@ -37,10 +37,67 @@ exec perl -w -x $0 ${1+"$@"} # -*- mode: perl; perl-indent-level: 2; -*-
 
 use strict;
 use POSIX qw(strftime);
+use Getopt::Long   qw( GetOptions );
 use Text::Wrap qw(wrap);
 use FileHandle;
 
 use constant EMPTY_LOG_MESSAGE => '*** empty log message ***';
+
+# Print debugging messages?
+my $Debug = 0;
+
+# Expand usernames to email addresses based on a map file?
+my $User_Map_File = '';
+my $User_Passwd_File;
+my $Mail_Domain;
+my $Obfuscate_Emails = 0;
+
+# Just print usage message and exit?
+my $Print_Usage = 0;
+
+GetOptions('help|usage|h'   => \$Print_Usage,
+	   'debug'          => \$Debug,         # unadvertised option, heh
+	   'obfuscate|o'      => \$Obfuscate_Emails,
+	   'usermap|U=s'    => \$User_Map_File, # not implemented yet
+	   )
+    or die "options parsing failed\n";
+
+if ($Print_Usage) {
+  &usage ();
+  exit (0);
+}
+
+# -------------------------------------
+
+sub usage {
+
+  eval "use Pod::Usage qw( pod2usage )";
+
+   if ( $@ ) {
+    print <<'END';
+
+* Pod::Usage was not found.  The formatting may be suboptimal.  Consider
+  upgrading your Perl --- Pod::Usage is standard from 5.6 onwards, and
+  versions of perl prior to 5.6 are getting rather rusty, now.  Alternatively,
+  install Pod::Usage direct from CPAN.
+END
+  
+    local $/ = undef;
+    my $message = <DATA>;
+    $message =~ s/^=(head1|item) //gm;
+    $message =~ s/^=(over|back).*\n//gm;
+    $message =~ s/\n{3,}/\n\n/g;
+    print $message;
+  } else {
+    print "\n";
+    pod2usage( -exitval => 'NOEXIT',
+               -verbose => 1,
+               -output  => \*STDOUT,
+             );
+  }
+  
+  return;
+}
 
 # this is a helper hash for stptime.
 # Assumes you are calling 'git log ...' with LC_ALL=C
@@ -111,6 +168,33 @@ sub last_line_len {
     my $last_line = pop (@lines);
     return length ($last_line);
 }
+
+# Obfuscate email addresses in the author information at the
+# beginning of each log.
+sub obfuscate_email {
+    my $text = shift;                  # The text to wrap.
+    my $text_out = '';
+    my $state = 0;
+    my @words = split (/ /, $text);
+    while (@words)   # Don't use `foreach' here, it won't work.
+    {
+	my $this_word = shift (@words);
+	if ($state == 0) {
+	  # waiting for an email address
+	  if ($this_word =~ /^</) {
+	    $state = 1;
+	    $this_word =~ s/^</* /;
+	    $this_word =~ s/\./ dot /g;
+	    $this_word =~ s/@/ AT /g;
+	    $this_word =~ s/>$/ */;
+	    $state = 1;
+	  }
+	}
+	$text_out = $text_out . " " . $this_word;
+      }
+    
+    return $text_out;
+  }
 
 # A custom wrap function, sensitive to some common constructs used in
 # log entries.
@@ -281,6 +365,7 @@ sub wrap_log_entry {
 
 # main
 
+
 my @date;
 my $author;
 my @files;
@@ -311,6 +396,9 @@ while (my $_l = <$fh>) {
     if ($state == 0) {
 	if ($_l =~ m,^Author: (.*),) {
 	    $author = $1;
+	    if ($Obfuscate_Emails) {
+	      $author = &obfuscate_email ($author);
+	    }
 	}
 	if ($_l =~ m,^Date: (.*),) {
 	    @date = strptime($1);
@@ -373,3 +461,54 @@ if (@date + 0)
     $msg =~ s/[ \t]+\n/\n/g;
     print "\t* $msg\n";
 }
+
+__DATA__
+
+=head1 NAME
+
+cvs2cl.pl - convert cvs log messages to changelogs
+
+=head1 SYNOPSIS
+
+B<cvs2cl> [I<options>] [I<FILE1> [I<FILE2> ...]]
+
+=head1 DESCRIPTION
+  
+cvs2cl produces a GNU-style ChangeLog for CVS-controlled sources by
+running "cvs log" and parsing the output. Duplicate log messages get
+unified in the Right Way.
+  
+The default output of cvs2cl is designed to be compact, formally unambiguous,
+but still easy for humans to read.  It should be largely self-explanatory; the
+one abbreviation that might not be obvious is "utags".  That stands for
+"universal tags" -- a universal tag is one held by all the files in a given
+change entry.
+  
+If you need output that's easy for a program to parse, use the B<--xml> option.
+Note that with XML output, just about all available information is included
+with each change entry, whether you asked for it or not, on the theory that
+your parser can ignore anything it's not looking for.
+  
+If filenames are given as arguments cvs2cl only shows log information for the
+named files.
+  
+=head1 OPTIONS
+  
+=over 4
+  
+=item B<-h>, B<-help>, B<--help>, B<-?>
+  
+Show a short help and exit.
+  
+=item B<--obfuscate>, B<-O>
+  
+Obfuscate email addresses in the logs.
+  
+=item -B<U> I<UFILE>, B<--usermap> I<UFILE>
+
+Expand usernames to email addresses from I<UFILE>.
+NOT IMPLEMENTED YET
+
+=head1 SEE ALSO
+git(1)
+cvs2cl(1)
