@@ -64,6 +64,7 @@ my $fh = new FileHandle;
 sub key_ready
 {
     my ($rin, $nfd);
+    $rin = '';
     vec($rin, fileno(STDIN), 1) = 1;
     return $nfd = select($rin, undef, undef, 0);
 }
@@ -341,7 +342,7 @@ while (my $_l = <$fh>) {
 	print (strftime "%Y-%m-%d  $author\n\n", @date);
 
 	my $files = join (", ", @files);
-	$files = mywrap ("\t", "\t", "* $files"), ": ";
+	$files = mywrap ("\t", "\t", "* $files");
 
 	if (index($comment, EMPTY_LOG_MESSAGE) > -1 ) {
 	    $comment = "[no log message]\n";
