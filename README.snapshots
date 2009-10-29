@@ -25,6 +25,7 @@ upload the 'pcb-$VERSION.tar.gz' file to the sourceforge file release system
 To make a pcb release do the following:
 
 =)      Make sure you have a clean checkout of master/origin
+        git checkout master/origin
 
 =)	# make sure it makes distfiles ok: (have to build before doing distcheck so
 	pcb gets built so it can create some of the images in the doc directory)
@@ -47,6 +48,8 @@ To make a pcb release do the following:
 	unsetenv DISTCHECK_CONFIGURE_FLAGS
 
 =)	commit and push any changes which were needed to fix 'distcheck' problems
+	git commit -a
+	git push
 
 =)	update the ChangeLog with './utils/git2cl -O > ChangeLog'
 
@@ -56,6 +59,8 @@ To make a pcb release do the following:
 	    awk '/^2008-11-28/ {print "Changes: " c ; exit} /^20[01][0-9]/ {c++}' ChangeLog
 
 	Commit and push NEWS and ChangeLog.
+        git commit NEWS ChangeLog
+	git push
 
 =)	if this is a major release, then branch:
 
@@ -69,6 +74,7 @@ To make a pcb release do the following:
 		git checkout master
 		vi configure.ac
 		git commit configure.ac
+		git push
 
 	4. On the release branch, update configure.ac to update the version
 		for example 20091101_ALPHA.  Now pre-release snapshots can be made.
@@ -91,6 +97,7 @@ To make a pcb release do the following:
 		git commit configure.ac
 		./autogen.sh
 		git commit -a
+		git push
 		git tag -a pcb-20091101-RELEASE
 		git checkout pcb-20091101-RELEASE
 		./autogen.sh && ./configure --enable-maintainer-mode \
@@ -152,6 +159,7 @@ To make a pcb release do the following:
 		./autogen.sh
 		git commit
 		git tag -a pcb-20091101-PATCH001
+		git push
 
 =)	gmake distclean ; ./autogen.sh &&./configure && gmake distcheck
 
