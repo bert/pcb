@@ -48,7 +48,7 @@ To make a pcb release do the following:
 
 =)	commit and push any changes which were needed to fix 'distcheck' problems
 
-=)	update the ChangeLog with './utils/git2cl > ChangeLog'
+=)	update the ChangeLog with './utils/git2cl -O > ChangeLog'
 
 =)	update the NEWS file with some sort of release notes
 	summary.  You can find the number of commits with something like
