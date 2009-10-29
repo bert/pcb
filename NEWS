@@ -1,10 +1,13 @@
 ========================================================================
 Release Notes for PCB snapshot 20091101
 ========================================================================
-This release represents around 170 commits and as such this summary 
+This release represents around 180 commits and as such this summary 
 clearly is not complete.  See the ChangeLog file for the complete list
 of changes.
 
+- [bugfix]  Avoid layer buttons getting confused (GTK)
+- [bugfix]  Fix dereference bug in hid_find_action()
+- [feature] Speed up some polygon operations
 - [bugfix]  Don't let DRC change the grid setting
 - [bugfix]  Correct URL's in some dialogs and output
 - [feature] Add filters to load file chooser dialog (GTK)
