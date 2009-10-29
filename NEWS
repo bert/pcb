@@ -1,4 +1,72 @@
 ========================================================================
+Release Notes for PCB snapshot 20091101
+========================================================================
+This release represents around 170 commits and as such this summary 
+clearly is not complete.  See the ChangeLog file for the complete list
+of changes.
+
+- [bugfix]  Don't let DRC change the grid setting
+- [bugfix]  Correct URL's in some dialogs and output
+- [feature] Add filters to load file chooser dialog (GTK)
+- [bugfix]  Avoid segfaults with png HID with newer versions of libgd
+- [bugfix]  Don't disperse locked elements
+- [feature] Added experimental topological autorouter
+- [feature] Added the beginning of a testsuite.
+- [docs]    Document FreeRotateBuffer()
+- [docs]    Add some additional notes on the usage of the existing
+            autorouter
+- [feature] Add --png-bloat option
+- [bugfix]  Fix several bugs found with valgrind
+- [bugfix]  Improve the pre-install wrapper script
+- [bugfix]  Several fixes to the autorouter
+- [feature] Allow quoted strings and escaped characters in action
+            arguments
+- [footprints] Add missing INDC3216M, remove duplicated RESC3216M
+- [feature] Added the ability to customize mouse events via gpcb-menu.res
+            in the GTK HID.
+- [feature] Added the ability to use mod1 (alt)(option) in
+            HIDs.  Useful on OSX.
+- [bugfix]  Fix compilation issues on centos
+- [bugfix]  Make the detection of tools and build system around
+            building the documentation be more robust.  Users should
+            not be worrying about --disable-doc or --enable-maintainer-mode
+            anymore
+- [footprints] Add T018, T039, fix pinout of T092 to match JEDEC
+- [bugfix]  Speed up rendering of DRC violation previews under GTK
+- [bugfix]  Fix some crashing bugs related to polygons and thindraw mode
+- [feature] Added a DRC refresh button
+- [bugfix]  Fix some pango markup in the GTK DRC dialog
+- [bugfix]  Fix cursor warping on flipped boards (GTK)
+- [feature] Added preview images in the DRC violations window (GTK)
+- [feature] Add a DrcViolationType structure and add hooks to allow HID's to use this
+- [bugfix]  Fix some polygon memory leaks
+- [feature] Add an API for registering actions with a context to support scripting
+            languages like GPMI.
+- [bugfix]  Fix a bug with the Report(NetLength) action and NULL pin/pad names
+- [bugfix]  Allow exporters to work with hairlines (width of 0)
+- [tools]   Increase autoconf version to 2.60 since we were using some features of it
+- [bugfix]  Fix a number of polygon related issues
+- [bugfix]  Fix a number of gcc warnings
+- [feature] Don't display undocumented options in help output.  This helps
+            the transition when deprecating an option.
+- [feature] Add outline mode for photo-mode exporting
+- [footprints] Put the mark on pin 1 for axial footprints to make them more likely
+               to fall on grid
+- [bugfix]  Fix flipping of arcs
+- [bugfix]  Fix parsing of old-syntax arcs
+- [bugfix]  Include explicit text/lines on silk layers in the assembly drawing output
+- [feature] '--ben-mode' has been renamed to '--photo-mode'
+- [bugfix]  Fix some crashign bugs on boards with a large number of rats
+- [bugfix]  Fix an off-by-one bug in the GTK netlist window
+- [docs]    Add getting started guide
+- [feature] Add support for parsing suffixes on numbers ("um", "mm", "in", "mil")
+- [bugfix]  Fix some configure/build issues when cross compiling
+- [bugfix]  Fix some improperly used automake conditionals
+- [bugfix]  Fix some uninstall of shortcuts issues under windows Vista
+- [feature] Add additional crosshair shapes
+- [bugfix]  Various windows build script improvements
+
+========================================================================
 Release Notes for PCB snapshot 20081128
 ========================================================================
 This release represents over 70 commits and as such this summary 
