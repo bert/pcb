@@ -160,6 +160,8 @@ CreateNewPCB (Boolean SetDefaultNames)
     SET_FLAG (SNAPPINFLAG, ptr);
   if (Settings.ClearLine)
     SET_FLAG (CLEARNEWFLAG, ptr);
+  if (Settings.FullPoly)
+    SET_FLAG (NEWFULLPOLYFLAG, ptr);
   if (Settings.OrthogonalMoves)
     SET_FLAG (ORTHOMOVEFLAG, ptr);
   if (Settings.liveRouting)
@@ -608,6 +610,8 @@ CreateNewPolygon (LayerTypePtr Layer, FlagType Flags)
   polygon->Flags = Flags;
   polygon->ID = ID++;
   polygon->Clipped = NULL;
+  polygon->NoHoles = NULL;
+  polygon->NoHolesValid = 0;
   return (polygon);
 }
 

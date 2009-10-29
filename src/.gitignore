@@ -1,5 +1,6 @@
 *.[oa]
 *_lists.h
+dbus-introspect.h
 edif.[ch]
 parse_l.c
 parse_y.[ch]

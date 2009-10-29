@@ -40,7 +40,6 @@
 
 #include "const.h"
 #include "macro.h"
-#include "polyarea.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -54,8 +53,10 @@
 typedef struct BoxType BoxType, *BoxTypePtr;
 typedef struct polygon_st PolygonType, *PolygonTypePtr;
 typedef struct drc_violation_st DrcViolationType, *DrcViolationTypePtr;
+typedef struct rtree rtree_t;
 
 #include "hid.h"
+#include "polyarea.h"
 
 #define _(S) (S)
 
@@ -90,6 +91,38 @@ typedef struct
 #define __FUNCTION2(a,b) __FUNCTION1(a,b)
 #define __FUNCTION__ __FUNCTION2(__FILE__,__LINE__)
 #endif
+
+
+/* ---------------------------------------------------------------------------
+ * Macros to annotate branch-prediction information.
+ * Taken from GLib 2.16.3 (LGPL 2).G_ / g_ prefixes have
+ * been removed to avoid namespace clashes.
+ */
+
+/* The LIKELY and UNLIKELY macros let the programmer give hints to
+ * the compiler about the expected result of an expression. Some compilers
+ * can use this information for optimizations.
+ *
+ * The _BOOLEAN_EXPR macro is intended to trigger a gcc warning when
+ * putting assignments inside the test.
+ */
+#if defined(__GNUC__) && (__GNUC__ > 2) && defined(__OPTIMIZE__)
+#define _BOOLEAN_EXPR(expr)                   \
+ __extension__ ({                             \
+   int _boolean_var_;                         \
+   if (expr)                                  \
+      _boolean_var_ = 1;                      \
+   else                                       \
+      _boolean_var_ = 0;                      \
+   _boolean_var_;                             \
+})
+#define LIKELY(expr) (__builtin_expect (_BOOLEAN_EXPR(expr), 1))
+#define UNLIKELY(expr) (__builtin_expect (_BOOLEAN_EXPR(expr), 0))
+#else
+#define LIKELY(expr) (expr)
+#define UNLIKELY(expr) (expr)
+#endif
+
 
 /* ---------------------------------------------------------------------------
  * Do not change the following definitions even if they're not very
@@ -209,6 +242,8 @@ struct polygon_st			/* holds information about a polygon */
   Cardinal PointN,		/* number of points in polygon */
     PointMax;			/* max number from malloc() */
   POLYAREA *Clipped;		/* the clipped region of this polygon */
+  PLINE *NoHoles;		/* the polygon broken into hole-less regions */
+  int NoHolesValid;		/* Is the NoHoles polygon up to date? */
   PointTypePtr Points;		/* data */
 };
 
@@ -223,11 +258,11 @@ typedef struct			/* holds information about arcs */
     Delta;
 } ArcType, *ArcTypePtr;
 
-typedef struct
+struct rtree
 {
   struct rtree_node *root;
   int size;			/* number of entries in tree */
-} rtree_t;
+};
 
 typedef struct			/* holds information about one layer */
 {

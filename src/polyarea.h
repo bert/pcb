@@ -98,7 +98,7 @@ struct PLINE
     VNODE head;
     unsigned int Count;
     double area;
-    void *tree;
+    rtree_t *tree;
     struct {
       unsigned int status:3;
       unsigned int orient:1;
@@ -158,7 +158,7 @@ POLYAREA *poly_Create(void);
 
 void poly_Free(POLYAREA **p);
 void poly_Init(POLYAREA  *p);
-void poly_Clear(POLYAREA *p);
+void poly_FreeContours(PLINE **pl);
 BOOLp poly_Valid(POLYAREA *p);
 
 enum PolygonBooleanOperation {

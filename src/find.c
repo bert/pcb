@@ -2644,49 +2644,51 @@ IsPolygonInPolygon (PolygonTypePtr P1, PolygonTypePtr P2)
     return False;
   assert (P1->Clipped->contours);
   assert (P2->Clipped->contours);
-  /* first check if both bounding boxes intersect */
-  if (P1->Clipped->contours->xmin - Bloat <= P2->Clipped->contours->xmax &&
-      P1->Clipped->contours->xmax + Bloat >= P2->Clipped->contours->xmin &&
-      P1->Clipped->contours->ymin - Bloat <= P2->Clipped->contours->ymax &&
-      P1->Clipped->contours->ymax + Bloat >= P2->Clipped->contours->ymin)
+
+  /* first check if both bounding boxes intersect. If not, return quickly */
+  if (P1->Clipped->contours->xmin - Bloat > P2->Clipped->contours->xmax ||
+      P1->Clipped->contours->xmax + Bloat < P2->Clipped->contours->xmin ||
+      P1->Clipped->contours->ymin - Bloat > P2->Clipped->contours->ymax ||
+      P1->Clipped->contours->ymax + Bloat < P2->Clipped->contours->ymin)
+    return False;
+
+  /* first check un-bloated case */
+  if (isects (P1->Clipped, P2, False))
+    return TRUE;
+
+  /* now the difficult case of bloated */
+  if (Bloat > 0)
     {
       PLINE *c;
-
-      /* first check un-bloated case */
-      if (isects (P1->Clipped, P2, False))
-        return TRUE;
-      if (Bloat > 0)
+      for (c = P1->Clipped->contours; c; c = c->next)
         {
-          /* now the difficult case of bloated */
-          for (c = P1->Clipped->contours; c; c = c->next)
+          LineType line;
+          VNODE *v = &c->head;
+          if (c->xmin - Bloat <= P2->Clipped->contours->xmax &&
+              c->xmax + Bloat >= P2->Clipped->contours->xmin &&
+              c->ymin - Bloat <= P2->Clipped->contours->ymax &&
+              c->ymax + Bloat >= P2->Clipped->contours->ymin)
             {
-              LineType line;
-              VNODE *v = &c->head;
-              if (c->xmin - Bloat <= P2->Clipped->contours->xmax &&
-                  c->xmax + Bloat >= P2->Clipped->contours->xmin &&
-                  c->ymin - Bloat <= P2->Clipped->contours->ymax &&
-                  c->ymax + Bloat >= P2->Clipped->contours->ymin)
-                {
 
-                  line.Point1.X = v->point[0];
-                  line.Point1.Y = v->point[1];
-                  line.Thickness = 2 * Bloat;
-                  line.Clearance = 0;
-                  line.Flags = NoFlags ();
-                  for (v = v->next; v != &c->head; v = v->next)
-                    {
-                      line.Point2.X = v->point[0];
-                      line.Point2.Y = v->point[1];
-                      SetLineBoundingBox (&line);
-                      if (IsLineInPolygon (&line, P2))
-                        return (True);
-                      line.Point1.X = line.Point2.X;
-                      line.Point1.Y = line.Point2.Y;
-                    }
+              line.Point1.X = v->point[0];
+              line.Point1.Y = v->point[1];
+              line.Thickness = 2 * Bloat;
+              line.Clearance = 0;
+              line.Flags = NoFlags ();
+              for (v = v->next; v != &c->head; v = v->next)
+                {
+                  line.Point2.X = v->point[0];
+                  line.Point2.Y = v->point[1];
+                  SetLineBoundingBox (&line);
+                  if (IsLineInPolygon (&line, P2))
+                    return (True);
+                  line.Point1.X = line.Point2.X;
+                  line.Point1.Y = line.Point2.Y;
                 }
             }
         }
     }
+
   return (False);
 }
 

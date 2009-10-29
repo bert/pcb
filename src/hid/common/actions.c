@@ -180,7 +180,7 @@ hid_find_action (const char *name, void **context)
 
   for (i = 0; i < n_actions; i++)
     if (strcasecmp (all_actions[i].action.name, name) == 0) {
-      if (*context != NULL)
+      if (context != NULL)
         *context = all_actions[i].context;
       return &(all_actions[i].action);
     }
@@ -358,7 +358,8 @@ another:
   while (*sp && *sp != '(')
     *cp++ = *sp++;
   *cp++ = 0;
-  sp++;
+  if (*sp)
+    sp++;
 
   /*
    * we didn't find a leading ( so invoke the action

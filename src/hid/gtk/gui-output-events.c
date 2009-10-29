@@ -610,21 +610,6 @@ ghid_port_key_press_cb (GtkWidget * drawing_area,
   return handled;
 }
 
-static gboolean
-in_draw_state (void)
-{
-  if ((Settings.Mode == LINE_MODE
-       && Crosshair.AttachedLine.State != STATE_FIRST)
-      || (Settings.Mode == ARC_MODE
-	  && Crosshair.AttachedBox.State != STATE_FIRST)
-      || (Settings.Mode == RECTANGLE_MODE
-	  && Crosshair.AttachedBox.State != STATE_FIRST)
-      || (Settings.Mode == POLYGON_MODE
-	  && Crosshair.AttachedLine.State != STATE_FIRST))
-    return TRUE;
-  return FALSE;
-}
-
 gboolean
 ghid_port_button_press_cb (GtkWidget * drawing_area,
 			   GdkEventButton * ev, GtkUIManager * ui)

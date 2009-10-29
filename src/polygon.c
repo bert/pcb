@@ -120,6 +120,26 @@ static double circleVerticies[] = {
   0.98480775301221, 0.17364817766693,
 };
 
+static void
+add_noholes_polyarea (PLINE *pline, void *user_data)
+{
+  PolygonType *poly = user_data;
+
+  /* Prepend the pline into the NoHoles linked list */
+  pline->next = poly->NoHoles;
+  poly->NoHoles = pline;
+}
+
+void
+ComputeNoHoles (PolygonType *poly)
+{
+  poly_FreeContours (&poly->NoHoles);
+  if (poly->Clipped)
+    NoHolesPolygonDicer (poly, NULL, add_noholes_polyarea, poly);
+  else
+    printf ("Compute_noholes caught poly->Clipped = NULL\n");
+  poly->NoHolesValid = 1;
+}
 
 static POLYAREA *
 biggest (POLYAREA * p)
@@ -228,6 +248,8 @@ ClipOriginal (PolygonType * poly)
       fprintf (stderr, "Error while clipping PBO_ISECT: %d\n", r);
       poly_Free (&result);
       poly->Clipped = NULL;
+      if (poly->NoHoles) printf ("Just leaked in ClipOriginal\n");
+      poly->NoHoles = NULL;
       return 0;
     }
   poly->Clipped = biggest (result);
@@ -632,6 +654,8 @@ Subtract (POLYAREA * np1, PolygonType * p, Boolean fnp)
       fprintf (stderr, "Error while clipping PBO_SUB: %d\n", x);
       poly_Free (&merged);
       p->Clipped = NULL;
+      if (p->NoHoles) printf ("Just leaked in Subtract\n");
+      p->NoHoles = NULL;
       return -1;
     }
   p->Clipped = biggest (merged);
@@ -909,6 +933,7 @@ clearPoly (DataTypePtr Data, LayerTypePtr Layer, PolygonType * polygon,
       if (info.solder || group == Group (Data, max_layer + COMPONENT_LAYER))
 	r += r_search (Data->pad_tree, &region, NULL, pad_sub_callback, &info);
     }
+  polygon->NoHolesValid = 0;
   return r;
 }
 
@@ -925,6 +950,8 @@ Unsubtract (POLYAREA * np1, PolygonType * p)
       fprintf (stderr, "Error while clipping PBO_UNITE: %d\n", x);
       poly_Free (&merged);
       p->Clipped = NULL;
+      if (p->NoHoles) printf ("Just leaked in Unsubtract\n");
+      p->NoHoles = NULL;
       return 0;
     }
   p->Clipped = biggest (merged);
@@ -1031,11 +1058,14 @@ InitClip (DataTypePtr Data, LayerTypePtr layer, PolygonType * p)
   if (p->Clipped)
     poly_Free (&p->Clipped);
   p->Clipped = original_poly (p);
+  poly_FreeContours (&p->NoHoles);
   if (!p->Clipped)
     return 0;
   assert (poly_Valid (p->Clipped));
   if (TEST_FLAG (CLEARPOLYFLAG, p))
     clearPoly (Data, layer, p, NULL, 0);
+  else
+    p->NoHolesValid = 0;
   return 1;
 }
 
@@ -1289,18 +1319,23 @@ subtract_plow (DataTypePtr Data, LayerTypePtr Layer, PolygonTypePtr Polygon,
     case PIN_TYPE:
     case VIA_TYPE:
       SubtractPin (Data, (PinTypePtr) ptr2, Layer, Polygon);
+      Polygon->NoHolesValid = 0;
       return 1;
     case LINE_TYPE:
       SubtractLine ((LineTypePtr) ptr2, Polygon);
+      Polygon->NoHolesValid = 0;
       return 1;
     case ARC_TYPE:
       SubtractArc ((ArcTypePtr) ptr2, Polygon);
+      Polygon->NoHolesValid = 0;
       return 1;
     case PAD_TYPE:
       SubtractPad ((PadTypePtr) ptr2, Polygon);
+      Polygon->NoHolesValid = 0;
       return 1;
     case TEXT_TYPE:
       SubtractText ((TextTypePtr) ptr2, Polygon);
+      Polygon->NoHolesValid = 0;
       return 1;
     }
   return 0;
@@ -1506,17 +1541,18 @@ IsRectangleInPolygon (LocationType X1, LocationType Y1, LocationType X2,
   return isects (s, p, True);
 }
 
+/* NB: This function will free the passed POLYAREA.
+ *     It must only be passed a single POLYAREA (pa->f == pa->b == pa)
+ */
 static void
-r_NoHolesPolygonDicer (PLINE * p,
+r_NoHolesPolygonDicer (POLYAREA * pa,
                        void (*emit) (PLINE *, void *), void *user_data)
 {
-  POLYAREA *pa;
+  PLINE *p = pa->contours;
 
-  pa = (POLYAREA *) malloc (sizeof (*pa));
-  pa->b = pa->f = pa;
-  pa->contours = p;
-  if (!p->next)                 /* no holes */
+  if (!pa->contours->next)                 /* no holes */
     {
+      pa->contours = NULL; /* The callback now owns the contour */
       emit (p, user_data);
       poly_Free (&pa);
       return;
@@ -1526,36 +1562,34 @@ r_NoHolesPolygonDicer (PLINE * p,
       POLYAREA *poly2, *left, *right;
 
       /* make a rectangle of the left region slicing through the middle of the first hole */
-      poly2 =
-        RectPoly (p->xmin, (p->next->xmin + p->next->xmax) / 2, p->ymin,
-                  p->ymax);
+      poly2 = RectPoly (p->xmin, (p->next->xmin + p->next->xmax) / 2,
+                        p->ymin, p->ymax);
       poly_AndSubtract_free (pa, poly2, &left, &right);
       if (left)
         {
-          POLYAREA *x, *y;
-          x = left;
+          POLYAREA *cur, *next;
+          cur = left;
           do
             {
-              PLINE *pl = x->contours;
-              r_NoHolesPolygonDicer (pl, emit, user_data);
-              y = x->f;
-              /* the pline was already freed by its use int he recursive dicer */
-              free (x);
+              next = cur->f;
+              cur->f = cur->b = cur; /* Detach this polygon piece */
+              r_NoHolesPolygonDicer (cur, emit, user_data);
+              /* NB: The POLYAREA was freed by its use in the recursive dicer */
             }
-          while ((x = y) != left);
+          while ((cur = next) != left);
         }
       if (right)
         {
-          POLYAREA *x, *y;
-          x = right;
+          POLYAREA *cur, *next;
+          cur = right;
           do
             {
-              PLINE *pl = x->contours;
-              r_NoHolesPolygonDicer (pl, emit, user_data);
-              y = x->f;
-              free (x);
+              next = cur->f;
+              cur->f = cur->b = cur; /* Detach this polygon piece */
+              r_NoHolesPolygonDicer (cur, emit, user_data);
+              /* NB: The POLYAREA was freed by its use in the recursive dicer */
             }
-          while ((x = y) != right);
+          while ((cur = next) != right);
         }
     }
 }
@@ -1564,7 +1598,7 @@ void
 NoHolesPolygonDicer (PolygonTypePtr p, const BoxType * clip,
                      void (*emit) (PLINE *, void *), void *user_data)
 {
-  POLYAREA *save, *ans;
+  POLYAREA *save, *ans, *cur, *next;
 
   ans = save = poly_Create ();
   /* copy the main poly only */
@@ -1583,18 +1617,18 @@ NoHolesPolygonDicer (PolygonTypePtr p, const BoxType * clip,
     }
   if (!save)
     return;
-  /* now dice it up */
+  /* Now dice it up.
+   * NB: Could be more than one piece (because of the clip above)
+   */
+  cur = save;
   do
     {
-      POLYAREA *prev;
-      r_NoHolesPolygonDicer (save->contours, emit, user_data);
-      /* go to next poly (could be one because of clip) */
-      prev = save;
-      save = prev->f;
-      /* free the previouse POLYAREA. Note the contour was consumed in the dicer */
-      free (prev);
+      next = cur->f;
+      cur->f = cur->b = cur; /* Detach this polygon piece */
+      r_NoHolesPolygonDicer (cur, emit, user_data);
+      /* NB: The POLYAREA was freed by its use in the recursive dicer */
     }
-  while (save != ans);
+  while ((cur = next) != save);
 }
 
 /* make a polygon split into multiple parts into multiple polygons */
@@ -1620,6 +1654,8 @@ MorphPolygon (LayerTypePtr layer, PolygonTypePtr poly)
    * we do this dirty work.
    */
   poly->Clipped = NULL;
+  if (poly->NoHoles) printf ("Just leaked in MorpyPolygon\n");
+  poly->NoHoles = NULL;
   flags = poly->Flags;
   RemovePolygon (layer, poly);
   inhibit = True;

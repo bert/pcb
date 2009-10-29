@@ -915,7 +915,7 @@ __r_insert_node (struct rtree_node *node, const BoxType * query,
     {
       register int i;
 
-      if (manage)
+      if (UNLIKELY (manage))
         {
           register int flag = 1;
 
@@ -996,7 +996,7 @@ __r_insert_node (struct rtree_node *node, const BoxType * query,
           new_node->u.rects[0].bptr = query;
           new_node->u.rects[0].bounds = *query;
           new_node->box = *query;
-          if (manage)
+          if (UNLIKELY (manage))
             new_node->flags.manage = 1;
           sort_node (node);
           return;
