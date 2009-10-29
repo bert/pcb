@@ -24,48 +24,61 @@ upload the 'pcb-$VERSION.tar.gz' file to the sourceforge file release system
 
 To make a pcb release do the following:
 
+=)      Make sure you have a clean checkout of master/origin
 
 =)	# make sure it makes distfiles ok: (have to build before doing distcheck so
 	pcb gets built so it can create some of the images in the doc directory)
-	gmake distclean ; ./autogen.sh  && ./configure --enable-maintainer-mode \
-		--disable-update-desktop-database --disable-update-mime-database && \
-		gmake && gmake distcheck
+
+	# clean up, and build with the GTK HID
+	gmake distclean
+	./autogen.sh
+	./configure --disable-update-desktop-database --disable-update-mime-database
+	gmake
+	gmake distcheck
+
+	# check the build with lesstif HID.  The /usr/pkg parts should be replaced with
+	# whatever flags (if any) are needed to find lesstif on your system.
 	setenv DISTCHECK_CONFIGURE_FLAGS '--with-gui=lesstif CPPFLAGS=-I/usr/pkg/include CFLAGS=-I/usr/pkg/include LDFLAGS="-L/usr/pkg/lib -R/usr/pkg/lib"'
+	gmake distcheck
+
+	# check the build with the batch HID
+	setenv DISTCHECK_CONFIGURE_FLAGS '--with-gui=batch'
 	gmake distcheck
 	unsetenv DISTCHECK_CONFIGURE_FLAGS
 
-=)	cvs ci
+=)	commit and push any changes which were needed to fix 'distcheck' problems
 
-=)	update the ChangeLog with './utils/cvs2cl.pl'.  Check in changes
+=)	update the ChangeLog with './utils/git2cl > ChangeLog'
 
 =)	update the NEWS file with some sort of release notes
-	summary.  Check in changes
+	summary.  You can find the number of commits with something like
 
-=)	if this is a major release, then tag and branch:
+	    awk '/^2008-11-28/ {print "Changes: " c ; exit} /^20[01][0-9]/ {c++}' ChangeLog
 
-	1. Tag the base of the release branch
-		cvs tag pcb-20081128-base 
+	Commit and push NEWS and ChangeLog.
 
-	2. Create the release branch
-		cvs tag -R -b -r pcb-20081128-base pcb-20081128
+=)	if this is a major release, then branch:
+
+	1. Create the release branch
+		git branch pcb-20091101
 
 	3. FIX_ME [fix up this step.  what shall we do with the version
-	   on the trunk?  We're about to run out of letters!] 
+	   on the trunk?  We are about to run out of letters!] 
 	   On the trunk, update configure.ac to update the version
 		for example 1.99x after releasing 1.99w
-		cvs update -PdA
+		git checkout master
 		vi configure.ac
-		cvs ci configure.ac
+		git commit configure.ac
 
 	4. On the release branch, update configure.ac to update the version
-		for example 20081128_ALPHA.  Now pre-release snapshots can be made.
-		cvs update -PdA -r pcb-20081128
+		for example 20091101_ALPHA.  Now pre-release snapshots can be made.
+		git checkout pcb-20091101
 
 	5. If desired tag an alpha release:
-		cvs update -PdA -r pcb-20081128
+		git checkout pcb-20091101
 		./autogen.sh
-		cvs tag -R -r pcb-20081128 pcb-20081128-ALPHA
-		cvs update -PdA -r pcb-20081128-ALPHA
+		git tag -a pcb-20091101-ALPHA
+		git checkout pcb-20091101-ALPHA
 		./autogen.sh && ./configure --enable-maintainer-mode \
 			--disable-update-desktop-database \
 			--disable-update-mime-database && \
@@ -73,13 +86,13 @@ To make a pcb release do the following:
 
 	6. When the release branch is ready to go,  update configure.ac to
 	   set the final release version.  Then tag the release.
-		cvs update -PdA -r pcb-20081128
+		git checkout pcb-20091101
 		vi configure.ac
-		cvs ci configure.ac
+		git commit configure.ac
 		./autogen.sh
-		cvs ci
-		cvs tag -R -r pcb-20081128 pcb-20081128-RELEASE
-		cvs update -PdA -r pcb-20081128-RELEASE
+		git commit -a
+		git tag -a pcb-20091101-RELEASE
+		git checkout pcb-20091101-RELEASE
 		./autogen.sh && ./configure --enable-maintainer-mode \
 			--disable-update-desktop-database \
 			--disable-update-mime-database && \
@@ -87,29 +100,58 @@ To make a pcb release do the following:
 	
 	7. Create checksums
 
-		openssl sha1 pcb-20081128.tar.gz > pcb-20081128.cksum
-		openssl md5 pcb-20081128.tar.gz >> pcb-20081128.cksum
-		openssl rmd160 pcb-20081128.tar.gz >> pcb-20081128.cksum
-		echo "File size (bytes):" >> pcb-20081128.cksum
-		wc -c pcb-20081128.tar.gz >> pcb-20081128.cksum
+		openssl sha1 pcb-20091101.tar.gz > pcb-20091101.cksum
+		openssl md5 pcb-20091101.tar.gz >> pcb-20091101.cksum
+		openssl rmd160 pcb-20091101.tar.gz >> pcb-20091101.cksum
+		echo "File size (bytes):" >> pcb-20091101.cksum
+		wc -c pcb-20091101.tar.gz >> pcb-20091101.cksum
 
 	8. Create a new file release for pcb with a release name of
-	   "pcb-20081128" (for pcb-20081128).
+	   "pcb-20091101" (for pcb-20091101).
 
-	9. Upload the .tar.gz, .cksum files via the file release system on sourceforge.  There is
-           a web upload page that can be reached from the file release system.  After uploading
-           set the file types:
+	   https://sourceforge.net/projects/pcb  (you must be logged in to sourceforge)
 
-			.tar.gz      -  any / source .gz
-			.cksum       -  Platform Independent / Other Source File
+	   Pick Admin->File Releases
+
+	   Next to the "gerbv" package, click "Add Release"
+
+           In the "Step 1:  Edit Existing Release" section, paste in the section of the NEWS
+	   for this version.  Check the "Preserve my pre-formatted text" radio button and click
+	   "Submit/Refresh".
+
+           In the "Step 2: Add Files To This Release" section follow the "upload new files" link
+	   and then in the next page the "Web Upload" link.  You will have to log in to
+	   sourceforge again.
+
+           Upload the .tar.gz, .cksum, and if you built one, the windows installer.
+
+           Once you have completed the file uploads return to the edit releases page, check
+	   the radio buttons next to the uploaded files and click the "Add Files..." button.
+
+           In the "Step 3:  Edit Files in this Release" section, set the following:
+		For file types:
+			.tar.gz  -  any / source .gz
+			.cksum   -  Platform Independent / Other Source File
+			.exe     -  i386 / .exe (32-bit Windows)
+
+           You will have to click "update" for each file as you go.
+
+           In the "Step 4:  Email Release Notice" section, check the "I'm sure" 
+	   radio button and click the "Send Notice" button.
+        
+	 9. Have a project admin go to the Admin->File Releases page and then
+	    follow the "Create/Edit Download page" to change the default download
+	    file to the new release.
 
 	10. Return to your regularly scheduled trunk development
-		cvs update -PdA
+		git checkout master
 
 =) 	if this is a patch release, then simply make desired changes to the branch, and
-		./autogen.sh 
-		cvs ci
-		cvs tag -R -r pcb-20081128 pcb-20081128-PATCH001
+		git checkout pcb-20091101
+		# make changes
+		./autogen.sh
+		git commit
+		git tag -a pcb-20091101-PATCH001
 
 =)	gmake distclean ; ./autogen.sh &&./configure && gmake distcheck
 
