@@ -35,7 +35,7 @@ info_TEXINFOS=	pcb.texi
 # to build the documentation.  Users who obtain the cutting edge sources
 # via GIT are considered to be doing "development" and incur a slightly
 # higher list of required tools.
-if GIT_VERSION
+if GIT_OR_CVS_VERSION
 pcb_TEXINFOS=	${inline_texi} ${pcb_output} ${tab_texi}
 else
 pcb_TEXINFOS=
@@ -56,7 +56,7 @@ pdf_docs=	${info_TEXINFOS:.texi=.pdf} refcard.pdf
 # time on the same input file.  That causes clashes in 
 # the .aux files which are used by both latex and
 # pdflatex.
-if GIT_VERSION
+if GIT_OR_CVS_VERSION
 refcard.pdf: refcard.ps
 pcb.pdf: pcb.ps
 endif
@@ -84,7 +84,7 @@ EXTRA_DIST= \
 	${tab_files} \
 	${tab_texi}
 
-if GIT_VERSION
+if GIT_OR_CVS_VERSION
 BUILT_SOURCES=	${tab_texi} ${pcb_output} ${inline_texi}
 CLEANFILES= \
 	refcard.aux refcard.dvi refcard.log refcard.pdf refcard.ps \
@@ -129,7 +129,7 @@ ${inline_texi} : extracted-docs
 # anyway.
 .PHONY : extracted-docs
 extracted-docs :
-if GIT_VERSION
+if GIT_OR_CVS_VERSION
 	${PERL} $(srcdir)/extract-docs $(srcdir)
 else
 	@echo "Skipping documentation extraction since you are not building from GIT sources"

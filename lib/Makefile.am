@@ -1,5 +1,4 @@
 ## -*- makefile -*-
-## $Id$
 ##
 
 PCBLIBDIR=		@PCBLIBDIR@
@@ -43,7 +42,7 @@ else
 PREVIEW=	
 endif
 
-if GIT_VERSION
+if GIT_OR_CVS_VERSION
 NEWLIB_DEPS=	${LIBCONTENTS} ${srcdir}/m4lib_to_newlib.sh
 else
 NEWLIB_DEPS=
@@ -70,7 +69,7 @@ uninstall-local:
 
 EXTRA_DIST=	${NEWLIB} footprint.pcb ${NEWLIB}.stamp png_diff.sh
 
-if GIT_VERSION
+if GIT_OR_CVS_VERSION
 DISTCLEANFILES=	${NEWLIB}.stamp
 else
 DISTCLEANFILES=

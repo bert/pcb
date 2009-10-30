@@ -28,6 +28,17 @@ else
 fi
 AM_CONDITIONAL(GIT_VERSION, test x$pcb_git_version = xyes)
 
+AC_MSG_CHECKING([if you are building from a anoncvs checkout])
+pcb_cvs_version=no
+if test -f $srcdir/CVS/Root ; then
+	pcb_cvs_version=yes
+	AC_MSG_RESULT([yes])
+else
+	AC_MSG_RESULT([no])
+fi
+AM_CONDITIONAL(CVS_VERSION, test x$pcb_cvs_version = xyes)
+AM_CONDITIONAL(GIT_OR_CVS_VERSION, test x$pcb_git_version = xyes -o x$pcb_cvs_version = xyes)
+
 ##########################################################################
 #
 # See if we are supposed to build the docs
