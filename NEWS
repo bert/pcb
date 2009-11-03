@@ -1,10 +1,12 @@
 ========================================================================
-Release Notes for PCB snapshot 20091101
+Release Notes for PCB snapshot 20091103
 ========================================================================
-This release represents around 180 commits and as such this summary 
+This release represents almost 200 commits and as such this summary 
 clearly is not complete.  See the ChangeLog file for the complete list
 of changes.
 
+- [feature] Add attributes to layers
+- [bugfix]  Remove memory leak in attributes
 - [bugfix]  Avoid layer buttons getting confused (GTK)
 - [bugfix]  Fix dereference bug in hid_find_action()
 - [feature] Speed up some polygon operations
