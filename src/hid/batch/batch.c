@@ -82,8 +82,8 @@ info (int argc, char **argv, int x, int y)
 	 PCB->MaxHeight / 100.0,
 	 PCB->MaxWidth * COOR_TO_MM,
 	 PCB->MaxHeight * COOR_TO_MM);
-  cg = GetLayerGroupNumberByNumber (MAX_LAYER + COMPONENT_LAYER);
-  sg = GetLayerGroupNumberByNumber (MAX_LAYER + SOLDER_LAYER);
+  cg = GetLayerGroupNumberByNumber (max_layer + COMPONENT_LAYER);
+  sg = GetLayerGroupNumberByNumber (max_layer + SOLDER_LAYER);
   for (i=0; i<MAX_LAYER; i++)
     {
       

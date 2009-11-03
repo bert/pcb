@@ -654,7 +654,7 @@ MoveTextToLayerLowLevel (LayerTypePtr Source, TextTypePtr Text,
   r_substitute (Source->text_tree, (BoxType *) & Source->Text[Source->TextN],
 		(BoxType *) Text);
   memset (&Source->Text[Source->TextN], 0, sizeof (TextType));
-  if (GetLayerGroupNumberByNumber (MAX_LAYER + SOLDER_LAYER) ==
+  if (GetLayerGroupNumberByNumber (max_layer + SOLDER_LAYER) ==
       GetLayerGroupNumberByPointer (Destination))
     SET_FLAG (ONSOLDERFLAG, new);
   else
