@@ -802,6 +802,23 @@ FreeNetMemory (NetTypePtr Net)
       memset (Net, 0, sizeof (NetType));
     }
 }
+/* ---------------------------------------------------------------------------
+ * frees memory used by an attribute list
+ */
+static void
+FreeAttributeListMemory (AttributeListTypePtr list)
+{
+  int i;
+
+  for (i = 0; i < list->Number; i++)
+    {
+      SaveFree (list->List[i].name);
+      SaveFree (list->List[i].value);
+    }
+  SaveFree (list->List);
+  list->List = NULL;
+  list->Max = 0;
+}
 
 /* ---------------------------------------------------------------------------
  * frees memory used by an element
@@ -832,6 +849,7 @@ FreeElementMemory (ElementTypePtr Element)
       MYFREE (Element->Pad);
       MYFREE (Element->Line);
       MYFREE (Element->Arc);
+      FreeAttributeListMemory (&Element->Attributes);
       memset (Element, 0, sizeof (ElementType));
     }
 }
@@ -856,6 +874,7 @@ FreePCBMemory (PCBTypePtr PCBPtr)
       for (i = 0; i <= MAX_FONTPOSITION; i++)
 	MYFREE (PCBPtr->Font.Symbol[i].Line);
       FreeLibraryMemory (&PCBPtr->NetlistLib);
+      FreeAttributeListMemory (&PCBPtr->Attributes);
       /* clear struct */
       memset (PCBPtr, 0, sizeof (PCBType));
     }
@@ -889,6 +908,7 @@ FreeDataMemory (DataTypePtr Data)
 
       for (layer = Data->Layer, i = 0; i < MAX_LAYER + 2; layer++, i++)
 	{
+	  FreeAttributeListMemory (&layer->Attributes);
 	  TEXT_LOOP (layer);
 	  {
 	    MYFREE (text->TextString);

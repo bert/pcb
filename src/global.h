@@ -281,6 +281,7 @@ typedef struct			/* holds information about one layer */
   Boolean On;			/* visible flag */
   char *Color,			/* color */
    *SelectedColor;
+  AttributeListType Attributes;
 }
 LayerType, *LayerTypePtr;
 

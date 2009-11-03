@@ -781,6 +781,7 @@ WriteLayerData (FILE * FP, Cardinal Number, LayerTypePtr layer)
       fprintf (FP, "Layer(%i ", (int) Number + 1);
       PrintQuotedString (FP, EMPTY (layer->Name));
       fputs (")\n(\n", FP);
+      WriteAttributeList (FP, &layer->Attributes, "\t");
 
       for (n = 0; n < layer->LineN; n++)
 	{

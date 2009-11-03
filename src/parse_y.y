@@ -837,7 +837,7 @@ component-side silk, in that order.
 @item Name
 The layer name.
 @item contents
-The contents of the layer, which may include lines, arcs, rectangles,
+The contents of the layer, which may include attributes, lines, arcs, rectangles,
 text, and polygons.
 @end table
 
@@ -894,6 +894,7 @@ layerdefinition
 		| text_hi_format
 		| text_newformat
 		| text_oldformat
+		| { attr_list = & Layer->Attributes; } attributes
 			/* flags are passed in */
 		| T_POLYGON '(' flags ')' '('
 			{
