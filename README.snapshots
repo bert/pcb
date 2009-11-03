@@ -24,8 +24,13 @@ upload the 'pcb-$VERSION.tar.gz' file to the sourceforge file release system
 
 To make a pcb release do the following:
 
-=)      Make sure you have a clean checkout of master/origin
-        git checkout master/origin
+=)      Make sure you have up to date sources
+        git fetch
+	git rebase origin/master
+
+        # note, you could also create a new local branch with
+	# git checkout -b do_release_from_here origin/master but need to make
+	# sure we still get the correct branch and tag on the main server eventually
 
 =)	# make sure it makes distfiles ok: (have to build before doing distcheck so
 	pcb gets built so it can create some of the images in the doc directory)
@@ -47,9 +52,12 @@ To make a pcb release do the following:
 	gmake distcheck
 	unsetenv DISTCHECK_CONFIGURE_FLAGS
 
-=)	commit and push any changes which were needed to fix 'distcheck' problems
-	git commit -a
-	git push
+=)	commit and push any changes which were needed to fix 'distcheck' problems.
+	Of course if the changes aren't related then they should be committed in 
+	multiple commits.
+
+	git commit <files>
+	git push <files>
 
 =)	update the ChangeLog with './utils/git2cl -O > ChangeLog'
 
@@ -65,7 +73,7 @@ To make a pcb release do the following:
 =)	if this is a major release, then branch:
 
 	1. Create the release branch
-		git branch pcb-20091101
+		git branch pcb-20091103
 
 	3. FIX_ME [fix up this step.  what shall we do with the version
 	   on the trunk?  We are about to run out of letters!] 
@@ -77,14 +85,14 @@ To make a pcb release do the following:
 		git push
 
 	4. On the release branch, update configure.ac to update the version
-		for example 20091101_ALPHA.  Now pre-release snapshots can be made.
-		git checkout pcb-20091101
+		for example 20091103_ALPHA.  Now pre-release snapshots can be made.
+		git checkout pcb-20091103
 
 	5. If desired tag an alpha release:
-		git checkout pcb-20091101
+		git checkout pcb-20091103
 		./autogen.sh
-		git tag -a pcb-20091101-ALPHA
-		git checkout pcb-20091101-ALPHA
+		git tag -a pcb-20091103-ALPHA
+		git checkout pcb-20091103-ALPHA
 		./autogen.sh && ./configure --enable-maintainer-mode \
 			--disable-update-desktop-database \
 			--disable-update-mime-database && \
@@ -92,14 +100,15 @@ To make a pcb release do the following:
 
 	6. When the release branch is ready to go,  update configure.ac to
 	   set the final release version.  Then tag the release.
-		git checkout pcb-20091101
+		git checkout pcb-20091103
 		vi configure.ac
 		git commit configure.ac
 		./autogen.sh
-		git commit -a
+		git commit -a  # after we expunge all generate files from git, we can skip this one
 		git push
-		git tag -a pcb-20091101-RELEASE
-		git checkout pcb-20091101-RELEASE
+		git tag -a pcb-20091103-RELEASE
+		git push --tags
+		git checkout pcb-20091103-RELEASE
 		./autogen.sh && ./configure --enable-maintainer-mode \
 			--disable-update-desktop-database \
 			--disable-update-mime-database && \
@@ -107,14 +116,14 @@ To make a pcb release do the following:
 	
 	7. Create checksums
 
-		openssl sha1 pcb-20091101.tar.gz > pcb-20091101.cksum
-		openssl md5 pcb-20091101.tar.gz >> pcb-20091101.cksum
-		openssl rmd160 pcb-20091101.tar.gz >> pcb-20091101.cksum
-		echo "File size (bytes):" >> pcb-20091101.cksum
-		wc -c pcb-20091101.tar.gz >> pcb-20091101.cksum
+		openssl sha1 pcb-20091103.tar.gz > pcb-20091103.cksum
+		openssl md5 pcb-20091103.tar.gz >> pcb-20091103.cksum
+		openssl rmd160 pcb-20091103.tar.gz >> pcb-20091103.cksum
+		echo "File size (bytes):" >> pcb-20091103.cksum
+		wc -c pcb-20091103.tar.gz >> pcb-20091103.cksum
 
 	8. Create a new file release for pcb with a release name of
-	   "pcb-20091101" (for pcb-20091101).
+	   "pcb-20091103" (for pcb-20091103).
 
 	   https://sourceforge.net/projects/pcb  (you must be logged in to sourceforge)
 
@@ -154,11 +163,11 @@ To make a pcb release do the following:
 		git checkout master
 
 =) 	if this is a patch release, then simply make desired changes to the branch, and
-		git checkout pcb-20091101
+		git checkout pcb-20091103
 		# make changes
 		./autogen.sh
 		git commit
-		git tag -a pcb-20091101-PATCH001
+		git tag -a pcb-20091103-PATCH001
 		git push
 
 =)	gmake distclean ; ./autogen.sh &&./configure && gmake distcheck
