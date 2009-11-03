@@ -174,21 +174,15 @@ sub last_line_len {
 sub obfuscate_email {
     my $text = shift;                  # The text to wrap.
     my $text_out = '';
-    my $state = 0;
     my @words = split (/ /, $text);
     while (@words)   # Don't use `foreach' here, it won't work.
     {
 	my $this_word = shift (@words);
-	if ($state == 0) {
-	  # waiting for an email address
-	  if ($this_word =~ /^</) {
-	    $state = 1;
-	    $this_word =~ s/^</* /;
+	if ($this_word =~ /[a-zA-Z_\.0-9]@[a-zA-Z_\.0-9]/) {
+	    $this_word =~ s/^[<\[]/* /;
 	    $this_word =~ s/\./ dot /g;
 	    $this_word =~ s/@/ AT /g;
-	    $this_word =~ s/>$/ */;
-	    $state = 1;
-	  }
+	    $this_word =~ s/[>\]]/ */;
 	}
 	$text_out = $text_out . " " . $this_word;
       }
@@ -245,6 +239,11 @@ sub wrap_log_entry {
 	# Now that any user_indent has been preserved, strip off leading
 	# whitespace, so up-folding has no ugly side-effects.
 	$this_line =~ s/^\s*//;
+
+        # obfuscate any emails found inside the log
+	if ($Obfuscate_Emails && $this_line =~ /@/ ) {
+	    $this_line = &obfuscate_email ($this_line);
+	}
 
 	# Accumulate the line, and adjust parameters for next line.
 	my $this_len = length ($this_line);
