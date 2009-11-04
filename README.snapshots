@@ -73,7 +73,7 @@ To make a pcb release do the following:
 =)	if this is a major release, then branch:
 
 	1. Create the release branch
-		git branch pcb-20091103
+		git branch origin/pcb-20091103
 
 	3. FIX_ME [fix up this step.  what shall we do with the version
 	   on the trunk?  We are about to run out of letters!] 
@@ -127,39 +127,28 @@ To make a pcb release do the following:
 
 	   https://sourceforge.net/projects/pcb  (you must be logged in to sourceforge)
 
-	   Pick Admin->File Releases
+	   Click "Develop".
+	   Click "Project Admin->File Manager".
+	   Left click on "pcb" to expand it.
+	   Right click on "pcb" and choose "New folder".  Use "pcb-20091103" as the name.
+           Copy out the section from NEWS which are the release notes for this release.
+           Place the into a file called pcb-20091103.txt.
 
-	   Next to the "gerbv" package, click "Add Release"
+	   Right click on "pcb-20091103" and choose "Uploads here".
+           Click "Upload File" and upload the .tar.gz, .txt and .cksum files.
+ 
+           Left click on pcb-20091103.txt and check the "Release notes" box and
+           click "Save".
 
-           In the "Step 1:  Edit Existing Release" section, paste in the section of the NEWS
-	   for this version.  Check the "Preserve my pre-formatted text" radio button and click
-	   "Submit/Refresh".
+           Left click on pcb-20091103.tar.gz to bring up a form to edit the file
+           details.  Change the label to "source code release".  Check all the platforms
+           except for windows.  Select the release notes file and click "Save".
 
-           In the "Step 2: Add Files To This Release" section follow the "upload new files" link
-	   and then in the next page the "Web Upload" link.  You will have to log in to
-	   sourceforge again.
+           Left click on pcb-20091103.cksum to bring up a form to edit the file
+           details.  Change the label to "checksum file", select the release notes file,
+           and click "Save".
 
-           Upload the .tar.gz, .cksum, and if you built one, the windows installer.
-
-           Once you have completed the file uploads return to the edit releases page, check
-	   the radio buttons next to the uploaded files and click the "Add Files..." button.
-
-           In the "Step 3:  Edit Files in this Release" section, set the following:
-		For file types:
-			.tar.gz  -  any / source .gz
-			.cksum   -  Platform Independent / Other Source File
-			.exe     -  i386 / .exe (32-bit Windows)
-
-           You will have to click "update" for each file as you go.
-
-           In the "Step 4:  Email Release Notice" section, check the "I'm sure" 
-	   radio button and click the "Send Notice" button.
-        
-	 9. Have a project admin go to the Admin->File Releases page and then
-	    follow the "Create/Edit Download page" to change the default download
-	    file to the new release.
-
-	10. Return to your regularly scheduled trunk development
+=)      return to your regularly scheduled trunk development
 		git checkout master
 
 =) 	if this is a patch release, then simply make desired changes to the branch, and
