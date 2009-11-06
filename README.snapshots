@@ -72,8 +72,9 @@ To make a pcb release do the following:
 
 =)	if this is a major release, then branch:
 
-	1. Create the release branch
-		git branch origin/pcb-20091103
+	1. Create the release branch and push to the remove
+		git branch pcb-20091103
+		git push origin pcb-20091103
 
 	3. FIX_ME [fix up this step.  what shall we do with the version
 	   on the trunk?  We are about to run out of letters!] 
