@@ -3704,7 +3704,7 @@ lesstif_show_item (void *item)
 
   if (pd->left > pd->right)
     {
-      free (&pd);
+      free (pd);
       return;
     }
   pd->prev = 0;
