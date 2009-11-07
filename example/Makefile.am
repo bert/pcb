@@ -1,6 +1,6 @@
 ## $Id$
 
-examplesdir=	$(pkgdatadir)/examples
+examplesdir=	@docdir@/examples
 examples_DATA=	${EXAMPLES}
 
 SUBDIRS=	libraries
