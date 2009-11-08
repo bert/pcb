@@ -251,6 +251,7 @@ echo "Configuring for cygwin"
 ( ( ( env WIN32=yes \
 	./configure \
 	--prefix=${pcb_inst} \
+	--docdir=${pcb_inst}/doc \
 	--pdfdir=${pcb_inst}/doc/pdf \
 	--htmldir=${pcb_inst}/doc/html \
 	--datadir=${pcb_inst}/share \
