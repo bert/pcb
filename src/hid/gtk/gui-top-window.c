@@ -3198,17 +3198,17 @@ add_resource_to_menu (char * menu, Resource * node, void * callback, int indent)
 		      }
 		    else if (strncmp (p, "Ctrl", 4) == 0)
 		      {
-			strncat (accel, "<control>", sizeof (accel));
+			strncat (accel, "<control>", sizeof (accel) - 1);
 			p += 4;
 		      }
 		    else if (strncmp (p, "Shift", 5) == 0)
 		      {
-			strncat (accel, "<shift>", sizeof (accel));
+			strncat (accel, "<shift>", sizeof (accel) - 1);
 			p += 5;
 		      }
 		    else if (strncmp (p, "Alt", 3) == 0)
 		      {
-			strncat (accel, "<alt>", sizeof (accel));
+			strncat (accel, "<alt>", sizeof (accel) - 1);
 			p += 3;
 		      }
 		    else
@@ -3239,7 +3239,7 @@ add_resource_to_menu (char * menu, Resource * node, void * callback, int indent)
 		  case KEY:
 		    if (strncmp (p, "Enter", 5) == 0)
 		      {
-			strncat (accel, "Return", sizeof (accel));
+			strncat (accel, "Return", sizeof (accel) - 1);
 			p += 5;
 		      }
 		    else
@@ -3249,13 +3249,13 @@ add_resource_to_menu (char * menu, Resource * node, void * callback, int indent)
 			  {
 			    if ( *p == key_table[j].in)
 			      {
-				strncat (accel, key_table[j].out, sizeof (accel));
+				strncat (accel, key_table[j].out, sizeof (accel) - 1);
 				j = n_key_table;
 			      }
 			  }
 			
 			if (j == n_key_table)
-			  strncat (accel, ch, sizeof (accel));
+			  strncat (accel, ch, sizeof (accel) - 1);
 		    
 			p++;
 		      }
