@@ -259,7 +259,7 @@ new_descriptor (VNODE * a, char poly, char side)
   l->angle = ang;
   assert (ang >= 0.0 && ang <= 4.0);
 #ifdef DEBUG_ANGLE
-  DEBUGP ("node on %c at (%ld,%ld) assigned angle %g on side %c\n", poly,
+  DEBUGP ("node on %c at (%d,%d) assigned angle %g on side %c\n", poly,
 	  a->point[0], a->point[1], ang, side);
 #endif
   return l;
@@ -396,7 +396,7 @@ node_label (VNODE * pn)
    * are ever found between the other poly's entry and exit
    */
 #ifdef DEBUG_LABEL
-  DEBUGP ("CVCLIST for point (%ld,%ld)\n", pn->point[0], pn->point[1]);
+  DEBUGP ("CVCLIST for point (%d,%d)\n", pn->point[0], pn->point[1]);
 #endif
   /* first find whether we're starting inside or outside */
   for (l = pn->cvc_prev->prev; l != pn->cvc_prev; l = l->prev)
@@ -969,7 +969,7 @@ print_labels (PLINE * a)
 
   do
     {
-      DEBUGP ("(%ld,%ld)->(%ld,%ld) labeled %s\n", c->point[0], c->point[1],
+      DEBUGP ("(%d,%d)->(%d,%d) labeled %s\n", c->point[0], c->point[1],
 	      c->next->point[0], c->next->point[1], theState (c));
     }
   while ((c = c->next) != &a->head);
@@ -1337,7 +1337,7 @@ jump (VNODE ** cur, DIRECTION * cdir, J_Rule rule)
       return TRUE;
     }
 #ifdef DEBUG_JUMP
-  DEBUGP ("jump entering node at (%ld, %ld)\n", (*cur)->point[0],
+  DEBUGP ("jump entering node at (%d, %d)\n", (*cur)->point[0],
 	  (*cur)->point[1]);
 #endif
   if (*cdir == FORW)
@@ -1358,10 +1358,10 @@ jump (VNODE ** cur, DIRECTION * cdir, J_Rule rule)
 	    {
 #ifdef DEBUG_JUMP
 	      if (new == FORW)
-		DEBUGP ("jump leaving node at (%ld, %ld)\n",
+		DEBUGP ("jump leaving node at (%d, %d)\n",
 			e->next->point[0], e->next->point[1]);
 	      else
-		DEBUGP ("jump leaving node at (%ld, %ld)\n",
+		DEBUGP ("jump leaving node at (%d, %d)\n",
 			e->point[0], e->point[1]);
 #endif
 	      *cur = d->parent;
@@ -1402,7 +1402,7 @@ Gather (VNODE * start, PLINE ** result, J_Rule v_rule, DIRECTION initdir)
 	  poly_InclVertex ((*result)->head.prev, newn);
 	}
 #ifdef DEBUG_GATHER
-      DEBUGP ("gather vertex at (%ld, %ld)\n", cur->point[0], cur->point[1]);
+      DEBUGP ("gather vertex at (%d, %d)\n", cur->point[0], cur->point[1]);
 #endif
       /* Now mark the edge as included.  */
       newn = (dir == FORW ? cur : cur->prev);
