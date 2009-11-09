@@ -144,9 +144,9 @@ string_cmp (const char *a, const char *b)
 	  int ib = atoi (b);
 	  if (ia != ib)
 	    return ia - ib;
-	  while (isdigit ((int) *a))
+	  while (isdigit ((int) *a) && *(a+1))
 	    a++;
-	  while (isdigit ((int) *b))
+	  while (isdigit ((int) *b) && *(b+1))
 	    b++;
 	}
       else if (tolower ((int) *a) != tolower ((int) *b))
