@@ -97,8 +97,7 @@ ghid_dialog_about (void)
 				   | GTK_DIALOG_DESTROY_WITH_PARENT,
 				   GTK_MESSAGE_INFO,
 				   GTK_BUTTONS_OK,
-				   GetInfoString ()
-				   );
+				   "%s", GetInfoString ());
 
   gtk_dialog_run (GTK_DIALOG (dialog));
   gtk_widget_destroy (dialog);
@@ -142,7 +141,7 @@ ghid_dialog_message (gchar * message)
 				   GTK_DIALOG_MODAL |
 				   GTK_DIALOG_DESTROY_WITH_PARENT,
 				   GTK_MESSAGE_WARNING, GTK_BUTTONS_OK,
-				   message);
+				   "%s", message);
 
   gtk_dialog_run (GTK_DIALOG (dialog));
   gtk_widget_destroy (dialog);
@@ -169,7 +168,8 @@ ghid_dialog_confirm (gchar * message, gchar * cancelmsg, gchar * okmsg)
 				   GTK_DIALOG_MODAL |
 				   GTK_DIALOG_DESTROY_WITH_PARENT,
 				   GTK_MESSAGE_QUESTION,
-				   GTK_BUTTONS_NONE, message);
+				   GTK_BUTTONS_NONE,
+				   "%s", message);
   gtk_dialog_add_buttons (GTK_DIALOG (dialog), 
 			  cancelmsg, GTK_RESPONSE_CANCEL,
 			  okmsg, GTK_RESPONSE_OK,

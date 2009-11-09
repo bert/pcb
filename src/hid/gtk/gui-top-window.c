@@ -2509,7 +2509,7 @@ ghid_create_pcb_widgets (void)
     ghidgui->bg_pixbuf = gdk_pixbuf_new_from_file(bg_image_file, &err);
   if (err)
     {
-    g_error(err->message);
+    g_error("%s", err->message);
     g_error_free(err);
     }
   ghid_build_pcb_top_window ();
