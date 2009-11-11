@@ -114,10 +114,10 @@ RCSID ("$Id$");
  * local prototypes
  */
 
-#define CIRC_SEGS 36
+#define CIRC_SEGS 40
 static double circleVerticies[] = {
   1.0, 0.0,
-  0.98480775301221, 0.17364817766693,
+  0.98768834059513777, 0.15643446504023087,
 };
 
 static void
@@ -345,7 +345,7 @@ frac_circle (PLINE * c, LocationType X, LocationType Y, Vector v, int range)
 }
 
 #define COARSE_CIRCLE 0
-/* create a 35-vertex circle approximation */
+/* create a circle approximation from lines */
 POLYAREA *
 CirclePoly (LocationType x, LocationType y, BDimension radius)
 {
