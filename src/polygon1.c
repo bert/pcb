@@ -2386,7 +2386,7 @@ poly_Valid (POLYAREA * p)
   if (p->contours->Flags.orient == PLF_INV || poly_ChkContour (p->contours))
     {
 #ifndef NDEBUG
-      VNODE *v;
+      VNODE *v, *n;
       DEBUGP ("Invalid Outer PLINE\n");
       if (p->contours->Flags.orient == PLF_INV)
 	DEBUGP ("failed orient\n");
@@ -2395,8 +2395,9 @@ poly_Valid (POLYAREA * p)
       v = &p->contours->head;
       do
 	{
-	  fprintf (stderr, "%d %d 100 100 \"\"]\n", v->point[0], v->point[1]);
-	  fprintf (stderr, "Line [%d %d ", v->point[0], v->point[1]);
+	  n = v->next;
+	  fprintf (stderr, "Line [%d %d %d %d 100 100 \"\"]\n",
+		   v->point[0], v->point[1], n->point[0], n->point[1]);
 	}
       while ((v = v->next) != &p->contours->head);
 #endif
@@ -2408,7 +2409,7 @@ poly_Valid (POLYAREA * p)
 	  poly_ChkContour (c) || !poly_ContourInContour (p->contours, c))
 	{
 #ifndef NDEBUG
-	  VNODE *v;
+	  VNODE *v, *n;
 	  DEBUGP ("Invalid Inner PLINE orient = %d\n", c->Flags.orient);
 	  if (c->Flags.orient == PLF_DIR)
 	    DEBUGP ("failed orient\n");
@@ -2419,9 +2420,9 @@ poly_Valid (POLYAREA * p)
 	  v = &c->head;
 	  do
 	    {
-	      fprintf (stderr, "%d %d 100 100 \"\"]\n", v->point[0],
-		       v->point[1]);
-	      fprintf (stderr, "Line [%d %d ", v->point[0], v->point[1]);
+	      n = v->next;
+	      fprintf (stderr, "Line [%d %d %d %d 100 100 \"\"]\n",
+		       v->point[0], v->point[1], n->point[0], n->point[1]);
 	    }
 	  while ((v = v->next) != &c->head);
 #endif
