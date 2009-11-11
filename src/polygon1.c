@@ -131,19 +131,17 @@ static char *theState (VNODE * v);
 static void
 pline_dump (VNODE * v)
 {
-  VNODE *s;
+  VNODE *s, *n;
 
   s = v;
   do
     {
-      if (v != s)
-	fprintf (stderr, "%d %d 10 10 \"%s\"]\n", v->point[0], v->point[1],
-		 theState (v));
-      fprintf (stderr, "Line [%d %d ", v->point[0], v->point[1]);
+      n = v->next;
+      fprintf (stderr, "Line [%d %d %d %d 10 10 \"%s\"]\n",
+	       v->point[0], v->point[1],
+	       n->point[0], n->point[1], theState (v));
     }
   while ((v = v->next) != s);
-  fprintf (stderr, "%d %d 10 10 \"%s\"]\n", v->point[0], v->point[1],
-	   theState (v));
   fprintf (stderr, "NEXT PLINE\n");
 }
 
