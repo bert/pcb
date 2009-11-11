@@ -919,6 +919,7 @@ theState (VNODE * v)
     }
 }
 
+#ifdef DEBUG_ALL_LABELS
 static void
 print_labels (PLINE * a)
 {
@@ -931,6 +932,7 @@ print_labels (PLINE * a)
     }
   while ((c = c->next) != &a->head);
 }
+#endif
 #endif
 
 /*
