@@ -388,108 +388,67 @@ node_label (VNODE * pn)
   int region = UNKNWN;
 
   assert (pn);
-  assert (pn->cvc_prev);
-  this_poly = pn->cvc_prev->poly;
-  /* search clockwise in the cross vertex connectivity (CVC) list
+  assert (pn->cvc_next);
+  this_poly = pn->cvc_next->poly;
+  /* search counter-clockwise in the cross vertex connectivity (CVC) list
    *
-   * check for shared edges, and check if our edges
-   * are ever found between the other poly's entry and exit
+   * check for shared edges (that could be prev or next in the list since the angles are equal)
+   * and check if this edge (pn -> pn->next) is found between the other poly's entry and exit
    */
-#ifdef DEBUG_LABEL
-  DEBUGP ("CVCLIST for point (%d,%d)\n", pn->point[0], pn->point[1]);
-#endif
-  /* first find whether we're starting inside or outside */
-  for (l = pn->cvc_prev->prev; l != pn->cvc_prev; l = l->prev)
+  if (pn->cvc_next->angle == pn->cvc_next->prev->angle)
     {
-      if (l->poly != this_poly)
+      l = pn->cvc_next->prev;
+      assert (l->poly != this_poly);
+    }
+  else
+    l = pn->cvc_next->next;
+  assert (l && l->angle >= 0 && l->angle <= 4.0);
+  if (l->poly != this_poly)
+    {
+      if (l->side == 'P')
 	{
-	  if (l->side == 'P')
+	  if (l->parent->prev->point[0] == pn->next->point[0] &&
+	      l->parent->prev->point[1] == pn->next->point[1])
+	    {
+	      region = SHARED2;
+	      pn->shared = l->parent->prev;
+	    }
+	  else
 	    region = INSIDE;
+	}
+      else
+	{
+	  if (l->angle == pn->cvc_next->angle)
+	    {
+	      assert (l->parent->next->point[0] == pn->next->point[0] &&
+		      l->parent->next->point[1] == pn->next->point[1]);
+	      region = SHARED;
+	      pn->shared = l->parent;
+	    }
 	  else
 	    region = OUTSIDE;
 	}
     }
-  l = pn->cvc_prev;
-  do
+  if (region == UNKNWN)
     {
-      assert (l->angle >= 0 && l->angle <= 4.0);
-#ifdef DEBUG_LABEL
-      DEBUGP ("  poly %c side %c angle = %g\n", l->poly, l->side, l->angle);
-#endif
-      if (l->poly != this_poly)
+      for (l = l->next; l != pn->cvc_next; l = l->next)
 	{
-	  if (l->side == 'P')
+	  if (l->poly != this_poly)
 	    {
-	      region = INSIDE;
-	      if (l->parent->prev->point[0] == pn->prev->point[0] &&
-		  l->parent->prev->point[1] == pn->prev->point[1])
-		{
-		  LABEL_NODE (pn->prev, SHARED);	/* incoming is shared */
-		  pn->prev->shared = l->parent->prev;
-		}
-	      else if (l->parent->prev->point[0] == pn->next->point[0] &&
-		       l->parent->prev->point[1] == pn->next->point[1])
-		{
-		  LABEL_NODE (pn, SHARED2);	/* outgoing is shared2 */
-		  pn->shared = l->parent->prev;
-		}
-	    }
-	  else
-	    {
-	      region = OUTSIDE;
-	      if (l->parent->next->point[0] == pn->next->point[0] &&
-		  l->parent->next->point[1] == pn->next->point[1])
-		{
-		  LABEL_NODE (pn, SHARED);
-		  pn->shared = l->parent;
-		}
-	      else if (l->parent->next->point[0] == pn->prev->point[0] &&
-		       l->parent->next->point[1] == pn->prev->point[1])
-		{
-		  LABEL_NODE (pn->prev, SHARED2);	/* outgoing is shared2 */
-		  pn->prev->shared = l->parent;
-		}
-	    }
-	}
-      else
-	{
-	  VNODE *v;
-	  if (l->side == 'P')
-	    v = l->parent->prev;
-	  else
-	    v = l->parent;
-	  if (NODE_LABEL (v) != SHARED && NODE_LABEL (v) != SHARED2)
-	    {
-#ifdef DEBUG_LABEL
-	      /* debugging */
-	      if (NODE_LABEL (v) != UNKNWN && NODE_LABEL (v) != region)
-		{
-		  CVCList *x = l;
-		  LABEL_NODE (v, region);
-		  pline_dump (v);
-		  do
-		    {
-		      fprintf (stderr, "poly %c\n", x->poly);
-		      pline_dump (x->parent);
-		    }
-		  while ((x = x->next) != l);
-		}
-#endif
-	      assert (NODE_LABEL (v) == UNKNWN || NODE_LABEL (v) == region);
-	      LABEL_NODE (v, region);
+	      if (l->side == 'P')
+		region = INSIDE;
+	      else
+		region = OUTSIDE;
+	      break;
 	    }
 	}
     }
-  while ((l = l->prev) != pn->cvc_prev);
-#ifdef DEBUG_LABEL
-  DEBUGP ("\n");
-#endif
-  assert (NODE_LABEL (pn) != UNKNWN && NODE_LABEL (pn->prev) != UNKNWN);
-  if (NODE_LABEL (pn) == UNKNWN || NODE_LABEL (pn->prev) == UNKNWN)
+  assert (region != UNKNWN);
+  assert (NODE_LABEL (pn) == UNKNWN || NODE_LABEL (pn) == region);
+  LABEL_NODE (pn, region);
+  if (region == SHARED || region == SHARED2)
     return UNKNWN;
-  if (NODE_LABEL (pn) == INSIDE || NODE_LABEL (pn) == OUTSIDE)
-    return NODE_LABEL (pn);
-  return UNKNWN;
+  return region;
 }				/* node_label */
 
 /*
