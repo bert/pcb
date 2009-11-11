@@ -330,7 +330,8 @@ frac_circle (PLINE * c, LocationType X, LocationType Y, Vector v, int range)
   e1 = v[0] - X;
   e2 = v[1] - Y;
 
-  range = range == 1 ? CIRC_SEGS-1 : (CIRC_SEGS / range);
+  /* NB: the caller adds the last vertex, hence the -1 */
+  range = CIRC_SEGS / range - 1;
   for (i = 0; i < range; i++)
     {
       /* rotate the vector */
