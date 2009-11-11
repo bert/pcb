@@ -748,85 +748,85 @@ intersect (jmp_buf * jb, POLYAREA * b, POLYAREA * a, int add)
   {
     pa = a->contours;
     pb = b->contours;
-    while (pa)     /* Loop over the contours of POLYAREA "a" */
+    while (pa)			/* Loop over the contours of POLYAREA "a" */
       {
-        int found_overlapping_a_b_contour = FALSE;
+	int found_overlapping_a_b_contour = FALSE;
 
-        while (pb) /* Loop over the contours of POLYAREA "b" */
-          {
-            /* Are there overlapping bounds? */
-            if (pb->xmin <= pa->xmax && pb->xmax >= pa->xmin &&
-                pb->ymin <= pa->ymax && pb->ymax >= pa->ymin)
-              {
-                found_overlapping_a_b_contour = TRUE;
-                break;
-              }
-            pb = pb->next;
-          }
+	while (pb)		/* Loop over the contours of POLYAREA "b" */
+	  {
+	    /* Are there overlapping bounds? */
+	    if (pb->xmin <= pa->xmax && pb->xmax >= pa->xmin &&
+		pb->ymin <= pa->ymax && pb->ymax >= pa->ymin)
+	      {
+		found_overlapping_a_b_contour = TRUE;
+		break;
+	      }
+	    pb = pb->next;
+	  }
 
-        /* If we didn't find anything intersting, move onto the next "a" contour */
-        if (!found_overlapping_a_b_contour)
-          {
-            pa = pa->next;
-            pb = b->contours;
-            continue;
-          }
+	/* If we didn't find anything intersting, move onto the next "a" contour */
+	if (!found_overlapping_a_b_contour)
+	  {
+	    pa = pa->next;
+	    pb = b->contours;
+	    continue;
+	  }
 
-        /* something intersects so check the edges of the contour */
+	/* something intersects so check the edges of the contour */
 
-        /* Pick which contour has the fewer points, and do the loop
-         * over that. The r_tree makes hit-testing against a contour
-         * faster, so we want to do that on the bigger contour.
-         */
-        if (pa->Count < pb->Count)
-          {
-            rtree_over   = pb;
-            looping_over = pa;
-          }
-        else
-          {
-            rtree_over   = pa;
-            looping_over = pb;
-          }
+	/* Pick which contour has the fewer points, and do the loop
+	 * over that. The r_tree makes hit-testing against a contour
+	 * faster, so we want to do that on the bigger contour.
+	 */
+	if (pa->Count < pb->Count)
+	  {
+	    rtree_over = pb;
+	    looping_over = pa;
+	  }
+	else
+	  {
+	    rtree_over = pa;
+	    looping_over = pb;
+	  }
 
-        av = &looping_over->head;
-        do  /* Loop over the nodes in the smaller contour */
-          {
-            /* check this edge for any insertions */
-            double dx;
-            info.v = av;
-            /* compute the slant for region trimming */
-            dx = av->next->point[0] - av->point[0];
-            if (dx == 0)
-              info.m = 0;
-            else
-              {
-                info.m = (av->next->point[1] - av->point[1]) / dx;
-                info.b = av->point[1] - info.m * av->point[0];
-              }
-            box.X2 = (box.X1 = av->point[0]) + 1;
-            box.Y2 = (box.Y1 = av->point[1]) + 1;
+	av = &looping_over->head;
+	do			/* Loop over the nodes in the smaller contour */
+	  {
+	    /* check this edge for any insertions */
+	    double dx;
+	    info.v = av;
+	    /* compute the slant for region trimming */
+	    dx = av->next->point[0] - av->point[0];
+	    if (dx == 0)
+	      info.m = 0;
+	    else
+	      {
+		info.m = (av->next->point[1] - av->point[1]) / dx;
+		info.b = av->point[1] - info.m * av->point[0];
+	      }
+	    box.X2 = (box.X1 = av->point[0]) + 1;
+	    box.Y2 = (box.Y1 = av->point[1]) + 1;
 
-            /* fill in the segment in info corresponding to this node */
-            if (setjmp (info.sego) == 0)
-              {
-                r_search (looping_over->tree, &box, NULL, get_seg, &info);
-                assert (0);
-              }
+	    /* fill in the segment in info corresponding to this node */
+	    if (setjmp (info.sego) == 0)
+	      {
+		r_search (looping_over->tree, &box, NULL, get_seg, &info);
+		assert (0);
+	      }
 
-              /* NB: If this actually hits anything, we are teleported back to the beginning */
-              info.tree = rtree_over->tree;
-              if (info.tree)
-                if (UNLIKELY (r_search (info.tree, &info.s->box,
-                                        seg_in_region, seg_in_seg, &info)))
-                  return err_no_memory;	/* error */
-          }
-        while ((av = av->next) != &looping_over->head);
+	    /* NB: If this actually hits anything, we are teleported back to the beginning */
+	    info.tree = rtree_over->tree;
+	    if (info.tree)
+	      if (UNLIKELY (r_search (info.tree, &info.s->box,
+				      seg_in_region, seg_in_seg, &info)))
+		return err_no_memory;	/* error */
+	  }
+	while ((av = av->next) != &looping_over->head);
 
-        /* Continue the with the _same_ "a" contour,
-         * testing it against the next "b" contour.
-         */
-        pb = pb->next;
+	/* Continue the with the _same_ "a" contour,
+	 * testing it against the next "b" contour.
+	 */
+	pb = pb->next;
       }
   }				/* end of setjmp loop */
   return 0;
@@ -1117,7 +1117,7 @@ heap_it (const BoxType * b, void *cl)
   heap_t *heap = (heap_t *) cl;
   PLINE *p = (PLINE *) b;
   if (p->Count == 0)
-    return 0;  /* how did this happen? */
+    return 0;			/* how did this happen? */
   heap_insert (heap, p->area, (void *) p);
   return 1;
 }
@@ -1419,37 +1419,37 @@ Gather (VNODE * start, PLINE ** result, J_Rule v_rule, DIRECTION initdir)
 }				/* Gather */
 
 static void
-Collect1 (jmp_buf * e, VNODE *cur, DIRECTION dir, POLYAREA **contours, PLINE ** holes, J_Rule j_rule)
+Collect1 (jmp_buf * e, VNODE * cur, DIRECTION dir, POLYAREA ** contours,
+	  PLINE ** holes, J_Rule j_rule)
 {
   PLINE *p = NULL;		/* start making contour */
   int errc = err_ok;
-	if ((errc =
-	     Gather (dir == FORW ? cur : cur->next, &p, j_rule,
-		     dir)) != err_ok)
-	  {
-	    if (p != NULL)
-	      poly_DelContour (&p);
-	    error (errc);
-	  }
-	if (!p)
-	  return;
-	poly_PreContour (p, TRUE);
-	if (p->Count > 2)
-	  {
+  if ((errc =
+       Gather (dir == FORW ? cur : cur->next, &p, j_rule, dir)) != err_ok)
+    {
+      if (p != NULL)
+	poly_DelContour (&p);
+      error (errc);
+    }
+  if (!p)
+    return;
+  poly_PreContour (p, TRUE);
+  if (p->Count > 2)
+    {
 #ifdef DEBUG_GATHER
-	    DEBUGP ("adding contour with %d verticies and direction %c\n",
-		    p->Count, p->Flags.orient ? 'F' : 'B');
+      DEBUGP ("adding contour with %d verticies and direction %c\n",
+	      p->Count, p->Flags.orient ? 'F' : 'B');
 #endif
-	    PutContour (e, p, contours, holes, NULL);
-	  }
-	else
-	  {
-	    /* some sort of computation error ? */
+      PutContour (e, p, contours, holes, NULL);
+    }
+  else
+    {
+      /* some sort of computation error ? */
 #ifdef DEBUG_GATHER
-	    DEBUGP ("Bad contour! Not enough points!!\n");
+      DEBUGP ("Bad contour! Not enough points!!\n");
 #endif
-	    poly_DelContour (&p);
-	  }
+      poly_DelContour (&p);
+    }
 }
 
 static void
@@ -1461,13 +1461,13 @@ Collect (jmp_buf * e, PLINE * a, POLYAREA ** contours, PLINE ** holes,
 
   cur = &a->head;
   do
-   {
-    if (s_rule (cur, &dir) && cur->Flags.mark == 0)
-        Collect1(e, cur, dir, contours, holes, j_rule);
-    other = cur;
-    if ((other->cvc_prev && jump(&other, &dir, j_rule)))
-        Collect1(e, other, dir, contours, holes, j_rule);
-   }
+    {
+      if (s_rule (cur, &dir) && cur->Flags.mark == 0)
+	Collect1 (e, cur, dir, contours, holes, j_rule);
+      other = cur;
+      if ((other->cvc_prev && jump (&other, &dir, j_rule)))
+	Collect1 (e, other, dir, contours, holes, j_rule);
+    }
   while ((cur = cur->next) != &a->head);
 }				/* Collect */
 
@@ -1522,7 +1522,7 @@ cntr_Collect (jmp_buf * e, PLINE ** A, POLYAREA ** contours, PLINE ** holes,
 	      PutContour (e, tmprev, contours, holes, NULL);
 	      return TRUE;
 	    }
-	  /* break; */ /* Fall through (I think this is correct! pcjc2) */
+	  /* break; *//* Fall through (I think this is correct! pcjc2) */
 	case PBO_UNITE:
 	case PBO_SUB:
 	  if ((*A)->Flags.status == OUTSIDE)
@@ -1919,10 +1919,10 @@ poly_DelContour (PLINE ** c)
     {
       prev = cur->prev;
       if (cur->cvc_next != NULL)
-        {
-          free (cur->cvc_next);
-          free (cur->cvc_prev);
-        }
+	{
+	  free (cur->cvc_next);
+	  free (cur->cvc_prev);
+	}
       free (cur);
     }
   if ((*c)->head.cvc_next != NULL)
@@ -2315,7 +2315,7 @@ poly_Create (void)
 }
 
 void
-poly_FreeContours (PLINE **pline)
+poly_FreeContours (PLINE ** pline)
 {
   PLINE *pl;
 
