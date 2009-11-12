@@ -467,8 +467,8 @@ gerber_set_layer (const char *name, int group, int empty)
     return 0;
 
   flash_drills = 0;
-  if (strcmp (name, "outline") == 0
-      || strcmp (name, "route") == 0)
+  if (strcasecmp (name, "outline") == 0
+      || strcasecmp (name, "route") == 0)
     flash_drills = 1;
 
   if (is_drill && n_pending_drills)

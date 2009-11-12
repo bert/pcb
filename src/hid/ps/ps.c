@@ -377,8 +377,8 @@ ps_hid_export_to_file (FILE * the_file, HID_Attr_Val * options)
       if (layer->LineN || layer->TextN || layer->ArcN || layer->PolygonN)
 	print_group[GetLayerGroupNumberByNumber (i)] = 1;
 
-      if (strcmp (layer->Name, "outline") == 0
-	  || strcmp (layer->Name, "route") == 0)
+      if (strcasecmp (layer->Name, "outline") == 0
+	  || strcasecmp (layer->Name, "route") == 0)
 	{
 	  printf("see outline layer\n");
 	  outline_layer = layer;
@@ -704,8 +704,8 @@ ps_set_layer (const char *name, int group, int empty)
       && outline_layer
       && outline_layer != PCB->Data->Layer+idx
       && SL_TYPE (idx) == 0 /* copper */
-      && strcmp (name, "outline")
-      && strcmp (name, "route"))
+      && strcasecmp (name, "outline")
+      && strcasecmp (name, "route"))
     {
       printf("attempting to draw outlines on %s\n", name);
       DrawLayer (outline_layer, &region);

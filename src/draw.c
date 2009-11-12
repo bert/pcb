@@ -891,8 +891,8 @@ DrawLayerGroup (int group, const BoxType * screen)
     {
       layernum = layers[i];
       Layer = PCB->Data->Layer + layers[i];
-      if (strcmp (Layer->Name, "outline") == 0
-	  || strcmp (Layer->Name, "route") == 0)
+      if (strcasecmp (Layer->Name, "outline") == 0
+	  || strcasecmp (Layer->Name, "route") == 0)
 	rv = 0;
       if (layernum < max_layer && Layer->On)
 	{
