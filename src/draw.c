@@ -1349,6 +1349,9 @@ DrawPadLowLevel (hidGC gc, PadTypePtr Pad, Boolean clear, Boolean mask)
       return;
     }
 
+  if (clear && !mask && Pad->Clearance <= 0)
+    return;
+
   if (TEST_FLAG (THINDRAWFLAG, PCB) ||
       (clear && TEST_FLAG (THINDRAWPOLYFLAG, PCB)))
     {

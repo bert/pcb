@@ -2287,7 +2287,8 @@ LOCtoPadPoly_callback (const BoxType * b, void *cl)
   struct lo_info *i = (struct lo_info *) cl;
 
 
-  if (!TEST_FLAG (TheFlag, polygon) && !TEST_FLAG (CLEARPOLYFLAG, polygon))
+  if (!TEST_FLAG (TheFlag, polygon) &&
+      (!TEST_FLAG (CLEARPOLYFLAG, polygon) || !i->pad.Clearance))
     {
       if (IsPadInPolygon (&i->pad, polygon) &&
           ADD_POLYGON_TO_LIST (i->layer, polygon))
@@ -2532,15 +2533,12 @@ LookupLOConnectionsToPolygon (PolygonTypePtr Polygon, Cardinal LayerGroup)
         }
       else
         {
-          if (!TEST_FLAG (CLEARPOLYFLAG, Polygon))
-            {
-              info.layer = layer - max_layer;
-              if (setjmp (info.env) == 0)
-                r_search (PCB->Data->pad_tree, (BoxType *) & info.polygon,
-                          NULL, LOCtoPolyPad_callback, &info);
-              else
-                return True;
-            }
+          info.layer = layer - max_layer;
+          if (setjmp (info.env) == 0)
+            r_search (PCB->Data->pad_tree, (BoxType *) & info.polygon,
+                      NULL, LOCtoPolyPad_callback, &info);
+          else
+            return True;
         }
     }
   return (False);
