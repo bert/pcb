@@ -322,7 +322,6 @@ frac_circle (PLINE * c, LocationType X, LocationType Y, Vector v, int range)
     }
 }
 
-#define COARSE_CIRCLE 0
 /* create a circle approximation from lines */
 POLYAREA *
 CirclePoly (LocationType x, LocationType y, BDimension radius)
