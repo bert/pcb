@@ -63,6 +63,41 @@ static void fill_contour_cb (PLINE *pl, void *user_data)
   poly_FreeContours (&local_pl);
 }
 
+static void
+fill_clipped_contour (hidGC gc, PLINE *pl, const BoxType *clip_box)
+{
+  PLINE *pl_copy;
+  POLYAREA *clip_poly;
+  POLYAREA *piece_poly;
+  POLYAREA *clipped_pieces;
+  POLYAREA *draw_piece;
+  int x;
+
+  clip_poly = RectPoly (clip_box->X1, clip_box->X2,
+                        clip_box->Y1, clip_box->Y2);
+  poly_CopyContour (&pl_copy, pl);
+  piece_poly = ContourToPoly (pl_copy);
+  x = poly_Boolean_free (piece_poly, clip_poly,
+                         &clipped_pieces, PBO_ISECT);
+  if (x != err_ok)
+    {
+      poly_Free (&clipped_pieces);
+      return;
+    }
+
+  if (clipped_pieces == NULL)
+    return;
+
+  draw_piece = clipped_pieces;
+  do
+    {
+      /* NB: The polygon won't have any holes in it */
+      fill_contour (gc, draw_piece->contours);
+    }
+  while ((draw_piece = draw_piece->f) != clipped_pieces);
+  poly_Free (&clipped_pieces);
+}
+
 void common_fill_pcb_polygon (hidGC gc, PolygonType *poly,
                               const BoxType *clip_box)
 {
@@ -79,7 +114,12 @@ void common_fill_pcb_polygon (hidGC gc, PolygonType *poly,
       PLINE *pl;
 
       for (pl = poly->NoHoles; pl != NULL; pl = pl->next)
-        fill_contour (gc, pl);
+        {
+          if (clip_box == NULL)
+            fill_contour (gc, pl);
+          else
+            fill_clipped_contour (gc, pl, clip_box);
+        }
     }
 
   /* Draw other parts of the polygon if fullpoly flag is set */
