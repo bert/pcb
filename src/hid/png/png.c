@@ -923,7 +923,7 @@ png_set_layer (const char *name, int group, int empty)
 	  if (idx < 0)
 	    return 0;
 
-	  if (strcasecmp (name, "outline") == 0)
+	  if (strcmp (name, "outline") == 0)
 	    photo_im = &photo_outline;
 	  else
 	    photo_im = photo_copper + group;
