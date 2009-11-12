@@ -235,28 +235,6 @@ original_poly (PolygonType * p)
   return biggest (np);
 }
 
-static int
-ClipOriginal (PolygonType * poly)
-{
-  POLYAREA *p, *result;
-  int r;
-
-  p = original_poly (poly);
-  r = poly_Boolean_free (poly->Clipped, p, &result, PBO_ISECT);
-  if (r != err_ok)
-    {
-      fprintf (stderr, "Error while clipping PBO_ISECT: %d\n", r);
-      poly_Free (&result);
-      poly->Clipped = NULL;
-      if (poly->NoHoles) printf ("Just leaked in ClipOriginal\n");
-      poly->NoHoles = NULL;
-      return 0;
-    }
-  poly->Clipped = biggest (result);
-  assert (!poly->Clipped || poly_Valid (poly->Clipped));
-  return 1;
-}
-
 POLYAREA *
 RectPoly (LocationType x1, LocationType x2, LocationType y1, LocationType y2)
 {
@@ -942,22 +920,37 @@ static int
 Unsubtract (POLYAREA * np1, PolygonType * p)
 {
   POLYAREA *merged = NULL, *np = np1;
+  POLYAREA *orig_poly, *clipped_np;
   int x;
   assert (np);
   assert (p && p->Clipped);
-  x = poly_Boolean_free (p->Clipped, np, &merged, PBO_UNITE);
+
+  orig_poly = original_poly (p);
+
+  x = poly_Boolean_free (np, orig_poly, &clipped_np, PBO_ISECT);
+  if (x != err_ok)
+    {
+      fprintf (stderr, "Error while clipping PBO_ISECT: %d\n", x);
+      poly_Free (&clipped_np);
+      goto fail;
+    }
+
+  x = poly_Boolean_free (p->Clipped, clipped_np, &merged, PBO_UNITE);
   if (x != err_ok)
     {
       fprintf (stderr, "Error while clipping PBO_UNITE: %d\n", x);
       poly_Free (&merged);
-      p->Clipped = NULL;
-      if (p->NoHoles) printf ("Just leaked in Unsubtract\n");
-      p->NoHoles = NULL;
-      return 0;
+      goto fail;
     }
   p->Clipped = biggest (merged);
   assert (!p->Clipped || poly_Valid (p->Clipped));
-  return ClipOriginal (p);
+  return 1;
+
+fail:
+  p->Clipped = NULL;
+  if (p->NoHoles) printf ("Just leaked in Unsubtract\n");
+  p->NoHoles = NULL;
+  return 0;
 }
 
 static int
