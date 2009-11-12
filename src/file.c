@@ -350,6 +350,10 @@ LoadPCB (char *Filename)
 {
   PCBTypePtr newPCB = CreateNewPCB (False);
   Boolean units_mm;
+  clock_t start, end;
+  double elapsed;
+
+  start = clock ();
 
   /* new data isn't added to the undo list */
   if (!ParsePCB (newPCB, Filename))
@@ -394,6 +398,11 @@ LoadPCB (char *Filename)
       set_some_route_style ();
 
       hid_action ("PCBChanged");
+
+      end = clock ();
+      elapsed = ((double) (end - start)) / CLOCKS_PER_SEC;
+      gui->log ("Loading file %s took %f seconds of CPU time\n",
+		Filename, elapsed);
 
       return (0);
     }
