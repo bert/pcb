@@ -946,29 +946,27 @@ static BOOLp
 label_contour (PLINE * a)
 {
   VNODE *cur = &a->head;
-  int did_label = FALSE, label = UNKNWN;
+  VNODE *first_labelled = NULL;
+  int label = UNKNWN;
 
   do
     {
-      if (cur == &a->head)
-	did_label = FALSE;
-      if (NODE_LABEL (cur) != UNKNWN)
-	{
-	  label = NODE_LABEL (cur);
-	  continue;
-	}
       if (cur->cvc_next)	/* examine cross vertex */
 	{
 	  label = node_label (cur);
-	  did_label = TRUE;
+	  if (first_labelled == NULL)
+	    first_labelled = cur;
+	  continue;
 	}
-      else if (label == INSIDE || label == OUTSIDE)
-	{
-	  LABEL_NODE (cur, label);
-	  did_label = TRUE;
-	}
+
+      if (first_labelled == NULL)
+	continue;
+
+      /* This labels nodes which aren't cross-connected */
+      assert (label == INSIDE || label == OUTSIDE);
+      LABEL_NODE (cur, label);
     }
-  while ((cur = cur->next) != &a->head || did_label);
+  while ((cur = cur->next) != first_labelled);
 #ifdef DEBUG_ALL_LABELS
   print_labels (a);
   DEBUGP ("\n\n");
