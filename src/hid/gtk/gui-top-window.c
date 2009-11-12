@@ -3110,6 +3110,7 @@ add_resource_to_menu (char * menu, Resource * node, void * callback, int indent)
   Resource *r;
   char tmps[32];
   char accel[64];
+  int accel_n;
   char *menulabel = NULL;
   char ch[2];
   char m = '\0';
@@ -3127,6 +3128,8 @@ add_resource_to_menu (char * menu, Resource * node, void * callback, int indent)
 
       case 1:			/* unnamed subres */
 	accel[0] = '\0';
+	/* remaining number of chars available in accel (- 1 for '\0')*/
+	accel_n = sizeof (accel) - 1;
 	/* This is a menu choice.  The first value in the unnamed
 	 * subres is what the menu choice gets called.
 	 *
@@ -3198,17 +3201,20 @@ add_resource_to_menu (char * menu, Resource * node, void * callback, int indent)
 		      }
 		    else if (strncmp (p, "Ctrl", 4) == 0)
 		      {
-			strncat (accel, "<control>", sizeof (accel) - 1);
+			strncat (accel, "<control>", accel_n);
+			accel_n -= strlen ("<control>");
 			p += 4;
 		      }
 		    else if (strncmp (p, "Shift", 5) == 0)
 		      {
-			strncat (accel, "<shift>", sizeof (accel) - 1);
+			strncat (accel, "<shift>", accel_n);
+			accel_n -= strlen ("<shift>");
 			p += 5;
 		      }
 		    else if (strncmp (p, "Alt", 3) == 0)
 		      {
-			strncat (accel, "<alt>", sizeof (accel) - 1);
+			strncat (accel, "<alt>", accel_n);
+			accel_n -= strlen ("<alt>");
 			p += 3;
 		      }
 		    else
@@ -3232,6 +3238,7 @@ add_resource_to_menu (char * menu, Resource * node, void * callback, int indent)
 			  }
 			/* skip processing the rest */
 			accel[0] = '\0';
+			accel_n = sizeof (accel) - 1;
 			p += strlen (p);
 		      }
 		    break;
@@ -3239,7 +3246,8 @@ add_resource_to_menu (char * menu, Resource * node, void * callback, int indent)
 		  case KEY:
 		    if (strncmp (p, "Enter", 5) == 0)
 		      {
-			strncat (accel, "Return", sizeof (accel) - 1);
+			strncat (accel, "Return", accel_n);
+			accel_n -= strlen ("Return");
 			p += 5;
 		      }
 		    else
@@ -3249,18 +3257,32 @@ add_resource_to_menu (char * menu, Resource * node, void * callback, int indent)
 			  {
 			    if ( *p == key_table[j].in)
 			      {
-				strncat (accel, key_table[j].out, sizeof (accel) - 1);
+				strncat (accel, key_table[j].out, accel_n);
+				accel_n -= strlen (key_table[j].out);
 				j = n_key_table;
 			      }
 			  }
 			
 			if (j == n_key_table)
-			  strncat (accel, ch, sizeof (accel) - 1);
+			  {
+			    strncat (accel, ch, accel_n);
+			    accel_n -= strlen (ch);
+			  }
 		    
 			p++;
 		      }
 		    break;
 
+		  }
+
+		if (G_UNLIKELY (accel_n < 0))
+		  {
+		    accel_n = 0;
+		    Message ("Accelerator \"%s\" is too long to be parsed.\n", r->v[1].value);
+		    accel[0] = '\0';
+		    accel_n = 0;
+		    /* skip processing the rest */
+		    p += strlen (p);
 		  }
 	      }
 #ifdef DEBUG_MENUS
