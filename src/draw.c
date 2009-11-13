@@ -940,7 +940,8 @@ DrawLayerGroup (int group, const BoxType * screen)
   */
 static void
 DrawSpecialPolygon (HID * hid, hidGC DrawGC,
-		    LocationType X, LocationType Y, int Thickness)
+		    LocationType X, LocationType Y, int Thickness,
+		    int thin_draw)
 {
   static FloatPolyType p[8] = {
     {
@@ -983,11 +984,11 @@ DrawSpecialPolygon (HID * hid, hidGC DrawGC,
       polygon_x[i] = X + scaled_x[i];
       polygon_y[i] = Y + scaled_y[i];
     }
-  if (TEST_FLAG (THINDRAWFLAG, PCB))
+  if (thin_draw)
     {
       int i;
-      hid->set_line_cap (Output.fgGC, Round_Cap);
-      hid->set_line_width (Output.fgGC, 0);
+      hid->set_line_cap (DrawGC, Round_Cap);
+      hid->set_line_width (DrawGC, 0);
       polygon_x[8] = X + scaled_x[0];
       polygon_y[8] = Y + scaled_y[0];
       for (i = 0; i < 8; i++)
@@ -1045,12 +1046,8 @@ DrawPinOrViaLowLevel (PinTypePtr Ptr, Boolean drawHole)
     }
   else if (TEST_FLAG (OCTAGONFLAG, Ptr))
     {
-      gui->set_line_cap (Output.fgGC, Round_Cap);
-      gui->set_line_width (Output.fgGC,
-			   (Ptr->Thickness - Ptr->DrillingHole) / 2);
-
-      /* transform X11 specific coord system */
-      DrawSpecialPolygon (gui, Output.fgGC, Ptr->X, Ptr->Y, Ptr->Thickness);
+      DrawSpecialPolygon (gui, Output.fgGC, Ptr->X, Ptr->Y, Ptr->Thickness,
+			  TEST_FLAG (THINDRAWFLAG, PCB));
     }
   else
     {				/* draw a round pin or via */
@@ -1162,16 +1159,18 @@ ClearOnlyPin (PinTypePtr Pin, Boolean mask)
     }
   else if (TEST_FLAG (OCTAGONFLAG, Pin))
     {
-      gui->set_line_cap (Output.pmGC, Round_Cap);
-      gui->set_line_width (Output.pmGC, (Pin->Clearance + Pin->Thickness
-					 - Pin->DrillingHole));
-
-      DrawSpecialPolygon (gui, Output.pmGC, Pin->X, Pin->Y, half * 2);
+      DrawSpecialPolygon (gui, Output.pmGC, Pin->X, Pin->Y, half * 2,
+			  TEST_FLAG (THINDRAWFLAG, PCB) ||
+			  TEST_FLAG (THINDRAWPOLYFLAG, PCB));
     }
   else
     {
       if (TEST_FLAG (THINDRAWFLAG, PCB) || TEST_FLAG (THINDRAWPOLYFLAG, PCB))
-	gui->draw_arc (Output.pmGC, Pin->X, Pin->Y, half, half, 0, 360);
+	{
+	  gui->set_line_cap (Output.pmGC, Round_Cap);
+	  gui->set_line_width (Output.pmGC, 0);
+	  gui->draw_arc (Output.pmGC, Pin->X, Pin->Y, half, half, 0, 360);
+	}
       else
 	gui->fill_circle (Output.pmGC, Pin->X, Pin->Y, half);
     }
@@ -1202,11 +1201,7 @@ ClearPin (PinTypePtr Pin, int Type, int unused)
     }
   else if (TEST_FLAG (OCTAGONFLAG, Pin))
     {
-      gui->set_line_cap (Output.pmGC, Round_Cap);
-      gui->set_line_width (Output.pmGC, (Pin->Clearance + Pin->Thickness
-					 - Pin->DrillingHole) / 2);
-
-      DrawSpecialPolygon (gui, Output.pmGC, Pin->X, Pin->Y, half * 2);
+      DrawSpecialPolygon (gui, Output.pmGC, Pin->X, Pin->Y, half * 2, False);
     }
   else
     {
