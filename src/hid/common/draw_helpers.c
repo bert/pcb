@@ -93,6 +93,42 @@ fill_clipped_contour (hidGC gc, PLINE *pl, const BoxType *clip_box)
   poly_Free (&clipped_pieces);
 }
 
+/* If at least 50% of the bounding box of the polygon is on the screen,
+ * lets compute the complete no-holes polygon.
+ */
+#define BOUNDS_INSIDE_CLIP_THRESHOLD 0.5
+static int
+should_compute_no_holes (PolygonType *poly, const BoxType *clip_box)
+{
+  int x1, x2, y1, y2;
+  float poly_bounding_area;
+  float clipped_poly_area;
+
+  /* If there is no passed clip box, compute the whole thing */
+  if (clip_box == NULL)
+    return 1;
+
+  x1 = MAX (poly->BoundingBox.X1, clip_box->X1);
+  x2 = MIN (poly->BoundingBox.X2, clip_box->X2);
+  y1 = MAX (poly->BoundingBox.Y1, clip_box->Y1);
+  y2 = MIN (poly->BoundingBox.Y2, clip_box->Y2);
+
+  /* Check if the polygon is outside the clip box */
+  if ((x2 <= x1) || (y2 <= y1))
+    return 0;
+
+  poly_bounding_area = (float)(poly->BoundingBox.X2 - poly->BoundingBox.X1) *
+                       (float)(poly->BoundingBox.Y2 - poly->BoundingBox.Y1);
+
+  clipped_poly_area = (float)(x2 - x1) * (float)(y2 - y1);
+
+  if (clipped_poly_area / poly_bounding_area >= BOUNDS_INSIDE_CLIP_THRESHOLD)
+    return 1;
+
+  return 0;
+}
+#undef BOUNDS_INSIDE_CLIP_THRESHOLD
+
 void common_fill_pcb_polygon (hidGC gc, PolygonType *poly,
                               const BoxType *clip_box)
 {
@@ -102,9 +138,16 @@ void common_fill_pcb_polygon (hidGC gc, PolygonType *poly,
 
   if (!poly->NoHolesValid)
     {
-      ComputeNoHoles (poly);
+      /* If enough of the polygon is on-screen, compute the entire
+       * NoHoles version and cache it for later rendering, otherwise
+       * just compute what we need to render now.
+       */
+      if (should_compute_no_holes (poly, clip_box))
+        ComputeNoHoles (poly);
+      else
+        NoHolesPolygonDicer (poly, clip_box, fill_contour_cb, gc);
     }
-  if (poly->NoHoles)
+  if (poly->NoHolesValid && poly->NoHoles)
     {
       PLINE *pl;
 
