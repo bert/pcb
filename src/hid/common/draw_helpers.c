@@ -76,16 +76,11 @@ fill_clipped_contour (hidGC gc, PLINE *pl, const BoxType *clip_box)
   clip_poly = RectPoly (clip_box->X1, clip_box->X2,
                         clip_box->Y1, clip_box->Y2);
   poly_CopyContour (&pl_copy, pl);
-  piece_poly = ContourToPoly (pl_copy);
+  piece_poly = poly_Create ();
+  poly_InclContour (piece_poly, pl_copy);
   x = poly_Boolean_free (piece_poly, clip_poly,
                          &clipped_pieces, PBO_ISECT);
-  if (x != err_ok)
-    {
-      poly_Free (&clipped_pieces);
-      return;
-    }
-
-  if (clipped_pieces == NULL)
+  if (x != err_ok || clipped_pieces == NULL)
     return;
 
   draw_piece = clipped_pieces;
