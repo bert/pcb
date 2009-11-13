@@ -350,15 +350,6 @@ rat_callback (const BoxType * b, void *cl)
   return 1;
 }
 
-static int
-lowvia_callback (const BoxType * b, void *cl)
-{
-  PinTypePtr via = (PinTypePtr) b;
-  if (!via->Mask)
-    DrawPlainVia (via, False);
-  return 1;
-}
-
 /* ---------------------------------------------------------------------------
  * prints assembly drawing.
  */
@@ -371,7 +362,6 @@ PrintAssembly (const BoxType * drawn_area, int side_group, int swap_ident)
   gui->set_draw_faded (Output.fgGC, 1);
   SWAP_IDENT = swap_ident;
   DrawLayerGroup (side_group, drawn_area);
-  r_search (PCB->Data->via_tree, drawn_area, NULL, lowvia_callback, NULL);
   DrawTop (drawn_area);
   gui->set_draw_faded (Output.fgGC, 0);
 
@@ -473,24 +463,6 @@ DrawEverything (BoxTypePtr drawn_area)
   if (TEST_FLAG (CHECKPLANESFLAG, PCB) && gui->gui)
     return;
 
-  /* draw vias below silk */
-  if (PCB->ViaOn && gui->gui)
-    r_search (PCB->Data->via_tree, drawn_area, NULL, lowvia_callback, NULL);
-  /* Draw the solder mask if turned on */
-  if (gui->set_layer ("componentmask", SL (MASK, TOP), 0))
-    {
-      int save_swap = SWAP_IDENT;
-      SWAP_IDENT = 0;
-      DrawMask (drawn_area);
-      SWAP_IDENT = save_swap;
-    }
-  if (gui->set_layer ("soldermask", SL (MASK, BOTTOM), 0))
-    {
-      int save_swap = SWAP_IDENT;
-      SWAP_IDENT = 1;
-      DrawMask (drawn_area);
-      SWAP_IDENT = save_swap;
-    }
   /* Draw pins, pads, vias below silk */
   if (gui->gui)
     DrawTop (drawn_area);
@@ -518,6 +490,21 @@ DrawEverything (BoxTypePtr drawn_area)
 	  r_search (PCB->Data->via_tree, drawn_area, NULL, hole_callback,
 		    &plated);
 	}
+    }
+  /* Draw the solder mask if turned on */
+  if (gui->set_layer ("componentmask", SL (MASK, TOP), 0))
+    {
+      int save_swap = SWAP_IDENT;
+      SWAP_IDENT = 0;
+      DrawMask (drawn_area);
+      SWAP_IDENT = save_swap;
+    }
+  if (gui->set_layer ("soldermask", SL (MASK, BOTTOM), 0))
+    {
+      int save_swap = SWAP_IDENT;
+      SWAP_IDENT = 1;
+      DrawMask (drawn_area);
+      SWAP_IDENT = save_swap;
     }
   /* Draw top silkscreen */
   if (gui->set_layer ("topsilk", SL (SILK, TOP), 0))
@@ -620,8 +607,7 @@ static int
 via_callback (const BoxType * b, void *cl)
 {
   PinTypePtr via = (PinTypePtr) b;
-  if (via->Mask)
-    DrawPlainVia (via, False);
+  DrawPlainVia (via, False);
   return 1;
 }
 
