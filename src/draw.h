@@ -38,7 +38,6 @@
 void Draw (void);
 void RedrawOutput (BoxTypePtr area);
 void ClearAndRedrawOutput (void);
-void ClearPin (PinTypePtr, int, int);
 void DrawVia (PinTypePtr, int);
 void DrawRat (RatTypePtr, int);
 void DrawViaName (PinTypePtr, int);
