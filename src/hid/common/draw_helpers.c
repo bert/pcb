@@ -29,12 +29,19 @@ static void thindraw_contour (hidGC gc, PLINE *pl)
   int last_x, last_y;
   int this_x, this_y;
 
+  gui->set_line_width (gc, 0);
+  gui->set_line_cap (gc, Round_Cap);
+
+  /* If the contour is round, use an arc drawing routine. */
+  if (pl->is_round)
+    {
+      gui->draw_arc (gc, pl->cx, pl->cy, pl->radius, pl->radius, 0, 360);
+      return;
+    }
+
   /* Need at least two points in the contour */
   if (pl->head.next == NULL)
     return;
-
-  gui->set_line_width (gc, 0);
-  gui->set_line_cap (gc, Round_Cap);
 
   last_x = pl->head.point[0];
   last_y = pl->head.point[1];

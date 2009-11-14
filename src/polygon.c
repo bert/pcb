@@ -336,6 +336,10 @@ CirclePoly (LocationType x, LocationType y, BDimension radius)
   if ((contour = poly_NewContour (v)) == NULL)
     return NULL;
   frac_circle (contour, x, y, v, 1);
+  contour->is_round = TRUE;
+  contour->cx = x;
+  contour->cy = y;
+  contour->radius = radius;
   return ContourToPoly (contour);
 }
 

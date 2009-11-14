@@ -1829,6 +1829,10 @@ poly_IniContour (PLINE * c)
   c->head.next = c->head.prev = &c->head;
   c->xmin = c->ymin = 0x7fffffff;
   c->xmax = c->ymax = 0x80000000;
+  c->is_round = FALSE;
+  c->cx = 0;
+  c->cy = 0;
+  c->radius = 0;
 }
 
 PLINE *
