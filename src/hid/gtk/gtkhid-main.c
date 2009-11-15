@@ -433,49 +433,6 @@ ghid_set_layer (const char *name, int group, int empty)
 }
 
 void
-ghid_extents_use_mask (int use_it)
-{
-}
-
-void
-ghid_extents_draw_line (hidGC gc, int x1, int y1, int x2, int y2)
-{
-  printf ("ghid_extents_draw_line() -- not implemented\n");
-}
-
-void
-ghid_extents_draw_arc (hidGC gc, int cx, int cy,
-		       int xradius, int yradius,
-		       int start_angle, int delta_angle)
-{
-  printf ("ghid_extents_draw_arc() -- not implemented\n");
-}
-
-void
-ghid_extents_draw_rect (hidGC gc, int x1, int y1, int x2, int y2)
-{
-  printf ("ghid_extents_draw_rect() -- not implemented\n");
-}
-
-void
-ghid_extents_fill_circle (hidGC gc, int cx, int cy, int radius)
-{
-  printf ("ghid_extents_fill_circle() -- not implemented\n");
-}
-
-void
-ghid_extents_fill_polygon (hidGC gc, int n_coords, int *x, int *y)
-{
-  printf ("ghid_extents_fill_polygon() -- not implemented\n");
-}
-
-void
-ghid_extents_fill_rect (hidGC gc, int x1, int y1, int x2, int y2)
-{
-  printf ("ghid_extents_fill_rect() -- not implemented\n");
-}
-
-void
 ghid_calibrate (double xval, double yval)
 {
   printf ("ghid_calibrate() -- not implemented\n");
@@ -1003,69 +960,6 @@ HID ghid_hid = {
   ghid_beep,
   ghid_progress,
   &ghid_drc_gui
-};
-
-HID ghid_extents = {
-  sizeof (HID),
-  "ghid_extents",
-  "used to calculate extents",
-  1,				/* gui */
-  0,				/* printer */
-  0,				/* exporter */
-  0,				/* poly before */
-  1,				/* poly after */
-  0,				/* poly dicer */
-
-  0 /* ghid_get_export_options */ ,
-  0 /* ghid_do_export */ ,
-  0 /* ghid_parse_arguments */ ,
-
-  0 /* ghid_invalidate_wh */ ,
-  0 /* ghid_invalidate_lr */ ,
-  0 /* ghid_invalidate_all */ ,
-  0 /* ghid_set_layer */ ,
-  0 /* ghid_make_gc */ ,
-  0 /* ghid_destroy_gc */ ,
-  ghid_extents_use_mask,
-  0 /* ghid_set_color */ ,
-  0 /* ghid_set_line_cap */ ,
-  0 /* ghid_set_line_width */ ,
-  0 /* ghid_set_draw_xor */ ,
-  0 /* ghid_set_draw_faded */ ,
-  0 /* ghid_set_line_cap_angle */ ,
-  ghid_extents_draw_line,
-  ghid_extents_draw_arc,
-  ghid_extents_draw_rect,
-  ghid_extents_fill_circle,
-  ghid_extents_fill_polygon,
-  common_fill_pcb_polygon,
-  0 /* ghid_extents_thindraw_pcb_polygon */ ,
-  ghid_extents_fill_rect,
-
-  0 /* ghid_calibrate */ ,
-  0 /* ghid_shift_is_pressed */ ,
-  0 /* ghid_control_is_pressed */ ,
-  0 /* ghid_mod1_is_pressed */ ,
-  0 /* ghid_get_coords */ ,
-  0 /* ghid_set_crosshair */ ,
-  0 /* ghid_add_timer */ ,
-  0 /* ghid_stop_timer */ ,
-  0 /* ghid_watch_file */ ,
-  0 /* ghid_unwatch_file */ ,
-  0 /* ghid_add_block_hook */ ,
-  0 /* ghid_stop_block_hook */ ,
-
-  0 /* ghid_log */ ,
-  0 /* ghid_logv */ ,
-  0 /* ghid_confirm_dialog */ ,
-  0 /* ghid_close_confirm_dialog */ ,
-  0 /* ghid_report_dialog */ ,
-  0 /* ghid_prompt_for */ ,
-  0 /* ghid_attribute_dialog */ ,
-  0 /* ghid_show_item */ ,
-  0 /* ghid_beep */ ,
-  0 /* ghid_progress */ ,
-  0 /* ghid_drc_gui */
 };
 
 /* ------------------------------------------------------------ 
@@ -2182,6 +2076,5 @@ hid_gtk_init ()
 #endif  
 
   hid_register_hid (&ghid_hid);
-  apply_default_hid (&ghid_extents, &ghid_hid);
 #include "gtk_lists.h"
 }
