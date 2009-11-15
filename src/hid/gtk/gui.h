@@ -121,22 +121,6 @@ extern int ghid_flip_x, ghid_flip_y;
 #define GRID_UNITS_VALUE(mm, mil)   (Settings.grid_units_mm ? (mm) : (mil))
 
 
-
-typedef struct hid_gc_struct
-{
-  HID *me_pointer;
-  GdkGC *gc;
-
-  gchar *colorname;
-  gint width;
-  gint cap, join;
-  gchar xor;
-  gchar erase;
-  gint mask_seq;
-}
-hid_gc_struct;
-
-
 typedef struct
 {
   GtkUIManager *ui_manager;

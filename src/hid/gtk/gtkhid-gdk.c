@@ -45,6 +45,21 @@ Vy2 (int y)
 
 /* ------------------------------------------------------------ */
 
+typedef struct hid_gc_struct
+{
+  HID *me_pointer;
+  GdkGC *gc;
+
+  gchar *colorname;
+  gint width;
+  gint cap, join;
+  gchar xor;
+  gchar erase;
+  gint mask_seq;
+}
+hid_gc_struct;
+
+
 void
 ghid_destroy_gc (hidGC gc)
 {
