@@ -293,6 +293,16 @@ rat_callback (const BoxType * box, void *cl)
 	if (rat->Point2.X == i->pad->Point2.X &&
 	    rat->Point2.Y == i->pad->Point2.Y && rat->group2 == i->group)
 	CreateNewRubberbandEntry (NULL, (LineTypePtr) rat, &rat->Point2);
+      else
+	if (rat->Point1.X == (i->pad->Point1.X + i->pad->Point2.X) / 2 &&
+	    rat->Point1.Y == (i->pad->Point1.Y + i->pad->Point2.Y) / 2 &&
+	    rat->group1 == i->group)
+	CreateNewRubberbandEntry (NULL, (LineTypePtr) rat, &rat->Point1);
+      else
+	if (rat->Point2.X == (i->pad->Point1.X + i->pad->Point2.X) / 2 &&
+	    rat->Point2.Y == (i->pad->Point1.Y + i->pad->Point2.Y) / 2 &&
+	    rat->group2 == i->group)
+	CreateNewRubberbandEntry (NULL, (LineTypePtr) rat, &rat->Point2);
       break;
     case LINEPOINT_TYPE:
       if (rat->group1 == i->group &&
