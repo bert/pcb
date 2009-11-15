@@ -110,7 +110,7 @@ static void ClearPad (PadTypePtr, Boolean);
 static void DrawHole (PinTypePtr);
 static void DrawMask (BoxType *);
 static void DrawRats (BoxType *);
-static void DrawSilk (int, int, BoxType *);
+static void DrawSilk (int, int, const BoxType *);
 static int pin_callback (const BoxType * b, void *cl);
 static int pad_callback (const BoxType * b, void *cl);
 
@@ -688,7 +688,7 @@ clearPad_callback (const BoxType * b, void *cl)
  */
 
 static void
-DrawSilk (int new_swap, int layer, BoxTypePtr drawn_area)
+DrawSilk (int new_swap, int layer, const BoxType * drawn_area)
 {
 #if 0
   /* This code is used when you want to mask silk to avoid exposed
@@ -837,7 +837,7 @@ text_callback (const BoxType * b, void *cl)
  * draws one non-copper layer
  */
 void
-DrawLayer (LayerTypePtr Layer, BoxType * screen)
+DrawLayer (LayerTypePtr Layer, const BoxType * screen)
 {
   struct pin_info info;
 
