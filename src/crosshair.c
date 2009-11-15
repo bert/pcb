@@ -880,19 +880,9 @@ FitCrosshairIntoGrid (LocationType X, LocationType Y)
     {
       PadTypePtr pad = (PadTypePtr) ptr2;
       LocationType px, py;
-      if (SQUARE (pad->Point1.X - Crosshair.X) +
-	  SQUARE (pad->Point1.Y - Crosshair.Y) <
-	  SQUARE (pad->Point2.X - Crosshair.X) + SQUARE (pad->Point2.Y -
-							 Crosshair.Y))
-	{
-	  px = pad->Point1.X;
-	  py = pad->Point1.Y;
-	}
-      else
-	{
-	  px = pad->Point2.X;
-	  py = pad->Point2.Y;
-	}
+
+      px = (pad->Point1.X + pad->Point2.X) / 2;
+      py = (pad->Point1.Y + pad->Point2.Y) / 2;
 
       if (!gui->shift_is_pressed()
 	  || (SQUARE (x0 - Crosshair.X) + SQUARE (y0 - Crosshair.Y) >
