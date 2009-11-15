@@ -252,8 +252,6 @@ ButtonState;
 /* Function prototypes
 */
 void ghid_parse_arguments (gint * argc, gchar *** argv);
-hidGC ghid_make_gc (void);
-void ghid_destroy_gc (hidGC);
 void ghid_do_export (HID_Attr_Val * options);
 
 void ghid_create_pcb_widgets (void);
@@ -529,6 +527,26 @@ GdkPixmap *ghid_render_pixmap (int cx,
 			       int width,
 			       int height,
 			       int depth);
+
+/* gtkhid-gdk.c */
+hidGC ghid_make_gc (void);
+void ghid_destroy_gc (hidGC);
+void ghid_draw_grid (void);
+void ghid_draw_bg_image (void);
+void ghid_use_mask (int use_it);
+void ghid_set_color (hidGC gc, const char *name);
+void ghid_set_line_cap (hidGC gc, EndCapStyle style);
+void ghid_set_line_width (hidGC gc, int width);
+void ghid_set_draw_xor (hidGC gc, int xor);
+void ghid_set_draw_faded (hidGC gc, int faded);
+void ghid_set_line_cap_angle (hidGC gc, int x1, int y1, int x2, int y2);
+void ghid_draw_line (hidGC gc, int x1, int y1, int x2, int y2);
+void ghid_draw_arc (hidGC gc, int cx, int cy, int xradius, int yradius,
+                    int start_angle, int delta_angle);
+void ghid_draw_rect (hidGC gc, int x1, int y1, int x2, int y2);
+void ghid_fill_circle (hidGC gc, int cx, int cy, int radius);
+void ghid_fill_polygon (hidGC gc, int n_coords, int *x, int *y);
+void ghid_fill_rect (hidGC gc, int x1, int y1, int x2, int y2);
 
 /* gtkhid-main.c */
 void ghid_invalidate_all ();

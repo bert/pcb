@@ -2696,27 +2696,6 @@ ghid_parse_arguments (int *argc, char ***argv)
   ghidgui->creating = TRUE;
 }
 
-
-
-void
-ghid_destroy_gc (hidGC gc)
-{
-  if (gc->gc)
-    g_object_unref (gc->gc);
-  g_free (gc);
-}
-
-hidGC
-ghid_make_gc (void)
-{
-  hidGC rv;
-
-  rv = g_new0 (hid_gc_struct, 1);
-  rv->me_pointer = &ghid_hid;
-  rv->colorname = Settings.BackgroundColor;
-  return rv;
-}
-
 void
 ghid_do_export (HID_Attr_Val * options)
 {
