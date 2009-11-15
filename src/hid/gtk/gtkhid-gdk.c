@@ -441,6 +441,13 @@ ghid_set_line_cap_angle (hidGC gc, int x1, int y1, int x2, int y2)
 static int
 use_gc (hidGC gc)
 {
+
+  if (gc->me_pointer != &ghid_hid)
+    {
+      fprintf (stderr, "Fatal: GC from another HID passed to GTK HID\n");
+      abort ();
+    }
+
   if (!gport->pixmap)
     return 0;
   if (!gc->gc)
