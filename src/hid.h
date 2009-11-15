@@ -214,6 +214,7 @@ extern "C"
 #define SL_INVISIBLE	0x0060
 #define SL_FAB		0x0070
 #define SL_ASSY		0x0080
+#define SL_RATS		0x0090
 /* Callers should use this.  */
 #define SL(type,side) (~0xfff | SL_##type | SL_##side##_SIDE)
 

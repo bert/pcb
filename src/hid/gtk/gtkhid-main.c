@@ -551,6 +551,8 @@ ghid_set_layer (const char *name, int group, int empty)
 	case SL_PDRILL:
 	case SL_UDRILL:
 	  return 1;
+	case SL_RATS:
+	  return PCB->RatOn;
 	}
     }
   return 0;

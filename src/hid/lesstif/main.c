@@ -2890,6 +2890,8 @@ lesstif_set_layer (const char *name, int group, int empty)
 	case SL_UDRILL:
 	case SL_PDRILL:
 	  return 1;
+	case SL_RATS:
+	  return PCB->RatOn;
 	}
     }
   return 0;
