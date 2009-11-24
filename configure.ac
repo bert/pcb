@@ -17,11 +17,13 @@ AM_CONFIG_HEADER([config.h])
 # it is not unreasonable to require development tools.  What motivated
 # this is that using maintainer mode proved to cause regular confusion.
 
+pcb_sources="tarball"
 AC_MSG_CHECKING([if you are building from a git checkout])
 pcb_git_version=no
 if test -f $srcdir/.gitignore ; then
 	pcb_git_version=yes
 	AC_MSG_RESULT([yes])
+	pcb_sources="GIT"
 else
 	AC_MSG_RESULT([no])
 fi
@@ -32,11 +34,13 @@ pcb_cvs_version=no
 if test -f $srcdir/CVS/Root ; then
 	pcb_cvs_version=yes
 	AC_MSG_RESULT([yes])
+	pcb_sources="CVS"
 else
 	AC_MSG_RESULT([no])
 fi
 AM_CONDITIONAL(CVS_VERSION, test x$pcb_cvs_version = xyes)
 AM_CONDITIONAL(GIT_OR_CVS_VERSION, test x$pcb_git_version = xyes -o x$pcb_cvs_version = xyes)
+
 
 ##########################################################################
 #
@@ -839,6 +843,46 @@ AC_ARG_ENABLE(
 AC_MSG_RESULT([$enable_m4lib_png])
 AM_CONDITIONAL(PNG_PREVIEW, test x$enable_m4lib_png = xyes)
 
+
+# Run away.... more ugly stuff here.  By default we don't actually build
+# pcblib-newlib from pcblib unless we are building from cvs or git sources.
+# The reason is it takes a while and requires the png HID.  The problem is,
+# what if someone wants to use --enable-m4lib-png but the tarball was built
+# without the previews.  Or, what if someone does not want the PNG previews
+# but the person building the tarball included them.  Ugh!  So what the following
+# code attempts to do is detect that mismatch situation.  Note that we only
+# want to kick this code in when *not* building from git or cvs sources.
+build_pcblib_newlib=no
+if test "$pcb_sources" = "tarball" ; then
+	AC_MSG_CHECKING([If pcblib-newlib was built with png previews])
+	stamp=${top_srcdir}/lib/pcblib-newlib.stamp 
+	if test ! -f ${stamp} ; then
+		AC_MSG_RESULT([unknown, missing ${stamp}])
+		build_pcblib_newlib=yes
+	else
+		if test "`cat ${stamp}`" = "png-preview=yes" ; then
+			AC_MSG_RESULT([yes])
+			# lib exists and built with preview.
+			# if we don't want the preview, than rebuild
+			if test x$enable_m4lib_png != xyes ; then
+				build_pcblib_newlib=yes
+			fi
+		else
+			AC_MSG_RESULT([no])
+			# lib exists and built without preview.
+			# if we want the preview, than rebuild
+			if test x$enable_m4lib_png = xyes ; then
+				build_pcblib_newlib=yes
+			fi
+		fi
+	fi
+else
+	build_pcblib_newlib=yes
+fi
+AC_MSG_CHECKING([If pcblib-newlib needs to be rebuilt])
+AC_MSG_RESULT([$build_pcblib_newlib])
+AM_CONDITIONAL(BUILD_PCBLIB_NEWLIB, test x$build_pcblib_newlib = xyes)
+
 if test "X$cross_compiling" = "Xyes" ; then
 	# we are cross compiling so we will need a build host binary for pcb
 	AC_PATH_PROG(PCB, [pcb], [notfound])
@@ -1097,12 +1141,6 @@ with_exporters=`echo $with_exporters | sed 's/,/ /g'`
 
 expandedXDGDATADIR=`eval "echo $XDGDATADIR"`
 expandedKDEDATADIR=`eval "echo $KDEDATADIR"`
-
-if test "X$pcb_git_version" = "Xyes" ; then
-	pcb_sources="GIT"
-else
-	pcb_sources="tarball"
-fi
 
 AC_MSG_RESULT([
 ** Configuration summary for $PACKAGE $VERSION:

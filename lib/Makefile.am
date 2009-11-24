@@ -38,11 +38,13 @@ all-local: $(NEWLIB).stamp
 # the added benefit of doing a PCB syntax check on all of them
 if PNG_PREVIEW
 PREVIEW=	--png
+PREVIEW_MSG=	png-preview=yes
 else
 PREVIEW=	
+PREVIEW_MSG=	png-preview=no
 endif
 
-if GIT_OR_CVS_VERSION
+if BUILD_PCBLIB_NEWLIB
 NEWLIB_DEPS=	${LIBCONTENTS} ${srcdir}/m4lib_to_newlib.sh
 else
 NEWLIB_DEPS=
@@ -53,7 +55,7 @@ ${NEWLIB}.stamp : footprint.pcb ${NEWLIB_DEPS}
 	${SHELL} ${srcdir}/m4lib_to_newlib.sh --contents \
 		${LIBRARYFILENAME}.contents --output ${NEWLIB} \
 		${PREVIEW} --pcb "${PCB}" --awk "${AWK}"
-	touch $@
+	echo '${PREVIEW_MSG}' > $@
 
 
 install-data-local: ${NEWLIB}.stamp
@@ -69,7 +71,7 @@ uninstall-local:
 
 EXTRA_DIST=	${NEWLIB} footprint.pcb ${NEWLIB}.stamp png_diff.sh
 
-if GIT_OR_CVS_VERSION
+if BUILD_PCBLIB_NEWLIB
 DISTCLEANFILES=	${NEWLIB}.stamp
 else
 DISTCLEANFILES=
