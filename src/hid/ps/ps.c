@@ -377,8 +377,8 @@ ps_hid_export_to_file (FILE * the_file, HID_Attr_Val * options)
       if (layer->LineN || layer->TextN || layer->ArcN || layer->PolygonN)
 	print_group[GetLayerGroupNumberByNumber (i)] = 1;
 
-      if (strcmp (layer->Name, "outline") == 0
-	  || strcmp (layer->Name, "route") == 0)
+      if (strcmp (layer->Name, "outline") == 0 ||
+	  strcmp (layer->Name, "route") == 0)
 	{
 	  printf("see outline layer\n");
 	  outline_layer = layer;
@@ -945,6 +945,35 @@ ps_fill_polygon (hidGC gc, int n_coords, int *x, int *y)
 }
 
 static void
+ps_fill_pcb_polygon (hidGC gc, PolygonType * poly, const BoxType * clip_box)
+{
+  /* Ignore clip_box, just draw everything */
+
+  VNODE *v;
+  PLINE *pl;
+  char *op;
+
+  use_gc (gc);
+
+  pl = poly->Clipped->contours;
+
+  do
+    {
+      v = pl->head.next;
+      op = "moveto";
+      do
+	{
+	  fprintf (f, "%d %d %s\n", v->point[0], v->point[1], op);
+	  op = "lineto";
+	}
+      while ((v = v->next) != pl->head.next);
+    }
+  while ((pl = pl->next) != NULL);
+
+  fprintf (f, "fill\n");
+}
+
+static void
 ps_fill_rect (hidGC gc, int x1, int y1, int x2, int y2)
 {
   use_gc (gc);
@@ -1175,7 +1204,7 @@ HID ps_hid = {
   ps_draw_rect,
   ps_fill_circle,
   ps_fill_polygon,
-  common_fill_pcb_polygon,
+  ps_fill_pcb_polygon,
   0 /* ps_thindraw_pcb_polygon */,
   ps_fill_rect,
   ps_calibrate,

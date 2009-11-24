@@ -99,6 +99,10 @@ struct PLINE
     unsigned int Count;
     double area;
     rtree_t *tree;
+    int is_round;
+    int cx;
+    int cy;
+    int radius;
     struct {
       unsigned int status:3;
       unsigned int orient:1;

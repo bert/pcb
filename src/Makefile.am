@@ -240,6 +240,7 @@ LIBGTK_SRCS = \
 	dolists.h \
 	hid/hidint.h \
 	hid/gtk/gtkhid-main.c \
+	hid/gtk/gtkhid-gdk.c \
 	hid/gtk/gtkhid.h \
 	hid/gtk/gui.h \
 	hid/gtk/gui-command-window.c \

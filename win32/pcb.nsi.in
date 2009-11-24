@@ -120,7 +120,7 @@ Section "Dummy Section" SecDummy
     CreateShortCut "$SMPROGRAMS\$STARTMENU_FOLDER\Uninstall.lnk" "$INSTDIR\Uninstall.exe"
     CreateShortCut "$SMPROGRAMS\$STARTMENU_FOLDER\HTML Manual.lnk" "$INSTDIR\doc\html\pcb.html"
     CreateShortCut "$SMPROGRAMS\$STARTMENU_FOLDER\PDF Manual.lnk" "$INSTDIR\doc\pdf\pcb.pdf"
-    CreateShortCut "$SMPROGRAMS\$STARTMENU_FOLDER\Readme.lnk" "$INSTDIR\share\pcb-@pcb_version@\Readme.txt"
+    CreateShortCut "$SMPROGRAMS\$STARTMENU_FOLDER\Readme.lnk" "$INSTDIR\doc\Readme.txt"
 
     SetShellVarContext current
     SetOutPath "$DOCUMENTS"

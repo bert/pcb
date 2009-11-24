@@ -298,9 +298,9 @@ PrintFab (void)
       LayerType *l = LAYER_PTR (i);
       if (l->Name && (l->LineN || l->ArcN))
 	{
-	  if (strcasecmp ("route", l->Name) == 0)
+	  if (strcmp ("route", l->Name) == 0)
 	    break;
-	  if (strcasecmp ("outline", l->Name) == 0)
+	  if (strcmp ("outline", l->Name) == 0)
 	    break;
 	}
     }

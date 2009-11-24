@@ -2191,10 +2191,12 @@ LOCtoPad_callback (const BoxType * b, void *cl)
   struct rat_info *i = (struct rat_info *) cl;
 
   if (!TEST_FLAG (TheFlag, pad) && i->layer ==
-      (TEST_FLAG (ONSOLDERFLAG, pad) ? SOLDER_LAYER : COMPONENT_LAYER)
-      && (((pad->Point1.X == i->Point->X && pad->Point1.Y == i->Point->Y)) ||
-          ((pad->Point2.X == i->Point->X && pad->Point2.Y == i->Point->Y)))
-      && ADD_PAD_TO_LIST (i->layer, pad))
+	(TEST_FLAG (ONSOLDERFLAG, pad) ? SOLDER_LAYER : COMPONENT_LAYER) &&
+      ((pad->Point1.X == i->Point->X && pad->Point1.Y == i->Point->Y) ||
+       (pad->Point2.X == i->Point->X && pad->Point2.Y == i->Point->Y) ||
+       ((pad->Point1.X + pad->Point2.X) / 2 == i->Point->X &&
+        (pad->Point1.Y + pad->Point2.Y) / 2 == i->Point->Y)) &&
+      ADD_PAD_TO_LIST (i->layer, pad))
     longjmp (i->env, 1);
   return 0;
 }
@@ -2287,7 +2289,8 @@ LOCtoPadPoly_callback (const BoxType * b, void *cl)
   struct lo_info *i = (struct lo_info *) cl;
 
 
-  if (!TEST_FLAG (TheFlag, polygon) && !TEST_FLAG (CLEARPOLYFLAG, polygon))
+  if (!TEST_FLAG (TheFlag, polygon) &&
+      (!TEST_FLAG (CLEARPOLYFLAG, polygon) || !i->pad.Clearance))
     {
       if (IsPadInPolygon (&i->pad, polygon) &&
           ADD_POLYGON_TO_LIST (i->layer, polygon))
@@ -2305,19 +2308,19 @@ LOCtoPadRat_callback (const BoxType * b, void *cl)
   if (!TEST_FLAG (TheFlag, rat))
     {
       if (rat->group1 == i->layer &&
-          ((rat->Point1.X == i->pad.Point1.X
-            && rat->Point1.Y == i->pad.Point1.Y)
-           || (rat->Point1.X == i->pad.Point2.X
-               && rat->Point1.Y == i->pad.Point2.Y)))
+	  ((rat->Point1.X == i->pad.Point1.X && rat->Point1.Y == i->pad.Point1.Y) ||
+	   (rat->Point1.X == i->pad.Point2.X && rat->Point1.Y == i->pad.Point2.Y) ||
+	   (rat->Point1.X == (i->pad.Point1.X + i->pad.Point2.X) / 2 &&
+	    rat->Point1.Y == (i->pad.Point1.Y + i->pad.Point2.Y) / 2)))
         {
           if (ADD_RAT_TO_LIST (rat))
             longjmp (i->env, 1);
         }
       else if (rat->group2 == i->layer &&
-               ((rat->Point2.X == i->pad.Point1.X
-                 && rat->Point2.Y == i->pad.Point1.Y)
-                || (rat->Point2.X == i->pad.Point2.X
-                    && rat->Point2.Y == i->pad.Point2.Y)))
+	       ((rat->Point2.X == i->pad.Point1.X && rat->Point2.Y == i->pad.Point1.Y) ||
+		(rat->Point2.X == i->pad.Point2.X && rat->Point2.Y == i->pad.Point2.Y) ||
+		(rat->Point2.X == (i->pad.Point1.X + i->pad.Point2.X) / 2 &&
+		 rat->Point2.Y == (i->pad.Point1.Y + i->pad.Point2.Y) / 2)))
         {
           if (ADD_RAT_TO_LIST (rat))
             longjmp (i->env, 1);
@@ -2532,15 +2535,12 @@ LookupLOConnectionsToPolygon (PolygonTypePtr Polygon, Cardinal LayerGroup)
         }
       else
         {
-          if (!TEST_FLAG (CLEARPOLYFLAG, Polygon))
-            {
-              info.layer = layer - max_layer;
-              if (setjmp (info.env) == 0)
-                r_search (PCB->Data->pad_tree, (BoxType *) & info.polygon,
-                          NULL, LOCtoPolyPad_callback, &info);
-              else
-                return True;
-            }
+          info.layer = layer - max_layer;
+          if (setjmp (info.env) == 0)
+            r_search (PCB->Data->pad_tree, (BoxType *) & info.polygon,
+                      NULL, LOCtoPolyPad_callback, &info);
+          else
+            return True;
         }
     }
   return (False);

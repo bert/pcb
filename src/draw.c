@@ -110,7 +110,7 @@ static void ClearPad (PadTypePtr, Boolean);
 static void DrawHole (PinTypePtr);
 static void DrawMask (BoxType *);
 static void DrawRats (BoxType *);
-static void DrawSilk (int, int, BoxType *);
+static void DrawSilk (int, int, const BoxType *);
 static int pin_callback (const BoxType * b, void *cl);
 static int pad_callback (const BoxType * b, void *cl);
 
@@ -350,15 +350,6 @@ rat_callback (const BoxType * b, void *cl)
   return 1;
 }
 
-static int
-lowvia_callback (const BoxType * b, void *cl)
-{
-  PinTypePtr via = (PinTypePtr) b;
-  if (!via->Mask)
-    DrawPlainVia (via, False);
-  return 1;
-}
-
 /* ---------------------------------------------------------------------------
  * prints assembly drawing.
  */
@@ -371,7 +362,6 @@ PrintAssembly (const BoxType * drawn_area, int side_group, int swap_ident)
   gui->set_draw_faded (Output.fgGC, 1);
   SWAP_IDENT = swap_ident;
   DrawLayerGroup (side_group, drawn_area);
-  r_search (PCB->Data->via_tree, drawn_area, NULL, lowvia_callback, NULL);
   DrawTop (drawn_area);
   gui->set_draw_faded (Output.fgGC, 0);
 
@@ -473,24 +463,6 @@ DrawEverything (BoxTypePtr drawn_area)
   if (TEST_FLAG (CHECKPLANESFLAG, PCB) && gui->gui)
     return;
 
-  /* draw vias below silk */
-  if (PCB->ViaOn && gui->gui)
-    r_search (PCB->Data->via_tree, drawn_area, NULL, lowvia_callback, NULL);
-  /* Draw the solder mask if turned on */
-  if (gui->set_layer ("componentmask", SL (MASK, TOP), 0))
-    {
-      int save_swap = SWAP_IDENT;
-      SWAP_IDENT = 0;
-      DrawMask (drawn_area);
-      SWAP_IDENT = save_swap;
-    }
-  if (gui->set_layer ("soldermask", SL (MASK, BOTTOM), 0))
-    {
-      int save_swap = SWAP_IDENT;
-      SWAP_IDENT = 1;
-      DrawMask (drawn_area);
-      SWAP_IDENT = save_swap;
-    }
   /* Draw pins, pads, vias below silk */
   if (gui->gui)
     DrawTop (drawn_area);
@@ -519,6 +491,21 @@ DrawEverything (BoxTypePtr drawn_area)
 		    &plated);
 	}
     }
+  /* Draw the solder mask if turned on */
+  if (gui->set_layer ("componentmask", SL (MASK, TOP), 0))
+    {
+      int save_swap = SWAP_IDENT;
+      SWAP_IDENT = 0;
+      DrawMask (drawn_area);
+      SWAP_IDENT = save_swap;
+    }
+  if (gui->set_layer ("soldermask", SL (MASK, BOTTOM), 0))
+    {
+      int save_swap = SWAP_IDENT;
+      SWAP_IDENT = 1;
+      DrawMask (drawn_area);
+      SWAP_IDENT = save_swap;
+    }
   /* Draw top silkscreen */
   if (gui->set_layer ("topsilk", SL (SILK, TOP), 0))
     DrawSilk (0, COMPONENT_LAYER, drawn_area);
@@ -531,7 +518,7 @@ DrawEverything (BoxTypePtr drawn_area)
 	r_search (PCB->Data->element_tree, drawn_area, NULL, EMark_callback,
 		  NULL);
       /* Draw rat lines on top */
-      if (PCB->RatOn)
+      if (gui->set_layer ("rats", SL (RATS, 0), 0))
 	DrawRats(drawn_area);
     }
 
@@ -620,8 +607,7 @@ static int
 via_callback (const BoxType * b, void *cl)
 {
   PinTypePtr via = (PinTypePtr) b;
-  if (via->Mask)
-    DrawPlainVia (via, False);
+  DrawPlainVia (via, False);
   return 1;
 }
 
@@ -702,7 +688,7 @@ clearPad_callback (const BoxType * b, void *cl)
  */
 
 static void
-DrawSilk (int new_swap, int layer, BoxTypePtr drawn_area)
+DrawSilk (int new_swap, int layer, const BoxType * drawn_area)
 {
 #if 0
   /* This code is used when you want to mask silk to avoid exposed
@@ -801,7 +787,7 @@ DrawMask (BoxType * screen)
       for (i=PCB->Data->LayerN; i>=0; i--)
 	{
 	  LayerTypePtr Layer = PCB->Data->Layer + i;
-	  if (strcasecmp (Layer->Name, "outline") == 0)
+	  if (strcmp (Layer->Name, "outline") == 0)
 	    DrawLayer (Layer, screen);
 	}
     }
@@ -851,7 +837,7 @@ text_callback (const BoxType * b, void *cl)
  * draws one non-copper layer
  */
 void
-DrawLayer (LayerTypePtr Layer, BoxType * screen)
+DrawLayer (LayerTypePtr Layer, const BoxType * screen)
 {
   struct pin_info info;
 
@@ -891,8 +877,8 @@ DrawLayerGroup (int group, const BoxType * screen)
     {
       layernum = layers[i];
       Layer = PCB->Data->Layer + layers[i];
-      if (strcmp (Layer->Name, "outline") == 0
-	  || strcmp (Layer->Name, "route") == 0)
+      if (strcmp (Layer->Name, "outline") == 0 ||
+	  strcmp (Layer->Name, "route") == 0)
 	rv = 0;
       if (layernum < max_layer && Layer->On)
 	{
@@ -940,7 +926,8 @@ DrawLayerGroup (int group, const BoxType * screen)
   */
 static void
 DrawSpecialPolygon (HID * hid, hidGC DrawGC,
-		    LocationType X, LocationType Y, int Thickness)
+		    LocationType X, LocationType Y, int Thickness,
+		    int thin_draw)
 {
   static FloatPolyType p[8] = {
     {
@@ -983,11 +970,11 @@ DrawSpecialPolygon (HID * hid, hidGC DrawGC,
       polygon_x[i] = X + scaled_x[i];
       polygon_y[i] = Y + scaled_y[i];
     }
-  if (TEST_FLAG (THINDRAWFLAG, PCB))
+  if (thin_draw)
     {
       int i;
-      hid->set_line_cap (Output.fgGC, Round_Cap);
-      hid->set_line_width (Output.fgGC, 0);
+      hid->set_line_cap (DrawGC, Round_Cap);
+      hid->set_line_width (DrawGC, 0);
       polygon_x[8] = X + scaled_x[0];
       polygon_y[8] = Y + scaled_y[0];
       for (i = 0; i < 8; i++)
@@ -1045,12 +1032,8 @@ DrawPinOrViaLowLevel (PinTypePtr Ptr, Boolean drawHole)
     }
   else if (TEST_FLAG (OCTAGONFLAG, Ptr))
     {
-      gui->set_line_cap (Output.fgGC, Round_Cap);
-      gui->set_line_width (Output.fgGC,
-			   (Ptr->Thickness - Ptr->DrillingHole) / 2);
-
-      /* transform X11 specific coord system */
-      DrawSpecialPolygon (gui, Output.fgGC, Ptr->X, Ptr->Y, Ptr->Thickness);
+      DrawSpecialPolygon (gui, Output.fgGC, Ptr->X, Ptr->Y, Ptr->Thickness,
+			  TEST_FLAG (THINDRAWFLAG, PCB));
     }
   else
     {				/* draw a round pin or via */
@@ -1162,70 +1145,20 @@ ClearOnlyPin (PinTypePtr Pin, Boolean mask)
     }
   else if (TEST_FLAG (OCTAGONFLAG, Pin))
     {
-      gui->set_line_cap (Output.pmGC, Round_Cap);
-      gui->set_line_width (Output.pmGC, (Pin->Clearance + Pin->Thickness
-					 - Pin->DrillingHole));
-
-      DrawSpecialPolygon (gui, Output.pmGC, Pin->X, Pin->Y, half * 2);
+      DrawSpecialPolygon (gui, Output.pmGC, Pin->X, Pin->Y, half * 2,
+			  TEST_FLAG (THINDRAWFLAG, PCB) ||
+			  TEST_FLAG (THINDRAWPOLYFLAG, PCB));
     }
   else
     {
       if (TEST_FLAG (THINDRAWFLAG, PCB) || TEST_FLAG (THINDRAWPOLYFLAG, PCB))
-	gui->draw_arc (Output.pmGC, Pin->X, Pin->Y, half, half, 0, 360);
+	{
+	  gui->set_line_cap (Output.pmGC, Round_Cap);
+	  gui->set_line_width (Output.pmGC, 0);
+	  gui->draw_arc (Output.pmGC, Pin->X, Pin->Y, half, half, 0, 360);
+	}
       else
 	gui->fill_circle (Output.pmGC, Pin->X, Pin->Y, half);
-    }
-}
-
-/* ---------------------------------------------------------------------------
- * lowlevel drawing routine for pins and vias that pierce polygons
- */
-void
-ClearPin (PinTypePtr Pin, int Type, int unused)
-{
-  BDimension half = (Pin->Thickness + Pin->Clearance) / 2;
-
-  if (Gathering)
-    {
-      AddPart (Pin);
-      return;
-    }
-  /* Clear the area around the pin */
-  if (TEST_FLAG (SQUAREFLAG, Pin))
-    {
-      int l, r, t, b;
-      l = Pin->X - half;
-      b = Pin->Y - half;
-      r = l + half * 2;
-      t = b + half * 2;
-      gui->fill_rect (Output.pmGC, l, b, r, t);
-    }
-  else if (TEST_FLAG (OCTAGONFLAG, Pin))
-    {
-      gui->set_line_cap (Output.pmGC, Round_Cap);
-      gui->set_line_width (Output.pmGC, (Pin->Clearance + Pin->Thickness
-					 - Pin->DrillingHole) / 2);
-
-      DrawSpecialPolygon (gui, Output.pmGC, Pin->X, Pin->Y, half * 2);
-    }
-  else
-    {
-      gui->fill_circle (Output.pmGC, Pin->X, Pin->Y, half);
-    }
-  if ((!TEST_FLAG (PINFLAG, Pin) && !PCB->ViaOn)
-      || (TEST_FLAG (PINFLAG, Pin) && !PCB->PinOn))
-    return;
-  /* now draw the pin or via as appropriate */
-  switch (Type)
-    {
-    case VIA_TYPE:
-    case PIN_TYPE:
-      SetPVColor (Pin, Type);
-      DrawPinOrViaLowLevel (Pin, True);
-      break;
-    case NO_TYPE:
-    default:
-      break;
     }
 }
 
@@ -1348,6 +1281,9 @@ DrawPadLowLevel (hidGC gc, PadTypePtr Pad, Boolean clear, Boolean mask)
       AddPart (Pad);
       return;
     }
+
+  if (clear && !mask && Pad->Clearance <= 0)
+    return;
 
   if (TEST_FLAG (THINDRAWFLAG, PCB) ||
       (clear && TEST_FLAG (THINDRAWPOLYFLAG, PCB)))
@@ -1743,9 +1679,6 @@ DrawVia (PinTypePtr Via, int unused)
 {
   if (!Gathering)
     SetPVColor (Via, VIA_TYPE);
-  //if (!doing_pinout && !TEST_FLAG (HOLEFLAG, Via) && TEST_ANY_PIPS (Via))
-  // ClearPin (Via, VIA_TYPE, 0);
-  //else
   DrawPinOrViaLowLevel (Via, True);
   if (!TEST_FLAG (HOLEFLAG, Via) && TEST_FLAG (DISPLAYNAMEFLAG, Via))
     DrawPinOrViaNameLowLevel (Via);
@@ -1786,9 +1719,6 @@ DrawViaName (PinTypePtr Via, int unused)
 void
 DrawPin (PinTypePtr Pin, int unused)
 {
-  //if (!doing_pinout && !TEST_FLAG (HOLEFLAG, Pin) && TEST_ANY_PIPS (Pin))
-  //  ClearPin (Pin, PIN_TYPE, 0);
-  //else
   {
     if (!Gathering)
       SetPVColor (Pin, PIN_TYPE);
@@ -2008,39 +1938,13 @@ DrawRegularText (LayerTypePtr Layer, TextTypePtr Text, int unused)
   DrawTextLowLevel (Text, min_silk_line);
 }
 
-static int
-cp_callback (const BoxType * b, void *cl)
-{
-  ClearPin ((PinTypePtr) b, (int) (size_t) cl, 0);
-  return 1;
-}
-
 /* ---------------------------------------------------------------------------
  * draws a polygon on a layer
  */
 void
 DrawPolygon (LayerTypePtr Layer, PolygonTypePtr Polygon, int unused)
 {
-  int layernum;
-
-  if (TEST_FLAG (SELECTEDFLAG | FOUNDFLAG, Polygon))
-    {
-      if (TEST_FLAG (SELECTEDFLAG, Polygon))
-	gui->set_color (Output.fgGC, Layer->SelectedColor);
-      else
-	gui->set_color (Output.fgGC, PCB->ConnectedColor);
-    }
-  else
-    gui->set_color (Output.fgGC, Layer->Color);
-  layernum = GetLayerNumber (PCB->Data, Layer);
   DrawPolygonLowLevel (Polygon);
-  if (TEST_FLAG (CLEARPOLYFLAG, Polygon))
-    {
-      r_search (PCB->Data->pin_tree, &Polygon->BoundingBox, NULL,
-		cp_callback, (void *) PIN_TYPE);
-      r_search (PCB->Data->via_tree, &Polygon->BoundingBox, NULL,
-		cp_callback, (void *) VIA_TYPE);
-    }
 }
 
 int
@@ -2381,12 +2285,6 @@ EraseElementPinsAndPads (ElementTypePtr Element)
   gui->set_color (Output.fgGC, Settings.BackgroundColor);
   PIN_LOOP (Element);
   {
-    /* if (TEST_ANY_PIPS (pin))
-       {
-       ClearPin (pin, NO_TYPE, 0);
-       gui->set_color (Output.fgGC, Settings.BackgroundColor);
-       }
-     */
     DrawPinOrViaLowLevel (pin, False);
     if (TEST_FLAG (DISPLAYNAMEFLAG, pin))
       DrawPinOrViaNameLowLevel (pin);

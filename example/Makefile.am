@@ -1,6 +1,6 @@
 ## $Id$
 
-examplesdir=	$(pkgdatadir)/examples
+examplesdir=	@docdir@/examples
 examples_DATA=	${EXAMPLES}
 
 SUBDIRS=	libraries
@@ -8,7 +8,7 @@ SUBDIRS=	libraries
 EXTRA_DIST=	${EXAMPLES}
 
 EXAMPLES=\
-	LED \
-	LED.NET \
-	LED2
+	LED.pcb \
+	LED.net \
+	LED2.pcb
 

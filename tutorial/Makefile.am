@@ -1,6 +1,6 @@
 ## $Id$
 
-tutdir=	$(pkgdatadir)/tutorial
+tutdir=	@docdir@/tutorial
 tut_DATA=	${TUTORIALS}
 
 EXTRA_DIST=	${TUTORIALS}

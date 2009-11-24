@@ -114,10 +114,10 @@ RCSID ("$Id$");
  * local prototypes
  */
 
-#define CIRC_SEGS 36
+#define CIRC_SEGS 40
 static double circleVerticies[] = {
   1.0, 0.0,
-  0.98480775301221, 0.17364817766693,
+  0.98768834059513777, 0.15643446504023087,
 };
 
 static void
@@ -235,28 +235,6 @@ original_poly (PolygonType * p)
   return biggest (np);
 }
 
-static int
-ClipOriginal (PolygonType * poly)
-{
-  POLYAREA *p, *result;
-  int r;
-
-  p = original_poly (poly);
-  r = poly_Boolean_free (poly->Clipped, p, &result, PBO_ISECT);
-  if (r != err_ok)
-    {
-      fprintf (stderr, "Error while clipping PBO_ISECT: %d\n", r);
-      poly_Free (&result);
-      poly->Clipped = NULL;
-      if (poly->NoHoles) printf ("Just leaked in ClipOriginal\n");
-      poly->NoHoles = NULL;
-      return 0;
-    }
-  poly->Clipped = biggest (result);
-  assert (!poly->Clipped || poly_Valid (poly->Clipped));
-  return 1;
-}
-
 POLYAREA *
 RectPoly (LocationType x1, LocationType x2, LocationType y1, LocationType y2)
 {
@@ -330,7 +308,8 @@ frac_circle (PLINE * c, LocationType X, LocationType Y, Vector v, int range)
   e1 = v[0] - X;
   e2 = v[1] - Y;
 
-  range = range == 1 ? CIRC_SEGS-1 : (CIRC_SEGS / range);
+  /* NB: the caller adds the last vertex, hence the -1 */
+  range = CIRC_SEGS / range - 1;
   for (i = 0; i < range; i++)
     {
       /* rotate the vector */
@@ -343,8 +322,7 @@ frac_circle (PLINE * c, LocationType X, LocationType Y, Vector v, int range)
     }
 }
 
-#define COARSE_CIRCLE 0
-/* create a 35-vertex circle approximation */
+/* create a circle approximation from lines */
 POLYAREA *
 CirclePoly (LocationType x, LocationType y, BDimension radius)
 {
@@ -358,6 +336,10 @@ CirclePoly (LocationType x, LocationType y, BDimension radius)
   if ((contour = poly_NewContour (v)) == NULL)
     return NULL;
   frac_circle (contour, x, y, v, 1);
+  contour->is_round = TRUE;
+  contour->cx = x;
+  contour->cy = y;
+  contour->radius = radius;
   return ContourToPoly (contour);
 }
 
@@ -765,6 +747,8 @@ SubtractPad (PadType * pad, PolygonType * p)
 {
   POLYAREA *np = NULL;
 
+  if (pad->Clearance == 0)
+    return 0;
   if (TEST_FLAG (SQUAREFLAG, pad))
     {
       if (!
@@ -833,6 +817,8 @@ pad_sub_callback (const BoxType * b, void *cl)
 
   /* don't subtract the object that was put back! */
   if (b == info->other)
+    return 0;
+  if (pad->Clearance == 0)
     return 0;
   polygon = info->polygon;
   if (XOR (TEST_FLAG (ONSOLDERFLAG, pad), !info->solder))
@@ -941,22 +927,37 @@ static int
 Unsubtract (POLYAREA * np1, PolygonType * p)
 {
   POLYAREA *merged = NULL, *np = np1;
+  POLYAREA *orig_poly, *clipped_np;
   int x;
   assert (np);
   assert (p && p->Clipped);
-  x = poly_Boolean_free (p->Clipped, np, &merged, PBO_UNITE);
+
+  orig_poly = original_poly (p);
+
+  x = poly_Boolean_free (np, orig_poly, &clipped_np, PBO_ISECT);
+  if (x != err_ok)
+    {
+      fprintf (stderr, "Error while clipping PBO_ISECT: %d\n", x);
+      poly_Free (&clipped_np);
+      goto fail;
+    }
+
+  x = poly_Boolean_free (p->Clipped, clipped_np, &merged, PBO_UNITE);
   if (x != err_ok)
     {
       fprintf (stderr, "Error while clipping PBO_UNITE: %d\n", x);
       poly_Free (&merged);
-      p->Clipped = NULL;
-      if (p->NoHoles) printf ("Just leaked in Unsubtract\n");
-      p->NoHoles = NULL;
-      return 0;
+      goto fail;
     }
   p->Clipped = biggest (merged);
   assert (!p->Clipped || poly_Valid (p->Clipped));
-  return ClipOriginal (p);
+  return 1;
+
+fail:
+  p->Clipped = NULL;
+  if (p->NoHoles) printf ("Just leaked in Unsubtract\n");
+  p->NoHoles = NULL;
+  return 0;
 }
 
 static int
