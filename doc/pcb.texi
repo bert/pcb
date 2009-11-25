@@ -4,6 +4,9 @@
 @setfilename pcb.info
 @settitle Pcb
 @setcontentsaftertitlepage
+@macro pcb{}
+@code{Pcb}
+@end macro
 @comment %**end of header
 
 @include version.texi
@@ -23,13 +26,13 @@ END-INFO-DIR-ENTRY
 
 @ifinfo
 This file documents how to use Pcb,
-the interactive printed circuit board layout system for @code{X11}.
+the open source, interactive printed circuit board layout system.
 
 Copyright (C) 1994,1995,1996, 2004 Thomas Nau
 
 Copyright (C) 1997, 1998, 1999, 2000, 2001, 2002 harry eaton
 
-Copyright (C) 2003, 2004, 2005, 2006, 2007 Dan McMahill
+Copyright (C) 2003, 2004, 2005, 2006, 2007, 2009 Dan McMahill
 
 Copyright (C) 2004 DJ Delorie
 
@@ -50,9 +53,9 @@ MERCHANT-ABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 
 @titlepage
 @title Pcb-@value{VERSION}
-@subtitle an interactive
+@subtitle an open source, interactive
 @subtitle printed circuit board
-@subtitle layout system for @code{X11}
+@subtitle layout system
 @author harry eaton
 @end titlepage
 
@@ -60,21 +63,21 @@ MERCHANT-ABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 @node Top
 @top Pcb
 
-This document is a manual for @code{Pcb}, the interactive printed circuit
-board layout system for @code{X11}.
+This document is a manual for @pcb{}, the open source, interactive printed circuit
+board layout system.
 @end ifnottex
 
 @menu
-* Copying::                @code{Pcb} is freely redistributable!
+* Copying::                @pcb{} is freely redistributable!
 * History::                How it all began.
-* Overview::               An overview of @code{Pcb}.
+* Overview::               An overview of @pcb{}.
 * Intro::                  A short description of the basic objects.
-* Getting Started::        Introduction to @code{Pcb}.
+* Getting Started::        Introduction to @pcb{}.
 * Autorouter::             Using the autorouter.
-* User Commands::          User commands of @code{Pcb}.
-* Command-Line Options::   Calling @code{Pcb} from a shell.
+* User Commands::          User commands of @pcb{}.
+* Command-Line Options::   Calling @pcb{} from a shell.
 * X11 Interface::          Action routines, resources and default translation.
-* File Formats::           Description of @code{ASCII} files used by @code{Pcb}.
+* File Formats::           Description of @code{ASCII} files used by @pcb{}.
 * Library Creation::       Detailed description of symbol library creation.
 * Schematic Frontends::    Schematic capture programs that work with PCB.
 * Installation::           Compiling, installing and troubleshooting.
@@ -111,17 +114,17 @@ MERCHANT-ABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 @unnumbered History
 
 @cindex Atari version
-@code{Pcb} is a handy tool for laying out printed circuit
+@pcb{} is a handy tool for laying out printed circuit
 boards.
 
-@code{Pcb} was first written by Thomas Nau for an Atari ST in 1990 and
+@pcb{} was first written by Thomas Nau for an Atari ST in 1990 and
 ported to @code{UNIX} and @code{X11} in 1994.
 It was not intended as a professional layout system,
 but as a tool which supports people who do some
 home-developing of hardware.
 
 The second release 1.2 included menus for the first time. This made
-@code{Pcb} easier to use and thus a more important tool.
+@pcb{} easier to use and thus a more important tool.
 
 Release 1.3 introduced undo for highly-destructive commands,
 more straightforward action handling and scalable fonts. Layer-groups
@@ -196,7 +199,7 @@ Boerge Strand (borges@@ifi.uio.no)
 Andre M. Hedrick (hedrick@@Astro.Dyer.Vanderbilt.Edu)
 @end display
 
-@exdent who provided all sorts of help including porting @code{Pcb} to
+@exdent who provided all sorts of help including porting @pcb{} to
 several operating systems and platforms, bug fixes, library enhancement,
 user interface suggestions and more. In addition to these people,
 many others donated time for bug-fixing and
@@ -210,8 +213,8 @@ apologize; please send me an e-mail and I'll try to correct the omission.
 @chapter Overview
 @cindex PCB, an overview
 
-Pcb is a printed circuit board editor for the X11 window system.
-Pcb includes many professional features such as:
+@pcb{} is an open source printed circuit board editor.
+@pcb{} includes many professional features such as:
 @itemize @bullet
 @item Up to 16 copper layer designs by default.  By changing a compile time setting, this
 can be set as high as needed.
@@ -224,9 +227,12 @@ can be set as high as needed.
 @item Rats nest
 @item Design Rule Checker (DRC)
 @item Connectivity verification
-@item Pcb is Free Software
+@item @pcb{} is Free Software
 @item Can interoperate with free schematic capture tools such as gEDA and
   xcircuit
+@item Runs under Linux, NetBSD, Solaris, and other similar operating
+systems.
+@item Windows version is available
 @end itemize
 
 @c --------------------------- chapter 1 -------------------------------
@@ -236,16 +242,16 @@ can be set as high as needed.
 
 Each layout consists of several, mostly independent, objects. This chapter
 gives an overview of the object types and their relationship to each other.
-For a complete description of how to use @code{Pcb}, refer to
+For a complete description of how to use @pcb{}, refer to
 @ref{Getting Started}.
 The layout is generated on-screen on a grid that can have its origin
 at any desired location.
 The X coordinate increases to the right, Y increases down to the bottom.
-All distances and sizes in @code{Pcb} are measured in mils
+All distances and sizes in @pcb{} are measured in mils
 (0.001 inch).  One unit on the coordinate display is one mil in
 distance on the board. 
 The grid may be set on a metric pitch, but is only correct to within
-the nearest +/- 0.01 mil because @code{Pcb} stores all dimensions as
+the nearest +/- 0.01 mil because @pcb{} stores all dimensions as
 integer multiples of 1/100 of a mil or 0.00001 inch.
 
 The sections in this chapter are sorted by the
@@ -363,7 +369,7 @@ of objects (silkscreen and pads) that are on the far (@emph{i.e.} not currently 
 of the board.
 
 The ``oldlib'' style of footprint libraries distributed with
-@code{Pcb} rely upon the M4 macro processor.  M4 is typically
+@pcb{} rely upon the M4 macro processor.  M4 is typically
 installed under the name @code{m4} on most unix-like operating
 systems.  It is recommended that you use the GNU version of M4 to
 avoid limitations found in some vendor implementations.  See the m4
@@ -372,12 +378,12 @@ Every element file is preprocessed by a user-defined command when the file is re
 For details see @samp{elementCommand}, @ref{Resources}. @code{m4}, the default
 value of @samp{elementCommand}, allows you to create libraries for
 package definitions that are shared by all elements.
-The old element libraries distributed with @code{Pcb} expect @code{m4} or an
+The old element libraries distributed with @pcb{} expect @code{m4} or an
 equivalent to be the @emph{elementCommand}. The new library scheme simply has
 each element stored in a self-contained file, so there is no need to learn
 @code{m4} to add to the libraries.
 
-@code{Pcb} can create a list of
+@pcb{} can create a list of
 all connections from one (or all) elements to the others or a list of
 unconnected pins.
 It can also verify the layout connections against a netlist file.
@@ -386,7 +392,7 @@ in a netlist file (see @ref{Netlist File}).
 
 The old libraries, or very old (pre-1.6) layout files may have
 incorrect pin numbering since there was no concept of pin numbers
-when they were created. @code{Pcb} uses the order of appearance of
+when they were created. @pcb{} uses the order of appearance of
 the pin definitions in the layout or library file if it uses the
 old format, but there is no guarantee that it will be correct for
 these old objects.
@@ -399,7 +405,7 @@ Inline-Pins) parts are correct and most of the others are too,
 but you should verify the pin numbering
 of any non-DIL part before using an old library part.
 (use the @samp{generate object report} in the @b{Info} menu
-to see what @code{Pcb} thinks a pin's number is)
+to see what @pcb{} thinks a pin's number is)
 All of the old
 library names begin with a ~, so you can easily identify them.
 The old libraries also @emph{may} contain other sorts of errors,
@@ -439,7 +445,7 @@ convert it back into an element. If the pin numbers haven't changed,
 there is no need to name each via/line as they are pre-named when
 the element was broken apart. When you create a new element, you
 can save it to a file in order to have easy access to it the next
-time you run @code{Pcb}.
+time you run @pcb{}.
 
 
 @node Layer Objects
@@ -495,7 +501,7 @@ entries into the netlist, or to delete connections from the netlist
 window. Except for these two purposes, you should not
 make the netlist layer the active layer. Usually there is no need to
 do this because a separate schematic package should be used to create the
-netlist. @code{Pcb} can automatically draw all of the rats from
+netlist. @pcb{} can automatically draw all of the rats from
 the netlist. In some cases you may want to make a small change without
 going to the trouble of modifying the schematic, which is why this
 facility is provided.
@@ -539,7 +545,7 @@ to the active layer).
 In the case when two line segments meet at exactly the same
 point you can delete the intermediate point, otherwise the delete tool removes an entire line.
 Feel free to experiment
-since @code{Pcb} will allow you to undo and redo anything that materially affects your work.
+since @pcb{} will allow you to undo and redo anything that materially affects your work.
 If you switch active layers in the midst of placing lines a via will automatically be
 placed, when necessary, in order to continue the connection.
 
@@ -557,7 +563,7 @@ The clearance can be also increased, decreased and set
 by the @emph{ChangeClearSize} action.
 
 Lines do not need to intersect the center of a pin, pad, via, or other
-line for @code{Pcb} to understand that they make electrical connection.
+line for @pcb{} to understand that they make electrical connection.
 If the connection is too tenuous, running the design rule checker will report
 that the connection may break if the line width shrinks slightly.
 
@@ -566,7 +572,7 @@ that the connection may break if the line width shrinks slightly.
 @section Arcs
 @cindex arc
 
-@code{Pcb} can handle arcs of any angular extent, but when you
+@pcb{} can handle arcs of any angular extent, but when you
 create an arc with the Arc tool, it will
 be a quarter circle (this means they always bend a right angle).  Arcs are very similar
 to lines otherwise.  They are created on the active layer and have the same thickness
@@ -619,7 +625,7 @@ places a thermal to polygons on the active layer, so if the tool doesn't
 seem to work, it's probably because the polygon you want to touch is not
 on the active layer.
 
-@code{Pcb} is capable of handling complex polygons, but
+@pcb{} is capable of handling complex polygons, but
 using a number of simpler ones improves performance of the connection tracing code.
 You also must be careful not to create polygons that touch or overlap themselves.
 The fabricated board may not look the way you expect if you violate this
@@ -629,7 +635,7 @@ each other, but not for points within the same polygon to do so.
 The great advantage to this new polygon behavior is that simple or complex ground
 and/or power planes can be easily made with polygons and seen on the screen.
 If you don't want this auto-clearance behavior, or you load a layout created by
-an early version of @code{Pcb}, the old behavior
+an early version of @pcb{}, the old behavior
 (shorts to all piercing pins and vias) is available.  A @samp{ChangeSize}
 operation (@emph{S} key) toggles a polygon between the new and old polygon/pin
 behavior.
@@ -680,18 +686,18 @@ necessarily show the shortest paths until you optimize them again.
 @cindex how to start
 
 The goal of this chapter is to give you enough information to learn how
-@code{Pcb} works and how to develop your layouts to make the best use of @code{Pcb}'s
+@pcb{} works and how to develop your layouts to make the best use of @pcb{}'s
 features. All event translations (@emph{i.e.} the buttons and keys you
-press) refer to the default application resource file shipped with @code{Pcb}.
+press) refer to the default application resource file shipped with @pcb{}.
 There is probably no need to change this unless your window
 manager uses some of the button events itself; however, if you @emph{want}
-to customize the behavior of @code{Pcb} then changing the resource file
+to customize the behavior of @pcb{} then changing the resource file
 is usually the best way to do it.
 
 Get yourself a printout of this chapter and @emph{User Commands}, if you
 haven't already done so, and follow the examples.
 
-Start @code{Pcb} (the actual command will use all lower-case letters)
+Start @pcb{} (the actual command will use all lower-case letters)
 without any additional options.
 If you get the error message:
 
@@ -704,7 +710,7 @@ If not, get @code{GNU m4}.
 For other messages, see @ref{problems}.
 Another quick-start is provided by @code{pcbtest.sh} in the @file{src}
 directory. If some features don't seem to work, try running @code{pcbtest.sh},
-if that works, then @code{Pcb} hasn't been installed properly.
+if that works, then @pcb{} hasn't been installed properly.
 
 @menu
 * Application Window::     The elements of the main window.
@@ -908,7 +914,7 @@ layers you don't want it to use. The auto-router will automatically
 understand and avoid any traces that are already on the board, but
 it is not restricted to the grid. Finally,
 the auto-router routes using the active sizes (except for nets that
-have a route-style defined). @code{Pcb} always knows which tracks
+have a route-style defined). @pcb{} always knows which tracks
 were routed by the auto-router, and you can selectively remove them
 without fear of changing tracks that you have manually routed
 with the @samp{rip-up all auto-routed tracks} entry in the @b{Connects}
@@ -940,7 +946,7 @@ The @b{Window} menu provides a way to bring each of @code{Pcb's}
 windows to the front. The @emph{Library} window is used to
 bring elements from the library into the paste-buffer. The
 @emph{Message Log} window holds the various messages that
-@code{Pcb} sends to the user. The @emph{Netlist} window shows
+@pcb{} sends to the user. The @emph{Netlist} window shows
 the list of connections desired.
 
 @end table
@@ -1180,7 +1186,7 @@ by pressing the @emph{L} key. Note that the status line updates
 to reflect the new active line thickness. Now draw another line. Before completing the
 next line, make the component layer active by pressing the @emph{4} key.
 Now finish the line. Notice that a via was automatically placed where
-you switched layers. @code{Pcb} does not do any checks to make sure that
+you switched layers. @pcb{} does not do any checks to make sure that
 the via could safely be placed there. Neither does it interfere with
 your desire to place lines haphazardly. It is up to you to place
 things properly when doing manual routing with the Line tool.
@@ -1256,7 +1262,7 @@ menu. Use the Lock tool sparingly.
 
 The layout area is where you see the layout. The cursor shape depends
 on the active tool when the pointer is moved into the layout area.
-A cross hair follows the X11 pointer with respect to the grid setting.
+A cross hair follows the mouse pointer with respect to the grid setting.
 Select a new grid from the @emph{Screen} menu.
 The new value is updated in the status line.
 A different way to change the grid is
@@ -1279,7 +1285,7 @@ of using it is
 that its contents are saved in a scrolling list until the
 program exits. Disabling this feature by setting the resource
 @emph{useLogWindow} to @emph{false} will generate popup windows to display
-messages. The @emph{stderr} of external commands will appear on @code{Pcb}s
+messages. The @emph{stderr} of external commands will appear on @pcb{}s
 @emph{stderr} which normally is the parent shell. I suggest you iconify
 the log window after startup for example by setting @emph{*log.iconic} to
 @emph{true} in the resource file. If @emph{raiseLogWindow} is set @emph{true},
@@ -1773,12 +1779,12 @@ See the @emph{MoveToCurrentLayer} action for more details.
 @cindex example of saving
 @cindex example of loading
 
-After your first experience with @code{Pcb} you will probably want to save
+After your first experience with @pcb{} you will probably want to save
 your work. @kbd{:s name} passes the data to an external program which
 is responsible for saving it. For details see @emph{saveCommand} in
 @ref{Resources}.
 Saving also is available from the @emph{File} menu, either with or
-without supplying a filename. @code{Pcb} reuses the last
+without supplying a filename. @pcb{} reuses the last
 filename if you do not pass a new one to the save routine.
 
 To load an existing layout either select @emph{load layout data} from the
@@ -1792,12 +1798,12 @@ supported either by the @emph{File} menu or by @kbd{:m filename}.
 @cindex /tmp
 @cindex directory /tmp
 @cindex temporary files
-@code{Pcb} saves a backup of the current layout at a user specified interval.
+@pcb{} saves a backup of the current layout at a user specified interval.
 The backup filename is created by appending a dash, "-", to the @file{.pcb} filename.
 For example, if you are editing the layout in @file{projects/board.pcb} then the
 backup file name will be @file{projects/board.pcb-}.  If the layout is new and
 has not been saved yet, then the backup file name is @file{PCB.####.backup} where the "####"
-will be replaced by the process ID of the currenting running copy of @code{Pcb}.
+will be replaced by the process ID of the currenting running copy of @pcb{}.
 This default backup file name may be changed at compilation time via the
 @code{BACKUP_NAME}
 variable in @file{globalconfig.h}).  During critical
@@ -1811,7 +1817,7 @@ with the @code{SAVE_NAME} variable in @file{globalconfig.h}.
 @cindex printing, an example
 @cindex example of printing
 
-@code{Pcb} now has support for device drivers,
+@pcb{} now has support for device drivers,
 @code{PostScript}, @emph{encapsulated PostScript},
 and @emph{Gerber RS-274X} drivers are
 available so far.  The @emph{Gerber RS-274X}
@@ -1957,7 +1963,7 @@ the connections.
 @end example
 
 Now select @emph{lookup connection} from the @emph{Connections} menu,
-move the cursor to a pin or via and press any mouse button. @code{Pcb}
+move the cursor to a pin or via and press any mouse button. @pcb{}
 will look for all other pins and/or vias connected to the one you have
 selected and display the objects in a different color.
 Now try some of the reset options available from the same menu.
@@ -2015,7 +2021,7 @@ You can select any visible object unless it is locked. If you select an
 object, then turn off its visibility with the Layer controls, it won't
 be moved if you move the remaining visible selection.
 
-If you have not configured to use strokes in the @code{Pcb} user interface, then
+If you have not configured to use strokes in the @pcb{} user interface, then
 the middle mouse button is automatically bound to the arrow tool, regardless
 of the active tool (which is bound to the first mouse button). So using
 the middle button any time is just like using the first mouse button
@@ -2228,7 +2234,7 @@ cursor coordinates.
 @cindex Drill table
 @cindex Vendor drill table
 
-@code{Pcb} includes support for mapping drill holes to a specified set
+@pcb{} includes support for mapping drill holes to a specified set
 of sizes used by a particular vendor.  Many PCB manufacturers have a
 prefered set of drill sizes and charge extra when others are used.
 The mapping can be performed on an existing design and can also be
@@ -2296,7 +2302,7 @@ This is invoked by entering:
 @example
 :LoadVendor(vendorfile)
 @end example
-from within @code{Pcb}.  Substitute the file name of your vendor
+from within @pcb{}.  Substitute the file name of your vendor
 resource file for @samp{vendorfile}.  This action will load the vendor
 resource and modify all the drill holes in the design as well as the
 default via hole size for the various routing styles.
@@ -2319,7 +2325,7 @@ regular expressions.
 @chapter Autorouter
 @cindex autorouter
 
-@code{Pcb} includes an autorouter which can greatly speed up the
+@pcb{} includes an autorouter which can greatly speed up the
 layout of a circuit board.  The autorouter is a rectangle-expansion
 type of autorouter based on 
 ``A Method for Gridless Routing of Printed Circuit Boards'' by
@@ -2503,7 +2509,7 @@ see what actions are available.
 @c --------------------------- chapter 4 -------------------------------
 @node Command-Line Options
 @chapter Command-Line Options
-@cindex starting @code{Pcb}
+@cindex starting @pcb{}
 @cindex command-line options
 
 There are several resources which may be set or reset in addition to the
@@ -2519,7 +2525,7 @@ or
 @code{pcb -specialoption}
 
 @menu
-* Options::                @code{Pcb} command-line options.
+* Options::                @pcb{} command-line options.
 * Special Options::        Version and copyright information.
 @end menu
 
@@ -2803,7 +2809,7 @@ Prints out the usage message and terminates.
 @cindex X11
 
 This chapter gives an overview about the additional @code{X11} resources which
-are defined by @code{Pcb} as well as the defined action routines.
+are defined by @pcb{} as well as the defined action routines.
 
 @menu
 * Resources::      Non-standard @code{X11} application resources.
@@ -2817,7 +2823,7 @@ are defined by @code{Pcb} as well as the defined action routines.
 @cindex resources
 @cindex X11 resources
 
-In addition to the toolkit resources, @code{Pcb} defines the
+In addition to the toolkit resources, @pcb{} defines the
 following resources:
 
 @table @samp
@@ -2865,7 +2871,7 @@ use @file{.ppm} as the extension.  Select Raw formatting.
 @vindex backupInterval
 @cindex backup
 @item backupInterval (int)
-@code{Pcb} has an automatic backup feature which saves the current data
+@pcb{} has an automatic backup feature which saves the current data
 every n seconds. The default is @emph{300} seconds. A value of zero disables
 the feature. The backup file is named @file{/tmp/PCB.%i.backup} by
 default (this may have been changed at compilation time via the
@@ -2885,7 +2891,7 @@ Specifies the minimum spacing design rule in mils.
 @cindex linelength
 @cindex list of connections
 @item charactersPerLine (int)
-@code{Pcb} uses this value to determine the page width when creating lists.
+@pcb{} uses this value to determine the page width when creating lists.
 N, the number of characters per line, defaults to @emph{80}.
 See also, the command-line option @emph{-c}.
 
@@ -2904,7 +2910,7 @@ search are drawn with this color. The default value is determined by
 This color is used to draw the cross hair cursor. The color is a result of
 a @emph{XOR} operation with the contents of the Layout area. The result
 also depends on the default colormap of the @code{X11} server because only
-the colormap index is used in the boolean operation and @code{Pcb} doesn't
+the colormap index is used in the boolean operation and @pcb{} doesn't
 create its own colormap. The default setting is @emph{XtDefaultForeground}.
 
 @vindex elementColor
@@ -2924,7 +2930,7 @@ mode, respectively, which both default to @emph{XtDefaultForeground}.
 @cindex unix command
 @cindex m4
 @item elementCommand (string)
-@code{Pcb} uses a user defined command to read element files. This resources
+@pcb{} uses a user defined command to read element files. This resources
 is used to set the command which is executed by the users default shell.
 Two escape sequences are defined to pass the selected filename (%f) and the
 current search path (%p). The command must write the element data
@@ -3031,7 +3037,7 @@ to @emph{100 mil} and any changes are saved together with the layout data.
 This color is used to draw the grid. The color is a result of
 a @emph{INVERT} operation with the contents of the Layout area. The result
 also depends on the default colormap of the @code{X11} server because only
-the colormap index is used in the boolean operation and @code{Pcb} doesn't
+the colormap index is used in the boolean operation and @pcb{} doesn't
 create its own colormap. The default setting is @emph{XtDefaultForeground}.
 
 @vindex invisibleObjectsColor
@@ -3072,7 +3078,7 @@ resources. The defaults are empty strings.
 @cindex loading elements
 @cindex unix command
 @item libraryCommand (string)
-@code{Pcb} uses a command to read element data from libraries.
+@pcb{} uses a command to read element data from libraries.
 The resources is used to set the command which is executed by the users
 default shell.  Three escape sequences are defined to pass the selected
 filename (%f), the current search path (%p) as well (%a) as the three
@@ -3087,7 +3093,7 @@ It must write the element data to its standard output. The default value is
 @cindex listing library contents
 @cindex unix command
 @item libraryContentsCommand (string)
-Similar to @emph{libraryCommand}, @code{Pcb} uses the command specified
+Similar to @emph{libraryCommand}, @pcb{} uses the command specified
 by this resource to list the contents of a library.
 @example
 	NONE/share/pcb/oldlib/ListLibraryContents.sh %p %f
@@ -3732,12 +3738,12 @@ output area optionally after clearing the window.
 Centering is done with respect to the @emph{grid} setting. Displaying the
 grid itself may be switched on and off by @emph{Grid} but only if
 the distance between two pixels exceeds 4 pixels.
-@code{Pcb} is able to handle several labels of an element. One of them
+@pcb{} is able to handle several labels of an element. One of them
 is a description of the functionality (eg resistor), the second should be
 a unique identifier (R1) whereas the last one is a value (100k).
 The @emph{Display()} action selects which of the names is displayed.
 It also controls which name will be affected by the @emph{ChangeName} command.
-If @emph{ToggleGrid} is passed, @code{Pcb} changes between relative
+If @emph{ToggleGrid} is passed, @pcb{} changes between relative
 ('rel' in the statusline) and absolute grid (an 'abs' in the statusline).
 Relative grid means the pointer position when the command is issued is
 used as the grid origin; while (0,0) is used in the absolute grid case.
@@ -3842,7 +3848,7 @@ Defaults:
 @itemx Mode(Save|Restore)
 Switches to a new mode of operation. The active mode is displayed by a thick
 line around the matching mode selector button.
-Most of the functionality of @code{Pcb} is implemented by selecting a mode
+Most of the functionality of @pcb{} is implemented by selecting a mode
 and calling @emph{Mode(Notify)}. The arguments @emph{Line}, @emph{Polygon},
 @emph{Rectangle}, @emph{Text} and @emph{Via} are used to create the
 appropriate object whenever @emph{Mode(Notify)} is called. Some of them,
@@ -3893,7 +3899,7 @@ Shift BTNMOD<Btn2Down>: Mode(Save) Mode(RubberbandMove) Mode(Notify)
 @item MovePointer(delta_x, delta_y)
 With this function it is possible to move the cross hair cursor by using the
 cursor keys. The @code{X} server's pointer follows because the necessary
-events are generated by @code{Pcb}. All movements are performed with respect
+events are generated by @pcb{}. All movements are performed with respect
 to the currently set grid value.
 Default:
 @example
@@ -4207,7 +4213,7 @@ Mod1<Key>4:	ToggleVisibility(4)
 @cindex recover
 @item Undo()
 @itemx Undo(ClearList)
-The unlimited undo feature of @code{Pcb} allows you to recover
+The unlimited undo feature of @pcb{} allows you to recover
 from most operations that materially affect you work.
 Calling @emph{Undo()} without any parameter recovers
 from the last (non-undo) operation. @emph{ClearList} is used to release the
@@ -4251,7 +4257,7 @@ Default:
 
 This section covers some default translations of key and button events as
 defined in the shipped default application resource file. Most of them have
-already been listed in @ref{Actions}. @code{Pcb} makes use of a nice @code{X11}
+already been listed in @ref{Actions}. @pcb{} makes use of a nice @code{X11}
 feature; calling several action routines for one event.
 
 @table @samp
@@ -4311,12 +4317,12 @@ element names.
 @cindex file formats
 @cindex ASCII files, format of
 
-All files used by @code{Pcb} are read from the standard output of a command
+All files used by @pcb{} are read from the standard output of a command
 or written to the standard input of one as plain seven bit @code{ASCII}. This
 makes it possible to use any editor to change the contents of a layout file.
 It is the only way for element or font description files to be created.
 To do so you'll need to study the example files @file{example/*} and
-@file{default_font} which are shipped with @code{Pcb}.
+@file{default_font} which are shipped with @pcb{}.
 For an overview refer to @ref{Intro}.
 
 @vindex elementCommand
@@ -4327,7 +4333,7 @@ For an overview refer to @ref{Intro}.
 @vindex saveCommand
 The following sections provide the necessary information about the syntax of
 the files.
-Netlist files are not created by @code{Pcb}, but it does use them. For information
+Netlist files are not created by @pcb{}, but it does use them. For information
 on the format of a netlist file see the @emph{:rn},
 @ref{User Commands}. Rat lines are added on the current layer using the current
 The commands described allow you to add almost any additional
@@ -4385,16 +4391,16 @@ used to pass light through onto a photosensitive film.
 
 The layout file describes a complete layout including symbols, vias,
 elements and layers with lines, rectangles and text. This is the most
-complex file of all.  As @code{Pcb} has evolved, the file format has
-changed several times to accommodate new features.  @code{Pcb} has
+complex file of all.  As @pcb{} has evolved, the file format has
+changed several times to accommodate new features.  @pcb{} has
 always been able to read all older versions of the @code{.pcb} file.
 This allows the migration of older designs to newer versions of the
-program.  Obviously older versions of @code{Pcb} will not be able
+program.  Obviously older versions of @pcb{} will not be able
 to properly read layout files stored in newer versions of the file
 format.
 
 In practice it is very common for footprint libraries to contain
-elements which have been defined in various versions of the @code{Pcb}
+elements which have been defined in various versions of the @pcb{}
 file format.  When faced with trying to understand an element file or
 layout file which includes syntax not defined here, the best approach
 is to examine the file @file{src/parse_y.y} which is the definitive
@@ -4476,7 +4482,7 @@ The lowest x and y coordinates of all lines of a font are transformed to (0,0).
 @cindex netlist, file format
 @cindex netlist, reading
 
-Netlists read by @code{Pcb} must have this simple text form:
+Netlists read by @pcb{} must have this simple text form:
 
 @example
 netname [style] NAME-PINNUM NAME2-PINNUM2 NAME3-PINNUM3 ... [\]
@@ -5037,7 +5043,7 @@ save the new footprint to a file.
 
 @subsection Modifying Newlib Footprints
 @enumerate
-@item In the @code{Pcb} program, instantiate the footprint you wish to modify.
+@item In the @pcb{} program, instantiate the footprint you wish to modify.
 @item Using the selection tool, select the footprint.
 @item Now left-click on the selected element, this brings up a popup menu, choose
 "Cut Selection to Buffer" from the popup menu.
@@ -5310,8 +5316,8 @@ This section covers the steps which are necessary to compile the package.
 @subsection Quick Start
 @cindex GNU build system
 
-Starting with version 2.0, @code{Pcb} has switched to a GNU
-autoconf/automake build system.  Installation of @code{Pcb} consists of
+Starting with version 2.0, @pcb{} has switched to a GNU
+autoconf/automake build system.  Installation of @pcb{} consists of
 three steps:  configuration, building, and installing.
 In a typical installation, these steps are as simple as
 @example
@@ -5366,7 +5372,7 @@ that) and mail a copy to the maintainer, harry eaton,  at
 
 
 If you do not have the appropriate permissions you should run
-@file{./pcbtest.sh} in the @file{src} directory to run @code{Pcb} from
+@file{./pcbtest.sh} in the @file{src} directory to run @pcb{} from
 the installation directory.
 
 
@@ -5382,17 +5388,17 @@ complete please mail your problems and, if available, solutions to the author.
 The mail address may be found at the beginning of this chapter.
 In any case, read @ref{X11}.
 
-By the way, you @code{MUST HAVE AN ANSI COMPILER} to make @code{Pcb} work.
+By the way, you @code{MUST HAVE AN ANSI COMPILER} to make @pcb{} work.
 
 
 Another source of problems are older versions of @code{flex} and @code{bison}.
-@code{Pcb} definitely works with @code{flex-2.4.7} and @code{bison-1.22} or
+@pcb{} definitely works with @code{flex-2.4.7} and @code{bison-1.22} or
 later. The problems will result in a @emph{syntax error} while parsing files.
 This should only be a problem if you have modified the @code{flex} or
 @code{bison} input files.
 
 The following list gives you just an idea because I'm not able to test
-all @code{Pcb} releases on all platforms.
+all @pcb{} releases on all platforms.
 
 @menu
 * HP::              Hewlett-Packard series 700 and 800 running HP-UX 10.*
@@ -5420,7 +5426,7 @@ They also do not ship the @code{ANSI} compiler with the normal operating
 system release so you have to buy one or use @code{GCC}.
 Some of the tools are available as patches.
 
-In addition, @code{Pcb} has been successfully tested on these platforms with
+In addition, @pcb{} has been successfully tested on these platforms with
 @code{HPUX 9.*, 10.*} running self-compiled @code{X11R5}.
 
 
@@ -5432,7 +5438,7 @@ In addition, @code{Pcb} has been successfully tested on these platforms with
 @cindex OpenWindows
 
 There are no known problems with Sun machines if they use @code{X11R5} instead
-of @code{OpenWindows}. @code{Pcb} compiled successfully with all kinds of
+of @code{OpenWindows}. @pcb{} compiled successfully with all kinds of
 SPARCstations @code{Solaris-2.[345]}.
 
 For problems with @code{OpenWindows} refer to @ref{X11}.
@@ -5443,7 +5449,7 @@ For problems with @code{OpenWindows} refer to @ref{X11}.
 @cindex Silicon Graphics
 @cindex SGI
 
-@code{Pcb} has been tested on some boxes running either @code{IRIX-4.0.5} or
+@pcb{} has been tested on some boxes running either @code{IRIX-4.0.5} or
 @code{IRIX-5.3}. The former one uses a @code{X11R4} server.
 There are no problems.
 For known problems
@@ -5456,7 +5462,7 @@ with @code{X11R4}, see @ref{X11}.
 @cindex DEC
 @cindex Alpha
 
-@code{Pcb} compiled and runs without problems on @code{DEC UNIX V3.2c}.
+@pcb{} compiled and runs without problems on @code{DEC UNIX V3.2c}.
 
 
 @node SCO
@@ -5481,7 +5487,7 @@ I'll see what I am able to do as soon as I have access to an @code{SCO} system.
 @cindex Linux
 @cindex PC UNIX
 
-Since the @code{X11} version of @code{Pcb} has been developed on a Linux
+Since the @code{X11} version of @pcb{} has been developed on a Linux
 system here are no known problems.
 
 
@@ -5491,7 +5497,7 @@ system here are no known problems.
 @cindex NetBSD
 @cindex PC UNIX
 
-@code{Pcb} has been tested on NetBSD and works without any problems.
+@pcb{} has been tested on NetBSD and works without any problems.
 You may also be able to find a NetBSD package at
 @url{ftp://ftp.netbsd.org/pub/NetBSD/packages/cad/pcb/README.html} or a
 FreeBSD port at
@@ -5515,7 +5521,7 @@ page.
 You may have some problems in a mixed @code{X11-OpenWindows}
 environment.
 
-@code{Pcb} has been tested successfully with @code{X11R6} under Linux 1.1.59
+@pcb{} has been tested successfully with @code{X11R6} under Linux 1.1.59
 and later.
 
 
@@ -5719,15 +5725,15 @@ pcb -dumpmenu
 @vindex Regular Expressions
 
 @section Element Search/Regular Expressions
-@code{Pcb}'s search is based on POSIX 1003.2 Regular Expressions.  Full POSIX
-Regular Expressions are supported by @code{Pcb} if the regex library was
-available when @code{Pcb} was built.  One difference from the regular
+@pcb{}'s search is based on POSIX 1003.2 Regular Expressions.  Full POSIX
+Regular Expressions are supported by @pcb{} if the regex library was
+available when @pcb{} was built.  One difference from the regular
 expressions found in tools like awk or grep is that PCB implicitly
 adds a ``^'' to the begining of a regular expression and ``$'' to the
 end of the regular expression.  For example if you enter ``C1'', the
 actual regular expression used internally is ``^C1$''.  
 It is easier to show by example how to search than explain POSIX 1003.2.  The following table shows the most common
-Regular Expression characters used to find elements in @code{Pcb}:
+Regular Expression characters used to find elements in @pcb{}:
 
 @table @samp
 @item \
