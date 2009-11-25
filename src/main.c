@@ -207,7 +207,7 @@ usage_hid (HID * h)
     {
       HID **hl = hid_enumerate ();
       HID_AttrNode *ha;
-      fprintf (stderr, "\ngui options:\n");
+      fprintf (stderr, "\n%s gui options:\n", h->name);
       for (ha = hid_attr_nodes; ha; ha = ha->next)
 	{
 	  for (i = 0; hl[i]; i++)
