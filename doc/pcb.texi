@@ -5238,7 +5238,7 @@ rats-nest" command after moving parts around.
 After the placement is complete, use the line tool to add traces to the
 board.  As traces are added, the corresponding rats line will disappear.
 
-@section Forward Annotation of Schematic Changes
+@subsection Forward Annotation of Schematic Changes
 If schematic changes are made after the layout has started,
 @code{gsch2pcb} can be used to forward annotate these changes to the
 layout.  To forward annotate schematic changes, run @samp{gsch2pcb
