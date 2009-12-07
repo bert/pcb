@@ -5,6 +5,7 @@
 %  PCB, interactive printed circuit board design
 %  Copyright (C) 1994, 1995 Thomas Nau
 %  Copyright (C) 1998, 1999, 2000, 2001 harry eaton
+%  Copyright (C) 2009 Chitlesh Goorah
 %
 %  This program is free software; you can redistribute it and/or modify
 %  it under the terms of the GNU General Public License as published by
@@ -25,34 +26,41 @@
 %  Thomas.Nau@rz.uni-ulm.de
 
 
-\documentstyle[11pt]{article}
+\documentclass[11pt,landscape]{article}
+\usepackage{multicol}
+\usepackage{calc}
+\usepackage{ifthen}
+\usepackage[landscape,left=2.5cm,top=2cm,right=2cm,bottom=2cm,nohead]{geometry}
 
-%------------------------------------------------------------------
-% redefine page size to be A4 landscape, no margins
-%
-\special{papersize=297mm,210mm}
+% Turn off header and footer
+\pagestyle{empty}
+ 
+% Redefine section commands to use less space
+\makeatletter
+\renewcommand{\section}{\@startsection{section}{1}{0mm}%
+  {-1ex plus -.5ex minus -.2ex}%
+  {0.5ex plus .2ex}%x
+  {\normalfont\large\bfseries}}
+\renewcommand{\subsection}{\@startsection{subsection}{2}{0mm}%
+  {-1explus -.5ex minus -.2ex}%
+  {0.5ex plus .2ex}%
+  {\normalfont\normalsize\bfseries}}
+\renewcommand{\subsubsection}{\@startsection{subsubsection}{3}{0mm}%
+  {-1ex plus -.5ex minus -.2ex}%
+  {1ex plus .2ex}%
+  {\normalfont\small\bfseries}}
+\makeatother
 
-\textwidth 27.16cm   \hsize\textwidth
-\textheight 18.46cm  \vsize\textheight
-\voffset -0.2in
-\hoffset -0.5in
+% Define BibTeX command
+\def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
+    T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
 
-\topmargin 0cm
-\headheight 0cm
-\headsep 0cm
-\topskip 0cm
-\footskip 0cm
-\footheight 1cm
-\oddsidemargin 0cm
-\evensidemargin 0cm
-\marginparwidth 0cm
+% Don't print section numbers
+\setcounter{secnumdepth}{0}
 
-%------------------------------------------------------------------
-% size of a single box
-%
-\def\BoxWidth{8.7cm}
-\def\BoxHeight{15cm}
-\def\BoxRaise{-\BoxHeight}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0pt plus 0.5ex}
 
 %------------------------------------------------------------------
 % some new commands to define the modifier keys
@@ -63,38 +71,53 @@
 \newcommand{\Btn}{{\it Btn}}
 \newcommand{\Fun}{{\it F}}
 
-\thispagestyle{empty}
-
 \begin{document}
+\raggedright
+\footnotesize
+\begin{multicols}{3}
 
-\centerline{\Huge\bf PCB-1.99j-mag1 command reference
-{\scriptsize \copyright 1998, 1999, 2000, 2001 harry eaton}}
-\bigskip
-\small
 
-\hfill
-\begin{minipage}[t]{\BoxWidth}
-\renewcommand{\thefootnote}{\arabic{footnote}}
-\fbox{\rule[\BoxRaise]{0cm}{\BoxHeight} \begin{tabular}[t]{ll}
-\multicolumn{2}{c}{\bf misc operations} \\
-backspace & remove object \\
-\Shift\Ctrl\Btn1 & remove object \\
+% multicol parameters
+% These lengths are set only within the two main columns
+%\setlength{\columnseprule}{0.25pt}
+\setlength{\premulticols}{1pt}
+\setlength{\postmulticols}{1pt}
+\setlength{\multicolsep}{1pt}
+\setlength{\columnsep}{2pt}
+
+\begin{center}
+  \Large{\textbf{PCB Command reference}}
+  \footnote{http://pcb.gpleda.org/index.html}
+  \footnote{Obviously \Shift, \Ctrl, \Mod, \Fun \space and \Btn \space mean the shift,
+    control, modifier1 (BTNMOD for buttons), function key and mouse button.} \\
+\end{center}
+
+\section{Misc operations}
+\begin{tabular}{@{}ll@{}}
+backspace    & remove object \\
+\Shift\Ctrl\Btn1  & remove object \\
 scroll wheel & vertical pan \\
-\Shift scroll wheel & horizontal pan \\
-\Btn1 & current mode action \\
+\Shift scroll wheel  & horizontal pan \\
+\Btn1  & current mode action\\
 u & undo operation \\
 \Shift r & redo operation \\
 \Shift\Ctrl u & clear undo-list \\
 tab & switch viewing side \\
 cursor key & move crosshair 1 grid\\
-\Shift cursor key & move crosshair 10 grid\\
- & \\
-\multicolumn{2}{c}{\bf connections} \\
+\Shift cursor key! & move crosshair 10 grid\\
+\end{tabular}
+
+
+\section{Connections}
+\begin{tabular}{@{}ll@{}}
 \Shift f & reset found connections \\
 f & find connections \\
 \Shift backspace & remove connections \\
- & \\
-\multicolumn{2}{c}{\bf user (:) commands} \\
+\end{tabular}
+
+
+\section{User (:) commands}
+\begin{tabular}{@{}ll@{}}
 :DRC() & check layout for rule violations \\
 :l [file] & load data file \\
 :le [file] & load element to buffer \\
@@ -102,8 +125,10 @@ f & find connections \\
 :q & quit application \\
 :rn [file] & load netlist \\
 :s [file] & save data as file \\
- & \\
-\multicolumn{2}{c}{\bf display} \\
+\end{tabular}
+
+\section{Display}
+\begin{tabular}{@{}ll@{}}
 c & center display \\
 g & increase grid spacing \\
 \Shift g & decrease grid spacing \\
@@ -113,69 +138,79 @@ z & zoom in \\
 \Shift z & zoom out \\
 v & zoom extents \\
 \Shift\Btn3 & temporary zoom extents \\
-\end{tabular}}
-\end{minipage}
-%
-%
-%
-\hfill
-\begin{minipage}[t]{\BoxWidth}
-\fbox{\rule[\BoxRaise]{0cm}{\BoxHeight} \begin{tabular}[t]{ll}
-\multicolumn{2}{c}{\bf selection} \\
+\end{tabular}
+
+
+\section{Selections}
+\begin{tabular}{@{}ll@{}}
 \Btn2 & select/deselect object \\
 \Shift\Btn2 & toggle object to selection \\
 drag \Btn2 & select only objects in box \\
 drag \Shift\Btn2 & add box to selection \\
 \Shift m & move selected to current layer \\
- & \\
-\multicolumn{2}{c}{\bf copy and move} \\
+\end{tabular}
+
+
+\section{Copy and move}
+\begin{tabular}{@{}ll@{}}
 drag \Btn2 & move object or selection\\
 drag \Mod\Btn2 & copy object \\
 drag \Shift\Mod\Btn2 & override rubberband \& move \\
 m & move to current layer \\
- & \\
-\multicolumn{2}{c}{\bf pastebuffer} \\
+\end{tabular}
+
+
+\section{Pastebuffer}
+\begin{tabular}{@{}ll@{}}
 \Ctrl x & copy selected objects to buffer \\
         & and enter pastebuffer mode \\
 \Shift \Ctrl x & cut selected objects to buffer \\
         & and enter pastebuffer mode \\
 \Btn1 & in pastebuffer mode copy to layout \\
 \Ctrl 1$\cdots$5 & select buffer \# 1$\cdots$5 \\
- & \\
-\multicolumn{2}{c}{\bf sizing} \\
+\end{tabular}
+
+
+\section{Sizing}
+\begin{tabular}{@{}ll@{}}
 s & increase size of TLAPV \footnote{TLAPV: text, line, arc, pin or via}\\
 \Shift s & decrease size of TLAPV\\
 \Mod s & increase drill size of PV \\
 \Shift\Mod s & decrease drill size of PV \\
 k & increase clearance of LAPV\\
 \Shift\ k & decrease clearance of LAPV\\
-& \\
-\multicolumn{2}{c}{\bf element} \\
+\end{tabular}
+
+
+\section{Element}
+\begin{tabular}{@{}ll@{}}
 d & display pinout \\
 \Shift d & open pinout window \\
 h & hide/show element name \\
 n & change element name \\
- & \\
-\multicolumn{2}{c}{\bf pin/pad} \\
+\end{tabular}
+
+
+\section{Pin/pad}
+\begin{tabular}{@{}ll@{}}
 n & change name \\
 q & toggle square flag \\
-\end{tabular}}
-\end{minipage}
-%
-%
-%
-\hfill
-\begin{minipage}[t]{\BoxWidth}
-\fbox{\rule[\BoxRaise]{0cm}{\BoxHeight} \begin{tabular}[t]{ll}
-\multicolumn{2}{c}{\bf via} \\
+\end{tabular}
+
+
+\section{Via}
+\begin{tabular}{@{}ll@{}}
 \Fun1 & enter via-mode \\
 \Ctrl v & increase initial size \\
 \Shift \Ctrl v & decrease initial size \\
 \Mod v & inc. initial drilling hole \\
 \Shift\Mod v & dec. initial drilling hole \\
 \Ctrl h & convert via to mounting hole \\
- & \\
-\multicolumn{2}{c}{\bf lines/arcs} \\
+\end{tabular}
+
+
+\section{Lines and arcs}
+\begin{tabular}{@{}ll@{}}
 \Fun2 & enter line mode \\
 \Fun3 & enter arc mode \\
 l & increase initial line size \\
@@ -183,32 +218,39 @@ l & increase initial line size \\
 period & toggle 45 degree enforcement \\
 / & cycle multiline mode \\
 \Shift & override multiline mode \\
- & \\
-\multicolumn{2}{c}{\bf polygon} \\
+\end{tabular}
+
+
+\section{Polygon}
+\begin{tabular}{@{}ll@{}}
 \Fun5 & enter rectangle-mode \\
 \Fun6 & enter polygon-mode \\
 \Shift p & close path \\
 insert & enter insert point mode \\
- & \\
-\multicolumn{2}{c}{\bf text} \\
+\end{tabular}
+
+
+\section{Text}
+\begin{tabular}{@{}ll@{}}
 \Fun4 & enter text-mode \\
 n & edit string \\
 t & increase initial text size \\
 \Shift t & decrease initial text size \\
- & \\
-\multicolumn{2}{c}{\bf rats nest} \\
+\end{tabular}
+
+
+\section{Rats nest}
+\begin{tabular}{@{}ll@{}}
 w & add all rats \\
 \Shift w & add rats to selected pins/pads \\
 e & delete all rats \\
 \Shift e & delete selected rats \\
 o & optimize all rats \\
 \Shift o & optimize selected rats \\
-\end{tabular}}
-\end{minipage}
-\hfill
+\end{tabular}
 
-\medskip
-Obviously \Shift, \Ctrl, \Mod, \Fun \space and \Btn \space mean the shift,
-control, modifier1 (BTNMOD for buttons), function key and mouse button.
+
+\end{multicols}
+
 
 \end{document}
