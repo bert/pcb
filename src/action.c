@@ -1456,7 +1456,7 @@ NotifyMode (void)
 		    memcpy (estr, e->Name,
 			    MAX_ELEMENTNAMES * sizeof (TextType));
 		    for (i = 0; i < MAX_ELEMENTNAMES; ++i)
-		      estr[i].TextString = strdup(estr[i].TextString);
+		      estr[i].TextString = estr[i].TextString ? strdup(estr[i].TextString) : NULL;
 		    RemoveElement (e);
 		  }
 	      }
