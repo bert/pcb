@@ -63,6 +63,7 @@
 #define TOPOROUTER_FLAG_AFTERORDER    (1<<6)
 #define TOPOROUTER_FLAG_AFTERRUBIX    (1<<7)
 #define TOPOROUTER_FLAG_GOFAR         (1<<8)
+#define TOPOROUTER_FLAG_DETOUR        (1<<9)
 
 #if TOPO_OUTPUT_ENABLED
   #include <cairo.h>
@@ -70,7 +71,7 @@
 
 #define EPSILON 0.0001f
 
-#define DEBUG_ROAR 1
+//#define DEBUG_ROAR 1
 
 #define coord_distance(a,b,c,d) sqrt(pow(a-c,2)+pow(b-d,2))
 #define coord_distance2(a,b,c,d) (pow(a-c,2)+pow(b-d,2))
@@ -101,6 +102,8 @@
 #define tev1y(e) (vy(tedge_v1(e))
 #define tev2x(e) (vx(tedge_v2(e))
 #define tev2y(e) (vy(tedge_v2(e))
+
+#define tvertex_intersect(a,b,c,d) (TOPOROUTER_VERTEX(vertex_intersect(GTS_VERTEX(a),GTS_VERTEX(b),GTS_VERTEX(c),GTS_VERTEX(d))))
 
 #define TOPOROUTER_IS_BBOX(obj)      (gts_object_is_from_class (obj, toporouter_bbox_class ()))
 #define TOPOROUTER_BBOX(obj)          GTS_OBJECT_CAST (obj, toporouter_bbox_t, toporouter_bbox_class ())
@@ -236,30 +239,6 @@ typedef struct {
 typedef struct _toporouter_constraint_t toporouter_constraint_t;
 typedef struct _toporouter_constraint_class_t toporouter_constraint_class_t;
 
-typedef enum {
-  INCIDENT,
-  ATTACHED,
-  ATTACHED_TEMP
-} attachment_type_t;
-
-typedef enum {
-  CCW,
-  CW
-} toporouter_direction_t;
-
-typedef struct {
-  gdouble r;
-  gdouble angle;
-  toporouter_vertex_t *a, *b, *p;
-
-  char *netlist, *style;
-} toporouter_attachment_t;
-
-typedef struct {
-  toporouter_vertex_t *v;
-  GList *edges;
-} toporouter_visibility_t;
-
 typedef struct {
   GtsSurface *surface;
 //  GtsTriangle *t;
@@ -324,6 +303,8 @@ struct _toporouter_netlist_t {
   GPtrArray *clusters, *routes;
   char *netlist, *style;
   GList *routed;
+
+  struct _toporouter_netlist_t *pair;
 };
 
 typedef struct _toporouter_netlist_t toporouter_netlist_t;
