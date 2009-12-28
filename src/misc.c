@@ -1121,6 +1121,8 @@ LayerStringToLayerStack (char *s)
   PCB->PinOn = False;
   PCB->ViaOn = False;
   PCB->RatOn = False;
+  CLEAR_FLAG (SHOWMASKFLAG, PCB);
+  Settings.ShowSolderSide = 0;
 
   for (i=argn-1; i>=0; i--)
     {
@@ -1132,8 +1134,13 @@ LayerStringToLayerStack (char *s)
 	PCB->PinOn = True;
       else if (strcasecmp (args[i], "vias") == 0)
 	PCB->ViaOn = True;
-      else if (strcasecmp (args[i], "elements") == 0)
+      else if (strcasecmp (args[i], "elements") == 0
+	       || strcasecmp (args[i], "silk") == 0)
 	PCB->ElementOn = True;
+      else if (strcasecmp (args[i], "mask") == 0)
+	SET_FLAG (SHOWMASKFLAG, PCB);
+      else if (strcasecmp (args[i], "solderside") == 0)
+	Settings.ShowSolderSide = 1;
       else if (isdigit ((int) args[i][0]))
 	{
 	  lno = atoi (args[i]);
@@ -1158,6 +1165,7 @@ LayerStringToLayerStack (char *s)
 		  listed_layers = 1;
 		  for (lno=0; lno < max_layer; lno ++)
 		    fprintf(stderr, "\t%s\n", PCB->Data->Layer[lno].Name);
+		  fprintf(stderr, "Also: component, solder, rats, invisible, pins, vias, elements or silk, mask, solderside.\n");
 		}
 	    }
 	}

@@ -1,4 +1,4 @@
-/*
+ /*
  *                            COPYRIGHT
  *
  *  PCB, interactive printed circuit board design
@@ -60,9 +60,11 @@ static double bloat = 0;
 static double scale = 1;
 static int x_shift = 0;
 static int y_shift = 0;
-#define SCALE(x)   ((int)((x)/scale + 0.5))
+static int show_solder_side;
+#define SCALE(w)   ((int)((w)/scale + 0.5))
 #define SCALE_X(x) ((int)(((x) - x_shift)/scale))
-#define SCALE_Y(x) ((int)(((x) - y_shift)/scale))
+#define SCALE_Y(y) ((int)(((show_solder_side ? (PCB->MaxHeight-(y)) : (y)) - y_shift)/scale))
+#define SWAP_IF_SOLDER(a,b) do { int c; if (show_solder_side) { c=a; a=b; b=c; }} while (0)
 
 /* The result of a failed gdImageColorAllocate() call */
 #define BADC -1
@@ -83,20 +85,18 @@ typedef struct hid_gc_struct
   EndCapStyle cap;
   int width;
   unsigned char r, g, b;
-  int erase;
   int faded;
   color_struct *color;
   gdImagePtr brush;
 } hid_gc_struct;
 
 static color_struct *black = NULL, *white = NULL;
-static gdImagePtr im = NULL, master_im;
+static gdImagePtr im = NULL, master_im, mask_im = NULL;
 static FILE *f = 0;
 static int linewidth = -1;
 static int lastgroup = -1;
 static gdImagePtr lastbrush = (void *) -1;
 static int lastcap = -1;
-static int lastcolor = -1;
 static int print_group[MAX_LAYER];
 static int print_layer[MAX_LAYER];
 
@@ -309,6 +309,7 @@ png_hid_export_to_file (FILE * the_file, HID_Attr_Val * options)
 {
   int i;
   static int saved_layer_stack[MAX_LAYER];
+  int saved_show_solder_side;
   BoxType region;
   FlagType save_flags;
 
@@ -340,14 +341,19 @@ png_hid_export_to_file (FILE * the_file, HID_Attr_Val * options)
       print_layer[i] = 1;
 
   memcpy (saved_layer_stack, LayerStack, sizeof (LayerStack));
+  save_flags = PCB->Flags;
+  saved_show_solder_side = Settings.ShowSolderSide;
+
   as_shown = options[HA_as_shown].int_value;
   if (!options[HA_as_shown].int_value)
     {
+      CLEAR_FLAG (SHOWMASKFLAG, PCB);
+      Settings.ShowSolderSide = 0;
+
       comp_layer = GetLayerGroupNumberByNumber (max_layer + COMPONENT_LAYER);
       solder_layer = GetLayerGroupNumberByNumber (max_layer + SOLDER_LAYER);
       qsort (LayerStack, max_layer, sizeof (LayerStack[0]), layer_sort);
 
-      save_flags = PCB->Flags;
       CLEAR_FLAG(THINDRAWFLAG, PCB);
       CLEAR_FLAG(THINDRAWPOLYFLAG, PCB);
 
@@ -377,19 +383,26 @@ png_hid_export_to_file (FILE * the_file, HID_Attr_Val * options)
   lastbrush = (void *) -1;
   lastcap = -1;
   lastgroup = -1;
-  lastcolor = -1;
-  lastgroup = -1;
+  show_solder_side = Settings.ShowSolderSide;
 
   in_mono = options[HA_mono].int_value;
+
+  if (!photo_mode && Settings.ShowSolderSide)
+    {
+      int i, j;
+      for (i=0, j=max_layer-1; i<j; i++, j--)
+	{
+	  int k = LayerStack[i];
+	  LayerStack[i] = LayerStack[j];
+	  LayerStack[j] = k;
+	}
+    }
 
   hid_expose_callback (&png_hid, bounds, 0);
 
   memcpy (LayerStack, saved_layer_stack, sizeof (LayerStack));
-
-  if (!options[HA_as_shown].int_value)
-    {
-      PCB->Flags = save_flags;
-    }
+  PCB->Flags = save_flags;
+  Settings.ShowSolderSide = saved_show_solder_side;
 }
 
 static void
@@ -646,9 +659,11 @@ png_do_export (HID_Attr_Val * options)
   white->c = gdImageColorAllocateAlpha (im, white->r, white->g, white->b, white->a);
   if (white->c == BADC) 
     {
-      Message ("%s():  gdImageColorAllocateAlpha() returned NULL.  Aborting export.\n", __FUNCTION__, w, h);
+      Message ("%s():  gdImageColorAllocateAlpha() returned NULL.  Aborting export.\n", __FUNCTION__);
       return;
     }
+
+  gdImageFilledRectangle (im, 0, 0, gdImageSX (im), gdImageSY (im), white->c);
 
   black = (color_struct *) malloc (sizeof (color_struct));
   black->r = black->g = black->b = black->a = 0;
@@ -1025,7 +1040,40 @@ png_destroy_gc (hidGC gc)
 static void
 png_use_mask (int use_it)
 {
-  /* does nothing */
+  if (use_it == HID_MASK_CLEAR)
+    {
+      return;
+    }
+  if (use_it)
+    {
+      if (mask_im == NULL)
+	{
+	  mask_im = gdImageCreate (gdImageSX (im), gdImageSY (im));
+	  if (!mask_im)
+	    {
+	      Message ("%s():  gdImageCreate(%d, %d) returned NULL.  Corrupt export!\n",
+		       __FUNCTION__, gdImageSY (im), gdImageSY (im));
+	      return;
+	    }
+	  gdImagePaletteCopy (mask_im, im);
+	}
+      im = mask_im;
+      gdImageFilledRectangle (mask_im, 0, 0, gdImageSX (mask_im), gdImageSY (mask_im), white->c);
+    }
+  else
+    {
+      int x, y, c;
+
+      im = master_im;
+
+      for (x=0; x<gdImageSX (im); x++)
+	for (y=0; y<gdImageSY (im); y++)
+	  {
+	    c = gdImageGetPixel (mask_im, x, y);
+	    if (c)
+	      gdImageSetPixel (im, x, y, c);
+	  }
+    }
 }
 
 static void
@@ -1041,12 +1089,9 @@ png_set_color (hidGC gc, const char *name)
 
   if (strcmp (name, "erase") == 0 || strcmp (name, "drill") == 0)
     {
-      /* FIXME -- should be background, not white */
       gc->color = white;
-      gc->erase = 1;
       return;
     }
-  gc->erase = 0;
 
   if (in_mono || (strcmp (name, "#000000") == 0))
     {
@@ -1064,7 +1109,7 @@ png_set_color (hidGC gc, const char *name)
       sscanf (name + 1, "%2x%2x%2x", &(gc->color->r), &(gc->color->g),
 	      &(gc->color->b));
       gc->color->c =
-	gdImageColorAllocate (im, gc->color->r, gc->color->g, gc->color->b);
+	gdImageColorAllocate (master_im, gc->color->r, gc->color->g, gc->color->b);
       if (gc->color->c == BADC) 
 	{
 	  Message ("%s():  gdImageColorAllocate() returned NULL.  Aborting export.\n", __FUNCTION__);
@@ -1178,6 +1223,7 @@ use_gc (hidGC gc)
 	      Message ("%s():  gdImageCreate(%d, %d) returned NULL.  Aborting export.\n", __FUNCTION__, r, r);
 	      return;
 	    }
+
 	  bg = gdImageColorAllocate (gc->brush, 255, 255, 255);
 	  if (bg == BADC) 
 	    {
@@ -1222,38 +1268,6 @@ use_gc (hidGC gc)
       lastbrush = gc->brush;
 
     }
-
-#define CBLEND(gc) (((gc->r)<<24)|((gc->g)<<16)|((gc->b)<<8)|(gc->faded))
-  if (lastcolor != CBLEND (gc))
-    {
-      if (is_drill || is_mask)
-	{
-#ifdef FIXME
-	  fprintf (f, "%d gray\n", gc->erase ? 0 : 1);
-#endif
-	  lastcolor = 0;
-	}
-      else
-	{
-	  double r, g, b;
-	  r = gc->r;
-	  g = gc->g;
-	  b = gc->b;
-	  if (gc->faded)
-	    {
-	      r = 0.8 * 255 + 0.2 * r;
-	      g = 0.8 * 255 + 0.2 * g;
-	      b = 0.8 * 255 + 0.2 * b;
-	    }
-#ifdef FIXME
-	  if (gc->r == gc->g && gc->g == gc->b)
-	    fprintf (f, "%g gray\n", r / 255.0);
-	  else
-	    fprintf (f, "%g %g %g rgb\n", r / 255.0, g / 255.0, b / 255.0);
-#endif
-	  lastcolor = CBLEND (gc);
-	}
-    }
 }
 
 static void
@@ -1284,6 +1298,7 @@ png_fill_rect (hidGC gc, int x1, int y1, int x2, int y2)
       y2 = y2;
       y2 = t;
     }
+  SWAP_IF_SOLDER (y1, y2);
 
   gdImageFilledRectangle (im, SCALE_X (x1-bloat), SCALE_Y (y1-bloat),
 			  SCALE_X (x2+bloat)-1, SCALE_Y (y2+bloat)-1, gc->color->c);
@@ -1318,14 +1333,14 @@ png_draw_line (hidGC gc, int x1, int y1, int x2, int y2)
 				    gc->color->b),
 	w = gc->width, dx = x2 - x1, dy = y2 - y1, dwx, dwy;
       gdPoint p[4];
-      double l = sqrt (dx * dx + dy * dy) * 2 * scale;
+      double l = sqrt (dx * dx + dy * dy) * 2;
 
       w += 2 * bloat;
       dwx = -w / l * dy; dwy =  w / l * dx;
-      p[0].x = SCALE_X (x1) + dwx - dwy; p[0].y = SCALE_Y(y1) + dwy + dwx;
-      p[1].x = SCALE_X (x1) - dwx - dwy; p[1].y = SCALE_Y(y1) - dwy + dwx;
-      p[2].x = SCALE_X (x2) - dwx + dwy; p[2].y = SCALE_Y(y2) - dwy - dwx;
-      p[3].x = SCALE_X (x2) + dwx + dwy; p[3].y = SCALE_Y(y2) + dwy - dwx;
+      p[0].x = SCALE_X (x1 + dwx - dwy); p[0].y = SCALE_Y(y1 + dwy + dwx);
+      p[1].x = SCALE_X (x1 - dwx - dwy); p[1].y = SCALE_Y(y1 - dwy + dwx);
+      p[2].x = SCALE_X (x2 - dwx + dwy); p[2].y = SCALE_Y(y2 - dwy - dwx);
+      p[3].x = SCALE_X (x2 + dwx + dwy); p[3].y = SCALE_Y(y2 + dwy - dwx);
       gdImageFilledPolygon (im, p, 4, fg);
     }
 }
@@ -1342,6 +1357,11 @@ png_draw_arc (hidGC gc, int cx, int cy, int width, int height,
    */
   start_angle = 180 - start_angle;
   delta_angle = -delta_angle;
+  if (show_solder_side)
+    {
+      start_angle = - start_angle;
+      delta_angle = -delta_angle;
+    }
   if (delta_angle > 0)
     {
       sa = start_angle;
@@ -1439,7 +1459,7 @@ HID png_hid = {
   1,				/* exporter */
   1,				/* poly before */
   0,				/* poly after */
-  0,				/* poly dicer */
+  1,				/* poly dicer */
   png_get_export_options,
   png_do_export,
   png_parse_arguments,
