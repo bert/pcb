@@ -29,6 +29,7 @@ MainMenu =
 {
   {File
    {"About..." About()}
+   {"Import Schematics" Import() }
    {"Save layout" Save(Layout)}
    {"Save layout as..." Save(LayoutAs)}
 	{"Revert" Load(Revert,none)}

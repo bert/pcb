@@ -1882,6 +1882,25 @@ pcb_author (void)
 }
 
 
+char *
+AttributeGetFromList (AttributeListType *list, char *name)
+{
+  int i;
+  for (i=0; i<list->Number; i++)
+    if (strcmp (name, list->List[i].name) == 0)
+      return list->List[i].value;
+  return NULL;
+}
+
+int
+AttributePutToList (AttributeListType *list, char *name, char *value, int replace)
+{
+  /* Not implemented yet.  */
+  abort ();
+}
+
+
+
 const char *
 c_dtostr (double d)
 {

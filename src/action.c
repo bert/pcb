@@ -6936,8 +6936,8 @@ ActionElementAddIf (int argc, char **argv, int x, int y)
       pe = & PASTEBUFFER->Data->Element[0];
       pr = ElementOrientation (pe);
 
-      mx = e->MarkX - pe->MarkX;
-      my = e->MarkY - pe->MarkY;
+      mx = e->MarkX;
+      my = e->MarkY;
 
       if (er != pr)
 	RotateElementLowLevel (PASTEBUFFER->Data, pe, pe->MarkX, pe->MarkY, (er-pr+4)%4);
@@ -7088,6 +7088,231 @@ ActionExecCommand (int argc, char **argv, int x, int y)
 
   if (system (command))
     return 1;
+  return 0;
+}
+
+static const char import_syntax[] =
+  "Import()\n"
+  "Import([gnetlist|make[,source,source,...]])\n";
+
+static const char import_help[] = "Import schematics";
+
+/* %start-doc actions import
+
+Imports element and netlist data from the schematics (or some other
+source).  The first parameter, which is optional, is the mode.  If not
+specified, the @code{import::mode} attribute in the PCB is used.
+@code{gnetlist} means gnetlist is used to obtain the information from
+the schematics.  @code{make} invokes @code{make}, assuming the user
+has a @code{Makefile} in the current directory.  The @code{Makefile}
+will be invoked with the following variables set:
+
+@table @code
+
+@item PCB
+The name of the .pcb file
+
+@item SRCLIST
+A space-separated list of source files
+
+@item OUT
+The name of the file in which to put the command script.
+
+@end table
+
+The target requested will be @code{pcb_import}.
+
+If you specify the mode, you may also specify the source files
+(schematics).  If you do not specify any, the list of schematics is
+obtained by reading the @code{import::src@var{N}} attributes (like
+@code{import::src0}, @code{import::src1}, etc).
+
+%end-doc */
+
+static int
+pcb_spawnvp (char **argv)
+{
+  int pid;
+  pid = fork ();
+  if (pid < 0)
+    {
+      /* error */
+      Message("Cannot fork!");
+      return 1;
+    }
+  else if (pid == 0)
+    {
+      /* Child */
+      execvp (argv[0], argv);
+      exit(1);
+    }
+  else
+    {
+      int rv;
+      /* Parent */
+      wait (&rv);
+    }
+  return 0;
+}
+
+static int
+ActionImport (int argc, char **argv, int x, int y)
+{
+  char *mode;
+  char **sources = NULL;
+  int nsources = 0;
+
+  mode = ARG (0);
+  if (! mode)
+    mode = AttributeGet (PCB, "import::mode");
+  if (! mode)
+    mode = "gnetlist";
+
+  if (argc > 1)
+    {
+      sources = argv + 1;
+      nsources = argc - 1;
+    }
+
+  if (! sources)
+    {
+      char sname[40];
+      char *src;
+
+      nsources = -1;
+      do {
+	nsources ++;
+	sprintf(sname, "import::src%d", nsources);
+	src = AttributeGet (PCB, sname);
+      } while (src);
+
+      if (nsources > 0)
+	{
+	  sources = (char **) malloc ((nsources + 1) * sizeof (char *));
+	  nsources = -1;
+	  do {
+	    nsources ++;
+	    sprintf(sname, "import::src%d", nsources);
+	    src = AttributeGet (PCB, sname);
+	    sources[nsources] = src;
+	  } while (src);
+	}
+    }
+
+  if (! sources)
+    {
+      /* Replace .pcb with .sch and hope for the best.  */
+      char *pcbname = PCB->Filename;
+      char *schname;
+      char *dot, *slash, *bslash;
+
+      schname = (char *) malloc (strlen(pcbname) + 5);
+      strcpy (schname, pcbname);
+      dot = strchr (schname, '.');
+      slash = strchr (schname, '/');
+      bslash = strchr (schname, '\\');
+      if (dot && slash && dot < slash)
+	dot = NULL;
+      if (dot && bslash && dot < bslash)
+	dot = NULL;
+      if (dot)
+	*dot = 0;
+      strcat (schname, ".sch");
+
+      sources = (char **) malloc (2 * sizeof (char *));
+      sources[0] = schname;
+      sources[1] = NULL;
+      nsources = 1;
+    }
+
+  if (strcasecmp (mode, "gnetlist") == 0)
+    {
+      char *tmpfile = tmpnam (NULL);
+      char **cmd;
+      int i, pid;
+      cmd = (char **) malloc ((6 + nsources) * sizeof (char *));
+      cmd[0] = "gnetlist";
+      cmd[1] = "-g";
+      cmd[2] = "pcblf";
+      cmd[3] = "-o";
+      cmd[4] = tmpfile;
+      for (i=0; i<nsources; i++)
+	cmd[5+i] = sources[i];
+      cmd[5+nsources] = NULL;
+
+      if (pcb_spawnvp (cmd))
+	{
+	  unlink (tmpfile);
+	  return 1;
+	}
+
+      cmd[0] = tmpfile;
+      cmd[1] = NULL;
+      ActionExecuteFile (1, cmd, 0, 0);
+
+      free (cmd);
+      unlink (tmpfile);
+    }
+  else if (strcasecmp (mode, "make") == 0)
+    {
+      char *tmpfile = tmpnam (NULL);
+      char **cmd;
+      int i, pid;
+      char *srclist;
+      int srclen;
+
+      srclen = sizeof("SRCLIB=") + 2;
+      for (i=0; i<nsources; i++)
+	srclen += strlen (sources[i]) + 2;
+      srclist = (char *) malloc (srclen);
+      strcpy (srclist, "SRCLIST=");
+      for (i=0; i<nsources; i++)
+	{
+	  if (i)
+	    strcat (srclist, " ");
+	  strcat (srclist, sources[i]);
+	}
+
+      printf("Makefile!\n");
+      
+      cmd = (char **) malloc (7 * sizeof (char *));
+      cmd[0] = "make";
+      cmd[1] = "-s";
+      cmd[2] = Concat ("PCB=", PCB->Filename, NULL);
+      cmd[3] = srclist;
+      cmd[4] = Concat ("OUT=", tmpfile, NULL);
+      cmd[5] = "pcb_import";
+      cmd[6] = NULL;
+
+      if (pcb_spawnvp (cmd))
+	{
+	  unlink (tmpfile);
+	  free (cmd[2]);
+	  free (cmd[3]);
+	  free (cmd[4]);
+	  free (cmd);
+	  return 1;
+	}
+
+      cmd[0] = tmpfile;
+      cmd[1] = NULL;
+      ActionExecuteFile (1, cmd, 0, 0);
+
+      free (cmd[2]);
+      free (cmd[3]);
+      free (cmd[4]);
+      free (cmd);
+      unlink (tmpfile);
+    }
+  else
+    {
+      Message ("Unknown import mode: %s\n", mode);
+      return 1;
+    }
+
+  DeleteRats (False);
+  AddAllRats (False, NULL);
+
   return 0;
 }
 
@@ -7281,6 +7506,9 @@ HID_Action action_action_list[] = {
   ,
   {"ExecCommand", 0, ActionExecCommand,
    execcommand_help, execcommand_syntax}
+  ,
+  {"Import", 0, ActionImport,
+   import_help, import_syntax}
   ,
 };
 

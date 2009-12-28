@@ -80,6 +80,18 @@ char *Concat (const char *, ...);	/* end with NULL */
 
 char *pcb_author ();
 
+/* Returns NULL if the name isn't found, else the value for that named
+   attribute.  */
+char *AttributeGetFromList (AttributeListType *list, char *name);
+/* Adds an attribute to the list.  If the attribute already exists,
+   whether it's replaced or a second copy added depends on
+   REPLACE.  */
+int AttributePutToList (AttributeListType *list, char *name, char *value, int replace);
+/* Simplistic version: Takes a pointer to an object, looks up attributes in it.  */
+#define AttributeGet(OBJ,name) AttributeGetFromList (&(OBJ->Attributes), name)
+/* Simplistic version: Takes a pointer to an object, sets attributes in it.  */
+#define AttributePut(OBJ,name,value) AttributePutToList (&(OBJ->Attributes), name, value, 1)
+
 /* For passing modified flags to other functions. */
 FlagType MakeFlags (unsigned int);
 FlagType OldFlags (unsigned int);
