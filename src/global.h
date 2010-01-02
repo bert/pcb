@@ -50,10 +50,12 @@
 #include <ctype.h>
 #include <sys/types.h>
 
+/* Forward declarations for structures the HIDs need.  */
 typedef struct BoxType BoxType, *BoxTypePtr;
 typedef struct polygon_st PolygonType, *PolygonTypePtr;
 typedef struct drc_violation_st DrcViolationType, *DrcViolationTypePtr;
 typedef struct rtree rtree_t;
+typedef struct AttributeListType AttributeListType, *AttributeListTypePtr;
 
 #include "hid.h"
 #include "polyarea.h"
@@ -192,11 +194,11 @@ typedef struct
   char *value;
 } AttributeType, *AttributeTypePtr;
 
-typedef struct
+struct AttributeListType
 {
   int Number, Max;
   AttributeType *List;
-} AttributeListType, *AttributeListTypePtr;
+};
 
 /* ---------------------------------------------------------------------------
  * the basic object types supported by PCB

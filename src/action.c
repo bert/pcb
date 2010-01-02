@@ -7316,11 +7316,129 @@ ActionImport (int argc, char **argv, int x, int y)
   return 0;
 }
 
+/* ------------------------------------------------------------ */
+
+static const char attributes_syntax[] =
+"Attributes(Layout|Layer|Element)\n"
+"Attributes(Layer,layername)";
+
+static const char attributes_help[] =
+"Let the user edit the attributes of the layout, current or given\n"
+"layer, or selected element.";
+
+/* %start-doc actions Attributes
+
+This just pops up a dialog letting the user edit the attributes of the
+pcb, an element, or a layer.
+
+%end-doc */
+
+
+static int
+ActionAttributes (int argc, char **argv, int x, int y)
+{
+  char *function = ARG (0);
+  char *layername = ARG (1);
+  char *buf;
+
+  if (!function)
+    AFAIL (attributes);
+
+  if (!gui->edit_attributes)
+    {
+      Message ("This GUI doesn't support Attribute Editing\n");
+      return 1;
+    }
+
+  switch (GetFunctionID (function))
+    {
+    case F_Layout:
+      {
+	gui->edit_attributes("Layout Attributes", &(PCB->Attributes));
+	return 0;
+      }
+
+    case F_Layer:
+      {
+	LayerType *layer = CURRENT;
+	if (layername)
+	  {
+	    int i;
+	    layer = NULL;
+	    for (i=0; i<max_layer; i++)
+	      if (strcmp (PCB->Data->Layer[i].Name, layername) == 0)
+		{
+		  layer = & (PCB->Data->Layer[i]);
+		  break;
+		}
+	    if (layer == NULL)
+	      {
+		Message ("No layer named %s\n", layername);
+		return 1;
+	      }
+	  }
+	buf = (char *) malloc (strlen (layer->Name) + strlen ("Layer X Attributes"));
+	sprintf (buf, "Layer %s Attributes", layer->Name);
+	gui->edit_attributes(buf, &(layer->Attributes));
+	free (buf);
+	return 0;
+      }
+
+    case F_Element:
+      {
+	int n_found = 0;
+	ElementType *e = NULL;
+	ELEMENT_LOOP (PCB->Data);
+	{
+	  if (TEST_FLAG (SELECTEDFLAG, element))
+	    {
+	      e = element;
+	      n_found ++;
+	    }
+	}
+	END_LOOP;
+	if (n_found > 1)
+	  {
+	    Message ("Too many elements selected\n");
+	    return 1;
+	  }
+	if (n_found == 0)
+	  {
+	    void *ptrtmp;
+	    gui->get_coords ("Click on an element", &x, &y);
+	    if ((SearchScreen
+		 (x, y, ELEMENT_TYPE, &ptrtmp,
+		  &ptrtmp, &ptrtmp)) != NO_TYPE)
+	      e = (ElementTypePtr) ptrtmp;
+	    else
+	      {
+		Message ("No element found there\n");
+		return 1;
+	      }
+	  }
+
+	buf = (char *) malloc (strlen (NAMEONPCB_NAME(e)) + strlen ("Element X Attributes"));
+	sprintf(buf, "Element %s Attributes", NAMEONPCB_NAME(e));
+	gui->edit_attributes(buf, &(e->Attributes));
+	free (buf);
+	break;
+      }
+
+    default:
+      AFAIL (attributes);
+    }
+
+  return 0;
+}
+
 /* --------------------------------------------------------------------------- */
 
 HID_Action action_action_list[] = {
   {"AddRats", 0, ActionAddRats,
    addrats_help, addrats_syntax}
+  ,
+  {"Attributes", 0, ActionAttributes,
+   attributes_help, attributes_syntax}
   ,
   {"Atomic", 0, ActionAtomic,
    atomic_help, atomic_syntax}

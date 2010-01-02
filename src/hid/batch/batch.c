@@ -515,7 +515,8 @@ HID batch_gui = {
   batch_show_item,
   batch_beep,
   batch_progress,
-  0 /* batch_drc_gui */
+  0 /* batch_drc_gui */ ,
+  0 /* batch_edit_attributes */
 };
 
 #include "dolists.h"

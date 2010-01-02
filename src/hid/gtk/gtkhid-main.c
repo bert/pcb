@@ -890,6 +890,223 @@ ghid_progress (int so_far, int total, const char *message)
 }
 
 /* ---------------------------------------------------------------------- */
+
+
+typedef struct {
+  GtkWidget *del;
+  GtkWidget *w_name;
+  GtkWidget *w_value;
+} AttrRow;
+
+static AttrRow *attr_row = 0;
+static int attr_num_rows = 0;
+static int attr_max_rows = 0;
+static AttributeListType *attributes_list;
+static GtkWidget *attributes_dialog, *attr_table;
+
+static void attributes_delete_callback (GtkWidget *w, void *v);
+
+#define GA_RESPONSE_REVERT	1
+#define GA_RESPONSE_NEW		2
+
+static void
+ghid_attr_set_table_size ()
+{
+  gtk_table_resize (GTK_TABLE (attr_table), attr_num_rows > 0 ? attr_num_rows : 1, 3);
+}
+
+static void
+ghid_attributes_need_rows (int new_max)
+{
+  if (attr_max_rows < new_max)
+    {
+      if (attr_row)
+	attr_row = (AttrRow *) realloc (attr_row, new_max * sizeof(AttrRow));
+      else
+	attr_row = (AttrRow *) malloc (new_max * sizeof(AttrRow));
+    }
+  while (attr_max_rows < new_max)
+    {
+      /* add [attr_max_rows] */
+      attr_row[attr_max_rows].del = gtk_button_new_with_label ("del");
+      gtk_table_attach (GTK_TABLE (attr_table), attr_row[attr_max_rows].del,
+			0, 1,
+			attr_max_rows, attr_max_rows+1,
+			GTK_FILL | GTK_EXPAND,
+			GTK_FILL,
+			0, 0);
+      g_signal_connect (G_OBJECT (attr_row[attr_max_rows].del), "clicked",
+			G_CALLBACK (attributes_delete_callback), (void *)attr_max_rows);
+
+      attr_row[attr_max_rows].w_name = gtk_entry_new ();
+      gtk_table_attach (GTK_TABLE (attr_table), attr_row[attr_max_rows].w_name,
+			1, 2,
+			attr_max_rows, attr_max_rows+1,
+			GTK_FILL | GTK_EXPAND,
+			GTK_FILL,
+			0, 0);
+
+      attr_row[attr_max_rows].w_value = gtk_entry_new ();
+      gtk_table_attach (GTK_TABLE (attr_table), attr_row[attr_max_rows].w_value,
+			2, 3,
+			attr_max_rows, attr_max_rows+1,
+			GTK_FILL | GTK_EXPAND,
+			GTK_FILL,
+			0, 0);
+
+      attr_max_rows ++;
+    }
+
+  /* Manage any previously unused rows we now need to show.  */
+  while (attr_num_rows < new_max)
+    {
+      /* manage attr_num_rows */
+      gtk_widget_show (attr_row[attr_num_rows].del);
+      gtk_widget_show (attr_row[attr_num_rows].w_name);
+      gtk_widget_show (attr_row[attr_num_rows].w_value);
+      attr_num_rows ++;
+    }
+}
+
+static void
+ghid_attributes_revert ()
+{
+  int i;
+
+  ghid_attributes_need_rows (attributes_list->Number);
+
+  /* Unmanage any previously used rows we don't need.  */
+  while (attr_num_rows > attributes_list->Number)
+    {
+      attr_num_rows --;
+      gtk_widget_hide (attr_row[attr_num_rows].del);
+      gtk_widget_hide (attr_row[attr_num_rows].w_name);
+      gtk_widget_hide (attr_row[attr_num_rows].w_value);
+    }
+
+  /* Fill in values */
+  for (i=0; i<attributes_list->Number; i++)
+    {
+      /* create row [i] */
+      gtk_entry_set_text (GTK_ENTRY (attr_row[i].w_name), attributes_list->List[i].name);
+      gtk_entry_set_text (GTK_ENTRY (attr_row[i].w_value), attributes_list->List[i].value);
+#if 0
+#endif
+    }
+  ghid_attr_set_table_size ();
+}
+
+static void
+attributes_delete_callback (GtkWidget *w, void *v)
+{
+  int i, n;
+  GtkWidget *wn, *wv;
+
+  n = (int) v;
+
+  for (i=n; i<attr_num_rows-1; i++)
+    {
+      gtk_entry_set_text (GTK_ENTRY (attr_row[i].w_name),
+			  gtk_entry_get_text (GTK_ENTRY (attr_row[i+1].w_name)));
+      gtk_entry_set_text (GTK_ENTRY (attr_row[i].w_value),
+			  gtk_entry_get_text (GTK_ENTRY (attr_row[i+1].w_value)));
+    }
+  attr_num_rows --;
+
+  gtk_widget_hide (attr_row[attr_num_rows].del);
+  gtk_widget_hide (attr_row[attr_num_rows].w_name);
+  gtk_widget_hide (attr_row[attr_num_rows].w_value);
+
+  ghid_attr_set_table_size ();
+}
+
+static void
+ghid_attributes (char *owner, AttributeListType *attrs)
+{
+  int response;
+
+  attributes_list = attrs;
+
+  attr_max_rows = 0;
+  attr_num_rows = 0;
+
+  attributes_dialog = gtk_dialog_new_with_buttons (owner,
+						   GTK_WINDOW (ghid_port.top_window),
+						   GTK_DIALOG_MODAL,
+						   GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+						   "Revert", GA_RESPONSE_REVERT,
+						   "New", GA_RESPONSE_NEW,
+						   GTK_STOCK_OK, GTK_RESPONSE_OK, NULL);
+
+  attr_table = gtk_table_new (attrs->Number, 3, 0);
+
+  gtk_box_pack_start (GTK_BOX (GTK_DIALOG (attributes_dialog)->vbox), attr_table, FALSE, FALSE, 0);
+    
+  gtk_widget_show (attr_table);
+
+  ghid_attributes_revert ();
+
+  while (1)
+    {
+      response = gtk_dialog_run (GTK_DIALOG (attributes_dialog));
+
+      if (response == GTK_RESPONSE_CANCEL)
+	break;
+
+      if (response == GTK_RESPONSE_OK)
+	{
+	  int i;
+	  /* Copy the values back */
+	  for (i=0; i<attributes_list->Number; i++)
+	    {
+	      if (attributes_list->List[i].name)
+		free (attributes_list->List[i].name);
+	      if (attributes_list->List[i].value)
+		free (attributes_list->List[i].value);
+	    }
+	  if (attributes_list->Max < attr_num_rows)
+	    {
+	      int sz = attr_num_rows * sizeof (AttributeType);
+	      if (attributes_list->List == NULL)
+		attributes_list->List = (AttributeType *) malloc (sz);
+	      else
+		attributes_list->List = (AttributeType *) realloc (attributes_list->List, sz);
+	      attributes_list->Max = attr_num_rows;
+	    }
+	  for (i=0; i<attr_num_rows; i++)
+	    {
+	      attributes_list->List[i].name = strdup (gtk_entry_get_text (GTK_ENTRY (attr_row[i].w_name)));
+	      attributes_list->List[i].value = strdup (gtk_entry_get_text (GTK_ENTRY (attr_row[i].w_value)));
+	      attributes_list->Number = attr_num_rows;
+	    }
+
+	  break;
+	}
+
+      if (response == GA_RESPONSE_REVERT)
+	{
+	  /* Revert */
+	  ghid_attributes_revert ();
+	}
+
+      if (response == GA_RESPONSE_NEW)
+	{
+	  ghid_attributes_need_rows (attr_num_rows + 1); /* also bumps attr_num_rows */
+
+	  gtk_entry_set_text (attr_row[attr_num_rows-1].w_name, "");
+	  gtk_entry_set_text (attr_row[attr_num_rows-1].w_value, "");
+
+	  ghid_attr_set_table_size ();
+	}
+    }
+
+  gtk_widget_destroy (attributes_dialog);
+  free (attr_row);
+  attr_row = NULL;
+}
+
+/* ---------------------------------------------------------------------- */
+
 HID_DRC_GUI ghid_drc_gui = {
   1,				/* log_drc_overview */
   0,				/* log_drc_details */
@@ -959,7 +1176,8 @@ HID ghid_hid = {
   ghid_show_item,
   ghid_beep,
   ghid_progress,
-  &ghid_drc_gui
+  &ghid_drc_gui,
+  ghid_attributes
 };
 
 /* ------------------------------------------------------------ 

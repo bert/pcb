@@ -55,6 +55,7 @@ extern char *lesstif_fileselect (const char *, const char *,
 				 char *, char *,
 				 const char *, int);
 extern void lesstif_log (const char *fmt, ...);
+extern void lesstif_attributes_dialog (char *, AttributeListType *);
 
 #define need_idle_proc lesstif_need_idle_proc
 #define show_crosshair lesstif_show_crosshair

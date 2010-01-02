@@ -1512,7 +1512,8 @@ HID png_hid = {
   0 /* png_show_item */ ,
   0 /* png_beep */ ,
   0 /* png_progress */ ,
-  0 /* png_drc_gui */
+  0 /* png_drc_gui */ ,
+  0 /* png_edit_attributes */
 };
 
 #include "dolists.h"

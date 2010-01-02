@@ -403,7 +403,8 @@ HID hid_nogui = {
   nogui_show_item,
   nogui_beep,
   nogui_progress,
-  0 /* nogui_drc_gui */
+  0 /* nogui_drc_gui */ ,
+  0 /* edit_attributes */
 };
 
 #define AD(x) if (!d->x) d->x = s->x
@@ -458,4 +459,5 @@ apply_default_hid (HID * d, HID * s)
   AD (beep);
   AD (progress);
   AD (drc_gui);
+  AD (edit_attributes);
 }

@@ -554,6 +554,8 @@ typedef enum
 
     HID_DRC_GUI *drc_gui;
 
+    void (*edit_attributes) (char *owner, AttributeListType *attrlist_);
+
   } HID;
 
 /* Call this as soon as possible from main().  No other HID calls are

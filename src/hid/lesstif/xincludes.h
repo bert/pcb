@@ -30,6 +30,7 @@
 #include <Xm/RowColumn.h>
 #include <Xm/Scale.h>
 #include <Xm/ScrollBar.h>
+#include <Xm/ScrolledW.h>
 #include <Xm/Separator.h>
 #include <Xm/Text.h>
 #include <Xm/TextF.h>

@@ -662,7 +662,8 @@ static HID eps_hid = {
   0 /* eps_show_item */ ,
   0 /* eps_beep */ ,
   0 /* eps_progress */ ,
-  0 /* eps_drc_gui */
+  0 /* eps_drc_gui */ ,
+  0 /* eps_edit_attributes */
 };
 
 void

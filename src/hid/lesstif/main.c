@@ -3821,7 +3821,8 @@ HID lesstif_gui = {
   lesstif_show_item,
   lesstif_beep,
   lesstif_progress,
-  0 /* lesstif_drc_gui */
+  0, /* lesstif_drc_gui */
+  lesstif_attributes_dialog
 };
 
 #include "dolists.h"

@@ -154,6 +154,10 @@ MainMenu =
    {" Change text on layout" ChangeName(Object) a={"N" "<Key>n"}}
    {" Edit name of layout" ChangeName(Layout)}
    {" Edit name of active layer" ChangeName(Layer)}
+   {"Edit Attributes..." foreground=grey50 sensitive=false}
+   {" Layout" Attributes(Layout)}
+   {" CurrentLayer" Attributes(Layer)}
+   {" Element" Attributes(Element)}
    -
    {"Board Sizes" AdjustSizes()}
    {"Route Styles"

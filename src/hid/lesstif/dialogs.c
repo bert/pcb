@@ -1664,6 +1664,352 @@ EditLayerGroups (int argc, char **argv, int x, int y)
 
 /* ------------------------------------------------------------ */
 
+typedef struct {
+  Widget del;
+  Widget w_name;
+  Widget w_value;
+} AttrRow;
+
+static AttrRow *attr_row = 0;
+static int attr_num_rows = 0;
+static int attr_max_rows = 0;
+static Widget attr_dialog = NULL, f_top;
+static AttributeListType *attributes_list;
+
+static void attributes_delete_callback (Widget w, void *v, void *cbs);
+
+static void
+fiddle_with_bb_layout ()
+{
+  int i;
+  int max_height = 0;
+  int max_del_width = 0;
+  int max_name_width = 0;
+  int max_value_width = 0;
+  short ncolumns = 20;
+  short vcolumns = 20;
+
+  for (i=0; i<attr_num_rows; i++)
+    {
+      String v;
+
+      n = 0;
+      stdarg (XmNvalue, &v);
+      XtGetValues (attr_row[i].w_name, args, n);
+      if (ncolumns < strlen (v))
+	ncolumns = strlen (v);
+
+      n = 0;
+      stdarg (XmNvalue, &v);
+      XtGetValues (attr_row[i].w_value, args, n);
+      if (vcolumns < strlen (v))
+	vcolumns = strlen (v);
+    }
+
+  for (i=0; i<attr_num_rows; i++)
+    {
+      n = 0;
+      stdarg (XmNcolumns, ncolumns);
+      XtSetValues (attr_row[i].w_name, args, n);
+
+      n = 0;
+      stdarg (XmNcolumns, vcolumns);
+      XtSetValues (attr_row[i].w_value, args, n);
+    }
+
+  for (i=0; i<attr_num_rows; i++)
+    {
+      Dimension w, h;
+      n = 0;
+      stdarg (XmNwidth, &w);
+      stdarg (XmNheight, &h);
+
+      XtGetValues (attr_row[i].del, args, n);
+      if (max_height < h)
+	max_height = h;
+      if (max_del_width < w)
+	max_del_width = w;
+
+      XtGetValues (attr_row[i].w_name, args, n);
+      if (max_height < h)
+	max_height = h;
+      if (max_name_width < w)
+	max_name_width = w;
+
+      XtGetValues (attr_row[i].w_value, args, n);
+      if (max_height < h)
+	max_height = h;
+      if (max_value_width < w)
+	max_value_width = w;
+    }
+
+  for (i=0; i<attr_num_rows; i++)
+    {
+      n = 0;
+      stdarg (XmNx, 0);
+      stdarg (XmNy, i * max_height);
+      stdarg (XmNwidth, max_del_width);
+      stdarg (XmNheight, max_height);
+      XtSetValues (attr_row[i].del, args, n);
+
+      n = 0;
+      stdarg (XmNx, max_del_width);
+      stdarg (XmNy, i * max_height);
+      stdarg (XmNwidth, max_name_width);
+      stdarg (XmNheight, max_height);
+      XtSetValues (attr_row[i].w_name, args, n);
+
+      n = 0;
+      stdarg (XmNx, max_del_width + max_name_width);
+      stdarg (XmNy, i * max_height);
+      stdarg (XmNwidth, max_value_width);
+      stdarg (XmNheight, max_height);
+      XtSetValues (attr_row[i].w_value, args, n);
+    }
+
+  n = 0;
+  stdarg (XmNwidth, max_del_width + max_name_width + max_value_width + 1);
+  stdarg (XmNheight, max_height * attr_num_rows + 1);
+  XtSetValues (f_top, args, n);
+}
+
+static void
+lesstif_attributes_need_rows (int new_max)
+{
+  if (attr_max_rows < new_max)
+    {
+      if (attr_row)
+	attr_row = (AttrRow *) realloc (attr_row, new_max * sizeof(AttrRow));
+      else
+	attr_row = (AttrRow *) malloc (new_max * sizeof(AttrRow));
+    }
+
+  while (attr_max_rows < new_max)
+    {
+      n = 0;
+      attr_row[attr_max_rows].del = XmCreatePushButton (f_top, "del", args, n);
+      XtManageChild (attr_row[attr_max_rows].del);
+      XtAddCallback (attr_row[attr_max_rows].del, XmNactivateCallback,
+		     (XtCallbackProc) attributes_delete_callback,
+		     (XtPointer) attr_max_rows);
+
+      n = 0;
+      stdarg (XmNresizeWidth, True);
+      attr_row[attr_max_rows].w_name = XmCreateTextField (f_top, "name", args, n);
+      XtManageChild (attr_row[attr_max_rows].w_name);
+      XtAddCallback (attr_row[attr_max_rows].w_name, XmNvalueChangedCallback,
+		     (XtCallbackProc) fiddle_with_bb_layout, NULL);
+
+      n = 0;
+      stdarg (XmNresizeWidth, True);
+      attr_row[attr_max_rows].w_value = XmCreateTextField (f_top, "value", args, n);
+      XtManageChild (attr_row[attr_max_rows].w_value);
+      XtAddCallback (attr_row[attr_max_rows].w_value, XmNvalueChangedCallback,
+		     (XtCallbackProc) fiddle_with_bb_layout, NULL);
+
+      attr_max_rows ++;
+    }
+
+  /* Manage any previously unused rows we now need to show.  */
+  while (attr_num_rows < new_max)
+    {
+      XtManageChild (attr_row[attr_num_rows].del);
+      XtManageChild (attr_row[attr_num_rows].w_name);
+      XtManageChild (attr_row[attr_num_rows].w_value);
+      attr_num_rows ++;
+    }
+}
+
+static void
+lesstif_attributes_revert ()
+{
+  int i;
+
+  lesstif_attributes_need_rows (attributes_list->Number);
+
+  /* Unmanage any previously used rows we don't need.  */
+  while (attr_num_rows > attributes_list->Number)
+    {
+      attr_num_rows --;
+      XtUnmanageChild (attr_row[attr_num_rows].del);
+      XtUnmanageChild (attr_row[attr_num_rows].w_name);
+      XtUnmanageChild (attr_row[attr_num_rows].w_value);
+    }
+
+  /* Fill in values */
+  for (i=0; i<attributes_list->Number; i++)
+    {
+      XmTextFieldSetString (attr_row[i].w_name, attributes_list->List[i].name);
+      XmTextFieldSetString (attr_row[i].w_value, attributes_list->List[i].value);
+    }
+
+  fiddle_with_bb_layout ();
+}
+
+static void
+attributes_new_callback (Widget w, void *v, void *cbs)
+{
+  lesstif_attributes_need_rows (attr_num_rows + 1); /* also bumps attr_num_rows */
+  XmTextFieldSetString (attr_row[attr_num_rows-1].w_name, "");
+  XmTextFieldSetString (attr_row[attr_num_rows-1].w_value, "");
+
+  fiddle_with_bb_layout ();
+}
+
+static void
+attributes_delete_callback (Widget w, void *v, void *cbs)
+{
+  int i, n;
+  Widget wn, wv;
+
+  n = (int) v;
+
+  wn = attr_row[n].w_name;
+  wv = attr_row[n].w_value;
+
+  for (i=n; i<attr_num_rows-1; i++)
+    {
+      attr_row[i].w_name = attr_row[i+1].w_name;
+      attr_row[i].w_value = attr_row[i+1].w_value;
+    }
+  attr_row[attr_num_rows-1].w_name = wn;
+  attr_row[attr_num_rows-1].w_value = wv;
+  attr_num_rows --;
+
+  XtUnmanageChild (wn);
+  XtUnmanageChild (wv);
+
+  fiddle_with_bb_layout ();
+}
+
+static void
+attributes_revert_callback (Widget w, void *v, void *cbs)
+{
+  lesstif_attributes_revert ();
+}
+
+void
+lesstif_attributes_dialog (char *owner, AttributeListType *attrs_list)
+{
+  Widget bform, sw, b_ok, b_cancel, b_revert, b_new;
+  Widget sep;
+
+  if (attr_dialog == NULL)
+    {
+      n = 0;
+      stdarg (XmNautoUnmanage, False);
+      stdarg (XmNtitle, owner);
+      stdarg (XmNwidth, 400);
+      stdarg (XmNheight, 300);
+      attr_dialog = XmCreateFormDialog (mainwind, "attributes", args, n);
+
+      n = 0;
+      stdarg (XmNrightAttachment, XmATTACH_FORM);
+      stdarg (XmNbottomAttachment, XmATTACH_FORM);
+      stdarg (XmNorientation, XmHORIZONTAL);
+      stdarg (XmNentryAlignment, XmALIGNMENT_CENTER);
+      stdarg (XmNpacking, XmPACK_COLUMN);
+      bform = XmCreateRowColumn (attr_dialog, "attributes", args, n);
+      XtManageChild (bform);
+
+      n = 0;
+      b_ok = XmCreatePushButton (bform, "OK", args, n);
+      XtManageChild (b_ok);
+      XtAddCallback (b_ok, XmNactivateCallback,
+		     (XtCallbackProc) dialog_callback,
+		     (XtPointer) 0);
+
+      n = 0;
+      b_new = XmCreatePushButton (bform, "New", args, n);
+      XtManageChild (b_new);
+      XtAddCallback (b_new, XmNactivateCallback,
+		     (XtCallbackProc) attributes_new_callback,
+		     NULL);
+
+      n = 0;
+      b_revert = XmCreatePushButton (bform, "Revert", args, n);
+      XtManageChild (b_revert);
+      XtAddCallback (b_revert, XmNactivateCallback,
+		     (XtCallbackProc) attributes_revert_callback,
+		     NULL);
+
+      n = 0;
+      b_cancel = XmCreatePushButton (bform, "Cancel", args, n);
+      XtManageChild (b_cancel);
+      XtAddCallback (b_cancel, XmNactivateCallback,
+		     (XtCallbackProc) dialog_callback,
+		     (XtPointer) 1);
+
+      n = 0;
+      stdarg (XmNleftAttachment, XmATTACH_FORM);
+      stdarg (XmNrightAttachment, XmATTACH_FORM);
+      stdarg (XmNbottomAttachment, XmATTACH_WIDGET);
+      stdarg (XmNbottomWidget, bform);
+      sep = XmCreateSeparator (attr_dialog, "attributes", args, n);
+      XtManageChild (sep);
+
+      n = 0;
+      stdarg (XmNtopAttachment, XmATTACH_FORM);
+      stdarg (XmNleftAttachment, XmATTACH_FORM);
+      stdarg (XmNrightAttachment, XmATTACH_FORM);
+      stdarg (XmNbottomAttachment, XmATTACH_WIDGET);
+      stdarg (XmNbottomWidget, sep);
+      stdarg (XmNscrollingPolicy, XmAUTOMATIC);
+      sw = XmCreateScrolledWindow (attr_dialog, "attributes", args, n);
+      XtManageChild (sw);
+
+      n = 0;
+      stdarg (XmNmarginHeight, 0);
+      stdarg (XmNmarginWidth, 0);
+      f_top = XmCreateBulletinBoard (sw, "f_top", args, n);
+      XtManageChild (f_top);
+    }
+  else
+    {
+      n = 0;
+      stdarg (XmNtitle, owner);
+      XtSetValues (XtParent (attr_dialog), args, n);
+    }
+
+  attributes_list = attrs_list;
+  lesstif_attributes_revert ();
+
+  fiddle_with_bb_layout ();
+
+  if (wait_for_dialog (attr_dialog) == 0)
+    {
+      int i;
+      /* Copy the values back */
+      for (i=0; i<attributes_list->Number; i++)
+	{
+	  if (attributes_list->List[i].name)
+	    free (attributes_list->List[i].name);
+	  if (attributes_list->List[i].value)
+	    free (attributes_list->List[i].value);
+	}
+      if (attributes_list->Max < attr_num_rows)
+	{
+	  int sz = attr_num_rows * sizeof (AttributeType);
+	  if (attributes_list->List == NULL)
+	    attributes_list->List = (AttributeType *) malloc (sz);
+	  else
+	    attributes_list->List = (AttributeType *) realloc (attributes_list->List, sz);
+	  attributes_list->Max = attr_num_rows;
+	}
+      for (i=0; i<attr_num_rows; i++)
+	{
+	  attributes_list->List[i].name = strdup (XmTextFieldGetString (attr_row[i].w_name));
+	  attributes_list->List[i].value = strdup (XmTextFieldGetString (attr_row[i].w_value));
+	  attributes_list->Number = attr_num_rows;
+	}
+    }
+
+  return;
+}
+
+
+/* ------------------------------------------------------------ */
+
 HID_Action lesstif_dialog_action_list[] = {
   {"Load", 0, Load,
    load_help, load_syntax},

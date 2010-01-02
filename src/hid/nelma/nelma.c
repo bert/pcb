@@ -1100,7 +1100,8 @@ HID             nelma_hid = {
 	0 /* nelma_show_item */ ,
 	0 /* nelma_beep */ ,
 	0 /* nelma_progress */ ,
-	0 /* nelma_drc_gui */
+	0 /* nelma_drc_gui */ ,
+	0 /* nelma_edit_attributes */
 };
 
 #include "dolists.h"

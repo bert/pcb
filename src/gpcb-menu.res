@@ -106,6 +106,11 @@ MainMenu =
      {"layout" ChangeName(Layout)}
      {"active layer" ChangeName(Layer)}
    }
+   {"Edit attributes of"
+    {"Layout" Attributes(Layout)}
+    {"CurrentLayer" Attributes(Layer)}
+    {"Element" Attributes(Element)}
+   }
    -
    {"Move to current layer" MoveToCurrentLayer(Object) a={"M" "<Key>m"}}
    {"Move selected to current layer" MoveToCurrentLayer(Selected) a={"Shift-M" "Shift<Key>m"}}
