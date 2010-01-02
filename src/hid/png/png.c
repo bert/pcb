@@ -360,6 +360,7 @@ png_hid_export_to_file (FILE * the_file, HID_Attr_Val * options)
       if (photo_mode)
 	{
 	  int i, n=0;
+	  SET_FLAG (SHOWMASKFLAG, PCB);
 	  if (comp_layer < solder_layer)
 	    for (i = comp_layer; i <= solder_layer; i++)
 	      photo_groups[n++] = i;
@@ -1040,6 +1041,9 @@ png_destroy_gc (hidGC gc)
 static void
 png_use_mask (int use_it)
 {
+  if (photo_mode)
+    return;
+
   if (use_it == HID_MASK_CLEAR)
     {
       return;
