@@ -738,7 +738,8 @@ png_do_export (HID_Attr_Val * options)
 	      mask = photo_mask ? gdImageGetPixel (photo_mask, x, y) : 0;
 	      silk = photo_silk ? gdImageGetPixel (photo_silk, x, y) : 0;
 
-	      if (gdImageGetPixel (photo_copper[photo_groups[1]], x, y))
+	      if (photo_copper[photo_groups[1]]
+		  && gdImageGetPixel (photo_copper[photo_groups[1]], x, y))
 		rgb (&cop, 40, 40, 40);
 	      else
 		rgb (&cop, 100, 100, 110);
