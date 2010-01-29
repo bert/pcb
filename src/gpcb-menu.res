@@ -58,6 +58,7 @@ MainMenu =
    -
    {"Revert" Load(Revert,none) tip="Revert to the layout stored on disk"}
    -
+   {"Import Schematics" Import() }
    {"Load layout" Load(Layout) tip="Load a layout from a file"}
    {"Load element data to paste-buffer" PasteBuffer(Clear) Load(ElementTobuffer)}
    {"Load layout data to paste-buffer" PasteBuffer(Clear) Load(LayoutTobuffer)}

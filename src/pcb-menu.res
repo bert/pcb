@@ -29,10 +29,10 @@ MainMenu =
 {
   {File
    {"About..." About()}
-   {"Import Schematics" Import() }
    {"Save layout" Save(Layout)}
    {"Save layout as..." Save(LayoutAs)}
 	{"Revert" Load(Revert,none)}
+   {"Import Schematics" Import() }
    {"Load layout" Load(Layout)}
    {"Load element data to paste-buffer" PasteBuffer(Clear) Load(ElementTobuffer)}
    {"Load layout data to paste-buffer" PasteBuffer(Clear) Load(LayoutTobuffer)}
