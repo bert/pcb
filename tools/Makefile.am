@@ -7,12 +7,15 @@
 toolsdir=	$(pkgdatadir)/tools
 tools_DATA=	${TOOLS}
 
+scmdatadir = $(datadir)/gEDA/scheme
+scmdata_DATA = $(DIST_SCM)
+
 EXTRA_DIST= ${TOOLS}
 
 bin_SCRIPTS= \
 	MergePCBPS \
 	Merge_dimPCBPS 
-	
+
 TOOLS= \
 	apctools.zip \
 	gerbertotk.c \
@@ -22,3 +25,5 @@ TOOLS= \
 	Merge_dimPCBPS \
 	PCB2HPGL 
 
+DIST_SCM= \
+	gnet-pcblf.scm
