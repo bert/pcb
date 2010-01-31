@@ -74,4 +74,6 @@ extern Boolean Bumped;
 
 extern FlagType no_flags;
 
+extern int netlist_frozen;
+
 #endif

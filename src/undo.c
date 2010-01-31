@@ -873,7 +873,7 @@ UndoNetlistChange (UndoListTypePtr Entry)
 
   *lib = *saved;
 
-  hid_action ("NetlistChanged");
+  NetlistChanged (0);
   return True;
 }
 

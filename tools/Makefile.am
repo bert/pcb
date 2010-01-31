@@ -26,4 +26,4 @@ TOOLS= \
 	PCB2HPGL 
 
 DIST_SCM= \
-	gnet-pcblf.scm
+	gnet-pcbfwd.scm

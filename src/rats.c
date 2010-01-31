@@ -947,7 +947,7 @@ AddNet (void)
   menu->flag = 1;
 
 ratIt:
-  hid_action ("NetlistChanged");
+  NetlistChanged (0);
   return (CreateNewRat (PCB->Data, Crosshair.AttachedLine.Point1.X,
 			Crosshair.AttachedLine.Point1.Y,
 			Crosshair.AttachedLine.Point2.X,

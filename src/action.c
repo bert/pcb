@@ -3486,7 +3486,7 @@ ActionRenumber (int argc, char **argv, int x, int y)
 	  free (is[k]);
 	}
 
-      hid_action ("NetlistChanged");
+      NetlistChanged (0);
       IncrementUndoSerialNumber ();
       SetChangedFlag (True);
     }
@@ -5776,7 +5776,7 @@ ActionLoadFrom (int argc, char **argv, int x, int y)
       PCB->Netlistname = StripWhiteSpaceAndDup (name);
       FreeLibraryMemory (&PCB->NetlistLib);
       if (!ImportNetlist (PCB->Netlistname))
-	hid_action ("NetlistChanged");
+	NetlistChanged (1);
     }
   else if (strcasecmp (function, "Revert") == 0 && PCB->Filename
 	   && (!PCB->Changed
@@ -6855,53 +6855,80 @@ delete_attr (AttributeListTypePtr list, AttributeType *attr)
   list->Number --;
 }
 
-static const char elementaddstart_syntax[] = "ElementAddStart()";
+static const char elementlist_syntax[] = "ElementList(Start|Done|Need,<refdes>,<footprint>,<value>)";
 
-static const char elementaddstart_help[] = "Notes the start of an element set update.";
+static const char elementlist_help[] = "Adds the given element if it doesn't already exist.";
 
-/* %start-doc actions elementaddstart
+/* %start-doc actions elementlist
 
-Used before conditionally adding elements, it clears the list of
-"remembered" elements, so that unlisted elements can be discovered
-later.
+@table @code
 
-%end-doc */
+@item Start
+Indicates the start of an element list; call this before any Need
+actions.
 
-static int
-ActionElementAddStart (int argc, char **argv, int x, int y)
-{
-  ELEMENT_LOOP (PCB->Data);
-  {
-    CLEAR_FLAG (FOUNDFLAG, element);
-  }
-  END_LOOP;
-  element_cache = NULL;
-  return 0;
-}
-
-static const char elementaddif_syntax[] = "ElementAddIf(<refdes>,<footprint>,<value>)";
-
-static const char elementaddif_help[] = "Adds the given element if it doesn't already exist.";
-
-/* %start-doc actions elementaddif
-
+@item Need
 Searches the board for an element with a matching refdes.
 
 If found, the value and footprint are updated.
 
 If not found, a new element is created with the given footprint and value.
 
+@item Done
+Compares the list of elements needed since the most recent
+@code{start} with the list of elements actually on the board.  Any
+elements that weren't listed are selected, so that the user may delete
+them.
+
+@end table
+
 %end-doc */
 
 static int
-ActionElementAddIf (int argc, char **argv, int x, int y)
+ActionElementList (int argc, char **argv, int x, int y)
 {
   ElementType *e = NULL;
   char *refdes, *value, *footprint, *old;
   char *args[3];
+  char *function = argv[0];
 
-  if (argc != 3)
-    AFAIL (elementaddif);
+  if (strcasecmp (function, "start") == 0)
+    {
+      ELEMENT_LOOP (PCB->Data);
+      {
+	CLEAR_FLAG (FOUNDFLAG, element);
+      }
+      END_LOOP;
+      element_cache = NULL;
+      return 0;
+    }
+
+  if (strcasecmp (function, "done") == 0)
+    {
+      ELEMENT_LOOP (PCB->Data);
+      {
+	if (TEST_FLAG (FOUNDFLAG, element))
+	  {
+	    CLEAR_FLAG (FOUNDFLAG, element);
+	  }
+	else if (! EMPTY_STRING_P (NAMEONPCB_NAME (element)))
+	  {
+	    /* Unnamed elements should remain untouched */
+	    SET_FLAG (SELECTEDFLAG, element);
+	  }
+      }
+      END_LOOP;
+      return 0;
+    }
+
+  if (strcasecmp (function, "need") != 0)
+    AFAIL (elementlist);
+
+  if (argc != 4)
+    AFAIL (elementlist);
+
+  argc --;
+  argv ++;
 
   refdes = ARG(0);
   footprint = ARG(1);
@@ -6967,37 +6994,6 @@ ActionElementAddIf (int argc, char **argv, int x, int y)
 
   SET_FLAG (FOUNDFLAG, e);
 
-  return 0;
-}
-
-static const char elementadddone_syntax[] = "ElementAddDone()";
-
-static const char elementadddone_help[] = "Notes the end of an element set update";
-
-/* %start-doc actions elementadddone
-
-Used after conditionally adding elements, it finds any unmentioned
-elements which were previously added (non-empty refdes) and deletes
-them.
-
-%end-doc */
-
-static int
-ActionElementAddDone (int argc, char **argv, int x, int y)
-{
-  ELEMENT_LOOP (PCB->Data);
-  {
-    if (TEST_FLAG (FOUNDFLAG, element))
-      {
-	CLEAR_FLAG (FOUNDFLAG, element);
-      }
-    else if (! EMPTY_STRING_P (NAMEONPCB_NAME (element)))
-      {
-	/* Unnamed elements should remain untouched */
-	SET_FLAG (SELECTEDFLAG, element);
-      }
-  }
-  END_LOOP;
   return 0;
 }
 
@@ -7610,14 +7606,8 @@ HID_Action action_action_list[] = {
   ,
   {"pscalib", 0, ActionPSCalib}
   ,
-  {"ElementAddStart", 0, ActionElementAddStart,
-   elementaddstart_help, elementaddstart_syntax}
-  ,
-  {"ElementAddIf", 0, ActionElementAddIf,
-   elementaddif_help, elementaddif_syntax}
-  ,
-  {"ElementAddDone", 0, ActionElementAddDone,
-   elementadddone_help, elementadddone_syntax}
+  {"ElementList", 0, ActionElementList,
+   elementlist_help, elementlist_syntax}
   ,
   {"ElementSetAttr", 0, ActionElementSetAttr,
    elementsetattr_help, elementsetattr_syntax}

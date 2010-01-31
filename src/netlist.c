@@ -86,6 +86,23 @@ RCSID ("$Id$");
 
 typedef void (*NFunc) (LibraryMenuType *, LibraryEntryType *);
 
+int netlist_frozen = 0;
+static int netlist_needs_update = 0;
+
+void
+NetlistChanged (int force_unfreeze)
+{
+  if (force_unfreeze)
+    netlist_frozen = 0;
+  if (netlist_frozen)
+    netlist_needs_update = 1;
+  else
+    {
+      netlist_needs_update = 0;
+      hid_action ("NetlistChanged");
+    }
+}
+
 LibraryMenuTypePtr
 netnode_to_netname (char *nodename)
 {
@@ -168,7 +185,7 @@ netlist_rats (LibraryMenuType * net, LibraryEntryType * pin)
 {
   net->Name[0] = ' ';
   net->flag = 1;
-  hid_action ("NetlistChanged");
+  NetlistChanged (0);
 }
 
 static void
@@ -176,7 +193,7 @@ netlist_norats (LibraryMenuType * net, LibraryEntryType * pin)
 {
   net->Name[0] = '*';
   net->flag = 0;
-  hid_action ("NetlistChanged");
+  NetlistChanged (0);
 }
 
 /* The primary purpose of this action is to remove the netlist
@@ -219,7 +236,7 @@ netlist_clear (LibraryMenuType * net, LibraryEntryType * pin)
 	  net->EntryN --;
 	}
     }
-  hid_action ("NetlistChanged");
+  NetlistChanged (0);
 }
 
 static void
@@ -234,7 +251,7 @@ netlist_style (LibraryMenuType *net, const char *style)
 /* The primary purpose of this action is to rebuild a netlist from a
    script, in conjunction with the clear action above.  */
 static int
-netlist_add (const char *netname, const char *pinname, const char *defer_update)
+netlist_add (const char *netname, const char *pinname)
 {
   int ni, pi;
   LibraryType *netlist = &PCB->NetlistLib;
@@ -263,14 +280,14 @@ netlist_add (const char *netname, const char *pinname, const char *defer_update)
       pin = CreateNewConnection (net, (char *)pinname);
     }
 
-  if (!defer_update)
-    hid_action ("NetlistChanged");
+  NetlistChanged (0);
   return 0;
 }
 
 static const char netlist_syntax[] =
   "Net(find|select|rats|norats|clear[,net[,pin]])\n"
-  "Net(add,net,pin[,defer])";
+  "Net(freeze|thaw|forcethaw)\n"
+  "Net(add,net,pin)";
 
 static const char netlist_help[] = "Perform various actions on netlists.";
 
@@ -306,12 +323,21 @@ Nets which apply are marked as not available for the rats nest.
 Clears the netlist.
 
 @item add
-Add the given pin to the given netlist, creating either if needed.  If
-defer is specified, the GUI is not informed of this change - after a
-list of such changes, call NetlistChanged() to update the GUI.
+Add the given pin to the given netlist, creating either if needed.
 
 @item sort
 Called after a list of add's, this sorts the netlist.
+
+@item freeze
+@itemx thaw
+@itemx forcethaw
+Temporarily prevents changes to the netlist from being reflected in
+the GUI.  For example, if you need to make multiple changes, you
+freeze the netlist, make the changes, then thaw it.  Note that
+freeze/thaw requests may nest, with the netlist being fully thawed
+only when all pending freezes are thawed.  You can bypass the nesting
+by using forcethaw, which resets the freeze count and immediately
+updates the GUI.
 
 @end table
 
@@ -360,7 +386,6 @@ Netlist (int argc, char **argv, int x, int y)
       if (argc == 1)
 	{
 	  netlist_clear (NULL, NULL);
-	  hid_action ("NetlistChanged");
 	  return 0;
 	}
     }
@@ -369,11 +394,33 @@ Netlist (int argc, char **argv, int x, int y)
   else if (strcasecmp (argv[0], "add") == 0)
     {
       /* Add is different, because the net/pin won't already exist.  */
-      return netlist_add (ARG(1), ARG(2), ARG(3));
+      return netlist_add (ARG(1), ARG(2));
     }
   else if (strcasecmp (argv[0], "sort") == 0)
     {
       return sort_netlist ();
+    }
+  else if (strcasecmp (argv[0], "freeze") == 0)
+    {
+      netlist_frozen ++;
+      return;
+    }
+  else if (strcasecmp (argv[0], "thaw") == 0)
+    {
+      if (netlist_frozen > 0)
+	{
+	  netlist_frozen --;
+	  if (netlist_needs_update)
+	    NetlistChanged (0);
+	}
+      return;
+    }
+  else if (strcasecmp (argv[0], "forcethaw") == 0)
+    {
+      netlist_frozen = 0;
+      if (netlist_needs_update)
+	NetlistChanged (0);
+      return;
     }
   else
     {

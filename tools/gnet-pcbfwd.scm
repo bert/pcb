@@ -39,7 +39,7 @@
 (define (pcblf:each-pin net pins port)
   (if (not (null? pins))
       (let ((pin (car pins)))
-	(format port "Netlist(Add,~a,~a,1)~%" net (pcblf:pinfmt pin))
+	(format port "Netlist(Add,~a,~a)~%" net (pcblf:pinfmt pin))
 	(pcblf:each-pin net (cdr pins) port))))
 
 (define (pcblf:each-net netnames port)
@@ -96,7 +96,7 @@
 	     (footprint (gnetlist:get-package-attribute refdes "footprint"))
 	     )
 
-	(format port "ElementAddIf(~a,~a,~a)~%" refdes footprint value)
+	(format port "ElementList(Need,~a,~a,~a)~%" refdes footprint value)
 	(pcblf:each-attr refdes pcblf:element-attrs port)
 	(pcblf:component_pins port refdes (gnetlist:get-pins refdes))
 
@@ -104,11 +104,12 @@
 
 (define (pcblf output-filename)
   (let ((port (open-output-file output-filename)))
+    (format port "Netlist(Freeze)\n")
     (format port "Netlist(Clear)\n")
     (pcblf:each-net (gnetlist:get-all-unique-nets "dummy") port)
     (format port "Netlist(Sort)\n")
-    (format port "NetlistChanged()\n")
-    (format port "ElementAddStart()\n")
+    (format port "Netlist(Thaw)\n")
+    (format port "ElementList(Start)\n")
     (pcblf:each-element packages port)
-    (format port "ElementAddDone()\n")
+    (format port "ElementList(Done)\n")
     (close-output-port port)))

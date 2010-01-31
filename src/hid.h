@@ -112,7 +112,7 @@ extern "C"
 
      PCBChanged();
      RouteStylesChanged()
-     NetlistChanged()
+     NetlistChanged()  (but core should call "void NetlistChanged(int);" in netlist.c)
      LayersChanged()
      LibraryChanged()
      Busy()
