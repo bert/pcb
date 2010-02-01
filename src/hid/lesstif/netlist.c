@@ -44,7 +44,7 @@ static XmString *netnode_strings = 0;
 static int n_netnode_strings;
 static int last_pick = -1;
 
-static int NetlistChanged (int argc, char **argv, int x, int y);
+static int LesstifNetlistChanged (int argc, char **argv, int x, int y);
 
 static void
 pick_net (int pick)
@@ -386,7 +386,7 @@ build_netlist_dialog ()
 }
 
 static int
-NetlistChanged (int argc, char **argv, int x, int y)
+LesstifNetlistChanged (int argc, char **argv, int x, int y)
 {
   int i;
   if (!PCB->NetlistLib.MenuN)
@@ -420,7 +420,7 @@ static const char netlistshow_help[] =
 %end-doc */
 
 static int
-NetlistShow (int argc, char **argv, int x, int y)
+LesstifNetlistShow (int argc, char **argv, int x, int y)
 {
   if (build_netlist_dialog ())
     return 0;
@@ -486,9 +486,9 @@ lesstif_show_netlist ()
 }
 
 HID_Action lesstif_netlist_action_list[] = {
-  {"NetlistChanged", 0, NetlistChanged,
+  {"NetlistChanged", 0, LesstifNetlistChanged,
    netlistchanged_help, netlistchanged_syntax},
-  {"NetlistShow", 0, NetlistShow,
+  {"NetlistShow", 0, LesstifNetlistShow,
    netlistshow_help, netlistshow_syntax}
 };
 

@@ -975,7 +975,7 @@ ghid_netlist_window_update (gboolean init_nodes)
 }
 
 static gint
-NetlistChanged (int argc, char **argv, int x, int y)
+GhidNetlistChanged (int argc, char **argv, int x, int y)
 {
   loading_new_netlist = TRUE;
   ghid_netlist_window_update (TRUE);
@@ -986,7 +986,7 @@ NetlistChanged (int argc, char **argv, int x, int y)
 }
 
 static gint
-NetlistShow (int argc, char **argv, int x, int y)
+GhidNetlistShow (int argc, char **argv, int x, int y)
 {
   ghid_netlist_window_show (gport, FALSE);
   if (argc > 0)
@@ -995,8 +995,8 @@ NetlistShow (int argc, char **argv, int x, int y)
 }
 
 HID_Action ghid_netlist_action_list[] = {
-  {"NetlistChanged", 0, NetlistChanged},
-  {"NetlistShow", 0, NetlistShow}
+  {"NetlistChanged", 0, GhidNetlistChanged},
+  {"NetlistShow", 0, GhidNetlistShow}
   ,
 };
 
