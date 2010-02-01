@@ -66,6 +66,8 @@ static int show_solder_side;
 #define SCALE_Y(y) ((int)(((show_solder_side ? (PCB->MaxHeight-(y)) : (y)) - y_shift)/scale))
 #define SWAP_IF_SOLDER(a,b) do { int c; if (show_solder_side) { c=a; a=b; b=c; }} while (0)
 
+static void png_fill_circle (hidGC gc, int cx, int cy, int radius);
+
 /* The result of a failed gdImageColorAllocate() call */
 #define BADC -1
 
@@ -1315,7 +1317,10 @@ png_draw_line (hidGC gc, int x1, int y1, int x2, int y2)
   if (x1 == x2 && y1 == y2)
     {
       int w = gc->width / 2;
-      png_fill_rect (gc, x1 - w, y1 - w, x1 + w, y1 + w);
+      if (gc->cap != Square_Cap)
+	png_fill_circle (gc, x1, y1, w);
+      else
+	png_fill_rect (gc, x1 - w, y1 - w, x1 + w, y1 + w);
       return;
     }
   use_gc (gc);
