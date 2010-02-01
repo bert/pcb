@@ -1305,10 +1305,12 @@ png_fill_rect (hidGC gc, int x1, int y1, int x2, int y2)
       y2 = y2;
       y2 = t;
     }
+  y1 -= bloat;
+  y2 += bloat;
   SWAP_IF_SOLDER (y1, y2);
 
-  gdImageFilledRectangle (im, SCALE_X (x1-bloat), SCALE_Y (y1-bloat),
-			  SCALE_X (x2+bloat)-1, SCALE_Y (y2+bloat)-1, gc->color->c);
+  gdImageFilledRectangle (im, SCALE_X (x1-bloat), SCALE_Y (y1),
+			  SCALE_X (x2+bloat)-1, SCALE_Y (y2)-1, gc->color->c);
 }
 
 static void
