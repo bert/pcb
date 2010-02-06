@@ -22,7 +22,6 @@
  *  Thomas Nau, Schlehenweg 15, 88471 Baustetten, Germany
  *  Thomas.Nau@rz.uni-ulm.de
  *
- *  RCS: $Id$
  */
 
 /* prototypes for file routines
@@ -48,6 +47,7 @@ int ImportNetlist (char *);
 int SaveBufferElements (char *);
 void PreLoadElementPCB (void);
 void PostLoadElementPCB (void);
+void sort_netlist (void);
 
 /* 
  * Whenever the pcb file format is modified, this version number
