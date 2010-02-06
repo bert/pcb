@@ -630,7 +630,7 @@ libiberty_NEED_DECLARATION(canonicalize_file_name)
 
 AC_HEADER_STDC
 AC_CHECK_HEADERS(limits.h locale.h string.h sys/types.h regex.h pwd.h)
-AC_CHECK_HEADERS(sys/socket.h netinet/in.h netdb.h sys/param.h sys/times.h)
+AC_CHECK_HEADERS(sys/socket.h netinet/in.h netdb.h sys/param.h sys/times.h sys/wait.h)
 AC_CHECK_HEADERS(dlfcn.h)
 
 if test "x${WIN32}" = "xyes" ; then

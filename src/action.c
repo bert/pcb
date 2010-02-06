@@ -1,4 +1,3 @@
-/* $Id$ */
 /* 15 Oct 2008 Ineiev: add CycleCrosshair action */
 
 /*
@@ -76,7 +75,14 @@
 #include <dmalloc.h>
 #endif
 
-RCSID ("$Id$");
+/* for fork() and friends */
+#ifdef HAVE_UNISTD_H
+#include <unistd.h>
+#endif
+
+#ifdef HAVE_SYS_WAIT_H
+#include <sys/wait.h>
+#endif
 
 /* ---------------------------------------------------------------------------
  * some local types
@@ -7225,7 +7231,7 @@ ActionImport (int argc, char **argv, int x, int y)
     {
       char *tmpfile = tmpnam (NULL);
       char **cmd;
-      int i, pid;
+      int i;
       cmd = (char **) malloc ((6 + nsources) * sizeof (char *));
       cmd[0] = "gnetlist";
       cmd[1] = "-g";
@@ -7253,7 +7259,7 @@ ActionImport (int argc, char **argv, int x, int y)
     {
       char *tmpfile = tmpnam (NULL);
       char **cmd;
-      int i, pid;
+      int i;
       char *srclist;
       int srclen;
 
