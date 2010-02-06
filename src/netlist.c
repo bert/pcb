@@ -398,12 +398,13 @@ Netlist (int argc, char **argv, int x, int y)
     }
   else if (strcasecmp (argv[0], "sort") == 0)
     {
-      return sort_netlist ();
+      sort_netlist ();
+      return 0;
     }
   else if (strcasecmp (argv[0], "freeze") == 0)
     {
       netlist_frozen ++;
-      return;
+      return 0;
     }
   else if (strcasecmp (argv[0], "thaw") == 0)
     {
@@ -413,14 +414,14 @@ Netlist (int argc, char **argv, int x, int y)
 	  if (netlist_needs_update)
 	    NetlistChanged (0);
 	}
-      return;
+      return 0;
     }
   else if (strcasecmp (argv[0], "forcethaw") == 0)
     {
       netlist_frozen = 0;
       if (netlist_needs_update)
 	NetlistChanged (0);
-      return;
+      return 0;
     }
   else
     {
