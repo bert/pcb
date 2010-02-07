@@ -936,7 +936,7 @@ ghid_attributes_need_rows (int new_max)
 			GTK_FILL,
 			0, 0);
       g_signal_connect (G_OBJECT (attr_row[attr_max_rows].del), "clicked",
-			G_CALLBACK (attributes_delete_callback), (void *)attr_max_rows);
+			G_CALLBACK (attributes_delete_callback), GINT_TO_POINTER (attr_max_rows) );
 
       attr_row[attr_max_rows].w_name = gtk_entry_new ();
       gtk_table_attach (GTK_TABLE (attr_table), attr_row[attr_max_rows].w_name,
@@ -1000,9 +1000,8 @@ static void
 attributes_delete_callback (GtkWidget *w, void *v)
 {
   int i, n;
-  GtkWidget *wn, *wv;
 
-  n = (int) v;
+  n = GPOINTER_TO_INT (v);
 
   for (i=n; i<attr_num_rows-1; i++)
     {
@@ -1093,8 +1092,8 @@ ghid_attributes (char *owner, AttributeListType *attrs)
 	{
 	  ghid_attributes_need_rows (attr_num_rows + 1); /* also bumps attr_num_rows */
 
-	  gtk_entry_set_text (attr_row[attr_num_rows-1].w_name, "");
-	  gtk_entry_set_text (attr_row[attr_num_rows-1].w_value, "");
+	  gtk_entry_set_text (GTK_ENTRY (attr_row[attr_num_rows-1].w_name), "");
+	  gtk_entry_set_text (GTK_ENTRY (attr_row[attr_num_rows-1].w_value), "");
 
 	  ghid_attr_set_table_size ();
 	}
