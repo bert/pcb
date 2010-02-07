@@ -2115,6 +2115,12 @@ ElementOrientation (ElementType *e)
   int found_pin1 = 0;
   int found_pin2 = 0;
 
+  /* in case we don't find pin 1 or 2, make sure we have initialized these variables */
+  pin1x = 0;
+  pin1y = 0;
+  pin2x = 0;
+  pin2y = 0;
+
   PIN_LOOP (e);
   {
     if (NSTRCMP (pin->Number, "1") == 0)
