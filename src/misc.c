@@ -2180,6 +2180,8 @@ ActionListRotations(int argc, char **argv, int x, int y)
     printf("%d %s\n", ElementOrientation(element), NAMEONPCB_NAME(element));
   }
   END_LOOP;
+
+  return 0;
 }
 
 HID_Action misc_action_list[] = {
