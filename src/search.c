@@ -1040,32 +1040,35 @@ IsPointInBox (LocationType X, LocationType Y, BoxTypePtr box, BDimension Radius)
 Boolean
 IsPointOnArc (float X, float Y, float Radius, ArcTypePtr Arc)
 {
-
-  register float x, y, dx, dy, r1, r2, a, d, l;
-  register float pdx, pdy;
-  int ang1, ang2, delta;
+  double x, y, dx, dy, r1, r2, a, d, l;
+  double pdx, pdy;
+  double ang1, ang2, ang0, delta;
   int startAngle, arcDelta;
 
   pdx = X - Arc->X;
   pdy = Y - Arc->Y;
   l = pdx * pdx + pdy * pdy;
+  Radius += 0.5 * Arc->Thickness;
+  if (Radius < 0) /* thin arc: trivial condition */
+    return (False);
   /* concentric arcs, simpler intersection conditions */
-  if (l == 0.0)
+  if (l < 0.5)
     {
-      if (Arc->Width <= Radius + 0.5 * Arc->Thickness)
+      if (Arc->Width <= Radius)
 	return (True);
       else
 	return (False);
     }
   r1 = Arc->Width;
+  r2 = Radius;
+  if (sqrt (l) < r2 - r1) /* the arc merged in the circle */
+    return (True);
   r1 *= r1;
-  r2 = Radius + 0.5 * Arc->Thickness;
   r2 *= r2;
   a = 0.5 * (r1 - r2 + l) / l;
   r1 = r1 / l;
-  /* add a tiny positive number for round-off problems */
-  d = r1 - a * a + 1e-5;
-  /* the circles are too far apart to touch */
+  d = r1 - a * a;
+  /* the circles are too far apart to touch or probably just touch */
   if (d < 0)
     return (False);
   /* project the points of intersection */
@@ -1077,32 +1080,38 @@ IsPointOnArc (float X, float Y, float Radius, ArcTypePtr Arc)
   /* arrgh! calculate the angles, and put them in a standard range */
   startAngle = Arc->StartAngle;
   arcDelta = Arc->Delta;
-  while (startAngle < 0)
-    startAngle += 360;
   if (arcDelta < 0)
     {
       startAngle += arcDelta;
       arcDelta = -arcDelta;
-      while (startAngle < 0)
-	startAngle += 360;
     }
+  if (arcDelta > 360)
+    arcDelta = 360;
+  while (startAngle < 0)
+    startAngle += 360;
+  while (startAngle > 360)
+    startAngle -= 360;
   ang1 = RAD_TO_DEG * atan2 ((y + dy), -(x + dx));
   if (ang1 < 0)
     ang1 += 360;
   ang2 = RAD_TO_DEG * atan2 ((y - dy), -(x - dx));
   if (ang2 < 0)
     ang2 += 360;
-  delta = ang2 - ang1;
-  if (delta > 180)
-    delta -= 360;
-  else if (delta < -180)
-    delta += 360;
-  if (delta < 0)
+  if (ang1 > ang2)
     {
-      ang1 += delta;
-      delta = -delta;
-      while (ang1 < 0)
-	ang1 += 360;
+      ang0 = ang1;
+      ang1 = ang2;
+      ang2 = ang0;
+    }
+  delta = ang2 - ang1;
+  /* ang0 does not belong to intersection range */
+  ang0 = RAD_TO_DEG * atan2 (-pdy, pdx);
+  if (ang0 < 0)
+    ang0 += 360;
+  if (ang0 > ang1 && ang0 < ang2) /* we need the other part of circle */
+    {
+      ang1 = ang2;
+      delta = 360 - delta;
     }
   if (ang1 >= startAngle && ang1 <= startAngle + arcDelta)
     return (True);

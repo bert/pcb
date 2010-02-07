@@ -1327,11 +1327,61 @@ PVTouchesLine (LineTypePtr line)
   return (False);
 }
 
+/* reduce arc start angle and delta to 0..360 */
+static void
+normalize_angles (int *sa, int *d)
+{
+  if (*d < 0)
+    {
+      *sa += *d;
+      *d = - *d;
+    }
+  if (*d > 360) /* full circle */
+    *d = 360;
+  if (*sa < 0)
+    *sa = 360 - ((-*sa) % 360);
+  if (*sa >= 360)
+    *sa %= 360;
+}
+
+static int
+radius_crosses_arc (double x, double y, ArcTypePtr arc)
+{
+  double alpha = atan2 (y - arc->Y, -x + arc->X) * RAD_TO_DEG;
+  int sa = arc->StartAngle, d = arc->Delta;
+
+  normalize_angles (&sa, &d);
+  if (alpha < 0)
+    alpha += 360;
+  if ((double)sa <= alpha)
+    return (double)(sa + d) >= alpha;
+  return (double)(sa + d - 360) >= alpha;
+}
+
+static void
+get_arc_ends (double *box, ArcTypePtr arc)
+{
+  double ca, sa, angle;
+
+  angle  = arc->StartAngle;
+  angle *= M180;
+  ca = cos (angle);
+  sa = sin (angle);
+  box[0] = arc->X - arc->Width * ca;
+  box[1] = arc->Y + arc->Height * sa;
+
+  angle  = arc->StartAngle + arc->Delta;
+  angle *= M180;
+  ca = cos (angle);
+  sa = sin (angle);
+  box[2] = arc->X - arc->Width * ca;
+  box[3] = arc->Y + arc->Height * sa;
+}
 /* ---------------------------------------------------------------------------
  * check if two arcs intersect
  * first we check for circle intersections,
  * then find the actual points of intersection
- * and test them to see if they are on both arcs
+ * and test them to see if they are on arcs
  *
  * consider a, the distance from the center of arc 1
  * to the point perpendicular to the intersecting points.
@@ -1355,18 +1405,32 @@ PVTouchesLine (LineTypePtr line)
 static Boolean
 ArcArcIntersect (ArcTypePtr Arc1, ArcTypePtr Arc2)
 {
-  register float x, y, dx, dy, r1, r2, a, d, l, t, t2;
-  register LocationType pdx, pdy;
-  BoxTypePtr box;
-  BoxType box1, box2;
+  double x, y, dx, dy, r1, r2, a, d, l, t, t1, t2, dl;
+  LocationType pdx, pdy;
+  double box[4];
 
+  t = 0.5 * Arc1->Thickness + fBloat;
+  if (t < 0) /* too thin arc */
+    return (False);
+  t2 = 0.5 * Arc2->Thickness;
+  t1 = t2 + fBloat;
+  if (t1 < 0) /* too thin arc */
+    return (False);
+  /* try the end points first */
+  get_arc_ends (box, Arc1);
+  if (IsPointOnArc ((float) box[0], (float) box[1], (float)t, Arc2)
+      || IsPointOnArc ((float) box[2], (float) box[3], (float)t, Arc2))
+    return (True);
+
+  get_arc_ends (box, Arc2);
+  if (IsPointOnArc ((float) box[0], (float) box[1], (float)t1, Arc1)
+      || IsPointOnArc ((float) box[2], (float) box[3], (float)t1, Arc1))
+    return (True);
   pdx = Arc2->X - Arc1->X;
   pdy = Arc2->Y - Arc1->Y;
   l = pdx * pdx + pdy * pdy;
-  t = MAX (0.5 * Arc1->Thickness + fBloat, 0.0);
-  t2 = 0.5 * Arc2->Thickness;
   /* concentric arcs, simpler intersection conditions */
-  if (l == 0.0)
+  if (l < 0.5)
     {
       if ((Arc1->Width - t >= Arc2->Width - t2
            && Arc1->Width - t <=
@@ -1374,82 +1438,93 @@ ArcArcIntersect (ArcTypePtr Arc1, ArcTypePtr Arc2)
           || (Arc1->Width + t >=
               Arc2->Width - t2 && Arc1->Width + t <= Arc2->Width + t2))
         {
-          if ((Arc2->BoundingBox.X1 +
-               MAX (Arc2->Thickness + Bloat,
-                    0) >= Arc1->BoundingBox.X1
-               && Arc2->BoundingBox.X1 <=
-               Arc1->BoundingBox.X2
-               && Arc2->BoundingBox.Y1 +
-               MAX (Arc2->Thickness + Bloat,
-                    0) >= Arc1->BoundingBox.Y1
-               && Arc2->BoundingBox.Y1 <=
-               Arc1->BoundingBox.Y2)
-              || (Arc2->BoundingBox.X2 +
-                  MAX (Arc2->Thickness +
-                       Bloat,
-                       0) >=
-                  Arc1->BoundingBox.X1
-                  && Arc2->BoundingBox.X2 <=
-                  Arc1->BoundingBox.X2
-                  && Arc2->BoundingBox.Y2 +
-                  MAX (Arc2->Thickness +
-                       Bloat,
-                       0) >=
-                  Arc1->BoundingBox.Y1
-                  && Arc2->BoundingBox.Y2 <= Arc1->BoundingBox.Y2))
-            return (True);
+	  int sa1 = Arc1->StartAngle, d1 = Arc1->Delta;
+	  int sa2 = Arc2->StartAngle, d2 = Arc2->Delta;
+	  /* NB the endpoints have already been checked,
+	     so we just compare the angles */
+
+	  normalize_angles (&sa1, &d1);
+	  normalize_angles (&sa2, &d2);
+	  /* cases like sa1 == sa2 are catched when checking the endpoints */
+	  if (sa1 > sa2)
+	    {
+	      if (sa1 < sa2 + d2)
+		return (True);
+	      if (sa1 + d1 > 360 && sa1 + d1 - 360 > sa2)
+		return (True);
+	    }
+	  if (sa2 > sa1)
+	    {
+	      if (sa2 < sa1 + d1)
+		return (True);
+	      if (sa2 + d2 > 360 && sa2 + d2 - 360 > sa1)
+		return (True);
+	    }
         }
       return (False);
     }
-  r1 = Arc1->Width + t;
+  r1 = Arc1->Width;
+  r2 = Arc2->Width;
+  dl = sqrt (l);
+  if (dl > r1 + r2 || dl + r1 < r2
+      || dl + r2 < r1) /* arcs centerlines are too far or too near */
+    {
+      /* check the nearst to the other arc center point */
+      dx = pdx * r1 / dl;
+      dy = pdy * r1 / dl;
+      if (dl + r1 < r2) /* Arc1 inside Arc2 */
+	{
+	  dx = - dx;
+	  dy = - dy;
+	}
+
+      if (radius_crosses_arc (Arc1->X + dx, Arc1->Y + dy, Arc1)
+	  && IsPointOnArc ((float)(Arc1->X + dx), (float)(Arc1->Y + dy),
+			   (float)t, Arc2))
+	return (True);
+
+      dx = - pdx * r2 / dl;
+      dy = - pdy * r2 / dl;
+      if (dl + r2 < r1) /* Arc2 inside Arc1 */
+	{
+	  dx = - dx;
+	  dy = - dy;
+	}
+
+      if (radius_crosses_arc (Arc2->X + dx, Arc2->Y + dy, Arc2)
+	  && IsPointOnArc ((float)(Arc2->X + dx), (float)(Arc2->Y + dy),
+			   (float)t1, Arc1))
+	return (True);
+      return (False);
+    }
+
   r1 *= r1;
-  r2 = Arc2->Width + t2;
   r2 *= r2;
   a = 0.5 * (r1 - r2 + l) / l;
   r1 = r1 / l;
-  /* add a tiny positive number for round-off problems */
-  d = r1 - a * a + 1e-5;
-  /* the circles are too far apart to touch */
+  d = r1 - a * a;
+  /* the circles are too far apart to touch or probably just touch:
+     check the nearest point */
   if (d < 0)
-    return (False);
-  d = sqrt (d);
+    d = 0;
+  else
+    d = sqrt (d);
   x = Arc1->X + a * pdx;
   y = Arc1->Y + a * pdy;
   dx = d * pdx;
   dy = d * pdy;
-  if (x + dy >= Arc1->BoundingBox.X1
-      && x + dy <= Arc1->BoundingBox.X2
-      && y - dx >= Arc1->BoundingBox.Y1
-      && y - dx <= Arc1->BoundingBox.Y2
-      && x + dy >= Arc2->BoundingBox.X1
-      && x + dy <= Arc2->BoundingBox.X2
-      && y - dx >= Arc2->BoundingBox.Y1 && y - dx <= Arc2->BoundingBox.Y2)
+  if (radius_crosses_arc (x + dy, y - dx, Arc1)
+      && IsPointOnArc ((float)(x + dy), (float)(y - dx), (float)t, Arc2))
+    return (True);
+  if (radius_crosses_arc (x + dy, y - dx, Arc2)
+      && IsPointOnArc ((float)(x + dy), (float)(y - dx), (float)t1, Arc1))
     return (True);
 
-  if (x - dy >= Arc1->BoundingBox.X1
-      && x - dy <= Arc1->BoundingBox.X2
-      && y + dx >= Arc1->BoundingBox.Y1
-      && y + dx <= Arc1->BoundingBox.Y2
-      && x - dy >= Arc2->BoundingBox.X1
-      && x - dy <= Arc2->BoundingBox.X2
-      && y + dx >= Arc2->BoundingBox.Y1 && y + dx <= Arc2->BoundingBox.Y2)
+  if (radius_crosses_arc (x - dy, y + dx, Arc1)
+      && IsPointOnArc ((float)(x - dy), (float)(y + dx), (float)t, Arc2))
     return (True);
-
-  /* try the end points in case the ends don't actually pierce the outer radii */
-  box = GetArcEnds (Arc1);
-  box1 = *box;
-  box = GetArcEnds (Arc2);
-  box2 = *box;
-  if (IsPointOnArc
-      ((float) box1.X1, (float) box1.Y1, t,
-       Arc2) || IsPointOnArc ((float) box1.X2, (float) box1.Y2, t, Arc2))
-    return (True);
-
-  if (IsPointOnArc
-      ((float) box2.X1, (float) box2.Y1,
-       MAX (t2 + fBloat, 0.0), Arc1)
-      || IsPointOnArc ((float) box2.X2,
-                       (float) box2.Y2, MAX (t2 + fBloat, 0.0), Arc1))
+  if (radius_crosses_arc (x - dy, y + dx, Arc2)
+      && IsPointOnArc ((float)(x - dy), (float)(y + dx), (float)t1, Arc1))
     return (True);
   return (False);
 }
