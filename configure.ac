@@ -621,6 +621,8 @@ AC_CHECK_FUNCS(getpwuid gethostname getcwd)
 AC_CHECK_FUNCS(random)
 AC_CHECK_FUNCS(stat)
 
+AC_CHECK_FUNCS(mkdtemp)
+
 # normally used for all file i/o
 AC_CHECK_FUNCS(popen)
 

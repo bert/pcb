@@ -71,6 +71,8 @@
 #include "rtree.h"
 #include "macro.h"
 
+#include <assert.h>
+
 #ifdef HAVE_LIBDMALLOC
 #include <dmalloc.h>
 #endif
@@ -7157,6 +7159,162 @@ pcb_spawnvp (char **argv)
   return 0;
 }
 
+/* 
+ * Creates a new temporary file name.  Hopefully the operating system
+ * provides a mkdtemp() function to securily create a temporary
+ * directory with mode 0700.  If so then that directory is created and
+ * the returned string is made up of the directory plus the name
+ * variable.  For example:
+ *
+ * tempfile_name_new ("myfile") might return
+ * "/var/tmp/pcb.123456/myfile".
+ *
+ * If mkdtemp() is not available then 'name' is ignored and the
+ * insecure tmpnam() function is used.
+ *  
+ * Files/names created with tempfile_name_new() should be unlinked
+ * with tempfile_unlink to make sure the temporary directory is also
+ * removed when mkdtemp() is used.
+ */
+static char *
+tempfile_name_new (char * name)
+{
+  char *tmpfile = NULL;
+#ifdef HAVE_MKDTEMP
+  char *tmpdir, *mytmpdir;
+  size_t len;
+#endif
+
+  assert ( name != NULL );
+
+#ifdef HAVE_MKDTEMP
+#define TEMPLATE "pcb.XXXXXXXX"
+    
+  
+  tmpdir = getenv ("TMPDIR");
+
+  /* FIXME -- what about win32? */
+  if (tmpdir == NULL) {
+    tmpdir = "/tmp";
+  }
+  
+  mytmpdir = (char *) malloc (sizeof(char) * 
+			      (strlen (tmpdir) + 
+			       1 +
+			       strlen (TEMPLATE) + 
+			       1));
+  if (mytmpdir == NULL) {
+    fprintf (stderr, "%s(): malloc failed()\n", __FUNCTION__);
+    exit (1);
+  }
+  
+  *mytmpdir = '\0';
+  (void)strcat (mytmpdir, tmpdir);
+  (void)strcat (mytmpdir, PCB_DIR_SEPARATOR_S);
+  (void)strcat (mytmpdir, TEMPLATE);
+  if (mkdtemp (mytmpdir) == NULL) {
+    fprintf (stderr, "%s():  mkdtemp (\"%s\") failed\n", __FUNCTION__, mytmpdir);
+    free (mytmpdir);
+    return NULL;
+  }
+
+
+  len = strlen (mytmpdir) + /* the temp directory name */
+    1 +                     /* the directory sep. */
+    strlen (name) +         /* the file name */
+    1                       /* the \0 termination */
+    ;
+
+  tmpfile = (char *) malloc (sizeof (char) * len);
+
+  *tmpfile = '\0';
+  (void)strcat (tmpfile, mytmpdir);
+  (void)strcat (tmpfile, PCB_DIR_SEPARATOR_S);
+  (void)strcat (tmpfile, name);
+  
+  free (mytmpdir);
+#undef TEMPLATE
+#else
+  /*
+   * tmpnam() uses a static buffer so strdup() the result right away
+   * in case someone decides to create multiple temp names.
+   */
+  tmpfile = strdup (tmpnam (NULL));
+#endif
+
+  return tmpfile;
+}
+
+/*
+ * Unlink a temporary file.  If we have mkdtemp() then our temp file
+ * lives in a temporary directory and we need to remove that directory
+ * too.
+ */
+static int
+tempfile_unlink (char * name)
+{
+  int rc;
+
+#ifdef HAVE_MKDTEMP
+  int e, rc2 = 0;
+  char *dname;
+
+  rc = unlink (name);
+  /* it is possible that the file was never created so it is OK if the
+     unlink fails */
+
+  /* now figure out the directory name to remove */
+  e = strlen (name) - 1;
+  while (e > 0 && name[e] != PCB_DIR_SEPARATOR_C) {e--;}
+  
+  dname = strdup (name);
+  dname[e] = '\0';
+
+  /* 
+   * at this point, e *should* point to the end of the directory part 
+   * but lets make sure.
+   */
+  if (e > 0) {
+    rc2 = rmdir (dname);
+    if (rc2 != 0) {
+      perror (dname);
+    }
+
+  } else {
+    fprintf (stderr, "%s():  Unable to determine temp directory name from the temp file\n", 
+	     __FUNCTION__);
+    fprintf (stderr, "%s():  \"%s\"\n", 
+	     __FUNCTION__, name);
+    rc2 = -1;
+  }
+
+  /* name was allocated with malloc */
+  free (dname);
+  free (name);
+
+  /*
+   * FIXME - should also return -1 if the temp file exists and was not
+   * removed.  
+   */
+  if (rc2 != 0) {
+    return -1;
+  }
+
+#else
+  rc =  unlink (name);
+
+  if (rc != 0) {
+    fprintf (stderr, "Failed to unlink \"%s\"\n", name);
+    free (name);
+    return rc;
+  }
+  free (name);
+
+#endif
+
+  return 0;
+}
+
 static int
 ActionImport (int argc, char **argv, int x, int y)
 {
@@ -7229,9 +7387,15 @@ ActionImport (int argc, char **argv, int x, int y)
 
   if (strcasecmp (mode, "gnetlist") == 0)
     {
-      char *tmpfile = tmpnam (NULL);
+      char *tmpfile = tempfile_name_new ("gnetlist_output");
       char **cmd;
       int i;
+
+      if (tmpfile == NULL) {
+	Message ("Could not create temp file");
+	return 1;
+      }
+
       cmd = (char **) malloc ((6 + nsources) * sizeof (char *));
       cmd[0] = "gnetlist";
       cmd[1] = "-g";
@@ -7253,15 +7417,21 @@ ActionImport (int argc, char **argv, int x, int y)
       ActionExecuteFile (1, cmd, 0, 0);
 
       free (cmd);
-      unlink (tmpfile);
+      tempfile_unlink (tmpfile);
     }
   else if (strcasecmp (mode, "make") == 0)
     {
-      char *tmpfile = tmpnam (NULL);
+      char *tmpfile = tempfile_name_new ("gnetlist_output");
       char **cmd;
       int i;
       char *srclist;
       int srclen;
+
+
+      if (tmpfile == NULL) {
+	Message ("Could not create temp file");
+	return 1;
+      }
 
       srclen = sizeof("SRCLIB=") + 2;
       for (i=0; i<nsources; i++)
@@ -7304,7 +7474,7 @@ ActionImport (int argc, char **argv, int x, int y)
       free (cmd[3]);
       free (cmd[4]);
       free (cmd);
-      unlink (tmpfile);
+      tempfile_unlink (tmpfile);
     }
   else
     {
