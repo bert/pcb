@@ -7366,6 +7366,14 @@ ActionImport (int argc, char **argv, int x, int y)
       char *schname;
       char *dot, *slash, *bslash;
 
+      if (!pcbname)
+	{
+	  Message ("Please save your PCB first, so that it has a\n"
+		   "file name, or manually add an import::src0 attribute with\n"
+		   "the name of the schematic to import from.");
+	  return 1;
+	}
+
       schname = (char *) malloc (strlen(pcbname) + 5);
       strcpy (schname, pcbname);
       dot = strchr (schname, '.');
@@ -7399,7 +7407,7 @@ ActionImport (int argc, char **argv, int x, int y)
       cmd = (char **) malloc ((6 + nsources) * sizeof (char *));
       cmd[0] = "gnetlist";
       cmd[1] = "-g";
-      cmd[2] = "pcblf";
+      cmd[2] = "pcbfwd";
       cmd[3] = "-o";
       cmd[4] = tmpfile;
       for (i=0; i<nsources; i++)

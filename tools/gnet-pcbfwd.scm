@@ -24,7 +24,7 @@
 ;; This is a list of attributes which are propogated to the pcb
 ;; elements.  Note that refdes, value, and footprint need not be
 ;; listed here.
-(define pcblf:element-attrs
+(define pcbfwd:element-attrs
   '("device"
     "manufacturer"
     "manufacturer_part_number"
@@ -32,33 +32,33 @@
     "vendor_part_number"
     ))
 
-(define (pcblf:pinfmt pin)
+(define (pcbfwd:pinfmt pin)
   (format #f "~a-~a" (car pin) (car (cdr pin)))
   )
 
-(define (pcblf:each-pin net pins port)
+(define (pcbfwd:each-pin net pins port)
   (if (not (null? pins))
       (let ((pin (car pins)))
-	(format port "Netlist(Add,~a,~a)~%" net (pcblf:pinfmt pin))
-	(pcblf:each-pin net (cdr pins) port))))
+	(format port "Netlist(Add,~a,~a)~%" net (pcbfwd:pinfmt pin))
+	(pcbfwd:each-pin net (cdr pins) port))))
 
-(define (pcblf:each-net netnames port)
+(define (pcbfwd:each-net netnames port)
   (if (not (null? netnames))
       (let ((netname (car netnames)))
-	(pcblf:each-pin netname (gnetlist:get-all-connections netname) port)
-	(pcblf:each-net (cdr netnames) port))))
+	(pcbfwd:each-pin netname (gnetlist:get-all-connections netname) port)
+	(pcbfwd:each-net (cdr netnames) port))))
 
-(define (pcblf:each-attr refdes attrs port)
+(define (pcbfwd:each-attr refdes attrs port)
   (if (not (null? attrs))
       (let ((attr (car attrs)))
 	(format port "ElementSetAttr(~a,~a,~a)~%"
 		refdes
 		attr
 		(gnetlist:get-package-attribute refdes attr))
-	(pcblf:each-attr refdes (cdr attrs) port))))
+	(pcbfwd:each-attr refdes (cdr attrs) port))))
 
 ;; write out the pins for a particular component
-(define pcblf:component_pins
+(define pcbfwd:component_pins
   (lambda (port package pins)
     (if (and (not (null? package)) (not (null? pins)))
 	(begin
@@ -83,13 +83,13 @@
 	    (display label port)
 	    (display ")\n" port)
 	    )
-	  (pcblf:component_pins port package (cdr pins))
+	  (pcbfwd:component_pins port package (cdr pins))
 	  )
 	)
     )
   )
 
-(define (pcblf:each-element elements port)
+(define (pcbfwd:each-element elements port)
   (if (not (null? elements))
       (let* ((refdes (car elements))
 	     (value (gnetlist:get-package-attribute refdes "value"))
@@ -97,19 +97,19 @@
 	     )
 
 	(format port "ElementList(Need,~a,~a,~a)~%" refdes footprint value)
-	(pcblf:each-attr refdes pcblf:element-attrs port)
-	(pcblf:component_pins port refdes (gnetlist:get-pins refdes))
+	(pcbfwd:each-attr refdes pcbfwd:element-attrs port)
+	(pcbfwd:component_pins port refdes (gnetlist:get-pins refdes))
 
-	(pcblf:each-element (cdr elements) port))))
+	(pcbfwd:each-element (cdr elements) port))))
 
-(define (pcblf output-filename)
+(define (pcbfwd output-filename)
   (let ((port (open-output-file output-filename)))
     (format port "Netlist(Freeze)\n")
     (format port "Netlist(Clear)\n")
-    (pcblf:each-net (gnetlist:get-all-unique-nets "dummy") port)
+    (pcbfwd:each-net (gnetlist:get-all-unique-nets "dummy") port)
     (format port "Netlist(Sort)\n")
     (format port "Netlist(Thaw)\n")
     (format port "ElementList(Start)\n")
-    (pcblf:each-element packages port)
+    (pcbfwd:each-element packages port)
     (format port "ElementList(Done)\n")
     (close-output-port port)))
