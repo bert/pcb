@@ -7397,7 +7397,7 @@ ActionImport (int argc, char **argv, int x, int y)
       }
 
       cmd = (char **) malloc ((6 + nsources) * sizeof (char *));
-      cmd[0] = "gnetlist";
+      cmd[0] =  Settings.GnetlistProgram;
       cmd[1] = "-g";
       cmd[2] = "pcblf";
       cmd[3] = "-o";
@@ -7448,7 +7448,7 @@ ActionImport (int argc, char **argv, int x, int y)
       printf("Makefile!\n");
       
       cmd = (char **) malloc (7 * sizeof (char *));
-      cmd[0] = "make";
+      cmd[0] = Settings.MakeProgram;
       cmd[1] = "-s";
       cmd[2] = Concat ("PCB=", PCB->Filename, NULL);
       cmd[3] = srclist;
