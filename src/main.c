@@ -534,6 +534,11 @@ HID_Attribute main_attribute_list[] = {
   SSET (InitialLayerStack, "", "layer-stack",
 	"Initial layer stackup, for setting up an export."),
 
+  SSET (MakeProgram, NULL, "make-program",
+	"Sets the name and optionally full path to a make(3) program"),
+  SSET (GnetlistProgram, NULL, "gnetlist",
+	"Sets the name and optionally full path to the gnetlist(3) program"),
+
   ISET (PinoutOffsetX, 100, "pinout-offset-x", 0),
   ISET (PinoutOffsetY, 100, "pinout-offset-y", 0),
   ISET (PinoutTextOffsetX, 800, "pinout-text-offset-x", 0),
@@ -591,6 +596,25 @@ REGISTER_ATTRIBUTES (main_attribute_list)
   Settings.MaxHeight = MIN (MAX_COORD, MAX (Settings.MaxHeight, MIN_SIZE));
 
   ParseRouteString (Settings.Routes, &Settings.RouteStyle[0], 1);
+
+  /*
+   * Make sure we have settings for some various programs we may wish
+   * to call
+   */
+  if (Settings.MakeProgram == NULL) {
+    Settings.MakeProgram = getenv ("PCB_MAKE_PROGRAM");
+  }
+  if (Settings.MakeProgram == NULL) {
+    Settings.MakeProgram = strdup ("make");
+  }
+
+  if (Settings.GnetlistProgram == NULL) {
+    Settings.GnetlistProgram = getenv ("PCB_GNETLIST");
+  }
+  if (Settings.GnetlistProgram == NULL) {
+    Settings.GnetlistProgram = strdup ("defgnetlist");
+  }
+
 
 }
 
@@ -1030,6 +1054,10 @@ main (int argc, char *argv[])
 	      Settings.LibraryPath);
       printf ("Settings.LibraryTree       = \"%s\"\n", 
 	      Settings.LibraryTree);
+      printf ("Settings.MakeProgram = \"%s\"\n",
+	      UNKNOWN (Settings.MakeProgram));
+      printf ("Settings.GnetlistProgram = \"%s\"\n",
+	      UNKNOWN (Settings.GnetlistProgram));
 #endif
 
       gui->do_export (0);
