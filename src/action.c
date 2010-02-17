@@ -6793,7 +6793,9 @@ ActionExecuteFile (int argc, char **argv, int x, int y)
 
       if (*sp && *sp != '#')
 	{
-	  /*Message ("%s : line %-3d : \"%s\"\n", fname, n, sp);*/
+#ifdef DEBUG
+	  printf("%s : line %-3d : \"%s\"\n", fname, n, sp);
+#endif
 	  hid_parse_actions (sp, 0);
 	}
     }
@@ -7253,6 +7255,9 @@ tempfile_name_new (char * name)
 static int
 tempfile_unlink (char * name)
 {
+  /* SDB */
+  return;
+
   int rc;
 
 #ifdef HAVE_MKDTEMP
@@ -7414,12 +7419,21 @@ ActionImport (int argc, char **argv, int x, int y)
 	cmd[5+i] = sources[i];
       cmd[5+nsources] = NULL;
 
+#ifdef DEBUG
+      printf("===========  About to run gnetlist cmd  ============\n");
+      printf("cmd = \n");
+      printf("%s %s %s %s %s %s ...\n", 
+	     cmd[0], cmd[1], cmd[2], cmd[3], cmd[4], cmd[5]);
+#endif
+
       if (pcb_spawnvp (cmd))
 	{
 	  unlink (tmpfile);
 	  return 1;
 	}
-
+#ifdef DEBUG
+      printf("===========  About to run ActionExecuteFile  ============\n");
+#endif
       cmd[0] = tmpfile;
       cmd[1] = NULL;
       ActionExecuteFile (1, cmd, 0, 0);
