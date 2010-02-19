@@ -118,7 +118,7 @@ if test -d ${outd} ; then
 else
 	mkdir -p ${outd}
 fi
-outd_full=`cd $outd && pwd`
+outd_full="`cd $outd && pwd`"
 
 $AWK '
 
@@ -325,7 +325,7 @@ function finish_libind() {
 	}
 }
 
-' cmd_path=./ do_png=$do_png outd=$outd_full awk=$AWK PCB="${PCB}" $contents
+' cmd_path=./ do_png=$do_png outd="$outd_full" awk=$AWK PCB="${PCB}" $contents
 
 
 
