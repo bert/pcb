@@ -42,7 +42,7 @@
 RCSID ("$Id$");
 
 static GtkWidget *log_window, *log_text;
-
+static gboolean log_show_on_append = FALSE;
 
 /* Remember user window resizes. */
 static gint
@@ -70,16 +70,12 @@ log_destroy_cb (GtkWidget * widget, gpointer data)
 }
 
 void
-ghid_log_window_show (gboolean raise)
+ghid_log_window_create ()
 {
   GtkWidget *vbox, *hbox, *button;
 
   if (log_window)
-    {
-      if (raise)
-        gtk_window_present(GTK_WINDOW(log_window));
-      return;
-    }
+    return;
 
   log_window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
   g_signal_connect (G_OBJECT (log_window), "destroy",
@@ -111,13 +107,24 @@ ghid_log_window_show (gboolean raise)
   gtk_widget_realize (log_window);
   if (Settings.AutoPlace)
     gtk_widget_set_uposition (GTK_WIDGET (log_window), 10, 10);
+}
+
+void
+ghid_log_window_show (gboolean raise)
+{
+  ghid_log_window_create ();
   gtk_widget_show_all (log_window);
+  if (raise)
+    gtk_window_present (GTK_WINDOW(log_window));
 }
 
 static void
 ghid_log_append_string (gchar * s)
 {
-  ghid_log_window_show (FALSE);
+  if (log_show_on_append)
+    ghid_log_window_show(FALSE);
+  else
+    ghid_log_window_create ();
   ghid_text_view_append (log_text, s);
 }
 
@@ -189,3 +196,34 @@ ghid_logv (const char *fmt, va_list args)
   ghid_log_append_string (msg_buffer);
 
 }
+
+static const char logshowonappend_syntax[] =
+  "LogShowOnAppend(true|false)";
+
+static const char logshowonappend_help[] =
+  "If true, the log window will be shown whenever something is appended \
+to it.  If false, the log will still be updated, but the window won't \
+be shown.";
+
+static gint
+GhidLogShowOnAppend (int argc, char **argv, int x, int y)
+{
+  char *a = argc == 1 ? argv[0] : "";
+
+  if (strncasecmp(a, "t", 1) == 0)
+    {
+      log_show_on_append = TRUE;
+    }
+  else if (strncasecmp(a, "f", 1) == 0)
+    {
+      log_show_on_append = FALSE;
+    }
+}
+
+HID_Action ghid_log_action_list[] = {
+  {"LogShowOnAppend", 0, GhidLogShowOnAppend,
+   logshowonappend_help, logshowonappend_syntax}
+  ,
+};
+
+REGISTER_ACTIONS (ghid_log_action_list)

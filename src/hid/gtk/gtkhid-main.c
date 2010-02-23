@@ -1289,7 +1289,9 @@ LayerGroupsChanged (int argc, char **argv, int x, int y)
 static int
 LibraryChanged (int argc, char **argv, int x, int y)
 {
-  ghid_library_window_show (&ghid_port, FALSE);
+  /* No need to show the library window every time it changes...
+   *  ghid_library_window_show (&ghid_port, FALSE);
+   */
   return 0;
 }
 
