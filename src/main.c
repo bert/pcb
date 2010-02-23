@@ -612,7 +612,7 @@ REGISTER_ATTRIBUTES (main_attribute_list)
     Settings.GnetlistProgram = getenv ("PCB_GNETLIST");
   }
   if (Settings.GnetlistProgram == NULL) {
-    Settings.GnetlistProgram = strdup ("defgnetlist");
+    Settings.GnetlistProgram = strdup ("gnetlist");
   }
 
 
