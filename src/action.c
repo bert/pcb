@@ -7121,16 +7121,48 @@ The name of the .pcb file
 A space-separated list of source files
 
 @item OUT
-The name of the file in which to put the command script.
+The name of the file in which to put the command script, which may
+contain any @pcb{} actions.  By default, this is a temporary file
+selected by @pcb{}, but if you specify an @code{import::outfile}
+attribute, that file name is used instead (and not automatically
+deleted afterwards).
 
 @end table
 
-The target requested will be @code{pcb_import}.
+The target specified to be built is the first of these that apply:
+
+@itemize @bullet
+
+@item
+The target specified by an @code{import::target} attribute.
+
+@item
+The output file specified by an @code{import::outfile} attribute.
+
+@item
+If nothing else is specified, the target is @code{pcb_import}.
+
+@end itemize
+
+If you specify an @code{import::makefile} attribute, then "-f <that
+file>" will be added to the command line.
 
 If you specify the mode, you may also specify the source files
 (schematics).  If you do not specify any, the list of schematics is
 obtained by reading the @code{import::src@var{N}} attributes (like
 @code{import::src0}, @code{import::src1}, etc).
+
+For compatibility with future extensions to the import file format,
+the generated file @emph{must not} start with the two characters
+@code{#%}.
+
+If a temporary file is needed the @code{TMPDIR} environment variable
+is used to select its location.
+
+Note that the programs @code{gnetlist} and @code{make} may be
+overridden by the user via the @code{make-program} and @code{gnetlist}
+@code{pcb} settings (i.e. in @code{~/.pcb/settings} or on the command
+line).
 
 %end-doc */
 
@@ -7430,19 +7462,36 @@ ActionImport (int argc, char **argv, int x, int y)
     }
   else if (strcasecmp (mode, "make") == 0)
     {
-      char *tmpfile = tempfile_name_new ("gnetlist_output");
-      char **cmd;
+      int must_free_tmpfile = 0;
+      char *tmpfile;
+      char *cmd[10];
       int i;
       char *srclist;
       int srclen;
+      char *user_outfile = NULL;
+      char *user_makefile = NULL;
+      char *user_target = NULL;
 
 
-      if (tmpfile == NULL) {
-	Message ("Could not create temp file");
-	return 1;
-      }
+      user_outfile = AttributeGet (PCB, "import::outfile");
+      user_makefile = AttributeGet (PCB, "import::makefile");
+      user_target = AttributeGet (PCB, "import::target");
+      if (user_outfile && !user_target)
+	user_target = user_outfile;
 
-      srclen = sizeof("SRCLIB=") + 2;
+      if (user_outfile)
+	tmpfile = user_outfile;
+      else
+	{
+	  tmpfile = tempfile_name_new ("gnetlist_output");
+	  if (tmpfile == NULL) {
+	    Message ("Could not create temp file");
+	    return 1;
+	  }
+	  must_free_tmpfile = 1;
+	}
+
+      srclen = sizeof("SRCLIST=") + 2;
       for (i=0; i<nsources; i++)
 	srclen += strlen (sources[i]) + 2;
       srclist = (char *) malloc (srclen);
@@ -7453,25 +7502,28 @@ ActionImport (int argc, char **argv, int x, int y)
 	    strcat (srclist, " ");
 	  strcat (srclist, sources[i]);
 	}
-
-      printf("Makefile!\n");
       
-      cmd = (char **) malloc (7 * sizeof (char *));
       cmd[0] = Settings.MakeProgram;
       cmd[1] = "-s";
       cmd[2] = Concat ("PCB=", PCB->Filename, NULL);
       cmd[3] = srclist;
       cmd[4] = Concat ("OUT=", tmpfile, NULL);
-      cmd[5] = "pcb_import";
-      cmd[6] = NULL;
+      i = 5;
+      if (user_makefile)
+	{
+	  cmd[i++] = "-f";
+	  cmd[i++] = user_makefile;
+	}
+      cmd[i++] = user_target ? user_target : "pcb_import";
+      cmd[i++] = NULL;
 
       if (pcb_spawnvp (cmd))
 	{
-	  unlink (tmpfile);
+	  if (must_free_tmpfile)
+	    unlink (tmpfile);
 	  free (cmd[2]);
 	  free (cmd[3]);
 	  free (cmd[4]);
-	  free (cmd);
 	  return 1;
 	}
 
@@ -7482,8 +7534,8 @@ ActionImport (int argc, char **argv, int x, int y)
       free (cmd[2]);
       free (cmd[3]);
       free (cmd[4]);
-      free (cmd);
-      tempfile_unlink (tmpfile);
+      if (must_free_tmpfile)
+	tempfile_unlink (tmpfile);
     }
   else
     {
