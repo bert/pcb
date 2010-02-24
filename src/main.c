@@ -563,6 +563,8 @@ REGISTER_ATTRIBUTES (main_attribute_list)
  */
      static void settings_post_process ()
 {
+  char *tmps;
+
   if (Settings.LibraryCommand[0] != PCB_DIR_SEPARATOR_C && Settings.LibraryCommand[0] != '.')
     {
       Settings.LibraryCommand
@@ -602,14 +604,18 @@ REGISTER_ATTRIBUTES (main_attribute_list)
    * to call
    */
   if (Settings.MakeProgram == NULL) {
-    Settings.MakeProgram = getenv ("PCB_MAKE_PROGRAM");
+    tmps = getenv ("PCB_MAKE_PROGRAM");
+    if (tmps != NULL)
+      Settings.MakeProgram = strdup (tmps);
   }
   if (Settings.MakeProgram == NULL) {
     Settings.MakeProgram = strdup ("make");
   }
 
   if (Settings.GnetlistProgram == NULL) {
-    Settings.GnetlistProgram = getenv ("PCB_GNETLIST");
+    tmps = getenv ("PCB_GNETLIST");
+    if (tmps != NULL)
+      Settings.GnetlistProgram = strdup (tmps);
   }
   if (Settings.GnetlistProgram == NULL) {
     Settings.GnetlistProgram = strdup ("gnetlist");
