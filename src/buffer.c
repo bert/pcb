@@ -767,11 +767,19 @@ LoadFootprintByName (BufferTypePtr Buffer, char *Footprint)
   FootprintHashEntry *fpe;
   LibraryMenuType *menu;
   LibraryEntryType *entry;
+  char *with_fp = NULL;
 
   if (!footprint_hash)
     make_footprint_hash ();
 
   fpe = search_footprint_hash (Footprint);
+  if (!fpe)
+    {
+      with_fp = Concat (Footprint, ".fp", NULL);
+      fpe = search_footprint_hash (with_fp);
+      if (fpe)
+	Footprint = with_fp;
+    }
   if (!fpe)
     {
       Message("Unable to load footprint %s\n", Footprint);
@@ -784,6 +792,8 @@ LoadFootprintByName (BufferTypePtr Buffer, char *Footprint)
   if (entry->Template == (char *) -1)
     {
       i = LoadElementToBuffer (Buffer, entry->AllocatedMemory, True);
+      if (with_fp)
+	free (with_fp);
       return i ? 0 : 1;
     }
   else
@@ -795,6 +805,8 @@ LoadFootprintByName (BufferTypePtr Buffer, char *Footprint)
       i = LoadElementToBuffer (Buffer, args, False);
 
       free (args);
+      if (with_fp)
+	free (with_fp);
       return i ? 0 : 1;
     }
 
