@@ -6826,6 +6826,7 @@ static ElementType *
 find_element_by_refdes (char *refdes)
 {
   if (element_cache
+      && NAMEONPCB_NAME(element_cache)
       && strcmp (NAMEONPCB_NAME(element_cache), refdes) == 0)
     return element_cache;
 
