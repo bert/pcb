@@ -1878,7 +1878,7 @@ attributes	: attribute
 attribute
 		: T_ATTRIBUTE '(' STRING STRING ')'
 			{
-				CreateNewAttribute (attr_list, $3, $4);
+				CreateNewAttribute (attr_list, $3, $4 ? $4 : "");
 				SaveFree ($3);
 				SaveFree ($4);
 			}
