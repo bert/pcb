@@ -5637,7 +5637,10 @@ MainMenu = @{ # This is also a comment
 
 To best understand this section, you should find the
 @file{pcb-menu.res} file that your Pcb uses and refer to it for
-examples (@pxref{Menu Files and Defaults}).
+examples (@pxref{Menu Files and Defaults}).  Note that the lesstif
+GUI uses @file{pcb-menu.res} and the GTK+ GUI uses @file{gpcb-menu.res}.
+The file format is identical however and if so desired, one can make
+one file be a soft link to the other.
 
 A resource defines a menu when it meets certain semantic requirements.
 The menu hierarchy is reflected as a hierarchy of unnamed
@@ -5692,7 +5695,8 @@ documentation for these comments.
 @section Menu Files and Defaults
 
 Pcb will look for a file which defines its menus, trying the following
-names:
+names (the example is for the lesstif GUI, the GTK+ GUI has ``gpcb-menu.res''
+in place of ``pcb-menu.res''):
 
 @example
 ./pcb-menu.res

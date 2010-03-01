@@ -139,46 +139,40 @@ library_window_callback_response (GtkDialog * dialog,
 }
 
 
-/*! \brief Opens a library dialog.
+/*! \brief Creates a library dialog.
  *  \par Function Description
- *  This function opens the library dialog for if it is not already.
- *  In this last case, it only raises the dialog.
+ *  This function create the library dialog if it is not already created.
+ *  It does not show the dialog, use ghid_library_window_show for that.
  *
  */
 void
-ghid_library_window_show (GHidPort * out, gboolean raise)
+ghid_library_window_create (GHidPort * out)
 {
   GtkWidget *current_tab, *entry_filter;
   GtkNotebook *notebook;
 
-  if (library_window == NULL)
-    {
-      library_window = g_object_new (GHID_TYPE_LIBRARY_WINDOW, NULL);
+  if (library_window)
+    return;
 
-      g_signal_connect (library_window,
-			"response",
-			G_CALLBACK (library_window_callback_response), NULL);
-      g_signal_connect (G_OBJECT (library_window), "configure_event",
-			G_CALLBACK (library_window_configure_event_cb), NULL);
-      gtk_window_set_default_size (GTK_WINDOW (library_window),
-				   ghidgui->library_window_width,
-				   ghidgui->library_window_height);
+  library_window = g_object_new (GHID_TYPE_LIBRARY_WINDOW, NULL);
 
-      gtk_window_set_title (GTK_WINDOW (library_window), _("PCB Library"));
-      gtk_window_set_wmclass (GTK_WINDOW (library_window), "PCB_Library",
-			      "PCB");
+  g_signal_connect (library_window,
+                    "response",
+                    G_CALLBACK (library_window_callback_response), NULL);
+  g_signal_connect (G_OBJECT (library_window), "configure_event",
+                    G_CALLBACK (library_window_configure_event_cb), NULL);
+  gtk_window_set_default_size (GTK_WINDOW (library_window),
+                               ghidgui->library_window_width,
+                               ghidgui->library_window_height);
 
-      gtk_widget_realize (library_window);
-      if (Settings.AutoPlace)
-	gtk_widget_set_uposition (GTK_WIDGET (library_window), 10, 10);
+  gtk_window_set_title (GTK_WINDOW (library_window), _("PCB Library"));
+  gtk_window_set_wmclass (GTK_WINDOW (library_window), "PCB_Library",
+                          "PCB");
 
-      gtk_widget_show (library_window);
+  gtk_widget_realize (library_window);
+  if (Settings.AutoPlace)
+    gtk_widget_set_uposition (GTK_WIDGET (library_window), 10, 10);
 
-    }
-  else if (raise)
-    {
-      gtk_window_present (GTK_WINDOW (library_window));
-    }
   gtk_editable_select_region (GTK_EDITABLE
 			      (GHID_LIBRARY_WINDOW (library_window)->
 			       entry_filter), 0, -1);
@@ -197,6 +191,20 @@ ghid_library_window_show (GHidPort * out, gboolean raise)
     }
 }
 
+/*! \brief Show the library dialog.
+ *  \par Function Description
+ *  This function show the library dialog, creating it if it is not
+ *  already created, and presents it to the user (brings it to the
+ *  front with focus).
+ */
+void
+ghid_library_window_show (GHidPort * out, gboolean raise)
+{
+  ghid_library_window_create (out);
+  gtk_widget_show_all (library_window);
+  if (raise)
+    gtk_window_present (GTK_WINDOW(library_window));
+}
 
 static GObjectClass *library_window_parent_class = NULL;
 

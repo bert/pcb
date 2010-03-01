@@ -589,11 +589,11 @@ node_get_node_from_name (gchar * node_name, LibraryMenuType ** node_net)
   if (!node_name)
     return NULL;
 
-  /* Have to force the netlist window shown because we need the treeview
+  /* Have to force the netlist window created because we need the treeview
      |  models constructed to do the search.
    */
   if (!netlist_window)
-    ghid_netlist_window_show (gport, FALSE);
+    ghid_netlist_window_create (gport);
 
   while (gtk_events_pending ())	/* Make sure everything gets built */
     gtk_main_iteration ();
@@ -648,9 +648,8 @@ netlist_destroy_cb (GtkWidget * widget, GHidPort * out)
   netlist_window = NULL;
 }
 
-
 void
-ghid_netlist_window_show (GHidPort * out, gboolean raise)
+ghid_netlist_window_create (GHidPort * out)
 {
   GtkWidget *vbox, *hbox, *button, *label, *sep;
   GtkTreeView *treeview;
@@ -665,12 +664,8 @@ ghid_netlist_window_show (GHidPort * out, gboolean raise)
     return;
 
   if (netlist_window)
-    {
-      if (raise)
-        gtk_window_present(GTK_WINDOW(netlist_window));
-      ghid_netlist_window_update (TRUE);
-      return;
-    }
+    return;
+
   netlist_window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
   g_signal_connect (G_OBJECT (netlist_window), "destroy",
 		    G_CALLBACK (netlist_destroy_cb), out);
@@ -798,7 +793,16 @@ ghid_netlist_window_show (GHidPort * out, gboolean raise)
   if (Settings.AutoPlace)
     gtk_widget_set_uposition (GTK_WIDGET (netlist_window), 10, 10);
 
+}
+
+void
+ghid_netlist_window_show (GHidPort * out, gboolean raise)
+{
+  ghid_netlist_window_create (out);
   gtk_widget_show_all (netlist_window);
+  ghid_netlist_window_update (TRUE);
+  if (raise)
+    gtk_window_present(GTK_WINDOW(netlist_window));
 }
 
 struct ggnfnn_task {
@@ -853,12 +857,12 @@ ghid_get_net_from_node_name (gchar * node_name, gboolean enabled_only)
   if (!node_name)
     return NULL;
 
-  /* Have to force the netlist window shown because we need the treeview
+  /* Have to force the netlist window created because we need the treeview
      |  models constructed so we can find the LibraryMenuType pointer the
      |  caller wants.
    */
   if (!netlist_window)
-    ghid_netlist_window_show (gport, FALSE);
+    ghid_netlist_window_create (gport);
 
   while (gtk_events_pending ())	/* Make sure everything gets built */
     gtk_main_iteration ();
@@ -951,11 +955,9 @@ ghid_netlist_window_update (gboolean init_nodes)
 {
   GtkTreeModel *model;
 
-  if (!netlist_window)
-    {
-      ghid_netlist_window_show (gport, FALSE);
-      return;
-    }
+  /* Make sure there is something to update */
+  ghid_netlist_window_create (gport);
+
   model = net_model;
   net_model = net_model_create ();
   gtk_tree_view_set_model (net_treeview, net_model);
@@ -985,18 +987,42 @@ GhidNetlistChanged (int argc, char **argv, int x, int y)
   return 0;
 }
 
+static const char netlistshow_syntax[] =
+"NetlistShow(pinname|netname)";
+
+static const char netlistshow_help[] =
+"Selects the given pinname or netname in the netlist window. Does not \
+show the window if it isn't already shown.";
+
 static gint
 GhidNetlistShow (int argc, char **argv, int x, int y)
 {
-  ghid_netlist_window_show (gport, FALSE);
+  ghid_netlist_window_create (gport);
   if (argc > 0)
     ghid_netlist_highlight_node(argv[0]);
   return 0;
 }
 
+static const char netlistpresent_syntax[] =
+"NetlistPresent()";
+
+static const char netlistpresent_help[] =
+"Presents the netlist window.";
+
+static gint
+GhidNetlistPresent (int argc, char **argv, int x, int y)
+{
+  ghid_netlist_window_show (gport, TRUE);
+  return 0;
+}
+
 HID_Action ghid_netlist_action_list[] = {
-  {"NetlistChanged", 0, GhidNetlistChanged},
-  {"NetlistShow", 0, GhidNetlistShow}
+  {"NetlistChanged", 0, GhidNetlistChanged,
+   netlistchanged_help, netlistchanged_syntax},
+  {"NetlistShow", 0, GhidNetlistShow,
+   netlistshow_help, netlistshow_syntax},
+  {"NetlistPresent", 0, GhidNetlistPresent,
+   netlistpresent_help, netlistpresent_syntax}
   ,
 };
 

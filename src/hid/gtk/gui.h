@@ -475,6 +475,7 @@ void ghid_set_status_line_label (void);
 
 
 /* gui-netlist-window.c */
+void ghid_netlist_window_create (GHidPort * out);
 void ghid_netlist_window_show (GHidPort * out, gboolean raise);
 void ghid_netlist_window_update (gboolean init_nodes);
 void ghid_netlist_nodes_update (LibraryMenuType * net);
@@ -493,10 +494,12 @@ void ghid_command_use_command_window_sync (void);
 void ghid_keyref_window_show (gboolean raise);
 
 /* gui-library-window.c */
+void ghid_library_window_create (GHidPort * out);
 void ghid_library_window_show (GHidPort * out, gboolean raise);
 
 
 /* gui-log-window.c */
+void ghid_log_window_create ();
 void ghid_log_window_show (gboolean raise);
 void ghid_log (const char *fmt, ...);
 void ghid_logv (const char *fmt, va_list args);

@@ -998,8 +998,8 @@ ChangeElementText (PCBType *pcb, DataType *data, ElementTypePtr Element, int whi
 #ifdef DEBUG
   printf("  ... now delete entry %s\n", Element->Name[which].TextString);
 #endif
-
-  r_delete_entry (data->name_tree[which], (BoxType *) &Element->Name[which]);
+  r_delete_entry (data->name_tree[which],
+		  & Element->Name[which].BoundingBox);
 
   Element->Name[which].TextString = new_name;
   SetTextBoundingBox (&PCB->Font, &Element->Name[which]);
@@ -1007,8 +1007,8 @@ ChangeElementText (PCBType *pcb, DataType *data, ElementTypePtr Element, int whi
 #ifdef DEBUG
   printf("  ... now insert entry %s\n", Element->Name[which].TextString);
 #endif
-
-  r_insert_entry (data->name_tree[which], (BoxType *) &Element->Name[which], 0);
+  r_insert_entry (data->name_tree[which],
+		  & Element->Name[which].BoundingBox, 0);
 
   if (pcb && which == NAME_INDEX (pcb))
     DrawElementName (Element, 0);
