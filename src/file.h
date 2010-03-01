@@ -48,6 +48,7 @@ int SaveBufferElements (char *);
 void PreLoadElementPCB (void);
 void PostLoadElementPCB (void);
 void sort_netlist (void);
+int ParseLibraryTree (void);
 
 /* 
  * Whenever the pcb file format is modified, this version number

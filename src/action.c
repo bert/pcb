@@ -6865,6 +6865,7 @@ delete_attr (AttributeListTypePtr list, AttributeType *attr)
   list->Number --;
 }
 
+/* ---------------------------------------------------------------- */
 static const char elementlist_syntax[] = "ElementList(Start|Done|Need,<refdes>,<footprint>,<value>)";
 
 static const char elementlist_help[] = "Adds the given element if it doesn't already exist.";
@@ -6901,6 +6902,10 @@ ActionElementList (int argc, char **argv, int x, int y)
   char *refdes, *value, *footprint, *old;
   char *args[3];
   char *function = argv[0];
+
+#ifdef DEBUG
+  printf("Entered ActionElementList, executing function %s\n", function);
+#endif
 
   if (strcasecmp (function, "start") == 0)
     {
@@ -6948,10 +6953,19 @@ ActionElementList (int argc, char **argv, int x, int y)
   args[1] = refdes;
   args[2] = value;
 
+#ifdef DEBUG
+  printf("  ... footprint = %s\n", footprint);
+  printf("  ... refdes = %s\n", refdes);
+  printf("  ... value = %s\n", value);
+#endif
+
   e = find_element_by_refdes (refdes);
 
   if (!e)
     {
+#ifdef DEBUG
+      printf("  ... Footprint not on board, need to add it.\n");
+#endif
       /* Not on board, need to add it. */
       if (LoadFootprint(argc, args, x, y))
 	return 1;
@@ -6961,6 +6975,9 @@ ActionElementList (int argc, char **argv, int x, int y)
 
   else if (e && strcmp (DESCRIPTION_NAME(e), footprint) != 0)
     {
+#ifdef DEBUG
+      printf("  ... Footprint on board, but different from footprint loaded.\n");
+#endif
       int er, pr, i;
       LocationType mx, my;
       ElementType *pe;
@@ -6993,6 +7010,7 @@ ActionElementList (int argc, char **argv, int x, int y)
 	SetChangedFlag (True);
     }
 
+  /* Now reload footprint */
   e = find_element_by_refdes (refdes);
 
   old = ChangeElementText (PCB, PCB->Data, e, NAMEONPCB_INDEX, strdup (refdes));
@@ -7004,9 +7022,14 @@ ActionElementList (int argc, char **argv, int x, int y)
 
   SET_FLAG (FOUNDFLAG, e);
 
+#ifdef DEBUG
+  printf(" ... Leaving ActionElementList.\n");
+#endif
+
   return 0;
 }
 
+/* ---------------------------------------------------------------- */
 static const char elementsetattr_syntax[] = "ElementSetAttr(refdes,name[,value])";
 
 static const char elementsetattr_help[] = "Sets or clears an element-specific attribute";
@@ -7070,6 +7093,7 @@ ActionElementSetAttr (int argc, char **argv, int x, int y)
   return 0;
 }
 
+/* ---------------------------------------------------------------- */
 static const char execcommand_syntax[] = "ExecCommand(command)";
 
 static const char execcommand_help[] = "Runs a command";
@@ -7097,6 +7121,7 @@ ActionExecCommand (int argc, char **argv, int x, int y)
   return 0;
 }
 
+/* ---------------------------------------------------------------- */
 static const char import_syntax[] =
   "Import()\n"
   "Import([gnetlist|make[,source,source,...]])\n";
@@ -7161,6 +7186,7 @@ pcb_spawnvp (char **argv)
   return 0;
 }
 
+/* ---------------------------------------------------------------- */
 /* 
  * Creates a new temporary file name.  Hopefully the operating system
  * provides a mkdtemp() function to securily create a temporary
@@ -7247,6 +7273,7 @@ tempfile_name_new (char * name)
   return tmpfile;
 }
 
+/* ---------------------------------------------------------------- */
 /*
  * Unlink a temporary file.  If we have mkdtemp() then our temp file
  * lives in a temporary directory and we need to remove that directory
@@ -7255,10 +7282,12 @@ tempfile_name_new (char * name)
 static int
 tempfile_unlink (char * name)
 {
-  /* SDB */
-  return;
-
   int rc;
+
+#ifdef DEBUG
+    /* SDB says:  Want to keep old temp files for examiniation when debugging */
+  return 0;
+#endif
 
 #ifdef HAVE_MKDTEMP
   int e, rc2 = 0;
@@ -7320,12 +7349,17 @@ tempfile_unlink (char * name)
   return 0;
 }
 
+/* ---------------------------------------------------------------- */
 static int
 ActionImport (int argc, char **argv, int x, int y)
 {
   char *mode;
   char **sources = NULL;
   int nsources = 0;
+
+#ifdef DEBUG
+      printf("ActionImport:  ===========  Entering ActionImport  ============\n");
+#endif
 
   mode = ARG (0);
   if (! mode)
@@ -7420,8 +7454,7 @@ ActionImport (int argc, char **argv, int x, int y)
       cmd[5+nsources] = NULL;
 
 #ifdef DEBUG
-      printf("===========  About to run gnetlist cmd  ============\n");
-      printf("cmd = \n");
+      printf("ActionImport:  ===========  About to run gnetlist  ============\n");
       printf("%s %s %s %s %s %s ...\n", 
 	     cmd[0], cmd[1], cmd[2], cmd[3], cmd[4], cmd[5]);
 #endif
@@ -7432,7 +7465,7 @@ ActionImport (int argc, char **argv, int x, int y)
 	  return 1;
 	}
 #ifdef DEBUG
-      printf("===========  About to run ActionExecuteFile  ============\n");
+      printf("ActionImport:  ===========  About to run ActionExecuteFile, file = %s  ============\n", tmpfile);
 #endif
       cmd[0] = tmpfile;
       cmd[1] = NULL;
@@ -7506,6 +7539,10 @@ ActionImport (int argc, char **argv, int x, int y)
 
   DeleteRats (False);
   AddAllRats (False, NULL);
+
+#ifdef DEBUG
+      printf("ActionImport:  ===========  Leaving ActionImport  ============\n");
+#endif
 
   return 0;
 }

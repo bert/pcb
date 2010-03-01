@@ -277,11 +277,17 @@ CopyPolygon (LayerTypePtr Layer, PolygonTypePtr Polygon)
 }
 
 /* ---------------------------------------------------------------------------
- * copies a element 
+ * copies an element onto the PCB.  Then does a draw. 
  */
 static void *
 CopyElement (ElementTypePtr Element)
 {
+
+#ifdef DEBUG
+  printf("Entered CopyElement, trying to copy element %s\n",
+	 Element->Name[1].TextString);
+#endif
+
   Boolean didDraw = False;
   ElementTypePtr element = CopyElementLowLevel (PCB->Data,
 						NULL, Element,
@@ -302,6 +308,9 @@ CopyElement (ElementTypePtr Element)
       DrawElementPinsAndPads (element, 0);
       didDraw = True;
     }
+#ifdef DEBUG
+  printf(" ... Leaving CopyElement.\n");
+#endif
   return (element);
 }
 
@@ -314,6 +323,10 @@ CopyPastebufferToLayout (LocationType X, LocationType Y)
 {
   Cardinal i;
   Boolean changed = False;
+
+#ifdef DEBUG
+  printf("Entering CopyPastebufferToLayout.....\n");
+#endif
 
   /* set movement vector */
   DeltaX = X - PASTEBUFFER->X, DeltaY = Y - PASTEBUFFER->Y;
@@ -358,6 +371,10 @@ CopyPastebufferToLayout (LocationType X, LocationType Y)
     {
       ELEMENT_LOOP (PASTEBUFFER->Data);
       {
+#ifdef DEBUG
+	printf("In CopyPastebufferToLayout, pasting element %s\n",
+	      element->Name[1].TextString);
+#endif
 	if (FRONT (element) || PCB->InvisibleObjectsOn)
 	  {
 	    CopyElement (element);
@@ -377,11 +394,17 @@ CopyPastebufferToLayout (LocationType X, LocationType Y)
       }
       END_LOOP;
     }
+
   if (changed)
     {
       Draw ();
       IncrementUndoSerialNumber ();
     }
+
+#ifdef DEBUG
+  printf("  .... Leaving CopyPastebufferToLayout.\n");
+#endif
+
   return (changed);
 }
 
