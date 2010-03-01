@@ -992,13 +992,13 @@ ChangeElementText (PCBType *pcb, DataType *data, ElementTypePtr Element, int whi
     EraseElementName (Element);
 
   r_delete_entry (data->name_tree[which],
-		  (BoxType *) & Element->Name[which].TextString);
+		  & Element->Name[which].BoundingBox);
 
   Element->Name[which].TextString = new_name;
   SetTextBoundingBox (&PCB->Font, &Element->Name[which]);
 
   r_insert_entry (data->name_tree[which],
-		  (BoxType *) & Element->Name[which].TextString, 0);
+		  & Element->Name[which].BoundingBox, 0);
 
   if (pcb && which == NAME_INDEX (pcb))
     DrawElementName (Element, 0);
