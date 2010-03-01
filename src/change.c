@@ -988,6 +988,10 @@ ChangeElementText (PCBType *pcb, DataType *data, ElementTypePtr Element, int whi
 {
   char *old = Element->Name[which].TextString;
 
+#ifdef DEBUG
+  printf("In ChangeElementText, updating old TextString %s to %s\n", old, new_name);
+#endif
+
   if (pcb && which == NAME_INDEX (pcb))
     EraseElementName (Element);
 

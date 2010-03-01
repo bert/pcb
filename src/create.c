@@ -199,6 +199,9 @@ CreateNewPCB (Boolean SetDefaultNames)
   return (ptr);
 }
 
+/* This post-processing step adds the top and bottom silk layers to a
+ * pre-existing PCB.
+ */
 int
 CreateNewPCBPost (PCBTypePtr pcb, int use_defaults)
 {
@@ -643,6 +646,10 @@ CreateNewElement (DataTypePtr Data, ElementTypePtr Element,
 		  LocationType TextX, LocationType TextY, BYTE Direction,
 		  int TextScale, FlagType TextFlags, Boolean uniqueName)
 {
+#ifdef DEBUG
+  printf("Entered CreateNewElement.....\n");
+#endif
+
   if (!Element)
     Element = GetElementMemory (Data);
 
@@ -661,6 +668,11 @@ CreateNewElement (DataTypePtr Data, ElementTypePtr Element,
   VALUE_TEXT (Element).Element = Element;
   Element->Flags = Flags;
   Element->ID = ID++;
+
+#ifdef DEBUG
+  printf("  .... Leaving CreateNewElement.\n");
+#endif
+
   return (Element);
 }
 

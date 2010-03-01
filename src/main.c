@@ -896,11 +896,13 @@ main (int argc, char *argv[])
       program_basename = program_name;
     }
   Progname = program_basename;
-  
+
+  /* Print usage or version if requested.  Then exit.  */  
   if (argc > 1 && strcmp (argv[1], "-h") == 0)
     usage ();
   if (argc > 1 && strcmp (argv[1], "-V") == 0)
     print_version ();
+  /* Export pcb from command line if requested.  */
   if (argc > 1 && strcmp (argv[1], "-p") == 0)
     {
       exporter = gui = hid_find_printer ();
@@ -913,12 +915,15 @@ main (int argc, char *argv[])
       argc -= 2;
       argv += 2;
     }
+    /* Otherwise start GUI. */
   else
     gui = hid_find_gui ();
 
+  /* Exit with error if GUI failed to start. */
   if (!gui)
     exit (1);
 
+  /* Set up layers. */
   for (i = 0; i < MAX_LAYER; i++)
     {
       char buf[20];
@@ -960,9 +965,11 @@ main (int argc, char *argv[])
       exit (0);
     }
 
+  /* Create a new PCB object in memory */
   PCB = CreateNewPCB (True);
   PCB->Data->LayerN = DEF_LAYER;
   ParseGroupString (Settings.Groups, &PCB->LayerGroups, DEF_LAYER);
+  /* Add silk layers to newly created PCB */
   CreateNewPCBPost (PCB, 1);
   if (argc > 1)
     command_line_pcb = argv[1];

@@ -178,8 +178,8 @@ typedef struct
 
 struct BoxType		/* a bounding box */
 {
-  LocationType X1, Y1,		/* upper left */
-    X2, Y2;			/* and lower right corner */
+  LocationType X1, Y1;		/* upper left */
+  LocationType X2, Y2;		/* and lower right corner */
 };
 
 typedef struct
@@ -231,8 +231,7 @@ typedef struct
 {
   ANYOBJECTFIELDS;
   BDimension Scale;		/* text scaling in percent */
-  LocationType X,		/* origin */
-    Y;
+  LocationType X, Y;    	/* origin */
   BYTE Direction;
   char *TextString;		/* string */
   void *Element;
@@ -809,11 +808,11 @@ struct drc_violation_st
  * Variables with absolute paths to various directories.  These are deduced
  * at runtime to allow pcb to be relocatable
  */
-extern char *bindir;
-extern char *pcblibdir;
-extern char *pcblibpath;
-extern char *pcbtreedir;
-extern char *pcbtreepath;
+extern char *bindir;       /* The dir in which PCB installation was found */
+extern char *pcblibdir;    /* The system M4 fp directory */
+extern char *pcblibpath;   /* The search path for M4 fps */
+extern char *pcbtreedir;   /* The system newlib fp directory */
+extern char *pcbtreepath;  /* The search path for newlib fps */
 extern char *exec_prefix;
 extern char *homedir;
 

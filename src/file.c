@@ -124,6 +124,8 @@ static int WritePCB (FILE *);
 static int WritePCBFile (char *);
 static int WritePipe (char *, Boolean);
 static int ParseLibraryTree (void);
+static int LoadNewlibFootprintsFromDir(char *path, char *toppath);
+static char *pcb_basename (char *p);
 
 /* ---------------------------------------------------------------------------
  * Flag helper functions
@@ -1093,9 +1095,10 @@ RemoveTMPData (void)
 #endif
 
 /* ---------------------------------------------------------------------------
- * parse the directory tree where additional library elements are found
+ * Parse the directory tree where newlib footprints are found
  */
 
+/* Helper function for ParseLibraryTree */
 static char *
 pcb_basename (char *p)
 {
@@ -1105,132 +1108,205 @@ pcb_basename (char *p)
   return p;
 }
 
-int
+/* This is a helper function for ParseLibrary Tree.   Given a char *path,
+ * it finds all newlib footprints in that dir and sticks them into the
+ * library menu structure named entry.
+ */
+static int
+LoadNewlibFootprintsFromDir(char *libpath, char *toppath)
+{
+  char olddir[MAXPATHLEN + 1];    /* The directory we start out in (cwd) */
+  char subdir[MAXPATHLEN + 1];    /* The directory holding footprints to load */
+  DIR *subdirobj;                 /* Interable object holding all subdir entries */
+  struct dirent *subdirentry;     /* Individual subdir entry */
+  struct stat buffer;             /* Buffer used in stat */
+  LibraryMenuTypePtr menu = NULL; /* Pointer to PCB's library menu structure */
+  LibraryEntryTypePtr entry;      /* Pointer to individual menu entry */
+  size_t l;
+  size_t len;
+  int n_footprints = 0;           /* Running count of footprints found in this subdir */
+
+  /* Cache old dir, then cd into subdir because stat is given relative file names. */
+  memset (subdir, 0, sizeof subdir);
+  memset (olddir, 0, sizeof olddir);
+  GetWorkingDirectory(olddir); 
+  strcpy (subdir, libpath);
+  chdir(subdir);
+  GetWorkingDirectory(subdir);  /* subdir is abs path */
+
+  /* First try opening the directory specified by path */
+  if ( (subdirobj = opendir (subdir)) == NULL )
+  {
+      OpendirErrorMessage (subdir);
+      return 0;
+  }
+
+  /* Get pointer to memory holding menu */
+  menu = GetLibraryMenuMemory (&Library);
+  /* Populate menuname and path vars */
+  menu->Name = MyStrdup (pcb_basename(subdir), "Newlib");
+  menu->directory = strdup (pcb_basename(toppath));
+
+  /* Now loop over files in this directory looking for files.
+   * We ignore certain files which are not footprints.
+   */
+  while ((subdirentry = readdir (subdirobj)) != NULL)
+  {
+#ifdef DEBUG
+/*    printf("...  Examining file %s ... \n", subdirentry->d_name); */
+#endif
+
+    /* Ignore non-footprint files found in this directory
+     * We're skipping .png and .html because those
+     * may exist in a library tree to provide an html browsable
+     * index of the library.
+     */
+    l = strlen (subdirentry->d_name);
+    if (!stat (subdirentry->d_name, &buffer) && S_ISREG (buffer.st_mode)
+      && subdirentry->d_name[0] != '.'
+      && NSTRCMP (subdirentry->d_name, "CVS") != 0
+      && NSTRCMP (subdirentry->d_name, "Makefile") != 0
+      && NSTRCMP (subdirentry->d_name, "Makefile.am") != 0
+      && NSTRCMP (subdirentry->d_name, "Makefile.in") != 0
+      && (l < 4 || NSTRCMP(subdirentry->d_name + (l - 4), ".png") != 0) 
+      && (l < 5 || NSTRCMP(subdirentry->d_name + (l - 5), ".html") != 0) )
+      {
+#ifdef DEBUG
+/*	printf("...  Found a footprint %s ... \n", subdirentry->d_name); */
+#endif
+	n_footprints++;
+	entry = GetLibraryEntryMemory (menu);
+
+	/* 
+	 * entry->AllocatedMemory points to abs path to the footprint.
+	 * entry->ListEntry points to fp name itself.
+	 */
+	len = strlen(subdir) + strlen("/") + strlen(subdirentry->d_name) + 1;
+	entry->AllocatedMemory = MyCalloc (1, len, "ParseLibraryTree()");
+	strcat (entry->AllocatedMemory, subdir);
+	strcat (entry->AllocatedMemory, PCB_DIR_SEPARATOR_S);
+
+	/* store pointer to start of footprint name */
+	entry->ListEntry = entry->AllocatedMemory
+	    + strlen (entry->AllocatedMemory);
+
+	/* Now place footprint name into AllocatedMemory */
+	strcat (entry->AllocatedMemory, subdirentry->d_name);
+
+	/* mark as directory tree (newlib) library */
+	entry->Template = (char *) -1;
+      }
+  }
+  /* Done.  Clean up, cd back into old dir, and return */
+  closedir (subdirobj);
+  chdir(olddir);
+  return n_footprints;
+}
+
+
+/* This function loads the newlib footprints into the Library.
+ * It examines all directories pointed to by Settings.LibraryTree.
+ * In each directory specified there, it looks both in that directory,
+ * as well as *one* level down.  It calls the subfunction 
+ * LoadNewlibFootprintsFromDir to put the footprints into PCB's internal
+ * datastructures.
+ */
+static int
 ParseLibraryTree (void)
 {
-  char path[MAXPATHLEN + 1];
-  char working[MAXPATHLEN + 1];
-  char *libpaths, *p;
-  DIR *dir, *subdir;
-  struct stat buffer;
-  struct dirent *direntry, *e2;
-  LibraryMenuTypePtr menu = NULL;
-  LibraryEntryTypePtr entry;
-  size_t l;
-  int n_footprints = 0;
+  char toppath[MAXPATHLEN + 1];    /* String holding abs path to top level library dir */
+  char working[MAXPATHLEN + 1];    /* String holding abs path to working dir */
+  char *libpaths;                  /* String holding list of library paths to search */
+  char *p;                         /* Helper string used in iteration */
+  DIR *dirobj;                     /* Iterable directory object */
+  struct dirent *direntry = NULL;  /* Object holding individual directory entries */
+  struct stat buffer;              /* buffer used in stat */
+  int n_footprints = 0;            /* Running count of footprints found */
 
-  memset (path, 0, sizeof path);
+  /* Initialize path, working by writing 0 into every byte. */
+  memset (toppath, 0, sizeof toppath);
   memset (working, 0, sizeof working);
 
-  /* save the current working directory */
+  /* Save the current working directory as an absolute path.
+   * This fcn writes the abs path into the memory pointed to by the input arg.
+   */
   GetWorkingDirectory (working);
 
-  /* Additional loop to allow for multiple 'newlib' style library directories */
+  /* Additional loop to allow for multiple 'newlib' style library directories 
+   * called out in Settings.LibraryTree
+   */
   libpaths = MyStrdup (Settings.LibraryTree, "ParseLibraryTree");
   for (p = strtok (libpaths, PCB_PATH_DELIMETER); p && *p; p = strtok (NULL, PCB_PATH_DELIMETER))
     {
-      strncpy (path, p, sizeof (path) - 1);
+      /* remove trailing path delimeter */
+      strncpy (toppath, p, sizeof (toppath) - 1);
 
-      /* 
-       * start out in the working directory in case the path is a
+      /* start out in the working directory in case the path is a
        * relative path 
        */
       chdir (working);
 
-      if ((dir = opendir (path)) == NULL)
+      /*
+       * Next change to the directory which is the top of the library tree
+       * and extract its abs path.
+       */
+      chdir (toppath);
+      GetWorkingDirectory (toppath);
+
+#ifdef DEBUG
+      printf("In ParseLibraryTree, looking for newlib footprints inside top level directory %s ... \n", 
+	     toppath);
+#endif
+
+      /* Next read in any footprints in the top level dir */
+      n_footprints += LoadNewlibFootprintsFromDir("(local)", toppath);
+
+      /* Then open this dir so we can loop over its contents. */
+      if ((dirobj = opendir (toppath)) == NULL)
 	{
-	  OpendirErrorMessage (path);
+	  OpendirErrorMessage (toppath);
 	  continue;
 	}
 
-      /*
-       * change to the directory which is the top of the library tree
-       * and then extract that directory to ensure we have a full path
-       * name, not a relative path name.
+      /* Now loop over files in this directory looking for subdirs.
+       * For each direntry which is a valid subdirectory,
+       * try to load newlib footprints inside it.
        */
-      chdir (path);
-      GetWorkingDirectory (path);
-
-      /* read all entries */
-      while ((direntry = readdir (dir)) != NULL)
+      while ((direntry = readdir (dirobj)) != NULL)
 	{
-	  chdir (path);
-	  /* find directories
-	   * ignore entries beginning with "." and CVS
-	   * directories as well as a few other specific 
-	   * files.  We're skipping .png and .html because those
-	   * may exist in a library tree to provide an html browsable
-	   * index of the library.
+#ifdef DEBUG
+	  printf("In ParseLibraryTree loop examining 2nd level direntry %s ... \n", direntry->d_name);
+#endif
+	  /* Find subdirectories.  Ignore entries beginning with "." and CVS
+	   * directories.
 	   */
 	  if (!stat (direntry->d_name, &buffer)
-	      && S_ISDIR (buffer.st_mode) && direntry->d_name[0] != '.'
+	      && S_ISDIR (buffer.st_mode) 
+	      && direntry->d_name[0] != '.'
 	      && NSTRCMP (direntry->d_name, "CVS") != 0)
 	    {
-	      /* add directory name into menu */
-	      menu = GetLibraryMenuMemory (&Library);
-	      menu->Name = MyStrdup (direntry->d_name, "ParseLibraryTree()");
-	      /* FIXME ? */
-	      menu->directory = strdup (pcb_basename (path));
-	      subdir = opendir (direntry->d_name);
-	      chdir (direntry->d_name);
-	      while (subdir && (e2 = readdir (subdir)))
-		{
-		  l = strlen (e2->d_name);
-		  if (!stat (e2->d_name, &buffer) && S_ISREG (buffer.st_mode)
-		      && e2->d_name[0] != '.'
-		      && NSTRCMP (e2->d_name, "CVS") != 0
-		      && NSTRCMP (e2->d_name, "Makefile") != 0
-		      && NSTRCMP (e2->d_name, "Makefile.am") != 0
-		      && NSTRCMP (e2->d_name, "Makefile.in") != 0
-		      && (l < 4 || NSTRCMP(e2->d_name + (l - 4), ".png") != 0) 
-		      && (l < 5 || NSTRCMP(e2->d_name + (l - 5), ".html") != 0) )
-		    {
-
-		      /* 
-		       * Besides the length for the 3 strings listed, 
-		       * we have two "/" added in below, and also we 
-		       * have 2 '\0' characters since
-		       * entry->AllocatedMemory actually will contain
-		       * 2 null terminated strings.  Thats why we 
-		       * add 4
-		       */
-		      long len = strlen (path) + strlen (e2->d_name) +
-			strlen (direntry->d_name) + 4;
-#if 0
-		      if (NSTRCMP
-			  (e2->d_name + strlen (e2->d_name) - 4, ".lel") != 0)
-			break;
-#endif
-		      n_footprints++;
-		      entry = GetLibraryEntryMemory (menu);
-		      entry->AllocatedMemory = MyCalloc (1, len,
-							 "ParseLibraryTree()");
-		      strcat (entry->AllocatedMemory, path);
-		      strcat (entry->AllocatedMemory, PCB_DIR_SEPARATOR_S);
-		      strcat (entry->AllocatedMemory, direntry->d_name);
-		      strcat (entry->AllocatedMemory, PCB_DIR_SEPARATOR_S);
-		      entry->ListEntry = entry->AllocatedMemory
-			+ strlen (entry->AllocatedMemory);
-		      strcat (entry->AllocatedMemory, e2->d_name);
-		      /* mark as directory tree library */
-		      entry->Template = (char *) -1;
-		    }
-		}
-	      closedir (subdir);
+	      /* Found a valid subdirectory.  Try to load footprints from it.
+	       */
+	      n_footprints += LoadNewlibFootprintsFromDir(direntry->d_name, toppath);
 	    }
 	}
-      closedir (dir);
+      closedir (dirobj);
     }
-  free (libpaths);
 
   /* restore the original working directory */
   chdir (working);
+
+#ifdef DEBUG
+  printf("Leaving ParseLibraryTree, found %d footprints.\n", n_footprints);
+#endif
+
   return n_footprints;
 }
 
 /* ---------------------------------------------------------------------------
- * read contents of the library description file
- * also parse a special library directory tree
+ * Read contents of the library description file (for M4)
+ * and then read in M4 libs.  Then call a fcn to read the newlib
+ * footprints.
  */
 int
 ReadLibraryContents (void)
@@ -1241,18 +1317,28 @@ ReadLibraryContents (void)
   LibraryMenuTypePtr menu = NULL;
   LibraryEntryTypePtr entry;
 
+
+  /*  First load the M4 stuff.  The variable Settings.LibraryPath
+   *  points to it.
+   */
   MYFREE (command);
   command = EvaluateFilename (Settings.LibraryContentsCommand,
 			      Settings.LibraryPath, Settings.LibraryFilename,
 			      NULL);
 
-  /* open a pipe to the output of the command */
+#ifdef DEBUG
+  printf("In ReadLibraryContents, about to execute command %s\n", command);
+#endif
+
+  /* This uses a pipe to execute a shell script which provides the names of
+   * all M4 libs and footprints.  The results are placed in resultFP.
+   */
   if (command && *command && (resultFP = popen (command, "r")) == NULL)
     {
       PopenErrorMessage (command);
     }
 
-  /* the library contents are separated by colons;
+  /* the M4 library contents are separated by colons;
    * template : package : name : description
    */
   while (resultFP != NULL && fgets (inputline, MAX_LIBRARY_LINE_LENGTH, resultFP))
@@ -1312,7 +1398,11 @@ ReadLibraryContents (void)
     }
   if (resultFP != NULL)
     pclose (resultFP);
-  
+
+  /* Now after reading in the M4 libs, call a function to
+   * read the newlib footprint libraries.  Then sort the whole
+   * library.
+   */
   if (ParseLibraryTree () > 0 || resultFP != NULL)
     {
       sort_library (&Library);
