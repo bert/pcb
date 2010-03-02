@@ -857,7 +857,7 @@ AM_CONDITIONAL(PNG_PREVIEW, test x$enable_m4lib_png = xyes)
 build_pcblib_newlib=no
 if test "$pcb_sources" = "tarball" ; then
 	AC_MSG_CHECKING([If pcblib-newlib was built with png previews])
-	stamp=${top_srcdir}/lib/pcblib-newlib.stamp 
+	stamp=$srcdir/lib/pcblib-newlib.stamp
 	if test ! -f ${stamp} ; then
 		AC_MSG_RESULT([unknown, missing ${stamp}])
 		build_pcblib_newlib=yes
