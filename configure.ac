@@ -224,6 +224,31 @@ Alternatively, you can disable building the documentation with
 --disable-doc.
 ])
 	fi
+
+
+   AC_PATH_PROG([KPSEWHICH], [kpsewhich], [no])
+   if test "X$KPSEWHICH" = "Xno"; then
+      AC_MSG_ERROR([You have requested a build
+of the documentation.  For this to work, you must have a functional install of
+TeX and LaTeX.  kpsewhich is part of TeX.
+Alternatively, you can disable building the documentation with
+--disable-doc.])
+   fi
+
+   AC_MSG_CHECKING([If your TeX installation contains epsf.tex])
+   f=`$KPSEWHICH epsf.tex`
+   if test $? -eq 0 ; then
+	AC_MSG_RESULT([yes ($f)])
+   else
+	AC_MSG_RESULT([no])
+        AC_MSG_ERROR([You have requested a build
+of the documentation.  For this to work, you must have a functional install of
+TeX and LaTeX that includes epsf.tex.  On some linux distributions this is
+part of the texlive-generic-recommended package.
+Alternatively, you can disable building the documentation with
+--disable-doc.])
+   fi
+
 fi
 
 ##########################################################################
