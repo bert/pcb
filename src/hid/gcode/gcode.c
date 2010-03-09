@@ -64,8 +64,6 @@
 #include <dmalloc.h>
 #endif
 
-RCSID ("$Id: gcode.c, v 0.1 2010/2/8 14:00:00 Alberto Maccioni Exp $");
-
 #define CRASH fprintf(stderr, "HID error: pcb called unimplemented GCODE function %s.\n", __FUNCTION__); abort()
 #define pcb_unit 100000.0	/* pcb internal units per inch */
 struct color_struct
