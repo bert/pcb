@@ -617,7 +617,7 @@ gcode_do_export (HID_Attr_Val * options)
 	      n_drill = nmax_drill = 0;
 	    }
 	  free (filename);
-	  system ("unix2dos *.cnc");
+
 /* ******************* end gcode conversion **************************** */
 	  gcode_finish_png ();
 	}
