@@ -48,54 +48,69 @@
 #define BM_PUT(bm, x, y, b) (bm_safe(bm, x, y) ? BM_UPUT(bm, x, y, b) : 0)
 
 /* free the given bitmap. Leaves errno untouched. */
-static inline void bm_free(potrace_bitmap_t *bm) {
-  if (bm) {
-    free(bm->map);
-  }
-  free(bm);
+static inline void
+bm_free (potrace_bitmap_t * bm)
+{
+  if (bm)
+    {
+      free (bm->map);
+    }
+  free (bm);
 }
 
 /* return new un-initialized bitmap. NULL with errno on error */
-static inline potrace_bitmap_t *bm_new(int w, int h) {
+static inline potrace_bitmap_t *
+bm_new (int w, int h)
+{
   potrace_bitmap_t *bm;
   int dy = (w + BM_WORDBITS - 1) / BM_WORDBITS;
 
-  bm = (potrace_bitmap_t *) malloc(sizeof(potrace_bitmap_t));
-  if (!bm) {
-    return NULL;
-  }
+  bm = (potrace_bitmap_t *) malloc (sizeof (potrace_bitmap_t));
+  if (!bm)
+    {
+      return NULL;
+    }
   bm->w = w;
   bm->h = h;
   bm->dy = dy;
-  bm->map = (potrace_word *) malloc(dy * h * BM_WORDSIZE);
-  if (!bm->map) {
-    free(bm);
-    return NULL;
-  }
+  bm->map = (potrace_word *) malloc (dy * h * BM_WORDSIZE);
+  if (!bm->map)
+    {
+      free (bm);
+      return NULL;
+    }
   return bm;
 }
 
 /* clear the given bitmap. Set all bits to c. */
-static inline void bm_clear(potrace_bitmap_t *bm, int c) {
-  memset(bm->map, c ? -1 : 0, bm->dy * bm->h * BM_WORDSIZE);
+static inline void
+bm_clear (potrace_bitmap_t * bm, int c)
+{
+  memset (bm->map, c ? -1 : 0, bm->dy * bm->h * BM_WORDSIZE);
 }
 
 /* duplicate the given bitmap. Return NULL on error with errno set. */
-static inline potrace_bitmap_t *bm_dup(const potrace_bitmap_t *bm) {
-  potrace_bitmap_t *bm1 = bm_new(bm->w, bm->h);
-  if (!bm1) {
-    return NULL;
-  }
-  memcpy(bm1->map, bm->map, bm->dy * bm->h * BM_WORDSIZE);
+static inline potrace_bitmap_t *
+bm_dup (const potrace_bitmap_t * bm)
+{
+  potrace_bitmap_t *bm1 = bm_new (bm->w, bm->h);
+  if (!bm1)
+    {
+      return NULL;
+    }
+  memcpy (bm1->map, bm->map, bm->dy * bm->h * BM_WORDSIZE);
   return bm1;
 }
 
 /* invert the given bitmap. */
-static inline void bm_invert(potrace_bitmap_t *bm) {
+static inline void
+bm_invert (potrace_bitmap_t * bm)
+{
   int i;
-  for (i = 0; i < bm->dy * bm->h; i++) {
-    bm->map[i] ^= BM_ALLBITS;
-  }
+  for (i = 0; i < bm->dy * bm->h; i++)
+    {
+      bm->map[i] ^= BM_ALLBITS;
+    }
 }
 
 #endif /* BITMAP_H */

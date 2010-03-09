@@ -9,6 +9,7 @@
 
 #include "potracelib.h"
 
-double process_path(path_t *plist, const potrace_param_t *param,const potrace_bitmap_t *bm,FILE *f,double scale);
+double process_path (path_t * plist, const potrace_param_t * param,
+		     const potrace_bitmap_t * bm, FILE * f, double scale);
 
 #endif /* TRACE_H */
