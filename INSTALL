@@ -59,6 +59,9 @@ Export HID's:
 		 formats hopefully it will avoid suprises when the
 		 disabled formats are not available at runtime.
 
+     gcode   -- CNC G-CODE output (experimental).  No
+		 additional libraries are needed for this.
+
     The choice of which export HID's to compile is indicated with:
 
       --with-exporters="ps gerber bom png"
