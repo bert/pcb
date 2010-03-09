@@ -148,27 +148,27 @@ HID_Attribute gcode_attribute_list[] = {
    HID_String, 0, 0, {0, 0, 0}, 0, 0},
 #define HA_basename 0
 
-  {"dpi", "Resolution of intermediate image (pixels/inch).",
+  {"dpi", "Resolution of intermediate image (pixels/inch)",
    HID_Integer, 0, 2000, {600, 0, 0}, 0, 0},
 #define HA_dpi 1
 
-  {"mill depth", "Milling depth.",
+  {"mill-depth", "Milling depth",
    HID_Real, -1000, 1000, {0, 0, -0.05}, 0, 0},
 #define HA_cutdepth 2
 
-  {"safe Z", "Safe Z for traverse move.",
+  {"safe-Z", "Safe Z for traverse move",
    HID_Real, -1000, 10000, {0, 0, 2}, 0, 0},
 #define HA_safeZ 3
 
-  {"tool radius", "Milling tool radius compensation.",
+  {"tool-radius", "Milling tool radius compensation",
    HID_Real, 0, 10000, {0, 0, 0.1}, 0, 0},
 #define HA_toolradius 4
 
-  {"drill depth", "Drilling depth.",
+  {"drill-depth", "Drilling depth",
    HID_Real, -10000, 10000, {0, 0, -2}, 0, 0},
 #define HA_drilldepth 5
 
-  {"measurement unit", "Measurement unit",
+  {"measurement-unit", "Measurement unit",
    HID_Enum, 0, 0, {0, 0, 0}, units, 0},
 #define HA_unit 6
 
