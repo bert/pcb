@@ -55,6 +55,12 @@
 #    bom -- PCB bill of materials file
 #    xy  -- PCB centroid file
 #
+# GCODE
+#
+#    gcode -- G-Code file.  Note that these typically have .cnc as the 
+#             extension but we're already using the 'cnc' type for 
+#             Excellon drill files.
+#
 # GERBER
 #
 #    cnc -- Excellon drill file
@@ -66,7 +72,6 @@
 #    jpg -- JPEG file
 #    png -- Portable network graphics (PNG) file
 #
-#    
 ######################################################################
 # ---------------------------------------------
 # BOM export HID
@@ -85,6 +90,33 @@ hid_bom1 | bom_general.pcb | bom | | | bom:bom_general.bom xy:bom_general.xy
 hid_bom2 | bom_general.pcb | bom | --bomfile test.bom | | bom:test.bom xy:bom_general.xy
 hid_bom3 | bom_general.pcb | bom | --xyfile  test.xy  | | bom:bom_general.bom xy:test.xy
 hid_bom4 | bom_general.pcb | bom | --xy-in-mm | |  bom:bom_general.bom xy:bom_general.xy
+#
+######################################################################
+# ---------------------------------------------
+# Gcode export HID
+# ---------------------------------------------
+######################################################################
+#
+# options:
+# --basename <string>            File name prefix
+# --dpi <num>                    Resolution of intermediate image (pixels/inch).
+# --mill depth <num>             Milling depth.
+# --safe Z <num>                 Safe Z for traverse move.
+# --tool radius <num>            Milling tool radius compensation.
+# --drill depth <num>            Drilling depth.
+# --measurement unit <mm|mil|um|inch>    Measurement unit
+#
+hid_gcode1 | gcode_oneline.pcb | gcode | | | gcode:gcode_oneline.gcode.front.cnc gcode:gcode_oneline.gcode.back.cnc gcode:gcode_oneline.gcode.drill.cnc
+hid_gcode2 | gcode_oneline.pcb | gcode | --basename out | | gcode:out.front.cnc gcode:out.back.cnc gcode:out.drill.cnc
+hid_gcode3 | gcode_oneline.pcb | gcode | --dpi 1200 | | gcode:gcode_oneline.gcode.front.cnc gcode:gcode_oneline.gcode.back.cnc gcode:gcode_oneline.gcode.drill.cnc
+hid_gcode4 | gcode_oneline.pcb | gcode | --mill-depth 5 | | gcode:gcode_oneline.gcode.front.cnc gcode:gcode_oneline.gcode.back.cnc gcode:gcode_oneline.gcode.drill.cnc
+hid_gcode5 | gcode_oneline.pcb | gcode | --safe-Z 10 | | gcode:gcode_oneline.gcode.front.cnc gcode:gcode_oneline.gcode.back.cnc gcode:gcode_oneline.gcode.drill.cnc
+hid_gcode6 | gcode_oneline.pcb | gcode | --tool-radius 15 | | gcode:gcode_oneline.gcode.front.cnc gcode:gcode_oneline.gcode.back.cnc gcode:gcode_oneline.gcode.drill.cnc
+hid_gcode7 | gcode_oneline.pcb | gcode | --drill-depth 70 | | gcode:gcode_oneline.gcode.front.cnc gcode:gcode_oneline.gcode.back.cnc gcode:gcode_oneline.gcode.drill.cnc
+hid_gcode8 | gcode_oneline.pcb | gcode | --measurement-unit mm | | gcode:gcode_oneline.gcode.front.cnc gcode:gcode_oneline.gcode.back.cnc gcode:gcode_oneline.gcode.drill.cnc
+hid_gcode9 | gcode_oneline.pcb | gcode | --measurement-unit mil | | gcode:gcode_oneline.gcode.front.cnc gcode:gcode_oneline.gcode.back.cnc gcode:gcode_oneline.gcode.drill.cnc
+hid_gcode10 | gcode_oneline.pcb | gcode | --measurement-unit um | | gcode:gcode_oneline.gcode.front.cnc gcode:gcode_oneline.gcode.back.cnc gcode:gcode_oneline.gcode.drill.cnc
+hid_gcode11 | gcode_oneline.pcb | gcode | --measurement-unit inch | | gcode:gcode_oneline.gcode.front.cnc gcode:gcode_oneline.gcode.back.cnc gcode:gcode_oneline.gcode.drill.cnc
 #
 ######################################################################
 # ---------------------------------------------
@@ -128,5 +160,4 @@ hid_gerber2 | gerber_oneline.pcb | gerber | --gerberfile out | | gbx:out.back.gb
 #
 hid_png1 | gerber_oneline.pcb | png | | | png:gerber_oneline.png
 #
-
 

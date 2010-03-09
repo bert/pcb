@@ -333,7 +333,7 @@ compare_bom() {
     #  8,"Dual in-line package, narrow (300 mil)","DIP8",UDIP90_TOP UDIP180_TOP UDIP270_TOP UDIP0_TOP UDIP270_BOT UDIP180_BOT UDIP90_BOT UDIP0_BOT 
     #  8,"Small outline package, narrow (150mil)","SO8",USO90_TOP USO180_TOP USO270_TOP USO0_TOP USO270_BOT USO180_BOT USO90_BOT USO0_BOT 
 
-    #  For comparison, we need to ignore chnages in the Date and Author lines.
+    #  For comparison, we need to ignore changes in the Date and Author lines.
     cf1=${tmpd}/`basename $f1` 
     cf2=${tmpd}/`basename $f2` 
 
@@ -351,6 +351,36 @@ compare_xy() {
     f1="$1"
     f2="$2"
     compare_check "compare_xy" "$f1" "$f2" || return 1
+}
+
+##########################################################################
+#
+# GCODE comparison routines
+#
+
+# used to remove things like creation date from gcode files
+normalize_gcode() {
+    f1="$1"
+    f2="$2"
+    $AWK '
+	d == 1 {gsub(/ .* /, "Creation Date and Time"); d = 0;}
+	/^\(Created by G-code exporter\)/ {d=1}
+	{print}' \
+	$f1 > $f2
+}
+
+compare_gcode() {
+    f1="$1"
+    f2="$2"
+    compare_check "compare_gcode" "$f1" "$f2" || return 1
+
+    #  For comparison, we need to ignore changes in the Date and Author lines.
+    cf1=${tmpd}/`basename $f1` 
+    cf2=${tmpd}/`basename $f2` 
+
+    normalize_gcode $f1 $cf1
+    normalize_gcode $f2 $cf2
+    run_diff "$cf1" "$cf2" || test_failed=yes
 }
 
 ##########################################################################
@@ -547,6 +577,11 @@ for t in $all_tests ; do
 
 	        xy)
 		    compare_xy ${refdir}/${fn} ${rundir}/${fn}
+		    ;;
+
+		# GCODE HID
+		gcode)
+		    compare_gcode ${refdir}/${fn} ${rundir}/${fn}
 		    ;;
 
 		# GERBER HID
