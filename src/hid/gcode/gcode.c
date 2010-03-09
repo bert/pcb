@@ -216,6 +216,7 @@ sort_drill (struct drill_struct *drill, int n_drill)
   for (j = 0; j < n_drill; j++)
     {
       dmin = 1e20;
+      imin = 0;
       for (i = 0; i < n_drill - j; i++)
 	{
 	  d =
@@ -626,7 +627,7 @@ gcode_do_export (HID_Attr_Val * options)
 /* *** PNG export (slightly modified code from PNG export HID) ************* */
 
 static int
-gcode_set_layer (const char *name, int group)
+gcode_set_layer (const char *name, int group, int empty)
 {
   int idx = (group >= 0 && group < max_layer) ?
     PCB->LayerGroups.Entries[group][0] : group;
