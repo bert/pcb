@@ -12,7 +12,8 @@ HIDLIST = @HIDLIST@
 noinst_LIBRARIES = @HIDLIBS@
 EXTRA_LIBRARIES = \
 	libgtk.a liblesstif.a libbatch.a \
-	liblpr.a libgerber.a libbom.a libpng.a libps.a libnelma.a libgts.a
+	liblpr.a libgerber.a libbom.a libpng.a libps.a libnelma.a libgts.a \
+	libgcode.a
 
 pcblib_DATA=	\
 	default_font \
@@ -163,6 +164,7 @@ BUILT_SOURCES = \
 	hid/lesstif/lesstif_lists.h \
 	hid/batch/batch_lists.h \
 	hid/png/png_lists.h \
+	hid/gcode/gcode_lists.h \
 	hid/nelma/nelma_lists.h \
 	hid/ps/ps_lists.h \
 	parse_y.h \
@@ -206,6 +208,7 @@ EXTRA_DIST= \
 	$(srcdir)/hid/lesstif/hid.conf \
 	$(srcdir)/hid/lpr/hid.conf \
 	$(srcdir)/hid/png/hid.conf \
+	$(srcdir)/hid/gcode/gcode.conf \
 	$(srcdir)/hid/nelma/hid.conf \
 	$(srcdir)/hid/ps/hid.conf \
 	gpcb-menu.res \
@@ -413,6 +416,29 @@ hid/png/png_lists.h : ${LIBPNG_SRCS} Makefile
 	(for f in ${LIBPNG_SRCS} ; do cat $(srcdir)/$$f ; done) | grep "^REGISTER" > $@.tmp
 	mv $@.tmp $@
 
+libgcode_a_CPPFLAGS = -I./hid/gcode
+LIBGCODE_SRCS = \
+	dolists.h \
+	hid/hidint.h \
+	hid/gcode/gcode.c \
+	hid/gcode/gcode.h \
+	hid/gcode/decompose.c \
+	hid/gcode/decompose.h \
+	hid/gcode/trace.c \
+	hid/gcode/trace.h \
+	hid/gcode/curve.c \
+	hid/gcode/curve.h \
+	hid/gcode/auxiliary.h \
+	hid/gcode/bitmap.h \
+	hid/gcode/lists.h \
+	hid/gcode/potracelib.h 
+libgcode_a_SOURCES = ${LIBGCODE_SRCS} hid/gcode/gcode_lists.h
+
+hid/gcode/gcode_lists.h : ${LIBGCODE_SRCS} Makefile
+	true > $@
+	(for f in ${LIBGCODE_SRCS} ; do cat $(srcdir)/$$f ; done) | grep "^REGISTER" > $@.tmp
+	mv $@.tmp $@
+
 libnelma_a_CPPFLAGS = -I./hid/nelma
 LIBNELMA_SRCS = \
 	dolists.h \
@@ -436,6 +462,7 @@ DISTCLEANFILES= pcbtest.sh gpcb-menu.h pcb-menu.h \
 	hid/gtk/gtk_lists.h \
 	hid/lesstif/lesstif_lists.h \
 	hid/png/png_lists.h \
+	hid/gcode/gcode_lists.h \
 	hid/nelma/nelma_lists.h \
 	hid/ps/ps_lists.h \
 	gts/gts_lists.h \
