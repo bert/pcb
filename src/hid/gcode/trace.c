@@ -12,6 +12,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "global.h"
 #include "potracelib.h"
 #include "curve.h"
 #include "lists.h"
@@ -968,7 +969,7 @@ malloc_error:
 
 /* Always succeeds and returns 0 */
 static int
-smooth (privcurve_t * curve, int sign, double alphamax)
+ATTRIBUTE_UNUSED smooth (privcurve_t * curve, int sign, double alphamax)
 {
   int m = curve->n;
 
@@ -1233,7 +1234,7 @@ opti_penalty (privpath_t * pp, int i, int j, opti_t * res,
    single segment when possible. Return 0 on success, 1 with errno set
    on failure. */
 static int
-opticurve (privpath_t * pp, double opttolerance)
+ATTRIBUTE_UNUSED opticurve (privpath_t * pp, double opttolerance)
 {
   int m = pp->curve.n;
   int *pt = NULL;		/* pt[m+1] */
@@ -1404,15 +1405,23 @@ plotpolygon (privpath_t * pp, FILE * f, double scale)
 {
   int i;
   int m = pp->m;
-  if (!m)
-    return 0;
   int *po = pp->po;
   int n = pp->len;
   point_t *pt = pp->pt;
   int x0 = pp->x0;
   int y0 = pp->y0;
-  //double scale=1.0/dpi;
+  /* double scale=1.0/dpi; */
   double dm = 0;
+
+  if (!m)
+    return 0;
+
+  po = pp->po;
+  n = pp->len;
+  pt = pp->pt;
+  x0 = pp->x0;
+  y0 = pp->y0;
+
   fprintf (f, "G0 X%f Y%f    (start point)\n", pt[po[0]].x * scale,
 	   pt[po[0]].y * scale);
   fprintf (f, "G1 Z#101\n");
@@ -1447,7 +1456,6 @@ process_path (path_t * plist, const potrace_param_t * param,
 	      const potrace_bitmap_t * bm, FILE * f, double scale)
 {
   path_t *p;
-  double nn = 0, cn = 0;
   double dm = 0;
   int n = 0;
   /* call downstream function with each path */
@@ -1469,7 +1477,7 @@ process_path (path_t * plist, const potrace_param_t * param,
     }
     privcurve_to_curve(p->priv->fcurve, &p->curve);*/
   }
-//      fprintf(f,"(end, total distance %.2fmm = %.2fin)\n",25.4*dm,dm);
+/*      fprintf(f,"(end, total distance %.2fmm = %.2fin)\n",25.4*dm,dm); */
   return dm;
 
 try_error:
