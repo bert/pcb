@@ -33,9 +33,11 @@ This causes the testsuite to skip all tests and report no errors.
 This is used for certain debugging *only*.  The primary use is to 
 allow testing of the 'distcheck' target without including the effects
 of the testsuite. The reason this is useful is that due to minor differences
-in cairo versions and perhaps roundoff in different CPU's, the testsuite
+in library versions and perhaps roundoff in different CPU's, the testsuite
 may falsely report failures on some systems.  These reported failures
 prevent using 'distcheck' for verifying the rest of the build system.
+These comments only apply to the tests which try to compare image files
+like PNG files.
 
 EOF
 
@@ -62,7 +64,8 @@ The resulting output files are examined in various ways to make sure
 they are correct.  The exact details of how they are compared varies.
 For example, the PNG outputs are compared using tools from the ImageMagick
 suite while the ASCII centroid and bill of materials files are normalized
-with awk and then compared with the standard diff utility.
+with awk and then compared with the standard diff utility.  The normalization
+removes things like a comment line which contains the creation date.
 
 OPTIONS
 
@@ -266,6 +269,12 @@ fi
 # utility functions for comparison
 #
 
+# Usage:
+#  compare_check "test_name" "file1" "file2"
+#
+# Makes sure that file1 and file2 both exist.  If not, mark the current
+# test as skipped and give an error message
+#
 compare_check() {
     fn="$1"
     f1="$2"
@@ -290,6 +299,9 @@ compare_check() {
 # ASCII file comparison routines
 #
 
+# Usage:
+#   run_diff "file1" "file2"
+#
 run_diff() {
     f1="$1"
     f2="$2"
