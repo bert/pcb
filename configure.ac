@@ -723,7 +723,7 @@ $GTK_PKG_ERRORS])]
 	GLIB_VERSION=`$PKG_CONFIG glib-2.0 --modversion`
 	;;
 
-      nelma|png )
+      gcode|nelma|png )
 	# Check for gdlib-config for gd (www.boutell.com/gd)
 	AC_PATH_PROG(GDLIB_CONFIG, gdlib-config, no)
 	if test "$GDLIB_CONFIG" = "no"; then
@@ -735,10 +735,10 @@ you will get lucky.
 ])
 		if test "$WIN32" != "yes" ; then
 			AC_CHECK_LIB(gd,main,,
-			AC_MSG_ERROR([You have requested the nelma and/or png HID  but -lgd could not be found]))
+			AC_MSG_ERROR([[You have requested gcode, nelma, or png HIDs  but -lgd could not be found]]))
 		else 
 			AC_CHECK_LIB(bgd,main,,
-			AC_MSG_ERROR([You have requested the nelma and/or png HID  but -lbgd could not be found]))
+			AC_MSG_ERROR([[You have requested gcode, nelma, or png HIDs  but -lbgd could not be found]]))
 		fi
 	else
 		if test "$WIN32" = "yes" ; then
