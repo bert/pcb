@@ -200,6 +200,7 @@ EXTRA_DIST= \
 	default_font \
 	$(srcdir)/hid/batch/hid.conf \
 	$(srcdir)/hid/bom/hid.conf \
+	$(srcdir)/hid/gcode/hid.conf \
 	$(srcdir)/hid/gerber/hid.conf \
 	$(srcdir)/hid/gtk/gui-icons-misc.data \
 	$(srcdir)/hid/gtk/gui-icons-mode-buttons.data \
@@ -208,7 +209,6 @@ EXTRA_DIST= \
 	$(srcdir)/hid/lesstif/hid.conf \
 	$(srcdir)/hid/lpr/hid.conf \
 	$(srcdir)/hid/png/hid.conf \
-	$(srcdir)/hid/gcode/gcode.conf \
 	$(srcdir)/hid/nelma/hid.conf \
 	$(srcdir)/hid/ps/hid.conf \
 	gpcb-menu.res \
