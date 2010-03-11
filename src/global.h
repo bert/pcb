@@ -668,8 +668,7 @@ typedef struct			/* some resources... */
     /* connections is done */
     AutoPlace;			/* flag which says we should force placement of the
 				   windows on startup */
-  int HistorySize,		/* FIXME? Used in hid/xaw code only. */
-    init_done;
+  int init_done;
 }
 SettingType, *SettingTypePtr;
 
