@@ -317,13 +317,6 @@ ghid_get_export_options (int *n_ret)
   return NULL;
 }
 
-
-void
-ghid_invalidate_wh (int x, int y, int width, int height, int last)
-{
-  ghid_invalidate_all ();
-}
-
 void
 ghid_invalidate_lr (int left, int right, int top, int bottom, int last)
 {
@@ -1128,8 +1121,6 @@ HID ghid_hid = {
   ghid_get_export_options,
   ghid_do_export,
   ghid_parse_arguments,
-
-  ghid_invalidate_wh,
   ghid_invalidate_lr,
   ghid_invalidate_all,
   ghid_set_layer,

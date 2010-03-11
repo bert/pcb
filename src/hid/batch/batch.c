@@ -191,11 +191,6 @@ batch_parse_arguments (int *argc, char ***argv)
 }
 
 static void
-batch_invalidate_wh (int x, int y, int width, int height, int last)
-{
-}
-
-static void
 batch_invalidate_lr (int l, int r, int t, int b, int last)
 {
 }
@@ -471,7 +466,6 @@ HID batch_gui = {
   batch_get_export_options,
   batch_do_export,
   batch_parse_arguments,
-  batch_invalidate_wh,
   batch_invalidate_lr,
   batch_invalidate_all,
   batch_set_layer,

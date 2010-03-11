@@ -303,12 +303,7 @@ typedef enum
        names behind.  */
     void (*parse_arguments) (int *argc_, char ***argv_);
 
-    /* This may be called outside of redraw to force a redraw.  Pass
-       zero for "last" for all but the last call before control returns
-       to the user (pass nonzero the last time).  If determining the
-       last call is difficult, call *_wh at the end with width and
-       height zero.  */
-    void (*invalidate_wh) (int x_, int y_, int width_, int height_, int last_);
+    /* This may be called to ask the GUI to force a redraw of a given area */
     void (*invalidate_lr) (int left_, int right_, int top_, int bottom_,
 			   int last_);
     void (*invalidate_all) (void);

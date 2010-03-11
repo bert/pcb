@@ -50,12 +50,6 @@ nogui_parse_arguments (int *argc, char ***argv)
 }
 
 static void
-nogui_invalidate_wh (int x, int y, int width, int height, int last)
-{
-  CRASH;
-}
-
-static void
 nogui_invalidate_lr (int l, int r, int t, int b, int last)
 {
   CRASH;
@@ -359,7 +353,6 @@ HID hid_nogui = {
   nogui_get_export_options,
   nogui_do_export,
   nogui_parse_arguments,
-  nogui_invalidate_wh,
   nogui_invalidate_lr,
   nogui_invalidate_all,
   nogui_set_layer,
@@ -417,7 +410,6 @@ apply_default_hid (HID * d, HID * s)
   AD (get_export_options);
   AD (do_export);
   AD (parse_arguments);
-  AD (invalidate_wh);
   AD (invalidate_lr);
   AD (invalidate_all);
   AD (set_layer);

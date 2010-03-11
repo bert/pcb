@@ -2828,7 +2828,7 @@ lesstif_need_idle_proc ()
 }
 
 static void
-lesstif_invalidate_wh (int x, int y, int width, int height, int last)
+lesstif_invalidate_lr (int l, int r, int t, int b, int last)
 {
   if (!last || !window)
     return;
@@ -2837,16 +2837,10 @@ lesstif_invalidate_wh (int x, int y, int width, int height, int last)
   need_idle_proc ();
 }
 
-static void
-lesstif_invalidate_lr (int l, int r, int t, int b, int last)
-{
-  lesstif_invalidate_wh (l, t, r - l + 1, b - t + 1, last);
-}
-
 void
 lesstif_invalidate_all (void)
 {
-  lesstif_invalidate_wh (0, 0, PCB->MaxWidth, PCB->MaxHeight, 1);
+  lesstif_invalidate_lr (0, PCB->MaxWidth, 0, PCB->MaxHeight, 1);
 }
 
 static int
@@ -3772,8 +3766,6 @@ HID lesstif_gui = {
   lesstif_get_export_options,
   lesstif_do_export,
   lesstif_parse_arguments,
-
-  lesstif_invalidate_wh,
   lesstif_invalidate_lr,
   lesstif_invalidate_all,
   lesstif_set_layer,
