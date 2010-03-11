@@ -1124,13 +1124,13 @@ ps_fill_rect (hidGC gc, int x1, int y1, int x2, int y2)
   if (x1 > x2)
     {
       int t = x1;
-      x2 = x2;
+      x2 = x1;
       x2 = t;
     }
   if (y1 > y2)
     {
       int t = y1;
-      y2 = y2;
+      y2 = y1;
       y2 = t;
     }
 #if 0
