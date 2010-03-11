@@ -233,6 +233,7 @@ gpcb-menu.h : gpcb-menu.res
 	echo '0};' >> $@
 
 hid/common/hidlist.h : Makefile
+	$(MKDIR_P) hid/common
 	true > $@
 	for e in ${HIDLIST}; do \
 	  echo "HID_DEF($${e})" >> $@; \
@@ -269,6 +270,7 @@ LIBGTK_SRCS = \
 libgtk_a_SOURCES = ${LIBGTK_SRCS} hid/gtk/gtk_lists.h
 
 hid/gtk/gtk_lists.h : ${LIBGTK_SRCS} Makefile
+	$(MKDIR_P) hid/gtk
 	true > $@
 	(for f in ${LIBGTK_SRCS} ; do cat $(srcdir)/$$f ; done) | grep "^REGISTER" > $@.tmp
 	mv $@.tmp $@
@@ -317,6 +319,7 @@ LIBLESSTIF_SRCS = \
 liblesstif_a_SOURCES = ${LIBLESSTIF_SRCS} hid/lesstif/lesstif_lists.h
 
 hid/lesstif/lesstif_lists.h : ${LIBLESSTIF_SRCS} Makefile
+	$(MKDIR_P) hid/lesstif
 	true > $@
 	(for f in ${LIBLESSTIF_SRCS} ; do cat $(srcdir)/$$f ; done) | grep "^REGISTER" > $@.tmp
 	mv $@.tmp $@
@@ -364,6 +367,7 @@ LIBGTS_SRCS = \
 libgts_a_SOURCES = ${LIBGTS_SRCS} gts/gts_lists.h
  
 gts/gts_lists.h : ${LIBGTS_SRCS} Makefile
+	$(MKDIR_P) gts
 	true > $@
 # Uncomment out the following if/when we ever end up with REGISTER in any of the gts
 # source files.  For now, there aren't any and so the grep fails and make stops
@@ -377,6 +381,7 @@ LIBBATCH_SRCS = \
 libbatch_a_SOURCES = ${LIBBATCH_SRCS} hid/batch/batch_lists.h
 
 hid/batch/batch_lists.h : ${LIBBATCH_SRCS} Makefile
+	$(MKDIR_P) hid/batch
 	true > $@
 	(for f in ${LIBBATCH_SRCS} ; do cat $(srcdir)/$$f ; done) | grep "^REGISTER" > $@.tmp
 	mv $@.tmp $@
@@ -399,6 +404,7 @@ LIBPS_SRCS = \
 libps_a_SOURCES = ${LIBPS_SRCS} hid/ps/ps_lists.h
 
 hid/ps/ps_lists.h : ${LIBPS_SRCS} Makefile
+	$(MKDIR_P) hid/ps
 	true > $@
 	(for f in ${LIBPS_SRCS} ; do cat $(srcdir)/$$f ; done) | grep "^REGISTER" > $@.tmp
 	mv $@.tmp $@
@@ -412,6 +418,7 @@ LIBPNG_SRCS = \
 libpng_a_SOURCES = ${LIBPNG_SRCS} hid/png/png_lists.h
 
 hid/png/png_lists.h : ${LIBPNG_SRCS} Makefile
+	$(MKDIR_P) hid/png
 	true > $@
 	(for f in ${LIBPNG_SRCS} ; do cat $(srcdir)/$$f ; done) | grep "^REGISTER" > $@.tmp
 	mv $@.tmp $@
@@ -435,6 +442,7 @@ LIBGCODE_SRCS = \
 libgcode_a_SOURCES = ${LIBGCODE_SRCS} hid/gcode/gcode_lists.h
 
 hid/gcode/gcode_lists.h : ${LIBGCODE_SRCS} Makefile
+	$(MKDIR_P) hid/gcode
 	true > $@
 	(for f in ${LIBGCODE_SRCS} ; do cat $(srcdir)/$$f ; done) | grep "^REGISTER" > $@.tmp
 	mv $@.tmp $@
@@ -448,6 +456,7 @@ LIBNELMA_SRCS = \
 libnelma_a_SOURCES = ${LIBNELMA_SRCS} hid/nelma/nelma_lists.h
 
 hid/nelma/nelma_lists.h : ${LIBNELMA_SRCS} Makefile
+	$(MKDIR_P) hid/nelma
 	true > $@
 	(for f in ${LIBNELMA_SRCS} ; do cat $(srcdir)/$$f ; done) | grep "^REGISTER" > $@.tmp
 	mv $@.tmp $@
