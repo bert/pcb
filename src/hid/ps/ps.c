@@ -5,10 +5,11 @@
 #endif
 
 #include <stdio.h>
-#include <stdarg.h>
+#include <stdarg.h> /* not used */
 #include <stdlib.h>
 #include <string.h>
-#include <assert.h>
+#include <assert.h> /* not used */
+#include <time.h>
 
 #include "global.h"
 #include "data.h"
@@ -55,13 +56,13 @@ static double antifade_ratio = 0.6;
 static int multi_file = 0;
 static double media_width, media_height, ps_width, ps_height;
 
-static const char *medias[] = { 
+static const char *medias[] = {
   "A0", "A1", "A2", "A3", "A4", "A5",
   "A6", "A7", "A8", "A9", "A10",
   "B0", "B1", "B2", "B3", "B4", "B5",
   "B6", "B7", "B8", "B9", "B10",
   "Letter", "11x17", "Ledger",
-  "Legal", "Executive", 
+  "Legal", "Executive",
   "A-Size", "B-size",
   "C-Size", "D-size", "E-size",
   "US-Business_Card", "Intl-Business_Card",
@@ -270,13 +271,119 @@ static double scale_value;
 void
 ps_start_file (FILE *f)
 {
-  fprintf (f, "%%!PS-Adobe-3.0\n\n");
+  time_t currenttime = time( NULL );
+
+  fprintf (f, "%%!PS-Adobe-3.0\n");
+
+  /* Document Structuring Conventions (DCS): */
+
+  /* Start General Header Comments: */
+
+  /*
+   * %%Title DCS provides text title for the document that is useful
+   * for printing banner pages.
+   */
+  fprintf (f, "%%%%Title: %s\n", PCB->Filename);
+
+  /*
+   * %%CreationDate DCS indicates the date and time the document was
+   * created. Neither the date nor time need be in any standard
+   * format. This comment is meant to be used purely for informational
+   * purposes, such as printing on banner pages.
+   */
+  fprintf (f, "%%%%CreationDate: %s", asctime (localtime (&currenttime)));
+
+  /*
+   * %%Creator DCS indicates the document creator, usually the name of
+   * the document composition software.
+   */
+  fprintf (f, "%%%%Creator: PCB release: %s " VERSION "\n", Progname);
+
+  /*
+   * %%Version DCS comment can be used to note the version and
+   * revision number of a document or resource. A document manager may
+   * wish to provide version control services, or allow substitution
+   * of compatible versions/revisions of a resource or document.
+   *
+   * The format should be in the form of 'procname':
+   *  <procname>::= < name> < version> < revision>
+   *  < name> ::= < text>
+   *  < version> ::= < real>
+   *  < revision> ::= < uint>
+   *
+   * If a version numbering scheme is not used, these fields should
+   * still be filled with a dummy value of 0.
+   *
+   * There is currently no code in PCB to manage this revision number.
+   *
+   */
+  fprintf (f, "%%%%Version: (PCB %s " VERSION ") 0.0 0\n", Progname );
+
+
+  /*
+   * %%PageOrder DCS is intended to help document managers determine
+   * the order of pages in the document file, which in turn enables a
+   * document manager optionally to reorder the pages.  'Ascend'-The
+   * pages are in ascending order for example, 1-2-3-4-5-6.
+   */
+  fprintf (f, "%%%%PageOrder: Ascend\n" );
+
+  /*
+   * %%Pages: < numpages> | (atend) < numpages> ::= < uint> (Total
+   * %%number of pages)
+   *
+   * %%Pages DCS defines the number of virtual pages that a document
+   * will image.  (atend) defers the count until the end of the file,
+   * which is useful for dynamically generated contents.
+   */
+  fprintf (f, "%%%%Pages: (atend)\n" );
+
+  /* End General Header Comments. */
+
+  /* General Body Comments go here. Currently there are none. */
+
+  /*
+   * %%EndComments DCS indicates an explicit end to the header
+   * comments of the document.  All global DCS's must preceded
+   * this.  A blank line gives an implicit end to the comments.
+   */
+  fprintf (f, "%%%%EndComments\n\n" );
+}
+
+static void
+ps_end_file (FILE *f)
+{
+  /*
+   * %%Trailer DCS must only occur once at the end of the document
+   * script.  Any post-processing or cleanup should be contained in
+   * the trailer of the document, which is anything that follows the
+   * %%Trailer comment. Any of the document level structure comments
+   * that were deferred by using the (atend) convention must be
+   * mentioned in the trailer of the document after the %%Trailer
+   * comment.
+   */
+  fprintf (f, "%%%%Trailer\n" );
+
+  /*
+   * %%Pages was deferred until the end of the document via the
+   * (atend) mentioned, in the General Header section.
+   */
+  fprintf (f, "%%%%Pages: %d\n", pagecount );
+
+  /*
+   * %%EOF DCS signifies the end of the document. When the document
+   * manager sees this comment, it issues an end-of-file signal to the
+   * PostScript interpreter.  This is done so system-dependent file
+   * endings, such as Control-D and end-of-file packets, do not
+   * confuse the PostScript interpreter.
+   */
+  fprintf (f, "%%%%EOF\n" );
 }
 
 static FILE *
 psopen (const char *base, const char *which)
 {
-  FILE *f;
+  FILE *ps_open_file;
   char *buf, *suff, *buf2;
 
   if (!multi_file)
@@ -296,9 +403,9 @@ psopen (const char *base, const char *which)
       sprintf(buf, "%s.%s.ps", base, which);
     }
   printf("PS: open %s\n", buf);
-  f = fopen(buf, "w");
+  ps_open_file = fopen(buf, "w");
   free (buf);
-  return f;
+  return ps_open_file;
 }
 
 static BoxType region;
@@ -405,19 +512,20 @@ ps_hid_export_to_file (FILE * the_file, HID_Attr_Val * options)
 
   if (! multi_file)
     {
-      pagecount = 1;
-      fprintf (f, "%%%%Page: 1\n");
+      fprintf (f, "%%%%Page: TableOfContents 1\n");  /* %%Page DSC requires both a label and an ordinal */
       fprintf (f, "/Times-Roman findfont 24 scalefont setfont\n");
       fprintf (f,
 	       "/rightshow { /s exch def s stringwidth pop -1 mul 0 rmoveto s show } def\n");
       fprintf (f,
 	       "/y 72 9 mul def /toc { 100 y moveto show /y y 24 sub def } bind def\n");
       fprintf (f, "/tocp { /y y 12 sub def 90 y moveto rightshow } bind def\n");
+
       doing_toc = 1;
+      pagecount = 1;      /* 'pagecount' is modified by hid_expose_callback() call */
       hid_expose_callback (&ps_hid, &region, 0);
     }
 
-  pagecount = 1;
+  pagecount = 1; /* Reset 'pagecount' if single file */
   doing_toc = 0;
   lastgroup = -1;
   hid_expose_callback (&ps_hid, &region, 0);
@@ -468,7 +576,10 @@ ps_do_export (HID_Attr_Val * options)
 
   multi_file = 0;
   if (f)
-   fclose (f);
+    {
+      ps_end_file (f);
+      fclose (f);
+    }
 }
 
 extern void hid_parse_command_line (int *argc, char ***argv);
@@ -493,6 +604,14 @@ corner (int x, int y, int dx, int dy)
   int len2 = 20000;
 #endif
   int thick = 0;
+  /*
+   * Originally 'thick' used thicker lines.  Currently is uses
+   * Postscript's "device thin" line - i.e. zero width means one
+   * device pixel.  The code remains in case you want to make them
+   * thicker - it needs to offset everything so that the *edge* of the
+   * thick line lines up with the edge of the board, not the *center*
+   * of the thick line.
+   */
 
   fprintf (f, "gsave %d setlinewidth %d %d translate %d %d scale\n",
 	   thick * 2, x, y, dx, dy);
@@ -513,6 +632,7 @@ static int is_paste;
 static int
 ps_set_layer (const char *name, int group, int empty)
 {
+  time_t currenttime;
   int idx = (group >= 0
 	     && group <
 	     max_layer) ? PCB->LayerGroups.Entries[group][0] : group;
@@ -542,6 +662,18 @@ ps_set_layer (const char *name, int group, int empty)
     {
       if (group < 0 || group != lastgroup)
 	{
+          if( 1 == pagecount )
+            {
+              currenttime = time( NULL );
+              fprintf (f, "30 30 moveto (%s) show\n", PCB->Filename);
+
+              fprintf (f, "(%d.) tocp\n", pagecount);
+              fprintf (f, "(Table of Contents \\(This Page\\)) toc\n" );
+
+              fprintf (f, "(Created on %s) toc\n", asctime (localtime (&currenttime)));
+              fprintf (f, "( ) tocp\n" );
+            }
+
 	  pagecount++;
 	  lastgroup = group;
 	  fprintf (f, "(%d.) tocp\n", pagecount);
@@ -564,17 +696,29 @@ ps_set_layer (const char *name, int group, int empty)
       if (multi_file)
 	{
 	  if (f)
-	    fclose (f);
+            {
+              ps_end_file (f);
+              fclose (f);
+            }
 	  f = psopen (filename, layer_type_to_file_name (idx));
 	  if (!f)
 	  {
 	    perror(filename);
 	    return 0;
 	  }
-		  
+
 	  ps_start_file (f);
 	}
-      fprintf (f, "%%%%Page: %d\n", pagecount);
+
+      /*
+       * %%Page DSC comment marks the beginning of the PostScript
+       * language instructions that describe a particular
+       * page. %%Page: requires two arguments: a page label and a
+       * sequential page number. The label may be anything, but the
+       * ordinal page number must reflect the position of that page in
+       * the body of the PostScript file and must start with 1, not 0.
+       */
+      fprintf (f, "%%%%Page: %s %d\n", layer_type_to_file_name(idx), pagecount);
 
       if (mirror)
 	mirror_this = 1 - mirror_this;
@@ -585,7 +729,7 @@ ps_set_layer (const char *name, int group, int empty)
 	mirror_this = 1 - mirror_this;
 
       fprintf (f, "/Helvetica findfont 10 scalefont setfont\n");
-      if (legend) 
+      if (legend)
 	{
 	  fprintf (f, "30 30 moveto (%s) show\n", PCB->Filename);
 	  if (PCB->Name)
@@ -596,16 +740,16 @@ ps_set_layer (const char *name, int group, int empty)
 		     layer_type_to_file_name (idx));
 	  if (mirror_this)
 	    fprintf (f, "( \\(mirrored\\)) show\n");
-	  
+
 	  if (fillpage)
 	    fprintf (f, "(, not to scale) show\n");
 	  else
 	    fprintf (f, "(, scale = 1:%.3f) show\n", scale_value);
 	}
       fprintf (f, "newpath\n");
-      
+
       fprintf (f, "72 72 scale %g %g translate\n", 0.5*media_width, 0.5*media_height);
-      
+
       boffset = 0.5*media_height;
       if (PCB->MaxWidth > PCB->MaxHeight)
 	{
@@ -1013,8 +1157,13 @@ HID_Attribute ps_calib_attribute_list[] = {
 };
 
 static const char * const calib_lines[] = {
-  "%!PS-Adobe\n",
+  "%!PS-Adobe-3.0\n",
+  "%%Title: Calibration Page\n",
+  "%%PageOrder: Ascend\n",
+  "%%Pages: 1\n",
+  "%%EndComments\n",
   "\n",
+  "%%Page: Calibrate 1\n",
   "72 72 scale\n",
   "\n",
   "0 setlinewidth\n",
@@ -1099,7 +1248,7 @@ void
 ps_calibrate_1 (double xval, double yval, int use_command)
 {
   HID_Attr_Val vals[3];
-  FILE *f;
+  FILE *ps_cal_file;
   int used_popen = 0, c;
 
   if (xval > 0 && yval > 0)
@@ -1142,29 +1291,31 @@ ps_calibrate_1 (double xval, double yval, int use_command)
       char *cmd = vals[0].str_value;
       while (*cmd == ' ' || *cmd == '|')
 	cmd ++;
-      f = popen (cmd, "w");
+      ps_cal_file = popen (cmd, "w");
       used_popen = 1;
     }
   else
-    f = fopen (vals[0].str_value, "w");
+    ps_cal_file = fopen (vals[0].str_value, "w");
 
   for (c=0; calib_lines[c]; c++)
-    fputs(calib_lines[c], f);
+    fputs(calib_lines[c], ps_cal_file);
 
-  fprintf (f, "4 in 0.5 (Y in) cbar\n");
-  fprintf (f, "20 cm 1.5 (Y cm) cbar\n");
-  fprintf (f, "10 in 2.5 (Y in) cbar\n");
-  fprintf (f, "-90 rotate\n");
-  fprintf (f, "4 in -0.5 (X in) cbar\n");
-  fprintf (f, "15 cm -1.5 (X cm) cbar\n");
-  fprintf (f, "7.5 in -2.5 (X in) cbar\n");
+  fprintf (ps_cal_file, "4 in 0.5 (Y in) cbar\n");
+  fprintf (ps_cal_file, "20 cm 1.5 (Y cm) cbar\n");
+  fprintf (ps_cal_file, "10 in 2.5 (Y in) cbar\n");
+  fprintf (ps_cal_file, "-90 rotate\n");
+  fprintf (ps_cal_file, "4 in -0.5 (X in) cbar\n");
+  fprintf (ps_cal_file, "15 cm -1.5 (X cm) cbar\n");
+  fprintf (ps_cal_file, "7.5 in -2.5 (X in) cbar\n");
 
-  fprintf (f, "showpage\n");
+  fprintf (ps_cal_file, "showpage\n");
+
+  fprintf (ps_cal_file, "%%%%EOF\n");
 
   if (used_popen)
-    pclose (f);
+    pclose (ps_cal_file);
   else
-    fclose (f);
+    fclose (ps_cal_file);
 }
 
 static void
