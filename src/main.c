@@ -1021,12 +1021,6 @@ main (int argc, char *argv[])
 #ifdef HAVE_LIBSTROKE
   stroke_init ();
 #endif
-  /*
-   * Set this flag to zero.  Then if we have a startup
-   * action which includes Quit(), the flag will be set
-   * to -1 and we can avoid ever calling gtk_main();
-   */
-  Settings.init_done = 0;
 
   if (Settings.ScriptFilename)
     {
@@ -1040,37 +1034,33 @@ main (int argc, char *argv[])
       hid_parse_actions (Settings.ActionString, 0);
     }
 
-  if (Settings.init_done == 0)
-    {
-      Settings.init_done = 1;
 #if HAVE_DBUS
-      pcb_dbus_setup();
+  pcb_dbus_setup();
 #endif
 
-      EnableAutosave ();
+  EnableAutosave ();
 
 #ifdef DEBUG
-      printf ("Settings.LibraryCommandDir = \"%s\"\n",
-	      Settings.LibraryCommandDir);
-      printf ("Settings.FontPath          = \"%s\"\n", 
-	      Settings.FontPath);
-      printf ("Settings.ElementPath       = \"%s\"\n", 
-	      Settings.ElementPath);
-      printf ("Settings.LibraryPath       = \"%s\"\n", 
-	      Settings.LibraryPath);
-      printf ("Settings.LibraryTree       = \"%s\"\n", 
-	      Settings.LibraryTree);
-      printf ("Settings.MakeProgram = \"%s\"\n",
-	      UNKNOWN (Settings.MakeProgram));
-      printf ("Settings.GnetlistProgram = \"%s\"\n",
-	      UNKNOWN (Settings.GnetlistProgram));
+  printf ("Settings.LibraryCommandDir = \"%s\"\n",
+          Settings.LibraryCommandDir);
+  printf ("Settings.FontPath          = \"%s\"\n", 
+          Settings.FontPath);
+  printf ("Settings.ElementPath       = \"%s\"\n", 
+          Settings.ElementPath);
+  printf ("Settings.LibraryPath       = \"%s\"\n", 
+          Settings.LibraryPath);
+  printf ("Settings.LibraryTree       = \"%s\"\n", 
+          Settings.LibraryTree);
+  printf ("Settings.MakeProgram = \"%s\"\n",
+          UNKNOWN (Settings.MakeProgram));
+  printf ("Settings.GnetlistProgram = \"%s\"\n",
+          UNKNOWN (Settings.GnetlistProgram));
 #endif
 
-      gui->do_export (0);
+  gui->do_export (0);
 #if HAVE_DBUS
-      pcb_dbus_finish();
+  pcb_dbus_finish();
 #endif
-    }
 
   return (0);
 }
