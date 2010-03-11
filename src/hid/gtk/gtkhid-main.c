@@ -318,7 +318,7 @@ ghid_get_export_options (int *n_ret)
 }
 
 void
-ghid_invalidate_lr (int left, int right, int top, int bottom, int last)
+ghid_invalidate_lr (int left, int right, int top, int bottom)
 {
   ghid_invalidate_all ();
 }

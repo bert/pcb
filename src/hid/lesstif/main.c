@@ -2828,9 +2828,9 @@ lesstif_need_idle_proc ()
 }
 
 static void
-lesstif_invalidate_lr (int l, int r, int t, int b, int last)
+lesstif_invalidate_lr (int l, int r, int t, int b)
 {
-  if (!last || !window)
+  if (!window)
     return;
 
   need_redraw = 1;
@@ -2840,7 +2840,7 @@ lesstif_invalidate_lr (int l, int r, int t, int b, int last)
 void
 lesstif_invalidate_all (void)
 {
-  lesstif_invalidate_lr (0, PCB->MaxWidth, 0, PCB->MaxHeight, 1);
+  lesstif_invalidate_lr (0, PCB->MaxWidth, 0, PCB->MaxHeight);
 }
 
 static int

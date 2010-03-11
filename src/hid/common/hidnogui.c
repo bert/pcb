@@ -50,7 +50,7 @@ nogui_parse_arguments (int *argc, char ***argv)
 }
 
 static void
-nogui_invalidate_lr (int l, int r, int t, int b, int last)
+nogui_invalidate_lr (int l, int r, int t, int b)
 {
   CRASH;
 }

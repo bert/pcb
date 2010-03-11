@@ -191,7 +191,7 @@ batch_parse_arguments (int *argc, char ***argv)
 }
 
 static void
-batch_invalidate_lr (int l, int r, int t, int b, int last)
+batch_invalidate_lr (int l, int r, int t, int b)
 {
 }
 
