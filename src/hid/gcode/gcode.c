@@ -1040,7 +1040,6 @@ HID gcode_hid = {
   gcode_get_export_options,
   gcode_do_export,
   gcode_parse_arguments,
-  0 /* gcode_invalidate_wh */ ,
   0 /* gcode_invalidate_lr */ ,
   0 /* gcode_invalidate_all */ ,
   gcode_set_layer,
