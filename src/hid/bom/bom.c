@@ -544,7 +544,6 @@ HID bom_hid = {
   bom_get_export_options,
   bom_do_export,
   bom_parse_arguments,
-  0,				/* bom_invalidate_wh */
   0,				/* bom_invalidate_lr */
   0,				/* bom_invalidate_all */
   0,				/* bom_set_layer */

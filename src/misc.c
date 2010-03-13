@@ -879,16 +879,7 @@ QuitApplication (void)
   else
     DisableEmergencySave ();
 
-  /*
-   * if Settings.init_done is not > 0 then we haven't even called
-   * gtk_main() yet so gtk_main_quit() will give an error.  In
-   * this case just set the flag to -1 and we will exit instead
-   * of calling gtk_main()
-   */
-  if (Settings.init_done > 0)
-    exit (0);
-  else
-    Settings.init_done = -1;
+  exit (0);
 }
 
 /* ---------------------------------------------------------------------------

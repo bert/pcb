@@ -1056,7 +1056,6 @@ HID             nelma_hid = {
 	nelma_get_export_options,
 	nelma_do_export,
 	nelma_parse_arguments,
-	0 /* nelma_invalidate_wh */ ,
 	0 /* nelma_invalidate_lr */ ,
 	0 /* nelma_invalidate_all */ ,
 	nelma_set_layer,

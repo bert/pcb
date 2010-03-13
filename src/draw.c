@@ -194,7 +194,7 @@ Draw (void)
 
   /* clear and create event if not drawing to a pixmap
    */
-  gui->invalidate_lr (Block.X1, Block.X2, Block.Y1, Block.Y2, 1);
+  gui->invalidate_lr (Block.X1, Block.X2, Block.Y1, Block.Y2);
 
   RestoreCrosshair (True);
 

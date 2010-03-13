@@ -1337,7 +1337,6 @@ HID ps_hid = {
   ps_get_export_options,
   ps_do_export,
   ps_parse_arguments,
-  0 /* ps_invalidate_wh */ ,
   0 /* ps_invalidate_lr */ ,
   0 /* ps_invalidate_all */ ,
   ps_set_layer,

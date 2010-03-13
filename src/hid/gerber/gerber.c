@@ -1079,7 +1079,6 @@ static HID gerber_hid = {
   gerber_get_export_options,
   gerber_do_export,
   gerber_parse_arguments,
-  0 /* gerber_invalidate_wh */ ,
   0 /* gerber_invalidate_lr */ ,
   0 /* gerber_invalidate_all */ ,
   gerber_set_layer,

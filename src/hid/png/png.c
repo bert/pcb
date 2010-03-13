@@ -1475,7 +1475,6 @@ HID png_hid = {
   png_get_export_options,
   png_do_export,
   png_parse_arguments,
-  0 /* png_invalidate_wh */ ,
   0 /* png_invalidate_lr */ ,
   0 /* png_invalidate_all */ ,
   png_set_layer,
