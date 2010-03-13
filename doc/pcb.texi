@@ -5280,9 +5280,8 @@ Centroid (X-Y) data for driving automated assembly equipment.
 @cindex xcircuit, how to interface with
 
 If anyone cares to contribute this section, it will get added.  Please
-submit changes to the bug tracking system at the sourceforge project
-page for PCB which can be found from the PCB homepage at
-@url{http://pcb.sourceforge.net}.
+submit changes to the bug tracking system for PCB which can be found from
+the PCB homepage at @url{http://pcb.gpleda.org}.
 
 @c --------------------------- Appendix A -------------------------------
 
