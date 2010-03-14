@@ -86,6 +86,8 @@ extern "C"
     const char *syntax;
   } HID_Action;
 
+  extern void hid_register_action (HID_Action *);
+
   extern void hid_register_actions (HID_Action *, int);
 #define REGISTER_ACTIONS(a) HIDCONCAT(void register_,a) ()\
 { hid_register_actions(a, sizeof(a)/sizeof(a[0])); }

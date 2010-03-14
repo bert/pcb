@@ -40,6 +40,12 @@ hid_register_actions (HID_Action * a, int n)
   all_actions_sorted = 0;
 }
 
+void
+hid_register_action (HID_Action * a)
+{
+  hid_register_actions (a, 1);
+}
+
 static int
 action_sort_compar (const void *va, const void *vb)
 {
