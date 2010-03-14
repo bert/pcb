@@ -315,7 +315,7 @@ exporter_clicked_cb (GtkButton * button, HID * exporter)
 }
 
 void
-ghid_dialog_print (HID *exporter)
+ghid_dialog_print (HID *hid)
 {
   HID_Attribute *attr;
   int n = 0;
@@ -325,6 +325,8 @@ ghid_dialog_print (HID *exporter)
   /* signal the initial export select dialog that it should close */
   if (export_dialog)
     gtk_dialog_response (GTK_DIALOG (export_dialog), GTK_RESPONSE_CANCEL);
+
+  exporter = hid;
 
   attr = exporter->get_export_options (&n);
   if (n > 0)
@@ -354,6 +356,7 @@ ghid_dialog_print (HID *exporter)
   if (results)
     free (results);
 
+  exporter = NULL;
 }
 
 void
