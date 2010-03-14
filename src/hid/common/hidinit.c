@@ -291,6 +291,11 @@ hid_parse_command_line (int *argc, char ***argv)
 	    if (a->value)
 	      *(int *) a->value = a->default_val.int_value;
 	    break;
+	  case HID_Mixed:
+	    if (a->value) {
+              *(HID_Attr_Val *) a->value = a->default_val;
+           }
+           break;
 	  default:
 	    abort ();
 	  }
@@ -345,7 +350,6 @@ hid_parse_command_line (int *argc, char ***argv)
 		    a->default_val.int_value = bool_val;
 		  break;
 		case HID_Mixed:
-		  abort ();
 		  a->default_val.real_value = strtod ((*argv)[1], &ep);
 		  goto do_enum;
 		case HID_Enum:
@@ -353,7 +357,7 @@ hid_parse_command_line (int *argc, char ***argv)
 		do_enum:
 		  ok = 0;
 		  for (e = 0; a->enumerations[e]; e++)
-		    if (strcmp (a->enumerations[e], (*argv)[1]) == 0)
+		    if (strcmp (a->enumerations[e], ep) == 0)
 		      {
 			ok = 1;
 			a->default_val.int_value = e;
@@ -491,7 +495,14 @@ hid_save_settings (int locally)
 		       a->enumerations[a->value ? *(int *)a->value : a->default_val.int_value]);
 	      break;
 	    case HID_Mixed:
-	      abort ();
+             {
+               HID_Attr_Val *value =
+                 a->value ? (HID_Attr_Val*) a->value : &(a->default_val);
+               fprintf (f, "%s = %g%s\n",
+                        a->name,
+                        value->real_value,
+                        a->enumerations[value->int_value]);
+             }
 	      break;
 	    }
 	}
@@ -529,7 +540,6 @@ hid_set_attribute (char *name, char *value)
 	      a->default_val.int_value = 1;
 	      break;
 	    case HID_Mixed:
-	      abort ();
 	      a->default_val.real_value = strtod (value, &value);
 	      /* fall through */
 	    case HID_Enum:

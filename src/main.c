@@ -309,8 +309,10 @@ print_defaults_1 (HID_Attribute * a, void *value)
       fprintf (stderr, "%s %s\n", a->name, a->enumerations[i]);
       break;
     case HID_Mixed:
-      i = value ? *(int *) value : a->default_val.int_value;
-      d = value ? *(double *) value : a->default_val.real_value;
+      i = value ?
+        ((HID_Attr_Val*)value)->int_value  : a->default_val.int_value;
+      d = value ?
+        ((HID_Attr_Val*)value)->real_value : a->default_val.real_value;
       fprintf (stderr, "%s %g%s\n", a->name, d, a->enumerations[i]);
       break;
     case HID_Label:
