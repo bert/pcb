@@ -213,6 +213,7 @@ ghid_attribute_dialog (HID_Attribute * attrs,
 	  hbox = gtk_hbox_new (FALSE, 4);
 	  gtk_box_pack_start (GTK_BOX (vbox), hbox, FALSE, FALSE, 0);
 
+        do_enum:
 	  /* 
 	   * We have to put the combo_box inside of an event_box in
 	   * order for tooltips to work.
@@ -246,7 +247,22 @@ ghid_attribute_dialog (HID_Attribute * attrs,
 	  break;
 
 	case HID_Mixed:
-	  printf ("HID_Mixed\n");
+	  hbox = gtk_hbox_new (FALSE, 4);
+	  gtk_box_pack_start (GTK_BOX (vbox), hbox, FALSE, FALSE, 0);
+          
+	  /*
+	   * FIXME
+	   * need to pick the "digits" and step size argument more
+	   * intelligently
+	   */
+	  ghid_spin_button (hbox, &widget, attrs[j].default_val.real_value,
+			    attrs[j].min_val, attrs[j].max_val, 0.01, 0.01, 3,
+			    0,
+			    dblspinner_changed_cb,
+			    &(attrs[j].default_val.real_value), FALSE, NULL);
+	  gtk_tooltips_set_tip (tips, widget, attrs[j].help_text, NULL);
+
+          goto do_enum;
 	  break;
 
 	case HID_Path:
