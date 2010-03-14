@@ -30,7 +30,7 @@ typedef struct HID_ActionNode
 
 HID_ActionNode *hid_action_nodes = 0;
 static int n_actions = 0;
-static HID_Action *all_actions = 0;
+static HID_Action **all_actions = 0;
 
 void
 hid_register_actions (HID_Action * a, int n)
@@ -54,8 +54,8 @@ hid_register_actions (HID_Action * a, int n)
 static int
 action_sort (const void *va, const void *vb)
 {
-  HID_Action *a = (HID_Action *) va;
-  HID_Action *b = (HID_Action *) vb;
+  HID_Action *a = *(HID_Action **) va;
+  HID_Action *b = *(HID_Action **) vb;
   return strcmp (a->name, b->name);
 }
 
@@ -71,11 +71,11 @@ hid_find_action (const char *name)
   if (all_actions == 0)
     {
       n = 0;
-      all_actions = malloc (n_actions * sizeof (HID_Action));
+      all_actions = malloc (n_actions * sizeof (HID_Action*));
       for (ha = hid_action_nodes; ha; ha = ha->next)
 	for (i = 0; i < ha->n; i++)
-	  all_actions[n++] = ha->actions[i];
-      qsort (all_actions, n_actions, sizeof (HID_Action), action_sort);
+	  all_actions[n++] = &(ha->actions[i]);
+      qsort (all_actions, n_actions, sizeof (HID_Action*), action_sort);
     }
 
 
@@ -85,10 +85,10 @@ hid_find_action (const char *name)
   while (lower < upper - 1)
     {
       i = (lower + upper) / 2;
-      n = strcmp (all_actions[i].name, name);
+      n = strcmp (all_actions[i]->name, name);
       /*printf("try [%d].%s, cmp %d\n", i, all_actions[i].name, n); */
       if (n == 0)
-	return all_actions + i;
+	return all_actions[i];
       if (n > 0)
 	upper = i;
       else
@@ -96,8 +96,8 @@ hid_find_action (const char *name)
     }
 
   for (i = 0; i < n_actions; i++)
-    if (strcasecmp (all_actions[i].name, name) == 0)
-      return all_actions + i;
+    if (strcasecmp (all_actions[i]->name, name) == 0)
+      return all_actions[i];
 
   printf ("unknown action `%s'\n", name);
   return 0;
@@ -112,15 +112,15 @@ print_actions ()
   fprintf (stderr, "Registered Actions:\n");
   for (i = 0; i < n_actions; i++)
     {
-      if (all_actions[i].description)
-	fprintf (stderr, "  %s - %s\n", all_actions[i].name,
-		 all_actions[i].description);
+      if (all_actions[i]->description)
+	fprintf (stderr, "  %s - %s\n", all_actions[i]->name,
+		 all_actions[i]->description);
       else
-	fprintf (stderr, "  %s\n", all_actions[i].name);
-      if (all_actions[i].syntax)
+	fprintf (stderr, "  %s\n", all_actions[i]->name);
+      if (all_actions[i]->syntax)
 	{
 	  const char *bb, *eb;
-	  bb = eb = all_actions[i].syntax;
+	  bb = eb = all_actions[i]->syntax;
 	  while (1)
 	    {
 	      for (eb = bb; *eb && *eb != '\n'; eb++)
@@ -164,13 +164,13 @@ dump_actions ()
   hid_find_action (hid_action_nodes->actions[0].name);
   for (i = 0; i < n_actions; i++)
     {
-      const char *desc = all_actions[i].description;
-      const char *synt = all_actions[i].syntax;
+      const char *desc = all_actions[i]->description;
+      const char *synt = all_actions[i]->syntax;
 
       desc = desc ? desc : "";
       synt = synt ? synt : "";
 
-      printf ("A%s\n", all_actions[i].name);
+      printf ("A%s\n", all_actions[i]->name);
       dump_string ('D', desc);
       dump_string ('S', synt);
     }
