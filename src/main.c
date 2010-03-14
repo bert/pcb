@@ -332,7 +332,9 @@ print_defaults ()
       else
 	{
 	  fprintf (stderr, "\n%s defaults:\n", h->name);
-	  e = h->get_export_options (&n);
+	  exporter = h;
+	  e = exporter->get_export_options (&n);
+	  exporter = NULL;
 	  if (e)
 	    for (i = 0; i < n; i++)
 	      print_defaults_1 (e + i, 0);
