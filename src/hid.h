@@ -86,25 +86,7 @@ extern "C"
     const char *syntax;
   } HID_Action;
 
-  /* This global variable is always set to the action context, before
-     an action callback is called. Action context can be specified
-     when registering an action with hid_register_action() Intended
-     for plugins with hub action callbacks. */
-  extern void *hid_action_context;
-
-  /* Register a singe action associated with an action context. Makes
-     a copy of HID_Action.  Intended for plugins to register actions
-     with a hub callback. */
-  extern void hid_register_action(const HID_Action *, void *);
-
-  /* Deregister an action registered using hid_register_action().
-     Action context pointer is copied in the 2nd argument if it's not
-     NULL.  Intended for plugins to deregister custom actions. */
-  extern void hid_deregister_action(const char *, void **);
-
-  /* Register a list of static actions without action context */
   extern void hid_register_actions (HID_Action *, int);
-
 #define REGISTER_ACTIONS(a) HIDCONCAT(void register_,a) ()\
 { hid_register_actions(a, sizeof(a)/sizeof(a[0])); }
 
