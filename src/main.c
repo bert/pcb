@@ -200,33 +200,24 @@ usage_attr (HID_Attribute * a)
 static void
 usage_hid (HID * h)
 {
-  HID_Attribute *e;
-  int i, n;
+  HID_Attribute *attributes;
+  int i, n_attributes = 0;
 
   if (h->gui)
     {
-      HID **hl = hid_enumerate ();
-      HID_AttrNode *ha;
       fprintf (stderr, "\n%s gui options:\n", h->name);
-      for (ha = hid_attr_nodes; ha; ha = ha->next)
-	{
-	  for (i = 0; hl[i]; i++)
-	    if (ha->attributes == hl[i]->get_export_options (0))
-	      goto skip_this_one;
-	  for (i = 0; i < ha->n; i++)
-	    usage_attr (ha->attributes + i);
-	skip_this_one:;
-	}
-      return;
+      attributes = h->get_export_options (&n_attributes);
     }
-  fprintf (stderr, "\n%s options:\n", h->name);
-  exporter = h;
-  e = h->get_export_options (&n);
-  if (!e)
-    return;
-  for (i = 0; i < n; i++)
-    usage_attr (e + i);
-  exporter = NULL;
+  else
+    {
+      fprintf (stderr, "\n%s options:\n", h->name);
+      exporter = h;
+      attributes = exporter->get_export_options (&n_attributes);
+      exporter = NULL;
+    }
+  
+  for (i = 0; i < n_attributes; i++)
+    usage_attr (attributes + i);
 }
 
 static void
