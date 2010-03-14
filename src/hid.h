@@ -590,7 +590,7 @@ typedef enum
   void hid_expose_callback (HID * hid_, struct BoxType *region_, void *item_);
 
 /* This is initially set to a "no-gui" gui, and later reset by
-   hid_start_gui.  */
+   main. hid_expose_callback also temporarily set it for drawing. */
   extern HID *gui;
 
 /* This is either NULL or points to the current HID that is being called to
