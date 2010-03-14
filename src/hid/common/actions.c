@@ -21,81 +21,64 @@
 
 RCSID ("$Id$");
 
-typedef struct HID_ActionNode
-{
-  struct HID_ActionNode *next;
-  HID_Action *actions;
-  int n;
-} HID_ActionNode;
-
-HID_ActionNode *hid_action_nodes = 0;
-static int n_actions = 0;
 static HID_Action **all_actions = 0;
+static int all_actions_sorted = 0;
+static int n_actions = 0;
 
 HID_Action *current_action = NULL;
 
 void
 hid_register_actions (HID_Action * a, int n)
 {
-  HID_ActionNode *ha;
-
-  /*printf("%d actions registered\n", n); */
-  ha = (HID_ActionNode *) malloc (sizeof (HID_ActionNode));
-  ha->next = hid_action_nodes;
-  hid_action_nodes = ha;
-  ha->actions = a;
-  ha->n = n;
+  int i;
+  
+  all_actions = realloc (all_actions,
+                         (n_actions + n) * sizeof (HID_Action*));
+  for (i = 0; i < n; i++)
+    all_actions[n_actions + i] = a + i;
   n_actions += n;
-  if (all_actions)
-    {
-      free (all_actions);
-      all_actions = 0;
-    }
+  all_actions_sorted = 0;
 }
 
 static int
-action_sort (const void *va, const void *vb)
+action_sort_compar (const void *va, const void *vb)
 {
   HID_Action *a = *(HID_Action **) va;
   HID_Action *b = *(HID_Action **) vb;
   return strcmp (a->name, b->name);
 }
 
+static void
+sort_actions ()
+{
+  qsort (all_actions, n_actions, sizeof (HID_Action*), action_sort_compar);
+  all_actions_sorted = 1;
+}
+
+static int
+action_search_compar (const void *va, const void *vb)
+{
+  char *name = (char*)va;
+  HID_Action *action = *(HID_Action**)vb;
+  return strcmp (name, action->name);
+}
+
 HID_Action *
 hid_find_action (const char *name)
 {
-  HID_ActionNode *ha;
-  int i, n, lower, upper;
-
+  HID_Action **action;
+  int i;
+  
   if (name == NULL)
     return 0;
 
-  if (all_actions == 0)
-    {
-      n = 0;
-      all_actions = malloc (n_actions * sizeof (HID_Action*));
-      for (ha = hid_action_nodes; ha; ha = ha->next)
-	for (i = 0; i < ha->n; i++)
-	  all_actions[n++] = &(ha->actions[i]);
-      qsort (all_actions, n_actions, sizeof (HID_Action*), action_sort);
-    }
+  if (!all_actions_sorted)
+    sort_actions ();
 
-
-  lower = -1;
-  upper = n_actions;
-  /*printf("search action %s\n", name); */
-  while (lower < upper - 1)
-    {
-      i = (lower + upper) / 2;
-      n = strcmp (all_actions[i]->name, name);
-      /*printf("try [%d].%s, cmp %d\n", i, all_actions[i].name, n); */
-      if (n == 0)
-	return all_actions[i];
-      if (n > 0)
-	upper = i;
-      else
-	lower = i;
-    }
+  action = bsearch (name, all_actions, n_actions, sizeof (HID_Action*),
+                    action_search_compar);
+  if (action)
+    return *action;
 
   for (i = 0; i < n_actions; i++)
     if (strcasecmp (all_actions[i]->name, name) == 0)
@@ -109,8 +92,10 @@ void
 print_actions ()
 {
   int i;
-  /* Forces them to be sorted in all_actions */
-  hid_find_action (hid_action_nodes->actions[0].name);
+
+  if (!all_actions_sorted)
+    sort_actions ();
+  
   fprintf (stderr, "Registered Actions:\n");
   for (i = 0; i < n_actions; i++)
     {
@@ -162,8 +147,10 @@ void
 dump_actions ()
 {
   int i;
-  /* Forces them to be sorted in all_actions */
-  hid_find_action (hid_action_nodes->actions[0].name);
+
+  if (!all_actions_sorted)
+    sort_actions ();
+
   for (i = 0; i < n_actions; i++)
     {
       const char *desc = all_actions[i]->description;
