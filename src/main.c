@@ -252,17 +252,17 @@ usage (void)
   u ("Available GUI hid%s:", n_gui == 1 ? "" : "s");
   for (i = 0; hl[i]; i++)
     if (hl[i]->gui)
-      fprintf (stderr, "\t%s\t%s\n", hl[i]->name, hl[i]->description);
+      fprintf (stderr, "\t%-8s %s\n", hl[i]->name, hl[i]->description);
   u ("%s -p [printing options] <pcb file>\tto print", Progname);
   u ("Available printing hid%s:", n_printer == 1 ? "" : "s");
   for (i = 0; hl[i]; i++)
     if (hl[i]->printer)
-      fprintf (stderr, "\t%s\t%s\n", hl[i]->name, hl[i]->description);
+      fprintf (stderr, "\t%-8s %s\n", hl[i]->name, hl[i]->description);
   u ("%s -x hid [export options] <pcb file>\tto export", Progname);
   u ("Available export hid%s:", n_exporter == 1 ? "" : "s");
   for (i = 0; hl[i]; i++)
     if (hl[i]->exporter)
-      fprintf (stderr, "\t%s\t%s\n", hl[i]->name, hl[i]->description);
+      fprintf (stderr, "\t%-8s %s\n", hl[i]->name, hl[i]->description);
 
   for (i = 0; hl[i]; i++)
     if (hl[i]->gui)
