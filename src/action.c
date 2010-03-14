@@ -6770,7 +6770,7 @@ ActionExecuteFile (int argc, char **argv, int x, int y)
     }
 
   defer_updates = 1;
-  defer_needs_update = 0;
+  defer_needs_update = 1;
   while (fgets (line, sizeof (line), fp) != NULL)
     {
       n++;
@@ -6969,6 +6969,7 @@ ActionElementList (int argc, char **argv, int x, int y)
 #endif
       /* Not on board, need to add it. */
       if (LoadFootprint(argc, args, x, y))
+	/* LoadFootprint returns 0 on success, non-zero on error */
 	return 1;
       if (CopyPastebufferToLayout (0, 0))
 	SetChangedFlag (True);

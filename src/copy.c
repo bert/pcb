@@ -284,8 +284,8 @@ CopyElement (ElementTypePtr Element)
 {
 
 #ifdef DEBUG
-  printf("Entered CopyElement, trying to copy element %s\n",
-	 Element->Name[1].TextString);
+/*  printf("Entered CopyElement, trying to copy element %s\n",
+    Element->Name[1].TextString); */
 #endif
 
   Boolean didDraw = False;
@@ -309,7 +309,7 @@ CopyElement (ElementTypePtr Element)
       didDraw = True;
     }
 #ifdef DEBUG
-  printf(" ... Leaving CopyElement.\n");
+/*   printf(" ... Leaving CopyElement.\n"); */
 #endif
   return (element);
 }
@@ -326,6 +326,7 @@ CopyPastebufferToLayout (LocationType X, LocationType Y)
 
 #ifdef DEBUG
   printf("Entering CopyPastebufferToLayout.....\n");
+  printf("  BufferNumber = %d\n", Settings.BufferNumber);
 #endif
 
   /* set movement vector */
@@ -339,6 +340,9 @@ CopyPastebufferToLayout (LocationType X, LocationType Y)
 
       if (destlayer->On)
 	{
+#ifdef DEBUG
+	  printf("  .... In CopyPastebufferToLayout, Copying layers ...\n");
+#endif
 	  changed = changed ||
 	    (sourcelayer->LineN != 0) ||
 	    (sourcelayer->ArcN != 0) ||
@@ -369,10 +373,13 @@ CopyPastebufferToLayout (LocationType X, LocationType Y)
   /* paste elements */
   if (PCB->PinOn && PCB->ElementOn)
     {
+#ifdef DEBUG
+      printf("  .... In CopyPastebufferToLayout, Copying elements ...\n");
+#endif
       ELEMENT_LOOP (PASTEBUFFER->Data);
       {
 #ifdef DEBUG
-	printf("In CopyPastebufferToLayout, pasting element %s\n",
+	printf("  .... In CopyPastebufferToLayout, pasting element %s ...\n",
 	      element->Name[1].TextString);
 #endif
 	if (FRONT (element) || PCB->InvisibleObjectsOn)
@@ -387,6 +394,9 @@ CopyPastebufferToLayout (LocationType X, LocationType Y)
   /* finally the vias */
   if (PCB->ViaOn)
     {
+#ifdef DEBUG
+      printf("  .... In CopyPastebufferToLayout, Copying vias ...\n");
+#endif 
       changed |= (PASTEBUFFER->Data->ViaN != 0);
       VIA_LOOP (PASTEBUFFER->Data);
       {
@@ -398,6 +408,7 @@ CopyPastebufferToLayout (LocationType X, LocationType Y)
   if (changed)
     {
       Draw ();
+      gui->invalidate_all() ;
       IncrementUndoSerialNumber ();
     }
 

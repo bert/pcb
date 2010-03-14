@@ -200,6 +200,9 @@ SetBufferNumber (int Number)
 {
   if (Number >= 0 && Number < MAX_BUFFER)
     {
+#ifdef DEBUG
+      printf("SetBufferNumber, setting buf to %d\n"< Number);
+#endif
       Settings.BufferNumber = Number;
 
       /* do an update on the crosshair range */

@@ -789,6 +789,10 @@ LoadFootprintByName (BufferTypePtr Buffer, char *Footprint)
   LibraryEntryType *entry;
   char *with_fp = NULL;
 
+#ifdef DEBUG
+  printf("  ---> Entered LoadFootprintByName\n");
+#endif
+
   if (!footprint_hash)
     make_footprint_hash ();
 
@@ -814,6 +818,11 @@ LoadFootprintByName (BufferTypePtr Buffer, char *Footprint)
       i = LoadElementToBuffer (Buffer, entry->AllocatedMemory, True);
       if (with_fp)
 	free (with_fp);
+#ifdef DEBUG
+  printf("  <--- Leaving LoadFootprintByName, loaded a newlib footprint to buffer\n");
+#endif
+      /* Must invert sense of return from LoadElementToBuffer.
+       * Return is 0 for success. */
       return i ? 0 : 1;
     }
   else
@@ -827,6 +836,11 @@ LoadFootprintByName (BufferTypePtr Buffer, char *Footprint)
       free (args);
       if (with_fp)
 	free (with_fp);
+#ifdef DEBUG
+  printf("  <--- Leaving LoadFootprintByName, loaded an M4 footprint to buffer\n");
+#endif
+      /* Must invert sense of return from LoadElementToBuffer.
+       * Return is 0 for success. */
       return i ? 0 : 1;
     }
 
@@ -883,36 +897,50 @@ LoadFootprint (int argc, char **argv, int x, int y)
   char *value = ARG(2);
   ElementTypePtr e;
 
+#ifdef DEBUG
+  printf("  ---> Entering LoadFootprint, trying to load %s\n", name);
+#endif
+
   if (!name)
     AFAIL (loadfootprint);
 
   if (LoadFootprintByName (PASTEBUFFER, name))
-    return 1;
+      /* Return 1 if error */
+      return 1;
 
   if (PASTEBUFFER->Data->ElementN == 0)
     {
       Message("Footprint %s contains no elements", name);
+      /* Return 1 if error */
       return 1;
     }
   if (PASTEBUFFER->Data->ElementN > 1)
     {
       Message("Footprint %s contains multiple elements", name);
+      /* Return 1 if error */
       return 1;
     }
 
   e = & PASTEBUFFER->Data->Element[0];
 
+  /* Name[0] = description */
   if (e->Name[0].TextString)
     free (e->Name[0].TextString);
   e->Name[0].TextString = strdup (name);
 
+  /* Name[0] = name (i.e. refdes) */
   if (e->Name[1].TextString)
     free (e->Name[1].TextString);
   e->Name[1].TextString = refdes ? strdup (refdes) : 0;
 
+  /* Name[0] = value */
   if (e->Name[2].TextString)
     free (e->Name[2].TextString);
   e->Name[2].TextString = value ? strdup (value) : 0;
+
+#ifdef DEBUG
+  printf("  <--- Leaving LoadFootprint, successfully loaded footprint\n");
+#endif
 
   return 0;
 }

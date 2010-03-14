@@ -1275,7 +1275,7 @@ ParseLibraryTree (void)
       while ((direntry = readdir (dirobj)) != NULL)
 	{
 #ifdef DEBUG
-	  printf("In ParseLibraryTree loop examining 2nd level direntry %s ... \n", direntry->d_name);
+	  printf("In ParseLibraryTree loop examining 2nd level direntry %s ... \n", direntry->d_name); 
 #endif
 	  /* Find subdirectories.  Ignore entries beginning with "." and CVS
 	   * directories.

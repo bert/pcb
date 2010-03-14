@@ -386,6 +386,10 @@ DrawEverything (BoxTypePtr drawn_area)
   /* This is the reverse of the order in which we draw them.  */
   int drawn_groups[MAX_LAYER];
 
+#ifdef DEBUG
+  printf("      -----> Entered DrawEverything\n");
+#endif
+
   PCB->Data->SILKLAYER.Color = PCB->ElementColor;
   PCB->Data->BACKSILKLAYER.Color = PCB->InvisibleObjectsColor;
 
@@ -566,6 +570,11 @@ DrawEverything (BoxTypePtr drawn_area)
 
   if (gui->set_layer ("fab", SL (FAB, 0), 0))
     PrintFab ();
+
+#ifdef DEBUG
+  printf("      <----- Leaving DrawEverything\n");
+#endif
+
 }
 
 static void
@@ -1504,6 +1513,9 @@ ClearPad (PadTypePtr Pad, Boolean mask)
 static void
 DrawLineLowLevel (LineTypePtr Line, Boolean HaveGathered)
 {
+#ifdef DEBUG
+    printf("      --> Entered DrawLineLowLevel, Gathering = %d\n", Gathering);
+#endif
   if (Gathering && !HaveGathered)
     {
       AddPart (Line);
@@ -1519,6 +1531,10 @@ DrawLineLowLevel (LineTypePtr Line, Boolean HaveGathered)
   gui->draw_line (Output.fgGC,
 		  Line->Point1.X, Line->Point1.Y,
 		  Line->Point2.X, Line->Point2.Y);
+#ifdef DEBUG
+    printf("      <-- Leaving DrawLineLowLevel\n");
+#endif
+
 }
 
 /* ---------------------------------------------------------------------------
@@ -1658,6 +1674,9 @@ DrawArcLowLevel (ArcTypePtr Arc)
 static void
 DrawElementPackageLowLevel (ElementTypePtr Element, int unused)
 {
+#ifdef DEBUG
+    printf("      ---> Entered DrawElementPackageLowLevel\n");
+#endif
   /* draw lines, arcs, text and pins */
   ELEMENTLINE_LOOP (Element);
   {
@@ -1669,6 +1688,9 @@ DrawElementPackageLowLevel (ElementTypePtr Element, int unused)
     DrawArcLowLevel (arc);
   }
   END_LOOP;
+#ifdef DEBUG
+    printf("      <--- Leaving DrawElementPackageLowLevel\n");
+#endif
 }
 
 /* ---------------------------------------------------------------------------
@@ -2028,9 +2050,15 @@ DrawPlainPolygon (LayerTypePtr Layer, PolygonTypePtr Polygon)
 void
 DrawElement (ElementTypePtr Element, int unused)
 {
+#ifdef DEBUG
+  printf("   ---> Entered DrawElement\n");
+#endif
   DrawElementPackage (Element, unused);
   DrawElementName (Element, unused);
   DrawElementPinsAndPads (Element, unused);
+#ifdef DEBUG
+  printf("   <--- Leaving DrawElement\n");
+#endif
 }
 
 /* ---------------------------------------------------------------------------
@@ -2410,6 +2438,9 @@ DrawObject (int type, void *ptr1, void *ptr2, int unused)
 void
 hid_expose_callback (HID * hid, BoxType * region, void *item)
 {
+#ifdef DEBUG
+  printf("   ---> Entered hid_expose_callback\n");
+#endif
   HID *old_gui = gui;
   hidGC savebg = Output.bgGC;
   hidGC savefg = Output.fgGC;
@@ -2446,4 +2477,8 @@ hid_expose_callback (HID * hid, BoxType * region, void *item)
   Output.pmGC = savepm;
 
   Gathering = True;
+#ifdef DEBUG
+  printf("   <--- Leaving hid_expose_callback\n");
+#endif
+
 }

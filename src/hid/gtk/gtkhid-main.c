@@ -336,6 +336,10 @@ ghid_invalidate_all ()
   int eleft, eright, etop, ebottom;
   BoxType region;
 
+#ifdef DEBUG
+  printf("==> Entered ghid_invalidate_all\n");
+#endif
+
   if (!gport->pixmap)
     return;
 
@@ -394,6 +398,11 @@ ghid_invalidate_all ()
     RestoreCrosshair (FALSE);
   ghidgui->need_restore_crosshair = FALSE;
   ghid_screen_update ();
+
+#ifdef DEBUG
+  printf("<== Leaving ghid_invalidate_all\n");
+#endif
+
 }
 
 

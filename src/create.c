@@ -647,7 +647,7 @@ CreateNewElement (DataTypePtr Data, ElementTypePtr Element,
 		  int TextScale, FlagType TextFlags, Boolean uniqueName)
 {
 #ifdef DEBUG
-  printf("Entered CreateNewElement.....\n");
+  printf("---> Entered CreateNewElement.....\n");
 #endif
 
   if (!Element)
@@ -670,7 +670,7 @@ CreateNewElement (DataTypePtr Data, ElementTypePtr Element,
   Element->ID = ID++;
 
 #ifdef DEBUG
-  printf("  .... Leaving CreateNewElement.\n");
+  printf("<---  .... Leaving CreateNewElement.\n");
 #endif
 
   return (Element);
