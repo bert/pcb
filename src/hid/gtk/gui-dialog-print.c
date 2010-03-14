@@ -367,6 +367,7 @@ ghid_dialog_export (void)
   int i;
   HID **hids;
   GtkTooltips *tips;
+  gboolean no_exporter = TRUE;
 
   tips = gtk_tooltips_new ();
 
@@ -395,7 +396,7 @@ ghid_dialog_export (void)
     {
       if (hids[i]->exporter)
 	{
-	  exporter = hids[i];
+	  no_exporter = FALSE;
 	  button = gtk_button_new_with_label (hids[i]->name);
 	  gtk_tooltips_set_tip (tips, button, hids[i]->description, NULL);
 	  gtk_box_pack_start (GTK_BOX (vbox), button, FALSE, FALSE, 0);
@@ -404,7 +405,7 @@ ghid_dialog_export (void)
 	}
     }
 
-  if (exporter == NULL)
+  if (no_exporter)
     {
       gui->log (_("Can't find a suitable exporter HID"));
     }
@@ -415,6 +416,4 @@ ghid_dialog_export (void)
   if (export_dialog != NULL)
     gtk_widget_destroy (export_dialog);
   export_dialog = NULL;
-
-  exporter = NULL;
 }
