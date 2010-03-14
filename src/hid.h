@@ -579,6 +579,10 @@ typedef enum
 	do the exporting. The gui HIDs set and unset this var.*/
   extern HID *exporter;
 
+/* This is either NULL or points to the current HID_Action that is being
+   called. The action launcher sets and unsets this variable. */
+  extern HID_Action *current_action;
+
 /* The GUI may set this to be approximately the PCB size of a pixel,
    to allow for near-misses in selection and changes in drawing items
    smaller than a screen pixel.  */

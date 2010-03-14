@@ -32,6 +32,8 @@ HID_ActionNode *hid_action_nodes = 0;
 static int n_actions = 0;
 static HID_Action **all_actions = 0;
 
+HID_Action *current_action = NULL;
+
 void
 hid_register_actions (HID_Action * a, int n)
 {
@@ -200,8 +202,8 @@ hid_actionl (const char *name, ...)
 int
 hid_actionv (const char *name, int argc, char **argv)
 {
-  int x = 0, y = 0, i;
-  HID_Action *a;
+  int x = 0, y = 0, i, ret;
+  HID_Action *a, *old_action;
 
   if (Settings.verbose && name)
     {
@@ -216,7 +218,13 @@ hid_actionv (const char *name, int argc, char **argv)
     return 1;
   if (a->need_coord_msg)
     gui->get_coords (a->need_coord_msg, &x, &y);
-  return a->trigger_cb (argc, argv, x, y);
+  
+  old_action     = current_action;
+  current_action = a;
+  ret = current_action->trigger_cb (argc, argv, x, y);
+  current_action = old_action;
+  
+  return ret;
 }
 
 int
