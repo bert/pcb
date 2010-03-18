@@ -33,6 +33,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
+#include <math.h>
 
 #include "global.h"
 #include "data.h"
@@ -1404,6 +1405,20 @@ png_draw_arc (hidGC gc, int cx, int cy, int width, int height,
 	      int start_angle, int delta_angle)
 {
   int sa, ea;
+
+  /*
+   * zero angle arcs need special handling as gd will output either
+   * nothing at all or a full circle when passed delta angle of 0 or 360.
+   */
+  if (delta_angle == 0) {
+    double r = width;
+    int x = (int) (r * cos (start_angle * M_PI / 180));
+    int y = (int) (r * sin (start_angle * M_PI / 180));
+    x = cx - x;
+    y = cy + y;
+    png_fill_circle (gc, x, y, gc->width / 2);
+    return;
+  }
 
   /* 
    * in gdImageArc, 0 degrees is to the right and +90 degrees is down
