@@ -1,4 +1,4 @@
-# Copyright (c) 2003, 2004, 2005, 2006, 2007, 2009 Dan McMahill
+# Copyright (c) 2003, 2004, 2005, 2006, 2007, 2009, 2010 Dan McMahill
 #
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of version 2 of the GNU General Public License as
@@ -159,5 +159,7 @@ hid_gerber2 | gerber_oneline.pcb | gerber | --gerberfile out | | gbx:out.back.gb
 # Produces GIF/JPEG/PNG (image) files
 #
 hid_png1 | gerber_oneline.pcb | png | | | png:gerber_oneline.png
+hid_png2 | gerber_oneline.pcb | png | --outfile myfile.png | | png:myfile.png
+hid_png3 | gerber_oneline.pcb | png | --dpi 300 | | png:gerber_oneline.png
 #
 
