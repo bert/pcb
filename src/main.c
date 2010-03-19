@@ -1033,7 +1033,7 @@ main (int argc, char *argv[])
   if (Settings.ActionString)
     {
       Message (_("Executing startup action %s\n"), Settings.ActionString);
-      hid_parse_actions (Settings.ActionString, 0);
+      hid_parse_actions (Settings.ActionString);
     }
 
 #if HAVE_DBUS

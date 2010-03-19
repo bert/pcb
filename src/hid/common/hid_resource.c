@@ -198,8 +198,6 @@ do_mouse_action (int button, int mod_mask)
 
   for (i = 0; i < action->c; i++)
     if (action->v[i].value)
-      if (hid_parse_actions (action->v[i].value, hid_actionv))
-	return;
+      if (hid_parse_actions (action->v[i].value))
+        return;
 }
-
-

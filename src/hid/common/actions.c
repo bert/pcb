@@ -11,6 +11,7 @@
 
 #include "global.h"
 #include "data.h"
+#include "error.h"
 
 #include "hid.h"
 #include "../hidint.h"
@@ -198,19 +199,30 @@ hid_actionv (const char *name, int argc, char **argv)
   int x = 0, y = 0, i, ret;
   HID_Action *a, *old_action;
 
-  if (Settings.verbose && name)
+  if (!name)
+    return 1;
+
+  a = hid_find_action (name);
+  if (!a)
+    {
+      int i;
+      Message ("no action %s(", name);
+      for (i = 0; i < argc; i++)
+        Message ("%s%s", i ? ", " : "", argv[i]);
+      Message (")\n");
+      return 1;
+    }
+
+  if (a->need_coord_msg)
+    gui->get_coords (a->need_coord_msg, &x, &y);
+
+  if (Settings.verbose)
     {
       printf ("Action: \033[34m%s(", name);
       for (i = 0; i < argc; i++)
 	printf ("%s%s", i ? "," : "", argv[i]);
       printf (")\033[0m\n");
     }
-
-  a = hid_find_action (name);
-  if (!a)
-    return 1;
-  if (a->need_coord_msg)
-    gui->get_coords (a->need_coord_msg, &x, &y);
   
   old_action     = current_action;
   current_action = a;
@@ -220,9 +232,8 @@ hid_actionv (const char *name, int argc, char **argv)
   return ret;
 }
 
-int
-hid_parse_actions (const char *rstr,
-		   int (*function) (const char *, int, char **))
+static int
+hid_parse_actionstring (const char *rstr, char require_parens)
 {
   char **list = NULL;
   int max = 0;
@@ -232,10 +243,8 @@ hid_parse_actions (const char *rstr,
   char *cp, *aname, *cp2;
   int maybe_empty = 0;
   char in_quotes = 0;
+  char parens = 0;
   int retcode = 0;
-
-  if (function == NULL)
-    function = hid_actionv;
 
   /*fprintf(stderr, "invoke: `%s'\n", rstr);*/
 
@@ -257,52 +266,65 @@ another:
     }
   
   aname = cp;
-  
-  /* search for the leading ( */
-  while (*sp && *sp != '(')
+
+  /* copy the action name, assumes name does not have a space or '('
+   * in its name */
+  while (*sp && !isspace ((int) *sp) && *sp != '(')
     *cp++ = *sp++;
   *cp++ = 0;
-  if (*sp)
+
+  /* skip whitespace */
+  while (*sp && isspace ((int) *sp))
     sp++;
 
   /*
-   * we didn't find a leading ( so invoke the action
+   * we only have an action name, so invoke the action
    * with no parameters or event.
    */
   if (!*sp)
     {
-      if (function (aname, 0, 0))
-        {
-          retcode = 1;
-          goto cleanup;
-        }
-      goto another;
+      retcode = hid_actionv (aname, 0, 0);
+      goto cleanup;
+    }
+
+  /* are we using parenthesis? */
+  if (*sp == '(')
+    {
+      parens = 1;
+      sp++;
+    }
+  else if (require_parens)
+    {
+      Message (_("Syntax error: %s\n"), rstr);
+      Message (_("    expected: Action(arg1, arg2)"));
+      retcode = 1;
+      goto cleanup;
     }
   
-  /* 
-   * we found a leading ( so see if we have parameters to pass to the
-   * action 
-   */
+  /* get the parameters to pass to the action */
   while (1)
     {
       /* 
        * maybe_empty == 0 means that the last char examined was not a
-       * "," 
+       * ","
        */
-      if (*sp == ')' && !maybe_empty)
+      if (!maybe_empty && ((parens && *sp == ')') || (!parens && !*sp)))
 	{
-	  if (function (aname, num, list))
-	    {
-	      retcode = 1;
-	      goto cleanup;
-	    }
-	  sp++;
+          retcode = hid_actionv (aname, num, list);
+          if (retcode)
+            goto cleanup;
+
+          /* strip any white space or ';' following the action */
+          if (parens)
+            sp++;
+          while (*sp && (isspace ((int) *sp) || *sp == ';'))
+            sp++;
 	  goto another;
 	}
       else if (*sp == 0 && !maybe_empty)
 	break;
       else
-	{
+        {
 	  maybe_empty = 0;
 	  in_quotes = 0;
 	  /* 
@@ -322,8 +344,12 @@ another:
 	    sp++;
 	  list[num++] = cp;
 	  
-	  /* search for a "," or a ")" */
-	  while (*sp && (in_quotes || (*sp != ',' && *sp != ')')))
+	  /* search for the end of the argument, we want to keep going
+           * if we are in quotes or the char is not a delimiter
+           */
+	  while (*sp && (in_quotes || ((*sp != ',')
+                                       && (!parens || *sp != ')')
+                                       && (parens || !isspace ((int) *sp)))))
 	    {
 	      /*
 	       * single quotes give literal value inside, including '\'. 
@@ -343,7 +369,7 @@ another:
 	    }
 	  cp2 = cp - 1;
 	  *cp++ = 0;
-	  if (*sp == ',')
+	  if (*sp == ',' || (!parens && isspace ((int) *sp)))
 	    {
 	      maybe_empty = 1;
 	      sp++;
@@ -363,6 +389,16 @@ another:
     free (str);
   
   return retcode;
+}
+
+int hid_parse_command (const char *str_)
+{
+  return hid_parse_actionstring (str_, FALSE);
+}
+
+int hid_parse_actions (const char *str_)
+{
+  return hid_parse_actionstring (str_, TRUE);
 }
 
 /* trick for the doc extractor */

@@ -2405,19 +2405,34 @@ the trace optimizer.
 @cindex user commands
 @cindex entering user commands
 The entering of user-commands is initiated by the action routine
-@emph{Command()} (the @code{(":")} character) and finished by either
-@emph{<Key>Return}
-or @emph{<Key>Escape} to confirm or to abort. These two key-bindings
-cannot be changed from the resource file.
-The triggering event, normally a key press, is ignored.
-The input area will replace the bottom statusline. It pops
-up when @emph{Command()} is called. The arguments of the user-commands
-are passed to the external commands without modification.
-See also, the resource @emph{saveInTMP}.
+@emph{Command()} (normally bound to the @code{(":")} character) which
+replaces the bottom statusline with an input area or opens a separate
+command window.  It is finished by either @emph{<Key>Return} or
+@emph{<Key>Escape} to confirm or to abort. These two key-bindings
+cannot be changed from the resource file.  The triggering event,
+normally a key press, is ignored.
+
+Commands can be entered in one of two styles, command entry syntax:
+``@emph{Command arg1 arg2}'' or action script syntax ``@emph{Action1(arg1,
+arg2); Action2(arg1, arg2);}''.  Quoting arguments works similar to
+bash quoting:
+
+@itemize
+@item A backslash (\) is the escape character.  It preserves the literal
+value of the next character that follows.  To get a literal '\' use
+"\\".
+
+@item Enclosing characters in single quotes preserves the literal value of
+each character within the quotes.  A single quote may not occur
+between single quotes, even when preceded by a blackslash.
+
+@item Enclosing characters in double quotes preserves the literal value of
+all characters within the quotes, with the exception of '\' which
+maintains its special meaning as an escape character.
+@end itemize
 
 There are simple @emph{usage} dialogs for each command and one for the
 complete set of commands.
-
 
 @table @samp
 

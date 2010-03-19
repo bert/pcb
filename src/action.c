@@ -6794,7 +6794,7 @@ ActionExecuteFile (int argc, char **argv, int x, int y)
       if (*sp && *sp != '#')
 	{
 	  /*Message ("%s : line %-3d : \"%s\"\n", fname, n, sp);*/
-	  hid_parse_actions (sp, 0);
+	  hid_parse_actions (sp);
 	}
     }
 

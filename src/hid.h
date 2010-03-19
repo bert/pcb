@@ -119,11 +119,17 @@ extern "C"
   void hid_save_settings (int);
   void hid_load_settings (void);
 
-/* Parse the given string into action calls, and call `f' for each
-   action found.  Returns nonzero if the action handler(s) return
-   nonzero.  If f is NULL, hid_actionv is called.  */
-  int hid_parse_actions (const char *str_,
-			 int (*_f) (const char *, int, char **));
+/* Parse the given command string into action calls, and call
+   hid_actionv for each action found.  Accepts both "action(arg1,
+   arg2)" and command-style "action arg1 arg2", allowing only one
+   action in the later case.  Returns nonzero if the action handler(s)
+   return nonzero. */
+  int hid_parse_command (const char *str_);
+
+/* Parse the given string into action calls, and call
+   hid_actionv for each action found.  Accepts only
+   "action(arg1, arg2)" */
+  int hid_parse_actions (const char *str_);
 
   typedef struct
   {

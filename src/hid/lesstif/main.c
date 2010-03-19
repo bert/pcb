@@ -627,47 +627,6 @@ SwapSides (int argc, char **argv, int x, int y)
 static Widget m_cmd = 0, m_cmd_label;
 
 static void
-command_parse (char *s)
-{
-  int n = 0, ws = 1;
-  char *cp;
-  char **argv;
-
-  for (cp = s; *cp; cp++)
-    {
-      if (isspace ((int) *cp))
-	ws = 1;
-      else
-	{
-	  n += ws;
-	  ws = 0;
-	}
-    }
-  argv = (char **) malloc ((n + 1) * sizeof (char *));
-
-  n = 0;
-  ws = 1;
-  for (cp = s; *cp; cp++)
-    {
-      if (isspace ((int) *cp))
-	{
-	  ws = 1;
-	  *cp = 0;
-	}
-      else
-	{
-	  if (ws)
-	    argv[n++] = cp;
-	  ws = 0;
-	}
-    }
-  if (n == 0)
-    return;
-  argv[n] = 0;
-  lesstif_call_action (argv[0], n - 1, argv + 1);
-}
-
-static void
 command_callback (Widget w, XtPointer uptr, XmTextVerifyCallbackStruct * cbs)
 {
   char *s;
@@ -676,10 +635,7 @@ command_callback (Widget w, XtPointer uptr, XmTextVerifyCallbackStruct * cbs)
     case XmCR_ACTIVATE:
       s = XmTextGetString (w);
       lesstif_show_crosshair (0);
-      if (strchr (s, '('))
-	hid_parse_actions (s, lesstif_call_action);
-      else
-	command_parse (s);
+      hid_parse_command (s);
       XtFree (s);
       XmTextSetString (w, "");
     case XmCR_LOSING_FOCUS:
@@ -1966,7 +1922,7 @@ lesstif_listener_cb (XtPointer client_data, int *fid, XtInputId *id)
   if (nbytes)
     {
       buf[nbytes] = '\0';
-      hid_parse_actions (buf, NULL);
+      hid_parse_actions (buf);
     }
 }
 

@@ -631,7 +631,7 @@ ghid_menu_cb (GtkAction * action, gpointer data)
 #ifdef DEBUG_MENUS
 	    printf ("    %s\n", node->v[vi].value);
 #endif
-	    hid_parse_actions (node->v[vi].value, NULL);
+	    hid_parse_actions (node->v[vi].value);
 	  }
     }
   else {
@@ -2544,7 +2544,7 @@ ghid_listener_cb (GIOChannel *source,
       switch (status)
 	{
 	case G_IO_STATUS_NORMAL:
-	  hid_parse_actions (str, NULL);
+	  hid_parse_actions (str);
 	  g_free (str);
 	  break;
 

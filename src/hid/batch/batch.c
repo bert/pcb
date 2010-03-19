@@ -114,45 +114,6 @@ REGISTER_ACTIONS (batch_action_list)
 /* ----------------------------------------------------------------------------- */
 
 static void
-command_parse (char *s)
-{
-  int n = 0, ws = 1;
-  char *cp;
-  char **argv;
-
-  for (cp = s; *cp; cp++)
-    {
-      if (isspace ((int) *cp))
-	ws = 1;
-      else
-	{
-	  n += ws;
-	  ws = 0;
-	}
-    }
-  argv = (char **) malloc ((n + 1) * sizeof (char *));
-
-  n = 0;
-  ws = 1;
-  for (cp = s; *cp; cp++)
-    {
-      if (isspace ((int) *cp))
-	{
-	  ws = 1;
-	  *cp = 0;
-	}
-      else
-	{
-	  if (ws)
-	    argv[n++] = cp;
-	  ws = 0;
-	}
-    }
-  argv[n] = 0;
-  hid_actionv (argv[0], n - 1, argv + 1);
-}
-
-static void
 batch_do_export (HID_Attr_Val * options)
 {
   int interactive;
@@ -177,10 +138,7 @@ batch_do_export (HID_Attr_Val * options)
 	}
       if (fgets(line, sizeof(line)-1, stdin) == NULL)
 	return;
-      if (strchr (line, '('))
-	hid_parse_actions (line, 0);
-      else
-	command_parse (line);
+      hid_parse_command (line);
     }
 }
 

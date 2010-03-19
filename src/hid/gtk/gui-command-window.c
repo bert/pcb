@@ -212,7 +212,7 @@ command_entry_activate_cb (GtkWidget * widget, gpointer data)
   if (ghidgui->use_command_window)
     {
       HideCrosshair (True);
-      hid_parse_actions (command, NULL);
+      hid_parse_command (command);
       RestoreCrosshair (True);
       g_free (command);
     }
@@ -473,13 +473,13 @@ ghid_handle_user_command (gboolean raise)
 	  /* copy new comand line to save buffer */
 	  g_free (previous);
 	  previous = g_strdup (command);
-	  hid_parse_actions (command, NULL);
+	  hid_parse_command (command);
 	  g_free (command);
 	}
       else if (previous)
 	{
 	  command = g_strdup (previous);
-	  hid_parse_actions (command, NULL);
+	  hid_parse_command (command);
 	  g_free (command);
 	}
       RestoreCrosshair (True);

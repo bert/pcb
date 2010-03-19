@@ -812,53 +812,6 @@ lesstif_get_coords (const char *msg, int *px, int *py)
     lesstif_coords_to_pcb (action_x, action_y, px, py);
 }
 
-int
-lesstif_call_action (const char *aname, int argc, char **argv)
-{
-  int px, py, ret;
-  HID_Action *a, *old_action;
-
-  if (!aname)
-    return 1;
-  a = hid_find_action (aname);
-  if (!a)
-    {
-      int i;
-      printf ("no action %s(", aname);
-      for (i = 0; i < argc; i++)
-	printf ("%s%s", i ? ", " : "", argv[i]);
-      printf (")\n");
-      return 1;
-    }
-
-  if (a->need_coord_msg && !have_xy)
-    {
-      const char *msg;
-      if (strcmp (aname, "GetXY") == 0)
-	msg = argv[0];
-      else
-	msg = a->need_coord_msg;
-      lesstif_get_xy (msg);
-    }
-  lesstif_coords_to_pcb (action_x, action_y, &px, &py);
-
-  if (Settings.verbose)
-    {
-      int i;
-      printf ("Action: \033[34m%s(", aname);
-      for (i = 0; i < argc; i++)
-	printf ("%s%s", i ? "," : "", argv[i]);
-      printf (")\033[0m\n");
-    }
-
-  old_action     = current_action;
-  current_action = a;
-  ret = current_action->trigger_cb (argc, argv, px, py);
-  current_action = old_action;
-
-  return ret;
-}
-
 static void
 callback (Widget w, Resource * node, XmPushButtonCallbackStruct * pbcs)
 {
@@ -893,7 +846,7 @@ callback (Widget w, Resource * node, XmPushButtonCallbackStruct * pbcs)
   lesstif_need_idle_proc ();
   for (vi = 1; vi < node->c; vi++)
     if (resource_type (node->v[vi]) == 10)
-      if (hid_parse_actions (node->v[vi].value, lesstif_call_action))
+      if (hid_parse_actions (node->v[vi].value))
 	return;
 }
 
@@ -1254,7 +1207,7 @@ lesstif_key_event (XKeyEvent * e)
   for (vi = 1; vi < cur_table[i].u.a.node->c; vi++)
     if (resource_type (cur_table[i].u.a.node->v[vi]) == 10)
       if (hid_parse_actions
-	  (cur_table[i].u.a.node->v[vi].value, lesstif_call_action))
+	  (cur_table[i].u.a.node->v[vi].value))
 	break;
   cur_table = 0;
   return 1;
