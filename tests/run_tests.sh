@@ -2,7 +2,7 @@
 #
 # $Id: run_tests.sh,v 1.8 2009/02/17 00:42:31 danmc Exp $
 #
-# Copyright (c) 2003, 2004, 2005, 2006, 2007, 2009 Dan McMahill
+# Copyright (c) 2003, 2004, 2005, 2006, 2007, 2009, 2010 Dan McMahill
 
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of version 2 of the GNU General Public License as
