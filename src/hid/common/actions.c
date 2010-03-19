@@ -28,16 +28,33 @@ static int n_actions = 0;
 
 HID_Action *current_action = NULL;
 
+static const char *
+check_action_name (const char *s)
+{
+  while (*s)
+    if (isspace ((int) *s++) || *s == '(')
+      return (s-1);
+  return NULL;
+}
+
 void
 hid_register_actions (HID_Action * a, int n)
 {
-  int i;
+  int i, count = 0;
   
   all_actions = realloc (all_actions,
                          (n_actions + n) * sizeof (HID_Action*));
   for (i = 0; i < n; i++)
-    all_actions[n_actions + i] = a + i;
-  n_actions += n;
+    {
+      if (check_action_name (a[i].name))
+        {
+          Message (_("ERROR! Invalid action name, "
+                     "action \"%s\" not registered.\n"), a[i].name);
+          continue;
+        }
+      all_actions[n_actions + count++] = a + i;
+    }
+  n_actions += count;
   all_actions_sorted = 0;
 }
 
