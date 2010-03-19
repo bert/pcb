@@ -18,4 +18,6 @@ SUBDIRS=	\
 	hid_gcode11 \
 	hid_gerber1 \
 	hid_gerber2 \
-	hid_png1
+	hid_png1 \
+	hid_png2 \
+	hid_png3
