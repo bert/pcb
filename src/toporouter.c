@@ -6463,6 +6463,7 @@ opposite_triangle(GtsTriangle *t, toporouter_edge_t *e)
 void
 speccut_edge_routing_from_edge(GList *i, toporouter_edge_t *e)
 {
+  g_assert(TOPOROUTER_IS_EDGE(e));
   while(i) {
     toporouter_vertex_t *curv = TOPOROUTER_VERTEX(i->data);
     
@@ -6545,6 +6546,7 @@ void
 speccut_edge_patch_links(toporouter_edge_t *e)
 {
   GList *i = e->routing;
+  g_assert(TOPOROUTER_IS_EDGE(e));
   while(i) {
     toporouter_vertex_t *v = TOPOROUTER_VERTEX(i->data);
     v->parent->child = v;
@@ -6563,14 +6565,13 @@ check_speccut(toporouter_oproute_t *oproute, toporouter_vertex_t *v1, toporouter
  
   if(TOPOROUTER_IS_CONSTRAINT(e)) return 0;
 
-
   if(!(t = gts_triangle_use_edges(GTS_EDGE(e), GTS_EDGE(e1), GTS_EDGE(e2)))) {
     printf("check_speccut: NULL t\n");
     return 0;
   }
    
   if(!(opt = opposite_triangle(t, e))) {
-    printf("check_speccut: NULL opt\n");
+//    printf("check_speccut: NULL opt\n");
     return 0;
   }
 
@@ -6597,6 +6598,10 @@ check_speccut(toporouter_oproute_t *oproute, toporouter_vertex_t *v1, toporouter
 
   ope1 = tedge(opv2, tedge_v1(e));
   ope2 = tedge(opv2, tedge_v2(e));
+
+ //this fixes the weird pad exits in r8c board
+//  if(TOPOROUTER_IS_CONSTRAINT(ope1)) return 0;
+  if(TOPOROUTER_IS_CONSTRAINT(ope2)) return 0;
 
   if(!tvertex_wind(opv2, tedge_v1(e), opv)) return 0;
   if(!tvertex_wind(opv2, tedge_v2(e), opv)) return 0;
@@ -7883,9 +7888,9 @@ toporouter (int argc, char **argv, int x, int y)
 
   hybrid_router(r);
 /*
-//  for(gint i=0;i<groupcount();i++) {
-//   gts_surface_foreach_edge(r->layers[i].surface, space_edge, NULL);
-//  }
+  for(gint i=0;i<groupcount();i++) {
+   gts_surface_foreach_edge(r->layers[i].surface, space_edge, NULL);
+  }
   {
     int i;
     for(i=0;i<groupcount();i++) {
