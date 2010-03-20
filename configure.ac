@@ -1167,6 +1167,8 @@ AC_CONFIG_FILES(tests/golden/hid_gcode11/Makefile)
 AC_CONFIG_FILES(tests/golden/hid_gerber1/Makefile)
 AC_CONFIG_FILES(tests/golden/hid_gerber2/Makefile)
 AC_CONFIG_FILES(tests/golden/hid_png1/Makefile)
+AC_CONFIG_FILES(tests/golden/hid_png2/Makefile)
+AC_CONFIG_FILES(tests/golden/hid_png3/Makefile)
 AC_CONFIG_FILES(tests/Makefile)
 
 dnl win32 build scripts

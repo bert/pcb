@@ -3023,14 +3023,14 @@ toporouter_heap_search(gpointer data, gpointer user_data)
   toporouter_heap_search_data_t *heap_search_data = (toporouter_heap_search_data_t *)user_data;
   if(v == heap_search_data->key) heap_search_data->result = v;
 }
-
+/*
 void 
 toporouter_heap_color(gpointer data, gpointer user_data)
 {
   toporouter_vertex_t *v = TOPOROUTER_VERTEX(data);
-  v->flags |= (unsigned int) user_data;
+  v->flags |= (guint) user_data;
 }
-
+*/
 inline gdouble
 angle_span(gdouble a1, gdouble a2)
 {
@@ -6306,7 +6306,7 @@ oproute_rubberband_segment(toporouter_t *r, toporouter_oproute_t *oproute, GList
   }
 
   arcs = g_list_sort(arcs, (GCompareFunc) compare_rubberband_arcs);
-rubberband_insert_maxarc:
+//rubberband_insert_maxarc:
   if(!arcs) return NULL;
   max = TOPOROUTER_RUBBERBAND_ARC(arcs->data); 
   
@@ -7039,8 +7039,11 @@ print_netscores(GPtrArray* netscores)
   printf("     %15s %15s %15s\n----------------------------------------------------\n", "Score", "Detour Sum", "Pairwise Fails");
 
   for(toporouter_netscore_t **i = (toporouter_netscore_t **) netscores->pdata; i < (toporouter_netscore_t **) netscores->pdata + netscores->len; i++) {
-    printf("%4d %15f %15f %15d %15x\n", (*i)->id, (*i)->score, (*i)->pairwise_detour_sum, (*i)->pairwise_fails, (unsigned int)*i);
+#ifdef DEBUG_NETSCORES    
+	printf("%4d %15f %15f %15d %15x\n", (*i)->id, (*i)->score, (*i)->pairwise_detour_sum, (*i)->pairwise_fails, (guint)*i);
+#endif 
   }
+
   printf("\n");
 }
 

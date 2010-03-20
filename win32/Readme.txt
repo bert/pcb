@@ -4,8 +4,7 @@
 This is the windows port of the pcb printed circuit board
 layout editor.
 
-Please visit http://pcb.sourceforge.net for more information
-about PCB.
+Please visit http://pcb.gpleda.org for more information about PCB.
 
 The windows port makes use of GTK+ for windows.   Please visit 
 http://www.gtk.org for more information about GTK.  Without all the hard
