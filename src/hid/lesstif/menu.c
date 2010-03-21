@@ -853,7 +853,7 @@ lesstif_call_action (const char *aname, int argc, char **argv)
 
   old_action     = current_action;
   current_action = a;
-  ret = current_action->trigger_cb (argc, argv, x, y);
+  ret = current_action->trigger_cb (argc, argv, px, py);
   current_action = old_action;
 
   return ret;
