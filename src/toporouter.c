@@ -2195,11 +2195,13 @@ read_lines(toporouter_t *r, toporouter_layer_t *l, LayerType *layer, int ln)
     if(!(xs[0] == xs[1] && ys[0] == ys[1])) {
       vlist = g_list_prepend(NULL, gts_vertex_new (vertex_class, xs[0], ys[0], l - r->layers));
       vlist = g_list_prepend(vlist, gts_vertex_new (vertex_class, xs[1], ys[1], l - r->layers));
+      // TODO: replace this with surface version
       bbox = toporouter_bbox_create_from_points(GetLayerGroupNumberByNumber(ln), vlist, LINE, line);
       r->bboxes = g_slist_prepend(r->bboxes, bbox);
       //new;;
       //insert_constraints_from_list(r, l, vlist, bbox);
       g_list_free(vlist);
+//      bbox->point = GTS_POINT( insert_vertex(r, l, (xs[0]+xs[1])/2., (ys[0]+ys[1])/2., bbox) );
       
       bbox->constraints = g_list_concat(bbox->constraints, insert_constraint_edge(r, l, xs[0], ys[0], 0, xs[1], ys[1], 0, bbox));
     }
@@ -2296,7 +2298,26 @@ print_edge(toporouter_edge_t *e)
   
   print_vertex(tedge_v2(e));
 }
+static void pick_first_face (GtsFace * f, GtsFace ** first)
+{
+  if (*first == NULL)
+    *first = f;
+}
 
+void
+unconstrain(toporouter_layer_t *l, toporouter_constraint_t *c) 
+{
+  toporouter_edge_t *e;
+
+  gts_allow_floating_vertices = TRUE;
+  e = TOPOROUTER_EDGE(gts_edge_new (GTS_EDGE_CLASS (toporouter_edge_class ()), GTS_SEGMENT(c)->v1, GTS_SEGMENT(c)->v2));
+  gts_edge_replace(GTS_EDGE(c), GTS_EDGE(e));
+  l->constraints = g_list_remove(l->constraints, c);
+  c->box->constraints = g_list_remove(c->box->constraints, c);
+  c->box = NULL;
+  gts_object_destroy (GTS_OBJECT (c));
+  gts_allow_floating_vertices = FALSE;
+}
 
 void
 build_cdt(toporouter_t *r, toporouter_layer_t *l) 
@@ -2307,16 +2328,14 @@ build_cdt(toporouter_t *r, toporouter_layer_t *l)
   //GtsVertex *v;
   GtsTriangle *t;
   GtsVertex *v1, *v2, *v3;
-  GtsFace *topface = NULL;
   GSList *vertices_slist;
-  guint rerun;
 
-build_cdt_continuation:  
   vertices_slist = list_to_slist(l->vertices);
-  rerun =0;
 
-  if(l->surface && topface) {
-    gts_surface_traverse_destroy    (gts_surface_traverse_new (l->surface, topface));
+  if(l->surface) {
+    GtsFace * first = NULL;
+    gts_surface_foreach_face (l->surface, (GtsFunc) pick_first_face, &first);
+    gts_surface_traverse_destroy(gts_surface_traverse_new (l->surface, first));
   }
   
   t = gts_triangle_enclosing (gts_triangle_class (), vertices_slist, 1000.0f);
@@ -2327,21 +2346,8 @@ build_cdt_continuation:
   l->surface = gts_surface_new (gts_surface_class (), gts_face_class (),
       GTS_EDGE_CLASS(toporouter_edge_class ()), GTS_VERTEX_CLASS(toporouter_vertex_class ()) );
 
-  topface = gts_face_new (gts_face_class (), t->e1, t->e2, t->e3);
-  gts_surface_add_face (l->surface, topface);
+  gts_surface_add_face (l->surface, gts_face_new (gts_face_class (), t->e1, t->e2, t->e3));
 
-  i = l->vertices;
-  while (i) {
-    //v = i->data;
-    //if(r->flags & TOPOROUTER_FLAG_DEBUG_CDTS) 
-  //  fprintf(stderr, "\tadding vertex %f,%f\n", v->p.x, v->p.y);
-    toporouter_vertex_t *v = TOPOROUTER_VERTEX(gts_delaunay_add_vertex (l->surface, i->data, NULL));
-    if(v) {
-      printf("conflict: "); print_vertex(v);
-    }
-
-    i = i->next;
-  }
 
 //  fprintf(stderr, "ADDED VERTICES\n");
 /*
@@ -2380,180 +2386,209 @@ build_cdt_continuation:
     
   }
 */
+check_cons_continuation:  
   i = l->constraints;
-  while (i) {
-    
+  while (i) {  
     toporouter_constraint_t *c1 = TOPOROUTER_CONSTRAINT(i->data);
-    //if(r->flags & TOPOROUTER_FLAG_DEBUG_CDTS) 
-/*      fprintf(r->debug, "edge p1=%f,%f p2=%f,%f\n", 
-          temp->segment.v1->p.x,
-          temp->segment.v1->p.y,
-          temp->segment.v2->p.x,
-          temp->segment.v2->p.y);
-*/
-    GSList *conflicts = gts_delaunay_add_constraint (l->surface, i->data);
-    GSList *j = conflicts;
+    GList *j = i->next;
+   // printf("adding cons: "); print_constraint(c1);
+    
     while(j) {
-      if(TOPOROUTER_IS_CONSTRAINT(j->data)) {
-        toporouter_constraint_t *c2 = TOPOROUTER_CONSTRAINT(j->data);
-        GList *temp, *newcons = NULL;
+      toporouter_constraint_t *c2 = TOPOROUTER_CONSTRAINT(j->data);
+      guint rem = 0;
+      GList *temp;
+      
+    //  printf("\tconflict: "); print_constraint(c2);
+      toporouter_bbox_t *c1box = c1->box, *c2box = c2->box;
+      toporouter_vertex_t *c1v1 = tedge_v1(c1);
+      toporouter_vertex_t *c1v2 = tedge_v2(c1);
+      toporouter_vertex_t *c2v1 = tedge_v1(c2);
+      toporouter_vertex_t *c2v2 = tedge_v2(c2);
 
-        printf("conflict: "); print_constraint(c2);
-        printf("with: "); print_constraint(c1);
+      if(gts_segments_are_intersecting(GTS_SEGMENT(c1), GTS_SEGMENT(c2)) == GTS_IN) {
+        unconstrain(l, c1); unconstrain(l, c2); 
+        rem = 1;
+        // proper intersection
+        toporouter_vertex_t *v = TOPOROUTER_VERTEX(vertex_intersect(
+              GTS_VERTEX(c1v1),
+              GTS_VERTEX(c1v2),
+              GTS_VERTEX(c2v1),
+              GTS_VERTEX(c2v2)));
 
-        gts_allow_floating_vertices = TRUE;
-        l->constraints = g_list_remove(l->constraints, c1);
-        l->constraints = g_list_remove(l->constraints, c2);
-        c1->box->constraints = g_list_remove(c1->box->constraints, c1);
-        c2->box->constraints = g_list_remove(c2->box->constraints, c2);
+        // remove both constraints
+        // replace with 4x constraints
+        // insert new intersection vertex
+        GTS_POINT(v)->z = vz(c1v1);
 
-        if(gts_segments_are_intersecting(GTS_SEGMENT(c1), GTS_SEGMENT(c2)) == GTS_IN) {
-          // proper intersection
-          toporouter_vertex_t *v = TOPOROUTER_VERTEX(vertex_intersect(edge_v1(c1), edge_v2(c1), edge_v1(c2), edge_v2(c2)));
-          // remove both constraints
-          // replace with 4x constraints
-          // insert new intersection vertex
-          GTS_POINT(v)->z = vz(edge_v1(c1));
+        l->vertices = g_list_prepend(l->vertices, v);
+//        gts_delaunay_add_vertex (l->surface, GTS_VERTEX(v), NULL);
 
-          l->vertices = g_list_prepend(l->vertices, v);
+        v->bbox = c1box;
 
-          v->bbox = c1->box;
+        temp = insert_constraint_edge(r, l, vx(c1v1), vy(c1v1), 0, vx(v), vy(v), 0, c1box);
+        c1box->constraints = g_list_concat(c1box->constraints, temp);
 
-          temp = insert_constraint_edge(r, l, vx(tedge_v1(c1)), vy(tedge_v1(c1)), 0, vx(v), vy(v), 0, c1->box);
-          newcons = g_list_concat(newcons, g_list_copy(temp));
-          c1->box->constraints = g_list_concat(c1->box->constraints, temp);
+        temp = insert_constraint_edge(r, l, vx(c1v2), vy(c1v2), 0, vx(v), vy(v), 0, c1box);
+        c1box->constraints = g_list_concat(c1box->constraints, temp);
 
-          temp = insert_constraint_edge(r, l, vx(tedge_v2(c1)), vy(tedge_v2(c1)), 0, vx(v), vy(v), 0, c1->box);
-          newcons = g_list_concat(newcons, g_list_copy(temp));
-          c1->box->constraints = g_list_concat(c1->box->constraints, temp);
+        temp = insert_constraint_edge(r, l, vx(c2v1), vy(c2v1), 0, vx(v), vy(v), 0, c2box);
+        c2box->constraints = g_list_concat(c2box->constraints, temp);
 
-          temp = insert_constraint_edge(r, l, vx(tedge_v1(c2)), vy(tedge_v1(c2)), 0, vx(v), vy(v), 0, c2->box);
-          newcons = g_list_concat(newcons, g_list_copy(temp));
-          c2->box->constraints = g_list_concat(c2->box->constraints, temp);
+        temp = insert_constraint_edge(r, l, vx(c2v2), vy(c2v2), 0, vx(v), vy(v), 0, c2box);
+        c2box->constraints = g_list_concat(c2box->constraints, temp);
 
-          temp = insert_constraint_edge(r, l, vx(tedge_v2(c2)), vy(tedge_v2(c2)), 0, vx(v), vy(v), 0, c2->box);
-          newcons = g_list_concat(newcons, g_list_copy(temp));
-          c2->box->constraints = g_list_concat(c2->box->constraints, temp);
-        }else if(!vertex_wind(edge_v1(c1), edge_v2(c1), edge_v1(c2)) && !vertex_wind(edge_v1(c1), edge_v2(c1), edge_v2(c2))) {
-          printf("all colinear\n");
-          exit(1);
-        }else if(vertex_between(edge_v1(c2), edge_v2(c2), edge_v1(c1)) && vertex_between(edge_v1(c2), edge_v2(c2), edge_v2(c1))) {
+      }else if(gts_segments_are_intersecting(GTS_SEGMENT(c1), GTS_SEGMENT(c2)) == GTS_ON ||
+          gts_segments_are_intersecting(GTS_SEGMENT(c2), GTS_SEGMENT(c1)) == GTS_ON) {
+
+        if(vertex_between(edge_v1(c2), edge_v2(c2), edge_v1(c1)) && vertex_between(edge_v1(c2), edge_v2(c2), edge_v2(c1))) {
+          unconstrain(l, c1); unconstrain(l, c2); 
+          rem = 1;
           // remove c1
-          temp = insert_constraint_edge(r, l, vx(tedge_v1(c2)), vy(tedge_v1(c2)), 0, vx(tedge_v2(c2)), vy(tedge_v2(c2)), 0, c2->box);
-          newcons = g_list_concat(newcons, g_list_copy(temp));
-          c2->box->constraints = g_list_concat(c2->box->constraints, temp);
+          temp = insert_constraint_edge(r, l, vx(c2v1), vy(c2v1), 0, vx(c2v2), vy(c2v2), 0, c2box);
+          c2box->constraints = g_list_concat(c2box->constraints, temp);
 
         }else if(vertex_between(edge_v1(c1), edge_v2(c1), edge_v1(c2)) && vertex_between(edge_v1(c1), edge_v2(c1), edge_v2(c2))) {
+          unconstrain(l, c1); unconstrain(l, c2); 
+          rem = 1;
           // remove c2
-          temp = insert_constraint_edge(r, l, vx(tedge_v1(c1)), vy(tedge_v1(c1)), 0, vx(tedge_v2(c1)), vy(tedge_v2(c1)), 0, c1->box);
-          newcons = g_list_concat(newcons, g_list_copy(temp));
-          c1->box->constraints = g_list_concat(c1->box->constraints, temp);
-          /*   
+          temp = insert_constraint_edge(r, l, vx(c1v1), vy(c1v1), 0, vx(c1v2), vy(c1v2), 0, c1box);
+          c1box->constraints = g_list_concat(c1box->constraints, temp);
 
-               }else {
-               exit(1);
-               if(vertex_between(edge_v1(c1), edge_v2(c1), edge_v2(c2))) {
-               toporouter_constraint_t *tempc = c1;
-               c1 = c2;
-               c2 = tempc;
-               }
+        //}else if(!vertex_wind(edge_v1(c1), edge_v2(c1), edge_v1(c2)) && !vertex_wind(edge_v1(c1), edge_v2(c1), edge_v2(c2))) {
+   /*     }else if(vertex_between(edge_v1(c1), edge_v2(c1), edge_v1(c2)) || vertex_between(edge_v1(c1), edge_v2(c1), edge_v2(c2))) {
+          unconstrain(l, c1); unconstrain(l, c2); 
+          rem = 1;
+          printf("all colinear\n");
+          //   exit(1);
+          temp = insert_constraint_edge(r, l, vx(c1v1), vy(c1v1), 0, vx(c1v2), vy(c1v2), 0, c1box);
+          c1box->constraints = g_list_concat(c1box->constraints, temp);
 
-               temp = insert_constraint_edge(r, l, vx(tedge_v1(c1)), vy(tedge_v1(c1)), 0, vx(tedge_v2(c1)), vy(tedge_v2(c1)), 0, c1->box);
-               c1->box->constraints = g_list_concat(c1->box->constraints, temp);
-
-               if(tvdistance2(edge_v1(c1), edge_v2(c2)) < tvdistance2(edge_v2(c1), edge_v2(c2))) {
-               temp = insert_constraint_edge(r, l, vx(tedge_v1(c1)), vy(tedge_v1(c1)), 0, vx(tedge_v2(c2)), vy(tedge_v2(c2)), 0, c2->box);
-               c2->box->constraints = g_list_concat(c2->box->constraints, temp);
-               }else{
-               temp = insert_constraint_edge(r, l, vx(tedge_v2(c1)), vy(tedge_v2(c1)), 0, vx(tedge_v2(c2)), vy(tedge_v2(c2)), 0, c2->box);
-               c2->box->constraints = g_list_concat(c2->box->constraints, temp);
-               }
-               */
-        }else if(vertex_between(edge_v1(c2), edge_v2(c2), edge_v1(c1))) {
+          if(vertex_between(GTS_VERTEX(c1v1), GTS_VERTEX(c1v2), GTS_VERTEX(c2v2))) {
+            // v2 of c2 is inner
+            if(vertex_between(GTS_VERTEX(c2v1), GTS_VERTEX(c2v2), GTS_VERTEX(c1v2))) {
+              // v2 of c1 is inner
+              // c2 = c1.v2 -> c2.v1
+              temp = insert_constraint_edge(r, l, vx(c1v2), vy(c1v2), 0, vx(c2v1), vy(c2v1), 0, c2box);
+              c2box->constraints = g_list_concat(c2box->constraints, temp);
+            }else{
+              // v1 of c1 is inner
+              // c2 = c1.v1 -> c2.v1
+              temp = insert_constraint_edge(r, l, vx(c1v1), vy(c1v1), 0, vx(c2v1), vy(c2v1), 0, c2box);
+              c2box->constraints = g_list_concat(c2box->constraints, temp);
+            }
+          }else{
+            // v1 of c2 is inner
+            if(vertex_between(GTS_VERTEX(c2v1), GTS_VERTEX(c2v2), GTS_VERTEX(c1v2))) {
+              // v2 of c1 is inner
+              // c2 = c1.v2 -> c2.v2
+              temp = insert_constraint_edge(r, l, vx(c1v2), vy(c1v2), 0, vx(c2v2), vy(c2v2), 0, c2box);
+              c2box->constraints = g_list_concat(c2box->constraints, temp);
+            }else{
+              // v1 of c1 is inner
+              // c2 = c1.v1 -> c2.v2
+              temp = insert_constraint_edge(r, l, vx(c1v1), vy(c1v1), 0, vx(c2v2), vy(c2v2), 0, c2box);
+              c2box->constraints = g_list_concat(c2box->constraints, temp);
+            }
+          }*/
+        }else if(vertex_between(edge_v1(c2), edge_v2(c2), edge_v1(c1)) && c1v1 != c2v1 && c1v1 != c2v2) {
+          unconstrain(l, c1); unconstrain(l, c2); 
+          rem = 1;
           //v1 of c1 is on c2
           printf("v1 of c1 on c2\n"); 
 
           // replace with 2x constraints
-          temp = insert_constraint_edge(r, l, vx(tedge_v1(c2)), vy(tedge_v1(c2)), 0, vx(tedge_v1(c1)), vy(tedge_v1(c1)), 0, c2->box);
-          newcons = g_list_concat(newcons, g_list_copy(temp));
-          c2->box->constraints = g_list_concat(c2->box->constraints, temp);
-          temp = insert_constraint_edge(r, l, vx(tedge_v2(c2)), vy(tedge_v2(c2)), 0, vx(tedge_v1(c1)), vy(tedge_v1(c1)), 0, c2->box);
-          newcons = g_list_concat(newcons, g_list_copy(temp));
-          c2->box->constraints = g_list_concat(c2->box->constraints, temp);
+          temp = insert_constraint_edge(r, l, vx(c2v1), vy(c2v1), 0, vx(c1v1), vy(c1v1), 0, c2box);
+          c2box->constraints = g_list_concat(c2box->constraints, temp);
+          temp = insert_constraint_edge(r, l, vx(c2v2), vy(c2v2), 0, vx(c1v1), vy(c1v1), 0, c2box);
+          c2box->constraints = g_list_concat(c2box->constraints, temp);
 
-          temp = insert_constraint_edge(r, l, vx(tedge_v1(c1)), vy(tedge_v1(c1)), 0, vx(tedge_v2(c1)), vy(tedge_v2(c1)), 0, c1->box);
-          newcons = g_list_concat(newcons, g_list_copy(temp));
-          c1->box->constraints = g_list_concat(c1->box->constraints, temp);
+          temp = insert_constraint_edge(r, l, vx(c1v1), vy(c1v1), 0, vx(c1v2), vy(c1v2), 0, c1box);
+          c1box->constraints = g_list_concat(c1box->constraints, temp);
 
           // restore c1
           //temp = insert_constraint_edge(r, l, vx(tedge_v2(c1)), vy(tedge_v2(c1)), 0, vx(tedge_v1(c1)), vy(tedge_v1(c1)), 0, c1->box);
           //c2->box->constraints = g_list_concat(c2->box->constraints, temp);
 
-        }else if(vertex_between(edge_v1(c2), edge_v2(c2), edge_v2(c1))) {
+        }else if(vertex_between(edge_v1(c2), edge_v2(c2), edge_v2(c1)) && c1v2 != c2v1 && c1v2 != c2v2) {
+          unconstrain(l, c1); unconstrain(l, c2); 
+          rem = 1;
           //v2 of c1 is on c2
           printf("v2 of c1 on c2\n"); 
 
           // replace with 2x constraints
-          temp = insert_constraint_edge(r, l, vx(tedge_v1(c2)), vy(tedge_v1(c2)), 0, vx(tedge_v2(c1)), vy(tedge_v2(c1)), 0, c2->box);
-          newcons = g_list_concat(newcons, g_list_copy(temp));
-          c2->box->constraints = g_list_concat(c2->box->constraints, temp);
-          temp = insert_constraint_edge(r, l, vx(tedge_v2(c2)), vy(tedge_v2(c2)), 0, vx(tedge_v2(c1)), vy(tedge_v2(c1)), 0, c2->box);
-          newcons = g_list_concat(newcons, g_list_copy(temp));
-          c2->box->constraints = g_list_concat(c2->box->constraints, temp);
+          temp = insert_constraint_edge(r, l, vx(c2v1), vy(c2v1), 0, vx(c1v2), vy(c1v2), 0, c2box);
+          c2box->constraints = g_list_concat(c2box->constraints, temp);
+          temp = insert_constraint_edge(r, l, vx(c2v2), vy(c2v2), 0, vx(c1v2), vy(c1v2), 0, c2box);
+          c2box->constraints = g_list_concat(c2box->constraints, temp);
 
-          temp = insert_constraint_edge(r, l, vx(tedge_v1(c1)), vy(tedge_v1(c1)), 0, vx(tedge_v2(c1)), vy(tedge_v2(c1)), 0, c1->box);
-          newcons = g_list_concat(newcons, g_list_copy(temp));
-          c1->box->constraints = g_list_concat(c1->box->constraints, temp);
-        }else if(vertex_between(edge_v1(c1), edge_v2(c1), edge_v1(c2))) {
+          temp = insert_constraint_edge(r, l, vx(c1v1), vy(c1v1), 0, vx(c1v2), vy(c1v2), 0, c1box);
+          c1box->constraints = g_list_concat(c1box->constraints, temp);
+
+        }else if(vertex_between(edge_v1(c1), edge_v2(c1), edge_v1(c2)) && c2v1 != c1v1 && c2v1 != c1v2) {
+          unconstrain(l, c1); unconstrain(l, c2); 
+          rem = 1;
           //v1 of c2 is on c1
           printf("v1 of c2 on c1\n"); 
 
           // replace with 2x constraints
-          temp = insert_constraint_edge(r, l, vx(tedge_v1(c1)), vy(tedge_v1(c1)), 0, vx(tedge_v1(c2)), vy(tedge_v1(c2)), 0, c1->box);
-          newcons = g_list_concat(newcons, g_list_copy(temp));
-          c1->box->constraints = g_list_concat(c1->box->constraints, temp);
-          temp = insert_constraint_edge(r, l, vx(tedge_v2(c1)), vy(tedge_v2(c1)), 0, vx(tedge_v1(c2)), vy(tedge_v1(c2)), 0, c1->box);
-          newcons = g_list_concat(newcons, g_list_copy(temp));
-          c1->box->constraints = g_list_concat(c1->box->constraints, temp);
+          temp = insert_constraint_edge(r, l, vx(c1v1), vy(c1v1), 0, vx(c2v1), vy(c2v1), 0, c1box);
+          c1box->constraints = g_list_concat(c1box->constraints, temp);
+          temp = insert_constraint_edge(r, l, vx(c1v2), vy(c1v2), 0, vx(c2v1), vy(c2v1), 0, c1box);
+          c1box->constraints = g_list_concat(c1box->constraints, temp);
 
-          temp = insert_constraint_edge(r, l, vx(tedge_v1(c2)), vy(tedge_v1(c2)), 0, vx(tedge_v2(c2)), vy(tedge_v2(c2)), 0, c2->box);
-          newcons = g_list_concat(newcons, g_list_copy(temp));
-          c2->box->constraints = g_list_concat(c2->box->constraints, temp);
-        }else if(vertex_between(edge_v1(c1), edge_v2(c1), edge_v2(c2))) {
+          temp = insert_constraint_edge(r, l, vx(c2v1), vy(c2v1), 0, vx(c2v2), vy(c2v2), 0, c2box);
+          c2box->constraints = g_list_concat(c2box->constraints, temp);
+        }else if(vertex_between(edge_v1(c1), edge_v2(c1), edge_v2(c2)) && c2v2 != c1v1 && c2v2 != c1v2) {
+          unconstrain(l, c1); unconstrain(l, c2);
+          rem = 1;
           //v2 of c2 is on c1
           printf("v2 of c2 on c1\n"); 
 
           // replace with 2x constraints
-          temp = insert_constraint_edge(r, l, vx(tedge_v1(c1)), vy(tedge_v1(c1)), 0, vx(tedge_v2(c2)), vy(tedge_v2(c2)), 0, c1->box);
-          newcons = g_list_concat(newcons, g_list_copy(temp));
-          c1->box->constraints = g_list_concat(c1->box->constraints, temp);
-          temp = insert_constraint_edge(r, l, vx(tedge_v2(c1)), vy(tedge_v2(c1)), 0, vx(tedge_v2(c2)), vy(tedge_v2(c2)), 0, c1->box);
-          newcons = g_list_concat(newcons, g_list_copy(temp));
-          c1->box->constraints = g_list_concat(c1->box->constraints, temp);
+          temp = insert_constraint_edge(r, l, vx(c1v1), vy(c1v1), 0, vx(c2v2), vy(c2v2), 0, c1box);
+          c1box->constraints = g_list_concat(c1box->constraints, temp);
+          temp = insert_constraint_edge(r, l, vx(c1v2), vy(c1v2), 0, vx(c2v2), vy(c2v2), 0, c1box);
+          c1box->constraints = g_list_concat(c1box->constraints, temp);
 
-          temp = insert_constraint_edge(r, l, vx(tedge_v1(c2)), vy(tedge_v1(c2)), 0, vx(tedge_v2(c2)), vy(tedge_v2(c2)), 0, c2->box);
-          newcons = g_list_concat(newcons, g_list_copy(temp));
-          c2->box->constraints = g_list_concat(c2->box->constraints, temp);
+          temp = insert_constraint_edge(r, l, vx(c2v1), vy(c2v1), 0, vx(c2v2), vy(c2v2), 0, c2box);
+          c2box->constraints = g_list_concat(c2box->constraints, temp);
         }
-        gts_object_destroy (GTS_OBJECT (c1));
-        gts_object_destroy (GTS_OBJECT (c2));
+      }
+      if(rem) goto check_cons_continuation; 
 
-        gts_allow_floating_vertices = FALSE;
-/*
-        {
-          GList *k = newcons;
+      j = j->next;
+    }
 
-          while(k) {
-            if(gts_delaunay_add_constraint (l->surface, k->data) || gts_delaunay_add_constraint (l->surface, k->data)) {
-              printf("ERROR INSERTING NEWCONS\n");
-            }
-            k = k->next;
-          }
-          g_list_free(newcons);
-        }
-*/
-        goto build_cdt_continuation;
-  //      rerun = 1;
+    i = i->next; 
+  }  
+
+  i = l->vertices;
+  while (i) {
+    //v = i->data;
+    //if(r->flags & TOPOROUTER_FLAG_DEBUG_CDTS) 
+  //  fprintf(stderr, "\tadding vertex %f,%f\n", v->p.x, v->p.y);
+    toporouter_vertex_t *v = TOPOROUTER_VERTEX(gts_delaunay_add_vertex (l->surface, i->data, NULL));
+    if(v) {
+      printf("conflict: "); print_vertex(v);
+    }
+
+    i = i->next;
+  }
+  i = l->constraints;
+  while (i) {
+    
+    toporouter_constraint_t *c1 = TOPOROUTER_CONSTRAINT(i->data);
+    
+  //  printf("adding cons: "); print_constraint(c1);
+    
+    GSList *conflicts = gts_delaunay_add_constraint (l->surface, i->data);
+    GSList *j = conflicts;
+    while(j) {
+      if(TOPOROUTER_IS_CONSTRAINT(j->data)) {
+        toporouter_constraint_t *c2 = TOPOROUTER_CONSTRAINT(j->data);
+
+        printf("\tconflict: "); print_constraint(c2);
+      
       }
       j = j->next;
     }
@@ -2587,6 +2622,14 @@ build_cdt_continuation:
 #ifdef DEBUG_IMPORT  
   gts_surface_print_stats(l->surface, stderr);
 #endif  
+  
+  {
+    char buffer[64];
+    sprintf(buffer, "surface%d.gts", l - r->layers);
+    FILE *fout2 = fopen(buffer, "w");
+    gts_surface_write(l->surface, fout2);
+  }
+
 }
 
 gint
@@ -2940,7 +2983,7 @@ compare_segments(gconstpointer a, gconstpointer b)
   if(a < b) return -1;
   return 1;
 }
-
+#define DEBUG_CLUSTER_FIND 1
 toporouter_cluster_t *
 cluster_find(toporouter_t *r, gdouble x, gdouble y, gdouble z)
 {
@@ -2965,9 +3008,19 @@ cluster_find(toporouter_t *r, gdouble x, gdouble y, gdouble z)
           LineType *line = (LineType *)box->data;
           gint linewind = coord_wind(line->Point1.X, line->Point1.Y, x, y, line->Point2.X, line->Point2.Y);
 
+          if(line->Point1.X > x - EPSILON && line->Point1.X < x + EPSILON &&
+              line->Point1.Y > y - EPSILON && line->Point1.Y < y + EPSILON) {
+            rval = box->cluster;
+          //  break;
+          }
+          if(line->Point2.X > x - EPSILON && line->Point2.X < x + EPSILON &&
+              line->Point2.Y > y - EPSILON && line->Point2.Y < y + EPSILON) {
+            rval = box->cluster;
+          //  break;
+          }
           if(!linewind) {
             rval = box->cluster;
-            //break;
+          //  break;
           }
 
         }else if(box->surface) {
@@ -7008,7 +7061,7 @@ netscore_create(toporouter_t *r, toporouter_route_t *routedata, guint n, guint i
     printf("WARNING: !finite(detourscore)\n");
     print_cluster(routedata->src);
     print_cluster(routedata->dest);
-
+    return NULL;
   }
 
   netscore->pairwise_nodetour = malloc(n * sizeof(guint));
@@ -7141,7 +7194,8 @@ order_nets_preroute_greedy(toporouter_t *r, GList *nets, GList **rnets)
   guint failcount = 0;
 
   while(nets) {
-    g_ptr_array_add(netscores, netscore_create(r, TOPOROUTER_ROUTE(nets->data), len, failcount++));
+    toporouter_netscore_t *ns = netscore_create(r, TOPOROUTER_ROUTE(nets->data), len, failcount++);
+    if(ns) g_ptr_array_add(netscores, ns);
     nets = nets->next;
   } 
 
