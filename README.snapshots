@@ -162,3 +162,5 @@ To make a pcb release do the following:
 
 =)	gmake distclean ; ./autogen.sh &&./configure && gmake distcheck
 
+=)      Update the web pages.  In particular, update news.shtml and index.shtml
+        and then rebuild the corresponding .html files.
