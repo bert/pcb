@@ -100,8 +100,10 @@
 
 #define tev1x(e) (vx(tedge_v1(e))
 #define tev1y(e) (vy(tedge_v1(e))
+#define tev1z(e) (vz(tedge_v1(e))
 #define tev2x(e) (vx(tedge_v2(e))
 #define tev2y(e) (vy(tedge_v2(e))
+#define tev2z(e) (vz(tedge_v2(e))
 
 #define tvertex_intersect(a,b,c,d) (TOPOROUTER_VERTEX(vertex_intersect(GTS_VERTEX(a),GTS_VERTEX(b),GTS_VERTEX(c),GTS_VERTEX(d))))
 
