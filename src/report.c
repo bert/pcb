@@ -677,6 +677,7 @@ ReportAllNetLengths (int argc, char **argv, int x, int y)
 	  break;
 	}
     }
+  return 0;
 }
 
 static int
