@@ -3756,7 +3756,10 @@ ghid_load_menus (void)
     }
 
   if (filename)
-    r = resource_parse (filename, 0);
+    {
+      Message ("Loading menus from %s\n", filename);
+      r = resource_parse (filename, 0);
+    }
 
   if (home_pcbmenu != NULL) 
     {
@@ -3764,7 +3767,10 @@ ghid_load_menus (void)
     }
 
   if (!r)
-    r = bir;
+    {
+      Message ("Using default menus\n");
+      r = bir;
+    }
 
   mr = resource_subres (r, "MainMenu");
   if (!mr)
