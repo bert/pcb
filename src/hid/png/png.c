@@ -124,16 +124,16 @@ static int photo_groups[MAX_LAYER+2], photo_ngroups;
 #define FMT_png "PNG"
 
 static const char *filetypes[] = {
+#ifdef HAVE_GDIMAGEPNG
+  FMT_png,
+#endif
+
 #ifdef HAVE_GDIMAGEGIF
   FMT_gif,
 #endif
 
 #ifdef HAVE_GDIMAGEJPEG
   FMT_jpg,
-#endif
-
-#ifdef HAVE_GDIMAGEPNG
-  FMT_png,
 #endif
 
   NULL
@@ -178,7 +178,7 @@ HID_Attribute png_attribute_list[] = {
 #define HA_use_alpha 8
 
   {"format", "Graphics file format",
-   HID_Enum, 0, 0, {2, 0, 0}, filetypes, 0},
+   HID_Enum, 0, 0, {0, 0, 0}, filetypes, 0},
 #define HA_filetype 9
 
   {"png-bloat", "Amount (in/mm/mil/pix) to add to trace/pad/pin edges (1 = 1/100 mil)",
@@ -221,7 +221,6 @@ static const char *get_file_suffix(void)
 	const char *fmt;
 	const char *result;
 	fmt = filetypes[png_attribute_list[HA_filetype].default_val.int_value];
-	/* or is it filetypes[png_attribute_list[HA_filetype].default_val.int_value]; ? */
 	     if (strcmp (fmt, FMT_gif) == 0)  result=".gif";
 	else if (strcmp (fmt, FMT_jpg) == 0)  result=".jpg";
 	else if (strcmp (fmt, FMT_png) == 0)  result=".png";
