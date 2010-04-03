@@ -6968,7 +6968,8 @@ ActionElementList (int argc, char **argv, int x, int y)
       /* Not on board, need to add it. */
       if (LoadFootprint(argc, args, x, y))
 	return 1;
-      if (CopyPastebufferToLayout (0, 0))
+      /* Place components onto center of board. */
+      if (CopyPastebufferToLayout (PCB->MaxWidth/2, PCB->MaxHeight/2))
 	SetChangedFlag (True);
     }
 
