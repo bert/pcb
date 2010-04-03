@@ -7190,6 +7190,9 @@ overridden by the user via the @code{make-program} and @code{gnetlist}
 @code{pcb} settings (i.e. in @code{~/.pcb/settings} or on the command
 line).
 
+If @pcb{} cannot determine which schematic(s) to import from, the GUI
+is called to let user choose (see @code{ImportGUI()}).
+
 %end-doc */
 
 static int
@@ -7438,12 +7441,7 @@ ActionImport (int argc, char **argv, int x, int y)
       char *dot, *slash, *bslash;
 
       if (!pcbname)
-	{
-	  Message ("Please save your PCB first, so that it has a\n"
-		   "file name, or manually add an import::src0 attribute with\n"
-		   "the name of the schematic to import from.");
-	  return 1;
-	}
+	return hid_action("ImportGUI");
 
       schname = (char *) malloc (strlen(pcbname) + 5);
       strcpy (schname, pcbname);
@@ -7457,6 +7455,9 @@ ActionImport (int argc, char **argv, int x, int y)
       if (dot)
 	*dot = 0;
       strcat (schname, ".sch");
+
+      if (access (schname, F_OK))
+	return hid_action("ImportGUI");
 
       sources = (char **) malloc (2 * sizeof (char *));
       sources[0] = schname;
