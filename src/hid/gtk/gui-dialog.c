@@ -44,6 +44,7 @@
 
 RCSID ("$Id$");
 
+/* ---------------------------------------------- */
 gchar *
 ghid_dialog_input (gchar * prompt, gchar * initial)
 {
@@ -87,6 +88,7 @@ ghid_dialog_input (gchar * prompt, gchar * initial)
   return string;
 }
 
+/* ---------------------------------------------- */
 void
 ghid_dialog_about (void)
 {
@@ -103,6 +105,7 @@ ghid_dialog_about (void)
   gtk_widget_destroy (dialog);
 }
 
+/* ---------------------------------------------- */
 gint
 ghid_dialog_confirm_all (gchar * all_message)
 {
@@ -131,6 +134,7 @@ ghid_dialog_confirm_all (gchar * all_message)
   return response;
 }
 
+/* ---------------------------------------------- */
 void
 ghid_dialog_message (gchar * message)
 {
@@ -147,6 +151,7 @@ ghid_dialog_message (gchar * message)
   gtk_widget_destroy (dialog);
 }
 
+/* ---------------------------------------------- */
 gboolean
 ghid_dialog_confirm (gchar * message, gchar * cancelmsg, gchar * okmsg)
 {
@@ -188,6 +193,7 @@ ghid_dialog_confirm (gchar * message, gchar * cancelmsg, gchar * okmsg)
   return confirm;
 }
 
+/* ---------------------------------------------- */
 gint
 ghid_dialog_close_confirm ()
 {
@@ -255,6 +261,7 @@ ghid_dialog_close_confirm ()
   return rv;
 }
 
+/* ---------------------------------------------- */
 /* Caller must g_free() the returned filename.*/
 gchar *
 ghid_dialog_file_select_open (gchar * title, gchar ** path, gchar * shortcuts)
@@ -353,7 +360,7 @@ ghid_dialog_file_select_open (gchar * title, gchar ** path, gchar * shortcuts)
   return result;
 }
 
-
+/* ---------------------------------------------- */
 /* Caller must g_free() the returned filename. */
 gchar *
 ghid_dialog_file_select_save (gchar * title, gchar ** path, gchar * file,
@@ -408,6 +415,7 @@ ghid_dialog_file_select_save (gchar * title, gchar ** path, gchar * file,
 }
 
 
+/* ---------------------------------------------- */
 /* how many files and directories to keep for the shortcuts */
 #define NHIST 8
 typedef struct ghid_file_history_struct
@@ -427,6 +435,7 @@ typedef struct ghid_file_history_struct
 static int n_recent_dirs = 0;
 static ghid_file_history * recent_dirs = NULL;
 
+/* ---------------------------------------------- */
 /* Caller must g_free() the returned filename. */
 gchar *
 ghid_fileselect (const char *title, const char *descr,

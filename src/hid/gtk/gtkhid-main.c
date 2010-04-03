@@ -2205,7 +2205,51 @@ Popup (int argc, char **argv, int x, int y)
     }
   return 0;
 }
+/* ------------------------------------------------------------ */
+static const char importgui_syntax[] =
+"Popup(MenuName, [Button])";
 
+static const char importgui_help[] =
+"Asks user which schematics to import into PCB.\n";
+
+/* %start-doc actions ImportGUI
+
+Asks user which schematics to import into PCB.
+
+%end-doc */
+
+
+static int
+ImportGUI (int argc, char **argv, int x, int y)
+{
+    char *name = NULL;
+    static gchar *current_layout_dir = NULL;
+    static int I_am_recursing = 0; 
+    int rv;
+
+    if (I_am_recursing)
+	return 1;
+
+
+    name = ghid_dialog_file_select_open (_("Load schematics"),
+					 &current_layout_dir,
+					 Settings.FilePath);
+
+#ifdef DEBUG
+    printf("File selected = %s\n", name);
+#endif
+
+    AttributePut (PCB, "import::src0", name);
+    free (name);
+
+    I_am_recursing = 1;
+    rv = hid_action ("Import");
+    I_am_recursing = 0;
+
+    return rv;
+}
+
+/* ------------------------------------------------------------ */
 static int
 Busy (int argc, char **argv, int x, int y)
 {
@@ -2223,6 +2267,7 @@ HID_Action ghid_main_action_list[] = {
   {"DoWindows", 0, DoWindows, dowindows_help, dowindows_syntax},
   {"Export", 0, Export},
   {"GetXY", "", GetXY, getxy_help, getxy_syntax},
+  {"ImportGUI", 0, ImportGUI, importgui_help, importgui_syntax},
   {"LayerGroupsChanged", 0, LayerGroupsChanged},
   {"LibraryChanged", 0, LibraryChanged},
   {"Load", 0, Load},
