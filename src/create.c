@@ -670,11 +670,7 @@ CreateNewElement (DataTypePtr Data, ElementTypePtr Element,
   Element->ID = ID++;
 
 #ifdef DEBUG
-<<<<<<< HEAD
   printf("<---  .... Leaving CreateNewElement.\n");
-=======
-  printf("  .... Leaving CreateNewElement.\n");
->>>>>>> master
 #endif
 
   return (Element);
