@@ -1,5 +1,3 @@
-$Id$
-
 PCB uses a standard GNU autoconf/automake based build
 system which should make compilation go smoothly on most unix-like
 systems.  Please do read this first section however.
@@ -36,6 +34,10 @@ Export HID's:
      ps       -- Postscript and Encapsulated Postscript output.  No
 		 additional libraries are needed for this.
 
+     gcode    -- CNC G-CODE output (experimental).  The gdlib library
+                 is used by this HID.  gdlib may be found at
+                 http://www.libgd.org
+
      gerber   -- RS-274-X (Gerber) and Excellon drill output.  No
 		 additional libraries are needed for this.
 
@@ -44,7 +46,7 @@ Export HID's:
 
      png      -- png/gif/jpeg output.  This HID uses gdlib to do
 		 the majority of the work.  gdlib may be obtained
-		 from http://www.boutell.com/gd.  At the time of
+		 from http://www.libgd.org.  At the time of
 		 writing this document, I have tested with 
 		 gd-2.0.23 and gd-2.0.33.  Other versions may
 		 work as well.

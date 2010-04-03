@@ -57,6 +57,11 @@ ${NEWLIB}.stamp : footprint.pcb ${NEWLIB_DEPS}
 		${PREVIEW} --pcb "${PCB}" --awk "${AWK}"
 	echo '${PREVIEW_MSG}' > $@
 
+# Remove any rebuilt footprints
+if BUILD_PCBLIB_NEWLIB
+distclean-local:
+	rm -fr ${NEWLIB}
+endif
 
 install-data-local: ${NEWLIB}.stamp
 	if test -d ${NEWLIB} ; then \

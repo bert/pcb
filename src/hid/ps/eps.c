@@ -619,7 +619,6 @@ static HID eps_hid = {
   eps_get_export_options,
   eps_do_export,
   eps_parse_arguments,
-  0 /* eps_invalidate_wh */ ,
   0 /* eps_invalidate_lr */ ,
   0 /* eps_invalidate_all */ ,
   eps_set_layer,

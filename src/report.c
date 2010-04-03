@@ -677,6 +677,7 @@ ReportAllNetLengths (int argc, char **argv, int x, int y)
 	  break;
 	}
     }
+  return 0;
 }
 
 static int
@@ -693,7 +694,7 @@ ReportNetLength (int argc, char **argv, int x, int y)
   RestoreUndoSerialNumber ();
   gui->get_coords ("Click on a connection", &x, &y);
 
-  XYtoNetLength (x, y, &found);
+  length = XYtoNetLength (x, y, &found);
 
   if (!found)
     {

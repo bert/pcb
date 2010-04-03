@@ -75,6 +75,9 @@ RCSID ("$Id$");
 #define ORIENT(x) ((x) & 0xf0)
 #define DIRECT(x) ((x) & 0x0f)
 
+/* Manhattan length of the longest "freckle" */
+#define LONGEST_FRECKLE	2
+
 struct line_s;
 
 typedef struct corner_s
@@ -1227,6 +1230,33 @@ simple_optimize_corner (corner_s * c)
 	  if (selected (c->lines[1]->line))
 	    SET_FLAG (SELECTEDFLAG, c->lines[0]->line);
 	  move_corner (c, c2->x, c2->y);
+	}
+    }
+  check (c, 0);
+  if (c->n_lines == 1 && !c->via)
+    {
+      corner_s *c0 = other_corner (c->lines[0], c);
+      if (abs(c->x - c0->x) + abs(c->y - c0->y) <= LONGEST_FRECKLE)
+	{
+          /*
+           * Remove this line, as it is a "freckle".  A freckle is an extremely
+           * short line (around 0.01 thou) that is unconnected at one end.
+           * Freckles are almost insignificantly small, but are annoying as
+           * they prevent the mitering optimiser from working.
+           * Freckles sometimes arise because of a bug in the autorouter that
+           * causes it to create small overshoots (typically 0.01 thou) at the
+           * intersections of vertical and horizontal lines. These overshoots
+           * are converted to freckles as a side effect of canonicalize_line().
+           * Note that canonicalize_line() is not at fault, the bug is in the
+           * autorouter creating overshoots.
+           * The autorouter bug arose some time between the 20080202 and 20091103
+           * releases.
+           * This code is probably worth keeping even when the autorouter bug is
+           * fixed, as "freckles" could conceivably arise in other ways.
+           */
+	  dprintf ("freckle %d,%d to %d,%d\n",
+		   c->x, c->y, c0->x, c0->y);
+	  move_corner (c, c0->x, c0->y);
 	}
     }
   check (c, 0);

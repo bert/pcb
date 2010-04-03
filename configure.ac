@@ -143,6 +143,7 @@ AC_PROG_CC_STDC
 AM_PROG_CC_C_O
 AC_PROG_CPP
 AC_PROG_AWK
+AC_PROG_MKDIR_P
 
 AM_PROG_LEX
 AC_PATH_PROG(LEX_PATH, $LEX, [notfound])
@@ -224,6 +225,31 @@ Alternatively, you can disable building the documentation with
 --disable-doc.
 ])
 	fi
+
+
+   AC_PATH_PROG([KPSEWHICH], [kpsewhich], [no])
+   if test "X$KPSEWHICH" = "Xno"; then
+      AC_MSG_ERROR([You have requested a build
+of the documentation.  For this to work, you must have a functional install of
+TeX and LaTeX.  kpsewhich is part of TeX.
+Alternatively, you can disable building the documentation with
+--disable-doc.])
+   fi
+
+   AC_MSG_CHECKING([If your TeX installation contains epsf.tex])
+   f=`$KPSEWHICH epsf.tex`
+   if test $? -eq 0 ; then
+	AC_MSG_RESULT([yes ($f)])
+   else
+	AC_MSG_RESULT([no])
+        AC_MSG_ERROR([You have requested a build
+of the documentation.  For this to work, you must have a functional install of
+TeX and LaTeX that includes epsf.tex.  On some linux distributions this is
+part of the texlive-generic-recommended package.
+Alternatively, you can disable building the documentation with
+--disable-doc.])
+   fi
+
 fi
 
 ##########################################################################
@@ -370,7 +396,7 @@ esac
 
 AC_MSG_CHECKING([for which exporters to use])
 AC_ARG_WITH([exporters],
-[  --with-exporters=       Enable export devices: bom gerber nelma png ps [[default=bom gerber nelma png ps]]],
+[  --with-exporters=       Enable export devices: bom gerber gcode nelma png ps [[default=bom gerber gcode nelma png ps]]],
 [],[with_exporters=$hid_exporters])
 AC_MSG_RESULT([$with_exporters])
 for e in `echo $with_exporters | sed 's/,/ /g'`; do
@@ -698,7 +724,7 @@ $GTK_PKG_ERRORS])]
 	GLIB_VERSION=`$PKG_CONFIG glib-2.0 --modversion`
 	;;
 
-      nelma|png )
+      gcode|nelma|png )
 	# Check for gdlib-config for gd (www.boutell.com/gd)
 	AC_PATH_PROG(GDLIB_CONFIG, gdlib-config, no)
 	if test "$GDLIB_CONFIG" = "no"; then
@@ -710,10 +736,10 @@ you will get lucky.
 ])
 		if test "$WIN32" != "yes" ; then
 			AC_CHECK_LIB(gd,main,,
-			AC_MSG_ERROR([You have requested the nelma and/or png HID  but -lgd could not be found]))
+			AC_MSG_ERROR([[You have requested gcode, nelma, or png HIDs  but -lgd could not be found]]))
 		else 
 			AC_CHECK_LIB(bgd,main,,
-			AC_MSG_ERROR([You have requested the nelma and/or png HID  but -lbgd could not be found]))
+			AC_MSG_ERROR([[You have requested gcode, nelma, or png HIDs  but -lbgd could not be found]]))
 		fi
 	else
 		if test "$WIN32" = "yes" ; then
@@ -857,7 +883,7 @@ AM_CONDITIONAL(PNG_PREVIEW, test x$enable_m4lib_png = xyes)
 build_pcblib_newlib=no
 if test "$pcb_sources" = "tarball" ; then
 	AC_MSG_CHECKING([If pcblib-newlib was built with png previews])
-	stamp=${top_srcdir}/lib/pcblib-newlib.stamp 
+	stamp=$srcdir/lib/pcblib-newlib.stamp
 	if test ! -f ${stamp} ; then
 		AC_MSG_RESULT([unknown, missing ${stamp}])
 		build_pcblib_newlib=yes
@@ -1127,9 +1153,22 @@ AC_CONFIG_FILES(tests/golden/hid_bom1/Makefile)
 AC_CONFIG_FILES(tests/golden/hid_bom2/Makefile)
 AC_CONFIG_FILES(tests/golden/hid_bom3/Makefile)
 AC_CONFIG_FILES(tests/golden/hid_bom4/Makefile)
+AC_CONFIG_FILES(tests/golden/hid_gcode1/Makefile)
+AC_CONFIG_FILES(tests/golden/hid_gcode2/Makefile)
+AC_CONFIG_FILES(tests/golden/hid_gcode3/Makefile)
+AC_CONFIG_FILES(tests/golden/hid_gcode4/Makefile)
+AC_CONFIG_FILES(tests/golden/hid_gcode5/Makefile)
+AC_CONFIG_FILES(tests/golden/hid_gcode6/Makefile)
+AC_CONFIG_FILES(tests/golden/hid_gcode7/Makefile)
+AC_CONFIG_FILES(tests/golden/hid_gcode8/Makefile)
+AC_CONFIG_FILES(tests/golden/hid_gcode9/Makefile)
+AC_CONFIG_FILES(tests/golden/hid_gcode10/Makefile)
+AC_CONFIG_FILES(tests/golden/hid_gcode11/Makefile)
 AC_CONFIG_FILES(tests/golden/hid_gerber1/Makefile)
 AC_CONFIG_FILES(tests/golden/hid_gerber2/Makefile)
 AC_CONFIG_FILES(tests/golden/hid_png1/Makefile)
+AC_CONFIG_FILES(tests/golden/hid_png2/Makefile)
+AC_CONFIG_FILES(tests/golden/hid_png3/Makefile)
 AC_CONFIG_FILES(tests/Makefile)
 
 dnl win32 build scripts

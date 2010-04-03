@@ -86,25 +86,9 @@ extern "C"
     const char *syntax;
   } HID_Action;
 
-  /* This global variable is always set to the action context, before
-     an action callback is called. Action context can be specified
-     when registering an action with hid_register_action() Intended
-     for plugins with hub action callbacks. */
-  extern void *hid_action_context;
+  extern void hid_register_action (HID_Action *);
 
-  /* Register a singe action associated with an action context. Makes
-     a copy of HID_Action.  Intended for plugins to register actions
-     with a hub callback. */
-  extern void hid_register_action(const HID_Action *, void *);
-
-  /* Deregister an action registered using hid_register_action().
-     Action context pointer is copied in the 2nd argument if it's not
-     NULL.  Intended for plugins to deregister custom actions. */
-  extern void hid_deregister_action(const char *, void **);
-
-  /* Register a list of static actions without action context */
   extern void hid_register_actions (HID_Action *, int);
-
 #define REGISTER_ACTIONS(a) HIDCONCAT(void register_,a) ()\
 { hid_register_actions(a, sizeof(a)/sizeof(a[0])); }
 
@@ -303,14 +287,8 @@ typedef enum
        names behind.  */
     void (*parse_arguments) (int *argc_, char ***argv_);
 
-    /* This may be called outside of redraw to force a redraw.  Pass
-       zero for "last" for all but the last call before control returns
-       to the user (pass nonzero the last time).  If determining the
-       last call is difficult, call *_wh at the end with width and
-       height zero.  */
-    void (*invalidate_wh) (int x_, int y_, int width_, int height_, int last_);
-    void (*invalidate_lr) (int left_, int right_, int top_, int bottom_,
-			   int last_);
+    /* This may be called to ask the GUI to force a redraw of a given area */
+    void (*invalidate_lr) (int left_, int right_, int top_, int bottom_);
     void (*invalidate_all) (void);
 
     /* During redraw or print/export cycles, this is called once per
@@ -596,12 +574,16 @@ typedef enum
   void hid_expose_callback (HID * hid_, struct BoxType *region_, void *item_);
 
 /* This is initially set to a "no-gui" gui, and later reset by
-   hid_start_gui.  */
+   main. hid_expose_callback also temporarily set it for drawing. */
   extern HID *gui;
 
 /* This is either NULL or points to the current HID that is being called to
 	do the exporting. The gui HIDs set and unset this var.*/
   extern HID *exporter;
+
+/* This is either NULL or points to the current HID_Action that is being
+   called. The action launcher sets and unsets this variable. */
+  extern HID_Action *current_action;
 
 /* The GUI may set this to be approximately the PCB size of a pixel,
    to allow for near-misses in selection and changes in drawing items

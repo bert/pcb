@@ -309,7 +309,11 @@ CopyElement (ElementTypePtr Element)
       didDraw = True;
     }
 #ifdef DEBUG
+<<<<<<< HEAD
 /*   printf(" ... Leaving CopyElement.\n"); */
+=======
+  printf(" ... Leaving CopyElement.\n");
+>>>>>>> master
 #endif
   return (element);
 }
@@ -326,7 +330,10 @@ CopyPastebufferToLayout (LocationType X, LocationType Y)
 
 #ifdef DEBUG
   printf("Entering CopyPastebufferToLayout.....\n");
+<<<<<<< HEAD
   printf("  BufferNumber = %d\n", Settings.BufferNumber);
+=======
+>>>>>>> master
 #endif
 
   /* set movement vector */
@@ -379,7 +386,11 @@ CopyPastebufferToLayout (LocationType X, LocationType Y)
       ELEMENT_LOOP (PASTEBUFFER->Data);
       {
 #ifdef DEBUG
+<<<<<<< HEAD
 	printf("  .... In CopyPastebufferToLayout, pasting element %s ...\n",
+=======
+	printf("In CopyPastebufferToLayout, pasting element %s\n",
+>>>>>>> master
 	      element->Name[1].TextString);
 #endif
 	if (FRONT (element) || PCB->InvisibleObjectsOn)

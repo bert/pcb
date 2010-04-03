@@ -121,7 +121,6 @@ HID lpr_hid = {
   lpr_get_export_options,
   lpr_do_export,
   lpr_parse_arguments,
-  0 /* lpr_invalidate_wh */ ,
   0 /* lpr_invalidate_lr */ ,
   0 /* lpr_invalidate_all */ ,
   0 /* lpr_set_layer */ ,

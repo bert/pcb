@@ -588,7 +588,6 @@ parse_optionv (gint * argc, gchar *** argv, gboolean from_cmd_line)
 		    a->default_val.int_value = 1;
 		  break;
 		case HID_Mixed:
-		  abort ();
 		  a->default_val.real_value = strtod ((*argv)[1], &ep);
 		  goto do_enum;
 		case HID_Enum:
@@ -596,7 +595,7 @@ parse_optionv (gint * argc, gchar *** argv, gboolean from_cmd_line)
 		do_enum:
 		  ok = 0;
 		  for (e = 0; a->enumerations[e]; e++)
-		    if (strcmp (a->enumerations[e], (*argv)[1]) == 0)
+		    if (strcmp (a->enumerations[e], ep) == 0)
 		      {
 			ok = 1;
 			a->default_val.int_value = e;

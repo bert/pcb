@@ -213,6 +213,7 @@ ghid_attribute_dialog (HID_Attribute * attrs,
 	  hbox = gtk_hbox_new (FALSE, 4);
 	  gtk_box_pack_start (GTK_BOX (vbox), hbox, FALSE, FALSE, 0);
 
+        do_enum:
 	  /* 
 	   * We have to put the combo_box inside of an event_box in
 	   * order for tooltips to work.
@@ -246,7 +247,22 @@ ghid_attribute_dialog (HID_Attribute * attrs,
 	  break;
 
 	case HID_Mixed:
-	  printf ("HID_Mixed\n");
+	  hbox = gtk_hbox_new (FALSE, 4);
+	  gtk_box_pack_start (GTK_BOX (vbox), hbox, FALSE, FALSE, 0);
+          
+	  /*
+	   * FIXME
+	   * need to pick the "digits" and step size argument more
+	   * intelligently
+	   */
+	  ghid_spin_button (hbox, &widget, attrs[j].default_val.real_value,
+			    attrs[j].min_val, attrs[j].max_val, 0.01, 0.01, 3,
+			    0,
+			    dblspinner_changed_cb,
+			    &(attrs[j].default_val.real_value), FALSE, NULL);
+	  gtk_tooltips_set_tip (tips, widget, attrs[j].help_text, NULL);
+
+          goto do_enum;
 	  break;
 
 	case HID_Path:
@@ -299,7 +315,7 @@ exporter_clicked_cb (GtkButton * button, HID * exporter)
 }
 
 void
-ghid_dialog_print (HID *exporter)
+ghid_dialog_print (HID *hid)
 {
   HID_Attribute *attr;
   int n = 0;
@@ -309,6 +325,8 @@ ghid_dialog_print (HID *exporter)
   /* signal the initial export select dialog that it should close */
   if (export_dialog)
     gtk_dialog_response (GTK_DIALOG (export_dialog), GTK_RESPONSE_CANCEL);
+
+  exporter = hid;
 
   attr = exporter->get_export_options (&n);
   if (n > 0)
@@ -338,6 +356,7 @@ ghid_dialog_print (HID *exporter)
   if (results)
     free (results);
 
+  exporter = NULL;
 }
 
 void
@@ -348,6 +367,7 @@ ghid_dialog_export (void)
   int i;
   HID **hids;
   GtkTooltips *tips;
+  gboolean no_exporter = TRUE;
 
   tips = gtk_tooltips_new ();
 
@@ -376,7 +396,7 @@ ghid_dialog_export (void)
     {
       if (hids[i]->exporter)
 	{
-	  exporter = hids[i];
+	  no_exporter = FALSE;
 	  button = gtk_button_new_with_label (hids[i]->name);
 	  gtk_tooltips_set_tip (tips, button, hids[i]->description, NULL);
 	  gtk_box_pack_start (GTK_BOX (vbox), button, FALSE, FALSE, 0);
@@ -385,7 +405,7 @@ ghid_dialog_export (void)
 	}
     }
 
-  if (exporter == NULL)
+  if (no_exporter)
     {
       gui->log (_("Can't find a suitable exporter HID"));
     }
@@ -396,6 +416,4 @@ ghid_dialog_export (void)
   if (export_dialog != NULL)
     gtk_widget_destroy (export_dialog);
   export_dialog = NULL;
-
-  exporter = NULL;
 }

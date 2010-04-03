@@ -194,7 +194,7 @@ Draw (void)
 
   /* clear and create event if not drawing to a pixmap
    */
-  gui->invalidate_lr (Block.X1, Block.X2, Block.Y1, Block.Y2, 1);
+  gui->invalidate_lr (Block.X1, Block.X2, Block.Y1, Block.Y2);
 
   RestoreCrosshair (True);
 
@@ -934,7 +934,7 @@ DrawLayerGroup (int group, const BoxType * screen)
  *          2 --- 1
   */
 static void
-DrawSpecialPolygon (HID * hid, hidGC DrawGC,
+DrawSpecialPolygon (hidGC DrawGC,
 		    LocationType X, LocationType Y, int Thickness,
 		    int thin_draw)
 {
@@ -982,16 +982,16 @@ DrawSpecialPolygon (HID * hid, hidGC DrawGC,
   if (thin_draw)
     {
       int i;
-      hid->set_line_cap (DrawGC, Round_Cap);
-      hid->set_line_width (DrawGC, 0);
+      gui->set_line_cap (DrawGC, Round_Cap);
+      gui->set_line_width (DrawGC, 0);
       polygon_x[8] = X + scaled_x[0];
       polygon_y[8] = Y + scaled_y[0];
       for (i = 0; i < 8; i++)
-	hid->draw_line (DrawGC, polygon_x[i], polygon_y[i],
+	gui->draw_line (DrawGC, polygon_x[i], polygon_y[i],
 			polygon_x[i + 1], polygon_y[i + 1]);
     }
   else
-    hid->fill_polygon (DrawGC, 8, polygon_x, polygon_y);
+    gui->fill_polygon (DrawGC, 8, polygon_x, polygon_y);
 }
 
 /* ---------------------------------------------------------------------------
@@ -1041,7 +1041,7 @@ DrawPinOrViaLowLevel (PinTypePtr Ptr, Boolean drawHole)
     }
   else if (TEST_FLAG (OCTAGONFLAG, Ptr))
     {
-      DrawSpecialPolygon (gui, Output.fgGC, Ptr->X, Ptr->Y, Ptr->Thickness,
+      DrawSpecialPolygon (Output.fgGC, Ptr->X, Ptr->Y, Ptr->Thickness,
 			  TEST_FLAG (THINDRAWFLAG, PCB));
     }
   else
@@ -1154,7 +1154,7 @@ ClearOnlyPin (PinTypePtr Pin, Boolean mask)
     }
   else if (TEST_FLAG (OCTAGONFLAG, Pin))
     {
-      DrawSpecialPolygon (gui, Output.pmGC, Pin->X, Pin->Y, half * 2,
+      DrawSpecialPolygon (Output.pmGC, Pin->X, Pin->Y, half * 2,
 			  TEST_FLAG (THINDRAWFLAG, PCB) ||
 			  TEST_FLAG (THINDRAWPOLYFLAG, PCB));
     }

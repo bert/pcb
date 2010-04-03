@@ -2,12 +2,6 @@
 # Note - gpcb-menu.res is used to build gpcb-menu.h
 # Note - parameters are sensitive to extra spaces around the commas
 
-#
-# NOTE:  I have not figured out what to do with this
-# section yet.  The Mouse section is currently ignored until
-# I figure out how to handle it.
-#
-
 Mouse =
 {
   Left = {
@@ -527,27 +521,6 @@ PopupMenus =
        {"Lock" checked=lockmode,1 Mode(Lock)}
        {"Cancel" Mode(Escape) a={"Esc" "<Key>Escape"}}
       }
-    }
-
-#
-# A dummy popup menu  to help test out the parser and also
-# it will be used to help test the Popup() action when
-# I get around to writing it.
-#
-    Popup2 =
-    {
-      {"Submenu1"
-       {"Choice1a"}
-       {"Choice1b"}
-       {"Choice1c"}
-       {"Choice1d"}
-      }
-      {"Submenu2"
-       {"Choice2a"}
-       {"Choice2b"}
-      }
-      {"Choice1"}
-      {"Choice2"}
     }
   }
 

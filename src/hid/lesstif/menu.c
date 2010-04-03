@@ -816,12 +816,11 @@ int
 lesstif_call_action (const char *aname, int argc, char **argv)
 {
   int px, py, ret;
-  HID_Action *a;
-  void *context, *old_context;
+  HID_Action *a, *old_action;
 
   if (!aname)
     return 1;
-  a = hid_find_action (aname, &context);
+  a = hid_find_action (aname);
   if (!a)
     {
       int i;
@@ -851,10 +850,12 @@ lesstif_call_action (const char *aname, int argc, char **argv)
 	printf ("%s%s", i ? "," : "", argv[i]);
       printf (")\033[0m\n");
     }
-  old_context = hid_action_context;
-  hid_action_context = context;
-  ret = a->trigger_cb (argc, argv, px, py);
-  hid_action_context = old_context;
+
+  old_action     = current_action;
+  current_action = a;
+  ret = current_action->trigger_cb (argc, argv, px, py);
+  current_action = old_action;
+
   return ret;
 }
 

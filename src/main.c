@@ -200,33 +200,24 @@ usage_attr (HID_Attribute * a)
 static void
 usage_hid (HID * h)
 {
-  HID_Attribute *e;
-  int i, n;
+  HID_Attribute *attributes;
+  int i, n_attributes = 0;
 
   if (h->gui)
     {
-      HID **hl = hid_enumerate ();
-      HID_AttrNode *ha;
       fprintf (stderr, "\n%s gui options:\n", h->name);
-      for (ha = hid_attr_nodes; ha; ha = ha->next)
-	{
-	  for (i = 0; hl[i]; i++)
-	    if (ha->attributes == hl[i]->get_export_options (0))
-	      goto skip_this_one;
-	  for (i = 0; i < ha->n; i++)
-	    usage_attr (ha->attributes + i);
-	skip_this_one:;
-	}
-      return;
+      attributes = h->get_export_options (&n_attributes);
     }
-  fprintf (stderr, "\n%s options:\n", h->name);
-  exporter = h;
-  e = h->get_export_options (&n);
-  if (!e)
-    return;
-  for (i = 0; i < n; i++)
-    usage_attr (e + i);
-  exporter = NULL;
+  else
+    {
+      fprintf (stderr, "\n%s options:\n", h->name);
+      exporter = h;
+      attributes = exporter->get_export_options (&n_attributes);
+      exporter = NULL;
+    }
+  
+  for (i = 0; i < n_attributes; i++)
+    usage_attr (attributes + i);
 }
 
 static void
@@ -246,23 +237,23 @@ usage (void)
 	n_exporter++;
     }
 
-  u ("PCB Printed Circuit Board editing program, http://pcb.sourceforge.net");
+  u ("PCB Printed Circuit Board editing program, http://pcb.gpleda.org");
   u ("%s [-h|-V|--copyright]\t\t\tHelp, version, copyright", Progname);
   u ("%s [gui options] <pcb file>\t\tto edit", Progname);
   u ("Available GUI hid%s:", n_gui == 1 ? "" : "s");
   for (i = 0; hl[i]; i++)
     if (hl[i]->gui)
-      fprintf (stderr, "\t%s\t%s\n", hl[i]->name, hl[i]->description);
+      fprintf (stderr, "\t%-8s %s\n", hl[i]->name, hl[i]->description);
   u ("%s -p [printing options] <pcb file>\tto print", Progname);
   u ("Available printing hid%s:", n_printer == 1 ? "" : "s");
   for (i = 0; hl[i]; i++)
     if (hl[i]->printer)
-      fprintf (stderr, "\t%s\t%s\n", hl[i]->name, hl[i]->description);
+      fprintf (stderr, "\t%-8s %s\n", hl[i]->name, hl[i]->description);
   u ("%s -x hid [export options] <pcb file>\tto export", Progname);
   u ("Available export hid%s:", n_exporter == 1 ? "" : "s");
   for (i = 0; hl[i]; i++)
     if (hl[i]->exporter)
-      fprintf (stderr, "\t%s\t%s\n", hl[i]->name, hl[i]->description);
+      fprintf (stderr, "\t%-8s %s\n", hl[i]->name, hl[i]->description);
 
   for (i = 0; hl[i]; i++)
     if (hl[i]->gui)
@@ -309,8 +300,10 @@ print_defaults_1 (HID_Attribute * a, void *value)
       fprintf (stderr, "%s %s\n", a->name, a->enumerations[i]);
       break;
     case HID_Mixed:
-      i = value ? *(int *) value : a->default_val.int_value;
-      d = value ? *(double *) value : a->default_val.real_value;
+      i = value ?
+        ((HID_Attr_Val*)value)->int_value  : a->default_val.int_value;
+      d = value ?
+        ((HID_Attr_Val*)value)->real_value : a->default_val.real_value;
       fprintf (stderr, "%s %g%s\n", a->name, d, a->enumerations[i]);
       break;
     case HID_Label:
@@ -339,7 +332,9 @@ print_defaults ()
       else
 	{
 	  fprintf (stderr, "\n%s defaults:\n", h->name);
-	  e = h->get_export_options (&n);
+	  exporter = h;
+	  e = exporter->get_export_options (&n);
+	  exporter = NULL;
 	  if (e)
 	    for (i = 0; i < n; i++)
 	      print_defaults_1 (e + i, 0);
@@ -1028,12 +1023,6 @@ main (int argc, char *argv[])
 #ifdef HAVE_LIBSTROKE
   stroke_init ();
 #endif
-  /*
-   * Set this flag to zero.  Then if we have a startup
-   * action which includes Quit(), the flag will be set
-   * to -1 and we can avoid ever calling gtk_main();
-   */
-  Settings.init_done = 0;
 
   if (Settings.ScriptFilename)
     {
@@ -1047,37 +1036,33 @@ main (int argc, char *argv[])
       hid_parse_actions (Settings.ActionString, 0);
     }
 
-  if (Settings.init_done == 0)
-    {
-      Settings.init_done = 1;
 #if HAVE_DBUS
-      pcb_dbus_setup();
+  pcb_dbus_setup();
 #endif
 
-      EnableAutosave ();
+  EnableAutosave ();
 
 #ifdef DEBUG
-      printf ("Settings.LibraryCommandDir = \"%s\"\n",
-	      Settings.LibraryCommandDir);
-      printf ("Settings.FontPath          = \"%s\"\n", 
-	      Settings.FontPath);
-      printf ("Settings.ElementPath       = \"%s\"\n", 
-	      Settings.ElementPath);
-      printf ("Settings.LibraryPath       = \"%s\"\n", 
-	      Settings.LibraryPath);
-      printf ("Settings.LibraryTree       = \"%s\"\n", 
-	      Settings.LibraryTree);
-      printf ("Settings.MakeProgram = \"%s\"\n",
-	      UNKNOWN (Settings.MakeProgram));
-      printf ("Settings.GnetlistProgram = \"%s\"\n",
-	      UNKNOWN (Settings.GnetlistProgram));
+  printf ("Settings.LibraryCommandDir = \"%s\"\n",
+          Settings.LibraryCommandDir);
+  printf ("Settings.FontPath          = \"%s\"\n", 
+          Settings.FontPath);
+  printf ("Settings.ElementPath       = \"%s\"\n", 
+          Settings.ElementPath);
+  printf ("Settings.LibraryPath       = \"%s\"\n", 
+          Settings.LibraryPath);
+  printf ("Settings.LibraryTree       = \"%s\"\n", 
+          Settings.LibraryTree);
+  printf ("Settings.MakeProgram = \"%s\"\n",
+          UNKNOWN (Settings.MakeProgram));
+  printf ("Settings.GnetlistProgram = \"%s\"\n",
+          UNKNOWN (Settings.GnetlistProgram));
 #endif
 
-      gui->do_export (0);
+  gui->do_export (0);
 #if HAVE_DBUS
-      pcb_dbus_finish();
+  pcb_dbus_finish();
 #endif
-    }
 
   return (0);
 }

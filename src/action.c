@@ -6971,7 +6971,8 @@ ActionElementList (int argc, char **argv, int x, int y)
       if (LoadFootprint(argc, args, x, y))
 	/* LoadFootprint returns 0 on success, non-zero on error */
 	return 1;
-      if (CopyPastebufferToLayout (0, 0))
+      /* Place components onto center of board. */
+      if (CopyPastebufferToLayout (PCB->MaxWidth/2, PCB->MaxHeight/2))
 	SetChangedFlag (True);
     }
 
@@ -7498,9 +7499,11 @@ ActionImport (int argc, char **argv, int x, int y)
 	  unlink (tmpfile);
 	  return 1;
 	}
+
 #ifdef DEBUG
       printf("ActionImport:  ===========  About to run ActionExecuteFile, file = %s  ============\n", tmpfile);
 #endif
+
       cmd[0] = tmpfile;
       cmd[1] = NULL;
       ActionExecuteFile (1, cmd, 0, 0);

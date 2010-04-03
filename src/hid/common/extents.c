@@ -184,8 +184,6 @@ static HID extents_hid = {
   0 /* extents_get_export_options */ ,
   0 /* extents_do_export */ ,
   0 /* extents_parse_arguments */ ,
-
-  0 /* extents_invalidate_wh */ ,
   0 /* extents_invalidate_lr */ ,
   0 /* extents_invalidate_all */ ,
   extents_set_layer,

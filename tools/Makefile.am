@@ -5,12 +5,10 @@
 ## in ${exec_prefix}/bin  (by bin_SCRIPTS and bin_PROGRAMS)
 
 toolsdir=	$(pkgdatadir)/tools
-tools_DATA=	${TOOLS}
+dist_tools_DATA=	${TOOLS}
 
 scmdatadir = $(datadir)/gEDA/scheme
-scmdata_DATA = $(DIST_SCM)
-
-EXTRA_DIST= ${TOOLS}
+dist_scmdata_DATA = $(DIST_SCM)
 
 bin_SCRIPTS= \
 	MergePCBPS \

@@ -1,9 +1,41 @@
-FIXME -- this is not really updated yet.  It is more or less verbatim
-from gerbv and needs updating for pcb.
-
 Please read this file before making any modifications to the test suite.
 
+**********************************************************************
+**********************************************************************
+* Overview
+**********************************************************************
+**********************************************************************
 
+The test suite is based on a shell script, 'run_tests.sh', which
+calls pcb to export various test case layouts to different output
+formats.  The tests to be run are defined in the file 'tests.list'.
+The 'tests.list' file defines the export command line options passed
+to pcb, the name of the input .pcb file, and the names and file types
+for the expected output files.
+
+After a particular test is run, the output files are compared against
+a set of "golden" files which are in the golden/ subdirectory.
+ALL CHANGES TO THE GOLDEN FILES MUST BE HAND VERIFIED.  This point
+can not be emphasized too much.  
+
+While this testsuite is clearly not comprehensive (the GUI is totally
+left out of the testing for example), it is still better than nothing
+and can help detect newly introduced bugs.
+
+**********************************************************************
+**********************************************************************
+* Running an existing test
+**********************************************************************
+**********************************************************************
+
+To run all of the tests defined in tests.list run:
+
+  ./run_tests.sh
+
+To only run a specific test or tests, then simply list them by name
+on the command line like:
+
+  ./run_tests.sh test_one test_two ... 
 
 **********************************************************************
 **********************************************************************
@@ -13,12 +45,14 @@ Please read this file before making any modifications to the test suite.
 
 ./run_tests.sh --regen <testname>
 
-will regenerate the golden file for <testname>.  I suggest saving
-off a copy and using ImageMagick to look for the differences visually.
-The run_tests.sh script has examples of comparing .png files.  Make
-sure the changes are only the expected ones and then check the new
-files back into cvs.  Do not blindly update these files as that defeats
-the purpose of the tests.
+will regenerate the golden file for <testname>.  If you are generating
+ASCII output such as BOMs or RS-274X files, then use the diff(3) program
+to examine all differences.  If you are generating a graphics file
+such as a PNG, then I suggest saving off a copy and using ImageMagick
+to look for the differences visually.  The run_tests.sh script has
+examples of comparing .png files.  Make sure the changes are only
+the expected ones and then check the new files back into git.  Do
+not blindly update these files as that defeats the purpose of the tests.
 
 **********************************************************************
 **********************************************************************
@@ -62,11 +96,11 @@ Update Makefile.am's
 ----------------------------------------------------------------------
 
 Update inputs/Makefile.am and golden/Makefile.am to include your new
-files.
+files.  If you added new Makefile.am's then be sure to also update
+configure.ac at the top level of the source tree.
 
 ----------------------------------------------------------------------
 Add the new files to git
 ----------------------------------------------------------------------
 
-FIXME -- fill in this section
 
