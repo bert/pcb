@@ -85,7 +85,7 @@ char *pcb_author ();
 char *AttributeGetFromList (AttributeListType *list, char *name);
 /* Adds an attribute to the list.  If the attribute already exists,
    whether it's replaced or a second copy added depends on
-   REPLACE.  */
+   REPLACE.  Returns non-zero if an existing attribute was replaced.  */
 int AttributePutToList (AttributeListType *list, char *name, char *value, int replace);
 /* Simplistic version: Takes a pointer to an object, looks up attributes in it.  */
 #define AttributeGet(OBJ,name) AttributeGetFromList (&(OBJ->Attributes), name)
