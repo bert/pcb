@@ -2021,7 +2021,7 @@ Displays a dialog that lets the user select the schematic(s) to import
 from, then saves that information in the layout's attributes for
 future imports.
 
-*/
+%end-doc */
 
 static int
 ImportGUI (int argc, char **argv, int x, int y)
