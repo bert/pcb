@@ -7073,7 +7073,7 @@ ActionElementSetAttr (int argc, char **argv, int x, int y)
 
   if (!e)
     {
-      Message("Cannot change attribute of %s - element not found", refdes);
+      Message("Cannot change attribute of %s - element not found\n", refdes);
       return 1;
     }
 

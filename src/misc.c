@@ -1886,8 +1886,36 @@ AttributeGetFromList (AttributeListType *list, char *name)
 int
 AttributePutToList (AttributeListType *list, char *name, char *value, int replace)
 {
-  /* Not implemented yet.  */
-  abort ();
+  int i;
+
+  /* If we're allowed to replace an existing attribute, see if we
+     can.  */
+  if (replace)
+    {
+      for (i=0; i<list->Number; i++)
+	if (strcmp (name, list->List[i].name) == 0)
+	  {
+	    free (list->List[i].value);
+	    list->List[i].value = MyStrdup (value, "AttributePutToList");
+	    return 1;
+	  }
+    }
+
+  /* At this point, we're going to need to add a new attribute to the
+     list.  See if there's room.  */
+  if (list->Number >= list->Max)
+    {
+      list->Max += 10;
+      list->List = (AttributeType *) realloc (list->List,
+					      list->Max * sizeof (AttributeType));
+    }
+
+  /* Now add the new attribute.  */
+  i = list->Number;
+  list->List[i].name = MyStrdup (name, "AttributePutToList");
+  list->List[i].value = MyStrdup (value, "AttributePutToList");
+  list->Number ++;
+  return 0;
 }
 
 
