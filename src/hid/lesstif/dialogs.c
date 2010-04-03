@@ -2007,6 +2007,93 @@ lesstif_attributes_dialog (char *owner, AttributeListType *attrs_list)
   return;
 }
 
+/* ------------------------------------------------------------ */
+
+static const char importgui_syntax[] =
+"ImportGUI()";
+
+static const char importgui_help[] =
+"Lets the user choose the schematics to import from";
+
+/* %start-doc actions ImportGUI
+
+Displays a dialog that lets the user select the schematic(s) to import
+from, then saves that information in the layout's attributes for
+future imports.
+
+*/
+
+static int
+ImportGUI (int argc, char **argv, int x, int y)
+{
+  static int I_am_recursing = 0;
+  static XmString xms_sch = 0, xms_import = 0;
+  int rv;
+  XmString xmname;
+  char *name, *bname;
+  char *original_dir, *target_dir, *last_slash;
+
+  if (I_am_recursing)
+    return 1;
+
+  if (xms_sch == 0)
+    xms_sch = XmStringCreateLocalized ("*.sch");
+  if (xms_import == 0)
+    xms_import = XmStringCreateLocalized ("Import from");
+
+  setup_fsb_dialog ();
+
+  n = 0;
+  stdarg (XmNtitle, "Import From");
+  XtSetValues (XtParent (fsb), args, n);
+
+  n = 0;
+  stdarg (XmNpattern, xms_sch);
+  stdarg (XmNmustMatch, True);
+  stdarg (XmNselectionLabelString, xms_import);
+  XtSetValues (fsb, args, n);
+
+  n = 0;
+  stdarg (XmNdirectory, &xmname);
+  XtGetValues (fsb, args, n);
+  XmStringGetLtoR (xmname, XmFONTLIST_DEFAULT_TAG, &original_dir);
+
+  if (!wait_for_dialog (fsb))
+    return 1;
+
+  n = 0;
+  stdarg (XmNdirectory, &xmname);
+  XtGetValues (fsb, args, n);
+  XmStringGetLtoR (xmname, XmFONTLIST_DEFAULT_TAG, &target_dir);
+
+  n = 0;
+  stdarg (XmNdirSpec, &xmname);
+  XtGetValues (fsb, args, n);
+
+  XmStringGetLtoR (xmname, XmFONTLIST_DEFAULT_TAG, &name);
+
+  /* If the user didn't change directories, use just the base name.
+     This is the common case and means we don't have to get clever
+     about converting absolute paths into relative paths.  */
+  bname = name;
+  if (strcmp (original_dir, target_dir) == 0)
+    {
+      last_slash = strrchr (name, '/');
+      if (last_slash)
+	bname = last_slash + 1;
+    }
+
+  AttributePut (PCB, "import::src0", bname);
+
+  XtFree (name);
+
+
+  I_am_recursing = 1;
+  rv = hid_action ("Import");
+  I_am_recursing = 0;
+
+  return rv;
+}
 
 /* ------------------------------------------------------------ */
 
@@ -2034,6 +2121,8 @@ HID_Action lesstif_dialog_action_list[] = {
    adjustsizes_help, adjustsizes_syntax},
   {"EditLayerGroups", 0, EditLayerGroups,
    editlayergroups_help, editlayergroups_syntax},
+  {"ImportGUI", 0, ImportGUI,
+   importgui_help, importgui_syntax},
 };
 
 REGISTER_ACTIONS (lesstif_dialog_action_list)
