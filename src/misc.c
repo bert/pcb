@@ -1225,6 +1225,7 @@ GetObjectBoundingBox (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
     case POLYGON_TYPE:
     case PAD_TYPE:
     case PIN_TYPE:
+    case ELEMENTNAME_TYPE:
       return (BoxType *)Ptr2;
     case VIA_TYPE:
     case ELEMENT_TYPE:
