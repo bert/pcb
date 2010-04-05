@@ -2406,10 +2406,11 @@ check_cons_continuation:
       toporouter_vertex_t *c2v2 = tedge_v2(c2);
 
       if(gts_segments_are_intersecting(GTS_SEGMENT(c1), GTS_SEGMENT(c2)) == GTS_IN) {
+        toporouter_vertex_t *v;
         unconstrain(l, c1); unconstrain(l, c2); 
         rem = 1;
         // proper intersection
-        toporouter_vertex_t *v = TOPOROUTER_VERTEX(vertex_intersect(
+        v = TOPOROUTER_VERTEX(vertex_intersect(
               GTS_VERTEX(c1v1),
               GTS_VERTEX(c1v2),
               GTS_VERTEX(c2v1),
@@ -2625,8 +2626,9 @@ check_cons_continuation:
   
   {
     char buffer[64];
+    FILE *fout2;
     sprintf(buffer, "surface%d.gts", l - r->layers);
-    FILE *fout2 = fopen(buffer, "w");
+    fout2 = fopen(buffer, "w");
     gts_surface_write(l->surface, fout2);
   }
 
