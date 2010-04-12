@@ -3,7 +3,11 @@
 #
 # $Id$
 #
-
+#################################################################
+# This script extracts special comments from the source. It assembles
+# them in texinfo files that are included in the manual.  
+#################################################################
+#
 # The general format of what this script looks for is thusly:
 #
 #  %start-doc category sort-key
@@ -18,6 +22,10 @@
 # file according to the category.  Each unique sort-key causes a @node
 # to be created, unless that sort-key's text already has a @node in
 # it.
+# If the sort-key contains space characters, it should be enclosed by
+# quotation marks ("). Leading digits in the sort key optionally followed
+# by space are removed after sort but before creation of nodes. This
+# allows to manipulate the order of nodes in the manual.
 #
 # Note that we synthesize a special @syntax command, which should be
 # used for all things syntax.  We change those to whatever the current
@@ -145,6 +153,8 @@ for $cat (sort keys %text) {
 	    }
 	    next if $key =~ /^00/;
 	    $k2 = $title{$cat}{$key};
+	    # strip leading digits from the key string
+	    $k2 =~ s/\A\d+\s*//g;
 	    $k2 = sprintf($nodename, $k2);
 	    if ($text{$cat}{$key} !~ /\@node/) {
 		$new .="* ${k2}::\n";
@@ -161,6 +171,8 @@ for $cat (sort keys %text) {
 	    }
 	    next if $key =~ /^00/;
 	    $k2 = $title{$cat}{$key};
+	    # strip leading digits from the key string
+	    $k2 =~ s/\A\d+\s*//g;
 	    $k2n = sprintf($nodename, $k2);
 	    $new .= "\@c $cat $k2\n";
 	    if ($text{$cat}{$key} !~ /\@node/) {
@@ -261,9 +273,20 @@ sub scan_file {
 	    next;
 	}
 
-	if (/%start-doc\s+(\S+)\s+(\S+)(\s+(.*))?/) {
+	if (/%start-doc\s+(\S+)\s+([^"^\s]+|".*?")(\s+(.*))?/) {
+	# pattern to look for:
+	# start-doc -> "%start-doc"
+	# \s+ -> one ore more whitespace
+	# (\S+) -> string with no whitespace, goes to $1
+	# \s+ -> one ore more whitespace
+	# ([^"^\s]+|".*?") -> a space-less string, or a string delimited by ", goes to $2
+	# (\s+(.*))? -> zero or more space separated strings
+	
 	    $cat = $1;
 	    $key = $2;
+	    # strip leading and trailing quotation marks from the key string
+	    $key =~ s/\A"//g;
+	    $key =~ s/"\Z//g;
 	    $title = $4;
 	    if ($title) {
 		$title{$cat}{"$key\0$hid"} = $title;
