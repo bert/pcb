@@ -623,7 +623,9 @@ clicking @emph{Btn1} with the thermal tool over the pin or via.
 The thermal tool always
 places a thermal to polygons on the active layer, so if the tool doesn't
 seem to work, it's probably because the polygon you want to touch is not
-on the active layer.
+on the active layer.  You can change the style of thermal used or make
+a solid connection by holding down @emph{Shift} while clicking
+@emph{Btn1} with the thermal tool over the pin or via.
 
 @pcb{} is capable of handling complex polygons, but
 using a number of simpler ones improves performance of the connection tracing code.
@@ -1204,8 +1206,10 @@ they are not electrically connected. Use the Thermal tool to make
 the via connect to the plane. Thermals allow the via or pin to
 be heated by a soldering iron without having to heat the entire
 plane. If solid connections were made to the plane, it could be
-nearly impossible to solder. Click on the via again with the
-Thermal tool to remove the connection to the plane.
+nearly impossible to solder. Shift-click on the via with the Thermal
+tool to change the style of thermal used or to make the connection
+solid.  Click on the via again with the Thermal tool to remove the
+connection to the plane.
 
 The Insert-point tool is an editing tool that allows you to add
 points into lines and polygons.  The
@@ -5917,7 +5921,11 @@ or power plane.  Instead of directly connecting to the plane, small "spokes"
 are used to increase the thermal resistance between the pin and the plane.
 Often times these connections are refered to as simply a thermal.  By increasing
 the thermal resistance to the plane, it becomes easier to solder to the
-pin.  The drawing below shows an example of a thermal relief.
+pin.  In the drawing below, the pin on the left is connected to the
+polygon using a solid connection with no thermal relief, the middle
+pin is connected using a thermal, while the pin on the right has no
+connection to the polygon.  In PCB, the ``Thermal'' Tool is used to
+make both a solid connection and one with thermal relief (see @ref{Polygon Objects}).
 
 @center @image{thermal,,,Example of a thermal relief,png}
 
