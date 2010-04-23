@@ -751,7 +751,10 @@ ChangePolygonClearSize (LayerTypePtr Layer, PolygonTypePtr poly)
   if (!shown_this_message)
     {
       gui->confirm_dialog ("To change the clearance of objects in a polygon, "
-			   "change the objects, not the polygon.", "Ok", NULL);
+			   "change the objects, not the polygon.\n"
+			   "Hint: To set a minimum clearance for a group of objects, "
+			   "select them all then :MinClearGap(Selected,=10,mil)",
+			   "Ok", NULL);
       shown_this_message = 1;
     }
 
