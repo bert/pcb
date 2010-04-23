@@ -46,8 +46,9 @@
 #define	CHANGE2NDSIZE_TYPES     \
 	(VIA_TYPE | PIN_TYPE | ELEMENT_TYPE)
 
+/* We include polygons here only to inform the user not to do it that way.  */
 #define CHANGECLEARSIZE_TYPES	\
-	(PIN_TYPE | PAD_TYPE | VIA_TYPE | LINE_TYPE | ARC_TYPE)
+	(PIN_TYPE | PAD_TYPE | VIA_TYPE | LINE_TYPE | ARC_TYPE | POLYGON_TYPE)
 
 #define	CHANGESQUARE_TYPES     \
 	(ELEMENT_TYPE | PIN_TYPE | PAD_TYPE)

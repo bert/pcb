@@ -82,6 +82,7 @@ static void *ChangeViaClearSize (PinTypePtr);
 static void *ChangeViaMaskSize (PinTypePtr);
 static void *ChangeLineSize (LayerTypePtr, LineTypePtr);
 static void *ChangeLineClearSize (LayerTypePtr, LineTypePtr);
+static void *ChangePolygonClearSize (LayerTypePtr, PolygonTypePtr);
 static void *ChangeArcSize (LayerTypePtr, ArcTypePtr);
 static void *ChangeArcClearSize (LayerTypePtr, ArcTypePtr);
 static void *ChangeTextSize (LayerTypePtr, TextTypePtr);
@@ -175,7 +176,7 @@ static ObjectFunctionType ChangeThermalFunctions = {
 static ObjectFunctionType ChangeClearSizeFunctions = {
   ChangeLineClearSize,
   NULL,
-  NULL,
+  ChangePolygonClearSize, /* just to tell the user not to :-) */
   ChangeViaClearSize,
   NULL,
   NULL,
@@ -737,6 +738,23 @@ ChangeLineClearSize (LayerTypePtr Layer, LineTypePtr Line)
       DrawLine (Layer, Line, 0);
       return (Line);
     }
+  return (NULL);
+}
+
+/* ---------------------------------------------------------------------------
+ * Handle attepts to change the clearance of a polygon.
+ */
+static void *
+ChangePolygonClearSize (LayerTypePtr Layer, PolygonTypePtr poly)
+{
+  static int shown_this_message = 0;
+  if (!shown_this_message)
+    {
+      gui->confirm_dialog ("To change the clearance of objects in a polygon, "
+			   "change the objects, not the polygon.", "Ok", NULL);
+      shown_this_message = 1;
+    }
+
   return (NULL);
 }
 
