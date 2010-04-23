@@ -785,9 +785,12 @@ ghid_stop_block_hook (hidval mlpoll)
 int
 ghid_confirm_dialog (char *msg, ...)
 {
-  int rv;
+  int rv = 0;
   va_list ap;
   char *cancelmsg = NULL, *okmsg = NULL;
+  static gint x = -1, y = -1;
+  GtkWidget *dialog;
+  GHidPort *out = &ghid_port;
 
   va_start (ap, msg);
   cancelmsg = va_arg (ap, char *);
@@ -799,13 +802,31 @@ ghid_confirm_dialog (char *msg, ...)
       cancelmsg = _("_Cancel");
       okmsg = _("_OK");
     }
-  if (!okmsg)
+
+  dialog = gtk_message_dialog_new (GTK_WINDOW (out->top_window),
+				   GTK_DIALOG_MODAL |
+				   GTK_DIALOG_DESTROY_WITH_PARENT,
+				   GTK_MESSAGE_QUESTION,
+				   GTK_BUTTONS_NONE,
+				   "%s", msg);
+  gtk_dialog_add_button (GTK_DIALOG (dialog), 
+			  cancelmsg, GTK_RESPONSE_CANCEL);
+  if (okmsg)
     {
-      okmsg = _("_OK");
+      gtk_dialog_add_button (GTK_DIALOG (dialog), 
+			     okmsg, GTK_RESPONSE_OK);
     }
 
-  rv = ghid_dialog_confirm (msg, cancelmsg, okmsg);
+  if(x != -1) {
+  	gtk_window_move(GTK_WINDOW (dialog), x, y);
+  }
 
+  if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_OK)
+    rv = 1;
+
+  gtk_window_get_position(GTK_WINDOW (dialog), &x, &y);
+
+  gtk_widget_destroy (dialog);
   return rv;
 }
 
