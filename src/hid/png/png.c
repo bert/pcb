@@ -90,6 +90,7 @@ typedef struct hid_gc_struct
   int faded;
   color_struct *color;
   gdImagePtr brush;
+  int is_erase;
 } hid_gc_struct;
 
 static color_struct *black = NULL, *white = NULL;
@@ -1031,6 +1032,7 @@ png_make_gc (void)
   rv->color = (color_struct *) malloc (sizeof (color_struct));
   rv->color->r = rv->color->g = rv->color->b = rv->color->a = 0;
   rv->color->c = 0;
+  rv->is_erase = 0;
   return rv;
 }
 
@@ -1096,8 +1098,10 @@ png_set_color (hidGC gc, const char *name)
   if (strcmp (name, "erase") == 0 || strcmp (name, "drill") == 0)
     {
       gc->color = white;
+      gc->is_erase = 1;
       return;
     }
+  gc->is_erase = 0;
 
   if (in_mono || (strcmp (name, "#000000") == 0))
     {
@@ -1416,12 +1420,19 @@ png_draw_arc (hidGC gc, int cx, int cy, int width, int height,
 static void
 png_fill_circle (hidGC gc, int cx, int cy, int radius)
 {
+  int my_bloat;
+
   use_gc (gc);
+
+  if (gc->is_erase)
+    my_bloat = -2 * bloat;
+  else
+    my_bloat = 2 * bloat;
 
   gdImageSetThickness (im, 0);
   linewidth = 0;
   gdImageFilledEllipse (im, SCALE_X (cx), SCALE_Y (cy),
-			SCALE (2 * radius + 2*bloat), SCALE (2 * radius + 2*bloat), gc->color->c);
+			SCALE (2 * radius + my_bloat), SCALE (2 * radius + my_bloat), gc->color->c);
 
 }
 
