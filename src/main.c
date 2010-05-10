@@ -998,12 +998,6 @@ main (int argc, char *argv[])
       LayerStringToLayerStack (Settings.InitialLayerStack);
     }
 
-  if (gui->printer || gui->exporter)
-    {
-      gui->do_export (0);
-      exit (0);
-    }
-
   /*    FIX_ME
      LoadBackgroundImage (Settings.BackgroundImage); */
 
@@ -1034,6 +1028,12 @@ main (int argc, char *argv[])
     {
       Message (_("Executing startup action %s\n"), Settings.ActionString);
       hid_parse_actions (Settings.ActionString);
+    }
+
+  if (gui->printer || gui->exporter)
+    {
+      gui->do_export (0);
+      exit (0);
     }
 
 #if HAVE_DBUS
