@@ -2256,16 +2256,30 @@ poly_M_CheckInside (POLYAREA * p, Vector v0)
 
 /* NB: This function assumes the caller _knows_ the contours do not
  *     intersect. If the contours intersect, the result is undefined.
- *     This function can return an incorrect (positive) result if the
- *     contours share a common node at the arbitrary point tested.
+ *     It will return the correct result if the two contours share
+ *     common points beteween their contours. (Identical contours
+ *     are treated as being not inside each other).
  */
 int
 poly_ContourInContour (PLINE * poly, PLINE * inner)
 {
+  VNODE *pt;
   assert (poly != NULL);
   assert (inner != NULL);
   if (cntrbox_inside (inner, poly))
-    return poly_InsideContour (poly, inner->head.point);
+    { /* FIXME: This is SLOW!!
+       * Check all points on the contour being tested, because we don't
+       * want to falsely return that two contours are inside each other
+       * if they just touch at a few points.
+       */
+      pt = &inner->head;
+      do
+        {
+          if (!poly_InsideContour (poly, pt->point))
+            return 0;
+        } while ((pt = pt->next) != &inner->head);
+      return 1;
+    }
   return 0;
 }
 
