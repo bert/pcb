@@ -142,20 +142,26 @@ pline_dump (VNODE * v)
 	       n->point[0], n->point[1], theState (v));
     }
   while ((v = v->next) != s);
-  fprintf (stderr, "NEXT PLINE\n");
 }
 
 static void
 poly_dump (POLYAREA * p)
 {
   POLYAREA *f = p;
+  PLINE *pl;
 
   do
     {
-      pline_dump (&p->contours->head);
+      pl = p->contours;
+      do
+        {
+          pline_dump (&pl->head);
+          fprintf (stderr, "NEXT PLINE\n");
+        }
+      while ((pl = pl->next) != NULL);
+      fprintf (stderr, "NEXT POLY\n");
     }
   while ((p = p->f) != f);
-  fprintf (stderr, "NEXT_POLY\n");
 }
 #endif
 
