@@ -353,7 +353,13 @@ fi
 AC_MSG_CHECKING([for whether to use DBUS])
 AC_ARG_ENABLE([dbus],
 [  --enable-dbus           Enable DBUS IPC],
-[],[enable_dbus=no])
+[],[
+	case " $with_gui " in
+		*\ gtk\ *)     enable_dbus=yes ;;
+		*\ lesstif\ *) enable_dbus=yes ;;
+		* )            enable_dbus=no ;;
+	esac
+])
 
 AC_MSG_RESULT([$enable_dbus])
 AM_CONDITIONAL(WITH_DBUS, test x$enable_dbus = xyes)
