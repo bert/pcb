@@ -44,10 +44,15 @@
 #include "error.h"
 #include "misc.h"
 #include "set.h"
+#include "find.h"
+#include "search.h"
+#include "rats.h"
 
 #ifdef HAVE_LIBDMALLOC
 #include <dmalloc.h>
 #endif
+
+#define TOOLTIP_UPDATE_DELAY 200
 
 RCSID ("$Id$");
 
@@ -742,6 +747,128 @@ ghid_port_drawing_area_expose_event_cb (GtkWidget * widget,
   return FALSE;
 }
 
+#if GTK_CHECK_VERSION(2,12,0)
+# define ENABLE_TOOLTIPS 1
+#else
+# define ENABLE_TOOLTIPS 0
+#endif
+
+#if ENABLE_TOOLTIPS
+static char *
+describe_location (LocationType X, LocationType Y)
+{
+  void *ptr1, *ptr2, *ptr3;
+  int type;
+  int Range = 0;
+  char *elename = "";
+  char *pinname;
+  char *netname = NULL;
+  char *description;
+
+  /* check if there are any pins or pads at that position */
+
+  type = SearchObjectByLocation (PIN_TYPE | PAD_TYPE,
+                                 &ptr1, &ptr2, &ptr3, X, Y, Range);
+  if (type == NO_TYPE)
+    return NULL;
+
+  /* don't mess with silk objects! */
+  if (type & SILK_TYPE &&
+      GetLayerNumber (PCB->Data, (LayerTypePtr) ptr1) >= max_layer)
+    return NULL;
+
+  if (type == PIN_TYPE || type == PAD_TYPE)
+    elename = UNKNOWN (NAMEONPCB_NAME ((ElementTypePtr) ptr1));
+
+  pinname = ConnectionName (type, ptr1, ptr2);
+
+  if (pinname == NULL)
+    return NULL;
+
+  /* Find netlist entry */
+  MENU_LOOP (&PCB->NetlistLib);
+  {
+    if (!menu->Name)
+    continue;
+
+    ENTRY_LOOP (menu);
+    {
+      if (!entry->ListEntry)
+        continue;
+
+      if (strcmp (entry->ListEntry, pinname) == 0) {
+        netname = g_strdup (menu->Name);
+        /* For some reason, the netname has spaces in front of it, strip them */
+        g_strstrip (netname);
+        break;
+      }
+    }
+    END_LOOP;
+
+    if (netname != NULL)
+      break;
+  }
+  END_LOOP;
+
+  description = g_strdup_printf ("Element name: %s\n"
+                                 "Pinname : %s\n"
+                                 "Netname : %s",
+                                 elename,
+                                 (pinname != NULL) ? pinname : "--",
+                                 (netname != NULL) ? netname : "--");
+
+  g_free (netname);
+
+  return description;
+}
+
+
+static gboolean check_object_tooltips (GHidPort *out)
+{
+  char *description;
+
+  /* check if there are any pins or pads at that position */
+  description = describe_location (out->x_crosshair, out->y_crosshair);
+
+  if (description == NULL)
+    return FALSE;
+
+  gtk_widget_set_tooltip_text (out->drawing_area, description);
+  g_free (description);
+
+  return FALSE;
+}
+
+static int tooltip_update_timeout_id = 0;
+
+static void
+cancel_tooltip_update ()
+{
+  if (tooltip_update_timeout_id)
+    g_source_remove (tooltip_update_timeout_id);
+  tooltip_update_timeout_id = 0;
+}
+
+/* FIXME: If the GHidPort is ever destroyed, we must call
+ * cancel_tooltip_update (), otherwise the timeout might
+ * fire after the data it utilises has been free'd.
+ */
+static void
+queue_tooltip_update (GHidPort *out)
+{
+  /* Zap the old tool-tip text and force it to be removed from the screen */
+  gtk_widget_set_tooltip_text (out->drawing_area, NULL);
+  gtk_widget_trigger_tooltip_query (out->drawing_area);
+
+  cancel_tooltip_update ();
+
+  tooltip_update_timeout_id =
+      g_timeout_add (TOOLTIP_UPDATE_DELAY,
+                     (GSourceFunc) check_object_tooltips,
+                     out);
+}
+#endif
+
 gint
 ghid_port_window_motion_cb (GtkWidget * widget,
 			    GdkEventButton * ev, GHidPort * out)
@@ -764,6 +891,11 @@ ghid_port_window_motion_cb (GtkWidget * widget,
     }
   x_prev = y_prev = -1;
   moved = ghid_note_event_location (ev);
+
+#if ENABLE_TOOLTIPS
+  queue_tooltip_update (out);
+#endif
+
   ghid_show_crosshair (TRUE);
   if (moved && have_crosshair_attachments ())
     ghid_draw_area_update (gport, NULL);
