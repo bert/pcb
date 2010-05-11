@@ -2254,6 +2254,11 @@ poly_M_CheckInside (POLYAREA * p, Vector v0)
   return FALSE;
 }
 
+/* NB: This function assumes the caller _knows_ the contours do not
+ *     intersect. If the contours intersect, the result is undefined.
+ *     This function can return an incorrect (positive) result if the
+ *     contours share a common node at the arbitrary point tested.
+ */
 int
 poly_ContourInContour (PLINE * poly, PLINE * inner)
 {
