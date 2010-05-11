@@ -2254,31 +2254,156 @@ poly_M_CheckInside (POLYAREA * p, Vector v0)
   return FALSE;
 }
 
+static double
+dot (Vector A, Vector B)
+{
+  return (double)A[0] * (double)B[0] + (double)A[1] * (double)B[1];
+}
+
+/* Compute whether point is inside a triangle formed by 3 other pints */
+/* Algorithm from http://www.blackpawn.com/texts/pointinpoly/default.html */
+static int
+point_in_triangle (Vector A, Vector B, Vector C, Vector P)
+{
+  Vector v0, v1, v2;
+  double dot00, dot01, dot02, dot11, dot12;
+  double invDenom;
+  double u, v;
+
+  /* Compute vectors */
+  v0[0] = C[0] - A[0];  v0[1] = C[1] - A[1];
+  v1[0] = B[0] - A[0];  v1[1] = B[1] - A[1];
+  v2[0] = P[0] - A[0];  v2[1] = P[1] - A[1];
+
+  /* Compute dot products */
+  dot00 = dot (v0, v0);
+  dot01 = dot (v0, v1);
+  dot02 = dot (v0, v2);
+  dot11 = dot (v1, v1);
+  dot12 = dot (v1, v2);
+
+  /* Compute barycentric coordinates */
+  invDenom = 1. / (dot00 * dot11 - dot01 * dot01);
+  u = (dot11 * dot02 - dot01 * dot12) * invDenom;
+  v = (dot00 * dot12 - dot01 * dot02) * invDenom;
+
+  /* Check if point is in triangle */
+  return (u > 0.0) && (v > 0.0) && (u + v < 1.0);
+}
+
+
+/* Returns the dot product of Vector A->B, and a vector
+ * orthogonal to Vector C->D. The result is not normalisd, so will be
+ * weighted by the magnitude of the C->D vector.
+ */
+static double
+dot_orthogonal_to_direction (Vector A, Vector B, Vector C, Vector D)
+{
+  Vector l1, l2, l3;
+  l1[0] = B[0] - A[0];  l1[1] = B[1] - A[1];
+  l2[0] = D[0] - C[0];  l2[1] = D[1] - C[1];
+
+  l3[0] = -l2[1];
+  l3[1] = l2[0];
+
+  return dot (l1, l3);
+}
+
+/* Algorithm from http://www.exaflop.org/docs/cgafaq/cga2.html
+ *
+ * "Given a simple polygon, find some point inside it. Here is a method based
+ * on the proof that there exists an internal diagonal, in [O'Rourke, 13-14].
+ * The idea is that the midpoint of a diagonal is interior to the polygon.
+ *
+ * 1.  Identify a convex vertex v; let its adjacent vertices be a and b.
+ * 2.  For each other vertex q do:
+ * 2a. If q is inside avb, compute distance to v (orthogonal to ab).
+ * 2b. Save point q if distance is a new min.
+ * 3.  If no point is inside, return midpoint of ab, or centroid of avb.
+ * 4.  Else if some point inside, qv is internal: return its midpoint."
+ *
+ * [O'Rourke]: Computational Geometry in C (2nd Ed.)
+ *             Joseph O'Rourke, Cambridge University Press 1998,
+ *             ISBN 0-521-64010-5 Pbk, ISBN 0-521-64976-5 Hbk
+ */
+static void
+poly_ComputeInteriorPoint (PLINE *poly, Vector v)
+{
+  VNODE *pt1, *pt2, *pt3, *q;
+  VNODE *min_q = NULL;
+  double dist;
+  double min_dist;
+
+  /* Find a convex node on the polygon */
+  pt1 = &poly->head;
+  do
+    {
+      double dot_product;
+
+      pt2 = pt1->next;
+      pt3 = pt2->next;
+
+      dot_product = dot_orthogonal_to_direction (pt1->point, pt2->point,
+                                                 pt3->point, pt2->point);
+
+      if (dot_product > 0.)
+        break;
+    }
+  while ((pt1 = pt1->next) != &poly->head);
+
+  /* Loop over remaining vertices */
+  q = pt3;
+  do
+    {
+      /* Is current vertex "q" outside pt1 pt2 pt3 triangle? */
+      if (!point_in_triangle (pt1->point, pt2->point, pt3->point, q->point))
+        continue;
+
+      /* NO: compute distance to pt2 (v) orthogonal to pt1 - pt3) */
+      /*     Record minimum */
+      dist = dot_orthogonal_to_direction (q->point, pt2->point, pt1->point, pt3->point);
+      if (min_q == NULL || dist < min_dist) {
+        min_dist = dist;
+        min_q = q;
+      }
+    }
+  while ((q = q->next) != pt2);
+
+  /* Were any "q" found inside pt1 pt2 pt3? */
+  if (min_q == NULL) {
+    /* NOT FOUND: Return midpoint of pt1 pt3 */
+    v[0] = (pt1->point[0] + pt3->point[0]) / 2;
+    v[1] = (pt1->point[1] + pt3->point[1]) / 2;
+  } else {
+    /* FOUND: Return mid point of min_q, pt2 */
+    v[0] = (pt2->point[0] + min_q->point[0]) / 2;
+    v[1] = (pt2->point[1] + min_q->point[1]) / 2;
+  }
+}
+
+
 /* NB: This function assumes the caller _knows_ the contours do not
  *     intersect. If the contours intersect, the result is undefined.
  *     It will return the correct result if the two contours share
  *     common points beteween their contours. (Identical contours
- *     are treated as being not inside each other).
+ *     are treated as being inside each other).
  */
 int
 poly_ContourInContour (PLINE * poly, PLINE * inner)
 {
-  VNODE *pt;
+  Vector point;
   assert (poly != NULL);
   assert (inner != NULL);
   if (cntrbox_inside (inner, poly))
-    { /* FIXME: This is SLOW!!
-       * Check all points on the contour being tested, because we don't
-       * want to falsely return that two contours are inside each other
-       * if they just touch at a few points.
+    {
+      /* We need to prove the "inner" contour is not outside
+       * "poly" contour. If it is outside, we can return.
        */
-      pt = &inner->head;
-      do
-        {
-          if (!poly_InsideContour (poly, pt->point))
-            return 0;
-        } while ((pt = pt->next) != &inner->head);
-      return 1;
+      if (!poly_InsideContour (poly, inner->head.point))
+        return 0;
+
+      poly_ComputeInteriorPoint (inner, point);
+      return poly_InsideContour (poly, point);
     }
   return 0;
 }
