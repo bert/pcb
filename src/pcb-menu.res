@@ -236,7 +236,7 @@ MainMenu =
    -
    {"Optimize selected rats" DeleteRats(SelectedRats) AddRats(SelectedRats)}
    {"Auto-route selected rats" AutoRoute(SelectedRats) a={"Alt-R" "Alt<Key>r"}}
-   {"Rip-up selected auto-routed tracks" RipUp(Selected)}
+   {"Rip up selected auto-routed tracks" RipUp(Selected)}
    -
    {"Change size of selected objects" foreground=grey50 sensitive=false}
    {"Lines -10 mil" ChangeSize(SelectedLines,-10,mil) ChangeSize(SelectedArcs,-10,mil)}

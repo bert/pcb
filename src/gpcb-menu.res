@@ -79,7 +79,6 @@ MainMenu =
 #
 # Edit Menu
 #
-
   {Edit 
    {"Undo last operation" Undo() a={"U" "<Key>u"}}
    {"Redo last undone operation" Redo() a={"Shift-R" "Shift<Key>r"}}
@@ -118,7 +117,6 @@ MainMenu =
 #
 # View Menu
 #
-
   {View 
    {"Enable visible grid" checked=drawgrid Display(Grid)}
    {"Grid units"
@@ -197,7 +195,7 @@ MainMenu =
 
 #
 # Settings menu
-#  
+#
   {Settings
    {"'All-direction' lines" checked=alldirection Display(Toggle45Degree) a={"." "<Key>."}}
    {"Auto swap line start angle" checked=swapstartdir Display(ToggleStartDirection)}
@@ -221,7 +219,7 @@ MainMenu =
    -
    {"Vendor drill mapping" ToggleVendor() checked=VendorMapOn}
   }
-    
+
 #
 # Select menu
 #
@@ -251,7 +249,7 @@ MainMenu =
    -
    {"Optimize selected rats" DeleteRats(SelectedRats) AddRats(SelectedRats)}
    {"Auto-route selected rats" AutoRoute(SelectedRats) a={"Alt-R" "Alt<Key>r"}}
-   {"Rip-up selected auto-routed tracks" RipUp(Selected)}
+   {"Rip up selected auto-routed tracks" RipUp(Selected)}
    -
    {"Change size of selected objects"
     {"Lines -10 mil" ChangeSize(SelectedLines,-10,mil) ChangeSize(SelectedArcs,-10,mil)}
@@ -306,7 +304,7 @@ MainMenu =
    {"#4" checked=buffer,4 PasteBuffer(4) a={"Shift-4" "Shift<Key>4"}}
    {"#5" checked=buffer,5 PasteBuffer(5) a={"Shift-5" "Shift<Key>5"}}
   }
-    
+
 #
 # Connects menu
 #
@@ -348,7 +346,7 @@ MainMenu =
    -
    {"Apply vendor drill mapping" ApplyVendor()}
   }
-    
+
 #
 # Info Menu
 #
@@ -477,14 +475,14 @@ PopupMenus =
       {"Operations on selections"
        {"Unselect all objects" Unselect(All)}
        {"Remove selected objects" RemoveSelected()}
-       {"Copy selection to buffer" 
-	GetXY(Click to set the snap point for this buffer) 
+       {"Copy selection to buffer"
+	GetXY(Click to set the snap point for this buffer)
 	PasteBuffer(Clear)
 	PasteBuffer(AddSelected)
 	Mode(PasteBuffer)
        }
        {"Cut selection to buffer"
-	GetXY(Click to set the snap point for this buffer) 
+	GetXY(Click to set the snap point for this buffer)
 	PasteBuffer(Clear)
 	PasteBuffer(AddSelected)
 	RemoveSelected()
@@ -493,7 +491,7 @@ PopupMenus =
        {"Convert selection to element" Select(Convert)}
        {"Auto place selected elements" AutoPlaceSelected()}
        {"Autoroute selected elements" AutoRoute(SelectedRats)}
-       {"Rip up selected auto routed tracks" RipUp(Selected)}
+       {"Rip up selected auto-routed tracks" RipUp(Selected)}
       }
       {"Operations on this location"
        {"Generate object report" GetXY(Click on the object) Report(Object)}
