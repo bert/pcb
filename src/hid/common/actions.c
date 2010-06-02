@@ -231,7 +231,7 @@ hid_actionv (const char *name, int argc, char **argv)
     }
 
   if (a->need_coord_msg)
-    gui->get_coords (a->need_coord_msg, &x, &y);
+    gui->get_coords (_(a->need_coord_msg), &x, &y);
 
   if (Settings.verbose)
     {
