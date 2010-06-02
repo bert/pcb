@@ -70,6 +70,12 @@ sed \
 	-e 's/^GENPOT *=/GENPOT = XGETTEXT=\${XGETTEXT} MSGFMT=\${MSGFMT} /g' \
 	-e 's/ChangeLog//g' \
 	po/Makefile.in.in.orig > po/Makefile.in.in
+
+# Add rule for .res file processing
+echo "
+%.res.h: %.res
+	\$(INTLTOOL_EXTRACT) --type=gettext/quoted $^" >> po/Makefile.in.in
+
 rm -f po/Makefile.in.in.orig
 
 ############################################################################
