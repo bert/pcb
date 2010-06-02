@@ -387,7 +387,7 @@ node_label
 static unsigned int
 node_label (VNODE * pn)
 {
-  CVCList *l;
+  CVCList *first_l, *l;
   char this_poly;
   int region = UNKNWN;
 
@@ -400,12 +400,15 @@ node_label (VNODE * pn)
    * and check if this edge (pn -> pn->next) is found between the other poly's entry and exit
    */
   if (pn->cvc_next->angle == pn->cvc_next->prev->angle)
-    {
-      l = pn->cvc_next->prev;
-      assert (l->poly != this_poly);
-    }
+    l = pn->cvc_next->prev;
   else
     l = pn->cvc_next->next;
+
+  first_l = l;
+  while ((l->poly == this_poly) && (l != first_l->prev))
+    l = l->next;
+  assert (l->poly != this_poly);
+
   assert (l && l->angle >= 0 && l->angle <= 4.0);
   if (l->poly != this_poly)
     {
