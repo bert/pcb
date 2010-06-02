@@ -397,7 +397,7 @@ CheckShorts (LibraryMenuTypePtr theNet)
 	  {
 	    menu = GetPointerMemory (generic);
 	    *menu = pin->Spare;
-	    Message (_("Warning! net \"%s\" is shorted to net \"%s\"\n"),
+	    Message (_("Warning! Net \"%s\" is shorted to net \"%s\"\n"),
 		     &theNet->Name[2],
 		     &((LibraryMenuTypePtr) (pin->Spare))->Name[2]);
 	    SET_FLAG (WARNFLAG, pin);

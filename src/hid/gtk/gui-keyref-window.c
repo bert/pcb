@@ -296,7 +296,7 @@ static gchar *key_ref_text[] = {
   N_(" - pan vertically.\n"),
   "\t",
   N_("<b><ctrl>"),
-  N_(" - pan horizontally..\n"),
+  N_(" - pan horizontally.\n"),
   "\n",
   N_("<b>Usage:\n"),
   N_("\tMouse actions can typically be combined.  For example: while moving\n"
