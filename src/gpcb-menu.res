@@ -45,8 +45,7 @@ MainMenu =
 #
 # File Menu
 #
-
-  {File
+  {"File"
    {"Save layout" Save(Layout) tip="Saves current layout"}
    {"Save layout as..." Save(LayoutAs) tip="Saves current layout into a new file"}
    -
@@ -79,7 +78,7 @@ MainMenu =
 #
 # Edit Menu
 #
-  {Edit 
+  {"Edit"
    {"Undo last operation" Undo() a={"U" "<Key>u"}}
    {"Redo last undone operation" Redo() a={"Shift-R" "Shift<Key>r"}}
    {"Clear undo-buffer" Undo(ClearList) a={"Shift-Ctrl-U" "Shift Ctrl<Key>u"}}
@@ -117,7 +116,7 @@ MainMenu =
 #
 # View Menu
 #
-  {View 
+  {"View"
    {"Enable visible grid" checked=drawgrid Display(Grid)}
    {"Grid units"
     {"mil" checked=grid_units_mm,0 SetUnits(mil)}
@@ -196,7 +195,7 @@ MainMenu =
 #
 # Settings menu
 #
-  {Settings
+  {"Settings"
    {"'All-direction' lines" checked=alldirection Display(Toggle45Degree) a={"." "<Key>."}}
    {"Auto swap line start angle" checked=swapstartdir Display(ToggleStartDirection)}
    {"Orthogonal moves" checked=orthomove Display(ToggleOrthoMove)}
@@ -223,7 +222,7 @@ MainMenu =
 #
 # Select menu
 #
-  {Select 
+  {"Select"
    {"Select all visible objects" Select(All)}
    {"Select all connected objects" Select(Connection)}
    -
@@ -280,7 +279,7 @@ MainMenu =
 #
 # Buffer menu
 #
-  {Buffer
+  {"Buffer"
    {"Cut selection to buffer" GetXY(Click to set the snap point for this buffer)
     PasteBuffer(Clear) PasteBuffer(AddSelected) RemoveSelected() Mode(PasteBuffer)}
    {"Paste buffer to layout" Mode(PasteBuffer)}
@@ -308,7 +307,7 @@ MainMenu =
 #
 # Connects menu
 #
-  {Connects 
+  {"Connects"
    {"Lookup connection to object" GetXY(Click on the object) Connection(Find) a={"Ctrl-F" "Ctrl<Key>f"}}
    {"Reset scanned pads/pins/vias" Connection(ResetPinsViasAndPads) Display(Redraw)}
    {"Reset scanned lines/polygons" Connection(ResetLinesAndPolygons) Display(Redraw)}
@@ -350,7 +349,7 @@ MainMenu =
 #
 # Info Menu
 #
-  {Info
+  {"Info"
    {"Generate object report" ReportObject() a={"Ctrl-R" "Ctrl<Key>r"}}
    {"Generate drill summary" Report(DrillReport)}
    {"Report found pins/pads" Report(FoundPins)}
@@ -453,10 +452,11 @@ MainMenu =
     -
    }
   }
+
 #
 # Window Menu
 #
-  {Window
+  {"Window"
    {"Library" DoWindows(Library) a={"i" "<Key>i"}}
    {"Message Log" DoWindows(Log)}
    {"DRC Check" DoWindows(DRC)}
