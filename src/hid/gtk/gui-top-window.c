@@ -276,8 +276,8 @@ ghid_check_unique_accel (const char *accelerator)
     {
       if (strcmp (accel_list[i], accelerator) == 0)
 	{
-	  Message ("Duplicate accelerator found: \"%s\"\n"
-		   "The second occurance will be dropped\n",
+	  Message (_("Duplicate accelerator found: \"%s\"\n"
+		   "The second occurance will be dropped\n"),
 		   accelerator);
 	  a = NULL;
 	  break;
@@ -3199,13 +3199,13 @@ add_resource_to_menu (char * menu, Resource * node, void * callback, int indent)
 		    else
 		      {
 			static int gave_msg = 0;
-			Message ("Don't know how to parse \"%s\" as an accelerator in the menu resource file.\n", 
+			Message (_("Don't know how to parse \"%s\" as an accelerator in the menu resource file.\n"),
 				 p);
 			
 			if (! gave_msg) 
 			  {
 			    gave_msg = 1;
-			    Message ("Format is:\n"
+			    Message (_("Format is:\n"
 				     "modifiers<Key>k\n"
 				     "where \"modifiers\" is a space separated list of key modifiers\n"
 				     "and \"k\" is the name of the key.\n"
@@ -3213,7 +3213,7 @@ add_resource_to_menu (char * menu, Resource * node, void * callback, int indent)
 				     "   Ctrl\n"
 				     "   Shift\n"
 				     "   Alt\n"
-				     "Please note that case is important.\n");
+				     "Please note that case is important.\n"));
 			  }
 			/* skip processing the rest */
 			accel[0] = '\0';
@@ -3295,7 +3295,7 @@ add_resource_to_menu (char * menu, Resource * node, void * callback, int indent)
 	    char *s1, *s2;
 	    size_t l;
 
-	    l = strlen (v) + 2;
+	    l = strlen (_(v)) + 2;
 #ifdef DEBUG_MENUS
 	    printf ("allocate %ld bytes\n", l);
 #endif
@@ -3307,7 +3307,7 @@ add_resource_to_menu (char * menu, Resource * node, void * callback, int indent)
 	      }
 	    
 	    s1 = menulabel;
-	    s2 = v;
+	    s2 = _(v);
 	    while (*s2 != '\0')
 	      {
 		if (*s2 == m)
@@ -3533,11 +3533,10 @@ add_resource_to_menu (char * menu, Resource * node, void * callback, int indent)
 		    /* if we got this far it is supposed to be an X
 		     * resource.  For now ignore it and warn the user
 		     */
-		    Message ("The gtk gui currently ignores \"%s\"",
+		    Message (_("The gtk gui currently ignores \"%s\""
+				"as part of a menuitem resource.\n"
+				"Feel free to provide patches\n"),
 			     node->v[i].subres->v[j].value);
-		    Message ("as part of a menuitem resource.\n"
-			     "Feel free to provide patches\n");
-		       
 		  }
 		  break;
 		}
@@ -3607,9 +3606,8 @@ add_resource_to_menu (char * menu, Resource * node, void * callback, int indent)
 	      }
 	    else
 	      {
-		Message ("GTK GUI currently ignores \"%s\" in the menu\n", 
-			 node->v[i].value);
-		Message ("resource file.\n");
+		Message (_("GTK GUI currently ignores \"%s\" in the menu\n"
+			"resource file.\n"), node->v[i].value);
 	      }
 	    
 	  }
@@ -3730,11 +3728,11 @@ ghid_load_menus (void)
   home_pcbmenu = NULL;
   if (homedir == NULL)
     {
-      Message ("Warning:  could not determine home directory\n");
+      Message (_("Warning:  could not determine home directory\n"));
     }
   else
     {
-      Message ("Note:  home directory is \"%s\"\n", homedir);
+      Message (_("Note:  home directory is \"%s\"\n"), homedir);
       home_pcbmenu = Concat (homedir, PCB_DIR_SEPARATOR_S, ".pcb",
                   PCB_DIR_SEPARATOR_S, "gpcb-menu.res", NULL);
     }
@@ -3751,7 +3749,7 @@ ghid_load_menus (void)
   bir = resource_parse (0, gpcb_menu_default);
   if (!bir)
     {
-      fprintf (stderr, "Error: internal menu resource didn't parse\n");
+      fprintf (stderr, _("Error: internal menu resource didn't parse\n"));
       exit(1);
     }
 

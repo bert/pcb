@@ -333,7 +333,7 @@ ghid_command_window_show (gboolean raise)
   /* Make the command reference scrolled text view.  Use high level
      |  utility functions in gui-utils.c
    */
-  expander = gtk_expander_new ("Command Reference");
+  expander = gtk_expander_new (_("Command Reference"));
   gtk_box_pack_start (GTK_BOX (vbox), expander, TRUE, TRUE, 2);
   vbox1 = gtk_vbox_new (FALSE, 0);
   gtk_container_add (GTK_CONTAINER (expander), vbox1);
@@ -463,11 +463,8 @@ ghid_handle_user_command (gboolean raise)
   else
     {
       HideCrosshair (True);
-      if (Settings.SaveLastCommand)
-	command = ghid_command_entry_get ("Enter command:",
-					  previous ? previous : "");
-      else
-	command = ghid_command_entry_get ("Enter command:", "");
+      command = ghid_command_entry_get (_("Enter command:"),
+		      (Settings.SaveLastCommand && previous) ? previous : "");
       if (command != NULL)
 	{
 	  /* copy new comand line to save buffer */

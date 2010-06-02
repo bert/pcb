@@ -560,7 +560,7 @@ FinishStroke (void)
 	  }
 
 	default:
-	  Message ("Unknown stroke %s\n", msg);
+	  Message (_("Unknown stroke %s\n"), msg);
 	  break;
 	}
     }
@@ -757,7 +757,7 @@ GetFunctionID (String Ident)
       hash_initted = 1;
       if (HSIZE < ENTRIES (Functions) * 2)
 	{
-	  fprintf(stderr, "Error: function hash size too small (%d vs %lu at %s:%d)\n",
+	  fprintf(stderr, _("Error: function hash size too small (%d vs %lu at %s:%d)\n"),
 		  HSIZE, (unsigned long) ENTRIES (Functions)*2, __FILE__,  __LINE__);
 	  exit(1);
 	}
@@ -765,7 +765,7 @@ GetFunctionID (String Ident)
 	{
 	  /* Change 'char' to 'int' and remove this when we get to 256
 	     strings to hash. */
-	  fprintf(stderr, "Error: function hash type too small (%d vs %lu at %s:%d)\n",
+	  fprintf(stderr, _("Error: function hash type too small (%d vs %lu at %s:%d)\n"),
 		  256, (unsigned long) ENTRIES (Functions), __FILE__,  __LINE__);
 	  exit(1);
 	  
@@ -2260,7 +2260,7 @@ ActionConnection (int argc, char **argv, int x, int y)
 	{
 	case F_Find:
 	  {
-	    gui->get_coords ("Click on a connection", &x, &y);
+	    gui->get_coords (_("Click on a connection"), &x, &y);
 	    LookupConnection (x, y, True, 1, FOUNDFLAG);
 	    break;
 	  }
@@ -2754,7 +2754,7 @@ ActionDisplay (int argc, char **argv, int childX, int childY)
 	    void *ptrtmp;
 	    int x, y;
 
-	    gui->get_coords ("Click on an element", &x, &y);
+	    gui->get_coords (_("Click on an element"), &x, &y);
 	    if ((SearchScreen
 		 (x, y, ELEMENT_TYPE, &ptrtmp,
 		  &ptrtmp, &ptrtmp)) != NO_TYPE)
@@ -3228,7 +3228,7 @@ ActionRenumber (int argc, char **argv, int x, int y)
 
   if ((out = fopen (name, "w")) == NULL)
     {
-      Message ("Could not open %s\n", name);
+      Message (_("Could not open %s\n"), name);
       if (free_name && name)
 	free (name);
       return 1;
@@ -4068,7 +4068,7 @@ ActionChange2ndSize (int argc, char **argv, int x, int y)
 	    int type;
 	    void *ptr1, *ptr2, *ptr3;
 
-	    gui->get_coords ("Select an Object", &x, &y);
+	    gui->get_coords (_("Select an Object"), &x, &y);
 	    if ((type =
 		 SearchScreen (x, y, CHANGE2NDSIZE_TYPES,
 			       &ptr1, &ptr2, &ptr3)) != NO_TYPE)
@@ -4137,7 +4137,7 @@ ActionChangeClearSize (int argc, char **argv, int x, int y)
 	    int type;
 	    void *ptr1, *ptr2, *ptr3;
 
-	    gui->get_coords ("Select an Object", &x, &y);
+	    gui->get_coords (_("Select an Object"), &x, &y);
 	    if ((type =
 		 SearchScreen (x, y,
 			       CHANGECLEARSIZE_TYPES, &ptr1, &ptr2,
@@ -4501,7 +4501,7 @@ ActionChangeName (int argc, char **argv, int x, int y)
 	    int type;
 	    void *ptr1, *ptr2, *ptr3;
 
-	    gui->get_coords ("Select an Object", &x, &y);
+	    gui->get_coords (_("Select an Object"), &x, &y);
 	    if ((type =
 		 SearchScreen (x, y, CHANGENAME_TYPES,
 			       &ptr1, &ptr2, &ptr3)) != NO_TYPE)
@@ -4589,7 +4589,7 @@ ActionMorphPolygon (int argc, char **argv, int x, int y)
 	    int type;
 	    void *ptr1, *ptr2, *ptr3;
 
-	    gui->get_coords ("Select an Object", &x, &y);
+	    gui->get_coords (_("Select an Object"), &x, &y);
 	    if ((type = SearchScreen (x, y, POLYGON_TYPE,
 				      &ptr1, &ptr2, &ptr3)) != NO_TYPE)
 	      {
@@ -4644,7 +4644,7 @@ ActionToggleHideName (int argc, char **argv, int x, int y)
 	    int type;
 	    void *ptr1, *ptr2, *ptr3;
 
-	    gui->get_coords ("Select an Object", &x, &y);
+	    gui->get_coords (_("Select an Object"), &x, &y);
 	    if ((type = SearchScreen (x, y, ELEMENT_TYPE,
 				      &ptr1, &ptr2, &ptr3)) != NO_TYPE)
 	      {
@@ -4722,7 +4722,7 @@ ActionChangeJoin (int argc, char **argv, int x, int y)
 	    int type;
 	    void *ptr1, *ptr2, *ptr3;
 
-	    gui->get_coords ("Select an Object", &x, &y);
+	    gui->get_coords (_("Select an Object"), &x, &y);
 	    if ((type =
 		 SearchScreen (x, y, CHANGEJOIN_TYPES,
 			       &ptr1, &ptr2, &ptr3)) != NO_TYPE)
@@ -4785,7 +4785,7 @@ ActionChangeSquare (int argc, char **argv, int x, int y)
 	    int type;
 	    void *ptr1, *ptr2, *ptr3;
 
-	    gui->get_coords ("Select an Object", &x, &y);
+	    gui->get_coords (_("Select an Object"), &x, &y);
 	    if ((type =
 		 SearchScreen (x, y, CHANGESQUARE_TYPES,
 			       &ptr1, &ptr2, &ptr3)) != NO_TYPE)
@@ -4845,7 +4845,7 @@ ActionSetSquare (int argc, char **argv, int x, int y)
 	    int type;
 	    void *ptr1, *ptr2, *ptr3;
 
-	    gui->get_coords ("Select an object", &x, &y);
+	    gui->get_coords (_("Select an Object"), &x, &y);
 	    if ((type =
 		 SearchScreen (x, y, CHANGESQUARE_TYPES,
 			       &ptr1, &ptr2, &ptr3)) != NO_TYPE)
@@ -4906,7 +4906,7 @@ ActionClearSquare (int argc, char **argv, int x, int y)
 	    int type;
 	    void *ptr1, *ptr2, *ptr3;
 
-	    gui->get_coords ("Select an Object", &x, &y);
+	    gui->get_coords (_("Select an Object"), &x, &y);
 	    if ((type =
 		 SearchScreen (x, y, CHANGESQUARE_TYPES,
 			       &ptr1, &ptr2, &ptr3)) != NO_TYPE)
@@ -4966,7 +4966,7 @@ ActionChangeOctagon (int argc, char **argv, int x, int y)
 	    int type;
 	    void *ptr1, *ptr2, *ptr3;
 
-	    gui->get_coords ("Select an Object", &x, &y);
+	    gui->get_coords (_("Select an Object"), &x, &y);
 	    if ((type =
 		 SearchScreen (x, y, CHANGEOCTAGON_TYPES,
 			       &ptr1, &ptr2, &ptr3)) != NO_TYPE)
@@ -5029,7 +5029,7 @@ ActionSetOctagon (int argc, char **argv, int x, int y)
 	    int type;
 	    void *ptr1, *ptr2, *ptr3;
 
-	    gui->get_coords ("Select an object", &x, &y);
+	    gui->get_coords (_("Select an Object"), &x, &y);
 	    if ((type =
 		 SearchScreen (x, y, CHANGEOCTAGON_TYPES,
 			       &ptr1, &ptr2, &ptr3)) != NO_TYPE)
@@ -5094,7 +5094,7 @@ ActionClearOctagon (int argc, char **argv, int x, int y)
 	    int type;
 	    void *ptr1, *ptr2, *ptr3;
 
-	    gui->get_coords ("Select an Object", &x, &y);
+	    gui->get_coords (_("Select an Object"), &x, &y);
 	    if ((type =
 		 SearchScreen (Crosshair.X, Crosshair.Y, CHANGEOCTAGON_TYPES,
 			       &ptr1, &ptr2, &ptr3)) != NO_TYPE)
@@ -5158,7 +5158,7 @@ ActionChangeHole (int argc, char **argv, int x, int y)
 	    int type;
 	    void *ptr1, *ptr2, *ptr3;
 
-	    gui->get_coords ("Select an Object", &x, &y);
+	    gui->get_coords (_("Select an Object"), &x, &y);
 	    if ((type = SearchScreen (x, y, VIA_TYPE,
 				      &ptr1, &ptr2, &ptr3)) != NO_TYPE
 		&& ChangeHole ((PinTypePtr) ptr3))
@@ -5208,7 +5208,7 @@ ActionChangePaste (int argc, char **argv, int x, int y)
 	    int type;
 	    void *ptr1, *ptr2, *ptr3;
 
-	    gui->get_coords ("Select an Object", &x, &y);
+	    gui->get_coords (_("Select an Object"), &x, &y);
 	    if ((type = SearchScreen (x, y, PAD_TYPE,
 				      &ptr1, &ptr2, &ptr3)) != NO_TYPE
 		&& ChangePaste ((PadTypePtr) ptr3))
@@ -5384,7 +5384,7 @@ ActionSelect (int argc, char **argv, int x, int y)
 	    Note.Buffer = Settings.BufferNumber;
 	    SetBufferNumber (MAX_BUFFER - 1);
 	    ClearBuffer (PASTEBUFFER);
-	    gui->get_coords ("Select the Element's Mark Location", &x, &y);
+	    gui->get_coords (_("Select the Element's Mark Location"), &x, &y);
 	    x = GRIDFIT_X (x, PCB->Grid);
 	    y = GRIDFIT_Y (y, PCB->Grid);
 	    AddSelectedToBuffer (PASTEBUFFER, x, y, True);
@@ -6455,7 +6455,7 @@ ActionMoveToCurrentLayer (int argc, char **argv, int x, int y)
 	    int type;
 	    void *ptr1, *ptr2, *ptr3;
 
-	    gui->get_coords ("Select an Object", &x, &y);
+	    gui->get_coords (_("Select an Object"), &x, &y);
 	    if ((type =
 		 SearchScreen (x, y, MOVETOLAYER_TYPES,
 			       &ptr1, &ptr2, &ptr3)) != NO_TYPE)
@@ -6765,7 +6765,7 @@ ActionExecuteFile (int argc, char **argv, int x, int y)
 
   if ((fp = fopen (fname, "r")) == NULL)
     {
-      fprintf (stderr, "Could not open actions file \"%s\".\n", fname);
+      fprintf (stderr, _("Could not open actions file \"%s\".\n"), fname);
       return 1;
     }
 
@@ -7070,7 +7070,7 @@ ActionElementSetAttr (int argc, char **argv, int x, int y)
 
   if (!e)
     {
-      Message("Cannot change attribute of %s - element not found\n", refdes);
+      Message(_("Cannot change attribute of %s - element not found\n"), refdes);
       return 1;
     }
 
@@ -7203,7 +7203,7 @@ pcb_spawnvp (char **argv)
   if (pid < 0)
     {
       /* error */
-      Message("Cannot fork!");
+      Message(_("Cannot fork!"));
       return 1;
     }
   else if (pid == 0)
@@ -7350,7 +7350,7 @@ tempfile_unlink (char * name)
     }
 
   } else {
-    fprintf (stderr, "%s():  Unable to determine temp directory name from the temp file\n", 
+    fprintf (stderr, _("%s():  Unable to determine temp directory name from the temp file\n"),
 	     __FUNCTION__);
     fprintf (stderr, "%s():  \"%s\"\n", 
 	     __FUNCTION__, name);
@@ -7373,7 +7373,7 @@ tempfile_unlink (char * name)
   rc =  unlink (name);
 
   if (rc != 0) {
-    fprintf (stderr, "Failed to unlink \"%s\"\n", name);
+    fprintf (stderr, _("Failed to unlink \"%s\"\n"), name);
     free (name);
     return rc;
   }
@@ -7472,7 +7472,7 @@ ActionImport (int argc, char **argv, int x, int y)
       int i;
 
       if (tmpfile == NULL) {
-	Message ("Could not create temp file");
+	Message (_("Could not create temp file"));
 	return 1;
       }
 
@@ -7534,7 +7534,7 @@ ActionImport (int argc, char **argv, int x, int y)
 	{
 	  tmpfile = tempfile_name_new ("gnetlist_output");
 	  if (tmpfile == NULL) {
-	    Message ("Could not create temp file");
+	    Message (_("Could not create temp file"));
 	    return 1;
 	  }
 	  must_free_tmpfile = 1;
@@ -7588,7 +7588,7 @@ ActionImport (int argc, char **argv, int x, int y)
     }
   else
     {
-      Message ("Unknown import mode: %s\n", mode);
+      Message (_("Unknown import mode: %s\n"), mode);
       return 1;
     }
 
@@ -7632,7 +7632,7 @@ ActionAttributes (int argc, char **argv, int x, int y)
 
   if (!gui->edit_attributes)
     {
-      Message ("This GUI doesn't support Attribute Editing\n");
+      Message (_("This GUI doesn't support Attribute Editing\n"));
       return 1;
     }
 
@@ -7659,7 +7659,7 @@ ActionAttributes (int argc, char **argv, int x, int y)
 		}
 	    if (layer == NULL)
 	      {
-		Message ("No layer named %s\n", layername);
+		Message (_("No layer named %s\n"), layername);
 		return 1;
 	      }
 	  }
@@ -7685,20 +7685,20 @@ ActionAttributes (int argc, char **argv, int x, int y)
 	END_LOOP;
 	if (n_found > 1)
 	  {
-	    Message ("Too many elements selected\n");
+	    Message (_("Too many elements selected\n"));
 	    return 1;
 	  }
 	if (n_found == 0)
 	  {
 	    void *ptrtmp;
-	    gui->get_coords ("Click on an element", &x, &y);
+	    gui->get_coords (_("Click on an element"), &x, &y);
 	    if ((SearchScreen
 		 (x, y, ELEMENT_TYPE, &ptrtmp,
 		  &ptrtmp, &ptrtmp)) != NO_TYPE)
 	      e = (ElementTypePtr) ptrtmp;
 	    else
 	      {
-		Message ("No element found there\n");
+		Message (_("No element found there\n"));
 		return 1;
 	      }
 	  }
@@ -7795,7 +7795,7 @@ HID_Action action_action_list[] = {
   {"ExecuteFile", 0, ActionExecuteFile,
    executefile_help, executefile_syntax}
   ,
-  {"Flip", "Click on Object or Flip Point", ActionFlip,
+  {"Flip", N_("Click on Object or Flip Point"), ActionFlip,
    flip_help, flip_syntax}
   ,
   {"LoadFrom", 0, ActionLoadFrom,
@@ -7867,7 +7867,7 @@ HID_Action action_action_list[] = {
   {"Redo", 0, ActionRedo,
    redo_help, redo_syntax}
   ,
-  {"SetSame", "Select item to use attributes from", ActionSetSame,
+  {"SetSame", N_("Select item to use attributes from"), ActionSetSame,
    setsame_help, setsame_syntax}
   ,
   {"SetFlag", 0, ActionSetFlag,
@@ -7885,7 +7885,7 @@ HID_Action action_action_list[] = {
   {"RouteStyle", 0, ActionRouteStyle,
    routestyle_help, routestyle_syntax}
   ,
-  {"MoveObject", "Select an Object", ActionMoveObject,
+  {"MoveObject", N_("Select an Object"), ActionMoveObject,
    moveobject_help, moveobject_syntax}
   ,
   {"MoveToCurrentLayer", 0, ActionMoveToCurrentLayer,

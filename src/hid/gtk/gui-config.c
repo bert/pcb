@@ -1019,7 +1019,7 @@ config_sizes_tab_create (GtkWidget * tab_vbox)
     }
 
   str = g_strdup_printf (_("<b>%s</b> grid units are selected"),
-			 Settings.grid_units_mm ? "mm" : "mil");
+			 Settings.grid_units_mm ? _("mm") : _("mil"));
   label = gtk_label_new ("");
   gtk_label_set_use_markup (GTK_LABEL (label), TRUE);
   gtk_label_set_markup (GTK_LABEL (label), str);
@@ -1183,7 +1183,7 @@ config_increments_tab_create (GtkWidget * tab_vbox)
   str =
     g_strdup_printf (_
 		     ("Increment/Decrement values to use in <b>%s</b> units mode.\n"),
-		     Settings.grid_units_mm ? "mm" : "mil");
+		     Settings.grid_units_mm ? _("mm") : _("mil"));
   label = gtk_label_new ("");
   gtk_label_set_use_markup (GTK_LABEL (label), TRUE);
   gtk_label_set_markup (GTK_LABEL (label), str);
@@ -1808,7 +1808,7 @@ config_color_file_set_label (void)
   else
     name = g_path_get_basename (color_file);
 
-  str = g_strdup_printf ("Current colors loaded: <b>%s</b>", name);
+  str = g_strdup_printf (_("Current colors loaded: <b>%s</b>"), name);
   gtk_label_set_markup (GTK_LABEL (config_color_file_label), str);
   g_free (name);
   g_free (str);
@@ -2088,7 +2088,7 @@ ghid_config_handle_units_changed (void)
   ghid_set_cursor_position_labels ();
   gtk_label_set_markup (GTK_LABEL (ghidgui->grid_units_label),
 			Settings.grid_units_mm ?
-			"<b>mm</b> " : "<b>mil</b> ");
+			_("<b>mm</b> ") : _("<b>mil</b> "));
   if (config_sizes_vbox)
     {
       gtk_widget_destroy (config_sizes_vbox);
@@ -2180,7 +2180,7 @@ ghid_config_window_show (void)
   g_signal_connect (G_OBJECT (config_window), "delete_event",
 		    G_CALLBACK (config_destroy_cb), NULL);
 
-  gtk_window_set_title (GTK_WINDOW (config_window), "PCB Preferences");
+  gtk_window_set_title (GTK_WINDOW (config_window), _("PCB Preferences"));
   gtk_window_set_wmclass (GTK_WINDOW (config_window), "Pcb_Conf", "PCB");
   gtk_container_set_border_width (GTK_CONTAINER (config_window), 2);
 

@@ -106,7 +106,7 @@ static const char zoom_syntax[] =
 
 
 static const char zoom_help[] =
-"Various zoom factor changes.";
+N_("Various zoom factor changes.");
 
 /* %start-doc actions Zoom
 Changes the zoom (magnification) of the view of the board.  If no
@@ -428,7 +428,7 @@ ghid_set_layer (const char *name, int group, int empty)
 void
 ghid_calibrate (double xval, double yval)
 {
-  printf ("ghid_calibrate() -- not implemented\n");
+  printf (_("ghid_calibrate() -- not implemented\n"));
 }
 
 static int ghid_gui_is_up = 0;
@@ -1203,7 +1203,7 @@ static const char about_syntax[] =
 "About()";
 
 static const char about_help[] =
-"Tell the user about this version of PCB.";
+N_("Tell the user about this version of PCB.");
 
 /* %start-doc actions About
 
@@ -1225,7 +1225,7 @@ static const char getxy_syntax[] =
 "GetXY()";
 
 static const char getxy_help[] =
-"Get a coordinate.";
+N_("Get a coordinate.");
 
 /* %start-doc actions GetXY
 
@@ -1292,7 +1292,7 @@ PCBChanged (int argc, char **argv, int x, int y)
 static int
 LayerGroupsChanged (int argc, char **argv, int x, int y)
 {
-  printf ("LayerGroupsChanged -- not implemented\n");
+  printf (_("LayerGroupsChanged -- not implemented\n"));
   return 0;
 }
 
@@ -1380,7 +1380,7 @@ static const char save_syntax[] =
 "Save(PasteBuffer)";
 
 static const char save_help[] =
-"Save layout and/or element data to a user-selected file.";
+N_("Save layout and/or element data to a user-selected file.");
 
 /* %start-doc actions Save
 
@@ -1429,7 +1429,7 @@ Save (int argc, char **argv, int x, int y)
 	  if (ghid_dialog_confirm (_("File exists!  Ok to overwrite?"), NULL, NULL))
 	    {
 	      if (Settings.verbose)
-		fprintf (stderr, "Overwriting %s\n", name);
+		fprintf (stderr, _("Overwriting %s\n"), name);
 	    }
 	  else
 	    {
@@ -1472,7 +1472,7 @@ static const char swapsides_syntax[] =
 "SwapSides(|v|h|r)";
 
 static const char swapsides_help[] =
-"Swaps the side of the board you're looking at.";
+N_("Swaps the side of the board you're looking at.");
 
 /* %start-doc actions SwapSides
 
@@ -1597,7 +1597,7 @@ static const char print_syntax[] =
 "Print()";
 
 static const char print_help[] =
-"Print the layout.";
+N_("Print the layout.");
 
 /* %start-doc actions Print
 
@@ -1642,11 +1642,11 @@ Print (int argc, char **argv, int x, int y)
 
 static HID_Attribute
 printer_calibrate_attrs[] = {
-  {"Enter Values here:", "",
+  {N_("Enter Values here:"), "",
    HID_Label, 0, 0, {0, 0, 0}, 0, 0},
-  {"x-calibration", "X scale for calibrating your printer",
+  {N_("x-calibration"), N_("X scale for calibrating your printer"),
    HID_Real, 0.5, 25, {0, 0, 1.00}, 0, 0},
-  {"y-calibration", "Y scale for calibrating your printer",
+  {N_("y-calibration"), N_("Y scale for calibrating your printer"),
    HID_Real, 0.5, 25, {0, 0, 1.00}, 0, 0}
 };
 static HID_Attr_Val printer_calibrate_values[3];
@@ -1655,7 +1655,7 @@ static const char printcalibrate_syntax[] =
 "PrintCalibrate()";
 
 static const char printcalibrate_help[] =
-"Calibrate the printer.";
+N_("Calibrate the printer.");
 
 /* %start-doc actions PrintCalibrate
 
@@ -1672,8 +1672,8 @@ PrintCalibrate (int argc, char **argv, int x, int y)
 
   if (gui->attribute_dialog (printer_calibrate_attrs, 3,
 			     printer_calibrate_values,
-			     "Printer Calibration Values",
-			     "Enter calibration values for your printer"))
+			     _("Printer Calibration Values"),
+			     _("Enter calibration values for your printer")))
     return 1;
   printer->calibrate (printer_calibrate_values[1].real_value,
 		      printer_calibrate_values[2].real_value);
@@ -1725,7 +1725,7 @@ Benchmark (int argc, char **argv, int x, int y)
     }
   while (end - start < 10);
 
-  printf ("%g redraws per second\n", i / 10.0);
+  printf (_("%g redraws per second\n"), i / 10.0);
 
   return 0;
 }
@@ -1736,7 +1736,7 @@ static const char center_syntax[] =
 "Center()\n";
 
 static const char center_help[] =
-"Moves the pointer to the center of the window.";
+N_("Moves the pointer to the center of the window.");
 
 /* %start-doc actions Center
 
@@ -1842,7 +1842,7 @@ static const char cursor_syntax[] =
 "Cursor(Type,DeltaUp,DeltaRight,Units)";
 
 static const char cursor_help[] =
-"Move the cursor.";
+N_("Move the cursor.");
 
 /* %start-doc actions Cursor
 
@@ -1936,7 +1936,7 @@ static const char dowindows_syntax[] =
 "DoWindows(Layout|Library|Log|Netlist|Preferences|DRC)";
 
 static const char dowindows_help[] =
-"Open various GUI windows.";
+N_("Open various GUI windows.");
 
 /* %start-doc actions DoWindows
 
@@ -2012,7 +2012,7 @@ static const char setunits_syntax[] =
 "SetUnits(mm|mil)";
 
 static const char setunits_help[] =
-"Set the default measurement units.";
+N_("Set the default measurement units.");
 
 /* %start-doc actions SetUnits
 
@@ -2054,7 +2054,7 @@ static const char scroll_syntax[] =
 "Scroll(up|down|left|right, [div])";
 
 static const char scroll_help[] =
-"Scroll the viewport.";
+N_("Scroll the viewport.");
 
 /* % start-doc actions Scroll
 
@@ -2108,8 +2108,8 @@ static const char pan_syntax[] =
 "Pan([thumb], Mode)";
 
 static const char pan_help[] =
-"Start or stop panning (Mode = 1 to start, 0 to stop)\n"
-"Optional thumb argument is ignored for now in gtk hid.\n";
+N_("Start or stop panning (Mode = 1 to start, 0 to stop)\n"
+"Optional thumb argument is ignored for now in gtk hid.\n");
 
 /* %start-doc actions Pan
 
@@ -2136,8 +2136,8 @@ PanAction (int argc, char **argv, int x, int y)
   else
     {
       mode = atoi(argv[1]);
-      Message ("The gtk gui currently ignores the optional first argument"
-               "to the Pan action.\nFeel free to provide patches.\n");
+      Message (_("The gtk gui currently ignores the optional first argument "
+               "to the Pan action.\nFeel free to provide patches.\n"));
     }
 
   gport->panning = mode;
@@ -2162,9 +2162,9 @@ static const char popup_syntax[] =
 "Popup(MenuName, [Button])";
 
 static const char popup_help[] =
-"Bring up the popup menu specified by @code{MenuName}.\n"
+N_("Bring up the popup menu specified by @code{MenuName}.\n"
 "If called by a mouse event then the mouse button number\n"
-"must be specified as the optional second argument.";
+"must be specified as the optional second argument.");
 
 /* %start-doc actions Popup
 
@@ -2193,19 +2193,19 @@ Popup (int argc, char **argv, int x, int y)
 
   if ( (element = (char *) malloc ( (strlen (argv[0]) + 2) * sizeof (char))) == NULL )
     {
-      fprintf (stderr, "Popup():  malloc failed\n");
+      fprintf (stderr, _("Popup():  malloc failed\n"));
       exit (1);
     }
 
   sprintf (element, "/%s", argv[0]);
-  printf ("Loading popup \"%s\". Button = %u\n", element, button);
+  printf (_("Loading popup \"%s\". Button = %u\n"), element, button);
 
   menu = gtk_ui_manager_get_widget (ghidgui->ui_manager, element);
   free (element);
 
   if (! GTK_IS_MENU (menu))
     {
-      Message ("The specified popup menu \"%s\" has not been defined.\n", argv[0]);
+      Message (_("The specified popup menu \"%s\" has not been defined.\n"), argv[0]);
       return 1;
     }
   else
@@ -2222,7 +2222,7 @@ static const char importgui_syntax[] =
 "Popup(MenuName, [Button])";
 
 static const char importgui_help[] =
-"Asks user which schematics to import into PCB.\n";
+N_("Asks user which schematics to import into PCB.\n");
 
 /* %start-doc actions ImportGUI
 
@@ -2273,7 +2273,7 @@ HID_Action ghid_main_action_list[] = {
   {"About", 0, About, about_help, about_syntax},
   {"Benchmark", 0, Benchmark},
   {"Busy", 0, Busy},
-  {"Center", "Click on a location to center", Center, center_help, center_syntax},
+  {"Center", N_("Click on a location to center"), Center, center_help, center_syntax},
   {"Command", 0, Command},
   {"Cursor", 0, CursorAction, cursor_help, cursor_syntax},
   {"DoWindows", 0, DoWindows, dowindows_help, dowindows_syntax},
@@ -2283,7 +2283,7 @@ HID_Action ghid_main_action_list[] = {
   {"LayerGroupsChanged", 0, LayerGroupsChanged},
   {"LibraryChanged", 0, LibraryChanged},
   {"Load", 0, Load},
-  {"Pan", "Click on a place to pan", PanAction, pan_help, pan_syntax},
+  {"Pan", N_("Click on a place to pan"), PanAction, pan_help, pan_syntax},
   {"PCBChanged", 0, PCBChanged},
   {"PointCursor", 0, PointCursor},
   {"Popup", 0, Popup, popup_help, popup_syntax},
@@ -2293,10 +2293,10 @@ HID_Action ghid_main_action_list[] = {
    printcalibrate_help, printcalibrate_syntax},
   {"RouteStylesChanged", 0, RouteStylesChanged},
   {"Save", 0, Save, save_help, save_syntax},
-  {"Scroll", "Click on a place to scroll", ScrollAction, scroll_help, scroll_syntax},
+  {"Scroll", N_("Click on a place to scroll"), ScrollAction, scroll_help, scroll_syntax},
   {"SetUnits", 0, SetUnits, setunits_help, setunits_syntax},
   {"SwapSides", 0, SwapSides, swapsides_help, swapsides_syntax},
-  {"Zoom", "Click on zoom focus", Zoom, zoom_help, zoom_syntax}
+  {"Zoom", N_("Click on zoom focus"), Zoom, zoom_help, zoom_syntax}
 };
 
 REGISTER_ACTIONS (ghid_main_action_list)
