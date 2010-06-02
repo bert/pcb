@@ -2333,6 +2333,7 @@ poly_ComputeInteriorPoint (PLINE *poly, Vector v)
   VNODE *min_q = NULL;
   double dist;
   double min_dist;
+  double dir = (poly->Flags.orient == PLF_DIR) ? 1. : -1;
 
   /* Find a convex node on the polygon */
   pt1 = &poly->head;
@@ -2346,7 +2347,7 @@ poly_ComputeInteriorPoint (PLINE *poly, Vector v)
       dot_product = dot_orthogonal_to_direction (pt1->point, pt2->point,
                                                  pt3->point, pt2->point);
 
-      if (dot_product > 0.)
+      if (dot_product * dir > 0.)
         break;
     }
   while ((pt1 = pt1->next) != &poly->head);
