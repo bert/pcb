@@ -142,6 +142,8 @@ ghid_draw_grid (void)
       points[n].x = Vx (x);
       n++;
     }
+  if (n == 0)
+    return;
   for (y = y1; y <= y2; y += PCB->Grid)
     {
       int vy = Vy (y);
