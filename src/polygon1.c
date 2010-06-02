@@ -2504,23 +2504,45 @@ poly_ChkContour (PLINE * a)
 	      else if (vect_dist2 (i1, a1->next->point) < EPSILON)
 		hit1 = a1->next;
 	      else
-		return TRUE;
+		hit1 = NULL;
 
 	      if (vect_dist2 (i1, a2->point) < EPSILON)
 		hit2 = a2;
 	      else if (vect_dist2 (i1, a2->next->point) < EPSILON)
 		hit2 = a2->next;
 	      else
-		return TRUE;
+		hit2 = NULL;
 
-#if 1
-	      /* now check if they are inside each other */
-	      if (inside_sector (hit1, hit2->prev->point) ||
-		  inside_sector (hit1, hit2->next->point) ||
-		  inside_sector (hit2, hit1->prev->point) ||
-		  inside_sector (hit2, hit1->next->point))
-		return TRUE;
-#endif
+	      if ((hit1 == NULL) && (hit2 == NULL))
+		{
+		  /* If the intersection didn't land on an end-point of either
+		   * line, we know the lines cross and we return TRUE.
+		   */
+		  return TRUE;
+		}
+	      else if (hit1 == NULL)
+		{
+		/* An end-point of the second line touched somewhere along the
+		   length of the first line. Check where the second line leads. */
+		  if (inside_sector (hit2, a1->point) !=
+		      inside_sector (hit2, a1->next->point))
+		    return TRUE;
+		}
+	      else if (hit2 == NULL)
+		{
+		/* An end-point of the first line touched somewhere along the
+		   length of the second line. Check where the first line leads. */
+		  if (inside_sector (hit1, a2->point) !=
+		      inside_sector (hit1, a2->next->point))
+		    return TRUE;
+		}
+	      else
+		{
+		/* Both lines intersect at an end-point. Check where they lead. */
+		  if (inside_sector (hit1, hit2->prev->point) !=
+		      inside_sector (hit1, hit2->next->point))
+		    return TRUE;
+		}
 	    }
 	}
       while ((a2 = a2->next) != &a->head);
