@@ -544,7 +544,7 @@ WritePCBDataHeader (FILE * FP)
    * ************************** README *******************
    */
 
-  fprintf (FP, "\n# To read pcb files, the pcb version (or the cvs source date) must be >= the file version\n");
+  fprintf (FP, "\n# To read pcb files, the pcb version (or the git source date) must be >= the file version\n");
   fprintf (FP, "FileVersion[%i]\n", PCB_FILE_VERSION);
 
   fputs ("\nPCB[", FP);
