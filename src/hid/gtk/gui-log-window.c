@@ -218,6 +218,7 @@ GhidLogShowOnAppend (int argc, char **argv, int x, int y)
     {
       log_show_on_append = FALSE;
     }
+  return 0;
 }
 
 HID_Action ghid_log_action_list[] = {
