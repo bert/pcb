@@ -2020,7 +2020,7 @@ lesstif_parse_arguments (int *argc, char ***argv)
 	    break;
 	  case HID_Boolean:
 	    o->argKind = XrmoptionNoArg;
-	    o->value = "true";
+	    o->value = "True";
 	    acount++;
 	    break;
 	  default:

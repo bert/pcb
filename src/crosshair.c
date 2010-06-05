@@ -940,7 +940,7 @@ FitCrosshairIntoGrid (LocationType X, LocationType Y)
 	if (ans == NO_TYPE)
 	  hid_action("PointCursor");
 	else if (!TEST_FLAG(SELECTEDFLAG, (LineType *)ptr2))
-	  hid_actionl("PointCursor","true", NULL);
+	  hid_actionl("PointCursor","True", NULL);
     }
   if (Settings.Mode == LINE_MODE
       && Crosshair.AttachedLine.State != STATE_FIRST
