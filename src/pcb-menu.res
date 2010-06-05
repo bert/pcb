@@ -182,7 +182,7 @@ MainMenu =
    {"Insert Point" checked=insertpointmode,1 Mode(InsertPoint) a={"Insert" "<Key>Insert"}}
    {"Move" checked=movemode,1 Mode(Move)}
    {"Copy" checked=copymode,1 Mode(Copy)}
-   {"Lock" checked=lockmode,1 Mode(Lock)}
+   {"Lock" checked=lockmode,1 Mode(Lock) a={"F12" "<Key>F12"}}
    {"Cancel" Mode(Cancel) a={"Esc" "<Key>Escape"}}
    -
    {"Command" Command() a={":" "<Key>:"}}
