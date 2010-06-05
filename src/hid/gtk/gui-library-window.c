@@ -341,7 +341,7 @@ library_window_callback_tree_selection_changed (GtkTreeSelection * selection,
    */
   if (entry->Template == (char *) -1)
     {
-      if (LoadElementToBuffer (PASTEBUFFER, entry->AllocatedMemory, True))
+      if (LoadElementToBuffer (PASTEBUFFER, entry->AllocatedMemory, true))
 	SetMode (PASTEBUFFER_MODE);
       goto out;
     }
@@ -353,7 +353,7 @@ library_window_callback_tree_selection_changed (GtkTreeSelection * selection,
   m4_args = g_strdup_printf ("'%s' '%s' '%s'", EMPTY (entry->Template),
 			     EMPTY (entry->Value), EMPTY (entry->Package));
 
-  if (LoadElementToBuffer (PASTEBUFFER, m4_args, False))
+  if (LoadElementToBuffer (PASTEBUFFER, m4_args, false))
     SetMode (PASTEBUFFER_MODE);
   g_free (m4_args);
 

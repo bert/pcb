@@ -70,7 +70,7 @@ static void CheckPinForRubberbandConnection (PinTypePtr);
 static void CheckLinePointForRubberbandConnection (LayerTypePtr,
 						   LineTypePtr,
 						   PointTypePtr,
-						   Boolean);
+						   bool);
 static void CheckPolygonForRubberbandConnection (LayerTypePtr,
 						 PolygonTypePtr);
 static void CheckLinePointForRat (LayerTypePtr, PointTypePtr);
@@ -404,7 +404,7 @@ static void
 CheckLinePointForRubberbandConnection (LayerTypePtr Layer,
 				       LineTypePtr Line,
 				       PointTypePtr LinePoint,
-				       Boolean Exact)
+				       bool Exact)
 {
   Cardinal group;
   struct rubber_info info;
@@ -518,9 +518,9 @@ LookupRubberbandLines (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
 	if (GetLayerNumber (PCB->Data, layer) < max_layer)
 	  {
 	    CheckLinePointForRubberbandConnection (layer, line,
-						   &line->Point1, False);
+						   &line->Point1, false);
 	    CheckLinePointForRubberbandConnection (layer, line,
-						   &line->Point2, False);
+						   &line->Point2, false);
 	  }
 	break;
       }
@@ -529,7 +529,7 @@ LookupRubberbandLines (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
       if (GetLayerNumber (PCB->Data, (LayerTypePtr) Ptr1) < max_layer)
 	CheckLinePointForRubberbandConnection ((LayerTypePtr) Ptr1,
 					       (LineTypePtr) Ptr2,
-					       (PointTypePtr) Ptr3, True);
+					       (PointTypePtr) Ptr3, true);
       break;
 
     case VIA_TYPE:

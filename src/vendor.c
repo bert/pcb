@@ -69,7 +69,7 @@ RCSID ("$Id$");
 static void add_to_drills (char *);
 static void apply_vendor_map (void);
 static void process_skips (Resource *);
-static Boolean rematch (const char *, const char *);
+static bool rematch (const char *, const char *);
 
 /* list of vendor drills and a count of them */
 static int *vendor_drills = NULL;
@@ -94,7 +94,7 @@ static double sf;
 
 
 /* enable/disable mapping */
-static Boolean vendorMapEnable = False;
+static bool vendorMapEnable = false;
 
 /* type of drill mapping */
 #define CLOSEST 1
@@ -152,9 +152,9 @@ int
 ActionToggleVendor (int argc, char **argv, int x, int y)
 {
   if (vendorMapEnable)
-    vendorMapEnable = False;
+    vendorMapEnable = false;
   else
-    vendorMapEnable = True;
+    vendorMapEnable = true;
   return 0;
 }
 
@@ -182,7 +182,7 @@ loaded first.
 int
 ActionEnableVendor (int argc, char **argv, int x, int y)
 {
-  vendorMapEnable = True;
+  vendorMapEnable = true;
   return 0;
 }
 
@@ -208,7 +208,7 @@ specified in the currently loaded vendor drill table.
 int
 ActionDisableVendor (int argc, char **argv, int x, int y)
 {
-  vendorMapEnable = False;
+  vendorMapEnable = false;
   return 0;
 }
 
@@ -457,7 +457,7 @@ ActionLoadVendorFrom (int argc, char **argv, int x, int y)
   Message (_("Loaded %d RefDes skips, %d Value skips, %d Descr skips\n"),
 	   n_refdes, n_value, n_descr);
 
-  vendorMapEnable = True;
+  vendorMapEnable = true;
   apply_vendor_map ();
   free (name);
   return 0;
@@ -468,12 +468,12 @@ apply_vendor_map (void)
 {
   int i;
   int changed, tot;
-  Boolean state;
+  bool state;
 
   state = vendorMapEnable;
 
   /* enable mapping */
-  vendorMapEnable = True;
+  vendorMapEnable = true;
 
   /* reset our counts */
   changed = 0;
@@ -494,7 +494,7 @@ apply_vendor_map (void)
 	      {
 		if (ChangeObject2ndSize (VIA_TYPE, via, NULL, NULL,
 					 vendorDrillMap (via->DrillingHole),
-					 True, False))
+					 true, false))
 		  changed++;
 		else
 		  {
@@ -534,7 +534,7 @@ apply_vendor_map (void)
 		      if (ChangeObject2ndSize (PIN_TYPE, element, pin, NULL,
 					       vendorDrillMap (pin->
 							       DrillingHole),
-					       True, False))
+					       true, false))
 			changed++;
 		      else
 			{
@@ -608,7 +608,7 @@ apply_vendor_map (void)
        */
       if (changed)
 	{
-	  SetChangedFlag (True);
+	  SetChangedFlag (true);
 	  ClearAndRedrawOutput ();
 	  IncrementUndoSerialNumber ();
 	}
@@ -630,7 +630,7 @@ vendorDrillMap (int in)
 
   /* skip the mapping if we don't have a vendor drill table */
   if ((n_vendor_drills == 0) || (vendor_drills == NULL)
-      || (vendorMapEnable == False))
+      || (vendorMapEnable == false))
     {
       cached_map = in;
       return in;
@@ -817,14 +817,14 @@ process_skips (Resource * res)
 
 }
 
-Boolean
+bool
 vendorIsElementMappable (ElementTypePtr element)
 {
   int i;
   int noskip;
 
-  if (vendorMapEnable == False)
-    return False;
+  if (vendorMapEnable == false)
+    return false;
 
   noskip = 1;
   for (i = 0; i < n_refdes; i++)
@@ -875,12 +875,12 @@ vendorIsElementMappable (ElementTypePtr element)
     }
 
   if (noskip)
-    return True;
+    return true;
   else
-    return False;
+    return false;
 }
 
-static Boolean
+static bool
 rematch (const char *re, const char *s)
 {
   /*
@@ -903,16 +903,16 @@ rematch (const char *re, const char *s)
       regerror (result, &compiled, errorstring, sizeof (errorstring));
       Message ("regexp error: %s\n", errorstring);
       regfree (&compiled);
-      return (False);
+      return (false);
     }
 
   result = regexec (&compiled, s, 1, &match, 0);
   regfree (&compiled);
 
   if (result == 0)
-    return (True);
+    return (true);
   else
-    return (False);
+    return (false);
 
 #elif defined(HAVE_RE_COMP)
   int m;
@@ -922,7 +922,7 @@ rematch (const char *re, const char *s)
   if ((rslt = re_comp (re)) != NULL)
     {
       Message ("re_comp error: %s\n", rslt);
-      return (False);
+      return (false);
     }
 
   m = re_exec (s);
@@ -930,11 +930,11 @@ rematch (const char *re, const char *s)
   switch m
     {
     case 1:
-      return (True);
+      return (true);
       break;
 
     case 0:
-      return (False);
+      return (false);
       break;
 
     default:
@@ -943,7 +943,7 @@ rematch (const char *re, const char *s)
     }
 
 #else
-  return (False);
+  return (false);
 #endif
 
 }

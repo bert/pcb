@@ -196,7 +196,7 @@ PinTypePtr
 GetPinMemory (ElementTypePtr Element)
 {
   PinTypePtr pin = Element->Pin;
-  Boolean onBoard = False;
+  bool onBoard = false;
 
   /* realloc new memory if necessary and clear it */
   if (Element->PinN >= Element->PinMax)
@@ -206,7 +206,7 @@ GetPinMemory (ElementTypePtr Element)
 	  PIN_LOOP (Element);
 	  {
 	    if (r_delete_entry (PCB->Data->pin_tree, (BoxType *) pin))
-	      onBoard = True;
+	      onBoard = true;
 	  }
 	  END_LOOP;
 	}
@@ -234,7 +234,7 @@ PadTypePtr
 GetPadMemory (ElementTypePtr Element)
 {
   PadTypePtr pad = Element->Pad;
-  Boolean onBoard = False;
+  bool onBoard = false;
 
   /* realloc new memory if necessary and clear it */
   if (Element->PadN >= Element->PadMax)
@@ -244,7 +244,7 @@ GetPadMemory (ElementTypePtr Element)
 	  PAD_LOOP (Element);
 	  {
 	    if (r_delete_entry (PCB->Data->pad_tree, (BoxType *) pad))
-	      onBoard = True;
+	      onBoard = true;
 	  }
 	  END_LOOP;
 	}

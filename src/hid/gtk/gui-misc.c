@@ -402,12 +402,12 @@ run_get_location_loop (const gchar * message)
   oldObjState = Crosshair.AttachedObject.State;
   oldLineState = Crosshair.AttachedLine.State;
   oldBoxState = Crosshair.AttachedBox.State;
-  HideCrosshair (True);
+  HideCrosshair (true);
   Crosshair.AttachedObject.State = STATE_FIRST;
   Crosshair.AttachedLine.State = STATE_FIRST;
   Crosshair.AttachedBox.State = STATE_FIRST;
   ghid_hand_cursor ();
-  RestoreCrosshair (True);
+  RestoreCrosshair (true);
 
   /* Stop the top level GMainLoop from getting user input from keyboard
      |  and mouse so we can install our own handlers here.  Also set the
@@ -438,11 +438,11 @@ run_get_location_loop (const gchar * message)
   ghid_interface_input_signals_connect ();	/* return to normal */
   ghid_interface_set_sensitive (TRUE);
 
-  HideCrosshair (True);
+  HideCrosshair (true);
   Crosshair.AttachedObject.State = oldObjState;
   Crosshair.AttachedLine.State = oldLineState;
   Crosshair.AttachedBox.State = oldBoxState;
-  RestoreCrosshair (True);
+  RestoreCrosshair (true);
   ghid_restore_cursor ();
 
   ghid_set_status_line_label ();

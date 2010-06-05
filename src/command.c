@@ -170,12 +170,12 @@ CommandLoadElementToBuffer (int argc, char **argv, int x, int y)
     {
     case 1:			/* filename is passed in commandline */
       filename = argv[0];
-      if (filename && LoadElementToBuffer (PASTEBUFFER, filename, True))
+      if (filename && LoadElementToBuffer (PASTEBUFFER, filename, true))
 	SetMode (PASTEBUFFER_MODE);
       break;
 
     default:			/* usage */
-      Message (False, "Usage: le [name]\n  loads element data to buffer\n");
+      Message (false, "Usage: le [name]\n  loads element data to buffer\n");
       return (1);
     }
   return (0);

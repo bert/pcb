@@ -370,7 +370,7 @@ RotateObject (int Type, void *Ptr1, void *Ptr2, void *Ptr3,
 {
   RubberbandTypePtr ptr;
   void *ptr2;
-  Boolean changed = False;
+  bool changed = false;
 
   /* setup default  global identifiers */
   Number = Steps;
@@ -381,7 +381,7 @@ RotateObject (int Type, void *Ptr1, void *Ptr2, void *Ptr3,
   ptr = Crosshair.AttachedObject.Rubberband;
   while (Crosshair.AttachedObject.RubberbandN)
     {
-      changed = True;
+      changed = true;
       CLEAR_FLAG (RUBBERENDFLAG, ptr->Line);
       AddObjectToRotateUndoList (LINEPOINT_TYPE, ptr->Layer, ptr->Line,
 				 ptr->MovedPoint, CenterX, CenterY, Steps);
@@ -440,6 +440,6 @@ RotateScreenObject (LocationType X, LocationType Y, BYTE Steps)
       if (type == ELEMENT_TYPE)
 	LookupRatLines (type, ptr1, ptr2, ptr3);
       RotateObject (type, ptr1, ptr2, ptr3, X, Y, Steps);
-      SetChangedFlag (True);
+      SetChangedFlag (true);
     }
 }

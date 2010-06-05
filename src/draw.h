@@ -33,7 +33,7 @@
 
 #include "global.h"
 
-/*Boolean	SwitchDrawingWindow(double, GdkDrawable *, gboolean, gboolean);*/
+/*bool	SwitchDrawingWindow(double, GdkDrawable *, gboolean, gboolean);*/
 
 void Draw (void);
 void RedrawOutput (BoxTypePtr area);

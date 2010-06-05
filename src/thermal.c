@@ -89,7 +89,7 @@ struct cent
 
 static POLYAREA *
 diag_line (LocationType X, LocationType Y, BDimension l, BDimension w,
-           Boolean rt)
+           bool rt)
 {
   PLINE *c;
   Vector v;
@@ -374,9 +374,9 @@ oct_therm (PinTypePtr pin, Cardinal style)
     {
     default:
     case 1:
-      p = diag_line (pin->X, pin->Y, w, t, True);
+      p = diag_line (pin->X, pin->Y, w, t, true);
       poly_Boolean_free (m, p, &p2, PBO_SUB);
-      p = diag_line (pin->X, pin->Y, w, t, False);
+      p = diag_line (pin->X, pin->Y, w, t, false);
       poly_Boolean_free (p2, p, &m, PBO_SUB);
       return m;
     case 2:
@@ -441,9 +441,9 @@ ThermPoly (PCBTypePtr p, PinTypePtr pin, Cardinal laynum)
           }
         else
           {
-            pa = diag_line (pin->X, pin->Y, t, w, True);
+            pa = diag_line (pin->X, pin->Y, t, w, true);
             poly_Boolean_free (m, pa, &arc, PBO_SUB);
-            pa = diag_line (pin->X, pin->Y, t, w, False);
+            pa = diag_line (pin->X, pin->Y, t, w, false);
           }
         poly_Boolean_free (arc, pa, &m, PBO_SUB);
         return m;

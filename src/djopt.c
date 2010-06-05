@@ -2978,7 +2978,7 @@ ActionDJopt (int argc, char **argv, int x, int y)
 
 #ifdef ENDIF
   SwitchDrawingWindow (PCB->Zoom, Output.drawing_area->window,
-		       Settings.ShowSolderSide, False);
+		       Settings.ShowSolderSide, false);
 #endif
 
   hid_action("Busy");

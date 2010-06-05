@@ -52,7 +52,7 @@
 
 RCSID ("$Id$");
 
-static float drc_lines (PointTypePtr end, Boolean way);
+static float drc_lines (PointTypePtr end, bool way);
 
 /* ---------------------------------------------------------------------------
  * Adjust the attached line to 45 degrees if necessary
@@ -68,11 +68,11 @@ AdjustAttachedLine (void)
   /* don't draw outline when ctrl key is pressed */
   if (Settings.Mode == LINE_MODE && gui->control_is_pressed ())
     {
-      line->draw = False;
+      line->draw = false;
       return;
     }
   else
-    line->draw = True;
+    line->draw = true;
   /* no 45 degree lines required */
   if (PCB->RatDraw || TEST_FLAG (ALLDIRECTIONFLAG, PCB))
     {
@@ -180,11 +180,11 @@ AdjustTwoLine (int way)
   /* don't draw outline when ctrl key is pressed */
   if (gui->control_is_pressed ())
     {
-      line->draw = False;
+      line->draw = false;
       return;
     }
   else
-    line->draw = True;
+    line->draw = true;
   if (TEST_FLAG (ALLDIRECTIONFLAG, PCB))
     {
       line->Point2.X = Crosshair.X;
@@ -227,7 +227,7 @@ AdjustTwoLine (int way)
 struct drc_info
 {
   LineTypePtr line;
-  Boolean solder;
+  bool solder;
   jmp_buf env;
 };
 
@@ -287,7 +287,7 @@ drcArc_callback (const BoxType * b, void *cl)
  */
 
 static float
-drc_lines (PointTypePtr end, Boolean way)
+drc_lines (PointTypePtr end, bool way)
 {
   float f, s, f2, s2, len, best;
   LocationType dx, dy, temp, last, length;
@@ -295,7 +295,7 @@ drc_lines (PointTypePtr end, Boolean way)
   LineType line1, line2;
   Cardinal group, comp;
   struct drc_info info;
-  Boolean two_lines, x_is_long, blocker;
+  bool two_lines, x_is_long, blocker;
   PointType ans;
 
   f = 1.0;
@@ -311,21 +311,21 @@ drc_lines (PointTypePtr end, Boolean way)
   dx = end->X - line1.Point1.X;
   if (abs (dx) > abs (dy))
     {
-      x_is_long = True;
+      x_is_long = true;
       length = abs (dx);
     }
   else
     {
-      x_is_long = False;
+      x_is_long = false;
       length = abs (dy);
     }
   group = GetGroupOfLayer (INDEXOFCURRENT);
   comp = max_layer + 10;	/* this out-of-range group might save a call */
   if (GetLayerGroupNumberByNumber (max_layer + SOLDER_LAYER) == group)
-    info.solder = True;
+    info.solder = true;
   else
     {
-      info.solder = False;
+      info.solder = false;
       comp = GetLayerGroupNumberByNumber (max_layer + COMPONENT_LAYER);
     }
   temp = length;
@@ -352,14 +352,14 @@ drc_lines (PointTypePtr end, Boolean way)
       f2 = 1.0;
       s2 = 0.5;
       last2 = -1;
-      blocker = True;
+      blocker = true;
       while (length2 != last2)
 	{
 	  if (x_is_long)
 	    dy = SGN (dy) * length2;
 	  else
 	    dx = SGN (dx) * length2;
-	  two_lines = True;
+	  two_lines = true;
 	  if (abs (dx) > abs (dy) && x_is_long)
 	    {
 	      line1.Point2.X = line1.Point1.X +
@@ -378,7 +378,7 @@ drc_lines (PointTypePtr end, Boolean way)
 	      line1.Point2.X = line1.Point1.X + dx;
 	      line1.Point2.Y =
 		line1.Point1.Y + (way ? SGN (dy) * abs (dx) : 0);
-	      two_lines = False;
+	      two_lines = false;
 	    }
 	  else
 	    {
@@ -386,7 +386,7 @@ drc_lines (PointTypePtr end, Boolean way)
 	      line1.Point2.Y = line1.Point1.Y + dy;
 	      line1.Point2.X =
 		line1.Point1.X + (way ? SGN (dx) * abs (dy) : 0);
-	      two_lines = False;
+	      two_lines = false;
 	    }
 	  line2.Point1.X = line1.Point2.X;
 	  line2.Point1.Y = line1.Point2.Y;
@@ -442,7 +442,7 @@ drc_lines (PointTypePtr end, Boolean way)
 	      }
 	      END_LOOP;
 	      /* no intersector! */
-	      blocker = False;
+	      blocker = false;
 	      f2 += s2;
 	      len = (line2.Point2.X - line1.Point1.X);
 	      len *= len;
@@ -486,7 +486,7 @@ void
 EnforceLineDRC (void)
 {
   PointType r45, rs;
-  Boolean shift;
+  bool shift;
   float r1, r2;
 
   if ( gui->mod1_is_pressed() || gui->control_is_pressed () || PCB->RatDraw
@@ -495,9 +495,9 @@ EnforceLineDRC (void)
   rs.X = r45.X = Crosshair.X;
   rs.Y = r45.Y = Crosshair.Y;
   /* first try starting straight */
-  r1 = drc_lines (&rs, False);
+  r1 = drc_lines (&rs, false);
   /* then try starting at 45 */
-  r2 = drc_lines (&r45, True);
+  r2 = drc_lines (&r45, true);
   shift = gui->shift_is_pressed ();
   if (XOR (r1 > r2, shift))
     {

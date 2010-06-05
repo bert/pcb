@@ -103,7 +103,7 @@ unset_found_flags (int AndDraw)
 	AddObjectToFlagUndoList (VIA_TYPE, via, via, via);
 	CLEAR_FLAG (flag, via);
 	DrawVia (via, 0);
-	change = True;
+	change = true;
       }
   }
   END_LOOP;
@@ -116,7 +116,7 @@ unset_found_flags (int AndDraw)
 	  AddObjectToFlagUndoList (PIN_TYPE, element, pin, pin);
 	  CLEAR_FLAG (flag, pin);
 	  DrawPin (pin, 0);
-	  change = True;
+	  change = true;
 	}
     }
     END_LOOP;
@@ -127,7 +127,7 @@ unset_found_flags (int AndDraw)
 	  AddObjectToFlagUndoList (PAD_TYPE, element, pad, pad);
 	  CLEAR_FLAG (flag, pad);
 	  DrawPad (pad, 0);
-	  change = True;
+	  change = true;
 	}
     }
     END_LOOP;
@@ -140,7 +140,7 @@ unset_found_flags (int AndDraw)
 	AddObjectToFlagUndoList (RATLINE_TYPE, line, line, line);
 	CLEAR_FLAG (flag, line);
 	DrawRat (line, 0);
-	change = True;
+	change = true;
       }
   }
   END_LOOP;
@@ -151,7 +151,7 @@ unset_found_flags (int AndDraw)
 	AddObjectToFlagUndoList (LINE_TYPE, layer, line, line);
 	CLEAR_FLAG (flag, line);
 	DrawLine (layer, line, 0);
-	change = True;
+	change = true;
       }
   }
   ENDALL_LOOP;
@@ -162,7 +162,7 @@ unset_found_flags (int AndDraw)
 	AddObjectToFlagUndoList (ARC_TYPE, layer, arc, arc);
 	CLEAR_FLAG (flag, arc);
 	DrawArc (layer, arc, 0);
-	change = True;
+	change = true;
       }
   }
   ENDALL_LOOP;
@@ -173,13 +173,13 @@ unset_found_flags (int AndDraw)
 	AddObjectToFlagUndoList (POLYGON_TYPE, layer, polygon, polygon);
 	CLEAR_FLAG (flag, polygon);
 	DrawPolygon (layer, polygon, 0);
-	change = True;
+	change = true;
       }
   }
   ENDALL_LOOP;
   if (change)
     {
-      SetChangedFlag (True);
+      SetChangedFlag (true);
       if (AndDraw)
 	{
 	  IncrementUndoSerialNumber ();
@@ -198,7 +198,7 @@ selection_changed_cb (GtkTreeSelection *selection, gpointer user_data)
 
   if (!gtk_tree_selection_get_selected (selection, &model, &iter))
     {
-      unset_found_flags (True);
+      unset_found_flags (true);
       return;
     }
 
@@ -208,7 +208,7 @@ selection_changed_cb (GtkTreeSelection *selection, gpointer user_data)
 
   gtk_tree_model_get (model, &iter, DRC_VIOLATION_OBJ_COL, &violation, -1);
 
-  unset_found_flags (False);
+  unset_found_flags (false);
 
   if (violation == NULL)
     return;
@@ -236,11 +236,11 @@ selection_changed_cb (GtkTreeSelection *selection, gpointer user_data)
 	case LINE_TYPE:
 	case ARC_TYPE:
 	case POLYGON_TYPE:
-	  ChangeGroupVisibility (GetLayerNumber (PCB->Data, (LayerTypePtr) ptr1), True, True);
+	  ChangeGroupVisibility (GetLayerNumber (PCB->Data, (LayerTypePtr) ptr1), true, true);
 	}
       DrawObject (object_type, ptr1, ptr2, 0);
     }
-  SetChangedFlag (True);
+  SetChangedFlag (true);
   IncrementUndoSerialNumber ();
   Draw();
 }
@@ -260,7 +260,7 @@ row_activated_cb (GtkTreeView *view, GtkTreePath *path,
   if (violation == NULL)
     return;
 
-  CenterDisplay (violation->x_coord, violation->y_coord, False);
+  CenterDisplay (violation->x_coord, violation->y_coord, false);
 }
 
 

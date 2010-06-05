@@ -113,7 +113,7 @@ CopyPolygonLowLevel (PolygonTypePtr Dest, PolygonTypePtr Src)
  */
 ElementTypePtr
 CopyElementLowLevel (DataTypePtr Data, ElementTypePtr Dest,
-		     ElementTypePtr Src, Boolean uniqueName, LocationType dx,
+		     ElementTypePtr Src, bool uniqueName, LocationType dx,
 		     LocationType dy)
 {
   int i;
@@ -288,7 +288,7 @@ CopyElement (ElementTypePtr Element)
 	 Element->Name[1].TextString);
 #endif
 
-  Boolean didDraw = False;
+  bool didDraw = false;
   ElementTypePtr element = CopyElementLowLevel (PCB->Data,
 						NULL, Element,
 						TEST_FLAG (UNIQUENAMEFLAG,
@@ -301,12 +301,12 @@ CopyElement (ElementTypePtr Element)
     {
       DrawElementName (element, 0);
       DrawElementPackage (element, 0);
-      didDraw = True;
+      didDraw = true;
     }
   if (PCB->PinOn)
     {
       DrawElementPinsAndPads (element, 0);
-      didDraw = True;
+      didDraw = true;
     }
 #ifdef DEBUG
   printf(" ... Leaving CopyElement.\n");
@@ -318,11 +318,11 @@ CopyElement (ElementTypePtr Element)
  * pastes the contents of the buffer to the layout. Only visible objects
  * are handled by the routine.
  */
-Boolean
+bool
 CopyPastebufferToLayout (LocationType X, LocationType Y)
 {
   Cardinal i;
-  Boolean changed = False;
+  bool changed = false;
 
 #ifdef DEBUG
   printf("Entering CopyPastebufferToLayout.....\n");
@@ -378,7 +378,7 @@ CopyPastebufferToLayout (LocationType X, LocationType Y)
 	if (FRONT (element) || PCB->InvisibleObjectsOn)
 	  {
 	    CopyElement (element);
-	    changed = True;
+	    changed = true;
 	  }
       }
       END_LOOP;

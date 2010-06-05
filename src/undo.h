@@ -38,12 +38,12 @@
 
 											/* different layers */
 
-int Undo (Boolean);
-int Redo (Boolean);
+int Undo (bool);
+int Redo (bool);
 void IncrementUndoSerialNumber (void);
 void SaveUndoSerialNumber (void);
 void RestoreUndoSerialNumber (void);
-void ClearUndoList (Boolean);
+void ClearUndoList (bool);
 void MoveObjectToRemoveUndoList (int, void *, void *, void *);
 void AddObjectToRemovePointUndoList (int, void *, void *, Cardinal);
 void AddObjectToInsertPointUndoList (int, void *, void *, void *);
@@ -61,11 +61,11 @@ void AddObjectTo2ndSizeUndoList (int, void *, void *, void *);
 void AddObjectToClearSizeUndoList (int, void *, void *, void *);
 void AddObjectToMaskSizeUndoList (int, void *, void *, void *);
 void AddObjectToChangeAnglesUndoList (int, void *, void *, void *);
-void AddObjectToClearPolyUndoList (int, void *, void *, void *, Boolean);
+void AddObjectToClearPolyUndoList (int, void *, void *, void *, bool);
 void AddLayerChangeToUndoList (int, int);
 void AddNetlistLibToUndoList (LibraryTypePtr);
 void LockUndo (void);
 void UnlockUndo (void);
-Boolean Undoing (void);
+bool Undoing (void);
 
 #endif

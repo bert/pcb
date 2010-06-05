@@ -74,7 +74,7 @@ static void *InsertPointIntoRat (RatTypePtr);
 static LocationType InsertX,	/* used by local routines as offset */
   InsertY;
 static Cardinal InsertAt;
-static Boolean Forcible;
+static bool Forcible;
 static ObjectFunctionType InsertFunctions = {
   InsertPointIntoLine,
   NULL,
@@ -191,7 +191,7 @@ InsertPointIntoPolygon (LayerTypePtr Layer, PolygonTypePtr Polygon)
   for (n = Polygon->PointN - 1; n > InsertAt; n--)
     Polygon->Points[n] = Polygon->Points[n - 1];
   Polygon->Points[InsertAt] = save;
-  SetChangedFlag (True);
+  SetChangedFlag (true);
   AddObjectToInsertPointUndoList (POLYGONPOINT_TYPE, Layer, Polygon,
 				  &Polygon->Points[InsertAt]);
   SetPolygonBoundingBox (Polygon);
@@ -210,7 +210,7 @@ InsertPointIntoPolygon (LayerTypePtr Layer, PolygonTypePtr Polygon)
  */
 void *
 InsertPointIntoObject (int Type, void *Ptr1, void *Ptr2, Cardinal * Ptr3,
-		       LocationType DX, LocationType DY, Boolean Force)
+		       LocationType DX, LocationType DY, bool Force)
 {
   void *ptr;
 

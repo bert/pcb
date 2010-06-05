@@ -123,15 +123,15 @@ GetDrillInfo (DataTypePtr top)
   DrillInfoTypePtr AllDrills;
   DrillTypePtr Drill = NULL;
   DrillType savedrill, swapdrill;
-  Boolean DrillFound = False;
-  Boolean NewDrill;
+  bool DrillFound = false;
+  bool NewDrill;
 
   AllDrills = MyCalloc (1, sizeof (DrillInfoType), "GetAllDrillInfo()");
   ALLPIN_LOOP (top);
   {
     if (!DrillFound)
       {
-	DrillFound = True;
+	DrillFound = true;
 	Drill = GetDrillInfoDrillMemory (AllDrills);
 	InitializeDrill (Drill, pin, element);
       }
@@ -141,7 +141,7 @@ GetDrillInfo (DataTypePtr top)
 	  FillDrill (Drill, element, pin);
 	else
 	  {
-	    NewDrill = False;
+	    NewDrill = false;
 	    DRILL_LOOP (AllDrills);
 	    {
 	      if (drill->DrillSize == pin->DrillingHole)
@@ -154,7 +154,7 @@ GetDrillInfo (DataTypePtr top)
 		{
 		  if (!NewDrill)
 		    {
-		      NewDrill = True;
+		      NewDrill = true;
 		      InitializeDrill (&swapdrill, pin, element);
 		      Drill = GetDrillInfoDrillMemory (AllDrills);
 		      Drill->DrillSize = pin->DrillingHole + 1;
@@ -180,7 +180,7 @@ GetDrillInfo (DataTypePtr top)
   {
     if (!DrillFound)
       {
-	DrillFound = True;
+	DrillFound = true;
 	Drill = GetDrillInfoDrillMemory (AllDrills);
 	Drill->DrillSize = via->DrillingHole;
 	FillDrill (Drill, NULL, via);

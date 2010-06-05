@@ -208,7 +208,7 @@ static int
 pin_name_to_xy(LibraryEntryType * pin, int *x, int *y)
 {
 	ConnectionType  conn;
-	if (!SeekPad(pin, &conn, False))
+	if (!SeekPad(pin, &conn, false))
 		return 1;
 	switch (conn.type) {
 	case PIN_TYPE:

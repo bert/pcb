@@ -47,8 +47,8 @@ void *RemoveText (LayerTypePtr, TextTypePtr);
 void *RemoveElement (ElementTypePtr);
 void ClearRemoveList (void);
 void RemovePCB (PCBTypePtr);
-Boolean RemoveSelected (void);
-Boolean DeleteRats (Boolean);
+bool RemoveSelected (void);
+bool DeleteRats (bool);
 void *RemoveObject (int, void *, void *, void *);
 void *DestroyObject (DataTypePtr, int, void *, void *, void *);
 

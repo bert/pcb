@@ -35,7 +35,7 @@
 
 Cardinal GetLowestDistancePolygonPoint (PolygonTypePtr,
 					LocationType, LocationType);
-Boolean RemoveExcessPolygonPoints (LayerTypePtr, PolygonTypePtr);
+bool RemoveExcessPolygonPoints (LayerTypePtr, PolygonTypePtr);
 void GoToPreviousPoint (void);
 void ClosePolygon (void);
 void CopyAttachedPolygonToLayer (void);
@@ -58,12 +58,12 @@ int InitClip(DataType *d, LayerType *l, PolygonType *p);
 void RestoreToPolygon(DataType *, int, void *, void *);
 void ClearFromPolygon(DataType *, int, void *, void *);
 
-Boolean IsPointInPolygon (LocationType, LocationType, BDimension, PolygonTypePtr);
-Boolean IsPointInPolygonIgnoreHoles (LocationType, LocationType, PolygonTypePtr);
-Boolean IsRectangleInPolygon (LocationType, LocationType, LocationType,
+bool IsPointInPolygon (LocationType, LocationType, BDimension, PolygonTypePtr);
+bool IsPointInPolygonIgnoreHoles (LocationType, LocationType, PolygonTypePtr);
+bool IsRectangleInPolygon (LocationType, LocationType, LocationType,
 			      LocationType, PolygonTypePtr);
-Boolean isects (POLYAREA *, PolygonTypePtr, Boolean);
-Boolean MorphPolygon (LayerTypePtr, PolygonTypePtr);
+bool isects (POLYAREA *, PolygonTypePtr, bool);
+bool MorphPolygon (LayerTypePtr, PolygonTypePtr);
 void NoHolesPolygonDicer (PolygonType *p, const BoxType *clip,
                           void (*emit) (PLINE *, void *), void *user_data);
 #endif

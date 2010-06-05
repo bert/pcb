@@ -95,7 +95,7 @@ FlagTESTFLAG (int bit)
 static int
 FlagSETTINGS (int ofs)
 {
-  return *(Boolean *) ((char *) (&Settings) + ofs);
+  return *(bool *) ((char *) (&Settings) + ofs);
 }
 
 static int

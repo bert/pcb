@@ -48,10 +48,10 @@
 RCSID ("$Id$");
 
 /* Clip the line to the clipBox
- * return True if something to be drawn
+ * return true if something to be drawn
  * false if the whole thing is clipped
  */
-Boolean
+bool
 ClipLine (double minx, double miny, double maxx, double maxy,
 	  double *x1, double *y1,
 	  double *x2, double *y2,
@@ -68,7 +68,7 @@ ClipLine (double minx, double miny, double maxx, double maxy,
   if (*x1 < minx)
     {
       if (*x2 < minx)
-	return False;
+	return false;
       d = *x2 - *x1;
       r = (minx - *x1) / d;
       *x1 = minx;
@@ -86,7 +86,7 @@ ClipLine (double minx, double miny, double maxx, double maxy,
   if (*x1 > maxx)
     {
       if (*x2 > maxx)
-	return False;
+	return false;
       d = *x2 - *x1;
       r = (maxx - *x1) / d;
       *x1 = maxx;
@@ -105,7 +105,7 @@ ClipLine (double minx, double miny, double maxx, double maxy,
   if (*y1 < miny)
     {
       if (*y2 < miny)
-	return False;
+	return false;
       d = *y2 - *y1;
       r = (miny - *y1) / d;
       *y1 = miny;
@@ -123,7 +123,7 @@ ClipLine (double minx, double miny, double maxx, double maxy,
   if (*y1 > maxy)
     {
       if (*y2 > maxy)
-	return False;
+	return false;
       d = *y2 - *y1;
       r = (maxy - *y1) / d;
       *y1 = maxy;
@@ -137,5 +137,5 @@ ClipLine (double minx, double miny, double maxx, double maxy,
       *y2 = maxy;
       *x2 += r * (*x1 - *x2);
     }
-  return True;
+  return true;
 }

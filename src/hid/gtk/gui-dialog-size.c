@@ -218,7 +218,7 @@ ghid_route_style_dialog (gint index, RouteStyleType * temp_rst)
 			  FROM_PCB_UNITS (rst->Keepaway),
 			  FROM_PCB_UNITS (MIN_LINESIZE),
 			  FROM_PCB_UNITS (MAX_LINESIZE), STEP0_SIZE,
-			  STEP1_SIZE, SPIN_DIGITS, 0, NULL, sd, True,
+			  STEP1_SIZE, SPIN_DIGITS, 0, NULL, sd, true,
 			  _("Clearance"));
   gtk_box_pack_start (GTK_BOX (vbox1), table, FALSE, FALSE, 0);
 
@@ -311,7 +311,7 @@ ghid_route_style_dialog (gint index, RouteStyleType * temp_rst)
 	  SaveFree (rst->Name);
 	  rst->Name = StripWhiteSpaceAndDup (string);
 	  pcb_use_route_style (rst);
-	  SetChangedFlag (True);
+	  SetChangedFlag (true);
 	  ghid_route_style_set_button_label (rst->Name, index);
 	}
       else

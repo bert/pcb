@@ -71,17 +71,17 @@
 /* ---------------------------------------------------------------------------
  * prototypes
  */
-Boolean IsPointOnLine (float, float, float, LineTypePtr);
-Boolean IsPointOnPin (float, float, float, PinTypePtr);
-Boolean IsPointOnArc (float, float, float, ArcTypePtr);
-Boolean IsPointOnLineEnd (LocationType, LocationType, RatTypePtr);
-Boolean IsLineInRectangle (LocationType, LocationType, LocationType,
+bool IsPointOnLine (float, float, float, LineTypePtr);
+bool IsPointOnPin (float, float, float, PinTypePtr);
+bool IsPointOnArc (float, float, float, ArcTypePtr);
+bool IsPointOnLineEnd (LocationType, LocationType, RatTypePtr);
+bool IsLineInRectangle (LocationType, LocationType, LocationType,
 			   LocationType, LineTypePtr);
-Boolean IsLineInQuadrangle (PointType p[4], LineTypePtr Line);
-Boolean IsArcInRectangle (LocationType, LocationType, LocationType,
+bool IsLineInQuadrangle (PointType p[4], LineTypePtr Line);
+bool IsArcInRectangle (LocationType, LocationType, LocationType,
 			  LocationType, ArcTypePtr);
-Boolean IsPointInPad (LocationType, LocationType, BDimension, PadTypePtr);
-Boolean IsPointInBox (LocationType, LocationType, BoxTypePtr, BDimension);
+bool IsPointInPad (LocationType, LocationType, BDimension, PadTypePtr);
+bool IsPointInBox (LocationType, LocationType, BoxTypePtr, BDimension);
 int SearchObjectByLocation (int, void **, void **, void **, LocationType,
 			    LocationType, BDimension);
 int SearchScreen (LocationType, LocationType, int, void **, void **, void **);

@@ -490,11 +490,11 @@ ReportDialog (int argc, char **argv, int x, int y)
       Message (_("Nothing found to report on\n"));
       return 1;
     }
-  HideCrosshair (False);
+  HideCrosshair (false);
   /* create dialog box */
   gui->report_dialog ("Report", &report[0]);
 
-  RestoreCrosshair (False);
+  RestoreCrosshair (false);
   return 0;
 }
 
@@ -535,9 +535,9 @@ ReportFoundPins (int argc, char **argv, int x, int y)
   }
   END_LOOP;
 
-  HideCrosshair (False);
+  HideCrosshair (false);
   gui->report_dialog ("Report", list.Data);
-  RestoreCrosshair (False);
+  RestoreCrosshair (false);
   return 0;
 }
 
@@ -548,7 +548,7 @@ XYtoNetLength (int x, int y, int *found)
 
   length = 0;
   *found = 0;
-  LookupConnection (x, y, True, PCB->Grid, FOUNDFLAG);
+  LookupConnection (x, y, true, PCB->Grid, FOUNDFLAG);
 
   ALLLINE_LOOP (PCB->Data);
   {
@@ -652,9 +652,9 @@ ReportAllNetLengths (int argc, char **argv, int x, int y)
 
     got_one:
       SaveUndoSerialNumber ();
-      ResetFoundPinsViasAndPads (True);
+      ResetFoundPinsViasAndPads (true);
       RestoreUndoSerialNumber ();
-      ResetFoundLinesAndPolygons (True);
+      ResetFoundLinesAndPolygons (true);
       RestoreUndoSerialNumber ();
       length = XYtoNetLength (x, y, &found);
 
@@ -688,9 +688,9 @@ ReportNetLength (int argc, char **argv, int x, int y)
   int found = 0;
 
   SaveUndoSerialNumber ();
-  ResetFoundPinsViasAndPads (True);
+  ResetFoundPinsViasAndPads (true);
   RestoreUndoSerialNumber ();
-  ResetFoundLinesAndPolygons (True);
+  ResetFoundLinesAndPolygons (true);
   RestoreUndoSerialNumber ();
   gui->get_coords ("Click on a connection", &x, &y);
 
@@ -758,12 +758,12 @@ ReportNetLength (int argc, char **argv, int x, int y)
   END_LOOP;
  got_net_name:
 
-  HideCrosshair (False);
+  HideCrosshair (false);
   if (netname)
     gui->log ("Net %s length: %0.2f %s\n", netname, UNIT (length));
   else
     gui->log ("Net length: %0.2f %s\n", UNIT (length));
-  RestoreCrosshair (False);
+  RestoreCrosshair (false);
   return 0;
 }
 /* ---------------------------------------------------------------------------

@@ -70,7 +70,7 @@ typedef struct
 
 /* This is a stack for HideCrosshair() and RestoreCrosshair() calls. They
  * must always be matched. */
-static Boolean CrosshairStack[MAX_CROSSHAIRSTACK_DEPTH];
+static bool CrosshairStack[MAX_CROSSHAIRSTACK_DEPTH];
 static int CrosshairStackLocation = 0;
 
 /* ---------------------------------------------------------------------------
@@ -84,7 +84,7 @@ static void XORDrawMoveOrCopyObject (void);
 static void XORDrawAttachedLine (LocationType, LocationType, LocationType,
 				 LocationType, BDimension);
 static void XORDrawAttachedArc (BDimension);
-static void DrawAttached (Boolean);
+static void DrawAttached (bool);
 
 /* ---------------------------------------------------------------------------
  * creates a tmp polygon with coordinates converted to screen system
@@ -577,7 +577,7 @@ XORDrawMoveOrCopyObject (void)
  * draws additional stuff that follows the crosshair
  */
 static void
-DrawAttached (Boolean BlockToo)
+DrawAttached (bool BlockToo)
 {
   BDimension s;
   switch (Settings.Mode)
@@ -698,13 +698,13 @@ DrawAttached (Boolean BlockToo)
  * switches crosshair on
  */
 void
-CrosshairOn (Boolean BlockToo)
+CrosshairOn (bool BlockToo)
 {
   if (!Crosshair.On)
     {
-      Crosshair.On = True;
+      Crosshair.On = true;
       DrawAttached (BlockToo);
-      DrawMark (True);
+      DrawMark (true);
     }
 }
 
@@ -712,13 +712,13 @@ CrosshairOn (Boolean BlockToo)
  * switches crosshair off
  */
 void
-CrosshairOff (Boolean BlockToo)
+CrosshairOff (bool BlockToo)
 {
   if (Crosshair.On)
     {
-      Crosshair.On = False;
+      Crosshair.On = false;
       DrawAttached (BlockToo);
-      DrawMark (True);
+      DrawMark (true);
     }
 }
 
@@ -735,7 +735,7 @@ CrosshairOff (Boolean BlockToo)
  * saves crosshair state (on/off) and hides him
  */
 void
-HideCrosshair (Boolean BlockToo)
+HideCrosshair (bool BlockToo)
 {
   /* fprintf(stderr, "HideCrosshair %d stack %d\n", BlockToo ? 1 : 0, CrosshairStackLocation); */
   if (CrosshairStackLocation >= MAX_CROSSHAIRSTACK_DEPTH)
@@ -754,7 +754,7 @@ HideCrosshair (Boolean BlockToo)
  * restores last crosshair state
  */
 void
-RestoreCrosshair (Boolean BlockToo)
+RestoreCrosshair (bool BlockToo)
 {
   /* fprintf(stderr, "RestoreCrosshair %d stack %d\n", BlockToo ? 1 : 0, CrosshairStackLocation); */
   if (CrosshairStackLocation <= 0)
@@ -940,7 +940,7 @@ FitCrosshairIntoGrid (LocationType X, LocationType Y)
 	if (ans == NO_TYPE)
 	  hid_action("PointCursor");
 	else if (!TEST_FLAG(SELECTEDFLAG, (LineType *)ptr2))
-	  hid_actionl("PointCursor","True", NULL);
+	  hid_actionl("PointCursor","true", NULL);
     }
   if (Settings.Mode == LINE_MODE
       && Crosshair.AttachedLine.State != STATE_FIRST
@@ -961,9 +961,9 @@ MoveCrosshairRelative (LocationType DeltaX, LocationType DeltaY)
 
 /* ---------------------------------------------------------------------------
  * move crosshair absolute switched off if it moved
- * return True if it switched off
+ * return true if it switched off
  */
-Boolean
+bool
 MoveCrosshairAbsolute (LocationType X, LocationType Y)
 {
   LocationType x, y, z;
@@ -978,13 +978,13 @@ MoveCrosshairAbsolute (LocationType X, LocationType Y)
       x = z;
       z = Crosshair.Y;
       Crosshair.Y = y;
-      HideCrosshair (False);
+      HideCrosshair (false);
       /* now move forward again */
       Crosshair.X = x;
       Crosshair.Y = z;
-      return (True);
+      return (true);
     }
-  return (False);
+  return (false);
 }
 
 /* ---------------------------------------------------------------------------
@@ -1005,10 +1005,10 @@ SetCrosshairRange (LocationType MinX, LocationType MinY, LocationType MaxX,
 
 /* --------------------------------------------------------------------------
  * draw the marker position
- * if argument is True, draw only if it is visible, otherwise draw it regardless
+ * if argument is true, draw only if it is visible, otherwise draw it regardless
  */
 void
-DrawMark (Boolean ifvis)
+DrawMark (bool ifvis)
 {
   if (Marked.status || !ifvis)
     {
@@ -1040,8 +1040,8 @@ InitCrosshair (void)
 
   /* fake a crosshair off entry on stack */
   CrosshairStackLocation = 0;
-  CrosshairStack[CrosshairStackLocation++] = True;
-  Crosshair.On = False;
+  CrosshairStack[CrosshairStackLocation++] = true;
+  Crosshair.On = false;
 
   /* set initial shape */
   Crosshair.shape = Basic_Crosshair_Shape;
@@ -1052,7 +1052,7 @@ InitCrosshair (void)
   Crosshair.MaxY = PCB->MaxHeight;
 
   /* clear the mark */
-  Marked.status = False;
+  Marked.status = false;
 }
 
 /* ---------------------------------------------------------------------------
@@ -1061,7 +1061,7 @@ InitCrosshair (void)
 void
 DestroyCrosshair (void)
 {
-  CrosshairOff (True);
+  CrosshairOff (true);
   FreePolygonMemory (&Crosshair.AttachedPolygon);
   gui->destroy_gc (Crosshair.GC);
 }

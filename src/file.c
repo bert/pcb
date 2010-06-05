@@ -122,7 +122,7 @@ static void WriteElementData (FILE *, DataTypePtr);
 static void WriteLayerData (FILE *, Cardinal, LayerTypePtr);
 static int WritePCB (FILE *);
 static int WritePCBFile (char *);
-static int WritePipe (char *, Boolean);
+static int WritePipe (char *, bool);
 static int ParseLibraryTree (void);
 static int LoadNewlibFootprintsFromDir(char *path, char *toppath);
 static char *pcb_basename (char *p);
@@ -211,8 +211,8 @@ sort_netlist ()
  * opens a file and check if it exists
  */
 FILE *
-CheckAndOpenFile (char *Filename, Boolean Confirm, Boolean AllButton,
-		  Boolean * WasAllButton, Boolean * WasCancelButton)
+CheckAndOpenFile (char *Filename, bool Confirm, bool AllButton,
+		  bool * WasAllButton, bool * WasCancelButton)
 {
   FILE *fp = NULL;
   struct stat buffer;
@@ -225,9 +225,9 @@ CheckAndOpenFile (char *Filename, Boolean Confirm, Boolean AllButton,
 	{
 	  sprintf (message, _("File '%s' exists, use anyway?"), Filename);
 	  if (WasAllButton)
-	    *WasAllButton = False;
+	    *WasAllButton = false;
 	  if (WasCancelButton)
-	    *WasCancelButton = False;
+	    *WasCancelButton = false;
 	  if (AllButton)
 	    response =
 	      gui->confirm_dialog (message, "Cancel", "Ok",
@@ -240,11 +240,11 @@ CheckAndOpenFile (char *Filename, Boolean Confirm, Boolean AllButton,
 	    {
 	    case 2:
 	      if (WasAllButton)
-		*WasAllButton = True;
+		*WasAllButton = true;
 	      break;
 	    case 0:
 	      if (WasCancelButton)
-		*WasCancelButton = True;
+		*WasCancelButton = true;
 	    }
 	}
       if ((fp = fopen (Filename, "w")) == NULL)
@@ -262,7 +262,7 @@ OpenConnectionDataFile (void)
   char *fname;
   FILE *fp;
   static char * default_file = NULL;
-  Boolean result;		/* not used */
+  bool result;		/* not used */
 
   /* CheckAndOpenFile deals with the case where fname already exists */
   fname = gui->fileselect (_("Save Connection Data As ..."),
@@ -281,7 +281,7 @@ OpenConnectionDataFile (void)
   if (fname && *fname)
     default_file = strdup (fname);
 
-  fp = CheckAndOpenFile (fname, True, False, &result, NULL);
+  fp = CheckAndOpenFile (fname, true, false, &result, NULL);
   free (fname);
 
   return fp;
@@ -297,7 +297,7 @@ SaveBufferElements (char *Filename)
 
   if (SWAP_IDENT)
     SwapBuffers ();
-  result = WritePipe (Filename, False);
+  result = WritePipe (Filename, false);
   if (SWAP_IDENT)
     SwapBuffers ();
   return (result);
@@ -312,7 +312,7 @@ SavePCB (char *Filename)
   int retcode;
   char *copy;
 
-  if (!(retcode = WritePipe (Filename, True)))
+  if (!(retcode = WritePipe (Filename, true)))
     {
       /* thanks to Nick Bailey for the bug-fix;
        * first of all make a copy of the passed filename because
@@ -321,7 +321,7 @@ SavePCB (char *Filename)
       copy = MyStrdup (Filename, "SavePCB()");
       SaveFree (PCB->Filename);
       PCB->Filename = copy;
-      SetChangedFlag (False);
+      SetChangedFlag (false);
     }
   return (retcode);
 }
@@ -337,8 +337,8 @@ set_some_route_style ()
   if (hid_get_flag ("style"))
     return;
   SetLineSize (PCB->RouteStyle[0].Thick);
-  SetViaSize (PCB->RouteStyle[0].Diameter, True);
-  SetViaDrillingHole (PCB->RouteStyle[0].Hole, True);
+  SetViaSize (PCB->RouteStyle[0].Diameter, true);
+  SetViaDrillingHole (PCB->RouteStyle[0].Hole, true);
   SetKeepawayWidth (PCB->RouteStyle[0].Keepaway);
 }
 
@@ -350,8 +350,8 @@ set_some_route_style ()
 int
 LoadPCB (char *Filename)
 {
-  PCBTypePtr newPCB = CreateNewPCB (False);
-  Boolean units_mm;
+  PCBTypePtr newPCB = CreateNewPCB (false);
+  bool units_mm;
   clock_t start, end;
   double elapsed;
 
@@ -387,11 +387,11 @@ LoadPCB (char *Filename)
 	}
 
       /* clear 'changed flag' */
-      SetChangedFlag (False);
+      SetChangedFlag (false);
       PCB->Filename = MyStrdup (Filename, "LoadPCB()");
       /* just in case a bad file saved file is loaded */
 
-      units_mm = (PCB->Grid != (int) PCB->Grid) ? True : False;
+      units_mm = (PCB->Grid != (int) PCB->Grid) ? true : false;
 
       Settings.grid_units_mm = units_mm;
 
@@ -900,7 +900,7 @@ WritePCBFile (char *Filename)
  * %f are replaced by the passed filename
  */
 static int
-WritePipe (char *Filename, Boolean thePcb)
+WritePipe (char *Filename, bool thePcb)
 {
   FILE *fp;
   int result;
@@ -976,7 +976,7 @@ SaveInTMP (void)
  * front-end for 'SaveInTMP()'
  * just makes sure that the routine is only called once
  */
-static Boolean dont_save_any_more = False;
+static bool dont_save_any_more = false;
 void
 EmergencySave (void)
 {
@@ -984,14 +984,14 @@ EmergencySave (void)
   if (!dont_save_any_more)
     {
       SaveInTMP ();
-      dont_save_any_more = True;
+      dont_save_any_more = true;
     }
 }
 
  void 
 DisableEmergencySave (void)
 {
-  dont_save_any_more = True;
+  dont_save_any_more = true;
 }
 
 /* ----------------------------------------------------------------------
@@ -1429,7 +1429,7 @@ ReadNetlist (char *filename)
   LibraryMenuTypePtr menu = NULL;
   LibraryEntryTypePtr entry;
   int i, j, lines, kind;
-  Boolean continued;
+  bool continued;
   int used_popen = 0;
 
   if (!filename)
@@ -1479,7 +1479,7 @@ ReadNetlist (char *filename)
 	  else
 	    inputline[len] = '\0';
 	}
-      continued = (inputline[len - 1] == '\\') ? True : False;
+      continued = (inputline[len - 1] == '\\') ? true : false;
       if (continued)
 	inputline[len - 1] = '\0';
       lines++;

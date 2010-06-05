@@ -275,8 +275,8 @@ style_selected (Widget w, int i, XmToggleButtonCallbackStruct * cbs)
     }
   style = PCB->RouteStyle + i;
   SetLineSize (style->Thick);
-  SetViaSize (style->Diameter, True);
-  SetViaDrillingHole (style->Hole, True);
+  SetViaSize (style->Diameter, true);
+  SetViaDrillingHole (style->Hole, true);
   SetKeepawayWidth (style->Keepaway);
   if (style_dialog)
     {
@@ -364,7 +364,7 @@ AdjustStyle (int argc, char **argv, int x, int y)
       xms_mil = XmStringCreateLocalized ("mil");
 
       n = 0;
-      stdarg (XmNautoUnmanage, False);
+      stdarg (XmNautoUnmanage, false);
       stdarg (XmNtitle, "Route Styles");
       style_dialog = XmCreateFormDialog (mainwind, "style", args, n);
 

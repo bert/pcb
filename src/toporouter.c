@@ -2798,9 +2798,9 @@ void
 import_clusters(toporouter_t *r)
 {
   NetListListType nets;
-  ResetFoundPinsViasAndPads (False);
-  ResetFoundLinesAndPolygons (False);
-  nets = CollectSubnets(False);
+  ResetFoundPinsViasAndPads (false);
+  ResetFoundLinesAndPolygons (false);
+  nets = CollectSubnets(false);
   NETLIST_LOOP(&nets);
   {
     if(netlist->NetN > 0) {
@@ -7960,9 +7960,9 @@ toporouter (int argc, char **argv, int x, int y)
   toporouter_free(r);
   
   SaveUndoSerialNumber ();
-  DeleteRats (False);
+  DeleteRats (false);
   RestoreUndoSerialNumber ();
-  AddAllRats (False, NULL);
+  AddAllRats (false, NULL);
   RestoreUndoSerialNumber ();
   IncrementUndoSerialNumber ();
   ClearAndRedrawOutput ();

@@ -146,7 +146,7 @@ static int
 pin_name_to_xy (LibraryEntryType * pin, int *x, int *y)
 {
   ConnectionType conn;
-  if (!SeekPad (pin, &conn, False))
+  if (!SeekPad (pin, &conn, false))
     return 1;
   switch (conn.type)
     {
@@ -460,7 +460,7 @@ Netlist (int argc, char **argv, int x, int y)
 	  if ((elt_pattern = re_comp (argv[1])) != NULL)
 	    {
 	      Message (_("re_comp error: %s\n"), elt_pattern);
-	      return (False);
+	      return (false);
 	    }
 #endif
 	}

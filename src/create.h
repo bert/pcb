@@ -35,7 +35,7 @@
 
 DataTypePtr CreateNewBuffer (void);
 void pcb_colors_from_settings (PCBTypePtr);
-PCBTypePtr CreateNewPCB (Boolean);
+PCBTypePtr CreateNewPCB (bool);
 /* Called after PCB->Data->LayerN is set.  Returns zero if no errors,
    else nonzero.  */
 int CreateNewPCBPost (PCBTypePtr, int /* set defaults */);
@@ -65,7 +65,7 @@ PointTypePtr CreateNewPointInPolygon (PolygonTypePtr,
 ElementTypePtr CreateNewElement (DataTypePtr, ElementTypePtr,
 				 FontTypePtr, FlagType, char *, char *,
 				 char *, LocationType, LocationType, BYTE,
-				 int, FlagType, Boolean);
+				 int, FlagType, bool);
 LineTypePtr CreateNewLineInElement (ElementTypePtr, LocationType,
 				    LocationType, LocationType, LocationType,
 				    BDimension);

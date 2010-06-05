@@ -98,17 +98,17 @@ static void GetGridLockCoordinates (int, void *, void *, void *,
 
 static struct
 {
-  Boolean ElementOn, InvisibleObjectsOn, PinOn, ViaOn, RatOn;
+  bool ElementOn, InvisibleObjectsOn, PinOn, ViaOn, RatOn;
   int LayerStack[MAX_LAYER];
-  Boolean LayerOn[MAX_LAYER];
+  bool LayerOn[MAX_LAYER];
   int cnt;
 } SavedStack;
 
 /* Get Value returns a numeric value passed from the string and sets the
- * Boolean variable absolute to False if it leads with a +/- character
+ * bool variable absolute to false if it leads with a +/- character
  */
 float
-GetValue (char *val, char *units, Boolean * absolute)
+GetValue (char *val, char *units, bool * absolute)
 {
   float value;
 
@@ -117,15 +117,15 @@ GetValue (char *val, char *units, Boolean * absolute)
    */
   if (*val == '=')
     {
-      *absolute = True;
+      *absolute = true;
       value = atof (val + 1);
     }
   else
     {
       if (isdigit ((int) *val))
-        *absolute = True;
+        *absolute = true;
       else
-        *absolute = False;
+        *absolute = false;
       value = atof (val);
     }
   if (units && *units)
@@ -485,12 +485,12 @@ SetTextBoundingBox (FontTypePtr FontPtr, TextTypePtr Text)
 }
 
 /* ---------------------------------------------------------------------------
- * returns True if data area is empty
+ * returns true if data area is empty
  */
-Boolean
+bool
 IsDataEmpty (DataTypePtr Data)
 {
-  Boolean hasNoObjects;
+  bool hasNoObjects;
   Cardinal i;
 
   hasNoObjects = (Data->ViaN == 0);
@@ -597,7 +597,7 @@ GetDataBoundingBox (DataTypePtr Data)
  * coordinates
  */
 void
-CenterDisplay (LocationType X, LocationType Y, Boolean Delta)
+CenterDisplay (LocationType X, LocationType Y, bool Delta)
 {
   double save_grid = PCB->Grid;
   PCB->Grid = 1;
@@ -609,7 +609,7 @@ CenterDisplay (LocationType X, LocationType Y, Boolean Delta)
     {
       if (MoveCrosshairAbsolute (X, Y))
         {
-          RestoreCrosshair(False);
+          RestoreCrosshair(false);
         }
     }
   gui->set_crosshair (Crosshair.X, Crosshair.Y, HID_SC_WARP_POINTER);
@@ -778,8 +778,8 @@ int
 ParseGroupString (char *s, LayerGroupTypePtr LayerGroup, int LayerN)
 {
   int group, member, layer;
-  Boolean c_set = False,        /* flags for the two special layers to */
-    s_set = False;              /* provide a default setting for old formats */
+  bool c_set = false,        /* flags for the two special layers to */
+    s_set = false;              /* provide a default setting for old formats */
   int groupnum[MAX_LAYER + 2];
 
   /* clear struct */
@@ -806,13 +806,13 @@ ParseGroupString (char *s, LayerGroupTypePtr LayerGroup, int LayerN)
             case 'c':
             case 'C':
               layer = LayerN + COMPONENT_LAYER;
-              c_set = True;
+              c_set = true;
               break;
 
             case 's':
             case 'S':
               layer = LayerN + SOLDER_LAYER;
-              s_set = True;
+              s_set = true;
               break;
 
             default:
@@ -1023,7 +1023,7 @@ PushOnTopOfLayerStack (int NewTop)
  * returns the number of changed layers
  */
 int
-ChangeGroupVisibility (int Layer, Boolean On, Boolean ChangeStackOrder)
+ChangeGroupVisibility (int Layer, bool On, bool ChangeStackOrder)
 {
   int group, i, changed = 1;    /* at least the current layer changes */
 
@@ -1105,29 +1105,29 @@ LayerStringToLayerStack (char *s)
     {
       if (i < max_layer)
         LayerStack[i] = i;
-      PCB->Data->Layer[i].On = False;
+      PCB->Data->Layer[i].On = false;
     }
-  PCB->ElementOn = False;
-  PCB->InvisibleObjectsOn = False;
-  PCB->PinOn = False;
-  PCB->ViaOn = False;
-  PCB->RatOn = False;
+  PCB->ElementOn = false;
+  PCB->InvisibleObjectsOn = false;
+  PCB->PinOn = false;
+  PCB->ViaOn = false;
+  PCB->RatOn = false;
   CLEAR_FLAG (SHOWMASKFLAG, PCB);
   Settings.ShowSolderSide = 0;
 
   for (i=argn-1; i>=0; i--)
     {
       if (strcasecmp (args[i], "rats") == 0)
-	PCB->RatOn = True;
+	PCB->RatOn = true;
       else if (strcasecmp (args[i], "invisible") == 0)
-	PCB->InvisibleObjectsOn = True;
+	PCB->InvisibleObjectsOn = true;
       else if (strcasecmp (args[i], "pins") == 0)
-	PCB->PinOn = True;
+	PCB->PinOn = true;
       else if (strcasecmp (args[i], "vias") == 0)
-	PCB->ViaOn = True;
+	PCB->ViaOn = true;
       else if (strcasecmp (args[i], "elements") == 0
 	       || strcasecmp (args[i], "silk") == 0)
-	PCB->ElementOn = True;
+	PCB->ElementOn = true;
       else if (strcasecmp (args[i], "mask") == 0)
 	SET_FLAG (SHOWMASKFLAG, PCB);
       else if (strcasecmp (args[i], "solderside") == 0)
@@ -1135,7 +1135,7 @@ LayerStringToLayerStack (char *s)
       else if (isdigit ((int) args[i][0]))
 	{
 	  lno = atoi (args[i]);
-	  ChangeGroupVisibility (lno, True, True);
+	  ChangeGroupVisibility (lno, true, true);
 	}
       else
 	{
@@ -1143,7 +1143,7 @@ LayerStringToLayerStack (char *s)
 	  for (lno = 0; lno < max_layer; lno++)
 	    if (strcasecmp (args[i], PCB->Data->Layer[lno].Name) == 0)
 	      {
-		ChangeGroupVisibility (lno, True, True);
+		ChangeGroupVisibility (lno, true, true);
 		found = 1;
 		break;
 	      }
@@ -1347,13 +1347,13 @@ ResetStackAndVisibility (void)
     {
       if (i < max_layer)
         LayerStack[i] = i;
-      PCB->Data->Layer[i].On = True;
+      PCB->Data->Layer[i].On = true;
     }
-  PCB->ElementOn = True;
-  PCB->InvisibleObjectsOn = True;
-  PCB->PinOn = True;
-  PCB->ViaOn = True;
-  PCB->RatOn = True;
+  PCB->ElementOn = true;
+  PCB->InvisibleObjectsOn = true;
+  PCB->PinOn = true;
+  PCB->ViaOn = true;
+  PCB->RatOn = true;
 
   /* Bring the component group to the front and make it active.  */
   comp_group = GetLayerGroupNumberByNumber (max_layer + COMPONENT_LAYER);
@@ -1367,12 +1367,12 @@ void
 SaveStackAndVisibility (void)
 {
   Cardinal i;
-  static Boolean run = False;
+  static bool run = false;
 
-  if (run == False)
+  if (run == false)
     {
       SavedStack.cnt = 0;
-      run = True;
+      run = true;
     }
 
   if (SavedStack.cnt != 0)
@@ -1544,7 +1544,7 @@ BumpName (char *Name)
 char *
 UniqueElementName (DataTypePtr Data, char *Name)
 {
-  Boolean unique = True;
+  bool unique = true;
   /* null strings are ok */
   if (!Name || !*Name)
     return (Name);
@@ -1557,14 +1557,14 @@ UniqueElementName (DataTypePtr Data, char *Name)
             NSTRCMP (NAMEONPCB_NAME (element), Name) == 0)
           {
             Name = BumpName (Name);
-            unique = False;
+            unique = false;
             break;
           }
       }
       END_LOOP;
       if (unique)
         return (Name);
-      unique = True;
+      unique = true;
     }
 }
 
@@ -1636,7 +1636,7 @@ AttachForCopy (LocationType PlaceX, LocationType PlaceY)
   Crosshair.AttachedObject.X = PlaceX - mx;
   Crosshair.AttachedObject.Y = PlaceY - my;
   if (!Marked.status || TEST_FLAG (LOCALREFFLAG, PCB))
-    SetLocalRef (PlaceX - mx, PlaceY - my, True);
+    SetLocalRef (PlaceX - mx, PlaceY - my, true);
   Crosshair.AttachedObject.State = STATE_SECOND;
 
   /* get boundingbox of object and set cursor range */

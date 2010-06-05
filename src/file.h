@@ -33,7 +33,7 @@
 #include <stdio.h>		/* needed to define 'FILE *' */
 #include "global.h"
 
-FILE *CheckAndOpenFile (char *, Boolean, Boolean, Boolean *, Boolean *);
+FILE *CheckAndOpenFile (char *, bool, bool, bool *, bool *);
 FILE *OpenConnectionDataFile (void);
 int SavePCB (char *);
 int LoadPCB (char *);

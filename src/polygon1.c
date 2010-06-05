@@ -1000,7 +1000,7 @@ cntr_label_POLYAREA (PLINE * poly, POLYAREA * ppl, BOOLp test)
   else
     {
       if (test)
-	return False;
+	return false;
       poly->Flags.status = OUTSIDE;
     }
   return FALSE;
@@ -1606,7 +1606,7 @@ Touching (POLYAREA * a, POLYAREA * b)
       if (!poly_Valid (b))
 	return -1;
 #endif
-      M_POLYAREA_intersect (&e, a, b, False);
+      M_POLYAREA_intersect (&e, a, b, false);
 
       if (M_POLYAREA_label (a, b, TRUE))
 	return TRUE;

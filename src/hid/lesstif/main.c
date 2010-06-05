@@ -646,7 +646,7 @@ command_callback (Widget w, XtPointer uptr, XmTextVerifyCallbackStruct * cbs)
 }
 
 static void
-command_event_handler (Widget w, XtPointer p, XEvent * e, Boolean * cont)
+command_event_handler (Widget w, XtPointer p, XEvent * e, bool * cont)
 {
   char buf[10];
   KeySym sym;
@@ -662,7 +662,7 @@ command_event_handler (Widget w, XtPointer p, XEvent * e, Boolean * cont)
 	  XtUnmanageChild (m_cmd);
 	  XtUnmanageChild (m_cmd_label);
 	  XmTextSetString (w, "");
-	  *cont = False;
+	  *cont = false;
 	  break;
 	}
       break;
@@ -1275,7 +1275,7 @@ mod_changed (XKeyEvent * e, int set)
 }
 
 static void
-work_area_input (Widget w, XtPointer v, XEvent * e, Boolean * ctd)
+work_area_input (Widget w, XtPointer v, XEvent * e, bool * ctd)
 {
   static int pressed_button = 0;
   static int ignore_release = 0;
@@ -1306,7 +1306,7 @@ work_area_input (Widget w, XtPointer v, XEvent * e, Boolean * ctd)
 	}
         ignore_release = 0;
 
-        HideCrosshair (True);
+        HideCrosshair (true);
         pressed_button = e->xbutton.button;
         mods = ((e->xbutton.state & ShiftMask) ? M_Shift : 0)
           + ((e->xbutton.state & ControlMask) ? M_Ctrl : 0)
@@ -1316,7 +1316,7 @@ work_area_input (Widget w, XtPointer v, XEvent * e, Boolean * ctd)
           + ((e->xbutton.state & Mod1Mask) ? M_Alt : 0);
 #endif
         do_mouse_action(e->xbutton.button, mods);
-        RestoreCrosshair (True);
+        RestoreCrosshair (true);
         break;
       }
 
@@ -1326,7 +1326,7 @@ work_area_input (Widget w, XtPointer v, XEvent * e, Boolean * ctd)
         if (e->xbutton.button != pressed_button)
           return;
         lesstif_button_event (w, e);
-        HideCrosshair (True);
+        HideCrosshair (true);
         pressed_button = 0;
         mods = ((e->xbutton.state & ShiftMask) ? M_Shift : 0)
           + ((e->xbutton.state & ControlMask) ? M_Ctrl : 0)
@@ -1337,7 +1337,7 @@ work_area_input (Widget w, XtPointer v, XEvent * e, Boolean * ctd)
 #endif
           + M_Release;
         do_mouse_action (e->xbutton.button, mods);
-        RestoreCrosshair (True);
+        RestoreCrosshair (true);
         break;
       }
 
@@ -1654,7 +1654,7 @@ work_area_first_expose (Widget work_area, void *me,
       XRenderColor a = {0, 0, 0, 0x8000};
 
       pale_pixmap = XCreatePixmap (display, window, 1, 1, 8);
-      pa.repeat = True;
+      pa.repeat = true;
       pale_picture = XRenderCreatePicture (display, pale_pixmap,
 			    XRenderFindStandardFormat(display, PictStandardA8),
 			    CPRepeat, &pa);
@@ -1794,7 +1794,7 @@ lesstif_do_export (HID_Attr_Val * options)
   XtManageChild (hscroll);
 
   n = 0;
-  stdarg (XmNresize, True);
+  stdarg (XmNresize, true);
   stdarg (XmNresizePolicy, XmRESIZE_ANY);
   messages = XmCreateForm (mainwind, "messages", args, n);
   XtManageChild (messages);
@@ -1889,7 +1889,7 @@ typedef union
   char *s;
 } val_union;
 
-static Boolean
+static bool
 cvtres_string_to_double (Display * d, XrmValue * args, Cardinal * num_args,
 			 XrmValue * from, XrmValue * to,
 			 XtPointer * converter_data)
@@ -1901,7 +1901,7 @@ cvtres_string_to_double (Display * d, XrmValue * args, Cardinal * num_args,
   else
     to->addr = (XPointer) & rv;
   to->size = sizeof (rv);
-  return True;
+  return true;
 }
 
 static void
@@ -2020,7 +2020,7 @@ lesstif_parse_arguments (int *argc, char ***argv)
 	    break;
 	  case HID_Boolean:
 	    o->argKind = XrmoptionNoArg;
-	    o->value = "True";
+	    o->value = "true";
 	    acount++;
 	    break;
 	  default:
@@ -2091,7 +2091,7 @@ lesstif_parse_arguments (int *argc, char ***argv)
   XmAddWMProtocolCallback (appwidget, close_atom,
 			   (XtCallbackProc) mainwind_delete_cb, 0);
 
-  /*  XSynchronize(display, True); */
+  /*  XSynchronize(display, true); */
 
   XtGetApplicationResources (appwidget, new_values, new_resources,
 			     rmax, 0, 0);
@@ -2381,7 +2381,7 @@ lesstif_update_status_line ()
 static int idle_proc_set = 0;
 static int need_redraw = 0;
 
-static Boolean
+static bool
 idle_proc (XtPointer dummy)
 {
   if (need_redraw)
@@ -2771,7 +2771,7 @@ idle_proc (XtPointer dummy)
 
   show_crosshair (1);
   idle_proc_set = 0;
-  return True;
+  return true;
 }
 
 void

@@ -76,28 +76,28 @@ FloatPolyType, *FloatPolyTypePtr;
  * some local identifiers
  */
 static BoxType Block;
-static Boolean Gathering = True;
-static int Erasing = False;
+static bool Gathering = true;
+static int Erasing = false;
 
-static int doing_pinout = False;
-static int doing_assy = False;
+static int doing_pinout = false;
+static int doing_assy = false;
 static const BoxType *clip_box = NULL;
 
 /* ---------------------------------------------------------------------------
  * some local prototypes
  */
-static void Redraw (Boolean, BoxTypePtr);
+static void Redraw (bool, BoxTypePtr);
 static void DrawEverything (BoxTypePtr);
 static void DrawTop (const BoxType *);
 static int DrawLayerGroup (int, const BoxType *);
-static void DrawPinOrViaLowLevel (PinTypePtr, Boolean);
-static void ClearOnlyPin (PinTypePtr, Boolean);
-static void DrawPlainPin (PinTypePtr, Boolean);
-static void DrawPlainVia (PinTypePtr, Boolean);
+static void DrawPinOrViaLowLevel (PinTypePtr, bool);
+static void ClearOnlyPin (PinTypePtr, bool);
+static void DrawPlainPin (PinTypePtr, bool);
+static void DrawPlainVia (PinTypePtr, bool);
 static void DrawPinOrViaNameLowLevel (PinTypePtr);
-static void DrawPadLowLevel (hidGC, PadTypePtr, Boolean, Boolean);
+static void DrawPadLowLevel (hidGC, PadTypePtr, bool, bool);
 static void DrawPadNameLowLevel (PadTypePtr);
-static void DrawLineLowLevel (LineTypePtr, Boolean);
+static void DrawLineLowLevel (LineTypePtr, bool);
 static void DrawRegularText (LayerTypePtr, TextTypePtr, int);
 static void DrawPolygonLowLevel (PolygonTypePtr);
 static void DrawArcLowLevel (ArcTypePtr);
@@ -105,8 +105,8 @@ static void DrawElementPackageLowLevel (ElementTypePtr Element, int);
 static void DrawPlainPolygon (LayerTypePtr Layer, PolygonTypePtr Polygon);
 static void AddPart (void *);
 static void SetPVColor (PinTypePtr, int);
-static void DrawEMark (ElementTypePtr, LocationType, LocationType, Boolean);
-static void ClearPad (PadTypePtr, Boolean);
+static void DrawEMark (ElementTypePtr, LocationType, LocationType, bool);
+static void ClearPad (PadTypePtr, bool);
 static void DrawHole (PinTypePtr);
 static void DrawMask (BoxType *);
 static void DrawRats (BoxType *);
@@ -188,15 +188,15 @@ void
 Draw (void)
 {
 
-  render = True;
+  render = true;
 
-  HideCrosshair (True);
+  HideCrosshair (true);
 
   /* clear and create event if not drawing to a pixmap
    */
   gui->invalidate_lr (Block.X1, Block.X2, Block.Y1, Block.Y2);
 
-  RestoreCrosshair (True);
+  RestoreCrosshair (true);
 
   /* shrink the update block */
   Block.X1 = Block.Y1 = Block.X2 = Block.Y2 = 0;
@@ -208,7 +208,7 @@ Draw (void)
 void
 RedrawOutput (BoxTypePtr area)
 {
-  Redraw (True, area);
+  Redraw (true, area);
 }
 
 /* ---------------------------------------------------------------------------
@@ -217,8 +217,8 @@ RedrawOutput (BoxTypePtr area)
 void
 ClearAndRedrawOutput (void)
 {
-  render = True;
-  Gathering = False;
+  render = true;
+  Gathering = false;
   UpdateAll ();
 }
 
@@ -231,11 +231,11 @@ ClearAndRedrawOutput (void)
  * by the event handlers
  */
 static void
-Redraw (Boolean ClearWindow, BoxTypePtr screen_area)
+Redraw (bool ClearWindow, BoxTypePtr screen_area)
 {
   gui->invalidate_all ();
-  Gathering = True;
-  render = False;
+  Gathering = true;
+  render = false;
 }
 
 static int
@@ -525,13 +525,13 @@ DrawEverything (BoxTypePtr drawn_area)
   for (side = 0; side <= 1; side++)
     {
       int doit;
-      Boolean NoData = True;
+      bool NoData = true;
       ALLPAD_LOOP (PCB->Data);
       {
 	if ((TEST_FLAG (ONSOLDERFLAG, pad) && side == SOLDER_LAYER)
 	    || (!TEST_FLAG (ONSOLDERFLAG, pad) && side == COMPONENT_LAYER))
 	  {
-	    NoData = False;
+	    NoData = false;
 	    break;
 	  }
       }
@@ -550,19 +550,19 @@ DrawEverything (BoxTypePtr drawn_area)
 		|| (!TEST_FLAG (ONSOLDERFLAG, pad)
 		    && side == COMPONENT_LAYER))
 	      if (!TEST_FLAG (NOPASTEFLAG, pad))
-		DrawPadLowLevel (Output.fgGC, pad, False, False);
+		DrawPadLowLevel (Output.fgGC, pad, false, false);
 	  }
 	  ENDALL_LOOP;
 	}
     }
 
-  doing_assy = True;
+  doing_assy = true;
   if (gui->set_layer ("topassembly", SL (ASSY, TOP), 0))
     PrintAssembly (drawn_area, component, 0);
 
   if (gui->set_layer ("bottomassembly", SL (ASSY, BOTTOM), 0))
     PrintAssembly (drawn_area, solder, 1);
-  doing_assy = False;
+  doing_assy = false;
 
   if (gui->set_layer ("fab", SL (FAB, 0), 0))
     PrintFab ();
@@ -570,7 +570,7 @@ DrawEverything (BoxTypePtr drawn_area)
 
 static void
 DrawEMark (ElementTypePtr e, LocationType X, LocationType Y,
-	   Boolean invisible)
+	   bool invisible)
 {
   int mark_size = EMARK_SIZE;
   if (!PCB->InvisibleObjectsOn && invisible)
@@ -607,14 +607,14 @@ static int
 via_callback (const BoxType * b, void *cl)
 {
   PinTypePtr via = (PinTypePtr) b;
-  DrawPlainVia (via, False);
+  DrawPlainVia (via, false);
   return 1;
 }
 
 static int
 pin_callback (const BoxType * b, void *cl)
 {
-  DrawPlainPin ((PinTypePtr) b, False);
+  DrawPlainPin ((PinTypePtr) b, false);
   return 1;
 }
 
@@ -652,7 +652,7 @@ DrawTop (const BoxType * screen)
 
 struct pin_info
 {
-  Boolean arg;
+  bool arg;
   LayerTypePtr Layer;
 };
 
@@ -662,7 +662,7 @@ clearPin_callback (const BoxType * b, void *cl)
   PinTypePtr pin = (PinTypePtr) b;
   struct pin_info *i = (struct pin_info *) cl;
   if (i->arg)
-    ClearOnlyPin (pin, True);
+    ClearOnlyPin (pin, true);
   return 1;
 }
 static int
@@ -679,7 +679,7 @@ clearPad_callback (const BoxType * b, void *cl)
 {
   PadTypePtr pad = (PadTypePtr) b;
   if (!XOR (TEST_FLAG (ONSOLDERFLAG, pad), SWAP_IDENT))
-    ClearPad (pad, True);
+    ClearPad (pad, true);
   return 1;
 }
 
@@ -714,7 +714,7 @@ DrawSilk (int new_swap, int layer, const BoxType * drawn_area)
     }
 
   gui->use_mask (HID_MASK_CLEAR);
-  info.arg = True;
+  info.arg = true;
   r_search (PCB->Data->pin_tree, drawn_area, NULL, clearPin_callback, &info);
   r_search (PCB->Data->via_tree, drawn_area, NULL, clearPin_callback, &info);
   r_search (PCB->Data->pad_tree, drawn_area, NULL, clearPad_callback, &info);
@@ -745,7 +745,7 @@ DrawMask (BoxType * screen)
 
   OutputType *out = &Output;
 
-  info.arg = True;
+  info.arg = true;
 
   if (thin)
     gui->set_color (Output.pmGC, PCB->MaskColor);
@@ -843,7 +843,7 @@ DrawLayer (LayerTypePtr Layer, const BoxType * screen)
 
   /* print the non-clearing polys */
   info.Layer = Layer;
-  info.arg = False;
+  info.arg = false;
   clip_box = screen;
   r_search (Layer->polygon_tree, screen, NULL, poly_callback, &info);
 
@@ -886,10 +886,10 @@ DrawLayerGroup (int group, const BoxType * screen)
 	  if (Layer->PolygonN)
 	    {
 	      info.Layer = Layer;
-	      info.arg = True;
+	      info.arg = true;
 	      r_search (Layer->polygon_tree, screen, NULL, poly_callback,
 			&info);
-	      info.arg = False;
+	      info.arg = false;
 	    }
 
 	  if (TEST_FLAG (CHECKPLANESFLAG, PCB))
@@ -989,7 +989,7 @@ DrawSpecialPolygon (hidGC DrawGC,
  * lowlevel drawing routine for pins and vias
  */
 static void
-DrawPinOrViaLowLevel (PinTypePtr Ptr, Boolean drawHole)
+DrawPinOrViaLowLevel (PinTypePtr Ptr, bool drawHole)
 {
   if (Gathering)
     {
@@ -1111,7 +1111,7 @@ DrawHole (PinTypePtr Ptr)
  * draw clearance in pixmask around pins and vias that pierce polygons
  */
 static void
-ClearOnlyPin (PinTypePtr Pin, Boolean mask)
+ClearOnlyPin (PinTypePtr Pin, bool mask)
 {
   BDimension half =
     (mask ? Pin->Mask / 2 : (Pin->Thickness + Pin->Clearance) / 2);
@@ -1211,7 +1211,7 @@ DrawPinOrViaNameLowLevel (PinTypePtr Ptr)
 {
   char *name;
   BoxType box;
-  Boolean vert;
+  bool vert;
   TextType text;
 
   if (!Ptr->Name || !Ptr->Name[0])
@@ -1271,7 +1271,7 @@ DrawPinOrViaNameLowLevel (PinTypePtr Ptr)
  */
 
 static void
-DrawPadLowLevel (hidGC gc, PadTypePtr Pad, Boolean clear, Boolean mask)
+DrawPadLowLevel (hidGC gc, PadTypePtr Pad, bool clear, bool mask)
 {
   int w = clear ? (mask ? Pad->Mask : Pad->Thickness + Pad->Clearance)
 		: Pad->Thickness;
@@ -1427,7 +1427,7 @@ DrawPadNameLowLevel (PadTypePtr Pad)
 {
   BoxType box;
   char *name;
-  Boolean vert;
+  bool vert;
   TextType text;
 
   if (!Pad->Name || !Pad->Name[0])
@@ -1493,16 +1493,16 @@ DrawPadNameLowLevel (PadTypePtr Pad)
  * clearance for pads
  */
 static void
-ClearPad (PadTypePtr Pad, Boolean mask)
+ClearPad (PadTypePtr Pad, bool mask)
 {
-  DrawPadLowLevel(Output.pmGC, Pad, True, mask);
+  DrawPadLowLevel(Output.pmGC, Pad, true, mask);
 }
 
 /* ---------------------------------------------------------------------------
  * lowlevel drawing routine for lines
  */
 static void
-DrawLineLowLevel (LineTypePtr Line, Boolean HaveGathered)
+DrawLineLowLevel (LineTypePtr Line, bool HaveGathered)
 {
   if (Gathering && !HaveGathered)
     {
@@ -1575,7 +1575,7 @@ DrawTextLowLevel (TextTypePtr Text, int min_line_width)
 	      newline.Point1.Y += Text->Y;
 	      newline.Point2.X += Text->X;
 	      newline.Point2.Y += Text->Y;
-	      DrawLineLowLevel (&newline, True);
+	      DrawLineLowLevel (&newline, true);
 	    }
 
 	  /* move on to next cursor position */
@@ -1661,7 +1661,7 @@ DrawElementPackageLowLevel (ElementTypePtr Element, int unused)
   /* draw lines, arcs, text and pins */
   ELEMENTLINE_LOOP (Element);
   {
-    DrawLineLowLevel (line, False);
+    DrawLineLowLevel (line, false);
   }
   END_LOOP;
   ARC_LOOP (Element);
@@ -1679,7 +1679,7 @@ DrawVia (PinTypePtr Via, int unused)
 {
   if (!Gathering)
     SetPVColor (Via, VIA_TYPE);
-  DrawPinOrViaLowLevel (Via, True);
+  DrawPinOrViaLowLevel (Via, true);
   if (!TEST_FLAG (HOLEFLAG, Via) && TEST_FLAG (DISPLAYNAMEFLAG, Via))
     DrawPinOrViaNameLowLevel (Via);
 }
@@ -1688,7 +1688,7 @@ DrawVia (PinTypePtr Via, int unused)
  * draw a via without dealing with polygon clearance 
  */
 static void
-DrawPlainVia (PinTypePtr Via, Boolean holeToo)
+DrawPlainVia (PinTypePtr Via, bool holeToo)
 {
   if (!Gathering)
     SetPVColor (Via, VIA_TYPE);
@@ -1722,7 +1722,7 @@ DrawPin (PinTypePtr Pin, int unused)
   {
     if (!Gathering)
       SetPVColor (Pin, PIN_TYPE);
-    DrawPinOrViaLowLevel (Pin, True);
+    DrawPinOrViaLowLevel (Pin, true);
   }
   if ((!TEST_FLAG (HOLEFLAG, Pin) && TEST_FLAG (DISPLAYNAMEFLAG, Pin))
       || doing_pinout)
@@ -1733,7 +1733,7 @@ DrawPin (PinTypePtr Pin, int unused)
  * draw a pin without clearing around polygons 
  */
 static void
-DrawPlainPin (PinTypePtr Pin, Boolean holeToo)
+DrawPlainPin (PinTypePtr Pin, bool holeToo)
 {
   if (!Gathering)
     SetPVColor (Pin, PIN_TYPE);
@@ -1782,7 +1782,7 @@ DrawPad (PadTypePtr Pad, int unused)
       else
 	gui->set_color (Output.fgGC, PCB->InvisibleObjectsColor);
     }
-  DrawPadLowLevel (Output.fgGC, Pad, False, False);
+  DrawPadLowLevel (Output.fgGC, Pad, false, false);
   if (doing_pinout || TEST_FLAG (DISPLAYNAMEFLAG, Pad))
     DrawPadNameLowLevel (Pad);
 }
@@ -1823,7 +1823,7 @@ DrawLine (LayerTypePtr Layer, LineTypePtr Line, int unused)
       else
 	gui->set_color (Output.fgGC, Layer->Color);
     }
-  DrawLineLowLevel (Line, False);
+  DrawLineLowLevel (Line, false);
 }
 
 /* ---------------------------------------------------------------------------
@@ -1872,7 +1872,7 @@ DrawRat (RatTypePtr Line, int unused)
 	}
     }
   else
-    DrawLineLowLevel ((LineTypePtr) Line, False);
+    DrawLineLowLevel ((LineTypePtr) Line, false);
 }
 
 /* ---------------------------------------------------------------------------
@@ -2099,7 +2099,7 @@ EraseVia (PinTypePtr Via)
 {
   Erasing++;
   gui->set_color (Output.fgGC, Settings.BackgroundColor);
-  DrawPinOrViaLowLevel (Via, False);
+  DrawPinOrViaLowLevel (Via, false);
   if (TEST_FLAG (DISPLAYNAMEFLAG, Via))
     DrawPinOrViaNameLowLevel (Via);
   Erasing--;
@@ -2125,7 +2125,7 @@ EraseRat (RatTypePtr Rat)
 		     w * 2, w * 2, 0, 360);
     }
   else
-    DrawLineLowLevel ((LineTypePtr) Rat, False);
+    DrawLineLowLevel ((LineTypePtr) Rat, false);
   Erasing--;
 }
 
@@ -2150,7 +2150,7 @@ ErasePad (PadTypePtr Pad)
 {
   Erasing++;
   gui->set_color (Output.fgGC, Settings.BackgroundColor);
-  DrawPadLowLevel (Output.fgGC, Pad, False, False);
+  DrawPadLowLevel (Output.fgGC, Pad, false, false);
   if (TEST_FLAG (DISPLAYNAMEFLAG, Pad))
     DrawPadNameLowLevel (Pad);
   Erasing--;
@@ -2176,7 +2176,7 @@ ErasePin (PinTypePtr Pin)
 {
   Erasing++;
   gui->set_color (Output.fgGC, Settings.BackgroundColor);
-  DrawPinOrViaLowLevel (Pin, False);
+  DrawPinOrViaLowLevel (Pin, false);
   if (TEST_FLAG (DISPLAYNAMEFLAG, Pin))
     DrawPinOrViaNameLowLevel (Pin);
   Erasing--;
@@ -2202,7 +2202,7 @@ EraseLine (LineTypePtr Line)
 {
   Erasing++;
   gui->set_color (Output.fgGC, Settings.BackgroundColor);
-  DrawLineLowLevel (Line, False);
+  DrawLineLowLevel (Line, false);
   Erasing--;
 }
 
@@ -2261,7 +2261,7 @@ EraseElement (ElementTypePtr Element)
   gui->set_color (Output.fgGC, Settings.BackgroundColor);
   ELEMENTLINE_LOOP (Element);
   {
-    DrawLineLowLevel (line, False);
+    DrawLineLowLevel (line, false);
   }
   END_LOOP;
   ARC_LOOP (Element);
@@ -2285,14 +2285,14 @@ EraseElementPinsAndPads (ElementTypePtr Element)
   gui->set_color (Output.fgGC, Settings.BackgroundColor);
   PIN_LOOP (Element);
   {
-    DrawPinOrViaLowLevel (pin, False);
+    DrawPinOrViaLowLevel (pin, false);
     if (TEST_FLAG (DISPLAYNAMEFLAG, pin))
       DrawPinOrViaNameLowLevel (pin);
   }
   END_LOOP;
   PAD_LOOP (Element);
   {
-    DrawPadLowLevel (Output.fgGC, pad, False, False);
+    DrawPadLowLevel (Output.fgGC, pad, false, false);
     if (TEST_FLAG (DISPLAYNAMEFLAG, pad))
       DrawPadNameLowLevel (pad);
   }
@@ -2420,8 +2420,8 @@ hid_expose_callback (HID * hid, BoxType * region, void *item)
   Output.bgGC = gui->make_gc ();
   Output.pmGC = gui->make_gc ();
 
-  render = True;
-  Gathering = False;
+  render = true;
+  Gathering = false;
 
   /*printf("\033[32mhid_expose_callback, s=%p %d\033[0m\n", &(SWAP_IDENT), SWAP_IDENT); */
 
@@ -2430,9 +2430,9 @@ hid_expose_callback (HID * hid, BoxType * region, void *item)
 
   if (item)
     {
-      doing_pinout = True;
+      doing_pinout = true;
       DrawElement (item, 0);
-      doing_pinout = False;
+      doing_pinout = false;
     }
   else
     DrawEverything (region);
@@ -2445,5 +2445,5 @@ hid_expose_callback (HID * hid, BoxType * region, void *item)
   Output.bgGC = savebg;
   Output.pmGC = savepm;
 
-  Gathering = True;
+  Gathering = true;
 }

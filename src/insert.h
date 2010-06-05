@@ -39,7 +39,7 @@
  * prototypes
  */
 void *InsertPointIntoObject (int, void *, void *, Cardinal *, LocationType,
-			     LocationType, Boolean);
+			     LocationType, bool);
 PointTypePtr AdjustInsertPoint (void);
 
 #endif

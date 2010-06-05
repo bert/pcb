@@ -68,7 +68,7 @@ static	PolygonTypePtr	Polygon;
 static	SymbolTypePtr	Symbol;
 static	int		pin_num;
 static	LibraryMenuTypePtr	Menu;
-static	Boolean			LayerFlag[MAX_LAYER + 2];
+static	bool			LayerFlag[MAX_LAYER + 2];
 
 extern	char			*yytext;		/* defined by LEX */
 extern	PCBTypePtr		yyPCB;
@@ -151,7 +151,7 @@ parsepcb
 					YYABORT;
 				}
 				for (i = 0; i < MAX_LAYER + 2; i++)
-					LayerFlag[i] = False;
+					LayerFlag[i] = false;
 				yyFont = &yyPCB->Font;
 				yyData = yyPCB->Data;
 				yyData->pcb = (void *)yyPCB;
@@ -196,8 +196,8 @@ parsepcb
 		| { PreLoadElementPCB ();
 		    layer_group_string = NULL; }
 		  element
-		  { LayerFlag[0] = True;
-		    LayerFlag[1] = True;
+		  { LayerFlag[0] = true;
+		    LayerFlag[1] = true;
 		    yyData->LayerN = 2;
 		    PostLoadElementPCB ();
 		  }
@@ -216,7 +216,7 @@ parsedata
 					YYABORT;
 				}
 				for (i = 0; i < MAX_LAYER + 2; i++)
-					LayerFlag[i] = False;
+					LayerFlag[i] = false;
 				yyData->LayerN = 0;
 			}
 		 pcbdata
@@ -238,13 +238,13 @@ parsefont
 					Message("illegal fileformat\n");
 					YYABORT;
 				}
-				yyFont->Valid = False;
+				yyFont->Valid = false;
 				for (i = 0; i <= MAX_FONTPOSITION; i++)
-					yyFont->Symbol[i].Valid = False;
+					yyFont->Symbol[i].Valid = false;
 			}
 		  symbols
 			{
-				yyFont->Valid = True;
+				yyFont->Valid = true;
 		  		SetFontInfo(yyFont);
 			}
 		;
@@ -363,9 +363,9 @@ pcbgridnew
 				yyPCB->GridOffsetX = $4*100;
 				yyPCB->GridOffsetY = $5*100;
 				if ($6)
-					Settings.DrawGrid = True;
+					Settings.DrawGrid = true;
 				else
-					Settings.DrawGrid = False;
+					Settings.DrawGrid = false;
 			}
 		;
 
@@ -376,9 +376,9 @@ pcb2grid
 				yyPCB->GridOffsetX = $4*100;
 				yyPCB->GridOffsetY = $5*100;
 				if ($6)
-					Settings.DrawGrid = True;
+					Settings.DrawGrid = true;
 				else
-					Settings.DrawGrid = False;
+					Settings.DrawGrid = false;
 			}
 		;
 pcbhigrid
@@ -388,9 +388,9 @@ pcbhigrid
 				yyPCB->GridOffsetX = $4;
 				yyPCB->GridOffsetY = $5;
 				if ($6)
-					Settings.DrawGrid = True;
+					Settings.DrawGrid = true;
 				else
-					Settings.DrawGrid = False;
+					Settings.DrawGrid = false;
 			}
 		;
 
@@ -861,7 +861,7 @@ layer
 
 					/* memory for name is already allocated */
 				Layer->Name = $4;
-				LayerFlag[$3-1] = True;
+				LayerFlag[$3-1] = true;
 				if (yyData->LayerN + 2 < $3)
 				  yyData->LayerN = $3 - 2;
 			}
@@ -1222,7 +1222,7 @@ element_oldformat
 		: T_ELEMENT '(' STRING STRING NUMBER NUMBER NUMBER ')' '('
 			{
 				yyElement = CreateNewElement(yyData, yyElement, yyFont, NoFlags(),
-					$3, $4, NULL, $5*100, $6*100, $7, 100, NoFlags(), False);
+					$3, $4, NULL, $5*100, $6*100, $7, 100, NoFlags(), false);
 				SaveFree($3);
 				SaveFree($4);
 				pin_num = 1;
@@ -1240,7 +1240,7 @@ element_1.3.4_format
 		: T_ELEMENT '(' NUMBER STRING STRING NUMBER NUMBER NUMBER NUMBER NUMBER ')' '('
 			{
 				yyElement = CreateNewElement(yyData, yyElement, yyFont, OldFlags($3),
-					$4, $5, NULL, $6*100, $7*100, $8, $9, OldFlags($10), False);
+					$4, $5, NULL, $6*100, $7*100, $8, $9, OldFlags($10), false);
 				SaveFree($4);
 				SaveFree($5);
 				pin_num = 1;
@@ -1258,7 +1258,7 @@ element_newformat
 		: T_ELEMENT '(' NUMBER STRING STRING STRING NUMBER NUMBER NUMBER NUMBER NUMBER ')' '('
 			{
 				yyElement = CreateNewElement(yyData, yyElement, yyFont, OldFlags($3),
-					$4, $5, $6, $7*100, $8*100, $9, $10, OldFlags($11), False);
+					$4, $5, $6, $7*100, $8*100, $9, $10, OldFlags($11), false);
 				SaveFree($4);
 				SaveFree($5);
 				SaveFree($6);
@@ -1278,7 +1278,7 @@ element_1.7_format
 			NUMBER NUMBER NUMBER NUMBER NUMBER ')' '('
 			{
 				yyElement = CreateNewElement(yyData, yyElement, yyFont, OldFlags($3),
-					$4, $5, $6, ($7+$9)*100, ($8+$10)*100, $11, $12, OldFlags($13), False);
+					$4, $5, $6, ($7+$9)*100, ($8+$10)*100, $11, $12, OldFlags($13), false);
 				yyElement->MarkX = $7*100;
 				yyElement->MarkY = $8*100;
 				SaveFree($4);
@@ -1299,7 +1299,7 @@ element_hi_format
 			NUMBER NUMBER NUMBER NUMBER flags ']' '('
 			{
 				yyElement = CreateNewElement(yyData, yyElement, yyFont, $3,
-					$4, $5, $6, ($7+$9), ($8+$10), $11, $12, $13, False);
+					$4, $5, $6, ($7+$9), ($8+$10), $11, $12, $13, false);
 				yyElement->MarkX = $7;
 				yyElement->MarkY = $8;
 				SaveFree($4);
@@ -1690,7 +1690,7 @@ symbol
 					yyerror("symbol ID used twice");
 					YYABORT;
 				}
-				Symbol->Valid = True;
+				Symbol->Valid = true;
 				Symbol->Delta = $4;
 			}
 		  symboldata ')'
@@ -1707,7 +1707,7 @@ symbol
 					yyerror("symbol ID used twice");
 					YYABORT;
 				}
-				Symbol->Valid = True;
+				Symbol->Valid = true;
 				Symbol->Delta = $4*100;
 			}
 		  symboldata ')'

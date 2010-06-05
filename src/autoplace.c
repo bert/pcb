@@ -101,7 +101,7 @@ const struct
   float m;			/* annealing stage cutoff constant */
   float gamma;			/* annealing schedule constant */
   int good_ratio;		/* ratio of moves to good moves for halting */
-  Boolean fast;			/* ignore SMD/pin conflicts */
+  bool fast;			/* ignore SMD/pin conflicts */
   int large_grid_size;		/*snap perturbations to this grid when T is high */
   int small_grid_size;		/* snap to this grid when T is small. */
 }
@@ -120,7 +120,7 @@ CostParameter =
     20,				/* move on when each module has been profitably moved 20 times */
     0.75,			/* annealing schedule constant: 0.85 */
     40,				/* halt when there are 60 times as many moves as good moves */
-    False,			/* don't ignore SMD/pin conflicts */
+    false,			/* don't ignore SMD/pin conflicts */
     100,			/* coarse grid is 100 mils */
     10,				/* fine grid is 10 mils */
 };
@@ -336,7 +336,7 @@ ComputeCost (NetListTypePtr Nets, double T0, double T)
   double delta5 = 0;		/* total area penalty */
   Cardinal i, j;
   LocationType minx, maxx, miny, maxy;
-  Boolean allpads, allsameside;
+  bool allpads, allsameside;
   Cardinal thegroup;
   BoxListType bounds = { 0, 0, NULL };	/* save bounding rectangles here */
   BoxListType solderside = { 0, 0, NULL };	/* solder side component bounds */
@@ -356,7 +356,7 @@ ComputeCost (NetListTypePtr Nets, double T0, double T)
       miny = maxy = n->Connection[0].Y;
       thegroup = n->Connection[0].group;
       allpads = (n->Connection[0].type == PAD_TYPE);
-      allsameside = True;
+      allsameside = true;
       for (j = 1; j < n->ConnectionN; j++)
 	{
 	  ConnectionTypePtr c = &(n->Connection[j]);
@@ -365,9 +365,9 @@ ComputeCost (NetListTypePtr Nets, double T0, double T)
 	  MAKEMIN (miny, c->Y);
 	  MAKEMAX (maxy, c->Y);
 	  if (c->type != PAD_TYPE)
-	    allpads = False;
+	    allpads = false;
 	  if (c->group != thegroup)
-	    allsameside = False;
+	    allsameside = false;
 	}
       /* save bounding rectangle */
       {
@@ -656,7 +656,7 @@ createPerturbation (PointerListTypePtr selected, double T)
     case 1:
       {				/* flip/rotate! */
 	/* only flip if it's an SMD component */
-	Boolean isSMD = pt.element->PadN != 0;
+	bool isSMD = pt.element->PadN != 0;
 	pt.which = ROTATE;
 	pt.rotate = isSMD ? (random () & 3) : (1 + (random () % 3));
 	/* 0 - flip; 1-3, rotate. */
@@ -685,7 +685,7 @@ createPerturbation (PointerListTypePtr selected, double T)
 }
 
 void
-doPerturb (PerturbationType * pt, Boolean undo)
+doPerturb (PerturbationType * pt, bool undo)
 {
   LocationType bbcx, bbcy;
   /* compute center of element bounding box */
@@ -755,14 +755,14 @@ doPerturb (PerturbationType * pt, Boolean undo)
 /* ---------------------------------------------------------------------------
  * Auto-place selected components.
  */
-Boolean
+bool
 AutoPlaceSelected (void)
 {
   NetListTypePtr Nets;
   PointerListType Selected = { 0, 0, NULL };
   PerturbationType pt;
   double C0, T0;
-  Boolean changed = False;
+  bool changed = false;
 
   /* (initial netlist processing copied from AddAllRats) */
   /* the netlist library has the text form
@@ -794,9 +794,9 @@ AutoPlaceSelected (void)
     for (i = 0; i < TRIALS; i++)
       {
 	pt = createPerturbation (&Selected, 1e6);
-	doPerturb (&pt, False);
+	doPerturb (&pt, false);
 	Cs += fabs (ComputeCost (Nets, Tx, Tx) - C0);
-	doPerturb (&pt, True);
+	doPerturb (&pt, true);
       }
     T0 = -(Cs / TRIALS) / log (P);
     printf ("Initial T: %f\n", T0);
@@ -814,7 +814,7 @@ AutoPlaceSelected (void)
       {
 	double Cprime;
 	pt = createPerturbation (&Selected, T);
-	doPerturb (&pt, False);
+	doPerturb (&pt, false);
 	Cprime = ComputeCost (Nets, T0, T);
 	if (Cprime < C0)
 	  {			/* good move! */
@@ -830,7 +830,7 @@ AutoPlaceSelected (void)
 	    steps++;
 	  }
 	else
-	  doPerturb (&pt, True);	/* undo last change */
+	  doPerturb (&pt, true);	/* undo last change */
 	moves++;
 	/* are we at the end of a stage? */
 	if (good_moves >= good_move_cutoff || moves >= move_cutoff)
@@ -853,8 +853,8 @@ AutoPlaceSelected (void)
 done:
   if (changed)
     {
-      DeleteRats (False);
-      AddAllRats (False, NULL);
+      DeleteRats (false);
+      AddAllRats (false, NULL);
       ClearAndRedrawOutput ();
     }
   FreePointerListMemory (&Selected);

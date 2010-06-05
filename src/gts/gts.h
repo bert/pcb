@@ -1218,7 +1218,7 @@ GtsVertex *  gts_volume_optimized_vertex   (GtsEdge * edge,
 gdouble      gts_volume_optimized_cost     (GtsEdge * e,
 					    GtsVolumeOptimizedParams * params);
 
-/* Boolean operations: boolean.c */
+/* bool operations: boolean.c */
 
 GSList *     gts_surface_intersection      (GtsSurface * s1,
 					    GtsSurface * s2,

@@ -69,7 +69,7 @@ static int mode_stack[MAX_MODESTACK_DEPTH];
  * sets cursor grid with respect to grid offset values
  */
 void
-SetGrid (float Grid, Boolean align)
+SetGrid (float Grid, bool align)
 {
   if (Grid >= 1 && Grid <= MAX_GRID)
     {
@@ -104,7 +104,7 @@ SetLineSize (BDimension Size)
  * sets a new via thickness
  */
 void
-SetViaSize (BDimension Size, Boolean Force)
+SetViaSize (BDimension Size, bool Force)
 {
   if (Force || (Size <= MAX_PINORVIASIZE &&
 		Size >= MIN_PINORVIASIZE &&
@@ -118,7 +118,7 @@ SetViaSize (BDimension Size, Boolean Force)
  * sets a new via drilling hole
  */
 void
-SetViaDrillingHole (BDimension Size, Boolean Force)
+SetViaDrillingHole (BDimension Size, bool Force)
 {
   if (Force || (Size <= MAX_PINORVIASIZE &&
 		Size >= MIN_PINORVIAHOLE &&
@@ -165,7 +165,7 @@ SetTextScale (Dimension Scale)
  * sets or resets changed flag and redraws status
  */
 void
-SetChangedFlag (Boolean New)
+SetChangedFlag (bool New)
 {
   if (PCB->Changed != New)
     {
@@ -236,15 +236,15 @@ RestoreMode (void)
 void
 SetMode (int Mode)
 {
-  static Boolean recursing = False;
+  static bool recursing = false;
   /* protect the cursor while changing the mode
    * perform some additional stuff depending on the new mode
    * reset 'state' of attached objects
    */
   if (recursing)
     return;
-  recursing = True;
-  HideCrosshair (True);
+  recursing = true;
+  HideCrosshair (true);
   addedLines = 0;
   Crosshair.AttachedObject.Type = NO_TYPE;
   Crosshair.AttachedObject.State = STATE_FIRST;
@@ -286,15 +286,15 @@ SetMode (int Mode)
   else
     {
       if (Settings.Mode == ARC_MODE || Settings.Mode == LINE_MODE)
-	SetLocalRef (0, 0, False);
+	SetLocalRef (0, 0, false);
       Crosshair.AttachedBox.State = STATE_FIRST;
       Crosshair.AttachedLine.State = STATE_FIRST;
       if (Mode == LINE_MODE && TEST_FLAG (AUTODRCFLAG, PCB))
 	{
 	  SaveUndoSerialNumber ();
-	  ResetFoundPinsViasAndPads (True);
+	  ResetFoundPinsViasAndPads (true);
 	  RestoreUndoSerialNumber ();
-	  ResetFoundLinesAndPolygons (True);
+	  ResetFoundLinesAndPolygons (true);
 	  IncrementUndoSerialNumber ();
 	}
     }
@@ -307,13 +307,13 @@ SetMode (int Mode)
   else
     SetCrosshairRange (0, 0, PCB->MaxWidth, PCB->MaxHeight);
 
-  recursing = False;
+  recursing = false;
 
   /* force a crosshair grid update because the valid range
    * may have changed
    */
   MoveCrosshairRelative (0, 0);
-  RestoreCrosshair (True);
+  RestoreCrosshair (true);
 }
 
 void
@@ -334,27 +334,27 @@ SetRouteStyle (char *name)
 }
 
 void
-SetLocalRef (LocationType X, LocationType Y, Boolean Showing)
+SetLocalRef (LocationType X, LocationType Y, bool Showing)
 {
   static MarkType old;
   static int count = 0;
 
   if (Showing)
     {
-      HideCrosshair (True);
+      HideCrosshair (true);
       if (count == 0)
 	old = Marked;
       Marked.X = X;
       Marked.Y = Y;
-      Marked.status = True;
+      Marked.status = true;
       count++;
-      RestoreCrosshair (False);
+      RestoreCrosshair (false);
     }
   else if (count > 0)
     {
-      HideCrosshair (False);
+      HideCrosshair (false);
       count = 0;
       Marked = old;
-      RestoreCrosshair (False);
+      RestoreCrosshair (false);
     }
 }

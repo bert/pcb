@@ -87,7 +87,7 @@ static void *MovePolygonToLayer (LayerTypePtr, PolygonTypePtr);
 static LocationType DeltaX,	/* used by local routines as offset */
   DeltaY;
 static LayerTypePtr Dest;
-static Boolean MoreToCome;
+static bool MoreToCome;
 static ObjectFunctionType MoveFunctions = {
   MoveLine,
   MoveText,
@@ -216,7 +216,7 @@ MoveElementName (ElementTypePtr Element)
 static void *
 MoveElement (ElementTypePtr Element)
 {
-  Boolean didDraw = False;
+  bool didDraw = false;
 
   if (PCB->ElementOn && (FRONT (Element) || PCB->InvisibleObjectsOn))
     {
@@ -224,7 +224,7 @@ MoveElement (ElementTypePtr Element)
       MoveElementLowLevel (PCB->Data, Element, DeltaX, DeltaY);
       DrawElementName (Element, 0);
       DrawElementPackage (Element, 0);
-      didDraw = True;
+      didDraw = true;
     }
   else
     {
@@ -235,7 +235,7 @@ MoveElement (ElementTypePtr Element)
   if (PCB->PinOn)
     {
       DrawElementPinsAndPads (Element, 0);
-      didDraw = True;
+      didDraw = true;
     }
   if (didDraw)
     Draw ();
@@ -841,7 +841,7 @@ MoveObjectAndRubberband (int Type, void *Ptr1, void *Ptr2, void *Ptr3,
  */
 void *
 MoveObjectToLayer (int Type, void *Ptr1, void *Ptr2, void *Ptr3,
-		   LayerTypePtr Target, Boolean enmasse)
+		   LayerTypePtr Target, bool enmasse)
 {
   void *result;
 
@@ -857,16 +857,16 @@ MoveObjectToLayer (int Type, void *Ptr1, void *Ptr2, void *Ptr3,
  * moves the selected objects to a new layer without changing their
  * positions
  */
-Boolean
+bool
 MoveSelectedObjectsToLayer (LayerTypePtr Target)
 {
-  Boolean changed;
+  bool changed;
 
   /* setup global identifiers */
   Dest = Target;
-  MoreToCome = True;
-  changed = SelectedOperation (&MoveToLayerFunctions, True, ALL_TYPES);
-  /* passing True to above operation causes Undoserial to auto-increment */
+  MoreToCome = true;
+  changed = SelectedOperation (&MoveToLayerFunctions, true, ALL_TYPES);
+  /* passing true to above operation causes Undoserial to auto-increment */
   return (changed);
 }
 

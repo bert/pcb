@@ -130,7 +130,7 @@ pcb_colors_from_settings (PCBTypePtr ptr)
  * creates a new PCB
  */
 PCBTypePtr
-CreateNewPCB (Boolean SetDefaultNames)
+CreateNewPCB (bool SetDefaultNames)
 {
   PCBTypePtr ptr;
   int i;
@@ -142,8 +142,8 @@ CreateNewPCB (Boolean SetDefaultNames)
 
   ptr->ThermStyle = 4;
   ptr->IsleArea = 2.e8;
-  ptr->SilkActive = False;
-  ptr->RatDraw = False;
+  ptr->SilkActive = false;
+  ptr->RatDraw = false;
   SET_FLAG (NAMEONPCBFLAG, ptr);
   if (Settings.ShowNumber)
     SET_FLAG (SHOWNUMBERFLAG, ptr);
@@ -644,7 +644,7 @@ CreateNewElement (DataTypePtr Data, ElementTypePtr Element,
 		  FlagType Flags,
 		  char *Description, char *NameOnPCB, char *Value,
 		  LocationType TextX, LocationType TextY, BYTE Direction,
-		  int TextScale, FlagType TextFlags, Boolean uniqueName)
+		  int TextScale, FlagType TextFlags, bool uniqueName)
 {
 #ifdef DEBUG
   printf("Entered CreateNewElement.....\n");

@@ -216,7 +216,7 @@ struct query_closure
   CheapPointType *desired;
   BDimension radius, keepaway;
   jmp_buf env;
-  Boolean touch_is_vec;
+  bool touch_is_vec;
 };
 
 static inline void
@@ -339,12 +339,12 @@ query_one (const BoxType * box, void *cl)
  * anything. If a region does intersect something, it is broken into
  * pieces that don't intersect that thing (if possible) which are
  * put back into the vector/heap of regions to check.
- * qloop returns False when it finds the first empty region
- * it returns True if it has exhausted the region vector/heap and never
+ * qloop returns false when it finds the first empty region
+ * it returns true if it has exhausted the region vector/heap and never
  * found an empty area.
  */
 static void
-qloop (struct query_closure *qc, rtree_t * tree, heap_or_vector res, Boolean is_vec)
+qloop (struct query_closure *qc, rtree_t * tree, heap_or_vector res, bool is_vec)
 {
   BoxType *cbox;
 #ifndef NDEBUG
@@ -435,7 +435,7 @@ mtspace_query_rect (mtspace_t * mtspace, const BoxType * region,
 		    vector_t * free_space_vec,
 		    vector_t * lo_conflict_space_vec,
 		    vector_t * hi_conflict_space_vec,
-		    Boolean is_odd, Boolean with_conflicts, CheapPointType *desired)
+		    bool is_odd, bool with_conflicts, CheapPointType *desired)
 {
   struct query_closure qc;
 
@@ -495,15 +495,15 @@ mtspace_query_rect (mtspace_t * mtspace, const BoxType * region,
        */
       qc.checking = work->untested;
       qc.touching.v = NULL;
-      qloop (&qc, mtspace->ftree, work->no_fix, False);
+      qloop (&qc, mtspace->ftree, work->no_fix, false);
       /* search the hi-conflict tree placing intersectors in the
        * hi_candidate vector (if conflicts are allowed) and
        * placing empty regions in the no_hi vector.
        */
       qc.checking.v = work->no_fix.v;
       qc.touching.v = with_conflicts ? work->hi_candidate.v : NULL;
-      qc.touch_is_vec = False;
-      qloop (&qc, is_odd ? mtspace->otree : mtspace->etree, work->no_hi, False);
+      qc.touch_is_vec = false;
+      qloop (&qc, is_odd ? mtspace->otree : mtspace->etree, work->no_hi, false);
       /* search the lo-conflict tree placing intersectors in the
        * lo-conflict answer vector (if conflicts allowed) and
        * placing emptry regions in the free-space answer vector.
@@ -511,8 +511,8 @@ mtspace_query_rect (mtspace_t * mtspace, const BoxType * region,
       qc.checking = work->no_hi;
 /* XXX lo_conflict_space_vec will be treated like a heap! */
       qc.touching.v = (with_conflicts ? lo_conflict_space_vec : NULL);
-      qc.touch_is_vec = True;
-      qloop (&qc, is_odd ? mtspace->etree : mtspace->otree, (heap_or_vector)free_space_vec, True);
+      qc.touch_is_vec = true;
+      qloop (&qc, is_odd ? mtspace->etree : mtspace->otree, (heap_or_vector)free_space_vec, true);
       if (!vector_is_empty (free_space_vec))
 	{
 	  if (qc.desired)
@@ -536,7 +536,7 @@ mtspace_query_rect (mtspace_t * mtspace, const BoxType * region,
 	  qc.checking = work->hi_candidate;
 	  qc.touching.v = NULL;
 	  qloop (&qc, is_odd ? mtspace->etree : mtspace->otree,
-		 (heap_or_vector)hi_conflict_space_vec, True);
+		 (heap_or_vector)hi_conflict_space_vec, true);
 	}
     }
   while (!(qc.desired ? heap_is_empty(work->untested.h) : vector_is_empty (work->untested.v)));

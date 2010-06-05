@@ -38,11 +38,11 @@
  */
 void SetBufferBoundingBox (BufferTypePtr);
 void ClearBuffer (BufferTypePtr);
-void AddSelectedToBuffer (BufferTypePtr, LocationType, LocationType, Boolean);
-Boolean LoadElementToBuffer (BufferTypePtr, char *, Boolean);
-Boolean ConvertBufferToElement (BufferTypePtr);
-Boolean SmashBufferElement (BufferTypePtr);
-Boolean LoadLayoutToBuffer (BufferTypePtr, char *);
+void AddSelectedToBuffer (BufferTypePtr, LocationType, LocationType, bool);
+bool LoadElementToBuffer (BufferTypePtr, char *, bool);
+bool ConvertBufferToElement (BufferTypePtr);
+bool SmashBufferElement (BufferTypePtr);
+bool LoadLayoutToBuffer (BufferTypePtr, char *);
 void RotateBuffer (BufferTypePtr, BYTE);
 void SelectPasteBuffer (int);
 void SwapBuffers (void);

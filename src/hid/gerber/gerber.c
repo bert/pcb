@@ -801,7 +801,7 @@ gerber_draw_rect (hidGC gc, int x1, int y1, int x2, int y2)
 static void
 gerber_draw_line (hidGC gc, int x1, int y1, int x2, int y2)
 {
-  Boolean m = False;
+  bool m = false;
 
   if (x1 != x2 && y1 != y2 && gc->cap == Square_Cap)
     {
@@ -831,13 +831,13 @@ gerber_draw_line (hidGC gc, int x1, int y1, int x2, int y2)
 
   if (x1 != lastX)
     {
-      m = True;
+      m = true;
       lastX = x1;
       fprintf (f, "X%ld", gerberX (PCB, lastX));
     }
   if (y1 != lastY)
     {
-      m = True;
+      m = true;
       lastY = y1;
       fprintf (f, "Y%ld", gerberY (PCB, lastY));
     }
@@ -867,7 +867,7 @@ static void
 gerber_draw_arc (hidGC gc, int cx, int cy, int width, int height,
 		 int start_angle, int delta_angle)
 {
-  Boolean m = False;
+  bool m = false;
   float arcStartX, arcStopX, arcStartY, arcStopY;
 
   /* we never draw zero-width lines */
@@ -922,13 +922,13 @@ gerber_draw_arc (hidGC gc, int cx, int cy, int width, int height,
   arcStopY = cy + height * sin (TO_RADIANS (start_angle + delta_angle));
   if (arcStartX != lastX)
     {
-      m = True;
+      m = true;
       lastX = arcStartX;
       fprintf (f, "X%ld", gerberX (PCB, lastX));
     }
   if (arcStartY != lastY)
     {
-      m = True;
+      m = true;
       lastY = arcStartY;
       fprintf (f, "Y%ld", gerberY (PCB, lastY));
     }
@@ -989,7 +989,7 @@ gerber_fill_circle (hidGC gc, int cx, int cy, int radius)
 static void
 gerber_fill_polygon (hidGC gc, int n_coords, int *x, int *y)
 {
-  Boolean m = False;
+  bool m = false;
   int i;
   int firstTime = 1;
   LocationType startX = 0, startY = 0;
@@ -1005,13 +1005,13 @@ gerber_fill_polygon (hidGC gc, int n_coords, int *x, int *y)
     {
       if (x[i] != lastX)
 	{
-	  m = True;
+	  m = true;
 	  lastX = x[i];
 	  fprintf (f, "X%ld", gerberX (PCB, lastX));
 	}
       if (y[i] != lastY)
 	{
-	  m = True;
+	  m = true;
 	  lastY = y[i];
 	  fprintf (f, "Y%ld", gerberY (PCB, lastY));
 	}
@@ -1025,17 +1025,17 @@ gerber_fill_polygon (hidGC gc, int n_coords, int *x, int *y)
 	}
       else if (m)
 	fprintf (f, "D01*\015\012");
-      m = False;
+      m = false;
     }
   if (startX != lastX)
     {
-      m = True;
+      m = true;
       lastX = startX;
       fprintf (f, "X%ld", gerberX (PCB, startX));
     }
   if (startY != lastY)
     {
-      m = True;
+      m = true;
       lastY = startY;
       fprintf (f, "Y%ld", gerberY (PCB, lastY));
     }

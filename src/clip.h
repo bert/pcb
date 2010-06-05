@@ -40,7 +40,7 @@
 
 /* Clip X,Y to the given bounding box, plus a margin.  Returns TRUE if
    there is something left to be drawn.  */
-Boolean ClipLine (double minx, double miny, double maxx, double maxy,
+bool ClipLine (double minx, double miny, double maxx, double maxy,
 		  double *x1, double *y1,
 		  double *x2, double *y2,
 		  double margin);

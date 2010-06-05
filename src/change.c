@@ -353,14 +353,14 @@ static ObjectFunctionType ClrOctagonFunctions = {
 static void *
 ChangeViaThermal (PinTypePtr Via)
 {
-  AddObjectToClearPolyUndoList (VIA_TYPE, Via, Via, Via, False);
+  AddObjectToClearPolyUndoList (VIA_TYPE, Via, Via, Via, false);
   RestoreToPolygon (PCB->Data, VIA_TYPE, CURRENT, Via);
   AddObjectToFlagUndoList (VIA_TYPE, Via, Via, Via);
   if (!Delta)			/* remove the thermals */
     CLEAR_THERM (INDEXOFCURRENT, Via);
   else
     ASSIGN_THERM (INDEXOFCURRENT, Delta, Via);
-  AddObjectToClearPolyUndoList (VIA_TYPE, Via, Via, Via, True);
+  AddObjectToClearPolyUndoList (VIA_TYPE, Via, Via, Via, true);
   ClearFromPolygon (PCB->Data, VIA_TYPE, CURRENT, Via);
   DrawVia (Via, 0);
   return Via;
@@ -373,14 +373,14 @@ ChangeViaThermal (PinTypePtr Via)
 static void *
 ChangePinThermal (ElementTypePtr element, PinTypePtr Pin)
 {
-  AddObjectToClearPolyUndoList (PIN_TYPE, element, Pin, Pin, False);
+  AddObjectToClearPolyUndoList (PIN_TYPE, element, Pin, Pin, false);
   RestoreToPolygon (PCB->Data, VIA_TYPE, CURRENT, Pin);
   AddObjectToFlagUndoList (PIN_TYPE, element, Pin, Pin);
   if (!Delta)			/* remove the thermals */
     CLEAR_THERM (INDEXOFCURRENT, Pin);
   else
     ASSIGN_THERM (INDEXOFCURRENT, Delta, Pin);
-  AddObjectToClearPolyUndoList (PIN_TYPE, element, Pin, Pin, True);
+  AddObjectToClearPolyUndoList (PIN_TYPE, element, Pin, Pin, true);
   ClearFromPolygon (PCB->Data, VIA_TYPE, CURRENT, Pin);
   DrawPin (Pin, 0);
   return Pin;
@@ -611,7 +611,7 @@ ChangePadClearSize (ElementTypePtr Element, PadTypePtr Pad)
 static void *
 ChangeElement2ndSize (ElementTypePtr Element)
 {
-  Boolean changed = False;
+  bool changed = false;
   BDimension value;
 
   if (TEST_FLAG (LOCKFLAG, Element))
@@ -626,7 +626,7 @@ ChangeElement2ndSize (ElementTypePtr Element)
 				      MIN_PINORVIACOPPER)
 	&& value != pin->DrillingHole)
       {
-	changed = True;
+	changed = true;
 	AddObjectTo2ndSizeUndoList (PIN_TYPE, Element, pin, pin);
 	ErasePin (pin);
 	pin->DrillingHole = value;
@@ -858,7 +858,7 @@ static void *
 ChangeElementSize (ElementTypePtr Element)
 {
   BDimension value;
-  Boolean changed = False;
+  bool changed = false;
 
   if (TEST_FLAG (LOCKFLAG, Element))
     return (NULL);
@@ -872,7 +872,7 @@ ChangeElementSize (ElementTypePtr Element)
       {
 	AddObjectToSizeUndoList (ELEMENTLINE_TYPE, Element, line, line);
 	line->Thickness = value;
-	changed = True;
+	changed = true;
       }
   }
   END_LOOP;
@@ -884,7 +884,7 @@ ChangeElementSize (ElementTypePtr Element)
       {
 	AddObjectToSizeUndoList (ELEMENTARC_TYPE, Element, arc, arc);
 	arc->Thickness = value;
-	changed = True;
+	changed = true;
       }
   }
   END_LOOP;
@@ -1055,7 +1055,7 @@ ChangeElementName (ElementTypePtr Element)
  * sets data of a text object and calculates bounding box
  * memory must have already been allocated
  * the one for the new string is allocated
- * returns True if the string has been changed
+ * returns true if the string has been changed
  */
 static void *
 ChangeTextName (LayerTypePtr Layer, TextTypePtr Text)
@@ -1078,39 +1078,39 @@ ChangeTextName (LayerTypePtr Layer, TextTypePtr Text)
 /* ---------------------------------------------------------------------------
  * changes the name of a layout; memory has to be already allocated
  */
-Boolean
+bool
 ChangeLayoutName (char *Name)
 {
   PCB->Name = Name;
   hid_action ("PCBChanged");
-  return (True);
+  return (true);
 }
 
 /* ---------------------------------------------------------------------------
  * changes the side of the board an element is on
  * returns TRUE if done
  */
-Boolean
+bool
 ChangeElementSide (ElementTypePtr Element, LocationType yoff)
 {
   if (TEST_FLAG (LOCKFLAG, Element))
-    return (False);
+    return (false);
   EraseElement (Element);
   AddObjectToMirrorUndoList (ELEMENT_TYPE, Element, Element, Element, yoff);
   MirrorElementCoordinates (PCB->Data, Element, yoff);
   DrawElement (Element, 0);
-  return (True);
+  return (true);
 }
 
 /* ---------------------------------------------------------------------------
  * changes the name of a layer; memory has to be already allocated
  */
-Boolean
+bool
 ChangeLayerName (LayerTypePtr Layer, char *Name)
 {
   CURRENT->Name = Name;
   hid_action ("LayersChanged");
-  return (True);
+  return (true);
 }
 
 /* ---------------------------------------------------------------------------
@@ -1124,14 +1124,14 @@ ChangeLineJoin (LayerTypePtr Layer, LineTypePtr Line)
   EraseLine (Line);
   if (TEST_FLAG(CLEARLINEFLAG, Line))
   {
-  AddObjectToClearPolyUndoList (LINE_TYPE, Layer, Line, Line, False);
+  AddObjectToClearPolyUndoList (LINE_TYPE, Layer, Line, Line, false);
   RestoreToPolygon (PCB->Data, LINE_TYPE, Layer, Line);
   }
   AddObjectToFlagUndoList (LINE_TYPE, Layer, Line, Line);
   TOGGLE_FLAG (CLEARLINEFLAG, Line);
   if (TEST_FLAG(CLEARLINEFLAG, Line))
   {
-  AddObjectToClearPolyUndoList (LINE_TYPE, Layer, Line, Line, True);
+  AddObjectToClearPolyUndoList (LINE_TYPE, Layer, Line, Line, true);
   ClearFromPolygon (PCB->Data, LINE_TYPE, Layer, Line);
   }
   DrawLine (Layer, Line, 0);
@@ -1172,14 +1172,14 @@ ChangeArcJoin (LayerTypePtr Layer, ArcTypePtr Arc)
   if (TEST_FLAG (CLEARLINEFLAG, Arc))
   {
     RestoreToPolygon (PCB->Data, ARC_TYPE, Layer, Arc);
-    AddObjectToClearPolyUndoList (ARC_TYPE, Layer, Arc, Arc, False);
+    AddObjectToClearPolyUndoList (ARC_TYPE, Layer, Arc, Arc, false);
     }
   AddObjectToFlagUndoList (ARC_TYPE, Layer, Arc, Arc);
   TOGGLE_FLAG (CLEARLINEFLAG, Arc);
   if (TEST_FLAG (CLEARLINEFLAG, Arc))
   {
     ClearFromPolygon (PCB->Data, ARC_TYPE, Layer, Arc);
-  AddObjectToClearPolyUndoList (ARC_TYPE, Layer, Arc, Arc, True);
+  AddObjectToClearPolyUndoList (ARC_TYPE, Layer, Arc, Arc, true);
   }
   DrawArc (Layer, Arc, 0);
   return (Arc);
@@ -1218,14 +1218,14 @@ ChangeTextJoin (LayerTypePtr Layer, TextTypePtr Text)
   EraseText (Layer, Text);
   if (TEST_FLAG(CLEARLINEFLAG, Text))
   {
-  AddObjectToClearPolyUndoList (TEXT_TYPE, Layer, Text, Text, False);
+  AddObjectToClearPolyUndoList (TEXT_TYPE, Layer, Text, Text, false);
   RestoreToPolygon (PCB->Data, TEXT_TYPE, Layer, Text);
   }
   AddObjectToFlagUndoList (LINE_TYPE, Layer, Text, Text);
   TOGGLE_FLAG (CLEARLINEFLAG, Text);
   if (TEST_FLAG(CLEARLINEFLAG, Text))
   {
-  AddObjectToClearPolyUndoList (TEXT_TYPE, Layer, Text, Text, True);
+  AddObjectToClearPolyUndoList (TEXT_TYPE, Layer, Text, Text, true);
   ClearFromPolygon (PCB->Data, TEXT_TYPE, Layer, Text);
   }
   DrawText (Layer, Text, 0);
@@ -1389,11 +1389,11 @@ ChangePadSquare (ElementTypePtr Element, PadTypePtr Pad)
   if (TEST_FLAG (LOCKFLAG, Pad))
     return (NULL);
   ErasePad (Pad);
-  AddObjectToClearPolyUndoList (PAD_TYPE, Element, Pad, Pad, False);
+  AddObjectToClearPolyUndoList (PAD_TYPE, Element, Pad, Pad, false);
   RestoreToPolygon (PCB->Data, PAD_TYPE, Element, Pad);
   AddObjectToFlagUndoList (PAD_TYPE, Element, Pad, Pad);
   TOGGLE_FLAG (SQUAREFLAG, Pad);
-  AddObjectToClearPolyUndoList (PAD_TYPE, Element, Pad, Pad, True);
+  AddObjectToClearPolyUndoList (PAD_TYPE, Element, Pad, Pad, true);
   ClearFromPolygon (PCB->Data, PAD_TYPE, Element, Pad);
   DrawPad (Pad, 0);
   return (Pad);
@@ -1436,11 +1436,11 @@ ChangePinSquare (ElementTypePtr Element, PinTypePtr Pin)
   if (TEST_FLAG (LOCKFLAG, Pin))
     return (NULL);
   ErasePin (Pin);
-  AddObjectToClearPolyUndoList (PIN_TYPE, Element, Pin, Pin, False);
+  AddObjectToClearPolyUndoList (PIN_TYPE, Element, Pin, Pin, false);
   RestoreToPolygon (PCB->Data, PIN_TYPE, Element, Pin);
   AddObjectToFlagUndoList (PIN_TYPE, Element, Pin, Pin);
   TOGGLE_FLAG (SQUAREFLAG, Pin);
-  AddObjectToClearPolyUndoList (PIN_TYPE, Element, Pin, Pin, True);
+  AddObjectToClearPolyUndoList (PIN_TYPE, Element, Pin, Pin, true);
   ClearFromPolygon (PCB->Data, PIN_TYPE, Element, Pin);
   DrawPin (Pin, 0);
   return (Pin);
@@ -1479,11 +1479,11 @@ ChangeViaOctagon (PinTypePtr Via)
   if (TEST_FLAG (LOCKFLAG, Via))
     return (NULL);
   EraseVia (Via);
-  AddObjectToClearPolyUndoList (VIA_TYPE, Via, Via, Via, False);
+  AddObjectToClearPolyUndoList (VIA_TYPE, Via, Via, Via, false);
   RestoreToPolygon (PCB->Data, VIA_TYPE, Via, Via);
   AddObjectToFlagUndoList (VIA_TYPE, Via, Via, Via);
   TOGGLE_FLAG (OCTAGONFLAG, Via);
-  AddObjectToClearPolyUndoList (VIA_TYPE, Via, Via, Via, True);
+  AddObjectToClearPolyUndoList (VIA_TYPE, Via, Via, Via, true);
   ClearFromPolygon (PCB->Data, VIA_TYPE, Via, Via);
   DrawVia (Via, 0);
   return (Via);
@@ -1522,11 +1522,11 @@ ChangePinOctagon (ElementTypePtr Element, PinTypePtr Pin)
   if (TEST_FLAG (LOCKFLAG, Pin))
     return (NULL);
   ErasePin (Pin);
-  AddObjectToClearPolyUndoList (PIN_TYPE, Element, Pin, Pin, False);
+  AddObjectToClearPolyUndoList (PIN_TYPE, Element, Pin, Pin, false);
   RestoreToPolygon (PCB->Data, PIN_TYPE, Element, Pin);
   AddObjectToFlagUndoList (PIN_TYPE, Element, Pin, Pin);
   TOGGLE_FLAG (OCTAGONFLAG, Pin);
-  AddObjectToClearPolyUndoList (PIN_TYPE, Element, Pin, Pin, True);
+  AddObjectToClearPolyUndoList (PIN_TYPE, Element, Pin, Pin, true);
   ClearFromPolygon (PCB->Data, PIN_TYPE, Element, Pin);
   DrawPin (Pin, 0);
   return (Pin);
@@ -1559,11 +1559,11 @@ ClrPinOctagon (ElementTypePtr Element, PinTypePtr Pin)
 /* ---------------------------------------------------------------------------
  * changes the hole flag of a via
  */
-Boolean
+bool
 ChangeHole (PinTypePtr Via)
 {
   if (TEST_FLAG (LOCKFLAG, Via))
-    return (False);
+    return (false);
   EraseVia (Via);
   AddObjectToFlagUndoList (VIA_TYPE, Via, Via, Via);
   TOGGLE_FLAG (HOLEFLAG, Via);
@@ -1581,23 +1581,23 @@ ChangeHole (PinTypePtr Via)
     }
   DrawVia (Via, 0);
   Draw ();
-  return (True);
+  return (true);
 }
 
 /* ---------------------------------------------------------------------------
  * changes the nopaste flag of a pad
  */
-Boolean
+bool
 ChangePaste (PadTypePtr Pad)
 {
   if (TEST_FLAG (LOCKFLAG, Pad))
-    return (False);
+    return (false);
   ErasePad (Pad);
   AddObjectToFlagUndoList (PAD_TYPE, Pad, Pad, Pad);
   TOGGLE_FLAG (NOPASTEFLAG, Pad);
   DrawPad (Pad, 0);
   Draw ();
-  return (True);
+  return (true);
 }
 
 /* ---------------------------------------------------------------------------
@@ -1608,7 +1608,7 @@ ChangePolyClear (LayerTypePtr Layer, PolygonTypePtr Polygon)
 {
   if (TEST_FLAG (LOCKFLAG, Polygon))
     return (NULL);
-  AddObjectToClearPolyUndoList (POLYGON_TYPE, Layer, Polygon, Polygon, True);
+  AddObjectToClearPolyUndoList (POLYGON_TYPE, Layer, Polygon, Polygon, true);
   AddObjectToFlagUndoList (POLYGON_TYPE, Layer, Polygon, Polygon);
   TOGGLE_FLAG (CLEARPOLYFLAG, Polygon);
   InitClip (PCB->Data, Layer, Polygon);
@@ -1618,12 +1618,12 @@ ChangePolyClear (LayerTypePtr Layer, PolygonTypePtr Polygon)
 
 /* ----------------------------------------------------------------------
  * changes the side of all selected and visible elements 
- * returns True if anything has changed
+ * returns true if anything has changed
  */
-Boolean
+bool
 ChangeSelectedElementSide (void)
 {
-  Boolean change = False;
+  bool change = false;
 
   /* setup identifiers */
   if (PCB->PinOn && PCB->ElementOn)
@@ -1645,15 +1645,15 @@ ChangeSelectedElementSide (void)
 
 /* ----------------------------------------------------------------------
  * changes the thermals on all selected and visible pins
- * and/or vias. Returns True if anything has changed
+ * and/or vias. Returns true if anything has changed
  */
-Boolean
+bool
 ChangeSelectedThermals (int types, int therm_style)
 {
-  Boolean change = False;
+  bool change = false;
 
   Delta = therm_style;
-  change = SelectedOperation (&ChangeThermalFunctions, False, types);
+  change = SelectedOperation (&ChangeThermalFunctions, false, types);
   if (change)
     {
       Draw ();
@@ -1664,18 +1664,18 @@ ChangeSelectedThermals (int types, int therm_style)
 
 /* ----------------------------------------------------------------------
  * changes the size of all selected and visible object types 
- * returns True if anything has changed
+ * returns true if anything has changed
  */
-Boolean
-ChangeSelectedSize (int types, LocationType Difference, Boolean fixIt)
+bool
+ChangeSelectedSize (int types, LocationType Difference, bool fixIt)
 {
-  Boolean change = False;
+  bool change = false;
 
   /* setup identifiers */
   Absolute = (fixIt) ? Difference : 0;
   Delta = Difference;
 
-  change = SelectedOperation (&ChangeSizeFunctions, False, types);
+  change = SelectedOperation (&ChangeSizeFunctions, false, types);
   if (change)
     {
       Draw ();
@@ -1686,20 +1686,20 @@ ChangeSelectedSize (int types, LocationType Difference, Boolean fixIt)
 
 /* ----------------------------------------------------------------------
  * changes the clearance size of all selected and visible objects
- * returns True if anything has changed
+ * returns true if anything has changed
  */
-Boolean
-ChangeSelectedClearSize (int types, LocationType Difference, Boolean fixIt)
+bool
+ChangeSelectedClearSize (int types, LocationType Difference, bool fixIt)
 {
-  Boolean change = False;
+  bool change = false;
 
   /* setup identifiers */
   Absolute = (fixIt) ? Difference : 0;
   Delta = Difference;
   if (TEST_FLAG (SHOWMASKFLAG, PCB))
-    change = SelectedOperation (&ChangeMaskSizeFunctions, False, types);
+    change = SelectedOperation (&ChangeMaskSizeFunctions, false, types);
   else
-    change = SelectedOperation (&ChangeClearSizeFunctions, False, types);
+    change = SelectedOperation (&ChangeClearSizeFunctions, false, types);
   if (change)
     {
       Draw ();
@@ -1710,17 +1710,17 @@ ChangeSelectedClearSize (int types, LocationType Difference, Boolean fixIt)
 
 /* --------------------------------------------------------------------------
  * changes the 2nd size (drilling hole) of all selected and visible objects
- * returns True if anything has changed
+ * returns true if anything has changed
  */
-Boolean
-ChangeSelected2ndSize (int types, LocationType Difference, Boolean fixIt)
+bool
+ChangeSelected2ndSize (int types, LocationType Difference, bool fixIt)
 {
-  Boolean change = False;
+  bool change = false;
 
   /* setup identifiers */
   Absolute = (fixIt) ? Difference : 0;
   Delta = Difference;
-  change = SelectedOperation (&Change2ndSizeFunctions, False, types);
+  change = SelectedOperation (&Change2ndSizeFunctions, false, types);
   if (change)
     {
       Draw ();
@@ -1731,14 +1731,14 @@ ChangeSelected2ndSize (int types, LocationType Difference, Boolean fixIt)
 
 /* ----------------------------------------------------------------------
  * changes the clearance flag (join) of all selected and visible lines
- * and/or arcs. Returns True if anything has changed
+ * and/or arcs. Returns true if anything has changed
  */
-Boolean
+bool
 ChangeSelectedJoin (int types)
 {
-  Boolean change = False;
+  bool change = false;
 
-  change = SelectedOperation (&ChangeJoinFunctions, False, types);
+  change = SelectedOperation (&ChangeJoinFunctions, false, types);
   if (change)
     {
       Draw ();
@@ -1749,14 +1749,14 @@ ChangeSelectedJoin (int types)
 
 /* ----------------------------------------------------------------------
  * changes the clearance flag (join) of all selected and visible lines
- * and/or arcs. Returns True if anything has changed
+ * and/or arcs. Returns true if anything has changed
  */
-Boolean
+bool
 SetSelectedJoin (int types)
 {
-  Boolean change = False;
+  bool change = false;
 
-  change = SelectedOperation (&SetJoinFunctions, False, types);
+  change = SelectedOperation (&SetJoinFunctions, false, types);
   if (change)
     {
       Draw ();
@@ -1767,14 +1767,14 @@ SetSelectedJoin (int types)
 
 /* ----------------------------------------------------------------------
  * changes the clearance flag (join) of all selected and visible lines
- * and/or arcs. Returns True if anything has changed
+ * and/or arcs. Returns true if anything has changed
  */
-Boolean
+bool
 ClrSelectedJoin (int types)
 {
-  Boolean change = False;
+  bool change = false;
 
-  change = SelectedOperation (&ClrJoinFunctions, False, types);
+  change = SelectedOperation (&ClrJoinFunctions, false, types);
   if (change)
     {
       Draw ();
@@ -1785,14 +1785,14 @@ ClrSelectedJoin (int types)
 
 /* ----------------------------------------------------------------------
  * changes the square-flag of all selected and visible pins or pads
- * returns True if anything has changed
+ * returns true if anything has changed
  */
-Boolean
+bool
 ChangeSelectedSquare (int types)
 {
-  Boolean change = False;
+  bool change = false;
 
-  change = SelectedOperation (&ChangeSquareFunctions, False, types);
+  change = SelectedOperation (&ChangeSquareFunctions, false, types);
   if (change)
     {
       Draw ();
@@ -1803,14 +1803,14 @@ ChangeSelectedSquare (int types)
 
 /* ----------------------------------------------------------------------
  * sets the square-flag of all selected and visible pins or pads
- * returns True if anything has changed
+ * returns true if anything has changed
  */
-Boolean
+bool
 SetSelectedSquare (int types)
 {
-  Boolean change = False;
+  bool change = false;
 
-  change = SelectedOperation (&SetSquareFunctions, False, types);
+  change = SelectedOperation (&SetSquareFunctions, false, types);
   if (change)
     {
       Draw ();
@@ -1821,14 +1821,14 @@ SetSelectedSquare (int types)
 
 /* ----------------------------------------------------------------------
  * clears the square-flag of all selected and visible pins or pads
- * returns True if anything has changed
+ * returns true if anything has changed
  */
-Boolean
+bool
 ClrSelectedSquare (int types)
 {
-  Boolean change = False;
+  bool change = false;
 
-  change = SelectedOperation (&ClrSquareFunctions, False, types);
+  change = SelectedOperation (&ClrSquareFunctions, false, types);
   if (change)
     {
       Draw ();
@@ -1839,14 +1839,14 @@ ClrSelectedSquare (int types)
 
 /* ----------------------------------------------------------------------
  * changes the octagon-flag of all selected and visible pins and vias
- * returns True if anything has changed
+ * returns true if anything has changed
  */
-Boolean
+bool
 ChangeSelectedOctagon (int types)
 {
-  Boolean change = False;
+  bool change = false;
 
-  change = SelectedOperation (&ChangeOctagonFunctions, False, types);
+  change = SelectedOperation (&ChangeOctagonFunctions, false, types);
   if (change)
     {
       Draw ();
@@ -1857,14 +1857,14 @@ ChangeSelectedOctagon (int types)
 
 /* ----------------------------------------------------------------------
  * sets the octagon-flag of all selected and visible pins and vias
- * returns True if anything has changed
+ * returns true if anything has changed
  */
-Boolean
+bool
 SetSelectedOctagon (int types)
 {
-  Boolean change = False;
+  bool change = false;
 
-  change = SelectedOperation (&SetOctagonFunctions, False, types);
+  change = SelectedOperation (&SetOctagonFunctions, false, types);
   if (change)
     {
       Draw ();
@@ -1875,14 +1875,14 @@ SetSelectedOctagon (int types)
 
 /* ----------------------------------------------------------------------
  * clears the octagon-flag of all selected and visible pins and vias
- * returns True if anything has changed
+ * returns true if anything has changed
  */
-Boolean
+bool
 ClrSelectedOctagon (int types)
 {
-  Boolean change = False;
+  bool change = false;
 
-  change = SelectedOperation (&ClrOctagonFunctions, False, types);
+  change = SelectedOperation (&ClrOctagonFunctions, false, types);
   if (change)
     {
       Draw ();
@@ -1893,12 +1893,12 @@ ClrSelectedOctagon (int types)
 
 /* ----------------------------------------------------------------------
  * changes the hole-flag of all selected and visible vias 
- * returns True if anything has changed
+ * returns true if anything has changed
  */
-Boolean
+bool
 ChangeSelectedHole (void)
 {
-  Boolean change = False;
+  bool change = false;
 
   if (PCB->ViaOn)
     VIA_LOOP (PCB->Data);
@@ -1917,12 +1917,12 @@ ChangeSelectedHole (void)
 
 /* ----------------------------------------------------------------------
  * changes the no paste-flag of all selected and visible pads
- * returns True if anything has changed
+ * returns true if anything has changed
  */
-Boolean
+bool
 ChangeSelectedPaste (void)
 {
-  Boolean change = False;
+  bool change = false;
 
   ALLPAD_LOOP (PCB->Data);
   {
@@ -1941,13 +1941,13 @@ ChangeSelectedPaste (void)
 
 /* ---------------------------------------------------------------------------
  * changes the size of the passed object
- * Returns True if anything is changed
+ * Returns true if anything is changed
  */
-Boolean
+bool
 ChangeObjectSize (int Type, void *Ptr1, void *Ptr2, void *Ptr3,
-		  LocationType Difference, Boolean fixIt)
+		  LocationType Difference, bool fixIt)
 {
-  Boolean change;
+  bool change;
 
   /* setup identifier */
   Absolute = (fixIt) ? Difference : 0;
@@ -1964,13 +1964,13 @@ ChangeObjectSize (int Type, void *Ptr1, void *Ptr2, void *Ptr3,
 
 /* ---------------------------------------------------------------------------
  * changes the clearance size of the passed object
- * Returns True if anything is changed
+ * Returns true if anything is changed
  */
-Boolean
+bool
 ChangeObjectClearSize (int Type, void *Ptr1, void *Ptr2, void *Ptr3,
-		       LocationType Difference, Boolean fixIt)
+		       LocationType Difference, bool fixIt)
 {
-  Boolean change;
+  bool change;
 
   /* setup identifier */
   Absolute = (fixIt) ? Difference : 0;
@@ -1993,14 +1993,14 @@ ChangeObjectClearSize (int Type, void *Ptr1, void *Ptr2, void *Ptr3,
 
 /* ---------------------------------------------------------------------------
  * changes the thermal of the passed object
- * Returns True if anything is changed
+ * Returns true if anything is changed
  *
  */
-Boolean
+bool
 ChangeObjectThermal (int Type, void *Ptr1, void *Ptr2, void *Ptr3,
 		     int therm_type)
 {
-  Boolean change;
+  bool change;
 
   Delta = Absolute = therm_type;
   change =
@@ -2016,13 +2016,13 @@ ChangeObjectThermal (int Type, void *Ptr1, void *Ptr2, void *Ptr3,
 
 /* ---------------------------------------------------------------------------
  * changes the 2nd size of the passed object
- * Returns True if anything is changed
+ * Returns true if anything is changed
  */
-Boolean
+bool
 ChangeObject2ndSize (int Type, void *Ptr1, void *Ptr2, void *Ptr3,
-		     LocationType Difference, Boolean fixIt, Boolean incundo)
+		     LocationType Difference, bool fixIt, bool incundo)
 {
-  Boolean change;
+  bool change;
 
   /* setup identifier */
   Absolute = (fixIt) ? Difference : 0;
@@ -2041,13 +2041,13 @@ ChangeObject2ndSize (int Type, void *Ptr1, void *Ptr2, void *Ptr3,
 
 /* ---------------------------------------------------------------------------
  * changes the mask size of the passed object
- * Returns True if anything is changed
+ * Returns true if anything is changed
  */
-Boolean
+bool
 ChangeObjectMaskSize (int Type, void *Ptr1, void *Ptr2, void *Ptr3,
-		      LocationType Difference, Boolean fixIt)
+		      LocationType Difference, bool fixIt)
 {
-  Boolean change;
+  bool change;
 
   /* setup identifier */
   Absolute = (fixIt) ? Difference : 0;
@@ -2084,57 +2084,57 @@ ChangeObjectName (int Type, void *Ptr1, void *Ptr2, void *Ptr3, char *Name)
 
 /* ---------------------------------------------------------------------------
  * changes the clearance-flag of the passed object
- * Returns True if anything is changed
+ * Returns true if anything is changed
  */
-Boolean
+bool
 ChangeObjectJoin (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
 {
   if (ObjectOperation (&ChangeJoinFunctions, Type, Ptr1, Ptr2, Ptr3) != NULL)
     {
       Draw ();
       IncrementUndoSerialNumber ();
-      return (True);
+      return (true);
     }
-  return (False);
+  return (false);
 }
 
 /* ---------------------------------------------------------------------------
  * sets the clearance-flag of the passed object
- * Returns True if anything is changed
+ * Returns true if anything is changed
  */
-Boolean
+bool
 SetObjectJoin (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
 {
   if (ObjectOperation (&SetJoinFunctions, Type, Ptr1, Ptr2, Ptr3) != NULL)
     {
       Draw ();
       IncrementUndoSerialNumber ();
-      return (True);
+      return (true);
     }
-  return (False);
+  return (false);
 }
 
 /* ---------------------------------------------------------------------------
  * clears the clearance-flag of the passed object
- * Returns True if anything is changed
+ * Returns true if anything is changed
  */
-Boolean
+bool
 ClrObjectJoin (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
 {
   if (ObjectOperation (&ClrJoinFunctions, Type, Ptr1, Ptr2, Ptr3) != NULL)
     {
       Draw ();
       IncrementUndoSerialNumber ();
-      return (True);
+      return (true);
     }
-  return (False);
+  return (false);
 }
 
 /* ---------------------------------------------------------------------------
  * changes the square-flag of the passed object
- * Returns True if anything is changed
+ * Returns true if anything is changed
  */
-Boolean
+bool
 ChangeObjectSquare (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
 {
   if (ObjectOperation (&ChangeSquareFunctions, Type, Ptr1, Ptr2, Ptr3) !=
@@ -2142,48 +2142,48 @@ ChangeObjectSquare (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
     {
       Draw ();
       IncrementUndoSerialNumber ();
-      return (True);
+      return (true);
     }
-  return (False);
+  return (false);
 }
 
 /* ---------------------------------------------------------------------------
  * sets the square-flag of the passed object
- * Returns True if anything is changed
+ * Returns true if anything is changed
  */
-Boolean
+bool
 SetObjectSquare (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
 {
   if (ObjectOperation (&SetSquareFunctions, Type, Ptr1, Ptr2, Ptr3) != NULL)
     {
       Draw ();
       IncrementUndoSerialNumber ();
-      return (True);
+      return (true);
     }
-  return (False);
+  return (false);
 }
 
 /* ---------------------------------------------------------------------------
  * clears the square-flag of the passed object
- * Returns True if anything is changed
+ * Returns true if anything is changed
  */
-Boolean
+bool
 ClrObjectSquare (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
 {
   if (ObjectOperation (&ClrSquareFunctions, Type, Ptr1, Ptr2, Ptr3) != NULL)
     {
       Draw ();
       IncrementUndoSerialNumber ();
-      return (True);
+      return (true);
     }
-  return (False);
+  return (false);
 }
 
 /* ---------------------------------------------------------------------------
  * changes the octagon-flag of the passed object
- * Returns True if anything is changed
+ * Returns true if anything is changed
  */
-Boolean
+bool
 ChangeObjectOctagon (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
 {
   if (ObjectOperation (&ChangeOctagonFunctions, Type, Ptr1, Ptr2, Ptr3) !=
@@ -2191,41 +2191,41 @@ ChangeObjectOctagon (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
     {
       Draw ();
       IncrementUndoSerialNumber ();
-      return (True);
+      return (true);
     }
-  return (False);
+  return (false);
 }
 
 /* ---------------------------------------------------------------------------
  * sets the octagon-flag of the passed object
- * Returns True if anything is changed
+ * Returns true if anything is changed
  */
-Boolean
+bool
 SetObjectOctagon (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
 {
   if (ObjectOperation (&SetOctagonFunctions, Type, Ptr1, Ptr2, Ptr3) != NULL)
     {
       Draw ();
       IncrementUndoSerialNumber ();
-      return (True);
+      return (true);
     }
-  return (False);
+  return (false);
 }
 
 /* ---------------------------------------------------------------------------
  * clears the octagon-flag of the passed object
- * Returns True if anything is changed
+ * Returns true if anything is changed
  */
-Boolean
+bool
 ClrObjectOctagon (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
 {
   if (ObjectOperation (&ClrOctagonFunctions, Type, Ptr1, Ptr2, Ptr3) != NULL)
     {
       Draw ();
       IncrementUndoSerialNumber ();
-      return (True);
+      return (true);
     }
-  return (False);
+  return (false);
 }
 
 /* ---------------------------------------------------------------------------

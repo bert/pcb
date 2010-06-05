@@ -109,7 +109,7 @@ static ObjectFunctionType DestroyFunctions = {
   DestroyRat
 };
 static DataTypePtr DestroyTarget;
-static Boolean Bulk = False;
+static bool Bulk = false;
 
 /* ---------------------------------------------------------------------------
  * remove PCB
@@ -117,7 +117,7 @@ static Boolean Bulk = False;
 void
 RemovePCB (PCBTypePtr Ptr)
 {
-  ClearUndoList (True);
+  ClearUndoList (true);
   FreePCBMemory (Ptr);
   SaveFree (Ptr);
 }
@@ -546,21 +546,21 @@ RemoveElement (ElementTypePtr Element)
 
 /* ----------------------------------------------------------------------
  * removes all selected and visible objects
- * returns True if any objects have been removed
+ * returns true if any objects have been removed
  */
-Boolean
+bool
 RemoveSelected (void)
 {
-  Bulk = True;
-  if (SelectedOperation (&RemoveFunctions, False, ALL_TYPES))
+  Bulk = true;
+  if (SelectedOperation (&RemoveFunctions, false, ALL_TYPES))
     {
       IncrementUndoSerialNumber ();
       Draw ();
-      Bulk = False;
-      return (True);
+      Bulk = false;
+      return (true);
     }
-  Bulk = False;
-  return (False);
+  Bulk = false;
+  return (false);
 }
 
 /* ---------------------------------------------------------------------------
@@ -579,21 +579,21 @@ RemoveObject (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
  * can delete all rat lines, or only selected one
  */
 
-Boolean
-DeleteRats (Boolean selected)
+bool
+DeleteRats (bool selected)
 {
-  Boolean changed = False;
-  Bulk = True;
+  bool changed = false;
+  Bulk = true;
   RAT_LOOP (PCB->Data);
   {
     if ((!selected) || TEST_FLAG (SELECTEDFLAG, line))
       {
-	changed = True;
+	changed = true;
 	RemoveRat (line);
       }
   }
   END_LOOP;
-  Bulk = False;
+  Bulk = false;
   if (changed)
     {
       Draw ();

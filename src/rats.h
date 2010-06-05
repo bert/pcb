@@ -42,9 +42,9 @@ LibraryMenuTypePtr netname_to_netname (char *netname);
 RatTypePtr AddNet (void);
 char *ConnectionName (int, void *, void *);
 
-Boolean AddAllRats (Boolean, void (*)());
-Boolean SeekPad (LibraryEntryTypePtr, ConnectionTypePtr, Boolean);
+bool AddAllRats (bool, void (*)());
+bool SeekPad (LibraryEntryTypePtr, ConnectionTypePtr, bool);
 
 NetListTypePtr ProcNetlist (LibraryTypePtr);
-NetListListType CollectSubnets (Boolean);
+NetListListType CollectSubnets (bool);
 #endif

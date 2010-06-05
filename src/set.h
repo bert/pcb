@@ -34,18 +34,18 @@
 #include "global.h"
 
 void SetTextScale (Dimension);
-void SetGrid (float, Boolean);
+void SetGrid (float, bool);
 void SetZoom (float);
 void SetLineSize (BDimension);
-void SetViaSize (BDimension, Boolean);
-void SetViaDrillingHole (BDimension, Boolean);
+void SetViaSize (BDimension, bool);
+void SetViaDrillingHole (BDimension, bool);
 void SetKeepawayWidth (BDimension);
-void SetChangedFlag (Boolean);
+void SetChangedFlag (bool);
 void SetBufferNumber (int);
 void SetMode (int);
 void SetCrosshairRangeToBuffer (void);
 void SetRouteStyle (char *);
-void SetLocalRef (LocationType, LocationType, Boolean);
+void SetLocalRef (LocationType, LocationType, bool);
 void RedrawZoom (Position, Position);
 void SaveMode (void);
 void RestoreMode (void);

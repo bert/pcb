@@ -208,7 +208,7 @@ static int Parse(char *Executable, char *Path, char *Filename, char *Parameter)
 	char *tmps;
 	size_t l;
 #ifdef FLEX_SCANNER
-	static	Boolean	firsttime = True;
+	static	bool	firsttime = true;
 #endif
 
 	if (EMPTY_STRING_P (Executable))
@@ -258,7 +258,7 @@ static int Parse(char *Executable, char *Path, char *Filename, char *Parameter)
 		/* reset parser if not called the first time */
 	if (!firsttime)
 		yyrestart(yyin);
-	firsttime = False;
+	firsttime = false;
 #endif
 
 		/* init linenumber and filename for yyerror() */

@@ -609,7 +609,7 @@ SquarePadPoly (PadType * pad, BDimension clear)
 
 /* clear np1 from the polygon */
 static int
-Subtract (POLYAREA * np1, PolygonType * p, Boolean fnp)
+Subtract (POLYAREA * np1, PolygonType * p, bool fnp)
 {
   POLYAREA *merged = NULL, *np = np1;
   int x;
@@ -713,7 +713,7 @@ SubtractLine (LineType * line, PolygonType * p)
     return 0;
   if (!(np = LinePoly (line, line->Thickness + line->Clearance)))
     return -1;
-  return Subtract (np, p, True);
+  return Subtract (np, p, true);
 }
 
 static int
@@ -725,7 +725,7 @@ SubtractArc (ArcType * arc, PolygonType * p)
     return 0;
   if (!(np = ArcPoly (arc, arc->Thickness + arc->Clearance)))
     return -1;
-  return Subtract (np, p, True);
+  return Subtract (np, p, true);
 }
 
 static int
@@ -739,7 +739,7 @@ SubtractText (TextType * text, PolygonType * p)
   if (!(np = RoundRect (b->X1 + PCB->Bloat, b->X2 - PCB->Bloat,
                         b->Y1 + PCB->Bloat, b->Y2 - PCB->Bloat, PCB->Bloat)))
     return -1;
-  return Subtract (np, p, True);
+  return Subtract (np, p, true);
 }
 
 static int
@@ -761,7 +761,7 @@ SubtractPad (PadType * pad, PolygonType * p)
           (np = LinePoly ((LineType *) pad, pad->Thickness + pad->Clearance)))
         return -1;
     }
-  return Subtract (np, p, True);
+  return Subtract (np, p, true);
 }
 
 struct cpInfo
@@ -770,7 +770,7 @@ struct cpInfo
   DataType *data;
   LayerType *layer;
   PolygonType *polygon;
-  Boolean solder;
+  bool solder;
   jmp_buf env;
 };
 
@@ -1049,7 +1049,7 @@ UnsubtractPad (PadType * pad, LayerType * l, PolygonType * p)
   return 1;
 }
 
-static Boolean inhibit = False;
+static bool inhibit = false;
 
 int
 InitClip (DataTypePtr Data, LayerTypePtr layer, PolygonType * p)
@@ -1075,16 +1075,16 @@ InitClip (DataTypePtr Data, LayerTypePtr layer, PolygonType * p)
  * line between the points on either side of it is redundant.
  * returns true if any points are removed
  */
-Boolean
+bool
 RemoveExcessPolygonPoints (LayerTypePtr Layer, PolygonTypePtr Polygon)
 {
   PointTypePtr pt1, pt2, pt3;
   Cardinal n;
   LineType line;
-  Boolean changed = False;
+  bool changed = false;
 
   if (Undoing ())
-    return (False);
+    return (false);
   /* there are always at least three points in a polygon */
   pt1 = &Polygon->Points[Polygon->PointN - 1];
   pt2 = &Polygon->Points[0];
@@ -1103,7 +1103,7 @@ RemoveExcessPolygonPoints (LayerTypePtr Layer, PolygonTypePtr Polygon)
         {
           RemoveObject (POLYGONPOINT_TYPE, (void *) Layer, (void *) Polygon,
                         (void *) pt2);
-          changed = True;
+          changed = true;
         }
     }
   return (changed);
@@ -1258,7 +1258,7 @@ CopyAttachedPolygonToLayer (void)
   r_insert_entry (CURRENT->polygon_tree, (BoxType *) polygon, 0);
   InitClip (PCB->Data, CURRENT, polygon);
   DrawPolygon (CURRENT, polygon, 0);
-  SetChangedFlag (True);
+  SetChangedFlag (true);
 
   /* reset state of attached line */
   Crosshair.AttachedLine.State = STATE_FIRST;
@@ -1490,11 +1490,11 @@ ClearFromPolygon (DataType * Data, int type, void *ptr1, void *ptr2)
     PlowsPolygon (Data, type, ptr1, ptr2, subtract_plow);
 }
 
-Boolean
-isects (POLYAREA * a, PolygonTypePtr p, Boolean fr)
+bool
+isects (POLYAREA * a, PolygonTypePtr p, bool fr)
 {
   POLYAREA *x;
-  Boolean ans;
+  bool ans;
   ans = Touching (a, p->Clipped);
   /* argument may be register, so we must copy it */
   x = a;
@@ -1504,7 +1504,7 @@ isects (POLYAREA * a, PolygonTypePtr p, Boolean fr)
 }
 
 
-Boolean
+bool
 IsPointInPolygon (LocationType X, LocationType Y, BDimension r,
                   PolygonTypePtr p)
 {
@@ -1513,16 +1513,16 @@ IsPointInPolygon (LocationType X, LocationType Y, BDimension r,
   v[0] = X;
   v[1] = Y;
   if (poly_CheckInside (p->Clipped, v))
-    return True;
+    return true;
   if (r < 1)
-    return False;
+    return false;
   if (!(c = CirclePoly (X, Y, r)))
-    return False;
-  return isects (c, p, True);
+    return false;
+  return isects (c, p, true);
 }
 
 
-Boolean
+bool
 IsPointInPolygonIgnoreHoles (LocationType X, LocationType Y, PolygonTypePtr p)
 {
   Vector v;
@@ -1531,15 +1531,15 @@ IsPointInPolygonIgnoreHoles (LocationType X, LocationType Y, PolygonTypePtr p)
   return poly_InsideContour (p->Clipped->contours, v);
 }
 
-Boolean
+bool
 IsRectangleInPolygon (LocationType X1, LocationType Y1, LocationType X2,
                       LocationType Y2, PolygonTypePtr p)
 {
   POLYAREA *s;
   if (!
       (s = RectPoly (min (X1, X2), max (X1, X2), min (Y1, Y2), max (Y1, Y2))))
-    return False;
-  return isects (s, p, True);
+    return false;
+  return isects (s, p, true);
 }
 
 /* NB: This function will free the passed POLYAREA.
@@ -1633,17 +1633,17 @@ NoHolesPolygonDicer (PolygonTypePtr p, const BoxType * clip,
 }
 
 /* make a polygon split into multiple parts into multiple polygons */
-Boolean
+bool
 MorphPolygon (LayerTypePtr layer, PolygonTypePtr poly)
 {
   POLYAREA *p, *start;
-  Boolean many = False;
+  bool many = false;
   FlagType flags;
 
   if (!poly->Clipped || TEST_FLAG (LOCKFLAG, poly))
-    return False;
+    return false;
   if (poly->Clipped->f == poly->Clipped)
-    return False;
+    return false;
   ErasePolygon (poly);
   start = p = poly->Clipped;
   /* This is ugly. The creation of the new polygons can cause
@@ -1659,7 +1659,7 @@ MorphPolygon (LayerTypePtr layer, PolygonTypePtr poly)
   poly->NoHoles = NULL;
   flags = poly->Flags;
   RemovePolygon (layer, poly);
-  inhibit = True;
+  inhibit = true;
   do
     {
       VNODE *v;
@@ -1669,8 +1669,8 @@ MorphPolygon (LayerTypePtr layer, PolygonTypePtr poly)
         {
           new = CreateNewPolygon (layer, flags);
           if (!new)
-            return False;
-          many = True;
+            return false;
+          many = true;
           v = &p->contours->head;
           CreateNewPointInPolygon (new, v->point[0], v->point[1]);
           for (v = v->next; v != &p->contours->head; v = v->next)
@@ -1696,7 +1696,7 @@ MorphPolygon (LayerTypePtr layer, PolygonTypePtr poly)
         }
     }
   while (p != start);
-  inhibit = False;
+  inhibit = false;
   IncrementUndoSerialNumber ();
   return many;
 }

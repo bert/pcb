@@ -60,7 +60,7 @@ static gint x_pan_speed, y_pan_speed;
 
 /* Set to true if cursor is currently in viewport. This is a hack to prevent
  * Crosshair stack corruption due to unmatching window enter / leave events */
-gboolean cursor_in_viewport = False;
+gboolean cursor_in_viewport = false;
 
 void
 ghid_port_ranges_changed (void)
@@ -253,7 +253,7 @@ ghid_note_event_location (GdkEventButton * ev)
   if (moved)
     {
       AdjustAttachedObjects ();
-      RestoreCrosshair (False);
+      RestoreCrosshair (false);
     }
   ghid_set_cursor_position_labels ();
   return moved;

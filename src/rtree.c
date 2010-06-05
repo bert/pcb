@@ -110,7 +110,7 @@ __r_node_is_good (struct rtree_node *node)
 {
   int i, flag = 1;
   int kind = -1;
-  Boolean last = False;
+  bool last = false;
 
   if (node == NULL)
     return 1;
@@ -120,7 +120,7 @@ __r_node_is_good (struct rtree_node *node)
         {
           if (!node->u.rects[i].bptr)
             {
-              last = True;
+              last = true;
               continue;
             }
           /* check that once one entry is empty, all the rest are too */
@@ -154,7 +154,7 @@ __r_node_is_good (struct rtree_node *node)
         {
           if (!node->u.kids[i])
             {
-              last = True;
+              last = true;
               continue;
             }
           /* make sure all children are the same type */
@@ -199,7 +199,7 @@ __r_node_is_good (struct rtree_node *node)
 
 
 /* check the whole tree from this node down for consistency */
-static Boolean
+static bool
 __r_tree_is_good (struct rtree_node *node)
 {
   int i;
@@ -672,7 +672,7 @@ find_clusters (struct rtree_node *node)
 {
   float total_a, total_b;
   float a_X, a_Y, b_X, b_Y;
-  Boolean belong[M_SIZE + 1];
+  bool belong[M_SIZE + 1];
   struct centroid center[M_SIZE + 1];
   int clust_a, clust_b, tries;
   int a_manage = 0, b_manage = 0;
@@ -718,20 +718,20 @@ find_clusters (struct rtree_node *node)
           dist2 = SQUARE (b_X - center[i].x) + SQUARE (b_Y - center[i].y);
           if (dist1 * (clust_a + M_SIZE / 2) < dist2 * (clust_b + M_SIZE / 2))
             {
-              belong[i] = True;
+              belong[i] = true;
               clust_a++;
             }
           else
             {
-              belong[i] = False;
+              belong[i] = false;
               clust_b++;
             }
         }
       /* kludge to fix degenerate cases */
       if (clust_a == M_SIZE + 1)
-        belong[M_SIZE / 2] = False;
+        belong[M_SIZE / 2] = false;
       else if (clust_b == M_SIZE + 1)
-        belong[M_SIZE / 2] = True;
+        belong[M_SIZE / 2] = true;
       /* compute new center of gravity of clusters */
       total_a = total_b = 0;
       a_X = a_Y = b_X = b_Y = 0;
@@ -900,7 +900,7 @@ penalty (struct rtree_node *node, const BoxType * query)
 
 static void
 __r_insert_node (struct rtree_node *node, const BoxType * query,
-                 int manage, Boolean force)
+                 int manage, bool force)
 {
 
 #ifdef SLOW_ASSERTS
@@ -979,7 +979,7 @@ __r_insert_node (struct rtree_node *node, const BoxType * query,
             break;
           if (contained (node->u.kids[i], query))
             {
-              __r_insert_node (node->u.kids[i], query, manage, False);
+              __r_insert_node (node->u.kids[i], query, manage, false);
               sort_node (node);
               return;
             }
@@ -991,7 +991,7 @@ __r_insert_node (struct rtree_node *node, const BoxType * query,
           struct rtree_node *new_node;
           new_node = calloc (1, sizeof (*new_node));
           new_node->parent = node;
-          new_node->flags.is_leaf = True;
+          new_node->flags.is_leaf = true;
           node->u.kids[i] = new_node;
           new_node->u.rects[0].bptr = query;
           new_node->u.rects[0].bounds = *query;
@@ -1016,7 +1016,7 @@ __r_insert_node (struct rtree_node *node, const BoxType * query,
               best_node = node->u.kids[i];
             }
         }
-      __r_insert_node (best_node, query, manage, True);
+      __r_insert_node (best_node, query, manage, true);
       sort_node (node);
       return;
     }
@@ -1038,7 +1038,7 @@ r_insert_entry (rtree_t * rtree, const BoxType * which, int man)
   rtree->size++;
 }
 
-Boolean
+bool
 __r_delete (struct rtree_node *node, const BoxType * query)
 {
   int i, flag, mask, a;
@@ -1046,7 +1046,7 @@ __r_delete (struct rtree_node *node, const BoxType * query)
   /* the tree might be inconsistent during delete */
   if (query->X1 < node->box.X1 || query->Y1 < node->box.Y1
       || query->X2 > node->box.X2 || query->Y2 > node->box.Y2)
-    return False;
+    return false;
   if (!node->flags.is_leaf)
     {
       for (i = 0; i < M_SIZE; i++)
@@ -1071,7 +1071,7 @@ __r_delete (struct rtree_node *node, const BoxType * query)
                       /* changing type of node, be sure it's all zero */
                       for (i = 1; i < M_SIZE + 1; i++)
                         node->u.rects[i].bptr = NULL;
-                      return True;
+                      return true;
                     }
                   return (__r_delete (node->parent, &node->box));
                 }
@@ -1082,17 +1082,17 @@ __r_delete (struct rtree_node *node, const BoxType * query)
                     adjust_bounds (node);
                     node = node->parent;
                   }
-              return True;
+              return true;
             }
           if (node->u.kids[i])
             {
               if (__r_delete (node->u.kids[i], query))
-                return True;
+                return true;
             }
           else
             break;
         }
-      return False;
+      return false;
     }
   /* leaf node here */
   mask = 0;
@@ -1112,7 +1112,7 @@ __r_delete (struct rtree_node *node, const BoxType * query)
       a <<= 1;
     }
   if (!node->u.rects[i].bptr)
-    return False;               /* not at this leaf */
+    return false;               /* not at this leaf */
   if (node->flags.manage & a)
     {
       free ((void *) node->u.rects[i].bptr);
@@ -1133,7 +1133,7 @@ __r_delete (struct rtree_node *node, const BoxType * query)
     {
       if (node->parent)
         __r_delete (node->parent, &node->box);
-      return True;
+      return true;
     }
   else
     /* propagate boundary adjustment upward */
@@ -1142,13 +1142,13 @@ __r_delete (struct rtree_node *node, const BoxType * query)
         adjust_bounds (node);
         node = node->parent;
       }
-  return True;
+  return true;
 }
 
-Boolean
+bool
 r_delete_entry (rtree_t * rtree, const BoxType * box)
 {
-  Boolean r;
+  bool r;
 
   assert (box);
   assert (rtree);

@@ -70,32 +70,32 @@ static LayerTypePtr SearchLayer;
  * some local prototypes.  The first parameter includes LOCKED_TYPE if we
  * want to include locked types in the search.
  */
-static Boolean SearchLineByLocation (int, LayerTypePtr *, LineTypePtr *,
+static bool SearchLineByLocation (int, LayerTypePtr *, LineTypePtr *,
 				     LineTypePtr *);
-static Boolean SearchArcByLocation (int, LayerTypePtr *, ArcTypePtr *,
+static bool SearchArcByLocation (int, LayerTypePtr *, ArcTypePtr *,
 				    ArcTypePtr *);
-static Boolean SearchRatLineByLocation (int, RatTypePtr *, RatTypePtr *,
+static bool SearchRatLineByLocation (int, RatTypePtr *, RatTypePtr *,
 					RatTypePtr *);
-static Boolean SearchTextByLocation (int, LayerTypePtr *, TextTypePtr *,
+static bool SearchTextByLocation (int, LayerTypePtr *, TextTypePtr *,
 				     TextTypePtr *);
-static Boolean SearchPolygonByLocation (int, LayerTypePtr *, PolygonTypePtr *,
+static bool SearchPolygonByLocation (int, LayerTypePtr *, PolygonTypePtr *,
 					PolygonTypePtr *);
-static Boolean SearchPinByLocation (int, ElementTypePtr *, PinTypePtr *,
+static bool SearchPinByLocation (int, ElementTypePtr *, PinTypePtr *,
 				    PinTypePtr *);
-static Boolean SearchPadByLocation (int, ElementTypePtr *, PadTypePtr *,
-				    PadTypePtr *, Boolean);
-static Boolean SearchViaByLocation (int, PinTypePtr *, PinTypePtr *,
+static bool SearchPadByLocation (int, ElementTypePtr *, PadTypePtr *,
+				    PadTypePtr *, bool);
+static bool SearchViaByLocation (int, PinTypePtr *, PinTypePtr *,
 				    PinTypePtr *);
-static Boolean SearchElementNameByLocation (int, ElementTypePtr *,
+static bool SearchElementNameByLocation (int, ElementTypePtr *,
 					    TextTypePtr *, TextTypePtr *,
-					    Boolean);
-static Boolean SearchLinePointByLocation (int, LayerTypePtr *, LineTypePtr *,
+					    bool);
+static bool SearchLinePointByLocation (int, LayerTypePtr *, LineTypePtr *,
 					  PointTypePtr *);
-static Boolean SearchPointByLocation (int, LayerTypePtr *, PolygonTypePtr *,
+static bool SearchPointByLocation (int, LayerTypePtr *, PolygonTypePtr *,
 				      PointTypePtr *);
-static Boolean SearchElementByLocation (int, ElementTypePtr *,
+static bool SearchElementByLocation (int, ElementTypePtr *,
 					ElementTypePtr *, ElementTypePtr *,
-					Boolean);
+					bool);
 
 /* ---------------------------------------------------------------------------
  * searches a via
@@ -103,7 +103,7 @@ static Boolean SearchElementByLocation (int, ElementTypePtr *,
 struct ans_info
 {
   void **ptr1, **ptr2, **ptr3;
-  Boolean BackToo;
+  bool BackToo;
   float area;
   jmp_buf env;
   int locked;			/* This will be zero or LOCKFLAG */
@@ -126,7 +126,7 @@ pinorvia_callback (const BoxType * box, void *cl)
   return 1;			/* never reached */
 }
 
-static Boolean
+static bool
 SearchViaByLocation (int locked, PinTypePtr * Via, PinTypePtr * Dummy1,
 		     PinTypePtr * Dummy2)
 {
@@ -134,7 +134,7 @@ SearchViaByLocation (int locked, PinTypePtr * Via, PinTypePtr * Dummy1,
 
   /* search only if via-layer is visible */
   if (!PCB->ViaOn)
-    return False;
+    return false;
 
   info.ptr1 = (void **) Via;
   info.ptr2 = (void **) Dummy1;
@@ -145,16 +145,16 @@ SearchViaByLocation (int locked, PinTypePtr * Via, PinTypePtr * Dummy1,
     {
       r_search (PCB->Data->via_tree, &SearchBox, NULL, pinorvia_callback,
 		&info);
-      return False;
+      return false;
     }
-  return True;
+  return true;
 }
 
 /* ---------------------------------------------------------------------------
  * searches a pin
  * starts with the newest element
  */
-static Boolean
+static bool
 SearchPinByLocation (int locked, ElementTypePtr * Element, PinTypePtr * Pin,
 		     PinTypePtr * Dummy)
 {
@@ -162,7 +162,7 @@ SearchPinByLocation (int locked, ElementTypePtr * Element, PinTypePtr * Pin,
 
   /* search only if pin-layer is visible */
   if (!PCB->PinOn)
-    return False;
+    return false;
   info.ptr1 = (void **) Element;
   info.ptr2 = (void **) Pin;
   info.ptr3 = (void **) Dummy;
@@ -172,8 +172,8 @@ SearchPinByLocation (int locked, ElementTypePtr * Element, PinTypePtr * Pin,
     r_search (PCB->Data->pin_tree, &SearchBox, NULL, pinorvia_callback,
 	      &info);
   else
-    return True;
-  return False;
+    return true;
+  return false;
 }
 
 static int
@@ -201,15 +201,15 @@ pad_callback (const BoxType * b, void *cl)
  * searches a pad
  * starts with the newest element
  */
-static Boolean
+static bool
 SearchPadByLocation (int locked, ElementTypePtr * Element, PadTypePtr * Pad,
-		     PadTypePtr * Dummy, Boolean BackToo)
+		     PadTypePtr * Dummy, bool BackToo)
 {
   struct ans_info info;
 
   /* search only if pin-layer is visible */
   if (!PCB->PinOn)
-    return (False);
+    return (false);
   info.ptr1 = (void **) Element;
   info.ptr2 = (void **) Pad;
   info.ptr3 = (void **) Dummy;
@@ -218,8 +218,8 @@ SearchPadByLocation (int locked, ElementTypePtr * Element, PadTypePtr * Pad,
   if (setjmp (info.env) == 0)
     r_search (PCB->Data->pad_tree, &SearchBox, NULL, pad_callback, &info);
   else
-    return True;
-  return False;
+    return true;
+  return false;
 }
 
 /* ---------------------------------------------------------------------------
@@ -253,7 +253,7 @@ line_callback (const BoxType * box, void *cl)
 }
 
 
-static Boolean
+static bool
 SearchLineByLocation (int locked, LayerTypePtr * Layer, LineTypePtr * Line,
 		      LineTypePtr * Dummy)
 {
@@ -268,9 +268,9 @@ SearchLineByLocation (int locked, LayerTypePtr * Layer, LineTypePtr * Line,
     {
       r_search (SearchLayer->line_tree, &SearchBox, NULL, line_callback,
 		&info);
-      return False;
+      return false;
     }
-  return (True);
+  return (true);
 }
 
 static int
@@ -296,7 +296,7 @@ rat_callback (const BoxType * box, void *cl)
 /* ---------------------------------------------------------------------------
  * searches rat lines if they are visible
  */
-static Boolean
+static bool
 SearchRatLineByLocation (int locked, RatTypePtr * Line, RatTypePtr * Dummy1,
 			 RatTypePtr * Dummy2)
 {
@@ -310,9 +310,9 @@ SearchRatLineByLocation (int locked, RatTypePtr * Line, RatTypePtr * Dummy1,
   if (setjmp (info.env) == 0)
     {
       r_search (PCB->Data->rat_tree, &SearchBox, NULL, rat_callback, &info);
-      return False;
+      return false;
     }
-  return (True);
+  return (true);
 }
 
 /* ---------------------------------------------------------------------------
@@ -343,7 +343,7 @@ arc_callback (const BoxType * box, void *cl)
 }
 
 
-static Boolean
+static bool
 SearchArcByLocation (int locked, LayerTypePtr * Layer, ArcTypePtr * Arc,
 		     ArcTypePtr * Dummy)
 {
@@ -357,9 +357,9 @@ SearchArcByLocation (int locked, LayerTypePtr * Layer, ArcTypePtr * Arc,
   if (setjmp (info.env) == 0)
     {
       r_search (SearchLayer->arc_tree, &SearchBox, NULL, arc_callback, &info);
-      return False;
+      return false;
     }
-  return (True);
+  return (true);
 }
 
 static int
@@ -382,7 +382,7 @@ text_callback (const BoxType * box, void *cl)
 /* ---------------------------------------------------------------------------
  * searches text on the SearchLayer
  */
-static Boolean
+static bool
 SearchTextByLocation (int locked, LayerTypePtr * Layer, TextTypePtr * Text,
 		      TextTypePtr * Dummy)
 {
@@ -397,9 +397,9 @@ SearchTextByLocation (int locked, LayerTypePtr * Layer, TextTypePtr * Text,
     {
       r_search (SearchLayer->text_tree, &SearchBox, NULL, text_callback,
 		&info);
-      return False;
+      return false;
     }
-  return (True);
+  return (true);
 }
 
 static int
@@ -423,7 +423,7 @@ polygon_callback (const BoxType * box, void *cl)
 /* ---------------------------------------------------------------------------
  * searches a polygon on the SearchLayer 
  */
-static Boolean
+static bool
 SearchPolygonByLocation (int locked, LayerTypePtr * Layer,
 			 PolygonTypePtr * Polygon, PolygonTypePtr * Dummy)
 {
@@ -438,9 +438,9 @@ SearchPolygonByLocation (int locked, LayerTypePtr * Layer,
     {
       r_search (SearchLayer->polygon_tree, &SearchBox, NULL, polygon_callback,
 		&info);
-      return False;
+      return false;
     }
-  return (True);
+  return (true);
 }
 
 static int
@@ -478,7 +478,7 @@ linepoint_callback (const BoxType * b, void *cl)
 /* ---------------------------------------------------------------------------
  * searches a line-point on all the search layer
  */
-static Boolean
+static bool
 SearchLinePointByLocation (int locked, LayerTypePtr * Layer,
 			   LineTypePtr * Line, PointTypePtr * Point)
 {
@@ -493,20 +493,20 @@ SearchLinePointByLocation (int locked, LayerTypePtr * Layer,
   info.locked = (locked & LOCKED_TYPE) ? 0 : LOCKFLAG;
   if (r_search
       (SearchLayer->line_tree, &SearchBox, NULL, linepoint_callback, &info))
-    return True;
-  return False;
+    return true;
+  return false;
 }
 
 /* ---------------------------------------------------------------------------
  * searches a polygon-point on all layers that are switched on
  * in layerstack order
  */
-static Boolean
+static bool
 SearchPointByLocation (int locked, LayerTypePtr * Layer,
 		       PolygonTypePtr * Polygon, PointTypePtr * Point)
 {
   float d, least;
-  Boolean found = False;
+  bool found = false;
 
   least = SQUARE (SearchRadius + MAX_POLYGON_POINT_DISTANCE);
   *Layer = SearchLayer;
@@ -520,15 +520,15 @@ SearchPointByLocation (int locked, LayerTypePtr * Layer,
 	  least = d;
 	  *Polygon = polygon;
 	  *Point = point;
-	  found = True;
+	  found = true;
 	}
     }
     END_LOOP;
   }
   END_LOOP;
   if (found)
-    return (True);
-  return (False);
+    return (true);
+  return (false);
 }
 
 static int
@@ -563,10 +563,10 @@ name_callback (const BoxType * box, void *cl)
  * searches the name of an element
  * the search starts with the last element and goes back to the beginning
  */
-static Boolean
+static bool
 SearchElementNameByLocation (int locked, ElementTypePtr * Element,
 			     TextTypePtr * Text, TextTypePtr * Dummy,
-			     Boolean BackToo)
+			     bool BackToo)
 {
   struct ans_info info;
 
@@ -581,9 +581,9 @@ SearchElementNameByLocation (int locked, ElementTypePtr * Element,
       info.locked = (locked & LOCKED_TYPE) ? 0 : LOCKFLAG;
       if (r_search (PCB->Data->name_tree[NAME_INDEX (PCB)], &SearchBox, NULL,
 		    name_callback, &info))
-	return True;
+	return true;
     }
-  return (False);
+  return (false);
 }
 
 static int
@@ -617,11 +617,11 @@ element_callback (const BoxType * box, void *cl)
  * the search starts with the last element and goes back to the beginning
  * if more than one element matches, the smallest one is taken
  */
-static Boolean
+static bool
 SearchElementByLocation (int locked,
 			 ElementTypePtr * Element,
 			 ElementTypePtr * Dummy1, ElementTypePtr * Dummy2,
-			 Boolean BackToo)
+			 bool BackToo)
 {
   struct ans_info info;
 
@@ -637,15 +637,15 @@ SearchElementByLocation (int locked,
       if (r_search
 	  (PCB->Data->element_tree, &SearchBox, NULL, element_callback,
 	   &info))
-	return True;
+	return true;
     }
-  return False;
+  return false;
 }
 
 /* ---------------------------------------------------------------------------
  * checks if a point is on a pin
  */
-Boolean
+bool
 IsPointOnPin (float X, float Y, float Radius, PinTypePtr pin)
 {
   if (TEST_FLAG (SQUAREFLAG, pin))
@@ -658,24 +658,24 @@ IsPointOnPin (float X, float Y, float Radius, PinTypePtr pin)
       b.Y1 = pin->Y - t;
       b.Y2 = pin->Y + t;
       if (IsPointInBox (X, Y, &b, Radius))
-	return (True);
+	return (true);
     }
   else if (SQUARE (pin->X - X) + SQUARE (pin->Y - Y) <=
 	   SQUARE (pin->Thickness / 2 + Radius))
-    return (True);
-  return (False);
+    return (true);
+  return (false);
 }
 
 /* ---------------------------------------------------------------------------
  * checks if a rat-line end is on a PV
  */
-Boolean
+bool
 IsPointOnLineEnd (LocationType X, LocationType Y, RatTypePtr Line)
 {
   if (((X == Line->Point1.X) && (Y == Line->Point1.Y)) ||
       ((X == Line->Point2.X) && (Y == Line->Point2.Y)))
-    return (True);
-  return (False);
+    return (true);
+  return (false);
 }
 
 /* ---------------------------------------------------------------------------
@@ -708,14 +708,14 @@ IsPointOnLineEnd (LocationType X, LocationType Y, RatTypePtr Line)
  *   d = ----------------------------
  *                    l
  */
-Boolean
+bool
 IsPointOnLine (float X, float Y, float Radius, LineTypePtr Line)
 {
   register float dx, dy, dx1, dy1, l, d, r;
   Radius += ((float) Line->Thickness + 1.) / 2.0;
   if (Y + Radius < MIN (Line->Point1.Y, Line->Point2.Y) ||
       Y - Radius > MAX (Line->Point1.Y, Line->Point2.Y))
-    return False;
+    return false;
   dx = (float) (Line->Point2.X - Line->Point1.X);
   dy = (float) (Line->Point2.Y - Line->Point1.Y);
   dx1 = (float) (Line->Point1.X - X);
@@ -727,15 +727,15 @@ IsPointOnLine (float X, float Y, float Radius, LineTypePtr Line)
   if ((l = dx * dx + dy * dy) == 0.0)
     {
       l = SQUARE (Line->Point1.X - X) + SQUARE (Line->Point1.Y - Y);
-      return ((l <= Radius) ? True : False);
+      return ((l <= Radius) ? true : false);
     }
   if (d * d > Radius * l)
-    return (False);
+    return (false);
 
   /* they intersect if Q is on line */
   r = -(dx * dx1 + dy * dy1);
   if (r >= 0 && r <= l)
-    return (True);
+    return (true);
 
   /* we have to check P1 or P2 depending on the sign of r */
   if (r < 0.0)
@@ -748,7 +748,7 @@ IsPointOnLine (float X, float Y, float Radius, LineTypePtr Line)
 /* ---------------------------------------------------------------------------
  * checks if a line crosses a rectangle
  */
-Boolean
+bool
 IsLineInRectangle (LocationType X1, LocationType Y1,
 		   LocationType X2, LocationType Y2, LineTypePtr Line)
 {
@@ -758,7 +758,7 @@ IsLineInRectangle (LocationType X1, LocationType Y1,
   /* in case the whole line is inside the rectangle */
   if (X1 < Line->Point1.X && X2 > Line->Point1.X &&
       Y1 < Line->Point1.Y && Y2 > Line->Point1.Y)
-    return (True);
+    return (true);
   /* construct a set of dummy lines and check each of them */
   line.Thickness = 0;
   line.Flags = NoFlags ();
@@ -768,30 +768,30 @@ IsLineInRectangle (LocationType X1, LocationType Y1,
   line.Point1.X = X1;
   line.Point2.X = X2;
   if (LineLineIntersect (&line, Line))
-    return (True);
+    return (true);
 
   /* upper-right to lower-right corner */
   line.Point1.X = X2;
   line.Point1.Y = Y1;
   line.Point2.Y = Y2;
   if (LineLineIntersect (&line, Line))
-    return (True);
+    return (true);
 
   /* lower-right to lower-left corner */
   line.Point1.Y = Y2;
   line.Point1.X = X1;
   line.Point2.X = X2;
   if (LineLineIntersect (&line, Line))
-    return (True);
+    return (true);
 
   /* lower-left to upper-left corner */
   line.Point2.X = X1;
   line.Point1.Y = Y1;
   line.Point2.Y = Y2;
   if (LineLineIntersect (&line, Line))
-    return (True);
+    return (true);
 
-  return (False);
+  return (false);
 }
 static int 
 sign(float x){return x<0?-1:x>0?1:0;}
@@ -818,15 +818,15 @@ IsPointInQuadrangle(PointType p[4],PointTypePtr l)
       y = l->Y - p[2].Y;
       prod1 = (float)x * dx + (float)y * dy;
       if (sign (prod0) * sign (prod1) <= 0)
-	return True;
+	return true;
     }
-  return False;
+  return false;
 }
 /* ---------------------------------------------------------------------------
  * checks if a line crosses a quadrangle: almost copied from IsLineInRectangle()
  * Note: actually this quadrangle is a slanted rectangle
  */
-Boolean
+bool
 IsLineInQuadrangle (PointType p[4], LineTypePtr Line)
 {
   LineType line;
@@ -834,9 +834,9 @@ IsLineInQuadrangle (PointType p[4], LineTypePtr Line)
   /* first, see if point 1 is inside the rectangle */
   /* in case the whole line is inside the rectangle */
   if (IsPointInQuadrangle(p,&(Line->Point1)))
-    return True;
+    return true;
   if (IsPointInQuadrangle(p,&(Line->Point2)))
-    return True;
+    return true;
   /* construct a set of dummy lines and check each of them */
   line.Thickness = 0;
   line.Flags = NoFlags ();
@@ -845,29 +845,29 @@ IsLineInQuadrangle (PointType p[4], LineTypePtr Line)
   line.Point1.X = p[0].X; line.Point1.Y = p[0].Y;
   line.Point2.X = p[1].X; line.Point2.Y = p[1].Y;
   if (LineLineIntersect (&line, Line))
-    return (True);
+    return (true);
 
   /* upper-right to lower-right corner */
   line.Point1.X = p[2].X; line.Point1.Y = p[2].Y;
   if (LineLineIntersect (&line, Line))
-    return (True);
+    return (true);
 
   /* lower-right to lower-left corner */
   line.Point2.X = p[3].X; line.Point2.Y = p[3].Y;
   if (LineLineIntersect (&line, Line))
-    return (True);
+    return (true);
 
   /* lower-left to upper-left corner */
   line.Point1.X = p[0].X; line.Point1.Y = p[0].Y;
   if (LineLineIntersect (&line, Line))
-    return (True);
+    return (true);
 
-  return (False);
+  return (false);
 }
 /* ---------------------------------------------------------------------------
  * checks if an arc crosses a square
  */
-Boolean
+bool
 IsArcInRectangle (LocationType X1, LocationType Y1,
 		  LocationType X2, LocationType Y2, ArcTypePtr Arc)
 {
@@ -882,37 +882,37 @@ IsArcInRectangle (LocationType X1, LocationType Y1,
   line.Point1.X = X1;
   line.Point2.X = X2;
   if (LineArcIntersect (&line, Arc))
-    return (True);
+    return (true);
 
   /* upper-right to lower-right corner */
   line.Point1.X = line.Point2.X = X2;
   line.Point1.Y = Y1;
   line.Point2.Y = Y2;
   if (LineArcIntersect (&line, Arc))
-    return (True);
+    return (true);
 
   /* lower-right to lower-left corner */
   line.Point1.Y = line.Point2.Y = Y2;
   line.Point1.X = X1;
   line.Point2.X = X2;
   if (LineArcIntersect (&line, Arc))
-    return (True);
+    return (true);
 
   /* lower-left to upper-left corner */
   line.Point1.X = line.Point2.X = X1;
   line.Point1.Y = Y1;
   line.Point2.Y = Y2;
   if (LineArcIntersect (&line, Arc))
-    return (True);
+    return (true);
 
-  return (False);
+  return (false);
 }
 
 /* ---------------------------------------------------------------------------
  * Check if a circle of Radius with center at (X, Y) intersects a Pad.
  * Written to enable arbitrary pad directions; for rounded pads, too.
  */
-Boolean
+bool
 IsPointInPad (LocationType X, LocationType Y, BDimension Radius,
 	      PadTypePtr Pad)
 {
@@ -988,7 +988,7 @@ IsPointInPad (LocationType X, LocationType Y, BDimension Radius,
   return range < Radius;
 }
 
-Boolean
+bool
 IsPointInBox (LocationType X, LocationType Y, BoxTypePtr box, BDimension Radius)
 {
   BDimension width, height, range;
@@ -1031,13 +1031,13 @@ IsPointInBox (LocationType X, LocationType Y, BoxTypePtr box, BDimension Radius)
       else if (Y > height)
         range = Y - height;
       else
-        return True;
+        return true;
     }
 
   return range < Radius;
 }
 
-Boolean
+bool
 IsPointOnArc (float X, float Y, float Radius, ArcTypePtr Arc)
 {
   double x, y, dx, dy, r1, r2, a, d, l;
@@ -1050,19 +1050,19 @@ IsPointOnArc (float X, float Y, float Radius, ArcTypePtr Arc)
   l = pdx * pdx + pdy * pdy;
   Radius += 0.5 * Arc->Thickness;
   if (Radius < 0) /* thin arc: trivial condition */
-    return (False);
+    return (false);
   /* concentric arcs, simpler intersection conditions */
   if (l < 0.5)
     {
       if (Arc->Width <= Radius)
-	return (True);
+	return (true);
       else
-	return (False);
+	return (false);
     }
   r1 = Arc->Width;
   r2 = Radius;
   if (sqrt (l) < r2 - r1) /* the arc merged in the circle */
-    return (True);
+    return (true);
   r1 *= r1;
   r2 *= r2;
   a = 0.5 * (r1 - r2 + l) / l;
@@ -1070,7 +1070,7 @@ IsPointOnArc (float X, float Y, float Radius, ArcTypePtr Arc)
   d = r1 - a * a;
   /* the circles are too far apart to touch or probably just touch */
   if (d < 0)
-    return (False);
+    return (false);
   /* project the points of intersection */
   d = sqrt (d);
   x = a * pdx;
@@ -1114,14 +1114,14 @@ IsPointOnArc (float X, float Y, float Radius, ArcTypePtr Arc)
       delta = 360 - delta;
     }
   if (ang1 >= startAngle && ang1 <= startAngle + arcDelta)
-    return (True);
+    return (true);
   if (startAngle >= ang1 && startAngle <= ang1 + delta)
-    return (True);
+    return (true);
   if (startAngle + arcDelta >= 360 && ang1 <= startAngle + arcDelta - 360)
-    return (True);
+    return (true);
   if (ang1 + delta >= 360 && startAngle <= ang1 + delta - 360)
-    return (True);
-  return (False);
+    return (true);
+  return (false);
 }
 
 /* ---------------------------------------------------------------------------
@@ -1201,14 +1201,14 @@ SearchObjectByLocation (int Type,
   if (!HigherAvail && Type & PAD_TYPE &&
       SearchPadByLocation (locked,
 			   (ElementTypePtr *) pr1,
-			   (PadTypePtr *) pr2, (PadTypePtr *) pr3, False))
+			   (PadTypePtr *) pr2, (PadTypePtr *) pr3, false))
     HigherAvail = PAD_TYPE;
 
   if (!HigherAvail && Type & ELEMENTNAME_TYPE &&
       SearchElementNameByLocation (locked,
 				   (ElementTypePtr *) pr1,
 				   (TextTypePtr *) pr2, (TextTypePtr *) pr3,
-				   False))
+				   false))
     {
       BoxTypePtr box = &((TextTypePtr) r2)->BoundingBox;
       HigherBound = (float) (box->X2 - box->X1) * (float) (box->Y2 - box->Y1);
@@ -1219,7 +1219,7 @@ SearchObjectByLocation (int Type,
       SearchElementByLocation (locked,
 			       (ElementTypePtr *) pr1,
 			       (ElementTypePtr *) pr2,
-			       (ElementTypePtr *) pr3, False))
+			       (ElementTypePtr *) pr3, false))
     {
       BoxTypePtr box = &((ElementTypePtr) r1)->BoundingBox;
       HigherBound = (float) (box->X2 - box->X1) * (float) (box->Y2 - box->Y1);
@@ -1340,21 +1340,21 @@ SearchObjectByLocation (int Type,
       SearchPadByLocation (locked,
 			   (ElementTypePtr *) Result1,
 			   (PadTypePtr *) Result2, (PadTypePtr *) Result3,
-			   True))
+			   true))
     return (PAD_TYPE);
 
   if (Type & ELEMENTNAME_TYPE &&
       SearchElementNameByLocation (locked,
 				   (ElementTypePtr *) Result1,
 				   (TextTypePtr *) Result2,
-				   (TextTypePtr *) Result3, True))
+				   (TextTypePtr *) Result3, true))
     return (ELEMENTNAME_TYPE);
 
   if (Type & ELEMENT_TYPE &&
       SearchElementByLocation (locked,
 			       (ElementTypePtr *) Result1,
 			       (ElementTypePtr *) Result2,
-			       (ElementTypePtr *) Result3, True))
+			       (ElementTypePtr *) Result3, true))
     return (ELEMENT_TYPE);
 
   return (NO_TYPE);

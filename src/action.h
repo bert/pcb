@@ -44,6 +44,6 @@ void AdjustAttachedObjects (void);
 void warpNoWhere (void);
 
 /* In gui-misc.c */
-Boolean ActionGetLocation (char *);
+bool ActionGetLocation (char *);
 void ActionGetXY (char *);
 #endif

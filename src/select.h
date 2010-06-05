@@ -37,15 +37,15 @@
 	(VIA_TYPE | LINE_TYPE | TEXT_TYPE | POLYGON_TYPE | ELEMENT_TYPE |	\
 	 PIN_TYPE | PAD_TYPE | ELEMENTNAME_TYPE | RATLINE_TYPE | ARC_TYPE)
 
-void SelectPin (LibraryEntryTypePtr entry, Boolean toggle);
-Boolean SelectObject (void);
-Boolean SelectBlock (BoxTypePtr, Boolean);
-Boolean SelectedOperation (ObjectFunctionTypePtr, Boolean, int);
+void SelectPin (LibraryEntryTypePtr entry, bool toggle);
+bool SelectObject (void);
+bool SelectBlock (BoxTypePtr, bool);
+bool SelectedOperation (ObjectFunctionTypePtr, bool, int);
 void *ObjectOperation (ObjectFunctionTypePtr, int, void *, void *, void *);
-Boolean SelectConnection (Boolean);
+bool SelectConnection (bool);
 
 #if defined(HAVE_REGCOMP) || defined(HAVE_RE_COMP)
-Boolean SelectObjectByName (int, char *, Boolean);
+bool SelectObjectByName (int, char *, bool);
 #endif
 
 #endif

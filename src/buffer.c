@@ -209,7 +209,7 @@ AddElementToBuffer (ElementTypePtr Element)
   ElementTypePtr element;
 
   element = GetElementMemory (Dest);
-  CopyElementLowLevel (Dest, element, Element, False, 0, 0);
+  CopyElementLowLevel (Dest, element, Element, false, 0, 0);
   CLEAR_FLAG (ExtraFlag, element);
   if (ExtraFlag)
     {
@@ -515,21 +515,21 @@ ClearBuffer (BufferTypePtr Buffer)
 
 /* ----------------------------------------------------------------------
  * copies all selected and visible objects to the paste buffer
- * returns True if any objects have been removed
+ * returns true if any objects have been removed
  */
 void
 AddSelectedToBuffer (BufferTypePtr Buffer, LocationType X, LocationType Y,
-		     Boolean LeaveSelected)
+		     bool LeaveSelected)
 {
   /* switch crosshair off because adding objects to the pastebuffer
    * may change the 'valid' area for the cursor
    */
   if (!LeaveSelected)
     ExtraFlag = SELECTEDFLAG;
-  HideCrosshair (True);
+  HideCrosshair (true);
   Source = PCB->Data;
   Dest = Buffer->Data;
-  SelectedOperation (&AddBufferFunctions, False, ALL_TYPES);
+  SelectedOperation (&AddBufferFunctions, false, ALL_TYPES);
 
   /* set origin to passed or current position */
   if (X || Y)
@@ -542,18 +542,18 @@ AddSelectedToBuffer (BufferTypePtr Buffer, LocationType X, LocationType Y,
       Buffer->X = Crosshair.X;
       Buffer->Y = Crosshair.Y;
     }
-  RestoreCrosshair (True);
+  RestoreCrosshair (true);
   ExtraFlag = 0;
 }
 
 /* ---------------------------------------------------------------------------
  * loads element data from file/library into buffer
  * parse the file with disabled 'PCB mode' (see parser)
- * returns False on error
+ * returns false on error
  * if successful, update some other stuff and reposition the pastebuffer
  */
-Boolean
-LoadElementToBuffer (BufferTypePtr Buffer, char *Name, Boolean FromFile)
+bool
+LoadElementToBuffer (BufferTypePtr Buffer, char *Name, bool FromFile)
 {
   ElementTypePtr element;
 
@@ -576,7 +576,7 @@ LoadElementToBuffer (BufferTypePtr Buffer, char *Name, Boolean FromFile)
 	      Buffer->X = 0;
 	      Buffer->Y = 0;
 	    }
-	  return (True);
+	  return (true);
 	}
     }
   else
@@ -595,12 +595,12 @@ LoadElementToBuffer (BufferTypePtr Buffer, char *Name, Boolean FromFile)
 	  Buffer->X = element->MarkX;
 	  Buffer->Y = element->MarkY;
 	  SetBufferBoundingBox (Buffer);
-	  return (True);
+	  return (true);
 	}
     }
   /* release memory which might have been acquired */
   ClearBuffer (Buffer);
-  return (False);
+  return (false);
 }
 
 
@@ -811,7 +811,7 @@ LoadFootprintByName (BufferTypePtr Buffer, char *Footprint)
 
   if (entry->Template == (char *) -1)
     {
-      i = LoadElementToBuffer (Buffer, entry->AllocatedMemory, True);
+      i = LoadElementToBuffer (Buffer, entry->AllocatedMemory, true);
       if (with_fp)
 	free (with_fp);
       return i ? 0 : 1;
@@ -822,7 +822,7 @@ LoadFootprintByName (BufferTypePtr Buffer, char *Footprint)
 
       args = Concat("'", EMPTY (entry->Template), "' '",
 		    EMPTY (entry->Value), "' '", EMPTY (entry->Package), "'", NULL);
-      i = LoadElementToBuffer (Buffer, args, False);
+      i = LoadElementToBuffer (Buffer, args, false);
 
       free (args);
       if (with_fp)
@@ -921,7 +921,7 @@ LoadFootprint (int argc, char **argv, int x, int y)
  *
  * break buffer element into pieces
  */
-Boolean
+bool
 SmashBufferElement (BufferTypePtr Buffer)
 {
   ElementTypePtr element;
@@ -931,7 +931,7 @@ SmashBufferElement (BufferTypePtr Buffer)
   if (Buffer->Data->ElementN != 1)
     {
       Message (_("Error!  Buffer doesn't contain a single element\n"));
-      return (False);
+      return (false);
     }
   element = &Buffer->Data->Element[0];
   Buffer->Data->ElementN = 0;
@@ -988,7 +988,7 @@ SmashBufferElement (BufferTypePtr Buffer)
   END_LOOP;
   FreeElementMemory (element);
   SaveFree (element);
-  return (True);
+  return (true);
 }
 
 /*---------------------------------------------------------------------------
@@ -1032,13 +1032,13 @@ polygon_is_rectangle (PolygonTypePtr poly)
  *
  * convert buffer contents into an element
  */
-Boolean
+bool
 ConvertBufferToElement (BufferTypePtr Buffer)
 {
   ElementTypePtr Element;
   Cardinal group;
   Cardinal pin_n = 1;
-  Boolean hasParts = False, crooked = False;
+  bool hasParts = false, crooked = false;
 
   if (Buffer->Data->pcb == 0)
     Buffer->Data->pcb = PCB;
@@ -1047,9 +1047,9 @@ ConvertBufferToElement (BufferTypePtr Buffer)
 			      NULL, NULL, NULL, PASTEBUFFER->X,
 			      PASTEBUFFER->Y, 0, 100,
 			      MakeFlags (SWAP_IDENT ? ONSOLDERFLAG : NOFLAG),
-			      False);
+			      false);
   if (!Element)
-    return (False);
+    return (false);
   VIA_LOOP (Buffer->Data);
   {
     char num[8];
@@ -1070,7 +1070,7 @@ ConvertBufferToElement (BufferTypePtr Buffer)
 					    VIAFLAG | FOUNDFLAG | SELECTEDFLAG
 					    | WARNFLAG));
       }
-    hasParts = True;
+    hasParts = true;
   }
   END_LOOP;
   /* get the component-side SM pads */
@@ -1090,7 +1090,7 @@ ConvertBufferToElement (BufferTypePtr Buffer)
 		    line->Thickness + line->Clearance, NULL,
 		    line->Number ? line->Number : num,
 		    MakeFlags (SWAP_IDENT ? ONSOLDERFLAG : NOFLAG));
-      hasParts = True;
+      hasParts = true;
     }
     END_LOOP;
     POLYGON_LOOP (layer);
@@ -1099,7 +1099,7 @@ ConvertBufferToElement (BufferTypePtr Buffer)
 
       if (! polygon_is_rectangle (polygon))
         {
-          crooked = True;
+          crooked = true;
 	  continue;
         }
 
@@ -1118,7 +1118,7 @@ ConvertBufferToElement (BufferTypePtr Buffer)
 		    t + Settings.Keepaway,
 		    NULL, num,
 		    MakeFlags (SQUAREFLAG | (SWAP_IDENT ? ONSOLDERFLAG : NOFLAG)));
-      hasParts = True;
+      hasParts = true;
     }
     END_LOOP;
   }
@@ -1129,7 +1129,7 @@ ConvertBufferToElement (BufferTypePtr Buffer)
 					SOLDER_LAYER));
   GROUP_LOOP (Buffer->Data, group);
   {
-    Boolean warned = False;
+    bool warned = false;
     char num[8];
     LINE_LOOP (layer);
     {
@@ -1143,13 +1143,13 @@ ConvertBufferToElement (BufferTypePtr Buffer)
 		    MakeFlags (SWAP_IDENT ? NOFLAG : ONSOLDERFLAG));
       if (!hasParts && !warned)
 	{
-	  warned = True;
+	  warned = true;
 	  Message
 	    (_("Warning: All of the pads are on the opposite\n"
 	       "side from the component - that's probably not what\n"
 	       "you wanted\n"));
 	}
-      hasParts = True;
+      hasParts = true;
     }
     END_LOOP;
   }
@@ -1163,7 +1163,7 @@ ConvertBufferToElement (BufferTypePtr Buffer)
     CreateNewLineInElement (Element, line->Point1.X,
 			    line->Point1.Y, line->Point2.X,
 			    line->Point2.Y, line->Thickness);
-    hasParts = True;
+    hasParts = true;
   }
   END_LOOP;
   ARC_LOOP (&Buffer->Data->SILKLAYER);
@@ -1171,7 +1171,7 @@ ConvertBufferToElement (BufferTypePtr Buffer)
     CreateNewArcInElement (Element, arc->X, arc->Y, arc->Width,
 			   arc->Height, arc->StartAngle, arc->Delta,
 			   arc->Thickness);
-    hasParts = True;
+    hasParts = true;
   }
   END_LOOP;
   if (!hasParts)
@@ -1179,7 +1179,7 @@ ConvertBufferToElement (BufferTypePtr Buffer)
       DestroyObject (PCB->Data, ELEMENT_TYPE, Element, Element, Element);
       Message (_("There was nothing to convert!\n"
 		 "Elements must have some silk, pads or pins.\n"));
-      return (False);
+      return (false);
     }
   if (crooked)
      Message (_("There were polygons that can't be made into pins!\n"
@@ -1193,7 +1193,7 @@ ConvertBufferToElement (BufferTypePtr Buffer)
   MoveObjectToBuffer (Buffer->Data, PCB->Data, ELEMENT_TYPE, Element, Element,
 		      Element);
   SetBufferBoundingBox (Buffer);
-  return (True);
+  return (true);
 }
 
 /* ---------------------------------------------------------------------------
@@ -1201,10 +1201,10 @@ ConvertBufferToElement (BufferTypePtr Buffer)
  * parse the file with enabled 'PCB mode' (see parser)
  * if successful, update some other stuff
  */
-Boolean
+bool
 LoadLayoutToBuffer (BufferTypePtr Buffer, char *Filename)
 {
-  PCBTypePtr newPCB = CreateNewPCB (False);
+  PCBTypePtr newPCB = CreateNewPCB (false);
 
   /* new data isn't added to the undo list */
   if (!ParsePCB (newPCB, Filename))
@@ -1218,13 +1218,13 @@ LoadLayoutToBuffer (BufferTypePtr Buffer, char *Filename)
       Buffer->Y = newPCB->CursorY;
       RemovePCB (newPCB);
       Buffer->Data->pcb = PCB;
-      return (True);
+      return (true);
     }
 
   /* release unused memory */
   RemovePCB (newPCB);
       Buffer->Data->pcb = PCB;
-  return (False);
+  return (false);
 }
 
 /* ---------------------------------------------------------------------------
@@ -1440,9 +1440,9 @@ Rotates the contents of the pastebuffer by an arbitrary angle.
 int
 ActionFreeRotateBuffer(int argc, char **argv, int x, int y)
 {
-  HideCrosshair(False);
+  HideCrosshair(false);
   FreeRotateBuffer(PASTEBUFFER, strtod(argv[0], 0));
-  RestoreCrosshair(False);
+  RestoreCrosshair(false);
   return 0;
 }
 

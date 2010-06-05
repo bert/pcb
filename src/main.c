@@ -966,7 +966,7 @@ main (int argc, char *argv[])
     }
 
   /* Create a new PCB object in memory */
-  PCB = CreateNewPCB (True);
+  PCB = CreateNewPCB (true);
   PCB->Data->LayerN = DEF_LAYER;
   ParseGroupString (Settings.Groups, &PCB->LayerGroups, DEF_LAYER);
   /* Add silk layers to newly created PCB */

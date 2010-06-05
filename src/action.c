@@ -306,8 +306,8 @@ static struct
   int X;
   int Y;
   Cardinal Buffer;
-  Boolean Click;
-  Boolean Moving;		/* selected type clicked on */
+  bool Click;
+  bool Moving;		/* selected type clicked on */
   int Hit;			/* move type clicked on */
   void *ptr1;
   void *ptr2;
@@ -319,10 +319,10 @@ static int defer_updates = 0;
 static int defer_needs_update = 0;
 
 static Cardinal polyIndex = 0;
-static Boolean IgnoreMotionEvents = False;
-static Boolean saved_mode = False;
+static bool IgnoreMotionEvents = false;
+static bool saved_mode = false;
 #ifdef HAVE_LIBSTROKE
-static Boolean mid_stroke = False;
+static bool mid_stroke = false;
 static BoxType StrokeBox;
 #endif
 static FunctionType Functions[] = {
@@ -475,7 +475,7 @@ FinishStroke (void)
   unsigned long num;
   void *ptr1, *ptr2, *ptr3;
 
-  mid_stroke = False;
+  mid_stroke = false;
   if (stroke_trans (msg))
     {
       num = atoi (msg);
@@ -512,7 +512,7 @@ FinishStroke (void)
 	case 147423:
 	case 147523:
 	case 1474123:
-	  Redo (True);
+	  Redo (true);
 	  break;
 	case 148963:
 	case 147863:
@@ -555,7 +555,7 @@ FinishStroke (void)
 		   log (2.0));
 	    SetZoom (z);
 
-	    CenterDisplay (x, y, False);
+	    CenterDisplay (x, y, false);
 	    break;
 	  }
 
@@ -575,7 +575,7 @@ FinishStroke (void)
 static void
 ClearWarnings ()
 {
-  Settings.RatWarn = False;
+  Settings.RatWarn = false;
   ALLPIN_LOOP (PCB->Data);
   {
     if (TEST_FLAG (WARNFLAG, pin))
@@ -602,53 +602,53 @@ click_cb (hidval hv)
 {
   if (Note.Click)
     {
-      Note.Click = False;
+      Note.Click = false;
       if (Note.Moving && !gui->shift_is_pressed ())
 	{
-	  HideCrosshair (True);
+	  HideCrosshair (true);
 	  Note.Buffer = Settings.BufferNumber;
 	  SetBufferNumber (MAX_BUFFER - 1);
 	  ClearBuffer (PASTEBUFFER);
-	  AddSelectedToBuffer (PASTEBUFFER, Note.X, Note.Y, True);
+	  AddSelectedToBuffer (PASTEBUFFER, Note.X, Note.Y, true);
 	  SaveUndoSerialNumber ();
 	  RemoveSelected ();
 	  SaveMode ();
-	  saved_mode = True;
+	  saved_mode = true;
 	  SetMode (PASTEBUFFER_MODE);
-	  RestoreCrosshair (True);
+	  RestoreCrosshair (true);
 	}
       else if (Note.Hit && !gui->shift_is_pressed ())
 	{
-	  HideCrosshair (True);
+	  HideCrosshair (true);
 	  SaveMode ();
-	  saved_mode = True;
+	  saved_mode = true;
 	  SetMode (gui->control_is_pressed ()? COPY_MODE : MOVE_MODE);
 	  Crosshair.AttachedObject.Ptr1 = Note.ptr1;
 	  Crosshair.AttachedObject.Ptr2 = Note.ptr2;
 	  Crosshair.AttachedObject.Ptr3 = Note.ptr3;
 	  Crosshair.AttachedObject.Type = Note.Hit;
 	  AttachForCopy (Note.X, Note.Y);
-	  RestoreCrosshair (True);
+	  RestoreCrosshair (true);
 	}
       else
 	{
 	  BoxType box;
 
 	  Note.Hit = 0;
-	  Note.Moving = False;
-	  HideCrosshair (True);
+	  Note.Moving = false;
+	  HideCrosshair (true);
 	  SaveUndoSerialNumber ();
 	  box.X1 = -MAX_COORD;
 	  box.Y1 = -MAX_COORD;
 	  box.X2 = MAX_COORD;
 	  box.Y2 = MAX_COORD;
 	  /* unselect first if shift key not down */
-	  if (!gui->shift_is_pressed () && SelectBlock (&box, False))
-	    SetChangedFlag (True);
+	  if (!gui->shift_is_pressed () && SelectBlock (&box, false))
+	    SetChangedFlag (true);
 	  NotifyBlock ();
 	  Crosshair.AttachedBox.Point1.X = Note.X;
 	  Crosshair.AttachedBox.Point1.Y = Note.Y;
-	  RestoreCrosshair (True);
+	  RestoreCrosshair (true);
 	}
     }
 }
@@ -667,13 +667,13 @@ ReleaseMode (void)
       box.X2 = MAX_COORD;
       box.Y2 = MAX_COORD;
 
-      Note.Click = False;	/* inhibit timer action */
+      Note.Click = false;	/* inhibit timer action */
       SaveUndoSerialNumber ();
       /* unselect first if shift key not down */
       if (!gui->shift_is_pressed ())
 	{
-	  if (SelectBlock (&box, False))
-	    SetChangedFlag (True);
+	  if (SelectBlock (&box, false))
+	    SetChangedFlag (true);
 	  if (Note.Moving)
 	    {
 	      Note.Moving = 0;
@@ -683,7 +683,7 @@ ReleaseMode (void)
 	}
       RestoreUndoSerialNumber ();
       if (SelectObject ())
-	SetChangedFlag (True);
+	SetChangedFlag (true);
       Note.Hit = 0;
       Note.Moving = 0;
     }
@@ -693,7 +693,7 @@ ReleaseMode (void)
       NotifyMode ();
       ClearBuffer (PASTEBUFFER);
       SetBufferNumber (Note.Buffer);
-      Note.Moving = False;
+      Note.Moving = false;
       Note.Hit = 0;
     }
   else if (Note.Hit)
@@ -712,15 +712,15 @@ ReleaseMode (void)
       box.Y2 = MAX (Crosshair.AttachedBox.Point1.Y,
 		    Crosshair.AttachedBox.Point2.Y);
       RestoreUndoSerialNumber ();
-      if (SelectBlock (&box, True))
-	SetChangedFlag (True);
+      if (SelectBlock (&box, true))
+	SetChangedFlag (true);
       else if (Bumped)
 	IncrementUndoSerialNumber ();
       Crosshair.AttachedBox.State = STATE_FIRST;
     }
   if (saved_mode)
     RestoreMode ();
-  saved_mode = False;
+  saved_mode = false;
 }
 
 /* ---------------------------------------------------------------------------
@@ -873,7 +873,7 @@ NotifyLine (void)
   void *ptr1, *ptr2, *ptr3;
 
   if (!Marked.status || TEST_FLAG (LOCALREFFLAG, PCB))
-    SetLocalRef (Crosshair.X, Crosshair.Y, True);
+    SetLocalRef (Crosshair.X, Crosshair.Y, true);
   switch (Crosshair.AttachedLine.State)
     {
     case STATE_FIRST:		/* first point */
@@ -889,7 +889,7 @@ NotifyLine (void)
 	  type = SearchScreen (Crosshair.X, Crosshair.Y,
 			       PIN_TYPE | PAD_TYPE | VIA_TYPE, &ptr1, &ptr2,
 			       &ptr3);
-	  LookupConnection (Crosshair.X, Crosshair.Y, True, TO_PCB (1),
+	  LookupConnection (Crosshair.X, Crosshair.Y, true, TO_PCB (1),
 			    FOUNDFLAG);
 	}
       if (type == PIN_TYPE || type == VIA_TYPE)
@@ -943,7 +943,7 @@ NotifyLine (void)
 static void
 NotifyBlock (void)
 {
-  HideCrosshair (True);
+  HideCrosshair (true);
   switch (Crosshair.AttachedBox.State)
     {
     case STATE_FIRST:		/* setup first point */
@@ -958,7 +958,7 @@ NotifyBlock (void)
       Crosshair.AttachedBox.State = STATE_THIRD;
       break;
     }
-  RestoreCrosshair (True);
+  RestoreCrosshair (true);
 }
 
 
@@ -984,7 +984,7 @@ NotifyMode (void)
 	int test;
 	hidval hv;
 
-	Note.Click = True;
+	Note.Click = true;
 	/* do something after click time */
 	gui->add_timer (click_cb, CLICK_TIME, hv);
 
@@ -1006,7 +1006,7 @@ NotifyMode (void)
 	      }
 	    if (!Note.Moving && (type & SELECT_TYPES) &&
 		TEST_FLAG (SELECTEDFLAG, (PinTypePtr) ptr2))
-	      Note.Moving = True;
+	      Note.Moving = true;
 	    if ((Note.Hit && Note.Moving) || type == NO_TYPE)
 	      break;
 	  }
@@ -1474,7 +1474,7 @@ NotifyMode (void)
 	      }
 	  }
 	if (CopyPastebufferToLayout (Note.X, Note.Y))
-	  SetChangedFlag (True);
+	  SetChangedFlag (true);
 	if (e)
 	  {
 	    int type =
@@ -1539,7 +1539,7 @@ NotifyMode (void)
 	    }
 	  RemoveObject (type, ptr1, ptr2, ptr3);
 	  IncrementUndoSerialNumber ();
-	  SetChangedFlag (True);
+	  SetChangedFlag (true);
 	}
       break;
 
@@ -1598,9 +1598,9 @@ NotifyMode (void)
 				       Crosshair.AttachedObject.Ptr3,
 				       Note.X - Crosshair.AttachedObject.X,
 				       Note.Y - Crosshair.AttachedObject.Y);
-	      SetLocalRef (0, 0, False);
+	      SetLocalRef (0, 0, false);
 	    }
-	  SetChangedFlag (True);
+	  SetChangedFlag (true);
 
 	  /* reset identifiers */
 	  Crosshair.AttachedObject.Type = NO_TYPE;
@@ -1659,14 +1659,14 @@ NotifyMode (void)
 	    InsertPointIntoObject (POLYGON_TYPE,
 				   Crosshair.AttachedObject.Ptr1, fake.poly,
 				   &polyIndex,
-				   InsertedPoint.X, InsertedPoint.Y, False);
+				   InsertedPoint.X, InsertedPoint.Y, false);
 	  else
 	    InsertPointIntoObject (Crosshair.AttachedObject.Type,
 				   Crosshair.AttachedObject.Ptr1,
 				   Crosshair.AttachedObject.Ptr2,
 				   &polyIndex,
-				   InsertedPoint.X, InsertedPoint.Y, False);
-	  SetChangedFlag (True);
+				   InsertedPoint.X, InsertedPoint.Y, false);
+	  SetChangedFlag (true);
 
 	  /* reset identifiers */
 	  Crosshair.AttachedObject.Type = NO_TYPE;
@@ -1773,7 +1773,7 @@ ActionDRCheck (int argc, char **argv, int x, int y)
 	       PCB->minDrill / 100, PCB->minDrill % 100,
 	       PCB->minRing / 100, PCB->minRing % 100);
     }
-  HideCrosshair (True);
+  HideCrosshair (true);
   count = DRCAll ();
   if (gui->drc_gui == NULL || gui->drc_gui->log_drc_overview)
     {
@@ -1784,7 +1784,7 @@ ActionDRCheck (int argc, char **argv, int x, int y)
       else
 	Message (_("Aborted DRC after %d design rule errors.\n"), -count);
     }
-  RestoreCrosshair (True);
+  RestoreCrosshair (true);
   return 0;
 }
 
@@ -1869,7 +1869,7 @@ ActionFlip (int argc, char **argv, int x, int y)
 
   if (function)
     {
-      HideCrosshair (True);
+      HideCrosshair (true);
       switch (GetFunctionID (function))
 	{
 	case F_Object:
@@ -1890,7 +1890,7 @@ ActionFlip (int argc, char **argv, int x, int y)
 	  err = 1;
 	  break;
 	}
-      RestoreCrosshair (True);
+      RestoreCrosshair (true);
       if (!err)
 	return 0;
     }
@@ -1974,10 +1974,10 @@ ActionSetThermal (int argc, char **argv, int x, int y)
 
   if (function && *function && style && *style)
     {
-      Boolean absolute;
+      bool absolute;
 
       kind = GetValue (style, NULL, &absolute);
-      HideCrosshair (True);
+      HideCrosshair (true);
       if (absolute)
 	switch (GetFunctionID (function))
 	  {
@@ -2007,7 +2007,7 @@ ActionSetThermal (int argc, char **argv, int x, int y)
 	  }
       else
 	err = 1;
-      RestoreCrosshair (True);
+      RestoreCrosshair (true);
       if (!err)
 	return 0;
     }
@@ -2034,11 +2034,11 @@ ActionMovePointer (char *deltax, char *deltay)
   /* restore crosshair for erasure */
   Crosshair.X = x;
   Crosshair.Y = y;
-  HideCrosshair (False);
+  HideCrosshair (false);
   MoveCrosshairRelative (TO_SCREEN_SIGN_X (dx), TO_SCREEN_SIGN_Y (dy));
   /* update object position and cursor location */
   AdjustAttachedObjects ();
-  RestoreCrosshair (False);
+  RestoreCrosshair (false);
 }
 
 /* ---------------------------------------------------------------------------
@@ -2067,11 +2067,11 @@ EventMoveCrosshair (int ev_x, int ev_y)
 
 	  /* update object position and cursor location */
 	  AdjustAttachedObjects ();
-	  RestoreCrosshair (False);
+	  RestoreCrosshair (false);
 	}
     }
   else
-    IgnoreMotionEvents = False;
+    IgnoreMotionEvents = false;
 }
 
 /* --------------------------------------------------------------------------- */
@@ -2114,19 +2114,19 @@ ActionSetValue (int argc, char **argv, int x, int y)
   char *function = ARG (0);
   char *val = ARG (1);
   char *units = ARG (2);
-  Boolean r;			/* flag for 'relative' value */
+  bool r;			/* flag for 'relative' value */
   float value;
   int err = 0;
 
   if (function && val)
     {
-      HideCrosshair (True);
+      HideCrosshair (true);
       value = GetValue (val, units, &r);
       switch (GetFunctionID (function))
 	{
 	case F_ViaDrillingHole:
 	  SetViaDrillingHole (r ? value : value + Settings.ViaDrillingHole,
-			      False);
+			      false);
 	  hid_action ("RouteStylesChanged");
 	  break;
 
@@ -2142,11 +2142,11 @@ ActionSetValue (int argc, char **argv, int x, int y)
 		   * PCB drawing unit 
 		   */
                   if ((value + PCB->Grid) < 1)
-                     SetGrid (1, False);
+                     SetGrid (1, false);
                   else if (PCB->Grid == 1)
-                    SetGrid ( value, False);
+                    SetGrid ( value, false);
                   else
-                    SetGrid (value + PCB->Grid, False);
+                    SetGrid (value + PCB->Grid, false);
                 }
 
 	      else
@@ -2154,7 +2154,7 @@ ActionSetValue (int argc, char **argv, int x, int y)
 			 ("Don't combine metric/English grids like that!\n"));
 	    }
 	  else
-	    SetGrid (value, False);
+	    SetGrid (value, false);
 	  break;
 
 	case F_LineSize:
@@ -2165,7 +2165,7 @@ ActionSetValue (int argc, char **argv, int x, int y)
 
 	case F_Via:
 	case F_ViaSize:
-	  SetViaSize (r ? value : value + Settings.ViaThickness, False);
+	  SetViaSize (r ? value : value + Settings.ViaThickness, false);
 	  hid_action ("RouteStylesChanged");
 	  break;
 
@@ -2178,7 +2178,7 @@ ActionSetValue (int argc, char **argv, int x, int y)
 	  err = 1;
 	  break;
 	}
-      RestoreCrosshair (True);
+      RestoreCrosshair (true);
       if (!err)
 	return 0;
     }
@@ -2255,32 +2255,32 @@ ActionConnection (int argc, char **argv, int x, int y)
   char *function = ARG (0);
   if (function)
     {
-      HideCrosshair (True);
+      HideCrosshair (true);
       switch (GetFunctionID (function))
 	{
 	case F_Find:
 	  {
 	    gui->get_coords (_("Click on a connection"), &x, &y);
-	    LookupConnection (x, y, True, 1, FOUNDFLAG);
+	    LookupConnection (x, y, true, 1, FOUNDFLAG);
 	    break;
 	  }
 
 	case F_ResetLinesAndPolygons:
-	  ResetFoundLinesAndPolygons (True);
+	  ResetFoundLinesAndPolygons (true);
 	  break;
 
 	case F_ResetPinsViasAndPads:
-	  ResetFoundPinsViasAndPads (True);
+	  ResetFoundPinsViasAndPads (true);
 	  break;
 
 	case F_Reset:
 	  SaveUndoSerialNumber ();
-	  ResetFoundPinsViasAndPads (True);
+	  ResetFoundPinsViasAndPads (true);
 	  RestoreUndoSerialNumber ();
-	  ResetFoundLinesAndPolygons (True);
+	  ResetFoundLinesAndPolygons (true);
 	  break;
 	}
-      RestoreCrosshair (True);
+      RestoreCrosshair (true);
       return 0;
     }
 
@@ -2407,7 +2407,7 @@ ActionDisperseElements (int argc, char **argv, int x, int y)
   IncrementUndoSerialNumber ();
 
   ClearAndRedrawOutput ();
-  SetChangedFlag (True);
+  SetChangedFlag (true);
 
   return 0;
 }
@@ -2559,7 +2559,7 @@ ActionDisplay (int argc, char **argv, int childX, int childY)
 
   if (function && (!str_dir || !*str_dir))
     {
-      HideCrosshair (True);
+      HideCrosshair (true);
       switch (id = GetFunctionID (function))
 	{
 
@@ -2691,12 +2691,12 @@ ActionDisplay (int argc, char **argv, int childX, int childY)
 	  if (TEST_FLAG (AUTODRCFLAG, PCB) && Settings.Mode == LINE_MODE)
 	    {
 	      SaveUndoSerialNumber ();
-	      ResetFoundPinsViasAndPads (True);
+	      ResetFoundPinsViasAndPads (true);
 	      RestoreUndoSerialNumber ();
-	      ResetFoundLinesAndPolygons (True);
+	      ResetFoundLinesAndPolygons (true);
 	      if (Crosshair.AttachedLine.State != STATE_FIRST)
 		LookupConnection (Crosshair.AttachedLine.Point1.X,
-				  Crosshair.AttachedLine.Point1.Y, True, 1,
+				  Crosshair.AttachedLine.Point1.Y, true, 1,
 				  FOUNDFLAG);
 	    }
 	  break;
@@ -2736,8 +2736,8 @@ ActionDisplay (int argc, char **argv, int childX, int childY)
 	    oldGrid = PCB->Grid;
 	    PCB->Grid = 1.0;
 	    if (MoveCrosshairAbsolute (childX, childY))
-	      RestoreCrosshair (False);	/* was hidden by MoveCrosshairAbs */
-	    SetGrid (oldGrid, True);
+	      RestoreCrosshair (false);	/* was hidden by MoveCrosshairAbs */
+	    SetGrid (oldGrid, true);
 	  }
 	  break;
 
@@ -2796,7 +2796,7 @@ ActionDisplay (int argc, char **argv, int childX, int childY)
 		  TOGGLE_FLAG (DISPLAYNAMEFLAG, pad);
 		}
 		END_LOOP;
-		SetChangedFlag (True);
+		SetChangedFlag (true);
 		IncrementUndoSerialNumber ();
 		Draw ();
 		break;
@@ -2808,7 +2808,7 @@ ActionDisplay (int argc, char **argv, int childX, int childY)
 		  DrawPinName ((PinTypePtr) ptr2, 0);
 		AddObjectToFlagUndoList (PIN_TYPE, ptr1, ptr2, ptr3);
 		TOGGLE_FLAG (DISPLAYNAMEFLAG, (PinTypePtr) ptr2);
-		SetChangedFlag (True);
+		SetChangedFlag (true);
 		IncrementUndoSerialNumber ();
 		Draw ();
 		break;
@@ -2820,7 +2820,7 @@ ActionDisplay (int argc, char **argv, int childX, int childY)
 		  DrawPadName ((PadTypePtr) ptr2, 0);
 		AddObjectToFlagUndoList (PAD_TYPE, ptr1, ptr2, ptr3);
 		TOGGLE_FLAG (DISPLAYNAMEFLAG, (PadTypePtr) ptr2);
-		SetChangedFlag (True);
+		SetChangedFlag (true);
 		IncrementUndoSerialNumber ();
 		Draw ();
 		break;
@@ -2831,7 +2831,7 @@ ActionDisplay (int argc, char **argv, int childX, int childY)
 		  DrawViaName ((PinTypePtr) ptr2, 0);
 		AddObjectToFlagUndoList (VIA_TYPE, ptr1, ptr2, ptr3);
 		TOGGLE_FLAG (DISPLAYNAMEFLAG, (PinTypePtr) ptr2);
-		SetChangedFlag (True);
+		SetChangedFlag (true);
 		IncrementUndoSerialNumber ();
 		Draw ();
 		break;
@@ -2841,7 +2841,7 @@ ActionDisplay (int argc, char **argv, int childX, int childY)
 	default:
 	  err = 1;
 	}
-      RestoreCrosshair (True);
+      RestoreCrosshair (true);
     }
   else if (function && str_dir)
     {
@@ -2940,7 +2940,7 @@ ActionMode (int argc, char **argv, int x, int y)
     {
       Note.X = Crosshair.X;
       Note.Y = Crosshair.Y;
-      HideCrosshair (True);
+      HideCrosshair (true);
       switch (GetFunctionID (function))
 	{
 	case F_Arc:
@@ -3074,7 +3074,7 @@ ActionMode (int argc, char **argv, int x, int y)
 	  break;
 	case F_Stroke:
 #ifdef HAVE_LIBSTROKE
-	  mid_stroke = True;
+	  mid_stroke = true;
 	  StrokeBox.X1 = Crosshair.X;
 	  StrokeBox.Y1 = Crosshair.Y;
 	  break;
@@ -3099,7 +3099,7 @@ ActionMode (int argc, char **argv, int x, int y)
 	  else
 	    {
 	      SaveMode ();
-	      saved_mode = True;
+	      saved_mode = true;
 	      SetMode (ARROW_MODE);
 	      NotifyMode ();
 	    }
@@ -3123,7 +3123,7 @@ ActionMode (int argc, char **argv, int x, int y)
 	  SaveMode ();
 	  break;
 	}
-      RestoreCrosshair (True);
+      RestoreCrosshair (true);
       return 0;
     }
 
@@ -3143,10 +3143,10 @@ static const char removeselected_help[] = "Removes any selected objects.";
 static int
 ActionRemoveSelected (int argc, char **argv, int x, int y)
 {
-  HideCrosshair (True);
+  HideCrosshair (true);
   if (RemoveSelected ())
-    SetChangedFlag (True);
-  RestoreCrosshair (True);
+    SetChangedFlag (true);
+  RestoreCrosshair (true);
   return 0;
 }
 
@@ -3165,7 +3165,7 @@ static const char renumber_help[] =
 static int
 ActionRenumber (int argc, char **argv, int x, int y)
 {
-  Boolean changed = False;
+  bool changed = false;
   ElementTypePtr *element_list;
   ElementTypePtr *locked_element_list;
   unsigned int i, j, k, cnt, lock_cnt;
@@ -3425,7 +3425,7 @@ ActionRenumber (int argc, char **argv, int x, int y)
 
 	      ChangeObjectName (ELEMENT_TYPE, element_list[i], NULL, NULL,
 				tmps);
-	      changed = True;
+	      changed = true;
 
 	      /* we don't free tmps in this case because it is used */
 	    }
@@ -3496,7 +3496,7 @@ ActionRenumber (int argc, char **argv, int x, int y)
 
       NetlistChanged (0);
       IncrementUndoSerialNumber ();
-      SetChangedFlag (True);
+      SetChangedFlag (true);
     }
 
   free (locked_element_list);
@@ -3536,11 +3536,11 @@ static int
 ActionRipUp (int argc, char **argv, int x, int y)
 {
   char *function = ARG (0);
-  Boolean changed = False;
+  bool changed = false;
 
   if (function)
     {
-      HideCrosshair (True);
+      HideCrosshair (true);
       switch (GetFunctionID (function))
 	{
 	case F_All:
@@ -3549,7 +3549,7 @@ ActionRipUp (int argc, char **argv, int x, int y)
 	    if (TEST_FLAG (AUTOFLAG, line) && !TEST_FLAG (LOCKFLAG, line))
 	      {
 		RemoveObject (LINE_TYPE, layer, line, line);
-		changed = True;
+		changed = true;
 	      }
 	  }
 	  ENDALL_LOOP;
@@ -3558,7 +3558,7 @@ ActionRipUp (int argc, char **argv, int x, int y)
 	    if (TEST_FLAG (AUTOFLAG, via) && !TEST_FLAG (LOCKFLAG, via))
 	      {
 		RemoveObject (VIA_TYPE, via, via, via);
-		changed = True;
+		changed = true;
 	      }
 	  }
 	  END_LOOP;
@@ -3566,7 +3566,7 @@ ActionRipUp (int argc, char **argv, int x, int y)
 	  if (changed)
 	    {
 	      IncrementUndoSerialNumber ();
-	      SetChangedFlag (True);
+	      SetChangedFlag (true);
 	    }
 	  break;
 	case F_Selected:
@@ -3576,7 +3576,7 @@ ActionRipUp (int argc, char **argv, int x, int y)
 		&& !TEST_FLAG (LOCKFLAG, line))
 	      {
 		RemoveObject (LINE_TYPE, layer, line, line);
-		changed = True;
+		changed = true;
 	      }
 	  }
 	  ENDALL_LOOP;
@@ -3587,14 +3587,14 @@ ActionRipUp (int argc, char **argv, int x, int y)
 		&& !TEST_FLAG (LOCKFLAG, via))
 	      {
 		RemoveObject (VIA_TYPE, via, via, via);
-		changed = True;
+		changed = true;
 	      }
 	  }
 	  END_LOOP;
 	  if (changed)
 	    {
 	      IncrementUndoSerialNumber ();
-	      SetChangedFlag (True);
+	      SetChangedFlag (true);
 	    }
 	  break;
 	case F_Element:
@@ -3618,12 +3618,12 @@ ActionRipUp (int argc, char **argv, int x, int y)
 		RestoreUndoSerialNumber ();
 		CopyPastebufferToLayout (0, 0);
 		SetBufferNumber (Note.Buffer);
-		SetChangedFlag (True);
+		SetChangedFlag (true);
 	      }
 	  }
 	  break;
 	}
-      RestoreCrosshair (True);
+      RestoreCrosshair (true);
     }
   return 0;
 }
@@ -3664,17 +3664,17 @@ ActionAddRats (int argc, char **argv, int x, int y)
     {
       if (Settings.RatWarn)
 	ClearWarnings ();
-      HideCrosshair (True);
+      HideCrosshair (true);
       switch (GetFunctionID (function))
 	{
 	case F_AllRats:
-	  if (AddAllRats (False, NULL))
-	    SetChangedFlag (True);
+	  if (AddAllRats (false, NULL))
+	    SetChangedFlag (true);
 	  break;
 	case F_SelectedRats:
 	case F_Selected:
-	  if (AddAllRats (True, NULL))
-	    SetChangedFlag (True);
+	  if (AddAllRats (true, NULL))
+	    SetChangedFlag (true);
 	  break;
 	case F_Close:
 	  small = SQUARE (MAX_COORD);
@@ -3700,11 +3700,11 @@ ActionAddRats (int argc, char **argv, int x, int y)
 	      Draw ();
 	      CenterDisplay ((shorty->Point2.X + shorty->Point1.X) / 2,
 			     (shorty->Point2.Y + shorty->Point1.Y) / 2,
-			     False);
+			     false);
 	    }
 	  break;
 	}
-      RestoreCrosshair (True);
+      RestoreCrosshair (true);
     }
   return 0;
 }
@@ -3733,11 +3733,11 @@ ActionDelete (int argc, char **argv, int x, int y)
 
   if (id == -1) /* no arg */
     {
-      if (RemoveSelected() == False)
+      if (RemoveSelected() == false)
 	id = F_Object;
     }
 
-  HideCrosshair (True);
+  HideCrosshair (true);
   switch (id)
     {
     case F_Object:
@@ -3750,16 +3750,16 @@ ActionDelete (int argc, char **argv, int x, int y)
       RemoveSelected();
       break;
     case F_AllRats:
-      if (DeleteRats (False))
-	SetChangedFlag (True);
+      if (DeleteRats (false))
+	SetChangedFlag (true);
       break;
     case F_SelectedRats:
-      if (DeleteRats (True))
-	SetChangedFlag (True);
+      if (DeleteRats (true))
+	SetChangedFlag (true);
       break;
     }
 
-  RestoreCrosshair (True);
+  RestoreCrosshair (true);
   return 0;
 }
 
@@ -3782,20 +3782,20 @@ ActionDeleteRats (int argc, char **argv, int x, int y)
     {
       if (Settings.RatWarn)
 	ClearWarnings ();
-      HideCrosshair (True);
+      HideCrosshair (true);
       switch (GetFunctionID (function))
 	{
 	case F_AllRats:
-	  if (DeleteRats (False))
-	    SetChangedFlag (True);
+	  if (DeleteRats (false))
+	    SetChangedFlag (true);
 	  break;
 	case F_SelectedRats:
 	case F_Selected:
-	  if (DeleteRats (True))
-	    SetChangedFlag (True);
+	  if (DeleteRats (true))
+	    SetChangedFlag (true);
 	  break;
 	}
-      RestoreCrosshair (True);
+      RestoreCrosshair (true);
     }
   return 0;
 }
@@ -3820,10 +3820,10 @@ ActionAutoPlaceSelected (int argc, char **argv, int x, int y)
   if (gui->confirm_dialog (_("Auto-placement can NOT be undone.\n"
 			     "Do you want to continue anyway?\n"), 0))
     {
-      HideCrosshair (True);
+      HideCrosshair (true);
       if (AutoPlaceSelected ())
-	SetChangedFlag (True);
-      RestoreCrosshair (True);
+	SetChangedFlag (true);
+      RestoreCrosshair (true);
     }
   return 0;
 }
@@ -3864,20 +3864,20 @@ ActionAutoRoute (int argc, char **argv, int x, int y)
   hid_action("Busy");
   if (function)			/* one parameter */
     {
-      HideCrosshair (True);
+      HideCrosshair (true);
       switch (GetFunctionID (function))
 	{
 	case F_AllRats:
-	  if (AutoRoute (False))
-	    SetChangedFlag (True);
+	  if (AutoRoute (false))
+	    SetChangedFlag (true);
 	  break;
 	case F_SelectedRats:
 	case F_Selected:
-	  if (AutoRoute (True))
-	    SetChangedFlag (True);
+	  if (AutoRoute (true))
+	    SetChangedFlag (true);
 	  break;
 	}
-      RestoreCrosshair (True);
+      RestoreCrosshair (true);
     }
   return 0;
 }
@@ -3911,24 +3911,24 @@ ActionMarkCrosshair (int argc, char **argv, int x, int y)
     {
       if (Marked.status)
 	{
-	  DrawMark (True);
-	  Marked.status = False;
+	  DrawMark (true);
+	  Marked.status = false;
 	}
       else
 	{
-	  Marked.status = True;
+	  Marked.status = true;
 	  Marked.X = Crosshair.X;
 	  Marked.Y = Crosshair.Y;
-	  DrawMark (False);
+	  DrawMark (false);
 	}
     }
   else if (GetFunctionID (function) == F_Center)
     {
-      DrawMark (True);
-      Marked.status = True;
+      DrawMark (true);
+      Marked.status = true;
       Marked.X = Crosshair.X;
       Marked.Y = Crosshair.Y;
-      DrawMark (False);
+      DrawMark (false);
     }
   return 0;
 }
@@ -3960,13 +3960,13 @@ ActionChangeSize (int argc, char **argv, int x, int y)
   char *function = ARG (0);
   char *delta = ARG (1);
   char *units = ARG (2);
-  Boolean r;			/* indicates if absolute size is given */
+  bool r;			/* indicates if absolute size is given */
   float value;
 
   if (function && delta)
     {
       value = GetValue (delta, units, &r);
-      HideCrosshair (True);
+      HideCrosshair (true);
       switch (GetFunctionID (function))
 	{
 	case F_Object:
@@ -3980,57 +3980,57 @@ ActionChangeSize (int argc, char **argv, int x, int y)
 	      if (TEST_FLAG (LOCKFLAG, (PinTypePtr) ptr2))
 		Message (_("Sorry, the object is locked\n"));
 	    if (ChangeObjectSize (type, ptr1, ptr2, ptr3, value, r))
-	      SetChangedFlag (True);
+	      SetChangedFlag (true);
 	    break;
 	  }
 
 	case F_SelectedVias:
 	  if (ChangeSelectedSize (VIA_TYPE, value, r))
-	    SetChangedFlag (True);
+	    SetChangedFlag (true);
 	  break;
 
 	case F_SelectedPins:
 	  if (ChangeSelectedSize (PIN_TYPE, value, r))
-	    SetChangedFlag (True);
+	    SetChangedFlag (true);
 	  break;
 
 	case F_SelectedPads:
 	  if (ChangeSelectedSize (PAD_TYPE, value, r))
-	    SetChangedFlag (True);
+	    SetChangedFlag (true);
 	  break;
 
 	case F_SelectedArcs:
 	  if (ChangeSelectedSize (ARC_TYPE, value, r))
-	    SetChangedFlag (True);
+	    SetChangedFlag (true);
 	  break;
 
 	case F_SelectedLines:
 	  if (ChangeSelectedSize (LINE_TYPE, value, r))
-	    SetChangedFlag (True);
+	    SetChangedFlag (true);
 	  break;
 
 	case F_SelectedTexts:
 	  if (ChangeSelectedSize (TEXT_TYPE, value, r))
-	    SetChangedFlag (True);
+	    SetChangedFlag (true);
 	  break;
 
 	case F_SelectedNames:
 	  if (ChangeSelectedSize (ELEMENTNAME_TYPE, value, r))
-	    SetChangedFlag (True);
+	    SetChangedFlag (true);
 	  break;
 
 	case F_SelectedElements:
 	  if (ChangeSelectedSize (ELEMENT_TYPE, value, r))
-	    SetChangedFlag (True);
+	    SetChangedFlag (true);
 	  break;
 
 	case F_Selected:
 	case F_SelectedObjects:
 	  if (ChangeSelectedSize (CHANGESIZE_TYPES, value, r))
-	    SetChangedFlag (True);
+	    SetChangedFlag (true);
 	  break;
 	}
-      RestoreCrosshair (True);
+      RestoreCrosshair (true);
     }
   return 0;
 }
@@ -4054,13 +4054,13 @@ ActionChange2ndSize (int argc, char **argv, int x, int y)
   char *function = ARG (0);
   char *delta = ARG (1);
   char *units = ARG (2);
-  Boolean r;
+  bool r;
   float value;
 
   if (function && delta)
     {
       value = GetValue (delta, units, &r);
-      HideCrosshair (True);
+      HideCrosshair (true);
       switch (GetFunctionID (function))
 	{
 	case F_Object:
@@ -4073,27 +4073,27 @@ ActionChange2ndSize (int argc, char **argv, int x, int y)
 		 SearchScreen (x, y, CHANGE2NDSIZE_TYPES,
 			       &ptr1, &ptr2, &ptr3)) != NO_TYPE)
 	      if (ChangeObject2ndSize
-		  (type, ptr1, ptr2, ptr3, value, r, True))
-		SetChangedFlag (True);
+		  (type, ptr1, ptr2, ptr3, value, r, true))
+		SetChangedFlag (true);
 	    break;
 	  }
 
 	case F_SelectedVias:
 	  if (ChangeSelected2ndSize (VIA_TYPE, value, r))
-	    SetChangedFlag (True);
+	    SetChangedFlag (true);
 	  break;
 
 	case F_SelectedPins:
 	  if (ChangeSelected2ndSize (PIN_TYPE, value, r))
-	    SetChangedFlag (True);
+	    SetChangedFlag (true);
 	  break;
 	case F_Selected:
 	case F_SelectedObjects:
 	  if (ChangeSelected2ndSize (PIN_TYPES, value, r))
-	    SetChangedFlag (True);
+	    SetChangedFlag (true);
 	  break;
 	}
-      RestoreCrosshair (True);
+      RestoreCrosshair (true);
     }
   return 0;
 }
@@ -4123,13 +4123,13 @@ ActionChangeClearSize (int argc, char **argv, int x, int y)
   char *function = ARG (0);
   char *delta = ARG (1);
   char *units = ARG (2);
-  Boolean r;
+  bool r;
   float value;
 
   if (function && delta)
     {
       value = 2 * GetValue (delta, units, &r);
-      HideCrosshair (True);
+      HideCrosshair (true);
       switch (GetFunctionID (function))
 	{
 	case F_Object:
@@ -4143,36 +4143,36 @@ ActionChangeClearSize (int argc, char **argv, int x, int y)
 			       CHANGECLEARSIZE_TYPES, &ptr1, &ptr2,
 			       &ptr3)) != NO_TYPE)
 	      if (ChangeObjectClearSize (type, ptr1, ptr2, ptr3, value, r))
-		SetChangedFlag (True);
+		SetChangedFlag (true);
 	    break;
 	  }
 	case F_SelectedVias:
 	  if (ChangeSelectedClearSize (VIA_TYPE, value, r))
-	    SetChangedFlag (True);
+	    SetChangedFlag (true);
 	  break;
 	case F_SelectedPads:
 	  if (ChangeSelectedClearSize (PAD_TYPE, value, r))
-	    SetChangedFlag (True);
+	    SetChangedFlag (true);
 	  break;
 	case F_SelectedPins:
 	  if (ChangeSelectedClearSize (PIN_TYPE, value, r))
-	    SetChangedFlag (True);
+	    SetChangedFlag (true);
 	  break;
 	case F_SelectedLines:
 	  if (ChangeSelectedClearSize (LINE_TYPE, value, r))
-	    SetChangedFlag (True);
+	    SetChangedFlag (true);
 	  break;
 	case F_SelectedArcs:
 	  if (ChangeSelectedClearSize (ARC_TYPE, value, r))
-	    SetChangedFlag (True);
+	    SetChangedFlag (true);
 	  break;
 	case F_Selected:
 	case F_SelectedObjects:
 	  if (ChangeSelectedClearSize (CHANGECLEARSIZE_TYPES, value, r))
-	    SetChangedFlag (True);
+	    SetChangedFlag (true);
 	  break;
 	}
-      RestoreCrosshair (True);
+      RestoreCrosshair (true);
     }
   return 0;
 }
@@ -4199,7 +4199,7 @@ ActionMinMaskGap (int argc, char **argv, int x, int y)
   char *function = ARG (0);
   char *delta = ARG (1);
   char *units = ARG (2);
-  Boolean r;
+  bool r;
   int value;
   int flags;
 
@@ -4215,7 +4215,7 @@ ActionMinMaskGap (int argc, char **argv, int x, int y)
     }
   value = 2 * GetValue (delta, units, &r);
 
-  HideCrosshair (True);
+  HideCrosshair (true);
   SaveUndoSerialNumber ();
   ELEMENT_LOOP (PCB->Data);
   {
@@ -4283,7 +4283,7 @@ ActionMinClearGap (int argc, char **argv, int x, int y)
   char *function = ARG (0);
   char *delta = ARG (1);
   char *units = ARG (2);
-  Boolean r;
+  bool r;
   int value;
   int flags;
 
@@ -4299,7 +4299,7 @@ ActionMinClearGap (int argc, char **argv, int x, int y)
     }
   value = 2 * GetValue (delta, units, &r);
 
-  HideCrosshair (True);
+  HideCrosshair (true);
   SaveUndoSerialNumber ();
   ELEMENT_LOOP (PCB->Data);
   {
@@ -4417,7 +4417,7 @@ ActionChangePinName (int argc, char **argv, int x, int y)
 	       * it is used in the undo list
 	       */
 	      pin->Name = strdup (pinname);
-	      SetChangedFlag (True);
+	      SetChangedFlag (true);
 	      changed = 1;
 	    }
 	}
@@ -4434,7 +4434,7 @@ ActionChangePinName (int argc, char **argv, int x, int y)
 	       * it is used in the undo list
 	       */
 	      pad->Name = strdup (pinname);
-	      SetChangedFlag (True);
+	      SetChangedFlag (true);
 	      changed = 1;
 	    }
 	}
@@ -4492,7 +4492,7 @@ ActionChangeName (int argc, char **argv, int x, int y)
 
   if (function)
     {
-      HideCrosshair (True);
+      HideCrosshair (true);
       switch (GetFunctionID (function))
 	{
 	  /* change the name of an object */
@@ -4509,7 +4509,7 @@ ActionChangeName (int argc, char **argv, int x, int y)
 		SaveUndoSerialNumber ();
 		if (QueryInputAndChangeObjectName (type, ptr1, ptr2, ptr3))
 		  {
-		    SetChangedFlag (True);
+		    SetChangedFlag (true);
 		    if (type == ELEMENT_TYPE)
 		      {
 			RubberbandTypePtr ptr;
@@ -4541,7 +4541,7 @@ ActionChangeName (int argc, char **argv, int x, int y)
 	  name =
 	    gui->prompt_for (_("Enter the layout name:"), EMPTY (PCB->Name));
 	  if (name && ChangeLayoutName (name))	/* XXX memory leak */
-	    SetChangedFlag (True);
+	    SetChangedFlag (true);
 	  break;
 
 	  /* change the name of the active layer */
@@ -4549,10 +4549,10 @@ ActionChangeName (int argc, char **argv, int x, int y)
 	  name = gui->prompt_for (_("Enter the layer name:"),
 				  EMPTY (CURRENT->Name));
 	  if (name && ChangeLayerName (CURRENT, name))	/* XXX memory leak */
-	    SetChangedFlag (True);
+	    SetChangedFlag (true);
 	  break;
 	}
-      RestoreCrosshair (True);
+      RestoreCrosshair (true);
     }
   return 0;
 }
@@ -4581,7 +4581,7 @@ ActionMorphPolygon (int argc, char **argv, int x, int y)
   char *function = ARG (0);
   if (function)
     {
-      HideCrosshair (True);
+      HideCrosshair (true);
       switch (GetFunctionID (function))
 	{
 	case F_Object:
@@ -4636,7 +4636,7 @@ ActionToggleHideName (int argc, char **argv, int x, int y)
   char *function = ARG (0);
   if (function && PCB->ElementOn)
     {
-      HideCrosshair (True);
+      HideCrosshair (true);
       switch (GetFunctionID (function))
 	{
 	case F_Object:
@@ -4660,7 +4660,7 @@ ActionToggleHideName (int argc, char **argv, int x, int y)
 	case F_SelectedElements:
 	case F_Selected:
 	  {
-	    Boolean changed = False;
+	    bool changed = false;
 	    ELEMENT_LOOP (PCB->Data);
 	    {
 	      if ((TEST_FLAG (SELECTEDFLAG, element) ||
@@ -4673,7 +4673,7 @@ ActionToggleHideName (int argc, char **argv, int x, int y)
 		  EraseElementName (element);
 		  TOGGLE_FLAG (HIDENAMEFLAG, element);
 		  DrawElementName (element, 0);
-		  changed = True;
+		  changed = true;
 		}
 	    }
 	    END_LOOP;
@@ -4684,7 +4684,7 @@ ActionToggleHideName (int argc, char **argv, int x, int y)
 	      }
 	  }
 	}
-      RestoreCrosshair (True);
+      RestoreCrosshair (true);
     }
   return 0;
 }
@@ -4713,7 +4713,7 @@ ActionChangeJoin (int argc, char **argv, int x, int y)
   char *function = ARG (0);
   if (function)
     {
-      HideCrosshair (True);
+      HideCrosshair (true);
       switch (GetFunctionID (function))
 	{
 	case F_ToggleObject:
@@ -4727,27 +4727,27 @@ ActionChangeJoin (int argc, char **argv, int x, int y)
 		 SearchScreen (x, y, CHANGEJOIN_TYPES,
 			       &ptr1, &ptr2, &ptr3)) != NO_TYPE)
 	      if (ChangeObjectJoin (type, ptr1, ptr2, ptr3))
-		SetChangedFlag (True);
+		SetChangedFlag (true);
 	    break;
 	  }
 
 	case F_SelectedLines:
 	  if (ChangeSelectedJoin (LINE_TYPE))
-	    SetChangedFlag (True);
+	    SetChangedFlag (true);
 	  break;
 
 	case F_SelectedArcs:
 	  if (ChangeSelectedJoin (ARC_TYPE))
-	    SetChangedFlag (True);
+	    SetChangedFlag (true);
 	  break;
 
 	case F_Selected:
 	case F_SelectedObjects:
 	  if (ChangeSelectedJoin (CHANGEJOIN_TYPES))
-	    SetChangedFlag (True);
+	    SetChangedFlag (true);
 	  break;
 	}
-      RestoreCrosshair (True);
+      RestoreCrosshair (true);
     }
   return 0;
 }
@@ -4776,7 +4776,7 @@ ActionChangeSquare (int argc, char **argv, int x, int y)
   char *function = ARG (0);
   if (function)
     {
-      HideCrosshair (True);
+      HideCrosshair (true);
       switch (GetFunctionID (function))
 	{
 	case F_ToggleObject:
@@ -4790,27 +4790,27 @@ ActionChangeSquare (int argc, char **argv, int x, int y)
 		 SearchScreen (x, y, CHANGESQUARE_TYPES,
 			       &ptr1, &ptr2, &ptr3)) != NO_TYPE)
 	      if (ChangeObjectSquare (type, ptr1, ptr2, ptr3))
-		SetChangedFlag (True);
+		SetChangedFlag (true);
 	    break;
 	  }
 
 	case F_SelectedElements:
 	  if (ChangeSelectedSquare (ELEMENT_TYPE))
-	    SetChangedFlag (True);
+	    SetChangedFlag (true);
 	  break;
 
 	case F_SelectedPins:
 	  if (ChangeSelectedSquare (PIN_TYPE | PAD_TYPE))
-	    SetChangedFlag (True);
+	    SetChangedFlag (true);
 	  break;
 
 	case F_Selected:
 	case F_SelectedObjects:
 	  if (ChangeSelectedSquare (PIN_TYPE | PAD_TYPE))
-	    SetChangedFlag (True);
+	    SetChangedFlag (true);
 	  break;
 	}
-      RestoreCrosshair (True);
+      RestoreCrosshair (true);
     }
   return 0;
 }
@@ -4836,7 +4836,7 @@ ActionSetSquare (int argc, char **argv, int x, int y)
   char *function = ARG (0);
   if (function && *function)
     {
-      /* HideCrosshair (True); */
+      /* HideCrosshair (true); */
       switch (GetFunctionID (function))
 	{
 	case F_ToggleObject:
@@ -4850,27 +4850,27 @@ ActionSetSquare (int argc, char **argv, int x, int y)
 		 SearchScreen (x, y, CHANGESQUARE_TYPES,
 			       &ptr1, &ptr2, &ptr3)) != NO_TYPE)
 	      if (SetObjectSquare (type, ptr1, ptr2, ptr3))
-		SetChangedFlag (True);
+		SetChangedFlag (true);
 	    break;
 	  }
 
 	case F_SelectedElements:
 	  if (SetSelectedSquare (ELEMENT_TYPE))
-	    SetChangedFlag (True);
+	    SetChangedFlag (true);
 	  break;
 
 	case F_SelectedPins:
 	  if (SetSelectedSquare (PIN_TYPE | PAD_TYPE))
-	    SetChangedFlag (True);
+	    SetChangedFlag (true);
 	  break;
 
 	case F_Selected:
 	case F_SelectedObjects:
 	  if (SetSelectedSquare (PIN_TYPE | PAD_TYPE))
-	    SetChangedFlag (True);
+	    SetChangedFlag (true);
 	  break;
 	}
-      /* RestoreCrosshair (True); */
+      /* RestoreCrosshair (true); */
     }
   return 0;
 }
@@ -4897,7 +4897,7 @@ ActionClearSquare (int argc, char **argv, int x, int y)
   char *function = ARG (0);
   if (function && *function)
     {
-      /* HideCrosshair (True); */
+      /* HideCrosshair (true); */
       switch (GetFunctionID (function))
 	{
 	case F_ToggleObject:
@@ -4911,27 +4911,27 @@ ActionClearSquare (int argc, char **argv, int x, int y)
 		 SearchScreen (x, y, CHANGESQUARE_TYPES,
 			       &ptr1, &ptr2, &ptr3)) != NO_TYPE)
 	      if (ClrObjectSquare (type, ptr1, ptr2, ptr3))
-		SetChangedFlag (True);
+		SetChangedFlag (true);
 	    break;
 	  }
 
 	case F_SelectedElements:
 	  if (ClrSelectedSquare (ELEMENT_TYPE))
-	    SetChangedFlag (True);
+	    SetChangedFlag (true);
 	  break;
 
 	case F_SelectedPins:
 	  if (ClrSelectedSquare (PIN_TYPE | PAD_TYPE))
-	    SetChangedFlag (True);
+	    SetChangedFlag (true);
 	  break;
 
 	case F_Selected:
 	case F_SelectedObjects:
 	  if (ClrSelectedSquare (PIN_TYPE | PAD_TYPE))
-	    SetChangedFlag (True);
+	    SetChangedFlag (true);
 	  break;
 	}
-      /* RestoreCrosshair (True); */
+      /* RestoreCrosshair (true); */
     }
   return 0;
 }
@@ -4957,7 +4957,7 @@ ActionChangeOctagon (int argc, char **argv, int x, int y)
   char *function = ARG (0);
   if (function)
     {
-      /* HideCrosshair (True); */
+      /* HideCrosshair (true); */
       switch (GetFunctionID (function))
 	{
 	case F_ToggleObject:
@@ -4971,32 +4971,32 @@ ActionChangeOctagon (int argc, char **argv, int x, int y)
 		 SearchScreen (x, y, CHANGEOCTAGON_TYPES,
 			       &ptr1, &ptr2, &ptr3)) != NO_TYPE)
 	      if (ChangeObjectOctagon (type, ptr1, ptr2, ptr3))
-		SetChangedFlag (True);
+		SetChangedFlag (true);
 	    break;
 	  }
 
 	case F_SelectedElements:
 	  if (ChangeSelectedOctagon (ELEMENT_TYPE))
-	    SetChangedFlag (True);
+	    SetChangedFlag (true);
 	  break;
 
 	case F_SelectedPins:
 	  if (ChangeSelectedOctagon (PIN_TYPE))
-	    SetChangedFlag (True);
+	    SetChangedFlag (true);
 	  break;
 
 	case F_SelectedVias:
 	  if (ChangeSelectedOctagon (VIA_TYPE))
-	    SetChangedFlag (True);
+	    SetChangedFlag (true);
 	  break;
 
 	case F_Selected:
 	case F_SelectedObjects:
 	  if (ChangeSelectedOctagon (PIN_TYPES))
-	    SetChangedFlag (True);
+	    SetChangedFlag (true);
 	  break;
 	}
-      /* RestoreCrosshair (True); */
+      /* RestoreCrosshair (true); */
     }
   return 0;
 }
@@ -5020,7 +5020,7 @@ ActionSetOctagon (int argc, char **argv, int x, int y)
   char *function = ARG (0);
   if (function)
     {
-      /* HideCrosshair (True); */
+      /* HideCrosshair (true); */
       switch (GetFunctionID (function))
 	{
 	case F_ToggleObject:
@@ -5034,32 +5034,32 @@ ActionSetOctagon (int argc, char **argv, int x, int y)
 		 SearchScreen (x, y, CHANGEOCTAGON_TYPES,
 			       &ptr1, &ptr2, &ptr3)) != NO_TYPE)
 	      if (SetObjectOctagon (type, ptr1, ptr2, ptr3))
-		SetChangedFlag (True);
+		SetChangedFlag (true);
 	    break;
 	  }
 
 	case F_SelectedElements:
 	  if (SetSelectedOctagon (ELEMENT_TYPE))
-	    SetChangedFlag (True);
+	    SetChangedFlag (true);
 	  break;
 
 	case F_SelectedPins:
 	  if (SetSelectedOctagon (PIN_TYPE))
-	    SetChangedFlag (True);
+	    SetChangedFlag (true);
 	  break;
 
 	case F_SelectedVias:
 	  if (SetSelectedOctagon (VIA_TYPE))
-	    SetChangedFlag (True);
+	    SetChangedFlag (true);
 	  break;
 
 	case F_Selected:
 	case F_SelectedObjects:
 	  if (SetSelectedOctagon (PIN_TYPES))
-	    SetChangedFlag (True);
+	    SetChangedFlag (true);
 	  break;
 	}
-      /* RestoreCrosshair (True); */
+      /* RestoreCrosshair (true); */
     }
   return 0;
 }
@@ -5085,7 +5085,7 @@ ActionClearOctagon (int argc, char **argv, int x, int y)
   char *function = ARG (0);
   if (function)
     {
-      /* HideCrosshair (True); */
+      /* HideCrosshair (true); */
       switch (GetFunctionID (function))
 	{
 	case F_ToggleObject:
@@ -5099,32 +5099,32 @@ ActionClearOctagon (int argc, char **argv, int x, int y)
 		 SearchScreen (Crosshair.X, Crosshair.Y, CHANGEOCTAGON_TYPES,
 			       &ptr1, &ptr2, &ptr3)) != NO_TYPE)
 	      if (ClrObjectOctagon (type, ptr1, ptr2, ptr3))
-		SetChangedFlag (True);
+		SetChangedFlag (true);
 	    break;
 	  }
 
 	case F_SelectedElements:
 	  if (ClrSelectedOctagon (ELEMENT_TYPE))
-	    SetChangedFlag (True);
+	    SetChangedFlag (true);
 	  break;
 
 	case F_SelectedPins:
 	  if (ClrSelectedOctagon (PIN_TYPE))
-	    SetChangedFlag (True);
+	    SetChangedFlag (true);
 	  break;
 
 	case F_SelectedVias:
 	  if (ClrSelectedOctagon (VIA_TYPE))
-	    SetChangedFlag (True);
+	    SetChangedFlag (true);
 	  break;
 
 	case F_Selected:
 	case F_SelectedObjects:
 	  if (ClrSelectedOctagon (PIN_TYPES))
-	    SetChangedFlag (True);
+	    SetChangedFlag (true);
 	  break;
 	}
-      /* RestoreCrosshair (True); */
+      /* RestoreCrosshair (true); */
     }
   return 0;
 }
@@ -5149,7 +5149,7 @@ ActionChangeHole (int argc, char **argv, int x, int y)
   char *function = ARG (0);
   if (function)
     {
-      /* HideCrosshair (True); */
+      /* HideCrosshair (true); */
       switch (GetFunctionID (function))
 	{
 	case F_ToggleObject:
@@ -5169,10 +5169,10 @@ ActionChangeHole (int argc, char **argv, int x, int y)
 	case F_SelectedVias:
 	case F_Selected:
 	  if (ChangeSelectedHole ())
-	    SetChangedFlag (True);
+	    SetChangedFlag (true);
 	  break;
 	}
-      /* RestoreCrosshair (True); */
+      /* RestoreCrosshair (true); */
     }
   return 0;
 }
@@ -5199,7 +5199,7 @@ ActionChangePaste (int argc, char **argv, int x, int y)
   char *function = ARG (0);
   if (function)
     {
-      /* HideCrosshair (True); */
+      /* HideCrosshair (true); */
       switch (GetFunctionID (function))
 	{
 	case F_ToggleObject:
@@ -5219,10 +5219,10 @@ ActionChangePaste (int argc, char **argv, int x, int y)
 	case F_SelectedPads:
 	case F_Selected:
 	  if (ChangeSelectedPaste ())
-	    SetChangedFlag (True);
+	    SetChangedFlag (true);
 	  break;
 	}
-      /* RestoreCrosshair (True); */
+      /* RestoreCrosshair (true); */
     }
   return 0;
 }
@@ -5283,7 +5283,7 @@ ActionSelect (int argc, char **argv, int x, int y)
   if (function)
     {
 
-      HideCrosshair (True);
+      HideCrosshair (true);
       switch (GetFunctionID (function))
 	{
 #if defined(HAVE_REGCOMP) || defined(HAVE_RE_COMP)
@@ -5316,8 +5316,8 @@ ActionSelect (int argc, char **argv, int x, int y)
 		|| (pattern =
 		    gui->prompt_for (_("Enter pattern:"), "")) != NULL)
 	      {
-		if (SelectObjectByName (type, pattern, True))
-		  SetChangedFlag (True);
+		if (SelectObjectByName (type, pattern, true))
+		  SetChangedFlag (true);
 		if (ARG (1) == 0)
 		  free (pattern);
 	      }
@@ -5329,7 +5329,7 @@ ActionSelect (int argc, char **argv, int x, int y)
 	case F_ToggleObject:
 	case F_Object:
 	  if (SelectObject ())
-	    SetChangedFlag (True);
+	    SetChangedFlag (true);
 	  break;
 
 	  /* all objects in block */
@@ -5347,9 +5347,9 @@ ActionSelect (int argc, char **argv, int x, int y)
 			  Crosshair.AttachedBox.Point2.Y);
 	    NotifyBlock ();
 	    if (Crosshair.AttachedBox.State == STATE_THIRD &&
-		SelectBlock (&box, True))
+		SelectBlock (&box, true))
 	      {
-		SetChangedFlag (True);
+		SetChangedFlag (true);
 		Crosshair.AttachedBox.State = STATE_FIRST;
 	      }
 	    break;
@@ -5364,17 +5364,17 @@ ActionSelect (int argc, char **argv, int x, int y)
 	    box.Y1 = -MAX_COORD;
 	    box.X2 = MAX_COORD;
 	    box.Y2 = MAX_COORD;
-	    if (SelectBlock (&box, True))
-	      SetChangedFlag (True);
+	    if (SelectBlock (&box, true))
+	      SetChangedFlag (true);
 	    break;
 	  }
 
 	  /* all found connections */
 	case F_Connection:
-	  if (SelectConnection (True))
+	  if (SelectConnection (true))
 	    {
 	      IncrementUndoSerialNumber ();
-	      SetChangedFlag (True);
+	      SetChangedFlag (true);
 	    }
 	  break;
 
@@ -5387,7 +5387,7 @@ ActionSelect (int argc, char **argv, int x, int y)
 	    gui->get_coords (_("Select the Element's Mark Location"), &x, &y);
 	    x = GRIDFIT_X (x, PCB->Grid);
 	    y = GRIDFIT_Y (y, PCB->Grid);
-	    AddSelectedToBuffer (PASTEBUFFER, x, y, True);
+	    AddSelectedToBuffer (PASTEBUFFER, x, y, true);
 	    SaveUndoSerialNumber ();
 	    RemoveSelected ();
 	    ConvertBufferToElement (PASTEBUFFER);
@@ -5398,11 +5398,11 @@ ActionSelect (int argc, char **argv, int x, int y)
 	  break;
 
 	default:
-	  RestoreCrosshair (True);
+	  RestoreCrosshair (true);
 	  AFAIL (select);
 	  break;
 	}
-      RestoreCrosshair (True);
+      RestoreCrosshair (true);
     }
   return 0;
 }
@@ -5466,7 +5466,7 @@ ActionUnselect (int argc, char **argv, int x, int y)
 
   if (function)
     {
-      HideCrosshair (True);
+      HideCrosshair (true);
       switch (GetFunctionID (function))
 	{
 #if defined(HAVE_REGCOMP) || defined(HAVE_RE_COMP)
@@ -5499,8 +5499,8 @@ ActionUnselect (int argc, char **argv, int x, int y)
 		|| (pattern =
 		    gui->prompt_for (_("Enter pattern:"), "")) != NULL)
 	      {
-		if (SelectObjectByName (type, pattern, False))
-		  SetChangedFlag (True);
+		if (SelectObjectByName (type, pattern, false))
+		  SetChangedFlag (true);
 		if (ARG (1) == 0)
 		  free (pattern);
 	      }
@@ -5523,9 +5523,9 @@ ActionUnselect (int argc, char **argv, int x, int y)
 			  Crosshair.AttachedBox.Point2.Y);
 	    NotifyBlock ();
 	    if (Crosshair.AttachedBox.State == STATE_THIRD &&
-		SelectBlock (&box, False))
+		SelectBlock (&box, false))
 	      {
-		SetChangedFlag (True);
+		SetChangedFlag (true);
 		Crosshair.AttachedBox.State = STATE_FIRST;
 	      }
 	    break;
@@ -5540,27 +5540,27 @@ ActionUnselect (int argc, char **argv, int x, int y)
 	    box.Y1 = -MAX_COORD;
 	    box.X2 = MAX_COORD;
 	    box.Y2 = MAX_COORD;
-	    if (SelectBlock (&box, False))
-	      SetChangedFlag (True);
+	    if (SelectBlock (&box, false))
+	      SetChangedFlag (true);
 	    break;
 	  }
 
 	  /* all found connections */
 	case F_Connection:
-	  if (SelectConnection (False))
+	  if (SelectConnection (false))
 	    {
 	      IncrementUndoSerialNumber ();
-	      SetChangedFlag (True);
+	      SetChangedFlag (true);
 	    }
 	  break;
 
 	default:
-	  RestoreCrosshair (True);
+	  RestoreCrosshair (true);
 	  AFAIL (unselect);
 	  break;
 
 	}
-      RestoreCrosshair (True);
+      RestoreCrosshair (true);
     }
   return 0;
 }
@@ -5629,12 +5629,12 @@ ActionSaveTo (int argc, char **argv, int x, int y)
   if (strcasecmp (function, "AllConnections") == 0)
     {
       FILE *fp;
-      Boolean result;
-      if ((fp = CheckAndOpenFile (name, True, False, &result, NULL)) != NULL)
+      bool result;
+      if ((fp = CheckAndOpenFile (name, true, false, &result, NULL)) != NULL)
 	{
 	  LookupConnectionsToAllElements (fp);
 	  fclose (fp);
-	  SetChangedFlag (True);
+	  SetChangedFlag (true);
 	}
       return 0;
     }
@@ -5642,12 +5642,12 @@ ActionSaveTo (int argc, char **argv, int x, int y)
   if (strcasecmp (function, "AllUnusedPins") == 0)
     {
       FILE *fp;
-      Boolean result;
-      if ((fp = CheckAndOpenFile (name, True, False, &result, NULL)) != NULL)
+      bool result;
+      if ((fp = CheckAndOpenFile (name, true, false, &result, NULL)) != NULL)
 	{
 	  LookupUnusedPins (fp);
 	  fclose (fp);
-	  SetChangedFlag (True);
+	  SetChangedFlag (true);
 	}
       return 0;
     }
@@ -5657,18 +5657,18 @@ ActionSaveTo (int argc, char **argv, int x, int y)
       ElementTypePtr element;
       void *ptrtmp;
       FILE *fp;
-      Boolean result;
+      bool result;
 
       if ((SearchScreen (Crosshair.X, Crosshair.Y, ELEMENT_TYPE,
 			 &ptrtmp, &ptrtmp, &ptrtmp)) != NO_TYPE)
 	{
 	  element = (ElementTypePtr) ptrtmp;
 	  if ((fp =
-	       CheckAndOpenFile (name, True, False, &result, NULL)) != NULL)
+	       CheckAndOpenFile (name, true, false, &result, NULL)) != NULL)
 	    {
 	      LookupElementConnections (element, fp);
 	      fclose (fp);
-	      SetChangedFlag (True);
+	      SetChangedFlag (true);
 	    }
 	}
       return 0;
@@ -5756,11 +5756,11 @@ ActionLoadFrom (int argc, char **argv, int x, int y)
   function = argv[0];
   name = argv[1];
 
-  HideCrosshair (True);
+  HideCrosshair (true);
 
   if (strcasecmp (function, "ElementToBuffer") == 0)
     {
-      if (LoadElementToBuffer (PASTEBUFFER, name, True))
+      if (LoadElementToBuffer (PASTEBUFFER, name, true))
 	SetMode (PASTEBUFFER_MODE);
     }
 
@@ -5794,7 +5794,7 @@ ActionLoadFrom (int argc, char **argv, int x, int y)
       LoadPCB (fname);
     }
 
-  RestoreCrosshair (True);
+  RestoreCrosshair (true);
   return 0;
 }
 
@@ -5815,7 +5815,7 @@ ActionNew (int argc, char **argv, int x, int y)
 {
   char *name = ARG (0);
 
-  HideCrosshair (True);
+  HideCrosshair (true);
   if (!PCB->Changed || gui->confirm_dialog (_("OK to clear layout data?"), 0))
     {
       if (name)
@@ -5825,7 +5825,7 @@ ActionNew (int argc, char **argv, int x, int y)
 
       if (!name)
 	{
-	  RestoreCrosshair(True);
+	  RestoreCrosshair(true);
 	  return 1;
 	}
 
@@ -5835,7 +5835,7 @@ ActionNew (int argc, char **argv, int x, int y)
       if (PCB->Changed && Settings.SaveInTMP)
 	SaveInTMP ();
       RemovePCB (PCB);
-      PCB = CreateNewPCB (True);
+      PCB = CreateNewPCB (true);
       PCB->Data->LayerN = DEF_LAYER;
       CreateNewPCBPost (PCB, 1);
 
@@ -5845,14 +5845,14 @@ ActionNew (int argc, char **argv, int x, int y)
       ResetStackAndVisibility ();
       CreateDefaultFont ();
       SetCrosshairRange (0, 0, PCB->MaxWidth, PCB->MaxHeight);
-      CenterDisplay (PCB->MaxWidth / 2, PCB->MaxHeight / 2, False);
+      CenterDisplay (PCB->MaxWidth / 2, PCB->MaxHeight / 2, false);
       ClearAndRedrawOutput ();
 
       hid_action ("PCBChanged");
-      RestoreCrosshair(True);
+      RestoreCrosshair(true);
       return 0;
     }
-  RestoreCrosshair (True);
+  RestoreCrosshair (true);
   return 1;
 }
 
@@ -5937,7 +5937,7 @@ ActionPasteBuffer (int argc, char **argv, int x, int y)
   static char *default_file = NULL;
   int free_name = 0;
 
-  HideCrosshair (True);
+  HideCrosshair (true);
   if (function)
     {
       switch (GetFunctionID (function))
@@ -5949,7 +5949,7 @@ ActionPasteBuffer (int argc, char **argv, int x, int y)
 
 	  /* copies objects to paste buffer */
 	case F_AddSelected:
-	  AddSelectedToBuffer (PASTEBUFFER, 0, 0, False);
+	  AddSelectedToBuffer (PASTEBUFFER, 0, 0, false);
 	  break;
 
 	  /* converts buffer contents into an element */
@@ -6027,7 +6027,7 @@ ActionPasteBuffer (int argc, char **argv, int x, int y)
 	  {
 	    static int oldx = 0, oldy = 0;
 	    int x, y;
-	    Boolean r;
+	    bool r;
 
 	    if (argc == 1)
 	      {
@@ -6044,14 +6044,14 @@ ActionPasteBuffer (int argc, char **argv, int x, int y)
 	      }
 	    else
 	      {
-		RestoreCrosshair (True);
+		RestoreCrosshair (true);
 		AFAIL (pastebuffer);
 	      }
 
 	    oldx = x;
 	    oldy = y;
 	    if (CopyPastebufferToLayout (x, y))
-	      SetChangedFlag (True);
+	      SetChangedFlag (true);
 	  }
 	  break;
 
@@ -6067,7 +6067,7 @@ ActionPasteBuffer (int argc, char **argv, int x, int y)
 	}
     }
 
-  RestoreCrosshair (True);
+  RestoreCrosshair (true);
   return 0;
 }
 
@@ -6106,11 +6106,11 @@ ActionUndo (int argc, char **argv, int x, int y)
 	return 1;
       /* undo the last operation */
 
-      HideCrosshair (True);
+      HideCrosshair (true);
       if (Settings.Mode == POLYGON_MODE && Crosshair.AttachedPolygon.PointN)
 	{
 	  GoToPreviousPoint ();
-	  RestoreCrosshair (True);
+	  RestoreCrosshair (true);
 	  return 0;
 	}
       /* move anchor point if undoing during line creation */
@@ -6119,10 +6119,10 @@ ActionUndo (int argc, char **argv, int x, int y)
 	  if (Crosshair.AttachedLine.State == STATE_SECOND)
 	    {
 	      if (TEST_FLAG (AUTODRCFLAG, PCB))
-		Undo (True);	/* undo the connection find */
+		Undo (true);	/* undo the connection find */
 	      Crosshair.AttachedLine.State = STATE_FIRST;
-	      SetLocalRef (0, 0, False);
-	      RestoreCrosshair (True);
+	      SetLocalRef (0, 0, false);
+	      RestoreCrosshair (true);
 	      return 0;
 	    }
 	  if (Crosshair.AttachedLine.State == STATE_THIRD)
@@ -6140,8 +6140,8 @@ ActionUndo (int argc, char **argv, int x, int y)
 	      /* save both ends of line */
 	      Crosshair.AttachedLine.Point2.X = ptr2->Point1.X;
 	      Crosshair.AttachedLine.Point2.Y = ptr2->Point1.Y;
-	      if ((type = Undo (True)))
-		SetChangedFlag (True);
+	      if ((type = Undo (true)))
+		SetChangedFlag (true);
 	      /* check that the undo was of the right type */
 	      if ((type & UNDO_CREATE) == 0)
 		{
@@ -6150,7 +6150,7 @@ ActionUndo (int argc, char **argv, int x, int y)
 		    Crosshair.AttachedLine.Point1.X;
 		  Crosshair.AttachedLine.Point2.Y =
 		    Crosshair.AttachedLine.Point1.Y;
-		  RestoreCrosshair (True);
+		  RestoreCrosshair (true);
 		  return 0;
 		}
 	      /* move to new anchor */
@@ -6197,7 +6197,7 @@ ActionUndo (int argc, char **argv, int x, int y)
 		  ptr2 = (LineTypePtr) ptrtmp;
 		  lastLayer = (LayerTypePtr) ptr1;
 		}
-	      RestoreCrosshair (True);
+	      RestoreCrosshair (true);
 	      return 0;
 	    }
 	}
@@ -6206,7 +6206,7 @@ ActionUndo (int argc, char **argv, int x, int y)
 	  if (Crosshair.AttachedBox.State == STATE_SECOND)
 	    {
 	      Crosshair.AttachedBox.State = STATE_FIRST;
-	      RestoreCrosshair (True);
+	      RestoreCrosshair (true);
 	      return 0;
 	    }
 	  if (Crosshair.AttachedBox.State == STATE_THIRD)
@@ -6228,8 +6228,8 @@ ActionUndo (int argc, char **argv, int x, int y)
 	    }
 	}
       /* undo the last destructive operation */
-      if (Undo (True))
-	SetChangedFlag (True);
+      if (Undo (true))
+	SetChangedFlag (true);
     }
   else if (function)
     {
@@ -6237,11 +6237,11 @@ ActionUndo (int argc, char **argv, int x, int y)
 	{
 	  /* clear 'undo objects' list */
 	case F_ClearList:
-	  ClearUndoList (False);
+	  ClearUndoList (false);
 	  break;
 	}
     }
-  RestoreCrosshair (True);
+  RestoreCrosshair (true);
   return 0;
 }
 
@@ -6273,10 +6273,10 @@ ActionRedo (int argc, char **argv, int x, int y)
        Crosshair.AttachedPolygon.PointN) ||
       Crosshair.AttachedLine.State == STATE_SECOND)
     return 1;
-  HideCrosshair (True);
-  if (Redo (True))
+  HideCrosshair (true);
+  if (Redo (true))
     {
-      SetChangedFlag (True);
+      SetChangedFlag (true);
       if (Settings.Mode == LINE_MODE &&
 	  Crosshair.AttachedLine.State != STATE_FIRST)
 	{
@@ -6288,7 +6288,7 @@ ActionRedo (int argc, char **argv, int x, int y)
 	  addedLines++;
 	}
     }
-  RestoreCrosshair (True);
+  RestoreCrosshair (true);
   return 0;
 }
 
@@ -6322,7 +6322,7 @@ ActionPolygon (int argc, char **argv, int x, int y)
   char *function = ARG (0);
   if (function && Settings.Mode == POLYGON_MODE)
     {
-      HideCrosshair (True);
+      HideCrosshair (true);
       switch (GetFunctionID (function))
 	{
 	  /* close open polygon if possible */
@@ -6335,7 +6335,7 @@ ActionPolygon (int argc, char **argv, int x, int y)
 	  GoToPreviousPoint ();
 	  break;
 	}
-      RestoreCrosshair (True);
+      RestoreCrosshair (true);
     }
   return 0;
 }
@@ -6365,8 +6365,8 @@ ActionRouteStyle (int argc, char **argv, int x, int y)
 	{
 	  rts = &PCB->RouteStyle[number - 1];
 	  SetLineSize (rts->Thick);
-	  SetViaSize (rts->Diameter, True);
-	  SetViaDrillingHole (rts->Hole, True);
+	  SetViaSize (rts->Diameter, true);
+	  SetViaDrillingHole (rts->Hole, true);
 	  SetKeepawayWidth (rts->Keepaway);
 	  hid_action("RouteStylesChanged");
 	}
@@ -6398,7 +6398,7 @@ ActionMoveObject (int argc, char **argv, int x, int y)
   char *y_str = ARG (1);
   char *units = ARG (2);
   LocationType nx, ny;
-  Boolean r1, r2;
+  bool r1, r2;
   void *ptr1, *ptr2, *ptr3;
   int type;
 
@@ -6421,7 +6421,7 @@ ActionMoveObject (int argc, char **argv, int x, int y)
   if (type == ELEMENT_TYPE)
     LookupRatLines (type, ptr1, ptr2, ptr3);
   MoveObjectAndRubberband (type, ptr1, ptr2, ptr3, nx, ny);
-  SetChangedFlag (True);
+  SetChangedFlag (true);
   return 0;
 }
 
@@ -6447,7 +6447,7 @@ ActionMoveToCurrentLayer (int argc, char **argv, int x, int y)
   char *function = ARG (0);
   if (function)
     {
-      HideCrosshair (True);
+      HideCrosshair (true);
       switch (GetFunctionID (function))
 	{
 	case F_Object:
@@ -6459,18 +6459,18 @@ ActionMoveToCurrentLayer (int argc, char **argv, int x, int y)
 	    if ((type =
 		 SearchScreen (x, y, MOVETOLAYER_TYPES,
 			       &ptr1, &ptr2, &ptr3)) != NO_TYPE)
-	      if (MoveObjectToLayer (type, ptr1, ptr2, ptr3, CURRENT, False))
-		SetChangedFlag (True);
+	      if (MoveObjectToLayer (type, ptr1, ptr2, ptr3, CURRENT, false))
+		SetChangedFlag (true);
 	    break;
 	  }
 
 	case F_SelectedObjects:
 	case F_Selected:
 	  if (MoveSelectedObjectsToLayer (CURRENT))
-	    SetChangedFlag (True);
+	    SetChangedFlag (true);
 	  break;
 	}
-      RestoreCrosshair (True);
+      RestoreCrosshair (true);
     }
   return 0;
 }
@@ -6501,24 +6501,24 @@ ActionSetSame (int argc, char **argv, int x, int y)
   switch (type)
     {
     case LINE_TYPE:
-      HideCrosshair (True);
+      HideCrosshair (true);
       Settings.LineThickness = ((LineTypePtr) ptr2)->Thickness;
       Settings.Keepaway = ((LineTypePtr) ptr2)->Clearance / 2;
       layer = (LayerTypePtr) ptr1;
       if (Settings.Mode != LINE_MODE)
 	SetMode (LINE_MODE);
-      RestoreCrosshair (True);
+      RestoreCrosshair (true);
       hid_action ("RouteStylesChanged");
       break;
 
     case ARC_TYPE:
-      HideCrosshair (True);
+      HideCrosshair (true);
       Settings.LineThickness = ((ArcTypePtr) ptr2)->Thickness;
       Settings.Keepaway = ((ArcTypePtr) ptr2)->Clearance / 2;
       layer = (LayerTypePtr) ptr1;
       if (Settings.Mode != ARC_MODE)
 	SetMode (ARC_MODE);
-      RestoreCrosshair (True);
+      RestoreCrosshair (true);
       hid_action ("RouteStylesChanged");
       break;
 
@@ -6527,13 +6527,13 @@ ActionSetSame (int argc, char **argv, int x, int y)
       break;
 
     case VIA_TYPE:
-      HideCrosshair (True);
+      HideCrosshair (true);
       Settings.ViaThickness = ((PinTypePtr) ptr2)->Thickness;
       Settings.ViaDrillingHole = ((PinTypePtr) ptr2)->DrillingHole;
       Settings.Keepaway = ((PinTypePtr) ptr2)->Clearance / 2;
       if (Settings.Mode != VIA_MODE)
 	SetMode (VIA_MODE);
-      RestoreCrosshair (True);
+      RestoreCrosshair (true);
       hid_action ("RouteStylesChanged");
       break;
 
@@ -6542,7 +6542,7 @@ ActionSetSame (int argc, char **argv, int x, int y)
     }
   if (layer != CURRENT)
     {
-      ChangeGroupVisibility (GetLayerNumber (PCB->Data, layer), True, True);
+      ChangeGroupVisibility (GetLayerNumber (PCB->Data, layer), true, true);
       ClearAndRedrawOutput ();
     }
   return 0;
@@ -6648,8 +6648,8 @@ ActionChangeFlag (int argc, char **argv, int x, int y)
 static void
 ChangeFlag (char *what, char *flag_name, int value, char *cmd_name)
 {
-  Boolean (*set_object) (int, void *, void *, void *);
-  Boolean (*set_selected) (int);
+  bool (*set_object) (int, void *, void *, void *);
+  bool (*set_selected) (int);
 
   if (NSTRCMP (flag_name, "square") == 0)
     {
@@ -6674,7 +6674,7 @@ ChangeFlag (char *what, char *flag_name, int value, char *cmd_name)
       return;
     }
 
-  HideCrosshair (True);
+  HideCrosshair (true);
   switch (GetFunctionID (what))
     {
     case F_Object:
@@ -6688,52 +6688,52 @@ ChangeFlag (char *what, char *flag_name, int value, char *cmd_name)
 	  if (TEST_FLAG (LOCKFLAG, (PinTypePtr) ptr2))
 	    Message (_("Sorry, the object is locked\n"));
 	if (set_object (type, ptr1, ptr2, ptr3))
-	  SetChangedFlag (True);
+	  SetChangedFlag (true);
 	break;
       }
 
     case F_SelectedVias:
       if (set_selected (VIA_TYPE))
-	SetChangedFlag (True);
+	SetChangedFlag (true);
       break;
 
     case F_SelectedPins:
       if (set_selected (PIN_TYPE))
-	SetChangedFlag (True);
+	SetChangedFlag (true);
       break;
 
     case F_SelectedPads:
       if (set_selected (PAD_TYPE))
-	SetChangedFlag (True);
+	SetChangedFlag (true);
       break;
 
     case F_SelectedLines:
       if (set_selected (LINE_TYPE))
-	SetChangedFlag (True);
+	SetChangedFlag (true);
       break;
 
     case F_SelectedTexts:
       if (set_selected (TEXT_TYPE))
-	SetChangedFlag (True);
+	SetChangedFlag (true);
       break;
 
     case F_SelectedNames:
       if (set_selected (ELEMENTNAME_TYPE))
-	SetChangedFlag (True);
+	SetChangedFlag (true);
       break;
 
     case F_SelectedElements:
       if (set_selected (ELEMENT_TYPE))
-	SetChangedFlag (True);
+	SetChangedFlag (true);
       break;
 
     case F_Selected:
     case F_SelectedObjects:
       if (set_selected (CHANGESIZE_TYPES))
-	SetChangedFlag (True);
+	SetChangedFlag (true);
       break;
     }
-  RestoreCrosshair (True);
+  RestoreCrosshair (true);
 
 }
 
@@ -6970,7 +6970,7 @@ ActionElementList (int argc, char **argv, int x, int y)
 	return 1;
       /* Place components onto center of board. */
       if (CopyPastebufferToLayout (PCB->MaxWidth/2, PCB->MaxHeight/2))
-	SetChangedFlag (True);
+	SetChangedFlag (true);
     }
 
   else if (e && strcmp (DESCRIPTION_NAME(e), footprint) != 0)
@@ -7007,7 +7007,7 @@ ActionElementList (int argc, char **argv, int x, int y)
       RemoveElement (e);
 
       if (CopyPastebufferToLayout (mx, my))
-	SetChangedFlag (True);
+	SetChangedFlag (true);
     }
 
   /* Now reload footprint */
@@ -7592,8 +7592,8 @@ ActionImport (int argc, char **argv, int x, int y)
       return 1;
     }
 
-  DeleteRats (False);
-  AddAllRats (False, NULL);
+  DeleteRats (false);
+  AddAllRats (false, NULL);
 
 #ifdef DEBUG
       printf("ActionImport:  ===========  Leaving ActionImport  ============\n");

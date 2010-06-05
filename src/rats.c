@@ -70,17 +70,17 @@ RCSID ("$Id$");
 /* ---------------------------------------------------------------------------
  * some forward declarations
  */
-static Boolean FindPad (char *, char *, ConnectionType *, Boolean);
-static Boolean ParseConnection (char *, char *, char *);
-static Boolean DrawShortestRats (NetListTypePtr, void (*)());
-static Boolean GatherSubnets (NetListTypePtr, Boolean, Boolean);
-static Boolean CheckShorts (LibraryMenuTypePtr);
+static bool FindPad (char *, char *, ConnectionType *, bool);
+static bool ParseConnection (char *, char *, char *);
+static bool DrawShortestRats (NetListTypePtr, void (*)());
+static bool GatherSubnets (NetListTypePtr, bool, bool);
+static bool CheckShorts (LibraryMenuTypePtr);
 static void TransferNet (NetListTypePtr, NetTypePtr, NetTypePtr);
 
 /* ---------------------------------------------------------------------------
  * some local identifiers
  */
-static Boolean badnet = False;
+static bool badnet = false;
 static Cardinal SLayer, CLayer;	/* layer group holding solder/component side */
 
 /* ---------------------------------------------------------------------------
@@ -90,7 +90,7 @@ static Cardinal SLayer, CLayer;	/* layer group holding solder/component side */
  * number of characters processed from the string, otherwise
  * it returns 0
  */
-static Boolean
+static bool
 ParseConnection (char *InString, char *ElementName, char *PinNum)
 {
   int i, j;
@@ -105,22 +105,22 @@ ParseConnection (char *InString, char *ElementName, char *PinNum)
       for (i = 0, j++; InString[j] != '\0'; i++, j++)
 	PinNum[i] = InString[j];
       PinNum[i] = '\0';
-      return (False);
+      return (false);
     }
   else
     {
       ElementName[j] = '\0';
       Message (_("Bad net-list format encountered near: \"%s\"\n"),
 	       ElementName);
-      return (True);
+      return (true);
     }
 }
 
 /* ---------------------------------------------------------------------------
  * Find a particular pad from an element name and pin number
  */
-static Boolean
-FindPad (char *ElementName, char *PinNum, ConnectionType * conn, Boolean Same)
+static bool
+FindPad (char *ElementName, char *PinNum, ConnectionType * conn, bool Same)
 {
   ElementTypePtr element;
   Cardinal i;
@@ -167,40 +167,40 @@ FindPad (char *ElementName, char *PinNum, ConnectionType * conn, Boolean Same)
 		break;
 	      }
 	  if (i == element->PinN)
-	    return (False);
+	    return (false);
 	}
       conn->ptr1 = element;
-      return (True);
+      return (true);
     }
-  return (False);
+  return (false);
 }
 
 /*--------------------------------------------------------------------------
  * parse a netlist menu entry and locate the corresponding pad
- * returns True if found, and fills in Connection information
+ * returns true if found, and fills in Connection information
  */
-Boolean
-SeekPad (LibraryEntryType * entry, ConnectionType * conn, Boolean Same)
+bool
+SeekPad (LibraryEntryType * entry, ConnectionType * conn, bool Same)
 {
   int j;
   char ElementName[256];
   char PinNum[256];
 
   if (ParseConnection (entry->ListEntry, ElementName, PinNum))
-    return (False);
+    return (false);
   for (j = 0; PinNum[j] != '\0'; j++);
   if (j == 0)
     {
       Message (_("Error! Netlist file is missing pin!\n"
 		 "white space after \"%s-\"\n"), ElementName);
-      badnet = True;
+      badnet = true;
     }
   else
     {
       if (FindPad (ElementName, PinNum, conn, Same))
-	return (True);
+	return (true);
       if (Same)
-	return (False);
+	return (false);
       if (PinNum[j - 1] < '0' || PinNum[j - 1] > '9')
 	{
 	  Message ("WARNING! Pin number ending with '%c'"
@@ -210,7 +210,7 @@ SeekPad (LibraryEntryType * entry, ConnectionType * conn, Boolean Same)
     }
   Message (_("Can't find %s pin %s called for in netlist.\n"),
 	   ElementName, PinNum);
-  return (False);
+  return (false);
 }
 
 /* ---------------------------------------------------------------------------
@@ -230,7 +230,7 @@ ProcNetlist (LibraryTypePtr net_menu)
   FreeNetListMemory (Wantlist);
   SaveFree (Wantlist);
   /*  MYFREE (Wantlist); *//* awkward */
-  badnet = False;
+  badnet = false;
 
   /* find layer groups of the component side and solder side */
   SLayer = GetLayerGroupNumberByNumber (max_layer + SOLDER_LAYER);
@@ -255,7 +255,7 @@ ProcNetlist (LibraryTypePtr net_menu)
       {
 	if (menu->Name[0] == '*' || menu->flag == 0)
 	  {
-	    badnet = True;
+	    badnet = true;
 	    continue;
 	  }
 	net = GetNetMemory (Wantlist);
@@ -275,7 +275,7 @@ ProcNetlist (LibraryTypePtr net_menu)
 	  net->Style = NULL;
 	ENTRY_LOOP (menu);
 	{
-	  if (SeekPad (entry, &LastPoint, False))
+	  if (SeekPad (entry, &LastPoint, false))
 	    {
 	      if (TEST_FLAG (DRCFLAG, (PinTypePtr) LastPoint.ptr2))
 		Message (_
@@ -299,9 +299,9 @@ ProcNetlist (LibraryTypePtr net_menu)
 		}
 	    }
 	  else
-	    badnet = True;
+	    badnet = true;
 	  /* check for more pins with the same number */
-	  for (; SeekPad (entry, &LastPoint, True);)
+	  for (; SeekPad (entry, &LastPoint, true);)
 	    {
 	      connection = GetConnectionMemory (net);
 	      *connection = LastPoint;
@@ -357,10 +357,10 @@ TransferNet (NetListTypePtr Netl, NetTypePtr SourceNet, NetTypePtr DestNet)
   memset (&Netl->Net[Netl->NetN], 0, sizeof (NetType));
 }
 
-static Boolean
+static bool
 CheckShorts (LibraryMenuTypePtr theNet)
 {
-  Boolean new, warn = False;
+  bool new, warn = false;
   PointerListTypePtr generic = MyCalloc (1, sizeof (PointerListType),
 					 "CheckShorts");
   /* the first connection was starting point so
@@ -373,7 +373,7 @@ CheckShorts (LibraryMenuTypePtr theNet)
   {
     if (TEST_FLAG (DRCFLAG, pin))
       {
-	warn = True;
+	warn = true;
 	if (!pin->Spare)
 	  {
 	    Message (_("Warning! Net \"%s\" is shorted to %s pin %s\n"),
@@ -383,12 +383,12 @@ CheckShorts (LibraryMenuTypePtr theNet)
 	    SET_FLAG (WARNFLAG, pin);
 	    continue;
 	  }
-	new = True;
+	new = true;
 	POINTER_LOOP (generic);
 	{
 	  if (*ptr == pin->Spare)
 	    {
-	      new = False;
+	      new = false;
 	      break;
 	    }
 	}
@@ -409,7 +409,7 @@ CheckShorts (LibraryMenuTypePtr theNet)
   {
     if (TEST_FLAG (DRCFLAG, pad))
       {
-	warn = True;
+	warn = true;
 	if (!pad->Spare)
 	  {
 	    Message (_("Warning! Net \"%s\" is shorted  to %s pad %s\n"),
@@ -419,12 +419,12 @@ CheckShorts (LibraryMenuTypePtr theNet)
 	    SET_FLAG (WARNFLAG, pad);
 	    continue;
 	  }
-	new = True;
+	new = true;
 	POINTER_LOOP (generic);
 	{
 	  if (*ptr == pad->Spare)
 	    {
-	      new = False;
+	      new = false;
 	      break;
 	    }
 	}
@@ -453,21 +453,21 @@ CheckShorts (LibraryMenuTypePtr theNet)
  * initially the netlist has each connection in its own individual net
  * afterwards there can be many fewer nets with multiple connections each
  */
-static Boolean
-GatherSubnets (NetListTypePtr Netl, Boolean NoWarn, Boolean AndRats)
+static bool
+GatherSubnets (NetListTypePtr Netl, bool NoWarn, bool AndRats)
 {
   NetTypePtr a, b;
   ConnectionTypePtr conn;
   Cardinal m, n;
-  Boolean Warned = False;
+  bool Warned = false;
 
   for (m = 0; Netl->NetN > 0 && m < Netl->NetN; m++)
     {
       a = &Netl->Net[m];
-      ResetFoundPinsViasAndPads (False);
-      ResetFoundLinesAndPolygons (False);
+      ResetFoundPinsViasAndPads (false);
+      ResetFoundLinesAndPolygons (false);
       RatFindHook (a->Connection[0].type, a->Connection[0].ptr1,
-		   a->Connection[0].ptr2, a->Connection[0].ptr2, False,
+		   a->Connection[0].ptr2, a->Connection[0].ptr2, false,
 		   AndRats);
       /* now anybody connected to the first point has DRCFLAG set */
       /* so move those to this subnet */
@@ -546,8 +546,8 @@ GatherSubnets (NetListTypePtr Netl, Boolean NoWarn, Boolean AndRats)
       if (!NoWarn)
 	Warned |= CheckShorts (a->Connection[0].menu);
     }
-  ResetFoundPinsViasAndPads (False);
-  ResetFoundLinesAndPolygons (False);
+  ResetFoundPinsViasAndPads (false);
+  ResetFoundLinesAndPolygons (false);
   return (Warned);
 }
 
@@ -556,14 +556,14 @@ GatherSubnets (NetListTypePtr Netl, Boolean NoWarn, Boolean AndRats)
  * this also frees the subnet memory as they are consumed
  */
 
-static Boolean
+static bool
 DrawShortestRats (NetListTypePtr Netl, void (*funcp) ())
 {
   RatTypePtr line;
   register float distance, temp;
   register ConnectionTypePtr conn1, conn2, firstpoint, secondpoint;
   PolygonTypePtr polygon;
-  Boolean changed = False;
+  bool changed = false;
   Cardinal n, m, j;
   NetTypePtr next, subnet, theSubnet = NULL;
 
@@ -647,7 +647,7 @@ DrawShortestRats (NetListTypePtr Netl, void (*funcp) ())
 		SET_FLAG (VIAFLAG, line);
 	      AddObjectToCreateUndoList (RATLINE_TYPE, line, line, line);
 	      DrawRat (line, 0);
-	      changed = True;
+	      changed = true;
 	    }
 	}
 
@@ -672,13 +672,13 @@ DrawShortestRats (NetListTypePtr Netl, void (*funcp) ())
  *  AddAllRats puts the rats nest into the layout from the loaded netlist
  *  if SelectedOnly is true, it will only draw rats to selected pins and pads
  */
-Boolean
-AddAllRats (Boolean SelectedOnly, void (*funcp) ())
+bool
+AddAllRats (bool SelectedOnly, void (*funcp) ())
 {
   NetListTypePtr Nets, Wantlist;
   NetTypePtr lonesome;
   ConnectionTypePtr onepin;
-  Boolean changed, Warned = False;
+  bool changed, Warned = false;
 
   /* the netlist library has the text form
    * ProcNetlist fills in the Netlist
@@ -689,9 +689,9 @@ AddAllRats (Boolean SelectedOnly, void (*funcp) ())
   if (!Wantlist)
     {
       Message (_("Can't add rat lines because no netlist is loaded.\n"));
-      return (False);
+      return (false);
     }
-  changed = False;
+  changed = false;
   /* initialize finding engine */
   InitConnectionLookup ();
   SaveFindFlag (DRCFLAG);
@@ -722,7 +722,7 @@ AddAllRats (Boolean SelectedOnly, void (*funcp) ())
 	}
     }
     END_LOOP;
-    Warned |= GatherSubnets (Nets, SelectedOnly, True);
+    Warned |= GatherSubnets (Nets, SelectedOnly, true);
     if (Nets->NetN > 0)
       changed |= DrawShortestRats (Nets, funcp);
   }
@@ -732,13 +732,13 @@ AddAllRats (Boolean SelectedOnly, void (*funcp) ())
   FreeConnectionLookupMemory ();
   RestoreFindFlag ();
   if (funcp)
-    return (True);
+    return (true);
 
   if (Warned || changed)
     Draw ();
 
   if (Warned)
-    Settings.RatWarn = True;
+    Settings.RatWarn = true;
 
   if (changed)
     {
@@ -748,7 +748,7 @@ AddAllRats (Boolean SelectedOnly, void (*funcp) ())
 	  Message ("%d rat line%s remaining\n", PCB->Data->RatN,
 		   PCB->Data->RatN > 1 ? "s" : "");
 	}
-      return (True);
+      return (true);
     }
   if (!SelectedOnly && !Warned)
     {
@@ -760,14 +760,14 @@ AddAllRats (Boolean SelectedOnly, void (*funcp) ())
 		   "either rat-lines in the layout, disabled nets\n"
 		   "in the net-list, or missing components\n"));
     }
-  return (False);
+  return (false);
 }
 
 /* XXX: This is copied in large part from AddAllRats above; for
  * maintainability, AddAllRats probably wants to be tweaked to use this
  * version of the code so that we don't have duplication. */
 NetListListType
-CollectSubnets (Boolean SelectedOnly)
+CollectSubnets (bool SelectedOnly)
 {
   NetListListType result = { 0, 0, NULL };
   NetListTypePtr Nets, Wantlist;
@@ -816,7 +816,7 @@ CollectSubnets (Boolean SelectedOnly)
     }
     END_LOOP;
     /* Note that AndRats is *FALSE* here! */
-    GatherSubnets (Nets, SelectedOnly, False);
+    GatherSubnets (Nets, SelectedOnly, false);
   }
   END_LOOP;
   FreeConnectionLookupMemory ();

@@ -1350,7 +1350,7 @@ layer_select_button_cb (GtkWidget * widget, LayerButtonSet * lb)
   PCB->RatDraw = (lb->index == LAYER_BUTTON_RATS);
 
   if (lb->index < max_layer)
-    ChangeGroupVisibility (lb->index, True, True);
+    ChangeGroupVisibility (lb->index, true, true);
 
   layer_select_button_index = lb->index;
 
@@ -1425,12 +1425,12 @@ layer_enable_button_cb (GtkWidget * widget, gpointer data)
 	{
 	  for (i = (layer + 1) % (max_layer + 1); i != layer;
 	       i = (i + 1) % (max_layer + 1))
-	    if (PCB->Data->Layer[i].On == True &&
+	    if (PCB->Data->Layer[i].On == true &&
 		GetGroupOfLayer (i) != group)
 	      break;
 	  if (i != layer)
 	    {
-	      ChangeGroupVisibility ((int) i, True, True);
+	      ChangeGroupVisibility ((int) i, true, true);
 	    }
 	  else
 	    {
@@ -1440,7 +1440,7 @@ layer_enable_button_cb (GtkWidget * widget, gpointer data)
 	    }
 	}
       /* switch layer group on/off */
-      ChangeGroupVisibility (layer, active, False);
+      ChangeGroupVisibility (layer, active, false);
       redraw = TRUE;
       break;
     }

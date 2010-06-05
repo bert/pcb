@@ -49,6 +49,7 @@
 #include <math.h>
 #include <ctype.h>
 #include <sys/types.h>
+#include <stdbool.h>
 
 /* Forward declarations for structures the HIDs need.  */
 typedef struct BoxType BoxType, *BoxTypePtr;
@@ -85,16 +86,12 @@ typedef int BDimension;		/* big dimension */
 
 #ifndef XtSpecificationRelease
 typedef unsigned int Cardinal;
-typedef char Boolean;
 /*typedef unsigned int	Pixel;*/
 typedef char *String;
 typedef short Position;
 typedef short Dimension;
 #endif
 typedef unsigned char BYTE;
-
-#define True	1
-#define False	0
 
 /* Nobody should know about the internals of this except the macros in
    macros.h that access it.  This structure must be simple-assignable
@@ -296,7 +293,7 @@ typedef struct			/* holds information about one layer */
   PolygonTypePtr Polygon;
   ArcTypePtr Arc;
   rtree_t *line_tree, *text_tree, *polygon_tree, *arc_tree;
-  Boolean On;			/* visible flag */
+  bool On;			/* visible flag */
   char *Color,			/* color */
    *SelectedColor;
   AttributeListType Attributes;
@@ -355,7 +352,7 @@ typedef struct
 typedef struct			/* a single symbol */
 {
   LineTypePtr Line;
-  Boolean Valid;
+  bool Valid;
   Cardinal LineN,		/* number of lines */
     LineMax;
   BDimension Width,		/* size of cell */
@@ -368,7 +365,7 @@ typedef struct			/* complete set of symbols */
     MaxWidth;
   BoxType DefaultSymbol;	/* the default symbol is a filled box */
   SymbolType Symbol[MAX_FONTPOSITION + 1];
-  Boolean Valid;
+  bool Valid;
 } FontType, *FontTypePtr;
 
 typedef struct			/* holds all objects */
@@ -475,7 +472,7 @@ typedef struct PCBType
    *PrintFilename,		/* from print dialog */
    *Netlistname,		/* name of netlist file */
     ThermStyle;			/* type of thermal to place with thermal tool */
-  Boolean Changed,		/* layout has been changed */
+  bool Changed,		/* layout has been changed */
     ViaOn,			/* visibility flags */
     ElementOn, RatOn, InvisibleObjectsOn, PinOn, SilkActive,	/* active layer is actually silk */
     RatDraw;			 /* we're drawing rats */
@@ -536,7 +533,7 @@ typedef struct			/* current marked line */
   PointType Point1,		/* start- and end-position */
     Point2;
   long int State;
-  Boolean draw;
+  bool draw;
 } AttachedLineType, *AttachedLineTypePtr;
 
 typedef struct			/* currently marked block */
@@ -544,7 +541,7 @@ typedef struct			/* currently marked block */
   PointType Point1,		/* start- and end-position */
     Point2;
   long int State;
-  Boolean otherway;
+  bool otherway;
 } AttachedBoxType, *AttachedBoxTypePtr;
 
 typedef struct			/* currently attached object */
@@ -577,7 +574,7 @@ typedef struct			/* holds cursor information */
   LocationType X,		/* position in PCB coordinates */
     Y, MinX,			/* lowest and highest coordinates */
     MinY, MaxX, MaxY;
-  Boolean On;			/* flag for 'is visible' */
+  bool On;			/* flag for 'is visible' */
   AttachedLineType AttachedLine;	/* data of new lines... */
   AttachedBoxType AttachedBox;
   PolygonType AttachedPolygon;
@@ -587,7 +584,7 @@ typedef struct			/* holds cursor information */
 
 typedef struct
 {
-  Boolean status;
+  bool status;
   long int X, Y;
 } MarkType, *MarkTypePtr;
 
@@ -597,7 +594,7 @@ typedef struct
  */
 typedef struct			/* some resources... */
 {
-  Boolean grid_units_mm;
+  bool grid_units_mm;
 
   int verbose;
 
@@ -654,14 +651,14 @@ typedef struct			/* some resources... */
    *GnetlistProgram,		/* gnetlist program name */
    *MakeProgram,		/* make program name */
    *InitialLayerStack;		/* If set, the initial layer stack is set to this */
-  Boolean DumpMenuFile;		/* dump internal menu definitions */
+  bool DumpMenuFile;		/* dump internal menu definitions */
   LocationType PinoutOffsetX,	/* offset of origin */
     PinoutOffsetY;
   int PinoutTextOffsetX,	/* offset of text from pin center */
     PinoutTextOffsetY;
   RouteStyleType RouteStyle[NUM_STYLES];	/* default routing styles */
   LayerGroupType LayerGroups;	/* default layer groups */
-  Boolean ClearLine, FullPoly,
+  bool ClearLine, FullPoly,
     UniqueNames,		/* force unique names */
     SnapPin,			/* snap to pins and pads */
     ShowSolderSide,		/* mirror output */

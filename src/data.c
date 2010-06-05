@@ -55,8 +55,8 @@ int LayerStack[MAX_LAYER];	/* determines the layer draw order */
 
 BufferType Buffers[MAX_BUFFER];	/* my buffers */
 LibraryType Library;		/* the library */
-Boolean Bumped;			/* if the undo serial number has changed */
-Boolean render;			/* whether or not to re-render the pixmap */
+bool Bumped;			/* if the undo serial number has changed */
+bool render;			/* whether or not to re-render the pixmap */
 
 LocationType Xorig, Yorig;	/* origin offset for drawing in pixmap */
 

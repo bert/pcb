@@ -97,13 +97,13 @@ void MovePolygonLowLevel (PolygonTypePtr, LocationType, LocationType);
 void MoveElementLowLevel (DataTypePtr, ElementTypePtr, LocationType,
 			  LocationType);
 void *MoveObject (int, void *, void *, void *, LocationType, LocationType);
-void *MoveObjectToLayer (int, void *, void *, void *, LayerTypePtr, Boolean);
+void *MoveObjectToLayer (int, void *, void *, void *, LayerTypePtr, bool);
 void *MoveObjectAndRubberband (int, void *, void *, void *,
 			       LocationType, LocationType);
 void *MoveLineToLayerLowLevel (LayerTypePtr, LineTypePtr, LayerTypePtr);
 void *MoveTextToLayerLowLevel (LayerTypePtr, TextTypePtr, LayerTypePtr);
 void *MovePolygonToLayerLowLevel (LayerTypePtr, PolygonTypePtr, LayerTypePtr);
-Boolean MoveSelectedObjectsToLayer (LayerTypePtr);
+bool MoveSelectedObjectsToLayer (LayerTypePtr);
 
 /* index is 0..MAX_LAYER-1.  If old_index is -1, a new layer is
    inserted at that index.  If new_index is -1, the specified layer is

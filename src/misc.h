@@ -43,9 +43,9 @@ void SetPinBoundingBox (PinTypePtr);
 void SetPadBoundingBox (PadTypePtr);
 void SetPolygonBoundingBox (PolygonTypePtr);
 void SetElementBoundingBox (DataTypePtr, ElementTypePtr, FontTypePtr);
-Boolean IsDataEmpty (DataTypePtr);
+bool IsDataEmpty (DataTypePtr);
 BoxTypePtr GetDataBoundingBox (DataTypePtr);
-void CenterDisplay (LocationType, LocationType, Boolean);
+void CenterDisplay (LocationType, LocationType, bool);
 void SetFontInfo (FontTypePtr);
 int ParseGroupString (char *, LayerGroupTypePtr, int /* LayerN */);
 int ParseRouteString (char *, RouteStyleTypePtr, int);
@@ -59,7 +59,7 @@ int GetLayerNumber (DataTypePtr, LayerTypePtr);
 int GetLayerGroupNumberByPointer (LayerTypePtr);
 int GetLayerGroupNumberByNumber (Cardinal);
 int GetGroupOfLayer (int);
-int ChangeGroupVisibility (int, Boolean, Boolean);
+int ChangeGroupVisibility (int, bool, bool);
 void LayerStringToLayerStack (char *);
 
 
@@ -74,7 +74,7 @@ BoxTypePtr GetArcEnds (ArcTypePtr);
 void ChangeArcAngles (LayerTypePtr, ArcTypePtr, long int, long int);
 char *UniqueElementName (DataTypePtr, char *);
 void AttachForCopy (LocationType, LocationType);
-float GetValue (char *, char *, Boolean *);
+float GetValue (char *, char *, bool *);
 int FileExists (const char *);
 char *Concat (const char *, ...);	/* end with NULL */
 

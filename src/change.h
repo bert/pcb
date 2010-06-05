@@ -65,45 +65,45 @@
 #define CHANGEMASKSIZE_TYPES    \
         (PIN_TYPE | VIA_TYPE | PAD_TYPE)
 
-Boolean ChangeLayoutName (char *);
-Boolean ChangeLayerName (LayerTypePtr, char *);
-Boolean ChangeSelectedSize (int, LocationType, Boolean);
-Boolean ChangeSelectedClearSize (int, LocationType, Boolean);
-Boolean ChangeSelected2ndSize (int, LocationType, Boolean);
-Boolean ChangeSelectedMaskSize (int, LocationType, Boolean);
-Boolean ChangeSelectedJoin (int);
-Boolean SetSelectedJoin (int);
-Boolean ClrSelectedJoin (int);
-Boolean ChangeSelectedSquare (int);
-Boolean SetSelectedSquare (int);
-Boolean ClrSelectedSquare (int);
-Boolean ChangeSelectedThermals (int, int);
-Boolean ChangeSelectedHole (void);
-Boolean ChangeSelectedPaste (void);
-Boolean ChangeSelectedOctagon (int);
-Boolean SetSelectedOctagon (int);
-Boolean ClrSelectedOctagon (int);
-Boolean ChangeSelectedElementSide (void);
-Boolean ChangeElementSide (ElementTypePtr, LocationType);
-Boolean ChangeHole (PinTypePtr);
-Boolean ChangePaste (PadTypePtr);
-Boolean ChangeObjectSize (int, void *, void *, void *, LocationType, Boolean);
-Boolean ChangeObjectThermal (int, void *, void *, void *, int);
-Boolean ChangeObjectClearSize (int, void *, void *, void *, LocationType,
-			       Boolean);
-Boolean ChangeObject2ndSize (int, void *, void *, void *, LocationType,
-			     Boolean, Boolean);
-Boolean ChangeObjectMaskSize (int, void *, void *, void *, LocationType,
-			      Boolean);
-Boolean ChangeObjectJoin (int, void *, void *, void *);
-Boolean SetObjectJoin (int, void *, void *, void *);
-Boolean ClrObjectJoin (int, void *, void *, void *);
-Boolean ChangeObjectSquare (int, void *, void *, void *);
-Boolean SetObjectSquare (int, void *, void *, void *);
-Boolean ClrObjectSquare (int, void *, void *, void *);
-Boolean ChangeObjectOctagon (int, void *, void *, void *);
-Boolean SetObjectOctagon (int, void *, void *, void *);
-Boolean ClrObjectOctagon (int, void *, void *, void *);
+bool ChangeLayoutName (char *);
+bool ChangeLayerName (LayerTypePtr, char *);
+bool ChangeSelectedSize (int, LocationType, bool);
+bool ChangeSelectedClearSize (int, LocationType, bool);
+bool ChangeSelected2ndSize (int, LocationType, bool);
+bool ChangeSelectedMaskSize (int, LocationType, bool);
+bool ChangeSelectedJoin (int);
+bool SetSelectedJoin (int);
+bool ClrSelectedJoin (int);
+bool ChangeSelectedSquare (int);
+bool SetSelectedSquare (int);
+bool ClrSelectedSquare (int);
+bool ChangeSelectedThermals (int, int);
+bool ChangeSelectedHole (void);
+bool ChangeSelectedPaste (void);
+bool ChangeSelectedOctagon (int);
+bool SetSelectedOctagon (int);
+bool ClrSelectedOctagon (int);
+bool ChangeSelectedElementSide (void);
+bool ChangeElementSide (ElementTypePtr, LocationType);
+bool ChangeHole (PinTypePtr);
+bool ChangePaste (PadTypePtr);
+bool ChangeObjectSize (int, void *, void *, void *, LocationType, bool);
+bool ChangeObjectThermal (int, void *, void *, void *, int);
+bool ChangeObjectClearSize (int, void *, void *, void *, LocationType,
+			       bool);
+bool ChangeObject2ndSize (int, void *, void *, void *, LocationType,
+			     bool, bool);
+bool ChangeObjectMaskSize (int, void *, void *, void *, LocationType,
+			      bool);
+bool ChangeObjectJoin (int, void *, void *, void *);
+bool SetObjectJoin (int, void *, void *, void *);
+bool ClrObjectJoin (int, void *, void *, void *);
+bool ChangeObjectSquare (int, void *, void *, void *);
+bool SetObjectSquare (int, void *, void *, void *);
+bool ClrObjectSquare (int, void *, void *, void *);
+bool ChangeObjectOctagon (int, void *, void *, void *);
+bool SetObjectOctagon (int, void *, void *, void *);
+bool ClrObjectOctagon (int, void *, void *, void *);
 void *ChangeObjectName (int, void *, void *, void *, char *);
 void *QueryInputAndChangeObjectName (int, void *, void *, void *);
 void ChangePCBSize (BDimension, BDimension);

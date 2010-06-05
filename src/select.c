@@ -69,11 +69,11 @@ RCSID ("$Id$");
  * written by and is Copyright (C) 1998, 1999, 2000, 2001 harry eaton
  */
 void
-SelectPin (LibraryEntryTypePtr entry, Boolean toggle)
+SelectPin (LibraryEntryTypePtr entry, bool toggle)
 {
   ConnectionType conn;
 
-  if (SeekPad (entry, &conn, False))
+  if (SeekPad (entry, &conn, false))
     {
       switch (conn.type)
 	{
@@ -86,7 +86,7 @@ SelectPin (LibraryEntryTypePtr entry, Boolean toggle)
 	    if (toggle)
 	      {
 		TOGGLE_FLAG (SELECTEDFLAG, pin);
-		CenterDisplay (pin->X, pin->Y, False);
+		CenterDisplay (pin->X, pin->Y, false);
 	      }
 	    else
 	      SET_FLAG (SELECTEDFLAG, pin);
@@ -102,7 +102,7 @@ SelectPin (LibraryEntryTypePtr entry, Boolean toggle)
 	    if (toggle)
 	      {
 		TOGGLE_FLAG (SELECTEDFLAG, pad);
-		CenterDisplay (pad->Point1.X, pad->Point1.Y, False);
+		CenterDisplay (pad->Point1.X, pad->Point1.Y, false);
 	      }
 	    else
 	      SET_FLAG (SELECTEDFLAG, pad);
@@ -118,19 +118,19 @@ SelectPin (LibraryEntryTypePtr entry, Boolean toggle)
  * toggles the selection of any kind of object
  * the different types are defined by search.h
  */
-Boolean
+bool
 SelectObject (void)
 {
   void *ptr1, *ptr2, *ptr3;
   LayerTypePtr layer;
   int type;
 
-  Boolean changed = True;
+  bool changed = true;
 
   type = SearchScreen (Crosshair.X, Crosshair.Y, SELECT_TYPES,
 		       &ptr1, &ptr2, &ptr3);
   if (type == NO_TYPE || TEST_FLAG (LOCKFLAG, (PinTypePtr) ptr2))
-    return (False);
+    return (false);
   switch (type)
     {
     case VIA_TYPE:
@@ -267,12 +267,12 @@ SelectObject (void)
 /* ----------------------------------------------------------------------
  * selects/unselects all visible objects within the passed box
  * Flag determines if the block is to be selected or unselected
- * returns True if the state of any object has changed
+ * returns true if the state of any object has changed
  */
-Boolean
-SelectBlock (BoxTypePtr Box, Boolean Flag)
+bool
+SelectBlock (BoxTypePtr Box, bool Flag)
 {
-  Boolean changed = False;
+  bool changed = false;
 
   if (PCB->RatOn || !Flag)
     RAT_LOOP (PCB->Data);
@@ -284,7 +284,7 @@ SelectBlock (BoxTypePtr Box, Boolean Flag)
 	ASSIGN_FLAG (SELECTEDFLAG, Flag, line);
 	if (PCB->RatOn)
 	  DrawRat (line, 0);
-	changed = True;
+	changed = true;
       }
   }
   END_LOOP;
@@ -305,7 +305,7 @@ SelectBlock (BoxTypePtr Box, Boolean Flag)
 	  ASSIGN_FLAG (SELECTEDFLAG, Flag, line);
 	  if (layer->On)
 	    DrawLine (layer, line, 0);
-	  changed = True;
+	  changed = true;
 	}
     }
     END_LOOP;
@@ -319,7 +319,7 @@ SelectBlock (BoxTypePtr Box, Boolean Flag)
 	  ASSIGN_FLAG (SELECTEDFLAG, Flag, arc);
 	  if (layer->On)
 	    DrawArc (layer, arc, 0);
-	  changed = True;
+	  changed = true;
 	}
     }
     END_LOOP;
@@ -335,7 +335,7 @@ SelectBlock (BoxTypePtr Box, Boolean Flag)
 	      ASSIGN_FLAG (SELECTEDFLAG, Flag, text);
 	      if (TEXT_IS_VISIBLE(PCB, layer, text))
 		DrawText (layer, text, 0);
-	      changed = True;
+	      changed = true;
 	    }
 	}
     }
@@ -350,7 +350,7 @@ SelectBlock (BoxTypePtr Box, Boolean Flag)
 	  ASSIGN_FLAG (SELECTEDFLAG, Flag, polygon);
 	  if (layer->On)
 	    DrawPolygon (layer, polygon, 0);
-	  changed = True;
+	  changed = true;
 	}
     }
     END_LOOP;
@@ -361,7 +361,7 @@ SelectBlock (BoxTypePtr Box, Boolean Flag)
   ELEMENT_LOOP (PCB->Data);
   {
     {
-      Boolean gotElement = False;
+      bool gotElement = false;
       if ((PCB->ElementOn || !Flag)
 	  && !TEST_FLAG (LOCKFLAG, element)
 	  && ((TEST_FLAG (ONSOLDERFLAG, element) != 0) == SWAP_IDENT
@@ -383,7 +383,7 @@ SelectBlock (BoxTypePtr Box, Boolean Flag)
 	      END_LOOP;
 	      if (PCB->ElementOn)
 		DrawElementName (element, 0);
-	      changed = True;
+	      changed = true;
 	    }
 	  if ((PCB->PinOn || !Flag) && ELEMENT_IN_BOX (element, Box))
 	    if (TEST_FLAG (SELECTEDFLAG, element) != Flag)
@@ -399,7 +399,7 @@ SelectBlock (BoxTypePtr Box, Boolean Flag)
 		      ASSIGN_FLAG (SELECTEDFLAG, Flag, pin);
 		      if (PCB->PinOn)
 			DrawPin (pin, 0);
-		      changed = True;
+		      changed = true;
 		    }
 		}
 		END_LOOP;
@@ -411,14 +411,14 @@ SelectBlock (BoxTypePtr Box, Boolean Flag)
 		      ASSIGN_FLAG (SELECTEDFLAG, Flag, pad);
 		      if (PCB->PinOn)
 			DrawPad (pad, 0);
-		      changed = True;
+		      changed = true;
 		    }
 		}
 		END_LOOP;
 		if (PCB->PinOn)
 		  DrawElement (element, 0);
-		changed = True;
-		gotElement = True;
+		changed = true;
+		gotElement = true;
 	      }
 	}
       if ((PCB->PinOn || !Flag) && !TEST_FLAG (LOCKFLAG, element) && !gotElement)
@@ -432,7 +432,7 @@ SelectBlock (BoxTypePtr Box, Boolean Flag)
 		ASSIGN_FLAG (SELECTEDFLAG, Flag, pin);
 		if (PCB->PinOn)
 		  DrawPin (pin, 0);
-		changed = True;
+		changed = true;
 	      }
 	  }
 	  END_LOOP;
@@ -445,7 +445,7 @@ SelectBlock (BoxTypePtr Box, Boolean Flag)
 		ASSIGN_FLAG (SELECTEDFLAG, Flag, pad);
 		if (PCB->PinOn)
 		  DrawPad (pad, 0);
-		changed = True;
+		changed = true;
 	      }
 	  }
 	  END_LOOP;
@@ -465,7 +465,7 @@ SelectBlock (BoxTypePtr Box, Boolean Flag)
 	ASSIGN_FLAG (SELECTEDFLAG, Flag, via);
 	if (PCB->ViaOn)
 	  DrawVia (via, 0);
-	changed = True;
+	changed = true;
       }
   }
   END_LOOP;
@@ -555,12 +555,12 @@ ObjectOperation (ObjectFunctionTypePtr F,
  * performs several operations on selected objects which are also visible
  * The lowlevel procedures are passed together with additional information
  * resets the selected flag if requested
- * returns True if anything has changed
+ * returns true if anything has changed
  */
-Boolean
-SelectedOperation (ObjectFunctionTypePtr F, Boolean Reset, int type)
+bool
+SelectedOperation (ObjectFunctionTypePtr F, bool Reset, int type)
 {
-  Boolean changed = False;
+  bool changed = false;
 
   /* check lines */
   if (type & LINE_TYPE && F->Line)
@@ -574,7 +574,7 @@ SelectedOperation (ObjectFunctionTypePtr F, Boolean Reset, int type)
 	    CLEAR_FLAG (SELECTEDFLAG, line);
 	  }
 	F->Line (layer, line);
-	changed = True;
+	changed = true;
       }
   }
   ENDALL_LOOP;
@@ -591,7 +591,7 @@ SelectedOperation (ObjectFunctionTypePtr F, Boolean Reset, int type)
 	    CLEAR_FLAG (SELECTEDFLAG, arc);
 	  }
 	F->Arc (layer, arc);
-	changed = True;
+	changed = true;
       }
   }
   ENDALL_LOOP;
@@ -608,7 +608,7 @@ SelectedOperation (ObjectFunctionTypePtr F, Boolean Reset, int type)
 	    CLEAR_FLAG (SELECTEDFLAG, text);
 	  }
 	F->Text (layer, text);
-	changed = True;
+	changed = true;
       }
   }
   ENDALL_LOOP;
@@ -625,7 +625,7 @@ SelectedOperation (ObjectFunctionTypePtr F, Boolean Reset, int type)
 	    CLEAR_FLAG (SELECTEDFLAG, polygon);
 	  }
 	F->Polygon (layer, polygon);
-	changed = True;
+	changed = true;
       }
   }
   ENDALL_LOOP;
@@ -642,7 +642,7 @@ SelectedOperation (ObjectFunctionTypePtr F, Boolean Reset, int type)
 	    CLEAR_FLAG (SELECTEDFLAG, element);
 	  }
 	F->Element (element);
-	changed = True;
+	changed = true;
       }
   }
   END_LOOP;
@@ -660,7 +660,7 @@ SelectedOperation (ObjectFunctionTypePtr F, Boolean Reset, int type)
 	    CLEAR_FLAG (SELECTEDFLAG, &ELEMENT_TEXT (PCB, element));
 	  }
 	F->ElementName (element);
-	changed = True;
+	changed = true;
       }
   }
   END_LOOP;
@@ -678,7 +678,7 @@ SelectedOperation (ObjectFunctionTypePtr F, Boolean Reset, int type)
 	      CLEAR_FLAG (SELECTEDFLAG, pin);
 	    }
 	  F->Pin (element, pin);
-	  changed = True;
+	  changed = true;
 	}
     }
     END_LOOP;
@@ -698,7 +698,7 @@ SelectedOperation (ObjectFunctionTypePtr F, Boolean Reset, int type)
 	      CLEAR_FLAG (SELECTEDFLAG, pad);
 	    }
 	  F->Pad (element, pad);
-	  changed = True;
+	  changed = true;
 	}
     }
     END_LOOP;
@@ -717,7 +717,7 @@ SelectedOperation (ObjectFunctionTypePtr F, Boolean Reset, int type)
 	    CLEAR_FLAG (SELECTEDFLAG, via);
 	  }
 	F->Via (via);
-	changed = True;
+	changed = true;
       }
   }
   END_LOOP;
@@ -733,7 +733,7 @@ SelectedOperation (ObjectFunctionTypePtr F, Boolean Reset, int type)
 	    CLEAR_FLAG (SELECTEDFLAG, line);
 	  }
 	F->Rat (line);
-	changed = True;
+	changed = true;
       }
   }
   END_LOOP;
@@ -745,14 +745,14 @@ SelectedOperation (ObjectFunctionTypePtr F, Boolean Reset, int type)
 /* ----------------------------------------------------------------------
  * selects/unselects all objects which were found during a connection scan
  * Flag determines if they are to be selected or unselected
- * returns True if the state of any object has changed
+ * returns true if the state of any object has changed
  *
  * text objects and elements cannot be selected by this routine
  */
-Boolean
-SelectConnection (Boolean Flag)
+bool
+SelectConnection (bool Flag)
 {
-  Boolean changed = False;
+  bool changed = false;
 
   if (PCB->RatOn)
     RAT_LOOP (PCB->Data);
@@ -762,7 +762,7 @@ SelectConnection (Boolean Flag)
 	AddObjectToFlagUndoList (RATLINE_TYPE, line, line, line);
 	ASSIGN_FLAG (SELECTEDFLAG, Flag, line);
 	DrawRat (line, 0);
-	changed = True;
+	changed = true;
       }
   }
   END_LOOP;
@@ -774,7 +774,7 @@ SelectConnection (Boolean Flag)
 	AddObjectToFlagUndoList (LINE_TYPE, layer, line, line);
 	ASSIGN_FLAG (SELECTEDFLAG, Flag, line);
 	DrawLine (layer, line, 0);
-	changed = True;
+	changed = true;
       }
   }
   ENDALL_LOOP;
@@ -785,7 +785,7 @@ SelectConnection (Boolean Flag)
 	AddObjectToFlagUndoList (ARC_TYPE, layer, arc, arc);
 	ASSIGN_FLAG (SELECTEDFLAG, Flag, arc);
 	DrawArc (layer, arc, 0);
-	changed = True;
+	changed = true;
       }
   }
   ENDALL_LOOP;
@@ -796,7 +796,7 @@ SelectConnection (Boolean Flag)
 	AddObjectToFlagUndoList (POLYGON_TYPE, layer, polygon, polygon);
 	ASSIGN_FLAG (SELECTEDFLAG, Flag, polygon);
 	DrawPolygon (layer, polygon, 0);
-	changed = True;
+	changed = true;
       }
   }
   ENDALL_LOOP;
@@ -810,7 +810,7 @@ SelectConnection (Boolean Flag)
 	    AddObjectToFlagUndoList (PIN_TYPE, element, pin, pin);
 	    ASSIGN_FLAG (SELECTEDFLAG, Flag, pin);
 	    DrawPin (pin, 0);
-	    changed = True;
+	    changed = true;
 	  }
       }
       ENDALL_LOOP;
@@ -821,7 +821,7 @@ SelectConnection (Boolean Flag)
 	    AddObjectToFlagUndoList (PAD_TYPE, element, pad, pad);
 	    ASSIGN_FLAG (SELECTEDFLAG, Flag, pad);
 	    DrawPad (pad, 0);
-	    changed = True;
+	    changed = true;
 	  }
       }
       ENDALL_LOOP;
@@ -835,7 +835,7 @@ SelectConnection (Boolean Flag)
 	AddObjectToFlagUndoList (VIA_TYPE, via, via, via);
 	ASSIGN_FLAG (SELECTEDFLAG, Flag, via);
 	DrawVia (via, 0);
-	changed = True;
+	changed = true;
       }
   }
   END_LOOP;
@@ -847,7 +847,7 @@ SelectConnection (Boolean Flag)
 /* ---------------------------------------------------------------------------
  * selects objects as defined by Type by name;
  * it's a case insensitive match
- * returns True if any object has been selected
+ * returns true if any object has been selected
  */
 
 #if defined (HAVE_REGCOMP)
@@ -866,10 +866,10 @@ regexec_match_all (const  regex_t  *preg,  const  char  *string)
 }
 #endif
 
-Boolean
-SelectObjectByName (int Type, char *Pattern, Boolean Flag)
+bool
+SelectObjectByName (int Type, char *Pattern, bool Flag)
 {
-  Boolean changed = False;
+  bool changed = false;
 
 #if defined(HAVE_REGCOMP)
 #define	REGEXEC(arg)	(regexec_match_all(&compiled, (arg)))
@@ -886,7 +886,7 @@ SelectObjectByName (int Type, char *Pattern, Boolean Flag)
       regerror (result, &compiled, errorstring, 128);
       Message (_("regexp error: %s\n"), errorstring);
       regfree (&compiled);
-      return (False);
+      return (false);
     }
 #else
 #define	REGEXEC(arg)	(re_exec((arg)) == 1)
@@ -897,7 +897,7 @@ SelectObjectByName (int Type, char *Pattern, Boolean Flag)
   if ((compiled = re_comp (Pattern)) != NULL)
     {
       Message (_("re_comp error: %s\n"), compiled);
-      return (False);
+      return (false);
     }
 #endif
 
@@ -914,7 +914,7 @@ SelectObjectByName (int Type, char *Pattern, Boolean Flag)
 	AddObjectToFlagUndoList (TEXT_TYPE, layer, text, text);
 	ASSIGN_FLAG (SELECTEDFLAG, Flag, text);
 	DrawText (layer, text, 0);
-	changed = True;
+	changed = true;
       }
   }
   ENDALL_LOOP;
@@ -952,7 +952,7 @@ SelectObjectByName (int Type, char *Pattern, Boolean Flag)
 	    END_LOOP;
 	    DrawElementName (element, 0);
 	    DrawElement (element, 0);
-	    changed = True;
+	    changed = true;
 	  }
       }
   }
@@ -967,7 +967,7 @@ SelectObjectByName (int Type, char *Pattern, Boolean Flag)
 	AddObjectToFlagUndoList (PIN_TYPE, element, pin, pin);
 	ASSIGN_FLAG (SELECTEDFLAG, Flag, pin);
 	DrawPin (pin, 0);
-	changed = True;
+	changed = true;
       }
   }
   ENDALL_LOOP;
@@ -983,7 +983,7 @@ SelectObjectByName (int Type, char *Pattern, Boolean Flag)
 	  AddObjectToFlagUndoList (PAD_TYPE, element, pad, pad);
 	  ASSIGN_FLAG (SELECTEDFLAG, Flag, pad);
 	  DrawPad (pad, 0);
-	  changed = True;
+	  changed = true;
 	}
   }
   ENDALL_LOOP;
@@ -997,7 +997,7 @@ SelectObjectByName (int Type, char *Pattern, Boolean Flag)
 	AddObjectToFlagUndoList (VIA_TYPE, via, via, via);
 	ASSIGN_FLAG (SELECTEDFLAG, Flag, via);
 	DrawVia (via, 0);
-	changed = True;
+	changed = true;
       }
   }
   END_LOOP;
