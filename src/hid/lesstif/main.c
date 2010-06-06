@@ -2631,6 +2631,10 @@ idle_proc (XtPointer dummy)
 	    s = "Polygon";
 	    cursor = XC_sb_up_arrow;
 	    break;
+	  case POLYGONHOLE_MODE:
+	    s = "Polygon Hole";
+	    cursor = XC_sb_up_arrow;
+	    break;
 	  case PASTEBUFFER_MODE:
 	    s = "Paste";
 	    cursor = XC_hand1;

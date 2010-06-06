@@ -220,6 +220,7 @@ ghid_mode_cursor (int Mode)
       break;
 
     case POLYGON_MODE:
+    case POLYGONHOLE_MODE:
       gport_set_cursor (GDK_SB_UP_ARROW);
       break;
 

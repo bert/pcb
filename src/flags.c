@@ -192,6 +192,7 @@ HID_Flag flags_flag_list[] = {
   {"movemode", FlagMode, MOVE_MODE},
   {"pastebuffermode", FlagMode, PASTEBUFFER_MODE},
   {"polygonmode", FlagMode, POLYGON_MODE},
+  {"polygonholemode", FlagMode, POLYGONHOLE_MODE},
   {"rectanglemode", FlagMode, RECTANGLE_MODE},
   {"removemode", FlagMode, REMOVE_MODE},
   {"rotatemode", FlagMode, ROTATE_MODE},

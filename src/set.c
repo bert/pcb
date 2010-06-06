@@ -253,6 +253,7 @@ SetMode (int Mode)
     {
       if (Mode == ARC_MODE || Mode == RECTANGLE_MODE ||
 	  Mode == VIA_MODE || Mode == POLYGON_MODE ||
+	  Mode == POLYGONHOLE_MODE ||
 	  Mode == TEXT_MODE || Mode == INSERTPOINT_MODE ||
 	  Mode == THERMAL_MODE)
 	{

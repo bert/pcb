@@ -588,8 +588,9 @@ DrawAttached (bool BlockToo)
 	}
       break;
 
-      /* the attached line is used by both LINEMODE and POLYGON_MODE */
+      /* the attached line is used by both LINEMODE, POLYGON_MODE and POLYGONHOLE_MODE*/
     case POLYGON_MODE:
+    case POLYGONHOLE_MODE:
       /* draw only if starting point is set */
       if (Crosshair.AttachedLine.State != STATE_FIRST)
 	gui->draw_line (Crosshair.GC,
@@ -598,7 +599,7 @@ DrawAttached (bool BlockToo)
 			Crosshair.AttachedLine.Point2.X,
 			Crosshair.AttachedLine.Point2.Y);
 
-      /* draw attached polygon only if in POLYGON_MODE */
+      /* draw attached polygon only if in POLYGON_MODE or POLYGONHOLE_MODE */
       if (Crosshair.AttachedPolygon.PointN > 1)
 	{
 	  XORPolygon (&Crosshair.AttachedPolygon, 0, 0);

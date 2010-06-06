@@ -1983,6 +1983,7 @@ static ModeButton mode_buttons[] = {
   {NULL, NULL, NULL, "text", TEXT_MODE, text},
   {NULL, NULL, NULL, "rectangle", RECTANGLE_MODE, rect},
   {NULL, NULL, NULL, "polygon", POLYGON_MODE, poly},
+  {NULL, NULL, NULL, "polygonhole", POLYGONHOLE_MODE, polyhole},
   {NULL, NULL, NULL, "buffer", PASTEBUFFER_MODE, buf},
   {NULL, NULL, NULL, "remove", REMOVE_MODE, del},
   {NULL, NULL, NULL, "rotate", ROTATE_MODE, rot},

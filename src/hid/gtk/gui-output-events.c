@@ -277,6 +277,7 @@ have_crosshair_attachments (void)
       result = TRUE;
       break;
     case POLYGON_MODE:
+    case POLYGONHOLE_MODE:
       if (Crosshair.AttachedLine.State != STATE_FIRST)
 	result = TRUE;
       break;

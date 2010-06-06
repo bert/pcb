@@ -92,6 +92,7 @@
 #define ARROW_MODE		110	/* selection with arrow mode */
 #define PAN_MODE                0	/* same as no mode */
 #define LOCK_MODE               111	/* lock/unlock objects */
+#define	POLYGONHOLE_MODE	112	/* cut holes in filled polygons */
 
 /* ---------------------------------------------------------------------------
  * object flags

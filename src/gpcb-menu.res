@@ -508,6 +508,7 @@ PopupMenus =
        {"Text" checked=textmode,1 Mode(Text) a={"F4" "<Key>F4"}}
        {"Rectangle" checked=rectanglemode,1 Mode(Rectangle) a={"F5" "<Key>F5"}}
        {"Polygon" checked=polygonmode,1 Mode(Polygon) a={"F6" "<Key>F6"}}
+       {"Polygon Hole" checked=polygonholemode,1 Mode(PolygonHole)}
        {"Buffer" checked=pastebuffermode,1 Mode(PasteBuffer) a={"F7" "<Key>F7"}}
        {"Remove" checked=removemode,1 Mode(Remove) a={"F8" "<Key>F8"}}
        {"Rotate" checked=rotatemode,1 Mode(Rotate) a={"F9" "<Key>F9"}}
