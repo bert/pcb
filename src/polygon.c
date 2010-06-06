@@ -319,6 +319,12 @@ original_poly (PolygonType * p)
 }
 
 POLYAREA *
+PolygonToPoly (PolygonType *p)
+{
+  return original_poly (p);
+}
+
+POLYAREA *
 RectPoly (LocationType x1, LocationType x2, LocationType y1, LocationType y2)
 {
   PLINE *contour = NULL;
@@ -1829,4 +1835,60 @@ debug_polygon (PolygonType *p)
       if (pa == p->Clipped)
 	break;
     }
+}
+
+/* Convert a POLYAREA (and all linked POLYAREA) to
+ * raw PCB polygons on the given layer.
+ */
+void
+PolyToPolygonsOnLayer (DataType *Destination, LayerType *Layer,
+                       POLYAREA *Input, FlagType Flags)
+{
+  PolygonType *Polygon;
+  POLYAREA *pa;
+  PLINE *pline;
+  VNODE *node;
+  bool outer;
+
+  if (Input == NULL)
+    return;
+
+  pa = Input;
+  do
+    {
+      Polygon = CreateNewPolygon (Layer, Flags);
+
+      pline = pa->contours;
+      outer = true;
+
+      do
+        {
+          if (!outer)
+            CreateNewHoleInPolygon (Polygon);
+          outer = false;
+
+          node = &pline->head;
+          do
+            {
+              CreateNewPointInPolygon (Polygon, node->point[0],
+                                                node->point[1]);
+            }
+          while ((node = node->next) != &pline->head);
+
+        }
+      while ((pline = pline->next) != NULL);
+
+      InitClip (Destination, Layer, Polygon);
+      SetPolygonBoundingBox (Polygon);
+      if (!Layer->polygon_tree)
+        Layer->polygon_tree = r_create_tree (NULL, 0, 0);
+      r_insert_entry (Layer->polygon_tree, (BoxType *) Polygon, 0);
+
+      DrawPolygon (Layer, Polygon, 0);
+      /* add to undo list */
+      AddObjectToCreateUndoList (POLYGON_TYPE, Layer, Polygon, Polygon);
+    }
+  while ((pa = pa->f) != Input);
+
+  SetChangedFlag (true);
 }
