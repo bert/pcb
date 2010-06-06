@@ -459,6 +459,28 @@ GetPointMemoryInPolygon (PolygonTypePtr Polygon)
 }
 
 /* ---------------------------------------------------------------------------
+ * gets the next slot for a point in a polygon struct, allocates memory
+ * if necessary
+ */
+Cardinal *
+GetHoleIndexMemoryInPolygon (PolygonTypePtr Polygon)
+{
+  Cardinal *holeindex = Polygon->HoleIndex;
+
+  /* realloc new memory if necessary and clear it */
+  if (Polygon->HoleIndexN >= Polygon->HoleIndexMax)
+    {
+      Polygon->HoleIndexMax += STEP_POLYGONHOLEINDEX;
+      holeindex = MyRealloc (holeindex, Polygon->HoleIndexMax * sizeof (int),
+			     "GetHoleIndexMemoryInPolygon()");
+      Polygon->HoleIndex = holeindex;
+      memset (holeindex + Polygon->HoleIndexN, 0,
+	      STEP_POLYGONHOLEINDEX * sizeof (int));
+    }
+  return (holeindex + Polygon->HoleIndexN++);
+}
+
+/* ---------------------------------------------------------------------------
  * get next slot for an element, allocates memory if necessary
  */
 ElementTypePtr
@@ -734,6 +756,7 @@ FreePolygonMemory (PolygonTypePtr Polygon)
   if (Polygon)
     {
       MYFREE (Polygon->Points);
+      MYFREE (Polygon->HoleIndex);
       if (Polygon->Clipped)
 	poly_Free (&Polygon->Clipped);
       poly_FreeContours (&Polygon->NoHoles);

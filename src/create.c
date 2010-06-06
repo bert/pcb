@@ -635,6 +635,17 @@ CreateNewPointInPolygon (PolygonTypePtr Polygon, LocationType X,
 }
 
 /* ---------------------------------------------------------------------------
+ * creates a new hole in a polygon
+ */
+PolygonType *
+CreateNewHoleInPolygon (PolygonType *Polygon)
+{
+  Cardinal *holeindex = GetHoleIndexMemoryInPolygon (Polygon);
+  *holeindex = Polygon->PointN;
+  return Polygon;
+}
+
+/* ---------------------------------------------------------------------------
  * creates an new element
  * memory is allocated if needed
  */

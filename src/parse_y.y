@@ -102,9 +102,8 @@ static int check_file_version (int);
 
 %token	T_FILEVERSION T_PCB T_LAYER T_VIA T_RAT T_LINE T_ARC T_RECTANGLE T_TEXT T_ELEMENTLINE
 %token	T_ELEMENT T_PIN T_PAD T_GRID T_FLAGS T_SYMBOL T_SYMBOLLINE T_CURSOR
-%token	T_ELEMENTARC T_MARK T_GROUPS T_STYLES T_POLYGON T_NETLIST T_NET T_CONN
+%token	T_ELEMENTARC T_MARK T_GROUPS T_STYLES T_POLYGON T_POLYGON_HOLE T_NETLIST T_NET T_CONN
 %token	T_AREA T_THERMAL T_DRC T_ATTRIBUTE
-
 %type	<number>	symbolid
 %type	<string>	opt_string
 %type	<flagtype>	flags
@@ -895,31 +894,7 @@ layerdefinition
 		| text_newformat
 		| text_oldformat
 		| { attr_list = & Layer->Attributes; } attributes
-			/* flags are passed in */
-		| T_POLYGON '(' flags ')' '('
-			{
-				Polygon = CreateNewPolygon(Layer, $3);
-			}
-		  polygonpoints ')'
-		  	{
-					/* ignore junk */
-				if (Polygon->PointN >= 3)
-				  {
-				    SetPolygonBoundingBox (Polygon);
-				    if (!Layer->polygon_tree)
-				      Layer->polygon_tree = r_create_tree (NULL, 0, 0);
-				    r_insert_entry (Layer->polygon_tree, (BoxType *) Polygon, 0);
-				  }
-				else
-				{
-					Message("WARNING parsing file '%s'\n"
-						"    line:        %i\n"
-						"    description: 'ignored polygon (< 3 points)'\n",
-						yyfilename, yylineno);
-					DestroyObject(yyData, POLYGON_TYPE, Layer, Polygon, Polygon);
-				}
-			}
-		;
+		| polygon_format
 
 /* %start-doc pcbfile Line
 
@@ -1124,6 +1099,11 @@ text_hi_format
 Polygon (SFlags) (
 @ @ @ @dots{} (X Y) @dots{}
 @ @ @ @dots{} [X Y] @dots{}
+@ @ @ Hole (
+@ @ @ @ @ @ @dots{} (X Y) @dots{}
+@ @ @ @ @ @ @dots{} [X Y] @dots{}
+@ @ @ )
+@ @ @ @dots{}
 )
 @end syntax
 
@@ -1132,9 +1112,66 @@ Polygon (SFlags) (
 Symbolic or numeric flags.
 @item X Y
 Coordinates of each vertex.  You must list at least three coordinates.
+@item Hole (...)
+Defines a hole within the polygon's outer contour. There may be zero or more such sections.
 @end table
 
 %end-doc */
+
+polygon_format
+		: /* flags are passed in */
+		T_POLYGON '(' flags ')' '('
+			{
+				Polygon = CreateNewPolygon(Layer, $3);
+			}
+		  polygonpoints
+		  polygonholes ')'
+			{
+				Cardinal contour, contour_start, contour_end;
+				bool bad_contour_found = false;
+				/* ignore junk */
+				for (contour = 0; contour <= Polygon->HoleIndexN; contour++)
+				  {
+				    contour_start = (contour == 0) ?
+						      0 : Polygon->HoleIndex[contour - 1];
+				    contour_end = (contour == Polygon->HoleIndexN) ?
+						 Polygon->PointN :
+						 Polygon->HoleIndex[contour];
+				    if (contour_end - contour_start < 3)
+				      bad_contour_found = true;
+				  }
+
+				if (bad_contour_found)
+				  {
+				    Message("WARNING parsing file '%s'\n"
+					    "    line:        %i\n"
+					    "    description: 'ignored polygon (< 3 points in a contour)'\n",
+					    yyfilename, yylineno);
+				    DestroyObject(yyData, POLYGON_TYPE, Layer, Polygon, Polygon);
+				  }
+				else
+				  {
+				    SetPolygonBoundingBox (Polygon);
+				    if (!Layer->polygon_tree)
+				      Layer->polygon_tree = r_create_tree (NULL, 0, 0);
+				    r_insert_entry (Layer->polygon_tree, (BoxType *) Polygon, 0);
+				  }
+			}
+		;
+
+polygonholes
+		: /* empty */
+		| polygonhole
+		| polygonholes polygonhole
+		;
+
+polygonhole
+		: T_POLYGON_HOLE '('
+			{
+				CreateNewHoleInPolygon (Polygon);
+			}
+		  polygonpoints ')'
+		;
 
 polygonpoints
 		: polygonpoint

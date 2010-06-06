@@ -58,6 +58,7 @@
 #define	STEP_UNDOLIST		500
 #define	STEP_POLYGON		10
 #define	STEP_POLYGONPOINT	10
+#define	STEP_POLYGONHOLEINDEX	10
 #define	STEP_LIBRARYMENU	10
 #define	STEP_LIBRARYENTRY	20
 #define	STEP_RUBBERBAND		100
@@ -82,6 +83,7 @@ RatTypePtr GetRatMemory (DataTypePtr);
 TextTypePtr GetTextMemory (LayerTypePtr);
 PolygonTypePtr GetPolygonMemory (LayerTypePtr);
 PointTypePtr GetPointMemoryInPolygon (PolygonTypePtr);
+Cardinal *GetHoleIndexMemoryInPolygon (PolygonTypePtr);
 ElementTypePtr GetElementMemory (DataTypePtr);
 BoxTypePtr GetBoxMemory (BoxListTypePtr);
 ConnectionTypePtr GetConnectionMemory (NetTypePtr);

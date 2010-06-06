@@ -95,12 +95,18 @@ static ObjectFunctionType CopyFunctions = {
 PolygonTypePtr
 CopyPolygonLowLevel (PolygonTypePtr Dest, PolygonTypePtr Src)
 {
-  /* copy all data */
-  POLYGONPOINT_LOOP (Src);
-  {
-    CreateNewPointInPolygon (Dest, point->X, point->Y);
-  }
-  END_LOOP;
+  Cardinal hole = 0;
+  Cardinal n;
+
+  for (n = 0; n < Src->PointN; n++)
+    {
+      if (hole < Src->HoleIndexN && n == Src->HoleIndex[hole])
+        {
+          CreateNewHoleInPolygon (Dest);
+          hole++;
+        }
+      CreateNewPointInPolygon (Dest, Src->Points[n].X, Src->Points[n].Y);
+    }
   SetPolygonBoundingBox (Dest);
   Dest->Flags = Src->Flags;
   CLEAR_FLAG (FOUNDFLAG, Dest);

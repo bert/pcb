@@ -56,7 +56,7 @@ void sort_netlist (void);
  * guidance to the user as to what the minimum version of pcb required
  * is.
  */
-#define PCB_FILE_VERSION 20070407
+#define PCB_FILE_VERSION 20100606
 
 
 #ifndef HAS_ATEXIT

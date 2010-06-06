@@ -120,6 +120,73 @@ static double circleVerticies[] = {
   0.98768834059513777, 0.15643446504023087,
 };
 
+Cardinal
+polygon_point_idx (PolygonTypePtr polygon, PointTypePtr point)
+{
+  assert (point >= polygon->Points);
+  assert (point <= polygon->Points + polygon->PointN);
+  return ((char *)point - (char *)polygon->Points) / sizeof (PointType);
+}
+
+/* Find contour number: 0 for outer, 1 for first hole etc.. */
+Cardinal
+polygon_point_contour (PolygonTypePtr polygon, Cardinal point)
+{
+  Cardinal i;
+  Cardinal contour = 0;
+
+  for (i = 0; i < polygon->HoleIndexN; i++)
+    if (point >= polygon->HoleIndex[i])
+      contour = i + 1;
+  return contour;
+}
+
+Cardinal
+next_contour_point (PolygonTypePtr polygon, Cardinal point)
+{
+  Cardinal contour;
+  Cardinal this_contour_start;
+  Cardinal next_contour_start;
+
+  contour = polygon_point_contour (polygon, point);
+
+  this_contour_start = (contour == 0) ? 0 :
+                                        polygon->HoleIndex[contour - 1];
+  next_contour_start =
+    (contour == polygon->HoleIndexN) ? polygon->PointN :
+                                       polygon->HoleIndex[contour];
+
+  /* Wrap back to the start of the contour we're in if we pass the end */
+  if (++point == next_contour_start)
+    point = this_contour_start;
+
+  return point;
+}
+
+Cardinal
+prev_contour_point (PolygonTypePtr polygon, Cardinal point)
+{
+  Cardinal contour;
+  Cardinal prev_contour_end;
+  Cardinal this_contour_end;
+
+  contour = polygon_point_contour (polygon, point);
+
+  prev_contour_end = (contour == 0) ? 0 :
+                                      polygon->HoleIndex[contour - 1];
+  this_contour_end =
+    (contour == polygon->HoleIndexN) ? polygon->PointN - 1:
+                                       polygon->HoleIndex[contour] - 1;
+
+  /* Wrap back to the start of the contour we're in if we pass the end */
+  if (point == prev_contour_end)
+    point = this_contour_end;
+  else
+    point--;
+
+  return point;
+}
+
 static void
 add_noholes_polyarea (PLINE *pline, void *user_data)
 {
@@ -205,33 +272,49 @@ original_poly (PolygonType * p)
 {
   PLINE *contour = NULL;
   POLYAREA *np = NULL;
+  Cardinal n;
   Vector v;
+  int hole = 0;
 
-  /* first make initial polygon contour */
-  POLYGONPOINT_LOOP (p);
-  {
-    v[0] = point->X;
-    v[1] = point->Y;
-    if (contour == NULL)
-      {
-        if ((contour = poly_NewContour (v)) == NULL)
-          return NULL;
-      }
-    else
-      {
-        poly_InclVertex (contour->head.prev, poly_CreateNode (v));
-      }
-  }
-  END_LOOP;
-  poly_PreContour (contour, TRUE);
-  /* make sure it is a positive contour */
-  if ((contour->Flags.orient) != PLF_DIR)
-    poly_InvContour (contour);
-  assert ((contour->Flags.orient) == PLF_DIR);
   if ((np = poly_Create ()) == NULL)
     return NULL;
-  poly_InclContour (np, contour);
-  assert (poly_Valid (np));
+
+  /* first make initial polygon contour */
+  for (n = 0; n < p->PointN; n++)
+    {
+      /* No current contour? Make a new one starting at point */
+      /*   (or) Add point to existing contour */
+
+      v[0] = p->Points[n].X;
+      v[1] = p->Points[n].Y;
+      if (contour == NULL)
+        {
+          if ((contour = poly_NewContour (v)) == NULL)
+            return NULL;
+        }
+      else
+        {
+          poly_InclVertex (contour->head.prev, poly_CreateNode (v));
+        }
+
+      /* Is current point last in contour? If so process it. */
+      if (n == p->PointN - 1 ||
+          (hole < p->HoleIndexN && n == p->HoleIndex[hole] - 1))
+        {
+          poly_PreContour (contour, TRUE);
+
+          /* make sure it is a positive contour (outer) or negative (hole) */
+          if (contour->Flags.orient != (hole ? PLF_INV : PLF_DIR))
+            poly_InvContour (contour);
+          assert (contour->Flags.orient == (hole ? PLF_INV : PLF_DIR));
+
+          poly_InclContour (np, contour);
+          contour = NULL;
+          assert (poly_Valid (np));
+
+          hole++;
+        }
+  }
   return biggest (np);
 }
 
@@ -1078,31 +1161,26 @@ InitClip (DataTypePtr Data, LayerTypePtr layer, PolygonType * p)
 bool
 RemoveExcessPolygonPoints (LayerTypePtr Layer, PolygonTypePtr Polygon)
 {
-  PointTypePtr pt1, pt2, pt3;
-  Cardinal n;
+  PointTypePtr p;
+  Cardinal n, prev, next;
   LineType line;
   bool changed = false;
 
   if (Undoing ())
     return (false);
-  /* there are always at least three points in a polygon */
-  pt1 = &Polygon->Points[Polygon->PointN - 1];
-  pt2 = &Polygon->Points[0];
-  pt3 = &Polygon->Points[1];
-  for (n = 0; n < Polygon->PointN; n++, pt1++, pt2++, pt3++)
+
+  for (n = 0; n < Polygon->PointN; n++)
     {
-      /* wrap around polygon */
-      if (n == 1)
-        pt1 = &Polygon->Points[0];
-      if (n == Polygon->PointN - 1)
-        pt3 = &Polygon->Points[0];
-      line.Point1 = *pt1;
-      line.Point2 = *pt3;
+      prev = prev_contour_point (Polygon, n);
+      next = next_contour_point (Polygon, n);
+      p = &Polygon->Points[n];
+
+      line.Point1 = Polygon->Points[prev];
+      line.Point2 = Polygon->Points[next];
       line.Thickness = 0;
-      if (IsPointOnLine ((float) pt2->X, (float) pt2->Y, 0.0, &line))
+      if (IsPointOnLine ((float) p->X, (float) p->Y, 0.0, &line))
         {
-          RemoveObject (POLYGONPOINT_TYPE, (void *) Layer, (void *) Polygon,
-                        (void *) pt2);
+          RemoveObject (POLYGONPOINT_TYPE, Layer, Polygon, p);
           changed = true;
         }
     }
@@ -1119,8 +1197,7 @@ GetLowestDistancePolygonPoint (PolygonTypePtr Polygon, LocationType X,
                                LocationType Y)
 {
   double mindistance = (double) MAX_COORD * MAX_COORD;
-  PointTypePtr ptr1 = &Polygon->Points[Polygon->PointN - 1],
-    ptr2 = &Polygon->Points[0];
+  PointTypePtr ptr1, ptr2;
   Cardinal n, result = 0;
 
   /* we calculate the distance to each segment and choose the
@@ -1130,9 +1207,12 @@ GetLowestDistancePolygonPoint (PolygonTypePtr Polygon, LocationType X,
    * to the segment end point.
    */
 
-  for (n = 0; n < Polygon->PointN; n++, ptr2++)
+  for (n = 0; n < Polygon->PointN; n++)
     {
       register double u, dx, dy;
+      ptr1 = &Polygon->Points[prev_contour_point (Polygon, n)];
+      ptr2 = &Polygon->Points[n];
+
       dx = ptr2->X - ptr1->X;
       dy = ptr2->Y - ptr1->Y;
       if (dx != 0.0 || dy != 0.0)
@@ -1159,7 +1239,6 @@ GetLowestDistancePolygonPoint (PolygonTypePtr Polygon, LocationType X,
               result = n;
             }
         }
-      ptr1 = ptr2;
     }
   return (result);
 }
@@ -1729,11 +1808,19 @@ debug_polyarea (POLYAREA *p)
 void
 debug_polygon (PolygonType *p)
 {
-  int i;
+  Cardinal i;
   POLYAREA *pa;
   fprintf (stderr, "POLYGON %p  %d pts\n", p, p->PointN);
   for (i=0; i<p->PointN; i++)
     fprintf(stderr, "\t%d: %d, %d\n", i, p->Points[i].X, p->Points[i].Y);
+  if (p->HoleIndexN)
+    {
+      fprintf (stderr, "%d holes, starting at indices\n", p->HoleIndexN);
+      for (i=0; i<p->HoleIndexN; i++)
+        fprintf(stderr, "\t%d: %d\n", i, p->HoleIndex[i]);
+    }
+  else
+    fprintf (stderr, "it has no holes\n");
   pa = p->Clipped;
   while (pa)
     {

@@ -260,6 +260,10 @@ struct polygon_st			/* holds information about a polygon */
   PLINE *NoHoles;		/* the polygon broken into hole-less regions */
   int NoHolesValid;		/* Is the NoHoles polygon up to date? */
   PointTypePtr Points;		/* data */
+  Cardinal *HoleIndex;		/* Index of hole data within the Points array */
+  Cardinal HoleIndexN;		/* number of holes in polygon */
+  Cardinal HoleIndexMax;	/* max number from malloc() */
+
 };
 
 typedef struct			/* holds information about arcs */
@@ -779,19 +783,21 @@ struct drc_violation_st
 #define	UNDO_REMOVE			0x0004	/* removing objects */
 #define	UNDO_REMOVE_POINT		0x0008	/* removing polygon/... points */
 #define	UNDO_INSERT_POINT		0x0010	/* inserting polygon/... points */
-#define	UNDO_ROTATE			0x0020	/* rotations */
-#define	UNDO_CREATE			0x0040	/* creation of objects */
-#define	UNDO_MOVETOLAYER		0x0080	/* moving objects to */
-#define UNDO_FLAG			0x0100	/* toggling SELECTED flag */
-#define UNDO_CHANGESIZE			0x0200	/* change size of object */
-#define UNDO_CHANGE2NDSIZE		0x0400	/* change 2ndSize of object */
-#define UNDO_MIRROR			0x0800	/* change side of board */
-#define UNDO_CHANGECLEARSIZE		0x1000	/* change clearance size */
-#define UNDO_CHANGEMASKSIZE		0x2000	/* change mask size */
-#define UNDO_CHANGEANGLES		0x4000	/* change arc angles */
-#define UNDO_LAYERCHANGE		0x8000	/* layer new/delete/move */
-#define UNDO_CLEAR		       0x10000  /* clear/restore to polygons */
-#define UNDO_NETLISTCHANGE     	       0x20000	/* netlist change */
+#define	UNDO_REMOVE_CONTOUR		0x0020	/* removing a contour from a polygon */
+#define	UNDO_INSERT_CONTOUR		0x0040	/* inserting a contour from a polygon */
+#define	UNDO_ROTATE			0x0080	/* rotations */
+#define	UNDO_CREATE			0x0100	/* creation of objects */
+#define	UNDO_MOVETOLAYER		0x0200	/* moving objects to */
+#define	UNDO_FLAG			0x0400	/* toggling SELECTED flag */
+#define	UNDO_CHANGESIZE			0x0800	/* change size of object */
+#define	UNDO_CHANGE2NDSIZE		0x1000	/* change 2ndSize of object */
+#define	UNDO_MIRROR			0x2000	/* change side of board */
+#define	UNDO_CHANGECLEARSIZE		0x4000	/* change clearance size */
+#define	UNDO_CHANGEMASKSIZE		0x8000	/* change mask size */
+#define	UNDO_CHANGEANGLES	       0x10000	/* change arc angles */
+#define	UNDO_LAYERCHANGE	       0x20000	/* layer new/delete/move */
+#define	UNDO_CLEAR		       0x40000	/* clear/restore to polygons */
+#define	UNDO_NETLISTCHANGE	       0x80000	/* netlist change */
 
 
 /* ---------------------------------------------------------------------------

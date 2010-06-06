@@ -825,14 +825,32 @@ WriteLayerData (FILE * FP, Cardinal Number, LayerTypePtr layer)
 	{
 	  PolygonTypePtr polygon = &layer->Polygon[n];
 	  int p, i = 0;
+	  Cardinal hole = 0;
 	  fprintf (FP, "\tPolygon(%s)\n\t(", F2S (polygon, POLYGON_TYPE));
 	  for (p = 0; p < polygon->PointN; p++)
 	    {
 	      PointTypePtr point = &polygon->Points[p];
+
+	      if (hole < polygon->HoleIndexN &&
+		  p == polygon->HoleIndex[hole])
+		{
+		  if (hole > 0)
+		    fputs ("\n\t\t)", FP);
+		  fputs ("\n\t\tHole (", FP);
+		  hole++;
+		  i = 0;
+		}
+
 	      if (i++ % 5 == 0)
-		fputs ("\n\t\t", FP);
+		{
+		  fputs ("\n\t\t", FP);
+		  if (hole)
+		    fputs ("\t", FP);
+		}
 	      fprintf (FP, "[%i %i] ", (int) point->X, (int) point->Y);
 	    }
+	  if (hole > 0)
+	    fputs ("\n\t\t)", FP);
 	  fputs ("\n\t)\n", FP);
 	}
       fputs (")\n", FP);

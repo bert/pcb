@@ -325,12 +325,13 @@ ReportDialog (int argc, char **argv, int x, int y)
 		 "Its bounding box is (%d,%d) (%d,%d)\n"
 		 "It has %d points and could store %d more\n"
 		 "without using more memory.\n"
-		 "It resides on layer %d\n"
+		 "It has %d holes and resides on layer %d\n"
 		 "%s", Polygon->ID,
 		 flags_to_string (Polygon->Flags, POLYGON_TYPE),
 		 Polygon->BoundingBox.X1, Polygon->BoundingBox.Y1,
 		 Polygon->BoundingBox.X2, Polygon->BoundingBox.Y2,
 		 Polygon->PointN, Polygon->PointMax - Polygon->PointN,
+		 Polygon->HoleIndexN,
 		 GetLayerNumber (PCB->Data, (LayerTypePtr) ptr1),
 		 TEST_FLAG (LOCKFLAG, Polygon) ? "It is LOCKED\n" : "");
 	break;

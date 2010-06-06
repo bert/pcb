@@ -74,6 +74,7 @@ static void *DestroyElement (ElementTypePtr);
 static void *RemoveVia (PinTypePtr);
 static void *RemoveRat (RatTypePtr);
 static void *DestroyPolygonPoint (LayerTypePtr, PolygonTypePtr, PointTypePtr);
+static void *RemovePolygonContour (LayerTypePtr, PolygonTypePtr, Cardinal);
 static void *RemovePolygonPoint (LayerTypePtr, PolygonTypePtr, PointTypePtr);
 static void *RemoveLinePoint (LayerTypePtr, LineTypePtr, PointTypePtr);
 
@@ -203,17 +204,33 @@ static void *
 DestroyPolygonPoint (LayerTypePtr Layer,
 		     PolygonTypePtr Polygon, PointTypePtr Point)
 {
-  PointTypePtr ptr;
+  Cardinal point_idx;
+  Cardinal i;
+  Cardinal contour;
+  Cardinal contour_start, contour_end, contour_points;
 
-  if (Polygon->PointN <= 3)
-    return RemovePolygon (Layer, Polygon);
+  point_idx = polygon_point_idx (Polygon, Point);
+  contour = polygon_point_contour (Polygon, point_idx);
+  contour_start = (contour == 0) ? 0 : Polygon->HoleIndex[contour - 1];
+  contour_end = (contour == Polygon->HoleIndexN) ? Polygon->PointN :
+                                                   Polygon->HoleIndex[contour];
+  contour_points = contour_end - contour_start;
+
+  if (contour_points <= 3)
+    return RemovePolygonContour (Layer, Polygon, contour);
+
   r_delete_entry (Layer->polygon_tree, (BoxType *) Polygon);
-  for (ptr = Point + 1; ptr != &Polygon->Points[Polygon->PointN]; ptr++)
-    {
-      *Point = *ptr;
-      Point = ptr;
-    }
+
+  /* remove point from list, keep point order */
+  for (i = point_idx; i < Polygon->PointN - 1; i++)
+    Polygon->Points[i] = Polygon->Points[i + 1];
   Polygon->PointN--;
+
+  /* Shift down indices of any holes */
+  for (i = 0; i < Polygon->HoleIndexN; i++)
+    if (Polygon->HoleIndex[i] > point_idx)
+      Polygon->HoleIndex[i]--;
+
   SetPolygonBoundingBox (Polygon);
   r_insert_entry (Layer->polygon_tree, (BoxType *) Polygon, 0);
   InitClip (PCB->Data, Layer, Polygon);
@@ -481,41 +498,100 @@ RemovePolygon (LayerTypePtr Layer, PolygonTypePtr Polygon)
 }
 
 /* ---------------------------------------------------------------------------
+ * removes a contour from a polygon.
+ * If removing the outer contour, it removes the whole polygon.
+ */
+static void *
+RemovePolygonContour (LayerTypePtr Layer,
+                      PolygonTypePtr Polygon,
+                      Cardinal contour)
+{
+  Cardinal contour_start, contour_end, contour_points;
+  Cardinal i;
+
+  if (contour == 0)
+    return RemovePolygon (Layer, Polygon);
+
+  if (Layer->On)
+    {
+      ErasePolygon (Polygon);
+      if (!Bulk)
+        Draw ();
+    }
+
+  /* Copy the polygon to the undo list */
+  AddObjectToRemoveContourUndoList (POLYGON_TYPE, Layer, Polygon);
+
+  contour_start = (contour == 0) ? 0 : Polygon->HoleIndex[contour - 1];
+  contour_end = (contour == Polygon->HoleIndexN) ? Polygon->PointN :
+                                                   Polygon->HoleIndex[contour];
+  contour_points = contour_end - contour_start;
+
+  /* remove points from list, keep point order */
+  for (i = contour_start; i < Polygon->PointN - contour_points; i++)
+    Polygon->Points[i] = Polygon->Points[i + contour_points];
+  Polygon->PointN -= contour_points;
+
+  /* remove hole from list and shift down remaining indices */
+  for (i = contour; i < Polygon->HoleIndexN; i++)
+    Polygon->HoleIndex[i - 1] = Polygon->HoleIndex[i] - contour_points;
+  Polygon->HoleIndexN--;
+
+  InitClip (PCB->Data, Layer, Polygon);
+  /* redraw polygon if necessary */
+  if (Layer->On)
+    {
+      DrawPolygon (Layer, Polygon, 0);
+      if (!Bulk)
+        Draw ();
+    }
+  return NULL;
+}
+
+/* ---------------------------------------------------------------------------
  * removes a polygon-point from a polygon
  */
 static void *
 RemovePolygonPoint (LayerTypePtr Layer,
 		    PolygonTypePtr Polygon, PointTypePtr Point)
 {
-  PointTypePtr ptr;
-  Cardinal index = 0;
-  if (Polygon->PointN <= 3)
-    return RemovePolygon (Layer, Polygon);
+  Cardinal point_idx;
+  Cardinal i;
+  Cardinal contour;
+  Cardinal contour_start, contour_end, contour_points;
+
+  point_idx = polygon_point_idx (Polygon, Point);
+  contour = polygon_point_contour (Polygon, point_idx);
+  contour_start = (contour == 0) ? 0 : Polygon->HoleIndex[contour - 1];
+  contour_end = (contour == Polygon->HoleIndexN) ? Polygon->PointN :
+                                                   Polygon->HoleIndex[contour];
+  contour_points = contour_end - contour_start;
+
+  if (contour_points <= 3)
+    return RemovePolygonContour (Layer, Polygon, contour);
+
   if (Layer->On)
     ErasePolygon (Polygon);
+
   /* insert the polygon-point into the undo list */
-  POLYGONPOINT_LOOP (Polygon);
-  {
-    if (point == Point)
-      {
-	index = n;
-	break;
-      }
-  }
-  END_LOOP;
-  AddObjectToRemovePointUndoList (POLYGONPOINT_TYPE, Layer, Polygon, index);
+  AddObjectToRemovePointUndoList (POLYGONPOINT_TYPE, Layer, Polygon, point_idx);
   r_delete_entry (Layer->polygon_tree, (BoxType *) Polygon);
+
   /* remove point from list, keep point order */
-  for (ptr = Point + 1; ptr != &Polygon->Points[Polygon->PointN]; ptr++)
-    {
-      *Point = *ptr;
-      Point = ptr;
-    }
+  for (i = point_idx; i < Polygon->PointN - 1; i++)
+    Polygon->Points[i] = Polygon->Points[i + 1];
   Polygon->PointN--;
+
+  /* Shift down indices of any holes */
+  for (i = 0; i < Polygon->HoleIndexN; i++)
+    if (Polygon->HoleIndex[i] > point_idx)
+      Polygon->HoleIndex[i]--;
+
   SetPolygonBoundingBox (Polygon);
   r_insert_entry (Layer->polygon_tree, (BoxType *) Polygon, 0);
   RemoveExcessPolygonPoints (Layer, Polygon);
   InitClip (PCB->Data, Layer, Polygon);
+
   /* redraw polygon if necessary */
   if (Layer->On)
     {

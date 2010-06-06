@@ -74,6 +74,7 @@ static void *InsertPointIntoRat (RatTypePtr);
 static LocationType InsertX,	/* used by local routines as offset */
   InsertY;
 static Cardinal InsertAt;
+static bool InsertLast;
 static bool Forcible;
 static ObjectFunctionType InsertFunctions = {
   InsertPointIntoLine,
@@ -174,10 +175,7 @@ InsertPointIntoPolygon (LayerTypePtr Layer, PolygonTypePtr Polygon)
        * first make sure adding the point is sensible
        */
       line.Thickness = 0;
-      if (InsertAt == 0)
-	line.Point1 = Polygon->Points[Polygon->PointN - 1];
-      else
-	line.Point1 = Polygon->Points[InsertAt - 1];
+      line.Point1 = Polygon->Points[prev_contour_point (Polygon, InsertAt)];
       line.Point2 = Polygon->Points[InsertAt];
       if (IsPointOnLine ((float) InsertX, (float) InsertY, 0.0, &line))
 	return (NULL);
@@ -190,10 +188,18 @@ InsertPointIntoPolygon (LayerTypePtr Layer, PolygonTypePtr Polygon)
   save = *CreateNewPointInPolygon (Polygon, InsertX, InsertY);
   for (n = Polygon->PointN - 1; n > InsertAt; n--)
     Polygon->Points[n] = Polygon->Points[n - 1];
+
+  /* Shift up indices of any holes */
+  for (n = 0; n < Polygon->HoleIndexN; n++)
+    if (Polygon->HoleIndex[n] > InsertAt ||
+	(InsertLast && Polygon->HoleIndex[n] == InsertAt))
+      Polygon->HoleIndex[n]++;
+
   Polygon->Points[InsertAt] = save;
   SetChangedFlag (true);
   AddObjectToInsertPointUndoList (POLYGONPOINT_TYPE, Layer, Polygon,
 				  &Polygon->Points[InsertAt]);
+
   SetPolygonBoundingBox (Polygon);
   r_insert_entry (Layer->polygon_tree, (BoxType *) Polygon, 0);
   InitClip (PCB->Data, Layer, Polygon);
@@ -210,7 +216,8 @@ InsertPointIntoPolygon (LayerTypePtr Layer, PolygonTypePtr Polygon)
  */
 void *
 InsertPointIntoObject (int Type, void *Ptr1, void *Ptr2, Cardinal * Ptr3,
-		       LocationType DX, LocationType DY, bool Force)
+		       LocationType DX, LocationType DY, bool Force,
+		       bool insert_last)
 {
   void *ptr;
 
@@ -218,6 +225,7 @@ InsertPointIntoObject (int Type, void *Ptr1, void *Ptr2, Cardinal * Ptr3,
   InsertX = DX;
   InsertY = DY;
   InsertAt = *Ptr3;
+  InsertLast = insert_last;
   Forcible = Force;
 
   /* the operation insert the points to the undo-list */
