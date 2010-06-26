@@ -571,6 +571,20 @@ fi
 #
 ######################################################################
 
+# ------------- Non-standard gaf install location -----------------
+AC_MSG_CHECKING([where to install gaf scheme additions])
+GAFDATADIR="${datadir}"
+AC_ARG_WITH([gaf-datadir],
+  AS_HELP_STRING([--with-gaf-datadir=DIR],
+    [install additional gaf scheme into DIR [[DATADIR]]]),
+  [ if (test "X$with_gaf_datadir" != "Xno" &&
+          test "X$with_gaf_datadir" != "Xyes"); then
+        GAFDATADIR="$with_gaf_datadir"
+      fi ], [])
+AC_MSG_RESULT([$GAFDATADIR])
+AC_SUBST([GAFDATADIR])
+
+
 AC_PATH_PROGS(M4, gm4 m4, [none])
 if test "X$M4" = "Xnone" ; then
 	AC_MSG_ERROR([Did not find a m4 executible.  You need to make sure
@@ -1344,6 +1358,7 @@ with_exporters=`echo $with_exporters | sed 's/,/ /g'`
 
 expandedXDGDATADIR=`eval "echo $XDGDATADIR"`
 expandedKDEDATADIR=`eval "echo $KDEDATADIR"`
+expandedGAFDATADIR=`eval "echo $GAFDATADIR"`
 
 AC_MSG_RESULT([
 ** Configuration summary for $PACKAGE $VERSION:
@@ -1367,6 +1382,7 @@ AC_MSG_RESULT([
    Enable toporouter output: $enable_toporouter_output
    xdg data directory:       $expandedXDGDATADIR
    KDE data directory:       $expandedKDEDATADIR
+   gaf data directory:       $expandedGAFDATADIR
    dmalloc debugging:        $with_dmalloc
    ElectricFence debugging:  $with_efence
    Regression tests enabled: $have_test_tools

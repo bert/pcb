@@ -4,7 +4,7 @@
 toolsdir=	$(pkgdatadir)/tools
 dist_tools_DATA=	${TOOLS}
 
-scmdatadir = $(datadir)/gEDA/scheme
+scmdatadir = $(GAFDATADIR)/gEDA/scheme
 dist_scmdata_DATA = $(DIST_SCM)
 
 bin_SCRIPTS= \
