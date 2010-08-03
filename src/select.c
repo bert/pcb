@@ -292,8 +292,19 @@ SelectBlock (BoxTypePtr Box, bool Flag)
   /* check layers */
   LAYER_LOOP(PCB->Data, max_layer + 2);
   {
-    if (! (layer->On || !Flag))
-      continue;
+    if (layer == & PCB->Data->SILKLAYER)
+      {
+	if (! (PCB->ElementOn || !Flag))
+	  continue;
+      }
+    else if (layer == & PCB->Data->BACKSILKLAYER)
+      {
+	if (! (PCB->InvisibleObjectsOn || !Flag))
+	  continue;
+      }
+    else
+      if (! (layer->On || !Flag))
+	continue;
 
     LINE_LOOP (layer);
     {
