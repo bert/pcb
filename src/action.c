@@ -7112,8 +7112,8 @@ ActionElementList (int argc, char **argv, int x, int y)
 
       for (i=0; i<MAX_ELEMENTNAMES; i++)
 	{
-	  pe->Name[i].X = e->Name[i].X - mx;
-	  pe->Name[i].Y = e->Name[i].Y - my;
+	  pe->Name[i].X = e->Name[i].X - mx + pe->MarkX ;
+	  pe->Name[i].Y = e->Name[i].Y - my + pe->MarkY ;
 	  pe->Name[i].Direction = e->Name[i].Direction;
 	  pe->Name[i].Scale = e->Name[i].Scale;
 	}
