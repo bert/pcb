@@ -142,6 +142,13 @@ u (const char *fmt, ...)
   va_end (ap);
 }
 
+typedef struct UsageNotes {
+  struct UsageNotes *next;
+  HID_Attribute *seen;
+} UsageNotes;
+
+static UsageNotes *usage_notes = NULL;
+
 static void
 usage_attr (HID_Attribute * a)
 {
@@ -202,6 +209,7 @@ usage_hid (HID * h)
 {
   HID_Attribute *attributes;
   int i, n_attributes = 0;
+  UsageNotes *note;
 
   if (h->gui)
     {
@@ -215,6 +223,11 @@ usage_hid (HID * h)
       attributes = exporter->get_export_options (&n_attributes);
       exporter = NULL;
     }
+
+  note = (UsageNotes *) MyMalloc (sizeof (UsageNotes), "usage_hid");
+  note->next = usage_notes;
+  note->seen = attributes;
+  usage_notes = note;
   
   for (i = 0; i < n_attributes; i++)
     usage_attr (attributes + i);
@@ -224,6 +237,8 @@ static void
 usage (void)
 {
   HID **hl = hid_enumerate ();
+  HID_AttrNode *ha;
+  UsageNotes *note;
   int i;
   int n_printer = 0, n_gui = 0, n_exporter = 0;
 
@@ -264,6 +279,20 @@ usage (void)
   for (i = 0; hl[i]; i++)
     if (hl[i]->exporter)
       usage_hid (hl[i]);
+
+  u ("\nCommon options:");
+  for (ha = hid_attr_nodes; ha; ha = ha->next)
+    {
+      for (note = usage_notes; note && note->seen != ha->attributes; note = note->next)
+	;
+      if (note)
+	continue;
+      for (i = 0; i < ha->n; i++)
+	{
+	  usage_attr (ha->attributes + i);
+	}
+    }  
+
   exit (1);
 }
 
