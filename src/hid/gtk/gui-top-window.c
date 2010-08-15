@@ -2591,7 +2591,10 @@ ghid_create_listener (void)
 
 
 /* ------------------------------------------------------------ */
+
 static int stdin_listen = 0;
+static char *pcbmenu_path = "gpcb-menu.res";
+
 HID_Attribute ghid_attribute_list[] = {
   {"listen", "Listen for actions on stdin",
    HID_Boolean, 0, 0, {0, 0, 0}, 0, &stdin_listen},
@@ -2601,6 +2604,9 @@ HID_Attribute ghid_attribute_list[] = {
    HID_String, 0, 0, {0, 0, 0}, 0, &bg_image_file},
 #define HA_bg_image 1
 
+{"pcb-menu", "Location of gpcb-menu.res file",
+   HID_String, 0, 0, {0, PCBLIBDIR "/gpcb-menu.res", 0}, 0, &pcbmenu_path}
+#define HA_pcbmenu 2
 };
 
 REGISTER_ATTRIBUTES (ghid_attribute_list)
@@ -2887,15 +2893,6 @@ HID_Action gtk_topwindow_action_list[] = {
 
 REGISTER_ACTIONS (gtk_topwindow_action_list)
 
-static char *pcbmenu_path = "gpcb-menu.res";
-
-static HID_Attribute pcbmenu_attr[] = {
-{"pcb-menu", "Location of gpcb-menu.res file",
-   HID_String, 0, 0, {0, PCBLIBDIR "/gpcb-menu.res", 0}, 0, &pcbmenu_path}
-};
-
-REGISTER_ATTRIBUTES (pcbmenu_attr) 
-     
 /* 
  * This function is used to check if a specified hotkey in the menu
  * resource file is "special".  In this case "special" means that gtk
