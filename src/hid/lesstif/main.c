@@ -1091,7 +1091,8 @@ DrawBackgroundImage ()
 static HID_Attribute *
 lesstif_get_export_options (int *n)
 {
-  return 0;
+  *n = sizeof (lesstif_attribute_list) / sizeof (HID_Attribute);
+  return lesstif_attribute_list;
 }
 
 static void
