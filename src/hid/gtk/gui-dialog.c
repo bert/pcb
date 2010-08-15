@@ -224,7 +224,7 @@ ghid_dialog_close_confirm ()
                                    GTK_BUTTONS_NONE, NULL);
   gtk_message_dialog_set_markup (GTK_MESSAGE_DIALOG (dialog), str);
   gtk_dialog_add_buttons (GTK_DIALOG (dialog),
-                          _("Close without saving"), GTK_RESPONSE_NO,
+                          _("Close _without saving"), GTK_RESPONSE_NO,
                           GTK_STOCK_CANCEL,          GTK_RESPONSE_CANCEL,
                           GTK_STOCK_SAVE,            GTK_RESPONSE_YES,
                           NULL);

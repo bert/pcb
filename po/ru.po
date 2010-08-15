@@ -3488,7 +3488,7 @@ msgid "If you don't save, all your changes will be permanently lost."
 msgstr "Если изменения не будут сохранены, они будут безвозвратно утеряны."
 
 #: ../src/hid/gtk/gui-dialog.c:227
-msgid "Close without saving"
+msgid "Close _without saving"
 msgstr "Закрыть без сохранения"
 
 #: ../src/hid/gtk/gui-drc-window.c:228
