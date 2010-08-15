@@ -1401,14 +1401,7 @@ add_resource_to_menu (Widget menu, Resource * node, XtCallbackProc callback)
       }
 }
 
-static char *pcbmenu_path = "pcb-menu.res";
-
-static HID_Attribute pcbmenu_attr[] = {
-  {"pcb-menu", "Location of pcb-menu.res file",
-   HID_String, 0, 0, {0, PCBLIBDIR "/pcb-menu.res", 0}, 0, &pcbmenu_path}
-};
-
-REGISTER_ATTRIBUTES(pcbmenu_attr)
+extern char *lesstif_pcbmenu_path;
 
 Widget
 lesstif_menu (Widget parent, char *name, Arg * margs, int mn)
@@ -1441,8 +1434,8 @@ lesstif_menu (Widget parent, char *name, Arg * margs, int mn)
     filename = "pcb-menu.res";
   else if (home_pcbmenu != NULL && (access (home_pcbmenu, R_OK) == 0))
     filename = home_pcbmenu;
-  else if (access (pcbmenu_path, R_OK) == 0)
-    filename = pcbmenu_path;
+  else if (access (lesstif_pcbmenu_path, R_OK) == 0)
+    filename = lesstif_pcbmenu_path;
   else
     filename = 0;
 
