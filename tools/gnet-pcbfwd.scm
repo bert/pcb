@@ -19,6 +19,7 @@
 
 ;; PCB forward annotation script
 
+(use-modules (ice-9 regex))
 (use-modules (ice-9 format))
 
 ;; This is a list of attributes which are propogated to the pcb
@@ -31,6 +32,12 @@
     "vendor"
     "vendor_part_number"
     ))
+
+(define (pcbfwd:quote-string s)
+  (string-append "\""
+		 (regexp-substitute/global #f "\"" s 'pre "\\\"" 'post)
+		 "\"")
+  )
 
 (define (pcbfwd:pinfmt pin)
   (format #f "~a-~a" (car pin) (car (cdr pin)))
@@ -52,9 +59,9 @@
   (if (not (null? attrs))
       (let ((attr (car attrs)))
 	(format port "ElementSetAttr(~a,~a,~a)~%"
-		refdes
-		attr
-		(gnetlist:get-package-attribute refdes attr))
+		(pcbfwd:quote-string refdes)
+		(pcbfwd:quote-string attr)
+		(pcbfwd:quote-string (gnetlist:get-package-attribute refdes attr)))
 	(pcbfwd:each-attr refdes (cdr attrs) port))))
 
 ;; write out the pins for a particular component
@@ -68,7 +75,7 @@
 		(pinnum #f)
 		)
 	    (display "ChangePinName(" port)
-	    (display package port)
+	    (display (pcbfwd:quote-string package) port)
 	    (display ", " port)
 
 	    (set! pinnum (gnetlist:get-attribute-by-pinnumber package pin "pinnumber"))
@@ -80,7 +87,7 @@
 	    (if (string=? label "unknown") 
 		(set! label pinnum)
 		)
-	    (display label port)
+	    (display (pcbfwd:quote-string label) port)
 	    (display ")\n" port)
 	    )
 	  (pcbfwd:component_pins port package (cdr pins))
@@ -96,7 +103,10 @@
 	     (footprint (gnetlist:get-package-attribute refdes "footprint"))
 	     )
 
-	(format port "ElementList(Need,~a,~a,~a)~%" refdes footprint value)
+	(format port "ElementList(Need,~a,~a,~a)~%"
+		(pcbfwd:quote-string refdes)
+		(pcbfwd:quote-string footprint)
+		(pcbfwd:quote-string value))
 	(pcbfwd:each-attr refdes pcbfwd:element-attrs port)
 	(pcbfwd:component_pins port refdes (gnetlist:get-pins refdes))
 
