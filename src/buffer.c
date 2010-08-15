@@ -1426,22 +1426,32 @@ FreeRotateBuffer (BufferTypePtr Buffer, double Angle)
 /* -------------------------------------------------------------------------- */
 
 static const char freerotatebuffer_syntax[] =
-  "FreeRotateBuffer(Angle)";
+  "FreeRotateBuffer([Angle])";
 
 static const char freerotatebuffer_help[] =
   "Rotates the current paste buffer contents by the specified angle.  The\n"
-  "angle is given in degrees.\n";
+  "angle is given in degrees.  If no angle is given, the user is prompted\n"
+  "for one.\n";
 
 /* %start-doc actions FreeRotateBuffer
    
-Rotates the contents of the pastebuffer by an arbitrary angle.
+Rotates the contents of the pastebuffer by an arbitrary angle.  If no
+angle is given, the user is prompted for one.
+
 %end-doc */
 
 int
 ActionFreeRotateBuffer(int argc, char **argv, int x, int y)
 {
   HideCrosshair(false);
-  FreeRotateBuffer(PASTEBUFFER, strtod(argv[0], 0));
+  char *angle_s;
+
+  if (argc < 1)
+    angle_s = gui->prompt_for ("Enter Rotation (degrees, CCW):", "0");
+  else
+    angle_s = argv[0];
+
+  FreeRotateBuffer(PASTEBUFFER, strtod(angle_s, 0));
   RestoreCrosshair(false);
   return 0;
 }
