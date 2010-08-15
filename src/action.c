@@ -7242,7 +7242,7 @@ static const char import_syntax[] =
 
 static const char import_help[] = "Import schematics";
 
-/* %start-doc actions import
+/* %start-doc actions Import
 
 Imports element and netlist data from the schematics (or some other
 source).  The first parameter, which is optional, is the mode.  If not
@@ -7306,6 +7306,10 @@ line).
 
 If @pcb{} cannot determine which schematic(s) to import from, the GUI
 is called to let user choose (see @code{ImportGUI()}).
+
+Note that Import() doesn't delete anything - after an Import, elements
+which shouldn't be on the board are selected and may be removed once
+it's determined that the deletion is appropriate.
 
 %end-doc */
 
