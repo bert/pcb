@@ -7821,8 +7821,15 @@ ActionAttributes (int argc, char **argv, int x, int y)
 	      }
 	  }
 
-	buf = (char *) malloc (strlen (NAMEONPCB_NAME(e)) + strlen ("Element X Attributes"));
-	sprintf(buf, "Element %s Attributes", NAMEONPCB_NAME(e));
+	if (NAMEONPCB_NAME(e))
+	  {
+	    buf = (char *) malloc (strlen (NAMEONPCB_NAME(e)) + strlen ("Element X Attributes"));
+	    sprintf(buf, "Element %s Attributes", NAMEONPCB_NAME(e));
+	  }
+	else
+	  {
+	    buf = strdup ("Unnamed Element Attributes");
+	  }
 	gui->edit_attributes(buf, &(e->Attributes));
 	free (buf);
 	break;
