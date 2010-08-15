@@ -2605,6 +2605,13 @@ HID_Attribute ghid_attribute_list[] = {
 
 REGISTER_ATTRIBUTES (ghid_attribute_list)
 
+HID_Attribute *
+ghid_get_export_options (int *n_ret)
+{
+  *n_ret = sizeof (ghid_attribute_list) / sizeof (HID_Attribute);
+  return ghid_attribute_list;
+}
+
   /* Create top level window for routines that will need top_window
      |  before ghid_create_pcb_widgets() is called.
    */

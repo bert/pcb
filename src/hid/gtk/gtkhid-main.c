@@ -311,12 +311,6 @@ zoom_by (double factor, int x, int y)
 
 /* ------------------------------------------------------------ */
 
-HID_Attribute *
-ghid_get_export_options (int *n_ret)
-{
-  return NULL;
-}
-
 void
 ghid_invalidate_lr (int left, int right, int top, int bottom)
 {
@@ -1127,6 +1121,8 @@ HID_DRC_GUI ghid_drc_gui = {
   ghid_drc_window_append_violation,
   ghid_drc_window_throw_dialog,
 };
+
+extern HID_Attribute *ghid_get_export_options (int *);
 
 HID ghid_hid = {
   sizeof (HID),
