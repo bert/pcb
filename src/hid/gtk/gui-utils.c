@@ -152,19 +152,7 @@ ghid_button_state (GdkModifierType * state)
 void
 ghid_draw_area_update (GHidPort * port, GdkRectangle * rect)
 {
-  GdkRectangle update_rect;
-
-  if (rect)
-    update_rect = *rect;
-  else
-    {
-      update_rect.x = 0;
-      update_rect.y = 0;
-      update_rect.width = port->width;
-      update_rect.height = port->height;
-    }
-  gdk_window_invalidate_rect (port->drawing_area->window, &update_rect,
-			      FALSE);
+  gdk_window_invalidate_rect (port->drawing_area->window, rect, FALSE);
 }
 
 
