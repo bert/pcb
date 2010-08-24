@@ -168,42 +168,6 @@ ghid_draw_area_update (GHidPort * port, GdkRectangle * rect)
 }
 
 
-void
-ghid_string_markup_extents (PangoFontDescription * font_desc, gchar * string,
-			    gint * width, gint * height)
-{
-  PangoLayout *layout;
-  gint w, h;
-  GHidPort *out = &ghid_port;
-
-  layout = gtk_widget_create_pango_layout (out->top_window, NULL);
-  pango_layout_set_font_description (layout, font_desc);
-  pango_layout_set_markup (layout, string, strlen (string));
-  pango_layout_get_pixel_size (layout, &w, &h);
-  g_object_unref (layout);
-
-  if (*width)
-    *width = w;
-  if (*height)
-    *height = h;
-}
-
-void
-ghid_draw_string_markup (GdkDrawable * drawable,
-			 PangoFontDescription * font_desc,
-			 GdkGC * gc, gint x, gint y, gchar * string)
-{
-  PangoLayout *layout;
-  GHidPort *out = &ghid_port;
-
-  layout = gtk_widget_create_pango_layout (out->top_window, NULL);
-  pango_layout_set_font_description (layout, font_desc);
-  pango_layout_set_markup (layout, string, strlen (string));
-  gdk_draw_layout (drawable, gc, x, y, layout);
-  g_object_unref (layout);
-}
-
-
 gchar *
 ghid_get_color_name (GdkColor * color)
 {

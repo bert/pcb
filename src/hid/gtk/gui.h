@@ -377,12 +377,6 @@ gboolean ghid_mod1_is_pressed (void);
 gboolean ghid_shift_is_pressed (void);
 
 void ghid_draw_area_update (GHidPort * out, GdkRectangle * rect);
-void ghid_string_markup_extents (PangoFontDescription * font_desc,
-				 gchar * string, gint * width, gint * height);
-void ghid_draw_string_markup (GdkDrawable * drawable,
-			      PangoFontDescription * font_desc,
-			      GdkGC * gc, gint x, gint y, gchar * string);
-
 gchar *ghid_get_color_name (GdkColor * color);
 void ghid_map_color_string (gchar * color_string, GdkColor * color);
 void ghid_button_set_text (GtkWidget * button, gchar * text);
