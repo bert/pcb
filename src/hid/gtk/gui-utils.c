@@ -149,19 +149,6 @@ ghid_button_state (GdkModifierType * state)
   return bs;
 }
 
-#ifdef FIXME
-void
-ghid_draw_area_clear (GHidPort * out, gboolean to_screen)
-{
-  gdk_gc_set_foreground (out->bgGC, &Settings.BackgroundColor);
-  gdk_draw_rectangle (out->pixmap, out->bgGC, TRUE,
-		      0, 0, out->Width, out->Height);
-  if (to_screen)
-    gdk_draw_rectangle (out->drawing_area->window, out->bgGC, TRUE,
-			0, 0, out->Width, out->Height);
-}
-#endif /* FIXME */
-
 void
 ghid_draw_area_update (GHidPort * port, GdkRectangle * rect)
 {
