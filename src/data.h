@@ -68,8 +68,6 @@ extern char *InputTranslations;
 extern int addedLines;
 extern int LayerStack[MAX_LAYER];
 
-extern bool RedrawOnEnter;
-extern bool render;
 extern bool Bumped;
 
 extern FlagType no_flags;

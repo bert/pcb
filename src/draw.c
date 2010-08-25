@@ -187,9 +187,6 @@ UpdateAll (void)
 void
 Draw (void)
 {
-
-  render = true;
-
   HideCrosshair (true);
 
   /* clear and create event if not drawing to a pixmap
@@ -217,7 +214,6 @@ RedrawOutput (BoxTypePtr area)
 void
 ClearAndRedrawOutput (void)
 {
-  render = true;
   Gathering = false;
   UpdateAll ();
 }
@@ -235,7 +231,6 @@ Redraw (bool ClearWindow, BoxTypePtr screen_area)
 {
   gui->invalidate_all ();
   Gathering = true;
-  render = false;
 }
 
 static int
@@ -2420,7 +2415,6 @@ hid_expose_callback (HID * hid, BoxType * region, void *item)
   Output.bgGC = gui->make_gc ();
   Output.pmGC = gui->make_gc ();
 
-  render = true;
   Gathering = false;
 
   /*printf("\033[32mhid_expose_callback, s=%p %d\033[0m\n", &(SWAP_IDENT), SWAP_IDENT); */
