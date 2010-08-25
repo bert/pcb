@@ -77,10 +77,10 @@ FloatPolyType, *FloatPolyTypePtr;
  */
 static BoxType Block;
 static bool Gathering = true;
-static int Erasing = false;
+static int Erasing = 0;
 
-static int doing_pinout = false;
-static int doing_assy = false;
+static int doing_pinout = 0;
+static bool doing_assy = false;
 static const BoxType *clip_box = NULL;
 
 /* ---------------------------------------------------------------------------
