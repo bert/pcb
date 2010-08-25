@@ -97,7 +97,7 @@ static void DrawPlainVia (PinTypePtr, bool);
 static void DrawPinOrViaNameLowLevel (PinTypePtr);
 static void DrawPadLowLevel (hidGC, PadTypePtr, bool, bool);
 static void DrawPadNameLowLevel (PadTypePtr);
-static void DrawLineLowLevel (LineTypePtr, bool);
+static void DrawLineLowLevel (LineTypePtr);
 static void DrawRegularText (LayerTypePtr, TextTypePtr, int);
 static void DrawPolygonLowLevel (PolygonTypePtr);
 static void DrawArcLowLevel (ArcTypePtr);
@@ -1497,9 +1497,9 @@ ClearPad (PadTypePtr Pad, bool mask)
  * lowlevel drawing routine for lines
  */
 static void
-DrawLineLowLevel (LineTypePtr Line, bool HaveGathered)
+DrawLineLowLevel (LineTypePtr Line)
 {
-  if (Gathering && !HaveGathered)
+  if (Gathering)
     {
       AddPart (Line);
       return;
@@ -1570,7 +1570,7 @@ DrawTextLowLevel (TextTypePtr Text, int min_line_width)
 	      newline.Point1.Y += Text->Y;
 	      newline.Point2.X += Text->X;
 	      newline.Point2.Y += Text->Y;
-	      DrawLineLowLevel (&newline, true);
+	      DrawLineLowLevel (&newline);
 	    }
 
 	  /* move on to next cursor position */
@@ -1656,7 +1656,7 @@ DrawElementPackageLowLevel (ElementTypePtr Element, int unused)
   /* draw lines, arcs, text and pins */
   ELEMENTLINE_LOOP (Element);
   {
-    DrawLineLowLevel (line, false);
+    DrawLineLowLevel (line);
   }
   END_LOOP;
   ARC_LOOP (Element);
@@ -1818,7 +1818,7 @@ DrawLine (LayerTypePtr Layer, LineTypePtr Line, int unused)
       else
 	gui->set_color (Output.fgGC, Layer->Color);
     }
-  DrawLineLowLevel (Line, false);
+  DrawLineLowLevel (Line);
 }
 
 /* ---------------------------------------------------------------------------
@@ -1867,7 +1867,7 @@ DrawRat (RatTypePtr Line, int unused)
 	}
     }
   else
-    DrawLineLowLevel ((LineTypePtr) Line, false);
+    DrawLineLowLevel ((LineTypePtr) Line);
 }
 
 /* ---------------------------------------------------------------------------
@@ -2120,7 +2120,7 @@ EraseRat (RatTypePtr Rat)
 		     w * 2, w * 2, 0, 360);
     }
   else
-    DrawLineLowLevel ((LineTypePtr) Rat, false);
+    DrawLineLowLevel ((LineTypePtr) Rat);
   Erasing--;
 }
 
@@ -2197,7 +2197,7 @@ EraseLine (LineTypePtr Line)
 {
   Erasing++;
   gui->set_color (Output.fgGC, Settings.BackgroundColor);
-  DrawLineLowLevel (Line, false);
+  DrawLineLowLevel (Line);
   Erasing--;
 }
 
@@ -2256,7 +2256,7 @@ EraseElement (ElementTypePtr Element)
   gui->set_color (Output.fgGC, Settings.BackgroundColor);
   ELEMENTLINE_LOOP (Element);
   {
-    DrawLineLowLevel (line, false);
+    DrawLineLowLevel (line);
   }
   END_LOOP;
   ARC_LOOP (Element);
