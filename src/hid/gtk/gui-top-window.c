@@ -218,8 +218,6 @@ static ToggleFlagType *tflags = 0;
 static int n_tflags = 0;
 static int max_tflags = 0;
 
-extern HID ghid_hid;
-
 GhidGui _ghidgui, *ghidgui = NULL;
 
 GHidPort ghid_port, *gport;
