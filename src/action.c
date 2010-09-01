@@ -7009,6 +7009,24 @@ them.
 %end-doc */
 
 static int
+parse_layout_attribute_units (char *name, int def)
+{
+  const char *as, *units = NULL;
+  int n = 0, v, r;
+
+  as = AttributeGet (PCB, name);
+  if (!as)
+    return def;
+
+  sscanf (as, "%d%n", &v, &n);
+  units = as + n;
+  if (! *units)
+    units = NULL;
+  v = GetValue (as, units, &r);
+  return v;
+}
+
+static int
 ActionElementList (int argc, char **argv, int x, int y)
 {
   ElementType *e = NULL;
@@ -7076,14 +7094,38 @@ ActionElementList (int argc, char **argv, int x, int y)
 
   if (!e)
     {
+      int nx, ny, d;
+      char *as;
+
 #ifdef DEBUG
       printf("  ... Footprint not on board, need to add it.\n");
 #endif
       /* Not on board, need to add it. */
       if (LoadFootprint(argc, args, x, y))
 	return 1;
+
+      nx = PCB->MaxWidth / 2;
+      ny = PCB->MaxHeight / 2;
+      d = MIN (PCB->MaxWidth, PCB->MaxHeight) / 10;
+
+      nx = parse_layout_attribute_units ("import::newX", nx);
+      ny = parse_layout_attribute_units ("import::newY", ny);
+      d = parse_layout_attribute_units ("import::disperse", d);
+
+      nx += random () % (d*2) - d;
+      ny += random () % (d*2) - d;
+
+      if (nx < 0)
+	nx = 0;
+      if (nx >= PCB->MaxWidth)
+	nx = PCB->MaxWidth - 1;
+      if (ny < 0)
+	ny = 0;
+      if (ny >= PCB->MaxHeight)
+	ny = PCB->MaxHeight - 1;
+
       /* Place components onto center of board. */
-      if (CopyPastebufferToLayout (PCB->MaxWidth/2, PCB->MaxHeight/2))
+      if (CopyPastebufferToLayout (nx, ny))
 	SetChangedFlag (true);
     }
 
@@ -7236,82 +7278,6 @@ ActionExecCommand (int argc, char **argv, int x, int y)
 }
 
 /* ---------------------------------------------------------------- */
-static const char import_syntax[] =
-  "Import()\n"
-  "Import([gnetlist|make[,source,source,...]])\n";
-
-static const char import_help[] = "Import schematics";
-
-/* %start-doc actions Import
-
-Imports element and netlist data from the schematics (or some other
-source).  The first parameter, which is optional, is the mode.  If not
-specified, the @code{import::mode} attribute in the PCB is used.
-@code{gnetlist} means gnetlist is used to obtain the information from
-the schematics.  @code{make} invokes @code{make}, assuming the user
-has a @code{Makefile} in the current directory.  The @code{Makefile}
-will be invoked with the following variables set:
-
-@table @code
-
-@item PCB
-The name of the .pcb file
-
-@item SRCLIST
-A space-separated list of source files
-
-@item OUT
-The name of the file in which to put the command script, which may
-contain any @pcb{} actions.  By default, this is a temporary file
-selected by @pcb{}, but if you specify an @code{import::outfile}
-attribute, that file name is used instead (and not automatically
-deleted afterwards).
-
-@end table
-
-The target specified to be built is the first of these that apply:
-
-@itemize @bullet
-
-@item
-The target specified by an @code{import::target} attribute.
-
-@item
-The output file specified by an @code{import::outfile} attribute.
-
-@item
-If nothing else is specified, the target is @code{pcb_import}.
-
-@end itemize
-
-If you specify an @code{import::makefile} attribute, then "-f <that
-file>" will be added to the command line.
-
-If you specify the mode, you may also specify the source files
-(schematics).  If you do not specify any, the list of schematics is
-obtained by reading the @code{import::src@var{N}} attributes (like
-@code{import::src0}, @code{import::src1}, etc).
-
-For compatibility with future extensions to the import file format,
-the generated file @emph{must not} start with the two characters
-@code{#%}.
-
-If a temporary file is needed the @code{TMPDIR} environment variable
-is used to select its location.
-
-Note that the programs @code{gnetlist} and @code{make} may be
-overridden by the user via the @code{make-program} and @code{gnetlist}
-@code{pcb} settings (i.e. in @code{~/.pcb/settings} or on the command
-line).
-
-If @pcb{} cannot determine which schematic(s) to import from, the GUI
-is called to let user choose (see @code{ImportGUI()}).
-
-Note that Import() doesn't delete anything - after an Import, elements
-which shouldn't be on the board are selected and may be removed once
-it's determined that the deletion is appropriate.
-
-%end-doc */
 
 static int
 pcb_spawnvp (char **argv)
@@ -7503,6 +7469,123 @@ tempfile_unlink (char * name)
 }
 
 /* ---------------------------------------------------------------- */
+static const char import_syntax[] =
+  "Import()\n"
+  "Import([gnetlist|make[,source,source,...]])\n"
+  "Import(setnewpoint[,(mark|center|X,Y)])\n"
+  "Import(setdisperse,D,units)\n";
+
+static const char import_help[] = "Import schematics";
+
+/* %start-doc actions Import
+
+Imports element and netlist data from the schematics (or some other
+source).  The first parameter, which is optional, is the mode.  If not
+specified, the @code{import::mode} attribute in the PCB is used.
+@code{gnetlist} means gnetlist is used to obtain the information from
+the schematics.  @code{make} invokes @code{make}, assuming the user
+has a @code{Makefile} in the current directory.  The @code{Makefile}
+will be invoked with the following variables set:
+
+@table @code
+
+@item PCB
+The name of the .pcb file
+
+@item SRCLIST
+A space-separated list of source files
+
+@item OUT
+The name of the file in which to put the command script, which may
+contain any @pcb{} actions.  By default, this is a temporary file
+selected by @pcb{}, but if you specify an @code{import::outfile}
+attribute, that file name is used instead (and not automatically
+deleted afterwards).
+
+@end table
+
+The target specified to be built is the first of these that apply:
+
+@itemize @bullet
+
+@item
+The target specified by an @code{import::target} attribute.
+
+@item
+The output file specified by an @code{import::outfile} attribute.
+
+@item
+If nothing else is specified, the target is @code{pcb_import}.
+
+@end itemize
+
+If you specify an @code{import::makefile} attribute, then "-f <that
+file>" will be added to the command line.
+
+If you specify the mode, you may also specify the source files
+(schematics).  If you do not specify any, the list of schematics is
+obtained by reading the @code{import::src@var{N}} attributes (like
+@code{import::src0}, @code{import::src1}, etc).
+
+For compatibility with future extensions to the import file format,
+the generated file @emph{must not} start with the two characters
+@code{#%}.
+
+If a temporary file is needed the @code{TMPDIR} environment variable
+is used to select its location.
+
+Note that the programs @code{gnetlist} and @code{make} may be
+overridden by the user via the @code{make-program} and @code{gnetlist}
+@code{pcb} settings (i.e. in @code{~/.pcb/settings} or on the command
+line).
+
+If @pcb{} cannot determine which schematic(s) to import from, the GUI
+is called to let user choose (see @code{ImportGUI()}).
+
+Note that Import() doesn't delete anything - after an Import, elements
+which shouldn't be on the board are selected and may be removed once
+it's determined that the deletion is appropriate.
+
+In @code{Import()} is called with @code{setnewpoint} then the location
+of new components can be specified.  This is where parts show up when
+they're added to the board.  The default is the center of the board.
+
+@table @code
+
+@item Import(setnewpoint)
+
+Prompts the user to click on the board somewhere, uses that point.  If
+called by a hotkey, uses the current location of the crosshair.
+
+@item Import(setnewpoint,mark)
+
+Uses the location of the mark.  If no mark is present, the point is
+not changed.
+
+@item Import(setnewpoint,center)
+
+Resets the point to the center of the board.
+
+@item Import(setnewpoint,X,Y,units)
+
+Sets the point to the specific coordinates given.  Example:
+@code{Import(setnewpoint,50,25,mm)}
+
+@end table
+
+Note that the X and Y locations are stored in attributes named
+@code{import::newX} and @code{import::newY} so you could change them
+manually if you wished.
+
+Calling @code{Import(setdisperse,D,units)} sets how much the newly
+placed elements are dispersed relative to the set point.  For example,
+@code{Import(setdisperse,10,mm)} will offset each part randomly up to
+10mm away from the point.  The default dispersion is 1/10th of the
+smallest board dimension.  Dispersion is saved in the
+@code{import::disperse} attribute.
+
+%end-doc */
+
 static int
 ActionImport (int argc, char **argv, int x, int y)
 {
@@ -7515,6 +7598,71 @@ ActionImport (int argc, char **argv, int x, int y)
 #endif
 
   mode = ARG (0);
+
+  if (mode && strcasecmp (mode, "setdisperse") == 0)
+    {
+      const char *ds, *units;
+      int d, r;
+
+      ds = ARG (1);
+      units = ARG (2);
+      if (ds)
+	{
+	  char buf[50];
+	  d = GetValue (ds, units, &r);
+	  sprintf (buf, "%d", d);
+	  AttributePut (PCB, "import::disperse", buf);
+	  return 0;
+	}
+    }
+
+  if (mode && strcasecmp (mode, "setnewpoint") == 0)
+    {
+      const char *xs, *ys, *units;
+      int x, y;
+      char buf[50];
+
+      xs = ARG (1);
+      ys = ARG (2);
+      units = ARG (3);
+
+      if (!xs)
+	{
+	  gui->get_coords (_("Click on a location"), &x, &y);
+	}
+      else if (strcasecmp (xs, "center") == 0)
+	{
+	  AttributeRemove (PCB, "import::newX");
+	  AttributeRemove (PCB, "import::newY");
+	  return;
+	}
+      else if (strcasecmp (xs, "mark") == 0)
+	{
+	  if (Marked.status)
+	    {
+	      x = Marked.X;
+	      y = Marked.Y;
+	    }
+	}
+      else if (ys)
+	{
+	  int r;
+	  x = GetValue (xs, units, &r);
+	  y = GetValue (ys, units, &r);
+	}
+      else
+	{
+	  Message ("Bad syntax for Import(setnewpoint)");
+	  return 1;
+	}
+
+      sprintf (buf, "%d", x);
+      AttributePut (PCB, "import::newX", buf);
+      sprintf (buf, "%d", y);
+      AttributePut (PCB, "import::newY", buf);
+      return 0;
+    }
+
   if (! mode)
     mode = AttributeGet (PCB, "import::mode");
   if (! mode)
