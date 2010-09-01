@@ -7603,17 +7603,23 @@ ActionImport (int argc, char **argv, int x, int y)
     {
       const char *ds, *units;
       int d, r;
+      char buf[50];
 
       ds = ARG (1);
       units = ARG (2);
-      if (ds)
+      if (!ds)
 	{
-	  char buf[50];
-	  d = GetValue (ds, units, &r);
-	  sprintf (buf, "%d", d);
-	  AttributePut (PCB, "import::disperse", buf);
-	  return 0;
+	  const char *as = AttributeGet (PCB, "import::disperse");
+	  ds = gui->prompt_for("Enter dispersion:", as ? as : "0");
 	}
+      if (units)
+	{
+	  sprintf(buf, "%s%s", ds, units);
+	  AttributePut (PCB, "import::disperse", buf);
+	}
+      else
+	AttributePut (PCB, "import::disperse", ds);
+      return 0;
     }
 
   if (mode && strcasecmp (mode, "setnewpoint") == 0)
