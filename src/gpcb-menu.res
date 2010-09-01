@@ -217,6 +217,14 @@ MainMenu =
    {"Check polygons" checked=checkplanes Display(ToggleCheckPlanes)}
    -
    {"Vendor drill mapping" ToggleVendor() checked=VendorMapOn}
+   {"Import Settings"
+    {"New elements added at..." foreground=grey50 sensitive=false}
+    {" Center" Import(setnewpoint,center)}
+    {" Mark" Import(setnewpoint,mark)}
+    {" Crosshair" Import(setnewpoint)}
+    -
+    {"Set Dispersion" Import(setdisperse)}
+   }
   }
 
 #

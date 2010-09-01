@@ -212,6 +212,14 @@ MainMenu =
    {"Pinout shows number" checked=shownumber Display(ToggleName)}
    {"Pins/Via show Name/Number" Display(PinOrPadName) a={"D" "<Key>d"}}
    {"Enable vendor drill mapping" ToggleVendor() checked=VendorMapOn}
+   {"Import Settings"
+    {"New elements added at..." foreground=grey50 sensitive=false}
+    {" Center" Import(setnewpoint,center)}
+    {" Mark" Import(setnewpoint,mark)}
+    {" Crosshair" Import(setnewpoint)}
+    -
+    {"Set Dispersion" Import(setdisperse)}
+   }
   }
     
   {Select
