@@ -110,7 +110,8 @@ static struct
 float
 GetValue (char *val, char *units, bool * absolute)
 {
-  float value;
+  double value;
+  int n = -1;
 
   /* if the first character is a sign we have to add the
    * value to the current one
@@ -118,7 +119,8 @@ GetValue (char *val, char *units, bool * absolute)
   if (*val == '=')
     {
       *absolute = true;
-      value = atof (val + 1);
+      sscanf (val+1, "%lf%n", &value, &n);
+      n++;
     }
   else
     {
@@ -126,14 +128,21 @@ GetValue (char *val, char *units, bool * absolute)
         *absolute = true;
       else
         *absolute = false;
-      value = atof (val);
+      sscanf (val, "%lf%n", &value, &n);
     }
+  if (!units && n > 0)
+    units = val + n;
+    
   if (units && *units)
     {
       if (strncasecmp (units, "mm", 2) == 0)
         value *= MM_TO_COOR;
+      else if (strncasecmp (units, "cm", 2) == 0)
+        value *= MM_TO_COOR * 10;
       else if (strncasecmp (units, "mil", 3) == 0)
         value *= 100;
+      else if (strncasecmp (units, "in", 3) == 0)
+        value *= 100000;
     }
   return value;
 }
