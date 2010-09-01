@@ -1919,6 +1919,21 @@ AttributePutToList (AttributeListType *list, char *name, char *value, int replac
   return 0;
 }
 
+void
+AttributeRemoveFromList(AttributeListType *list, char *name)
+{
+  int i, j;
+  for (i=0; i<list->Number; i++)
+    if (strcmp (name, list->List[i].name) == 0)
+      {
+	free (list->List[i].name);
+	free (list->List[i].value);
+	for (j=i; j<list->Number-i; j++)
+	  list->List[j] = list->List[j+1];
+	list->Number --;
+      }
+}
+
 
 
 const char *

@@ -91,6 +91,10 @@ int AttributePutToList (AttributeListType *list, char *name, char *value, int re
 #define AttributeGet(OBJ,name) AttributeGetFromList (&(OBJ->Attributes), name)
 /* Simplistic version: Takes a pointer to an object, sets attributes in it.  */
 #define AttributePut(OBJ,name,value) AttributePutToList (&(OBJ->Attributes), name, value, 1)
+/* Remove an attribute by name.  */
+void AttributeRemoveFromList(AttributeListType *list, char *name);
+/* Simplistic version of Remove.  */
+#define AttributeRemove(OBJ, name) AttributeRemoveFromList (&(OBJ->Attributes), name)
 
 /* For passing modified flags to other functions. */
 FlagType MakeFlags (unsigned int);
