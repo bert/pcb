@@ -2814,7 +2814,15 @@ lesstif_set_layer (const char *name, int group, int empty)
   int idx = group;
   if (idx >= 0 && idx < max_layer)
     {
-      idx = PCB->LayerGroups.Entries[idx][0];
+      int n = PCB->LayerGroups.Number[group];
+      for (idx = 0; idx < n-1; idx ++)
+	{
+	  int ni = PCB->LayerGroups.Entries[group][idx];
+	  if (ni >= 0 && ni < max_layer + 2
+	      && PCB->Data->Layer[ni].On)
+	    break;
+	}
+      idx = PCB->LayerGroups.Entries[group][idx];
 #if 0
       if (idx == LayerStack[0]
 	  || GetLayerGroupNumberByNumber (idx) ==

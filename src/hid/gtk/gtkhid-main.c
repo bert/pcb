@@ -387,9 +387,19 @@ ghid_invalidate_all ()
 int
 ghid_set_layer (const char *name, int group, int empty)
 {
-  int idx = (group >= 0
-	     && group <
-	     max_layer) ? PCB->LayerGroups.Entries[group][0] : group;
+  int idx = group;
+  if (idx >= 0 && idx < max_layer)
+    {
+      int n = PCB->LayerGroups.Number[group];
+      for (idx = 0; idx < n-1; idx ++)
+	{
+	  int ni = PCB->LayerGroups.Entries[group][idx];
+	  if (ni >= 0 && ni < max_layer + 2
+	      && PCB->Data->Layer[ni].On)
+	    break;
+	}
+      idx = PCB->LayerGroups.Entries[group][idx];
+    }
 
   if (idx >= 0 && idx < max_layer + 2)
     return /*pinout ? 1 : */ PCB->Data->Layer[idx].On;
