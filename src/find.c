@@ -4493,6 +4493,7 @@ BuildObjectList (int *object_count, long int **object_id_list, int **object_type
     case VIA_TYPE:
     case PAD_TYPE:
     case ELEMENT_TYPE:
+    case RATLINE_TYPE:
       *object_count = 1;
       *object_id_list = malloc (sizeof (long int));
       *object_type_list = malloc (sizeof (int));
@@ -4501,7 +4502,9 @@ BuildObjectList (int *object_count, long int **object_id_list, int **object_type
       return;
 
     default:
-      return;
+      fprintf (stderr,
+	       _("Internal error in BuildObjectList: unknown object type %i\n"),
+	       thing_type);
     }
 }
 
