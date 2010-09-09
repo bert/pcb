@@ -1255,85 +1255,76 @@ void
 SetArcBoundingBox (ArcTypePtr Arc)
 {
   register double ca1, ca2, sa1, sa2;
-  register LocationType ang1, ang2;
+  double minx, maxx, miny, maxy;
+  register LocationType ang1, ang2, delta, a;
   register LocationType width;
 
   /* first put angles into standard form */
   if (Arc->Delta > 360)
     Arc->Delta = 360;
-  ang1 = Arc->StartAngle;
-  ang2 = Arc->StartAngle + Arc->Delta;
-  if (Arc->Delta < 0)
+  if (Arc->Delta < -360)
+    Arc->Delta = -360;
+
+  if (Arc->Delta > 0)
     {
-      LocationType temp;
-      temp = ang1;
-      ang1 = ang2;
-      ang2 = temp;
+      ang1 = Arc->StartAngle;
+      delta = Arc->Delta;
+    }
+  else
+    {
+      ang1 = Arc->StartAngle + Arc->Delta;
+      delta = -Arc->Delta;
     }
   if (ang1 < 0)
-    {
-      ang1 += 360;
-      ang2 += 360;
-    }
+    ang1 = 360 - ((-ang1) % 360);
+  else
+    ang1 = ang1 % 360;
+
+  ang2 = ang1 + delta;
+
   /* calculate sines, cosines */
-  switch (ang1)
+  ca1 = M180 * (double) ang1;
+  sa1 = sin (ca1);
+  ca1 = cos (ca1);
+
+  minx = maxx = ca1;
+  miny = maxy = sa1;
+
+  ca2 = M180 * (double) ang2;
+  sa2 = sin (ca2);
+  ca2 = cos (ca2);
+
+  minx = MIN (minx, ca2);
+  maxx = MAX (maxx, ca2);
+  miny = MIN (miny, sa2);
+  maxy = MAX (maxy, sa2);
+
+  for (a = ang1 - ang1 % 90 + 90; a < ang2; a += 90)
     {
-    case 0:
-      ca1 = 1.0;
-      sa1 = 0;
-      break;
-    case 90:
-      ca1 = 0;
-      sa1 = 1.0;
-      break;
-    case 180:
-      ca1 = -1.0;
-      sa1 = 0;
-      break;
-    case 270:
-      ca1 = 0;
-      sa1 = -1.0;
-      break;
-    default:
-      ca1 = M180 * (double) ang1;
-      sa1 = sin (ca1);
-      ca1 = cos (ca1);
-    }
-  switch (ang2)
-    {
-    case 0:
-      ca2 = 1.0;
-      sa2 = 0;
-      break;
-    case 90:
-      ca2 = 0;
-      sa2 = 1.0;
-      break;
-    case 180:
-      ca2 = -1.0;
-      sa2 = 0;
-      break;
-    case 270:
-      ca2 = 0;
-      sa2 = -1.0;
-      break;
-    default:
-      ca2 = M180 * (double) ang2;
-      sa2 = sin (ca2);
-      ca2 = cos (ca2);
+      switch (a % 360)
+	{
+	case 0:
+	  maxx = 1;
+	  break;
+	case 90:
+	  maxy = 1;
+	  break;
+	case 180:
+	  minx = -1;
+	  break;
+	case 270:
+	  miny = -1;
+	  break;
+	}
     }
 
-  Arc->BoundingBox.X2 = Arc->X - Arc->Width *
-    ((ang1 < 180 && ang2 > 180) ? -1 : MIN (ca1, ca2));
+  Arc->BoundingBox.X2 = Arc->X - Arc->Width * minx;
 
-  Arc->BoundingBox.X1 = Arc->X - Arc->Width *
-    ((ang1 < 360 && ang2 > 360) ? 1 : MAX (ca1, ca2));
+  Arc->BoundingBox.X1 = Arc->X - Arc->Width * maxx;
 
-  Arc->BoundingBox.Y2 = Arc->Y + Arc->Height *
-    ((ang1 < 90 && ang2 > 90) ? 1 : MAX (sa1, sa2));
+  Arc->BoundingBox.Y2 = Arc->Y + Arc->Height * maxy;
 
-  Arc->BoundingBox.Y1 = Arc->Y + Arc->Height *
-    ((ang1 < 270 && ang2 > 270) ? -1 : MIN (sa1, sa2));
+  Arc->BoundingBox.Y1 = Arc->Y + Arc->Height * miny;
 
   width = (Arc->Thickness + Arc->Clearance) / 2;
   Arc->BoundingBox.X1 -= width;
