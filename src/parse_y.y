@@ -278,8 +278,6 @@ T_FILEVERSION '[' NUMBER ']'
 }
 ;	
 
-/* %start-doc pcbfile Grid
-
 /* %start-doc pcbfile PCB
 
 @syntax
