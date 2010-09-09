@@ -4482,6 +4482,7 @@ BuildObjectList (int *object_count, long int **object_id_list, int **object_type
 {
   *object_count = 0;
   *object_id_list = NULL;
+  *object_type_list = NULL;
 
   switch (thing_type)
     {
