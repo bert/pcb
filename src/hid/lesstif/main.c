@@ -544,16 +544,34 @@ side'' of the board.
 %end-doc */
 
 static int
+group_showing (int g, int *c)
+{
+  int i, l;
+  *c = PCB->LayerGroups.Entries[g][0];
+  for (i=0; i<PCB->LayerGroups.Number[g]; i++)
+    {
+      l = PCB->LayerGroups.Entries[g][i];
+      if (l >= 0 && l < max_layer)
+	{
+	  *c = l;
+	  if (PCB->Data->Layer[l].On)
+	    return 1;
+	}
+    }
+  return 0;
+}
+
+static int
 SwapSides (int argc, char **argv, int x, int y)
 {
   int old_shown_side = Settings.ShowSolderSide;
   int comp_group = GetLayerGroupNumberByNumber (max_layer + COMPONENT_LAYER);
   int solder_group = GetLayerGroupNumberByNumber (max_layer + SOLDER_LAYER);
   int active_group = GetLayerGroupNumberByNumber (LayerStack[0]);
-  int comp_showing =
-    PCB->Data->Layer[PCB->LayerGroups.Entries[comp_group][0]].On;
-  int solder_showing =
-    PCB->Data->Layer[PCB->LayerGroups.Entries[solder_group][0]].On;
+  int comp_layer;
+  int solder_layer;
+  int comp_showing = group_showing (comp_group, &comp_layer);
+  int solder_showing = group_showing (solder_group, &solder_layer);
 
   if (argc > 0)
     {
@@ -606,10 +624,8 @@ SwapSides (int argc, char **argv, int x, int y)
 	  if (active_group == comp_group)
 	    {
 	      if (comp_showing && !solder_showing)
-		ChangeGroupVisibility (PCB->LayerGroups.Entries[comp_group][0], 0,
-				       0);
-	      ChangeGroupVisibility (PCB->LayerGroups.Entries[solder_group][0], 1,
-				     1);
+		ChangeGroupVisibility (comp_layer, 0, 0);
+	      ChangeGroupVisibility (solder_layer, 1, 1);
 	    }
 	}
       else
@@ -617,10 +633,8 @@ SwapSides (int argc, char **argv, int x, int y)
 	  if (active_group == solder_group)
 	    {
 	      if (solder_showing && !comp_showing)
-		ChangeGroupVisibility (PCB->LayerGroups.Entries[solder_group][0], 0,
-				       0);
-	      ChangeGroupVisibility (PCB->LayerGroups.Entries[comp_group][0], 1,
-				     1);
+		ChangeGroupVisibility (solder_layer, 0, 0);
+	      ChangeGroupVisibility (comp_layer, 1, 1);
 	    }
 	}
     }
