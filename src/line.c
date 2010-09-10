@@ -320,13 +320,13 @@ drc_lines (PointTypePtr end, bool way)
       length = abs (dy);
     }
   group = GetGroupOfLayer (INDEXOFCURRENT);
-  comp = max_layer + 10;	/* this out-of-range group might save a call */
-  if (GetLayerGroupNumberByNumber (max_layer + SOLDER_LAYER) == group)
+  comp = max_group + 10;	/* this out-of-range group might save a call */
+  if (GetLayerGroupNumberByNumber (solder_silk_layer) == group)
     info.solder = true;
   else
     {
       info.solder = false;
-      comp = GetLayerGroupNumberByNumber (max_layer + COMPONENT_LAYER);
+      comp = GetLayerGroupNumberByNumber (component_silk_layer);
     }
   temp = length;
   /* assume the worst */
@@ -490,7 +490,7 @@ EnforceLineDRC (void)
   float r1, r2;
 
   if ( gui->mod1_is_pressed() || gui->control_is_pressed () || PCB->RatDraw
-      || INDEXOFCURRENT >= max_layer)
+      || INDEXOFCURRENT >= max_copper_layer)
     return;
   rs.X = r45.X = Crosshair.X;
   rs.Y = r45.Y = Crosshair.Y;

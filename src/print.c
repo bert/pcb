@@ -293,7 +293,7 @@ PrintFab (void)
     strftime (utcTime, sizeof utcTime, fmt, gmtime (&currenttime));
   }
   yoff = -TEXT_LINE;
-  for (i = 0; i < max_layer; i++)
+  for (i = 0; i < max_copper_layer; i++)
     {
       LayerType *l = LAYER_PTR (i);
       if (l->Name && (l->LineN || l->ArcN))
@@ -304,7 +304,7 @@ PrintFab (void)
 	    break;
 	}
     }
-  if (i == max_layer)
+  if (i == max_copper_layer)
     {
       gui->set_line_width (Output.fgGC, 1000);
       gui->draw_line (Output.fgGC, 0, 0, PCB->MaxWidth, 0);

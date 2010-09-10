@@ -143,7 +143,7 @@ FlagLayerShown (int n)
     case FL_MASK:
       return TEST_FLAG (SHOWMASKFLAG, PCB);
     default:
-      if (n >= 0 && n < max_layer)
+      if (n >= 0 && n < max_copper_layer)
 	return PCB->Data->Layer[n].On;
     }
   return 0;

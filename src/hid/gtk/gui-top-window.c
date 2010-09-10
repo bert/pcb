@@ -376,7 +376,7 @@ ghid_update_toggle_flags ()
       a = gtk_action_group_get_action (ghidgui->main_actions, tmpnm);
       if (a != NULL)
 	{
-	  g_object_set_property (G_OBJECT (a), "visible", (i >= max_layer && i < MAX_LAYER) ? &setfalse : &settrue);
+	  g_object_set_property (G_OBJECT (a), "visible", (i >= max_copper_layer && i < MAX_LAYER) ? &setfalse : &settrue);
 	}
 
     }
@@ -1048,7 +1048,7 @@ ghid_make_programmed_menu_actions ()
     {
       layer_process (NULL, &text, NULL, i);
 #ifdef DEBUG_MENUS
-      printf ("ghid_make_programmed_menu_actions():  Added #%2d \"%s\".  max_layer = %d, MAX_LAYER = %d\n", i, text, max_layer, MAX_LAYER);
+      printf ("ghid_make_programmed_menu_actions():  Added #%2d \"%s\".  max_copper_layer = %d, MAX_LAYER = %d\n", i, text, max_copper_layer, MAX_LAYER);
 #endif
       /* name, stock_id, label, accelerator, tooltip, callback */
       layerview_toggle_entries[i].name = g_strdup_printf ("%s%d", LAYERVIEW, i);
@@ -1347,7 +1347,7 @@ layer_select_button_cb (GtkWidget * widget, LayerButtonSet * lb)
   PCB->SilkActive = (lb->index == LAYER_BUTTON_SILK);
   PCB->RatDraw = (lb->index == LAYER_BUTTON_RATS);
 
-  if (lb->index < max_layer)
+  if (lb->index < max_copper_layer)
     ChangeGroupVisibility (lb->index, true, true);
 
   layer_select_button_index = lb->index;
@@ -1419,10 +1419,10 @@ layer_enable_button_cb (GtkWidget * widget, gpointer data)
          |  Xt PCB code.
        */
       if ((group = GetGroupOfLayer (layer)) ==
-	  GetGroupOfLayer (MIN (max_layer, INDEXOFCURRENT)))
+	  GetGroupOfLayer (MIN (max_copper_layer, INDEXOFCURRENT)))
 	{
-	  for (i = (layer + 1) % (max_layer + 1); i != layer;
-	       i = (i + 1) % (max_layer + 1))
+	  for (i = (layer + 1) % (max_copper_layer + 1); i != layer;
+	       i = (i + 1) % (max_copper_layer + 1))
 	    if (PCB->Data->Layer[i].On == true &&
 		GetGroupOfLayer (i) != group)
 	      break;
@@ -1491,7 +1491,7 @@ ghid_show_layer_buttons(void)
 	for (i = 0; i < MAX_LAYER; ++i)
 	{
 		lb = &layer_buttons[i];
-		if (i < max_layer)
+		if (i < max_copper_layer)
 		  {
 			gtk_widget_show(lb->layer_enable_button);
 			gtk_widget_show(lb->radio_select_button);
@@ -1619,7 +1619,7 @@ ghid_layer_enable_buttons_update (void)
   /* Update layer button labels and active state to state inside of PCB
    */
   layer_enable_button_cb_hold_off = TRUE;
-  for (i = 0; i < max_layer; ++i)
+  for (i = 0; i < max_copper_layer; ++i)
     {
       lb = &layer_buttons[i];
       s = UNKNOWN (PCB->Data->Layer[i].Name);
@@ -1724,7 +1724,7 @@ ghid_layer_buttons_update (void)
   else
     layer = PCB->SilkActive ? LAYER_BUTTON_SILK : LayerStack[0];
 
-  if (layer < max_layer)
+  if (layer < max_copper_layer)
     active = PCB->Data->Layer[layer].On;
   else if (layer == LAYER_BUTTON_SILK)
     active = PCB->ElementOn;
@@ -1754,7 +1754,7 @@ ghid_layer_buttons_update (void)
 
       if (a != NULL)
 	{
-	  g_object_set_property (G_OBJECT (a), "visible", (i >= max_layer && i < MAX_LAYER) ? &setfalse : &settrue);
+	  g_object_set_property (G_OBJECT (a), "visible", (i >= max_copper_layer && i < MAX_LAYER) ? &setfalse : &settrue);
 	  gtk_toggle_action_set_active (GTK_TOGGLE_ACTION (a), (set && (i == layer) ) ? TRUE : FALSE);
 	  g_object_set_property (G_OBJECT (a), "label", &setlabel);
 	}
@@ -1763,7 +1763,7 @@ ghid_layer_buttons_update (void)
       a = gtk_action_group_get_action (ghidgui->main_actions, tmpnm);
       if (a != NULL)
 	{
-	  g_object_set_property (G_OBJECT (a), "visible", (i >= max_layer && i < MAX_LAYER) ? &setfalse : &settrue);
+	  g_object_set_property (G_OBJECT (a), "visible", (i >= max_copper_layer && i < MAX_LAYER) ? &setfalse : &settrue);
 	  gtk_toggle_action_set_active (GTK_TOGGLE_ACTION (a), set ? TRUE : FALSE);
 	  g_value_set_string (&setlabel, text);
 	  g_object_set_property (G_OBJECT (a), "label", &setlabel);
@@ -2811,7 +2811,7 @@ ToggleView (int argc, char **argv, int x, int y)
   else
     {
       l = -1;
-      for (i = 0; i < max_layer + 2; i++)
+      for (i = 0; i < max_copper_layer + 2; i++)
 	if (strcmp (argv[0], PCB->Data->Layer[i].Name) == 0)
 	  {
 	    l = i;

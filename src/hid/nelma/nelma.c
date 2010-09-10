@@ -249,7 +249,7 @@ nelma_write_space(FILE * out)
 	z = 10;
 	for (i = 0; i < MAX_LAYER; i++)
 		if (nelma_export_group[i]) {
-			idx = (i >= 0 && i < max_layer) ?
+			idx = (i >= 0 && i < max_group) ?
 				PCB->LayerGroups.Entries[i][0] : i;
 			ext = layer_type_to_file_name(idx);
 
@@ -319,7 +319,7 @@ nelma_write_nets(FILE * out)
 
 			for (i = 0; i < MAX_LAYER; i++)
 				if (nelma_export_group[i]) {
-					idx = (i >= 0 && i < max_layer) ?
+					idx = (i >= 0 && i < max_group) ?
 						PCB->LayerGroups.Entries[i][0] : i;
 					ext = layer_type_to_file_name(idx);
 
@@ -397,7 +397,7 @@ nelma_write_layers(FILE * out)
 	z = 10;
 	for (i = 0; i < MAX_LAYER; i++)
 		if (nelma_export_group[i]) {
-			idx = (i >= 0 && i < max_layer) ?
+			idx = (i >= 0 && i < max_group) ?
 				PCB->LayerGroups.Entries[i][0] : i;
 			ext = layer_type_to_file_name(idx);
 
@@ -437,7 +437,7 @@ nelma_write_object(FILE * out, LibraryEntryTypePtr pin)
 
 	for (i = 0; i < MAX_LAYER; i++)
 		if (nelma_export_group[i]) {
-			idx = (i >= 0 && i < max_layer) ?
+			idx = (i >= 0 && i < max_group) ?
 				PCB->LayerGroups.Entries[i][0] : i;
 			ext = layer_type_to_file_name(idx);
 
@@ -522,7 +522,7 @@ nelma_choose_groups()
 	/* Set entire array to 0 (don't export any layer groups by default */
 	memset(nelma_export_group, 0, sizeof(nelma_export_group));
 
-	for (n = 0; n < max_layer; n++) {
+	for (n = 0; n < max_copper_layer; n++) {
 		layer = &PCB->Data->Layer[n];
 
 		if (layer->LineN || layer->TextN || layer->ArcN ||
@@ -661,7 +661,7 @@ nelma_do_export(HID_Attr_Val * options)
 			nelma_cur_group = i;
 
 			/* magic */
-			idx = (i >= 0 && i < max_layer) ?
+			idx = (i >= 0 && i < max_group) ?
 				PCB->LayerGroups.Entries[i][0] : i;
 
 			nelma_start_png(nelma_basename,
@@ -701,7 +701,7 @@ nelma_do_export(HID_Attr_Val * options)
 static int 
 nelma_set_layer(const char *name, int group, int empty)
 {
-	int             idx = (group >= 0 && group < max_layer) ?
+	int             idx = (group >= 0 && group < max_group) ?
 	PCB->LayerGroups.Entries[group][0] : group;
 
 	if (name == 0) {

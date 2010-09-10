@@ -46,7 +46,10 @@ extern OutputType Output;
 
 extern PCBTypePtr PCB;
 
-#define max_layer (PCB->Data->LayerN)
+#define max_group (PCB->Data->LayerN)
+#define max_copper_layer (PCB->Data->LayerN)
+#define solder_silk_layer (max_copper_layer + SOLDER_LAYER)
+#define component_silk_layer (max_copper_layer + COMPONENT_LAYER)
 
 extern SettingType Settings;
 

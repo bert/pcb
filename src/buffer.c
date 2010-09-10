@@ -966,14 +966,12 @@ SmashBufferElement (BufferTypePtr Buffer)
   }
   END_LOOP;
   group =
-    GetLayerGroupNumberByNumber (max_layer +
-				 (SWAP_IDENT ? SOLDER_LAYER :
-				  COMPONENT_LAYER));
+    GetLayerGroupNumberByNumber (SWAP_IDENT ? solder_silk_layer :
+					      component_silk_layer);
   clayer = &Buffer->Data->Layer[PCB->LayerGroups.Entries[group][0]];
   group =
-    GetLayerGroupNumberByNumber (max_layer +
-				 (SWAP_IDENT ? COMPONENT_LAYER :
-				  SOLDER_LAYER));
+    GetLayerGroupNumberByNumber (SWAP_IDENT ? component_silk_layer :
+					      solder_silk_layer);
   slayer = &Buffer->Data->Layer[PCB->LayerGroups.Entries[group][0]];
   PAD_LOOP (element);
   {
@@ -1074,9 +1072,8 @@ ConvertBufferToElement (BufferTypePtr Buffer)
   }
   END_LOOP;
   /* get the component-side SM pads */
-  group = GetLayerGroupNumberByNumber (max_layer +
-				       (SWAP_IDENT ? SOLDER_LAYER :
-					COMPONENT_LAYER));
+  group = GetLayerGroupNumberByNumber (SWAP_IDENT ? solder_silk_layer :
+						    component_silk_layer);
   GROUP_LOOP (Buffer->Data, group);
   {
     char num[8];
@@ -1124,9 +1121,8 @@ ConvertBufferToElement (BufferTypePtr Buffer)
   }
   END_LOOP;
   /* now get the opposite side pads */
-  group = GetLayerGroupNumberByNumber (max_layer +
-				       (SWAP_IDENT ? COMPONENT_LAYER :
-					SOLDER_LAYER));
+  group = GetLayerGroupNumberByNumber (SWAP_IDENT ? component_silk_layer :
+						    solder_silk_layer);
   GROUP_LOOP (Buffer->Data, group);
   {
     bool warned = false;
@@ -1488,7 +1484,7 @@ MirrorBuffer (BufferTypePtr Buffer)
       Message (_("You can't mirror a buffer that has elements!\n"));
       return;
     }
-  for (i = 0; i < max_layer + 2; i++)
+  for (i = 0; i < max_copper_layer + 2; i++)
     {
       LayerTypePtr layer = Buffer->Data->Layer + i;
       if (layer->TextN)
@@ -1613,14 +1609,14 @@ SwapBuffer (BufferTypePtr Buffer)
   }
   ENDALL_LOOP;
   /* swap silkscreen layers */
-  swap = Buffer->Data->Layer[max_layer + SOLDER_LAYER];
-  Buffer->Data->Layer[max_layer + SOLDER_LAYER] =
-    Buffer->Data->Layer[max_layer + COMPONENT_LAYER];
-  Buffer->Data->Layer[max_layer + COMPONENT_LAYER] = swap;
+  swap = Buffer->Data->Layer[solder_silk_layer];
+  Buffer->Data->Layer[solder_silk_layer] =
+    Buffer->Data->Layer[component_silk_layer];
+  Buffer->Data->Layer[component_silk_layer] = swap;
 
   /* swap layer groups when balanced */
-  sgroup = GetLayerGroupNumberByNumber (max_layer + SOLDER_LAYER);
-  cgroup = GetLayerGroupNumberByNumber (max_layer + COMPONENT_LAYER);
+  sgroup = GetLayerGroupNumberByNumber (solder_silk_layer);
+  cgroup = GetLayerGroupNumberByNumber (component_silk_layer);
   if (PCB->LayerGroups.Number[cgroup] == PCB->LayerGroups.Number[sgroup])
     {
       for (j = k = 0; j < PCB->LayerGroups.Number[sgroup]; j++)
@@ -1629,11 +1625,11 @@ SwapBuffer (BufferTypePtr Buffer)
 	  Cardinal cnumber = PCB->LayerGroups.Entries[cgroup][k];
 	  Cardinal snumber = PCB->LayerGroups.Entries[sgroup][j];
 
-	  if (snumber >= max_layer)
+	  if (snumber >= max_copper_layer)
 	    continue;
 	  swap = Buffer->Data->Layer[snumber];
 
-	  while (cnumber >= max_layer)
+	  while (cnumber >= max_copper_layer)
 	    {
 	      k++;
 	      cnumber = PCB->LayerGroups.Entries[cgroup][k];

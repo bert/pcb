@@ -1368,10 +1368,10 @@ lgbutton_cb (Widget w, int ij, void *cbs)
 {
   int layer, group, k;
 
-  layer = ij / max_layer;
-  group = ij % max_layer;
+  layer = ij / max_group;
+  group = ij % max_group;
   group = MoveLayerToGroup (layer, group);
-  for (k = 0; k < max_layer; k++)
+  for (k = 0; k < max_group; k++)
     {
       if (k == group)
 	XmToggleButtonSetState (lgbuttons[layer][k], 1, 0);
@@ -1400,20 +1400,20 @@ lgbutton_expose (Widget w, XtPointer u, XmDrawingAreaCallbackStruct *cbs)
   XSetForeground (display, lg_gc, lgr.bg);
   XFillRectangle (display, win, lg_gc, 0, 0, lg_width, lg_height);
   XSetForeground (display, lg_gc, lgr.fg);
-  for (i=0; i<max_layer; i++)
+  for (i = 0; i < max_group; i++)
     XDrawLine(display, win, lg_gc, lg_c[i], 0, lg_c[i], lg_height);
-  for (i=1; i<max_layer+2; i++)
+  for (i = 1; i < max_copper_layer + 2; i++)
     XDrawLine(display, win, lg_gc, lg_label_width, lg_r[i], lg_width, lg_r[i]);
-  for (i=0; i<max_layer+2; i++)
+  for (i = 0; i < max_copper_layer + 2; i++)
     {
       int dir;
       XCharStruct size;
       int swidth;
       const char *name;
 
-      if (i == max_layer)
+      if (i == solder_silk_layer)
 	name = SOLDER_SIDE_NAME;
-      else if (i == max_layer + 1)
+      else if (i == component_silk_layer)
 	name = COMPONENT_SIDE_NAME;
       else
 	name = PCB->Data->Layer[i].Name;
@@ -1425,7 +1425,7 @@ lgbutton_expose (Widget w, XtPointer u, XmDrawingAreaCallbackStruct *cbs)
 		  name, strlen(name));
     }
   XSetForeground (display, lg_gc, lgr.sel);
-  for (i=0; i<max_layer+2; i++)
+  for (i = 0; i < max_copper_layer + 2; i++)
     {
       int c = lg_setcol[i];
       int x1 = lg_c[c] + 2;
@@ -1442,8 +1442,8 @@ lgbutton_input (Widget w, XtPointer u, XmDrawingAreaCallbackStruct *cbs)
   int layer, group;
   if (cbs->event->type != ButtonPress)
     return;
-  layer = cbs->event->xbutton.y * (max_layer+2) / lg_height;
-  group = (cbs->event->xbutton.x - lg_label_width) * max_layer / (lg_width - lg_label_width);
+  layer = cbs->event->xbutton.y * (max_copper_layer + 2) / lg_height;
+  group = (cbs->event->xbutton.x - lg_label_width) * max_group / (lg_width - lg_label_width);
   group = MoveLayerToGroup (layer, group);
   lg_setcol[layer] = group;
   lgbutton_expose (w, 0, 0);
@@ -1462,10 +1462,10 @@ lgbutton_resize (Widget w, XtPointer u, XmDrawingAreaCallbackStruct *cbs)
   lg_width = width;
   lg_height = height;
 
-  for (i=0; i<=max_layer; i++)
-    lg_c[i] = lg_label_width + (lg_width - lg_label_width) * i / max_layer;
-  for (i=0; i<=max_layer+2; i++)
-    lg_r[i] = lg_height * i / (max_layer+2);
+  for (i=0; i<=max_group; i++)
+    lg_c[i] = lg_label_width + (lg_width - lg_label_width) * i / max_group;
+  for (i=0; i<=max_copper_layer+2; i++)
+    lg_r[i] = lg_height * i / (max_copper_layer + 2);
   lgbutton_expose (w, 0, 0);
 }
 
@@ -1481,7 +1481,7 @@ lesstif_update_layer_groups ()
 
   memset (sets, 0, sizeof (sets));
 
-  for (i = 0; i < max_layer; i++)
+  for (i = 0; i < max_group; i++)
     for (j = 0; j < l->Number[i]; j++)
       {
 	sets[l->Entries[i][j]][i] = 1;
@@ -1489,16 +1489,16 @@ lesstif_update_layer_groups ()
       }
 
   lg_label_width = 0;
-  for (i=0; i<max_layer+2; i++)
+  for (i = 0; i < max_copper_layer + 2; i++)
     {
       int dir;
       XCharStruct size;
       int swidth;
       const char *name;
 
-      if (i == max_layer)
+      if (i == solder_silk_layer)
 	name = SOLDER_SIDE_NAME;
-      else if (i == max_layer + 1)
+      else if (i == component_silk_layer)
 	name = COMPONENT_SIDE_NAME;
       else
 	name = PCB->Data->Layer[i].Name;
@@ -1510,25 +1510,25 @@ lesstif_update_layer_groups ()
   lg_label_width += 4;
 
   n = 0;
-  stdarg(XmNwidth, lg_label_width + (lg_fa+lg_fd) * max_layer);
-  stdarg(XmNheight, (lg_fa+lg_fd) * (max_layer + 2));
+  stdarg(XmNwidth, lg_label_width + (lg_fa+lg_fd) * max_group);
+  stdarg(XmNheight, (lg_fa+lg_fd) * (max_copper_layer + 2));
   XtSetValues(lg_buttonform, args, n);
   lgbutton_expose (lg_buttonform, 0, 0);
 
 #if 0
-  for (i = 0; i < max_layer + 2; i++)
+  for (i = 0; i < max_copper_layer + 2; i++)
     {
       char *name = "unknown";
       n = 0;
-      if (i < max_layer)
+      if (i < max_copper_layer)
 	name = PCB->Data->Layer[i].Name;
-      else if (i == max_layer)
+      else if (i == solder_silk_layer)
 	name = SOLDER_SIDE_NAME;
-      else if (i == max_layer + 1)
+      else if (i == component_silk_layer)
 	name = COMPONENT_SIDE_NAME;
       stdarg (XmNlabelString, XmStringCreateLocalized (name));
       XtSetValues (lglabels[i], args, n);
-      for (j = 0; j < max_layer; j++)
+      for (j = 0; j < max_group; j++)
 	{
 	  if (sets[i][j] != XmToggleButtonGetState (lgbuttons[i][j]))
 	    {
@@ -1540,24 +1540,24 @@ lesstif_update_layer_groups ()
   for (i = 0; i < MAX_LAYER + 2; i++)
     for (j = 0; j < MAX_LAYER; j++)
       {
-	if (i < max_layer + 2 && j < max_layer)
+	if (i < max_copper_layer + 2 && j < max_group)
 	  {
 	    XtManageChild(lgbuttons[i][j]);
 	    n = 0;
-	    stdarg (XmNleftPosition, j * (max_layer + 2));
-	    stdarg (XmNrightPosition, (j + 1) * (max_layer + 2));
-	    stdarg (XmNtopPosition, i * max_layer);
-	    stdarg (XmNbottomPosition, (i + 1) * max_layer);
+	    stdarg (XmNleftPosition, j * (max_copper_layer + 2));
+	    stdarg (XmNrightPosition, (j + 1) * (max_copper_layer + 2));
+	    stdarg (XmNtopPosition, i * max_group);
+	    stdarg (XmNbottomPosition, (i + 1) * max_group);
 	    XtSetValues(lgbuttons[i][j], args, n);
 	  }
 	else
 	  XtUnmanageChild(lgbuttons[i][j]);
       }
   n = 0;
-  stdarg (XmNfractionBase, max_layer + 2);
+  stdarg (XmNfractionBase, max_copper_layer + 2);
   XtSetValues (layer_groups_form, args, n);
   n = 0;
-  stdarg (XmNfractionBase, max_layer * (max_layer + 2));
+  stdarg (XmNfractionBase, max_group * (max_copper_layer + 2));
   XtSetValues (lg_buttonform, args, n);
   XtManageChild(lg_buttonform);
 #endif
@@ -1588,7 +1588,7 @@ EditLayerGroups (int argc, char **argv, int x, int y)
     {
 
       n = 0;
-      stdarg (XmNfractionBase, max_layer + 2);
+      stdarg (XmNfractionBase, max_copper_layer + 2);
       stdarg (XmNtitle, "Layer Groups");
       layer_groups_form = XmCreateFormDialog (mainwind, "layers", args, n);
 
@@ -1611,7 +1611,7 @@ EditLayerGroups (int argc, char **argv, int x, int y)
 			 "layergroups", "LayerGroups",
 			 lg_resources, XtNumber(lg_resources), 0, 0);
 #if 0
-      stdarg (XmNfractionBase, max_layer * (MAX_LAYER + 2));
+      stdarg (XmNfractionBase, max_group * (MAX_LAYER + 2));
       lg_buttonform = XmCreateForm (layer_groups_form, "lgbutton", args, n);
 
       for (i = 0; i < MAX_LAYER + 2; i++)
@@ -1652,7 +1652,7 @@ EditLayerGroups (int argc, char **argv, int x, int y)
 
 	      XtAddCallback (lgbuttons[i][j], XmNvalueChangedCallback,
 			     (XtCallbackProc) lgbutton_cb,
-			     (XtPointer) (i * max_layer + j));
+			     (XtPointer) (i * max_group + j));
 	    }
 	}
 #endif

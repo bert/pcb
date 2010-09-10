@@ -275,7 +275,7 @@ LayersChanged (int argc, char **argv, int x, int y)
 	    }
 	  XtSetValues (lb->w[i], args, n);
 
-	  if (i >= max_layer && i < MAX_LAYER)
+	  if (i >= max_copper_layer && i < MAX_LAYER)
 	    XtUnmanageChild(lb->w[i]);
 	  else
 	    XtManageChild(lb->w[i]);
@@ -365,14 +365,14 @@ layer_button_callback (Widget w, int layer, XmPushButtonCallbackStruct * pbcs)
     }
 
   show_one_layer_button (layer, set);
-  if (layer < max_layer)
+  if (layer < max_copper_layer)
     {
       int i;
       int group = GetLayerGroupNumberByNumber (layer);
       for (i = 0; i < PCB->LayerGroups.Number[group]; i++)
 	{
 	  l = PCB->LayerGroups.Entries[group][i];
-	  if (l != layer && l < max_layer)
+	  if (l != layer && l < max_copper_layer)
 	    {
 	      show_one_layer_button (l, set);
 	      PCB->Data->Layer[l].On = set;
@@ -390,7 +390,7 @@ layerpick_button_callback (Widget w, int layer,
   char *name;
   PCB->RatDraw = (layer == LB_RATS);
   PCB->SilkActive = (layer == LB_SILK);
-  if (layer < max_layer)
+  if (layer < max_copper_layer)
     ChangeGroupVisibility (layer, 1, 1);
   for (l = 0; l < num_layer_buttons; l++)
     {
@@ -497,7 +497,7 @@ ToggleView (int argc, char **argv, int x, int y)
   else
     {
       l = -1;
-      for (i = 0; i < max_layer + 2; i++)
+      for (i = 0; i < max_copper_layer + 2; i++)
 	if (strcmp (argv[0], PCB->Data->Layer[i].Name) == 0)
 	  {
 	    l = i;

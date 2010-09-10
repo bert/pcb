@@ -277,7 +277,7 @@ gcode_choose_groups ()
   /* Set entire array to 0 (don't export any layer groups by default */
   memset (gcode_export_group, 0, sizeof (gcode_export_group));
 
-  for (n = 0; n < max_layer; n++)
+  for (n = 0; n < max_copper_layer; n++)
     {
       layer = &PCB->Data->Layer[n];
 
@@ -458,12 +458,12 @@ gcode_do_export (HID_Attr_Val * options)
 	  gcode_cur_group = i;
 
 	  /* magic */
-	  idx = (i >= 0 && i < max_layer) ?
+	  idx = (i >= 0 && i < max_group) ?
 	    PCB->LayerGroups.Entries[i][0] : i;
 	  printf ("idx=%d %s\n", idx, layer_type_to_file_name (idx));
 	  is_solder =
 	    (GetLayerGroupNumberByNumber (idx) ==
-	     GetLayerGroupNumberByNumber (max_layer + SOLDER_LAYER)) ? 1 : 0;
+	     GetLayerGroupNumberByNumber (solder_silk_layer)) ? 1 : 0;
 	  save_drill = is_solder;	/* save drills for one layer only */
 	  gcode_start_png (gcode_basename, layer_type_to_file_name (idx));
 	  hid_save_and_show_layer_ons (save_ons);
@@ -627,7 +627,7 @@ gcode_do_export (HID_Attr_Val * options)
 static int
 gcode_set_layer (const char *name, int group, int empty)
 {
-  int idx = (group >= 0 && group < max_layer) ?
+  int idx = (group >= 0 && group < max_group) ?
     PCB->LayerGroups.Entries[group][0] : group;
 
   if (name == 0)

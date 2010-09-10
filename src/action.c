@@ -1396,7 +1396,7 @@ NotifyMode (void)
 		int flag = NOFLAG;
 
 		if (GetLayerGroupNumberByNumber (INDEXOFCURRENT) ==
-		    GetLayerGroupNumberByNumber (max_layer + SOLDER_LAYER))
+		    GetLayerGroupNumberByNumber (solder_silk_layer))
 		  flag = ONSOLDERFLAG;
 		if ((text = CreateNewText (CURRENT, &PCB->Font, Note.X,
 					   Note.Y, 0, Settings.TextScale,
@@ -7923,7 +7923,7 @@ ActionAttributes (int argc, char **argv, int x, int y)
 	  {
 	    int i;
 	    layer = NULL;
-	    for (i=0; i<max_layer; i++)
+	    for (i=0; i<max_copper_layer; i++)
 	      if (strcmp (PCB->Data->Layer[i].Name, layername) == 0)
 		{
 		  layer = & (PCB->Data->Layer[i]);

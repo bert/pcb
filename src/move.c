@@ -654,7 +654,7 @@ MoveTextToLayerLowLevel (LayerTypePtr Source, TextTypePtr Text,
   r_substitute (Source->text_tree, (BoxType *) & Source->Text[Source->TextN],
 		(BoxType *) Text);
   memset (&Source->Text[Source->TextN], 0, sizeof (TextType));
-  if (GetLayerGroupNumberByNumber (max_layer + SOLDER_LAYER) ==
+  if (GetLayerGroupNumberByNumber (solder_silk_layer) ==
       GetLayerGroupNumberByPointer (Destination))
     SET_FLAG (ONSOLDERFLAG, new);
   else
@@ -932,16 +932,16 @@ MoveLayer (int old_index, int new_index)
   AddLayerChangeToUndoList (old_index, new_index);
   IncrementUndoSerialNumber ();
 
-  if (old_index < -1 || old_index >= max_layer)
+  if (old_index < -1 || old_index >= max_copper_layer)
     {
       Message ("Invalid old layer %d for move: must be -1..%d\n",
-	       old_index, max_layer - 1);
+	       old_index, max_copper_layer - 1);
       return 1;
     }
-  if (new_index < -1 || new_index > max_layer || new_index >= MAX_LAYER)
+  if (new_index < -1 || new_index > max_copper_layer || new_index >= MAX_LAYER)
     {
       Message ("Invalid new layer %d for move: must be -1..%d\n",
-	       new_index, max_layer);
+	       new_index, max_copper_layer);
       return 1;
     }
   if (old_index == new_index)
@@ -954,7 +954,7 @@ MoveLayer (int old_index, int new_index)
   if (old_index == -1)
     {
       LayerTypePtr lp;
-      if (max_layer == MAX_LAYER)
+      if (max_copper_layer == MAX_LAYER)
 	{
 	  Message ("No room for new layers\n");
 	  return 1;
@@ -963,38 +963,38 @@ MoveLayer (int old_index, int new_index)
       lp = &PCB->Data->Layer[new_index];
       memmove (&PCB->Data->Layer[new_index + 1],
 	       &PCB->Data->Layer[new_index],
-	       (max_layer - new_index + 2) * sizeof (LayerType));
+	       (max_copper_layer - new_index + 2) * sizeof (LayerType));
       memmove (&groups[new_index + 1],
 	       &groups[new_index],
-	       (max_layer - new_index + 2) * sizeof (int));
-      max_layer++;
+	       (max_copper_layer - new_index + 2) * sizeof (int));
+      max_copper_layer++;
       memset (lp, 0, sizeof (LayerType));
       lp->On = 1;
       lp->Name = MyStrdup ("New Layer", "MoveLayer");
       lp->Color = Settings.LayerColor[new_index];
       lp->SelectedColor = Settings.LayerSelectedColor[new_index];
-      for (l = 0; l < max_layer; l++)
+      for (l = 0; l < max_copper_layer; l++)
 	if (LayerStack[l] >= new_index)
 	  LayerStack[l]++;
-      LayerStack[max_layer - 1] = new_index;
+      LayerStack[max_copper_layer - 1] = new_index;
     }
   else if (new_index == -1)
     {
       /* Delete the layer at old_index */
       memmove (&PCB->Data->Layer[old_index],
 	       &PCB->Data->Layer[old_index + 1],
-	       (max_layer - old_index + 2 - 1) * sizeof (LayerType));
-      memset (&PCB->Data->Layer[max_layer + 1], 0, sizeof (LayerType));
+	       (max_copper_layer - old_index + 2 - 1) * sizeof (LayerType));
+      memset (&PCB->Data->Layer[max_copper_layer + 1], 0, sizeof (LayerType));
       memmove (&groups[old_index],
 	       &groups[old_index + 1],
-	       (max_layer - old_index + 2 - 1) * sizeof (int));
-      for (l = 0; l < max_layer; l++)
+	       (max_copper_layer - old_index + 2 - 1) * sizeof (int));
+      for (l = 0; l < max_copper_layer; l++)
 	if (LayerStack[l] == old_index)
 	  memmove (LayerStack + l,
 		   LayerStack + l + 1,
-		   (max_layer - l - 1) * sizeof (LayerStack[0]));
-      max_layer--;
-      for (l = 0; l < max_layer; l++)
+		   (max_copper_layer - l - 1) * sizeof (LayerStack[0]));
+      max_copper_layer--;
+      for (l = 0; l < max_copper_layer; l++)
 	if (LayerStack[l] > old_index)
 	  LayerStack[l]--;
     }
@@ -1029,7 +1029,7 @@ MoveLayer (int old_index, int new_index)
 
   for (g = 0; g < MAX_LAYER; g++)
     PCB->LayerGroups.Number[g] = 0;
-  for (l = 0; l < max_layer + 2; l++)
+  for (l = 0; l < max_copper_layer + 2; l++)
     {
       int i;
       g = groups[l];
@@ -1134,7 +1134,7 @@ MoveLayerAction (int argc, char **argv, int x, int y)
   else if (strcmp (argv[1], "down") == 0)
     {
       new_index = INDEXOFCURRENT + 1;
-      if (new_index >= max_layer)
+      if (new_index >= max_copper_layer)
 	return 1;
       new_top = new_index;
     }
@@ -1147,7 +1147,7 @@ MoveLayerAction (int argc, char **argv, int x, int y)
   if (new_index == -1)
     {
       new_top = old_index;
-      if (new_top >= max_layer)
+      if (new_top >= max_copper_layer)
 	new_top--;
       new_index = new_top;
     }

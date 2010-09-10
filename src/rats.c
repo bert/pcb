@@ -233,8 +233,8 @@ ProcNetlist (LibraryTypePtr net_menu)
   badnet = false;
 
   /* find layer groups of the component side and solder side */
-  SLayer = GetLayerGroupNumberByNumber (max_layer + SOLDER_LAYER);
-  CLayer = GetLayerGroupNumberByNumber (max_layer + COMPONENT_LAYER);
+  SLayer = GetLayerGroupNumberByNumber (solder_silk_layer);
+  CLayer = GetLayerGroupNumberByNumber (component_silk_layer);
 
   Wantlist = MyCalloc (1, sizeof (NetListType), "ProcNetlist()");
   if (Wantlist)
@@ -880,8 +880,8 @@ AddNet (void)
 
   /* will work for pins to since the FLAG is common */
   group1 = (TEST_FLAG (ONSOLDERFLAG, (PadTypePtr) ptr2) ?
-	    GetLayerGroupNumberByNumber (max_layer + SOLDER_LAYER) :
-	    GetLayerGroupNumberByNumber (max_layer + COMPONENT_LAYER));
+	    GetLayerGroupNumberByNumber (solder_silk_layer) :
+	    GetLayerGroupNumberByNumber (component_silk_layer));
   strcpy (name1, ConnectionName (found, ptr1, ptr2));
   found = SearchObjectByLocation (PAD_TYPE | PIN_TYPE, &ptr1, &ptr2, &ptr3,
 				  Crosshair.AttachedLine.Point2.X,
@@ -898,8 +898,8 @@ AddNet (void)
       return (NULL);
     }
   group2 = (TEST_FLAG (ONSOLDERFLAG, (PadTypePtr) ptr2) ?
-	    GetLayerGroupNumberByNumber (max_layer + SOLDER_LAYER) :
-	    GetLayerGroupNumberByNumber (max_layer + COMPONENT_LAYER));
+	    GetLayerGroupNumberByNumber (solder_silk_layer) :
+	    GetLayerGroupNumberByNumber (component_silk_layer));
   name2 = ConnectionName (found, ptr1, ptr2);
 
   menu = netnode_to_netname (name1);

@@ -338,7 +338,7 @@ CopyPastebufferToLayout (LocationType X, LocationType Y)
   DeltaX = X - PASTEBUFFER->X, DeltaY = Y - PASTEBUFFER->Y;
 
   /* paste all layers */
-  for (i = 0; i < max_layer + 2; i++)
+  for (i = 0; i < max_copper_layer + 2; i++)
     {
       LayerTypePtr sourcelayer = &PASTEBUFFER->Data->Layer[i],
 	destlayer = LAYER_PTR (i);

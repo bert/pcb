@@ -302,10 +302,10 @@ gerber_get_export_options (int *n)
 static int
 group_for_layer (int l)
 {
-  if (l < max_layer + 2 && l >= 0)
+  if (l < max_copper_layer + 2 && l >= 0)
     return GetLayerGroupNumberByNumber (l);
   /* else something unique */
-  return max_layer + 3 + l;
+  return max_group + 3 + l;
 }
 
 static int
@@ -380,20 +380,20 @@ gerber_do_export (HID_Attr_Val * options)
     }
 
   hid_save_and_show_layer_ons (save_ons);
-  for (i = 0; i < max_layer; i++)
+  for (i = 0; i < max_copper_layer; i++)
     {
       LayerType *layer = PCB->Data->Layer + i;
       if (layer->LineN || layer->TextN || layer->ArcN || layer->PolygonN)
 	print_group[GetLayerGroupNumberByNumber (i)] = 1;
     }
-  print_group[GetLayerGroupNumberByNumber (max_layer)] = 1;
-  print_group[GetLayerGroupNumberByNumber (max_layer + 1)] = 1;
-  for (i = 0; i < max_layer; i++)
+  print_group[GetLayerGroupNumberByNumber (solder_silk_layer)] = 1;
+  print_group[GetLayerGroupNumberByNumber (component_silk_layer)] = 1;
+  for (i = 0; i < max_copper_layer; i++)
     if (print_group[GetLayerGroupNumberByNumber (i)])
       print_layer[i] = 1;
 
   memcpy (saved_layer_stack, LayerStack, sizeof (LayerStack));
-  qsort (LayerStack, max_layer, sizeof (LayerStack[0]), layer_sort);
+  qsort (LayerStack, max_copper_layer, sizeof (LayerStack[0]), layer_sort);
   linewidth = -1;
   lastcap = -1;
   lastgroup = -1;
@@ -453,12 +453,12 @@ gerber_set_layer (const char *name, int group, int empty)
   char *cp;
   int idx = (group >= 0
 	     && group <
-	     max_layer) ? PCB->LayerGroups.Entries[group][0] : group;
+	     max_group) ? PCB->LayerGroups.Entries[group][0] : group;
 
   if (name == 0)
     name = PCB->Data->Layer[idx].Name;
 
-  if (idx >= 0 && idx < max_layer && !print_layer[idx])
+  if (idx >= 0 && idx < max_copper_layer && !print_layer[idx])
     return 0;
 
   if (strcmp (name, "invisible") == 0)

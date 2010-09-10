@@ -246,7 +246,7 @@ __r_dump_tree (struct rtree_node *node, int depth)
                                   GDK_LINE_SOLID, GDK_CAP_ROUND,
                                   GDK_JOIN_ROUND);
 
-      if (depth < max_layer + 1)
+      if (depth < max_copper_layer + 1)
         gdk_gc_set_foreground (Output.fgGC, (LAYER_PTR (depth)->Color));
       else
         gdk_gc_set_foreground (Output.fgGC, PCB->WarnColor);

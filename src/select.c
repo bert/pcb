@@ -290,7 +290,7 @@ SelectBlock (BoxTypePtr Box, bool Flag)
   END_LOOP;
 
   /* check layers */
-  LAYER_LOOP(PCB->Data, max_layer + 2);
+  LAYER_LOOP(PCB->Data, max_copper_layer + 2);
   {
     if (layer == & PCB->Data->SILKLAYER)
       {

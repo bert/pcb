@@ -2598,9 +2598,9 @@ GlobalPuller(int argc, char **argv, int x, int y)
   /* hid_actionl ("djopt", "puller", 0); */
 
   current_is_solder = (GetLayerGroupNumberByPointer(CURRENT)
-		       == GetLayerGroupNumberByNumber (max_layer + SOLDER_LAYER));
+		       == GetLayerGroupNumberByNumber (solder_silk_layer));
   current_is_component = (GetLayerGroupNumberByPointer(CURRENT)
-			  == GetLayerGroupNumberByNumber (max_layer + COMPONENT_LAYER));
+			  == GetLayerGroupNumberByNumber (component_silk_layer));
 
   max_lines = nlines = CURRENT->LineN;
   lines = (Extra *) calloc (nlines, sizeof (Extra));

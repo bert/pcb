@@ -132,7 +132,7 @@ void
 hid_save_and_show_layer_ons (int *save_array)
 {
   int i;
-  for (i = 0; i < max_layer + 2; i++)
+  for (i = 0; i < max_copper_layer + 2; i++)
     {
       save_array[i] = PCB->Data->Layer[i].On;
       PCB->Data->Layer[i].On = 1;
@@ -143,7 +143,7 @@ void
 hid_restore_layer_ons (int *save_array)
 {
   int i;
-  for (i = 0; i < max_layer + 2; i++)
+  for (i = 0; i < max_copper_layer + 2; i++)
     PCB->Data->Layer[i].On = save_array[i];
 }
 
@@ -180,9 +180,9 @@ layer_type_to_file_name (int idx)
       return "backassembly";
     default:
       group = GetLayerGroupNumberByNumber(idx);
-      if (group == GetLayerGroupNumberByNumber(max_layer+COMPONENT_LAYER))
+      if (group == GetLayerGroupNumberByNumber(component_silk_layer))
 	return "front";
-      else if (group == GetLayerGroupNumberByNumber(max_layer+SOLDER_LAYER))
+      else if (group == GetLayerGroupNumberByNumber(solder_silk_layer))
 	return "back";
       else if (PCB->LayerGroups.Number[group] == 1
 	       && (strcmp (PCB->Data->Layer[idx].Name, "route") == 0 ||

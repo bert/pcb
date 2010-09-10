@@ -236,8 +236,7 @@ CheckPadForRubberbandConnection (PadTypePtr Pad)
   info.box.Y2 = MAX (Pad->Point1.Y, Pad->Point2.Y) + half;
   info.radius = 0;
   info.line = NULL;
-  i = max_layer +
-    (TEST_FLAG (ONSOLDERFLAG, Pad) ? SOLDER_LAYER : COMPONENT_LAYER);
+  i = TEST_FLAG (ONSOLDERFLAG, Pad) ? solder_silk_layer : component_silk_layer;
   group = GetLayerGroupNumberByNumber (i);
 
   /* check all visible layers in the same group */
@@ -325,8 +324,7 @@ CheckPadForRat (PadTypePtr Pad)
   struct rinfo info;
   Cardinal i;
 
-  i = max_layer +
-    (TEST_FLAG (ONSOLDERFLAG, Pad) ? SOLDER_LAYER : COMPONENT_LAYER);
+  i = TEST_FLAG (ONSOLDERFLAG, Pad) ? solder_silk_layer : component_silk_layer;
   info.group = GetLayerGroupNumberByNumber (i);
   info.pad = Pad;
   info.type = PAD_TYPE;
@@ -387,7 +385,7 @@ CheckPinForRubberbandConnection (PinTypePtr Pin)
       info.Y = Pin->Y;
     }
 
-  for (n = 0; n < max_layer; n++)
+  for (n = 0; n < max_copper_layer; n++)
     {
       info.layer = LAYER_PTR (n);
       r_search (info.layer->line_tree, &info.box, NULL, rubber_callback,
@@ -515,7 +513,7 @@ LookupRubberbandLines (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
       {
 	LayerTypePtr layer = (LayerTypePtr) Ptr1;
 	LineTypePtr line = (LineTypePtr) Ptr2;
-	if (GetLayerNumber (PCB->Data, layer) < max_layer)
+	if (GetLayerNumber (PCB->Data, layer) < max_copper_layer)
 	  {
 	    CheckLinePointForRubberbandConnection (layer, line,
 						   &line->Point1, false);
@@ -526,7 +524,7 @@ LookupRubberbandLines (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
       }
 
     case LINEPOINT_TYPE:
-      if (GetLayerNumber (PCB->Data, (LayerTypePtr) Ptr1) < max_layer)
+      if (GetLayerNumber (PCB->Data, (LayerTypePtr) Ptr1) < max_copper_layer)
 	CheckLinePointForRubberbandConnection ((LayerTypePtr) Ptr1,
 					       (LineTypePtr) Ptr2,
 					       (PointTypePtr) Ptr3, true);
@@ -537,7 +535,7 @@ LookupRubberbandLines (int Type, void *Ptr1, void *Ptr2, void *Ptr3)
       break;
 
     case POLYGON_TYPE:
-      if (GetLayerNumber (PCB->Data, (LayerTypePtr) Ptr1) < max_layer)
+      if (GetLayerNumber (PCB->Data, (LayerTypePtr) Ptr1) < max_copper_layer)
 	CheckPolygonForRubberbandConnection ((LayerTypePtr) Ptr1,
 					     (PolygonTypePtr) Ptr2);
       break;

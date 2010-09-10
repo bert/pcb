@@ -781,7 +781,7 @@ describe_location (LocationType X, LocationType Y)
 
   /* don't mess with silk objects! */
   if (type & SILK_TYPE &&
-      GetLayerNumber (PCB->Data, (LayerTypePtr) ptr1) >= max_layer)
+      GetLayerNumber (PCB->Data, (LayerTypePtr) ptr1) >= max_copper_layer)
     return NULL;
 
   if (type == PIN_TYPE || type == PAD_TYPE)
