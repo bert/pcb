@@ -204,6 +204,7 @@ square_therm (PinTypePtr pin, Cardinal style)
     case 4:
       {
         LineType l;
+        l.Flags = NoFlags ();
         d = pin->Thickness / 2 - pcb->ThermScale * pin->Clearance;
         out = pin->Thickness / 2 + pin->Clearance / 4;
         in = pin->Clearance / 2;
