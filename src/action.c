@@ -7112,8 +7112,11 @@ ActionElementList (int argc, char **argv, int x, int y)
       ny = parse_layout_attribute_units ("import::newY", ny);
       d = parse_layout_attribute_units ("import::disperse", d);
 
-      nx += random () % (d*2) - d;
-      ny += random () % (d*2) - d;
+      if (d > 0)
+	{
+	  nx += random () % (d*2) - d;
+	  ny += random () % (d*2) - d;
+	}
 
       if (nx < 0)
 	nx = 0;
