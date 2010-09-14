@@ -738,7 +738,7 @@ png_do_export (HID_Attr_Val * options)
 	      int cc, mask, silk;
 	      int transparent;
 	     
-	      if (photo_outline) {
+	      if (photo_outline && have_outline) {
 		transparent=gdImageGetPixel(photo_outline, x, y);	      
 	      } else {
 		transparent=0;
