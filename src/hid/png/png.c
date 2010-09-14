@@ -66,6 +66,11 @@ static int show_solder_side;
 #define SCALE_Y(y) ((int)(((show_solder_side ? (PCB->MaxHeight-(y)) : (y)) - y_shift)/scale))
 #define SWAP_IF_SOLDER(a,b) do { int c; if (show_solder_side) { c=a; a=b; b=c; }} while (0)
 
+/* Used to detect non-trivial outlines */
+#define NOT_EDGE_X(x) ((x) != 0 && (x) != PCB->MaxWidth)
+#define NOT_EDGE_Y(y) ((y) != 0 && (y) != PCB->MaxHeight)
+#define NOT_EDGE(x,y) (NOT_EDGE_X(x) || NOT_EDGE_Y(y))
+
 static void png_fill_circle (hidGC gc, int cx, int cy, int radius);
 
 /* The result of a failed gdImageColorAllocate() call */
@@ -119,6 +124,8 @@ static gdImagePtr photo_copper[MAX_LAYER+2];
 static gdImagePtr photo_silk, photo_mask, photo_drill, *photo_im;
 static gdImagePtr photo_outline;
 static int photo_groups[MAX_LAYER+2], photo_ngroups;
+
+static int doing_outline, have_outline;
 
 #define FMT_gif "GIF"
 #define FMT_jpg "JPEG"
@@ -707,7 +714,7 @@ png_do_export (HID_Attr_Val * options)
       ts_bs (photo_silk);
       ts_bs_sm (photo_mask);
 
-      if (photo_outline) {
+      if (photo_outline && have_outline) {
 	int black=gdImageColorResolve(photo_outline, 0x00, 0x00, 0x00);
 
 	// go all the way around the image, trying to fill the outline
@@ -893,6 +900,8 @@ png_set_layer (const char *name, int group, int empty)
   if (name == 0)
     name = PCB->Data->Layer[idx].Name;
 
+  doing_outline = 0;
+
   if (idx >= 0 && idx < max_copper_layer && !print_layer[idx])
     return 0;
   if (SL_TYPE (idx) == SL_ASSY || SL_TYPE (idx) == SL_FAB)
@@ -943,7 +952,11 @@ png_set_layer (const char *name, int group, int empty)
 	    return 0;
 
 	  if (strcmp (name, "outline") == 0)
-	    photo_im = &photo_outline;
+	    {
+	      doing_outline = 1;
+	      have_outline = 0;
+	      photo_im = &photo_outline;
+	    }
 	  else
 	    photo_im = photo_copper + group;
 
@@ -1314,6 +1327,7 @@ png_fill_rect (hidGC gc, int x1, int y1, int x2, int y2)
 
   gdImageFilledRectangle (im, SCALE_X (x1-bloat), SCALE_Y (y1),
 			  SCALE_X (x2+bloat)-1, SCALE_Y (y2)-1, gc->color->c);
+  have_outline |= doing_outline;
 }
 
 static void
@@ -1329,6 +1343,25 @@ png_draw_line (hidGC gc, int x1, int y1, int x2, int y2)
       return;
     }
   use_gc (gc);
+
+  if (NOT_EDGE (x1, y1) || NOT_EDGE (x2, y2))
+    have_outline |= doing_outline;
+  if (doing_outline)
+    {
+      /* Special case - lines drawn along the bottom or right edges
+	 are brought in by a pixel to make sure we have contiguous
+	 outlines.  */
+      if (x1 == PCB->MaxWidth && x2 == PCB->MaxWidth)
+	{
+	  x1 -= scale/2;
+	  x2 -= scale/2;
+	}
+      if (y1 == PCB->MaxHeight && y2 == PCB->MaxHeight)
+	{
+	  y1 -= scale/2;
+	  y2 -= scale/2;
+	}
+    }
 
   gdImageSetThickness (im, 0);
   linewidth = 0;
@@ -1388,6 +1421,8 @@ png_draw_arc (hidGC gc, int cx, int cy, int width, int height,
       ea = start_angle;
     }
 
+  have_outline |= doing_outline;
+
   /* 
    * make sure we start between 0 and 360 otherwise gd does
    * strange things
@@ -1429,6 +1464,9 @@ png_fill_circle (hidGC gc, int cx, int cy, int radius)
   else
     my_bloat = 2 * bloat;
 
+
+  have_outline |= doing_outline;
+
   gdImageSetThickness (im, 0);
   linewidth = 0;
   gdImageFilledEllipse (im, SCALE_X (cx), SCALE_Y (cy),
@@ -1452,6 +1490,8 @@ png_fill_polygon (hidGC gc, int n_coords, int *x, int *y)
   use_gc (gc);
   for (i = 0; i < n_coords; i++)
     {
+      if (NOT_EDGE (x[i], y[i]))
+	have_outline |= doing_outline;
       points[i].x = SCALE_X (x[i]);
       points[i].y = SCALE_Y (y[i]);
     }
