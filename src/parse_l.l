@@ -342,11 +342,15 @@ int ParseFont(FontTypePtr Ptr, char *Filename)
 	for (p = strtok (path, PCB_PATH_DELIMETER); p && *p;
 		p = strtok (NULL, PCB_PATH_DELIMETER))
 	  {
+#ifdef DEBUG
             Message ("Looking for %s in %s\n", Filename, p);
+#endif
 	    r = Parse(Settings.FontCommand, p, Filename, NULL);
             if (r == 0)
               {
+#ifdef DEBUG
                 Message ("Found %s in %s\n", Filename, p);
+#endif
                 break;
               }
           }

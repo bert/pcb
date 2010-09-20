@@ -352,10 +352,12 @@ LoadPCB (char *Filename)
 {
   PCBTypePtr newPCB = CreateNewPCB (false);
   bool units_mm;
-  clock_t start, end;
   double elapsed;
+#ifdef DEBUG
+  clock_t start, end;
 
   start = clock ();
+#endif
 
   /* new data isn't added to the undo list */
   if (!ParsePCB (newPCB, Filename))
@@ -401,10 +403,12 @@ LoadPCB (char *Filename)
 
       hid_action ("PCBChanged");
 
+#ifdef DEBUG
       end = clock ();
       elapsed = ((double) (end - start)) / CLOCKS_PER_SEC;
       gui->log ("Loading file %s took %f seconds of CPU time\n",
 		Filename, elapsed);
+#endif
 
       return (0);
     }
