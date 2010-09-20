@@ -234,7 +234,9 @@ static int Parse(char *Executable, char *Path, char *Filename, char *Parameter)
 	    yyin = fopen (tmps, "r");
 	    if (!yyin)
 	      {
-		Message("Can't open %s for reading\n", tmps);
+	        /* Special case this one, we get it all the time... */
+	        if (strcmp (tmps, "./default_font"))
+		  Message("Can't open %s for reading\n", tmps);
 		return(1);
 	      }
             free (tmps);
