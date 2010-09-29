@@ -1,4 +1,64 @@
 ========================================================================
+Release Notes for PCB snapshot 20100929
+========================================================================
+This release represents over 240 commits and as such this summary 
+clearly is not complete.  See the ChangeLog file for the complete list
+of changes.
+
+Features
+--------
+
+- PCB can directly import (forward annotate) schematics while running.
+- Many places where measurements are entered now accept units, like
+  "5mm", and "cm" and "in" are allowed too.
+- Free Rotate Buffer added to menu
+- Polygon Hole tool.
+- F12 invokes the Lock tool.
+- Russian translation added.
+- DBUS is enabled by default when possible.
+- Command-line exporters can run action scripts too.
+- GTK tool tips on elements, pins, and nets.
+- Command-line actions in GUIs do not require (,,) syntax.
+- PCB can import footprints both in subdirectories and the named directories.
+- New GCode exporter.
+- Footprint files use ".fp" as the suffix; this is automatically
+  searched for if needed.
+- GTK dialogs do not show at startup unless requested.
+- Stackup can be specified on the command line for command-line exporting.
+- Reference card updated.
+- The snap-point in pads is the center.
+- The 's' key toggles polygons to clear/notclear all pads and pins
+
+Bug Fixes
+---------
+
+- Various PNG export fixes.
+- lesstif's magic toggle-layers-on-flip fixed.
+- Arc bounding box math fixed.
+- Fixed: sometimes, disabling silk also disabled the solder layer.
+- "pcb --help" prints all options again
+- Add mnemonic for "close without saving"
+- Don't select silk on the back side when it's invisible.
+- Various polygon rendering bugs fixed.
+- PNG drill bloat export fixed.
+- Attempts to change polygon clearance *on* polygons results in a hint.
+- PNG doesn't segfault if not all graphic formats are supported.
+- Various toporouter fixes and improvements
+- HID_Mixed is supported in attribute dialogs
+- Flipped rectangles in PS exports are drawn correctly.
+- Optimizer removes micro-traces under pads.
+- Vias, pins, and pads are now drawn under the mask instead of over.
+- Windows supported better.
+
+Other
+-----
+
+- Sources converted to C99
+- Doc extraction gives more control over categories.
+- Thermal documentation updated.
+- Actions can see the context they were invoked in
+
+========================================================================
 Release Notes for PCB snapshot 20091103
 ========================================================================
 This release represents almost 200 commits and as such this summary 
