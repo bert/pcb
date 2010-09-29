@@ -1393,11 +1393,11 @@ NotifyMode (void)
 	    if (strlen(string) > 0)
 	      {
 		TextTypePtr text;
-		int flag = NOFLAG;
+		int flag = CLEARLINEFLAG;
 
 		if (GetLayerGroupNumberByNumber (INDEXOFCURRENT) ==
 		    GetLayerGroupNumberByNumber (solder_silk_layer))
-		  flag = ONSOLDERFLAG;
+		  flag |= ONSOLDERFLAG;
 		if ((text = CreateNewText (CURRENT, &PCB->Font, Note.X,
 					   Note.Y, 0, Settings.TextScale,
 					   string, MakeFlags (flag))) != NULL)
