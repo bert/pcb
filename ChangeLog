@@ -1,3 +1,1746 @@
+2010-09-29   DJ Delorie * dj AT delorie dot com *
+
+	* src/action.c: Make new text clear polygons
+
+2010-09-20   DJ Delorie * dj AT delorie dot com *
+
+	* src/parse_l.l: Don't print "can't open ./default_font for reading"
+	all the time
+
+2010-09-19   DJ Delorie * dj AT delorie dot com *
+
+	* src/file.c, src/parse_l.l: Wrap more messages in debug Messages about where fonts were found, or how many milliseconds it
+	takes to load a file, are not normally needed.  Wrap them in DEBUG
+	conditionals.
+
+2010-09-14   DJ Delorie * dj AT delorie dot com *
+
+	* src/hid/png/png.c: If we don't use the outline to clip, don't draw
+	it either.
+
+2010-09-14   DJ Delorie * dj AT delorie dot com *
+
+	* src/hid/png/png.c: Fix bug tracker # 3064887 PNG exported all black in photo mode if the "outline" was exactly
+	the board size, because the left/bottom edges were clipped leaving a
+	big hole.  With this patch, we do two things: 1. Detect a non-trivial outline, and only do outline processing if
+	found.  Thus, a rectangular outline exactly the size of the board is
+	just ignored - no black border on the output image.  2. Any outline line that's drawn exactly on the bottom/right edge is
+	brought in by half a pixel to ensure it's drawn in the resulting
+	image.
+
+2010-09-13   DJ Delorie * dj AT delorie dot com *
+
+	* src/action.c: Avoid divide-by-zero Check for a zero dispersion before computing it.
+
+2010-09-11   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/thermal.c: thermal.c: Initialise flags of the LineType object
+	in square_therm() Keeps valgrind quiet about conditionals based upon uninitialised
+	variables.. must be a good thing.
+
+2010-09-10   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/action.c, src/autoplace.c, src/autoroute.c, src/buffer.c,
+	src/copy.c, src/create.c, src/crosshair.c, src/data.h, src/djopt.c,
+	src/draw.c, src/file.c, src/find.c, src/flags.c,
+	src/hid/batch/batch.c, src/hid/common/extents.c,
+	src/hid/common/flags.c, src/hid/gcode/gcode.c,
+	src/hid/gerber/gerber.c, src/hid/gtk/gtkhid-main.c,
+	src/hid/gtk/gui-config.c, src/hid/gtk/gui-output-events.c,
+	src/hid/gtk/gui-top-window.c, src/hid/lesstif/dialogs.c,
+	src/hid/lesstif/main.c, src/hid/lesstif/menu.c,
+	src/hid/nelma/nelma.c, src/hid/png/png.c, src/hid/ps/eps.c,
+	src/hid/ps/ps.c, src/line.c, src/macro.h, src/misc.c, src/move.c,
+	src/polygon.c, src/print.c, src/puller.c, src/rats.c, src/rtree.c,
+	src/rubberband.c, src/search.c, src/select.c, src/toporouter.c: 
+	Split usage of "max_layer" into max_copper_layer and max_group  PCB has an equal number of layer groups as copper layers, so the
+	"max_layer" #define'd variable has been used throught the codebase
+	to delimit iteration over both layer groups, and layers.  This makes it hard for people reading the codebase to identify
+	whether a given loop is over layers or layer groups (since the
+	counter variable is often fairly terse or indescript). Confusingly,
+	in some of the code, layer groups indexes are stored in a variable
+	called "layer".  To aid understanding of the code, this commit removes the max_layer
+	variable (#define'd to (PCB->Data->LayerN)), and replaces it with
+	two similarly #define'd variables, "max_copper_layer" and
+	"max_group".  This commit also introduces convenience macros:   #define solder_silk_layer (max_copper_layer + SOLDER_LAYER)   #define component_silk_layer (max_copper_layer + COMPONENT_LAYER) Which make the code intention much clearer for a common case of the
+	old max_layer variable usage.
+
+2010-09-10   DJ Delorie * dj AT delorie dot com *
+
+	* src/hid/lesstif/main.c: Fix lesstif SwapSides magic layer option.  If the first layer in the layer group is silk, the swap sides key
+	won't auto-toggle the solder and component groups, nor properly
+	activate them if it does.  Add code to find a visible *copper* layer
+	in the layer group and use that.
+
+2010-09-09   Ineiev * ineiev AT gmail dot com *
+
+	* src/find.c: find.c: Add RATLINE_TYPE to switch statement in
+	BuildObjectList Part of Ineiev's patch from:
+	http://archives.seul.org/geda/user/Nov-2009/msg00456.html  Modified-by: Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+2010-09-09   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/find.c: Fix crash due to uninitalised variable in DRC check
+	Bug #3033772 Andrew Armenia  noted that the second pointer returned from
+	BuildObjectList(), "object_type_list" would be left uninitialised if
+	the object type was not encountered. A subsequent call to free() in
+	DRCFind() would then cause memory corruption.  The issue was originally reported by Ineiev:
+	http://archives.seul.org/geda/user/Nov-2009/msg00456.html That patch addresses the lack of a RATLINE_TYPE in the
+	BuildObjectType function, but does not prevent a segfault for other
+	unknown types.
+
+2010-09-08   DJ Delorie * dj AT delorie dot com *
+
+	* src/misc.c: Fix arc bounding box math.  Calculations for Arc bounding boxes weren't taking into account the
+	wide range of possible starting arcs.  This patch uses modulus to
+	force angles into canonical forms and iterates through quadrants to
+	capture the full extents of each arc.
+
+2010-09-08   DJ Delorie * dj AT delorie dot com *
+
+	* src/parse_y.y: Fix typo in parse_y.y A typo in parse_y.y was causing the documentation to be corrupted.
+
+2010-09-07   DJ Delorie * dj AT delorie dot com *
+
+	* src/hid/gtk/gtkhid-main.c, src/hid/lesstif/main.c: Fix layer
+	visibility logic for some boards.  If the Groups() line listed the c/s layer before the copper layer,
+	disabling silk would also disable the copper.  This change searches
+	the entire layer group looking for any layer that might need to be
+	drawn, and uses that as the exemplar instead of blindly choosing the
+	first layer in the list.
+
+2010-09-01   DJ Delorie * dj AT delorie dot com *
+
+	* src/gpcb-menu.res, src/pcb-menu.res: Add import settings to menus At the bottom of the Settings menu, add a submenu for import
+	settings for placing new elements.
+
+2010-09-01   DJ Delorie * dj AT delorie dot com *
+
+	* src/action.c: Store units for import::disperse If the user specified the dispersement as "123mm" for example, store
+	that string as-is for convenience.
+
+2010-09-01   DJ Delorie * dj AT delorie dot com *
+
+	* src/misc.c: Enhance GetValue Allow cm and in as units.  Allow the units to be part of the value
+	string or separate.
+
+2010-09-01   DJ Delorie * dj AT delorie dot com *
+
+	* src/action.c: Add new-part-location to import Adds import::newX, import::newY, and import::disperse attributes.
+	These determine where new parts are located when they're added to
+	the layout, including some random variation to keep them from being
+	all on exactly the same spot.  Parameters were added to Import() to
+	set these:  In @code{Import()} is called with @code{setnewpoint} then the
+	location of new components can be specified.  This is where parts
+	show up when they're added to the board.  The default is the center
+	of the board.   @table @code  @item Import(setnewpoint) Prompts the user to click on the board somewhere, uses that point.
+	If called by a hotkey, uses the current location of the crosshair.   @item Import(setnewpoint,mark) Uses the location of the mark.  If no mark is present, the point is
+	not changed.   @item Import(setnewpoint,center) Resets the point to the center of the board.   @item Import(setnewpoint,X,Y,units) Sets the point to the specific coordinates given.  Example:
+	  @code{Import(setnewpoint,50,25,mm)}  @end table Note that the X and Y locations are stored in attributes named
+	  @code{import::newX} and @code{import::newY} so you could change
+	 them manually if you wished.   Calling @code{Import(setdisperse,D,units)} sets how much the newly
+	placed elements are dispersed relative to the set point.  For
+	example,  @code{Import(setdisperse,10,mm)} will offset each part
+	randomly up to 10mm away from the point.  The default dispersion is
+	1/10th of the smallest board dimension.  Dispersion is saved in the
+	  @code{import::disperse} attribute.
+
+2010-09-01   DJ Delorie * dj AT delorie dot com *
+
+	* src/misc.c, src/misc.h: Add AttributeRemove functions Add AttributeRemoveFromList() and the wrapper AttributeRemove()
+
+2010-08-28   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/hid/gtk/gui-top-window.c: hid/gtk: Remove unused colour
+	allocation for "BlackPixel"
+
+2010-08-28   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/hid/gtk/gui-top-window.c: hid/gtk: Remove unused extern HID
+	ghid_hid from gui-top-window.c
+
+2010-08-25   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/draw.c: draw.c: Remove the unused "Erasing" flag / counter This variable tracks whether the object being drawn is to be erased.
+	It is never actually tested, so remove it.
+
+2010-08-25   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/draw.c: draw.c: Initialise integer counters with 0, not
+	"false".  For the "doing_assy" flag, fix its type to "bool" rather than "int".
+
+2010-08-25   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/draw.c: draw.c: Remove "HaveGathered" parameter from
+	DrawLineLowLevel() This is superflous, as it is only passed as TRUE when the Gathering
+	variable it overrides is known to be FALSE anyway.
+
+2010-08-25   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/data.c, src/data.h, src/draw.c: Remove unused global variable
+	"render", and "extern bool RedrawOnEnter" The "render" variable was set and reset, but was not used anywhere.
+
+2010-08-24   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/hid/gtk/gui-output-events.c: hid/gtk: Track previous state of
+	crosshair attachements when undrawing For correctness - this doesn't necessarily fix any rendering bugs.
+
+2010-08-24   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/hid/gtk/gui-utils.c: hid/gtk: Simplify ghid_draw_area_update() If the rect passed is NULL, we can simply pass that on to
+	gdk_window_invalidate_rect() which will invalidate the whole area.
+
+2010-08-24   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/hid/gtk/gui-utils.c, src/hid/gtk/gui.h: hid/gtk: Remove unused
+	functions relating to string display Removes ghid_string_markup_extents() and ghid_string_markup()
+
+2010-08-24   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/hid/gtk/gui-utils.c: hid/gtk: Remove unused
+	ghid_draw_area_clear() function
+
+2010-08-15   DJ Delorie * dj AT delorie dot com *
+
+	* src/hid/gtk/gui-top-window.c: Merge GTK attributes.  Since the new help system only allows one attribute (i.e. command
+	line) list per HID, combine the two GTK lists into one.
+
+2010-08-15   DJ Delorie * dj AT delorie dot com *
+
+	* src/hid/lesstif/main.c, src/hid/lesstif/menu.c: Merge lesstif
+	attributes.  Since the new help system only allows one attribute (i.e. command
+	line) list per HID, combine the two Lesstif lists into one.
+
+2010-08-15   DJ Delorie * dj AT delorie dot com *
+
+	* src/main.c: Print all command line options with help.  Keep track of which attributes we've printed as part of the HID
+	help.  After that, print any remaining attributes we know about that
+	we haven't already printed.
+
+2010-08-15   DJ Delorie * dj AT delorie dot com *
+
+	* src/hid/gtk/gtkhid-main.c, src/hid/gtk/gui-top-window.c: Export
+	GTK attributes.  The new help system uses export attribute lists for help, so the
+	Lesstif HID needs to export them.
+
+2010-08-15   DJ Delorie * dj AT delorie dot com *
+
+	* src/hid/lesstif/main.c: Export lesstif attributes.  The new help system uses export attribute lists for help, so the
+	Lesstif HID needs to export them.
+
+2010-08-15   DJ Delorie * dj AT delorie dot com *
+
+	* src/action.c: Check for NULL element name when adding attributes.  When setting element attributes, if the element is as yet unnamed,
+	use an "unnamed element" title instead of segfaulting.
+
+2010-08-15   Robert Spanton * rspanton AT zepler dot net *
+
+	* po/ru.po, src/hid/gtk/gui-dialog.c: Add a keyboard shortcut to
+	pcb's "close without saving" option This patch adds a keyboard mnemonic to the "close without saving"
+	option in the close confirmation dialog box.
+
+2010-08-15   DJ Delorie * dj AT delorie dot com *
+
+	* src/action.c: Update Import() docs Fix capitalization.  Mention that elements that should be removed
+	are left, but selected, after an Import.
+
+2010-08-15   DJ Delorie * dj AT delorie dot com *
+
+	* src/buffer.c, src/gpcb-menu.res, src/pcb-menu.res: Add
+	FreeRotateBuffer to the Menu Modify FreeRotateBuffer() to prompt the user if no angle is passed.
+	Add an entry to the menus to call it that way.
+
+2010-08-10   kai-martin * kmk AT bibo dot iqo dot uni-hannover dot de *
+
+	* src/action.c: modified: action.c (fix element name position on
+	import schematic)
+
+2010-08-14   DJ Delorie * dj AT delorie dot com *
+
+	* tools/gnet-pcbfwd.scm: Quote strings Quote all strings that might contains commas or close parens, to
+	avoid syntax errors when those names are passed to actions.
+
+2010-08-03   DJ Delorie * dj AT delorie dot com *
+
+	* src/select.c: Don't select silk on the far side if the far side is
+	not shown The logic for determining if a layer was "on" didn't take into
+	account that the two silkscreen layers are handled differently.
+	Thus, if you tried to select shown silk, you would select hidden
+	silk on the other side too, unknowingly moving that around.  With this patch, silk on the far side is only selected if the far
+	side ("invisible" side) is shown.
+
+2010-06-06   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/action.c, src/const.h, src/crosshair.c, src/flags.c,
+	src/gpcb-menu.res, src/hid/gtk/gui-icons-mode-buttons.data,
+	src/hid/gtk/gui-misc.c, src/hid/gtk/gui-output-events.c,
+	src/hid/gtk/gui-top-window.c, src/hid/lesstif/main.c,
+	src/pcb-menu.res, src/set.c: Introduce POLYGONHOLE_MODE for creating
+	holes in polygons Having selected polygon hole mode, the first click selects which
+	polygon to cut a hole in. A second click defines the start point of
+	the hole contour. The tool then behaves in a similar way to the
+	polygon drawing tool, with the hole ending when the start point is
+	re-clicked.  To avoid creating illegal polygons, the hole drawn is subtracted
+	from a representation of the original polygon with the
+	poly_Boolean_free().  This consolidates any contours it intersects
+	with and prevents the user defining contours which intersect each
+	other. (Although we don't currently prevent the the user drawing
+	self-intersecting contours).  The resulting POLYAREA is re-processed into PolygonType objects,
+	potentially more than one - if the hole drawn bisects the original
+	polygon. To keep undo operations simple, these are added as
+	completely new objects and the original polygon is deleted - along
+	with its ID.
+
+2010-06-06   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/polygon.c, src/polygon.h: Expose APIs for creating POLYAREA
+	from PolygonType objects and back The PolygonPoly() API wraps polygon.c's original_poly() function,
+	whilst PolyToPolygonsOnLayer() converts the passed POLYAREA and all
+	those linked to it into discrete PolygonType objects on the board.
+
+2010-06-06   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/action.c, src/autoroute.c, src/buffer.c, src/copy.c,
+	src/create.c, src/create.h, src/crosshair.c, src/file.c,
+	src/file.h, src/global.h, src/insert.c, src/insert.h, src/mymem.c,
+	src/mymem.h, src/parse_l.l, src/parse_y.y, src/polygon.c,
+	src/polygon.h, src/remove.c, src/report.c, src/undo.c, src/undo.h: 
+	Support holes in input polygons (incl. file-format addition) PCB file-format date is now 20100606, and files saved with this or
+	greater PCB version will not load with older versions of PCB.  If a
+	particular board doesn't make use of the polygon hole feature, the
+	PCB revision date in the file can be manually reset to 20070407.  The file-format addition is as follows. Previously, a polygon would
+	be specified as a series of coordinates, such as: Layer(1 "component") (   Polygon("clearpoly")   (     [6000 6000] [81000 6000] [81000 59000] [6000 59000]   ) ) This commit introduces the ability to specify negative contours
+	which form holes in the polygon shape, e.g.: Layer(1 "component") (   Polygon("")   (     [6000 6000] [81000 6000] [81000 59000] [6000 59000]     Hole (       [76000 55000] [76000 38000] [58000 38000] [58000 55000]     )     Hole (       [10000 10000] [10000 28000] [27000 28000] [27000 10000]     )   ) ) The winding order of the contours specified in the file does not
+	matter, since PCB will automatically invert the order of the points
+	as necessary (as it always did with the outer contour).  Hole contours should not intersect or self-intersect (although this
+	isn't checked for at load time). Hole contours must not intersect
+	the polygon's outer contour.  Technical details: The PolygonType structure has a number of new fields, the critical
+	ones being an array of indices defining the start of hole contours.  (PolygonType *)->HoleIndex[n] The number of hole contours is stored in (PolygonType
+	*)->HoleIndexN, and the maximum allocated memory for indices in
+	(...)->HoleIndexMax.  The first hole contour starts at the point
+	given by (...)->Points[(...)->HoleIndex[0]], and continues until the start of
+	the next contour, or the last point defined.  By storing all polygon points (including holes) in the existing
+	array (...)->Points[], existing code which operates on the polygon as a
+	whole, e.g. translation and rotation, can operate without change.  For other operations, determining wrap-around to operate within the
+	same contour requires more computation. Some helper functions have
+	been introduced in polygon.c to aid this, next_contour_point() and
+	prev_contour_point(). Where applicable, these have been used to
+	simplify existing code which used ad-hoc wrap-around code.  polygon_point_idx() computes the array index of a point in a polygon
+	from its PointTypePtr address. This is used to replace a search
+	idiom used in a number of places. polygon_point_contour() returns
+	the number of the contour a given point index belongs in, 0 for the
+	outer contour, 1 for the first hole etc..  Undo: Undo with holes has become a little more complex. The undo for a
+	point removal must now record which contour the point came from.
+	This is determined by the index of the removed point, and a new
+	boolean flag "last_in_contour", indicating if the point was at the
+	end of its contour.  This flag is passed to InsertPointIntoObject(),
+	which uses it to disambiguate inserting a point at an index on the
+	boundary of two contours.  Undo operations for removing hole contours "cheat" by saving a copy
+	of the whole polygon into the undo buffer rather than attempting to
+	describe the operation as a delta change to an existing polygon.
+	When undoing, the object IDs are swapped to keep them consistent.
+
+2010-06-05   Jared Casper * jaredcasper AT gmail dot com *
+
+	* src/hid/gtk/gui-log-window.c: Add missing return statement.
+
+2010-06-05   Jared Casper * jaredcasper AT gmail dot com *
+
+	* src/gpcb-menu.res, src/pcb-menu.res: Fix Bug #2717258, Lock mode
+	with F12.  Binds F12 to lock mode in the default gcpb-menu.res and pcb-menu.res
+	files, bringing them inline with existing documentation.
+
+2010-06-05   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/crosshair.c, src/hid/lesstif/main.c: Revert some "True" ->
+	"true" string changes These were inadvertently changed by the mechanised Boolean -> bool
+	replacement in commit ad5eb5a165442be38624aa622beeb57dc1d2afbd
+
+2010-06-05   Robert Spanton * rspanton AT zepler dot net *
+
+	* src/action.c, src/action.h, src/autoplace.c, src/autoplace.h,
+	src/autoroute.c, src/autoroute.h, src/box.h, src/buffer.c,
+	src/buffer.h, src/change.c, src/change.h, src/clip.c, src/clip.h,
+	src/command.c, src/copy.c, src/copy.h, src/create.c, src/create.h,
+	src/crosshair.c, src/crosshair.h, src/data.c, src/data.h,
+	src/djopt.c, src/draw.c, src/draw.h, src/drill.c, src/file.c,
+	src/file.h, src/find.c, src/find.h, src/flags.c, src/global.h,
+	src/gts/gts.h, src/hid/gerber/gerber.c,
+	src/hid/gtk/gui-command-window.c, src/hid/gtk/gui-dialog-size.c,
+	src/hid/gtk/gui-drc-window.c, src/hid/gtk/gui-library-window.c,
+	src/hid/gtk/gui-misc.c, src/hid/gtk/gui-netlist-window.c,
+	src/hid/gtk/gui-output-events.c, src/hid/gtk/gui-top-window.c,
+	src/hid/lesstif/dialogs.c, src/hid/lesstif/library.c,
+	src/hid/lesstif/main.c, src/hid/lesstif/menu.c,
+	src/hid/lesstif/netlist.c, src/hid/lesstif/styles.c,
+	src/hid/nelma/nelma.c, src/insert.c, src/insert.h, src/line.c,
+	src/main.c, src/misc.c, src/misc.h, src/move.c, src/move.h,
+	src/mtspace.c, src/mtspace.h, src/mymem.c, src/netlist.c,
+	src/parse_l.l, src/parse_y.y, src/polygon.c, src/polygon.h,
+	src/polygon1.c, src/rats.c, src/rats.h, src/remove.c, src/remove.h,
+	src/report.c, src/rotate.c, src/rtree.c, src/rtree.h,
+	src/rubberband.c, src/search.c, src/search.h, src/select.c,
+	src/select.h, src/set.c, src/set.h, src/thermal.c,
+	src/toporouter.c, src/undo.c, src/undo.h, src/vendor.c,
+	src/vendor.h: Change all Booleans to bool.  c99 provides bool.  Declaring Boolean adds some obscurity to the
+	code, and could also miss out on some machine-specific
+	optimisations.  This patch removes the definition of Boolean, and changes all
+	instances of it to bool.  If you've come across this commit because it's causing you issues
+	when rebasing on mainline pcb, then you should find the following
+	script useful.  You can use it to rewrite all of your local commits
+	to use bool instead of Boolean like so: 	git filter-branch --tree-filter rename-bool.sh HEAD...${HASH} Replacing ${HASH} with the latest commit that's in mainline.  if [ ! -f src/autoplace.c ]     then     echo "This doesn't look like the PCB source directory."     echo "Cowardly exiting to avoid causing misery!"     exit fi chg_bool () {     FNAME=$1     ADDR=$2     sed -i -e "${ADDR}s/\bBoolean\b/bool/g" "$FNAME"     sed -i -e "${ADDR}s/\bTrue\b/true/g" "$FNAME"     sed -i -e "${ADDR}s/\bFalse\b/false/g" "$FNAME" } find -name '*.[ch]' | while read f do     chg_bool "$f" done find -name '*.[yl]' | while read f do     # Replace first '%%' line with __TMP_MARKER_     sed -i -e '0,/^%%/s/^%%/__TMP_MARKER_/' "$f"     # Replace in section before the first '%%'     chg_bool "$f" "0,/^__TMP_MARKER_/"     # Replace in section after the last '%%'     chg_bool "$f" "/^%%/,$"     # Remove the temporary marker:     sed -i -e 's/^__TMP_MARKER_/%%/' "$f" done
+
+2010-06-03   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/file.c, src/parse_y.y: Refer to git, not cvs when reading a
+	file from newer PCB.
+
+2010-06-02   Sergey Alyoshin * alyoshin dot s AT gmail dot com *
+
+	* po/LINGUAS, po/ru.po: Add Russian translation
+
+2010-06-02   Sergey Alyoshin * alyoshin dot s AT gmail dot com *
+
+	* po/POTFILES.in: Add source files with localized strings to .po
+	generation
+
+2010-06-02   Sergey Alyoshin * alyoshin dot s AT gmail dot com *
+
+	* src/hid/gtk/gui-keyref-window.c, src/rats.c: Adjust punctuation
+	and capitalisation of some messages
+
+2010-06-02   Sergey Alyoshin * alyoshin dot s AT gmail dot com *
+
+	* src/gpcb-menu.res: Add top level menu to localization
+
+2010-06-02   Sergey Alyoshin * alyoshin dot s AT gmail dot com *
+
+	* src/gpcb-menu.res, src/pcb-menu.res: String unification and white
+	space cleanup String Rip up selected auto-routed tracks unified, so it can be
+	translated as one string. Also some white spaces at end of line
+	removed.
+
+2010-06-02   Sergey Alyoshin * alyoshin dot s AT gmail dot com *
+
+	* src/hid/common/actions.c: Localize need coord message before
+	output
+
+2010-06-02   Sergey Alyoshin * alyoshin dot s AT gmail dot com *
+
+	* src/action.c, src/change.c, src/create.c,
+	src/hid/gtk/gtkhid-main.c, src/hid/gtk/gui-command-window.c,
+	src/hid/gtk/gui-config.c, src/hid/gtk/gui-top-window.c,
+	src/hid/ps/ps.c: Add strings to localization
+
+2010-06-02   Sergey Alyoshin * alyoshin dot s AT gmail dot com *
+
+	* src/global.h, src/hid/gtk/gui.h: Move internationalization macros
+	to one header
+
+2010-06-02   Sergey Alyoshin * alyoshin dot s AT gmail dot com *
+
+	* autogen.sh: Add rule to extract localized stings from .res files
+
+2010-06-02   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/hid/gtk/gtkhid-gdk.c: hid/gtk: Don't call gdk_draw_points()
+	when we have no grid points to draw Fixes this warning seen when zooming close in on a course grid
+	setting: Gdk-CRITICAL **: gdk_draw_points: assertion `(points != NULL) &&
+	(n_points > 0)' failed
+
+2010-06-02   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/polygon1.c: Fix node_label() function to work with
+	self-intersection Rather than just giving up if we encounter our own edges in the CVC
+	list at first, skip them until we either run out of edges, or find
+	one belonging to the other polygon.  I'm not 100% sure this is the correct fix, but it "seems to work".  Test-case: Layer(1 "component") (   Line[60000 70000 60000 90000 4000 2000 "clearline"]   Line[80000 60000 80000 90000 4000 2000 "clearline"]   Line[90000 90000 90000 50000 4000 6000 "clearline"]   Line[60000 40000 80000 60000 4000 6000 "clearline"]   Polygon("clearpoly")   (     [10000 10000] [140000 10000] [140000 140000] [10000 140000]   ) )
+
+2010-06-02   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/polygon1.c: Fix the polygon touching contour test in
+	poly_ChkContour The following test-cases were used to help verify the changes: This polygon forms a self-touching shape like this: \|  However, the right-hand edge does NOT have a node at the
+	junction.  /|  This previously caused it to fail the
+	    self-intersection test.  It should be reported as good.  Polygon("")   (     [85000 50000] [85000 90000] [83000 90000]     [83536 63535] [85000 59999] [83535 56464]   ) This polygon forms a self-intersecting shape like this:  |/  (The vertical section is a straight line with no node in the
+	 middle) /|   It must be reported as bad.  Polygon("")   (     [85000 50000] [85000 90000] [83000 90000]     [83536 63535] [85000 59999] [89535 56464]   ) This polygon self-intersects, and must be reported as bad: Polygon("")   (     [160000  50000] [160000  90000] [170000 100000]     [180000 120000] [180000 150000] [160000 150000]     [160000 120000] [170000 100000] [180000  90000]     [180000  50000]   ) This polygon self-touches, and should be reported as good: Polygon("clearpoly")   (     [120000  50000] [120000  90000] [130000 100000]     [120000 120000] [120000 150000] [140000 150000]     [140000 120000] [130000 100000] [140000  90000]     [140000  50000]   )
+
+2010-06-02   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/polygon1.c: Fix poly_ComputeInteriorPoint() to work correctly
+	for holes The step where the algorithm finds a convex node to start from must
+	take into account whether the polygon vertices are ordered as a hole
+	or an outer contour. We now correctly compute a point inside the
+	hole, rather than possibly outside it.  This fixes an assertion on the following test-case. Prior to this
+	commit, the incorrect "interior" point tested for the concave hole
+	happens to lie inside the polygon's other hole, causing it to fail
+	an assert during processing.  Layer(2 "solder") (   Line[340000 160000 183700 108000 1500 3000 "clearline"]   Line[92000 121000 120000 90000 1500 3000 "clearline"]   Line[270000 90000 120000 90000 1500 3000 "clearline"]   Polygon("clearpoly")   (     [40000 40000] [320000 40000] [320000 200000] [40000 200000]   ) ) The bug was created in my attempt to speed up poly_ContourInContour:
+	commit 3d0a8bd1dae0816d364a774bf9b958faf2983ec7
+
+2010-05-11   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/polygon1.c: Speed up poly_ContourInContour() test by computing
+	interior point NB: This introduces a behaviour change in the boundary case, that
+	two identical contours will now be considered to be inside each
+	other.  First perform a test on an arbitrary boundary node (proving that the
+	contour being testing for "insideness" is not outside the other
+	contour. (This cannot not conclusively prove the contour is inside).  In many cases, this simple node test gives enough evidence to return
+	0 for the ContourInContour test computing and testing an interior
+	point.  Rather than checking each exterior point, compute a strictly
+	interior point (not on the boundary), and test that against the
+	second contour.  Benchmarked to improve performance over other fixes for the buggy
+	test.  Example board load (CPU) times for a complex board:   21.50 (buggy contour_in_contour - single node point test)   24.43 (brute-force node point tests)   21.79 (single node test, then internal point test)
+
+2010-05-10   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/polygon1.c: Fix poly_ContourInContour() test not to return
+	TRUE for touching contours This test could previously return true for touching contours, such
+	 as: __________....  |_________ |  : :........ ||  : ::  /\  : ||  :
+	Note that the bounding box of A is inside that of B, :: /  \ :/  \ :
+	such that initial bounding box checks won't reject the ::/ A  \/  B
+	\:   possibility of A being inside B.  ::\    /\    /: :: \  / :\  /
+	: ::..\/..:.\/..: When testing for insideness, the first point on A's contour is
+	picked.  In this case, unfortunately being the touching X point
+	between the two contours. This point (correctly) returns as being
+	inside B - and the false presumption is that the whole A contour is
+	inside B.  This commit introduces an unfortunately slow, but more robust test,
+	where we check each node in A for whether it is inside B. We return
+	as soon as we find an A node outside B, however this means the test
+	is VERY much slower for the case where A _is_ inside B.
+
+2010-05-11   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/polygon1.c: Add comment explaining assumptions for
+	poly_ContourInContour function Also, document its buggy boundary condition where the arbitrary
+	point chosen to test happens to be a common node shared between two
+	separate contours (which the test should return FALSE for).
+
+2010-05-10   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* configure.ac: Make --enable-dbus default for the GTK and Lesstif
+	HIDs
+
+2010-05-10   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/main.c: Allow running of action scripts when running PCB as an
+	exporter
+
+2010-05-10   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/polygon1.c: Improve dump_poly() output Make it print each contour of a POLYAREA, and move the NEXT PLINE
+	and NEXT POLY messages inside the loops interating over these
+	structures.
+
+2010-05-10   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/hid/gtk/gui-output-events.c: hid/gtk: Add tool-tip to identify
+	element, pin and net when hovering
+
+2010-05-09   DJ Delorie * dj AT delorie dot com *
+
+	* src/gpcb-menu.res, src/pcb-menu.res: Clarify the meaning of keys
+	bound to SetValue() Clarifies that keys which are bound to SetValue change the styles,
+	not the existing objects, so they really affect *new* objects.
+
+2010-05-04   DJ Delorie * dj AT delorie dot com *
+
+	* src/hid/png/png.c: Fix PNG bloat for drills.  Keep track of when the GC is doing an erase or drill, and invert the
+	bloat for holes.
+
+2010-04-23   DJ Delorie * dj AT delorie dot com *
+
+	* src/hid/gtk/gtkhid-main.c: Allow for only one confirm button.  The GTK confirm_dialog() hook now supports the user passing only one
+	button.  Before, if you passed just "ok" it would create two OK
+	buttons.
+
+2010-04-23   DJ Delorie * dj AT delorie dot com *
+
+	* src/change.c: Add hint about :MinClearGap(Selected,=10,mil) Add a hint to the user about how to change the clearance of a group
+	of objects.
+
+2010-04-23   DJ Delorie * dj AT delorie dot com *
+
+	* src/change.c, src/change.h: Handle attempts to change clearance on
+	polygons.  If the user attempts to change the clearance between polygons and
+	objects within the polygon by pressing 'k' over the *polygon*,
+	notice that attemp and tell the user how to accomplish what they
+	want.
+
+2010-04-12   Kai-Martin Knaak * kmk AT lilalaser dot de *
+
+	* doc/extract-docs: expand the syntax of documentating comments This is part of the effort to derive the command line option entries
+	in the manual dynamically from the source. The expanded syntax
+	allows for more control on the actual headings rendered in the
+	manual.  1) accept keys enclosed in quotation marks ("). This allows for
+	multiple word nodes in the documentation.  2) strip leading digits of the key after sort. This allows to
+	control the order of nodes from the source.
+
+2010-04-16   Jared Casper * jaredcasper AT gmail dot com *
+
+	* doc/pcb.texi, doc/thermal.pcb: Fix pr2136131. Clarify image of
+	thermal in doc.  Also added some text about changing the style of thermal using
+	shift-click in the sections that talk about it.
+
+2010-03-18   Jared Casper * jaredcasper AT gmail dot com *
+
+	* src/hid/common/actions.c: Check action name at registration.  Prevent actions with spaces and '(' in their names from being
+	registered; these will cause ambiguity and problems in
+	hid_parse_actionstring.
+
+2010-03-18   Jared Casper * jaredcasper AT gmail dot com *
+
+	* doc/pcb.texi, src/action.c, src/hid.h, src/hid/batch/batch.c,
+	src/hid/common/actions.c, src/hid/common/hid_resource.c,
+	src/hid/gtk/gui-command-window.c, src/hid/gtk/gui-top-window.c,
+	src/hid/lesstif/main.c, src/hid/lesstif/menu.c, src/main.c: 
+	Consolidate hid action parsing.  - Create a common routine hid_parse_command, which handles both
+	action script style "action(arg1, arg2);" and command entry style
+	"action arg1 arg2".  This is done by making a static
+	hid_parse_actionstring function, which takes a boolean to determine
+	whether or not it should accept command entry style strings.
+	hid_parse_actions functions as it currently does, only accepting
+	action script style, but does so by calling hid_parse_actionstring
+	with TRUE.  - Use hid_parse_command across all hids for user command entry,
+	removing command_parse in lesstif/main.c and batch/batch.c.  - Added extra error handling to common hid_actionv to match
+	lesstif_call_action and remove lesstif_call_action.
+
+2010-04-05   Dan McMahill * dan AT mcmahill dot net *
+
+	* src/toporouter.c: Fix some "mixed declarations and code" issues.
+
+2010-04-04   Ineiev * ineiev AT gmail dot com *
+
+	* src/misc.c: Fix "Request for bounding box of unsupported type
+	1024" Tracker bug # 2893717
+
+	https://sourceforge.net/tracker/?func=detail&atid=538811&aid=2893717&group_id=73743
+
+2010-04-03   DJ Delorie * dj AT duopoly dot delorie dot com *
+
+	* src/hid/lesstif/dialogs.c: Fix doc typo
+
+2010-04-03   Stuart Brorson * sdb AT cloud9 dot net *
+
+	* src/hid/gtk/gtkhid-main.c, src/hid/gtk/gui-dialog.c: Open
+	schematic file chooser dialog if PCB name is not set.  (cherry picked from commit 209e1031656f58ffe40189d93893457975c4042f)
+
+2010-04-03   DJ Delorie * dj AT duopoly dot delorie dot com *
+
+	* src/hid/lesstif/dialogs.c: Implement lesstif ImportGUI()
+
+2010-04-03   DJ Delorie * dj AT duopoly dot delorie dot com *
+
+	* src/action.c: Add missing newline.
+
+2010-04-03   DJ Delorie * dj AT duopoly dot delorie dot com *
+
+	* src/action.c: Let the GUI deal with choosing schematics.  If the PCB is as yet unnamed, or if the pcb name doesn't correspond
+	to a schematic file, have Import() call ImportGUI() to let the user
+	tell PCB what to do.  Note: corresponding HID changes are separate commits.
+
+2010-04-03   DJ Delorie * dj AT duopoly dot delorie dot com *
+
+	* src/misc.c, src/misc.h: Add AttributePut functionality.  Add the logic to put arbitrary attributes into a PCB.
+
+2010-04-03   Stuart Brorson * sdb AT cloud9 dot net *
+
+	* src/file.h: Remove conflicting declaration of ParseLibraryTree.  This is a static function declared in file.c.  Therefore I took it
+	out of file.h.
+
+2010-04-03   Stuart Brorson * sdb AT cloud9 dot net *
+
+	* src/action.c: Place components in middle of board instead of at
+	0,0.
+
+2010-03-01   Stuart Brorson * sdb AT cloud9 dot net *
+
+	* src/action.c, src/buffer.c, src/change.c, src/copy.c,
+	src/create.c, src/file.c, src/file.h, src/global.h, src/main.c: 
+	Support for footprints not in subdirectories Added tons of debug spew to various files to aid in program tracing
+	Also, modify library loading stuff in file.c to allow footprints to
+	live directly in library directory (rather than only one level
+	down).
+
+2010-04-02   Dan McMahill * dan AT mcmahill dot net *
+
+	* src/hid/png/png.c: When built with less than all of the graphic
+	formats that the png exporter supports, don't segfault anymore.  The
+	problem is an array is defined differently at compile time but the
+	default value for the format was constant and a ways into the array.
+	Problem reported by jean on irc.
+
+2010-04-01   Dan McMahill * dan AT mcmahill dot net *
+
+	* src/hid/gtk/gui-top-window.c: Inform the user where (what file or
+	compiled in defaults) the menu config came from.  Should help with
+	some of the gpcb-menu.res versus pcb-menu.res and the
+	./gpcb-menu.res versus ~/.pcb/gpcb-menu.res confusion which comes up
+	from time to time.
+
+2010-04-01   DJ Delorie * dj AT delorie dot com *
+
+	* src/report.c: Return non-fail for ReportAllNetLengths()
+
+2010-04-01   DJ Delorie * dj AT delorie dot com *
+
+	* src/report.c: Record the calculated length in Report(NetLength)
+
+2010-03-24   Dan McMahill * dan AT mcmahill dot net *
+
+	* : commit d9e4279e4c0af142bc776bdd4a3b905388ce6b5a  Author: Dan
+	McMahill * dan AT mcmahill dot net * Date:   Wed Mar 24 17:38:17
+	2010 -0400
+
+2010-03-22   anthonix * anthonix AT anthonix-desktop dot (none) *
+
+	* : commit 6081daa8966c8c83bb734789c38dd5c42dd97443  Author:
+	anthonix * anthonix AT anthonix-desktop dot (none) * Date:   Mon Mar
+	22 12:38:01 2010 +1300
+
+2010-03-21   DJ Delorie * dj AT delorie dot com *
+
+	* src/hid/lesstif/menu.c: Fix Typo
+
+2010-03-20   anthonix * anthonix AT anthonix-desktop dot (none) *
+
+	* src/toporouter.c: Toporouter: Speccut bug fix
+
+2010-03-20   anthonix * anthonix AT anthonix-desktop dot (none) *
+
+	* : commit 1ee723379413c20973bdad27b1e1cf1d722cf3d1  Author:
+	anthonix * anthonix AT anthonix-desktop dot (none) * Date:   Sat Mar
+	20 19:45:05 2010 +1300
+
+2010-03-19   Anthony M. Blake * anthonix AT anthonix dot resnet dot scms dot waikato dot ac dot nz *
+
+	* : commit e45f4e8d15f2c30f8ccb37de5b0bfa801fca572c  Author: Anthony
+	M. Blake * anthonix AT anthonix dot resnet dot scms dot waikato dot
+	ac dot nz * Date:   Fri Mar 19 16:25:38 2010 +1300
+
+2010-03-18   Dan McMahill * dan AT mcmahill dot net *
+
+	* tests/run_tests.sh: Missed the copyright bump when adding the
+	gcode compare routines a few weeks back.
+
+2010-03-18   Dan McMahill * dan AT mcmahill dot net *
+
+	* configure.ac, tests/golden/Makefile.am,
+	tests/golden/hid_png2/Makefile.am,
+	tests/golden/hid_png3/Makefile.am, tests/tests.list: Add tests for
+	--outfile and --dpi arguments to the PNG exporter
+
+2010-03-13   Kai-Martin Knaak * kmk AT lilalaser dot de *
+
+	* README, doc/pcb.texi, src/main.c, win32/Readme.txt: replaces
+	"pcb.sourceforge.net" with "pcb.gpleda.org"
+
+2010-03-14   Stuart Brorson * sdb AT cloud9 dot net *
+
+	* src/hid.h, src/hid/common/actions.c: Apply patch from Patrick
+	Bernaud: Add function to register single action.  The possibility to register a single action has been introduced with
+	commit 337fa8ba8094cee1ed291cec7bf29895ac7c9d72 but then reverted
+	later when changing way of passing context to action callback.
+
+2010-03-14   Stuart Brorson * sdb AT cloud9 dot net *
+
+	* src/hid/common/actions.c: Apply patch from Patrick Bernaud: Modify
+	HID actions storage.  It removes the HID_ActionNode structure and directly store
+	registered actions in an array of HID_Action*.  It also provides a nicer way of making sure the array is sorted and
+	the code for binary search within the array has been removed in
+	favor of a call to bsearch().
+
+2010-03-14   Stuart Brorson * sdb AT cloud9 dot net *
+
+	* src/main.c: Apply patch from Patrick Bernaud:  Set 'exporter'
+	global variable before printing defaults.  In print_defaults(), when the HID to print defaults is not a gui,
+	set 'exporter' global variable prior to calling HID's
+	get_export_options() callback.
+
+2010-03-14   Stuart Brorson * sdb AT cloud9 dot net *
+
+	* src/main.c: Apply patch from Patrick Bernaud:  Rewrite function
+	that print HID options.  The previous version of usage_hid() had a strange search for gui HID
+	attributes through 'hid_attr_node' rather than requesting them
+	directly from the HID.  As a result it was calling the get_export_options() callback on
+	exporter without prior setting of the exporter global variable.
+
+2010-03-14   Stuart Brorson * sdb AT cloud9 dot net *
+
+	* src/hid/gtk/gui-dialog-print.c: Apply patch from Patrick Bernaud:
+	gtkhid: Avoid use of 'exporter' when testing for exporter
+	availability.
+
+2010-03-14   Stuart Brorson * sdb AT cloud9 dot net *
+
+	* src/hid/gtk/gui-dialog-print.c: Apply patch from Patrick Bernaud:
+	gtkhid: Set and unset global variable 'exporter' when printing.  The GTK hid was not setting the global variable 'exporter' before
+	exporting the layout in ghid_dialog_print(): exporter HID relying on
+	this variable being set were lost.
+
+2010-03-14   Stuart Brorson * sdb AT cloud9 dot net *
+
+	* src/hid.h, src/hid/common/actions.c, src/hid/lesstif/menu.c: Apply
+	patch from Patrick Bernaud:  Provide context to callbacks of actions
+	through global variable.  Providing a context to action is necessary for scripting languages
+	(for example). To do so, a global variable ('current_action') is
+	being defined: it is saved, set and restored when running the
+	callback of an action in a way similar to what PCB already does with
+	HIDs.  The callback function may access the action it belongs to and cast
+	it the way it wants to extract information from a potentially
+	extended HID_Action structure.
+
+2010-03-14   Stuart Brorson * sdb AT cloud9 dot net *
+
+	* src/hid/common/actions.c: Apply patch from Patrick Bernaud: Sort
+	actions by references in 'all_actions'.  Previously, when building 'all_actions', a copy of every HID_Action
+	was performed for each action. Now it builds 'all_actions' with
+	pointers to the actual HID_Action structures (without reallocating).
+
+2010-03-14   Stuart Brorson * sdb AT cloud9 dot net *
+
+	* src/hid.h, src/hid/common/actions.c, src/hid/hidint.h,
+	src/hid/lesstif/menu.c: Apply patch from Patrick Bernaud: Revert
+	"single-action register/deregister".  This reverts commits 337fa8ba8094cee1ed291cec7bf29895ac7c9d72 and
+	b274cf8fe9c8caf5bcd4edc28935c88cf5bab7f4 before the introduction of
+	a new context passing scheme for actions.
+
+2010-03-14   Stuart Brorson * sdb AT cloud9 dot net *
+
+	* src/hid.h: Apply patch from Patrick Bernaud:  Fix comment for
+	global variable 'gui' in hid.h.  hid_start_gui() does not exist. The variable is instead set in
+	main() and hid_expose_callback().
+
+2010-03-14   Stuart Brorson * sdb AT cloud9 dot net *
+
+	* src/draw.c: Apply patch from Patrick Bernaud: Modify
+	DrawSpecialPolygon() prototype to not take a pointer on HID.  DrawSpecialPolygon() was the only function to take a HID as
+	parameter.  Every other draw function works on the current HID
+	through global variable 'gui'.
+
+2010-03-14   Stuart Brorson * sdb AT cloud9 dot net *
+
+	* src/hid/gtk/gui-dialog-print.c: Apply patch from Patrick Bernaud:
+	Support HID_Mixed options in attribute dialog Since an HID_Mixed attribute is the combination of a real and an
+	enum, reuse the code for HID_Enum to provide a combo box next to the
+	spin button for the real part.
+
+2010-03-14   Stuart Brorson * sdb AT cloud9 dot net *
+
+	* src/hid/common/hidinit.c, src/hid/gtk/gui-config.c, src/main.c: 
+	Apply patch from Patrick Bernaud.  Modified code to not abort on HID_Mixed attributes. Th gtk HID is
+	modified to understand such an attribute (though the attribute
+	dialog has still no support for them), the lesstif HID is unchanged.
+
+2010-03-14   Stuart Brorson * sdb AT cloud9 dot net *
+
+	* src/main.c: Applying patch from Patrick Bernaud.  HIDs with a name too long were breaking alignement in usage() as the
+	code requested insertion of a tab after the name even for HID names
+	already exceeding the length of the tabulation.  This is similar to how usage_attr() already does alignment of name
+	and help text.
+
+2010-03-13   Dan McMahill * dan AT mcmahill dot net *
+
+	* : commit b75d1fe8d42c138ae499898db5b926948b73f767  Author: Dan
+	McMahill * dan AT mcmahill dot net * Date:   Sat Mar 13 09:08:06
+	2010 -0500
+
+2010-03-12   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/hid/gcode/gcode.c: Remove invalidate_wh from the new gcode HID
+	too.
+
+2010-03-11   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/global.h, src/main.c, src/misc.c: Remove Settings.init_done
+	variable and its usage This variable was previously used to allow action scripts run prior
+	to loading the GUI to avoid GUI startup if they executed a "Quit"
+	action.  The requirement dates back prior to the HID split, where the "Quit"
+	action would cause PCB to call gtk_main_quit(), an operation which
+	is illegal if the GUI main loop was not yet started. The init_done
+	flag was used in QuitApplication(), both to determine whether the
+	GUI had started, and if not - to note that the GUI should not be
+	initialised later. (Instead of calling gtk_main_quit()).  With the HID split, the QuitApplication() function was changed to
+	call exit(0) rather than gtk_main_quit(), so this dance isn't
+	necessary at all now.. in either case, we can just exit the
+	application immediately.
+
+2010-03-11   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/global.h: Remove unused HistorySize field from the settings
+	structure
+
+2010-03-11   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/draw.c, src/hid.h, src/hid/batch/batch.c,
+	src/hid/common/hidnogui.c, src/hid/gtk/gtkhid-main.c,
+	src/hid/lesstif/main.c: Remove unused "last" parameter from HID
+	"invalidate_lr" method
+
+2010-03-11   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/hid.h, src/hid/batch/batch.c, src/hid/bom/bom.c,
+	src/hid/common/extents.c, src/hid/common/hidnogui.c,
+	src/hid/gerber/gerber.c, src/hid/gtk/gtkhid-main.c,
+	src/hid/lesstif/main.c, src/hid/lpr/lpr.c, src/hid/nelma/nelma.c,
+	src/hid/png/png.c, src/hid/ps/eps.c, src/hid/ps/ps.c: Remove unused
+	HID method invalidate_wh() invalidate_lr and invalidate_all are sufficient APIs for our needs.
+
+2010-03-11   Dan McMahill * dan AT mcmahill dot net *
+
+	* data/pcb.desktop.in: Revert "As silly as it seems to group any
+	sort of scientific or EDA" I've pushed really hard to sort this nonsense out, and this patch is
+	not in my opinion suitable for applcation. gEDA, gerbv and PCB all
+	deliberately omit the Education category.. this is not where we need
+	to fix this issue.  I strongly object to putting bogus categories into our apps.  If
+	Debian want to patch these in, let them.  This reverts commit b402a144e19225f0648189bca6fbfad95d046047.
+
+2010-03-11   Dan McMahill * dan AT mcmahill dot net *
+
+	* src/hid/ps/ps.c: Fix an obvious bug in the previous commit.
+	Caught by harry.
+
+2010-03-11   Dan McMahill * dan AT mcmahill dot net *
+
+	* data/pcb.desktop.in: As silly as it seems to group any sort of
+	scientific or EDA software under "Education", this appears to be the
+	standard documented by
+	http://standards.freedesktop.org/menu-spec/1.0/apa.html Noted in
+	patch #2889228 by Ahmed El-Mahmoudy.
+
+2010-03-11   Dan McMahill * dan AT mcmahill dot net *
+
+	* data/pcb.desktop.in: "Encoding" is deprecated.
+	http://standards.freedesktop.org/desktop-entry-spec/1.0/apc.html
+	Noted in patch #2889228
+
+2010-03-10   Dan McMahill * dan AT mcmahill dot net *
+
+	* src/Makefile.am: It is gcode/hid.conf not gcode/gcode.conf that
+	needs to be distributed.  Also put this file in the correct sorted
+	location.
+
+2010-03-10   Dan McMahill * dan AT mcmahill dot net *
+
+	* configure.ac: Add missing AC_PROG_MKDIR_P check.
+
+2010-03-10   Dan McMahill * dan AT mcmahill dot net *
+
+	* src/Makefile.am: Fix building outside of the source tree with
+	dependency tracking disabled.  In that case some directories need to
+	be manually created.  Fixes bug #2889226.
+
+2010-03-10   Dan McMahill * dan AT mcmahill dot net *
+
+	* src/hid/ps/ps.c: In the rectangle fill code fix a bug in swapping
+	of the coordinates.  It doesn't appear that this code path is
+	encountered much.
+
+2010-03-10   Dan McMahill * dan AT mcmahill dot net *
+
+	* src/hid/ps/ps.c: Add DSC to the postscript outputs to keep certain
+	windows based postscript viewers a little happier.  Patch supplied
+	in patch #2700352 by Bob Paddock.
+
+2010-03-10   Dan McMahill * dan AT mcmahill dot net *
+
+	* INSTALL, configure.ac: The gcode exporter used libgd so make sure
+	we check for it and document that we need it.  Noted by Patrick
+	Bernaud in bug #2967313
+
+2010-03-10   Dan McMahill * dan AT mcmahill dot net *
+
+	* tests/inputs/Makefile.am: Make sure the simple gcode test layout
+	makes it into the distfile.
+
+2010-03-10   Dan McMahill * dan AT mcmahill dot net *
+
+	* : commit 802576013b5d780cd87caafa31c694279ee2dc4f  Author: Dan
+	McMahill * dan AT mcmahill dot net * Date:   Wed Mar 10 13:15:26
+	2010 -0500
+
+2010-03-09   Stephen Ecob * silicon dot on dot inspiration AT gmail dot com *
+
+	* src/djopt.c: Fix Freckles The autorouter sometimes ends a trace just past a pad.  The
+	optimizer cuts this trace at the pad center, leaving a tiny trace
+	left over.  This tiny trace is a "freckle" and it inhibits mitering.
+	Check for such freckles and remove them.
+
+2010-03-09   Dan McMahill * dan AT mcmahill dot net *
+
+	* tests/run_tests.sh: Make the xy file check actually do something.
+
+2010-03-09   Dan McMahill * dan AT mcmahill dot net *
+
+	* configure.ac, tests/golden/Makefile.am,
+	tests/golden/hid_gcode1/Makefile.am,
+	tests/golden/hid_gcode1/gcode_oneline.gcode.back.cnc,
+	tests/golden/hid_gcode1/gcode_oneline.gcode.drill.cnc,
+	tests/golden/hid_gcode1/gcode_oneline.gcode.front.cnc,
+	tests/golden/hid_gcode10/Makefile.am,
+	tests/golden/hid_gcode10/gcode_oneline.gcode.back.cnc,
+	tests/golden/hid_gcode10/gcode_oneline.gcode.drill.cnc,
+	tests/golden/hid_gcode10/gcode_oneline.gcode.front.cnc,
+	tests/golden/hid_gcode11/Makefile.am,
+	tests/golden/hid_gcode11/gcode_oneline.gcode.back.cnc,
+	tests/golden/hid_gcode11/gcode_oneline.gcode.drill.cnc,
+	tests/golden/hid_gcode11/gcode_oneline.gcode.front.cnc,
+	tests/golden/hid_gcode2/Makefile.am,
+	tests/golden/hid_gcode2/out.back.cnc,
+	tests/golden/hid_gcode2/out.drill.cnc,
+	tests/golden/hid_gcode2/out.front.cnc,
+	tests/golden/hid_gcode3/Makefile.am,
+	tests/golden/hid_gcode3/gcode_oneline.gcode.back.cnc,
+	tests/golden/hid_gcode3/gcode_oneline.gcode.drill.cnc,
+	tests/golden/hid_gcode3/gcode_oneline.gcode.front.cnc,
+	tests/golden/hid_gcode4/Makefile.am,
+	tests/golden/hid_gcode4/gcode_oneline.gcode.back.cnc,
+	tests/golden/hid_gcode4/gcode_oneline.gcode.drill.cnc,
+	tests/golden/hid_gcode4/gcode_oneline.gcode.front.cnc,
+	tests/golden/hid_gcode5/Makefile.am,
+	tests/golden/hid_gcode5/gcode_oneline.gcode.back.cnc,
+	tests/golden/hid_gcode5/gcode_oneline.gcode.drill.cnc,
+	tests/golden/hid_gcode5/gcode_oneline.gcode.front.cnc,
+	tests/golden/hid_gcode6/Makefile.am,
+	tests/golden/hid_gcode6/gcode_oneline.gcode.back.cnc,
+	tests/golden/hid_gcode6/gcode_oneline.gcode.drill.cnc,
+	tests/golden/hid_gcode6/gcode_oneline.gcode.front.cnc,
+	tests/golden/hid_gcode7/Makefile.am,
+	tests/golden/hid_gcode7/gcode_oneline.gcode.back.cnc,
+	tests/golden/hid_gcode7/gcode_oneline.gcode.drill.cnc,
+	tests/golden/hid_gcode7/gcode_oneline.gcode.front.cnc,
+	tests/golden/hid_gcode8/Makefile.am,
+	tests/golden/hid_gcode8/gcode_oneline.gcode.back.cnc,
+	tests/golden/hid_gcode8/gcode_oneline.gcode.drill.cnc,
+	tests/golden/hid_gcode8/gcode_oneline.gcode.front.cnc,
+	tests/golden/hid_gcode9/Makefile.am,
+	tests/golden/hid_gcode9/gcode_oneline.gcode.back.cnc,
+	tests/golden/hid_gcode9/gcode_oneline.gcode.drill.cnc,
+	tests/golden/hid_gcode9/gcode_oneline.gcode.front.cnc,
+	tests/inputs/gcode_oneline.pcb, tests/run_tests.sh,
+	tests/tests.list: Add testsuite entries to test the gcode export HID
+	and all of its command line options.
+
+2010-03-09   Dan McMahill * dan AT mcmahill dot net *
+
+	* src/hid/gcode/gcode.c: Remove RCSID.  We don't use those anymore.
+
+2010-03-09   Dan McMahill * dan AT mcmahill dot net *
+
+	* src/hid/gcode/gcode.c: Change options like 'drill depth' to
+	'drill-depth' as a space in a command line option is non-standard.
+	Also be consistent with having or not having a "." at the end of the
+	option help strings.
+
+2010-03-09   Dan McMahill * dan AT mcmahill dot net *
+
+	* src/hid/gcode/gcode.c: Remove unix2dos system() call.  It was not
+	needed.
+
+2010-03-09   Dan McMahill * dan AT mcmahill dot net *
+
+	* src/hid/gcode/trace.c: Get rid of compiler warnings.
+
+2010-03-09   Dan McMahill * dan AT mcmahill dot net *
+
+	* src/hid/gcode/gcode.c: Get rid of some gcc warnings.
+
+2010-03-09   Dan McMahill * dan AT mcmahill dot net *
+
+	* src/hid/gcode/gcode.c: C++ style comments -> C style comments
+
+2010-03-09   Dan McMahill * dan AT mcmahill dot net *
+
+	* doc/pcb.1: Fix nroff error.   Noted in sf patch #2889227 by Ahmed
+	El-Mahmoudy.
+
+2010-03-09   Dan McMahill * dan AT mcmahill dot net *
+
+	* configure.ac: add the gcode exporter to the export hid list
+
+2010-03-09   Dan McMahill * dan AT mcmahill dot net *
+
+	* INSTALL: add notes about what libs may be needed (none) for the
+	gcode exporter.
+
+2010-03-09   Dan McMahill * dan AT mcmahill dot net *
+
+	* src/hid/gcode/auxiliary.h, src/hid/gcode/bitmap.h,
+	src/hid/gcode/curve.c, src/hid/gcode/curve.h,
+	src/hid/gcode/decompose.c, src/hid/gcode/decompose.h,
+	src/hid/gcode/gcode.c, src/hid/gcode/gcode.h,
+	src/hid/gcode/lists.h, src/hid/gcode/potracelib.h,
+	src/hid/gcode/trace.c, src/hid/gcode/trace.h: indent to conform to
+	the coding style used by pcb.
+
+2010-03-09   Dan McMahill * dan AT mcmahill dot net *
+
+	* src/Makefile.am: gcode_lists.h should depend on gcode sources, not
+	png sources.
+
+2010-03-09   Dan McMahill * dan AT mcmahill dot net *
+
+	* src/hid/gcode/auxiliary.h, src/hid/gcode/bitmap.h,
+	src/hid/gcode/curve.c, src/hid/gcode/curve.h,
+	src/hid/gcode/decompose.c, src/hid/gcode/decompose.h,
+	src/hid/gcode/gcode.c, src/hid/gcode/gcode.h,
+	src/hid/gcode/hid.conf, src/hid/gcode/lists.h,
+	src/hid/gcode/potracelib.h, src/hid/gcode/trace.c,
+	src/hid/gcode/trace.h: Apply sf patch 2948711 from Alberto Maccioni
+	which adds a g-code exporter.
+
+2010-03-08   Dan McMahill * dan AT mcmahill dot net *
+
+	* configure.ac: When building the docs have configure check for
+	epsf.tex being in the TeX installation.  Problem noted by Kai-Martin
+	Knaak and the method for checking suggested by Peter Clifton.
+
+2010-03-02   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* configure.ac: Fix test for whether to rebuild the shipped
+	pcblib-newlib library ${top_srcdir} is a Makefile variable, we need $srcdir in
+	configure.ac
+
+2010-03-02   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* lib/Makefile.am: Fix make distcheck by removing regenerated newlib
+	footprints The generated newlib files need to be removed by make distclean if
+	they are being updated by the build process. If the files aren't
+	being updated, we should not delete them as they were originally
+	distributed with the source tarball.
+
+2010-03-02   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* tools/Makefile.am: Fix distribution of gnet-pcbfwd.scm in the dist
+	tarball Use the dist_ prefix to make this simple, so our installed targets
+	are now listed in dist_..._DATA, rather than ..._DATA and
+	EXTRA_DIST.
+
+2010-03-01   DJ Delorie * dj AT delorie dot com *
+
+	* src/parse_y.y: Allow empty attribute values.  The STRING token is NULL when an empty string is indicated, but
+	empty attributes are different than missing attributes, so if a
+	STRING is NULL, store an empty string instead.
+
+2010-02-28   DJ Delorie * dj AT delorie dot com *
+
+	* src/change.c: Fix bogus cast to BoxType Instead of casting, which hides real bugs, pass the address of the
+	bounding box itself.
+
+2010-02-24   DJ Delorie * dj AT delorie dot com *
+
+	* src/action.c: Add more flexibility to the import::make option.  New attributes: make::outfile - the intermediate action file make::target - the
+	makefile target to call (defaults to outfile or pcb_import)
+	make::makefile - adds -f to make Added more documentation too.
+
+2010-02-24   DJ Delorie * dj AT delorie dot com *
+
+	* src/buffer.c: Check both FOO and FOO.fp for footprints.
+
+2010-02-24   DJ Delorie * dj AT delorie dot com *
+
+	* src/action.c: Check for NULL names.
+
+2010-02-24   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/main.c: Use strdup to copy environment strings into our
+	settings structure.  getenv returns a const char * which is part of the environment and
+	must not be free'd.
+
+2010-02-23   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/main.c: Fix default gnetlist executable name to be "gnetlist" The old value "defgnetlist" appears to have been a mistake.
+
+2010-02-22   Jared Casper * jaredcasper AT gmail dot com *
+
+	* src/hid/gtk/gtkhid-main.c, src/hid/gtk/gui-library-window.c,
+	src/hid/gtk/gui-log-window.c, src/hid/gtk/gui-netlist-window.c,
+	src/hid/gtk/gui.h: hid/gtk: Prevent extra windows from showing
+	unnecessarily Prevent the library, log, and netlist windows in the GTK HID from
+	being shown unless explicitely requested.  This is done by splitting
+	ghid_*_window_show into ghid_*_window_create, which creates all the
+	resources for the window, and ghid_*_window_show, which actually
+	shows the window (and optionally "presents" it, which pulls it to
+	the foreground and gives it focus).  Since the NetlistShow action no longer actually shows the netlist
+	window, but sets the node/net that is shown in the window (if and
+	when it is visible), this patch also adds NetlistPresent which
+	presents the netlist window.  This can be added to the
+	FindConnections menu item to restore the behavior of bringing up the
+	netlist window on a find.  Added an action LogShowOnAppend() which can restore the old behavior
+	that the log window is shown whenever something is appended to it
+	(currently off by default).
+
+2010-02-22   Dan McMahill * dan AT mcmahill dot net *
+
+	* doc/pcb.texi: Document that it is pcb-menu.res for the lesstif HID
+	and gpcb-menu.res for the GTK+ HID.
+
+2010-02-19   Dan McMahill * dan AT mcmahill dot net *
+
+	* lib/m4lib_to_newlib.sh: Add some quoting to handle the case where
+	there are spaces in some of the directory names.  As noted by peque on irc, this script failed when the build
+	directory was located somewhere that had a space in a directory
+	name.  Adding the extra quotes fixes that.
+
+2010-02-16   DJ Delorie * dj AT delorie dot com *
+
+	* src/hid/lesstif/main.c: Revert an unintended change.
+
+2010-02-16   Ineiev * ineiev AT gmail dot com *
+
+	* src/global.h: Fix broken build due to missing struct members Looks like a part of commit ef2efdd2a18a744eb715ffc1278aace1a2cded46
+	was omitted by mistake.
+
+2010-02-07   Ineiev * ineiev AT gmail dot com *
+
+	* src/find.c, src/search.c: Fix bugs in the arc intersection
+	routine. Bug #2942582 This bug resulted in various false identificaton of connectivity
+	between arcs and other object. Notes from Ineiev's emails: So I built a montecarlo; fixed some ugly unrealistic cases like thin
+	arc merged in bloat and arc->Delta<-360; ran the test program
+	(aat.c) several hours on different machins; that discovered no
+	errors, though the number of points was not very high (a thousand or
+	slightly more): the reference functions are really slow.  That resulted in arc.bis.patch. I tested it also with already
+	mentioned teardropped OSDCU.pcb and t1.pcb. Then, eliminate two
+	precision losses.  I feel I ought to stop here: the patch fixes many more bugs than
+	originally reported.
+
+2010-02-13   Dan McMahill * dan AT mcmahill dot net *
+
+	* : commit ef2efdd2a18a744eb715ffc1278aace1a2cded46  Author: Dan
+	McMahill * dan AT mcmahill dot net * Date:   Sat Feb 13 12:41:35
+	2010 -0500
+
+2010-02-11   DJ Delorie * dj AT delorie dot com *
+
+	* src/action.c, tools/gnet-pcbfwd.scm: Fix pcb forward annotation
+	bugs Finish rename of pcblf -> pcbfwd, handle pcb-has-no-name case.
+
+2010-02-09   Dan McMahill * dan AT mcmahill dot net *
+
+	* configure.ac, src/action.c: When mkdtemp() is available use it
+	instead of tmpnam() for creating temp file names to be used by
+	gnetlist or make.
+
+2010-02-06   Dan McMahill * dan AT mcmahill dot net *
+
+	* src/misc.c: Remove some gcc warnings about unitialized variables.  Remove some gcc warnings about uninitialized variables.  The logic
+	was such that if the variables weren't ever assigned to somethign
+	then they also would not have been accessed but by getting rid of
+	this warning, we increase the chances of paying attention to other
+	warnings which may indicate real bugs.
+
+2010-02-06   Dan McMahill * dan AT mcmahill dot net *
+
+	* src/misc.c: Add missing return on an action function which is
+	supposed to return an int.
+
+2010-02-06   Dan McMahill * dan AT mcmahill dot net *
+
+	* src/hid/gtk/gtkhid-main.c: Remove some gcc warnings.  Use GPOINTER_TO_INT(), GINT_TO_POINTER() and remove a couple of
+	unused variables to eliminate some gcc warnings.
+
+2010-02-06   Dan McMahill * dan AT mcmahill dot net *
+
+	* src/netlist.c: In functions returning non-void, give a return
+	value for returns.
+
+2010-02-06   Dan McMahill * dan AT mcmahill dot net *
+
+	* src/file.h: Add missing prototype for sort_netlist() which is
+	called in netlist.c.
+
+2010-02-06   Dan McMahill * dan AT mcmahill dot net *
+
+	* configure.ac, src/action.c: Remove some gcc warnings.  Add missing headers for fork(), execvp(), wait().  Also remove a
+	couple of unused variables.
+
+2010-02-01   DJ Delorie * dj AT delorie dot com *
+
+	* src/hid/gtk/gui-netlist-window.c, src/hid/lesstif/netlist.c: 
+	Rename NetlistChanged() to avoid conflicts Rename the existing static NetlistChanged() functions in the Gtk and
+	Lesstif HIDs to avoid conflicts with the core global
+	NetlistChanged() function.
+
+2010-02-01   DJ Delorie * dj AT delorie dot com *
+
+	* src/hid/png/png.c: swap png bloat too When computing the bloat offsets for filled rectangles, apply the
+	bloat after sorting the Y coordinates but before swapping them if
+	we're printing the solder side.
+
+2010-02-01   DJ Delorie * dj AT delorie dot com *
+
+	* src/hid/png/png.c: Fix drawn circles When drawing a "line" that's zero length, check for rounded ends
+	(circle) vs square ends (square).
+
+2010-01-31   DJ Delorie * dj AT delorie dot com *
+
+	* src/action.c, src/data.h, src/hid.h, src/misc.h, src/netlist.c,
+	src/rats.c, src/undo.c, tools/Makefile.am, tools/gnet-pcbfwd.scm,
+	tools/gnet-pcblf.scm: Changed element/netlist syntax as follows: ElementList(start) ElementList(need,...) ElementList(done) Netlist(freeze) Netlist(add,...) Netlist(thaw) Hooked all NetlistChanged() actions into a wrapper that checks for
+	frozen.
+
+2010-01-29   DJ Delorie * dj AT delorie dot com *
+
+	* src/gpcb-menu.res, src/pcb-menu.res: Add import to gtk menu,
+	change lesstif menu to match.
+
+2010-01-29   DJ Delorie * dj AT delorie dot com *
+
+	* tools/Makefile.am, tools/gnet-pcblf.scm: Add the new netlister.  Adds the new script-based netlister and the install rules.  Note
+	that this installs PCB's netlister in gEDA's data directory.
+	Unusual, but it's the best way to keep pcb in sync with its own
+	netlister.
+
+2010-01-01   DJ Delorie * dj AT delorie dot com *
+
+	* src/action.c, src/global.h, src/gpcb-menu.res, src/hid.h,
+	src/hid/batch/batch.c, src/hid/bom/bom.c,
+	src/hid/common/hidnogui.c, src/hid/gtk/gtkhid-main.c,
+	src/hid/lesstif/dialogs.c, src/hid/lesstif/lesstif.h,
+	src/hid/lesstif/main.c, src/hid/lesstif/xincludes.h,
+	src/hid/lpr/lpr.c, src/hid/nelma/nelma.c, src/hid/png/png.c,
+	src/hid/ps/eps.c, src/hid/ps/ps.c, src/pcb-menu.res: Add attribute
+	editor GUI to gtk and lesstif.  Attributes(Layout|Layer|Element) Attributes(Layer,layername) Let the user edit the attributes of the layout, current or given
+	layer, or selected element.
+
+2009-12-27   DJ Delorie * dj AT delorie dot com *
+
+	* src/action.c, src/misc.c, src/misc.h, src/pcb-menu.res: Add
+	Import() action Add an action to import schematics into the pcb.  It allows for a
+	list of schematics to be specified in the action or in the pcb, as
+	well as supporting using a Makfile instead of gnetlist.
+
+2009-12-27   DJ Delorie * dj AT delorie dot com *
+
+	* src/draw.c: Undo an accidental change.
+
+2009-04-21   DJ Delorie * dj AT delorie dot com *
+
+	* src/action.c, src/buffer.c, src/buffer.h, src/change.c,
+	src/change.h, src/create.c, src/draw.c, src/file.c,
+	src/hid/lesstif/main.c, src/misc.c, src/misc.h, src/netlist.c: 
+	Work-in-progress for LF: netlist importing
+
+2010-01-01   DJ Delorie * dj AT delorie dot com *
+
+	* src/hid/png/png.c: Check for empty layers.  If you have a four-layer board but the inner layers are empty, photo
+	mode dies.  This checks for at least the more common case, but
+	further work to protect against *any* empty layer is warranted.
+
+2010-01-01   DJ Delorie * dj AT delorie dot com *
+
+	* src/hid/png/png.c: Fix photo-mode mask layer.  The addition of mask support to PNG export broke photo mode; this
+	patch undoes the mask support when photo mode is enabled.
+
+2009-12-27   DJ Delorie * dj AT delorie dot com *
+
+	* src/hid/png/png.c, src/misc.c: Add support for specifying
+	soldermask and solderside from the command line Added "solderside" and "mask" as valid layers for --layer-stack.
+	Also added "silk" as an alias for "elements".  Added mask support to
+	the PNG exporter so that it draws soldermask properly.  Also added
+	support to PNG for showing the board from the solder side, and
+	removed some leftover cruft from when it was copied from the PS hid.
+
+2009-12-22   anthonix * anthonix AT anthonix-desktop dot (none) *
+
+	* src/toporouter.c: Toporouter: Removed superfluous debug function
+
+2009-12-22   anthonix * anthonix AT anthonix-desktop dot (none) *
+
+	* src/toporouter.c, src/toporouter.h: Toporouter: A few fixes The main fix is in the 'special cut' code, which had a tricky corner
+	case to deal with. The special cut code has also been commented in
+	the critical spots.  There are a few other minor fixes, and a couple of heuristic
+	changes.
+
+2009-12-13   DJ Delorie * dj AT delorie dot com *
+
+	* src/action.c: Handle NULL strings when replacing elements.  Sometimes, when you're building a board from the library, elements
+	won't have values for their strings.  When replacing those elements,
+	replicate the NULL pointer rather than trying to strup it.
+
+2009-12-07   Chitlesh GOORAH * chitlesh dot goorah AT gmail dot com *
+
+	* doc/refcard.tex: Update the quick reference  From: Chitlesh GOORAH * chitlesh dot goorah AT gmail dot com * To:
+	gEDA user mailing list Hello there, The current layout of the PCB command reference PDF document (the
+	one currently being shipped) is broken. It looks like it on life
+	support.  http://chitlesh.fedorapeople.org/pcb/refcard_old.pdf I've updated only the layout of refcard.tex
+	http://chitlesh.fedorapeople.org/pcb/refcard.tex to give
+	http://chitlesh.fedorapeople.org/pcb/refcard.pdf . Unfortunately, I
+	don't have enough time currently to update it to the latest key
+	shortcuts. Can you guys please apply it to the next release ? I hope
+	someone will update it in the meantime, else I'll dig into it next
+	year.  Chitlesh
+
+2009-11-25   Dan McMahill * dan AT mcmahill dot net *
+
+	* src/main.c: In the -h (help) output, mention which gui the gui
+	options are for.
+
+2009-11-25   Dan McMahill * dan AT mcmahill dot net *
+
+	* doc/pcb.texi:  Rather than having @code{Pcb} all over, refer to
+	 the program name with @pcb{}.  To help keep how we refer to and mark up the name of the program,
+	define a macro at the start and use it all over.  Also change some of the "for X11" text since pcb really runs on what
+	ever windowing system gtk (X11 or windows) or lesstif (X11 for this
+	one) runs on.
+
+2009-11-23   Dan McMahill * dan AT mcmahill dot net *
+
+	* : commit c81b2d09b281a357910759a373bd8e8bdc4b3cd1  Author: Dan
+	McMahill * dan AT mcmahill dot net * Date:   Mon Nov 23 21:16:36
+	2009 -0500
+
+2009-11-15   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/hid/gtk/gtkhid-gdk.c: hid/gtk: Add a guard against GC's being
+	passed from another HID Various other HIDs have this check.
+
+2009-11-15   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/hid/gtk/gtkhid-gdk.c, src/hid/gtk/gui.h: hid/gtk: Move
+	definition of the device context inside gtkhid-gdk.c Keep it private to the drawing routines.
+
+2009-11-15   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/hid/gtk/gtkhid-main.c: hid/gtk: Remove unused HID
+	"ghid_extents"
+
+2009-11-15   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/Makefile.am, src/hid/gtk/gtkhid-gdk.c,
+	src/hid/gtk/gtkhid-main.c, src/hid/gtk/gui-top-window.c,
+	src/hid/gtk/gui.h: hid/gtk: Move various gdk drawing routines into a
+	new file gtkhid-gdk.c This separates some of the drawing code so it could be replaced more
+	easily.  Pretty much a straight move at this point, but renamed the static
+	function "draw_grid()" to ghid_draw_grid() now it is no longer local
+	to gtkhid-main.  Removed all #include not required to build in gtkhid-main.c and
+	gtkhid-gdk.c
+
+2009-11-15   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/draw.c, src/hid.h, src/hid/gtk/gtkhid-main.c,
+	src/hid/lesstif/main.c: Add SL_RATS layer ID to tell the GUI we're
+	drawing rats Also, let the GUI decide whether it wants to draw rats or not,
+	rather than have the core test PCB->RatsOn directly.
+
+2009-11-15   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/draw.c, src/draw.h: draw.c: Apply const qualifier to DrawLayer
+	and DrawSilk bounds This keeps the compiler happier.
+
+2009-11-15   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/crosshair.c: By popular(*) request, Make the cross-hair snap
+	to the center of pads * Popular.. or vocal?, I'm not sure.  If more people don't like the new behaviour, there is always git
+	revert.  There was of course, a third possibility - adding support to snap to
+	pad end-points _and_ their centers. I rejected this because of
+	"nearly" square pads - it becomes difficult to know if you've picked
+	up the center of the pad, and many of those asking for
+	snap-to-center wanted it in order to pick up and align components by
+	their pads.  NB: Optimised rat-lines still go to the edge of pads, as this can
+	    often look less cluttered. Rat-lines drawn to the center of a pad
+	    will work correctly, and remain on the pad center until the next
+	    time "optimise" is run on the rats-nest.
+
+2009-11-15   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/find.c, src/rubberband.c: Add support for rat-lines ending at
+	the center of pads Optimised rats are still located at the edges of pads, but the rat
+	connection checking code will now also accept rats ending at the
+	center of a pad.
+
+2009-11-14   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/draw.h: draw.h: Remove ClearPin prototype missed in last
+	commit
+
+2009-11-14   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/draw.c: draw.c: Don't clear pins / vias from polygons... it is
+	already done! Our polygons already the required holes for pins, vias, pads etc..
+	so don't waste drawing clearances twice. This looks to be a legacy
+	from the way PCB used to draw polygons.
+
+2009-11-14   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/hid/common/draw_helpers.c, src/polyarea.h, src/polygon.c,
+	src/polygon1.c: polygons: Tag circular contours so they can be
+	special-cased when drawing.  Tagging circular contours allows GUIs (if they wish) to draw
+	circular holes in polygons more accurately, and potentially faster -
+	depending on whether they use mask based rendering or rely on the
+	dicer.  When zoomed far out (and using a mask based scheme), the drawing
+	routine can use a lower vertex count approximation to the contour -
+	leading to rendering speed improvements. This is used to reasonable
+	effect in the experimental OpenGL branch.  Modify hid/common/draw_helpers.c to use these tags when thin-drawing
+	polygon contours with common_thindraw_pcb_polygon(). This allows the
+	GUI to change the level of detail rendered with zoom, and serves to
+	test this feature.  DRC checking and output are still done using the fixed resolution
+	approximation present in the polygon contour, so in this respect -
+	it makes rendering somewhat unfaithful to the final output.
+
+2009-11-13   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/draw.c: draw.c: Draw all vias, pins and pads under the mask
+	layer This fixes an issue where the rendering of a partially masked via is
+	inaccurate. The down-side is that partially, or completely masked
+	vias become obscured by the mask drawn above them.  If the user is previewing the mask rendering, it is probably best
+	that they see an accurate representation - even if this means hiding
+	vias.
+
+2009-11-13   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/draw.c: Fix thindraw mask drawing for pins, including
+	octagonal ones We need to set the line-width for round pins when in thin-draw and
+	clearing the mask.  We need to tell DrawSpecialPolygon() whether we need thin-draw or
+	not depending on whether we're clearing the mask or not. We don't
+	need to set the line-width outside of DrawSpecialPolygon(), since it
+	sets it its-self.  Fix DrawSpecialPolygon() to set the line width and cap style on the
+	correct GC.
+
+2009-11-13   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/hid/common/draw_helpers.c: hid/common: Control update of
+	NoHoles cache based on clip region If at least 50% of the bounding box of a polygon is within the clip
+	region, compute the whole NoHoles polygon and cache it for later
+	rendering.  If less of the polygon is within the clip region, just compute what
+	we need to draw the piece we've been asked for.
+
+2009-11-13   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/hid/common/draw_helpers.c: hid/common: Fix memory leak in
+	polygon NoHoles clipping routine poly_CopyContour creates the edge tree, as does ContourToPoly(),
+	which overwrite the one created in poly_CopyContour().  Replace call to ContourToPoly() with a discrete alternative without
+	the poly_PreContour() call.  Also, don't try to poly_Free() the output of poly_Boolean_free() in
+	an error condition. poly_Boolean_free() re-uses the A input polygon
+	for its output, so attempting to free that might be dangerous.  poly_Boolean_free() should free its inputs (and any partial output)
+	if it encounters an error.
+
+2009-11-12   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/hid/common/draw_helpers.c: hid/common: Clip no-holes polygon
+	pieces before calling fill_contour This avoids integer overflow in some HIDs (GTK, Lesstif?) when
+	drawing at high zoom level. Such overflow would lead to incorrectly
+	drawn polygons.  It is possible that a similar bug could effect thin-drawn polygons,
+	but that has not manifested its-self so far. If we were to clip
+	these in the future, we need to be careful to extend the clip region
+	slightly off-screen, so the outlines are not drawn.  Ideally we would clip these vertices using a Sutherland-Hodgman
+	clipping algorithm, then we could simply discard edges which are
+	clipped completely.
+
+2009-11-12   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/draw.c, src/hid/common/flags.c, src/hid/gerber/gerber.c,
+	src/hid/png/png.c, src/hid/ps/ps.c, src/print.c: Use strcmp() for
+	special layer names, rather than strcasecmp() Before commit 086aa491fae18f1ec72da047b772fa3510f72d0b, we were
+	using strcmp() and strcasecmp() in different places. That commit
+	changed to strcasecmp(). Lets choose to keep the more restrictive
+	option for now, which reduces the number of "magic" layer names PCB
+	supports.
+
+2009-11-12   Patrick Bernaud * b-patrick AT wanadoo dot fr *
+
+	* src/hid/gtk/gui-top-window.c: hid/gtk: Fix strncat length when
+	building accelerator string. (CODE!) (Oops, I pushed an empty patch last time - Peter Clifton) Commit d6b396c4a34bb619c8e91da1e9cd9bd27ff54657 was not enough:
+	strncat() must be given the remaining length of buffer to ensure it
+	does not overflow. Plus it now emits a message in the unlikely case
+	of a too small buffer for an accelerator.
+
+2009-11-12   Patrick Bernaud * b-patrick AT wanadoo dot fr *
+
+	* : hid/gtk: Fix strncat length when building accelerator string.  Commit d6b396c4a34bb619c8e91da1e9cd9bd27ff54657 was not enough:
+	strncat() must be given the remaining length of buffer to ensure it
+	does not overflow. Plus it now emits a message in the unlikely case
+	of a too small buffer for an accelerator.
+
+2009-11-12   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/draw.c, src/find.c, src/polygon.c: Correct rendering and
+	connectivity checks for zero clearance pads and pins NB: These areren't technically allowed by PCB, but it is nice that
+	when a user hacks zero clearance in their PCB file, that we: a) Draw polygons without any cleared gaps in the output b) Correctly determine that these objects will be connected to the
+	polygon
+
+2009-11-12   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/draw.c, src/hid/gerber/gerber.c, src/hid/ps/ps.c: Use
+	strcasecmp when looking for the "outline" or "route" layer A some cases previously used strcmp, leading to inconsistencies in
+	our handling of these "special" layers.
+
+2009-11-12   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/polygon.c: polygon.c: Remove unused #define COARSE_CIRCLE 0
+
+2009-11-12   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/polygon.c: Speed up unsubtraction from polygons when objects
+	are deleted This process worked by adding a new "blob" of polygon to cover in
+	the hole made by the object being deleted. If this "blob"
+	intersected the contour of the original polygon, it would cause the
+	polygon's contour to be damaged. To avoid this, the unsubract code
+	would always clip the resulting polygon against the original
+	(pristine) polygon contour.  Unfortunately.. this clipping operation is gauranteed to intersect
+	the contour of the polygon - a very expensive operation, since all
+	holes inside the polygon (many on a complex board) have to be
+	re-processed.  This speed-up is achieved by reversing the order of operation. The
+	"blob" to be added to the polygon is first clipped against the
+	pristine contour (a relatively cheap operation). This then allows us
+	to add the new clipped blob to the more complex polygon on the board
+	without worry that the contour may be compromised.
+
+2009-11-12   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/file.c: file.c: Add profiling of CPU seconds consumed during
+	file load This information is useful to benchmark the load of complex boards
+	which consume a lot of CPU cycles clipping polygons during loading.  Adding this upstream will allow me to gain information from users
+	describing load slowness, without having a copy their design.
+
+2009-11-11   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/hid/ps/ps.c: hid/ps: Don't use diced polygons for postscript
+	output This speeds up postscript output on boards with complex polygons.  It has the added advantage for some postscript and pdf readers that
+	there are no accidental gaps rendered between pieces of the diced
+	polygon due to non-global anti-aliasing in their renderer.
+
+2009-11-11   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/polygon.c: Play with number of line segments in line caps By changing from 36 lines-segments per circle to 40, we create a
+	symmetry at 45 degrees - a common angle for lines on a circuit board
+	to intersect at. This avoids building additional complexity in the
+	polygons which are cut by these intersections.
+
+2009-11-11   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/polygon.c: Fixup frac_circle to avoid repeating a vertex the
+	caller will add Before we were getting self-intersecting polygons in some cases, a
+	big no-no. One less vertex should be added than the expected
+	(CIRC_SEGS / range), since the caller adds the last vertex.
+
+2009-11-11   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/polygon1.c: polygon1.c: #ifdef DEBUG_ALL_LABELS build
+	print_labels() Avoids warnings when building with DEBUG defined, but without
+	DEBUG_ALL_LABELS.
+
+2009-11-11   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/polygon1.c: polygon1.c: Tidy up poly_Valid debug print
+	routines to match pline_dump Avoids a superfluous line: %d %d 10 10 ""] at the beginning of each output block.
+
+2009-11-11   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/polygon1.c: polygon1.c: Fixup pline_dump() (debug code) to
+	match correct edge state The old code would mistakenly annotate with the edge state for the
+	next edge. From polygon1.c: /* note that a vertex v's Flags.status represents the edge defined
+	 by * v to v->next (i.e. the edge is forward of v)  */
+
+2009-11-11   Harry Eaton * haceaton AT users dot sourceforge dot net *
+
+	* src/polygon1.c: Re-write node_label() to only label the edge being
+	passed as its argument.  Breifly, the old code tried to walk the entire CVCList labeling
+	multiple edges. The new code tries only to label the argument vertex
+	i.e. the forward ('N') edge from this vertex. It tries to look
+	counter-clockwise just one edge which will give the answer in most
+	cases. If that fails it looks further into the CVCList until it can
+	find the answer, then stops. The code is much simpler because we
+	know that the edge we are labeling is always departing the
+	cross-vertex point.  (Futher comments and original bug diagnosis by Peter Clifton) This prevents "double labeling", where the old routine could label
+	any edges which intersect at the vertex passed to node_label().  This fixes a bug discovered by Stefan Salewski, where certain boards
+	could trigger an assert failure when PCB was built with debugging.  The bug, it would seem - is relating to the way (and order) we were
+	labeling edges of polygon contours: 2 |/\     In this diagram, x is on the outer contour of our polygon,
+	x  |    and is in fact two vertices at the same point, lets denote
+	|\/     these as |\ and |/ 1 The labelling algorithm works up from point 1, gets to |\, whereupon
+	it gets the CVCList for the spatial point x - which contains |\ AND
+	|/ along with the (shared) edges from the clipping contour.  node_label is called with the |\ vertex, but in the process of
+	scanning the CVCList at this point, it also checks for SHARED edges.
+	It _only_ checks shared edges against the |\ vertex, NOT the |/ one.  During this pass, the | edge coming from the |/ vertex gets
+	mis-labelled as "OUTSIDE", where is should eventually get labelled
+	"SHARED" BUG: We then skip over calling node_label with the |/ vertex, since | has
+	already been labelled. We next get to point 2.  Point 2 looks at the | edge, and declares it to be "INSIDE". (It
+	should already have been labelled "SHARED" by this point, so
+	node_label doesn't know any better.  The | edge is already labelled "OUTSIDE" when we go to label it
+	"INSIDE".. assertion fail.  This commit avoids missing the correct labelling of shared edges, by
+	ensuring we never label any edges in advance of calling node_label
+	for them.
+
+2009-11-11   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/polygon1.c: Reindent polygon1.c with "indent" This is a painful one for me to push, as it will certainly cause
+	rebase misery against all my local branches.  Oh well... got to be done!
+
+2009-11-09   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/file.c: file.c: Don't walk off the end of a string in
+	string_cmp() We need to check that we don't advance past the terminating \0 in
+	the string.
+
+2009-11-09   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/polygon1.c: polygon1.c: Fix some printf format arguments in
+	DEBUG sections %ld is for long int, and we are passing int, so use %d
+
+2009-11-09   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/hid/gtk/gui-dialog.c, src/hid/gtk/gui-top-window.c: hid/gtk:
+	Don't pass non-literat format argument to printf style functions.
+
+2009-11-09   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/hid/gtk/gui-top-window.c: Pass correct length to strncat We need to pass "sizeof (string) - 1", due to the NULL pointer.
+
+2009-11-08   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* win32/Makefile.am, win32/build_pcb, win32/pcb.nsi.in:  win32:
+	 Install Readme.txt in @docdir@ Also removes unnecessary fiddling with pkgdatadir which was
+	responsible for creating an empty directory $datadir/pcb-$VERSION/ Adjusted pcb.nsi.in to match new location of Readme.txt, but have
+	not test-built the Win32 package due to non-availablility.   Adjusted build_pcb to put @docdir@ at ${pcb_inst}/doc, as this fits
+	the rest of the win32 build better.
+
+2009-11-07   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* example/Makefile.am, example/libraries/Makefile.am,
+	tutorial/Makefile.am:  Install examples under @docdir@ This is what distro packaging scripts have been doing anyway, so
+	save them the work by moving our defaults.   Suggested by Chitlesh GOORAH * chitlesh dot goorah AT gmail dot com
+	*
+
+2009-11-07   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* example/LED, example/LED.NET, example/LED.net, example/LED.pcb,
+	example/LED2, example/LED2.pcb, example/Makefile.am: examples: Add
+	".pcb" extension to "PCB(2)", move "LED.NET" to "LED.net"  ".pcb" change suggested by Chitlesh GOORAH * chitlesh dot goorah AT
+	gmail dot com * ".net" change was my doing, to match our registered
+	mime-types
+
+2009-11-06   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/hid/lesstif/main.c: lesstif: Remove errornous & operator in
+	free () call GCC spotted this one.
+
+2009-11-05   Dan McMahill * dan AT mcmahill dot net *
+
+	* README.snapshots: Fix some details on branching and pushing a
+	local branch.
+
+2009-11-03   Dan McMahill * dan AT mcmahill dot net *
+
+	* README.snapshots: Update how to release files on sourceforge since
+	it has all changed.
+
+2009-11-03   Dan McMahill * dan AT mcmahill dot net *
+
+	* configure.ac: Welcome to pcb-1.99z (decision time is looming)
+
+2009-11-03   Dan McMahill * dan AT mcmahill dot net *
+
+	* : commit 7f38f164addcbfc0a9873d2e0782f921f2d005c9  Author: Dan
+	McMahill * dan AT mcmahill dot net * Date:   Tue Nov 3 17:56:38 2009
+	-0500
+
+2009-11-03   Dan McMahill * dan AT mcmahill dot net *
+
+	* utils/git2cl: Be more agressive about obfuscating email addresses.
+
+2009-11-03   Peter Clifton * pcjc2 AT cam dot ac dot uk *
+
+	* src/hid/batch/batch.c, src/move.c: Fix mistaken use of MAX_LAYER
+	instead of max_layer.  (Why this wasn't obvious, I can't possibly imagine ;)) Bug relates to batch HID, and move of text items onto the solder
+	layer.
+
 2009-11-02   Dan McMahill * dan AT mcmahill dot net *
 
 	* NEWS: Add a few more news item for the upcoming release.
