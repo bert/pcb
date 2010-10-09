@@ -10,3 +10,5 @@ res_parse.[ch]
 *pcb-menu.h
 pcbtest.sh
 pcb
+pcb.exe
+pcb_icon.ico
