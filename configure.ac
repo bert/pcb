@@ -662,6 +662,9 @@ AC_CHECK_FUNCS(popen)
 AC_CHECK_FUNCS(realpath canonicalize_file_name)
 libiberty_NEED_DECLARATION(canonicalize_file_name)
 
+# for pcb_spawnvp in action.c on Windows
+AC_CHECK_FUNCS(_spawnvp)
+
 AC_HEADER_STDC
 AC_CHECK_HEADERS(limits.h locale.h string.h sys/types.h regex.h pwd.h)
 AC_CHECK_HEADERS(sys/socket.h netinet/in.h netdb.h sys/param.h sys/times.h sys/wait.h)

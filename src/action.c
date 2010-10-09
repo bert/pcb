@@ -7287,6 +7287,13 @@ ActionExecCommand (int argc, char **argv, int x, int y)
 static int
 pcb_spawnvp (char **argv)
 {
+#ifdef HAVE__SPAWNVP
+  int result = _spawnvp (_P_WAIT, argv[0], argv);
+  if (result == -1)
+    return 1;
+  else
+    return 0;
+#else
   int pid;
   pid = fork ();
   if (pid < 0)
@@ -7308,6 +7315,7 @@ pcb_spawnvp (char **argv)
       wait (&rv);
     }
   return 0;
+#endif
 }
 
 /* ---------------------------------------------------------------- */
