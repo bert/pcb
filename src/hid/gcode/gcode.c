@@ -553,10 +553,16 @@ gcode_do_export (HID_Attr_Val * options)
                        variable_safeZ, gcode_safeZ);
               fprintf (gcode_f2, "%s=%f  (cutting depth)\n",
                        variable_cutdepth, gcode_cutdepth);
+              fprintf (gcode_f2, "(---------------------------------)\n");
+              fprintf (gcode_f2, "G17 G%d G90 G64 P0.003 M3 S3000 M7 F%d\n",
+                       metric ? 21 : 20, metric ? 25 : 1);
             }
-          fprintf (gcode_f2, "(---------------------------------)\n");
-          fprintf (gcode_f2, "G17 G%d G90 G64 P0.003 M3 S3000 M7 F%d\n",
-                   metric ? 21 : 20, metric ? 25 : 1);
+          else
+            {
+              fprintf (gcode_f2, "(---------------------------------)\n");
+              fprintf (gcode_f2, "G17\nG%d\nG90\nG64 P0.003\nM3 S3000\nM7\nF%d\n",
+                       metric ? 21 : 20, metric ? 25 : 1);
+            }
           fprintf (gcode_f2, "G0 Z%s\n", variable_safeZ);
           /* extract contour points from image */
           r = bm_to_pathlist (bm, &plist, &param_default);
@@ -580,7 +586,10 @@ gcode_do_export (HID_Attr_Val * options)
           else
             fprintf (gcode_f2, "(end, total distance %.2fmm = %.2fin)\n",
                      25.4 * d, d);
-          fprintf (gcode_f2, "M5 M9 M2\n");
+          if (gcode_advanced)
+            fprintf (gcode_f2, "M5 M9 M2\n");
+          else
+            fprintf (gcode_f2, "M5\nM9\nM2\n");
           pathlist_free (plist);
           bm_free (bm);
           fclose (gcode_f2);
@@ -611,10 +620,16 @@ gcode_do_export (HID_Attr_Val * options)
                            variable_safeZ, gcode_safeZ);
                   fprintf (gcode_f2, "%s=%f  (drill depth)\n",
                            variable_drilldepth, gcode_drilldepth);
+                  fprintf (gcode_f2, "(---------------------------------)\n");
+                  fprintf (gcode_f2, "G17 G%d G90 G64 P0.003 M3 S3000 M7 F%d\n",
+                           metric ? 21 : 20, metric ? 25 : 1);
                 }
-              fprintf (gcode_f2, "(---------------------------------)\n");
-              fprintf (gcode_f2, "G17 G%d G90 G64 P0.003 M3 S3000 M7 F%d\n",
-                       metric ? 21 : 20, metric ? 25 : 1);
+              else
+                {
+                  fprintf (gcode_f2, "(---------------------------------)\n");
+                  fprintf (gcode_f2, "G17\nG%d\nG90\nG64 P0.003\nM3 S3000\nM7\nF%d\n",
+                           metric ? 21 : 20, metric ? 25 : 1);
+                }
 /*                              fprintf(gcode_f2,"G0 Z%s\n",variable_safeZ); */
               for (r = 0; r < n_drill; r++)
                 {
@@ -637,7 +652,10 @@ gcode_do_export (HID_Attr_Val * options)
                             (drill[r].y - drill[r - 1].y) * (drill[r].y -
                                                              drill[r - 1].y));
                 }
-              fprintf (gcode_f2, "M5 M9 M2\n");
+              if (gcode_advanced)
+                fprintf (gcode_f2, "M5 M9 M2\n");
+              else
+                fprintf (gcode_f2, "M5\nM9\nM2\n");
               fprintf (gcode_f2, "(end, total distance %.2fmm = %.2fin)\n",
                        25.4 * d, d);
               fclose (gcode_f2);
