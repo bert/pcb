@@ -113,7 +113,7 @@ static int gcode_export_group[MAX_LAYER];
 /* Group that is currently exported. */
 static int gcode_cur_group;
 
-/* Filename prefix that will be used when saving files. */
+/* Filename prefix and suffix that will be used when saving files. */
 static const char *gcode_basename = NULL;
 
 /* Horizontal DPI (grid points per inch) */
@@ -144,7 +144,8 @@ static const char *units[] = {
 
 HID_Attribute gcode_attribute_list[] = {
   /* other HIDs expect this to be first.  */
-  {"basename", "File name prefix",
+  {"basename", "File name prefix and suffix,\n"
+               "layer names will be inserted before the suffix",
    HID_String, 0, 0, {0, 0, 0}, 0, 0},
 #define HA_basename 0
 
@@ -187,10 +188,28 @@ static int pcb_to_gcode (int pcb)
   return round(COORD_TO_INCH(pcb) * gcode_dpi);
 }
 
-static char *
-gcode_get_png_name (const char *basename, const char *suffix)
+/* Fits the given layer name into basename, just before the suffix */
+static void
+gcode_get_filename (char *filename, const char *layername)
 {
-  return g_strdup_printf ("%s.%s.png", basename, suffix);
+  char *pt;
+  char suffix[MAXPATHLEN];
+
+  suffix[0] = '\0';
+  pt = strrchr (gcode_basename, '.');
+  if (pt && pt > strrchr (gcode_basename, '/'))
+    strcpy (suffix, pt);
+  else
+    pt = NULL;
+
+  strcpy (filename, gcode_basename);
+  if (pt)
+    *(filename + (pt - gcode_basename)) = '\0';
+  strcat (filename, "-");
+  strcat (filename, layername);
+  strcat (filename, suffix);
+
+  // result is in char *filename
 }
 
 /* Sorts drills in order of distance from the origin */
@@ -318,12 +337,15 @@ gcode_alloc_colors ()
 }
 
 static void
-gcode_start_png (const char *basename, const char *suffix)
+gcode_start_png (const char *layername)
 {
   int h, w;
-  char *buf;
+  char *png_filename, *buf;
 
-  buf = gcode_get_png_name (basename, suffix);
+  png_filename = (char *)malloc (MAXPATHLEN);
+  gcode_get_filename (png_filename, layername);
+  buf = g_strdup_printf ("%s.png", png_filename);
+  free(png_filename);
 
   h = pcb_to_gcode (PCB->MaxHeight);
   w = pcb_to_gcode (PCB->MaxWidth);
@@ -410,7 +432,7 @@ gcode_do_export (HID_Attr_Val * options)
   gcode_basename = options[HA_basename].str_value;
   if (!gcode_basename)
     {
-      gcode_basename = "pcb-out";
+      gcode_basename = "pcb-out.gcode";
     }
   gcode_dpi = options[HA_dpi].int_value;
   if (gcode_dpi < 0)
@@ -446,7 +468,7 @@ gcode_do_export (HID_Attr_Val * options)
             (GetLayerGroupNumberByNumber (idx) ==
              GetLayerGroupNumberByNumber (solder_silk_layer)) ? 1 : 0;
           save_drill = is_solder;	/* save drills for one layer only */
-          gcode_start_png (gcode_basename, layer_type_to_file_name (idx, FNS_fixed));
+          gcode_start_png (layer_type_to_file_name (idx, FNS_fixed));
           hid_save_and_show_layer_ons (save_ons);
           gcode_start_png_export ();
           hid_restore_layer_ons (save_ons);
@@ -474,8 +496,7 @@ gcode_do_export (HID_Attr_Val * options)
                 }
               gdImageDestroy (temp_im);
             }
-          sprintf (filename, "%s.%s.cnc", gcode_basename,
-                   layer_type_to_file_name (idx, FNS_fixed));
+          gcode_get_filename (filename, layer_type_to_file_name (idx, FNS_fixed));
           for (r = 0; r < gdImageSX (gcode_im); r++)
             {
               for (c = 0; c < gdImageSY (gcode_im); c++)
@@ -541,7 +562,7 @@ gcode_do_export (HID_Attr_Val * options)
             {
               d = 0;
               drill = sort_drill (drill, n_drill);
-              sprintf (filename, "%s.drill.cnc", gcode_basename);
+              gcode_get_filename (filename, "drill");
               gcode_f2 = fopen (filename, "wb");
               if (!gcode_f2)
                 {
