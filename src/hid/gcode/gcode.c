@@ -162,9 +162,10 @@ HID_Attribute gcode_attribute_list[] = {
    HID_Real, -1000, 10000, {0, 0, 2}, 0, 0},
 #define HA_safeZ 3
 
-  {"tool-radius", "Milling tool radius compensation",
-   HID_Real, 0, 10000, {0, 0, 0.1}, 0, 0},
-#define HA_toolradius 4
+  {"tool-diameter", "Milling tool diameter, or twice the offset of the\n"
+                    "G-code track from the resulting copper track",
+   HID_Real, 0, 10000, {0, 0, 0.2}, 0, 0},
+#define HA_tooldiameter 4
 
   {"drill-depth", "Drilling depth",
    HID_Real, -10000, 10000, {0, 0, -2}, 0, 0},
@@ -458,8 +459,8 @@ gcode_do_export (HID_Attr_Val * options)
   gcode_drilldepth = options[HA_drilldepth].real_value * scale;
   gcode_safeZ = options[HA_safeZ].real_value * scale;
   gcode_toolradius = metric
-                   ? MM_TO_COORD(options[HA_toolradius].real_value * scale)
-                   : INCH_TO_COORD(options[HA_toolradius].real_value * scale);
+                   ? MM_TO_COORD(options[HA_tooldiameter].real_value / 2 * scale)
+                   : INCH_TO_COORD(options[HA_tooldiameter].real_value / 2 * scale);
   gcode_advanced = options[HA_advanced].int_value;
   gcode_choose_groups ();
   if (gcode_advanced)
