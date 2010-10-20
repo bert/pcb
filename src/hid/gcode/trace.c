@@ -1401,7 +1401,8 @@ malloc_error:
 
 /* ---------------------------------------------------------------------- */
 double
-plotpolygon (privpath_t * pp, FILE * f, double scale)
+plotpolygon (privpath_t * pp, FILE * f, double scale, const char *var_cutdepth,
+             const char *var_safeZ)
 {
   int i;
   int m = pp->m;
@@ -1418,7 +1419,7 @@ plotpolygon (privpath_t * pp, FILE * f, double scale)
 
   fprintf (f, "G0 X%f Y%f    (start point)\n", pt[po[0]].x * scale,
 	   pt[po[0]].y * scale);
-  fprintf (f, "G1 Z#101\n");
+  fprintf (f, "G1 Z%s\n", var_cutdepth);
   for (i = 1; i < m; i++)
     {
       fprintf (f, "G1 X%f Y%f\n", pt[po[i]].x * scale, pt[po[i]].y * scale);
@@ -1432,7 +1433,7 @@ plotpolygon (privpath_t * pp, FILE * f, double scale)
 	      scale);
     }
   fprintf (f, "G1 X%f Y%f\n", pt[po[0]].x * scale, pt[po[0]].y * scale);
-  fprintf (f, "G0 Z#100\n");
+  fprintf (f, "G0 Z%s\n", var_safeZ);
   dm +=
     sqrt ((pt[po[m - 1]].x - pt[po[0]].x) * scale * (pt[po[m - 1]].x -
 						     pt[po[0]].x) * scale +
@@ -1447,7 +1448,8 @@ plotpolygon (privpath_t * pp, FILE * f, double scale)
 /* return distance on success, -1 on error with errno set. */
 double
 process_path (path_t * plist, const potrace_param_t * param,
-	      const potrace_bitmap_t * bm, FILE * f, double scale)
+	      const potrace_bitmap_t * bm, FILE * f, double scale,
+	      const char *var_cutdepth, const char *var_safeZ)
 {
   path_t *p;
   double dm = 0;
@@ -1460,7 +1462,7 @@ process_path (path_t * plist, const potrace_param_t * param,
     TRY (bestpolygon (p->priv));
     TRY (adjust_vertices (p->priv));
     fprintf (f, "(polygon %d)\n", ++n);
-    dm += plotpolygon (p->priv, f, scale);
+    dm += plotpolygon (p->priv, f, scale, var_cutdepth, var_safeZ);
 /*  No need to extract curves
 	TRY(smooth(&p->priv->curve, p->sign, param->alphamax));
     if (param->opticurve) {

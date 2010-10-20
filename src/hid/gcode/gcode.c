@@ -123,6 +123,7 @@ static double gcode_cutdepth = 0;       /* milling depth (inch) */
 static double gcode_drilldepth = 0;     /* drilling depth (inch) */
 static double gcode_safeZ = 100;        /* safe Z (inch) */
 static double gcode_toolradius = 0;     /* tool radius(inch) */
+static char gcode_advanced = 0;
 static int save_drill = 0;
 static int n_drill = 0;
 static int nmax_drill = 0;
@@ -173,6 +174,12 @@ HID_Attribute gcode_attribute_list[] = {
    HID_Unit, 0, 0, {-1, 0, 0}, units, 0},
 #define HA_unit 6
 
+  {"advanced-gcode", "wether to produce G-code for advanced interpreters,\n"
+                     "like using variables for often used values. Not all\n"
+                     "machine controllers understand this, but it allows\n"
+                     "better hand-editing of the resulting files",
+   HID_Boolean, 0, 0, {-1, 0, 0}, 0, 0},
+#define HA_advanced 7
 };
 
 #define NUM_OPTIONS (sizeof(gcode_attribute_list)/sizeof(gcode_attribute_list[0]))
@@ -419,6 +426,8 @@ gcode_do_export (HID_Attr_Val * options)
      0.0,                        /* granularity  */
      },
   };
+  char variable_safeZ[20], variable_cutdepth[20];
+  char variable_drilldepth[20];
 
   if (!options)
     {
@@ -451,13 +460,25 @@ gcode_do_export (HID_Attr_Val * options)
   gcode_toolradius = metric
                    ? MM_TO_COORD(options[HA_toolradius].real_value * scale)
                    : INCH_TO_COORD(options[HA_toolradius].real_value * scale);
+  gcode_advanced = options[HA_advanced].int_value;
   gcode_choose_groups ();
+  if (gcode_advanced)
+    {
+      strcpy (variable_safeZ, "#100");
+      strcpy (variable_cutdepth, "#101");
+      strcpy (variable_drilldepth, "#102");
+    }
+  else
+    {
+      snprintf (variable_safeZ, 20, "%f", gcode_safeZ);
+      snprintf (variable_cutdepth, 20, "%f", gcode_cutdepth);
+      snprintf (variable_drilldepth, 20, "%f", gcode_drilldepth);
+    }
 
   for (i = 0; i < MAX_LAYER; i++)
     {
       if (gcode_export_group[i])
         {
-
           gcode_cur_group = i;
 
           /* magic */
@@ -526,12 +547,17 @@ gcode_do_export (HID_Attr_Val * options)
             pcb_fprintf (gcode_f2, "(Board size: %.2mmx%.2mm mm)", PCB->MaxWidth, PCB->MaxHeight);
           else
             pcb_fprintf (gcode_f2, "(Board size: %.2mix%.2mi inches)", PCB->MaxWidth, PCB->MaxHeight);
-          fprintf (gcode_f2, "#100=%f  (safe Z)\n", gcode_safeZ);
-          fprintf (gcode_f2, "#101=%f  (cutting depth)\n", gcode_cutdepth);
+          if (gcode_advanced)
+            {
+              fprintf (gcode_f2, "%s=%f  (safe Z)\n",
+                       variable_safeZ, gcode_safeZ);
+              fprintf (gcode_f2, "%s=%f  (cutting depth)\n",
+                       variable_cutdepth, gcode_cutdepth);
+            }
           fprintf (gcode_f2, "(---------------------------------)\n");
           fprintf (gcode_f2, "G17 G%d G90 G64 P0.003 M3 S3000 M7 F%d\n",
                    metric ? 21 : 20, metric ? 25 : 1);
-          fprintf (gcode_f2, "G0 Z#100\n");
+          fprintf (gcode_f2, "G0 Z%s\n", variable_safeZ);
           /* extract contour points from image */
           r = bm_to_pathlist (bm, &plist, &param_default);
           if (r)
@@ -540,9 +566,9 @@ gcode_do_export (HID_Attr_Val * options)
               return;
             }
           /* generate best polygon and write vertices in g-code format */
-          d =
-            process_path (plist, &param_default, bm, gcode_f2,
-                          metric ? 25.4 / gcode_dpi : 1.0 / gcode_dpi);
+          d = process_path (plist, &param_default, bm, gcode_f2,
+                            metric ? 25.4 / gcode_dpi : 1.0 / gcode_dpi,
+                            variable_cutdepth, variable_safeZ);
           if (d < 0)
             {
               fprintf (stderr, "ERROR: path process function failed\n");
@@ -579,25 +605,31 @@ gcode_do_export (HID_Attr_Val * options)
                 pcb_fprintf (gcode_f2, "(Board size: %.2mmx%.2mm mm)", PCB->MaxWidth, PCB->MaxHeight);
               else
                 pcb_fprintf (gcode_f2, "(Board size: %.2mix%.2mi inches)", PCB->MaxWidth, PCB->MaxHeight);
-              fprintf (gcode_f2, "#100=%f  (safe Z)\n", gcode_safeZ);
-              fprintf (gcode_f2, "#101=%f  (drill depth)\n",
-                       gcode_drilldepth);
+              if (gcode_advanced)
+                {
+                  fprintf (gcode_f2, "%s=%f  (safe Z)\n",
+                           variable_safeZ, gcode_safeZ);
+                  fprintf (gcode_f2, "%s=%f  (drill depth)\n",
+                           variable_drilldepth, gcode_drilldepth);
+                }
               fprintf (gcode_f2, "(---------------------------------)\n");
               fprintf (gcode_f2, "G17 G%d G90 G64 P0.003 M3 S3000 M7 F%d\n",
                        metric ? 21 : 20, metric ? 25 : 1);
-/*                              fprintf(gcode_f2,"G0 Z#100\n"); */
+/*                              fprintf(gcode_f2,"G0 Z%s\n",variable_safeZ); */
               for (r = 0; r < n_drill; r++)
                 {
 /*                                      if(metric) fprintf(gcode_f2,"G0 X%f Y%f\n",drill[r].x*25.4,drill[r].y*25.4); */
 /*                                      else fprintf(gcode_f2,"G0 X%f Y%f\n",drill[r].x,drill[r].y); */
                   if (metric)
-                    fprintf (gcode_f2, "G81 X%f Y%f Z#101 R#100\n",
-                             drill[r].x * 25.4, drill[r].y * 25.4);
+                    fprintf (gcode_f2, "G81 X%f Y%f Z%s R%s\n",
+                             drill[r].x * 25.4, drill[r].y * 25.4,
+                             variable_drilldepth, variable_safeZ);
                   else
-                    fprintf (gcode_f2, "G81 X%f Y%f Z#101 R#100\n",
-                             drill[r].x, drill[r].y);
-/*                                      fprintf(gcode_f2,"G1 Z#101\n"); */
-/*                                      fprintf(gcode_f2,"G0 Z#100\n"); */
+                    fprintf (gcode_f2, "G81 X%f Y%f Z%s R%s\n",
+                             drill[r].x, drill[r].y,
+                             variable_drilldepth, variable_safeZ);
+/*                                      fprintf(gcode_f2,"G1 Z%s\n",variable_depth); */
+/*                                      fprintf(gcode_f2,"G0 Z%s\n",variable_safeZ); */
                   if (r > 0)
                     d +=
                       sqrt ((drill[r].x - drill[r - 1].x) * (drill[r].x -
