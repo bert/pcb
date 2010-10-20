@@ -454,7 +454,7 @@ gcode_do_export (HID_Attr_Val * options)
 /* ***************** gcode conversion *************************** */
 /* potrace uses a different kind of bitmap; for simplicity gcode_im is copied to this format */
 	  bm = bm_new (gdImageSX (gcode_im), gdImageSY (gcode_im));
-	  filename = (char *)malloc (512);
+	  filename = (char *)malloc (MAXPATHLEN);
 	  plist = NULL;
 	  if (is_solder)
 	    {			/* only for back layer */
