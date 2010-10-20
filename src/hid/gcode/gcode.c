@@ -122,7 +122,7 @@ static int gcode_dpi = -1;
 static double gcode_cutdepth = 0;       /* milling depth (inch) */
 static double gcode_drilldepth = 0;     /* drilling depth (inch) */
 static double gcode_safeZ = 100;        /* safe Z (inch) */
-static double gcode_toolradius = 0;     /* tool radius(inch) */
+static double gcode_toolradius = 0;     /* tool radius (1/100 mil) */
 static char gcode_advanced = 0;
 static int save_drill = 0;
 static int n_drill = 0;
@@ -543,6 +543,9 @@ gcode_do_export (HID_Attr_Val * options)
           fprintf (gcode_f2, "( %s )\n", filename);
           fprintf (gcode_f2, "(%d dpi)\n", gcode_dpi);
           fprintf (gcode_f2, "(Unit: %s)\n", metric ? "mm" : "inch");
+          fprintf (gcode_f2, "(Tool diameter: %f %s)\n",
+                   options[HA_tooldiameter].real_value * scale,
+                   metric ? "mm" : "inch");
           if (metric)
             pcb_fprintf (gcode_f2, "(Board size: %.2mmx%.2mm mm)", PCB->MaxWidth, PCB->MaxHeight);
           else
