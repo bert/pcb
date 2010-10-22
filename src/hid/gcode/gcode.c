@@ -176,7 +176,7 @@ HID_Attribute gcode_attribute_list[] = {
 #define HA_unit 6
 
   {"advanced-gcode", "wether to produce G-code for advanced interpreters,\n"
-                     "like using variables for often used values. Not all\n"
+                     "like using variables or drill cycles. Not all\n"
                      "machine controllers understand this, but it allows\n"
                      "better hand-editing of the resulting files",
    HID_Boolean, 0, 0, {-1, 0, 0}, 0, 0},
@@ -633,7 +633,7 @@ gcode_do_export (HID_Attr_Val * options)
                   fprintf (gcode_f2, "G17\nG%d\nG90\nG64 P0.003\nM3 S3000\nM7\nF%d\n",
                            metric ? 21 : 20, metric ? 25 : 1);
                 }
-/*                              fprintf(gcode_f2,"G0 Z%s\n",variable_safeZ); */
+              fprintf (gcode_f2, "G0 Z%s\n", variable_safeZ);
               for (r = 0; r < n_drill; r++)
                 {
                   double drillX, drillY;
@@ -648,11 +648,15 @@ gcode_do_export (HID_Attr_Val * options)
                       drillX = drill[r].x;
                       drillY = drill[r].y;
                     }
-/*                  fprintf(gcode_f2,"G0 X%f Y%f\n",drillX,drillY); */
-                  fprintf (gcode_f2, "G81 X%f Y%f Z%s R%s\n",
-                           drillX, drillY, variable_drilldepth, variable_safeZ);
-/*                                      fprintf(gcode_f2,"G1 Z%s\n",variable_depth); */
-/*                                      fprintf(gcode_f2,"G0 Z%s\n",variable_safeZ); */
+                  if (gcode_advanced)
+                    fprintf (gcode_f2, "G81 X%f Y%f Z%s R%s\n", drillX, drillY,
+                             variable_drilldepth, variable_safeZ);
+                  else
+                    {
+                      fprintf (gcode_f2, "G0 X%f Y%f\n", drillX, drillY);
+                      fprintf (gcode_f2, "G1 Z%s\n", variable_drilldepth);
+                      fprintf (gcode_f2, "G0 Z%s\n", variable_safeZ);
+                    }
                   if (r > 0)
                     d +=
                       sqrt ((drill[r].x - drill[r - 1].x) * (drill[r].x -
