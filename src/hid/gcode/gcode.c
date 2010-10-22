@@ -484,7 +484,6 @@ gcode_do_export (HID_Attr_Val * options)
           /* magic */
           idx = (i >= 0 && i < max_group) ?
             PCB->LayerGroups.Entries[i][0] : i;
-          printf ("idx=%d %s\n", idx, layer_type_to_file_name (idx, FNS_fixed));
           is_solder =
             (GetLayerGroupNumberByNumber (idx) ==
              GetLayerGroupNumberByNumber (solder_silk_layer)) ? 1 : 0;
