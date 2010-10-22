@@ -636,16 +636,21 @@ gcode_do_export (HID_Attr_Val * options)
 /*                              fprintf(gcode_f2,"G0 Z%s\n",variable_safeZ); */
               for (r = 0; r < n_drill; r++)
                 {
-/*                                      if(metric) fprintf(gcode_f2,"G0 X%f Y%f\n",drill[r].x*25.4,drill[r].y*25.4); */
-/*                                      else fprintf(gcode_f2,"G0 X%f Y%f\n",drill[r].x,drill[r].y); */
+                  double drillX, drillY;
+
                   if (metric)
-                    fprintf (gcode_f2, "G81 X%f Y%f Z%s R%s\n",
-                             drill[r].x * 25.4, drill[r].y * 25.4,
-                             variable_drilldepth, variable_safeZ);
+                    {
+                      drillX = drill[r].x * 25.4;
+                      drillY = drill[r].y * 25.4;
+                    }
                   else
-                    fprintf (gcode_f2, "G81 X%f Y%f Z%s R%s\n",
-                             drill[r].x, drill[r].y,
-                             variable_drilldepth, variable_safeZ);
+                    {
+                      drillX = drill[r].x;
+                      drillY = drill[r].y;
+                    }
+/*                  fprintf(gcode_f2,"G0 X%f Y%f\n",drillX,drillY); */
+                  fprintf (gcode_f2, "G81 X%f Y%f Z%s R%s\n",
+                           drillX, drillY, variable_drilldepth, variable_safeZ);
 /*                                      fprintf(gcode_f2,"G1 Z%s\n",variable_depth); */
 /*                                      fprintf(gcode_f2,"G0 Z%s\n",variable_safeZ); */
                   if (r > 0)
