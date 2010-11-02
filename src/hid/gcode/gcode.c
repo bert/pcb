@@ -159,45 +159,44 @@ static const char *units[] = {
 HID_Attribute gcode_attribute_list[] = {
   /* other HIDs expect this to be first.  */
   {"basename", "File name prefix and suffix,\n"
-               "layer names will be inserted before the suffix",
+               "layer names will be inserted before the suffix.",
    HID_String, 0, 0, {0, 0, 0}, 0, 0},
 #define HA_basename 0
 
-  {"dpi", "Resolution of intermediate image (pixels/inch)",
+  {"measurement-unit", "Measurement unit used in the G-code output.",
+   HID_Unit, 0, 0, {3, 0, 0}, units, 0},
+#define HA_unit 1
+
+  {"dpi", "Accuracy of the mill path generation in pixels/inch.",
    HID_Integer, 0, 2000, {600, 0, 0}, 0, 0},
-#define HA_dpi 1
+#define HA_dpi 2
 
-  {"mill-depth", "Milling depth",
-   HID_Real, -1000, 1000, {0, 0, -0.05}, 0, 0},
-#define HA_cutdepth 2
-
-  {"safe-Z", "Safe Z for traverse move",
+  {"safe-Z", "Safe Z for traverse movements of all operations.",
    HID_Real, -1000, 10000, {0, 0, 2}, 0, 0},
 #define HA_safeZ 3
 
-  {"tool-diameter", "Milling tool diameter, or twice the offset of the\n"
-                    "G-code track from the resulting copper track",
-   HID_Real, 0, 10000, {0, 0, 0.2}, 0, 0},
-#define HA_tooldiameter 4
+  {"iso-mill-depth", "Isolation milling depth.",
+   HID_Real, -1000, 1000, {0, 0, -0.05}, 0, 0},
+#define HA_cutdepth 4
 
-  {"predrill", "Wether to pre-drill all drilling spots with the milling\n"
-               "tool. Drill depth is mill-depth here. This feature eases\n"
+  {"iso-tool-diameter", "Isolation milling tool diameter.",
+   HID_Real, 0, 10000, {0, 0, 0.2}, 0, 0},
+#define HA_tooldiameter 5
+
+  {"predrill", "Wether to pre-drill all drill spots with the isolation milling\n"
+               "tool. Drill depth is iso-mill-depth here. This feature eases\n"
                "and enhances accuracy of manual drilling.",
    HID_Boolean, 0, 0, {1, 0, 0}, 0, 0},
-#define HA_predrill 5
+#define HA_predrill 6
 
-  {"drill-depth", "Drilling depth",
+  {"drill-depth", "Drilling depth.",
    HID_Real, -10000, 10000, {0, 0, -2}, 0, 0},
-#define HA_drilldepth 6
+#define HA_drilldepth 7
 
-  {"measurement-unit", "Measurement unit",
-   HID_Unit, 0, 0, {-1, 0, 0}, units, 0},
-#define HA_unit 7
-
-  {"advanced-gcode", "wether to produce G-code for advanced interpreters,\n"
+  {"advanced-gcode", "Wether to produce G-code for advanced interpreters,\n"
                      "like using variables or drill cycles. Not all\n"
                      "machine controllers understand this, but it allows\n"
-                     "better hand-editing of the resulting files",
+                     "better hand-editing of the resulting files.",
    HID_Boolean, 0, 0, {-1, 0, 0}, 0, 0},
 #define HA_advanced 8
 };
