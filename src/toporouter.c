@@ -2624,6 +2624,7 @@ check_cons_continuation:
   gts_surface_print_stats(l->surface, stderr);
 #endif  
   
+#if 0
   {
     char buffer[64];
     FILE *fout2;
@@ -2631,6 +2632,7 @@ check_cons_continuation:
     fout2 = fopen(buffer, "w");
     gts_surface_write(l->surface, fout2);
   }
+#endif
 
 }
 
