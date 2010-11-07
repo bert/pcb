@@ -509,26 +509,48 @@ define(`PKG_ZIP40',  `PKG_SD(`$1', `$2', `$3', 40)');
 
 #
 ##  Axial non-polar component (typically resistor or capacitor),
-#   300 through 1000 mil between pins
-#   AXN300 .. AXN1000
+#   100 through 1600 mil between pins
+#   AXN100 .. AXN1600
 #
+define(`PKG_ACY100',  `PKG_AXIAL_LAY(`$1', `$2', `$3', 100)');
+define(`PKG_ACY150',  `PKG_AXIAL_LAY(`$1', `$2', `$3', 150)');
+define(`PKG_ACY200',  `PKG_AXIAL_LAY(`$1', `$2', `$3', 200)');
 define(`PKG_ACY300',  `PKG_AXIAL_LAY(`$1', `$2', `$3', 300)');
 define(`PKG_ACY400',  `PKG_AXIAL_LAY(`$1', `$2', `$3', 400)');
 define(`PKG_ACY500',  `PKG_AXIAL_LAY(`$1', `$2', `$3', 500)');
 define(`PKG_ACY600',  `PKG_AXIAL_LAY(`$1', `$2', `$3', 600)');
+define(`PKG_ACY700',  `PKG_AXIAL_LAY(`$1', `$2', `$3', 700)');
 define(`PKG_ACY800',  `PKG_AXIAL_LAY(`$1', `$2', `$3', 800)');
+define(`PKG_ACY900',  `PKG_AXIAL_LAY(`$1', `$2', `$3', 900)');
 define(`PKG_ACY1000', `PKG_AXIAL_LAY(`$1', `$2', `$3', 1000)');
+define(`PKG_ACY1100', `PKG_AXIAL_LAY(`$1', `$2', `$3', 1100)');
+define(`PKG_ACY1200', `PKG_AXIAL_LAY(`$1', `$2', `$3', 1200)');
+define(`PKG_ACY1300', `PKG_AXIAL_LAY(`$1', `$2', `$3', 1300)');
+define(`PKG_ACY1400', `PKG_AXIAL_LAY(`$1', `$2', `$3', 1400)');
+define(`PKG_ACY1500', `PKG_AXIAL_LAY(`$1', `$2', `$3', 1500)');
+define(`PKG_ACY1600', `PKG_AXIAL_LAY(`$1', `$2', `$3', 1600)');
 
 
 ##  Axial polar component (typically capacitor),
-#   300 through 1000 mil between pins
+#   100 through 1600 mil between pins
 #
+define(`PKG_ACY100P',  `PKG_AXIAL_LAY(`$1', `$2', `$3', 100, 1)')
+define(`PKG_ACY150P',  `PKG_AXIAL_LAY(`$1', `$2', `$3', 150, 1)')
+define(`PKG_ACY200P',  `PKG_AXIAL_LAY(`$1', `$2', `$3', 200, 1)')
 define(`PKG_ACY300P',  `PKG_AXIAL_LAY(`$1', `$2', `$3', 300, 1)')
 define(`PKG_ACY400P',  `PKG_AXIAL_LAY(`$1', `$2', `$3', 400, 1)')
 define(`PKG_ACY500P',  `PKG_AXIAL_LAY(`$1', `$2', `$3', 500, 1)')
 define(`PKG_ACY600P',  `PKG_AXIAL_LAY(`$1', `$2', `$3', 600, 1)')
+define(`PKG_ACY700P',  `PKG_AXIAL_LAY(`$1', `$2', `$3', 700, 1)')
 define(`PKG_ACY800P',  `PKG_AXIAL_LAY(`$1', `$2', `$3', 800, 1)')
+define(`PKG_ACY900P',  `PKG_AXIAL_LAY(`$1', `$2', `$3', 900, 1)')
 define(`PKG_ACY1000P', `PKG_AXIAL_LAY(`$1', `$2', `$3', 1000, 1)')
+define(`PKG_ACY1100P', `PKG_AXIAL_LAY(`$1', `$2', `$3', 1100, 1)')
+define(`PKG_ACY1200P', `PKG_AXIAL_LAY(`$1', `$2', `$3', 1200, 1)')
+define(`PKG_ACY1300P', `PKG_AXIAL_LAY(`$1', `$2', `$3', 1300, 1)')
+define(`PKG_ACY1400P', `PKG_AXIAL_LAY(`$1', `$2', `$3', 1400, 1)')
+define(`PKG_ACY1500P', `PKG_AXIAL_LAY(`$1', `$2', `$3', 1500, 1)')
+define(`PKG_ACY1600P', `PKG_AXIAL_LAY(`$1', `$2', `$3', 1600, 1)')
 
 #
 ##  Axial diode (pin 1 is cathode)
@@ -539,7 +561,9 @@ define(`PKG_ALF300', `PKG_DIODE_LAY(`$1', `$2', `$3',  300)');
 define(`PKG_ALF400', `PKG_DIODE_LAY(`$1', `$2', `$3',  400)');
 define(`PKG_ALF500', `PKG_DIODE_LAY(`$1', `$2', `$3',  500)');
 define(`PKG_ALF600', `PKG_DIODE_LAY(`$1', `$2', `$3',  600)');
+define(`PKG_ALF700', `PKG_DIODE_LAY(`$1', `$2', `$3',  700)');
 define(`PKG_ALF800', `PKG_DIODE_LAY(`$1', `$2', `$3',  800)');
+define(`PKG_ALF900', `PKG_DIODE_LAY(`$1', `$2', `$3',  900)');
 define(`PKG_ALF1000',`PKG_DIODE_LAY(`$1', `$2', `$3', 1000)');
 
 #
@@ -548,26 +572,40 @@ define(`PKG_ALF1000',`PKG_DIODE_LAY(`$1', `$2', `$3', 1000)');
 #   RCY100 .. RCY1000
 #
 define(`PKG_RCY100',  `PKG_RADIAL_CAN(`$1', `$2', `$3', 200)');
+define(`PKG_RCY150',  `PKG_RADIAL_CAN(`$1', `$2', `$3', 300)');
 define(`PKG_RCY200',  `PKG_RADIAL_CAN(`$1', `$2', `$3', 400)');
+define(`PKG_RCY250',  `PKG_RADIAL_CAN(`$1', `$2', `$3', 500)');
 define(`PKG_RCY300',  `PKG_RADIAL_CAN(`$1', `$2', `$3', 600)');
+define(`PKG_RCY350',  `PKG_RADIAL_CAN(`$1', `$2', `$3', 700)');
 define(`PKG_RCY400',  `PKG_RADIAL_CAN(`$1', `$2', `$3', 800)');
 define(`PKG_RCY500',  `PKG_RADIAL_CAN(`$1', `$2', `$3', 1000)');
 define(`PKG_RCY600',  `PKG_RADIAL_CAN(`$1', `$2', `$3', 1200)');
+define(`PKG_RCY700',  `PKG_RADIAL_CAN(`$1', `$2', `$3', 1400)');
 define(`PKG_RCY800',  `PKG_RADIAL_CAN(`$1', `$2', `$3', 1600)');
+define(`PKG_RCY900',  `PKG_RADIAL_CAN(`$1', `$2', `$3', 1800)');
 define(`PKG_RCY1000', `PKG_RADIAL_CAN(`$1', `$2', `$3', 2000)');
+define(`PKG_RCY1100', `PKG_RADIAL_CAN(`$1', `$2', `$3', 2200)');
+define(`PKG_RCY1200', `PKG_RADIAL_CAN(`$1', `$2', `$3', 2400)');
 
 
 ##  Bottom lead polar circular component (typically capacitor)
 #   pin spacing 100 mil and up
 #
 define(`PKG_RCY100P',  `PKG_RADIAL_CAN(`$1', `$2', `$3', 200, 1)');
+define(`PKG_RCY150P',  `PKG_RADIAL_CAN(`$1', `$2', `$3', 300, 1)');
 define(`PKG_RCY200P',  `PKG_RADIAL_CAN(`$1', `$2', `$3', 400, 1)');
+define(`PKG_RCY250P',  `PKG_RADIAL_CAN(`$1', `$2', `$3', 500, 1)');
 define(`PKG_RCY300P',  `PKG_RADIAL_CAN(`$1', `$2', `$3', 600, 1)');
+define(`PKG_RCY350P',  `PKG_RADIAL_CAN(`$1', `$2', `$3', 700, 1)');
 define(`PKG_RCY400P',  `PKG_RADIAL_CAN(`$1', `$2', `$3', 800, 1)');
 define(`PKG_RCY500P',  `PKG_RADIAL_CAN(`$1', `$2', `$3', 1000, 1)');
 define(`PKG_RCY600P',  `PKG_RADIAL_CAN(`$1', `$2', `$3', 1200, 1)');
+define(`PKG_RCY700P',  `PKG_RADIAL_CAN(`$1', `$2', `$3', 1400, 1)');
 define(`PKG_RCY800P',  `PKG_RADIAL_CAN(`$1', `$2', `$3', 1600, 1)');
+define(`PKG_RCY900P',  `PKG_RADIAL_CAN(`$1', `$2', `$3', 1800, 1)');
 define(`PKG_RCY1000P', `PKG_RADIAL_CAN(`$1', `$2', `$3', 2000, 1)');
+define(`PKG_RCY1100P', `PKG_RADIAL_CAN(`$1', `$2', `$3', 2200, 1)');
+define(`PKG_RCY1200P', `PKG_RADIAL_CAN(`$1', `$2', `$3', 2400, 1)');
 
 #
 ##  Crystal
@@ -686,10 +724,20 @@ define(`PKG_JUMPER9',    `PKG_CONNECTOR(`$1', `$2', `$3',  9, 1)');
 define(`PKG_JUMPER10',   `PKG_CONNECTOR(`$1', `$2', `$3', 10, 1)');
 define(`PKG_JUMPER11',   `PKG_CONNECTOR(`$1', `$2', `$3', 11, 1)');
 define(`PKG_JUMPER12',   `PKG_CONNECTOR(`$1', `$2', `$3', 12, 1)');
+define(`PKG_JUMPER13',   `PKG_CONNECTOR(`$1', `$2', `$3', 13, 1)');
 define(`PKG_JUMPER14',   `PKG_CONNECTOR(`$1', `$2', `$3', 14, 1)');
+define(`PKG_JUMPER15',   `PKG_CONNECTOR(`$1', `$2', `$3', 15, 1)');
 define(`PKG_JUMPER16',   `PKG_CONNECTOR(`$1', `$2', `$3', 16, 1)');
+define(`PKG_JUMPER17',   `PKG_CONNECTOR(`$1', `$2', `$3', 17, 1)');
 define(`PKG_JUMPER18',   `PKG_CONNECTOR(`$1', `$2', `$3', 18, 1)');
+define(`PKG_JUMPER19',   `PKG_CONNECTOR(`$1', `$2', `$3', 19, 1)');
 define(`PKG_JUMPER20',   `PKG_CONNECTOR(`$1', `$2', `$3', 20, 1)');
+define(`PKG_JUMPER21',   `PKG_CONNECTOR(`$1', `$2', `$3', 21, 1)');
+define(`PKG_JUMPER22',   `PKG_CONNECTOR(`$1', `$2', `$3', 22, 1)');
+define(`PKG_JUMPER23',   `PKG_CONNECTOR(`$1', `$2', `$3', 23, 1)');
+define(`PKG_JUMPER24',   `PKG_CONNECTOR(`$1', `$2', `$3', 24, 1)');
+define(`PKG_JUMPER25',   `PKG_CONNECTOR(`$1', `$2', `$3', 25, 1)');
+define(`PKG_JUMPER26',   `PKG_CONNECTOR(`$1', `$2', `$3', 26, 1)');
 
 #
 ## MTA Connector, (0.100 inch pitch)
@@ -724,11 +772,26 @@ define(`PKG_HEADER16_1', `PKG_CONNECTOR_DIL(`$1', `$2', `$3',  8)');
 define(`PKG_HEADER18_1', `PKG_CONNECTOR_DIL(`$1', `$2', `$3',  9)');
 define(`PKG_HEADER20_1', `PKG_CONNECTOR_DIL(`$1', `$2', `$3', 10)');
 define(`PKG_HEADER22_1', `PKG_CONNECTOR_DIL(`$1', `$2', `$3', 11)');
+define(`PKG_HEADER24_1', `PKG_CONNECTOR_DIL(`$1', `$2', `$3', 12)');
 define(`PKG_HEADER26_1', `PKG_CONNECTOR_DIL(`$1', `$2', `$3', 13)');
+define(`PKG_HEADER28_1', `PKG_CONNECTOR_DIL(`$1', `$2', `$3', 14)');
 define(`PKG_HEADER30_1', `PKG_CONNECTOR_DIL(`$1', `$2', `$3', 15)');
+define(`PKG_HEADER32_1', `PKG_CONNECTOR_DIL(`$1', `$2', `$3', 16)');
 define(`PKG_HEADER34_1', `PKG_CONNECTOR_DIL(`$1', `$2', `$3', 17)');
+define(`PKG_HEADER36_1', `PKG_CONNECTOR_DIL(`$1', `$2', `$3', 18)');
+define(`PKG_HEADER38_1', `PKG_CONNECTOR_DIL(`$1', `$2', `$3', 19)');
 define(`PKG_HEADER40_1', `PKG_CONNECTOR_DIL(`$1', `$2', `$3', 20)');
+define(`PKG_HEADER42_1', `PKG_CONNECTOR_DIL(`$1', `$2', `$3', 21)');
+define(`PKG_HEADER44_1', `PKG_CONNECTOR_DIL(`$1', `$2', `$3', 22)');
+define(`PKG_HEADER46_1', `PKG_CONNECTOR_DIL(`$1', `$2', `$3', 23)');
+define(`PKG_HEADER48_1', `PKG_CONNECTOR_DIL(`$1', `$2', `$3', 24)');
 define(`PKG_HEADER50_1', `PKG_CONNECTOR_DIL(`$1', `$2', `$3', 25)');
+define(`PKG_HEADER52_1', `PKG_CONNECTOR_DIL(`$1', `$2', `$3', 26)');
+define(`PKG_HEADER54_1', `PKG_CONNECTOR_DIL(`$1', `$2', `$3', 27)');
+define(`PKG_HEADER56_1', `PKG_CONNECTOR_DIL(`$1', `$2', `$3', 28)');
+define(`PKG_HEADER58_1', `PKG_CONNECTOR_DIL(`$1', `$2', `$3', 29)');
+define(`PKG_HEADER60_1', `PKG_CONNECTOR_DIL(`$1', `$2', `$3', 30)');
+define(`PKG_HEADER62_1', `PKG_CONNECTOR_DIL(`$1', `$2', `$3', 31)');
 define(`PKG_HEADER64_1', `PKG_CONNECTOR_DIL(`$1', `$2', `$3', 32)');
 
 #
@@ -746,12 +809,26 @@ define(`PKG_HEADER16_2', `PKG_CONNECTOR(`$1', `$2', `$3',  8, 2)');
 define(`PKG_HEADER18_2', `PKG_CONNECTOR(`$1', `$2', `$3',  9, 2)');
 define(`PKG_HEADER20_2', `PKG_CONNECTOR(`$1', `$2', `$3', 10, 2)');
 define(`PKG_HEADER22_2', `PKG_CONNECTOR(`$1', `$2', `$3', 11, 2)');
+define(`PKG_HEADER24_2', `PKG_CONNECTOR(`$1', `$2', `$3', 12, 2)');
 define(`PKG_HEADER26_2', `PKG_CONNECTOR(`$1', `$2', `$3', 13, 2)');
+define(`PKG_HEADER28_2', `PKG_CONNECTOR(`$1', `$2', `$3', 14, 2)');
 define(`PKG_HEADER30_2', `PKG_CONNECTOR(`$1', `$2', `$3', 15, 2)');
+define(`PKG_HEADER32_2', `PKG_CONNECTOR(`$1', `$2', `$3', 16, 2)');
 define(`PKG_HEADER34_2', `PKG_CONNECTOR(`$1', `$2', `$3', 17, 2)');
+define(`PKG_HEADER36_2', `PKG_CONNECTOR(`$1', `$2', `$3', 18, 2)');
+define(`PKG_HEADER38_2', `PKG_CONNECTOR(`$1', `$2', `$3', 19, 2)');
 define(`PKG_HEADER40_2', `PKG_CONNECTOR(`$1', `$2', `$3', 20, 2)');
+define(`PKG_HEADER42_2', `PKG_CONNECTOR(`$1', `$2', `$3', 21, 2)');
+define(`PKG_HEADER44_2', `PKG_CONNECTOR(`$1', `$2', `$3', 22, 2)');
+define(`PKG_HEADER46_2', `PKG_CONNECTOR(`$1', `$2', `$3', 23, 2)');
+define(`PKG_HEADER48_2', `PKG_CONNECTOR(`$1', `$2', `$3', 24, 2)');
 define(`PKG_HEADER50_2', `PKG_CONNECTOR(`$1', `$2', `$3', 25, 2)');
+define(`PKG_HEADER52_2', `PKG_CONNECTOR(`$1', `$2', `$3', 26, 2)');
+define(`PKG_HEADER54_2', `PKG_CONNECTOR(`$1', `$2', `$3', 27, 2)');
+define(`PKG_HEADER56_2', `PKG_CONNECTOR(`$1', `$2', `$3', 28, 2)');
+define(`PKG_HEADER58_2', `PKG_CONNECTOR(`$1', `$2', `$3', 29, 2)');
 define(`PKG_HEADER60_2', `PKG_CONNECTOR(`$1', `$2', `$3', 30, 2)');
+define(`PKG_HEADER62_2', `PKG_CONNECTOR(`$1', `$2', `$3', 31, 2)');
 define(`PKG_HEADER64_2', `PKG_CONNECTOR(`$1', `$2', `$3', 32, 2)');
 
 #
