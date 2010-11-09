@@ -123,6 +123,8 @@ static char gcode_predrill;
 static double gcode_drilldepth = 0;     /* drilling depth (inch) */
 static double gcode_safeZ = 100;        /* safe Z (inch) */
 static int gcode_toolradius = 0;        /* tool radius (1/100 mil) */
+static double gcode_milldepth = 0;      /* outline milling depth (mm or in) */
+static double gcode_milltoolradius = 0; /* outline-mill tool radius (mm or in)*/
 static char gcode_advanced = 0;
 static int save_drill = 0;
 
@@ -193,12 +195,22 @@ HID_Attribute gcode_attribute_list[] = {
    HID_Real, -10000, 10000, {0, 0, -2}, 0, 0},
 #define HA_drilldepth 7
 
+  {"outline-mill-depth", "Milling depth when milling the outline.\n"
+                         "Currently, only the rectangular extents of the\n"
+                         "board are milled, no polygonal outlines or holes.",
+   HID_Real, -10000, 10000, {0, 0, -1}, 0, 0},
+#define HA_milldepth 8
+
+  {"outline-tool-diameter", "Diameter of the tool used for outline milling.",
+   HID_Real, 0, 10000, {0, 0, 1}, 0, 0},
+#define HA_milltooldiameter 9
+
   {"advanced-gcode", "Wether to produce G-code for advanced interpreters,\n"
                      "like using variables or drill cycles. Not all\n"
                      "machine controllers understand this, but it allows\n"
                      "better hand-editing of the resulting files.",
    HID_Boolean, 0, 0, {-1, 0, 0}, 0, 0},
-#define HA_advanced 8
+#define HA_advanced 10
 };
 
 #define NUM_OPTIONS (sizeof(gcode_attribute_list)/sizeof(gcode_attribute_list[0]))
@@ -450,7 +462,7 @@ gcode_do_export (HID_Attr_Val * options)
      },
   };
   char variable_safeZ[20], variable_cutdepth[20];
-  char variable_drilldepth[20];
+  char variable_drilldepth[20], variable_milldepth[20];
   char *old_locale = setlocale (LC_NUMERIC, NULL);
 
   if (!options)
@@ -485,20 +497,26 @@ gcode_do_export (HID_Attr_Val * options)
   gcode_toolradius = metric
                    ? MM_TO_COORD(options[HA_tooldiameter].real_value / 2 * scale)
                    : INCH_TO_COORD(options[HA_tooldiameter].real_value / 2 * scale);
+  gcode_milldepth = options[HA_milldepth].real_value * scale;
+  gcode_milltoolradius = options[HA_milltooldiameter].real_value / 2 * scale;
   gcode_advanced = options[HA_advanced].int_value;
   gcode_choose_groups ();
   setlocale (LC_NUMERIC, "C");   /* use . as separator */
   if (gcode_advanced)
     {
+      /* give each variable distinct names, even if they don't appear
+         together in a file. This allows to join output files */
       strcpy (variable_safeZ, "#100");
       strcpy (variable_cutdepth, "#101");
       strcpy (variable_drilldepth, "#102");
+      strcpy (variable_milldepth, "#103");
     }
   else
     {
       snprintf (variable_safeZ, 20, "%f", gcode_safeZ);
       snprintf (variable_cutdepth, 20, "%f", gcode_cutdepth);
       snprintf (variable_drilldepth, 20, "%f", gcode_drilldepth);
+      snprintf (variable_milldepth, 20, "%f", gcode_milldepth);
     }
   UpdateExtents();
 
@@ -805,6 +823,126 @@ gcode_do_export (HID_Attr_Val * options)
 /* ******************* end gcode conversion **************************** */
         }
     }
+    /*
+     * General milling. Put this aside from the above code, as paths
+     * are generated without taking line or curve thickness into account.
+     * Accordingly, we need an entirely different approach.
+     */
+    /*
+     * Currently this is a rarther simple implementation, which mills
+     * the retangular extents of the board and nothing else. This should
+     * be sufficient for many use cases.
+     *
+     * A better implementation would have to group the lines and polygons
+     * on the outline layer by outer polygon and inner holes, then offset
+     * all of them to the right side and mill that.
+     */
+    /* a better implementation might look like this:
+    LAYER_LOOP (PCB->Data, MAX_LAYER);
+      {
+        if (strcmp (layer->Name, "outline") == 0)
+          {
+            LINE_LOOP (layer);
+              {
+                ... calculate the offset for all lines and polygons of this layer,
+                mirror it if is_solder, then mill it ...
+              }
+            END_LOOP;
+          }
+      }
+    END_LOOP;
+
+    for now: */
+    { /* unconditional */
+      double lowerX = 0., lowerY = 0., upperX = 0., upperY = 0.;
+      double mill_distance = 0.;
+
+      filename = malloc (MAXPATHLEN);
+      gcode_get_filename (filename, "outline");
+      gcode_f = fopen (filename, "wb");
+      if (!gcode_f)
+        {
+          perror (filename);
+          free(filename);
+          goto error;
+        }
+      fprintf (gcode_f, "(Created by G-code exporter)\n");
+      fprintf (gcode_f, "(outline mill file)\n");
+      sprintf (filename, "%s", ctime (&t));
+      filename[strlen (filename) - 1] = 0;
+      fprintf (gcode_f, "( %s )\n", filename);
+      free (filename);
+      /* TODO: what about other units, like um or mil? */
+      fprintf (gcode_f, "(Unit: %s)\n", metric ? "mm" : "inch");
+      fprintf (gcode_f, "(Tool diameter: %f %s)\n",
+               gcode_milltoolradius * 2, metric ? "mm" : "inch");
+      if (metric)
+        pcb_fprintf (gcode_f, "(Board size: %.2mmx%.2mm mm)\n",
+                     PCB->ExtentMaxX - PCB->ExtentMinX,
+                     PCB->ExtentMaxY - PCB->ExtentMinY);
+      else
+        pcb_fprintf (gcode_f, "(Board size: %.2mix%.2mi inches)\n",
+                     PCB->ExtentMaxX - PCB->ExtentMinX,
+                     PCB->ExtentMaxY - PCB->ExtentMinY);
+      if (gcode_advanced)
+        {
+          fprintf (gcode_f, "%s=%f  (safe Z)\n", variable_safeZ, gcode_safeZ);
+          fprintf (gcode_f, "%s=%f  (mill depth)\n",
+                   variable_milldepth, gcode_milldepth);
+          fprintf (gcode_f, "(---------------------------------)\n");
+          fprintf (gcode_f, "G17 G%d G90 G64 P0.003 M3 S3000 M7 F%d\n",
+                   metric ? 21 : 20, metric ? 25 : 1);
+        }
+      else
+        {
+          fprintf (gcode_f, "(---------------------------------)\n");
+          fprintf (gcode_f, "G17\nG%d\nG90\nG64 P0.003\nM3 S3000\nM7\nF%d\n",
+                   metric ? 21 : 20, metric ? 25 : 1);
+        }
+      if (metric)
+        {
+          upperX = COORD_TO_MM(PCB->ExtentMaxX - PCB->ExtentMinX);
+          upperY = COORD_TO_MM(PCB->ExtentMaxY - PCB->ExtentMinY);
+        }
+      else
+        {
+          upperX = COORD_TO_INCH(PCB->ExtentMaxX - PCB->ExtentMinX);
+          upperY = COORD_TO_INCH(PCB->ExtentMaxY - PCB->ExtentMinY);
+        }
+      lowerX -= gcode_milltoolradius;
+      lowerY -= gcode_milltoolradius;
+      upperX += gcode_milltoolradius;
+      upperY += gcode_milltoolradius;
+
+      fprintf (gcode_f, "G0 Z%s\n", variable_safeZ);
+      /* mill the two edges adjectant to 0,0 first to disconnect the
+         workpiece from the raw material last */
+      fprintf (gcode_f, "G0 X%f Y%f\n", upperX, lowerY);
+      fprintf (gcode_f, "G1 Z%s\n", variable_milldepth);
+      fprintf (gcode_f, "G1 X%f Y%f\n", lowerX, lowerY);
+      fprintf (gcode_f, "G1 X%f Y%f\n", lowerX, upperY);
+      fprintf (gcode_f, "G1 X%f Y%f\n", upperX, upperY);
+      fprintf (gcode_f, "G1 X%f Y%f\n", upperX, lowerY);
+      fprintf (gcode_f, "G0 Z%s\n", variable_safeZ);
+
+      if (gcode_advanced)
+        fprintf (gcode_f, "M5 M9 M2\n");
+      else
+        fprintf (gcode_f, "M5\nM9\nM2\n");
+      mill_distance = abs(gcode_safeZ - gcode_milldepth);
+      if (metric)
+        mill_distance /= 25.4;
+      fprintf (gcode_f, "(end, total distance G0 %.2f mm = %.2f in)\n",
+               mill_distance * 25.4, mill_distance);
+      mill_distance = (upperX - lowerX + upperY - lowerY) * 2;
+      mill_distance += abs(gcode_safeZ - gcode_milldepth);
+      if (metric)
+        mill_distance /= 25.4;
+      fprintf (gcode_f, "(     total distance G1 %.2f mm = %.2f in)\n",
+               mill_distance * 25.4, mill_distance);
+      fclose (gcode_f);
+    }
+
 error:
   setlocale (LC_NUMERIC, old_locale);   /* restore locale */
 }
