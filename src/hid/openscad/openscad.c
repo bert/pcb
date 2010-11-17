@@ -159,7 +159,7 @@ openscad_clean_string (char *in)
     }
     /* 
      * Copy over in to out with some character conversions.
-     * Go all the way to then end to get the terminating \0.
+     * Go all the way to the end to get the terminating \0.
      */
     for (i = 0; i <= strlen (in); i++)
     {
@@ -170,6 +170,36 @@ openscad_clean_string (char *in)
                 break;
             default:
                 out[i] = in[i];
+        }
+    }
+    return out;
+}
+
+
+static char *
+openscad_get_package_type_string (char *in)
+{
+    char *out;
+    int i;
+    if ((out = malloc ((strlen (in) + 1) * sizeof (char))) == NULL)
+    {
+        fprintf (stderr, "Error: malloc() failed in openscad_get_package_type_string()\n");
+        exit (1);
+    }
+    /* Copy over in to out until a digit is found. */
+    for (i = 0; i <= strlen (in); i++)
+    {
+        if (isdigit (in[i]))
+        {
+            return (out);
+        }
+        else if (in[i] == '_')
+        {
+            return (out);
+        }
+        else
+        {
+            out[i] = in[i];
         }
     }
     return out;
@@ -307,6 +337,7 @@ openscad_print (void)
     FILE *fp;
     OpenscadList *openscad = NULL;
     char *name;
+    char *package_type;
     char *modelname;
     char *value;
     double board_width;
@@ -449,7 +480,7 @@ openscad_print (void)
     fprintf (fp, "    }\n");
     fprintf (fp, "\n");
     fprintf (fp, "    /* Now insert some element models.\n");
-    fprintf (fp, "    INSERT_PART_MODEL (\"Modelname\", Tx, Ty, Rz, \"Side\", \"Value\"); // RefDes */\n");
+    fprintf (fp, "    INSERT_PART_MODEL (\"Package type\", \"Model name\", Tx, Ty, Rz, \"Side\", \"Value\"); // RefDes */\n");
     /*
      * For each element we calculate the centroid of the footprint.
      * In addition, we need to extract some notion of rotation.  
@@ -597,12 +628,16 @@ openscad_print (void)
                 user_x = 0.01 * x;
                 user_y = 0.01 * y;
             }
+            /* Determine the package type based on the modelname. */
+            package_type = openscad_get_package_type_string (modelname);
+            /* Write part model data to file test for dimension type. */
             if (openscad_dim_type)
             {
             fprintf
             (
                 fp,
-                "    INSERT_PART_MODEL (\"%s\", %.2f, %.2f, %.2f, %s, \"%s\"); // refdes: %s\n",
+                "    INSERT_PART_MODEL (\"%s\", \"%s\", %.2f, %.2f, %.2f, %s, \"%s\"); // refdes: %s\n",
+                package_type,
                 modelname,
 #if 0
                 (double) element->MarkX,
@@ -622,7 +657,8 @@ openscad_print (void)
             fprintf
             (
                 fp,
-                "    INSERT (\"%s\", %.2f, %.2f, %.2f, %s, \"%s\"); // refdes: %s\n",
+                "    INSERT_PART_MODEL (\"%s\", \"%s\", %.2f, %.2f, %.2f, %s, \"%s\"); // refdes: %s\n",
+                package_type,
                 modelname,
 #if 0
                 (double) (element->MarkX / 100),
