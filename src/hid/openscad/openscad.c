@@ -304,21 +304,40 @@ openscad_print (void)
     fprintf (fp, "/*!\n");
     fprintf (fp, " * \\file %s.scad\n", EMPTY (PCB->Name));
     fprintf (fp, " *\n");
-    fprintf (fp, " * \\author Copyright %s\n", pcb_author ());
+    fprintf (fp, " * \\author Copyright %s.\n", pcb_author ());
     fprintf (fp, " *\n");
     fprintf (fp, " * \\brief PCB - OpenSCAD 3D-model exporter Version 1.0\n");
     fprintf (fp, " *\n");
     fprintf (fp, " * \\date %s\n", utcTime);
     fprintf (fp, " *\n");
+    /* Write the license statement for footprints for the GPL version to file */
+    fprintf (fp, " * This OpenSCAD 3D-model is free software; you may redistribute it\n");
+    fprintf (fp, " * and/or modify it under the terms of the GNU General Public License\n");
+    fprintf (fp, " * as published by the Free Software Foundation; either version 2 of the\n");
+    fprintf (fp, " * License, or (at your option) any later version.\n");
+    fprintf (fp, " * As a special exception, if you create a design which uses this\n");
+    fprintf (fp, " * OpenSCAD 3D-model, and embed this 3D-model file or unaltered portions\n");
+    fprintf (fp, " * of this OpenSCAD 3D-model into the design, this footprint does not by\n");
+    fprintf (fp, " * itself cause the resulting design to be covered by the GNU General\n");
+    fprintf (fp, " * Public License.\n");
+    fprintf (fp, " * This exception does not however invalidate any other reasons why\n");
+    fprintf (fp, " * the design itself might be covered by the GNU General Public\n");
+    fprintf (fp, " * License.\n");
+    fprintf (fp, " * If you modify this OpenSCAD 3D-model, you may extend this exception\n");
+    fprintf (fp, " * to your version of the OpenSCAD 3D-model, but you are not obligated\n");
+    fprintf (fp, " * to do so.\n");
+    fprintf (fp, " * If you do not wish to do so, delete this exception statement from\n");
+    fprintf (fp, " * your version.\n");
+    fprintf (fp, " * \n");
     if (openscad_dim_type)
     {
         /* Dimensions in mm. */
-        fprintf (fp, " * \\warning Tx, Ty in mm. Rz in degrees.\n");
+        fprintf (fp, " * All dimensions in mm. Angles in degrees.\n");
     }
     else
     {
         /* Dimensions in mil. */
-        fprintf (fp, " * \\warning Tx, Ty in mils. Rz in degrees.\n");
+        fprintf (fp, " * All dimensions in mils. Angles in degrees.\n");
     }
     fprintf (fp, " */\n");
     fprintf (fp, "\n");
@@ -353,11 +372,12 @@ openscad_print (void)
         board_height = PCB->MaxHeight / 100;
         board_thickness = 1.6 * MM_TO_MIL;
     }
-    fprintf (fp, "/* Modelling a printed circuit board based on maximum dimensions. */\n");
+    fprintf (fp, "    /* Modelling a printed circuit board based on maximum dimensions. */\n");
     fprintf (fp, "    difference ()\n");
     fprintf (fp, "    {\n");
 
     fprintf (fp, "        BOARD (%.2f, %.2f, %.2f);\n", board_width, board_height, board_thickness);
+    fprintf (fp, "        /* Now subtract some via holes. */\n");
     /* Now subtract some via holes. */
     VIA_LOOP (PCB->Data);
     {
@@ -379,6 +399,7 @@ openscad_print (void)
     }
     END_LOOP; /* End of VIA_LOOP */
     /* Now subtract some pin holes. */
+    fprintf (fp, "        /* Now subtract some pin holes. */\n");
     ALLPIN_LOOP (PCB->Data);
     {
         if (openscad_dim_type)
@@ -400,8 +421,8 @@ openscad_print (void)
     ENDALL_LOOP; /* End of ALLPIN_LOOP */
     fprintf (fp, "    }\n");
     fprintf (fp, "\n");
-    fprintf (fp, "/* Now insert some element models. */\n");
-    fprintf (fp, "/*  INSERT_PART_MODEL (\"Modelname\", Tx, Ty, Rz, \"Side\", \"Value\"); // RefDes */\n");
+    fprintf (fp, "    /* Now insert some element models.\n");
+    fprintf (fp, "    INSERT_PART_MODEL (\"Modelname\", Tx, Ty, Rz, \"Side\", \"Value\"); // RefDes */\n");
     /*
      * For each element we calculate the centroid of the footprint.
      * In addition, we need to extract some notion of rotation.  
