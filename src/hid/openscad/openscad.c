@@ -344,9 +344,9 @@ openscad_print (void)
     fprintf (fp, " * License, or (at your option) any later version.\n");
     fprintf (fp, " * As a special exception, if you create a design which uses this\n");
     fprintf (fp, " * OpenSCAD 3D-model, and embed this 3D-model file or unaltered portions\n");
-    fprintf (fp, " * of this OpenSCAD 3D-model into the design, this footprint does not by\n");
-    fprintf (fp, " * itself cause the resulting design to be covered by the GNU General\n");
-    fprintf (fp, " * Public License.\n");
+    fprintf (fp, " * of this OpenSCAD 3D-model into the design, this OpenSCAD 3D-model does\n");
+    fprintf (fp, " * not by itself cause the resulting design to be covered by the GNU\n");
+    fprintf (fp, " * General Public License.\n");
     fprintf (fp, " * This exception does not however invalidate any other reasons why\n");
     fprintf (fp, " * the design itself might be covered by the GNU General Public\n");
     fprintf (fp, " * License.\n");
