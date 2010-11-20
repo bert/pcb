@@ -422,6 +422,7 @@ openscad_print (void)
     fprintf (fp, "include <BOARD.scad>\n");
     fprintf (fp, "include <PIN_HOLE.scad>\n");
     fprintf (fp, "include <VIA_HOLE.scad>\n");
+    fprintf (fp, "include <PACKAGES.scad>\n");
     fprintf (fp, "use <INSERT_PART_MODEL.scad>\n");
     fprintf (fp, "\n");
     fprintf (fp, "\n");
