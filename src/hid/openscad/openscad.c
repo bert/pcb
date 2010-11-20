@@ -206,6 +206,23 @@ openscad_get_package_type_string (char *in)
 }
 
 
+static void
+openscad_remove_suffix (char *name, const char *suffix)
+{
+  char *np;
+  const char *sp;
+
+  np = name + strlen (name);
+  sp = suffix + strlen (suffix);
+
+  while (np > name && sp > suffix)
+    if (*--np != *--sp)
+      return;
+  if (np > name)
+    *np = '\0';
+}
+
+
 static double
 openscad_xy_to_angle (double x, double y)
 {
@@ -628,6 +645,9 @@ openscad_print (void)
                 user_x = 0.01 * x;
                 user_y = 0.01 * y;
             }
+            /* Test for the occurrence of a ".fp" suffix in the model
+             * name string and strip it from the model name string. */
+            openscad_remove_suffix (modelname, "fp");
             /* Determine the package type based on the modelname. */
             package_type = openscad_get_package_type_string (modelname);
             /* Write part model data to file test for dimension type. */
