@@ -180,26 +180,20 @@ node_add
  4 means the intersection was not on the dest point
 */
 static VNODE *
-node_add (VNODE * dest, Vector po, int *new_point)
+node_add_single (VNODE * dest, Vector po)
 {
   VNODE *p;
 
   if (vect_equal (po, dest->point))
     return dest;
   if (vect_equal (po, dest->next->point))
-    {
-      (*new_point) += 4;
-      return dest->next;
-    }
+    return dest->next;
   p = poly_CreateNode (po);
   if (p == NULL)
     return NULL;
-  (*new_point) += 5;
-  p->prev = dest;
-  p->next = dest->next;
   p->cvc_prev = p->cvc_next = NULL;
   p->Flags.status = UNKNWN;
-  return (dest->next = dest->next->prev = p);
+  return p;
 }				/* node_add */
 
 #define ISECT_BAD_PARAM (-1)
@@ -362,22 +356,22 @@ node_add_point
  return 1 if new node in b, 2 if new node in a and 3 if new node in both
 */
 
-static int
-node_add_point (VNODE * a, VNODE * b, Vector p)
+static VNODE *
+node_add_single_point (VNODE * a, Vector p)
 {
-  int res = 0;
+  VNODE *next_a, *new_node;
 
-  VNODE *node_a, *node_b;
+  next_a = a->next;
 
-  node_a = node_add (a, p, &res);
-  res += res;
-  node_b = node_add (b, p, &res);
+  new_node = node_add_single (a, p);
+  assert (new_node != NULL);
 
-  if (node_a == NULL || node_b == NULL)
-    return ISECT_NO_MEMORY;
-  node_b->cvc_prev = node_b->cvc_next = (CVCList *) - 1;
-  node_a->cvc_prev = node_a->cvc_next = (CVCList *) - 1;
-  return res;
+  new_node->cvc_prev = new_node->cvc_next = (CVCList *) - 1;
+
+  if (new_node == a || new_node == next_a)
+    return NULL;
+
+  return new_node;
 }				/* node_add_point */
 
 /*
@@ -501,7 +495,17 @@ typedef struct seg
   BoxType box;
   VNODE *v;
   PLINE *p;
+  int intersected;
 } seg;
+
+typedef struct _insert_node_task insert_node_task;
+
+struct _insert_node_task
+{
+  insert_node_task *next;
+  seg *seg;
+  VNODE *new_node;
+};
 
 typedef struct info
 {
@@ -509,8 +513,20 @@ typedef struct info
   rtree_t *tree;
   VNODE *v;
   struct seg *s;
-  jmp_buf env, sego, *touch;
+  jmp_buf *env, sego, *touch;
+  int need_restart;
+  insert_node_task *node_insert_list;
 } info;
+
+typedef struct contour_info
+{
+  PLINE *pa;
+  jmp_buf restart;
+  jmp_buf *getout;
+  int need_restart;
+  insert_node_task *node_insert_list;
+} contour_info;
+
 
 /*
  * adjust_tree()
@@ -526,6 +542,7 @@ adjust_tree (rtree_t * tree, struct seg *s)
   q = malloc (sizeof (struct seg));
   if (!q)
     return 1;
+  q->intersected = 0;
   q->v = s->v;
   q->p = s->p;
   q->box.X1 = min (q->v->point[0], q->v->next->point[0]);
@@ -536,6 +553,7 @@ adjust_tree (rtree_t * tree, struct seg *s)
   q = malloc (sizeof (struct seg));
   if (!q)
     return 1;
+  q->intersected = 0;
   q->v = s->v->next;
   q->p = s->p;
   q->box.X1 = min (q->v->point[0], q->v->next->point[0]);
@@ -569,6 +587,17 @@ seg_in_region (const BoxType * b, void *cl)
   return 1;			/* might intersect */
 }
 
+/* Prepend a deferred node-insersion task to a list */
+static insert_node_task *
+prepend_insert_node_task (insert_node_task *list, seg *seg, VNODE *new_node)
+{
+  insert_node_task *task = malloc (sizeof (*task));
+  task->seg = seg;
+  task->new_node = new_node;
+  task->next = list;
+  return task;
+}
+
 /*
  * seg_in_seg()
  * (C) 2006 harry eaton
@@ -586,7 +615,15 @@ seg_in_seg (const BoxType * b, void *cl)
   struct info *i = (struct info *) cl;
   struct seg *s = (struct seg *) b;
   Vector s1, s2;
-  int cnt, res;
+  int cnt;
+  VNODE *new_node;
+
+  /* When new nodes are added at the end of a pass due to an intersection
+   * the segments may be altered. If either segment we're looking at has
+   * already been intersected this pass, skip it until the next pass.
+   */
+  if (s->intersected || i->s->intersected)
+    return 0;
 
   cnt = vect_inters2 (s->v->point, s->v->next->point,
 		      i->v->point, i->v->next->point, s1, s2);
@@ -598,31 +635,36 @@ seg_in_seg (const BoxType * b, void *cl)
   s->p->Flags.status = ISECTED;
   for (; cnt; cnt--)
     {
-      res = node_add_point (i->v, s->v, cnt > 1 ? s2 : s1);
-      if (res < 0)
-	return 1;		/* error */
-      /* adjust the bounding box and tree if necessary */
-      if (res & 2)
-	{
-	  cntrbox_adjust (i->s->p, cnt > 1 ? s2 : s1);
-	  if (adjust_tree (i->s->p->tree, i->s))
-	    return 1;
-	}
-      /* if we added a node in the tree we need to change the tree */
-      if (res & 1)
-	{
-	  cntrbox_adjust (s->p, cnt > 1 ? s2 : s1);
-	  if (adjust_tree (i->tree, s))
-	    return 1;
-	}
-      if (res & 3)		/* if a point was inserted start over */
+      bool done_insert_on_i = false;
+      new_node = node_add_single_point (i->v, cnt > 1 ? s2 : s1);
+      if (new_node != NULL)
 	{
 #ifdef DEBUG_INTERSECT
-	  DEBUGP ("new intersection at (%d, %d)\n", cnt > 1 ? s2[0] : s1[0],
-		  cnt > 1 ? s2[1] : s1[1]);
+	  DEBUGP ("new intersection on segment \"i\" at (%d, %d)\n",
+	          cnt > 1 ? s2[0] : s1[0], cnt > 1 ? s2[1] : s1[1]);
 #endif
-	  longjmp (i->env, 1);
+	  i->node_insert_list =
+	    prepend_insert_node_task (i->node_insert_list, i->s, new_node);
+	  i->s->intersected = 1;
+	  done_insert_on_i = true;
 	}
+      new_node = node_add_single_point (s->v, cnt > 1 ? s2 : s1);
+      if (new_node != NULL)
+	{
+#ifdef DEBUG_INTERSECT
+	  DEBUGP ("new intersection on segment \"s\" at (%d, %d)\n",
+	          cnt > 1 ? s2[0] : s1[0], cnt > 1 ? s2[1] : s1[1]);
+#endif
+	  i->node_insert_list =
+	    prepend_insert_node_task (i->node_insert_list, s, new_node);
+	  s->intersected = 1;
+	  return 0; /* Keep looking for intersections with segment "i" */
+	}
+      /* Skip any remaining r_search hits against segment i, as any futher
+       * intersections will be rejected until the next pass anyway.
+       */
+      if (done_insert_on_i)
+	longjmp (*i->env, 1);
     }
   return 0;
 }
@@ -637,6 +679,7 @@ make_edge_tree (PLINE * pb)
   do
     {
       s = malloc (sizeof (struct seg));
+      s->intersected = 0;
       if (bv->point[0] < bv->next->point[0])
 	{
 	  s->box.X1 = bv->point[0];
@@ -679,7 +722,7 @@ get_seg (const BoxType * b, void *cl)
 }
 
 /*
- * intersect()
+ * intersect() (and helpers)
  * (C) 2006, harry eaton
  * This uses an rtree to find A-B intersections. Whenever a new vertex is
  * added, the search for intersections is re-started because the rounding
@@ -697,104 +740,170 @@ get_seg (const BoxType * b, void *cl)
  */
 
 static int
-intersect (jmp_buf * jb, POLYAREA * b, POLYAREA * a, int add)
+contour_bounds_touch (const BoxType * b, void *cl)
 {
-  PLINE *pa, *pb;		/* pline iterators */
+  contour_info *c_info = (contour_info *) cl;
+  PLINE *pa = c_info->pa;
+  PLINE *pb = (PLINE *) b;
   PLINE *rtree_over;
   PLINE *looping_over;
   VNODE *av;			/* node iterators */
   struct info info;
   BoxType box;
+  jmp_buf restart;
 
-  if (add)
-    info.touch = NULL;
+  /* Have seg_in_seg return to our desired location if it touches */
+  info.env = &restart;
+  info.touch = c_info->getout;
+  info.need_restart = 0;
+  info.node_insert_list = c_info->node_insert_list;
+
+  /* Pick which contour has the fewer points, and do the loop
+   * over that. The r_tree makes hit-testing against a contour
+   * faster, so we want to do that on the bigger contour.
+   */
+  if (pa->Count < pb->Count)
+    {
+      rtree_over = pb;
+      looping_over = pa;
+    }
   else
-    info.touch = jb;
-  setjmp (info.env);		/* we loop back here whenever a vertex is inserted */
-  {
-    pa = a->contours;
-    pb = b->contours;
-    while (pa)			/* Loop over the contours of POLYAREA "a" */
-      {
-	int found_overlapping_a_b_contour = FALSE;
+    {
+      rtree_over = pa;
+      looping_over = pb;
+    }
 
-	while (pb)		/* Loop over the contours of POLYAREA "b" */
-	  {
-	    /* Are there overlapping bounds? */
-	    if (pb->xmin <= pa->xmax && pb->xmax >= pa->xmin &&
-		pb->ymin <= pa->ymax && pb->ymax >= pa->ymin)
-	      {
-		found_overlapping_a_b_contour = TRUE;
-		break;
-	      }
-	    pb = pb->next;
-	  }
+  av = &looping_over->head;
+  do				/* Loop over the nodes in the smaller contour */
+    {
+      /* check this edge for any insertions */
+      double dx;
+      info.v = av;
+      /* compute the slant for region trimming */
+      dx = av->next->point[0] - av->point[0];
+      if (dx == 0)
+	info.m = 0;
+      else
+	{
+	  info.m = (av->next->point[1] - av->point[1]) / dx;
+	  info.b = av->point[1] - info.m * av->point[0];
+	}
+      box.X2 = (box.X1 = av->point[0]) + 1;
+      box.Y2 = (box.Y1 = av->point[1]) + 1;
 
-	/* If we didn't find anything intersting, move onto the next "a" contour */
-	if (!found_overlapping_a_b_contour)
-	  {
-	    pa = pa->next;
-	    pb = b->contours;
-	    continue;
-	  }
+      /* fill in the segment in info corresponding to this node */
+      if (setjmp (info.sego) == 0)
+	{
+	  r_search (looping_over->tree, &box, NULL, get_seg, &info);
+	  assert (0);
+	}
 
-	/* something intersects so check the edges of the contour */
+      /* If we're going to have another pass anyway, skip this */
+      if (info.s->intersected && info.node_insert_list != NULL)
+	continue;
 
-	/* Pick which contour has the fewer points, and do the loop
-	 * over that. The r_tree makes hit-testing against a contour
-	 * faster, so we want to do that on the bigger contour.
-	 */
-	if (pa->Count < pb->Count)
-	  {
-	    rtree_over = pb;
-	    looping_over = pa;
-	  }
-	else
-	  {
-	    rtree_over = pa;
-	    looping_over = pb;
-	  }
+      if (setjmp (restart))
+	continue;
 
-	av = &looping_over->head;
-	do			/* Loop over the nodes in the smaller contour */
-	  {
-	    /* check this edge for any insertions */
-	    double dx;
-	    info.v = av;
-	    /* compute the slant for region trimming */
-	    dx = av->next->point[0] - av->point[0];
-	    if (dx == 0)
-	      info.m = 0;
-	    else
-	      {
-		info.m = (av->next->point[1] - av->point[1]) / dx;
-		info.b = av->point[1] - info.m * av->point[0];
-	      }
-	    box.X2 = (box.X1 = av->point[0]) + 1;
-	    box.Y2 = (box.Y1 = av->point[1]) + 1;
+      /* NB: If this actually hits anything, we are teleported back to the beginning */
+      info.tree = rtree_over->tree;
+      if (info.tree)
+	if (UNLIKELY (r_search (info.tree, &info.s->box,
+				seg_in_region, seg_in_seg, &info)))
+	  assert (0); /* XXX: Memory allocation failure */
+    }
+  while ((av = av->next) != &looping_over->head);
 
-	    /* fill in the segment in info corresponding to this node */
-	    if (setjmp (info.sego) == 0)
-	      {
-		r_search (looping_over->tree, &box, NULL, get_seg, &info);
-		assert (0);
-	      }
+  c_info->node_insert_list = info.node_insert_list;
+  if (info.need_restart)
+    c_info->need_restart = 1;
+  return 0;
+}
 
-	    /* NB: If this actually hits anything, we are teleported back to the beginning */
-	    info.tree = rtree_over->tree;
-	    if (info.tree)
-	      if (UNLIKELY (r_search (info.tree, &info.s->box,
-				      seg_in_region, seg_in_seg, &info)))
-		return err_no_memory;	/* error */
-	  }
-	while ((av = av->next) != &looping_over->head);
+static int
+intersect_impl (jmp_buf * jb, POLYAREA * b, POLYAREA * a, int add)
+{
+  POLYAREA *t;
+  PLINE *pa;
+  contour_info c_info;
+  int need_restart = 0;
+  insert_node_task *task;
+  c_info.need_restart = 0;
+  c_info.node_insert_list = NULL;
 
-	/* Continue the with the _same_ "a" contour,
-	 * testing it against the next "b" contour.
-	 */
-	pb = pb->next;
-      }
-  }				/* end of setjmp loop */
+  /* Search the r-tree of the object with most contours
+   * We loop over the contours of "a". Swap if necessary.
+   */
+  if (a->contour_tree->size > b->contour_tree->size)
+    {
+      t = b;
+      b = a;
+      a = t;
+    }
+
+  for (pa = a->contours; pa; pa = pa->next)	/* Loop over the contours of POLYAREA "a" */
+    {
+      BoxType sb;
+      jmp_buf out;
+      int retval;
+
+      c_info.getout = NULL;
+      c_info.pa = pa;
+
+      if (!add)
+	{
+	  retval = setjmp (out);
+	  if (retval)
+	    {
+	      /* The intersection test short-circuited back here,
+	       * we need to clean up, then longjmp to jb */
+	      longjmp (*jb, retval);
+	    }
+	  c_info.getout = &out;
+	}
+
+      sb.X1 = pa->xmin;
+      sb.Y1 = pa->ymin;
+      sb.X2 = pa->xmax + 1;
+      sb.Y2 = pa->ymax + 1;
+
+      r_search (b->contour_tree, &sb, NULL, contour_bounds_touch, &c_info);
+      if (c_info.need_restart)
+	need_restart = 1;
+    }
+
+  /* Process any deferred node insersions */
+  task = c_info.node_insert_list;
+  while (task != NULL)
+    {
+      insert_node_task *next = task->next;
+
+      /* Do insersion */
+      task->new_node->prev = task->seg->v;
+      task->new_node->next = task->seg->v->next;
+      task->seg->v->next->prev = task->new_node;
+      task->seg->v->next = task->new_node;
+      task->seg->p->Count++;
+
+      cntrbox_adjust (task->seg->p, task->new_node->point);
+      if (adjust_tree (task->seg->p->tree, task->seg))
+	assert (0); /* XXX: Memory allocation failure */
+
+      need_restart = 1; /* Any new nodes could intersect */
+
+      free (task);
+      task = next;
+    }
+
+  return need_restart;
+}
+
+static int
+intersect (jmp_buf * jb, POLYAREA * b, POLYAREA * a, int add)
+{
+  int call_count = 1;
+  while (intersect_impl (jb, b, a, add))
+    call_count++;
   return 0;
 }
 
@@ -855,12 +964,22 @@ cntrbox_inside (PLINE * c1, PLINE * c2)
 /*****************************************************************/
 /* Routines for making labels */
 
+static int
+count_contours_i_am_inside (const BoxType * b, void *cl)
+{
+  PLINE *me = cl;
+  PLINE *check = (PLINE *) b;
+
+  if (poly_ContourInContour (check, me))
+    return 1;
+  return 0;
+}
+
 /* cntr_in_M_POLYAREA
 returns poly is inside outfst ? TRUE : FALSE */
 static int
 cntr_in_M_POLYAREA (PLINE * poly, POLYAREA * outfst, BOOLp test)
 {
-  PLINE *curc;
   POLYAREA *outer = outfst;
   heap_t *heap;
 
@@ -883,18 +1002,22 @@ cntr_in_M_POLYAREA (PLINE * poly, POLYAREA * outfst, BOOLp test)
       if (heap_is_empty (heap))
 	break;
       outer = (POLYAREA *) heap_remove_smallest (heap);
-      if (poly_ContourInContour (outer->contours, poly))
+
+      switch (r_search
+	      (outer->contour_tree, (BoxType *) poly, NULL,
+	       count_contours_i_am_inside, poly))
 	{
-	  for (curc = outer->contours->next; curc != NULL; curc = curc->next)
-	    if (poly_ContourInContour (curc, poly))
-	      {
-		/* it's inside a hole in the smallest polygon 
-		 * no need to check the other polygons */
-		heap_destroy (&heap);
-		return FALSE;
-	      }
+	case 0:		/* Didn't find anything in this piece, Keep looking */
+	  break;
+	case 1:		/* Found we are inside this piece, and not any of its holes */
 	  heap_destroy (&heap);
 	  return TRUE;
+	case 2:		/* Found inside a hole in the smallest polygon so far. No need to check the other polygons */
+	  heap_destroy (&heap);
+	  return FALSE;
+	default:
+	  printf ("Something strange here\n");
+	  break;
 	}
     }
   while (1);
@@ -1007,6 +1130,19 @@ cntr_label_POLYAREA (PLINE * poly, POLYAREA * ppl, BOOLp test)
 }				/* cntr_label_POLYAREA */
 
 static BOOLp
+M_POLYAREA_label_separated (PLINE * afst, POLYAREA * b, BOOLp touch)
+{
+  PLINE *curc = afst;
+
+  for (curc = afst; curc != NULL; curc = curc->next)
+    {
+      if (cntr_label_POLYAREA (curc, b, touch) && touch)
+	return TRUE;
+    }
+  return FALSE;
+}
+
+static BOOLp
 M_POLYAREA_label (POLYAREA * afst, POLYAREA * b, BOOLp touch)
 {
   POLYAREA *a = afst;
@@ -1048,67 +1184,156 @@ InsCntr (jmp_buf * e, PLINE * c, POLYAREA ** dst)
       newp->f->b = newp->b->f = newp;
     }
   newp->contours = c;
+  newp->contour_tree = r_create_tree (NULL, 0, 0);
+  r_insert_entry (newp->contour_tree, (BoxTypePtr) c, 0);
   c->next = NULL;
 }				/* InsCntr */
 
 static void
 PutContour (jmp_buf * e, PLINE * cntr, POLYAREA ** contours, PLINE ** holes,
-	    PLINE * parent)
+	    POLYAREA * owner, POLYAREA * parent, PLINE * parent_contour)
 {
   assert (cntr != NULL);
   assert (cntr->Count > 2);
   cntr->next = NULL;
+
   if (cntr->Flags.orient == PLF_DIR)
-    InsCntr (e, cntr, contours);
+    {
+      if (owner != NULL)
+	r_delete_entry (owner->contour_tree, (BoxType *) cntr);
+      InsCntr (e, cntr, contours);
+    }
   /* put hole into temporary list */
   else
     {
       /* if we know this belongs inside the parent, put it there now */
-      if (parent)
+      if (parent_contour)
 	{
-	  cntr->next = parent->next;
-	  parent->next = cntr;
+	  cntr->next = parent_contour->next;
+	  parent_contour->next = cntr;
+	  if (owner != parent)
+	    {
+	      if (owner != NULL)
+		r_delete_entry (owner->contour_tree, (BoxType *) cntr);
+	      r_insert_entry (parent->contour_tree, (BoxType *) cntr, 0);
+	    }
 	}
       else
 	{
 	  cntr->next = *holes;
 	  *holes = cntr;	/* let cntr be 1st hole in list */
+	  /* We don't insert the holes into an r-tree,
+	   * they just form a linked list */
+	  if (owner != NULL)
+	    r_delete_entry (owner->contour_tree, (BoxType *) cntr);
 	}
     }
 }				/* PutContour */
+
+static inline void
+remove_contour (POLYAREA * piece, PLINE * prev_contour, PLINE * contour,
+		int remove_rtree_entry)
+{
+  if (piece->contours == contour)
+    piece->contours = contour->next;
+  else if (prev_contour != NULL)
+    {
+      assert (prev_contour->next == contour);
+      prev_contour->next = contour->next;
+    }
+
+  contour->next = NULL;
+
+  if (remove_rtree_entry)
+    r_delete_entry (piece->contour_tree, (BoxType *) contour);
+}
+
+struct polyarea_info
+{
+  BoxType BoundingBox;
+  POLYAREA *pa;
+};
 
 static int
 heap_it (const BoxType * b, void *cl)
 {
   heap_t *heap = (heap_t *) cl;
-  PLINE *p = (PLINE *) b;
+  struct polyarea_info *pa_info = (struct polyarea_info *) b;
+  PLINE *p = pa_info->pa->contours;
   if (p->Count == 0)
     return 0;			/* how did this happen? */
-  heap_insert (heap, p->area, (void *) p);
+  heap_insert (heap, p->area, pa_info);
   return 1;
+}
+
+struct find_inside_info
+{
+  jmp_buf jb;
+  PLINE *want_inside;
+  PLINE *result;
+};
+
+static int
+find_inside (const BoxType * b, void *cl)
+{
+  struct find_inside_info *info = cl;
+  PLINE *check = (PLINE *) b;
+  /* Do test on check to see if it inside info->want_inside */
+  /* If it is: */
+  if (check->Flags.orient == PLF_DIR)
+    {
+      return 0;
+    }
+  if (poly_ContourInContour (info->want_inside, check))
+    {
+      info->result = check;
+      longjmp (info->jb, 1);
+    }
+  return 0;
 }
 
 static void
 InsertHoles (jmp_buf * e, POLYAREA * dest, PLINE ** src)
 {
   POLYAREA *curc;
-  PLINE *curh, *container, *tmp;
+  PLINE *curh, *container;
   heap_t *heap;
   rtree_t *tree;
+  int i;
+  int num_polyareas = 0;
+  struct polyarea_info *all_pa_info, *pa_info;
 
   if (*src == NULL)
     return;			/* empty hole list */
   if (dest == NULL)
     error (err_bad_parm);	/* empty contour list */
 
-  /* make an rtree of contours */
-  tree = r_create_tree (NULL, 0, 0);
+  /* Count dest polyareas */
   curc = dest;
   do
     {
-      r_insert_entry (tree, (const BoxType *) curc->contours, 0);
+      num_polyareas++;
     }
   while ((curc = curc->f) != dest);
+
+  /* make a polyarea info table */
+  /* make an rtree of polyarea info table */
+  all_pa_info = malloc (sizeof (struct polyarea_info) * num_polyareas);
+  tree = r_create_tree (NULL, 0, 0);
+  i = 0;
+  curc = dest;
+  do
+    {
+      all_pa_info[i].BoundingBox.X1 = curc->contours->xmin;
+      all_pa_info[i].BoundingBox.Y1 = curc->contours->ymin;
+      all_pa_info[i].BoundingBox.X2 = curc->contours->xmax;
+      all_pa_info[i].BoundingBox.Y2 = curc->contours->ymax;
+      all_pa_info[i].pa = curc;
+      r_insert_entry (tree, (const BoxType *) &all_pa_info[i], 0);
+      i++;
+    }
+  while ((curc = curc->f) != dest);
+
   /* loop through the holes and put them where they belong */
   while ((curh = *src) != NULL)
     {
@@ -1132,24 +1357,24 @@ InsertHoles (jmp_buf * e, POLYAREA * dest, PLINE ** src)
        * in the heap, assume it is the container without the expense of
        * proving it.
        */
-      tmp = (PLINE *) heap_remove_smallest (heap);
+      pa_info = heap_remove_smallest (heap);
       if (heap_is_empty (heap))
 	{			/* only one possibility it must be the right one */
-	  assert (poly_ContourInContour (tmp, curh));
-	  container = tmp;
+	  assert (poly_ContourInContour (pa_info->pa->contours, curh));
+	  container = pa_info->pa->contours;
 	}
       else
 	{
 	  do
 	    {
-	      if (poly_ContourInContour (tmp, curh))
+	      if (poly_ContourInContour (pa_info->pa->contours, curh))
 		{
-		  container = tmp;
+		  container = pa_info->pa->contours;
 		  break;
 		}
 	      if (heap_is_empty (heap))
 		break;
-	      tmp = (PLINE *) heap_remove_smallest (heap);
+	      pa_info = heap_remove_smallest (heap);
 	    }
 	  while (1);
 	}
@@ -1168,13 +1393,56 @@ InsertHoles (jmp_buf * e, POLYAREA * dest, PLINE ** src)
 	}
       else
 	{
+	  /* Need to check if this new hole means we need to kick out any old ones for reprocessing */
+	  while (1)
+	    {
+	      struct find_inside_info info;
+	      PLINE *prev;
+
+	      info.want_inside = curh;
+
+	      /* Set jump return */
+	      if (setjmp (info.jb))
+		{
+		  /* Returned here! */
+		}
+	      else
+		{
+		  info.result = NULL;
+		  /* Rtree search, calling back a routine to longjmp back with data about any hole inside the added one */
+		  /*   Be sure not to bother jumping back to report the main contour! */
+		  r_search (pa_info->pa->contour_tree, (BoxType *) curh, NULL,
+			    find_inside, &info);
+
+		  /* Nothing found? */
+		  break;
+		}
+
+	      /* We need to find the contour before it, so we can update its next pointer */
+	      prev = container;
+	      while (prev->next != info.result)
+		{
+		  prev = prev->next;
+		}
+
+	      /* Remove hole from the contour */
+	      remove_contour (pa_info->pa, prev, info.result, TRUE);
+
+	      /* Add hole as the next on the list to be processed in this very function */
+	      info.result->next = *src;
+	      *src = info.result;
+	    }
+	  /* End check for kicked out holes */
+
 	  /* link at front of hole list */
-	  tmp = container->next;
+	  curh->next = container->next;
 	  container->next = curh;
-	  curh->next = tmp;
+	  r_insert_entry (pa_info->pa->contour_tree, (BoxTypePtr) curh, 0);
+
 	}
     }
   r_destroy_tree (&tree);
+  free (all_pa_info);
 }				/* InsertHoles */
 
 
@@ -1406,7 +1674,7 @@ Collect1 (jmp_buf * e, VNODE * cur, DIRECTION dir, POLYAREA ** contours,
       DEBUGP ("adding contour with %d verticies and direction %c\n",
 	      p->Count, p->Flags.orient ? 'F' : 'B');
 #endif
-      PutContour (e, p, contours, holes, NULL);
+      PutContour (e, p, contours, holes, NULL, NULL, NULL);
     }
   else
     {
@@ -1440,7 +1708,8 @@ Collect (jmp_buf * e, PLINE * a, POLYAREA ** contours, PLINE ** holes,
 
 static int
 cntr_Collect (jmp_buf * e, PLINE ** A, POLYAREA ** contours, PLINE ** holes,
-	      int action, PLINE * parent)
+	      int action, POLYAREA * owner, POLYAREA * parent,
+	      PLINE * parent_contour)
 {
   PLINE *tmprev;
 
@@ -1470,10 +1739,10 @@ cntr_Collect (jmp_buf * e, PLINE ** A, POLYAREA ** contours, PLINE ** holes,
 	  if ((*A)->Flags.status == INSIDE)
 	    {
 	      tmprev = *A;
-	      /* disappear this contour */
+	      /* disappear this contour (rtree entry removed in PutContour) */
 	      *A = tmprev->next;
 	      tmprev->next = NULL;
-	      PutContour (e, tmprev, contours, holes, NULL);
+	      PutContour (e, tmprev, contours, holes, owner, NULL, NULL);
 	      return TRUE;
 	    }
 	  break;
@@ -1481,11 +1750,11 @@ cntr_Collect (jmp_buf * e, PLINE ** A, POLYAREA ** contours, PLINE ** holes,
 	  if ((*A)->Flags.status == INSIDE)
 	    {
 	      tmprev = *A;
-	      /* disappear this contour */
+	      /* disappear this contour (rtree entry removed in PutContour) */
 	      *A = tmprev->next;
 	      tmprev->next = NULL;
 	      poly_InvContour (tmprev);
-	      PutContour (e, tmprev, contours, holes, NULL);
+	      PutContour (e, tmprev, contours, holes, owner, NULL, NULL);
 	      return TRUE;
 	    }
 	  /* break; *//* Fall through (I think this is correct! pcjc2) */
@@ -1494,10 +1763,11 @@ cntr_Collect (jmp_buf * e, PLINE ** A, POLYAREA ** contours, PLINE ** holes,
 	  if ((*A)->Flags.status == OUTSIDE)
 	    {
 	      tmprev = *A;
-	      /* disappear this contour */
+	      /* disappear this contour (rtree entry removed in PutContour) */
 	      *A = tmprev->next;
 	      tmprev->next = NULL;
-	      PutContour (e, tmprev, contours, holes, parent);
+	      PutContour (e, tmprev, contours, holes, owner, parent,
+			  parent_contour);
 	      return TRUE;
 	    }
 	  break;
@@ -1534,7 +1804,7 @@ M_B_AREA_Collect (jmp_buf * e, POLYAREA * bfst, POLYAREA ** contours,
 		next = cur;
 		tmp->next = NULL;
 		tmp->Flags.status = UNKNWN;
-		PutContour (e, tmp, contours, holes, NULL);
+		PutContour (e, tmp, contours, holes, b, NULL, NULL);
 		break;
 	      case PBO_UNITE:
 		break;		/* nothing to do - already included */
@@ -1550,7 +1820,7 @@ M_B_AREA_Collect (jmp_buf * e, POLYAREA * bfst, POLYAREA ** contours,
 		next = cur;
 		tmp->next = NULL;
 		tmp->Flags.status = UNKNWN;
-		PutContour (e, tmp, contours, holes, NULL);
+		PutContour (e, tmp, contours, holes, b, NULL, NULL);
 		break;
 	      case PBO_ISECT:
 	      case PBO_SUB:
@@ -1562,12 +1832,391 @@ M_B_AREA_Collect (jmp_buf * e, POLYAREA * bfst, POLYAREA ** contours,
 }
 
 
+static inline int
+contour_is_first (POLYAREA * a, PLINE * cur)
+{
+  return (a->contours == cur);
+}
+
+
+static inline int
+contour_is_last (PLINE * cur)
+{
+  return (cur->next == NULL);
+}
+
+
+static inline void
+remove_polyarea (POLYAREA ** list, POLYAREA * piece)
+{
+  /* If this item was the start of the list, advance that pointer */
+  if (*list == piece)
+    *list = (*list)->f;
+
+  /* But reset it to NULL if it wraps around and hits us again */
+  if (*list == piece)
+    *list = NULL;
+
+  piece->b->f = piece->f;
+  piece->f->b = piece->b;
+  piece->f = piece->b = piece;
+}
+
+static void
+M_POLYAREA_separate_isected (jmp_buf * e, POLYAREA ** pieces,
+			     PLINE ** holes, PLINE ** isected)
+{
+  POLYAREA *a = *pieces;
+  POLYAREA *anext;
+  PLINE *curc, *next, *prev;
+  int finished;
+
+  if (a == NULL)
+    return;
+
+  /* TODO: STASH ENOUGH INFORMATION EARLIER ON, SO WE CAN REMOVE THE INTERSECTED
+     CONTOURS WITHOUT HAVING TO WALK THE FULL DATA-STRUCTURE LOOKING FOR THEM. */
+
+  do
+    {
+      int hole_contour = 0;
+      int is_outline = 1;
+
+      anext = a->f;
+      finished = (anext == *pieces);
+
+      prev = NULL;
+      for (curc = a->contours; curc != NULL; curc = next, is_outline = 0)
+	{
+	  int is_first = contour_is_first (a, curc);
+	  int is_last = contour_is_last (curc);
+	  int isect_contour = (curc->Flags.status == ISECTED);
+
+	  next = curc->next;
+
+	  if (isect_contour || hole_contour)
+	    {
+
+	      /* Reset the intersection flags, since we keep these pieces */
+	      if (curc->Flags.status != ISECTED)
+		curc->Flags.status = UNKNWN;
+
+	      remove_contour (a, prev, curc, !(is_first && is_last));
+
+	      if (isect_contour)
+		{
+		  /* Link into the list of intersected contours */
+		  curc->next = *isected;
+		  *isected = curc;
+		}
+	      else if (hole_contour)
+		{
+		  /* Link into the list of holes */
+		  curc->next = *holes;
+		  *holes = curc;
+		}
+	      else
+		{
+		  assert (0);
+		}
+
+	      if (is_first && is_last)
+		{
+		  remove_polyarea (pieces, a);
+		  poly_Free (&a);	/* NB: Sets a to NULL */
+		}
+
+	    }
+	  else
+	    {
+	      /* Note the item we just didn't delete as the next
+	         candidate for having its "next" pointer adjusted.
+	         Saves walking the contour list when we delete one. */
+	      prev = curc;
+	    }
+
+	  /* If we move or delete an outer contour, we need to move any holes
+	     we wish to keep within that contour to the holes list. */
+	  if (is_outline && isect_contour)
+	    hole_contour = 1;
+
+	}
+
+      /* If we deleted all the pieces of the polyarea, *pieces is NULL */
+    }
+  while ((a = anext), *pieces != NULL && !finished);
+}
+
+
+struct find_inside_m_pa_info
+{
+  jmp_buf jb;
+  POLYAREA *want_inside;
+  PLINE *result;
+};
+
+static int
+find_inside_m_pa (const BoxType * b, void *cl)
+{
+  struct find_inside_m_pa_info *info = cl;
+  PLINE *check = (PLINE *) b;
+  /* Don't report for the main contour */
+  if (check->Flags.orient == PLF_DIR)
+    return 0;
+  /* Don't look at contours marked as being intersected */
+  if (check->Flags.status == ISECTED)
+    return 0;
+  if (cntr_in_M_POLYAREA (check, info->want_inside, FALSE))
+    {
+      info->result = check;
+      longjmp (info->jb, 1);
+    }
+  return 0;
+}
+
+
+static void
+M_POLYAREA_update_primary (jmp_buf * e, POLYAREA ** pieces,
+			   PLINE ** holes, int action, POLYAREA * bpa)
+{
+  POLYAREA *a = *pieces;
+  POLYAREA *b;
+  POLYAREA *anext;
+  PLINE *curc, *next, *prev;
+  BoxType box;
+  int inv_inside = 0;
+  int del_inside = 0;
+  int del_outside = 0;
+  int finished;
+
+  if (a == NULL)
+    return;
+
+  switch (action)
+    {
+    case PBO_ISECT:
+      del_outside = 1;
+      break;
+    case PBO_UNITE:
+    case PBO_SUB:
+      del_inside = 1;
+      break;
+    case PBO_XOR:		/* NOT IMPLEMENTED OR USED */
+      inv_inside = 1;
+      assert (0);
+      break;
+    }
+
+  box = *((BoxType *) bpa->contours);
+  b = bpa;
+  while ((b = b->f) != bpa)
+    {
+      BoxType *b_box = (BoxType *) b->contours;
+      MAKEMIN (box.X1, b_box->X1);
+      MAKEMIN (box.Y1, b_box->Y1);
+      MAKEMAX (box.X2, b_box->X2);
+      MAKEMAX (box.Y2, b_box->Y2);
+    }
+
+  if (del_inside)
+    {
+
+      do
+	{
+	  anext = a->f;
+	  finished = (anext == *pieces);
+
+	  /* Test the outer contour first, as we may need to remove all children */
+
+	  /* We've not yet split intersected contours out, just ignore them */
+	  if (a->contours->Flags.status != ISECTED &&
+	      /* Pre-filter on bounding box */
+	      ((a->contours->xmin >= box.X1) && (a->contours->ymin >= box.Y1)
+	       && (a->contours->xmax <= box.X2)
+	       && (a->contours->ymax <= box.Y2)) &&
+	      /* Then test properly */
+	      cntr_in_M_POLYAREA (a->contours, bpa, FALSE))
+	    {
+
+	      /* Delete this contour, all children -> holes queue */
+
+	      /* Delete the outer contour */
+	      curc = a->contours;
+	      remove_contour (a, NULL, curc, FALSE);	/* Rtree deleted in poly_Free below */
+	      /* a->contours now points to the remaining holes */
+	      poly_DelContour (&curc);
+
+	      if (a->contours != NULL)
+		{
+		  /* Find the end of the list of holes */
+		  curc = a->contours;
+		  while (curc->next != NULL)
+		    curc = curc->next;
+
+		  /* Take the holes and prepend to the holes queue */
+		  curc->next = *holes;
+		  *holes = a->contours;
+		  a->contours = NULL;
+		}
+
+	      remove_polyarea (pieces, a);
+	      poly_Free (&a);	/* NB: Sets a to NULL */
+
+	      continue;
+	    }
+
+	  /* Loop whilst we find INSIDE contours to delete */
+	  while (1)
+	    {
+	      struct find_inside_m_pa_info info;
+	      PLINE *prev;
+
+	      info.want_inside = bpa;
+
+	      /* Set jump return */
+	      if (setjmp (info.jb))
+		{
+		  /* Returned here! */
+		}
+	      else
+		{
+		  info.result = NULL;
+		  /* r-tree search, calling back a routine to longjmp back with
+		   * data about any hole inside the B polygon.
+		   * NB: Does not jump back to report the main contour!
+		   */
+		  r_search (a->contour_tree, &box, NULL, find_inside_m_pa,
+			    &info);
+
+		  /* Nothing found? */
+		  break;
+		}
+
+	      /* We need to find the contour before it, so we can update its next pointer */
+	      prev = a->contours;
+	      while (prev->next != info.result)
+		{
+		  prev = prev->next;
+		}
+
+	      /* Remove hole from the contour */
+	      remove_contour (a, prev, info.result, TRUE);
+	      poly_DelContour (&info.result);
+	    }
+	  /* End check for deleted holes */
+
+	  /* If we deleted all the pieces of the polyarea, *pieces is NULL */
+	}
+      while ((a = anext), *pieces != NULL && !finished);
+
+      return;
+    }
+  else
+    {
+      /* This path isn't optimised for speed */
+    }
+
+  do
+    {
+      int hole_contour = 0;
+      int is_outline = 1;
+
+      anext = a->f;
+      finished = (anext == *pieces);
+
+      prev = NULL;
+      for (curc = a->contours; curc != NULL; curc = next, is_outline = 0)
+	{
+	  int is_first = contour_is_first (a, curc);
+	  int is_last = contour_is_last (curc);
+	  int del_contour = 0;
+
+	  next = curc->next;
+
+	  if (del_outside)
+	    del_contour = curc->Flags.status != ISECTED &&
+	      !cntr_in_M_POLYAREA (curc, bpa, FALSE);
+
+	  /* Skip intersected contours */
+	  if (curc->Flags.status == ISECTED)
+	    {
+	      prev = curc;
+	      continue;
+	    }
+
+	  /* Reset the intersection flags, since we keep these pieces */
+	  curc->Flags.status = UNKNWN;
+
+	  if (del_contour || hole_contour)
+	    {
+
+	      remove_contour (a, prev, curc, !(is_first && is_last));
+
+	      if (del_contour)
+		{
+		  /* Delete the contour */
+		  poly_DelContour (&curc);	/* NB: Sets curc to NULL */
+		}
+	      else if (hole_contour)
+		{
+		  /* Link into the list of holes */
+		  curc->next = *holes;
+		  *holes = curc;
+		}
+	      else
+		{
+		  assert (0);
+		}
+
+	      if (is_first && is_last)
+		{
+		  remove_polyarea (pieces, a);
+		  poly_Free (&a);	/* NB: Sets a to NULL */
+		}
+
+	    }
+	  else
+	    {
+	      /* Note the item we just didn't delete as the next
+	         candidate for having its "next" pointer adjusted.
+	         Saves walking the contour list when we delete one. */
+	      prev = curc;
+	    }
+
+	  /* If we move or delete an outer contour, we need to move any holes
+	     we wish to keep within that contour to the holes list. */
+	  if (is_outline && del_contour)
+	    hole_contour = 1;
+
+	}
+
+      /* If we deleted all the pieces of the polyarea, *pieces is NULL */
+    }
+  while ((a = anext), *pieces != NULL && !finished);
+}
+
+static void
+M_POLYAREA_Collect_separated (jmp_buf * e, PLINE * afst, POLYAREA ** contours,
+			      PLINE ** holes, int action, BOOLp maybe)
+{
+  PLINE **cur, **next;
+
+  for (cur = &afst; *cur != NULL; cur = next)
+    {
+      next = &((*cur)->next);
+      /* if we disappear a contour, don't advance twice */
+      if (cntr_Collect (e, cur, contours, holes, action, NULL, NULL, NULL))
+	next = cur;
+    }
+}
+
 static void
 M_POLYAREA_Collect (jmp_buf * e, POLYAREA * afst, POLYAREA ** contours,
 		    PLINE ** holes, int action, BOOLp maybe)
 {
   POLYAREA *a = afst;
-  PLINE **cur, **next, *parent;
+  POLYAREA *parent = NULL;	/* Quiet compiler warning */
+  PLINE **cur, **next, *parent_contour;
 
   assert (a != NULL);
   while ((a = a->f) != afst);
@@ -1575,16 +2224,33 @@ M_POLYAREA_Collect (jmp_buf * e, POLYAREA * afst, POLYAREA ** contours,
   do
     {
       if (maybe && a->contours->Flags.status != ISECTED)
-	parent = a->contours;
+	parent_contour = a->contours;
       else
-	parent = NULL;
-      for (cur = &a->contours; *cur != NULL; cur = next)
+	parent_contour = NULL;
+
+      /* Take care of the first contour - so we know if we
+       * can shortcut reparenting some of its children
+       */
+      cur = &a->contours;
+      if (*cur != NULL)
 	{
 	  next = &((*cur)->next);
 	  /* if we disappear a contour, don't advance twice */
-	  if (cntr_Collect
-	      (e, cur, contours, holes, action,
-	       *cur == parent ? NULL : parent))
+	  if (cntr_Collect (e, cur, contours, holes, action, a, NULL, NULL))
+	    {
+	      parent = (*contours)->b;	/* InsCntr inserts behind the head */
+	      next = cur;
+	    }
+	  else
+	    parent = a;
+	  cur = next;
+	}
+      for (; *cur != NULL; cur = next)
+	{
+	  next = &((*cur)->next);
+	  /* if we disappear a contour, don't advance twice */
+	  if (cntr_Collect (e, cur, contours, holes, action, a, parent,
+			    parent_contour))
 	    next = cur;
 	}
     }
@@ -1636,6 +2302,7 @@ int
 poly_Boolean_free (POLYAREA * ai, POLYAREA * bi, POLYAREA ** res, int action)
 {
   POLYAREA *a = ai, *b = bi;
+  PLINE *a_isected = NULL;
   PLINE *p, *holes = NULL;
   jmp_buf e;
   int code;
@@ -1680,17 +2347,28 @@ poly_Boolean_free (POLYAREA * ai, POLYAREA * bi, POLYAREA ** res, int action)
       assert (poly_Valid (b));
 #endif
 
+      /* intersect needs to make a list of the contours in a and b which are intersected */
       M_POLYAREA_intersect (&e, a, b, TRUE);
 
-      M_POLYAREA_label (a, b, FALSE);
+      /* We could speed things up a lot here if we only processed the relevant contours */
+      /* NB: Relevant parts of a are labeled below */
       M_POLYAREA_label (b, a, FALSE);
 
-      M_POLYAREA_Collect (&e, a, res, &holes, action, b->f == b
-			  && !b->contours->next
-			  && b->contours->Flags.status != ISECTED);
-      poly_Free (&a);
+      *res = a;
+      M_POLYAREA_update_primary (&e, res, &holes, action, b);
+      M_POLYAREA_separate_isected (&e, res, &holes, &a_isected);
+      M_POLYAREA_label_separated (a_isected, b, FALSE);
+      M_POLYAREA_Collect_separated (&e, a_isected, res, &holes, action,
+				    FALSE);
       M_B_AREA_Collect (&e, b, res, &holes, action);
       poly_Free (&b);
+
+      /* free a_isected */
+      while ((p = a_isected) != NULL)
+	{
+	  a_isected = p->next;
+	  poly_DelContour (&p);
+	}
 
       InsertHoles (&e, *res, &holes);
     }
@@ -2073,6 +2751,7 @@ poly_Copy0 (POLYAREA ** dst, const POLYAREA * src)
     *dst = calloc (1, sizeof (POLYAREA));
   if (*dst == NULL)
     return FALSE;
+  (*dst)->contour_tree = r_create_tree (NULL, 0, 0);
 
   return poly_Copy1 (*dst, src);
 }
@@ -2089,6 +2768,7 @@ poly_Copy1 (POLYAREA * dst, const POLYAREA * src)
     {
       if (!poly_CopyContour (last, cur))
 	return FALSE;
+      r_insert_entry (dst->contour_tree, (BoxTypePtr) * last, 0);
       last = &(*last)->next;
     }
   return TRUE;
@@ -2148,6 +2828,7 @@ poly_InclContour (POLYAREA * p, PLINE * c)
       p->contours->next = c;
       c->next = tmp;
     }
+  r_insert_entry (p->contour_tree, (BoxTypePtr) c, 0);
   return TRUE;
 }
 
@@ -2417,6 +3098,7 @@ poly_Init (POLYAREA * p)
 {
   p->f = p->b = p;
   p->contours = NULL;
+  p->contour_tree = r_create_tree (NULL, 0, 0);
 }
 
 POLYAREA *
@@ -2451,11 +3133,13 @@ poly_Free (POLYAREA ** p)
   for (cur = (*p)->f; cur != *p; cur = (*p)->f)
     {
       poly_FreeContours (&cur->contours);
+      r_destroy_tree (&cur->contour_tree);
       cur->f->b = cur->b;
       cur->b->f = cur->f;
       free (cur);
     }
   poly_FreeContours (&cur->contours);
+  r_destroy_tree (&cur->contour_tree);
   free (*p), *p = NULL;
 }
 
