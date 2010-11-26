@@ -1118,14 +1118,21 @@ PutContour (jmp_buf * e, PLINE * cntr, POLYAREA ** contours, PLINE ** holes,
     }
 }				/* PutContour */
 
+struct polyarea_info
+{
+  BoxType BoundingBox;
+  POLYAREA *pa;
+};
+
 static int
 heap_it (const BoxType * b, void *cl)
 {
   heap_t *heap = (heap_t *) cl;
-  PLINE *p = (PLINE *) b;
+  struct polyarea_info *pa_info = (struct polyarea_info *) b;
+  PLINE *p = pa_info->pa->contours;
   if (p->Count == 0)
     return 0;			/* how did this happen? */
-  heap_insert (heap, p->area, (void *) p);
+  heap_insert (heap, p->area, pa_info);
   return 1;
 }
 
@@ -1133,23 +1140,44 @@ static void
 InsertHoles (jmp_buf * e, POLYAREA * dest, PLINE ** src)
 {
   POLYAREA *curc;
-  PLINE *curh, *container, *tmp;
+  PLINE *curh, *container;
   heap_t *heap;
   rtree_t *tree;
+  int i;
+  int num_polyareas = 0;
+  struct polyarea_info *all_pa_info, *pa_info;
 
   if (*src == NULL)
     return;			/* empty hole list */
   if (dest == NULL)
     error (err_bad_parm);	/* empty contour list */
 
-  /* make an rtree of outer contours */
-  tree = r_create_tree (NULL, 0, 0);
+  /* Count dest polyareas */
   curc = dest;
   do
     {
-      r_insert_entry (tree, (const BoxType *) curc->contours, 0);
+      num_polyareas++;
     }
   while ((curc = curc->f) != dest);
+
+  /* make a polyarea info table */
+  /* make an rtree of polyarea info table */
+  all_pa_info = malloc (sizeof (struct polyarea_info) * num_polyareas);
+  tree = r_create_tree (NULL, 0, 0);
+  i = 0;
+  curc = dest;
+  do
+    {
+      all_pa_info[i].BoundingBox.X1 = curc->contours->xmin;
+      all_pa_info[i].BoundingBox.Y1 = curc->contours->ymin;
+      all_pa_info[i].BoundingBox.X2 = curc->contours->xmax;
+      all_pa_info[i].BoundingBox.Y2 = curc->contours->ymax;
+      all_pa_info[i].pa = curc;
+      r_insert_entry (tree, (const BoxType *) &all_pa_info[i], 0);
+      i++;
+    }
+  while ((curc = curc->f) != dest);
+
   /* loop through the holes and put them where they belong */
   while ((curh = *src) != NULL)
     {
@@ -1173,24 +1201,24 @@ InsertHoles (jmp_buf * e, POLYAREA * dest, PLINE ** src)
        * in the heap, assume it is the container without the expense of
        * proving it.
        */
-      tmp = (PLINE *) heap_remove_smallest (heap);
+      pa_info = heap_remove_smallest (heap);
       if (heap_is_empty (heap))
 	{			/* only one possibility it must be the right one */
-	  assert (poly_ContourInContour (tmp, curh));
-	  container = tmp;
+	  assert (poly_ContourInContour (pa_info->pa->contours, curh));
+	  container = pa_info->pa->contours;
 	}
       else
 	{
 	  do
 	    {
-	      if (poly_ContourInContour (tmp, curh))
+	      if (poly_ContourInContour (pa_info->pa->contours, curh))
 		{
-		  container = tmp;
+		  container = pa_info->pa->contours;
 		  break;
 		}
 	      if (heap_is_empty (heap))
 		break;
-	      tmp = (PLINE *) heap_remove_smallest (heap);
+	      pa_info = heap_remove_smallest (heap);
 	    }
 	  while (1);
 	}
@@ -1212,26 +1240,11 @@ InsertHoles (jmp_buf * e, POLYAREA * dest, PLINE ** src)
 	  /* link at front of hole list */
 	  curh->next = container->next;
 	  container->next = curh;
-
-	  /* Search for which POLYAREA the containing contour belongs to */
-	  /* FIXME: Perhaps store this information in the heap structure? */
-	  curc = dest;
-	  do
-	    {
-	      if (curc->contours == container)
-		break;
-	    }
-	  while ((curc = curc->f) != dest);
-
-	  if (curc->contours == container)
-	    {
-	      r_insert_entry (curc->contour_tree, (BoxTypePtr) curh, 0);
-	    }
-	  else
-	    assert (0);
+	  r_insert_entry (pa_info->pa->contour_tree, (BoxTypePtr) curh, 0);
 	}
     }
   r_destroy_tree (&tree);
+  free (all_pa_info);
 }				/* InsertHoles */
 
 
