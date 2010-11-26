@@ -109,6 +109,8 @@ RCSID ("$Id$");
 #define ROUND(x) ((long)(((x) >= 0 ? (x) + 0.5  : (x) - 0.5)))
 
 #define UNSUBTRACT_BLOAT 10
+#define SUBTRACT_PIN_VIA_BATCH_SIZE 100
+#define SUBTRACT_LINE_BATCH_SIZE 20
 
 /* ---------------------------------------------------------------------------
  * local prototypes
@@ -860,8 +862,20 @@ struct cpInfo
   LayerType *layer;
   PolygonType *polygon;
   bool solder;
+  POLYAREA *accumulate;
+  int batch_size;
   jmp_buf env;
 };
+
+static void
+subtract_accumulated (struct cpInfo *info, PolygonTypePtr polygon)
+{
+  if (info->accumulate == NULL)
+    return;
+  Subtract (info->accumulate, polygon, true);
+  info->accumulate = NULL;
+  info->batch_size = 0;
+}
 
 static int
 pin_sub_callback (const BoxType * b, void *cl)
@@ -869,13 +883,39 @@ pin_sub_callback (const BoxType * b, void *cl)
   PinTypePtr pin = (PinTypePtr) b;
   struct cpInfo *info = (struct cpInfo *) cl;
   PolygonTypePtr polygon;
+  POLYAREA *np;
+  POLYAREA *merged;
+  Cardinal i;
 
   /* don't subtract the object that was put back! */
   if (b == info->other)
     return 0;
   polygon = info->polygon;
-  if (SubtractPin (info->data, pin, info->layer, polygon) < 0)
-    longjmp (info->env, 1);
+
+  if (pin->Clearance == 0)
+    return 0;
+  i = GetLayerNumber (info->data, info->layer);
+  if (TEST_THERM (i, pin))
+    {
+      np = ThermPoly ((PCBTypePtr) (info->data->pcb), pin, i);
+      if (!np)
+        return 1;
+    }
+  else
+    {
+      np = PinPoly (pin, pin->Thickness, pin->Clearance);
+      if (!np)
+        longjmp (info->env, 1);
+    }
+
+  poly_Boolean_free (info->accumulate, np, &merged, PBO_UNITE);
+  info->accumulate = merged;
+
+  info->batch_size ++;
+
+  if (info->batch_size == SUBTRACT_PIN_VIA_BATCH_SIZE)
+    subtract_accumulated (info, polygon);
+
   return 1;
 }
 
@@ -925,6 +965,8 @@ line_sub_callback (const BoxType * b, void *cl)
   LineTypePtr line = (LineTypePtr) b;
   struct cpInfo *info = (struct cpInfo *) cl;
   PolygonTypePtr polygon;
+  POLYAREA *np;
+  POLYAREA *merged;
 
   /* don't subtract the object that was put back! */
   if (b == info->other)
@@ -932,8 +974,17 @@ line_sub_callback (const BoxType * b, void *cl)
   if (!TEST_FLAG (CLEARLINEFLAG, line))
     return 0;
   polygon = info->polygon;
-  if (SubtractLine (line, polygon) < 0)
+
+  if (!(np = LinePoly (line, line->Thickness + line->Clearance)))
     longjmp (info->env, 1);
+
+  poly_Boolean_free (info->accumulate, np, &merged, PBO_UNITE);
+  info->accumulate = merged;
+  info->batch_size ++;
+
+  if (info->batch_size == SUBTRACT_LINE_BATCH_SIZE)
+    subtract_accumulated (info, polygon);
+
   return 1;
 }
 
@@ -992,21 +1043,26 @@ clearPoly (DataTypePtr Data, LayerTypePtr Layer, PolygonType * polygon,
 
   if (setjmp (info.env) == 0)
     {
-      r = r_search (Data->via_tree, &region, NULL, pin_sub_callback, &info);
-      r += r_search (Data->pin_tree, &region, NULL, pin_sub_callback, &info);
+      r = 0;
+      info.accumulate = NULL;
+      info.batch_size = 0;
+      if (info.solder || group == Group (Data, component_silk_layer))
+	r += r_search (Data->pad_tree, &region, NULL, pad_sub_callback, &info);
       GROUP_LOOP (Data, group);
       {
         r +=
           r_search (layer->line_tree, &region, NULL, line_sub_callback,
                     &info);
+        subtract_accumulated (&info, polygon);
         r +=
           r_search (layer->arc_tree, &region, NULL, arc_sub_callback, &info);
 	r +=
           r_search (layer->text_tree, &region, NULL, text_sub_callback, &info);
       }
       END_LOOP;
-      if (info.solder || group == Group (Data, component_silk_layer))
-	r += r_search (Data->pad_tree, &region, NULL, pad_sub_callback, &info);
+      r += r_search (Data->via_tree, &region, NULL, pin_sub_callback, &info);
+      r += r_search (Data->pin_tree, &region, NULL, pin_sub_callback, &info);
+      subtract_accumulated (&info, polygon);
     }
   polygon->NoHolesValid = 0;
   return r;
