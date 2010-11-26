@@ -180,26 +180,20 @@ node_add
  4 means the intersection was not on the dest point
 */
 static VNODE *
-node_add (VNODE * dest, Vector po, int *new_point)
+node_add_single (VNODE * dest, Vector po)
 {
   VNODE *p;
 
   if (vect_equal (po, dest->point))
     return dest;
   if (vect_equal (po, dest->next->point))
-    {
-      (*new_point) += 4;
-      return dest->next;
-    }
+    return dest->next;
   p = poly_CreateNode (po);
   if (p == NULL)
     return NULL;
-  (*new_point) += 5;
-  p->prev = dest;
-  p->next = dest->next;
   p->cvc_prev = p->cvc_next = NULL;
   p->Flags.status = UNKNWN;
-  return (dest->next = dest->next->prev = p);
+  return p;
 }				/* node_add */
 
 #define ISECT_BAD_PARAM (-1)
@@ -362,22 +356,22 @@ node_add_point
  return 1 if new node in b, 2 if new node in a and 3 if new node in both
 */
 
-static int
-node_add_point (VNODE * a, VNODE * b, Vector p)
+static VNODE *
+node_add_single_point (VNODE * a, Vector p)
 {
-  int res = 0;
+  VNODE *next_a, *new_node;
 
-  VNODE *node_a, *node_b;
+  next_a = a->next;
 
-  node_a = node_add (a, p, &res);
-  res += res;
-  node_b = node_add (b, p, &res);
+  new_node = node_add_single (a, p);
+  assert (new_node != NULL);
 
-  if (node_a == NULL || node_b == NULL)
-    return ISECT_NO_MEMORY;
-  node_b->cvc_prev = node_b->cvc_next = (CVCList *) - 1;
-  node_a->cvc_prev = node_a->cvc_next = (CVCList *) - 1;
-  return res;
+  new_node->cvc_prev = new_node->cvc_next = (CVCList *) - 1;
+
+  if (new_node == a || new_node == next_a)
+    return NULL;
+
+  return new_node;
 }				/* node_add_point */
 
 /*
@@ -501,7 +495,17 @@ typedef struct seg
   BoxType box;
   VNODE *v;
   PLINE *p;
+  int intersected;
 } seg;
+
+typedef struct _insert_node_task insert_node_task;
+
+struct _insert_node_task
+{
+  insert_node_task *next;
+  seg *seg;
+  VNODE *new_node;
+};
 
 typedef struct info
 {
@@ -510,6 +514,8 @@ typedef struct info
   VNODE *v;
   struct seg *s;
   jmp_buf *env, sego, *touch;
+  int need_restart;
+  insert_node_task *node_insert_list;
 } info;
 
 typedef struct contour_info
@@ -517,6 +523,8 @@ typedef struct contour_info
   PLINE *pa;
   jmp_buf restart;
   jmp_buf *getout;
+  int need_restart;
+  insert_node_task *node_insert_list;
 } contour_info;
 
 
@@ -534,6 +542,7 @@ adjust_tree (rtree_t * tree, struct seg *s)
   q = malloc (sizeof (struct seg));
   if (!q)
     return 1;
+  q->intersected = 0;
   q->v = s->v;
   q->p = s->p;
   q->box.X1 = min (q->v->point[0], q->v->next->point[0]);
@@ -544,6 +553,7 @@ adjust_tree (rtree_t * tree, struct seg *s)
   q = malloc (sizeof (struct seg));
   if (!q)
     return 1;
+  q->intersected = 0;
   q->v = s->v->next;
   q->p = s->p;
   q->box.X1 = min (q->v->point[0], q->v->next->point[0]);
@@ -577,6 +587,17 @@ seg_in_region (const BoxType * b, void *cl)
   return 1;			/* might intersect */
 }
 
+/* Prepend a deferred node-insersion task to a list */
+static insert_node_task *
+prepend_insert_node_task (insert_node_task *list, seg *seg, VNODE *new_node)
+{
+  insert_node_task *task = malloc (sizeof (*task));
+  task->seg = seg;
+  task->new_node = new_node;
+  task->next = list;
+  return task;
+}
+
 /*
  * seg_in_seg()
  * (C) 2006 harry eaton
@@ -594,7 +615,15 @@ seg_in_seg (const BoxType * b, void *cl)
   struct info *i = (struct info *) cl;
   struct seg *s = (struct seg *) b;
   Vector s1, s2;
-  int cnt, res;
+  int cnt;
+  VNODE *new_node;
+
+  /* When new nodes are added at the end of a pass due to an intersection
+   * the segments may be altered. If either segment we're looking at has
+   * already been intersected this pass, skip it until the next pass.
+   */
+  if (s->intersected || i->s->intersected)
+    return 0;
 
   cnt = vect_inters2 (s->v->point, s->v->next->point,
 		      i->v->point, i->v->next->point, s1, s2);
@@ -606,31 +635,36 @@ seg_in_seg (const BoxType * b, void *cl)
   s->p->Flags.status = ISECTED;
   for (; cnt; cnt--)
     {
-      res = node_add_point (i->v, s->v, cnt > 1 ? s2 : s1);
-      if (res < 0)
-	return 1;		/* error */
-      /* adjust the bounding box and tree if necessary */
-      if (res & 2)
-	{
-	  cntrbox_adjust (i->s->p, cnt > 1 ? s2 : s1);
-	  if (adjust_tree (i->s->p->tree, i->s))
-	    return 1;
-	}
-      /* if we added a node in the tree we need to change the tree */
-      if (res & 1)
-	{
-	  cntrbox_adjust (s->p, cnt > 1 ? s2 : s1);
-	  if (adjust_tree (i->tree, s))
-	    return 1;
-	}
-      if (res & 3)		/* if a point was inserted start over */
+      bool done_insert_on_i = false;
+      new_node = node_add_single_point (i->v, cnt > 1 ? s2 : s1);
+      if (new_node != NULL)
 	{
 #ifdef DEBUG_INTERSECT
-	  DEBUGP ("new intersection at (%d, %d)\n", cnt > 1 ? s2[0] : s1[0],
-		  cnt > 1 ? s2[1] : s1[1]);
+	  DEBUGP ("new intersection on segment \"i\" at (%d, %d)\n",
+	          cnt > 1 ? s2[0] : s1[0], cnt > 1 ? s2[1] : s1[1]);
 #endif
-	  longjmp (*i->env, 1);
+	  i->node_insert_list =
+	    prepend_insert_node_task (i->node_insert_list, i->s, new_node);
+	  i->s->intersected = 1;
+	  done_insert_on_i = true;
 	}
+      new_node = node_add_single_point (s->v, cnt > 1 ? s2 : s1);
+      if (new_node != NULL)
+	{
+#ifdef DEBUG_INTERSECT
+	  DEBUGP ("new intersection on segment \"s\" at (%d, %d)\n",
+	          cnt > 1 ? s2[0] : s1[0], cnt > 1 ? s2[1] : s1[1]);
+#endif
+	  i->node_insert_list =
+	    prepend_insert_node_task (i->node_insert_list, s, new_node);
+	  s->intersected = 1;
+	  return 0; /* Keep looking for intersections with segment "i" */
+	}
+      /* Skip any remaining r_search hits against segment i, as any futher
+       * intersections will be rejected until the next pass anyway.
+       */
+      if (done_insert_on_i)
+	longjmp (*i->env, 1);
     }
   return 0;
 }
@@ -645,6 +679,7 @@ make_edge_tree (PLINE * pb)
   do
     {
       s = malloc (sizeof (struct seg));
+      s->intersected = 0;
       if (bv->point[0] < bv->next->point[0])
 	{
 	  s->box.X1 = bv->point[0];
@@ -715,10 +750,13 @@ contour_bounds_touch (const BoxType * b, void *cl)
   VNODE *av;			/* node iterators */
   struct info info;
   BoxType box;
+  jmp_buf restart;
 
   /* Have seg_in_seg return to our desired location if it touches */
-  info.env = &c_info->restart;
+  info.env = &restart;
   info.touch = c_info->getout;
+  info.need_restart = 0;
+  info.node_insert_list = c_info->node_insert_list;
 
   /* Pick which contour has the fewer points, and do the loop
    * over that. The r_tree makes hit-testing against a contour
@@ -760,23 +798,38 @@ contour_bounds_touch (const BoxType * b, void *cl)
 	  assert (0);
 	}
 
+      /* If we're going to have another pass anyway, skip this */
+      if (info.s->intersected && info.node_insert_list != NULL)
+	continue;
+
+      if (setjmp (restart))
+	continue;
+
       /* NB: If this actually hits anything, we are teleported back to the beginning */
       info.tree = rtree_over->tree;
       if (info.tree)
 	if (UNLIKELY (r_search (info.tree, &info.s->box,
 				seg_in_region, seg_in_seg, &info)))
-	  return err_no_memory;	/* error */
+	  assert (0); /* XXX: Memory allocation failure */
     }
   while ((av = av->next) != &looping_over->head);
+
+  c_info->node_insert_list = info.node_insert_list;
+  if (info.need_restart)
+    c_info->need_restart = 1;
   return 0;
 }
 
 static int
-intersect (jmp_buf * jb, POLYAREA * b, POLYAREA * a, int add)
+intersect_impl (jmp_buf * jb, POLYAREA * b, POLYAREA * a, int add)
 {
   POLYAREA *t;
   PLINE *pa;
   contour_info c_info;
+  int need_restart = 0;
+  insert_node_task *task;
+  c_info.need_restart = 0;
+  c_info.node_insert_list = NULL;
 
   /* Search the r-tree of the object with most contours
    * We loop over the contours of "a". Swap if necessary.
@@ -787,8 +840,6 @@ intersect (jmp_buf * jb, POLYAREA * b, POLYAREA * a, int add)
       b = a;
       a = t;
     }
-
-  setjmp (c_info.restart);	/* we loop back here whenever a vertex is inserted */
 
   for (pa = a->contours; pa; pa = pa->next)	/* Loop over the contours of POLYAREA "a" */
     {
@@ -817,8 +868,42 @@ intersect (jmp_buf * jb, POLYAREA * b, POLYAREA * a, int add)
       sb.Y2 = pa->ymax + 1;
 
       r_search (b->contour_tree, &sb, NULL, contour_bounds_touch, &c_info);
+      if (c_info.need_restart)
+	need_restart = 1;
     }
 
+  /* Process any deferred node insersions */
+  task = c_info.node_insert_list;
+  while (task != NULL)
+    {
+      insert_node_task *next = task->next;
+
+      /* Do insersion */
+      task->new_node->prev = task->seg->v;
+      task->new_node->next = task->seg->v->next;
+      task->seg->v->next->prev = task->new_node;
+      task->seg->v->next = task->new_node;
+      task->seg->p->Count++;
+
+      cntrbox_adjust (task->seg->p, task->new_node->point);
+      if (adjust_tree (task->seg->p->tree, task->seg))
+	assert (0); /* XXX: Memory allocation failure */
+
+      need_restart = 1; /* Any new nodes could intersect */
+
+      free (task);
+      task = next;
+    }
+
+  return need_restart;
+}
+
+static int
+intersect (jmp_buf * jb, POLYAREA * b, POLYAREA * a, int add)
+{
+  int call_count = 1;
+  while (intersect_impl (jb, b, a, add))
+    call_count++;
   return 0;
 }
 
