@@ -723,7 +723,9 @@ openscad_do_export (HID_Attr_Val * options)
     }
     openscad_filename = options[HA_openscad_file].str_value;
     if (!openscad_filename)
-    openscad_filename = "pcb-out.scad";
+    {
+        openscad_filename = "pcb-out.scad";
+    }
     openscad_dim_type = options[HA_openscad_mm].int_value;
     openscad_print ();
 }
