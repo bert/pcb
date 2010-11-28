@@ -100,6 +100,7 @@ typedef struct line_s
   struct line_s *next;
   corner_s *s, *e;
   LineType *line;
+  char is_pad;
 } line_s;
 
 typedef struct rect_s
@@ -155,8 +156,9 @@ HID_Flag djopt_flag_list[] = {
 };
 
 REGISTER_FLAGS (djopt_flag_list)
-#define line_is_pad(l) ((l)->line == (LineType *)(l)->s->pad)
-     static char *element_name_for (corner_s * c)
+
+static char *
+element_name_for (corner_s * c)
 {
   int i, p;
   ElementType *e;
@@ -267,7 +269,7 @@ check2 (int srcline, corner_s * c, line_s * l)
 	  break;
       if (i == ll->e->n_lines)
 	dj_abort ("check:%d: ll->e has no backref\n", srcline);
-      if (!line_is_pad (ll)
+      if (!ll->is_pad
 	  && (ll->s->x != ll->line->Point1.X
 	      || ll->s->y != ll->line->Point1.Y
 	      || ll->e->x != ll->line->Point2.X
@@ -567,6 +569,7 @@ new_line (corner_s * s, corner_s * e, int layer, LineType * example)
   ls = (line_s *) malloc (sizeof (line_s));
   ls->next = lines;
   lines = ls;
+  ls->is_pad = 0;
   ls->s = s;
   ls->e = e;
   ls->layer = layer;
@@ -995,7 +998,7 @@ split_line (line_s * l, corner_s * c)
 
   if (!intersecting_layers (l->layer, c->layer))
     return 0;
-  if (line_is_pad (l))
+  if (l->is_pad)
     return 0;
   if (c->pad)
     {
@@ -1022,6 +1025,7 @@ split_line (line_s * l, corner_s * c)
 
   ls->next = lines;
   lines = ls;
+  ls->is_pad = 0;
   ls->s = c;
   ls->e = l->e;
   ls->line = pcbline;
@@ -2830,6 +2834,9 @@ padcleaner ()
     {
       nextl = l->next;
 
+      if (l->is_pad)
+	continue;
+
       if (DELETED (l))
 	continue;
 
@@ -3002,13 +3009,11 @@ ActionDJopt (int argc, char **argv, int x, int y)
     line_s *ls = (line_s *) malloc (sizeof (line_s));
     ls->next = lines;
     lines = ls;
+    ls->is_pad = 1;
     ls->s = find_corner (pad->Point1.X, pad->Point1.Y, layern);
     ls->s->pad = pad;
     ls->e = find_corner (pad->Point2.X, pad->Point2.Y, layern);
     ls->e->pad = pad;
-    ls->layer = layern;
-    ls->line = (LineTypePtr) pad;
-    add_line_to_corner (ls, ls->s);
     ls->layer = layern;
     ls->line = (LineTypePtr) pad;
     add_line_to_corner (ls, ls->s);
@@ -3059,6 +3064,7 @@ ActionDJopt (int argc, char **argv, int x, int y)
 	  ls = (line_s *) malloc (sizeof (line_s));
 	  ls->next = lines;
 	  lines = ls;
+	  ls->is_pad = 0;
 	  ls->s = find_corner (l->Point1.X, l->Point1.Y, layn);
 	  ls->e = find_corner (l->Point2.X, l->Point2.Y, layn);
 	  ls->line = l;
