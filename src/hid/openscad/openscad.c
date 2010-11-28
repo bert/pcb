@@ -513,7 +513,7 @@ openscad_print (void)
         sumy = 0.0;
         found_pin1 = 0;
         found_pin2 = 0;
-        /* Insert this component into the bill of materials list. */
+        /* Insert this component into the list of OpenSCAD models. */
         openscad = openscad_insert
         (
             EMPTY (NAMEONPCB_NAME (element)),
