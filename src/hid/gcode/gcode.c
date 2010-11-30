@@ -119,6 +119,8 @@ static const char *gcode_basename = NULL;
 static int gcode_dpi = -1;
 
 static double gcode_cutdepth = 0;       /* milling depth (inch) */
+static double gcode_isoplunge = 0;      /* isolation milling plunge feedrate */
+static double gcode_isofeedrate = 0;    /* isolation milling feedrate */
 static char gcode_predrill;
 static double gcode_drilldepth = 0;     /* drilling depth (mm or in) */
 static double gcode_safeZ = 100;        /* safe Z (mm or in) */
@@ -177,32 +179,41 @@ HID_Attribute gcode_attribute_list[] = {
    HID_Real, 0, 10000, {0, 0, 0.2}, 0, 0},
 #define HA_tooldiameter 5
 
+  {"iso-tool-plunge", "Isolation milling feedrate when plunging into\n"
+                      "the material",
+   HID_Real, 0.1, 10000, {0, 0, 25.}, 0, 0},
+#define HA_isoplunge 6
+
+  {"iso-tool-feedrate", "Isolation milling feedrate",
+   HID_Real, 0.1, 10000, {0, 0, 50.}, 0, 0},
+#define HA_isofeedrate 7
+
   {"predrill", "Wether to pre-drill all drill spots with the isolation milling\n"
                "tool. Drill depth is iso-mill-depth here. This feature eases\n"
                "and enhances accuracy of manual drilling.",
    HID_Boolean, 0, 0, {1, 0, 0}, 0, 0},
-#define HA_predrill 6
+#define HA_predrill 8
 
   {"drill-depth", "Drilling depth.",
    HID_Real, -10000, 10000, {0, 0, -2}, 0, 0},
-#define HA_drilldepth 7
+#define HA_drilldepth 9
 
   {"outline-mill-depth", "Milling depth when milling the outline.\n"
                          "Currently, only the rectangular extents of the\n"
                          "board are milled, no polygonal outlines or holes.",
    HID_Real, -10000, 10000, {0, 0, -1}, 0, 0},
-#define HA_milldepth 8
+#define HA_milldepth 10
 
   {"outline-tool-diameter", "Diameter of the tool used for outline milling.",
    HID_Real, 0, 10000, {0, 0, 1}, 0, 0},
-#define HA_milltooldiameter 9
+#define HA_milltooldiameter 11
 
   {"advanced-gcode", "Wether to produce G-code for advanced interpreters,\n"
                      "like using variables or drill cycles. Not all\n"
                      "machine controllers understand this, but it allows\n"
                      "better hand-editing of the resulting files.",
    HID_Boolean, 0, 0, {-1, 0, 0}, 0, 0},
-#define HA_advanced 10
+#define HA_advanced 12
 };
 
 #define NUM_OPTIONS (sizeof(gcode_attribute_list)/sizeof(gcode_attribute_list[0]))
@@ -485,6 +496,7 @@ gcode_do_export (HID_Attr_Val * options)
      },
   };
   char variable_safeZ[20], variable_cutdepth[20];
+  char variable_isoplunge[20], variable_isofeedrate[20];
   char variable_drilldepth[20], variable_milldepth[20];
   char *old_locale = setlocale (LC_NUMERIC, NULL);
 
@@ -514,6 +526,8 @@ gcode_do_export (HID_Attr_Val * options)
                  : 1.0 / coord_to_unit (unit, INCH_TO_COORD (1.0));
 
   gcode_cutdepth = options[HA_cutdepth].real_value * scale;
+  gcode_isoplunge = options[HA_isoplunge].real_value * scale;
+  gcode_isofeedrate = options[HA_isofeedrate].real_value * scale;
   gcode_predrill = options[HA_predrill].int_value;
   gcode_drilldepth = options[HA_drilldepth].real_value * scale;
   gcode_safeZ = options[HA_safeZ].real_value * scale;
@@ -531,13 +545,17 @@ gcode_do_export (HID_Attr_Val * options)
          together in a file. This allows to join output files */
       strcpy (variable_safeZ, "#100");
       strcpy (variable_cutdepth, "#101");
-      strcpy (variable_drilldepth, "#102");
-      strcpy (variable_milldepth, "#103");
+      strcpy (variable_isoplunge, "#102");
+      strcpy (variable_isofeedrate, "#103");
+      strcpy (variable_drilldepth, "#104");
+      strcpy (variable_milldepth, "#105");
     }
   else
     {
       snprintf (variable_safeZ, 20, "%f", gcode_safeZ);
       snprintf (variable_cutdepth, 20, "%f", gcode_cutdepth);
+      snprintf (variable_isoplunge, 20, "%f", gcode_isoplunge);
+      snprintf (variable_isofeedrate, 20, "%f", gcode_isofeedrate);
       snprintf (variable_drilldepth, 20, "%f", gcode_drilldepth);
       snprintf (variable_milldepth, 20, "%f", gcode_milldepth);
     }
@@ -621,6 +639,10 @@ gcode_do_export (HID_Attr_Val * options)
                        variable_safeZ, gcode_safeZ);
               fprintf (gcode_f, "%s=%f  (cutting depth)\n",
                        variable_cutdepth, gcode_cutdepth);
+              fprintf (gcode_f, "%s=%f  (plunge feedrate)\n",
+                       variable_isoplunge, gcode_isoplunge);
+              fprintf (gcode_f, "%s=%f  (feedrate)\n",
+                       variable_isofeedrate, gcode_isofeedrate);
             }
           if (gcode_predrill && save_drill)
             fprintf (gcode_f, "(with predrilling)\n");
@@ -628,11 +650,11 @@ gcode_do_export (HID_Attr_Val * options)
             fprintf (gcode_f, "(no predrilling)\n");
           fprintf (gcode_f, "(---------------------------------)\n");
           if (gcode_advanced)
-              fprintf (gcode_f, "G17 G%d G90 G64 P0.003 M3 S3000 M7 F%d\n",
-                       metric ? 21 : 20, metric ? 25 : 1);
+              fprintf (gcode_f, "G17 G%d G90 G64 P0.003 M3 S3000 M7\n",
+                       metric ? 21 : 20);
           else
-              fprintf (gcode_f, "G17\nG%d\nG90\nG64 P0.003\nM3 S3000\nM7\nF%d\n",
-                       metric ? 21 : 20, metric ? 25 : 1);
+              fprintf (gcode_f, "G17\nG%d\nG90\nG64 P0.003\nM3 S3000\nM7\n",
+                       metric ? 21 : 20);
           fprintf (gcode_f, "G0 Z%s\n", variable_safeZ);
           /* extract contour points from image */
           r = bm_to_pathlist (bm, &plist, &param_default);
@@ -644,7 +666,8 @@ gcode_do_export (HID_Attr_Val * options)
           /* generate best polygon and write vertices in g-code format */
           d = process_path (plist, &param_default, bm, gcode_f,
                             metric ? 25.4 / gcode_dpi : 1.0 / gcode_dpi,
-                            variable_cutdepth, variable_safeZ);
+                            variable_cutdepth, variable_safeZ,
+                            variable_isoplunge, variable_isofeedrate);
           if (d < 0)
             {
               fprintf (stderr, "ERROR: path process function failed\n");
@@ -677,6 +700,7 @@ gcode_do_export (HID_Attr_Val * options)
               sort_drill(all_drills, n_all_drills);
               /* write that (almost the same code as writing the drill file) */
               fprintf (gcode_f, "(predrilling)\n");
+              fprintf (gcode_f, "F%s\n", variable_isoplunge);
               for (r = 0; r < n_all_drills; r++)
                 {
                   double drillX, drillY;

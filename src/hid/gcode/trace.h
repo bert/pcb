@@ -11,6 +11,7 @@
 
 double process_path (path_t * plist, const potrace_param_t * param,
 		     const potrace_bitmap_t * bm, FILE * f, double scale,
-		     const char *var_cutdepth, const char *var_safeZ);
+		     const char *var_cutdepth, const char *var_safeZ,
+		     const char *var_plunge, const char *var_feedrate);
 
 #endif /* TRACE_H */
