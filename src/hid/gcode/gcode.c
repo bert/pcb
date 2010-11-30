@@ -123,6 +123,7 @@ static double gcode_isoplunge = 0;      /* isolation milling plunge feedrate */
 static double gcode_isofeedrate = 0;    /* isolation milling feedrate */
 static char gcode_predrill;
 static double gcode_drilldepth = 0;     /* drilling depth (mm or in) */
+static double gcode_drillfeedrate = 0;  /* drilling feedrate */
 static double gcode_safeZ = 100;        /* safe Z (mm or in) */
 static int gcode_toolradius = 0;        /* iso-mill tool radius (1/100 mil) */
 static double gcode_milldepth = 0;      /* outline milling depth (mm or in) */
@@ -180,11 +181,11 @@ HID_Attribute gcode_attribute_list[] = {
 #define HA_tooldiameter 5
 
   {"iso-tool-plunge", "Isolation milling feedrate when plunging into\n"
-                      "the material",
+                      "the material.",
    HID_Real, 0.1, 10000, {0, 0, 25.}, 0, 0},
 #define HA_isoplunge 6
 
-  {"iso-tool-feedrate", "Isolation milling feedrate",
+  {"iso-tool-feedrate", "Isolation milling feedrate.",
    HID_Real, 0.1, 10000, {0, 0, 50.}, 0, 0},
 #define HA_isofeedrate 7
 
@@ -198,22 +199,26 @@ HID_Attribute gcode_attribute_list[] = {
    HID_Real, -10000, 10000, {0, 0, -2}, 0, 0},
 #define HA_drilldepth 9
 
+  {"drill-feedrate", "Drilling feedrate.",
+   HID_Real, 0.1, 10000, {0, 0, 50.}, 0, 0},
+#define HA_drillfeedrate 10
+
   {"outline-mill-depth", "Milling depth when milling the outline.\n"
                          "Currently, only the rectangular extents of the\n"
                          "board are milled, no polygonal outlines or holes.",
    HID_Real, -10000, 10000, {0, 0, -1}, 0, 0},
-#define HA_milldepth 10
+#define HA_milldepth 11
 
   {"outline-tool-diameter", "Diameter of the tool used for outline milling.",
    HID_Real, 0, 10000, {0, 0, 1}, 0, 0},
-#define HA_milltooldiameter 11
+#define HA_milltooldiameter 12
 
   {"advanced-gcode", "Wether to produce G-code for advanced interpreters,\n"
                      "like using variables or drill cycles. Not all\n"
                      "machine controllers understand this, but it allows\n"
                      "better hand-editing of the resulting files.",
    HID_Boolean, 0, 0, {-1, 0, 0}, 0, 0},
-#define HA_advanced 12
+#define HA_advanced 13
 };
 
 #define NUM_OPTIONS (sizeof(gcode_attribute_list)/sizeof(gcode_attribute_list[0]))
@@ -530,6 +535,7 @@ gcode_do_export (HID_Attr_Val * options)
   gcode_isofeedrate = options[HA_isofeedrate].real_value * scale;
   gcode_predrill = options[HA_predrill].int_value;
   gcode_drilldepth = options[HA_drilldepth].real_value * scale;
+  gcode_drillfeedrate = options[HA_drillfeedrate].real_value * scale;
   gcode_safeZ = options[HA_safeZ].real_value * scale;
   gcode_toolradius = metric
                    ? MM_TO_COORD(options[HA_tooldiameter].real_value / 2 * scale)
@@ -777,14 +783,14 @@ gcode_do_export (HID_Attr_Val * options)
                       fprintf (gcode_f, "%s=%f  (drill depth)\n",
                                variable_drilldepth, gcode_drilldepth);
                       fprintf (gcode_f, "(---------------------------------)\n");
-                      fprintf (gcode_f, "G17 G%d G90 G64 P0.003 M3 S3000 M7 F%d\n",
-                               metric ? 21 : 20, metric ? 25 : 1);
+                      fprintf (gcode_f, "G17 G%d G90 G64 P0.003 M3 S3000 M7 F%f\n",
+                               metric ? 21 : 20, gcode_drillfeedrate);
                     }
                   else
                     {
                       fprintf (gcode_f, "(---------------------------------)\n");
-                      fprintf (gcode_f, "G17\nG%d\nG90\nG64 P0.003\nM3 S3000\nM7\nF%d\n",
-                               metric ? 21 : 20, metric ? 25 : 1);
+                      fprintf (gcode_f, "G17\nG%d\nG90\nG64 P0.003\nM3 S3000\nM7\nF%f\n",
+                               metric ? 21 : 20, gcode_drillfeedrate);
                     }
                   fprintf (gcode_f, "G0 Z%s\n", variable_safeZ);
                   for (r = 0; r < drill->n_holes; r++)
