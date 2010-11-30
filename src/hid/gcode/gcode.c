@@ -128,6 +128,8 @@ static double gcode_safeZ = 100;        /* safe Z (mm or in) */
 static int gcode_toolradius = 0;        /* iso-mill tool radius (1/100 mil) */
 static double gcode_milldepth = 0;      /* outline milling depth (mm or in) */
 static double gcode_milltoolradius = 0; /* outline-mill tool radius (mm or in)*/
+static double gcode_millplunge = 0;     /* outline-milling plunge feedrate */
+static double gcode_millfeedrate = 0;   /* outline-milling feedrate */
 static char gcode_advanced = 0;
 static int save_drill = 0;
 
@@ -213,12 +215,21 @@ HID_Attribute gcode_attribute_list[] = {
    HID_Real, 0, 10000, {0, 0, 1}, 0, 0},
 #define HA_milltooldiameter 12
 
+  {"outline-mill-plunge", "Outline milling feedrate when plunging into\n"
+                          "the material",
+   HID_Real, 0.1, 10000, {0, 0, 25.}, 0, 0},
+#define HA_millplunge 13
+
+  {"outline-mill-feedrate", "Outline milling feedrate",
+   HID_Real, 0.1, 10000, {0, 0, 50.}, 0, 0},
+#define HA_millfeedrate 14
+
   {"advanced-gcode", "Wether to produce G-code for advanced interpreters,\n"
                      "like using variables or drill cycles. Not all\n"
                      "machine controllers understand this, but it allows\n"
                      "better hand-editing of the resulting files.",
    HID_Boolean, 0, 0, {-1, 0, 0}, 0, 0},
-#define HA_advanced 13
+#define HA_advanced 15
 };
 
 #define NUM_OPTIONS (sizeof(gcode_attribute_list)/sizeof(gcode_attribute_list[0]))
@@ -503,6 +514,7 @@ gcode_do_export (HID_Attr_Val * options)
   char variable_safeZ[20], variable_cutdepth[20];
   char variable_isoplunge[20], variable_isofeedrate[20];
   char variable_drilldepth[20], variable_milldepth[20];
+  char variable_millplunge[20], variable_millfeedrate[20];
   char *old_locale = setlocale (LC_NUMERIC, NULL);
 
   if (!options)
@@ -542,6 +554,8 @@ gcode_do_export (HID_Attr_Val * options)
                    : INCH_TO_COORD(options[HA_tooldiameter].real_value / 2 * scale);
   gcode_milldepth = options[HA_milldepth].real_value * scale;
   gcode_milltoolradius = options[HA_milltooldiameter].real_value / 2 * scale;
+  gcode_millplunge = options[HA_millplunge].real_value * scale;
+  gcode_millfeedrate = options[HA_millfeedrate].real_value * scale;
   gcode_advanced = options[HA_advanced].int_value;
   gcode_choose_groups ();
   setlocale (LC_NUMERIC, "C");   /* use . as separator */
@@ -555,6 +569,8 @@ gcode_do_export (HID_Attr_Val * options)
       strcpy (variable_isofeedrate, "#103");
       strcpy (variable_drilldepth, "#104");
       strcpy (variable_milldepth, "#105");
+      strcpy (variable_millplunge, "#106");
+      strcpy (variable_millfeedrate, "#107");
     }
   else
     {
@@ -564,6 +580,8 @@ gcode_do_export (HID_Attr_Val * options)
       snprintf (variable_isofeedrate, 20, "%f", gcode_isofeedrate);
       snprintf (variable_drilldepth, 20, "%f", gcode_drilldepth);
       snprintf (variable_milldepth, 20, "%f", gcode_milldepth);
+      snprintf (variable_millplunge, 20, "%f", gcode_millplunge);
+      snprintf (variable_millfeedrate, 20, "%f", gcode_millfeedrate);
     }
   UpdateExtents();
 
@@ -883,15 +901,19 @@ gcode_do_export (HID_Attr_Val * options)
           fprintf (gcode_f, "%s=%f  (safe Z)\n", variable_safeZ, gcode_safeZ);
           fprintf (gcode_f, "%s=%f  (mill depth)\n",
                    variable_milldepth, gcode_milldepth);
+          fprintf (gcode_f, "%s=%f  (mill plunge feedrate)\n",
+                   variable_millplunge, gcode_millplunge);
+          fprintf (gcode_f, "%s=%f  (mill feedrate)\n",
+                   variable_millfeedrate, gcode_millfeedrate);
           fprintf (gcode_f, "(---------------------------------)\n");
-          fprintf (gcode_f, "G17 G%d G90 G64 P0.003 M3 S3000 M7 F%d\n",
-                   metric ? 21 : 20, metric ? 25 : 1);
+          fprintf (gcode_f, "G17 G%d G90 G64 P0.003 M3 S3000 M7\n",
+                   metric ? 21 : 20);
         }
       else
         {
           fprintf (gcode_f, "(---------------------------------)\n");
-          fprintf (gcode_f, "G17\nG%d\nG90\nG64 P0.003\nM3 S3000\nM7\nF%d\n",
-                   metric ? 21 : 20, metric ? 25 : 1);
+          fprintf (gcode_f, "G17\nG%d\nG90\nG64 P0.003\nM3 S3000\nM7\n",
+                   metric ? 21 : 20);
         }
       if (metric)
         {
@@ -912,8 +934,10 @@ gcode_do_export (HID_Attr_Val * options)
       /* mill the two edges adjectant to 0,0 first to disconnect the
          workpiece from the raw material last */
       fprintf (gcode_f, "G0 X%f Y%f\n", upperX, lowerY);
-      fprintf (gcode_f, "G1 Z%s\n", variable_milldepth);
-      fprintf (gcode_f, "G1 X%f Y%f\n", lowerX, lowerY);
+      fprintf (gcode_f, "G1 Z%s F%s\n",
+               variable_milldepth, variable_millplunge);
+      fprintf (gcode_f, "G1 X%f Y%f F%s\n",
+               lowerX, lowerY, variable_millfeedrate);
       fprintf (gcode_f, "G1 X%f Y%f\n", lowerX, upperY);
       fprintf (gcode_f, "G1 X%f Y%f\n", upperX, upperY);
       fprintf (gcode_f, "G1 X%f Y%f\n", upperX, lowerY);
