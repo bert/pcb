@@ -147,6 +147,13 @@ openscad_get_export_options (int *n)
 }
 
 
+/*! 
+ * \brief Copy over in to out with some character conversions.
+ *
+ * Go all the way to the end to get the terminating \0.
+ *
+ * \return pointer to a cleaned string.
+ */
 static char *
 openscad_clean_string (char *in)
 {
@@ -157,10 +164,6 @@ openscad_clean_string (char *in)
         fprintf (stderr, "Error: malloc() failed in openscad_clean_string()\n");
         exit (1);
     }
-    /* 
-     * Copy over in to out with some character conversions.
-     * Go all the way to the end to get the terminating \0.
-     */
     for (i = 0; i <= strlen (in); i++)
     {
         switch (in[i])
@@ -176,6 +179,11 @@ openscad_clean_string (char *in)
 }
 
 
+/*!
+ * \brief Copy over in to out until a digit [0..9]  or underscore is found.
+ *
+ * \return pointer to a string containing the package type.
+ */
 static char *
 openscad_get_package_type_string (char *in)
 {
@@ -186,7 +194,6 @@ openscad_get_package_type_string (char *in)
         fprintf (stderr, "Error: malloc() failed in openscad_get_package_type_string()\n");
         exit (1);
     }
-    /* Copy over in to out until a digit is found. */
     for (i = 0; i <= strlen (in); i++)
     {
         if (isdigit (in[i]))
@@ -224,6 +231,11 @@ openscad_get_basename (char *pathname)
 }
 
 
+/*!
+ * \brief Strip the string \c suffix from the string \c name.
+ *
+ * \return pointer to a string containing the \c name without \c suffix.
+ */
 static void
 openscad_remove_suffix (char *name, const char *suffix)
 {
@@ -241,6 +253,11 @@ openscad_remove_suffix (char *name, const char *suffix)
 }
 
 
+/*!
+ * \brief Figure out the rotation angle of the part (element).
+ *
+ * \return rotation angle.
+ */
 static double
 openscad_xy_to_angle (double x, double y)
 {
