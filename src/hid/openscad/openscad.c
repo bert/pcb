@@ -206,6 +206,24 @@ openscad_get_package_type_string (char *in)
 }
 
 
+/*!
+ * \brief Get the basename including suffix from the absolute filename.
+ *
+ * \return pointer to a string containing the basename including suffix.
+ */
+char *
+openscad_get_basename (char *pathname)
+{
+    char *fname = NULL;
+
+    if (pathname)
+    {
+        fname = strrchr (pathname, '/') + 1;
+    }
+    return fname;
+}
+
+
 static void
 openscad_remove_suffix (char *name, const char *suffix)
 {
