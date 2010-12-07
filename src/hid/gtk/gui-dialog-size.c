@@ -308,7 +308,7 @@ ghid_route_style_dialog (gint index, RouteStyleType * temp_rst)
       if (index < NUM_STYLES && !set_temp1 && !set_temp2)
 	{
 	  string = ghid_entry_get_text (sd->name_entry);
-	  SaveFree (rst->Name);
+	  free (rst->Name);
 	  rst->Name = StripWhiteSpaceAndDup (string);
 	  pcb_use_route_style (rst);
 	  SetChangedFlag (true);

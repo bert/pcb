@@ -2236,8 +2236,7 @@ draw_grid ()
   if (n > npoints)
     {
       npoints = n + 10;
-      points =
-	MyRealloc (points, npoints * sizeof (XPoint), "lesstif_draw_grid");
+      points = realloc (points, npoints * sizeof (XPoint));
     }
   n = 0;
   prevx = 0;
@@ -3675,7 +3674,7 @@ lesstif_show_item (void *item)
   if (!mainwind)
     return;
 
-  pd = (PinoutData *) MyCalloc (1, sizeof (PinoutData), "lesstif_show_item");
+  pd = calloc (1, sizeof (PinoutData));
 
   pd->item = item;
 

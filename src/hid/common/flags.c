@@ -110,7 +110,7 @@ hid_get_flag (const char *name)
       if (nbuf < (cp - name + 1))
 	{
 	  nbuf = cp - name + 10;
-	  buf = MyRealloc (buf, nbuf, "hid_get_flag");
+	  buf = realloc (buf, nbuf);
 	}
       memcpy (buf, name, cp - name);
       buf[cp - name] = 0;

@@ -303,9 +303,7 @@ note_toggle_flag (const char *actionname, MenuFlagType type, char *name)
   if (n_tflags >= max_tflags)
     {
       max_tflags += 20;
-      tflags =
-	MyRealloc (tflags, max_tflags * sizeof (ToggleFlagType),
-		   __FUNCTION__);
+      tflags = realloc (tflags, max_tflags * sizeof (ToggleFlagType));
     }
   tflags[n_tflags].actionname = strdup (actionname);
   tflags[n_tflags].flagname = name;

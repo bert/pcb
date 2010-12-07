@@ -319,7 +319,7 @@ SavePCB (char *Filename)
        * it might be identical to 'PCB->Filename'
        */
       copy = strdup (Filename);
-      SaveFree (PCB->Filename);
+      free (PCB->Filename);
       PCB->Filename = copy;
       SetChangedFlag (false);
     }
@@ -1223,7 +1223,7 @@ LoadNewlibFootprintsFromDir(char *libpath, char *toppath)
 	 * entry->ListEntry points to fp name itself.
 	 */
 	len = strlen(subdir) + strlen("/") + strlen(subdirentry->d_name) + 1;
-	entry->AllocatedMemory = MyCalloc (1, len, "ParseLibraryTree()");
+	entry->AllocatedMemory = calloc (1, len);
 	strcat (entry->AllocatedMemory, subdir);
 	strcat (entry->AllocatedMemory, PCB_DIR_SEPARATOR_S);
 
@@ -1382,7 +1382,7 @@ ReadLibraryContents (void)
   /*  First load the M4 stuff.  The variable Settings.LibraryPath
    *  points to it.
    */
-  MYFREE (command);
+  free (command);
   command = EvaluateFilename (Settings.LibraryContentsCommand,
 			      Settings.LibraryPath, Settings.LibraryFilename,
 			      NULL);
@@ -1447,8 +1447,7 @@ ReadLibraryContents (void)
 	  /* create the list entry */
 	  len = strlen (EMPTY (entry->Value)) +
 	    strlen (EMPTY (entry->Description)) + 4;
-	  entry->ListEntry = MyCalloc (len, sizeof (char),
-				       "ReadLibraryDescription()");
+	  entry->ListEntry = calloc (len, sizeof (char));
 	  sprintf (entry->ListEntry,
 		   "%s, %s", EMPTY (entry->Value),
 		   EMPTY (entry->Description));
@@ -1507,7 +1506,7 @@ ReadNetlist (char *filename)
   else
     {
       used_popen = 1;
-      MYFREE (command);
+      free (command);
       command = EvaluateFilename (Settings.RatCommand,
 				  Settings.RatPath, filename, NULL);
 

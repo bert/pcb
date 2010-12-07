@@ -297,7 +297,7 @@ CommandLoadNetlist (int argc, char **argv, int x, int y)
       return (1);
     }
   if (PCB->Netlistname)
-    SaveFree (PCB->Netlistname);
+    free (PCB->Netlistname);
   PCB->Netlistname = StripWhiteSpaceAndDup (filename);
   free (name);
   return (0);

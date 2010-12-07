@@ -242,10 +242,8 @@ netlist_clear (LibraryMenuType * net, LibraryEntryType * pin)
 static void
 netlist_style (LibraryMenuType *net, const char *style)
 {
-  if (net->Style)
-    MYFREE (net->Style);
-  if (style)
-    net->Style = strdup ((char *)style);
+  free (net->Style);
+  net->Style = STRDUP ((char *)style);
 }
 
 /* The primary purpose of this action is to rebuild a netlist from a

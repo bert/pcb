@@ -223,8 +223,7 @@ GetUndoSlot (int CommandType, int ID, int Kind)
 
       UndoMax += STEP_UNDOLIST;
       size = UndoMax * sizeof (UndoListType);
-      UndoList = (UndoListTypePtr) MyRealloc (UndoList, size,
-					      "AddCommandToUndoList()");
+      UndoList = (UndoListTypePtr) realloc (UndoList, size);
       memset (&UndoList[UndoN], 0, STEP_REMOVELIST * sizeof (UndoListType));
 
       /* ask user to flush the table because of it's size */
@@ -242,7 +241,7 @@ GetUndoSlot (int CommandType, int ID, int Kind)
     switch (ptr->Type)
       {
       case UNDO_CHANGENAME:
-	SaveFree (ptr->Data.ChangeName.Name);
+	free (ptr->Data.ChangeName.Name);
 	break;
       case UNDO_REMOVE:
 	type =
@@ -1211,9 +1210,10 @@ ClearUndoList (bool Force)
       for (undo = UndoList; UndoN; undo++, UndoN--)
 	{
 	  if (undo->Type == UNDO_CHANGENAME)
-	    SaveFree (undo->Data.ChangeName.Name);
+	    free (undo->Data.ChangeName.Name);
 	}
-      MYFREE (UndoList);
+      free (UndoList);
+      UndoList = NULL;
       if (RemoveList)
 	{
           FreeDataMemory (RemoveList);

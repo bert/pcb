@@ -569,19 +569,26 @@ FreeLayoutLookupMemory (void)
 
   for (i = 0; i < max_copper_layer; i++)
     {
-      MYFREE (LineList[i].Data);
-      MYFREE (ArcList[i].Data);
-      MYFREE (PolygonList[i].Data);
+      free (LineList[i].Data);
+      LineList[i].Data = NULL;
+      free (ArcList[i].Data);
+      ArcList[i].Data = NULL;
+      free (PolygonList[i].Data);
+      PolygonList[i].Data = NULL;
     }
-  MYFREE (PVList.Data);
-  MYFREE (RatList.Data);
+  free (PVList.Data);
+  PVList.Data = NULL;
+  free (RatList.Data);
+  RatList.Data = NULL;
 }
 
 void
 FreeComponentLookupMemory (void)
 {
-  MYFREE (PadList[0].Data);
-  MYFREE (PadList[1].Data);
+  free (PadList[0].Data);
+  PadList[0].Data = NULL;
+  free (PadList[1].Data);
+  PadList[1].Data = NULL;
 }
 
 /* ---------------------------------------------------------------------------
@@ -608,9 +615,7 @@ InitComponentLookup (void)
   for (i = 0; i < 2; i++)
     {
       /* allocate memory for working list */
-      PadList[i].Data =
-        (void **) MyCalloc (NumberOfPads[i], sizeof (PadTypePtr),
-                            "InitComponentLookup()");
+      PadList[i].Data = calloc (NumberOfPads[i], sizeof (PadTypePtr));
 
       /* clear some struct members */
       PadList[i].Location = 0;
@@ -637,16 +642,12 @@ InitLayoutLookup (void)
       if (layer->LineN)
         {
           /* allocate memory for line pointer lists */
-          LineList[i].Data =
-            (void **) MyCalloc (layer->LineN, sizeof (LineTypePtr),
-                                "InitLayoutLookup()");
+          LineList[i].Data = calloc (layer->LineN, sizeof (LineTypePtr));
           LineList[i].Size = layer->LineN;
         }
       if (layer->ArcN)
         {
-          ArcList[i].Data =
-            (void **) MyCalloc (layer->ArcN, sizeof (ArcTypePtr),
-                                "InitLayoutLookup()");
+          ArcList[i].Data = calloc (layer->ArcN, sizeof (ArcTypePtr));
           ArcList[i].Size = layer->ArcN;
         }
 
@@ -654,9 +655,7 @@ InitLayoutLookup (void)
       /* allocate memory for polygon list */
       if (layer->PolygonN)
         {
-          PolygonList[i].Data = (void **) MyCalloc (layer->PolygonN,
-                                                    sizeof (PolygonTypePtr),
-                                                    "InitLayoutLookup()");
+          PolygonList[i].Data = calloc (layer->PolygonN, sizeof (PolygonTypePtr));
           PolygonList[i].Size = layer->PolygonN;
         }
 
@@ -681,15 +680,13 @@ InitLayoutLookup (void)
   else
     TotalV = 0;
   /* allocate memory for 'new PV to check' list and clear struct */
-  PVList.Data = (void **) MyCalloc (TotalP + TotalV, sizeof (PinTypePtr),
-                                    "InitLayoutLookup()");
+  PVList.Data = calloc (TotalP + TotalV, sizeof (PinTypePtr));
   PVList.Size = TotalP + TotalV;
   PVList.Location = 0;
   PVList.DrawLocation = 0;
   PVList.Number = 0;
   /* Initialize ratline data */
-  RatList.Data = (void **) MyCalloc (PCB->Data->RatN, sizeof (RatTypePtr),
-                                     "InitLayoutLookup()");
+  RatList.Data = calloc (PCB->Data->RatN, sizeof (RatTypePtr));
   RatList.Size = PCB->Data->RatN;
   RatList.Location = 0;
   RatList.DrawLocation = 0;

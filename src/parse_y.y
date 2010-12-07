@@ -733,7 +733,7 @@ via_hi_format
 		: T_VIA '[' NUMBER NUMBER NUMBER NUMBER NUMBER NUMBER STRING flags ']'
 			{
 				CreateNewVia(yyData, $3, $4, $5, $6, $7, $8, $9, $10);
-				SaveFree($9);
+				free ($9);
 			}
 		;
 
@@ -743,7 +743,7 @@ via_2.0_format
 			{
 				CreateNewVia(yyData, $3*100, $4*100, $5*100, $6*100, $7*100, $8*100, $9,
 					OldFlags($10));
-				SaveFree($9);
+				free ($9);
 			}
 		;
 
@@ -754,7 +754,7 @@ via_1.7_format
 			{
 				CreateNewVia(yyData, $3*100, $4*100, $5*100, $6*100,
 					     ($5 + $6)*100, $7*100, $8, OldFlags($9));
-				SaveFree($8);
+				free ($8);
 			}
 		;
 
@@ -764,7 +764,7 @@ via_newformat
 			{
 				CreateNewVia(yyData, $3*100, $4*100, $5*100, 200*GROUNDPLANEFRAME,
 					($5 + 2*MASKFRAME)*100,  $6*100, $7, OldFlags($8));
-				SaveFree($7);
+				free ($7);
 			}
 		;
 
@@ -781,7 +781,7 @@ via_oldformat
 
 				CreateNewVia(yyData, $3*100, $4*100, $5*100, 200*GROUNDPLANEFRAME,
 					($5 + 2*MASKFRAME)*100, hole, $6, OldFlags($7));
-				SaveFree($6);
+				free ($6);
 			}
 		;
 
@@ -1045,7 +1045,7 @@ text_oldformat
 			{
 					/* use a default scale of 100% */
 				CreateNewText(Layer,yyFont,$3*100, $4*100, $5, 100, $6, OldFlags($7));
-				SaveFree($6);
+				free ($6);
 			}
 		;
 
@@ -1064,7 +1064,7 @@ text_newformat
 				else
 					CreateNewText(Layer, yyFont, $3*100, $4*100, $5, $6, $7,
 						      OldFlags($8));
-				SaveFree($7);
+				free ($7);
 			}
 		;
 text_hi_format
@@ -1087,7 +1087,7 @@ text_hi_format
 				}
 				else
 					CreateNewText(Layer, yyFont, $3, $4, $5, $6, $7, $8);
-				SaveFree($7);
+				free ($7);
 			}
 		;
 
@@ -1258,8 +1258,8 @@ element_oldformat
 			{
 				yyElement = CreateNewElement(yyData, yyElement, yyFont, NoFlags(),
 					$3, $4, NULL, $5*100, $6*100, $7, 100, NoFlags(), false);
-				SaveFree($3);
-				SaveFree($4);
+				free ($3);
+				free ($4);
 				pin_num = 1;
 			}
 		  elementdefinitions ')'
@@ -1276,8 +1276,8 @@ element_1.3.4_format
 			{
 				yyElement = CreateNewElement(yyData, yyElement, yyFont, OldFlags($3),
 					$4, $5, NULL, $6*100, $7*100, $8, $9, OldFlags($10), false);
-				SaveFree($4);
-				SaveFree($5);
+				free ($4);
+				free ($5);
 				pin_num = 1;
 			}
 		  elementdefinitions ')'
@@ -1294,9 +1294,9 @@ element_newformat
 			{
 				yyElement = CreateNewElement(yyData, yyElement, yyFont, OldFlags($3),
 					$4, $5, $6, $7*100, $8*100, $9, $10, OldFlags($11), false);
-				SaveFree($4);
-				SaveFree($5);
-				SaveFree($6);
+				free ($4);
+				free ($5);
+				free ($6);
 				pin_num = 1;
 			}
 		  elementdefinitions ')'
@@ -1316,9 +1316,9 @@ element_1.7_format
 					$4, $5, $6, ($7+$9)*100, ($8+$10)*100, $11, $12, OldFlags($13), false);
 				yyElement->MarkX = $7*100;
 				yyElement->MarkY = $8*100;
-				SaveFree($4);
-				SaveFree($5);
-				SaveFree($6);
+				free ($4);
+				free ($5);
+				free ($6);
 			}
 		  relementdefs ')'
 			{
@@ -1337,9 +1337,9 @@ element_hi_format
 					$4, $5, $6, ($7+$9), ($8+$10), $11, $12, $13, false);
 				yyElement->MarkX = $7;
 				yyElement->MarkY = $8;
-				SaveFree($4);
-				SaveFree($5);
-				SaveFree($6);
+				free ($4);
+				free ($5);
+				free ($6);
 			}
 		  relementdefs ')'
 			{
@@ -1534,8 +1534,8 @@ pin_hi_format
 				CreateNewPin(yyElement, $3 + yyElement->MarkX,
 					$4 + yyElement->MarkY, $5, $6, $7, $8, $9,
 					$10, $11);
-				SaveFree($9);
-				SaveFree($10);
+				free ($9);
+				free ($10);
 			}
 		;
 pin_1.7_format
@@ -1546,8 +1546,8 @@ pin_1.7_format
 				CreateNewPin(yyElement, $3*100 + yyElement->MarkX,
 					$4*100 + yyElement->MarkY, $5*100, $6*100, $7*100, $8*100, $9,
 					$10, OldFlags($11));
-				SaveFree($9);
-				SaveFree($10);
+				free ($9);
+				free ($10);
 			}
 		;
 
@@ -1557,8 +1557,8 @@ pin_1.6.3_format
 			{
 				CreateNewPin(yyElement, $3*100, $4*100, $5*100, 200*GROUNDPLANEFRAME,
 					($5 + 2*MASKFRAME)*100, $6*100, $7, $8, OldFlags($9));
-				SaveFree($7);
-				SaveFree($8);
+				free ($7);
+				free ($8);
 			}
 		;
 
@@ -1572,7 +1572,7 @@ pin_newformat
 				CreateNewPin(yyElement, $3*100, $4*100, $5*100, 200*GROUNDPLANEFRAME,
 					($5 + 2*MASKFRAME)*100, $6*100, $7, p_number, OldFlags($8));
 
-				SaveFree($7);
+				free ($7);
 			}
 		;
 
@@ -1593,7 +1593,7 @@ pin_oldformat
 				sprintf(p_number, "%d", pin_num++);
 				CreateNewPin(yyElement, $3*100, $4*100, $5*100, 200*GROUNDPLANEFRAME,
 					($5 + 2*MASKFRAME)*100, hole, $6, p_number, OldFlags($7));
-				SaveFree($6);
+				free ($6);
 			}
 		;
 
@@ -1641,8 +1641,8 @@ pad_hi_format
 					$5 + yyElement->MarkX,
 					$6 + yyElement->MarkY, $7, $8, $9,
 					$10, $11, $12);
-				SaveFree($10);
-				SaveFree($11);
+				free ($10);
+				free ($11);
 			}
 		;
 
@@ -1654,8 +1654,8 @@ pad_1.7_format
 					$4*100 + yyElement->MarkY, $5*100 + yyElement->MarkX,
 					$6*100 + yyElement->MarkY, $7*100, $8*100, $9*100,
 					$10, $11, OldFlags($12));
-				SaveFree($10);
-				SaveFree($11);
+				free ($10);
+				free ($11);
 			}
 		;
 
@@ -1665,8 +1665,8 @@ pad_newformat
 			{
 				CreateNewPad(yyElement,$3*100,$4*100,$5*100,$6*100,$7*100, 200*GROUNDPLANEFRAME,
 					($7 + 2*MASKFRAME)*100, $8,$9, OldFlags($10));
-				SaveFree($8);
-				SaveFree($9);
+				free ($8);
+				free ($9);
 			}
 		;
 
@@ -1679,7 +1679,7 @@ pad
 				sprintf(p_number, "%d", pin_num++);
 				CreateNewPad(yyElement,$3*100,$4*100,$5*100,$6*100,$7*100, 200*GROUNDPLANEFRAME,
 					($7 + 2*MASKFRAME)*100, $8,p_number, OldFlags($9));
-				SaveFree($8);
+				free ($8);
 			}
 		;
 
@@ -1846,8 +1846,8 @@ net
 		: T_NET '(' STRING STRING ')' '('
 			{
 				Menu = CreateNewNet(&yyPCB->NetlistLib, $3, $4);
-				SaveFree($3);
-				SaveFree($4);
+				free ($3);
+				free ($4);
 			}
 		 connections ')'
 		;
@@ -1881,7 +1881,7 @@ conn
 		: T_CONN '(' STRING ')'
 			{
 				CreateNewConnection(Menu, $3);
-				SaveFree($3);
+				free ($3);
 			}
 		;
 
@@ -1914,8 +1914,8 @@ attribute
 		: T_ATTRIBUTE '(' STRING STRING ')'
 			{
 				CreateNewAttribute (attr_list, $3, $4 ? $4 : "");
-				SaveFree ($3);
-				SaveFree ($4);
+				free ($3);
+				free ($4);
 			}
 		;
 

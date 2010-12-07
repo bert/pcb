@@ -120,7 +120,7 @@ RemovePCB (PCBTypePtr Ptr)
 {
   ClearUndoList (true);
   FreePCBMemory (Ptr);
-  SaveFree (Ptr);
+  free (Ptr);
 }
 
 /* ---------------------------------------------------------------------------
@@ -130,7 +130,7 @@ static void *
 DestroyVia (PinTypePtr Via)
 {
   r_delete_entry (DestroyTarget->via_tree, (BoxTypePtr) Via);
-  MYFREE (Via->Name);
+  free (Via->Name);
   if (Via != &DestroyTarget->Via[--DestroyTarget->ViaN])
     {
       *Via = DestroyTarget->Via[DestroyTarget->ViaN];
@@ -149,7 +149,7 @@ static void *
 DestroyLine (LayerTypePtr Layer, LineTypePtr Line)
 {
   r_delete_entry (Layer->line_tree, (BoxTypePtr) Line);
-  MYFREE (Line->Number);
+  free (Line->Number);
   if (Line != &Layer->Line[--Layer->LineN])
     {
       *Line = Layer->Line[Layer->LineN];
@@ -243,7 +243,7 @@ DestroyPolygonPoint (LayerTypePtr Layer,
 static void *
 DestroyText (LayerTypePtr Layer, TextTypePtr Text)
 {
-  MYFREE (Text->TextString);
+  free (Text->TextString);
   r_delete_entry (Layer->text_tree, (BoxTypePtr) Text);
   if (Text != &Layer->Text[--Layer->TextN])
     {

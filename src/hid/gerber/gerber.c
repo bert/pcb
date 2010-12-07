@@ -230,9 +230,7 @@ SetAppLayer (int l)
     {
       int prev = n_layerapps;
       n_layerapps = l + 1;
-      layerapps =
-	MyRealloc (layerapps, n_layerapps * sizeof (Apertures),
-		   "SetAppLayer");
+      layerapps = realloc (layerapps, n_layerapps * sizeof (Apertures));
       curapp = layerapps + prev;
       while (curapp < layerapps + n_layerapps)
 	{
@@ -364,7 +362,7 @@ gerber_do_export (HID_Attr_Val * options)
   all_layers = options[HA_all_layers].int_value;
 
   i = strlen (fnbase);
-  filename = MyRealloc (filename, i + 40, "gerber");
+  filename = realloc (filename, i + 40);
   strcpy (filename, fnbase);
   strcat (filename, ".");
   filesuff = filename + strlen (filename);

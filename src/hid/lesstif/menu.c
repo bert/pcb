@@ -672,9 +672,7 @@ note_widget_flag (Widget w, char *type, char *name)
   if (n_wflags >= max_wflags)
     {
       max_wflags += 20;
-      wflags =
-	MyRealloc (wflags, max_wflags * sizeof (WidgetFlagType),
-		   __FUNCTION__);
+      wflags = realloc (wflags, max_wflags * sizeof (WidgetFlagType));
     }
   wflags[n_wflags].w = w;
   wflags[n_wflags].flagname = name;

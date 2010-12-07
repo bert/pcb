@@ -953,7 +953,7 @@ SmashBufferElement (BufferTypePtr Buffer)
 			  line->Point2.X, line->Point2.Y,
 			  line->Thickness, 0, NoFlags ());
     if (line)
-      line->Number = MyStrdup (NAMEONPCB_NAME (element), "SmashBuffer");
+      line->Number = STRDUP (NAMEONPCB_NAME (element));
   }
   END_LOOP;
   ARC_LOOP (element);
@@ -991,11 +991,11 @@ SmashBufferElement (BufferTypePtr Buffer)
 				 pad->Point2.X, pad->Point2.Y,
 				 pad->Thickness, pad->Clearance, NoFlags ());
     if (line)
-      line->Number = MyStrdup (pad->Number, "SmashBuffer");
+      line->Number = STRDUP (pad->Number);
   }
   END_LOOP;
   FreeElementMemory (element);
-  SaveFree (element);
+  free (element);
   return (true);
 }
 
@@ -1216,7 +1216,7 @@ LoadLayoutToBuffer (BufferTypePtr Buffer, char *Filename)
     {
       /* clear data area and replace pointer */
       ClearBuffer (Buffer);
-      SaveFree (Buffer->Data);
+      free (Buffer->Data);
       Buffer->Data = newPCB->Data;
       newPCB->Data = NULL;
       Buffer->X = newPCB->CursorX;

@@ -171,7 +171,7 @@ Attribute	{ return(T_ATTRIBUTE); }
 							 * leading and trailing '"'
 							 */
 						yyleng -= 2;
-						yylval.string = MyCalloc(yyleng+1, sizeof(char), "LEX");
+						yylval.string = calloc (yyleng+1, sizeof (char));
 						p1 = (char *) (yytext +1);
 						p2 = yylval.string;
 						while(yyleng--)
@@ -247,8 +247,7 @@ static int Parse(char *Executable, char *Path, char *Filename, char *Parameter)
 	  {
 	    used_popen = 1;
 	    /* release old command and create new from template */
-	    if (command)
-	      MYFREE (command);
+	    free (command);
 	    command = EvaluateFilename(Executable, Path, Filename, Parameter);
 
 	    /* open pipe to stdout of command */

@@ -962,13 +962,13 @@ ExpandFilename (char *Dirname, char *Filename)
   DSClearString (&answer);
   if (Dirname)
     {
-      command = MyCalloc (strlen (Filename) + strlen (Dirname) + 7,
-                          sizeof (char), "ExpandFilename()");
+      command = calloc (strlen (Filename) + strlen (Dirname) + 7,
+                        sizeof (char));
       sprintf (command, "echo %s/%s", Dirname, Filename);
     }
   else
     {
-      command = MyCalloc (strlen (Filename) + 6, sizeof (char), "Expand()");
+      command = calloc (strlen (Filename) + 6, sizeof (char));
       sprintf (command, "echo %s", Filename);
     }
 
@@ -984,13 +984,13 @@ ExpandFilename (char *Dirname, char *Filename)
             DSAddCharacter (&answer, c);
         }
 
-      SaveFree (command);
+      free (command);
       return (pclose (pipe) ? NULL : answer.Data);
     }
 
   /* couldn't be expanded by the shell */
   PopenErrorMessage (command);
-  SaveFree (command);
+  free (command);
   return (NULL);
 }
 
@@ -1904,7 +1904,7 @@ AttributePutToList (AttributeListType *list, const char *name, const char *value
 	if (strcmp (name, list->List[i].name) == 0)
 	  {
 	    free (list->List[i].value);
-	    list->List[i].value = MyStrdup (value, "AttributePutToList");
+	    list->List[i].value = STRDUP (value);
 	    return 1;
 	  }
     }
@@ -1920,8 +1920,8 @@ AttributePutToList (AttributeListType *list, const char *name, const char *value
 
   /* Now add the new attribute.  */
   i = list->Number;
-  list->List[i].name = MyStrdup (name, "AttributePutToList");
-  list->List[i].value = MyStrdup (value, "AttributePutToList");
+  list->List[i].name = STRDUP (name);
+  list->List[i].value = STRDUP (value);
   list->Number ++;
   return 0;
 }

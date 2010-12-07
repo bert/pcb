@@ -126,7 +126,7 @@ GetDrillInfo (DataTypePtr top)
   bool DrillFound = false;
   bool NewDrill;
 
-  AllDrills = MyCalloc (1, sizeof (DrillInfoType), "GetAllDrillInfo()");
+  AllDrills = calloc (1, sizeof (DrillInfoType));
   ALLPIN_LOOP (top);
   {
     if (!DrillFound)
@@ -235,10 +235,9 @@ RoundDrillInfo (DrillInfoTypePtr d, int roundto)
 	    = d->Drill[i].ElementN + d->Drill[i+1].ElementN;
 	  if (d->Drill[i].ElementMax)
 	    {
-	      d->Drill[i].Element = MyRealloc (d->Drill[i].Element,
-					       d->Drill[i].ElementMax *
-					       sizeof(ElementTypePtr),
-					       "RoundDrillInfo");
+	      d->Drill[i].Element = realloc (d->Drill[i].Element,
+					     d->Drill[i].ElementMax *
+					     sizeof (ElementTypePtr));
 
 	      for (ei = 0; ei < d->Drill[i+1].ElementN; ei++)
 		{
@@ -250,16 +249,18 @@ RoundDrillInfo (DrillInfoTypePtr d, int roundto)
 		      = d->Drill[i + 1].Element[ei];
 		}
 	    }
-	  MYFREE (d->Drill[i + 1].Element);
+	  free (d->Drill[i + 1].Element);
+	  d->Drill[i + 1].Element = NULL;
 
 	  d->Drill[i].PinMax = d->Drill[i].PinN + d->Drill[i + 1].PinN;
-	  d->Drill[i].Pin = MyRealloc (d->Drill[i].Pin,
-				       d->Drill[i].PinMax *
-				       sizeof (PinTypePtr), "RoundDrillInfo");
+	  d->Drill[i].Pin = realloc (d->Drill[i].Pin,
+				     d->Drill[i].PinMax *
+				     sizeof (PinTypePtr));
 	  memcpy (d->Drill[i].Pin + d->Drill[i].PinN, d->Drill[i + 1].Pin,
 		  d->Drill[i + 1].PinN * sizeof (PinTypePtr));
 	  d->Drill[i].PinN += d->Drill[i + 1].PinN;
-	  MYFREE (d->Drill[i + 1].Pin);
+	  free (d->Drill[i + 1].Pin);
+	  d->Drill[i + 1].Pin = NULL;
 
 	  d->Drill[i].PinCount += d->Drill[i + 1].PinCount;
 	  d->Drill[i].ViaCount += d->Drill[i + 1].ViaCount;
@@ -285,10 +286,10 @@ FreeDrillInfo (DrillInfoTypePtr Drills)
 {
   DRILL_LOOP (Drills);
   {
-    MYFREE (drill->Element);
-    MYFREE (drill->Pin);
+    free (drill->Element);
+    free (drill->Pin);
   }
   END_LOOP;
-  MYFREE (Drills->Drill);
-  SaveFree (Drills);
+  free (Drills->Drill);
+  free (Drills);
 }

@@ -104,7 +104,7 @@ ReportDrills (int argc, char **argv, int x, int y)
   /* create dialog box */
   gui->report_dialog ("Drill Report", stringlist);
 
-  SaveFree (stringlist);
+  free (stringlist);
   return 0;
 }
 

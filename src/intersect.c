@@ -97,8 +97,7 @@ createSortedYList (BoxListTypePtr boxlist)
   int i, n;
   /* create sorted list of Y coordinates */
   yCoords.size = 2 * boxlist->BoxN;
-  yCoords.p = MyCalloc (yCoords.size, sizeof (*yCoords.p),
-                        "createSortedYList");
+  yCoords.p = calloc (yCoords.size, sizeof (*yCoords.p));
   for (i = 0; i < boxlist->BoxN; i++)
     {
       yCoords.p[2 * i] = boxlist->Box[i].Y1;
@@ -124,7 +123,7 @@ createSegmentTree (LocationType * yCoords, int N)
   int i;
   /* size is twice the nearest larger power of 2 */
   st.size = 2 * nextpwrof2 (N);
-  st.nodes = MyCalloc (st.size, sizeof (*st.nodes), "createSegmentTree");
+  st.nodes = calloc (st.size, sizeof (*st.nodes));
   /* initialize the rightmost leaf node */
   st.nodes[st.size - 1].left = (N > 0) ? yCoords[--N] : 10;
   st.nodes[st.size - 1].right = st.nodes[st.size - 1].left + 1;
@@ -235,10 +234,8 @@ ComputeUnionArea (BoxListTypePtr boxlist)
   segtree = createSegmentTree (yCoords.p, yCoords.size);
   free (yCoords.p);
   /* create sorted list of left and right X coordinates of rectangles */
-  rectLeft = MyCalloc (boxlist->BoxN, sizeof (*rectLeft),
-                       "ComputeUnionArea(1)");
-  rectRight = MyCalloc (boxlist->BoxN, sizeof (*rectRight),
-                        "ComputeUnionArea(2)");
+  rectLeft = calloc (boxlist->BoxN, sizeof (*rectLeft));
+  rectRight = calloc (boxlist->BoxN, sizeof (*rectRight));
   for (i = 0; i < boxlist->BoxN; i++)
     {
       assert (boxlist->Box[i].X1 <= boxlist->Box[i].X2);

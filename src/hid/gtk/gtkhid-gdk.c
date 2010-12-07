@@ -133,8 +133,7 @@ ghid_draw_grid (void)
   if (n > npoints)
     {
       npoints = n + 10;
-      points =
-	MyRealloc (points, npoints * sizeof (GdkPoint), "gtk_draw_grid");
+      points = realloc (points, npoints * sizeof (GdkPoint));
     }
   n = 0;
   for (x = x1; x <= x2; x += PCB->Grid)
@@ -601,8 +600,7 @@ ghid_fill_polygon (hidGC gc, int n_coords, int *x, int *y)
   if (npoints < n_coords)
     {
       npoints = n_coords + 1;
-      points = MyRealloc (points,
-			  npoints * sizeof (GdkPoint), (char *) __FUNCTION__);
+      points = realloc (points, npoints * sizeof (GdkPoint));
     }
   for (i = 0; i < n_coords; i++)
     {

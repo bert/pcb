@@ -226,7 +226,7 @@ usage_hid (HID * h)
       exporter = NULL;
     }
 
-  note = (UsageNotes *) MyMalloc (sizeof (UsageNotes), "usage_hid");
+  note = malloc (sizeof (UsageNotes));
   note->next = usage_notes;
   note->seen = attributes;
   usage_notes = note;

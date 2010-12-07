@@ -5731,7 +5731,7 @@ ActionSaveTo (int argc, char **argv, int x, int y)
 
   if (strcasecmp (function, "LayoutAs") == 0)
     {
-      MYFREE (PCB->Filename);
+      free (PCB->Filename);
       PCB->Filename = strdup (name);
       SavePCB (PCB->Filename);
       return 0;
@@ -5891,7 +5891,7 @@ ActionLoadFrom (int argc, char **argv, int x, int y)
   else if (strcasecmp (function, "Netlist") == 0)
     {
       if (PCB->Netlistname)
-	SaveFree (PCB->Netlistname);
+	free (PCB->Netlistname);
       PCB->Netlistname = StripWhiteSpaceAndDup (name);
       FreeLibraryMemory (&PCB->NetlistLib);
       if (!ImportNetlist (PCB->Netlistname))
@@ -7239,7 +7239,7 @@ ActionElementSetAttr (int argc, char **argv, int x, int y)
 
   if (attr && value)
     {
-      MYFREE (attr->value);
+      free (attr->value);
       attr->value = strdup (value);
     }
   if (attr && ! value)

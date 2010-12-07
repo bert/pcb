@@ -69,9 +69,8 @@ GetRubberbandMemory (void)
       Crosshair.AttachedObject.RubberbandMax)
     {
       Crosshair.AttachedObject.RubberbandMax += STEP_RUBBERBAND;
-      ptr = MyRealloc (ptr,
-		       Crosshair.AttachedObject.RubberbandMax *
-		       sizeof (RubberbandType), "GetRubberbandMemory()");
+      ptr = realloc (ptr, Crosshair.AttachedObject.RubberbandMax *
+                          sizeof (RubberbandType));
       Crosshair.AttachedObject.Rubberband = ptr;
       memset (ptr + Crosshair.AttachedObject.RubberbandN, 0,
 	      STEP_RUBBERBAND * sizeof (RubberbandType));
@@ -88,8 +87,7 @@ GetPointerMemory (PointerListTypePtr list)
   if (list->PtrN >= list->PtrMax)
     {
       list->PtrMax = STEP_POINT + (2 * list->PtrMax);
-      ptr = MyRealloc (ptr, list->PtrMax * sizeof (void *),
-		       "GetPointerMemory()");
+      ptr = realloc (ptr, list->PtrMax * sizeof (void *));
       list->Ptr = ptr;
       memset (ptr + list->PtrN, 0,
 	      (list->PtrMax - list->PtrN) * sizeof (void *));
@@ -100,7 +98,7 @@ GetPointerMemory (PointerListTypePtr list)
 void
 FreePointerListMemory (PointerListTypePtr list)
 {
-  MYFREE (list->Ptr);
+  free (list->Ptr);
   memset (list, 0, sizeof (PointerListType));
 }
 
@@ -116,8 +114,7 @@ GetBoxMemory (BoxListTypePtr Boxes)
   if (Boxes->BoxN >= Boxes->BoxMax)
     {
       Boxes->BoxMax = STEP_POINT + (2 * Boxes->BoxMax);
-      box = MyRealloc (box, Boxes->BoxMax * sizeof (BoxType),
-		       "GetBoxMemory()");
+      box = realloc (box, Boxes->BoxMax * sizeof (BoxType));
       Boxes->Box = box;
       memset (box + Boxes->BoxN, 0,
 	      (Boxes->BoxMax - Boxes->BoxN) * sizeof (BoxType));
@@ -138,8 +135,7 @@ GetConnectionMemory (NetTypePtr Net)
   if (Net->ConnectionN >= Net->ConnectionMax)
     {
       Net->ConnectionMax += STEP_POINT;
-      con = MyRealloc (con, Net->ConnectionMax * sizeof (ConnectionType),
-		       "GetConnectionMemory()");
+      con = realloc (con, Net->ConnectionMax * sizeof (ConnectionType));
       Net->Connection = con;
       memset (con + Net->ConnectionN, 0,
 	      STEP_POINT * sizeof (ConnectionType));
@@ -159,8 +155,7 @@ GetNetMemory (NetListTypePtr Netlist)
   if (Netlist->NetN >= Netlist->NetMax)
     {
       Netlist->NetMax += STEP_POINT;
-      net = MyRealloc (net, Netlist->NetMax * sizeof (NetType),
-		       "GetNetMemory()");
+      net = realloc (net, Netlist->NetMax * sizeof (NetType));
       Netlist->Net = net;
       memset (net + Netlist->NetN, 0, STEP_POINT * sizeof (NetType));
     }
@@ -179,9 +174,8 @@ GetNetListMemory (NetListListTypePtr Netlistlist)
   if (Netlistlist->NetListN >= Netlistlist->NetListMax)
     {
       Netlistlist->NetListMax += STEP_POINT;
-      netlist = MyRealloc
-	(netlist, Netlistlist->NetListMax * sizeof (NetListType),
-	 "GetNetListMemory()");
+      netlist = realloc (netlist,
+                         Netlistlist->NetListMax * sizeof (NetListType));
       Netlistlist->NetList = netlist;
       memset (netlist + Netlistlist->NetListN, 0,
 	      STEP_POINT * sizeof (NetListType));
@@ -211,8 +205,7 @@ GetPinMemory (ElementTypePtr Element)
 	  END_LOOP;
 	}
       Element->PinMax += STEP_PIN;
-      pin = MyRealloc (pin, Element->PinMax * sizeof (PinType),
-		       "GetPinMemory()");
+      pin = realloc (pin, Element->PinMax * sizeof (PinType));
       Element->Pin = pin;
       memset (pin + Element->PinN, 0, STEP_PIN * sizeof (PinType));
       if (onBoard)
@@ -249,8 +242,7 @@ GetPadMemory (ElementTypePtr Element)
 	  END_LOOP;
 	}
       Element->PadMax += STEP_PAD;
-      pad = MyRealloc (pad, Element->PadMax * sizeof (PadType),
-		       "GetPadMemory()");
+      pad = realloc (pad, Element->PadMax * sizeof (PadType));
       Element->Pad = pad;
       memset (pad + Element->PadN, 0, STEP_PAD * sizeof (PadType));
       if (onBoard)
@@ -279,8 +271,7 @@ GetViaMemory (DataTypePtr Data)
       Data->ViaMax += STEP_VIA;
       if (Data->via_tree)
 	r_destroy_tree (&Data->via_tree);
-      via = MyRealloc (via, Data->ViaMax * sizeof (PinType),
-		       "GetViaMemory()");
+      via = realloc (via, Data->ViaMax * sizeof (PinType));
       Data->Via = via;
       memset (via + Data->ViaN, 0, STEP_VIA * sizeof (PinType));
       Data->via_tree = r_create_tree (NULL, 0, 0);
@@ -308,8 +299,7 @@ GetRatMemory (DataTypePtr Data)
       /* all of the pointers move, so rebuild the whole tree */
       if (Data->rat_tree)
         r_destroy_tree (&Data->rat_tree);
-      rat = MyRealloc (rat, Data->RatMax * sizeof (RatType),
-		       "GetRatMemory()");
+      rat = realloc (rat, Data->RatMax * sizeof (RatType));
       Data->Rat = rat;
       memset (rat + Data->RatN, 0, STEP_RAT * sizeof (RatType));
       Data->rat_tree = r_create_tree (NULL, 0, 0);
@@ -337,8 +327,7 @@ GetLineMemory (LayerTypePtr Layer)
       /* all of the pointers move, so rebuild the whole tree */
       if (Layer->line_tree)
 	r_destroy_tree (&Layer->line_tree);
-      line = MyRealloc (line, Layer->LineMax * sizeof (LineType),
-			"GetLineMemory()");
+      line = realloc (line, Layer->LineMax * sizeof (LineType));
       Layer->Line = line;
       memset (line + Layer->LineN, 0, STEP_LINE * sizeof (LineType));
       Layer->line_tree = r_create_tree (NULL, 0, 0);
@@ -365,8 +354,7 @@ GetArcMemory (LayerTypePtr Layer)
       Layer->ArcMax += STEP_ARC;
       if (Layer->arc_tree)
 	r_destroy_tree (&Layer->arc_tree);
-      arc = MyRealloc (arc, Layer->ArcMax * sizeof (ArcType),
-		       "GetArcMemory()");
+      arc = realloc (arc, Layer->ArcMax * sizeof (ArcType));
       Layer->Arc = arc;
       memset (arc + Layer->ArcN, 0, STEP_ARC * sizeof (ArcType));
       Layer->arc_tree = r_create_tree (NULL, 0, 0);
@@ -393,8 +381,7 @@ GetTextMemory (LayerTypePtr Layer)
       Layer->TextMax += STEP_TEXT;
       if (Layer->text_tree)
 	r_destroy_tree (&Layer->text_tree);
-      text = MyRealloc (text, Layer->TextMax * sizeof (TextType),
-			"GetTextMemory()");
+      text = realloc (text, Layer->TextMax * sizeof (TextType));
       Layer->Text = text;
       memset (text + Layer->TextN, 0, STEP_TEXT * sizeof (TextType));
       Layer->text_tree = r_create_tree (NULL, 0, 0);
@@ -421,8 +408,7 @@ GetPolygonMemory (LayerTypePtr Layer)
       Layer->PolygonMax += STEP_POLYGON;
       if (Layer->polygon_tree)
 	r_destroy_tree (&Layer->polygon_tree);
-      polygon = MyRealloc (polygon, Layer->PolygonMax * sizeof (PolygonType),
-			   "GetPolygonMemory()");
+      polygon = realloc (polygon, Layer->PolygonMax * sizeof (PolygonType));
       Layer->Polygon = polygon;
       memset (polygon + Layer->PolygonN, 0,
 	      STEP_POLYGON * sizeof (PolygonType));
@@ -449,8 +435,7 @@ GetPointMemoryInPolygon (PolygonTypePtr Polygon)
   if (Polygon->PointN >= Polygon->PointMax)
     {
       Polygon->PointMax += STEP_POLYGONPOINT;
-      points = MyRealloc (points, Polygon->PointMax * sizeof (PointType),
-			  "GetPointMemoryInPolygon()");
+      points = realloc (points, Polygon->PointMax * sizeof (PointType));
       Polygon->Points = points;
       memset (points + Polygon->PointN, 0,
 	      STEP_POLYGONPOINT * sizeof (PointType));
@@ -471,8 +456,7 @@ GetHoleIndexMemoryInPolygon (PolygonTypePtr Polygon)
   if (Polygon->HoleIndexN >= Polygon->HoleIndexMax)
     {
       Polygon->HoleIndexMax += STEP_POLYGONHOLEINDEX;
-      holeindex = MyRealloc (holeindex, Polygon->HoleIndexMax * sizeof (int),
-			     "GetHoleIndexMemoryInPolygon()");
+      holeindex = realloc (holeindex, Polygon->HoleIndexMax * sizeof (int));
       Polygon->HoleIndex = holeindex;
       memset (holeindex + Polygon->HoleIndexN, 0,
 	      STEP_POLYGONHOLEINDEX * sizeof (int));
@@ -495,8 +479,7 @@ GetElementMemory (DataTypePtr Data)
       Data->ElementMax += STEP_ELEMENT;
       if (Data->element_tree)
 	r_destroy_tree (&Data->element_tree);
-      element = MyRealloc (element, Data->ElementMax * sizeof (ElementType),
-			   "GetElementMemory()");
+      element = realloc (element, Data->ElementMax * sizeof (ElementType));
       Data->Element = element;
       memset (element + Data->ElementN, 0,
 	      STEP_ELEMENT * sizeof (ElementType));
@@ -545,8 +528,7 @@ GetLibraryMenuMemory (LibraryTypePtr lib)
   if (lib->MenuN >= lib->MenuMax)
     {
       lib->MenuMax += STEP_LIBRARYMENU;
-      menu = MyRealloc (menu, lib->MenuMax * sizeof (LibraryMenuType),
-			"GetLibraryMenuMemory()");
+      menu = realloc (menu, lib->MenuMax * sizeof (LibraryMenuType));
       lib->Menu = menu;
       memset (menu + lib->MenuN, 0,
 	      STEP_LIBRARYMENU * sizeof (LibraryMenuType));
@@ -566,8 +548,7 @@ GetLibraryEntryMemory (LibraryMenuTypePtr Menu)
   if (Menu->EntryN >= Menu->EntryMax)
     {
       Menu->EntryMax += STEP_LIBRARYENTRY;
-      entry = MyRealloc (entry, Menu->EntryMax * sizeof (LibraryEntryType),
-			 "GetLibraryEntryMemory()");
+      entry = realloc (entry, Menu->EntryMax * sizeof (LibraryEntryType));
       Menu->Entry = entry;
       memset (entry + Menu->EntryN, 0,
 	      STEP_LIBRARYENTRY * sizeof (LibraryEntryType));
@@ -589,9 +570,8 @@ GetDrillElementMemory (DrillTypePtr Drill)
   if (Drill->ElementN >= Drill->ElementMax)
     {
       Drill->ElementMax += STEP_ELEMENT;
-      element =
-	MyRealloc (element, Drill->ElementMax * sizeof (ElementTypeHandle),
-		   "GetDrillElementMemory()");
+      element = realloc (element,
+                         Drill->ElementMax * sizeof (ElementTypeHandle));
       Drill->Element = element;
       memset (element + Drill->ElementN, 0,
 	      STEP_ELEMENT * sizeof (ElementTypeHandle));
@@ -613,8 +593,7 @@ GetDrillPinMemory (DrillTypePtr Drill)
   if (Drill->PinN >= Drill->PinMax)
     {
       Drill->PinMax += STEP_POINT;
-      pin = MyRealloc (pin, Drill->PinMax * sizeof (PinTypeHandle),
-		       "GetDrillPinMemory()");
+      pin = realloc (pin, Drill->PinMax * sizeof (PinTypeHandle));
       Drill->Pin = pin;
       memset (pin + Drill->PinN, 0, STEP_POINT * sizeof (PinTypeHandle));
     }
@@ -633,119 +612,12 @@ GetDrillInfoDrillMemory (DrillInfoTypePtr DrillInfo)
   if (DrillInfo->DrillN >= DrillInfo->DrillMax)
     {
       DrillInfo->DrillMax += STEP_DRILL;
-      drill = MyRealloc (drill, DrillInfo->DrillMax * sizeof (DrillType),
-			 "GetDrillInfoDrillMemory()");
+      drill = realloc (drill, DrillInfo->DrillMax * sizeof (DrillType));
       DrillInfo->Drill = drill;
       memset (drill + DrillInfo->DrillN, 0, STEP_DRILL * sizeof (DrillType));
     }
   return (drill + DrillInfo->DrillN++);
 }
-
-/* ---------------------------------------------------------------------------
- * allocates memory with error handling
- */
-void *
-MyCalloc (size_t Number, size_t Size, const char *Text)
-{
-  void *p;
-
-#ifdef MEM_DEBUG
-  fprintf (stderr, "MyCalloc %d by %d from %s ", Number, Size, Text);
-#endif
-  /* InitComponentLookup() at least can ask for zero here, so return something
-     |  that can be freed.
-   */
-  if (Number == 0)
-    Number = 1;
-  if (Size == 0)
-    Size = 1;
-
-  if ((p = calloc (Number, Size)) == NULL)
-    MyFatal ("out of memory during malloc() in '%s'()\n",
-	     (Text ? Text : "(unknown)"));
-#ifdef MEM_DEBUG
-  fprintf (stderr, "returned 0x%x\n", p);
-#endif
-  return (p);
-}
-
-void *
-MyMalloc (size_t Size, const char *Text)
-{
-  void *p;
-
-#ifdef MEM_DEBUG
-  fprintf (stderr, "MyMalloc %d by %d from %s ", Number, Size, Text);
-#endif
-  /* avoid malloc of 0 bytes */
-  if (Size == 0)
-    Size = 1;
-  if ((p = malloc (Size)) == NULL)
-    MyFatal ("out of memory during malloc() in '%s'()\n",
-	     (Text ? Text : "(unknown)"));
-#ifdef MEM_DEBUG
-  fprintf (stderr, "returned 0x%x\n", p);
-#endif
-  return (p);
-}
-
-/* ---------------------------------------------------------------------------
- * allocates memory with error handling
- * this is a save version because BSD doesn't support the
- * handling of NULL pointers in realloc()
- */
-void *
-MyRealloc (void *Ptr, size_t Size, const char *Text)
-{
-  void *p;
-
-#ifdef MEM_DEBUG
-  fprintf (stderr, "0x%x Realloc to %d from %s ", Ptr, Size, Text);
-#endif
-  if (Size == 0)
-    Size = 1;
-  p = Ptr ? realloc (Ptr, Size) : malloc (Size);
-  if (!p)
-    MyFatal ("out of memory during realloc() in '%s'()\n",
-	     (Text ? Text : "(unknown)"));
-#ifdef MEM_DEBUG
-  fprintf (stderr, "returned 0x%x\n", p);
-#endif
-  return (p);
-}
-
-/* ---------------------------------------------------------------------------
- * allocates memory for a new string, does some error processing
- */
-char *
-MyStrdup (const char *S, const char *Text)
-{
-  char *p = NULL;
-
-  /* bug-fix by Ulrich Pegelow (ulrpeg@bigcomm.gun.de) */
-  if (S && ((p = strdup (S)) == NULL))
-    MyFatal ("out of memory during g_strdup() in '%s'\n",
-	     (Text ? Text : "(unknown)"));
-#ifdef MEM_DEBUG
-  fprintf (stderr, "g_strdup returning 0x%x\n", p);
-#endif
-  return (p);
-}
-
-/* ---------------------------------------------------------------------------
- * frees memory and sets pointer to NULL
- * too troublesome for modern C compiler,
- * warning: dereferencing type-punned pointer will break strict-aliasing rules
- * Use MYFREE() macro instead
- */
-#if 0
-void
-MyFree (char **Ptr)
-{
-  SaveFree (*Ptr);
-  *Ptr = NULL;
-}
-#endif
 
 /* ---------------------------------------------------------------------------
  * frees memory used by a polygon
@@ -755,8 +627,8 @@ FreePolygonMemory (PolygonTypePtr Polygon)
 {
   if (Polygon)
     {
-      MYFREE (Polygon->Points);
-      MYFREE (Polygon->HoleIndex);
+      free (Polygon->Points);
+      free (Polygon->HoleIndex);
       if (Polygon->Clipped)
 	poly_Free (&Polygon->Clipped);
       poly_FreeContours (&Polygon->NoHoles);
@@ -772,7 +644,7 @@ FreeBoxListMemory (BoxListTypePtr Boxlist)
 {
   if (Boxlist)
     {
-      MYFREE (Boxlist->Box);
+      free (Boxlist->Box);
       memset (Boxlist, 0, sizeof (BoxListType));
     }
 }
@@ -790,7 +662,7 @@ FreeNetListMemory (NetListTypePtr Netlist)
 	FreeNetMemory (net);
       }
       END_LOOP;
-      MYFREE (Netlist->Net);
+      free (Netlist->Net);
       memset (Netlist, 0, sizeof (NetListType));
     }
 }
@@ -808,7 +680,7 @@ FreeNetListListMemory (NetListListTypePtr Netlistlist)
 	FreeNetListMemory (netlist);
       }
       END_LOOP;
-      MYFREE (Netlistlist->NetList);
+      free (Netlistlist->NetList);
       memset (Netlistlist, 0, sizeof (NetListListType));
     }
 }
@@ -821,7 +693,7 @@ FreeNetMemory (NetTypePtr Net)
 {
   if (Net)
     {
-      MYFREE (Net->Connection);
+      free (Net->Connection);
       memset (Net, 0, sizeof (NetType));
     }
 }
@@ -835,10 +707,10 @@ FreeAttributeListMemory (AttributeListTypePtr list)
 
   for (i = 0; i < list->Number; i++)
     {
-      SaveFree (list->List[i].name);
-      SaveFree (list->List[i].value);
+      free (list->List[i].name);
+      free (list->List[i].value);
     }
-  SaveFree (list->List);
+  free (list->List);
   list->List = NULL;
   list->Max = 0;
 }
@@ -853,25 +725,25 @@ FreeElementMemory (ElementTypePtr Element)
     {
       ELEMENTNAME_LOOP (Element);
       {
-	MYFREE (textstring);
+	free (textstring);
       }
       END_LOOP;
       PIN_LOOP (Element);
       {
-	MYFREE (pin->Name);
-	MYFREE (pin->Number);
+	free (pin->Name);
+	free (pin->Number);
       }
       END_LOOP;
       PAD_LOOP (Element);
       {
-	MYFREE (pad->Name);
-	MYFREE (pad->Number);
+	free (pad->Name);
+	free (pad->Number);
       }
       END_LOOP;
-      MYFREE (Element->Pin);
-      MYFREE (Element->Pad);
-      MYFREE (Element->Line);
-      MYFREE (Element->Arc);
+      free (Element->Pin);
+      free (Element->Pad);
+      free (Element->Line);
+      free (Element->Arc);
       FreeAttributeListMemory (&Element->Attributes);
       memset (Element, 0, sizeof (ElementType));
     }
@@ -887,15 +759,15 @@ FreePCBMemory (PCBTypePtr PCBPtr)
 
   if (PCBPtr)
     {
-      MYFREE (PCBPtr->Name);
-      MYFREE (PCBPtr->Filename);
-      MYFREE (PCBPtr->PrintFilename);
+      free (PCBPtr->Name);
+      free (PCBPtr->Filename);
+      free (PCBPtr->PrintFilename);
       if (PCBPtr->Data)
 	FreeDataMemory (PCBPtr->Data);
-      MYFREE (PCBPtr->Data);
+      free (PCBPtr->Data);
       /* release font symbols */
       for (i = 0; i <= MAX_FONTPOSITION; i++)
-	MYFREE (PCBPtr->Font.Symbol[i].Line);
+	free (PCBPtr->Font.Symbol[i].Line);
       FreeLibraryMemory (&PCBPtr->NetlistLib);
       FreeAttributeListMemory (&PCBPtr->Attributes);
       /* clear struct */
@@ -920,43 +792,43 @@ FreeDataMemory (DataTypePtr Data)
     {
       VIA_LOOP (Data);
       {
-	MYFREE (via->Name);
+	free (via->Name);
       }
       END_LOOP;
-      MYFREE (Data->Via);
+      free (Data->Via);
       ELEMENT_LOOP (Data);
       {
 	FreeElementMemory (element);
       }
       END_LOOP;
-      MYFREE (Data->Element);
-      MYFREE (Data->Rat);
+      free (Data->Element);
+      free (Data->Rat);
 
       for (layer = Data->Layer, i = 0; i < MAX_LAYER + 2; layer++, i++)
 	{
 	  FreeAttributeListMemory (&layer->Attributes);
 	  TEXT_LOOP (layer);
 	  {
-	    MYFREE (text->TextString);
+	    free (text->TextString);
 	  }
 	  END_LOOP;
 	  if (layer->Name)
-	    MYFREE (layer->Name);
+	    free (layer->Name);
 	  LINE_LOOP (layer);
 	  {
 	    if (line->Number)
-	      MYFREE (line->Number);
+	      free (line->Number);
 	  }
 	  END_LOOP;
-	  MYFREE (layer->Line);
-	  MYFREE (layer->Arc);
-	  MYFREE (layer->Text);
+	  free (layer->Line);
+	  free (layer->Arc);
+	  free (layer->Text);
 	  POLYGON_LOOP (layer);
 	  {
 	    FreePolygonMemory (polygon);
 	  }
 	  END_LOOP;
-	  MYFREE (layer->Polygon);
+	  free (layer->Polygon);
 	  if (layer->line_tree)
 	    r_destroy_tree (&layer->line_tree);
 	  if (layer->arc_tree)
@@ -999,33 +871,18 @@ FreeLibraryMemory (LibraryTypePtr lib)
   {
     ENTRY_LOOP (menu);
     {
-      SaveFree ((void *) entry->AllocatedMemory);
-      SaveFree ((void *) entry->ListEntry);
+      free (entry->AllocatedMemory);
+      free (entry->ListEntry);
     }
     END_LOOP;
-    SaveFree ((void *) menu->Entry);
-    SaveFree ((void *) menu->Name);
+    free (menu->Entry);
+    free (menu->Name);
   }
   END_LOOP;
-  SaveFree ((void *) lib->Menu);
+  free (lib->Menu);
 
   /* clear struct */
   memset (lib, 0, sizeof (LibraryType));
-}
-
-/* ---------------------------------------------------------------------------
- * a 'save' free routine which first does a quick check if the pointer
- * is zero. The routine isn't implemented as a macro to make additional
- * safety features easier to implement
- */
-void
-SaveFree (void *Ptr)
-{
-#ifdef MEM_DEBUG
-  fprintf (stderr, "Freeing 0x%x\n", Ptr);
-#endif
-  if (Ptr)
-    free (Ptr);
 }
 
 /* ---------------------------------------------------------------------------
@@ -1038,7 +895,7 @@ DSRealloc (DynamicStringTypePtr Ptr, size_t Length)
   if (input_null || Length >= Ptr->MaxLength)
     {
       Ptr->MaxLength = Length + 512;
-      Ptr->Data = MyRealloc (Ptr->Data, Ptr->MaxLength, "ReallocDS()");
+      Ptr->Data = realloc (Ptr->Data, Ptr->MaxLength);
       if (input_null)
 	Ptr->Data[0] = '\0';
     }
@@ -1106,7 +963,7 @@ StripWhiteSpaceAndDup (char *S)
   /* string is not empty -> allocate memory */
   if (length)
     {
-      p2 = MyRealloc (NULL, length + 1, "StripWhiteSpace()");
+      p2 = realloc (NULL, length + 1);
       strncpy (p2, p1, length);
       *(p2 + length) = '\0';
       return (p2);
