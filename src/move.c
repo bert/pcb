@@ -1057,7 +1057,7 @@ MoveLayer (int old_index, int new_index)
 
 static const char movelayer_syntax[] = "MoveLayer(old,new)";
 
-static const char movelayer_help[] = "Moves/Creates/Deletes Layers";
+static const char movelayer_help[] = "Moves/Creates/Deletes Layers.";
 
 /* %start-doc actions MoveLayer
 

@@ -865,7 +865,7 @@ LoadFootprintByName (BufferTypePtr Buffer, char *Footprint)
 
 static const char loadfootprint_syntax[] = "LoadFootprint(filename[,refdes,value])";
 
-static const char loadfootprint_help[] = "Loads a single footprint by name";
+static const char loadfootprint_help[] = "Loads a single footprint by name.";
 
 /* %start-doc actions LoadFootprint
 

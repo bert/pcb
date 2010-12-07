@@ -68,7 +68,7 @@ RCSID ("$Id$");
 static const char fontedit_syntax[] = "FontEdit()";
 
 static const char fontedit_help[] =
-  "Convert the current font to a PCB for editing";
+  "Convert the current font to a PCB for editing.";
 
 /* %start-doc actions FontEdit
 
@@ -161,7 +161,7 @@ FontEdit (int argc, char **argv, int Ux, int Uy)
 
 static const char fontsave_syntax[] = "FontSave()";
 
-static const char fontsave_help[] = "Convert the current PCB back to a font";
+static const char fontsave_help[] = "Convert the current PCB back to a font.";
 
 /* %start-doc actions FontSave
 

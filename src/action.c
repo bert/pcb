@@ -2340,10 +2340,6 @@ Any ``found'' pins and vias are marked ``not found''.
 @item Reset
 All ``found'' objects are marked ``not found''.
 
-@item Measure
-The net under the cursor is found and measured (the lengths of all
-line segments are added together)
-
 @end table
 
 %end-doc */
@@ -2533,7 +2529,7 @@ static const char display_syntax[] =
   "Display(ToggleThindraw|ToggleThindrawPoly|ToggleOrthoMove|ToggleLocalRef)\n"
   "Display(ToggleCheckPlanes|ToggleShowDRC|ToggleAutoDRC)\n"
   "Display(ToggleLiveRoute|LockNames|OnlyNames)\n"
-  "Display(Pinout|PinOrPadName)\n" "Display(Scroll, Direction)";
+  "Display(Pinout|PinOrPadName)";
 
 static const char display_help[] = "Several display-related actions.";
 
@@ -2615,6 +2611,16 @@ left, or right, but not up+left or down+right.
 @item ToggleName
 Selects whether the pinouts show the pin names or the pin numbers.
 
+@item ToggleLockNames
+If set, text will ignore left mouse clicks and actions that work on
+objects under the mouse. You can still select text with a lasso (left
+mouse drag) and perform actions on the selection.
+
+@item ToggleOnlyNames
+If set, only text will be sensitive for mouse clicks and actions that
+work on objects under the mouse. You can still select other objects
+with a lasso (left mouse drag) and perform actions on the selection.
+
 @item ToggleMask
 Turns the solder mask on or off.
 
@@ -2645,11 +2651,6 @@ displayed, usually in a separate window.
 Toggles whether the names of pins, pads, or (yes) vias will be
 displayed.  If the cursor is over an element, all of its pins and pads
 are affected.
-
-@item Step <direction> <amount> <units>
-Steps the crosshair in the given direction, with 1=down/left, 2=down,
-etc, according to the numeric keypad layout.  If amount is not given,
-the crosshair steps along the grid.
 
 @end table
 
@@ -3006,7 +3007,8 @@ ActionDisplay (int argc, char **argv, int childX, int childY)
 static const char mode_syntax[] =
   "Mode(Arc|Arrow|Copy|InsertPoint|Line|Lock|Move|None|PasteBuffer)\n"
   "Mode(Polygon|Rectangle|Remove|Rotate|Text|Thermal|Via)\n"
-  "Mode(Notify|Release|Cancel|Stroke)\n" "Mode(Save|Restore)";
+  "Mode(Notify|Release|Cancel|Stroke)\n"
+  "Mode(Save|Restore)";
 
 static const char mode_help[] = "Change or use the tool mode.";
 
@@ -3296,7 +3298,8 @@ ActionRemoveSelected (int argc, char **argv, int x, int y)
 
 /* --------------------------------------------------------------------------- */
 
-static const char renumber_syntax[] = "Renumber()\n" "Renumber(filename)";
+static const char renumber_syntax[] = "Renumber()\n"
+                                      "Renumber(filename)";
 
 static const char renumber_help[] =
   "Renumber all elements.  The changes will be recorded to filename\n"
@@ -3857,8 +3860,7 @@ ActionAddRats (int argc, char **argv, int x, int y)
 
 static const char delete_syntax[] =
   "Delete(Object|Selected)\n"
-  "Delete(AllRats|SelectedRats)"
-  ;
+  "Delete(AllRats|SelectedRats)";
 
 static const char delete_help[] = "Delete stuff.";
 
@@ -4029,9 +4031,10 @@ ActionAutoRoute (int argc, char **argv, int x, int y)
 /* --------------------------------------------------------------------------- */
 
 static const char markcrosshair_syntax[] =
-  "MarkCrosshair()\n" "MarkCrosshair(Center)";
+  "MarkCrosshair()\n"
+  "MarkCrosshair(Center)";
 
-static const char markcrosshair_help[] = "Set/Reset the Crosshair mark";
+static const char markcrosshair_help[] = "Set/Reset the Crosshair mark.";
 
 /* %start-doc actions MarkCrosshair
 
@@ -4324,7 +4327,8 @@ ActionChangeClearSize (int argc, char **argv, int x, int y)
 /* ---------------------------------------------------------------------------  */
 
 static const char minmaskgap_syntax[] =
-  "MinMaskGap(delta)\n" "MinMaskGap(Selected, delta)";
+  "MinMaskGap(delta)\n"
+  "MinMaskGap(Selected, delta)";
 
 static const char minmaskgap_help[] =
   "Ensures the mask is a minimum distance from pins and pads.";
@@ -4408,7 +4412,8 @@ ActionMinMaskGap (int argc, char **argv, int x, int y)
 /* ---------------------------------------------------------------------------  */
 
 static const char mincleargap_syntax[] =
-  "MinClearGap(delta)\n" "MinClearGap(Selected, delta)";
+  "MinClearGap(delta)\n"
+  "MinClearGap(Selected, delta)";
 
 static const char mincleargap_help[] =
   "Ensures that polygons are a minimum distance from objects.";
@@ -4607,7 +4612,8 @@ ActionChangePinName (int argc, char **argv, int x, int y)
 /* --------------------------------------------------------------------------- */
 
 static const char changename_syntax[] =
-  "ChangeName(Object)\n" "ChangeName(Layout|Layer)";
+  "ChangeName(Object)\n"
+  "ChangeName(Layout|Layer)";
 
 static const char changename_help[] = "Sets the name of objects.";
 
@@ -5376,7 +5382,7 @@ ActionChangePaste (int argc, char **argv, int x, int y)
 /* --------------------------------------------------------------------------- */
 
 static const char select_syntax[] =
-  "Select(ToggleObject)\n"
+  "Select(Object|ToggleObject)\n"
   "Select(All|Block|Connection)\n"
   "Select(ElementByName|ObjectByName|PadByName|PinByName)\n"
   "Select(ElementByName|ObjectByName|PadByName|PinByName, Name)\n"
@@ -5384,7 +5390,7 @@ static const char select_syntax[] =
   "Select(TextByName|ViaByName|NetByName, Name)\n"
   "Select(Convert)";
 
-static const char select_help[] = "Toggles or sets the selection";
+static const char select_help[] = "Toggles or sets the selection.";
 
 /* %start-doc actions Select
 
@@ -5575,10 +5581,11 @@ static const char unselect_syntax[] =
   "Unselect(All|Block|Connection)\n"
   "Unselect(ElementByName|ObjectByName|PadByName|PinByName)\n"
   "Unselect(ElementByName|ObjectByName|PadByName|PinByName, Name)\n"
-  "Unselect(TextByName|ViaByName)\n" "Unselect(TextByName|ViaByName, Name)\n";
+  "Unselect(TextByName|ViaByName)\n"
+  "Unselect(TextByName|ViaByName, Name)\n";
 
 static const char unselect_help[] =
-  "unselects the object at the pointer location or the specified objects";
+  "Unselects the object at the pointer location or the specified objects.";
 
 /* %start-doc actions Unselect
 
@@ -5839,7 +5846,8 @@ ActionSaveTo (int argc, char **argv, int x, int y)
 /* --------------------------------------------------------------------------- */
 
 static const char savesettings_syntax[] =
-  "SaveSettings()\n" "SaveSettings(local)";
+  "SaveSettings()\n"
+  "SaveSettings(local)";
 
 static const char savesettings_help[] = "Saves settings.";
 
@@ -6228,7 +6236,8 @@ ActionPasteBuffer (int argc, char **argv, int x, int y)
 
 /* --------------------------------------------------------------------------- */
 
-static const char undo_syntax[] = "Undo()\n" "Undo(ClearList)";
+static const char undo_syntax[] = "Undo()\n"
+                                  "Undo(ClearList)";
 
 static const char undo_help[] = "Undo recent changes.";
 
@@ -6777,7 +6786,8 @@ static const char changeflag_syntax[] =
   "ChangeFlag(SelectedLines|SelectedPins|SelectedVias, flag, value)\n"
   "ChangeFlag(SelectedPads|SelectedTexts|SelectedNames, flag, value)\n"
   "ChangeFlag(SelectedElements, flag, value)\n"
-  "flag = square | octagon | thermal | join\n" "value = 0 | 1";
+  "flag = square | octagon | thermal | join\n"
+  "value = 0 | 1";
 
 static const char changeflag_help[] = "Sets or clears flags on objects.";
 
@@ -7236,7 +7246,7 @@ ActionElementList (int argc, char **argv, int x, int y)
 /* ---------------------------------------------------------------- */
 static const char elementsetattr_syntax[] = "ElementSetAttr(refdes,name[,value])";
 
-static const char elementsetattr_help[] = "Sets or clears an element-specific attribute";
+static const char elementsetattr_help[] = "Sets or clears an element-specific attribute.";
 
 /* %start-doc actions elementsetattr
 
@@ -7300,7 +7310,7 @@ ActionElementSetAttr (int argc, char **argv, int x, int y)
 /* ---------------------------------------------------------------- */
 static const char execcommand_syntax[] = "ExecCommand(command)";
 
-static const char execcommand_help[] = "Runs a command";
+static const char execcommand_help[] = "Runs a command.";
 
 /* %start-doc actions execcommand
 
@@ -7531,7 +7541,7 @@ static const char import_syntax[] =
   "Import(setnewpoint[,(mark|center|X,Y)])\n"
   "Import(setdisperse,D,units)\n";
 
-static const char import_help[] = "Import schematics";
+static const char import_help[] = "Import schematics.";
 
 /* %start-doc actions Import
 
@@ -7602,7 +7612,7 @@ Note that Import() doesn't delete anything - after an Import, elements
 which shouldn't be on the board are selected and may be removed once
 it's determined that the deletion is appropriate.
 
-In @code{Import()} is called with @code{setnewpoint} then the location
+If @code{Import()} is called with @code{setnewpoint}, then the location
 of new components can be specified.  This is where parts show up when
 they're added to the board.  The default is the center of the board.
 

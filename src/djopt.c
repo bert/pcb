@@ -2923,10 +2923,11 @@ grok_layer_groups ()
 
 static const char djopt_syntax[] =
   "djopt(debumpify|unjaggy|simple|vianudge|viatrim|orthopull)\n"
-  "djopt(auto) - all of the above\n" "djopt(miter)";
+  "djopt(auto) - all of the above\n"
+  "djopt(miter)";
 
 static const char djopt_help[] =
-  "Perform various optimizations on the current board";
+  "Perform various optimizations on the current board.";
 
 /* %start-doc actions djopt
 

@@ -3854,7 +3854,7 @@ static const char adjuststyle_syntax[] =
 "AdjustStyle()\n";
 
 static const char adjuststyle_help[] =
-"Open the window which allows editing of the route styles";
+"Open the window which allows editing of the route styles.";
 
 /* %start-doc actions AdjustStyle
 
@@ -3883,7 +3883,7 @@ static const char editlayergroups_syntax[] =
 "EditLayerGroups()\n";
 
 static const char editlayergroups_help[] =
-"Open the preferences window which allows editing of the layer groups";
+"Open the preferences window which allows editing of the layer groups.";
 
 /* %start-doc actions EditLayerGroups
 
