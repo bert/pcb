@@ -888,6 +888,12 @@ QuitApplication (void)
   else
     DisableEmergencySave ();
 
+  /* Free up memory allocated to the PCB. Why bother when we're about to exit ?
+   * Because it removes some false positives from heap bug detectors such as
+   * lib dmalloc.
+   */
+  FreePCBMemory(PCB);
+
   exit (0);
 }
 
