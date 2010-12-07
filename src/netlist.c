@@ -245,7 +245,7 @@ netlist_style (LibraryMenuType *net, const char *style)
   if (net->Style)
     MYFREE (net->Style);
   if (style)
-    net->Style = MyStrdup ((char *)style, "Netlist(Style)");
+    net->Style = strdup ((char *)style);
 }
 
 /* The primary purpose of this action is to rebuild a netlist from a

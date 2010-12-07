@@ -220,7 +220,7 @@ CopyLine (LayerTypePtr Layer, LineTypePtr Line)
   if (!line)
     return (line);
   if (Line->Number)
-    line->Number = MyStrdup (Line->Number, "CopyLine");
+    line->Number = strdup (Line->Number);
   DrawLine (Layer, line, 0);
   AddObjectToCreateUndoList (LINE_TYPE, Layer, line, line);
   return (line);

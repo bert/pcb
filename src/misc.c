@@ -723,7 +723,7 @@ ParseRouteString (char *s, RouteStyleTypePtr routeStyle, int scale)
       for (i = 0; *s && *s != ','; i++)
         Name[i] = *s++;
       Name[i] = '\0';
-      routeStyle->Name = MyStrdup (Name, "ParseRouteString()");
+      routeStyle->Name = strdup (Name);
       if (!isdigit ((int) *++s))
         goto error;
       GetNum (&s, &routeStyle->Thick);
@@ -943,7 +943,7 @@ EvaluateFilename (char *Template, char *Path, char *Filename, char *Parameter)
   if (Settings.verbose)
     printf ("EvaluateFilename: \033[32m%s\033[0m\n", command.Data);
 
-  return (MyStrdup (command.Data, "EvaluateFilename()"));
+  return strdup (command.Data);
 }
 
 /* ---------------------------------------------------------------------------

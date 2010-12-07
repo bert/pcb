@@ -94,10 +94,10 @@ FontEdit (int argc, char **argv, int Ux, int Uy)
   PCB->MaxWidth = CELL_SIZE * 18;
   PCB->MaxHeight = CELL_SIZE * ((MAX_FONTPOSITION + 15) / 16 + 2);
   PCB->Grid = 500.0;
-  PCB->Data->Layer[0].Name = MyStrdup ("Font", "FontEdit");
-  PCB->Data->Layer[1].Name = MyStrdup ("OrigFont", "FontEdit");
-  PCB->Data->Layer[2].Name = MyStrdup ("Width", "FontEdit");
-  PCB->Data->Layer[3].Name = MyStrdup ("Grid", "FontEdit");
+  PCB->Data->Layer[0].Name = strdup ("Font");
+  PCB->Data->Layer[1].Name = strdup ("OrigFont");
+  PCB->Data->Layer[2].Name = strdup ("Width");
+  PCB->Data->Layer[3].Name = strdup ("Grid");
   hid_action ("PCBChanged");
   hid_action ("LayersChanged");
 

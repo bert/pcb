@@ -153,7 +153,7 @@ AddLineToBuffer (LayerTypePtr Layer, LineTypePtr Line)
 			       MaskFlags (Line->Flags,
 					  FOUNDFLAG | ExtraFlag));
   if (line && Line->Number)
-    line->Number = MyStrdup (Line->Number, "AddLineToBuffer");
+    line->Number = strdup (Line->Number);
   return (line);
 }
 
@@ -1164,8 +1164,7 @@ ConvertBufferToElement (BufferTypePtr Buffer)
   LINE_LOOP (&Buffer->Data->SILKLAYER);
   {
     if (line->Number && !NAMEONPCB_NAME (Element))
-      NAMEONPCB_NAME (Element) = MyStrdup (line->Number,
-					   "ConvertBufferToElement");
+      NAMEONPCB_NAME (Element) = strdup (line->Number);
     CreateNewLineInElement (Element, line->Point1.X,
 			    line->Point1.Y, line->Point2.X,
 			    line->Point2.Y, line->Thickness);

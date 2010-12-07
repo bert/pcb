@@ -193,8 +193,7 @@ CreateNewPCB (bool SetDefaultNames)
   ptr->minRing = Settings.minRing;
 
   for (i = 0; i < MAX_LAYER; i++)
-    ptr->Data->Layer[i].Name = MyStrdup (Settings.DefaultLayerName[i],
-					 "CreateNewPCB()");
+    ptr->Data->Layer[i].Name = strdup (Settings.DefaultLayerName[i]);
 
   return (ptr);
 }
@@ -213,10 +212,8 @@ CreateNewPCBPost (PCBTypePtr pcb, int use_defaults)
       if (ParseGroupString (Settings.Groups, &pcb->LayerGroups, DEF_LAYER))
 	return 1;
 
-      pcb->Data->Layer[component_silk_layer].Name =
-	MyStrdup ("silk", "CreateNewPCB()");
-      pcb->Data->Layer[solder_silk_layer].Name =
-	MyStrdup ("silk", "CreateNewPCB()");
+      pcb->Data->Layer[component_silk_layer].Name = strdup ("silk");
+      pcb->Data->Layer[solder_silk_layer].Name = strdup ("silk");
     }
   return 0;
 }
@@ -901,8 +898,7 @@ AddTextToElement (TextTypePtr Text, FontTypePtr PCBFont,
   Text->Direction = Direction;
   Text->Flags = Flags;
   Text->Scale = Scale;
-  Text->TextString = (TextString && *TextString) ?
-    MyStrdup (TextString, "AddTextToElement()") : NULL;
+  Text->TextString = (TextString && *TextString) ? strdup (TextString) : NULL;
 
   /* calculate size of the bounding box */
   SetTextBoundingBox (PCBFont, Text);
@@ -981,12 +977,12 @@ CreateNewNet (LibraryTypePtr lib, char *name, char *style)
 
   sprintf (temp, "  %s", name);
   menu = GetLibraryMenuMemory (lib);
-  menu->Name = MyStrdup (temp, "CreateNewNet()");
+  menu->Name = strdup (temp);
   menu->flag = 1;		/* net is enabled by default */
   if (style == NULL || NSTRCMP ("(unknown)", style) == 0)
     menu->Style = NULL;
   else
-    menu->Style = MyStrdup (style, "CreateNewNet()");
+    menu->Style = strdup (style);
   return (menu);
 }
 

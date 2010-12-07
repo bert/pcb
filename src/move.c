@@ -970,7 +970,7 @@ MoveLayer (int old_index, int new_index)
       max_copper_layer++;
       memset (lp, 0, sizeof (LayerType));
       lp->On = 1;
-      lp->Name = MyStrdup ("New Layer", "MoveLayer");
+      lp->Name = strdup ("New Layer");
       lp->Color = Settings.LayerColor[new_index];
       lp->SelectedColor = Settings.LayerSelectedColor[new_index];
       for (l = 0; l < max_copper_layer; l++)

@@ -912,7 +912,7 @@ AddNet (void)
 	  return (NULL);
 	}
       entry = GetLibraryEntryMemory (menu);
-      entry->ListEntry = MyStrdup (name2, "AddNet");
+      entry->ListEntry = strdup (name2);
       netnode_to_netname (name2);
       goto ratIt;
     }
@@ -921,7 +921,7 @@ AddNet (void)
   if (menu)
     {
       entry = GetLibraryEntryMemory (menu);
-      entry->ListEntry = MyStrdup (name1, "AddNet");
+      entry->ListEntry = strdup (name1);
       netnode_to_netname (name1);
       goto ratIt;
     }
@@ -939,11 +939,11 @@ AddNet (void)
     }
 
   menu = GetLibraryMenuMemory (&PCB->NetlistLib);
-  menu->Name = MyStrdup (ratname, "AddNet");
+  menu->Name = strdup (ratname);
   entry = GetLibraryEntryMemory (menu);
-  entry->ListEntry = MyStrdup (name1, "AddNet");
+  entry->ListEntry = strdup (name1);
   entry = GetLibraryEntryMemory (menu);
-  entry->ListEntry = MyStrdup (name2, "AddNet");
+  entry->ListEntry = strdup (name2);
   menu->flag = 1;
 
 ratIt:
