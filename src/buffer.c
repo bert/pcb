@@ -933,7 +933,17 @@ SmashBufferElement (BufferTypePtr Buffer)
       Message (_("Error!  Buffer doesn't contain a single element\n"));
       return (false);
     }
+  /*
+   * At this point the buffer should contain just a single element.
+   * Now we detach the single element from the buffer and then clear the
+   * buffer, ready to receive the smashed elements.  As a result of detaching
+   * it the single element is orphaned from the buffer and thus will not be
+   * free()'d by FreeDataMemory (called via ClearBuffer).  This leaves it
+   * around for us to smash bits off it.  It then becomes our responsibility,
+   * however, to free the single element when we're finished with it.
+   */
   element = &Buffer->Data->Element[0];
+  Buffer->Data->Element = NULL;
   Buffer->Data->ElementN = 0;
   ClearBuffer (Buffer);
   ELEMENTLINE_LOOP (element);
