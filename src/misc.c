@@ -1892,7 +1892,7 @@ AttributeGetFromList (AttributeListType *list, char *name)
 }
 
 int
-AttributePutToList (AttributeListType *list, char *name, char *value, int replace)
+AttributePutToList (AttributeListType *list, const char *name, const char *value, int replace)
 {
   int i;
 

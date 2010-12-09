@@ -718,7 +718,7 @@ MyRealloc (void *Ptr, size_t Size, const char *Text)
  * allocates memory for a new string, does some error processing
  */
 char *
-MyStrdup (char *S, const char *Text)
+MyStrdup (const char *S, const char *Text)
 {
   char *p = NULL;
 
