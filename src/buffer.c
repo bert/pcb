@@ -1449,8 +1449,9 @@ angle is given, the user is prompted for one.
 int
 ActionFreeRotateBuffer(int argc, char **argv, int x, int y)
 {
-  HideCrosshair(false);
   char *angle_s;
+
+  HideCrosshair(false);
 
   if (argc < 1)
     angle_s = gui->prompt_for ("Enter Rotation (degrees, CCW):", "0");
