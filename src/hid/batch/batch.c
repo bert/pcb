@@ -8,10 +8,14 @@
 #include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 #include "global.h"
 #include "hid.h"
 #include "data.h"
+#include "misc.h"
+#include "hid.h"
+#include "../hidint.h"
 
 #include "hid/common/actions.h"
 #include "hid/common/hidinit.h"
