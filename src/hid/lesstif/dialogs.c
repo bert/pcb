@@ -1791,7 +1791,7 @@ lesstif_attributes_need_rows (int new_max)
       XtManageChild (attr_row[attr_max_rows].del);
       XtAddCallback (attr_row[attr_max_rows].del, XmNactivateCallback,
 		     (XtCallbackProc) attributes_delete_callback,
-		     (XtPointer) attr_max_rows);
+		     (XtPointer) (size_t) attr_max_rows);
 
       n = 0;
       stdarg (XmNresizeWidth, true);
@@ -1862,7 +1862,7 @@ attributes_delete_callback (Widget w, void *v, void *cbs)
   int i, n;
   Widget wn, wv;
 
-  n = (int) v;
+  n = (int) (size_t) v;
 
   wn = attr_row[n].w_name;
   wv = attr_row[n].w_value;
