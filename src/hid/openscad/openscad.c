@@ -232,6 +232,34 @@ openscad_get_basename (char *pathname)
 
 
 /*!
+ * \brief Get the dirname from the absolute filename.
+ *
+ * \return pointer to a string containing the dirname.
+ */
+char *
+openscad_get_dirname (char *path)
+{
+    char *p;
+
+    if (path == NULL || *path == '\0')
+        return ".";
+    p = path + strlen(path) - 1;
+    while (*p == '/')
+    {
+        if (p == path)
+            return path;
+        *p-- = '\0';
+    }
+    while (p >= path && *p != '/')
+        p--;
+    return
+        p < path ? ".":
+        p == path ? "/":
+        (*p = '\0', path);
+}
+
+
+/*!
  * \brief Strip the string \c suffix from the string \c name.
  *
  * \return pointer to a string containing the \c name without \c suffix.
