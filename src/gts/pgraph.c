@@ -30,8 +30,8 @@ static void gnode_split_destroy (GtsObject * object)
     gts_object_destroy (GTS_OBJECT (ns->n));
   }
   else {
-    GtsGNode * n1 = GTS_GNODE_SPLIT_N1 (ns);
-    GtsGNode * n2 = GTS_GNODE_SPLIT_N2 (ns);
+    /* GtsGNode * n1 = GTS_GNODE_SPLIT_N1 (ns); */
+    /* GtsGNode * n2 = GTS_GNODE_SPLIT_N2 (ns); */
 
     g_warning ("Memory deallocation for GtsGNodeSplit not fully implemented yet: memory leak!");
   }
