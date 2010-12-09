@@ -2577,11 +2577,10 @@ check_cons_continuation:
   }
   i = l->constraints;
   while (i) {
-    
-    toporouter_constraint_t *c1 = TOPOROUTER_CONSTRAINT(i->data);
-    
-  //  printf("adding cons: "); print_constraint(c1);
-    
+
+    // toporouter_constraint_t *c1 = TOPOROUTER_CONSTRAINT(i->data);
+    // printf("adding cons: "); print_constraint(c1);
+
     GSList *conflicts = gts_delaunay_add_constraint (l->surface, i->data);
     GSList *j = conflicts;
     while(j) {
