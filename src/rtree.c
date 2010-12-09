@@ -104,6 +104,7 @@ struct rtree_node
   } u;
 };
 
+#ifndef NDEBUG
 #ifdef SLOW_ASSERTS
 static int
 __r_node_is_good (struct rtree_node *node)
@@ -197,7 +198,6 @@ __r_node_is_good (struct rtree_node *node)
   return 1;
 }
 
-
 /* check the whole tree from this node down for consistency */
 static bool
 __r_tree_is_good (struct rtree_node *node)
@@ -218,6 +218,8 @@ __r_tree_is_good (struct rtree_node *node)
   return 1;
 }
 #endif
+#endif
+
 #ifndef NDEBUG
 /* print out the tree */
 void
