@@ -18,6 +18,7 @@
 #include "../hidint.h"
 #include "hid/common/draw_helpers.h"
 #include "../ps/ps.h"
+#include "hid/common/hidinit.h"
 
 #ifdef HAVE_LIBDMALLOC
 #include <dmalloc.h>
@@ -291,8 +292,6 @@ eps_do_export (HID_Attr_Val * options)
 
   fclose (f);
 }
-
-extern void hid_parse_command_line (int *argc, char ***argv);
 
 static void
 eps_parse_arguments (int *argc, char ***argv)

@@ -47,6 +47,8 @@
 /* the gd library which makes this all so easy */
 #include <gd.h>
 
+#include "hid/common/hidinit.h"
+
 #ifdef HAVE_LIBDMALLOC
 #include <dmalloc.h>
 #endif
@@ -875,8 +877,6 @@ png_do_export (HID_Attr_Val * options)
 
   gdImageDestroy (im);
 }
-
-extern void hid_parse_command_line (int *argc, char ***argv);
 
 static void
 png_parse_arguments (int *argc, char ***argv)

@@ -75,6 +75,8 @@
 
 #include <gd.h>
 
+#include "hid/common/hidinit.h"
+
 #ifdef HAVE_LIBDMALLOC
 #include <dmalloc.h>
 #endif
@@ -483,8 +485,6 @@ nelma_write_objects(FILE * out)
 }
 
 /* *** Main export callback ************************************************ */
-
-extern void     hid_parse_command_line(int *argc, char ***argv);
 
 static void 
 nelma_parse_arguments(int *argc, char ***argv)

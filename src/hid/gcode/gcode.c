@@ -60,6 +60,8 @@
 #include "trace.h"
 #include "decompose.h"
 
+#include "hid/common/hidinit.h"
+
 #ifdef HAVE_LIBDMALLOC
 #include <dmalloc.h>
 #endif
@@ -237,8 +239,6 @@ sort_drill (struct drill_struct *drill, int n_drill)
 }
 
 /* *** Main export callback ************************************************ */
-
-extern void hid_parse_command_line (int *argc, char ***argv);
 
 static void
 gcode_parse_arguments (int *argc, char ***argv)

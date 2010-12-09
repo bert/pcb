@@ -143,6 +143,7 @@ PCB_SRCS = \
 	hid/common/actions.h \
 	hid/common/flags.c \
 	hid/common/hidinit.c \
+	hid/common/hidinit.h \
 	hid/common/hidnogui.c \
 	hid/common/extents.c \
 	hid/common/draw_helpers.c \

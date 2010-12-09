@@ -14,6 +14,7 @@
 #include "data.h"
 
 #include "hid/common/actions.h"
+#include "hid/common/hidinit.h"
 
 #ifdef HAVE_LIBDMALLOC
 #include <dmalloc.h>
