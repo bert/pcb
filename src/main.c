@@ -54,6 +54,8 @@
 #include "misc.h"
 #include "lrealpath.h"
 
+#include "hid/common/actions.h"
+
 /* This next one is so we can print the help messages. */
 #include "hid/hidint.h"
 
@@ -371,10 +373,6 @@ print_defaults ()
     }
   exit (1);
 }
-
-/* in hid/common/actions.c */
-extern void print_actions ();
-
 
 #define SSET(F,D,N,H) { N, H, \
 	HID_String,  0, 0, { 0, D, 0 }, 0, &Settings.F }

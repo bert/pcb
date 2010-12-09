@@ -13,6 +13,8 @@
 #include "hid.h"
 #include "data.h"
 
+#include "hid/common/actions.h"
+
 #ifdef HAVE_LIBDMALLOC
 #include <dmalloc.h>
 #endif

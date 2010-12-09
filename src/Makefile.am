@@ -140,6 +140,7 @@ PCB_SRCS = \
 	vendor.c \
 	vendor.h \
 	hid/common/actions.c \
+	hid/common/actions.h \
 	hid/common/flags.c \
 	hid/common/hidinit.c \
 	hid/common/hidnogui.c \
