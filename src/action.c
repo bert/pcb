@@ -7095,7 +7095,6 @@ ActionElementList (int argc, char **argv, int x, int y)
   if (!e)
     {
       int nx, ny, d;
-      char *as;
 
 #ifdef DEBUG
       printf("  ... Footprint not on board, need to add it.\n");
@@ -7605,7 +7604,6 @@ ActionImport (int argc, char **argv, int x, int y)
   if (mode && strcasecmp (mode, "setdisperse") == 0)
     {
       const char *ds, *units;
-      int d, r;
       char buf[50];
 
       ds = ARG (1);
