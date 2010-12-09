@@ -20,6 +20,7 @@
 
 RCSID("$Id$");
 
+#define YY_NO_INPUT
 #define YY_INPUT(buf,result,max_size) { result = res_parse_getchars(buf, max_size); }
  
 #ifdef FLEX_SCANNER

@@ -62,6 +62,8 @@ RCSID("$Id$");
 #include "parse_l.h"
 #include "parse_y.h"
 
+#define YY_NO_INPUT
+
 /* ---------------------------------------------------------------------------
  * some shared parser identifiers
  */
