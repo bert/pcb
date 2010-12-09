@@ -7613,7 +7613,7 @@ ActionImport (int argc, char **argv, int x, int y)
       if (!ds)
 	{
 	  const char *as = AttributeGet (PCB, "import::disperse");
-	  ds = gui->prompt_for("Enter dispersion:", as ? as : "0");
+	  ds = gui->prompt_for(_("Enter dispersion:"), as ? as : "0");
 	}
       if (units)
 	{
@@ -7661,7 +7661,7 @@ ActionImport (int argc, char **argv, int x, int y)
 	}
       else
 	{
-	  Message ("Bad syntax for Import(setnewpoint)");
+	  Message (_("Bad syntax for Import(setnewpoint)"));
 	  return 1;
 	}
 
