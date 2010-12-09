@@ -100,7 +100,7 @@ void gts_edge_remove(GtsEdge *edge)
 {
   edge->segment.v1->segments = g_slist_remove(edge->segment.v1->segments, &edge->segment);
   edge->segment.v2->segments = g_slist_remove(edge->segment.v2->segments, &edge->segment);
-  edge_destroy(edge); 
+  edge_destroy(GTS_OBJECT (edge));
 }
 
 /**
