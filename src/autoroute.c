@@ -3428,6 +3428,7 @@ RD_DrawManhattanLine (routedata_t * rd,
 }
 
 /* for smoothing, don't pack traces to min clearance gratuitously */
+#if 0
 static void
 add_clearance (CheapPointType * nextpoint, const BoxType * b)
 {
@@ -3464,6 +3465,7 @@ add_clearance (CheapPointType * nextpoint, const BoxType * b)
 	nextpoint->Y = (b->Y1 + b->Y2) / 2;
     }
 }
+#endif
 
 /* This back-traces the expansion boxes along the best path
  * it draws the lines that will make the actual path.
