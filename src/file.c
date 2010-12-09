@@ -352,8 +352,8 @@ LoadPCB (char *Filename)
 {
   PCBTypePtr newPCB = CreateNewPCB (false);
   bool units_mm;
-  double elapsed;
 #ifdef DEBUG
+  double elapsed;
   clock_t start, end;
 
   start = clock ();
