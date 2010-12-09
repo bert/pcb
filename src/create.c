@@ -578,9 +578,14 @@ CreateNewText (LayerTypePtr Layer, FontTypePtr PCBFont,
 	       LocationType X, LocationType Y,
 	       BYTE Direction, int Scale, char *TextString, FlagType Flags)
 {
-  TextTypePtr text = GetTextMemory (Layer);
-  if (!text)
-    return (text);
+  TextType *text;
+
+  if (TextString == NULL)
+    return NULL;
+
+  text = GetTextMemory (Layer);
+  if (text == NULL)
+    return NULL;
 
   /* copy values, width and height are set by drawing routine
    * because at this point we don't know which symbols are available
@@ -590,7 +595,7 @@ CreateNewText (LayerTypePtr Layer, FontTypePtr PCBFont,
   text->Direction = Direction;
   text->Flags = Flags;
   text->Scale = Scale;
-  text->TextString = MyStrdup (TextString, "CreateNewText()");
+  text->TextString = strdup (TextString);
 
   /* calculate size of the bounding box */
   SetTextBoundingBox (PCBFont, text);
