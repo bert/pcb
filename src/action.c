@@ -7012,7 +7012,8 @@ static int
 parse_layout_attribute_units (char *name, int def)
 {
   const char *as, *units = NULL;
-  int n = 0, v, r;
+  int n = 0, v;
+  bool r;
 
   as = AttributeGet (PCB, name);
   if (!as)
@@ -7653,7 +7654,7 @@ ActionImport (int argc, char **argv, int x, int y)
 	}
       else if (ys)
 	{
-	  int r;
+	  bool r;
 	  x = GetValue (xs, units, &r);
 	  y = GetValue (ys, units, &r);
 	}
