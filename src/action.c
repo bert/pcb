@@ -2211,24 +2211,25 @@ ActionSetValue (int argc, char **argv, int x, int y)
   char *function = ARG (0);
   char *val = ARG (1);
   char *units = ARG (2);
-  bool r;			/* flag for 'relative' value */
+  bool absolute;			/* flag for 'absolute' value */
   float value;
   int err = 0;
 
   if (function && val)
     {
       HideCrosshair (true);
-      value = GetValue (val, units, &r);
+      value = GetValue (val, units, &absolute);
       switch (GetFunctionID (function))
 	{
 	case F_ViaDrillingHole:
-	  SetViaDrillingHole (r ? value : value + Settings.ViaDrillingHole,
+	  SetViaDrillingHole (absolute ? value :
+                                value + Settings.ViaDrillingHole,
 			      false);
 	  hid_action ("RouteStylesChanged");
 	  break;
 
 	case F_Grid:
-	  if (!r)
+	  if (!absolute)
 	    {
 	      if ((value == (int) value && PCB->Grid == (int) PCB->Grid)
 		  || (value != (int) value && PCB->Grid != (int) PCB->Grid)
@@ -2256,20 +2257,20 @@ ActionSetValue (int argc, char **argv, int x, int y)
 
 	case F_LineSize:
 	case F_Line:
-	  SetLineSize (r ? value : value + Settings.LineThickness);
+	  SetLineSize (absolute ? value : value + Settings.LineThickness);
 	  hid_action ("RouteStylesChanged");
 	  break;
 
 	case F_Via:
 	case F_ViaSize:
-	  SetViaSize (r ? value : value + Settings.ViaThickness, false);
+	  SetViaSize (absolute ? value : value + Settings.ViaThickness, false);
 	  hid_action ("RouteStylesChanged");
 	  break;
 
 	case F_Text:
 	case F_TextScale:
 	  value /= 45;
-	  SetTextScale (r ? value : value + Settings.TextScale);
+	  SetTextScale (absolute ? value : value + Settings.TextScale);
 	  break;
 	default:
 	  err = 1;
@@ -4070,12 +4071,12 @@ ActionChangeSize (int argc, char **argv, int x, int y)
   char *function = ARG (0);
   char *delta = ARG (1);
   char *units = ARG (2);
-  bool r;			/* indicates if absolute size is given */
+  bool absolute;			/* indicates if absolute size is given */
   float value;
 
   if (function && delta)
     {
-      value = GetValue (delta, units, &r);
+      value = GetValue (delta, units, &absolute);
       HideCrosshair (true);
       switch (GetFunctionID (function))
 	{
@@ -4089,54 +4090,54 @@ ActionChangeSize (int argc, char **argv, int x, int y)
 			       &ptr1, &ptr2, &ptr3)) != NO_TYPE)
 	      if (TEST_FLAG (LOCKFLAG, (PinTypePtr) ptr2))
 		Message (_("Sorry, the object is locked\n"));
-	    if (ChangeObjectSize (type, ptr1, ptr2, ptr3, value, r))
+	    if (ChangeObjectSize (type, ptr1, ptr2, ptr3, value, absolute))
 	      SetChangedFlag (true);
 	    break;
 	  }
 
 	case F_SelectedVias:
-	  if (ChangeSelectedSize (VIA_TYPE, value, r))
+	  if (ChangeSelectedSize (VIA_TYPE, value, absolute))
 	    SetChangedFlag (true);
 	  break;
 
 	case F_SelectedPins:
-	  if (ChangeSelectedSize (PIN_TYPE, value, r))
+	  if (ChangeSelectedSize (PIN_TYPE, value, absolute))
 	    SetChangedFlag (true);
 	  break;
 
 	case F_SelectedPads:
-	  if (ChangeSelectedSize (PAD_TYPE, value, r))
+	  if (ChangeSelectedSize (PAD_TYPE, value, absolute))
 	    SetChangedFlag (true);
 	  break;
 
 	case F_SelectedArcs:
-	  if (ChangeSelectedSize (ARC_TYPE, value, r))
+	  if (ChangeSelectedSize (ARC_TYPE, value, absolute))
 	    SetChangedFlag (true);
 	  break;
 
 	case F_SelectedLines:
-	  if (ChangeSelectedSize (LINE_TYPE, value, r))
+	  if (ChangeSelectedSize (LINE_TYPE, value, absolute))
 	    SetChangedFlag (true);
 	  break;
 
 	case F_SelectedTexts:
-	  if (ChangeSelectedSize (TEXT_TYPE, value, r))
+	  if (ChangeSelectedSize (TEXT_TYPE, value, absolute))
 	    SetChangedFlag (true);
 	  break;
 
 	case F_SelectedNames:
-	  if (ChangeSelectedSize (ELEMENTNAME_TYPE, value, r))
+	  if (ChangeSelectedSize (ELEMENTNAME_TYPE, value, absolute))
 	    SetChangedFlag (true);
 	  break;
 
 	case F_SelectedElements:
-	  if (ChangeSelectedSize (ELEMENT_TYPE, value, r))
+	  if (ChangeSelectedSize (ELEMENT_TYPE, value, absolute))
 	    SetChangedFlag (true);
 	  break;
 
 	case F_Selected:
 	case F_SelectedObjects:
-	  if (ChangeSelectedSize (CHANGESIZE_TYPES, value, r))
+	  if (ChangeSelectedSize (CHANGESIZE_TYPES, value, absolute))
 	    SetChangedFlag (true);
 	  break;
 	}
@@ -4164,12 +4165,12 @@ ActionChange2ndSize (int argc, char **argv, int x, int y)
   char *function = ARG (0);
   char *delta = ARG (1);
   char *units = ARG (2);
-  bool r;
+  bool absolute;
   float value;
 
   if (function && delta)
     {
-      value = GetValue (delta, units, &r);
+      value = GetValue (delta, units, &absolute);
       HideCrosshair (true);
       switch (GetFunctionID (function))
 	{
@@ -4183,23 +4184,23 @@ ActionChange2ndSize (int argc, char **argv, int x, int y)
 		 SearchScreen (x, y, CHANGE2NDSIZE_TYPES,
 			       &ptr1, &ptr2, &ptr3)) != NO_TYPE)
 	      if (ChangeObject2ndSize
-		  (type, ptr1, ptr2, ptr3, value, r, true))
+		  (type, ptr1, ptr2, ptr3, value, absolute, true))
 		SetChangedFlag (true);
 	    break;
 	  }
 
 	case F_SelectedVias:
-	  if (ChangeSelected2ndSize (VIA_TYPE, value, r))
+	  if (ChangeSelected2ndSize (VIA_TYPE, value, absolute))
 	    SetChangedFlag (true);
 	  break;
 
 	case F_SelectedPins:
-	  if (ChangeSelected2ndSize (PIN_TYPE, value, r))
+	  if (ChangeSelected2ndSize (PIN_TYPE, value, absolute))
 	    SetChangedFlag (true);
 	  break;
 	case F_Selected:
 	case F_SelectedObjects:
-	  if (ChangeSelected2ndSize (PIN_TYPES, value, r))
+	  if (ChangeSelected2ndSize (PIN_TYPES, value, absolute))
 	    SetChangedFlag (true);
 	  break;
 	}
@@ -4233,12 +4234,12 @@ ActionChangeClearSize (int argc, char **argv, int x, int y)
   char *function = ARG (0);
   char *delta = ARG (1);
   char *units = ARG (2);
-  bool r;
+  bool absolute;
   float value;
 
   if (function && delta)
     {
-      value = 2 * GetValue (delta, units, &r);
+      value = 2 * GetValue (delta, units, &absolute);
       HideCrosshair (true);
       switch (GetFunctionID (function))
 	{
@@ -4252,33 +4253,33 @@ ActionChangeClearSize (int argc, char **argv, int x, int y)
 		 SearchScreen (x, y,
 			       CHANGECLEARSIZE_TYPES, &ptr1, &ptr2,
 			       &ptr3)) != NO_TYPE)
-	      if (ChangeObjectClearSize (type, ptr1, ptr2, ptr3, value, r))
+	      if (ChangeObjectClearSize (type, ptr1, ptr2, ptr3, value, absolute))
 		SetChangedFlag (true);
 	    break;
 	  }
 	case F_SelectedVias:
-	  if (ChangeSelectedClearSize (VIA_TYPE, value, r))
+	  if (ChangeSelectedClearSize (VIA_TYPE, value, absolute))
 	    SetChangedFlag (true);
 	  break;
 	case F_SelectedPads:
-	  if (ChangeSelectedClearSize (PAD_TYPE, value, r))
+	  if (ChangeSelectedClearSize (PAD_TYPE, value, absolute))
 	    SetChangedFlag (true);
 	  break;
 	case F_SelectedPins:
-	  if (ChangeSelectedClearSize (PIN_TYPE, value, r))
+	  if (ChangeSelectedClearSize (PIN_TYPE, value, absolute))
 	    SetChangedFlag (true);
 	  break;
 	case F_SelectedLines:
-	  if (ChangeSelectedClearSize (LINE_TYPE, value, r))
+	  if (ChangeSelectedClearSize (LINE_TYPE, value, absolute))
 	    SetChangedFlag (true);
 	  break;
 	case F_SelectedArcs:
-	  if (ChangeSelectedClearSize (ARC_TYPE, value, r))
+	  if (ChangeSelectedClearSize (ARC_TYPE, value, absolute))
 	    SetChangedFlag (true);
 	  break;
 	case F_Selected:
 	case F_SelectedObjects:
-	  if (ChangeSelectedClearSize (CHANGECLEARSIZE_TYPES, value, r))
+	  if (ChangeSelectedClearSize (CHANGECLEARSIZE_TYPES, value, absolute))
 	    SetChangedFlag (true);
 	  break;
 	}
@@ -4309,7 +4310,7 @@ ActionMinMaskGap (int argc, char **argv, int x, int y)
   char *function = ARG (0);
   char *delta = ARG (1);
   char *units = ARG (2);
-  bool r;
+  bool absolute;
   int value;
   int flags;
 
@@ -4323,7 +4324,7 @@ ActionMinMaskGap (int argc, char **argv, int x, int y)
       delta = function;
       flags = 0;
     }
-  value = 2 * GetValue (delta, units, &r);
+  value = 2 * GetValue (delta, units, &absolute);
 
   HideCrosshair (true);
   SaveUndoSerialNumber ();
@@ -4393,7 +4394,7 @@ ActionMinClearGap (int argc, char **argv, int x, int y)
   char *function = ARG (0);
   char *delta = ARG (1);
   char *units = ARG (2);
-  bool r;
+  bool absolute;
   int value;
   int flags;
 
@@ -4407,7 +4408,7 @@ ActionMinClearGap (int argc, char **argv, int x, int y)
       delta = function;
       flags = 0;
     }
-  value = 2 * GetValue (delta, units, &r);
+  value = 2 * GetValue (delta, units, &absolute);
 
   HideCrosshair (true);
   SaveUndoSerialNumber ();
@@ -6137,7 +6138,7 @@ ActionPasteBuffer (int argc, char **argv, int x, int y)
 	  {
 	    static int oldx = 0, oldy = 0;
 	    int x, y;
-	    bool r;
+	    bool absolute;
 
 	    if (argc == 1)
 	      {
@@ -6145,11 +6146,11 @@ ActionPasteBuffer (int argc, char **argv, int x, int y)
 	      }
 	    else if (argc == 3 || argc == 4)
 	      {
-		x = GetValue (ARG (1), ARG (3), &r);
-		if (!r)
+		x = GetValue (ARG (1), ARG (3), &absolute);
+		if (!absolute)
 		  x += oldx;
-		y = GetValue (ARG (2), ARG (3), &r);
-		if (!r)
+		y = GetValue (ARG (2), ARG (3), &absolute);
+		if (!absolute)
 		  y += oldy;
 	      }
 	    else
@@ -6512,12 +6513,12 @@ ActionMoveObject (int argc, char **argv, int x, int y)
   char *y_str = ARG (1);
   char *units = ARG (2);
   LocationType nx, ny;
-  bool r1, r2;
+  bool absolute1, absolute2;
   void *ptr1, *ptr2, *ptr3;
   int type;
 
-  ny = GetValue (y_str, units, &r1);
-  nx = GetValue (x_str, units, &r2);
+  ny = GetValue (y_str, units, &absolute1);
+  nx = GetValue (x_str, units, &absolute2);
 
   type = SearchScreen (x, y, MOVE_TYPES, &ptr1, &ptr2, &ptr3);
   if (type == NO_TYPE)
@@ -6525,9 +6526,9 @@ ActionMoveObject (int argc, char **argv, int x, int y)
       Message (_("Nothing found under crosshair\n"));
       return 1;
     }
-  if (r1)
+  if (absolute1)
     nx -= x;
-  if (r2)
+  if (absolute2)
     ny -= y;
   Crosshair.AttachedObject.RubberbandN = 0;
   if (TEST_FLAG (RUBBERBANDFLAG, PCB))
@@ -7013,7 +7014,7 @@ parse_layout_attribute_units (char *name, int def)
 {
   const char *as, *units = NULL;
   int n = 0, v;
-  bool r;
+  bool absolute;
 
   as = AttributeGet (PCB, name);
   if (!as)
@@ -7023,7 +7024,7 @@ parse_layout_attribute_units (char *name, int def)
   units = as + n;
   if (! *units)
     units = NULL;
-  v = GetValue (as, units, &r);
+  v = GetValue (as, units, &absolute);
   return v;
 }
 
@@ -7654,9 +7655,9 @@ ActionImport (int argc, char **argv, int x, int y)
 	}
       else if (ys)
 	{
-	  bool r;
-	  x = GetValue (xs, units, &r);
-	  y = GetValue (ys, units, &r);
+	  bool absolute;
+	  x = GetValue (xs, units, &absolute);
+	  y = GetValue (ys, units, &absolute);
 	}
       else
 	{
