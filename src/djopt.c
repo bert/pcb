@@ -2491,6 +2491,7 @@ dump_all ()
 }
 #endif
 
+#if 0
 static void
 nudge_corner (corner_s * c, int dx, int dy, corner_s * prev_corner)
 {
@@ -2511,6 +2512,7 @@ nudge_corner (corner_s * c, int dx, int dy, corner_s * prev_corner)
 	nudge_corner (oc, 0, dy, c);
     }
 }
+#endif
 
 static line_s *
 choose_example_line (corner_s * c1, corner_s * c2)
