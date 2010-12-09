@@ -287,7 +287,7 @@ nogui_report_dialog (char *title, char *msg)
 }
 
 static char *
-nogui_prompt_for (char *msg, char *default_string)
+nogui_prompt_for (const char *msg, const char *default_string)
 {
   static char buf[1024];
   if (default_string)

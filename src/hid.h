@@ -468,7 +468,7 @@ typedef enum
     /* Prompts the user to enter a string, returns the string.  If
        default_string isn't NULL, the form is pre-filled with this
        value.  "msg" is like "Enter value:".  */
-    char *(*prompt_for) (char *msg_, char *default_string_);
+    char *(*prompt_for) (const char *msg_, const char *default_string_);
 
     /* Prompts the user for a filename or directory name.  For GUI
        HID's this would mean a file select dialog box.  The 'flags'

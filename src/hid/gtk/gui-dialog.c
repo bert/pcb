@@ -46,7 +46,7 @@ RCSID ("$Id$");
 
 /* ---------------------------------------------- */
 gchar *
-ghid_dialog_input (gchar * prompt, gchar * initial)
+ghid_dialog_input (const char * prompt, const char * initial)
 {
   GtkWidget *dialog, *vbox, *label, *entry;
   gchar *string;

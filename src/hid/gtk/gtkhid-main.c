@@ -867,7 +867,7 @@ ghid_report_dialog (char *title, char *msg)
 }
 
 char *
-ghid_prompt_for (char *msg, char *default_string)
+ghid_prompt_for (const char *msg, const char *default_string)
 {
   char *rv;
 
