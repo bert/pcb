@@ -1034,8 +1034,6 @@ ChangeElementText (PCBType *pcb, DataType *data, ElementTypePtr Element, int whi
 static void *
 ChangeElementName (ElementTypePtr Element)
 {
-  char *old = ELEMENT_NAME (PCB, Element);
-
   if (TEST_FLAG (LOCKFLAG, &Element->Name[0]))
     return (NULL);
   if (NAME_INDEX (PCB) == NAMEONPCB_INDEX)
