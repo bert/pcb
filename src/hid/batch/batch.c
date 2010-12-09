@@ -237,12 +237,12 @@ batch_fill_polygon (hidGC gc, int n_coords, int *x, int *y)
 }
 
 static void
-batch_fill_pcb_polygon (hidGC gc, PolygonType *poly)
+batch_fill_pcb_polygon (hidGC gc, PolygonType *poly, const BoxType *clip_box)
 {
 }
 
 static void
-batch_thindraw_pcb_polygon (hidGC gc, PolygonType *poly)
+batch_thindraw_pcb_polygon (hidGC gc, PolygonType *poly, const BoxType *clip_box)
 {
 }
 
@@ -393,10 +393,11 @@ batch_fileselect (const char *title, const char *descr,
 }
 
 static int
-batch_attribute_dialog (HID_Attribute * attrs,
-			int n_attrs, HID_Attr_Val * results,
-			const char *descr)
+batch_attribute_dialog (HID_Attribute * attrs_,
+			int n_attrs_, HID_Attr_Val * results_,
+			const char *title_, const char *descr_)
 {
+  return 0;
 }
 
 static void
@@ -411,9 +412,10 @@ batch_beep (void)
   fflush (stdout);
 }
 
-static void
-batch_progress (int so_far, int total, const char *message)
+static int
+batch_progress (int so_far_, int total_, const char *message_)
 {
+  return 0;
 }
 
 HID batch_gui = {
