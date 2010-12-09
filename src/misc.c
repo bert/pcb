@@ -108,7 +108,7 @@ static struct
  * bool variable absolute to false if it leads with a +/- character
  */
 float
-GetValue (char *val, char *units, bool * absolute)
+GetValue (const char *val, const char *units, bool * absolute)
 {
   double value;
   int n = -1;

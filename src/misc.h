@@ -74,7 +74,7 @@ BoxTypePtr GetArcEnds (ArcTypePtr);
 void ChangeArcAngles (LayerTypePtr, ArcTypePtr, long int, long int);
 char *UniqueElementName (DataTypePtr, char *);
 void AttachForCopy (LocationType, LocationType);
-float GetValue (char *, char *, bool *);
+float GetValue (const char *, const char *, bool *);
 int FileExists (const char *);
 char *Concat (const char *, ...);	/* end with NULL */
 
