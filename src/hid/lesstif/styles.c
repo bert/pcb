@@ -364,7 +364,7 @@ AdjustStyle (int argc, char **argv, int x, int y)
       xms_mil = XmStringCreateLocalized ("mil");
 
       n = 0;
-      stdarg (XmNautoUnmanage, false);
+      stdarg (XmNautoUnmanage, False);
       stdarg (XmNtitle, "Route Styles");
       style_dialog = XmCreateFormDialog (mainwind, "style", args, n);
 

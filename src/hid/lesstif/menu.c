@@ -271,7 +271,7 @@ LayersChanged (int argc, char **argv, int x, int y)
 	    {
 	      stdarg (XmNforeground, bg_color);
 	      stdarg (XmNbackground, fg_colors[i]);
-	      stdarg (XmNset, current_layer == i ? true : false);
+	      stdarg (XmNset, current_layer == i ? True : False);
 	    }
 	  XtSetValues (lb->w[i], args, n);
 
@@ -398,7 +398,7 @@ layerpick_button_callback (Widget w, int layer,
       if (!lb->is_pick)
 	continue;
       for (i = 0; i < LB_NUMPICK; i++)
-	XmToggleButtonSetState (lb->w[i], layer == i, false);
+	XmToggleButtonSetState (lb->w[i], layer == i, False);
     }
   switch (layer)
     {
@@ -1305,7 +1305,7 @@ add_resource_to_menu (Widget menu, Resource * node, XtCallbackProc callback)
 
 		if (resource_value (node->v[i].subres, "set"))
 		  {
-		    stdarg (XmNset, true);
+		    stdarg (XmNset, True);
 		  }
 		stdarg (XmNindicatorType, XmONE_OF_MANY);
 		btn = XmCreateToggleButton (menu, "menubutton", args, n);

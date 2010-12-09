@@ -664,7 +664,7 @@ command_callback (Widget w, XtPointer uptr, XmTextVerifyCallbackStruct * cbs)
 }
 
 static void
-command_event_handler (Widget w, XtPointer p, XEvent * e, bool * cont)
+command_event_handler (Widget w, XtPointer p, XEvent * e, Boolean * cont)
 {
   char buf[10];
   KeySym sym;
@@ -680,7 +680,7 @@ command_event_handler (Widget w, XtPointer p, XEvent * e, bool * cont)
 	  XtUnmanageChild (m_cmd);
 	  XtUnmanageChild (m_cmd_label);
 	  XmTextSetString (w, "");
-	  *cont = false;
+	  *cont = False;
 	  break;
 	}
       break;
@@ -1294,7 +1294,7 @@ mod_changed (XKeyEvent * e, int set)
 }
 
 static void
-work_area_input (Widget w, XtPointer v, XEvent * e, bool * ctd)
+work_area_input (Widget w, XtPointer v, XEvent * e, Boolean * ctd)
 {
   static int pressed_button = 0;
   static int ignore_release = 0;
@@ -1673,7 +1673,7 @@ work_area_first_expose (Widget work_area, void *me,
       XRenderColor a = {0, 0, 0, 0x8000};
 
       pale_pixmap = XCreatePixmap (display, window, 1, 1, 8);
-      pa.repeat = true;
+      pa.repeat = True;
       pale_picture = XRenderCreatePicture (display, pale_pixmap,
 			    XRenderFindStandardFormat(display, PictStandardA8),
 			    CPRepeat, &pa);
@@ -1813,7 +1813,7 @@ lesstif_do_export (HID_Attr_Val * options)
   XtManageChild (hscroll);
 
   n = 0;
-  stdarg (XmNresize, true);
+  stdarg (XmNresize, True);
   stdarg (XmNresizePolicy, XmRESIZE_ANY);
   messages = XmCreateForm (mainwind, "messages", args, n);
   XtManageChild (messages);
@@ -1908,7 +1908,7 @@ typedef union
   char *s;
 } val_union;
 
-static bool
+static Boolean
 cvtres_string_to_double (Display * d, XrmValue * args, Cardinal * num_args,
 			 XrmValue * from, XrmValue * to,
 			 XtPointer * converter_data)
@@ -1920,7 +1920,7 @@ cvtres_string_to_double (Display * d, XrmValue * args, Cardinal * num_args,
   else
     to->addr = (XPointer) & rv;
   to->size = sizeof (rv);
-  return true;
+  return True;
 }
 
 static void
@@ -2110,7 +2110,7 @@ lesstif_parse_arguments (int *argc, char ***argv)
   XmAddWMProtocolCallback (appwidget, close_atom,
 			   (XtCallbackProc) mainwind_delete_cb, 0);
 
-  /*  XSynchronize(display, true); */
+  /*  XSynchronize(display, True); */
 
   XtGetApplicationResources (appwidget, new_values, new_resources,
 			     rmax, 0, 0);
@@ -2400,7 +2400,7 @@ lesstif_update_status_line ()
 static int idle_proc_set = 0;
 static int need_redraw = 0;
 
-static bool
+static Boolean
 idle_proc (XtPointer dummy)
 {
   if (need_redraw)
@@ -2794,7 +2794,7 @@ idle_proc (XtPointer dummy)
 
   show_crosshair (1);
   idle_proc_set = 0;
-  return true;
+  return True;
 }
 
 void
