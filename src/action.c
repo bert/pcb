@@ -7643,7 +7643,7 @@ ActionImport (int argc, char **argv, int x, int y)
 	{
 	  AttributeRemove (PCB, "import::newX");
 	  AttributeRemove (PCB, "import::newY");
-	  return;
+	  return 0;
 	}
       else if (strcasecmp (xs, "mark") == 0)
 	{
