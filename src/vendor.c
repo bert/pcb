@@ -269,11 +269,12 @@ int
 ActionLoadVendorFrom (int argc, char **argv, int x, int y)
 {
   int i;
-  char *fname = NULL, *name = NULL;
+  char *fname = NULL;
   static char *default_file = NULL;
   char *sval;
   Resource *res, *drcres, *drlres;
   int type;
+  bool free_fname = false;
 
   cached_drill = -1;
 
@@ -291,11 +292,10 @@ ActionLoadVendorFrom (int argc, char **argv, int x, int y)
       if (fname == NULL)
 	AFAIL (load_vendor);
 
-      if (default_file != NULL)
-	{
-	  free (default_file);
-	  default_file = NULL;
-	}
+      free_fname = true;
+
+      free (default_file);
+      default_file = NULL;
 
       if (fname && *fname)
 	default_file = strdup (fname);
@@ -459,7 +459,8 @@ ActionLoadVendorFrom (int argc, char **argv, int x, int y)
 
   vendorMapEnable = true;
   apply_vendor_map ();
-  free (name);
+  if (free_fname)
+    free (fname);
   return 0;
 }
 
