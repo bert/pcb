@@ -264,14 +264,73 @@ nogui_logv (const char *fmt, va_list ap)
   vprintf (fmt, ap);
 }
 
+/* Return a line of user input text, stripped of any newline characters.
+ * Returns NULL if the user simply presses enter, or otherwise gives no input.
+ */
+#define MAX_LINE_LENGTH 1024
+static char *
+read_stdin_line (void)
+{
+  static char buf[MAX_LINE_LENGTH];
+  char *s;
+  int i;
+
+  s = fgets (buf, MAX_LINE_LENGTH, stdin);
+  if (s == NULL)
+    {
+      printf ("\n");
+      return NULL;
+    }
+
+  /* Strip any trailing newline characters */
+  for (i = strlen (s) - 1; i >= 0; i--)
+    if (s[i] == '\r' || s[i] == '\n')
+      s[i] = '\0';
+
+  if (s[0] == '\0')
+    return NULL;
+
+  return strdup (s);
+}
+#undef MAX_LINE_LENGTH
+
 static int
 nogui_confirm_dialog (char *msg, ...)
 {
-  int rv;
-  printf ("%s ? 0=cancel 1=ok : ", msg);
-  fflush (stdout);
-  scanf ("%d", &rv);
-  return rv;
+  char *answer;
+  int ret = 0;
+  bool valid_answer = false;
+  va_list args;
+
+  do
+    {
+      va_start (args, msg);
+      vprintf (msg, args);
+      va_end (args);
+
+      printf (" ? 0=cancel 1 = ok : ");
+
+      answer = read_stdin_line ();
+
+      if (answer == NULL)
+        continue;
+
+      if (answer[0] == '0' && answer[1] == '\0')
+        {
+          ret = 0;
+          valid_answer = true;
+        }
+
+      if (answer[0] == '1' && answer[1] == '\0')
+        {
+          ret = 1;
+          valid_answer = true;
+        }
+
+      free (answer);
+    }
+  while (!valid_answer);
+  return ret;
 }
 
 static int
@@ -289,15 +348,18 @@ nogui_report_dialog (char *title, char *msg)
 static char *
 nogui_prompt_for (const char *msg, const char *default_string)
 {
-  static char buf[1024];
+  char *answer;
+
   if (default_string)
     printf ("%s [%s] : ", msg, default_string);
   else
     printf ("%s : ", msg);
-  fgets (buf, 1024, stdin);
-  if (buf[0] == 0 && default_string)
-    strcpy (buf, default_string);
-  return buf;
+
+  answer = read_stdin_line ();
+  if (answer == NULL)
+    return strdup ((default_string != NULL) ? default_string : "");
+  else
+    return strdup (answer);
 }
 
 /* FIXME - this could use some enhancement to actually use the other
@@ -307,15 +369,18 @@ nogui_fileselect (const char *title, const char *descr,
 		  char *default_file, char *default_ext,
 		  const char *history_tag, int flags)
 {
-  static char buf[1024];
+  char *answer;
+
   if (default_file)
     printf ("%s [%s] : ", title, default_file);
   else
     printf ("%s : ", title);
-  fgets (buf, 1024, stdin);
-  if (buf[0] == 0 && default_file)
-    strcpy (buf, default_file);
-  return buf;
+
+  answer = read_stdin_line ();
+  if (answer == NULL)
+    return (default_file != NULL) ? strdup (default_file) : NULL;
+  else
+    return strdup (answer);
 }
 
 static int
